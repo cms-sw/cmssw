@@ -1,6 +1,6 @@
 /*
  *  Fabian Stoeckli
- *  26/09/06
+ *  Feb. 2007
  * 
  */
 
@@ -14,268 +14,261 @@
 #include "CLHEP/Random/RandFlat.h"
 
 #include <iostream>
+#include <fstream>
 #include "time.h"
 #include <ctype.h>
+
+// include Herwig stuff
+#include "HEPEVT_Wrapper.h"
+#include "HerwigWrapper6_4.h"
+#include "IO_HERWIG.h"
+#include "herwig_common.icc"
+
 
 using namespace edm;
 using namespace std;
 
-// Generator modifications
-// ***********************
+static const unsigned long kNanoSecPerSec = 1000000000;
+static const unsigned long kAveEventPerSec = 200;
 
-#include "HEPEVT_Wrapper.h"
-#include "HerwigWrapper6_4.h"
-#include "IO_HERWIG.h"
-
-//-------------------------------------------------------------------------------
-// COMMON block stuff, that doesn't come with the HerwigWrapper6_4.h ....
-
-/*C Arrays for particle properties (NMXRES = max no of particles defined)
-      PARAMETER(NMXRES=500)
-      COMMON/HWPROP/RLTIM(0:NMXRES),RMASS(0:NMXRES),RSPIN(0:NMXRES),
-     & ICHRG(0:NMXRES),IDPDG(0:NMXRES),IFLAV(0:NMXRES),NRES,
-     & VTOCDK(0:NMXRES),VTORDK(0:NMXRES),
-     & QORQQB(0:NMXRES),QBORQQ(0:NMXRES) */
-const int nmxres = 500+1; // we need NMXRES+1 entries ...
-extern struct {
-  double RLTIM[nmxres], RMASS[nmxres], RSPIN[nmxres];
-  int ICHRG[nmxres], IDPDG[nmxres],IFLAV[nmxres], NRES;
-  int VTOCDK[nmxres], VTORDK[nmxres], QORQQB[nmxres], QBORQQ[nmxres];    
-} hwprop_;
-#define hwprop hwprop_
-
-/*C Parameters for Sudakov form factors
-C (NMXSUD= max no of entries in lookup table)
-      PARAMETER (NMXSUD=1024)
-      COMMON/HWUSUD/ACCUR,QEV(NMXSUD,6),SUD(NMXSUD,6),INTER,NQEV,NSUD,
-      & SUDORD*/
-const int nmxsud = 1024;
-extern struct {
-  double ACCUR, QEV[nmxsud][6],SUD[nmxsud][6];
-  int INTER, NQEV, NSUD, SUDORD;
-} hwusud_;
-#define hwusud hwusud_
-
-/*C  New parameters for version 6.203
-      DOUBLE PRECISION ABWGT,ABWSUM,AVABW
-      INTEGER NNEGWT,NNEGEV
-      LOGICAL NEGWTS
-      COMMON/HW6203/ABWGT,ABWSUM,AVABW,NNEGWT,NNEGEV,NEGWTS */
-extern struct {
-  double ABWGT, ABWSUM, AVABW;
-  int NNEGWT,NNEGEV,NEGWTS;
-} hw6203_;
-#define hw6203 hw6203_
-
-
-/*CHARACTER*20
-     & AUTPDF
-     COMMON/HWPRCH/AUTPDF(2),BDECAY   */
-extern struct {
-  char AUTPDF[20],BDECAY;
-} hwprch_;
-#define hwprch hwprch_
-
-/*C Parameters for minimum bias/soft underlying event
-      COMMON/HWMINB/
-      & PMBN1,PMBN2,PMBN3,PMBK1,PMBK2,PMBM1,PMBM2,PMBP1,PMBP2,PMBP3  */
-extern struct {
-  double PMBN1,PMBN2,PMBN3,PMBK1,PMBK2,PMBM1,PMBM2,PMBP1,PMBP2,PMBP3;
-} hwminb_;
-#define hwminb hwminb_
-
-/*C Variables controling mixing and vertex information
-C--VTXPIP should have been a 5-vector, problems with NAG compiler
-      COMMON/HWDIST/EXAG,GEV2MM,HBAR,PLTCUT,VMIN2,VTXPIP(5),XMIX(2),
-      & XMRCT(2),YMIX(2),YMRCT(2),IOPDKL,MAXDKL,MIXING,PIPSMR */
-extern struct {
-  double EXAG,GEV2MM,HBAR,PLTCUT,VMIN2,VTXPIP[5],XMIX[2],XMRCT[2],YMIX[2],YMRCT[2];
-  int IOPDKL,MAXDKL,MIXING,PIPSMR;
-} hwdist_;
-#define hwdist hwdist_
-
-/*      PARAMETER(NMXCDK=4000)
-      COMMON/HWUCLU/CLDKWT(NMXCDK),CTHRPW(12,12),PRECO,RESN(12,12),
-      & RMIN(12,12),LOCN(12,12),NCLDK(NMXCDK),NRECO,CLRECO  */
-
-const int nmxcdk=4000;
-extern struct {
-  double CLDKWT[nmxcdk],CTHRPW[12][12],PRECO,RESN[12][12], RMIN[12][12];
-  int LOCN[12][12],NCLDK[nmxcdk], NRECO,CLRECO;
-} hwuclu_;
-#define hwuclu hwuclu_ 
-
-/*C Weights used in cluster decays
-      COMMON/HWUWTS/REPWT(0:3,0:4,0:4),SNGWT,DECWT,QWT(3),PWT(12),
-      & SWTEF(NMXRES)  */
-extern struct {
-  double REPWT[4][5][5],SNGWT,DECWT,QWT[3],PWT[12],SWTEF[nmxres-1];
-} hwuwts_;
-#define hwuwts hwuwts_
-
-/*C  Other new parameters for version 6.2
-      DOUBLE PRECISION VIPWID,DXRCYL,DXZMAX,DXRSPH
-      LOGICAL WZRFR,FIX4JT
-      INTEGER IMSSM,IHIGGS,PARITY,LRSUSY
-      COMMON/HW6202/VIPWID(3),DXRCYL,DXZMAX,DXRSPH,WZRFR,FIX4JT,
-      & IMSSM,IHIGGS,PARITY,LRSUSY   */
-extern struct {
-  double VIPWID[3], DXRCYL,DXZMAX,DXRSPH;
-  int WZRFR,FIX4JT,IMSSM,IHIGGS,PARITY,LRSUSY;
-} hw6202_;
-#define hw6202 hw6202_
-
-/*      PARAMETER (MODMAX=50)
-      COMMON/HWBOSC/ALPFAC,BRHIG(12),ENHANC(12),GAMMAX,RHOHEP(3,NMXHEP),
-      & IOPHIG,MODBOS(MODMAX)  */
-const int hepevt_size = 4000; // check in HerwigWrapper
-const int modmax = 50;
-extern struct {
-  double ALPFAC, BRHIG[12], ENHANC[12], GAMMAX, RHOHEP[3][hepevt_size];
-  int IOPHIG, MODBOS[modmax];
-} hwbosc_;
-#define hwbosc hwbosc_
-
-/*      COMMON/HWHARD/ASFIXD,CLQ(7,6),COSS,COSTH,CTMAX,DISF(13,2),EMLST,
-     & EMMAX,EMMIN,EMPOW,EMSCA,EPOLN(3),GCOEF(7),GPOLN,OMEGA0,PHOMAS,
-     & PPOLN(3),PTMAX,PTMIN,PTPOW,Q2MAX,Q2MIN,Q2POW,Q2WWMN,Q2WWMX,QLIM,
-     & SINS,THMAX,Y4JT,TMNISR,TQWT,XX(2),XLMIN,XXMIN,YBMAX,YBMIN,YJMAX,
-     & YJMIN,YWWMAX,YWWMIN,WHMIN,ZJMAX,ZMXISR,IAPHIG,IBRN(2),IBSH,
-     & ICO(10),IDCMF,IDN(10),IFLMAX,IFLMIN,IHPRO,IPRO,MAPQ(6),MAXFL,
-     & BGSHAT,COLISR,FSTEVT,FSTWGT,GENEV,HVFCEN,TPOL,DURHAM   */
-extern struct {
-  double ASFIXD,CLQ[6][7],COSS,COSTH,CTMAX,DISF[2][13],EMLST, EMMAX,EMMIN,EMPOW,EMSCA,EPOLN[3],GCOEF[7],GPOLN,OMEGA0,PHOMAS, PPOLN[3],PTMAX,PTMIN,PTPOW,Q2MAX,Q2MIN,Q2POW,Q2WWMN,Q2WWMX,QLIM, SINS,THMAX,Y4JT,TMNISR,TQWT,XX[2],XLMIN,XXMIN,YBMAX,YBMIN,YJMAX,YJMIN,YWWMAX,YWWMIN,WHMIN,ZJMAX,ZMXISR;
-  int IAPHIG,IBRN[2],IBSH, ICO[10],IDCMF,IDN[10],IFLMAX,IFLMIN,IHPRO,IPRO,MAPQ[6],MAXFL,BGSHAT,COLISR,FSTEVT,FSTWGT,GENEV,HVFCEN,TPOL,DURHAM;
-} hwhard_;
-#define hwhard hwhard_
-
-/*C other HERWIG branching, event and hard subprocess common blocks
-  COMMON/HWBRCH/ANOMSC(2,2),HARDST,PTINT(3,2),XFACT,INHAD,JNHAD,
-  & NSPAC(7),ISLENT,BREIT,FROST,USECMF */
-extern struct {
-  double ANOMSC[2][2],HARDST,PTINT[2][3],XFACT;
-  int INHAD,JNHAD,NSPAC[7],ISLENT,BREIT,FROST,USECMF;
-} hwbrch_;
-#define hwbrch hwbrch_
-
-/*      LOGICAL PRESPL
-	COMMON /HW6500/ PRESPL   */
-extern struct {
-  int PRESPL;
-} hw6500_;
-#define hw6500 hw6500_
-
-/*C R-Parity violating parameters and colours
-      COMMON /HWRPAR/ LAMDA1(3,3,3),LAMDA2(3,3,3),
-      &                LAMDA3(3,3,3),HRDCOL(2,5),RPARTY,COLUPD   */
-extern struct {
-  double LAMDA1[3][3][3],LAMDA2[3][3][3],LAMDA3[3][3][3];
-  int HRDCOL[5][2],RPARTY,COLUPD;
-} hwrpar_;
-#define hwrpar hwrpar_
-
-/*C SUSY parameters
-      COMMON/HWSUSY/
-     & TANB,ALPHAH,COSBPA,SINBPA,COSBMA,SINBMA,COSA,SINA,COSB,SINB,COTB,
-     & ZMIXSS(4,4),ZMXNSS(4,4),ZSGNSS(4), LFCH(16),RFCH(16),
-     & SLFCH(16,4),SRFCH(16,4), WMXUSS(2,2),WMXVSS(2,2), WSGNSS(2),
-     & QMIXSS(6,2,2),LMIXSS(6,2,2),
-     & THETAT,THETAB,THETAL,ATSS,ABSS,ALSS,MUSS,FACTSS,
-     & GHWWSS(3),GHZZSS(3),GHDDSS(4),GHUUSS(4),GHWHSS(3),
-     & GHSQSS(4,6,2,2),XLMNSS,RMMNSS,DMSSM,SENHNC(24),SSPARITY,SUSYIN  */
-extern struct {
-  double TANB,ALPHAH,COSBPA,SINBPA,COSBMA,SINBMA,COSA,SINA,COSB,SINB,COTB,ZMIXSS[4][4],ZMXNSS[4][4],ZSGNSS[4], LFCH[16],RFCH[16],SLFCH[4][16],SRFCH[4][16], WMXUSS[2][2],WMXVSS[2][2], WSGNSS[2],QMIXSS[2][2][6],LMIXSS[2][2][6],THETAT,THETAB,THETAL,ATSS,ABSS,ALSS,MUSS,FACTSS,GHWWSS[3],GHZZSS[3],GHDDSS[4],GHUUSS[4],GHWHSS[3],GHSQSS[2][2][6][4],XLMNSS,RMMNSS,DMSSM,SENHNC[24],SSPARITY;
-  int SUSYIN;
-} hwsusy_;
-#define hwsusy hwsusy_
-
-/*INTEGER NDECSY,NSEARCH,LRDEC,LWDEC
-      LOGICAL SYSPIN,THREEB,FOURB
-      CHARACTER *6 TAUDEC
-      COMMON /HWDSPN/NDECSY,NSEARCH,LRDEC,LWDEC,SYSPIN,THREEB,
-      &	FOURB,TAUDEC */
-extern struct {
-  int NDECSY,NSEARCH,LRDEC,LWDEC,SYSPIN,THREEB,FOURB;
-  char TAUDEC[6];
-} hwdspn_;
-#define hwdspn hwdspn_
-
-/*C--common block for Les Houches interface to store information we need
-C
-      INTEGER MAXHRP
-      PARAMETER (MAXHRP=100)
-      DOUBLE PRECISION LHWGT(MAXHRP),LHWGTS(MAXHRP),LHMXSM,
-     &     LHXSCT(MAXHRP),LHXERR(MAXHRP),LHXMAX(MAXHRP)
-      INTEGER LHIWGT(MAXHRP),ITYPLH,LHNEVT(MAXHRP)
-      LOGICAL LHSOFT,LHGLSF	
-      COMMON /HWGUPR/LHWGT,LHWGTS,LHXSCT,LHXERR,LHXMAX,LHMXSM,LHIWGT,
-      &     LHNEVT,ITYPLH,LHSOFT,LHGLSF  */
-const int maxhrp = 100;
-extern struct {
-  double LHWGT[maxhrp],LHWGTS[maxhrp],LHMXSM,LHXSCT[maxhrp],LHXERR[maxhrp],LHXMAX[maxhrp];
-  int LHIWGT,LHNEVT,ITYPLH,LHSOFT,LHGLSF;
-} hwgupr_;
-#define hwgupr hwgupr_
-
-/*C  New parameters for version 6.3
-      INTEGER IMAXCH,IMAXOP
-      PARAMETER (IMAXCH=20,IMAXOP=40)
-      DOUBLE PRECISION MJJMIN,CHNPRB(IMAXCH)
-      INTEGER IOPSTP,IOPSH
-      LOGICAL OPTM,CHON(IMAXCH)
-      COMMON/HW6300/MJJMIN,CHNPRB,IOPSTP,IOPSH,OPTM,CHON   */
-const int imaxch = 20;
-extern struct {
-  double MJJMIN,CHNPRB[imaxch];
-  int IOPSTP,IOPSH,OPTM,CHON[imaxch];
-} hw6300_;
-#define hw6300 hw6300_
-
-
-
-// common block for he event-file name
-/*C QQIN IS THE EVENT FILE
-      CHARACTER*50 QQIN
-      COMMON/VVJIN/QQIN  */
-
-extern struct {
-  char QQIN[50];
-} vvjin_;
-#define vvjin vvjin_ 
-
-//-------------------------------------------------------------------------------
-
+// herwig common block conversion
 HepMC::IO_HERWIG conv;
-// ***********************
 
+// ========================================================================
+// MCatNLO common blocks and external routines used
+extern struct {
+  double mmecm,mmxren,mmxfh,mmxrenmc,mmxfhmc,mmxmh0,mmgah,mmxmt,mmgammax,mmxmhl;
+  double mmxmhu,mmxmass1,mmxmass2,mmxmass3,mmxmass4,mmxmass5,mmxmass21,mmxlam,mmxm0,mmgav,mmxm0v,mmtwidth;
+  double mmxwm,mmxzm,mmxww,mmxzw,mmv1gammax,mmv1massinf,mmv1masssup;
+  double mmv2gammax,mmv2massinf,mmv2masssup,mmvud,mmvus,mmvub,mmvcd,mmvcs,mmvcb;
+  double mmvtd,mmvts,mmvtb,mmxlamherw;
+  int mmmaxevt,mmidpdfset,mmiwgtnorm,mmiseed,mmibornex,mmit1,mmit2;
+  int mmivcode,mmil1code,mmil2code,mmaemrun,mmiproc;
+  char mmgname[20],mmscheme[2],mmpart1[4],mmpart2[4];
+} params_;
+#define params params_
 
-//used for defaults
-  static const unsigned long kNanoSecPerSec = 1000000000;
-  static const unsigned long kAveEventPerSec = 200;
+extern struct {
+  int basesoutput;
+  char stfilename[100];
+} fstbases_;
+#define fstbases fstbases_
 
-MCatNLOSource::MCatNLOSource( const ParameterSet & pset, 
-			    InputSourceDescription const& desc ) :
+extern"C" {
+  void setpdfpath_(char*);
+  void setlhaparm_(char*);
+}
+
+#define setpdfpath setpdfpath_
+#define setlhaparm setlhaparm_
+
+#define hgmain hgmain_
+#define llmain llmain_
+#define vhmain vhmain_
+#define vbmain vbmain_
+#define qqmain qqmain_
+#define sbmain sbmain_
+#define stmain stmain_
+
+extern"C" {
+  void hgmain(void);
+  void llmain(void);
+  void vhmain(void);
+  void vbmain(void);
+  void qqmain(void);
+  void sbmain(void);
+  void stmain(void);
+}
+
+// ========================================================================
+
+bool use_herwig_pdfs = false;
+
+MCatNLOSource::MCatNLOSource( const ParameterSet & pset, InputSourceDescription const& desc ) :
   GeneratedInputSource(pset, desc), evt(0), 
+  doHardEvents_(pset.getUntrackedParameter<bool>("doHardEvents",true)),
+  mcatnloVerbosity_(pset.getUntrackedParameter<int>("mcatnloVerbosity",0)),
   herwigVerbosity_ (pset.getUntrackedParameter<int>("herwigVerbosity",0)),
   herwigHepMCVerbosity_ (pset.getUntrackedParameter<bool>("herwigHepMCVerbosity",false)),
   maxEventsToPrint_ (pset.getUntrackedParameter<int>("maxEventsToPrint",0)),
   comenergy(pset.getUntrackedParameter<double>("comEnergy",14000.)),
-  processNumber_(pset.getUntrackedParameter<int>("processNumber",0))
+  processNumber_(pset.getUntrackedParameter<int>("processNumber",0)),
+  numEvents_(pset.getUntrackedParameter<int>("maxEvents",100)),
+  stringFileName_(pset.getUntrackedParameter<string>("stringFileName","stringInput")),
+  lhapdfSetPath_(pset.getUntrackedParameter<string>("lhapdfSetPath",""))
 {
-  
-  cout << "MCatNLOSource: initializing Herwig. " << endl;
+ 
 
+
+  // set some MC@NLO parameters ...
+  params.mmmaxevt = numEvents_;
+  params.mmiproc=processNumber_;
+  params.mmit1 = 10;
+  params.mmit2 = 10;
+  // we only allow for proton-proton collision
+  params.mmpart1[0]='P';
+  params.mmpart2[0]='P';
+  for(int k=1;k<4; ++k) {
+    params.mmpart1[k]=' ';
+    params.mmpart2[k]=' ';
+  }
+
+
+  // testtest
+ 
+  cout << "MCatNLOSource: initializing MCatNLO. " << endl;
+
+  // check for MC@NLO verbosity mode:
+  //       0 :  print default info
+  //       1 :  + print MC@NLO output
+  //       2 :  + print bases integration information
+  //       3 :  + print spring event generation information
+
+  fstbases.basesoutput = mcatnloVerbosity_;
+  cout << " MC@NLO verbosity level = " << fstbases.basesoutput << endl;
+  
+  // Set MC@NLO parameters in a single ParameterSet
+  ParameterSet mcatnlo_params = pset.getParameter<ParameterSet>("MCatNLOParameters") ;
+  vector<string> setNames1 = mcatnlo_params.getParameter<vector<string> >("parameterSets");  
+  // Loop over the sets
+  for ( unsigned i=0; i<setNames1.size(); ++i ) {  
+    string mySet = setNames1[i];
+    // Read the MC@NLO parameters for each set of parameters
+    vector<string> pars = mcatnlo_params.getParameter<vector<string> >(mySet);
+    cout << "----------------------------------------------" << endl;
+    cout << "Read MC@NLO parameter set " << mySet << endl;
+    cout << "----------------------------------------------" << endl;
+
+    // set parameters for string input ...
+    directory[0]='\0';
+    prefix_bases[0]='\0';
+    prefix_events[0]='\0';
+
+    // Loop over all parameters and stop in case of mistake
+    for( vector<string>::const_iterator itPar = pars.begin(); itPar != pars.end(); ++itPar ) {
+      if(!(this->give(*itPar))) throw edm::Exception(edm::errors::Configuration,"MCatNLOError") 
+	<<" MCatNLO did not accept the following \""<<*itPar<<"\"";
+    }
+  }
+  
+  edm::Service<RandomNumberGenerator> rng;
+  uint32_t seed = rng->mySeed();
+  cout << "----------------------------------------------" << endl;
+  cout << "Setting MCatNLO random number seed to " << seed << "." << endl;
+  cout << "----------------------------------------------" << endl;
+  params.mmiseed = seed;
+
+
+
+  cout << "----------------------------------------------" << endl;
+  cout << "Setting LHAPDF set to " << params.mmidpdfset <<"." << endl;
+  cout << "----------------------------------------------" << endl;
+
+  // only LHAPDF available
+  params.mmgname[0]='L';
+  params.mmgname[1]='H';
+  params.mmgname[2]='A';
+  params.mmgname[3]='P';
+  params.mmgname[4]='D';
+  params.mmgname[5]='F';
+  for(int k=6;k<20; ++k) params.mmgname[k]=' ';
+    
+
+  params.mmxrenmc=params.mmxren;
+  params.mmxfhmc=params.mmxfh;
+
+
+  // we only allow for proton-proton collision
+  params.mmpart1[0]='P';
+  params.mmpart2[0]='P';
+  for(int k=1;k<4; ++k) {
+    params.mmpart1[k]=' ';
+    params.mmpart2[k]=' ';
+  }
+  
+  createStringFile(stringFileName_);
+
+  char pdfpath[232];
+  bool dot=false;
+  for(int i=0; i<232; ++i) {
+    if(lhapdfSetPath_.c_str()[i]=='\0') dot=true;
+    if(!dot) pdfpath[i]=lhapdfSetPath_.c_str()[i];
+    else pdfpath[i]=' ';
+  }
+
+
+  // decide which process to call ...
+  if(doHardEvents_) {
+    cout<<"MCatNLOSource: Generating NLO hard events."<<endl;
+    
+    if(processNumber_>0) processUnknown(true);
+  
+    switch(abs(processNumber_)) {
+    case(1705):case(1706):case(11705):case(11706): 
+      setpdfpath(pdfpath);
+      processQQ(); 
+      break;
+    case(2850):case(2860):case(2870):case(2880):case(12850):case(12860):case(12870):case(12880): 
+      setpdfpath(pdfpath);
+      processVV(); 
+      break;
+    case(1600):case(1601):case(1602):case(1603):case(1604):case(1605):case(1606):case(1607):case(1608):case(1609):case(11600):case(11601):
+    case(11602):case(11603):case(11604):case(11605):case(11606):case(11607):case(11608):case(11609):case(1610):case(1611):case(1612):
+    case(11610):case(11611):case(11612):case(1699):case(11699): 
+      setpdfpath(pdfpath);
+      processHG(); 
+      break;
+    case(1396):case(1397):case(1497):case(1498):case(11396):case(11397):case(11497):case(11498): 
+      setpdfpath(pdfpath);
+      processSB(); 
+      break;
+    case(1351):case(1352):case(1353):case(1354):case(1355):case(1356):case(1361):case(1362):case(1363):case(1364):case(1365):case(1366):
+    case(1371):case(1372):case(1373):case(1374):case(1375):case(1376):case(1461):case(1462):case(1463):case(1471):case(1472):case(1473):
+    case(11351):case(11352):case(11353):case(11354):case(11355):case(11356):case(11361):case(11362):case(11363):case(11364):case(11365):
+    case(11366):case(11371):case(11372):case(11373):case(11374):case(11375):case(11376):case(11461):case(11462):case(11463):case(11471):
+    case(11472):case(11473):
+      setpdfpath(pdfpath);
+      processLL(); 
+      break;
+    case(2600):case(2601):case(2602):case(2603):case(2604):case(2605):case(2606):case(2607):case(2608):case(2609):case(2610):case(2611):case(2612):case(2699):
+    case(12600):case(12601):case(12602):case(12603):case(12604):case(12605):case(12606):case(12607):case(12608):case(12609):case(12610):case(12611):case(12612):
+    case(12699):case(2700):case(2701):case(2702):case(2703):case(2704):case(2705):case(2706):case(2707):case(2708):case(2709):case(2710):case(2711):
+    case(2712):case(2799):case(12700):case(12701):case(12702):case(12703):case(12704):case(12705):case(12706):case(12707):case(12708):case(12709):case(12710):
+    case(12711):case(12712):case(12799): 
+      setpdfpath(pdfpath);
+      processVH(); 
+      break;
+    case(2000):case(2001):case(2004):case(2010):case(2011):case(2014):case(2020):case(2021):case(2024):case(12000):case(12001):
+    case(12004):case(12010):case(12011):case(12014):case(12020):case(12021):case(12024): 
+      setpdfpath(pdfpath);
+      processST(); 
+      break;
+    default: 
+      processUnknown(false); 
+      break;
+    }
+
+    cout<<"MCatNLOSource: Hard event generation done." << endl;
+  }
+  
+  else
+    cout << "MCatNLOSource: skipping hard event generation." << endl;
+  
+  // ==============================  HERWIG PART =========================================
+
+  cout << "MCatNLOSource: Initializing Herwig. " << endl;
+  
   // Call hwudat to set up HERWIG block data
   hwudat();
-
+  
   // herwigVerbosity Level IPRINT
   /* valid argumets are: 0: print title only
-                         1: + print selected input parameters
-                         2: + print table of particle codes and properties
-			 3: + tables of Sudakov form factors                */
-
+     1: + print selected input parameters
+     2: + print table of particle codes and properties
+     3: + tables of Sudakov form factors                */
+  
   cout << " Herwig verbosity level = " << herwigVerbosity_ << endl;
-
+  
   //Max number of events printed on verbosity level 
   //maxEventsToPrint_ = pset.getUntrackedParameter<int>("maxEventsToPrint",0);
   cout << " Number of events to be printed = " << maxEventsToPrint_ << endl;
@@ -288,120 +281,148 @@ MCatNLOSource::MCatNLOSource( const ParameterSet & pset,
   for(int i=1;i<8;++i){
     hwbmch.PART1[i]  = ' ';
     hwbmch.PART2[i]  = ' ';}
-
+  
   // seting maximum events
   hwproc.MAXEV = pset.getUntrackedParameter<int>("maxEvents",0);
   
   // initialize other common block ...
   hwigin();
-
+  
   // set some 'non-herwig' defaults
   hwevnt.MAXPR =  maxEventsToPrint_;           // no printing out of events
   hwpram.IPRINT = herwigVerbosity_;            // HERWIG print out mode
-  hwprop.RMASS[6] = 175.0;
-
-  // resetting all 'must be input' parameters
-  vvjin.QQIN[0]='\0';
-  
-  // just read in the IPROC ..  
+  hwprop.RMASS[6] = params.mmxmt;              // top mass 
   hwproc.IPROC = processNumber_;
 
-  // check process code
+  // set HERWIG PDF's to LHAPDF
+  hwprch.AUTPDF[0][0]='L';
+  hwprch.AUTPDF[0][1]='H';
+  hwprch.AUTPDF[0][2]='A';
+  hwprch.AUTPDF[0][3]='P';
+  hwprch.AUTPDF[0][4]='D';
+  hwprch.AUTPDF[0][5]='F';
+  hwprch.AUTPDF[1][0]='L';
+  hwprch.AUTPDF[1][1]='H';
+  hwprch.AUTPDF[1][2]='A';
+  hwprch.AUTPDF[1][3]='P';
+  hwprch.AUTPDF[1][4]='D';
+  hwprch.AUTPDF[1][5]='F';
+  for(int i=6; i<20; ++i) {
+    hwprch.AUTPDF[0][i]=' ';
+    hwprch.AUTPDF[1][i]=' ';
+  }  
+
+  // setting pdfs to MCatNLO pdf's
+  hwpram.MODPDF[0]=params.mmidpdfset;
+  hwpram.MODPDF[1]=params.mmidpdfset;
+  
+
+  // check process code and set necessary HERWIG parameters
   int jpr0 = (abs(hwproc.IPROC)%10000);
   int jpr = jpr0/100;
   if(jpr == 13 || jpr == 14) {
     if(jpr0 == 1396) {
-      hwhard.EMMIN = -10000;
-      hwhard.EMMAX = -10000;
+      hwhard.EMMIN = params.mmv1massinf;
+      hwhard.EMMAX = params.mmv1masssup;
     }
     else if(jpr0 == 1397) {
-      hwprop.RMASS[200] = -10000;
-      hwpram.GAMZ = -10000;
-      hwbosc.GAMMAX = -10000;
+      hwprop.RMASS[200] = params.mmxzm;
+      hwpram.GAMZ = params.mmxzw;
+      hwbosc.GAMMAX = params.mmv1gammax;
     }
     else if(jpr0 == 1497 || jpr0 == 1498) {
-      hwprop.RMASS[198] = -10000;
-      hwpram.GAMW = -10000;
-      hwbosc.GAMMAX = -10000;
+      hwprop.RMASS[198] = params.mmxwm;
+      hwpram.GAMW = params.mmxww;
+      hwbosc.GAMMAX = params.mmv1gammax;
     }
     else if((jpr0 >= 1350 && jpr0 <= 1356) || (jpr0 >= 1361 && jpr0 <= 1366)) {
-      hwprop.RMASS[200] = -10000;
-      hwpram.GAMZ = -10000;
-      hwbosc.GAMMAX = -10000;
-      hwhard.EMMIN = -10000;
-      hwhard.EMMAX = -10000;
+      hwprop.RMASS[200] = params.mmxzm;
+      hwpram.GAMZ = params.mmxzw;
+      hwbosc.GAMMAX = params.mmv1gammax;
+      hwhard.EMMIN = params.mmv1massinf;
+      hwhard.EMMAX = params.mmv1masssup;
     }
     else if(jpr0 >= 1371 && jpr0 <= 1373) {
-      hwhard.EMMIN = -10000;
-      hwhard.EMMAX = -10000;
+      hwhard.EMMIN = params.mmv1massinf;
+      hwhard.EMMAX = params.mmv1masssup;
     }
     else if((jpr0 >= 1450 && jpr0 <= 1453) 
 	    || (jpr0 >= 1461 && jpr0 <= 1463)
 	    || (jpr0 >= 1471 && jpr0 <= 1473)) {
-      hwprop.RMASS[198] = -10000;
-      hwpram.GAMW = -10000;
-      hwbosc.GAMMAX = -10000;    
-      hwhard.EMMIN = -10000;
-      hwhard.EMMAX = -10000;
+      hwprop.RMASS[198] = params.mmxwm;
+      hwpram.GAMW = params.mmxww;
+      hwbosc.GAMMAX = params.mmv1gammax;    
+      hwhard.EMMIN = params.mmv1massinf;
+      hwhard.EMMAX = params.mmv1masssup;
     }
   }
   else if(jpr == 28) {
-    hwprop.RMASS[198] = -10000;
-    hwpram.GAMW = -10000;
-    hwprop.RMASS[200] = -10000;
-    hwpram.GAMZ = -10000;
-    hwbosc.GAMMAX = -10000;    
+    hwprop.RMASS[198] = params.mmxwm;
+    hwpram.GAMW = params.mmxww;
+    hwprop.RMASS[200] = params.mmxzm;
+    hwpram.GAMZ = params.mmxzw;
+    if(params.mmv1gammax>params.mmv2gammax)
+      hwbosc.GAMMAX = params.mmv1gammax;
+    else
+      hwbosc.GAMMAX = params.mmv2gammax;
+  }
+  else if(jpr == 16) {
+    hwprop.RMASS[201] = params.mmxmh0;
+    hwprop.RMASS[6] = params.mmxmt;
   }
   else if(jpr == 17) {
     if(abs(hwproc.IPROC)==1705 || abs(hwproc.IPROC)==11705) 
-      hwprop.RMASS[5]= -10000;
-    else if (abs(hwproc.IPROC)==1706 || abs(hwproc.IPROC)==11706)
-      hwprop.RMASS[6]= -10000;
+      hwprop.RMASS[5]= params.mmxmt;
+    else if (abs(hwproc.IPROC)==1706 || abs(hwproc.IPROC)==11706) {
+      hwprop.RMASS[6]= params.mmxmt;
+      hwprop.RMASS[198] = params.mmxwm;
+    }
   }
   else if(jpr == 26) {
-    hwprop.RMASS[198] = -10000;
-    hwpram.GAMW = -10000;
-    hwprop.RMASS[201] = -10000;
+    hwprop.RMASS[198] = params.mmxwm;
+    hwpram.GAMW = params.mmxww;
+    hwprop.RMASS[201] = params.mmxmh0;
   }
   else if(jpr == 27) {
-    hwprop.RMASS[200] = -10000;
-    hwpram.GAMZ = -10000;
-    hwprop.RMASS[201] = -10000;
+    hwprop.RMASS[200] = params.mmxzm;
+    hwpram.GAMZ = params.mmxzw;
+    hwprop.RMASS[201] = params.mmxmh0;
   }
-  else if(jpr == 20)
-    hwprop.RMASS[6] = -10000;
+  else if(jpr == 20) {
+    hwprop.RMASS[6] = params.mmxmt;
+    hwprop.RMASS[198] = params.mmxwm;
+  }
   else {
     throw edm::Exception(edm::errors::Configuration,"MCatNLOError")
-      <<" bad process ID IPROC!";
+      <<" bad process ID IPROC "<<hwproc.IPROC<<"!";
   }
-  hwprop.RMASS[1] = -10000.;
-  hwprop.RMASS[2] = -10000.;
-  hwprop.RMASS[3] = -10000.;
-  hwprop.RMASS[4] = -10000.;
-  hwprop.RMASS[5] = -10000.;
-  hwprop.RMASS[13] = -10000.;
-
+  hwprop.RMASS[1] = params.mmxmass1;
+  hwprop.RMASS[2] = params.mmxmass2;
+  hwprop.RMASS[3] = params.mmxmass3;
+  hwprop.RMASS[4] = params.mmxmass4;
+  hwprop.RMASS[5] = params.mmxmass5;
+  hwprop.RMASS[13] = params.mmxmass21;
 
   // Set HERWIG parameters in a single ParameterSet
   ParameterSet herwig_params = 
-    pset.getParameter<ParameterSet>("MCatNLOParameters") ;
+    pset.getParameter<ParameterSet>("HerwigParameters") ;
 
   // The parameter sets to be read (default, min bias, user ...) in the
   // proper order.
-  vector<string> setNames = 
+  vector<string> setNames2 = 
     herwig_params.getParameter<vector<string> >("parameterSets");  
 
   // Loop over the sets
-  for ( unsigned i=0; i<setNames.size(); ++i ) {
+  for ( unsigned i=0; i<setNames2.size(); ++i ) {
     
-    string mySet = setNames[i];
+    string mySet = setNames2[i];
 
     // Read the HERWIG parameters for each set of parameters
     vector<string> pars = 
       herwig_params.getParameter<vector<string> >(mySet);
 
     cout << "----------------------------------------------" << endl;
-    cout << "Read MC@NLO parameter set " << mySet << endl;
+    cout << "Read HERWIG parameter set " << mySet << endl;
     cout << "----------------------------------------------" << endl;
 
     // Loop over all parameters and stop in case of mistake
@@ -411,7 +432,7 @@ MCatNLOSource::MCatNLOSource( const ParameterSet & pset,
       static string sRandomValueSetting2("NRN(2)");
       if( (0 == itPar->compare(0,sRandomValueSetting1.size(),sRandomValueSetting1) )||(0 == itPar->compare(0,sRandomValueSetting2.size(),sRandomValueSetting2) )) {
 	throw edm::Exception(edm::errors::Configuration,"HerwigError")
-	  <<" attempted to set random number using pythia command 'NRN(.)'. This is not allowed.\n  Please use the RandomNumberGeneratorService to set the random number seed.";
+	  <<" attempted to set random number using HERWIG command 'NRN(.)'. This is not allowed.\n  Please use the RandomNumberGeneratorService to set the random number seed.";
       }
 
       if( ! hwgive(*itPar) ) {
@@ -420,6 +441,7 @@ MCatNLOSource::MCatNLOSource( const ParameterSet & pset,
       }
     }
   }
+
 
   if(vvjin.QQIN[0]!='\0') {
     cout<<" HERWIG will be reading hard events from file: ";
@@ -433,11 +455,11 @@ MCatNLOSource::MCatNLOSource( const ParameterSet & pset,
 
   if(abs(hwproc.IPROC)<=10000) {
     hwgupr.LHSOFT = true;
-    cout <<" MCatNLOInterface will produce underlying event."<<endl;
+    cout <<" HERWIG will produce underlying event."<<endl;
   }
   else {
     hwgupr.LHSOFT = false;
-    cout <<" MCatNLOInterface will *not* produce underlying event."<<endl;
+    cout <<" HERWIG will *not* produce underlying event."<<endl;
   }
     
   /// make sure all quarks-antiquarks have the same mass
@@ -448,116 +470,16 @@ MCatNLOSource::MCatNLOSource( const ParameterSet & pset,
   hwbosc.MODBOS[0]=5;
   hwbosc.MODBOS[1]=5;
 
-  // AUTPDF, MODPDF, LHACRTL *not* used
-  cout << " HERWIG will use internal PDFs (others not supported)." <<endl;
 
-  // check for all relevant input parameters
-  if(jpr == 13 || jpr == 14) {
-    if(jpr0 == 1396) {
-      if((hwhard.EMMIN == -10000) || (hwhard.EMMAX == -10000)) 
-	throw edm::Exception(edm::errors::Configuration,"MCatNLOError")
-	  <<" for IPROC = "<<hwproc.IPROC<<" : missing input parameters EMMIN or EMMAX."; 
-    }
-    else if(jpr0 == 1397) {
-     if( hwprop.RMASS[200] == -10000 || 
-	 hwpram.GAMZ == -10000 ||
-	 hwbosc.GAMMAX == -10000)
-       throw edm::Exception(edm::errors::Configuration,"MCatNLOError")
-	 <<" for IPROC = "<<hwproc.IPROC<<" : missing input parameters RMASS[200], GAMZ or GAMMAX.";
-    }
-    else if(jpr0 == 1497 || jpr0 == 1498) {
-      if(hwprop.RMASS[198] == -10000 ||
-	 hwpram.GAMW == -10000 ||
-	 hwbosc.GAMMAX == -10000)
-	throw edm::Exception(edm::errors::Configuration,"MCatNLOError")
-	  <<" for IPROC = "<<hwproc.IPROC<<" : missing input parameters RMASS[198], GAMW or GAMMAX.";
-    }
-    else if((jpr0 >= 1350 && jpr0 <= 1356) || (jpr0 >= 1361 && jpr0 <= 1366)) {
-      if( hwprop.RMASS[200] == -10000 ||
-	  hwpram.GAMZ == -10000 ||
-	  hwbosc.GAMMAX == -10000 ||
-	  hwhard.EMMIN == -10000 ||
-	  hwhard.EMMAX == -10000)
-	throw edm::Exception(edm::errors::Configuration,"MCatNLOError")
-	  <<" for IPROC = "<<hwproc.IPROC<<" : missing input parameters RMASS[200], GAMZ, GAMMAX, EMMIN or EMMAX.";
-    }
-    else if(jpr0 >= 1371 && jpr0 <= 1373) {
-      if(hwhard.EMMIN == -10000 ||
-	 hwhard.EMMAX == -10000)
-	throw edm::Exception(edm::errors::Configuration,"MCatNLOError")
-	  <<" for IPROC = "<<hwproc.IPROC<<" : missing input parameters EMMIN or EMMAX."; 
-    }
-    else if((jpr0 >= 1450 && jpr0 <= 1453) 
-	    || (jpr0 >= 1461 && jpr0 <= 1463)
-	    || (jpr0 >= 1471 && jpr0 <= 1473)) {
-      if(hwprop.RMASS[198] == -10000 ||
-	 hwpram.GAMW == -10000 ||
-	 hwbosc.GAMMAX == -10000 ||
-	 hwhard.EMMIN == -10000 ||
-	 hwhard.EMMAX == -10000)
-	throw edm::Exception(edm::errors::Configuration,"MCatNLOError")
-	  <<" for IPROC = "<<hwproc.IPROC<<" : missing input parameters RMASS[198], GAMW, GAMMAX, EMMIN or EMMAX.";
-    }
-  }
-  else if(jpr == 28) {
-   if( hwprop.RMASS[198] == -10000 ||
-       hwpram.GAMW == -10000 ||
-       hwprop.RMASS[200] == -10000 ||
-       hwpram.GAMZ == -10000 ||
-       hwbosc.GAMMAX == -10000)
-     throw edm::Exception(edm::errors::Configuration,"MCatNLOError")
-       <<" for IPROC = "<<hwproc.IPROC<<" : missing input parameters RMASS[198], GAMW, RMASS[200], GAMZ or GAMMAX.";
-  }
-  else if(jpr == 17) {
-    if(abs(hwproc.IPROC)==1705 || abs(hwproc.IPROC)==11705){ 
-      if(hwprop.RMASS[5]== -10000)
-	throw edm::Exception(edm::errors::Configuration,"MCatNLOError")
-	  <<" for IPROC = "<<hwproc.IPROC<<" : missing input parameter RMASS[5].";
-    }
-    else if (abs(hwproc.IPROC)==1706 || abs(hwproc.IPROC)==11706){
-      if(hwprop.RMASS[6] == -10000)
-	throw edm::Exception(edm::errors::Configuration,"MCatNLOError")
-	  <<" for IPROC = "<<hwproc.IPROC<<" : missing input parameter RMASS[6].";
-    }
-  }
-  else if(jpr == 26) {
-    if(hwprop.RMASS[198] == -10000 ||
-       hwpram.GAMW == -10000 ||
-       hwprop.RMASS[201] == -10000)
-      throw edm::Exception(edm::errors::Configuration,"MCatNLOError")
-	<<" for IPROC = "<<hwproc.IPROC<<" : missing input parameter RMASS[198], GAMW or RMASS[201].";
-  }
-  else if(jpr == 27) {
-    if(hwprop.RMASS[200] == -10000 ||
-       hwpram.GAMZ == -10000 ||
-       hwprop.RMASS[201] == -10000)
-      throw edm::Exception(edm::errors::Configuration,"MCatNLOError")
-	<<" for IPROC = "<<hwproc.IPROC<<" : missing input parameter RMASS[200], GAMZ or RMASS[201].";
-  }
-  else if(jpr == 20) {
-    if(hwprop.RMASS[6] == -10000)
-      throw edm::Exception(edm::errors::Configuration,"MCatNLOError")
-	<<" for IPROC = "<<hwproc.IPROC<<" : missing input parameter RMASS[6].";
-  }
-  else {
-    throw edm::Exception(edm::errors::Configuration,"MCatNLOError")
-      <<" bad process ID IPROC!";
-  }
-  if(hwprop.RMASS[1] == -10000. ||
-     hwprop.RMASS[2] == -10000. ||
-     hwprop.RMASS[3] == -10000. ||
-     hwprop.RMASS[4] == -10000.||
-     hwprop.RMASS[5] == -10000.||
-     hwprop.RMASS[13] == -10000.)
-    throw edm::Exception(edm::errors::Configuration,"MCatNLOError")
-      <<" for IPROC = "<<hwproc.IPROC<<" : missing input parameter RMASS[1],RMASS[2],RMASS[3],RMASS[4],RMASS[5] or RMASS[13]."; 
-  
   // set W+ to W-
   hwprop.RMASS[199]=hwprop.RMASS[198];
   hwpram.SOFTME = false;  
   hwevnt.NOWGT = false;
   hw6203.NEGWTS = true;
-  hwevnt.MAXER = hwproc.MAXEV/100;
+  if(hwproc.MAXEV/100>10)
+    hwevnt.MAXER = hwproc.MAXEV/100;
+  else
+    hwevnt.MAXER = 10;
   hwpram.LRSUD = 0;
   hwpram.LWSUD = 77;
   hwpram.NSTRU = 8;
@@ -572,18 +494,17 @@ MCatNLOSource::MCatNLOSource( const ParameterSet & pset,
   if(abs(hwproc.IPROC)==1705 || abs(hwproc.IPROC)==11705) 
     hwpram.PSPLT[1] = 0.5;
   
-  //In the future, we will get the random number seed on each event and tell 
-  // HERWIG to use that new seed  
-  cout << "----------------------------------------------" << endl;
-  cout << "Setting MCatNLO random number seeds *blank*" << endl;
-  cout << "----------------------------------------------" << endl;
-  /*edm::Service<RandomNumberGenerator> rng;
-  uint32_t seed1 = rng->mySeed();
-  uint32_t seed2 = rng->mySeed();
-  hwevnt.NRN[0] = seed1;
-  hwevnt.NRN[1] = seed2;*/
+  /*  char pdfpath[232];
+  bool dot=false;
+  for(int i=0; i<232; ++i) {
+    if(lhapdfSetPath_.c_str()[i]=='\0') dot=true;
+    if(!dot) pdfpath[i]=lhapdfSetPath_.c_str()[i];
+    else pdfpath[i]=' ';
+  }
 
-  
+  setpdfpath(pdfpath);
+  */
+
   hwuinc();
 
   // callung HWUSTA to make any particle stable (PI0 by default)
@@ -620,26 +541,72 @@ MCatNLOSource::MCatNLOSource( const ParameterSet & pset,
   
   produces<HepMCProduct>();
   cout << "MCatNLOSource: starting event generation ... " << endl<<endl;
+  
 }
 
 
-MCatNLOSource::~MCatNLOSource(){
+MCatNLOSource::~MCatNLOSource()
+{
   cout << "MCatNLOSource: event generation done. " << endl;
   clear();
 }
 
-void MCatNLOSource::clear() {
-  // teminate elementary process
+void MCatNLOSource::clear() 
+{
   hwefin();
+}
+
+void MCatNLOSource::processHG() 
+{
+  hgmain();
+}
+
+void MCatNLOSource::processLL()
+{
+  getVpar();
+  llmain();
+}
+
+void MCatNLOSource::processVH()
+{
+  getVpar();
+  vhmain();
+}
+
+void MCatNLOSource::processVV()
+{
+  vbmain();
+}
+
+void MCatNLOSource::processQQ()
+{
+  qqmain();
+}
+
+void MCatNLOSource::processSB()
+{
+  if(processNumber_ != -1396) getVpar();
+  sbmain();
+}
+
+void MCatNLOSource::processST()
+{
+  stmain();
+}
+
+void MCatNLOSource::processUnknown(bool positive)
+{
+  if(positive)
+    throw cms::Exception("MCatNLOError")
+      <<" Unsupported process "<<processNumber_<<". Use Herwig6Interface for positively valued process ID.";
+  else
+    throw cms::Exception("MCatNLOError")
+      <<" Unsupported process "<<processNumber_<<". Check MCatNLO manuel for allowed process ID.";
 }
 
 
 bool MCatNLOSource::produce(Event & e) {
-  
   auto_ptr<HepMCProduct> bare_product(new HepMCProduct());  
-  
-  //********                                         
-  //
 
   // initialize event
   hwuine();
@@ -686,9 +653,6 @@ bool MCatNLOSource::produce(Event & e) {
     evt->print();
   }
   
-  //evt = reader_->fillCurrentEventData(); 
-  //********                                      
-  
   if(evt)  bare_product->addHepMCData(evt );
   
   e.put(bare_product);
@@ -696,9 +660,7 @@ bool MCatNLOSource::produce(Event & e) {
   return true;
 }
 
-
-bool 
-MCatNLOSource::hwgive(const std::string& ParameterString) {
+bool MCatNLOSource::hwgive(const std::string& ParameterString) {
 
   bool accepted = 1;
 
@@ -722,7 +684,7 @@ MCatNLOSource::hwgive(const std::string& ParameterString) {
     cout<<" WARNING: MAXEV parameter will be ignored. Use 'untracked int32 maxEvents = xxx' to set the number of events to be generated."<<endl;
   }  
   else if(!strncmp(ParameterString.c_str(),"AUTPDF(",7)){
-    cout<<" WARNING: AUTPDF parameter *not* suported. HERWIG will use default PDF's."<<endl;
+    cout<<" WARNING: AUTPDF parameter *not* suported. HERWIG will use LHAPDF only."<<endl;
   }
   else if(!strncmp(ParameterString.c_str(),"TAUDEC",6)){
     int tostart=0;
@@ -1454,3 +1416,307 @@ extern "C" {
   void hwaend(){/*dummy*/};
 }
 //-------------------------------------------------------------------------------
+
+
+bool MCatNLOSource::give(const std::string& iParm )
+{
+  bool accepted = 1;
+  if(!strncmp(iParm.c_str(),"ECM",3))
+    params.mmecm = atof(&iParm[strcspn(iParm.c_str(),"=")+1]);
+  else if(!strncmp(iParm.c_str(),"TWIDTH",6))
+    params.mmtwidth = atof(&iParm[strcspn(iParm.c_str(),"=")+1]);
+  else if(!strncmp(iParm.c_str(),"FREN",4))
+    params.mmxren = atof(&iParm[strcspn(iParm.c_str(),"=")+1]);
+  else if(!strncmp(iParm.c_str(),"FFACT",5))
+    params.mmxfh = atof(&iParm[strcspn(iParm.c_str(),"=")+1]);
+  else if(!strncmp(iParm.c_str(),"HVQMASS",7))
+    params.mmxmt = atof(&iParm[strcspn(iParm.c_str(),"=")+1]);  
+  else if(!strncmp(iParm.c_str(),"WMASS",5))
+    params.mmxwm = atof(&iParm[strcspn(iParm.c_str(),"=")+1]);
+  else if(!strncmp(iParm.c_str(),"ZMASS",5))
+    params.mmxzm = atof(&iParm[strcspn(iParm.c_str(),"=")+1]);
+  else if(!strncmp(iParm.c_str(),"WWIDTH",6))
+    params.mmxww = atof(&iParm[strcspn(iParm.c_str(),"=")+1]);
+  else if(!strncmp(iParm.c_str(),"ZWIDTH",6))
+    params.mmxzw = atof(&iParm[strcspn(iParm.c_str(),"=")+1]);
+  else if(!strncmp(iParm.c_str(),"HGGMASS",7))
+    params.mmxmh0 = atof(&iParm[strcspn(iParm.c_str(),"=")+1]);
+  else if(!strncmp(iParm.c_str(),"HGGWIDTH",8))
+    params.mmgah = atof(&iParm[strcspn(iParm.c_str(),"=")+1]);
+  else if(!strncmp(iParm.c_str(),"IBORNHGG",8))
+    params.mmibornex = atoi(&iParm[strcspn(iParm.c_str(),"=")+1]);
+  else if(!strncmp(iParm.c_str(),"V1GAMMAX",8))
+    params.mmv1gammax = atof(&iParm[strcspn(iParm.c_str(),"=")+1]);
+  else if(!strncmp(iParm.c_str(),"V1MASSINF",9))
+    params.mmv1massinf = atof(&iParm[strcspn(iParm.c_str(),"=")+1]);
+  else if(!strncmp(iParm.c_str(),"V1MASSSUP",9))
+    params.mmv1masssup = atof(&iParm[strcspn(iParm.c_str(),"=")+1]);
+  else if(!strncmp(iParm.c_str(),"V2GAMMAX",8))
+    params.mmv2gammax = atof(&iParm[strcspn(iParm.c_str(),"=")+1]);
+  else if(!strncmp(iParm.c_str(),"V2MASSINF",9))
+    params.mmv2massinf = atof(&iParm[strcspn(iParm.c_str(),"=")+1]);
+  else if(!strncmp(iParm.c_str(),"V2MASSSUP",9))
+    params.mmv2masssup = atof(&iParm[strcspn(iParm.c_str(),"=")+1]);
+  else if(!strncmp(iParm.c_str(),"HGAMMAX",7))
+    params.mmgammax = atof(&iParm[strcspn(iParm.c_str(),"=")+1]);
+  else if(!strncmp(iParm.c_str(),"HMASSINF",8))
+    params.mmxmhl = atof(&iParm[strcspn(iParm.c_str(),"=")+1]);
+  else if(!strncmp(iParm.c_str(),"HMASSSUP",8))
+    params.mmxmhu = atof(&iParm[strcspn(iParm.c_str(),"=")+1]);
+  else if(!strncmp(iParm.c_str(),"UMASS",5))
+    params.mmxmass1 = atof(&iParm[strcspn(iParm.c_str(),"=")+1]);
+  else if(!strncmp(iParm.c_str(),"DMASS",5))
+    params.mmxmass2 = atof(&iParm[strcspn(iParm.c_str(),"=")+1]);
+  else if(!strncmp(iParm.c_str(),"SMASS",5))
+    params.mmxmass3 = atof(&iParm[strcspn(iParm.c_str(),"=")+1]);
+  else if(!strncmp(iParm.c_str(),"CMASS",5))
+    params.mmxmass4 = atof(&iParm[strcspn(iParm.c_str(),"=")+1]);
+  else if(!strncmp(iParm.c_str(),"BMASS",5))
+    params.mmxmass5 = atof(&iParm[strcspn(iParm.c_str(),"=")+1]);
+  else if(!strncmp(iParm.c_str(),"GMASS",5))
+    params.mmxmass21 = atof(&iParm[strcspn(iParm.c_str(),"=")+1]);
+  else if(!strncmp(iParm.c_str(),"VUD",3))
+    params.mmvud = atof(&iParm[strcspn(iParm.c_str(),"=")+1]);
+  else if(!strncmp(iParm.c_str(),"VUS",3))
+    params.mmvus = atof(&iParm[strcspn(iParm.c_str(),"=")+1]);
+  else if(!strncmp(iParm.c_str(),"VUB",3))
+    params.mmvub = atof(&iParm[strcspn(iParm.c_str(),"=")+1]);
+  else if(!strncmp(iParm.c_str(),"VCD",3))
+    params.mmvcd = atof(&iParm[strcspn(iParm.c_str(),"=")+1]);
+  else if(!strncmp(iParm.c_str(),"VCS",3))
+    params.mmvcs = atof(&iParm[strcspn(iParm.c_str(),"=")+1]);
+  else if(!strncmp(iParm.c_str(),"VCB",3))
+    params.mmvcb = atof(&iParm[strcspn(iParm.c_str(),"=")+1]);
+  else if(!strncmp(iParm.c_str(),"VTD",3))
+    params.mmvtd = atof(&iParm[strcspn(iParm.c_str(),"=")+1]);
+  else if(!strncmp(iParm.c_str(),"VTS",3))
+    params.mmvts = atof(&iParm[strcspn(iParm.c_str(),"=")+1]);
+  else if(!strncmp(iParm.c_str(),"VTB",3))
+    params.mmvtb = atof(&iParm[strcspn(iParm.c_str(),"=")+1]);
+  else if(!strncmp(iParm.c_str(),"AEMRUN",6))
+    {
+      int tostart=0;
+      while(iParm.c_str()[tostart]!='=') tostart++;
+      tostart++;
+      while(iParm.c_str()[tostart]==' ') tostart++;
+
+      if(!strncmp(&iParm.c_str()[tostart],"YES",3))
+	params.mmaemrun = 0;
+      else if(!strncmp(&iParm.c_str()[tostart],"NO",2))
+	params.mmaemrun = 1;
+      else
+	return false;
+    }
+  else if(!strncmp(iParm.c_str(),"IPROC",5)) 
+    cout<<" WARNING: IPROC parameter will be ignored. Use 'untracked int32 processNumber = xxx' to set IPROC."<<endl;
+  else if(!strncmp(iParm.c_str(),"IVCODE",6))
+    params.mmivcode = atoi(&iParm[strcspn(iParm.c_str(),"=")+1]);
+  else if(!strncmp(iParm.c_str(),"IL1CODE",7))
+    params.mmil1code = atoi(&iParm[strcspn(iParm.c_str(),"=")+1]);
+  else if(!strncmp(iParm.c_str(),"IL2CODE",7))
+    params.mmil2code = atoi(&iParm[strcspn(iParm.c_str(),"=")+1]);
+  else if(!strncmp(iParm.c_str(),"PART1",5) || !strncmp(iParm.c_str(),"PART2",5))
+    cout<<" WARNING: PARTi parameter will be ignored. Only proton-proton collisions supported. For proton-antiproton please go to Batavia (but hurry)."<<endl;
+  else if(!strncmp(iParm.c_str(),"PDFGROUP",8)) {
+    /*
+    int tostart=0;
+    while(iParm.c_str()[tostart]!='=') tostart++;
+    tostart++;
+    while(iParm.c_str()[tostart]==' ') tostart++;
+    int todo = 0;
+    while(iParm.c_str()[todo+tostart]!='\0' && todo < 20) {
+      params.mmgname[todo]=iParm.c_str()[todo+tostart];
+      
+      todo++;
+      }
+    for(int i=todo ;i <20; ++i) params.mmgname[i]=' ';
+    */
+    cout <<" WARNING: PDFGROUP parameter will be ignored. Only LHAPDF sets supported." << endl;
+  }
+  else if(!strncmp(iParm.c_str(),"PDFSET",6))
+    params.mmidpdfset = atoi(&iParm[strcspn(iParm.c_str(),"=")+1]);
+  else if(!strncmp(iParm.c_str(),"LAMBDAFIVE",10))
+    params.mmxlam = atof(&iParm[strcspn(iParm.c_str(),"=")+1]);
+  else if(!strncmp(iParm.c_str(),"SCHEMEOFPDF",11)) {
+    int tostart=0;
+    while(iParm.c_str()[tostart]!='=') tostart++;
+    tostart++;
+    while(iParm.c_str()[tostart]==' ') tostart++;
+    params.mmscheme[0]=iParm.c_str()[tostart];
+    params.mmscheme[1]=iParm.c_str()[tostart+1];
+  }  
+  else if(!strncmp(iParm.c_str(),"LAMBDAHERW",10))
+    params.mmxlamherw = atof(&iParm[strcspn(iParm.c_str(),"=")+1]);
+  else if(!strncmp(iParm.c_str(),"FPREFIX",7)) {
+    int tostart=0;
+    while(iParm.c_str()[tostart]!='=') tostart++;
+    tostart++;
+    while(iParm.c_str()[tostart]==' ') tostart++;
+    int todo = 0;
+    while(iParm.c_str()[todo+tostart]!='\0' && todo < 10) {
+      prefix_bases[todo]=iParm.c_str()[todo+tostart];
+      todo++;
+    }
+    if(todo<10) prefix_bases[todo]='\0';
+  }  
+  else if(!strncmp(iParm.c_str(),"EVPREFIX",8)) {
+    int tostart=0;
+    while(iParm.c_str()[tostart]!='=') tostart++;
+    tostart++;
+    while(iParm.c_str()[tostart]==' ') tostart++;
+    int todo = 0;
+    while(iParm.c_str()[todo+tostart]!='\0' && todo < 10) {
+      prefix_events[todo]=iParm.c_str()[todo+tostart];
+      todo++;
+    }
+    if(todo<10) prefix_events[todo]='\0';
+  }  
+  else if(!strncmp(iParm.c_str(),"NEVENTS",7)) 
+    cout<<" WARNING: NEVENTS parameter will be ignored. Use 'untracked int32 maxEvents = xxx' to set NEVENTS."<<endl;
+  else if(!strncmp(iParm.c_str(),"WGTTYPE",7))
+    params.mmiwgtnorm = atoi(&iParm[strcspn(iParm.c_str(),"=")+1]);
+  else if(!strncmp(iParm.c_str(),"RNDEVSEED",9))
+    //    params.mmiseed = atoi(&iParm[strcspn(iParm.c_str(),"=")+1]);
+    cout<<" WARNING: RNDEVSEED will be ignored. Use the RandomNumberGeneratorService to set RNG seed."<<endl;    
+  else if(!strncmp(iParm.c_str(),"BASES",5)) 
+    cout<<" WARNING: BASES parameter will be ignored."<<endl;
+  else if(!strncmp(iParm.c_str(),"PDFLIBRARY",10)) 
+    cout<<" WARNING: PDFLIBRARY parameter will be ignored. Only LHAPDF is supported."<<endl;
+  else if(!strncmp(iParm.c_str(),"HERPDF",6)) 
+    cout<<" WARNING: HERPDF parameter will be ignored. Use the same PDF as for hard event generation."<<endl;
+  else if(!strncmp(iParm.c_str(),"HWPATH",6)) 
+    cout<<" WARNING: HWPATH parameter is not needed and will be ignored." << endl; 
+  else if(!strncmp(iParm.c_str(),"HWUTI",5)) 
+    cout<<" WARNING: HWUTI parameter will be ignored. Herwig utilities not needed."<<endl;
+  else if(!strncmp(iParm.c_str(),"HERWIGVER",9)) 
+    cout<<" WARNING: HERWIGVER parameter will be ignored. Herwig library not needed."<<endl;
+  else if(!strncmp(iParm.c_str(),"LHAPATH",7)) 
+    cout<<" WARNING: LHAPATH parameter will be ignored. Use the <untracked string lhapdfSetPath> parameter in order to set LHAPDF path."<<endl;
+  else if(!strncmp(iParm.c_str(),"LHAOFL",6)) 
+    cout<<" WARNING: LHAOFL parameter will be ignored. *** THIS WILL CHANGE IN FURTHER RELEASE ***"<<endl;
+  else if(!strncmp(iParm.c_str(),"PDFPATH",6)) 
+    cout<<" WARNING: PDFPATH parameter will be ignored. Only LHAPDF available."<<endl;
+    else if(!strncmp(iParm.c_str(),"SCRTCH",6)) {
+    int tostart=0;
+    while(iParm.c_str()[tostart]!='=') tostart++;
+    tostart++;
+    while(iParm.c_str()[tostart]==' ') tostart++;
+    int todo = 0;
+    while(iParm.c_str()[todo+tostart]!='\0' && todo < 70) {
+      directory[todo]=iParm.c_str()[todo+tostart];
+      todo++;
+    }
+    if(todo<70) directory[todo]='\0';
+    }  
+  
+  else accepted = false;
+  return accepted;
+}
+
+void MCatNLOSource::getVpar()
+{
+  switch(abs(processNumber_)) {
+  case(1397):case(11397):
+  case(1351):case(1352):case(1353):case(1354):case(1355):case(1356):
+  case(1361):case(1362):case(1363):case(1364):case(1365):case(1366):
+  case(1371):case(1372):case(1373):case(1374):case(1375):case(1376):
+  case(11351):case(11352):case(11353):case(11354):case(11355):case(11356):
+  case(11361):case(11362):case(11363):case(11364):case(11365):case(11366):
+  case(11371):case(11372):case(11373):case(11374):case(11375):case(11376):
+    params.mmxm0 = params.mmxzm;
+    params.mmgah = params.mmxzw;
+    break;
+
+  case(2700):case(2701):case(2702):case(2703):case(2704):case(2705):case(2706):
+  case(2707):case(2708):case(2709):case(2710):case(2711):case(2712):case(2799):
+  case(12700):case(12701):case(12702):case(12703):case(12704):case(12705):case(12706):
+  case(12707):case(12708):case(12709):case(12710):case(12711):case(12712):case(12799):
+    params.mmxm0v = params.mmxzm;
+    params.mmgav = params.mmxzw;
+    break;
+  case(1497):case(11497):
+  case(1498):case(11498):
+  case(1461):case(1462):case(1463):case(1471):case(1472):case(1473):
+  case(11461):case(11462):case(11463):case(11471):case(11472):case(11473):
+    params.mmxm0 = params.mmxwm;
+    params.mmgah = params.mmxww;
+    break;
+
+  case(2600):case(2601):case(2602):case(2603):case(2604):case(2605):case(2606):
+  case(2607):case(2608):case(2609):case(2610):case(2611):case(2612):case(2699):
+  case(12600):case(12601):case(12602):case(12603):case(12604):case(12605):case(12606):
+  case(12607):case(12608):case(12609):case(12610):case(12611):case(12612):case(12699):
+    params.mmxm0v = params.mmxwm;
+    params.mmgav = params.mmxww;
+    break;
+  default:
+    throw cms::Exception("MCatNLOError") <<" No such option in getVpar.";
+  }
+}
+
+void MCatNLOSource::createStringFile(const std::string& fileName)
+{
+
+  bool endone = false;
+  for(int i=0; i<100; ++i) {
+    if(fileName.c_str()[i]=='\0') endone = true;
+    if(!endone) fstbases.stfilename[i]=fileName.c_str()[i];
+    else fstbases.stfilename[i]=' ';
+  }
+
+  // put together ouput-file-strings ...
+  char string1[81];
+  char string2[81];
+  std::ofstream output;
+  output.open(fileName.c_str());
+  int position = 0;
+  while(directory[position]!='\0' && position < 70) {
+    string1[position]=directory[position];
+    string2[position]=directory[position];
+    position++;
+  }
+  int position3 = position;
+  int position2 = 0;
+  while(prefix_bases[position2]!='\0' && position2<10) {
+    string1[position3]=prefix_bases[position2];
+    position3++;
+    position2++;
+  }
+  string1[position3]='\0';
+  position3 = position;
+  position2 = 0;
+  while(prefix_events[position2]!='\0' && position2<10) {
+    string2[position3]=prefix_events[position2];
+    position3++;
+    position2++;
+  }
+  string2[position3]='\0';
+  output.put('\'');
+  for(int i=0; ;++i) {
+    if(string1[i]=='\0') {
+      vvjin.QQIN[i]='.';
+      vvjin.QQIN[i+1]='e';
+      vvjin.QQIN[i+2]='v';
+      vvjin.QQIN[i+3]='e';
+      vvjin.QQIN[i+4]='n';
+      vvjin.QQIN[i+5]='t';
+      vvjin.QQIN[i+6]='s';
+      vvjin.QQIN[i+7]='\0';
+      break;
+    }
+    else {
+      output.put(string1[i]);
+      vvjin.QQIN[i]=string1[i];
+    }
+  }
+  output.put('\'');
+  output.put('\n');
+  output.put('\'');
+  for(int i=0; ;++i) {
+    if(string2[i]=='\0') break;
+    else output.put(string2[i]);
+  }
+  output.put('\'');
+  output.put('\n');  
+  output.close();
+}

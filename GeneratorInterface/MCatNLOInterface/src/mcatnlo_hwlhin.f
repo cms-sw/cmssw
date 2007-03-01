@@ -7,8 +7,9 @@ C----------------------------------------------------------------------
 C  Reads MC@NLO input files and fills Les Houches event common HEPEUP
 C----------------------------------------------------------------------
 
-
+CCCC  ===============================================================
 C      INCLUDE 'HERWIG65.INC'
+C     instead of include 
       IMPLICIT NONE
       DOUBLE PRECISION ZERO,ONE,TWO,THREE,FOUR,HALF
       PARAMETER (ZERO =0.D0, ONE =1.D0, TWO =2.D0,
@@ -292,7 +293,7 @@ C--the only change for 6505 was to increase MODMAX from 5 to 50
 C--add new variable to prevent infinite loops in HWDFOR/FIV
       INTEGER NDETRY
       COMMON /HW6510/NDETRY
-C-------------------------------------------------------------------
+CCCC  ====================================================================
 
 
 C---Les Houches Event Common Block
@@ -300,13 +301,14 @@ C---Les Houches Event Common Block
       PARAMETER (MAXNUP=500)
       INTEGER NUP,IDPRUP,IDUP,ISTUP,MOTHUP,ICOLUP
       DOUBLE PRECISION XWGTUP,SCALUP,AQEDUP,AQCDUP,PUP,VTIMUP,SPINUP,
-     & XMP2,XMA2,XMB2,BETA,VA,VB,SIGMA,DELTA,S2,XKA,XKB,PTF,E,PL
+     & XMP2,XMA2,XMB2,BETA,VA,VB,SIGMA,DELTA,S2,XKA,XKB,PTF,E,PL,
+     & XSCALE
       COMMON/HEPEUP/NUP,IDPRUP,XWGTUP,SCALUP,AQEDUP,AQCDUP,
      &              IDUP(MAXNUP),ISTUP(MAXNUP),MOTHUP(2,MAXNUP),
      &              ICOLUP(2,MAXNUP),PUP(5,MAXNUP),VTIMUP(MAXNUP),
      &              SPINUP(MAXNUP)
       DOUBLE PRECISION PCM(5),PTR,XMTR,HWVDOT,HWULDO,PDB(5)
-      INTEGER I,J,IC,JPR,MQQ,NQQ,IUNIT,ISCALE,I1HPRO,IBOS,NP,IG,
+      INTEGER I,J,IC,JPR,MQQ,NQQ,IUNIT,ISCALE,I1HPRO,IBOS,NP,IG,IP,
      & ILEP,ID,IA,IB,ICOL4(4,4),ICOL5(5,18),JJPROC,IVHVEC,IVHLEP,MUP
       PARAMETER (IUNIT=61)
       LOGICAL BOPRO,NODEC,REMIT
@@ -327,11 +329,10 @@ C---Colour flows for heavy quark pair production
      & 12,34,14,30,02, 12,31,42,30,04/
       IF (IERROR.NE.0) RETURN
 C---READ AN EVENT
-
-      IF(NQQ.GE.MQQ)CALL HWWARN('UPEVNT',201,*999)
+      IF(NQQ.GE.MQQ)CALL HWWARN('UPEVNT',201)
       READ(IUNIT,901) I1HPRO,IC,NP
       READ(IUNIT,902) (IDUP(I),I=1,NP)
-      READ(IUNIT,903) XWGTUP
+      READ(IUNIT,903) XWGTUP,XSCALE
 C---Les Houches expects mean weight to be the cross section in pb
       XWGTUP= XWGTUP*MQQ
       READ(IUNIT,904) ((PUP(J,I),J=1,4),I=1,NP)
@@ -421,11 +422,17 @@ C   WHERE ID CONTROLS HIGGS DECAY AS IN STANDARD HERWIG
 C-----------------------------------------------------------------------
          IHPRO=I1HPRO-400
          ISCALE=0
+      ELSEIF (JPR.EQ.1) THEN
+C----------------------------------------------------------------------
+C   E+E- ANNIHILATION
+C----------------------------------------------------------------------
+         ISCALE=1
       ELSE
-         CALL HWWARN('UPEVNT',202,*999)
+         CALL HWWARN('UPEVNT',202)
       ENDIF
 C---HARD SCALE
       SCALUP=PCM(5)
+      IF (XSCALE.GT.0D0.AND.XSCALE.LT.PCM(5)) SCALUP=XSCALE
       IF (REMIT) THEN
          IF (ISCALE.EQ.0) THEN
             PTR=SQRT(PUP(1,3)**2+PUP(2,3)**2)
@@ -452,7 +459,10 @@ C---HARD SCALE
             E=(XKA+XKB)/SQRT(S2)
             PL=-2.0/((VA+VB)*BETA*SQRT(S2))*(VA*XKA-VB*XKB)
             PTF=E**2-PL**2-XMP2
-            IF (PTF.LE.ZERO) CALL HWWARN('UPEVNT',103,*999)
+            IF (PTF.LE.ZERO) THEN
+               CALL HWWARN('UPEVNT',103)
+               GOTO 999
+            ENDIF
             PTF=SQRT(PTF)
             IF(ISCALE.EQ.3)THEN
               SCALUP=PCM(5)-2.*MIN(PTR,PTF)
@@ -462,16 +472,22 @@ C---HARD SCALE
               SCALUP=(MIN(PTR,PTF))**2+(XMA2+XMB2)/2.D0
               SCALUP=SQRT(SCALUP)
             ENDIF
-            IF (SCALUP.LE.ZERO) CALL HWWARN('UPEVNT',100,*999)
+            IF (SCALUP.LE.ZERO) THEN
+               CALL HWWARN('UPEVNT',100)
+               GOTO 999
+            ENDIF
          ELSEIF (ISCALE.EQ.6) THEN
             XMTR=SQRT(PUP(5,4)**2+PUP(1,4)**2+PUP(2,4)**2)
             PTR=SQRT(PUP(1,3)**2+PUP(2,3)**2)
             SCALUP=PCM(5)-PTR-XMTR
-            IF (SCALUP.LE.ZERO) CALL HWWARN('UPEVNT',100,*999)
+            IF (SCALUP.LE.ZERO) THEN
+               CALL HWWARN('UPEVNT',100)
+               GOTO 999
+            ENDIF
          ELSEIF (ISCALE.EQ.7) THEN
             SCALUP=SQRT(PUP(5,4)**2+PUP(1,4)**2+PUP(2,4)**2)
          ELSE
-            CALL HWWARN('UPEVNT',501,*999)
+            CALL HWWARN('UPEVNT',501)
          ENDIF
       ELSE
          NUP=NUP-1
@@ -523,7 +539,8 @@ C---SET COLOUR CONNECTIONS
                ICOLUP(2,2)=503
                ICOLUP(2,3)=503
             ELSE
-               CALL HWWARN('UPEVNT',101,*999)
+               CALL HWWARN('UPEVNT',101)
+               GOTO 999
             ENDIF
          ELSE
             CALL HWVEQU(5,PUP(1,4),PUP(1,3))
@@ -562,7 +579,7 @@ C---LOAD BOSON ID
             ELSEIF (IBOS.EQ.30) THEN
                IDUP(NUP)=36 
             ELSE
-               CALL HWWARN('UPEVNT',502,*999)
+               CALL HWWARN('UPEVNT',502)
             ENDIF
          ELSEIF (JPR.EQ.14) THEN
             IBOS=0
@@ -578,7 +595,7 @@ C---LOAD BOSON ID
                IBOS=IBOS+IC
             ENDDO
             IF (REMIT) IBOS=IBOS-2*IC
-            IF (ABS(IBOS).NE.3) CALL  HWWARN('UPEVNT',503,*999)
+            IF (ABS(IBOS).NE.3) CALL  HWWARN('UPEVNT',503)
             IDUP(NUP)=8*IBOS
          ENDIF
       ELSEIF (JPR.EQ.17) THEN
@@ -591,31 +608,100 @@ C---SET COLOUR CONNECTIONS
                   CALL UPCODE(ICOL5(I,IC),ICOLUP(1,I))
                ENDDO
             ELSE
-               CALL HWWARN('UPEVNT',105,*999)
+               CALL HWWARN('UPEVNT',105)
+               GOTO 999
             ENDIF
          ELSE
 C---2-BODY FINAL STATE
-            IDUP(3)=IDUP(4)
-            IDUP(4)=IDUP(5)
-            CALL HWVEQU(5,PUP(1,4),PUP(1,3))
-            CALL HWVEQU(5,PUP(1,5),PUP(1,4))
+            DO IP=3,NUP
+               IDUP(IP)=IDUP(IP+1)
+               CALL HWVEQU(5,PUP(1,IP+1),PUP(1,IP))
+            ENDDO
 C---SET COLOUR CONNECTIONS
             IF (IC.LE.4) THEN
                DO I=1,4
                   CALL UPCODE(ICOL4(I,IC),ICOLUP(1,I))
                ENDDO
             ELSE
-               CALL HWWARN('UPEVNT',104,*999)
+               CALL HWWARN('UPEVNT',104)
+               GOTO 999
             ENDIF
+         ENDIF
+         IF (.NOT.NODEC) THEN
+C---RECONSTRUCT TOP DECAYS
+            IF (MOD(JJPROC,10).NE.6) THEN
+               CALL HWWARN('UPEVNT',210)
+               GOTO 999
+            ENDIF
+            NP=NUP
+C--W DECAYS
+            IDUP(NP+1)=IDUP(NP-5)
+            IDUP(NP+2)=IDUP(NP-4)
+            IDUP(NP+3)=IDUP(NP-2)
+            IDUP(NP+4)=IDUP(NP-1)
+            IDUP(NP-1)=IDUP(NP)
+            CALL HWVEQU(5,PUP(1,NP-5),PUP(1,NP+1))
+            CALL HWVEQU(5,PUP(1,NP-4),PUP(1,NP+2))
+            CALL HWVEQU(5,PUP(1,NP-2),PUP(1,NP+3))
+            CALL HWVEQU(5,PUP(1,NP-1),PUP(1,NP+4))
+            CALL HWVEQU(5,PUP(1,NP  ),PUP(1,NP-1))
+            CALL HWVSUM(4,PUP(1,NP+1),PUP(1,NP+2),PUP(1,NP-2))
+            CALL HWVSUM(4,PUP(1,NP+3),PUP(1,NP+4),PUP(1,NP))
+            CALL HWUMAS(PUP(1,NP-2))
+            CALL HWUMAS(PUP(1,NP))
+            IDUP(NP-2)=24*(IDUP(NP+1)+IDUP(NP+2))
+            IDUP(NP)=-IDUP(NP-2)
+            DO IP=NP-3,NP+4
+               ISTUP(IP)=1
+            ENDDO
+            ISTUP(NUP-2)=2
+            ISTUP(NUP)=2
+C--TOP DECAYS
+            CALL HWVSUM(4,PUP(1,NP-3),PUP(1,NP-2),PUP(1,NP-5))
+            CALL HWVSUM(4,PUP(1,NP-1),PUP(1,NP  ),PUP(1,NP-4))
+            CALL HWUMAS(PUP(1,NP-5))
+            CALL HWUMAS(PUP(1,NP-4))
+            IDUP(NP-5)=IDUP(NP-2)/4
+            IDUP(NP-4)=-IDUP(NP-5)
+            ISTUP(NP-5)=2
+            ISTUP(NP-4)=2
+            MOTHUP(1,NP-5)=1
+            MOTHUP(2,NP-5)=2
+            MOTHUP(1,NP-4)=1
+            MOTHUP(2,NP-4)=2
+            MOTHUP(1,NP-3)=NP-5
+            MOTHUP(1,NP-2)=NP-5
+            MOTHUP(1,NP-1)=NP-4
+            MOTHUP(1,NP  )=NP-4
+            MOTHUP(1,NP+1)=NP-2
+            MOTHUP(1,NP+2)=NP-2
+            MOTHUP(1,NP+3)=NP
+            MOTHUP(1,NP+4)=NP
+            DO IP=NP-3,NP+4
+               MOTHUP(2,IP)=MOTHUP(1,IP)
+               ICOLUP(1,IP)=0
+               ICOLUP(2,IP)=0
+            ENDDO
+            ICOLUP(1,NP-3)=ICOLUP(1,NP-5)
+            ICOLUP(2,NP-3)=ICOLUP(2,NP-5)
+            ICOLUP(1,NP-1)=ICOLUP(1,NP-4)
+            ICOLUP(2,NP-1)=ICOLUP(2,NP-4)
+            NUP=NP+4
          ENDIF
       ELSEIF (JPR.EQ.20) THEN
 C---SINGLE TOP: IA,IB ARE THE QUARKS THAT ARE COLOUR CONNECTED
 C   I.E. (FOR H EVENTS) THOSE THAT ARE NOT CONNECTED TO GLUON
          IA=IC/10
          IB=IC-10*IA
-         IF (IA.LT.1.OR.IA.GT.5) CALL HWWARN('UPEVNT',108,*999)
-         IF (IB.LT.1.OR.IB.GT.5) CALL HWWARN('UPEVNT',109,*999)
-         IF (IA.EQ.IB) CALL HWWARN('UPEVNT',110,*999)
+         IF (IA.LT.1.OR.IA.GT.5) THEN
+            CALL HWWARN('UPEVNT',108)
+         ELSEIF (IB.LT.1.OR.IB.GT.5) THEN
+            CALL HWWARN('UPEVNT',109)
+         ELSEIF (IA.EQ.IB) THEN
+            CALL HWWARN('UPEVNT',110)
+         ENDIF
+         IF (IERROR.NE.0) GOTO 999
+         IF (.NOT.NODEC) IDUP(5)=IDUP(5)+IDUP(6)
          DO I=1,5
             IF (I.EQ.IA.OR.I.EQ.IB) THEN
                IF (IDUP(I).GT.0) THEN
@@ -637,9 +723,11 @@ C   I.E. (FOR H EVENTS) THOSE THAT ARE NOT CONNECTED TO GLUON
                ICOLUP(2,I)=502
             ENDIF
          ENDDO
+         IF (.NOT.NODEC) IDUP(5)=IDUP(5)-IDUP(6)
          IF (REMIT) THEN
 C---3-BODY FINAL STATE
 C---COMPLETE GLUON COLOUR CONNECTIONS
+            IF (.NOT.NODEC) IDUP(5)=IDUP(5)+IDUP(6)
             DO I=1,5
                IF (I.NE.IA.AND.I.NE.IB.AND.I.NE.IG) THEN
                   IF (IDUP(I).GT.0) THEN
@@ -651,16 +739,92 @@ C---COMPLETE GLUON COLOUR CONNECTIONS
                   ENDIF
                ENDIF
             ENDDO
+            IF (.NOT.NODEC) IDUP(5)=IDUP(5)-IDUP(6)
          ELSE
 C---2-BODY FINAL STATE
-            IDUP(3)=IDUP(4)
-            IDUP(4)=IDUP(5)
+            DO IP=3,NUP
+               IDUP(IP)=IDUP(IP+1)
+               CALL HWVEQU(5,PUP(1,IP+1),PUP(1,IP))
+            ENDDO
+C---SET COLOUR CONNECTIONS
             ICOLUP(1,3)=ICOLUP(1,4)
             ICOLUP(2,3)=ICOLUP(2,4)
             ICOLUP(1,4)=ICOLUP(1,5)
             ICOLUP(2,4)=ICOLUP(2,5)
-            CALL HWVEQU(5,PUP(1,4),PUP(1,3))
-            CALL HWVEQU(5,PUP(1,5),PUP(1,4))
+         ENDIF
+         IF (.NOT.NODEC) THEN
+C---RECONSTRUCT TOP DECAY
+            NP=NUP
+            IDUP(NP+1)=IDUP(NP-2)
+            IDUP(NP+2)=IDUP(NP-1)
+            IDUP(NP-1)=24*(IDUP(NP+1)+IDUP(NP+2))
+            IDUP(NP-2)=IDUP(NP-1)/4
+            CALL HWVEQU(5,PUP(1,NP-2),PUP(1,NP+1))
+            CALL HWVEQU(5,PUP(1,NP-1),PUP(1,NP+2))
+            CALL HWVSUM(4,PUP(1,NP+1),PUP(1,NP+2),PUP(1,NP-1))
+            CALL HWVSUM(4,PUP(1,NP-1),PUP(1,NP  ),PUP(1,NP-2))
+            CALL HWUMAS(PUP(1,NP-1))
+            CALL HWUMAS(PUP(1,NP-2))
+            DO IP=NP-3,NP+2
+               ISTUP(IP)=1
+            ENDDO
+            ISTUP(NUP-1)=2
+            ISTUP(NUP-2)=2
+            MOTHUP(1,NP-3)=1
+            MOTHUP(2,NP-3)=2
+            MOTHUP(1,NP-2)=1
+            MOTHUP(2,NP-2)=2
+            MOTHUP(1,NP-1)=NP-2
+            MOTHUP(1,NP  )=NP-2
+            MOTHUP(1,NP+1)=NP-1
+            MOTHUP(1,NP+2)=NP-1
+            DO IP=NP-1,NP+2
+               MOTHUP(2,IP)=MOTHUP(1,IP)
+               ICOLUP(1,IP)=0
+               ICOLUP(2,IP)=0
+            ENDDO
+            ICOLUP(1,NP)=ICOLUP(1,NP-2)
+            ICOLUP(2,NP)=ICOLUP(2,NP-2)
+            NUP=NP+2
+         ENDIF
+       ELSEIF (JPR.EQ.1) THEN
+C---E+E- ANNIHILATION
+         DO I=1,NUP
+            ICOLUP(1,I)=0
+            ICOLUP(2,I)=0
+         ENDDO
+C---RESCALE 3-MOMENTA TO PUT PARTONS ON-SHELL
+         PUP(5,1)=RMASS(121)
+         PUP(5,2)=PUP(5,1)
+         CALL HWURSC(2,PUP)
+         PUP(5,3)=RMASS(13)
+         PUP(5,4)=RMASS(ABS(IDUP(4)))
+         PUP(5,5)=PUP(5,4)
+         IF (REMIT) THEN
+            CALL HWURSC(3,PUP(1,3))
+            ICOLUP(1,3)=501
+            ICOLUP(2,3)=502
+            IF (IDUP(4).GT.0) THEN
+               ICOLUP(1,4)=502
+               ICOLUP(2,5)=501
+            ELSE
+               ICOLUP(2,4)=501
+               ICOLUP(1,5)=502
+            ENDIF
+         ELSE
+            CALL HWURSC(2,PUP(1,4))
+            DO I=3,4
+               CALL HWVEQU(5,PUP(1,I+1),PUP(1,I))
+               IDUP(I)=IDUP(I+1)
+               ISTUP(I)=1
+            ENDDO
+            IF (IDUP(3).GT.0) THEN
+               ICOLUP(1,3)=501
+               ICOLUP(2,4)=501
+            ELSE
+               ICOLUP(2,3)=501
+               ICOLUP(1,4)=501
+            ENDIF
          ENDIF
       ELSE
 C---BOSON PAIR OR LEPTON PAIR
@@ -701,7 +865,8 @@ C---ADD BOSON(S) TO EVENT RECORD
                ELSEIF (ABS(ID).EQ.1) THEN
                   IDUP(6)=24*ID
                ELSE
-                  CALL HWWARN('UPEVNT',106,*999)            
+                  CALL HWWARN('UPEVNT',106)
+                  GOTO 999            
                ENDIF
             ENDIF
             IF (ABS(IDUP(4)).LT.20) THEN
@@ -723,7 +888,8 @@ C---ADD BOSON(S) TO EVENT RECORD
                ELSEIF (ABS(ID).EQ.1) THEN
                   IDUP(5)=24*ID
                ELSE
-                  CALL HWWARN('UPEVNT',107,*999)            
+                  CALL HWWARN('UPEVNT',107)
+                  GOTO 999
                ENDIF
             ELSE
                CALL HWVEQU(5,PUP(1,4),PUP(1,5))
@@ -773,7 +939,8 @@ C---SET COLOUR CONNECTIONS
                ICOLUP(2,2)=501
                ICOLUP(1,3)=0
             ELSE
-               CALL HWWARN('UPEVNT',102,*999)
+               CALL HWWARN('UPEVNT',102)
+               GOTO 999
             ENDIF
             DO I=4,NUP
                ICOLUP(1,I)=0
@@ -826,7 +993,7 @@ C---LOAD LEPTON AND BOSON ID
                IDUP(J)=-1-IDUP(I)
                IF (REMIT) IDUP(4)=-24
             ELSE
-               CALL HWWARN('UPEVNT',504,*999)
+               CALL HWWARN('UPEVNT',504)
             ENDIF
          ENDIF
       ENDIF
@@ -834,17 +1001,17 @@ C---LOAD LEPTON AND BOSON ID
       IF(IERROR.LT.100) RETURN 
       PRINT *
       DO I=1,NUP
-         PRINT '(4I4,3F8.2)',IDUP(I),ISTUP(I),(ICOLUP(J,I),J=1,2),
-     &        (PUP(J,I),J=1,3)
+         PRINT '(4I4,5F8.2)',IDUP(I),ISTUP(I),(ICOLUP(J,I),J=1,2),
+     &        (PUP(J,I),J=1,5)
       ENDDO
 c       IPR, IC, NP
  901  FORMAT(1X,I3,2(1X,I2))
 c      (ID(I),I=1,NP)
- 902  FORMAT(7(1X,I3))
-c       XEVWGT
- 903  FORMAT(1X,D14.8)
+ 902  FORMAT(9(1X,I3))
+c       XEVWGT,EMSCA
+ 903  FORMAT(2(1X,D14.8))
 c      ((P(J,I),J=1,4),I=1,NP)
- 904  FORMAT(28(1X,D14.8))
+ 904  FORMAT(36(1X,D14.8))
 c 901  FORMAT(1X,I3,4(1X,I2))
 c 902  FORMAT(1X,D14.8)
 c 903  FORMAT(16(1X,D14.8))
@@ -865,8 +1032,10 @@ C----------------------------------------------------------------------
 C----------------------------------------------------------------------
 C  Reads MC@NLO input headers and fills Les Houches run common HEPRUP
 C----------------------------------------------------------------------
-C      INCLUDE 'HERWIG65.INC'
 
+CCCC  ===============================================================
+C      INCLUDE 'HERWIG65.INC'
+C     instead of include 
       IMPLICIT NONE
       DOUBLE PRECISION ZERO,ONE,TWO,THREE,FOUR,HALF
       PARAMETER (ZERO =0.D0, ONE =1.D0, TWO =2.D0,
@@ -1150,7 +1319,7 @@ C--the only change for 6505 was to increase MODMAX from 5 to 50
 C--add new variable to prevent infinite loops in HWDFOR/FIV
       INTEGER NDETRY
       COMMON /HW6510/NDETRY
-C------------------------------------------------------------------------
+CCCC  ====================================================================
 
 C--Les Houches Common Blocks
       INTEGER MAXPUP
@@ -1169,7 +1338,7 @@ C--Les Houches Common Blocks
      &              ICOLUP(2,MAXNUP),PUP(5,MAXNUP),VTIMUP(MAXNUP),
      &              SPINUP(MAXNUP)
       DOUBLE PRECISION XCKECM,XTMP1,XTMP2,XTMP3,XTMP4,XMT,XMW,XMZ,
-     & XMH,XMV,XM1,XM2,XM3,XM4,XM5,XM21,XLAM,GAH,TINY
+     & XMH,XMV,XM1,XM2,XM3,XM4,XM5,XM21,XLAM,GAH,GAT,GAW,TINY
       DOUBLE PRECISION XMV1,GAV1,GAMAX1,XMV2,GAV2,GAMAX2
       INTEGER IVVCODE,IFAIL,MQQ,NQQ,IHW,I,NDNS,JPR,JPR0,IH,
      & IVHVEC,IVHLEP,IVLEP1,IVLEP2
@@ -1186,8 +1355,6 @@ C--Les Houches Common Blocks
       COMMON/VHLIN/IVHVEC,IVHLEP
       COMMON/VVLIN/IVLEP1,IVLEP2
 C
-
-
       IF (IERROR.NE.0) RETURN
 C--SET UP INPUT FILES
       OPEN(UNIT=61,FILE=QQIN,STATUS='UNKNOWN')
@@ -1198,9 +1365,9 @@ C--READ HEADERS OF EVENT FILE
 C---CHECK PROCESS CODE
       JPR0=MOD(ABS(IPROC),10000)
       JPR=JPR0/100
-      IF (JPR.NE.IVVCODE/100) CALL HWWARN('UPINIT',500,*999)
+      IF (JPR.NE.IVVCODE/100) CALL HWWARN('UPINIT',500)
       IF ((JPR.EQ.17.OR.JPR.EQ.28.OR.JPR.EQ.36).AND.
-     & IVVCODE.NE.MOD(ABS(IPROC),10000)) CALL HWWARN('UPINIT',501,*999)
+     & IVVCODE.NE.MOD(ABS(IPROC),10000)) CALL HWWARN('UPINIT',501)
       IF (JPR.EQ.13.OR.JPR.EQ.14) THEN
          IF(JPR0.EQ.1396.OR.JPR0.EQ.1371.OR.
      #      JPR0.EQ.1372.OR.JPR0.EQ.1373)THEN
@@ -1212,25 +1379,20 @@ C-- CHECK VECTOR BOSON MASS
          IF( (IVVCODE.EQ.1397.AND.ABS(XMV-RMASS(200)).GT.TINY) .OR.
      #       (IVVCODE.EQ.1497.AND.ABS(XMV-RMASS(198)).GT.TINY) .OR.
      #       (IVVCODE.EQ.1498.AND.ABS(XMV-RMASS(199)).GT.TINY) )
-     #       THEN
-            WRITE(*,*) IVVCODE 
-            WRITE(*,*) 'exiting'
-            CALL HWWARN('UPINIT',511,*999)
-         endif
+     #      CALL HWWARN('UPINIT',502)
       ELSEIF (JPR.EQ.26.OR.JPR.EQ.27) THEN
          READ(61,810)IVHVEC,IVHLEP,TMPSTR
          READ(61,809)XMV,GAH,GAMMAX,TMPSTR
          READ(61,809)XMH,GAH,GAMMAX,TMPSTR
          IF( (JPR.EQ.26.AND.ABS(XMV-RMASS(199)).GT.TINY) .OR.
      #       (JPR.EQ.27.AND.ABS(XMV-RMASS(200)).GT.TINY) )
-     #      CALL HWWARN('UPINIT',508,*999)
-         IF(ABS(XMH-RMASS(201)).GT.TINY) CALL HWWARN('UPINIT',509,*999)
+     #      CALL HWWARN('UPINIT',508)
+         IF(ABS(XMH-RMASS(201)).GT.TINY) CALL HWWARN('UPINIT',509)
       ELSEIF (JPR.EQ.28) THEN
          READ(61,808)XMW,XMZ,TMPSTR
 C-- CHECK VECTOR BOSON MASSES
          IF(ABS(XMW-RMASS(198)).GT.TINY .OR.
-     #      ABS(XMZ-RMASS(200)).GT.TINY)
-     #       CALL HWWARN('UPINIT',502,*999)
+     #      ABS(XMZ-RMASS(200)).GT.TINY) CALL HWWARN('UPINIT',502)
          READ(61,810)IVLEP1,IVLEP2,TMPSTR
          READ(61,809)XMV1,GAV1,GAMAX1,TMPSTR
          READ(61,809)XMV2,GAV2,GAMAX2,TMPSTR
@@ -1239,25 +1401,44 @@ C-- CHECK VECTOR BOSON MASSES
 C-- CHECK HIGGS AND TOP MASSES
          IH=201
          IF (JPR.EQ.36) IH=IVVCODE/10-158
-         IF(ABS(XMH-RMASS(IH)).GT.TINY) CALL HWWARN('UPINIT',503,*999)
-         IF(ABS(XMT-RMASS(6)) .GT.TINY) CALL HWWARN('UPINIT',504,*999)
+         IF(ABS(XMH-RMASS(IH)).GT.TINY) CALL HWWARN('UPINIT',503)
+         IF(ABS(XMT-RMASS(6)) .GT.TINY) CALL HWWARN('UPINIT',504)
       ELSEIF (JPR.EQ.17) THEN
-         READ(61,803)XMT,TMPSTR
+         IF (MOD(JPR0,10).EQ.6) THEN
+            READ(61,808)XMT,GAT,TMPSTR
+         ELSE
+            READ(61,803)XMT,TMPSTR
+         ENDIF
 C-- CHECK HEAVY QUARK MASS
          IF( (IVVCODE.EQ.1706.AND.ABS(XMT-RMASS(6)).GT.TINY) .OR.
      #       (IVVCODE.EQ.1705.AND.ABS(XMT-RMASS(5)).GT.TINY) .OR.
      #       (IVVCODE.EQ.1704.AND.ABS(XMT-RMASS(4)).GT.TINY) )
-     #   CALL HWWARN('UPINIT',505,*999)
+     #   CALL HWWARN('UPINIT',505)
+         IF (MOD(JPR0,10).EQ.6) THEN
+            READ(61,808)XMW,GAW,TMPSTR
+            READ(61,810)IVLEP1,IVLEP2,TMPSTR
+C-- CHECK W BOSON MASS WHEN TOPS DECAY
+            IF( IVLEP1.NE.7.AND.IVLEP2.NE.7 .AND.
+     #          ABS(XMW-RMASS(198)).GT.TINY ) 
+     #         CALL HWWARN('UPINIT',502)
+         ENDIF
       ELSEIF (JPR.EQ.20) THEN
-         READ(61,803)XMT,TMPSTR
-C-- CHECK HEAVY QUARK MASS
-         IF(ABS(XMT-RMASS(6)).GT.TINY) CALL HWWARN('UPINIT',511,*999)
-      ELSE
-         CALL HWWARN('UPINIT',506,*999)
+         READ(61,808)XMT,GAT,TMPSTR
+C-- CHECK TOP QUARK MASS
+         IF(ABS(XMT-RMASS(6)).GT.TINY) CALL HWWARN('UPINIT',511)
+         READ(61,808)XMW,GAW,TMPSTR
+         READ(61,812)IVLEP1,TMPSTR
+C-- CHECK W BOSON MASS WHEN TOPS DECAY
+         IF( IVLEP1.NE.7 .AND.
+     #       ABS(XMW-RMASS(198)).GT.TINY ) CALL HWWARN('UPINIT',502)
+      ELSEIF (JPR.NE.1) THEN
+         CALL HWWARN('UPINIT',506)
       ENDIF
       READ(61,804)XM1,XM2,XM3,XM4,XM5,XM21,TMPSTR
-      READ(61,805)STRP1,STRP2,TMPSTR
-      READ(61,806)STRGRP,NDNS,TMPSTR
+      IF (JPR.NE.1) THEN
+         READ(61,805)STRP1,STRP2,TMPSTR
+         READ(61,806)STRGRP,NDNS,TMPSTR
+      ENDIF
       READ(61,807)XLAM,STRSCH,TMPSTR
 C--CHECK THAT EVENT FILE HAS BEEN GENERATED CONSISTENTLY WITH 
 C--HERWIG PARAMETERS ADOPTED HERE
@@ -1270,28 +1451,34 @@ C-- QUARK AND GLUON MASSES
      #     ABS(XM3-RMASS(3)).GT.TINY .OR.
      #     ABS(XM4-RMASS(4)).GT.TINY .OR.
      #     ABS(XM5-RMASS(5)).GT.TINY .OR.
-     #     ABS(XM21-RMASS(13)).GT.TINY .OR.
+     #     ABS(XM21-RMASS(13)).GT.TINY) IFAIL=1
 C-- LAMBDA_QCD: NOW REMOVED TO ALLOW MORE FLEXIBILITY (NNLO EFFECT ANYHOW)
 C     #     ABS(XLAM-QCDLAM).GT.TINY .OR.
 C-- REPLACE THE FOLLOWING WITH A CONDITION ON STRSCH, IF CONSISTENT 
 C-- INFORMATION ON PDF SCHEME WILL BE AVAILABLE FROM PDF LIBRARIES AND HERWIG
 C-- COLLIDING PARTICLE TYPE
-     #     FK88STRNOEQ(STRP1,PART1) .OR.
-     #     FK88STRNOEQ(STRP2,PART2) )IFAIL=1
+
+      IF (JPR.NE.1.AND.IFAIL.EQ.0) THEN
+         IF(
+     #        FK88STRNOEQ(STRP1,PART1) .OR.
+     #        FK88STRNOEQ(STRP2,PART2) )IFAIL=1
 C--IF PDF LIBRARY IS USED, CHECK PDF CONSISTENCY
-      IF( IFAIL.EQ.0 .AND. MODPDF(1).NE.-1)THEN
+         IF( IFAIL.EQ.0 .AND. MODPDF(1).NE.-1)THEN
             IF( 
-     #          FK88STRNOEQ(STRGRP,AUTPDF(1)) .OR.
-     #          FK88STRNOEQ(STRGRP,AUTPDF(2)) .OR.
-     #          ABS(NDNS-MODPDF(1)).GT.TINY .OR.
-     #          ABS(NDNS-MODPDF(2)).GT.TINY )IFAIL=1
+     #              FK88STRNOEQ(STRGRP,AUTPDF(1)) .OR.
+     #              FK88STRNOEQ(STRGRP,AUTPDF(2)) .OR.
+     #              ABS(NDNS-MODPDF(1)).GT.TINY .OR.
+     #              ABS(NDNS-MODPDF(2)).GT.TINY ) then
+               IFAIL=1
+            endif
 C--WHEN LHAPDF IS LINKED, AUTPDF() IS A MC@NLO-DEFINED STRING
-         IF(AUTPDF(1).EQ.'LHAPDF'.OR.AUTPDF(1).EQ.'LHAEXT')THEN
-            AUTPDF(1)='DEFAULT'
-            AUTPDF(2)='DEFAULT'
+            IF(AUTPDF(1).EQ.'LHAPDF'.OR.AUTPDF(1).EQ.'LHAEXT')THEN
+               AUTPDF(1)='DEFAULT'
+               AUTPDF(2)='DEFAULT'
+            ENDIF
          ENDIF
       ENDIF
-      IF(IFAIL.EQ.1) CALL HWWARN('UPINIT',507,*999)
+      IF(IFAIL.EQ.1) CALL HWWARN('UPINIT',507)
       CALL HWUIDT(3,IDBMUP(1),IHW,PART1)
       CALL HWUIDT(3,IDBMUP(2),IHW,PART2)
       DO I=1,2
@@ -1304,7 +1491,7 @@ C--WHEN LHAPDF IS LINKED, AUTPDF() IS A MC@NLO-DEFINED STRING
       LPRUP(1)=IVVCODE
 C-- TEST FOR NEW FORMAT INPUT MOMENTA: (PX,PY,PZ,M)
       READ(61,811) STRFMT,TMPSTR
-      IF (STRFMT.NE.'P,M') CALL HWWARN('UPINIT',510,*999)
+      IF (STRFMT.NE.'P,M') CALL HWWARN('UPINIT',510)
       READ(61,900) MQQ
       NQQ=0
 C-- LARGEST EXPECTED NUMBER OF LEGS
@@ -1326,5 +1513,59 @@ C-- LARGEST EXPECTED NUMBER OF LEGS
  809  FORMAT(3(1X,D10.4),1X,A)
  810  FORMAT(2(1X,I2),1X,A)
  811  FORMAT(1X,A3,1X,A)
+ 812  FORMAT(1X,I2,1X,A)
  900  FORMAT(I9)
  999  END
+
+
+C----------------------------------------------------------------------
+      SUBROUTINE HWURSC(NP,PP)
+C  RESCALES A SET OF NP (<21) 3-MOMENTA PP(1-3,*) IN
+C  THEIR CMF TO PUT PP ON MASS-SHELL AT MASSES PP(5,*) 
+C----------------------------------------------------------------------
+      IMPLICIT NONE
+      INTEGER NP,IP,IT,NT
+      DOUBLE PRECISION PP(5,*),P(5,20),P2(20),M2(20),SP(5),
+     & TINY,FAC,ECM,DCM,EP,STEP,FRT,HWUSQR
+      DATA TINY,NT/1D-9,20/
+      IF (NP.GT.20) CALL HWWARN('HWURSC',300+NP)
+C--COMPUTE CM MOMENTUM
+      CALL HWVZRO(4,SP)
+      DO IP=1,NP
+         CALL HWVSUM(4,PP(1,IP),SP,SP)
+      ENDDO
+      CALL HWUMAS(SP)
+C--BOOST TO CMF
+      DO IP=1,NP
+         CALL HWULOF(SP,PP(1,IP),P(1,IP))
+         P2(IP)=P(1,IP)**2+P(2,IP)**2+P(3,IP)**2
+         M2(IP)=P(5,IP)**2
+      ENDDO
+C--ITERATE RESCALING OF 3-MOMENTA
+      FAC=1D0
+      DO IT=1,NT
+         ECM=0D0
+         DCM=0D0
+         DO IP=1,NP
+            EP=HWUSQR(M2(IP)+FAC*P2(IP))
+            IF (EP.GT.0D0) THEN
+               ECM=ECM+EP
+               DCM=DCM+P2(IP)/EP
+            ENDIF
+         ENDDO
+         IF (DCM.EQ.0D0) CALL HWWARN('HWURSC',390)
+         STEP=2D0*(ECM-SP(5))/DCM
+         FAC=FAC-STEP
+         IF (ABS(STEP).LT.TINY) GOTO 100
+      ENDDO
+C--FAILED TO CONVERGE
+      CALL HWWARN('HWURSC',1)
+C--CONVERGED: RESCALE 3-MOMENTA AND BOOST BACK 
+ 100  IF (FAC.LT.0D0) CALL HWWARN('HWURSC',391)
+      FRT=SQRT(FAC)
+      DO IP=1,NP
+         CALL HWVSCA(3,FRT,P(1,IP),P(1,IP))
+         P(4,IP)=SQRT(M2(IP)+FAC*P2(IP))
+         CALL HWULOB(SP,P(1,IP),PP(1,IP))
+      ENDDO
+      END

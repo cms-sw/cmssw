@@ -3,7 +3,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "GeneratorInterface/MCatNLOInterface/interface/MCatNLOSource.h"
 
-  using edm::MCatNLOSource;
+using edm::MCatNLOSource;
 
-  DEFINE_SEAL_MODULE();
-  DEFINE_ANOTHER_FWK_INPUT_SOURCE(MCatNLOSource)
+DEFINE_SEAL_MODULE();
+DEFINE_ANOTHER_FWK_INPUT_SOURCE(MCatNLOSource);
