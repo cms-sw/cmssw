@@ -6,12 +6,11 @@
  author: Victor Bazterra, UIC
          Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
- version $Id: BTagValidator.cc,v 1.5 2007/02/20 01:03:20 yumiceva Exp $
+ version $Id: BTagValidator.cc,v 1.6 2007/02/20 02:00:46 yumiceva Exp $
 
 ________________________________________________________________**/
 
 #include "Validation/RecoB/interface/BTagValidator.h"
-
 
 // root include files
 #include "TClass.h"
@@ -24,10 +23,11 @@ ________________________________________________________________**/
 #include "RecoBTag/Analysis/interface/BaseBTagPlotter.h"
 
 #include "DataFormats/BTauReco/interface/TrackCountingTagInfoFwd.h"
+
+#include "FWCore/Utilities/interface/Exception.h"
+
 #include "RecoBTag/Analysis/interface/TrackCountingTagPlotter.h"
-
 #include "RecoBTag/Analysis/interface/TrackProbabilityTagPlotter.h"
-
 #include "RecoBTag/Analysis/interface/SoftLeptonTagPlotter.h"
 
 #include "Validation/RecoB/interface/HistoCompare.h"
@@ -42,32 +42,25 @@ BTagValidator::BTagValidator(const edm::ParameterSet& iConfig) {
 	rootFile_ = iConfig.getParameter<std::string>( "rootfile" );
 	DQMFile_ = iConfig.getParameter<std::string>( "DQMFile" );
 	histogramList_ = iConfig.getParameter<vstring>( "histogramList" );
-	referenceFilename_ = iConfig.getParameter<std::string>( "ReferenceFilename" );
-	doCompare_ = iConfig.getParameter<bool>( "CompareHistograms");
+	referenceFilename_ = iConfig.getParameter<std::string>( "referenceFilename" );
+	doCompare_ = iConfig.getParameter<bool>( "compareHistograms");
 	doAnalysis_ = iConfig.getParameter<bool>( "doAnalysis");
-				
-	// change assert to CMS catch exceptions
-	// throw edm::Exception(errors::Configuration, "no label") << "thelabel do no exist";
-	
+					
 	if (doAnalysis_) {
-		
 		if (algorithm_ == "TrackCounting") 
 			petBase_ = new BTagPABase<reco::TrackCountingTagInfoCollection, TrackCountingTagPlotter>(iConfig);
 		else if (algorithm_ == "TrackProbability")
 			petBase_ = new BTagPABase<reco::TrackProbabilityTagInfoCollection, TrackProbabilityTagPlotter>(iConfig);
 		else if (algorithm_ == "SoftLepton")
 			petBase_ = new BTagPABase<reco::SoftLeptonTagInfoCollection, SoftLeptonTagPlotter>(iConfig);
-		else {
-			cout << "BTagPerformanceAnalyzer: Unknown algorithm "<< algorithm_ <<endl;
-			cout << " Choose between JetTag, TrackCounting, TrackProbability\n";
-			exit(1);
-		}
+		else 
+			throw cms::Exception("UnknownAlgorithm") << algorithm_ << " possible options are TrackCounting, TrackProbability and SoftLepton. ";
 	}
 }
 
 
 BTagValidator::~BTagValidator() {
- 
+
 }
 
 
@@ -84,10 +77,8 @@ BTagValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 
 void 
-BTagValidator::endJob() {
-
-	std::cout << "=== Begin Validation" << std::endl;
-
+BTagValidator::endJob() 
+{
 	if ( doAnalysis_ ) petBase_->endJob();
 
 	// Validation section
@@ -102,10 +93,7 @@ BTagValidator::endJob() {
 	// comparison
 	HistoCompare hcompare;
 
-	if (doCompare_) {
-	  hcompare.SetReferenceFilename(TString(referenceFilename_) );
-	  //std::cout << referenceFilename_ << std::endl;
-	}
+	if (doCompare_) hcompare.SetReferenceFilename(TString(referenceFilename_) );
 	
 	file->cd();
 
@@ -118,28 +106,18 @@ BTagValidator::endJob() {
 		
 		tObject = gDirectory->Get( TString( histogramList_[i] ) ) ;
 
-		if ( tObject == 0 ) {
-			std::cout << "Histogram " << histogramList_[i] << " DOES NOT exist." << std::endl;
-			continue;
-		}
+		if ( tObject == 0 ) 
+			throw cms::Exception("BTagValidator") << "Histogram " << histogramList_[i] << " was not produced in the analysis. ";	
 								
 		if ( tObject->IsA()->InheritsFrom( "TH1" ) ) {
 			
 			TH1 * histogram = (TH1*) tObject ;  
-			std::cout << "Histogram 1D " << i << ":" << std::endl ;
-			std::cout << "  name : " << histogram->GetName() << std::endl ;
-			std::cout << "  title: " << histogram->GetTitle() << std::endl ;
-			std::cout << "  nbins: " << histogram->GetXaxis()->GetNbins() << std::endl ;
-			std::cout << "  xmin : " << histogram->GetXaxis()->GetXmin() << std::endl ;
-			std::cout << "  xmax : " << histogram->GetXaxis()->GetXmax() << std::endl ;
-			
 			
 			TH1* hresiduals = 0;
-			if (doCompare_) {
-			  std::cout << "  begin comparison"<< std::endl;
-			  hresiduals = hcompare.Compare(histogram, "/DQMData/"+TString(algorithm_)+"/"+TString(histogram->GetName()) );
-			  std::cout << "  comparison result: " << hcompare.GetResult() << std::endl;
-			}
+			
+			if (doCompare_) 
+				hresiduals = hcompare.Compare(histogram, "/DQMData/"+TString(algorithm_)+"/"+TString(histogram->GetName()) );
+			
 			file->cd();
 			
 			monElement = dbe->book1D (
@@ -149,6 +127,7 @@ BTagValidator::endJob() {
 				histogram->GetXaxis()->GetXmin(),
 				histogram->GetXaxis()->GetXmax()
 				);
+
 			for(Int_t x=0; x<histogram->GetXaxis()->GetNbins(); x++) {
 			  monElement->setBinContent ( x, histogram->GetBinContent( x ) ) ;
 			  monElement->setBinError ( x, histogram->GetBinError( x ) ) ;
@@ -173,14 +152,6 @@ BTagValidator::endJob() {
 		else if ( tObject->IsA()->InheritsFrom( "TH2" ) ) {
 			
 			TH2 * histogram = (TH2*) tObject ;  
-			std::cout << "Histogram 2D " << i << ":" << std::endl ;
-			std::cout << "  name : " << histogram->GetName() << std::endl ;
-			std::cout << "  title: " << histogram->GetTitle() << std::endl ;
-			std::cout << "  nbins: " << histogram->GetXaxis()->GetNbins() << std::endl ;
-			std::cout << "  xmin : " << histogram->GetXaxis()->GetXmin() << std::endl ;
-			std::cout << "  xmax : " << histogram->GetXaxis()->GetXmax() << std::endl ;
-			std::cout << "  ymin : " << histogram->GetYaxis()->GetXmin() << std::endl ;
-			std::cout << "  ymax : " << histogram->GetYaxis()->GetXmax() << std::endl ;
                
 			monElement = dbe->book2D (
 				std::string( histogram->GetName() ),
@@ -202,16 +173,6 @@ BTagValidator::endJob() {
 		else if ( tObject->IsA()->InheritsFrom( "TH3" ) ) {
 			
 			TH3 * histogram = (TH3*) tObject ;  
-			std::cout << "Histogram 3D " << i << ":" << std::endl ;
-			std::cout << "  name : " << histogram->GetName() << std::endl ;
-			std::cout << "  title: " << histogram->GetTitle() << std::endl ;
-			std::cout << "  nbins: " << histogram->GetXaxis()->GetNbins() << std::endl ;
-			std::cout << "  xmin : " << histogram->GetXaxis()->GetXmin() << std::endl ;
-			std::cout << "  xmax : " << histogram->GetXaxis()->GetXmax() << std::endl ;
-			std::cout << "  ymin : " << histogram->GetYaxis()->GetXmin() << std::endl ;
-			std::cout << "  ymax : " << histogram->GetYaxis()->GetXmax() << std::endl ;
-			std::cout << "  zmin : " << histogram->GetZaxis()->GetXmin() << std::endl ;
-			std::cout << "  zmax : " << histogram->GetZaxis()->GetXmax() << std::endl ;
 			
 			monElement = dbe->book3D (
 				std::string( histogram->GetName() ),
