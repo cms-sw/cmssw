@@ -13,7 +13,7 @@
 //
 // Original Author:  Jim Brooke
 //         Created:  Thu May 18 16:45:23 CEST 2006
-// $Id: L1GctTestAnalyzer.h,v 1.3 2007/02/20 16:49:58 jbrooke Exp $
+// $Id: L1GctTestAnalyzer.h,v 1.4 2007/02/21 13:11:50 jbrooke Exp $
 //
 //
 
@@ -24,6 +24,7 @@
 #include "FWCore/Framework/interface/Event.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
 
 #include <iostream>
 #include <fstream>
@@ -39,23 +40,27 @@ public:
   
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   
-  void doRctEM(const edm::Event&, std::string label);
-  void doInternEM(const edm::Event&, std::string label);
-  void doEM(const edm::Event&, std::string label);
-  void doJets(const edm::Event&, std::string label);
+  void doRctEM(const edm::Event&, edm::InputTag label);
+  void doInternEM(const edm::Event&, edm::InputTag label);
+  void doEM(const edm::Event&, edm::InputTag label);
+  void doJets(const edm::Event&, edm::InputTag label);
   
 private:
   // ----------member data ---------------------------
   
-  std::string rawLabel_;
-  std::string emuLabel_;
+  edm::InputTag rawLabel_;
+  edm::InputTag emuLabel_;
   std::string outFilename_;
   std::ofstream outFile_;
 
-  unsigned doRctEM_;
-  unsigned doInternEM_;
-  unsigned doEM_;
-  unsigned doJets_;
+  bool doHW_;
+  bool doEmu_;
+  bool doRctEM_;
+  bool doInternEM_;
+  bool doEM_;
+  bool doJets_;
+
+  unsigned rctEmMinRank_;
   
 };
 
