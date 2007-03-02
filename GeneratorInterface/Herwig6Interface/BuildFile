@@ -3,7 +3,6 @@
 <use name=SimDataFormats/HepMCProduct>
 <use name=clhep> 
 <use name=herwig6_510>
-
 <flags SEAL_PLUGIN_NAME="GeneratorInterfaceHerwig6Interface">
 <export>
  <lib name=GeneratorInterfaceHerwig6Interface>

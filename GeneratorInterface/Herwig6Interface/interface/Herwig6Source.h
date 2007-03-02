@@ -18,34 +18,28 @@
 namespace edm
 {
   class Herwig6Source : public GeneratedInputSource {
+
   public:
 
-    /// Constructor
     Herwig6Source(const ParameterSet &, const InputSourceDescription &);
-    /// Destructor
     virtual ~Herwig6Source();
 
 
   private:
 
-    /// Pass parameters to HERWIG
-    bool hwgive(const std::string& iParm );
-
-  private:
-    
     virtual bool produce(Event & e);
     void clear();
-    
+
+    bool hwgive(const std::string& iParm );
+
     HepMC::GenEvent  *evt;
-    
-    /// Verbosity flag
     int herwigVerbosity_;
     bool herwigHepMCVerbosity_;
     int herwigLhapdfVerbosity_;
     int maxEventsToPrint_;
     double comenergy;
-
     std::string lhapdfSetPath_;
+    bool useJimmy_;
     
   };
 } 

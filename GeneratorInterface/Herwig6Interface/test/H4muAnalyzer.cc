@@ -1,4 +1,4 @@
-/* This is en example for an Analyzer of a Herwig HeoMCProduct
+/* This is en example for an Analyzer of a Herwig HepMCProduct
    and looks for muons pairs and fills a histogram
    with the invaraint mass of the four. 
 */
@@ -6,7 +6,7 @@
 //
 // Original Author:  Fabian Stoeckli
 //         Created:  Tue Nov 14 13:43:02 CET 2006
-// $Id: H4muAnalyzer.cc,v 1.1 2006/11/17 14:00:19 fabstoec Exp $
+// $Id: H4muAnalyzer.cc,v 1.2 2007/02/14 15:51:35 fabstoec Exp $
 //
 //
 
@@ -38,7 +38,7 @@
 H4muAnalyzer::H4muAnalyzer(const edm::ParameterSet& iConfig)
 {
   outputFilename=iConfig.getUntrackedParameter<std::string>("OutputFilename","dummy.root");
-  invmass_histo = new TH1D("invmass_histo","invmass_histo",20,180,200);
+  invmass_histo = new TH1D("invmass_histo","invmass_histo",60,170,180);
 }
 
 
@@ -61,16 +61,17 @@ H4muAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    // look for stable muons
    std::vector<HepMC::GenParticle*> muons;   
+   muons.resize(0);
    for(HepMC::GenEvent::particle_iterator it = evt->particles_begin(); it != evt->particles_end(); ++it) {
-     if(abs((*it)->pdg_id())==13 && (*it)->status()==1)
+     if(abs((*it)->pdg_id())==13 && (*it)->status()==1) {
        muons.push_back(*it);
+     }
    }
    
    // if there are at least four muons
    // calculate invarant mass of first two and fill it into histogram
    HepLorentzVector tot_momentum;
    double inv_mass = 0.0;
-   std::cout<<muons.size()<<std::endl;
    if(muons.size()>3) {
      tot_momentum = muons[0]->momentum();
      tot_momentum += muons[1]->momentum();
@@ -80,7 +81,6 @@ H4muAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    }
    
    invmass_histo->Fill(inv_mass);
-   std::cout<<inv_mass<<std::endl;
 
 }
 
