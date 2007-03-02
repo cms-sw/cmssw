@@ -4,7 +4,7 @@ This is a generic main that can be used with any plugin and a
 PSet script.   See notes in EventProcessor.cpp for details about
 it.
 
-$Id: cmsRun.cpp,v 1.28 2007/02/08 22:35:56 chrjones Exp $
+$Id: cmsRun.cpp,v 1.29 2007/02/14 20:45:10 wdd Exp $
 
 ----------------------------------------------------------------------*/  
 
@@ -163,7 +163,7 @@ int main(int argc, char* argv[])
     } catch(cms::Exception& iException) {
       std::string shortDesc("ConfigFileReadError");
       std::ostringstream longDesc;
-      longDesc << "python found a problem "<<iException.what();
+      longDesc << "Python found a problem\n" << iException.what();
       int exitCode = 7002;
       jobRep->reportError(shortDesc, longDesc.str(), exitCode);
       edm::LogSystem(shortDesc) << longDesc.str() << "\n";
