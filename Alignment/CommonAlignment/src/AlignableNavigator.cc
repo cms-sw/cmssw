@@ -1,7 +1,7 @@
 //  \file AlignableNavigator.cc
 //
-//   $Revision: 1.10 $
-//   $Date: 2007/02/20 17:37:16 $
+//   $Revision: 1.11 $
+//   $Date: 2007/02/20 22:40:28 $
 //   (last update by $Author: cklae $)
 
 #include "Alignment/CommonAlignment/interface/AlignableDet.h"
@@ -18,6 +18,8 @@ AlignableNavigator::AlignableNavigator( Alignable* alignable )
 
   recursiveGetId( alignable );
 
+  for (int i = 0;  i < 128;  i++) detAndSubdetMap[i] = false;
+
   edm::LogInfo("Alignment") <<"@SUB=AlignableNavigator" << "created with map of size "
                             << theMap.size();
 }
@@ -30,6 +32,8 @@ AlignableNavigator::AlignableNavigator( Alignable* tracker, Alignable* muon )
 
   recursiveGetId( tracker );
   recursiveGetId( muon );
+
+  for (int i = 0;  i < 128;  i++) detAndSubdetMap[i] = false;
 
   edm::LogInfo("Alignment") <<"@SUB=AlignableNavigator" << "created with map of size "
                             << theMap.size();
@@ -44,6 +48,8 @@ AlignableNavigator::AlignableNavigator( std::vector<Alignable*> alignables )
 
   for ( std::vector<Alignable*>::iterator it = alignables.begin(); it != alignables.end(); ++it )
     recursiveGetId( *it );
+
+  for (int i = 0;  i < 128;  i++) detAndSubdetMap[i] = false;
 
   edm::LogInfo("Alignment") <<"@SUB=AlignableNavigator" << "created with map of size "
                             << theMap.size();
@@ -99,8 +105,12 @@ void AlignableNavigator::recursiveGetId( Alignable* alignable )
   // Recursive method to get the detIds of an alignable and its childs
   // and add the to the map
 
-  if ( alignable->geomDetId().rawId()) 
+  if ( alignable->geomDetId().rawId()) {
 	theMap.insert( PairType( alignable->geomDetId(), alignable ) );
+
+	char detAndSubdet = (alignable->geomDetId().rawId() >> DetId::kSubdetOffset) & 0x7F;
+	detAndSubdetMap[detAndSubdet] = true;
+  }
   std::vector<Alignable*> comp = alignable->components();
   if ( alignable->alignableObjectId() != AlignableObjectId::AlignableDet
        || comp.size() > 1 ) { // Non-glued AlignableDets contain themselves

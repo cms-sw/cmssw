@@ -54,12 +54,16 @@ public:
   /// Returns number of elements in map
   int size( void ) { return theMap.size(); }
 
+  /// Given a DetId, returns true iff DetIds with this detector and subdetector id are in the map (not necessarily the exact DetId)
+   bool detAndSubdetInMap( const DetId& detid )
+       { return detAndSubdetMap[(detid.rawId() >> DetId::kSubdetOffset) & 0x7F]; }
+
 private:
 
   void recursiveGetId( Alignable* alignable );
 
   MapType theMap;
-
+  bool detAndSubdetMap[128];
 
 };
 
