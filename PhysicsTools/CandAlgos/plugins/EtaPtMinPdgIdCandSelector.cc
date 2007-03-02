@@ -15,22 +15,19 @@
  *
  */
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "PhysicsTools/UtilAlgos/interface/ObjectSelector.h"
-#include "PhysicsTools/UtilAlgos/interface/SingleElementCollectionSelector.h"
+#include "PhysicsTools/UtilAlgos/interface/SingleObjectSelector.h"
 #include "PhysicsTools/UtilAlgos/interface/PtMinSelector.h"
 #include "PhysicsTools/UtilAlgos/interface/EtaRangeSelector.h"
 #include "PhysicsTools/UtilAlgos/interface/PdgIdSelector.h"
 #include "PhysicsTools/UtilAlgos/interface/AndSelector.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 
-typedef ObjectSelector<
-          SingleElementCollectionSelector<
-            reco::CandidateCollection,
-            AndSelector<
-              PtMinSelector<reco::Candidate>,
-              EtaRangeSelector<reco::Candidate>,
-              PdgIdSelector<reco::Candidate>
-            >
+typedef SingleObjectSelector<
+          reco::CandidateCollection,
+          AndSelector<
+            PtMinSelector<reco::Candidate>,
+            EtaRangeSelector<reco::Candidate>,
+            PdgIdSelector<reco::Candidate>
           >
         > EtaPtMinPdgIdCandSelector;
 

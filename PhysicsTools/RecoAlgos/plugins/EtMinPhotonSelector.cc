@@ -7,15 +7,12 @@
  */
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "PhysicsTools/UtilAlgos/interface/EtMinSelector.h"
-#include "PhysicsTools/UtilAlgos/interface/ObjectSelector.h"
-#include "PhysicsTools/UtilAlgos/interface/SingleElementCollectionSelector.h"
+#include "PhysicsTools/UtilAlgos/interface/SingleObjectSelector.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 
- typedef ObjectSelector<
-           SingleElementCollectionSelector<
-             reco::PhotonCollection, 
-             EtMinSelector<reco::Photon> 
-           > 
+ typedef SingleObjectSelector<
+           reco::PhotonCollection, 
+           EtMinSelector<reco::Photon> 
          > EtMinPhotonSelector;
 
 DEFINE_FWK_MODULE( EtMinPhotonSelector );

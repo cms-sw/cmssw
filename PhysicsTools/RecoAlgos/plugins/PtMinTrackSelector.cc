@@ -7,15 +7,12 @@
  */
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "PhysicsTools/UtilAlgos/interface/PtMinSelector.h"
-#include "PhysicsTools/UtilAlgos/interface/ObjectSelector.h"
-#include "PhysicsTools/UtilAlgos/interface/SingleElementCollectionSelector.h"
+#include "PhysicsTools/UtilAlgos/interface/SingleObjectSelector.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 
- typedef ObjectSelector<
-           SingleElementCollectionSelector<
-             reco::TrackCollection, 
-             PtMinSelector<reco::Track> 
-           > 
+ typedef SingleObjectSelector<
+           reco::TrackCollection, 
+           PtMinSelector<reco::Track> 
          > PtMinTrackSelector;
 
 DEFINE_FWK_MODULE( PtMinTrackSelector );

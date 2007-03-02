@@ -7,15 +7,12 @@
  */
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "PhysicsTools/UtilAlgos/interface/EtMinSelector.h"
-#include "PhysicsTools/UtilAlgos/interface/ObjectSelector.h"
-#include "PhysicsTools/UtilAlgos/interface/SingleElementCollectionSelector.h"
+#include "PhysicsTools/UtilAlgos/interface/SingleObjectSelector.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
 
- typedef ObjectSelector<
-           SingleElementCollectionSelector<
-             reco::CaloJetCollection, 
-             EtMinSelector<reco::CaloJet> 
-           > 
+ typedef SingleObjectSelector<
+           reco::CaloJetCollection, 
+           EtMinSelector<reco::CaloJet> 
          > EtMinCaloJetSelector;
 
 DEFINE_FWK_MODULE( EtMinCaloJetSelector );

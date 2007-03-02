@@ -7,15 +7,12 @@
  */
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "PhysicsTools/UtilAlgos/interface/PtMinSelector.h"
-#include "PhysicsTools/UtilAlgos/interface/ObjectSelector.h"
-#include "PhysicsTools/UtilAlgos/interface/SingleElementCollectionSelector.h"
+#include "PhysicsTools/UtilAlgos/interface/SingleObjectSelector.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 
- typedef ObjectSelector<
-           SingleElementCollectionSelector<
-             reco::MuonCollection, 
-             PtMinSelector<reco::Muon> 
-           > 
+ typedef SingleObjectSelector<
+           reco::MuonCollection, 
+           PtMinSelector<reco::Muon> 
          > PtMinMuonSelector;
 
 DEFINE_FWK_MODULE( PtMinMuonSelector );

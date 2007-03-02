@@ -9,17 +9,14 @@
 #include "PhysicsTools/UtilAlgos/interface/AndSelector.h"
 #include "PhysicsTools/UtilAlgos/interface/PtMinSelector.h"
 #include "PhysicsTools/UtilAlgos/interface/EtaRangeSelector.h"
-#include "PhysicsTools/UtilAlgos/interface/ObjectSelector.h"
-#include "PhysicsTools/UtilAlgos/interface/SingleElementCollectionSelector.h"
+#include "PhysicsTools/UtilAlgos/interface/SingleObjectSelector.h"
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
 
- typedef ObjectSelector<
-           SingleElementCollectionSelector<
-             reco::ElectronCollection,
-             AndSelector<
-               EtaRangeSelector<reco::Electron>,
-               PtMinSelector<reco::Electron> 
-             >
+ typedef SingleObjectSelector<
+           reco::ElectronCollection,
+           AndSelector<
+             EtaRangeSelector<reco::Electron>,
+             PtMinSelector<reco::Electron> 
            >
          > EtaPtMinElectronSelector;
 
