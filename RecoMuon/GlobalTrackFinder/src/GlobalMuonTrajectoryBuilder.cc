@@ -12,8 +12,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2007/02/26 18:57:12 $
- *  $Revision: 1.79 $
+ *  $Date: 2007/02/28 16:39:33 $
+ *  $Revision: 1.80 $
  *
  *  Authors :
  *  N. Neumeister            Purdue University
@@ -316,61 +316,67 @@ RectangularEtaPhiTrackingRegion GlobalMuonTrajectoryBuilder::defineRegionOfInter
   FreeTrajectoryState muFTS = tsTransform.initialFreeState(*staTrack,&*theService->magneticField());
   
   //Get Track direction at vertex
-  GlobalVector dirVector(staTrack->px(),staTrack->py(),staTrack->pz());
-  //--
-  dirVector = muFTS.momentum();
-  
+  GlobalVector dirVector(muFTS.momentum());
+
   //Get track momentum
   const math::XYZVector& mo = staTrack->innerMomentum();
   GlobalVector mom(mo.x(),mo.y(),mo.z());
   if ( staTrack->p() > 1.0 ) {
     mom = dirVector; 
   }
-  //Get innerMu position
-  const math::XYZPoint& po = staTrack->innerPosition();
-  GlobalPoint pos(po.x(),po.y(),po.z());
-  
-  //Get innerMu position error
+
+  //Get Mu state on inner muon surface
   TrajectoryStateOnSurface muTSOS = tsTransform.innerStateOnSurface(*staTrack,*theService->trackingGeometry(),&*theService->magneticField());
+  
+  //Get Mu state on tracker bound
+  //StateOnTrackerBound fromInside(&*theService->propagator(stateOnTrackerOutProp));
+  //muTSOS = fromInside(muFTS);
 
-
-  //Get dEta and dPhi: (direction at vertex) - (innerMuTsos position)
+  GlobalError  dirErr(muFTS.cartesianError().matrix().sub(4,6));
+  GlobalVector dirVecErr(dirVector.x() + sqrt(dirErr.cxx()),
+			 dirVector.y() + sqrt(dirErr.cyy()),
+			 dirVector.z() + sqrt(dirErr.czz()));
+  
+  //Get dEta and dPhi
   float eta1 = dirVector.eta();
-  float eta2 = pos.eta();
+  float eta2 = dirVecErr.eta();
   float deta(fabs(eta1- eta2));
-  float dphi(fabs(Geom::Phi<float>(dirVector.phi())-Geom::Phi<float>(pos.phi())));
+  float dphi(fabs(Geom::Phi<float>(dirVector.phi())-Geom::Phi<float>(dirVecErr.phi())));
   
-  //deta = 1 * deta;
-  //dphi = 1 * dphi;
-  
-  //deta = 1 * max(double(deta),0.05);
-  //dphi = 1 * max(double(dphi),0.07);
-  
-  GlobalPoint vertexPos = theVertexPos;
-  GlobalError vertexErr = theVertexErr;
-  //--  
-  vertexPos = (muFTS.position());
-  vertexErr = (muFTS.cartesianError().position());
-  
+  GlobalPoint vertexPos = (muFTS.position());
+  GlobalError vertexErr = (muFTS.cartesianError().position());
   
   double minPt    = max(1.5,mom.perp()*0.6);
-  double deltaZ   = min(15.9,3*sqrt(theVertexErr.czz()));
-  double deltaEta = 0.05;
-  double deltaPhi = 0.07;
+  double deltaZ   = min(15.9,3*sqrt(vertexErr.czz()));
   
-  if ( deta > 0.05 ) { // 0.06
+  double deltaEta = 0.1;//0.05
+  double deltaPhi = 0.1;//0.07
+
+   
+  if ( deta > 0.05 ) {
     deltaEta += deta/2;
   }
   if ( dphi > 0.07 ) {
     deltaPhi += 0.15;
-    if ( fabs(eta2) < 1.0 && mom.perp() < 6. ) deltaPhi = dphi;
   }
-  if ( fabs(eta1) < 1.25 && fabs(eta1) > 0.8 ) deltaEta = max(0.07,deltaEta);
+
+  deltaPhi = min(double(0.2), deltaPhi);
+  if(mom.perp() < 25.) deltaPhi = max(double(dphi),0.3);
+  if(mom.perp() < 10.) deltaPhi = max(deltaPhi,0.8);
+ 
+  deltaEta = min(double(0.2), deltaEta);
+  if( mom.perp() < 6.0 ) deltaEta = 0.5;
+  if( fabs(eta1) > 2.25 ) deltaEta = 0.6;
+  if( fabs(eta1) > 3.0 ) deltaEta = 1.0;
+  //if( fabs(eta1) > 2. && mom.perp() < 10. ) deltaEta = 1.;
+  //if ( fabs(eta1) < 1.25 && fabs(eta1) > 0.8 ) deltaEta= max(0.07,deltaEta);
   if ( fabs(eta1) < 1.3  && fabs(eta1) > 1.0 ) deltaPhi = max(0.3,deltaPhi);
 
-  deltaEta = 1 * max(double(2.5 * deta),deltaEta);
-  deltaPhi = 1 * max(double(3.5 * dphi),deltaPhi);
+  //deltaEta = min(double(0.2),deltaEta);
 
+  deltaEta = min(double(1.), 1.25 * deltaEta);
+  deltaPhi = 1.2 * deltaPhi;
+  
   RectangularEtaPhiTrackingRegion rectRegion(dirVector, vertexPos,
                                              minPt, 0.2,
                                              deltaZ, deltaEta, deltaPhi);
