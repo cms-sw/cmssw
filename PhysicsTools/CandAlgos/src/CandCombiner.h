@@ -7,16 +7,16 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.13 $
+ * \version $Revision: 1.14 $
  *
- * $Id: CandCombiner.h,v 1.13 2007/01/11 09:09:26 llista Exp $
+ * $Id: CandCombiner.h,v 1.14 2007/01/31 14:44:35 llista Exp $
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "PhysicsTools/CandUtils/interface/NBodyCombiner.h"
 #include "PhysicsTools/CandAlgos/src/decayParser.h"
-#include "PhysicsTools/Parser/interface/SingleObjectSelector.h"
+#include "PhysicsTools/Parser/interface/StringCutObjectSelector.h"
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
