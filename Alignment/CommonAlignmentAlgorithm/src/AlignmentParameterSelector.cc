@@ -1,8 +1,8 @@
 /** \file AlignmentParameterSelector.cc
  *  \author Gero Flucke, Nov. 2006
  *
- *  $Date: 2007/01/23 16:07:08 $
- *  $Revision: 1.5 $
+ *  $Date: 2007/03/02 12:16:56 $
+ *  $Revision: 1.6 $
  *  (last update by $Author: fronga $)
  */
 
@@ -127,7 +127,6 @@ unsigned int AlignmentParameterSelector::addSelection(const std::string &name,
 unsigned int AlignmentParameterSelector::addSelection(const std::string &nameInput, 
                                                       const std::vector<char> &paramSel)
 {
-
   const std::string name(this->setSpecials(nameInput)); // possibly changing name
 
   unsigned int numAli = 0;
@@ -229,13 +228,15 @@ unsigned int AlignmentParameterSelector::addSelection(const std::string &nameInp
   //
   // Muon selection
   //
-  else if (name == "MuonDTChambers")  add(theMuon->DTChambers(), paramSel);
-  else if (name == "MuonDTStations")  add(theMuon->DTStations(), paramSel);
-  else if (name == "MuonDTWheels")    add(theMuon->DTWheels(), paramSel);
-  else if (name == "MuonBarrel")      add(theMuon->DTBarrel(), paramSel);
-  else if (name == "MuonCSCChambers") add(theMuon->CSCChambers(), paramSel);
-  else if (name == "MuonCSCStations") add(theMuon->CSCStations(), paramSel);
-  else if (name == "MuonEndcaps")     add(theMuon->CSCEndcaps(), paramSel);
+  else if (name == "MuonDTSuperLayers")  add(theMuon->DTSuperLayers(), paramSel);
+  else if (name == "MuonDTChambers")  	 add(theMuon->DTChambers(), paramSel);
+  else if (name == "MuonDTStations")  	 add(theMuon->DTStations(), paramSel);
+  else if (name == "MuonDTWheels")    	 add(theMuon->DTWheels(), paramSel);
+  else if (name == "MuonBarrel")      	 add(theMuon->DTBarrel(), paramSel);
+  else if (name == "MuonCSCLayers")   	 add(theMuon->CSCLayers(), paramSel);
+  else if (name == "MuonCSCChambers") 	 add(theMuon->CSCChambers(), paramSel);
+  else if (name == "MuonCSCStations") 	 add(theMuon->CSCStations(), paramSel);
+  else if (name == "MuonEndcaps")     	 add(theMuon->CSCEndcaps(), paramSel);
 
   else if (name == "AllMuonChambers") {
      add(theMuon->DTChambers(), paramSel);
@@ -265,7 +266,7 @@ unsigned int AlignmentParameterSelector::addSelection(const std::string &nameInp
   }
 
   this->setSpecials(""); // reset
-  
+
   return numAli;
 }
 
