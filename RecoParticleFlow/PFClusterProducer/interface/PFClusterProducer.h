@@ -3,6 +3,7 @@
 
 // system include files
 #include <memory>
+#include <vector>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -44,14 +45,23 @@ class PFClusterProducer : public edm::EDProducer {
 
  private:
 
-  /// process ECAL rechits
-  void produceEcal(edm::Event&, const edm::EventSetup&);
+  /// gets ecal barrel and endcap rechits, 
+  /// translate them to PFRecHits, which are stored in the rechits vector
+  void createEcalRecHits(std::vector<reco::PFRecHit>& rechits,
+			 edm::Event&, const edm::EventSetup&);
 
-  /// process HCAL rechits
-  void produceHcal(edm::Event&, const edm::EventSetup&);
+  /// gets hcal barrel and endcap rechits, 
+  /// translate them to PFRecHits, which are stored in the rechits vector
+  void createHcalRecHits(std::vector<reco::PFRecHit>& rechits,
+			 edm::Event&, const edm::EventSetup&);
 
-  /// process PS rechits
-  void producePS(edm::Event&, const edm::EventSetup&);
+
+
+  /// gets PS rechits, 
+  /// translate them to PFRecHits, which are stored in the rechits vector
+  void createPSRecHits(std::vector<reco::PFRecHit>& rechits,
+		       edm::Event&, const edm::EventSetup&);
+
 
 
 
@@ -66,14 +76,7 @@ class PFClusterProducer : public edm::EDProducer {
 				     int layer,
 				     const CaloSubdetectorGeometry* geom );
   
-  /* not necessary to have a function for this: */
-  /*   reco::PFRecHit*  createHcalCTRecHit( const DetId& detid,  */
-  /* 				       double energy, */
-  /* 				       int layer, */
-  /* 				       const CaloSubdetectorGeometry* geom ); */
-
   
-
 
 
   /// find the position and the axis of the cell for a given rechit
@@ -84,17 +87,21 @@ class PFClusterProducer : public edm::EDProducer {
 
 
   /// find and set the neighbours to a given rechit
+  /// this works for ecal, hcal, ps
   void 
-    findRecHitNeighbours( reco::PFRecHit* rh, 
-			  const std::map<unsigned,reco::PFRecHit* >& hits, 
+    findRecHitNeighbours( reco::PFRecHit& rh, 
+			  const std::map<unsigned,unsigned >& sortedHits, 
 			  const CaloSubdetectorTopology& barrelTopo,
 			  const CaloSubdetectorGeometry& barrelGeom, 
 			  const CaloSubdetectorTopology& endcapTopo,
 			  const CaloSubdetectorGeometry& endcapGeom );
   
+  /// find and set the neighbours to a given rechit
+  /// this works for hcal CaloTowers. 
+  /// Should be possible to have a single function for all detectors
   void 
-    findRecHitNeighboursCT( reco::PFRecHit* rh, 
-			    const std::map<unsigned,reco::PFRecHit* >& rechits,
+    findRecHitNeighboursCT( reco::PFRecHit& rh, 
+			    const std::map<unsigned,unsigned >& sortedHits,
 			    const CaloSubdetectorTopology& topology, 
 			    const CaloSubdetectorGeometry& geometry );
   

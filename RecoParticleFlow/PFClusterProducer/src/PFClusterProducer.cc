@@ -35,8 +35,6 @@
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include "RecoCaloTools/Navigation/interface/CaloNavigator.h"
 
-// #include "DataFormats/CaloTowers/interface/CaloTowerFwd.h"
-// #include "DataFormats/CaloTowers/interface/CaloTower.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 
 #include "Geometry/CaloTopology/interface/CaloTowerTopology.h"
@@ -96,28 +94,30 @@ PFClusterProducer::PFClusterProducer(const edm::ParameterSet& iConfig)
     iConfig.getParameter<double>("showerSigma_Ecal");
     
 
+
+
+  int dcormode = 
+    iConfig.getParameter<int>("depthCor_Mode");
   
+  double dcora = 
+    iConfig.getParameter<double>("depthCor_A");
+  double dcorb = 
+    iConfig.getParameter<double>("depthCor_B");
+  double dcorap = 
+    iConfig.getParameter<double>("depthCor_A_preshower");
+  double dcorbp = 
+    iConfig.getParameter<double>("depthCor_B_preshower");
 
-  // parameters for preshower clustering 
+  if( dcormode > -0.5 && 
+      dcora > -0.5 && 
+      dcorb > -0.5 && 
+      dcorap > -0.5 && 
+      dcorbp > -0.5 )
+    reco::PFCluster::setDepthCorParameters( dcormode, 
+					    dcora, dcorb, 
+					    dcorap, dcorbp );
 
-  threshPS_ = 
-    iConfig.getParameter<double>("thresh_PS");
-  threshSeedPS_ = 
-    iConfig.getParameter<double>("thresh_Seed_PS");
-  
 
-  nNeighboursPS_ = 
-    iConfig.getParameter<int>("nNeighbours_PS");
-
-  posCalcP1PS_ = 
-    iConfig.getParameter<double>("posCalcP1_PS");
-
-  posCalcNCrystalPS_ = 
-    iConfig.getParameter<int>("posCalcNCrystal_PS");
-    
-  showerSigmaPS_ = 
-    iConfig.getParameter<double>("showerSigma_PS");
-    
 
   // parameters for hcal clustering
 
@@ -145,28 +145,31 @@ PFClusterProducer::PFClusterProducer(const edm::ParameterSet& iConfig)
   showerSigmaHcal_ = 
     iConfig.getParameter<double>("showerSigma_Hcal");
   
-
-
-  int    dcormode = 
-    iConfig.getParameter<int>("depthCor_Mode");
   
-  double dcora = 
-    iConfig.getParameter<double>("depthCor_A");
-  double dcorb = 
-    iConfig.getParameter<double>("depthCor_B");
-  double dcorap = 
-    iConfig.getParameter<double>("depthCor_A_preshower");
-  double dcorbp = 
-    iConfig.getParameter<double>("depthCor_B_preshower");
 
-  if( dcormode > -0.5 && 
-      dcora > -0.5 && 
-      dcorb > -0.5 && 
-      dcorap > -0.5 && 
-      dcorbp > -0.5 )
-    reco::PFCluster::setDepthCorParameters( dcormode, 
-					    dcora, dcorb, 
-					    dcorap, dcorbp );
+  // parameters for preshower clustering 
+
+  threshPS_ = 
+    iConfig.getParameter<double>("thresh_PS");
+  threshSeedPS_ = 
+    iConfig.getParameter<double>("thresh_Seed_PS");
+  
+
+  nNeighboursPS_ = 
+    iConfig.getParameter<int>("nNeighbours_PS");
+
+  posCalcP1PS_ = 
+    iConfig.getParameter<double>("posCalcP1_PS");
+
+  posCalcNCrystalPS_ = 
+    iConfig.getParameter<int>("posCalcNCrystal_PS");
+    
+  showerSigmaPS_ = 
+    iConfig.getParameter<double>("showerSigma_PS");
+    
+
+
+  // access to the collections of rechits from the various detectors:
 
   
   ecalRecHitsEBModuleLabel_ = 
@@ -205,10 +208,8 @@ PFClusterProducer::PFClusterProducer(const edm::ParameterSet& iConfig)
     iConfig.getUntrackedParameter<string>("caloTowersProductInstanceName",
 					  "");
     
-//   produceClusters_ = 
-//     iConfig.getUntrackedParameter<bool>("produceClusters", true );
     
-
+  // produce PFRecHits yes/no
   produceRecHits_ = 
     iConfig.getUntrackedParameter<bool>("produce_RecHits", false );
 
@@ -233,31 +234,158 @@ PFClusterProducer::~PFClusterProducer() {}
 void PFClusterProducer::produce(edm::Event& iEvent, 
 				const edm::EventSetup& iSetup) {
   
-  if( processEcal_ ) produceEcal(iEvent, iSetup);
-  if( processHcal_ ) produceHcal(iEvent, iSetup);
-  if(processPS_) producePS(iEvent, iSetup);
+
+  if( processEcal_ ) {
+    
+    vector<reco::PFRecHit> *prechits = new vector<reco::PFRecHit>;
+    vector<reco::PFRecHit>& rechits = *prechits;
+
+    // create PFRecHits and put them in rechits
+    createEcalRecHits( rechits, iEvent, iSetup);
+
+    if(clusteringEcal_) {
+      // initialize clustering algorithm
+      PFClusterAlgo clusteralgo( rechits ); 
+      
+      clusteralgo.setThreshBarrel( threshEcalBarrel_ );
+      clusteralgo.setThreshSeedBarrel( threshSeedEcalBarrel_ );
+      
+      clusteralgo.setThreshEndcap( threshEcalEndcap_ );
+      clusteralgo.setThreshSeedEndcap( threshSeedEcalEndcap_ );
+      
+      clusteralgo.setNNeighbours( nNeighboursEcal_ );
+      clusteralgo.setPosCalcNCrystal( posCalcNCrystalEcal_ );
+      clusteralgo.setPosCalcP1( posCalcP1Ecal_ );
+      clusteralgo.setShowerSigma( showerSigmaEcal_ );
+      
+      // do clustering
+      clusteralgo.doClustering();
+      
+      LogInfo("PFClusterProducer")
+	<<" ECAL clusters --------------------------------- "<<endl
+	<<clusteralgo<<endl;
+    
+      // get clusters out of the clustering algorithm 
+      // and put them in the event. There is no copy.
+      auto_ptr< vector<reco::PFCluster> > 
+	outClustersECAL( clusteralgo.clusters() ); 
+      iEvent.put( outClustersECAL, "ECAL");
+    }
+
+    // if requested, write PFRecHits in the event
+    if(produceRecHits_) {
+      auto_ptr< vector<reco::PFRecHit> > recHits( prechits ); 
+      iEvent.put( recHits, "ECAL" );
+    }
+       
+  }
+
+
+
+  if( processHcal_ ) {
+    
+    vector<reco::PFRecHit> *prechits = new vector<reco::PFRecHit>;
+    vector<reco::PFRecHit>& rechits = *prechits;
+
+    createHcalRecHits(rechits, iEvent, iSetup);
+
+    if(clusteringHcal_) {
+      PFClusterAlgo clusteralgo(rechits); 
+      
+      clusteralgo.setThreshBarrel( threshHcalBarrel_ );
+      clusteralgo.setThreshSeedBarrel( threshSeedHcalBarrel_ );
+      
+      clusteralgo.setThreshEndcap( threshHcalEndcap_ );
+      clusteralgo.setThreshSeedEndcap( threshSeedHcalEndcap_ );
+      
+      clusteralgo.setNNeighbours( nNeighboursHcal_ );
+      clusteralgo.setPosCalcNCrystal( posCalcNCrystalHcal_ );
+      clusteralgo.setPosCalcP1( posCalcP1Hcal_ );
+      clusteralgo.setShowerSigma( showerSigmaHcal_ );
+
+      // do clustering
+      clusteralgo.doClustering();
+      
+      LogInfo("PFClusterProducer")
+	<<" HCAL clusters --------------------------------- "<<endl
+	<<clusteralgo<<endl;
+      
+      // get clusters out of the clustering algorithm 
+      // and put them in the event. There is no copy.
+      auto_ptr< vector<reco::PFCluster> > 
+	outClustersHCAL( clusteralgo.clusters() ); 
+      iEvent.put( outClustersHCAL, "HCAL");
+    }
+
+    // if requested, write PFRecHits in the event
+    if(produceRecHits_) {
+      auto_ptr< vector<reco::PFRecHit> > recHits( prechits ); 
+      iEvent.put( recHits, "HCAL" );
+    }
+
+  }
+
+
+  if( processPS_ ) {
+
+    vector<reco::PFRecHit> *prechits = new vector<reco::PFRecHit>;
+    vector<reco::PFRecHit>& rechits = *prechits;
+
+    createPSRecHits(rechits, iEvent, iSetup);
+
+    if(clusteringPS_) {
+
+      PFClusterAlgo clusteralgo( rechits ); 
+      
+      clusteralgo.setThreshEndcap( threshPS_ );
+      clusteralgo.setThreshSeedEndcap( threshSeedPS_ );
+
+      clusteralgo.setNNeighbours( nNeighboursPS_ );
+      clusteralgo.setPosCalcNCrystal( posCalcNCrystalPS_ );
+      clusteralgo.setPosCalcP1( posCalcP1PS_ );
+      clusteralgo.setShowerSigma( showerSigmaPS_ );
+      
+      clusteralgo.doClustering();
+
+      LogInfo("PFClusterProducer")
+	<<" Preshower clusters --------------------------------- "<<endl
+	<<clusteralgo<<endl;
+	   
+      // get clusters out of the clustering algorithm 
+      // and put them in the event. There is no copy.
+      auto_ptr< vector<reco::PFCluster> > 
+	outClustersPS( clusteralgo.clusters() ); 
+      iEvent.put( outClustersPS, "PS");
+      
+
+    }    
+
+    // if requested, write PFRecHits in the event
+    if(produceRecHits_) {
+      auto_ptr< vector<reco::PFRecHit> > recHits( prechits ); 
+      iEvent.put( recHits, "PS" );
+    }
+
+  }
+
 }
 
 
 
-void PFClusterProducer::produceEcal( edm::Event& iEvent, 
-				     const edm::EventSetup& iSetup ) {
-
-  //C this vector will be passed to the clustering algorithm
-  //C can be created from the Ecal rechits, 
-  //C or directly read from the Event (PFRecHitCollection) 
-  //C Should this be an auto_ptr to a vector of rechits? 
-  vector<reco::PFRecHit> rechits;
+void PFClusterProducer::createEcalRecHits(vector<reco::PFRecHit>& rechits,
+					  edm::Event& iEvent, 
+					  const edm::EventSetup& iSetup ) {
 
 
-  //C this map is necessary to find the rechit neighbours efficiently
+
+  // this map is necessary to find the rechit neighbours efficiently
   //C but I should think about using Florian's hashed index to do this.
   //C in which case the map might not be necessary anymore
-  //C 
-  //C the key of this map is detId. 
-  //C the value is the index in the rechits vector
-  map<unsigned,  reco::PFRecHit* > idSortedRecHits;
-  
+  // 
+  // the key of this map is detId. 
+  // the value is the index in the rechits vector
+  map<unsigned, unsigned > idSortedRecHits;
+  typedef map<unsigned, unsigned >::iterator IDH;
 
   edm::ESHandle<CaloGeometry> geoHandle;
   iSetup.get<IdealGeometryRecord>().get(geoHandle);
@@ -307,13 +435,16 @@ void PFClusterProducer::produceEcal( edm::Event& iEvent,
       //C and insert it in the idSortedRecHits map:
       //C key: detId - value: index in rechits vector
 
+
       reco::PFRecHit *pfrh = createEcalRecHit(detid, energy,  
 					      PFLayer::ECAL_BARREL,
 					      ecalBarrelGeometry);
 
       if( !pfrh ) continue; // problem with this rechit. skip it
 
-      idSortedRecHits.insert( make_pair(detid.rawId(), pfrh) ); 
+      rechits.push_back( *pfrh );
+      delete pfrh;
+      idSortedRecHits.insert( make_pair(detid.rawId(), rechits.size()-1 ) ); 
     }      
   }
   catch ( cms::Exception& ex ) {
@@ -345,13 +476,15 @@ void PFClusterProducer::produceEcal( edm::Event& iEvent,
      
       if(energy < threshEcalEndcap_ ) continue;
 
+      
       reco::PFRecHit *pfrh = createEcalRecHit(detid, energy,
 					      PFLayer::ECAL_ENDCAP,
 					      ecalEndcapGeometry);
-      
       if( !pfrh ) continue; // problem with this rechit. skip it
 
-      idSortedRecHits.insert( make_pair(detid.rawId(), pfrh) ); 
+      rechits.push_back( *pfrh );
+      delete pfrh;
+      idSortedRecHits.insert( make_pair(detid.rawId(), rechits.size()-1 ) ); 
     }
   }
   catch ( cms::Exception& ex ) {
@@ -361,101 +494,38 @@ void PFClusterProducer::produceEcal( edm::Event& iEvent,
   }
 
 
-  //C assert( rechits.size() == idSortedRecHits.size() );
-  //C 
-  // find rechits neighbours
-  for( PFClusterAlgo::IDH ih = idSortedRecHits.begin(); 
-       ih != idSortedRecHits.end(); ih++) {
+  // do navigation
+  for(unsigned i=0; i<rechits.size(); i++ ) {
     
-    //C get the pointer to rechit from rechits
-    //C using the index in idSortedRecHits
-    //C this function should work almost without any modification !
-    findRecHitNeighbours( ih->second, idSortedRecHits, 
+    findRecHitNeighbours( rechits[i], idSortedRecHits, 
 			  ecalBarrelTopology, 
 			  *ecalBarrelGeometry, 
 			  ecalEndcapTopology,
 			  *ecalEndcapGeometry);
   }
-    
-  if(clusteringEcal_) {
-    //C replace by PFClusterAlgo clusteralgo(rechits); 
-    PFClusterAlgo clusteralgo; 
-      
-    clusteralgo.setThreshBarrel( threshEcalBarrel_ );
-    clusteralgo.setThreshSeedBarrel( threshSeedEcalBarrel_ );
-      
-    clusteralgo.setThreshEndcap( threshEcalEndcap_ );
-    clusteralgo.setThreshSeedEndcap( threshSeedEcalEndcap_ );
-        
-    clusteralgo.setNNeighbours( nNeighboursEcal_ );
-    clusteralgo.setPosCalcNCrystal( posCalcNCrystalEcal_ );
-    clusteralgo.setPosCalcP1( posCalcP1Ecal_ );
-    clusteralgo.setShowerSigma( showerSigmaEcal_ );
-      
-    //C remove
-    clusteralgo.init( idSortedRecHits ); 
-    clusteralgo.doClustering();
+} 
 
-    LogInfo("PFClusterProducer")
-      <<" ECAL clusters --------------------------------- "<<endl
-      <<clusteralgo<<endl;
+  
 
-    // get clusters out of the clustering algorithm 
-    // and put them in the event. There is no copy.
-    auto_ptr< vector<reco::PFCluster> > 
-      outClustersECAL( clusteralgo.clusters() ); 
-    iEvent.put( outClustersECAL, "ECAL");
-  }    
+void PFClusterProducer::createHcalRecHits(vector<reco::PFRecHit>& rechits,
+					  edm::Event& iEvent, 
+					  const edm::EventSetup& iSetup ) {
 
+  
+  // this map is necessary to find the rechit neighbours efficiently
+  //C but I should think about using Florian's hashed index to do this.
+  //C in which case the map might not be necessary anymore
+  //C however the hashed index does not seem to be implemented for HCAL
+  // 
+  // the key of this map is detId. 
+  // the value is the index in the rechits vector
+  map<unsigned,  unsigned > idSortedRecHits;
+  typedef map<unsigned, unsigned >::iterator IDH;  
 
-  // if requested, get rechits passing the threshold from algo, 
-  // and pass them to the event.
-  //C this if is probably not necessary. People are free to drop the branch 
-  //C if they do not want it. On another hand, there should be no reason to 
-  //C store the PFRecHits in the event, since they're so big, and since they
-  //C are in fact a copy of existing objects.
-  if(produceRecHits_) {
-
-    //C replace all this by 
-    //C   auto_ptr< vector<reco::PFRecHit> > 
-    //C    recHits( &rechits ); ?? 
-    //C or work directly on a rechit auto_ptr from the 
-    //C beginning
-    auto_ptr< vector<reco::PFRecHit> > 
-      recHits( new vector<reco::PFRecHit> ); 
-      
-    recHits->reserve( idSortedRecHits.size() ); 
-      
-    for( PFClusterAlgo::IDH ih = idSortedRecHits.begin(); 
-	 ih != idSortedRecHits.end(); ih++) {  
-      recHits->push_back( reco::PFRecHit( *(ih->second) ) );    
-    }
-     
-    iEvent.put( recHits, "ECAL" );
-  }
-    
-  //C put the following in an else. 
-  //C when we start using a rechits vector, 
-  //C the vector will be passed to the Event using an auto_ptr.
-  //C clearing is necessary only if the rechits are not passed to the event.
-  // clear all rechits
-  for( PFClusterAlgo::IDH ih = idSortedRecHits.begin(); 
-       ih != idSortedRecHits.end(); ih++) {  
-    delete ih->second;
-  }
-
-}
-
-
-void PFClusterProducer::produceHcal(edm::Event& iEvent, 
-				    const edm::EventSetup& iSetup) {
-
-
-  map<unsigned,  reco::PFRecHit* > hcalrechits;
 
   edm::ESHandle<CaloGeometry> geoHandle;
   iSetup.get<IdealGeometryRecord>().get(geoHandle);
-    
+  
   // get the hcalBarrel geometry
   const CaloSubdetectorGeometry *hcalBarrelGeometry = 
     geoHandle->getSubdetectorGeometry(DetId::Hcal, HcalBarrel);
@@ -546,22 +616,28 @@ void PFClusterProducer::produceHcal(edm::Event& iEvent,
 	const GlobalPoint& position = geom->getPosition();
 
 
-	reco::PFRecHit* pfrechit 
+	reco::PFRecHit*  pfrh
 	  = new reco::PFRecHit( ct.id().rawId(), layer, energy, 
 				position.x(), position.y(), position.z(), 
 				0,0,0 );
 
+	if(!pfrh) continue; // problem with the rechit. skip it
+	
+	rechits.push_back( *pfrh );
+	delete pfrh;
+		
 	// note that the key is the CaloTower detid, 
-	// not the constituent detid. 	  
-	hcalrechits.insert( make_pair(ct.id().rawId(), pfrechit) ); 
+	// not the constituent detid. 	
+	idSortedRecHits.insert( make_pair(ct.id().rawId(), 
+					  rechits.size()-1 ) ); 
       }
 
 
       // do navigation 
-      for( PFClusterAlgo::IDH ih = hcalrechits.begin(); 
-	   ih != hcalrechits.end(); ih++) {
-	findRecHitNeighboursCT( ih->second, 
-				hcalrechits, 
+      for(unsigned i=0; i<rechits.size(); i++ ) {
+
+	findRecHitNeighboursCT( rechits[i], 
+				idSortedRecHits, 
 				caloTowerTopology, 
 				*caloTowerGeometry );
       }
@@ -597,13 +673,13 @@ void PFClusterProducer::produceHcal(edm::Event& iEvent,
 	
 	  double energy = hit.energy();
 	
-	  reco::PFRecHit* pfrechit = 0;
+	  reco::PFRecHit* pfrh = 0;
 	  
 	  const HcalDetId& detid = hit.detid();
 	  switch( detid.subdet() ) {
 	  case HcalBarrel:
 	    if(energy > threshHcalBarrel_){
-	      pfrechit = createHcalRecHit(detid, 
+	      pfrh = createHcalRecHit(detid, 
 					  energy, 
 					  PFLayer::HCAL_BARREL1, 
 					  hcalBarrelGeometry );
@@ -611,7 +687,7 @@ void PFClusterProducer::produceHcal(edm::Event& iEvent,
 	    break;
 	  case HcalEndcap:
 	    if(energy > threshHcalEndcap_){
-	      pfrechit = createHcalRecHit(detid, 
+	      pfrh = createHcalRecHit(detid, 
 					  energy, 
 					  PFLayer::HCAL_ENDCAP, 
 					  hcalEndcapGeometry );
@@ -623,16 +699,19 @@ void PFClusterProducer::produceHcal(edm::Event& iEvent,
 	    continue;
 	  } 
 
-	  if(pfrechit) 	    
-	    hcalrechits.insert( make_pair(detid.rawId(), pfrechit) ); 
-	  
+	  if(pfrh) { 
+	    rechits.push_back( *pfrh );
+	    delete pfrh;
+	    idSortedRecHits.insert( make_pair(detid.rawId(), 
+					      rechits.size()-1 ) ); 
+	  }
 	}
   
 
 	// do navigation:
-	for( PFClusterAlgo::IDH ih = hcalrechits.begin(); 
-	     ih != hcalrechits.end(); ih++) {
-	  findRecHitNeighbours( ih->second, hcalrechits, 
+	for(unsigned i=0; i<rechits.size(); i++ ) {
+	  
+	  findRecHitNeighbours( rechits[i], idSortedRecHits, 
 				hcalTopology, 
 				*hcalBarrelGeometry, 
 				hcalTopology,
@@ -645,69 +724,17 @@ void PFClusterProducer::produceHcal(edm::Event& iEvent,
       return;
     }
   }
-
-
-
-  if(clusteringHcal_) {
-
-    PFClusterAlgo clusteralgo; 
-	  
-    clusteralgo.setThreshBarrel( threshHcalBarrel_ );
-    clusteralgo.setThreshSeedBarrel( threshSeedHcalBarrel_ );
-	  
-    clusteralgo.setThreshEndcap( threshHcalEndcap_ );
-    clusteralgo.setThreshSeedEndcap( threshSeedHcalEndcap_ );
-    
-    clusteralgo.setNNeighbours( nNeighboursHcal_ );
-    clusteralgo.setPosCalcNCrystal( posCalcNCrystalHcal_ );
-    clusteralgo.setPosCalcP1( posCalcP1Hcal_ );
-    clusteralgo.setShowerSigma( showerSigmaHcal_ );
-
-    clusteralgo.init( hcalrechits ); 
-    clusteralgo.doClustering();
-	
-    LogInfo("PFClusterProducer")
-      <<" HCAL clusters --------------------------------- "<<endl
-      <<clusteralgo<<endl;
-	
-    auto_ptr< vector<reco::PFCluster> > 
-      outClustersHCAL( clusteralgo.clusters() ); 
-    // 	outClustersHCAL = clusteralgo.clusters();
-    iEvent.put( outClustersHCAL, "HCAL");	  
-  }
-
-
-  // if requested, get rechits passing the threshold from algo, 
-  // and pass them to the event.
-  if(produceRecHits_) {
-	  
-    auto_ptr< vector<reco::PFRecHit> > 
-      recHits( new vector<reco::PFRecHit> ); 
-    recHits->reserve( hcalrechits.size() );
-	  
-    for( PFClusterAlgo::IDH ih = hcalrechits.begin(); 
-	 ih != hcalrechits.end(); ih++) {
-      recHits->push_back( reco::PFRecHit( *(ih->second) ) );    
-    }
-	  
-    iEvent.put( recHits, "HCAL" );
-  }
-
-	
-  // clear all rechits
-  for( PFClusterAlgo::IDH ih = hcalrechits.begin(); 
-       ih != hcalrechits.end(); ih++) {
-	
-    delete ih->second;
-  }
 }
 
 
 
-void PFClusterProducer::producePS(edm::Event& iEvent, 
-				  const edm::EventSetup& iSetup) {
-  
-  map<unsigned,  reco::PFRecHit* > psrechits;
+void PFClusterProducer::createPSRecHits(vector<reco::PFRecHit>& rechits,
+					edm::Event& iEvent, 
+					const edm::EventSetup& iSetup) {
+
+  map<unsigned, unsigned > idSortedRecHits;
+  typedef map<unsigned, unsigned >::iterator IDH;
+
 
   // get the ps geometry
   edm::ESHandle<CaloGeometry> geoHandle;
@@ -733,10 +760,10 @@ void PFClusterProducer::producePS(edm::Event& iEvent,
       return;
     }
 
-    const EcalRecHitCollection& rechits = *( pRecHits.product() );
+    const EcalRecHitCollection& psrechits = *( pRecHits.product() );
     typedef EcalRecHitCollection::const_iterator IT;
  
-    for(IT i=rechits.begin(); i!=rechits.end(); i++) {
+    for(IT i=psrechits.begin(); i!=psrechits.end(); i++) {
       const EcalRecHit& hit = *i;
       
       double energy = hit.energy();
@@ -770,71 +797,16 @@ void PFClusterProducer::producePS(edm::Event& iEvent,
 	assert(0);
       }
  
-      reco::PFRecHit *pfrechit 
+      reco::PFRecHit *pfrh
 	= new reco::PFRecHit( detid.rawId(), layer, energy, 
 			      position.x(), position.y(), position.z(), 
 			      0,0,0 );
 	
-      psrechits.insert( make_pair(detid.rawId(), pfrechit) );
-	
-    }
-    
-    // cout<<"find rechits neighbours"<<endl;
-    for( PFClusterAlgo::IDH ih = psrechits.begin(); 
-	 ih != psrechits.end(); ih++) {
-	
-      findRecHitNeighbours( ih->second, psrechits, 
-			    psTopology, 
-			    *psGeometry, 
-			    psTopology,
-			    *psGeometry);
-    }
-      
-    if(clusteringPS_) {
+      if( !pfrh ) continue; // problem with this rechit. skip it
 
-      PFClusterAlgo clusteralgo; 
-	
-      clusteralgo.setThreshEndcap( threshPS_ );
-      clusteralgo.setThreshSeedEndcap( threshSeedPS_ );
-
-      clusteralgo.setNNeighbours( nNeighboursPS_ );
-      clusteralgo.setPosCalcNCrystal( posCalcNCrystalPS_ );
-      clusteralgo.setPosCalcP1( posCalcP1PS_ );
-      clusteralgo.setShowerSigma( showerSigmaPS_ );
-	
-      clusteralgo.init( psrechits ); 
-      clusteralgo.doClustering();
-
-      LogInfo("PFClusterProducer")
-	<<" Preshower clusters --------------------------------- "<<endl
-	<<clusteralgo<<endl;
-	
-      auto_ptr< vector<reco::PFCluster> > 
-	outClustersPS( clusteralgo.clusters() ); 
-      iEvent.put( outClustersPS, "PS");
-    }    
-
-    // if requested, get rechits passing the threshold from algo, 
-    // and pass them to the event.
-    if(produceRecHits_) {
-	
-      auto_ptr< vector<reco::PFRecHit> > 
-	recHits( new vector<reco::PFRecHit> ); 
-      recHits->reserve( psrechits.size() );
-	
-      for( PFClusterAlgo::IDH ih = psrechits.begin(); 
-	   ih != psrechits.end(); ih++) {  
-	recHits->push_back( reco::PFRecHit( *(ih->second) ) );    
-      }
-	
-      iEvent.put( recHits, "PS" );
-    }
-      
-
-    // clear all 
-    for( PFClusterAlgo::IDH ih = psrechits.begin(); 
-	 ih != psrechits.end(); ih++) {  
-      delete ih->second;
+      rechits.push_back( *pfrh );
+      delete pfrh;
+      idSortedRecHits.insert( make_pair(detid.rawId(), rechits.size()-1 ) );   
     }
   }
   catch ( cms::Exception& ex ) {
@@ -843,6 +815,16 @@ void PFClusterProducer::producePS(edm::Event& iEvent,
       <<ecalRecHitsESModuleLabel_
       <<", product instance: "<<ecalRecHitsESProductInstanceName_
       <<endl;
+  }
+    
+  // do navigation
+  for(unsigned i=0; i<rechits.size(); i++ ) {
+    
+    findRecHitNeighbours( rechits[i], idSortedRecHits, 
+			  psTopology, 
+			  *psGeometry, 
+			  psTopology,
+			  *psGeometry);
   }
 }
 
@@ -877,8 +859,6 @@ PFClusterProducer::createEcalRecHit( const DetId& detid,
 
 
 
-
-
 reco::PFRecHit* 
 PFClusterProducer::createHcalRecHit( const DetId& detid,
 				     double energy,
@@ -902,36 +882,6 @@ PFClusterProducer::createHcalRecHit( const DetId& detid,
   
   return rh;
 }
-
-
-
-
-// reco::PFRecHit* 
-// PFClusterProducer::createHcalCTRecHit( const DetId& detid,
-// 				       double energy,
-// 				       int layer,
-// 				       const CaloSubdetectorGeometry* geom ) {
-  
-//   const CaloCellGeometry *thisCell = geom->getGeometry(detid);
-//   if(!thisCell) {
-//     edm::LogError("PFClusterProducer")
-//       <<"warning detid "<<detid.rawId()<<" not found in layer "
-//       <<layer<<endl;
-//     return 0;
-//   }
-  
-//   const GlobalPoint& position = thisCell->getPosition();
-  
-//   reco::PFRecHit *rh = 
-//     new reco::PFRecHit( detid.rawId(),  layer, energy, 
-// 			position.x(), position.y(), position.z(), 
-// 			0,0,0 );
-  
-//   return rh;
-// }
-
-
-
 
 
 
@@ -982,24 +932,21 @@ PFClusterProducer::findEcalRecHitGeometry(const DetId& detid,
 
 void 
 PFClusterProducer::findRecHitNeighbours
-( reco::PFRecHit* rh, 
-  const map<unsigned, reco::PFRecHit* >& rechits, 
+( reco::PFRecHit& rh, 
+  const map<unsigned,unsigned >& sortedHits, 
   const CaloSubdetectorTopology& barrelTopology, 
   const CaloSubdetectorGeometry& barrelGeometry, 
   const CaloSubdetectorTopology& endcapTopology, 
   const CaloSubdetectorGeometry& endcapGeometry ) {
   
-  const math::XYZPoint& cpos = rh->positionXYZ();
+  const math::XYZPoint& cpos = rh.positionXYZ();
   double posx = cpos.X();
   double posy = cpos.Y();
   double posz = cpos.Z();
 
-  bool debug = false;
-//   if( rh->layer() == PFLayer::PS1 ||
-//       rh->layer() == PFLayer::PS2 ) debug = true;
   
 
-  DetId detid( rh->detId() );
+  DetId detid( rh.detId() );
 
   CaloNavigator<DetId>* navigator = 0;
   CaloSubdetectorGeometry* geometry = 0;
@@ -1007,11 +954,9 @@ PFClusterProducer::findRecHitNeighbours
 
 
 
-  if(debug) cerr<<"find hcal neighbours "<<rh->layer()<<endl;
   
-  switch( rh->layer()  ) {
+  switch( rh.layer()  ) {
   case PFLayer::ECAL_ENDCAP: 
-    // if(debug) cerr<<"ec cell"<<endl;
     navigator = new CaloNavigator<DetId>(detid, &endcapTopology);
     geometry = const_cast< CaloSubdetectorGeometry* > (&endcapGeometry);
     break;
@@ -1044,19 +989,14 @@ PFClusterProducer::findRecHitNeighbours
 
   assert( navigator && geometry );
 
-  // if(debug) cerr<<"nav and geom are non 0"<<endl;
 
-  if(debug) cerr<<"calling north"<<endl;
   DetId north = navigator->north();  
-  if(debug) cerr<<"north"<<endl;
   
   DetId northeast(0);
   if( north != DetId(0) ) {
     northeast = navigator->east();  
     if( northeast != DetId(0) ) {
 
-//       ESDetId esid(northeast.rawId());
-//       cout<<"nb layer : "<<esid.plane()<<endl;
 
       const CaloCellGeometry * nbcell = geometry->getGeometry(northeast);
       if(!nbcell)
@@ -1074,32 +1014,22 @@ PFClusterProducer::findRecHitNeighbours
 	cposz += posz; 
 	cposz /= 2.;
 	
-	rh->setNECorner( cposx, cposy, cposz );
+	rh.setNECorner( cposx, cposy, cposz );
       }
-      else if(debug) 
-	cerr<<cpos.Eta()<<" "<<cpos.Phi()
-	    <<"geometry not found for detid "<<northeast.rawId()
-	    <<" NE corner not set"<<endl;
     }
-    else if(debug) cerr<<cpos.Eta()<<" "<<cpos.Phi()
-			 <<"invalid detid NE corner not set"<<endl;
   }
   navigator->home();
 
-  if(debug) cerr<<"ne ok"<<endl;
 
   DetId south = navigator->south();
 
-  if(debug) cerr<<"south ok"<<endl;
   
 
   DetId southwest(0); 
   if( south != DetId(0) ) {
   
     southwest = navigator->west();
-    if(debug) cerr<<1<<endl;
     if( southwest != DetId(0) ) {
-      if(debug) cerr<<2<<endl;
       const CaloCellGeometry * nbcell = geometry->getGeometry(southwest);
 
       // now that we have moved, it could be that the neighbour is not in 
@@ -1121,22 +1051,14 @@ PFClusterProducer::findRecHitNeighbours
 	cposz += posz; 
 	cposz /= 2.;
 	
-	rh->setSWCorner( cposx, cposy, cposz );
+	rh.setSWCorner( cposx, cposy, cposz );
       }
-      else if(debug) 
-	cerr<<cpos.Eta()<<" "<<cpos.Phi()
-	    <<"geometry not found for detid "<<southwest.rawId()
-	    <<" SW corner not set"<<endl;
     }
-    else if(debug) cerr<<cpos.Eta()<<" "<<cpos.Phi()
-			 <<"invalid detid SW corner not set"<<endl;
   }
   navigator->home();
-  if(debug) cerr<<"sw ok"<<endl;
 
 
   DetId east = navigator->east();
-  if(debug) cerr<<"e ok"<<endl;
   DetId southeast;
   if( east != DetId(0) ) {
     southeast = navigator->south(); 
@@ -1157,19 +1079,12 @@ PFClusterProducer::findRecHitNeighbours
 	cposz += posz; 
 	cposz /= 2.;
       
-	rh->setSECorner( cposx, cposy, cposz );
+	rh.setSECorner( cposx, cposy, cposz );
       }
-      else  if(debug) cerr<<cpos.Eta()<<" "<<cpos.Phi()
-			  <<"geometry not found for detid "<<southeast.rawId()
-			  <<" SE corner not set"<<endl;
     }
-    else if(debug) cerr<<cpos.Eta()<<" "<<cpos.Phi()
-			 <<"invalid detid SE corner not set"<<endl;
   }
   navigator->home();
-  if(debug) cerr<<"se ok"<<endl;
   DetId west = navigator->west();
-  if(debug) cerr<<"w ok"<<endl;
   DetId northwest;
   if( west != DetId(0) ) {   
     northwest = navigator->north();  
@@ -1190,73 +1105,60 @@ PFClusterProducer::findRecHitNeighbours
 	cposz += posz; 
 	cposz /= 2.;
       
-	rh->setNWCorner( cposx, cposy, cposz );
+	rh.setNWCorner( cposx, cposy, cposz );
       }
-      else if(debug) cerr<<cpos.Eta()<<" "<<cpos.Phi()
-			 <<"geometry not found for detid "<<northwest.rawId()
-			 <<" NW corner not set"<<endl;
     }
-    else if(debug) cerr<<cpos.Eta()<<" "<<cpos.Phi()
-			 <<"invalid detid NW corner not set"<<endl;
   }
   navigator->home();
-  if(debug) cerr<<"nw ok"<<endl;
     
-  reco::PFRecHit* rhnorth = 0;
-  PFClusterAlgo::IDH i = rechits.find( north.rawId() );
-  if(i != rechits.end() ) 
-    rhnorth = i->second;
+  PFClusterAlgo::IDH i = sortedHits.find( north.rawId() );
+  if(i != sortedHits.end() ) 
+    rh.add4Neighbour( i->second );
+  
+  i = sortedHits.find( northeast.rawId() );
+  if(i != sortedHits.end() ) 
+    rh.add8Neighbour( i->second );
+  
+  i = sortedHits.find( south.rawId() );
+  if(i != sortedHits.end() ) 
+    rh.add4Neighbour( i->second );
     
-  reco::PFRecHit* rhnortheast = 0;
-  i = rechits.find( northeast.rawId() );
-  if(i != rechits.end() ) 
-    rhnortheast = i->second;
+  i = sortedHits.find( southwest.rawId() );
+  if(i != sortedHits.end() ) 
+    rh.add8Neighbour( i->second );
     
-  reco::PFRecHit* rhsouth = 0;
-  i = rechits.find( south.rawId() );
-  if(i != rechits.end() ) 
-    rhsouth = i->second;
+  i = sortedHits.find( east.rawId() );
+  if(i != sortedHits.end() ) 
+    rh.add4Neighbour( i->second );
     
-  reco::PFRecHit* rhsouthwest = 0;
-  i = rechits.find( southwest.rawId() );
-  if(i != rechits.end() ) 
-    rhsouthwest = i->second;
+  i = sortedHits.find( southeast.rawId() );
+  if(i != sortedHits.end() ) 
+    rh.add8Neighbour( i->second );
     
-  reco::PFRecHit* rheast = 0;
-  i = rechits.find( east.rawId() );
-  if(i != rechits.end() ) 
-    rheast = i->second;
-    
-  reco::PFRecHit* rhsoutheast = 0;
-  i = rechits.find( southeast.rawId() );
-  if(i != rechits.end() ) 
-    rhsoutheast = i->second;
-    
-  reco::PFRecHit* rhwest = 0;
-  i = rechits.find( west.rawId() );
-  if(i != rechits.end() ) 
-    rhwest = i->second;
-    
-  reco::PFRecHit* rhnorthwest = 0;
-  i = rechits.find( northwest.rawId() );
-  if(i != rechits.end() ) 
-    rhnorthwest = i->second;
+  i = sortedHits.find( west.rawId() );
+  if(i != sortedHits.end() ) 
+     rh.add4Neighbour( i->second );
+   
+  i = sortedHits.find( northwest.rawId() );
+  if(i != sortedHits.end() ) 
+    rh.add8Neighbour( i->second );
     
   //C everything should be ok here.
   //C the vector is now a vector<unsigned>
   //C and that's indeed an unsigned which is found in the map.
-  vector<reco::PFRecHit*> neighbours;
-  neighbours.reserve(8);
-  neighbours.push_back( rhnorth );
-  neighbours.push_back( rhnorthwest );
-  neighbours.push_back( rhwest );
-  neighbours.push_back( rhsouthwest );
-  neighbours.push_back( rhsouth );
-  neighbours.push_back( rhsoutheast );
-  neighbours.push_back( rheast );
-  neighbours.push_back( rhnortheast );
-    
-  rh->setNeighbours( neighbours );
+//   vector<unsigned> neighbours;
+//   neighbours.reserve(8);
+//   neighbours.push_back( rhnorth );
+//   neighbours.push_back( rhnorthwest );
+//   neighbours.push_back( rhwest );
+//   neighbours.push_back( rhsouthwest );
+//   neighbours.push_back( rhsouth );
+//   neighbours.push_back( rhsoutheast );
+//   neighbours.push_back( rheast );
+//   neighbours.push_back( rhnortheast );
+  
+//   //C take care of the initialization of the empty slots !!
+//   rh.setNeighbours( neighbours );
 
 //   cout<<(*rh)<<endl;
 
@@ -1265,12 +1167,12 @@ PFClusterProducer::findRecHitNeighbours
 
 void 
 PFClusterProducer::findRecHitNeighboursCT
-( reco::PFRecHit* rh, 
-  const map<unsigned, reco::PFRecHit* >& rechits, 
+( reco::PFRecHit& rh, 
+  const map<unsigned, unsigned >& sortedHits, 
   const CaloSubdetectorTopology& topology, 
   const CaloSubdetectorGeometry& geometry ) {
  
-  const math::XYZVector& rhpos = math::XYZVector(rh->positionXYZ());
+  const math::XYZVector& rhpos = math::XYZVector(rh.positionXYZ());
   double rhposx = rhpos.X();
   double rhposy = rhpos.Y();
   double rhposz = rhpos.Z();
@@ -1279,12 +1181,9 @@ PFClusterProducer::findRecHitNeighboursCT
   math::XYZVector dummy(rhpos);
   dummy += rhpos;
 
-  bool debug = false;
-  //   if( rh->layer() == PFLayer::PS1 ||
-  //       rh->layer() == PFLayer::PS2 ) debug = true;
   
   
-  DetId detid( rh->detId() );
+  DetId detid( rh.detId() );
 
   vector<DetId> northids = topology.north(detid);
   vector<DetId> westids = topology.west(detid);
@@ -1396,7 +1295,7 @@ PFClusterProducer::findRecHitNeighboursCT
       cornerposy += rhposy; cornerposy /= 2.;
       cornerposz += rhposz; cornerposz /= 2.;
             
-      rh->setNWCorner(cornerposx, cornerposy, cornerposz);
+      rh.setNWCorner(cornerposx, cornerposy, cornerposz);
     }
   }
  
@@ -1417,7 +1316,7 @@ PFClusterProducer::findRecHitNeighboursCT
       cornerposy += rhposy; cornerposy /= 2.;
       cornerposz += rhposz; cornerposz /= 2.;
             
-      rh->setSWCorner(cornerposx, cornerposy, cornerposz);
+      rh.setSWCorner(cornerposx, cornerposy, cornerposz);
     }
   }
  
@@ -1438,7 +1337,7 @@ PFClusterProducer::findRecHitNeighboursCT
       cornerposy += rhposy; cornerposy /= 2.;
       cornerposz += rhposz; cornerposz /= 2.;
             
-      rh->setSECorner(cornerposx, cornerposy, cornerposz);
+      rh.setSECorner(cornerposx, cornerposy, cornerposz);
     }
   }
  
@@ -1459,7 +1358,7 @@ PFClusterProducer::findRecHitNeighboursCT
       cornerposy += rhposy; cornerposy /= 2.;
       cornerposz += rhposz; cornerposz /= 2.;
             
-      rh->setNECorner(cornerposx, cornerposy, cornerposz);
+      rh.setNECorner(cornerposx, cornerposy, cornerposz);
     }
   }
  
@@ -1467,92 +1366,41 @@ PFClusterProducer::findRecHitNeighboursCT
 
 
   // find and set neighbours
-
-  reco::PFRecHit* rhnorth = 0;
-  PFClusterAlgo::IDH i = rechits.find( north.rawId() );
-  if(i != rechits.end() ) 
-    rhnorth = i->second;
     
-  reco::PFRecHit* rhnortheast = 0;
-  i = rechits.find( northeast.rawId() );
-  if(i != rechits.end() ) 
-    rhnortheast = i->second;
+  PFClusterAlgo::IDH i = sortedHits.find( north.rawId() );
+  if(i != sortedHits.end() ) 
+    rh.add4Neighbour( i->second );
+  
+  i = sortedHits.find( northeast.rawId() );
+  if(i != sortedHits.end() ) 
+    rh.add8Neighbour( i->second );
+  
+  i = sortedHits.find( south.rawId() );
+  if(i != sortedHits.end() ) 
+    rh.add4Neighbour( i->second );
     
-  reco::PFRecHit* rhsouth = 0;
-  i = rechits.find( south.rawId() );
-  if(i != rechits.end() ) 
-    rhsouth = i->second;
+  i = sortedHits.find( southwest.rawId() );
+  if(i != sortedHits.end() ) 
+    rh.add8Neighbour( i->second );
     
-  reco::PFRecHit* rhsouthwest = 0;
-  i = rechits.find( southwest.rawId() );
-  if(i != rechits.end() ) 
-    rhsouthwest = i->second;
-  
-  reco::PFRecHit* rheast = 0;
-  i = rechits.find( east.rawId() );
-  if(i != rechits.end() ) 
-    rheast = i->second;
-  
-  reco::PFRecHit* rhsoutheast = 0;
-  i = rechits.find( southeast.rawId() );
-  if(i != rechits.end() ) 
-    rhsoutheast = i->second;
-  
-  reco::PFRecHit* rhwest = 0;
-  i = rechits.find( west.rawId() );
-  if(i != rechits.end() ) 
-    rhwest = i->second;
-  
-  reco::PFRecHit* rhnorthwest = 0;
-  i = rechits.find( northwest.rawId() );
-  if(i != rechits.end() ) 
-    rhnorthwest = i->second;
-  
-  vector<reco::PFRecHit*> neighbours;
-  neighbours.reserve(8);
-  neighbours.push_back( rhnorth );
-  neighbours.push_back( rhnorthwest );
-  neighbours.push_back( rhwest );
-  neighbours.push_back( rhsouthwest );
-  neighbours.push_back( rhsouth );
-  neighbours.push_back( rhsoutheast );
-  neighbours.push_back( rheast );
-  neighbours.push_back( rhnortheast );
-  
-  rh->setNeighbours( neighbours );
- 
-  
-  if(westids.size()==2 || eastids.size()==2) 
-    debug = true;
-  
-  if(debug) {
+  i = sortedHits.find( east.rawId() );
+  if(i != sortedHits.end() ) 
+    rh.add4Neighbour( i->second );
     
-    cout<<"NWSE "
-	<<northids.size()<<" "
-	<<westids.size()<<" "
-	<<southids.size()<<" "
-	<<eastids.size()<<" "
-	<<rhpos.Eta()<<" "<<rhpos.Phi()<<endl;
+  i = sortedHits.find( southeast.rawId() );
+  if(i != sortedHits.end() ) 
+    rh.add8Neighbour( i->second );
     
-    cout<<"west neighbours:"<<endl;
-    for(unsigned i=0; i<westids.size(); i++) {
-      const CaloCellGeometry *thisCell = geometry.getGeometry( westids[i] );
-      const GlobalPoint& npos = thisCell->getPosition();
-      cout<<"\t"<<i<<": "
-	  <<npos.eta()<<" "
-	  <<npos.phi()<<endl;
-    }
-    cout<<"east neighbours:"<<endl;
-    for(unsigned i=0; i<eastids.size(); i++) {
-      const CaloCellGeometry *thisCell = geometry.getGeometry( eastids[i] );
-      const GlobalPoint& npos = thisCell->getPosition();
-    
-      cout<<"\t"<<i<<": "
-	  <<npos.eta()<<" "
-	  <<npos.phi()<<endl;
-    }
-  }
+  i = sortedHits.find( west.rawId() );
+  if(i != sortedHits.end() ) 
+     rh.add4Neighbour( i->second );
+   
+  i = sortedHits.find( northwest.rawId() );
+  if(i != sortedHits.end() ) 
+    rh.add8Neighbour( i->second );
 }
+
+
 
 DetId PFClusterProducer::getSouth(const DetId& id, 
 				  const CaloSubdetectorTopology& topology) {
@@ -1564,6 +1412,8 @@ DetId PFClusterProducer::getSouth(const DetId& id,
   
   return south;
 } 
+
+
 
 DetId PFClusterProducer::getNorth(const DetId& id, 
 				  const CaloSubdetectorTopology& topology) {
