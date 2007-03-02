@@ -71,11 +71,11 @@ PFRecHit::PFRecHit(const PFRecHit& other) :
   posrep_(other.posrep_),
   axisxyz_(other.axisxyz_),
   cornersxyz_(other.cornersxyz_),
-//   neighboursIds4_(other.neighboursIds4_),
-//   neighboursIds8_(other.neighboursIds8_),
 //   neighbours_(other.neighbours_),
   neighbours4_(other.neighbours4_),
-  neighbours8_(other.neighbours8_) 
+  neighbours8_(other.neighbours8_),
+  neighboursIds4_(other.neighboursIds4_),
+  neighboursIds8_(other.neighboursIds8_)
 {}
 
 

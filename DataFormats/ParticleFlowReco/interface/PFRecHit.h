@@ -67,6 +67,13 @@ namespace reco {
     void add4Neighbour( unsigned index );
     void add8Neighbour( unsigned index );
     
+    void clearNeighbours() {
+      neighbours4_.clear();
+      neighbours8_.clear();
+      neighbours4_.reserve(4);
+      neighbours8_.reserve(8);    
+    }
+
     
 
     /// \brief search for pointers to neighbours, using neighbours' DetId.
@@ -119,6 +126,12 @@ namespace reco {
 
     const std::vector< unsigned >& neighbours8() const 
       {return neighbours8_;}  
+
+    const std::vector< unsigned >& neighboursIds4() const 
+      {return neighboursIds4_;}  
+
+    const std::vector< unsigned >& neighboursIds8() const 
+      {return neighboursIds8_;}  
 
 /*     const std::vector< unsigned >& getNeighboursIds4() const  */
 /*       {return neighboursIds4_;}   */
@@ -184,6 +197,12 @@ namespace reco {
 
     /// indices to existing neighbours (1 common side or diagonal) 
     std::vector< unsigned >   neighbours8_;
+
+    /// detids of existing neighbours (1 common side)
+    std::vector< unsigned >   neighboursIds4_;
+
+    /// detids of existing neighbours (1 common side or diagonal) 
+    std::vector< unsigned >   neighboursIds8_;
 
     /// number of neighbours
     static const unsigned    nNeighbours_;
