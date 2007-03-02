@@ -44,11 +44,13 @@
 //       3) Need to sort out BuildFiles so the CMS Exception class can be used
 //
 
+  typedef unsigned long int ULong;
+  typedef unsigned short int UShort;
+
+
 class L1GctSourceCard
 {
  public:
-  typedef unsigned long int ULong;
-  typedef unsigned short int UShort;
 
   /// cardType1 reads cables 1&2, cardType2 reads cables 3&4, cardType3 reads cables 5&6
   enum SourceCardType{cardType1 =1, cardType2, cardType3};
