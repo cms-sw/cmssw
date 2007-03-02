@@ -10,7 +10,6 @@
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerFwd.h"
 #include "RecoParticleFlow/PFAlgo/interface/PFBlock.h"
-#include "RecoParticleFlow/PFClusterAlgo/interface/PFClusterAlgo.h"
 
 #include <TObject.h>
 #include "TEllipse.h"
@@ -29,9 +28,9 @@ class TCanvas;
 class TH2F;
 class TGraph;
 class IO;
+class PFClusterAlgo;
 class TH1F;
 class PFJetAlgorithm;
-class Utils;
 
 class PFBlockElement;
 
@@ -116,7 +115,13 @@ class PFRootEventManager {
   void reset();
 
   /// parse option file
-  void readOptions(const char* file, bool refresh=true);
+  /// if(reconnect), the rootfile will be reopened, and the tree reconnected
+  void readOptions(const char* file, 
+		   bool refresh=true,
+		   bool reconnect=false);
+
+  /// open the root file and connect to the tree
+  void connect(const char* infilename="");
 
   /// process one entry 
   virtual bool processEntry(int entry);
@@ -124,8 +129,18 @@ class PFRootEventManager {
   /// read data from simulation tree
   bool readFromSimulation(int entry);
 
+  /// preprocess a rechit vector from a given rechit branch
+  void PreprocessRecHits(std::vector<reco::PFRecHit>& rechits, 
+			 bool findNeighbours);
+  
+  /// for a given rechit, find the indices of the rechit neighbours, 
+  /// and store these indices in the rechit. The search is done in a
+  /// detid to index map
+  void setRecHitNeigbours( reco::PFRecHit& rh, 
+			   const std::map<unsigned, unsigned>& detId2index );
+
   /// read data from testbeam tree
-  bool readFromRealData(int entry);
+  //  bool readFromRealData(int entry);
 
   /// performs clustering 
   void clustering();
@@ -163,7 +178,7 @@ class PFRootEventManager {
 
   /// display a reconstructed calorimeter hit in x/y or r/z view
   void displayRecHit(reco::PFRecHit& rh, unsigned viewType,
-		     double maxe, double phi0 = 0.);
+		     double maxe, double phi0 = 0., int color=4);
 
   /// display clusters in x/y or r/z view
   void displayClusters(unsigned viewType, double phi0 = 0.);
@@ -212,20 +227,29 @@ class PFRootEventManager {
   /// print information
   void   print() const;
 
+  /// print a rechit
+  void   printRecHit(const reco::PFRecHit& rh, const char* seed="    ") const;
+
+  /// print a rechit
+  void   printCluster(const reco::PFCluster& cluster) const;
+
+  /// is inside cut G? 
+  bool   insideGCut(double eta, double phi) const;
+
 
   // data members -------------------------------------------------------
 
   /// current event
-  int        iEvent_;
+  int         iEvent_;
   
   /// options file parser 
-  IO*        options_;      
+  IO*         options_;      
   
   /// input tree  
-  TTree*     tree_;          
+  TTree*      tree_;          
   
-  /// read from real data
-  bool       fromRealData_;
+  /// release version
+  std::string releaseVersion_;
 
   // MC branches --------------------------
   
@@ -317,13 +341,13 @@ class PFRootEventManager {
   std::string     outFileName_;   
 
   /// clustering algorithm for ECAL
-  PFClusterAlgo   clusterAlgoECAL_;
+  PFClusterAlgo*   clusterAlgoECAL_;
 
   /// clustering algorithm for ECAL
-  PFClusterAlgo   clusterAlgoHCAL_;
+  PFClusterAlgo*   clusterAlgoHCAL_;
 
   /// clustering algorithm for ECAL
-  PFClusterAlgo   clusterAlgoPS_;
+  PFClusterAlgo*   clusterAlgoPS_;
 
   /// canvases for eta/phi display, one per algo
   /// each is split in 2 : HCAL, ECAL
@@ -429,6 +453,9 @@ class PFRootEventManager {
   /// debug printouts for this PFRootEventManager on/off
   bool   debug_;  
 
+  /// find rechit neighbours ? 
+  bool   findRecHitNeighbours_;
+
   /// ecal barrel threshold
   double threshEcalBarrel_;
 
@@ -452,6 +479,8 @@ class PFRootEventManager {
 
   /// ecal shower sigma 
   double showerSigmaEcal_;
+
+  
 
   /// hcal barrel threshold
   double threshHcalBarrel_;
