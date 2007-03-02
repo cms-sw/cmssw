@@ -1,8 +1,6 @@
-<use name=Framework/SealKernel>
 <use name=RelationalAccess>
 <use name=CondCore/DBCommon>
 <export>
-  <use name=Framework/SealKernel>
   <use name=RelationalAccess>
   <use name=CondCore/DBCommon>
   <lib name=CondCoreMetaDataService>
