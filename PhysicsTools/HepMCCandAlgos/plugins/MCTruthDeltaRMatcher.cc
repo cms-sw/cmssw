@@ -22,7 +22,7 @@ namespace helpers {
       if ( mc.status() != 1 ) return false;
       if ( c.charge() != mc.charge() ) return false;
       if ( matchIds_.size() == 0 ) return true;
-      return matchIds_.find( mc.pdgId() ) != matchIds_.end();
+      return matchIds_.find( abs( mc.pdgId() ) ) != matchIds_.end();
     }
   private:
     std::set<int> matchIds_;
