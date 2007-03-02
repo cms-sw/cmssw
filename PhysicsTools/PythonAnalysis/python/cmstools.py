@@ -82,6 +82,20 @@ class EventTree(object):
               return self._usedBranches[name]
           self._usedBranches[name]=EventBranch(self,name)
           return self._usedBranches[name]
+      def cppCode(self, name):
+          """C++ code for accessing the product inside the full framework"""
+          alias = self._tree.GetAlias(name)
+          if alias != '': name = alias
+          tmpBranch = self._tree.GetBranch(name)
+          typeString = ROOT.branchToClass(tmpBranch).GetName()
+          nameParts = name.split("_")
+          if nameParts[2] == "":
+              cppCode = 'edm::Handle<%s > dummy;\nevent.getByLabel("%s", dummy);'\
+                        %(typeString, nameParts[1])
+          else:
+              cppCode = 'edm::Handle<%s > dummy;\nevent.getByLabel("%s", "%s", dummy);'\
+                        %(typeString, nameParts[1], nameParts[2])
+          return cppCode
       def getListOfAliases(self):
           return self._aliases
       def index(self):
