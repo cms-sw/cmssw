@@ -42,6 +42,8 @@ class G4Run;
 class G4Event;
 class G4UserRunAction;
 
+class ExceptionHandler ;
+
 class RunManager
 {
 public:
@@ -109,6 +111,9 @@ private:
     edm::ParameterSet m_pTrackingAction;
     edm::ParameterSet m_pSteppingAction;
     edm::ParameterSet m_p;
+
+    ExceptionHandler* m_CustomExceptionHandler ;
+
     AttachSD * m_attach;
     std::vector<SensitiveTkDetector*> m_sensTkDets;
     std::vector<SensitiveCaloDetector*> m_sensCaloDets;
@@ -119,6 +124,7 @@ private:
     
     std::auto_ptr<SimTrackManager> m_trackManager;
     std::auto_ptr<sim::FieldBuilder> m_fieldBuilder;
+    
 };
 
 #endif

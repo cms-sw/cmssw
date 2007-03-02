@@ -50,6 +50,8 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "SimG4Core/Application/interface/ExceptionHandler.h"
+
 static
 void createWatchers(const edm::ParameterSet& iP,
 		    SimActivityRegistry& iReg,
@@ -124,6 +126,9 @@ RunManager::RunManager(edm::ParameterSet const & p)
 {    
     m_kernel = G4RunManagerKernel::GetRunManagerKernel();
     if (m_kernel==0) m_kernel = new G4RunManagerKernel();
+    
+    m_CustomExceptionHandler = new ExceptionHandler() ;
+    
     m_check = p.getUntrackedParameter<bool>("CheckOverlap",false);
     std::cout << " Run Manager constructed " << std::endl;
     if (m_nonBeam) std::cout << " Run Manager: simulating non beam events!!! " << std::endl;

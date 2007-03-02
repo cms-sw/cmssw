@@ -1,4 +1,7 @@
 #include "SimG4Core/Application/interface/ExceptionHandler.h"
+#include "SimG4Core/Application/interface/RunManager.h"
+
+#include "SimG4Core/Notification/interface/SimG4Exception.h"
 
 #include "G4EventManager.hh"
 #include "G4StateManager.hh"
@@ -8,11 +11,11 @@ using std::cout;
 using std::endl;
 using std::string;
 
-ExceptionHandler::ExceptionHandler(RunManager * rm) : runManager_(rm), override(false)
-{ 
-    override = true; 
-    verbose = 0; 
-}
+//ExceptionHandler::ExceptionHandler(RunManager * rm) : runManager_(rm), override(false)
+//{ 
+//    override = true; 
+//    verbose = 0; 
+//}
 
 ExceptionHandler::~ExceptionHandler() {}
 
@@ -38,7 +41,8 @@ bool ExceptionHandler::Notify(const char* exceptionOrigin,const char* exceptionC
 	if(aps==G4State_GeomClosed || aps==G4State_EventProc)
 	{
 	    cout << "*** Run must be aborted " << endl;
-	    runManager_->abortRun(false);
+	    //runManager_->abortRun(false);
+	    RunManager::instance()->abortRun(false) ;
 	}
 	abortionForCoreDump = false;
 	break;
@@ -46,11 +50,13 @@ bool ExceptionHandler::Notify(const char* exceptionOrigin,const char* exceptionC
 	if(aps==G4State_EventProc)
 	{
 	    cout << "*** Event must be aborted " << endl;
-	    if (override && exceptionCode == string("StuckTrack"))
+	    // if (override && exceptionCode == string("StuckTrack"))
+/*
+	    if (exceptionCode == string("StuckTrack"))
 	    {
-		if (verbose > 1) cout << "*** overriden by user " << endl;
+		//if (verbose > 1) cout << "*** overriden by user " << endl;
 		G4Track * t = G4EventManager::GetEventManager()->GetTrackingManager()->GetTrack();
-		if (verbose > 1) 
+		//if (verbose > 1) 
 		    cout << " ERROR - G4Navigator::ComputeStep() " << endl 
 			 << " Track " << t->GetTrackID() << " stuck " 
 			 << " in volume " << t->GetVolume()->GetName()
@@ -59,7 +65,7 @@ bool ExceptionHandler::Notify(const char* exceptionOrigin,const char* exceptionC
 			 << " and distance to out " 
 			 << (t->GetVolume()->GetLogicalVolume()->GetSolid())
 			->DistanceToOut(t->GetPosition())/mm << " mm " << endl;
-		if (verbose > 1) 
+		//if (verbose > 1) 
 		    cout << " Particle " << t->GetDynamicParticle()->GetDefinition()->GetParticleName()
 			 << " from parent ID " << t->GetParentID() << endl
 			 << " with " << t->GetKineticEnergy()/MeV << " MeV kinetic energy " 
@@ -68,7 +74,10 @@ bool ExceptionHandler::Notify(const char* exceptionOrigin,const char* exceptionC
 		t->SetTrackStatus(fStopButAlive);
 	    }
 	    else
-		runManager_->abortEvent();
+*/
+		//runManager_->abortEvent();
+		//RunManager::instance()->abortEvent() ;
+		throw SimG4Exception( "SimG4CoreApplication: G4Navigator:StuckTrack detected" ) ;
 	}
 	abortionForCoreDump = false;
 	break;
