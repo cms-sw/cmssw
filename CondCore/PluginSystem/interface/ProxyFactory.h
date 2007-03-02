@@ -16,14 +16,14 @@ Usage:
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Jul 23 19:14:06 EDT 2005
-// $Id: ProxyFactory.h,v 1.3.2.2 2006/12/07 15:37:22 xiezhen Exp $
+// $Id: ProxyFactory.h,v 1.5 2007/01/16 18:35:01 xiezhen Exp $
 //
 
 // system include files
 
 // user include files
-#include "PluginManager/PluginFactory.h"
-
+//#include "PluginManager/PluginFactory.h"
+#include "FWCore/PluginManager/interface/PluginFactory.h"
 // forward declarations
 /*namespace pool{
   class IDataSvc;
