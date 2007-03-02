@@ -592,18 +592,22 @@ bool FUEventProcessor::enabling(toolbox::task::WorkLoop* wl)
   catch(seal::Error& e) {
     toolbox::Event::Reference e(new evf::FsmFailedEvent(e.explainSelf(),this));
     fsm_.fireEvent(e);
+    return false;
   }
   catch(cms::Exception &e) {
     toolbox::Event::Reference e(new evf::FsmFailedEvent(e.explainSelf(),this));
     fsm_.fireEvent(e);
+    return false;
   }    
   catch(std::exception &e) {
     toolbox::Event::Reference e(new evf::FsmFailedEvent(e.what(),this));
     fsm_.fireEvent(e);
+    return false;
   }
   catch(...) {
     toolbox::Event::Reference e(new evf::FsmFailedEvent("Unknown Expection",this));
     fsm_.fireEvent(e);
+    return false;
   }
   
   if(sc != 0) {
@@ -611,7 +615,9 @@ bool FUEventProcessor::enabling(toolbox::task::WorkLoop* wl)
     errorString<<"EventProcessor::runAsync returned status code" << sc;
     toolbox::Event::Reference e(new evf::FsmFailedEvent(errorString.str(),this));
     fsm_.fireEvent(e);
+    return false;
   }
+
   LOG4CPLUS_INFO(getApplicationLogger(),"Finished enabling!");
   
   toolbox::Event::Reference e(new toolbox::Event("EnableDone",this));
@@ -838,18 +844,22 @@ void FUEventProcessor::initEventProcessor()
   catch(seal::Error& e) {
     toolbox::Event::Reference e(new evf::FsmFailedEvent(e.explainSelf(),this));
     fsm_.fireEvent(e);
+    return;
   }
   catch(cms::Exception &e) {
     toolbox::Event::Reference e(new evf::FsmFailedEvent(e.explainSelf(),this));
     fsm_.fireEvent(e);
+    return;
   }    
   catch(std::exception &e) {
     toolbox::Event::Reference e(new evf::FsmFailedEvent(e.what(),this));
     fsm_.fireEvent(e);
+    return;
   }
   catch(...) {
     toolbox::Event::Reference e(new evf::FsmFailedEvent("Unknown Exception",this));
     fsm_.fireEvent(e);
+    return;
   }
   
   LOG4CPLUS_INFO(getApplicationLogger(),"FUEventProcessor configuration finished.");
