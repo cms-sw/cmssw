@@ -17,8 +17,6 @@ __all__ = ["CMSCompleter"]
 class CMSCompleter(rlcompleter.Completer):
     def __init__(self, namespace = None):
 	
-        print 'Preparing CMS tab completer tool...'
-
         if namespace and not isinstance(namespace, dict):
             raise TypeError,'namespace must be a dictionary'
 
@@ -32,7 +30,6 @@ class CMSCompleter(rlcompleter.Completer):
             self.namespace = namespace		
         try:
             # loading cms namespace
-            print 'Loading FWLite dictionary...'
             import namespaceDict
             self.cmsnamespace = namespaceDict.getNamespaceDict()
         except:
