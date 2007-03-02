@@ -3,18 +3,18 @@
    Implementation of class ScheduleValidator
 
    \author Stefano ARGIRO
-   \version $Id: ScheduleValidator.cc,v 1.13 2006/12/06 16:41:55 wdd Exp $
+   \version $Id: ScheduleValidator.cc,v 1.14 2007/01/20 00:09:56 wmtan Exp $
    \date 10 Jun 2005
 */
 
-static const char CVSId[] = "$Id: ScheduleValidator.cc,v 1.13 2006/12/06 16:41:55 wdd Exp $";
+static const char CVSId[] = "$Id: ScheduleValidator.cc,v 1.14 2007/01/20 00:09:56 wmtan Exp $";
 
 #include "FWCore/ParameterSet/src/ScheduleValidator.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
 #include <sstream>
 #include <iterator>
-
+#include <iostream>
 using namespace edm;
 using namespace edm::pset;
 using namespace std;
@@ -51,17 +51,12 @@ NodePtr ScheduleValidator::findPathHead(string pathName){
     if ((*pathIt)->name() == pathName) return ((*pathIt)->wrapped());
 
   }// for
-  //cout << "did not find " << pathName << endl;
-  // This can only cause a problem and should probably throw
-  // an exception - jbk
+  throw edm::Exception(errors::Configuration) << "Cannot find a path named " << pathName;
   NodePtr ret;
   return ret;
 }
 
 void ScheduleValidator::gatherLeafNodes(NodePtr& basenode){
-
-//cout << "gatherLeafNodes " << basenode.get() << endl;
-//basenode->print(cout);
 
   if (basenode->type() == "," || basenode->type() == "&"){
     OperatorNode* onode = dynamic_cast<OperatorNode*>(basenode.get());
