@@ -4,8 +4,8 @@
 /** \class AlignableCSCCEndcap
  *  The alignable muon CSC endcap.
  *
- *  $Date: 2006/08/04 20:18:50 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/10/16 14:39:30 $
+ *  $Revision: 1.4 $
  *  \author Andre Sznajder - UERJ(Brazil)
  */
 
@@ -22,7 +22,7 @@
 #include "CondFormats/Alignment/interface/AlignmentSorter.h"
 
 #include "DataFormats/TrackingRecHit/interface/AlignmentPositionError.h"
-#include "Geometry/Vector/interface/Basic3DVector.h"
+#include "DataFormats/GeometryVector/interface/Basic3DVector.h"
 
 #include <vector>
 

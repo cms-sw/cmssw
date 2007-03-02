@@ -4,8 +4,8 @@
 /** \class AlignableCSCStation 
  *  The alignable muon CSC station.
  *
- *  $Date: 2006/8/4 10:00:01 $
- *  $Revision: 1.0 $
+ *  $Date: 2006/08/04 20:18:50 $
+ *  $Revision: 1.5 $
  *  \author Andre Sznajder - UERJ(Brazil)
  */
 
@@ -18,7 +18,7 @@
 #include "Alignment/MuonAlignment/interface/AlignableCSCChamber.h"
 
 #include "DataFormats/TrackingRecHit/interface/AlignmentPositionError.h"
-#include "Geometry/Vector/interface/Basic3DVector.h"
+#include "DataFormats/GeometryVector/interface/Basic3DVector.h"
 
 #include <vector>
 

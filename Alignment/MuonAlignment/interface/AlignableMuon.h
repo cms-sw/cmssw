@@ -4,8 +4,8 @@
 /** \class AlignableMuon
  *  The alignable muon.
  *
- *  $Date: 2006/10/16 14:39:30 $
- *  $Revision: 1.11 $
+ *  $Date: 2007/01/22 15:29:17 $
+ *  $Revision: 1.12 $
  *  \author Andre Sznajder - UERJ(Brazil)
  */
 
@@ -23,7 +23,7 @@
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 #include <Geometry/Records/interface/MuonGeometryRecord.h>
-#include <Geometry/Vector/interface/GlobalPoint.h>
+#include <DataFormats/GeometryVector/interface/GlobalPoint.h>
 #include <Geometry/DTGeometry/interface/DTLayer.h>
 #include <Geometry/DTGeometry/interface/DTSuperLayer.h>
 #include <Geometry/CSCGeometry/interface/CSCLayer.h>
