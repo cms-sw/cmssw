@@ -1,4 +1,4 @@
-/* \class PtMinElectronSelector
+/* \class EtaPtMinElectronSelector
  *
  * selects electron above a minumum pt cut
  *
@@ -16,8 +16,8 @@
  typedef ObjectSelector<
            SingleElementCollectionSelector<
              reco::ElectronCollection,
-		AndSelector<
-		  EtaRangeSelector<reco::Electron>,
+             AndSelector<
+               EtaRangeSelector<reco::Electron>,
                PtMinSelector<reco::Electron> 
              >
            >
