@@ -88,6 +88,9 @@ class EventTree(object):
           if alias != '': name = alias
           tmpBranch = self._tree.GetBranch(name)
           typeString = ROOT.branchToClass(tmpBranch).GetName()
+          if "edm::Wrapper" in typeString:
+              typeString = typeString.replace("<edm::Wrapper","")
+              typeString = typeString.rstrip(">")
           nameParts = name.split("_")
           if nameParts[2] == "":
               cppCode = 'edm::Handle<%s > dummy;\nevent.getByLabel("%s", dummy);'\
