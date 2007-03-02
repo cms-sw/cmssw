@@ -5,12 +5,12 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include "Geometry/Surface/interface/Surface.h"
+#include "DataFormats/GeometrySurface/interface/Surface.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "DataFormats/Math/interface/Vector3D.h" 
 #include "Alignment/CommonAlignment/interface/Alignable.h"
 #include "Alignment/CommonAlignment/interface/AlignableDet.h"
-#include "Geometry/CommonDetAlgo/interface/AlgebraicObjects.h"
+#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 
 #include "Alignment/CommonAlignmentParametrization/interface/AlignmentTransformations.h"
 
@@ -18,8 +18,8 @@
 ///
 /// class for calculating derivatives between different frames
 ///
-///  $Date: 2006/10/19 14:20:59 $
-///  $Revision: 1.2 $
+///  $Date: 2007/02/12 16:14:10 $
+///  $Revision: 1.3 $
 /// (last update by $Author: flucke $)
 
 class FrameToFrameDerivative

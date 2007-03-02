@@ -1,8 +1,8 @@
 #ifndef Alignment_CommonAlignment_AlignmentParametersData_h
 #define Alignment_CommonAlignment_AlignmentParametersData_h
 
-#include "Geometry/Surface/interface/ReferenceCounted.h"
-#include "Geometry/CommonDetAlgo/interface/AlgebraicObjects.h"
+#include "DataFormats/GeometrySurface/interface/ReferenceCounted.h"
+#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 
 
 class AlignmentParametersData : public ReferenceCounted

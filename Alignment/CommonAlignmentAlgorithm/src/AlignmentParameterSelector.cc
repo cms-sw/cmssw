@@ -1,9 +1,9 @@
 /** \file AlignmentParameterSelector.cc
  *  \author Gero Flucke, Nov. 2006
  *
- *  $Date: 2006/11/30 10:03:04 $
- *  $Revision: 1.4 $
- *  (last update by $Author: flucke $)
+ *  $Date: 2007/01/23 16:07:08 $
+ *  $Revision: 1.5 $
+ *  (last update by $Author: fronga $)
  */
 
 #include <cctype>
@@ -15,8 +15,8 @@
 
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h" // for enums TID/TIB/etc.
 
-#include "Geometry/Vector/interface/GlobalPoint.h"
-#include "Geometry/Vector/interface/Phi.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/Phi.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"

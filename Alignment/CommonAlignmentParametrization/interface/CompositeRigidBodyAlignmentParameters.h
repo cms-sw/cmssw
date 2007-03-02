@@ -4,7 +4,7 @@
 
 #include <vector>
 
-#include "Geometry/CommonDetAlgo/interface/AlgebraicObjects.h"
+#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Alignment/CommonAlignment/interface/Alignable.h"
 
@@ -16,8 +16,8 @@
 ///  Derived from RigidBodyAlignmentParameters so that
 ///  derivatives method can be redefined
 ///
-///  $Date: 2006/10/17 11:02:42 $
-///  $Revision: 1.11 $
+///  $Date: 2006/10/19 14:20:59 $
+///  $Revision: 1.2 $
 /// (last update by $Author: flucke $)
 
 class CompositeRigidBodyAlignmentParameters : public RigidBodyAlignmentParameters 

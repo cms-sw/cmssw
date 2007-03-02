@@ -4,7 +4,7 @@
 /**
  * Author     : Gero Flucke (based on code for ORCA by Edmund Widl)
  * date       : 2006/09/17
- * last update: $Date: 2006/09/21 22:26:02 $
+ * last update: $Date: 2006/09/27 08:23:55 $
  * by         : $Author: flucke $
  *
  * Base class for reference 'trajectories' of single- or multiparticles
@@ -51,10 +51,10 @@
  *
  */
 
-#include "Geometry/Surface/interface/ReferenceCounted.h"
+#include "DataFormats/GeometrySurface/interface/ReferenceCounted.h"
 
 // for AlgebraicVector, -Matrix and -SymMatrix:
-#include "Geometry/CommonDetAlgo/interface/AlgebraicObjects.h"
+#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 

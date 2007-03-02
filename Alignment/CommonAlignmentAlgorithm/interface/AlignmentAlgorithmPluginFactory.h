@@ -7,7 +7,7 @@
 ///  \author F. Ronga - CERN
 ///
 
-#include "PluginManager/PluginFactory.h"
+#include "FWCore/PluginManager/interface/PluginFactory.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentAlgorithmBase.h"
 
 // Forward declaration

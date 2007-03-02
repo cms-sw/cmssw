@@ -1,7 +1,7 @@
 #ifndef Alignment_CommonAlignmentAlgorithm_AlignableData_h
 #define Alignment_CommonAlignmentAlgorithm_AlignableData_h
 
-#include "Geometry/Surface/interface/Surface.h"
+#include "DataFormats/GeometrySurface/interface/Surface.h"
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/Math/interface/Vector3D.h"
 

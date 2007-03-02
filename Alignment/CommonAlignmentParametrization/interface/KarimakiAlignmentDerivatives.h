@@ -3,14 +3,14 @@
 
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
-#include "Geometry/CommonDetAlgo/interface/AlgebraicObjects.h"
+#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 
 /// \class KarimakiAlignmentDerivatives
 ///
 /// Calculates derivatives à la Karimaki (cf. CR-2003/022)
 ///
-///  $Date: 2006/10/17 11:02:42 $
-///  $Revision: 1.11 $
+///  $Date: 2006/10/19 14:20:59 $
+///  $Revision: 1.2 $
 /// (last update by $Author: flucke $)
 
 class KarimakiAlignmentDerivatives 

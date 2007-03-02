@@ -5,15 +5,15 @@
  *
  *  Class to hold survey info.
  *
- *  $Date: 2007/01/17 $
- *  $Revision: 1 $
+ *  $Date: 2007/02/20 17:32:33 $
+ *  $Revision: 1.1 $
  *  \author Chung Khim Lae
  */
 
 #include "Alignment/CommonAlignment/interface/AlignableSurface.h"
-#include "Geometry/CommonDetAlgo/interface/AlgebraicObjects.h"
-#include "Geometry/Vector/interface/GlobalPoint.h"
-#include "Geometry/Vector/interface/LocalPoint.h"
+#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/LocalPoint.h"
 
 class SurveyDet
 {

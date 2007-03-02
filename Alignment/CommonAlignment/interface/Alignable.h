@@ -2,7 +2,7 @@
 #define Alignment_CommonAlignment_Alignable_H
 
 #include "DataFormats/TrackingRecHit/interface/AlignmentPositionError.h"
-#include "Geometry/Surface/interface/Surface.h"
+#include "DataFormats/GeometrySurface/interface/Surface.h"
 #include "Geometry/CommonDetUnit/interface/DetPositioner.h"
 #include "CondFormats/Alignment/interface/Alignments.h"
 #include "CondFormats/Alignment/interface/AlignmentErrors.h"
@@ -21,8 +21,8 @@
  * The class derives from DetPositioner, a friend class of
  * GeomDet, which allows to move the GeomDet. 
  *
- *  $Date: 2007/02/21 04:40:45 $
- *  $Revision: 1.15 $
+ *  $Date: 2007/02/22 01:53:40 $
+ *  $Revision: 1.16 $
  *  (last update by $Author: cklae $)
  */
 

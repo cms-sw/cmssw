@@ -5,14 +5,14 @@
  *
  *  A class to hold a surface with width and length for alignment purposes.
  *
- *  $Date: 2007/02/20 17:37:16 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/02/22 01:53:40 $
+ *  $Revision: 1.3 $
  *  \author Chung Khim Lae
  */
 
 #include <vector>
 
-#include "Geometry/Surface/interface/GloballyPositioned.h"
+#include "DataFormats/GeometrySurface/interface/GloballyPositioned.h"
 
 class AlignableSurface:
   public GloballyPositioned<float>

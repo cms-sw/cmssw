@@ -3,7 +3,7 @@
 <use name=Alignment/TrackerAlignment>
 <use name=PhysicsTools/UtilAlgos>
 <use name=FWCore/Framework>
-<use name=Foundation/PluginManager>
+<use name=FWCore/PluginManager>
 <use name=FWCore/ParameterSet>
 <use name=DataFormats/TrackReco>
 <use name=DataFormats/Math>
@@ -20,7 +20,7 @@
    <use name=Alignment/TrackerAlignment>
    <use name=PhysicsTools/RecoAlgos>
    <use name=FWCore/Framework>
-   <use name=Foundation/PluginManager>
+   <use name=FWCore/PluginManager>
    <use name=FWCore/ParameterSet>
    <use name=TrackingTools/TrackFitters>
    <use name=TrackingTools/PatternTools>

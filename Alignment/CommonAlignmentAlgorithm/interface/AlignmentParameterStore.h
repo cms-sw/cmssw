@@ -3,7 +3,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "Geometry/CommonDetAlgo/interface/AlgebraicObjects.h"
+#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 #include "Alignment/CommonAlignmentParametrization/interface/CompositeAlignmentParameters.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentCorrelationsStore.h"
 // needed for  AlignableShifts, AlignablePositions:
@@ -13,9 +13,9 @@
 ///
 /// Basic class for management of alignment parameters and correlations 
 ///
-///  $Date: 2006/12/23 15:54:19 $
-///  $Revision: 1.4 $
-/// (last update by $Author: ewidl $)
+///  $Date: 2007/02/12 16:06:18 $
+///  $Revision: 1.7 $
+/// (last update by $Author: flucke $)
 
 class GeomDet;
 class Alignable;

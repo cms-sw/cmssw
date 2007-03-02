@@ -8,14 +8,14 @@
 ///  * Euler angles and rotation matrices
 ///  * between local and global frame
 ///
-///  $Date: 2006/11/30 09:48:11 $
-///  $Revision: 1.3 $
+///  $Date: 2007/01/25 09:18:30 $
+///  $Revision: 1.2 $
 ///  $Author: flucke $ did last update.
 
 
-#include "Geometry/Surface/interface/Surface.h"
+#include "DataFormats/GeometrySurface/interface/Surface.h"
 #include "DataFormats/Math/interface/Vector3D.h"
-#include "Geometry/CommonDetAlgo/interface/AlgebraicObjects.h"
+#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 
 
 class AlignmentTransformations

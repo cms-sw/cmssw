@@ -3,7 +3,7 @@
 
 #include <vector>
 
-#include "Geometry/CommonDetAlgo/interface/AlgebraicObjects.h"
+#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 
 #include "Alignment/CommonAlignment/interface/Alignable.h"
@@ -15,9 +15,9 @@
 /// [derived from AlignmentParameters]. The number of parameters
 /// N_PARAM is fixed to 6 (3 translations + 3 rotations)
 ///
-///  $Date: 2006/11/30 09:48:11 $
-///  $Revision: 1.3 $
-/// (last update by $Author: flucke $)
+///  $Date: 2006/12/23 15:55:47 $
+///  $Revision: 1.4 $
+/// (last update by $Author: ewidl $)
 
 class AlignableDetUnit;
 

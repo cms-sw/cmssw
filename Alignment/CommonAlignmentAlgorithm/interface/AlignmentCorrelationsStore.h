@@ -1,7 +1,7 @@
 #ifndef Alignment_CommonAlignmentAlgorithm_AlignmentCorrelationsStore_h
 #define Alignment_CommonAlignmentAlgorithm_AlignmentCorrelationsStore_h
 
-#include "Geometry/CommonDetAlgo/interface/AlgebraicObjects.h"
+#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 
 #include "Alignment/CommonAlignment/interface/Alignable.h"
 

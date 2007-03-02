@@ -1,7 +1,7 @@
 #ifndef Alignment_CommonAlignmentAlgorithm_TrajectoryFactoryPlugin_h
 #define Alignment_CommonAlignmentAlgorithm_TrajectoryFactoryPlugin_h
 
-#include "PluginManager/PluginFactory.h"
+#include "FWCore/PluginManager/interface/PluginFactory.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/TrajectoryFactoryBase.h"
 
 #include <string>

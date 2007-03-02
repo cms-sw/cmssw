@@ -1,14 +1,14 @@
 /** \file AlignableParameterBuilder.cc
  *
- *  $Date: 2006/11/30 10:08:26 $
- *  $Revision: 1.12 $
+ *  $Date: 2007/01/23 16:07:08 $
+ *  $Revision: 1.13 $
 
 */
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "Geometry/CommonDetAlgo/interface/AlgebraicObjects.h"
+#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 #include "Alignment/CommonAlignment/interface/Alignable.h"
 #include "Alignment/CommonAlignment/interface/AlignableDet.h"
 
