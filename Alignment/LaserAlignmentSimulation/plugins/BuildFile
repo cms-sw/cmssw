@@ -12,7 +12,7 @@
  <use name=SimG4Core/Watcher>
  <use name=SimG4Core/Physics>
  <use name=SimG4Core/SensitiveDetector>
- <use name=Foundation/PluginManager>
+ <use name=FWCore/PluginManager>
  <use name=SimG4Core/Generators>
  <use name=SimG4Core/Geometry>
  <use name=SimG4Core/Notification>

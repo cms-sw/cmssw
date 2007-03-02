@@ -7,7 +7,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "Geometry/Surface/interface/Surface.h"
+#include "DataFormats/GeometrySurface/interface/Surface.h"
 #include "DataFormats/TrackingRecHit/interface/AlignmentPositionError.h"
 
 LaserAlignmentAlgorithmNegTEC::LaserAlignmentAlgorithmNegTEC(edm::ParameterSet const& theConf, int theAlignmentIteration) 

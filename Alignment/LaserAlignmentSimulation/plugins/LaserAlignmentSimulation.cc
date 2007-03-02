@@ -5,8 +5,8 @@
 
 #include "Alignment/LaserAlignmentSimulation/plugins/LaserAlignmentSimulation.h"
 
-#include "PluginManager/PluginManager.h"
-#include "PluginManager/ModuleDef.h"
+#include "FWCore/PluginManager/interface/PluginManager.h"
+#include "FWCore/PluginManager/interface/ModuleDef.h"
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -179,7 +179,7 @@ void LaserAlignmentSimulation::update(const EndOfRun * myRun)
 
 // register a SimWatcher to get the Observer signals from OscarProducer
 #include "SimG4Core/Watcher/interface/SimWatcherFactory.h"
-#include "PluginManager/ModuleDef.h"
+#include "FWCore/PluginManager/interface/ModuleDef.h"
 
 DEFINE_SEAL_MODULE ();
 DEFINE_SIMWATCHER (LaserAlignmentSimulation);

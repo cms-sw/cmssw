@@ -20,7 +20,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetType.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
-#include "Geometry/Surface/interface/BoundSurface.h"
+#include "DataFormats/GeometrySurface/interface/BoundSurface.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
@@ -104,7 +104,7 @@ void LaserDQM::fillAdcCounts(MonitorElement * theMonitor,
 }
 
 // define the SEAL module
-#include "PluginManager/ModuleDef.h"
+#include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 DEFINE_FWK_MODULE(LaserDQM);

@@ -1,5 +1,5 @@
 <use name=FWCore/Framework>
-<use name=Foundation/PluginManager>
+<use name=FWCore/PluginManager>
 <use name=FWCore/ParameterSet>
 <use name=RecoTracker/TrackProducer>
 <use name=DataFormats/TrackReco>
@@ -10,7 +10,7 @@
 <export>
    <lib name=AlignmentTrackHitFilter>
    <use name=FWCore/Framework>
-   <use name=Foundation/PluginManager>
+   <use name=FWCore/PluginManager>
    <use name=FWCore/ParameterSet>
    <use name=RecoTracker/TrackProducer>
    <use name=Alignment/TrackerAlignment>

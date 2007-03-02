@@ -64,7 +64,7 @@ LaserOpticalPhysics::LaserOpticalPhysics(const edm::ParameterSet & p) : PhysicsL
 }
 
 // define the custom physics list
-#include "PluginManager/ModuleDef.h"
+#include "FWCore/PluginManager/interface/ModuleDef.h"
 
 DEFINE_SEAL_MODULE ();
 DEFINE_PHYSICSLIST (LaserOpticalPhysics);

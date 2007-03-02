@@ -15,8 +15,8 @@
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
-#include "Geometry/CommonDetAlgo/interface/GlobalError.h"
-#include "Geometry/CommonDetAlgo/interface/ErrorFrameTransformer.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/GlobalError.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/ErrorFrameTransformer.h"
 
 // Topology
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
