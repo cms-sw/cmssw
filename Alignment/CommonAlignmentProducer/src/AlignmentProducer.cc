@@ -1,9 +1,9 @@
 /// \file AlignmentProducer.cc
 ///
 ///  \author    : Frederic Ronga
-///  Revision   : $Revision: 1.23 $
-///  last update: $Date: 2007/02/12 16:28:33 $
-///  by         : $Author: flucke $
+///  Revision   : $Revision: 1.25 $
+///  last update: $Date: 2007/02/19 17:46:02 $
+///  by         : $Author: pivarski $
 
 #include "Alignment/CommonAlignmentProducer/interface/AlignmentProducer.h"
 
@@ -91,7 +91,6 @@ AlignmentProducer::AlignmentProducer(const edm::ParameterSet& iConfig) :
   // Check if found
   if ( !theAlignmentAlgo )
 	throw cms::Exception("BadConfig") << "Couldn't find algorithm called " << algoName;
-
 }
 
 
@@ -141,7 +140,6 @@ AlignmentProducer::produceCSC( const MuonGeometryRecord& iRecord )
 // Initialize algorithm
 void AlignmentProducer::beginOfJob( const edm::EventSetup& iSetup )
 {
-
   edm::LogInfo("Alignment") << "@SUB=AlignmentProducer::beginOfJob";
 
   nevent_ = 0;
@@ -366,42 +364,18 @@ AlignmentProducer::duringLoop( const edm::Event& event,
                                 << "Events processed: " << nevent_;
 
   // Retrieve trajectories and tracks from the event
-  edm::InputTag tkTag = theParameterSet.getParameter<edm::InputTag>("tkTag");
-  edm::Handle<reco::TrackCollection> m_TrackCollection;
-  event.getByLabel( tkTag, m_TrackCollection );
-  edm::InputTag tjTag = theParameterSet.getParameter<edm::InputTag>("tjTag");
-  edm::Handle<std::vector<Trajectory> > m_TrajectoryCollection;
-  event.getByLabel( tjTag, m_TrajectoryCollection );
+  edm::InputTag tjTag = theParameterSet.getParameter<edm::InputTag>("tjTkAssociationMapTag");
+  edm::Handle<TrajTrackAssociationCollection> m_TrajTracksMap;
+  event.getByLabel( tjTag, m_TrajTracksMap );
 
   // Form pairs of trajectories and tracks
-  ConstTrajTrackPairCollection m_algoResults;
-  reco::TrackCollection::const_iterator   iTrack = m_TrackCollection->begin();
-  std::vector<Trajectory>::const_iterator iTraj  = m_TrajectoryCollection->begin();
-  for ( ; iTrack != m_TrackCollection->end(); ++iTrack, ++iTraj )
-    {
-      ConstTrajTrackPair aPair(  &(*iTraj), &(*iTrack)  );
-      if ( !this->trajTrackMatch_( aPair ) )
-        throw cms::Exception("TrajTrackMismatch") << "Couldn't pair trajectory and track";
-      m_algoResults.push_back( aPair );
-    }
+  ConstTrajTrackPairCollection trajTracks;
+  for ( TrajTrackAssociationCollection::const_iterator iPair = m_TrajTracksMap->begin();
+        iPair != m_TrajTracksMap->end(); iPair++ )
+    trajTracks.push_back( ConstTrajTrackPair( &(*(*iPair).key), &(*(*iPair).val) ) );
 
   // Run the alignment algorithm
-  theAlignmentAlgo->run(  setup, m_algoResults );
-
-
-//   // Retrieve trajectories and tracks from the event
-//   edm::InputTag tkTag = theParameterSet.getParameter<edm::InputTag>("tkTag");
-//   edm::Handle<TrajTrackAssociationCollection> m_TrajTracksMap;
-//   event.getByLabel( tkTag, m_TrajTracksMap );
-
-//   // Form pairs of trajectories and tracks
-//   ConstTrajTrackPairCollection trajTracks;
-//   for ( TrajTrackAssociationCollection::const_iterator iPair = m_TrajTracksMap->begin();
-//         iPair != m_TrajTracksMap->end(); iPair++ )
-//     trajTracks.push_back( ConstTrajTrackPair( &(*(*iPair).key), &(*(*iPair).val) ) );
-
-//   // Run the alignment algorithm
-//   theAlignmentAlgo->run(  setup, trajTracks );
+  theAlignmentAlgo->run(  setup, trajTracks );
 
   return kContinue;
 }
@@ -510,44 +484,4 @@ void AlignmentProducer::createGeometries_( const edm::EventSetup& iSetup )
       theMuonDT = boost::shared_ptr<DTGeometry>(DTGeometryBuilder.build(&(*cpv), *mdc));
       theMuonCSC = boost::shared_ptr<CSCGeometry>(CSCGeometryBuilder.build(&(*cpv), *mdc));
    }
-}
-
-
-//__________________________________________________________________________________________________
-const bool AlignmentProducer::trajTrackMatch_( const ConstTrajTrackPair& pair ) const
-{
-
-  // Compare a trajectory and a track
-  // Currently based on rec.hits. comparison
-
-
-  // 1. - should have same number of hits
-  if ( pair.first->measurements().size() != pair.second->recHitsSize() ) return false;
-
-  // 2. - compare hits
-  Trajectory::ConstRecHitContainer recHits( pair.first->recHits() );
-  trackingRecHit_iterator iTkHit = pair.second->recHitsBegin();
-
-  for ( Trajectory::ConstRecHitContainer::const_iterator iTjHit = recHits.begin();
-        iTjHit != recHits.end(); ++iTjHit, ++iTkHit )
-    {
-
-      if ( (*iTjHit)->isValid() && (*iTkHit)->isValid() ) // Skip invalid hits
-        {
-
-          // Module Id
-          if ( (*iTjHit)->geographicalId() != (*iTkHit)->geographicalId() )
-            return false;
-
-          // Local position
-          if ( fabs((*iTjHit)->localPosition().x() - (*iTkHit)->localPosition().x()) > 1.e-12
-               || fabs((*iTjHit)->localPosition().y() - (*iTkHit)->localPosition().y()) > 1.e-12
-               || fabs((*iTjHit)->localPosition().z() - (*iTkHit)->localPosition().z()) > 1.e-12
-               )
-            return false;
-        }
-    }
-
-  return true;
-
 }

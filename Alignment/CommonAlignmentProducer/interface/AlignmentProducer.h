@@ -7,8 +7,8 @@
 /// Description : calls alignment algorithms
 ///
 ///  \author    : Frederic Ronga
-///  Revision   : $Revision: 1.9 $
-///  last update: $Date: 2007/01/12 18:05:55 $
+///  Revision   : $Revision: 1.10 $
+///  last update: $Date: 2007/01/23 16:08:15 $
 ///  by         : $Author: fronga $
 
 #include <vector>
@@ -79,9 +79,6 @@ class AlignmentProducer : public edm::ESProducerLooper
 
   /// Create tracker and muon geometries
   void createGeometries_( const edm::EventSetup& );
-
-  /// Check if a trajectory and a track match
-  const bool trajTrackMatch_( const ConstTrajTrackPair& pair ) const;
 
   // private data members
 
