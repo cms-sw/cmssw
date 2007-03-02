@@ -18,7 +18,7 @@
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctCollections.h"
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEtSums.h"
 
-#include "L1Trigger/L1GctAnalyzer/interface/L1GctTestAnalyzer.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctTestAnalyzer.h"
 
 using std::string;
 using std::ios;
