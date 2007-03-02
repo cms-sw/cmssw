@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/10/16 14:39:31 $
- *  $Revision: 1.13 $
+ *  $Date: 2007/01/22 15:29:18 $
+ *  $Revision: 1.14 $
  *  \author Andre Sznajder - UERJ(Brazil)
  */
  
@@ -228,6 +228,21 @@ void AlignableMuon::buildCSCEndcap( const CSCGeometry* pCSC  )
     
 }
 
+//--------------------------------------------------------------------------------------------------
+std::vector<Alignable*> AlignableMuon::DTSuperLayers()
+{
+  std::vector<Alignable*> result;
+
+  std::vector<Alignable*> chambers = DTChambers();
+  for (std::vector<Alignable*>::const_iterator chamberIter = chambers.begin();  chamberIter != chambers.end();  ++chamberIter) {
+     std::vector<Alignable*> superlayers = (*chamberIter)->components();
+     for (std::vector<Alignable*>::const_iterator superlayerIter = superlayers.begin();  superlayerIter != superlayers.end();  ++superlayerIter) {
+	result.push_back(*superlayerIter);
+     }
+  }
+
+  return result;
+}
 
 //--------------------------------------------------------------------------------------------------
 std::vector<Alignable*> AlignableMuon::DTChambers()
@@ -259,6 +274,22 @@ std::vector<Alignable*> AlignableMuon::DTBarrel()
 {
   std::vector<Alignable*> result ;
   copy( theDTBarrel.begin(), theDTBarrel.end(), back_inserter(result) );
+  return result;
+}
+
+//--------------------------------------------------------------------------------------------------
+std::vector<Alignable*> AlignableMuon::CSCLayers()
+{
+  std::vector<Alignable*> result;
+
+  std::vector<Alignable*> chambers = CSCChambers();
+  for (std::vector<Alignable*>::const_iterator chamberIter = chambers.begin();  chamberIter != chambers.end();  ++chamberIter) {
+     std::vector<Alignable*> layers = (*chamberIter)->components();
+     for (std::vector<Alignable*>::const_iterator layerIter = layers.begin();  layerIter != layers.end();  ++layerIter) {
+	result.push_back(*layerIter);
+     }
+  }
+
   return result;
 }
 
