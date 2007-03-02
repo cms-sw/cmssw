@@ -37,8 +37,8 @@ TauHadronDecayFilter::TauHadronDecayFilter(const edm::ParameterSet& iConfig) {
   particleFilter_ = iConfig.getParameter<edm::ParameterSet>
     ( "ParticleFilter" );   
 
-  // mySimEvent =  new FSimEvent(vertexGenerator_, particleFilter_);
-  mySimEvent =  new FSimEvent( particleFilter_);
+  mySimEvent =  new FSimEvent(vertexGenerator_, particleFilter_);
+  // mySimEvent =  new FSimEvent( particleFilter_);
 }
 
 

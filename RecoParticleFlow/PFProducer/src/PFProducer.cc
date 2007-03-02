@@ -182,12 +182,14 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) :
     = iConfig.getParameter<double>("pf_ECAL_calib_p1");  
   PFBlock::setEcalib(ecalibP0, ecalibP1);
   
-  // mySimEvent =  new FSimEvent(vertexGenerator_, particleFilter_);
-  mySimEvent =  new FSimEvent( particleFilter_ );
+  mySimEvent =  new FSimEvent(vertexGenerator_, particleFilter_);
+  // mySimEvent =  new FSimEvent( particleFilter_ );
 }
 
 
+
 PFProducer::~PFProducer() { delete mySimEvent; }
+
 
 void 
 PFProducer::beginJob(const edm::EventSetup & es)
@@ -198,58 +200,8 @@ PFProducer::beginJob(const edm::EventSetup & es)
   es.getData(pdt);
   if ( !ParticleTable::instance() ) ParticleTable::instance(&(*pdt));
   mySimEvent->initializePdt(&(*pdt));
-
-
-  // initialize simple geometry
-//   beamPipe_ = new BoundCylinder(GlobalPoint(0.,0.,0.), 
-// 				TkRotation<float>(), 
-// 				SimpleCylinderBounds(PFGeometry::innerRadius(PFGeometry::BeamPipe), 
-// 						     PFGeometry::innerRadius(PFGeometry::BeamPipe), 
-// 						     -1.*PFGeometry::outerZ(PFGeometry::BeamPipe), 
-// 						     PFGeometry::outerZ(PFGeometry::BeamPipe)));
-  
-  
-	  
-//   ecalInnerWall_ = new BoundCylinder(GlobalPoint(0.,0.,0.), 
-// 				     TkRotation<float>(), 
-// 				     SimpleCylinderBounds(PFGeometry::innerRadius(PFGeometry::ECALBarrel), 
-// 							  PFGeometry::innerRadius(PFGeometry::ECALBarrel), 
-// 							  -1.*PFGeometry::innerZ(PFGeometry::ECALEndcap), 
-// 							  PFGeometry::innerZ(PFGeometry::ECALEndcap)));
-  
-
-//   ps1Wall_ = new BoundCylinder(GlobalPoint(0.,0.,0.), 
-// 			       TkRotation<float>(), 
-// 			       SimpleCylinderBounds(PFGeometry::innerRadius(PFGeometry::ECALBarrel), 
-// 						    PFGeometry::innerRadius(PFGeometry::ECALBarrel), 
-// 						    -1.*PFGeometry::innerZ(PFGeometry::PS1), 
-// 						    PFGeometry::innerZ(PFGeometry::PS1)));
-  
-  
-//   ps2Wall_ = new BoundCylinder(GlobalPoint(0.,0.,0.), 
-// 			       TkRotation<float>(), 
-// 			       SimpleCylinderBounds(PFGeometry::innerRadius(PFGeometry::ECALBarrel), 
-// 						    PFGeometry::innerRadius(PFGeometry::ECALBarrel), 
-// 						    -1.*PFGeometry::innerZ(PFGeometry::PS2), 
-// 						    PFGeometry::innerZ(PFGeometry::PS2)));
-  
-//   hcalInnerWall_ = new BoundCylinder(GlobalPoint(0.,0.,0.), 
-// 				     TkRotation<float>(), 
-// 				     SimpleCylinderBounds(PFGeometry::innerRadius(PFGeometry::HCALBarrel), 
-// 							  PFGeometry::innerRadius(PFGeometry::HCALBarrel), 
-// 							  -1.*PFGeometry::innerZ(PFGeometry::HCALEndcap), 
-// 							  PFGeometry::innerZ(PFGeometry::HCALEndcap)));
-  
-  
-//   hcalOuterWall_ = new BoundCylinder(GlobalPoint(0.,0.,0.), 
-// 				     TkRotation<float>(), 
-// 				     SimpleCylinderBounds(PFGeometry::outerRadius(PFGeometry::HCALBarrel), 
-// 							  PFGeometry::outerRadius(PFGeometry::HCALBarrel), 
-// 							  -1.*PFGeometry::outerZ(PFGeometry::HCALEndcap), 
-// 							  PFGeometry::outerZ(PFGeometry::HCALEndcap)));
-  
-  
 }
+
 
 void PFProducer::produce(Event& iEvent, 
 			 const EventSetup& iSetup) 
@@ -856,6 +808,7 @@ PFProducer::processRecTracks(auto_ptr< reco::PFRecTrackCollection >&
 	= reco::PFCluster::getDepthCorrection(momECAL.E(), 
 					      isBelowPS, 
 					      false);
+
       math::XYZPoint showerDirection(momECAL.Px(), momECAL.Py(), momECAL.Pz());
       showerDirection *= ecalShowerDepth/showerDirection.R();
       double rCyl = PFGeometry::innerRadius(PFGeometry::ECALBarrel) + 
