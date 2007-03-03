@@ -9,8 +9,8 @@
  *  for single objects of the same physics type, allowing to cut on
  *  variables relating to their 4-momentum representation
  *
- *  $Date: 2006/08/27 08:20:28 $
- *  $Revision: 1.17 $
+ *  $Date: 2006/10/04 16:02:42 $
+ *  $Revision: 1.18 $
  *
  *  \author Martin Grunewald
  *
@@ -19,7 +19,7 @@
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
 #include<vector>
 
-#include "PhysicsTools/Parser/interface/SingleObjectSelector.h"
+#include "PhysicsTools/Parser/interface/StringCutObjectSelector.h"
 #include<string>
 
 //
@@ -40,7 +40,7 @@ class HLTSmartSinglet : public HLTFilter {
       std::string   cut_;      // smart cut
       int           min_N_;    // number of objects passing cuts required
 
-      SingleObjectSelector<T> select_; // smart selector
+      StringCutObjectSelector<T> select_; // smart selector
 };
 
 #endif //HLTSmartSinglet_h
