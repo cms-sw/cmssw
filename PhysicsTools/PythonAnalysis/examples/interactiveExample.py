@@ -1,7 +1,6 @@
-# example used in november CSA06 tutorial 
 # has to be called with python -i interactiveExample.py
 
-from cmstools import *
+from PhysicsTools.PythonAnalysis.cmstools import *
 from ROOT import *
 
 # prepare the FWLite autoloading mechanism
@@ -20,17 +19,11 @@ theFile = TFile.Open("castor:/castor/cern.ch/cms/store/CSA06/CSA06-106-os-Jets-0
 # access the event tree
 print "=============================="
 print "Loading event tree"
-events = EventTree(theFile.Get("Events"))
+events = EventTree(theFile)
 
-# access the products inside the tree
-# aliases can be used directly
-print "Registering photon branch"
-photonBranch = events.branch("photons")
-
-# loop over 4 events
-print "Start looping over four events"
+print "Start looping over some events"
 for event in events:
-      photons = photonBranch() 
+      photons = event.photons
       print "  Number of photons in event %i: %i" % (event, len(photons))
       if event > 2: break  # workaround will become obsolete 
 

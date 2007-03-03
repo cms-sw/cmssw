@@ -1,22 +1,17 @@
 # first load cmstools and ROOT classes
-from cmstools import *
+from PhysicsTools.PythonAnalysis.cmstools import *
 from ROOT import *
 
-# opening file and accessing branches
-print "Opening SimHit file"
-file = TFile("simevent.root")
-events = file.Get("Events")
-branch = events.GetBranch("PSimHit_r_TrackerHitsTIBLowTof.obj")
+# opening file
+events = EventTree("simevent.root")
 
-simHit = std.vector(PSimHit)()
-branch.SetAddress(simHit)
-
+# prepare the histogram
 histo = TH1F("tofhits", "Tof of hits", 100, -0.5, 50)
 
-# loop over all events 
-for ev in all(events):
-    branch.GetEntry(ev)
-    for hit in all(simHit):
+# loop over all events and filling the histogram
+for event in events:
+    simHits = event.getProduct("PSimHit_r_TrackerHitsTIBLowTof.obj")
+    for hit in simHits:
         histo.Fill(hit.timeOfFlight())
 
 hFile = TFile("histo.root", "RECREATE")

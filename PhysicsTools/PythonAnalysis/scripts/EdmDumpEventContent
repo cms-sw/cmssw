@@ -38,7 +38,7 @@ if __name__ == "__main__":
     args = sys.argv
     if 2 == len(args):
         try:
-            import PhysicsTools.PythonAnalysis.cmstools as cmstools
+            import PhysicsTools.PythonAnalysis as cmstools
             import ROOT
             ROOT.gSystem.Load("libFWCoreFWLite.so")
             ROOT.AutoLibraryLoader.enable()

@@ -1,21 +1,14 @@
-from cmstools import *
+from PhysicsTools.PythonAnalysis.cmstools import *
 from ROOT import *
 
 # prepare the FWLite autoloading mechanism
 gSystem.Load("libFWCoreFWLite.so")
 AutoLibraryLoader.enable()
 
-# load the file with the generator output
-theFile = TFile("generatorOutput.root")
-
 # access the event tree
-events = EventTree(theFile.Get("Events"))
+events = EventTree("generatorOutput.root")
 
-# access the products inside the tree
-# aliases can be used directly
-sourceBranch = events.branch("source")
-
-# loop over the events
+# event loop
 for event in events:
-    genEvent = sourceBranch().GetEvent()
+    genEvent = event.VtxSmeared.GetEvent()
     print genEvent
