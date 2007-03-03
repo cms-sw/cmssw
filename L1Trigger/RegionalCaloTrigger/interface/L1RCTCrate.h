@@ -27,8 +27,8 @@ class L1RCTCrate {
   //the RCInput to the 7 receiver cards and sends the HFInput straight
   //to the JSC for this crate.  The RCs never see the HF data.  Instead
   //the JSC acts like a primitive RC for these regions.
-  void input(vector<vector<unsigned short> > RCInput,
-	     vector<unsigned short> HFInput,
+  void input(std::vector<std::vector<unsigned short> > RCInput,
+	     std::vector<unsigned short> HFInput,
 	     L1RCTLookupTables *lut);
   //The two following are methods for running the actual data processing
   //in the RCs and the EICs.  They're to be called for each card
@@ -55,21 +55,21 @@ class L1RCTCrate {
   }
 
   // region sums
-  vector<unsigned short> getJetRegions(){
+  std::vector<unsigned short> getJetRegions(){
     return jetSummaryCard.getJetRegions();
   }
-  vector<unsigned short> getBarrelRegions(){
+  std::vector<unsigned short> getBarrelRegions(){
     return jetSummaryCard.getBarrelRegions();
   }
-  vector<unsigned short> getHFRegions(){
+  std::vector<unsigned short> getHFRegions(){
     return jetSummaryCard.getHFRegions();
   }
 
   // e-gamma objects
-  vector<unsigned short> getIsolatedEGObjects(){
+  std::vector<unsigned short> getIsolatedEGObjects(){
     return jetSummaryCard.getIsolatedEGObjects();
   }
-  vector<unsigned short> getNonisolatedEGObjects(){
+  std::vector<unsigned short> getNonisolatedEGObjects(){
     return jetSummaryCard.getNonisolatedEGObjects();
   }
 
@@ -87,7 +87,7 @@ class L1RCTCrate {
     return jetSummaryCard.getQuietBits();
   }
   // hf bit
-  vector<unsigned short> getHFFineGrainBits(){
+  std::vector<unsigned short> getHFFineGrainBits(){
     return jetSummaryCard.getHFFineGrainBits();
   }
 
@@ -97,8 +97,8 @@ class L1RCTCrate {
   //Increasing number towards higher absolute eta
   //The seventh card is always sideways with respect to the
   //other six.
-  vector<L1RCTReceiverCard> receiverCards;
-  vector<L1RCTElectronIsolationCard> electronCards;
+  std::vector<L1RCTReceiverCard> receiverCards;
+  std::vector<L1RCTElectronIsolationCard> electronCards;
   //The JSC receives the jet and electron information from the 
   //RCs and EICs.  There is only one per crate.
   L1RCTJetSummaryCard jetSummaryCard;

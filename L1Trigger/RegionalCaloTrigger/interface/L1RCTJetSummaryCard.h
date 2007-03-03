@@ -1,13 +1,7 @@
 #ifndef L1RCTJetSummaryCard_h
 #define L1RCTJetSummaryCard_h
 
-#include <bitset>
 #include <vector>
-#include <algorithm>
-
-using std::sort;
-using std::bitset;
-using std::vector;
 
 class L1RCTLookupTables;
 
@@ -30,8 +24,8 @@ class L1RCTJetSummaryCard
   // although, in the case of the emulator they may always be in
   // the descending order of rank
 
-  vector<unsigned short> getIsolatedEGObjects() {return isolatedEGObjects;}
-  vector<unsigned short> getNonisolatedEGObjects() {return nonisolatedEGObjects;}
+  std::vector<unsigned short> getIsolatedEGObjects() {return isolatedEGObjects;}
+  std::vector<unsigned short> getNonisolatedEGObjects() {return nonisolatedEGObjects;}
   
   // Region sums 10-bit energy (bits 0-9),overflow (bit 10)
   // bit 11 is tau bit
@@ -56,9 +50,9 @@ class L1RCTJetSummaryCard
   // that the eta decreases from -5 to 0 for crates 0-8
   // and increases from 0 to +5 for crates 9-17
 
-  vector<unsigned short> getJetRegions() {return jetRegions;}
-  vector<unsigned short> getBarrelRegions() {return barrelRegions;}
-  vector<unsigned short> getHFRegions() {return HFRegions;}
+  std::vector<unsigned short> getJetRegions() {return jetRegions;}
+  std::vector<unsigned short> getBarrelRegions() {return barrelRegions;}
+  std::vector<unsigned short> getHFRegions() {return HFRegions;}
 
   // Muon bits consist of 14 quiet bits and 14 MIP bits
   // These are packed into one unsigned short each
@@ -75,38 +69,38 @@ class L1RCTJetSummaryCard
   unsigned short getTauBits() {return tauBits;}
   unsigned short getOverFlowBits() {return overFlowBits;}
 
-  vector<unsigned short> getHFFineGrainBits() {return hfFineGrainBits;}
+  std::vector<unsigned short> getHFFineGrainBits() {return hfFineGrainBits;}
 
-  void fillHFRegionSums(vector<unsigned short> hfRegionSums, L1RCTLookupTables *lut);
-  void fillRegionSums(vector<unsigned short> regSums){
+  void fillHFRegionSums(std::vector<unsigned short> hfRegionSums, L1RCTLookupTables *lut);
+  void fillRegionSums(std::vector<unsigned short> regSums){
     barrelRegions = regSums;
   }
   void fillJetRegions();
 
-  void fillIsolatedEGObjects(vector<unsigned short> isoElectrons);
-  void fillNonIsolatedEGObjects(vector<unsigned short> nonIsoElectrons);
+  void fillIsolatedEGObjects(std::vector<unsigned short> isoElectrons);
+  void fillNonIsolatedEGObjects(std::vector<unsigned short> nonIsoElectrons);
 
-  void fillMIPBits(vector<unsigned short> mip);
-  void fillTauBits(vector<unsigned short> tau);
-  void fillOverFlowBits(vector<unsigned short> overflow);
+  void fillMIPBits(std::vector<unsigned short> mip);
+  void fillTauBits(std::vector<unsigned short> tau);
+  void fillOverFlowBits(std::vector<unsigned short> overflow);
   void fillQuietBits();
 
   void print();
  private:
 
-  vector<unsigned short> isolatedEGObjects;
-  vector<unsigned short> nonisolatedEGObjects;
-  vector<unsigned short> jetRegions;
+  std::vector<unsigned short> isolatedEGObjects;
+  std::vector<unsigned short> nonisolatedEGObjects;
+  std::vector<unsigned short> jetRegions;
 
-  vector<unsigned short> HFRegions;  // 8-bit et + fine grain?
-  vector<unsigned short> barrelRegions;  // no, this is 10-bit et, not (activityBit)(etIn9Bits)(HE_FGBit)(etIn7Bits)
+  std::vector<unsigned short> HFRegions;  // 8-bit et + fine grain?
+  std::vector<unsigned short> barrelRegions;  // no, this is 10-bit et, not (activityBit)(etIn9Bits)(HE_FGBit)(etIn7Bits)
 
   unsigned short mipBits;
   unsigned short quietBits;
   unsigned short tauBits;
   unsigned short overFlowBits;
 
-  vector<unsigned short> hfFineGrainBits;
+  std::vector<unsigned short> hfFineGrainBits;
 
   int crtNo;
 

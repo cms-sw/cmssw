@@ -19,6 +19,7 @@ float L1RCTLookupTables::eMaxForFGCut_ = 50.;
 float L1RCTLookupTables::hOeCut_ = 0.05;
 float L1RCTLookupTables::eGammaLSB_ = 0.5;
 float L1RCTLookupTables::jetMETLSB_ = 0.5;
+float L1RCTLookupTables::eGammaSCF_[32] = {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1};
 
 // constructor
 
@@ -62,7 +63,7 @@ unsigned long L1RCTLookupTables::lookup(unsigned short ecal,unsigned short hcal,
   int iEta = L1RCT::calcIEta(crtNo, crdNo, twrNo);
   int iAbsEta = abs(iEta);
   if(iAbsEta < 1 || iAbsEta > 28) throw cms::Exception("Invalid Data") << "1 <= |IEta| <= 28, is " << iAbsEta;
-  float ecalLinear = convertEcal(ecal);
+  float ecalLinear = convertEcal(ecal, iAbsEta);
   float hcalLinear;
   if(useTranscoder_) hcalLinear = transcoder_->hcaletValue(iAbsEta, hcal);
   else hcalLinear = hcal;
@@ -81,8 +82,8 @@ unsigned long L1RCTLookupTables::lookup(unsigned short ecal,unsigned short hcal,
 }
 
 // converts compressed ecal energy to linear (real) scale
-float L1RCTLookupTables::convertEcal(unsigned short ecal){
-  return ((float) ecal) * eGammaLSB_;
+float L1RCTLookupTables::convertEcal(unsigned short ecal, int iAbsEta){
+  return ((float) ecal) * eGammaLSB_ * eGammaSCF_[iAbsEta];
 }
 
 // calculates activity bit for each tower - assume that noise is well suppressed
@@ -132,6 +133,9 @@ void L1RCTLookupTables::loadLUTConstants(const std::string& filename)
       userfile >> junk >> jetMETLSB_;
       std::cout << "L1RCTLookupTables: Using jetMETLSB = " 
 		<< jetMETLSB_ << std::endl;
+      userfile >> junk;
+      for(int i = 0; i < 26; i++) userfile >> eGammaSCF_[i];
+      for(int i = 26; i < 32; i++) eGammaSCF_[i] = eGammaSCF_[i-1];
       userfile.close();
     }
   else 
