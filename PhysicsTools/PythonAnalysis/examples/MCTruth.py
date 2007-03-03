@@ -1,4 +1,4 @@
-from PhysicsTools.PythonAnalysis.cmstools import *
+from PhysicsTools.PythonAnalysis import *
 from ROOT import *
 # prepare the FWLite autoloading mechanism
 gSystem.Load("libFWCoreFWLite.so")

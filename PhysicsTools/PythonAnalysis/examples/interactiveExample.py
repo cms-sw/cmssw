@@ -1,6 +1,6 @@
 # has to be called with python -i interactiveExample.py
 
-from PhysicsTools.PythonAnalysis.cmstools import *
+from PhysicsTools.PythonAnalysis import *
 from ROOT import *
 
 # prepare the FWLite autoloading mechanism

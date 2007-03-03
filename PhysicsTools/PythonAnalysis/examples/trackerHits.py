@@ -1,5 +1,5 @@
 # first load cmstools and ROOT classes
-from PhysicsTools.PythonAnalysis.cmstools import *
+from PhysicsTools.PythonAnalysis import *
 from ROOT import *
 
 # opening file

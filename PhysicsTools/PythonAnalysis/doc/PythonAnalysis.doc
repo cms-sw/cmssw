@@ -21,7 +21,7 @@ Some helper routines for startup, tab completion and shorter syntax.
 - <b>cmstools.py</b>: prepares environment and defines some commands
 - <b>cmscompleter.py</b>: class for tab completion
 - <b>namespaceDict.py</b>: builds the FWLite namespace (without loading libs)
-- <b>iterators.py>/b>: decorator for adding iterators to some containers 
+- <b>iterators.py></b>: decorator for adding iterators to some containers 
 
 \subsection tests Unit tests and examples
 - <b>interactive use</b>: all libraries are loaded automatically when needed. 
@@ -34,7 +34,7 @@ python
 and import cmstools and ROOT:
 \htmlonly
 <pre>
-from PhysicsTools.PythonAnalysis.cmstools import *
+from PhysicsTools.PythonAnalysis import *
 from ROOT import *
 </pre>
 \endhtmlonly
