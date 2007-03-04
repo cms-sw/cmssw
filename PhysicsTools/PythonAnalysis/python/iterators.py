@@ -9,7 +9,10 @@ def addIterator(obj):
         if hasattr(obj, "size"):
             obj.__iter__ = iteratorForSizedObjects
         else:
-            begin, end = _findIterators(obj)
+            try:
+              begin, end = _findIterators(obj)
+            except:
+              return obj  
             if not hasattr(obj, "_begin") and hasattr(obj, "_end"):
                 obj._begin = begin
                 obj._end = end
