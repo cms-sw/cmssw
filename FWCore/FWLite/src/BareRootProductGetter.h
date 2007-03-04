@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May 23 11:03:27 EDT 2006
-// $Id: BareRootProductGetter.h,v 1.3 2006/08/26 15:50:04 chrjones Exp $
+// $Id: BareRootProductGetter.h,v 1.4 2006/12/01 21:54:44 chrjones Exp $
 //
 
 // system include files
@@ -27,7 +27,7 @@
 
 // user include files
 #include "DataFormats/Common/interface/EDProductGetter.h"
-#include "DataFormats/Common/interface/BranchDescription.h"
+#include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Common/interface/EDProduct.h"
 
 // forward declarations
