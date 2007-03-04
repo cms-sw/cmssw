@@ -1,7 +1,8 @@
-<use name=boost>
 <use name=FWCore/Utilities>
+<use name=boost>
 <export>
- <lib name=FWCoreMessageLogger>
- <use name=boost>
- <use name=FWCore/Utilities>
+  <use name=FWCore/Utilities>
+  <use name=boost>
+  <lib name=FWCoreMessageLogger>
 </export>
+
