@@ -1,1 +1,1 @@
-#include "DataFormats/Common/interface/Handle.h"
+#error: Use #include "DataFormats/Common/interface/Handle.h"
