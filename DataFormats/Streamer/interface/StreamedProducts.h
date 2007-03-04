@@ -14,9 +14,9 @@
 
 #include <vector>
 
-#include "DataFormats/Common/interface/Provenance.h"
-#include "DataFormats/Common/interface/Timestamp.h"
-#include "DataFormats/Common/interface/EventID.h"
+#include "DataFormats/Provenance/interface/Provenance.h"
+#include "DataFormats/Provenance/interface/Timestamp.h"
+#include "DataFormats/Provenance/interface/EventID.h"
 
 namespace edm {
 
