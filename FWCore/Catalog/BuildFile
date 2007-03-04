@@ -1,0 +1,11 @@
+<use name=FWCore/ParameterSet>
+<use name=FWCore/ServiceRegistry>
+<use name=FWCore/Utilities>
+<use name=FileCatalog>
+<use name=StorageSvc>
+<use name=boost>
+<export>
+  <use name=FileCatalog>
+  <lib name=FWCoreCatalog>
+</export>
+
