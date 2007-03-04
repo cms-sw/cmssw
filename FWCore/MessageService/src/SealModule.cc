@@ -1,4 +1,3 @@
-#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/PluginManager/interface/PresenceMacros.h"
 #include "FWCore/MessageService/interface/MessageLogger.h"
 #include "FWCore/MessageService/interface/MessageServicePresence.h"
