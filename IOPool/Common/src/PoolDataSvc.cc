@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: PoolDataSvc.cc,v 1.4 2006/08/07 22:07:25 wmtan Exp $
+// $Id: PoolDataSvc.cc,v 1.5 2006/08/29 22:49:36 wmtan Exp $
 //
 // Author: Luca Lista
 // Co-Author: Bill Tanenbaum
@@ -8,7 +8,7 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "IOPool/Common/interface/PoolDataSvc.h"
-#include "FWCore/Framework/interface/FileCatalog.h"
+#include "FWCore/Catalog/interface/FileCatalog.h"
 #include "StorageSvc/DbLonglong.h"
 #include "PersistencySvc/IDatabase.h"
 #include "DataSvc/IDataSvc.h"
