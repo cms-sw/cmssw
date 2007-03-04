@@ -1,0 +1,51 @@
+<lcgdict>
+ <class name="edm::ProductID"/>
+ <class name="edm::EventID"/>
+ <class name="edm::LuminosityBlockID"/>
+ <class name="edm::RunID"/>
+ <class name="edm::Timestamp"/>
+ <class name="std::basic_string<char>"/>
+ <class name="std::vector<std::basic_string<char> >"/>
+ <class name="std::set<std::basic_string<char> >"/>
+ <class name="edm::EventAuxiliary"/>
+ <class name="edm::LuminosityBlockAuxiliary"/>
+ <class name="edm::RunAuxiliary"/>
+ <class name="edm::ProductRegistry">
+   <field name="frozen_" transient="true"/>
+ </class>
+ <class name="std::map<edm::BranchKey,edm::BranchDescription>"/>
+ <class name="std::pair<edm::BranchKey,edm::BranchDescription>"/>
+ <class name="edm::BranchKey"/>
+ <class name="std::vector<edm::ProductID>"/>
+ <class name="edm::ModuleDescription"/>
+ <class name="edm::BranchEntryDescription">
+   <field name="moduleDescriptionPtr_" transient="true"/>
+ </class>
+ <class name="edm::BranchDescription">
+   <field name="branchName_" transient="true"/>
+   <field name="produced_" transient="true"/>
+   <field name="present_" transient="true"/>
+   <field name="provenancePresent_" transient="true"/>
+   <field name="transient_" transient="true"/>
+   <field name="moduleDescriptionID_" transient="true"/>
+ </class>
+ <class name="edm::ParameterSetBlob"/>
+ <class name="edm::ProcessConfiguration"/>
+ <class name="std::vector<edm::ProcessConfiguration>"/>
+ <class name="edm::ProcessHistory">
+   <field name="id_" transient="true"/>
+ </class>
+ <class name="edm::FileFormatVersion"/>
+ <class name="edm::Hash<0>"/>
+ <class name="std::map<edm::Hash<0>,edm::ModuleDescription>"/>
+ <class name="std::pair<edm::Hash<0>,edm::ModuleDescription>"/>
+ <class name="edm::Hash<2>"/>
+ <class name="std::map<edm::Hash<2>,edm::ProcessHistory>"/>
+ <class name="std::pair<edm::Hash<2>,edm::ProcessHistory>"/>
+ <class name="edm::Hash<1>"/>
+ <class name="std::set<edm::Hash<1> >"/>
+ <class name="std::map<edm::Hash<1>,edm::ParameterSetBlob>"/>
+ <class name="std::pair<edm::Hash<1>,edm::ParameterSetBlob>"/>
+ <class name="edm::Hash<3>"/>
+ <class name="std::set<edm::Hash<3> >"/>
+</lcgdict>

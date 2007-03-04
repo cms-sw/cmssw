@@ -1,0 +1,9 @@
+<use name=FWCore/Utilities>
+<use name=boost>
+<use name=rootrflx>
+<export>
+  <use name=FWCore/Utilities>
+  <use name=boost>
+  <lib name=DataFormatsProvenance>
+</export>
+
