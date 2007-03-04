@@ -1,1 +1,1 @@
-#include "FWCore/PluginManager/interface/ProblemTracker.h"
+#error: use #include "FWCore/PluginManager/interface/ProblemTracker.h"

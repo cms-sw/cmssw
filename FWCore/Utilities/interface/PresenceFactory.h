@@ -1,1 +1,1 @@
-#include "FWCore/PluginManager/interface/PresenceFactory.h"
+#error: use #include "FWCore/PluginManager/interface/PresenceFactory.h"
