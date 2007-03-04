@@ -712,6 +712,7 @@ void FUEventProcessor::initEventProcessor()
     internal::addServiceMaybe(*pServiceSets,"MonitorDaemon");
     internal::addServiceMaybe(*pServiceSets,"MLlog4cplus");
     internal::addServiceMaybe(*pServiceSets,"MicroStateService");
+    internal::addServiceMaybe(*pServiceSets,"PrescaleService");
     
     try{
       serviceToken_ = edm::ServiceRegistry::createSet(*pServiceSets);
