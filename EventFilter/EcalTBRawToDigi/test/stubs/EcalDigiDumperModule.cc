@@ -3,9 +3,9 @@
  * dummy module  for the test of  DaqFileInputService
  *   
  * 
- * $Date: 2006/10/16 21:52:59 $
- * $Revision: 1.9 $
-1 * \author N. Amapane - S. Argiro'
+ * $Date: 2006/10/26 23:35:39 $
+ * $Revision: 1.10 $
+ * \author N. Amapane - S. Argiro'
  * \author G. Franzoni
  *
  */
@@ -31,12 +31,17 @@ class EcalDigiDumperModule: public edm::EDAnalyzer{
   
  public:
   EcalDigiDumperModule(const edm::ParameterSet& ps){  
-    verbosity= ps.getUntrackedParameter<int>("verbosity",1);
+    verbosity      = ps.getUntrackedParameter<int>("verbosity",1);
+    numChannel     = ps.getUntrackedParameter<int>("numChannel",10);
+    numPN          = ps.getUntrackedParameter<int>("numPN",2);
+    // ecal slot_min and slot_max to be added once EcalDCCHeaderBlock has been updated accordingly
   }
 
   
  protected:
   int verbosity;
+  int numChannel;
+  int numPN;
 
   void analyze( const edm::Event & e, const  edm::EventSetup& c){
 
@@ -57,11 +62,11 @@ class EcalDigiDumperModule: public edm::EDAnalyzer{
     edm::Handle<EcalElectronicsIdCollection> MemId;
     e.getByLabel("ecalEBunpacker", "EcalIntegrityMemTtIdErrors", MemId);
 
-
-
+    
+    cout << "\n\n";
 
     if(gainMem->size()) {  
-      cout << "\n\n ^^^^^^^^^^^^^^^^^^ [EcalDigiDumperModule]  Size of collection of mem gain errors is: " << gainMem->size() << endl;
+      cout << "\n\n^^^^^^^^^^^^^^^^^^ [EcalDigiDumperModule]  Size of collection of mem gain errors is: " << gainMem->size() << endl;
       cout << "                                  [EcalDigiDumperModule]  dumping the bit gain errors\n"  << endl;
       for (EcalElectronicsIdCollection::const_iterator errItr= gainMem->begin();
 	   errItr  != gainMem->end(); 
@@ -75,7 +80,7 @@ class EcalDigiDumperModule: public edm::EDAnalyzer{
 
         
     if(MemId->size()) {  
-      cout << "\n\n ^^^^^^^^^^^^^^^^^^ [EcalDigiDumperModule]  Size of collection of mem tt_block_id errors is: " << MemId->size() << endl;
+      cout << "\n\n^^^^^^^^^^^^^^^^^^ [EcalDigiDumperModule]  Size of collection of mem tt_block_id errors is: " << MemId->size() << endl;
       cout << "                                  [EcalDigiDumperModule]  dumping the mem tt_block_idb errors\n"  << endl;
       for (EcalElectronicsIdCollection::const_iterator errItr= MemId->begin();
 	   errItr  != MemId->end(); 
@@ -87,9 +92,9 @@ class EcalDigiDumperModule: public edm::EDAnalyzer{
     
 
     
-    cout << "\n\n ^^^^^^^^^^^^^^^^^^ [EcalDigiDumperModule]  digi cry collection size " << digis->size() << endl;
-    cout << "                                  [EcalDigiDumperModule]  dumping some crystals\n"  << endl;
-    short dumpConter =0;      
+    cout << "\n\n^^^^^^^^^^^^^^^^^^ [EcalDigiDumperModule]  digi cry collection size " << digis->size() << endl;
+    cout << "                                  [EcalDigiDumperModule]  dumping first " << numChannel << " crystals\n";
+    short dumpCounter =0;      
 
     if (verbosity>0)
       {
@@ -97,51 +102,54 @@ class EcalDigiDumperModule: public edm::EDAnalyzer{
 	      ++digiItr ) {
 	  
 	  {
-	    cout << "i-phi: " 
+	    if( (dumpCounter++) >= numChannel) break;
+	    cout << "ic-cry: " 
+		 << EBDetId((*digiItr).id()).ic() << " i-phi: " 
 		 << EBDetId((*digiItr).id()).iphi() << " j-eta: " 
-		 << EBDetId((*digiItr).id()).ieta()
-		 << "   ";
+		 << EBDetId((*digiItr).id()).ieta();
+
 	    for ( int i=0; i< (*digiItr).size() ; ++i ) {
-	      if (i==5)	  cout << "\n\t";
-	      cout <<  (*digiItr).sample(i) << " ";	  
+	    if (!(i%5)  )  cout << "\n\t";
+	    cout << "sId: " << (i+1) << " "
+		 <<  (*digiItr).sample(i) << "\t";
 	    }       
 	    cout << " " << endl;
-	    
-	    if( (dumpConter++) > 10) break;
-	    
 	  } 
 	}
       }
     
     
 
-    cout << " \n^^^^^^^^^^^^^^^^^^ EcalDigiDumperModule  digi PN collection.  Size: " << PNs->size() << endl;
-    cout << "                                  [EcalDigiDumperModule]  dumping PN 1 "  << endl;
+    cout << "\n\n^^^^^^^^^^^^^^^^^^ EcalDigiDumperModule  digi PN collection.  Size: " << PNs->size() << endl;
+    cout << "                                  [EcalDigiDumperModule]  dumping first " << numPN << " PNs ";
+    dumpCounter=0;
     if (verbosity>0)
       {
 	for ( EcalPnDiodeDigiCollection::const_iterator pnItr = PNs->begin(); pnItr != PNs->end(); ++pnItr ) {
 	  
-	  cout << "PN num: " 
-	       << (*pnItr).id().iPnId() << "\n";
+	  if( (dumpCounter++) >= numPN) break;
+
+	  cout << "\nPN num: " 
+	       << (*pnItr).id().iPnId();
 	  
-	  if ((*pnItr).id().iPnId() == 1){
-	    for ( int samId=0; samId < (*pnItr).size() ; samId++ ) {
-	      cout <<  "sId: " << samId << " "
-		   << (*pnItr).sample(samId) 
-		   << "\t";
-	    }// end loop on PN samples
-	  }// end loop on PNs
+	  for ( int samId=0; samId < (*pnItr).size() ; samId++ ) {
+	    if (!(samId%5)  )  cout << "\n\t";
+	    cout <<  "sId: " << (samId+1) << " "
+		 << (*pnItr).sample(samId) 
+		 << "\t";
+	  }//  PN samples
 	  
-	}
+	  
+	}// PNs
       }
     
-   
+    
 
     // retrieving crystal TP from the Event
     edm::Handle<EcalTrigPrimDigiCollection>  primitives;
     e.getByLabel("ecalEBunpacker", primitives);
     
-    cout << " \n^^^^^^^^^^^^^^^^^^ EcalDigiDumperModule  digi TP collection.  Size: " << primitives->size() << endl;
+    cout << "\n\n^^^^^^^^^^^^^^^^^^ EcalDigiDumperModule  digi TP collection.  Size: " << primitives->size() << endl;
     cout << "                                  [EcalDigiDumperModule]  dumping primitives "  << endl;
     if (verbosity>0)
       {
