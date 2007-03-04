@@ -1,11 +1,12 @@
-<use name=DataFormats/Candidate>
 <use name=DataFormats/Common>
+<use name=DataFormats/TestObjects>
+<use name=DataFormats/TrackReco>
+<use name=FWCore/Framework>
 <use name=FWCore/TFWLiteSelector>
+<use name=rootcore>
 <use name=root>
+<use name=rootrflx>
 <export>
- <lib name=FWCoreTFWLiteSelectorTest>
-  <use name=DataFormats/TestObjects>
-  <use name=DataFormats/Common>
-  <use name=root>
-  <use name=FWCore/TFWLiteSelector>
+  <lib name=FWCoreTFWLiteSelectorTest>
 </export>
+
