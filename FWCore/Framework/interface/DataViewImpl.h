@@ -74,7 +74,7 @@ edm::Ref<AppleCollection> ref(refApples, index);
 */
 /*----------------------------------------------------------------------
 
-$Id: DataViewImpl.h,v 1.17 2007/02/14 14:20:29 paterno Exp $
+$Id: DataViewImpl.h,v 1.18 2007/02/17 23:27:28 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <cassert>
@@ -88,17 +88,17 @@ $Id: DataViewImpl.h,v 1.17 2007/02/14 14:20:29 paterno Exp $
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/Common/interface/RefProd.h"
 
-#include "DataFormats/Common/interface/BranchType.h"
-#include "DataFormats/Common/interface/BranchDescription.h"
+#include "DataFormats/Provenance/interface/BranchType.h"
+#include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Common/interface/traits.h"
-#include "DataFormats/Common/interface/ProcessHistory.h"
+#include "DataFormats/Provenance/interface/ProcessHistory.h"
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/BasicHandle.h"
 #include "DataFormats/Common/interface/OrphanHandle.h"
 
 #include "FWCore/Framework/interface/Group.h"
-#include "FWCore/Framework/interface/TypeID.h"
+#include "FWCore/Utilities/interface/TypeID.h"
 #include "FWCore/Framework/interface/View.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
 

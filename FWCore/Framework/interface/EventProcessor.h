@@ -32,7 +32,7 @@ problems:
   where does the pluginmanager initialize call go?
 
 
-$Id: EventProcessor.h,v 1.29 2006/12/19 00:28:17 wmtan Exp $
+$Id: EventProcessor.h,v 1.30 2006/12/29 20:55:07 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -49,9 +49,9 @@ $Id: EventProcessor.h,v 1.29 2006/12/19 00:28:17 wmtan Exp $
 #include "FWCore/Framework/src/SignallingProductRegistry.h"
 #include "FWCore/Framework/interface/EventSetupProvider.h"
 #include "FWCore/Framework/interface/Actions.h"
-#include "DataFormats/Common/interface/EventID.h"
-#include "DataFormats/Common/interface/PassID.h"
-#include "DataFormats/Common/interface/ReleaseVersion.h"
+#include "DataFormats/Provenance/interface/EventID.h"
+#include "DataFormats/Provenance/interface/PassID.h"
+#include "DataFormats/Provenance/interface/ReleaseVersion.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EventHelperDescription.h"

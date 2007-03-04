@@ -7,15 +7,18 @@
 // 
 //
 // Original Author:  Jim Kowalkowski
-// $Id: Timing.h,v 1.4 2006/12/11 15:56:24 chrjones Exp $
+// $Id: Timing.h,v 1.5 2006/12/20 00:22:46 wmtan Exp $
 //
 #include "sigc++/signal.h"
 
-#include "DataFormats/Common/interface/EventID.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "DataFormats/Provenance/interface/EventID.h"
+#include "DataFormats/Provenance/interface/ProvenanceFwd.h"
 
 namespace edm {
   struct ActivityRegistry;
+  class Event;
+  class EventSetup;
+  class ParameterSet;
   namespace service {
     class Timing
     {
@@ -23,18 +26,18 @@ namespace edm {
       Timing(const ParameterSet&,ActivityRegistry&);
       ~Timing();
 
-      sigc::signal<void, const edm::ModuleDescription&, double> newMeasurementSignal;
+      sigc::signal<void, const ModuleDescription&, double> newMeasurementSignal;
     private:
       void postBeginJob();
       void postEndJob();
       
-      void preEventProcessing(const edm::EventID&, const edm::Timestamp&);
+      void preEventProcessing(const EventID&, const Timestamp&);
       void postEventProcessing(const Event&, const EventSetup&);
       
       void preModule(const ModuleDescription&);
       void postModule(const ModuleDescription&);
 
-      edm::EventID curr_event_;
+      EventID curr_event_;
       double curr_job_; // seconds
       double curr_event_time_;  // seconds
       double curr_module_time_; // seconds
@@ -47,10 +50,6 @@ namespace edm {
       double max_event_time_;    // seconds
       double min_event_time_;    // seconds
       int total_event_count_; 
-
-
-      
-
     };
   }
 }

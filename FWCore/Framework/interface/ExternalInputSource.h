@@ -2,7 +2,7 @@
 #define Framework_ExternalInputSource_h
 
 /*----------------------------------------------------------------------
-$Id: ExternalInputSource.h,v 1.3 2006/04/12 16:14:23 wmtan Exp $
+$Id: ExternalInputSource.h,v 1.4 2006/08/14 23:27:48 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <memory>
@@ -10,7 +10,7 @@ $Id: ExternalInputSource.h,v 1.3 2006/04/12 16:14:23 wmtan Exp $
 #include <string>
 
 #include "FWCore/Framework/interface/ConfigurableInputSource.h"
-#include "FWCore/Framework/interface/FileCatalog.h"
+#include "FWCore/Catalog/interface/FileCatalog.h"
 
 namespace edm {
   class ExternalInputSource : public ConfigurableInputSource {

@@ -2,17 +2,17 @@
 #define Framework_ConfigurableInputSource_h
 
 /*----------------------------------------------------------------------
-$Id: ConfigurableInputSource.h,v 1.16 2007/02/12 17:53:05 biery Exp $
+$Id: ConfigurableInputSource.h,v 1.17 2007/02/27 00:45:46 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "boost/shared_ptr.hpp"
 
 #include "FWCore/Framework/interface/InputSource.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "DataFormats/Common/interface/EventID.h"
-#include "DataFormats/Common/interface/Timestamp.h"
-#include "DataFormats/Common/interface/LuminosityBlockID.h"
-#include "DataFormats/Common/interface/RunID.h"
+#include "DataFormats/Provenance/interface/EventID.h"
+#include "DataFormats/Provenance/interface/Timestamp.h"
+#include "DataFormats/Provenance/interface/LuminosityBlockID.h"
+#include "DataFormats/Provenance/interface/RunID.h"
 
 namespace edm {
   class ParameterSet;
@@ -30,7 +30,7 @@ namespace edm {
     unsigned int numberEventsInThisLumi() const {return numberEventsInThisLumi_;}
     RunNumber_t run() const {return eventID_.run();}
     EventNumber_t event() const {return eventID_.event();}
-    LuminosityBlockID luminosityBlockID() const {return luminosityBlockID_;}
+    LuminosityBlockNumber_t luminosityBlock() const {return luminosityBlock_;}
 
   protected:
 
@@ -55,7 +55,7 @@ namespace edm {
     virtual std::auto_ptr<EventPrincipal> read();
     virtual void skip(int offset);
     virtual void setRun(RunNumber_t r);
-    virtual void setLumi(LuminosityBlockID lb);
+    virtual void setLumi(LuminosityBlockNumber_t lb);
     virtual void rewind_();
     virtual void endLumiAndRun();
     
@@ -71,8 +71,8 @@ namespace edm {
     unsigned int const zerothEvent_;
     EventID eventID_;
     EventID origEventID_;
-    LuminosityBlockID luminosityBlockID_;
-    LuminosityBlockID origLuminosityBlockID_;
+    LuminosityBlockNumber_t luminosityBlock_;
+    LuminosityBlockNumber_t origLuminosityBlockNumber_t_;
     bool justBegun_;
 
     boost::shared_ptr<LuminosityBlockPrincipal const> luminosityBlockPrincipal_;

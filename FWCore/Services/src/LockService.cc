@@ -1,12 +1,9 @@
-
-
 #include "FWCore/Services/src/LockService.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
-#include "DataFormats/Common/interface/EventID.h"
-#include "DataFormats/Common/interface/Timestamp.h"
-#include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
-#include "DataFormats/Common/interface/ModuleDescription.h"
+#include "DataFormats/Provenance/interface/EventID.h"
+#include "DataFormats/Provenance/interface/Timestamp.h"
+#include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"

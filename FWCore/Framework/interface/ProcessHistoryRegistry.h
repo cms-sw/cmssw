@@ -1,2 +1,2 @@
-#include "DataFormats/Common/interface/ProcessHistoryRegistry.h"
+#include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 

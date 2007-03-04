@@ -16,16 +16,16 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Dec 15 14:07:57 EST 2005
-// $Id: ComponentDescription.h,v 1.4 2006/08/31 23:26:24 wmtan Exp $
+// $Id: ComponentDescription.h,v 1.5 2007/02/10 19:14:12 chrjones Exp $
 //
 
 // system include files
 #include <string>
 
 // user include files
-#include "DataFormats/Common/interface/PassID.h"
-#include "DataFormats/Common/interface/ParameterSetID.h"
-#include "DataFormats/Common/interface/ReleaseVersion.h"
+#include "DataFormats/Provenance/interface/PassID.h"
+#include "DataFormats/Provenance/interface/ParameterSetID.h"
+#include "DataFormats/Provenance/interface/ReleaseVersion.h"
 
 // forward declarations
 namespace edm {
@@ -37,7 +37,7 @@ namespace edm {
 	 bool isLooper_;
          
          // The following set of parameters comes from
-         // DataFormats/Common/interface/ModuleDescription.h
+         // DataFormats/Provenance/interface/ModuleDescription.h
          // to match and have identical provenance information
 
          // ID of parameter set of the creator

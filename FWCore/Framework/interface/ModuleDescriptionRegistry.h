@@ -1,1 +1,1 @@
-#include "DataFormats/Common/interface/ModuleDescriptionRegistry.h"
+#include "DataFormats/Provenance/interface/ModuleDescriptionRegistry.h"

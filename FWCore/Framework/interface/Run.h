@@ -15,12 +15,12 @@ For its usage, see "FWCore/Framework/interface/DataViewImpl.h"
 */
 /*----------------------------------------------------------------------
 
-$Id: Run.h,v 1.5 2006/12/20 13:41:07 wmtan Exp $
+$Id: Run.h,v 1.6 2007/01/10 05:58:01 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
-#include "DataFormats/Common/interface/RunAux.h"
-#include "DataFormats/Common/interface/RunID.h"
+#include "DataFormats/Provenance/interface/RunAuxiliary.h"
+#include "DataFormats/Provenance/interface/RunID.h"
 
 #include "FWCore/Framework/interface/DataViewImpl.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -41,7 +41,8 @@ namespace edm {
     ~Run(){}
 
     // AUX functions.
-    RunNumber_t id() const {return aux_.id();}
+    RunID const& id() const {return aux_.id();}
+    RunNumber_t run() const {return aux_.run();}
 
     using DataViewImpl::get;
     using DataViewImpl::getAllProvenance;
@@ -65,7 +66,7 @@ namespace edm {
     friend class FilterWorker;
     friend class ProducerWorker;
 
-    RunAux const& aux_;
+    RunAuxiliary const& aux_;
   };
 }
 #endif

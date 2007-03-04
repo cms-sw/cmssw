@@ -10,11 +10,11 @@ such code sees the Run class, which is a proxy for RunPrincipal.
 The major internal component of the RunPrincipal
 is the DataBlock.
 
-$Id: RunPrincipal.h,v 1.5 2007/01/10 05:58:01 wmtan Exp $
+$Id: RunPrincipal.h,v 1.6 2007/01/12 18:02:55 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
-#include "DataFormats/Common/interface/RunAux.h"
+#include "DataFormats/Provenance/interface/RunAuxiliary.h"
 #include "FWCore/Framework/interface/DataBlockImpl.h"
 
 namespace edm {
@@ -29,11 +29,15 @@ namespace edm {
 	  Base(reg, pc, hist, rtrv), aux_(id) {}
     ~RunPrincipal() {}
 
-    RunAux const& aux() const {
+    RunAuxiliary const& aux() const {
       return aux_;
     }
 
-    RunNumber_t const& id() const {
+    RunNumber_t run() const {
+      return aux().run();
+    }
+
+    RunID const& id() const {
       return aux().id();
     }
 
@@ -65,7 +69,7 @@ namespace edm {
     virtual bool unscheduledFill(Group const&) const {return false;}
     virtual bool fillAndMatchSelector(Provenance &, SelectorBase const&) const {return false;}
 
-    RunAux aux_;
+    RunAuxiliary aux_;
   };
 }
 #endif

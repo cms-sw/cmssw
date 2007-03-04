@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: AsciiOutputModule.cc,v 1.7 2007/01/10 05:55:48 wmtan Exp $
+$Id: AsciiOutputModule.cc,v 1.8 2007/01/19 04:46:13 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <algorithm>
@@ -10,7 +10,7 @@ $Id: AsciiOutputModule.cc,v 1.7 2007/01/10 05:55:48 wmtan Exp $
 #include "FWCore/Modules/src/AsciiOutputModule.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/OutputModule.h"
-#include "DataFormats/Common/interface/ProductRegistry.h"
+#include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 namespace edm {

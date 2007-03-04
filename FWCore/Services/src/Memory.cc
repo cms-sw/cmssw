@@ -6,13 +6,13 @@
 // Implementation:
 //
 // Original Author:  Jim Kowalkowski
-// $Id: Memory.cc,v 1.6 2006/08/09 23:02:44 wmtan Exp $
+// $Id: Memory.cc,v 1.7 2007/01/27 00:10:09 wmtan Exp $
 //
 
 #include "FWCore/Services/src/Memory.h"
-#include "DataFormats/Common/interface/ModuleDescription.h"
-#include "DataFormats/Common/interface/EventID.h"
-#include "DataFormats/Common/interface/Timestamp.h"
+#include "DataFormats/Provenance/interface/ModuleDescription.h"
+#include "DataFormats/Provenance/interface/EventID.h"
+#include "DataFormats/Provenance/interface/Timestamp.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 

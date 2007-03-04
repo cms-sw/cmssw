@@ -6,17 +6,17 @@
 OutputModule: The base class of all "modules" that write Events to an
 output stream.
 
-$Id: OutputModule.h,v 1.34 2007/01/12 21:07:58 wmtan Exp $
+$Id: OutputModule.h,v 1.35 2007/01/17 06:26:50 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
 #include "boost/array.hpp"
 #include <vector>
 
-#include "DataFormats/Common/interface/BranchDescription.h"
-#include "DataFormats/Common/interface/BranchType.h"
-#include "DataFormats/Common/interface/ModuleDescription.h"
-#include "DataFormats/Common/interface/Provenance.h"
+#include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "DataFormats/Provenance/interface/BranchType.h"
+#include "DataFormats/Provenance/interface/ModuleDescription.h"
+#include "DataFormats/Provenance/interface/Provenance.h"
 
 #include "FWCore/Framework/interface/CachedProducts.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"

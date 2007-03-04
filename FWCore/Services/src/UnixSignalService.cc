@@ -2,12 +2,10 @@
 #include <cstdlib>
 
 #include "FWCore/Services/src/UnixSignalService.h"
-#include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/Utilities/interface/DebugMacros.h"
-#include "DataFormats/Common/interface/ModuleDescription.h"
+#include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/UnixSignalHandlers.h"
 

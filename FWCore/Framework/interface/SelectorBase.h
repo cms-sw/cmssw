@@ -8,11 +8,11 @@ EDProducts based on information in the associated Provenance.
 
 Developers who make their own Selectors should inherit from SelectorBase.
 
-$Id: Selector.h,v 1.12 2006/10/04 14:53:20 paterno Exp $
+$Id: SelectorBase.h,v 1.1 2006/10/23 23:49:04 chrjones Exp $
 
 ----------------------------------------------------------------------*/
 
-#include "DataFormats/Common/interface/Provenance.h"
+#include "DataFormats/Provenance/interface/Provenance.h"
 #include "FWCore/Framework/interface/ProvenanceAccess.h"
 
 namespace edm 

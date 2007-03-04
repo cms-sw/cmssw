@@ -9,7 +9,7 @@
 // Original Author:  E. Sexton-Kennedy
 //         Created:  Tue Apr 11 13:43:16 CDT 2006
 //
-// $Id: EnableFloatingPointExceptions.cc,v 1.4 2006/12/18 16:23:29 wdd Exp $
+// $Id: EnableFloatingPointExceptions.cc,v 1.5 2006/12/19 00:35:38 wmtan Exp $
 //
 
 // system include files
@@ -38,7 +38,7 @@
 // user include files
 #include "FWCore/Services/src/EnableFloatingPointExceptions.h"
 
-#include "DataFormats/Common/interface/ModuleDescription.h"
+#include "DataFormats/Provenance/interface/ModuleDescription.h"
 
 using namespace edm::service;
 //

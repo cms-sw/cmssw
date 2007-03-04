@@ -6,11 +6,11 @@
 InputSourceDescription : the stuff that is needed to configure an
 input source that does not come in through the ParameterSet  
 
-$Id: InputSourceDescription.h,v 1.3.2.2 2006/07/05 23:57:17 wmtan Exp $
+$Id: InputSourceDescription.h,v 1.4 2006/07/06 19:11:42 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <string>
-#include "DataFormats/Common/interface/ModuleDescription.h"
-#include "DataFormats/Common/interface/ProcessConfiguration.h"
+#include "DataFormats/Provenance/interface/ModuleDescription.h"
+#include "DataFormats/Provenance/interface/ProcessConfiguration.h"
 
 namespace edm {
   class ProductRegistry;

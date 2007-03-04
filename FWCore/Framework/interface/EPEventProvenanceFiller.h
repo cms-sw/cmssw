@@ -26,14 +26,14 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Feb 15 14:54:43 IST 2006
-// $Id: EPEventProvenanceFiller.h,v 1.2 2006/08/21 22:28:25 wmtan Exp $
+// $Id: EPEventProvenanceFiller.h,v 1.1 2006/09/27 14:54:13 paterno Exp $
 //
 
 // system include files
 
 // user include files
 
-#include "DataFormats/Common/interface/Provenance.h"
+#include "DataFormats/Provenance/interface/Provenance.h"
 #include "FWCore/Framework/interface/EventProvenanceFiller.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/UnscheduledHandler.h"

@@ -6,9 +6,9 @@
 // Implementation:
 //     Cache and make prescale factors available online.
 //
-// Current revision: $Revision$
-// On branch: $Name$
-// Latest change by $Author$ at $Date$
+// Current revision: $Revision: 1.2 $
+// On branch: $Name:  $
+// Latest change by $Author: youngman $ at $Date: 2007/03/01 08:54:18 $
 //
 
 
@@ -17,7 +17,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
-#include "DataFormats/Common/interface/EventID.h"
+#include "DataFormats/Provenance/interface/EventID.h"
 
 #include "FWCore/Framework/interface/EventProcessor.h"
 #include "FWCore/Framework/interface/TriggerReport.h"

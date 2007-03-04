@@ -4,7 +4,7 @@
 //<<<<<< INCLUDES                                                       >>>>>>
 # include <string>
 # include <list>
-#include "FWCore/Framework/interface/SiteLocalConfig.h"
+#include "FWCore/Catalog/interface/SiteLocalConfig.h"
 //<<<<<< PUBLIC DEFINES                                                 >>>>>>
 //<<<<<< PUBLIC CONSTANTS                                               >>>>>>
 //<<<<<< PUBLIC TYPES                                                   >>>>>>

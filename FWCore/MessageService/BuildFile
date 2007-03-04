@@ -1,18 +1,17 @@
-<flags SEAL_PLUGIN_NAME="FWCoreMessageService">
-<use name=boost>
-<use name=FWCore/Framework>
+<use name=DataFormats/Provenance>
 <use name=FWCore/MessageLogger>
 <use name=FWCore/ParameterSet>
 <use name=FWCore/PluginManager>
 <use name=FWCore/ServiceRegistry>
 <use name=FWCore/Utilities>
-<use name=DataFormats/Common>
+<use name=boost>
+<flags SEAL_PLUGIN_NAME="FWCoreMessageService">
 <export>
- <lib name=FWCoreMessageService>
- <use name=boost>
- <use name=FWCore/MessageLogger>
- <use name=FWCore/ParameterSet>
- <use name=FWCore/ServiceRegistry>
- <use name=FWCore/Utilities>
- <use name=DataFormats/Common>
+  <use name=DataFormats/Provenance>
+  <use name=FWCore/MessageLogger>
+  <use name=FWCore/ParameterSet>
+  <use name=FWCore/ServiceRegistry>
+  <use name=FWCore/Utilities>
+  <use name=boost>
+  <lib name=FWCoreMessageService>
 </export>

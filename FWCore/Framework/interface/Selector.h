@@ -30,7 +30,7 @@ to use such a selector, it is best to initialize it directly upon
 construction of the module, rather than creating a new Selector instance
 for every event.
 
-$Id: Selector.h,v 1.14 2006/11/15 00:19:13 paterno Exp $
+$Id: Selector.h,v 1.15 2006/11/17 23:05:00 paterno Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -41,7 +41,7 @@ $Id: Selector.h,v 1.14 2006/11/15 00:19:13 paterno Exp $
 #include "boost/type_traits.hpp"
 #include "boost/utility/enable_if.hpp"
 
-#include "DataFormats/Common/interface/Provenance.h"
+#include "DataFormats/Provenance/interface/Provenance.h"
 #include "FWCore/Framework/interface/ProvenanceAccess.h"
 
 #include "FWCore/Framework/interface/SelectorBase.h"

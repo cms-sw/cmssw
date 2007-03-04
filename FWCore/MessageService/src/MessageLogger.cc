@@ -8,7 +8,7 @@
 //
 // Original Author:  W. Brown, M. Fischler
 //         Created:  Fri Nov 11 16:42:39 CST 2005
-// $Id: MessageLogger.cc,v 1.14 2006/08/06 03:29:14 chrjones Exp $
+// $Id: MessageLogger.cc,v 1.15 2006/08/22 13:30:08 marafino Exp $
 //
 // Change log
 //
@@ -37,10 +37,10 @@
 #include "FWCore/MessageLogger/interface/MessageDrop.h"
 #include "FWCore/MessageLogger/interface/ELseverityLevel.h"
 
-#include "DataFormats/Common/interface/ModuleDescription.h"
+#include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DataFormats/Common/interface/EventID.h"
-#include "DataFormats/Common/interface/Timestamp.h"
+#include "DataFormats/Provenance/interface/EventID.h"
+#include "DataFormats/Provenance/interface/Timestamp.h"
 
 #include <sstream>
 

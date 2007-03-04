@@ -10,11 +10,11 @@ such code sees the Event class, which is a proxy for EventPrincipal.
 The major internal component of the EventPrincipal
 is the DataBlock.
 
-$Id: EventPrincipal.h,v 1.47 2007/01/10 05:58:01 wmtan Exp $
+$Id: EventPrincipal.h,v 1.48 2007/01/12 18:02:55 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
-#include "DataFormats/Common/interface/EventAux.h"
+#include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include "FWCore/Framework/interface/DataBlockImpl.h"
 #include "FWCore/Framework/interface/EPEventProvenanceFiller.h"
 #include "FWCore/Framework/interface/UnscheduledHandler.h"
@@ -62,12 +62,12 @@ namespace edm {
       return aux().time();
     }
 
-    EventAux const& aux() const {
+    EventAuxiliary const& aux() const {
       return aux_;
     }
 
-    LuminosityBlockID const& luminosityBlockID() const {
-      return aux().luminosityBlockID();
+    LuminosityBlockNumber_t const& luminosityBlock() const {
+      return aux().luminosityBlock();
     }
 
     RunNumber_t runNumber() const {
@@ -108,7 +108,7 @@ namespace edm {
 
     virtual bool fillAndMatchSelector(Provenance& prov, SelectorBase const& selector) const;
 
-    EventAux aux_;
+    EventAuxiliary aux_;
     boost::shared_ptr<LuminosityBlockPrincipal const> const luminosityBlockPrincipal_;
     // Handler for unscheduled modules
     boost::shared_ptr<UnscheduledHandler> unscheduledHandler_;
@@ -125,7 +125,7 @@ namespace edm {
   inline
   bool
   isSameLumi(EventPrincipal const* a, EventPrincipal const* b) {
-    return(isSameRun(a, b) && a->luminosityBlockID() == b->luminosityBlockID());
+    return(isSameRun(a, b) && a->luminosityBlock() == b->luminosityBlock());
   }
 }
 #endif

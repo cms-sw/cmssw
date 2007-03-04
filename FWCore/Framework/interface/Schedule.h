@@ -4,7 +4,7 @@
 /*
   Author: Jim Kowalkowski  28-01-06
 
-  $Id: Schedule.h,v 1.17 2006/07/06 19:11:42 wmtan Exp $
+  $Id: Schedule.h,v 1.18 2006/12/01 03:29:52 wmtan Exp $
 
   A class for creating a schedule based on paths in the configuration file.
   The schedule is maintained as a sequence of paths.
@@ -97,7 +97,7 @@
 #include "FWCore/Framework/interface/TriggerNamesService.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
-#include "DataFormats/Common/interface/ProductRegistry.h"
+#include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "FWCore/Framework/src/WorkerRegistry.h"
 
 #include "boost/shared_ptr.hpp"

@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Wed May 25 15:21:05 EDT 2005
-// $Id: ComponentFactory.h,v 1.16 2007/01/23 00:32:02 wmtan Exp $
+// $Id: ComponentFactory.h,v 1.17 2007/02/07 13:27:12 chrjones Exp $
 //
 
 // system include files
@@ -26,8 +26,8 @@
 
 // user include files
 #include "FWCore/PluginManager/interface/PluginFactory.h"
-#include "DataFormats/Common/interface/PassID.h"
-#include "DataFormats/Common/interface/ReleaseVersion.h"
+#include "DataFormats/Provenance/interface/PassID.h"
+#include "DataFormats/Provenance/interface/ReleaseVersion.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ComponentMaker.h"
 #include "FWCore/Utilities/interface/EDMException.h"

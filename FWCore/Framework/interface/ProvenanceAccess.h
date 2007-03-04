@@ -17,13 +17,13 @@ provenance, which is needed for the unscheduled case.
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Feb 15 11:37:49 IST 2006
-// $Id: ProvenanceAccess.h,v 1.1.2.1 2006/07/01 06:23:36 wmtan Exp $
+// $Id: ProvenanceAccess.h,v 1.2 2006/07/06 19:11:42 wmtan Exp $
 //
 
 // system include files
 
 // user include files
-#include "DataFormats/Common/interface/Provenance.h"
+#include "DataFormats/Provenance/interface/Provenance.h"
 
 // forward declarations
 namespace edm {

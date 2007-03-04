@@ -6,7 +6,7 @@
 Group: A collection of information related to a single EDProduct. This
 is the storage unit of such information.
 
-$Id: Group.h,v 1.1 2007/02/17 23:27:28 wmtan Exp $
+$Id: Group.h,v 1.2 2007/02/21 22:28:35 paterno Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -16,7 +16,7 @@ $Id: Group.h,v 1.1 2007/02/17 23:27:28 wmtan Exp $
 
 #include "DataFormats/Common/interface/BasicHandle.h"
 #include "DataFormats/Common/interface/EDProduct.h"
-#include "DataFormats/Common/interface/Provenance.h"
+#include "DataFormats/Provenance/interface/Provenance.h"
 
 namespace edm {
   class Group {

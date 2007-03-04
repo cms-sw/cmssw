@@ -16,16 +16,16 @@ For its usage, see "FWCore/Framework/interface/DataViewImpl.h"
 */
 /*----------------------------------------------------------------------
 
-$Id: LuminosityBlock.h,v 1.7 2006/12/23 03:09:23 wmtan Exp $
+$Id: LuminosityBlock.h,v 1.8 2007/01/10 05:58:01 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
 #include "boost/shared_ptr.hpp"
 
-#include "DataFormats/Common/interface/BranchType.h"
-#include "DataFormats/Common/interface/LuminosityBlockAux.h"
-#include "DataFormats/Common/interface/LuminosityBlockID.h"
-#include "DataFormats/Common/interface/RunID.h"
+#include "DataFormats/Provenance/interface/BranchType.h"
+#include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
+#include "DataFormats/Provenance/interface/LuminosityBlockID.h"
+#include "DataFormats/Provenance/interface/RunID.h"
 
 #include "FWCore/Framework/interface/DataViewImpl.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -46,9 +46,13 @@ namespace edm {
     ~LuminosityBlock() {}
 
     // AUX functions.
-    LuminosityBlockID id() const {return aux_.id();}
+    LuminosityBlockNumber_t luminosityBlock() const {return aux_.luminosityBlock();}
 
-    RunNumber_t runID() const;
+    RunNumber_t run() const;
+
+    LuminosityBlockID id() const {
+      return aux_.id();
+    }
 
     using DataViewImpl::get;
     using DataViewImpl::getAllProvenance;
@@ -77,7 +81,7 @@ namespace edm {
     friend class FilterWorker;
     friend class ProducerWorker;
 
-    LuminosityBlockAux const& aux_;
+    LuminosityBlockAuxiliary const& aux_;
     boost::shared_ptr<Run const> const run_;
   };
 }

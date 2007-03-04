@@ -10,11 +10,11 @@ such code sees the LuminosityBlock class, which is a proxy for LuminosityBlockPr
 The major internal component of the LuminosityBlockPrincipal
 is the DataBlock.
 
-$Id: LuminosityBlockPrincipal.h,v 1.8 2007/01/12 18:02:55 wmtan Exp $
+$Id: LuminosityBlockPrincipal.h,v 1.9 2007/01/23 23:22:44 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
-#include "DataFormats/Common/interface/LuminosityBlockAux.h"
+#include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
 #include "FWCore/Framework/interface/DataBlockImpl.h"
 
 #include "boost/shared_ptr.hpp"
@@ -24,14 +24,14 @@ namespace edm {
   class LuminosityBlockPrincipal : private DataBlockImpl {
   typedef DataBlockImpl Base;
   public:
-    LuminosityBlockPrincipal(LuminosityBlockID const& id,
+    LuminosityBlockPrincipal(LuminosityBlockNumber_t const& id,
 	ProductRegistry const& reg,
         boost::shared_ptr<RunPrincipal const> rp,
         ProcessConfiguration const& pc,
 	ProcessHistoryID const& hist = ProcessHistoryID(),
 	boost::shared_ptr<DelayedReader> rtrv = boost::shared_ptr<DelayedReader>(new NoDelayedReader));
 
-    LuminosityBlockPrincipal(LuminosityBlockID const& id,
+    LuminosityBlockPrincipal(LuminosityBlockNumber_t const& id,
 	ProductRegistry const& reg,
         ProcessConfiguration const& pc,
 	ProcessHistoryID const& hist = ProcessHistoryID(),
@@ -48,16 +48,20 @@ namespace edm {
       return runPrincipal_;
     }
 
-    LuminosityBlockID const& id() const {
+    LuminosityBlockID id() const {
       return aux().id();
     }
 
-    LuminosityBlockAux const& aux() const {
+    LuminosityBlockNumber_t luminosityBlock() const {
+      return aux().luminosityBlock();
+    }
+
+    LuminosityBlockAuxiliary const& aux() const {
       return aux_;
     }
 
-    RunNumber_t const& runNumber() const {
-      return aux().runID();
+    RunNumber_t runNumber() const {
+      return aux().run();
     }
     using Base::addGroup;
     using Base::addToProcessHistory;
@@ -88,7 +92,7 @@ namespace edm {
     virtual bool fillAndMatchSelector(Provenance &, SelectorBase const&) const {return false;}
 
     boost::shared_ptr<RunPrincipal const> const runPrincipal_;
-    LuminosityBlockAux aux_;
+    LuminosityBlockAuxiliary aux_;
   };
 }
 #endif

@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Aug  4 20:45:44 EDT 2006
-// $Id: XMLOutputModule.cc,v 1.4 2006/11/07 18:06:54 wmtan Exp $
+// $Id: XMLOutputModule.cc,v 1.5 2007/01/19 04:46:13 wmtan Exp $
 //
 
 // system include files
@@ -22,8 +22,8 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
 #include "FWCore/Framework/interface/Event.h"
-#include "DataFormats/Common/interface/BranchDescription.h"
-#include "DataFormats/Common/interface/Provenance.h"
+#include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "DataFormats/Provenance/interface/Provenance.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 

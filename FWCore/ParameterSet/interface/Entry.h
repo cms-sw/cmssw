@@ -2,7 +2,7 @@
 #define ParameterSet_Entry_h
 
 // ----------------------------------------------------------------------
-// $Id: Entry.h,v 1.16 2006/09/21 19:30:06 rpw Exp $
+// $Id: Entry.h,v 1.17 2006/12/05 22:00:44 rpw Exp $
 //
 // interface to edm::Entry and related types
 //
@@ -23,7 +23,7 @@
 #include "FWCore/ParameterSet/interface/InputTag.h"
 //@@ not needed, but there might be trouble if we take it out
 #include "FWCore/Utilities/interface/EDMException.h"
-#include "DataFormats/Common/interface/EventID.h"
+#include "DataFormats/Provenance/interface/EventID.h"
 #include <boost/cstdint.hpp>
 
 // ----------------------------------------------------------------------

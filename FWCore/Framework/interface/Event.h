@@ -15,17 +15,17 @@ For its usage, see "FWCore/Framework/interface/DataViewImpl.h"
 */
 /*----------------------------------------------------------------------
 
-$Id: Event.h,v 1.53 2006/12/23 03:09:23 wmtan Exp $
+$Id: Event.h,v 1.54 2007/01/10 05:58:01 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
 #include "boost/shared_ptr.hpp"
 
-#include "DataFormats/Common/interface/EventAux.h"
-#include "DataFormats/Common/interface/EventID.h"
-#include "DataFormats/Common/interface/LuminosityBlockID.h"
-#include "DataFormats/Common/interface/RunID.h"
-#include "DataFormats/Common/interface/Timestamp.h"
+#include "DataFormats/Provenance/interface/EventAuxiliary.h"
+#include "DataFormats/Provenance/interface/EventID.h"
+#include "DataFormats/Provenance/interface/LuminosityBlockID.h"
+#include "DataFormats/Provenance/interface/RunID.h"
+#include "DataFormats/Provenance/interface/Timestamp.h"
 
 #include "FWCore/Framework/interface/DataViewImpl.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -67,14 +67,14 @@ namespace edm {
       return *luminosityBlock_;
     }
 
-    LuminosityBlockID
-    luminosityBlockID() const;    
+    LuminosityBlockNumber_t
+    luminosityBlock() const;    
 
     Run const&
     getRun() const;
 
     RunNumber_t
-    runID() const;    
+    run() const;    
 
   private:
     // commit_() is called to complete the transaction represented by
@@ -86,7 +86,7 @@ namespace edm {
     friend class FilterWorker;
     friend class ProducerWorker;
 
-    EventAux const& aux_;
+    EventAuxiliary const& aux_;
     boost::shared_ptr<LuminosityBlock const> const luminosityBlock_;
   };
 }

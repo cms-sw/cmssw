@@ -2,7 +2,7 @@
 #define ParameterSet_Registry_h
 
 // ----------------------------------------------------------------------
-// $Id: Registry.h,v 1.8 2006/09/06 19:16:29 paterno Exp $
+// $Id: Registry.h,v 1.9 2006/09/06 19:27:34 paterno Exp $
 //
 // Declaration for pset::Registry. This is an implementation detail of
 // the ParameterSet library.
@@ -15,8 +15,8 @@
 #include <map>
 #include <ostream>
 
-#include "DataFormats/Common/interface/ParameterSetID.h"
-#include "DataFormats/Common/interface/ParameterSetBlob.h"
+#include "DataFormats/Provenance/interface/ParameterSetID.h"
+#include "DataFormats/Provenance/interface/ParameterSetBlob.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/ThreadSafeRegistry.h"
 

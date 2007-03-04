@@ -27,8 +27,8 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/Framework/interface/Event.h"
-#include "DataFormats/Common/interface/BranchDescription.h"
-#include "DataFormats/Common/interface/Provenance.h"
+#include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "DataFormats/Provenance/interface/Provenance.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 

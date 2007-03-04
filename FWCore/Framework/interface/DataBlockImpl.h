@@ -14,7 +14,7 @@ through shared pointers.
 The DataBlockImpl returns BasicHandle, rather than a shared
 pointer to a Group, when queried.
 
-$Id: DataBlockImpl.h,v 1.12 2007/02/14 14:20:29 paterno Exp $
+$Id: DataBlockImpl.h,v 1.13 2007/02/17 23:27:28 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <list>
@@ -27,19 +27,19 @@ $Id: DataBlockImpl.h,v 1.12 2007/02/14 14:20:29 paterno Exp $
 
 #include "boost/shared_ptr.hpp"
 
-#include "DataFormats/Common/interface/BranchKey.h"
-#include "DataFormats/Common/interface/ProductID.h"
+#include "DataFormats/Provenance/interface/BranchKey.h"
+#include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Common/interface/EDProduct.h"
 #include "DataFormats/Common/interface/EDProductGetter.h"
-#include "DataFormats/Common/interface/ProcessHistory.h"
-#include "DataFormats/Common/interface/ProcessHistoryID.h"
+#include "DataFormats/Provenance/interface/ProcessHistory.h"
+#include "DataFormats/Provenance/interface/ProcessHistoryID.h"
 #include "DataFormats/Common/interface/BasicHandle.h"
 #include "FWCore/Framework/interface/NoDelayedReader.h"
 #include "FWCore/Framework/interface/DelayedReader.h"
 #include "FWCore/Framework/interface/SelectorBase.h"
 
 #include "FWCore/Framework/interface/Group.h"
-#include "FWCore/Framework/interface/TypeID.h"
+#include "FWCore/Utilities/interface/TypeID.h"
 
 namespace edm {
   class ProductRegistry;

@@ -5,14 +5,14 @@
   
 ProductRegistryHelper: 
 
-$Id: ProductRegistryHelper.h,v 1.10 2006/11/04 00:35:43 wmtan Exp $
+$Id: ProductRegistryHelper.h,v 1.11 2006/12/08 21:39:21 wmtan Exp $
 
 
 ----------------------------------------------------------------------*/
 
-#include "FWCore/Framework/interface/TypeID.h"
+#include "FWCore/Utilities/interface/TypeID.h"
 #include "DataFormats/Common/interface/EDProduct.h"
-#include "DataFormats/Common/interface/BranchType.h"
+#include "DataFormats/Provenance/interface/BranchType.h"
 #include <string>
 #include <list>
 #include "boost/shared_ptr.hpp"

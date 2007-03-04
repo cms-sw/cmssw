@@ -2,7 +2,7 @@
 #define ParameterSet_ParameterSet_h
 
 // ----------------------------------------------------------------------
-// $Id: ParameterSet.h,v 1.32 2006/12/05 22:02:46 rpw Exp $
+// $Id: ParameterSet.h,v 1.33 2007/02/28 03:48:37 chrjones Exp $
 //
 // Declaration for ParameterSet(parameter set) and related types
 // ----------------------------------------------------------------------
@@ -14,7 +14,7 @@
 // ----------------------------------------------------------------------
 // prerequisite source files and headers
 
-#include "DataFormats/Common/interface/ParameterSetID.h"
+#include "DataFormats/Provenance/interface/ParameterSetID.h"
 #include "FWCore/ParameterSet/interface/Entry.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include <string>

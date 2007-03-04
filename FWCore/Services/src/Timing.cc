@@ -6,16 +6,16 @@
 // Implementation:
 //
 // Original Author:  Jim Kowalkowski
-// $Id: Timing.cc,v 1.6 2006/12/11 15:56:21 chrjones Exp $
+// $Id: Timing.cc,v 1.7 2006/12/20 00:22:46 wmtan Exp $
 //
 
 #include "FWCore/Services/interface/Timing.h"
 #include "FWCore/MessageLogger/interface/JobReport.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DataFormats/Common/interface/ModuleDescription.h"
-#include "DataFormats/Common/interface/EventID.h"
-#include "DataFormats/Common/interface/Timestamp.h"
+#include "DataFormats/Provenance/interface/ModuleDescription.h"
+#include "DataFormats/Provenance/interface/EventID.h"
+#include "DataFormats/Provenance/interface/Timestamp.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/Exception.h"

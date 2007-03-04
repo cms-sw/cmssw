@@ -2,13 +2,13 @@
 #define Framework_EDInputSource_h
 
 /*----------------------------------------------------------------------
-$Id: EDInputSource.h,v 1.4 2006/09/21 19:37:47 wmtan Exp $
+$Id: EDInputSource.h,v 1.5 2006/12/21 00:05:35 wmtan Exp $
 ----------------------------------------------------------------------*/
 
-#include "DataFormats/Common/interface/LuminosityBlockID.h"
-#include "DataFormats/Common/interface/RunID.h"
+#include "DataFormats/Provenance/interface/LuminosityBlockID.h"
+#include "DataFormats/Provenance/interface/RunID.h"
 #include "FWCore/Framework/interface/InputSource.h"
-#include "FWCore/Framework/interface/FileCatalog.h"
+#include "FWCore/Catalog/interface/FileCatalog.h"
 #include <vector>
 #include <string>
 
@@ -27,7 +27,7 @@ namespace edm {
 
   private:
     virtual void setRun(RunNumber_t);
-    virtual void setLumi(LuminosityBlockID lb);
+    virtual void setLumi(LuminosityBlockNumber_t lb);
     
     InputFileCatalog catalog_;
   };

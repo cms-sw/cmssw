@@ -1,9 +1,10 @@
-<flags SEAL_PLUGIN_NAME="FWCoreModules">
-<use name=boost>
+<use name=DataFormats/Provenance>
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
-<use name=DataFormats/Common>
+<use name=boost>
+<use name=rootrflx>
+<flags SEAL_PLUGIN_NAME="FWCoreModules">
 <export>
- <lib name=FWCoreModules>
+  <lib name=FWCoreModules>
 </export>
 

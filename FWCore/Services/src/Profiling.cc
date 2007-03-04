@@ -6,12 +6,12 @@
 // Implementation:
 //
 // Original Author:  Jim Kowalkowski
-// $Id$
+// $Id: Profiling.cc,v 1.1 2006/03/11 04:28:21 jbk Exp $
 //
 
 #include "FWCore/Services/src/Profiling.h"
 #include "FWCore/Services/src/SimpleProfiler.h"
-#include "DataFormats/Common/interface/ModuleDescription.h"
+#include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
