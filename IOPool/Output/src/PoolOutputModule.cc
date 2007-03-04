@@ -1,4 +1,4 @@
-// $Id: PoolOutputModule.cc,v 1.65 2007/01/27 00:10:10 wmtan Exp $
+// $Id: PoolOutputModule.cc,v 1.66 2007/01/27 20:57:55 wmtan Exp $
 
 #include "IOPool/Output/src/PoolOutputModule.h"
 #include "IOPool/Common/interface/PoolDataSvc.h"
@@ -6,17 +6,17 @@
 #include "IOPool/Common/interface/RefStreamer.h"
 #include "IOPool/Common/interface/CustomStreamer.h"
 
-#include "DataFormats/Common/interface/BranchKey.h"
-#include "DataFormats/Common/interface/FileFormatVersion.h"
+#include "DataFormats/Provenance/interface/BranchKey.h"
+#include "DataFormats/Provenance/interface/FileFormatVersion.h"
 #include "FWCore/Utilities/interface/GetFileFormatVersion.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
-#include "DataFormats/Common/interface/ModuleDescriptionRegistry.h"
-#include "DataFormats/Common/interface/ProcessHistoryRegistry.h"
-#include "DataFormats/Common/interface/ProductRegistry.h"
-#include "DataFormats/Common/interface/ParameterSetBlob.h"
+#include "DataFormats/Provenance/interface/ModuleDescriptionRegistry.h"
+#include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
+#include "DataFormats/Provenance/interface/ProductRegistry.h"
+#include "DataFormats/Provenance/interface/ParameterSetBlob.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "FWCore/Framework/interface/ConstProductRegistry.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -61,15 +61,15 @@ namespace edm {
     // Note: The map classes already have a custom streamer, so this is not needed now.
     // We do this only to protect against future root changes.
     typedef std::map<ParameterSetID, ParameterSetBlob> ParameterSetMap;
-    SetCustomStreamer<EventAux>();
+    SetCustomStreamer<EventAuxiliary>();
     SetCustomStreamer<ProductRegistry>();
     SetCustomStreamer<ParameterSetMap>();
     SetCustomStreamer<ProcessHistoryMap>();
     SetCustomStreamer<ModuleDescriptionMap>();
     SetCustomStreamer<FileFormatVersion>();
     SetCustomStreamer<BranchEntryDescription>();
-    SetCustomStreamer<LuminosityBlockAux>();
-    SetCustomStreamer<RunAux>();
+    SetCustomStreamer<LuminosityBlockAuxiliary>();
+    SetCustomStreamer<RunAuxiliary>();
   }
 
   void PoolOutputModule::beginJob(EventSetup const&) {
@@ -228,13 +228,13 @@ namespace edm {
     ++eventCount_;
     startTransaction();
     // Write auxiliary branch
-    EventAux aux;
+    EventAuxiliary aux;
     aux.processHistoryID_ = e.processHistoryID();
     aux.id_ = e.id();
-    aux.luminosityBlockID_ = e.luminosityBlockID();
+    aux.luminosityBlock_ = e.luminosityBlock();
     aux.time_ = e.time();
 
-    pool::Ref<EventAux const> ra(context(), &aux);
+    pool::Ref<EventAuxiliary const> ra(context(), &aux);
     ra.markWrite(auxiliaryPlacement_[InEvent]);	
 
     if (!outputItemList_[InEvent].empty()) fillBranches(outputItemList_[InEvent], e.groupGetter());
@@ -269,11 +269,10 @@ namespace edm {
   PoolOutputModule::PoolFile::writeLuminosityBlock(LuminosityBlockPrincipal const& lb) {
     startTransaction();
     // Write auxiliary branch
-    LuminosityBlockAux aux;
+    LuminosityBlockAuxiliary aux;
     aux.processHistoryID_ = lb.processHistoryID();
     aux.id_ = lb.id();
-    aux.runID_ = lb.runNumber();
-    pool::Ref<LuminosityBlockAux const> ra(context(), &aux);
+    pool::Ref<LuminosityBlockAuxiliary const> ra(context(), &aux);
     ra.markWrite(auxiliaryPlacement_[InLumi]);	
     if (!outputItemList_[InLumi].empty()) fillBranches(outputItemList_[InLumi], lb.groupGetter());
     commitTransaction();
@@ -283,10 +282,10 @@ namespace edm {
   PoolOutputModule::PoolFile::writeRun(RunPrincipal const& r) {
     startTransaction();
     // Write auxiliary branch
-    RunAux aux;
+    RunAuxiliary aux;
     aux.processHistoryID_ = r.processHistoryID();
     aux.id_ = r.id();
-    pool::Ref<RunAux const> ra(context(), &aux);
+    pool::Ref<RunAuxiliary const> ra(context(), &aux);
     ra.markWrite(auxiliaryPlacement_[InRun]);	
     if (!outputItemList_[InRun].empty()) fillBranches(outputItemList_[InRun], r.groupGetter());
     commitTransaction();
@@ -409,12 +408,12 @@ namespace edm {
     }
     TTree *tLumi = dynamic_cast<TTree *>(f.Get(BranchTypeToProductTreeName(InLumi).c_str()));
     if (tLumi) {
-      tLumi->BuildIndex("runID_", "id_");
+      tLumi->BuildIndex("id_.run_", "id_.luminosityBlock_");
       setBranchAliases(tLumi, om_->descVec_[InLumi]);
     }
     TTree *tRun = dynamic_cast<TTree *>(f.Get(BranchTypeToProductTreeName(InRun).c_str()));
     if (tRun) {
-      tRun->BuildIndex("id_");
+      tRun->BuildIndex("id_.run_");
       setBranchAliases(tRun, om_->descVec_[InRun]);
     }
     f.Purge();

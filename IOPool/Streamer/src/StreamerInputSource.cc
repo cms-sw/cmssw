@@ -5,7 +5,7 @@
 #include "IOPool/Streamer/interface/ClassFiller.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 
-#include "DataFormats/Common/interface/ProductRegistry.h"
+#include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
 
 #include <iostream>

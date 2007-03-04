@@ -1,7 +1,7 @@
 //----------------------------------------------------------------------
 // EdmFileUtil.cpp
 //
-// $Id: EdmFileUtil.cpp,v 1.6 2007/01/22 21:49:20 wmtan Exp $
+// $Id: EdmFileUtil.cpp,v 1.7 2007/02/07 23:16:34 wmtan Exp $
 //
 // Author: Chih-hsiang Cheng, LLNL
 //         Chih-Hsiang.Cheng@cern.ch
@@ -16,11 +16,10 @@
 #include <vector>
 #include <boost/program_options.hpp>
 #include "IOPool/Common/bin/CollUtil.h"
-#include "DataFormats/Common/interface/ParameterSetBlob.h"
+#include "DataFormats/Provenance/interface/ParameterSetBlob.h"
 #include "FWCore/RootAutoLibraryLoader/interface/RootAutoLibraryLoader.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/FileCatalog.h"
-#include "IOPool/Common/interface/PoolDataSvc.h"
+#include "FWCore/Catalog/interface/FileCatalog.h"
 #include "Cintex/Cintex.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/PluginManager/interface/ProblemTracker.h"

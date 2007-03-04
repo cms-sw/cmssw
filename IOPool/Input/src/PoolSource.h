@@ -5,7 +5,7 @@
 
 PoolSource: This is an InputSource
 
-$Id: PoolSource.h,v 1.29 2007/02/06 23:07:55 wmtan Exp $
+$Id: PoolSource.h,v 1.30 2007/02/14 23:31:57 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -18,7 +18,7 @@ $Id: PoolSource.h,v 1.29 2007/02/06 23:07:55 wmtan Exp $
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/VectorInputSource.h"
-#include "DataFormats/Common/interface/BranchDescription.h"
+#include "DataFormats/Provenance/interface/BranchDescription.h"
 
 #include "boost/shared_ptr.hpp"
 

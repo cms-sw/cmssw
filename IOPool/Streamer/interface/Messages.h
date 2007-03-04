@@ -16,10 +16,10 @@
 #include <iostream>
 
 #include "DataFormats/Common/interface/EDProduct.h"
-#include "DataFormats/Common/interface/Provenance.h"
-#include "DataFormats/Common/interface/BranchDescription.h"
-#include "DataFormats/Common/interface/Timestamp.h"
-#include "DataFormats/Common/interface/EventID.h"
+#include "DataFormats/Provenance/interface/Provenance.h"
+#include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "DataFormats/Provenance/interface/Timestamp.h"
+#include "DataFormats/Provenance/interface/EventID.h"
 
 
 /*

@@ -1,13 +1,13 @@
 
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: EventStreamOutput.cc,v 1.24 2007/01/22 22:11:15 wmtan Exp $
+// $Id: EventStreamOutput.cc,v 1.25 2007/02/07 21:29:22 wmtan Exp $
 //
 // Class EventStreamOutput module
 //
 //////////////////////////////////////////////////////////////////////
 
-#include "DataFormats/Common/interface/Provenance.h"
+#include "DataFormats/Provenance/interface/Provenance.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"

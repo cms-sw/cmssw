@@ -1,20 +1,20 @@
 #ifndef StreamerOutputModule_h_
 #define StreamerOutputModule_h_
 
-// $Id: StreamerOutputModule.h,v 1.21 2007/02/04 19:18:15 hcheung Exp $
+// $Id: StreamerOutputModule.h,v 1.22 2007/03/01 17:46:22 jbk Exp $
 
 #include "FWCore/RootAutoLibraryLoader/interface/RootAutoLibraryLoader.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
 #include "DataFormats/Common/interface/Wrapper.h"
-#include "DataFormats/Common/interface/Provenance.h"
+#include "DataFormats/Provenance/interface/Provenance.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
 #include "DataFormats/Streamer/interface/StreamedProducts.h"
 #include "FWCore/Framework/interface/Event.h"
 
-#include "DataFormats/Common/interface/ProductRegistry.h"
+#include "DataFormats/Provenance/interface/ProductRegistry.h"
 
 #include "FWCore/Framework/interface/OutputModule.h"
 
@@ -30,7 +30,7 @@
 #include "FWCore/Utilities/interface/GetReleaseVersion.h"
 
 #include "FWCore/ParameterSet/interface/Registry.h"
-#include "DataFormats/Common/interface/ParameterSetID.h"
+#include "DataFormats/Provenance/interface/ParameterSetID.h"
 
 #include "FWCore/Utilities/interface/Digest.h"
 

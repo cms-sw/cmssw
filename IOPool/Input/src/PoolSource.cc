@@ -1,14 +1,15 @@
 /*----------------------------------------------------------------------
-$Id: PoolSource.cc,v 1.43 2007/02/06 23:07:55 wmtan Exp $
+$Id: PoolSource.cc,v 1.44 2007/02/14 23:31:57 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include "IOPool/Input/src/PoolSource.h"
 #include "IOPool/Input/src/RootFile.h"
 #include "IOPool/Input/src/RootTree.h"
 #include "IOPool/Common/interface/ClassFiller.h"
 
+#include "FWCore/Catalog/interface/FileCatalog.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
-#include "DataFormats/Common/interface/ProductRegistry.h"
-#include "DataFormats/Common/interface/ProductID.h"
+#include "DataFormats/Provenance/interface/ProductRegistry.h"
+#include "DataFormats/Provenance/interface/ProductID.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"

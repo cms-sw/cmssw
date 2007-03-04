@@ -1,7 +1,7 @@
 #include "IOPool/Input/src/RootTree.h"
 #include "IOPool/Input/src/RootDelayedReader.h"
-#include "DataFormats/Common/interface/Provenance.h"
-#include "DataFormats/Common/interface/BranchEntryDescription.h"
+#include "DataFormats/Provenance/interface/Provenance.h"
+#include "DataFormats/Provenance/interface/BranchEntryDescription.h"
 #include "FWCore/Framework/interface/DataBlockImpl.h"
 
 #include <iostream>

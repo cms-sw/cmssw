@@ -8,7 +8,7 @@
  * framework objects (e.g. ProductRegistry and EventPrincipal)
  */
 
-#include "DataFormats/Common/interface/ProcessConfiguration.h"
+#include "DataFormats/Provenance/interface/ProcessConfiguration.h"
 #include "IOPool/Streamer/interface/DQMEventMessage.h"
 #include "TBuffer.h"
 #include "TClass.h"

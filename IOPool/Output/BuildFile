@@ -1,5 +1,8 @@
 <flags SEAL_PLUGIN_NAME="IOPoolOutput">
+<use name=DataFormats/Common>
+<use name=DataFormats/Provenance>
 <use name=FWCore/Framework>
+<use name=FWCore/Catalog>
 <use name=FWCore/Utilities>
 <use name=FWCore/ServiceRegistry>
 <use name=FWCore/MessageLogger>

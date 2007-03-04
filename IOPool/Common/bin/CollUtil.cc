@@ -1,8 +1,8 @@
 #include "IOPool/Common/bin/CollUtil.h"
-#include "DataFormats/Common/interface/EventAux.h"
-#include "DataFormats/Common/interface/EventID.h"
-#include "DataFormats/Common/interface/Timestamp.h"
-#include "DataFormats/Common/interface/EDProduct.h"
+#include "DataFormats/Provenance/interface/EventAuxiliary.h"
+#include "DataFormats/Provenance/interface/EventID.h"
+#include "DataFormats/Provenance/interface/Timestamp.h"
+//#include "DataFormats/Common/interface/EDProduct.h"
 
 #include <iostream>
 #include <string>
@@ -65,10 +65,10 @@ namespace edm {
     
     if ( tree != 0 ) {
 
-      EventAux* evtAux_=0;
-      TBranch *evtAuxBr = tree->GetBranch("EventAux");
+      EventAuxiliary* evtAux_=0;
+      TBranch *evtAuxBr = tree->GetBranch("EventAuxiliary");
 
-      tree->SetBranchAddress("EventAux",&evtAux_);
+      tree->SetBranchAddress("EventAuxiliary",&evtAux_);
       Long64_t max= tree->GetEntries();
       for (Long64_t i = iLow; i <= iHigh && i < max; ++i) {
 	evtAuxBr->GetEntry(i);
@@ -78,7 +78,7 @@ namespace edm {
 	  std::cout << id_ << "  time: " << time_.value() << std::endl;
 	}
 	else{
-	  std::cout << "Event: " << i << " Nonsense EventAux object? " << std::endl;
+	  std::cout << "Event: " << i << " Nonsense EventAuxiliary object? " << std::endl;
 	}
       }
       
@@ -97,9 +97,9 @@ namespace edm {
     
 //     if ( tree != 0 ) {
 
-//       EventAux* evtAux_=0;
-//       TBranch *evtAuxBr = tree->GetBranch("EventAux");
-//       tree->SetBranchAddress("EventAux",&evtAux_);
+//       EventAuxiliary* evtAux_=0;
+//       TBranch *evtAuxBr = tree->GetBranch("EventAuxiliary");
+//       tree->SetBranchAddress("EventAuxiliary",&evtAux_);
 //       Long64_t max= tree->GetEntries();
 //       int entrycounter = 0;
 //       for (Long64_t i=iLow; i <= iHigh && i < max; ++i) {
@@ -128,7 +128,7 @@ namespace edm {
 // 	  }
 // 	}
 // 	else{
-// 	  std::cout << "Event: " << i << " Nonsense EventAux object? " << std::endl;
+// 	  std::cout << "Event: " << i << " Nonsense EventAuxiliary object? " << std::endl;
 // 	}
 //       }
       
