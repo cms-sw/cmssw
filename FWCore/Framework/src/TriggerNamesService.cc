@@ -3,11 +3,11 @@
 // Implementation:
 //
 // Original Author:  Jim Kowalkowski
-// $Id: TriggerNamesService.cc,v 1.5 2006/04/19 20:13:01 wmtan Exp $
+// $Id: TriggerNamesService.cc,v 1.6 2006/09/01 18:16:42 wmtan Exp $
 //
 
 #include "DataFormats/Common/interface/HLTGlobalStatus.h"
-#include "DataFormats/Common/interface/ModuleDescription.h"
+#include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"

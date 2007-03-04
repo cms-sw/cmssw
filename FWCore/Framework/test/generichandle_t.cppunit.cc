@@ -2,7 +2,7 @@
 
 Test of the EventPrincipal class.
 
-$Id: generichandle_t.cppunit.cc,v 1.16 2007/01/28 05:37:27 wmtan Exp $
+$Id: generichandle_t.cppunit.cc,v 1.17 2007/02/07 00:53:01 chrjones Exp $
 
 ----------------------------------------------------------------------*/  
 #include <string>
@@ -10,11 +10,11 @@ $Id: generichandle_t.cppunit.cc,v 1.16 2007/01/28 05:37:27 wmtan Exp $
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/GetPassID.h"
 #include "FWCore/Utilities/interface/GetReleaseVersion.h"
-#include "DataFormats/Common/interface/ProductRegistry.h"
-#include "DataFormats/Common/interface/ModuleDescription.h"
-#include "DataFormats/Common/interface/Timestamp.h"
+#include "DataFormats/Provenance/interface/ProductRegistry.h"
+#include "DataFormats/Provenance/interface/ModuleDescription.h"
+#include "DataFormats/Provenance/interface/Timestamp.h"
 #include "DataFormats/Common/interface/Wrapper.h"
-#include "FWCore/Framework/interface/TypeID.h"
+#include "FWCore/Utilities/interface/TypeID.h"
 #include "DataFormats/TestObjects/interface/ToyProducts.h"
 
 #include "FWCore/Framework/interface/Event.h"

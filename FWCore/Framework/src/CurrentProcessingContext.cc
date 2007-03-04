@@ -1,6 +1,6 @@
 #include "FWCore/Framework/interface/CurrentProcessingContext.h"
 
-#include "DataFormats/Common/interface/ModuleDescription.h"
+#include "DataFormats/Provenance/interface/ModuleDescription.h"
 
 using namespace std;
 

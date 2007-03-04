@@ -3,15 +3,15 @@
    Implementation of class WorkerRegistry
 
    \author Stefano ARGIRO
-   \version $Id: WorkerRegistry.cc,v 1.13 2006/10/18 22:16:13 chrjones Exp $
+   \version $Id: WorkerRegistry.cc,v 1.14 2007/01/09 17:28:25 chrjones Exp $
    \date 18 May 2005
 */
 
-static const char CVSId[] = "$Id: WorkerRegistry.cc,v 1.13 2006/10/18 22:16:13 chrjones Exp $";
+static const char CVSId[] = "$Id: WorkerRegistry.cc,v 1.14 2007/01/09 17:28:25 chrjones Exp $";
 
 
-#include "DataFormats/Common/interface/PassID.h"
-#include "DataFormats/Common/interface/ReleaseVersion.h"
+#include "DataFormats/Provenance/interface/PassID.h"
+#include "DataFormats/Provenance/interface/ReleaseVersion.h"
 
 #include "FWCore/Framework/src/WorkerRegistry.h"
 #include "FWCore/Framework/src/Worker.h"

@@ -6,7 +6,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Actions.h"
-#include "DataFormats/Common/interface/ProductRegistry.h"
+#include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "FWCore/Framework/src/Factory.h"
 #include "FWCore/Framework/src/WorkerParams.h"
 

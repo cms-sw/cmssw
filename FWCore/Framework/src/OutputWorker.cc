@@ -1,11 +1,11 @@
 
 /*----------------------------------------------------------------------
-$Id: OutputWorker.cc,v 1.17 2006/06/20 23:13:27 paterno Exp $
+$Id: OutputWorker.cc,v 1.18 2006/11/03 17:57:52 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/interface/OutputModule.h"
 #include "FWCore/Framework/interface/Actions.h"
-#include "DataFormats/Common/interface/ModuleDescription.h"
+#include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/Framework/src/WorkerParams.h"
 #include "FWCore/Framework/src/OutputWorker.h"
 #include "FWCore/Utilities/interface/Exception.h"

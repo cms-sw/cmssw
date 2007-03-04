@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Sep 23 16:47:10 CEST 2005
-// $Id: SignallingProductRegistry.h,v 1.4 2006/08/16 13:35:57 chrjones Exp $
+// $Id: SignallingProductRegistry.h,v 1.5 2006/09/01 18:16:42 wmtan Exp $
 //
 
 // system include files
@@ -25,7 +25,7 @@
 #include <string>
 
 // user include files
-#include "DataFormats/Common/interface/ProductRegistry.h"
+#include "DataFormats/Provenance/interface/ProductRegistry.h"
 
 // forward declarations
 namespace edm {

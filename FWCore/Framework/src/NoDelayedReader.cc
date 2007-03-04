@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: NoDelayedReader.cc,v 1.4 2006/11/10 20:51:10 wmtan Exp $
+$Id: NoDelayedReader.cc,v 1.5 2007/01/23 00:31:06 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/interface/NoDelayedReader.h"
@@ -26,7 +26,7 @@ namespace edm {
     LuminosityBlockPrincipal const* lpr = dynamic_cast<LuminosityBlockPrincipal const*>(ep);
     if (lpr) {
       throw cms::Exception("LogicError","NoDelayedReader")
-        << "get() called for branchkey: " << k << " LuminosityBlockID: " << lpr->id() << "\n";
+        << "get() called for branchkey: " << k << " LuminosityBlockNumber_t: " << lpr->id() << "\n";
     }
     throw cms::Exception("LogicError","NoDelayedReader")
       << "get() called for branchkey: " << k << "\n";

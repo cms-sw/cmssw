@@ -18,7 +18,7 @@
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "SealBase/Error.h"
 
-#include "DataFormats/Common/interface/ProcessConfiguration.h"
+#include "DataFormats/Provenance/interface/ProcessConfiguration.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/GetReleaseVersion.h"

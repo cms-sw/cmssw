@@ -10,7 +10,7 @@ namespace edm {
     }
 
     RunNumber_t
-    LuminosityBlock::runID() const {
-      return getRun().id();
+    LuminosityBlock::run() const {
+      return getRun().run();
     }
 }

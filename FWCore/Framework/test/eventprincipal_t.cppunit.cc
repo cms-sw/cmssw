@@ -2,7 +2,7 @@
 
 Test of the EventPrincipal class.
 
-$Id: eventprincipal_t.cppunit.cc,v 1.36 2007/01/12 21:07:59 wmtan Exp $
+$Id: eventprincipal_t.cppunit.cc,v 1.37 2007/01/28 05:37:26 wmtan Exp $
 
 ----------------------------------------------------------------------*/  
 #include <map>
@@ -13,19 +13,19 @@ $Id: eventprincipal_t.cppunit.cc,v 1.36 2007/01/12 21:07:59 wmtan Exp $
 
 #include <cppunit/extensions/HelperMacros.h>
 
-#include "DataFormats/Common/interface/BranchDescription.h"
-#include "DataFormats/Common/interface/ModuleDescription.h"
-#include "DataFormats/Common/interface/ParameterSetID.h"
-#include "DataFormats/Common/interface/ProcessConfiguration.h"
-#include "DataFormats/Common/interface/ProductID.h"
-#include "DataFormats/Common/interface/ProductRegistry.h"
-#include "DataFormats/Common/interface/Timestamp.h"
+#include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "DataFormats/Provenance/interface/ModuleDescription.h"
+#include "DataFormats/Provenance/interface/ParameterSetID.h"
+#include "DataFormats/Provenance/interface/ProcessConfiguration.h"
+#include "DataFormats/Provenance/interface/ProductID.h"
+#include "DataFormats/Provenance/interface/ProductRegistry.h"
+#include "DataFormats/Provenance/interface/Timestamp.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/TestObjects/interface/ToyProducts.h"
 #include "DataFormats/Common/interface/BasicHandle.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/Selector.h"
-#include "FWCore/Framework/interface/TypeID.h"
+#include "FWCore/Utilities/interface/TypeID.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/GetPassID.h"

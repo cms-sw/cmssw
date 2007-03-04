@@ -38,7 +38,7 @@ edm::eventsetup::heterocontainer::HCTypeTagTemplate<DummyRecord, edm::eventsetup
 }
 */
 
-#include "DataFormats/Common/interface/Provenance.h"
+#include "DataFormats/Provenance/interface/Provenance.h"
 
 #include "FWCore/Framework/interface/EventSetupRecordProviderTemplate.h"
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"

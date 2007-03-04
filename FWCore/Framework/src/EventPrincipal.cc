@@ -10,7 +10,7 @@ namespace edm {
 	ProcessHistoryID const& hist,
 	boost::shared_ptr<DelayedReader> rtrv) :
 	  Base(reg, pc, hist, rtrv),
-	  aux_(id, time, lbp->id()),
+	  aux_(id, time, lbp->luminosityBlock()),
 	  luminosityBlockPrincipal_(lbp),
 	  unscheduledHandler_(),
 	  provenanceFiller_() {}

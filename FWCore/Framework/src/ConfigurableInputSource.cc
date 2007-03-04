@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: ConfigurableInputSource.cc,v 1.15 2007/02/12 17:53:37 biery Exp $
+$Id: ConfigurableInputSource.cc,v 1.16 2007/02/27 00:45:47 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -30,8 +30,8 @@ namespace edm {
     zerothEvent_(pset.getUntrackedParameter<unsigned int>("firstEvent", 1) - 1),
     eventID_(pset.getUntrackedParameter<unsigned int>("firstRun", 1), zerothEvent_),
     origEventID_(eventID_),
-    luminosityBlockID_(pset.getUntrackedParameter<unsigned int>("firstLuminosityBlock", 1)),
-    origLuminosityBlockID_(luminosityBlockID_),
+    luminosityBlock_(pset.getUntrackedParameter<unsigned int>("firstLuminosityBlock", 1)),
+    origLuminosityBlockNumber_t_(luminosityBlock_),
     justBegun_(true),
     luminosityBlockPrincipal_()
   { }
@@ -53,7 +53,7 @@ namespace edm {
   void
   ConfigurableInputSource::startLumi() {
     luminosityBlockPrincipal_ = boost::shared_ptr<LuminosityBlockPrincipal>(
-        new LuminosityBlockPrincipal(luminosityBlockID_, productRegistry(), runPrincipal_, processConfiguration()));
+        new LuminosityBlockPrincipal(luminosityBlock_, productRegistry(), runPrincipal_, processConfiguration()));
     LuminosityBlockPrincipal & lbp =
        const_cast<LuminosityBlockPrincipal &>(*luminosityBlockPrincipal_);
     LuminosityBlock lb(lbp, moduleDescription());
@@ -94,14 +94,14 @@ namespace edm {
   std::auto_ptr<EventPrincipal>
   ConfigurableInputSource::read() {
     RunNumber_t oldRun = eventID_.run();
-    LuminosityBlockID oldLumi = luminosityBlockID_;
+    LuminosityBlockNumber_t oldLumi = luminosityBlock_;
     setRunAndEventInfo();
     if (eventID_ == EventID()) {
       endLumiAndRun();
       return std::auto_ptr<EventPrincipal>(0); 
     }
     bool isNewRun = justBegun_ || oldRun != eventID_.run();
-    bool isNewLumi = isNewRun || oldLumi != luminosityBlockID_;
+    bool isNewLumi = isNewRun || oldLumi != luminosityBlock_;
     if(!justBegun_ && isNewLumi) {
       finishLumi();
       if (isNewRun) {
@@ -151,17 +151,17 @@ namespace edm {
     // Do nothing if the run is not changed.
     if (r != eventID_.run()) {
       eventID_ = EventID(r, zerothEvent_);
-      luminosityBlockID_ = origLuminosityBlockID_;
+      luminosityBlock_ = origLuminosityBlockNumber_t_;
       numberEventsInThisRun_ = 0;
       numberEventsInThisLumi_ = 0;
     }
   }
 
   void
-  ConfigurableInputSource::setLumi(LuminosityBlockID lb) {
+  ConfigurableInputSource::setLumi(LuminosityBlockNumber_t lb) {
     // Do nothing if the lumi block is not changed.
-    if (lb != luminosityBlockID_) {
-      luminosityBlockID_ = lb;
+    if (lb != luminosityBlock_) {
+      luminosityBlock_ = lb;
       numberEventsInThisLumi_ = 0;
     }
   }
@@ -171,7 +171,7 @@ namespace edm {
     if (!justBegun_) {
       finishLumi();
       finishRun();
-      luminosityBlockID_ = origLuminosityBlockID_;
+      luminosityBlock_ = origLuminosityBlockNumber_t_;
       presentTime_ = origTime_;
       eventID_ = origEventID_;
       numberEventsInThisRun_ = 0;
@@ -194,12 +194,12 @@ namespace edm {
       } else {
         // new lumi
         numberEventsInThisLumi_ = 1;
-        ++luminosityBlockID_;
+        ++luminosityBlock_;
       }
     } else {
       // new run
       eventID_ = eventID_.nextRunFirstEvent();
-      luminosityBlockID_ = origLuminosityBlockID_;
+      luminosityBlock_ = origLuminosityBlockNumber_t_;
       //reset these to one since this event is in the new run
       numberEventsInThisRun_ = 1;
       numberEventsInThisLumi_ = 1;

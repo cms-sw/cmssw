@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: DataViewImpl.cc,v 1.10 2007/02/14 14:20:30 paterno Exp $
+$Id: DataViewImpl.cc,v 1.11 2007/02/17 23:31:30 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <memory>
@@ -7,10 +7,10 @@ $Id: DataViewImpl.cc,v 1.10 2007/02/14 14:20:30 paterno Exp $
 #include <algorithm>
 
 #include "FWCore/Framework/interface/DataViewImpl.h"
-#include "DataFormats/Common/interface/ProductID.h"
-#include "DataFormats/Common/interface/ProductRegistry.h"
+#include "DataFormats/Provenance/interface/ProductID.h"
+#include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "FWCore/Framework/interface/DataBlockImpl.h"
-#include "DataFormats/Common/interface/BranchDescription.h"
+#include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "FWCore/Framework/interface/Group.h"
 
 using namespace std;

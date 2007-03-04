@@ -6,12 +6,12 @@
    Declaration of class ModuleRegistry
 
    \author Stefano ARGIRO
-   \version $Id: WorkerRegistry.h,v 1.7.2.1 2006/07/04 14:03:43 wmtan Exp $
+   \version $Id: WorkerRegistry.h,v 1.8 2006/07/06 19:11:43 wmtan Exp $
    \date 18 May 2005
 */
 
-#include "DataFormats/Common/interface/PassID.h"
-#include "DataFormats/Common/interface/ReleaseVersion.h"
+#include "DataFormats/Provenance/interface/PassID.h"
+#include "DataFormats/Provenance/interface/ReleaseVersion.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/src/WorkerParams.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"

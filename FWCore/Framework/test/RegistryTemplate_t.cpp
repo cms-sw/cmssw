@@ -1,6 +1,6 @@
 #include <cassert>
-#include "DataFormats/Common/interface/ModuleDescriptionRegistry.h"
-#include "DataFormats/Common/interface/ProcessHistoryRegistry.h"
+#include "DataFormats/Provenance/interface/ModuleDescriptionRegistry.h"
+#include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 
 int main()
 {

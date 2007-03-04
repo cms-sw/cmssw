@@ -1,14 +1,14 @@
 /*----------------------------------------------------------------------
   
-$Id: ProducerBase.cc,v 1.1 2006/04/20 22:34:05 wmtan Exp $
+$Id: ProducerBase.cc,v 1.2 2006/08/31 23:26:24 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/interface/ProducerBase.h"
 #include "FWCore/Framework/interface/Actions.h"
-#include "DataFormats/Common/interface/BranchDescription.h"
-#include "DataFormats/Common/interface/ModuleDescription.h"
-#include "DataFormats/Common/interface/ProductRegistry.h"
+#include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "DataFormats/Provenance/interface/ModuleDescription.h"
+#include "DataFormats/Provenance/interface/ProductRegistry.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/ConstProductRegistry.h"

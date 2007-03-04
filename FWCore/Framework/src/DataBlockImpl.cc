@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-  $Id: DataBlockImpl.cc,v 1.19 2007/02/21 16:23:11 paterno Exp $
+  $Id: DataBlockImpl.cc,v 1.20 2007/02/21 22:32:10 paterno Exp $
   ----------------------------------------------------------------------*/
 
 #include <algorithm>
@@ -13,10 +13,10 @@
 #include "Reflex/Type.h"
 #include "Reflex/Base.h" // (needed for Type::HasBase to work correctly)
 
-#include "DataFormats/Common/interface/ProcessHistoryRegistry.h"
-#include "DataFormats/Common/interface/ProductRegistry.h"
+#include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
+#include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "FWCore/Framework/interface/DataBlockImpl.h"
-#include "DataFormats/Common/interface/ReflexTools.h"
+#include "FWCore/Utilities/interface/ReflexTools.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/for_all.h"
 

@@ -10,7 +10,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Actions.h"
 #include "FWCore/Framework/interface/CurrentProcessingContext.h"
-#include "DataFormats/Common/interface/ProductRegistry.h"
+#include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "FWCore/Framework/src/WorkerMaker.h"
 #include "FWCore/Framework/src/Factory.h"
 #include "FWCore/Framework/src/WorkerParams.h"

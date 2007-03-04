@@ -6,7 +6,7 @@
 Worker: this is a basic scheduling unit - an abstract base class to
 something that is really a producer or filter.
 
-$Id: Worker.h,v 1.17 2006/12/01 03:33:42 wmtan Exp $
+$Id: Worker.h,v 1.18 2007/01/09 17:28:25 chrjones Exp $
 
 A worker will not actually call through to the module unless it is
 in a Ready state.  After a module is actually run, the state will not
@@ -23,7 +23,7 @@ the worker is reset().
 
 ----------------------------------------------------------------------*/
 
-#include "DataFormats/Common/interface/ModuleDescription.h"
+#include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/Framework/src/WorkerParams.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 

@@ -10,9 +10,9 @@ namespace edm {
 	aux_(dbk.aux()) {
     }
 
-    LuminosityBlockID
-    Event::luminosityBlockID() const {
-      return getLuminosityBlock().id();
+    LuminosityBlockNumber_t
+    Event::luminosityBlock() const {
+      return getLuminosityBlock().luminosityBlock();
     }
 
     Run const&
@@ -21,7 +21,7 @@ namespace edm {
     }
 
     RunNumber_t
-    Event::runID() const {
-      return getRun().id();
+    Event::run() const {
+      return getRun().run();
     }
 }
