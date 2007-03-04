@@ -2,13 +2,13 @@
 
 Test program for edm::Ref use in ROOT.
 
-$Id: ref_t.cppunit.cpp,v 1.8 2007/01/19 04:53:28 wmtan Exp $
+$Id: ref_t.cppunit.cpp,v 1.9 2007/01/27 00:10:07 wmtan Exp $
  ----------------------------------------------------------------------*/
 
 #include <iostream>
 #include <string>
 #include <cppunit/extensions/HelperMacros.h>
-#include "FWCore/FWLite/src/AutoLibraryLoader.h"
+#include "FWCore/FWLite/interface/AutoLibraryLoader.h"
 #include "TFile.h"
 #include "TTree.h"
 #include "TBranch.h"

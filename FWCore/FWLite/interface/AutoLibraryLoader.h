@@ -1,5 +1,5 @@
-#ifndef LibraryLoader_AutoLibraryLoader_h
-#define LibraryLoader_AutoLibraryLoader_h
+#ifndef FWCore_FWLite_AutoLibraryLoader_h
+#define FWCore_FWLite_AutoLibraryLoader_h
 /**\class AutoLibraryLoader
  *
  * ROOT helper class which can automatically load the 
@@ -7,7 +7,7 @@
  *
  * \author Chris Jones, Cornell
  *
- * $Id: AutoLibraryLoader.h,v 1.4 2006/09/29 00:54:16 chrjones Exp $
+ * $Id: AutoLibraryLoader.h,v 1.5 2006/12/16 13:33:29 wmtan Exp $
  *
  */
 #include "TObject.h"

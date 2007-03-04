@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Wed Nov 30 14:55:01 EST 2005
-// $Id: AutoLibraryLoader.cc,v 1.14 2006/12/16 13:33:29 wmtan Exp $
+// $Id: AutoLibraryLoader.cc,v 1.15 2007/02/01 16:10:20 wmtan Exp $
 //
 
 // system include files
@@ -18,7 +18,7 @@
 #include "boost/regex.hpp"
 
 // user include files
-#include "FWCore/FWLite/src/AutoLibraryLoader.h"
+#include "FWCore/FWLite/interface/AutoLibraryLoader.h"
 #include "FWCore/RootAutoLibraryLoader/interface/RootAutoLibraryLoader.h"
 #include "FWCore/FWLite/src/BareRootProductGetter.h"
 
