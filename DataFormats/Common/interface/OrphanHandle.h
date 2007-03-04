@@ -19,7 +19,7 @@ OrphanHandles can have:
 
 To check validity, one can use the isValid() function.
 
-$Id: OrphanHandle.h,v 1.5 2006/12/06 21:30:11 wmtan Exp $
+$Id: OrphanHandle.h,v 1.1 2007/01/12 21:05:28 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -27,7 +27,7 @@ $Id: OrphanHandle.h,v 1.5 2006/12/06 21:30:11 wmtan Exp $
 #include <stdexcept>
 #include <typeinfo>
 
-#include "DataFormats/Common/interface/ProductID.h"
+#include "DataFormats/Provenance/interface/ProductID.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
 namespace edm {

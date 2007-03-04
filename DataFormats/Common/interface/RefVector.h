@@ -6,7 +6,7 @@
 RefVector: A template for a vector of interproduct references.
 	Each vector element is a reference to a member of the same product.
 
-$Id: RefVector.h,v 1.16 2006/12/04 19:02:31 chrjones Exp $
+$Id: RefVector.h,v 1.17 2006/12/16 03:41:25 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -16,7 +16,7 @@ $Id: RefVector.h,v 1.16 2006/12/04 19:02:31 chrjones Exp $
 #include "DataFormats/Common/interface/RefVectorBase.h"
 #include "DataFormats/Common/interface/RefVectorIterator.h"
 #include "DataFormats/Common/interface/RefItem.h"
-#include "DataFormats/Common/interface/ProductID.h"
+#include "DataFormats/Provenance/interface/ProductID.h"
 
 #include "DataFormats/Common/interface/traits.h"
 

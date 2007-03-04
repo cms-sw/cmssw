@@ -1,9 +1,1 @@
-#ifndef Common_LuminosityBlockID_h
-#define Common_LuminosityBlockID_h
-
-namespace edm
-{
-  typedef unsigned int LuminosityBlockID;
-}
-
-#endif
+#error: use #include DataFormats/Provenance/interface/LuminosityBlockID.h

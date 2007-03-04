@@ -19,7 +19,7 @@ Handles can have:
 
 To check validity, one can use the isValid() function.
 
-$Id: BasicHandle.h,v 1.12 2007/01/11 23:39:19 paterno Exp $
+$Id: BasicHandle.h,v 1.1 2007/01/12 21:05:28 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -27,7 +27,7 @@ $Id: BasicHandle.h,v 1.12 2007/01/11 23:39:19 paterno Exp $
 #include <stdexcept>
 #include <typeinfo>
 
-#include "DataFormats/Common/interface/Provenance.h"
+#include "DataFormats/Provenance/interface/Provenance.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
 namespace edm {

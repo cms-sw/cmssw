@@ -28,14 +28,14 @@ within the edm::Event where those objects are only related by a base class, T.
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Apr  3 16:37:59 EDT 2006
-// $Id: RefToBase.h,v 1.10 2006/11/15 10:17:28 llista Exp $
+// $Id: RefToBase.h,v 1.11 2007/01/23 00:25:52 wmtan Exp $
 //
 
 // system include files
 #include <algorithm>
 
 // user include files
-#include "DataFormats/Common/interface/ProductID.h"
+#include "DataFormats/Provenance/interface/ProductID.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
 namespace edm {

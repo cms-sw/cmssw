@@ -16,13 +16,13 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Nov  1 15:06:31 EST 2005
-// $Id: EDProductGetter.h,v 1.2 2006/02/08 00:44:23 wmtan Exp $
+// $Id: EDProductGetter.h,v 1.3 2007/01/23 00:25:52 wmtan Exp $
 //
 
 // system include files
 
 // user include files
-#include "DataFormats/Common/interface/ProductID.h"
+#include "DataFormats/Provenance/interface/ProductID.h"
 
 // forward declarations
 

@@ -4,7 +4,7 @@
 /** \class TriggerResults
  *
  *  Original Author: Jim Kowalkowski 13-01-06
- *  $Id: TriggerResults.h,v 1.4 2007/01/05 18:41:04 wdd Exp $
+ *  $Id: TriggerResults.h,v 1.5 2007/01/23 00:00:03 wmtan Exp $
  *
  *  The trigger path results are maintained here as a sequence of
  *  entries, one per trigger path.  They are assigned in the order
@@ -17,15 +17,15 @@
  *  in the file when that option becomes available.  For now, this
  *  object contains the trigger path names as a vector of strings.
  *
- *  $Date: 2007/01/05 18:41:04 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/01/23 00:00:03 $
+ *  $Revision: 1.5 $
  *
  *  \author Martin Grunewald
  *
  */
 
 #include "DataFormats/Common/interface/HLTGlobalStatus.h"
-#include "DataFormats/Common/interface/ParameterSetID.h"
+#include "DataFormats/Provenance/interface/ParameterSetID.h"
 
 #include <string>
 #include <vector>

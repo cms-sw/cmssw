@@ -5,7 +5,7 @@
   
 Ref: A template for a interproduct reference to a member of a product.
 
-$Id: Ref.h,v 1.17 2006/12/16 03:45:47 wmtan Exp $
+$Id: Ref.h,v 1.18 2007/01/23 00:25:52 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 /**
@@ -87,7 +87,7 @@ $Id: Ref.h,v 1.17 2006/12/16 03:45:47 wmtan Exp $
 #include "boost/mpl/has_xxx.hpp"
 #include "boost/utility/enable_if.hpp"
 #include "DataFormats/Common/interface/RefBase.h"
-#include "DataFormats/Common/interface/ProductID.h"
+#include "DataFormats/Provenance/interface/ProductID.h"
 
 #include "FWCore/Utilities/interface/GCCPrerequisite.h"
 

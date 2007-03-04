@@ -1,36 +1,14 @@
-#include "DataFormats/Common/interface/BranchDescription.h"
-#include "DataFormats/Common/interface/BranchEntryDescription.h"
-#include "DataFormats/Common/interface/BranchKey.h"
 #include "DataFormats/Common/interface/CopyPolicy.h"
 #include "DataFormats/Common/interface/EDProduct.h"
-#include "DataFormats/Common/interface/EventAux.h"
-#include "DataFormats/Common/interface/EventID.h"
-#include "DataFormats/Common/interface/EventProvenance.h"
-#include "DataFormats/Common/interface/FileFormatVersion.h"
-#include "DataFormats/Common/interface/Hash.h"
-#include "DataFormats/Common/interface/HashedTypes.h"
 #include "DataFormats/Common/interface/HLTGlobalStatus.h"
 #include "DataFormats/Common/interface/HLTPathStatus.h"
-#include "DataFormats/Common/interface/LuminosityBlockAux.h"
-#include "DataFormats/Common/interface/LuminosityBlockID.h"
-#include "DataFormats/Common/interface/ModuleDescription.h"
-#include "DataFormats/Common/interface/ModuleDescriptionID.h"
 #include "DataFormats/Common/interface/OwnVector.h"
-#include "DataFormats/Common/interface/ParameterSetBlob.h"
-#include "DataFormats/Common/interface/ParameterSetID.h"
-#include "DataFormats/Common/interface/ProcessHistory.h"
-#include "DataFormats/Common/interface/ProcessHistoryID.h"
-#include "DataFormats/Common/interface/ProcessConfiguration.h"
-#include "DataFormats/Common/interface/ProcessConfigurationID.h"
-#include "DataFormats/Common/interface/ProductID.h"
-#include "DataFormats/Common/interface/ProductRegistry.h"
+#include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Common/interface/RangeMap.h"
 #include "DataFormats/Common/interface/RefBase.h"
 #include "DataFormats/Common/interface/RefItem.h"
-#include "DataFormats/Common/interface/RunAux.h"
 #include "DataFormats/Common/interface/RefVectorBase.h"
 #include "DataFormats/Common/interface/RefVector.h"
-#include "DataFormats/Common/interface/Timestamp.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 #include <map>
@@ -127,16 +105,6 @@ namespace {
   edm::RefVectorBase<std::vector<unsigned int>::size_type> dummyRefVectorBase;
   edm::RefVectorBase<int> dummyRefVectorBase2;
   edm::RefVectorBase<std::pair<unsigned int, unsigned int> > dummyRefVectorBase3;
-
-  std::pair<edm::BranchKey, edm::BranchDescription> dummyPairBranch;
-  std::map<edm::Hash<0>, edm::ModuleDescription> dummyMapMod;
-  std::map<edm::Hash<2>, edm::ProcessHistory> dummyMapProc;
-  std::map<edm::Hash<1>, edm::ParameterSetBlob> dummyMapParam;
-  std::set<edm::Hash<1> > dummySetParam;
-  std::set<edm::Hash<3> > dummySetProcessDesc;
-  std::pair<edm::Hash<0>, edm::ModuleDescription> dummyPairMod;
-  std::pair<edm::Hash<2>, edm::ProcessHistory> dummyPairProc;
-  std::pair<edm::Hash<1>, edm::ParameterSetBlob> dummyPairParam;
 
   std::vector<char>::iterator itc;
   std::vector<short>::iterator its;

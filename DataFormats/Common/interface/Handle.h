@@ -19,7 +19,7 @@ Handles can have:
 
 To check validity, one can use the isValid() function.
 
-$Id: Handle.h,v 1.20 2006/12/06 16:18:23 paterno Exp $
+$Id: Handle.h,v 1.1 2007/01/12 21:05:28 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -27,7 +27,7 @@ $Id: Handle.h,v 1.20 2006/12/06 16:18:23 paterno Exp $
 #include <stdexcept>
 #include <typeinfo>
 
-#include "DataFormats/Common/interface/ProductID.h"
+#include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Common/interface/BasicHandle.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 

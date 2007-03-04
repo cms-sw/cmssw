@@ -5,7 +5,7 @@
   
 Ref: A template for an interproduct reference to a product.
 
-$Id: RefProd.h,v 1.5 2006/10/28 23:50:34 wmtan Exp $
+$Id: RefProd.h,v 1.6 2006/12/16 03:45:47 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -38,7 +38,7 @@ $Id: RefProd.h,v 1.5 2006/10/28 23:50:34 wmtan Exp $
 ----------------------------------------------------------------------*/ 
 
 #include "DataFormats/Common/interface/RefCore.h"
-#include "DataFormats/Common/interface/ProductID.h"
+#include "DataFormats/Provenance/interface/ProductID.h"
 
 namespace edm {
   template <typename T, typename V, typename F> class Ref;

@@ -5,13 +5,13 @@
   
 RefVectorBase: Base class for a vector of interproduct references.
 
-$Id: RefVectorBase.h,v 1.7 2006/08/10 23:34:53 wmtan Exp $
+$Id: RefVectorBase.h,v 1.8 2006/12/16 03:41:25 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
 #include "DataFormats/Common/interface/RefCore.h"
 #include "DataFormats/Common/interface/RefItem.h"
-#include "DataFormats/Common/interface/ProductID.h"
+#include "DataFormats/Provenance/interface/ProductID.h"
 #include <vector>
 
 namespace edm {
