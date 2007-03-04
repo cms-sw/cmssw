@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jun 27 17:58:10 EDT 2006
-// $Id: TFWLiteSelectorBasic.cc,v 1.12 2007/01/19 04:54:17 wmtan Exp $
+// $Id: TFWLiteSelectorBasic.cc,v 1.13 2007/01/28 05:36:44 wmtan Exp $
 //
 
 // system include files
@@ -24,21 +24,20 @@
 // user include files
 #include "FWCore/TFWLiteSelector/interface/TFWLiteSelectorBasic.h"
 
-#include "DataFormats/Common/interface/BranchType.h"
-#include "DataFormats/Common/interface/ProductRegistry.h"
+#include "DataFormats/Provenance/interface/BranchType.h"
+#include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Common/interface/EDProduct.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Framework/interface/DelayedReader.h"
-#include "DataFormats/Common/interface/ProcessConfiguration.h"
-#include "DataFormats/Common/interface/ProcessHistory.h"
-#include "DataFormats/Common/interface/EventAux.h"
+#include "DataFormats/Provenance/interface/ProcessConfiguration.h"
+#include "DataFormats/Provenance/interface/ProcessHistory.h"
+#include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
-#include "DataFormats/Common/interface/EventProvenance.h"
-#include "DataFormats/Common/interface/ModuleDescriptionRegistry.h"
-#include "DataFormats/Common/interface/ProcessHistoryRegistry.h"
-#include "DataFormats/Common/interface/ParameterSetBlob.h"
+#include "DataFormats/Provenance/interface/ModuleDescriptionRegistry.h"
+#include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
+#include "DataFormats/Provenance/interface/ParameterSetBlob.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
 namespace edm {
   namespace root {
@@ -142,7 +141,7 @@ namespace edm {
       boost::shared_ptr<FWLiteDelayedReader> reader_;
       typedef std::map<ProductID, BranchDescription> ProductMap;
       ProductMap productMap_;
-      edm::EventProvenance prov_;
+      std::vector<edm::BranchEntryDescription> prov_;
       std::vector<edm::BranchEntryDescription*> pointerToBranchBuffer_;
     };
   }
@@ -240,13 +239,9 @@ Bool_t
 TFWLiteSelectorBasic::Process(Long64_t iEntry) { 
    //std::cout <<"Process start"<<std::endl;
    if(everythingOK_) {
-      edm::EventAux aux;
-      edm::EventAux* pAux= &aux;
-      TBranch* branch = m_->tree_->GetBranch("EventAux");
-
-/*      edm::EventProvenance prov;
-      edm::EventProvenance* pProv=&prov; 
-      TBranch* provBranch = m_->tree_->GetBranch("Provenance"); */
+      edm::EventAuxiliary aux;
+      edm::EventAuxiliary* pAux= &aux;
+      TBranch* branch = m_->tree_->GetBranch("EventAuxiliary");
 
       branch->SetAddress(&pAux);
       //provBranch->SetAddress(&pProv);
@@ -272,8 +267,8 @@ TFWLiteSelectorBasic::Process(Long64_t iEntry) {
          m_->processNames_ = ep.processHistory();
 
 	 using namespace edm;
-	 std::vector<BranchEntryDescription>::iterator pit = m_->prov_.data_.begin();
-	 std::vector<BranchEntryDescription>::iterator pitEnd = m_->prov_.data_.end();
+	 std::vector<BranchEntryDescription>::iterator pit = m_->prov_.begin();
+	 std::vector<BranchEntryDescription>::iterator pitEnd = m_->prov_.end();
 	 for (; pit != pitEnd; ++pit) {
 	    if (pit->status_ != BranchEntryDescription::Success) continue;
 	    BranchDescription &product = m_->productMap_[pit->productID_];
@@ -365,8 +360,8 @@ TFWLiteSelectorBasic::setupNewFile(TFile& iFile) {
                                    m_->pointerToBranchBuffer_.end());
   edm::ProductRegistry::ProductList const& prodList = pReg->productList();
   std::vector<edm::BranchEntryDescription> temp( prodList.size(), edm::BranchEntryDescription() );
-  m_->prov_.data_.swap( temp);
-  std::vector<edm::BranchEntryDescription>::iterator itB = m_->prov_.data_.begin();
+  m_->prov_.swap( temp);
+  std::vector<edm::BranchEntryDescription>::iterator itB = m_->prov_.begin();
   m_->pointerToBranchBuffer_.reserve(prodList.size());
   for (edm::ProductRegistry::ProductList::const_iterator it = prodList.begin(), itEnd = prodList.end();
        it != itEnd; ++it, ++itB) {
