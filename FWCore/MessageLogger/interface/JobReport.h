@@ -19,7 +19,7 @@ through the MessageLogger.
 
 //
 // Original Author:  Marc Paterno
-// $Id: JobReport.h,v 1.10 2006/12/18 18:42:51 evansde Exp $
+// $Id: JobReport.h,v 1.11 2006/12/25 04:21:36 wmtan Exp $
 //
 
 #include <cstddef>
@@ -33,12 +33,11 @@ through the MessageLogger.
 
 #include "boost/scoped_ptr.hpp"
 
-#include "DataFormats/Common/interface/EventID.h"
-
 namespace edm {
 
     class JobReport {
     public:
+      typedef unsigned int RunNumber;
       typedef std::size_t Token;
 
       /**\struct InputFile
@@ -51,7 +50,7 @@ namespace edm {
       */
   
       struct InputFile {
-        typedef std::set<edm::RunNumber_t> RunNumberCollection;
+        typedef std::set<RunNumber> RunNumberCollection;
         typedef std::vector<std::string>   StringVector;
   
         std::string     logicalFileName;
@@ -309,7 +308,7 @@ namespace edm {
     os << "\n<ModuleLabel>" << f.moduleLabel << "</ModuleLabel>";
     os << "\n<GUID>" << f.guid << "</GUID>";
     os << "\n<Runs>";
-    std::set<edm::RunNumber_t>::iterator iRun;
+    std::set<JobReport::RunNumber>::iterator iRun;
     for ( iRun = f.runsSeen.begin(); iRun != f.runsSeen.end(); iRun++) {
       os << "\n  <Run>" << *iRun << "</Run>";
     }
