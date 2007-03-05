@@ -13,7 +13,7 @@
 //
 // Original Author:  Simone Gennai
 //         Created:  Wed Apr 12 11:12:49 CEST 2006
-// $Id: TauTagVal_BKG.cc,v 1.1 2007/02/21 09:48:16 gennai Exp $
+// $Id: TauTagVal_BKG.cc,v 1.2 2007/02/21 13:36:30 gennai Exp $
 //
 //
 
@@ -150,14 +150,19 @@ DaqMonitorBEInterface* dbe = &*edm::Service<DaqMonitorBEInterface>();
     hDRRecLdgTrTauJet1=dbe->book1D("DeltaRJetLtr200<Et<250","DeltaRJetLtr200<Et<250",16,0,0.16);;
     
     dbe->setCurrentFolder("IsolationConeEff"+jetTagSrc.label());
-    effVsRiso07=dbe->book1D("EffVsRisoRsig07_130Et150","EffVsRisoRsig07_130Et150",20,0,1);
-    effVsRiso107=dbe->book1D("EffVsRisoRsig07_80Et110","EffVsRisoRsig07_80Et110",20,0,1);
-    effVsRiso207=dbe->book1D("EffVsRisoRsig07_50Et70","EffVsRisoRsig07_50Et70",20,0,1);
-    effVsRiso307=dbe->book1D("EffVsRisoRsig07_30Et50","EffVsRisoRsig07_30Et50",20,0,1);
-    effVsRiso04=dbe->book1D("EffVsRisoRsig04_130Et150","EffVsRisoRsig04_130Et150",20,0,1);
-    effVsRiso104=dbe->book1D("EffVsRisoRsig04_80Et110","EffVsRisoRsig04_80Et110",20,0,1);
-    effVsRiso204=dbe->book1D("EffVsRisoRsig04_50Et70","EffVsRisoRsig04_50Et70",20,0,1);
-    effVsRiso304=dbe->book1D("EffVsRisoRsig04_30Et50","EffVsRisoRsig04_30Et50",20,0,1);
+    nSelVsRiso07=dbe->book1D("NSelVsRisoRsig07_130Et150","NSelVsRisoRsig07_130Et150",20,0,1);
+    nSelVsRiso107=dbe->book1D("NSelVsRisoRsig07_80Et110","NSelVsRisoRsig07_80Et110",20,0,1);
+    nSelVsRiso207=dbe->book1D("NSelVsRisoRsig07_50Et70","NSelVsRisoRsig07_50Et70",20,0,1);
+    nSelVsRiso307=dbe->book1D("NSelVsRisoRsig07_30Et50","NSelVsRisoRsig07_30Et50",20,0,1);
+    nSelVsRiso04=dbe->book1D("NSelVsRisoRsig04_130Et150","NSelVsRisoRsig04_130Et150",20,0,1);
+    nSelVsRiso104=dbe->book1D("NSelVsRisoRsig04_80Et110","NSelVsRisoRsig04_80Et110",20,0,1);
+    nSelVsRiso204=dbe->book1D("NSelVsRisoRsig04_50Et70","NSelVsRisoRsig04_50Et70",20,0,1);
+    nSelVsRiso304=dbe->book1D("NSelVsRisoRsig04_30Et50","NSelVsRisoRsig04_30Et50",20,0,1);
+
+    nTotVsRiso07=dbe->book1D("NTotVsRisoRsig07_130Et150","NTotVsRisoRsig07_130Et150",20,0,1);
+    nTotVsRiso107=dbe->book1D("NTotVsRisoRsig07_80Et110","NTotVsRisoRsig07_80Et110",20,0,1);
+    nTotVsRiso207=dbe->book1D("NTotVsRisoRsig07_50Et70","NTotVsRisoRsig07_50Et70",20,0,1);
+    nTotVsRiso307=dbe->book1D("NTotVsRisoRsig07_30Et50","NTotVsRisoRsig07_30Et50",20,0,1);
     
     dbe->setCurrentFolder("TauJetResponsePlots"+jetTagSrc.label());
     hEtmean=dbe->book1D("EtmeanResp","EtmeanResp",nRuns,0,420);
@@ -187,7 +192,7 @@ void TauTagVal_BKG::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   edm::Handle< GenJetCollection > genJets ;
   iEvent.getByLabel( "iterativeCone5GenJets", genJets ) ;
 
-  int jj=-1;
+
   TClonesArray* TauJets=new TClonesArray("TLorentzVector");
   TLorentzVector TauJetMC(0.0,0.0,0.0,0.0);
 
@@ -218,7 +223,7 @@ void TauTagVal_BKG::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   for (; i != tauTagInfo.end(); ++i) {
 
     //Take only the first jet waiting for a jet selector
-    if(it == 0) {
+    //    if(it == 0) {
       for(int ii=0;ii<6;ii++)
 	{
 	  nEventsUsed[ii]++;
@@ -269,11 +274,11 @@ void TauTagVal_BKG::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 	  float selectedTracks = i->selectedTracks().size();
 	  nSelectedTracks->Fill(selectedTracks);
 	}	      
-    }
-  
-    //Added By Konstantinos A. Petridis
-    if(i->discriminator(0.1,0.07,0.4,6.,1.,0,0.2))
-      {
+    
+    
+      //Added By Konstantinos A. Petridis
+      if(i->discriminator(0.1,0.07,0.4,6.,1.,0,0.2)){
+
 	
 	TLorentzVector recoTauJet(i->jet().px(),i->jet().py(),i->jet().pz(),i->jet().energy());
 	bool trueTauJet=false;
@@ -287,7 +292,7 @@ void TauTagVal_BKG::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 		mcTauJetMatched=trueTauJets;
 	      }
 	  }
-	
+    
 	if(trueTauJet)
 	  {
 	    double binSize=420.0/(1.0*nRuns);
@@ -299,7 +304,7 @@ void TauTagVal_BKG::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 		ratio[EtBin]->Fill(recoTauJet.Et()/mcTauJetMatched->Et());
 		if(mcTauJetMatched->Et()>30)ratioEta[EtaBin]->Fill(recoTauJet.Et()/mcTauJetMatched->Et());
 	      }
-	  
+	    
 	    const TrackRef LeadingTrack3GeV=(i->leadingSignalTrack(0.1,3.0));
 	    if(!LeadingTrack3GeV)cout<<"NO LEADING TRACK PASSES CRITERIA::"<<endl;
 	    else
@@ -314,7 +319,7 @@ void TauTagVal_BKG::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 	    
 	  }
       }
-    if(it1==0){
+      
       TLorentzVector recTauJet(i->jet().px(),i->jet().py(),i->jet().pz(),i->jet().energy());
       bool mtchdTauJet=false;
       TLorentzVector* mcTauJetMtchd=0;
@@ -383,8 +388,9 @@ void TauTagVal_BKG::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 	      }
 	    }
 	}
-    }
-    it1++;
+      //    }
+      it1++;
+      it++;
   }
   delete TauJets;
 
@@ -418,65 +424,41 @@ void TauTagVal_BKG::endJob(){
 
   //Added By Konstantinos A. Petridis
   
-  int ibin07=0,ibin107=0,ibin207=0,ibin307=0;
-  int ibin04=0,ibin104=0,ibin204=0,ibin304=0;
+  int ibin07=0;
   
   for(int ii=0; ii<20; ii++){
     
-    if(nEventsUsed07[ii] > 0){ibin07= ii+1;ibin04= ii+1;}
-    if(nEventsUsed107[ii] > 0){ibin107= ii+1;ibin104= ii+1;}
-    if(nEventsUsed207[ii] > 0){ibin207= ii+1;ibin204= ii+1;}
-    if(nEventsUsed307[ii] > 0){ibin307= ii+1;ibin304= ii+1;}
+    ibin07= ii+1;
   
     if(nEventsUsed07[ii])
       {
-	float effRiso= nEventsRiso07[ii]/nEventsUsed07[ii];
-	float effRisoErr=sqrt(effRiso*(1-effRiso)/nEventsUsed07[ii]);
-	effVsRiso07->setBinContent(ibin07,effRiso);
-	effVsRiso07->setBinError(ibin07,effRisoErr); 
-	float effRiso04= nEventsRiso04[ii]/nEventsUsed07[ii];
-	float effRisoErr04=sqrt(effRiso04*(1-effRiso04)/nEventsUsed07[ii]);
-	effVsRiso04->setBinContent(ibin04,effRiso04);
-	effVsRiso04->setBinError(ibin04,effRisoErr04);
+	nSelVsRiso07->setBinContent(ibin07,1.*nEventsRiso07[ii]);
+	nTotVsRiso07->setBinContent(ibin07,1.*nEventsUsed07[ii]);
+
+	nSelVsRiso04->setBinContent(ibin07,1.*nEventsRiso04[ii]);
       }
 
     if(nEventsUsed107[ii])
       {   
-	float effRiso1= nEventsRiso107[ii]/nEventsUsed107[ii];
-	float effRisoErr1=sqrt(effRiso1*(1-effRiso1)/nEventsUsed107[ii]);
-	effVsRiso107->setBinContent(ibin107,effRiso1);
-	effVsRiso107->setBinError(ibin107,effRisoErr1); 
-	float effRiso104= nEventsRiso104[ii]/nEventsUsed107[ii];
-	float effRisoErr104=sqrt(effRiso104*(1-effRiso104)/nEventsUsed107[ii]);
-	effVsRiso104->setBinContent(ibin104,effRiso104);
-	effVsRiso104->setBinError(ibin104,effRisoErr104);
-
+	nSelVsRiso107->setBinContent(ibin07,1.*nEventsRiso107[ii]);
+	nTotVsRiso107->setBinContent(ibin07,1.*nEventsUsed107[ii]);
+	nSelVsRiso104->setBinContent(ibin07,1.*nEventsRiso104[ii]);
       }
 
     if(nEventsUsed207[ii])
       {
-	float effRiso2= nEventsRiso207[ii]/nEventsUsed207[ii];
-	float effRisoErr2=sqrt(effRiso2*(1-effRiso2)/nEventsUsed207[ii]);
-	effVsRiso207->setBinContent(ibin207,effRiso2);
-	effVsRiso207->setBinError(ibin207,effRisoErr2); 
-	float effRiso204= nEventsRiso204[ii]/nEventsUsed207[ii];
-	float effRisoErr204=sqrt(effRiso204*(1-effRiso204)/nEventsUsed207[ii]);
-	effVsRiso204->setBinContent(ibin204,effRiso204);
-	effVsRiso204->setBinError(ibin204,effRisoErr204);
-	
+	nSelVsRiso207->setBinContent(ibin07,1.*nEventsRiso207[ii]);
+	nTotVsRiso207->setBinContent(ibin07,1.*nEventsUsed207[ii]);
+	nSelVsRiso204->setBinContent(ibin07,1.*nEventsRiso204[ii]);
+
       }	
 
     if(nEventsUsed307[ii])
       {
-	float effRiso3= nEventsRiso307[ii]/nEventsUsed307[ii];
-	float effRisoErr3=sqrt(effRiso3*(1-effRiso3)/nEventsUsed307[ii]);
-	effVsRiso307->setBinContent(ibin307,effRiso3);
-	effVsRiso307->setBinError(ibin307,effRisoErr3); 
-	float effRiso304= nEventsRiso304[ii]/nEventsUsed307[ii];
-	float effRisoErr304=sqrt(effRiso304*(1-effRiso304)/nEventsUsed307[ii]);
-	effVsRiso304->setBinContent(ibin304,effRiso304);
-	effVsRiso304->setBinError(ibin304,effRisoErr304);
-    
+	nSelVsRiso207->setBinContent(ibin07,1.*nEventsRiso307[ii]);
+	nTotVsRiso207->setBinContent(ibin07,1.*nEventsUsed307[ii]);
+	nSelVsRiso204->setBinContent(ibin07,1.*nEventsRiso304[ii]);
+
       }
   }
 
@@ -513,7 +495,7 @@ void TauTagVal_BKG::endJob(){
       hEtamean->setBinError(i+1,piEtmeanEr[i]);
     }
 
-
+  /*
   effVsRiso07->setAxisRange(0.4,1.0,2);
   effVsRiso107->setAxisRange(0.4,1.0,2);
   effVsRiso207->setAxisRange(0.4,1.0,2);
@@ -522,6 +504,7 @@ void TauTagVal_BKG::endJob(){
   effVsRiso104->setAxisRange(0.4,1.0,2);
   effVsRiso204->setAxisRange(0.4,1.0,2);
   effVsRiso304->setAxisRange(0.4,1.0,2);
+  */
   hEtmean->setAxisRange(0.7,1.2,2);
   hEtmean->setAxisRange(0.7,1.2,2);
 

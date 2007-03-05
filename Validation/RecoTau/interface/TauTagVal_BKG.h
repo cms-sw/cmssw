@@ -175,14 +175,18 @@ private:
   MonitorElement* hEtamean;
   MonitorElement *hDRRecLdgTrTauJet;
   MonitorElement *hDRRecLdgTrTauJet1;
-  MonitorElement* effVsRiso07;
-  MonitorElement* effVsRiso107;
-  MonitorElement* effVsRiso207;
-  MonitorElement* effVsRiso307;
-  MonitorElement* effVsRiso04;
-  MonitorElement* effVsRiso104;
-  MonitorElement* effVsRiso204;
-  MonitorElement* effVsRiso304;
+  MonitorElement* nSelVsRiso07;
+  MonitorElement* nSelVsRiso107;
+  MonitorElement* nSelVsRiso207;
+  MonitorElement* nSelVsRiso307;
+  MonitorElement* nSelVsRiso04;
+  MonitorElement* nSelVsRiso104;
+  MonitorElement* nSelVsRiso204;
+  MonitorElement* nSelVsRiso304;
+  MonitorElement* nTotVsRiso07;
+  MonitorElement* nTotVsRiso107;
+  MonitorElement* nTotVsRiso207;
+  MonitorElement* nTotVsRiso307;
   MonitorElement* hTauJets;
    
 
