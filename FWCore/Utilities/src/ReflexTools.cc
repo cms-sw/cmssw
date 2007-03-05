@@ -213,4 +213,59 @@ namespace edm
 	<< "you need to specify them in classes_def.xml.";
     }
   }
+
+
+  void public_base_classes(const ROOT::Reflex::Type& type,
+                           std::vector<ROOT::Reflex::Type>& baseTypes) {
+
+    if (type.IsClass() || type.IsStruct()) {
+
+      int nBase = type.BaseSize();
+      for (int i = 0; i < nBase; ++i) {
+
+        ROOT::Reflex::Base base = type.BaseAt(i);
+        if (base.IsPublic()) {
+
+          ROOT::Reflex::Type baseType = type.BaseAt(i).ToType();
+          if (bool(baseType)) {
+
+            while (baseType.IsTypedef() == true) {
+	      baseType = baseType.ToType();
+            }
+
+            // Check to make sure this base appears only once in the
+            // inheritance heirarchy.
+	    std::vector<ROOT::Reflex::Type>::const_iterator result;
+            result = find(baseTypes.begin(), baseTypes.end(), baseType);
+            if (result == baseTypes.end()) {
+
+              // Save the type and recursive look for its base types
+	      baseTypes.push_back(baseType);
+              public_base_classes(baseType, baseTypes);
+            }
+            // For now just ignore it if the class appears twice,
+            // After some more testing we may decide to uncomment the following
+            // exception.
+            /*
+            else {
+              throw edm::Exception(edm::errors::UnimplementedFeature)
+                << "DataFormats/Common/src/ReflexTools.cc in function public_base_classes.\n"
+	        << "Encountered class that has a public base class that appears\n"
+	        << "multiple times in its inheritance heirarchy.\n"
+	        << "Please contact the EDM Framework group with details about\n"
+	        << "this exception.  It was our hope that this complicated situation\n"
+	        << "would not occur.  There are three possible solutions.  1. Change\n"
+                << "the class design so the public base class does not appear multiple\n"
+                << "times in the inheritance heirarchy.  In many cases, this is a\n"
+                << "sign of bad design.  2.  Modify the code that supports Views to\n"
+                << "ignore these base classes, but not supply support for creating a\n"
+                << "View of this base class.  3.  Improve the View infrastructure to\n"
+                << "deal with this case. Class name of base class: " << baseType.Name() << "\n\n";
+            }
+            */
+	  }
+        }
+      }
+    }
+  }
 }

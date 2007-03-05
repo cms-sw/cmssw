@@ -14,7 +14,7 @@ through shared pointers.
 The DataBlockImpl returns BasicHandle, rather than a shared
 pointer to a Group, when queried.
 
-$Id: DataBlockImpl.h,v 1.13 2007/02/17 23:27:28 wmtan Exp $
+$Id: DataBlockImpl.h,v 1.14 2007/03/04 06:00:22 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <list>
@@ -168,6 +168,8 @@ namespace edm {
     // *this is const.
     void resolve_(Group const& g, bool unconditional = false) const;
 
+    void fillElementLookup(const ROOT::Reflex::Type & type, int slotNumber);
+
     mutable ProcessHistoryID processHistoryID_;
 
     boost::shared_ptr<ProcessHistory> processHistoryPtr_;
@@ -191,7 +193,8 @@ namespace edm {
     ProductDict productDict_; // 1->1
 
     typedef std::map<std::string, std::vector<int> > TypeDict;
-    TypeDict typeDict_; // 1->many
+    TypeDict productLookup_; // 1->many
+    TypeDict elementLookup_; // 1->many
 
     // A vector of inactive groups (product not present or inaccessible).
     GroupVec inactiveGroups_; // products and provenances are persistent

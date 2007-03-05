@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-  $Id: DataBlockImpl.cc,v 1.20 2007/02/21 22:32:10 paterno Exp $
+  $Id: DataBlockImpl.cc,v 1.21 2007/03/04 06:10:25 wmtan Exp $
   ----------------------------------------------------------------------*/
 
 #include <algorithm>
@@ -16,6 +16,7 @@
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "FWCore/Framework/interface/DataBlockImpl.h"
+#include "FWCore/Utilities/interface/TypeID.h"
 #include "FWCore/Utilities/interface/ReflexTools.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/for_all.h"
@@ -38,7 +39,7 @@ namespace edm {
     groups_(),
     branchDict_(),
     productDict_(),
-    typeDict_(),
+    productLookup_(),
     inactiveGroups_(),
     inactiveBranchDict_(),
     inactiveProductDict_(),
@@ -79,7 +80,7 @@ namespace edm {
     bool accessible = g->productAvailable();
     BranchDict & branchDict = (accessible ? branchDict_ : inactiveBranchDict_ );
     ProductDict & productDict = (accessible ? productDict_ : inactiveProductDict_ );
-    TypeDict & typeDict = (accessible ? typeDict_ : inactiveTypeDict_ );
+    TypeDict & typeDict = (accessible ? productLookup_ : inactiveTypeDict_ );
     GroupVec & groups = (accessible ? groups_ : inactiveGroups_ );
 
     BranchDict::iterator itFound = branchDict.find(bk);
@@ -115,6 +116,55 @@ namespace edm {
 
     vector<int>& vint = typeDict[bk.friendlyClassName_];
 
+    vint.push_back(slotNumber);
+
+    if (accessible) {
+
+      ROOT::Reflex::Type type(ROOT::Reflex::Type::ByName(g->productDescription().className()));
+      if (bool(type)) {
+
+        // Here we look in the object named "type" for a typedef
+        // named "value_type" and get the Reflex::Type for it.
+        // Then check to ensure the Reflex dictionary is defined
+        // for this value_type.
+        // I do not throw an exception here if the check fails
+        // because there are known cases where the dictionary does
+        // not exist and we do not need to support those cases.
+        ROOT::Reflex::Type valueType;
+        if (edm::value_type_of(type, valueType) && bool(valueType)) {
+
+          fillElementLookup(valueType, slotNumber);
+
+          // Repeat this for all public base classes of the value_type
+          std::vector<ROOT::Reflex::Type> baseTypes;
+          edm::public_base_classes(valueType, baseTypes);
+
+          for (std::vector<ROOT::Reflex::Type>::iterator iter = baseTypes.begin(),
+                                                       iend = baseTypes.end();
+               iter != iend;
+               ++iter) {
+            fillElementLookup(*iter, slotNumber);
+          }
+        }
+      }
+      // After some more testing we may want to enable this exception
+      // but for now leave it commented out.
+      // else {
+      //   throw edm::Exception(edm::errors::DictionaryNotFound)
+      //     << "No REFLEX data dictionary found for the following class:\n\n"
+      //     <<  g->productDescription().className()
+      //     << "Occurred in DataBlockImpl::addGroup\n";
+      // }
+    }
+  }
+
+  void
+  DataBlockImpl::fillElementLookup(const ROOT::Reflex::Type & type, int slotNumber) {
+
+    TypeID typeID(type.TypeInfo());
+    std::string friendlyClassName = typeID.friendlyClassName();
+
+    vector<int>& vint = elementLookup_[friendlyClassName];
     vint.push_back(slotNumber);
   }
 
@@ -215,9 +265,9 @@ namespace edm {
   DataBlockImpl::getBySelector(TypeID const& productType, 
 			       SelectorBase const& sel) const {
     TypeDict::const_iterator i 
-      = typeDict_.find(productType.friendlyClassName());
+      = productLookup_.find(productType.friendlyClassName());
 
-    if(i == typeDict_.end()) {
+    if(i == productLookup_.end()) {
       // TODO: Perhaps stuff like this should go to some error
       // logger?  Or do we want huge message inside the exception
       // that is thrown?
@@ -227,12 +277,12 @@ namespace edm {
       err << "We are looking for: '"
 	  << productType
 	  << "'\n";
-      if (typeDict_.empty()) {
-	err << "typeDict_ is empty!\n";
+      if (productLookup_.empty()) {
+	err << "productLookup_ is empty!\n";
       } else {
 	err << "We found only the following:\n";
-	TypeDict::const_iterator j = typeDict_.begin();
-	TypeDict::const_iterator e = typeDict_.end();
+	TypeDict::const_iterator j = productLookup_.begin();
+	TypeDict::const_iterator e = productLookup_.end();
 	while (j != e) {
 	  err << "...\t" << j->first << '\n';
 	  ++j;
@@ -375,9 +425,9 @@ namespace edm {
     // We make no promise that the input 'fill_me_up' is unchanged if
     // an exception is thrown. If such a promise is needed, then more
     // care needs to be taken.
-    TypeDict::const_iterator i = typeDict_.find(productType.friendlyClassName());
+    TypeDict::const_iterator i = productLookup_.find(productType.friendlyClassName());
 
-    if(i == typeDict_.end()) {
+    if(i == productLookup_.end()) {
       return;
       // it is not an error to return no items
       // throw edm::Exception(errors::ProductNotFound,"NoMatch")
@@ -407,9 +457,9 @@ namespace edm {
   BasicHandle
   DataBlockImpl::getByType(TypeID const& productType) const {
 
-    TypeDict::const_iterator i = typeDict_.find(productType.friendlyClassName());
+    TypeDict::const_iterator i = productLookup_.find(productType.friendlyClassName());
 
-    if(i == typeDict_.end()) {
+    if(i == productLookup_.end()) {
       throw edm::Exception(errors::ProductNotFound,"NoMatch")
         << "getByType: no product found of correct type\n" << productType
 	<< '\n';
@@ -442,9 +492,9 @@ namespace edm {
     // We make no promise that the input 'fill_me_up' is unchanged if
     // an exception is thrown. If such a promise is needed, then more
     // care needs to be taken.
-    TypeDict::const_iterator i = typeDict_.find(productType.friendlyClassName());
+    TypeDict::const_iterator i = productLookup_.find(productType.friendlyClassName());
 
-    if(i == typeDict_.end()) {
+    if(i == productLookup_.end()) {
       return;
       // it is not an error to find no match
       // throw edm::Exception(errors::ProductNotFound,"NoMatch")
