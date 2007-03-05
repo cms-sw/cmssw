@@ -1,7 +1,7 @@
 /*  
  *
- *  $Date: 2007/02/05 19:00:28 $
- *  $Revision: 1.5 $
+ *  $Date: 2007/02/21 14:38:06 $
+ *  $Revision: 1.6 $
  *  \author  N. Marinelli IASA 
  *  \author G. Della Ricca
  *  \author G. Franzoni
@@ -301,11 +301,13 @@ void EcalDCCDaqFormatter::interpretRawData(const FEDRawData & fedData ,
 		    int ic        = cryIc(tower, expStripInTower,  expCryInStrip) ;
 		    EBDetId  idExp(SMid, ic,EBDetId::SMCRYSTALMODE);
 		    
-		    LogWarning("EcalRawToDigiChId") << "@SUB=EcalDCCDaqFormatter::interpretRawData"
-						<< " wrong channel id for strip: "  << expStripInTower
-						<< "\t channel: " << expCryInStrip
-						<< "\t in TT: " << _ExpectedTowers[_expTowersIndex]
-						<< "\t in event: " << (*itEventBlock)->getDataField("LV1");
+		    LogWarning("EcalRawToDigiChId") << "EcalTBDaqFormatter::interpretRawData no zero suppression "
+						    << " wrong channel id for channel: "  << expCryInStrip
+						    << "\t strip: " << expStripInTower
+						    << "\t in TT: " << _ExpectedTowers[_expTowersIndex]
+						    << "\t in event: " << (*itEventBlock)->getDataField("LV1")
+						    << "\t   (in the data, found channel:  " << ch
+						    << "\t strip:  " << strip << " ).\n";
 		    
 		    
 		    // report on wrong channel id
