@@ -1,4 +1,4 @@
-#ifndef CandUtils_makeCompositeCandidateh_
+#ifndef CandUtils_makeCompositeCandidate_h
 #define CandUtils_makeCompositeCandidate_h
 #include "DataFormats/Candidate/interface/CompositeCandidate.h"
 #include "DataFormats/Candidate/interface/ShallowCloneCandidate.h"
