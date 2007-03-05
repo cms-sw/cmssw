@@ -141,12 +141,12 @@ CSCNoiseMatrixAnalyzer::~CSCNoiseMatrixAnalyzer(){
     
     if (lines==3){
       name=PSet;  
-      cout<<name<<endl;
+      std::cout<<name<<std::endl;
     }
   }
-  string::size_type runNameStart = name.find("\"",0);
-  string::size_type runNameEnd   = name.find("raw",0);
-  string::size_type rootStart    = name.find("PulseDAC",0);
+  std::string::size_type runNameStart = name.find("\"",0);
+  std::string::size_type runNameEnd   = name.find("raw",0);
+  std::string::size_type rootStart    = name.find("PulseDAC",0);
   int nameSize = runNameEnd+2-runNameStart;
   int myRootSize = rootStart-runNameStart+11;
   std::string myname= name.substr(runNameStart+1,nameSize);

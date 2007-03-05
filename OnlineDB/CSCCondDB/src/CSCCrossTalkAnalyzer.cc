@@ -1,7 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
-#include "string"
+#include <string>
 #include <cmath>
 
 #include <FWCore/Framework/interface/Frameworkfwd.h>
@@ -359,9 +359,9 @@ CSCCrossTalkAnalyzer::~CSCCrossTalkAnalyzer(){
   std::cout << "getting file name " << std::endl;
 
   //get name of run file from .cfg and name root output after that
-  string::size_type runNameStart = name.find("\"",0);
-  string::size_type runNameEnd   = name.find("raw",0);
-  string::size_type rootStart    = name.find("Crosstalk",0);
+  std::string::size_type runNameStart = name.find("\"",0);
+  std::string::size_type runNameEnd   = name.find("raw",0);
+  std::string::size_type rootStart    = name.find("Crosstalk",0);
   int nameSize = runNameEnd+2-runNameStart;
   int myRootSize = rootStart-runNameStart+8;
   std::string myname= name.substr(runNameStart+1,nameSize);
