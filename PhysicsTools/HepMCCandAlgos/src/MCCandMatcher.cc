@@ -14,10 +14,22 @@ MCCandMatcher::~MCCandMatcher() {
 vector<const Candidate *> MCCandMatcher::getDaughters( const Candidate * c ) const {
   vector<const Candidate *> v;
   v.push_back( c );
-  const Candidate * dau;
-  if( c->numberOfDaughters() == 1 && 
-      c->status() == 3 && 
-      c->pdgId() == ( dau = c->daughter( 0 ) )->pdgId() )
-    v.push_back( dau );
+  int pdgId = c->pdgId();
+  if ( c->status() == 3 ) {
+    size_t stableIdenticalDaughters = 0;
+    const Candidate * identicalDaughter = 0;
+    for( size_t i = 0, n = c->numberOfDaughters(); i < n; ++ i ) {
+      const Candidate * d = c->daughter( i );
+      if ( pdgId == d->pdgId() && d->status() == 1 ) {
+	stableIdenticalDaughters ++;
+	identicalDaughter = d;
+	if ( stableIdenticalDaughters > 1 ) break;
+      }
+      if ( stableIdenticalDaughters == 1 ) {
+	assert( identicalDaughter != 0 );
+	v.push_back( identicalDaughter );
+      }
+    }
+  }
   return v;
 }
