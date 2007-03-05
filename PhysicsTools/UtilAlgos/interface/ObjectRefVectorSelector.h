@@ -20,18 +20,12 @@ namespace helper {
       for( I i = begin; i != end; ++ i )
 	selected_->push_back( * i );
     }
-     edm::OrphanHandle<collection> put( edm::Event & evt ) {
+    edm::OrphanHandle<collection> put( edm::Event & evt ) {
       return evt.put( selected_ );
     }
     size_t size() const { return selected_->size(); }
   private:
     std::auto_ptr<edm::RefVector<C> > selected_;
-  };
-
-  template<typename C>
-  struct RefVectorCollectionStoreManager {
-    typedef RefVectorStoreMananger<C> type;
-    typedef ObjectSelectorBase<edm::RefVector<C> > base;
   };
  
 }
@@ -39,12 +33,12 @@ namespace helper {
 template<typename S, 
 	 typename N = NonNullNumberSelector,
          typename P = reco::helpers::NullPostProcessor<edm::RefVector<typename S::collection> >,
-	 typename M = typename helper::RefVectorCollectionStoreManager<typename S::collection>::type, 
-	 typename B = typename helper::RefVectorCollectionStoreManager<typename S::collection>::base>
-class ObjectRefVectorSelector : public ObjectSelector<S, N, P, M, B> {
+	 typename M = helper::RefVectorStoreMananger<typename S::collection>, 
+	 typename C = edm::RefVector<typename S::collection> >
+class ObjectRefVectorSelector : public ObjectSelector<S, N, P, M, C> {
 public:
   explicit ObjectRefVectorSelector( const edm::ParameterSet & cfg ) :
-    ObjectSelector<S, N, P, M, B>( cfg ) { }
+    ObjectSelector<S, N, P, M, C>( cfg ) { }
 };
 
 #endif

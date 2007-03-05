@@ -6,9 +6,9 @@
  * 
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.12 $
+ * \version $Revision: 1.13 $
  *
- * $Id: ObjectSelector.h,v 1.12 2006/12/20 13:46:04 llista Exp $
+ * $Id: ObjectSelector.h,v 1.13 2007/01/31 14:51:37 llista Exp $
  *
  */
 
@@ -48,18 +48,6 @@ namespace helper {
     std::auto_ptr<C> selected_;
   };
 
-  template<typename C>
-    struct ObjectSelectorBase : public edm::EDFilter {
-      ObjectSelectorBase( const edm::ParameterSet & ) {
-	produces<C>();
-      }
-   };
-
-  template<typename C>
-  struct CollectionStoreManager {
-    typedef SimpleCollectionStoreManager<C> type;
-    typedef ObjectSelectorBase<C> base;
-  };
 }
 
 namespace reco {
@@ -76,13 +64,12 @@ namespace reco {
 template<typename S, 
 	 typename N = NonNullNumberSelector,
 	 typename P = reco::helpers::NullPostProcessor<typename S::collection>,  
-	 typename M = typename helper::CollectionStoreManager<typename S::collection>::type, 
-	 typename B = typename helper::CollectionStoreManager<typename S::collection>::base>
-class ObjectSelector : public B {
+	 typename M = helper::SimpleCollectionStoreManager<typename S::collection>, 
+	 typename C = typename S::collection>
+class ObjectSelector : public edm::EDFilter {
 public:
   /// constructor 
   explicit ObjectSelector( const edm::ParameterSet & cfg ) :
-  B( cfg ),
   src_( cfg.template getParameter<edm::InputTag>( "src" ) ),
   filter_( false ),
   selector_( cfg ),
@@ -94,6 +81,8 @@ public:
     if ( found ) filter_ = cfg.template getParameter<bool>( filter );
 
     postProcessor_.init( * this );
+    produces<C>();
+
   }
   /// destructor
   virtual ~ObjectSelector() { }

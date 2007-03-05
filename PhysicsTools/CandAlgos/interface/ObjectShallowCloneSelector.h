@@ -12,6 +12,7 @@
 namespace helper {
   
   struct RefVectorShallowCloneStoreMananger {
+    typedef reco::CandidateCollection collection;
     RefVectorShallowCloneStoreMananger() : selected_( new reco::CandidateCollection ) { 
     }
     template<typename I>
@@ -19,31 +20,25 @@ namespace helper {
       for( I i = begin; i != end; ++ i )
 	selected_->push_back( new reco::ShallowCloneCandidate( reco::CandidateBaseRef( * i ) ) );
     }
-    void put( edm::Event & evt ) {
-      evt.put( selected_ );
+    edm::OrphanHandle<collection> put( edm::Event & evt ) {
+      return evt.put( selected_ );
     }
-    bool empty() const { return selected_->empty(); }
+    size_t size() const { return selected_->size(); }
   private:
     std::auto_ptr<reco::CandidateCollection> selected_;
   };
 
-  template<typename C>
-  struct ShallowCloneCollectionStoreManager {
-    typedef RefVectorShallowCloneStoreMananger type;
-    typedef ObjectSelectorBase<reco::CandidateCollection> base;
-  };
- 
 }
 
 template<typename S, 
 	 typename N = NonNullNumberSelector,
-         typename P = reco::helpers::NullPostProcessor<typename S::collection>,
-	 typename M = typename helper::CollectionStoreManager<typename S::collection>::type, 
-	 typename B = typename helper::CollectionStoreManager<typename S::collection>::base>
-class ObjectShallowCloneSelector : public ObjectSelector<S, N, P, M, B> {
+         typename P = reco::helpers::NullPostProcessor<reco::CandidateCollection>,
+	 typename M = helper::RefVectorShallowCloneStoreMananger, 
+	 typename C = reco::CandidateCollection>
+class ObjectShallowCloneSelector : public ObjectSelector<S, N, P, M, C> {
 public:
   explicit ObjectShallowCloneSelector( const edm::ParameterSet & cfg ) :
-    ObjectSelector<S, N, P, M, B>( cfg ) { }
+    ObjectSelector<S, N, P, M, C>( cfg ) { }
 };
 
 #endif
