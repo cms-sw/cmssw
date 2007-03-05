@@ -7,11 +7,12 @@
 ///
 ///  \author    : Gero Flucke
 ///  date       : October 2006
-///  $Revision: 1.1 $
-///  $Date: 2006/10/20 13:44:13 $
+///  $Revision: 1.2 $
+///  $Date: 2007/01/25 10:18:01 $
 ///  (last update by $Author: flucke $)
 
-#include "Geometry/CommonDetAlgo/interface/AlgebraicObjects.h" // Algebraic matrices
+// #include "Geometry/CommonDetAlgo/interface/AlgebraicObjects.h" // Algebraic matrices
+#include "DataFormats/CLHEP/interface/AlgebraicObjects.h" // Algebraic matrices
 
 #include "Alignment/CommonAlignmentAlgorithm/interface/ReferenceTrajectoryBase.h"
 

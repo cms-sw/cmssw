@@ -3,8 +3,8 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.10 $
- *  $Date: 2007/02/13 12:03:11 $
+ *  $Revision: 1.11 $
+ *  $Date: 2007/02/13 12:17:00 $
  *  (last update by $Author: flucke $)
  */
 
@@ -34,7 +34,8 @@
 
 #include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
 
-#include "Geometry/CommonDetAlgo/interface/AlgebraicObjects.h" // Algebraic matrices FIXME: change!
+// #include "Geometry/CommonDetAlgo/interface/AlgebraicObjects.h"
+#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 #include <Geometry/CommonDetUnit/interface/GeomDetUnit.h>
 #include <Geometry/CommonDetUnit/interface/GeomDetType.h>
 

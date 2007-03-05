@@ -3,8 +3,8 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.1 $
- *  $Date: 2006/10/20 13:57:03 $
+ *  $Revision: 1.2 $
+ *  $Date: 2007/01/25 10:19:32 $
  *  (last update by $Author: flucke $)
  */
 
@@ -16,7 +16,8 @@
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
 
-#include "Geometry/Vector/interface/GlobalPoint.h"
+// #include "Geometry/Vector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include <Geometry/CommonDetUnit/interface/GeomDetUnit.h>
 #include <Geometry/CommonDetUnit/interface/GeomDetType.h>
 

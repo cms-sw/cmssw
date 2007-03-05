@@ -3,8 +3,8 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.7 $
- *  $Date: 2007/01/25 10:08:54 $
+ *  $Revision: 1.8 $
+ *  $Date: 2007/02/13 12:03:11 $
  *  (last update by $Author: flucke $)
  */
 
@@ -20,7 +20,8 @@
 #include "Alignment/CommonAlignmentAlgorithm/interface/SelectionUserVariables.h"
 #include "Alignment/CommonAlignmentParametrization/interface/RigidBodyAlignmentParameters.h"
 
-#include "Geometry/Vector/interface/GlobalPoint.h"
+// #include "Geometry/Vector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
 #include <fstream>
 #include <algorithm>
