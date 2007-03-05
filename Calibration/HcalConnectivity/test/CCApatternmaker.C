@@ -114,13 +114,33 @@ CCAmap::DataMap CCAmap::DataMapMaker(std::vector<std::string>& Words){
 
   
   int rbxsign;  
-  if(k_side==1){ rbxsign=1;}
-  else if(k_side==-1){ rbxsign=0;}
-  else if(k_side==0){ rbxsign=1;}
+  int z_zero;
+  
+  if (dM.m_det==4){
+    if(k_side==1){ 
+      rbxsign=1;
+      z_zero=0;
+    }
+    else if(k_side==-1){ 
+      rbxsign=0;
+      z_zero=0;
+    }
+    else if(?????==o){ 
+      rbxsign=1;
+      z_zero=12;
+    }
+
+  } else {//not HO
+    z_zero=0;
+    if(k_side==1){ rbxsign=1;}
+    else if(k_side==-1){ rbxsign=0;}
+  
+}
+  
   std::string rbxnum;  
   if (k_rbx[4]!=0){rbxnum = k_rbx[3]+k_rbx[4];}
   else {rbxnum= k_rbx[3];}
-  dM.m_rbx=(dM.m_det-1)*18+rbxsign*90+(atoi (rbxnum.c_str()));
+  dM.m_rbx=(dM.m_det-1)*18+rbxsign*90+z_zero+(atoi (rbxnum.c_str()));
   //dM.m_rbx=1;
  
   dM.m_rm=k_rm;
@@ -293,7 +313,7 @@ std::vector<unsigned char> cc;
   cc.push_back(((G_Dcc&0x3F)<<0));
   cc.push_back(((H_slot&0x1F)<<0)|((TB&0x1)<<5)|(((rbx&0x80)>>7)<<6));
   cc.push_back(((rbx&0x7F)<<0));
-  cc.push_back((((rm-1)&0x3)<<0)|((card&0x3)<<2)|(((cca*2+ccaq)&0x7)<<4));
+  cc.push_back((((rm-1)&0x3)<<0)|(((card-1)&0x3)<<2)|(((cca*2+ccaq)&0x7)<<4));
   
   
   
