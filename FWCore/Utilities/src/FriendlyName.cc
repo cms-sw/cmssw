@@ -49,6 +49,10 @@ namespace edm {
     static boost::regex const reToVector("edm::AssociationVector<(.*), (.*)>");
     //NOTE: if the item within a clone policy is a template, this substitution will probably fail
     static boost::regex const reToRangeMap("edm::RangeMap< *(.*), *(.*), *edm::ClonePolicy<([^>]*)> >");
+    //NOTE: If container is a template with one argument which is its 'type' then can simplify name
+    static boost::regex const reToRefs1("edm::RefVector< *(.*)< *(.*) *>, *\\2 *, *edm::refhelper::FindUsingAdvance< *\\1< *\\2 *> *, *\\2 *> *>");
+    static boost::regex const reToRefs2("edm::RefVector< *(.*) *, *(.*) *, *edm::refhelper::FindUsingAdvance< *\\1, *\\2 *> *>");
+    
     std::string standardRenames(std::string const& iIn) {
        using boost::regex_replace;
        using boost::regex;
@@ -63,6 +67,8 @@ namespace edm {
        name = regex_replace(name,reOneToOne,"Association<$1,ToOne,$2>");
        name = regex_replace(name,reOneToMany,"Association<$1,ToMany,$2>");
        name = regex_replace(name,reToRangeMap,"RangeMap<$1,$2>");
+       name = regex_replace(name,reToRefs1,"Refs<$1<$2>>");
+       name = regex_replace(name,reToRefs2,"Refs<$1,$2>");
        //std::cout <<"standardRenames '"<<name<<"'"<<std::endl;
        return name;
     }
