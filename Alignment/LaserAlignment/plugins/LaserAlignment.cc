@@ -5,7 +5,7 @@
 #include "Alignment/LaserAlignment/plugins/LaserAlignment.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/EDProduct.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Utilities/interface/EDMException.h"
