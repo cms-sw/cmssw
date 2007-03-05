@@ -22,8 +22,8 @@ IsolatedTauJetsSelector::IsolatedTauJetsSelector(const edm::ParameterSet& iConfi
 
  
   produces<reco::CaloJetCollection>();
-  produces<reco::JetTagCollection>(); 
-  
+  produces<reco::JetTagCollection>(); //will disappear soon
+  produces<reco::IsolatedTauTagInfoCollection>();  
 }
 
 IsolatedTauJetsSelector::~IsolatedTauJetsSelector(){ }
@@ -41,6 +41,7 @@ void IsolatedTauJetsSelector::produce(edm::Event& iEvent, const edm::EventSetup&
   CaloJetCollection * jetCollection = new CaloJetCollection;
   CaloJetCollection * jetCollectionTmp = new CaloJetCollection;
   IsolatedTauTagInfoCollection * extendedCollection = new IsolatedTauTagInfoCollection;
+  IsolatedTauTagInfoCollection * allExtendedCollection = new IsolatedTauTagInfoCollection;
 
 
   Handle<reco::VertexCollection> vertices;
@@ -56,7 +57,7 @@ void IsolatedTauJetsSelector::produce(edm::Event& iEvent, const edm::EventSetup&
       JetTracksAssociationRef jetTracks = i->jtaRef();
       math::XYZVector jetDir(jetTracks->key->px(),jetTracks->key->py(),jetTracks->key->pz());   
       float discriminator = i->discriminator(jetDir, matching_cone, signal_cone, isolation_cone, pt_min_leadTrack, pt_min_isolation,  n_tracks_isolation_ring,dZ_vertex); 
-      //      cout <<"Number of selected tracks "<<i->selectedTracks().size()<<endl;
+      allExtendedCollection->push_back(*(i)); //to  be used in HLT Analyzers ...
       if(discriminator > 0) {
 	JetTag pippoTag(discriminator,jetTracks);
 	baseCollectionTmp->push_back(pippoTag);
@@ -94,7 +95,7 @@ void IsolatedTauJetsSelector::produce(edm::Event& iEvent, const edm::EventSetup&
 	  }
       }
       //check if we have at least 2 jets from the same vertex
-      cout <<"Tagged Jets with vertex constr "<<taggedJets<<endl;
+      //      cout <<"Tagged Jets with vertex constr "<<taggedJets<<endl;
       if(taggedJets > 1) 
 	{
 	  baseCollection = myCollection;
@@ -112,7 +113,8 @@ void IsolatedTauJetsSelector::produce(edm::Event& iEvent, const edm::EventSetup&
 
  auto_ptr<reco::CaloJetCollection> selectedTaus(jetCollection);
  auto_ptr<reco::JetTagCollection> resultBase(baseCollection);
-
+ auto_ptr<reco::IsolatedTauTagInfoCollection> extColl(allExtendedCollection);
   iEvent.put(selectedTaus);
   iEvent.put(resultBase);
+  iEvent.put(extColl);
 }
