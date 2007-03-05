@@ -10,6 +10,7 @@
 #include "RecoParticleFlow/PFRootEvent/interface/IO.h"
 #include "RecoParticleFlow/PFRootEvent/interface/PFJetAlgorithm.h" 
 #include "RecoParticleFlow/PFRootEvent/interface/Utils.h" 
+#include "RecoParticleFlow/PFRootEvent/interface/EventColin.h" 
 
 #include <TFile.h>
 #include <TTree.h>
@@ -43,8 +44,15 @@ PFRootEventManager::PFRootEventManager(const char* file)
     clusterAlgoHCAL_(0), 
     clusterAlgoPS_(0)  {
   
+  
   options_ = 0;
   tree_ = 0;
+
+  outEvent_ = 0;
+  outTree_ = 0;
+
+  jetAlgo_ = 0;
+
   iEvent_=0;
   h_deltaETvisible_MCEHT_ 
     = new TH1F("h_deltaETvisible_MCEHT","Jet Et difference CaloTowers-MC"
@@ -80,6 +88,10 @@ void PFRootEventManager::reset() {
   clustersPS_->clear();
   clustersIslandBarrel_.clear();
   trueParticles_.clear();
+
+
+  if(outEvent_) outEvent_->reset();
+  
 }
 
 void PFRootEventManager::readOptions(const char* file, 
@@ -134,6 +146,17 @@ void PFRootEventManager::readOptions(const char* file,
   options_->GetOpt("root","outfile", outfilename);
   if(!outfilename.empty() ) {
     outFile_ = TFile::Open(outfilename.c_str(), "recreate");
+
+    bool doOutTree = false;
+    options_->GetOpt("root","outtree", doOutTree);
+    if(doOutTree) {
+      outFile_->cd();
+      cout<<"do tree"<<endl;
+      outEvent_ = new EventColin();
+      outTree_ = new TTree("Eff","");
+      outTree_->Branch("event","EventColin", &outEvent_,32000,2);
+    }
+    cout<<"don't do tree"<<endl;
   }
 
 
@@ -402,7 +425,7 @@ void PFRootEventManager::readOptions(const char* file,
     cout << "Jet Options : ";
     cout << "Angle=" << coneAngle_ << " seedEt=" << seedEt_ 
 	 << " Merge=" << coneMerge_ << endl;
-    JetAlgo_ = new PFJetAlgorithm(coneAngle_, seedEt_, coneMerge_);
+    jetAlgo_ = new PFJetAlgorithm(coneAngle_, seedEt_, coneMerge_);
   }
 
 }
@@ -612,6 +635,11 @@ PFRootEventManager::~PFRootEventManager() {
     outFile_->Close();
   }
 
+  if(outEvent_) delete outEvent_;
+  if(outTree_) delete outTree_;
+
+  if(jetAlgo_) delete jetAlgo_;
+
   for( unsigned i=0; i<displayView_.size(); i++) {
     if(displayView_[i]) delete displayView_[i];
   }
@@ -634,6 +662,7 @@ void PFRootEventManager::write() {
     cout<<"writing output to "<<outFile_->GetName()<<endl;
     h_deltaETvisible_MCEHT_->Write();
     h_deltaETvisible_MCPF_->Write();
+    if(outTree_) outTree_->Write();
   }
 }
 
@@ -707,7 +736,9 @@ bool PFRootEventManager::processEntry(int entry) {
   particleFlow();
   if (doJets_) 
     makeJets(); 
-
+  
+  if(outTree_) outTree_->Fill();
+  
   return true;
   //  if(trueParticles_.size() != 1 ) return false;
 
@@ -984,11 +1015,13 @@ void PFRootEventManager::makeJets() {
   //    << "PF particles and caloTowers" << std::endl;
   
   //initialize Jets Reconstruction
-  JetAlgo_->Clear();
+  jetAlgo_->Clear();
 
   //MAKING TRUE PARTICLE JETS
   TLorentzVector partTOTMC;
-  partTOTMC.SetPxPyPzE(0.0, 0.0, 0.0, 0.0);
+
+  // colin: the following is not necessary
+  // partTOTMC.SetPxPyPzE(0.0, 0.0, 0.0, 0.0);
 
   //MAKING JETS WITH TAU DAUGHTERS
   vector<reco::PFSimParticle> vectPART;
@@ -1027,6 +1060,14 @@ void PFRootEventManager::makeJets() {
       }//loop daughter
     }//tau?
   }//loop particles
+
+  EventColin::Jet jetmc;
+  jetmc.eta = partTOTMC.Eta();
+  jetmc.phi = partTOTMC.Phi();
+  jetmc.et = partTOTMC.Et();
+  jetmc.e = partTOTMC.E();
+  
+  if(outEvent_) outEvent_->addJetMC( jetmc );
 
   /*
   //MC JETS RECONSTRUCTION (visible energy)
@@ -1085,9 +1126,9 @@ void PFRootEventManager::makeJets() {
 	 << " CALOTOWER 4-VECTORS " << endl;
   
   //ECAL+HCAL tower jets computation
-  JetAlgo_->Clear();
+  jetAlgo_->Clear();
   const vector< PFJetAlgorithm::Jet >&  caloTjets 
-    = JetAlgo_->FindJets( &allcalotowers );
+    = jetAlgo_->FindJets( &allcalotowers );
   
   //cout << caloTjets.size() << " CaloTower Jets found" << endl;
   double JetEHTETmax = 0.0;
@@ -1095,6 +1136,15 @@ void PFRootEventManager::makeJets() {
     TLorentzVector jetmom = caloTjets[i].GetMomentum();
     double jetcalo_pt = sqrt(jetmom.Px()*jetmom.Px()+jetmom.Py()*jetmom.Py());
     double jetcalo_et = jetmom.Et();
+
+    EventColin::Jet jet;
+    jet.eta = jetmom.Eta();
+    jet.phi = jetmom.Phi();
+    jet.et  = jetmom.Et();
+    jet.e   = jetmom.E();
+    
+    if(outEvent_) outEvent_->addJetEHT( jet );
+
     if ( jetsDebug_) {
       cout << " ECAL+HCAL jet : " << caloTjets[i] << endl;
       cout << jetmom.Px() << " " << jetmom.Py() << " " 
@@ -1141,9 +1191,9 @@ void PFRootEventManager::makeJets() {
     cout << " THERE ARE " << allrecparticles.size() 
 	 << " RECONSTRUCTED 4-VECTORS" << endl;
 
-  JetAlgo_->Clear();
+  jetAlgo_->Clear();
   const vector< PFJetAlgorithm::Jet >&  PFjets 
-    = JetAlgo_->FindJets( &allrecparticles );
+    = jetAlgo_->FindJets( &allrecparticles );
 
   if (jetsDebug_) 
     cout << PFjets.size() << " PF Jets found" << endl;
@@ -1152,6 +1202,15 @@ void PFRootEventManager::makeJets() {
     TLorentzVector jetmom = PFjets[i].GetMomentum();
     double jetpf_pt = sqrt(jetmom.Px()*jetmom.Px()+jetmom.Py()*jetmom.Py());
     double jetpf_et = jetmom.Et();
+
+    EventColin::Jet jet;
+    jet.eta = jetmom.Eta();
+    jet.phi = jetmom.Phi();
+    jet.et  = jetmom.Et();
+    jet.e   = jetmom.E();
+
+    if(outEvent_) outEvent_->addJetPF( jet );
+
     if (jetsDebug_) {
       cout <<" Rec jet : "<< PFjets[i] <<endl;
       cout << jetmom.Px() << " " << jetmom.Py() << " " 

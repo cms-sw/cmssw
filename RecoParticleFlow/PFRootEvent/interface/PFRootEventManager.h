@@ -29,10 +29,11 @@ class TH2F;
 class TGraph;
 class IO;
 class PFClusterAlgo;
+class PFBlockElement;
 class TH1F;
 class PFJetAlgorithm;
+class EventColin;
 
-class PFBlockElement;
 
 
 /// \brief ROOT interface to particle flow package
@@ -102,7 +103,7 @@ class PFRootEventManager {
 
   /// default constructor
   PFRootEventManager();
-
+  
   /// \param is an option file, see IO
   PFRootEventManager(const char* file);
 
@@ -248,6 +249,10 @@ class PFRootEventManager {
   /// input tree  
   TTree*      tree_;          
   
+  /// output tree
+  TTree*      outTree_;
+  EventColin* outEvent_;
+
   /// release version
   std::string releaseVersion_;
 
@@ -523,9 +528,9 @@ class PFRootEventManager {
 
  private:
 
-  TH1F *h_deltaETvisible_MCEHT_;
-  TH1F *h_deltaETvisible_MCPF_;
-  PFJetAlgorithm*  JetAlgo_;
+  TH1F*            h_deltaETvisible_MCEHT_;
+  TH1F*            h_deltaETvisible_MCPF_;
+  PFJetAlgorithm*  jetAlgo_;
 
 };
 #endif
