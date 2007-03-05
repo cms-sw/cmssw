@@ -13,7 +13,7 @@
  <use name=FWCore/ParameterSet>
  <use name=Geometry/TrackerGeometryBuilder>
  <use name=Geometry/CommonDetUnit>
- <use name=Geometry/Surface>
+ <use name=DataFormats/GeometrySurface>
  <use name=Geometry/Records>
  <use name=RecoLocalTracker/SiPixelRecHits>
  <use name=RecoLocalTracker/SiStripRecHitConverter>
@@ -37,7 +37,7 @@
 <use name=FWCore/ParameterSet>
 <use name=Geometry/TrackerGeometryBuilder>
 <use name=Geometry/CommonDetUnit>
-<use name=Geometry/Surface>
+<use name=DataFormats/GeometrySurface>
 <use name=Geometry/Records>
 <use name=RecoLocalTracker/SiPixelRecHits>
 <use name=RecoLocalTracker/SiStripRecHitConverter>
