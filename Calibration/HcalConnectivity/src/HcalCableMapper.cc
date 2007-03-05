@@ -66,7 +66,7 @@ HcalCableMapper::HcalCableMapper(edm::ParameterSet const& conf) :
   
 }
 
-static const char* det_names[] = {"Zero","HcalBarrel","HcalEndcap","HcalOuter","HcalForward"};
+static const char* det_names[] = {"Zero","HcalBarrel","HcalEndcap","HcalForward","HcalOuter"};
 
 
 
@@ -124,7 +124,7 @@ void HcalCableMapper::process(const PathSet& ps, const IdMap& im){
 	
 	is_header=" Header found";
 	
-	std::cout <<" Digi ID: " << dd << is_header<< " ieta: "<< eta_sign << ieta << " iphi: "<< iphi << " Depth: " << depth << " Detector: " << det_name << " Spigot: "<< spigot<<"/"<<eid.spigot() << " Fiber: " << fiber+1<<"/"<<eid.fiberIndex() << " Fiber Channel: "<< fiber_chan <<"/"<<eid.fiberChanId()<< " Crate: " << crate<<"/"<<eid.readoutVMECrateId() << " Global Dcc: " << G_Dcc <<"/"<<eid.dccid() << " HTR Slot: " << H_slot <<"/ " <<eid.htrSlot()<< " Top/Bottom: " << TB<<"/"<< eid.htrTopBottom() << " RBX: " << (RBX_7*128+RBX) << " RM: " << RM+1 << " RM Card: " << RM_card << " RM Channel: " << RM_chan << std::endl;
+	std::cout <<" Digi ID: " << dd << is_header<< " ieta: "<< eta_sign << ieta << " iphi: "<< iphi << " Depth: " << depth << " Detector: " << det_name << " Spigot: "<< spigot<<"/"<<eid.spigot() << " Fiber: " << fiber+1<<"/"<<eid.fiberIndex() << " Fiber Channel: "<< fiber_chan <<"/"<<eid.fiberChanId()<< " Crate: " << crate<<"/"<<eid.readoutVMECrateId() << " Global Dcc: " << G_Dcc <<"/"<<eid.dccid() << " HTR Slot: " << H_slot <<"/ " <<eid.htrSlot()<< " Top/Bottom: " << TB<<"/"<< eid.htrTopBottom() << " RBX: " << (RBX_7*128+RBX) << " RM: " << RM+1 << " RM Card: " << RM_card+1 << " RM Channel: " << RM_chan << std::endl;
       }    
     }else if (ieta+64==0x75){
       
