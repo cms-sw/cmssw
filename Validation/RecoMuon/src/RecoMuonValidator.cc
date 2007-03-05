@@ -85,22 +85,22 @@ void RecoMuonValidator::beginJob(const EventSetup& eventSetup)
   outputFile_ = new TFile(outputFileName_.c_str(), "RECREATE");
   outputFile_->cd();
 
-  hSimEtaVsPhi_  = new TH2F("SimEtaVsPhi", "Sim #phi vs #eta",
-                            nBinPhi_, minPhi_, maxPhi_, nBinEta_, minEta_, maxEta_);
-  hStaEtaVsPhi_  = new TH2F("StaEtaVsPhi", "Sta #phi vs #eta",
-                            nBinPhi_, minPhi_, maxPhi_, nBinEta_, minEta_, maxEta_);
-  hGlbEtaVsPhi_  = new TH2F("GlbEtaVsPhi", "Glb #phi vs #eta",
-                            nBinPhi_, minPhi_, maxPhi_, nBinEta_, minEta_, maxEta_);
-  hSeedEtaVsPhi_ = new TH2F("SeedEtaVsPhi", "Seed #phi vs #eta",
-                             nBinPhi_, minPhi_, maxPhi_, nBinEta_, minEta_, maxEta_);
+  hSimEtaVsPhi_  = new TH2F("SimEtaVsPhi", "Sim #eta vs #phi",
+                            nBinEta_, minEta_, maxEta_, nBinPhi_, minPhi_, maxPhi_);
+  hStaEtaVsPhi_  = new TH2F("StaEtaVsPhi", "Sta #eta vs #phi",
+                            nBinEta_, minEta_, maxEta_, nBinPhi_, minPhi_, maxPhi_);
+  hGlbEtaVsPhi_  = new TH2F("GlbEtaVsPhi", "Glb #eta vs #phi",
+                            nBinEta_, minEta_, maxEta_, nBinPhi_, minPhi_, maxPhi_);
+  hSeedEtaVsPhi_ = new TH2F("SeedEtaVsPhi", "Seed #eta vs #phi",
+                            nBinEta_, minEta_, maxEta_, nBinPhi_, minPhi_, maxPhi_);
 
-  hEtaVsNDtSimHits_  = new TH2F("EtaVsNDtSimHits", "#eta vs number of DT SimHits",
+  hEtaVsNDtSimHits_  = new TH2F("SimEtaVsNDtHits", "Sim #eta vs number of DT SimHits",
                                 nBinEta_, minEta_, maxEta_, nHits_, 0, static_cast<float>(nHits_));
-  hEtaVsNCSCSimHits_ = new TH2F("EtaVsNCSCSimHits", "#eta vs number of CSC SimHits",
+  hEtaVsNCSCSimHits_ = new TH2F("SimEtaVsNCSCHits", "Sim #eta vs number of CSC SimHits",
                                 nBinEta_, minEta_, maxEta_, nHits_, 0, static_cast<float>(nHits_));
-  hEtaVsNRPCSimHits_ = new TH2F("EtaVsNRPCSimHits", "#eta vs number of RPC SimHits",
+  hEtaVsNRPCSimHits_ = new TH2F("SimEtaVsNRPCHits", "Sim #eta vs number of RPC SimHits",
                                 nBinEta_, minEta_, maxEta_, nHits_, 0, static_cast<float>(nHits_));
-  hEtaVsNSimHits_    = new TH2F("EtaVsNSimHits", "#eta vs number of SimHits",
+  hEtaVsNSimHits_    = new TH2F("SimEtaVsNHits", "Sim #eta vs number of Hits",
                                 nBinEta_, minEta_, maxEta_, nHits_, 0, static_cast<float>(nHits_));
 
   hSeedEtaVsNHits_ = new TH2F("SeedEtaVsNHits", "Seed #eta vs NHits",
