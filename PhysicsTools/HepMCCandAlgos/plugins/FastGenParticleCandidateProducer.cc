@@ -2,7 +2,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: FastGenParticleCandidateProducer.cc,v 1.2 2007/02/22 13:02:30 llista Exp $
+ * \version $Id: FastGenParticleCandidateProducer.cc,v 1.3 2007/03/05 09:58:02 llista Exp $
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -162,11 +162,13 @@ void FastGenParticleCandidateProducer::fillOutput( const std::vector<const GenPa
       HepGeom::Point3D<double> vtx = v->point3d();
       vertex.SetXYZ( vtx.x() / 10. , vtx.y() / 10. , vtx.z() / 10. );
     }
-    int pdgId = part->pdg_id(), status = part->status();
-    int q = chargeTimesThree( pdgId ) / 3;
-    GenParticleCandidate * c = new GenParticleCandidate( q, momentum, vertex, pdgId, status );
+    int pdgId = part->pdg_id();
+    GenParticleCandidate * c = 
+      new GenParticleCandidate( chargeTimesThree( pdgId ), momentum, vertex, 
+				pdgId, part->status(), false );
+    auto_ptr<Candidate> ptr( c );
     candVector[ i ] = c;
-    cands.push_back( c );
+    cands.push_back( ptr );
   }
 }
 
