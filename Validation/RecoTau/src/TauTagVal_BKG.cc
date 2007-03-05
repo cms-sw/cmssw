@@ -13,7 +13,7 @@
 //
 // Original Author:  Simone Gennai
 //         Created:  Wed Apr 12 11:12:49 CEST 2006
-// $Id: TauTagVal_BKG.cc,v 1.2 2007/02/21 13:36:30 gennai Exp $
+// $Id: TauTagVal_BKG.cc,v 1.3 2007/03/05 12:15:41 gennai Exp $
 //
 //
 
@@ -43,6 +43,7 @@ TauTagVal_BKG::TauTagVal_BKG(const edm::ParameterSet& iConfig)
 {
   nEvent = 0;
   jetTagSrc = iConfig.getParameter<InputTag>("JetTagProd");
+  genJetSrc = iConfig.getParameter<InputTag>("GenJets");
   outPutFile = iConfig.getParameter<string>("OutPutFile");
   rSig = iConfig.getParameter<double>("SignalCone");
   rMatch = iConfig.getParameter<double>("MatchingCone");
@@ -190,7 +191,7 @@ void TauTagVal_BKG::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   using namespace reco;
 
   edm::Handle< GenJetCollection > genJets ;
-  iEvent.getByLabel( "iterativeCone5GenJets", genJets ) ;
+  iEvent.getByLabel( genJetSrc, genJets ) ;
 
 
   TClonesArray* TauJets=new TClonesArray("TLorentzVector");

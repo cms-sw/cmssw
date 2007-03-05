@@ -13,7 +13,7 @@
 //
 // Original Author:  Simone Gennai
 //         Created:  Wed Apr 12 11:12:49 CEST 2006
-// $Id: TauTagVal_EMIso.cc,v 1.1 2007/02/21 09:48:16 gennai Exp $
+// $Id: TauTagVal_EMIso.cc,v 1.2 2007/02/21 10:49:20 gennai Exp $
 //
 //
 
@@ -147,7 +147,7 @@ void TauTagVal_EMIso::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	p != myGenEvent->particles_end(); ++p ) {
      
     if ( abs((*p)->pdg_id()) !=0 && abs((*p)->pdg_id())<1000){
-      
+
       bool FinalTau=true;
       TLorentzVector TauNet(0.0,0.0,0.0,0.);
       if(abs((*p)->pdg_id())==15)
@@ -156,8 +156,8 @@ void TauTagVal_EMIso::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	  TauDaught=Daughters((*p));
 	  for(vector<HepMC::GenParticle*>::iterator pit=TauDaught.begin();pit!=TauDaught.end();++pit)
 	    {
-	      if(abs((*pit)->pdg_id())==15)FinalTau=false;
-	      if(abs((*pit)->pdg_id())==16)TauNet=TLorentzVector((*pit)->momentum().px(),(*pit)->momentum().py(),(*pit)->momentum().pz(),(*pit)->momentum().e());
+	      if(abs((*pit)->pdg_id())==15) FinalTau=false;
+	      if(abs((*pit)->pdg_id())==16) TauNet=TLorentzVector((*pit)->momentum().px(),(*pit)->momentum().py(),(*pit)->momentum().pz(),(*pit)->momentum().e());
 	    }
 	 
 	  if(FinalTau)
@@ -199,34 +199,36 @@ void TauTagVal_EMIso::analyze(const edm::Event& iEvent, const edm::EventSetup& i
     
     if(mtchdTauJet)
       {
-	
+
 	for(int ii=0;ii<50;ii++){
 	  double riso=0.0+ii*0.25;
+	  double discriminator = i->discriminator(0.4,0.13,riso);
+	  //cout <<"Discriminator "<<discriminator<<endl;
 	  if(mcTauJetMtchd->Et()>130.0&&mcTauJetMtchd->Et()<150.0)
 	    {
 	      nEventsUsed07[ii]++;
-	      if(i->discriminator(0.4,0.13,riso)){
+	      if(discriminator){
 		nEventsRiso07[ii]++;
 	      }
 	    }
 	  if(mcTauJetMtchd->Et()>80.0&&mcTauJetMtchd->Et()<110.0)
 	    {
 	      nEventsUsed107[ii]++;
-	      if(i->discriminator(0.4,0.13,riso)){
+	      if(discriminator){
 		nEventsRiso107[ii]++;
 	      }
 	    }
 	  if(mcTauJetMtchd->Et()>50.0&&mcTauJetMtchd->Et()<70.0)
 	    {
 	      nEventsUsed207[ii]++;
-	      if(i->discriminator(0.4,0.13,riso)){
+	      if(discriminator){
 		nEventsRiso207[ii]++;
 	      }
 	    }
 	  if(mcTauJetMtchd->Et()>30.0&&mcTauJetMtchd->Et()<50.0)
 	    {
 	      nEventsUsed307[ii]++;
-	      if(i->discriminator(0.4,0.13,riso)){
+	      if(discriminator){
 		nEventsRiso307[ii]++;
 	      }
 	    }

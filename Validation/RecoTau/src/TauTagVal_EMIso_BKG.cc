@@ -13,7 +13,7 @@
 //
 // Original Author:  Simone Gennai
 //         Created:  Wed Apr 12 11:12:49 CEST 2006
-// $Id: TauTagVal_EMIso_BKG.cc,v 1.2 2007/02/21 10:49:20 gennai Exp $
+// $Id: TauTagVal_EMIso_BKG.cc,v 1.1 2007/02/22 10:50:41 gennai Exp $
 //
 //
 
@@ -43,6 +43,8 @@ TauTagVal_EMIso_BKG::TauTagVal_EMIso_BKG(const edm::ParameterSet& iConfig)
 {
   nEvent = 0;
   jetTagSrc = iConfig.getParameter<InputTag>("JetTagProd");
+  genJetSrc = iConfig.getParameter<InputTag>("GenJets");
+  
   outPutFile = iConfig.getParameter<string>("OutPutFile");
  
   nEventsRiso.reserve(6);
@@ -144,7 +146,7 @@ void TauTagVal_EMIso_BKG::analyze(const edm::Event& iEvent, const edm::EventSetu
   TLorentzVector TauJetMC(0.0,0.0,0.0,0.0);
 
  edm::Handle< GenJetCollection > genJets ;
-  iEvent.getByLabel( "iterativeCone5GenJets", genJets ) ;
+  iEvent.getByLabel( genJetSrc, genJets ) ;
 
   int jjj=0;
   GenJetCollection::const_iterator jetItr = genJets->begin();
@@ -181,34 +183,34 @@ void TauTagVal_EMIso_BKG::analyze(const edm::Event& iEvent, const edm::EventSetu
     
     if(mtchdTauJet)
       {
-	
 	for(int ii=0;ii<50;ii++){
 	  double riso=0.0+ii*0.25;
+	  double discriminator = i->discriminator(0.4,0.13,riso);
 	  if(mcTauJetMtchd->Et()>130.0&&mcTauJetMtchd->Et()<150.0)
 	    {
 	      nEventsUsed07[ii]++;
-	      if(i->discriminator(0.4,0.13,riso)){
+	      if(discriminator){
 		nEventsRiso07[ii]++;
 	      }
 	    }
 	  if(mcTauJetMtchd->Et()>80.0&&mcTauJetMtchd->Et()<110.0)
 	    {
 	      nEventsUsed107[ii]++;
-	      if(i->discriminator(0.4,0.13,riso)){
+	      if(discriminator){
 		nEventsRiso107[ii]++;
 	      }
 	    }
 	  if(mcTauJetMtchd->Et()>50.0&&mcTauJetMtchd->Et()<70.0)
 	    {
 	      nEventsUsed207[ii]++;
-	      if(i->discriminator(0.4,0.13,riso)){
+	      if(discriminator){
 		nEventsRiso207[ii]++;
 	      }
 	    }
 	  if(mcTauJetMtchd->Et()>30.0&&mcTauJetMtchd->Et()<50.0)
 	    {
 	      nEventsUsed307[ii]++;
-	      if(i->discriminator(0.4,0.13,riso)){
+	      if(discriminator){
 		nEventsRiso307[ii]++;
 	      }
 	    }

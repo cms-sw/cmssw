@@ -123,6 +123,7 @@ private:
   int nRuns;
   vector<float> nEventsUsed;
   edm::InputTag jetTagSrc;
+  edm::InputTag genJetSrc;
   vector<float> nEventsRiso;
   vector<float> nEventsEnergyUsed;
   vector<float> nEventsEnergy;
