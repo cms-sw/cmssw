@@ -2,7 +2,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: FastGenParticleCandidateProducer.cc,v 1.1 2007/02/01 11:55:49 llista Exp $
+ * \version $Id: FastGenParticleCandidateProducer.cc,v 1.2 2007/02/22 13:02:30 llista Exp $
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -110,9 +110,6 @@ void FastGenParticleCandidateProducer::beginJob( const EventSetup & es ) {
 }
 
 void FastGenParticleCandidateProducer::produce( Event& evt, const EventSetup& es ) {
-  ESHandle<DefaultConfig::ParticleDataTable> pdt;
-  es.getData( pdt );
-
   Handle<HepMCProduct> mcp;
   evt.getByLabel( src_, mcp );
   const GenEvent * mc = mcp->GetEvent();
