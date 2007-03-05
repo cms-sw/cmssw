@@ -1,6 +1,7 @@
 <use name=DataFormats/Provenance>
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
+<use name=FWCore/ServiceRegistry>
 <use name=boost>
 <use name=rootrflx>
 <flags SEAL_PLUGIN_NAME="FWCoreModules">
