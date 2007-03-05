@@ -670,7 +670,9 @@ void PFRootEventManager::write() {
 bool PFRootEventManager::processEntry(int entry) {
 
   reset();
-  
+ 
+  if( outEvent_ ) outEvent_->setNumber(entry);
+
   if(verbosity_ == VERBOSE  || 
      entry%10 == 0) 
     cout<<"process entry "<< entry << endl;
@@ -895,6 +897,8 @@ void PFRootEventManager::clustering() {
   clusterAlgoECAL_->doClustering();
   clustersECAL_ = clusterAlgoECAL_->clusters();
 
+  fillOutEventWithClusters( *clustersECAL_ );
+
 
   // HCAL clustering -------------------------------------------
 
@@ -916,6 +920,7 @@ void PFRootEventManager::clustering() {
   clusterAlgoHCAL_->doClustering();
   clustersHCAL_ = clusterAlgoHCAL_->clusters();
 
+  fillOutEventWithClusters( *clustersHCAL_ );
 
 
   // PS clustering -------------------------------------------
@@ -932,7 +937,28 @@ void PFRootEventManager::clustering() {
   
   clusterAlgoPS_->doClustering();
   clustersPS_ = clusterAlgoPS_->clusters();
+
+  fillOutEventWithClusters( *clustersPS_ );
   
+}
+
+
+void 
+PFRootEventManager::fillOutEventWithClusters(const vector<reco::PFCluster>& 
+					    clusters) {
+
+  if(!outEvent_) return;
+  
+  for(unsigned i=0; i<clusters.size(); i++) {
+    EventColin::Cluster cluster;
+    cluster.eta = clusters[i].positionXYZ().Eta();
+    cluster.phi = clusters[i].positionXYZ().Phi();
+    cluster.e = clusters[i].energy();
+    cluster.layer = clusters[i].layer();
+    cluster.type = clusters[i].type();
+    outEvent_->addCluster(cluster);
+  }   
+
 }
 
 

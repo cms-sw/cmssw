@@ -146,6 +146,9 @@ class PFRootEventManager {
   /// performs clustering 
   void clustering();
 
+  /// fills OutEvent with clusters
+  void fillOutEventWithClusters(const std::vector<reco::PFCluster>& clusters);
+
   /// performs particle flow
   void particleFlow();
 
