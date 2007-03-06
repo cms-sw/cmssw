@@ -1,0 +1,14 @@
+<?xml version="1.0" ?>
+<connectionlist>
+
+<connection name="oracle://devdb9/IOANNIS">
+  <parameter name="user" value="the_user" />
+  <parameter name="password" value="the_passwd" />
+</connection>
+
+<connection name="oracle://devdb10/IOANNIS">
+  <parameter name="user" value="the_other_user" />
+  <parameter name="password" value="the_other_passwd" />
+</connection>
+
+</connectionlist>
