@@ -3,7 +3,7 @@
 
 #include "FWCore/Framework/interface/EventProcessor.h"
 #include "FWCore/ServiceRegistry/interface/ServiceToken.h"
-#include "FWCore/Utilities/interface/ProblemTracker.h"
+#include "FWCore/PluginManager/interface/ProblemTracker.h"
 #include "IOPool/Streamer/interface/HLTInfo.h"
 
 #include "boost/thread/thread.hpp"

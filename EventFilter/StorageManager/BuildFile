@@ -6,8 +6,13 @@
 <use name=FWCore/Framework>
 <use name=FWCore/MessageLogger>
 <use name=FWCore/MessageService>
+<use name=FWCore/ParameterSet>
+<use name=FWCore/PluginManager>
 <use name=FWCore/RootAutoLibraryLoader>
+<use name=FWCore/ServiceRegistry>
+<use name=FWCore/Utilities>
 <use name=DataFormats/Common>
+<use name=DataFormats/Provenance>
 <use name=DataFormats/Streamer>
 <use name=IOPool/Streamer>
 <use name=EventFilter/Utilities>
@@ -21,11 +26,11 @@
  <use name=FWCore/Framework>
  <use name=FWCore/MessageLogger>
  <use name=FWCore/MessageService>
- <use name=FWCore/RootAutoLibraryLoader>
+ <use name=FWCore/ParameterSet>
+ <use name=FWCore/PluginManager>
+ <use name=FWCore/ServiceRegistry>
+ <use name=FWCore/Utilities>
  <use name=DataFormats/Common>
- <use name=DataFormats/Streamer>
  <use name=IOPool/Streamer>
- <use name=EventFilter/Utilities>
  <use name=curl>
 </export>
-

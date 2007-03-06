@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones, W. David Dagenhart
 //   Created:  Tue Mar  7 09:43:46 EST 2006 (originally in FWCore/Services)
-// $Id: RandomNumberGeneratorService.cc,v 1.4 2007/01/19 17:46:19 wdd Exp $
+// $Id: RandomNumberGeneratorService.cc,v 1.5 2007/02/15 22:38:06 wdd Exp $
 //
 
 #include "IOMC/RandomEngine/src/RandomNumberGeneratorService.h"
@@ -16,7 +16,7 @@
 #include <iostream>
 
 #include "FWCore/Framework/interface/Event.h"
-#include "DataFormats/Common/interface/ModuleDescription.h"
+#include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "SimDataFormats/RandomEngine/interface/RandomEngineState.h"
 #include "CLHEP/Random/JamesRandom.h"

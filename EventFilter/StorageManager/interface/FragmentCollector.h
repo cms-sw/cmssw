@@ -18,7 +18,7 @@
 #include "IOPool/Streamer/interface/MsgTools.h"
 #include "IOPool/Streamer/interface/EventMessage.h"
 
-#include "DataFormats/Common/interface/ProductRegistry.h"
+#include "DataFormats/Provenance/interface/ProductRegistry.h"
 
 #include "EventFilter/StorageManager/interface/EvtMsgRingBuffer.h"
 #include "EventFilter/StorageManager/interface/EventServer.h"

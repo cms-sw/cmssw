@@ -1,27 +1,25 @@
-<flags SEAL_PLUGIN_NAME="SimGeneralMixingModule">
-<use name=root>
-<use name=FWCore/ParameterSet>
+<use name=DataFormats/Common>
+<use name=DataFormats/Provenance>
 <use name=FWCore/Framework>
+<use name=FWCore/MessageLogger>
+<use name=FWCore/ParameterSet>
+<use name=FWCore/ServiceRegistry>
 <use name=FWCore/Utilities>
-<use name=Mixing/Base>
-<use name=SimDataFormats/TrackingHit>
-<use name=SimDataFormats/CaloHit>
-<use name=SimDataFormats/Track>
-<use name=SimDataFormats/Vertex>
-<use name=SimDataFormats/CrossingFrame>
-<use name=DataFormats/EcalDetId>
 <use name=Foundation/PluginManager>
+<use name=Mixing/Base>
+<use name=SimDataFormats/CaloHit>
+<use name=SimDataFormats/CrossingFrame>
+<use name=SimDataFormats/Track>
+<use name=SimDataFormats/TrackingHit>
+<use name=SimDataFormats/Vertex>
+<flags SEAL_PLUGIN_NAME="SimGeneralMixingModule">
 <export>
- <use name=root>
- <lib name=SimGeneralMixingModule>
- <use name=FWCore/ParameterSet>
- <use name=FWCore/Framework>
- <use name=Mixing/Base>
- <use name=SimDataFormats/TrackingHit>
- <use name=SimDataFormats/CaloHit>
- <use name=SimDataFormats/Track>
- <use name=SimDataFormats/Vertex>
- <use name=SimDataFormats/CrossingFrame>
- <use name=DataFormats/EcalDetId>
- <use name=Foundation/PluginManager>
+  <use name=DataFormats/Common>
+  <use name=DataFormats/Provenance>
+  <use name=FWCore/Framework>
+  <use name=FWCore/ParameterSet>
+  <use name=Mixing/Base>
+  <use name=SimDataFormats/CrossingFrame>
+  <lib name=SimGeneralMixingModule>
 </export>
+

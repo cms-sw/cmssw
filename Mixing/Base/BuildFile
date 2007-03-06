@@ -1,25 +1,17 @@
+<use name=DataFormats/Common>
+<use name=DataFormats/Provenance>
+<use name=FWCore/Framework>
+<use name=FWCore/MessageLogger>
+<use name=FWCore/ParameterSet>
+<use name=FWCore/ServiceRegistry>
+<use name=FWCore/Utilities>
 <use name=boost>
 <use name=clhep>
-<use name=SimDataFormats/TrackingHit>
- <use name=SimDataFormats/CaloHit>
- <use name=SimDataFormats/Track>
- <use name=SimDataFormats/Vertex>
-<use name=FWCore/ParameterSet>
-<use name=FWCore/Framework>
-<use name=FWCore/Utilities>
-<use name=Foundation/PluginManager>
-<use name=FWCore/ServiceRegistry>
 <export>
- <use name=boost>
- <use name=clhep>
- <lib name=MixingBase>
-<use name=SimDataFormats/TrackingHit>
- <use name=SimDataFormats/CaloHit>
- <use name=SimDataFormats/Track>
- <use name=SimDataFormats/Vertex>
- <use name=FWCore/ParameterSet>
- <use name=FWCore/Framework>
- <use name=FWCore/Utilities>
- <use name=Foundation/PluginManager>
- <use name=FWCore/ServiceRegistry>
+  <use name=FWCore/Framework>
+  <use name=FWCore/ParameterSet>
+  <use name=boost>
+  <use name=clhep>
+  <lib name=MixingBase>
 </export>
+

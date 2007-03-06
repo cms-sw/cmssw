@@ -1,22 +1,13 @@
+<use name=DataFormats/Provenance>
 <use name=FWCore/Framework>
-<use name=Foundation/PluginManager>
 <use name=FWCore/ParameterSet>
-<use name=SimDataFormats/RandomEngine>
 <use name=FWCore/ServiceRegistry>
 <use name=FWCore/Utilities>
-<use name=DataFormats/Common>
-<use name=clhep>
+<use name=SimDataFormats/RandomEngine>
 <use name=boost>
+<use name=clhep>
 <flags SEAL_PLUGIN_NAME="IOMCRandomEngine">
 <export>
-   <lib name=IOMCRandomEngine>
-   <use name=FWCore/Framework>
-   <use name=Foundation/PluginManager>
-   <use name=FWCore/ParameterSet>
-   <use name=SimDataFormats/RandomEngine>
-   <use name=FWCore/ServiceRegistry>
-   <use name=FWCore/Utilities>
-   <use name=DataFormats/Common>
-   <use name=clhep>
-   <use name=boost>
+  <lib name=IOMCRandomEngine>
 </export>
+
