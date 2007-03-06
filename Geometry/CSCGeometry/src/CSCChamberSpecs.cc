@@ -2,7 +2,7 @@
 #include <Geometry/CSCGeometry/interface/CSCLayerGeometry.h>
 #include <Geometry/CommonDetUnit/interface/GeomDetUnit.h>
 #include <Geometry/CommonDetUnit/interface/GeomDetType.h>
-#include <Geometry/Surface/interface/TrapezoidalPlaneBounds.h>
+#include <DataFormats/GeometrySurface/interface/TrapezoidalPlaneBounds.h>
 
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 
