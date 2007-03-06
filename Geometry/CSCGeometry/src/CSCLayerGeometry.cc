@@ -2,10 +2,10 @@
 
 #include <Geometry/CSCGeometry/interface/CSCLayerGeometry.h>
 #include <Geometry/CSCGeometry/interface/CSCChamberSpecs.h>
-#include <Geometry/CSCGeometry/src/OffsetRadialStripTopology.h>
-#include <Geometry/CSCGeometry/src/ORedOffsetRST.h>
+#include <Geometry/CSCGeometry/src/CSCUngangedStripTopology.h>
+#include <Geometry/CSCGeometry/src/CSCGangedStripTopology.h>
 #include <Geometry/CSCGeometry/src/CSCWireGroupPackage.h>
-#include <Geometry/Vector/interface/LocalPoint.h>
+#include <DataFormats/GeometryVector/interface/LocalPoint.h>
 
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 #include <FWCore/Utilities/interface/Exception.h>
@@ -37,8 +37,7 @@ CSCLayerGeometry::CSCLayerGeometry( int iChamberType,
 
   // Ganged strips in ME1A?
 
-  bool gangedME1A = ( iChamberType == 1 &&
-		      CSCChamberSpecs::gangedStrips() );
+  bool gangedME1A = ( iChamberType == 1 && CSCChamberSpecs::gangedStrips() );
 
   // Calculate 'whereStripsMeet' = distance from centre of chamber to
   // intersection point of projected strips.
@@ -47,9 +46,9 @@ CSCLayerGeometry::CSCLayerGeometry( int iChamberType,
   // since the trapezoids are truncated sectors of circles.
 
 
-  // Radial or Trapezoidal strips? Only radial is realistic
+  // Radial or Trapezoidal strips? Only radial are realistic
 
-  //  if ( CSCChamberSpecs::radialStrips() ) {
+  // if ( CSCChamberSpecs::radialStrips() ) {
 
   // RST more tricky than TST, since we need to enforce the constraint
   // that the subtended angle is exactly the no. of strips * ang width
@@ -62,19 +61,19 @@ CSCLayerGeometry::CSCLayerGeometry( int iChamberType,
   // Add in the backed-out offset
        + ctiOffset;
 
-     AbsOffsetRadialStripTopology* aStripTopology = 
-        new OffsetRadialStripTopology(nstrips, stripPhiPitch,
+     CSCStripTopology* aStripTopology = 
+        new CSCUngangedStripTopology(nstrips, stripPhiPitch,
 	    2.*apothem, whereStripsMeet, stripOffset );
 
      if ( gangedME1A ) {
-       theStripTopology = new ORedOffsetRST( *aStripTopology, 16 );
+       theStripTopology = new CSCGangedStripTopology( *aStripTopology, 16 );
        delete aStripTopology;
      }
      else {
        theStripTopology = aStripTopology;
      }
 
-  //  }
+  //  } // radial strips
 
 
     //@@ HOW TO SET yOfFirstWire ? It should be explicit in the DDD.
