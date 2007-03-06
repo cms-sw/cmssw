@@ -1,9 +1,8 @@
 <?xml version="1.0"?>
 <Configuration xmlns="." xmlns:xsi="." xsi:schemaLocation= "." name="CMSConfiguration" version="0">
  <Include>
-  <File name="Geometry/CMSCommonData/data/materials.xml" url="."/>
-  <File name="Alignment/CocoaApplication/test/fits-MT/fit-b0-cal.xml" url="."/>
+  <File name="Alignment/CocoaApplication/test/table2DWithMirror.xml" url="."/>
  </Include>
- <Root fileName="fit-b0-cal.xml" logicalPartName="s"/>
+ <Root fileName="table2DWithMirror.xml" logicalPartName="OCMS"/>
 </Configuration>
 
