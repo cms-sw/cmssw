@@ -13,7 +13,7 @@
 //
 // Original Author:  fwyzard
 //         Created:  Wed Oct 18 18:02:07 CEST 2006
-// $Id: SoftLepton.cc,v 1.13 2007/02/19 15:53:19 fwyzard Exp $
+// $Id: SoftLepton.cc,v 1.14 2007/03/01 11:07:12 arizzi Exp $
 //
 
 
@@ -101,10 +101,10 @@ SoftLepton::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       cerr << "SoftLepton::produce : collection " << m_leptonProducer << " found, identified as MuonCollection" << endl;
       #endif
       for (reco::MuonCollection::const_iterator muon = h_muons->begin(); muon != h_muons->end(); ++muon)
-          {
-            if(! muon->combinedMuon().isNull() )
-              leptons.push_back( muon->combinedMuon() );
-         }
+        if(! muon->combinedMuon().isNull() )
+          leptons.push_back( muon->combinedMuon() );
+        else 
+          cerr << "SoftLepton::produce : found a Null edm::Ref in MuonCollection " << m_leptonProducer << ", skipping it" << endl;
     }
     catch(edm::Exception e) {
       // electrons or muons not found, look for tracks
