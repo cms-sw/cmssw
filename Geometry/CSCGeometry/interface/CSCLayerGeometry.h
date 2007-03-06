@@ -13,8 +13,8 @@
 
 #include <Geometry/CSCGeometry/interface/CSCStripTopology.h>
 #include <Geometry/CSCGeometry/interface/CSCWireTopology.h>
-#include <Geometry/Surface/interface/TrapezoidalPlaneBounds.h>
-#include <Geometry/Vector/interface/LocalPoint.h>
+#include <DataFormats/GeometrySurface/interface/TrapezoidalPlaneBounds.h>
+#include <DataFormats/GeometryVector/interface/LocalPoint.h>
 
 class CSCWireGroupPackage;
 
@@ -161,7 +161,8 @@ public:
    * The width of the strips (in middle)
    */
   float stripPitch() const { 
-    return theStripTopology->pitch(); }
+    //    return theStripTopology->pitch(); }
+    return stripPitch( LocalPoint(0.,0.) ); }
 
   /**
    * The width of the strip at a given local point
