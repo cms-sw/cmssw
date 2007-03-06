@@ -12,8 +12,8 @@
 #include "CondFormats/HcalObjects/interface/HcalQIECoder.h"
 #include "CondFormats/HcalObjects/interface/HcalQIEShape.h"
 #include "CondFormats/HcalObjects/interface/HcalCalibrationQIECoder.h"
+#include "CondFormats/HcalObjects/interface/HcalElectronicsMap.h"
 
-class HcalElectronicsMap;
 
 /**
 
