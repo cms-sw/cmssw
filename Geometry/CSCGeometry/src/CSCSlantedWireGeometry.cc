@@ -1,5 +1,4 @@
 #include <Geometry/CSCGeometry/src/CSCSlantedWireGeometry.h>
-#include <Geometry/Vector/interface/LocalPoint.h>
 #include <Geometry/CSCGeometry/interface/nint.h>
 
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
