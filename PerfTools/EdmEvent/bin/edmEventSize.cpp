@@ -115,7 +115,7 @@ int main( int argc, char * argv[] ) {
 
   if (vm.count( kOutputOpt )) {
     std::ofstream of(vm[kOutputOpt].as<std::string>().c_str());
-    me.dump(of); of <<  << std::endl;
+    me.dump(of); of << std::endl;
   }
 
   bool plot = ( vm.count( kPlotOpt ) > 0 );
