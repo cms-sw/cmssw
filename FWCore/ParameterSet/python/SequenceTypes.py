@@ -133,8 +133,8 @@ class EndPath(_ModuleSequenceType):
 
 
 class Sequence(_ModuleSequenceType,_Sequenceable):
-    def __init__(self,first):
-        super(Sequence,self).__init__(first)
+    def __init__(self,*arg,**argv):
+        super(Sequence,self).__init__(*arg,**argv)
     def _placeImpl(self,name,proc):
         proc._placeSequence(name,self)
     def _clonesequence(self, lookuptable):

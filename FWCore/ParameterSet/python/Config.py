@@ -190,7 +190,7 @@ class Process(object):
     def _placeESProducer(self,name,mod):
         self.__esproducers[name]=mod
     def _placeESPrefer(self,name,mod):
-        Self.__esprefers[name]=mod
+        self.__esprefers[name]=mod
     def _placeESSource(self,name,mod):
         self.__essources[name]=mod
     def _placePSet(self,name,mod):
