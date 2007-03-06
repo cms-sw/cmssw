@@ -7,16 +7,21 @@ using namespace reco;
 PFRecTrack::PFRecTrack() :
   PFTrack(),
   algoType_(PFRecTrack::Unknown) {}
-
+PFRecTrack::PFRecTrack(double charge, AlgoType_t algoType, int trackId) : 
+  PFTrack(charge), 
+  algoType_(algoType),
+  trackId_(trackId){}
 
 PFRecTrack::PFRecTrack(double charge, AlgoType_t algoType) : 
   PFTrack(charge), 
-  algoType_(algoType) {}
+  algoType_(algoType),
+  trackId_(-1) {}
   
 
 PFRecTrack::PFRecTrack(const PFRecTrack& other) :
   PFTrack(other), 
-  algoType_(other.algoType_) {}
+  algoType_(other.algoType_),
+  trackId_(other.trackId_) {}
 
 
 std::ostream& reco::operator<<(std::ostream& out, 

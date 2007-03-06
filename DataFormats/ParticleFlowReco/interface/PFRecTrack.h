@@ -2,7 +2,7 @@
 #define DataFormats_ParticleFlowReco_PFRecTrack_h
 
 #include "DataFormats/ParticleFlowReco/interface/PFTrack.h"
-
+#include "DataFormats/TrackReco/interface/Track.h"
 #include <iostream>
 
 namespace reco {
@@ -22,11 +22,14 @@ namespace reco {
     enum AlgoType_t {
       Unknown = 0,
       KF = 1, // Kalman filter 
-      GSF = 2 // Gaussian sum filter
+      GSF = 2,
+      KF_ELCAND=3// Gaussian sum filter
     };
 
     PFRecTrack();
   
+    PFRecTrack(double charge, AlgoType_t algoType, int trackId);
+
     PFRecTrack(double charge, AlgoType_t algoType);
 
     PFRecTrack(const PFRecTrack& other);
@@ -36,11 +39,11 @@ namespace reco {
 
     friend  std::ostream& operator<<(std::ostream& out, 
 				     const PFRecTrack& track);
-
+    int recTrackId() const {return trackId_;}
   private:
-
     /// type of fitting algorithm used to reconstruct the track
     AlgoType_t algoType_;
+    int trackId_;
   };
 
 }
