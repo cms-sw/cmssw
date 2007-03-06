@@ -173,6 +173,9 @@ private:
 
   //----- Minimum quality the fit has to have to be good
   static ALIdouble theFitQualityCut;
+  static ALIdouble theRelativeFitQualityCut;
+  static ALIdouble fit_quality_cut;
+  static ALIdouble fit_quality_cut_previous;
 
   //----- Number of fit iterations made up to a certain moment
   static ALIint theNoFitIterations;

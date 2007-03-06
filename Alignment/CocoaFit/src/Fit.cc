@@ -53,6 +53,9 @@ ALIint Fit::_NoColumnsA;
 ALIint Fit::theMinimumEntryQuality;
 ALIdouble Fit::thePreviousIterationFitQuality = DBL_MAX;
 ALIdouble Fit::theFitQualityCut = -1;
+ALIdouble  Fit::theRelativeFitQualityCut =  -1;
+ALIdouble Fit::fit_quality_cut = DBL_MAX;
+ALIdouble Fit::fit_quality_cut_previous = DBL_MAX;
 ALIint Fit::theNoFitIterations;
 ALIint Fit::MaxNoFitIterations = -1;
 
@@ -72,7 +75,9 @@ Fit& Fit::getInstance()
     MaxNoFitIterations = int(go);
     gomgr->getGlobalOptionValue("FitQualityCut", go );
     theFitQualityCut = go;
-      if( ALIUtils::debug >= 3 ) std::cout << " theFitQualityCut " << theFitQualityCut << std::endl;
+    gomgr->getGlobalOptionValue("RelativeFitQualityCut", go );
+    theRelativeFitQualityCut = go;
+    if( ALIUtils::debug >= 3 ) std::cout << " theFitQualityCut " << theFitQualityCut  << " theRelativeFitQualityCut " << theRelativeFitQualityCut << std::endl;
   }
 
   return *instance;
@@ -292,6 +297,12 @@ void Fit::redoMatrices()
 
   calculateChi2();
 
+  if( GlobalOptionMgr::getInstance()->GlobalOptions()["onlyFirstPropagation"] >= 1) {
+    std::cout << "ENDING after first propagation is done ('onlyFirstPropagation' option set)" << std::endl;
+    exit(1);
+  }
+
+
   PropagateErrors();
 }
 
@@ -324,6 +335,7 @@ void Fit::evaluateFitQuality( const FitQuality fq, double daFactor )
       Model::setCocoaStatus( COCOA_FitImproving );
 
       theNoFitIterations++;
+      fit_quality_cut_previous = fit_quality_cut;
 
       //      if(ALIUtils::report >= 1) dumpFittedValues( ALIFileOut::getInstance( Model::ReportFName() ));
 
@@ -913,7 +925,7 @@ FitQuality Fit::getFitQuality( const ALIbool canBeGood )
   if(ALIUtils::debug >= 5) DSMat->Dump("DSMatrix final");
   //  delete yfMatrix; //op
 
-  ALIdouble fit_quality_cut = (*DSMat)(0,0);  
+  fit_quality_cut = (*DSMat)(0,0);  
   //-  ALIdouble fit_quality_cut =fabs( (*DSMat)(0,0) );  
   delete DSMat;
   if(ALIUtils::debug >= 0) std::cout << theNoFitIterations << " Fit quality predicted improvement in distance to minimum is = " << fit_quality_cut << std::endl;
@@ -938,14 +950,14 @@ FitQuality Fit::getFitQuality( const ALIbool canBeGood )
 
   FitQuality fitQuality;
   //----- quality good enough: end
-  if( fit_quality_cut < theFitQualityCut && canBeGood ) {
+  if( (fit_quality_cut < theFitQualityCut || fabs(fit_quality_cut_previous - fit_quality_cut )/fit_quality_cut < theRelativeFitQualityCut ) && canBeGood ) {
     fitQuality = FQsmallDistanceToMinimum;
     if(ALIUtils::report >= 1) {
       ALIFileOut& fileout = ALIFileOut::getInstance( Model::ReportFName() );
-      fileout << "GOOD QUALITY OF THE FIT FOR ITERATION " << theNoFitIterations << " = " << fit_quality_cut << " < " << theFitQualityCut << std::endl;
+      fileout << "GOOD QUALITY OF THE FIT FOR ITERATION " << theNoFitIterations << " = " << fit_quality_cut << " < " << theFitQualityCut << " | " << (fit_quality_cut_previous - fit_quality_cut )/fit_quality_cut << " < " << theRelativeFitQualityCut << std::endl;
     }
     if(ALIUtils::debug >= 4) {
-      std::cout << "GOOD QUALITY OF THE FIT FOR ITERATION " << theNoFitIterations << " = " << fit_quality_cut << " < " << theFitQualityCut << std::endl;
+      std::cout << "GOOD QUALITY OF THE FIT FOR ITERATION " << theNoFitIterations << " = " << fit_quality_cut << " < " << theFitQualityCut << " | " << (fit_quality_cut_previous - fit_quality_cut )/fit_quality_cut << " < " << theRelativeFitQualityCut << std::endl;
     }
 
   //--------- Bad quality: go to next iteration
@@ -965,10 +977,10 @@ FitQuality Fit::getFitQuality( const ALIbool canBeGood )
 
       if(ALIUtils::report >= 2) {
 	ALIFileOut& fileout = ALIFileOut::getInstance( Model::ReportFName() );
-	fileout << "BAD QUALITY OF THE FIT FOR ITERATION " << theNoFitIterations << " = " << fit_quality_cut << " >= " << theFitQualityCut << std::endl;
+	fileout << "BAD QUALITY OF THE FIT FOR ITERATION " << theNoFitIterations << " = " << fit_quality_cut << " >= " << theFitQualityCut << " & " << (fit_quality_cut_previous - fit_quality_cut )/fit_quality_cut << " >= " << theRelativeFitQualityCut << std::endl;
       }
       if(ALIUtils::debug >= 4) {
-	std::cout << "BAD QUALITY OF THE FIT FOR ITERATION " << theNoFitIterations << " = " << fit_quality_cut << " >= " << theFitQualityCut << std::endl;
+	std::cout << "BAD QUALITY OF THE FIT FOR ITERATION " << theNoFitIterations << " = " << fit_quality_cut << " >= " << theFitQualityCut << " & " << (fit_quality_cut_previous - fit_quality_cut )/fit_quality_cut << " >= " << theRelativeFitQualityCut << std::endl;
       } 
     }
 
@@ -1151,12 +1163,6 @@ void Fit::dumpFittedValues( ALIFileOut& fileout, ALIbool printErrors )
 
   dumpEntryCorrelations( fileout, nEntUnk );
 
-  ALIdouble go;
-  GlobalOptionMgr* gomgr = GlobalOptionMgr::getInstance();
-  gomgr->getGlobalOptionValue("dumpOptOGlobalInReport", go );
-
-  if( go ) OpticalObjectMgr::getInstance()->dumpOptOsGlobal(fileout);
-
 }
 
 
@@ -1199,7 +1205,7 @@ void Fit::dumpEntryAfterFit( ALIFileOut& fileout, const Entry* entry, int& nEntU
     fileout << "FIX: -1 ";
   }
   
-  fileout << std::setw(30)  << entry->OptOCurrent()->name()
+  fileout << " " << std::setw(30) << entry->OptOCurrent()->name()
 	  << std::setw(8) << " " << entry->name() << " " 
 	  << std::setw(8) << std::setprecision(8) << entryvalue;
   if ( entry->quality() >= theMinimumEntryQuality ) {
@@ -1210,7 +1216,8 @@ void Fit::dumpEntryAfterFit( ALIFileOut& fileout, const Entry* entry, int& nEntU
   fileout << std::setw(8) << " " << entry->value() / dimv;
   if( printErrors ) fileout << " +- " << std::setw(8) << entry->sigma() /dims << " Q" << entry->quality();
   if( ALIUtils::report >= 2) {
-    float dif = ( entry->value() + entry->valueDisplacementByFitting() ) / dimv - entry->value() / dimv;
+    //-    float dif = ( entry->value() + entry->valueDisplacementByFitting() ) / dimv - entry->value() / dimv;
+    float dif = entry->valueDisplacementByFitting() / dimv;
     if( fabs(dif) < 1.E-9 ) dif = 0.;
     fileout << " DIFF= " << dif;
     // << " == " << ( entry->value() + entry->valueDisplacementByFitting() )  / dimv - entryvalue << " @@ " << ( entry->value() + entry->valueDisplacementByFitting() ) / dimv << " @@ " <<  entryvalue;
@@ -1269,7 +1276,7 @@ void Fit::dumpEntryCorrelations( ALIFileOut& fileout, const int nEntUnk )
     }
   }
   //------- Dump optical object list 
-  if( ALIUtils::debug >= 2) OpticalObjectMgr::getInstance()->dumpCentreOptOs();
+  if( ALIUtils::debug >= 2) OpticalObjectMgr::getInstance()->dumpOptOs();
  
 }
 
