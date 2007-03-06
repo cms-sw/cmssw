@@ -176,9 +176,15 @@ class Process(object):
     def _placeAnalyzer(self,name,mod):
         self.__analyzers[name]=mod
     def _placePath(self,name,mod):
-        self.__paths[name]=mod._postProcessFixup(self._cloneToObjectDict)
+        try:
+            self.__paths[name]=mod._postProcessFixup(self._cloneToObjectDict)
+        except ModuleCloneError, msg:
+            print "The module %s in path %s is unknown to the process %s." %(msg, name, self._Process__name)
     def _placeEndPath(self,name,mod):
-        self.__endpaths[name]=mod._postProcessFixup(self._cloneToObjectDict)
+        try: 
+            self.__endpaths[name]=mod._postProcessFixup(self._cloneToObjectDict)
+        except ModuleCloneError, msg:
+            print "The module %s in endpath %s is unknown to the process %s." %(msg, name, self._Process__name)
     def _placeSequence(self,name,mod):
         self.__sequences[name]=mod._postProcessFixup(self._cloneToObjectDict)
     def _placeESProducer(self,name,mod):

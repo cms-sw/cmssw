@@ -3,6 +3,10 @@ from Mixins import _Unlabelable, _Labelable
 from Mixins import _TypedParameterizable 
 from SequenceTypes import _Sequenceable
 
+class ModuleCloneError(Exception):
+    pass 
+
+
 class Service(_ConfigureComponent,_TypedParameterizable,_Unlabelable):
     def __init__(self,type,*arg,**kargs):
         super(Service,self).__init__(type,*arg,**kargs)
@@ -41,7 +45,13 @@ class _Module(_ConfigureComponent,_TypedParameterizable,_Labelable,_Sequenceable
     """base class for classes which denote framework event based 'modules'"""
     def __init__(self,type,*arg,**kargs):
         super(_Module,self).__init__(type,*arg,**kargs)
-
+    def _clonesequence(self, lookuptable):
+        try:
+            return lookuptable[id(self)]
+        except:
+            typename = str(type(self)).split("'")[1].split(".")[1] # has to be improved!
+            # return something like "EDAnalyzer("foo", ...)"
+            raise ModuleCloneError("%s('%s', ...)" %(typename, self.type_()))
 
 class EDProducer(_Module):
     def __init__(self,type,*arg,**kargs):
