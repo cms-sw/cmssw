@@ -1,7 +1,12 @@
-#include <iostream>
 #include "L1Trigger/RegionalCaloTrigger/interface/L1RCTNeighborMap.h"
+
+#include <vector>
+using std::vector;
+
+#include <iostream>
 using std::cout;
 using std::endl;
+
 void printVec(vector<int> vec){
   cout << "Elements are : ";  
   for(int i = 0; i<3; i++)
