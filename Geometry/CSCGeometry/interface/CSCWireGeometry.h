@@ -12,7 +12,7 @@
 
 //@@ Forward declaration alone didn't work in ORCA.. But now?
 //class LocalPoint;
-#include "Geometry/Vector/interface/LocalPoint.h"
+#include "DataFormats/GeometryVector/interface/LocalPoint.h"
 
 class CSCWireGeometry {
  public:

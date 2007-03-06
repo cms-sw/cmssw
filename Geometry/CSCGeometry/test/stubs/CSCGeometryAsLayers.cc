@@ -7,9 +7,9 @@
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 
 #include <Geometry/Records/interface/MuonGeometryRecord.h>
-#include <Geometry/Vector/interface/GlobalPoint.h>
 #include <Geometry/CSCGeometry/interface/CSCGeometry.h>
 #include <Geometry/CSCGeometry/interface/CSCLayer.h>
+#include <DataFormats/GeometryVector/interface/GlobalPoint.h>
 
 #include <string>
 #include <cmath>
@@ -139,7 +139,7 @@ void
 	// Global Phi of centre of CSCLayer
 
 	//@@ CARE The following attempted conversion to degrees can be easily
-	// subverted by Geometry/Vector/Phi.h enforcing its range convention!
+	// subverted by GeometryVector/Phi.h enforcing its range convention!
 	// Either a) use a separate local double before scaling...
 	//        double cphi = gCentre.phi();
 	//        double cphiDeg = cphi * radToDeg;

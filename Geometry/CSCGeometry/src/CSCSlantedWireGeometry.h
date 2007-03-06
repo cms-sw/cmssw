@@ -10,7 +10,7 @@
  */
 
 #include "Geometry/CSCGeometry/interface/CSCWireGeometry.h"
-#include "Geometry/Vector/interface/LocalPoint.h"
+#include "DataFormats/GeometryVector/interface/LocalPoint.h"
 
 class CSCSlantedWireGeometry : public CSCWireGeometry {
  public:

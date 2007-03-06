@@ -10,8 +10,8 @@
  */
 
 #include "Geometry/CSCGeometry/interface/CSCWireGeometry.h"
-#include "Geometry/Vector/interface/LocalPoint.h"
-#include "Geometry/CSCGeometry/interface/nint.h" //@@ Where is it really?
+#include "Geometry/CSCGeometry/interface/nint.h"
+#include "DataFormats/GeometryVector/interface/LocalPoint.h"
 
 class CSCNonslantedWireGeometry : public CSCWireGeometry {
  public:
