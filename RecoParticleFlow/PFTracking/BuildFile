@@ -1,0 +1,25 @@
+<flags SEAL_PLUGIN_NAME="RecoParticleFlowPFTracking">
+<use name=FWCore/Framework>
+<use name=MagneticField/Engine>
+<use name=MagneticField/Records>
+<use name=TrackingTools/Records>
+<use name=TrackingTools/PatternTools>
+<use name=TrackingTools/TrajectoryState>
+<use name=RecoParticleFlow/PFAlgo>
+<use name=RecoTracker/TrackProducer>
+<use name=clhep>
+<use name=boost>
+<export>
+<lib name=RecoParticleFlowPFTracking>
+<use name=FWCore/Framework>
+<use name=MagneticField/Engine>
+<use name=MagneticField/Records>
+<use name=TrackingTools/Records>
+<use name=TrackingTools/PatternTools>
+<use name=TrackingTools/TrajectoryState>
+<use name=RecoParticleFlow/PFAlgo>
+<use name=RecoTracker/TrackProducer>
+<use name=clhep>
+<use name=boost>
+
+</export>
