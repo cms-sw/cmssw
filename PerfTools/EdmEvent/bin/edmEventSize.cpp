@@ -51,7 +51,7 @@ int main( int argc, char * argv[] ) {
     ( kHelpCommandOpt, "produce help message" )
     ( kAutoLoadCommandOpt, "automatic library loading (avoid root warnings)" )
     ( kDataFileCommandOpt, value<string>(), "data file" )
-    ( kDataOutputCommandOpt, value<string>(), "output file" )
+    ( kOutputCommandOpt, value<string>(), "output file" )
     ( kAlphabeticOrderCommandOpt, "sort by alphabetic order (default: sort by size)" )
     ( kShortNamesCommandOpt, "use short product name (default: use full branch name)" )
     ( kPlotCommandOpt, value<string>(), "produce a summary plot" )
