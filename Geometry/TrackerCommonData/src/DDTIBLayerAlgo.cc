@@ -58,6 +58,7 @@ void DDTIBLayerAlgo::initialize(const DDNumericArguments & nArgs,
   detectorLo   = sArgs["StringDetLoName"];
   roffDetLo    = nArgs["ROffsetDetLo"];
   coolCableLo  = sArgs["StringCabLoName"];
+  // roffCableLo no more used!!!
   roffCableLo  = nArgs["ROffsetCabLo"];
   LogDebug("TIBGeom") << "DDTIBLayerAlgo debug: Lower layer Radius " 
 		      << radiusLo << " Phi offset " << phioffLo/deg 
@@ -72,6 +73,7 @@ void DDTIBLayerAlgo::initialize(const DDNumericArguments & nArgs,
   detectorUp   = sArgs["StringDetUpName"];
   roffDetUp    = nArgs["ROffsetDetUp"];
   coolCableUp  = sArgs["StringCabUpName"];
+  // roffCableUp no more used!!!
   roffCableUp  = nArgs["ROffsetCabUp"];
   LogDebug("TIBGeom") << "DDTIBLayerAlgo debug: Upper layer Radius "
 		      << radiusUp << " Phi offset " << phioffUp/deg 
@@ -194,12 +196,14 @@ void DDTIBLayerAlgo::execute() {
 		      << " at (0,0,0) with no rotation";
 
   double rposdet = radiusLo + roffDetLo;
+  roffCableLo = detectorT/2. + coolTubeT/2.; 
   double rposcab = rposdet + roffCableLo;
   double dphi    = twopi/stringsLo;
   DDName detIn(DDSplit(detectorLo).first, DDSplit(detectorLo).second);
   DDName cabIn(DDSplit(coolCableLo).first, DDSplit(coolCableLo).second);
   for (int n = 0; n < stringsLo; n++) {
-    double phi    = phioffLo + n*dphi;
+//    double phi    = phioffLo + n*dphi;
+    double phi    = (n+0.5)*dphi;
     double phix   = phi - detectorTilt + 90*deg;
     double phideg = phix/deg;
     DDRotation rotation;
@@ -248,12 +252,14 @@ void DDTIBLayerAlgo::execute() {
 		      << " at (0,0,0) with no rotation";
 
   rposdet = radiusUp + roffDetUp;
+  roffCableUp = - detectorT/2. - coolTubeT/2.; 
   rposcab = rposdet + roffCableUp;
   dphi    = twopi/stringsUp;
   DDName detOut(DDSplit(detectorUp).first, DDSplit(detectorUp).second);
   DDName cabOut(DDSplit(coolCableUp).first, DDSplit(coolCableUp).second);
   for (int n = 0; n < stringsUp; n++) {
-    double phi    = phioffUp + n*dphi;
+//    double phi    = phioffUp + n*dphi;
+    double phi    = (n+0.5)*dphi;
     double phix   = phi - detectorTilt - 90*deg;
     double phideg = phix/deg;
     DDRotation rotation;

@@ -11,7 +11,6 @@
 #include <cmath>
 #include <algorithm>
 
-namespace std{} using namespace std;
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DetectorDescription/Base/interface/DDRotationMatrix.h"
 #include "DetectorDescription/Base/interface/DDutils.h"
@@ -182,7 +181,7 @@ void DDPixFwdBlades::execute() {
     // create DDRotation for placing the child if not already existent :
 
     DDRotation rotation;   
-    string rotstr = DDSplit(childName).first + int_to_string(copy);
+    std::string rotstr = DDSplit(childName).first + int_to_string(copy);
     rotation = DDRotation(DDName(rotstr, idNameSpace));
 
     if (!rotation) {
