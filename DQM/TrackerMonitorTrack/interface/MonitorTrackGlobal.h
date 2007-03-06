@@ -15,13 +15,14 @@
 //
 // Original Author:  Israel Goitom
 //         Created:  Tue May 23 18:35:30 CEST 2006
-// $Id: MonitorTrackGlobal.h,v 1.5 2006/06/27 07:52:56 dkcira Exp $
+// $Id: MonitorTrackGlobal.h,v 1.6 2007/02/12 13:37:09 goitom Exp $
 //
 //
 
 
 // system include files
 #include <memory>
+#include <fstream>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -53,6 +54,8 @@ class MonitorTrackGlobal : public edm::EDAnalyzer {
   std::map<uint32_t, MonitorElement *> detModules;
 
 //  unsigned int minTracks_;
+
+  std::string histname;  //for naming the histograms according to algorithm used
 
   DaqMonitorBEInterface * dbe;
   edm::ParameterSet conf_;

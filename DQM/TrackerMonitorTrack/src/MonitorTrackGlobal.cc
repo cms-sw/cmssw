@@ -13,7 +13,7 @@
 //
 // Original Author:  Israel Goitom
 //         Created:  Tue May 23 18:35:30 CEST 2006
-// $Id: MonitorTrackGlobal.cc,v 1.12 2006/10/27 01:35:22 wmtan Exp $
+// $Id: MonitorTrackGlobal.cc,v 1.13 2007/02/12 13:37:10 goitom Exp $
 //
 //
 
@@ -40,13 +40,17 @@ MonitorTrackGlobal::~MonitorTrackGlobal()
 void MonitorTrackGlobal::beginJob(edm::EventSetup const& iSetup)
 {
   using namespace edm;
+
+  std::string AlgoName = conf_.getParameter<std::string>("AlgoName");
+
   dbe->setCurrentFolder("Track/GlobalParameters");
 
   //    
   int TKNoBin = conf_.getParameter<int>("TkSizeBin");
   double TKNoMin = conf_.getParameter<double>("TkSizeMin");
   double TKNoMax = conf_.getParameter<double>("TkSizeMax");
-  NumberOfTracks = dbe->book1D("NumberOfTracks", "NumberOfTracks.", TKNoBin, TKNoMin, TKNoMax);
+  histname = "NumberOfTracks_";
+  NumberOfTracks = dbe->book1D(histname+AlgoName, "NumberOfTracks.", TKNoBin, TKNoMin, TKNoMax);
 
 
   int TKHitBin = conf_.getParameter<int>("RecHitBin");
@@ -65,22 +69,32 @@ void MonitorTrackGlobal::beginJob(edm::EventSetup const& iSetup)
   double ThetaMin = conf_.getParameter<double>("ThetaMin");
   double ThetaMax = conf_.getParameter<double>("ThetaMax");
 
-  NumberOfRecHitsPerTrack = dbe->book1D("NumberOfRecHitsPerTrack", "NumberOfRecHitsPerTrack", TKHitBin, TKHitMin, TKHitMax);
-  NumberOfMeanRecHitsPerTrack = dbe->book1D("NumberOfMeanRecHitsPerTrack", "NumberOfMeanRecHitsPerTrack", TKHitBin, TKHitMin, TKHitMax);
-  NumberOfRecHitsPerTrackVsPhi = dbe->book2D("NumberOfRecHitsPerTrackVsPhi","NumberOfRecHitsPerTrackVsPhi", PhiBin, PhiMin, PhiMax, TKHitBin, TKHitMin, TKHitMax);
-  NumberOfRecHitsPerTrackVsTheta = dbe->book2D("NumberOfRecHitsPerTrackVsTheta","NumberOfRecHitsPerTrackVsTheta", ThetaBin, ThetaMin, ThetaMax, TKHitBin, TKHitMin, TKHitMax);
-  NumberOfRecHitsPerTrackVsEta = dbe->book2D("NumberOfRecHitsPerTrackVsEta","NumberOfRecHitsPerTrackVsEta", EtaBin, EtaMin, EtaMax, TKHitBin, TKHitMin, TKHitMax);
+  histname = "NumberOfRecHitsPerTrack_";
+  NumberOfRecHitsPerTrack = dbe->book1D(histname+AlgoName, "NumberOfRecHitsPerTrack", TKHitBin, TKHitMin, TKHitMax);
+  histname = "NumberOfMeanRecHitsPerTrack_";
+  NumberOfMeanRecHitsPerTrack = dbe->book1D(histname+AlgoName, "NumberOfMeanRecHitsPerTrack", TKHitBin, TKHitMin, TKHitMax);
+  histname = "NumberOfRecHitsPerTrackVsPhi_";
+  NumberOfRecHitsPerTrackVsPhi = dbe->book2D(histname+AlgoName,"NumberOfRecHitsPerTrackVsPhi", PhiBin, PhiMin, PhiMax, TKHitBin, TKHitMin, TKHitMax);
+  histname = "NumberOfRecHitsPerTrackVsTheta_";
+  NumberOfRecHitsPerTrackVsTheta = dbe->book2D(histname+AlgoName, "NumberOfRecHitsPerTrackVsTheta", ThetaBin, ThetaMin, ThetaMax, TKHitBin, TKHitMin, TKHitMax);
+  histname = "NumberOfRecHitsPerTrackVsEta_";
+  NumberOfRecHitsPerTrackVsEta = dbe->book2D(histname+AlgoName, "NumberOfRecHitsPerTrackVsEta", EtaBin, EtaMin, EtaMax, TKHitBin, TKHitMin, TKHitMax);
 
   //
   int Chi2Bin = conf_.getParameter<int>("Chi2Bin");
   double Chi2Min = conf_.getParameter<double>("Chi2Min");
   double Chi2Max = conf_.getParameter<double>("Chi2Max");
 
-  Chi2 = dbe->book1D("Chi2", "Chi2", Chi2Bin, Chi2Min, Chi2Max);
-  Chi2overDoF = dbe->book1D("Chi2overDoF", "Chi2overDoF", Chi2Bin, Chi2Min, Chi2Max);
-  Chi2overDoFVsTheta = dbe->book2D("Chi2overDoFVsTheta", "Chi2overDoFVsTheta", ThetaBin, ThetaMin, ThetaMax, Chi2Bin, Chi2Min, Chi2Max);
-  Chi2overDoFVsPhi   = dbe->book2D("Chi2overDoFVsPhi"  , "Chi2overDoFVsPhi", PhiBin, PhiMin, PhiMax, Chi2Bin, Chi2Min, Chi2Max);
-  Chi2overDoFVsEta   = dbe->book2D("Chi2overDoFVsEta"  , "Chi2overDoFVsEta", EtaBin, EtaMin, EtaMax, Chi2Bin, Chi2Min, Chi2Max);
+  histname = "Chi2_";
+  Chi2 = dbe->book1D(histname+AlgoName, "Chi2", Chi2Bin, Chi2Min, Chi2Max);
+  histname = "Chi2overDoF_";
+  Chi2overDoF = dbe->book1D(histname+AlgoName, "Chi2overDoF", Chi2Bin, Chi2Min, Chi2Max);
+  histname = "Chi2overDoFVsTheta_";
+  Chi2overDoFVsTheta = dbe->book2D(histname+AlgoName, "Chi2overDoFVsTheta", ThetaBin, ThetaMin, ThetaMax, Chi2Bin, Chi2Min, Chi2Max);
+  histname = "Chi2overDoFVsPhi_";
+  Chi2overDoFVsPhi   = dbe->book2D(histname+AlgoName, "Chi2overDoFVsPhi", PhiBin, PhiMin, PhiMax, Chi2Bin, Chi2Min, Chi2Max);
+  histname = "Chi2overDoFVsEta_";
+  Chi2overDoFVsEta   = dbe->book2D(histname+AlgoName, "Chi2overDoFVsEta", EtaBin, EtaMin, EtaMax, Chi2Bin, Chi2Min, Chi2Max);
 
   //dbe->setCurrentFolder("Tracker/Track Parameters");
   int TrackPtBin = conf_.getParameter<int>("TrackPtBin");
@@ -99,26 +113,40 @@ void MonitorTrackGlobal::beginJob(edm::EventSetup const& iSetup)
   double TrackPzMin = conf_.getParameter<double>("TrackPzMin");
   double TrackPzMax = conf_.getParameter<double>("TrackPzMax");
 
-  TrackPt = dbe->book1D("TrackPt", "TrackPt", TrackPtBin, TrackPtMin, TrackPtMax);
-  TrackPx = dbe->book1D("TrackPx", "TrackPx", TrackPxBin, TrackPxMin, TrackPxMax);
-  TrackPy = dbe->book1D("TrackPy", "TrackPy", TrackPyBin, TrackPyMin, TrackPyMax);
-  TrackPz = dbe->book1D("TrackPz", "TrackPz", TrackPzBin, TrackPzMin, TrackPzMax);
+  histname = "TrackPt_";
+  TrackPt = dbe->book1D(histname+AlgoName, "TrackPt", TrackPtBin, TrackPtMin, TrackPtMax);
+  histname = "TrackPx_";
+  TrackPx = dbe->book1D(histname+AlgoName, "TrackPx", TrackPxBin, TrackPxMin, TrackPxMax);
+  histname = "TrackPy_";
+  TrackPy = dbe->book1D(histname+AlgoName, "TrackPy", TrackPyBin, TrackPyMin, TrackPyMax);
+  histname = "TrackPz_";
+  TrackPz = dbe->book1D(histname+AlgoName, "TrackPz", TrackPzBin, TrackPzMin, TrackPzMax);
 
   //dbe->setCurrentFolder("Tracker/Track Parameters");
-  TrackPhi = dbe->book1D("TrackPhi", "TrackPhi.", PhiBin, PhiMin, PhiMax);
-  TrackEta = dbe->book1D("TrackEta", "TrackEta.", EtaBin, EtaMin, EtaMax);
-  TrackTheta = dbe->book1D("TrackTheta", "TrackTheta.", ThetaBin, ThetaMin, ThetaMax);
+  histname = "TrackPhi_";
+  TrackPhi = dbe->book1D(histname+AlgoName, "TrackPhi.", PhiBin, PhiMin, PhiMax);
+  histname = "TrackEta_";
+  TrackEta = dbe->book1D(histname+AlgoName, "TrackEta.", EtaBin, EtaMin, EtaMax);
+  histname = "TrackTheta_";
+  TrackTheta = dbe->book1D(histname+AlgoName, "TrackTheta.", ThetaBin, ThetaMin, ThetaMax);
 
   if (!MTCCData)
     {
-      DistanceOfClosestApproach = dbe->book1D("DistanceOfClosestApproach","DistanceOfClosestApproach",100, -0.5, 0.5);
-      DistanceOfClosestApproachVsTheta = dbe->book2D("DistanceOfClosestApproachVsTheta","DistanceOfClosestApproachVsTheta", ThetaBin, ThetaMin, ThetaMax, 100, -0.4, 0.4);
-      DistanceOfClosestApproachVsPhi = dbe->book2D("DistanceOfClosestApproachVsPhi","DistanceOfClosestApproachVsPhi", PhiBin, PhiMin, PhiMax, 100, -0.5, 0.5);
-      DistanceOfClosestApproachVsEta = dbe->book2D("DistanceOfClosestApproachVsEta","DistanceOfClosestApproachVsEta", EtaBin, EtaMin, EtaMax, 100, -0.5, 0.5);
+      histname = "DistanceOfClosestApproach_";
+      DistanceOfClosestApproach = dbe->book1D(histname+AlgoName,"DistanceOfClosestApproach",100, -0.5, 0.5);
+      histname = "DistanceOfClosestApproachVsTheta_";
+      DistanceOfClosestApproachVsTheta = dbe->book2D(histname+AlgoName,"DistanceOfClosestApproachVsTheta", ThetaBin, ThetaMin, ThetaMax, 100, -0.4, 0.4);
+      histname = "DistanceOfClosestApproachVsPhi_";
+      DistanceOfClosestApproachVsPhi = dbe->book2D(histname+AlgoName,"DistanceOfClosestApproachVsPhi", PhiBin, PhiMin, PhiMax, 100, -0.5, 0.5);
+      histname = "DistanceOfClosestApproachVsEta_";
+      DistanceOfClosestApproachVsEta = dbe->book2D(histname+AlgoName,"DistanceOfClosestApproachVsEta", EtaBin, EtaMin, EtaMax, 100, -0.5, 0.5);
 
-      xPointOfClosestApproach = dbe->book1D("xPointOfClosestApproach", "xPointOfClosestApproach", 20, -20, 20);
-      yPointOfClosestApproach = dbe->book1D("yPointOfClosestApproach", "yPointOfClosestApproach", 20, -20, 20);
-      zPointOfClosestApproach = dbe->book1D("zPointOfClosestApproach", "zPointOfClosestApproach", 50, -100, 100);
+      histname = "xPointOfClosestApproach_";
+      xPointOfClosestApproach = dbe->book1D(histname+AlgoName, "xPointOfClosestApproach", 20, -20, 20);
+      histname = "yPointOfClosestApproach_";
+      yPointOfClosestApproach = dbe->book1D(histname+AlgoName, "yPointOfClosestApproach", 20, -20, 20);
+      histname = "zPointOfClosestApproach_";
+      zPointOfClosestApproach = dbe->book1D(histname+AlgoName, "zPointOfClosestApproach", 50, -100, 100);
     }
 }
 
