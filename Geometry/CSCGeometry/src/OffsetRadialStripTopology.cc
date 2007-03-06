@@ -1,13 +1,12 @@
-// This is AbsOffsetRadialStripTopology.cc
+// This is OffsetRadialStripTopology.cc
 
-#include <Geometry/CSCGeometry/src/AbsOffsetRadialStripTopology.h>
-
+#include <Geometry/CSCGeometry/interface/OffsetRadialStripTopology.h>
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 
 #include <iostream>
 #include <cmath>
 
-AbsOffsetRadialStripTopology::AbsOffsetRadialStripTopology( 
+OffsetRadialStripTopology::OffsetRadialStripTopology( 
   int numberOfStrips, float stripPhiPitch,
   float detectorHeight, float radialDistance,
   float stripOffset):
@@ -26,7 +25,7 @@ AbsOffsetRadialStripTopology::AbsOffsetRadialStripTopology(
     " cos = " << theCosOff << " sin = " << theSinOff << "\n";
 }
 
-LocalPoint AbsOffsetRadialStripTopology::localPosition(const MeasurementPoint & mp) const {
+LocalPoint OffsetRadialStripTopology::localPosition(const MeasurementPoint & mp) const {
   // Local coordinates are (x,y). Coordinates along symmetry axes of strip
   // plane are (x',y'). These are rotated w.r.t. (x,y)
 
@@ -46,7 +45,7 @@ LocalPoint AbsOffsetRadialStripTopology::localPosition(const MeasurementPoint & 
   return toLocal(xprime, yprime);
 }
 
-float AbsOffsetRadialStripTopology::strip(const LocalPoint& lp) const {
+float OffsetRadialStripTopology::strip(const LocalPoint& lp) const {
   LocalPoint pnt = toPrime(lp);
   float phi = atan2( pnt.x(), pnt.y()+centreToIntersection() );
   float fstrip = ( phi - phiOfOneEdge() ) / angularWidth();
@@ -55,11 +54,11 @@ float AbsOffsetRadialStripTopology::strip(const LocalPoint& lp) const {
   return fstrip;
 }
 
-float AbsOffsetRadialStripTopology::stripAngle(float strip) const {
+float OffsetRadialStripTopology::stripAngle(float strip) const {
   return ( phiOfOneEdge() + (strip+theStripOffset)*angularWidth() );
 }
 
-LocalPoint AbsOffsetRadialStripTopology::toLocal(float xprime, float yprime) const {
+LocalPoint OffsetRadialStripTopology::toLocal(float xprime, float yprime) const {
   float x =  theCosOff * xprime + theSinOff * yprime
              + centreToIntersection() * theSinOff;
   float y = -theSinOff * xprime + theCosOff * yprime
@@ -67,7 +66,7 @@ LocalPoint AbsOffsetRadialStripTopology::toLocal(float xprime, float yprime) con
   return LocalPoint(x, y);
 }
 
-LocalPoint AbsOffsetRadialStripTopology::toPrime(const LocalPoint& lp) const {
+LocalPoint OffsetRadialStripTopology::toPrime(const LocalPoint& lp) const {
   float xprime = theCosOff * lp.x() - theSinOff * lp.y()
                   - centreToIntersection() * theSinOff;
   float yprime = theSinOff * lp.x() + theCosOff * lp.y()
@@ -75,14 +74,13 @@ LocalPoint AbsOffsetRadialStripTopology::toPrime(const LocalPoint& lp) const {
   return LocalPoint(xprime, yprime);
 }
 
-std::ostream & operator<<(std::ostream & os, const AbsOffsetRadialStripTopology & orst)
+std::ostream & operator<<(std::ostream & os, const OffsetRadialStripTopology & orst)
 {
-  os << "AbsOffsetRadialStripTopology " << std::endl
-     << "---------------------------- " << std::endl
+  os << "OffsetRadialStripTopology isa "
      <<  static_cast<const RadialStripTopology&>( orst )
      << "fractional strip offset   " << orst.stripOffset()
-     << "cos(angular offset)       " << orst.theCosOff
-     << "sin(angular offset)       " << orst.theSinOff << std::endl;
+     << "\ncos(angular offset)       " << orst.theCosOff
+     << "\nsin(angular offset)       " << orst.theSinOff << std::endl;
   return os;
 }
 

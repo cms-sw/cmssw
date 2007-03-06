@@ -1,7 +1,7 @@
 #ifndef ABS_OFFSET_RADIAL_STRIP_TOPOLOGY_H
 #define ABS_OFFSET_RADIAL_STRIP_TOPOLOGY_H
 
-/** \class AbsOffsetRadialStripTopology
+/** \class OffsetRadialStripTopology
  *  ABC defining  RadialStripTopology with shifted offset so that it
  *  is not centred on local y (of parent chamber.)
  *  The offset is specified as a fraction of the strip angular width.
@@ -10,27 +10,22 @@
  * 
  */
 
-#include "Geometry/CSCGeometry/src/RadialStripTopology.h"
+#include "Geometry/CommonTopologies/interface/RadialStripTopology.h"
 #include <iosfwd>
 
-class AbsOffsetRadialStripTopology : public RadialStripTopology
+class OffsetRadialStripTopology : public RadialStripTopology
 {
 public:
 
-  AbsOffsetRadialStripTopology( int numberOfStrips, float stripPhiPitch,
+  OffsetRadialStripTopology( int numberOfStrips, float stripPhiPitch,
      float detectorHeight, float radialDistance, float stripOffset);
 
-  virtual ~AbsOffsetRadialStripTopology(){};
+  virtual ~OffsetRadialStripTopology(){};
 
   /** Fraction of a strip offset of layer relative to
    *  symmetry axis (local y). (This is an ANGULAR value)
    */
   virtual float stripOffset( void ) const { return theStripOffset; }
-
-  /** LocalPoint on x axis for given 'strip'
-   * 'strip' is a float in units of the strip (angular) width
-   */
-  //  virtual LocalPoint localPosition(float strip) const;
 
    /** LocalPoint for a given MeasurementPoint <BR>
    * What's a MeasurementPoint?  <BR>
@@ -46,11 +41,6 @@ public:
    * BEWARE! This involves ONLY strip-related measurements, not CSC wires! <BR>
    */
   virtual LocalPoint localPosition(const MeasurementPoint&) const;
-
-  /**
-   * Local x value where centre of strip, 'strip', intersects local y,'y'
-   */
-  //  virtual float xOfStrip(int strip, float y) const;
 
   /** Strip in which a given LocalPoint lies. This is a float which
    * represents the fractional strip position within the detector.<BR>
@@ -72,7 +62,7 @@ public:
   virtual int channel(int strip) const = 0;
   virtual int channel(const LocalPoint& lp) const = 0;
 
-  friend std::ostream & operator<<(std::ostream &, const AbsOffsetRadialStripTopology &);
+  friend std::ostream & operator<<(std::ostream &, const OffsetRadialStripTopology &);
 
  private:
   /**
