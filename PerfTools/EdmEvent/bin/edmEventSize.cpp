@@ -10,6 +10,7 @@
 #include <boost/program_options.hpp>
 #include <string>
 #include <iostream>
+#include <fstream>
 
 #include <TROOT.h>
 #include <TSystem.h>
@@ -19,6 +20,8 @@ static const char * const kHelpOpt = "help";
 static const char * const kHelpCommandOpt = "help,h";
 static const char * const kDataFileOpt = "data-file";
 static const char * const kDataFileCommandOpt = "data-file,d";
+static const char * const kOutputOpt = "output";
+static const char * const kOutputCommandOpt = "output,o";
 static const char * const kAutoLoadOpt ="auto-loader";
 static const char * const kAutoLoadCommandOpt ="auto-loader,a";
 static const char * const kPlotOpt ="plot";
@@ -108,6 +111,11 @@ int main( int argc, char * argv[] ) {
     std::cout << std::endl;
     me.dump(std::cout);
     std::cout << std::endl;
+  }
+
+  if (vm.count( kOutputOpt )) {
+    std::ofstream of(vm[kOutputOpt].as<std::string>().c_str());
+    me.dump(of); of <<  << std::endl;
   }
 
   bool plot = ( vm.count( kPlotOpt ) > 0 );
