@@ -5,8 +5,8 @@
  *   information,<BR>
  *   starting from a L2 reonstructed muon.
  *
- *   $Date: 2007/02/16 18:42:30 $
- *   $Revision: 1.6 $
+ *   $Date: 2007/02/26 18:04:57 $
+ *   $Revision: 1.7 $
  *   \author  A. Everett - Purdue University
  */
 
@@ -15,7 +15,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "RecoMuon/L3MuonProducer/src/L3MuonProducer.h"

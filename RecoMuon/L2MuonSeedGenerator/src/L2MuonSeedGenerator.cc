@@ -7,8 +7,8 @@
  *   L2 muon reconstruction
  *
  *
- *   $Date: 2006/11/13 15:27:20 $
- *   $Revision: 1.5 $
+ *   $Date: 2007/02/16 13:34:18 $
+ *   $Revision: 1.6 $
  *
  *   \author  A.Everett, R.Bellan
  *
@@ -35,7 +35,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "TrackingTools/TrajectoryParametrization/interface/GlobalTrajectoryParameters.h"

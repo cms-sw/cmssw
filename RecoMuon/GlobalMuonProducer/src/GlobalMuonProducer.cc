@@ -5,8 +5,8 @@
  *   information,<BR>
  *   starting from a standalone reonstructed muon.
  *
- *   $Date: 2007/02/16 18:42:28 $
- *   $Revision: 1.24 $
+ *   $Date: 2007/02/26 18:04:28 $
+ *   $Revision: 1.25 $
  *
  *   \author  R.Bellan - INFN TO
  */
@@ -16,7 +16,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "RecoMuon/GlobalMuonProducer/src/GlobalMuonProducer.h"
