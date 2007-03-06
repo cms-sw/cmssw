@@ -179,18 +179,18 @@ class Process(object):
         try:
             self.__paths[name]=mod._postProcessFixup(self._cloneToObjectDict)
         except ModuleCloneError, msg:
-            print "The module %s in path %s is unknown to the process %s." %(msg, name, self._Process__name)
+            raise Exception("The module %s in path %s is unknown to the process %s." %(msg, name, self._Process__name))
     def _placeEndPath(self,name,mod):
         try: 
             self.__endpaths[name]=mod._postProcessFixup(self._cloneToObjectDict)
         except ModuleCloneError, msg:
-            print "The module %s in endpath %s is unknown to the process %s." %(msg, name, self._Process__name)
+            raise Exception("The module %s in endpath %s is unknown to the process %s." %(msg, name, self._Process__name))
     def _placeSequence(self,name,mod):
         self.__sequences[name]=mod._postProcessFixup(self._cloneToObjectDict)
     def _placeESProducer(self,name,mod):
         self.__esproducers[name]=mod
     def _placeESPrefer(self,name,mod):
-        self.__esprefers[name]=mod
+        Self.__esprefers[name]=mod
     def _placeESSource(self,name,mod):
         self.__essources[name]=mod
     def _placePSet(self,name,mod):

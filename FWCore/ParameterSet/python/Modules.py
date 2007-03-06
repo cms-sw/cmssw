@@ -49,16 +49,17 @@ class _Module(_ConfigureComponent,_TypedParameterizable,_Labelable,_Sequenceable
         try:
             return lookuptable[id(self)]
         except:
-            typename = str(type(self)).split("'")[1].split(".")[1] # has to be improved!
             # return something like "EDAnalyzer("foo", ...)"
-            raise ModuleCloneError("%s('%s', ...)" %(typename, self.type_()))
+            raise ModuleCloneError(self._errorstr())
+    def _errorstr(self):
+        typename = str(type(self)).split("'")[1].split(".")[-1]
+        return "%s('%s', ...)" %(typename, self.type_())
 
 class EDProducer(_Module):
     def __init__(self,type,*arg,**kargs):
         super(EDProducer,self).__init__(type,*arg,**kargs)
     def _placeImpl(self,name,proc):
         proc._placeProducer(name,self)
-    pass
 
 
 class EDFilter(_Module):
@@ -66,7 +67,6 @@ class EDFilter(_Module):
         super(EDFilter,self).__init__(type,*arg,**kargs)
     def _placeImpl(self,name,proc):
         proc._placeFilter(name,self)
-    pass
 
 
 class EDAnalyzer(_Module):
@@ -74,7 +74,6 @@ class EDAnalyzer(_Module):
         super(EDAnalyzer,self).__init__(type,*arg,**kargs)
     def _placeImpl(self,name,proc):
         proc._placeAnalyzer(name,self)
-    pass
 
 
 class OutputModule(_Module):
@@ -82,7 +81,6 @@ class OutputModule(_Module):
         super(OutputModule,self).__init__(type,*arg,**kargs)
     def _placeImpl(self,name,proc):
         proc._placeOutputModule(name,self)
-    pass
 
 
 class Source(_ConfigureComponent,_TypedParameterizable):

@@ -1,3 +1,4 @@
+
 from Mixins import _ConfigureComponent
 from Mixins import _Labelable, _Unlabelable
 from Types import _ValidatingListBase
@@ -19,8 +20,16 @@ class _Sequenceable(object):
 
 class _ModuleSequenceType(_ConfigureComponent, _Labelable):
     """Base class for classes which define a sequence of modules"""
-    def __init__(self,first):
-        self._seq = first
+    def __init__(self,*arg, **argv):
+        if len(arg) != 1:
+            typename = str(type(self)).split("'")[1].split(".")[-1]
+            msg = "A %s takes exactly one input value. But the following ones are given:\n" %typename
+            for item,i in zip(arg, xrange(1,20)):
+                msg += "%i) %s \n"  %(i, item._errorstr())
+            msg += "Maybe you forgot to combine them via '*' or '+'.\n"     
+            raise TypeError(msg)
+
+        self._seq = arg[0]
     def _place(self,name,proc):
         self._placeImpl(name,proc)
     def __imul__(self,rhs):
@@ -110,15 +119,15 @@ class _SequenceOpFollows(_Sequenceable):
 
 
 class Path(_ModuleSequenceType):
-    def __init__(self,first):
-        super(Path,self).__init__(first)
+    def __init__(self,*arg,**argv):
+        super(Path,self).__init__(*arg,**argv)
     def _placeImpl(self,name,proc):
         proc._placePath(name,self)
 
 
 class EndPath(_ModuleSequenceType):
-    def __init__(self,first):
-        super(EndPath,self).__init__(first)
+    def __init__(self,*arg,**argv):
+        super(EndPath,self).__init__(*arg,**argv)
     def _placeImpl(self,name,proc):
         proc._placeEndPath(name,self)
 
