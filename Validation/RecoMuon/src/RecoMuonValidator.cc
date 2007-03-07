@@ -202,7 +202,7 @@ void RecoMuonValidator::analyze(const Event& event, const EventSetup& eventSetup
   if ( staTracks->size() > 0 ) {
     pair<TSOS, TransientTrack> staInfo = matchTrack(simTrack, staTracks);
     hStaEtaVsPhi_->Fill(simEta, simPhi);
-    hStaEtaVsNHits_->Fill(simEta, staInfo.second.found());
+    hStaEtaVsNHits_->Fill(simEta, staInfo.second.numberOfValidHits());
     hStaResol_->fillInfo(simTrack, staInfo.first);
   }
 
@@ -211,7 +211,7 @@ void RecoMuonValidator::analyze(const Event& event, const EventSetup& eventSetup
   if ( glbTracks->size() > 0 ) {
     pair<TSOS, TransientTrack> glbInfo = matchTrack(simTrack, glbTracks);
     hGlbEtaVsPhi_->Fill(simEta, simPhi);
-    hGlbEtaVsNHits_->Fill(simEta, glbInfo.second.found());
+    hGlbEtaVsNHits_->Fill(simEta, glbInfo.second.numberOfValidHits());
     hGlbResol_->fillInfo(simTrack, glbInfo.first);
   }
 }
