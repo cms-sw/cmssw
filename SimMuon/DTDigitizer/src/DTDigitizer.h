@@ -6,8 +6,8 @@
  *  The parametrisation function in DTDriftTimeParametrization 
  *  from P.G.Abia, J.Puerta is used in all cases where it is applicable. 
  *
- *  $Date: 2006/03/17 13:33:01 $
- *  $Revision: 1.6 $
+ *  $Date: 2006/06/01 09:08:32 $
+ *  $Revision: 1.7 $
  *  \authors: G. Bevilacqua, N. Amapane, G. Cerminara, R. Bellan
  */
 
@@ -16,8 +16,7 @@
 #include "DataFormats/DTDigi/interface/DTDigiCollection.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 
-#include "Geometry/Vector/interface/LocalVector.h"
-
+#include "DataFormats/GeometryVector/interface/LocalVector.h"
 
 #include <vector>
 

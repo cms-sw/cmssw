@@ -1,8 +1,8 @@
 /** \class DTDigiAnalyzer
  *  Analyse the the muon-drift-tubes digitizer. 
  *  
- *  $Date: 2006/08/07 15:47:36 $
- *  $Revision: 1.5 $
+ *  $Date: 2006/10/26 07:48:22 $
+ *  $Revision: 1.6 $
  *  \authors: R. Bellan
  */
 
@@ -16,7 +16,7 @@
 // #include "SimMuon/DTDigitizer/test/analysis/DTHitsAnalysis.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -26,7 +26,7 @@
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/DTGeometry/interface/DTLayer.h"
-#include "Geometry/Vector/interface/LocalPoint.h"
+#include "DataFormats/GeometryVector/interface/LocalPoint.h"
 
 #include "DataFormats/DTDigi/interface/DTDigiCollection.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"

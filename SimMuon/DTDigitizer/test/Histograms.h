@@ -4,8 +4,8 @@
 /** \class Histograms
  *  Classes for histograms handling.
  *
- *  $Date: 2006/03/17 13:33:01 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/08/07 15:47:48 $
+ *  $Revision: 1.3 $
  *  \author R. Bellan - INFN Torino
  */
 #include "TString.h"
@@ -17,7 +17,7 @@
 #include <string>
 #include <iostream>
 
-#include "Geometry/Vector/interface/Pi.h"
+#include "DataFormats/GeometryVector/interface/Pi.h"
 
 class hDigis{
  public:

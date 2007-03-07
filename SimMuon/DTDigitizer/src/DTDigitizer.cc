@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/08/01 15:24:06 $
- *  $Revision: 1.22 $
+ *  $Date: 2007/02/21 10:42:44 $
+ *  $Revision: 1.23 $
  *  \authors: G. Bevilacqua, N. Amapane, G. Cerminara, R. Bellan
  */
 
@@ -16,12 +16,11 @@
 
 // Framework
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 
 // Geometry
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
@@ -29,8 +28,7 @@
 #include "Geometry/DTGeometry/interface/DTLayer.h"
 #include "Geometry/DTGeometry/interface/DTTopology.h"
 
-#include "Geometry/Vector/interface/LocalPoint.h"
-#include "Geometry/Vector/interface/LocalVector.h"
+#include "DataFormats/GeometryVector/interface/LocalPoint.h"
 
 // Magnetic Field
 #include "MagneticField/Engine/interface/MagneticField.h"
