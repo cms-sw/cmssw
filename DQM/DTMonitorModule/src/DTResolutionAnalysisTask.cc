@@ -2,78 +2,91 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/10/02 18:04:20 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/10/08 16:02:31 $
+ *  $Revision: 1.4 $
  *  \author G. Cerminara - INFN Torino
  */
 
-#include "DTResolutionAnalysis.h"
+#include "DTResolutionAnalysisTask.h"
 
+// Framework
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "Geometry/Vector/interface/Pi.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 
+#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+
+//Geometry
+#include "Geometry/Vector/interface/Pi.h"
+#include "Geometry/DTGeometry/interface/DTGeometry.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
+
+//RecHit
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
 #include "DataFormats/DTRecHit/interface/DTRecHitCollection.h"
 
-#include "Geometry/DTGeometry/interface/DTGeometry.h"
-#include "Geometry/Records/interface/MuonGeometryRecord.h"
+#include "CondFormats/DataRecord/interface/DTStatusFlagRcd.h"
+#include "CondFormats/DTObjects/interface/DTStatusFlag.h"
 
 #include <iterator>
 
 using namespace edm;
 using namespace std;
 
-DTResolutionAnalysis::DTResolutionAnalysis(const ParameterSet& pset,
-					   DaqMonitorBEInterface* dbe) : theDbe(dbe) {
+DTResolutionAnalysisTask::DTResolutionAnalysisTask(const ParameterSet& pset) {
 
   debug = pset.getUntrackedParameter<bool>("debug","false");
-  // the name of the 4D rec hits collection
-  theRecHits4DLabel = pset.getParameter<string>("recHits4DLabel");
-  theRecHitLabel = pset.getParameter<string>("recHitLabel");
-  parameters = pset;
- if(parameters.getUntrackedParameter<bool>("MTCC", false))
-    {
-      for(int wheel=1; wheel<3; wheel++)
-	{
-	  for(int sec=10; sec<10+wheel; sec++)
-	    {
-	      for (int st=1; st<5; st++)
-		{
-		  DTChamberId chId(wheel, st, sec);
-		  for(int sl=1; sl<4; sl++)
-		    {
-		      if(st==4 && sl==2)
-			continue;
-		      DTSuperLayerId slId(chId, sl);
-		      bookHistos(slId);
-		    }
-		}
-	    }
-	  DTChamberId chId(wheel, 4, 14);
-	  for(int sl=1; sl<4; sl++)
-	    {
-	      if(sl==2)
-		continue;
-	      DTSuperLayerId slId(chId, sl);
-	      bookHistos(slId);
-	    }
-	}				     
-    }
-}
-
-DTResolutionAnalysis::~DTResolutionAnalysis(){
-
-}
-
-
-void DTResolutionAnalysis::analyze(const Event& event, const EventSetup& setup) {
   if(debug)
-    cout << "[DTResolutionAnalysis] Analyze #Run: " << event.id().run()
+    cout << "[DTResolutionAnalysisTask] Constructor called!" << endl;
+
+  // Get the DQM needed services
+  theDbe = edm::Service<DaqMonitorBEInterface>().operator->();
+  theDbe->setVerbose(1);
+  edm::Service<MonitorDaemon>().operator->();
+  theDbe->setCurrentFolder("DT/DTResolutionAnalysisTask");
+
+  // set the name of the outputfile
+  theRootFileName = pset.getUntrackedParameter<string>("rootFileName", "DTResolutionAnalysisTask.root");
+  writeHisto = pset.getUntrackedParameter<bool>("writeHisto", true);
+
+  parameters = pset;
+}
+
+
+DTResolutionAnalysisTask::~DTResolutionAnalysisTask(){
+  if(debug)
+    cout << "[DTResolutionAnalysisTask] Destructor called!" << endl;
+}
+
+
+void DTResolutionAnalysisTask::beginJob(const edm::EventSetup& context){
+  // the name of the 4D rec hits collection
+  theRecHits4DLabel = parameters.getParameter<string>("recHits4DLabel");
+  // the name of the rechits collection
+  theRecHitLabel = parameters.getParameter<string>("recHitLabel");
+}
+
+
+void DTResolutionAnalysisTask::endJob(){
+ if(debug)
+    cout<<"[DTResolutionAnalysisTask] endjob called!"<<endl;
+  // Write the histos
+  if ( writeHisto ) 
+    theDbe->save(theRootFileName);
+  theDbe->rmdir("DT/DTResolutionAnalysisTask");
+}
+  
+
+
+void DTResolutionAnalysisTask::analyze(const edm::Event& event, const edm::EventSetup& setup) {
+  if(debug)
+    cout << "[DTResolutionAnalysisTask] Analyze #Run: " << event.id().run()
 	 << " #Event: " << event.id().event() << endl;
 
+  
   // Get the 4D segment collection from the event
   edm::Handle<DTRecSegment4DCollection> all4DSegments;
   event.getByLabel(theRecHits4DLabel, all4DSegments);
@@ -113,12 +126,12 @@ void DTResolutionAnalysis::analyze(const Event& event, const EventSetup& setup) 
       // For the Station 4 consider 2D RecHits
       if((*chamberId).station() != 4 && (*segment4D).dimension() != 4) {
 	if(debug)
-	  cout << "[DTResolutionAnalysis]***Warning: RecSegment dimension is not 4 but "
+	  cout << "[DTResolutionAnalysisTask]***Warning: RecSegment dimension is not 4 but "
 	       << (*segment4D).dimension() << ", skipping!" << endl;
 	continue;
       } else if((*chamberId).station() == 4 && (*segment4D).dimension() != 2) {
 	if(debug)
-	  cout << "[DTResolutionAnalysis]***Warning: RecSegment dimension is not 2 but "
+	  cout << "[DTResolutionAnalysisTask]***Warning: RecSegment dimension is not 2 but "
 	       << (*segment4D).dimension() << ", skipping!" << endl;
 	continue;
       }
@@ -134,7 +147,7 @@ void DTResolutionAnalysis::analyze(const Event& event, const EventSetup& setup) 
       vector<DTRecHit1D> phiRecHits = phiSeg->specificRecHits();
       if(phiRecHits.size() != 8) {
 	if(debug)
-	  cout << "[DTResolutionAnalysis] Phi segments has: " << phiRecHits.size()
+	  cout << "[DTResolutionAnalysisTask] Phi segments has: " << phiRecHits.size()
 	       << " hits, skipping" << endl; // FIXME: info output
 	continue;
       }
@@ -144,7 +157,7 @@ void DTResolutionAnalysis::analyze(const Event& event, const EventSetup& setup) 
 	vector<DTRecHit1D> zRecHits = zSeg->specificRecHits();
 	if(zRecHits.size() != 4) {
 	  if(debug)
-	    cout << "[DTResolutionAnalysis] Theta segments has: " << zRecHits.size()
+	    cout << "[DTResolutionAnalysisTask] Theta segments has: " << zRecHits.size()
 		 << " hits, skipping" << endl; // FIXME: info output
 	  continue;
 	}
@@ -211,7 +224,7 @@ void DTResolutionAnalysis::analyze(const Event& event, const EventSetup& setup) 
 
   
 // Book a set of histograms for a given SL
-void DTResolutionAnalysis::bookHistos(DTSuperLayerId slId) {
+void DTResolutionAnalysisTask::bookHistos(DTSuperLayerId slId) {
   if(debug)
     cout << "   Booking histos for SL: " << slId << endl;
 
@@ -228,7 +241,7 @@ void DTResolutionAnalysis::bookHistos(DTSuperLayerId slId) {
     "_Sec" + sector.str() +
     "_SL" + superLayer.str();
   
-  theDbe->setCurrentFolder("DT/DTLocalRecoTask/Wheel" + wheel.str() +
+  theDbe->setCurrentFolder("DT/DTResolutionAnalysisTask/Wheel" + wheel.str() +
 			   "/Station" + station.str() +
 			   "/Sector" + sector.str());
   // Create the monitor elements
@@ -247,12 +260,11 @@ void DTResolutionAnalysis::bookHistos(DTSuperLayerId slId) {
 
 
 // Fill a set of histograms for a given SL 
-void DTResolutionAnalysis::fillHistos(DTSuperLayerId slId,
+void DTResolutionAnalysisTask::fillHistos(DTSuperLayerId slId,
 				      float distExtr,
 				      float residual) {
   // FIXME: optimization of the number of searches
-  if((histosPerSL.find(slId) == histosPerSL.end()) &&
-     (!parameters.getUntrackedParameter<bool>("MTCC", false))){
+  if(histosPerSL.find(slId) == histosPerSL.end()){
       bookHistos(slId);
   }
   vector<MonitorElement *> histos =  histosPerSL[slId];                          

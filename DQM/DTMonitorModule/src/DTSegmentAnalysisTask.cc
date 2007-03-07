@@ -2,22 +2,30 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/10/12 09:21:39 $
- *  $Revision: 1.8 $
+ *  $Date: 2006/10/18 18:01:07 $
+ *  $Revision: 1.10 $
  *  \author G. Cerminara - INFN Torino
  */
 
-#include "DTSegmentAnalysis.h"
+#include "DTSegmentAnalysisTask.h"
 
+// Framework
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+
+//Geometry
 #include "Geometry/Vector/interface/Pi.h"
 
+//Digis & RecHit
 #include "DataFormats/LTCDigi/interface/LTCDigi.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
+
 #include "CondFormats/DataRecord/interface/DTStatusFlagRcd.h"
 #include "CondFormats/DTObjects/interface/DTStatusFlag.h"
 
@@ -26,44 +34,57 @@
 using namespace edm;
 using namespace std;
 
-DTSegmentAnalysis::DTSegmentAnalysis(const ParameterSet& pset,
-				     DaqMonitorBEInterface* dbe) : theDbe(dbe) {
+DTSegmentAnalysisTask::DTSegmentAnalysisTask(const edm::ParameterSet& pset) {
+
   debug = pset.getUntrackedParameter<bool>("debug","false");
-  // the name of the 4D rec hits collection
-  theRecHits4DLabel = pset.getParameter<string>("recHits4DLabel");
-  parameters = pset;
-  if(parameters.getUntrackedParameter<bool>("MTCC", false))
-    {
-      for(int wheel=1; wheel<3; wheel++)
-	{
-	  for(int sec=10; sec<10+wheel; sec++)
-	    {
-	      bookHistos(wheel,sec);
-	      for (int st=1; st<5; st++)
-		{
-		  DTChamberId chId(wheel, st, sec);
-		  bookHistos(chId);
-		}
-	    }
-	  DTChamberId chId(wheel, 4, 14);
-	  bookHistos(chId);
-	  //bookHistos(wheel,14);
-	}
-    }
-}
-
-DTSegmentAnalysis::~DTSegmentAnalysis(){
-
-}
-
-
-void DTSegmentAnalysis::analyze(const Event& event, const EventSetup& setup) {
   if(debug)
-    cout << "[DTSegmentAnalysis] Analyze #Run: " << event.id().run()
+    cout << "[DTSegmentAnalysisTask] Constructor called!" << endl;
+
+  // Get the DQM needed services
+  theDbe = edm::Service<DaqMonitorBEInterface>().operator->();
+  theDbe->setVerbose(1);
+  edm::Service<MonitorDaemon>().operator->();
+  theDbe->setCurrentFolder("DT/DTSegmentAnalysisTask");
+
+  // set the name of the outputfile
+  theRootFileName = pset.getUntrackedParameter<string>("rootFileName", "DTSegmentAnalysisTask.root");
+  writeHisto = pset.getUntrackedParameter<bool>("writeHisto", true);
+
+  parameters = pset;
+
+}
+
+
+DTSegmentAnalysisTask::~DTSegmentAnalysisTask(){
+  if(debug)
+    cout << "[DTSegmentAnalysisTask] Destructor called!" << endl;
+}
+
+
+void DTSegmentAnalysisTask::beginJob(const edm::EventSetup& context){
+  // the name of the 4D rec hits collection
+  theRecHits4DLabel = parameters.getParameter<string>("recHits4DLabel");
+}
+
+
+void DTSegmentAnalysisTask::endJob(){
+ if(debug)
+    cout<<"[DTSegmentAnalysisTask] endjob called!"<<endl;
+  // Write the histos
+  if ( writeHisto ) 
+    theDbe->save(theRootFileName);
+  theDbe->rmdir("DT/DTSegmentAnalysisTask");
+}
+  
+
+
+void DTSegmentAnalysisTask::analyze(const edm::Event& event, const edm::EventSetup& setup) {
+  if(debug)
+    cout << "[DTSegmentAnalysisTask] Analyze #Run: " << event.id().run()
 	 << " #Event: " << event.id().event() << endl;
   if(!(event.id().event()%1000) && debug)
     {
-      cout << "[DTSegmentAnalysis] Analyze #Run: " << event.id().run()
+      cout << "[DTSegmentAnalysisTask] Analyze #Run: " << event.id().run()
 	   << " #Event: " << event.id().event() << endl;
     }
   // Get the map of noisy channels
@@ -93,6 +114,7 @@ void DTSegmentAnalysis::analyze(const Event& event, const EventSetup& setup) {
     }
 
   // -- 4D segment analysis  -----------------------------------------------------
+  
   // Get the 4D segment collection from the event
   edm::Handle<DTRecSegment4DCollection> all4DSegments;
   event.getByLabel(theRecHits4DLabel, all4DSegments);
@@ -192,7 +214,7 @@ void DTSegmentAnalysis::analyze(const Event& event, const EventSetup& setup) {
 		   (*segment4D).chi2()/(*segment4D).degreesOfFreedom());
       } else {
 	if(debug)
-	  cout << "[DTSegmentAnalysis] Warning: segment local direction is: "
+	  cout << "[DTSegmentAnalysisTask] Warning: segment local direction is: "
 	       << segment4DLocalDirection << endl;
       }
     }
@@ -204,7 +226,7 @@ void DTSegmentAnalysis::analyze(const Event& event, const EventSetup& setup) {
 }
   
 // Book a set of histograms for a give chamber
-void DTSegmentAnalysis::bookHistos(DTChamberId chamberId) {
+void DTSegmentAnalysisTask::bookHistos(DTChamberId chamberId) {
   if(debug)
     cout << "   Booking histos for chamber: " << chamberId << endl;
 
@@ -220,7 +242,7 @@ void DTSegmentAnalysis::bookHistos(DTChamberId chamberId) {
     "_St" + station.str() +
     "_Sec" + sector.str();
   
-  theDbe->setCurrentFolder("DT/DTLocalRecoTask/Wheel" + wheel.str() +
+  theDbe->setCurrentFolder("DT/DTSegmentAnalysisTask/Wheel" + wheel.str() +
 			   "/Station" + station.str() +
 			   "/Sector" + sector.str());
   // Create the monitor elements
@@ -256,7 +278,7 @@ void DTSegmentAnalysis::bookHistos(DTChamberId chamberId) {
   histosPerCh[chamberId] = histos;
 }
 
-void DTSegmentAnalysis::bookHistos(int w, int sec) {
+void DTSegmentAnalysisTask::bookHistos(int w, int sec) {
   if(debug)
     cout << "   Booking histos for wheel " <<w<<"  sector "<<sec << endl;
 
@@ -268,7 +290,7 @@ void DTSegmentAnalysis::bookHistos(int w, int sec) {
     "_W" + wheel.str() +
     "_Sec" + sect.str();
   
-  theDbe->setCurrentFolder("DT/DTLocalRecoTask/Wheel" + wheel.str());
+  theDbe->setCurrentFolder("DT/DTSegmentAnalysisTask/Wheel" + wheel.str());
   if (sec==14)
     sec=10;
   pair <int,int> sector;
@@ -284,15 +306,14 @@ void DTSegmentAnalysis::bookHistos(int w, int sec) {
 }
 
 // Fill a set of histograms 
-void DTSegmentAnalysis::fillHistos(int nsegm, int w, int sec) {
+void DTSegmentAnalysisTask::fillHistos(int nsegm, int w, int sec) {
   if (sec==14)
     sec=10;
   pair <int,int> sector;
   sector.first=w;
   sector.second=sec;
-  if(histosPerSec.find(sector) == histosPerSec.end()&& 
-     !parameters.getUntrackedParameter<bool>("MTCC", false)) {
-     bookHistos(w,sec);
+  if(histosPerSec.find(sector) == histosPerSec.end()) {
+    bookHistos(w,sec);
   }
   if(DTTrig == 1)
     histosPerSec[sector]->Fill(nsegm);
@@ -308,10 +329,9 @@ void DTSegmentAnalysis::fillHistos(int nsegm, int w, int sec) {
 
 
 // Fill a set of histograms for a give chamber 
-void DTSegmentAnalysis::fillHistos(DTChamberId chamberId, int nsegm) {
+void DTSegmentAnalysisTask::fillHistos(DTChamberId chamberId, int nsegm) {
   // FIXME: optimization of the number of searches
-  if(histosPerCh.find(chamberId) == histosPerCh.end() && 
-     !parameters.getUntrackedParameter<bool>("MTCC", false)) {
+  if(histosPerCh.find(chamberId) == histosPerCh.end()) {
    bookHistos(chamberId);
   }
   histosPerCh[chamberId][0]->Fill(nsegm);
@@ -319,7 +339,7 @@ void DTSegmentAnalysis::fillHistos(DTChamberId chamberId, int nsegm) {
 
 
 // Fill a set of histograms for a give chamber 
-void DTSegmentAnalysis::fillHistos(DTChamberId chamberId,
+void DTSegmentAnalysisTask::fillHistos(DTChamberId chamberId,
 				   int nHits,
 				   float posX,
 				   float posY,
@@ -327,8 +347,7 @@ void DTSegmentAnalysis::fillHistos(DTChamberId chamberId,
 				   float theta,
 				   float chi2) {
   // FIXME: optimization of the number of searches
-  if((histosPerCh.find(chamberId) == histosPerCh.end()) && 
-     !parameters.getUntrackedParameter<bool>("MTCC", false))  {
+  if(histosPerCh.find(chamberId) == histosPerCh.end())  {
     bookHistos(chamberId);
   }
   vector<MonitorElement *> histos =  histosPerCh[chamberId];                          
