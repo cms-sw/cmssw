@@ -15,8 +15,8 @@
 
 /** \class CaloTowersCreator
   *  
-  * $Date: 2006/08/17 15:23:34 $
-  * $Revision: 1.6 $
+  * $Date: 2007/03/07 19:43:13 $
+  * $Revision: 1.7 $
   * \author J. Mans - Minnesota
   */
 class CaloTowersCreator : public edm::EDProducer {

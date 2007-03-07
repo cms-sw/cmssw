@@ -1,4 +1,4 @@
-#include "RecoLocalCalo/CaloTowersCreator/interface/CaloTowersCreator.h"
+#include "RecoLocalCalo/CaloTowersCreator/src/CaloTowersCreator.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "FWCore/Framework/interface/ESHandle.h"

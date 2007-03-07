@@ -1,14 +1,14 @@
 // makes CaloTowerCandidates from CaloTowers
 // original author: L.Lista INFN
 // modifyed by: F.Ratnikov UMd
-// $Id: CaloTowerCandidateCreator.cc,v 1.7 2006/08/17 15:23:34 mansj Exp $
+// $Id: CaloTowerCandidateCreator.cc,v 1.8 2007/03/07 19:43:13 mansj Exp $
 #include <cmath>
 #include "DataFormats/RecoCandidate/interface/RecoCaloTowerCandidate.h"
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "RecoLocalCalo/CaloTowersCreator/interface/CaloTowerCandidateCreator.h"
+#include "RecoLocalCalo/CaloTowersCreator/src/CaloTowerCandidateCreator.h"
 using namespace edm;
 using namespace reco;
 using namespace std;
