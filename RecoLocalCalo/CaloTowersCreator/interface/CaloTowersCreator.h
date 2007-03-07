@@ -4,7 +4,7 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "DataFormats/Common/interface/EDProduct.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -15,8 +15,8 @@
 
 /** \class CaloTowersCreator
   *  
-  * $Date: 2006/05/01 19:21:05 $
-  * $Revision: 1.5 $
+  * $Date: 2006/08/17 15:23:34 $
+  * $Revision: 1.6 $
   * \author J. Mans - Minnesota
   */
 class CaloTowersCreator : public edm::EDProducer {
