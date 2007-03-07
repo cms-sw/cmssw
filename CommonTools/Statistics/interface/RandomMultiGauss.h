@@ -1,7 +1,7 @@
 #ifndef _CommonDet_RandomMultiGauss_H_
 #define _CommonDet_RandomMultiGauss_H_
 
-#include "Geometry/CommonDetAlgo/interface/AlgebraicObjects.h"
+#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 
 /** \class RandomMultiGauss
  * Vector of random numbers according to covariance matrix.
