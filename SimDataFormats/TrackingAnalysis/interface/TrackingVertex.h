@@ -2,14 +2,14 @@
 #define SimDataFormats_TrackingVertex_h
 
 /** \class TrackingVertex
- *  
+ *
  * A simulated Vertex with links to TrackingParticles
  * for analysis of track and vertex reconstruction
  *
- * \version $Id: TrackingVertex.h,v 1.17 2006/10/23 17:23:00 ewv Exp $
+ * \version $Id: TrackingVertex.h,v 1.18 2007/02/01 16:49:16 ewv Exp $
  *
  */
- 
+
 #include "DataFormats/Common/interface/RefVector.h"
 #include "DataFormats/Math/interface/Point3D.h"
 
@@ -22,17 +22,17 @@
 class TrackingVertex {
 
  public:
-  
+
   typedef edm::RefVector<edm::HepMCProduct, HepMC::GenVertex > GenVertexRefVector;
   typedef edm::Ref<edm::HepMCProduct, HepMC::GenVertex >       GenVertexRef;
 
   typedef        GenVertexRefVector::iterator genv_iterator;
   typedef    std::vector<SimVertex>::const_iterator  g4v_iterator;
   typedef TrackingParticleRefVector::iterator   tp_iterator;
-  
+
 // Default constructor and constructor from values
   TrackingVertex();
-  TrackingVertex(const HepLorentzVector &position, const bool inVolume, 
+  TrackingVertex(const HepLorentzVector &position, const bool inVolume,
                  const EncodedEventId e = EncodedEventId(0));
 
 // Setters
@@ -40,22 +40,27 @@ class TrackingVertex {
 
 // Track and vertex iterators
   genv_iterator genVertices_begin() const; // Ref's to HepMC and Geant4
-  genv_iterator genVertices_end()   const; // vertices associated with 
+  genv_iterator genVertices_end()   const; // vertices associated with
   g4v_iterator   g4Vertices_begin() const; // this vertex, respectively
   g4v_iterator   g4Vertices_end()   const; // ....
 
   tp_iterator    daughterTracks_begin() const; // Ref's to daughter and source
-  tp_iterator    daughterTracks_end()   const; // tracks associated with 
+  tp_iterator    daughterTracks_end()   const; // tracks associated with
   tp_iterator      sourceTracks_begin() const; // this vertex, respectively
   tp_iterator      sourceTracks_end()   const; // ....
+
+  unsigned int nG4Vertices()     const { return     g4Vertices_.size(); };
+  unsigned int nGenVertices()    const { return    genVertices_.size(); };
+  unsigned int nDaughterTracks() const { return daughterTracks_.size(); };
+  unsigned int nSourceTracks()   const { return   sourceTracks_.size(); };
 
 // Add references to TrackingParticles, Geant4, and HepMC vertices to containers
   void addG4Vertex(     const SimVertex&       );
   void addGenVertex(    const GenVertexRef&       );
   void addDaughterTrack(const TrackingParticleRef&);
   void addParentTrack(  const TrackingParticleRef&);
- 
-// Getters for RefVectors   
+
+// Getters for RefVectors
   const std::vector<SimVertex>            g4Vertices() const;
   const GenVertexRefVector           genVertices() const;
   const TrackingParticleRefVector   sourceTracks() const;
@@ -64,18 +69,18 @@ class TrackingVertex {
 // Getters for other info
   const HepLorentzVector& position() const { return position_; };
   const EncodedEventId     eventId() const { return eId_;      };
-  const bool              inVolume() const { return inVolume_; }; 
-  
+  const bool              inVolume() const { return inVolume_; };
+
  private:
-  
+
   HepLorentzVector position_; // Vertex position and time
   bool             inVolume_; // Is it inside tracker volume?
   EncodedEventId   eId_;
-  
+
 // References to G4 and generator vertices and TrackingParticles
 
-  std::vector<SimVertex>             g4Vertices_;
-  GenVertexRefVector             genVertices_;
+  std::vector<SimVertex>        g4Vertices_;
+  GenVertexRefVector           genVertices_;
   TrackingParticleRefVector daughterTracks_;
   TrackingParticleRefVector   sourceTracks_;
 };

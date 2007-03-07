@@ -1,6 +1,6 @@
 #ifndef SimDataFormats_TrackingParticle_h
 #define SimDataFormats_TrackingParticle_h
-/** Concrete TrackingParticle. 
+/** Concrete TrackingParticle.
  *  All track parameters are passed in the constructor and stored internally.
  */
 
@@ -23,7 +23,7 @@ public:
   /// reference to HepMC::GenParticle
   typedef edm::RefVector<edm::HepMCProduct, HepMC::GenParticle > GenParticleRefVector;
   typedef edm::Ref<edm::HepMCProduct, HepMC::GenParticle >       GenParticleRef;
-  typedef GenParticleRefVector::iterator		         genp_iterator;
+  typedef GenParticleRefVector::iterator                         genp_iterator;
   typedef       std::vector<SimTrack>::const_iterator             g4t_iterator;
 //  typedef TrackPSimHitRefToBaseVector::const_iterator            pSH_iterator;
 
@@ -32,27 +32,27 @@ public:
   typedef edm::RefVector<TrackingVertexCollection>   TrackingVertexRefVector;
   typedef TrackingVertexRefVector::iterator   tv_iterator;
 
-//  typedef TrackPSimHitRefVector::iterator 			 pSH_iterator;
-//  typedef std::map<int, TrackPSimHitRefVector> 			 TrackIdPSimHitMap;
-  
+//  typedef TrackPSimHitRefVector::iterator                      pSH_iterator;
+//  typedef std::map<int, TrackPSimHitRefVector>                         TrackIdPSimHitMap;
+
   /// default constructor
   TrackingParticle() { }
   // destructor
   ~TrackingParticle();
   /// constructor from pointer to generator particle
   TrackingParticle( char q, const LorentzVector & p4, const Point & vtx,
-		    double t, const int pdgId,  const EncodedEventId eventId);
-  
-  /// PDG id, signal source, crossing number  
+                    double t, const int pdgId,  const EncodedEventId eventId);
+
+  /// PDG id, signal source, crossing number
   int pdgId() const { return pdgId_; }
   EncodedEventId eventId() const { return eventId_; }
-  
+
   ///iterators
   genp_iterator genParticle_begin() const;
   genp_iterator genParticle_end()   const;
   g4t_iterator  g4Track_begin()     const;
   g4t_iterator  g4Track_end()       const;
-  
+
   const std::vector<PSimHit>::const_iterator  pSimHit_begin() const;
   const std::vector<PSimHit>::const_iterator  pSimHit_end()   const;
 
@@ -65,18 +65,18 @@ public:
   void  addDecayVertex(const TrackingVertexRef&);
   void setMatchedHit(const int&);
   void setVertex(const Point & vtx, double t);
-  
+
 // Getters for Embd and Sim Tracks
-  GenParticleRefVector	 genParticle() const { return genParticles_; }
+  GenParticleRefVector   genParticle() const { return genParticles_; }
   std::vector<SimTrack>     g4Tracks() const { return g4Tracks_ ;    }
   std::vector<PSimHit> trackPSimHit() const { return trackPSimHit_; }
   TrackingVertexRef parentVertex() const { return parentVertex_; }
 
-// Accessors for vector of decay vertices    
-//  TrackingVertexRefVector decayVertices() const { return decayVertices_; }
-//  tv_iterator decayVertices_begin()       const { return decayVertices_.begin(); }
- // tv_iterator decayVertices_end()         const { return decayVertices_.end(); }
-  TrackingVertexRef decayVertex() const { return decayVertex_; } // Remove in 1.4
+// Accessors for vector of decay vertices
+  TrackingVertexRefVector decayVertices() const { return decayVertices_; }
+  tv_iterator decayVertices_begin()       const { return decayVertices_.begin(); }
+  tv_iterator decayVertices_end()         const { return decayVertices_.end(); }
+//  TrackingVertexRef decayVertex() const { return decayVertex_; } // Removed in 1.4
   int matchedHit() const {return matchedHit_;}
 
 private:
@@ -92,14 +92,14 @@ private:
   /// references to G4 and HepMC tracks
   std::vector<SimTrack> g4Tracks_;
   GenParticleRefVector  genParticles_;
- 
+
 //  TrackPSimHitRefVector trackPSimHit_;
   std::vector<PSimHit> trackPSimHit_;
-  
-// Source and decay vertices  
+
+// Source and decay vertices
   TrackingVertexRef       parentVertex_;
-//  TrackingVertexRefVector  decayVertices_; // Re-instate in 1.4.0
-  TrackingVertexRef  decayVertex_;
+  TrackingVertexRefVector  decayVertices_; // Re-instated in 1.4.0
+//  TrackingVertexRef  decayVertex_;       // Removed in 1.4.0
 };
 
 #endif // SimDataFormats_TrackingParticle_H

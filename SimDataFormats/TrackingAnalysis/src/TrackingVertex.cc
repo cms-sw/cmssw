@@ -6,33 +6,35 @@ typedef edm::Ref<edm::HepMCProduct, HepMC::GenVertex >       GenVertexRef;
 
 // Constructors
 
-TrackingVertex::TrackingVertex() : 
-    position_(HepLorentzVector(0,0,0,0)), eId_(0) {}
+TrackingVertex::TrackingVertex() : position_(HepLorentzVector(0,0,0,0)), eId_(0) {
+//  daughterTracks_.clear();
+}
 
-TrackingVertex::TrackingVertex(const HepLorentzVector &p, const bool inVolume, 
-                               const EncodedEventId eId) : 
-    position_(p), inVolume_(inVolume), eId_(eId)  {}
+TrackingVertex::TrackingVertex(const HepLorentzVector &p, const bool inVolume, const EncodedEventId eId) :
+    position_(p), inVolume_(inVolume), eId_(eId) {
+//  daughterTracks_.clear();
+}
 
 // Add a reference to vertex vectors
 
-void TrackingVertex::addG4Vertex(const SimVertex& v) { 
+void TrackingVertex::addG4Vertex(const SimVertex& v) {
   g4Vertices_.push_back(v);
 }
 
-void TrackingVertex::addGenVertex(const GenVertexRef &ref){ 
+void TrackingVertex::addGenVertex(const GenVertexRef &ref){
   genVertices_.push_back(ref);
 }
-    
+
 // Add a reference to track vectors
 
-void TrackingVertex::addDaughterTrack(const TrackingParticleRef &ref){ 
+void TrackingVertex::addDaughterTrack(const TrackingParticleRef &ref){
   daughterTracks_.push_back(ref);
 }
-    
-void TrackingVertex::addParentTrack(const TrackingParticleRef &ref){ 
+
+void TrackingVertex::addParentTrack(const TrackingParticleRef &ref){
   sourceTracks_.push_back(ref);
 }
-    
+
 // Iterators over vertices and tracks
 
 TrackingVertex::genv_iterator TrackingVertex::genVertices_begin() const { return genVertices_.begin(); }

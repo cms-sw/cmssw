@@ -4,18 +4,18 @@ typedef std::vector<TrackingVertex>                TrackingVertexCollection;
 typedef edm::Ref<TrackingVertexCollection>         TrackingVertexRef;
 
 TrackingParticle::TrackingParticle( char q, const LorentzVector & p4, const Point & vtx,
-				    double t, const int pdgId, const EncodedEventId eventId) :
+                                    double t, const int pdgId, const EncodedEventId eventId) :
   reco::Particle( q, p4, vtx ), t_( t ), pdgId_( pdgId ), eventId_( eventId ){
 }
 
-TrackingParticle::~TrackingParticle() { 
+TrackingParticle::~TrackingParticle() {
 }
 
-void TrackingParticle::addGenParticle( const edm::Ref<edm::HepMCProduct, HepMC::GenParticle > &ref) { 
+void TrackingParticle::addGenParticle( const edm::Ref<edm::HepMCProduct, HepMC::GenParticle > &ref) {
   genParticles_.push_back(ref);
 }
 
-void TrackingParticle::addG4Track( const SimTrack& t) { 
+void TrackingParticle::addG4Track( const SimTrack& t) {
   g4Tracks_.push_back(t);
 }
 
@@ -53,15 +53,11 @@ const std::vector<PSimHit>::const_iterator TrackingParticle::pSimHit_end() const
 
 void TrackingParticle::setParentVertex(const TrackingVertexRef &ref) {
   parentVertex_ = ref;
-}  
-
-//void TrackingParticle::setDecayVertex(const TrackingVertexRef &ref) {
-//  decayVertex_ = ref;
-//}  
+}
 
 void TrackingParticle::addDecayVertex(const TrackingVertexRef &ref){
-  decayVertex_ = ref;
-  //  decayVertices_.push_back(ref); // Restore for 1.4
+//  decayVertex_ = ref;
+    decayVertices_.push_back(ref); // Restored for 1.4
 }
 
 void TrackingParticle::setMatchedHit(const int &hitnumb) {
