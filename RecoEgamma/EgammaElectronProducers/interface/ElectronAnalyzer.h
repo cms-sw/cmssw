@@ -16,7 +16,7 @@
 //
 // Original Author:  Alessandro Palma
 //         Created:  Thu Sep 21 11:41:35 CEST 2006
-// $Id: ElectronAnalyzer.h,v 1.6 2006/12/05 14:25:49 palmale Exp $
+// $Id: ElectronAnalyzer.h,v 1.7 2006/12/19 10:22:07 rahatlou Exp $
 //
 //
 
@@ -33,7 +33,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
