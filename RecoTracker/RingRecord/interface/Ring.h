@@ -13,8 +13,8 @@
 // Created:         Thu Jan 12 21:00:00 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2006/08/29 14:46:30 $
-// $Revision: 1.4 $
+// $Date: 2007/02/05 19:10:03 $
+// $Revision: 1.1 $
 //
 
 #include <iostream>
@@ -26,7 +26,7 @@
 #include "DataFormats/DetId/interface/DetId.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "Geometry/Vector/interface/Pi.h"
+#include "DataFormats/GeometryVector/interface/Pi.h"
 
 class Ring {
   
