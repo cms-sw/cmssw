@@ -91,11 +91,20 @@ unsigned short L1RCTLookupTables::calcActivityBit(float ecal, float hcal){
   return ((ecal > eActivityCut_) || (hcal > hActivityCut_));
 }
 
-// calculates h-over-e veto bit (true if hcal/ecal energy > 5%)
+// Calculates h-over-e veto bit (true if hcal/ecal energy > hOeCut)
+// Uses finegrain veto only if the energy is within eActivityCut and eMaxForFGCut
 unsigned short L1RCTLookupTables::calcHEBit(float ecal, float hcal, bool fgbit){
-  if((ecal > eActivityCut_) && (hcal/ecal)>hOeCut_) return fgbit;
-  if((ecal > eMaxForFGCut_) && (hcal/ecal)>hOeCut_) return true;
-  return false;
+  bool veto = false;
+  if(ecal > eMaxForFGCut_)
+    {
+      if((hcal/ecal) > hOeCut_) veto = true;
+    }
+  else if(ecal > eActivityCut_)
+    {
+      if((hcal/ecal) > hOeCut_) veto = true;
+      if(fgbit) veto = true;
+    }
+  return veto;
 }
 
 // integerize given an LSB and set maximum value of 2^precision
