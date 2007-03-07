@@ -1,6 +1,6 @@
 /** \class HLTEgammaHcalIsolFilter
  *
- * $Id: HLTEgammaHcalIsolFilter.cc,v 1.1 2007/01/26 10:37:17 monicava Exp $
+ * $Id: HLTEgammaHcalIsolFilter.cc,v 1.2 2007/01/26 18:40:21 monicava Exp $
  *
  *  \author Monica Vazquez Acosta (CERN)
  *
@@ -8,7 +8,7 @@
 
 #include "HLTrigger/Egamma/interface/HLTEgammaHcalIsolFilter.h"
 
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 
 #include "DataFormats/Common/interface/RefToBase.h"
