@@ -1,6 +1,6 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
@@ -12,8 +12,8 @@ using namespace std;
 
 /** \class HcalDigiDump
       
-$Date: 2006/06/22 12:41:18 $
-$Revision: 1.8 $
+$Date: 2006/10/24 17:00:58 $
+$Revision: 1.9 $
 \author J. Mans - Minnesota
 */
 class HcalDigiDump : public edm::EDAnalyzer {
