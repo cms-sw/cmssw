@@ -17,6 +17,7 @@
 <use name=IOPool/Streamer>
 <use name=EventFilter/Utilities>
 <use name=curl>
+<use name=root>
 <export>
  <lib name=EventFilterStorageManager>
  <use name=xdaq>
