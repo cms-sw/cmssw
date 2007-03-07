@@ -2,10 +2,12 @@
 #include "Validation/Performance/interface/PerformanceAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/Handle.h"
+// #include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 
 #include "DataFormats/HLTReco/interface/ModuleTiming.h"
-#include "DataFormats/Common/interface/ModuleDescription.h"
+//#include "DataFormats/Common/interface/ModuleDescription.h"
+#include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "FWCore/Framework/interface/MakerMacros.h"

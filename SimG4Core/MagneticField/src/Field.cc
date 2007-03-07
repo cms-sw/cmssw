@@ -1,7 +1,8 @@
 #include "SimG4Core/MagneticField/interface/Field.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 
-#include "Geometry/Vector/interface/GlobalPoint.h"
+//#include "Geometry/Vector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
 #include "G4Mag_UsualEqRhs.hh"
 
