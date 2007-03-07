@@ -1,4 +1,4 @@
-// $Id: FragmentCollector.cc,v 1.27 2007/02/05 11:19:57 klute Exp $
+// $Id: FragmentCollector.cc,v 1.28 2007/02/20 17:28:41 hcheung Exp $
 
 #include "EventFilter/StorageManager/interface/FragmentCollector.h"
 #include "EventFilter/StorageManager/interface/ProgressMarker.h"
@@ -10,6 +10,8 @@
 #include "IOPool/Streamer/interface/EventMessage.h"
 #include "IOPool/Streamer/interface/InitMessage.h"
 #include "IOPool/Streamer/interface/EOFRecordBuilder.h"
+#include "IOPool/Streamer/interface/DQMEventMessage.h"
+#include "IOPool/Streamer/interface/StreamDQMDeserializer.h"
 
 #include "boost/bind.hpp"
 
@@ -287,6 +289,49 @@ namespace stor
       FR_DEBUG << "FragColl: DQM_Event size " << entry->buffer_size_ << endl;
       FR_DEBUG << "FragColl: DQM_Event ID " << entry->id_ << endl;
       FR_DEBUG << "FragColl: DQM_Event folderID " << entry->folderid_ << endl;
+
+      // temporary debug output
+      DQMEventMsgView dqmEventView(entry->buffer_address_);
+      std::cout << "  DQM Message data:" << std::endl; 
+      std::cout << "    protocol version = "
+                << dqmEventView.protocolVersion() << std::endl; 
+      std::cout << "    header size = "
+                << dqmEventView.headerSize() << std::endl; 
+      std::cout << "    run number = "
+                << dqmEventView.runNumber() << std::endl; 
+      std::cout << "    event number = "
+                << dqmEventView.eventNumberAtUpdate() << std::endl; 
+      std::cout << "    lumi section = "
+                << dqmEventView.lumiSection() << std::endl; 
+      std::cout << "    update number = "
+                << dqmEventView.updateNumber() << std::endl; 
+      std::cout << "    compression flag = "
+                << dqmEventView.compressionFlag() << std::endl; 
+      std::cout << "    reserved word = "
+                << dqmEventView.reserved() << std::endl; 
+      std::cout << "    release tag = "
+                << dqmEventView.releaseTag() << std::endl; 
+      std::cout << "    top folder name = "
+                << dqmEventView.topFolderName() << std::endl; 
+      std::cout << "    sub folder count = "
+                << dqmEventView.subFolderCount() << std::endl; 
+      edm::StreamDQMDeserializer deserializeWorker;
+      std::auto_ptr<DQMEvent::TObjectTable> toTablePtr =
+        deserializeWorker.deserializeDQMEvent(dqmEventView);
+      DQMEvent::TObjectTable::const_iterator toIter;
+      for (toIter = toTablePtr->begin();
+           toIter != toTablePtr->end(); toIter++) {
+        std::string subFolderName = toIter->first;
+        std::cout << "  folder = " << subFolderName << std::endl;
+        std::vector<TObject *> toList = toIter->second;
+        for (int tdx = 0; tdx < (int) toList.size(); tdx++) {
+          TObject *toPtr = toList[tdx];
+          string cls = toPtr->IsA()->GetName();
+          string nm = toPtr->GetName();
+          std::cout << "    TObject class = " << cls
+                    << ", name = " << nm << std::endl;
+        }
+      }
 
       // do the appropriate thing with this DQM_Event
       //std::cout << "FragColl: Got a DQM_Event with one segment" 
