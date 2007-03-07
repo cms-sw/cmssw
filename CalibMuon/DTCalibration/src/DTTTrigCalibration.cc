@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/01/22 11:08:05 $
- *  $Revision: 1.18 $
+ *  $Date: 2007/02/19 12:35:32 $
+ *  $Revision: 1.19 $
  *  \author G. Cerminara - INFN Torino
  */
 #include "CalibMuon/DTCalibration/src/DTTTrigCalibration.h"
@@ -20,7 +20,7 @@
 
 #include "CondFormats/DTObjects/interface/DTTtrig.h"
 
-#include "Geometry/Vector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
 #include "CalibMuon/DTCalibration/interface/DTCalibDBUtils.h"
 

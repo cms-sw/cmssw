@@ -4,12 +4,12 @@
 /** \class DTTTrigBaseSync
  *  Base class to define the offsets for 1D DT RecHit building
  *
- *  $Date: 2006/03/14 13:02:41 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/02/19 11:45:22 $
+ *  $Revision: 1.1 $
  *  \author G. Cerminara - INFN Torino
  */
 
-#include "Geometry/Vector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
 class DTLayer;
 class DTWireId;
