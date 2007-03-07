@@ -2,7 +2,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: GenParticleCandidateProducer.cc,v 1.3 2007/02/23 14:42:16 llista Exp $
+ * \version $Id: GenParticleCandidateProducer.cc,v 1.4 2007/03/05 13:27:02 llista Exp $
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -85,7 +85,7 @@ class GenParticleCandidateProducer : public edm::EDProducer {
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"

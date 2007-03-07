@@ -18,7 +18,7 @@ private:
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Candidate/interface/CandMatchMap.h"
 #include "PhysicsTools/HepMCCandAlgos/interface/MCCandMatcher.h"
 using namespace edm;
