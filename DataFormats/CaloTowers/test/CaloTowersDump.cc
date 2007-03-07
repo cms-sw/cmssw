@@ -1,6 +1,6 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
@@ -12,8 +12,8 @@ using namespace std;
 
   /** \class CaloTowersDump
       
-  $Date: 2005/10/17 20:25:48 $
-  $Revision: 1.1 $
+  $Date: 2006/10/24 16:58:32 $
+  $Revision: 1.2 $
   \author J. Mans - Minnesota
   */
   class CaloTowersDump : public edm::EDAnalyzer {
