@@ -22,7 +22,7 @@
 //--- For the configuration:
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#define TP_OLD
+//#define TP_OLD
 #ifdef TP_OLD
 #include "Geometry/CommonDetAlgo/interface/MeasurementPoint.h"
 #include "Geometry/CommonDetAlgo/interface/MeasurementError.h"

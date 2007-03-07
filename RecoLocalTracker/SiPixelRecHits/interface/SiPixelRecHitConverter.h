@@ -44,7 +44,8 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#define TP_OLD
+
+//#define TP_OLD
 #ifdef TP_OLD
 #include "FWCore/Framework/interface/Handle.h"
 #else
