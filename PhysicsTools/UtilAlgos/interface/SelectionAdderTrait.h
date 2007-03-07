@@ -5,7 +5,7 @@
  * \author Luca Lista, INFN
  */
 #include <vector>
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/RefVector.h"
 
 namespace edm { class Event; }

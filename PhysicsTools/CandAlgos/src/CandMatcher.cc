@@ -1,7 +1,7 @@
 #include "PhysicsTools/CandAlgos/interface/CandMatcher.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Candidate/interface/CandMatchMap.h"
 #include <vector>
 
