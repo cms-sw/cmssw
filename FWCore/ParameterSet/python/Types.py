@@ -1,4 +1,5 @@
 from Mixins import _SimpleParameterTypeBase, _ParameterTypeBase, _Parameterizable, _ConfigureComponent, _Labelable, _TypedParameterizable, _Unlabelable
+from ExceptionHandling import format_typename, format_outerframe
 
 import codecs
 _string_escape_encoder = codecs.getencoder('string_escape')
@@ -32,6 +33,7 @@ class int32(_SimpleParameterTypeBase):
         return isinstance(value,int)
     @staticmethod
     def _valueFromString(value):
+        """only used for cfg-parsing"""
         if len(value) >1 and '0x' == value[:2]:
             return int32(int(value,16))
         return int32(int(value))
@@ -44,6 +46,7 @@ class uint32(_SimpleParameterTypeBase):
                 (isinstance(value,long) and value >= 0) and value <= 0xFFFFFFFF)
     @staticmethod
     def _valueFromString(value):
+        """only used for cfg-parsing"""
         if len(value) >1 and '0x' == value[:2]:
             return uint32(long(value,16))
         return uint32(long(value))
@@ -57,6 +60,7 @@ class int64(_SimpleParameterTypeBase):
             (-0x7FFFFFFFFFFFFFFF < value <= 0x7FFFFFFFFFFFFFFF) )
     @staticmethod
     def _valueFromString(value):
+        """only used for cfg-parsing"""
         if len(value) >1 and '0x' == value[:2]:
             return uint32(long(value,16))
         return int64(long(value))
@@ -69,6 +73,7 @@ class uint64(_SimpleParameterTypeBase):
                 (ininstance(value,long) and value >= 0) and value <= 0xFFFFFFFFFFFFFFFF)
     @staticmethod
     def _valueFromString(value):
+        """only used for cfg-parsing"""
         if len(value) >1 and '0x' == value[:2]:
             return uint32(long(value,16))
         return uint64(long(value))
@@ -80,6 +85,7 @@ class double(_SimpleParameterTypeBase):
         return True
     @staticmethod
     def _valueFromString(value):
+        """only used for cfg-parsing"""
         return double(float(value))
 
 
@@ -89,17 +95,10 @@ class bool(_SimpleParameterTypeBase):
         return (isinstance(value,type(False)) or isinstance(value(type(True))))
     @staticmethod
     def _valueFromString(value):
-        if (value.lower() == 'true' or
-            value.lower() == 't' or
-            value.lower() == 'on' or
-            value.lower() == 'yes' or
-            value.lower() == '1'):
+        """only used for cfg-parsing"""
+        if value.lower() in ('true', 't', 'on', 'yes', '1'):
             return bool(True)
-        if (value.lower() == 'false' or
-            value.lower() == 'f' or
-            value.lower() == 'off' or
-            value.lower() == 'no' or
-            value.lower() == '0' ):
+        if value.lower() in ('false','f','off','no', '0'):
             return bool(False)
         raise RuntimeError('can not make bool from string '+value)
 
@@ -124,6 +123,7 @@ class string(_SimpleParameterTypeBase):
         return "'"+value+"'"
     @staticmethod
     def _valueFromString(value):
+        """only used for cfg-parsing"""
         return string(value)
 
 
@@ -187,34 +187,33 @@ class _ValidatingListBase(list):
     """Base class for a list which enforces that its entries pass a 'validity' test"""
     def __init__(self,*arg,**args):        
         super(_ValidatingListBase,self).__init__(arg)
-        if not self._isValid(iter(self)):
-            raise TypeError("wrong types added to "+str(type(self)))
+        self._isValid(iter(self))
     def __setitem__(self,key,value):
         if isinstance(key,slice):
-            if not self._isValid(value):
-                raise TypeError("wrong type being inserted into this container")
+           self._isValid(value)
         else:
             if not self._itemIsValid(value):
-                raise TypeError("can not insert the type "+str(type(value))+" in this container")
+                raise TypeError("can not insert the type %s in this container" %format_typename(value))
         super(_ValidatingListBase,self).__setitem__(key,value)
     def _isValid(self,seq):
         for item in seq:
             if not self._itemIsValid(item):
-                return False
+                self._raiseError(item,3)
         return True
     def append(self,x):
         if not self._itemIsValid(x):
-            raise TypeError("wrong type being appended to this container")
+            self._raiseError(x,0)
         super(_ValidatingListBase,self).append(x)
     def extend(self,x):
-        if not self._isValid(x):
-            raise TypeError("wrong type being extended to this container")
+        self._isValid(x)
         super(_ValidatingListBase,self).extend(x)
     def insert(self,i,x):
         if not self._itemIsValid(x):
-            raise TypeError("wrong type being inserted to this container")
+            self._raiseError(x,0)
         super(_ValidatingListBase,self).insert(i,x)
-
+    def _raiseError(self, item, i):
+        print format_outerframe(2+i)
+        raise TypeError("wrong type '%s' added to %s" %(format_typename(item), format_typename(self)))
 
 class _ValidatingParameterListBase(_ValidatingListBase,_ParameterTypeBase):
     def __init__(self,*arg,**args):
@@ -407,5 +406,10 @@ if __name__ == "__main__":
             p = untracked.PSet(b=int32(1))
             self.failIf(p.isTracked())
             self.assertEqual(p.b.value(),1)
-
+        def testPSet(self):
+            b = bool("true")
+            p1 = PSet(anInt = int32(1), a = PSet(b = int32(1)))
+            self.assertRaises(ValueError, PSet, "foo")
+            self.assertRaises(TypeError, PSet, foo = "bar")        
+            
     unittest.main()

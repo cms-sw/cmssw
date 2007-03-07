@@ -15,6 +15,7 @@ from SequenceTypes import *
 from SequenceTypes import _ModuleSequenceType  #extend needs it
 import DictTypes
 
+from ExceptionHandling import *
 
 def findProcess(module):
     """Look inside the module and find the Processes it contains"""
@@ -179,12 +180,14 @@ class Process(object):
         try:
             self.__paths[name]=mod._postProcessFixup(self._cloneToObjectDict)
         except ModuleCloneError, msg:
-            raise Exception("The module %s in path %s is unknown to the process %s." %(msg, name, self._Process__name))
+            context = format_outerframe(4)
+            raise Exception("%sThe module %s in path %s is unknown to the process %s." %(context, msg, name, self._Process__name))
     def _placeEndPath(self,name,mod):
         try: 
             self.__endpaths[name]=mod._postProcessFixup(self._cloneToObjectDict)
         except ModuleCloneError, msg:
-            raise Exception("The module %s in endpath %s is unknown to the process %s." %(msg, name, self._Process__name))
+            context = format_outerframe(4)
+            raise Exception("%sThe module %s in endpath %s is unknown to the process %s." %(context, msg, name, self._Process__name))
     def _placeSequence(self,name,mod):
         self.__sequences[name]=mod._postProcessFixup(self._cloneToObjectDict)
     def _placeESProducer(self,name,mod):

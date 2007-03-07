@@ -3,9 +3,7 @@ from Mixins import _Unlabelable, _Labelable
 from Mixins import _TypedParameterizable 
 from SequenceTypes import _Sequenceable
 
-class ModuleCloneError(Exception):
-    pass 
-
+from ExceptionHandling import *
 
 class Service(_ConfigureComponent,_TypedParameterizable,_Unlabelable):
     def __init__(self,type,*arg,**kargs):
@@ -52,7 +50,7 @@ class _Module(_ConfigureComponent,_TypedParameterizable,_Labelable,_Sequenceable
             # return something like "EDAnalyzer("foo", ...)"
             raise ModuleCloneError(self._errorstr())
     def _errorstr(self):
-        typename = str(type(self)).split("'")[1].split(".")[-1]
+        typename = format_typename(self)
         return "%s('%s', ...)" %(typename, self.type_())
 
 class EDProducer(_Module):

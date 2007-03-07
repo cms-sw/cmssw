@@ -2,6 +2,8 @@
 from Mixins import _ConfigureComponent
 from Mixins import _Labelable, _Unlabelable
 from Types import _ValidatingListBase
+import inspect
+from ExceptionHandling import *
 
 class _Sequenceable(object):
     """Denotes an object which can be placed in a sequence"""
@@ -17,16 +19,16 @@ class _Sequenceable(object):
         except:
             raise KeyError
 
-
 class _ModuleSequenceType(_ConfigureComponent, _Labelable):
     """Base class for classes which define a sequence of modules"""
     def __init__(self,*arg, **argv):
         if len(arg) != 1:
-            typename = str(type(self)).split("'")[1].split(".")[-1]
-            msg = "A %s takes exactly one input value. But the following ones are given:\n" %typename
+            typename = format_typename(self)
+            msg = format_outerframe(2) 
+            msg += "%s takes exactly one input value. But the following ones are given:\n" %typename
             for item,i in zip(arg, xrange(1,20)):
-                msg += "%i) %s \n"  %(i, item._errorstr())
-            msg += "Maybe you forgot to combine them via '*' or '+'.\n"     
+                msg += "    %i) %s \n"  %(i, item._errorstr())
+            msg += "Maybe you forgot to combine them via '*' or '+'."     
             raise TypeError(msg)
 
         self._seq = arg[0]
