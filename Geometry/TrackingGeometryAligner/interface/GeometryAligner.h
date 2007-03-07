@@ -8,17 +8,15 @@
 
 #include "Geometry/CommonDetUnit/interface/DetPositioner.h"
 
-#include "CLHEP/Vector/Rotation.h"
-#include "CLHEP/Vector/ThreeVector.h"
-
 #include "CondFormats/Alignment/interface/Alignments.h"
 #include "CondFormats/Alignment/interface/AlignmentErrors.h"
 #include "CondFormats/Alignment/interface/AlignTransform.h"
 #include "CondFormats/Alignment/interface/AlignTransformError.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "DataFormats/TrackingRecHit/interface/AlignmentPositionError.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/GlobalError.h"
+#include "DataFormats/GeometrySurface/interface/Surface.h"
 
 class Alignments;
 
