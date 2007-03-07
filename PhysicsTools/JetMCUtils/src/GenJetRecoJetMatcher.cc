@@ -1,7 +1,7 @@
 #include "PhysicsTools/JetMCUtils/interface/GenJetRecoJetMatcher.h"
 #include "PhysicsTools/JetMCUtils/interface/combination.h"
 
-#include "FWCore/Framework/interface/Handle.h"
+//#include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -14,6 +14,8 @@
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
 #include "DataFormats/Candidate/interface/CandMatchMap.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
+#include "DataFormats/Common/interface/Handle.h"
+
 
 #include <Math/VectorUtil.h>
 #include <TMath.h>
