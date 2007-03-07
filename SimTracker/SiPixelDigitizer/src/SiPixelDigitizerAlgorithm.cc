@@ -12,6 +12,10 @@
 //     10 - high-lumi inefficiency added
 // Adopt the correct drift sign convetion from Morris Swartz. d.k. 8/06
 // Add more complex misscalinbration, change kev/e to 3.61, diff=3.7,d.k.9/06
+// Add the readout channel electronic noise. d.k. 3/07
+// Lower the pixel noise from 500 to 175elec.
+// Change the input threshold from noise units to electrons.
+// Lower the amount of static dead pixels from 0.01 to 0.001.
  
 #include <vector>
 #include <iostream>
@@ -57,10 +61,15 @@ SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& co
   theAdcFullScale=conf_.getUntrackedParameter<int>("AdcFullScale",255);
 
   // Pixel threshold in units of noise.
-  thePixelThreshold=conf_.getParameter<double>("ThresholdInNoiseUnits");
+  //thePixelThreshold=conf_.getParameter<double>("ThresholdInNoiseUnits");
+  // Pixel threshold in electron units.
+  thePixelThresholdInE=conf_.getParameter<double>("ThresholdInElectrons");
 
   // Noise in electrons.
+  // Pixel cell noise, relevant for generating noisy pixels 
   theNoiseInElectrons=conf_.getParameter<double>("NoiseInElectrons");
+  // Fill readout noise, including all readout chain, relevant for smearing
+  theReadoutNoise=conf_.getUntrackedParameter<double>("ReadoutNoiseInElec",500.);
 
   //theTofCut 12.5, cut in particle TOD +/- 12.5ns
   theTofCut=conf_.getUntrackedParameter<double>("TofCut",12.5);
@@ -102,6 +111,7 @@ SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& co
     }
 
   // include only the static (non rate depedent) efficiency 
+  // Usefull for very low rates (luminosity)
   } else if (thePixelLuminosity==0) { // static effciency
     pixelInefficiency=true;
     // Default efficiencies 
@@ -109,7 +119,7 @@ SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& co
       if(i<3) {  // For the barrel
 	// Assume 1% inefficiency for single pixels, 
 	// this is given by faulty bump-bonding and seus.  
-	thePixelEfficiency[i]     = 1.-0.01;  // pixels = 99%
+	thePixelEfficiency[i]     = 1.-0.001;  // pixels = 99.9%
 	// For columns make 0.1% default.
 	thePixelColEfficiency[i]  = 1.-0.001;  // columns = 99.9%
 	// A flat 0.1% inefficiency due to lost rocs
@@ -117,7 +127,7 @@ SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& co
       } else { // For the endcaps
 	// Assume 1% inefficiency for single pixels, 
 	// this is given by faulty bump-bonding and seus.  
-	thePixelEfficiency[i]     = 1.-0.01;  // pixels = 99%
+	thePixelEfficiency[i]     = 1.-0.001;  // pixels = 99.9%
 	// For columns make 0.1% default.
 	thePixelColEfficiency[i]  = 1.-0.001;  // columns = 99.9%
 	// A flat 0.1% inefficiency due to lost rocs
@@ -160,7 +170,7 @@ SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& co
   LogInfo ("PixelDigitizer ") <<"SiPixelDigitizerAlgorithm constructed"
 			       <<"Configuration parameters:" 
 			       << "Threshold/Gain = "  
-			       << thePixelThreshold <<" "<<  theElectronPerADC 
+			       << thePixelThresholdInE<<" "<<theElectronPerADC 
 			       << " " << theAdcFullScale 
 			       << " The delta cut-off is set to " << tMax
 			      << " pix-inefficiency "<<thePixelLuminosity;
@@ -306,13 +316,13 @@ vector<PixelDigi> SiPixelDigitizerAlgorithm::digitize(PixelGeomDetUnit *det){
       pIndexConverter = new PixelIndices(numColumns,numRows);
     }
 
-    //MP DA SISTEMARE
-    //     float noiseInADCCounts = _detp->readout().noiseInAdcCounts();
-    //  float noiseInADCCounts=3.7;  
-    // For the noise generation I need noise in electrons
-    // theNoiseInElectrons = noiseInADCCounts * theElectronPerADC;    
-    // Find the threshold in electrons
-    thePixelThresholdInE = thePixelThreshold * theNoiseInElectrons; 
+    // Noise laready defined in electrons
+    //thePixelThresholdInE = thePixelThreshold * theNoiseInElectrons; 
+    // Find the threshold in noise units, needed for the noiser.
+    if(theNoiseInElectrons>0.) 
+      thePixelThreshold = thePixelThresholdInE/theNoiseInElectrons; 
+    else 
+      thePixelThreshold = 0.;
 
     LogDebug ("PixelDigitizer") 
       << " PixelDigitizer "  
@@ -869,39 +879,36 @@ void SiPixelDigitizerAlgorithm::make_digis() {
 /***********************************************************************/
 //  Add electronic noise to pixel charge
 void SiPixelDigitizerAlgorithm::add_noise() {
-
   LogDebug ("Pixel Digitizer") << " enter add_noise " << theNoiseInElectrons;
  
-
   // First add noise to hit pixels
+  // Use here the FULL readout noise, including TBM,ALT,AOH,OPT-REC.
   for ( signal_map_iterator i = _signal.begin(); i != _signal.end(); i++) {
-    //float noise  = RandGauss::shoot(0.,theNoiseInElectrons) ;
-    float noise  = RandGaussQ::shoot(0.,theNoiseInElectrons) ;
-    (*i).second += Amplitude( noise,0,-1.);
-  
+    //float noise  = RandGauss::shoot(0.,theReadoutNoise);
+    float noise  = RandGaussQ::shoot(0.,theReadoutNoise);
+    (*i).second += Amplitude( noise,0,-1.);  
   }
   
   if(!addNoisyPixels)  // Option to skip noise in non-hit pixels
     return;
 
   // Add noise on non-hit pixels
+  // Use here the pixel noise 
   int numberOfPixels = (numRows * numColumns);
-
   map<int,float, less<int> > otherPixels;
   map<int,float, less<int> >::iterator mapI;
-  
   theNoiser->generate(numberOfPixels, 
                       thePixelThreshold, //thr. in un. of nois
 		      theNoiseInElectrons, // noise in elec. 
                       otherPixels );
+
+  LogDebug ("Pixel Digitizer") 
+    <<  " Add noisy pixels " << numRows << " " 
+    << numColumns << " " << theNoiseInElectrons << " " 
+    << thePixelThresholdInE <<" "<< numberOfPixels<<" " 
+    << otherPixels.size() ;
   
-
-  LogDebug ("Pixel Digitizer") <<  " Add noisy pixels " << numRows << " " 
-			       << numColumns << " " << theNoiseInElectrons << " " 
-			       << thePixelThreshold <<" "<< numberOfPixels<<" " 
-			       << otherPixels.size() ;
- 
-
+  // Add noisy pixels
   for (mapI = otherPixels.begin(); mapI!= otherPixels.end(); mapI++) {
     int iy = ((*mapI).first) / numRows;
     int ix = ((*mapI).first) - (iy*numRows);
@@ -914,20 +921,18 @@ void SiPixelDigitizerAlgorithm::add_noise() {
 
     int chan = PixelDigi::pixelToChannel(ix, iy);
 
-
-    LogDebug ("Pixel Digitizer")<<" Storing noise = " << (*mapI).first << " " << (*mapI).second 
-				<< " " << ix << " " << iy << " " << chan ;
-   
-  
-
+    LogDebug ("Pixel Digitizer")
+      <<" Storing noise = " << (*mapI).first << " " << (*mapI).second 
+      << " " << ix << " " << iy << " " << chan ;
+ 
     if(_signal[chan] == 0){
       //      float noise = float( (*mapI).second );
       int noise=int( (*mapI).second );
       _signal[chan] = Amplitude (noise, 0,-1.);
     }
   }
-
-}
+  
+} 
 /***********************************************************************/
 // Simulate the readout inefficiencies. 
 // Delete a selected number of single pixels, dcols and rocs.

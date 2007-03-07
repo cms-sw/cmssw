@@ -201,8 +201,10 @@ class SiPixelDigitizerAlgorithm  {
     float theElectronPerADC;     // Gain, number of electrons per adc count.
     int theAdcFullScale;         // Saturation count, 255=8bit.
     float theNoiseInElectrons;   // Noise (RMS) in units of electrons.
+    float theReadoutNoise;       // Noise of the readount chain in elec,
+                                 //inludes DCOL-Amp,TBM-Amp, Alt, AOH,OptRec.
     float thePixelThreshold;     // Pixel threshold in units of noise.
-    float thePixelThresholdInE;  // Pixel noise in electorns.
+    float thePixelThresholdInE;  // Pixel noise in electrons.
     float theTofCut;             // Cut on the particle TOF
     float tanLorentzAnglePerTesla;   //Lorentz angle tangent per Tesla
     //-- add_noise
