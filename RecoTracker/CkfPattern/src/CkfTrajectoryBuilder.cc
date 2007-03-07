@@ -13,7 +13,6 @@
 #include "TrackingTools/TrajectoryState/interface/BasicSingleTrajectoryState.h"
 #include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
 
-//#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
 
 #include "RecoTracker/CkfPattern/src/RecHitIsInvalid.h"
 #include "RecoTracker/CkfPattern/interface/TrajCandLess.h"
@@ -284,8 +283,6 @@ bool CkfTrajectoryBuilder::toBeContinued (const Trajectory& traj) const
 
   return true;
 }
-
-#include "Geometry/CommonDetAlgo/interface/AlgebraicObjects.h"
 
 std::vector<TrajectoryMeasurement> 
 CkfTrajectoryBuilder::findCompatibleMeasurements( const Trajectory& traj) const
