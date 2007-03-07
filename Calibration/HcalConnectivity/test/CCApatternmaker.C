@@ -125,7 +125,7 @@ CCAmap::DataMap CCAmap::DataMapMaker(std::vector<std::string>& Words){
       rbxsign=0;
       z_zero=0;
     }
-    else if(?????==o){ 
+    else if(k_side==0){ 
       rbxsign=1;
       z_zero=12;
     }
