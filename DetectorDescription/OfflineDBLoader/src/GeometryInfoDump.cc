@@ -1,7 +1,7 @@
 #include <DetectorDescription/OfflineDBLoader/interface/GeometryInfoDump.h>
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-
+//#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #include <DetectorDescription/Core/interface/DDCompactView.h>
 #include <DetectorDescription/Core/interface/DDValue.h>
 #include <DetectorDescription/Core/interface/DDsvalues.h>
