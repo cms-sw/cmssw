@@ -8,7 +8,7 @@ options = Options()
 ### imports
 from Mixins import _SimpleParameterTypeBase, _ParameterTypeBase, _Parameterizable, _ConfigureComponent, _TypedParameterizable
 from Mixins import  _Labelable,  _Unlabelable 
-from Mixins import _ValidatingListBase
+#from Mixins import _ValidatingListBase
 from Types import * 
 from Modules import *
 from SequenceTypes import *

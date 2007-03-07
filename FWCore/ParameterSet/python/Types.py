@@ -1,4 +1,5 @@
 from Mixins import _SimpleParameterTypeBase, _ParameterTypeBase, _Parameterizable, _ConfigureComponent, _Labelable, _TypedParameterizable, _Unlabelable
+from Mixins import _ValidatingListBase
 from ExceptionHandling import format_typename, format_outerframe
 
 import codecs
@@ -182,38 +183,6 @@ class PSet(_ParameterTypeBase,_Parameterizable,_ConfigureComponent,_Labelable):
     def __str__(self):
         return object.__str__(self)
 
-
-class _ValidatingListBase(list):
-    """Base class for a list which enforces that its entries pass a 'validity' test"""
-    def __init__(self,*arg,**args):        
-        super(_ValidatingListBase,self).__init__(arg)
-        self._isValid(iter(self))
-    def __setitem__(self,key,value):
-        if isinstance(key,slice):
-           self._isValid(value)
-        else:
-            if not self._itemIsValid(value):
-                raise TypeError("can not insert the type %s in this container" %format_typename(value))
-        super(_ValidatingListBase,self).__setitem__(key,value)
-    def _isValid(self,seq):
-        for item in seq:
-            if not self._itemIsValid(item):
-                self._raiseError(item,3)
-        return True
-    def append(self,x):
-        if not self._itemIsValid(x):
-            self._raiseError(x,0)
-        super(_ValidatingListBase,self).append(x)
-    def extend(self,x):
-        self._isValid(x)
-        super(_ValidatingListBase,self).extend(x)
-    def insert(self,i,x):
-        if not self._itemIsValid(x):
-            self._raiseError(x,0)
-        super(_ValidatingListBase,self).insert(i,x)
-    def _raiseError(self, item, i):
-        print format_outerframe(2+i)
-        raise TypeError("wrong type '%s' added to %s" %(format_typename(item), format_typename(self)))
 
 class _ValidatingParameterListBase(_ValidatingListBase,_ParameterTypeBase):
     def __init__(self,*arg,**args):
@@ -407,7 +376,6 @@ if __name__ == "__main__":
             self.failIf(p.isTracked())
             self.assertEqual(p.b.value(),1)
         def testPSet(self):
-            b = bool("true")
             p1 = PSet(anInt = int32(1), a = PSet(b = int32(1)))
             self.assertRaises(ValueError, PSet, "foo")
             self.assertRaises(TypeError, PSet, foo = "bar")        

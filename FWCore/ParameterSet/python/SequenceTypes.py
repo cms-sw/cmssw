@@ -1,8 +1,7 @@
 
 from Mixins import _ConfigureComponent
 from Mixins import _Labelable, _Unlabelable
-from Types import _ValidatingListBase
-import inspect
+from Mixins import _ValidatingListBase
 from ExceptionHandling import *
 
 class _Sequenceable(object):
