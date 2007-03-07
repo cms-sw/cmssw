@@ -3,7 +3,7 @@
 /*
  * \file FakeTBEventHeaderProducer.h
  *
- * $Id: FakeTBEventHeaderProducer.h,v 1.1 2006/06/19 15:53:34 meridian Exp $
+ * $Id: FakeTBEventHeaderProducer.h,v 1.2 2006/10/26 08:01:06 fabiocos Exp $
  *
  * Mimic the event header information
  * for the test beam simulation 
@@ -14,7 +14,7 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "DataFormats/Common/interface/EDProduct.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"

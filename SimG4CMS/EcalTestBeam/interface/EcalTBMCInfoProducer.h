@@ -3,7 +3,7 @@
 /*
  * \file EcalTBMCInfoProducer.h
  *
- * $Id: EcalTBMCInfoProducer.h,v 1.2 2006/07/18 14:09:05 fabiocos Exp $
+ * $Id: EcalTBMCInfoProducer.h,v 1.3 2006/10/26 08:00:02 fabiocos Exp $
  *
 */
 
@@ -11,7 +11,7 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "DataFormats/Common/interface/EDProduct.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
