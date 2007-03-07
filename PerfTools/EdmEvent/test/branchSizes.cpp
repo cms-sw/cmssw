@@ -2,7 +2,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.15 $
+ * \version $Revision: 1.1 $
  *
  */
 #include <boost/shared_ptr.hpp>
@@ -22,7 +22,7 @@
 #include <TH1.h>
 #include <TCanvas.h>
 #include <Riostream.h>
-#include "FWCore/FWLite/src/AutoLibraryLoader.h"
+#include "FWCore/FWLite/interface/AutoLibraryLoader.h"
 #include <utility>
 using namespace std;
 
