@@ -7,7 +7,8 @@
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h" 
 #include "TrackingTools/DetLayers/interface/PhiLess.h"
 #include "TrackingTools/DetLayers/interface/rangesIntersect.h"
-#include "Geometry/Surface/interface/BoundPlane.h"
+#include "DataFormats/GeometrySurface/interface/BoundPlane.h"
+
 #include "RecoTracker/TkTrackingRegions/interface/GlobalDetRangeZPhi.h"
 
 

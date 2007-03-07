@@ -5,14 +5,15 @@
  * \class ConversionForwardEstimator
  *  Defines the search area in the  forward 
  *
- *   $Date: 2006/10/05 16:43:42 $ 
- *   $Revision: 1.1 $
+ *   $Date: 2007/02/25 16:37:35 $ 
+ *   $Revision: 1.2 $
  *  \author Nancy Marinelli, U. of Notre Dame, US
  */
 
 #include "TrackingTools/PatternTools/interface/MeasurementEstimator.h" 
-#include "Geometry/Vector/interface/Vector2DBase.h"
-#include "Geometry/Vector/interface/LocalTag.h"
+#include "DataFormats/GeometryVector/interface/Vector2DBase.h"
+#include "DataFormats/GeometryVector/interface/LocalTag.h"
+
 
 #include <iostream> 
 class RecHit;

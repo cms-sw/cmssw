@@ -3,9 +3,9 @@
 /** \class ConversionSeedFinder
  **  
  **
- **  $Id: ConversionSeedFinder.h,v 1.5 2007/02/05 13:23:16 nancy Exp $ 
- **  $Date: 2007/02/05 13:23:16 $ 
- **  $Revision: 1.5 $
+ **  $Id: ConversionSeedFinder.h,v 1.6 2007/03/06 12:05:43 nancy Exp $ 
+ **  $Date: 2007/03/06 12:05:43 $ 
+ **  $Revision: 1.6 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -26,9 +26,9 @@
 #include "DataFormats/Math/interface/Vector3D.h"
 #include "DataFormats/Math/interface/Point3D.h"
 
-#include "Geometry/Vector/interface/GlobalPoint.h"
-#include "Geometry/Vector/interface/GlobalVector.h"
 
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalVector.h"
 
 // C/C++ headers
 #include <string>
