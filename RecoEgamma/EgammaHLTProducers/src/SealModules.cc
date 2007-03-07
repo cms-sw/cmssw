@@ -7,6 +7,9 @@
 #include "RecoEgamma/EgammaHLTProducers/interface/EgammaHLTRecoEcalCandidateProducers.h"
 #include "RecoEgamma/EgammaHLTProducers/interface/EgammaHLTPixelMatchElectronProducers.h"
 #include "RecoEgamma/EgammaHLTProducers/interface/EgammaHLTRegionalPixelSeedGeneratorProducers.h"
+#include "RecoEgamma/EgammaHLTProducers/interface/EgammaHLTHybridClusterProducer.h"
+#include "RecoEgamma/EgammaHLTProducers/interface/EgammaHLTIslandClusterProducer.h"
+
 
 DEFINE_SEAL_MODULE();
 DEFINE_ANOTHER_FWK_MODULE(EgammaHLTEcalIsolationProducers);
@@ -16,3 +19,5 @@ DEFINE_ANOTHER_FWK_MODULE(EgammaHLTElectronTrackIsolationProducers);
 DEFINE_ANOTHER_FWK_MODULE(EgammaHLTRecoEcalCandidateProducers);
 DEFINE_ANOTHER_FWK_MODULE(EgammaHLTPixelMatchElectronProducers);
 DEFINE_ANOTHER_FWK_MODULE(EgammaHLTRegionalPixelSeedGeneratorProducers);
+DEFINE_ANOTHER_FWK_MODULE(EgammaHLTHybridClusterProducer);
+DEFINE_ANOTHER_FWK_MODULE(EgammaHLTIslandClusterProducer);
