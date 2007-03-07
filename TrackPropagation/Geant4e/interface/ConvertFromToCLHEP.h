@@ -8,9 +8,9 @@
 #include "CLHEP/Units/SystemOfUnits.h"
 
 //CMS
-#include "Geometry/Vector/interface/GlobalPoint.h"
-#include "Geometry/Vector/interface/GlobalVector.h"
-#include "Geometry/Surface/interface/TkRotation.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h:"
+#include "DataFormats/GeometryVector/interface/GlobalVector.h"
+#include "DataFormats/GeometrySurface/interface/TkRotation.h"
 
 /** Utilities to convert among CLHEP and CMS points and vectors
  */

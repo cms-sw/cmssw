@@ -8,8 +8,8 @@
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/TrajectoryState/interface/SurfaceSideDefinition.h"
-#include "Geometry/Surface/interface/Cylinder.h"
-#include "Geometry/Surface/interface/Plane.h"
+#include "DataFormats/GeometrySurface/interface/Cylinder.h"
+#include "DataFormats/GeometrySurface/interface/Plane.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //Geant4
@@ -19,6 +19,9 @@
 
 //CLHEP
 #include "CLHEP/Units/SystemOfUnits.h"
+
+//- ROOT
+#include "TMath.h"
 
 
 /** Constructor. 
