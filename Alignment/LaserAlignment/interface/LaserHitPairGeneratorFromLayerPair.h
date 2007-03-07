@@ -31,8 +31,8 @@ class CompareHitPairsZ
     if (ou1p.z() * ou2p.z() < 0.0) return ou1p.z() > ou2p.z();
     else
       {
-	double dist1 = 100.0 * abs(ou1p.z() - in1p.z());
-	double dist2 = 100.0 * abs(ou2p.z() - in2p.z());
+	double dist1 = 100.0 * fabs(ou1p.z() - in1p.z());
+	double dist2 = 100.0 * fabs(ou2p.z() - in2p.z());
 	return dist1 < dist2;
       }
   }

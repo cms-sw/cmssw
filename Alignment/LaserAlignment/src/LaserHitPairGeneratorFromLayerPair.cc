@@ -46,7 +46,7 @@ void LaserHitPairGeneratorFromLayerPair::hitPairs(const TrackingRegion & region,
 			double phi_diff = innphi - outphi;
 			double r_diff = ih->r() - oh->r();
 
-			if ( ( inny * outy > 0.0 ) && ( innz * outz > 0.0 ) && ( abs(phi_diff) < 0.005 ) && ( abs(r_diff) < 0.5 ) )
+			if ( ( inny * outy > 0.0 ) && ( innz * outz > 0.0 ) && ( fabs(phi_diff) < 0.005 ) && ( fabs(r_diff) < 0.5 ) )
 			{
 				allthepairs.push_back( OrderedHitPair(ih->RecHit(), oh->RecHit() ));
 			}
