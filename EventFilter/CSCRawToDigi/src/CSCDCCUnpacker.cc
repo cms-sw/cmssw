@@ -1,7 +1,7 @@
 #include "EventFilter/CSCRawToDigi/interface/CSCDCCUnpacker.h"
 
 //Framework stuff
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 

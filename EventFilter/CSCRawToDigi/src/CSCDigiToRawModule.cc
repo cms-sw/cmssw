@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/11/19 20:15:25 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/11/21 16:52:17 $
+ *  $Revision: 1.4 $
  *  \author A. Tumanov - Rice
  */
 
@@ -10,7 +10,7 @@
 #include <DataFormats/FEDRawData/interface/FEDRawDataCollection.h>
 #include <DataFormats/CSCDigi/interface/CSCStripDigiCollection.h>
 #include <DataFormats/CSCDigi/interface/CSCWireDigiCollection.h>
-#include <FWCore/Framework/interface/Handle.h>
+#include "DataFormats/Common/interface/Handle.h"
 #include <FWCore/Framework/interface/Event.h>
 #include "CondFormats/CSCObjects/interface/CSCReadoutMappingFromFile.h"
 
