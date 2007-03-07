@@ -16,8 +16,8 @@
 #include <Geometry/CSCGeometry/interface/CSCLayerGeometry.h>
 #include <Geometry/CSCGeometry/interface/CSCChamber.h>
 #include <DataFormats/GeometryVector/interface/GlobalPoint.h>
-#include <boost/shared_ptr.hpp>
 
+//#include <boost/shared_ptr.hpp>
 //typedef boost::shared_ptr<CSCChamber> Pointer2Chamber;
 
 class CSCLayer : public GeomDetUnit {
