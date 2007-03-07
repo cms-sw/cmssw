@@ -52,7 +52,7 @@ class DTTFFEDSim : public edm::EDProducer {
 
   int wheel(int channel);
 
-  void calcCRC(long long myD, int &myC);
+  void calcCRC(long myD1, long myD2, int &myC);
 
 };
 #endif

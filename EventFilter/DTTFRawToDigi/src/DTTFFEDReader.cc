@@ -82,14 +82,14 @@ void DTTFFEDReader::analyse(edm::Event& e) {
 void DTTFFEDReader::process(edm::Event& e) {
 
   // Container
-  vector<long long> DTTFWordContainer; 
-  vector<long long>::iterator DTTFiterator;
+  vector<long> DTTFWordContainer; 
+  vector<long>::iterator DTTFiterator;
 
   // Header constituents
   int BOEevTy, DTTFId;
 
   // DTTF Payload constituents 
-  long long DTTFWord;
+  long DTTFWord;
   int DTTFChan, bitsID;
 
   // Trailer constituents
@@ -103,40 +103,49 @@ void DTTFFEDReader::process(edm::Event& e) {
   e.getByType(data);
   FEDRawData dttfdata = data->FEDData(0x030C);
 
-  long long* dataWord = new long long;
+  long* dataWord1 = new long;
+  long* dataWord2 = new long;
   unsigned char* LineFED=dttfdata.data();
-  *dataWord=*((long long*)LineFED);
+  *dataWord1=*((long*)LineFED);
+  LineFED+=4;
+  *dataWord2=*((long*)LineFED);
   int lines  = 1; // already counting header
 
-  BOEevTy = ((*dataWord)&0xFF00000000000000)>>56; // positions 57 -> 64
-  DTTFId  = ((*dataWord)&0x00000000000FFF00)>>8;  // positions 9 ->20
+  BOEevTy = ((*dataWord1)&0xFF000000)>>24; // positions 57 ->64
+  DTTFId  = ((*dataWord2)&0x000FFF00)>>8;  // positions 9 ->20
 
   if( (BOEevTy != 0x50) || ( DTTFId != 0x030C) ){
-    cout << "Not a DTTF header " << hex << *dataWord << endl;
+    cout << "Not a DTTF header " << hex << *dataWord1 << endl;
     goOn = false;
   }
 
   int newCRC =  0xFFFF;
-  calcCRC(*dataWord, newCRC);  
+  calcCRC(*dataWord1, *dataWord2, newCRC);  
 
 
   //--> DTTF data 
 
-  LineFED+=8;
-  *dataWord=*((long long*)LineFED);
-  int chkEOE = ((*dataWord)&0xFFF0000000000000)>>52; 
+  LineFED+=4;
+  *dataWord1=*((long*)LineFED);
+  LineFED+=4;
+  *dataWord2=*((long*)LineFED);
+  int chkEOE = ((*dataWord1)&0xFFF00000)>>20; 
   lines++;
 
   while(chkEOE != 0xA00){
 
-    calcCRC(*dataWord, newCRC);
+    calcCRC(*dataWord1, *dataWord2, newCRC);
 
-    DTTFWord = *dataWord;
+    DTTFWord = *dataWord1;
+    DTTFWordContainer.push_back(DTTFWord);
+    DTTFWord = *dataWord2;
     DTTFWordContainer.push_back(DTTFWord);
 
-    LineFED+=8;
-    *dataWord=*((long long*)LineFED);
-    chkEOE     = ((*dataWord)&0xFFF0000000000000)>>52; 
+    LineFED+=4;
+    *dataWord1=*((long*)LineFED);
+    LineFED+=4;
+    *dataWord2=*((long*)LineFED);
+    chkEOE = ((*dataWord1)&0xFFF00000)>>20; 
     lines++;
 
     if(lines > 3026){
@@ -149,10 +158,10 @@ void DTTFFEDReader::process(edm::Event& e) {
 
   //--> Trailer
 
-  evtLgth   = ((*dataWord)&0x00FFFFFF00000000)>>32; // positions 33 ->56
-  CRC       = ((*dataWord)&0x00000000FFFF0000)>>16; // positions 17->32
+  evtLgth   = ((*dataWord1)&0x00FFFFFF);     // positions 33 ->56
+  CRC       = ((*dataWord2)&0xFFFF0000)>>16; // positions 17 ->32
 
-  calcCRC((*dataWord)&0xFFFFFFFF0000FFFF, newCRC);
+  calcCRC(*dataWord1, (*dataWord2)&0xFFFF, newCRC);
   if( newCRC != CRC){
     cout << "Calculated CRC " ;
     cout << hex << newCRC << " differs from CRC in trailer " << hex << CRC << endl;
@@ -168,7 +177,8 @@ void DTTFFEDReader::process(edm::Event& e) {
   // --> analyse event    
 
   if( !goOn ) {
-    delete dataWord;
+    delete dataWord1;
+    delete dataWord2;
     return;
   }
 
@@ -176,8 +186,9 @@ void DTTFFEDReader::process(edm::Event& e) {
        DTTFiterator != DTTFWordContainer.end();
        DTTFiterator++ ){
 
-    DTTFChan = ((*DTTFiterator)&0xFF00000000000000)>>56;
-    bitsID   = ((*DTTFiterator)&0x00000000F0000000)>>28;
+    DTTFChan = ((*DTTFiterator)&0xFF000000)>>24;
+    DTTFiterator++;
+    bitsID   = ((*DTTFiterator)&0xF0000000)>>28;
 
     int bxID     = bxNr(DTTFChan);
     if(bxID     == -999) continue;
@@ -228,7 +239,8 @@ void DTTFFEDReader::process(edm::Event& e) {
 
   } // end for-loop container content
 
-  delete dataWord;
+  delete dataWord1;
+  delete dataWord2;
   return;
 }
 
@@ -290,11 +302,12 @@ int DTTFFEDReader::wheel( int channel ){
   return myWheel;
 }
 
-void DTTFFEDReader::calcCRC(long long myD, int &myC){
+void DTTFFEDReader::calcCRC(long myD1, long myD2, int &myC){
 
   int myCRC[16],D[64],C[16];
 
-  for( int i=0; i < 64; i++ ){ D[i]=(myD>>i)&0x1; }
+  for( int i=0; i < 32; i++ ){ D[i]=(myD2>>i)&0x1; }
+  for( int i=0; i < 32; i++ ){ D[i+32]=(myD1>>i)&0x1; }
   for( int i=0; i < 16; i++ ){ C[i]=(myC>>i)&0x1; }
 
   myCRC[0] = ( D[63] + D[62] + D[61] + D[60] + D[55] + D[54] +

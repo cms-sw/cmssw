@@ -63,16 +63,20 @@ bool DTTFFEDSim::fillRawData(edm::Event& e,
   dttfdata.resize(lines*8); // size in bytes
   unsigned char* LineFED=dttfdata.data();
 
-  long long* dataWord = new long long;
+  long* dataWord1 = new long;
+  long* dataWord2 = new long;
 
   //--> Header
 
-  *dataWord = 0x5000000000030C00
-          + ((long long)(eventNum&0xFFFFFF)<<32);
+  *dataWord1 = 0x50000000
+             + (eventNum&0xFFFFFF);
+  *dataWord2 = 0x00030C00;
 
   int newCRC =  0xFFFF;
-  calcCRC(*dataWord, newCRC);
-  *((long long*)LineFED)=*dataWord; 
+  calcCRC(*dataWord1, *dataWord2, newCRC);
+  *((long*)LineFED)=*dataWord1; 
+  LineFED+=4;
+  *((long*)LineFED)=*dataWord2; 
 
   //--> DTTF data 
 
@@ -83,8 +87,8 @@ bool DTTFFEDSim::fillRawData(edm::Event& e,
   TS2Id[1] = 0x3E;
   TS1Id[3] = 0x4E;
   TS2Id[3] = 0x5E;
-  TS1Id[2] = 0x0FFF8;
-  TS2Id[2] = 0x1FFF8;
+  TS1Id[2] = 0x8FFF8;
+  TS2Id[2] = 0x9FFF8;
 
   //Input
   L1MuDTChambPhContainer::Phi_iterator tsphi;
@@ -103,42 +107,47 @@ bool DTTFFEDSim::fillRawData(edm::Event& e,
       if ( channelNr == 255 ) continue;
       int TSId = ( is2nd == 0 ) ? TS1Id[stationID] : TS2Id[stationID];
 
+      *dataWord1 = ((channelNr&0xFF)<<24)
+                 + 0x00FFFFFF;
+
       if ( stationID != 2 ){
-        *dataWord = (((long long)(channelNr&0xFF))<<56)
-                  + 0x00FFFFFF00000000
-	          + (             (TSId&0x0FF)<<24)
-	          + (~(tsphi->code()+1)&0x007)
-	          + (   (~tsphi->phiB()&0x3FF)<<3) 
-	          + (    (~tsphi->phi()&0xFFF)<<13);
+        *dataWord2 = (             (TSId&0x0FF)<<24)
+	           + (~(tsphi->code()+1)&0x007)
+	           + (   (~tsphi->phiB()&0x3FF)<<3) 
+	           + (    (~tsphi->phi()&0xFFF)<<13);
       }
       else {
-        *dataWord = (((long long)(channelNr&0xFF))<<56)
-                  + 0x00FFFFFF80000000
-	          + (             (TSId&0xFFFFF)<<12) 
-	          + (~(tsphi->code()+1)&0x00007)
-	          + (    (~tsphi->phi()&0x00FFF)<<3);
+        *dataWord2 = (             (TSId&0xFFFFF)<<12) 
+	           + (~(tsphi->code()+1)&0x00007)
+	           + (    (~tsphi->phi()&0x00FFF)<<3);
       }
 
-      calcCRC(*dataWord, newCRC);
-      LineFED+=8;
-      *((long long*)LineFED)=*dataWord; 
+      calcCRC(*dataWord1, *dataWord2, newCRC);
+      LineFED+=4;
+      *((long*)LineFED)=*dataWord1; 
+      LineFED+=4;
+      *((long*)LineFED)=*dataWord2; 
     }
   }
   //Input
 
   //--> Trailer
 
-  *dataWord = 0xA000000000000000
-            + ((long long)(lines&0xFFFFFF)<<32);
+  *dataWord1 = 0xA0000000
+             + (lines&0xFFFFFF);
+  *dataWord2 = 0;
 
-  calcCRC(*dataWord&0xFFFFFFFF0000FFFF, newCRC);
+  calcCRC(*dataWord1, *dataWord2&0xFFFF, newCRC);
 
-  *dataWord += ((long long)(newCRC&0xFFFF)<<16);
+  *dataWord2 += (newCRC&0xFFFF)<<16;
 
-  LineFED+=8;
-  *((long long*)LineFED)=*dataWord; 
+  LineFED+=4;
+  *((long*)LineFED)=*dataWord1; 
+  LineFED+=4;
+  *((long*)LineFED)=*dataWord2; 
 
-  delete dataWord;
+  delete dataWord1;
+  delete dataWord2;
   return true;
 }
 
@@ -185,11 +194,12 @@ int DTTFFEDSim::wheel( int channel ){
   return myWheel;
 }
 
-void DTTFFEDSim::calcCRC(long long myD, int &myC){
+void DTTFFEDSim::calcCRC(long myD1, long myD2, int &myC){
 
   int myCRC[16],D[64],C[16];
 
-  for( int i=0; i < 64; i++ ){ D[i]=(myD>>i)&0x1; }
+  for( int i=0; i < 32; i++ ){ D[i]=(myD2>>i)&0x1; }
+  for( int i=0; i < 32; i++ ){ D[i+32]=(myD1>>i)&0x1; }
   for( int i=0; i < 16; i++ ){ C[i]=(myC>>i)&0x1; }
 
   myCRC[0] = ( D[63] + D[62] + D[61] + D[60] + D[55] + D[54] +
