@@ -1,0 +1,20 @@
+<use name=boost>
+<use name=FWCore/Framework>
+<use name=SimDataFormats/HepMCProduct>
+<use name=clhep>
+<use name=herwig6_510>
+
+<flags SEAL_PLUGIN_NAME="GeneratorInterfacePomwigInterface">
+<export>
+ <lib name=GeneratorInterfacePomwigInterface>
+ <use name=boost>
+ <use name=FWCore/Framework>
+ <use name=SimDataFormats/HepMCProduct>
+ <use name=clhep>
+ <use name=herwig6_510>
+</export>
+
+ <lib name=g2c></lib>
+ <lib name=m></lib>
+
+
