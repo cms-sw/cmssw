@@ -4,7 +4,7 @@
 /*
   Author: Jim Kowalkowski  28-01-06
 
-  $Id: Schedule.h,v 1.18 2006/12/01 03:29:52 wmtan Exp $
+  $Id: Schedule.h,v 1.19 2007/03/04 06:00:22 wmtan Exp $
 
   A class for creating a schedule based on paths in the configuration file.
   The schedule is maintained as a sequence of paths.
@@ -187,7 +187,9 @@ namespace edm
     /// modules-in-path, modules-in-endpath, and modules.
     void getTriggerReport(TriggerReport& rep) const;      
 
-
+    /// Return whether a module has decided to terminate the job
+    /// normally after the event is processed.
+    bool const terminate() const {return terminate_;}
 
   private:
     AllWorkers::const_iterator workersBegin() const 
@@ -248,6 +250,7 @@ namespace edm
     std::vector<boost::shared_ptr<Group> >     demandGroups_;
 
     volatile bool       endpathsAreActive_;
+    bool terminate_;
   };
 }
 

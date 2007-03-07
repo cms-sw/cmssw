@@ -13,7 +13,7 @@ using namespace std;
 namespace edm
 {
   Path::Path(int bitpos, const std::string& path_name,
-	     const Workers& workers,
+	     const WorkersInPath& workers,
 	     TrigResPtr trptr,
 	     ParameterSet const&,
 	     ActionTable& actions,
@@ -24,6 +24,7 @@ namespace edm
     timesFailed_(),
     timesExcept_(),
     state_(edm::hlt::Ready),
+    terminate_(false),
     bitpos_(bitpos),
     name_(path_name),
     trptr_(trptr),
@@ -82,17 +83,18 @@ namespace edm
     bool should_continue = true;
     CurrentProcessingContext cpc(&name_, bitPosition());
 
-    Workers::size_type idx = 0;
+    WorkersInPath::size_type idx = 0;
     // It seems likely that 'nwrwue' and 'idx' can never differ ---
     // if so, we should remove one of them!.
-    for ( Workers::iterator i = workers_.begin(), end = workers_.end();
+    for (WorkersInPath::iterator i = workers_.begin(), end = workers_.end();
           i != end && should_continue;
-          ++i, ++idx ) {
+          ++i, ++idx) {
       ++nwrwue;
       assert (static_cast<int>(idx) == nwrwue);
       try {
         cpc.activate(idx, i->getWorker()->descPtr());
         should_continue = i->runWorker(ep, es, bat, &cpc);
+        if (i->terminate()) terminate_ = true;
       }
       catch(cms::Exception& e) {
         // handleWorkerFailure may throw a new exception.

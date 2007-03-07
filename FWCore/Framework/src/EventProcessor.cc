@@ -809,6 +809,11 @@ namespace edm {
 	schedule_->runOneEvent(*pep.get(), es, BranchActionBeginLumi);
       }
       schedule_->runOneEvent(*pep.get(), es, BranchActionEvent);
+      if (schedule_->terminate()) {
+        endLumiAndRun(*pep.get(), true);
+	changeState(mCountComplete);
+      }
+
       previousPep = pep;
     }
 

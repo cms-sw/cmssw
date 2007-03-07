@@ -5,7 +5,7 @@
 
   Author: Jim Kowalkowski 28-01-06
 
-  $Id: Path.h,v 1.9 2006/06/20 23:13:27 paterno Exp $
+  $Id: Path.h,v 1.10 2006/12/01 03:33:42 wmtan Exp $
 
   An object of this type represents one path in a job configuration.
   It holds the assigned bit position and the list of workers that are
@@ -38,13 +38,13 @@ namespace edm
   public:
     typedef edm::hlt::HLTState State;
 
-    typedef std::vector<WorkerInPath> Workers;
-    typedef Workers::size_type        size_type;
+    typedef std::vector<WorkerInPath> WorkersInPath;
+    typedef WorkersInPath::size_type        size_type;
     typedef boost::shared_ptr<HLTGlobalStatus> TrigResPtr;
     typedef boost::shared_ptr<ActivityRegistry> ActivityRegistryPtr;
 
     Path(int bitpos, const std::string& path_name,
-	 const Workers& workers,
+	 const WorkersInPath& workers,
 	 TrigResPtr trptr,
 	 ParameterSet const& proc_pset,
 	 ActionTable& actions,
@@ -76,6 +76,7 @@ namespace edm
     int timesFailed (size_type i) const { return workers_.at(i).timesFailed() ; }
     int timesExcept (size_type i) const { return workers_.at(i).timesExcept() ; }
     Worker const * getWorker(size_type i) const { return workers_.at(i).getWorker(); }
+    bool const terminate() const {return terminate_;}
 
   private:
     RunStopwatch::StopwatchPointer stopwatch_;
@@ -86,13 +87,15 @@ namespace edm
     //int abortWorker_;
     State state_;
 
+    bool terminate_;
+
     int bitpos_;
     std::string name_;
     TrigResPtr trptr_;
     ActivityRegistryPtr act_reg_;
     ActionTable* act_table_;
 
-    Workers workers_;
+    WorkersInPath workers_;
 
     // Helper functions
     // nwrwue = numWorkersRunWithoutUnhandledException (really!)

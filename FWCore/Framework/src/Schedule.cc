@@ -59,14 +59,19 @@ namespace edm
     public:
       typedef void result_type;
       run_one_event(EventPrincipal& principal, EventSetup const& setup, BranchActionType const& branchActionType) :
-	ep(principal), es(setup), bat(branchActionType) {};
+	ep(principal), es(setup), bat(branchActionType), terminate_(false) {};
 
-      void operator()(Path& p) {p.runOneEvent(ep, es, bat);}
+      void operator()(Path& p) {
+	p.runOneEvent(ep, es, bat);
+	if (p.terminate()) terminate_ = true;
+      }
+      bool const terminate() const {return terminate_;}
 
     private:      
       EventPrincipal&   ep;
       EventSetup const& es;
       BranchActionType const& bat;
+      bool terminate_;
     };
 
     // Function template to transform each element in the input range to
@@ -224,7 +229,8 @@ namespace edm
     stopwatch_(new RunStopwatch::StopwatchPointer::element_type),
     unscheduled_(new UnscheduledCallProducer),
     demandGroups_(),
-    endpathsAreActive_(true)
+    endpathsAreActive_(true),
+    terminate_(false)
   {
     ParameterSet opts(pset_.getUntrackedParameter("options", ParameterSet()));
 
@@ -929,7 +935,9 @@ namespace edm
   bool
   Schedule::runTriggerPaths(EventPrincipal& ep, EventSetup const& es, BranchActionType const& bat)
   {
-    for_each(trig_paths_.begin(), trig_paths_.end(), run_one_event(ep, es, bat));
+    if (for_each(trig_paths_.begin(), trig_paths_.end(), run_one_event(ep, es, bat)).terminate()) {
+      terminate_ = true;
+    }
     return results_->accept();
   }
 
@@ -965,7 +973,9 @@ namespace edm
   {
     // Note there is no state-checking safety controlling the
     // activation/deactivation of endpaths.
-    for_each(end_paths_.begin(), end_paths_.end(), run_one_event(ep, es, bat));
+    if (for_each(end_paths_.begin(), end_paths_.end(), run_one_event(ep, es, bat)).terminate()) {
+      terminate_ = true;
+    }
 
     // We could get rid of the functor run_one_event if we used
     // boost::lambda, but the use of lambda with member functions

@@ -1,6 +1,6 @@
 
 /*----------------------------------------------------------------------
-$Id: Worker.cc,v 1.18 2007/01/09 17:28:25 chrjones Exp $
+$Id: Worker.cc,v 1.19 2007/02/07 00:53:00 chrjones Exp $
 ----------------------------------------------------------------------*/
 
 #include <iostream>
@@ -89,7 +89,8 @@ private:
     md_(iMD),
     actions_(iWP.actions_),
     cached_exception_(),
-    sigs_()
+    sigs_(),
+    terminate_(false)
   {
   }
 

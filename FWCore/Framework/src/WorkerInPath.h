@@ -5,7 +5,7 @@
 
 	Author: Jim Kowalkowski 28-01-06
 
-	$Id: WorkerInPath.h,v 1.6 2006/09/01 18:16:42 wmtan Exp $
+	$Id: WorkerInPath.h,v 1.7 2006/12/01 03:33:42 wmtan Exp $
 
 	A wrapper around a Worker, so that statistics can be managed
 	per path.  A Path holds Workers as these things.
@@ -43,6 +43,8 @@ namespace edm
     FilterAction filterAction() const { return filterAction_; }
     Worker* getWorker() const { return worker_; }
 
+    bool const terminate() const {return terminate_;}
+
   private:
     RunStopwatch::StopwatchPointer stopwatch_;
 
@@ -53,6 +55,7 @@ namespace edm
     
     FilterAction filterAction_;
     Worker* worker_;
+    bool terminate_;
   };
 }
 
