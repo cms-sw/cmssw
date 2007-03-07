@@ -16,9 +16,9 @@
 #include <Geometry/MuonNumbering/interface/MuonBaseNumber.h>
 #include <Geometry/MuonNumbering/interface/MuonDDDNumbering.h>
 #include <Geometry/MuonNumbering/interface/MuonDDDConstants.h>
-#include <Geometry/Surface/interface/BoundPlane.h>
-#include <Geometry/Surface/interface/TrapezoidalPlaneBounds.h>
-#include <Geometry/Vector/interface/Basic3DVector.h>
+#include <DataFormats/GeometrySurface/interface/BoundPlane.h>
+#include <DataFormats/GeometrySurface/interface/TrapezoidalPlaneBounds.h>
+#include <DataFormats/GeometryVector/interface/Basic3DVector.h>
 
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 
