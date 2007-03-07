@@ -2,13 +2,13 @@
 #define SimTracker_VertexAssociatorBase_h
 
 #include "DataFormats/Common/interface/AssociationMap.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/OneToManyWithQuality.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/Handle.h"
 
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertexContainer.h"
