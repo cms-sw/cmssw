@@ -1,8 +1,10 @@
 <use name=DataFormats/TrackReco>
 <use name=FWCore/TFWLiteSelector>
 <use name=FWCore/Framework>
+<use name=root>
 <export>
   <lib name=PhysicsToolsParallelAnalysis>
   <use name=DataFormats/TrackReco>
   <use name=FWCore/TFWLiteSelector>
+  <use name=root>
 </export>
