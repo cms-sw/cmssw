@@ -1,3 +1,10 @@
+2007-03-07  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-01-04
+	* this is actually V00-01-01 plus adjusting to the reorganization
+	of FWCore.
+
+	
 2007-03-01  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-01-03
