@@ -5,8 +5,8 @@
  *  Class to load the tracks in the event, it provide some common functionalities
  *  both for all the RecoMuon producers.
  *
- *  $Date: 2007/02/01 17:57:59 $
- *  $Revision: 1.13 $
+ *  $Date: 2007/02/05 19:07:40 $
+ *  $Revision: 1.14 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -14,7 +14,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/TrackExtraFwd.h"
-#include "FWCore/Framework/interface/OrphanHandle.h"
+#include "DataFormats/Common/interface/OrphanHandle.h"
 #include "RecoMuon/TrackingTools/interface/MuonCandidate.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 
