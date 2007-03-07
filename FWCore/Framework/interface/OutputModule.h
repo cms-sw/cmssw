@@ -6,7 +6,7 @@
 OutputModule: The base class of all "modules" that write Events to an
 output stream.
 
-$Id: OutputModule.h,v 1.36 2007/03/04 06:00:22 wmtan Exp $
+$Id: OutputModule.h,v 1.37 2007/03/06 00:13:42 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -59,6 +59,7 @@ namespace edm {
     unsigned int nextID() const;
     void selectProducts();
 
+    bool const terminate() const {return terminate_;}
 
   protected:
     //const Trig& getTriggerResults(Event const& ep) const;
@@ -137,6 +138,7 @@ namespace edm {
     int writeCount_;
     bool const unlimited_;
     bool const maxEventsExit_;
+    bool terminate_;
   };
 }
 

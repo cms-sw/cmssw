@@ -1,6 +1,6 @@
 /*----------------------------------------------------------------------
 
-$Id: OutputModule.cc,v 1.28 2007/01/05 18:51:12 wdd Exp $
+$Id: OutputModule.cc,v 1.29 2007/01/17 06:26:51 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <iostream>
@@ -144,7 +144,13 @@ namespace edm
     prodsValid_(false),
     current_md_(0),
     wantAllEvents_(false),
-    selectors_()
+    selectors_(),
+    maxEvents_(pset.getUntrackedParameter<int>("maxEvents", -1)),
+    remainingEvents_(maxEvents_),
+    writeCount_(0),
+    unlimited_(maxEvents_ < 0),
+    maxEventsExit_(pset.getUntrackedParameter<bool>("maxEventsExit", true)),
+    terminate_(false)
   {
     hasNewlyDroppedBranch_.assign(false);
 
@@ -297,19 +303,23 @@ namespace edm
 
     FDEBUG(2) << "writeEvent called\n";
 
-    // This ugly little bit is here to prevent making the Event if
-    // don't need it.
-    if (wantAllEvents_) 
-      {
+    if (remainingEvents_ != 0) {
+      // This ugly little bit is here to prevent making the Event if
+      // don't need it.
+      if (wantAllEvents_) {
 	write(ep); 
-      }
-    else 
-      {
+      } else {
 	// use module description and const_cast unless interface to
 	// event is changed to just take a const EventPrincipal
 	Event e(const_cast<EventPrincipal&>(ep), *c->moduleDescription());
-	if (selectors_.wantEvent(e) ) write(ep);
+	if (selectors_.wantEvent(e)) write(ep);
       }
+      if (!unlimited_) --remainingEvents_;
+      ++writeCount_;
+    }
+    if (remainingEvents_ == 0 && maxEventsExit_) {
+      terminate_ = true;
+    }      
   }
 
 //   bool OutputModule::wantEvent(Event const& ev)

@@ -1,6 +1,6 @@
 
 /*----------------------------------------------------------------------
-$Id: OutputWorker.cc,v 1.18 2006/11/03 17:57:52 wmtan Exp $
+$Id: OutputWorker.cc,v 1.19 2007/03/04 06:10:25 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/interface/OutputModule.h"
@@ -33,6 +33,7 @@ namespace edm {
     bool rc = false;
 
     mod_->writeEvent(ep,description(), cpc);
+    if (mod_->terminate()) setTerminate();
     rc=true;
     return rc;
   }
@@ -53,6 +54,7 @@ namespace edm {
   {
     bool rc = false;
     mod_->doBeginRun(rp,description(),cpc);
+    if (mod_->terminate()) setTerminate();
     rc = true;
     return rc;
   }
@@ -62,6 +64,7 @@ namespace edm {
   {
     bool rc = false;
     mod_->doEndRun(rp,description(),cpc);
+    if (mod_->terminate()) setTerminate();
     rc = true;
     return rc;
   }
@@ -71,6 +74,7 @@ namespace edm {
   {
     bool rc = false;
     mod_->doBeginLuminosityBlock(lbp,description(),cpc);
+    if (mod_->terminate()) setTerminate();
     rc = true;
     return rc;
   }
@@ -80,6 +84,7 @@ namespace edm {
   {
     bool rc = false;
     mod_->doEndLuminosityBlock(lbp,description(),cpc);
+    if (mod_->terminate()) setTerminate();
     rc = true;
     return rc;
   }
