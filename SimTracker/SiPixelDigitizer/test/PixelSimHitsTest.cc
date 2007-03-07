@@ -16,7 +16,7 @@
 //
 // Original Author:  d.k.
 //         Created:  Jan CET 2006
-// $Id: PixelSimHitsTest.cc,v 1.5 2006/09/11 14:29:32 chiochia Exp $
+// $Id: PixelSimHitsTest.cc,v 1.6 2006/10/24 09:50:40 dkotlins Exp $
 //
 //
 // system include files
@@ -28,7 +28,7 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"

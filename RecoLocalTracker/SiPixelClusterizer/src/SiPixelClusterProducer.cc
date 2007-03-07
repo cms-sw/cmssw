@@ -23,7 +23,7 @@
 #include "DataFormats/DetId/interface/DetId.h"
 
 // Framework
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
 // STL

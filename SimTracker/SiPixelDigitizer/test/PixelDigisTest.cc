@@ -16,7 +16,7 @@
 //
 // Original Author:  d.k.
 //         Created:  Jan CET 2006
-// $Id: PixelDigisTest.cc,v 1.13 2006/10/18 06:40:32 dkotlins Exp $
+// $Id: PixelDigisTest.cc,v 1.14 2006/10/24 09:50:40 dkotlins Exp $
 //
 //
 // system include files
@@ -28,7 +28,7 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"

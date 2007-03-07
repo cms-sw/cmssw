@@ -14,7 +14,7 @@
 //
 // Original Author:  V.Chiochia
 //         Created:   CET 2006
-// $Id: PixelMixedSimHitsTest.cc,v 1.2 2006/09/11 14:29:32 chiochia Exp $
+// $Id: PixelMixedSimHitsTest.cc,v 1.3 2006/10/24 09:50:40 dkotlins Exp $
 //
 //
 // system include files
@@ -26,7 +26,7 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 
 #include "FWCore/ParameterSet/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"

@@ -13,7 +13,7 @@
 //
 // Original Author:  Michele Pioppi-INFN perugia
 //         Created:  Mon Sep 26 11:08:32 CEST 2005
-// $Id: SiPixelDigitizer.cc,v 1.23 2006/11/13 14:33:53 chiochia Exp $
+// $Id: SiPixelDigitizer.cc,v 1.24 2007/02/02 11:44:21 dkotlins Exp $
 //
 //
 
@@ -25,7 +25,7 @@
 #include "SimTracker/SiPixelDigitizer/interface/SiPixelDigitizerAlgorithm.h"
 
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
