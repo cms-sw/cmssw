@@ -1,3 +1,8 @@
+2007-03-07  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-11-11-fix
+	* adjust to reorganization of FWCore (MicroStateService).
+
 2007-03-01  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-11-11
