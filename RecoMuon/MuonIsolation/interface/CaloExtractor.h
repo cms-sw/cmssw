@@ -11,7 +11,7 @@
 
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 
-#include "Geometry/Vector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
 namespace muonisolation {
 

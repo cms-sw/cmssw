@@ -4,7 +4,7 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 
@@ -14,7 +14,6 @@
 #include "DataFormats/Common/interface/AssociationMap.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/HLTReco/interface/HLTFilterObject.h"
 
 #include "DataFormats/MuonReco/interface/MuIsoDeposit.h"
 
