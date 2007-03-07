@@ -5,8 +5,8 @@
 //   Description: Pipelined Synchronising Buffer module 
 //
 //
-//   $Date: 2006/08/21 14:23:13 $
-//   $Revision: 1.2 $
+//   $Date: 2006/08/25 15:12:16 $
+//   $Revision: 1.3 $
 //
 //   Author :
 //   N. Neumeister            CERN EP 
@@ -57,6 +57,8 @@ L1MuGMTPSB::L1MuGMTPSB(const L1MuGlobalMuonTrigger& gmt) :
   m_RpcMuons.reserve(L1MuGMTConfig::MAXRPC);
   m_DtbxMuons.reserve(L1MuGMTConfig::MAXDTBX);
   m_CscMuons.reserve(L1MuGMTConfig::MAXCSC);
+  m_Isol.init(false);
+  m_Mip.init(false);
 
 }
 
