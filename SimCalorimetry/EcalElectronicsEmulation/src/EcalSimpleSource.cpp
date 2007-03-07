@@ -6,11 +6,12 @@
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Utilities/interface/Exception.h"
-
+#include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 #include <iostream>
 #include <string>
 
 using namespace std;
+using namespace edm;
 
 bool EcalSimpleSource::produce(edm::Event& evt){
   if(formula_.get()!=0){
@@ -75,6 +76,27 @@ bool EcalSimpleSource::produce(edm::Event& evt){
    }
     evt.put(tps);
   }
+  if(simHitFormula_.get()!=0){//generation of barrel sim hits
+    auto_ptr<PCaloHitContainer> hits
+      = auto_ptr<PCaloHitContainer>(new PCaloHitContainer);
+    const int ievt = event();
+    for(int iEta0=0; iEta0<170; ++iEta0){
+      for(int iPhi0=0; iPhi0<360; ++iPhi0){
+	int iEta1 = cIndex2iEta(iEta0);
+	int iPhi = cIndex2iPhi(iPhi0);
+	if(verbose_) cout << "(" << iEta0 << "," << iPhi0 << "): ";
+	
+	double e = simHitFormula_->Eval(iEta0, iPhi0, ievt-1);
+	double t = 0.;
+	const PCaloHit hit(EBDetId(iEta1,iPhi).rawId(), e, t, 0);
+	hits->push_back(hit);
+      }
+   }
+    evt.put(hits, "EcalHitsEB");
+    //puts an empty digi collecion for endcap:
+    evt.put(auto_ptr<PCaloHitContainer>(new PCaloHitContainer()),
+	    "EcalHitsEE");
+  }
   return true;
 }
 
@@ -83,6 +105,8 @@ EcalSimpleSource::EcalSimpleSource(const edm::ParameterSet& pset,
   GeneratedInputSource(pset, sdesc){
   string formula = pset.getParameter<string>("formula");
   string tpFormula = pset.getParameter<string>("tpFormula");
+  string simHitFormula = pset.getParameter<string>("simHitFormula");
+  
   verbose_ = pset.getUntrackedParameter<bool>("verbose", false);
   replaceAll(formula, "itt0", "(ieta0%85)*20+((iphi0+10)%20)");
   replaceAll(formula, "ieta0", "x");
@@ -98,6 +122,11 @@ EcalSimpleSource::EcalSimpleSource(const edm::ParameterSet& pset,
   replaceAll(tpFormula, "isample0", "t");
   //cout << "----------> " << tpFormula << endl;
 
+  replaceAll(simHitFormula, "itt0", "(ieta0%85)*20+((iphi0+10)%20)");
+  replaceAll(simHitFormula, "ieta0", "x");
+  replaceAll(simHitFormula, "iphi0", "y");
+  replaceAll(simHitFormula, "ievt0", "z");
+  
   if(formula.size()!=0){
     formula_ = auto_ptr<TFormula>(new TFormula("f", formula.c_str()));
     Int_t err = formula_->Compile();
@@ -114,6 +143,17 @@ EcalSimpleSource::EcalSimpleSource(const edm::ParameterSet& pset,
       throw cms::Exception("Error in EcalSimpleSource 'tpFormula' config.");
     }
     produces<EcalTrigPrimDigiCollection>();
+  }
+  if(simHitFormula.size()!=0){
+    simHitFormula_
+      = auto_ptr<TFormula>(new TFormula("f", simHitFormula.c_str()));
+    Int_t err = simHitFormula_->Compile();
+    if(err!=0){
+      throw cms::Exception("Error in EcalSimpleSource "
+			   "'simHitFormula' config.");
+    }
+    produces<edm::PCaloHitContainer>("EcalHitsEB");
+    produces<edm::PCaloHitContainer>("EcalHitsEE");
   }
 }
 
