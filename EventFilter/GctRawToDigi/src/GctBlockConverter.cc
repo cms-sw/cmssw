@@ -16,7 +16,7 @@ GctBlockConverter::GctBlockConverter() {
   // setup block length map
   blockLength_[0x68] = 4;   // ConcElec: Output to Global Trigger
   blockLength_[0x69] = 16;  // ConcElec: Sort Input
-  blockLength+[0x6B] = 2;   // ConcElec: GT Serdes Loopback
+  blockLength_[0x6B] = 2;   // ConcElec: GT Serdes Loopback
   blockLength_[0x80] = 20;  // Leaf-U1, Elec, NegEta, Sort Input
   blockLength_[0x81] = 15;  // Leaf-U1, Elec, NegEta, Raw Input
   blockLength_[0x83] = 4;   // Leaf-U1, Elec, NegEta, Sort Output
