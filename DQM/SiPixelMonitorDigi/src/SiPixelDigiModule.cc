@@ -14,7 +14,7 @@
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 
 // Framework
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
