@@ -7,7 +7,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 #include <FWCore/Utilities/interface/Exception.h>
 #include <FWCore/Framework/interface/EventProcessor.h>
-#include <FWCore/Utilities/interface/ProblemTracker.h>
+#include <FWCore/PluginManager/interface/ProblemTracker.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 #include <FWCore/ParameterSet/interface/FileInPath.h>
 #include <CondFormats/CSCObjects/interface/CSCReadoutMappingFromFile.h>
