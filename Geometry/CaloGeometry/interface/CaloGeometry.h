@@ -2,7 +2,7 @@
 #define GEOMETRY_CALOGEOMETRY_CALOGEOMETRY_H 1
 
 #include "DataFormats/DetId/interface/DetId.h"
-#include "Geometry/Vector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include <map>
 #include <vector>
 
@@ -14,8 +14,8 @@ class CaloCellGeometry;
 Interface class to the geometry information for all calorimetry 
 subdetectors.
 
-$Date: 2006/04/04 15:34:34 $
-$Revision: 1.3 $
+$Date: 2006/05/17 09:27:05 $
+$Revision: 1.4 $
 \author J. Mans and P. Meridiani
 */
 class CaloGeometry {

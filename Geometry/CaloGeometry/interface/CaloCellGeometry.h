@@ -1,8 +1,8 @@
 #ifndef GEOMETRY_CALOGEOMETRY_CALOCELLGEOMETRY_H
 #define GEOMETRY_CALOGEOMETRY_CALOCELLGEOMETRY_H 1
 
-#include "Geometry/Vector/interface/GlobalPoint.h"
-#include "Geometry/Vector/interface/GlobalVector.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include <vector>
 
 
@@ -10,8 +10,8 @@
 
   Abstract base class for an individual cell's geometry.
     
-$Date: 2006/04/04 15:34:34 $
-$Revision: 1.4 $
+$Date: 2006/05/17 09:26:19 $
+$Revision: 1.5 $
 \author J. Mans, P. Meridiani
 */
 class CaloCellGeometry {

@@ -5,7 +5,7 @@
 #include <vector>
 #include <set>
 #include "DataFormats/DetId/interface/DetId.h"
-#include "Geometry/Vector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
 class CaloCellGeometry;
 
@@ -15,8 +15,8 @@ Base class for a geometry container for a specific calorimetry
 subdetector.
 
 
-$Date: 2006/07/20 01:49:01 $
-$Revision: 1.5 $
+$Date: 2006/07/26 18:26:39 $
+$Revision: 1.6 $
 \author J. Mans - Minnesota
 */
 class CaloSubdetectorGeometry {
