@@ -30,24 +30,16 @@
 // simple, and is described in Morris's note (IN ???) on the generalizaton
 // of the pixel algorithm.
 
-
-
-
 #include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEBase.h"
 
-#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
-#include "Geometry/TrackerTopology/interface/RectangularPixelTopology.h"
-
-#include "Geometry/CommonDetAlgo/interface/MeasurementPoint.h"
-#include "Geometry/CommonDetAlgo/interface/MeasurementError.h"
-
-//--- For the various "Frames"
-#include "Geometry/Surface/interface/GloballyPositioned.h"
-
-//--- For the configuration:
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
+// Already defined in the base class
+//#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
+//#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+//#include "Geometry/TrackerTopology/interface/RectangularPixelTopology.h"
+//#include "Geometry/CommonDetAlgo/interface/MeasurementPoint.h"
+//#include "Geometry/CommonDetAlgo/interface/MeasurementError.h"
+//#include "Geometry/Surface/interface/GloballyPositioned.h"
+//#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include <utility>
 #include <vector>

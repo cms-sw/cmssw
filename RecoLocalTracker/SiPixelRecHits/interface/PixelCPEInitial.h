@@ -5,26 +5,19 @@
 // comment out etaCorrection. d.k. 06/06
 
 #include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEBase.h"
-#include "RecoLocalTracker/SiPixelRecHits/interface/EtaCorrection.h"
+//#include "RecoLocalTracker/SiPixelRecHits/interface/EtaCorrection.h"
 
-#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
-#include "Geometry/TrackerTopology/interface/RectangularPixelTopology.h"
-
-#include "Geometry/CommonDetAlgo/interface/MeasurementPoint.h"
-#include "Geometry/CommonDetAlgo/interface/MeasurementError.h"
-
-//--- For the various "Frames"
-#include "Geometry/Surface/interface/GloballyPositioned.h"
-
-//--- For the configuration:
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+// Already in the base class
+//#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
+//#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+//#include "Geometry/TrackerTopology/interface/RectangularPixelTopology.h"
+//#include "Geometry/CommonDetAlgo/interface/MeasurementPoint.h"
+//#include "Geometry/CommonDetAlgo/interface/MeasurementError.h"
+//#include "Geometry/Surface/interface/GloballyPositioned.h"
+//#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include <utility>
 #include <vector>
-
-// &&& Now explicitly included...  //class MeasurementError;
-// class GeomDetUnit;
 
 #if 0
 /** \class PixelCPEInitial

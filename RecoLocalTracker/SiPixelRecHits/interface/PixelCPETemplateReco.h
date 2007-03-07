@@ -3,18 +3,14 @@
 
 #include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEBase.h"
 
-#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
-#include "Geometry/TrackerTopology/interface/RectangularPixelTopology.h"
-
-#include "Geometry/CommonDetAlgo/interface/MeasurementPoint.h"
-#include "Geometry/CommonDetAlgo/interface/MeasurementError.h"
-
-//--- For the various "Frames"
-#include "Geometry/Surface/interface/GloballyPositioned.h"
-
-//--- For the configuration:
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+// Already in the base class
+//#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
+//#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+//#include "Geometry/TrackerTopology/interface/RectangularPixelTopology.h"
+//#include "Geometry/CommonDetAlgo/interface/MeasurementPoint.h"
+//#include "Geometry/CommonDetAlgo/interface/MeasurementError.h"
+//#include "Geometry/Surface/interface/GloballyPositioned.h"
+//#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 
 #ifndef SI_PIXEL_TEMPLATE_STANDALONE

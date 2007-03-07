@@ -9,6 +9,9 @@
 // Move geomCorrection to the concrete class. d.k. 06/06.
 //-----------------------------------------------------------------------------
 
+#include <utility>
+#include <vector>
+
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/PixelClusterParameterEstimator.h"
 #include "RecoLocalTracker/SiPixelRecHits/interface/EtaCorrection.h"
 
@@ -16,28 +19,22 @@
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/TrackerTopology/interface/RectangularPixelTopology.h"
 
-#include "Geometry/CommonDetAlgo/interface/MeasurementPoint.h"
-#include "Geometry/CommonDetAlgo/interface/MeasurementError.h"
-
-//--- For the various "Frames"
-#include "Geometry/Surface/interface/GloballyPositioned.h"
-
 //--- For the configuration:
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-//#include "Geometry/CommonDetUnit/interface/GeomDet.h"
-//#include "Geometry/Surface/interface/GloballyPositioned.h"
-//#include "Geometry/Surface/interface/Surface.h"
-
-#include <utility>
-#include <vector>
-
-// &&& Now explicitly included...  //class MeasurementError;
-// class GeomDetUnit;
+#define TP_OLD
+#ifdef TP_OLD
+#include "Geometry/CommonDetAlgo/interface/MeasurementPoint.h"
+#include "Geometry/CommonDetAlgo/interface/MeasurementError.h"
+#include "Geometry/Surface/interface/GloballyPositioned.h"
+#else  // new location
+#include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementPoint.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementError.h"
+#include "DataFormats/GeometrySurface/interface/GloballyPositioned.h"
+#endif
 
 class MagneticField;
-class PixelCPEBase : public PixelClusterParameterEstimator 
-{
+class PixelCPEBase : public PixelClusterParameterEstimator {
  public:
   // PixelCPEBase( const DetUnit& det );
   PixelCPEBase(edm::ParameterSet const& conf, const MagneticField*);
