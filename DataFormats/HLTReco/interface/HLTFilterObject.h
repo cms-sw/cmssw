@@ -14,8 +14,8 @@
  *  possible HLT filters. Hence we accept the reasonably small
  *  overhead of empty containers.
  *
- *  $Date: 2006/10/23 12:36:29 $
- *  $Revision: 1.21 $
+ *  $Date: 2006/10/25 16:50:41 $
+ *  $Revision: 1.22 $
  *
  *  \author Martin Grunewald
  *
@@ -27,7 +27,7 @@
 #include "DataFormats/Common/interface/HLTenums.h"
 #include "DataFormats/HLTReco/interface/HLTParticle.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
-#include "DataFormats/Common/interface/ProductID.h"
+#include "DataFormats/Provenance/interface/ProductID.h"
 
 #include <algorithm>
 #include <cassert>
