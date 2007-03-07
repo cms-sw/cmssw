@@ -1,4 +1,4 @@
-#include "Geometry/Surface/interface/Line.h"
+#include "DataFormats/GeometrySurface/interface/Line.h"
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/GeomPropagators/interface/AnalyticalTrajectoryExtrapolatorToLine.h"
