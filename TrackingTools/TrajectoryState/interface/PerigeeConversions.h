@@ -1,12 +1,10 @@
 #ifndef PerigeeConversions_H
 #define PerigeeConversions_H
 
-#include "Geometry/CommonDetAlgo/interface/AlgebraicObjects.h"
+#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "TrackingTools/TrajectoryParametrization/interface/PerigeeTrajectoryParameters.h"
 #include "TrackingTools/TrajectoryParametrization/interface/PerigeeTrajectoryError.h"
-// #include "DataFormats/TrackReco/interface/HelixParameters.h"
-// #include "DataFormats/TrackReco/interface/HelixCovariance.h"
 
 class TrajectoryStateClosestToPoint;
 

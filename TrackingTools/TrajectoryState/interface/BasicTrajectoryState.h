@@ -2,7 +2,7 @@
 #define BasicTrajectoryState_H
 
 #include "TrackingTools/TrajectoryState/interface/ProxyBase.h"
-#include "Geometry/Surface/interface/ReferenceCounted.h"
+#include "DataFormats/GeometrySurface/interface/ReferenceCounted.h"
 #include "TrackingTools/TrajectoryState/interface/CopyUsingClone.h"
 //#include "CommonDet/DetUtilities/interface/ReferenceCountingPointer.h"
 

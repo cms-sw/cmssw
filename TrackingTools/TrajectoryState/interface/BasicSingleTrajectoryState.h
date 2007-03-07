@@ -6,11 +6,10 @@
 #include "TrackingTools/TrajectoryParametrization/interface/LocalTrajectoryParameters.h"
 #include "TrackingTools/TrajectoryParametrization/interface/LocalTrajectoryError.h"
 
-#include "Geometry/Surface/interface/ReferenceCounted.h"
-//#include "CommonDet/DetUtilities/interface/ReferenceCountingPointer.h"
+#include "DataFormats/GeometrySurface/interface/ReferenceCounted.h"
 
-#include "Geometry/CommonDetAlgo/interface/DeepCopyPointer.h"
-#include "Geometry/Surface/interface/Surface.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/DeepCopyPointer.h"
+#include "DataFormats/GeometrySurface/interface/Surface.h"
 #include "TrackingTools/TrajectoryParametrization/interface/TrajectoryStateExceptions.h"
 
 class MagneticField;

@@ -1,5 +1,5 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
-#include "Geometry/Surface/interface/BoundPlane.h"
+#include "DataFormats/GeometrySurface/interface/BoundPlane.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 
 #include <iostream>
