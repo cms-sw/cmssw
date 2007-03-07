@@ -1,42 +1,27 @@
-
-<use name=FWCore/Framework>
-<use name=SimMuon/Neutron>
-<use name=SimGeneral/NoiseGenerators>
-<use name=SimGeneral/HepPDTRecord>
-<use name=Foundation/PluginManager>
-<use name=FWCore/ParameterSet>
-<use name=Geometry/Records>
-<use name=Geometry/CommonDetUnit>
-<use name=Geometry/CSCGeometry>
-<use name=SimGeneral/HepPDT>
-<use name=Utilities/Timing>
-<use name=FWCore/MessageLogger>
-<use name=MagneticField/Records>
-<use name=MagneticField/Engine>
+<use name=CondFormats/CSCObjects>
 <use name=DataFormats/CSCDigi>
-<use name=DataFormats/DetId>
+<use name=DataFormats/GeometryVector>
+<use name=DataFormats/MuonDetId>
+<use name=FWCore/Framework>
+<use name=FWCore/MessageLogger>
+<use name=FWCore/ParameterSet>
+<use name=FWCore/Utilities>
+<use name=Foundation/PluginManager>
+<use name=Geometry/CSCGeometry>
+<use name=Geometry/Records>
+<use name=MagneticField/Engine>
+<use name=MagneticField/Records>
+<use name=SimDataFormats/CrossingFrame>
+<use name=SimDataFormats/TrackingHit>
+<use name=SimGeneral/HepPDTRecord>
+<use name=SimGeneral/NoiseGenerators>
+<use name=SimMuon/Neutron>
+<use name=Utilities/General>
+<use name=Utilities/Timing>
 <use name=boost>
-<flags SEAL_PLUGIN_NAME="SimMuonCSCDigitizer">
-
+<use name=clhep>
+<flags SEALPLUGIN=1>
 <export>
   <lib name=SimMuonCSCDigitizer>
-  <use name=SimMuon/Neutron>
-  <use name=SimGeneral/NoiseGenerators>
-  <use name=SimGeneral/HepPDTRecord>
-  <use name=FWCore/Framework>
-  <use name=Foundation/PluginManager>
-  <use name=FWCore/ParameterSet>
-  <use name=Geometry/Records>
-  <use name=Geometry/CommonDetUnit>
-  <use name=Geometry/CSCGeometry>
-  <use name=SimGeneral/HepPDT>
-  <use name=Utilities/Timing>
-  <use name=FWCore/MessageLogger>
-  <use name=MagneticField/Records>
-  <use name=MagneticField/Engine>
-  <use name=DataFormats/CSCDigi>
-  <use name=DataFormats/DetId>
-  <use name=boost>
-
 </export>
 
