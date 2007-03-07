@@ -7,7 +7,7 @@
 #include "CommonTools/Clustering1D/interface/FsmwClusterizer1D.h"
 #include "CommonTools/Clustering1D/interface/MultiClusterizer1D.h"
 #include "CommonTools/Clustering1D/interface/OutermostClusterizer1D.h"
-#include "Geometry/CommonDetAlgo/interface/GlobalError.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/GlobalError.h"
 
 // #define MVBS_DEBUG
 #ifdef MVBS_DEBUG

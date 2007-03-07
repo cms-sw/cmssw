@@ -2,7 +2,7 @@
 #define _LinTrackCache_H_
 
 #include <map>
-#include "Geometry/Vector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "RecoVertex/VertexPrimitives/interface/RefCountedLinearizedTrackState.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 

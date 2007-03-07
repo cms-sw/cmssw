@@ -6,7 +6,7 @@
 #include <utility>
 #include <map>
 #include "RecoVertex/VertexPrimitives/interface/CachingVertex.h"
-#include "Geometry/Vector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "RecoVertex/MultiVertexFit/interface/DefaultMVFAnnealing.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "RecoVertex/LinearizationPointFinders/interface/DefaultLinearizationPointFinder.h"
