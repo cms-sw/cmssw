@@ -1,8 +1,8 @@
-#include "Geometry/Surface/interface/Line.h"
+#include "DataFormats/GeometrySurface/interface/Line.h"
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/GeomPropagators/interface/AnalyticalTrajectoryExtrapolatorToLine.h"
-#include "Geometry/CommonDetAlgo/interface/Measurement1D.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/Measurement1D.h"
 #include "RecoBTag/BTagTools/interface/SignedTransverseImpactParameter.h"
 #include "RecoVertex/VertexPrimitives/interface/ConvertError.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"

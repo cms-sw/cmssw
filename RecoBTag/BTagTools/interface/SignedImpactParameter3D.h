@@ -1,7 +1,7 @@
 #ifndef _BTAGGER_SIGNEDIMPACTPARAMETER3D_H_
 #define _BTAGGER_SIGNEDIMPACTPARAMETER3D_H_
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
-#include "Geometry/CommonDetAlgo/interface/Measurement1D.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/Measurement1D.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
