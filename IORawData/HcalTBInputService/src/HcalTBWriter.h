@@ -5,7 +5,7 @@
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "IORawData/HcalTBInputService/src/CDFRunInfo.h"
@@ -19,8 +19,8 @@ class CDFEventInfo;
   *  
   * Writes HCAL-style ROOT files from the RawData block
   *
-  * $Date: $
-  * $Revision: $
+  * $Date: 2006/01/02 21:59:03 $
+  * $Revision: 1.1 $
   * \author J. Mans - Minnesota
   */
 class HcalTBWriter : public edm::EDAnalyzer {
