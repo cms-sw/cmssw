@@ -14,7 +14,7 @@
 
 #include <TROOT.h>
 #include <TSystem.h>
-#include "FWCore/FWLite/src/AutoLibraryLoader.h"
+#include "FWCore/FWLite/interface/AutoLibraryLoader.h"
 
 static const char * const kHelpOpt = "help";
 static const char * const kHelpCommandOpt = "help,h";
