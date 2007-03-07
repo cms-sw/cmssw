@@ -1,6 +1,6 @@
 #include "TrackingTools/GsfTracking/interface/CloseComponentsTSOSMerger.h"
 
-#include "Geometry/Surface/interface/BoundPlane.h"
+#include "DataFormats/GeometrySurface/interface/BoundPlane.h"
 #include "TrackingTools/GsfTools/interface/BasicMultiTrajectoryState.h"
 #include "TrackingTools/GsfTools/interface/MultiTrajectoryStateAssembler.h"
 #include "TrackingTools/GsfTools/interface/MultiTrajectoryStateCombiner.h"

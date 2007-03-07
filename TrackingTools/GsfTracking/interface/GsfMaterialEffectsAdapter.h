@@ -1,7 +1,7 @@
 #ifndef GsfMaterialEffectsAdapter_H_
 #define GsfMaterialEffectsAdapter_H_
 
-#include "Geometry/CommonDetAlgo/interface/DeepCopyPointerByClone.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/DeepCopyPointerByClone.h"
 #include "TrackingTools/MaterialEffects/interface/MaterialEffectsUpdator.h"
 #include "TrackingTools/GsfTracking/interface/GsfMaterialEffectsUpdator.h"
 

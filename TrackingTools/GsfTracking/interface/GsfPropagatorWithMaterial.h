@@ -5,7 +5,7 @@
 #include "TrackingTools/GsfTools/interface/GsfPropagatorAdapter.h"
 #include "TrackingTools/GsfTracking/interface/GsfMaterialEffectsUpdator.h"
 #include "TrackingTools/GsfTracking/interface/FullConvolutionWithMaterial.h"
-#include "Geometry/CommonDetAlgo/interface/DeepCopyPointerByClone.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/DeepCopyPointerByClone.h"
 
 class MagneticField;
 

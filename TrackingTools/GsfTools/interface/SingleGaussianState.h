@@ -1,8 +1,8 @@
 #ifndef SingleGaussianState_H
 #define SingleGaussianState_H
 
-#include "Geometry/Surface/interface/ReferenceCounted.h"
-#include "Geometry/CommonDetAlgo/interface/AlgebraicObjects.h"
+#include "DataFormats/GeometrySurface/interface/ReferenceCounted.h"
+#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 
 /**
  * Base Class for a single multi-variate gaussian state.

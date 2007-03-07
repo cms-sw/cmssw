@@ -4,7 +4,7 @@
 #include "TrackingTools/GsfTracking/interface/GsfMaterialEffectsUpdator.h"
 #include "TrackingTools/GsfTools/interface/MultiTrajectoryStateAssembler.h"
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
-#include "Geometry/CommonDetAlgo/interface/DeepCopyPointerByClone.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/DeepCopyPointerByClone.h"
 
 //  #include "Utilities/Notification/interface/TimingReport.h"
 

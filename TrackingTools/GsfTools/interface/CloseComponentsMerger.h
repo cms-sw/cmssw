@@ -3,7 +3,7 @@
 
 #include "TrackingTools/GsfTools/interface/MultiGaussianStateMerger.h"
 #include "TrackingTools/GsfTools/interface/DistanceBetweenComponents.h"
-#include "Geometry/CommonDetAlgo/interface/DeepCopyPointerByClone.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/DeepCopyPointerByClone.h"
 
 #include <map>
 

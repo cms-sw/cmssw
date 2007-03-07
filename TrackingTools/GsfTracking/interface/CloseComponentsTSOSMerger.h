@@ -4,7 +4,7 @@
 #include "TrackingTools/GsfTracking/interface/MultiTrajectoryStateMerger.h"
 #include "TrackingTools/GsfTracking/interface/TSOSDistanceBetweenComponents.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
-#include "Geometry/CommonDetAlgo/interface/DeepCopyPointerByClone.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/DeepCopyPointerByClone.h"
 
 #include <map>
 

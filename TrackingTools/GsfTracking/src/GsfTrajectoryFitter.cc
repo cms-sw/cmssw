@@ -3,7 +3,7 @@
 #include "TrackingTools/TrackFitters/interface/TrajectoryStateWithArbitraryError.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 // #include "CommonDet/BasicDet/interface/Det.h"
-#include "Geometry/Surface/interface/BoundPlane.h"
+#include "DataFormats/GeometrySurface/interface/BoundPlane.h"
 #include "TrackingTools/GsfTracking/interface/MultiTrajectoryStateMerger.h"
 // #include "Utilities/Notification/interface/Verbose.h"
 // #include "Utilities/Notification/interface/TimingReport.h"

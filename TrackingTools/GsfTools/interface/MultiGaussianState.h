@@ -1,8 +1,8 @@
 #ifndef MultiGaussianState_H
 #define MultiGaussianState_H
 
-#include "Geometry/Surface/interface/ReferenceCounted.h"
-#include "Geometry/CommonDetAlgo/interface/AlgebraicObjects.h"
+#include "DataFormats/GeometrySurface/interface/ReferenceCounted.h"
+#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 #include "TrackingTools/GsfTools/interface/RCSingleGaussianState.h"
 #include <vector>
 

@@ -2,7 +2,7 @@
 #define GsfCombinedMaterialEffectsUpdator_h_
 
 #include "TrackingTools/GsfTracking/interface/GsfMaterialEffectsUpdator.h"
-#include "Geometry/CommonDetAlgo/interface/DeepCopyPointerByClone.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/DeepCopyPointerByClone.h"
 
 /** Combines two GsfMaterialEffectsUpdators (for multiple scattering
  *  and energy loss).
