@@ -10,15 +10,16 @@
 #include <cmath>
 #include <algorithm>
 
-/** Hsm clusterizer in one dimension, originally designed for ApexPoint Finding
+/** Fraction-of sample mode with weights clustering
  */
 
 template <class T>
 class FsmwClusterizer1D : public Clusterizer1D<T>
 {
 public:
-    //    typedef Cluster1D<T> Cluster1D;
-    FsmwClusterizer1D ( double fraction = .05,
+    /** \param fraction fraction of values that will be considered to be 'in'.
+     */
+    FsmwClusterizer1D ( double fraction = .05, double n_sigma_in = 3.,
                       const WeightEstimator<T> & est = TrivialWeightEstimator<T>() );
     FsmwClusterizer1D ( const FsmwClusterizer1D & );
     ~FsmwClusterizer1D();
@@ -31,6 +32,7 @@ public:
 private:
     WeightEstimator<T> * theEstimator;
     double theFraction;
+    double theNSigmaIn;
 };
 
 /*
@@ -152,13 +154,14 @@ fsmw ( const std::vector< Cluster1D<T> > & values, double fraction )
 
 template <class T>
 FsmwClusterizer1D<T>::FsmwClusterizer1D( const FsmwClusterizer1D<T> & o ) 
-    : theEstimator( o.theEstimator->clone() ), theFraction ( o.theFraction )
+    : theEstimator( o.theEstimator->clone() ), theFraction ( o.theFraction ),
+    theNSigmaIn ( o.theNSigmaIn )
 {}
 
 
 template <class T>
-FsmwClusterizer1D<T>::FsmwClusterizer1D( double fraction, const WeightEstimator<T> & est ) 
-    : theEstimator ( est.clone() ), theFraction ( fraction )
+FsmwClusterizer1D<T>::FsmwClusterizer1D( double fraction, double nsig, const WeightEstimator<T> & est ) 
+    : theEstimator ( est.clone() ), theFraction ( fraction ), theNSigmaIn ( nsig )
 {}
 
 
@@ -207,24 +210,33 @@ FsmwClusterizer1D<T>::operator() ( const std::vector < Cluster1D<T> > & ov ) con
     double err=0.;
     double sigma = sqrt ( square ( estors.first->position().value() - est ) +
                           square ( estors.second->position().value() - est ));
+    /*
+    std::cout << "[FsmwClusterizer1D] first=" << estors.first->position().value()
+              << " second=" << estors.second->position().value()
+              << " est=" << est << std::endl;
+    double sigma = sqrt ( square ( estors.first->position().error() ) +
+                          square ( estors.second->position().error() ) );
+    double sigma = estors.first->position().error();
+                          */
     std::vector < const T * > trks;
     int inliers=0;
 
     for ( typename std::vector< Cluster1D >::iterator i=v.begin();
             i!=v.end() ; ++i )
     {
-        if ( fabs ( i->position().value() - est ) < 3 * sigma )
+        /*
+        std::cout << "[FsmwClusterizer1D] see if they're in: delta="
+                  << 10000 * fabs ( i->position().value() - est )
+                  << " sigma=" << 10000 * sigma << std::endl;
+         */
+        if ( fabs ( i->position().value() - est ) < theNSigmaIn * sigma )
         {
-            // all within 3 sigma are 'in'
-            add
-                ( i->tracks(), trks );
+            // all within theNSigmaIn sigma are 'in'
+            add ( i->tracks(), trks );
             err+= square ( i->position().value() - est );
             inliers++;
-        }
-        else
-        {
-            add
-                ( i->tracks(), unusedtracks );
+        } else {
+            add ( i->tracks(), unusedtracks );
         };
     };
     err /= ( inliers - 1 ); // the algo definitely produces 2 or more inliers

@@ -72,7 +72,7 @@ MtvClusterizer1D<T>::operator() ( const std::vector < Cluster1D<T> > & ov ) cons
     case 0:
         throw Clustering1DException("[MtvClusterizer1D] no values given" );
     case 1:
-	std::pair < std::vector < Cluster1D >, std::vector < const T * > > ret ( ov, unusedtracks );
+        std::pair < std::vector < Cluster1D >, std::vector < const T * > > ret ( ov, unusedtracks );
         return ret;
     };
     std::vector < Cluster1D > v = ov;

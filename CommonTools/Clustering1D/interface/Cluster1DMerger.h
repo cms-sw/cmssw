@@ -49,20 +49,21 @@ Cluster1D<T> Cluster1DMerger<T>::operator() ( const Cluster1D<T> & first,
 {
     std::vector < const T * > tracks = first.tracks();
     std::vector < const T * > sectracks = second.tracks();
-    for ( typename std::vector< const T * >::const_iterator i=sectracks.begin(); i!=sectracks.end() ; ++i )
+    for ( typename std::vector< const T * >::const_iterator i=sectracks.begin(); 
+          i!=sectracks.end() ; ++i )
     {
         tracks.push_back ( *i );
     };
-    float V1=first.position().error() * first.position().error();
-    float V2=second.position().error() * second.position().error();
-    float C1=first.weight() / V1;
-    float C2=second.weight() / V2;
+    double V1=first.position().error() * first.position().error();
+    double V2=second.position().error() * second.position().error();
+    double C1=first.weight() / V1;
+    double C2=second.weight() / V2;
 
-    float newpos = ( first.position().value() * C1 +
+    double newpos = ( first.position().value() * C1 +
                      second.position().value() * C2 ) / ( C1 + C2 );
 
-    float newerr = sqrt ( C1 * C1 * V1 + C2 * C2 * V2 ) / ( C1 + C2 );
-    float newWeight = theEstimator->weight ( tracks );
+    double newerr = sqrt ( C1 * C1 * V1 + C2 * C2 * V2 ) / ( C1 + C2 );
+    double newWeight = theEstimator->weight ( tracks );
 
     Measurement1D newmeas ( newpos, newerr );
     return Cluster1D<T> ( newmeas, tracks, newWeight );
