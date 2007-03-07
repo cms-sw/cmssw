@@ -4,7 +4,6 @@
 <use name=FWCore/Utilities>
 <use name=Geometry/CommonDetAlgo>
 <use name=Geometry/Surface>
-<use name=Geometry/Vector>
 <use name=MagneticField/Engine>
 <use name=TrackingTools/AnalyticalJacobians>
 <use name=TrackingTools/DetLayers>
@@ -14,7 +13,6 @@
   <use name=FWCore/Utilities>
   <use name=Geometry/CommonDetAlgo>
   <use name=Geometry/Surface>
-  <use name=Geometry/Vector>
   <use name=MagneticField/Engine>
   <use name=TrackingTools/TrajectoryState>
   <lib name=TrackingToolsGeomPropagators>
