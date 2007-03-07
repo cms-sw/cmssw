@@ -6,8 +6,8 @@
  *   Description:  Dump GMT readout
 */
 //                
-//   $Date: 2006/08/25 15:10:28 $
-//   $Revision: 1.2 $
+//   $Date: 2006/10/20 12:53:08 $
+//   $Revision: 1.3 $
 //
 //   I. Mikulec            HEPHY Vienna
 //
@@ -29,7 +29,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 

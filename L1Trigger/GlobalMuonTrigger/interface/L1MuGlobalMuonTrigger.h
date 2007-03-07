@@ -5,8 +5,8 @@
 //   Description: L1 Global Muon Trigger
 //
 //
-//   $Date$
-//   $Revision$
+//   $Date: 2006/05/15 13:56:01 $
+//   $Revision: 1.1 $
 //
 //   Author :
 //   Ivan Mikulec                    HEPHY Vienna
@@ -28,7 +28,7 @@
 // Collaborating Class Declarations --
 //------------------------------------
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuRegionalCand.h"
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTReadoutRecord.h"
