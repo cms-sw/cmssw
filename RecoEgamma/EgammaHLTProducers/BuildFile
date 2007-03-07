@@ -4,6 +4,8 @@
 <use name=DataFormats/EgammaCandidates>
 <use name=Geometry/CaloEventSetup>
 <use name=Geometry/CaloGeometry>
+<use name=RecoEcal/EgammaClusterAlgos>
+<use name=RecoEcal/EgammaCoreTools>
 <use name=RecoEgamma/EgammaHLTAlgos>
 <use name=MagneticField/Engine>
 <use name=MagneticField/Records>
@@ -11,6 +13,8 @@
 <use name=DataFormats/SiPixelCluster>
 <use name=DataFormats/TrackerRecHit2D>
 <use name=DataFormats/TrackingRecHit>
+<use name=L1TriggerConfig/L1Geometry>
+<use name=L1TriggerConfig/L1GeometryProducers>
 <use name=Geometry/CommonDetUnit>
 <use name=Geometry/TrackerGeometryBuilder>
 <use name=SimDataFormats/HepMCProduct>
@@ -23,6 +27,8 @@
    <use name=DataFormats/EgammaCandidates>
    <use name=Geometry/CaloEventSetup>
    <use name=Geometry/CaloGeometry>
+   <use name=RecoEcal/EgammaClusterAlgos>
+   <use name=RecoEcal/EgammaCoreTools>
    <use name=RecoEgamma/EgammaHLTAlgos>
    <use name=MagneticField/Engine>
    <use name=MagneticField/Records>
@@ -30,6 +36,8 @@
    <use name=DataFormats/SiPixelCluster>
    <use name=DataFormats/TrackerRecHit2D>
    <use name=DataFormats/TrackingRecHit>
+   <use name=L1TriggerConfig/L1Geometry>
+   <use name=L1TriggerConfig/L1GeometryProducers>
    <use name=Geometry/CommonDetUnit>
    <use name=Geometry/TrackerGeometryBuilder>
    <use name=SimDataFormats/HepMCProduct>
