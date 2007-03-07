@@ -1,14 +1,14 @@
 /* \file testDaqSource.cc
  *
- *  $Date: 2005/11/23 13:18:15 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/03/27 09:54:56 $
+ *  $Revision: 1.1 $
  *  \author S. Argiro, N. Amapane - CERN
  */
 
 #include <cppunit/extensions/HelperMacros.h>
 #include <FWCore/Framework/interface/EventProcessor.h>
-#include <FWCore/Utilities/interface/ProblemTracker.h>
 #include <FWCore/Utilities/interface/Exception.h>
+#include <FWCore/PluginManager/interface/ProblemTracker.h>
 #include <iostream>
 #include <cstdlib>
 
