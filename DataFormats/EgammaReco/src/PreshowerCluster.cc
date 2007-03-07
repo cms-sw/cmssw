@@ -1,8 +1,8 @@
 //
-// $Id: PreshowerCluster.cc,v 1.11 2007/02/07 00:00:42 futyand Exp $
+// $Id: PreshowerCluster.cc,v 1.12 2007/02/14 15:46:23 futyand Exp $
 //
 #include "DataFormats/EgammaReco/interface/PreshowerCluster.h"
-#include "Geometry/Vector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
 using namespace reco;
 
