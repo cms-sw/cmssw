@@ -11,9 +11,22 @@
 #include <cmath>
 #include <functional>
 
-//#include <CLHEP/Vector/TwoVector.h>
-
 #include "SimJetResponseAnalysis.h"
+
+
+#include "FWCore/Framework/interface/Event.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+
+#include "DataFormats/JetReco/interface/CaloJet.h"
+#include "DataFormats/JetReco/interface/CaloJetfwd.h"
+#include "DataFormats/JetReco/interface/GenJet.h"
+#include "DataFormats/JetReco/interface/GenJetfwd.h"
+
+#include "CaloTowerBoundriesMC.h"
 #include "JetUtilMC.h"
 
 typedef CaloJetCollection::const_iterator CalJetIter;

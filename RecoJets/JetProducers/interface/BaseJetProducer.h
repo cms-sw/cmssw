@@ -7,18 +7,14 @@
  * It handles generic manipulations of input and output collections
  *
  * \author Fedor Ratnikov (UMd) Aug. 22, 2006
- * $Id: BaseJetProducer.h,v 1.3 2007/02/07 00:39:53 fedor Exp $
+ * $Id: BaseJetProducer.h,v 1.4 2007/02/08 01:46:12 fedor Exp $
  *
  ************************************************************/
 
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "DataFormats/Common/interface/EDProduct.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/Handle.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "FWCore/Framework/interface/EventSetup.h"
+#include "DataFormats/Common/interface/EDProductfwd.h"
 #include "RecoJets/JetAlgorithms/interface/JetRecoTypes.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 namespace cms
 {

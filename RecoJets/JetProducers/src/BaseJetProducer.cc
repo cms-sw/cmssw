@@ -1,8 +1,13 @@
 // File: BaseJetProducer.cc
 // Author: F.Ratnikov UMd Aug 22, 2006
-// $Id: BaseJetProducer.cc,v 1.7 2007/02/08 01:46:12 fedor Exp $
+// $Id: BaseJetProducer.cc,v 1.8 2007/02/08 21:07:04 fedor Exp $
 //--------------------------------------------
 #include <memory>
+
+#include "DataFormats/Common/interface/EDProduct.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/JetReco/interface/GenJet.h"
@@ -10,8 +15,6 @@
 #include "RecoJets/JetAlgorithms/interface/JetMaker.h"
 #include "RecoJets/JetAlgorithms/interface/JetAlgoHelper.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
-#include "FWCore/Framework/interface/Handle.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "RecoJets/JetProducers/interface/BaseJetProducer.h"
 

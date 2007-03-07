@@ -5,12 +5,6 @@
 #include <memory>
 
 #include "RecoJets/JetProducers/interface/ExtKtJetProducer.h"
-#include "DataFormats/JetReco/interface/CaloJet.h"
-#include "DataFormats/JetReco/interface/GenJet.h"
-#include "DataFormats/JetReco/interface/BasicJet.h"
-#include "RecoJets/JetAlgorithms/interface/JetMaker.h"
-#include "DataFormats/Candidate/interface/CandidateFwd.h"
-#include "FWCore/Framework/interface/Handle.h"
 
 //  Wrapper around ktjet-package (http://projects.hepforge.org/ktjet)
 //  See Reference: Comp. Phys. Comm. vol 153/1 85-96 (2003)

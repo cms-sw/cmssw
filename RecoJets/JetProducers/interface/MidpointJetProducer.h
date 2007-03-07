@@ -10,17 +10,9 @@
  *
  * \version   1st Version Apr. 6, 2005  
  * \version   F.Ratnikov, Mar. 8, 2006. Work from Candidate
- * $Id: MidpointJetProducer.h,v 1.7 2006/08/22 22:11:40 fedor Exp $
+ * $Id: MidpointJetProducer.h,v 1.8 2006/12/05 18:37:45 fedor Exp $
  *
  ************************************************************/
-
-#include "FWCore/Framework/interface/EDProducer.h"
-#include "DataFormats/Common/interface/EDProduct.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/Handle.h"
-
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "RecoJets/JetProducers/interface/BaseJetProducer.h"
 #include "RecoJets/JetAlgorithms/interface/CMSMidpointAlgorithm.h"

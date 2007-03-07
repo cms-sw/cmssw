@@ -6,12 +6,6 @@
 #include <memory>
 
 #include "RecoJets/JetProducers/interface/FastJetProducer.h"
-#include "DataFormats/JetReco/interface/CaloJet.h"
-#include "DataFormats/JetReco/interface/GenJet.h"
-#include "DataFormats/JetReco/interface/BasicJet.h"
-#include "RecoJets/JetAlgorithms/interface/JetMaker.h"
-#include "DataFormats/Candidate/interface/CandidateFwd.h"
-#include "FWCore/Framework/interface/Handle.h"
 
 using namespace std;
 using namespace reco;
