@@ -1,14 +1,14 @@
 /**
  * \file CSCSegAlgoSK.cc
  *
- *  $Date: 2006/09/26 09:00:12 $
- *  $Revision: 1.9 $
+ *  $Date: 2006/11/21 19:07:29 $
+ *  $Revision: 1.10 $
  *  \author M. Sani
  */
  
 #include <RecoLocalMuon/CSCSegment/src/CSCSegAlgoSK.h>
 #include <Geometry/CSCGeometry/interface/CSCLayer.h>
-#include <Geometry/Vector/interface/GlobalPoint.h>
+#include <DataFormats/GeometryVector/interface/GlobalPoint.h>
 
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 #include <FWCore/MessageLogger/interface/MessageLogger.h> 

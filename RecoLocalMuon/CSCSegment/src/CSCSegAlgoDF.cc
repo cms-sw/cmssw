@@ -8,7 +8,7 @@
 
 //#include <DataFormats/CSCRecHit/interface/CSCSegment.h>
 #include <Geometry/CSCGeometry/interface/CSCLayer.h>
-#include <Geometry/Vector/interface/GlobalPoint.h>
+#include <DataFormats/GeometryVector/interface/GlobalPoint.h>
 
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 #include <FWCore/MessageLogger/interface/MessageLogger.h> 

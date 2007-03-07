@@ -1,8 +1,8 @@
 /**
  * \file CSCSegAlgoTC.cc
  *
- * $Date: 2006/11/21 23:22:13 $
- * $Revision: 1.8 $
+ * $Date: 2006/11/22 22:59:10 $
+ * $Revision: 1.9 $
  * \author M. Sani
  * 
  */
@@ -11,7 +11,7 @@
 
 #include <DataFormats/CSCRecHit/interface/CSCSegment.h>
 #include <Geometry/CSCGeometry/interface/CSCLayer.h>
-#include <Geometry/Vector/interface/GlobalPoint.h>
+#include <DataFormats/GeometryVector/interface/GlobalPoint.h>
 
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 #include <FWCore/MessageLogger/interface/MessageLogger.h> 

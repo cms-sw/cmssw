@@ -21,15 +21,15 @@
  * Reimplemented in terms of layer index, and bug fix: Tim.Cox@cern.ch <BR>
  * Ported to CMSSW 2006-04-03: Matteo.Sani@cern.ch <BR>
  *
- *  $Date: 2006/09/26 09:00:16 $
- *  $Revision: 1.7 $
+ *  $Date: 2006/11/21 19:07:23 $
+ *  $Revision: 1.8 $
  *  \author M. Sani
  */
 
 #include <RecoLocalMuon/CSCSegment/src/CSCSegmentAlgorithm.h>
 #include <DataFormats/CSCRecHit/interface/CSCRecHit2D.h>
 
-//#include <Geometry/Vector/interface/GlobalPoint.h>
+//#include <DataFormats/GeometryVector/interface/GlobalPoint.h>
 
 #include <deque>
 #include <vector>
