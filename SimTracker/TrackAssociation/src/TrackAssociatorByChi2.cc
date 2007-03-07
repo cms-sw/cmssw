@@ -2,8 +2,8 @@
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 
 // #include "TrackingTools/GeomPropagators/interface/HelixExtrapolatorToLine2Order.h"
-#include "Geometry/Surface/interface/Line.h"
-#include "Geometry/Vector/interface/Pi.h"
+#include "DataFormats/GeometrySurface/interface/Line.h"
+#include "DataFormats/GeometryVector/interface/Pi.h"
 
 using namespace edm;
 using namespace reco;
