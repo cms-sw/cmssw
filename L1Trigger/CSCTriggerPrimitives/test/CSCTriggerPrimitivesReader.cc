@@ -7,8 +7,8 @@
 //
 //   Author List: S. Valuev, UCLA.
 //
-//   $Date: 2006/12/21 13:53:08 $
-//   $Revision: 1.9 $
+//   $Date: 2007/01/26 17:45:39 $
+//   $Revision: 1.10 $
 //
 //   Modifications:
 //
@@ -23,7 +23,7 @@
 // Collaborating Class Headers --
 //-------------------------------
 #include <FWCore/Framework/interface/MakerMacros.h>
-#include <FWCore/Framework/interface/Handle.h>
+#include <DataFormats/Common/interface/Handle.h>
 #include <FWCore/Framework/interface/ESHandle.h>
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 

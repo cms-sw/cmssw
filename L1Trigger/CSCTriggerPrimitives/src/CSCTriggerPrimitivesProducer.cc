@@ -7,8 +7,8 @@
 //
 //   Author List: S. Valuev, UCLA.
 //
-//   $Date: 2006/06/29 10:50:30 $
-//   $Revision: 1.4 $
+//   $Date: 2007/02/19 15:02:37 $
+//   $Revision: 1.5 $
 //
 //   Modifications:
 //
@@ -18,7 +18,7 @@
 #include <L1Trigger/CSCTriggerPrimitives/src/CSCTriggerPrimitivesBuilder.h>
 
 #include <Utilities/Timing/interface/TimingReport.h>
-#include <FWCore/Framework/interface/Handle.h>
+#include <DataFormats/Common/interface/Handle.h>
 #include <FWCore/Framework/interface/ESHandle.h>
 #include <FWCore/MessageLogger/interface/MessageLogger.h> 
 
