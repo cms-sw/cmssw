@@ -1,7 +1,7 @@
 #ifndef JacobianCurvilinearToCartesian_H
 #define JacobianCurvilinearToCartesian_H
 
-#include "Geometry/CommonDetAlgo/interface/AlgebraicObjects.h"
+#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 
 class GlobalTrajectoryParameters;
 

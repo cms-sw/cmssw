@@ -1,5 +1,5 @@
 #include "TrackingTools/GeomPropagators/interface/HelixForwardPlaneCrossing.h"
-#include "Geometry/Surface/interface/Plane.h"
+#include "DataFormats/GeometrySurface/interface/Plane.h"
 
 #include <cmath>
 #include <cfloat>

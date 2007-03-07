@@ -3,8 +3,8 @@
 
 #include "TrackingTools/GeomPropagators/interface/HelixPlaneCrossing.h"
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
-#include "Geometry/Vector/interface/GlobalPoint.h"
-#include "Geometry/Vector/interface/GlobalVector.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalVector.h"
 
 /** Computes the crossing of a helix with a barrel plane.
  *  Exact if the magnetic field is parallel to the plane.

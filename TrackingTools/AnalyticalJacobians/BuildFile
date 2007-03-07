@@ -1,13 +1,13 @@
 
 <export>
  <lib name=TrackingToolsAnalyticalJacobians>
- <use name=Geometry/Surface>
+ <use name=DataFormats/GeometrySurface>
  <use name=TrackingTools/TrajectoryParametrization>
  <use name=DataFormats/TrajectoryState>
  <use name=clhep>
 </export>
 
-<use name=Geometry/Surface>
+<use name=DataFormats/GeometrySurface>
 <use name=TrackingTools/TrajectoryParametrization>
 <use name=DataFormats/TrajectoryState>
 <use name=clhep>

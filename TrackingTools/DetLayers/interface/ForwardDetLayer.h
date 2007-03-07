@@ -1,13 +1,6 @@
 #ifndef DetLayers_ForwardDetLayer_H
 #define DetLayers_ForwardDetLayer_H
 
-#include "TrackingTools/DetLayers/interface/DetLayer.h"
-#include "Geometry/Surface/interface/ReferenceCounted.h"
-#include "Geometry/Surface/interface/BoundDisk.h"
-#include <vector>
-#include <algorithm>
-
-
 /** A specialization of the DetLayer interface for forward layers.
  *  Forward layers are disks with their axes parallel to 
  *  the global Z axis.
@@ -15,6 +8,13 @@
  *  are implemented in this class,
  *  but some methods are left abstract.
  */
+
+#include "TrackingTools/DetLayers/interface/DetLayer.h"
+#include "DataFormats/GeometrySurface/interface/ReferenceCounted.h"
+#include "DataFormats/GeometrySurface/interface/BoundCylinder.h"
+
+#include <vector>
+#include <algorithm>
 
 class ForwardDetLayer : public DetLayer {
 public:

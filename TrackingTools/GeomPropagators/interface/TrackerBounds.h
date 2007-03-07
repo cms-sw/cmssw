@@ -1,7 +1,7 @@
 #ifndef GeomPropagators_TrackerBounds_H
 #define GeomPropagators_TrackerBounds_H
 
-#include "Geometry/Surface/interface/ReferenceCounted.h"
+#include "DataFormats/GeometrySurface/interface/ReferenceCounted.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
 class BoundCylinder;
@@ -19,8 +19,8 @@ class BoundDisk;
  *  Outside of this volume use some kind of geane.
 
  *  Ported from ORCA
- *  $Date: 2006/04/24 20:36:14 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/03/06 14:34:32 $
+ *  $Revision: 1.3 $
  */
 
 class TrackerBounds {

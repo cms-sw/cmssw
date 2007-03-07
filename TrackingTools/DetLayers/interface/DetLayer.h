@@ -1,16 +1,6 @@
 #ifndef DetLayers_DetLayer_h
 #define DetLayers_DetLayer_h
 
-#include "TrackingTools/DetLayers/interface/GeometricSearchDet.h"
-
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
-#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
-#include "TrackingTools/DetLayers/interface/NavigableLayer.h"
-#include "TrackingTools/DetLayers/interface/NavigationDirection.h"
-#include <vector>
-
-
-
 /** \class DetLayer
  *  The DetLayer is the detector abstraction used for track reconstruction.
  *  It inherits from GeometricSearchDet the interface for accessing 
@@ -20,8 +10,19 @@
  *  The Navigation links must be created in a 
  *  NavigationSchool and activated with a NavigationSetter before they 
  *  can be used.
- * 
+ *
+ *  $Date:  $
+ *  $Revision: $
  */
+
+#include "TrackingTools/DetLayers/interface/GeometricSearchDet.h"
+
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
+#include "TrackingTools/DetLayers/interface/NavigableLayer.h"
+#include "TrackingTools/DetLayers/interface/NavigationDirection.h"
+
+#include <vector>
 
 class DetLayer : public GeometricSearchDet {  
  public:

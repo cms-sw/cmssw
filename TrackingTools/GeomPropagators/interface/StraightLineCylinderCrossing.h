@@ -1,9 +1,10 @@
 #ifndef StraightLineCylinderCrossing_H
 #define StraightLineCylinderCrossing_H
 
-#include "Geometry/Vector/interface/Basic2DVector.h"
-#include "Geometry/Vector/interface/LocalPoint.h"
-#include "Geometry/Vector/interface/LocalVector.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalVector.h"
+#include "DataFormats/GeometryVector/interface/Basic2DVector.h"
+
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 
 #include <utility>

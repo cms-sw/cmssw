@@ -1,8 +1,9 @@
 #ifndef HelixLineExtrapolation_H
 #define HelixLineExtrapolation_H
 
-#include "Geometry/Vector/interface/GlobalPoint.h"
-#include "Geometry/Vector/interface/GlobalVector.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalVector.h"
+
 #include <utility>
 
 class Line;

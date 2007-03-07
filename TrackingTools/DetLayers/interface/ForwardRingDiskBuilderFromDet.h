@@ -1,17 +1,22 @@
 #ifndef DetLayers_ForwardRingDiskBuilderFromDet_H
 #define DetLayers_ForwardRingDiskBuilderFromDet_H
 
+/** \class ForwardRingDiskBuilderFromDet
+ *  As it's name indicates, it's a builder of BoundDisk from a collection of
+ *  Dets. The disk has the minimal size fully containing all Dets.
+ *
+ *  $Date:  $
+ *  $Revision: $
+ */
+
 #include "TrackingTools/DetLayers/interface/GeometricSearchDet.h"
-#include "Geometry/Surface/interface/BoundDisk.h"
+#include "DataFormats/GeometrySurface/interface/BoundDisk.h"
+
 #include <utility>
 #include <vector>
 
 class Det;
 class SimpleDiskBounds;
-
-/** As it's name indicates, it's a builder of BoundDisk from a collection of
- *  Dets. The disk has the minimal size fully containing all Dets.
- */
 
 class ForwardRingDiskBuilderFromDet {
 public:

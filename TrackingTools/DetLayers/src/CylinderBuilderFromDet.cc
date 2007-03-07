@@ -1,7 +1,6 @@
 #include "TrackingTools/DetLayers/interface/CylinderBuilderFromDet.h"
-//#include "CommonDet/DetGeometry/interface/BoundPlane.h"
-#include "Geometry/Surface/interface/SimpleCylinderBounds.h"
-#include "Geometry/Surface/interface/BoundingBox.h"
+#include "DataFormats/GeometrySurface/interface/SimpleDiskBounds.h"
+#include "DataFormats/GeometrySurface/interface/BoundingBox.h"
 #include <algorithm>
 
 using namespace std;

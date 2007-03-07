@@ -1,9 +1,11 @@
 #include "TrackingTools/GeomPropagators/interface/PropagationDirectionChooser.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
-#include "Geometry/Surface/interface/Surface.h"
-#include "Geometry/Surface/interface/Cylinder.h"
-#include "Geometry/Surface/interface/Plane.h"
 #include "TrackingTools/GeomPropagators/interface/PropagationExceptions.h"
+
+#include "DataFormats/GeometrySurface/interface/Surface.h"
+#include "DataFormats/GeometrySurface/interface/Cylinder.h"
+#include "DataFormats/GeometrySurface/interface/Plane.h"
+
 #include "MagneticField/Engine/interface/MagneticField.h"
 
 #include <cmath>

@@ -1,9 +1,12 @@
 #include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
-#include "Geometry/Surface/interface/Cylinder.h"
-#include "Geometry/Surface/interface/Plane.h"
-#include "Geometry/Surface/interface/TangentPlane.h"
-#include "TrackingTools/GeomPropagators/interface/PropagationExceptions.h"
+
+#include "DataFormats/GeometrySurface/interface/Cylinder.h"
+#include "DataFormats/GeometrySurface/interface/TangentPlane.h"
+#include "DataFormats/GeometrySurface/interface/Plane.h"
+
 #include "MagneticField/Engine/interface/MagneticField.h"
+
+#include "TrackingTools/GeomPropagators/interface/PropagationExceptions.h"
 #include "TrackingTools/GeomPropagators/interface/StraightLinePlaneCrossing.h"
 #include "TrackingTools/GeomPropagators/interface/StraightLineBarrelCylinderCrossing.h"
 #include "TrackingTools/GeomPropagators/interface/HelixBarrelPlaneCrossingByCircle.h"

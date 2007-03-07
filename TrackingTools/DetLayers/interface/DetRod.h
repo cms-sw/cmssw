@@ -6,7 +6,7 @@
  */
 
 #include "TrackingTools/DetLayers/interface/GeometricSearchDet.h"
-#include "Geometry/Surface/interface/BoundPlane.h"
+#include "DataFormats/GeometrySurface/interface/BoundPlane.h"
 
 class MeasurementEstimator;
 

@@ -8,7 +8,8 @@
  *  theta, phi,
  *  transverse impact parameter (signed), longitudinal i.p.
  */
-#include "Geometry/CommonDetAlgo/interface/AlgebraicObjects.h"
+
+#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 #include "DataFormats/Math/interface/Vector.h"
 #include "DataFormats/TrackReco/interface/TrackBase.h"
 

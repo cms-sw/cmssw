@@ -23,11 +23,10 @@
 /* Collaborating Class Declarations */
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
-#include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
-#include "Geometry/Surface/interface/ReferenceCounted.h"
-
+#include "DataFormats/GeometrySurface/interface/ReferenceCounted.h"
+#include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 
 class BoundCylinder;
 class BoundPlane;

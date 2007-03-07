@@ -1,6 +1,7 @@
 #include "TrackingTools/GeomPropagators/interface/HelixArbitraryPlaneCrossing2Order.h"
-#include "Geometry/Surface/interface/Plane.h"
-#include "Geometry/Vector/interface/GlobalPoint.h"
+
+#include "DataFormats/GeometrySurface/interface/Plane.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
 #include <cmath>
 #include <cfloat>

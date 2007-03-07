@@ -4,8 +4,9 @@
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
 #include "TrackingTools/AnalyticalJacobians/interface/AnalyticalCurvilinearJacobian.h"
-#include "Geometry/Surface/interface/PlaneBuilder.h"
-#include "Geometry/Surface/interface/Plane.h"
+#include "DataFormats/GeometrySurface/interface/Plane.h"
+#include "DataFormats/GeometrySurface/interface/PlaneBuilder.h"
+
 // #include "CommonDet/DetUtilities/interface/DetailedDetTimer.h"
 
 AnalyticalImpactPointExtrapolator::AnalyticalImpactPointExtrapolator (const MagneticField* field) :

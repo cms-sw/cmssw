@@ -2,7 +2,7 @@
 #define DetLayers_GeometricSearchDet_h
 
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
-#include "Geometry/Surface/interface/BoundSurface.h"
+#include "DataFormats/GeometrySurface/interface/BoundSurface.h"
 
 #include "TrackingTools/DetLayers/interface/DetGroup.h"
 #include "TrackingTools/DetLayers/interface/GeomDetCompatibilityChecker.h"

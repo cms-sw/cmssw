@@ -6,7 +6,7 @@
  */
 
 #include "TrackingTools/DetLayers/interface/GeometricSearchDet.h"
-#include "Geometry/Surface/interface/BoundDisk.h"
+#include "DataFormats/GeometrySurface/interface/BoundDisk.h"
 
 class ForwardDetRing : public GeometricSearchDet {
  public:

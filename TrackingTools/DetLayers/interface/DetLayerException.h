@@ -1,14 +1,18 @@
-/** Exceptions thrown from TrackingTools/DetLayers and dependent subsystems.
- */
-
 #ifndef DetLayers_DetLayerException_h
 #define DetLayers_DetLayerException_h
 
-#include <exception>
-#include <string>
+/** \class DetLayerException
+ *  Exceptions thrown from TrackingTools/DetLayers and dependent subsystems.
+ *
+ *  $Date: $
+ *  $Revision: $
+ */
 
 /// Common base class
 #include "FWCore/Utilities/interface/Exception.h"
+
+#include <exception>
+#include <string>
 
 class DetLayerException : public cms::Exception {
 public:

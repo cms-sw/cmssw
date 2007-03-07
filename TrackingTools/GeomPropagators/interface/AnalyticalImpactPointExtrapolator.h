@@ -1,10 +1,11 @@
 #ifndef AnalyticalImpactPointExtrapolator_h_
 #define AnalyticalImpactPointExtrapolator_h_
 
-#include "Geometry/Vector/interface/GlobalPoint.h"
-#include "Geometry/Vector/interface/GlobalVector.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalVector.h"
+
+#include "DataFormats/GeometryCommonDetAlgo/interface/DeepCopyPointerByClone.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
-#include "Geometry/CommonDetAlgo/interface/DeepCopyPointerByClone.h"
 
 class FreeTrajectoryState;
 class TrajectoryStateOnSurface;

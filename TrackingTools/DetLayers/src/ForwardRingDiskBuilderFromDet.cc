@@ -1,6 +1,6 @@
 #include "TrackingTools/DetLayers/interface/ForwardRingDiskBuilderFromDet.h"
-#include "Geometry/Surface/interface/SimpleDiskBounds.h"
-#include "Geometry/Surface/interface/BoundingBox.h"
+#include "DataFormats/GeometrySurface/interface/SimpleDiskBounds.h"
+#include "DataFormats/GeometrySurface/interface/BoundingBox.h"
 
 using namespace std;
 

@@ -1,9 +1,10 @@
 #ifndef StraightLineBarrelCylinderCrossing_H
 #define StraightLineBarrelCylinderCrossing_H
 
-#include "Geometry/Vector/interface/Basic2DVector.h"
-#include "Geometry/Vector/interface/GlobalPoint.h"
-#include "Geometry/Vector/interface/GlobalVector.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalVector.h"
+#include "DataFormats/GeometryVector/interface/Basic2DVector.h"
+
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 
 #include <utility>

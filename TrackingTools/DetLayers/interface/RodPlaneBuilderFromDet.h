@@ -2,7 +2,8 @@
 #define DetLayers_RodPlaneBuilderFromDet_H
 
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
-#include "Geometry/Surface/interface/BoundPlane.h"
+#include "DataFormats/GeometrySurface/interface/BoundPlane.h"
+
 #include <utility>
 #include <vector>
 

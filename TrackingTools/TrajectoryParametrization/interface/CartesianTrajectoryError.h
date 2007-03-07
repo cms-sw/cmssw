@@ -1,8 +1,8 @@
 #ifndef _TRACKER_CARTESIANTRAJECTORYERROR_H_
 #define _TRACKER_CARTESIANTRAJECTORYERROR_H_
 
-#include "Geometry/CommonDetAlgo/interface/AlgebraicObjects.h"
-#include "Geometry/CommonDetAlgo/interface/GlobalError.h"
+#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/GlobalError.h"
 
 /** Class containing (6x6) error matrix of a track in the global, Cartesian frame.
  *  This error matrix should be used with care and in particular not as an

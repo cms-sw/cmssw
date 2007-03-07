@@ -1,7 +1,8 @@
 #ifndef HelixPlaneCrossing_H
 #define HelixPlaneCrossing_H
 
-#include "Geometry/Vector/interface/Basic3DVector.h"
+#include "DataFormats/GeometryVector/interface/Basic3DVector.h"
+
 #include <utility>
 class Plane;
 

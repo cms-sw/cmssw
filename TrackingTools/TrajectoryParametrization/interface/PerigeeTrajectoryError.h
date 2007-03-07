@@ -1,7 +1,7 @@
 #ifndef PerigeeTrajectoryError_H
 #define PerigeeTrajectoryError_H
 
-#include "Geometry/CommonDetAlgo/interface/AlgebraicObjects.h"
+#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 #include "TrackingTools/TrajectoryParametrization/interface/TrajectoryStateExceptions.h"
 #include "DataFormats/Math/interface/Error.h"
 

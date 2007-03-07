@@ -1,5 +1,6 @@
 #include "TrackingTools/GeomPropagators/interface/StraightLineCylinderCrossing.h"
-#include "Geometry/Surface/interface/Cylinder.h"
+
+#include "DataFormats/GeometrySurface/interface/Cylinder.h"
 #include "TrackingTools/GeomPropagators/src/RealQuadEquation.h"
 
 #include <cmath>

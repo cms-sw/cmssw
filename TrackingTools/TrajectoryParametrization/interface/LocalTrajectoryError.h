@@ -1,8 +1,8 @@
 #ifndef _TRACKER_LOCALTRAJECTORYERROR_H_
 #define _TRACKER_LOCALTRAJECTORYERROR_H_
 
-#include "Geometry/Surface/interface/LocalError.h"
-#include "Geometry/CommonDetAlgo/interface/AlgebraicObjects.h"
+#include "DataFormats/GeometrySurface/interface/LocalError.h"
+#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 
 /** Class providing access to the covariance matrix of a set of relevant parameters of a trajectory
  *  in a local, Cartesian frame. The errors provided are: <BR> <BR>

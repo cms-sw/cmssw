@@ -1,10 +1,9 @@
 #ifndef CurvilinearJacobian_H
 #define CurvilinearJacobian_H
 
-#include "Geometry/CommonDetAlgo/interface/AlgebraicObjects.h"
-#include "Geometry/Vector/interface/GlobalPoint.h"
-#include "Geometry/Vector/interface/GlobalVector.h"
-
+#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalVector.h"
 
 /** Base class for calculations of Jacobians of transformations within the curvilinear frame.
  */

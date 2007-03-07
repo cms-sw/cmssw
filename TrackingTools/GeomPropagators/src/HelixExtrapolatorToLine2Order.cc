@@ -1,6 +1,6 @@
 #include "TrackingTools/GeomPropagators/interface/HelixExtrapolatorToLine2Order.h"
-#include "Geometry/Surface/interface/Line.h"
-#include "Geometry/Vector/interface/GlobalPoint.h"
+#include "DataFormats/GeometrySurface/interface/Line.h"
+#include "DataFormats/GeometrySurface/interface/GlobalPoint.h"
 #include <cfloat>
 
 HelixExtrapolatorToLine2Order::HelixExtrapolatorToLine2Order(const PositionType& point,

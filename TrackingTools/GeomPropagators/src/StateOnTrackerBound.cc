@@ -3,12 +3,12 @@
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/GeomPropagators/interface/TrackerBounds.h"
-#include "Geometry/Surface/interface/BoundDisk.h"
-#include "Geometry/Surface/interface/BoundCylinder.h"
+#include "DataFormats/GeometrySurface/interface/BoundDisk.h"
+#include "DataFormats/GeometrySurface/interface/BoundCylinder.h"
 
 //Ported from ORCA
-//  $Date: 2006/11/15 14:54:47 $
-//  $Revision: 1.5 $
+//  $Date: 2007/01/31 17:31:33 $
+//  $Revision: 1.6 $
 
 StateOnTrackerBound::StateOnTrackerBound( const Propagator* prop) :
   thePropagator( prop->clone())

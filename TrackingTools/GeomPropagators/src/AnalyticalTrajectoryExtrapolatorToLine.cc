@@ -1,11 +1,13 @@
 #include "TrackingTools/GeomPropagators/interface/AnalyticalTrajectoryExtrapolatorToLine.h"
-#include "Geometry/Surface/interface/Line.h"
+
 #include "TrackingTools/GeomPropagators/interface/IterativeHelixExtrapolatorToLine.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
 #include "TrackingTools/AnalyticalJacobians/interface/AnalyticalCurvilinearJacobian.h"
-#include "Geometry/Surface/interface/PlaneBuilder.h"
+
+#include "DataFormats/GeometrySurface/interface/PlaneBuilder.h"
+#include "DataFormats/GeometrySurface/interface/Line.h"
 
 #include <cmath>
 

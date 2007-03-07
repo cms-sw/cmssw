@@ -1,7 +1,7 @@
 #ifndef HelixBarrelPlaneCrossing2OrderLocal_H
 #define HelixBarrelPlaneCrossing2OrderLocal_H
 
-#include "Geometry/Surface/interface/Plane.h"
+#include "DataFormats/GeometrySurface/interface/Plane.h"
 
 /** Calculates an approximate crossing of a helix and a barrel plane.
  *  The helix circle is approximated with a parabola.

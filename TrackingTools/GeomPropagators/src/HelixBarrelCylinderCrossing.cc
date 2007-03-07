@@ -1,7 +1,9 @@
 #include "TrackingTools/GeomPropagators/interface/HelixBarrelCylinderCrossing.h"
-#include "Geometry/Surface/interface/Cylinder.h"
 #include "TrackingTools/GeomPropagators/src/RealQuadEquation.h"
 #include "TrackingTools/GeomPropagators/interface/StraightLineCylinderCrossing.h"
+
+#include "DataFormats/GeometrySurface/interface/Cylinder.h"
+
 #include <iostream>
 #include <cmath>
 

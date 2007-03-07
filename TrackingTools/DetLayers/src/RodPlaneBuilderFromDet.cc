@@ -1,7 +1,8 @@
 #include "TrackingTools/DetLayers/interface/RodPlaneBuilderFromDet.h"
-#include "Geometry/Surface/interface/BoundPlane.h"
-#include "Geometry/Surface/interface/RectangularPlaneBounds.h"
-#include "Geometry/Surface/interface/BoundingBox.h"
+#include "DataFormats/GeometrySurface/interface/BoundPlane.h"
+#include "DataFormats/GeometrySurface/interface/RectangularPlaneBounds.h"
+#include "DataFormats/GeometrySurface/interface/BoundingBox.h"
+
 #include <algorithm>
 
 using namespace std;

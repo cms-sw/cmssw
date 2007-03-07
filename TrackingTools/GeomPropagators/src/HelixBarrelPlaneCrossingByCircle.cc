@@ -1,7 +1,8 @@
 #include "TrackingTools/GeomPropagators/interface/HelixBarrelPlaneCrossingByCircle.h"
-#include "Geometry/Surface/interface/Plane.h"
 #include "TrackingTools/GeomPropagators/src/RealQuadEquation.h"
 #include "TrackingTools/GeomPropagators/interface/StraightLinePlaneCrossing.h"
+#include "DataFormats/GeometrySurface/interface/Plane.h"
+
 #include <algorithm>
 #include <cfloat>
 

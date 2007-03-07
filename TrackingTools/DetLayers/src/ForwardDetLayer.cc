@@ -1,9 +1,9 @@
 #include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "Geometry/Surface/interface/BoundDisk.h"
-#include "Geometry/Surface/interface/SimpleDiskBounds.h"
 #include "Geometry/CommonDetUnit/interface/ModifiedSurfaceGenerator.h"
-#include "Geometry/Surface/interface/BoundingBox.h"
+#include "DataFormats/GeometrySurface/interface/SimpleDiskBounds.h"
+#include "DataFormats/GeometrySurface/interface/BoundingBox.h"
+#include "DataFormats/GeometrySurface/interface/BoundDisk.h"
 
 using namespace std;
 

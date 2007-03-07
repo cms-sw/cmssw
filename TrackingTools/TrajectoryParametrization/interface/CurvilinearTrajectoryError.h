@@ -1,7 +1,7 @@
 #ifndef _TRACKER_CURVILINEARTRAJECTORYERROR_H_
 #define _TRACKER_CURVILINEARTRAJECTORYERROR_H_
 
-#include "Geometry/CommonDetAlgo/interface/AlgebraicObjects.h"
+#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 #include "DataFormats/Math/interface/Error.h"
 
 /** Parametrization of the error matrix in the curvilinear frame.

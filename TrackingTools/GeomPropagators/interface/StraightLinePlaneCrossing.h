@@ -1,7 +1,7 @@
 #ifndef StraightLinePlaneCrossing_H_
 #define StraightLinePlaneCrossing_H_
 
-#include "Geometry/Vector/interface/Basic3DVector.h"
+#include "DataFormats/GeometryVector/interface/Basic3DVector.h"
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 
 #include <utility>

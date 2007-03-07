@@ -1,7 +1,7 @@
 #ifndef JacobianCurvilinearToLocal_H
 #define JacobianCurvilinearToLocal_H
 
-#include "Geometry/CommonDetAlgo/interface/AlgebraicObjects.h"
+#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 
 class Surface;
 class LocalTrajectoryParameters;

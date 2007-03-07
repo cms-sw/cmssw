@@ -1,7 +1,8 @@
 #include "TrackingTools/GeomPropagators/interface/StraightLinePropagator.h"
-#include "Geometry/CommonDetAlgo/interface/AlgebraicObjects.h"
-#include "Geometry/Surface/interface/Plane.h"
-#include "Geometry/Surface/interface/Cylinder.h"
+
+#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
+#include "DataFormats/GeometrySurface/interface/Plane.h"
+#include "DataFormats/GeometrySurface/interface/Cylinder.h"
 #include "TrackingTools/GeomPropagators/interface/PropagationExceptions.h"
 
 std::pair<TrajectoryStateOnSurface,double> 

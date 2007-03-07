@@ -1,9 +1,9 @@
 #ifndef _TRACKER_GLOBALTRAJECTORYPARAMETERS_H_
 #define _TRACKER_GLOBALTRAJECTORYPARAMETERS_H_
 
-#include "Geometry/Vector/interface/GlobalPoint.h"
-#include "Geometry/Vector/interface/GlobalVector.h"
-#include "Geometry/CommonDetAlgo/interface/AlgebraicObjects.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalVector.h"
+#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 #include "DataFormats/TrajectoryState/interface/TrackCharge.h"
 
 class MagneticField;
