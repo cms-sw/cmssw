@@ -1,6 +1,6 @@
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/GeometrySurface/interface/SimpleDiskBounds.h"
+#include "DataFormats/GeometrySurface/interface/SimpleCylinderBounds.h"
 #include "DataFormats/GeometrySurface/interface/BoundingBox.h"
 #include "Geometry/CommonDetUnit/interface/ModifiedSurfaceGenerator.h"
 

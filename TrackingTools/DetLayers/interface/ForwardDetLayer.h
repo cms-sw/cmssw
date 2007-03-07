@@ -11,7 +11,7 @@
 
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
 #include "DataFormats/GeometrySurface/interface/ReferenceCounted.h"
-#include "DataFormats/GeometrySurface/interface/BoundCylinder.h"
+#include "DataFormats/GeometrySurface/interface/BoundDisk.h"
 
 #include <vector>
 #include <algorithm>

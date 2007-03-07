@@ -6,8 +6,8 @@
  *
  * \author : Stefano Lacaprara - INFN Padova <stefano.lacaprara@pd.infn.it>
  * \porting author: Chang Liu - Purdue University 
- * $Date: 2006/08/02 10:02:10 $
- * $Revision: 1.4 $
+ * $Date: 2007/03/07 16:28:42 $
+ * $Revision: 1.5 $
  *
  * Modification:
  *
@@ -19,7 +19,7 @@
 /* Collaborating Class Header */
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometrySurface/interface/BoundPlane.h"
-#include "DataFormats/GeometrySurface/SimpleCylinderBounds.h"
+#include "DataFormats/GeometrySurface/interface/SimpleCylinderBounds.h"
 
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
 #include "TrackingTools/GeomPropagators/interface/TrackerBounds.h"
