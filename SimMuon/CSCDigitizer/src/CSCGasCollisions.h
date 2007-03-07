@@ -11,7 +11,7 @@
  * Of course the version here is much improved :) <BR>
  */
 
-#include "Geometry/Vector/interface/LocalPoint.h"
+#include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "SimMuon/CSCDigitizer/src/CSCCrossGap.h"
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"

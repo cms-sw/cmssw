@@ -10,7 +10,7 @@
 #include <vector>
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimMuon/CSCDigitizer/src/CSCDetectorHit.h"
-#include "Geometry/Vector/interface/LocalPoint.h"
+#include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 
 class CSCDriftSim;

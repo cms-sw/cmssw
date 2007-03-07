@@ -22,7 +22,7 @@ class CSCLayer;
 class CSCDetectorHit;
 class PSimHit;
 class MagneticField;
-#include "Geometry/Vector/interface/LocalPoint.h"
+#include "DataFormats/GeometryVector/interface/LocalPoint.h"
 
 class CSCDriftSim
 {

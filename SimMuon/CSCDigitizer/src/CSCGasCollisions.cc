@@ -13,7 +13,7 @@
 //    Increase deCut from 10 keV to 100 keV to accomodate protons!
 
 #include "FWCore/Utilities/interface/Exception.h"
-#include "Geometry/Vector/interface/LocalVector.h"
+#include "DataFormats/GeometryVector/interface/LocalVector.h"
 #include "SimMuon/CSCDigitizer/src/CSCGasCollisions.h"
 #include "Utilities/General/interface/FileInPath.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
