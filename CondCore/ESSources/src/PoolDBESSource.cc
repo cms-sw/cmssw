@@ -16,7 +16,7 @@
 #include "CondCore/IOVService/interface/IOVService.h"
 #include "CondCore/MetaDataService/interface/MetaData.h"
 #include "POOLCore/Exception.h"
-#include "FWCore/Framework/interface/SiteLocalConfig.h"
+#include "FWCore/Catalog/interface/SiteLocalConfig.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include <exception>
 #include <iostream>
@@ -26,6 +26,7 @@
 //
 // static data member definitions
 //
+
 static
 std::string
 buildName( const std::string& iRecordName, const std::string& iTypeName ) {
