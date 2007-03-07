@@ -8,7 +8,8 @@
 #include "CLHEP/Units/SystemOfUnits.h"
 
 //CMS
-#include "DataFormats/GeometryVector/interface/GlobalPoint.h:"
+
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "DataFormats/GeometrySurface/interface/TkRotation.h"
 
