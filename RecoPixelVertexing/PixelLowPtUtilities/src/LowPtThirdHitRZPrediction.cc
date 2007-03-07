@@ -1,6 +1,6 @@
 #include "RecoPixelVertexing/PixelLowPtUtilities/interface/LowPtThirdHitRZPrediction.h"
 
-#include "Geometry/Vector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
 #include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"

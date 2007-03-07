@@ -25,10 +25,10 @@
 
 #include "CondFormats/SiPixelObjects/interface/FrameConversion.h"
 
-#include "Geometry/Vector/interface/GlobalPoint.h"
-#include "Geometry/Vector/interface/GlobalVector.h"
-#include "Geometry/Vector/interface/LocalPoint.h"
-#include "Geometry/Vector/interface/LocalVector.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalVector.h"
+#include "DataFormats/GeometryVector/interface/LocalPoint.h"
+#include "DataFormats/GeometryVector/interface/LocalVector.h"
 
 #include <bitset>
 

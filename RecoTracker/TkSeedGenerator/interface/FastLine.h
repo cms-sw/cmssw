@@ -1,7 +1,7 @@
 #ifndef TR_FastLine_H_
 #define TR_FastLine_H_
 
-#include "Geometry/Vector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
 /**
    Calculate the Line parameters (n1, n2, c) of a Line in Rho*Phi-Z. A Line

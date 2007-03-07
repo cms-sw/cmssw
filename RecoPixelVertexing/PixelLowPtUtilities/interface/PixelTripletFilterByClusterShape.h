@@ -4,7 +4,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/Vector/interface/LocalVector.h"
+#include "DataFormats/GeometryVector/interface/LocalVector.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 

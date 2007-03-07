@@ -6,9 +6,9 @@
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
-#include "Geometry/Vector/interface/LocalPoint.h"
-#include "Geometry/Vector/interface/GlobalPoint.h"
-#include "Geometry/CommonDetAlgo/interface/GlobalError.h"
+#include "DataFormats/GeometryVector/interface/LocalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/GlobalError.h"
 
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
@@ -22,7 +22,7 @@
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 
 #include "CommonTools/Statistics/interface/LinearFit.h"
-#include "Geometry/CommonDetAlgo/interface/Measurement1D.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/Measurement1D.h"
 
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"

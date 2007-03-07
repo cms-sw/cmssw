@@ -5,7 +5,7 @@
     and cotangent */
 
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoPointRZ.h"
-#include "Geometry/Vector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
 class PixelRecoLineRZ {
 public:

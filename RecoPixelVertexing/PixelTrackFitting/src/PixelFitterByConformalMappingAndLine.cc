@@ -6,9 +6,9 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "Geometry/Vector/interface/LocalPoint.h"
-#include "Geometry/Vector/interface/GlobalPoint.h"
-#include "Geometry/CommonDetAlgo/interface/GlobalError.h"
+#include "DataFormats/GeometryVector/interface/LocalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/GlobalError.h"
 
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
@@ -18,7 +18,7 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "CommonTools/Statistics/interface/LinearFit.h"
-#include "Geometry/CommonDetAlgo/interface/Measurement1D.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/Measurement1D.h"
 
 #include "ConformalMappingFit.h"
 #include "PixelTrackBuilder.h"

@@ -6,7 +6,7 @@
  *  from hit pair and the margin defined by hit errors and multiple scattering
  */
 
-#include "Geometry/Vector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoRange.h"
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoLineRZ.h"
 #include "RecoTracker/TkTrackingRegions/interface/TkTrackingRegionsMargin.h"

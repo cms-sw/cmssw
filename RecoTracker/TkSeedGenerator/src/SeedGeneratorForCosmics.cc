@@ -4,7 +4,7 @@
 #include "RecoTracker/TkHitPairs/interface/CosmicLayerPairs.h"
 #include "RecoPixelVertexing/PixelTriplets/interface/CosmicLayerTriplets.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "Geometry/CommonDetAlgo/interface/GlobalError.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/GlobalError.h"
 #include "RecoTracker/TkSeedGenerator/interface/SeedFromConsecutiveHits.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"

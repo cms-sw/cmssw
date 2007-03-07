@@ -1,8 +1,8 @@
 /** \file
  * Implementation of class RPCUnpackingModule
  *
- *  $Date: 2007/01/04 21:29:04 $
- *  $Revision: 1.24 $
+ *  $Date: 2007/01/19 13:08:35 $
+ *  $Revision: 1.25 $
  *
  * \author Ilaria Segoni
  */
@@ -21,7 +21,7 @@
 #include <DataFormats/FEDRawData/interface/FEDHeader.h>
 #include <DataFormats/FEDRawData/interface/FEDTrailer.h>
 #include <DataFormats/RPCDigi/interface/RPCDigiCollection.h>
-#include <FWCore/Framework/interface/Handle.h>
+#include <DataFormats/Common/interface/Handle.h>
 #include <FWCore/Framework/interface/Event.h>
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"

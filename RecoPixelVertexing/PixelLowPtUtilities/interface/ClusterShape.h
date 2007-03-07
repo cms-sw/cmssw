@@ -5,7 +5,7 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/Vector/interface/LocalVector.h"
+#include "DataFormats/GeometryVector/interface/LocalVector.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "RecoPixelVertexing/PixelLowPtUtilities/interface/ClusterData.h"
 

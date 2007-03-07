@@ -1,8 +1,8 @@
 #ifndef TkHitPairsCachedHit_H
 #define TkHitPairsCachedHit_H
 
-#include "Geometry/Vector/interface/LocalPoint.h"
-#include "Geometry/Vector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/LocalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "FWCore/Framework/interface/EventSetup.h"

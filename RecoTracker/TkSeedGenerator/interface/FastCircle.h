@@ -1,7 +1,7 @@
 #ifndef TR_FastCircle_H_
 #define TR_FastCircle_H_
-#include "Geometry/Vector/interface/GlobalPoint.h"
-#include "Geometry/CommonDetAlgo/interface/AlgebraicObjects.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 #include <vector>
 
 /**

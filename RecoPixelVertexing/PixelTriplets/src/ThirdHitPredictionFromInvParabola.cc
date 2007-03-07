@@ -2,8 +2,8 @@
 #include "RecoPixelVertexing/PixelTriplets/interface/ThirdHitPredictionFromInvParabola.h"
 
 #include <cmath>
-#include "Geometry/Vector/interface/GlobalVector.h"
-#include "Geometry/Vector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalVector.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
 #include "RecoTracker/TkHitPairs/interface/OrderedHitPair.h"
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"

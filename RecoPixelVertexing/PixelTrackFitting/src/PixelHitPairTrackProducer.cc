@@ -24,7 +24,7 @@
 #include "RecoTracker/TkTrackingRegions/interface/GlobalTrackingRegion.h"
 #include "RecoPixelVertexing/PixelTriplets/interface/PixelHitTripletGenerator.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
-#include "FWCore/Framework/interface/OrphanHandle.h"
+#include "DataFormats/Common/interface/OrphanHandle.h"
 #include "RecoTracker/TkHitPairs/interface/PixelSeedLayerPairs.h"
 #include "RecoTracker/TkHitPairs/interface/CombinedHitPairGenerator.h"
 

@@ -10,12 +10,12 @@
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoLineRZ.h"
 #include "RecoTracker/TkTrackingRegions/interface/TkTrackingRegionsMargin.h"
 
-#include "Geometry/Vector/interface/GlobalTag.h"
-#include "Geometry/Vector/interface/Vector2DBase.h"
+#include "DataFormats/GeometryVector/interface/GlobalTag.h"
+#include "DataFormats/GeometryVector/interface/Vector2DBase.h"
 typedef Vector2DBase<float,GlobalTag> Global2DVector;
 
-#include "Geometry/Vector/interface/GlobalPoint.h"
-#include "Geometry/Vector/interface/GlobalVector.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalVector.h"
 
 class DetLayer;
 class OrderedHitPair;

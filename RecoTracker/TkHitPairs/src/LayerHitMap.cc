@@ -12,7 +12,7 @@
 #include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
 #include "RecoTracker/TkHitPairs/interface/TkHitPairsCellManager.h"
 #include "RecoTracker/TkHitPairs/interface/TkHitPairsCacheCell.h"
-#include "Geometry/Surface/interface/BoundCylinder.h"
+#include "DataFormats/GeometrySurface/interface/BoundCylinder.h"
 
 using namespace std;
 

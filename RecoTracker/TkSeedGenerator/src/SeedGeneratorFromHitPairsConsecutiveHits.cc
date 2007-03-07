@@ -1,6 +1,6 @@
 #include "RecoTracker/TkSeedGenerator/interface/SeedGeneratorFromHitPairsConsecutiveHits.h"
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
-#include "Geometry/CommonDetAlgo/interface/GlobalError.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/GlobalError.h"
 #include "RecoTracker/TkSeedGenerator/interface/SeedFromConsecutiveHits.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 //#include "RecoTracker/TkMSParametrization/interface/PixelRecoUtilities.h"
