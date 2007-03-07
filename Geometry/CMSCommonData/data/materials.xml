@@ -8697,7 +8697,6 @@
       <rMaterial name="materials:Fluorine"/>
     </MaterialFraction>
   </CompositeMaterial>
-
   <CompositeMaterial name="Borosilicate_Glass" density="2.51*g/cm3" symbol=" " method="mixture by weight">
     <MaterialFraction fraction="0.303594">
       <rMaterial name="materials:Silicon"/>
@@ -8730,7 +8729,6 @@
       <rMaterial name="materials:Oxygen"/>
     </MaterialFraction>    
   </CompositeMaterial>
-
   <CompositeMaterial name="Silicone_Gel" density="0.965*g/cm3" symbol=" " method="mixture by weight">
     <MaterialFraction fraction="0.3866">
       <rMaterial name="materials:Carbon"/>
@@ -8745,8 +8743,6 @@
       <rMaterial name="materials:Oxygen"/>
     </MaterialFraction>
   </CompositeMaterial>
-
-
   <CompositeMaterial name="Barium_Titanate" density="6.02*g/cm3" symbol=" " method="mixture by weight">
     <MaterialFraction fraction="0.5889">
       <rMaterial name="materials:Barium"/>
@@ -8758,9 +8754,14 @@
       <rMaterial name="materials:Oxygen"/>
     </MaterialFraction>
   </CompositeMaterial>
-
-
-
+  <CompositeMaterial name="E_PolyGrains" density="589*mg/cm3" symbol=" " method="mixture by weight">
+    <MaterialFraction fraction="0.85628451">
+      <rMaterial name="materials:Carbon"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.14371549">
+      <rMaterial name="materials:Hydrogen"/>
+    </MaterialFraction>
+  </CompositeMaterial>
 </MaterialSection>
 
 </DDDefinition>
