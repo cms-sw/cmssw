@@ -5,8 +5,8 @@
  *  This class defines which DetLayers are reacheable from each Muon DetLayer
  *  (DT, CSC and RPC). The reacheableness is based on an eta range criteria.
  *
- * $Date: 2006/10/13 13:28:08 $
- * $Revision: 1.7 $
+ * $Date: 2006/10/18 20:38:21 $
+ * $Revision: 1.8 $
  *
  * \author : Stefano Lacaprara - INFN Padova <stefano.lacaprara@pd.infn.it>
  *
@@ -23,8 +23,8 @@
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
 #include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
 #include "TrackingTools/DetLayers/interface/NavigationSetter.h"
-#include "Geometry/Surface/interface/BoundCylinder.h"
-#include "Geometry/Surface/interface/BoundDisk.h"
+#include "DataFormats/GeometrySurface/interface/BoundCylinder.h"
+#include "DataFormats/GeometrySurface/interface/BoundDisk.h"
 #include "RecoMuon/DetLayers/interface/MuonDetLayerGeometry.h"
 #include "RecoMuon/Navigation/interface/MuonBarrelNavigableLayer.h"
 #include "RecoMuon/Navigation/interface/MuonForwardNavigableLayer.h"

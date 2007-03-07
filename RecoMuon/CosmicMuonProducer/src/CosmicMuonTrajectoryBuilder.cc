@@ -4,8 +4,8 @@
  *  class to build trajectories of muons from cosmic rays
  *  using DirectMuonNavigation
  *
- *  $Date: 2007/01/18 13:29:50 $
- *  $Revision: 1.21 $
+ *  $Date: 2007/02/23 21:57:04 $
+ *  $Revision: 1.22 $
  *  \author Chang Liu  - Purdue Univeristy
  */
 
@@ -20,8 +20,6 @@
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
-#include "FWCore/Framework/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -34,8 +32,7 @@
 #include "RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h"
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "Geometry/Surface/interface/PlaneBuilder.h"
+#include "DataFormats/GeometrySurface/interface/PlaneBuilder.h"
 
 #include <algorithm>
 

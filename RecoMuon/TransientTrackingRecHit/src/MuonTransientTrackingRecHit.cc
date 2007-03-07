@@ -1,12 +1,12 @@
 /** \file
  *
- *  $Date: 2006/08/27 03:39:22 $
- *  $Revision: 1.10 $
+ *  $Date: 2006/08/28 14:29:04 $
+ *  $Revision: 1.11 $
  */
 
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
-#include "Geometry/CommonDetAlgo/interface/ErrorFrameTransformer.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/ErrorFrameTransformer.h"
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
 
 #include <map>

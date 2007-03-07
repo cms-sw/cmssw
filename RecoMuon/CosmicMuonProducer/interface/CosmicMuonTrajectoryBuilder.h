@@ -2,8 +2,8 @@
 #define CosmicMuonTrajectoryBuilder_H
 /** \file CosmicMuonTrajectoryBuilder
  *
- *  $Date: 2006/11/06 17:50:15 $
- *  $Revision: 1.8 $
+ *  $Date: 2006/12/31 20:39:54 $
+ *  $Revision: 1.9 $
  *  \author Chang Liu  -  Purdue University
  */
 
@@ -11,7 +11,7 @@
 
 #include "RecoMuon/TrackingTools/interface/MuonTrajectoryUpdator.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"

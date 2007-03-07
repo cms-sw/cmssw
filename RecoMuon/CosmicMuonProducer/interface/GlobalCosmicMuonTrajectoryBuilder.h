@@ -4,13 +4,13 @@
 /** \file GlobalCosmicMuonTrajectoryBuilder
  *  class to build combined trajectory from cosmic tracks in tk and mu
  *
- *  $Date: 2006/11/03 20:00:18 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/11/06 17:50:15 $
+ *  $Revision: 1.4 $
  *  \author Chang Liu  -  Purdue University
  */
 
 #include "RecoMuon/TrackingTools/interface/MuonTrajectoryBuilder.h"
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"

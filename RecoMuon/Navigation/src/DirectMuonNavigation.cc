@@ -2,16 +2,16 @@
 
 /** \file DirectMuonNavigation
  *
- *  $Date: 2006/09/24 00:43:00 $
- *  $Revision: 1.7 $
+ *  $Date: 2007/01/29 16:23:22 $
+ *  $Revision: 1.8 $
  *  \author Chang Liu  -  Purdue University
  */
 
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
 #include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
 #include "TrackingTools/DetLayers/interface/NavigationSetter.h"
-#include "Geometry/Surface/interface/BoundCylinder.h"
-#include "Geometry/Surface/interface/BoundDisk.h"
+#include "DataFormats/GeometrySurface/interface/BoundCylinder.h"
+#include "DataFormats/GeometrySurface/interface/BoundDisk.h"
 #include "RecoMuon/DetLayers/interface/MuonDetLayerGeometry.h"
 #include "Utilities/General/interface/CMSexception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
