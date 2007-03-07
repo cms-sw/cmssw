@@ -2,8 +2,8 @@
 /**
  *  CosmicMuonSeedGenerator
  *
- *  $Date: 2006/11/17 09:04:32 $
- *  $Revision: 1.16 $
+ *  $Date: 2006/12/11 21:56:52 $
+ *  $Revision: 1.17 $
  *
  *  \author Chang Liu - Purdue University 
  *
@@ -11,22 +11,27 @@
 
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
+#include "DataFormats/DTRecHit/interface/DTRecSegment4D.h"
+#include "DataFormats/Common/interface/Handle.h"
+
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
-#include "TrackingTools/DetLayers/interface/DetLayer.h"
+
 #include "RecoMuon/MeasurementDet/interface/MuonDetLayerMeasurements.h"
 #include "RecoMuon/DetLayers/interface/MuonDetLayerGeometry.h"
 #include "RecoMuon/Records/interface/MuonRecoGeometryRecord.h"
-#include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h"
+
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/Handle.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/DTRecHit/interface/DTRecSegment4D.h"
+
+#include "TrackingTools/DetLayers/interface/DetLayer.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 #include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimatorBase.h"

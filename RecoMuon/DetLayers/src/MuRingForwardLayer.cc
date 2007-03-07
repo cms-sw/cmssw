@@ -1,14 +1,14 @@
 /** \file
  *
- *  $Date: 2006/09/04 13:24:27 $
- *  $Revision: 1.16 $
+ *  $Date: 2006/10/19 14:42:16 $
+ *  $Revision: 1.17 $
  *  \author N. Amapane - CERN
  */
 
 #include <RecoMuon/DetLayers/interface/MuRingForwardLayer.h>
 #include <RecoMuon/DetLayers/interface/MuDetRing.h>
 #include <Geometry/CommonDetUnit/interface/GeomDet.h>
-#include <Geometry/Surface/interface/SimpleDiskBounds.h>
+#include <DataFormats/GeometrySurface/interface/SimpleDiskBounds.h>
 #include <TrackingTools/GeomPropagators/interface/Propagator.h>
 #include <TrackingTools/PatternTools/interface/MeasurementEstimator.h>
 

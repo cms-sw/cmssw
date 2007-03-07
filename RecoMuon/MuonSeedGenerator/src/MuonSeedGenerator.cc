@@ -3,8 +3,8 @@
  *  
  *  All the code is under revision
  *
- *  $Date: 2006/11/13 08:55:24 $
- *  $Revision: 1.14 $
+ *  $Date: 2006/11/17 09:04:32 $
+ *  $Revision: 1.15 $
  *
  *  \author A. Vitelli - INFN Torino, V.Palichik
  *  \author ported by: R. Bellan - INFN Torino
@@ -21,9 +21,10 @@
 
 #include "DataFormats/CSCRecHit/interface/CSCRecHit2DCollection.h"
 #include "DataFormats/CSCRecHit/interface/CSCRecHit2D.h"
-
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment4D.h"
+
+#include "DataFormats/Common/interface/Handle.h"
 
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
 
@@ -40,7 +41,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/Handle.h"
 
 // C++
 #include <vector>

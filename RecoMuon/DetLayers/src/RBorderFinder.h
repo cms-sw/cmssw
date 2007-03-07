@@ -5,15 +5,16 @@
  *  Find the R binning of a list of detector according to several 
  *  definitions.
  *
- *  $Date: 2006/06/07 14:17:03 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/07/10 22:05:13 $
+ *  $Revision: 1.4 $
  *  \author N. Amapane - INFN Torino
  */
 
-#include <Geometry/CommonDetUnit/interface/GeomDet.h>
-#include <Geometry/Surface/interface/BoundingBox.h>
+#include <DataFormats/GeometrySurface/interface/BoundingBox.h>
+#include <DataFormats/GeometrySurface/interface/GeometricSorting.h>
+
 #include <Utilities/General/interface/precomputed_value_sort.h>
-#include <Geometry/Surface/interface/GeometricSorting.h>
+#include <Geometry/CommonDetUnit/interface/GeomDet.h>
 #include <TrackingTools/DetLayers/interface/simple_stat.h>
 #include <FWCore/Utilities/interface/Exception.h>
 

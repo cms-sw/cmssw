@@ -7,8 +7,8 @@
  *   L2 muon reconstruction
  *
  *
- *   $Date: 2007/02/16 13:34:18 $
- *   $Revision: 1.6 $
+ *   $Date: 2007/03/06 08:49:23 $
+ *   $Revision: 1.7 $
  *
  *   \author  A.Everett, R.Bellan
  *
@@ -29,13 +29,17 @@
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTCand.h"
 #include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
 #include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/GeometrySurface/interface/BoundCylinder.h"
 
 #include "CLHEP/Vector/ThreeVector.h"
+
+#include "Geometry/CommonDetUnit/interface/GeomDetEnumerators.h"
+
 // Framework
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "TrackingTools/TrajectoryParametrization/interface/GlobalTrajectoryParameters.h"
@@ -43,12 +47,8 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
-
 #include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
-
-#include "Geometry/CommonDetUnit/interface/GeomDetEnumerators.h"
-#include "Geometry/Surface/interface/BoundCylinder.h"
 
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 #include "RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h"

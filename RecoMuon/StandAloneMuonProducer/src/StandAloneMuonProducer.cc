@@ -6,8 +6,8 @@
  *   starting from internal seeds (L2 muon track segments).
  *
  *
- *   $Date: 2007/02/16 13:31:06 $
- *   $Revision: 1.22 $
+ *   $Date: 2007/03/06 08:49:21 $
+ *   $Revision: 1.23 $
  *
  *   \author  R.Bellan - INFN TO
  */
@@ -16,7 +16,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "RecoMuon/StandAloneMuonProducer/src/StandAloneMuonProducer.h"
@@ -30,7 +29,7 @@
 // Input and output collection
 
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
-
+#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 
 #include <string>

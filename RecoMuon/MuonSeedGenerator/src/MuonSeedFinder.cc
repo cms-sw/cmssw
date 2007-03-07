@@ -1,8 +1,8 @@
 /**
  *  See header file for a description of this class.
  *
- *  $Date: 2007/02/16 13:34:19 $
- *  $Revision: 1.17 $
+ *  $Date: 2007/02/18 16:01:47 $
+ *  $Revision: 1.18 $
  *  \author A. Vitelli - INFN Torino, V.Palichik
  *  \author porting  R. Bellan
  *
@@ -14,13 +14,12 @@
 #include "RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h"
 
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
-#include "DataFormats/GeometryVector/interface/Pi.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
+
+#include "DataFormats/GeometrySurface/interface/BoundPlane.h"
+#include "DataFormats/GeometrySurface/interface/RectangularPlaneBounds.h"
 #include "DataFormats/GeometryVector/interface/CoordinateSets.h"
-
-#include "Geometry/Surface/interface/BoundPlane.h"
-#include "Geometry/Surface/interface/RectangularPlaneBounds.h"
-
+#include "DataFormats/GeometryVector/interface/Pi.h"
 #include "DataFormats/Common/interface/OwnVector.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "DataFormats/TrajectoryState/interface/PTrajectoryStateOnDet.h"
@@ -31,6 +30,7 @@
 
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/EventSetup.h"
