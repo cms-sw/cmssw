@@ -14,8 +14,8 @@
 #include "TrackingTools/DetLayers/src/DetLessZ.h"
 #include "TrackingTools/DetLayers/interface/NavigationSetter.h"
 
-#include "Geometry/Surface/interface/BoundCylinder.h"
-#include "Geometry/Surface/interface/BoundDisk.h"
+#include "DataFormats/GeometrySurface/interface/BoundCylinder.h"
+#include "DataFormats/GeometrySurface/interface/BoundDisk.h"
 
 #include "Utilities/General/interface/CMSexception.h"
 

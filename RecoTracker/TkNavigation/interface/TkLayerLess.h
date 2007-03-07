@@ -4,8 +4,8 @@
 #include "TrackingTools/DetLayers/interface/NavigationDirection.h"
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
 #include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
-#include "Geometry/Surface/interface/BoundCylinder.h"
-#include "Geometry/Surface/interface/BoundDisk.h"
+#include "DataFormats/GeometrySurface/interface/BoundCylinder.h"
+#include "DataFormats/GeometrySurface/interface/BoundDisk.h"
 #include <functional>
 
 /** Defines order of layers in the Tracker as seen by straight tracks

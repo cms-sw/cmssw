@@ -2,8 +2,8 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "Geometry/Surface/interface/BoundCylinder.h"
-#include "Geometry/Surface/interface/BoundDisk.h"
+#include "DataFormats/GeometrySurface/interface/BoundCylinder.h"
+#include "DataFormats/GeometrySurface/interface/BoundDisk.h"
 
 using namespace std;
 

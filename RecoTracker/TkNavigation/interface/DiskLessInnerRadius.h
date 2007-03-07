@@ -2,7 +2,7 @@
 #define TkNavigation_DiskLessInnerRadius_H
 
 #include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
-#include "Geometry/Surface/interface/BoundDisk.h"
+#include "DataFormats/GeometrySurface/interface/BoundDisk.h"
 #include <functional>
 
 /** less predicate for disks based on the inner radius

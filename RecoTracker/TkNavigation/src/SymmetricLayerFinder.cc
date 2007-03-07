@@ -1,7 +1,7 @@
 #include "RecoTracker/TkNavigation/interface/SymmetricLayerFinder.h"
 #include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
-#include "Geometry/Surface/interface/BoundCylinder.h"
-#include "Geometry/Surface/interface/BoundDisk.h"
+#include "DataFormats/GeometrySurface/interface/BoundCylinder.h"
+#include "DataFormats/GeometrySurface/interface/BoundDisk.h"
 #include "TrackingTools/DetLayers/src/DetBelowZ.h"
 #include "Utilities/General/interface/CMSexception.h"
 
