@@ -20,8 +20,8 @@
 //                Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch),
 //                May 2006.
 //
-//   $Date: 2006/12/21 13:25:23 $
-//   $Revision: 1.12 $
+//   $Date: 2007/02/19 14:59:46 $
+//   $Revision: 1.13 $
 //
 //   Modifications: 
 //
@@ -269,7 +269,6 @@ CSCAnodeLCTProcessor::run(const CSCWireDigiCollection* wiredc) {
   // from the wire digis and then passes them on to another run() function.
 
   // clear(); // redundant; called by L1MuCSCMotherboard.
-
 
   // Get the number of wire groups for the given chamber.  Do it only once
   // per chamber.
