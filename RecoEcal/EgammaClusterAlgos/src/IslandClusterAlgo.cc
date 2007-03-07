@@ -12,15 +12,20 @@
 //
 
 // Return a vector of clusters from a collection of EcalRecHits:
-std::vector<reco::BasicCluster> IslandClusterAlgo::makeClusters(const EcalRecHitCollection* hits,
-                                                                const CaloSubdetectorGeometry *geometry_p,
-                                                                const CaloSubdetectorTopology *topology_p,
-								const CaloSubdetectorGeometry *geometryES_p,
-                                                                EcalPart ecalPart)
+std::vector<reco::BasicCluster> IslandClusterAlgo::makeClusters(
+                                  const EcalRecHitCollection* hits,
+				  const CaloSubdetectorGeometry *geometry_p,
+				  const CaloSubdetectorTopology *topology_p,
+				  const CaloSubdetectorGeometry *geometryES_p,
+				  EcalPart ecalPart,
+				  bool regional,
+				  const std::vector<EcalEtaPhiRegion>& regions)
 {
   seeds.clear();
   used_s.clear();
   clusters_v.clear();
+
+  if (regional && regions.size()==0) return clusters_v;
 
   recHits_ = hits;
 
@@ -52,9 +57,24 @@ std::vector<reco::BasicCluster> IslandClusterAlgo::makeClusters(const EcalRecHit
 
       const CaloCellGeometry *thisCell = geometry_p->getGeometry(it->id());
       GlobalPoint position = thisCell->getPosition();
-      float ET = it->energy() * sin(position.theta());
 
-      if (ET > threshold) seeds.push_back(*it);
+      // Require that RecHit is within clustering region in case
+      // of regional reconstruction
+      bool withinRegion = false;
+      if (regional) {
+	std::vector<EcalEtaPhiRegion>::const_iterator region;
+	  for (region=regions.begin(); region!=regions.end(); region++) {
+	    if (region->inRegion(position)) {
+	      withinRegion =  true;
+	      break;
+	    }
+	  }
+      }
+
+      if (!regional || withinRegion) {
+	float ET = it->energy() * sin(position.theta());
+	if (ET > threshold) seeds.push_back(*it);
+      }
     }
   sort(seeds.begin(), seeds.end(), ecalRecHitLess());
 

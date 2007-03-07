@@ -27,8 +27,12 @@ HybridClusterAlgo::HybridClusterAlgo(double eb_str,
 // Return a vector of clusters from a collection of EcalRecHits:
 void HybridClusterAlgo::makeClusters(const EcalRecHitCollection*recColl, 
 				     const CaloSubdetectorGeometry*geometry,
-				     reco::BasicClusterCollection &basicClusters)
+				     reco::BasicClusterCollection &basicClusters,
+				     bool regional,
+				     const std::vector<EcalEtaPhiRegion>& regions)
 {
+
+  if (regional && regions.size()==0) return;
 
   //clear vector of seeds
   seeds.clear();
@@ -53,14 +57,30 @@ void HybridClusterAlgo::makeClusters(const EcalRecHitCollection*recColl,
     //One of the few places position is used, needed for ET calculation.    
     const CaloCellGeometry *this_cell = (*geometry).getGeometry(it->id());
     GlobalPoint position = this_cell->getPosition();
-    float ET = it->energy() * sin(position.theta());
 
-    //Must pass seed threshold.
-    if (ET > eb_st){
-      seeds.push_back(*it);
-      if ( debugLevel_ == pDEBUG ){
-	std::cout << "Seed ET: " << ET << std::endl;
-	std::cout << "Seed E: " << it->energy() << std::endl;
+    // Require that RecHit is within clustering region in case
+    // of regional reconstruction
+    bool withinRegion = false;
+    if (regional) {
+      std::vector<EcalEtaPhiRegion>::const_iterator region;
+      for (region=regions.begin(); region!=regions.end(); region++) {
+	if (region->inRegion(position)) {
+	  withinRegion =  true;
+	  break;
+	}
+      }
+    }
+
+    if (!regional || withinRegion) {
+      float ET = it->energy() * sin(position.theta());
+
+      //Must pass seed threshold.
+      if (ET > eb_st){
+	seeds.push_back(*it);
+	if ( debugLevel_ == pDEBUG ){
+	  std::cout << "Seed ET: " << ET << std::endl;
+	  std::cout << "Seed E: " << it->energy() << std::endl;
+	}
       }
     }
   }

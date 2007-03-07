@@ -14,6 +14,7 @@
 #include "RecoCaloTools/Navigation/interface/EcalEndcapNavigator.h"
 #include "Geometry/CaloTopology/interface/EcalBarrelHardcodedTopology.h"
 #include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
+#include "RecoEcal/EgammaCoreTools/interface/EcalEtaPhiRegion.h"
 
 // C/C++ headers
 #include <string>
@@ -62,7 +63,9 @@ class IslandClusterAlgo
                                                const CaloSubdetectorGeometry *geometry,
                                                const CaloSubdetectorTopology *topology_p,
                                                const CaloSubdetectorGeometry *geometryES_p,
-                                               EcalPart ecalPart);
+                                               EcalPart ecalPart,
+					       bool regional = false,
+					       const std::vector<EcalEtaPhiRegion>& regions = std::vector<EcalEtaPhiRegion>());
 
   /// point in the space
   typedef math::XYZPoint Point;
