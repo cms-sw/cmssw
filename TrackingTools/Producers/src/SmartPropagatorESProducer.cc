@@ -1,8 +1,8 @@
 /** \class SmartPropagatorESProducer
  *  ES producer needed to put the SmartPropagator inside the EventSetup
  *
- *  $Date: 2007/01/17 19:28:41 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/01/18 09:58:43 $
+ *  $Revision: 1.2 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -10,7 +10,7 @@
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
