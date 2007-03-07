@@ -8,8 +8,8 @@
 // Original Author: Steve Wagner, stevew@pizero.colorado.edu
 // Created:         Sat Feb 19 22:00:00 UTC 2006
 //
-// $Author: stevew $
-// $Date: 2006/02/22 01:16:15 $
+// $Author: gutsche $
+// $Date: 2006/03/28 23:12:10 $
 // $Revision: 1.1 $
 //
 
@@ -20,7 +20,7 @@
 
 #include "DataFormats/RoadSearchCloud/interface/RoadSearchCloudCollection.h"
 
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 

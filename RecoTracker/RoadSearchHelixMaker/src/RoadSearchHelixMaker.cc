@@ -9,8 +9,8 @@
 // Created:         Sat Feb 19 22:00:00 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2006/03/31 23:28:42 $
-// $Revision: 1.3 $
+// $Date: 2006/04/01 16:11:49 $
+// $Revision: 1.4 $
 //
 
 #include <memory>
@@ -20,7 +20,7 @@
 
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
 
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 

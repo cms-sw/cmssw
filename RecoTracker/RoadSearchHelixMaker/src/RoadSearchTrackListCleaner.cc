@@ -7,9 +7,9 @@
 // Original Author: Steve Wagner, stevew@pizero.colorado.edu
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
-// $Author: tboccali $
-// $Date: 2006/07/24 19:41:20 $
-// $Revision: 1.2 $
+// $Author: gutsche $
+// $Date: 2007/01/15 22:16:28 $
+// $Revision: 1.3 $
 //
 
 #include <memory>
@@ -25,7 +25,7 @@
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
 
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 

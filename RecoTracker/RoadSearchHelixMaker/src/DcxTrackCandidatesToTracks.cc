@@ -1,6 +1,6 @@
 // -------------------------------------------------------------------------
 // File and Version Information:
-// 	$Id: DcxTrackCandidatesToTracks.cc,v 1.6 2006/07/24 19:41:20 tboccali Exp $
+// 	$Id: DcxTrackCandidatesToTracks.cc,v 1.7 2007/01/15 22:16:28 gutsche Exp $
 //
 // Description:
 //	Class Implementation for |DcxTrackCandidatesToTracks|
@@ -22,11 +22,11 @@
 #include "RecoTracker/RoadSearchHelixMaker/interface/DcxHit.hh"
 #include "RecoTracker/RoadSearchHelixMaker/interface/Dcxprobab.hh"
 
-#include "Geometry/Vector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "Geometry/CommonDetAlgo/interface/AlgebraicObjects.h"
+#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 
 // #include "TrackingTools/TrajectoryParametrization/interface/PerigeeTrajectoryParameters.h"
 // #include "TrackingTools/TrajectoryParametrization/interface/PerigeeTrajectoryError.h"

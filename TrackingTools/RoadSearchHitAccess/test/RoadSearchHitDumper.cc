@@ -8,8 +8,8 @@
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2007/02/05 23:52:47 $
-// $Revision: 1.1 $
+// $Date: 2007/03/01 08:33:36 $
+// $Revision: 1.2 $
 //
 
 #include <sstream>
@@ -24,7 +24,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
-#include "Geometry/Vector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
 #include "RecoTracker/RingRecord/interface/RingRecord.h"
 #include "RecoTracker/RingRecord/interface/Rings.h"

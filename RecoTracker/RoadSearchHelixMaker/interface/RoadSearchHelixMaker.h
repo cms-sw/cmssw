@@ -11,14 +11,14 @@
 // Original Author: Steve Wagner, stevew@pizero.colorado.edu
 // Created:         Sat Feb 19 22:00:00 UTC 2006
 //
-// $Author: burkett $
-// $Date: 2006/03/29 00:14:45 $
-// $Revision: 1.3 $
+// $Author: gutsche $
+// $Date: 2006/03/31 23:28:42 $
+// $Revision: 1.4 $
 //
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
 #include "DataFormats/Common/interface/EDProduct.h"
