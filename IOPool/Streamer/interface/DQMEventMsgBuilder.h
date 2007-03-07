@@ -16,28 +16,25 @@
  * - Header Size (4 bytes)
  * - Run Number (4 bytes)
  * - Event Number at Update (4 bytes)
- * - Compression Reserved Word (4 bytes)
+ * - Luminosity Section (4 bytes)
+ * - Update Number (4 bytes)
+ * - Compression Flag (4 bytes)   | size of data before compression
  * - Reserved Word (4 bytes)
  * - Release Tag Length (4 bytes)
  * - Release Tag (varies)
  * - Top-level Folder Name Length (4 bytes)
  * - Top-level Folder Name (varies)
+ * - Number of Subfolders (4 bytes)
+ * - Number of Monitor Elements in Subfolder I (4 bytes)   | Repeated
+ * - Subfolder I Name Length (4 bytes)                     | for each
+ * - Subfolder I Name (varies)                             | subfolder
  * - DQM Event Data Length (4 bytes)
  * - DQM Event Data (varies)
- *
- * The DQM Event Data has sub-structure:
- * - Number of Subfolders (4 bytes)
- * - Subfolder Name Length (4 bytes)                     | Repeated
- * - Subfolder Name (varies)                             | structure
- * - Number of Monitor Elements in Subfolder (4 bytes)   | for each
- * - ME Data Length (4 bytes)                            | subfolder
- * - ME Data (varies)                                    |
  */
 
 #include "IOPool/Streamer/interface/MsgTools.h"
 #include "IOPool/Streamer/interface/MsgHeader.h"
 #include "IOPool/Streamer/interface/DQMEventMessage.h"
-#include <TBuffer.h>
 
 // ------------------ dqm event message builder ----------------
 
@@ -45,8 +42,10 @@ class DQMEventMsgBuilder
 {
  public:
   DQMEventMsgBuilder(void* buf, uint32 bufSize, uint32 run, uint32 event,
+                     uint32 lumiSection, uint32 updateNumber,
                      std::string const& releaseTag,
-                     std::string const& topFolderName);
+                     std::string const& topFolderName,
+                     DQMEvent::TObjectTable monitorElementsBySubFolder);
 
   uint32 bufferSize() const { return bufSize_; }
   uint8* startAddress() const { return buf_; }
@@ -56,11 +55,6 @@ class DQMEventMsgBuilder
   uint8* eventAddress() const  { return eventAddr_; }
   void setEventLength(uint32 len);
   uint32 size() const;
-  uint32 eventLength() const;
-
-  void addMEData(std::string const& subFolderName,
-                 uint32 const monitorElementCount,
-                 TBuffer const& serializedMEData);
 
  private:
   uint8* buf_;

@@ -9,7 +9,6 @@
  */
 
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
-#include "IOPool/Streamer/interface/DQMEventMessage.h"
 #include "TBuffer.h"
 #include "TClass.h"
 #include <vector>
@@ -37,8 +36,18 @@ namespace edm {
       processConfiguration_ = pc;
     }
 
-    static std::auto_ptr<DQMEvent::TObjectTable>
-        deserializeDQMEvent(DQMEventMsgView const& dqmEventView);
+    /**
+     * Uncompresses the data in the specified input buffer into the
+     * specified output buffer.  The inputSize should be set to the size
+     * of the compressed data in the inputBuffer.  The expectedFullSize should
+     * be set to the original size of the data (before compression).
+     * Returns the actual size of the uncompressed data.
+     * Errors are reported by throwing exceptions.
+     */
+    static unsigned int uncompressBuffer(unsigned char *inputBuffer,
+                                         unsigned int inputSize,
+                                         std::vector<unsigned char> &outputBuffer,
+                                         unsigned int expectedFullSize);
 
   private:
     ProcessConfiguration processConfiguration_;

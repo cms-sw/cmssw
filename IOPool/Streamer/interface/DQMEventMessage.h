@@ -16,22 +16,20 @@
  * - Header Size (4 bytes)
  * - Run Number (4 bytes)
  * - Event Number at Update (4 bytes)
- * - Compression Reserved Word (4 bytes)
+ * - Luminosity Section (4 bytes)
+ * - Update Number (4 bytes)
+ * - Compression Flag (4 bytes)   | size of data before compression
  * - Reserved Word (4 bytes)
  * - Release Tag Length (4 bytes)
  * - Release Tag (varies)
  * - Top-level Folder Name Length (4 bytes)
  * - Top-level Folder Name (varies)
+ * - Number of Subfolders (4 bytes)
+ * - Number of Monitor Elements in Subfolder I (4 bytes)   | Repeated
+ * - Subfolder I Name Length (4 bytes)                     | for each
+ * - Subfolder I Name (varies)                             | subfolder
  * - DQM Event Data Length (4 bytes)
  * - DQM Event Data (varies)
- *
- * The DQM Event Data has sub-structure:
- * - Number of Subfolders (4 bytes)
- * - Subfolder Name Length (4 bytes)                     | Repeated
- * - Subfolder Name (varies)                             | structure
- * - Number of Monitor Elements in Subfolder (4 bytes)   | for each
- * - ME Data Length (4 bytes)                            | subfolder
- * - ME Data (varies)                                    |
  */
 
 #include "IOPool/Streamer/interface/MsgTools.h"
@@ -55,6 +53,8 @@ struct DQMEventHeader
   char_uint32 headerSize_;
   char_uint32 runNumber_;
   char_uint32 eventNumber_;
+  char_uint32 lumiSection_;
+  char_uint32 updateNumber_;
   char_uint32 compressionFlag_;
   char_uint32 reserved_;
 };
@@ -75,6 +75,8 @@ class DQMEventMsgView
   uint32 headerSize() const;
   uint32 runNumber() const;
   uint32 eventNumberAtUpdate() const;
+  uint32 lumiSection() const;
+  uint32 updateNumber() const;
   uint32 compressionFlag() const;
   uint32 reserved() const;
 
@@ -84,12 +86,9 @@ class DQMEventMsgView
   uint32 subFolderCount() const { return subFolderCount_; }
   boost::shared_ptr< std::vector<std::string> > subFolderNames() const;
 
+  std::string subFolderName(uint32 const subFolderIndex) const;
   uint32 meCount(std::string const& subFolderName) const;
   uint32 meCount(uint32 const subFolderIndex) const;
-  uint32 meDataSize(std::string const& subFolderName) const;
-  uint32 meDataSize(uint32 const subFolderIndex) const;
-  uint8* meDataAddress(std::string const& subFolderName) const;
-  uint8* meDataAddress(uint32 const subFolderIndex) const;
 
  private:
   uint8* buf_;
@@ -99,11 +98,9 @@ class DQMEventMsgView
   uint8* eventAddr_;
   uint32 eventLen_;
   uint32 subFolderCount_;
-  boost::shared_ptr< std::vector<std::string> > nameListPtr_;
   std::map<std::string, uint32> subFolderIndexTable_;
+  boost::shared_ptr< std::vector<std::string> > nameListPtr_;
   std::vector<uint32> meCountList_;
-  std::vector<uint32> meSizeList_;
-  std::vector<uint8*> meAddressList_;
 };
 
 #endif

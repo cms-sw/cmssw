@@ -89,40 +89,8 @@ namespace edm
     if(eventView.reserved() != 78 && eventView.reserved() != 0)
     {
       // compressed
-      dest_size = eventView.reserved(); // size of uncompressed event
-      FDEBUG(1) << "DESER: reserved = " << dest_size
-		<< " eventlength = " << eventView.eventLength()
-		<< endl;
-      dest_.resize(dest_size);
-      int ret = uncompress(&dest_[0], &dest_size,
-			   (unsigned char*)eventView.eventData(),
-			   eventView.eventLength()); // do not need compression level
-      //cout<<"unCompress Return value: "<<ret<< " Okay = " << Z_OK << endl;
-      if(ret == Z_OK) {
-        // check the length against original uncompressed length
-        FDEBUG(10) << " original size = " << origsize << " final size = " 
-                   << dest_size << endl;
-        if(origsize != dest_size) {
-          cerr << "deserializeEvent: Problem with uncompress, original size = "
-               << origsize << " uncompress size = " << dest_size << endl;
-          // we throw an error and return without event! null pointer
-          throw cms::Exception("StreamTranslation","Deserialization error")
-            << "mismatch event lengths should be" << origsize << " got "
-            << dest_size << "\n";
-          // do I need to return here?
-          return std::auto_ptr<EventPrincipal>();
-        }
-      }
-      else
-      {
-        // we throw an error and return without event! null pointer
-        cerr << "deserializeEvent: Problem with uncompress, return value = "
-             << ret << endl;
-        throw cms::Exception("StreamTranslation","Deserialization error")
-            << "Error code = " << ret << "\n ";
-        // do I need to return here?
-        return std::auto_ptr<EventPrincipal>();
-      }
+      dest_size = uncompressBuffer((unsigned char*)eventView.eventData(),
+                                   eventView.eventLength(), dest_, origsize);
     }
     else // not compressed
     {
@@ -206,51 +174,52 @@ namespace edm
   }
 
   /**
-   * Deserializes the specified DQM event message into a map of
-   * subfolder names and lists of TObjects that can be turned into
-   * monitor elements.
+   * Uncompresses the data in the specified input buffer into the
+   * specified output buffer.  The inputSize should be set to the size
+   * of the compressed data in the inputBuffer.  The expectedFullSize should
+   * be set to the original size of the data (before compression).
+   * Returns the actual size of the uncompressed data.
+   * Errors are reported by throwing exceptions.
    */
-  std::auto_ptr<DQMEvent::TObjectTable>
-  StreamDeserializer::deserializeDQMEvent(DQMEventMsgView const& dqmEventView)
+  unsigned int
+  StreamDeserializer::uncompressBuffer(unsigned char *inputBuffer,
+				       unsigned int inputSize,
+				       std::vector<unsigned char> &outputBuffer,
+				       unsigned int expectedFullSize)
   {
-    if (dqmEventView.code() != Header::DQM_EVENT)
-      throw cms::Exception("StreamTranslation",
-                           "DQM Event deserialization error")
-        << "received wrong message type: expected DQM_EVENT ("
-        << Header::DQM_EVENT << "), got " << dqmEventView.code() << "\n";
-    FDEBUG(9) << "Deserialing DQM event: "
-         << dqmEventView.eventNumberAtUpdate() << " "
-         << dqmEventView.runNumber() << " "
-         << dqmEventView.size() << " "
-         << dqmEventView.eventLength() << " "
-         << dqmEventView.eventAddress()
-         << endl;
-
-    // create the folder name to TObject map
-    auto_ptr<DQMEvent::TObjectTable> tablePtr(new DQMEvent::TObjectTable());
-
-    // fetch the subfolder names
-    boost::shared_ptr< std::vector<std::string> > folderNameList =
-      dqmEventView.subFolderNames();
-
-    // loop over the subfolders
-    for (uint32 fdx = 0; fdx < dqmEventView.subFolderCount(); fdx++) {
-      std::vector<TObject *> meList;
-
-      // loop over the monitor elements in the subfolder
-      int meCount = dqmEventView.meCount(fdx);
-      TBuffer meDataBuffer(TBuffer::kRead, dqmEventView.meDataSize(fdx),
-                           dqmEventView.meDataAddress(fdx), false);
-      for (int mdx = 0; mdx < meCount; mdx++) {
-        TObject *tmpPtr = meDataBuffer.ReadObject(TObject::Class());
-        meList.push_back(tmpPtr);
+    unsigned long origSize = expectedFullSize;
+    unsigned long uncompressedSize;
+    FDEBUG(1) << "Uncompress: original size = " << origSize
+              << ", compressed size = " << inputSize
+              << endl;
+    outputBuffer.resize(origSize);
+    int ret = uncompress(&outputBuffer[0], &uncompressedSize,
+                         inputBuffer, inputSize); // do not need compression level
+    //cout<<"unCompress Return value: "<<ret<< " Okay = " << Z_OK << endl;
+    if(ret == Z_OK)
+      {
+        // check the length against original uncompressed length
+        FDEBUG(10) << " original size = " << origSize << " final size = " 
+                   << uncompressedSize << endl;
+        if(origSize != uncompressedSize)
+          {
+            cerr << "deserializeEvent: Problem with uncompress, original size = "
+                 << origSize << " uncompress size = " << uncompressedSize << endl;
+            // we throw an error and return without event! null pointer
+            throw cms::Exception("StreamDeserialization","Uncompression error")
+              << "mismatch event lengths should be" << origSize << " got "
+              << uncompressedSize << "\n";
+          }
+      }
+    else
+      {
+        // we throw an error and return without event! null pointer
+        cerr << "deserializeEvent: Problem with uncompress, return value = "
+             << ret << endl;
+        throw cms::Exception("StreamDeserialization","Uncompression error")
+            << "Error code = " << ret << "\n ";
       }
 
-      // store the list in the table
-      std::string folderName = (*folderNameList)[fdx];
-      (*tablePtr)[folderName] = meList;
-    }
-
-    return tablePtr;
+    return (unsigned int) uncompressedSize;
   }
 }

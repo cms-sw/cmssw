@@ -9,7 +9,6 @@
  */
 
 #include "FWCore/Framework/interface/OutputModule.h"
-#include "IOPool/Streamer/interface/DQMEventMsgBuilder.h"
 #include "TBuffer.h"
 #include "TClass.h"
 #include <vector>
@@ -31,9 +30,6 @@ namespace edm
     int serializeEvent(EventPrincipal const& eventPrincipal,
                        bool use_compression, int compression_level);
 
-    static int serializeDQMEvent(DQMEvent::TObjectTable& toTable,
-                                 DQMEventMsgBuilder& dqmMsgBuilder);
-
     // This object always caches the results of the last event 
     // serialization operation.  You get access to the data using the
     // following member functions.
@@ -41,6 +37,16 @@ namespace edm
     unsigned char* bufferPointer() const { return ptr_; }
     unsigned int currentSpaceUsed() const { return curr_space_used_; }
     unsigned int currentEventSize() const { return curr_event_size_; }
+
+    /**
+     * Compresses the data in the specified input buffer into the
+     * specified output buffer.  Returns the size of the compressed data
+     * or zero if compression failed.
+     */
+    static unsigned int compressBuffer(unsigned char *inputBuffer,
+                                       unsigned int inputSize,
+                                       std::vector<unsigned char> &outputBuffer,
+                                       int compressionLevel);
 
   private:
 

@@ -210,39 +210,12 @@ namespace edm
     //   as double compression can have problems
     if(use_compression)
     {
-      // old comments:
-      //   unsigned long dest_size = 7008*1000;
-      //   (should be > rootbuf.Length()*1.001 + 12)
-
-      // what are these magic numbers? (jbk)
-      unsigned long dest_size = (unsigned long)(double(curr_event_size_)*
-						1.002 + 1.0) + 12;
-      if(comp_buf_.size() < dest_size) comp_buf_.resize(dest_size);
-
-      // compression 1-9, 6 is zlib default, 0 none
-      int ret = compress2(&comp_buf_[0], &dest_size, ptr_,
-                          curr_event_size_, compression_level); 
-
-      if(ret == Z_OK) {
+      unsigned int dest_size =
+        compressBuffer(ptr_, curr_event_size_, comp_buf_, compression_level);
+      if(dest_size != 0)
+      {
 	ptr_ = &comp_buf_[0]; // reset to point at compressed area
         curr_space_used_ = dest_size;
-
-        // set reserved to original size for test and needed for buffer size
-        // eventMessage.setReserved(oldsize);
-
-        // return the correct length
-        FDEBUG(1) << " original size = " << curr_event_size_
-		   << " final size = " << dest_size
-		   << " ratio = " << double(dest_size)/double(curr_event_size_)
-		   << endl;
-      }
-      else
-      {
-        // compression failed, just return the original buffer
-        FDEBUG(9) <<"Compression Return value: "<<ret
-		  << " Okay = " << Z_OK << endl;
-        // do we throw an exception here?
-        cerr <<"Compression Return value: "<<ret<< " Okay = " << Z_OK << endl;
       }
     }
 
@@ -250,29 +223,47 @@ namespace edm
   }
 
   /**
-   * Serializes the specified DQM Event into the specified DQM Event message.
+   * Compresses the data in the specified input buffer into the
+   * specified output buffer.  Returns the size of the compressed data
+   * or zero if compression failed.
    */
-  int StreamSerializer::serializeDQMEvent(DQMEvent::TObjectTable& toTable,
-                                          DQMEventMsgBuilder& dqmMsgBuilder)
+  unsigned int
+  StreamSerializer::compressBuffer(unsigned char *inputBuffer,
+				   unsigned int inputSize,
+				   std::vector<unsigned char> &outputBuffer,
+				   int compressionLevel)
   {
-    // loop over each subfolder
-    DQMEvent::TObjectTable::const_iterator sfIter;
-    for (sfIter = toTable.begin(); sfIter != toTable.end(); sfIter++) {
-      std::string folderName = sfIter->first;
-      std::vector<TObject *> toList = sfIter->second;
+    unsigned int resultSize = 0;
 
-      // serialize the ME data
-      uint32 meCount = toList.size();
-      TBuffer meDataBuffer(TBuffer::kWrite);
-      for (int idx = 0; idx < (int) meCount; idx++) {
-        TObject *toPtr = toList[idx];
-        meDataBuffer.WriteObject(toPtr);
+    // what are these magic numbers? (jbk)
+    unsigned long dest_size = (unsigned long)(double(inputSize)*
+					      1.002 + 1.0) + 12;
+    if(outputBuffer.size() < dest_size) outputBuffer.resize(dest_size);
+
+    // compression 1-9, 6 is zlib default, 0 none
+    int ret = compress2(&outputBuffer[0], &dest_size, inputBuffer,
+			inputSize, compressionLevel);
+
+    // check status
+    if(ret == Z_OK)
+      {
+	// return the correct length
+	resultSize = dest_size;
+
+	FDEBUG(1) << " original size = " << inputSize
+		  << " final size = " << dest_size
+		  << " ratio = " << double(dest_size)/double(inputSize)
+		  << endl;
+      }
+    else
+      {
+        // compression failed, return a size of zero
+        FDEBUG(9) <<"Compression Return value: "<<ret
+		  << " Okay = " << Z_OK << endl;
+        // do we throw an exception here?
+        cerr <<"Compression Return value: "<<ret<< " Okay = " << Z_OK << endl;
       }
 
-      // add the subfolder to the DQM event message
-      dqmMsgBuilder.addMEData(folderName, meCount, meDataBuffer);
-    }
-
-    return dqmMsgBuilder.eventLength();
+    return resultSize;
   }
 }
