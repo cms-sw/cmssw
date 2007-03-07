@@ -13,7 +13,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Mon Oct 16 23:19:38 EDT 2006
-// $Id: L1ExtraParticleMapProd.cc,v 1.2 2006/10/27 01:35:33 wmtan Exp $
+// $Id: L1ExtraParticleMapProd.cc,v 1.3 2007/01/24 00:13:02 wsun Exp $
 //
 //
 
@@ -26,7 +26,7 @@
 
 //#include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 static const int kDefault = -1 ;

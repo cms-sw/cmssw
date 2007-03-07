@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Werner Sun
 //         Created:  Mon Oct  2 22:45:32 EDT 2006
-// $Id: L1ExtraParticlesProd.cc,v 1.4 2006/12/21 00:15:19 wsun Exp $
+// $Id: L1ExtraParticlesProd.cc,v 1.5 2007/01/10 19:48:22 wsun Exp $
 //
 //
 
@@ -27,9 +27,9 @@ Implementation:
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 //#include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/OrphanHandle.h"
+#include "DataFormats/Common/interface/OrphanHandle.h"
 
 #include "L1Trigger/L1Scales/interface/L1CaloEtScale.h"
 #include "L1Trigger/L1Scales/interface/L1EmEtScaleRcd.h"
