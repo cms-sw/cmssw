@@ -5,15 +5,15 @@
  *  to MC and (eventually) data. 
  *  Implementation file contents follow.
  *
- *  $Date: 2007/02/14 06:16:45 $
- *  $Revision: 1.28 $
+ *  $Date: 2007/03/07 22:16:04 $
+ *  $Revision: 1.29 $
  *  \author Vyacheslav Krutelyov (slava77)
  */
 
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Fri Mar  3 16:01:24 CST 2006
-// $Id: SteppingHelixPropagator.cc,v 1.28 2007/02/14 06:16:45 slava77 Exp $
+// $Id: SteppingHelixPropagator.cc,v 1.29 2007/03/07 22:16:04 slava77 Exp $
 //
 //
 
@@ -23,9 +23,9 @@
 #include "MagneticField/VolumeGeometry/interface/MagVolume.h"
 #include "Utilities/Timing/interface/TimingReport.h"
 
-#include "Geometry/Surface/interface/Cylinder.h"
-#include "Geometry/Surface/interface/Plane.h"
-#include "Geometry/Surface/interface/Cone.h"
+#include "DataFormats/GeometrySurface/interface/Cylinder.h"
+#include "DataFormats/GeometrySurface/interface/Plane.h"
+#include "DataFormats/GeometrySurface/interface/Cone.h"
 
 #include "TrackingTools/GeomPropagators/interface/PropagationExceptions.h"
 
