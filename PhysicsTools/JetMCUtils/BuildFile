@@ -1,18 +1,7 @@
-<flags SEAL_PLUGIN_NAME="PhysicsToolsJetMCUtils">
-<use name=PhysicsTools/CandAlgos>
 <use name=DataFormats/Candidate>
-<use name=PhysicsTools/CandUtils>
-<use name=DataFormats/RecoCandidate>
-<use name=FWCore/Framework>
-<use name=FWCore/ParameterSet>
-<use name=root>
+<use name=DataFormats/Common>
+<<use name=rootrflx>
 <export>
-  <lib name=PhysicsToolsJetMCUtils>
-  <use name=PhysicsTools/CandAlgos>
   <use name=DataFormats/Candidate>
-  <use name=PhysicsTools/CandUtils>
-  <use name=DataFormats/RecoCandidate>
-  <use name=FWCore/Framework>
-  <use name=FWCore/ParameterSet>
-  <use name=root>
+  <use name=DataFormats/Common>
 </export>
