@@ -1,5 +1,5 @@
-#ifndef RBCEmulator_RBCChamberORLogic_h
-#define RBCEmulator_RBCChamberORLogic_h
+#ifndef RPCTechnicalTrigger_RBCChamberORLogic_h
+#define RPCTechnicalTrigger_RBCChamberORLogic_h
 #include "L1Trigger/RPCTechnicalTrigger/src/RBCLogic.h"
 #include <iostream>
 
@@ -10,5 +10,4 @@ class RBCChamberORLogic : public RBCLogic{
   void action(){std::cout <<" Pretending to do ChamberOR Logic"<<std::endl;}
   
 };
-
 #endif

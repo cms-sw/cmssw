@@ -1,5 +1,5 @@
-#ifndef RBCEmulator_RBCLogic_h
-#define RBCEmulator_RBCLogic_h
+#ifndef RPCTechnicalTrigger_RBCLogic_h
+#define RPCTechnicalTrigger_RBCLogic_h
 #include <iostream>
 #include <string>
 class RBCLogic{
@@ -14,5 +14,4 @@ class RBCLogic{
   virtual void action(){std::cout <<"Do still nothing"<<std::endl;}
 
 };
-
 #endif

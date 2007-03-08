@@ -1,5 +1,5 @@
-#ifndef RBCEmulator_RBCPatternLogic_h
-#define RBCEmulator_RBCPatternLogic_h
+#ifndef RPCTechnicalTrigger_RBCPatternLogic_h
+#define RPCTechnicalTrigger_RBCPatternLogic_h
 #include "L1Trigger/RPCTechnicalTrigger/src/RBCLogic.h"
 #include <iostream>
 
@@ -11,6 +11,4 @@ class RBCPatternLogic : public RBCLogic
   void action(){std::cout <<" Pretending to do Pattern Logic"<<std::endl;}
   
 };
-
 #endif
-
