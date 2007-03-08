@@ -20,6 +20,7 @@
 #include "RecoMuon/MeasurementDet/interface/MuonDetLayerMeasurements.h"
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
+#include "RecoMuon/CosmicMuonProducer/interface/CosmicMuonSmoother.h"
 
 namespace edm {class ParameterSet; class Event; class EventSetup;}
 
@@ -45,31 +46,64 @@ public:
   virtual void setEvent(const edm::Event&);
 
   const Propagator* propagator() const {return &*theService->propagator(thePropagatorName);}
+
+  //FIXME
+  const Propagator* propagatorAlong() const {return &*theService->propagator("SteppingHelixPropagatorAlong");}
+
+  const Propagator* propagatorOpposite() const {return &*theService->propagator("SteppingHelixPropagatorOpposite");}
+
   MuonTrajectoryUpdator* updator() const {return theUpdator;}
+
   MuonTrajectoryUpdator* backwardUpdator() const {return theBKUpdator;}
 
 private:
 
   MuonTransientTrackingRecHit::MuonRecHitContainer unusedHits(const DetLayer*, const TrajectoryMeasurement&) const;
+
   void print(const MuonTransientTrackingRecHit::MuonRecHitContainer&) const;
+
   void print(const TransientTrackingRecHit::ConstRecHitContainer&) const;
+
   void explore(Trajectory&, MuonTransientTrackingRecHit::MuonRecHitContainer&);
+
+  void buildSecondHalf(Trajectory&);
+
+  void build(const TrajectoryStateOnSurface&, const NavigationDirection&, Trajectory&);
+
+  TrajectoryStateOnSurface intermediateState(const TrajectoryStateOnSurface&) const;
+
   TrajectoryStateOnSurface stepPropagate(const TrajectoryStateOnSurface&,
                                          const ConstRecHitPointer&) const;
 
   void selectHits(MuonTransientTrackingRecHit::MuonRecHitContainer&) const;
-  void reverseTrajectory(Trajectory&) const;
-  void updateTrajectory(Trajectory&, const MuonTransientTrackingRecHit::MuonRecHitContainer&);
 
+  /// reverse a trajectory without refit
+  void reverseTrajectory(Trajectory&) const;
+
+  double computeNDOF(const Trajectory&) const;
+
+  void reverseDirection(TrajectoryStateOnSurface&) const;
+
+  /// check if the trajectory iterates the same hit more than once
+  bool selfDuplicate(const Trajectory&) const;
+
+  /// check the direction of trajectory by refitting from both ends
+  void estimateDirection(Trajectory&) const;
+
+  void updateTrajectory(Trajectory&, const MuonTransientTrackingRecHit::MuonRecHitContainer&);
 
   MuonTrajectoryUpdator* theUpdator;
   MuonTrajectoryUpdator* theBKUpdator;
   MuonDetLayerMeasurements* theLayerMeasurements;
 
-  const MuonServiceProxy *theService;
+  const MuonServiceProxy* theService;
+  CosmicMuonSmoother* theSmoother;
 
   std::string thePropagatorName;
-  bool theCrossingMuonFlag;
+  bool theTraversingMuonFlag;
+
+  int theNTraversing;
+  int theNSuccess;
   
 };
 #endif
