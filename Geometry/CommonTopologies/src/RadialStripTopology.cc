@@ -169,10 +169,11 @@ RadialStripTopology::channel(const LocalPoint& lp) const {
 
 float 
 RadialStripTopology::pitch() const { 
-  // BEWARE: I am throwing an exception here since the strip is 
+  // BEWARE: this originally returned the pitch at the local origin 
+  // but Tracker prefers throwing an exception since the strip is 
   // not constant along local x axis for a RadialStripTopology.
-  // The method localPitch() should be called instead
-  throw Genexception("RadialStripTopology::pitch() called (makes no sense)");
+
+  throw Genexception("RadialStripTopology::pitch() called - makes no sense, use localPitch(.) instead.");
   return 0.;
 }
   
@@ -226,7 +227,7 @@ std::ostream & operator<<( std::ostream & os, const RadialStripTopology & rst )
       << "detector height in y      " << rst.stripLength() << std::endl
       << "angular width of strips   " << rst.phiPitch() << std::endl
       << "phi of one edge           " << rst.thePhiOfOneEdge << std::endl
-      << "approximate pitch in x    " << rst.pitch() << std::endl
+    //      << "approximate pitch in x    " << rst.pitch() << std::endl 
       << "y axis orientation        " << rst.yAxisOrientation() << std::endl;
   return os;
 }
