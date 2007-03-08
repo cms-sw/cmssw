@@ -52,7 +52,8 @@
   <class name="reco::SoftLeptonTagInfoRefVector"/>
   <class name="edm::Wrapper<reco::SoftLeptonTagInfoCollection>"/>
 
-  <class name="std::pair< reco::TaggingVariableName, reco::TaggingValue >"/>
+  <class name="std::pair< reco::btau::TaggingVariableName, float >"/>
+  <class name="std::vector<std::pair<reco::btau::TaggingVariableName,float> >"/>
   <class name="reco::TaggingVariableList"/>
   <class name="reco::TaggingVariableListCollection"/>
   <class name="reco::TaggingVariableListRef"/>
