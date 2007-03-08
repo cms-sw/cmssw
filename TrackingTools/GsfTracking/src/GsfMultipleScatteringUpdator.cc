@@ -1,6 +1,6 @@
 #include "TrackingTools/GsfTracking/interface/GsfMultipleScatteringUpdator.h"
 
-#include "Geometry/Surface/interface/MediumProperties.h"
+#include "DataFormats/GeometrySurface/interface/MediumProperties.h"
 
 // #include "CommonDet/DetUtilities/interface/DetExceptions.h"
 

@@ -1,6 +1,6 @@
 #include "TrackingTools/GsfTracking/interface/GsfBetheHeitlerUpdator.h"
 
-#include "Geometry/Surface/interface/MediumProperties.h"
+#include "DataFormats/GeometrySurface/interface/MediumProperties.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
