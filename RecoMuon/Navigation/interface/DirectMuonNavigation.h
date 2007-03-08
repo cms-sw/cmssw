@@ -36,6 +36,11 @@ class DirectMuonNavigation{
       compatibleLayers( const FreeTrajectoryState& fts, 
                         PropagationDirection timeDirection) const;
 
+
+    std::vector<const DetLayer*>
+      compatibleEndcapLayers( const FreeTrajectoryState& fts,
+                              PropagationDirection timeDirection) const;
+
   private:
 
     void inOutBarrel(const FreeTrajectoryState&, std::vector<const DetLayer*>&) const;

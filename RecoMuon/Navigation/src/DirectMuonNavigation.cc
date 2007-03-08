@@ -27,7 +27,8 @@ DirectMuonNavigation::DirectMuonNavigation(edm::ESHandle<MuonDetLayerGeometry> m
    epsilon_ = 100.; 
 
 }
-/* Operations */ 
+
+/* return compatible layers for given trajectory state  */ 
 vector<const DetLayer*> 
 DirectMuonNavigation::compatibleLayers( const FreeTrajectoryState& fts,
                                         PropagationDirection dir ) const {
@@ -68,6 +69,29 @@ DirectMuonNavigation::compatibleLayers( const FreeTrajectoryState& fts,
   return output;
 }
 
+/*
+return compatible endcap layers on BOTH ends;
+used for beam-halo muons
+*/
+vector<const DetLayer*> 
+DirectMuonNavigation::compatibleEndcapLayers( const FreeTrajectoryState& fts,
+                                              PropagationDirection dir ) const {
+
+  float zm = fts.momentum().z();
+
+  vector<const DetLayer*> output;
+
+  // collect all endcap layers on 2 sides
+  outInBackward(fts,output);
+  inOutForward(fts,output);
+
+  // check direction FTS to get a correct order of DetLayers
+  if ( ( zm > 0 && dir == oppositeToMomentum ) || 
+       ( zm < 0 && dir == alongMomentum )  )
+           std::reverse(output.begin(),output.end());
+
+  return output;
+}
 
 void DirectMuonNavigation::inOutBarrel(const FreeTrajectoryState& fts, vector<const DetLayer*>& output) const {
 
