@@ -6,6 +6,7 @@
 <use name=FWCore/ParameterSet>
 <use name=FastSimulation/CalorimeterProperties>
 <use name=FastSimulation/ParticlePropagator>
+<use name=FastSimulation/Utilities>
 <use name=Geometry/CaloGeometry>
 <use name=Geometry/CaloTopology>
 <use name=Geometry/EcalBarrelAlgo>
@@ -21,3 +22,4 @@
   <use name=clhep>
   <lib name=FastSimulationCaloGeometryTools>
 </export>
+

@@ -1,18 +1,19 @@
-<use name=clhep>
-<use name=FastSimulation/Event>
-<use name=Geometry/CaloGeometry>
-<use name=Geometry/EcalBarrelAlgo>
-<use name=Geometry/EcalEndcapAlgo>
-<use name=Geometry/EcalPreshowerAlgo>
-<use name=DataFormats/EcalDetId>
-<use name=Geometry/HcalTowerAlgo>
+ <use name=clhep>
+ <use name=DataFormats/DetId>
+ <use name=DataFormats/EcalDetId>
+ <use name=FWCore/MessageLogger>
+ <use name=FWCore/ParameterSet>
+ <use name=Geometry/CaloGeometry>
+ <use name=Geometry/CaloTopology>
+ <use name=Geometry/EcalBarrelAlgo>
+ <use name=Geometry/EcalEndcapAlgo>
+ <use name=Geometry/EcalPreshowerAlgo>
+ <use name=Geometry/HcalTowerAlgo>
 <export>
  <lib name=FastSimulationCalorimeterProperties>
- <use name=FastSimulation/Event>
- <use name=Geometry/CaloGeometry>	
- <use name=DataFormats/EcalDetId>
- <use name=Geometry/HcalTowerAlgo>
- <use name=Geometry/EcalBarrelAlgo>
- <use name=Geometry/EcalEndcapAlgo> 	
- <use name=Geometry/EcalPreshowerAlgo>
+ <use name=DataFormats/DetId>
+ <use name=FWCore/ParameterSet>
+ <use name=Geometry/CaloGeometry>
+ <use name=clhep>
 </export>
+

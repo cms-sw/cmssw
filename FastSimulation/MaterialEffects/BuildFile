@@ -1,4 +1,6 @@
 <use name=DataFormats/Common>
+<use name=DataFormats/GeometryVector>
+<use name=DataFormats/Provenance>
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
 <use name=FWCore/Utilities>
@@ -6,19 +8,18 @@
 <use name=FastSimulation/ParticlePropagator>
 <use name=FastSimulation/TrackerSetup>
 <use name=FastSimulation/Utilities>
-<use name=DataFormats/GeometryVector>
 <use name=SimDataFormats/Track>
 <use name=TrackingTools/PatternTools>
 <use name=clhep>
 <use name=rootcore>
 <use name=rootrflx>
-#<use name=DQMServices/CoreROOT>
 <export>
+  <use name=DataFormats/GeometryVector>
   <use name=FWCore/Framework>
   <use name=FWCore/ParameterSet>
   <use name=FastSimulation/ParticlePropagator>
   <use name=FastSimulation/Utilities>
-  <use name=DataFormats/GeometryVector>
   <use name=clhep>
   <lib name=FastSimulationMaterialEffects>
 </export>
+

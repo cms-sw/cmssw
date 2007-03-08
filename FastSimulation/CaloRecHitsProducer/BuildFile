@@ -6,10 +6,10 @@
 <use name=FWCore/Framework>
 <use name=FWCore/MessageLogger>
 <use name=FWCore/ParameterSet>
+<use name=FWCore/PluginManager>
 <use name=FWCore/ServiceRegistry>
 <use name=FWCore/Utilities>
 <use name=FastSimulation/Utilities>
-<use name=Foundation/PluginManager>
 <use name=Geometry/CaloGeometry>
 <use name=Geometry/EcalBarrelAlgo>
 <use name=Geometry/EcalEndcapAlgo>

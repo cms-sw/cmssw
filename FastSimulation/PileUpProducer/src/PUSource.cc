@@ -1,15 +1,15 @@
 /*----------------------------------------------------------------------
-$Id: PUSource.cc,v 1.2 2006/04/26 13:02:07 pjanot Exp $
+$Id: PUSource.cc,v 1.3 2007/01/18 14:58:45 pjanot Exp $
 ----------------------------------------------------------------------*/
 
 #include "FastSimulation/PileUpProducer/interface/PUSource.h"
 #include "IOPool/Input/src/RootFile.h"
 #include "IOPool/Common/interface/ClassFiller.h"
 
-#include "DataFormats/Common/interface/BranchDescription.h"
+#include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
-#include "DataFormats/Common/interface/ProductRegistry.h"
-#include "DataFormats/Common/interface/ProductID.h"
+#include "DataFormats/Provenance/interface/ProductRegistry.h"
+#include "DataFormats/Provenance/interface/ProductID.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
 

@@ -1,12 +1,12 @@
-//#include "PluginManager/PluginManager.h"
-//#include "PluginManager/ModuleDef.h"
+//#include "FWCore/PluginManager/interface/PluginManager.h"
+//#include "FWCore/PluginManager/interface/ModuleDef.h"
 
 //#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/src/VectorInputSourceFactory.h"
 
-#include "DataFormats/Common/interface/ModuleDescription.h"
+#include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "DataFormats/Common/interface/Handle.h"
 
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"

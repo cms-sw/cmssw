@@ -1,4 +1,4 @@
-<use name=DataFormats/Common>
+<use name=DataFormats/Provenance>
 <use name=FWCore/ParameterSet>
 <use name=FastSimulation/BaseParticlePropagator>
 <use name=FastSimulation/Particle>
@@ -7,9 +7,8 @@
 <use name=SimDataFormats/Vertex>
 <use name=SimGeneral/HepPDTRecord>
 <use name=clhep>
-
 <export>
-  <use name=DataFormats/Common>
+  <use name=DataFormats/Provenance>
   <use name=FWCore/ParameterSet>
   <use name=FastSimulation/Particle>
   <use name=SimDataFormats/Track>
@@ -18,3 +17,4 @@
   <use name=clhep>
   <lib name=FastSimulationEvent>
 </export>
+

@@ -2,7 +2,7 @@
 #define FastSimulation_Event_FSimEvent_H
 
 // CMSSW Headers
-#include "DataFormats/Common/interface/EventID.h"
+#include "DataFormats/Provenance/interface/EventID.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 
