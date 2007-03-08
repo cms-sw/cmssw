@@ -20,17 +20,19 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/Common/interface/Ref.h"
-#include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 #include "DataFormats/DetId/interface/DetId.h"
+//#include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
 
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/Vector/interface/GlobalPoint.h"
-#include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
+//#include "Geometry/Vector/interface/GlobalPoint.h"
+//#include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "RecoTracker/TrackProducer/interface/TrackProducerBase.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
+#include "Calibration/Tools/interface/TrackAssociator.h"
+#include "Calibration/Tools/interface/TimerStack.h"
 
 #include "TH1F.h"
 
@@ -47,7 +49,19 @@ class AlCaIsoTracksProducer : public edm::EDProducer {
       void endJob(void);
 
    private:
+
+      TrackAssociator trackAssociator_;
+
       std::string m_inputTrackLabel;
+      std::string m_ecalLabel;
+      std::string m_ebInstance;
+      std::string m_eeInstance;
+      std::string m_hcalLabel;
+      double m_dvCut;
+      double m_ddirCut;
+      double m_pCut;
+      double m_ptCut;
+      double m_ecalCut;
       int m_histoFlag;
       TFile* m_Hfile;
       struct{
@@ -55,6 +69,7 @@ class AlCaIsoTracksProducer : public edm::EDProducer {
         TH1F* vx;
         TH1F* vy;
         TH1F* vz;
+        TH1F* vr;
         TH1F* eta;
         TH1F* phi;
         TH1F* p;
@@ -63,10 +78,13 @@ class AlCaIsoTracksProducer : public edm::EDProducer {
         TH1F* Dverty;
         TH1F* Dvertz;
         TH1F* Dvert;
-        TH1F* Deta;
+        TH1F* Dtheta;
         TH1F* Dphi;
         TH1F* Ddir;
         TH1F* Nisotr;
+        TH1F* Dering;
+        TH1F* eecal;
+        TH1F* ehcal;
       } IsoHists;
 
 };
