@@ -1,5 +1,5 @@
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "SimMuon/RPCDigitizer/src/RPCDigiProducer.h"
 #include "SimMuon/RPCDigitizer/src/RPCDigitizer.h"
