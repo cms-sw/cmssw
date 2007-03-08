@@ -2,7 +2,7 @@
 #define VertexKinematicConstraint_H
 
 #include "RecoVertex/KinematicFitPrimitives/interface/MultiTrackKinematicConstraint.h"
-#include "Geometry/CommonDetAlgo/interface/AlgebraicObjects.h"
+#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 
 /**
  * Class implementing the vertexing constraint 

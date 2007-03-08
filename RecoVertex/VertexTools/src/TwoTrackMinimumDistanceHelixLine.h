@@ -1,8 +1,8 @@
 #ifndef _Tracker_TwoTrackMinimumDistanceHelixLine_H_
 #define _Tracker_TwoTrackMinimumDistanceHelixLine_H_
 
-#include "Geometry/Vector/interface/GlobalPoint.h"
-#include "Geometry/Vector/interface/GlobalVector.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include <utility>
 using namespace std;
 

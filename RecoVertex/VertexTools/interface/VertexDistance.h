@@ -1,9 +1,9 @@
 #ifndef Tracker_VertexDistance_H
 #define Tracker_VertexDistance_H
 
-#include "Geometry/CommonDetAlgo/interface/Measurement1D.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/Measurement1D.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
-#include "Geometry/Vector/interface/GlobalVector.h"
+#include "DataFormats/GeometryVector/interface/GlobalVector.h"
 
 /** \class VertexDistance
  *  Abstact class which defines a distance and compatibility between vertices.

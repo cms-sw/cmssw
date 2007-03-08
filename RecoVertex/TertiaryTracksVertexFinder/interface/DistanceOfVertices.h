@@ -3,7 +3,7 @@
 
 #include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
 
-#include "Geometry/CommonDetAlgo/interface/Measurement1D.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/Measurement1D.h"
 #include "CLHEP/Vector/ThreeVector.h"
 
 // class to compute distance, error, significance of 2 Vertices

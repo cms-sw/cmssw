@@ -1,8 +1,8 @@
-/* $Id: TwoTrackMinimumDistanceHelixHelix.h,v 1.9 2004/02/13 11:51:00 walten Exp $ */
+/* $Id: TwoTrackMinimumDistanceHelixHelix.h,v 1.1 2006/02/24 11:30:10 speer Exp $ */
 #ifndef _Tracker_TwoTrackMinimumDistanceHelixHelix_H_
 #define _Tracker_TwoTrackMinimumDistanceHelixHelix_H_
 
-#include "Geometry/Vector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include <string>
 #include <sstream>
 #include <utility>

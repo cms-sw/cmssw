@@ -3,7 +3,7 @@
 
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 #include "RecoVertex/KinematicFitPrimitives/interface/KinematicState.h"
-#include "Geometry/Surface/interface/Surface.h"
+#include "DataFormats/GeometrySurface/interface/Surface.h"
 
 /**
  * Pure abstract base class to create

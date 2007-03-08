@@ -1,9 +1,9 @@
 #ifndef KinematicParameters_H
 #define KinematicParameters_H
 
-#include "Geometry/CommonDetAlgo/interface/AlgebraicObjects.h"
-#include "Geometry/Vector/interface/GlobalPoint.h"
-#include "Geometry/Vector/interface/GlobalVector.h"
+#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalVector.h"
 
 /**
  * Class to store the 7-vector of

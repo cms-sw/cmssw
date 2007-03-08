@@ -1,5 +1,5 @@
 #include "RecoVertex/VertexTools/interface/VertexDistance3D.h"
-#include "Geometry/Vector/interface/GlobalVector.h"
+#include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "RecoVertex/VertexPrimitives/interface/VertexState.h"
 #include "RecoVertex/VertexPrimitives/interface/ConvertError.h"
 #include "FWCore/Utilities/interface/Exception.h"

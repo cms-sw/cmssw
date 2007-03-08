@@ -5,7 +5,7 @@
 #include "RecoVertex/KinematicFitPrimitives/interface/KinematicState.h"
 #include "RecoVertex/VertexPrimitives/interface/RefCountedLinearizedTrackState.h"
 
-#include "Geometry/Surface/interface/ReferenceCounted.h"
+#include "DataFormats/GeometrySurface/interface/ReferenceCounted.h"
 
 /**
  * Abstract base class for KinematicParticles

@@ -3,7 +3,7 @@
 
 #include <vector>
 #include <map>
-#include "Geometry/Vector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 // #include "CommonReco/PatternTools/interface/RecTrack.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 // #include "Utilities/GenUtil/interface/ReferenceCounted.h"

@@ -2,7 +2,7 @@
 #define _LinearizationPointFinder_H_
 
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
-#include "Geometry/Vector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include <vector>
 class FreeTrajectoryState;
 

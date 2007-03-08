@@ -1,8 +1,8 @@
 #ifndef _Vtx_TransientVertex_H_
 #define _Vtx_TransientVertex_H_
 
-#include "Geometry/Vector/interface/GlobalPoint.h"
-#include "Geometry/CommonDetAlgo/interface/GlobalError.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/GlobalError.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "RecoVertex/VertexPrimitives/interface/VertexState.h"
 #include "RecoVertex/VertexPrimitives/interface/TTtoTTmap.h"

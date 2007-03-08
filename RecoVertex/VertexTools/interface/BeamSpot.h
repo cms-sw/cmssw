@@ -1,8 +1,8 @@
 #ifndef Vertex_BeamSpot_H
 #define Vertex_BeamSpot_H
 
-#include "Geometry/Vector/interface/GlobalPoint.h"
-#include "Geometry/CommonDetAlgo/interface/GlobalError.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/GlobalError.h"
 
 /** \class BeamSpot 
  *  Defines position and spread of the beam spot 

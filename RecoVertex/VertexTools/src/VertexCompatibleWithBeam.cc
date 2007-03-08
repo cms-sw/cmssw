@@ -1,6 +1,6 @@
 #include "RecoVertex/VertexTools/interface/VertexCompatibleWithBeam.h"
-#include "Geometry/Vector/interface/GlobalPoint.h"
-#include "Geometry/CommonDetAlgo/interface/GlobalError.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/GlobalError.h"
 #include "RecoVertex/VertexTools/interface/VertexDistance.h"
 #include "RecoVertex/VertexPrimitives/interface/ConvertError.h"
 #include "RecoVertex/VertexTools/interface/BeamSpot.h"

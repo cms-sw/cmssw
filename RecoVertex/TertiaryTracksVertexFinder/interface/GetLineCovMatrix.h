@@ -1,7 +1,7 @@
 #ifndef GETLINECOVMATRIX_H
 #define GETLINECOVMATRIX_H
 
-#include "Geometry/CommonDetAlgo/interface/GlobalError.h" 
+#include "DataFormats/GeometryCommonDetAlgo/interface/GlobalError.h"
 #include "CLHEP/Matrix/Matrix.h"
 
 // Class that calculates the Covariance Matrix of a Globalpoint

@@ -1,7 +1,7 @@
 #ifndef KinematicVertex_H
 #define KinematicVertex_H
 
-#include "Geometry/Surface/interface/ReferenceCounted.h"
+#include "DataFormats/GeometrySurface/interface/ReferenceCounted.h"
 #include "RecoVertex/VertexPrimitives/interface/CachingVertex.h"
 #include "RecoVertex/VertexPrimitives/interface/VertexState.h"
 

@@ -4,10 +4,10 @@
 //#include "CommonReco/CommonVertex/interface/ImpactPointMeasurement.h"
 
 //#include "TrackingTools/TrajectoryState/interface/ProxyBase.h"
-#include "Geometry/Surface/interface/ReferenceCounted.h"
+#include "DataFormats/GeometrySurface/interface/ReferenceCounted.h"
 #include "TrackingTools/TrajectoryState/interface/CopyUsingClone.h"
-#include "Geometry/Vector/interface/GlobalPoint.h"
-#include "Geometry/CommonDetAlgo/interface/AlgebraicObjects.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 #include "DataFormats/TrajectoryState/interface/TrackCharge.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 

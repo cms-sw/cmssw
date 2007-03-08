@@ -3,7 +3,7 @@
 
 #include "RecoVertex/VertexPrimitives/interface/RefittedTrackState.h"
 #include "RecoVertex/VertexPrimitives/interface/RefCountedRefittedTrackState.h"
-#include "Geometry/Surface/interface/ReferenceCounted.h"
+#include "DataFormats/GeometrySurface/interface/ReferenceCounted.h"
 
 /**
  * Caching refitted state of the trajectory after the vertex fit is

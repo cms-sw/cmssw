@@ -3,7 +3,7 @@
 
 #include "RecoVertex/KinematicFitPrimitives/interface/RefCountedKinematicParticle.h"
 #include "RecoVertex/KinematicFitPrimitives/interface/RefCountedKinematicVertex.h"
-#include "Geometry/Surface/interface/ReferenceCounted.h"
+#include "DataFormats/GeometrySurface/interface/ReferenceCounted.h"
 #include "DetectorDescription/Core/interface/adjgraph.h"
 #include "DetectorDescription/Core/interface/graphwalker.h"
 

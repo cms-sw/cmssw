@@ -1,7 +1,7 @@
 #ifndef ExtendedPerigeeTrajectoryParameters_H
 #define ExtendedPerigeeTrajectoryParameters_H
 
-#include "Geometry/CommonDetAlgo/interface/AlgebraicObjects.h"
+#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 #include "DataFormats/TrajectoryState/interface/TrackCharge.h"
 
 

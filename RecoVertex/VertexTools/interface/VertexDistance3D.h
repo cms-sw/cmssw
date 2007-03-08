@@ -2,9 +2,9 @@
 #define Vertex_VertexDistance3D_H
 
 #include "RecoVertex/VertexTools/interface/VertexDistance.h"
-#include "Geometry/CommonDetAlgo/interface/AlgebraicObjects.h"
-#include "Geometry/Vector/interface/GlobalPoint.h"
-#include "Geometry/CommonDetAlgo/interface/GlobalError.h"
+#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/GlobalError.h"
 
 /**
  * Computes the distance and chi-squared compatibility between two vertices

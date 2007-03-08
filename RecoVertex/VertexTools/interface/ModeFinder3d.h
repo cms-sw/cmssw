@@ -3,7 +3,7 @@
 
 #include <functional>
 #include <vector>
-#include "Geometry/Vector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
 using namespace std;
 

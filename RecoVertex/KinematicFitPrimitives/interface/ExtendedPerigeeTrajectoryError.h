@@ -1,7 +1,7 @@
 #ifndef ExtendedPerigeeTrajectoryError_H
 #define ExtendedPerigeeTrajectoryError_H
 
-#include "Geometry/CommonDetAlgo/interface/AlgebraicObjects.h"
+#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 
 class ExtendedPerigeeTrajectoryError
 { 

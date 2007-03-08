@@ -2,7 +2,7 @@
 #include "TrackingTools/AnalyticalJacobians/interface/JacobianCartesianToCurvilinear.h"
 #include "TrackingTools/AnalyticalJacobians/interface/JacobianCurvilinearToCartesian.h"
 #include "TrackingTools/AnalyticalJacobians/interface/AnalyticalCurvilinearJacobian.h"
-#include "Geometry/Surface/interface/BoundPlane.h"
+#include "DataFormats/GeometrySurface/interface/BoundPlane.h"
 
 using namespace std;
 

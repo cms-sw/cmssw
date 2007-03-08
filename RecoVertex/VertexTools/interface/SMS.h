@@ -6,7 +6,7 @@
 #include <vector>
 #include <algorithm>
 #include <iostream>
-#include "Geometry/Vector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
 using namespace std;
 

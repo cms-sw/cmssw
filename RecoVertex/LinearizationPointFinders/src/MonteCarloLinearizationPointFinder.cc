@@ -2,7 +2,7 @@
 
 #include "RecoVertex/LinearizationPointFinders/interface/MonteCarloLinearizationPointFinder.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
-#include "Geometry/Vector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
 MonteCarloLinearizationPointFinder::MonteCarloLinearizationPointFinder() :
     thePt ( GlobalPoint(0.,0.,0.) ) {}

@@ -1,6 +1,6 @@
 #include "RecoVertex/LinearizationPointFinders/interface/FallbackLinearizationPointFinder.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
-#include "Geometry/Vector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "RecoVertex/VertexTools/interface/FsmwModeFinder3d.h"
 
 FallbackLinearizationPointFinder::FallbackLinearizationPointFinder ( 

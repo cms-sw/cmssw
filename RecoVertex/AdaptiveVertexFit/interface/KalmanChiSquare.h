@@ -1,7 +1,7 @@
 #ifndef KalmanChiSquare_H
 #define KalmanChiSquare_H
 
-#include "Geometry/Vector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "RecoVertex/VertexPrimitives/interface/RefCountedLinearizedTrackState.h"
 
 class KalmanChiSquare {

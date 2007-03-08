@@ -3,7 +3,7 @@
 
 #include "TrackingTools/GsfTools/interface/MultiGaussianStateMerger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "Geometry/CommonDetAlgo/interface/DeepCopyPointerByClone.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/DeepCopyPointerByClone.h"
 
 /** 
  * Class which controls the reduction of vertex state components after

@@ -1,5 +1,5 @@
 #include "RecoVertex/AdaptiveVertexFit/interface/AdaptiveVertexFitter.h"
-#include "Geometry/CommonDetAlgo/interface/GlobalError.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/GlobalError.h"
 #include "RecoVertex/VertexTools/interface/AnnealingSchedule.h"
 #include "RecoVertex/VertexTools/interface/GeometricAnnealing.h"
 #include "RecoVertex/VertexTools/interface/VertexTrackFactory.h"

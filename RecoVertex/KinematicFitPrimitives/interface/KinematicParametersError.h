@@ -1,7 +1,7 @@
 #ifndef KinematicParametersError_H
 #define KinematicParametersError_H
 
-#include "Geometry/CommonDetAlgo/interface/AlgebraicObjects.h"
+#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 #include "RecoVertex/VertexPrimitives/interface/VertexException.h"
 #include "TrackingTools/AnalyticalJacobians/interface/JacobianCartesianToCurvilinear.h"
 #include "TrackingTools/AnalyticalJacobians/interface/JacobianCurvilinearToCartesian.h"

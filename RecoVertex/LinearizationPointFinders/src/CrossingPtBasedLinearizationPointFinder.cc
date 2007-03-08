@@ -3,7 +3,7 @@
 #include "RecoVertex/VertexTools/interface/TwoTrackMinimumDistance.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "RecoVertex/VertexTools/interface/ModeFinder3d.h"
-#include "Geometry/Vector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "RecoVertex/LinearizationPointFinders/interface/FallbackLinearizationPointFinder.h"
 #include <cmath>
 #include <algorithm>

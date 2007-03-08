@@ -1,7 +1,7 @@
 #ifndef _ClosestApproachOnHelices_H_
 #define _ClosestApproachOnHelices_H_
 
-#include "Geometry/Vector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include <utility>
 
 using namespace std;

@@ -3,7 +3,7 @@
 
 #include "RecoVertex/KinematicFitPrimitives/interface/MultiTrackKinematicConstraint.h"
 #include "RecoVertex/KinematicFitPrimitives/interface/KinematicState.h"
-#include "Geometry/CommonDetAlgo/interface/AlgebraicObjects.h"
+#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 #include "RecoVertex/KinematicFitPrimitives/interface/ParticleMass.h"
 
 /** 

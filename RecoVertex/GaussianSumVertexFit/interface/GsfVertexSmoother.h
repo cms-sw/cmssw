@@ -10,7 +10,7 @@
 #include "RecoVertex/KalmanVertexFit/interface/KalmanSmoothedVertexChi2Estimator.h"
 #include "RecoVertex/GaussianSumVertexFit/interface/GsfVertexWeightCalculator.h"
 #include "RecoVertex/VertexTools/interface/VertexTrackFactory.h"
-#include "Geometry/CommonDetAlgo/interface/DeepCopyPointerByClone.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/DeepCopyPointerByClone.h"
 #include "RecoVertex/KalmanVertexFit/interface/KVFHelper.h"
 
 

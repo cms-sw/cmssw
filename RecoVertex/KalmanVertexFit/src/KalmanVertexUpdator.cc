@@ -1,8 +1,8 @@
 #include "RecoVertex/KalmanVertexFit/interface/KalmanVertexUpdator.h"
-#include "Geometry/Vector/interface/GlobalVector.h"
-#include "Geometry/CommonDetAlgo/interface/AlgebraicObjects.h"
+#include "DataFormats/GeometryVector/interface/GlobalVector.h"
+#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 #include "RecoVertex/VertexPrimitives/interface/VertexException.h"
-#include "Geometry/Surface/interface/ReferenceCounted.h"
+#include "DataFormats/GeometrySurface/interface/ReferenceCounted.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <algorithm>

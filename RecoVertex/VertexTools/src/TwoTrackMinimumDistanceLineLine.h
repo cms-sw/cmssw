@@ -1,8 +1,8 @@
-/* $Id: TwoTrackMinimumDistanceLineLine.h,v 1.1 2004/03/30 09:59:43 speer Exp $ */
+/* $Id: TwoTrackMinimumDistanceLineLine.h,v 1.1 2006/02/24 11:30:10 speer Exp $ */
 #ifndef _Tracker_TwoTrackMinimumDistanceLineLine_H_
 #define _Tracker_TwoTrackMinimumDistanceLineLine_H_
 
-#include "Geometry/Vector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include <string>
 #include <sstream>
 #include <utility>

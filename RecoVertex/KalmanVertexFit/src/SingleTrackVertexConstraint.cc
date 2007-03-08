@@ -1,5 +1,5 @@
 #include "RecoVertex/KalmanVertexFit/interface/SingleTrackVertexConstraint.h"
-#include "Geometry/CommonDetAlgo/interface/GlobalError.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/GlobalError.h"
 
 #include <algorithm>
 using namespace std;

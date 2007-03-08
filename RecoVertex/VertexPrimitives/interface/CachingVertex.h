@@ -1,10 +1,10 @@
 #ifndef CachingVertex_H
 #define CachingVertex_H
 
-#include "Geometry/Vector/interface/GlobalPoint.h"
-#include "Geometry/CommonDetAlgo/interface/GlobalError.h"
-#include "Geometry/CommonDetAlgo/interface/GlobalWeight.h"
-#include "Geometry/CommonDetAlgo/interface/AlgebraicObjects.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/GlobalError.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/GlobalWeight.h"
+#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 
 #include "RecoVertex/VertexPrimitives/interface/RefCountedVertexTrack.h"
 // #include "RecoVertex/VertexPrimitives/interface/RefCountedVertexSeed.h"

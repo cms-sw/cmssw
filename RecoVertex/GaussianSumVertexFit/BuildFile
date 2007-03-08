@@ -6,7 +6,7 @@
  <use name=RecoVertex/LinearizationPointFinders>
  <use name=TrackingTools/TransientTrack>
  <use name=DataFormats/Math>
- <use name=DataFormats/GsfTrack>
+ <use name=DataFormats/GsfTrackReco>
  <use name=RecoVertex/AdaptiveVertexFit>
 </export>
 
@@ -16,5 +16,5 @@
 <use name=DataFormats/Math>
 <use name=TrackingTools/TransientTrack>
 <use name=RecoVertex/KalmanVertexFit>
-<use name=DataFormats/GsfTrack>
+<use name=DataFormats/GsfTrackReco>
 <use name=RecoVertex/AdaptiveVertexFit>

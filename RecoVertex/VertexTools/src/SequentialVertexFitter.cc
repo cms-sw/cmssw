@@ -1,5 +1,5 @@
 #include "RecoVertex/VertexTools/interface/SequentialVertexFitter.h"
-#include "Geometry/CommonDetAlgo/interface/GlobalError.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/GlobalError.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <algorithm>

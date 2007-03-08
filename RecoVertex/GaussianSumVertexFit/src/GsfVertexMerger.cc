@@ -8,7 +8,7 @@
 #include "TrackingTools/GsfTools/interface/RCMultiGaussianState.h"
 #include "RecoVertex/VertexPrimitives/interface/CachingVertex.h"
 #include "DataFormats/Common/interface/EDProduct.h"
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "RecoVertex/VertexPrimitives/interface/VertexException.h"
 
 GsfVertexMerger::GsfVertexMerger(const edm::ParameterSet& pSet)

@@ -1,7 +1,7 @@
 #ifndef RecoVertex_ConvertError_h
 #define RecoVertex_ConvertError_h
-#include "Geometry/CommonDetAlgo/interface/GlobalError.h"
-#include "Geometry/Vector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/GlobalError.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 
 namespace RecoVertex{
