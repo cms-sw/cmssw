@@ -64,7 +64,12 @@ EgammaHLTIslandClusterProducer::EgammaHLTIslandClusterProducer(const edm::Parame
   double barrelSeedThreshold = ps.getParameter<double>("IslandBarrelSeedThr");
   double endcapSeedThreshold = ps.getParameter<double>("IslandEndcapSeedThr");
 
+  // L1 matching parameters
   l1Tag_ = ps.getParameter< edm::InputTag > ("l1Tag");
+  l1LowerThr_ = ps.getParameter<double> ("l1LowerThr");
+  l1UpperThr_ = ps.getParameter<double> ("l1UpperThr");
+  regionEtaMargin_   = ps.getParameter<double>("regionEtaMargin");
+  regionPhiMargin_   = ps.getParameter<double>("regionPhiMargin");
 
   // Parameters for the position calculation:
   std::map<std::string,double> providedParameters;
@@ -107,22 +112,30 @@ void EgammaHLTIslandClusterProducer::produce(edm::Event& evt, const edm::EventSe
 
   for( l1extra::L1EmParticleCollection::const_iterator emItr = emColl->begin(); emItr != emColl->end() ;++emItr ){
 
-    // Access the GCT hardware object corresponding to the L1Extra EM object.
-    int etaIndex = emItr->gctEmCand()->etaIndex() ;
-    int phiIndex = emItr->gctEmCand()->phiIndex() ;
-    // Use the L1CaloGeometry to find the eta, phi bin boundaries.
-    double etaLow  = l1CaloGeom->etaBinLowEdge( etaIndex ) ;
-    double etaHigh = l1CaloGeom->etaBinHighEdge( etaIndex ) ;
-    double phiLow  = l1CaloGeom->emJetPhiBinLowEdge( phiIndex ) ;
-    double phiHigh = l1CaloGeom->emJetPhiBinHighEdge( phiIndex ) ;
+    if (emItr->et() > l1LowerThr_ && emItr->et() < l1UpperThr_) {
 
-    EcalEtaPhiRegion region(etaLow,etaHigh,phiLow,phiHigh);
-    if (emItr->gctEmCand()->regionId().isForward()) {
-      endcapRegions.push_back(region);
-    } else {
-      barrelRegions.push_back(region);
+      // Access the GCT hardware object corresponding to the L1Extra EM object.
+      int etaIndex = emItr->gctEmCand()->etaIndex() ;
+      int phiIndex = emItr->gctEmCand()->phiIndex() ;
+      // Use the L1CaloGeometry to find the eta, phi bin boundaries.
+      double etaLow  = l1CaloGeom->etaBinLowEdge( etaIndex ) ;
+      double etaHigh = l1CaloGeom->etaBinHighEdge( etaIndex ) ;
+      double phiLow  = l1CaloGeom->emJetPhiBinLowEdge( phiIndex ) ;
+      double phiHigh = l1CaloGeom->emJetPhiBinHighEdge( phiIndex ) ;
+
+      etaLow -= regionEtaMargin_;
+      etaHigh += regionEtaMargin_;
+      phiLow -= regionPhiMargin_;
+      phiHigh += regionPhiMargin_;
+
+      EcalEtaPhiRegion region(etaLow,etaHigh,phiLow,phiHigh);
+      if (emItr->gctEmCand()->regionId().isForward()) {
+	endcapRegions.push_back(region);
+      } else {
+	barrelRegions.push_back(region);
+      }
+
     }
-
   }
 
   if (endcapRegions.size()!=0) {

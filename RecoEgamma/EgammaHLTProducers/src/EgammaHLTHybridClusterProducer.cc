@@ -55,10 +55,13 @@ EgammaHLTHybridClusterProducer::EgammaHLTHybridClusterProducer(const edm::Parame
   hitproducer_ = ps.getParameter<std::string>("ecalhitproducer");
   hitcollection_ =ps.getParameter<std::string>("ecalhitcollection");
 
+  // L1 matching parameters
   l1Tag_ = ps.getParameter< edm::InputTag > ("l1Tag");
   //l1Isolated_   = ps.getParameter<bool>("l1Isolated");
-  //regionEtaMargin_   = ps.getParameter<double>("regionEtaMargin");
-  //regionPhiMargin_   = ps.getParameter<double>("regionPhiMargin");
+  l1LowerThr_ = ps.getParameter<double> ("l1LowerThr");
+  l1UpperThr_ = ps.getParameter<double> ("l1UpperThr");
+  regionEtaMargin_   = ps.getParameter<double>("regionEtaMargin");
+  regionPhiMargin_   = ps.getParameter<double>("regionPhiMargin");
 
   //Setup for core tools objects.
   std::map<std::string,double> providedParameters;  
@@ -135,27 +138,29 @@ void EgammaHLTHybridClusterProducer::produce(edm::Event& evt, const edm::EventSe
 
   for( l1extra::L1EmParticleCollection::const_iterator emItr = emColl->begin(); emItr != emColl->end() ;++emItr ){
 
-    if (emItr->gctEmCand()->regionId().isForward()) continue;
+    if (emItr->et() > l1LowerThr_ && emItr->et() < l1UpperThr_ &&
+	!emItr->gctEmCand()->regionId().isForward()) {
 
-    //bool isolated = emItr->gctEmCand()->isolated();
-    //if ((l1Isolated_ &&isolated) || (!l1Isolated_ &&!isolated)) {
+      //bool isolated = emItr->gctEmCand()->isolated();
+      //if ((l1Isolated_ &&isolated) || (!l1Isolated_ &&!isolated)) {
 
-    // Access the GCT hardware object corresponding to the L1Extra EM object.
-    int etaIndex = emItr->gctEmCand()->etaIndex() ;
-    int phiIndex = emItr->gctEmCand()->phiIndex() ;
-    // Use the L1CaloGeometry to find the eta, phi bin boundaries.
-    double etaLow  = l1CaloGeom->etaBinLowEdge( etaIndex ) ;
-    double etaHigh = l1CaloGeom->etaBinHighEdge( etaIndex ) ;
-    double phiLow  = l1CaloGeom->emJetPhiBinLowEdge( phiIndex ) ;
-    double phiHigh = l1CaloGeom->emJetPhiBinHighEdge( phiIndex ) ;
+      // Access the GCT hardware object corresponding to the L1Extra EM object.
+      int etaIndex = emItr->gctEmCand()->etaIndex() ;
+      int phiIndex = emItr->gctEmCand()->phiIndex() ;
+      // Use the L1CaloGeometry to find the eta, phi bin boundaries.
+      double etaLow  = l1CaloGeom->etaBinLowEdge( etaIndex ) ;
+      double etaHigh = l1CaloGeom->etaBinHighEdge( etaIndex ) ;
+      double phiLow  = l1CaloGeom->emJetPhiBinLowEdge( phiIndex ) ;
+      double phiHigh = l1CaloGeom->emJetPhiBinHighEdge( phiIndex ) ;
 
-    //etaLow -= regionEtaMargin_;
-    //etaHigh += regionEtaMargin_;
-    //phiLow -= regionPhiMargin_;
-    //phiHigh += regionPhiMargin_;
+      etaLow -= regionEtaMargin_;
+      etaHigh += regionEtaMargin_;
+      phiLow -= regionPhiMargin_;
+      phiHigh += regionPhiMargin_;
 
-    regions.push_back(EcalEtaPhiRegion(etaLow,etaHigh,phiLow,phiHigh));
+      regions.push_back(EcalEtaPhiRegion(etaLow,etaHigh,phiLow,phiHigh));
 
+    }
   }
 
   // make the Basic clusters!
