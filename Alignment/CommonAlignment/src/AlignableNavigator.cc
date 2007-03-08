@@ -1,7 +1,7 @@
 //  \file AlignableNavigator.cc
 //
-//   $Revision: 1.12 $
-//   $Date: 2007/03/02 18:28:32 $
+//   $Revision: 1.13 $
+//   $Date: 2007/03/08 16:28:54 $
 //   (last update by $Author: pivarski $)
 
 #include "Alignment/CommonAlignment/interface/AlignableDet.h"
@@ -18,8 +18,6 @@ AlignableNavigator::AlignableNavigator( Alignable* alignable )
 
   recursiveGetId( alignable );
 
-  for (int i = 0;  i < 128;  i++) detAndSubdetMap[i] = false;
-
   edm::LogInfo("Alignment") <<"@SUB=AlignableNavigator" << "created with map of size "
                             << theMap.size();
 }
@@ -32,8 +30,6 @@ AlignableNavigator::AlignableNavigator( Alignable* tracker, Alignable* muon )
 
   recursiveGetId( tracker );
   recursiveGetId( muon );
-
-  for (int i = 0;  i < 128;  i++) detAndSubdetMap[i] = false;
 
   edm::LogInfo("Alignment") <<"@SUB=AlignableNavigator" << "created with map of size "
                             << theMap.size();
@@ -48,8 +44,6 @@ AlignableNavigator::AlignableNavigator( std::vector<Alignable*> alignables )
 
   for ( std::vector<Alignable*>::iterator it = alignables.begin(); it != alignables.end(); ++it )
     recursiveGetId( *it );
-
-  for (int i = 0;  i < 128;  i++) detAndSubdetMap[i] = false;
 
   edm::LogInfo("Alignment") <<"@SUB=AlignableNavigator" << "created with map of size "
                             << theMap.size();
@@ -107,15 +101,8 @@ void AlignableNavigator::recursiveGetId( Alignable* alignable )
 
   if ( alignable->geomDetId().rawId()) {
 	theMap.insert( PairType( alignable->geomDetId(), alignable ) );
-<<<<<<< AlignableNavigator.cc
 	detAndSubdet.push_back(std::pair<int, int>( alignable->geomDetId().det(), alignable->geomDetId().subdetId() ));
   }
-=======
-
-	char detAndSubdet = (alignable->geomDetId().rawId() >> DetId::kSubdetOffset) & 0x7F;
-	detAndSubdetMap[detAndSubdet] = true;
-  }
->>>>>>> 1.12
   std::vector<Alignable*> comp = alignable->components();
   if ( alignable->alignableObjectId() != AlignableObjectId::AlignableDet
        || comp.size() > 1 ) { // Non-glued AlignableDets contain themselves

@@ -54,27 +54,15 @@ public:
   /// Returns number of elements in map
   int size( void ) { return theMap.size(); }
 
-<<<<<<< AlignableNavigator.h
   /// Given a DetId, returns true iff DetIds with this detector and subdetector id are in the map (not necessarily the exact DetId)
   bool detAndSubdetInMap( const DetId& detid );
 
-=======
-  /// Given a DetId, returns true iff DetIds with this detector and subdetector id are in the map (not necessarily the exact DetId)
-   bool detAndSubdetInMap( const DetId& detid )
-       { return detAndSubdetMap[(detid.rawId() >> DetId::kSubdetOffset) & 0x7F]; }
-
->>>>>>> 1.9
 private:
 
   void recursiveGetId( Alignable* alignable );
 
   MapType theMap;
-<<<<<<< AlignableNavigator.h
   std::vector<std::pair<int,int> > detAndSubdet;
-=======
-  bool detAndSubdetMap[128];
->>>>>>> 1.9
-
 };
 
 #endif
