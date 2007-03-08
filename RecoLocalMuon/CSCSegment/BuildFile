@@ -1,33 +1,17 @@
-<use name=DataFormats/MuonDetId>
-<use name=DataFormats/CSCDigi>
+<use name=CommonTools/Statistics>
 <use name=DataFormats/CSCRecHit>
-<use name=Geometry/CSCGeometry>
-<use name=Geometry/Records>>
+<use name=DataFormats/GeometryVector>
+<use name=DataFormats/MuonDetId>
 <use name=FWCore/Framework>
 <use name=FWCore/MessageLogger>
 <use name=FWCore/ParameterSet>
+<use name=FWCore/Utilities>
 <use name=Foundation/PluginManager>
-<use name=FWCore/ParameterSet>
-<use name=CommonTools/Statistics>
-<use name=boost>
-<use name=clhep>
-<use name=root>
-<lib name=Minuit2>
-<flags SEAL_PLUGIN_NAME="RecoLocalMuonCSCSegment">
+<use name=Geometry/CSCGeometry>
+<use name=Geometry/CommonDetAlgo>
+<use name=Geometry/Records>
+<flags SEALPLUGIN=1>
 <export>
-   <lib name=RecoLocalMuonCSCSegment>
-   <use name=DataFormats/MuonDetId>
-   <use name=DataFormats/CSCDigi>
-   <use name=DataFormats/CSCRecHit>
-   <use name=Geometry/CSCGeometry>
-   <use name=Geometry/Records>>
-   <use name=FWCore/Framework>
-   <use name=FWCore/MessageLogger>
-   <use name=FWCore/ParameterSet>
-   <use name=Foundation/PluginManager>
-   <use name=FWCore/ParameterSet>
-   <use name=boost>
-   <use name=clhep>
-   <use name=root>
-   <lib name=Minuit2>
+  <lib name=RecoLocalMuonCSCSegment>
 </export>
+
