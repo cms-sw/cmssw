@@ -1,8 +1,9 @@
 #ifndef RecoLocalTracker_Cluster_Parameter_Estimator_H
 #define RecoLocalTracker_Cluster_Parameter_Estimator_H
 
-#include "Geometry/Surface/interface/LocalError.h"
-#include "Geometry/Vector/interface/LocalPoint.h"
+#include "DataFormats/GeometrySurface/interface/LocalError.h"
+#include "DataFormats/GeometryVector/interface/LocalPoint.h"
+
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "DataFormats/TrajectoryState/interface/LocalTrajectoryParameters.h"
 

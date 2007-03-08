@@ -1,13 +1,11 @@
 #ifndef RecoLocalTracker_StripCluster_Parameter_Estimator_H
 #define RecoLocalTracker_StripCluster_Parameter_Estimator_H
 
-#include "Geometry/Surface/interface/LocalError.h"
-#include "Geometry/Vector/interface/LocalPoint.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/ClusterParameterEstimator.h"
 
-#include "Geometry/CommonDetAlgo/interface/MeasurementPoint.h"
-#include "Geometry/CommonDetAlgo/interface/MeasurementError.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementPoint.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementError.h"
 
 #include "FWCore/Utilities/interface/Exception.h"                                                                                      
 

@@ -28,7 +28,7 @@
 
 #include "MagneticField/Engine/interface/MagneticField.h"
 
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 
 class SiStripRecHitConverterAlgorithm 
 {
