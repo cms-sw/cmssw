@@ -11,7 +11,7 @@
  */
 
 #include "G4Step.hh"
-#include "Geometry/Vector/interface/LocalPoint.h"
+#include "DataFormats/GeometryVector/interface/LocalPoint.h"
 
 class MuonSubDetector;
 class DDCompactView;

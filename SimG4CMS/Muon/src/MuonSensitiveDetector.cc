@@ -4,8 +4,7 @@
 #include "SimG4CMS/Muon/interface/MuonRpcFrameRotation.h"
 #include "Geometry/MuonNumbering/interface/MuonSubDetector.h"
 
-#include "Geometry/Vector/interface/LocalPoint.h"
-#include "Geometry/Vector/interface/LocalVector.h"
+#include "DataFormats/GeometryVector/interface/LocalVector.h"
 
 #include "SimG4CMS/Muon/interface/SimHitPrinter.h"
 #include "SimDataFormats/TrackingHit/interface/UpdatablePSimHit.h"

@@ -1,8 +1,8 @@
 #ifndef SimG4CMS_TkSimHitPrinter_H
 #define SimG4CMS_TkSimHitPrinter_H
 
-#include "Geometry/Vector/interface/LocalPoint.h"
-#include "Geometry/Vector/interface/LocalVector.h"
+#include "DataFormats/GeometryVector/interface/LocalPoint.h"
+#include "DataFormats/GeometryVector/interface/LocalVector.h"
 
 #include <string>
 #include <fstream>
