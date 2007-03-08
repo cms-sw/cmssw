@@ -1,7 +1,7 @@
 using namespace std;
 #include "SimCalorimetry/HcalSimProducers/src/HcalDigiProducer.h"
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloTDigitizer.h"
