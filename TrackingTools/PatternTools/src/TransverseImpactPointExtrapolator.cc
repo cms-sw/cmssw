@@ -3,9 +3,9 @@
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 #include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
-#include "Geometry/Vector/interface/Point2DBase.h"
-#include "Geometry/Vector/interface/Vector2DBase.h"
-#include "Geometry/Surface/interface/PlaneBuilder.h"
+#include "DataFormats/GeometryVector/interface/Point2DBase.h"
+#include "DataFormats/GeometryVector/interface/Vector2DBase.h"
+#include "DataFormats/GeometrySurface/interface/PlaneBuilder.h"
 
 TransverseImpactPointExtrapolator::TransverseImpactPointExtrapolator () :
   thePropagator(0) {}

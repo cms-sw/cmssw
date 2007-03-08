@@ -4,7 +4,7 @@
 #include "TrackingTools/TrajectoryState/interface/BasicTrajectoryState.h"
 #include "TrackingTools/TrajectoryState/interface/SurfaceSideDefinition.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
-#include "Geometry/Surface/interface/Surface.h"
+#include "DataFormats/GeometrySurface/interface/Surface.h"
 
 #include <iosfwd>
 

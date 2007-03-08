@@ -1,8 +1,8 @@
 #ifndef Tracker_MeasurementEstimator_H
 #define Tracker_MeasurementEstimator_H
 
-#include "Geometry/Vector/interface/Vector2DBase.h"
-#include "Geometry/Vector/interface/LocalTag.h"
+#include "DataFormats/GeometryVector/interface/Vector2DBase.h"
+#include "DataFormats/GeometryVector/interface/LocalTag.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 
 #include <utility>

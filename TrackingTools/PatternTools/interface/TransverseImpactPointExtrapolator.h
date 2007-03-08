@@ -2,9 +2,9 @@
 #define TransverseImpactPointExtrapolator_h_
 
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
-#include "Geometry/Vector/interface/GlobalPoint.h"
-#include "Geometry/Vector/interface/GlobalVector.h"
-#include "Geometry/CommonDetAlgo/interface/DeepCopyPointerByClone.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalVector.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/DeepCopyPointerByClone.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 
 class FreeTrajectoryState;

@@ -2,9 +2,9 @@
 #define TSCPBuilderNoMaterial_H
 
 #include "TrackingTools/PatternTools/interface/TrajectoryStateClosestToPointBuilder.h"
-#include "Geometry/Vector/interface/GlobalTag.h"
-#include "Geometry/Vector/interface/Point3DBase.h"
-#include "Geometry/Vector/interface/Vector3DBase.h"
+#include "DataFormats/GeometryVector/interface/GlobalTag.h"
+#include "DataFormats/GeometryVector/interface/Point3DBase.h"
+#include "DataFormats/GeometryVector/interface/Vector3DBase.h"
 
 /**
  * This class builds a TrajectoryStateClosestToPoint given an original 
