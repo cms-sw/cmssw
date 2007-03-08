@@ -4,13 +4,13 @@
 /** \class CSCSegmentBuilderPluginFactory
  *  Plugin factory for concrete CSCSegmentBuilder algorithms
  *
- * $Date: 2006/04/03 10:10:10 $
- * $Revision: 1.2 $
+ * $Date: 2006/05/08 17:45:31 $
+ * $Revision: 1.3 $
  * \author M. Sani
  * 
  */
 
-#include <PluginManager/PluginFactory.h>
+#include <FWCore/PluginManager/interface/PluginFactory.h>
 #include <RecoLocalMuon/CSCSegment/src/CSCSegmentAlgorithm.h>
 
 class edm::ParameterSet;
