@@ -1,5 +1,5 @@
 // -*- Mode: C++; c-basic-offset: 2; indent-tabs-mode: t; tab-width: 8; -*-
-//$Id$
+//$Id: EcalSrFlag.h,v 1.1 2007/02/09 10:46:03 meridian Exp $
 
 #ifndef ECALSRFLAG
 #define ECALSRFLAG
@@ -39,10 +39,15 @@ public:
    */
   virtual const DetId& id() const=0;
 
-  /** Srp flag value. See SRF_XXX constants.
+  /** SR flag value. See SRF_XXX constants.
    * @return the flag value
    */
   int value() const{ return flag_;}
+
+  /** Set the SR flag value. See SRF_XXX constants.
+   * @param flag new flag value. Must be between 0 and 7.
+   */
+  void setValue(int flag) const { flag_ = flag; }
 
   /** Cast to int: same as value().
    * @return the SR flag value
