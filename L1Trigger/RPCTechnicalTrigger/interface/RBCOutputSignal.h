@@ -1,5 +1,5 @@
-#ifndef RBCEmulator_RBCOutputSignal_h
-#define RBCEmulator_RBCOutputSignal_h
+#ifndef RPCTechnicalTrigger_RBCOutputSignal_h
+#define RPCTechnicalTrigger_RBCOutputSignal_h
 
 class RBCId;
 class RBCOutputSignal{
@@ -14,5 +14,4 @@ class RBCOutputSignal{
   int  x;
 
 };
-
 #endif

@@ -1,5 +1,5 @@
-#ifndef RBCEmulator_RBCOutputSignalContainer_h
-#define RBCEmulator_RBCOutputSignalContainer_h
+#ifndef RPCTechnicalTrigger_RBCOutputSignalContainer_h
+#define RPCTechnicalTriggerr_RBCOutputSignalContainer_h
 #include <set>
 
 class RBCOutputSignal;
@@ -18,5 +18,4 @@ class RBCOutputSignalContainer{
   std::set<RBCOutputSignal> signals;
 
 };
-
 #endif

@@ -1,5 +1,5 @@
-#ifndef RBCEmulator_RBCEmulator_h
-#define RBCEmulator_RBCEmulator_h
+#ifndef RPCTechnicalTrigger_RBCEmulator_h
+#define RPCTechnicalTrigger_RBCEmulator_h
 class RBCLogic;
 class RBCPolicy;
 class RBCOutputSignalContainer;
@@ -11,8 +11,5 @@ class RBCEmulator{
   RBCOutputSignalContainer triggers();
  private:
   RBCLogic* l;
-
 };
-
 #endif
-
