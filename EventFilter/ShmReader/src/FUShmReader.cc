@@ -87,6 +87,7 @@ bool FUShmReader::fillRawData(EventID& eID,
     shmBuffer_->postWriterSem();
     FUShmBuffer::shm_dettach((void*)shmBuffer_);
     shmBuffer_=0;
+    event_=0;
     return false;
   }
   else assert(newCell->isWritten());
@@ -118,4 +119,4 @@ bool FUShmReader::fillRawData(EventID& eID,
 ////////////////////////////////////////////////////////////////////////////////
 
 DEFINE_SEAL_MODULE();
-DEFINE_SEAL_PLUGIN (DaqReaderPluginFactory,FUShmReader,"FUShmReader");
+DEFINE_SEAL_PLUGIN(DaqReaderPluginFactory,FUShmReader,"FUShmReader");
