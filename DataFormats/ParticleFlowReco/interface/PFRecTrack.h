@@ -2,7 +2,6 @@
 #define DataFormats_ParticleFlowReco_PFRecTrack_h
 
 #include "DataFormats/ParticleFlowReco/interface/PFTrack.h"
-#include "DataFormats/TrackReco/interface/Track.h"
 #include <iostream>
 
 namespace reco {
