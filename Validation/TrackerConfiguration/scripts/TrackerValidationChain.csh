@@ -7,11 +7,14 @@ setenv DATADIR $CMSSW_BASE/src
 cd ${DATADIR}
 
 project CMSSW
-
+#
+# Get the relevant packages
+#
 cvs co Validation/Geometry
 cvs co Validation/TrackerHits
 cvs co Validation/TrackerDigis
 cvs co Validation/TrackerRecHits
+cvs co Validation/RecoTrack
 #
 # Geometry Validation
 #
@@ -49,11 +52,12 @@ source copyWWWStrip.csh
 
 cd ${DATADIR}/Validation/TrackerRecHits/test
 
-cp ${DATADIR}/Validation/TrackerConfiguration/test/striprechitshisto.root .
-cp ${DATADIR}/Validation/TrackerConfiguration/test/pixelrechitshisto.root
+cp ${DATADIR}/Validation/TrackerConfiguration/test/sistriprechitshisto.root .
+cp ${DATADIR}/Validation/TrackerConfiguration/test/pixelrechitshisto.root .
 
 root -b -p -q SiPixelRecHitsCompare.C
 source copyWWWPixel.csh
 root -b -p -q SiStripRecHitsCompare.C
 source copyWWWStrip.csh
+
 
