@@ -2,25 +2,18 @@
 #define FUEVENTPROCESSOR_H 1
 
 
+#include "EventFilter/Utilities/interface/StateMachine.h"
 #include "EventFilter/Utilities/interface/RunBase.h"
 #include "EventFilter/Utilities/interface/Css.h"
 
 #include "FWCore/Framework/interface/TriggerReport.h"
 #include "FWCore/Utilities/interface/Presence.h"
-#include "FWCore/Utilities/interface/PresenceFactory.h"
+#include "FWCore/PluginManager/interface/PresenceFactory.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Services/src/PrescaleService.h"
+#include "FWCore/Modules/src/PrescaleService.h"
 
 #include "xdaq/include/xdaq/Application.h"
 #include "xdaq/NamespaceURI.h"
-
-#include "xdaq2rc/RcmsStateNotifier.h"
-
-#include "toolbox/fsm/FiniteStateMachine.h"
-#include "toolbox/fsm/FailedEvent.h"
-#include "toolbox/task/WorkLoopFactory.h"
-#include "toolbox/task/WaitingWorkLoop.h"
-#include "toolbox/task/Action.h"
 
 #include "xdata/include/xdata/String.h"
 #include "xdata/include/xdata/Integer.h"
@@ -61,14 +54,6 @@ namespace evf
     //
     // member functions
     //
-    
-    // finite state machine command callbacks
-    xoap::MessageReference fsmCallback(xoap::MessageReference msg)
-      throw (xoap::exception::Exception);
-    
-    // finite state machine callback for entering new state
-    void fsmStateChanged(toolbox::fsm::FiniteStateMachine & fsm) 
-      throw (toolbox::fsm::exception::Exception);
 
     // trigger report callback
     void getTriggerReport(toolbox::Event::Reference e)
@@ -87,9 +72,11 @@ namespace evf
     bool enabling(toolbox::task::WorkLoop* wl);
     bool stopping(toolbox::task::WorkLoop* wl);
     bool halting(toolbox::task::WorkLoop* wl);
-    
-    void failed(toolbox::Event::Reference e)throw(toolbox::fsm::exception::Exception);
 
+    // fsm soap command callback
+    xoap::MessageReference fsmCallback(xoap::MessageReference msg)
+      throw (xoap::exception::Exception);
+    
     // initialize the cmssw event processor
     void initEventProcessor();
     void stopEventProcessor();
@@ -122,23 +109,8 @@ namespace evf
     //
     
     // finite state machine
-    toolbox::fsm::FiniteStateMachine fsm_;
+    evf::StateMachine               fsm_;
     
-    // work loops for transitional states
-    toolbox::task::WorkLoop         *workLoopConfiguring_;
-    toolbox::task::WorkLoop         *workLoopEnabling_;
-    toolbox::task::WorkLoop         *workLoopStopping_;
-    toolbox::task::WorkLoop         *workLoopHalting_;
-
-    // action signatures for transitional states
-    toolbox::task::ActionSignature  *asConfiguring_;
-    toolbox::task::ActionSignature  *asEnabling_;
-    toolbox::task::ActionSignature  *asStopping_;
-    toolbox::task::ActionSignature  *asHalting_;
-
-    // rcms state notifier
-    xdaq2rc::RcmsStateNotifier       rcmsStateNotifier_;
-
     // event processor
     edm::EventProcessor             *evtProcessor_;
     edm::ServiceToken                serviceToken_;    
@@ -148,7 +120,6 @@ namespace evf
     edm::service::PrescaleService*  prescaleSvc_;
     
     // parameters published to XDAQ info space(s)
-    xdata::String                    stateName_;
     xdata::Boolean                   epInitialized_; 
     xdata::String                    configString_;
     xdata::String                    sealPluginPath_;

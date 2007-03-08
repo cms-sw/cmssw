@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
 // FUEventProcessor
-// ---------------
+// ----------------
 //
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -10,21 +10,17 @@
 #include "EventFilter/Utilities/interface/Exception.h"
 #include "EventFilter/Utilities/interface/ParameterSetRetriever.h"
 #include "EventFilter/Utilities/interface/MicroStateService.h"
-#include "EventFilter/Utilities/interface/FsmFailedEvent.h"
 #include "EventFilter/Message2log4cplus/interface/MLlog4cplus.h"
 
 #include "DQMServices/Daemon/interface/MonitorDaemon.h"
 
-#include "DataFormats/Common/interface/ModuleDescription.h"
+#include "DataFormats/Provenance/interface/ModuleDescription.h"
 
 #include "FWCore/Framework/interface/EventProcessor.h"
 #include "FWCore/Framework/interface/RawInputSource.h"
-#include "FWCore/Framework/interface/TriggerReport.h"
-#include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/Utilities/interface/Presence.h"
-#include "FWCore/Utilities/interface/PresenceFactory.h"
-#include "FWCore/Utilities/interface/ProblemTracker.h"
+#include "FWCore/PluginManager/interface/ProblemTracker.h"
 #include "FWCore/ParameterSet/interface/MakeParameterSets.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 #include "xcept/include/xcept/tools.h"
 #include "xgi/include/xgi/Method.h"
@@ -83,17 +79,7 @@ using namespace cgicc;
 //______________________________________________________________________________
 FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s) 
   : xdaq::Application(s)
-  , workLoopConfiguring_(0)
-  , workLoopEnabling_(0)
-  , workLoopStopping_(0)
-  , workLoopHalting_(0)
-  , asConfiguring_(0)
-  , asEnabling_(0)
-  , asStopping_(0)
-  , asHalting_(0)
-  , rcmsStateNotifier_(getApplicationLogger(),
-		       getApplicationDescriptor(),
-		       getApplicationContext())
+  , fsm_(this)
   , evtProcessor_(0)
   , serviceToken_()
   , servicesDone_(false)
@@ -104,78 +90,8 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
   , outputPrescale_(1)
   , outprev_(true)
 {
-  //
-  // setup the finite state machine
-  //
-
-  // action signatures
-  asConfiguring_ =
-    toolbox::task::bind(this,&FUEventProcessor::configuring,"configuring");
-  asEnabling_ =
-    toolbox::task::bind(this,&FUEventProcessor::enabling,"enabling");
-  asStopping_ =
-    toolbox::task::bind(this,&FUEventProcessor::stopping,"stopping");
-  asHalting_ =
-    toolbox::task::bind(this,&FUEventProcessor::halting,"halting");
-  
-  // work loops
-  workLoopConfiguring_ =
-    toolbox::task::getWorkLoopFactory()->getWorkLoop("EPConfiguring",
-						     "waiting");
-  workLoopEnabling_ =
-    toolbox::task::getWorkLoopFactory()->getWorkLoop("EPEnabling",
-						     "waiting");
-  workLoopStopping_ =
-    toolbox::task::getWorkLoopFactory()->getWorkLoop("EPStopping",
-						     "waiting");
-  workLoopHalting_ =
-    toolbox::task::getWorkLoopFactory()->getWorkLoop("EPHalting",
-						     "waiting");
-  
-
-  // bind SOAP callbacks
-  xoap::bind(this,&FUEventProcessor::fsmCallback,"Configure",XDAQ_NS_URI);
-  xoap::bind(this,&FUEventProcessor::fsmCallback,"Enable",   XDAQ_NS_URI);
-  xoap::bind(this,&FUEventProcessor::fsmCallback,"Stop",     XDAQ_NS_URI);
-  xoap::bind(this,&FUEventProcessor::fsmCallback,"Halt",     XDAQ_NS_URI);
-  
-  // define finite state machine, states&transitions
-  fsm_.addState('h', "halting"    ,this,&FUEventProcessor::fsmStateChanged);
-  fsm_.addState('H', "Halted"     ,this,&FUEventProcessor::fsmStateChanged);
-  fsm_.addState('c', "configuring",this,&FUEventProcessor::fsmStateChanged);
-  fsm_.addState('R', "Ready"      ,this,&FUEventProcessor::fsmStateChanged);
-  fsm_.addState('e', "enabling"   ,this,&FUEventProcessor::fsmStateChanged);
-  fsm_.addState('E', "Enabled"    ,this,&FUEventProcessor::fsmStateChanged);
-  fsm_.addState('s', "stopping"   ,this,&FUEventProcessor::fsmStateChanged);
-  
-  fsm_.addStateTransition('H','c',"Configure");
-  fsm_.addStateTransition('c','R',"ConfigureDone");
-  fsm_.addStateTransition('R','e',"Enable");
-  fsm_.addStateTransition('e','E',"EnableDone");
-  fsm_.addStateTransition('E','s',"Stop");
-  fsm_.addStateTransition('s','R',"StopDone");
-  fsm_.addStateTransition('E','h',"Halt");
-  fsm_.addStateTransition('R','h',"Halt");
-  fsm_.addStateTransition('h','H',"HaltDone");
-  
-  fsm_.addStateTransition('c','F',"Fail",this,&FUEventProcessor::failed);
-  fsm_.addStateTransition('e','F',"Fail",this,&FUEventProcessor::failed);
-  fsm_.addStateTransition('s','F',"Fail",this,&FUEventProcessor::failed);
-  fsm_.addStateTransition('h','F',"Fail",this,&FUEventProcessor::failed);
-
-  fsm_.setFailedStateTransitionAction(this,&FUEventProcessor::failed);
-  fsm_.setFailedStateTransitionChanged(this,&FUEventProcessor::fsmStateChanged);
-  fsm_.setStateName('F',"Failed");
-
-  fsm_.setInitialState('H');
-  fsm_.reset();
-  stateName_ = fsm_.getStateName(fsm_.getCurrentState());
-  
-  if (!workLoopConfiguring_->isActive()) workLoopConfiguring_->activate();
-  if (!workLoopEnabling_->isActive())    workLoopEnabling_   ->activate();
-  if (!workLoopStopping_->isActive())    workLoopStopping_   ->activate();
-  if (!workLoopHalting_->isActive())     workLoopHalting_    ->activate();
-  
+  // bind relevant callbacks to finite state machine
+  fsm_.initialize<evf::FUEventProcessor>(this);
   
   //set sourceId_
   string       xmlClass = getApplicationDescriptor()->getClassName();
@@ -201,14 +117,13 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
   ispace->fireItemAvailable("parameterSet",         &configString_);
   ispace->fireItemAvailable("pluginPath",           &sealPluginPath_);
   ispace->fireItemAvailable("epInitialized",        &epInitialized_);
-  ispace->fireItemAvailable("stateName",            &stateName_);
+  ispace->fireItemAvailable("stateName",             fsm_.stateName());
   ispace->fireItemAvailable("runNumber",            &runNumber_);
   ispace->fireItemAvailable("outputEnabled",        &outPut_);
   ispace->fireItemAvailable("globalInputPrescale",  &inputPrescale_);
   ispace->fireItemAvailable("globalOutputPrescale", &outputPrescale_);
   
-  ispace->fireItemAvailable("rcmsStateListener",     rcmsStateNotifier_.getRcmsStateListenerParameter());
-  ispace->fireItemAvailable("foundRcmsStateListener",rcmsStateNotifier_.getFoundRcmsStateListenerParameter());
+  ispace->fireItemAvailable("foundRcmsStateListener",fsm_.foundRcmsStateListener());
   
   ispace->fireItemAvailable("collectorAddr",        &dqmCollectorAddr_);
   ispace->fireItemAvailable("collectorPort",        &dqmCollectorPort_);
@@ -251,116 +166,6 @@ FUEventProcessor::~FUEventProcessor()
 ////////////////////////////////////////////////////////////////////////////////
 // implementation of member functions
 ////////////////////////////////////////////////////////////////////////////////
-
-//______________________________________________________________________________
-xoap::MessageReference FUEventProcessor::fsmCallback(xoap::MessageReference msg)
-  throw (xoap::exception::Exception)
-{
-  xoap::SOAPPart     part    =msg->getSOAPPart();
-  xoap::SOAPEnvelope env     =part.getEnvelope();
-  xoap::SOAPBody     body    =env.getBody();
-  DOMNode           *node    =body.getDOMNode();
-  DOMNodeList       *bodyList=node->getChildNodes();
-  DOMNode           *command =0;
-  string             commandName;
-  
-  for (UInt_t i=0;i<bodyList->getLength();i++) {
-    command = bodyList->item(i);
-    if(command->getNodeType() == DOMNode::ELEMENT_NODE) {
-      commandName = xoap::XMLCh2String(command->getLocalName());
-      break;
-    }
-  }
-  
-  if (commandName.empty()) {
-    XCEPT_RAISE(xoap::exception::Exception,"Command not found.");
-  }
-  
-  // fire appropriate event and create according response message
-  try {
-    toolbox::Event::Reference e(new toolbox::Event(commandName,this));
-    fsm_.fireEvent(e);
-    
-    // response string
-    xoap::MessageReference reply = xoap::createMessage();
-    xoap::SOAPEnvelope envelope  = reply->getSOAPPart().getEnvelope();
-    xoap::SOAPName responseName  = envelope.createName(commandName+"Response",
-						       "xdaq",XDAQ_NS_URI);
-    xoap::SOAPBodyElement responseElem =
-      envelope.getBody().addBodyElement(responseName);
-    
-    // state string
-    int               iState        = fsm_.getCurrentState();
-    string            state         = fsm_.getStateName(iState);
-    xoap::SOAPName    stateName     = envelope.createName("state",
-							  "xdaq",XDAQ_NS_URI);
-    xoap::SOAPElement stateElem     = responseElem.addChildElement(stateName);
-    xoap::SOAPName    attributeName = envelope.createName("stateName",
-							  "xdaq",XDAQ_NS_URI);
-    stateElem.addAttribute(attributeName,state);
-    
-    return reply;
-  }
-  catch (toolbox::fsm::exception::Exception & e) {
-    XCEPT_RETHROW(xoap::exception::Exception,"invalid command.",e);
-  }	
-}
-
-
-//______________________________________________________________________________
-void FUEventProcessor::fsmStateChanged(toolbox::fsm::FiniteStateMachine & fsm) 
-  throw (toolbox::fsm::exception::Exception)
-{
-  stateName_   = fsm_.getStateName(fsm_.getCurrentState());
-  string state = stateName_.toString();
-  
-  LOG4CPLUS_INFO(getApplicationLogger(),"New state is: "<<state);
-  
-  if (state=="configuring") {
-    try {
-      workLoopConfiguring_->submit(asConfiguring_);
-    }
-    catch (xdaq::exception::Exception& e) {
-      LOG4CPLUS_ERROR(getApplicationLogger(),xcept::stdformat_exception_history(e));
-    }
-  }
-  else if (state=="enabling") {
-    try {
-      workLoopEnabling_->submit(asEnabling_);
-    }
-    catch (xdaq::exception::Exception& e) {
-      LOG4CPLUS_ERROR(getApplicationLogger(),xcept::stdformat_exception_history(e));
-    }
-  }
-  else if (state=="stopping") {
-    try {
-      workLoopStopping_->submit(asStopping_);
-    }
-    catch (xdaq::exception::Exception& e) {
-      LOG4CPLUS_ERROR(getApplicationLogger(),xcept::stdformat_exception_history(e));
-    }
-  }
-  else if (state=="halting") {
-    try {
-      workLoopHalting_->submit(asHalting_);
-    }
-    catch (xdaq::exception::Exception& e) {
-      LOG4CPLUS_ERROR(getApplicationLogger(),xcept::stdformat_exception_history(e));
-    }
-  }
-  else if (state=="Halted"||state=="Ready"||state=="Enabled") {
-    try {
-      rcmsStateNotifier_.stateChanged(state,
-				      "EventProcessor has reached target state " +
-				      state);
-    }
-    catch (xcept::Exception& e) {
-      LOG4CPLUS_ERROR(getApplicationLogger(),"Failed to notify state change: "
-		      <<xcept::stdformat_exception_history(e));
-    }
-  }
-}
-
 
 //______________________________________________________________________________
 void FUEventProcessor::getTriggerReport(toolbox::Event::Reference e)
@@ -563,14 +368,18 @@ xoap::MessageReference FUEventProcessor::putPrescaler(xoap::MessageReference msg
 //______________________________________________________________________________
 bool FUEventProcessor::configuring(toolbox::task::WorkLoop* wl)
 {
-  LOG4CPLUS_INFO(getApplicationLogger(), "Start configuring ...");
-  rcmsStateNotifier_.findRcmsStateListener();
-  initEventProcessor();
-  LOG4CPLUS_INFO(getApplicationLogger(), "Finished configuring!");
-  
-  toolbox::Event::Reference e(new toolbox::Event("ConfigureDone",this));
-  fsm_.fireEvent(e);
-  
+  try {
+    LOG4CPLUS_INFO(getApplicationLogger(),"Start configuring ...");
+    initEventProcessor();
+    LOG4CPLUS_INFO(getApplicationLogger(),"Finished configuring!");
+    
+    fsm_.fireEvent("ConfigureDone",this);
+  }
+  catch (xcept::Exception &e) {
+    string msg = "configuring FAILED: " + (string)e.what();
+    fsm_.fireFailed(msg,this);
+  }
+
   return false;
 }
 
@@ -578,50 +387,50 @@ bool FUEventProcessor::configuring(toolbox::task::WorkLoop* wl)
 //______________________________________________________________________________
 bool FUEventProcessor::enabling(toolbox::task::WorkLoop* wl)
 {
-  LOG4CPLUS_INFO(getApplicationLogger(),"Start enabling ...");
-
-  // if the ep is intialized already, the initialization will be skipped
-  initEventProcessor();
-  
-  int sc = 0;
-  evtProcessor_->setRunNumber(runNumber_.value_);
   try {
-    evtProcessor_->runAsync();
-    sc = evtProcessor_->statusAsync();
+    LOG4CPLUS_INFO(getApplicationLogger(),"Start enabling ...");
+    
+    // if the ep is intialized already, the initialization will be skipped
+    initEventProcessor();
+    
+    int sc = 0;
+    evtProcessor_->setRunNumber(runNumber_.value_);
+    try {
+      evtProcessor_->runAsync();
+      sc = evtProcessor_->statusAsync();
+    }
+    catch(seal::Error& e) {
+      fsm_.fireFailed(e.explainSelf(),this);
+      return false;
+    }
+    catch(cms::Exception &e) {
+      fsm_.fireFailed(e.explainSelf(),this);
+      return false;
+    }    
+    catch(std::exception &e) {
+      fsm_.fireFailed(e.what(),this);
+      return false;
+    }
+    catch(...) {
+      fsm_.fireFailed("Unknown Exception",this);
+      return false;
+    }
+    
+    if(sc != 0) {
+      ostringstream oss;
+      oss<<"EventProcessor::runAsync returned status code " << sc;
+      fsm_.fireFailed(oss.str(),this);
+      return false;
+    }
+    
+    LOG4CPLUS_INFO(getApplicationLogger(),"Finished enabling!");
+    
+    fsm_.fireEvent("EnableDone",this);
   }
-  catch(seal::Error& e) {
-    toolbox::Event::Reference e(new evf::FsmFailedEvent(e.explainSelf(),this));
-    fsm_.fireEvent(e);
-    return false;
+  catch (xcept::Exception &e) {
+    string msg = "enabling FAILED: " + (string)e.what();
+    fsm_.fireFailed(msg,this);
   }
-  catch(cms::Exception &e) {
-    toolbox::Event::Reference e(new evf::FsmFailedEvent(e.explainSelf(),this));
-    fsm_.fireEvent(e);
-    return false;
-  }    
-  catch(std::exception &e) {
-    toolbox::Event::Reference e(new evf::FsmFailedEvent(e.what(),this));
-    fsm_.fireEvent(e);
-    return false;
-  }
-  catch(...) {
-    toolbox::Event::Reference e(new evf::FsmFailedEvent("Unknown Expection",this));
-    fsm_.fireEvent(e);
-    return false;
-  }
-  
-  if(sc != 0) {
-    ostringstream errorString;
-    errorString<<"EventProcessor::runAsync returned status code" << sc;
-    toolbox::Event::Reference e(new evf::FsmFailedEvent(errorString.str(),this));
-    fsm_.fireEvent(e);
-    return false;
-  }
-
-  LOG4CPLUS_INFO(getApplicationLogger(),"Finished enabling!");
-  
-  toolbox::Event::Reference e(new toolbox::Event("EnableDone",this));
-  fsm_.fireEvent(e);
   
   return false;
 }
@@ -630,12 +439,17 @@ bool FUEventProcessor::enabling(toolbox::task::WorkLoop* wl)
 //______________________________________________________________________________
 bool FUEventProcessor::stopping(toolbox::task::WorkLoop* wl)
 {
-  LOG4CPLUS_INFO(getApplicationLogger(),"Start stopping :) ...");
-  stopEventProcessor();
-  LOG4CPLUS_INFO(getApplicationLogger(),"Finished stopping!");
-  
-  toolbox::Event::Reference e(new toolbox::Event("StopDone",this));
-  fsm_.fireEvent(e);
+  try {
+    LOG4CPLUS_INFO(getApplicationLogger(),"Start stopping :) ...");
+    stopEventProcessor();
+    LOG4CPLUS_INFO(getApplicationLogger(),"Finished stopping!");
+    
+    fsm_.fireEvent("StopDone",this);
+  }
+  catch (xcept::Exception &e) {
+    string msg = "stopping FAILED: " + (string)e.what();
+    fsm_.fireFailed(msg,this);
+  }
   
   return false;
 }
@@ -644,38 +458,31 @@ bool FUEventProcessor::stopping(toolbox::task::WorkLoop* wl)
 //______________________________________________________________________________
 bool FUEventProcessor::halting(toolbox::task::WorkLoop* wl)
 {
-  LOG4CPLUS_INFO(getApplicationLogger(),"Start halting ...");
-  stopEventProcessor();
-  evtProcessor_->endJob();
-  delete evtProcessor_;
-  evtProcessor_ = 0;
-  epInitialized_ = false;
-  LOG4CPLUS_INFO(getApplicationLogger(),"Finished halting!");
+  try {
+    LOG4CPLUS_INFO(getApplicationLogger(),"Start halting ...");
+    stopEventProcessor();
+    evtProcessor_->endJob();
+    delete evtProcessor_;
+    evtProcessor_ = 0;
+    epInitialized_ = false;
+    LOG4CPLUS_INFO(getApplicationLogger(),"Finished halting!");
   
-  toolbox::Event::Reference e(new toolbox::Event("HaltDone",this));
-  fsm_.fireEvent(e);
+    fsm_.fireEvent("HaltDone",this);
+  }
+  catch (xcept::Exception &e) {
+    string msg = "halting FAILED: " + (string)e.what();
+    fsm_.fireFailed(msg,this);
+  }
   
   return false;
 }
 
 
 //______________________________________________________________________________
-void FUEventProcessor::failed(toolbox::Event::Reference e)
-  throw (toolbox::fsm::exception::Exception)
+xoap::MessageReference FUEventProcessor::fsmCallback(xoap::MessageReference msg)
+  throw (xoap::exception::Exception)
 {
-  if (typeid(*e) == typeid(toolbox::fsm::FailedEvent)) {
-    toolbox::fsm::FailedEvent &fe=dynamic_cast<toolbox::fsm::FailedEvent&>(*e);
-    LOG4CPLUS_FATAL(getApplicationLogger(),
-		    "Failure occurred in transition from '"
-		    <<fe.getFromState()<<"' to '"<<fe.getToState()
-		    <<"', exception history: "
-		    <<xcept::stdformat_exception_history(fe.getException()));
-  }
-  else if (typeid(*e) == typeid(evf::FsmFailedEvent)) {
-    evf::FsmFailedEvent &fe=dynamic_cast<evf::FsmFailedEvent&>(*e);
-    LOG4CPLUS_FATAL(getApplicationLogger(),
-		    "fsm failure occured: "<<fe.errorMessage());
-  }
+  return fsm_.commandCallback(msg);
 }
 
 
@@ -683,7 +490,8 @@ void FUEventProcessor::failed(toolbox::Event::Reference e)
 void FUEventProcessor::initEventProcessor()
 {
   if (epInitialized_) {
-    LOG4CPLUS_INFO(getApplicationLogger(),"CMSSW EventProcessor already initialized: skip!");
+    LOG4CPLUS_INFO(getApplicationLogger(),
+		   "CMSSW EventProcessor already initialized: skip!");
     return;
   }
   
@@ -843,23 +651,19 @@ void FUEventProcessor::initEventProcessor()
     }
   }
   catch(seal::Error& e) {
-    toolbox::Event::Reference e(new evf::FsmFailedEvent(e.explainSelf(),this));
-    fsm_.fireEvent(e);
+    fsm_.fireFailed(e.explainSelf(),this);
     return;
   }
   catch(cms::Exception &e) {
-    toolbox::Event::Reference e(new evf::FsmFailedEvent(e.explainSelf(),this));
-    fsm_.fireEvent(e);
+    fsm_.fireFailed(e.explainSelf(),this);
     return;
   }    
   catch(std::exception &e) {
-    toolbox::Event::Reference e(new evf::FsmFailedEvent(e.what(),this));
-    fsm_.fireEvent(e);
+    fsm_.fireEvent(e.what(),this);
     return;
   }
   catch(...) {
-    toolbox::Event::Reference e(new evf::FsmFailedEvent("Unknown Exception",this));
-    fsm_.fireEvent(e);
+    fsm_.fireFailed("Unknown Exception",this);
     return;
   }
   
@@ -894,7 +698,7 @@ void FUEventProcessor::stopEventProcessor()
 		     "called stopAsync, state "
 		     <<(evtProcessor_->getState()));
 
-      while(evtProcessor_->getState()!=edm::event_processor::sJobReady && trycount<10) {
+      while(evtProcessor_->getState()!=edm::event_processor::sJobReady&&trycount<10){
 	trycount++;
 	::sleep(1);
       }
@@ -924,20 +728,16 @@ void FUEventProcessor::stopEventProcessor()
     }
   }
   catch(seal::Error& e) {
-    toolbox::Event::Reference e(new evf::FsmFailedEvent(e.explainSelf(),this));
-    fsm_.fireEvent(e);
+    fsm_.fireFailed(e.explainSelf(),this);
   }
   catch(cms::Exception &e) {
-    toolbox::Event::Reference e(new evf::FsmFailedEvent(e.explainSelf(),this));
-    fsm_.fireEvent(e);
+    fsm_.fireFailed(e.explainSelf(),this);
   }    
   catch(std::exception &e) {
-    toolbox::Event::Reference e(new evf::FsmFailedEvent(e.what(),this));
-    fsm_.fireEvent(e);
+    fsm_.fireFailed(e.what(),this);
   }
   catch(...) {
-    toolbox::Event::Reference e(new evf::FsmFailedEvent("Unknown Exception",this));
-    fsm_.fireEvent(e);
+    fsm_.fireFailed("Unknown Exception",this);
   }
 }
 
@@ -945,7 +745,7 @@ void FUEventProcessor::stopEventProcessor()
 //______________________________________________________________________________
 void FUEventProcessor::actionPerformed(xdata::Event& e)
 {
-  if (e.type()=="ItemChangedEvent" && !(stateName_=="Halted")) {
+  if (e.type()=="ItemChangedEvent" && !(fsm_.stateName()->toString()=="Halted")) {
     string item = dynamic_cast<xdata::ItemChangedEvent&>(e).itemName();
     
     if ( item == "parameterSet") {
@@ -1196,7 +996,7 @@ void FUEventProcessor::defaultWebPage(xgi::Input  *in, xgi::Output *out)
   *out << "    <b>"                                                  << endl;
   *out << getApplicationDescriptor()->getClassName() 
        << getApplicationDescriptor()->getInstance()                  << endl;
-  *out << "      " << stateName_.toString()                          << endl;
+  *out << "      " << fsm_.stateName()->toString()                   << endl;
   *out << "    </b>"                                                 << endl;
   *out << "  </td>"                                                  << endl;
   *out << "  <td width=\"32\">"                                      << endl;

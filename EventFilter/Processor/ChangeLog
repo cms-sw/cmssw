@@ -1,3 +1,17 @@
+2007-03-08  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-11-00
+	* collect fixes commited by Chris Y.
+	* compliant with FWCore reorganization in 140 series
+	* based on evf::StateMachine provided by EventFilter/Utilities
+	V00-12-00
+	* runtime test shows PluginManager related segfault, to be
+	investigated. 
+	* for stopping and halting logic to function properly,
+	edm::EventProcessor needs some fixes, Emilio is taking care of
+	that.
+	
+	
 2007-03-01  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* add boolean flag epInitialized_ which indicates to the
