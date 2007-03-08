@@ -30,6 +30,7 @@ namespace edm
 	    
 	    const std::string dataCatalog (void) const;
 	    const std::string calibCatalog (void) const;
+	    const std::string calibLogicalServer (void) const;
 	    const std::string lookupCalibConnect (const std::string& input) const;
 
 	    // implicit copy constructor
