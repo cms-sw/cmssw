@@ -1,7 +1,7 @@
 //  \file AlignableNavigator.cc
 //
-//   $Revision: 1.13 $
-//   $Date: 2007/03/08 16:28:54 $
+//   $Revision: 1.14 $
+//   $Date: 2007/03/08 16:56:47 $
 //   (last update by $Author: pivarski $)
 
 #include "Alignment/CommonAlignment/interface/AlignableDet.h"
@@ -101,7 +101,7 @@ void AlignableNavigator::recursiveGetId( Alignable* alignable )
 
   if ( alignable->geomDetId().rawId()) {
 	theMap.insert( PairType( alignable->geomDetId(), alignable ) );
-	detAndSubdet.push_back(std::pair<int, int>( alignable->geomDetId().det(), alignable->geomDetId().subdetId() ));
+	theDetAndSubdet.push_back(std::pair<int, int>( alignable->geomDetId().det(), alignable->geomDetId().subdetId() ));
   }
   std::vector<Alignable*> comp = alignable->components();
   if ( alignable->alignableObjectId() != AlignableObjectId::AlignableDet
@@ -159,7 +159,7 @@ AlignableNavigator::alignableDetsFromHits
 bool AlignableNavigator::detAndSubdetInMap( const DetId& detid ) {
    int det = detid.det();
    int subdet = detid.subdetId();
-   for (std::vector<std::pair<int, int> >::const_iterator i = detAndSubdet.begin();  i != detAndSubdet.end();  ++i) {
+   for (std::vector<std::pair<int, int> >::const_iterator i = theDetAndSubdet.begin();  i != theDetAndSubdet.end();  ++i) {
       if (det == i->first  &&  subdet == i->second) return true;
    }
    return false;

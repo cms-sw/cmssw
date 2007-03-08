@@ -62,7 +62,7 @@ private:
   void recursiveGetId( Alignable* alignable );
 
   MapType theMap;
-  std::vector<std::pair<int,int> > detAndSubdet;
+  std::vector<std::pair<int,int> > theDetAndSubdet;
 };
 
 #endif
