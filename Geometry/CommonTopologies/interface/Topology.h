@@ -1,11 +1,10 @@
 #ifndef Geometry_CommonTopologies_Topology_H
 #define Geometry_CommonTopologies_Topology_H
 
-
-#include "Geometry/CommonDetAlgo/interface/LocalError.h"
-#include "Geometry/Vector/interface/LocalPoint.h"
-#include "Geometry/CommonDetAlgo/interface/MeasurementPoint.h"
-#include "Geometry/CommonDetAlgo/interface/MeasurementError.h"
+#include "DataFormats/GeometryVector/interface/LocalPoint.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/LocalError.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementPoint.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementError.h"
 
 class GeomDetType;
 
