@@ -4,8 +4,7 @@
 // Description: Transient Hit class for the FP420
 ///////////////////////////////////////////////////////////////////////////////
 #include "SimG4CMS/FP420/interface/FP420G4Hit.h"
-#include <iostream.h>
-//#define debug
+#include <iostream>
 
 FP420G4Hit::FP420G4Hit():entry(0) {
 
@@ -187,25 +186,25 @@ void FP420G4Hit::setVz(float t){theVz = t;}
 
 
 
-ostream& operator<<(ostream& os, const FP420G4Hit& hit) {
-  os << " Data of this FP420G4Hit are:" << endl
-     << " hitEntryLocalP: " << hit.getEntryLocalP() << endl
-     << " hitExitLocalP: " << hit.getExitLocalP() << endl
-     << " Time slice ID: " << hit.getTimeSliceID() << endl
-     << " Time slice : " << hit.getTimeSlice() << endl
-     << " Tof : " << hit.getTof() << endl
-     << " EnergyDeposit = " << hit.getEnergyDeposit() << endl
-     << " elmenergy = " << hit.getEM() << endl
-     << " hadrenergy = " << hit.getHadr() << endl
-     << " EnergyLoss = " << hit.getEnergyLoss() << endl
-     << " ParticleType = " << hit.getParticleType() << endl
-     << " Pabs = " << hit.getPabs() << endl
+std::ostream& operator<<(std::ostream& os, const FP420G4Hit& hit) {
+  os << " Data of this FP420G4Hit are:" << std::endl
+     << " hitEntryLocalP: " << hit.getEntryLocalP() << std::endl
+     << " hitExitLocalP: " << hit.getExitLocalP() << std::endl
+     << " Time slice ID: " << hit.getTimeSliceID() << std::endl
+     << " Time slice : " << hit.getTimeSlice() << std::endl
+     << " Tof : " << hit.getTof() << std::endl
+     << " EnergyDeposit = " << hit.getEnergyDeposit() << std::endl
+     << " elmenergy = " << hit.getEM() << std::endl
+     << " hadrenergy = " << hit.getHadr() << std::endl
+     << " EnergyLoss = " << hit.getEnergyLoss() << std::endl
+     << " ParticleType = " << hit.getParticleType() << std::endl
+     << " Pabs = " << hit.getPabs() << std::endl
      << " Energy of primary particle (ID = " << hit.getTrackID()
-     << ") = " << hit.getIncidentEnergy() << " (MeV)"<<endl
+     << ") = " << hit.getIncidentEnergy() << " (MeV)"<<std::endl
      << " Entry point in FP420 unit number " << hit.getUnitID()
-     << " is: " << hit.getEntry() << " (mm)" << endl;
+     << " is: " << hit.getEntry() << " (mm)" << std::endl;
   os << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-     << endl;
+     << std::endl;
   return os;
   /*
     float thetaEntry = aHit->getThetaAtEntry();   

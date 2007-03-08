@@ -134,7 +134,6 @@ private:
 
 };
 
-//ostream& operator<<(ostream&, const FP420G4Hit&);
 std::ostream& operator<<(std::ostream&, const FP420G4Hit&);
 
 #endif

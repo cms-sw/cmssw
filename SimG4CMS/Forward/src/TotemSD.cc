@@ -8,7 +8,7 @@
 //
 // Original Author: 
 //         Created:  Tue May 16 10:14:34 CEST 2006
-// $Id$
+// $Id: TotemSD.cc,v 1.1 2006/05/17 16:18:58 sunanda Exp $
 //
 
 // system include files
@@ -32,8 +32,8 @@
 #include "SimG4CMS/Forward/interface/TotemT2NumberingSchemeGem.h"
 #include "SimG4CMS/Forward/interface/TotemRPNumberingScheme.h"
 
-#include "Geometry/Vector/interface/LocalPoint.h"
-#include "Geometry/Vector/interface/LocalVector.h"
+#include "DataFormats/GeometryVector/interface/LocalPoint.h"
+#include "DataFormats/GeometryVector/interface/LocalVector.h"
 
 #include "G4SDManager.hh"
 #include "G4Step.hh"

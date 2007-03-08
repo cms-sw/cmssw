@@ -95,7 +95,7 @@ double CastorSD::getEnergyDeposit(G4Step * aStep) {
     float costheta =vert_mom.z()/sqrt(vert_mom.x()*vert_mom.x()+
 				      vert_mom.y()*vert_mom.y()+
 				      vert_mom.z()*vert_mom.z());
-    float theta = acos(min(max(costheta,float(-1.)),float(1.)));
+    float theta = acos(std::min(std::max(costheta,float(-1.)),float(1.)));
     float eta = -log(tan(theta/2));
     float phi = -100.;
     if (vert_mom.x() != 0) phi = atan2(vert_mom.y(),vert_mom.x()); 
@@ -182,7 +182,7 @@ C3TF, C4TF - for third release of CASTOR
       float costh =hit_mom.z()/sqrt(hit_mom.x()*hit_mom.x()+
 				    hit_mom.y()*hit_mom.y()+
 				    hit_mom.z()*hit_mom.z());
-      float th = acos(min(max(costh,float(-1.)),float(1.)));
+      float th = acos(std::min(std::max(costh,float(-1.)),float(1.)));
 
     // just in case (can do bot use):
       if (th < 0.) th += twopi;
@@ -192,7 +192,7 @@ C3TF, C4TF - for third release of CASTOR
 
   // theta of cone with Cherenkov photons w.r.t.direction of charged part.:
       float costhcher =1./(nMedium*beta);
-      float thcher = acos(min(max(costhcher,float(-1.)),float(1.)));
+      float thcher = acos(std::min(std::max(costhcher,float(-1.)),float(1.)));
       float thchergrad = thcher*180./pi;
 
   // diff thetas of charged part. and quartz direction in LabRF:
@@ -243,7 +243,7 @@ C3TF, C4TF - for third release of CASTOR
 	    float tan_arcos = 2.*a*d;
 	    if(tan_arcos != 0.) arg_arcos =(r*r-a*a-d*d)/tan_arcos; 
 	    arg_arcos = fabs(arg_arcos);
-	    float th_arcos = acos(min(max(arg_arcos,float(-1.)),float(1.)));
+	    float th_arcos = acos(std::min(std::max(arg_arcos,float(-1.)),float(1.)));
 	    d_qz = th_arcos/pi/2.;
 	    d_qz = fabs(d_qz);
 

@@ -8,14 +8,13 @@
 //
 // Original Author: 
 //         Created:  Tue May 16 10:14:34 CEST 2006
-// $Id$
+// $Id: TotemG4Hit.cc,v 1.1 2006/05/17 16:18:58 sunanda Exp $
 //
 
 // system include files
 
 // user include files
 #include "SimG4CMS/Forward/interface/TotemG4Hit.h"
-#include <iostream.h>
 
 //
 // constructors and destructor
@@ -181,7 +180,7 @@ void       TotemG4Hit::setVy(float t)             {theVy = t;}
 float      TotemG4Hit::getVz() const              {return theVz;}
 void       TotemG4Hit::setVz(float t)             {theVz = t;}
 
-ostream& operator<<(ostream& os, const TotemG4Hit& hit) {
+std::ostream& operator<<(std::ostream& os, const TotemG4Hit& hit) {
   os << " Data of this TotemG4Hit are:\n" 
      << " Time slice ID: " << hit.getTimeSliceID() << "\n"
      << " EnergyDeposit = " << hit.getEnergyLoss() << "\n"

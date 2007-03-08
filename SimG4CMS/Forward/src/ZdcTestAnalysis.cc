@@ -63,7 +63,7 @@ ZdcTestAnalysis::~ZdcTestAnalysis() {
   finish();
   if (verbosity > 0) {
     std::cout << std::endl << "ZdcTestAnalysis Dextructor  -------->  End of ZdcTestAnalysis : "
-      << std::cout << std::endl; 
+      << std::endl << std::endl; 
   }
 
   //if (doNTzdcstep  > 0)delete zdcstepntuple;
@@ -75,7 +75,7 @@ ZdcTestAnalysis::~ZdcTestAnalysis() {
 
 void ZdcTestAnalysis::update(const BeginOfJob * job) {
   //job
-  cout<<"beggining of job"<<endl;;
+  std::cout<<"beggining of job"<<std::endl;;
 }
 
 
@@ -262,8 +262,8 @@ void ZdcTestAnalysis::update(const EndOfEvent * evt) {
   int maxTime=0;
   int fiberID=0;
   unsigned int unsignedfiberID=0;
-  map<int,float,less<int> > energyInFibers;
-  map<int,float,less<int> > primaries;
+  std::map<int,float,std::less<int> > energyInFibers;
+  std::map<int,float,std::less<int> > primaries;
   float totalEnergy = 0;
   int nentries = theZDCHC->entries();
   std::cout << "  theZDCHC has " << nentries << " entries" << std::endl;
@@ -285,8 +285,9 @@ void ZdcTestAnalysis::update(const EndOfEvent * evt) {
 	    Hep3Vector hitPoint = aHit->getPosition();
 	    double hitEnergy = aHit->getEnergyDeposit();
 	    if (verbosity >= 1)
-	      std::cout << " entry #" << ihit << ": fiberID=0x" << hex << fiberID << dec << "; enEm="
-			<< enEm << "; enHad=" << enHad << "; hitEnergy=" << hitEnergy
+	      std::cout << " entry #" << ihit << ": fiberID=0x" << std::hex 
+			<< fiberID << std::dec << "; enEm=" << enEm 
+			<< "; enHad=" << enHad << "; hitEnergy=" << hitEnergy
 			<< "z=" << hitPoint.z() << std::endl;
 	    energyInFibers[fiberID]+= enEm + enHad;
 	    primaries[aHit->getTrackID()]+= enEm + enHad;
@@ -323,7 +324,7 @@ void ZdcTestAnalysis::update(const EndOfEvent * evt) {
 	    zdceventntuple->Fill(zdceventarray);
       }
       
-      for (map<int,float,less<int> >::iterator is = energyInFibers.begin();
+      for (std::map<int,float,std::less<int> >::iterator is = energyInFibers.begin();
 	   is!= energyInFibers.end(); is++)
 	{
 	  ETot = (*is).second;
@@ -364,7 +365,7 @@ void ZdcTestAnalysis::update(const EndOfEvent * evt) {
 	  std::cout << "ZdcTest End Of Event  ERR: primary has p=0 " << std::endl;
 	} else {
 	  float costheta = pz/pInit;
-	  float theta = acos(min(max(costheta,float(-1.)),float(1.)));
+	  float theta = acos(std::min(std::max(costheta,float(-1.)),float(1.)));
 	  eta = -log(tan(theta/2));
 	  
 	  if (px != 0) phi = atan(py/px);
