@@ -1,10 +1,9 @@
 /** measure branch sizes
  *
- * \author Luca Lista, INFN
- *
- * \version $Revision: 1.1 $
+ * author Luca Lista
  *
  */
+
 #include <boost/shared_ptr.hpp>
 #include <boost/program_options.hpp>
 #include <string>
