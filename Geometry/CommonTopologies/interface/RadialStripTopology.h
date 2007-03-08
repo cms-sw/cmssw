@@ -94,18 +94,16 @@ class RadialStripTopology : public StripTopology {
 
 
   /** 
-   * Pitch at centre of detector, along local x axis.<BR>
-   * BEWARE: Approximation since strip width along x is not
-   * constant for a RadialStripTopology. You may really need some
-   * other quantity... 
-   * This returns arc length for a strip centred on y axis.
+   * BEWARE: calling pitch() throws an exception.<BR>
+   * Pitch is conventional name for width of something, but this is
+   * not sensible for a RadialStripTopology since strip widths vary with local y.
+   * Use localPitch(.) instead.
    */
   virtual float pitch() const;
 
   /** 
-   * Pitch at a given LocalPoint. <BR>
-   * BEWARE: like pitch(), not very useful in a
-   * RadialStripTopology.
+   * Pitch (strip width) at a given LocalPoint. <BR>
+   * BEWARE: are you sure you really want to call this for a RadialStripTopology?
    */
   virtual float localPitch(const LocalPoint&) const;
 
