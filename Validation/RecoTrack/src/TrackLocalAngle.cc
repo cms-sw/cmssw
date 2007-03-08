@@ -6,12 +6,12 @@
 #include "Validation/RecoTrack/interface/TrackLocalAngle.h"
 
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "Geometry/Vector/interface/GlobalPoint.h"
-#include "Geometry/Vector/interface/GlobalVector.h"
-#include "Geometry/Vector/interface/LocalVector.h"
+#include "DataFormats/Geometry/Vector/interface/GlobalPoint.h"
+#include "DataFormats/Geometry/Vector/interface/GlobalVector.h"
+#include "DataFormats/Geometry/Vector/interface/LocalVector.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
@@ -139,15 +139,25 @@ std::vector<std::pair<const TrackingRecHit*,float> > TrackLocalAngle::findtracka
   
   LogDebug("TrackLocalAngle") << "Initial TSOS\n" << theTSOS << "\n";
   
-  const TrajectorySeed * seed = new TrajectorySeed();//empty seed: not needed
+  //does not work anymore. 
+  //  const TrajectorySeed * seed = new TrajectorySeed();//empty seed: not needed
+  //replace with this (G. Cerati)
+ // investigate how the hits are sorted: either alongMomentum or opposite.
+  GlobalVector delta = hits[1]->globalPosition() - hits[0]->globalPosition() ;
+  PropagationDirection seedDirection = (theTSOS.globalDirection()*delta>0)? alongMomentum : oppositeToMomentum;
+  
+  // the seed has dummy state and hits.What matters for the fitting, is the seedDirection;
+  const TrajectorySeed * seed = new TrajectorySeed(PTrajectoryStateOnDet(),BasicTrajectorySeed::recHitContainer(),
+						   seedDirection);
+  
   //buildTrack
   return buildTrack(hits, theTSOS, *seed);
 }
 
 std::vector< std::pair<const TrackingRecHit*,float> > TrackLocalAngle::buildTrack(
-					 TransientTrackingRecHit::RecHitContainer& hits,
-					 TrajectoryStateOnSurface& theTSOS,
-					 const TrajectorySeed& seed)
+										  TransientTrackingRecHit::RecHitContainer& hits,
+										  TrajectoryStateOnSurface& theTSOS,
+										  const TrajectorySeed& seed)
 {
   //variable declarations
   std::vector<Trajectory> trajVec;

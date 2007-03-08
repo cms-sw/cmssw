@@ -12,9 +12,9 @@
 
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "Geometry/Vector/interface/GlobalPoint.h"
-#include "Geometry/Vector/interface/GlobalVector.h"
-#include "Geometry/Vector/interface/LocalVector.h"
+#include "DataFormats/Geometry/Vector/interface/GlobalPoint.h"
+#include "DataFormats/Geometry/Vector/interface/GlobalVector.h"
+#include "DataFormats/Geometry/Vector/interface/LocalVector.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
@@ -29,8 +29,8 @@
 #include "DataFormats/SiStripDetId/interface/TIBDetId.h" 
 #include "DataFormats/SiStripDetId/interface/TIDDetId.h"
 #include "DataFormats/SiStripDetId/interface/TOBDetId.h" 
-#include "Geometry/Vector/interface/LocalPoint.h"
-#include "Geometry/Vector/interface/GlobalPoint.h"
+#include "DataFormats/Geometry/Vector/interface/LocalPoint.h"
+#include "DataFormats/Geometry/Vector/interface/GlobalPoint.h"
 
 using namespace std;
 using namespace edm;
