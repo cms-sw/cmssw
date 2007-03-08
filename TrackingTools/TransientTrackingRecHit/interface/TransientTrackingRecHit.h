@@ -4,9 +4,9 @@
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include <TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h>
-#include <Geometry/CommonDetAlgo/interface/AlgebraicObjects.h>
+#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 //RC #include "DataFormats/Common/interface/OwnVector.h"
-#include "Geometry/Surface/interface/ReferenceCounted.h"
+#include "DataFormats/GeometrySurface/interface/ReferenceCounted.h"
 
 class GeomDetUnit;
 

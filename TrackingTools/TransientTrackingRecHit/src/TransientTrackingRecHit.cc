@@ -1,5 +1,5 @@
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
-#include "Geometry/CommonDetAlgo/interface/ErrorFrameTransformer.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/ErrorFrameTransformer.h"
 
 GlobalPoint TransientTrackingRecHit::globalPosition() const {
   return  (geom_->surface().toGlobal(localPosition()));

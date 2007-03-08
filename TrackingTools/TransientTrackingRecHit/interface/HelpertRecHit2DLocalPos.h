@@ -3,7 +3,7 @@
 
 //#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 
-#include "Geometry/CommonDetAlgo/interface/AlgebraicObjects.h"
+#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 
 class LocalError;
 class GeomDet;

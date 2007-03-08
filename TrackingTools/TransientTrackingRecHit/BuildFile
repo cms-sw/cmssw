@@ -10,7 +10,9 @@
 <use name=Geometry/CommonDetUnit>
 <use name=TrackingTools/Records>
 <use name=TrackingTools/TrajectoryState>
-
+<use name=DataFormats/GeometrySurface>
+<use name=DataFormats/CLHEP>
+<use name=DataFormats/GeometryCommonDetAlgo>
 <export>
 <lib name=TrackingToolsTransientTrackingRecHit>
   <use name=FWCore/Framework>

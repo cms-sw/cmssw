@@ -1,5 +1,5 @@
 #include "TrackingTools/TransientTrackingRecHit/interface/InvalidTransientRecHit.h"
-#include "Geometry/CommonDetAlgo/interface/ErrorFrameTransformer.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/ErrorFrameTransformer.h"
 #include "DataFormats/TrackingRecHit/interface/InvalidTrackingRecHit.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
