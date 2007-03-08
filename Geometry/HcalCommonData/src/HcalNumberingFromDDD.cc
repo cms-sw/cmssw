@@ -3,7 +3,6 @@
 // Description: Usage of DDD to get to numbering scheme for hadron calorimeter
 ///////////////////////////////////////////////////////////////////////////////
 
-namespace std{} using namespace std;
 #include "Geometry/HcalCommonData/interface/HcalNumberingFromDDD.h"
 
 #include "DetectorDescription/Base/interface/DDException.h"
@@ -39,119 +38,123 @@ HcalNumberingFromDDD::HcalID HcalNumberingFromDDD::unitID(int det,
   double hy  = point.y();
   double hz  = point.z();
   double hR  = sqrt(hx*hx+hy*hy+hz*hz);
-  double htheta = (hR == 0. ? 0. : acos(max(min(hz/hR,1.0),-1.0)));
+  double htheta = (hR == 0. ? 0. : acos(std::max(std::min(hz/hR,1.0),-1.0)));
   double hsintheta = sin(htheta);
   double hphi = (hR*hsintheta == 0. ? 0. :atan2(hy,hx));
-  double heta = (abs(hsintheta) == 1.? 0. : -log(abs(tan(htheta/2.))) );
-  heta = abs(heta);
+  double heta = (fabs(hsintheta) == 1.? 0. : -log(fabs(tan(htheta/2.))) );
 
-  int etaR, hsubdet=0;
-  double fibin;
+  int    hsubdet=0;
+  double etaR;
 
   //First eta index
   if (det == 5) { // Forward HCal
     hsubdet = static_cast<int>(HcalForward);
     hR      = sqrt(hx*hx+hy*hy);
-    hphi   += phioff[2];
-    etaR    = etaMax[2];
-    for (int i = nR-1; i > 0; i--)
-      if (hR < rTable[i]) etaR = etaMin[2] + nR - i - 1;
-    fibin   = phibin[nEta+etaR-etaMin[2]-1];
-
+    etaR    = (heta >= 0. ? hR : -hR);
   } else { // Barrel or Endcap
-    etaR  = 1;
-    for (int i = 0; i < nEta-1; i++)
-      if (heta > etaTable[i]) etaR = i + 1;
+    etaR    = heta;
     if (det == 3) {
       hsubdet = static_cast<int>(HcalBarrel);
-      hphi   += phioff[0];
-      if (etaR > etaMax[0])  etaR = etaMax[0];
     } else {
       hsubdet = static_cast<int>(HcalEndcap);
-      hphi   += phioff[1];
-      if (etaR <= etaMin[1]) etaR = etaMin[1];
     }
-    fibin = phibin[etaR-1];
   }
-  if (hphi < 0)     hphi += twopi;
 
 #ifdef debug
-  LogDebug("HCalGeom") << "HcalNumberingFromDDD: point = " << point << " eta " 
-		       << heta << " phi " << hphi;
+  LogDebug("HCalGeom") << "HcalNumberingFromDDD: point = " << point << " det "
+		       << hsubdet << " eta/R " << etaR << " phi " << hphi;
 #endif
-  //Then the phi index
-  int nphi  = int((twopi+0.1*fibin)/fibin);
-  int zside = hz>0 ? 1: 0;
-  int iphi;
-  if (det == 5 && etaR > etaMax[2]-2 ) {   // HF double-phi  
-                                           // dirty trick to set the offset
-    iphi = int((hphi + 0.5*fibin)/fibin) + 1;
-  }
-  else {                                  // All the rest 
-    iphi  = int(hphi/fibin) + 1;
-  }
-  
-  if (iphi > nphi) iphi = 1;
 
-  LogDebug("HCalGeom") << "HcalNumberingFromDDD: fibin=" <<  fibin
-		       << " iphi= " << iphi; 
-
-
-  HcalNumberingFromDDD::HcalID tmp = unitID(hsubdet,zside,depth,etaR,iphi,lay);
-
-  LogDebug("HCalGeom") << "HcalNumberingFromDDD: det = " << det << " " 
-		       << tmp.subdet << " zside = " << tmp.zside << " depth = "
-		       << tmp.depth << " eta/R = " << tmp.etaR << " phi = " 
-		       << tmp.phi << " layer = " << tmp.lay;
-
+  HcalNumberingFromDDD::HcalID tmp = unitID(hsubdet,etaR,hphi,depth,lay);
   return tmp;
 
 }
 
 HcalNumberingFromDDD::HcalID HcalNumberingFromDDD::unitID(double eta,double fi,
-							  int depth, int lay) const {
+							  int depth, 
+							  int lay) const {
 
-  int    etaR = 0;
-  double heta = abs(eta);
+  int    ieta = 0;
+  double heta = fabs(eta);
   for (int i = 0; i < nEta; i++)
-    if (heta > etaTable[i]) etaR = i + 1;
+    if (heta > etaTable[i]) ieta = i + 1;
   int    hsubdet=0;
-  double fibin, fioff;
-  if (etaR <= etaMin[1]) {
-    if ((etaR <= etaMin[1] && depth==3) || etaR > etaMax[0]) {
+  double etaR;
+  if (ieta <= etaMin[1]) {
+    if ((ieta <= etaMin[1] && depth==3) || ieta > etaMax[0]) {
       hsubdet = static_cast<int>(HcalEndcap);
-      fioff   = phioff[1];
     } else {
       hsubdet = static_cast<int>(HcalBarrel);
-      fioff   = phioff[0];
     }
-    fibin = phibin[etaR-1];
+    etaR    = eta;
   } else {
     hsubdet = static_cast<int>(HcalForward);
-    fioff   = phioff[2];
     double theta = 2.*atan(exp(-heta));
     double hR    = zVcal*tan(theta);
-    etaR    = etaMax[2];
+    etaR    = (eta >= 0. ? hR : -hR);
+  }
+
+  HcalNumberingFromDDD::HcalID tmp = unitID(hsubdet,etaR,fi,depth,lay);
+  return tmp;
+}
+
+
+HcalNumberingFromDDD::HcalID HcalNumberingFromDDD::unitID(int det,
+							  double etaR,
+							  double phi,
+							  int depth,
+							  int lay) const {
+
+  int ieta=0;
+  double fioff, fibin;
+  double hetaR = fabs(etaR);
+
+  //First eta index
+  if (det == static_cast<int>(HcalForward)) { // Forward HCal
+    fioff   = phioff[2];
+    ieta    = etaMax[2];
     for (int i = nR-1; i > 0; i--)
-      if (hR < rTable[i]) etaR = etaMin[2] + nR - i - 1;
-    fibin   = phibin[nEta+etaR-etaMin[2]-1];
+      if (hetaR < rTable[i]) ieta = etaMin[2] + nR - i - 1;
+    fibin   = phibin[nEta+ieta-etaMin[2]-1];
+    if  (ieta > etaMax[2]-2 ) {   // HF double-phi  
+      fioff += 0.5*fibin;
+    }
+  } else { // Barrel or Endcap
+    ieta  = 1;
+    for (int i = 0; i < nEta-1; i++)
+      if (hetaR > etaTable[i]) ieta = i + 1;
+    if (det == static_cast<int>(HcalBarrel)) {
+      fioff   = phioff[0];
+      if (ieta > etaMax[0])  ieta = etaMax[0];
+    } else {
+      fioff   = phioff[1];
+      if (ieta <= etaMin[1]) ieta = etaMin[1];
+    }
+    fibin = phibin[ieta-1];
   }
 
   int    nphi  = int((twopi+0.1*fibin)/fibin);
-  int    zside = eta>0 ? 1: 0;
-  double hphi  = fi+fioff;
+  int    zside = etaR>0 ? 1: 0;
+  double hphi  = phi+fioff;
   if (hphi < 0)    hphi += twopi;
   int    iphi  = int(hphi/fibin) + 1;
   if (iphi > nphi) iphi = 1;
 
-  HcalNumberingFromDDD::HcalID tmp = unitID(hsubdet,zside,depth,etaR,iphi,lay);
+#ifdef debug
+  LogDebug("HCalGeom") << "HcalNumberingFromDDD: etaR = " << etaR << " : "
+		       << zside << "/" << ieta << " phi " << hphi << " : "
+		       << iphi;
+#endif
+
+  HcalNumberingFromDDD::HcalID tmp = unitID(det,zside,depth,ieta,iphi,lay);
   return tmp;
+
 }
 
-  
 HcalNumberingFromDDD::HcalID HcalNumberingFromDDD::unitID(int det, int zside,
 							  int depth, int etaR,
-							  int phi, int lay) const {
+							  int phi, 
+							  int lay) const {
 
   //Modify the depth index
   if (det == static_cast<int>(HcalForward)) { // Forward HCal
@@ -190,8 +193,10 @@ HcalNumberingFromDDD::HcalID HcalNumberingFromDDD::unitID(int det, int zside,
   if (units==2) iphi_skip=(phi-1)*2+1;
   else if (units==4) iphi_skip=(phi-1)*4+1;
 
+#ifdef debug
   LogDebug("HCalGeom") << "HcalNumberingFromDDD: phi units=" <<  units  
                        <<  "  iphi_skip=" << iphi_skip; 
+#endif
 
   HcalNumberingFromDDD::HcalID tmp(det,zside,depth,etaR,phi,iphi_skip,lay);
 
@@ -381,7 +386,7 @@ std::vector<HcalCellType::HcalCellType> HcalNumberingFromDDD::HcalCellTypes() co
 }
 
 std::vector<HcalCellType::HcalCellType> HcalNumberingFromDDD::HcalCellTypes(HcalSubdetector subdet) const {
-  
+
   std::vector<HcalCellType::HcalCellType> cellTypes;
   if (subdet == HcalForward) {
     if (dzVcal < 0) return cellTypes;
@@ -688,13 +693,13 @@ void HcalNumberingFromDDD::loadSpecPars(DDFilteredView fv) {
 }
 
 void HcalNumberingFromDDD::loadGeometry(DDFilteredView fv) {
-  
+
   bool dodet=true, hf=false;
   std::vector<double> rb(20,0.0), ze(20,0.0);
   std::vector<int>    ib(20,0),   ie(20,0);
   std::vector<int>    izb, phib, ize, phie, izf, phif;
   double zf = 0;
-  dzVcal = -1.;           
+  dzVcal = -1.;
 
   while (dodet) {
     DDTranslation    t    = fv.translation();
@@ -730,7 +735,7 @@ void HcalNumberingFromDDD::loadGeometry(DDFilteredView fv) {
 #endif
       if (lay >=0 && lay < 20) {
 	ie[lay]++;
-	ze[lay] += abs(t.z());
+	ze[lay] += fabs(t.z());
       }
       if (copy[nsiz-1] == 10) {
 	int iz = copy[nsiz-6];
@@ -751,7 +756,7 @@ void HcalNumberingFromDDD::loadGeometry(DDFilteredView fv) {
 	for (unsigned j=0; j<paras.size(); j++)
 	  LogDebug("HCalGeom") << "HF Parameter[" << j << "] = " << paras[j];
 #endif
-	zf  = abs(t.z());
+	zf  = fabs(t.z());
 	if (sol.shape() == ddpolycone_rrz) {
 	  int nz  = (int)(paras.size())-3;
 	  zf     += paras[3];
@@ -839,7 +844,7 @@ void HcalNumberingFromDDD::loadGeometry(DDFilteredView fv) {
 }
 
 std::vector<double> HcalNumberingFromDDD::getDDDArray(const std::string & str, 
-						      const DDsvalues_type & sv, 
+						      const DDsvalues_type & sv,
 						      int & nmin) const {
 #ifdef debug
   LogDebug("HCalGeom") << "HcalNumberingFromDDD:getDDDArray called for " 

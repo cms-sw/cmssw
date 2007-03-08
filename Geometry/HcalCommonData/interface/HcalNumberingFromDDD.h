@@ -32,6 +32,8 @@ public:
 
   HcalID         unitID(int det, Hep3Vector pos, int depth, int lay=-1) const;
   HcalID         unitID(double eta, double phi, int depth=1, int lay=-1) const;
+  HcalID         unitID(int det, double etaR, double phi, int depth,
+			int lay=-1) const;
   HcalID         unitID(int det, int zside, int depth, int etaR, int phi, 
 			int lay=-1) const;
   HcalCellType::HcalCell cell(int det, int zside, int depth, int etaR, 
