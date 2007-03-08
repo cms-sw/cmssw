@@ -3,7 +3,8 @@
 <use name=FWCore/MessageLogger>
 <use name=xdaq>
 </export>
+
 <flags SEAL_PLUGIN_NAME="EventFilterUtilities">
-<use name=xdaq>
 <use name=FWCore/MessageLogger>
 <use name=FWCore/ServiceRegistry>
+<use name=xdaq>

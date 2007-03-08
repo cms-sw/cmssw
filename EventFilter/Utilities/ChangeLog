@@ -1,3 +1,13 @@
+2007-03-08  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-12-00
+	* compliant with reorganization of FWCore for 140 series
+	* added evf::StateMachine, which implements a uniform asyncronous
+	state model to be used for all Filter Unit Applications. It must
+	be linked against the xdaq2rc library, which is going to be
+	provided with xdaq 3.7.3 within 1 or two days; until then, ask me
+	for the hack!
+
 2007-03-07  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-11-11-fix
