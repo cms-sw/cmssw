@@ -7,7 +7,7 @@ ReflexTools provides a small number of Reflex-based tools, used in
 the CMS event model.  
 
 
-$Id: ReflexTools.h,v 1.1 2007/03/04 04:39:42 wmtan Exp $
+$Id: ReflexTools.h,v 1.2 2007/03/05 20:42:49 wdd Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -51,6 +51,12 @@ namespace edm
 				  found_wrapped_type);
   }
 
+  // is_sequence_wrapper is used to determine whether the Type
+  // 'possible_sequence_wrapper' represents
+  //   edm::Wrapper<Seq<X> >,
+  // where Seq<X> is anything that is a sequence of X.
+  // Note there is special support of edm::RefVector<Seq<X> >, which
+  // will be recognized as a sequence of X.
   bool 
   is_sequence_wrapper(ROOT::Reflex::Type const& possible_sequence_wrapper,
 		      ROOT::Reflex::Type& found_sequence_value_type);

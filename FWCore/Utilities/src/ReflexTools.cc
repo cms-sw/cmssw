@@ -1,6 +1,7 @@
-#include "Reflex/Type.h"
-#include "Reflex/Member.h"
 #include "Reflex/Base.h"
+#include "Reflex/Member.h"
+#include "Reflex/Type.h"
+#include "Reflex/TypeTemplate.h"
 #include "boost/thread/tss.hpp"
 #include <set>
 #include <algorithm>
@@ -23,11 +24,12 @@ namespace ROOT {
   }
 }
 
-using ROOT::Reflex::Type;
-using ROOT::Reflex::Type_Iterator;
+using ROOT::Reflex::FINAL;
 using ROOT::Reflex::Member;
 using ROOT::Reflex::SCOPED;
-using ROOT::Reflex::FINAL;
+using ROOT::Reflex::Type;
+using ROOT::Reflex::Type_Iterator;
+using ROOT::Reflex::TypeTemplate;
 
 
 namespace edm
@@ -64,10 +66,11 @@ namespace edm
   if_edm_ref_get_value_type(Type const& possible_ref,
 			    Type & result)
   {
-    // To do: if possible_ref is a type instantiated from the template
-    // edm::Ref, then return that thing's value_type as result. If
-    // not, return possible_ref as result.
-    result = possible_ref;
+    TypeTemplate primary_template_id(possible_ref.TemplateFamily());
+    if (primary_template_id == TypeTemplate::ByName("edm::Ref", 3))
+      (void)value_type_of(possible_ref, result);
+    else
+      result = possible_ref;	
   }
 
   bool
