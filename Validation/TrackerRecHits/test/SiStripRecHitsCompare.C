@@ -2,8 +2,8 @@ void SiStripRecHitsCompare()
 {
 
  gROOT ->Reset();
- char*  rfilename = "sistriprechitshisto.root";
- char*  sfilename = "../data/sistriprechitshisto.root";
+ char*  sfilename = "sistriprechitshisto.root";
+ char*  rfilename = "../data/sistriprechitshisto.root";
 
  delete gROOT->GetListOfFiles()->FindObject(rfilename);
  delete gROOT->GetListOfFiles()->FindObject(sfilename); 

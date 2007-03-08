@@ -1,8 +1,8 @@
 void SiPixelRecHitsCompare()
 {
    gROOT->Reset();
-   char* rfilename = "pixelrechitshisto.root";
-   char* sfilename = "../data/pixelrechitshisto.root";
+   char* sfilename = "pixelrechitshisto.root";
+   char* rfilename = "../data/pixelrechitshisto.root";
    
    //char* rfilename = "/uscms/home/ggiurgiu/work/CMSSW_1_2_0_pre4/src/Validation/TrackerRecHits/test/pixelrechitshisto_test34.root";
    //char* sfilename = "/uscms/home/ggiurgiu/work/CMSSW_1_2_0_pre4/src/Validation/TrackerRecHits/test/pixelrechitshisto_test56.root";
