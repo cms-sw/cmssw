@@ -3,7 +3,7 @@
 
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "DataFormats/Common/interface/EDProduct.h"
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 
   /**
    * Helper class to build TransientTrack from a FreeTrajectoryState.

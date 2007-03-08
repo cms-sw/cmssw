@@ -6,7 +6,7 @@
  */
 
 #include "TrackingTools/TrajectoryState/interface/ProxyBase.h"
-#include "Geometry/Surface/interface/ReferenceCounted.h"
+#include "DataFormats/GeometrySurface/interface/ReferenceCounted.h"
 #include "TrackingTools/TrajectoryState/interface/CopyUsingClone.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
