@@ -1,6 +1,6 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
@@ -14,8 +14,8 @@ namespace cms {
 
   /** \class HcalRecHitDump
       
-  $Date: 2006/06/27 15:48:28 $
-  $Revision: 1.5 $
+  $Date: 2006/10/24 16:59:36 $
+  $Revision: 1.6 $
   \author J. Mans - Minnesota
   */
   class HcalRecHitDump : public edm::EDAnalyzer {
