@@ -5,24 +5,17 @@
 #include "EventFilter/ResourceBroker/interface/FUTypes.h"
 #include "EventFilter/ResourceBroker/interface/FUResourceTable.h"
 
+#include "EventFilter/Utilities/interface/StateMachine.h"
 #include "EventFilter/Utilities/interface/WebGUI.h"
 
 #include "xdaq/include/xdaq/Application.h"
 #include "xdaq/NamespaceURI.h"
-
-#include "xdaq2rc/RcmsStateNotifier.h"
-
-#include "toolbox/fsm/FiniteStateMachine.h"
-#include "toolbox/task/WorkLoopFactory.h"
-#include "toolbox/task/WaitingWorkLoop.h"
-#include "toolbox/task/Action.h"
 
 #include "xdata/include/xdata/InfoSpace.h"
 #include "xdata/include/xdata/String.h"
 #include "xdata/include/xdata/Boolean.h"
 #include "xdata/include/xdata/UnsignedInteger32.h"
 #include "xdata/include/xdata/Double.h"
-
 
 #include "toolbox/include/toolbox/task/TimerFactory.h"
 #include "toolbox/include/Task.h"
@@ -71,26 +64,15 @@ namespace evf {
     // public member functions
     //
     
-    // finite state machine command callbacks
-    xoap::MessageReference fsmCallback(xoap::MessageReference msg)
-      throw (xoap::exception::Exception);
-
-    // finite state machine callback for entering new state
-    void fsmStateChanged(toolbox::fsm::FiniteStateMachine & fsm) 
-      throw (toolbox::fsm::exception::Exception);
-
-    // synchronous state transition callbacks
-    void suspend(toolbox::Event::Reference e)
-      throw (toolbox::fsm::exception::Exception);
-    void resume(toolbox::Event::Reference e)
-      throw (toolbox::fsm::exception::Exception);
-    
     // work loop functions to be executed during transitional states (async)
     bool configuring(toolbox::task::WorkLoop* wl);
     bool enabling(toolbox::task::WorkLoop* wl);
     bool stopping(toolbox::task::WorkLoop* wl);
     bool halting(toolbox::task::WorkLoop* wl);
     
+    // fsm soap command callback
+    xoap::MessageReference fsmCallback(xoap::MessageReference msg)
+      throw (xoap::exception::Exception);
     
     // toolbox::task::TimerListener callback, and init/start/stop the corresp. timer
     void timeExpired(toolbox::task::TimerEvent& e);
@@ -124,25 +106,10 @@ namespace evf {
     //
     // member data
     //
-
+    
     // finite state machine
-    toolbox::fsm::FiniteStateMachine fsm_;
+    evf::StateMachine        fsm_;
     
-    // work loops for transitional states
-    toolbox::task::WorkLoop* workLoopConfiguring_;
-    toolbox::task::WorkLoop* workLoopEnabling_;
-    toolbox::task::WorkLoop* workLoopStopping_;
-    toolbox::task::WorkLoop* workLoopHalting_;
-
-    // action signatures for transitional states
-    toolbox::task::ActionSignature* asConfiguring_;
-    toolbox::task::ActionSignature* asEnabling_;
-    toolbox::task::ActionSignature* asStopping_;
-    toolbox::task::ActionSignature* asHalting_;
-    
-    // rcms state notifier
-    xdaq2rc::RcmsStateNotifier rcmsStateNotifier_;
-
     // application identifier
     std::string              sourceId_;
     
@@ -169,7 +136,6 @@ namespace evf {
     xdata::String            class_;
     xdata::UnsignedInteger32 instance_;
     xdata::UnsignedInteger32 runNumber_;
-    xdata::String            stateName_;
     xdata::UnsignedInteger32 nbShmClients_;
     
     xdata::Double            nbMBTot_;
