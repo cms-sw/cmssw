@@ -1,3 +1,11 @@
+2007-03-08  Philipp SCHIEFERDECKER  <schiefer@pccms49.cern.ch>
+
+	* tag V00-03-00
+	* compliant with FWCore reorganization of 140 series.
+	* based on evf::StateMachine provided by EvventFilter/Utilities
+	V00-12-00
+	
+
 2007-02-12  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-02-11

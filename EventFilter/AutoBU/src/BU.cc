@@ -35,7 +35,7 @@ using namespace evf;
 BU::BU(xdaq::ApplicationStub *s) 
   : xdaq::Application(s)
   , log_(getApplicationLogger())
-  , fsm_(0)
+  , fsm_(this)
   , gui_(0)
   , fedN_(0)
   , fedData_(0)
@@ -77,6 +77,9 @@ BU::BU(xdaq::ApplicationStub *s)
   , i2oPool_(0)
   , lock_(BSem::FULL)
 {
+  // initialize state machine
+  fsm_.initialize<evf::BU>(this);
+  
   // initialize application info
   url_     =
     getApplicationDescriptor()->getContextDescriptor()->getURL()+"/"+
@@ -86,13 +89,9 @@ BU::BU(xdaq::ApplicationStub *s)
   hostname_=getApplicationDescriptor()->getContextDescriptor()->getURL();
   sourceId_=class_.toString()+instance_.toString();
   
-  // initialize state machine
-  fsm_=new EPStateMachine(log_);
-  fsm_->init<BU>(this);
-  
   // web interface
   xgi::bind(this,&evf::BU::webPageRequest,"Default");
-  gui_=new WebGUI(this,fsm_);
+  gui_=new WebGUI(this,&fsm_);
   gui_->setSmallAppIcon("/daq/evb/bu/images/bu32x32.gif");
   gui_->setLargeAppIcon("/daq/evb/bu/images/bu64x64.gif");
   
@@ -245,92 +244,84 @@ void BU::actionPerformed(xdata::Event& e)
 
 
 //______________________________________________________________________________
-void BU::configureAction(toolbox::Event::Reference e) 
-  throw (toolbox::fsm::exception::Exception)
+bool BU::configuring(toolbox::task::WorkLoop* wl)
 {
-  // reset all relevant variables to 'configured' state
-  reset();
+  try {
+    LOG4CPLUS_INFO(log_,"Start configuring ...");
+    reset();
+    initTimer();
+    LOG4CPLUS_INFO(log_,"Finished configuring!");
+    
+    fsm_.fireEvent("ConfigureDone",this);
+  }
+  catch (xcept::Exception &e) {
+    string msg = "configuring FAILED: " + (string)e.what();
+    fsm_.fireFailed(msg,this);
+  }
 
-  // intialize timer for performance measurements
-  initTimer();
+  return false;
+}
+
+
+//______________________________________________________________________________
+bool BU::enabling(toolbox::task::WorkLoop* wl)
+{
+  try {
+    LOG4CPLUS_INFO(log_,"Start enabling ...");
+    LOG4CPLUS_INFO(log_,"Finished enabling!");
+    fsm_.fireEvent("EnableDone",this);
+  }
+  catch (xcept::Exception &e) {
+    string msg = "enabling FAILED: " + (string)e.what();
+    fsm_.fireFailed(msg,this);
+  }
   
-  LOG4CPLUS_INFO(log_,"BU -> CONFIGURED <-");
+  return false;
 }
 
 
 //______________________________________________________________________________
-void BU::enableAction(toolbox::Event::Reference e)
-  throw (toolbox::fsm::exception::Exception)
+bool BU::stopping(toolbox::task::WorkLoop* wl)
 {
-  LOG4CPLUS_INFO(log_,"BU -> ENABLED <-");
+  try {
+    LOG4CPLUS_INFO(log_,"Start stopping :) ...");
+    LOG4CPLUS_INFO(log_,"Finished stopping!");
+    
+    fsm_.fireEvent("StopDone",this);
+  }
+  catch (xcept::Exception &e) {
+    string msg = "stopping FAILED: " + (string)e.what();
+    fsm_.fireFailed(msg,this);
+  }
+  
+  return false;
 }
 
 
 //______________________________________________________________________________
-void BU::stopAction(toolbox::Event::Reference e)
-  throw (toolbox::fsm::exception::Exception)
+bool BU::halting(toolbox::task::WorkLoop* wl)
 {
-  LOG4CPLUS_INFO(log_,"BU -> STOPPED <-");
+  try {
+    LOG4CPLUS_INFO(log_,"Start halting ...");
+    stopTimer();
+    LOG4CPLUS_INFO(log_,"Finished halting!");
+    
+    fsm_.fireEvent("HaltDone",this);
+  }
+  catch (xcept::Exception &e) {
+    string msg = "halting FAILED: " + (string)e.what();
+    fsm_.fireFailed(msg,this);
+  }
+  
+  return false;
 }
 
 
 //______________________________________________________________________________
-void BU::suspendAction(toolbox::Event::Reference e)
-  throw (toolbox::fsm::exception::Exception)
-{
-  lock();
-  LOG4CPLUS_INFO(log_,"BU -> SUSPENDED <-");
-}
-
-
-//______________________________________________________________________________
-void BU::resumeAction(toolbox::Event::Reference e)
-  throw (toolbox::fsm::exception::Exception)
-{
-  unlock();
-  LOG4CPLUS_INFO(log_,"BU -> RESUMED <-");
-}
-
-
-//______________________________________________________________________________
-void BU::haltAction(toolbox::Event::Reference e)
-  throw (toolbox::fsm::exception::Exception)
-{
-  // stop timer
-  stopTimer();
-
-  LOG4CPLUS_INFO(log_,"BU -> HALTED <-");
-}
-
-
-//______________________________________________________________________________
-void BU::nullAction(toolbox::Event::Reference e)
-  throw (toolbox::fsm::exception::Exception)
-{
-  LOG4CPLUS_INFO(log_,"BU::nullAction()");
-}
-
-
-//______________________________________________________________________________
-xoap::MessageReference BU::fireEvent(xoap::MessageReference msg)
+xoap::MessageReference BU::fsmCallback(xoap::MessageReference msg)
   throw (xoap::exception::Exception)
 {
-  xoap::SOAPPart     part    =msg->getSOAPPart();
-  xoap::SOAPEnvelope env     =part.getEnvelope();
-  xoap::SOAPBody     body    =env.getBody();
-  DOMNode           *node    =body.getDOMNode();
-  DOMNodeList       *bodyList=node->getChildNodes();
-  DOMNode           *command =0;
-  string             commandName;
-  
-  for (unsigned int i=0;i<bodyList->getLength();i++) {
-    command = bodyList->item(i);
-    if(command->getNodeType() == DOMNode::ELEMENT_NODE) {
-      commandName = xoap::XMLCh2String(command->getLocalName());
-      return fsm_->processFSMCommand(commandName);
-    }
-  }
-  XCEPT_RAISE(xoap::exception::Exception,"Command not found");
+  return fsm_.commandCallback(msg);
 }
 
 
@@ -348,8 +339,8 @@ void BU::webPageRequest(xgi::Input *in,xgi::Output *out)
 void BU::I2O_BU_ALLOCATE_Callback(toolbox::mem::Reference *bufRef)
 {
   // check if the BU is enabled
-  toolbox::fsm::State currentState=fsm_->getCurrentState();
-  if (currentState!='E') {
+  std::string currentState=fsm_.stateName()->toString();
+  if (currentState!="Enabled") {
     LOG4CPLUS_WARN(log_,"Ignore I2O_BU_ALLOCATE while *not* enabled!");
     bufRef->release();
     return;
@@ -593,7 +584,7 @@ void BU::exportParameters()
   gui_->addMonitorParam("instance",           &instance_);
   gui_->addMonitorParam("hostname",           &hostname_);
   gui_->addMonitorParam("runNumber",          &runNumber_);
-  gui_->addMonitorParam("stateName",          &fsm_->stateName_);
+  gui_->addMonitorParam("stateName",          fsm_.stateName());
   gui_->addMonitorParam("nbMBTot",            &nbMBTot_);
   gui_->addMonitorParam("nbMBPerSec",         &nbMBPerSec_);
   gui_->addMonitorParam("nbMBPerSecMin",      &nbMBPerSecMin_);

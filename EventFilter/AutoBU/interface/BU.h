@@ -2,7 +2,7 @@
 #define AUTOBU_BU_H 1
 
 
-#include "EventFilter/Utilities/interface/EPStateMachine.h"
+#include "EventFilter/Utilities/interface/StateMachine.h"
 #include "EventFilter/Utilities/interface/WebGUI.h"
 
 #include "EventFilter/Playback/interface/PlaybackRawDataProvider.h"
@@ -76,25 +76,16 @@ namespace evf {
     // xdata::ActionListener callback
     void actionPerformed(xdata::Event& e);
 
-    // finite state machine callbacks
-    void configureAction(toolbox::Event::Reference e)
-      throw (toolbox::fsm::exception::Exception);
-    void enableAction(toolbox::Event::Reference e)
-      throw (toolbox::fsm::exception::Exception);
-    void stopAction(toolbox::Event::Reference e)
-      throw (toolbox::fsm::exception::Exception);
-    void suspendAction(toolbox::Event::Reference e)
-      throw (toolbox::fsm::exception::Exception);
-    void resumeAction(toolbox::Event::Reference e)
-      throw (toolbox::fsm::exception::Exception);
-    void haltAction(toolbox::Event::Reference e)
-      throw (toolbox::fsm::exception::Exception);
-    void nullAction(toolbox::Event::Reference e)
-      throw (toolbox::fsm::exception::Exception);
+    // work loop functions to be executed during transitional states (async)
+    bool configuring(toolbox::task::WorkLoop* wl);
+    bool enabling(toolbox::task::WorkLoop* wl);
+    bool stopping(toolbox::task::WorkLoop* wl);
+    bool halting(toolbox::task::WorkLoop* wl);
     
-    xoap::MessageReference fireEvent(xoap::MessageReference msg)
+    // fsm soap command callback
+    xoap::MessageReference fsmCallback(xoap::MessageReference msg)
       throw (xoap::exception::Exception);
-
+    
     // Hyper DAQ web interface [see Utilities/WebGUI]
     void webPageRequest(xgi::Input *in,xgi::Output *out)
       throw (xgi::exception::Exception);
@@ -145,7 +136,7 @@ namespace evf {
     // member data
     //
     Logger                    log_;
-    EPStateMachine*           fsm_;
+    StateMachine              fsm_;
     WebGUI*                   gui_;
     
     std::string               sourceId_;
