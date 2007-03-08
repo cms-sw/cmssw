@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Tue May 16 10:14:34 CEST 2006
-// $Id: HcalTB04Analysis.cc,v 1.4 2006/10/11 09:15:22 sunanda Exp $
+// $Id: HcalTB04Analysis.cc,v 1.5 2006/11/13 10:32:15 sunanda Exp $
 //
   
 // system include files
@@ -71,7 +71,7 @@ HcalTB04Analysis::HcalTB04Analysis(const edm::ParameterSet &p): myQie(0),
   double beamThet= 2*atan(exp(-beamEta));
   if (beamPhi < 0) beamPhi += twopi;
   iceta          = (int)(beamEta/0.087) + 1;
-  icphi          = (int)(abs(beamPhi)/0.087) + 5;
+  icphi          = (int)(fabs(beamPhi)/0.087) + 5;
   if (icphi > 72) icphi -= 73;
 
   produces<PHcalTB04Info>();
@@ -267,12 +267,12 @@ void HcalTB04Analysis::update(const G4Step * aStep) {
       
       // look for DeltaE > 10% kinEnergy of particle, or particle death - Ek=0
       if (trackID == 1 && parentID == 0 && 
-	  ((kinEnergy == 0.) || (abs (stepDeltaEnergy / kinEnergy) > 0.1))) {
+	  ((kinEnergy == 0.) || (fabs (stepDeltaEnergy / kinEnergy) > 0.1))) {
 	int pvType = -1;
 	if (kinEnergy == 0.) {
 	  pvType = 0;
 	} else {
-	  if (abs (stepDeltaEnergy / kinEnergy) > 0.1) pvType = 1;
+	  if (fabs (stepDeltaEnergy / kinEnergy) > 0.1) pvType = 1;
 	}
 	pvFound    = true;
 	pvPosition = position;
@@ -394,7 +394,7 @@ void HcalTB04Analysis::fillBuffer(const EndOfEvent * evt) {
   std::vector<CaloHit> hhits, hhitl;
   int                  idHC, j;
   CaloG4HitCollection* theHC;
-  std::map<int,float,less<int> > primaries;
+  std::map<int,float,std::less<int> > primaries;
   double               etot1=0, etot2=0;
 
   // Look for the Hit Collection of HCal
@@ -461,7 +461,7 @@ void HcalTB04Analysis::fillBuffer(const EndOfEvent * evt) {
     double   jitter = (**k1).t();
     uint32_t unitID = (**k1).id();
     int      jump  = 0;
-    for (k2 = k1+1; k2 != hits.end() && abs(jitter-(**k2).t())<1 &&
+    for (k2 = k1+1; k2 != hits.end() && fabs(jitter-(**k2).t())<1 &&
            unitID==(**k2).id(); k2++) {
       ehit += (**k2).e();
       jump++;
@@ -499,7 +499,7 @@ void HcalTB04Analysis::fillBuffer(const EndOfEvent * evt) {
     double   jitter = (**k1).t();
     uint32_t unitID = (**k1).id();
     int      jump  = 0;
-    for (k2 = k1+1; k2 != hits.end() && abs(jitter-(**k2).t())<1 &&
+    for (k2 = k1+1; k2 != hits.end() && fabs(jitter-(**k2).t())<1 &&
            unitID==(**k2).id(); k2++) {
       ehit += (**k2).e();
       jump++;
@@ -575,7 +575,7 @@ void HcalTB04Analysis::fillBuffer(const EndOfEvent * evt) {
     double   jitter = (**k1).t();
     uint32_t unitID = (**k1).id();
     int      jump  = 0;
-    for (k2 = k1+1; k2 != hite.end() && abs(jitter-(**k2).t())<1 &&
+    for (k2 = k1+1; k2 != hite.end() && fabs(jitter-(**k2).t())<1 &&
            unitID==(**k2).id(); k2++) {
       ehit += (**k2).e();
       jump++;
@@ -635,7 +635,7 @@ void HcalTB04Analysis::fillBuffer(const EndOfEvent * evt) {
 				   << "primary has p=0 ";
     else {
       double costheta = pz/p;
-      double theta = acos(min(max(costheta,-1.),1.));
+      double theta = acos(std::min(std::max(costheta,-1.),1.));
       etaInit = -log(tan(theta/2));
       if (px != 0 || py != 0) phiInit = atan2(py,px);  
     }
@@ -692,7 +692,7 @@ void HcalTB04Analysis::qieAnalysis() {
   // Towers with no hit
   for (int k2 = 0; k2 < nTower; k2++) {
     if (todo[k2] == 0) {
-      vector<int> cd = myQie->getCode(0,hits);
+      std::vector<int> cd = myQie->getCode(0,hits);
       double eq = myQie->getEnergy(cd);
       esimh[k2] = 0;
       eqie[k2]  = eq;

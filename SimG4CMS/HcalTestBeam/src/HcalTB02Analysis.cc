@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun May 21 10:14:34 CEST 2006
-// $Id: HcalTB02Analysis.cc,v 1.1 2006/06/04 13:59:38 sunanda Exp $
+// $Id: HcalTB02Analysis.cc,v 1.2 2006/11/13 10:32:15 sunanda Exp $
 //
   
 // system include files
@@ -170,7 +170,7 @@ void HcalTB02Analysis::update(const EndOfEvent * evt) {
     for (int ilayer=0; ilayer<19; ilayer++) LayerEne[ilayer]=0.;
     for (int iring=0; iring<100; iring++) EnRing[iring]=0.;
     
-    for (map<int,float,less<int> >::iterator is = energyInScints.begin();
+    for (std::map<int,float>::iterator is = energyInScints.begin();
 	 is!= energyInScints.end(); is++) {
 
       ETot = (*is).second;
@@ -274,7 +274,7 @@ void HcalTB02Analysis::update(const EndOfEvent * evt) {
 				     << " ERROR: primary has p=0 ";
       } else {   
 	float costheta = pz/pInit;
-	float theta = acos(min(max(costheta,float(-1.)),float(1.)));
+	float theta = acos(std::min(std::max(costheta,float(-1.)),float(1.)));
 	eta = -log(tan(theta/2));
 	if (px != 0) phi = atan(py/px);  
       }
@@ -312,7 +312,7 @@ void HcalTB02Analysis::update(const EndOfEvent * evt) {
 	}
       }
       
-      for (map<int,float,less<int> >::iterator is = energyInCrystals.begin();
+      for (std::map<int,float>::iterator is = energyInCrystals.begin();
 	   is!= energyInCrystals.end(); is++) {
 	int xtalID = (*is).first;
 	xETot = (*is).second;

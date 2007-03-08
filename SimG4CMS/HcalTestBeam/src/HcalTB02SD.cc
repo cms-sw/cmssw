@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun 21 10:14:34 CEST 2006
-// $Id$
+// $Id: HcalTB02SD.cc,v 1.1 2006/06/04 13:59:38 sunanda Exp $
 //
   
 // system include files
@@ -133,13 +133,13 @@ void HcalTB02SD::initMap(G4String sd, const DDCompactView & cpv) {
 			  << " Parameter 0 = " << paras[0];
     if (sol.shape() == ddtrap) {
       double dz = 2*paras[0];
-      lengthMap.insert(pair<G4String,double>(name,dz));
+      lengthMap.insert(std::pair<G4String,double>(name,dz));
     }
     dodet = fv.next();
   }
   LogDebug("HcalTBSim") << "HcalTB02SD: Length Table for " << attribute 
 			<< " = " << sd << ":";   
-  map<G4String,double>::const_iterator it = lengthMap.begin();
+  std::map<G4String,double>::const_iterator it = lengthMap.begin();
   int i=0;
   for (; it != lengthMap.end(); it++, i++) {
     LogDebug("HcalTBSim") << " " << i << " " << it->first << " L = " 
@@ -175,7 +175,7 @@ double HcalTB02SD::curve_LY(G4String& nameVolume, G4StepPoint* stepPoint) {
 double HcalTB02SD::crystalLength(G4String name) {
 
   double length = 230.;
-  map<G4String,double>::const_iterator it = lengthMap.find(name);
+  std::map<G4String,double>::const_iterator it = lengthMap.find(name);
   if (it != lengthMap.end()) length = it->second;
   return length;
 }
