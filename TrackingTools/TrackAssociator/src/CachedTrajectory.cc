@@ -3,7 +3,7 @@
 // Package:    TrackAssociator
 // Class:      CachedTrajectory
 // 
-// $Id: CachedTrajectory.cc,v 1.3 2007/01/30 18:40:01 dmytro Exp $
+// $Id: CachedTrajectory.cc,v 1.4 2007/02/07 04:32:40 dmytro Exp $
 //
 //
 
@@ -11,7 +11,7 @@
 #include "TrackingTools/TrackAssociator/interface/CachedTrajectory.h"
 #include "TrackingTools/TrackAssociator/interface/TimerStack.h"
 #include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
-#include "Geometry/Surface/interface/Plane.h"
+#include "DataFormats/GeometrySurface/interface/Plane.h"
 #include "Geometry/DTGeometry/interface/DTChamber.h"
 #include "Geometry/CSCGeometry/interface/CSCChamber.h"
 #include <deque>

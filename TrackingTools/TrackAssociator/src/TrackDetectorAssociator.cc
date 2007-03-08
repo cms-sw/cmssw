@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: TrackDetectorAssociator.cc,v 1.4 2007/02/07 04:29:11 dmytro Exp $
+// $Id: TrackDetectorAssociator.cc,v 1.5 2007/02/19 12:02:40 dmytro Exp $
 //
 //
 
@@ -53,8 +53,8 @@
 
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 
-#include "Geometry/Surface/interface/Cylinder.h"
-#include "Geometry/Surface/interface/Plane.h"
+#include "DataFormats/GeometrySurface/interface/Cylinder.h"
+#include "DataFormats/GeometrySurface/interface/Plane.h"
 
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 

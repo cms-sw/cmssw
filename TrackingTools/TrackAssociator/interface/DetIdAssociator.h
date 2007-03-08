@@ -19,14 +19,14 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: DetIdAssociator.h,v 1.6 2007/01/21 15:30:35 dmytro Exp $
+// $Id: DetIdAssociator.h,v 1.7 2007/02/19 11:57:42 dmytro Exp $
 //
 //
 
 #include "DataFormats/DetId/interface/DetId.h"
-#include "Geometry/Vector/interface/GlobalPoint.h"
-#include "Geometry/Surface/interface/Cylinder.h"
-#include "Geometry/Surface/interface/Plane.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/GeometrySurface/interface/Cylinder.h"
+#include "DataFormats/GeometrySurface/interface/Plane.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "FWCore/Utilities/interface/Exception.h"

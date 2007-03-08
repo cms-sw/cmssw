@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: TestTrackAssociator.cc,v 1.9 2007/01/30 18:40:01 dmytro Exp $
+// $Id: TestTrackAssociator.cc,v 1.10 2007/02/16 13:30:38 dmytro Exp $
 //
 //
 
@@ -63,8 +63,8 @@
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 
-#include "Geometry/Surface/interface/Cylinder.h"
-#include "Geometry/Surface/interface/Plane.h"
+#include "DataFormats/GeometrySurface/interface/Cylinder.h"
+#include "DataFormats/GeometrySurface/interface/Plane.h"
 
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 

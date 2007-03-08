@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: MuonDetIdAssociator.cc,v 1.3 2007/01/21 15:30:36 dmytro Exp $
+// $Id: MuonDetIdAssociator.cc,v 1.4 2007/01/30 18:40:01 dmytro Exp $
 //
 //
 
@@ -21,7 +21,7 @@
 #include "TrackingTools/TrackAssociator/interface/MuonDetIdAssociator.h"
 #include "TrackingTools/TrackAssociator/interface/TimerStack.h"
 #include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
-#include "Geometry/Surface/interface/Plane.h"
+#include "DataFormats/GeometrySurface/interface/Plane.h"
 #include "Geometry/DTGeometry/interface/DTChamber.h"
 #include "Geometry/CSCGeometry/interface/CSCChamber.h"
 #include <deque>
