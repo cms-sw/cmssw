@@ -12,8 +12,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2007/03/02 06:40:31 $
- *  $Revision: 1.81 $
+ *  $Date: 2007/03/02 19:50:46 $
+ *  $Revision: 1.82 $
  *
  *  Authors :
  *  N. Neumeister            Purdue University
@@ -312,29 +312,30 @@ GlobalMuonTrajectoryBuilder::chooseRegionalTrackerTracks(const TrackCand& staCan
 //
 RectangularEtaPhiTrackingRegion GlobalMuonTrajectoryBuilder::defineRegionOfInterest(const reco::TrackRef& staTrack) const {
 
+  
   //Get muon free state updated at vertex
   TrajectoryStateTransform tsTransform;
   FreeTrajectoryState muFTS = tsTransform.initialFreeState(*staTrack,&*theService->magneticField());
   
   //Get track direction at vertex
   GlobalVector dirVector(muFTS.momentum());
-
+  
   //Get region size using momentum uncertainty
-
+  
   //Get track momentum
   const math::XYZVector& mo = staTrack->innerMomentum();
   GlobalVector mom(mo.x(),mo.y(),mo.z());
   if ( staTrack->p() > 1.0 ) {
     mom = dirVector; 
   }
-
+  
   //Get Mu state on inner muon surface
   //TrajectoryStateOnSurface muTSOS = tsTransform.innerStateOnSurface(*staTrack,*theService->trackingGeometry(),&*theService->magneticField());
   
   //Get Mu state on tracker bound
   //StateOnTrackerBound fromInside(&*theService->propagator(stateOnTrackerOutProp));
   //muTSOS = fromInside(muFTS);
-
+  
   //Get error of momentum of the Mu state
   GlobalError  dirErr(muFTS.cartesianError().matrix().sub(4,6));
   GlobalVector dirVecErr(dirVector.x() + sqrt(dirErr.cxx()),
@@ -346,14 +347,14 @@ RectangularEtaPhiTrackingRegion GlobalMuonTrajectoryBuilder::defineRegionOfInter
   float eta2 = dirVecErr.eta();
   float deta(fabs(eta1- eta2));
   float dphi(fabs(Geom::Phi<float>(dirVector.phi())-Geom::Phi<float>(dirVecErr.phi())));
-
+  
   //Get vertex, Pt constraints  
   GlobalPoint vertexPos = (muFTS.position());
   GlobalError vertexErr = (muFTS.cartesianError().position());
   
   double minPt    = max(1.5,mom.perp()*0.6);
-  double deltaZ   = min(15.9,3*sqrt(vertexErr.czz()));
-
+  double deltaZ   = min(15.9,3*sqrt(theVertexErr.czz()));
+  
   //Adjust tracking region dEta and dPhi  
   double deltaEta = 0.1;
   double deltaPhi = 0.1;
@@ -384,18 +385,17 @@ RectangularEtaPhiTrackingRegion GlobalMuonTrajectoryBuilder::defineRegionOfInter
   
   //Get innerMu position
   const math::XYZPoint& po = staTrack->innerPosition();
-  GlobalPoint pos(po.x(),po.y(),po.z());
-  
+  GlobalPoint pos(po.x(),po.y(),po.z());    
   //pos = muTSOS.globalPosition();
   
   float eta3 = pos.eta();
   float deta2(fabs(eta1- eta3));
-  float dphi2(fabs(Geom::Phi<float>(dirVector.phi())-Geom::Phi<float>(pos.phi())));
-  
+  float dphi2(fabs(Geom::Phi<float>(dirVector.phi())-Geom::Phi<float>(pos.phi())));  
+     
   //Adjust tracking region dEta dPhi
   double deltaEta2 = 0.05;
   double deltaPhi2 = 0.07;
-  
+    
   if ( deta2 > 0.05 ) {
     deltaEta2 += deta2 / 2;
   }
@@ -418,6 +418,7 @@ RectangularEtaPhiTrackingRegion GlobalMuonTrajectoryBuilder::defineRegionOfInter
                                              deltaZ, deltaEta, deltaPhi);
   
   return rectRegion;
+  
   
 }
 
@@ -1050,7 +1051,8 @@ GlobalMuonTrajectoryBuilder::TC GlobalMuonTrajectoryBuilder::makeTrajsFromSeeds(
        itraw != rawResult.end(); itraw++) {
     if((*itraw).isValid()) result.push_back( *itraw);
   }
-  
+ 
+
   LogInfo(category) << "Trajectories from all seeds " << result.size();
   return result;
 
