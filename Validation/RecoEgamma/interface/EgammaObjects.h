@@ -182,6 +182,8 @@ class EgammaObjects : public edm::EDAnalyzer {
 
     double findRecoMass(reco::Photon pOne, reco::Photon pTwo);
     double findRecoMass(reco::PixelMatchGsfElectron eOne, reco::PixelMatchGsfElectron eTwo);
+    
+    float ecalEta(float EtaParticle , float Zvertex, float plane_Radius);
 };
 #endif
 

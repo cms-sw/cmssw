@@ -304,10 +304,11 @@ void EgammaObjects::analyzePhotons( const edm::Event& evt, const edm::EventSetup
   {
     if(abs((*currentParticle)->pdg_id())==22 && (*currentParticle)->status()==1 && (*currentParticle)->momentum().et() >= EtCut) 
     {
-      double etaTrue = (*currentParticle)->momentum().eta();
-      double phiTrue = (*currentParticle)->momentum().phi();
-      double etTrue  = (*currentParticle)->momentum().et();
+			HepLorentzVector vtx = (*currentParticle)->production_vertex()->position();
+			double phiTrue = (*currentParticle)->momentum().phi();
+			double etaTrue = ecalEta((*currentParticle)->momentum().eta(), vtx.z()/10., vtx.perp()/10.);
       double eTrue  = (*currentParticle)->momentum().e();
+			double etTrue  = (*currentParticle)->momentum().e()/cosh(etaTrue);  
 
       double etaCurrent, etaFound = -999;
       double phiCurrent, phiFound = -999;
@@ -463,10 +464,11 @@ void EgammaObjects::analyzeElectrons( const edm::Event& evt, const edm::EventSet
   {
     if(abs((*currentParticle)->pdg_id())==11 && (*currentParticle)->status()==1 && (*currentParticle)->momentum().et() >= EtCut) 
     {
-      double etaTrue = (*currentParticle)->momentum().eta();
-      double phiTrue = (*currentParticle)->momentum().phi();
-      double etTrue  = (*currentParticle)->momentum().et();
+			HepLorentzVector vtx = (*currentParticle)->production_vertex()->position();
+			double phiTrue = (*currentParticle)->momentum().phi();
+			double etaTrue = ecalEta((*currentParticle)->momentum().eta(), vtx.z()/10., vtx.perp()/10.);
       double eTrue  = (*currentParticle)->momentum().e();
+			double etTrue  = (*currentParticle)->momentum().e()/cosh(etaTrue);   
 
       double etaCurrent, etaFound = -999;
       double phiCurrent, phiFound = -999;
@@ -581,6 +583,43 @@ double EgammaObjects::findRecoMass(reco::PixelMatchGsfElectron eOne, reco::Pixel
   
   return recoMass; 
 }
+
+float EgammaObjects::ecalEta(float EtaParticle , float Zvertex, float plane_Radius)
+{  
+	const float R_ECAL           = 136.5;
+	const float Z_Endcap         = 328.0;
+	const float etaBarrelEndcap  = 1.479;
+
+	if(EtaParticle != 0.)
+	{
+		float Theta = 0.0  ;
+		float ZEcal = (R_ECAL-plane_Radius)*sinh(EtaParticle)+Zvertex;
+
+		if(ZEcal != 0.0) Theta = atan(R_ECAL/ZEcal);
+		if(Theta<0.0) Theta = Theta+Geom::pi() ;
+
+		float ETA = - log(tan(0.5*Theta));
+
+		if( fabs(ETA) > etaBarrelEndcap )
+		{
+			float Zend = Z_Endcap ;
+			if(EtaParticle<0.0 )  Zend = -Zend ;
+			float Zlen = Zend - Zvertex ;
+			float RR = Zlen/sinh(EtaParticle);
+			Theta = atan((RR+plane_Radius)/Zend);
+			if(Theta<0.0) Theta = Theta+Geom::pi() ;
+			ETA = - log(tan(0.5*Theta));
+		}
+		
+		return ETA;
+	}
+	else
+	{
+		edm::LogWarning("")  << "[EgammaObjects::ecalEta] Warning: Eta equals to zero, not correcting" ;
+		return EtaParticle;
+	}
+}
+
 
 void EgammaObjects::endJob() 
 {
