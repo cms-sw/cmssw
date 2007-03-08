@@ -64,19 +64,19 @@ HFShowerLibrary::HFShowerLibrary(std::string & name, const DDCompactView & cpv,
   TTree * packing = (TTree *) hf->Get("Packing");
   if (packing) {
     loadPacking(packing);
-    edm::LogInfo("HFShower") << "HFShowerLibrary::XOffset: " << xOffset 
-			     << " XMultiplier: " << xMultiplier << " XScale: " 
-			     << xScale << " YOffset: " << yOffset 
-			     << " YMultiplier: " << yMultiplier << " YScale: " 
-			     << yScale  << " ZOffset: " << zOffset 
-			     << " ZMultiplier: " << zMultiplier << " ZScale: " 
-			     << zScale;
+    packXYZ = true;
+    edm::LogInfo("HFShower") << "HFShowerLibrary::XOffset: " << xOffset
+                             << " XMultiplier: " << xMultiplier << " XScale: "
+                             << xScale << " YOffset: " << yOffset
+                             << " YMultiplier: " << yMultiplier << " YScale: "
+                             << yScale  << " ZOffset: " << zOffset
+                             << " ZMultiplier: " << zMultiplier << " ZScale: "
+                             << zScale;
   } else {
-    edm::LogError("HFShower") << "HFShowerLibrary: Packing Branch does not"
-			      << " exist" ;
-    throw cms::Exception("Unknown", "HFShowerLibrary")
-      << "Packing information absent\n";
-  } 
+    packXYZ = false;
+    edm::LogInfo("HFShower") << "HFShowerLibrary::No packing information -"
+			     << " Assume x, y, z are not in packed form";
+  }     
 
   TTree * evtinfo = (TTree *) hf->Get("EventInfo");
   if (evtinfo) {
@@ -338,19 +338,42 @@ void HFShowerLibrary::getRecord(TTree* tree, int record) {
     photon.clear(); photon.resize(nPhoton);
     LogDebug("HFShower") << "HFShowerLibrary: Record " << record << " with "
 			 << nPhoton << " photons";
-    int nph, coor[10000], wl[10000], time[10000];
-    tree->SetBranchAddress("XYZ", &coor);
+    float  x[10000], y[10000], z[10000];
+    int    nph, coor[10000], wl[10000], time[10000];
+    if (packXYZ) {
+      tree->SetBranchAddress("XYZ", &coor);
+    } else {
+      tree->SetBranchAddress("X", &x);
+      tree->SetBranchAddress("Y", &y);
+      tree->SetBranchAddress("Z", &z);
+    }
     tree->SetBranchAddress("L",   &wl);
     tree->SetBranchAddress("T",   &time);
     tree->SetBranchAddress("NPH", &nph);
     tree->GetEntry(nrc);
     for (int j = 0; j < nPhoton; j++) {
-      photon[j].xyz    = coor[j];
+      if (packXYZ) {
+	int ix = (coor[j])/xMultiplier;
+	int iy = (coor[j])/yMultiplier - ix*yMultiplier;
+	int iz = (coor[j])/zMultiplier - ix*xMultiplier - iy*yMultiplier;
+	photon[j].x    = (ix/xScale - xOffset)*cm + 5.; //account for wrong offset
+	photon[j].y    = (iy/yScale - yOffset)*cm + 35.;//idem
+	photon[j].z    = (iz/zScale - zOffset)*cm;
+      } else {
+	photon[j].x    = x[j];
+	photon[j].y    = y[j];
+	photon[j].z    = z[j];
+      }
       photon[j].lambda = wl[j];
       photon[j].time   = time[j];
-      LogDebug("HFShower") << "Photon " << j << " xyz " << photon[j].xyz 
-			   << " L " << photon[j].lambda << " Time " 
+     
+      LogDebug("HFShower") << "Photon " << j << " xyz " 
+			   << photon[j].x << ", " 
+			   << photon[j].y << ", "  
+			   << photon[j].z << "  "  
+ 			   << " L " << photon[j].lambda << " Time " 
 			   << photon[j].time;
+     
     }
   }
 }
@@ -550,18 +573,16 @@ void HFShowerLibrary::extrapolate(TTree * tree, double pin) {
 
 void HFShowerLibrary::storePhoton(int j) {
 
-  int ix = (photon[j].xyz)/xMultiplier;
-  int iy = (photon[j].xyz)/yMultiplier - ix*yMultiplier;
-  int iz = (photon[j].xyz)/zMultiplier - ix*xMultiplier - iy*yMultiplier;
-  pe[npe].x      = (ix/xScale - xOffset)*cm + 5.; //to account for wrong offset
-  pe[npe].y      = (iy/yScale - yOffset)*cm + 35.;//idem 
-  pe[npe].z      = (iz/zScale - zOffset)*cm;
-  pe[npe].lambda = (photon[j].lambda);
+  pe[npe].x      = (double)photon[j].x;
+  pe[npe].y      = (double)photon[j].y;
+  pe[npe].z      = (double)photon[j].z;
+
+  pe[npe].lambda = (double)(photon[j].lambda);
   pe[npe].time   = (photon[j].time)/100.;
   LogDebug("HFShower") << "HFShowerLibrary: storePhoton " << j << " npe " <<npe
-		       << " ixyz " << (photon[j].xyz) << " x " << (pe[npe].x)
-		       << " y " << (pe[npe].y) << " z " << (pe[npe].z) << " l "
-		       << (pe[npe].lambda) << " t " << (pe[npe].time);
+		       << " x " << (pe[npe].x) << " y " << (pe[npe].y) << " z "
+		       << (pe[npe].z) << " l " << (pe[npe].lambda) << " t " 
+		       << (pe[npe].time);
 }
 
 std::vector<double> HFShowerLibrary::getDDDArray(const std::string & str, 
@@ -602,3 +623,4 @@ std::vector<double> HFShowerLibrary::getDDDArray(const std::string & str,
       << "cannot get array " << str << "\n";
   }
 }
+

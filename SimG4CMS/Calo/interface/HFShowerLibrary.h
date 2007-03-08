@@ -1,4 +1,3 @@
-
 #ifndef SimG4CMS_HFShowerLibrary_h
 #define SimG4CMS_HFShowerLibrary_h 1
 ///////////////////////////////////////////////////////////////////////////////
@@ -55,7 +54,9 @@ protected:
 
   struct Photon {
     Photon() {}
-    int               xyz;
+    float             x;
+    float             y;
+    float             z;
     int               lambda;
     int               time;
   };
@@ -83,6 +84,7 @@ private:
   TTree *             emTree;
   TTree *             hadTree;
 
+  bool                packXYZ;
   int                 xOffset, xMultiplier, xScale;
   int                 yOffset, yMultiplier, yScale;
   int                 zOffset, zMultiplier, zScale;
@@ -91,7 +93,6 @@ private:
   std::vector<double> pmom;
 
   double              probMax;
-  double              xOffCorr, yOffCorr;
   double              dphi, rMin, rMax;
   std::vector<double> gpar;
 
