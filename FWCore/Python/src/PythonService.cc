@@ -8,7 +8,7 @@
 //
 // Original Author:  Benedikt Hegner
 //         Created:  Sun Jul 23 11:31:33 CEST 2006
-// $Id: PythonService.cc,v 1.1 2006/07/23 15:41:54 hegner Exp $
+// $Id: PythonService.cc,v 1.2 2006/07/26 12:29:44 hegner Exp $
 //
 
 // system include files
@@ -18,9 +18,9 @@
 
 #include "boost/python.hpp"
 
-#include "DataFormats/Common/interface/ModuleDescription.h"
-#include "DataFormats/Common/interface/EventID.h"
-#include "DataFormats/Common/interface/Timestamp.h"
+#include "DataFormats/Provenance/interface/ModuleDescription.h"
+#include "DataFormats/Provenance/interface/EventID.h"
+#include "DataFormats/Provenance/interface/Timestamp.h"
 
 //
 // constructor
