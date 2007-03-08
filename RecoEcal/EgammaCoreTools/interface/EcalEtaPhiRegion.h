@@ -1,7 +1,7 @@
 #ifndef RecoEcal_EgammaCoreTools_EcalEtaPhiRegion_h
 #define RecoEcal_EgammaCoreTools_EcalEtaPhiRegion_h
 
-#include "Geometry/Vector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
 class EcalEtaPhiRegion
 {
