@@ -640,6 +640,7 @@ namespace HepMC {
 	// the common block, removing the zeero-ed entries as we
 	// go and making sure we keep the mother/daughter
 	// relationships appropriate
+
 	std::vector<int> mymap(HEPEVT_Wrapper::number_entries()+1,0);
 	int ilast = 0;
 	for ( int i=1; i <=HEPEVT_Wrapper::number_entries(); i++ ) {

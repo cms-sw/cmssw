@@ -24,7 +24,21 @@ using namespace std;
 #include "HEPEVT_Wrapper.h"
 
 // INCLUDE JIMMY,HERWIG,LHAPDF COMMON BLOCKS AND FUNTIONS
-#include "herwig.icc"
+#include "herwig.h"
+
+
+extern"C" {
+  void setpdfpath_(char*,int*);
+  void mysetpdfpath_(char*);
+  void setlhaparm_(char*);
+  void setherwpdf_(void);
+}
+
+#define setpdfpath setpdfpath_
+#define mysetpdfpath mysetpdfpath_
+#define setlhaparm setlhaparm_
+#define setherwpdf setherwpdf_
+
 
 // -----------------  HepMC converter -----------------------------------------
 HepMC::IO_HERWIG conv;
@@ -43,7 +57,10 @@ Herwig6Source::Herwig6Source( const ParameterSet & pset,
   maxEventsToPrint_ (pset.getUntrackedParameter<int>("maxEventsToPrint",0)),
   comenergy(pset.getUntrackedParameter<double>("comEnergy",14000.)),
   lhapdfSetPath_(pset.getUntrackedParameter<string>("lhapdfSetPath","")),
-  useJimmy_(pset.getUntrackedParameter<bool>("useJimmy",true))
+  useJimmy_(pset.getUntrackedParameter<bool>("useJimmy",true)),
+  doMPInteraction_(pset.getUntrackedParameter<bool>("doMPInteraction",true)),
+  numTrials_(pset.getUntrackedParameter<int>("numTrials",10)),
+  printCards_(pset.getUntrackedParameter<bool>("printCards",true))
 {
   cout << "----------------------------------------------" << endl;
   cout << "Initializing Herwig6Source" << endl;
@@ -63,9 +80,13 @@ Herwig6Source::Herwig6Source( const ParameterSet & pset,
   cout << "   LHAPDF verbosity level         = " << herwigLhapdfVerbosity_ << endl;
   cout << "   HepMC verbosity                = " << herwigHepMCVerbosity_ << endl;
   cout << "   Number of events to be printed = " << maxEventsToPrint_ << endl;
-  if(useJimmy_)
+  if(useJimmy_) {
     cout << "   HERWIG will be using JIMMY for UE/MI." << endl;
-
+    if(doMPInteraction_) 
+      cout << "   JIMMY trying to generate multiple interactions." << endl;
+  }
+  cout << "   Number of generation trials    = " << numTrials_ << endl;
+  
   // Call hwudat to set up HERWIG block data
   hwudat();
   
@@ -81,7 +102,7 @@ Herwig6Source::Herwig6Source( const ParameterSet & pset,
   hwevnt.MAXER = hwproc.MAXEV/10;
   if(hwevnt.MAXER<10) hwevnt.MAXER = 10;
   if(useJimmy_) jmparm.MSFLAG = 1;
-  
+
   // initialize other common blocks ...
   hwigin();
   if(useJimmy_) jimmin();
@@ -90,7 +111,7 @@ Herwig6Source::Herwig6Source( const ParameterSet & pset,
   hwevnt.MAXPR =  maxEventsToPrint_;           // no printing out of events
   hwpram.IPRINT = herwigVerbosity_;            // HERWIG print out mode
   hwprop.RMASS[6] = 175.0;
-  
+
   // Set HERWIG parameters in a single ParameterSet
   ParameterSet herwig_params = 
     pset.getParameter<ParameterSet>("HerwigParameters") ;
@@ -123,74 +144,33 @@ Herwig6Source::Herwig6Source( const ParameterSet & pset,
 	throw edm::Exception(edm::errors::Configuration,"HerwigError") 
 	  <<" herwig did not accept the following \""<<*itPar<<"\"";
       }
-      else 
+      else if(printCards_)
 	cout << "   " << *itPar << endl;
     }
   }
-  
 
   // setting up herwgi RNG seeds NRN(.)
   cout << "----------------------------------------------" << endl;
   cout << "Setting Herwig random number generator seeds" << endl;
   cout << "----------------------------------------------" << endl;
   edm::Service<RandomNumberGenerator> rng;
-  int seed = rng->mySeed();
-  double x[4];
-  int s = seed;
-  for (int i=0; i<5; i++) {
-    s = s * 29943829 - 1;
-    x[i] = s * (1./(65536.*65536.));
-  }
-  long double c;
-  c = (long double)2111111111.0 * x[3] +
-    1492.0 * (x[3] = x[2]) +
-    1776.0 * (x[2] = x[1]) +
-    5115.0 * (x[1] = x[0]) +
-    x[4];
-  x[4] = floorl(c);
-  x[0] = c - x[4];
-  x[4] = x[4] * (1./(65536.*65536.));
-  hwevnt.NRN[0]=int(x[0]*99999);
+  int wwseed = rng->mySeed();
+  bool rngok = setRngSeeds(wwseed);
+  if(!rngok)
+    throw edm::Exception(edm::errors::Configuration,"HerwigError")
+      <<" Impossible error in setting 'NRN(.)'.";
   cout << "   NRN(1) = "<<hwevnt.NRN[0]<<endl;
-  c = (long double)2111111111.0 * x[3] +
-    1492.0 * (x[3] = x[2]) +
-    1776.0 * (x[2] = x[1]) +
-    5115.0 * (x[1] = x[0]) +
-    x[4];
-  x[4] = floorl(c);
-  x[0] = c - x[4];
-  hwevnt.NRN[1]=int(x[0]*99999);
   cout << "   NRN(2) = "<<hwevnt.NRN[1]<<endl;
 
   // set the LHAPDF grid directory and path
-  hwprch.AUTPDF[0][0]='H';
-  hwprch.AUTPDF[0][1]='W';
-  hwprch.AUTPDF[0][2]='L';
-  hwprch.AUTPDF[0][3]='H';
-  hwprch.AUTPDF[0][4]='A';
-  hwprch.AUTPDF[0][5]='P';
-  hwprch.AUTPDF[0][6]='D';
-  hwprch.AUTPDF[0][7]='F';
-  hwprch.AUTPDF[1][0]='H';
-  hwprch.AUTPDF[1][1]='W';
-  hwprch.AUTPDF[1][2]='L';
-  hwprch.AUTPDF[1][3]='H';
-  hwprch.AUTPDF[1][4]='A';
-  hwprch.AUTPDF[1][5]='P';
-  hwprch.AUTPDF[1][6]='D';
-  hwprch.AUTPDF[1][7]='F';
-  for(int i=8; i<20; ++i) {
-    hwprch.AUTPDF[0][i]=' ';
-    hwprch.AUTPDF[1][i]=' ';
-  }
+  setherwpdf();
   char pdfpath[232];
-  bool dot=false;
-  for(int i=0; i<232; ++i) {
-    if(lhapdfSetPath_.c_str()[i]=='\0') dot=true;
-    if(!dot) pdfpath[i]=lhapdfSetPath_.c_str()[i];
-    else pdfpath[i]=' ';
-  }
-  setpdfpath(pdfpath);
+  int pathlen = lhapdfSetPath_.length();
+  for(int i=0; i<pathlen; ++i) 
+  pdfpath[i]=lhapdfSetPath_.at(i);
+  for(int i=pathlen; i<232; ++i) 
+  pdfpath[i]=' ';
+  mysetpdfpath(pdfpath);
 
   // HERWIG preparations ...
   hwuinc();
@@ -230,12 +210,12 @@ bool Herwig6Source::produce(Event & e) {
   // try creating event max 10 times ...
   while(eventok > 0.5) {
     counter++;
-    if (counter == 11) return true;
+    if (counter == numTrials_) return true;
     eventok = 0.0;
     hwuine();
     hwepro();
     hwbgen();    
-    if(useJimmy_) eventok = hwmsct_dummy(1.1);
+    if(useJimmy_ && doMPInteraction_) eventok = hwmsct_dummy(1.1);
   }
 
   hwdhob();
@@ -267,6 +247,8 @@ bool Herwig6Source::produce(Event & e) {
 // function to pass parameters to common blocks
 bool Herwig6Source::hwgive(const std::string& ParameterString) {
   bool accepted = 1;
+
+ 
   if(!strncmp(ParameterString.c_str(),"IPROC",5)) {
     hwproc.IPROC = atoi(&ParameterString[strcspn(ParameterString.c_str(),"=")+1]);
     if(hwproc.IPROC<0) {
@@ -998,7 +980,7 @@ bool Herwig6Source::hwgive(const std::string& ParameterString) {
     jmparm.JMRAD[72] = atoi(&ParameterString[strcspn(ParameterString.c_str(),"=")+1]); 
 
   else accepted = 0;
-  
+
   return accepted;
 }
 
@@ -1011,3 +993,32 @@ extern "C" {
   void hwaend(){/*dummy*/};
 }
 //-------------------------------------------------------------------------------
+
+bool Herwig6Source::setRngSeeds(int mseed)
+{
+  double temx[5];
+  for (int i=0; i<5; i++) {
+    mseed = mseed * 29943829 - 1;
+    temx[i] = mseed * (1./(65536.*65536.));
+  }
+  long double c;
+  c = (long double)2111111111.0 * temx[3] +
+    1492.0 * (temx[3] = temx[2]) +
+    1776.0 * (temx[2] = temx[1]) +
+    5115.0 * (temx[1] = temx[0]) +
+    temx[4];
+  temx[4] = floorl(c);
+  temx[0] = c - temx[4];
+  temx[4] = temx[4] * (1./(65536.*65536.));
+  hwevnt.NRN[0]=int(temx[0]*99999);
+  c = (long double)2111111111.0 * temx[3] +
+    1492.0 * (temx[3] = temx[2]) +
+    1776.0 * (temx[2] = temx[1]) +
+    5115.0 * (temx[1] = temx[0]) +
+    temx[4];
+  temx[4] = floorl(c);
+  temx[0] = c - temx[4];
+  hwevnt.NRN[1]=int(temx[0]*99999);
+
+  return true;
+}

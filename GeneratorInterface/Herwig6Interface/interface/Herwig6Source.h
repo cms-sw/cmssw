@@ -31,6 +31,7 @@ namespace edm
     void clear();
 
     bool hwgive(const std::string& iParm );
+    bool setRngSeeds(int);
 
     HepMC::GenEvent  *evt;
     int herwigVerbosity_;
@@ -40,6 +41,10 @@ namespace edm
     double comenergy;
     std::string lhapdfSetPath_;
     bool useJimmy_;
+    bool doMPInteraction_;
+    int numTrials_;
+    bool printCards_;
+
     
   };
 } 
