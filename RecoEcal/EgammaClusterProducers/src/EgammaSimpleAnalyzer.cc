@@ -8,14 +8,14 @@
 //
 // Original Author:  Shahram Rahatlou
 //         Created:  10 May 2006
-// $Id: EgammaSimpleAnalyzer.cc,v 1.7 2006/11/27 12:48:13 rahatlou Exp $
+// $Id: EgammaSimpleAnalyzer.cc,v 1.8 2006/11/28 18:06:33 rahatlou Exp $
 //
 
 #include "RecoEcal/EgammaClusterProducers/interface/EgammaSimpleAnalyzer.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 
 #include "TFile.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
