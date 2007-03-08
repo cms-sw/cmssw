@@ -1,10 +1,10 @@
 #include "Validation/EcalClusters/interface/EgammaSuperClusters.h"
 
-#include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
+#include "DataFormats/Common/interface/Handle.h"
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/ClusterShapeFwd.h"
