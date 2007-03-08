@@ -1,17 +1,19 @@
 /**
  * \file CSCSegAlgoSK.cc
  *
- *  $Date: 2006/11/21 19:07:29 $
- *  $Revision: 1.10 $
+ *  $Date: 2007/03/07 14:40:46 $
+ *  $Revision: 1.11 $
  *  \author M. Sani
  */
  
-#include <RecoLocalMuon/CSCSegment/src/CSCSegAlgoSK.h>
-#include <Geometry/CSCGeometry/interface/CSCLayer.h>
-#include <DataFormats/GeometryVector/interface/GlobalPoint.h>
+#include "CSCSegAlgoSK.h"
+#include "Geometry/CSCGeometry/interface/CSCLayer.h"
+// For clhep Matrix::solve
+#include "Geometry/CommonDetAlgo/interface/AlgebraicObjects.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
-#include <FWCore/ParameterSet/interface/ParameterSet.h>
-#include <FWCore/MessageLogger/interface/MessageLogger.h> 
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <algorithm>
 #include <cmath>

@@ -4,14 +4,16 @@
  *  \author Dominique Fortin - UCR
  */
  
-#include <RecoLocalMuon/CSCSegment/src/CSCSegAlgoDF.h>
+#include "CSCSegAlgoDF.h"
 
-//#include <DataFormats/CSCRecHit/interface/CSCSegment.h>
-#include <Geometry/CSCGeometry/interface/CSCLayer.h>
-#include <DataFormats/GeometryVector/interface/GlobalPoint.h>
+#include "Geometry/CSCGeometry/interface/CSCLayer.h"
+// For clhep Matrix::solve
+#include "Geometry/CommonDetAlgo/interface/AlgebraicObjects.h"
 
-#include <FWCore/ParameterSet/interface/ParameterSet.h>
-#include <FWCore/MessageLogger/interface/MessageLogger.h> 
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "CommonTools/Statistics/interface/ChiSquaredProbability.h"
 

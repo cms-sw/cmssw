@@ -1,27 +1,30 @@
 /**
  * \file CSCSegAlgoTC.cc
  *
- * $Date: 2006/11/22 22:59:10 $
- * $Revision: 1.9 $
+ * $Date: 2007/03/07 14:40:46 $
+ * $Revision: 1.10 $
  * \author M. Sani
  * 
  */
 
-#include <RecoLocalMuon/CSCSegment/src/CSCSegAlgoTC.h>
+#include "CSCSegAlgoTC.h"
 
-#include <DataFormats/CSCRecHit/interface/CSCSegment.h>
-#include <Geometry/CSCGeometry/interface/CSCLayer.h>
-#include <DataFormats/GeometryVector/interface/GlobalPoint.h>
+#include "DataFormats/CSCRecHit/interface/CSCSegment.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
-#include <FWCore/ParameterSet/interface/ParameterSet.h>
-#include <FWCore/MessageLogger/interface/MessageLogger.h> 
+// For clhep Matrix::solve
+#include "Geometry/CommonDetAlgo/interface/AlgebraicObjects.h"
+#include "Geometry/CSCGeometry/interface/CSCLayer.h"
+
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include "CommonTools/Statistics/interface/ChiSquaredProbability.h"
 
 #include <algorithm>
 #include <cmath>
 #include <iostream>
 #include <string>
-
-#include "CommonTools/Statistics/interface/ChiSquaredProbability.h"
 
 CSCSegAlgoTC::CSCSegAlgoTC(const edm::ParameterSet& ps) : CSCSegmentAlgorithm(ps),
 							  myName("CSCSegAlgoTC") {
