@@ -38,6 +38,10 @@ class EgammaHLTHybridClusterProducer : public edm::EDProducer
       std::string hitcollection_;
 
       edm::InputTag l1Tag_;
+      double l1LowerThr_;
+      double l1UpperThr_;
+      double regionEtaMargin_;
+      double regionPhiMargin_;
 
       HybridClusterAlgo::DebugLevel debugL;
 

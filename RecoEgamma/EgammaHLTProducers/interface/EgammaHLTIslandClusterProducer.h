@@ -49,6 +49,10 @@ class EgammaHLTIslandClusterProducer : public edm::EDProducer
       std::string endcapClusterCollection_;
 
       edm::InputTag l1Tag_;
+      double l1LowerThr_;
+      double l1UpperThr_;
+      double regionEtaMargin_;
+      double regionPhiMargin_;
 
       PositionCalc posCalculator_; // position calculation algorithm
       IslandClusterAlgo * island_p;
