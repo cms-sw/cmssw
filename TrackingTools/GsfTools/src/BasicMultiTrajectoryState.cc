@@ -1,6 +1,6 @@
 #include "TrackingTools/GsfTools/interface/BasicMultiTrajectoryState.h"
 
-#include "Geometry/Surface/interface/BoundPlane.h"
+#include "DataFormats/GeometrySurface/interface/BoundPlane.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 BasicMultiTrajectoryState::BasicMultiTrajectoryState( const std::vector<TSOS>& tsvec) :
