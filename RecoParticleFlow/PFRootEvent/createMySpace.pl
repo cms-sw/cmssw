@@ -13,8 +13,8 @@ protectedCopy( 'interface/MyPFRootEventManager.h',
 	       "$destdir/interface/MyPFRootEventManager.h");
 protectedCopy( 'src/MyPFRootEventManager.cc', 
 	       "$destdir/src/MyPFRootEventManager.cc");
-protectedCopy( 'test/pfRootEvent.opt', 
-	       "$destdir/workdir/pfRootEvent.opt");
+protectedCopy( 'test/tauBenchmark.opt', 
+	       "$destdir/workdir/tauBenchmark.opt");
 
 print "\n";
 print "success. Now execute: \n";

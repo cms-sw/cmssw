@@ -5,7 +5,7 @@
 gROOT->Macro("init.C");
 
 // create a PFRootEventManager
-MyPFRootEventManager em("pfRootEvent.opt");
+MyPFRootEventManager em("tauBenchmark.opt");
 
 if(em.tree_) {
   int n =  em.tree_->GetEntries();
