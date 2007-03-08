@@ -11,8 +11,8 @@
 
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 
-#include "Geometry/Vector/interface/LocalPoint.h"
-#include "Geometry/Vector/interface/GlobalPoint.h"
+#include "DataFormats/Geometry/Vector/interface/LocalPoint.h"
+#include "DataFormats/Geometry/Vector/interface/GlobalPoint.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
