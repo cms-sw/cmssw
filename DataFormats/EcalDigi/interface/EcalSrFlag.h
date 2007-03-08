@@ -47,7 +47,7 @@ public:
   /** Set the SR flag value. See SRF_XXX constants.
    * @param flag new flag value. Must be between 0 and 7.
    */
-  void setValue(int flag) const { flag_ = flag; }
+  void setValue(int flag) { flag_ = (unsigned char) flag; }
 
   /** Cast to int: same as value().
    * @return the SR flag value
