@@ -7,8 +7,8 @@
  *      within cylinders
  *
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2007/03/08 18:34:58 $
+ *  $Revision: 1.1 $
  *  \author Chang Liu  -  Purdue University
  */
 
@@ -35,6 +35,7 @@ using namespace std;
 CosmicMuonSmoother::CosmicMuonSmoother(const ParameterSet& par, const MuonServiceProxy *service) : theService(service) {
 
   theUpdator     = new KFUpdator;
+  theUtilities   = new CosmicMuonUtilities; 
   theEstimator   = new Chi2MeasurementEstimator(200.0);
   thePropagatorName = par.getParameter<string>("Propagator");
 
@@ -46,6 +47,7 @@ CosmicMuonSmoother::CosmicMuonSmoother(const ParameterSet& par, const MuonServic
 CosmicMuonSmoother::~CosmicMuonSmoother() {
 
   if ( theUpdator ) delete theUpdator;
+  if ( theUtilities ) delete theUtilities;
   if ( theEstimator ) delete theEstimator;
 
 }
@@ -57,18 +59,6 @@ CosmicMuonSmoother::~CosmicMuonSmoother() {
 vector<Trajectory> CosmicMuonSmoother::trajectories(const Trajectory& t) const {
    vector<Trajectory> fitted = fit(t);
    return smooth(fitted);
-
-}
-
-void CosmicMuonSmoother::reverseDirection(TrajectoryStateOnSurface& tsos) const {
-
-   GlobalTrajectoryParameters gtp(tsos.globalPosition(),
-                                  -tsos.globalMomentum(),
-                                  -tsos.charge(),
-                                  &*theService->magneticField()  );
-   TrajectoryStateOnSurface newTsos(gtp, tsos.cartesianError(), tsos.surface()); 
-   tsos = newTsos;
-   return;
 
 }
 
@@ -108,7 +98,7 @@ vector<Trajectory> CosmicMuonSmoother::fit(const Trajectory& t) const {
         firstTsos = lastTsos;
 
   if (firstTsos.globalMomentum().y()>0 && firstTsos.globalMomentum().eta()< 4.0 ) 
-     reverseDirection(firstTsos);
+     theUtilities->reverseDirection(firstTsos,&*theService->magneticField());
 
   ConstRecHitContainer hits = t.recHits();
 
@@ -162,7 +152,7 @@ vector<Trajectory> CosmicMuonSmoother::fit(const TrajectorySeed& seed,
 
     if ( !predTsos.isValid() ) {
 
-       predTsos = stepPropagate(currTsos, (*ihit));
+       predTsos = theUtilities->stepPropagate(currTsos, (*ihit), *propagator());
 
     }
 
@@ -228,7 +218,8 @@ vector<Trajectory> CosmicMuonSmoother::smooth(const Trajectory& t) const {
 
   if ( !predTsos.isValid() ) return vector<Trajectory>();
 
-  if ( predTsos.globalMomentum().y() > 0 && firstTsos.globalMomentum().eta()< 4.0 )  reverseDirection(predTsos);
+  if ( predTsos.globalMomentum().y() > 0 && predTsos.globalMomentum().eta()< 4.0 )  
+     theUtilities->reverseDirection(predTsos, &*theService->magneticField());
 
   TrajectoryStateOnSurface currTsos;
 
@@ -260,7 +251,7 @@ vector<Trajectory> CosmicMuonSmoother::smooth(const Trajectory& t) const {
     predTsos = propagator()->propagate(currTsos,(*itm).recHit()->det()->surface());
 
     if ( !predTsos.isValid() ) {
-       predTsos = stepPropagate(currTsos, (*itm).recHit());
+       predTsos = theUtilities->stepPropagate(currTsos, (*itm).recHit(), *propagator());
     }
 
     if ( !predTsos.isValid() ) {
@@ -320,87 +311,5 @@ vector<Trajectory> CosmicMuonSmoother::smooth(const Trajectory& t) const {
   if (myTraj.foundHits() > 3)
     return vector<Trajectory>(1, myTraj);
   else return vector<Trajectory>();
-
-}
-
-
-void CosmicMuonSmoother::print(const MuonTransientTrackingRecHit::ConstMuonRecHitContainer& hits) const {
-
-    const std::string metname = "Muon|RecoMuon|CosmicMuonSmoother";
-
-    for (ConstMuonRecHitContainer::const_iterator ir = hits.begin(); ir != hits.end(); ir++ ) {
-    if ( !(*ir)->isValid() ) {
-      LogDebug(metname) << "invalid RecHit";
-      continue;
-    }
-
-    const GlobalPoint& pos = (*ir)->globalPosition();
-    LogDebug(metname)
-    << "pos"<<pos
-    << "radius "<<pos.perp()
-    << "  dim " << (*ir)->dimension()
-    << "  det " << (*ir)->det()->geographicalId().det()
-    << "  sub det " << (*ir)->det()->subDetector();
-  }
-
-}
-
-TrajectoryStateOnSurface CosmicMuonSmoother::stepPropagate(const TrajectoryStateOnSurface& tsos,
-                                              const ConstRecHitPointer& hit) const {
-
-  const std::string metname = "Muon|RecoMuon|CosmicMuonSmoother";
-
-  GlobalPoint start = tsos.globalPosition();
-  GlobalPoint dest = hit->globalPosition();
-  GlobalVector StepVector = dest - start;
-  GlobalVector UnitStepVector = StepVector.unit();
-  GlobalPoint GP =start;
-  TrajectoryStateOnSurface result(tsos);
-  float totalDis = StepVector.mag();
-  LogDebug(metname)<<"stepPropagate: propagate from: "<<start<<" to "<<dest;
-  LogDebug(metname)<<"stepPropagate: their distance: "<<totalDis;
-
-  int steps = 3; // need to optimize
-
-  float oneStep = totalDis/steps;
-  Basic3DVector<float> Basic3DV(StepVector.x(),StepVector.y(),StepVector.z());
-  for ( int istep = 0 ; istep < steps - 1 ; istep++) {
-        GP += oneStep*UnitStepVector;
-        Surface::PositionType pos(GP.x(),GP.y(),GP.z());
-        LogDebug(metname)<<"stepPropagate: a middle plane: "<<pos;
-        Surface::RotationType rot( Basic3DV , float(0));
-        PlaneBuilder::ReturnType SteppingPlane = PlaneBuilder().plane(pos,rot);
-        TrajectoryStateOnSurface predTsos = propagator()->propagate( result, *SteppingPlane);
-        if (predTsos.isValid()) {
-            result=predTsos;
-            LogDebug(metname)<<"result "<< result.globalPosition();
-          }
- }
-
-  TrajectoryStateOnSurface predTsos = propagator()->propagate( result, hit->det()->surface());
-  if (predTsos.isValid()) result=predTsos;
-
-  return result;
-}
-
-
-void CosmicMuonSmoother::print(const TransientTrackingRecHit::ConstRecHitContainer& hits) const {
-
-    const std::string metname = "Muon|RecoMuon|CosmicMuonSmoother";
-
-    for (TransientTrackingRecHit::ConstRecHitContainer::const_iterator ir = hits.begin(); ir != hits.end(); ir++ ) {
-    if ( !(*ir)->isValid() ) {
-      LogDebug(metname) << "invalid RecHit";
-      continue;
-    }
-
-    const GlobalPoint& pos = (*ir)->globalPosition();
-    LogDebug(metname)
-    << "pos"<<pos
-    << "radius "<<pos.perp()
-    << "  dim " << (*ir)->dimension()
-    << "  det " << (*ir)->det()->geographicalId().det()
-    << "  sub det " << (*ir)->det()->subDetector();
-  }
 
 }

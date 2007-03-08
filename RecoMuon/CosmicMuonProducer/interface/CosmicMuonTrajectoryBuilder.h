@@ -2,8 +2,8 @@
 #define CosmicMuonTrajectoryBuilder_H
 /** \file CosmicMuonTrajectoryBuilder
  *
- *  $Date: 2006/12/31 20:39:54 $
- *  $Revision: 1.9 $
+ *  $Date: 2007/03/08 18:27:41 $
+ *  $Revision: 1.11 $
  *  \author Chang Liu  -  Purdue University
  */
 
@@ -26,6 +26,7 @@ namespace edm {class ParameterSet; class Event; class EventSetup;}
 
 class Trajectory;
 class TrajectoryMeasurement;
+class CosmicMuonUtilities;
 
 typedef MuonTransientTrackingRecHit::MuonRecHitContainer MuonRecHitContainer;
 typedef TransientTrackingRecHit::ConstRecHitPointer ConstRecHitPointer;
@@ -56,13 +57,13 @@ public:
 
   MuonTrajectoryUpdator* backwardUpdator() const {return theBKUpdator;}
 
+  CosmicMuonSmoother* smoother() const {return theSmoother;}
+
+  CosmicMuonUtilities* utilities() const {return smoother()->utilities();}
+
 private:
 
   MuonTransientTrackingRecHit::MuonRecHitContainer unusedHits(const DetLayer*, const TrajectoryMeasurement&) const;
-
-  void print(const MuonTransientTrackingRecHit::MuonRecHitContainer&) const;
-
-  void print(const TransientTrackingRecHit::ConstRecHitContainer&) const;
 
   void explore(Trajectory&, MuonTransientTrackingRecHit::MuonRecHitContainer&);
 
@@ -72,17 +73,12 @@ private:
 
   TrajectoryStateOnSurface intermediateState(const TrajectoryStateOnSurface&) const;
 
-  TrajectoryStateOnSurface stepPropagate(const TrajectoryStateOnSurface&,
-                                         const ConstRecHitPointer&) const;
-
   void selectHits(MuonTransientTrackingRecHit::MuonRecHitContainer&) const;
 
   /// reverse a trajectory without refit
   void reverseTrajectory(Trajectory&) const;
 
   double computeNDOF(const Trajectory&) const;
-
-  void reverseDirection(TrajectoryStateOnSurface&) const;
 
   /// check if the trajectory iterates the same hit more than once
   bool selfDuplicate(const Trajectory&) const;

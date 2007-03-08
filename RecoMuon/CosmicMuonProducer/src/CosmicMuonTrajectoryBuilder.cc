@@ -4,8 +4,8 @@
  *  class to build trajectories of cosmic muons and beam-halo muons
  *
  *
- *  $Date: 2007/02/23 21:57:04 $
- *  $Revision: 1.22 $
+ *  $Date: 2007/03/08 18:33:42 $
+ *  $Revision: 1.24 $
  *  \author Chang Liu  - Purdue Univeristy
  */
 
@@ -332,7 +332,7 @@ CosmicMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
        ( myTraj->firstMeasurement().layer()->location() == GeomDetEnumerators::barrel ) ) ) {
       theNTraversing++;
 
-      print(allUnusedHits);
+      LogTrace(metname)<<utilities()->print(allUnusedHits);
    //   LogTrace(metname)<<"== End of Unused RecHits ==";
 //      selectHits(allUnusedHits);
 //      LogTrace(metname)<<"all unused RecHits after selection: "<<allUnusedHits.size();
@@ -346,7 +346,7 @@ CosmicMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
 
       hits = myTraj->recHits();
       LogTrace(metname) << "After explore: Used RecHits: "<<hits.size();
-      print(hits);
+      LogTrace(metname)<<utilities()->print(hits);
       LogTrace(metname) << "== End of Used RecHits == ";
 
       if ( hits.size() > nhits + 2 ) theNSuccess++;
@@ -386,48 +386,6 @@ MuonTransientTrackingRecHit::MuonRecHitContainer CosmicMuonTrajectoryBuilder::un
          result.push_back(*ihit);
   }
   return result;
-
-}
-
-void CosmicMuonTrajectoryBuilder::print(const MuonTransientTrackingRecHit::MuonRecHitContainer& hits) const {
-
-    const std::string metname = "Muon|RecoMuon|CosmicMuonTrajectoryBuilder";
-
-    for (MuonRecHitContainer::const_iterator ir = hits.begin(); ir != hits.end(); ir++ ) {
-    if ( !(*ir)->isValid() ) {
-      LogTrace(metname) << "invalid RecHit";
-      continue;
-    }
-
-    const GlobalPoint& pos = (*ir)->globalPosition();
-    LogTrace(metname)
-    << "pos"<<pos
-    << "radius "<<pos.perp()
-    << "  dim " << (*ir)->dimension()
-    << "  det " << (*ir)->det()->geographicalId().det()
-    << "  sub det " << (*ir)->det()->subDetector();
-  }
-
-}
-
-void CosmicMuonTrajectoryBuilder::print(const TransientTrackingRecHit::ConstRecHitContainer& hits) const {
-
-    const std::string metname = "Muon|RecoMuon|CosmicMuonTrajectoryBuilder";
-
-    for (TransientTrackingRecHit::ConstRecHitContainer::const_iterator ir = hits.begin(); ir != hits.end(); ir++ ) {
-    if ( !(*ir)->isValid() ) {
-      LogTrace(metname) << "invalid RecHit";
-      continue;
-    }
-
-    const GlobalPoint& pos = (*ir)->globalPosition();
-    LogTrace(metname)
-    << "pos"<<pos
-    << "radius "<<pos.perp()
-    << "  dim " << (*ir)->dimension()
-    << "  det " << (*ir)->det()->geographicalId().det()
-    << "  sub det " << (*ir)->det()->subDetector();
-  }
 
 }
 
@@ -600,44 +558,6 @@ TrajectoryStateOnSurface CosmicMuonTrajectoryBuilder::intermediateState(const Tr
 
 }
 
-TrajectoryStateOnSurface CosmicMuonTrajectoryBuilder::stepPropagate(const TrajectoryStateOnSurface& tsos,
-                                              const ConstRecHitPointer& hit) const {
-
-  const std::string metname = "Muon|RecoMuon|CosmicMuonTrajectoryBuilder";
-
-  GlobalPoint start = tsos.globalPosition();
-  GlobalPoint dest = hit->globalPosition();
-  GlobalVector StepVector = dest - start;
-  GlobalVector UnitStepVector = StepVector.unit();
-  GlobalPoint GP =start;
-  TrajectoryStateOnSurface result(tsos);
-  float totalDis = StepVector.mag();
-  LogTrace(metname)<<"stepPropagate: propagate from: "<<start<<" to "<<dest;
-  LogTrace(metname)<<"stepPropagate: their distance: "<<totalDis;
-
-  int steps = 3; // need to optimize
-
-  float oneStep = totalDis/steps;
-  Basic3DVector<float> Basic3DV(StepVector.x(),StepVector.y(),StepVector.z());
-  for ( int istep = 0 ; istep < steps - 1 ; istep++) {
-        GP += oneStep*UnitStepVector;
-        Surface::PositionType pos(GP.x(),GP.y(),GP.z());
-        LogTrace(metname)<<"stepPropagate: a middle plane: "<<pos;
-        Surface::RotationType rot( Basic3DV , float(0));
-        PlaneBuilder::ReturnType SteppingPlane = PlaneBuilder().plane(pos,rot);
-        TrajectoryStateOnSurface predTsos = propagator()->propagate( result, *SteppingPlane);
-        if (predTsos.isValid()) {
-            result=predTsos;
-            LogTrace(metname)<<"result "<< result.globalPosition();
-          }
- }
-
-  TrajectoryStateOnSurface predTsos = propagator()->propagate( result, hit->det()->surface());
-  if (predTsos.isValid()) result=predTsos;
-
-  return result;
-}
-
 void CosmicMuonTrajectoryBuilder::selectHits(MuonTransientTrackingRecHit::MuonRecHitContainer& hits) const {
 
   if ( hits.size() < 2 ) return;
@@ -740,7 +660,7 @@ void CosmicMuonTrajectoryBuilder::updateTrajectory(Trajectory& traj, const MuonR
     if ( !lastTsos.isValid() ) return;
     LogTrace(metname)<<"LastTSOS on traj "<<lastTsos.globalPosition()<<"mom "<<lastTsos.globalMomentum();
 
-    TrajectoryStateOnSurface predTsos = stepPropagate(lastTsos, hits.front().get());
+    TrajectoryStateOnSurface predTsos = utilities()->stepPropagate(lastTsos, hits.front().get(),*propagator());
     if ( !predTsos.isValid() ) return;
 
     LogTrace(metname)<<"first predTSOS "<<predTsos.globalPosition()<<"mom "<<predTsos.globalMomentum();
@@ -813,17 +733,6 @@ double CosmicMuonTrajectoryBuilder::computeNDOF(const Trajectory& trajectory) co
 }
 
 
-void CosmicMuonTrajectoryBuilder::reverseDirection(TrajectoryStateOnSurface& tsos) const {
-
-   GlobalTrajectoryParameters gtp(tsos.globalPosition(),
-                                  -tsos.globalMomentum(),
-                                  -tsos.charge(),
-                                  &*theService->magneticField()  );
-   TrajectoryStateOnSurface newTsos(gtp, tsos.cartesianError(), tsos.surface());   tsos = newTsos;
-   return;
-
-}
-
 //
 // guess the direction by normalized chi2
 //
@@ -851,13 +760,13 @@ void CosmicMuonTrajectoryBuilder::estimateDirection(Trajectory& traj) const {
   // momentum eta can be used to estimate direction also.
   // the beam-halo muon seems enter with a larger |eta|
 
-  print(hits);
+// print(hits);
 
   vector<Trajectory> refitted = theSmoother->trajectories(traj.seed(),hits,firstTSOS);
 
   std::reverse(hits.begin(), hits.end());
 
-  reverseDirection(lastTSOS);
+  utilities()->reverseDirection(lastTSOS,&*theService->magneticField());
 
   vector<Trajectory> refittedback = theSmoother->trajectories(traj.seed(),hits,lastTSOS);
 

@@ -3,25 +3,20 @@
 
 /** \file CosmicMuonSmoother
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2007/03/02 13:19:37 $
+ *  $Revision: 1.1 $
  *  \author Chang Liu  -  Purdue University
  */
 
 #include "TrackingTools/PatternTools/interface/TrajectorySmoother.h"
 
-#include "RecoMuon/TrackingTools/interface/MuonTrajectoryUpdator.h"
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
-#include "RecoMuon/MeasurementDet/interface/MuonDetLayerMeasurements.h"
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
-#include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/TrackReco/interface/Track.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
-#include "RecoMuon/TrackingTools/interface/MuonTrackConverter.h"
+#include "RecoMuon/CosmicMuonProducer/interface/CosmicMuonUtilities.h"
 
 class Propagator;
 class KFUpdator;
@@ -62,6 +57,8 @@ public:
 
   KFUpdator* updator() const {return theUpdator;}
 
+  CosmicMuonUtilities* utilities() const {return theUtilities; } 
+
   Chi2MeasurementEstimator* estimator() const {return theEstimator;}
 
 private:
@@ -73,18 +70,9 @@ private:
   std::vector<Trajectory> smooth(const std::vector<Trajectory>& ) const;
   std::vector<Trajectory> smooth(const Trajectory&) const;
 
-
-  void print(const ConstMuonRecHitContainer&) const;
-
-  void print(const ConstRecHitContainer&) const;
-
-  void reverseDirection(TrajectoryStateOnSurface&) const;
-
-  TrajectoryStateOnSurface stepPropagate(const TrajectoryStateOnSurface&,
-                                         const ConstRecHitPointer&) const;
-
   KFUpdator* theUpdator;
   Chi2MeasurementEstimator* theEstimator;
+  CosmicMuonUtilities* theUtilities; 
 
   const MuonServiceProxy* theService;
 
