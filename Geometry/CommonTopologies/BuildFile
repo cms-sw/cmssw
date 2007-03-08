@@ -1,6 +1,10 @@
-<use name=Utilities/General> 
-<use name=FWCore/Framework>
+<use name=DataFormats/GeometryCommonDetAlgo>
+<use name=DataFormats/GeometryVector>
+<use name=FWCore/MessageLogger>
+<use name=Utilities/General>
 <export>
- <lib name=GeometryCommonTopologies>
- <use name=Geometry/CommonDetAlgo>
+  <use name=DataFormats/GeometryCommonDetAlgo>
+  <use name=DataFormats/GeometryVector>
+  <lib name=GeometryCommonTopologies>
 </export>
+
