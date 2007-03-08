@@ -15,12 +15,12 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
-
+#include "TrackingTools/PatternTools/interface/Trajectory.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
-#include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
+
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/DetId/interface/DetId.h"
@@ -154,10 +154,10 @@ class SiStripLorentzAngle : public edm::EDAnalyzer
   TH1F *CollHitSizeTOBL1, *CollHitSizeTOBL5, *CollHitSizeTIBL2mono, *CollHitSizeTIBL2stereo, *CollHitSizeTIBL3;
   TH1F *TrackHitSizeTOBL1, *TrackHitSizeTOBL5, *TrackHitSizeTIBL2mono, *TrackHitSizeTIBL2stereo, *TrackHitSizeTIBL3;
   
-  const TransientTrackingRecHitBuilder *RHBuilder;
+
   const TrackerGeometry * tracker;
   const MagneticField * magfield;
-  TrajectoryStateTransform tsTransform;
+
   
   //Directory hierarchy  
   
