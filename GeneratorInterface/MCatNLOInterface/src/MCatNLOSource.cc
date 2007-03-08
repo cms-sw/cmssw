@@ -22,8 +22,19 @@
 #include "HEPEVT_Wrapper.h"
 #include "HerwigWrapper6_4.h"
 #include "IO_HERWIG.h"
-#include "herwig_common.icc"
+#include "herwig.h"
 
+extern"C" {
+  void setpdfpath_(char*);
+  void mysetpdfpath_(char*);
+  void setlhaparm_(char*);
+  void setherwpdf_(void);
+}
+
+#define setpdfpath setpdfpath_
+#define mysetpdfpath mysetpdfpath_
+#define setlhaparm setlhaparm_
+#define setherwpdf setherwpdf_
 
 using namespace edm;
 using namespace std;
@@ -33,56 +44,6 @@ static const unsigned long kAveEventPerSec = 200;
 
 // herwig common block conversion
 HepMC::IO_HERWIG conv;
-
-// ========================================================================
-// MCatNLO common blocks and external routines used
-extern struct {
-  double mmecm,mmxren,mmxfh,mmxrenmc,mmxfhmc,mmxmh0,mmgah,mmxmt,mmgammax,mmxmhl;
-  double mmxmhu,mmxmass1,mmxmass2,mmxmass3,mmxmass4,mmxmass5,mmxmass21,mmxlam,mmxm0,mmgav,mmxm0v,mmtwidth;
-  double mmxwm,mmxzm,mmxww,mmxzw,mmv1gammax,mmv1massinf,mmv1masssup;
-  double mmv2gammax,mmv2massinf,mmv2masssup,mmvud,mmvus,mmvub,mmvcd,mmvcs,mmvcb;
-  double mmvtd,mmvts,mmvtb,mmxlamherw;
-  int mmmaxevt,mmidpdfset,mmiwgtnorm,mmiseed,mmibornex,mmit1,mmit2;
-  int mmivcode,mmil1code,mmil2code,mmaemrun,mmiproc;
-  char mmgname[20],mmscheme[2],mmpart1[4],mmpart2[4];
-} params_;
-#define params params_
-
-extern struct {
-  int basesoutput;
-  char stfilename[100];
-} fstbases_;
-#define fstbases fstbases_
-
-extern"C" {
-  void setpdfpath_(char*);
-  void setlhaparm_(char*);
-}
-
-#define setpdfpath setpdfpath_
-#define setlhaparm setlhaparm_
-
-#define hgmain hgmain_
-#define llmain llmain_
-#define vhmain vhmain_
-#define vbmain vbmain_
-#define qqmain qqmain_
-#define sbmain sbmain_
-#define stmain stmain_
-
-extern"C" {
-  void hgmain(void);
-  void llmain(void);
-  void vhmain(void);
-  void vbmain(void);
-  void qqmain(void);
-  void sbmain(void);
-  void stmain(void);
-}
-
-// ========================================================================
-
-bool use_herwig_pdfs = false;
 
 MCatNLOSource::MCatNLOSource( const ParameterSet & pset, InputSourceDescription const& desc ) :
   GeneratedInputSource(pset, desc), evt(0), 
@@ -94,11 +55,39 @@ MCatNLOSource::MCatNLOSource( const ParameterSet & pset, InputSourceDescription 
   comenergy(pset.getUntrackedParameter<double>("comEnergy",14000.)),
   processNumber_(pset.getUntrackedParameter<int>("processNumber",0)),
   numEvents_(pset.getUntrackedParameter<int>("maxEvents",100)),
-  stringFileName_(pset.getUntrackedParameter<string>("stringFileName","stringInput")),
-  lhapdfSetPath_(pset.getUntrackedParameter<string>("lhapdfSetPath",""))
+  stringFileName_(pset.getUntrackedParameter<string>("stringFileName",std::string("stringInput"))),
+  lhapdfSetPath_(pset.getUntrackedParameter<string>("lhapdfSetPath",std::string(""))),
+  useJimmy_(pset.getUntrackedParameter<bool>("useJimmy",true)),
+  doMPInteraction_(pset.getUntrackedParameter<bool>("doMPInteraction",true)),
+  numTrials_(pset.getUntrackedParameter<int>("numTrials",10)),
+  printCards_(pset.getUntrackedParameter<bool>("printCards",true))
 {
  
-
+  cout << "----------------------------------------------" << endl;
+  cout << "Initializing MCatNLOSource" << endl;
+  cout << "----------------------------------------------" << endl;
+  /*check for MC@NLO verbosity mode:
+                     0 :  print default info
+		     1 :  + print MC@NLO output
+		     2 :  + print bases integration information
+		     3 :  + print spring event generation information
+    herwigVerbosity Level IPRINT
+    valid argumets are:  0: print title only
+                         1: + print selected input parameters
+                         2: + print table of particle codes and properties
+			 3: + tables of Sudakov form factors  
+  */
+  fstbases.basesoutput = mcatnloVerbosity_;
+  cout << "   MC@NLO verbosity level         = " << fstbases.basesoutput << endl;
+  cout << "   Herwig verbosity level         = " << herwigVerbosity_ << endl;
+  cout << "   HepMC verbosity                = " << herwigHepMCVerbosity_ << endl;
+  cout << "   Number of events to be printed = " << maxEventsToPrint_ << endl;
+  if(useJimmy_) {
+    cout << "   HERWIG will be using JIMMY for UE/MI." << endl;
+    if(doMPInteraction_) 
+      cout << "   JIMMY trying to generate multiple interactions." << endl;
+  }
+  cout << "   Number of generation trials    = " << numTrials_ << endl;
 
   // set some MC@NLO parameters ...
   params.mmmaxevt = numEvents_;
@@ -112,20 +101,6 @@ MCatNLOSource::MCatNLOSource( const ParameterSet & pset, InputSourceDescription 
     params.mmpart1[k]=' ';
     params.mmpart2[k]=' ';
   }
-
-
-  // testtest
- 
-  cout << "MCatNLOSource: initializing MCatNLO. " << endl;
-
-  // check for MC@NLO verbosity mode:
-  //       0 :  print default info
-  //       1 :  + print MC@NLO output
-  //       2 :  + print bases integration information
-  //       3 :  + print spring event generation information
-
-  fstbases.basesoutput = mcatnloVerbosity_;
-  cout << " MC@NLO verbosity level = " << fstbases.basesoutput << endl;
   
   // Set MC@NLO parameters in a single ParameterSet
   ParameterSet mcatnlo_params = pset.getParameter<ParameterSet>("MCatNLOParameters") ;
@@ -146,23 +121,38 @@ MCatNLOSource::MCatNLOSource( const ParameterSet & pset, InputSourceDescription 
 
     // Loop over all parameters and stop in case of mistake
     for( vector<string>::const_iterator itPar = pars.begin(); itPar != pars.end(); ++itPar ) {
-      if(!(this->give(*itPar))) throw edm::Exception(edm::errors::Configuration,"MCatNLOError") 
-	<<" MCatNLO did not accept the following \""<<*itPar<<"\"";
+      if(!(this->give(*itPar))) {
+	throw edm::Exception(edm::errors::Configuration,"MCatNLOError") 
+	  <<" MCatNLO did not accept the following \""<<*itPar<<"\""; 
+      }
+      else if(printCards_) {
+	cout << "   " << *itPar << endl;
+      }
     }
   }
   
+  cout << "----------------------------------------------" << endl;
+  cout << "Setting MCatNLO random number generator seed." << endl;
+  cout << "----------------------------------------------" << endl;
   edm::Service<RandomNumberGenerator> rng;
-  uint32_t seed = rng->mySeed();
-  cout << "----------------------------------------------" << endl;
-  cout << "Setting MCatNLO random number seed to " << seed << "." << endl;
-  cout << "----------------------------------------------" << endl;
-  params.mmiseed = seed;
-
-
-
-  cout << "----------------------------------------------" << endl;
-  cout << "Setting LHAPDF set to " << params.mmidpdfset <<"." << endl;
-  cout << "----------------------------------------------" << endl;
+  int seed = rng->mySeed();
+  double x[5];
+  int s = seed;
+  for (int i=0; i<5; i++) {
+    s = s * 29943829 - 1;
+    x[i] = s * (1./(65536.*65536.));
+  }
+  long double c;
+  c = (long double)2111111111.0 * x[3] +
+    1492.0 * (x[3] = x[2]) +
+    1776.0 * (x[2] = x[1]) +
+    5115.0 * (x[1] = x[0]) +
+    x[4];
+  x[4] = floorl(c);
+  x[0] = c - x[4];
+  x[4] = x[4] * (1./(65536.*65536.));
+  params.mmiseed = int(x[0]*99999);
+  cout << "   RNDEVSEED = "<<params.mmiseed<<endl;
 
   // only LHAPDF available
   params.mmgname[0]='L';
@@ -189,37 +179,34 @@ MCatNLOSource::MCatNLOSource( const ParameterSet & pset, InputSourceDescription 
   createStringFile(stringFileName_);
 
   char pdfpath[232];
-  bool dot=false;
-  for(int i=0; i<232; ++i) {
-    if(lhapdfSetPath_.c_str()[i]=='\0') dot=true;
-    if(!dot) pdfpath[i]=lhapdfSetPath_.c_str()[i];
-    else pdfpath[i]=' ';
-  }
-
+  int pathlen = lhapdfSetPath_.length();
+  for(int i=0; i<pathlen; ++i) 
+  pdfpath[i]=lhapdfSetPath_.at(i);
+  for(int i=pathlen; i<232; ++i) 
+  pdfpath[i]=' ';
+  mysetpdfpath(pdfpath);
 
   // decide which process to call ...
   if(doHardEvents_) {
-    cout<<"MCatNLOSource: Generating NLO hard events."<<endl;
+    cout << "----------------------------------------------" << endl;
+    cout << "Starting hard event generation." << endl;
+    cout << "----------------------------------------------" << endl;
     
     if(processNumber_>0) processUnknown(true);
   
     switch(abs(processNumber_)) {
     case(1705):case(1706):case(11705):case(11706): 
-      setpdfpath(pdfpath);
       processQQ(); 
       break;
     case(2850):case(2860):case(2870):case(2880):case(12850):case(12860):case(12870):case(12880): 
-      setpdfpath(pdfpath);
       processVV(); 
       break;
     case(1600):case(1601):case(1602):case(1603):case(1604):case(1605):case(1606):case(1607):case(1608):case(1609):case(11600):case(11601):
     case(11602):case(11603):case(11604):case(11605):case(11606):case(11607):case(11608):case(11609):case(1610):case(1611):case(1612):
     case(11610):case(11611):case(11612):case(1699):case(11699): 
-      setpdfpath(pdfpath);
       processHG(); 
       break;
     case(1396):case(1397):case(1497):case(1498):case(11396):case(11397):case(11497):case(11498): 
-      setpdfpath(pdfpath);
       processSB(); 
       break;
     case(1351):case(1352):case(1353):case(1354):case(1355):case(1356):case(1361):case(1362):case(1363):case(1364):case(1365):case(1366):
@@ -227,7 +214,6 @@ MCatNLOSource::MCatNLOSource( const ParameterSet & pset, InputSourceDescription 
     case(11351):case(11352):case(11353):case(11354):case(11355):case(11356):case(11361):case(11362):case(11363):case(11364):case(11365):
     case(11366):case(11371):case(11372):case(11373):case(11374):case(11375):case(11376):case(11461):case(11462):case(11463):case(11471):
     case(11472):case(11473):
-      setpdfpath(pdfpath);
       processLL(); 
       break;
     case(2600):case(2601):case(2602):case(2603):case(2604):case(2605):case(2606):case(2607):case(2608):case(2609):case(2610):case(2611):case(2612):case(2699):
@@ -235,44 +221,31 @@ MCatNLOSource::MCatNLOSource( const ParameterSet & pset, InputSourceDescription 
     case(12699):case(2700):case(2701):case(2702):case(2703):case(2704):case(2705):case(2706):case(2707):case(2708):case(2709):case(2710):case(2711):
     case(2712):case(2799):case(12700):case(12701):case(12702):case(12703):case(12704):case(12705):case(12706):case(12707):case(12708):case(12709):case(12710):
     case(12711):case(12712):case(12799): 
-      setpdfpath(pdfpath);
       processVH(); 
       break;
     case(2000):case(2001):case(2004):case(2010):case(2011):case(2014):case(2020):case(2021):case(2024):case(12000):case(12001):
     case(12004):case(12010):case(12011):case(12014):case(12020):case(12021):case(12024): 
-      setpdfpath(pdfpath);
       processST(); 
       break;
     default: 
       processUnknown(false); 
       break;
     }
-
-    cout<<"MCatNLOSource: Hard event generation done." << endl;
   }
-  
-  else
-    cout << "MCatNLOSource: skipping hard event generation." << endl;
+  else {
+    cout << "----------------------------------------------" << endl;
+    cout << "SKipping hard event generation." << endl;
+    cout << "----------------------------------------------" << endl;
+  }
   
   // ==============================  HERWIG PART =========================================
 
-  cout << "MCatNLOSource: Initializing Herwig. " << endl;
-  
-  // Call hwudat to set up HERWIG block data
+  cout << "----------------------------------------------" << endl;
+  cout << "Initializing Herwig" << endl;
+  cout << "----------------------------------------------" << endl;
+
   hwudat();
-  
-  // herwigVerbosity Level IPRINT
-  /* valid argumets are: 0: print title only
-     1: + print selected input parameters
-     2: + print table of particle codes and properties
-     3: + tables of Sudakov form factors                */
-  
-  cout << " Herwig verbosity level = " << herwigVerbosity_ << endl;
-  
-  //Max number of events printed on verbosity level 
-  //maxEventsToPrint_ = pset.getUntrackedParameter<int>("maxEventsToPrint",0);
-  cout << " Number of events to be printed = " << maxEventsToPrint_ << endl;
-  
+    
   // setting basic parameters ...
   hwproc.PBEAM1 = comenergy/2.;
   hwproc.PBEAM2 = comenergy/2.;
@@ -284,10 +257,15 @@ MCatNLOSource::MCatNLOSource( const ParameterSet & pset, InputSourceDescription 
   
   // seting maximum events
   hwproc.MAXEV = pset.getUntrackedParameter<int>("maxEvents",0);
-  
+  hwevnt.MAXER = hwproc.MAXEV/10;
+  if(hwevnt.MAXER<10) hwevnt.MAXER = 10;
+  if(useJimmy_ && doMPInteraction_) jmparm.MSFLAG = 1;
+
   // initialize other common block ...
   hwigin();
-  
+
+  if(useJimmy_) jimmin();
+
   // set some 'non-herwig' defaults
   hwevnt.MAXPR =  maxEventsToPrint_;           // no printing out of events
   hwpram.IPRINT = herwigVerbosity_;            // HERWIG print out mode
@@ -295,6 +273,9 @@ MCatNLOSource::MCatNLOSource( const ParameterSet & pset, InputSourceDescription 
   hwproc.IPROC = processNumber_;
 
   // set HERWIG PDF's to LHAPDF
+  setherwpdf();
+
+  /*
   hwprch.AUTPDF[0][0]='L';
   hwprch.AUTPDF[0][1]='H';
   hwprch.AUTPDF[0][2]='A';
@@ -308,9 +289,10 @@ MCatNLOSource::MCatNLOSource( const ParameterSet & pset, InputSourceDescription 
   hwprch.AUTPDF[1][4]='D';
   hwprch.AUTPDF[1][5]='F';
   for(int i=6; i<20; ++i) {
-    hwprch.AUTPDF[0][i]=' ';
+  hwprch.AUTPDF[0][i]=' ';
     hwprch.AUTPDF[1][i]=' ';
-  }  
+    }
+  */  
 
   // setting pdfs to MCatNLO pdf's
   hwpram.MODPDF[0]=params.mmidpdfset;
@@ -439,12 +421,15 @@ MCatNLOSource::MCatNLOSource( const ParameterSet & pset, InputSourceDescription 
 	throw edm::Exception(edm::errors::Configuration,"HerwigError") 
 	  <<" herwig did not accept the following \""<<*itPar<<"\"";
       }
+      else if(printCards_){
+		cout << "   " << *itPar << endl;
+      }
     }
   }
 
 
   if(vvjin.QQIN[0]!='\0') {
-    cout<<" HERWIG will be reading hard events from file: ";
+    cout<<"   HERWIG will be reading hard events from file: ";
     for(int i=0; i<50; ++i) cout<<vvjin.QQIN[i];
     cout<<endl;
   }
@@ -455,11 +440,11 @@ MCatNLOSource::MCatNLOSource( const ParameterSet & pset, InputSourceDescription 
 
   if(abs(hwproc.IPROC)<=10000) {
     hwgupr.LHSOFT = true;
-    cout <<" HERWIG will produce underlying event."<<endl;
+    cout <<"   HERWIG will produce underlying event."<<endl;
   }
   else {
     hwgupr.LHSOFT = false;
-    cout <<" HERWIG will *not* produce underlying event."<<endl;
+    cout <<"   HERWIG will *not* produce underlying event."<<endl;
   }
     
   /// make sure all quarks-antiquarks have the same mass
@@ -494,20 +479,31 @@ MCatNLOSource::MCatNLOSource( const ParameterSet & pset, InputSourceDescription 
   if(abs(hwproc.IPROC)==1705 || abs(hwproc.IPROC)==11705) 
     hwpram.PSPLT[1] = 0.5;
   
-  /*  char pdfpath[232];
-  bool dot=false;
-  for(int i=0; i<232; ++i) {
-    if(lhapdfSetPath_.c_str()[i]=='\0') dot=true;
-    if(!dot) pdfpath[i]=lhapdfSetPath_.c_str()[i];
-    else pdfpath[i]=' ';
-  }
-
-  setpdfpath(pdfpath);
-  */
+  // setting up herwig RNG seeds NRN(.)
+  cout << "----------------------------------------------" << endl;
+  cout << "Setting Herwig random number generator seeds" << endl;
+  cout << "----------------------------------------------" << endl;
+  c = (long double)2111111111.0 * x[3] +
+    1492.0 * (x[3] = x[2]) +
+    1776.0 * (x[2] = x[1]) +
+    5115.0 * (x[1] = x[0]) +
+    x[4];
+  x[4] = floorl(c);
+  x[0] = c - x[4];
+  x[4] = x[4] * (1./(65536.*65536.));
+  hwevnt.NRN[0]=int(x[0]*99999);
+  cout << "   NRN(1) = "<<hwevnt.NRN[0]<<endl;
+  c = (long double)2111111111.0 * x[3] +
+    1492.0 * (x[3] = x[2]) +
+    1776.0 * (x[2] = x[1]) +
+    5115.0 * (x[1] = x[0]) +
+    x[4];
+  x[4] = floorl(c);
+  x[0] = c - x[4];
+  hwevnt.NRN[1]=int(x[0]*99999);
+  cout << "   NRN(2) = "<<hwevnt.NRN[1]<<endl;
 
   hwuinc();
-
-  // callung HWUSTA to make any particle stable (PI0 by default)
   hwusta("PI0     ",1);
   if(jpr == 20) {
     hwusta("B+      ",1);
@@ -532,28 +528,33 @@ MCatNLOSource::MCatNLOSource( const ParameterSet & pset, InputSourceDescription 
     hwusta("OMG_BBR+",1);
     hwusta("B_C+    ",1);
   }
-  
-  // initialize elemetary process ...
+
+
   hweini();
-  
+
+  if(useJimmy_) jminit();
+
   cout << endl; // Stetically add for the output
-  //********                                      
-  
   produces<HepMCProduct>();
-  cout << "MCatNLOSource: starting event generation ... " << endl<<endl;
+  cout << "----------------------------------------------" << endl;
+  cout << "Starting event generation" << endl;
+  cout << "----------------------------------------------" << endl;
   
 }
 
 
 MCatNLOSource::~MCatNLOSource()
 {
-  cout << "MCatNLOSource: event generation done. " << endl;
+  cout << "----------------------------------------------" << endl;
+  cout << "Event generation done" << endl;
+  cout << "----------------------------------------------" << endl;
   clear();
 }
 
 void MCatNLOSource::clear() 
 {
   hwefin();
+  if(useJimmy_) jmefin();
 }
 
 void MCatNLOSource::processHG() 
@@ -608,34 +609,25 @@ void MCatNLOSource::processUnknown(bool positive)
 bool MCatNLOSource::produce(Event & e) {
   auto_ptr<HepMCProduct> bare_product(new HepMCProduct());  
 
-  // initialize event
-  hwuine();
+  double eventok = 1.0;
+  int counter = 0;
+  // try creating event max 10 times ...
+  while(eventok > 0.5) {
+    counter++;
+    if (counter == numTrials_) return true;
+    eventok = 0.0;
+    hwuine();
+    hwepro();
+    hwbgen();    
+    if(useJimmy_ && doMPInteraction_) eventok = hwmsct_dummy(&eventok);
+  }
 
-  // generate hard subprocess
-  hwepro();
-
-  // generate parton cascades
-  hwbgen();
-
-  // do heavy object decays
   hwdhob();
-
-  // do cluster formation
   hwcfor();
-
-  // do cluster decays
   hwcdec();
-
-  // do unstable particle decays
   hwdhad();
-
-  // do heavy flavour hadron decays
   hwdhvy();
-
-  // add soft underlying event if needed
   hwmevt();
-
-  // finish event
   hwufne();
 
   HepMC::GenEvent* evt = new HepMC::GenEvent();
@@ -1401,7 +1393,13 @@ bool MCatNLOSource::hwgive(const std::string& ParameterString) {
     hw6300.IOPSTP = atoi(&ParameterString[strcspn(ParameterString.c_str(),"=")+1]); 
   else if(!strncmp(ParameterString.c_str(),"IOPSH",5))
     hw6300.IOPSH = atoi(&ParameterString[strcspn(ParameterString.c_str(),"=")+1]); 
-    
+  else if(!strncmp(ParameterString.c_str(),"JMUEO",5))
+    jmparm.JMUEO = atoi(&ParameterString[strcspn(ParameterString.c_str(),"=")+1]); 
+  else if(!strncmp(ParameterString.c_str(),"PTJIM",5))
+    jmparm.PTJIM = atof(&ParameterString[strcspn(ParameterString.c_str(),"=")+1]); 
+  else if(!strncmp(ParameterString.c_str(),"JMRAD(73)",9))
+    jmparm.JMRAD[72] = atoi(&ParameterString[strcspn(ParameterString.c_str(),"=")+1]); 
+  
   else accepted = 0;
   
   return accepted;

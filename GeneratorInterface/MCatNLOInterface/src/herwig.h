@@ -22,7 +22,7 @@ C (NMXSUD= max no of entries in lookup table)
       & SUDORD*/
 const int nmxsud = 1024;
 extern struct {
-  double ACCUR, QEV[nmxsud][6],SUD[nmxsud][6];
+  double ACCUR, QEV[6][nmxsud],SUD[6][nmxsud];
   int INTER, NQEV, NSUD, SUDORD;
 } hwusud_;
 #define hwusud hwusud_
@@ -43,7 +43,7 @@ extern struct {
      & AUTPDF
      COMMON/HWPRCH/AUTPDF(2),BDECAY   */
 extern struct {
-  char AUTPDF[2][20],BDECAY;
+  char AUTPDF[2][20],BDECAY[4];
 } hwprch_;
 #define hwprch hwprch_
 
@@ -80,7 +80,7 @@ extern struct {
       COMMON/HWUWTS/REPWT(0:3,0:4,0:4),SNGWT,DECWT,QWT(3),PWT(12),
       & SWTEF(NMXRES)  */
 extern struct {
-  double REPWT[4][5][5],SNGWT,DECWT,QWT[3],PWT[12],SWTEF[nmxres-1];
+  double REPWT[5][5][4],SNGWT,DECWT,QWT[3],PWT[12],SWTEF[nmxres];
 } hwuwts_;
 #define hwuwts hwuwts_
 
@@ -102,7 +102,7 @@ extern struct {
 const int hepevt_size = 4000; // check in HerwigWrapper
 const int modmax = 50;
 extern struct {
-  double ALPFAC, BRHIG[12], ENHANC[12], GAMMAX, RHOHEP[3][hepevt_size];
+  double ALPFAC, BRHIG[12], ENHANC[12], GAMMAX, RHOHEP[hepevt_size][3];
   int IOPHIG, MODBOS[modmax];
 } hwbosc_;
 #define hwbosc hwbosc_
@@ -211,3 +211,101 @@ extern struct {
   char QQIN[50];
 } vvjin_;
 #define vvjin vvjin_ 
+
+//-------------------------- JIMMY COMMON BLOCK -------------------------------
+/*
+      DOUBLE PRECISION YGAMMA, JMZMIN, JMRAD, PTJIM
+      DOUBLE PRECISION PHAD, JMU2, JMV2, SMALL, JMARRY
+c     JMARRY is the array storing gamma-p xsec at various z, & 
+c	max weight for each z
+      DOUBLE PRECISION TOTSCAT, NLOST
+
+      INTEGER MAXMS, NPSIMP, MSFLAG, JMPTYP, JCMVAR, NPROC
+      LOGICAL ANOMOFF
+
+      PARAMETER( NPROC = 117 )
+      PARAMETER( MAXMS  = 100  )  ! Maximum multiple scatters
+      PARAMETER( NPSIMP = 16 )  ! No. of Simpson rule (YBJ)
+C                                 intervals (must be even)
+      PARAMETER( SMALL  = 1.0D-20  )
+      INTEGER JMOUT, JMBUG, FN_TYPE, NSCAT, JMUEO, MAXMSTRY
+      PARAMETER(JMOUT = 6)
+      COMMON / JMPARM /  PTJIM, YGAMMA, JMZMIN, JMRAD(264)
+     &     ,PHAD, JMU2, JMV2, JMARRY( 6+MAXMS,0:NPSIMP )
+     &     ,NLOST, TOTSCAT, ANOMOFF, JCMVAR, JMUEO
+     &     ,JMPTYP(NPROC), JMBUG, FN_TYPE, MSFLAG, MAXMSTRY
+      DOUBLE PRECISION JMPROC, JMVETO
+      COMMON / JMEVNT/ JMPROC(NPROC)
+     &,        JMVETO(2,13), NSCAT
+*/
+
+const int NPROC = 117;
+const int MAXMS = 100;
+const int NPSIMP = 16;
+const double SMALL = 0.00000000000000000001;
+
+extern struct {
+  double PTJIM,YGAMMA,JMZMIN,JMRAD[264],PHAD,JMU2,JMV2,JMARRY[NPSIMP+1][6+MAXMS],
+    NLOST,TOTSCAT;
+  int ANAMOFF,JCMVAR,JMUEO,JMPTYP[NPROC],JMBUG,FN_TYPE,MSFLAG,MAXMSTRY;
+} jmparm_;
+#define jmparm jmparm_
+
+extern struct {
+  double JMPROC[NPROC],JMVETO[13][2];
+  int NSCAT;
+} jmevnt_;
+#define jmevnt jmevnt_
+
+//------------------------------ JIMMY functions -------------------------------------------------
+extern"C" {
+  void jimmin_(void);
+  void jminit_(void);
+  double hwmsct_dummy_(double*);
+  void jmefin_(void);
+}
+
+#define jimmin jimmin_
+#define jminit jminit_
+#define hwmsct_dummy hwmsct_dummy_
+#define jmefin jmefin_
+
+// ========================================================================
+// MCatNLO common blocks and external routines used
+extern struct {
+  double mmecm,mmxren,mmxfh,mmxrenmc,mmxfhmc,mmxmh0,mmgah,mmxmt,mmgammax,mmxmhl;
+  double mmxmhu,mmxmass1,mmxmass2,mmxmass3,mmxmass4,mmxmass5,mmxmass21,mmxlam,mmxm0,mmgav,mmxm0v,mmtwidth;
+  double mmxwm,mmxzm,mmxww,mmxzw,mmv1gammax,mmv1massinf,mmv1masssup;
+  double mmv2gammax,mmv2massinf,mmv2masssup,mmvud,mmvus,mmvub,mmvcd,mmvcs,mmvcb;
+  double mmvtd,mmvts,mmvtb,mmxlamherw;
+  int mmmaxevt,mmidpdfset,mmiwgtnorm,mmiseed,mmibornex,mmit1,mmit2;
+  int mmivcode,mmil1code,mmil2code,mmaemrun,mmiproc;
+  char mmgname[20],mmscheme[2],mmpart1[4],mmpart2[4];
+} params_;
+#define params params_
+
+extern struct {
+  int basesoutput;
+  char stfilename[100];
+} fstbases_;
+#define fstbases fstbases_
+
+extern"C" {
+  void hgmain_(void);
+  void llmain_(void);
+  void vhmain_(void);
+  void vbmain_(void);
+  void qqmain_(void);
+  void sbmain_(void);
+  void stmain_(void);
+}
+
+#define hgmain hgmain_
+#define llmain llmain_
+#define vhmain vhmain_
+#define vbmain vbmain_
+#define qqmain qqmain_
+#define sbmain sbmain_
+#define stmain stmain_
+
+// ========================================================================

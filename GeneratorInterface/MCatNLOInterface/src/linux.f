@@ -5,29 +5,30 @@ c use newver='NEW' for vaxes, 'UNKNOWN' in other machines,
       newver = 'UNKNOWN'
       end
 
-      subroutine delete(fname)
-      character * 80 str
-      character * (*) fname
-      l = len(fname)
-      k = 1
-      dowhile(fname(k:k).eq.' '.and.k.lt.l)
-         k = k+1
-      enddo
-      dowhile(fname(l:l).eq.' '.and.l.gt.k)
-         l = l-1
-      enddo
-      if(l-k.gt.70) then
-         write(*,*) 'delete: filename > 70 chars not allowed'
-         stop
-      endif
-      if(l.eq.k) then
-         write(*,*) 'delete: void filename'
-         stop
-      endif
-      str(1:) = 'rm '
-      str(7:) = fname(k:l)
-      call system(str)
-      end
+C      subroutine delete(fname)
+C      character * 80 str
+C      character * (*) fname
+C      l = len(fname)
+C      k = 1
+C      dowhile(fname(k:k).eq.' '.and.k.lt.l)
+C         k = k+1
+C      enddo
+C      dowhile(fname(l:l).eq.' '.and.l.gt.k)
+C         l = l-1
+C      enddo
+C      if(l-k.gt.70) then
+C         write(*,*) fname
+C         write(*,*) 'delete: filename > 70 chars not allowed'
+C         stop
+C      endif
+C      if(l.eq.k) then
+C         write(*,*) 'delete: void filename'
+C         stop
+C      endif
+C      str(1:) = 'rm '
+C      str(7:) = fname(k:l)
+C      call system(str)
+C      end
 
 c      subroutine idate(i1,i2,i3)
 c      common/slate/isl(40)

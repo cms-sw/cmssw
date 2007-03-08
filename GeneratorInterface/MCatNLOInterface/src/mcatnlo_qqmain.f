@@ -97,7 +97,7 @@ c be used only in those parts of the code relevant to top decay
 c W mass ranges
       common/cbw1/xm012,ga1,bw1delf,bw1fmmn
       common/cbw2/xm022,ga2,bw2delf,bw2fmmn
-      common/bounds/xm1low2,xm1upp2,xm2low2,xm2upp2
+      common/bounmc/xm1low2,xm1upp2,xm2low2,xm2upp2
 c top branching ratios
       common/brratios/brrtop1,brrtop2
 c mass of leptons from W decays
@@ -4209,7 +4209,7 @@ c ttbar cross section. May become a process-dependent correction if need be
       real*8 xm022,ga2,bw2delf,bw2fmmn
       common/cbw2/xm022,ga2,bw2delf,bw2fmmn
       real*8 xm1low2,xm1upp2,xm2low2,xm2upp2
-      common/bounds/xm1low2,xm1upp2,xm2low2,xm2upp2
+      common/bounmc/xm1low2,xm1upp2,xm2low2,xm2upp2
       real*8 sthw2,cthw2
       common/cweinan/sthw2,cthw2
       real*8 xmt,twidth
@@ -5131,7 +5131,7 @@ c Values from PDG 2003
       real * 8 xlep1mass(2),xlep2mass(2)
       common/clepmass/xlep1mass,xlep2mass
       real * 8 xm1low2,xm1upp2,xm2low2,xm2upp2
-      common/bounds/xm1low2,xm1upp2,xm2low2,xm2upp2
+      common/bounmc/xm1low2,xm1upp2,xm2low2,xm2upp2
       real * 8 brrtop1,brrtop2
       common/brratios/brrtop1,brrtop2
       real * 8 sthw2,cthw2

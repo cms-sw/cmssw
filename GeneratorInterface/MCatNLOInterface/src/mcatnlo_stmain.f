@@ -105,7 +105,7 @@ c top mass and width; top mass and its square are also stored in cmass
       common/ctparam/xmt,twidth
 c W mass ranges
       common/cbw1/xm012,ga1,bw1delf,bw1fmmn
-      common/bounds/xm1low2,xm1upp2
+      common/bounmc/xm1low2,xm1upp2
 c top branching ratio
       common/brratios/brrtop1
 c mass of leptons from W decay
@@ -5443,7 +5443,7 @@ c the exact real and Born lepton matrix elements
       real*8 xm012,ga1,bw1delf,bw1fmmn
       common/cbw1/xm012,ga1,bw1delf,bw1fmmn
       real*8 xm1low2,xm1upp2
-      common/bounds/xm1low2,xm1upp2
+      common/bounmc/xm1low2,xm1upp2
       real*8 sthw2,cthw2
       common/cweinan/sthw2,cthw2
       real*8 xmt,twidth
@@ -7601,7 +7601,7 @@ c Values from PDG 2003
       real*8 xlep1mass,xlep2mass
       common/clepmass/xlep1mass,xlep2mass
       real*8 xm1low2,xm1upp2
-      common/bounds/xm1low2,xm1upp2
+      common/bounmc/xm1low2,xm1upp2
       real*8 brrtop1
       common/brratios/brrtop1
       real*8 cthw2,sthw2

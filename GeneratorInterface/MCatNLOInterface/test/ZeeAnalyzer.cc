@@ -7,7 +7,7 @@
 //
 // Original Author:  Fabian Stoeckli
 //         Created:  Tue Nov 14 13:43:02 CET 2006
-// $Id: ZeeAnalyzer.cc,v 1.2 2007/02/16 18:02:14 fabstoec Exp $
+// $Id: ZeeAnalyzer.cc,v 1.3 2007/03/01 12:11:35 fabstoec Exp $
 //
 //
 
@@ -37,9 +37,14 @@
 #include "TH1D.h"
 #include "TFile.h"
 
+
+
 ZeeAnalyzer::ZeeAnalyzer(const edm::ParameterSet& iConfig)
 {
+
   outputFilename=iConfig.getUntrackedParameter<std::string>("OutputFilename","dummy.root");
+
+
   weight_histo  = new TH1D("weight_histo","weight_histo",20,-10,10);
   invmass_histo = new TH1D("invmass_histo","invmass_histo",40,70,110);
 }
@@ -52,15 +57,16 @@ ZeeAnalyzer::~ZeeAnalyzer()
 
 
 // ------------ method called to for each event  ------------
-void
-ZeeAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+void ZeeAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+
    using namespace edm;
   
+
    // get HepMC::GenEvent ...
    Handle<HepMCProduct> evt_h;
    iEvent.getByType(evt_h);
-   HepMC::GenEvent * evt = new  HepMC::GenEvent(*(evt_h->GetEvent()));
+   HepMC::GenEvent* evt = new  HepMC::GenEvent(*(evt_h->GetEvent()));
 
 
    // get weight and fill it to histogram

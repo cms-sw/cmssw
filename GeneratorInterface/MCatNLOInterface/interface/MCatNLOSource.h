@@ -64,6 +64,10 @@ namespace edm
     char prefix_events[10];
 
     std::string lhapdfSetPath_;
+    bool useJimmy_;
+    bool doMPInteraction_;
+    int numTrials_;
+    bool printCards_;
 
   };
 } 
