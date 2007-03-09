@@ -4,12 +4,8 @@
 #include "DataFormats/CSCDigi/interface/CSCStripDigiCollection.h"
 
 
-CSCStripDigiValidation::CSCStripDigiValidation(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe,
-                                               const PSimHitMap & hitMap)
-: dbe_(dbe),
-  theInputTag(ps.getParameter<edm::InputTag>("stripDigiTag")),
-  theSimHitMap(hitMap),
-  theCSCGeometry(0),
+CSCStripDigiValidation::CSCStripDigiValidation(DaqMonitorBEInterface* dbe, const edm::InputTag & inputTag)
+: CSCBaseValidation(dbe, inputTag),
   thePedestalSum(0),
   thePedestalCovarianceSum(0),
   thePedestalCount(0),
@@ -84,7 +80,7 @@ void CSCStripDigiValidation::analyze(const edm::Event& e, const edm::EventSetup&
       }
     }
     int detId = (*j).first.rawId();
-    edm::PSimHitContainer simHits = theSimHitMap.hits(detId);
+    edm::PSimHitContainer simHits = theSimHitMap->hits(detId);
 
     if(simHits.size() == 1)
     {
@@ -127,8 +123,3 @@ void CSCStripDigiValidation::plotResolution(const PSimHit & hit, int strip,
 }
 
 
-const CSCLayer * CSCStripDigiValidation::findLayer(int detId) const {
-  assert(theCSCGeometry != 0);
-  const GeomDetUnit* detUnit = theCSCGeometry->idToDetUnit(CSCDetId(detId));
-  return dynamic_cast<const CSCLayer *>(detUnit);
-}

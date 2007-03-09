@@ -19,9 +19,14 @@ CSCDigiValidation::CSCDigiValidation(const edm::ParameterSet & ps)
   theComparatorDigiValidation(0)
 {
   dbe_->setCurrentFolder("CSCDigiTask");
-  theStripDigiValidation = new CSCStripDigiValidation(ps, dbe_, theSimHitMap);
-  theWireDigiValidation  = new CSCWireDigiValidation(ps, dbe_, theSimHitMap);
-  theComparatorDigiValidation  = new CSCComparatorDigiValidation(ps, dbe_, theSimHitMap);
+  theStripDigiValidation = new CSCStripDigiValidation(dbe_, ps.getParameter<edm::InputTag>("stripDigiTag"));
+  theWireDigiValidation  = new CSCWireDigiValidation(dbe_, ps.getParameter<edm::InputTag>("wireDigiTag"));
+  theComparatorDigiValidation  = new CSCComparatorDigiValidation(dbe_, ps.getParameter<edm::InputTag>("comparatorDigiTag"));
+
+  theStripDigiValidation->setSimHitMap(&theSimHitMap);
+  theWireDigiValidation->setSimHitMap(&theSimHitMap);
+  theComparatorDigiValidation->setSimHitMap(&theSimHitMap);
+
 }
 
 
@@ -50,7 +55,7 @@ void CSCDigiValidation::analyze(const edm::Event&e, const edm::EventSetup& event
 
   theStripDigiValidation->setGeometry( pGeom );
   theWireDigiValidation->setGeometry( pGeom );
-  //theComparatorDigiValidation.setGeometry( pGeom );
+  theComparatorDigiValidation->setGeometry( pGeom );
 
   theStripDigiValidation->analyze(e,eventSetup);
   theWireDigiValidation->analyze(e,eventSetup);

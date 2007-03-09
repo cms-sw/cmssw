@@ -4,11 +4,8 @@
 #include "DataFormats/CSCDigi/interface/CSCComparatorDigiCollection.h"
 
 
-CSCComparatorDigiValidation::CSCComparatorDigiValidation(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe,
-                                                         const PSimHitMap & hitMap)
-: dbe_(dbe),
-  theInputTag(ps.getParameter<edm::InputTag>("comparatorDigiTag")),
-  theSimHitMap(hitMap),
+CSCComparatorDigiValidation::CSCComparatorDigiValidation(DaqMonitorBEInterface* dbe, const edm::InputTag & inputTag)
+: CSCBaseValidation(dbe, inputTag),
   theTimeBinPlots(),
   theNDigisPerLayerPlots(),
   theNDigisPerEventPlot( dbe_->book1D("CSCComparatorDigisPerEvent", "CSC Comparator Digis per event", 100, 0, 100) )

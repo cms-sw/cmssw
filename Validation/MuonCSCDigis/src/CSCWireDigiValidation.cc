@@ -8,11 +8,8 @@
 
 
 
-CSCWireDigiValidation::CSCWireDigiValidation(const edm::ParameterSet& ps, DaqMonitorBEInterface* dbe,
-                                             const PSimHitMap & hitMap)
-: dbe_(dbe),
-  theInputTag(ps.getParameter<edm::InputTag>("wireDigiTag")),
-  theSimHitMap(hitMap),
+CSCWireDigiValidation::CSCWireDigiValidation(DaqMonitorBEInterface* dbe, const edm::InputTag & inputTag)
+: CSCBaseValidation(dbe, inputTag),
   theTimeBinPlots(),
   theNDigisPerLayerPlots(),
   theNDigisPerEventPlot( dbe_->book1D("CSCWireDigisPerEvent", "CSC Wire Digis per event", 100, 0, 100) )
@@ -65,7 +62,7 @@ void CSCWireDigiValidation::analyze(const edm::Event&e, const edm::EventSetup&)
       theTimeBinPlots[chamberType-1]->Fill(digiItr->getTimeBin());
     }
 
-    const edm::PSimHitContainer simHits = theSimHitMap.hits(detId);
+    const edm::PSimHitContainer simHits = theSimHitMap->hits(detId);
     if(nDigis == 1 && simHits.size() == 1)
     {
       plotResolution(simHits[0], *beginDigi, layer, chamberType);
@@ -83,12 +80,5 @@ void CSCWireDigiValidation::plotResolution(const PSimHit & hit, const CSCWireDig
   double hitY = hit.localPosition().y();
   double digiY = layer->geometry()->yOfWireGroup(digi.getWireGroup(), hitX);
   theResolutionPlots[chamberType-1]->Fill(digiY - hitY);
-}
-
-
-const CSCLayer * CSCWireDigiValidation::findLayer(int detId) const {
-  assert(theCSCGeometry != 0);
-  const GeomDetUnit* detUnit = theCSCGeometry->idToDetUnit(CSCDetId(detId));
-  return dynamic_cast<const CSCLayer *>(detUnit);
 }
 

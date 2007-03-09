@@ -1,4 +1,4 @@
-#include "Validation/MuonCSCDigis/src/PSimHitMap.h"
+#include "Validation/MuonCSCDigis/interface/PSimHitMap.h"
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 
