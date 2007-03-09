@@ -32,12 +32,15 @@ extern"C" {
   void mysetpdfpath_(char*);
   void setlhaparm_(char*);
   void setherwpdf_(void);
+  // function to chatch 'STOP' in original HWWARN
+  void cmsending_(int*);
 }
 
 #define setpdfpath setpdfpath_
 #define mysetpdfpath mysetpdfpath_
 #define setlhaparm setlhaparm_
 #define setherwpdf setherwpdf_
+#define cmsending cmsending_
 
 
 // -----------------  HepMC converter -----------------------------------------
@@ -59,7 +62,6 @@ Herwig6Source::Herwig6Source( const ParameterSet & pset,
   lhapdfSetPath_(pset.getUntrackedParameter<string>("lhapdfSetPath","")),
   useJimmy_(pset.getUntrackedParameter<bool>("useJimmy",true)),
   doMPInteraction_(pset.getUntrackedParameter<bool>("doMPInteraction",true)),
-  numTrials_(pset.getUntrackedParameter<int>("numTrials",10)),
   printCards_(pset.getUntrackedParameter<bool>("printCards",true))
 {
   cout << "----------------------------------------------" << endl;
@@ -85,7 +87,6 @@ Herwig6Source::Herwig6Source( const ParameterSet & pset,
     if(doMPInteraction_) 
       cout << "   JIMMY trying to generate multiple interactions." << endl;
   }
-  cout << "   Number of generation trials    = " << numTrials_ << endl;
   
   // Call hwudat to set up HERWIG block data
   hwudat();
@@ -205,19 +206,15 @@ bool Herwig6Source::produce(Event & e) {
   
   auto_ptr<HepMCProduct> bare_product(new HepMCProduct());  
   
-  double eventok = 1.0;
-  int counter = 0;
-  // try creating event max 10 times ...
-  while(eventok > 0.5) {
-    counter++;
-    if (counter == numTrials_) return true;
-    eventok = 0.0;
-    hwuine();
-    hwepro();
-    hwbgen();    
-    if(useJimmy_ && doMPInteraction_) eventok = hwmsct_dummy(1.1);
+  hwuine();
+  hwepro();
+  hwbgen();    
+  if(useJimmy_ && doMPInteraction_) {
+    double eventok = 0.0;
+    eventok = hwmsct_dummy(1.1);
+    if(eventok > 0.5) return true;
   }
-
+  
   hwdhob();
   hwcfor();
   hwcdec();
@@ -1021,4 +1018,11 @@ bool Herwig6Source::setRngSeeds(int mseed)
   hwevnt.NRN[1]=int(temx[0]*99999);
 
   return true;
+}
+
+extern "C" {
+  void cmsending_(int* ecode) {
+    cout<<"   ERROR: Herwig stoped run after recieving error code "<<*ecode<<"."<<endl;
+    throw cms::Exception("Herwig6Error") <<" Herwig stoped run with error code "<<*ecode<<".";
+  }
 }
