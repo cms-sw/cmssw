@@ -16,7 +16,7 @@
 class CSCOval
 {
 public:
-  CSCOval(const char * suffix, const char* drawhisto="none");
+  CSCOval();
   
   ~CSCOval();
 
@@ -34,12 +34,12 @@ private:
 };
 
 
-CSCOval::CSCOval(const char * suffix, const char* drawhisto)
+CSCOval::CSCOval()
 : rfile(0),
   sfile(0),
   theComp(0),
-  theSuffix(suffix),
-  theDirectory("DQMData/CSCRecHitTask")
+  theSuffix(""),
+  theDirectory("DQMData/CSCDigiTask")
 {
   gROOT->Reset();
   gStyle->SetOptFit(111);
@@ -63,7 +63,7 @@ CSCOval::CSCOval(const char * suffix, const char* drawhisto)
   gStyle->SetOptStat(111111);
 
   //gROOT->ProcessLine(".x HistoCompare.C");
-
+  string drawhisto = "gif";
   if(drawhisto == "gif")
   {
     theComp = new HistoCompareGif("CSC", theSuffix);
@@ -95,7 +95,7 @@ void CSCOval::process(string histname)
   rfile->GetObject(tname.c_str(), oldHist);
   sfile->GetObject(tname.c_str(), newHist); 
   theComp->compare(oldHist, newHist);
-  theComp->fits(oldHist, newHist);
+  //theComp->fits(oldHist, newHist);
 }
 
 
@@ -123,6 +123,16 @@ void CSCOval::plot(string histName)
 
 void CSCOval::run()
 {
+  plot("CSCPedestal");
+  plot("CSCStripDigisPerLayer");
+  plot("CSCStripDigisPerEvent");
+  plot("CSCStripAmplitude");
+  plot("CSCStrip4to5");
+  plot("CSCStrip6to5");
+  plot3x3("CSCStripDigiResolution");
+  plot3x3("CSCWireDigiTimeType");
+  plot3x3("CSCComparatorDigiTimeType");
+
   plot3x3("CSCRecHitResolution");
 }
 
