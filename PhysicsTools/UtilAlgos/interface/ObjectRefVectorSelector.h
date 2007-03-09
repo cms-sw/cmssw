@@ -10,10 +10,10 @@
 
 namespace helper {
   
-  template<typename C>
+  template<typename InputCollection>
   struct RefVectorStoreMananger {
-    typedef edm::RefVector<C> collection;
-    RefVectorStoreMananger() : selected_( new edm::RefVector<C> ) { 
+    typedef edm::RefVector<InputCollection> collection;
+    RefVectorStoreMananger() : selected_( new collection ) { 
     }
     template<typename I>
     void cloneAndStore( const I & begin, const I & end, edm::Event & ) {
@@ -25,20 +25,21 @@ namespace helper {
     }
     size_t size() const { return selected_->size(); }
   private:
-    std::auto_ptr<edm::RefVector<C> > selected_;
+    std::auto_ptr<collection> selected_;
   };
  
 }
 
-template<typename S, 
-	 typename N = NonNullNumberSelector,
-         typename P = reco::helpers::NullPostProcessor<edm::RefVector<typename S::collection> >,
-	 typename M = helper::RefVectorStoreMananger<typename S::collection>, 
-	 typename C = edm::RefVector<typename S::collection> >
-class ObjectRefVectorSelector : public ObjectSelector<S, N, P, M, C> {
+template<typename Selector, 
+	 typename OutputCollection = edm::RefVector<typename Selector::collection>,
+	 typename SizeSelector = NonNullNumberSelector,
+         typename PostProcessor = reco::helpers::NullPostProcessor<OutputCollection>,
+	 typename CollectionStoreManager = helper::RefVectorStoreMananger<typename Selector::collection> >
+class ObjectRefVectorSelector : 
+  public ObjectSelector<Selector, OutputCollection, SizeSelector, PostProcessor, CollectionStoreManager> {
 public:
   explicit ObjectRefVectorSelector( const edm::ParameterSet & cfg ) :
-    ObjectSelector<S, N, P, M, C>( cfg ) { }
+    ObjectSelector<Selector, OutputCollection, SizeSelector, PostProcessor, CollectionStoreManager>( cfg ) { }
 };
 
 #endif

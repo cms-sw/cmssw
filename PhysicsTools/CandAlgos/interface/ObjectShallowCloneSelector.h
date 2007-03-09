@@ -30,15 +30,15 @@ namespace helper {
 
 }
 
-template<typename S, 
-	 typename N = NonNullNumberSelector,
-         typename P = reco::helpers::NullPostProcessor<reco::CandidateCollection>,
-	 typename M = helper::RefVectorShallowCloneStoreMananger, 
-	 typename C = reco::CandidateCollection>
-class ObjectShallowCloneSelector : public ObjectSelector<S, N, P, M, C> {
+template<typename Selector, 
+	 typename SizeSelector = NonNullNumberSelector,
+         typename PostProcessor = reco::helpers::NullPostProcessor<reco::CandidateCollection> >
+class ObjectShallowCloneSelector : public ObjectSelector<Selector, reco::CandidateCollection, SizeSelector, 
+							 PostProcessor, helper::RefVectorShallowCloneStoreMananger> {
 public:
   explicit ObjectShallowCloneSelector( const edm::ParameterSet & cfg ) :
-    ObjectSelector<S, N, P, M, C>( cfg ) { }
+    ObjectSelector<Selector, reco::CandidateCollection, SizeSelector, 
+		   PostProcessor, helper::RefVectorShallowCloneStoreMananger>( cfg ) { }
 };
 
 #endif

@@ -13,7 +13,7 @@ namespace helper {
   template<typename SC>
   struct SelectionPointerAdder {
     template<typename C>
-    static void add( SC & selected, const edm::Handle<C> & c, size_t idx ) {
+    void operator()( SC & selected, const edm::Handle<C> & c, size_t idx ) {
       selected.push_back( & ( * c )[ idx ] );
     }
   };
@@ -21,7 +21,7 @@ namespace helper {
   template<typename SC>
   struct SelectionRefAdder {
     template<typename C>
-    static void add( SC & selected, const edm::Handle<C> & c, size_t idx ) {
+    void operator()( SC & selected, const edm::Handle<C> & c, size_t idx ) {
       selected.push_back( edm::Ref<C>( c, idx ) );
     }
   };
