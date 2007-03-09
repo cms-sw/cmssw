@@ -29,12 +29,15 @@ extern"C" {
   void mysetpdfpath_(char*);
   void setlhaparm_(char*);
   void setherwpdf_(void);
+  // function to chatch 'STOP' in original HWWARN
+  void cmsending_(int*);
 }
 
 #define setpdfpath setpdfpath_
 #define mysetpdfpath mysetpdfpath_
 #define setlhaparm setlhaparm_
 #define setherwpdf setherwpdf_
+#define cmsending cmsending_
 
 using namespace edm;
 using namespace std;
@@ -59,7 +62,6 @@ MCatNLOSource::MCatNLOSource( const ParameterSet & pset, InputSourceDescription 
   lhapdfSetPath_(pset.getUntrackedParameter<string>("lhapdfSetPath",std::string(""))),
   useJimmy_(pset.getUntrackedParameter<bool>("useJimmy",true)),
   doMPInteraction_(pset.getUntrackedParameter<bool>("doMPInteraction",true)),
-  numTrials_(pset.getUntrackedParameter<int>("numTrials",10)),
   printCards_(pset.getUntrackedParameter<bool>("printCards",true))
 {
  
@@ -87,7 +89,6 @@ MCatNLOSource::MCatNLOSource( const ParameterSet & pset, InputSourceDescription 
     if(doMPInteraction_) 
       cout << "   JIMMY trying to generate multiple interactions." << endl;
   }
-  cout << "   Number of generation trials    = " << numTrials_ << endl;
 
   // set some MC@NLO parameters ...
   params.mmmaxevt = numEvents_;
@@ -257,8 +258,6 @@ MCatNLOSource::MCatNLOSource( const ParameterSet & pset, InputSourceDescription 
   
   // seting maximum events
   hwproc.MAXEV = pset.getUntrackedParameter<int>("maxEvents",0);
-  hwevnt.MAXER = hwproc.MAXEV/10;
-  if(hwevnt.MAXER<10) hwevnt.MAXER = 10;
   if(useJimmy_ && doMPInteraction_) jmparm.MSFLAG = 1;
 
   // initialize other common block ...
@@ -274,25 +273,6 @@ MCatNLOSource::MCatNLOSource( const ParameterSet & pset, InputSourceDescription 
 
   // set HERWIG PDF's to LHAPDF
   setherwpdf();
-
-  /*
-  hwprch.AUTPDF[0][0]='L';
-  hwprch.AUTPDF[0][1]='H';
-  hwprch.AUTPDF[0][2]='A';
-  hwprch.AUTPDF[0][3]='P';
-  hwprch.AUTPDF[0][4]='D';
-  hwprch.AUTPDF[0][5]='F';
-  hwprch.AUTPDF[1][0]='L';
-  hwprch.AUTPDF[1][1]='H';
-  hwprch.AUTPDF[1][2]='A';
-  hwprch.AUTPDF[1][3]='P';
-  hwprch.AUTPDF[1][4]='D';
-  hwprch.AUTPDF[1][5]='F';
-  for(int i=6; i<20; ++i) {
-  hwprch.AUTPDF[0][i]=' ';
-    hwprch.AUTPDF[1][i]=' ';
-    }
-  */  
 
   // setting pdfs to MCatNLO pdf's
   hwpram.MODPDF[0]=params.mmidpdfset;
@@ -385,6 +365,24 @@ MCatNLOSource::MCatNLOSource( const ParameterSet & pset, InputSourceDescription 
   hwprop.RMASS[5] = params.mmxmass5;
   hwprop.RMASS[13] = params.mmxmass21;
 
+  // some sensitive defaults
+  hwpram.SOFTME = false;  
+  hwevnt.NOWGT = false;
+  hw6203.NEGWTS = true;
+  hwpram.LRSUD = 0;
+  hwpram.LWSUD = 77;
+  hwpram.NSTRU = 8;
+  hwpram.PRVTX = false;
+  hwhard.PTMIN = 0.5;
+  if(!hwevnt.NOWGT) {
+    hwevnt.WGTMAX = 1.000001;
+    hw6203.AVABW = 1.000001;
+  }
+  hwprop.RLTIM[6]=1.0e-23;
+  hwprop.RLTIM[12]=1.0e-23;
+  if(abs(hwproc.IPROC)==1705 || abs(hwproc.IPROC)==11705) 
+    hwpram.PSPLT[1] = 0.5;
+  
   // Set HERWIG parameters in a single ParameterSet
   ParameterSet herwig_params = 
     pset.getParameter<ParameterSet>("HerwigParameters") ;
@@ -451,33 +449,8 @@ MCatNLOSource::MCatNLOSource( const ParameterSet & pset, InputSourceDescription 
   for(int i=1; i<6; ++i) 
   hwprop.RMASS[i+6]=hwprop.RMASS[i];
 
-  // Select W/Z decay modes
-  hwbosc.MODBOS[0]=5;
-  hwbosc.MODBOS[1]=5;
-
-
   // set W+ to W-
   hwprop.RMASS[199]=hwprop.RMASS[198];
-  hwpram.SOFTME = false;  
-  hwevnt.NOWGT = false;
-  hw6203.NEGWTS = true;
-  if(hwproc.MAXEV/100>10)
-    hwevnt.MAXER = hwproc.MAXEV/100;
-  else
-    hwevnt.MAXER = 10;
-  hwpram.LRSUD = 0;
-  hwpram.LWSUD = 77;
-  hwpram.NSTRU = 8;
-  hwpram.PRVTX = false;
-  hwhard.PTMIN = 0.5;
-  if(!hwevnt.NOWGT) {
-    hwevnt.WGTMAX = 1.000001;
-    hw6203.AVABW = 1.000001;
-  }
-  hwprop.RLTIM[6]=1.0e-23;
-  hwprop.RLTIM[12]=1.0e-23;
-  if(abs(hwproc.IPROC)==1705 || abs(hwproc.IPROC)==11705) 
-    hwpram.PSPLT[1] = 0.5;
   
   // setting up herwig RNG seeds NRN(.)
   cout << "----------------------------------------------" << endl;
@@ -528,7 +501,6 @@ MCatNLOSource::MCatNLOSource( const ParameterSet & pset, InputSourceDescription 
     hwusta("OMG_BBR+",1);
     hwusta("B_C+    ",1);
   }
-
 
   hweini();
 
@@ -607,21 +579,20 @@ void MCatNLOSource::processUnknown(bool positive)
 
 
 bool MCatNLOSource::produce(Event & e) {
-  auto_ptr<HepMCProduct> bare_product(new HepMCProduct());  
 
-  double eventok = 1.0;
-  int counter = 0;
-  // try creating event max 10 times ...
-  while(eventok > 0.5) {
-    counter++;
-    if (counter == numTrials_) return true;
-    eventok = 0.0;
-    hwuine();
-    hwepro();
-    hwbgen();    
-    if(useJimmy_ && doMPInteraction_) eventok = hwmsct_dummy(&eventok);
+  auto_ptr<HepMCProduct> bare_product(new HepMCProduct());  
+  
+  hwuine();
+  hwepro();
+  hwbgen();
+  
+  if(useJimmy_ && doMPInteraction_) {
+    double eventok = 0.0;
+    eventok = hwmsct_dummy(&eventok);
+    if(eventok > 0.5) return true;
   }
 
+  
   hwdhob();
   hwcfor();
   hwcdec();
@@ -629,7 +600,7 @@ bool MCatNLOSource::produce(Event & e) {
   hwdhvy();
   hwmevt();
   hwufne();
-
+  
   HepMC::GenEvent* evt = new HepMC::GenEvent();
   bool ok = conv.fill_next_event( evt );
   if(!ok) throw cms::Exception("HerwigError")
@@ -1717,4 +1688,11 @@ void MCatNLOSource::createStringFile(const std::string& fileName)
   output.put('\'');
   output.put('\n');  
   output.close();
+}
+
+extern "C" {
+  void cmsending_(int* ecode) {
+    cout<<"   ERROR: Herwig stoped run after recieving error code "<<*ecode<<"."<<endl;
+    throw cms::Exception("Herwig6Error") <<" Herwig stoped run with error code "<<*ecode<<".";
+  }
 }

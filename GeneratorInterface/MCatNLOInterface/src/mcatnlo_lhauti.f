@@ -79,7 +79,7 @@ C  OF LAST DIFFERENCE IF *EXTRA* IS TRUE.
       RETURN
 C
 CCC   changed from oroginal in order to make things work with LHAPDF   20 CALL KERMTR('E105.1',LGFILE,MFLAG,RFLAG)
-   20 CALL KERMTR_LHA('E105.1',LGFILE,MFLAG,RFLAG)
+   20 CALL KERMTR_LHA_('E105.1',LGFILE,MFLAG,RFLAG)
       IF(MFLAG) THEN
          IF(LGFILE.EQ.0) THEN
             IF(MM.LT.1) WRITE(*,101) MM
@@ -90,7 +90,7 @@ CCC   changed from oroginal in order to make things work with LHAPDF   20 CALL K
          ENDIF
       ENDIF
 CCC   changed by Fabian Stoeckli in order to make things work with LHAPDF (IF(.NOT.RFLAG) CALL ABEND)
-      IF(.NOT.RFLAG) CALL ABEND_LHA
+      IF(.NOT.RFLAG) CALL ABEND_LHA_
       RETURN
   101 FORMAT( 7X, 'FUNCTION DIVDIF ... M =',I6,' IS LESS THAN 1')
   102 FORMAT( 7X, 'FUNCTION DIVDIF ... N =',I6,' IS LESS THAN 2')
@@ -101,10 +101,10 @@ CCC   added by Fabian Stoeckli (fabian.stoeckli@cern.ch)
 CCC   in order to fix for incompatibility ogf MC@NLO with LHAPDF
       DOUBLE PRECISION FUNCTION DDILOG(X)
 
-      DOUBLE PRECISION DDILOG_LHA
-      EXTERNAL DDILOG_LHA
+      DOUBLE PRECISION DDILOG_LHA_
+C      EXTERNAL DDILOG_LHA
 
-      DDILOG=DDILOG_LHA(X)
+      DDILOG=DDILOG_LHA_(X)
 
       RETURN
       END
