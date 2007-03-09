@@ -10,7 +10,7 @@
 #include "DataFormats/EgammaReco/interface/ClusterShapeFwd.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterShapeAssociation.h"
 
-#include "Geometry/Vector/interface/Pi.h"
+#include "DataFormats/GeometryVector/interface/Pi.h"
 
 EgammaSuperClusters::EgammaSuperClusters( const edm::ParameterSet& ps )
 {
