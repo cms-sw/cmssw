@@ -269,10 +269,10 @@ vector < CachingVertex > MultiVertexFitter::vertices (
     {
       if ( !(thePrimaries.count (*trk )) )
       {
-        cout << "[MultiVertexFitter] free track " << trk->id() << endl;
+        // cout << "[MultiVertexFitter] free track " << trk->id() << endl;
         theTracks.push_back ( *trk );
       } else {
-        cout << "[MultiVertexFitter " << trk->id() << " is not free." << endl;
+        // cout << "[MultiVertexFitter " << trk->id() << " is not free." << endl;
       }
       cout << "[MultiVertexFitter] error! track weight currently set to one"
            << " FIXME!!!" << endl;
@@ -614,7 +614,7 @@ vector < CachingVertex > MultiVertexFitter::fit()
 
 void MultiVertexFitter::printWeights ( const reco::TransientTrack & t ) const
 {
-    cout << "Trk " << t.id();
+    // cout << "Trk " << t.id();
     for ( vector < pair < int, CachingVertex > >::const_iterator seed=theVertexStates.begin();
           seed!=theVertexStates.end(); ++seed )
     {
