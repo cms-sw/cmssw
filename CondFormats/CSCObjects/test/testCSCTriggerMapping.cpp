@@ -7,7 +7,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 #include <FWCore/Utilities/interface/Exception.h>
 #include <FWCore/Framework/interface/EventProcessor.h>
-#include <FWCore/Utilities/interface/ProblemTracker.h>
+#include "FWCore/PluginManager/interface/ProblemTracker.h"
 #include <CondFormats/CSCObjects/interface/CSCTriggerMappingFromFile.h>
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
 #include <iostream>
