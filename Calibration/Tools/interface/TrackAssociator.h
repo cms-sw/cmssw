@@ -1,10 +1,10 @@
-#ifndef TrackAssociator_TrackAssociator_h
-#define TrackAssociator_TrackAssociator_h 1
+#ifndef HTrackAssociator_HTrackAssociator_h
+#define HTrackAssociator_HTrackAssociator_h 1
 
 // -*- C++ -*-
 //
-// Package:    TrackAssociator
-// Class:      TrackAssociator
+// Package:    HTrackAssociator
+// Class:      HTrackAssociator
 // 
 /*
 
@@ -16,9 +16,6 @@
 //
 // Original Author:  Dmytro Kovalskyi
 // Modified for ECAL+HCAL by:  Michal Szleper
-//         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: TrackAssociator.h,v 1.3 2006/08/16 21:59:27 jribnik Exp $
-//
 //
 
 #include "FWCore/Framework/interface/Event.h"
@@ -47,14 +44,14 @@
 #include "SimDataFormats/Vertex/interface/SimVertex.h"
 
 
-class TrackAssociator {
+class HTrackAssociator {
  public:
-   TrackAssociator();
-   ~TrackAssociator();
+   HTrackAssociator();
+   ~HTrackAssociator();
    
-   class AssociatorParameters {
+   class HAssociatorParameters {
     public:
-      AssociatorParameters() {
+      HAssociatorParameters() {
 	 // default parameters
 	 // define match cones, dR=sqrt(dEta^2+dPhi^2)
 	 dREcal = 0.03;
@@ -92,10 +89,10 @@ class TrackAssociator {
    ///     withing an eta-phi cone of some radius with 
    ///     respect to a track.
    ///     (the cone origin is at (0,0,0))
-   TrackDetMatchInfo            associate( const edm::Event&,
+   HTrackDetMatchInfo            associate( const edm::Event&,
 					   const edm::EventSetup&,
 					   const FreeTrajectoryState&,
-					   const AssociatorParameters& );
+					   const HAssociatorParameters& );
 
    /// associate ECAL only and return RecHits
    /// negative dR means only crossed elements
@@ -145,28 +142,28 @@ class TrackAssociator {
  private:
    void       fillEcal( const edm::Event&,
 			const edm::EventSetup&,
-			TrackDetMatchInfo&, 
+			HTrackDetMatchInfo&, 
 			const FreeTrajectoryState&,
 			const int,
 			const double);
 
    void       fillHcal( const edm::Event&,
                         const edm::EventSetup&,
-                        TrackDetMatchInfo&,
+                        HTrackDetMatchInfo&,
                         const FreeTrajectoryState&,
                         const int,
                         const double);
 
    void fillHcalTowers( const edm::Event&,
 			const edm::EventSetup&,
-			TrackDetMatchInfo&, 
+			HTrackDetMatchInfo&, 
 			const FreeTrajectoryState&,
 			const int,
 			const double);
    
    void fillCaloTowers( const edm::Event&,
 			const edm::EventSetup&,
-			TrackDetMatchInfo&, 
+			HTrackDetMatchInfo&, 
 			const FreeTrajectoryState&,
 			const int,
 			const double);
@@ -199,9 +196,9 @@ class TrackAssociator {
    int debug_;
    std::vector<std::vector<std::set<uint32_t> > >* caloTowerMap_;
    
-   EcalDetIdAssociator ecalDetIdAssociator_;
-   HcalDetIdAssociator hcalDetIdAssociator_;
-   CaloDetIdAssociator caloDetIdAssociator_;
+   HEcalDetIdAssociator ecalDetIdAssociator_;
+   HHcalDetIdAssociator hcalDetIdAssociator_;
+   HCaloDetIdAssociator caloDetIdAssociator_;
    
    edm::ESHandle<CaloGeometry> theCaloGeometry_;
    

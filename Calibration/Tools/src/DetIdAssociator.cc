@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
-// Package:    TrackAssociator
-// Class:      DetIdAssociator
+// Package:    HTrackAssociator
+// Class:      HDetIdAssociator
 // 
 /*
 
@@ -14,7 +14,7 @@
 // Original Author:  Dmytro Kovalskyi
 // Modified for ECAL+HCAL by:  Michal Szleper
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: DetIdAssociator.cc,v 1.3 2006/08/15 23:03:53 dmytro Exp $
+// $Id: DetIdAssociator.cc,v 1.1 2007/03/08 23:03:18 michals Exp $
 //
 //
 
@@ -23,7 +23,7 @@
 
 
 // surfaces is a vector of GlobalPoint representing outermost point on a cylinder
-std::vector<GlobalPoint> DetIdAssociator::getTrajectory( const FreeTrajectoryState& ftsStart,
+std::vector<GlobalPoint> HDetIdAssociator::getTrajectory( const FreeTrajectoryState& ftsStart,
 						    const std::vector<GlobalPoint>& surfaces)
 {
    check_setup();
@@ -91,7 +91,7 @@ std::vector<GlobalPoint> DetIdAssociator::getTrajectory( const FreeTrajectorySta
 }
 
 //------------------------------------------------------------------------------
-std::set<DetId> DetIdAssociator::getDetIdsCloseToAPoint(const GlobalPoint& direction,
+std::set<DetId> HDetIdAssociator::getDetIdsCloseToAPoint(const GlobalPoint& direction,
 						   const int idR)
 {
    std::set<DetId> set;
@@ -139,13 +139,13 @@ std::set<DetId> DetIdAssociator::getDetIdsCloseToAPoint(const GlobalPoint& direc
 //       }
 //     }
 //     else {
-//       std::cout <<" DetIdAssociator::getDetIdsCloseToAPoint::There are strange days "<<std::endl; 
+//       std::cout <<" HDetIdAssociator::getDetIdsCloseToAPoint::There are strange days "<<std::endl; 
 //     }  
    return set;
 }
 
 //------------------------------------------------------------------------------
-int DetIdAssociator::iEta (const GlobalPoint& point)
+int HDetIdAssociator::iEta (const GlobalPoint& point)
 {
 // unequal bin sizes for endcap, following HCAL geometry
    int iEta1 = int(point.eta()/etaBinSize_ + nEta_/2);
@@ -189,7 +189,7 @@ int DetIdAssociator::iEta (const GlobalPoint& point)
 }
 
 //------------------------------------------------------------------------------
-int DetIdAssociator::iPhi (const GlobalPoint& point)
+int HDetIdAssociator::iPhi (const GlobalPoint& point)
 {
    double pi=4*atan(1.);
    int iPhi1 = int((double(point.phi())+pi)/(2*pi)*nPhi_);
@@ -197,11 +197,11 @@ int DetIdAssociator::iPhi (const GlobalPoint& point)
 }
 
 //------------------------------------------------------------------------------
-void DetIdAssociator::buildMap()
+void HDetIdAssociator::buildMap()
 {
 // modified version: take only detector central position
    check_setup();
-   LogTrace("DetIdAssociator")<<"building map" << "\n";
+   LogTrace("HDetIdAssociator")<<"building map" << "\n";
    if(theMap_) delete theMap_;
    theMap_ = new std::vector<std::vector<std::set<DetId> > >(nEta_,nPhi_);
    int numberOfDetIdsOutsideEtaRange = 0;
@@ -230,7 +230,7 @@ void DetIdAssociator::buildMap()
       if ((ieta>54||ieta<15) && iphi%2==1) phiMin--;
 
       if (etaMax<0||phiMax<0||etaMin>=nEta_||phiMin>=nPhi_) {
-	 LogTrace("DetIdAssociator")<<"Out of range: DetId:" << id_itr->rawId() <<
+	 LogTrace("HDetIdAssociator")<<"Out of range: DetId:" << id_itr->rawId() <<
 	   "\n\teta (min,max): " << etaMin << "," << etaMax <<
 	   "\n\tphi (min,max): " << phiMin << "," << phiMax <<
 	   "\nTower id: " << id_itr->rawId() << "\n";
@@ -247,14 +247,14 @@ void DetIdAssociator::buildMap()
 	  (*theMap_)[ieta][iphi%nPhi_].insert(*id_itr);
       numberOfDetIdsActive++;
    }
-   LogTrace("DetIdAssociator") << "Number of elements outside the allowed range ( |eta|>"<<
+   LogTrace("HDetIdAssociator") << "Number of elements outside the allowed range ( |eta|>"<<
      nEta_/2*etaBinSize_ << "): " << numberOfDetIdsOutsideEtaRange << "\n";
-   LogTrace("DetIdAssociator") << "Number of active DetId's mapped: " << 
+   LogTrace("HDetIdAssociator") << "Number of active DetId's mapped: " << 
      numberOfDetIdsActive << "\n";
 }
 
 //------------------------------------------------------------------------------
-std::set<DetId> DetIdAssociator::getDetIdsInACone(const std::set<DetId>& inset, 
+std::set<DetId> HDetIdAssociator::getDetIdsInACone(const std::set<DetId>& inset, 
          			     const std::vector<GlobalPoint>& trajectory,
 	        		     const double dR)
 {
@@ -299,7 +299,7 @@ std::set<DetId> DetIdAssociator::getDetIdsInACone(const std::set<DetId>& inset,
 }
 
 //------------------------------------------------------------------------------
-std::set<DetId> DetIdAssociator::getCrossedDetIds(const std::set<DetId>& inset,
+std::set<DetId> HDetIdAssociator::getCrossedDetIds(const std::set<DetId>& inset,
 					     const std::vector<GlobalPoint>& trajectory)
 {
    check_setup();
@@ -311,7 +311,7 @@ std::set<DetId> DetIdAssociator::getCrossedDetIds(const std::set<DetId>& inset,
 }
 
 //------------------------------------------------------------------------------
-std::set<DetId> DetIdAssociator::getMaxEDetId(const std::set<DetId>& inset,
+std::set<DetId> HDetIdAssociator::getMaxEDetId(const std::set<DetId>& inset,
                                            edm::Handle<CaloTowerCollection> caloTowers)
 {
 // returns the most energetic tower in the NxN box (Michal)
@@ -346,7 +346,7 @@ std::set<DetId> DetIdAssociator::getMaxEDetId(const std::set<DetId>& inset,
 }
 
 //------------------------------------------------------------------------------
-std::set<DetId> DetIdAssociator::getMaxEDetId(const std::set<DetId>& inset,
+std::set<DetId> HDetIdAssociator::getMaxEDetId(const std::set<DetId>& inset,
                                            edm::Handle<HBHERecHitCollection> recHits)
 {
 // returns the most energetic tower in the NxN box - from RecHits (Michal)

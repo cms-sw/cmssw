@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
-// Package:    TrackAssociator
-// Class:      TrackAssociator
+// Package:    HTrackAssociator
+// Class:      HTrackAssociator
 // 
 /*
 
@@ -14,7 +14,7 @@
 // Original Author:  Dmytro Kovalskyi
 // Modified for ECAL+HCAL by:  Michal Szleper
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: TrackAssociator.cc,v 1.6 2006/08/16 22:02:02 jribnik Exp $
+// $Id: TrackAssociator.cc,v 1.1 2007/03/08 23:03:18 michals Exp $
 //
 //
 
@@ -47,8 +47,8 @@
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 
-#include "Geometry/Surface/interface/Cylinder.h"
-#include "Geometry/Surface/interface/Plane.h"
+#include "DataFormats/GeometrySurface/interface/Cylinder.h"
+#include "DataFormats/GeometrySurface/interface/Plane.h"
 
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 
@@ -75,7 +75,7 @@
 
 using namespace reco;
 
-TrackAssociator::TrackAssociator() 
+HTrackAssociator::HTrackAssociator() 
 {
    ivProp_ = 0;
    defProp_ = 0;
@@ -84,13 +84,13 @@ TrackAssociator::TrackAssociator()
    useDefaultPropagator_ = false;
 }
 
-TrackAssociator::~TrackAssociator()
+HTrackAssociator::~HTrackAssociator()
 {
    if (defProp_) delete defProp_;
 }
 
 //-----------------------------------------------------------------------------
-void TrackAssociator::addDataLabels( const std::string className,
+void HTrackAssociator::addDataLabels( const std::string className,
 				     const std::string moduleLabel,
 				     const std::string productInstanceLabel)
 {
@@ -122,7 +122,7 @@ void TrackAssociator::addDataLabels( const std::string className,
 
 
 //-----------------------------------------------------------------------------
-void TrackAssociator::setPropagator( Propagator* ptr)
+void HTrackAssociator::setPropagator( Propagator* ptr)
 {
    ivProp_ = ptr; 
    caloDetIdAssociator_.setPropagator(ivProp_);
@@ -131,14 +131,14 @@ void TrackAssociator::setPropagator( Propagator* ptr)
 }
 
 //-----------------------------------------------------------------------------
-void TrackAssociator::useDefaultPropagator()
+void HTrackAssociator::useDefaultPropagator()
 {
    useDefaultPropagator_ = true;
 }
 
 
 //-----------------------------------------------------------------------------
-void TrackAssociator::init( const edm::EventSetup& iSetup )
+void HTrackAssociator::init( const edm::EventSetup& iSetup )
 {
    // access the calorimeter geometry
    iSetup.get<IdealGeometryRecord>().get(theCaloGeometry_);
@@ -162,14 +162,14 @@ void TrackAssociator::init( const edm::EventSetup& iSetup )
 }
 
 //-----------------------------------------------------------------------------
-TrackDetMatchInfo TrackAssociator::associate( const edm::Event& iEvent,
+HTrackDetMatchInfo HTrackAssociator::associate( const edm::Event& iEvent,
 					      const edm::EventSetup& iSetup,
 					      const FreeTrajectoryState& trackOrigin,
-					      const AssociatorParameters& parameters )
+					      const HAssociatorParameters& parameters )
 {
-   TrackDetMatchInfo info;
+   HTrackDetMatchInfo info;
    using namespace edm;
-   TimerStack timers;
+   HTimerStack timers;
    
    init( iSetup );
    
@@ -183,15 +183,15 @@ TrackDetMatchInfo TrackAssociator::associate( const edm::Event& iEvent,
 }
 
 //-----------------------------------------------------------------------------
-std::vector<EcalRecHit> TrackAssociator::associateEcal( const edm::Event& iEvent,
+std::vector<EcalRecHit> HTrackAssociator::associateEcal( const edm::Event& iEvent,
 							const edm::EventSetup& iSetup,
 							const FreeTrajectoryState& trackOrigin,
 							const double dR )
 {
-   AssociatorParameters parameters;
+   HAssociatorParameters parameters;
    parameters.useHcal = false;
    parameters.dREcal = dR;
-   TrackDetMatchInfo info( associate(iEvent, iSetup, trackOrigin, parameters ));
+   HTrackDetMatchInfo info( associate(iEvent, iSetup, trackOrigin, parameters ));
    if (dR>0) 
      return info.coneEcalRecHits;
    else
@@ -199,15 +199,15 @@ std::vector<EcalRecHit> TrackAssociator::associateEcal( const edm::Event& iEvent
 }
 
 //-----------------------------------------------------------------------------
-double TrackAssociator::getEcalEnergy( const edm::Event& iEvent,
+double HTrackAssociator::getEcalEnergy( const edm::Event& iEvent,
 				       const edm::EventSetup& iSetup,
 				       const FreeTrajectoryState& trackOrigin,
 				       const double dR )
 {
-   AssociatorParameters parameters;
+   HAssociatorParameters parameters;
    parameters.useHcal = false;
    parameters.dREcal = dR;
-   TrackDetMatchInfo info = associate(iEvent, iSetup, trackOrigin, parameters );
+   HTrackDetMatchInfo info = associate(iEvent, iSetup, trackOrigin, parameters );
    if(dR>0) 
      return info.ecalConeEnergyFromRecHits();
    else
@@ -215,15 +215,15 @@ double TrackAssociator::getEcalEnergy( const edm::Event& iEvent,
 }
 
 //-----------------------------------------------------------------------------
-std::vector<CaloTower> TrackAssociator::associateHcal( const edm::Event& iEvent,
+std::vector<CaloTower> HTrackAssociator::associateHcal( const edm::Event& iEvent,
 						       const edm::EventSetup& iSetup,
 						       const FreeTrajectoryState& trackOrigin,
 						       const double dR )
 {
-   AssociatorParameters parameters;
+   HAssociatorParameters parameters;
    parameters.useEcal = false;
    parameters.dRHcal = dR;
-   TrackDetMatchInfo info( associate(iEvent, iSetup, trackOrigin, parameters ));
+   HTrackDetMatchInfo info( associate(iEvent, iSetup, trackOrigin, parameters ));
    if (dR>0) 
      return info.coneTowers;
    else
@@ -232,15 +232,15 @@ std::vector<CaloTower> TrackAssociator::associateHcal( const edm::Event& iEvent,
 }
 
 //-----------------------------------------------------------------------------
-double TrackAssociator::getHcalEnergy( const edm::Event& iEvent,
+double HTrackAssociator::getHcalEnergy( const edm::Event& iEvent,
 				       const edm::EventSetup& iSetup,
 				       const FreeTrajectoryState& trackOrigin,
 				       const double dR )
 {
-   AssociatorParameters parameters;
+   HAssociatorParameters parameters;
    parameters.useEcal = false;
    parameters.dRHcal = dR;
-   TrackDetMatchInfo info( associate(iEvent, iSetup, trackOrigin, parameters ));
+   HTrackDetMatchInfo info( associate(iEvent, iSetup, trackOrigin, parameters ));
    if (dR>0) 
      return info.hcalConeEnergyFromRecHits();
    else
@@ -248,19 +248,19 @@ double TrackAssociator::getHcalEnergy( const edm::Event& iEvent,
 }
 
 //-----------------------------------------------------------------------------
-void TrackAssociator::fillEcal( const edm::Event& iEvent,
+void HTrackAssociator::fillEcal( const edm::Event& iEvent,
 				const edm::EventSetup& iSetup,
-				TrackDetMatchInfo& info,
+				HTrackDetMatchInfo& info,
 				const FreeTrajectoryState& trajectoryPoint,
 				const int idR,
 				const double dR)
 {
-   TimerStack timers;
-   timers.push("TrackAssociator::fillEcal");
+   HTimerStack timers;
+   timers.push("HTrackAssociator::fillEcal");
    
    ecalDetIdAssociator_.setGeometry(&*theCaloGeometry_);
    
-   timers.push("TrackAssociator::fillEcal::propagation");
+   timers.push("HTrackAssociator::fillEcal::propagation");
    // ECAL points (EB+EE)
    std::vector<GlobalPoint> ecalPoints;
    ecalPoints.push_back(GlobalPoint(135.,0,310.));
@@ -271,7 +271,7 @@ void TrackAssociator::fillEcal( const edm::Event& iEvent,
 //   if(ecalTrajectory.empty()) throw cms::Exception("FatalError") << "Failed to propagate a track to ECAL\n";
 
    if(ecalTrajectory.empty()) {
-      LogTrace("TrackAssociator::fillEcal") << "Failed to propagate a track to ECAL; moving on\n";
+      LogTrace("HTrackAssociator::fillEcal") << "Failed to propagate a track to ECAL; moving on\n";
       info.isGoodEcal = 0;
       return;
    }
@@ -281,7 +281,7 @@ void TrackAssociator::fillEcal( const edm::Event& iEvent,
    info.trkGlobPosAtEcal = getPoint(ecalTrajectory[0]);
 
    // Find ECAL crystals
-   timers.pop_and_push("TrackAssociator::fillEcal::access::EcalBarrel");
+   timers.pop_and_push("HTrackAssociator::fillEcal::access::EcalBarrel");
    edm::Handle<EBRecHitCollection> EBRecHits;
    edm::Handle<EERecHitCollection> EERecHits;
 //   if (EBRecHitCollectionLabels.empty())
@@ -292,19 +292,19 @@ void TrackAssociator::fillEcal( const edm::Event& iEvent,
      if (EERecHitCollectionLabels[1]!=EBRecHitCollectionLabels[1]) iEvent.getByLabel (EERecHitCollectionLabels[0], EERecHitCollectionLabels[1], EERecHits);
 //   if (!EERecHits.isValid()) throw cms::Exception("FatalError") << "Unable to find EERecHitCollection in event!\n";
 
-   timers.pop_and_push("TrackAssociator::fillEcal::matching");
+   timers.pop_and_push("HTrackAssociator::fillEcal::matching");
    std::set<DetId> ecalIdsInRegion = ecalDetIdAssociator_.getDetIdsCloseToAPoint(ecalTrajectory[0],idR);
    std::set<DetId> ecalIdsInACone =  ecalDetIdAssociator_.getDetIdsInACone(ecalIdsInRegion, ecalTrajectory, dR);
    std::set<DetId> crossedEcalIds =  ecalDetIdAssociator_.getCrossedDetIds(ecalIdsInRegion, ecalTrajectory);
    
    // add EcalRecHits
-   timers.pop_and_push("TrackAssociator::fillEcal::addEcalRecHits");
+   timers.pop_and_push("HTrackAssociator::fillEcal::addEcalRecHits");
    for(std::set<DetId>::const_iterator itr=crossedEcalIds.begin(); itr!=crossedEcalIds.end();itr++) {
      std::vector<EcalRecHit>::const_iterator hit = (*EBRecHits).find(*itr);
      if(hit != (*EBRecHits).end()) 
        info.crossedEcalRecHits.push_back(*hit);
      else  
-       LogTrace("TrackAssociator::fillEcal") << "EcalRecHit is not found for DetId: " << itr->rawId() <<"\n";
+       LogTrace("HTrackAssociator::fillEcal") << "EcalRecHit is not found for DetId: " << itr->rawId() <<"\n";
    }
    for(std::set<DetId>::const_iterator itr=ecalIdsInACone.begin(); itr!=ecalIdsInACone.end();itr++) {
      std::vector<EcalRecHit>::const_iterator hit = (*EBRecHits).find(*itr);
@@ -312,7 +312,7 @@ void TrackAssociator::fillEcal( const edm::Event& iEvent,
        info.coneEcalRecHits.push_back(*hit);
      }
      else 
-       LogTrace("TrackAssociator::fillEcal") << "EcalRecHit is not found for DetId: " << itr->rawId() <<"\n";
+       LogTrace("HTrackAssociator::fillEcal") << "EcalRecHit is not found for DetId: " << itr->rawId() <<"\n";
    }
    if (EERecHitCollectionLabels[1]==EBRecHitCollectionLabels[1])return;
    for(std::set<DetId>::const_iterator itr=crossedEcalIds.begin(); itr!=crossedEcalIds.end();itr++) {
@@ -320,7 +320,7 @@ void TrackAssociator::fillEcal( const edm::Event& iEvent,
      if(hit != (*EERecHits).end()) 
        info.crossedEcalRecHits.push_back(*hit);
      else  
-       LogTrace("TrackAssociator::fillEcal") << "EcalRecHit is not found for DetId: " << itr->rawId() <<"\n";
+       LogTrace("HTrackAssociator::fillEcal") << "EcalRecHit is not found for DetId: " << itr->rawId() <<"\n";
    }
    for(std::set<DetId>::const_iterator itr=ecalIdsInACone.begin(); itr!=ecalIdsInACone.end();itr++) {
      std::vector<EcalRecHit>::const_iterator hit = (*EERecHits).find(*itr);
@@ -328,26 +328,26 @@ void TrackAssociator::fillEcal( const edm::Event& iEvent,
        info.coneEcalRecHits.push_back(*hit);
      }
      else 
-       LogTrace("TrackAssociator::fillEcal") << "EcalRecHit is not found for DetId: " << itr->rawId() <<"\n";
+       LogTrace("HTrackAssociator::fillEcal") << "EcalRecHit is not found for DetId: " << itr->rawId() <<"\n";
    }
 }
 
 //-----------------------------------------------------------------------------
-void TrackAssociator::fillCaloTowers( const edm::Event& iEvent,
+void HTrackAssociator::fillCaloTowers( const edm::Event& iEvent,
 				      const edm::EventSetup& iSetup,
-				      TrackDetMatchInfo& info,
+				      HTrackDetMatchInfo& info,
 				      const FreeTrajectoryState& trajectoryPoint,
 				      const int idR,
 				      const double dR)
 {
    // ECAL hits are not used for the CaloTower identification
-   TimerStack timers;
-   timers.push("TrackAssociator::fillCaloTowers");
+   HTimerStack timers;
+   timers.push("HTrackAssociator::fillCaloTowers");
 
    caloDetIdAssociator_.setGeometry(&*theCaloGeometry_);
    
    // HCAL points (HB+HE)
-   timers.push("TrackAssociator::fillCaloTowers::propagation");
+   timers.push("HTrackAssociator::fillCaloTowers::propagation");
    std::vector<GlobalPoint> hcalPoints;   
    hcalPoints.push_back(GlobalPoint(135.,0,310.));
    hcalPoints.push_back(GlobalPoint(150.,0,340.));
@@ -360,10 +360,10 @@ void TrackAssociator::fillCaloTowers( const edm::Event& iEvent,
 //   if(hcalTrajectory.empty()) throw cms::Exception("FatalError") << "Failed to propagate the track to HCAL\n";
 
    if(hcalTrajectory.empty()) {
-      LogTrace("TrackAssociator::fillEcal") << "Failed to propagate a track to ECAL; moving on\n";
+      LogTrace("HTrackAssociator::fillEcal") << "Failed to propagate a track to ECAL; moving on\n";
       info.isGoodCalo = 0;
       info.isGoodEcal = 0;
-      std::cout<<" TrackAssociator::fillCaloTowers::Failed to propagate a track to ECAL "<<std::endl;
+      std::cout<<" HTrackAssociator::fillCaloTowers::Failed to propagate a track to ECAL "<<std::endl;
       return;
    }
    
@@ -372,7 +372,7 @@ void TrackAssociator::fillCaloTowers( const edm::Event& iEvent,
    info.trkGlobPosAtEcal = getPoint(hcalTrajectory[0]);
    
    if(hcalTrajectory.size()<4) {
-      LogTrace("TrackAssociator::fillEcal") << "Failed to propagate a track to HCAL; moving on\n";
+      LogTrace("HTrackAssociator::fillEcal") << "Failed to propagate a track to HCAL; moving on\n";
       info.isGoodHcal = 0;
    }
    
@@ -381,7 +381,7 @@ void TrackAssociator::fillCaloTowers( const edm::Event& iEvent,
    info.trkGlobPosAtHcal = getPoint(hcalTrajectory[4]);
 
    // find crossed CaloTowers
-   timers.pop_and_push("TrackAssociator::fillCaloTowers::access::CaloTowers");
+   timers.pop_and_push("HTrackAssociator::fillCaloTowers::access::CaloTowers");
    edm::Handle<CaloTowerCollection> caloTowers;
 
    if (CaloTowerCollectionLabels.empty())
@@ -390,7 +390,7 @@ void TrackAssociator::fillCaloTowers( const edm::Event& iEvent,
      iEvent.getByLabel (CaloTowerCollectionLabels[0], CaloTowerCollectionLabels[1], caloTowers);
    if (!caloTowers.isValid())  throw cms::Exception("FatalError") << "Unable to find CaloTowers in event!\n";
    
-   timers.push("TrackAssociator::fillCaloTowers::matching");
+   timers.push("HTrackAssociator::fillCaloTowers::matching");
 
 // first get DetIds in a predefined NxN region
 //   std::set<DetId> caloTowerIdsInBigRegion = caloDetIdAssociator_.getDetIdsCloseToAPoint(hcalTrajectory[0],idR+1);
@@ -423,7 +423,7 @@ void TrackAssociator::fillCaloTowers( const edm::Event& iEvent,
 //   std::cout<<" Number of towers in the region "<<caloTowerIdsInRegion.size()<<" idR= "<<idR<<std::endl;
    
    // add CaloTowers
-   timers.push("TrackAssociator::fillCaloTowers::addCaloTowers");
+   timers.push("HTrackAssociator::fillCaloTowers::addCaloTowers");
    for(std::set<DetId>::const_iterator itr=crossedCaloTowerIds.begin(); itr!=crossedCaloTowerIds.end();itr++)
      {
 	DetId id(*itr);
@@ -431,7 +431,7 @@ void TrackAssociator::fillCaloTowers( const edm::Event& iEvent,
 	if(tower != (*caloTowers).end()) 
 	  info.crossedTowers.push_back(*tower);
 	else
-	  LogTrace("TrackAssociator::fillEcal") << "CaloTower is not found for DetId: " << id.rawId() << "\n";
+	  LogTrace("HTrackAssociator::fillEcal") << "CaloTower is not found for DetId: " << id.rawId() << "\n";
      }
 
    for(std::set<DetId>::const_iterator itr=caloTowerIdsInACone.begin(); itr!=caloTowerIdsInACone.end();itr++)
@@ -442,7 +442,7 @@ void TrackAssociator::fillCaloTowers( const edm::Event& iEvent,
 	  info.coneTowers.push_back(*tower);
         }
 	else 
-	  LogTrace("TrackAssociator::fillEcal") << "CaloTower is not found for DetId: " << id.rawId() << "\n";
+	  LogTrace("HTrackAssociator::fillEcal") << "CaloTower is not found for DetId: " << id.rawId() << "\n";
      }
 
    for(std::set<DetId>::const_iterator itr=caloTowerIdsInBox.begin(); itr!=caloTowerIdsInBox.end();itr++)
@@ -453,7 +453,7 @@ void TrackAssociator::fillCaloTowers( const edm::Event& iEvent,
           info.boxTowers.push_back(*tower);
         }
         else
-          LogTrace("TrackAssociator::fillEcal") << "CaloTower is not found for DetId: " << id.rawId() << "\n";
+          LogTrace("HTrackAssociator::fillEcal") << "CaloTower is not found for DetId: " << id.rawId() << "\n";
      }
    
    for(std::set<DetId>::const_iterator itr=caloTowerIdsInRegion.begin(); itr!=caloTowerIdsInRegion.end();itr++)
@@ -464,25 +464,25 @@ void TrackAssociator::fillCaloTowers( const edm::Event& iEvent,
 	  info.regionTowers.push_back(*tower);
         }
 	else 
-	  LogTrace("TrackAssociator::fillEcal") << "CaloTower is not found for DetId: " << id.rawId() << "\n";
+	  LogTrace("HTrackAssociator::fillEcal") << "CaloTower is not found for DetId: " << id.rawId() << "\n";
      }
 
 }
 
 //-----------------------------------------------------------------------------
-void TrackAssociator::fillHcal( const edm::Event& iEvent,
+void HTrackAssociator::fillHcal( const edm::Event& iEvent,
                                       const edm::EventSetup& iSetup,
-                                      TrackDetMatchInfo& info,
+                                      HTrackDetMatchInfo& info,
                                       const FreeTrajectoryState& trajectoryPoint,
                                       const int idR,
                                       const double dR) {
-  TimerStack timers;
-  timers.push("TrackAssociator::fillHcal");
+  HTimerStack timers;
+  timers.push("HTrackAssociator::fillHcal");
 
   hcalDetIdAssociator_.setGeometry(&*theCaloGeometry_);
 
 // HCAL points (HB+HE)
-  timers.push("TrackAssociator::fillHcal::propagation");
+  timers.push("HTrackAssociator::fillHcal::propagation");
   std::vector<GlobalPoint> hcalPoints;
   hcalPoints.push_back(GlobalPoint(190.,0,400.));
   hcalPoints.push_back(GlobalPoint(240.,0,500.));
@@ -492,16 +492,16 @@ void TrackAssociator::fillHcal( const edm::Event& iEvent,
 //   if(hcalTrajectory.empty()) throw cms::Exception("FatalError") << "Failed to propagate the track to HCAL\n";
 
   if(hcalTrajectory.empty()) {
-    LogTrace("TrackAssociator::fillHcal") << "Failed to propagate a track to HCAL; moving on\n";
+    LogTrace("HTrackAssociator::fillHcal") << "Failed to propagate a track to HCAL; moving on\n";
     info.isGoodHcal = 0;
-//    std::cout<<" TrackAssociator::fillHcal::Failed to propagate a track to HCAL "<<std::endl;
+//    std::cout<<" HTrackAssociator::fillHcal::Failed to propagate a track to HCAL "<<std::endl;
     return;
   }
 
   info.isGoodHcal = 1;
 
   info.trkGlobPosAtHcal = getPoint(hcalTrajectory[0]);
-  timers.pop_and_push("TrackAssociator::fillHcal::access::Hcal");
+  timers.pop_and_push("HTrackAssociator::fillHcal::access::Hcal");
 
   edm::Handle<HBHERecHitCollection> HBHERecHits;
 //  if (HBHERecHitCollectionLabels.empty())
@@ -510,7 +510,7 @@ void TrackAssociator::fillHcal( const edm::Event& iEvent,
     iEvent.getByLabel (HBHERecHitCollectionLabels[0], HBHERecHitCollectionLabels[1], HBHERecHits);
   if (!HBHERecHits.isValid()) throw cms::Exception("FatalError") << "Unable to find HBHERecHitCollection in event!\n";
 
-  timers.pop_and_push("TrackAssociator::fillHcal::matching");
+  timers.pop_and_push("HTrackAssociator::fillHcal::matching");
 
 // first get DetIds in a predefined NxN region
 //  std::set<DetId> hcalIdsInBigRegion = hcalDetIdAssociator_.getDetIdsCloseToAPoint(hcalTrajectory[0],idR+1);
@@ -526,53 +526,53 @@ void TrackAssociator::fillHcal( const edm::Event& iEvent,
   hcalIdsInBox = hcalDetIdAssociator_.getDetIdsInACone(crossedHcalIds, hcalTrajectory, -1.);
 
 // add HcalRecHits
-  timers.pop_and_push("TrackAssociator::fillHcal::addHcalRecHits");
+  timers.pop_and_push("HTrackAssociator::fillHcal::addHcalRecHits");
   for(std::set<DetId>::const_iterator itr=crossedHcalIds.begin(); itr!=crossedHcalIds.end();itr++) {
     std::vector<HBHERecHit>::const_iterator hit = (*HBHERecHits).find(*itr);
     if(hit != (*HBHERecHits).end())
       info.crossedHcalRecHits.push_back(*hit);
     else
-      LogTrace("TrackAssociator::fillHcal") << "HcalRecHit is not found for DetId: " << itr->rawId() <<"\n";
+      LogTrace("HTrackAssociator::fillHcal") << "HcalRecHit is not found for DetId: " << itr->rawId() <<"\n";
   }
   for(std::set<DetId>::const_iterator itr=hcalIdsInACone.begin(); itr!=hcalIdsInACone.end();itr++) {
     std::vector<HBHERecHit>::const_iterator hit = (*HBHERecHits).find(*itr);
     if(hit != (*HBHERecHits).end())
       info.coneHcalRecHits.push_back(*hit);
     else
-      LogTrace("TrackAssociator::fillHcal") << "HcalRecHit is not found for DetId: " << itr->rawId() <<"\n";
+      LogTrace("HTrackAssociator::fillHcal") << "HcalRecHit is not found for DetId: " << itr->rawId() <<"\n";
   }
   for(std::set<DetId>::const_iterator itr=hcalIdsInBox.begin(); itr!=hcalIdsInBox.end();itr++) {
     std::vector<HBHERecHit>::const_iterator hit = (*HBHERecHits).find(*itr);
     if(hit != (*HBHERecHits).end())
       info.boxHcalRecHits.push_back(*hit);
     else
-      LogTrace("TrackAssociator::fillHcal") << "HcalRecHit is not found for DetId: " << itr->rawId() <<"\n";
+      LogTrace("HTrackAssociator::fillHcal") << "HcalRecHit is not found for DetId: " << itr->rawId() <<"\n";
   }
   for(std::set<DetId>::const_iterator itr=hcalIdsInRegion.begin(); itr!=hcalIdsInRegion.end();itr++) {
     std::vector<HBHERecHit>::const_iterator hit = (*HBHERecHits).find(*itr);
     if(hit != (*HBHERecHits).end())
       info.regionHcalRecHits.push_back(*hit);
     else
-      LogTrace("TrackAssociator::fillHcal") << "HcalRecHit is not found for DetId: " << itr->rawId() <<"\n";
+      LogTrace("HTrackAssociator::fillHcal") << "HcalRecHit is not found for DetId: " << itr->rawId() <<"\n";
   }
 }
 
 //-----------------------------------------------------------------------------
-void TrackAssociator::fillHcalTowers( const edm::Event& iEvent,
+void HTrackAssociator::fillHcalTowers( const edm::Event& iEvent,
 				      const edm::EventSetup& iSetup,
-				      TrackDetMatchInfo& info,
+				      HTrackDetMatchInfo& info,
 				      const FreeTrajectoryState& trajectoryPoint,
 				      const int idR,
 				      const double dR)
 {
    // ECAL hits are not used for the CaloTower identification
-   TimerStack timers;
-   timers.push("TrackAssociator::fillCaloTowers");
+   HTimerStack timers;
+   timers.push("HTrackAssociator::fillCaloTowers");
 
    caloDetIdAssociator_.setGeometry(&*theCaloGeometry_);
    
    // HCAL points (HB+HE)
-   timers.push("TrackAssociator::fillCaloTowers::propagation");
+   timers.push("HTrackAssociator::fillCaloTowers::propagation");
    std::vector<GlobalPoint> hcalPoints;
    hcalPoints.push_back(GlobalPoint(190.,0,400.));
    hcalPoints.push_back(GlobalPoint(240.,0,500.));
@@ -582,9 +582,9 @@ void TrackAssociator::fillHcalTowers( const edm::Event& iEvent,
 //   if(hcalTrajectory.empty()) throw cms::Exception("FatalError") << "Failed to propagate the track to HCAL\n";
 
    if(hcalTrajectory.empty()) {
-      LogTrace("TrackAssociator::fillEcal") << "Failed to propagate a track to HCAL; moving on\n";
+      LogTrace("HTrackAssociator::fillEcal") << "Failed to propagate a track to HCAL; moving on\n";
       info.isGoodCalo = 0;
-      std::cout<<" TrackAssociator::fillCaloTowers::Failed to propagate a track to HCAL "<<std::endl;
+      std::cout<<" HTrackAssociator::fillCaloTowers::Failed to propagate a track to HCAL "<<std::endl;
       return;
    }
    
@@ -593,7 +593,7 @@ void TrackAssociator::fillHcalTowers( const edm::Event& iEvent,
    info.trkGlobPosAtHcal = getPoint(hcalTrajectory[0]);
    
    // find crossed CaloTowers
-   timers.pop_and_push("TrackAssociator::fillCaloTowers::access::CaloTowers");
+   timers.pop_and_push("HTrackAssociator::fillCaloTowers::access::CaloTowers");
    edm::Handle<CaloTowerCollection> caloTowers;
 
    if (CaloTowerCollectionLabels.empty())
@@ -602,7 +602,7 @@ void TrackAssociator::fillHcalTowers( const edm::Event& iEvent,
      iEvent.getByLabel (CaloTowerCollectionLabels[0], CaloTowerCollectionLabels[1], caloTowers);
    if (!caloTowers.isValid())  throw cms::Exception("FatalError") << "Unable to find CaloTowers in event!\n";
    
-   timers.push("TrackAssociator::fillCaloTowers::matching");
+   timers.push("HTrackAssociator::fillCaloTowers::matching");
 
 // first get DetIds in a predefined NxN region
    std::set<DetId> caloTowerIdsInBigRegion = caloDetIdAssociator_.getDetIdsCloseToAPoint(hcalTrajectory[0],idR+1);
@@ -618,7 +618,7 @@ void TrackAssociator::fillHcalTowers( const edm::Event& iEvent,
    caloTowerIdsInBox = caloDetIdAssociator_.getDetIdsInACone(crossedCaloTowerIds, hcalTrajectory, -1.);
    
    // add CaloTowers
-   timers.push("TrackAssociator::fillCaloTowers::addCaloTowers");
+   timers.push("HTrackAssociator::fillCaloTowers::addCaloTowers");
    for(std::set<DetId>::const_iterator itr=crossedCaloTowerIds.begin(); itr!=crossedCaloTowerIds.end();itr++)
      {
 	DetId id(*itr);
@@ -626,7 +626,7 @@ void TrackAssociator::fillHcalTowers( const edm::Event& iEvent,
 	if(tower != (*caloTowers).end()) 
 	  info.crossedTowers.push_back(*tower);
 	else
-	  LogTrace("TrackAssociator::fillEcal") << "CaloTower is not found for DetId: " << id.rawId() << "\n";
+	  LogTrace("HTrackAssociator::fillEcal") << "CaloTower is not found for DetId: " << id.rawId() << "\n";
      }
 
    for(std::set<DetId>::const_iterator itr=caloTowerIdsInACone.begin(); itr!=caloTowerIdsInACone.end();itr++)
@@ -636,13 +636,13 @@ void TrackAssociator::fillHcalTowers( const edm::Event& iEvent,
 	if(tower != (*caloTowers).end()) 
 	  info.coneTowers.push_back(*tower);
 	else 
-	  LogTrace("TrackAssociator::fillEcal") << "CaloTower is not found for DetId: " << id.rawId() << "\n";
+	  LogTrace("HTrackAssociator::fillEcal") << "CaloTower is not found for DetId: " << id.rawId() << "\n";
      }
    
 }
 
 //-----------------------------------------------------------------------------
-FreeTrajectoryState TrackAssociator::getFreeTrajectoryState( const edm::EventSetup& iSetup, 
+FreeTrajectoryState HTrackAssociator::getFreeTrajectoryState( const edm::EventSetup& iSetup, 
 							     const SimTrack& track, 
 							     const SimVertex& vertex )
 {
@@ -662,7 +662,7 @@ FreeTrajectoryState TrackAssociator::getFreeTrajectoryState( const edm::EventSet
 }
 
 //-----------------------------------------------------------------------------
-FreeTrajectoryState TrackAssociator::getFreeTrajectoryState( const edm::EventSetup& iSetup,
+FreeTrajectoryState HTrackAssociator::getFreeTrajectoryState( const edm::EventSetup& iSetup,
 							     const reco::Track& track )
 {
    edm::ESHandle<MagneticField> bField;

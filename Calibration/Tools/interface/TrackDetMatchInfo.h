@@ -1,5 +1,5 @@
-#ifndef TrackAssociator_TrackDetMatchInfo_h
-#define TrackAssociator_TrackDetMatchInfo_h
+#ifndef HTrackAssociator_HTrackDetMatchInfo_h
+#define HTrackAssociator_HTrackDetMatchInfo_h
 
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
@@ -7,7 +7,7 @@
 #include "DataFormats/Math/interface/Vector3D.h"
 #include "DataFormats/Math/interface/Point3D.h"
 
-class TrackDetMatchInfo {
+class HTrackDetMatchInfo {
  public:
    /// ECAL energy 
    double ecalEnergyFromRecHits();

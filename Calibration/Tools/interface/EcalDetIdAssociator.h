@@ -1,9 +1,9 @@
-#ifndef TrackAssociator_EcalDetIdAssociator_h
-#define TrackAssociator_EcalDetIdAssociator_h 1
+#ifndef HTrackAssociator_HEcalDetIdAssociator_h
+#define HTrackAssociator_HEcalDetIdAssociator_h 1
 // -*- C++ -*-
 //
-// Package:    TrackAssociator
-// Class:      EcalDetIdAssociator
+// Package:    HTrackAssociator
+// Class:      HEcalDetIdAssociator
 // 
 /*
 
@@ -14,16 +14,14 @@
 */
 //
 // Original Author:  Dmytro Kovalskyi
-//         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: EcalDetIdAssociator.h,v 1.1 2006/06/24 04:56:07 dmytro Exp $
-//
+// Modified for ECAL+HCAL by Michal Szleper
 //
 
 #include "Calibration/Tools/interface/CaloDetIdAssociator.h"
 
-class EcalDetIdAssociator: public CaloDetIdAssociator{
+class HEcalDetIdAssociator: public HCaloDetIdAssociator{
  public:
-   EcalDetIdAssociator():CaloDetIdAssociator(180,150,0.04){};
+   HEcalDetIdAssociator():HCaloDetIdAssociator(180,150,0.04){};
  protected:
    virtual std::set<DetId> getASetOfValidDetIds(){
       std::set<DetId> setOfValidIds;

@@ -1,9 +1,9 @@
-#ifndef TrackAssociator_CaloDetIdAssociator_h
-#define TrackAssociator_CaloDetIdAssociator_h 1
+#ifndef HTrackAssociator_HCaloDetIdAssociator_h
+#define HTrackAssociator_HCaloDetIdAssociator_h 1
 // -*- C++ -*-
 //
-// Package:    TrackAssociator
-// Class:      CaloDetIdAssociator
+// Package:    HTrackAssociator
+// Class:      HCaloDetIdAssociator
 // 
 /*
 
@@ -14,9 +14,7 @@
 */
 //
 // Original Author:  Dmytro Kovalskyi
-//         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: CaloDetIdAssociator.h,v 1.1 2006/06/24 04:56:07 dmytro Exp $
-//
+// Modified for ECAL+HCAL by Michal Szleper
 //
 
 #include "Calibration/Tools/interface/DetIdAssociator.h"
@@ -24,18 +22,18 @@
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 
-class CaloDetIdAssociator: public DetIdAssociator{
+class HCaloDetIdAssociator: public HDetIdAssociator{
  public:
-   CaloDetIdAssociator():DetIdAssociator(72, 70 ,0.087),geometry_(0){};
-   CaloDetIdAssociator(const int nPhi, const int nEta, const double etaBinSize)
-     :DetIdAssociator(nPhi, nEta, etaBinSize),geometry_(0){};
+   HCaloDetIdAssociator():HDetIdAssociator(72, 70 ,0.087),geometry_(0){};
+   HCaloDetIdAssociator(const int nPhi, const int nEta, const double etaBinSize)
+     :HDetIdAssociator(nPhi, nEta, etaBinSize),geometry_(0){};
    
    virtual void setGeometry(const CaloGeometry* ptr){ geometry_ = ptr; };
    
  protected:
    virtual void check_setup()
      {
-	DetIdAssociator::check_setup();
+	HDetIdAssociator::check_setup();
 	if (geometry_==0) throw cms::Exception("CaloGeometry is not set");
      };
    

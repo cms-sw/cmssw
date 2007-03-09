@@ -1,9 +1,9 @@
-#ifndef TrackAssociator_HcalDetIdAssociator_h
-#define TrackAssociator_HcalDetIdAssociator_h 1
+#ifndef HTrackAssociator_HHcalDetIdAssociator_h
+#define HTrackAssociator_HHcalDetIdAssociator_h 1
 // -*- C++ -*-
 //
-// Package:    TrackAssociator
-// Class:      HcalDetIdAssociator
+// Package:    HTrackAssociator
+// Class:      HHcalDetIdAssociator
 // 
 /*
 
@@ -21,9 +21,9 @@
 
 #include "Calibration/Tools/interface/CaloDetIdAssociator.h"
 
-class HcalDetIdAssociator: public CaloDetIdAssociator{
+class HHcalDetIdAssociator: public HCaloDetIdAssociator{
  public:
-   HcalDetIdAssociator():CaloDetIdAssociator(72,70,0.087){};
+   HHcalDetIdAssociator():HCaloDetIdAssociator(72,70,0.087){};
  protected:
    virtual std::set<DetId> getASetOfValidDetIds(){
       std::set<DetId> setOfValidIds;

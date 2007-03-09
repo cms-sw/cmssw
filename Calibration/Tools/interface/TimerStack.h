@@ -1,11 +1,11 @@
-#ifndef TrackAssociator_TimerStack_h
-#define TrackAssociator_TimerStack_h 1
+#ifndef HTrackAssociator_HTimerStack_h
+#define HTrackAssociator_HTimerStack_h 1
 #include "Utilities/Timing/interface/TimingReport.h"
 #include <stack>
-class TimerStack
+class HTimerStack
 {
  public:
-   ~TimerStack()
+   ~HTimerStack()
      {
 	clean_stack();
      }

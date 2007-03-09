@@ -1,7 +1,7 @@
 #include <algorithm>
 #include "Calibration/Tools/interface/TrackDetMatchInfo.h"
 
-double TrackDetMatchInfo::ecalEnergyFromRecHits()
+double HTrackDetMatchInfo::ecalEnergyFromRecHits()
 {
    double energy(0);
    for(std::vector<EcalRecHit>::const_iterator hit=crossedEcalRecHits.begin(); hit!=crossedEcalRecHits.end(); hit++)
@@ -9,7 +9,7 @@ double TrackDetMatchInfo::ecalEnergyFromRecHits()
    return energy;
 }
 
-double TrackDetMatchInfo::ecalConeEnergyFromRecHits()
+double HTrackDetMatchInfo::ecalConeEnergyFromRecHits()
 {
    double energy(0);
    for(std::vector<EcalRecHit>::const_iterator hit=coneEcalRecHits.begin(); hit!=coneEcalRecHits.end(); hit++) {
@@ -19,7 +19,7 @@ double TrackDetMatchInfo::ecalConeEnergyFromRecHits()
    return energy;
 }
 
-double TrackDetMatchInfo::ecalEnergyFromCaloTowers()
+double HTrackDetMatchInfo::ecalEnergyFromCaloTowers()
 {
    double energy(0);
    for(std::vector<CaloTower>::const_iterator hit=crossedTowers.begin(); hit!=crossedTowers.end(); hit++) {
@@ -28,7 +28,7 @@ double TrackDetMatchInfo::ecalEnergyFromCaloTowers()
    return energy;
 }
 
-double TrackDetMatchInfo::ecalConeEnergyFromCaloTowers()
+double HTrackDetMatchInfo::ecalConeEnergyFromCaloTowers()
 {
    double energy(0);
    for(std::vector<CaloTower>::const_iterator hit=coneTowers.begin(); hit!=coneTowers.end(); hit++)
@@ -36,7 +36,7 @@ double TrackDetMatchInfo::ecalConeEnergyFromCaloTowers()
    return energy;
 }
 
-double TrackDetMatchInfo::hcalEnergyFromRecHits()
+double HTrackDetMatchInfo::hcalEnergyFromRecHits()
 {
    double energy(0);
    for(std::vector<HBHERecHit>::const_iterator hit=crossedHcalRecHits.begin(); hit!=crossedHcalRecHits.end(); hit++)
@@ -44,7 +44,7 @@ double TrackDetMatchInfo::hcalEnergyFromRecHits()
    return energy;
 }
 
-double TrackDetMatchInfo::hcalConeEnergyFromRecHits()
+double HTrackDetMatchInfo::hcalConeEnergyFromRecHits()
 {
    double energy(0);
    for(std::vector<HBHERecHit>::const_iterator hit=coneHcalRecHits.begin(); hit!=coneHcalRecHits.end(); hit++) {
@@ -53,7 +53,7 @@ double TrackDetMatchInfo::hcalConeEnergyFromRecHits()
    return energy;
 }
 
-double TrackDetMatchInfo::hcalBoxEnergyFromRecHits()
+double HTrackDetMatchInfo::hcalBoxEnergyFromRecHits()
 {
    double energy(0);
    for(std::vector<HBHERecHit>::const_iterator hit=boxHcalRecHits.begin(); hit!=boxHcalRecHits.end(); hit++)
@@ -61,7 +61,7 @@ double TrackDetMatchInfo::hcalBoxEnergyFromRecHits()
    return energy;
 }
 
-double TrackDetMatchInfo::hcalEnergyFromCaloTowers()
+double HTrackDetMatchInfo::hcalEnergyFromCaloTowers()
 {
    double energy(0);
    for(std::vector<CaloTower>::const_iterator tower=crossedTowers.begin(); tower!=crossedTowers.end(); tower++)
@@ -69,7 +69,7 @@ double TrackDetMatchInfo::hcalEnergyFromCaloTowers()
    return energy;
 }
 
-double TrackDetMatchInfo::hcalConeEnergyFromCaloTowers()
+double HTrackDetMatchInfo::hcalConeEnergyFromCaloTowers()
 {
    double energy(0);
    for(std::vector<CaloTower>::const_iterator hit=coneTowers.begin(); hit!=coneTowers.end(); hit++) {
@@ -78,7 +78,7 @@ double TrackDetMatchInfo::hcalConeEnergyFromCaloTowers()
    return energy;
 }
 
-double TrackDetMatchInfo::hcalBoxEnergyFromCaloTowers()
+double HTrackDetMatchInfo::hcalBoxEnergyFromCaloTowers()
 {
    double energy(0);
    for(std::vector<CaloTower>::const_iterator hit=boxTowers.begin(); hit!=boxTowers.end(); hit++)
@@ -86,7 +86,7 @@ double TrackDetMatchInfo::hcalBoxEnergyFromCaloTowers()
    return energy;
 }
 
-double TrackDetMatchInfo::outerHcalEnergy()
+double HTrackDetMatchInfo::outerHcalEnergy()
 {
    double energy(0);
    for(std::vector<CaloTower>::const_iterator tower=crossedTowers.begin(); tower!=crossedTowers.end(); tower++)

@@ -1,26 +1,6 @@
-//#ifndef MuonTest_MuonTest_DetIdAssociator_h
-//#define MuonTest_MuonTest_DetIdAssociator_h 1
-
-// -*- C++ -*-
-//
-// Package:    MuonTest
-// Class:      MuonTest
-// 
-/**\class MuonTest MuonTest.cc src/MuonTest/src/MuonTest.cc
-
- Description: Abstract base class for 3D point -> std::set<DetId>
-
- Implementation:
-     It is expected that the mapping is performed using a 2D array of 
-     DetId sets, to get fast a set of possible DetIds for a given 
-     direction. Since all methods are virtual a practical 
-     implementation can use other approaches.
-**/
 //
 // Original Author:  Dmytro Kovalskyi
-//         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: DetIdAssociator.h,v 1.1 2006/06/24 04:56:07 dmytro Exp $
-//
+// Modified for HCAL by Michal Szleper
 //
 
 #include "DataFormats/DetId/interface/DetId.h"
@@ -35,9 +15,9 @@
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/OrphanHandle.h"
-//#include "Geometry/Vector/interface/GlobalPoint.h"
-#include "Geometry/Surface/interface/Cylinder.h"
-#include "Geometry/Surface/interface/Plane.h"
+//#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/GeometrySurface/interface/Cylinder.h"
+#include "DataFormats/GeometrySurface/interface/Plane.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -47,13 +27,13 @@
 #include <vector>
 
 
-class DetIdAssociator{
+class HDetIdAssociator{
  public:
-   DetIdAssociator():theMap_(0),nPhi_(0),nEta_(0),etaBinSize_(0),ivProp_(0){};
-   DetIdAssociator(const int nPhi, const int nEta, const double etaBinSize)
+   HDetIdAssociator():theMap_(0),nPhi_(0),nEta_(0),etaBinSize_(0),ivProp_(0){};
+   HDetIdAssociator(const int nPhi, const int nEta, const double etaBinSize)
      :theMap_(0),nPhi_(nPhi),nEta_(nEta),etaBinSize_(etaBinSize),ivProp_(0){};
    
-   virtual ~DetIdAssociator(){};
+   virtual ~HDetIdAssociator(){};
    virtual std::vector<GlobalPoint> getTrajectory( const FreeTrajectoryState&,
 						   const std::vector<GlobalPoint>&);
    // find DetIds arround given direction
@@ -113,4 +93,3 @@ class DetIdAssociator{
    const double etaBinSize_;
    Propagator *ivProp_;
 };
-//#endif
