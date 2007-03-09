@@ -1,21 +1,21 @@
-<use name=boost>
-<use name=Foundation/PluginManager>
-<use name=Framework/SealKernel>
+<use name=FWCore/PluginManager>
 <use name=FWCore/Framework>
-<use name=FWCore/Services>
+<use name=FWCore/ServiceRegistry>
+<use name=FWCore/ParameterSet>
 <use name=FWCore/Modules>
-<use name=FWCore/MessageService>
-<use name=FWCore/MessageLogger>
+<use name=FWCore/Utilities>
 <use name=EventFilter/Utilities>
 <use name=EventFilter/Message2log4cplus>
 <use name=DQMServices/Daemon>
+<use name=boost>
+<use name=xdaq>
+
 <export>
  <lib name=EventFilterProcessor>
- <use name=boost>
- <use name=xdaq>
- <use name=Foundation/PluginManager>
- <use name=Framework/SealKernel>
+ <use name=FWCore/PluginManager>
  <use name=FWCore/Framework>
  <use name=EventFilter/Utilities>
+ <use name=boost>
+ <use name=xdaq>
 </export>
 
