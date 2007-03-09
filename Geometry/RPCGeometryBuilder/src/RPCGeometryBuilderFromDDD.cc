@@ -83,15 +83,13 @@ RPCGeometry* RPCGeometryBuilderFromDDD::build(const DDCompactView* cview, const 
   }
 }
 
-
-
 RPCGeometry* RPCGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview, const MuonDDDConstants& muonConstants)
 {
 #ifdef LOCAL_DEBUG  
   std::cout <<"Building the geometry service"<<std::endl;
 #endif
   RPCGeometry* geometry = new RPCGeometry();
-  
+  //  RPCChamber* ch = new RPCChamber();
 
 #ifdef LOCAL_DEBUG  
   std::cout << "About to run through the RPC structure" << std::endl;
@@ -131,6 +129,8 @@ RPCGeometry* RPCGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview, con
     std::cout <<"Getting the RPC det Id "<<detid <<std::endl;
 #endif
     RPCDetId rpcid(detid);
+    RPCDetId chid(rpcid.region(),rpcid.ring(),rpcid.station(),rpcid.sector(),rpcid.layer(),rpcid.subsector(),0);
+
     //    rpcid.buildfromTrIndex(detid);
 #ifdef LOCAL_DEBUG  
     std::cout <<"The RPCDEtid is "<<detid<<" trigger index"<<rpcid.trIndex()<< std::endl;
@@ -234,13 +234,48 @@ RPCGeometry* RPCGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview, con
 
     
     BoundPlane* bp = new BoundPlane(pos,rot,bounds);
-
-    
-
-    RPCRoll* r=new RPCRoll(bp,rollspecs,rpcid);
+    ReferenceCountingPointer<BoundPlane> surf(bp);
+    RPCRoll* r=new RPCRoll(rpcid,surf,rollspecs);
     geometry->add(r);
     
+
+    std::list<RPCRoll *> rls;
+    if (chids.find(chid)!=chids.end()){
+      rls = chids[chid];
+    }
+    rls.push_back(r);
+    chids[chid]=rls;
+
     doSubDets = fview.nextSibling(); // go to next layer
   }
+  // Create the RPCChambers and store them on the Geometry 
+  for( std::map<RPCDetId, std::list<RPCRoll *> >::iterator ich=chids.begin();
+       ich != chids.end(); ich++){
+    RPCDetId chid = ich->first;
+    std::list<RPCRoll * > rls = ich->second;
+
+    // compute the overall boundplane. At the moment we use just the last
+    // surface
+    BoundPlane* bp=0;
+    for(std::list<RPCRoll *>::iterator rl=rls.begin();
+    rl!=rls.end(); rl++){
+      const BoundPlane bps = (*rl)->surface();
+      bp = const_cast<BoundPlane *>(&bps);
+    }
+
+    ReferenceCountingPointer<BoundPlane> surf(bp);
+    // Create the chamber 
+    RPCChamber* ch = new RPCChamber (chid, surf); 
+    // Add the rolls to rhe chamber
+    for(std::list<RPCRoll *>::iterator rl=rls.begin();
+    rl!=rls.end(); rl++){
+      ch->add(*rl);
+    }
+    // Add the chamber to the geometry
+    geometry->add(ch);
+  } 
   return geometry;
 }
+
+    
+
