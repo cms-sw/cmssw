@@ -25,8 +25,13 @@
 
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+<<<<<<< AlCaIsoTracksProducer.h
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
+=======
 //#include "Geometry/Vector/interface/GlobalPoint.h"
 //#include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
+>>>>>>> 1.5
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "RecoTracker/TrackProducer/interface/TrackProducerBase.h"
