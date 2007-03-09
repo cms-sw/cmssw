@@ -2,8 +2,11 @@
 #define CSCTFFileReader_h
 
 #include <IORawData/DaqSource/interface/DaqBaseReader.h>
-#include <DataFormats/Common/interface/EventID.h>
+//#include <DataFormats/Common/interface/EventID.h>
 
+class edm::EventID;
+class edm::Timestamp;
+class FEDRawDataCollection;
 class SPReader;
 
 class CSCTFFileReader : public DaqBaseReader 

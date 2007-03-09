@@ -1,12 +1,10 @@
-<export>
- <lib name=IORawDataCSCTFCommissioning>
- <use name=FWCore/Framework>
- <use name=DataFormats/FEDRawData>
- <use name=IORawData/DaqSource>
-</export>
-
-<use name=FWCore/Framework>
 <use name=DataFormats/FEDRawData>
+<use name=DataFormats/Provenance>
+<use name=FWCore/MessageLogger>
+<use name=FWCore/ParameterSet>
+<use name=Foundation/PluginManager>
 <use name=IORawData/DaqSource>
-
-<flags SEAL_PLUGIN_NAME="IORawDataCSCTFCommissioning">
+<flags SEALPLUGIN=1>
+<export>
+  <lib name=IORawDataCSCTFCommissioning>
+</export>

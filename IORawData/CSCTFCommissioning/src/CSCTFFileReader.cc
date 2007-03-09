@@ -6,8 +6,8 @@
 #include <DataFormats/FEDRawData/interface/FEDTrailer.h>
 #include <DataFormats/FEDRawData/interface/FEDNumbering.h>
 
-#include <DataFormats/Common/interface/EventID.h>
-#include <DataFormats/Common/interface/Timestamp.h>
+#include <DataFormats/Provenance/interface/EventID.h>
+#include <DataFormats/Provenance/interface/Timestamp.h>
 #include <DataFormats/FEDRawData/interface/FEDRawData.h>
 #include <DataFormats/FEDRawData/interface/FEDRawDataCollection.h>
 
