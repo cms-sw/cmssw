@@ -1,7 +1,7 @@
 #include "CondFormats/RPCObjects/interface/TriggerBoardSpec.h"
 #include <sstream>
 
-TriggerBoardSpec::TriggerBoardSpec(int num) : theNum(num)
+TriggerBoardSpec::TriggerBoardSpec(int num) : theNum(num), theMaskedLinks(0)
 { }
 
 const LinkConnSpec * TriggerBoardSpec::linkConn(int tbInputNumber) const

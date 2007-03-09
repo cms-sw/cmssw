@@ -30,6 +30,7 @@ public:
   
 private:
   int theNum;
+  uint32_t theMaskedLinks;
   std::vector<LinkConnSpec> theLinks;
 };
 #endif
