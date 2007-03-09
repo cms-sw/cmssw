@@ -3,30 +3,28 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2005/12/12 18:36:24 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/02/03 16:20:08 $
+ *  $Revision: 1.3 $
  *  \author N. Amapane - INFN Torino
  */
 
 #include "MagneticField/GeomBuilder/test/stubs/MagGeometryExerciser.h"
 #include "MagneticField/VolumeBasedEngine/interface/MagGeometry.h"
 #include "MagneticField/VolumeGeometry/interface/MagVolume6Faces.h"
-#include "DataFormats/GeometryVector/interface/Pi.h"
 #include "Utilities/Timing/interface/TimingReport.h"
+#include "GlobalPointProvider.h"
 
-#include <CLHEP/Random/RandFlat.h>
 #include <algorithm>
 
 using namespace std;
 
-MagGeometryExerciser::MagGeometryExerciser(MagGeometry * g) : theGeometry(g) {
+MagGeometryExerciser::MagGeometryExerciser(const MagGeometry * g) : theGeometry(g) {
   const vector<MagVolume6Faces*>& theBVolumes = theGeometry->barrelVolumes();
   const vector<MagVolume6Faces*>& theEVolumes = theGeometry->endcapVolumes();
 
   volumes = theBVolumes;
   volumes.insert(volumes.end(), theEVolumes.begin(), theEVolumes.end());
 }
-
 
 
 MagGeometryExerciser::~MagGeometryExerciser(){}
@@ -37,58 +35,42 @@ MagGeometryExerciser::~MagGeometryExerciser(){}
 // Note: findVolumeTolerance in pset to change the tolerance.
 void MagGeometryExerciser::testFindVolume(int ntry){  
   
-  bool zSymmetric = true; // findVolume just sees the "real" volumes,
-                          // so if the half at z<0 is built it will fail for z>0!
-  bool barrelOnly = false; // Only in the barrel
-  
-  const float minR = 0.;
-  const float maxR = 1000.;
-  const float minPhi = -Geom::pi();
-  const float maxPhi = Geom::pi();
-  float minZ = -1600;
-  float maxZ = 1600;
-
-  if (barrelOnly) {
-    minZ = -662.;
-    maxZ = 662.;  
-  }
-  
-  if (zSymmetric) maxZ=0.;
-
-  cout << "-----------------------------------------------------" << endl
+  cout <<endl
+       << "-----------------------------------------------------" << endl
        << " findVolume(random) test" << endl;
-  
+
   // Test  known overlaps/gaps
   if (true) {
     cout << "Known points:" << endl;
     testFindVolume(GlobalPoint(0,0,0));
   }
 
+  GlobalPointProvider p;
+
   cout << "Random points:" << endl;
+  int success = 0;
   for (int i = 0; i<ntry; ++i) {
-    float R = RandFlat::shoot(minR,maxR);
-    float Z = RandFlat::shoot(minZ,maxZ);
-    float phi = RandFlat::shoot(minPhi,maxPhi);
-
-    GlobalPoint gp(GlobalPoint::Cylindrical(R,phi,Z));
-    
-    if (barrelOnly && !(theGeometry->inBarrel(gp))) continue; // Barrel
-
-    testFindVolume(gp);
-    
+    if (testFindVolume(p.getPoint())) {
+      ++success;
+    }
   }
+
+  cout << " Tested " <<  ntry << " Failures: " << ntry - success << endl
+       << "-----------------------------------------------------" << endl;
+  
 }
 
 //----------------------------------------------------------------------
 // Check if findVolume succeeds for the given point.
-void MagGeometryExerciser::testFindVolume(const GlobalPoint & gp){
+bool MagGeometryExerciser::testFindVolume(const GlobalPoint & gp){
 
   bool reportSuccess = false; // printouts for succeeding calls
 
   // Note: uses the default tolerance.
   MagVolume6Faces* vol = (MagVolume6Faces*) theGeometry->findVolume(gp);
-  
-  if (reportSuccess || vol==0) {
+  bool ok = (vol!=0);
+
+  if (reportSuccess || !ok) {
     cout << gp << " "
 	 << (vol !=0 ? vol->name : "ERROR no volume found! ")
 	 << endl;
@@ -103,6 +85,8 @@ void MagGeometryExerciser::testFindVolume(const GlobalPoint & gp){
 	 << " (tolerance = " << tolerance << ")"
 	 << endl;
   }
+
+  return ok;
 }
 
 
@@ -115,35 +99,7 @@ void MagGeometryExerciser::testInside(int ntry) {
        << " inside(random) test" << endl;
 
 
-  // Test random points: they should be found inside() one and only one volume.
-    
-  bool zSymmetric = true;
-  bool barrelOnly = false;
-  bool test82 = false; // Test problems with volume 82...
-
-  float minR = 0.;
-  float maxR = 1000.;
-  float minPhi = -Geom::pi();
-  float maxPhi = Geom::pi();
-  float minZ = -1600.;
-  float maxZ = 1600.;
-
-
-  if (barrelOnly) {
-    minZ = -662.;
-    maxZ = 662.;  
-  }  
-
-  if (test82) {
-     minZ = -660;
-     maxZ = 660.;  
-     minR = 411.5; //V81
-     maxR = 447.; //V83
-     minPhi= 104./180.*Geom::pi();
-     maxPhi= 113./180.*Geom::pi();
-  }
-
-  if (zSymmetric) maxZ=0.;
+  // Test random points: they should be found inside() one and only one volume
 
   // Test some known overlaps/gaps
   if (true) {
@@ -171,21 +127,13 @@ void MagGeometryExerciser::testInside(int ntry) {
     testInside(GlobalPoint(-142.226,390.763,-553.809)); //81 79
     testInside(GlobalPoint(-141.701,389.32,-142.088));  //81 79
   }
+
+  GlobalPointProvider p;
   
   cout << "Random points:" << endl;
   for (int i = 0; i<ntry; ++i) {
-    float R = RandFlat::shoot(minR,maxR);
-    float Z = RandFlat::shoot(minZ,maxZ);
-    float phi = RandFlat::shoot(minPhi,maxPhi);
-
-    if (i%1000==0) cout << "test # " << i << endl;
-    
-    GlobalPoint gp(GlobalPoint::Cylindrical(R,phi,Z));
-
-    if (barrelOnly && !(theGeometry->inBarrel(gp))) continue;// Barrel
-    
-    testInside(gp);
-
+    if (i%1000==0) cout << "test # " << i << endl;    
+    testInside(p. getPoint());
   }
 }
 
@@ -193,7 +141,7 @@ void MagGeometryExerciser::testInside(int ntry) {
 //----------------------------------------------------------------------
 // Check that the given point is inside() one and only one volume.
 // This is not always the case due to thin gaps and tolerance...
-void MagGeometryExerciser::testInside(const GlobalPoint & gp){
+bool MagGeometryExerciser::testInside(const GlobalPoint & gp){
   //FIXME  static const double tolerance = SimpleConfigurable<double>(0.,"MagGeometryExerciser:tolerance"); // 300 micron thin gaps
   static const double tolerance = 0.;
 
@@ -224,3 +172,14 @@ void MagGeometryExerciser::testInside(const GlobalPoint & gp){
     cout << gp << " ***ERROR no volume found! "  << endl;
   }  
 }
+
+//----------------------------------------------------------------------
+
+//   if (test82) {
+//      minZ = -660;
+//      maxZ = 660.;  
+//      minR = 411.5; //V81
+//      maxR = 447.; //V83
+//      minPhi= 104./180.*Geom::pi();
+//      maxPhi= 113./180.*Geom::pi();
+//   }
