@@ -1,16 +1,16 @@
 /** \class EcalWeightUncalibRecHitProducer
  *   produce ECAL uncalibrated rechits from dataframes
  *
-  *  $Id: EcalWeightUncalibRecHitProducer.cc,v 1.18 2006/08/23 15:47:01 meridian Exp $
-  *  $Date: 2006/08/23 15:47:01 $
-  *  $Revision: 1.18 $
+  *  $Id: EcalWeightUncalibRecHitProducer.cc,v 1.19 2006/11/18 10:00:29 meridian Exp $
+  *  $Date: 2006/11/18 10:00:29 $
+  *  $Revision: 1.19 $
   *  \author Shahram Rahatlou, University of Rome & INFN, Sept 2005
   *
   */
 #include "RecoLocalCalo/EcalRecProducers/interface/EcalWeightUncalibRecHitProducer.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/EcalDigi/interface/EcalMGPASample.h"
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 
 #include <iostream>
 #include <iomanip>

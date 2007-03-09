@@ -9,7 +9,7 @@
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 //#include "DataFormats/EcalDigi/interface/EBDataFrame.h"
 #include "DataFormats/EcalDigi/interface/EcalMGPASample.h"
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <iostream>

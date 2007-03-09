@@ -1,9 +1,9 @@
 /** \class EcalRecHitProducer
  *   produce ECAL rechits from uncalibrated rechits
  *
- *  $Id: EcalRecHitProducer.cc,v 1.6 2006/05/13 07:29:21 meridian Exp $
- *  $Date: 2006/05/13 07:29:21 $
- *  $Revision: 1.6 $
+ *  $Id: EcalRecHitProducer.cc,v 1.7 2006/08/23 15:47:01 meridian Exp $
+ *  $Date: 2006/08/23 15:47:01 $
+ *  $Revision: 1.7 $
  *  \author Shahram Rahatlou, University of Rome & INFN, March 2006
  *
  **/
@@ -14,7 +14,7 @@
 #include "CondFormats/EcalObjects/interface/EcalADCToGeVConstant.h"
 #include "CondFormats/DataRecord/interface/EcalADCToGeVConstantRcd.h"
 
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"

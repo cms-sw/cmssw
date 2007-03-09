@@ -1,9 +1,9 @@
 /** \class EcalAnalFitUncalibRecHitProducer
  *   produce ECAL uncalibrated rechits from dataframes with the analytical fit method
  *
-  *  $Id: EcalAnalFitUncalibRecHitProducer.cc,v 1.10 2006/07/17 14:36:04 meridian Exp $
-  *  $Date: 2006/07/17 14:36:04 $
-  *  $Revision: 1.10 $
+  *  $Id: EcalAnalFitUncalibRecHitProducer.cc,v 1.11 2006/08/23 15:47:01 meridian Exp $
+  *  $Date: 2006/08/23 15:47:01 $
+  *  $Revision: 1.11 $
   *  \author Shahram Rahatlou, University of Rome & INFN, Sept 2005
   *
   */
@@ -12,7 +12,7 @@
 #include "DataFormats/EcalDigi/interface/EBDataFrame.h"
 #include "DataFormats/EcalDigi/interface/EEDataFrame.h"
 #include "DataFormats/EcalDigi/interface/EcalMGPASample.h"
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 
 #include <iostream>
 #include <cmath>
