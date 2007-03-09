@@ -1,6 +1,6 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "TBDataFormats/HcalTBObjects/interface/HcalTBTriggerData.h"
@@ -16,8 +16,8 @@ namespace cms {
 
   /** \class HcalTBObjectDump
       
-  $Date: 2005/12/21 17:14:31 $
-  $Revision: 1.3 $
+  $Date: 2006/10/24 16:33:31 $
+  $Revision: 1.4 $
   \author J. Mans - Minnesota
   */
   class HcalTBObjectDump : public edm::EDAnalyzer {
