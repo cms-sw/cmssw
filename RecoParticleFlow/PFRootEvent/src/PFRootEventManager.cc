@@ -1,7 +1,6 @@
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/ParticleFlowReco/interface/PFLayer.h"
-#include "DataFormats/Common/interface/ModuleDescriptionRegistry.h"
-
+#include "DataFormats/Provenance/interface/ModuleDescriptionRegistry.h"
 #include "RecoParticleFlow/PFClusterAlgo/interface/PFClusterAlgo.h"
 #include "RecoParticleFlow/PFAlgo/interface/PFBlock.h"
 #include "RecoParticleFlow/PFAlgo/interface/PFBlockElement.h"

@@ -1,11 +1,11 @@
 #include "RecoParticleFlow/PFTracking/interface/PFTrackTransformer.h"
-#include "Geometry/Surface/interface/BoundCylinder.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
-#include "Geometry/Surface/interface/SimpleCylinderBounds.h"
-#include "Geometry/Surface/interface/SimpleDiskBounds.h"
+#include "DataFormats/GeometrySurface/interface/SimpleCylinderBounds.h"
+#include "DataFormats/GeometrySurface/interface/SimpleDiskBounds.h"
+#include "DataFormats/GeometrySurface/interface/BoundCylinder.h"
 using namespace std;
 using namespace reco;
 using namespace edm;

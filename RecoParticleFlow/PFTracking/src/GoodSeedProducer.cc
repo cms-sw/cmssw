@@ -7,12 +7,16 @@
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 #include "RecoParticleFlow/PFAlgo/interface/PFGeometry.h"
-#include "Geometry/Surface/interface/BoundCylinder.h"
-#include "Geometry/Surface/interface/SimpleCylinderBounds.h"
-#include "Geometry/Surface/interface/SimpleDiskBounds.h"
+
+#include "DataFormats/GeometrySurface/interface/BoundCylinder.h"
+#include "DataFormats/GeometrySurface/interface/SimpleCylinderBounds.h"
+#include "DataFormats/GeometrySurface/interface/SimpleDiskBounds.h"
+
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
+
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
+
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include <fstream>
