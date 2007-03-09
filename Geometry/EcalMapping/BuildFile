@@ -1,0 +1,14 @@
+<use name=FWCore/Framework>
+<use name=Foundation/PluginManager>
+<use name=FWCore/ParameterSet>
+<use name=DataFormats/EcalDetId>
+<use name=boost>
+<flags SEAL_PLUGIN_NAME="GeometryEcalMapping">
+<export>
+  <use name=FWCore/Framework>
+  <use name=Foundation/PluginManager>
+  <use name=FWCore/ParameterSet>
+  <use name=DataFormats/EcalDetId>
+  <use name=boost>
+  <lib name=GeometryEcalMapping>
+</export>
