@@ -8,8 +8,8 @@
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h" 
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h" 
-#include "Geometry/Surface/interface/Cylinder.h"
-#include "Geometry/Surface/interface/Plane.h" 
+#include "DataFormats/GeometrySurface/interface/Cylinder.h"
+#include "DataFormats/GeometrySurface/interface/Plane.h" 
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "MagneticField/Engine/interface/MagneticField.h" 
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
@@ -97,7 +97,7 @@ AlCaIsoTracksProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
    int itrk=0;
    int nisotr=0;
 
-   TrackAssociator::AssociatorParameters parameters;
+   HTrackAssociator::HAssociatorParameters parameters;
    parameters.useEcal = true;
    parameters.useHcal = true;
    parameters.useCalo = false;
@@ -124,7 +124,7 @@ AlCaIsoTracksProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
         if (ptrack < m_pCut || track->pt() < m_ptCut || fabs(track->vx()) > m_dvCut || fabs(track->vx()) > m_dvCut) continue;
         parameters.idREcal = 7;
         parameters.dREcal = 0.1;
-        TrackDetMatchInfo info = trackAssociator_.associate(iEvent, iSetup, trackAssociator_.getFreeTrajectoryState(iSetup, *track), parameters);
+        HTrackDetMatchInfo info = trackAssociator_.associate(iEvent, iSetup, trackAssociator_.getFreeTrajectoryState(iSetup, *track), parameters);
         double etaecal=info.trkGlobPosAtEcal.eta();
         double phiecal=info.trkGlobPosAtEcal.phi();
         double thetaecal=2.*atan(1.)-asin(2.*exp(etaecal)/(1.+exp(2.*etaecal)));
@@ -147,7 +147,7 @@ AlCaIsoTracksProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
                double dz = fabs(track->vz()-track1->vz());
                double drvert = sqrt(dx*dx+dy*dy+dz*dz);
 //               cout <<" ...with track "<<itrk1<<": drvert ="<<drvert;
-               TrackDetMatchInfo info1 = trackAssociator_.associate(iEvent, iSetup, trackAssociator_.getFreeTrajectoryState(iSetup, *track1), parameters);
+               HTrackDetMatchInfo info1 = trackAssociator_.associate(iEvent, iSetup, trackAssociator_.getFreeTrajectoryState(iSetup, *track1), parameters);
                double etaecal1=info1.trkGlobPosAtEcal.eta();
                double phiecal1=info1.trkGlobPosAtEcal.phi();
                double thetaecal1=2.*atan(1.)-asin(2.*exp(etaecal1)/(1.+exp(2.*etaecal1)));
@@ -177,7 +177,7 @@ AlCaIsoTracksProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
                if( ddir < m_ddirCut*(1.+factor)*(1.+factor1) ) isol = 0;
             }
 
-      TrackDetMatchInfo info2;
+      HTrackDetMatchInfo info2;
 // here check neutral isolation
       if (isol==1) {
         int iflag = 0;
