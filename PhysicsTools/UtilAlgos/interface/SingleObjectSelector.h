@@ -10,13 +10,11 @@ template<typename InputCollection, typename Selector,
 	 typename RefAdder = typename helper::SelectionAdderTrait<StoreContainer>::type>
 class SingleObjectSelector : 
   public ObjectSelector<SingleElementCollectionSelector<InputCollection, Selector, StoreContainer, RefAdder>, 
-			OutputCollection, NonNullNumberSelector, PostProcessor,  
-			helper::SimpleCollectionStoreManager<OutputCollection> > {
+			OutputCollection, NonNullNumberSelector, PostProcessor> {
 public:
   explicit SingleObjectSelector( const edm::ParameterSet & cfg ) :
     ObjectSelector<SingleElementCollectionSelector<InputCollection, Selector, StoreContainer, RefAdder>, 
-		   OutputCollection, NonNullNumberSelector, PostProcessor,  
-		   helper::SimpleCollectionStoreManager<OutputCollection> >( cfg ) { }
+		   OutputCollection, NonNullNumberSelector, PostProcessor>( cfg ) { }
   virtual ~SingleObjectSelector() { }
 };
 

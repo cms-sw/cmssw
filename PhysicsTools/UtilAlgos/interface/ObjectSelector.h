@@ -6,9 +6,9 @@
  * 
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.14 $
+ * \version $Revision: 1.15 $
  *
- * $Id: ObjectSelector.h,v 1.14 2007/03/05 13:59:35 llista Exp $
+ * $Id: ObjectSelector.h,v 1.15 2007/03/09 14:07:08 llista Exp $
  *
  */
 
@@ -16,7 +16,7 @@
 #include "FWCore/Framework/interface/EventPrincipal.h" 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/Common/interface/CloneTrait.h"
+#include "DataFormats/Common/interface/OwnVector.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
 #include "DataFormats/Common/interface/RefVector.h"
 #include "DataFormats/Common/interface/RefProd.h"
@@ -29,16 +29,44 @@
 
 namespace helper {
 
-  template<typename OutputCollection, 
-	   typename ClonePolicy = typename edm::clonehelper::CloneTrait<OutputCollection>::type>
-  struct SimpleCollectionStoreManager {
-    typedef OutputCollection collection;
-    SimpleCollectionStoreManager() : selected_( new collection ) { 
+  template<typename Collection>
+  struct IteratorToObjectConverter {
+    typedef typename Collection::value_type value_type;
+    template<typename I>
+    static value_type convert( const I & i ) {
+      return value_type( * * i );
     }
+  };
+  
+  template<typename T>
+   struct IteratorToObjectConverter<edm::OwnVector<T> > {
+    typedef std::auto_ptr<T> value_type;
+    template<typename I>
+    static value_type convert( const I & i ) {
+      return value_type( (*i)->clone() );
+    }
+  };
+
+  template<typename C>
+   struct IteratorToObjectConverter<edm::RefVector<C> > {
+    typedef edm::Ref<C> value_type;
+    template<typename I>
+    static value_type convert( const I & i ) {
+      return value_type( * i );
+    }
+  };
+
+  template<typename OutputCollection, 
+	   typename ClonePolicy = IteratorToObjectConverter<OutputCollection> >
+  struct CollectionStoreManager {
+    typedef OutputCollection collection;
+    CollectionStoreManager() : selected_( new collection ) { }
     template<typename I>
     void cloneAndStore( const I & begin, const I & end, edm::Event & ) {
-      for( I i = begin; i != end; ++ i )
-        selected_->push_back( ClonePolicy::clone( * * i ) );
+      for( I i = begin; i != end; ++ i ) {
+	typename ClonePolicy::value_type v = ClonePolicy::convert( i );
+        selected_->push_back( v );
+      }
     }
     edm::OrphanHandle<collection> put( edm::Event & evt ) {
       return evt.put( selected_ );
@@ -64,8 +92,7 @@ namespace reco {
 template<typename Selector, 
          typename OutputCollection = typename Selector::collection,
 	 typename SizeSelector = NonNullNumberSelector,
-	 typename PostProcessor = reco::helpers::NullPostProcessor<OutputCollection>,  
-	 typename CollectionStoreManager = helper::SimpleCollectionStoreManager<OutputCollection> 
+	 typename PostProcessor = reco::helpers::NullPostProcessor<OutputCollection> 
 	 >
 class ObjectSelector : public edm::EDFilter {
 public:
@@ -93,7 +120,7 @@ private:
   bool filter( edm::Event& evt, const edm::EventSetup& ) {
     edm::Handle<typename Selector::collection> source;
     evt.getByLabel( src_, source );
-    CollectionStoreManager manager;
+    helper::CollectionStoreManager<OutputCollection> manager;
     selector_.select( source, evt );
     manager.cloneAndStore( selector_.begin(), selector_.end(), evt );
     bool result = ( ! filter_ || sizeSelector_( manager.size() ) );
