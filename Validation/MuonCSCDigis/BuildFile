@@ -1,27 +1,21 @@
+<use name=DQMServices/Core>
 <use name=DataFormats/CSCDigi>
-<use name=SimDataFormats/CrossingFrame>
-<use name=Geometry/Records>
-<use name=Geometry/CommonDetUnit>
-<use name=Geometry/CSCGeometry>
+<use name=DataFormats/Common>
 <use name=FWCore/Framework>
-<use name=FWCore/ParameterSet>
 <use name=FWCore/MessageLogger>
+<use name=FWCore/ParameterSet>
+<use name=FWCore/ServiceRegistry>
 <use name=Foundation/PluginManager>
-<use name=DQMServices/CoreROOT>
-<use name=root>
-
-<flags SEAL_PLUGIN_NAME="ValidationMuonCSCDigis">
+<use name=Geometry/CSCGeometry>
+<use name=Geometry/Records>
+<use name=SimDataFormats/CrossingFrame>
+<use name=SimDataFormats/TrackingHit>
+<flags SEALPLUGIN=1>
 <export>
-   <lib name=ValidationMuonCSCDigis>
-    <use name=DataFormats/CSCDigi>
-    <use name=SimDataFormats/CrossingFrame>
-    <use name=Geometry/Records>
-    <use name=Geometry/CommonDetUnit>
-    <use name=Geometry/CSCGeometry>
-    <use name=FWCore/Framework>
-    <use name=FWCore/ParameterSet>
-    <use name=FWCore/MessageLogger>
-    <use name=Foundation/PluginManager>
-    <use name=DQMServices/CoreROOT>
-    <use name=root>	 	
+  <use name=DQMServices/Core>
+  <use name=FWCore/Framework>
+  <use name=FWCore/ParameterSet>
+  <use name=Geometry/CSCGeometry>
+  <use name=SimDataFormats/TrackingHit>
+  <lib name=ValidationMuonCSCDigis>
 </export>
