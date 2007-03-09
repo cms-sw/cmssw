@@ -5,8 +5,8 @@
 #include "DetectorDescription/Base/interface/DDRotationMatrix.h"
 #include "DetectorDescription/Base/interface/DDTranslation.h"
 #include "DetectorDescription/Core/interface/DDSolidShapes.h"
-#include "Geometry/Surface/interface/Surface.h"
-#include "Geometry/Surface/interface/Bounds.h"
+#include "DataFormats/GeometrySurface/interface/Surface.h"
+#include "DataFormats/GeometrySurface/interface/Bounds.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
 #include <vector>

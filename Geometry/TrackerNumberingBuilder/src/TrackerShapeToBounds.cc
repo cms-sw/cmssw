@@ -1,7 +1,7 @@
 #include "Geometry/TrackerNumberingBuilder/interface/TrackerShapeToBounds.h"
-#include "Geometry/Surface/interface/OpenBounds.h"
-#include "Geometry/Surface/interface/RectangularPlaneBounds.h"
-#include "Geometry/Surface/interface/TrapezoidalPlaneBounds.h"
+#include "DataFormats/GeometrySurface/interface/OpenBounds.h"
+#include "DataFormats/GeometrySurface/interface/RectangularPlaneBounds.h"
+#include "DataFormats/GeometrySurface/interface/TrapezoidalPlaneBounds.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 #include <algorithm>
 #include <iostream>

@@ -1,7 +1,7 @@
 #ifndef ModifiedSurfaceGenerator_h_
 #define ModifiedSurfaceGenerator_h_
 
-#include "Geometry/Surface/interface/BoundSurface.h"
+#include "DataFormats/GeometrySurface/interface/BoundSurface.h"
 
 /** Creates a new instance of a BoundSurface at 
  *  a new location (using the copy constructor). */

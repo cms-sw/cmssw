@@ -23,7 +23,7 @@
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "Geometry/Surface/interface/MediumProperties.h"
+#include "DataFormats/GeometrySurface/interface/MediumProperties.h"
 
 
 #include <cfloat>

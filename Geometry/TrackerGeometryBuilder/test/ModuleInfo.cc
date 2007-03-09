@@ -35,7 +35,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetType.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
-#include "Geometry/Surface/interface/BoundSurface.h"
+#include "DataFormats/GeometrySurface/interface/BoundSurface.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "Geometry/TrackerNumberingBuilder/interface/CmsTrackerDebugNavigator.h"

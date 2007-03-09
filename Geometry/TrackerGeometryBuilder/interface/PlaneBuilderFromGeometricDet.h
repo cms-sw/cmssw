@@ -1,8 +1,8 @@
 #ifndef Geometry_TrackerGeometryBuilder_PlaneBuilderFromGeometricDet_H
 #define Geometry_TrackerGeometryBuilder_PlaneBuilderFromGeometricDet_H
 
-#include "Geometry/Surface/interface/BoundPlane.h"
-#include "Geometry/Surface/interface/ReferenceCounted.h"
+#include "DataFormats/GeometrySurface/interface/BoundPlane.h"
+#include "DataFormats/GeometrySurface/interface/ReferenceCounted.h"
 
 class GeometricDet;
 /**

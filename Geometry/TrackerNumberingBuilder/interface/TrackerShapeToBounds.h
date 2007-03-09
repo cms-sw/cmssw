@@ -1,7 +1,7 @@
 #ifndef Geometry_TrackerNumberingBuilder_TrackerShapeToBounds_H
 #define Geometry_TrackerNumberingBuilder_TrackerShapeToBounds_H
 
-#include "Geometry/Surface/interface/Bounds.h"
+#include "DataFormats/GeometrySurface/interface/Bounds.h"
 #include "DetectorDescription/Core/interface/DDSolidShapes.h"
 #include <vector>
 #include <algorithm>

@@ -1,7 +1,7 @@
 #ifndef CommonDet_GeomDetUnit_H
 #define CommonDet_GeomDetUnit_H
 
-#include "Geometry/Surface/interface/BoundPlane.h"
+#include "DataFormats/GeometrySurface/interface/BoundPlane.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "DataFormats/DetId/interface/DetId.h"
 

@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/03/20 21:13:19 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/10/26 23:35:43 $
+ *  $Revision: 1.4 $
  *  \author N. Amapane - CERN
  */
 
@@ -18,7 +18,7 @@
 
 #include <Geometry/DTGeometry/interface/DTGeometry.h>
 #include <Geometry/Records/interface/MuonGeometryRecord.h>
-#include <Geometry/Vector/interface/GlobalPoint.h>
+#include <DataFormats/GeometryVector/interface/GlobalPoint.h>
 //#include <Geometry/DTGeometry/interface/DTLayer.h>
 
 #include <string>

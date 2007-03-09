@@ -13,7 +13,7 @@
 //
 // Original Author:  Filippo Ambroglini
 //         Created:  Tue Jul 26 08:47:57 CEST 2005
-// $Id: TrackerDigiGeometryAnalyzer.cc,v 1.8 2006/11/16 13:54:51 fambrogl Exp $
+// $Id: TrackerDigiGeometryAnalyzer.cc,v 1.9 2007/02/05 12:56:20 fambrogl Exp $
 //
 //
 
@@ -42,9 +42,9 @@
 
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
-#include "Geometry/Surface/interface/BoundSurface.h"
-#include "Geometry/Surface/interface/MediumProperties.h"
-#include "Geometry/Surface/interface/TrapezoidalPlaneBounds.h"
+#include "DataFormats/GeometrySurface/interface/BoundSurface.h"
+#include "DataFormats/GeometrySurface/interface/MediumProperties.h"
+#include "DataFormats/GeometrySurface/interface/TrapezoidalPlaneBounds.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //

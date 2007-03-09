@@ -1,7 +1,7 @@
 #ifndef DetSorting_h
 #define DetSorting_h
 
-#include <Geometry/Surface/interface/GeometricSorting.h>
+#include <DataFormats/GeometrySurface/interface/GeometricSorting.h>
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 
 
@@ -15,8 +15,8 @@ namespace geomsort{
  *
  *  precomputed_value_sort(v.begin(), v.end(), DetR());
  *
- *  $Date: 2006/03/17 15:02:05 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/11/13 14:24:54 $
+ *  $Revision: 1.2 $
  *  \author N. Amapane - CERN
  */
 
@@ -35,8 +35,8 @@ namespace geomsort{
  *
  *  precomputed_value_sort(v.begin(), v.end(), DetPhi());
  *
- *  $Date: 2006/03/17 15:02:05 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/11/13 14:24:54 $
+ *  $Revision: 1.2 $
  *  \author N. Amapane - CERN
  */
 
@@ -51,8 +51,8 @@ namespace geomsort{
  *
  *  precomputed_value_sort(v.begin(), v.end(), DetZ());
  *
- *  $Date: 2006/03/17 15:02:05 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/11/13 14:24:54 $
+ *  $Revision: 1.2 $
  *  \author N. Amapane - CERN
  */
 

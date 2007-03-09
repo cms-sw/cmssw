@@ -16,10 +16,10 @@
 #include "Geometry/MuonNumbering/interface/MuonBaseNumber.h"
 #include "Geometry/MuonNumbering/interface/RPCNumberingScheme.h"
 
-#include "Geometry/Surface/interface/RectangularPlaneBounds.h"
-#include "Geometry/Surface/interface/TrapezoidalPlaneBounds.h"
+#include "DataFormats/GeometrySurface/interface/RectangularPlaneBounds.h"
+#include "DataFormats/GeometrySurface/interface/TrapezoidalPlaneBounds.h"
 
-#include "Geometry/Vector/interface/Basic3DVector.h"
+#include "DataFormats/GeometryVector/interface/Basic3DVector.h"
 
 #include "CLHEP/Units/SystemOfUnits.h"
 

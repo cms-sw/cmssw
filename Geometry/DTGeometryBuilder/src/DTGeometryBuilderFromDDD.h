@@ -5,13 +5,13 @@
  *
  *  Build the DTGeometry from the DDD description.  
  *
- *  $Date: 2006/02/22 10:59:28 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/10/13 00:55:06 $
+ *  $Revision: 1.2 $
  *  \author N. Amapane - CERN. 
  *  \author Port of: MuBarDDDGeomBuilder, MuBarDetBuilder (ORCA) by S. Lacaprara, M. Case
  */
 
-#include "Geometry/Surface/interface/BoundPlane.h"
+#include "DataFormats/GeometrySurface/interface/BoundPlane.h"
 #include <vector>
 
 class DTGeometry;

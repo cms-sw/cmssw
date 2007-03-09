@@ -15,7 +15,7 @@
 
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
 #include <Geometry/Records/interface/MuonGeometryRecord.h>
-//#include <Geometry/Vector/interface/GlobalPoint.h>
+//#include <DataFormats/GeometryVector/interface/GlobalPoint.h>
 #include <Geometry/CommonTopologies/interface/RectangularStripTopology.h>
 #include <Geometry/CommonTopologies/interface/TrapezoidalStripTopology.h>
 

@@ -1,10 +1,10 @@
 #ifndef Geometry_TrackerGeometryBuilder_PlaneBuilderForGluedDet_H
 #define Geometry_TrackerGeometryBuilder_PlaneBuilderForGluedDet_H
 
-#include "Geometry/Surface/interface/BoundPlane.h"
-#include "Geometry/Surface/interface/ReferenceCounted.h"
-#include "Geometry/Surface/interface/RectangularPlaneBounds.h"
-#include "Geometry/Surface/interface/TrapezoidalPlaneBounds.h"
+#include "DataFormats/GeometrySurface/interface/BoundPlane.h"
+#include "DataFormats/GeometrySurface/interface/ReferenceCounted.h"
+#include "DataFormats/GeometrySurface/interface/RectangularPlaneBounds.h"
+#include "DataFormats/GeometrySurface/interface/TrapezoidalPlaneBounds.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include <utility>
 #include <vector>

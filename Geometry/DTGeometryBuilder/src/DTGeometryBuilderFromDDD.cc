@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/09/20 08:53:39 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/10/13 00:55:06 $
+ *  $Revision: 1.5 $
  *  \author N. Amapane - CERN. 
  */
 
@@ -21,13 +21,13 @@
 #include "CLHEP/Units/SystemOfUnits.h"
 
 
-#include "Geometry/Surface/interface/RectangularPlaneBounds.h"
+#include "DataFormats/GeometrySurface/interface/RectangularPlaneBounds.h"
 
 #include <DetectorDescription/Core/interface/DDFilter.h>
 #include <DetectorDescription/Core/interface/DDFilteredView.h>
 #include <DetectorDescription/Core/interface/DDSolid.h>
 
-#include "Geometry/Surface/interface/RectangularPlaneBounds.h"
+#include "DataFormats/GeometrySurface/interface/RectangularPlaneBounds.h"
 
 
 #include <string>

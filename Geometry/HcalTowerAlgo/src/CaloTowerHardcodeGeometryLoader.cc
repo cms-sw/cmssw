@@ -1,7 +1,7 @@
 #include "Geometry/HcalTowerAlgo/interface/CaloTowerHardcodeGeometryLoader.h"
 #include "Geometry/HcalTowerAlgo/src/HcalHardcodeGeometryData.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
-#include "Geometry/Vector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "Geometry/CaloGeometry/interface/IdealObliquePrism.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 

@@ -17,15 +17,15 @@
  * The Topology interface is extended with methods relevant for
  * the DT detectors, e.g. wirePosition(int), etc.
  *  
- *  $Date: 2006/03/20 19:22:20 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/09/20 10:20:48 $
+ *  $Revision: 1.3 $
  *
  * \author R. Bellan - INFN Torino
  *
  */
 
 #include "Geometry/CommonTopologies/interface/Topology.h"
-#include "Geometry/Vector/interface/LocalPoint.h"
+#include "DataFormats/GeometryVector/interface/LocalPoint.h"
 
 class DTTopology: public Topology {
  public:

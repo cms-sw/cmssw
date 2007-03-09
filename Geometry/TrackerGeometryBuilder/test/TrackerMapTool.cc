@@ -13,7 +13,7 @@
 //
 // Original Author:  Filippo Ambroglini
 //         Created:  Tue Jul 26 08:47:57 CEST 2005
-// $Id: TrackerMapTool.cc,v 1.4 2006/10/27 16:36:58 fambrogl Exp $
+// $Id: TrackerMapTool.cc,v 1.5 2007/02/05 12:56:20 fambrogl Exp $
 //
 //
 
@@ -46,7 +46,7 @@
 
 
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
-#include "Geometry/Surface/interface/BoundSurface.h"
+#include "DataFormats/GeometrySurface/interface/BoundSurface.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 //
 //
