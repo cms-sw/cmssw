@@ -13,7 +13,7 @@
 //
 // Original Author:  Natalia Ilina
 //         Created:  Tue Oct 31 10:52:41 CET 2006
-// $Id$
+// $Id: JetVertexAssociation.cc,v 1.1 2006/11/28 14:32:21 nilina Exp $
 //
 //
 
@@ -43,7 +43,7 @@
 #include "PluginManager/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
