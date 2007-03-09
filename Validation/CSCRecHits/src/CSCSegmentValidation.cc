@@ -32,8 +32,13 @@ void CSCSegmentValidation::analyze(const edm::Event&e, const edm::EventSetup& ev
   for(CSCSegmentCollection::const_iterator segmentItr = cscRecHits->begin(); 
       segmentItr != cscRecHits->end(); segmentItr++) 
   {
-  }    
+    ++nPerEvent;
+    int chamberType = 0;
+    theNRecHitsPlot->Fill(segmentItr->nRecHits());
+    theNPerChamberTypePlot->Fill(chamberType);
+  }
   theNPerEventPlot->Fill(nPerEvent);
+
 }
 
 
