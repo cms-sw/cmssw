@@ -23,6 +23,7 @@ Framework module for common particle candidate manupulation
  - \ref PhysicsTools_UtilAlgos "UtilAlgos": genericl framework modules.<br>
  - \ref PhysicsTools_CandAlgos "CandAlgos": common framework modules for \ref DataFormats_Candidate "particle candidates".<br>
  - \ref PhysicsTools_RecoAlgos "RecoAlgos": common framework modules for \ref RecoPackages "Reco objects".<br>
+ - \ref PhysicsTools_RecoSelectors "RecoSelectors": common selector modules for \ref RecoPackages "Reco objects".<br>
  - \ref PhysicsTools_RecoCandAlgos "RecoCandAlgos": framework modules that produce \ref DataFormats_Candidate "particle candidates" with \ref RecoPackages "Reco" components.<br>
  - \ref PhysicsTools_HepMCCandAlgos "HepMCCandAlgos": framework modules that produce \ref DataFormats_Candidate "particle candidates" with HepMC Generator components.<br>
 
