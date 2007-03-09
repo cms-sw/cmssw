@@ -1,13 +1,13 @@
 /** \class EcalTBWeightUncalibRecHitProducer
  *   produce ECAL uncalibrated rechits from dataframes
  *
-  *  $Id: EcalTBWeightUncalibRecHitProducer.cc,v 1.6 2006/11/18 10:00:29 meridian Exp $
-  *  $Date: 2006/11/18 10:00:29 $
-  *  $Revision: 1.6 $
+  *  $Id: EcalTBWeightUncalibRecHitProducer.cc,v 1.7 2006/11/29 21:24:15 meridian Exp $
+  *  $Date: 2006/11/29 21:24:15 $
+  *  $Revision: 1.7 $
   *
   *  $Alex Zabi$
-  *  $Date: 2006/11/18 10:00:29 $
-  *  $Revision: 1.6 $
+  *  $Date: 2006/11/29 21:24:15 $
+  *  $Revision: 1.7 $
   *  Modification to detect first sample to switch gain.
   *  used for amplitude recontruction at high energy
   *  Add TDC convention option (P. Meridiani)
@@ -16,7 +16,7 @@
 #include "RecoTBCalo/EcalTBRecProducers/interface/EcalTBWeightUncalibRecHitProducer.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/EcalDigi/interface/EcalMGPASample.h"
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 
 #include <iostream>
 #include <iomanip>
