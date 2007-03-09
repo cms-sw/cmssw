@@ -12,7 +12,7 @@
 class TriggerBoardSpec {
 public:
   /// ctor with ID only
-  TriggerBoardSpec(int num=-1);
+  TriggerBoardSpec(int num=-1, uint32_t aMask = 0);
 
   /// input channel number to DCC 
   int dccInputChannelNum() const { return theNum; }
@@ -24,6 +24,9 @@ public:
 
   ///  attach connection to TB
   void add(const LinkConnSpec & lc);
+
+  /// set mask links
+  void setMaskedLinks(uint32_t aMask) { theMaskedLinks = aMask; }
 
   ///  debud printaout, call its components with depth dectreased by one
   std::string print(int depth = 0) const;
