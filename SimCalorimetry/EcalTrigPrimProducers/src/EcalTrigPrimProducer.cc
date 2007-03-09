@@ -37,7 +37,8 @@ const int EcalTrigPrimProducer::nrSamples_=5;
 EcalTrigPrimProducer::EcalTrigPrimProducer(const edm::ParameterSet&  iConfig):
   valid_(iConfig.getUntrackedParameter<bool>("Validation")),
   barrelOnly_(iConfig.getParameter<bool>("BarrelOnly")),
-  tcpFormat_(iConfig.getParameter<bool>("TcpOutput"))
+  tcpFormat_(iConfig.getParameter<bool>("TcpOutput")),
+  debug_(iConfig.getParameter<bool>("Debug"))
 {
   //register your products
   produces <EcalTrigPrimDigiCollection >();
@@ -99,7 +100,8 @@ void EcalTrigPrimProducer::beginJob(edm::EventSetup const& setup) {
   }
 
   db_ = new DBInterface(databaseFileNameEB_,databaseFileNameEE_);
-  algo_ = new EcalTrigPrimFunctionalAlgo(setup,  valTree_,binOfMaximum_,nrSamples_,db_,tcpFormat_,barrelOnly_,ebDccAdcToGeV_,eeDccAdcToGeV_);
+  algo_ = new EcalTrigPrimFunctionalAlgo(setup,valTree_,
+          binOfMaximum_,nrSamples_,db_,tcpFormat_,barrelOnly_,debug_,ebDccAdcToGeV_,eeDccAdcToGeV_);
   edm::LogInfo("EcalTPG") <<"EcalTrigPrimProducer will write:  "<<nrSamples_<<" samples for each digi,  binOfMaximum used:  "<<binOfMaximum_;
 }
 

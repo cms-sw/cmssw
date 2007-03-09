@@ -52,6 +52,7 @@ class EcalTrigPrimProducer : public edm::EDProducer
   bool valid_;
   bool barrelOnly_;
   bool tcpFormat_;
+  bool debug_;
   std::string label_;
   std::string instanceNameEB_;
   std::string instanceNameEE_;
