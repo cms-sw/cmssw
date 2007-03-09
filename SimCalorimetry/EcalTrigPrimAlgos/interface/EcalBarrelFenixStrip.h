@@ -34,10 +34,12 @@ class DBInterface ;
 
     EcalFenixStripFormat *fenix_format_;
 
+    bool debug_;
+
   public:
 
     // constructor, destructor
-    EcalBarrelFenixStrip(const TTree *tree, DBInterface * db);
+    EcalBarrelFenixStrip(const TTree *tree, DBInterface * db, bool debug);
     virtual ~EcalBarrelFenixStrip() ;
 
     // main methods

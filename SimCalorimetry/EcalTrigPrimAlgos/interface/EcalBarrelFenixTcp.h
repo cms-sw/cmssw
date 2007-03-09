@@ -20,7 +20,7 @@ class DBInterface ;
 
 
   public:
-    EcalBarrelFenixTcp(DBInterface * db, bool tccFormat);
+    EcalBarrelFenixTcp(DBInterface * db, bool tccFormat, bool debug);
     virtual ~EcalBarrelFenixTcp() ;
 
     void process(std::vector<std::vector<int> > & tpframetow,
@@ -38,6 +38,8 @@ class DBInterface ;
 
     EcalFenixMaxof2 *maxOf2_;
     EcalFenixBypassLin *bypasslin_[nStripsPerTower_];
+
+    bool debug_;
 
   };
 

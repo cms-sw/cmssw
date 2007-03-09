@@ -53,6 +53,7 @@ int EcalFenixLinearizer::setInput(EcalMGPASample RawSam)
     }
   uncorrectedSample_=RawSam.adc(); //uncorrectedSample_ is coded in the 12 LSB
   gainID_=RawSam.gainId();       //uncorrectedSample_ is coded in the 2 next bits!
+  if (gainID_==0)    gainID_=3;
   gainID_ -- ; 
   base_ = params_[3*gainID_] ;
   mult_ = params_[3*gainID_+1] ;

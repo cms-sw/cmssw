@@ -37,16 +37,16 @@
 #include <TMath.h>
 //----------------------------------------------------------------------
 
-EcalTrigPrimFunctionalAlgo::EcalTrigPrimFunctionalAlgo(const edm::EventSetup & setup,int binofmax,int nrsamples, DBInterface *db, bool tcpFormat, bool barrelOnly,double ebDccAdcToGeV,double eeDccAdcToGeV):
+EcalTrigPrimFunctionalAlgo::EcalTrigPrimFunctionalAlgo(const edm::EventSetup & setup,int binofmax,int nrsamples, DBInterface *db, bool tcpFormat, bool barrelOnly,bool debug, double ebDccAdcToGeV,double eeDccAdcToGeV):
   valid_(false),valTree_(NULL),binOfMaximum_(binofmax),nrSamplesToWrite_(nrsamples), db_(db), 
-  tcpFormat_(tcpFormat), barrelOnly_(barrelOnly),
+  tcpFormat_(tcpFormat), barrelOnly_(barrelOnly), debug_(debug),
   ebDccAdcToGeV_(ebDccAdcToGeV),eeDccAdcToGeV_(eeDccAdcToGeV)
 {this->init(setup);}
 
 //----------------------------------------------------------------------
-EcalTrigPrimFunctionalAlgo::EcalTrigPrimFunctionalAlgo(const edm::EventSetup & setup,TTree *tree,int binofmax, int nrsamples,  DBInterface *db, bool tcpFormat, bool barrelOnly,double ebDccAdcToGeV,double eeDccAdcToGeV):
+EcalTrigPrimFunctionalAlgo::EcalTrigPrimFunctionalAlgo(const edm::EventSetup & setup,TTree *tree,int binofmax, int nrsamples,  DBInterface *db, bool tcpFormat, bool barrelOnly, bool debug, double ebDccAdcToGeV,double eeDccAdcToGeV):
   valid_(true),valTree_(tree),binOfMaximum_(binofmax),nrSamplesToWrite_(nrsamples), db_(db), 
-  tcpFormat_(tcpFormat), barrelOnly_(barrelOnly),
+  tcpFormat_(tcpFormat), barrelOnly_(barrelOnly),debug_(debug),
   ebDccAdcToGeV_(ebDccAdcToGeV),eeDccAdcToGeV_(eeDccAdcToGeV)
 {this->init(setup);}
 
@@ -62,8 +62,8 @@ void EcalTrigPrimFunctionalAlgo::init(const edm::EventSetup & setup) {
     setup.get<IdealGeometryRecord>().get(eTTmap_);
   }
 
-  ebstrip_= new EcalBarrelFenixStrip(valTree_, db_);
-  ebtcp_ = new EcalBarrelFenixTcp(db_,tcpFormat_) ;
+  ebstrip_= new EcalBarrelFenixStrip(valTree_, db_,debug_);
+  ebtcp_ = new EcalBarrelFenixTcp(db_,tcpFormat_,debug_) ;
 }
 //----------------------------------------------------------------------
 

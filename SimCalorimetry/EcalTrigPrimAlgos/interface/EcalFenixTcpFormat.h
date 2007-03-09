@@ -26,7 +26,7 @@ class EcalFenixTcpFormat : public EcalVFormatter {
 
 
  public:
-  EcalFenixTcpFormat(DBInterface * db, bool tccFormat);
+  EcalFenixTcpFormat(DBInterface * db, bool tccFormat, bool debug);
   virtual ~EcalFenixTcpFormat();
   virtual std::vector<int> process(std::vector<int>,std::vector<int>) {  std::vector<int> v;return v;}
   void process(std::vector<int> &Et, std::vector<int> &fgvb, std::vector<EcalTriggerPrimitiveSample> & out, std::vector<EcalTriggerPrimitiveSample> & outTcc) ;
@@ -36,6 +36,7 @@ class EcalFenixTcpFormat : public EcalVFormatter {
   DBInterface * db_ ;
   std::vector<unsigned int> lut_ ;
   bool tcpFormat_;
+  bool debug_;
 
 };
 

@@ -46,8 +46,8 @@ class EcalTrigPrimFunctionalAlgo
   
   //  typedef PRecDet<EcalTrigPrim> precdet;
 
-  explicit EcalTrigPrimFunctionalAlgo(const edm::EventSetup & setup,int binofmax, int nrsamples, DBInterface *db, bool tccFormat, bool barrelOnly, double ebDccAdcToGeV, double eeDccAdcToGeV);
-  EcalTrigPrimFunctionalAlgo(const edm::EventSetup & setup, TTree *tree, int binofmax, int nrsamples,  DBInterface *db, bool tccFormat, bool barrelOnly, double ebDccAdcToGeV, double eeDccAdcToGeV);
+  explicit EcalTrigPrimFunctionalAlgo(const edm::EventSetup & setup,int binofmax, int nrsamples, DBInterface *db, bool tccFormat, bool barrelOnly, bool debug, double ebDccAdcToGeV, double eeDccAdcToGeV);
+  EcalTrigPrimFunctionalAlgo(const edm::EventSetup & setup, TTree *tree, int binofmax, int nrsamples,  DBInterface *db, bool tccFormat, bool barrelOnly,  bool debug, double ebDccAdcToGeV, double eeDccAdcToGeV);
   virtual ~EcalTrigPrimFunctionalAlgo();
 
   /** this actually calculates the trigger primitives (from Digis) */
@@ -111,7 +111,7 @@ class EcalTrigPrimFunctionalAlgo
   const CaloSubdetectorGeometry *theEndcapGeometry;
 
   // for debugging
-  ETPCoherenceTest *cTest_;
+  ETPCoherenceTest *cTest_;  //FIXME
 
   //for validation
   bool valid_;
@@ -125,6 +125,7 @@ class EcalTrigPrimFunctionalAlgo
 
   bool tcpFormat_;
   bool barrelOnly_;
+  bool debug_;
 
   //parameters from EB(E)DataFrames
   double ebDccAdcToGeV_,eeDccAdcToGeV_;
