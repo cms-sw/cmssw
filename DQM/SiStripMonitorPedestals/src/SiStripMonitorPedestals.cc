@@ -13,7 +13,7 @@
 //
 // Original Author:  Simone Gennai and Suchandra Dutta
 //         Created:  Sat Feb  4 20:49:10 CET 2006
-// $Id: SiStripMonitorPedestals.cc,v 1.13 2007/02/15 15:32:19 dutta Exp $
+// $Id: SiStripMonitorPedestals.cc,v 1.14 2007/02/17 18:18:52 giordano Exp $
 //
 //
 
@@ -33,7 +33,7 @@
 
 #include <FWCore/Framework/interface/Event.h>
 #include <FWCore/Framework/interface/EventSetup.h>
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 // data formats
@@ -228,6 +228,15 @@ void SiStripMonitorPedestals::analyze(const edm::Event& iEvent, const edm::Event
     
     // get iterators for digis belonging to one DetId, it is an iterator, i.e. one element of the vector      
     std::vector< edm::DetSet<SiStripRawDigi> >::const_iterator digis = digi_collection->find( detid );
+    if (digis->data.size() == 0 || 
+        digis->data.size() > 768 || 
+        digis == digi_collection->end() ) {
+         continue;
+    }
+
+    if ( digis->data.empty() ) { 
+      edm::LogError("MonitorDigi_tmp") << "[SiStripRawDigiToRaw::createFedBuffers] Zero digis found!"; 
+    } 
     if ( digis->data.empty() ) { 
       edm::LogError("MonitorDigi_tmp") << "[SiStripRawDigiToRaw::createFedBuffers] Zero digis found!"; 
     } 
