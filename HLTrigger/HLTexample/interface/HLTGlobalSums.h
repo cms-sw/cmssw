@@ -6,10 +6,10 @@
  *  
  *  This class is an HLTFilter (-> EDFilter) implementing cuts on
  *  global sums such as the scalar sum of Et (a.k.a. H_T), available
- *  in the MET object.
+ *  in the T=CaloMET or T=MET object.
  *
- *  $Date: 2006/08/24 11:43:19 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/10/04 16:02:42 $
+ *  $Revision: 1.2 $
  *
  *  \author Martin Grunewald
  *
@@ -22,6 +22,7 @@
 // class declaration
 //
 
+template<typename T>
 class HLTGlobalSums : public HLTFilter {
 
    public:
