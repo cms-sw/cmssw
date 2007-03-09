@@ -1,12 +1,12 @@
-// $Id: MLlog4cplus.cc,v 1.1 2006/05/04 14:52:46 meschi Exp $
+// $Id: MLlog4cplus.h,v 1.1 2006/06/13 14:35:03 meschi Exp $
 //
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
-#include "DataFormats/Common/interface/EventID.h"
-#include "DataFormats/Common/interface/Timestamp.h"
-#include "DataFormats/Common/interface/ModuleDescription.h"
+#include "DataFormats/Provenance/interface/EventID.h"
+#include "DataFormats/Provenance/interface/Timestamp.h"
+#include "DataFormats/Provenance/interface/ModuleDescription.h"
 
 #include <iostream>
 

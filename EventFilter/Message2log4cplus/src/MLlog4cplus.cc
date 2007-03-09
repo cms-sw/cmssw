@@ -5,12 +5,12 @@
 // 
 //
 // Original Author:  Jim Kowalkowski
-// $Id: MLlog4cplus.cc,v 1.2 2006/06/13 14:36:22 meschi Exp $
+// $Id: MLlog4cplus.cc,v 1.3 2006/10/27 01:35:25 wmtan Exp $
 //
 
 #include "FWCore/MessageLogger/interface/MessageLoggerQ.h"
 #include "FWCore/MessageService/interface/NamedDestination.h"
-#include "DataFormats/Common/interface/EventID.h"
+#include "DataFormats/Provenance/interface/EventID.h"
 #include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "EventFilter/Message2log4cplus/src/ELlog4cplus.h"
