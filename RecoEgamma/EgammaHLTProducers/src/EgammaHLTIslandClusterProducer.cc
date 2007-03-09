@@ -138,12 +138,8 @@ void EgammaHLTIslandClusterProducer::produce(edm::Event& evt, const edm::EventSe
     }
   }
 
-  if (endcapRegions.size()!=0) {
-    clusterizeECALPart(evt, es, endcapHitProducer_, endcapHitCollection_, endcapClusterCollection_, endcapRegions, IslandClusterAlgo::endcap);
-  }
-  if (doBarrel_ && barrelRegions.size()!=0) {
-    clusterizeECALPart(evt, es, barrelHitProducer_, barrelHitCollection_, barrelClusterCollection_, barrelRegions, IslandClusterAlgo::barrel);
-  }
+  clusterizeECALPart(evt, es, endcapHitProducer_, endcapHitCollection_, endcapClusterCollection_, endcapRegions, IslandClusterAlgo::endcap);
+  clusterizeECALPart(evt, es, barrelHitProducer_, barrelHitCollection_, barrelClusterCollection_, barrelRegions, IslandClusterAlgo::barrel);
   nEvt_++;
 }
 
