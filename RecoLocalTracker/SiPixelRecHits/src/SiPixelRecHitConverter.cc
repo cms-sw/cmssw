@@ -23,9 +23,9 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/Common/interface/Ref.h"
 
-// Framework
-#include "FWCore/Framework/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+// Framework Already defined in the *.h file
+//#include "DataFormats/Common/interface/Handle.h"
+//#include "FWCore/Framework/interface/ESHandle.h"
 
 // STL
 #include <vector>
