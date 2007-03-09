@@ -7,13 +7,15 @@ CSCRecHit2DValidation::CSCRecHit2DValidation(DaqMonitorBEInterface* dbe, const e
 : CSCBaseValidation(dbe, inputTag),
   theNPerEventPlot( dbe_->book1D("CSCRecHitsPerEvent", "Number of CSC Rec Hits per event", 100, 0, 500) )
 {
+   dbe_->setCurrentFolder("CSCRecHitTask");
+
    for(int i = 0; i < 10; ++i)
   {
     char title1[200], title2[200];
     sprintf(title1, "CSCRecHitResolution%d", i+1);
     sprintf(title2, "CSCRecHitPull%d", i+1);
-    theResolutionPlots[i] = dbe_->book1D(title1, title1, 100, -1, 1);
-    thePullPlots[i] = dbe_->book1D(title2, title2, 100, -1, 1);
+    theResolutionPlots[i] = dbe_->book1D(title1, title1, 100, -0.2, 0.2);
+    thePullPlots[i] = dbe_->book1D(title2, title2, 100, -3, 3);
   }
 
 }

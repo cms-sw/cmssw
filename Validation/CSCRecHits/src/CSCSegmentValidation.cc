@@ -5,10 +5,12 @@
 
 CSCSegmentValidation::CSCSegmentValidation(DaqMonitorBEInterface* dbe, const edm::InputTag & inputTag)
 : CSCBaseValidation(dbe, inputTag),
-  theNPerEventPlot( dbe_->book1D("CSCSegmentsPerEvent", "Number of CSC segments per event", 100, 0, 100) ),
-  theNRecHitsPlot( dbe_->book1D("CSCRecHitsPerSegment", "Number of CSC rec hits per segment" , 7, 0, 6) ),
+  theNPerEventPlot( dbe_->book1D("CSCSegmentsPerEvent", "Number of CSC segments per event", 100, 0, 50) ),
+  theNRecHitsPlot( dbe_->book1D("CSCRecHitsPerSegment", "Number of CSC rec hits per segment" , 8, 0, 7) ),
   theNPerChamberTypePlot( dbe_->book1D("CSCSegmentsPerChamberType", "Number of CSC segments per chamber type", 11, 0, 10) )
 {
+   dbe_->setCurrentFolder("CSCRecHitTask");
+
    for(int i = 0; i < 10; ++i)
   {
     char title1[200], title2[200];
