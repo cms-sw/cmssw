@@ -1,8 +1,8 @@
 /** \file
  * Implementation of class RPCRecordFormatter
  *
- *  $Date: 2006/10/08 12:36:45 $
- *  $Revision: 1.23 $
+ *  $Date: 2007/01/04 21:29:04 $
+ *  $Revision: 1.24 $
  *
  * \author Ilaria Segoni
  */
@@ -49,7 +49,7 @@ RPCRecordFormatter::~RPCRecordFormatter(){
 int RPCRecordFormatter::pack( uint32_t rawDetId, const RPCDigi & digi, int trigger_BX,
                     Record & bxRecord, Record & tbRecord, Record & lbRecord) const
 {
-   LogDebug("pack:") << " detid: " << rawDetId << " digi: "<<digi;
+   LogTrace("pack:") << "detid: " << rawDetId << " digi: "<<digi;
    int stripInDU = digi.strip();
 
    // decode digi<->map
@@ -59,15 +59,22 @@ int RPCRecordFormatter::pack( uint32_t rawDetId, const RPCDigi & digi, int trigg
    const LinkBoardChannelCoding & channelCoding = rawDataFrame.second;
    if (eleIndex.dccId != currentFED) return 0;           // return 0 if fedId is not correct 
 
+   LogTrace("pack:")
+       <<" dccId= "<<eleIndex.dccId
+       <<" dccInputChannelNum= "<<eleIndex.dccInputChannelNum 
+       <<" tbLinkInputNum= "<<eleIndex.tbLinkInputNum
+       <<" lbNumInLink="<<eleIndex.lbNumInLink;
 
    // LB record
    int current_BX = trigger_BX+digi.bx();
    this->setBXRecord(bxRecord, current_BX);
+//   LogTrace("")<<"BXRECORD: " <<*reinterpret_cast<const bitset<16>*>(&bxRecord);
 
    // TB record
    int tbLinkInputNumber = eleIndex.tbLinkInputNum; 
    int rmb = eleIndex.dccInputChannelNum; 
    this->setTBRecord(tbRecord, tbLinkInputNumber, rmb);  
+//   LogTrace("")<<"TBRECORD: " <<*reinterpret_cast<const bitset<16>*>(&tbRecord);
 
    // LB record
    RPCLinkBoardData lbData;
@@ -79,6 +86,7 @@ int RPCRecordFormatter::pack( uint32_t rawDetId, const RPCDigi & digi, int trigg
    lbData.setPartitionNumber( channel/rpcraw::bits::BITS_PER_PARTITION ); 
    lbData.setBits(bitsOn);
    this->setLBRecord(lbRecord, lbData);
+//   LogTrace("")<<"LBRECORD: " <<*reinterpret_cast<const bitset<16>*>(&lbRecord);
 
    return 1;                                              // return 1 when packing OK 
 }

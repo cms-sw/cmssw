@@ -112,6 +112,7 @@ std::vector<const LinkBoardSpec*> RPCReadOutMapping::getLBforChamber(const std::
 std::pair< ChamberRawDataSpec, LinkBoardChannelCoding> 
     RPCReadOutMapping::rawDataFrame( uint32_t rawDetId, int stripInDU) const 
 {
+  std::vector< std::pair< ChamberRawDataSpec, LinkBoardChannelCoding> > result;
   ChamberRawDataSpec eleIndex = { 0,0,0,0 };
 
   for (IMAP im=theFeds.begin(); im != theFeds.end(); im++) {
@@ -167,8 +168,9 @@ std::pair< ChamberRawDataSpec, LinkBoardChannelCoding>
 //                   <<" strip: "<< strip.print(1); 
 //            }
               if ( strip.cmsStripNumber == stripInDU) {
-//                std::cout << " HERE !!!! " << std::endl;
-                return std::make_pair( eleIndex, LinkBoardChannelCoding( fedInLB, stripPinInFeb) ); 
+                 return std::make_pair( eleIndex, LinkBoardChannelCoding( fedInLB, stripPinInFeb) );
+//                result.push_back(
+//                    std::make_pair( eleIndex, LinkBoardChannelCoding( fedInLB, stripPinInFeb) ) ); 
               }
             } 
           } 
@@ -176,8 +178,12 @@ std::pair< ChamberRawDataSpec, LinkBoardChannelCoding>
       }
     }
   }
-  std::cout << " not found in the map! " << std::endl;
-  return std::make_pair( eleIndex, LinkBoardChannelCoding(0,0) );
+  if (result.size() > 0) {
+    return result.front();
+  } else {
+    std::cout << " not found in the map! " << std::endl;
+    return std::make_pair( eleIndex, LinkBoardChannelCoding(0,0) );
+  }
 }
 
 std::pair<ChamberRawDataSpec, int>  

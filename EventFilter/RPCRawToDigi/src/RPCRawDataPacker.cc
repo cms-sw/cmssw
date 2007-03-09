@@ -7,7 +7,6 @@
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 #include "DataFormats/RPCDigi/interface/RPCDigi.h"
 #include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
-#include "EventFilter/RPCRawToDigi/interface/RPCRecordFormatter.h"
 
 #include "CondFormats/RPCObjects/interface/RPCReadOutMapping.h"
 #include "CondFormats/RPCObjects/interface/ChamberRawDataSpec.h"
@@ -24,13 +23,51 @@
 using namespace std;
 using namespace edm;
 
+bool RPCRawDataPacker::Records::samePartition(const Records & r) const
+{
+  if (this->bx != r.bx) return false;
+  if (this->tb != r.tb) return false;
+  RPCRecordFormatter::Record mask = 0xFF << 8;
+  RPCRecordFormatter::Record lb1 = this->lb & mask;
+  RPCRecordFormatter::Record lb2 = r.lb & mask;
+  if (lb1 != lb2) return false;
+//  LogTrace("")<<"LBRECORD 1:  " <<*reinterpret_cast<const bitset<16>*>(& (this->lb));
+//  LogTrace("")<<"LBRECORD 2:  " <<*reinterpret_cast<const bitset<16>*>(& (r.lb));
+  return true;
+}
+
+std::vector<RPCRawDataPacker::Records> RPCRawDataPacker::margeRecords(const std::vector<Records> & data) const
+{
+  std::vector<Records> result;
+  typedef vector<Records>::const_iterator ICR;
+  typedef vector<Records>::iterator IR;
+  for (ICR id=data.begin(), idEnd = data.end(); id != idEnd; ++id) {
+    bool merged = false;
+    for (IR ir = result.begin(), irEnd = result.end(); ir != irEnd; ++ir) {
+      Records & records = *ir;
+      if (id->samePartition( records)) {
+        LogTrace("")<<" merging...."<<endl;
+        records.lb |= id->lb;
+//  LogTrace("")<<"LBRECORD MRG:" <<*reinterpret_cast<const bitset<16>*>(& (records.lb));
+        merged = true;
+      }
+    } 
+    if (!merged) result.push_back(*id);
+  } 
+  return result;
+}
+
 FEDRawData * RPCRawDataPacker::rawData( int fedId, const RPCDigiCollection * digis, const RPCRecordFormatter & formatter)
 {
   typedef  DigiContainerIterator<RPCDetId, RPCDigi> DigiRangeIterator;
-  vector<Word64> dataWords;
-  RPCRecordFormatter::Record bxRecord, tbRecord, lbRecord;
+  vector<Records> dataRecords;
   RPCRecordFormatter::Record empty;  formatter.setEmptyRecord(empty);
+  Records records;
+  RPCRecordFormatter::Record & bxRecord = records.bx;
+  RPCRecordFormatter::Record & tbRecord = records.tb;
+  RPCRecordFormatter::Record & lbRecord = records.lb;
 
+  LogDebug("RPCRawDataPacker")<<"Packing Fed id="<<fedId;
   int trigger_BX = 200;   // FIXME - set event by event but correct bx assigment in digi 
   for (DigiRangeIterator it=digis->begin(); it != digis->end(); it++) {
     RPCDetId rpcDetId = (*it).first;
@@ -38,13 +75,27 @@ FEDRawData * RPCRawDataPacker::rawData( int fedId, const RPCDigiCollection * dig
     RPCDigiCollection::Range range = digis->get(rpcDetId);
     for (vector<RPCDigi>::const_iterator  id = range.first; id != range.second; id++) {
       const RPCDigi & digi = (*id);
-      LogInfo("RPCRawDataPacker")<<"detId: "<<rawDetId<<" digi: "<< digi;
+//      LogDebug("RPCRawDataPacker")<<"detId: "<<rawDetId<<" digi: "<< digi;
       int statusOK = formatter.pack(rawDetId, digi, trigger_BX, bxRecord, tbRecord, lbRecord);
-      Word64 w = (((Word64(bxRecord) << 16) | tbRecord) << 16 | lbRecord ) << 16 |empty ;
-      if (statusOK) dataWords.push_back(w); 
+      if (statusOK) dataRecords.push_back(records);
     }
   }
+  //
   // merge data words
+  //
+  LogTrace("RPCRawDataPacker") <<" size of   data: " << dataRecords.size();
+  vector<Records> merged = margeRecords(dataRecords); 
+  LogTrace("") <<" size of megred: " << merged.size();
+
+  //
+  // create data words
+  //
+  vector<Word64> dataWords;
+  typedef vector<Records>::const_iterator IR;
+  for (IR ir = merged.begin(), irEnd =  merged.end() ; ir != irEnd; ++ir) {
+    Word64 w = (((Word64(ir->bx) << 16) | ir->tb) << 16 | ir->lb) << 16 |empty ;
+    dataWords.push_back(w); 
+  }  
 
   //
   // create raw data

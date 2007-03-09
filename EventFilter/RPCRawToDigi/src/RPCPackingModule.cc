@@ -67,7 +67,6 @@ void RPCPackingModule::produce( edm::Event& ev,
     RPCRecordFormatter formatter(id, readoutMapping.product()) ;
 
     FEDRawData *  rawData =  RPCRawDataPacker().rawData(id, digiCollection.product(), formatter);
-//    FEDRawData *  rawData =  formatter.packData(id, digiCollection.product());
     FEDRawData& fedRawData = buffers->FEDData(id);
 
     fedRawData = *rawData;
