@@ -4,8 +4,8 @@
  *   Contains active DTTracoChips
  *
  *
- *   $Date: 2006/07/19 10:24:02 $
- *   $Revision: 1.1 $
+ *   $Date: 2007/02/09 11:20:49 $
+ *   $Revision: 1.2 $
  *
  *   \author C. Grandi, S. Vanini 
  *
@@ -39,18 +39,18 @@ class DTTrigGeom;
 //---------------
 // C++ Headers --
 //---------------
-#include <map>
 #include <vector>
+#include <map>
 
 //              ---------------------
 //              -- Class Interface --
 //              ---------------------
 
-typedef DTCache< DTTracoTrigData,std::vector<DTTracoTrigData> > TRACOCache;
-
 typedef std::map< int,DTTracoChip*,std::less<int> >  TRACOContainer;
 typedef TRACOContainer::const_iterator TRACO_const_iter;
 typedef TRACOContainer::iterator TRACO_iter;
+
+typedef DTCache<DTTracoTrigData,std::vector<DTTracoTrigData> > TRACOCache;
   
 class DTTracoCard : public TRACOCache, public DTGeomSupplier {
 

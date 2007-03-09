@@ -3,8 +3,8 @@
 /**  \class DTTSTheta
  *    Implementation of TS Theta L1Trigger algorithm
  *
- *   $Date: 2006/07/19 10:27:58 $
- *   $Revision: 1.1 $
+ *   $Date: 2007/02/09 11:21:29 $
+ *   $Revision: 1.2 $
  *
  *   \author C.Grandi
  */
@@ -39,7 +39,8 @@ class DTTrigGeom;
 //              -- Class Interface --
 //              ---------------------
 
-typedef DTCache < DTChambThSegm, std::vector<DTChambThSegm> > DTTSThetaManager;
+typedef std::vector<DTChambThSegm> DTChambThVector;
+typedef DTCache < DTChambThSegm, DTChambThVector > DTTSThetaManager;
 
 class DTTSTheta : public DTTSThetaManager, public DTGeomSupplier {
 

@@ -5,8 +5,8 @@
  *    Muon Chamber Trigger Phi candidate 
  *
  *
- *   $Date: 2006/07/19 10:41:15 $
- *   $Revision: 1.1 $
+ *   $Date: 2007/02/09 11:22:02 $
+ *   $Revision: 1.2 $
  *
  *   \author C. Grandi S. Marcellini. D. Bonacorsi
  */
@@ -82,7 +82,7 @@ class DTChambPhSegm : public DTTrigData {
     /// Return chamber identifier
     DTChamberId ChamberId() const { return m_chamberid; }
 
-    /// print
+    /// Print
     void print() const;
 
     /// Return parent TRACO number

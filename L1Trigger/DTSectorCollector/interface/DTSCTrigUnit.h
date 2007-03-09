@@ -3,8 +3,8 @@
 /**  \class  DTSCTrigUnit
  *     Muon Barrel Sector Collector Trigger Unit (Chamber trigger)
  *
- *   $Date: 2006/07/19 10:44:41 $
- *   $Revision: 1.1 $
+ *   $Date: 2007/02/09 11:24:32 $
+ *   $Revision: 1.2 $
  *
  *   \author C.Grandi, S. Marcellini
  */
@@ -38,10 +38,10 @@
 #include "L1Trigger/DTTraco/interface/DTTracoCard.h"
 #include "L1Trigger/DTTriggerServerPhi/interface/DTTSPhi.h"
 #include "L1Trigger/DTTriggerServerTheta/interface/DTTSTheta.h"
-#include "Geometry/Vector/interface/GlobalPoint.h"
-#include "Geometry/Vector/interface/GlobalVector.h"
-#include "Geometry/Vector/interface/LocalPoint.h"
-#include "Geometry/Vector/interface/LocalVector.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalVector.h"
+#include "DataFormats/GeometryVector/interface/LocalPoint.h"
+#include "DataFormats/GeometryVector/interface/LocalVector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 class DTChamber;

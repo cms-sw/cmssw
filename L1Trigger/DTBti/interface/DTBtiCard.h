@@ -4,8 +4,8 @@
  *     Contains active L1MuDTBtiChips
  *
  *
- *   $Date: 2006/07/19 10:18:31 $
- *   $Revision: 1.1 $
+ *   $Date: 2007/02/09 11:20:06 $
+ *   $Revision: 1.2 $
  *
  *   \author C. Grandi, S. Vanini
  *
@@ -32,7 +32,6 @@ class DTTrigGeom;
 #include "L1Trigger/DTUtilities/interface/DTBtiId.h"
 #include "L1Trigger/DTBti/interface/DTBtiTrigData.h"
 #include "L1Trigger/DTUtilities/interface/DTCache.h"
-
 #include "L1Trigger/DTBti/interface/DTConfigBti.h"
 
 
@@ -48,11 +47,11 @@ namespace edm {class ParameterSet; class Event; class EventSetup;}
 //              -- Class Interface --
 //              ---------------------
 
-typedef DTCache<DTBtiTrigData,std::vector<DTBtiTrigData> > BTICache;
-
 typedef std::map< int,DTBtiChip*,std::less<int> >  BTIContainer;
 typedef BTIContainer::const_iterator BTI_const_iter;
 typedef BTIContainer::iterator BTI_iter;
+
+typedef DTCache<DTBtiTrigData,std::vector<DTBtiTrigData> > BTICache;
 
 class DTBtiCard : public BTICache, public DTGeomSupplier {
 

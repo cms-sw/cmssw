@@ -1,4 +1,5 @@
 <use name=FWCore/Framework>
+<use name=DataFromats/Common>
 <use name=Foundation/PluginManager>
 <use name=FWCore/ParameterSet>
 <use name=Geometry/DTGeometry>

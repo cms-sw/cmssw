@@ -64,73 +64,73 @@ class DTConfigTSPhi : public DTConfig {
   //! Destructor
   ~DTConfigTSPhi();
 
-  //! Returns the debug flag
+  //! Return the debug flag
   inline bool debug() const { return m_debug; }
 
   //! Order of quality bits in TSS for sort1/2
   inline int  TssMasking(int i) const { return m_tssmsk[i]; }
  
-  //! enable Htrig checking in TSS for sort1/2
+  //! Enable Htrig checking in TSS for sort1/2
   inline bool  TssHtrigEna(int i) const { return m_tsshte[i]; }
 
-  //! enable Htrig checking in TSS for carry
+  //! Enable Htrig checking in TSS for carry
   inline bool  TssHtrigEnaCarry() const { return m_tsshte[2]; }
   
-  //! enable Inner SL checking in TSS for sort1/2
+  //! Enable Inner SL checking in TSS for sort1/2
   inline bool  TssInOutEna(int i) const { return m_tssnoe[i]; }
   
-  //! enable Inner SL checking in TSS for carry
+  //! Enable Inner SL checking in TSS for carry
   inline bool  TssInOutEnaCarry() const { return m_tssnoe[2]; }
   
-  //! enable Correlation checking in TSS for sort1/2
+  //! Enable Correlation checking in TSS for sort1/2
   inline bool  TssCorrEna(int i) const { return m_tsscce[i]; }
   
-  //! enable Correlation checking in TSS for carry
+  //! Enable Correlation checking in TSS for carry
   inline bool  TssCorrEnaCarry() const { return m_tsscce[2]; }
   
   //! Order of quality bits in TSM for sort1/2
   inline int  TsmMasking(int i) const { return m_tsmmsk[i]; }
   
-  //! enable Htrig checking in TSM for sort1/2
+  //! Enable Htrig checking in TSM for sort1/2
   inline bool  TsmHtrigEna(int i) const { return m_tsmhte[i]; }
   
-  //! enable Htrig checking in TSM for carry
+  //! Enable Htrig checking in TSM for carry
   inline bool  TsmHtrigEnaCarry() const { return m_tsmhte[2]; }
   
-  //! enable Inner SL checking in TSM for sort1/2
+  //! Enable Inner SL checking in TSM for sort1/2
   inline bool  TsmInOutEna(int i) const { return m_tsmnoe[i]; }
   
-  //! enable Inner SL checking in TSM for carry
+  //! Enable Inner SL checking in TSM for carry
   inline bool  TsmInOutEnaCarry() const { return m_tsmnoe[2]; }
   
-  //! enable Correlation checking in TSM  for sort1/2
+  //! Enable Correlation checking in TSM  for sort1/2
   inline bool  TsmCorrEna(int i) const { return m_tsmcce[i]; }
     
-  //! enable Correlation checking in TSM  for carry
+  //! Enable Correlation checking in TSM  for carry
   inline bool  TsmCorrEnaCarry() const { return m_tsmcce[2]; }
     
-  //! ghost 1 suppression option in TSS
+  //! Ghost 1 suppression option in TSS
   inline int  TssGhost1Flag() const { return m_tssgs1; }
   
-  //! ghost 2 suppression option in TSS
+  //! Ghost 2 suppression option in TSS
   inline int  TssGhost2Flag() const { return m_tssgs2; }
 
-  //! ghost 1 suppression option in TSM
+  //! Ghost 1 suppression option in TSM
   inline int  TsmGhost1Flag() const { return m_tsmgs1; }
   
-  //! ghost 2 suppression option in TSM
+  //! Ghost 2 suppression option in TSM
   inline int  TsmGhost2Flag() const { return m_tsmgs2; }
   
-  //! correlated ghost 1 suppression option in TSS
+  //! Correlated ghost 1 suppression option in TSS
   inline bool  TssGhost1Corr() const { return m_tsscgs1; }
   
-  //! correlated ghost 2 suppression option in TSS
+  //! Correlated ghost 2 suppression option in TSS
   inline bool  TssGhost2Corr() const { return m_tsscgs2; }
 
-  //! correlated ghost 1 suppression option in TSM
+  //! Correlated ghost 1 suppression option in TSM
   inline bool  TsmGhost1Corr() const { return m_tsmcgs1; }
   
-  //! correlated ghost 2 suppression option in TSM
+  //! Correlated ghost 2 suppression option in TSM
   inline bool  TsmGhost2Corr() const { return m_tsmcgs2; }
 
   //! Handling of second track (carry) in case of pile-up, in TSM 
@@ -146,18 +146,18 @@ class DTConfigTSPhi : public DTConfig {
   //! Return the max nb. of TSSs in input to a single TSMD (called ONLY in back-up mode)
   int TSSinTSMD(int stat, int sect);
 
-  //! print the setup
+  //! Print the setup
   void print() const ;
 
-  //! return pointer to parameter set
+  //! Return pointer to parameter set
   edm::ParameterSet* getParameterSet() { return m_ps; }
 
   private:
 
-  //! check mask correctness
+  //! Check mask correctness
   bool checkMask(int);
 
-  //! load pset values into class variables
+  //! Load pset values into class variables
   void setDefaults();
 
   edm::ParameterSet* m_ps;

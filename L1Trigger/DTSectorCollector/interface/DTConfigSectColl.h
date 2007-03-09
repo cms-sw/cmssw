@@ -27,17 +27,15 @@
 // Collaborating Class Declarations --
 //------------------------------------
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "L1Trigger/DTUtilities/interface/DTConfig.h"
 
 //              ---------------------
 //              -- Class Interface --
 //              ---------------------
 
-class DTConfigSectColl {
+class DTConfigSectColl : public DTConfig {
 
   public:
-
-  //! Constants: first and last step to start trigger finding
-  static const int NSTEPL=24, NSTEPF=9;
 
   //! Constants: number of TSTheta/TSPhi in input to Sector Collector
   static const int NTSTSC=3, NTSPSC=5;
@@ -54,10 +52,10 @@ class DTConfigSectColl {
   //! Destructor
   ~DTConfigSectColl();
 
-  //! Returns the debug flag
+  //! Return the debug flag
   inline bool debug() const { return m_debug; }
 
-  //! Returns carry in Sector Collector for station istat (1 means enabled, 0 disabled)
+  //! Return carry in Sector Collector for station istat (1 means enabled, 0 disabled)
   inline bool  SCGetCarryFlag(int istat) const {
     if (istat<1 || istat>4){
       std::cout << "DTConfigSectColl::SCGetCarryFlag: station number out of range: istat=" << istat << std::endl;
@@ -66,7 +64,7 @@ class DTConfigSectColl {
     return m_scecf[istat-1];
   }
 
-  //! Returns coarsesync parameter in Sector Collector for station istat (5 is second MB4 station)
+  //! Return coarsesync parameter in Sector Collector for station istat (5 is second MB4 station)
   inline int CoarseSync(int istat) const {
     
     if (istat<1 || istat>5){
@@ -78,15 +76,15 @@ class DTConfigSectColl {
     
   }
 
-  //! print the setup
+  //! Print the setup
   void print() const ;
 
-  //! return pointer to parameter set
+  //! Return pointer to parameter set
   edm::ParameterSet* getParameterSet() { return m_ps; }
 
   private:
 
-  //! load pset values into class variables
+  //! Load pset values into class variables
   void setDefaults();
 
   edm::ParameterSet* m_ps;

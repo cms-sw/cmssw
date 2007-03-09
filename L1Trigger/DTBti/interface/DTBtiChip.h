@@ -6,8 +6,8 @@
  *   Internally uses DTBtiHit to store muon digis
  *
  *
- *   $Date: 2006/07/19 10:18:31 $
- *   $Revision: 1.1 $
+ *   $Date: 2007/02/09 11:20:06 $
+ *   $Revision: 1.2 $
  *
  *   \author S. Vanini
  */
@@ -27,8 +27,8 @@ class DTDigi;
 //----------------------
 // Base Class Headers --
 //----------------------
-#include "Geometry/Vector/interface/GlobalPoint.h"
-#include "Geometry/Vector/interface/LocalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "L1Trigger/DTUtilities/interface/DTBtiId.h"
 #include "L1Trigger/DTUtilities/interface/DTTrigGeom.h"
 #include "L1Trigger/DTUtilities/interface/DTConfig.h"

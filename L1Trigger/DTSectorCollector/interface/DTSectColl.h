@@ -5,7 +5,7 @@
  *
  *
  *
- *    $Date: 2006/07/19 10:44:41 $
+ *    $Date: 2007/02/09 11:24:32 $
  *
  *    \author D. Bonacorsi, S. Marcellini
  */
@@ -48,8 +48,10 @@ class DTSCTrigUnit;
 //              -- Class Interface --
 //              ---------------------
 
-typedef DTCache< DTSectCollPhSegm, std::vector<DTSectCollPhSegm> > DTSCPhCache;
-typedef DTCache< DTSectCollThSegm, std::vector<DTSectCollThSegm> > DTSCThCache;
+typedef std::vector<DTSectCollPhSegm> DTSectCollPhVector;
+typedef std::vector<DTSectCollThSegm> DTSectCollThVector;
+typedef DTCache< DTSectCollPhSegm, DTSectCollPhVector > DTSCPhCache;
+typedef DTCache< DTSectCollThSegm, DTSectCollThVector > DTSCThCache;
 
 class DTSectColl : public DTSCPhCache, public DTSCThCache  {
 
@@ -81,31 +83,31 @@ class DTSectColl : public DTSCPhCache, public DTSCThCache  {
 /*    //! Set a flag to skip sort2 */
 /*    void ignoreSecondTrack() { _ignoreSecondTrack=1; } */
 
-  //! localClear
+  //! Local Clear
   void localClear();
 
-  //! load a Sector Collector
+  //! Load a Sector Collector
   void loadSectColl();
 
-  //! add a TSM candidate (step is TSM step not SC one)
+  //! Add a TSM candidate (step is TSM step not SC one)
   void addTSPhi(int step, const DTChambPhSegm* tsmsegm, int ifs, int istat);
   
-  //! add a TS Theta candidate (step is TSTheta step not sc one)
+  //! Add a TS Theta candidate (step is TSTheta step not sc one)
   void addTSTheta(int step, const DTChambThSegm* tsmsegm, int istat);
 
-  //! add a Trigger Unit to the Sector Collector
+  //! Add a Trigger Unit to the Sector Collector
   void addTU(DTSCTrigUnit* tru);
 
-  //! get a Sector Collector (step is TS one)
+  //! Get a Sector Collector (step is TS one)
   DTSC* getDTSC(int step, int istat) const;
 
   //! Run Sector Collector
   void runSectColl();
 
-  //! get a Phi Candidate for Sector Collector
+  //! Get a Phi Candidate for Sector Collector
   DTSectCollPhCand* getDTSectCollPhCand(int ifs, unsigned n) const;
 
-  //! get a Candidate for Sector Collector
+  //! Get a Candidate for Sector Collector
   DTSectCollThCand* getDTSectCollThCand(unsigned n) const;
 
   // const methods
@@ -134,20 +136,28 @@ class DTSectColl : public DTSCPhCache, public DTSCThCache  {
   //! Return the number of output Theta tracks
   inline int nTracksTh() const { return _outcand_th.size(); }
 
+  //! Return requested Sector Collector Phi Segment 1st/2nd
   const DTSectCollPhSegm* SectCollPhSegment(int step, unsigned n);
 
+  //! Return requested Sector Collector Theta Segment
   const DTSectCollThSegm* SectCollThSegment(int step);
 
+  //! Return iterator to the beghin of Phi cache
   std::vector<DTSectCollPhSegm>::const_iterator beginPh() { return  DTSCPhCache::_cache.begin(); }
 
+  //! Return Phi cache size 
   int sizePh() { return DTSCPhCache::_cache.size(); } 
 
+  //! Return iterator to the end of Phi cache
   std::vector<DTSectCollPhSegm>::const_iterator endPh() { return DTSCPhCache::_cache.end(); } 
   
+  //! Return iterator to the begni of Theta cache
   std::vector<DTSectCollThSegm>::const_iterator beginTh() { return DTSCThCache::_cache.begin(); }
   
+  //! Return Theta cache size 
   int sizeTh() { return DTSCThCache::_cache.size(); }
 
+  //! Return iterator to the end of Theta cache
   std::vector<DTSectCollThSegm>::const_iterator endTh() { return DTSCThCache::_cache.end(); }
   
   //! Local position in chamber of a trigger-data object
@@ -156,12 +166,15 @@ class DTSectColl : public DTSCPhCache, public DTSCThCache  {
   //! Local direction in chamber of a trigger-data object
   //  LocalVector LocalDirection(const DTTrigData*) const;
 
+  //! Clear both (Phi and Theta) caches
   void clearCache() { DTSCPhCache::clearCache();  DTSCThCache::clearCache(); }
-  /// Load Trigger Units triggers and run Sector Collector algorithm
+  
+  //! Load Trigger Units triggers and run Sector Collector algorithm
   virtual void reconstruct() { loadSectColl(); runSectColl(); }
 
-  /// Returns the SC Id
+  //! Return the Sector Collector Id
   DTSectCollId SectCollId() { return _sectcollid; }
+ 
  private:
 
   // Configuration

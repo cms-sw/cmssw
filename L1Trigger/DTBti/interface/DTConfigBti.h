@@ -28,6 +28,7 @@
 //------------------------------------
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "L1Trigger/DTUtilities/interface/DTConfig.h"
+
 //              ---------------------
 //              -- Class Interface --
 //              ---------------------
@@ -36,8 +37,10 @@
 class DTConfigBti : DTConfig {
 
   public:
-  //! constants: first and last step to start trigger finding
+  
+  /*  //! constants: first and last step to start trigger finding
   static const unsigned int NSTEPL=24, NSTEPF=9;
+  */
 
   //! Constructor
   DTConfigBti(const edm::ParameterSet& ps);
@@ -45,13 +48,13 @@ class DTConfigBti : DTConfig {
   //! Destructor 
   ~DTConfigBti();
 
-  //! set default parameters
+  //! Set default parameters
   void setDefaults();  
 
-  //! debug flag
+  //! Debug flag
   inline int debug() const { return m_debug; }
 
-  //! max drift time in 12.5 ns steps
+  //! Max drift time in 12.5 ns steps
   inline float ST() const {
      return (float)( 0.75 * ST43() + 0.25 * RE43() ); }
 
@@ -61,13 +64,13 @@ class DTConfigBti : DTConfig {
   //! BTI angular acceptance in theta view                           
   inline int  KAccTheta() const { return m_kacctheta; }
   
-  //! digi-to-bti-input offset 500 (tdc units) --> wait to solve with Nicola Amapane
+  //! Digi-to-bti-input offset 500 (tdc units) --> wait to solve with Nicola Amapane
   inline int MCDigiOffset() const { return m_digioffset; }
 
   //! Minicrate "fine" sincronization parameter [0,25] ns
   inline int MCSetupTime() const { return  m_setuptime; }
   
-  //! x-patterns flag XON: activates tracks passing on the same side of 3 wires
+  //! X-patterns flag XON: activates tracks passing on the same side of 3 wires
   inline bool XON() const { return m_xon; }
   
   //! LTS
@@ -76,25 +79,25 @@ class DTConfigBti : DTConfig {
   //! SET
   inline int SET() const { return m_set; }
   
-  //! acceptance pattern AC1                                           
+  //! Acceptance pattern AC1                                           
   inline int AccPattAC1() const { return m_ac1; }
   
-  //! acceptance pattern AC2                                           
+  //! Acceptance pattern AC2                                           
   inline int  AccPattAC2() const { return m_ac2; }
   
-  //! acceptance pattern ACH                                           
+  //! Acceptance pattern ACH                                           
   inline int  AccPattACH() const { return m_ach; }
   
-  //! acceptance pattern ACL                                           
+  //! Acceptance pattern ACL                                           
   inline int  AccPattACL() const { return m_acl; }
 
-  //! redundant patterns flag RONDTBti/src/DTBtiChipEquations.cc:  
+  //! Redundant patterns flag RONDTBti/src/DTBtiChipEquations.cc:  
   inline bool RONflag() const { return m_ron; }
 
-   //! pattern mask flag 
+  //! Pattern mask flag 
   inline int PTMSflag(int patt) { return m_pattmask[patt]; }
 
-  //! wire mask flag 
+  //! Wire mask flag 
   inline int WENflag(int wire) { return m_wiremask[wire-1]; }
 
   //! K left limit for left traco
@@ -119,14 +122,14 @@ class DTConfigBti : DTConfig {
   inline int ST43() const { return m_4st3; }
   inline int RE43() const { return m_4re3; }
 
-  //! wire DEAD time parameter
+  //! Wire DEAD time parameter
   inline int DEADpar() { return m_dead;}
 
  
-  //! print the setup
+  //! Print the setup
   void print() const ;
 
-  //! return pointer to parameter set 
+  //! Return pointer to parameter set 
   const edm::ParameterSet* getParameterSet() { return m_ps; }
 
 

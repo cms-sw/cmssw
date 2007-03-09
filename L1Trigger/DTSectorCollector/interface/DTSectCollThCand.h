@@ -1,9 +1,9 @@
 //-------------------------------------------------
 //
-/**   \Class: DTSectCollThCand.h
+/**   \Class DTSectCollThCand.h
  *    A Trigger Server Theta Candidate
  *
- *   $Date: 2006/11/07 10:44:41 $
+ *   $Date: 2007/02/09 11:24:33 $
  *  
  *
  *   \Author C. Battilana
@@ -49,7 +49,7 @@ class DTSectCollThCand {
 
   // Non-const methods
 
-  //! clear the trigger
+  //! Clear the trigger
   inline void clear();
 
   // Const methods

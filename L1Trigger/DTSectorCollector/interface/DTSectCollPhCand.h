@@ -1,9 +1,9 @@
 //-------------------------------------------------
 //
-/**   \Class: DTSectCollPhCand.h
+/**   \Class DTSectCollPhCand.h
  *    A Trigger Server Phi Candidate
  *
- *   $Date: 2006/07/19 10:44:41 $
+ *   $Date: 2007/02/09 11:24:33 $
  *  
  *
  *   \Authors D. Bonacorsi, S. Marcellini
@@ -35,6 +35,7 @@ class DTSectCollPhCand {
 
  public:
   
+  //!  Constructor
   DTSectCollPhCand(DTSC* , const DTChambPhSegm*, int);
 
   //!  Constructor
@@ -69,7 +70,7 @@ class DTSectCollPhCand {
   //! Set the SC Candidate step
   
   
-  //! clear the trigger
+  //! Clear the trigger
   inline void clear();
 
   // Const methods
@@ -80,6 +81,7 @@ class DTSectCollPhCand {
   //! Return the DTTSS
   inline DTSC* tsc() const { return _tsc; }
 
+  //! Return first/second track bit value
   inline int isFirst() const { return _dataword.element(14)==0; }
 
    //! Return associated TSPhi trigger 

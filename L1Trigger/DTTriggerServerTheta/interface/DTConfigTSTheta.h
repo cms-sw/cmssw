@@ -48,18 +48,18 @@ class DTConfigTSTheta : public DTConfig {
   //! Destructor
   ~DTConfigTSTheta();
 
-  //! Returns the debug flag
+  //! Return the debug flag
   inline bool debug() const { return m_debug; }
 
-  //! print the setup
+  //! Print the setup
   void print() const ;
 
-  //! return pointer to parameter set
+  //! Return pointer to parameter set
   const edm::ParameterSet* getParameterSet() { return m_ps; }
 
   private:
 
-  //! load pset values into class variables
+  //! Load pset values into class variables
   void setDefaults();
 
   edm::ParameterSet* m_ps;

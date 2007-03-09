@@ -1,16 +1,15 @@
 //-------------------------------------------------
 //
-/**  \class L1MuDTChambThSegm
+/**  \class DTChambThSegm
  *
  *   Muon Chamber Trigger Theta candidate 
  *
  *
- *   $Date: 2003/10/10 08:47:45 $
- *   $Revision: 1.11 $
+ *   $Date: 2006/07/19 10:27:58 $
+ *   $Revision: 1.1 $
  * 
  *   \author C. Grandi
  */
-//
 //--------------------------------------------------
 #ifndef DT_CHAMB_TH_SEGM_H
 #define DT_CHAMB_TH_SEGM_H
@@ -22,7 +21,6 @@
 //----------------------
 // Base Class Headers --
 //----------------------
-//#include "Profound/MuNumbering/interface/MuBarIdInclude.h"
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
 #include "DataFormats/MuonDetId/interface/DTSuperLayerId.h"
 #include "DataFormats/MuonDetId/interface/DTLayerId.h"

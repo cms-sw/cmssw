@@ -6,8 +6,8 @@
  *   Internally uses DTTracoCand to store BTI triggers
  * 
  * 
- *   $Date: 2006/07/19 10:24:02 $
- *   $Revision: 1.1 $
+ *   $Date: 2007/02/09 11:20:49 $
+ *   $Revision: 1.2 $
  * 
  *   \author S. Vanini
  */
@@ -35,8 +35,8 @@ class DTTracoTrigData;
 //----------------------
 // Base Class Headers --
 //----------------------
-#include "Geometry/Vector/interface/GlobalPoint.h"
-#include "Geometry/Vector/interface/LocalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "L1Trigger/DTUtilities/interface/DTTracoId.h"
 #include "L1Trigger/DTTraco/interface/DTTracoLUTs.h"
 #include "L1Trigger/DTUtilities/interface/DTConfig.h"

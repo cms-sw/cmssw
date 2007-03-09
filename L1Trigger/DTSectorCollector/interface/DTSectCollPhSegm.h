@@ -1,14 +1,13 @@
 //-------------------------------------------------
 //
-/**   \Class: DTSectCollPhSegm.h
- *
+/**   \class DTSectCollPhSegm
  *
  *    Muon Sector Collector Trigger Phi candidate 
  *
- *    $Date: 2006/07/19 10:44:41 $
+ *    $Date: 2007/02/09 11:24:33 $
  *    
  *
- *   \Authors: S. Marcellini, D. Bonacorsi
+ *   \author S. Marcellini, D. Bonacorsi
  * 
  */
 //
@@ -86,7 +85,7 @@ class DTSectCollPhSegm : public DTTrigData {
   //! Return chamber identifier 
   DTChamberId ChamberId() const { return m_tsphitrig->ChamberId(); } 
 
-  //! print
+  //! Print
   void print() const;
 
   //! Return parent TRACO number

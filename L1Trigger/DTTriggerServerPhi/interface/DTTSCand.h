@@ -3,8 +3,8 @@
 /**  \class DTTSCand
  *    A Trigger Server Candidate
  *
- *   $Date: 2006/07/19 10:41:15 $
- *   $Revision: 1.1 $
+ *   $Date: 2007/02/09 11:22:02 $
+ *   $Revision: 1.2 $
  *
  *   \author C. Grandi, D. Bonacorsi, S. Marcellini
  */
@@ -63,8 +63,7 @@ class DTTSCand {
     void setBitsTsm();
 
     /// Set the first track bit to second track (used for carry)
-    /// SM sector collector: it becomes bit 14
-    ///   void setSecondTrack() { _dataword.set(8); _isCarry=1; }
+    // SM sector collector: it becomes bit 14
     void setSecondTrack() { _dataword.set(14); _isCarry=1; }
 
     /// Reset the carry bit
@@ -76,7 +75,7 @@ class DTTSCand {
     /// Clear (set to 1) all the bits (back-up mode)
     void clearBitsBkmod(){ _dataword.assign(0,7,0xff); }
 
-    /// clear the trigger
+    /// Clear the trigger
     inline void clear();
 
     /// Configuration set
@@ -94,12 +93,12 @@ class DTTSCand {
     /// Return the DTTSS number
     inline int tssNumber() const { return _tss->number(); }
 
-    /// Retunr the TRACO number
+    /// Return the TRACO number
     inline int tracoNumber() const { return _tctrig->tracoNumber(); }
 
     /// Return the first/second track bit
-    /// inline int isFirst() const { return _dataword.element(8)==0; }
     inline int isFirst() const { return _dataword.element(14)==0; }
+
     /// Return HTRIG/LTRIG bit
     inline int isHtrig() const { return _tctrig->pvCode()==8 || 
                                         _tctrig->pvCode()==80; }
@@ -133,9 +132,6 @@ class DTTSCand {
     /// Return if L outer
     inline int is0L() const {  return !_tctrig->pvCorr() && _tctrig->pvCode()<8; }
 
-/*     ///stampa' method for back-up mode debugging */
-/*     inline unsigned stampa() const { _dataword.print(); } */
-
     /// Return an uint16 with the content of the data word (for debugging)
     inline unsigned dataword() const { return _dataword.dataWord(0)&0x1ff; }
 
@@ -145,8 +141,8 @@ class DTTSCand {
     /// Operator <= used for sorting
     bool operator <= (const DTTSCand& c) const { return _dataword<=c._dataword; }
 
-    /// Operator <<= used for sorting in TSM back-up mode
-    /// SM double TSM  bool operator <<= (const DTTSCand& c) const { return _datawordbk<c._datawordbk; }
+    // Operator <<= used for sorting in TSM back-up mode
+    // SM double TSM  bool operator <<= (const DTTSCand& c) const { return _datawordbk<c._datawordbk; }
 
     /// Print the trigger
     void print() const;
@@ -154,7 +150,6 @@ class DTTSCand {
   private:
   DTTSS* _tss;
   const DTTracoTrigData* _tctrig;
-  //   BitArray<9> _dataword;   // the word on which sorting is done
     BitArray<15> _dataword;   // the word on which sorting is done. reserve space enough for Preview and full data
   // SM double TSM  BitArray<9> _datawordbk; // the word on which sorting is done (back-up mode)
   int _tcPos;            // TRACO position in TSS

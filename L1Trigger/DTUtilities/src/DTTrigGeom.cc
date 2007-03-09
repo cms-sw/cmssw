@@ -36,10 +36,10 @@ using namespace std;
 #include "Geometry/DTGeometry/interface/DTLayer.h"
 #include "Geometry/DTGeometry/interface/DTSuperLayer.h"
 #include "Geometry/DTGeometry/interface/DTChamber.h"
-#include "Geometry/Vector/interface/GlobalPoint.h"
-#include "Geometry/Vector/interface/GlobalVector.h"
-#include "Geometry/Vector/interface/LocalPoint.h"
-#include "Geometry/Vector/interface/LocalVector.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalVector.h"
+#include "DataFormats/GeometryVector/interface/LocalPoint.h"
+#include "DataFormats/GeometryVector/interface/LocalVector.h"
 
 //----------------
 // Constructors --
@@ -292,10 +292,25 @@ DTTrigGeom::dumpGeom() const {
       }
     }
   }
+
+  GlobalPoint gp1 = CMSPosition(DTBtiId(statId(),1,1)); 
+  
+
   std::cout << "First BTI position:";
-  std::cout << " SL1:" << localPosition(DTBtiId(statId(),1,1));
-  std::cout << " SL2:" << localPosition(DTBtiId(statId(),2,1));
+  std::cout << " SL1:" << localPosition(DTBtiId(statId(),1,1)) << std::endl;
+  std::cout << " Position: R=" << gp1.perp() << "cm, Phi=" << gp1.phi()*180/3.14159 << " deg, Z=" << gp1.z() << " cm" << std::endl;
+
+  if(station()!=4)
+  {
+	GlobalPoint gp2 = CMSPosition(DTBtiId(statId(),2,1)); 
+	std::cout << " SL2:" << localPosition(DTBtiId(statId(),2,1))<< std::endl;
+	std::cout << " Position: R=" << gp2.perp() << "cm, Phi=" << gp2.phi()*180/3.14159 << " deg, Z=" << gp2.z() << " cm" << std::endl;
+  }
+
+  GlobalPoint gp3 = CMSPosition(DTBtiId(statId(),3,1)); 
   std::cout << " SL3:" << localPosition(DTBtiId(statId(),3,1)) << std::endl;
+  std::cout << " Position: R=" << gp3.perp() << "cm, Phi=" << gp3.phi()*180/3.14159 << " deg, Z=" << gp3.z() << " cm" << std::endl;
+
   std::cout << "First TRACO position:";
   std::cout << localPosition(DTTracoId(statId(),1)) << std::endl;
   std::cout << "******************************************************" << std::endl;

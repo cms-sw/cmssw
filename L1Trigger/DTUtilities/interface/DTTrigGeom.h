@@ -4,8 +4,8 @@
  *     Muon Barrel Trigger Geometry
  *
  *
- *   $Date: 2006/09/18 10:19:32 $
- *   $Revision: 1.2 $
+ *   $Date: 2007/02/09 11:18:46 $
+ *   $Revision: 1.3 $
  *
  *   \author C.Grandi
  *   \modifications S.Vanini
@@ -30,8 +30,8 @@
 #include "L1Trigger/DTUtilities/interface/DTConfig.h"
 #include "L1Trigger/DTUtilities/interface/DTBtiId.h"
 #include "L1Trigger/DTUtilities/interface/DTTracoId.h"
-#include "Geometry/Vector/interface/LocalPoint.h" 
-#include "Geometry/Vector/interface/GlobalPoint.h" 
+#include "DataFormats/GeometryVector/interface/LocalPoint.h" 
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h" 
 //---------------
 // C++ Headers --
 //---------------
@@ -73,35 +73,35 @@ class DTTrigGeom {
     /// Height of a cell (cm)
     inline float cellH() const { return _H; }
 
-    /// width of a cell (cm) i.e. distance between ywo wires
+    /// Width of a cell (cm) i.e. distance between ywo wires
     inline float cellPitch() const { return _PITCH; }
 
-    /// distance between the phi view superlayers (cms)
+    /// Distance between the phi view superlayers (cms)
     inline float distSL() const { return fabs(_ZSL[2]-_ZSL[0]); }
 
-    /// coordinate of center of the 2 Phi SL
+    /// Coordinate of center of the 2 Phi SL
     inline float ZcenterSL() const { return 0.5*(_ZSL[2]+_ZSL[0]); } 
 
-    /// radial coordinate in chamber frame of center of a superlayer
+    /// Radial coordinate in chamber frame of center of a superlayer
     float ZSL(int) const;
 
-    /// number of BTIs in a required superlayer (i.e. nCells in lay 1)
+    /// Number of BTIs in a required superlayer (i.e. nCells in lay 1)
     inline int nCell(int sl) const {
       return (sl>0&&sl<=3)*_NCELL[sl-1]; 
     }
 
     // NEWGEOmetry update
-    /// staggering of first wire of layer respect to default: obsolete 19/6/06
+    /// Staggering of first wire of layer respect to default: obsolete 19/6/06
     // int layerFEStaggering(int nsl, int nlay) const; 
 
-    /// map tube number into hw wire number, and reverse hw num->tube 
+    /// Map tube number into hw wire number, and reverse hw num->tube 
     /// (nb NOT in bti hardware number, this depends on connectors)
     int mapTubeInFEch(int nsl, int nlay, int ntube) const; 
 
-    /// sl offset in chamber front-end frame, in cm.
+    /// Superlayer offset in chamber front-end frame, in cm.
     float phiSLOffset();
 
-    /// wire position in chamber frame
+    /// Wire position in chamber frame
     LocalPoint tubePosInCh(int nsl, int nlay, int ntube) const;
 
     /// Front End position : 1=toward negative y, 0=toward positive y
@@ -109,6 +109,7 @@ class DTTrigGeom {
 
 
     // Local and global position of a trigger object
+    
     /// Go to CMS coordinate system for a point
     GlobalPoint toGlobal(const LocalPoint p) const { return _stat->surface().toGlobal(p); }
 
@@ -191,7 +192,7 @@ class DTTrigGeom {
 
   private:
 
-    /// get the geometry from the station
+    /// Get the geometry from the station
     void getGeom(bool debug);
 
   private:

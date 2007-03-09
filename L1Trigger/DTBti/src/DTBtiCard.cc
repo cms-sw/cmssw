@@ -22,26 +22,25 @@
 //-------------------------------
 // Collaborating Class Headers --
 //-------------------------------
-#include "Geometry/Vector/interface/LocalPoint.h"
-#include "Geometry/Vector/interface/LocalVector.h"
+#include "DataFormats/GeometryVector/interface/LocalPoint.h"
+#include "DataFormats/GeometryVector/interface/LocalVector.h"
 #include "L1Trigger/DTBti/interface/DTBtiChip.h"
 #include "L1Trigger/DTBti/interface/DTBtiTrig.h"
 
-#include <FWCore/Framework/interface/Event.h>
+#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
-// #include "Geometry/Vector/interface/GlobalPoint.h"
 #include "Geometry/DTGeometry/interface/DTLayer.h"
 #include "Geometry/DTGeometry/interface/DTChamber.h"
 
-#include <DataFormats/MuonDetId/interface/DTChamberId.h>
-#include <DataFormats/MuonDetId/interface/DTLayerId.h>
-#include <DataFormats/MuonDetId/interface/DTSuperLayerId.h>
+#include "DataFormats/MuonDetId/interface/DTChamberId.h"
+#include "DataFormats/MuonDetId/interface/DTLayerId.h"
+#include "DataFormats/MuonDetId/interface/DTSuperLayerId.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
-#include <DataFormats/DTDigi/interface/DTDigiCollection.h>
+#include "DataFormats/DTDigi/interface/DTDigiCollection.h"
 
 //---------------
 // C++ Headers --

@@ -1,6 +1,6 @@
 //-------------------------------------------------
 //
-/**  \class DTConfigTracoTraco
+/**  \class DTConfigTraco
  *
  *   Configurable parameters and constants 
  *   for Level-1 Muon DT Trigger - Traco chip
@@ -39,11 +39,11 @@ class DTConfigTraco : public DTConfig {
 
   public:
 
-  //! Resolution for psi and DeltaPsiR (phi_B)
+  //! Costants: esolution for psi and DeltaPsiR (phi_B)
   static const int RESOLPSI=512;    
-  //! Resulution for psiR (phi)
+  //! Costant: resulution for psiR (phi)
   static const int RESOLPSIR=4096;
-  //! maximum number of TRACO output candidates to TS
+  //! Costant: maximum number of TRACO output candidates to TS
   static const int NMAXCAND;
 
 
@@ -53,10 +53,10 @@ class DTConfigTraco : public DTConfig {
   //! Destructor 
   ~DTConfigTraco();
 
-  //! set default parameters
+  //! Set default parameters
   void setDefaults();
 
-  //! debug flag
+  //! Debug flag
   inline int debug() const { return m_debug; }
 
   //! KRAD traco parameter
@@ -68,7 +68,7 @@ class DTConfigTraco : public DTConfig {
   //! DD traco parameter: this is fixed
   inline int DD() { return m_dd;}
 
-  //! recycling of TRACO cand. in inner/outer SL : REUSEI/REUSEO
+  //! Recycling of TRACO cand. in inner/outer SL : REUSEI/REUSEO
   inline int  TcReuse(int i) const {
     if(i==0)
       return m_reusei;
@@ -76,7 +76,7 @@ class DTConfigTraco : public DTConfig {
       return m_reuseo;
   }
 
-  //! single HTRIG enabling on first/second tracks F(S)HTMSK
+  //! Single HTRIG enabling on first/second tracks F(S)HTMSK
   inline int singleHflag(int i) const {
     if(i==0)
       return m_fhtmsk;
@@ -84,7 +84,7 @@ class DTConfigTraco : public DTConfig {
       return m_shtmsk;
   }
 
-  //! single LTRIG enabling on first/second tracks: F(S)LTMSK
+  //! Single LTRIG enabling on first/second tracks: F(S)LTMSK
   inline int  singleLflag(int i) const {
     if(i==0)
       return m_fltmsk;
@@ -92,7 +92,7 @@ class DTConfigTraco : public DTConfig {
       return m_sltmsk;
   } 
 
-  //! preference to inner on first/second tracks: F(S)SLMSK
+  //! Preference to inner on first/second tracks: F(S)SLMSK
   inline int  prefInner(int i) const {
     if(i==0)
       return m_fslmsk;
@@ -100,7 +100,7 @@ class DTConfigTraco : public DTConfig {
       return m_sslmsk;
   }
 
-  //! preference to HTRIG on first/second tracks: F(S)HTPRF
+  //! Preference to HTRIG on first/second tracks: F(S)HTPRF
   inline int prefHtrig(int i) const {
     if(i==0)
       return m_fhtprf;
@@ -108,7 +108,7 @@ class DTConfigTraco : public DTConfig {
       return m_shtprf;
   }
 
-  //! ascend. order for K sorting first/second tracks: F(S)HISM
+  //! Ascend. order for K sorting first/second tracks: F(S)HISM
   inline int sortKascend(int i) const {
     if(i==0)
       return m_fhism;
@@ -125,10 +125,10 @@ class DTConfigTraco : public DTConfig {
       return m_sprgcomp;
   }
 
-  //! suppr. of LTRIG in 4 BX before HTRIG: LTS
+  //! Suppr. of LTRIG in 4 BX before HTRIG: LTS
   inline int  TcBxLts() const { return m_lts; }
 
-  //! single LTRIG accept enabling on first/second tracks LTF
+  //! Single LTRIG accept enabling on first/second tracks LTF
   inline int  singleLenab(int i) const { return m_ltf; }
 
   //! Connected bti in traco: bti mask
@@ -137,16 +137,16 @@ class DTConfigTraco : public DTConfig {
   //! IBTIOFF traco parameter
   inline int IBTIOFF() { return m_ibtioff; }
 
-  //! bending angle cut for all stations and triggers : KPRGCOM
+  //! Bending angle cut for all stations and triggers : KPRGCOM
   inline int BendingAngleCut() const { return m_kprgcom; }
 
-  //! flag for Low validation parameter
+  //! Flag for Low validation parameter
   inline int LVALIDIFH() { return m_lvalidifh;}
 
-  //! print the setup
+  //! Print the setup
   void print() const ;
 
-  //! return pointer to parameter set
+  //! Return pointer to parameter set
   const edm::ParameterSet* getParameterSet() { return m_ps; }
 
 

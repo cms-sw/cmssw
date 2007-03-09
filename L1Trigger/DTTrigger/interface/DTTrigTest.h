@@ -7,8 +7,8 @@
  *   studies
  *
  *
- *   $Date: 2006/10/13 10:59:26 $
- *   $Revision: 1.2 $
+ *   $Date: 2007/02/09 11:26:18 $
+ *   $Revision: 1.3 $
  *
  *   \author C. Battilana
  */
@@ -42,10 +42,10 @@ public:
   //! Destructor
   ~DTTrigTest();
 
-  //! Executed at the end of the job
+  //! Create tree and Branches
   void endJob();
 
-  //! Executed at the beginning of the job
+  //! Close Tree and write File
   void beginJob(const EventSetup & iEventSetup);
   
   //! Analyze function executed on all the events

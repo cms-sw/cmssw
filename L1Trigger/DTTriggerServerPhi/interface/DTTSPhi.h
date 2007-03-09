@@ -4,8 +4,8 @@
  *    Implementation of TS Phi trigger algorithm
  *
  *
- *   $Date: 2006/07/19 10:41:15 $
- *   $Revision: 1.1 $
+ *   $Date: 2007/02/09 11:22:02 $
+ *   $Revision: 1.2 $
  *
  *   \author C. Grandi, D. Bonacorsi, S. Marcellini
  */
@@ -47,7 +47,8 @@ class DTTrigGeom;
 //              -- Class Interface --
 //              ---------------------
 
-typedef DTCache < DTChambPhSegm, std::vector<DTChambPhSegm> > DTTSPhiManager;
+typedef std::vector<DTChambPhSegm> DTChambPhVector;
+typedef DTCache < DTChambPhSegm, DTChambPhVector > DTTSPhiManager;
 
 class DTTSPhi : public DTTSPhiManager, public DTGeomSupplier {
   
@@ -59,7 +60,7 @@ class DTTSPhi : public DTTSPhiManager, public DTGeomSupplier {
   /// Destructor 
   ~DTTSPhi();
 
-  /// Returns the configuration class
+  /// Return the configuration class
   inline DTConfigTSPhi* config() const {return _config; }
   
   /// Return number of DTTSPhi segments  

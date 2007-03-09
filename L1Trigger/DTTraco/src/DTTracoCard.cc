@@ -23,8 +23,8 @@
 //-------------------------------
 // Collaborating Class Headers --
 //-------------------------------
-#include "Geometry/Vector/interface/LocalPoint.h"
-#include "Geometry/Vector/interface/LocalVector.h"
+#include "DataFormats/GeometryVector/interface/LocalPoint.h"
+#include "DataFormats/GeometryVector/interface/LocalVector.h"
 #include "L1Trigger/DTTraco/interface/DTTracoChip.h"
 #include "L1Trigger/DTTraco/interface/DTTracoTrig.h"
 #include "L1Trigger/DTBti/interface/DTBtiCard.h"
