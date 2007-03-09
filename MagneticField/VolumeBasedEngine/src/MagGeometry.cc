@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/04/20 10:14:57 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/02/03 16:05:46 $
+ *  $Revision: 1.4 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -18,6 +18,7 @@
 
 #include "Utilities/Timing/interface/TimingReport.h"
 #include "MagneticField/Layers/interface/MagVerbosity.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace std;
 using namespace edm;
@@ -118,7 +119,12 @@ GlobalVector MagGeometry::fieldInTesla(const GlobalPoint & gp) const {
     if (atMinusZ) return result;
     else return GlobalVector(-result.x(), -result.y(), result.z());
   } else {
-    cout << "MagGeometry::fieldInTesla: failed to find volume for " << gpSym << endl;
+    if (isnan(gpSym.mag())) {
+      LogWarning("InvalidInput") << "Input value invalid (not a number): " << gpSym << endl;
+      
+    } else {  
+      LogWarning("MagneticField") << "MagGeometry::fieldInTesla: failed to find volume for " << gpSym << endl;
+    }
     return GlobalVector();
   }
 }
