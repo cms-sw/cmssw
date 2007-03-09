@@ -13,7 +13,7 @@
 //
 // Original Author:  Suchandra Dutta
 //      Created:  Thu Oct 19 09:02:32 CEST 2006
-// $Id: InvariantMass.cc,v 1.0 2006/10/9 09:02:32 dutta Exp $
+// $Id: InvariantMass.cc,v 1.1 2006/12/15 09:57:17 dutta Exp $
 //
 //
 
@@ -22,7 +22,7 @@
 #include <memory>
 
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
+5B#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "RecoTauTag/InvariantMass/interface/InvariantMass.h"
 
 #include "FWCore/Framework/interface/Event.h"
@@ -38,7 +38,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "DataFormats/Common/interface/Handle.h"
+
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
 #include <boost/regex.hpp>
