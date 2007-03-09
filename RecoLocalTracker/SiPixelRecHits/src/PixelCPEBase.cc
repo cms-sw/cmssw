@@ -126,6 +126,11 @@ PixelCPEBase::setTheDet( const GeomDetUnit & det ) const
   theLShiftX = lorentzShiftX();
   theLShiftY = lorentzShiftY();
   
+  // testing 
+  if(thePart == GeomDetEnumerators::PixelBarrel) {
+    cout<<" lorentz shift "<<theLShiftX<<" "<<theLShiftY<<endl;
+  }
+
   if (theVerboseLevel > 1) 
     {
       LogDebug("PixelCPEBase") << "***** PIXEL LAYOUT *****" 
@@ -262,118 +267,30 @@ computeAnglesFromTrajectory( const SiPixelCluster & cl,
 
 //-----------------------------------------------------------------------------
 //  The local position.
+// Should do correctly the big pixels.
 //-----------------------------------------------------------------------------
 LocalPoint
 PixelCPEBase::localPosition( const SiPixelCluster& cluster, 
-			     const GeomDetUnit & det) const 
-{
+			     const GeomDetUnit & det) const {
   setTheDet( det );
   
-#ifdef CORRECT_FOR_BIG_PIXELS
-  MeasurementPoint ssss( xpos(cluster),ypos(cluster) );
-  LocalPoint lp = theTopol->localPosition(ssss);
-  if ( alpha2Order) 
-    {
-      float lxshift = theLShiftX * thePitchX;  // shift in cm
-      float lyshift = theLShiftY*thePitchY;
-      if ( thePart == GeomDetEnumerators::PixelBarrel )
-	{
-	  LocalPoint cdfsfs(lp.x()-lxshift, lp.y());
-	  return cdfsfs;
-	} 
-      else 
-	{ //forward
-	  LocalPoint cdfsfs(lp.x()-lxshift, lp.y()-lyshift);
-	  return cdfsfs;
-	}
-    }
-  else 
-    {
-      float lxshift = theLShiftX * thePitchX;  // shift in cm
-      LocalPoint cdfsfs(lp.x()-lxshift, lp.y() );
-      return cdfsfs;
-    }
-  
-#else
-  MeasurementPoint ssss = measurementPosition(cluster, det);
-  LocalPoint cdfsfs = theTopol->localPosition(ssss);
+  float lpx = xpos(cluster);
+  float lpy = ypos(cluster);
+  float lxshift = theLShiftX * thePitchX;  // shift in cm
+  float lyshift = theLShiftY * thePitchY;
+  LocalPoint cdfsfs(lpx-lxshift, lpy-lyshift);
   return cdfsfs;
-#endif
-
- // return cdfsfs;
 }
 
 //-----------------------------------------------------------------------------
-//  Takes the cluster, calculates xpos() and ypos(), applies the Lorentz
-//  shift, and then makes a MeasurementPoint.  This could really be
-//  folded back into the localPosition().
+//  Seems never used?
 //-----------------------------------------------------------------------------
 MeasurementPoint 
 PixelCPEBase::measurementPosition( const SiPixelCluster& cluster, 
-				   const GeomDetUnit & det) const 
-{
-  if (theVerboseLevel > 9) 
-    {
-      LogDebug("PixelCPEBase") <<
-	"X-pos = " << xpos(cluster) << 
-	" Y-pos = " << ypos(cluster) << 
-	" Lshf = " << theLShiftX ;
-    }
+				   const GeomDetUnit & det) const {
 
-  // Fix to take into account the large pixels
-#ifdef CORRECT_FOR_BIG_PIXELS
-  // correct the measurement for Lorentz shift
-  if ( alpha2Order) 
-    {
-      float xPos = xpos(cluster); // x position in the measurement frame
-      float yPos = ypos(cluster);
-      float lxshift = theLShiftX; // nominal lorentz shift
-      float lyshift = theLShiftY;
-      if ( RectangularPixelTopology::isItBigPixelInX(int(xPos)) ) // if big
-	lxshift = theLShiftX/2.0;  // reduce the shift
-     if ( RectangularPixelTopology::isItBigPixelInY(int(yPos)) ) // if big
-       lyshift = theLShiftY/2.0;  // reduce the shift
-     
-     if ( thePart == GeomDetEnumerators::PixelBarrel ) 
-       {
-	 return MeasurementPoint( xpos(cluster)-lxshift,ypos(cluster));
-       } 
-     else 
-       { //forward
-	 return MeasurementPoint( xpos(cluster)-lxshift,ypos(cluster)-lyshift);
-       }
-    }
-  else 
-    {
-      float xPos = xpos(cluster); // x position in the measurement frame
-      float lshift = theLShiftX; // nominal lorentz shift
-      if ( RectangularPixelTopology::isItBigPixelInX(int(xPos)) ) // if big
-	lshift = theLShiftX/2.0;  // reduce the shift
-      return MeasurementPoint( xpos(cluster)-lshift,ypos(cluster));
-    }
-#else
-  if ( alpha2Order) 
-    {
-      if ( thePart == GeomDetEnumerators::PixelBarrel) 
-	{
-	  return MeasurementPoint( xpos(cluster)-theLShiftX,ypos(cluster) );
-	} 
-      else 
-	{ //forward
-	  return MeasurementPoint( xpos(cluster)-theLShiftX, ypos(cluster)-theLShiftY);
-	}
-    }
-  else 
-    {
-      return MeasurementPoint( xpos(cluster)-theLShiftX,
-			       ypos(cluster) );
-    }
-  
-  // skip the correction, do it only for the local position
-  // in this mode the measurements are NOT corrected for the Lorentz shift
-  //return MeasurementPoint( xpos(cluster),ypos(cluster));
-#endif
-
+  LocalPoint lp = localPosition(cluster,det);
+  return theTopol->measurementPosition(lp);
 }
 
 //-----------------------------------------------------------------------------
@@ -516,20 +433,16 @@ PixelCPEBase::yCharge(const vector<SiPixelCluster::Pixel>& pixelsVec,
 //  (The signs have been fixed in SiPixelDigitizer, but not in here.)
 //-----------------------------------------------------------------------------
 LocalVector 
-PixelCPEBase::driftDirection( GlobalVector bfield ) const 
-{
+PixelCPEBase::driftDirection( GlobalVector bfield ) const {
   Frame detFrame(theDet->surface().position(), theDet->surface().rotation());
   LocalVector Bfield = detFrame.toLocal(bfield);
   
   float alpha2;
-  if ( alpha2Order) 
-    {
+  if (alpha2Order) {
       alpha2 = theTanLorentzAnglePerTesla*theTanLorentzAnglePerTesla;
-    }
-  else 
-    {
-      alpha2 = 0.0;
-    }
+  } else {
+    alpha2 = 0.0;
+  }
   
   // &&& dir_x should have a "-" and dir_y a "+"
   float dir_x =  ( theTanLorentzAnglePerTesla * Bfield.y() + alpha2* Bfield.z()* Bfield.x() );
@@ -538,20 +451,12 @@ PixelCPEBase::driftDirection( GlobalVector bfield ) const
   float scale = (1 + alpha2* Bfield.z()*Bfield.z() );
   LocalVector theDriftDirection = LocalVector(dir_x/scale, dir_y/scale, dir_z/scale );
    
-  // float dir_x =  theTanLorentzAnglePerTesla * Bfield.y();
-  // float dir_y = -theTanLorentzAnglePerTesla * Bfield.x();
-  // float dir_z = -1.; // E field always in z direction, so electrons go to -z.
-  // LocalVector theDriftDirection = LocalVector(dir_x,dir_y,dir_z);
-  
   if ( theVerboseLevel > 9 ) 
-    {
       LogDebug("PixelCPEBase") << " The drift direction in local coordinate is " 
 			       << theDriftDirection    ;
-    }
   
   return theDriftDirection;
 }
-
 
 //-----------------------------------------------------------------------------
 //  One-shot computation of the driftDirection and both lorentz shifts
