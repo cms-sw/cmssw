@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/02/03 16:20:08 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/03/09 14:38:46 $
+ *  $Revision: 1.4 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -171,6 +171,8 @@ bool MagGeometryExerciser::testInside(const GlobalPoint & gp){
   if (found==0) {
     cout << gp << " ***ERROR no volume found! "  << endl;
   }  
+  
+  return true; //FIXME
 }
 
 //----------------------------------------------------------------------
