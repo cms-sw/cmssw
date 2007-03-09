@@ -1,6 +1,6 @@
 #include "RecoEcal/EgammaClusterAlgos/interface/HybridClusterAlgo.h"
 #include "RecoCaloTools/Navigation/interface/EcalBarrelNavigator.h"
-#include "Geometry/Vector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloTopology/interface/EcalBarrelHardcodedTopology.h"
 #include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
