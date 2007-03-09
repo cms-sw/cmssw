@@ -1,11 +1,11 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //Data Formats
+#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
