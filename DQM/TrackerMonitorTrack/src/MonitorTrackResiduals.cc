@@ -14,7 +14,7 @@
 //
 // Original Author:  Israel Goitom
 //         Created:  Fri May 26 14:12:01 CEST 2006
-// $Id: MonitorTrackResiduals.cc,v 1.24 2007/02/13 16:48:02 dkcira Exp $
+// $Id: MonitorTrackResiduals.cc,v 1.25 2007/02/28 13:40:04 goitom Exp $
 //
 //
 
@@ -55,7 +55,7 @@
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 
-#include "Geometry/CommonDetAlgo/interface/MeasurementVector.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementVector.h"
 #include "TrackingTools/TrackFitters/interface/TrajectoryStateCombiner.h"
 
 #include "DataFormats/SiStripDetId/interface/TIBDetId.h"
