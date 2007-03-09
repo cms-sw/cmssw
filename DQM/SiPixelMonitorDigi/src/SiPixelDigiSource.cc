@@ -13,14 +13,13 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelDigiSource.cc,v 1.8 2007/02/16 12:57:43 chiochia Exp $
+// $Id: SiPixelDigiSource.cc,v 1.9 2007/03/07 18:56:40 chiochia Exp $
 //
 //
 #include "DQM/SiPixelMonitorDigi/interface/SiPixelDigiSource.h"
 // Framework
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
 // DQM Framework
