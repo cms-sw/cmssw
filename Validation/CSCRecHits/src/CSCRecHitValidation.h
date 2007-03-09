@@ -11,7 +11,9 @@
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "Validation/MuonCSCDigis/src/PSimHitMap.h"
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
-#include "DataFormats/CSCRecHit/interface/CSCRecHit2D.h"
+#include "Validation/CSCRecHits/src/CSCRecHit2DValidation.h"
+#include "Validation/CSCRecHits/src/CSCSegmentValidation.h"
+
 
 
 class CSCRecHitValidation : public edm::EDAnalyzer {
@@ -24,20 +26,14 @@ public:
  
 
  private:
-  void plotResolution(const PSimHit & simHit, const CSCRecHit2D & recHit,
-                      const CSCLayer * layer, int chamberType);
-
-  const CSCLayer * findLayer(int detId) const;
 
   DaqMonitorBEInterface* dbe_;
-  edm::InputTag theInputTag;
   std::string theOutputFile;
   PSimHitMap theSimHitMap;
   const CSCGeometry * theCSCGeometry;
 
-  MonitorElement* theNPerEventPlot;
-  MonitorElement* theResolutionPlots[10];
-  MonitorElement* thePullPlots[10];
+  CSCRecHit2DValidation the2DValidation;
+  CSCSegmentValidation theSegmentValidation;
 };
 
 #endif
