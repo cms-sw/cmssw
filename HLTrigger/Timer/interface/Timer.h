@@ -16,7 +16,7 @@
 #include "FWCore/Services/interface/Timing.h"
 
 #include "DataFormats/HLTReco/interface/ModuleTiming.h"
-#include "DataFormats/Common/interface/ModuleDescription.h"
+#include "DataFormats/Provenance/interface/ModuleDescription.h"
 
 /*
   Description: EDProducer that uses the EventTime structure to store in the Event 
@@ -28,7 +28,7 @@
 //
 // Original Author:  Christos Leonidopoulos
 //         Created:  Mon Jul 10 14:13:58 CEST 2006
-// $Id: Timer.h,v 1.4 2006/08/14 14:52:56 gruen Exp $
+// $Id: Timer.h,v 1.6 2006/08/14 15:26:48 gruen Exp $
 //
 //
 //
