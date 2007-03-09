@@ -13,7 +13,6 @@
 #include "RecoLocalTracker/SiPixelRecHits/test/ReadPixelRecHit.h"
 
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
-#include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
