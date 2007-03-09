@@ -8,7 +8,7 @@ using namespace std;
 #include "TBDataFormats/HcalTBObjects/interface/HcalTBBeamCounters.h"
 #include "RecoTBCalo/HcalTBObjectUnpacker/interface/HcalTBObjectUnpacker.h"
 #include "DataFormats/Common/interface/EDCollection.h"
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/Selector.h"
 #include <iostream>
 #include <fstream>
