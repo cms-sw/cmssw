@@ -1,7 +1,7 @@
 //  \file AlignableNavigator.cc
 //
-//   $Revision: 1.14 $
-//   $Date: 2007/03/08 16:56:47 $
+//   $Revision: 1.15 $
+//   $Date: 2007/03/08 19:06:09 $
 //   (last update by $Author: pivarski $)
 
 #include "Alignment/CommonAlignment/interface/AlignableDet.h"
@@ -101,7 +101,9 @@ void AlignableNavigator::recursiveGetId( Alignable* alignable )
 
   if ( alignable->geomDetId().rawId()) {
 	theMap.insert( PairType( alignable->geomDetId(), alignable ) );
-	theDetAndSubdet.push_back(std::pair<int, int>( alignable->geomDetId().det(), alignable->geomDetId().subdetId() ));
+	if (!detAndSubdetInMap( alignable->geomDetId() )) {
+	   theDetAndSubdet.push_back(std::pair<int, int>( alignable->geomDetId().det(), alignable->geomDetId().subdetId() ));
+	}
   }
   std::vector<Alignable*> comp = alignable->components();
   if ( alignable->alignableObjectId() != AlignableObjectId::AlignableDet
