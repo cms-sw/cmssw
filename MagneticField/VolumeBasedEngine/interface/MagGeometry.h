@@ -4,8 +4,8 @@
 /** \class MagGeometry
  *  Entry point to the geometry of magnetic volumes.
  *
- *  $Date: 2006/04/20 10:15:10 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/02/03 16:07:07 $
+ *  $Revision: 1.3 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -44,8 +44,8 @@ public:
   MagVolume * findVolume(const GlobalPoint & gp) const;
 
   // FIXME: only for temporary tests, should be removed.
-  const std::vector<MagVolume6Faces*> & barrelVolumes() {return theBVolumes;}
-  const std::vector<MagVolume6Faces*> & endcapVolumes() {return theEVolumes;}
+  const std::vector<MagVolume6Faces*> & barrelVolumes() const {return theBVolumes;}
+  const std::vector<MagVolume6Faces*> & endcapVolumes() const {return theEVolumes;}
 
 private:
 //  friend class DDI::Singleton<MagGeometry>;
