@@ -1,5 +1,5 @@
 #include "TrackingTools/MaterialEffects/interface/EnergyLossUpdator.h"
-#include "DataFormats/GeometrySurface/interface/MediumProperties.h"
+#include "TrackingTools/PatternTools/interface/MediumProperties.h"
 
 //
 // Computation of contribution of energy loss to momentum and covariance

@@ -1,5 +1,5 @@
+#include "TrackingTools/PatternTools/interface/MediumProperties.h"
 #include "TrackingTools/MaterialEffects/interface/MultipleScatteringUpdator.h"
-#include "DataFormats/GeometrySurface/interface/MediumProperties.h"
 
 //
 // Computation of contribution of multiple scatterning to covariance matrix 

@@ -2,7 +2,7 @@
 #define _CR_ENERGYLOSSUPDATOR_H_
 
 #include "TrackingTools/MaterialEffects/interface/MaterialEffectsUpdator.h"
-#include "DataFormats/GeometryVector/interface/LocalVector.h"
+#include "Geometry/Vector/interface/LocalVector.h"
 
 class MediumProperties;
 
