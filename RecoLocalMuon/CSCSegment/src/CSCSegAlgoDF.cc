@@ -8,7 +8,7 @@
 
 #include "Geometry/CSCGeometry/interface/CSCLayer.h"
 // For clhep Matrix::solve
-#include "Geometry/CommonDetAlgo/interface/AlgebraicObjects.h"
+#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 

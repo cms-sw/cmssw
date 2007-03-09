@@ -5,18 +5,17 @@
  *  Basic analyzer class which accesses CSCSegment
  *  and plot efficiency of the builder
  *
- *  $Date: 2006/06/26 16:37:56 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/12/15 03:34:52 $
+ *  $Revision: 1.5 $
  *  \author M. Sani
  */
 
 #include <FWCore/Framework/interface/Event.h>
 #include <FWCore/Framework/interface/EventSetup.h>
-#include <FWCore/Framework/interface/ESHandle.h>
 #include <FWCore/Framework/interface/EDAnalyzer.h>
 #include <FWCore/Framework/interface/ESHandle.h>
 #include <FWCore/Framework/interface/Frameworkfwd.h>
-#include <FWCore/Framework/interface/Handle.h>
+#include <DataFormats/Common/interface/Handle.h>
 #include <FWCore/MessageLogger/interface/MessageLogger.h> 
 
 #include <SimDataFormats/Track/interface/SimTrackContainer.h>

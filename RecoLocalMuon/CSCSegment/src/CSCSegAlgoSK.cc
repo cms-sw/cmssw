@@ -1,15 +1,15 @@
 /**
  * \file CSCSegAlgoSK.cc
  *
- *  $Date: 2007/03/07 14:40:46 $
- *  $Revision: 1.11 $
+ *  $Date: 2007/03/08 14:15:45 $
+ *  $Revision: 1.12 $
  *  \author M. Sani
  */
  
 #include "CSCSegAlgoSK.h"
 #include "Geometry/CSCGeometry/interface/CSCLayer.h"
 // For clhep Matrix::solve
-#include "Geometry/CommonDetAlgo/interface/AlgebraicObjects.h"
+#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"

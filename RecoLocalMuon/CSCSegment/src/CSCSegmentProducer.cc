@@ -1,14 +1,14 @@
 /** \file CSCSegmentProducer.cc
  *
- * $Date: 2006/05/08 17:45:31 $
- * $Revision: 1.2 $
+ * $Date: 2006/08/01 15:26:08 $
+ * $Revision: 1.3 $
  * \author M. Sani
  */
 
 #include <RecoLocalMuon/CSCSegment/src/CSCSegmentProducer.h>
 #include <RecoLocalMuon/CSCSegment/src/CSCSegmentBuilder.h>
 
-#include <FWCore/Framework/interface/Handle.h>
+#include <DataFormats/Common/interface/Handle.h>
 #include <FWCore/Framework/interface/ESHandle.h>
 #include <FWCore/MessageLogger/interface/MessageLogger.h> 
 

@@ -1,8 +1,8 @@
 /**
  * \file CSCSegAlgoTC.cc
  *
- * $Date: 2007/03/07 14:40:46 $
- * $Revision: 1.10 $
+ * $Date: 2007/03/08 14:15:52 $
+ * $Revision: 1.11 $
  * \author M. Sani
  * 
  */
@@ -13,7 +13,7 @@
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
 // For clhep Matrix::solve
-#include "Geometry/CommonDetAlgo/interface/AlgebraicObjects.h"
+#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 #include "Geometry/CSCGeometry/interface/CSCLayer.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
