@@ -17,18 +17,6 @@ class DBInterface ;
    *  input: 16 bits  corresponding to input EBDataFrame
    *  output: 18 bits 
    *  
-   *  Question:
-   *  - est-ce que ca correspond a la transformation en Et?
-   *           -----> oui (avec possibilite de disable) 
-   *  - faut-il chercher qqpart des constantes de calibration?
-   *           -----> oui (une methode set est envisageable au debut remplir les valeurs a la main puis plus tard aller les chercher dans une database, ou eventuellement dans un .orcarc)
-   *           -----> de meme pour le theta et pour les autres valeurs needed.
-   *   
-   *  
-   *  Attention: 
-   *  La multplication par un float est equivalente a la multiplication par un int suivie de n decalage (division par 2^n)
-   *   
-   *  Cette classe doit etre configuree cristal par cristal avec 9 parametres entiers chacun.
    */
 
   class EcalFenixLinearizer : public EcalVLinearizer {
@@ -59,7 +47,8 @@ class DBInterface ;
 
 
     virtual EBDataFrame process(EBDataFrame&) {EBDataFrame df;return df;} //for base class
-    virtual void  process(const EBDataFrame &, EBDataFrame *out); 
+
+    std::vector<int>  process(const EBDataFrame &); 
     void setParameters(int SM, int towNum, int stripNum,int XtalNumberInStrip) ;
 
 
