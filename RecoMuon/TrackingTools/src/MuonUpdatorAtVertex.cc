@@ -3,8 +3,8 @@
  *  method, the vertex constraint. The vertex constraint is applyed using the Kalman Filter tools used for 
  *  the vertex reconstruction.
  *
- *  $Date: 2007/03/01 20:47:06 $
- *  $Revision: 1.21 $
+ *  $Date: 2007/03/06 14:33:21 $
+ *  $Revision: 1.22 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -107,13 +107,13 @@ MuonUpdatorAtVertex::propagate(const TrajectoryStateOnSurface &tsos){
   const string metname = "Muon|RecoMuon|MuonUpdatorAtVertex";
 
   setPropagator();
-
+  
   if(TrackerBounds::isInside(tsos.globalPosition())){
     
     TSCPBuilderNoMaterial tscpBuilder;
     TrajectoryStateClosestToPoint tscp = tscpBuilder(*(tsos.freeState()),
 						     GlobalPoint(0.,0.,0.)); //FIXME Correct?
-
+    
     // FIXME: check if the tscp is valid or not!!
     if(tscp.hasError())
       return pair<bool,FreeTrajectoryState>(true,tscp.theState());
@@ -134,13 +134,10 @@ MuonUpdatorAtVertex::propagate(const TrajectoryStateOnSurface &tsos){
     
     if(result.first.hasError()) 
       return pair<bool,FreeTrajectoryState>(true,result.first);
-    else{
-      edm::LogWarning(metname) << "Propagation to the PCA failed!";
-      
-      // FIXME: returns FreeTrajectoryState() instead of result.first?
-      return pair<bool,FreeTrajectoryState>(false,result.first);
-    }
+    else
+      edm::LogWarning(metname) << "Propagation to the PCA failed! Path: "<<result.second;
   }
+  return pair<bool,FreeTrajectoryState>(false,FreeTrajectoryState());
 }
 
 
