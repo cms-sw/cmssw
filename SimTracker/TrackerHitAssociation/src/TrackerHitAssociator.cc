@@ -128,6 +128,14 @@ std::vector<PSimHit> TrackerHitAssociator::associateHit(const TrackingRecHit & t
 	{	  
 	  simtrackid = associateMatchedRecHit(rechit);
 	}
+      //check if it is a  ProjectedSiStripRecHit2D
+      if(const ProjectedSiStripRecHit2D * rechit = 
+	 dynamic_cast<const ProjectedSiStripRecHit2D *>(&thit))
+	{	  
+	  simtrackid = associateProjectedRecHit(rechit);
+	  detid = rechit->originalHit().geographicalId();
+	  detID = detid.rawId();
+	}
     }
   //check we are in the pixel tracker
   if( detid.subdetId() == PixelSubdetector::PixelBarrel || 
