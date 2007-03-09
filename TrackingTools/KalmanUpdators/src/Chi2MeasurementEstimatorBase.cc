@@ -1,6 +1,6 @@
 #include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimatorBase.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
-#include "Geometry/Surface/interface/BoundPlane.h"
+#include "DataFormats/GeometrySurface/interface/BoundPlane.h"
 
 bool Chi2MeasurementEstimatorBase::estimate( const TrajectoryStateOnSurface& ts, 
 					     const BoundPlane& plane) const

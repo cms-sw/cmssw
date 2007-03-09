@@ -1,7 +1,7 @@
 #include "TrackingTools/KalmanUpdators/interface/KFUpdator.h"
 #include "TrackingTools/PatternTools/interface/MeasurementExtractor.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
-#include "Geometry/Surface/interface/BoundPlane.h"
+#include "DataFormats/GeometrySurface/interface/BoundPlane.h"
 
 TrajectoryStateOnSurface KFUpdator::update(const TrajectoryStateOnSurface& tsos,
 				           const TransientTrackingRecHit& aRecHit) const {

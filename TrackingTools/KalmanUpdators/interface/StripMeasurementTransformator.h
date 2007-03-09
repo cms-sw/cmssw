@@ -1,7 +1,7 @@
 #ifndef CD_StripMeasurementTransformator_H_
 #define CD_StripMeasurementTransformator_H_
 
-#include "Geometry/CommonDetAlgo/interface/AlgebraicObjects.h"
+#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"

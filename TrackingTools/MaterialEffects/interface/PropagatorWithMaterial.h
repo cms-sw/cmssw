@@ -1,7 +1,7 @@
 #ifndef _COMMONRECO_PROPAGATORWITHMATERIAL_H_
 #define _COMMONRECO_PROPAGATORWITHMATERIAL_H_
 
-#include "Geometry/CommonDetAlgo/interface/DeepCopyPointerByClone.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/DeepCopyPointerByClone.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 #include "TrackingTools/MaterialEffects/interface/MaterialEffectsUpdator.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
