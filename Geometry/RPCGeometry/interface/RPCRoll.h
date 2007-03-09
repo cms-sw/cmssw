@@ -8,19 +8,22 @@
 
 class StripTopology;
 class RPCRollSpecs;
+class RPCChamber;
 class RPCRoll : public GeomDetUnit{
 
  public:
   
-  RPCRoll( BoundPlane* bp, RPCRollSpecs* rrs, RPCDetId id);
+  RPCRoll(RPCDetId id, BoundPlane::BoundPlanePointer bp, RPCRollSpecs* rrs);
   ~RPCRoll();
   const RPCRollSpecs* specs() const;
   DetId geographicalId() const;
   RPCDetId id() const;
   const Topology& topology() const;
+  const StripTopology& specificTopology() const;
   const GeomDetType& type() const; 
-  
- public:
+ 
+  /// Return the chamber this roll belongs to 
+  const RPCChamber* chamber() const;
   
   int nstrips() const;
 
@@ -35,12 +38,12 @@ class RPCRoll : public GeomDetUnit{
   bool isForward() const;
   
  private:
-  const StripTopology* striptopology() const;
- private:
-  mutable const StripTopology* top_; 
+  void setChamber(const RPCChamber* ch);
+
  private:
   RPCDetId _id;
   RPCRollSpecs* _rrs;
+  const RPCChamber* theCh; // NOT owned
 };
 
 #endif
