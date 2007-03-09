@@ -11,7 +11,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 //#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/Common/interface/Provenance.h"
+#include "DataFormats/Provenance/interface/Provenance.h"
 //#include "FWCore/Framework/interface/Provenance.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
