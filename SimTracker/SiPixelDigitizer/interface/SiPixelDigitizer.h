@@ -3,8 +3,8 @@
 
 /** \class SiPixelDigitizer
  *
- * SiPixelDigitizer is the EDProducer subclass which clusters
- * SiStripDigi/interface/StripDigi.h to SiStripCluster/interface/SiStripCluster.h
+ * SiPixelDigitizer produces digis from SimHits
+ * The real algorithm is in SiPixelDigitizerAlgorithm
  *
  * \author Michele Pioppi-INFN Perugia
  *

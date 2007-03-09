@@ -13,7 +13,7 @@
 //
 // Original Author:  Michele Pioppi-INFN perugia
 //         Created:  Mon Sep 26 11:08:32 CEST 2005
-// $Id: SiPixelDigitizer.cc,v 1.24 2007/02/02 11:44:21 dkotlins Exp $
+// $Id: SiPixelDigitizer.cc,v 1.25 2007/03/07 16:53:06 wmtan Exp $
 //
 //
 
@@ -32,8 +32,8 @@
 #include "SimDataFormats/TrackerDigiSimLink/interface/PixelDigiSimLink.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
-#include "Geometry/Vector/interface/LocalPoint.h"
-#include "Geometry/Vector/interface/LocalVector.h"
+#include "DataFormats/GeometryVector/interface/LocalPoint.h"
+#include "DataFormats/GeometryVector/interface/LocalVector.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
