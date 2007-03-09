@@ -3,7 +3,7 @@
 #include "AnalysisExamples/SiStripDetectorPerformance/interface/CosmicTIFFilter.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include "FastSimulation/BaseParticlePropagator/interface/BaseParticlePropagator.h"
 #include "FastSimulation/ParticlePropagator/interface/MagneticFieldMap.h"

@@ -5,7 +5,7 @@
 
 #include "AnalysisExamples/SiStripDetectorPerformance/interface/TIFNtupleMaker.h"
 
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"

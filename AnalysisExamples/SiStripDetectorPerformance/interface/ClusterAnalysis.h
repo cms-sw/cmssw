@@ -4,7 +4,6 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -19,6 +18,7 @@
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 //needed for the geometry:
+#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/SiStripDetId/interface/TECDetId.h"
