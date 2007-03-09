@@ -5,8 +5,8 @@
  * The ABC class to define the region of interest for regional seeding
  */
 #include <utility>
-#include "Geometry/Vector/interface/GlobalVector.h"
-#include "Geometry/Vector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalVector.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include <string>
 
 //#include "CommonDet/BasicDet/interface/RecHit.h"

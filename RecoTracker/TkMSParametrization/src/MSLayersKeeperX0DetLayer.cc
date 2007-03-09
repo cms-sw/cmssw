@@ -3,7 +3,7 @@
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
 #include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
 #include "DataFormats/GeometrySurface/interface/BoundSurface.h"
-#include "TrackingTools/PatternTools/interface/MediumProperties.h"
+#include "DataFormats/GeometrySurface/interface/MediumProperties.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 
 #include <vector>
