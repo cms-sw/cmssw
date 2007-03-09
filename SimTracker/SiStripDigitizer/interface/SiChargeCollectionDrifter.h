@@ -1,9 +1,8 @@
 #ifndef Tracker_SiChargeCollectionDrifter_H
 #define Tracker_SiChargeCollectionDrifter_H
 
-#include "Geometry/Vector/interface/LocalVector.h"
+#include "DataFormats/GeometryVector/interface/LocalVector.h"
 #include "SimTracker/SiStripDigitizer/interface/SignalPoint.h"
-#include "Geometry/Vector/interface/LocalVector.h"
 #include "SimTracker/SiStripDigitizer/interface/EnergyDepositUnit.h"
 
 #include<vector>

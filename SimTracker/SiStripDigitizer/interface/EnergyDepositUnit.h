@@ -1,8 +1,8 @@
 #ifndef _TRACKER_EnergyDepositUnit_H
 #define _TRACKER_EnergyDepositUnit_H
 
-#include "Geometry/Vector/interface/LocalPoint.h"
-#include "Geometry/Vector/interface/LocalVector.h"
+#include "DataFormats/GeometryVector/interface/LocalPoint.h"
+#include "DataFormats/GeometryVector/interface/LocalVector.h"
 /**
  * Class which allows to "follow" an elementary charge in the silicon.
  * It basically defines a quantum of energy, with a position.

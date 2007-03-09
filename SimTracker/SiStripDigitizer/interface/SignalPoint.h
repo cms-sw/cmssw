@@ -2,8 +2,8 @@
 #define Tracker_SignalPoint_H
 
 
-#include "Geometry/Vector/interface/LocalPoint.h"
-#include "Geometry/Vector/interface/LocalVector.h"
+#include "DataFormats/GeometryVector/interface/LocalPoint.h"
+#include "DataFormats/GeometryVector/interface/LocalVector.h"
 
 /**
  * An elementar charge point, with position, sigma from diffusion and tof.

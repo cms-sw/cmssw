@@ -3,7 +3,7 @@
 #include "SimTracker/SiStripDigitizer/interface/SiLinearChargeCollectionDrifter.h"
 #include "SimTracker/SiStripDigitizer/interface/SiLinearChargeDivider.h"
 
-#include "Geometry/Vector/interface/LocalPoint.h"
+#include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "SimTracker/SiStripDigitizer/interface/SiTrivialInduceChargeOnStrips.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
