@@ -1,5 +1,5 @@
 #include "Validation/MuonCSCDigis/src/CSCStripDigiValidation.h"
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/CSCDigi/interface/CSCStripDigiCollection.h"
 
