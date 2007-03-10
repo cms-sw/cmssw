@@ -84,6 +84,7 @@ bool FUShmReader::fillRawData(EventID& eID,
   // if the event is 'empty', the reader is being told to shut down!
   if (newCell->isEmpty()) {
     edm::LogInfo("ShutDown")<<"Received empty event, shut down."<<endl;
+    shmBuffer_->scheduleForDiscard(newCell);
     shmBuffer_->postWriterSem();
     FUShmBuffer::shm_dettach((void*)shmBuffer_);
     shmBuffer_=0;
