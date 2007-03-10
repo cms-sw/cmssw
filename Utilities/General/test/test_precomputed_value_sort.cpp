@@ -4,8 +4,8 @@
 #include <iterator>
 #include <iostream>
 
-#include "Geometry/Vector/interface/Phi.h"
-#include "Geometry/Vector/interface/Pi.h"
+#include "DataFormats/GeometryVector/interface/Phi.h"
+#include "DataFormats/GeometryVector/interface/Pi.h"
 
 using namespace std;
 

@@ -1,6 +1,6 @@
-#include <Utilities/General/interface/precomputed_value_sort.h>
-#include <Utilities/General/interface/GeometricSorting.h>
-#include <Geometry/Surface/interface/GloballyPositioned.h>
+#include "Utilities/General/interface/precomputed_value_sort.h"
+#include "Utilities/General/interface/GeometricSorting.h"
+#include "DataFormats/GeometrySurface/interface/GloballyPositioned.h"
 #include <iostream>
 #include <iterator>
 
