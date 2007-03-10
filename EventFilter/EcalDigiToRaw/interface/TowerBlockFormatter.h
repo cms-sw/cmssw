@@ -29,7 +29,7 @@ class TowerBlockFormatter : public BlockFormatter {
         void DigiToRaw(const EBDataFrame& dataframe, FEDRawData& rawdata, const EcalElectronicsMapping* TheMapping);
         void DigiToRaw(const EEDataFrame& dataframe, FEDRawData& rawdata, const EcalElectronicsMapping* TheMapping);
 	void StartEvent();
-	void EndEvent();
+	void EndEvent(FEDRawDataCollection* productRawData);
 
 
  private :
