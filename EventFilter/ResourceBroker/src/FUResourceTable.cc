@@ -33,6 +33,7 @@ FUResourceTable::FUResourceTable(UInt_t nbResources,UInt_t eventBufferSize,
   , shmMode_(shmMode)
   , shmBuffer_(0)
   , doCrcCheck_(1)
+  , nbClientsToShutDown_(0)
   , lock_(BSem::FULL)
 {
   initialize(nbResources,eventBufferSize);
@@ -97,8 +98,8 @@ void FUResourceTable::shutDownClients()
     return;
   }
   
-  unsigned int nbClients = nbShmClients();
-  for (unsigned int i=0;i<nbClients;i++) {
+  nbClientsToShutDown_ = nbShmClients();
+  for (unsigned int i=0;i<nbClientsToShutDown_;++i) {
     waitWriterSem();
     FUShmBufferCell* cell=shmBuffer_->currentWriterCell();
     if (cell->isDead()) {
@@ -227,21 +228,33 @@ void FUResourceTable::startWorkLoop() throw (evf::Exception)
 bool FUResourceTable::workLoopAction(toolbox::task::WorkLoop* /* wl */)
 {
   FUShmBufferCell* cell = shmBuffer_->cellToBeDiscarded();
-  if (!cell->isProcessed()) {
-    LOG4CPLUS_WARN(log_,"Don't reschedule discard-workloop.");
-    return false;
+  assert(cell->isProcessed()||cell->isEmpty());
+  
+  bool reschedule = true;
+  bool shutDown   = cell->isEmpty();
+  
+  if (shutDown) {
+    LOG4CPLUS_WARN(log_,"nbClientsToShutDown = "<<nbClientsToShutDown_);
+    --nbClientsToShutDown_;
+    if (nbClientsToShutDown_==0) {
+      LOG4CPLUS_WARN(log_,"Don't reschedule discard-workloop.");
+      reschedule = false;
+    }
   }
-  UInt_t buResourceId = cell->buResourceId();
-  UInt_t fuResourceId = cell->fuResourceId();
+  
   cell->setStateEmpty();
   shmBuffer_->postWriterSem();
   shmBuffer_->postDiscardSem();
-  sendDiscard(buResourceId);
   lock();
-  resources_[fuResourceId]->release();
+  resources_[cell->fuResourceId()]->release();
   unlock();
-  sendAllocate();
-  return true; // reschedule
+  
+  if (!shutDown) {
+    sendDiscard(cell->buResourceId());
+    sendAllocate();
+  }
+
+  return reschedule;
 }
 
 

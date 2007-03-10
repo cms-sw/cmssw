@@ -135,7 +135,8 @@ namespace evf {
     UInt_t            nbDiscarded_;
     UInt_t            nbProcessed_;
     UInt_t            nbLost_;
-
+    UInt_t            nbClientsToShutDown_;
+    
     UInt_t            nbErrors_;
     UInt_t            nbCrcErrors_;
     UInt_t            nbAllocSent_;
