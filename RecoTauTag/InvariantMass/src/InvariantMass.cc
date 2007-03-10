@@ -13,7 +13,7 @@
 //
 // Original Author:  Suchandra Dutta
 //      Created:  Thu Oct 19 09:02:32 CEST 2006
-// $Id: InvariantMass.cc,v 1.1 2006/12/15 09:57:17 dutta Exp $
+// $Id: InvariantMass.cc,v 1.2 2007/03/09 07:52:45 dutta Exp $
 //
 //
 
@@ -22,7 +22,7 @@
 #include <memory>
 
 // user include files
-5B#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "RecoTauTag/InvariantMass/interface/InvariantMass.h"
 
 #include "FWCore/Framework/interface/Event.h"
