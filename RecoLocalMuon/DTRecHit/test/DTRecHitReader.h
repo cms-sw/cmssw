@@ -5,13 +5,13 @@
  *  Basic analyzer class which accesses 1D DTRecHits
  *  and plot resolution comparing them with muon simhits
  *
- *  $Date: 2006/03/14 13:09:12 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/03/22 16:15:36 $
+ *  $Revision: 1.3 $
  *  \author G. Cerminara - INFN Torino
  */
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 

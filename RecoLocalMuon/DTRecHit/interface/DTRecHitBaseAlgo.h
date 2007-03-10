@@ -5,14 +5,15 @@
  *  Abstract algorithmic class to compute drift distance and error 
  *  form a DT digi
  *
- *  $Date: 2006/04/06 12:40:51 $
- *  $Revision: 1.5 $
+ *  $Date: 2006/05/17 13:47:17 $
+ *  $Revision: 1.6 $
  *  \author N. Amapane & G. Cerminara - INFN Torino
  */
 
-#include "Geometry/Vector/interface/LocalPoint.h"
-#include "Geometry/Surface/interface/LocalError.h"
-#include "Geometry/Vector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/LocalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/GeometrySurface/interface/LocalError.h"			    
+
 #include "DataFormats/DTDigi/interface/DTDigiCollection.h"
 #include "DataFormats/DTRecHit/interface/DTRecHit1DPair.h"
 #include "DataFormats/Common/interface/OwnVector.h"

@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2006/05/26 10:51:09 $
- * $Revision: 1.15 $
+ * $Date: 2006/11/20 18:33:20 $
+ * $Revision: 1.17 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
@@ -16,13 +16,13 @@
 #include "DataFormats/DTRecHit/interface/DTChamberRecSegment2D.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment4D.h"
 #include "DataFormats/DTRecHit/interface/DTRecHit1D.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/ErrorFrameTransformer.h"
 
 #include "RecoLocalMuon/DTSegment/src/DTSegmentCand.h"
 #include "RecoLocalMuon/DTRecHit/interface/DTRecHitAlgoFactory.h"
 #include "RecoLocalMuon/DTSegment/interface/DTLinearFit.h"
 
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
-#include "Geometry/CommonDetAlgo/interface/ErrorFrameTransformer.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/DTGeometry/interface/DTLayer.h"
 

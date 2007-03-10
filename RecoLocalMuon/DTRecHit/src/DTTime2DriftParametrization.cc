@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/03/14 13:05:06 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/05/17 13:47:17 $
+ *  $Revision: 1.2 $
  *  \author Pablo Garcia-Abia and Jesus Puerta (CIEMAT, Madrid), G. Cerminara - INFN Torino -
  */
 
@@ -12,15 +12,10 @@
 #include <stdio.h>
 #include <algorithm>
 
-// #ifndef MB_DT_STANDALONE //FIXME: Remove it
 #include "DTTime2DriftParametrization.h"
 #include "DTDriftTimeParameters.icc"
-// #else
-// #include "DTTime2DriftParametrization.h"
-// #include "MBDriftTimeParameters.icc"
-// #endif
 
-#include "Geometry/Vector/interface/Pi.h"
+#include "DataFormats/GeometryVector/interface/Pi.h"
 
 DTTime2DriftParametrization::DTTime2DriftParametrization(){}
 

@@ -7,29 +7,29 @@
  *  
  * detailed description
  *
- * $Date:  $
- * $Revision: $
+ * $Date: 2006/05/04 12:19:17 $
+ * $Revision: 1.1 $
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  *
  */
 
 /* Base Class Headers */
 #include "FWCore/Framework/interface/EDAnalyzer.h"
+
+/* Collaborating Class Declarations */
+#include "DataFormats/Common/interface/Handle.h"
+
+/* C++ Headers */
+#include <iostream>
+
+class TFile;
+class TH1F;
+
 namespace edm {
   class ParameterSet;
   class Event;
   class EventSetup;
 }
-
-/* Collaborating Class Declarations */
-#include "FWCore/Framework/interface/Handle.h"
-class TFile;
-class TH1F;
-
-/* C++ Headers */
-#include <iostream>
-
-/* ====================================================================== */
 
 /* Class DTRecSegment4DReader Interface */
 

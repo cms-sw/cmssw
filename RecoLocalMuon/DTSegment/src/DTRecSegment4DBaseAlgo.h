@@ -5,8 +5,8 @@
  *
  * Abstract algo class to reconstruct 4D-segments in chamber given a set of 2D-segment
  *
- * $Date: 2006/04/26 14:15:32 $
- * $Revision: 1.3 $
+ * $Date: 2006/05/04 09:17:36 $
+ * $Revision: 1.4 $
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
 
@@ -20,7 +20,7 @@ namespace edm {
 #include "DataFormats/DTRecHit/interface/DTRecSegment2DCollection.h"
 #include "DataFormats/DTRecHit/interface/DTRecHitCollection.h"
 
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 
 class DTChamberId;
 

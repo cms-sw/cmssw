@@ -8,8 +8,8 @@
  * This class is useful for segment fitting, which is done in SL or Chamber
  * reference frame, while the DT hits live on the layer.
  *
- * $Date: 2006/04/13 15:43:06 $
- * $Revision: 1.3 $
+ * $Date: 2006/04/26 14:15:32 $
+ * $Revision: 1.4 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  *
@@ -21,7 +21,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "DataFormats/DTRecHit/interface/DTRecHit1DPair.h"
-#include "Geometry/Vector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "Geometry/DTGeometry/interface/DTSuperLayer.h"
 
 /* C++ Headers */

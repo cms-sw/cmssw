@@ -8,17 +8,22 @@
  * impact angle and position (also along the wire) and perform linear fit on
  * improved hits.
  *
- * $Date: 2006/04/18 16:24:25 $
- * $Revision: 1.3 $
+ * $Date: 2006/11/20 18:33:20 $
+ * $Revision: 1.5 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  *
  */
 
-/* Base Class Headers */
+/* C++ Headers */
+#include <vector>
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "Geometry/DTGeometry/interface/DTGeometry.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
+/* ====================================================================== */
 
 /* Collaborating Class Declarations */
-
 class DTSegmentCand;
 class DTRecSegment2D;
 class DTRecSegment4D;
@@ -27,16 +32,7 @@ class DTRecHitBaseAlgo;
 
 namespace edm{class EventSetup; class ParameterSet;}
 
-/* C++ Headers */
-#include <vector>
-#include "Geometry/Vector/interface/GlobalPoint.h"
-#include "Geometry/DTGeometry/interface/DTGeometry.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "Geometry/CommonDetAlgo/interface/AlgebraicObjects.h"
-/* ====================================================================== */
-
 /* Class DTSegmentUpdator Interface */
-
 class DTSegmentUpdator{
 
   public:
