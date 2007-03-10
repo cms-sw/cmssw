@@ -2,8 +2,8 @@
 /**
  *  CosmicMuonSeedGenerator
  *
- *  $Date: 2006/12/11 21:56:52 $
- *  $Revision: 1.17 $
+ *  $Date: 2007/03/07 13:20:55 $
+ *  $Revision: 1.18 $
  *
  *  \author Chang Liu - Purdue University 
  *
@@ -11,7 +11,6 @@
 
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
-#include "DataFormats/DTRecHit/interface/DTRecSegment4D.h"
 #include "DataFormats/Common/interface/Handle.h"
 
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
@@ -32,10 +31,6 @@
 
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
-#include "TrackingTools/GeomPropagators/interface/Propagator.h"
-#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
-#include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimatorBase.h"
-
 
 #include <vector>
 
@@ -62,6 +57,7 @@ CosmicMuonSeedGenerator::CosmicMuonSeedGenerator(const edm::ParameterSet& pset){
 
   // the maximum number of TrajectorySeed
   theMaxSeeds = pset.getParameter<int>("MaxSeeds");
+
   theMaxDTChi2 = pset.getParameter<double>("MaxDTChi2");
   theMaxCSCChi2 = pset.getParameter<double>("MaxCSCChi2");
 
@@ -77,6 +73,8 @@ void CosmicMuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& 
   auto_ptr<TrajectorySeedCollection> output(new TrajectorySeedCollection());
   
   TrajectorySeedCollection seeds;
+ 
+  std::string category = "Muon|RecoMuon|CosmicMuonSeedGenerator";
 
   // Muon Geometry - DT, CSC and RPC 
   eSetup.get<MuonRecoGeometryRecord>().get(theMuonLayers);
@@ -136,28 +134,30 @@ void CosmicMuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& 
   MuonRecHitContainer RHMB2 = muonMeasurements.recHits(MB2DL);
   MuonRecHitContainer RHMB1 = muonMeasurements.recHits(MB1DL);
 
-  LogDebug("CosmicMuonSeedGenerator")<<"RecHits: Barrel outsideIn "
-                                     <<RHMB4.size()<<" : "
-                                     <<RHMB3.size()<<" : "
-                                     <<RHMB2.size()<<" : "
-                                     <<RHMB1.size()<<" .\n"
-                                     <<"RecHits: Forward Endcap outsideIn "
-                                     <<RHFME4.size()<<" : "
-                                     <<RHFME3.size()<<" : "
-                                     <<RHFME2.size()<<" : "
-                                     <<RHFME12.size()<<" : "
-                                     <<RHFME11.size()<<" .\n"
-                                     <<"RecHits: Backward Endcap outsideIn "
-                                     <<RHBME4.size()<<" : "
-                                     <<RHBME3.size()<<" : "
-                                     <<RHBME2.size()<<" : "
-                                     <<RHBME12.size()<<" : "
-                                     <<RHBME11.size()<<" .\n"; 
+  LogTrace(category)<<"RecHits: Barrel outsideIn "
+                   <<RHMB4.size()<<" : "
+                   <<RHMB3.size()<<" : "
+                   <<RHMB2.size()<<" : "
+                   <<RHMB1.size()<<" .\n"
+                   <<"RecHits: Forward Endcap outsideIn "
+                   <<RHFME4.size()<<" : "
+                   <<RHFME3.size()<<" : "
+                   <<RHFME2.size()<<" : "
+                   <<RHFME12.size()<<" : "
+                   <<RHFME11.size()<<" .\n"
+                   <<"RecHits: Backward Endcap outsideIn "
+                   <<RHBME4.size()<<" : "
+                   <<RHBME3.size()<<" : "
+                   <<RHBME2.size()<<" : "
+                   <<RHBME12.size()<<" : "
+                   <<RHBME11.size()<<" .\n"; 
 
   allHits.insert(allHits.end(),RHMB4.begin(),RHMB4.end());
   allHits.insert(allHits.end(),RHMB3.begin(),RHMB3.end());
   allHits.insert(allHits.end(),RHMB2.begin(),RHMB2.end());
   allHits.insert(allHits.end(),RHMB1.begin(),RHMB1.end());
+
+  stable_sort(allHits.begin(),allHits.end(),DecreasingGlobalY());
 
   allHits.insert(allHits.end(),RHFME4.begin(),RHFME4.end());
   allHits.insert(allHits.end(),RHFME3.begin(),RHFME3.end());
@@ -171,26 +171,24 @@ void CosmicMuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& 
   allHits.insert(allHits.end(),RHBME12.begin(),RHBME12.end());
   allHits.insert(allHits.end(),RHBME11.begin(),RHBME11.end());
 
-  LogDebug("CosmicMuonSeedGenerator")<<"all RecHits: "<<allHits.size();
+  LogTrace(category)<<"all RecHits: "<<allHits.size();
 
   if ( !allHits.empty() ) {
     MuonRecHitContainer goodhits = selectSegments(allHits);
-    LogDebug("CosmicMuonSeedGenerator")<<"good RecHits: "<<goodhits.size();
+    LogTrace(category)<<"good RecHits: "<<goodhits.size();
 
     if ( goodhits.empty() ) {
-      LogDebug("CosmicMuonSeedGenerator")<<"No qualified Segments in Event! ";
-      LogDebug("CosmicMuonSeedGenerator")<<"Use 2D RecHit";
+      LogTrace(category)<<"No qualified Segments in Event! ";
+      LogTrace(category)<<"Use 2D RecHit";
 
-      stable_sort(allHits.begin(),allHits.end(),DecreasingGlobalY());
       createSeeds(seeds,allHits,eSetup);
 
     } 
     else {
-      stable_sort(goodhits.begin(),goodhits.end(),DecreasingGlobalY());
       createSeeds(seeds,goodhits,eSetup);
     }
 
-    LogDebug("CosmicMuonSeedGenerator")<<"Seeds built: "<<seeds.size();
+    LogTrace(category)<<"Seeds built: "<<seeds.size();
 
     for(std::vector<TrajectorySeed>::iterator seed = seeds.begin();
         seed != seeds.end(); ++seed)
@@ -203,20 +201,22 @@ void CosmicMuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& 
 
 bool CosmicMuonSeedGenerator::checkQuality(const MuonRecHitPointer& hit) const {
 
+  const std::string category = "Muon|RecoMuon|CosmicMuonSeedGenerator";
+
   // only use 4D segments
   if ( !hit->isValid() ) return false;
 
   if (hit->dimension() < 4) {
-    LogDebug("CosmicMuonSeedGenerator")<<"dim < 4";
+    LogTrace(category)<<"dim < 4";
     return false;
   }
 
   if (hit->isDT() && ( hit->chi2()> theMaxDTChi2 )) {
-    LogDebug("CosmicMuonSeedGenerator")<<"DT chi2 too large";
+    LogTrace(category)<<"DT chi2 too large";
     return false;
   }
   else if (hit->isCSC() &&( hit->chi2()> theMaxCSCChi2 ) ) {
-    LogDebug("CosmicMuonSeedGenerator")<<"CSC chi2 too large";
+    LogTrace(category)<<"CSC chi2 too large";
      return false;
   }
   return true;
@@ -226,6 +226,7 @@ bool CosmicMuonSeedGenerator::checkQuality(const MuonRecHitPointer& hit) const {
 MuonRecHitContainer CosmicMuonSeedGenerator::selectSegments(const MuonRecHitContainer& hits) const {
 
   MuonRecHitContainer result;
+  const std::string category = "Muon|RecoMuon|CosmicMuonSeedGenerator";
 
   //Only select good quality Segments
   for (MuonRecHitContainer::const_iterator hit = hits.begin(); hit != hits.end(); hit++) {
@@ -250,7 +251,7 @@ MuonRecHitContainer CosmicMuonSeedGenerator::selectSegments(const MuonRecHitCont
           //compare direction and position
         GlobalVector dir2 = (*hit2)->globalDirection();
         GlobalPoint pos2 = (*hit2)->globalPosition();
-        if ((dir1 - dir2).mag() > 0.1 || (pos1-pos2).mag() > 2.0 ) continue;
+        if ( !areCorrelated((*hit),(*hit2)) ) continue;
 
         if ((*hit)->chi2() > (*hit2)->chi2() ) { 
           good = false;
@@ -270,21 +271,23 @@ void CosmicMuonSeedGenerator::createSeeds(TrajectorySeedCollection& results,
                                           const MuonRecHitContainer& hits, 
                                           const edm::EventSetup& eSetup) const {
 
+  const std::string category = "Muon|RecoMuon|CosmicMuonSeedGenerator";
+
   if (hits.size() == 0 || results.size() >= theMaxSeeds ) return;
   for (MuonRecHitContainer::const_iterator ihit = hits.begin(); ihit != hits.end(); ihit++) {
     const std::vector<TrajectorySeed>& sds = createSeed((*ihit),eSetup);
-    LogDebug("CosmicMuonSeedGenerator")<<"created seeds from rechit "<<sds.size();
+    LogTrace(category)<<"created seeds from rechit "<<sds.size();
     results.insert(results.end(),sds.begin(),sds.end());
     if ( results.size() >= theMaxSeeds ) break;
   }
   return;
 }
 
-std::vector<TrajectorySeed> CosmicMuonSeedGenerator::createSeed(MuonRecHitPointer hit, const edm::EventSetup& eSetup) const {
+std::vector<TrajectorySeed> CosmicMuonSeedGenerator::createSeed(const MuonRecHitPointer& hit, const edm::EventSetup& eSetup) const {
 
   std::vector<TrajectorySeed> result;
 
-  const std::string metname = "Muon|RecoMuon|CosmicMuonSeedGenerator";
+  const std::string category = "Muon|RecoMuon|CosmicMuonSeedGenerator";
 
   MuonPatternRecoDumper debug;
   
@@ -292,7 +295,7 @@ std::vector<TrajectorySeed> CosmicMuonSeedGenerator::createSeed(MuonRecHitPointe
   eSetup.get<IdealMagneticFieldRecord>().get(field);
 
   // set the pt and spt by hand
-  double pt = 5.0;
+  double pt = 7.0;
 //  double spt = 1.0;
   // FIXME check sign!
 
@@ -305,9 +308,9 @@ std::vector<TrajectorySeed> CosmicMuonSeedGenerator::createSeed(MuonRecHitPointe
   GlobalVector polar(GlobalVector::Spherical(hit->globalDirection().theta(),
                                              hit->globalDirection().phi(),
                                              1.));
-  // Force all track downward
-
-  if (hit->globalDirection().phi() > 0 )  polar = - polar;
+  // Force all track downward for cosmic, not beam-halo
+  if (hit->globalDirection().eta() < 4.5 && hit->globalDirection().phi() > 0 ) 
+    polar = - polar;
 
   polar *=fabs(pt)/polar.perp();
 
@@ -327,11 +330,11 @@ std::vector<TrajectorySeed> CosmicMuonSeedGenerator::createSeed(MuonRecHitPointe
   // Create the TrajectoryStateOnSurface
   TrajectoryStateOnSurface tsos(param, error, hit->det()->surface(), &*field);
 
-  LogDebug(metname)<<"Trajectory State on Surface of Seed";
-  LogDebug(metname)<<"mom: "<<tsos.globalMomentum()<<" phi: "<<tsos.globalMomentum().phi();
-  LogDebug(metname)<<"pos: " << tsos.globalPosition(); 
-  LogDebug(metname) << "The RecSegment relies on: ";
-  LogDebug(metname) << debug.dumpMuonId(hit->geographicalId());
+  LogTrace(category)<<"Trajectory State on Surface of Seed";
+  LogTrace(category)<<"mom: "<<tsos.globalMomentum()<<" phi: "<<tsos.globalMomentum().phi();
+  LogTrace(category)<<"pos: " << tsos.globalPosition(); 
+  LogTrace(category) << "The RecSegment relies on: ";
+  LogTrace(category) << debug.dumpMuonId(hit->geographicalId());
 
   // Transform it in a TrajectoryStateOnSurface
   TrajectoryStateTransform tsTransform;
@@ -344,4 +347,48 @@ std::vector<TrajectorySeed> CosmicMuonSeedGenerator::createSeed(MuonRecHitPointe
   result.push_back(theSeed); 
 
   return result;
+}
+
+bool CosmicMuonSeedGenerator::areCorrelated(const MuonRecHitPointer& lhs, const MuonRecHitPointer& rhs) const {
+  bool result = false;
+
+  GlobalVector dir1 = lhs->globalDirection();
+  GlobalPoint pos1 = lhs->globalPosition();
+  GlobalVector dir2 = rhs->globalDirection();
+  GlobalPoint pos2 = rhs->globalPosition();
+
+  GlobalVector dis = pos2 - pos1;
+
+  if ( (deltaEtaPhi(dir1,dir2) < 0.1 || deltaEtaPhi(dir1,-dir2) < 0.1 ) 
+        && dis.mag() < 5.0 )
+     result = true;
+
+  if ( (deltaEtaPhi(dir1,dir2) < 0.1 ||deltaEtaPhi(dir1,-dir2) < 0.1 ) && 
+      (deltaEtaPhi(dir1,dis) < 0.1 || deltaEtaPhi(dir2,dis) < 0.1) ) 
+     result = true;
+
+  if ( fabs(dir1.eta()) > 4.0 || fabs(dir2.eta()) > 4.0 ) {
+     if ( (fabs(dir1.theta() - dir2.theta()) < 0.07 ||
+           fabs(dir1.theta() + dir2.theta()) > 3.07 ) && 
+          (fabs(dir1.theta() - dis.theta()) < 0.07 || 
+           fabs(dir1.theta() - dis.theta()) < 0.07 ||
+           fabs(dir1.theta() + dis.theta()) > 3.07 ||
+           fabs(dir1.theta() + dis.theta()) > 3.07 ) )
+
+     result = true;
+  }
+
+  return result;
+}
+
+float CosmicMuonSeedGenerator::deltaEtaPhi(const GlobalVector& lhs, const GlobalVector& rhs) const {
+
+    float phi1 = lhs.phi();
+    float eta1 = lhs.eta();
+
+    float phi2 = rhs.phi();
+    float eta2 = rhs.eta();
+    float deltaR = sqrt((phi1-phi2)*(phi1-phi2)+(eta1-eta2)*(eta1-eta2));
+    return deltaR;
+
 }
