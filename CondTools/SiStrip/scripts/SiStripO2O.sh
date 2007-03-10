@@ -16,7 +16,7 @@ function usage () {
     echo -e " -geometry=<TAC>, <MTCC> (default is TAC)"
     echo -e " -Debug (switch on printout for debug)"
     echo -e " -RunTable (switch on/off online runtable query - default off)"
-
+    echo -e " -force (Force the o2o for given run)"
     echo -e "\n\nPlease set your CORAL_AUTH_PATH environment variable, otherwise it will be defined as /afs/cern.ch/cms/DB/conddb\n"
     
     exit
@@ -53,6 +53,7 @@ function settings (){
     default_Debug=0
     default_RunTable=1
     default_geometry=TAC
+    default_force=0
 
     getParameter help $@ 0
     [ "$help" = 1 ] && usage
@@ -60,7 +61,7 @@ function settings (){
     if [ ! -n "$CORAL_AUTH_PATH" ];
 	then
 	export CORAL_AUTH_PATH=/afs/cern.ch/cms/DB/conddb
-	#export CORAL_AUTH_PATH=.auth
+#	export CORAL_AUTH_PATH=.auth
 	#echo -e "\nWARNING: CORAL_AUTH_PATH environment variable is not defined in your shell\n default value will be used CORAL_AUTH_PATH=$CORAL_AUTH_PATH\n"
     fi
     echo ""
@@ -77,6 +78,8 @@ function settings (){
     getParameter geometry             $@ ${default_geometry}
     getParameter Debug                $@ ${default_Debug}
     getParameter RunTable             $@ ${default_RunTable}
+    getParameter RunTable             $@ ${default_RunTable}
+    getParameter force                $@ ${default_force}
 
     default_sqliteDb=${test_area}/dummy_${Run}.db
     default_sqliteCatalog=${test_area}/dummy_${Run}.xml
@@ -128,6 +131,8 @@ function settings (){
 	echo -e " -sqliteCatalog=${sqliteCatalog}"
     fi
     echo -e " -Debug $Debug"
+    echo -e " -force $force"
+
     echo " "
 }
 
@@ -145,13 +150,13 @@ function QueryOnline(){
     export ConfigDbMajorVersion=`echo $answer | awk '{print $4}'`
     export ConfigDbMinorVersion=`echo $answer | awk '{print $5}'`
 
-    if  [ "${ConfigDbRunMode}" != "1" ] ;
+    if  [ "${ConfigDbRunMode}" != "1" ] && [ "$force" == "0" ] ;
 	then
 	echo -e "\n RunMode from RunTable on $ConfigDb is ${ConfigDbRunMode} = ${ConfigDbRunDesc}"
 	echo -e "\n RunMode doesn't match allowed modes"
 	echo -e "\n\t  1 = Physics"
 	echo -e "\n EXIT"
-	#exit
+	exit
     fi
 
     ConfigDbVersion=${ConfigDbMajorVersion}.${ConfigDbMinorVersion}
@@ -186,9 +191,9 @@ function VerifyIfO2ONeeded(){
 	exit	
     fi
 
-    if [ `grep -c ${tag} .SiStripO2OTable.log` != "0" ] && [ `grep ${tag} .SiStripO2OTable.log | tail -1 | awk '{print $6}'`  -ge $Run ]; 
+    if [ `grep ${CondDb} .SiStripO2OTable.log | grep -c ${tag}` != "0" ] && [ `grep ${tag} .SiStripO2OTable.log | grep ${CondDb} | tail -1 | awk '{print $6}'`  -ge $Run ]; 
 	then
-	echo -e "\n You are trying to upload condition for the run $Run that come before the last IOV uploaded"
+	echo -e "\n You are trying to upload condition for the run $Run that comes before the last IOV uploaded"
 	tail -1 .SiStripO2OTable.log
 	echo -e "\n EXIT"
 	exit	
@@ -202,7 +207,6 @@ function VerifyIfO2ONeeded(){
 #@@@@@@@@@@@@@@@
 #TEMP
 #cd /exports/xdaq/CMSSW/Development/Domenico/CurrentO2O/CMSSW_1_2_0/src/
-cd ../CMSSW_1_2_0/src/
 #@@@@@@@@@@@@@@@
 
 eval `scramv1 runtime -sh`
@@ -210,7 +214,7 @@ export TNS_ADMIN=/afs/cern.ch/project/oracle/admin
 
 #@@@@@@@@@@@@@@@
 #TEMP
-cd -
+#cd -
 #@@@@@@@@@@@@@@@
   
 [ ! -e  .SiStripO2OTable.log ] && touch  .SiStripO2OTable.log
