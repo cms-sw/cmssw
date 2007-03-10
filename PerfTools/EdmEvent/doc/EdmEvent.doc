@@ -19,21 +19,21 @@ a tool to measure the size of the edm::Event
 \subsection interface Public interface
 <!-- List the classes that are provided for use in other packages (if any) -->
 
-- EdmEventSize
-it provides a public interface that is used only int the main program
-edmEventSize
+- EdmEventSize:
+provides a public interface that is used only int the main program
+edmEventSize.
 It can however be used in other contexts using a different driver.
 
 \subsection tests Unit tests and examples
 <!-- Describe cppunit tests and example configuration files -->
-test_branchSizes
+- test_branchSizes:
 the orginal tool by Luca Lista
 
 \subsection Binary
 <!-- Describe cppunit tests and example configuration files -->
-edmEventSize
+- edmEventSize:
 for the description of the options please run
-edmEventSize --help
+<em>edmEventSize --help</em>
 
 \section status Status and planned development
 <!-- e.g. completed, stable, missing features -->
@@ -41,6 +41,6 @@ Completed
 
 <hr>
 Last updated:
-@DATE@  Author: computer-generated.
+@DATE@  Author: Vincenzo Innocente.
 */
 
