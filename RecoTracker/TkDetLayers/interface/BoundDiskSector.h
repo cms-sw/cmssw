@@ -1,7 +1,7 @@
 #ifndef RecoTracker_TkDetLayers_BoundDiskSector_h
 #define RecoTracker_TkDetLayers_BoundDiskSector_h
  
-#include "Geometry/Surface/interface/BoundPlane.h"
+#include "DataFormats/GeometrySurface/interface/BoundPlane.h"
 
 class BoundDiskSector : public BoundPlane {
  public:

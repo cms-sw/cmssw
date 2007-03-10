@@ -2,7 +2,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "Geometry/Surface/interface/TkRotation.h"
+#include "DataFormats/GeometrySurface/interface/TkRotation.h"
 
 using namespace edm;
 using namespace std;

@@ -2,9 +2,9 @@
 #define RecoTracker_TkDetLayers_DiskSectorBounds_h
  
  
-#include "Geometry/Vector/interface/LocalPoint.h"
-#include "Geometry/Surface/interface/LocalError.h"
-#include "Geometry/Surface/interface/Bounds.h"
+#include "DataFormats/GeometryVector/interface/LocalPoint.h"
+#include "DataFormats/GeometrySurface/interface/LocalError.h"
+#include "DataFormats/GeometrySurface/interface/Bounds.h"
 #include <algorithm>
 #include <cmath>
 

@@ -1,6 +1,6 @@
 #include "RecoTracker/TkDetLayers/interface/GlobalDetRodRangeZPhi.h"
-#include "Geometry/Surface/interface/BoundPlane.h"
-#include "Geometry/Surface/interface/Bounds.h"
+#include "DataFormats/GeometrySurface/interface/BoundPlane.h"
+#include "DataFormats/GeometrySurface/interface/Bounds.h"
 #include "TrackingTools/DetLayers/interface/PhiLess.h"
 
 #include <vector>

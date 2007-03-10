@@ -1,7 +1,7 @@
 #include "RecoTracker/TkDetLayers/interface/ForwardDiskSectorBuilderFromDet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "Geometry/Surface/interface/TrapezoidalPlaneBounds.h"
+#include "DataFormats/GeometrySurface/interface/TrapezoidalPlaneBounds.h"
 
 #include "TrackingTools/DetLayers/interface/PhiLess.h"
 #include "TrackingTools/DetLayers/interface/DetLayerException.h"

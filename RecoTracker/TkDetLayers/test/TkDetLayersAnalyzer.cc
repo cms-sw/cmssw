@@ -16,7 +16,7 @@
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
-#include "Geometry/Surface/interface/BoundSurface.h"
+#include "DataFormats/GeometrySurface/interface/BoundSurface.h"
 
 
 // ======= specific includes =======

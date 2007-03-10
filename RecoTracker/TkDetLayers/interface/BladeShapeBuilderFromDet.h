@@ -5,7 +5,7 @@
 #include "RecoTracker/TkDetLayers/interface/DiskSectorBounds.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
-#include "Geometry/Vector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include <utility>
 #include <vector>
 #include <iostream>

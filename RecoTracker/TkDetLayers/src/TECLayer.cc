@@ -10,7 +10,7 @@
 #include "TrackingTools/DetLayers/interface/rangesIntersect.h"
 #include "TrackingTools/GeomPropagators/interface/HelixForwardPlaneCrossing.h"
 #include "TrackingTools/DetLayers/interface/PhiLess.h"
-#include "Geometry/Surface/interface/SimpleDiskBounds.h"
+#include "DataFormats/GeometrySurface/interface/SimpleDiskBounds.h"
 
 using namespace std;
 

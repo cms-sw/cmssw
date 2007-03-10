@@ -1,7 +1,7 @@
 #ifndef TkDetLayers_SubLayerCrossings_h
 #define TkDetLayers_SubLayerCrossings_h
 
-#include "Geometry/Vector/interface/LocalPoint.h"
+#include "DataFormats/GeometryVector/interface/LocalPoint.h"
 
 class SubLayerCrossing {
 public:

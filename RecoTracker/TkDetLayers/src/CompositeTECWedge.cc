@@ -13,8 +13,8 @@
 #include "TrackingTools/PatternTools/interface/MeasurementEstimator.h"
 #include "TrackingTools/GeomPropagators/interface/HelixForwardPlaneCrossing.h"
 
-#include "Geometry/Surface/interface/TrapezoidalPlaneBounds.h"
-#include "Geometry/Surface/interface/RectangularPlaneBounds.h"
+#include "DataFormats/GeometrySurface/interface/TrapezoidalPlaneBounds.h"
+#include "DataFormats/GeometrySurface/interface/RectangularPlaneBounds.h"
 
 using namespace std;
 

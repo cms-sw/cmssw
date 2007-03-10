@@ -2,8 +2,8 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "Geometry/Surface/interface/BoundingBox.h"
-#include "Geometry/Surface/interface/SimpleDiskBounds.h"
+#include "DataFormats/GeometrySurface/interface/BoundingBox.h"
+#include "DataFormats/GeometrySurface/interface/SimpleDiskBounds.h"
 
 #include "TrackingTools/DetLayers/interface/DetLayerException.h"
 #include "TrackingTools/DetLayers/interface/simple_stat.h"

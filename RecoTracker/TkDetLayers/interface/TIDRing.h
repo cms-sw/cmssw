@@ -5,7 +5,7 @@
 #include "TrackingTools/DetLayers/interface/GeometricSearchDet.h"
 #include "Utilities/BinningTools/interface/PeriodicBinFinderInPhi.h"
 #include "RecoTracker/TkDetLayers/interface/SubLayerCrossings.h"
-#include "Geometry/Surface/interface/BoundDisk.h"
+#include "DataFormats/GeometrySurface/interface/BoundDisk.h"
 
 /** A concrete implementation for TID rings 
  */

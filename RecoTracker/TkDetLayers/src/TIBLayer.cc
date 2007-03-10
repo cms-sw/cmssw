@@ -2,7 +2,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "Geometry/Surface/interface/SimpleCylinderBounds.h"
+#include "DataFormats/GeometrySurface/interface/SimpleCylinderBounds.h"
 
 #include "RecoTracker/TkDetLayers/interface/LayerCrossingSide.h"
 #include "RecoTracker/TkDetLayers/interface/DetGroupMerger.h"

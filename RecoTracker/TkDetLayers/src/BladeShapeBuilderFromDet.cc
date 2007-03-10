@@ -3,7 +3,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "TrackingTools/DetLayers/interface/PhiLess.h"
-#include "Geometry/Surface/interface/BoundingBox.h"
+#include "DataFormats/GeometrySurface/interface/BoundingBox.h"
 
 #include <iomanip>
 
