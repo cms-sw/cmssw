@@ -1,3 +1,12 @@
+2007-03-10  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-11-01
+	* ready to go back in the nightly! :)
+	* reverted to od halting strategy (edm::EP::shutDownAsync() instead
+	of edm::EP::stopAsync()), edm::EP needs to be enabled to cleanly
+	stop first, note that 'Stop' command won't work properly for
+	current FUEventProcessor
+
 2007-03-08  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-11-00

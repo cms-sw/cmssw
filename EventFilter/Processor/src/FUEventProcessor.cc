@@ -12,15 +12,18 @@
 #include "EventFilter/Utilities/interface/MicroStateService.h"
 #include "EventFilter/Message2log4cplus/interface/MLlog4cplus.h"
 
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "FWCore/Framework/interface/EventProcessor.h"
+#include "FWCore/Framework/interface/RawInputSource.h"
+#include "FWCore/PluginManager/interface/PresenceFactory.h"
+#include "FWCore/PluginManager/interface/ProblemTracker.h"
+#include "FWCore/ParameterSet/interface/MakeParameterSets.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/Presence.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 
-#include "FWCore/Framework/interface/EventProcessor.h"
-#include "FWCore/Framework/interface/RawInputSource.h"
-#include "FWCore/PluginManager/interface/ProblemTracker.h"
-#include "FWCore/ParameterSet/interface/MakeParameterSets.h"
-#include "FWCore/Utilities/interface/Exception.h"
+#include "DQMServices/Daemon/interface/MonitorDaemon.h"
 
 #include "xcept/include/xcept/tools.h"
 #include "xgi/include/xgi/Method.h"
@@ -461,9 +464,10 @@ bool FUEventProcessor::halting(toolbox::task::WorkLoop* wl)
   try {
     LOG4CPLUS_INFO(getApplicationLogger(),"Start halting ...");
     stopEventProcessor();
-    evtProcessor_->endJob();
-    delete evtProcessor_;
-    evtProcessor_ = 0;
+    // NEW
+    //evtProcessor_->endJob();
+    //delete evtProcessor_;
+    //evtProcessor_ = 0;
     epInitialized_ = false;
     LOG4CPLUS_INFO(getApplicationLogger(),"Finished halting!");
   
@@ -596,7 +600,6 @@ void FUEventProcessor::initEventProcessor()
     vector<string> defaultServices;
     defaultServices.push_back("MessageLogger");
     defaultServices.push_back("InitRootHandlers");
-    defaultServices.push_back("LoadAllDictionaries");
     defaultServices.push_back("JobReportService");
     
     if (0!=evtProcessor_) delete evtProcessor_;
@@ -689,43 +692,83 @@ void FUEventProcessor::stopEventProcessor()
     // wait until even processor reaches state 'sDone'
     trycount=0;
     if(evtProcessor_->getState()==edm::event_processor::sStopping) {
-      LOG4CPLUS_WARN(getApplicationLogger(),
-		     "about to call stopAsync, state "
-		     <<(evtProcessor_->getState()));
 
-      evtProcessor_->stopAsync();
-      LOG4CPLUS_WARN(getApplicationLogger(),
-		     "called stopAsync, state "
-		     <<(evtProcessor_->getState()));
-
-      while(evtProcessor_->getState()!=edm::event_processor::sJobReady&&trycount<10){
+      // OLD
+      evtProcessor_->shutdownAsync();
+      
+      // NEW
+      // 
+      //LOG4CPLUS_WARN(getApplicationLogger(),
+      //	     "about to call stopAsync, state "<<(evtProcessor_->getState()));
+      //evtProcessor_->stopAsync();
+      //LOG4CPLUS_WARN(getApplicationLogger(),
+      //		     "called stopAsync, state "<<(evtProcessor_->getState()));
+      
+      // OLD
+      while(evtProcessor_->getState()!=edm::event_processor::sDone && trycount<10) {
 	trycount++;
 	::sleep(1);
       }
+      
+      // NEW
+      //
+      //while(evtProcessor_->getState()!=edm::event_processor::sJobReady&&trycount<10){
+      //	trycount++;
+      //::sleep(1);
+      //}
     }
     
-    if(evtProcessor_->getState()!=edm::event_processor::sJobReady) {
+    // OLD
+    if (evtProcessor_->getState()!=edm::event_processor::sDone) {
       LOG4CPLUS_WARN(getApplicationLogger(),
 		     "Halting with triggers still to be processed. "
 		     <<"EventProcessor state"
 		     <<evtProcessor_->stateName(evtProcessor_->getState()));
-      
       int retval = evtProcessor_->shutdownAsync();
-      
-      if (retval!=0) {
+      if(retval != 0) {
 	LOG4CPLUS_WARN(getApplicationLogger(),
 		       "Failed to shut down EventProcessor. Return code "<<retval);
       }	  
       else {
 	LOG4CPLUS_INFO(getApplicationLogger(),
-		       "EventProcessor successfully shut down. Return code "<<retval);
+		       "EventProcessor successfully shut down "<<retval);
       }
     }
     else {
-      LOG4CPLUS_INFO(getApplicationLogger(),
-		     "EventProcessor stopped. State "
-		     <<evtProcessor_->stateName(evtProcessor_->getState()));  
+      LOG4CPLUS_INFO(this->getApplicationLogger(),
+		     "EventProcessor halted. State" 
+		     << evtProcessor_->stateName(evtProcessor_->getState()));  
     }
+    
+    evtProcessor_->endJob();
+    delete evtProcessor_;
+    evtProcessor_ = 0;
+    
+    /* NEW
+       
+      if(evtProcessor_->getState()!=edm::event_processor::sJobReady) {
+      LOG4CPLUS_WARN(getApplicationLogger(),
+      "Halting with triggers still to be processed. "
+      <<"EventProcessor state"
+      <<evtProcessor_->stateName(evtProcessor_->getState()));
+      
+      int retval = evtProcessor_->shutdownAsync();
+      
+      if (retval!=0) {
+      LOG4CPLUS_WARN(getApplicationLogger(),
+      "Failed to shut down EventProcessor. Return code "<<retval);
+      }	  
+      else {
+      LOG4CPLUS_INFO(getApplicationLogger(),
+      "EventProcessor successfully shut down. Return code "<<retval);
+      }
+      }
+      else {
+      LOG4CPLUS_INFO(getApplicationLogger(),
+      "EventProcessor stopped. State "
+      <<evtProcessor_->stateName(evtProcessor_->getState()));  
+      }
+    */
   }
   catch(seal::Error& e) {
     fsm_.fireFailed(e.explainSelf(),this);

@@ -7,9 +7,6 @@
 #include "EventFilter/Utilities/interface/Css.h"
 
 #include "FWCore/Framework/interface/TriggerReport.h"
-#include "FWCore/Utilities/interface/Presence.h"
-#include "FWCore/PluginManager/interface/PresenceFactory.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Modules/src/PrescaleService.h"
 
 #include "xdaq/include/xdaq/Application.h"
