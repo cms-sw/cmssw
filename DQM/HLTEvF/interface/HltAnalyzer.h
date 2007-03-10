@@ -14,7 +14,7 @@
 //
 // Original Author:  Peter Wittich
 //         Created:  Thu Nov  9 07:51:28 CST 2006
-// $Id: HltAnalyzer.h,v 1.2 2006/12/04 14:43:38 wittich Exp $
+// $Id: HltAnalyzer.h,v 1.3 2006/12/20 17:32:35 wittich Exp $
 //
 //
 
@@ -39,7 +39,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Services/interface/Timing.h"
 
-#include "DataFormats/Common/interface/ModuleDescription.h"
+#include "DataFormats/Provenance/interface/ModuleDescription.h"
 
 #include "DataFormats/Common/interface/TriggerResults.h"
 
