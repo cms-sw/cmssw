@@ -15,6 +15,8 @@ public:
 
   const edm::PSimHitContainer & hits(int detId) const;
 
+  std::vector<int> detsWithHits() const;
+
 private:
   std::string theCollectionName;
   std::map<int, edm::PSimHitContainer> theMap;
