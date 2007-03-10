@@ -7,8 +7,24 @@
 
 namespace perftools {
 
+  /** \class EdmEventSize
+   *  Measure the size of each product in an edm::event
+   *  Provides the output as an ascii table or root histograms
+
+   *  Based on the original implementation by Luca Lista
+   *
+   *  Algorithm:
+   *  Measure the size of each branch in a tree as the sum of the sizes of 
+   *  all its baskets
+   *  Estimate the "size in memory" multipling the actual branch size 
+   *  by its compression factor
+   *
+   *  \author Vincenzo Innocente
+   */
   class EdmEventSize {
   public:
+
+    /// generic exception
     struct Error {
       Error(std::string const & idescr, int icode) :
 	descr(idescr), code(icode){}
@@ -16,6 +32,7 @@ namespace perftools {
       int code;
     };
 
+    /// the information for each branch
     struct BranchRecord {
       BranchRecord() : 
 	compr_size(0.),  
@@ -32,17 +49,24 @@ namespace perftools {
 
     typedef std::vector<BranchRecord> Branches;
 
+    /// Constructor
     EdmEventSize();
+    /// Constructor and parse 
     explicit EdmEventSize(std::string const & fileName);
     
+    /// read file, compute branch size, sort by size
     void parseFile(std::string const & fileName);
 
+    /// sort by name
     void sortAlpha();
-
+    
+    /// transform Branch names in "short" prodcut identifiers
     void shortNames();
 
+    /// dump the ascii table on "co"
     void dump(std::ostream & co) const;
 
+    /// produce histograms and optionally write them in "file" or as "plot"
     void produceHistos(std::string const & plot, std::string const & file, int top=0) const; 
 
   private:
