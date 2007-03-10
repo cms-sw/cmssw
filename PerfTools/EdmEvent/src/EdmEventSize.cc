@@ -1,3 +1,7 @@
+/** \file PerfTools/EdmEvent/interface/EdmEventSize.cc
+ *
+ *  \author Vincenzo Innocente
+ */
 #include "PerfTools/EdmEvent/interface/EdmEventSize.h"
 #include <valarray>
 #include <functional>
