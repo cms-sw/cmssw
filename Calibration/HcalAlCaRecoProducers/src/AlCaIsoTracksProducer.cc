@@ -177,4 +177,4 @@ void AlCaIsoTracksProducer::endJob(void) {
     IsoHists.Nisotr->Write();
     m_Hfile->Close();
   }
-
+}
