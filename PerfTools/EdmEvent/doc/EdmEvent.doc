@@ -20,7 +20,7 @@ a tool to measure the size of the edm::Event
 <!-- List the classes that are provided for use in other packages (if any) -->
 
 - EdmEventSize:
-provides a public interface that is used only int the main program
+provides a public interface that is currently supposed to be used only in the main program
 edmEventSize.
 It can however be used in other contexts using a different driver.
 
@@ -29,8 +29,8 @@ It can however be used in other contexts using a different driver.
 - test_branchSizes:
 the orginal tool by Luca Lista
 
-\subsection Binary
-<!-- Describe cppunit tests and example configuration files -->
+\subsection Executables
+<!-- Describe  scripts, binaries and other types of executables -->
 - edmEventSize:
 for the description of the options please run
 <em>edmEventSize --help</em>
