@@ -3,8 +3,11 @@
 #//Get lastIOV from OfflineDB//
 function getLastIOV(){
     tag=$1
-#    lastIOV=`cmscond_list_iov -c oracle://devdb10/CMS_COND_STRIP -u CMS_COND_STRIP -p w3807dev -f "relationalcatalog_oracle://devdb10/CMS_COND_GENERAL" -t $1 | grep DB | awk '{print $1}' | tail -1`
-    lastIOV=`cmscond_list_iov -c oracle://orcon/CMS_COND_STRIP -u CMS_COND_STRIP_R -p R2106xon -f "relationalcatalog_oracle://orcon/CMS_COND_GENERAL" -t $1 | grep DB | awk '{print $1}' | tail -1`
+    if [ "$2" == "devdb10" ]; then
+	lastIOV=`cmscond_list_iov -c oracle://devdb10/CMS_COND_STRIP -u CMS_COND_STRIP -p w3807dev -f "relationalcatalog_oracle://devdb10/CMS_COND_GENERAL" -t $1 | grep DB | awk '{print $1}' | tail -1`
+    else
+	lastIOV=`cmscond_list_iov -c oracle://orcon/CMS_COND_STRIP -u CMS_COND_STRIP_R -p R2106xon -f "relationalcatalog_oracle://orcon/CMS_COND_GENERAL" -t $1 | grep DB | awk '{print $1}' | tail -1`
+    fi
 }
 
 function getFedVersionFromRunSummaryTIF(){
@@ -67,11 +70,13 @@ cd $scriptDir
 [ -e lockFile ] && exit 
 touch lockFile
 
-eval `scramv1 runtime -sh`
-
+CondDB=""
+[ "$1" != "" ] && CondDB=$1
 
 export lastIOV
 export Fedversion_Lastiov
+
+eval `scramv1 runtime -sh`
 
 touch  RunToBeSubmitted.bkp  RunToDoO2O.bkp
 [ -e RunToBeSubmitted ] && mv -f RunToBeSubmitted RunToBeSubmitted.bkp
@@ -86,6 +91,8 @@ for Run in `cat AddedRuns | awk '{print $1}'`
   do
   echo Looking at run $Run
   
+  ConfigDb=`grep $Run AddedRuns | awk '{print $4}'`   
+
   tag=""
   ConfigDbPartition=`grep $Run AddedRuns | awk '{print $2}'`   
   if [ `echo $ConfigDbPartition | grep -c -i TIBTOBTEC` == '1' ]; then
@@ -110,7 +117,7 @@ for Run in `cat AddedRuns | awk '{print $1}'`
   #echo CheckIOV $Run $tagPN
   if [ "${oldtagPN}" != "${tagPN}" ]; then
       oldtagPN=${tagPN}
-      getLastIOV $tagPN
+      getLastIOV $tagPN $CondDB
       getFedVersionFromRunSummaryTIF $lastIOV
   fi
   
@@ -124,7 +131,7 @@ for Run in `cat AddedRuns | awk '{print $1}'`
   else
       if [ "${FedVer}" != "${oldFedVer}" ] ; then
 	  oldFedVer=${FedVer}
-	  echo $Run $vTag $status >> RunToDoO2O
+	  echo $Run $vTag $status $ConfigDb>> RunToDoO2O
       fi
   fi
 done

@@ -45,7 +45,7 @@ function settings (){
     default_tag="v1"
     default_doPedNoiseTransfer=1
     default_doFedCablingTransfer=1
-    default_ConfigDb=cms_tracker_tif2/stabletif2@cms_tec_lyon
+    default_ConfigDb=""
     default_ConfigDbVersion=1.0
     default_ConfigDbPartition="TIBTOB_TEST1"
     default_CondDb="sqlite"
