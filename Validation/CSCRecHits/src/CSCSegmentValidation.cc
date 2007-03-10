@@ -98,6 +98,34 @@ std::cout << "SEGMENT VAL NLAYERS HIT " << nLayersHit << " chambertype " << cham
         else         theTypePlot4HitsNoShowerSeg->Fill(chamberType);
       } 
     }
+
+    if(nLayersHit == 5)
+    {
+
+      if(isShower) theTypePlot5HitsShower->Fill(chamberType);
+      else         theTypePlot5HitsNoShower->Fill(chamberType);
+
+      if(hasSeg)
+      {
+        if(isShower) theTypePlot5HitsShowerSeg->Fill(chamberType);
+        else         theTypePlot5HitsNoShowerSeg->Fill(chamberType);
+      }
+    }
+
+    if(nLayersHit == 6)
+    {
+
+      if(isShower) theTypePlot6HitsShower->Fill(chamberType);
+      else         theTypePlot6HitsNoShower->Fill(chamberType);
+
+      if(hasSeg)
+      {
+        if(isShower) theTypePlot6HitsShowerSeg->Fill(chamberType);
+        else         theTypePlot6HitsNoShowerSeg->Fill(chamberType);
+      }
+    }
+
+
   }
 }
 
