@@ -2,8 +2,8 @@
  *
   * See header file for documentation
  *
- *  $Date: 2007/01/31 10:48:56 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/02/13 04:00:55 $
+ *  $Revision: 1.2 $
  *
  *  \author Arnaud Gay, Ian Tomalin
  *
@@ -11,7 +11,7 @@
 
 #include "HLTrigger/btau/interface/HLTJetTag.h"
 
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/BTauReco/interface/JetTag.h"
 
