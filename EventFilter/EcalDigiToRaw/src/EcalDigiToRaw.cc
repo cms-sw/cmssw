@@ -265,9 +265,10 @@ EcalDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
  // Headerblockformatter_ -> PrintSizes(productRawData.get());
 
 
- iEvent.put(productRawData);
 
- Towerblockformatter_ -> EndEvent();
+ Towerblockformatter_ -> EndEvent(productRawData.get());
+
+ iEvent.put(productRawData);
 
 
  return;

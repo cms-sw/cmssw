@@ -39,7 +39,6 @@ void SRBlockFormatter::DigiToRaw(int dccid, int dcc_channel, int flag, FEDRawDat
 
 	int Number_SRP_Flags = 68;
 
-	
 	int SRP_index;
 	int icode = 1000 * dccid +  SRid;
 	if (debug_) cout << "size of header_ map is " << header_.size() << endl;
@@ -62,7 +61,8 @@ void SRBlockFormatter::DigiToRaw(int dccid, int dcc_channel, int flag, FEDRawDat
 		ppData[8*SRP_index+3] |= 0x80;
 		ppData[8*SRP_index+4] = lv1 & 0xFF;
 		ppData[8*SRP_index+5] = (lv1 & 0xF00)>>8;
-                ppData[8*SRP_index+6] = Number_SRP_Flags;  
+                // ppData[8*SRP_index+6] = Number_SRP_Flags;  
+		ppData[8*SRP_index+6] = 0;
                 ppData[8*SRP_index+7] = 0x80;
                 SRP_index ++;
 		if (debug_) cout << "Added headers and empty lines : " << endl;
@@ -79,6 +79,10 @@ void SRBlockFormatter::DigiToRaw(int dccid, int dcc_channel, int flag, FEDRawDat
 	unsigned char* pData = rawdata.data();
 
 	// -- Now the TCC Block :
+
+	int nflags = pData[8*(SRP_index-1) +6] & 0x7F;
+	nflags ++;
+	pData[8*(SRP_index-1) + 6] = nflags & 0x7F;
 
 	int jTT = (dcc_channel-1);
 	int irow = jTT/16 ;

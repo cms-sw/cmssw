@@ -59,7 +59,6 @@ void TCCBlockFormatter::DigiToRaw(const EcalTriggerPrimitiveDigi& trigprim,
                 int inner = ( detid.ietaAbs() >= 22) ? 1 : 0;
                 itcc_block = 2 * pair + inner + 1;
                 if (inner == 1) NTT_max = 28;
-		// if (inner == 1) NTT_max = 32;	// FIXME
                 else NTT_max = 16;
         }
 
@@ -137,6 +136,11 @@ void TCCBlockFormatter::DigiToRaw(const EcalTriggerPrimitiveDigi& trigprim,
 	}
 	pData[8*FE_index + ival*2] = et & 0xFF;
 	pData[8*FE_index + ival*2+1] = (ttflag<<1) + (fg&0x1); 
+	if (IsEndCap) {
+		// re-write the TCCid  and N_Tower_Max :
+		pData[8*(FE_index-1)] = TCCid & 0xFF;
+		pData[8*(FE_index-1)+6] = NTT_max;
+	}
 	if (debug_) cout << "pData[8*FE_index + ival*2+1] = " << hex << (int)pData[8*FE_index + ival*2+1] << endl;
 	if (debug_) cout << "ttflag ttflag<<1 " << hex << ttflag << " " << hex << (ttflag<<1) << endl;
 	if (debug_) cout << "fg&0x1 " << hex << (fg&0x1) << endl;
