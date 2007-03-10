@@ -14,7 +14,6 @@
 <flags SEAL_PLUGIN_NAME="FWCoreServices">
 <export>
   <use name=DataFormats/Provenance>
-  <use name=FWCore/Framework>
   <use name=sigcpp>
   <lib name=FWCoreServices>
 </export>
