@@ -11,7 +11,7 @@
 
 
 /* \class  ProfilerService
- A Service to start and stop calgrind profiling on demand...
+ * A Service to start and stop calgrind profiling on demand...
  * act also as profiler watchdog 
  * (in the same service to avoid dependency between service)
  */
