@@ -1,19 +1,21 @@
 <export>
  <lib name=AlignmentCommonAlignment>
- <use name=Geometry/CommonDetAlgo>  
+ <use name=DataFormats/CLHEP>
+ <use name=DataFormats/GeometrySurface>
+ <use name=DataFormats/GeometryVector>
  <use name=Geometry/CommonDetUnit>  
- <use name=Geometry/Surface>
  <use name=TrackingTools/TransientTrackingRecHit>
 </export>
 
 <use name=CondFormats/Alignment>
+<use name=DataFormats/CLHEP>
 <use name=DataFormats/DetId>
+<use name=DataFormats/GeometrySurface>
+<use name=DataFormats/GeometryVector>
 <use name=DataFormats/TrackingRecHit>
 <use name=FWCore/MessageLogger>
 <use name=FWCore/ParameterSet>
 <use name=FWCore/ServiceRegistry>
 <use name=FWCore/Utilities>
-<use name=Geometry/CommonDetAlgo>  
 <use name=Geometry/CommonDetUnit>
-<use name=Geometry/Surface>
 <use name=TrackingTools/TransientTrackingRecHit>
