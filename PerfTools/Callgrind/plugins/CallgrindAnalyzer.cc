@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Rizzi
 //         Created:  Thu Jan 18 10:34:18 CET 2007
-// $Id: CallgrindAnalyzer.cc,v 1.1 2007/01/24 15:33:40 innocent Exp $
+// $Id: CallgrindAnalyzer.cc,v 1.2 2007/02/25 14:27:50 innocent Exp $
 //
 //
 
@@ -33,7 +33,7 @@
 
 #include "valgrind/callgrind.h"
 //
-// class decleration
+// class declaration
 //
 #include <iostream>
 using namespace std;
