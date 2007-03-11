@@ -12,6 +12,8 @@
 </library>
 
 <library name="PerfToolsCallgrindAnalyzer" file=ProfilerAnalyzer.cc>
+<use name=FWCore/Framework>
+<use name=Foundation/PluginManager>
 <use name=PerfTools/Callgrind>
 <use name=FWCore/ServiceRegistry>
 </library>

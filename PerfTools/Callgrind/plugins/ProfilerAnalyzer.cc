@@ -53,7 +53,7 @@ class StartProfilerAnalyzer : public ProfilerAnalyzer {
 public:
   explicit StartProfilerAnalyzer(const edm::ParameterSet & pset) :
     ProfilerAnalyzer(pset) {}
-  ~StopProfilerAnalyzer(){}
+  ~StartProfilerAnalyzer(){}
 
 
 private:
