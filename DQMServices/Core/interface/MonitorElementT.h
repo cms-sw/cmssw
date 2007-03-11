@@ -140,6 +140,9 @@ class MonitorElementT : public MonitorElement
   /// set x-, y- or z-axis range (axis=1, 2, 3 respectively)
   virtual void setAxisRange(float xmin, float xmax, int axis = 1)
   {doNotUseMethod("setAxisRange");}
+  /// set x-, y- or z-axis title (axis=1, 2, 3 respectively)
+  virtual void setAxisTitle(std::string axis_title, int axis = 1)
+  {doNotUseMethod("setAxisTitle");}
   /// set (ie. change) histogram/profile title
   virtual void setTitle(std::string new_title)
   {doNotUseMethod("setTitle");}
