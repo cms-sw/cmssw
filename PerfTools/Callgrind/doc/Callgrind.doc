@@ -46,8 +46,9 @@ no set of parameters required
 
 \section status Status and planned development
 <!-- e.g. completed, stable, missing features -->
-Service Completed<br>
-Analyzer needs mods to use the Service itself.<br>
+Service and Analyzer Completed<br>
+One may need to add some addional control in case a StopAnalyzer is not called:
+for the time being the instrumentation is forced to stop at the end of each event.<br>
 The Service may be extended to tools other than callgrind such as IgProf
 
 <hr>
