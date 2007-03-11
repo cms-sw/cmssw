@@ -1,5 +1,14 @@
 2007-03-11  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
+	* tag V00-05-00
+	* remove shmMode option: from now on, *only* FUShmReader is
+	supported to consumer built events, the support of FUStdReader is
+	stopped.
+	* As a consequence, the FEDProvider interface is removed.
+	* FUResourceTable::dropEvent() added.
+
+2007-03-11  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
 	* tag V00-04-00
 	* remove shared memory relevant classes from package, are
 	transfered to EventFilter/ShmBuffer (V00-00-01)

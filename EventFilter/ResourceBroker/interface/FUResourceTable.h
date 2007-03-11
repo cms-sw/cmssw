@@ -2,7 +2,6 @@
 #define FURESOURCETABLE_H 1
 
 
-#include "EventFilter/ResourceBroker/interface/FEDProvider.h"
 #include "EventFilter/ResourceBroker/interface/FUResource.h"
 #include "EventFilter/ResourceBroker/interface/BUProxy.h"
 #include "EventFilter/ResourceBroker/interface/FUTypes.h"
@@ -16,19 +15,17 @@
 #include "toolbox/include/BSem.h"
 
 #include <vector>
-#include <semaphore.h>
 
 
 namespace evf {
-
-  class FUResourceTable : public toolbox::lang::Class,
-			  public FEDProvider
+  
+  class FUResourceTable : public toolbox::lang::Class
   {
   public:
     //
     // construction/destruction
     //
-    FUResourceTable(UInt_t nbResources,UInt_t eventBufferSize,bool shmMode,
+    FUResourceTable(UInt_t nbResources,UInt_t eventBufferSize,
 		    BUProxy* bu,log4cplus::Logger logger);
     virtual ~FUResourceTable();
 
@@ -37,12 +34,14 @@ namespace evf {
     // member functions
     //
     
-    // FEDProvider interface, rqstEvent for shmMode=false only!
-    FEDRawDataCollection* rqstEvent(UInt_t& evtNumber,UInt_t& buResourceId);
-    void   sendDiscard(UInt_t buResourceId);
-    
     // allocate new events from builder unit
     void   sendAllocate();
+    
+    // discard event to builder unit
+    void   sendDiscard(UInt_t buResourceId);
+    
+    // drop next available event
+    void   dropEvent();
     
     // send empty events to notify clients to shutdown
     void   shutDownClients();
@@ -59,9 +58,9 @@ namespace evf {
     // reset event & error counters
     void   resetCounters();
 
-    // work loop to discard/allocate events in shmMode
-    void   startWorkLoop() throw (evf::Exception);
-    bool   workLoopAction(toolbox::task::WorkLoop* workLoop);
+    // work loop to discard/allocate events
+    void   startDiscardWorkLoop() throw (evf::Exception);
+    bool   discard(toolbox::task::WorkLoop* workLoop);
     
     // tell resources wether to check the crc
     void   setDoCrcCheck(UInt_t doCrcCheck) { doCrcCheck_=doCrcCheck; }
@@ -72,26 +71,27 @@ namespace evf {
     // process buffer received via I2O_FU_TAKE message
     bool   buildResource(MemRef_t* bufRef);
     
-    // return pointer to event FED data
-    FEDRawDataCollection* requestResource(UInt_t& evtNumber,UInt_t& buResourceId);
-    
     // check if this is the last message of the events without processing the msg
     bool   isLastMessageOfEvent(MemRef_t* bufRef);
-
-    // various counters
-    UInt_t nbResources() const { return resources_.size(); }
-    UInt_t nbFreeSlots() const;
-    UInt_t nbShmClients()const;
-    UInt_t nbAllocated() const { return nbAllocated_; }
-    UInt_t nbPending()   const { return nbPending_; }
-    UInt_t nbCompleted() const { return nbCompleted_; }
-    UInt_t nbProcessed() const { return nbProcessed_; }
-    UInt_t nbDiscarded() const { return nbDiscarded_; }
-    UInt_t nbLost()      const { return nbLost_; }
     
-    UInt_t nbErrors()    const { return nbErrors_; }
-    UInt_t nbCrcErrors() const { return nbCrcErrors_; }
-    UInt_t nbAllocSent() const { return nbAllocSent_; }
+    // check if resource table can be savely destroyed
+    bool   isReadyToShutDown() const { return isReadyToShutDown_; }
+    
+    
+    // various counters
+    UInt_t nbResources()  const { return resources_.size(); }
+    UInt_t nbFreeSlots()  const { return shmBuffer_->writerSemValue(); }
+    UInt_t nbShmClients() const;
+    UInt_t nbAllocated()  const { return nbAllocated_; }
+    UInt_t nbPending()    const { return nbPending_; }
+    UInt_t nbCompleted()  const { return nbCompleted_; }
+    UInt_t nbProcessed()  const { return nbProcessed_; }
+    UInt_t nbDiscarded()  const { return nbDiscarded_; }
+    UInt_t nbLost()       const { return nbLost_; }
+    
+    UInt_t nbErrors()     const { return nbErrors_; }
+    UInt_t nbCrcErrors()  const { return nbCrcErrors_; }
+    UInt_t nbAllocSent()  const { return nbAllocSent_; }
     
     UInt_t nbBytes(bool reset=true);
     
@@ -99,12 +99,12 @@ namespace evf {
     //
     // private member functions
     //
-    void   lock();
-    void   unlock();
-    void   waitWriterSem();
-    void   postWriterSem();
-    void   waitReaderSem();
-    void   postReaderSem();
+    void   lock()          { lock_.take(); }
+    void   unlock()        { lock_.give(); }
+    void   waitWriterSem() { shmBuffer_->waitWriterSem(); }
+    void   postWriterSem() { shmBuffer_->postWriterSem(); }
+    void   waitReaderSem() { shmBuffer_->waitReaderSem(); }
+    void   postReaderSem() { shmBuffer_->postReaderSem(); }
     
 
   private:
@@ -117,25 +117,23 @@ namespace evf {
     BUProxy*          bu_;
     log4cplus::Logger log_;
     
-    WorkLoop_t*       workLoop_;
-    ActionSignature_t*workLoopActionSignature_;
+    WorkLoop_t*       workLoopDiscard_;
+    ActionSignature_t*asDiscard_;
 
-    bool              shmMode_;
     FUShmBuffer*      shmBuffer_;
-
     FUResourceVec_t   resources_;
-    UIntQueue_t       freeResourceIds_; 
-    UIntDeque_t       builtResourceIds_;
-
-    UInt_t            doCrcCheck_;
     
+    UInt_t            doCrcCheck_;
+
     UInt_t            nbAllocated_;
     UInt_t            nbPending_;
     UInt_t            nbCompleted_;
     UInt_t            nbDiscarded_;
     UInt_t            nbProcessed_;
     UInt_t            nbLost_;
+    
     UInt_t            nbClientsToShutDown_;
+    bool              isReadyToShutDown_;
     
     UInt_t            nbErrors_;
     UInt_t            nbCrcErrors_;
@@ -144,8 +142,6 @@ namespace evf {
     UInt_t            nbBytes_;
 
     BSem              lock_;
-    sem_t             writeSem_;
-    sem_t             readSem_;
     
   };
   
@@ -155,7 +151,17 @@ namespace evf {
 //
 // implementation of inline member functions
 //
-#include "EventFilter/ResourceBroker/interface/FUResourceTable.icc"
+
+//______________________________________________________________________________
+inline
+evf::UInt_t evf::FUResourceTable::nbBytes(bool reset)
+{
+  lock();
+  UInt_t result=nbBytes_;
+  if (reset) nbBytes_=0;
+  unlock();
+  return result;
+}
 
 
 #endif

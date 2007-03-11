@@ -70,7 +70,6 @@ FUResourceBroker::FUResourceBroker(xdaq::ApplicationStub *s)
   , nbLostEvents_(0)
   , nbDataErrors_(0)
   , nbCrcErrors_(0)
-  , shmMode_(false)
   , eventBufferSize_(4194304) // 4MB
   //, doDumpFragments_(false)
   , doDropEvents_(false)
@@ -87,7 +86,7 @@ FUResourceBroker::FUResourceBroker(xdaq::ApplicationStub *s)
   // setup finite state machine (binding relevant callbacks)
   fsm_.initialize<evf::FUResourceBroker>(this);
   
-  // set source id in evf::RunBase
+  // set url, class, instance, and sourceId (=class_instance)
   url_     =
     getApplicationDescriptor()->getContextDescriptor()->getURL()+"/"+
     getApplicationDescriptor()->getURN();
@@ -151,8 +150,8 @@ bool FUResourceBroker::configuring(toolbox::task::WorkLoop* wl)
   try {
     LOG4CPLUS_INFO(log_, "Start configuring ...");
     connectToBUs();
-    resourceTable_=new FUResourceTable(queueSize_,eventBufferSize_,shmMode_,
-				       bu_[buInstance_],log_);
+    resourceTable_=new FUResourceTable(queueSize_,eventBufferSize_,bu_[buInstance_],
+				       log_);
     resourceTable_->resetCounters();
     reset();
     LOG4CPLUS_INFO(log_, "Finished configuring!");
@@ -174,10 +173,9 @@ bool FUResourceBroker::enabling(toolbox::task::WorkLoop* wl)
   try {
     LOG4CPLUS_INFO(log_, "Start enabling ...");
     initTimer();
-    if (shmMode_) resourceTable_->startWorkLoop();
+    resourceTable_->startDiscardWorkLoop();
     resourceTable_->sendAllocate();
     LOG4CPLUS_INFO(log_, "Finished enabling!");
-    
     fsm_.fireEvent("EnableDone",this);
   }
   catch (xcept::Exception &e) {
@@ -194,14 +192,9 @@ bool FUResourceBroker::stopping(toolbox::task::WorkLoop* wl)
 {
   try {
     LOG4CPLUS_INFO(log_, "Start stopping :) ...");
-    while (resourceTable_->nbDiscarded()<resourceTable_->nbCompleted()) {
-      LOG4CPLUS_INFO(log_,"Waiting for events to be consumed ...");
-      ::sleep(1);
-    }
-    stopTimer();
     resourceTable_->shutDownClients();
+    stopTimer();
     LOG4CPLUS_INFO(log_, "Finished stopping!");
-    
     fsm_.fireEvent("StopDone",this);
   }
   catch (xcept::Exception &e) {
@@ -218,15 +211,11 @@ bool FUResourceBroker::halting(toolbox::task::WorkLoop* wl)
 {
   try {
     LOG4CPLUS_INFO(log_, "Start halting ...");
-    while (resourceTable_->nbDiscarded()<resourceTable_->nbCompleted()) {
-      LOG4CPLUS_INFO(log_,"Waiting for events to be consumed ...");
-      ::sleep(1);
-    }
-    stopTimer();
     resourceTable_->shutDownClients();
+    stopTimer();
     UInt_t count = 0;
     while (count<10) {
-      if (resourceTable_->nbShmClients()==0) {
+      if (resourceTable_->isReadyToShutDown()) {
 	delete resourceTable_;
 	resourceTable_=0;
 	LOG4CPLUS_INFO(log_,++count<<". try to destroy resource table succeeded!");
@@ -240,7 +229,7 @@ bool FUResourceBroker::halting(toolbox::task::WorkLoop* wl)
     if (0!=resourceTable_) LOG4CPLUS_ERROR(log_,"Failed to destroy resource table.");
     LOG4CPLUS_INFO(log_, "Finished halting!");
     
-    fsm_.fireEvent("HaltDone",this);
+      fsm_.fireEvent("HaltDone",this);
   }
   catch (xcept::Exception &e) {
     std::string msg = "halting FAILED: " + (string)e.what();
@@ -301,8 +290,8 @@ void FUResourceBroker::initTimer()
     toolbox::task::Timer *timer=toolbox::task::getTimerFactory()->getTimer(sourceId_);
     timer->stop();
   }
-  catch (toolbox::task::exception::Exception& e) {
-    LOG4CPLUS_WARN(log_,"FUResourceBroker::initTimer() failed.");
+  catch (xcept::Exception& e) {
+    LOG4CPLUS_WARN(log_,"FUResourceBroker::initTimer() failed: "<<e.what());
   }
 }
 
@@ -318,8 +307,8 @@ void FUResourceBroker::startTimer()
     timer->scheduleAtFixedRate(startTime,this,oneSec,gui_->monInfoSpace(),sourceId_);
     
   }
-  catch (toolbox::task::exception::Exception& e) {
-    LOG4CPLUS_WARN(log_,"FUResourceBroker::startTimer() failed.");
+  catch (xcept::Exception& e) {
+    LOG4CPLUS_WARN(log_,"FUResourceBroker::startTimer() failed: "<<e.what());
   }
 }
 
@@ -332,8 +321,8 @@ void FUResourceBroker::stopTimer()
     timer->stop();
     toolbox::task::getTimerFactory()->removeTimer(sourceId_);
   }
-  catch (toolbox::task::exception::Exception& e) {
-    LOG4CPLUS_WARN(log_,"FUResourceBroker::stopTimer() failed.");
+  catch (xcept::Exception& e) {
+    LOG4CPLUS_WARN(log_,"FUResourceBroker::stopTimer() failed: "<<e.what());
   }
 }
 
@@ -417,21 +406,10 @@ void FUResourceBroker::connectToBUs()
 //______________________________________________________________________________
 void FUResourceBroker::I2O_FU_TAKE_Callback(toolbox::mem::Reference* bufRef)
 {
-  // start the timer only upon receiving the first message
   if (nbTakeReceived_.value_==0) startTimer();
-  
   nbTakeReceived_.value_++;
-
   bool eventComplete=resourceTable_->buildResource(bufRef);
-
-  if (eventComplete&&doDropEvents_) {
-      UInt_t evtNumber, buResourceId;
-      FEDRawDataCollection *fedColl=
-	resourceTable_->rqstEvent(evtNumber,buResourceId);
-      resourceTable_->sendDiscard(buResourceId);
-      if (!shmMode_) delete fedColl;
-  }
-  
+  if (eventComplete&&doDropEvents_) resourceTable_->dropEvent();
 }
 
 
@@ -477,7 +455,6 @@ void FUResourceBroker::exportParameters()
   gui_->addMonitorCounter("nbDataErrors",     &nbDataErrors_);
   gui_->addMonitorCounter("nbCrcErrors",      &nbCrcErrors_);
 
-  gui_->addStandardParam("shmMode",           &shmMode_);
   gui_->addStandardParam("eventBufferSize",   &eventBufferSize_);
   //gui_->addStandardParam("doDumpLostEvents",   &doDumpLostEvents_);
   gui_->addStandardParam("doDropEvents",      &doDropEvents_);

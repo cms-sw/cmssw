@@ -46,28 +46,6 @@ bool FUResource::doFedIdCheck_ = true;
 ////////////////////////////////////////////////////////////////////////////////
 
 //______________________________________________________________________________
-FUResource::FUResource(UInt_t fuResourceId,UInt_t eventBufferSize,
-		       log4cplus::Logger logger)
-  : log_(logger)
-  , fuResourceId_(fuResourceId)
-  , superFragHead_(0)
-  , superFragTail_(0)
-  , eventBufferSize_(eventBufferSize)
-  , nFedMax_(1024)
-  , nSuperFragMax_(64)
-  , nbBytes_(0)
-  , superFragSize_(0)
-  , eventSize_(0)
-  , eventBuffer_(0)
-  , fedData_(0)
-{
-  eventBuffer_=new FUShmBufferCell(fuResourceId_,eventBufferSize_,
-				   nFedMax_,nSuperFragMax_,true);
-  release();
-}
-
-
-//______________________________________________________________________________
 FUResource::FUResource(FUShmBufferCell* eventBuffer,log4cplus::Logger logger)
   : log_(logger)
   , superFragHead_(0)
@@ -76,7 +54,6 @@ FUResource::FUResource(FUShmBufferCell* eventBuffer,log4cplus::Logger logger)
   , superFragSize_(0)
   , eventSize_(0)
   , eventBuffer_(eventBuffer)
-  , fedData_(0)
 {
   fuResourceId_   =eventBuffer_->fuResourceId();
   eventBufferSize_=eventBuffer_->bufferSize();
@@ -90,9 +67,7 @@ FUResource::FUResource(FUShmBufferCell* eventBuffer,log4cplus::Logger logger)
 //______________________________________________________________________________
 FUResource::~FUResource()
 {
-  if (0!=eventBuffer_) 
-    eventBuffer_->ownsMemory() ?
-      delete eventBuffer_ : eventBuffer_->~FUShmBufferCell();
+  
 }
 
 
@@ -104,7 +79,6 @@ FUResource::~FUResource()
 void FUResource::allocate()
 {
   release();
-  if (eventBuffer_->ownsMemory()) fedData_=new FEDRawDataCollection();
 }
 
 
@@ -139,7 +113,6 @@ void FUResource::release()
   nbCrcErrors_  =0;
   eventSize_    =0;
   eventBuffer_->clear();
-  fedData_      =0;
 }
 
 
@@ -710,22 +683,6 @@ void FUResource::findFEDs() throw (evf::Exception)
   }
   
   return;
-}
-
-
-//______________________________________________________________________________
-void FUResource::fillFEDs()
-{
-  UInt_t nFed=eventBuffer_->nFed();
-  for (UInt_t i=0;i<nFed;i++) {
-    UInt_t fedSize=eventBuffer_->fedSize(i);
-    if (fedSize>0) {
-      FEDRawData& fed=fedData_->FEDData(i);
-      fed.resize(fedSize);
-      UChar_t* targetAddr=fed.data();
-      eventBuffer_->readFed(i,targetAddr);
-    }
-  }
 }
 
 

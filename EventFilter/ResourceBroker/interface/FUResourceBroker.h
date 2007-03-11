@@ -160,7 +160,6 @@ namespace evf {
     xdata::UnsignedInteger32 nbCrcErrors_;
 
     // standard parameters
-    xdata::Boolean           shmMode_;
     xdata::UnsignedInteger32 eventBufferSize_;
     //xdata::Boolean           doDumpFragments_;
     xdata::Boolean           doDropEvents_;

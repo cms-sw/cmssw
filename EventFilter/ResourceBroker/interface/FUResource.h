@@ -5,7 +5,6 @@
 #include "EventFilter/ResourceBroker/interface/FUTypes.h"
 #include "EventFilter/ShmBuffer/interface/FUShmBufferCell.h"
 #include "EventFilter/Utilities/interface/Exception.h"
-#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 
 #include "extern/log4cplus/linuxx86/include/log4cplus/logger.h"
 #include "toolbox/include/toolbox/mem/Reference.h"
@@ -21,8 +20,7 @@ namespace evf {
     //
     // construction/destruction
     //
-    FUResource(UInt_t fuResourceId,UInt_t eventBufferSize,log4cplus::Logger logger);
-    FUResource(FUShmBufferCell* eventBuffer, log4cplus::Logger logger);
+    FUResource(FUShmBufferCell* eventBuffer,log4cplus::Logger logger);
     virtual ~FUResource();
     
     
@@ -40,7 +38,6 @@ namespace evf {
     void   superFragSize()       throw (evf::Exception);
     void   fillSuperFragBuffer() throw (evf::Exception);
     void   findFEDs()            throw (evf::Exception);
-    void   fillFEDs();
     
     void   releaseSuperFrag();
 
@@ -59,9 +56,6 @@ namespace evf {
     UInt_t nbCrcErrors(bool reset=true);
     UInt_t nbBytes(bool reset=true);
 
-    FEDRawDataCollection* fedData() { return fedData_; }
-    
-    
     
   private:
     //
@@ -98,8 +92,6 @@ namespace evf {
     UInt_t    eventSize_;
     
     evf::FUShmBufferCell* eventBuffer_;
-    
-    FEDRawDataCollection* fedData_;
     
   };
   

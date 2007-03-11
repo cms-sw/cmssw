@@ -25,15 +25,15 @@ using namespace std;
 
 //______________________________________________________________________________
 FUResourceTable::FUResourceTable(UInt_t nbResources,UInt_t eventBufferSize,
-				 bool shmMode,BUProxy* bu,log4cplus::Logger logger)
+				 BUProxy* bu,log4cplus::Logger logger)
   : bu_(bu)
   , log_(logger)
-  , workLoop_(0)
-  , workLoopActionSignature_(0)
-  , shmMode_(shmMode)
+  , workLoopDiscard_(0)
+  , asDiscard_(0)
   , shmBuffer_(0)
   , doCrcCheck_(1)
   , nbClientsToShutDown_(0)
+  , isReadyToShutDown_(true)
   , lock_(BSem::FULL)
 {
   initialize(nbResources,eventBufferSize);
@@ -44,34 +44,14 @@ FUResourceTable::FUResourceTable(UInt_t nbResources,UInt_t eventBufferSize,
 FUResourceTable::~FUResourceTable()
 {
   clear();
-  if (shmMode_)
-    if (FUShmBuffer::releaseSharedMemory())
-      LOG4CPLUS_INFO(log_,"SHARED MEMORY SEGMENTS CLEANED UP SUCCESSFULLY.");
+  if (FUShmBuffer::releaseSharedMemory())
+    LOG4CPLUS_INFO(log_,"SHARED MEMORY SUCCESSFULLY RELEASED.");
 }
 
 
 ////////////////////////////////////////////////////////////////////////////////
 // implementation of member functions
 ////////////////////////////////////////////////////////////////////////////////
-
-//______________________________________________________________________________
-FEDRawDataCollection* FUResourceTable::rqstEvent(UInt_t& evtNumber,
-						 UInt_t& buResourceId)
-{
-  FEDRawDataCollection* result = requestResource(evtNumber,buResourceId);
-  sendAllocate();
-  return result;
-}
-
-
-//______________________________________________________________________________
-void FUResourceTable::sendDiscard(UInt_t buResourceId)
-{
-  bu_->sendDiscard(buResourceId);
-  nbDiscarded_++;
-  nbProcessed_++;
-}
-
 
 //______________________________________________________________________________
 void FUResourceTable::sendAllocate()
@@ -89,17 +69,31 @@ void FUResourceTable::sendAllocate()
 
 
 //______________________________________________________________________________
+void FUResourceTable::sendDiscard(UInt_t buResourceId)
+{
+  bu_->sendDiscard(buResourceId);
+  nbDiscarded_++;
+  nbProcessed_++;
+}
+
+
+//______________________________________________________________________________
+void FUResourceTable::dropEvent()
+{
+  waitReaderSem();
+  FUShmBufferCell* cell=shmBuffer_->currentReaderCell();
+  cell->setStateProcessed();
+  shmBuffer_->scheduleForDiscard(cell);
+}
+
+
+//______________________________________________________________________________
 void FUResourceTable::shutDownClients()
 {
-  if (!shmMode_) {
-    waitWriterSem();
-    builtResourceIds_.push_back(freeResourceIds_.front());
-    postReaderSem();
-    return;
-  }
-  
   nbClientsToShutDown_ = nbShmClients();
-  for (unsigned int i=0;i<nbClientsToShutDown_;++i) {
+  isReadyToShutDown_   = false;
+  
+  if (nbClientsToShutDown_==0) {
     waitWriterSem();
     FUShmBufferCell* cell=shmBuffer_->currentWriterCell();
     if (cell->isDead()) {
@@ -109,9 +103,22 @@ void FUResourceTable::shutDownClients()
       LOG4CPLUS_ERROR(log_,"cell "<<cell->index()<<" is in unexpected state!");
     }
     cell->setStateEmpty();
-    postReaderSem();
+    shmBuffer_->scheduleForDiscard(cell);
   }
-  
+  else {
+    for (unsigned int i=0;i<nbClientsToShutDown_;++i) {
+      waitWriterSem();
+      FUShmBufferCell* cell=shmBuffer_->currentWriterCell();
+      if (cell->isDead()) {
+	LOG4CPLUS_ERROR(log_,"LOST EVENT: evtNumber="<<cell->evtNumber());
+      }
+      else if (!cell->isEmpty()) {
+	LOG4CPLUS_ERROR(log_,"cell "<<cell->index()<<" is in unexpected state!");
+      }
+      cell->setStateEmpty();
+      postReaderSem();
+    }
+  }
 }
 
 
@@ -120,27 +127,14 @@ void FUResourceTable::initialize(UInt_t nbResources,UInt_t eventBufferSize)
 {
   clear();
   
-  if (shmMode_) {
-    shmBuffer_=FUShmBuffer::createShmBuffer(nbResources,eventBufferSize);
-    if (0==shmBuffer_) {
-      LOG4CPLUS_FATAL(log_,"CREATION OF SHARED MEMORY SEGMENT FAILED!");
-    }
-    else {
-      for (UInt_t i=0;i<nbResources;i++) {
-	resources_.push_back(new FUResource(shmBuffer_->cell(i),log_));
-      }
-    }
-  }
-  else {
-    for (UInt_t i=0;i<nbResources;i++) {
-      resources_.push_back(new FUResource(i,eventBufferSize,log_));
-      freeResourceIds_.push(i);
-    }
-    sem_init(&writeSem_,0,nbResources);
-    sem_init(&readSem_, 0,          0);
+  shmBuffer_=FUShmBuffer::createShmBuffer(nbResources,eventBufferSize);
+  if (0==shmBuffer_) {
+    LOG4CPLUS_FATAL(log_,"CREATION OF SHARED MEMORY SEGMENT FAILED!");
+    return;
   }
   
-  return;
+  for (UInt_t i=0;i<nbResources;i++)
+    resources_.push_back(new FUResource(shmBuffer_->cell(i),log_));
 }
 
 
@@ -149,27 +143,13 @@ void FUResourceTable::clear()
 {
   for (UInt_t i=0;i<resources_.size();i++) delete resources_[i];
   resources_.clear();
-  while (!freeResourceIds_.empty()) freeResourceIds_.pop();
-  builtResourceIds_.clear();
 }
 
 
 //______________________________________________________________________________
 void FUResourceTable::reset()
 {
-  if (shmMode_) {
-    shmBuffer_->initialize();
-  }
-  else {
-    while (!freeResourceIds_.empty()) freeResourceIds_.pop();
-    for (UInt_t i=0;i<resources_.size();i++) {
-      resources_[i]->release();
-      freeResourceIds_.push(i);
-    }
-    builtResourceIds_.clear();
-    sem_init(&writeSem_,0,resources_.size());
-    sem_init(&readSem_, 0,0);
-  }
+  shmBuffer_->initialize();
   resetCounters();
 }
 
@@ -192,40 +172,34 @@ void FUResourceTable::resetCounters()
 
 
 //______________________________________________________________________________
-void FUResourceTable::startWorkLoop() throw (evf::Exception)
+void FUResourceTable::startDiscardWorkLoop() throw (evf::Exception)
 {
-  // instantiate work loop
-  string workLoopName = "shmWorkLoop";
   try {
-    workLoop_ = toolbox::task::getWorkLoopFactory()->getWorkLoop(workLoopName,
-								 "waiting");
+    workLoopDiscard_=
+      toolbox::task::getWorkLoopFactory()->getWorkLoop("DiscardWorkLoop",
+						       "waiting");
   }
   catch (xcept::Exception& e) {
-    string msg = "Failed to create work loop '" + workLoopName + "'.";
+    string msg = "Failed to create DiscardWorkLoop.";
     XCEPT_RETHROW(evf::Exception,msg,e);
   }
   
-  // activate work loop
-  if (!workLoop_->isActive()) workLoop_->activate();
+  if (!workLoopDiscard_->isActive()) workLoopDiscard_->activate();
   
-  // submit work loop action to work loop
-  string workLoopActionName = "shmWorkLoopAction";
-  workLoopActionSignature_ = toolbox::task::bind(this,
-						 &FUResourceTable::workLoopAction,
-						 workLoopActionName);
+  asDiscard_=toolbox::task::bind(this,&FUResourceTable::discard,"Discard");
   try {
-    workLoop_->submit(workLoopActionSignature_);
+    workLoopDiscard_->submit(asDiscard_);
   }
   catch (xcept::Exception& e) {
-    string msg = "Failed to submit action to work loop '" + workLoopName + "'.";
+    string msg = "Failed to submit as Discard to workloop.";
     XCEPT_RETHROW(evf::Exception,msg,e);
   }
-  
+  isReadyToShutDown_ = false;
 }
 
 
 //______________________________________________________________________________
-bool FUResourceTable::workLoopAction(toolbox::task::WorkLoop* /* wl */)
+bool FUResourceTable::discard(toolbox::task::WorkLoop* /* wl */)
 {
   FUShmBufferCell* cell = shmBuffer_->cellToBeDiscarded();
   assert(cell->isProcessed()||cell->isEmpty());
@@ -235,7 +209,7 @@ bool FUResourceTable::workLoopAction(toolbox::task::WorkLoop* /* wl */)
   
   if (shutDown) {
     LOG4CPLUS_WARN(log_,"nbClientsToShutDown = "<<nbClientsToShutDown_);
-    --nbClientsToShutDown_;
+    if (nbClientsToShutDown_>0) --nbClientsToShutDown_;
     if (nbClientsToShutDown_==0) {
       LOG4CPLUS_WARN(log_,"Don't reschedule discard-workloop.");
       reschedule = false;
@@ -253,7 +227,9 @@ bool FUResourceTable::workLoopAction(toolbox::task::WorkLoop* /* wl */)
     sendDiscard(cell->buResourceId());
     sendAllocate();
   }
-
+  
+  if (!reschedule) isReadyToShutDown_ = true;
+  
   return reschedule;
 }
 
@@ -266,22 +242,14 @@ UInt_t FUResourceTable::allocateResource()
   
   waitWriterSem();
   
-  // shared memory mode: release resource
-  if (shmMode_) {
-    FUShmBufferCell* cell=shmBuffer_->currentWriterCell();
-    fuResourceId=cell->fuResourceId();
-    if (cell->isDead()) {
-      LOG4CPLUS_ERROR(log_,"DEAD EVENT: evtNumber="<<cell->evtNumber());
-      //cell->dump(); //TODO
-    }
-    cell->setStateWriting();
+  FUShmBufferCell* cell=shmBuffer_->currentWriterCell();
+  fuResourceId=cell->fuResourceId();
+  if (cell->isDead()) {
+    LOG4CPLUS_ERROR(log_,"DEAD EVENT: evtNumber="<<cell->evtNumber());
+    //cell->dump(); //TODO
   }
-  // standard mode: use queue to manage free resources
-  else {
-    fuResourceId=freeResourceIds_.front();
-    freeResourceIds_.pop();
-  }
-
+  cell->setStateWriting();
+  
   // initialize the new resource and update the relevant counters
   resources_[fuResourceId]->allocate();
   nbPending_++;
@@ -317,21 +285,12 @@ bool FUResourceTable::buildResource(MemRef_t* bufRef)
     
     // make resource available for pick-up
     if (resource->isComplete()) {
-      if (shmMode_) {
-	shmBuffer_->cell(fuResourceId)->setStateWritten();
-      }
-      else {
-	resource->fillFEDs();
-	builtResourceIds_.push_front(fuResourceId);
-      }
-      
+      shmBuffer_->cell(fuResourceId)->setStateWritten();
       lock();
       nbCompleted_++;
       nbPending_--;
       unlock();
-
       postReaderSem();
-
       eventComplete=true;
     }
     
@@ -341,10 +300,6 @@ bool FUResourceTable::buildResource(MemRef_t* bufRef)
     bool lastMsg=isLastMessageOfEvent(bufRef);
     bufRef->release();
     if (lastMsg) {
-      if (!shmMode_) {
-	delete resource->fedData();
-	freeResourceIds_.push(fuResourceId);
-      }
       resource->release();
       lock();
       bu_->sendDiscard(buResourceId);
@@ -357,49 +312,6 @@ bool FUResourceTable::buildResource(MemRef_t* bufRef)
   }
   
   return eventComplete;
-}
-
-
-//______________________________________________________________________________
-FEDRawDataCollection* FUResourceTable::requestResource(UInt_t& evtNumber,
-						       UInt_t& buResourceId)
-  // This is *the* way to pick up an available resource in standard mode,
-  // and it is used as well in shm mode if events are being dropped.
-{
-  FEDRawDataCollection* result(0);
-  
-  waitReaderSem();
-  
-  lock();
-  
-  // for droping mode!
-  if (shmMode_) {
-    FUShmBufferCell* cell=shmBuffer_->currentReaderCell();
-    cell->setStateProcessed();
-  }
-  else {
-    UInt_t      fuResourceId=builtResourceIds_.back();
-    FUResource* resource    =resources_[fuResourceId];
-    builtResourceIds_.pop_back();  
-    result      =resource->fedData();
-    
-    if (result!=0) {
-      assert(resource->isComplete());
-      assert(!resource->fatalError());
-      
-      evtNumber   =resource->evtNumber();
-      buResourceId=resource->buResourceId();
-  
-      resource->release();
-      freeResourceIds_.push(fuResourceId);
-    }
-  }
-  
-  unlock();
-  
-  postWriterSem();
-  
-  return result;
 }
 
 
@@ -423,7 +335,7 @@ bool FUResourceTable::isLastMessageOfEvent(MemRef_t* bufRef)
 UInt_t FUResourceTable::nbShmClients() const
 {
   UInt_t result(0);
-  if (shmMode_&&0!=shmBuffer_)
+  if (0!=shmBuffer_)
     result=FUShmBuffer::shm_nattch(shmBuffer_->shmid())-1;
   return result;
 }
