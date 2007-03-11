@@ -24,76 +24,44 @@ using namespace evf;
 FUShmBufferCell::FUShmBufferCell(unsigned int index,
 				 unsigned int bufferSize,
 				 unsigned int nFed,
-				 unsigned int nSuperFrag,
-				 bool         ownsMemory)
-  : ownsMemory_(ownsMemory)
-  , fuResourceId_(index)
+				 unsigned int nSuperFrag)
+  : fuResourceId_(index)
   , nSkip_(0)
   , bufferSize_(bufferSize)
   , nFed_(nFed)
   , nSuperFrag_(nSuperFrag)
 {
-  if (this->ownsMemory()) {
-    unsigned int* fedSizeArray=new unsigned int[nFed_];
-    fedSizeOffset_=(unsigned int)fedSizeArray-(unsigned int)this;
-    unsigned int* fedArray=new unsigned int[nFed_];
-    fedOffset_=(unsigned int)fedArray-(unsigned int)this;
-    unsigned int* superFragSizeArray=new unsigned int[nSuperFrag_];
-    superFragSizeOffset_=(unsigned int)superFragSizeArray-(unsigned int)this;
-    unsigned int* superFragArray=new unsigned int[nSuperFrag_];
-    superFragOffset_=(unsigned int)superFragArray-(unsigned int)this;
-    unsigned char* buffer=new unsigned char[bufferSize_];
-    bufferOffset_=(unsigned int)buffer-(unsigned int)this;
-  }
-  else {
-    fedSizeOffset_=sizeof(FUShmBufferCell);
-    unsigned int* fedSizeAddr;
-    fedSizeAddr=(unsigned int*)((unsigned int)this+fedSizeOffset_);
-    new(fedSizeAddr) unsigned int[nFed_];
-   
-    fedOffset_=fedSizeOffset_+sizeof(unsigned int)*nFed_;
-    unsigned int* fedAddr;
-    fedAddr=(unsigned int*)((unsigned int)this+fedOffset_);
-    new(fedAddr) unsigned int[nFed_];
-   
-    superFragSizeOffset_=fedOffset_+sizeof(unsigned int)*nFed_;
-    unsigned int* superFragSizeAddr;
-    superFragSizeAddr=(unsigned int*)((unsigned int)this+superFragSizeOffset_);
-    new(superFragSizeAddr) unsigned int[nSuperFrag_];
-    
-    superFragOffset_=superFragSizeOffset_+sizeof(unsigned int)*nSuperFrag_;
-    unsigned char* superFragAddr;
-    superFragAddr=(unsigned char*)((unsigned int)this+superFragOffset_);
-    new(superFragAddr) unsigned char[nSuperFrag_];
-
-    bufferOffset_=superFragOffset_+sizeof(unsigned int)*nSuperFrag_;
-    unsigned char* bufferAddr;
-    bufferAddr=(unsigned char*)((unsigned int)this+bufferOffset_);
-    new(bufferAddr) unsigned char[bufferSize_];
-  }
+  fedSizeOffset_=sizeof(FUShmBufferCell);
+  unsigned int* fedSizeAddr;
+  fedSizeAddr=(unsigned int*)((unsigned int)this+fedSizeOffset_);
+  new(fedSizeAddr) unsigned int[nFed_];
+  
+  fedOffset_=fedSizeOffset_+sizeof(unsigned int)*nFed_;
+  unsigned int* fedAddr;
+  fedAddr=(unsigned int*)((unsigned int)this+fedOffset_);
+  new(fedAddr) unsigned int[nFed_];
+  
+  superFragSizeOffset_=fedOffset_+sizeof(unsigned int)*nFed_;
+  unsigned int* superFragSizeAddr;
+  superFragSizeAddr=(unsigned int*)((unsigned int)this+superFragSizeOffset_);
+  new(superFragSizeAddr) unsigned int[nSuperFrag_];
+  
+  superFragOffset_=superFragSizeOffset_+sizeof(unsigned int)*nSuperFrag_;
+  unsigned char* superFragAddr;
+  superFragAddr=(unsigned char*)((unsigned int)this+superFragOffset_);
+  new(superFragAddr) unsigned char[nSuperFrag_];
+  
+  bufferOffset_=superFragOffset_+sizeof(unsigned int)*nSuperFrag_;
+  unsigned char* bufferAddr;
+  bufferAddr=(unsigned char*)((unsigned int)this+bufferOffset_);
+  new(bufferAddr) unsigned char[bufferSize_];
 }
 
 
 //______________________________________________________________________________
 FUShmBufferCell::~FUShmBufferCell()
 {
-  if (ownsMemory()) {
-    unsigned int* fedSizeAddr;
-    fedSizeAddr=(unsigned int*)((unsigned int)this+fedSizeOffset_);
-    delete [] fedSizeAddr;
-    unsigned int* fedAddr;
-    fedAddr=(unsigned int*)((unsigned int)this+fedOffset_);
-    delete [] fedAddr;
-    unsigned int* superFragSizeAddr;
-    superFragSizeAddr=(unsigned int*)((unsigned int)this+superFragSizeOffset_);
-    delete [] superFragSizeAddr;
-    unsigned int* superFragAddr;
-    superFragAddr=(unsigned int*)((unsigned int)this+superFragOffset_);
-    delete [] superFragAddr;
-    unsigned char* bufferAddr;
-    bufferAddr=(unsigned char*)((unsigned int)this+bufferOffset_);
-    delete [] bufferAddr;
-  }
+
 }
 
 
@@ -212,7 +180,6 @@ void FUShmBufferCell::print(int verbose) const
       <<" buResourceId="<<buResourceId()
       <<" evtNumber="<<evtNumber()
       <<" this=0x"<<hex<<(int)this<<dec
-      <<" ownsMemory="<<ownsMemory()
       <<endl
       <<"                "
       <<" bufferSize="<<bufferSize()

@@ -34,10 +34,8 @@ FUShmBuffer::FUShmBuffer(int shmid,int semid,
 			 unsigned int  nCell,
 			 unsigned int  cellBufferSize,
 			 unsigned int  nFed,
-			 unsigned int  nSuperFrag,
-			 bool          ownsMemory)
-  : ownsMemory_(ownsMemory)
-  , shmid_(shmid)
+			 unsigned int  nSuperFrag)
+  : shmid_(shmid)
   , semid_(semid)
   , nCell_(nCell)
   , cellBufferSize_(cellBufferSize)
@@ -47,19 +45,12 @@ FUShmBuffer::FUShmBuffer(int shmid,int semid,
   , cellSize_(0)
   // don't initialize readIndex_/writeIndex_, might have been set by another prc!
 {
-  cellSize_=FUShmBufferCell::size(cellBufferSize_,nFed_,nSuperFrag_);
-  
-  if (ownsMemory_) {
-    unsigned char* buffer=new unsigned char[nCell_*cellSize_];
-    cellOffset_=(unsigned int)buffer-(unsigned int)this;
-  }
-  else {
-    cellOffset_=sizeof(FUShmBuffer);
-  }
+  cellSize_  =FUShmBufferCell::size(cellBufferSize_,nFed_,nSuperFrag_);
+  cellOffset_=sizeof(FUShmBuffer);
   
   for (unsigned int i=0;i<nCell_;i++) {
     void* addr=(void*)((unsigned int)this+cellOffset_+i*cellSize_);
-    new(addr) FUShmBufferCell(i,cellBufferSize_,nFed_,nSuperFrag_,false);
+    new(addr) FUShmBufferCell(i,cellBufferSize_,nFed_,nSuperFrag_);
   }
 }
 
@@ -67,13 +58,7 @@ FUShmBuffer::FUShmBuffer(int shmid,int semid,
 //______________________________________________________________________________
 FUShmBuffer::~FUShmBuffer()
 {
-  if (ownsMemory()) {
-    unsigned char* buffer=(unsigned char*)((unsigned int)this+cellOffset_);
-    if (0!=buffer) delete [] buffer;
-  }
-  //else {
-  //  shmdt((void*)this);
-  //}
+  
 }
 
 
@@ -202,7 +187,6 @@ void FUShmBuffer::print(int verbose)
 
   cout<<"shmid="      <<shmid()
       <<" semid="     <<semid()
-      <<" ownsMeory=" <<ownsMemory()
       <<" readIndex=" <<readIndex()
       <<" writeIndex="<<writeIndex()
       <<endl
@@ -295,8 +279,7 @@ FUShmBuffer* FUShmBuffer::createShmBuffer(unsigned int nCell,
 					       nCell,
 					       cellBufferSize,
 					       nFed,
-					       nSuperFrag,
-					       false);
+					       nSuperFrag);
   cout<<"FUShmBuffer::createShmBuffer(): created shared memory buffer."<<endl;
   
   // as the creator, intitialize the buffer
@@ -363,8 +346,7 @@ FUShmBuffer* FUShmBuffer::getShmBuffer()
 					       nCell,
 					       cellBufferSize,
 					       nFed,
-					       nSuperFrag,
-					       false);
+					       nSuperFrag);
   cout<<"FUShmBuffer::getShmBuffer(): got shared memory buffer."<<endl;
   
   return buffer;
@@ -511,7 +493,7 @@ void* FUShmBuffer::shm_attach(int shmid)
 
 
 //______________________________________________________________________________
-void FUShmBuffer::shm_dettach(void* addr)
+void FUShmBuffer::shm_detach(void* addr)
 {
   shmdt(addr);
 }

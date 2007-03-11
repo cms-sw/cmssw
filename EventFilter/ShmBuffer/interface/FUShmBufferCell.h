@@ -16,16 +16,13 @@ namespace evf {
     FUShmBufferCell(unsigned int index,
 		    unsigned int bufferSize,
 		    unsigned int nFed,
-		    unsigned int nSuperFrag,
-		    bool         ownsMemory=true);
+		    unsigned int nSuperFrag);
     ~FUShmBufferCell();
     
     
     //
     // member functions
     //
-    bool           ownsMemory()                   const { return ownsMemory_; }
-
     unsigned int   index()                        const { return fuResourceId_; }
     unsigned int   fuResourceId()                 const { return fuResourceId_; }
     unsigned int   buResourceId()                 const { return buResourceId_; }
@@ -90,7 +87,6 @@ namespace evf {
     //
     // member data
     //
-    bool         ownsMemory_;
     unsigned int fuResourceId_;
     unsigned int buResourceId_;
     unsigned int evtNumber_;

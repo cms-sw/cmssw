@@ -1,5 +1,18 @@
 2007-03-11  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
+	* tag V00-01-00
+	* remove option 'ownsMemory': before, a FUShmBuffer[Cell] could be
+	constructed in regular memory. Not anymore!
+	* there should be no use case for this anymore, but if (?!)
+	anybody would ever be tempted to construct a FUShmBufferCell
+	outside the static accessors of FUShmBuffer, it *must* be via a
+	'placement new': cell = new (addr) FUShmBufferCell(..), where addr
+	better point to a valid chunk of shared memory. DON'T DO IT!
+	* fixed typo in API: shm_dettach -> shm_detach (spotted by
+	Emilio:)
+
+2007-03-11  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
 	* tag V00-00-01
 	* first import into CVS
 	* the classes FUShmBuffer and FUShmBufferCell are being transfered

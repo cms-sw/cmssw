@@ -23,8 +23,7 @@ namespace evf {
 		unsigned int  nCell,
 		unsigned int  cellBufferSize,
 		unsigned int  nFed,
-		unsigned int  nSuperFrag,
-		bool          ownsMemory=true);
+		unsigned int  nSuperFrag);
   public:
     ~FUShmBuffer();
     
@@ -32,7 +31,6 @@ namespace evf {
     //
     // member functions
     //
-    bool             ownsMemory()     const { return ownsMemory_; }
     int              shmid()          const { return shmid_; }
     int              semid()          const { return semid_; }
     unsigned int     nCell()          const { return nCell_; }
@@ -95,7 +93,7 @@ namespace evf {
     static int          shm_create(key_t key,int size);
     static int          shm_get(key_t key,int size);
     static void*        shm_attach(int shmid);
-    static void         shm_dettach(void* addr);
+    static void         shm_detach(void* addr);
     static int          shm_nattch(int shmid);
     static int          shm_destroy(int shmid);
     
@@ -116,7 +114,6 @@ namespace evf {
     //
     // member data
     //
-    bool            ownsMemory_;
     int             shmid_;
     int             semid_;
     unsigned int    writeIndex_;
