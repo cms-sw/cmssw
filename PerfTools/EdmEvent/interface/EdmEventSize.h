@@ -70,6 +70,8 @@ namespace perftools {
     void produceHistos(std::string const & plot, std::string const & file, int top=0) const; 
 
   private:
+    std::string m_fileName;
+    int m_nEvents;
     Branches m_branches;
 
   };

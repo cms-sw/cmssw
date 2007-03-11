@@ -65,13 +65,17 @@ namespace {
 
 namespace perftools {
 
-  EdmEventSize::EdmEventSize() {}
+  EdmEventSize::EdmEventSize() : 
+    m_nEvents(0) {}
   
-  EdmEventSize::EdmEventSize(std::string const & fileName) {
+  EdmEventSize::EdmEventSize(std::string const & fileName) : 
+    m_nEvents(0) {
     parseFile(fileName);
   }
   
   void EdmEventSize::parseFile(std::string const & fileName) {
+    m_fileName = fileName;
+    m_branches.clear();
 
     TFile * file = TFile::Open( fileName.c_str() );
     if( ! (*file).IsOpen() )
@@ -85,8 +89,8 @@ namespace perftools {
     if ( events == 0 )
       throw Error("object \"Events\" is not a TTree in file: " + fileName, 7004);
     
-    int nEvents = events->GetEntries();
-    if ( nEvents == 0 )
+    int m_nEvents = events->GetEntries();
+    if ( m_nEvents == 0 )
       throw Error("tree \"Events\" in file " + fileName + " contains no Events", 7005);
 
 
@@ -102,7 +106,7 @@ namespace perftools {
       std::string const name( b->GetName() );
       if ( name == "EventAux" ) continue;
       size_type s = getTotalSize(b);
-      m_branches.push_back( BranchRecord(name, double(s[0])/double(nEvents), double(s[1])/double(nEvents)) );
+      m_branches.push_back( BranchRecord(name, double(s[0])/double(m_nEvents), double(s[1])/double(m_nEvents)) );
     }
     std::sort(m_branches.begin(),m_branches.end(), 
 	      boost::bind(std::greater<double>(),
@@ -127,6 +131,7 @@ namespace perftools {
       size_t e = br.fullName.rfind('_');
       if (b==e) br.name=br.fullName;
       else {
+	// remove type and process
 	br.name = br.fullName.substr(b+1,e-b-1);
 	// check if a label is present
 	// if not add the type name
@@ -153,7 +158,9 @@ namespace perftools {
   }
 
   
-  void EdmEventSize::dump(std::ostream & co) const {
+  void EdmEventSize::dump(std::ostream & co, bool header) const {
+    if (header) 
+      co << "File " << m_fileName << " Events " << m_nEvents << "\n";
     std::for_each(m_branches.begin(),m_branches.end(),
 		  boost::bind(detail::dump,boost::ref(co),_1));
   }
