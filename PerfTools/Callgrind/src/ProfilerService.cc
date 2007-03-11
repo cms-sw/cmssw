@@ -23,11 +23,11 @@ ProfilerService::ProfilerService(edm::ParameterSet const& pset,
   m_allPaths = std::find(m_paths.begin(),m_paths.end(),allPaths) != m_paths.end();
  
 
-    activity.watchPreProcessEvent(this,&ProfilerService::beginEventI);
-    activity.watchPostProcessEvent(this,&ProfilerService::endEventI);
-    activity.watchPreProcessPath(this,&ProfilerService::beginPathI);
-    activity.watchPostProcessPath(this,&ProfilerService::endPathI);
-
+  activity.watchPreProcessEvent(this,&ProfilerService::beginEventI);
+  activity.watchPostProcessEvent(this,&ProfilerService::endEventI);
+  activity.watchPreProcessPath(this,&ProfilerService::beginPathI);
+  activity.watchPostProcessPath(this,&ProfilerService::endPathI);
+  
 }
 
 ProfilerService::~ProfilerService(){}
