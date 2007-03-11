@@ -1,6 +1,6 @@
-<use name=DataFormats/FEDRawData>
 <use name=IORawData/DaqSource>
-<use name=EventFilter/ResourceBroker>
+<use name=EventFilter/ShmBuffer>
+<use name=DataFormats/FEDRawData>
 
 <flags SEAL_PLUGIN_NAME="EventFilterShmReader">
 

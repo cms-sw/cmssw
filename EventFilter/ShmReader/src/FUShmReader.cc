@@ -78,6 +78,7 @@ bool FUShmReader::fillRawData(EventID& eID,
   }
 
   // wait for an event to become available, retrieve it
+  shmBuffer_->sem_print();
   shmBuffer_->waitReaderSem();
   FUShmBufferCell* newCell=shmBuffer_->currentReaderCell();
   
@@ -85,8 +86,7 @@ bool FUShmReader::fillRawData(EventID& eID,
   if (newCell->isEmpty()) {
     edm::LogInfo("ShutDown")<<"Received empty event, shut down."<<endl;
     shmBuffer_->scheduleForDiscard(newCell);
-    shmBuffer_->postWriterSem();
-    FUShmBuffer::shm_dettach((void*)shmBuffer_);
+    FUShmBuffer::shm_detach((void*)shmBuffer_);
     shmBuffer_=0;
     event_=0;
     return false;

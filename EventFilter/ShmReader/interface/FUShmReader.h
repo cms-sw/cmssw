@@ -2,7 +2,7 @@
 #define FUSHMREADER_H 1
 
 
-#include "EventFilter/ResourceBroker/interface/FUShmBuffer.h"
+#include "EventFilter/ShmBuffer/interface/FUShmBuffer.h"
 #include "IORawData/DaqSource/interface/DaqBaseReader.h"
 #include "DataFormats/Provenance/interface/EventID.h"
 

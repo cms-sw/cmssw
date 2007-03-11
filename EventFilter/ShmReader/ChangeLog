@@ -1,3 +1,11 @@
+2007-03-11  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-03-00
+	* depend on EventFilter/ShmBuffer instead of
+	EventFilter/ResourceBroker
+	* adjust to API typo fix of FUShmBuffer: shm_dettach -> shm_detach
+	* (yet another) fix to shutdown procedure.
+
 2007-03-10  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-02-01
