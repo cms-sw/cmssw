@@ -89,7 +89,7 @@ namespace perftools {
     if ( events == 0 )
       throw Error("object \"Events\" is not a TTree in file: " + fileName, 7004);
     
-    int m_nEvents = events->GetEntries();
+    m_nEvents = events->GetEntries();
     if ( m_nEvents == 0 )
       throw Error("tree \"Events\" in file " + fileName + " contains no Events", 7005);
 
