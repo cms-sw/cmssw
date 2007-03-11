@@ -30,8 +30,9 @@ They can be used by other modules and services though...
 <!-- Describe modules implemented in this package and their parameter set -->
 
 -  StartProfilerAnalyzer: start profiler (callgrind) instrumentation
--  StopProfilerAnalyzer:  stop profiler instrumentation 
-no set of parameters required
+-  StopProfilerAnalyzer:  stop profiler instrumentation
+
+No set of parameters required
 
 \subsection services Services
 <!-- Describe services implemented in this package and their parameter set -->
