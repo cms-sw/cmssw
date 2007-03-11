@@ -42,7 +42,7 @@ no set of parameters required
 \subsection tests Unit tests and examples
 <!-- Describe cppunit tests and example configuration files -->
 - testPerfToolsCallgrind: a unit test of public and internal API of the ProfilerService
--
+- test.cfg: integration test of Service and Analyzers
 
 \section status Status and planned development
 <!-- e.g. completed, stable, missing features -->
