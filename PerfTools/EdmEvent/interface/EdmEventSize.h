@@ -64,7 +64,7 @@ namespace perftools {
     void shortNames();
 
     /// dump the ascii table on "co"
-    void dump(std::ostream & co,, bool header=true) const;
+    void dump(std::ostream & co, bool header=true) const;
 
     /// produce histograms and optionally write them in "file" or as "plot"
     void produceHistos(std::string const & plot, std::string const & file, int top=0) const; 
