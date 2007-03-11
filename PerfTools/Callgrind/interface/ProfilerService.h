@@ -10,22 +10,46 @@
 #include <string>
 
 
-/* A Service to start and stop calgrind profiling on demand...
+/* \class  ProfilerService
+ A Service to start and stop calgrind profiling on demand...
  * act also as profiler watchdog 
  * (in the same service to avoid dependency between service)
  */
 class ProfilerService {
 public:
+
+  /// Standard Service Constructor
   ProfilerService(edm::ParameterSet const& pset, 
 		  edm::ActivityRegistry  & activity);
 
+  /// Destructor
   ~ProfilerService();
 
-  bool startInstrumentation();
-  bool stopInstrumentation();
-  bool forceStopInstrumentation();
-  void dumpStat();
 
+  // ---- Public Interface -----
+
+
+  /// start instrumentation if not active. true if started now
+  bool startInstrumentation();
+
+  /// stop instrumentation if not active anymore; true if stopped now
+  bool stopInstrumentation();
+
+  /// forced stop instrumentation independenly of activity status; true if stopped now
+  bool forceStopInstrumentation();
+
+  /// dump profiling information
+  void dumpStat() const;
+
+  /// true if the current event has to be instrumented
+  bool doEvent() const { return m_doEvent;}
+
+  /// true if instrumentation is active
+  bool active() const { return m_active>0;}
+
+
+  // ---- Service Interface: to  be called only by the Framework ----
+  
   void beginEventI(const edm::EventID&, const edm::Timestamp&) {
     beginEvent();
   }
@@ -38,9 +62,6 @@ public:
   void endPathI(std::string const & path,  const edm::HLTPathStatus&) {
     endPath(path);
   }
-
-  bool doEvent() const { return m_doEvent;}
-  bool active() const { return m_active>0;}
 
 private:
 
