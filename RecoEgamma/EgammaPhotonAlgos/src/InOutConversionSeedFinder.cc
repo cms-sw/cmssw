@@ -2,7 +2,7 @@
 #include "RecoEgamma/EgammaPhotonAlgos/interface/ConversionBarrelEstimator.h"
 #include "RecoEgamma/EgammaPhotonAlgos/interface/ConversionForwardEstimator.h"
 
-#include "RecoEgamma/EgammaPhotonAlgos/interface/FastHelix.h"
+#include "RecoEgamma/EgammaPhotonAlgos/interface/ConversionFastHelix.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // Field
@@ -287,7 +287,7 @@ void InOutConversionSeedFinder::fillClusterSeeds() const {
 	   
 
 	    back1mm -= dir.unit()*0.1;
-	    FastHelix helix(bcPos, stateAtPreviousLayer.globalPosition(), back1mm, theMF_);
+	    ConversionFastHelix helix(bcPos, stateAtPreviousLayer.globalPosition(), back1mm, theMF_);
 
             	  
 	    if ( !helix.isValid() ||  helix.stateAtVertex().transverseCurvature() ==0  ) continue;
@@ -420,7 +420,7 @@ void InOutConversionSeedFinder::findSeeds(const TrajectoryStateOnSurface & start
 	GlobalVector dir = startingState.globalDirection();
 	GlobalPoint back1mm = tmItr->recHit()->globalPosition();
 	back1mm -= dir.unit()*0.1;
-	FastHelix helix(bcPos,  tmItr->recHit()->globalPosition(), back1mm, theMF_);
+	ConversionFastHelix helix(bcPos,  tmItr->recHit()->globalPosition(), back1mm, theMF_);
 
         track2InitialMomentum_= helix.stateAtVertex().momentum();
 
