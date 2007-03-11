@@ -1,9 +1,10 @@
-<lib name=CondFormatsBTauObjects>
+<use name=CondFormats/BTauObjects>
+<use name=FWCore/MessageLogger>
 <use name=xerces-c>
-
 <export>
-  <lib name=CondFormatsBTauObjects>
-  <lib name=RecoBTagXMLCalibration>
+  <use name=CondFormats/BTauObjects>
+  <use name=FWCore/MessageLogger>
   <use name=xerces-c>
+  <lib name=RecoBTagXMLCalibration>
 </export>
 

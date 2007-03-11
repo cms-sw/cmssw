@@ -1,8 +1,6 @@
+<use name=FWCore/Framework>
 <export>
-   <lib name=RecoBTagRecords>
-   <use name=FWCore/Framework>
+  <use name=FWCore/Framework>
+  <lib name=RecoBTagRecords>
 </export>
 
-<use name=FWCore/Utilities>
-<use name=FWCore/Framework>
-<use name=boost>

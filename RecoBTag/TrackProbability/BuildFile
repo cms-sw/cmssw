@@ -1,33 +1,30 @@
-<use name=FWCore/Framework>
-<use name=Foundation/PluginManager>
-<use name=FWCore/ParameterSet>
-<use name=DataFormats/Common>
-<use name=MagneticField/Engine>
-<use name=MagneticField/Records>
-<use name=RecoBTag/BTagTools>
-<use name=RecoBTag/XMLCalibration>
-<use name=DataFormats/VertexReco>
-
 <use name=CondFormats/BTauObjects>
 <use name=CondFormats/DataRecord>
-<use name=CondCore/BTauPlugins>
-
-
-<flags SEAL_PLUGIN_NAME="RecoBTagTrackProbability">
+<use name=DataFormats/BTauReco>
+<use name=DataFormats/JetReco>
+<use name=DataFormats/TrackReco>
+<use name=DataFormats/VertexReco>
+<use name=FWCore/Framework>
+<use name=FWCore/MessageLogger>
+<use name=FWCore/ParameterSet>
+<use name=MagneticField/Engine>
+<use name=RecoBTag/BTagTools>
+<use name=RecoBTag/XMLCalibration>
+<use name=TrackingTools/Records>
+<use name=TrackingTools/TransientTrack>
+<use name=xerces-c>
+<flags SEALPLUGIN=1>
 <export>
-   <lib name=RecoBTagTrackProbability>
-   <use name=FWCore/Framework>
-   <use name=Foundation/PluginManager>
-   <use name=FWCore/ParameterSet>
-   <use name=MagneticField/Engine>
-   <use name=MagneticField/Records>
-   <use name=RecoBTag/BTagTools>
-   <use name=RecoBTag/XMLCalibration>
-   <use name=DataFormats/VertexReco>
-
-   <use name=CondFormats/BTauObjects>
-   <use name=CondFormats/DataRecord>
-   <use name=CondCore/BTauPlugins>
-
-
+  <use name=CondFormats/BTauObjects>
+  <use name=DataFormats/BTauReco>
+  <use name=DataFormats/JetReco>
+  <use name=DataFormats/TrackReco>
+  <use name=DataFormats/VertexReco>
+  <use name=FWCore/Framework>
+  <use name=FWCore/ParameterSet>
+  <use name=MagneticField/Engine>
+  <use name=RecoBTag/XMLCalibration>
+  <use name=xerces-c>
+  <lib name=RecoBTagTrackProbability>
 </export>
+

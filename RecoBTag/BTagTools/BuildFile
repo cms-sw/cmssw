@@ -1,22 +1,20 @@
+<use name=DataFormats/GeometryCommonDetAlgo>
+<use name=DataFormats/GeometrySurface>
+<use name=DataFormats/GeometryVector>
+<use name=DataFormats/VertexReco>
+<use name=FWCore/MessageLogger>
+<use name=RecoVertex/VertexPrimitives>
+<use name=TrackingTools/GeomPropagators>
+<use name=TrackingTools/PatternTools>
+<use name=TrackingTools/TrajectoryState>
+<use name=TrackingTools/TransientTrack>
+<use name=clhep>
 <export>
- <lib name=RecoBTagBTagTools>
-<use name=CLHEP>
-<use name=TrackingTools/TrajectoryState>
-<use name=TrackingTools/TransientTrack>
-<use name=TrackingTools/GeomPropagators>
-
-<use name=DataFormats/Common>
-<use name=DataFormats/VertexReco>
-
-
+  <use name=DataFormats/GeometryCommonDetAlgo>
+  <use name=DataFormats/GeometryVector>
+  <use name=DataFormats/VertexReco>
+  <use name=TrackingTools/TrajectoryState>
+  <use name=TrackingTools/TransientTrack>
+  <lib name=RecoBTagBTagTools>
 </export>
-<use name=CLHEP>
-<use name=TrackingTools/TrajectoryState>
-<use name=TrackingTools/TransientTrack>
-<use name=DataFormats/VertexReco>
-<use name=TrackingTools/GeomPropagators>
-
-<use name=DataFormats/Common>
-
-
 
