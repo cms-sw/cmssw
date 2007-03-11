@@ -1,0 +1,13 @@
+2007-03-11  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-00-01
+	* first import into CVS
+	* the classes FUShmBuffer and FUShmBufferCell are being transfered
+	from the EventFilter/ResourceBroker package, from which they are
+	being removed.
+	* The EventFilter/ResourceBroker/bin content is being transfered
+	as well: it contains simple test applications to check the
+	synchronization issues when concurrently writing/reading to the
+	shared memory buffer.
+	
+
