@@ -1,6 +1,6 @@
 /*
-* $Date: 2006/12/20 16:17:13 $
-* $Revision: 1.9 $
+* $Date: 2007/02/02 18:42:37 $
+* $Revision: 1.10 $
 *
 * \author: D. Giordano, domenico.giordano@cern.ch
 */
@@ -14,7 +14,7 @@
 #include "DataFormats/SiStripDetId/interface/TIDDetId.h"
 #include "sstream"
 
-#include "Geometry/CommonDetAlgo/interface/MeasurementPoint.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementPoint.h"
 
 #include "TTree.h"
 #include "TBranch.h"
