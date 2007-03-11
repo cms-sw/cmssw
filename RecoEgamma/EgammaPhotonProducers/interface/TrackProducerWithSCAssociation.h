@@ -3,9 +3,9 @@
 /** \class  TrackProducerWithSCAssociation
  **  
  **
- **  $Id: $ 
- **  $Date: $ 
- **  $Revision: $
+ **  $Id: TrackProducerWithSCAssociation.h,v 1.1 2007/02/19 20:53:26 nancy Exp $ 
+ **  $Date: 2007/02/19 20:53:26 $ 
+ **  $Revision: 1.1 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **   Modified version of TrackProducer by Giuseppe Cerati
  **   to have super cluster - conversion track association
@@ -27,6 +27,7 @@ public:
   std::vector<reco::TransientTrack> getTransient(edm::Event&, const edm::EventSetup&);
 
 private:
+  std::string myname_; 
   TrackProducerAlgorithm theAlgo;
   std::string conversionTrackCandidateProducer_;
   std::string trackCSuperClusterAssociationCollection_;
