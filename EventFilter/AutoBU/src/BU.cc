@@ -345,7 +345,7 @@ void BU::I2O_BU_ALLOCATE_Callback(toolbox::mem::Reference *bufRef)
     bufRef->release();
     return;
   }
-
+  
   // start timer for performance measurements upon receiving first request
   if (nbEvents_.value_==0) startTimer();
   
@@ -551,9 +551,10 @@ void BU::fillFedBuffers(unsigned int iSuperFrag,FEDRawDataCollection* event)
       for(unsigned int i=0;i<fedN_[iSuperFrag];i++) {
 	unsigned int iFedSize(0);
 	while (iFedSize<(fedTrailerSize_+fedHeaderSize_)||iFedSize>fedSizeMax_) {
-	  double dFedSize=RandGauss::shoot((double)fedSizeMean_,
-					   (double)fedSizeWidth_);
-	  iFedSize=(int)(dFedSize);
+	  double logFedSize=RandGauss::shoot(std::log((double)fedSizeMean_),
+					     std::log((double)fedSizeMean_)-
+					     std::log((double)fedSizeWidth_/2.));
+	  iFedSize=(int)(std::exp(logFedSize));
 	  iFedSize-=iFedSize % 8; // all blocks aligned to 64 bit words
 	}
 	fedSize_[i]=iFedSize;

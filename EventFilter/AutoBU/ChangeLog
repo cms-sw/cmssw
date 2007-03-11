@@ -1,4 +1,9 @@
-2007-03-08  Philipp SCHIEFERDECKER  <schiefer@pccms49.cern.ch>
+2007-03-11  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-03-01
+	* fix to random fedsize determination (back to log-normal).
+
+2007-03-08  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-03-00
 	* compliant with FWCore reorganization of 140 series.
