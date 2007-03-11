@@ -14,28 +14,44 @@
 
 \section desc Description
 <!-- Short description of what this package is supposed to provide -->
-
-(THE PACKAGE ADMINISTATOR SHOULD REPLACE THIS SENTENCE WITH HAND-WRITTEN DOCUMENTATION SAYING WHAT THE PACKAGE DOES.)
+This Package contains a service <b>ProfilerService</b> and two analyzer modules
+<b>StartProfilerAnalyzer</b> and <b>StopProfilerAnalyzer</b>
+that allow to instrument only some portion of a cmsRun with
+performance measurument tools. At the moment only callgrind is supported.
+Extending it to other tools such as IgProf is easy.
 
 \subsection interface Public interface
 <!-- List the classes that are provided for use in other packages (if any) -->
 
-- ProfilerService
+- ProfilerService: provides a public interface mainly for the Start and Stop ProfilerAnalyzers.
+They can be used by other modules and services though...
 
 \subsection modules Modules
 <!-- Describe modules implemented in this package and their parameter set -->
 
+-  StartProfilerAnalyzer: start profiler (callgrind) instrumentation
+-  StopProfilerAnalyzer:  stop profiler instrumentation 
+no set of parameters required
+
+\subsection services Services
+<!-- Describe services implemented in this package and their parameter set -->
+
+- ProfilerService
+
 
 \subsection tests Unit tests and examples
 <!-- Describe cppunit tests and example configuration files -->
-Unknown
+- testPerfToolsCallgrind: a unit test of public and internal API of the ProfilerService
+-
 
 \section status Status and planned development
 <!-- e.g. completed, stable, missing features -->
-Unknown
+Service Completed<br>
+Analyzer needs mods to use the Service itself.<br>
+The Service may be extended to tools other than callgrind such as IgProf
 
 <hr>
 Last updated:
-@DATE@  Author: computer-generated.
+@DATE@  Author: Vincenzo Innocente.
 */
 
