@@ -48,26 +48,19 @@ class PixelCPETemplateReco : public PixelCPEBase
   
   MeasurementPoint measurementPosition ( const SiPixelCluster&, const GeomDetUnit & det) const;
 
+  // &&& Do we need to overload measurementError() ? 
+
+ protected:
+  //--- These functions are no longer needed, yet they are declared 
+  //--- pure virtual in the base class.
+  float xpos( const SiPixelCluster& ) const { return -999000.0; }  // &&& should abort
+  float ypos( const SiPixelCluster& ) const { return -999000.0; }  // &&& should abort
 
  private:
-  //--------------------------------------------------------------------
-  //  Methods.
-  //------------------------------------------------------------------
-
-  // Position in x and y
-  float xpos( const SiPixelCluster& ) const;
-  float ypos( const SiPixelCluster& ) const;
-
-  // Quantities needed to calculate xpos() and ypos()
-  float chargeWidthX() const;
-  float chargeWidthY() const;
-  
- private:
-  // Template stuff in here &&&
-  
+  // Template storage
   mutable SiPixelTemplate templ_ ;
   
-  // The result
+  // The result of PixelTemplateReco2D
   mutable float templXrec_ ; 
   mutable float templYrec_ ;
   mutable float templSigmaX_ ;
