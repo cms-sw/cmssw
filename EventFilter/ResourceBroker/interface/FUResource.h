@@ -3,7 +3,7 @@
 
 
 #include "EventFilter/ResourceBroker/interface/FUTypes.h"
-#include "EventFilter/ResourceBroker/interface/FUShmBufferCell.h"
+#include "EventFilter/ShmBuffer/interface/FUShmBufferCell.h"
 #include "EventFilter/Utilities/interface/Exception.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 

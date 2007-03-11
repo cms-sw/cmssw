@@ -4,9 +4,9 @@
 
 #include "EventFilter/ResourceBroker/interface/FEDProvider.h"
 #include "EventFilter/ResourceBroker/interface/FUResource.h"
-#include "EventFilter/ResourceBroker/interface/FUShmBuffer.h"
 #include "EventFilter/ResourceBroker/interface/BUProxy.h"
 #include "EventFilter/ResourceBroker/interface/FUTypes.h"
+#include "EventFilter/ShmBuffer/interface/FUShmBuffer.h"
 #include "EventFilter/Utilities/interface/Exception.h"
 
 #include "extern/log4cplus/linuxx86/include/log4cplus/logger.h"
