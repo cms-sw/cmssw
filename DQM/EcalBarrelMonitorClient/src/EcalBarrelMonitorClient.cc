@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2007/02/23 15:21:50 $
- * $Revision: 1.230 $
+ * $Date: 2007/02/27 09:18:50 $
+ * $Revision: 1.231 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -871,6 +871,7 @@ void EcalBarrelMonitorClient::writeDb(void) {
 
     int ism = superModules_[i];
 
+    cout << " SM=" << ism << endl;
     for ( int j = 0; j<int(clients_.size()); ++j ) {
       bool written; written = false;
       for ( EBCIMMap::iterator k = chb_.lower_bound(clients_[j]); k != chb_.upper_bound(clients_[j]); ++k ) {
