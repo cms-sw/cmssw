@@ -41,30 +41,21 @@ SiStripCluster::SiStripCluster(const uint32_t& detid,
   detId_(detid),
   firstStrip_(firstStrip),
   amplitudes_(),
-  barycenter_(-1.) 
+  barycenter_(0) 
 
 {
-  amplitudes_.resize(end-begin,0);
-  copy(begin,end,amplitudes_.begin());
-}
-
-float SiStripCluster::barycenter() {
-
-  if (barycenter_ < 0.) {
-
+  amplitudes_.reserve(end-begin);
   int sumx = 0;
   int suma = 0;
-
-  for (uint16_t istrip = 0;istrip < amplitudes_.size();istrip++) {
-    sumx += ((firstStrip_+istrip)*amplitudes_[istrip]);
-    suma += amplitudes_[istrip];
+  std::vector<uint16_t>::const_iterator idigi = begin;
+  for (;idigi!=end;idigi++) {
+    amplitudes_.push_back(*idigi);
+    sumx += (firstStrip_+idigi-begin)*(*idigi);
+    suma += (*idigi);
   }
-
-  // strip centers are offset by half pitch w.r.t. strip numbers,
+  
+  // strip centers are offcet by half pitch w.r.t. strip numbers,
   // so one has to add 0.5 to get the correct barycenter position
   barycenter_ = sumx / static_cast<float>(suma) + 0.5;
-  return barycenter_;
-  }
-
-  else return barycenter_;
 }
+

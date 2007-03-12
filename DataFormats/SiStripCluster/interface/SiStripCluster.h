@@ -47,7 +47,7 @@ public:
   /** The barycenter of the cluster, not corrected for Lorentz shift;
    *  should not be used as position estimate for tracking.
    */
-  float barycenter();
+  float barycenter() const {return barycenter_;}
 
 private:
 
