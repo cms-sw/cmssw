@@ -13,7 +13,7 @@
 //
 // Original Author:  Samvel Khalatyan (ksamdev at gmail dot com)
 //         Created:  Wed Oct  5 16:42:34 CET 2006
-// $Id: SiStripOfflineDQM.cc,v 1.7 2007/03/12 15:39:18 samvel Exp $
+// $Id: SiStripOfflineDQM.cc,v 1.8 2007/03/12 19:49:16 samvel Exp $
 //
 //
 
@@ -92,6 +92,8 @@ void SiStripOfflineDQM::endJob() {
 
   poMui_->runQTests();
   LogInfo( "SiStripOfflineDQM") << oActionExecutor_.getQTestSummary( poMui_);
+  LogInfo( "SiStripOfflineDQM") << oActionExecutor_.getQTestSummaryLite( poMui_);
+
 
   oActionExecutor_.createSummary( poMui_);
 
