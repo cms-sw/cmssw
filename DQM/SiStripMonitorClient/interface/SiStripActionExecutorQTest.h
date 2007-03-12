@@ -8,11 +8,14 @@
 
 #include "DQM/SiStripMonitorClient/interface/SiStripActionExecutor.h"
 
+namespace edm {
+  class ParameterSet;
+}
 class MonitorUserInterface;
 
 class SiStripActionExecutorQTest: public SiStripActionExecutor {
   public:
-    SiStripActionExecutorQTest(): SiStripActionExecutor() {}
+    SiStripActionExecutorQTest( const edm::ParameterSet &roPARAMETER_SET); 
     virtual ~SiStripActionExecutorQTest() {}
 
     // @arguments
@@ -24,6 +27,9 @@ class SiStripActionExecutorQTest: public SiStripActionExecutor {
 
     virtual std::string
       getQTestSummaryLite( const MonitorUserInterface *poMUI) const;
+
+  private:
+    const std::string oQTEST_CONFIG_FILE_;
 };
 
 #endif // DQM_SISTRIPMONITORCLIENT_SISTRIPACTIONEXECUTORQTEST_H
