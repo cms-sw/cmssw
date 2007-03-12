@@ -173,6 +173,10 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
   // Retrieve FED ids from cabling map and iterate through 
   vector<uint16_t>::const_iterator ifed = cabling.feds().begin();
   for ( ; ifed != cabling.feds().end(); ifed++ ) {
+
+    LogTrace(mlRawToDigi_)
+      << "[SiStripRawToDigiUnpacker::" << __func__ << "]"
+      << " Extracting payload from FED id: " << *ifed;
     
     // Retrieve FED raw data for given FED 
     const FEDRawData& input = buffers.FEDData( static_cast<int>(*ifed) );
@@ -211,7 +215,7 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
     // Initialise Fed9UEvent using present FED buffer
     try {
       fedEvent_->Init( data_u32, 0, size_u32 ); 
-      fedEvent_->checkEvent();
+      //fedEvent_->checkEvent();
     } catch(...) { handleException( __func__, "Problem when creating and checking Fed9UEvent" ); } 
 
     // Retrive readout mode
@@ -229,7 +233,10 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
     
     // Iterate through FED channels, extract payload and create Digis
     Fed9U::Fed9UAddress addr;
-    for ( uint16_t channel = 0; channel < 96; channel++ ) {
+    vector<FedChannelConnection>::const_iterator iconn = cabling.connections(*ifed).begin();
+    for (;iconn != cabling.connections(*ifed).end(); iconn++) {
+      uint16_t channel = iconn->fedCh();
+      //for ( uint16_t channel = 0; channel < 96; channel++ ) {
       
       uint16_t iunit = channel / 12;
       uint16_t ichan = channel % 12;
@@ -244,7 +251,7 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
       } 
       
       // Retrieve cabling map information and define "FED key" for Digis
-      const FedChannelConnection& conn = cabling.connection( *ifed, chan );
+      const FedChannelConnection& conn = *iconn;//cabling.connection( *ifed, chan );
 
       // Determine whether FED key is inferred from cabling or channel loop
       uint32_t fed_key = 0;

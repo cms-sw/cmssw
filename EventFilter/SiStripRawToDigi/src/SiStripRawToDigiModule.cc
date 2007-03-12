@@ -77,6 +77,12 @@ SiStripRawToDigiModule::~SiStripRawToDigiModule() {
 */
 void SiStripRawToDigiModule::produce( edm::Event& event, 
 				      const edm::EventSetup& setup ) {
+
+  LogTrace(mlRawToDigi_) 
+    << "[SiStripRawToDigiModule::" << __func__ << "]"
+    << " Analyzing run/event "
+    << event.id().run() << "/"
+    << event.id().event();
   
   // Retrieve FED cabling
   edm::ESHandle<SiStripFedCabling> cabling;

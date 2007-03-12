@@ -62,14 +62,14 @@ void SiStripDigiToRawModule::produce( edm::Event& iEvent,
   
   edm::ESHandle<SiStripFedCabling> cabling;
   iSetup.get<SiStripFedCablingRcd>().get( cabling );
-  
+
   edm::Handle< edm::DetSetVector<SiStripDigi> > digis;
   iEvent.getByLabel( inputModuleLabel_, digis );
-  
+
   std::auto_ptr<FEDRawDataCollection> buffers( new FEDRawDataCollection );
   
   digiToRaw_->createFedBuffers( cabling, digis, buffers );
-  
+
   iEvent.put( buffers );
   
 }

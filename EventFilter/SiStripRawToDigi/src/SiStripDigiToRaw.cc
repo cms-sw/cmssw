@@ -52,7 +52,9 @@ void SiStripDigiToRaw::createFedBuffers( edm::ESHandle<SiStripFedCabling>& cabli
     
     const vector<uint16_t>& fed_ids = cabling->feds();
     vector<uint16_t>::const_iterator ifed;
+
     for ( ifed = fed_ids.begin(); ifed != fed_ids.end(); ifed++ ) {
+
       //anal_.addFed();
       LogDebug("DigiToRaw") << "[SiStripDigiToRaw::createFedBuffers] Processing FED id " << *ifed;
       
@@ -60,14 +62,21 @@ void SiStripDigiToRaw::createFedBuffers( edm::ESHandle<SiStripFedCabling>& cabli
 
       for ( uint16_t ichan = 0; ichan < 96; ichan++ ) {
 	//anal_.addChan();
-	
+
 	const FedChannelConnection& conn = cabling->connection( *ifed, ichan );
+
 	if ( !conn.detId() ) { continue; } // Check DetID is non-zero
 
 	vector< edm::DetSet<SiStripDigi> >::const_iterator digis = collection->find( conn.detId() );
+
+	if (digis == collection->end()) { continue; } // Check for Det Id in DetSetVector
+
+	/*
 	if ( digis->data.empty() ) { 
 	  edm::LogWarning("DigiToRaw") << "[SiStripDigiToRaw::createFedBuffers] Zero digis found!"; 
 	}
+	*/
+
 	edm::DetSet<SiStripDigi>::const_iterator idigi;
 	for ( idigi = digis->data.begin(); idigi != digis->data.end(); idigi++ ) {
 	  if ( (*idigi).strip() < conn.apvPairNumber()*256 ||
@@ -125,10 +134,11 @@ void SiStripDigiToRaw::createFedBuffers( edm::ESHandle<SiStripFedCabling>& cabli
       } else {
 	edm::LogWarning("DigiToRaw") << "UNKNOWN readout mode";
       }
-      
+  
       // generate FED buffer and pass to Daq
       Fed9U::Fed9UBufferGenerator generator( creator );
       generator.generateFed9UBuffer( raw_data );
+      //generator.setSlink64();
       FEDRawData& fedrawdata = buffers->FEDData( *ifed ); 
       // calculate size of FED buffer in units of bytes (unsigned char)
       int nbytes = generator.getBufferSize() * 4;
