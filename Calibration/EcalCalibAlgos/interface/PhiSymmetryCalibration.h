@@ -12,8 +12,10 @@
 // Original Author:  David Futyan
 
 #include <vector>
-#include "Geometry/Vector/interface/GlobalPoint.h"
 
+// obsolete #include "Geometry/Vector/interface/GlobalPoint.h"
+
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 // Framework
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
