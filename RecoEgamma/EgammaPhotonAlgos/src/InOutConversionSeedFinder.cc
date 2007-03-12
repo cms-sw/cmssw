@@ -289,8 +289,8 @@ void InOutConversionSeedFinder::fillClusterSeeds() const {
 	    back1mm -= dir.unit()*0.1;
 	    ConversionFastHelix helix(bcPos, stateAtPreviousLayer.globalPosition(), back1mm, theMF_);
 
-            	  
-	    if ( !helix.isValid() ||  helix.stateAtVertex().transverseCurvature() ==0  ) continue;
+	
+	    if ( !helix.isValid()  ) continue;
 	    findSeeds(stateAtPreviousLayer, helix.stateAtVertex().transverseCurvature(), ilayer);
 	    
 
@@ -430,7 +430,7 @@ void InOutConversionSeedFinder::findSeeds(const TrajectoryStateOnSurface & start
 
 	// Make a new FTS
 
-        if (  helix.stateAtVertex().transverseCurvature() ==0 ) continue;
+        if (   !helix.isValid()  ) continue;
 	FreeTrajectoryState newfts(GlobalTrajectoryParameters(
 							      tmItr->recHit()->globalPosition(), startingState.globalDirection(),
 							      helix.stateAtVertex().transverseCurvature(), 0, theMF_), 
