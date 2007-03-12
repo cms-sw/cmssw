@@ -2,14 +2,6 @@
 #define Alignment_CommonAlignmentParametrization_CompositeAlignmentParameters_h
 
 #include <map>
-#include <vector>
-
-#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
-#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
-
-#include "Alignment/CommonAlignment/interface/Alignable.h"
-#include "Alignment/CommonAlignment/interface/AlignableDet.h"
 
 #include "Alignment/CommonAlignment/interface/AlignmentParameters.h"
 

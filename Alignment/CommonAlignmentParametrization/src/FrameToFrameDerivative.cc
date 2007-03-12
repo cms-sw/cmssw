@@ -1,8 +1,10 @@
 /** \file FrameToFrameDerivative.cc
  *
- *  $Date: 2006/10/19 14:20:59 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/02/12 16:14:11 $
+ *  $Revision: 1.4 $
  */
+
+#include "Alignment/CommonAlignment/interface/Alignable.h"
 
 #include "Alignment/CommonAlignmentParametrization/interface/FrameToFrameDerivative.h"
 
@@ -12,41 +14,29 @@ AlgebraicMatrix
 FrameToFrameDerivative::frameToFrameDerivative(const Alignable* object,
 					       const Alignable* composedObject) const
 {
- 
-  AlignmentTransformations transform;
-  AlgebraicMatrix objectRot = transform.algebraicMatrix( object->globalRotation() );
-  AlgebraicMatrix composedObjectRot = transform.algebraicMatrix( composedObject->globalRotation() );
-  AlgebraicVector diffGl = 
-	transform.algebraicVector( composedObject->globalPosition() - object->globalPosition() );
 
-  return getDerivative( objectRot, composedObjectRot, diffGl );
+  return getDerivative( object->globalRotation(),
+			composedObject->globalRotation(),
+			composedObject->globalPosition() - object->globalPosition() );
 
 }
 
 
 //__________________________________________________________________________________________________
 AlgebraicMatrix 
-FrameToFrameDerivative::frameToFrameDerivative(const GeomDet* object,
-					       const Alignable* composedObject) const
+FrameToFrameDerivative::getDerivative(const align::RotationType &detUnitRot,
+				      const align::RotationType &composeRot,
+				      const align::GlobalVector &posVec) const
 {
- 
-  AlignmentTransformations transform;
-  AlgebraicMatrix objectRot = transform.algebraicMatrix( object->rotation() );
-  AlgebraicMatrix composedObjectRot = transform.algebraicMatrix( composedObject->globalRotation() );
-  AlgebraicVector diffGl = 
-	transform.algebraicVector( composedObject->globalPosition() - object->position() );
 
-  return getDerivative( objectRot, composedObjectRot, diffGl );
+  AlgebraicMatrix rotDet   = transform(detUnitRot);
+  AlgebraicMatrix rotCompO = transform(composeRot);
 
-}
+  AlgebraicVector diffVec(3);
 
-
-//__________________________________________________________________________________________________
-AlgebraicMatrix 
-FrameToFrameDerivative::getDerivative(const AlgebraicMatrix &rotDet,
-				      const AlgebraicMatrix &rotCompO,
-				      const AlgebraicVector &diffVec) const
-{
+  diffVec(1) = posVec.x();
+  diffVec(2) = posVec.y();
+  diffVec(3) = posVec.z();
 
   AlgebraicMatrix derivative(6,6);
 

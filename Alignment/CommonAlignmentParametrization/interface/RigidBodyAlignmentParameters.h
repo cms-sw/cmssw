@@ -1,12 +1,6 @@
 #ifndef Alignment_CommonAlignment_RigidBodyAlignmentParameters_h
 #define Alignment_CommonAlignment_RigidBodyAlignmentParameters_h
 
-#include <vector>
-
-#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
-#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
-
-#include "Alignment/CommonAlignment/interface/Alignable.h"
 #include "Alignment/CommonAlignment/interface/AlignmentParameters.h"
 
 /// \class RigidBodyAlignmentParameters
@@ -18,8 +12,6 @@
 ///  $Date: 2006/12/23 15:55:47 $
 ///  $Revision: 1.4 $
 /// (last update by $Author: ewidl $)
-
-class AlignableDetUnit;
 
 class RigidBodyAlignmentParameters : public AlignmentParameters 
 {
@@ -61,11 +53,11 @@ public:
   
   /// Get all derivatives 
   virtual AlgebraicMatrix derivatives( const TrajectoryStateOnSurface& tsos,
-				       AlignableDet* alignableDet ) const;
+				       AlignableDet* ) const;
 
   /// Get selected derivatives
   AlgebraicMatrix selectedDerivatives( const TrajectoryStateOnSurface& tsos, 
-				       AlignableDet* alignableDet ) const;
+				       AlignableDet* ) const;
 
   /// Get translation parameters
   AlgebraicVector translation(void) const;

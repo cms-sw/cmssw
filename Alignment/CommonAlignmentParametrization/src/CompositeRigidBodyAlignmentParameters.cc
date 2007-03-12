@@ -1,9 +1,10 @@
 /** \file CompositeRigidBodyAlignmentParameters.cc
  *
- *  $Date: 2005/07/26 10:13:49 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/10/19 14:20:59 $
+ *  $Revision: 1.2 $
  */
 
+#include "Alignment/CommonAlignment/interface/AlignableDet.h"
 #include "Alignment/CommonAlignmentParametrization/interface/KarimakiAlignmentDerivatives.h"
 #include "Alignment/CommonAlignmentParametrization/interface/FrameToFrameDerivative.h"
 
