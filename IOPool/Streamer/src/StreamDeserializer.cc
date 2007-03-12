@@ -188,7 +188,7 @@ namespace edm
 				       unsigned int expectedFullSize)
   {
     unsigned long origSize = expectedFullSize;
-    unsigned long uncompressedSize;
+    unsigned long uncompressedSize = expectedFullSize;
     FDEBUG(1) << "Uncompress: original size = " << origSize
               << ", compressed size = " << inputSize
               << endl;
