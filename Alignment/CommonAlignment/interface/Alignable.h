@@ -20,8 +20,8 @@
  * The class derives from DetPositioner, a friend class of
  * GeomDet, which allows to move the GeomDet. 
  *
- *  $Date: 2007/02/22 01:53:40 $
- *  $Revision: 1.16 $
+ *  $Date: 2007/03/12 03:26:00 $
+ *  $Revision: 1.18 $
  *  (last update by $Author: cklae $)
  */
 
@@ -87,7 +87,7 @@ public:
   virtual void rotateInGlobalFrame( const RotationType& rotation) = 0;
   
   /// Rotation intepreted in the local reference frame
-  virtual void rotateInLocalFrame( const RotationType& rotation) = 0;
+  virtual void rotateInLocalFrame( const RotationType& rotation);
   
   /// Rotation around arbitratry global axis
   virtual void rotateAroundGlobalAxis( const GlobalVector& axis, Scalar radians );

@@ -1,7 +1,7 @@
 /** \file Alignable.cc
  *
- *  $Date: 2007/02/22 01:53:41 $
- *  $Revision: 1.7 $
+ *  $Date: 2007/03/12 03:26:01 $
+ *  $Revision: 1.8 $
  *  (last update by $Author: cklae $)
  */
 
@@ -93,6 +93,19 @@ AlignmentParameters* Alignable::alignmentParameters() const
 
 
 //__________________________________________________________________________________________________
+void Alignable::rotateInLocalFrame( const RotationType& rotation)
+{
+
+  // This is done by simply transforming the rotation from
+  // the local system O to the global one  O^-1 * Rot * O
+  // and then applying the global rotation  O * Rot
+
+  rotateInGlobalFrame( surface().toGlobal(rotation) );
+
+}
+
+
+//__________________________________________________________________________________________________
 void Alignable::rotateAroundGlobalAxis( const GlobalVector& axis, Scalar radians )
 {
 
@@ -115,8 +128,8 @@ void Alignable::rotateAroundGlobalX( Scalar radians )
 {
 
   RotationType rot( 1.,  0.,            0.,
-		    0.,  cos(radians),  sin(radians),
-		    0., -sin(radians),  cos(radians) );
+		    0.,  std::cos(radians),  std::sin(radians),
+		    0., -std::sin(radians),  std::cos(radians) );
 
   rotateInGlobalFrame(rot);
 
@@ -128,8 +141,8 @@ void Alignable::rotateAroundLocalX( Scalar radians )
 {
  
   RotationType rot( 1.,  0.,            0.,
-		    0.,  cos(radians),  sin(radians),
-		    0., -sin(radians),  cos(radians) );
+		    0.,  std::cos(radians),  std::sin(radians),
+		    0., -std::sin(radians),  std::cos(radians) );
 
   rotateInLocalFrame(rot);
 
@@ -140,9 +153,9 @@ void Alignable::rotateAroundLocalX( Scalar radians )
 void Alignable::rotateAroundGlobalY( Scalar radians )
 {
 
-  RotationType rot( cos(radians),  0., -sin(radians), 
+  RotationType rot( std::cos(radians),  0., -std::sin(radians), 
 		    0.,            1.,  0.,
-		    sin(radians),  0.,  cos(radians) );
+		    std::sin(radians),  0.,  std::cos(radians) );
 
   rotateInGlobalFrame(rot);
   
@@ -153,9 +166,9 @@ void Alignable::rotateAroundGlobalY( Scalar radians )
 void Alignable::rotateAroundLocalY( Scalar radians )
 {
 
-  RotationType rot( cos(radians),  0., -sin(radians), 
+  RotationType rot( std::cos(radians),  0., -std::sin(radians), 
 		    0.,            1.,  0.,
-		    sin(radians),  0.,  cos(radians) );
+		    std::sin(radians),  0.,  std::cos(radians) );
   
   rotateInLocalFrame(rot);
 
@@ -166,8 +179,8 @@ void Alignable::rotateAroundLocalY( Scalar radians )
 void Alignable::rotateAroundGlobalZ( Scalar radians )
 {
 
-  RotationType rot(  cos(radians),  sin(radians),  0.,
-		    -sin(radians),  cos(radians),  0.,
+  RotationType rot(  std::cos(radians),  std::sin(radians),  0.,
+		    -std::sin(radians),  std::cos(radians),  0.,
 		     0.,            0.,            1. );
 
   rotateInGlobalFrame(rot);
@@ -179,8 +192,8 @@ void Alignable::rotateAroundGlobalZ( Scalar radians )
 void Alignable::rotateAroundLocalZ( Scalar radians)
 {
 
-  RotationType rot(  cos(radians),  sin(radians), 0. ,
-		    -sin(radians),  cos(radians), 0. ,
+  RotationType rot(  std::cos(radians),  std::sin(radians), 0. ,
+		    -std::sin(radians),  std::cos(radians), 0. ,
 		     0.,            0.,           1. );
   
   rotateInLocalFrame(rot);

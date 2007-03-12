@@ -33,9 +33,6 @@ public:
   /// Rotation with respect to the global reference frame
   virtual void rotateInGlobalFrame( const RotationType& rotation );
 
-  /// Rotation intepreted in the local reference frame
-  virtual void rotateInLocalFrame( const RotationType& rotation );
-
   /// Return position 
   virtual const PositionType& globalPosition() const { return theSurface.position(); }
 

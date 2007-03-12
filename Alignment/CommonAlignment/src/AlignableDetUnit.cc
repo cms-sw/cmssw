@@ -73,23 +73,6 @@ void AlignableDetUnit::rotateInGlobalFrame( const RotationType& rotation)
 
 
 //__________________________________________________________________________________________________
-void AlignableDetUnit::rotateInLocalFrame( const RotationType& rotation)
-{
-
-  if ( misalignmentActive() ) 
-  {
-    theSurface = AlignableSurface( globalPosition(), rotation * globalRotation() );
-    theRotation = rotation * theRotation;
-  }
-  else 
-    edm::LogError("NoMisalignment") 
-      << "AlignableDetUnit: Misalignment currently deactivated"
-      << " - no rotation done";
-
-}
-
-
-//__________________________________________________________________________________________________
 void AlignableDetUnit::setAlignmentPositionError(const AlignmentPositionError& ape)
 {
 

@@ -133,19 +133,6 @@ void AlignableComposite::rotateInGlobalFrame( const RotationType& rotation )
 
 
 //__________________________________________________________________________________________________
-void AlignableComposite::rotateInLocalFrame( const RotationType& rotation )
-{
-
-  // This is done by simply transforming the rotation from
-  // the local system O to the global one  O^-1 * Rot * O
-  // and then applying the global rotation  O * Rot
-
-  rotateInGlobalFrame( globalRotation().multiplyInverse( rotation*globalRotation() ) );
-
-}
-
-
-//__________________________________________________________________________________________________
 /// Set the alignment position error of all components to given error
 void AlignableComposite::setAlignmentPositionError( const AlignmentPositionError& ape )
 {

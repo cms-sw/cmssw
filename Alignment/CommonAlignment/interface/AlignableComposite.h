@@ -59,9 +59,6 @@ public:
   /// Rotation interpreted in global reference frame
   virtual void rotateInGlobalFrame( const RotationType& rotation );
 
-  /// Rotation intepreted in the local reference frame
-  virtual void rotateInLocalFrame( const RotationType& rotation );
-
   /// Set the AlignmentPositionError to all the components of the composite
   virtual void setAlignmentPositionError( const AlignmentPositionError& ape );
 
