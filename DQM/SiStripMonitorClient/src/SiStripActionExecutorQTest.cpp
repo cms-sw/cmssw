@@ -143,3 +143,12 @@ std::string
 
   return oSummary;
 }
+
+std::string 
+  SiStripActionExecutorQTest::getQTestSummaryLite( const MonitorUserInterface 
+                                                     *poMUI) const {
+
+  std::string oSummary;
+
+  return oSummary;
+}
