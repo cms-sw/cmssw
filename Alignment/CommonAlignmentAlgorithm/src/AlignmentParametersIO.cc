@@ -1,11 +1,10 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-// this class's header
-#include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParametersIO.h"
 #include "Alignment/CommonAlignment/interface/Alignable.h"
-#include "Alignment/CommonAlignmentParametrization/interface/AlignmentTransformations.h"
 #include "Alignment/CommonAlignmentParametrization/interface/RigidBodyAlignmentParameters.h"
 
+// this class's header
+#include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParametersIO.h"
 
 //--------------------------------------------------------------------------------------------------
 // write one set of original parameters

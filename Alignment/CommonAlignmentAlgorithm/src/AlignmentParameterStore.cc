@@ -1,8 +1,8 @@
 /**
  * \file AlignmentParameterStore.cc
  *
- *  $Revision: 1.8 $
- *  $Date: 2007/02/05 12:50:03 $
+ *  $Revision: 1.9 $
+ *  $Date: 2007/02/12 16:06:19 $
  *  (last update by $Author: flucke $)
  */
 
@@ -10,17 +10,15 @@
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include "Alignment/CommonAlignment/interface/Alignable.h"
-#include "Alignment/CommonAlignment/interface/AlignableDet.h"
 #include "Alignment/TrackerAlignment/interface/TrackerAlignableId.h"
 
-#include "Alignment/CommonAlignmentParametrization/interface/AlignmentTransformations.h"
+#include "Alignment/CommonAlignment/interface/Utilities.h"
 #include "Alignment/CommonAlignmentParametrization/interface/RigidBodyAlignmentParameters.h"
-
-// This class's header
-#include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterStore.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentCorrelationsStore.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentExtendedCorrelationsStore.h"
 
+// This class's header
+#include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterStore.h"
 
 //__________________________________________________________________________________________________
 AlignmentParameterStore::AlignmentParameterStore( const Alignables &alis,
@@ -202,25 +200,17 @@ void AlignmentParameterStore::applyParameters(Alignable* alignable)
       << "applyParameters: provided alignable does not have rigid body alignment parameters";
 
   // Translation in local frame
-  AlgebraicVector shift = ap->translation();
+  AlgebraicVector shift = ap->translation(); // fixme: should be LocalVector
 
   // Translation local->global
-  LocalPoint l0 = Local3DPoint( 0.0,  0.0, 0.0);
-  LocalPoint l1 = Local3DPoint(shift[0], shift[1], shift[2]);
-  GlobalPoint g0 = alignable->surface().toGlobal( l0 );
-  GlobalPoint g1 = alignable->surface().toGlobal( l1 );
-  GlobalVector dg = g1-g0;
-  alignable->move(dg);
+  align::LocalVector lv(shift[0], shift[1], shift[2]);
+  alignable->move( alignable->surface().toGlobal(lv) );
 
   // Rotation in local frame
-  AlgebraicVector rota = ap->rotation();
-  if ( fabs(rota[0]) > 1e-5 || fabs(rota[1]) > 1e-5 || fabs(rota[2]) > 1e-5 ) 
+  align::EulerAngles angles = ap->rotation();
+  if (angles.normsq() > 1e-10)
   {
-    AlignmentTransformations alignTransform;
-    Surface::RotationType rot = alignTransform.rotationType( alignTransform.rotMatrix3(rota) );
-    Surface::RotationType rot2 =
-      alignTransform.localToGlobalMatrix( rot, alignable->globalRotation() );
-    alignable->rotateInGlobalFrame(rot2);
+    alignable->rotateInLocalFrame( align::toMatrix(angles) );
   }
 }
 
@@ -269,12 +259,14 @@ void AlignmentParameterStore::resetParameters( Alignable* ali )
 void AlignmentParameterStore::acquireRelativeParameters(void)
 {
 
-  AlignmentTransformations alignTransform;
-  std::vector<Alignable*>::const_iterator iali;
-  for ( iali = theAlignables.begin(); iali != theAlignables.end(); ++iali ) 
+  unsigned int nAlignables = theAlignables.size();
+
+  for (unsigned int i = 0; i < nAlignables; ++i)
   {
+    Alignable* ali = theAlignables[i];
+
     RigidBodyAlignmentParameters* ap = 
-      dynamic_cast<RigidBodyAlignmentParameters*>( (*iali)->alignmentParameters() );
+      dynamic_cast<RigidBodyAlignmentParameters*>( ali->alignmentParameters() );
 
     if ( !ap )
       throw cms::Exception("BadAlignable") 
@@ -285,29 +277,21 @@ void AlignmentParameterStore::acquireRelativeParameters(void)
     AlgebraicSymMatrix cov( ap->size(), 0 );
 	  
     // Get displacement and transform global->local
-    LocalVector dloc = (*iali)->surface().toLocal( (*iali)->displacement() );
+    align::LocalVector dloc = ali->surface().toLocal( ali->displacement() );
     par[0]=dloc.x();
     par[1]=dloc.y();
     par[2]=dloc.z();
-	  
-    // Global rel rotation
-    Surface::RotationType rot = (*iali)->rotation();
-    // Global abs rotation
-    Surface::RotationType detrot = (*iali)->surface().rotation();
-
-    // Global euler angles
-    AlgebraicVector euglob = alignTransform.eulerAngles( rot,0 );
 
     // Transform to local euler angles
-    AlgebraicVector euloc = alignTransform.globalToLocalEulerAngles( euglob, detrot );
-    par[3]=euloc[0];
-    par[4]=euloc[1];
-    par[5]=euloc[2];
+    align::EulerAngles euloc = align::toAngles( ali->surface().toLocal( ali->rotation() ) );
+    par[3]=euloc(1);
+    par[4]=euloc(2);
+    par[5]=euloc(3);
 	  
     // Clone parameters
     RigidBodyAlignmentParameters* apnew = ap->clone(par,cov);
 	  
-    (*iali)->setAlignmentParameters(apnew);
+    ali->setAlignmentParameters(apnew);
   }
 }
 
@@ -349,33 +333,21 @@ applyAlignableAbsolutePositions( const Alignables& alivec,
 	else
 	{
 	  // New position/rotation
-	  GlobalPoint pnew = ipos->pos();
-	  Surface::RotationType rnew = ipos->rot();
+	  const align::PositionType& pnew = ipos->pos();
+	  const align::RotationType& rnew = ipos->rot();
 	  // Current position / rotation
-	  GlobalPoint pold = ali->surface().position();
-	  Surface::RotationType rold = ali->surface().rotation();
+	  const align::PositionType& pold = ali->globalPosition();
+	  const align::RotationType& rold = ali->globalRotation();
 				
 	  // shift needed to move from current to new position
-	  GlobalVector shift = pnew - pold;
-	  ali->move( shift );
-	  LogDebug("NewPosition") << "moving by" << shift;
-				
-	  // Delta-rotation needed to rotate from current to new rotation
-	  int ierr;
-	  AlignmentTransformations alignTransform;
-	  Surface::RotationType rot = 
-	    alignTransform.rotationType(alignTransform.algebraicMatrix(rold).inverse(ierr)) * rnew;
-	  if ( ierr )
-	    edm::LogError("InversionError") << "Matrix inversion failed: not rotating";
-	  else
-	    { 
-	      // 'Repair' matrix for rounding errors 
-	      Surface::RotationType rotfixed = alignTransform.rectify(rot);
-	      ali->rotateInGlobalFrame(rotfixed);
-	      AlgebraicMatrix mrot = alignTransform.algebraicMatrix( rotfixed );
-	      LogDebug("NewRotation") << "rotating by: " << mrot;
-	    }
-				
+	  align::GlobalVector posDiff = pnew - pold;
+	  align::RotationType rotDiff = rold.multiplyInverse(rnew);
+	  align::rectify(rotDiff); // correct for rounding errors 
+	  ali->move( posDiff );
+	  ali->rotateInGlobalFrame( rotDiff );
+	  LogDebug("NewPosition") << "moving by:" << posDiff;
+	  LogDebug("NewRotation") << "rotating by:\n" << rotDiff;
+
 	  // add position error
 	  // AlignmentPositionError ape(shift.x(),shift.y(),shift.z());
 	  // (*iali)->addAlignmentPositionError(ape);
@@ -401,14 +373,16 @@ void AlignmentParameterStore::
 applyAlignableRelativePositions( const Alignables& alivec, const AlignableShifts& shifts, int& ierr )
 {
 
-  unsigned int nappl=0;
   ierr=0;
+  unsigned int nappl=0;
+  unsigned int nAlignables = alivec.size();
 
-  // Iterate over list of alignables
-  for ( Alignables::const_iterator iali = alivec.begin(); iali != alivec.end(); ++iali) 
+  for (unsigned int i = 0; i < nAlignables; ++i)
   {
-    unsigned int detId = theTrackerAlignableId->alignableId( *iali );
-    int typeId=theTrackerAlignableId->alignableTypeId( *iali );
+    Alignable* ali = alivec[i];
+
+    unsigned int detId = theTrackerAlignableId->alignableId(ali);
+    int typeId=theTrackerAlignableId->alignableTypeId(ali);
 
     // Find corresponding entry in AlignableShifts
     bool found = false;
@@ -420,17 +394,13 @@ applyAlignableRelativePositions( const Alignables& alivec, const AlignableShifts
 	    << "New positions for alignable found more than once!";
 	else
 	{
-	  // New position/rotation shift
-	  GlobalVector pnew = ipos->pos();
-	  Surface::RotationType rnew = ipos->rot();
-
-	  (*iali)->move(pnew);
-	  (*iali)->rotateInGlobalFrame(rnew);
+	  ali->move( ipos->pos() );
+	  ali->rotateInGlobalFrame( ipos->rot() );
 				
 	  // Add position error
 	  //AlignmentPositionError ape(pnew.x(),pnew.y(),pnew.z());
-	  //(*iali)->addAlignmentPositionError(ape);
-	  //(*iali)->addAlignmentPositionErrorFromRotation(rnew);
+	  //ali->addAlignmentPositionError(ape);
+	  //ali->addAlignmentPositionErrorFromRotation(rnew);
 
 	  found=true;
 	  ++nappl;
@@ -561,30 +531,29 @@ attachUserVariables( const Alignables& alivec,
 
 //__________________________________________________________________________________________________
 void AlignmentParameterStore::setAlignmentPositionError( const Alignables& alivec, 
-                                                         double valshift, double valrot )
+                                                         const double valshift, const double valrot )
 {
-  bool first=true;
-  for ( Alignables::const_iterator iali = alivec.begin(); iali != alivec.end(); ++iali ) 
+  LogDebug("StoreAPE") << "Store APE from shift: " << valshift;
+  LogDebug("StoreAPE") << "Store APE from rotation: " << valrot;
+
+  unsigned int nAlignables = alivec.size();
+
+  for (unsigned int i = 0; i < nAlignables; ++i)
   {
+    Alignable* ali = alivec[i];
 
     // First reset APE	 
     AlignmentPositionError nulApe(0,0,0);	 
-    (*iali)->setAlignmentPositionError(nulApe);
+    ali->setAlignmentPositionError(nulApe);
 
     // Set APE from displacement
     AlignmentPositionError ape(valshift,valshift,valshift);
-    if ( valshift > 0. ) (*iali)->addAlignmentPositionError(ape);
-    else (*iali)->setAlignmentPositionError(ape);
-    if (first) LogDebug("StoreAPE") << "Store APE from shift: " << valshift;
+    if ( valshift > 0. ) ali->addAlignmentPositionError(ape);
+    else ali->setAlignmentPositionError(ape);
 
     // Set APE from rotation
-    AlignmentTransformations alignTransform;
-    AlgebraicVector r(3);
-    r[0]=valrot; r[1]=valrot; r[2]=valrot;
-    Surface::RotationType aperot = alignTransform.rotationType( alignTransform.rotMatrix3(r) );
-    (*iali)->addAlignmentPositionErrorFromRotation(aperot);
-    if (first) LogDebug("StoreAPE") << "Store APE from rotation: " << valrot;
-
-    first=false;
+    align::EulerAngles r(3);
+    r(1)=valrot; r(2)=valrot; r(3)=valrot;
+    ali->addAlignmentPositionErrorFromRotation( align::toMatrix(r) );
   }
 }

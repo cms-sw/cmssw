@@ -1,6 +1,5 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "Alignment/CommonAlignmentParametrization/interface/AlignmentTransformations.h"
 #include "Alignment/TrackerAlignment/interface/TrackerAlignableId.h"
 
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignableDataIORoot.h"
