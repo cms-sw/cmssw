@@ -13,7 +13,7 @@
 //
 // Original Author:  Samvel Khalatyan (ksamdev at gmail dot com)
 //         Created:  Wed Oct  5 16:42:34 CET 2006
-// $Id: SiStripOfflineDQM.cc,v 1.6 2007/03/01 10:23:55 dutta Exp $
+// $Id: SiStripOfflineDQM.cc,v 1.7 2007/03/12 15:39:18 samvel Exp $
 //
 //
 
@@ -40,7 +40,8 @@ SiStripOfflineDQM::SiStripOfflineDQM( const edm::ParameterSet &roPARAMETER_SET)
   : bVERBOSE_( roPARAMETER_SET.getUntrackedParameter<bool>( "bVerbose")),
     bSAVE_IN_FILE_( roPARAMETER_SET.getUntrackedParameter<bool>( "bOutputMEsInRootFile")),
     oOUT_FILE_NAME_( roPARAMETER_SET.getUntrackedParameter<std::string>( "oOutputFile")),
-    poMui_( new MonitorUIRoot()) {
+    poMui_( new MonitorUIRoot()),
+    oActionExecutor_( roPARAMETER_SET) {
 
   // Create MessageSender
   LogInfo( "SiStripOfflineDQM");
