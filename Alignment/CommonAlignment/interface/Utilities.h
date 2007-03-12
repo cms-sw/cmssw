@@ -5,7 +5,7 @@
  *
  *  Namespace for common type definitions and calculations in alignment.
  *
- *  $Date: 2007/02/28 01:53:40 $
+ *  $Date: 2007/03/11 05:35:33 $
  *  $Revision: 1.1 $
  *  \author Chung Khim Lae
  */
@@ -30,11 +30,13 @@ namespace align
   typedef Vector3DBase<Scalar, GlobalTag> GlobalVector;
   typedef Vector3DBase<Scalar,  LocalTag> LocalVector;
 
-  typedef CLHEP::HepVector    EulerAngles;
-  typedef CLHEP::HepSymMatrix ErrorMatrix;
+  typedef AlgebraicVector    EulerAngles;
+  typedef AlgebraicSymMatrix ErrorMatrix;
 
   typedef std::vector<GlobalPoint>  GlobalPoints;
   typedef std::vector<GlobalVector> GlobalVectors;
+  typedef std::vector<LocalPoint>   LocalPoints;
+  typedef std::vector<LocalVector>  LocalVectors;
 
   /// Convert rotation matrix to angles about x-, y-, z-axes.
   EulerAngles toAngles(

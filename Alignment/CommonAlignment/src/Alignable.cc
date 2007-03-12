@@ -1,7 +1,7 @@
 /** \file Alignable.cc
  *
- *  $Date: 2007/02/20 17:37:16 $
- *  $Revision: 1.6 $
+ *  $Date: 2007/02/22 01:53:41 $
+ *  $Revision: 1.7 $
  *  (last update by $Author: cklae $)
  */
 
@@ -93,7 +93,7 @@ AlignmentParameters* Alignable::alignmentParameters() const
 
 
 //__________________________________________________________________________________________________
-void Alignable::rotateAroundGlobalAxis( const GlobalVector& axis, const float radians )
+void Alignable::rotateAroundGlobalAxis( const GlobalVector& axis, Scalar radians )
 {
 
   rotateInGlobalFrame( RotationType(axis.basicVector(),radians) );
@@ -102,7 +102,7 @@ void Alignable::rotateAroundGlobalAxis( const GlobalVector& axis, const float ra
 
 
 //__________________________________________________________________________________________________
-void Alignable::rotateAroundLocalAxis( const LocalVector& axis, const float radians )
+void Alignable::rotateAroundLocalAxis( const LocalVector& axis, Scalar radians )
 {
 
   rotateInLocalFrame(RotationType(axis.basicVector(), radians));
@@ -111,7 +111,7 @@ void Alignable::rotateAroundLocalAxis( const LocalVector& axis, const float radi
 
 
 //__________________________________________________________________________________________________
-void Alignable::rotateAroundGlobalX( const float radians )
+void Alignable::rotateAroundGlobalX( Scalar radians )
 {
 
   RotationType rot( 1.,  0.,            0.,
@@ -124,7 +124,7 @@ void Alignable::rotateAroundGlobalX( const float radians )
 
 
 //__________________________________________________________________________________________________
-void Alignable::rotateAroundLocalX( const float radians )
+void Alignable::rotateAroundLocalX( Scalar radians )
 {
  
   RotationType rot( 1.,  0.,            0.,
@@ -137,7 +137,7 @@ void Alignable::rotateAroundLocalX( const float radians )
 
 
 //__________________________________________________________________________________________________
-void Alignable::rotateAroundGlobalY( const float radians )
+void Alignable::rotateAroundGlobalY( Scalar radians )
 {
 
   RotationType rot( cos(radians),  0., -sin(radians), 
@@ -150,7 +150,7 @@ void Alignable::rotateAroundGlobalY( const float radians )
 
 
 //__________________________________________________________________________________________________
-void Alignable::rotateAroundLocalY( const float radians )
+void Alignable::rotateAroundLocalY( Scalar radians )
 {
 
   RotationType rot( cos(radians),  0., -sin(radians), 
@@ -163,7 +163,7 @@ void Alignable::rotateAroundLocalY( const float radians )
 
 
 //__________________________________________________________________________________________________
-void Alignable::rotateAroundGlobalZ( const float radians )
+void Alignable::rotateAroundGlobalZ( Scalar radians )
 {
 
   RotationType rot(  cos(radians),  sin(radians),  0.,
@@ -176,7 +176,7 @@ void Alignable::rotateAroundGlobalZ( const float radians )
 
 
 //__________________________________________________________________________________________________
-void Alignable::rotateAroundLocalZ( const float radians)
+void Alignable::rotateAroundLocalZ( Scalar radians)
 {
 
   RotationType rot(  cos(radians),  sin(radians), 0. ,

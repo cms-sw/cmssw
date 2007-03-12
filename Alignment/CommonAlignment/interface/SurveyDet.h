@@ -11,9 +11,6 @@
  */
 
 #include "Alignment/CommonAlignment/interface/AlignableSurface.h"
-#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
-#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
-#include "DataFormats/GeometryVector/interface/LocalPoint.h"
 
 class SurveyDet
 {
@@ -36,13 +33,13 @@ class SurveyDet
 	    const AlignableSurface& // set the surface
 	    );
 
-  inline const AlignableSurface::PositionType& position() const;
+  inline const align::PositionType& position() const;
 
-  inline const AlignableSurface::RotationType& rotation() const;
+  inline const align::RotationType& rotation() const;
 
-  inline const std::vector<LocalPoint>& localPoints() const;
+  inline const align::LocalPoints& localPoints() const;
 
-  inline std::vector<GlobalPoint> globalPoints() const;
+  inline align::GlobalPoints globalPoints() const;
 
   /// Find the Jacobian for a local point to be used in HIP algo.
   /// Does not check the range of index of local point.
@@ -54,25 +51,25 @@ class SurveyDet
 
   AlignableSurface theSurface; // surface of det from survey info
 
-  std::vector<LocalPoint> thePoints; // survey points on the surface
+  std::vector<align::LocalPoint> thePoints; // survey points on the surface
 };
 
-const AlignableSurface::PositionType& SurveyDet::position() const
+const align::PositionType& SurveyDet::position() const
 {
   return theSurface.position();
 }
 
-const AlignableSurface::RotationType& SurveyDet::rotation() const
+const align::RotationType& SurveyDet::rotation() const
 {
   return theSurface.rotation();
 }
 
-const std::vector<LocalPoint>& SurveyDet::localPoints() const
+const align::LocalPoints& SurveyDet::localPoints() const
 {
   return thePoints;
 }
 
-std::vector<GlobalPoint> SurveyDet::globalPoints() const
+align::GlobalPoints SurveyDet::globalPoints() const
 {
   return theSurface.toGlobal(thePoints);
 }

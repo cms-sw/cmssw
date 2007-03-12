@@ -39,7 +39,7 @@ public:
   virtual void recursiveComponents(std::vector<Alignable*> &result) const;
   
   /// Return the global position of the object 
-  virtual const GlobalPoint& globalPosition() const { return theSurface.position(); }
+  virtual const PositionType& globalPosition() const { return theSurface.position(); }
   
   /// Return the global orientation of the object 
   virtual const RotationType& globalRotation() const { return theSurface.rotation(); }

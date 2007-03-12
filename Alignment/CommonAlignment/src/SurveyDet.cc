@@ -3,20 +3,20 @@
 SurveyDet::SurveyDet(const AlignableSurface& surface):
   theSurface(surface)
 {
-  const float W3 = surface.width()  / 3.f;
-  const float L3 = surface.length() / 3.f;
+  const align::Scalar W3 = surface.width()  / 3.;
+  const align::Scalar L3 = surface.length() / 3.;
 
   thePoints.reserve(9); // 9 survey points
 
-  thePoints.push_back( LocalPoint( 0.,  0., 0.) );
-  thePoints.push_back( LocalPoint( W3,  0., 0.) );
-  thePoints.push_back( LocalPoint( W3,  L3, 0.) );
-  thePoints.push_back( LocalPoint( 0.,  L3, 0.) );
-  thePoints.push_back( LocalPoint(-W3,  L3, 0.) );
-  thePoints.push_back( LocalPoint(-W3,  0., 0.) );
-  thePoints.push_back( LocalPoint(-W3, -L3, 0.) );
-  thePoints.push_back( LocalPoint( 0., -L3, 0.) );
-  thePoints.push_back( LocalPoint( W3, -L3, 0.) );
+  thePoints.push_back( align::LocalPoint( 0.,  0., 0.) );
+  thePoints.push_back( align::LocalPoint( W3,  0., 0.) );
+  thePoints.push_back( align::LocalPoint( W3,  L3, 0.) );
+  thePoints.push_back( align::LocalPoint( 0.,  L3, 0.) );
+  thePoints.push_back( align::LocalPoint(-W3,  L3, 0.) );
+  thePoints.push_back( align::LocalPoint(-W3,  0., 0.) );
+  thePoints.push_back( align::LocalPoint(-W3, -L3, 0.) );
+  thePoints.push_back( align::LocalPoint( 0., -L3, 0.) );
+  thePoints.push_back( align::LocalPoint( W3, -L3, 0.) );
 }
 
 AlgebraicMatrix SurveyDet::derivatives(unsigned int index) const
@@ -41,8 +41,8 @@ AlgebraicMatrix SurveyDet::derivatives(unsigned int index) const
 
   jac(1, 1) = 1.; jac(2, 2) = 1.; jac(3, 3) = 1.;
 
-  jac(5, 3) -= jac(6, 2) = thePoints[index].x();
-  jac(6, 1) -= jac(4, 3) = thePoints[index].y();
+  jac(6, 2) -= jac(5, 3) = thePoints[index].x();
+  jac(4, 3) -= jac(6, 1) = thePoints[index].y();
 
   return jac;
 }

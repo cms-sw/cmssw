@@ -6,11 +6,7 @@
 #include "CondFormats/Alignment/interface/AlignmentErrors.h"
 #include "DataFormats/TrackingRecHit/interface/AlignmentPositionError.h"
 
-// #include "CondFormats/Alignment/interface/AlignTransform.h" 
-// #include "CondFormats/Alignment/interface/AlignTransformError.h" 
-
 #include "Alignment/CommonAlignment/interface/AlignableComposite.h"
-
 
 
 //__________________________________________________________________________________________________
@@ -137,38 +133,14 @@ void AlignableComposite::rotateInGlobalFrame( const RotationType& rotation )
 
 
 //__________________________________________________________________________________________________
-// An attempt to have rotations in local frame. Unfortunately, when rotating
-// components one has to go back to the global frame. 
 void AlignableComposite::rotateInLocalFrame( const RotationType& rotation )
 {
 
-  const PositionType& myPos = globalPosition();
-  const RotationType& myRot = globalRotation();
+  // This is done by simply transforming the rotation from
+  // the local system O to the global one  O^-1 * Rot * O
+  // and then applying the global rotation  O * Rot
 
-  RotationType globalRot = myRot.multiplyInverse(rotation * myRot);
-
-  std::vector<Alignable*> comp = components();
-
-  unsigned int nComp = comp.size();
-
-  for (unsigned int i = 0; i < nComp; ++i)
-  {
-    Alignable* ali = comp[i];
-
-    GlobalVector posVector = ali->globalPosition() - myPos;
-
-    const GlobalVector::BasicVectorType& pvgf = posVector.basicVector();
-
-    // apparently... you have to use the inverse of the rotation here
-    // (rotate the VECTOR rather than the frame)
-    GlobalVector moveVector( globalRot.multiplyInverse(pvgf) - pvgf );
-
-    ali->move( moveVector );
-    ali->rotateInGlobalFrame( globalRot );
-  }
-
-  theSurface = AlignableSurface( myPos, rotation * myRot );
-  theRotation = rotation * theRotation;
+  rotateInGlobalFrame( globalRotation().multiplyInverse( rotation*globalRotation() ) );
 
 }
 

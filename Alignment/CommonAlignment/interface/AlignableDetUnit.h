@@ -37,7 +37,7 @@ public:
   virtual void rotateInLocalFrame( const RotationType& rotation );
 
   /// Return position 
-  virtual const GlobalPoint& globalPosition() const { return theSurface.position(); }
+  virtual const PositionType& globalPosition() const { return theSurface.position(); }
 
   /// Return orientation with respect to the global reference frame
   virtual const RotationType& globalRotation () const { return theSurface.rotation(); }

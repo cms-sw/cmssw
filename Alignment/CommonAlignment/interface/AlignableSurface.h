@@ -12,44 +12,60 @@
 
 #include <vector>
 
+#include "Alignment/CommonAlignment/interface/Utilities.h"
 #include "DataFormats/GeometrySurface/interface/GloballyPositioned.h"
 
 class AlignableSurface:
-  public GloballyPositioned<float>
+  public GloballyPositioned<align::Scalar>
 {
   public:
 
   /// Constructor to set position and rotation; width and length default to 0
   AlignableSurface(
-		   const PositionType& = PositionType(), // default 0
-		   const RotationType& = RotationType()  // default identity
+		   const align::PositionType& = PositionType(), // default 0
+		   const align::RotationType& = RotationType()  // default identity
 		   );
 
-  float width() const { return theWidth; }
+  align::Scalar width() const { return theWidth; }
 
-  float length() const { return theLength; }
+  align::Scalar length() const { return theLength; }
 
-  void setWidth(float width) { theWidth = width; }
+  void setWidth(align::Scalar width) { theWidth = width; }
 
-  void setLength(float length) { theLength = length; }
+  void setLength(align::Scalar length) { theLength = length; }
 
-  using GloballyPositioned<float>::toGlobal;
-  using GloballyPositioned<float>::toLocal;
+  using GloballyPositioned<align::Scalar>::toGlobal;
+  using GloballyPositioned<align::Scalar>::toLocal;
 
   /// Return in global coord given a set of local points.
-  std::vector<GlobalPoint> toGlobal(
-				    const std::vector<LocalPoint>&
-				    ) const;
+  align::GlobalPoints toGlobal(
+			       const align::LocalPoints&
+			       ) const;
+
+  /// Return in global frame a rotation given in local frame.
+  align::RotationType toGlobal(
+			       const align::RotationType&
+			       ) const;
+
+  /// Return in global coord given Euler angles in local coord.
+  align::EulerAngles toGlobal(
+			      const align::EulerAngles&
+			      ) const;
 
   /// Return in local frame a rotation given in global frame.
-  TkRotation<float> toLocal(
-			    const TkRotation<float>&
-			    ) const;
+  align::RotationType toLocal(
+			      const align::RotationType&
+			      ) const;
+
+  /// Return in local coord given Euler angles in global coord.
+  align::EulerAngles toLocal(
+			     const align::EulerAngles&
+			     ) const;
 
   private:
 
-  float theWidth;
-  float theLength;
+  align::Scalar theWidth;
+  align::Scalar theLength;
 };
 
 #endif

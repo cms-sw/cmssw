@@ -1,15 +1,14 @@
 #ifndef Alignment_CommonAlignment_Alignable_H
 #define Alignment_CommonAlignment_Alignable_H
 
-#include "DataFormats/TrackingRecHit/interface/AlignmentPositionError.h"
-#include "DataFormats/GeometrySurface/interface/Surface.h"
+#include "DataFormats/TrackingRecHit/interface/AlignmentPositionError.h" // fixme: should forward declare
 #include "Geometry/CommonDetUnit/interface/DetPositioner.h"
-#include "CondFormats/Alignment/interface/Alignments.h"
-#include "CondFormats/Alignment/interface/AlignmentErrors.h"
+#include "CondFormats/Alignment/interface/Alignments.h" // fixme: should forward declare
+#include "CondFormats/Alignment/interface/AlignmentErrors.h" // fixme: should forward declare
 
 // Headers in the same package
 #include "Alignment/CommonAlignment/interface/AlignableObjectId.h"
-#include "Alignment/CommonAlignment/interface/AlignmentParameters.h"
+#include "Alignment/CommonAlignment/interface/AlignmentParameters.h" // fixme: should forward declare
 #include "Alignment/CommonAlignment/interface/AlignableSurface.h"
 
 
@@ -34,10 +33,13 @@ class Alignable : public DetPositioner
 {  
   
 public:
-  
-  typedef Surface::RotationType    RotationType;
-  typedef Surface::PositionType    PositionType;
-  typedef AlignableObjectId::AlignableObjectIdType AlignableObjectIdType;
+
+  typedef align::Scalar       Scalar;
+  typedef align::PositionType PositionType;
+  typedef align::RotationType RotationType;
+  typedef align::GlobalVector GlobalVector;
+  typedef align::LocalVector  LocalVector;
+  typedef AlignableObjectId::AlignableObjectIdType AlignableObjectIdType; // fixme: put in namespace
   
   /// Default constructor
   Alignable();
@@ -88,32 +90,32 @@ public:
   virtual void rotateInLocalFrame( const RotationType& rotation) = 0;
   
   /// Rotation around arbitratry global axis
-  virtual void rotateAroundGlobalAxis( const GlobalVector& axis, const float radians );
+  virtual void rotateAroundGlobalAxis( const GlobalVector& axis, Scalar radians );
 
   /// Rotation around arbitratry local axis
-  virtual void rotateAroundLocalAxis( const LocalVector& axis, const float radians );
+  virtual void rotateAroundLocalAxis( const LocalVector& axis, Scalar radians );
 
   /// Rotation around global x-axis
-  virtual void rotateAroundGlobalX( const float radians );
+  virtual void rotateAroundGlobalX( Scalar radians );
 
   /// Rotation around local x-axis
-  virtual void rotateAroundLocalX( const float radians );
+  virtual void rotateAroundLocalX( Scalar radians );
 
   /// Rotation around global y-axis
-  virtual void rotateAroundGlobalY( const float radians );
+  virtual void rotateAroundGlobalY( Scalar radians );
 
   /// Rotation around local y-axis
-  virtual void rotateAroundLocalY( const float radians ); 
+  virtual void rotateAroundLocalY( Scalar radians ); 
 
   /// Rotation around global z-axis
-  virtual void rotateAroundGlobalZ( const float radians );
+  virtual void rotateAroundGlobalZ( Scalar radians );
 
   /// Rotation around local z-axis
-  virtual void rotateAroundLocalZ( const float radians);
+  virtual void rotateAroundLocalZ( Scalar radians);
 
 
   /// Return the global position of the object
-  virtual const GlobalPoint& globalPosition () const = 0;
+  virtual const PositionType& globalPosition () const = 0;
 
   /// Return the global orientation of the object
   virtual const RotationType& globalRotation () const = 0;

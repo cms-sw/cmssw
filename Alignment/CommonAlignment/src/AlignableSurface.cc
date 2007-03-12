@@ -1,33 +1,47 @@
 #include "Alignment/CommonAlignment/interface/AlignableSurface.h"
 
+using namespace align;
+
 AlignableSurface::AlignableSurface(const PositionType& pos,
 				   const RotationType& rot):
-  GloballyPositioned<float>(pos, rot),
-  theWidth(0.),
-  theLength(0.)
+  GloballyPositioned<Scalar>(pos, rot),
+  theWidth( Scalar() ),
+  theLength( Scalar() )
 {
 }
 
-std::vector<AlignableSurface::GlobalPoint> AlignableSurface::toGlobal(const std::vector<LocalPoint>& localPoints) const
+GlobalPoints AlignableSurface::toGlobal(const LocalPoints& localPoints) const
 {
-  std::vector<GlobalPoint> globalPoints;
+  GlobalPoints globalPoints;
 
-  globalPoints.reserve( localPoints.size() );
+  unsigned int nPoint = localPoints.size();
 
-  globalPoints.push_back( toGlobal(localPoints[0]) );
-  globalPoints.push_back( toGlobal(localPoints[1]) );
-  globalPoints.push_back( toGlobal(localPoints[2]) );
-  globalPoints.push_back( toGlobal(localPoints[3]) );
-  globalPoints.push_back( toGlobal(localPoints[4]) );
-  globalPoints.push_back( toGlobal(localPoints[5]) );
-  globalPoints.push_back( toGlobal(localPoints[6]) );
-  globalPoints.push_back( toGlobal(localPoints[7]) );
-  globalPoints.push_back( toGlobal(localPoints[8]) );
+  globalPoints.reserve(nPoint);
+
+  for (unsigned int j = 0; j < nPoint; ++j)
+  {
+    globalPoints.push_back( toGlobal(localPoints[j]) );
+  }
 
   return globalPoints;
 }
 
-TkRotation<float> AlignableSurface::toLocal(const TkRotation<float>& rot) const
+RotationType AlignableSurface::toGlobal(const RotationType& rot) const
+{
+  return rotation().multiplyInverse( rot * rotation() );
+}
+
+EulerAngles AlignableSurface::toGlobal(const EulerAngles& angles) const
+{
+  return toAngles( toGlobal( toMatrix(angles) ) );
+}
+
+RotationType AlignableSurface::toLocal(const RotationType& rot) const
 {
   return rotation() *  rot * rotation().transposed();
+}
+
+EulerAngles AlignableSurface::toLocal(const EulerAngles& angles) const
+{
+  return toAngles( toLocal( toMatrix(angles) ) );
 }
