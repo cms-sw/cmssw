@@ -1,8 +1,8 @@
+
 <use name=FWCore/Framework>
 <use name=FWCore/Utilities>
 <use name=FWCore/ParameterSet>
 <use name=FWCore/MessageLogger>
-<use name=Utilities/Timing>
 <use name=DataFormats/Common>
 <use name=DataFormats/FEDRawData>
 <use name=DataFormats/SiStripCommon>
@@ -13,6 +13,11 @@
 <use name=oracle>
 <use name=clhep>
 <use name=xdaq>
+
+<use name=CalibFormats/SiStripObjects>
+<use name=CommonTools/SiStripClusterization>
+<use name=CommonTools/SiStripZeroSuppression>
+
 <flags SEAL_PLUGIN_NAME="EventFilterSiStripRawToDigi">
 
 <export>
@@ -21,7 +26,6 @@
    <use name=FWCore/Utilities>
    <use name=FWCore/ParameterSet>
    <use name=FWCore/MessageLogger>
-   <use name=Utilities/Timing>
    <use name=DataFormats/Common>
    <use name=DataFormats/FEDRawData>
    <use name=DataFormats/SiStripCommon>
@@ -32,5 +36,10 @@
    <use name=oracle>
    <use name=clhep>
    <use name=xdaq>
+
+   <use name=CalibFormats/SiStripObjects>
+   <use name=CommonTools/SiStripClusterization>
+   <use name=CommonTools/SiStripZeroSuppression>
+
 </export>
 
