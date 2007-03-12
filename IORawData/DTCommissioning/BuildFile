@@ -8,6 +8,7 @@
 
 <use name=FWCore/Framework>
 <use name=DataFormats/FEDRawData>
+<use name=DataFormats/Provenance>
 <use name=IORawData/DaqSource>
 <use name=castor>
  
