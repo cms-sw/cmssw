@@ -41,7 +41,7 @@ using namespace std;
 //----------------------------------------------------------------------------
 PixelThresholdClusterizer::PixelThresholdClusterizer
   (edm::ParameterSet const& conf) :
-    conf_(conf), bufferAlreadySet(false), theNumOfRows(0), theNumOfCols(0) {
+    conf_(conf), bufferAlreadySet(false), theNumOfRows(0), theNumOfCols(0), detid_(0) {
 
    // Get thresholds in electrons
    thePixelThreshold   = 
@@ -88,7 +88,8 @@ bool PixelThresholdClusterizer::setup(const PixelGeomDetUnit * pixDet) {
   //const GeomDetUnit *pixDet = 
   // Cache the topology.
   const PixelTopology & topol = pixDet->specificTopology();
-  
+
+
   // Get the new sizes.
   int nrows = topol.nrows();      // rows in x
   int ncols = topol.ncolumns();   // cols in y
@@ -129,6 +130,7 @@ void PixelThresholdClusterizer::clusterizeDetUnit( const edm::DetSet<PixelDigi> 
 
    //  Set up the clusterization on this DetId.
    if (!setup(pixDet)) return;
+   detid_ = input.id;
 
    //  Copy PixelDigis to the buffer array; select the seed pixels
    //  on the way, and store them in theSeeds.
@@ -199,6 +201,8 @@ void PixelThresholdClusterizer::copy_to_buffer( DigiIterator begin, DigiIterator
     }
   }
 }
+
+
 //----------------------------------------------------------------------------
 // Calibrate adc counts to electrons
 //-----------------------------------------------------------------
@@ -211,13 +215,20 @@ int PixelThresholdClusterizer::calibrate(int adc, int col, int row) {
     //const float gain = 2.95; // 1 ADC = 2.95 VCALs (1/0.339)
     //const float pedestal = -83.; // -28/0.339
     // Roc-0 average
-    const float gain = 1./0.357; // 1 ADC = 2.80 VCALs 
-    const float pedestal = -28.2 * gain; // -79.
+    //const float gain = 1./0.357; // 1 ADC = 2.80 VCALs 
+    //const float pedestal = -28.2 * gain; // -79.
+
+    float DBgain     = theSiPixelGainCalibrationService_->getGain(detid_, col, row);
+    float DBpedestal = theSiPixelGainCalibrationService_->getPedestal(detid_, col, row) * DBgain;
+
+    //cout << " DETID " << detid_ << " C=" << col << " R=" << row << " PED=" << 
+    //  DBpedestal << " GAIN " << DBgain << endl;
+
     // Roc-6 average
     //const float gain = 1./0.313; // 1 ADC = 3.19 VCALs 
     //const float pedestal = -6.2 * gain; // -19.8
     // 
-    float vcal = adc * gain + pedestal;
+    float vcal = adc * DBgain + DBpedestal;
     
     // atanh calibration 
     // Roc-6 average

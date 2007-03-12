@@ -53,7 +53,6 @@
 // TimeMe class:
 #include "Utilities/Timing/interface/TimingReport.h"
 
-
 #include <vector>
 
 
@@ -68,6 +67,7 @@ class PixelThresholdClusterizer : public PixelClusterizerBase {
 				  const PixelGeomDetUnit * pixDet,
 				  const std::vector<short>& badChannels,
 				  edm::DetSet<SiPixelCluster>& output) ;
+
   
  private:
 
@@ -77,8 +77,7 @@ class PixelThresholdClusterizer : public PixelClusterizerBase {
   SiPixelArrayBuffer               theBuffer;         // internal nrow * ncol matrix
   bool                             bufferAlreadySet;  // status of the buffer array
   std::vector<SiPixelCluster::PixelPos>  theSeeds;          // cached seed pixels
-  std::vector<SiPixelCluster>            theClusters;       // resulting clusters
-  
+  std::vector<SiPixelCluster>            theClusters;       // resulting clusters  
   
   // TO DO: vector<RecHit> theRecHits;
   
@@ -95,6 +94,7 @@ class PixelThresholdClusterizer : public PixelClusterizerBase {
   //! Geometry-related information
   int  theNumOfRows;
   int  theNumOfCols;
+  uint32_t detid_;
 
   bool doMissCalibrate; // Use calibration or not
 
@@ -105,6 +105,7 @@ class PixelThresholdClusterizer : public PixelClusterizerBase {
   SiPixelCluster make_cluster( const SiPixelCluster::PixelPos& pix );
   // Calibrate the ADC charge to electrons 
   int calibrate(int adc, int col, int row);
+
   //{
   //const float gain = 135.; // 1 ADC = 135 electrons
   //const float pedestal = 0.; //

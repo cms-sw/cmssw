@@ -44,6 +44,7 @@ namespace cms
   SiPixelClusterProducer::SiPixelClusterProducer(edm::ParameterSet const& conf) 
     : 
     conf_(conf),
+    theSiPixelGainCalibration_(conf),
     clusterMode_("None"),     // bogus
     clusterizer_(0),          // the default, in case we fail to make one
     readyToCluster_(false),   // since we obviously aren't
@@ -62,12 +63,20 @@ namespace cms
     delete clusterizer_;
   }  
 
+  void SiPixelClusterProducer::beginJob( const edm::EventSetup& es ) {
+    edm::LogInfo("SiPixelClusterizer") << "[SiPixelClusterizer::beginJob]";
+    clusterizer_->setSiPixelGainCalibrationService(& theSiPixelGainCalibration_);
+  }
 
   //---------------------------------------------------------------------------
   //! The "Event" entrypoint: gets called by framework for every event
   //---------------------------------------------------------------------------
   void SiPixelClusterProducer::produce(edm::Event& e, const edm::EventSetup& es)
   {
+
+    //Setup gain calibration service
+    theSiPixelGainCalibration_.setESObjects( es );
+
    // Step A.1: get input data
     //edm::Handle<PixelDigiCollection> pixDigis;
     edm::Handle< edm::DetSetVector<PixelDigi> >  input;

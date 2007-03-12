@@ -4,6 +4,7 @@
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
+#include "CondTools/SiPixel/interface/SiPixelGainCalibrationService.h"
 #include <vector>
 
 class PixelGeomDetUnit;
@@ -25,7 +26,13 @@ public:
 				  const std::vector<short>& badChannels,
 				  edm::DetSet<SiPixelCluster>& output) = 0;
 
-  // TO DO: the way we pass bad channels is most likely have to change later.
+  // Configure gain calibration service
+  void setSiPixelGainCalibrationService( SiPixelGainCalibrationService* in){ 
+    theSiPixelGainCalibrationService_=in;
+  }
+
+ protected:
+  SiPixelGainCalibrationService* theSiPixelGainCalibrationService_;
 
 };
 
