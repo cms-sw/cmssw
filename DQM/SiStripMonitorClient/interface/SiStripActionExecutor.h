@@ -16,7 +16,7 @@ class SiStripActionExecutor {
  public:
 
   SiStripActionExecutor();
- ~SiStripActionExecutor();
+  virtual ~SiStripActionExecutor();
 
  void createSummary(MonitorUserInterface* mui);
 
