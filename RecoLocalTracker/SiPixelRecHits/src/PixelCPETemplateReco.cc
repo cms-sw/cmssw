@@ -38,15 +38,15 @@ PixelCPETemplateReco::PixelCPETemplateReco(edm::ParameterSet const & conf,
   // &&& initialize the templates, etc.
   
   // Initialize template store, CMSSW simulation as thePixelTemp[0]
-  templ_.pushfile(201);
-  
+  //templ_.pushfile(201);
+
   // Initialize template store, Pixelav 125V simulation as
   // thePixelTemp[1]
-  templ_.pushfile(1);
-	 
+  templ_.pushfile(2);
+  
   // Initialize template store, CMSSW simulation w/ reduced difusion
   // as thePixelTemp[2]
-  templ_.pushfile(401);
+  //templ_.pushfile(401);
 }
 
 //-----------------------------------------------------------------------------
@@ -189,13 +189,14 @@ PixelCPETemplateReco::localPosition(const SiPixelCluster& cluster, const GeomDet
   
   // ******************************************************************
   // Do it!
-  ierr = 
-    PixelTempReco2D( ID, fpix, cotalpha, cotbeta, 
-		     clust_array_2d, ydouble, xdouble, 
-		     templ_, 
-		     templYrec_, templSigmaY_,
-		     templXrec_, templSigmaX_ );
+  ierr =
+    PixelTempReco2D(ID, fpix, cotalpha, cotbeta,
+                    clust_array_2d, ydouble, xdouble,
+                    templ_,
+                    templYrec_, templSigmaY_, templProbY_,
+                    templXrec_, templSigmaX_, templProbX_, templQbin_);
   // ******************************************************************
+
   
   // &&& need a class const
   const float micronsToCm = 1.0e-4;
