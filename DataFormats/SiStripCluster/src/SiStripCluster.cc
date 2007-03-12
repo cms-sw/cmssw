@@ -48,7 +48,7 @@ SiStripCluster::SiStripCluster(const uint32_t& detid,
   copy(begin,end,amplitudes_.begin());
 }
 
-float SiStripCluster::barycenter() const {
+float SiStripCluster::barycenter() {
 
   if (barycenter_ < 0.) {
 
