@@ -23,8 +23,9 @@ class SiPixelGainCalibrationService {
   edm::ParameterSet conf_;
   edm::ESHandle<SiPixelGainCalibration> ped;
   bool UseCalibDataFromDB_;
-  bool ESetupInit_;
   float    PedestalValue_, GainValue_;
+  bool ESetupInit_;
+
   uint32_t old_detID;
   int      old_cols;
   SiPixelGainCalibration::Range old_range;
