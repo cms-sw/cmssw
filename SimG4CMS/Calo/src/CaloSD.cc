@@ -511,12 +511,13 @@ bool CaloSD::saveHit(CaloG4Hit* aHit) {
   if (corrTOFBeam) time += correctT;
   LogDebug("CaloSim") << "CalosD: Track ID " << aHit->getTrackID() 
 		      << " changed to " << tkID << " by SimTrackManager" ;
-  slave->processHits(aHit->getUnitID(), aHit->getEnergyDeposit()/GeV,
+  slave->processHits(aHit->getUnitID(), aHit->getEM()/GeV, aHit->getHadr()/GeV,
 		     time, tkID);
   LogDebug("CaloSim") << "CaloSD: Store Hit at " << std::hex 
 		      << aHit->getUnitID() << std::dec << " due to " << tkID 
 		      << " in time " << time << " of energy " 
-		      << aHit->getEnergyDeposit()/GeV << " GeV";
+		      << aHit->getEM()/GeV << " GeV (EM) and " 
+		      << aHit->getHadr()/GeV << " GeV (Hadr)";
   return ok;
 }
 
