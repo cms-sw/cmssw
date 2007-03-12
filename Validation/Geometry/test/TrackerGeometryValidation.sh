@@ -158,6 +158,13 @@ fi
 echo "...done"
 #
 
+# Run the Module Numbering (only Microstrip) check algorithm and print the tail
+echo "Run the Tracker ModuleNumbering analyzer to print Tracker Numbering check..."
+cmsRun $CMSSW_RELEASE_BASE/src/Geometry/TrackerNumberingBuilder/test/trackerModuleNumbering.cfg
+echo "TRACKER MICROSTRIP NUMBERING... LOOK AT THE RESULTS"
+tail -7 ModuleNumbering.log
+#
+
 # Compare the ModuleNumbering.dat file with the reference one
 echo "Compare the ModuleNumbering.dat (Tracker Module position/orientation) file with the reference one..."
 if [ -e diff_num.temp ]; then

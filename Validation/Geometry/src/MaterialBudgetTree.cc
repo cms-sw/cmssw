@@ -23,7 +23,7 @@ void MaterialBudgetTree::book()
 
   // GENERAL block
   theTree->Branch("MB", &t_MB, "MB/F");
-  theTree->Branch("MB", &t_IL, "IL/F");
+  theTree->Branch("IL", &t_IL, "IL/F");
   
   // rr
   // PARTICLE Block
