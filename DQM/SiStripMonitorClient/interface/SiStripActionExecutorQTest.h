@@ -21,6 +21,9 @@ class SiStripActionExecutorQTest: public SiStripActionExecutor {
     //   summary string
     virtual std::string 
       getQTestSummary( const MonitorUserInterface *poMUI) const;
+
+    virtual std::string
+      getQTestSummaryLite( const MonitorUserInterface *poMUI) const;
 };
 
 #endif // DQM_SISTRIPMONITORCLIENT_SISTRIPACTIONEXECUTORQTEST_H
