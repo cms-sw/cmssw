@@ -1,7 +1,7 @@
 /**\class PhotonSimpleAnalyzer
  **
- ** $Date: 2006/11/28 16:12:37 $ 
- ** $Revision: 1.3 $
+ ** $Date: 2006/12/04 16:54:52 $ 
+ ** $Revision: 1.4 $
  ** \author Nancy Marinelli, U. of Notre Dame, US
 */
 
@@ -9,7 +9,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 //
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"

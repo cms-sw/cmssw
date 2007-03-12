@@ -3,9 +3,9 @@
 /** \class PhotonProducer
  **  
  **
- **  $Id: PhotonProducer.h,v 1.7 2007/02/19 21:40:34 futyand Exp $ 
- **  $Date: 2007/02/19 21:40:34 $ 
- **  $Revision: 1.7 $
+ **  $Id: PhotonProducer.h,v 1.8 2007/02/28 17:15:48 futyand Exp $ 
+ **  $Date: 2007/02/28 17:15:48 $ 
+ **  $Revision: 1.8 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -14,7 +14,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"

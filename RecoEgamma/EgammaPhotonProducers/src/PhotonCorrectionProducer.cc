@@ -8,11 +8,11 @@
 //
 // Original Author:  
 //         Created:  Thu May 25 11:10:50 CDT 2006
-// $Id: PhotonCorrectionProducer.cc,v 1.13 2007/02/19 21:58:49 futyand Exp $
+// $Id: PhotonCorrectionProducer.cc,v 1.14 2007/03/01 17:52:28 futyand Exp $
 //
 
 #include "RecoEgamma/EgammaPhotonProducers/interface/PhotonCorrectionProducer.h"
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
