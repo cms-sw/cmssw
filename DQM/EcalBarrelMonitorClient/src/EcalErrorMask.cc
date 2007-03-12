@@ -1,11 +1,11 @@
-// $Id: EcalErrorMask.cc,v 1.13 2007/02/08 11:45:25 dellaric Exp $
+// $Id: EcalErrorMask.cc,v 1.15 2007/03/11 19:43:07 dellaric Exp $
 
 /*!
   \file EcalErrorMask.cc
   \brief Error mask from text file or database
   \author B. Gobbo 
-  \version $Revision: 1.13 $
-  \date $Date: 2007/02/08 11:45:25 $
+  \version $Revision: 1.15 $
+  \date $Date: 2007/03/11 19:43:07 $
 */
 
 #include "DQM/EcalBarrelMonitorClient/interface/EcalErrorMask.h"
@@ -505,6 +505,25 @@ void EcalErrorMask::readDB( EcalCondDBInterface* eConn, RunIOV* runIOV ) throw( 
     } catch ( std::runtime_error & e ) {
       throw( std::runtime_error( e.what() ) );
     }
+
+#if 0
+    try {
+      RunIOV validIOV;
+      RunTag runTag = runIOV->getRunTag();
+      string location = runTag.getLocationDef().getLocation();
+      eConn->fetchValidDataSet( &EcalErrorMask::mapCrystalErrors_, &validIOV, location, runIOV->getRunNumber() );
+
+      // use the IOV for CrystalErrors as reference
+      EcalErrorMask::runNb_ = validIOV.getRunNumber();
+
+      eConn->fetchValidDataSet( &EcalErrorMask::mapTTErrors_,      &validIOV, location, runIOV->getRunNumber() );
+      eConn->fetchValidDataSet( &EcalErrorMask::mapPNErrors_,      &validIOV, location, runIOV->getRunNumber() );
+      eConn->fetchValidDataSet( &EcalErrorMask::mapMemChErrors_,   &validIOV, location, runIOV->getRunNumber() );
+      eConn->fetchValidDataSet( &EcalErrorMask::mapMemTTErrors_,   &validIOV, location, runIOV->getRunNumber() );
+    } catch ( std::runtime_error & e ) {
+      throw( std::runtime_error( e.what() ) );
+    }
+#endif
 
   }
 
