@@ -4,8 +4,8 @@
 /*
  * \file HcalMonitorModule.h
  *
- * $Date: 2006/09/28 22:17:54 $
- * $Revision: 1.8 $
+ * $Date: 2006/10/23 19:31:23 $
+ * $Revision: 1.9 $
  * \author W. Fisher
  *
 */
@@ -21,7 +21,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "DataFormats/Common/interface/EventID.h"
+#include "DataFormats/Provenance/interface/EventID.h"
 
 #include "DQM/HcalMonitorModule/interface/HcalMonitorSelector.h"
 #include "DQM/HcalMonitorTasks/interface/HcalDigiMonitor.h"
