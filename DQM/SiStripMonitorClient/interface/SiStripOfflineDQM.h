@@ -27,7 +27,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
-#include "DQM/SiStripMonitorClient/interface/SiStripActionExecutor.h"
+#include "DQM/SiStripMonitorClient/interface/SiStripActionExecutorQTest.h"
 
 class MonitorUserInterface;
 
@@ -42,12 +42,12 @@ class SiStripOfflineDQM: public edm::EDAnalyzer {
     virtual void endJob();
 
   private:
-    bool bVerbose;
-    bool bSaveInFile;
-    const std::string oFILE_NAME;
-    MonitorUserInterface *poMui;
-    SiStripActionExecutor oActionExecutor_;
-    bool _qTestSetupDone;
+    const bool        bVERBOSE_;
+    const bool        bSAVE_IN_FILE_;
+    const std::string oOUT_FILE_NAME_;
+
+    MonitorUserInterface       *poMui_;
+    SiStripActionExecutorQTest  oActionExecutor_;
 };
 
 #endif

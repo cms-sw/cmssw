@@ -13,7 +13,7 @@
 //
 // Original Author:  Samvel Khalatyan (ksamdev at gmail dot com)
 //         Created:  Wed Oct  5 16:42:34 CET 2006
-// $Id: SiStripOfflineDQM.cc,v 1.5 2007/02/24 22:10:12 dutta Exp $
+// $Id: SiStripOfflineDQM.cc,v 1.6 2007/03/01 10:23:55 dutta Exp $
 //
 //
 
@@ -29,77 +29,76 @@
 
 using edm::LogInfo;
 
+/** 
+* @brief 
+*   Construct object
+* 
+* @param roPARAMETER_SET 
+*   Regular Parameter Set that represent read configuration file
+*/
 SiStripOfflineDQM::SiStripOfflineDQM( const edm::ParameterSet &roPARAMETER_SET)
-  : bVerbose( roPARAMETER_SET.getUntrackedParameter<bool>( "bVerbose")),
-    bSaveInFile( roPARAMETER_SET.getUntrackedParameter<bool>( "bOutputMEsInRootFile")),
-    oFILE_NAME( roPARAMETER_SET.getUntrackedParameter<std::string>( "oOutputFile")),
-    poMui( new MonitorUIRoot()),  _qTestSetupDone(false) {
+  : bVERBOSE_( roPARAMETER_SET.getUntrackedParameter<bool>( "bVerbose")),
+    bSAVE_IN_FILE_( roPARAMETER_SET.getUntrackedParameter<bool>( "bOutputMEsInRootFile")),
+    oOUT_FILE_NAME_( roPARAMETER_SET.getUntrackedParameter<std::string>( "oOutputFile")),
+    poMui_( new MonitorUIRoot()) {
 
   // Create MessageSender
   LogInfo( "SiStripOfflineDQM");
 }
 
 SiStripOfflineDQM::~SiStripOfflineDQM() {
-  delete poMui;
+  delete poMui_;
 }
 
+/** 
+* @brief 
+*   Executed everytime once all events are processed
+* 
+* @param roEVENT_SETUP 
+*   Event Setup object
+*/
 void SiStripOfflineDQM::beginJob( const edm::EventSetup &roEVENT_SETUP) {
   // Essential: creates some object that are used in createSummary
   oActionExecutor_.readConfiguration();
-  if( bVerbose) {
+  oActionExecutor_.setupQTests( poMui_);
+
+  if( bVERBOSE_) {
     LogInfo( "SiStripOfflineDQM") << "[beginJob] done";
   }
 }
 
+/** 
+* @brief 
+* 
+* @param roEVENT 
+*   Event Object that holds all collections
+* @param roEVENT_SETUP 
+*   Event Setup Object with Geometry, Magnetic Field, etc.
+*/
 void SiStripOfflineDQM::analyze( const edm::Event      &roEVENT, 
 				                         const edm::EventSetup &roEVENT_SETUP) {
 
-
-  if (!_qTestSetupDone) {
-    oActionExecutor_.setupQTests( poMui);
-    _qTestSetupDone = true;
-  }
-  
-
-  if( bVerbose) {
+  if( bVERBOSE_) {
     LogInfo( "SiStripOfflineDQM") << "[analyze] done";
   }
 }
 
 
 void SiStripOfflineDQM::endJob() {
-  if( bVerbose) {
+  if( bVERBOSE_) {
     LogInfo( "SiStripOfflineDQM") << "[endJob] start";
   }
 
-  poMui->runQTests();
+  poMui_->runQTests();
+  LogInfo( "SiStripOfflineDQM") << oActionExecutor_.getQTestSummary( poMui_);
 
-  // determine the "global" status of the system
-  int status = poMui->getSystemStatus();
-  switch(status)
-    {
-    case dqm::qstatus::ERROR:
-      LogInfo( "SiStripOfflineDQM") << " Error(s)";
-      break;
-    case dqm::qstatus::WARNING:
-      LogInfo( "SiStripOfflineDQM") << " Warning(s)";
-      break;
-    case dqm::qstatus::OTHER:
-      LogInfo( "SiStripOfflineDQM") << " Some tests did not run;";
-      break; 
-    default:
-      LogInfo( "SiStripOfflineDQM") << " No problems in Quality Test";
-    }
-    LogInfo( "SiStripOfflineDQM") << " ----- reported after running the quality tests ";
+  oActionExecutor_.createSummary( poMui_);
 
-
-  oActionExecutor_.createSummary( poMui);
-
-  if( bSaveInFile) {
-    oActionExecutor_.saveMEs( poMui, oFILE_NAME);
+  if( bSAVE_IN_FILE_) {
+    oActionExecutor_.saveMEs( poMui_, oOUT_FILE_NAME_);
   }
 
-  if( bVerbose) {
+  if( bVERBOSE_) {
     LogInfo( "SiStripOfflineDQM") << "[endJob] done";
   }
 }
