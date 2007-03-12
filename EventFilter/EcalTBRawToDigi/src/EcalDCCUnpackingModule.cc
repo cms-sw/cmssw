@@ -1,7 +1,7 @@
 /* \file EcalDCCUnpackingModule.h
  *
- *  $Date: 2006/09/19 14:31:52 $
- *  $Revision: 1.28 $
+ *  $Date: 2006/09/21 15:22:16 $
+ *  $Revision: 1.29 $
  *  \author N. Marinelli
  *  \author G. Della Ricca
  *  \author G. Franzoni
@@ -22,7 +22,7 @@
 #include <DataFormats/EcalDigi/interface/EcalDigiCollections.h>
 #include <DataFormats/EcalRawData/interface/EcalRawDataCollections.h>
 #include <TBDataFormats/EcalTBObjects/interface/EcalTBCollections.h>
-#include <FWCore/Framework/interface/Handle.h>
+#include <DataFormats/Common/interface/Handle.h>
 #include <FWCore/Framework/interface/Event.h>
 
 
