@@ -1,7 +1,7 @@
 /**\class PhotonSimpleAnalyzer
  **
- ** $Date: 2006/12/04 16:54:52 $ 
- ** $Revision: 1.4 $
+ ** $Date: 2007/03/12 18:57:37 $ 
+ ** $Revision: 1.5 $
  ** \author Nancy Marinelli, U. of Notre Dame, US
 */
 
@@ -14,7 +14,7 @@
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
-#include "DataFormats/HepMCCandidate/interface/HepMCCandidate.h"
+#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 //
 #include "TFile.h"
 
