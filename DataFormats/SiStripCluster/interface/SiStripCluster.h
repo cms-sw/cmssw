@@ -1,10 +1,11 @@
 #ifndef DATAFORMATS_SISTRIPCLUSTER_H
 #define DATAFORMATS_SISTRIPCLUSTER_H
 
+//#include "DataFormats/Common/interface/traits.h"
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include <vector>
 
-class SiStripCluster {
+class SiStripCluster  /*: public edm::DoNotSortUponInsertion*/ {
 public:
 
   typedef std::vector<SiStripDigi>::const_iterator   SiStripDigiIter;
@@ -17,6 +18,11 @@ public:
   SiStripCluster() : detId_(0) {}
 
   SiStripCluster( uint32_t detid, const SiStripDigiRange& range);
+
+  SiStripCluster(const uint32_t& detid, 
+		 const uint16_t& firstStrip, 
+		 std::vector<uint16_t>::const_iterator begin, 
+		 std::vector<uint16_t>::const_iterator end );
 
   /** The number of the first strip in the cluster
    */
@@ -41,7 +47,7 @@ public:
   /** The barycenter of the cluster, not corrected for Lorentz shift;
    *  should not be used as position estimate for tracking.
    */
-  float barycenter() const {return barycenter_;}
+  float barycenter() const;
 
 private:
 
