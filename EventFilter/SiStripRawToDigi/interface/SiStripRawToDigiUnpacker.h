@@ -59,6 +59,8 @@ class SiStripRawToDigiUnpacker {
 		   SiStripEventSummary&,
 		   const uint32_t& event );
 
+  friend class SiStripRawToClustersModule;
+
  private:
   
   /** Private default constructor. */
@@ -69,7 +71,7 @@ class SiStripRawToDigiUnpacker {
 
   inline sistrip::FedBufferFormat fedBufferFormat( const uint16_t& register_value );
   inline sistrip::FedReadoutMode fedReadoutMode( const uint16_t& register_value );
-  
+
   void locateStartOfFedBuffer( const uint16_t& fed_id, const FEDRawData& input, FEDRawData& output );
   void dumpRawData( uint16_t fed_id, const FEDRawData&, std::stringstream& );
   
