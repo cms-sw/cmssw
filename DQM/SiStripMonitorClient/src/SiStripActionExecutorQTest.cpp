@@ -5,12 +5,21 @@
 #include <vector>
 #include <sstream>
 
+#include "DQMServices/ClientConfig/interface/QTestConfigurationParser.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/MonitorUserInterface.h"
 #include "DQMServices/Core/interface/QReport.h"
 #include "DQM/SiStripMonitorClient/interface/SiStripUtility.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DQM/SiStripMonitorClient/interface/SiStripActionExecutorQTest.h"
+
+SiStripActionExecutorQTest::SiStripActionExecutorQTest( const edm::ParameterSet 
+                                                          &roPARAMETER_SET)
+  : SiStripActionExecutor(),
+    oQTEST_CONFIG_FILE_( 
+      roPARAMETER_SET.getUntrackedParameter<std::string>( "oQTestsXMLConfig")) {
+}
 
 std::string 
   SiStripActionExecutorQTest::getQTestSummary( const MonitorUserInterface 
@@ -149,6 +158,13 @@ std::string
                                                      *poMUI) const {
 
   std::string oSummary;
+
+  QTestConfigurationParser oParser;
+  oParser.getDocument( oQTEST_CONFIG_FILE_);
+  if( !oParser.parseQTestsConfiguration()) {
+  } else {
+    // Failed to parse QTests configuration file
+  }
 
   return oSummary;
 }
