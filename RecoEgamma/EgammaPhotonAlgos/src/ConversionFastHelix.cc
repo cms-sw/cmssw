@@ -19,7 +19,7 @@ ConversionFastHelix::ConversionFastHelix(const GlobalPoint& outerHit,
 	    aVertex),
   mField(field) {
   
-  validHelix=true;
+  validHelix=false;
   
 }
 
@@ -121,18 +121,11 @@ FreeTrajectoryState ConversionFastHelix::helixStateAtVertex()  {
 		       CurvilinearTrajectoryError(C));
     
     
-    
+    validHelix=true;    
     return atVertex;
-    
-    
-    
-    
-  } else {
-    
-    validHelix=false;
+  } else 
+
     return atVertex;
-    
-  }
 
 
 
@@ -187,12 +180,12 @@ FreeTrajectoryState ConversionFastHelix::straightLineStateAtVertex() {
 						  q,
 						  mField),
 		       CartesianTrajectoryError(C));
-    
+    validHelix=true;        
     return atVertex;
     
   } else {
     
-    validHelix=false;
+    
     return atVertex;
   
   }
