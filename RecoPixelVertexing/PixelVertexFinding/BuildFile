@@ -5,7 +5,7 @@
 <use name=Foundation/PluginManager>
 <use name=Geometry/Records>
 <use name=Geometry/TrackerGeometryBuilder>
-<use name=Geometry/CommonDetAlgo>
+<use name=DataFormats/GeometryCommonDetAlgo>
 <use name=CommonTools/Clustering1D>
 <use name=DataFormats/TrackReco>
 <use name=RecoPixelVertexing/PixelTriplets>
@@ -19,7 +19,7 @@
  <use name=Foundation/PluginManager>
  <use name=Geometry/Records>
  <use name=Geometry/TrackerGeometryBuilder>
- <use name=Geometry/CommonDetAlgo>
+ <use name=DataFormats/GeometryCommonDetAlgo>
  <use name=CommonTools/Clustering1D>
  <use name=DataFormats/TrackReco>
  <use name=RecoPixelVertexing/PixelTriplets>

@@ -1,14 +1,14 @@
 /** \file
  *
- *  $Date: 2006/06/25 15:31:39 $
- *  $Revision: 1.19 $
+ *  $Date: 2006/10/17 21:04:17 $
+ *  $Revision: 1.21 $
  *  \author S. Argiro - N. Amapane - M. Zanetti 
  * FRC 060906
  */
 
 
 #include <FWCore/Framework/interface/Event.h>
-#include <FWCore/Framework/interface/Handle.h>
+#include <DataFormats/Common/interface/Handle.h>
 #include <FWCore/Framework/interface/ESHandle.h>
 #include <FWCore/Framework/interface/MakerMacros.h>
 #include <FWCore/Framework/interface/EventSetup.h>

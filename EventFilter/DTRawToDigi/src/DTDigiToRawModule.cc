@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2005/10/26 11:35:25 $
+ *  $Revision: 1.1 $
  *  \author N. Amapane - CERN
  */
 
@@ -9,7 +9,7 @@
 #include <EventFilter/DTRawToDigi/src/DTDigiToRaw.h>
 #include <DataFormats/FEDRawData/interface/FEDRawDataCollection.h>
 #include <DataFormats/DTDigi/interface/DTDigiCollection.h>
-#include <FWCore/Framework/interface/Handle.h>
+#include <DataFormats/Common/interface/Handle.h>
 #include <FWCore/Framework/interface/Event.h>
 
 using namespace edm;

@@ -3,18 +3,18 @@
    Test suite for DTUnpackingModule
 
    \author Stefano ARGIRO
-   \version $Id: testDTUnpackingModule.cc,v 1.8 2005/10/11 15:48:55 namapane Exp $
+   \version $Id: testDTUnpackingModule.cc,v 1.9 2005/10/12 12:20:10 namapane Exp $
    \date 29 Jun 2005
 
    \note these tests are not testing anything but the thing not crashing
         
 */
 
-static const char CVSId[] = "$Id: testDTUnpackingModule.cc,v 1.8 2005/10/11 15:48:55 namapane Exp $";
+static const char CVSId[] = "$Id: testDTUnpackingModule.cc,v 1.9 2005/10/12 12:20:10 namapane Exp $";
 
 #include <cppunit/extensions/HelperMacros.h>
 #include <FWCore/Framework/interface/EventProcessor.h>
-#include "FWCore/Utilities/interface/ProblemTracker.h"
+#include "FWCore/PluginManager/interface/ProblemTracker.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include <iostream>
 #include <cstdlib>

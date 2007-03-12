@@ -22,7 +22,7 @@
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 
 #include "CommonTools/Statistics/interface/LinearFit.h"
-#include "DataFormats/GeometryCommonDetAlg/interface/Measurement1D.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/Measurement1D.h"
 
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"

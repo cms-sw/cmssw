@@ -5,8 +5,8 @@
 //   L1 DT Track Finder Digi-to-Raw
 //
 //
-//   $Date: 2006/06/01 00:00:00 $
-//   $Revision: 1.1 $
+//   $Date: 2007/03/07 14:37:42 $
+//   $Revision: 1.2 $
 //
 //   Author :
 //   J. Troconiz  UAM Madrid
@@ -15,7 +15,7 @@
 
 #include "EventFilter/DTTFRawToDigi/interface/DTTFFEDSim.h"
 
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
 
 #include <DataFormats/FEDRawData/interface/FEDRawData.h>

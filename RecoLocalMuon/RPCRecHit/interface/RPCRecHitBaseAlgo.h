@@ -5,14 +5,14 @@
  *  Abstract algorithmic class to compute Rec Hit
  *  form a RPC digi
  *
- *  $Date: 2006/04/12 22:40:51 $
+ *  $Date: 2006/04/18 16:28:00 $
  *  $Revision: 1.1 $
  *  \author M. Maggi -- INFN Bari
  */
 
-#include "Geometry/Vector/interface/LocalPoint.h"
-#include "Geometry/Surface/interface/LocalError.h"
-#include "Geometry/Vector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/LocalPoint.h"
+#include "DataFormats/GeometrySurface/interface/LocalError.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
 #include "DataFormats/RPCRecHit/interface/RPCRecHit.h"
 #include "DataFormats/Common/interface/OwnVector.h"

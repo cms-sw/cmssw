@@ -6,13 +6,13 @@
  *  Define some basic tools and utilities for 1D DT Rec Hit and 
  *  2D, 4D DT Segment analysis
  *
- *  $Date: 2006/08/04 10:33:44 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/08/04 10:40:36 $
+ *  $Revision: 1.2 $
  *  \author S. Bolognesi and G. Cerminara - INFN Torino
  */
 
-#include "Geometry/Vector/interface/LocalVector.h"
-#include "Geometry/Vector/interface/LocalPoint.h"
+#include "DataFormats/GeometryVector/interface/LocalVector.h"
+#include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"

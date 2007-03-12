@@ -5,8 +5,8 @@
 //   Description: L1 barrel Muon Trigger Track Finder
 //
 //
-//   $Date: 2006/11/20 15:41:03 $
-//   $Revision: 1.2 $
+//   $Date: 2007/03/06 15:26:35 $
+//   $Revision: 1.4 $
 //
 //   Author :
 //   N. Neumeister            CERN EP
@@ -30,7 +30,7 @@
 // Collaborating Class Headers --
 //-------------------------------
 
-#include <FWCore/Framework/interface/Handle.h>
+#include <DataFormats/Common/interface/Handle.h>
 #include <FWCore/Framework/interface/Event.h>
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h"
 #include "L1Trigger/DTTrackFinder/src/L1MuDTTFConfig.h"

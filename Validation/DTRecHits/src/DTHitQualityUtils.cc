@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: July 2006 $
- *  $Revision: 1.0 $
+ *  $Date: 2006/08/04 10:34:02 $
+ *  $Revision: 1.1 $
  *  \author S. Bolognesi and G. Cerminara - INFN Torino
  */
 
@@ -11,7 +11,7 @@
 #include "DTHitQualityUtils.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
-#include "Geometry/Vector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 
 #include <iostream>
