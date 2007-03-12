@@ -1,14 +1,20 @@
+<use name=lhapdf>
 <use name=herwig6_510>
 <use name=boost>
 <use name=FWCore/Framework>
+<use name=FWCore/Utilities>
+<use name=FWCore/ParameterSet>
 <use name=SimDataFormats/HepMCProduct>
 <use name=clhep>
 <flags SEAL_PLUGIN_NAME="GeneratorInterfaceMCatNLOInterface">
 <export>
  <lib name=GeneratorInterfaceMCatNLOInterface>
- <use name=herwig6_510>	
+ <use name=lhapdf>	
+ <use name=herwig6_510>
  <use name=boost>
  <use name=FWCore/Framework>
+ <use name=FWCore/Utilities>
+ <use name=FWCore/ParameterSet>
  <use name=SimDataFormats/HepMCProduct>
  <use name=clhep>
 </export>

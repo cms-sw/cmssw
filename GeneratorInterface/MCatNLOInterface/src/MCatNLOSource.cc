@@ -12,6 +12,7 @@
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "CLHEP/Random/JamesRandom.h"
 #include "CLHEP/Random/RandFlat.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 #include <iostream>
 #include <fstream>
@@ -29,9 +30,15 @@ extern"C" {
   void mysetpdfpath_(char*);
   void setlhaparm_(char*);
   void setherwpdf_(void);
-  // function to chatch 'STOP' in original HWWARN
+  // function to chatch 'STOP' in original HWWARN:
   void cmsending_(int*);
+
+  extern struct {
+    double eventisok;
+  } eventstat_;
 }
+
+#define eventstat eventstat_
 
 #define setpdfpath setpdfpath_
 #define mysetpdfpath mysetpdfpath_
@@ -47,6 +54,8 @@ static const unsigned long kAveEventPerSec = 200;
 
 // herwig common block conversion
 HepMC::IO_HERWIG conv;
+
+bool skk = true;
 
 MCatNLOSource::MCatNLOSource( const ParameterSet & pset, InputSourceDescription const& desc ) :
   GeneratedInputSource(pset, desc), evt(0), 
@@ -570,17 +579,18 @@ void MCatNLOSource::processST()
 void MCatNLOSource::processUnknown(bool positive)
 {
   if(positive)
-    throw cms::Exception("MCatNLOError")
+    throw edm::Exception(edm::errors::Configuration,"MCatNLOError")
       <<" Unsupported process "<<processNumber_<<". Use Herwig6Interface for positively valued process ID.";
   else
-    throw cms::Exception("MCatNLOError")
+    throw edm::Exception(edm::errors::Configuration,"MCatNLOError")
       <<" Unsupported process "<<processNumber_<<". Check MCatNLO manuel for allowed process ID.";
 }
 
 
 bool MCatNLOSource::produce(Event & e) {
-
-  auto_ptr<HepMCProduct> bare_product(new HepMCProduct());  
+  
+  // here event is fine ...
+  eventstat.eventisok = 0.0;
   
   hwuine();
   hwepro();
@@ -589,9 +599,10 @@ bool MCatNLOSource::produce(Event & e) {
   if(useJimmy_ && doMPInteraction_) {
     double eventok = 0.0;
     eventok = hwmsct_dummy(&eventok);
-    if(eventok > 0.5) return true;
+    if(eventok > 0.5) {
+      return true;
+    }
   }
-
   
   hwdhob();
   hwcfor();
@@ -600,11 +611,18 @@ bool MCatNLOSource::produce(Event & e) {
   hwdhvy();
   hwmevt();
   hwufne();
+
+  if(eventstat.eventisok > 0.5) {
+    return true;
+  }
   
+  // HERWIG produced event correctly
+
   HepMC::GenEvent* evt = new HepMC::GenEvent();
   bool ok = conv.fill_next_event( evt );
-  if(!ok) throw cms::Exception("HerwigError")
+  if(!ok) throw edm::Exception(edm::errors::EventCorruption,"HerwigError")
     <<" Conversion problems in event nr."<<numberEventsInRun() - remainingEvents() - 1<<".";  
+
   evt->set_signal_process_id(hwproc.IPROC);  
   evt->weights().push_back(hwevnt.EVWGT);
   evt->set_event_number(numberEventsInRun() - remainingEvents() - 1);
@@ -615,10 +633,12 @@ bool MCatNLOSource::produce(Event & e) {
 	 << "----------------------" << endl;
     evt->print();
   }
-  
-  if(evt)  bare_product->addHepMCData(evt );
-  
-  e.put(bare_product);
+
+  if(evt) {
+    auto_ptr<HepMCProduct> bare_product(new HepMCProduct());    
+    bare_product->addHepMCData(evt );
+    e.put(bare_product);
+  }
   
   return true;
 }
@@ -660,7 +680,7 @@ bool MCatNLOSource::hwgive(const std::string& ParameterString) {
       todo++;
     }
     if(todo != 6) {
-      throw cms::Exception("HerwigError")
+      throw edm::Exception(edm::errors::Configuration,"HerwigError")
 	<<" Attempted to set TAUDEC to "<<hwdspn.TAUDEC<<". This is not allowed.\n Options for TAUDEC are HERWIG and TAUOLA.";
     }
   }
@@ -1619,7 +1639,7 @@ void MCatNLOSource::getVpar()
     params.mmgav = params.mmxww;
     break;
   default:
-    throw cms::Exception("MCatNLOError") <<" No such option in getVpar.";
+    throw edm::Exception(edm::errors::Configuration,"MCatNLOError") <<" No such option in getVpar.";
   }
 }
 
@@ -1693,6 +1713,6 @@ void MCatNLOSource::createStringFile(const std::string& fileName)
 extern "C" {
   void cmsending_(int* ecode) {
     cout<<"   ERROR: Herwig stoped run after recieving error code "<<*ecode<<"."<<endl;
-    throw cms::Exception("Herwig6Error") <<" Herwig stoped run with error code "<<*ecode<<".";
+    throw edm::Exception(edm::errors::LogicError,"Herwig6Error") <<" Herwig stoped run with error code "<<*ecode<<".";
   }
 }
