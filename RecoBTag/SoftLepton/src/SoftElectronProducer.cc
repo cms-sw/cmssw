@@ -146,8 +146,14 @@ void SoftElectronProducer::produce(edm::Event &iEvent,
   {
     track = &(*itTrack);
 
-    tmpFTS = theTrackAssociator->getFreeTrajectoryState(iSetup, *track);
-    info = theTrackAssociator->associate(iEvent, iSetup, tmpFTS, parameters);
+    try {
+      tmpFTS = theTrackAssociator->getFreeTrajectoryState(iSetup, *track);
+      info = theTrackAssociator->associate(iEvent, iSetup, tmpFTS, parameters);
+    } catch (cms::Exception e) {
+      // extrapolation failed, skip this track
+      std::cerr << "Caught exception during track extrapolation: internal error, skipping track" << endl;
+      continue;
+    }
 
     x[0] = info.trkGlobPosAtEcal.x();
     y[0] = info.trkGlobPosAtEcal.y();
