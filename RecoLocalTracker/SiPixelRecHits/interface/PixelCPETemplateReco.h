@@ -65,6 +65,12 @@ class PixelCPETemplateReco : public PixelCPEBase
   mutable float templYrec_ ;
   mutable float templSigmaX_ ;
   mutable float templSigmaY_ ;
+  // Add new information produced by SiPixelTemplateReco::PixelTempReco2D &&&
+  // These can only be accessed if we change silicon pixel data formats and add them to the rechit
+  mutable float templProbX_ ;
+  mutable float templProbY_ ;
+  mutable int templQbin_ ;
+
 };
 
 #endif
