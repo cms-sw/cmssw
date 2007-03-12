@@ -1,6 +1,9 @@
 //
-//  SiPixelTemplate.h
+//  SiPixelTemplate.h (v2.40)
 //
+//  Add goodness-of-fit info and spare entries to templates, version number in template header, more error checking
+//  Add correction for (Q_F-Q_L)/(Q_F+Q_L) bias
+//  Add cot(beta) reflection to reduce y-entries and more sophisticated x-interpolation
 //
 // Created by Morris Swartz on 10/27/06.
 // Copyright 2006 __TheJohnsHopkinsUniversity__. All rights reserved.
@@ -41,26 +44,18 @@ struct SiPixelTemplateEntry { //!< Basic template entry corresponding to a singl
   float yrms[4];           //!< average y-rms of reconstruction binned in 4 charge bins 
   float ygx0[4];           //!< average y0 from Gaussian fit binned in 4 charge bins 
   float ygsig[4];          //!< average sigma_y from Gaussian fit binned in 4 charge bins 
-  float yeavg[4];          //!< average y-bias of reconstruction for even length clusters binned in 4 charge bins 
-  float yerms[4];          //!< average y-rms of reconstruction for even length clusters binned in 4 charge bins 
-  float yegx0[4];          //!< average y0 from Gaussian fit for even length clusters binned in 4 charge bins 
-  float yegsig[4];         //!< average sigmay from Gaussian fit for even length clusters binned in 4 charge bins 
-  float yoavg[4];          //!< average y-bias of reconstruction for odd length clusters binned in 4 charge bins 
-  float yorms[4];          //!< average y-rms of reconstruction for odd length clusters binned in 4 charge bins 
-  float yogx0[4];          //!< average y0 from Gaussian fit for odd length clusters binned in 4 charge bins 
-  float yogsig[4];         //!< average sigmay from Gaussian fit for odd length clusters binned in 4 charge bins 
+  float yflpar[4][6];      //!< Aqfl-parameterized y-correction in 4 charge bins 
   float xavg[4];           //!< average x-bias of reconstruction binned in 4 charge bins 
   float xrms[4];           //!< average x-rms of reconstruction binned in 4 charge bins 
   float xgx0[4];           //!< average x0 from Gaussian fit binned in 4 charge bins 
   float xgsig[4];          //!< average sigma_x from Gaussian fit binned in 4 charge bins 
-  float xeavg[4];          //!< average x-bias of reconstruction for even length clusters binned in 4 charge bins 
-  float xerms[4];          //!< average x-rms of reconstruction for even length clusters binned in 4 charge bins 
-  float xegx0[4];          //!< average x0 from Gaussian fit for even length clusters binned in 4 charge bins 
-  float xegsig[4];         //!< average sigmax from Gaussian fit for even length clusters binned in 4 charge bins 
-  float xoavg[4];          //!< average x-bias of reconstruction for odd length clusters binned in 4 charge bins 
-  float xorms[4];          //!< average x-rms of reconstruction for odd length clusters binned in 4 charge bins 
-  float xogx0[4];          //!< average x0 from Gaussian fit for odd length clusters binned in 4 charge bins 
-  float xogsig[4];         //!< average sigmax from Gaussian fit for odd length clusters binned in 4 charge bins 
+  float xflpar[4][6];      //!< Aqfl-parameterized x-correction in 4 charge bins 
+  float chi2yavg[4];       //!< average y chi^2 in 4 charge bins
+  float chi2ymin[4];       //!< minimum of y chi^2 in 4 charge bins
+  float chi2xavg[4];       //!< average x chi^2 in 4 charge bins
+  float chi2xmin[4];       //!< minimum of x chi^2 in 4 charge bins 
+  float yspare[10];       //!< spare entries
+  float xspare[10];       //!< spare entries
 } ;
 
 
@@ -70,13 +65,16 @@ struct SiPixelTemplateHeader {           //!< template header structure
   char title[80];         //!< template title 
   int ID;                 //!< template ID number 
   int NBy;                //!< number of Barrel y entries 
-  int NBx;                //!< number of Barrel x entries 
+  int NByx;               //!< number of Barrel y-slices of x entries 
+  int NBxx;               //!< number of Barrel x entries in each slice
   int NFy;                //!< number of FPix y entries 
-  int NFx;                //!< number of FPix x entries 
+  int NFyx;               //!< number of FPix y-slices of x entries 
+  int NFxx;               //!< number of FPix x entries in each slice
   float vbias;            //!< detector bias potential in Volts 
   float temperature;      //!< detector temperature in deg K 
   float fluence;          //!< radiation fluence in n_eq/cm^2 
   float s50;              //!< 1/2 of the readout threshold in ADC units 
+  int templ_version;      //!< Version number of the template to ensure code compatibility 
 } ;
 
 
@@ -85,10 +83,10 @@ struct SiPixelTemplateHeader {           //!< template header structure
 
 struct SiPixelTemplateStore { //!< template storage structure 
   SiPixelTemplateHeader head;
-  SiPixelTemplateEntry entby[119];     //!< 119 Barrel y templates spanning cluster lengths from -18px to +18px 
-  SiPixelTemplateEntry entbx[7];       //!< 7 Barrel x templates spanning alpha angles from -225mRad to +225mRad 
-  SiPixelTemplateEntry entfy[6];       //!< 6 FPix y templates spanning cluster lengths from -0.95px t0 -0.45px and +0.45px to 0.95px 
-  SiPixelTemplateEntry entfx[9];       //!< 9 FPix x templates spanning alpha angles from 75mRad to 675mRad 
+  SiPixelTemplateEntry entby[60];     //!< 60 Barrel y templates spanning cluster lengths from 0px to +18px 
+  SiPixelTemplateEntry entbx[5][7];   //!< 7 Barrel x templates spanning alpha angles from -225mRad to +225mRad in each of 5 slices
+  SiPixelTemplateEntry entfy[3];      //!< 3 FPix y templates spanning cluster lengths from 0.45px to 0.95px 
+  SiPixelTemplateEntry entfx[2][9];   //!< 9 FPix x templates spanning alpha angles from 75mRad to 675mRad in each of 2 slices
 } ;
 
 
@@ -118,10 +116,21 @@ class SiPixelTemplate {
  public:
   SiPixelTemplate() {id_current = -1; index_id = -1; cota_current = 0.; cotb_current = 0.; fpix_current=false;} //!< Default constructor
   bool pushfile(int filenum);     // load the private store with info from the 
-  // file with the index (int) filenum
+                                  // file with the index (int) filenum
   
   // Interpolate input alpha and beta angles to produce a working template for each individual hit. 
   void interpolate(int id, bool fpix, float cotalpha, float cotbeta);
+  
+  // Convert vector of projected signals into uncertainties for fitting. 
+  void ysigma2(int fypix, int lypix, std::vector<float> ysum, std::vector<float>& ysig2);
+  
+  void xsigma2(int fxpix, int lxpix, std::vector<float> xsum, std::vector<float>& xsig2);
+  
+  // Interpolate qfl correction in y. 
+  float yflcorr(int binq, float qfly);
+  
+  // Interpolate qfl correction in x. 
+  float xflcorr(int binq, float qflx);
   
   float qavg() {return pqavg;}        //!< average cluster charge for this set of track angles 
   float s50() {return ps50;}               //!< 1/2 of the pixel threshold signal in adc units 
@@ -131,49 +140,31 @@ class SiPixelTemplate {
   float dytwo() {return pdytwo;}             //!< mean offset/correction for one double-pixel y-clusters 
   float sytwo() {return psytwo;}            //!< rms for one double-pixel y-clusters 
   float sxmax() {return psxmax;}            //!< average pixel signal for x-projection of cluster 
-  float sxparmax() {return psxparmax;}          //!< maximum pixel signal for parameterization of x uncertainties 
   float dxone() {return pdxone;}             //!< mean offset/correction for one pixel x-clusters 
   float sxone() {return psxone;}             //!< rms for one pixel x-clusters 
   float dxtwo() {return pdxtwo;}             //!< mean offset/correction for one double-pixel x-clusters 
   float sxtwo() {return psxtwo;}             //!< rms for one double-pixel x-clusters 
   float yratio() {return pyratio;}            //!< fractional distance in y between cotbeta templates 
-  float yparl(int i, int j)
-  {assert(i>=0 && i<2 && j>= 0 && j<5); return pyparl[i][j];} //!< projected y-pixel uncertainty parameterization for smaller cotbeta
-  float yparh(int i, int j) 
-  {assert(i>=0 && i<2 && j>= 0 && j<5); return pyparh[i][j];} //!< projected y-pixel uncertainty parameterization for larger cotbeta
   float ytemp(int i, int j) 
   {assert(i>=0 && i<41 && j>= 0 && j<25); return pytemp[i][j];}     //!< templates for y-reconstruction (binned over 5 central pixels) 
-  float xratio() {return pxratio;}           //!< fractional distance in x between cotalpha templates 
-  float xparl(int i, int j)
-  {assert(i>=0 && i<2 && j>= 0 && j<5); return pxparl[i][j];} //!< projected x-pixel uncertainty parameterization for smaller cotbeta
-  float xparh(int i, int j) 
-  {assert(i>=0 && i<2 && j>= 0 && j<5); return pxparh[i][j];} //!< projected x-pixel uncertainty parameterization for larger cotbeta
+  float yxratio() {return pyxratio;}           //!< fractional distance in y between cotalpha templates slices
+  float xxratio() {return pxxratio;}           //!< fractional distance in x between cotalpha templates 
   float xtemp(int i, int j) 
   {assert(i>=0 && i<41 && j>= 0 && j<25); return pxtemp[i][j];}     //!< templates for x-reconstruction (binned over 5 central pixels) 
   float yavg(int i) {assert(i>=0 && i<4); return pyavg[i];}         //!< average y-bias of reconstruction binned in 4 charge bins 
   float yrms(int i) {assert(i>=0 && i<4); return pyrms[i];}         //!< average y-rms of reconstruction binned in 4 charge bins 
   float ygx0(int i) {assert(i>=0 && i<4); return pygx0[i];}         //!< average y0 from Gaussian fit binned in 4 charge bins 
   float ygsig(int i) {assert(i>=0 && i<4); return pygsig[i];}       //!< average sigma_y from Gaussian fit binned in 4 charge bins 
-  float yeavg(int i) {assert(i>=0 && i<4); return pyeavg[i];}       //!< average y-bias of reconstruction for even length clusters binned in 4 charge bins 
-  float yerms(int i) {assert(i>=0 && i<4); return pyerms[i];}       //!< average y-rms of reconstruction for even length clusters binned in 4 charge bins 
-  float yegx0(int i) {assert(i>=0 && i<4); return pyegx0[i];}       //!< average y0 from Gaussian fit for even length clusters binned in 4 charge bins 
-  float yegsig(int i) {assert(i>=0 && i<4); return pyegsig[i];}     //!< average sigmay from Gaussian fit for even length clusters binned in 4 charge bins 
-  float yoavg(int i) {assert(i>=0 && i<4); return pyoavg[i];}       //!< average y-bias of reconstruction for odd length clusters binned in 4 charge bins 
-  float yorms(int i) {assert(i>=0 && i<4); return pyorms[i];}       //!< average y-rms of reconstruction for odd length clusters binned in 4 charge bins 
-  float yogx0(int i) {assert(i>=0 && i<4); return pyogx0[i];}       //!< average y0 from Gaussian fit for odd length clusters binned in 4 charge bins 
-  float yogsig(int i) {assert(i>=0 && i<4); return pyavg[i];}       //!< average sigmay from Gaussian fit for odd length clusters binned in 4 charge bins 
   float xavg(int i) {assert(i>=0 && i<4); return pxavg[i];}         //!< average x-bias of reconstruction binned in 4 charge bins 
   float xrms(int i) {assert(i>=0 && i<4); return pxrms[i];}         //!< average x-rms of reconstruction binned in 4 charge bins 
   float xgx0(int i) {assert(i>=0 && i<4); return pxgx0[i];}         //!< average x0 from Gaussian fit binned in 4 charge bins 
   float xgsig(int i) {assert(i>=0 && i<4); return pxgsig[i];}       //!< average sigma_x from Gaussian fit binned in 4 charge bins 
-  float xeavg(int i) {assert(i>=0 && i<4); return pxeavg[i];}       //!< average x-bias of reconstruction for even length clusters binned in 4 charge bins 
-  float xerms(int i) {assert(i>=0 && i<4); return pxerms[i];}       //!< average x-rms of reconstruction for even length clusters binned in 4 charge bins 
-  float xegx0(int i) {assert(i>=0 && i<4); return pxegx0[i];}       //!< average x0 from Gaussian fit for even length clusters binned in 4 charge bins 
-  float xegsig(int i) {assert(i>=0 && i<4); return pxegsig[i];}     //!< average sigmax from Gaussian fit for even length clusters binned in 4 charge bins 
-  float xoavg(int i) {assert(i>=0 && i<4); return pxoavg[i];}       //!< average x-bias of reconstruction for odd length clusters binned in 4 charge bins 
-  float xorms(int i) {assert(i>=0 && i<4); return pxorms[i];}       //!< average x-rms of reconstruction for odd length clusters binned in 4 charge bins 
-  float xogx0(int i) {assert(i>=0 && i<4); return pxogx0[i];}       //!< average x0 from Gaussian fit for odd length clusters binned in 4 charge bins 
-  float xogsig(int i) {assert(i>=0 && i<4); return pxavg[i];}       //!< average sigmax from Gaussian fit for odd length clusters binned in 4 charge bins 
+  float chi2yavg(int i) {assert(i>=0 && i<4); return pchi2yavg[i];} //!< average y chi^2 in 4 charge bins 
+  float chi2ymin(int i) {assert(i>=0 && i<4); return pchi2ymin[i];} //!< minimum y chi^2 in 4 charge bins 
+  float chi2xavg(int i) {assert(i>=0 && i<4); return pchi2xavg[i];} //!< averaage x chi^2 in 4 charge bins
+  float chi2xmin(int i) {assert(i>=0 && i<4); return pchi2xmin[i];} //!< minimum y chi^2 in 4 charge bins
+  float yspare(int i) {assert(i>=0 && i<10); return pyspare[i];}    //!< vector of 10 spares interpolated in beta only
+  float xspare(int i) {assert(i>=0 && i<10); return pxspare[i];}    //!< vector of 10 spares interpolated in alpha and beta
   
   
  private:
@@ -184,6 +175,7 @@ class SiPixelTemplate {
   int index_id;             //!< current index
   float cota_current;       //!< current cot alpha
   float cotb_current;       //!< current cot beta
+  float abs_cotb;           //!< absolute value of cot beta
   bool fpix_current;        //!< current pix detector (false for BPix, true for FPix)
   
   
@@ -205,8 +197,12 @@ class SiPixelTemplate {
   float pyratio;            //!< fractional distance in y between cotbeta templates 
   float pyparl[2][5];       //!< projected y-pixel uncertainty parameterization for smaller cotbeta 
   float pyparh[2][5];       //!< projected y-pixel uncertainty parameterization for larger cotbeta 
+  float pxparly0[2][5];     //!< projected x-pixel uncertainty parameterization for smaller cotbeta (central alpha)
+  float pxparhy0[2][5];     //!< projected x-pixel uncertainty parameterization for larger cotbeta (central alpha)
   float pytemp[41][25];     //!< templates for y-reconstruction (binned over 5 central pixels) 
-  float pxratio;            //!< fractional distance in x between cotalpha templates 
+  float pyxratio;           //!< fractional distance in y between x-slices of cotalpha templates 
+  float pxxratio;           //!< fractional distance in x between cotalpha templates 
+  float pxpar0[2][5];       //!< projected x-pixel uncertainty parameterization for central cotalpha 
   float pxparl[2][5];       //!< projected x-pixel uncertainty parameterization for smaller cotalpha 
   float pxparh[2][5];       //!< projected x-pixel uncertainty parameterization for larger cotalpha 
   float pxtemp[41][11];     //!< templates for x-reconstruction (binned over 5 central pixels) 
@@ -214,26 +210,22 @@ class SiPixelTemplate {
   float pyrms[4];           //!< average y-rms of reconstruction binned in 4 charge bins 
   float pygx0[4];           //!< average y0 from Gaussian fit binned in 4 charge bins 
   float pygsig[4];          //!< average sigma_y from Gaussian fit binned in 4 charge bins 
-  float pyeavg[4];          //!< average y-bias of reconstruction for even length clusters binned in 4 charge bins 
-  float pyerms[4];          //!< average y-rms of reconstruction for even length clusters binned in 4 charge bins 
-  float pyegx0[4];          //!< average y0 from Gaussian fit for even length clusters binned in 4 charge bins 
-  float pyegsig[4];         //!< average sigmay from Gaussian fit for even length clusters binned in 4 charge bins 
-  float pyoavg[4];          //!< average y-bias of reconstruction for odd length clusters binned in 4 charge bins 
-  float pyorms[4];          //!< average y-rms of reconstruction for odd length clusters binned in 4 charge bins 
-  float pyogx0[4];          //!< average y0 from Gaussian fit for odd length clusters binned in 4 charge bins 
-  float pyogsig[4];         //!< average sigmay from Gaussian fit for odd length clusters binned in 4 charge bins 
+  float pyflparl[4][6];    //!< Aqfl-parameterized y-correction in 4 charge bins for smaller cotbeta
+  float pyflparh[4][6];    //!< Aqfl-parameterized y-correction in 4 charge bins for larger cotbeta
   float pxavg[4];           //!< average x-bias of reconstruction binned in 4 charge bins 
   float pxrms[4];           //!< average x-rms of reconstruction binned in 4 charge bins 
   float pxgx0[4];           //!< average x0 from Gaussian fit binned in 4 charge bins 
-  float pxgsig[4];          //!< average sigma_x from Gaussian fit binned in 4 charge bins 
-  float pxeavg[4];          //!< average x-bias of reconstruction for even length clusters binned in 4 charge bins 
-  float pxerms[4];          //!< average x-rms of reconstruction for even length clusters binned in 4 charge bins 
-  float pxegx0[4];          //!< average x0 from Gaussian fit for even length clusters binned in 4 charge bins 
-  float pxegsig[4];         //!< average sigmax from Gaussian fit for even length clusters binned in 4 charge bins 
-  float pxoavg[4];          //!< average x-bias of reconstruction for odd length clusters binned in 4 charge bins 
-  float pxorms[4];          //!< average x-rms of reconstruction for odd length clusters binned in 4 charge bins 
-  float pxogx0[4];          //!< average x0 from Gaussian fit for odd length clusters binned in 4 charge bins 
-  float pxogsig[4];         //!< average sigmax from Gaussian fit for odd length clusters binned in 4 charge bins 
+  float pxgsig[4];           //!< sigma from Gaussian fit binned in 4 charge bins 
+  float pxflparll[4][6];    //!< Aqfl-parameterized x-correction in 4 charge bins for smaller cotbeta, cotalpha
+  float pxflparlh[4][6];    //!< Aqfl-parameterized x-correction in 4 charge bins for smaller cotbeta, larger cotalpha
+  float pxflparhl[4][6];    //!< Aqfl-parameterized x-correction in 4 charge bins for larger cotbeta, smaller cotalpha
+  float pxflparhh[4][6];    //!< Aqfl-parameterized x-correction in 4 charge bins for larger cotbeta, cotalpha 
+  float pchi2yavg[4];       //!< average y chi^2 in 4 charge bins
+  float pchi2ymin[4];       //!< minimum of y chi^2 in 4 charge bins
+  float pchi2xavg[4];       //!< average x chi^2 in 4 charge bins
+  float pchi2xmin[4];       //!< minimum of x chi^2 in 4 charge bins 
+  float pyspare[10];        //!< vector of 10 spares interpolated in beta only
+  float pxspare[10];        //!< vector of 10 spares interpolated in alpha and beta
   
   // The actual template store is a std::vector container
 
