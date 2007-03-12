@@ -1,9 +1,9 @@
 /**
  * \file AlignmentParameterStore.cc
  *
- *  $Revision: 1.9 $
- *  $Date: 2007/02/12 16:06:19 $
- *  (last update by $Author: flucke $)
+ *  $Revision: 1.10 $
+ *  $Date: 2007/03/12 21:39:04 $
+ *  (last update by $Author: cklae $)
  */
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -531,11 +531,8 @@ attachUserVariables( const Alignables& alivec,
 
 //__________________________________________________________________________________________________
 void AlignmentParameterStore::setAlignmentPositionError( const Alignables& alivec, 
-                                                         const double valshift, const double valrot )
+                                                         double valshift, double valrot )
 {
-  LogDebug("StoreAPE") << "Store APE from shift: " << valshift;
-  LogDebug("StoreAPE") << "Store APE from rotation: " << valrot;
-
   unsigned int nAlignables = alivec.size();
 
   for (unsigned int i = 0; i < nAlignables; ++i)
@@ -556,4 +553,7 @@ void AlignmentParameterStore::setAlignmentPositionError( const Alignables& alive
     r(1)=valrot; r(2)=valrot; r(3)=valrot;
     ali->addAlignmentPositionErrorFromRotation( align::toMatrix(r) );
   }
+
+  LogDebug("StoreAPE") << "Store APE from shift: " << valshift;
+  LogDebug("StoreAPE") << "Store APE from rotation: " << valrot;
 }
