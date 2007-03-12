@@ -58,7 +58,7 @@
 using namespace edm;
 using namespace std;
 
-//#define FAMOS_DEBUG
+#define FAMOS_DEBUG
 
 namespace cms{
   GSTrackCandidateMaker::GSTrackCandidateMaker(edm::ParameterSet const& conf) : 
@@ -83,7 +83,8 @@ namespace cms{
 
   void GSTrackCandidateMaker::beginJob (EventSetup const & es)
   {
-    //services
+
+   //services
     es.get<TrackerRecoGeometryRecord>().get(theGeomSearchTracker);
     es.get<IdealMagneticFieldRecord>().get(theMagField);
     es.get<TrackerDigiGeometryRecord>().get(theGeometry);
@@ -278,6 +279,7 @@ namespace cms{
 	float        charge   = (*iTrack).charge();
 	GlobalTrajectoryParameters initialParams(position,momentum,(int)charge,&*theMagField);
 	AlgebraicSymMatrix errorMatrix(5,1);
+	//why?
 	errorMatrix = errorMatrix * 10;
 
 #ifdef FAMOS_DEBUG
@@ -320,24 +322,26 @@ namespace cms{
 	//
 
 	// Track Candidate stored
-	TrackCandidate newTrackCandidate(recHits, TrajectorySeed(), *initialState );
+	TrackCandidate newTrackCandidate(recHits, TrajectorySeed(*initialState, recHits, alongMomentum), *initialState );
 	// Log
 
 #ifdef FAMOS_DEBUG
+	std::cout << "\tSeed Information " << std::endl;
+	std::cout << "\tSeed Direction = " << TrajectorySeed(*initialState, recHits, alongMomentum).direction() << std::endl;
+	std::cout << "\tSeed StartingDet = " << TrajectorySeed(*initialState, recHits, alongMomentum).startingState().detId() << std::endl;
+
 	std::cout << "\tTrajectory Parameters " << std::endl;
 	std::cout << "\t\t detId  = " << newTrackCandidate.trajectoryStateOnDet().detId()                        << std::endl;
 	std::cout << "\t\t loc.px = " << newTrackCandidate.trajectoryStateOnDet().parameters().momentum().x()    << std::endl;
 	std::cout << "\t\t loc.py = " << newTrackCandidate.trajectoryStateOnDet().parameters().momentum().y()    << std::endl;
 	std::cout << "\t\t loc.pz = " << newTrackCandidate.trajectoryStateOnDet().parameters().momentum().z()    << std::endl;
-	std::cout << "\t\t error  = ";
-#endif
-	
-#ifdef FAMOS_DEBUG
+       	std::cout << "\t\t error  = ";
 	for(std::vector< float >::const_iterator iElement = newTrackCandidate.trajectoryStateOnDet().errorMatrix().begin();
 	    iElement < newTrackCandidate.trajectoryStateOnDet().errorMatrix().end();
 	    iElement++) {
 	  std::cout << "\t" << *iElement;
 	}
+	std::cout << std::endl;
 #endif
 	output->push_back(newTrackCandidate);
 	nCandidates++;
