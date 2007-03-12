@@ -42,8 +42,8 @@ class TOBDetId : public SiStripDetId {
   
   /// rod id
   /**
-   * vector[0] = 0 -> bw rod
-   * vector[0] = 1 -> fw rod
+   * vector[0] = 1 -> bw rod (TOB-)
+   * vector[0] = 2 -> fw rod (TOB+)
    * vector[1] -> rod
    */
   std::vector<unsigned int> rod() const
@@ -105,17 +105,17 @@ class TOBDetId : public SiStripDetId {
   
  private:
   /// two bits would be enough, but  we could use the number "0" as a wildcard
-  static const unsigned int layerStartBit_=     16;
-  static const unsigned int rod_fw_bwStartBit_= 15;
-  static const unsigned int rodStartBit_=       8;
+  static const unsigned int layerStartBit_=     14;
+  static const unsigned int rod_fw_bwStartBit_= 12;
+  static const unsigned int rodStartBit_=       5;
   static const unsigned int moduleStartBit_=    2;
   static const unsigned int sterStartBit_=      0;
   /// two bits would be enough, but  we could use the number "0" as a wildcard
   
-  static const unsigned int layerMask_=       0xF;
-  static const unsigned int rod_fw_bwMask_=   0x1;
+  static const unsigned int layerMask_=       0x7;
+  static const unsigned int rod_fw_bwMask_=   0x3;
   static const unsigned int rodMask_=         0x7F;
-  static const unsigned int moduleMask_=      0x3F;
+  static const unsigned int moduleMask_=      0x7;
   static const unsigned int sterMask_=        0x3;
 };
 

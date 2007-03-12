@@ -9,35 +9,16 @@
 #include <fstream>
 #include <sstream>
 #include <string>
+#include <bitset>
 
 
 CmsTrackerDetIdBuilder::CmsTrackerDetIdBuilder(){
-  // Read the file with the map between detid and navtype to restore backward compatibility between 12* and 13* series
-  std::cout << " **************************************************************** " << std::endl;
-  std::cout << "       You are running Tracker numbering scheme with rr patch     " << std::endl;
-  std::cout << "          backward compatibility with CMSSW_1_2_0 restored        " << std::endl;
-  std::cout << " **************************************************************** " << std::endl;
-  std::string theNavTypeToDetIdMap_FileName = edm::FileInPath("Geometry/TrackerNumberingBuilder/data/ModuleNumbering_120.dat").fullPath();
-  //  std::cout <<" ECCO "<<theNavTypeToDetIdMap_FileName<<std::endl;
-  std::ifstream theNavTypeToDetIdMap_File(theNavTypeToDetIdMap_FileName.c_str());
-  if (!theNavTypeToDetIdMap_File) 
-    cms::Exception("LogicError") <<" File not found "<<theNavTypeToDetIdMap_FileName;
-  // fill the map
-  uint32_t detid;
-  detid = 0;
-  std::string navType;
-  float x,y,z;
-  x=y=z=0;
-  //
-  while(theNavTypeToDetIdMap_File) {
-    //
-    theNavTypeToDetIdMap_File >> detid
-			      >> navType
-			      >> x >> y >> z;    
-    //
-    mapNavTypeToDetId[navType] = detid;
-  }
-  //
+  // rr
+  std::cout << " ************************************************************************ " << std::endl;
+  std::cout << "       You are running New rr Tracker Microstrip numbering scheme         " << std::endl;
+  std::cout << "               no backward compatibility with CMSSW_1_3_*                 " << std::endl;
+  std::cout << " ************************************************************************ " << std::endl;
+  // rr
 }
 
 GeometricDet* CmsTrackerDetIdBuilder::buildId(GeometricDet* tracker){
@@ -51,140 +32,327 @@ GeometricDet* CmsTrackerDetIdBuilder::buildId(GeometricDet* tracker){
 }
 
 void CmsTrackerDetIdBuilder::iterate(GeometricDet* in, int level, unsigned int ID){
-  if(level == 0){
+  std::bitset<32> binary_ID(ID);
+  std::cout << "******** Level " << level-1 << "-->" << level << " ID " << ID << " (" << binary_ID << ")" << std::endl;
 
-    for(uint32_t i=0; i<(in)->components().size();i++){
-      uint32_t temp1 = ((in)->components())[i]->geographicalID().rawId();
-      uint32_t temp = ID;
-      temp |= (temp1<<25);
-      ((in)->components())[i]->setGeographicalID(DetId(temp));	
-      if((temp1==2&&((in)->components())[i]->translation().z()<0.)||
-	 (temp1==4&&(((in)->components())[i])->components()[0]->translation().z()<0.)||
-	 (temp1==6&&((in)->components())[i]->translation().z()<0.)){
-	temp|= (1<<23);
-	((in)->components())[i]->setGeographicalID(DetId(temp));	
-      }
-      
-      if((temp1==2&&((in)->components())[i]->translation().z()>0.)||
-	 (temp1==4&&(((in)->components())[i])->components()[0]->translation().z()>0.)||
-	 (temp1==6&&((in)->components())[i]->translation().z()>0.)){
-	temp|= (2<<23);
-	((in)->components())[i]->setGeographicalID(DetId(temp));	
-      }
-      
-    }
-    
-    for (uint32_t k=0; k<(in)->components().size(); k++){
-      iterate(((in)->components())[k],level+1,((in)->components())[k]->geographicalID().rawId());
-    }
-    
-  }else if(level==1){
-    
-    for (uint32_t i=0;i<(in)->components().size();i++){
-      uint32_t temp = ID;
-      temp |= (((in)->components())[i]->geographicalID().rawId()<<16);
-      ((in)->components())[i]->setGeographicalID(DetId(temp));
-    }
-    
-    for (uint32_t k=0; k<(in)->components().size(); k++){
-      iterate(((in)->components())[k],level+1,((in)->components())[k]->geographicalID().rawId());
-    }
-
-  }else if(level==2){
-
-    for (uint32_t i=0;i<(in)->components().size();i++){
-      uint32_t temp = ID;
-      temp |= (((in)->components())[i]->geographicalID().rawId()<<8);
-      ((in)->components())[i]->setGeographicalID(DetId(temp));
-    }
-
-    for (uint32_t k=0; k<(in)->components().size(); k++){
-      iterate(((in)->components())[k],level+1,((in)->components())[k]->geographicalID().rawId());
-    }
-    
-  }else if(level==3){
-    uint32_t mask = (7<<25);
-    uint32_t k = ID & mask;
-    k = k >> 25 ;
-
-    if(k==6){
-      for (uint32_t i=0;i<(in)->components().size();i++){
-	uint32_t temp = ID;
-	temp |= (((in)->components())[i]->geographicalID().rawId()<<5);
-	((in)->components())[i]->setGeographicalID(DetId(temp));
-      }
-      
-      for (uint32_t k=0; k<(in)->components().size(); k++){
-	iterate(((in)->components())[k],level+1,((in)->components())[k]->geographicalID().rawId());
-      }
-            
-    }else{
-
-      for (uint32_t i=0;i<(in)->components().size();i++){
-	uint32_t temp = ID;
-	temp |= (((in)->components())[i]->geographicalID().rawId()<<2);
-	((in)->components())[i]->setGeographicalID(DetId(temp));
-      }
-      
-      for (uint32_t k=0; k<(in)->components().size(); k++){
-	iterate(((in)->components())[k],level+1,((in)->components())[k]->geographicalID().rawId());
-      }
-      
-    }
-    
-  }else if(level==4){
-    uint32_t mask = (7<<25);
-    uint32_t k = ID & mask;
-    k = k >> 25 ;
-    if(k==6){
-      for (uint32_t i=0;i<(in)->components().size();i++){
-	uint32_t temp = ID;
-	temp |= (((in)->components())[i]->geographicalID().rawId()<<2);
-	((in)->components())[i]->setGeographicalID(DetId(temp));
-      }
-      
-      for (uint32_t k=0; k<(in)->components().size(); k++){
-	iterate(((in)->components())[k],level+1,((in)->components())[k]->geographicalID().rawId());
-      }
-    }else{    
-      for (uint32_t i=0;i<(in)->components().size();i++){
-	uint32_t temp = ID;
-	temp |= (((in)->components())[i]->geographicalID().rawId());
-	((in)->components())[i]->setGeographicalID(DetId(temp));
-      }
-      
-    }
-  }else if(level==5){
-      for (uint32_t i=0;i<(in)->components().size();i++){
-	uint32_t temp = ID;
-	temp |= (((in)->components())[i]->geographicalID().rawId());
-	((in)->components())[i]->setGeographicalID(DetId(temp));
-      }
-
-  }
-
-  // Restore compatibility between 12* and 13* series using the map
-  std::vector<unsigned int> detNavTypeVector;
-  for (uint32_t i=0;i<(in)->components().size();i++){
-    GeometricDet::nav_type detNavType = ((in)->components())[i]->navType();
-    std::string stringNavType;
-    std::stringstream InputOutput(std::stringstream::in | std::stringstream::out);//"tmp.log",std::ios::out);
-    // stringstream
-    InputOutput << detNavType;
-    InputOutput >> stringNavType;
-    //
-    if( mapNavTypeToDetId[stringNavType] != 0 // to replace only the ones present in the map
-	&&
-	mapNavTypeToDetId[stringNavType] != ((in)->components())[i]->geographicalID().rawId() ) { // to replace only the ones with detid different wrt 120 map
-      std::cout << "\tnavtype " << stringNavType << " detid from map " << mapNavTypeToDetId[stringNavType]
-		<< " from det " << ((in)->components())[i]->geographicalID().rawId() << std::endl;
-      std::cout << "\t\t replacing " << ((in)->components())[i]->geographicalID().rawId()
-		<< " with " << mapNavTypeToDetId[stringNavType] << std::endl;
-      ((in)->components())[i]->setGeographicalID(DetId(mapNavTypeToDetId[stringNavType]));
-    }
-    //
-  }
+  // SubDetector (useful to know fron now on, valid only after level 0, where SubDetector is assigned)
+  uint32_t mask = (7<<25);
+  uint32_t iSubDet = ID & mask;
+  iSubDet = iSubDet >> 25;
   //
+  
+  switch (level) {
+  
+    // level 0
+  case 0:
+    {
+      
+      for(uint32_t i=0; i<(in)->components().size();i++) {
+	uint32_t jSubDet = ((in)->components())[i]->geographicalID().rawId();
+	uint32_t temp = ID;
+	temp |= (jSubDet<<25);
+	((in)->components())[i]->setGeographicalID(DetId(temp));	
+	
+	switch (jSubDet) {
+	 
+	  // PXF
+	case 2:
+	  {
+	    // SubDetector Side start bit is 23 [3 unused and Side length is 2 bit]
+	    if( ((in)->components())[i]->translation().z()<0. ) {
+	      temp |= (1<<23); // PXF-
+	    } else {
+	      temp |= (2<<23); // PXF+
+	    }
+	    break;
+	  }
+	  
+	  // TID
+	case 4:
+	  {
+	    temp|= (0<<15); // SubDetector Side start bit is 13 [10 unused and Side length is 2 bit]
+	    if( (((in)->components())[i])->components()[0]->translation().z()<0. ) {
+	      temp |= (1<<13); // TIDB = TID-
+	    } else {
+	      temp |= (2<<13); // TIDF = TID+
+	    }
+	    break;
+	  }
+	  
+	  // TEC
+	case 6:
+	  {
+	    temp|= (0<<20); // SubDetector Side start bit is 18 [5 unused and Side length is 2 bit]
+	    if( ((in)->components())[i]->translation().z()<0. ) {
+	      temp |= (1<<18); // TEC-
+	    } else {
+	      temp |= (2<<18); // TEC+
+	    }
+	    break;
+	  }
+	  
+	  // PXB, TIB, TOB (barrel)
+	default:
+	  {
+	    // do nothing
+	  }
+
+	  // SubDetector switch ends
+	}
+	
+	((in)->components())[i]->setGeographicalID(DetId(temp));	
+	
+	// next level
+	iterate(((in)->components())[i],level+1,((in)->components())[i]->geographicalID().rawId());
+      }
+      break;
+    }
+    
+    // level 1
+  case 1: {
+    
+    for (uint32_t i=0;i<(in)->components().size();i++) {
+      uint32_t temp = ID;
+      
+      switch (iSubDet) {
+
+	// PXB
+      case 1:
+	{
+	  temp |= (((in)->components())[i]->geographicalID().rawId()<<16); // Layer Number start bit is 16 [5 unused]
+	  break;
+	}
+	
+	// PXF
+      case 2:
+	{
+	  temp |= (((in)->components())[i]->geographicalID().rawId()<<16); // Disk Number start bit is 16
+	  break;
+	}
+	
+	// TIB
+      case 3:
+	{
+	  temp |= (((in)->components())[i]->geographicalID().rawId()<<14); // Layer Number start bit is 14 [8 unused]
+	  break;
+	}
+	
+	// TID
+      case 4:
+	{
+	  temp |= (((in)->components())[i]->geographicalID().rawId()<<11); // Disk (Wheel) Number start bit is 11
+	  break;
+	}
+	
+	// TOB
+      case 5:
+	{
+	  temp |= (((in)->components())[i]->geographicalID().rawId()<<14); // Layer Number start bit is 14 [8 unused]
+	  break;
+	}
+	
+      // TEC
+      case 6:
+	{
+	  temp |= (((in)->components())[i]->geographicalID().rawId()<<14); // Wheel Number start bit is 14
+	  break;
+	}
+      
+	// the rest
+      default:
+	{
+	  // do nothing
+	}
+	
+	// SubDetector switch ends
+      }
+      
+      ((in)->components())[i]->setGeographicalID(DetId(temp));
+      
+      // next level
+      iterate(((in)->components())[i],level+1,((in)->components())[i]->geographicalID().rawId());      
+    }
+    
+      break; 
+  }
+    
+    // level 2
+  case 2: {
+    
+    for (uint32_t i=0;i<(in)->components().size();i++) {
+	
+      switch (iSubDet) {
+
+	// PXB
+      case 1:
+	{
+	  uint32_t temp = ID;
+	  // Ladder Starting bit = 2 (last unused) + 6 (Module Number) = 8
+	  temp |= (((in)->components())[i]->geographicalID().rawId()<<8);
+	  ((in)->components())[i]->setGeographicalID(DetId(temp));
+	  break;
+	}
+	
+	// PXF
+      case 2:
+	{
+	  uint32_t temp = ID;
+	  // Blade Starting bit = 1 (last unused) + 5 (Module Number) + 2 (Plaquette part) = 8
+	  temp |= (((in)->components())[i]->geographicalID().rawId()<<8);
+	  ((in)->components())[i]->setGeographicalID(DetId(temp));
+	  break;
+	}
+	
+	// TIB
+      case 3:
+	{
+	  uint32_t temp = ID;
+	  // Side+Part+String Starting bit = 2 (Module Type) + 2 (Module Number) = 4
+	  temp |= (((in)->components())[i]->geographicalID().rawId()<<4);
+	  ((in)->components())[i]->setGeographicalID(DetId(temp));
+	  break;
+	}
+	
+	// TID
+      case 4:
+	{
+	  uint32_t temp = ID;
+	  // Ring+Part Starting bit = 2 (Module Type) + 5 (Module Number) + 2 (Disk Part)= 9
+	  temp |= (((in)->components())[i]->geographicalID().rawId()<<9);
+	  ((in)->components())[i]->setGeographicalID(DetId(temp));
+	  break;
+	}
+	
+	// TOB
+      case 5:
+	{
+	  uint32_t temp = ID;
+	  // Side+Rod Starting bit = 2 (Module Type) + 3 (Module Number) = 5
+	  temp |= (((in)->components())[i]->geographicalID().rawId()<<5);
+	  ((in)->components())[i]->setGeographicalID(DetId(temp));
+	  break;
+	}
+	
+	// TEC
+      case 6:
+	{
+	  uint32_t temp = ID;
+	  // Petal+Part Starting bit = 2 (Module Type) + 3 (Module Number) + 3 (Ring Number) = 8
+	  temp |= (((in)->components())[i]->geographicalID().rawId()<<8);
+	  ((in)->components())[i]->setGeographicalID(DetId(temp));
+	  break;
+	}
+	
+	// the rest
+      default:
+	{
+	  // do nothing
+	}
+	
+	// SubDetector switch ends
+      }
+
+      // next level
+      iterate(((in)->components())[i],level+1,((in)->components())[i]->geographicalID().rawId());
+    }
+    
+    break;    
+  }
+    
+    // level 3
+  case 3:
+    {
+      for (uint32_t i=0;i<(in)->components().size();i++) {
+	
+	switch (iSubDet) {
+	  
+	  // TEC
+	case 6:
+	  {
+	    // Ring Starting bit = 2 (Module Type) + 3 (Module Number)
+	    uint32_t temp = ID;
+	    temp |= (((in)->components())[i]->geographicalID().rawId()<<5);
+	    ((in)->components())[i]->setGeographicalID(DetId(temp));
+	    break;
+	  }
+	  
+	  // the others but TEC
+	default:
+	  {
+	    uint32_t temp = ID;
+	    temp |= (((in)->components())[i]->geographicalID().rawId()<<2); // Starting bit = 2 (Module Type)
+	    ((in)->components())[i]->setGeographicalID(DetId(temp));
+	  }
+	  
+	  // SubDetector switch ends
+	}
+	
+	// next level
+	iterate(((in)->components())[i],level+1,((in)->components())[i]->geographicalID().rawId());
+	
+      }
+      
+      break;
+    }
+    
+    // level 4
+  case 4:
+    {
+
+      for (uint32_t i=0;i<(in)->components().size();i++) {
+	
+	switch (iSubDet) {
+	  
+	  // TEC
+	case 6:
+	  {
+	    // Module Number bit = 2 (Module Type)
+	    uint32_t temp = ID;
+	    temp |= (((in)->components())[i]->geographicalID().rawId()<<2);
+	    ((in)->components())[i]->setGeographicalID(DetId(temp));
+	    // next level
+	    iterate(((in)->components())[i],level+1,((in)->components())[i]->geographicalID().rawId());
+	    break;
+	  }
+	  
+	  // the others stop here!
+	default:
+	  {
+	    for (uint32_t i=0;i<(in)->components().size();i++) {
+	      uint32_t temp = ID;
+	      temp |= (((in)->components())[i]->geographicalID().rawId());
+	      ((in)->components())[i]->setGeographicalID(DetId(temp));
+	    }
+	  }
+	  
+	  // SubDetector switch ends
+	}
+
+      }
+      
+      break;
+    }
+    
+    // level 5
+  case 5:
+    {
+      // TEC Module Type (only TEC arrives here)
+      for (uint32_t i=0;i<(in)->components().size();i++) {
+	uint32_t temp = ID;
+	temp |= (((in)->components())[i]->geographicalID().rawId());
+      ((in)->components())[i]->setGeographicalID(DetId(temp));
+      }
+      break;
+    }
+    
+    // throw exception
+  default:
+    {
+      cms::Exception("LogicError") <<" CmsTrackerDetIdBuilder invalid level "<< level;
+    }
+    
+    // level switch ends
+  }
   
   return;
 

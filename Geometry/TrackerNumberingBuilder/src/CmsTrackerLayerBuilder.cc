@@ -10,6 +10,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <vector>
 
+#include <bitset>
+
 void CmsTrackerLayerBuilder::buildComponent(DDFilteredView& fv, GeometricDet* g, std::string s){
 
   CmsTrackerStringBuilder theCmsTrackerStringBuilder ;
@@ -39,6 +41,11 @@ void CmsTrackerLayerBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
 
   std::vector< GeometricDet* > comp = det->components();
 
+  // TIB
+  // SubDetector Side: 2 bits [TIB-:1 TIB+:2]
+  // Layer Part      : 2 bits [internal:1 external:0]
+  // String Number   : 6 bits [1,...,56 (at most)]
+  //
   if(det->components().front()->type()== GeometricDet::strng){
     float layerRadius = (det->params()[2]+det->params()[1])/2.;
 
@@ -88,25 +95,30 @@ void CmsTrackerLayerBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
     TrackerStablePhiSort(intpos.begin(), intpos.end(), ExtractPhi());
 
     for(uint32_t i=0;i<intneg.size();i++){
-      intneg[i]->setGeographicalID(DetId(i+1));
+      uint32_t temp=i+1;
+      temp|=(1<<8); // 1 : SubDetector Side TIB-
+      temp|=(1<<6); // 1 : Layer Part int
+      intneg[i]->setGeographicalID(DetId(temp));
     }
 
     for(uint32_t i=0;i<extneg.size();i++){
       uint32_t temp=i+1;
-      temp|=(1<<6);
+      temp|=(1<<8); // 1 : SubDetector Side TIB-
+      temp|=(2<<6); // 2 : Layer Part ext
       extneg[i]->setGeographicalID(DetId(temp));
     }
 
     for(uint32_t i=0;i<intpos.size();i++){
       uint32_t temp=i+1;
-      temp|=(1<<7);      
+      temp|=(2<<8); // 2 : SubDetector Side TIB+
+      temp|=(1<<6); // 1 : Layer Part int 
       intpos[i]->setGeographicalID(DetId(temp));
     }
 
     for(uint32_t i=0;i<extpos.size();i++){
       uint32_t temp=i+1;
-      temp|=(1<<7);
-      temp|=(1<<6);
+      temp|=(2<<8); // 2 : SubDetector Side TIB+
+      temp|=(2<<6); // 2 : Layer Part ext 
       extpos[i]->setGeographicalID(DetId(temp));
     }
     
@@ -133,17 +145,19 @@ void CmsTrackerLayerBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
 
     TrackerStablePhiSort(neg.begin(), neg.end(), ExtractPhi());
     TrackerStablePhiSort(pos.begin(), pos.end(), ExtractPhi());
-
+    
     for(uint32_t i=0; i<neg.size();i++){      
-      neg[i]->setGeographicalID(DetId(i+1));
-    }
-
-    for(uint32_t i=0; i<pos.size();i++){
       uint32_t temp = i+1;
       temp|=(1<<7);
+      neg[i]->setGeographicalID(DetId(temp));
+    }
+    
+    for(uint32_t i=0; i<pos.size();i++){
+      uint32_t temp = i+1;
+      temp|=(2<<7);
       pos[i]->setGeographicalID(DetId(temp));
     }
-
+    
     det->deleteComponents();
     det->addComponents(neg);
     det->addComponents(pos);
@@ -161,5 +175,6 @@ void CmsTrackerLayerBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
   }else{
     edm::LogError("CmsTrackerLayerBuilder")<<"ERROR - wrong SubDet to sort..... "<<det->components().front()->type();
   }
+
 }
 

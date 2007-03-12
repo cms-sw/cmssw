@@ -8,6 +8,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <vector>
 
+#include <bitset>
 
 void CmsTrackerRingBuilder::buildComponent(DDFilteredView& fv, GeometricDet* g, std::string s){
   CmsDetConstruction theCmsDetConstruction;
@@ -51,9 +52,14 @@ void CmsTrackerRingBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
       }
     }
     
+    // TID
+    // Ring Side: 2 bits [back:1 front:2]
+    // Module Number: 5 bits [1,...,20 at most]
+    //
     if(compbw.size()){
       for(uint32_t i=0; i<compbw.size();i++){
 	uint32_t temp = i+1;
+	temp |=(1<<5);
 	compbw[i]->setGeographicalID(DetId(temp));
       }
     }
@@ -61,7 +67,7 @@ void CmsTrackerRingBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
     if(compfw.size()){
       for(uint32_t i=0; i<compfw.size();i++){
 	uint32_t temp = i+1;
-	temp |=(1<<5);
+	temp |=(2<<5);
 	compfw[i]->setGeographicalID(DetId(temp));
       }
     }

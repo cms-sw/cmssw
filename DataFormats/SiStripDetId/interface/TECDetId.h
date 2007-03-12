@@ -41,8 +41,8 @@ class TECDetId : public SiStripDetId {
   
   /// positive or negative id
   /**
-   * side() = 1 The DetId identify a module in the negative part
-   * side() = 2 The DetId identify a module in the positive part
+   * side() = 1 The DetId identify a module in the negative part (TEC-)
+   * side() = 2 The DetId identify a module in the positive part (TEC+)
    */
   unsigned int side() const{
     return int((id_>>sideStartBit_) & sideMask_);
@@ -54,8 +54,8 @@ class TECDetId : public SiStripDetId {
   
   /// petal id
   /**
-   * vector[0] = 0 -> bw petal
-   * vector[0] = 1 -> fw petal
+   * vector[0] = 1 -> back petal
+   * vector[0] = 2 -> front petal
    * vector[1] -> petal
    */
   std::vector<unsigned int> petal() const
@@ -120,21 +120,19 @@ class TECDetId : public SiStripDetId {
 
  private:
   /// two bits would be enough, but  we could use the number "0" as a wildcard
-  static const unsigned int sideStartBit_=           23;
-  static const unsigned int wheelStartBit_=          16;  
-  static const unsigned int petal_fw_bwStartBit_=    15;
+  static const unsigned int sideStartBit_=           18;
+  static const unsigned int wheelStartBit_=          14;  
+  static const unsigned int petal_fw_bwStartBit_=    12;
   static const unsigned int petalStartBit_=          8;
   static const unsigned int ringStartBit_=           5;
-  //  static const unsigned int module_fw_bwStartBit_=   4;
   static const unsigned int moduleStartBit_=         2;
   static const unsigned int sterStartBit_=           0;
   /// two bits would be enough, but  we could use the number "0" as a wildcard
   static const unsigned int sideMask_=          0x3;
   static const unsigned int wheelMask_=         0xF;
-  static const unsigned int petal_fw_bwMask_=   0x1;
-  static const unsigned int petalMask_=         0x7F;
+  static const unsigned int petal_fw_bwMask_=   0x3;
+  static const unsigned int petalMask_=         0xF;
   static const unsigned int ringMask_=          0x7;
-  //  static const unsigned int module_fw_bwMask_=  0x1;
   static const unsigned int moduleMask_=        0x7;
   static const unsigned int sterMask_=          0x3;
 };

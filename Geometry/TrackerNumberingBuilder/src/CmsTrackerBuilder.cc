@@ -7,6 +7,8 @@
 
 #include "Geometry/TrackerNumberingBuilder/interface/CmsTrackerSubStrctBuilder.h"
 
+#include <bitset>
+
 
 void CmsTrackerBuilder::buildComponent(DDFilteredView& fv, GeometricDet* g, std::string s){
 
@@ -35,8 +37,10 @@ void CmsTrackerBuilder::buildComponent(DDFilteredView& fv, GeometricDet* g, std:
   default:
     edm::LogError("CmsTrackerBuilder")<<" ERROR - I was expecting a SubDet, I got a "<<ExtractStringFromDDD::getString(s,&fv);
     ;
-  }  
+  }
+  
   g->addComponent(subdet);
+  
 }
 
 void CmsTrackerBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){

@@ -44,10 +44,10 @@ class TIBDetId : public SiStripDetId {
   
   /// string  id
   /**
-   * vector[0] = 0 -> bw string
-   * vector[0] = 1 -> fw string
-   * vector[1] = 0 -> int string
-   * vector[1] = 1 -> ext string
+   * vector[0] = 1 -> bw string (TIB-)
+   * vector[0] = 2 -> fw string (TIB+)
+   * vector[1] = 1 -> int string
+   * vector[1] = 2 -> ext string
    * vector[2] -> string
    */
   std::vector<unsigned int> string() const
@@ -110,19 +110,19 @@ class TIBDetId : public SiStripDetId {
 
  private:
   /// two bits would be enough, but  we could use the number "0" as a wildcard
-  static const unsigned int layerStartBit_=           16;
-  static const unsigned int str_fw_bwStartBit_=       15;
-  static const unsigned int str_int_extStartBit_=     14;
-  static const unsigned int strStartBit_=             8;
+  static const unsigned int layerStartBit_=           14;
+  static const unsigned int str_fw_bwStartBit_=       12;
+  static const unsigned int str_int_extStartBit_=     10;
+  static const unsigned int strStartBit_=             4;
   static const unsigned int moduleStartBit_=          2;
   static const unsigned int sterStartBit_=            0;
   /// two bits would be enough, but  we could use the number "0" as a wildcard
   
-  static const unsigned int layerMask_=       0xF;
-  static const unsigned int str_fw_bwMask_=   0x1;
-  static const unsigned int str_int_extMask_= 0x1;
+  static const unsigned int layerMask_=       0x7;
+  static const unsigned int str_fw_bwMask_=   0x3;
+  static const unsigned int str_int_extMask_= 0x3;
   static const unsigned int strMask_=         0x3F;
-  static const unsigned int moduleMask_=      0x3F;
+  static const unsigned int moduleMask_=      0x3;
   static const unsigned int sterMask_=        0x3;
 };
 

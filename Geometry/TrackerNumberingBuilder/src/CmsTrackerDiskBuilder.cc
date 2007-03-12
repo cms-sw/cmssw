@@ -62,21 +62,21 @@ void CmsTrackerDiskBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
   }
 
   for ( uint32_t  fn=0; fn< zminpanels.size(); fn++) {
-      uint32_t blade = fn+1;
-      uint32_t panel = 1;
-      uint32_t temp = (blade<<2) | panel;
-      zminpanels[fn]->setGeographicalID(DetId(temp));
+    uint32_t blade = fn+1;
+    uint32_t panel = 1;
+    uint32_t temp = (blade<<2) | panel;
+    zminpanels[fn]->setGeographicalID(DetId(temp));
   }
   
   for (uint32_t  bn=0; bn< zmaxpanels.size(); bn++) {
-      uint32_t blade = bn+1;
-      uint32_t panel = 2;
-      uint32_t temp = (blade<<2) | panel;
-      zmaxpanels[bn]->setGeographicalID(DetId(temp));
+    uint32_t blade = bn+1;
+    uint32_t panel = 2;
+    uint32_t temp = (blade<<2) | panel;
+    zmaxpanels[bn]->setGeographicalID(DetId(temp));
   }
-
+  
   det->deleteComponents();
-
+  
   det->addComponents(zminpanels);
   det->addComponents(zmaxpanels);
 }

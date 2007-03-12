@@ -60,6 +60,7 @@
 #include <fstream>
 #include <iomanip>
 #include <cmath>
+#include <bitset>
 
 //
 //
@@ -206,7 +207,8 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
     unsigned int rawid = modules[i]->geographicalID().rawId();
     GeometricDet::nav_type detNavType = modules[i]->navType();
     Output << std::fixed << std::setprecision(6); // set as default 6 decimal digits
-    Output << " ******** raw Id = " << rawid << "\t nav type = " << detNavType << std::endl;
+    std::bitset<32> binary_rawid(rawid);
+    Output << " ******** raw Id = " << rawid << " (" << binary_rawid << ") " << "\t nav type = " << detNavType << std::endl;
     int subdetid = modules[i]->geographicalID().subdetId();
     double volume = modules[i]->volume() / 1000; // mm3->cm3
     double density = modules[i]->density() / density_units;
@@ -277,13 +279,13 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 	if(name == "TIBActiveSter0") tib_L12_sterN++;
 	if(name == "TIBActiveRphi2") tib_L34_rphiN++;
 	TIBDetId module(rawid);
-	unsigned int         theLayer  = module.layer();
+	unsigned int              theLayer  = module.layer();
 	std::vector<unsigned int> theString = module.string();
-	unsigned int         theModule = module.module();
+	unsigned int              theModule = module.module();
 	std::string side;
 	std::string part;
-	side = (theString[0] == 0 ) ? "-" : "+";
-	part = (theString[1] == 0 ) ? "int" : "ext";
+	side = (theString[0] == 1 ) ? "-" : "+";
+	part = (theString[1] == 1 ) ? "int" : "ext";
 	
 	Output << " TIB" << side << "\t" << "Layer " << theLayer << " " << part
 	       << "\t" << "string " << theString[2] << "\t" << " module " << theModule << " " << name << "\t"
@@ -312,7 +314,7 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 	std::string side;
 	std::string part;
 	side = (module.side() == 1 ) ? "-" : "+";
-	part = (theModule[0] == 0 ) ? "back" : "front";
+	part = (theModule[0] == 1 ) ? "back" : "front";
 	Output << " TID" << side << "\t" << "Disk " << theDisk << " Ring " << theRing << " " << part
 	       << "\t" << " module " << theModule[1] << "\t" << name << "\t"
 	       << "son of " << modules[i]->parents()[modules[i]->parents().size()-3].logicalPart().name() << " "
@@ -333,12 +335,12 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 	if(name == "TOBActiveRphi2") tob_R34_rphiN++;
 	if(name == "TOBActiveRphi4") tob_R56_rphiN++;
 	TOBDetId module(rawid);
-	unsigned int         theLayer  = module.layer();
+	unsigned int              theLayer  = module.layer();
 	std::vector<unsigned int> theRod    = module.rod();
-	unsigned int         theModule = module.module();
+	unsigned int              theModule = module.module();
 	std::string side;
 	std::string part;
-	side = (theRod[0] == 1 ) ? "+" : "-";
+	side = (theRod[0] == 1 ) ? "-" : "+";
 	
 	Output << " TOB" << side << "\t" << "Layer " << theLayer 
 	       << "\t" << "rod " << theRod[1] << " module " << theModule << "\t" << name << "\t" 
@@ -366,14 +368,14 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 	if(name == "TECModule5RphiActive")   tec_r6_rphiN++;
 	if(name == "TECModule6RphiActive")   tec_r7_rphiN++;
 	TECDetId module(rawid);
-	unsigned int theWheel = module.wheel();
-	unsigned int         theModule = module.module();
+	unsigned int              theWheel  = module.wheel();
+	unsigned int              theModule = module.module();
 	std::vector<unsigned int> thePetal  = module.petal();
-	unsigned int         theRing   = module.ring();
+	unsigned int              theRing   = module.ring();
 	std::string side;
 	std::string petal;
 	side  = (module.side() == 1 ) ? "-" : "+";
-	petal = (thePetal[0] == 1 ) ? "forward" : "backward";
+	petal = (thePetal[0] == 1 ) ? "back" : "front";
 	Output << " TEC" << side << "\t" << "Wheel " << theWheel << " Petal " << thePetal[1] << " " << petal << " Ring " << theRing << "\t"
 	       << "\t" << " module " << theModule << "\t" << name << "\t"
 	       << "son of " << modules[i]->parents()[modules[i]->parents().size()-3].logicalPart().name() << " "

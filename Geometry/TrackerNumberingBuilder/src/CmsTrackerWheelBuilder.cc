@@ -9,6 +9,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include<vector>
 
+#include <bitset>
+
 void CmsTrackerWheelBuilder::buildComponent(DDFilteredView& fv, GeometricDet* g, std::string s){
   CmsTrackerRingBuilder theCmsTrackerRingBuilder ;
   CmsTrackerPetalBuilder theCmsTrackerPetalBuilder ;
@@ -47,12 +49,18 @@ void CmsTrackerWheelBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
       TrackerStablePhiSort(compfw.begin(), compfw.end(), ExtractPhiModule());
       TrackerStablePhiSort(compbw.begin(), compbw.end(), ExtractPhiModule());
 
+      // TEC
+      // Petal Number: 4 bits [1,...,8]
+      // Wheel Part:   3 bits [back:1 front:2]
+      //
       for(uint32_t i=0; i<compbw.size(); i++){
-	compbw[i]->setGeographicalID(DetId(i+1));
+	uint32_t temp = i+1;
+	temp|=(1<<4);
+	compbw[i]->setGeographicalID(DetId(temp));
       }
       for(uint32_t i=0; i<compfw.size(); i++){
 	uint32_t temp = i+1;
-	temp|=(1<<7);
+	temp|=(2<<4);
 	compfw[i]->setGeographicalID(DetId(temp));
       }
       
@@ -63,6 +71,8 @@ void CmsTrackerWheelBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
     }else{
       std::stable_sort(comp.begin(),comp.end(),LessR_module());
 
+      // TID
+      // Disk Number: 2 bits [1,2,3]
       for(uint32_t i=0; i<comp.size(); i++){
 	comp[i]->setGeographicalID(DetId(i+1));
       }
@@ -73,6 +83,7 @@ void CmsTrackerWheelBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
   }else{
     edm::LogError("CmsTrackerWheelBuilder")<<"Where are the Petals or Rings?";
   }
+  
 }
 
 

@@ -1,126 +1,120 @@
 #ifndef TrackerStablePhiSort_H
 #define TrackerStablePhiSort_H
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
+// #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+// because of cout
+#include<iostream>
 
 #include <utility>
 #include <vector>
 #include <algorithm>
 
-//#define DEBUG
-namespace {
-  template<class T, class Scalar>
-  struct LessPair {
-    typedef std::pair<T,Scalar> SortPair;
-    bool operator()( const SortPair& a, const SortPair& b) {
-      return a.second < b.second;
+#include <cmath>
+
+#include<boost/bind.hpp>
+
+namespace details {
+  template<typename Object, typename Scalar> 
+  struct PhiSortElement {
+    typedef PhiSortElement<Object,Scalar> self;
+    
+    template<typename Extractor>
+    static self 
+    build(Object & o, Extractor const & extr) { 
+      return self(&o, extr(o));
     }
+    
+    PhiSortElement(){}
+    PhiSortElement(Object * p, Scalar v):
+      pointer(p),
+      value(v) {}
+    
+    Object * pointer;
+    Scalar value;
+    
+    bool operator<(self const & rh) const {
+      return value<rh.value;
+    }
+    Object const &
+    obj() const { return *pointer;}
   };
+  
+  
 }
 
-
-template<class RandomAccessIterator, class Extractor>
+template<typename RandomAccessIterator, typename Extractor>
 void TrackerStablePhiSort(RandomAccessIterator begin,
-			    RandomAccessIterator end,
-			    const Extractor& extr) {
-
+			  RandomAccessIterator end,
+			  const Extractor& extr) {
+  
   typedef typename Extractor::result_type        Scalar;
-  typedef std::pair<RandomAccessIterator,Scalar> SortPair;
-
-  std::vector<SortPair> tmpvec; 
-  tmpvec.reserve(end-begin);
-
-  std::vector<SortPair> tmpcop; 
-  tmpcop.reserve(end-begin);
-
-  std::vector<SortPair> copy1; 
-  copy1.reserve(end-begin);
-
-  std::vector<SortPair> copy2; 
-  copy2.reserve(end-begin);
+  typedef typename std::iterator_traits<RandomAccessIterator>::value_type value_type;
   
-  // tmpvec holds iterators - does not copy the real objects
-  for (RandomAccessIterator i=begin; i!=end; i++) {
-    tmpvec.push_back(SortPair(i,extr(*i)));
+  typedef details::PhiSortElement<value_type, Scalar> Element;
+  
+  
+  
+  std::vector<Element> tmpvec(end-begin);
+  std::transform(begin,end,tmpvec.begin(),
+		 boost::bind(Element::template build<Extractor>,_1, boost::cref(extr))
+		 );
+  
+  std::vector<Element> tmpcop(end-begin);
+  
+  std::sort(tmpvec.begin(), tmpvec.end());
+  
+  const unsigned int vecSize = tmpvec.size();
+  
+  
+  
+  // special tratment of the TEC modules of rings in petals near phi=0
+  // there are at most 5 modules, no other structure has less than ~10 elements to order in phi
+  // hence the special case in phi~0 if the size of the elements to order is <=5
+  const unsigned int nMaxModulesPerRing = 5;
+  bool phiZeroCase = true;
+  //
+  const double phiMin = M_PI_4;
+  const double phiMax = 2*M_PI-phiMin;
+  //
+  if( vecSize > nMaxModulesPerRing ) {
+    //stability check
+    // check if the last element is too near to zero --> probably it is zero
+    double tolerance = 0.000001;
+    if( fabs(tmpvec.back().value - 0) < tolerance       // near 0
+	||
+	fabs(tmpvec.back().value - 2*M_PI) < tolerance ) { // near 2pi
+      // move it to front 
+      tmpvec.insert(tmpvec.begin(),tmpvec.back());
+      tmpvec.pop_back();
+    }
   }
-  
-  std::sort(tmpvec.begin(), tmpvec.end(),
-	    LessPair<RandomAccessIterator,Scalar>());    
-
-  //stability check
-  double pi = 3.141592653592;
-  unsigned int vecSize = tmpvec.size();
-  bool check = false;
-  if(vecSize>1){    
-    for(unsigned int i = 0;i <vecSize; i++){
-      double res = tmpvec[i].second <= pi? tmpvec[i].second/3. : fabs(2*pi-tmpvec[i].second)/3.;
-
-      LogDebug("StableSort")<<"Component sorted # "<<i;
-      LogDebug("StableSort")<<" Phi = "<<tmpvec[i].second<<" resolution = "<<res;
-
-      double dist = std::max(res,0.001);
-      double dist_tec = i>0 ? std::min(fabs(tmpvec[i].second-tmpvec[i-1].second),1.):
-	std::min(fabs(tmpvec[i+1].second-tmpvec[i].second),1.);
-      if(dist==0.001){
-
-	LogDebug("StableSort")<<"Object close to 0";
-      
-	copy1.insert(copy1.begin(),tmpvec[i]);
-	tmpcop.insert(tmpcop.begin(),tmpvec[i]);
-	if(check) throw cms::Exception("Configuration")<<"Two modules are close to 0 \n"
-						       <<" There is a problem on Tracker geometry description \n";
-	check= true;
-      }else{ 
-	copy1.push_back(tmpvec[i]);
-	tmpcop.push_back(tmpvec[i]);
-      }
-
-
-      if(dist_tec==1.){
-	bool check1 = false;
-	tmpcop.clear();
-	for(unsigned int jj=i+1;jj<vecSize;jj++){	  
-	  copy1.push_back(SortPair(tmpvec[jj].first,(2*pi-tmpvec[jj].second)));
-	}
-	std::sort(copy1.begin(), copy1.end(),LessPair<RandomAccessIterator,Scalar>());
-	
-	for(unsigned int ii = 0;ii <vecSize; ii++){
-	  double res = fabs(copy1[ii].second);
-	  
-	  LogDebug("StableSort")<<"Component sorted again # "<<ii;
-	  LogDebug("StableSort")<<" Phi = "<<tmpvec[i].second<<" resolution = "<<res;
-	  
-	  double dist = std::max(res,0.001);
-	  if(dist==0.001){
-	    
-	    LogDebug("StableSort")<<"Object close to 0 again";
-	    
-	    copy2.insert(copy2.begin(),copy1[ii]);
-	    tmpcop.insert(tmpcop.begin(),copy1[ii]);
-	    if(check1)
-	      throw cms::Exception("Configuration")<<"Two modules are close to 0 \n"
-						   <<" There is a problem on Tracker geometry description \n";
-	    check1= true;
-	  }else{
-	    copy2.push_back(copy1[ii]);
-	    tmpcop.push_back(copy1[ii]);
-	  }
-	}
-	break;
+  else {
+    // check if all the elements have phi<phiMin or phi>phiMax to be sure we are near phi~0 (angles are in [0,2pi) range)
+    // if a phi goes out from [0,phiMin]U[phiMax,2pi) it is not the case
+    // sorted. if first > phiMax all other will also...
+    typename std::vector<Element>::iterator p = 
+      std::find_if(tmpvec.begin(),tmpvec.end(), boost::bind(&Element::value,_1) > phiMin);
+    phiZeroCase = !(p!=tmpvec.end() && (*p).value<phiMax);
+    
+    // go on if this is the petal phi~0 case, restricted to the case where all the |phi| are in range [0,phiMin]
+    std::cout << "TrackerStablePhiSort::phiZeroCase = " << phiZeroCase << std::endl;
+    if(phiZeroCase) {
+      // in this case the ordering must be: ('negative' values, >) and then ('positive' values, >) in (-pi,pi] mapping
+      // already sorted, just swap ranges
+      if(p!=tmpvec.end()) {
+	tmpvec.insert(tmpvec.begin(),p,tmpvec.end());
+	tmpvec.resize(vecSize);
       }
     }
   }
-
+  
   // overwrite the input range with the sorted values
   // copy of input container not necessary, but tricky to avoid
-  std::vector<typename std::iterator_traits<RandomAccessIterator>::value_type> tmpcopy(begin,end);
-  if(vecSize=1){
-    for (unsigned int i=0; i<tmpvec.size(); i++) {
-      *(begin+i) = tmpcopy[tmpvec[i].first - begin];
-    }    
-  }
-  for (unsigned int i=0; i<tmpcop.size(); i++) {
-    *(begin+i) = tmpcopy[tmpcop[i].first - begin];
-  }
+  std::vector<value_type> tmpvecy(vecSize);
+  std::transform(tmpvec.begin(),tmpvec.end(),tmpvecy.begin(),boost::bind(&Element::obj,_1));
+  std::copy(tmpvecy.begin(),tmpvecy.end(),begin);
+  
 }
 
 #endif
+

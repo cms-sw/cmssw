@@ -57,8 +57,8 @@ class TIDDetId : public SiStripDetId {
   
   /// det id
   /**
-   * vector[0] = 0 -> bw module
-   * vector[0] = 1 -> fw module
+   * vector[0] = 1 -> back ring
+   * vector[0] = 2 -> front ring
    * vector[1] -> module
    */
   std::vector<unsigned int> module() const
@@ -115,18 +115,17 @@ class TIDDetId : public SiStripDetId {
   
  private:
   /// two bits would be enough, but  we could use the number "0" as a wildcard
-  static const unsigned int sideStartBit_=          23;
-  static const unsigned int wheelStartBit_=         16;
-  static const unsigned int ringStartBit_=          8;
+  static const unsigned int sideStartBit_=          13;
+  static const unsigned int wheelStartBit_=         11;
+  static const unsigned int ringStartBit_=          9;
   static const unsigned int module_fw_bwStartBit_=  7;
   static const unsigned int moduleStartBit_=        2;
   static const unsigned int sterStartBit_=          0;
   /// two bits would be enough, but  we could use the number "0" as a wildcard
-  
   static const unsigned int sideMask_=           0x3;
-  static const unsigned int wheelMask_=          0xF;
-  static const unsigned int ringMask_=           0xFF;
-  static const unsigned int module_fw_bwMask_=   0x1;
+  static const unsigned int wheelMask_=          0x3;
+  static const unsigned int ringMask_=           0x3;
+  static const unsigned int module_fw_bwMask_=   0x3;
   static const unsigned int moduleMask_=         0x1F;
   static const unsigned int sterMask_=           0x3;
 };

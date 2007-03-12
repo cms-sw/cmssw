@@ -9,6 +9,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <vector>
 
+#include <bitset>
+
 void CmsTrackerSubStrctBuilder::buildComponent(DDFilteredView& fv, GeometricDet* g, std::string s){
 
   CmsTrackerLayerBuilder theCmsTrackerLayerBuilder ;
@@ -30,7 +32,9 @@ void CmsTrackerSubStrctBuilder::buildComponent(DDFilteredView& fv, GeometricDet*
   default:
     edm::LogError("CmsTrackerSubStrctBuilder")<<" ERROR - I was expecting a Layer ,Wheel or Disk... I got a "<<ExtractStringFromDDD::getString(s,&fv);
   }  
+  
   g->addComponent(subdet);
+
 }
 
 void CmsTrackerSubStrctBuilder::sortNS( DDFilteredView& fv, GeometricDet* det){
@@ -40,13 +44,13 @@ void CmsTrackerSubStrctBuilder::sortNS( DDFilteredView& fv, GeometricDet* det){
   case GeometricDet::layer: std::stable_sort(comp.begin(),comp.end(),LessR()); break;	
   case GeometricDet::wheel: std::stable_sort(comp.begin(),comp.end(),LessModZ()); break;	
   case GeometricDet::disk:  std::stable_sort(comp.begin(),comp.end(),LessModZ()); break;
-
+    
   default:
-   edm::LogError("CmsTrackerSubStrctBuilder")<<"ERROR - wrong SubDet to sort..... "<<det->components().front()->type(); 
+    edm::LogError("CmsTrackerSubStrctBuilder")<<"ERROR - wrong SubDet to sort..... "<<det->components().front()->type(); 
   }
   
   for(uint32_t i=0; i<comp.size(); i++){
-    comp[i]->setGeographicalID(DetId(i+1));
+    comp[i]->setGeographicalID(DetId(i+1)); // Every subdetector: Layer/Disk/Wheel Number
   }
   
   det->deleteComponents();
