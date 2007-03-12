@@ -31,10 +31,10 @@ bool CaloSlaveSD::format() {
   return true;
 }
 
-bool CaloSlaveSD::processHits(unsigned int unitID, double eDep, double tSlice, 
-			      int tkID) {
+bool CaloSlaveSD::processHits(unsigned int unitID, double eDepEM, 
+			      double eDepHad, double tSlice, int tkID) {
   
-  PCaloHit aCal = PCaloHit (unitID, eDep, tSlice, tkID);
+  PCaloHit aCal = PCaloHit (unitID, eDepEM, eDepHad, tSlice, tkID);
   LogDebug("HitBuildInfo") <<" Sent Hit " << aCal << " to ROU " << name_ << "\n";
   hits_.push_back(aCal);
   return true;
