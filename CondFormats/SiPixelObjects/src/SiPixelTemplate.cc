@@ -1,11 +1,14 @@
-/*
- *  SiPixelTemplate.cc
- *  
- *
- *  Created by Morris Swartz on 10/27/06.
- *  Copyright 2006 __TheJohnsHopkinsUniversity__. All rights reserved.
- *
- */
+//
+//  SiPixelTemplate.cc  Version 2.40 
+//
+//  Add goodness-of-fit info and spare entries to templates, version number in template header, more error checking
+//  Add correction for (Q_F-Q_L)/(Q_F+Q_L) bias
+//  Add cot(beta) reflection to reduce y-entries and more sophisticated x-interpolation
+//
+//  Created by Morris Swartz on 10/27/06.
+//  Copyright 2006 __TheJohnsHopkinsUniversity__. All rights reserved.
+//
+//
 
 #ifndef SI_PIXEL_TEMPLATE_STANDALONE
 #include "CondFormats/SiPixelObjects/interface/SiPixelTemplate.h"
@@ -25,6 +28,8 @@
 #include <fstream>
 
 
+
+
 //**************************************************************** 
 //! This routine initializes the global template structures from 
 //! an external file template_summary_zpNNNN where NNNN are four  
@@ -36,24 +41,24 @@ bool SiPixelTemplate::pushfile(int filenum)
     // Add template stored in external file numbered filenum to theTemplateStore
     
     // Local variables 
-    int i, j;
+    int i, j, k;
 	const char *tempfile;
 	char title[80];
     char c;
+	const int code_version={6};
 	
 
 
 //  Create a filename for this run 
 
  std::ostringstream tout;
- // Gavril: read the template file from ../data
  //tout << "template_summary_zp" << std::setw(4) << std::setfill('0') << std::right << filenum << ".out" << std::ends;
  tout << "../data/template_summary_zp" << std::setw(4) << std::setfill('0') << std::right << filenum << ".out" << std::ends;
-
  std::string tempf = tout.str();
  tempfile = tempf.c_str();
 	
 //  open the template file 
+ std::cout << " -------------------------------------------------------------------- Open template file " << tempfile << std::endl;
 
  std::ifstream in_file(tempfile, std::ios::in);
  
@@ -74,16 +79,20 @@ bool SiPixelTemplate::pushfile(int filenum)
     
 // next, the header information     
     
-    in_file >> theCurrentTemp.head.ID >> theCurrentTemp.head.NBy >> theCurrentTemp.head.NBx
-	        >> theCurrentTemp.head.NFy >> theCurrentTemp.head.NFx >> theCurrentTemp.head.vbias >> theCurrentTemp.head.temperature 
-		    >> theCurrentTemp.head.fluence >> theCurrentTemp.head.s50;
+    in_file >> theCurrentTemp.head.ID >> theCurrentTemp.head.NBy >> theCurrentTemp.head.NByx >> theCurrentTemp.head.NBxx
+	        >> theCurrentTemp.head.NFy >> theCurrentTemp.head.NFyx >> theCurrentTemp.head.NFxx >> theCurrentTemp.head.vbias 
+			>> theCurrentTemp.head.temperature >> theCurrentTemp.head.fluence >> theCurrentTemp.head.s50 >> theCurrentTemp.head.templ_version;
 			
 	if(in_file.fail()) {std::cout << "Error reading file, no template load" << std::endl; return false;}
 	
-    std::cout << "Template ID = " << theCurrentTemp.head.ID << ", NBy = " << theCurrentTemp.head.NBy << ", NBx = " << theCurrentTemp.head.NBx << ", NFy = "
-	     << theCurrentTemp.head.NFy << ", NFx = " << theCurrentTemp.head.NFx << ", bias voltage " << theCurrentTemp.head.vbias << ", temperature "
-		 << theCurrentTemp.head.temperature << ", fluence " << theCurrentTemp.head.fluence << ", 1/2 threshold " << theCurrentTemp.head.s50 << std::endl; 
-    
+    std::cout << "Template ID = " << theCurrentTemp.head.ID << ", NBy = " << theCurrentTemp.head.NBy << ", NByx = " << theCurrentTemp.head.NByx 
+		 << ", NBxx = " << theCurrentTemp.head.NBxx << ", NFy = " << theCurrentTemp.head.NFy << ", NFyx = " << theCurrentTemp.head.NFyx
+		 << ", NFxx = " << theCurrentTemp.head.NFxx << ", bias voltage " << theCurrentTemp.head.vbias << ", temperature "
+		 << theCurrentTemp.head.temperature << ", fluence " << theCurrentTemp.head.fluence << ", 1/2 threshold " << theCurrentTemp.head.s50 
+         << ", Template Version " << theCurrentTemp.head.templ_version << std::endl;    
+			
+	if(theCurrentTemp.head.templ_version != code_version) {std::cout << "code expects version " << code_version << ", no template load" << std::endl; return false;}
+		 
 // next, loop over all barrel y-angle entries   
 
     for (i=0; i < theCurrentTemp.head.NBy; ++i) {     
@@ -162,19 +171,13 @@ bool SiPixelTemplate::pushfile(int filenum)
 	   			  
 	   for (j=0; j<4; ++j) {
     
-          in_file >> theCurrentTemp.entby[i].yeavg[j] >> theCurrentTemp.entby[i].yerms[j] >> theCurrentTemp.entby[i].yegx0[j] >> theCurrentTemp.entby[i].yegsig[j];
+          in_file >> theCurrentTemp.entby[i].yflpar[j][0] >> theCurrentTemp.entby[i].yflpar[j][1] >> theCurrentTemp.entby[i].yflpar[j][2] 
+				  >> theCurrentTemp.entby[i].yflpar[j][3] >> theCurrentTemp.entby[i].yflpar[j][4] >> theCurrentTemp.entby[i].yflpar[j][5];
 			
           if(in_file.fail()) {std::cout << "Error reading file, no template load" << std::endl; return false;}
   	   }
 	   
-	   for (j=0; j<4; ++j) {
-    
-          in_file >> theCurrentTemp.entby[i].yoavg[j] >> theCurrentTemp.entby[i].yorms[j] >> theCurrentTemp.entby[i].yogx0[j] >> theCurrentTemp.entby[i].yogsig[j];
-			
-          if(in_file.fail()) {std::cout << "Error reading file, no template load" << std::endl; return false;}
-	   }
-			  
-	   for (j=0; j<4; ++j) {
+	  	   for (j=0; j<4; ++j) {
     
           in_file >> theCurrentTemp.entby[i].xavg[j] >> theCurrentTemp.entby[i].xrms[j] >> theCurrentTemp.entby[i].xgx0[j] >> theCurrentTemp.entby[i].xgsig[j];
 			
@@ -183,74 +186,87 @@ bool SiPixelTemplate::pushfile(int filenum)
 			  
 	   for (j=0; j<4; ++j) {
     
-          in_file >> theCurrentTemp.entby[i].xeavg[j] >> theCurrentTemp.entby[i].xerms[j] >> theCurrentTemp.entby[i].xegx0[j] >> theCurrentTemp.entby[i].xegsig[j];
+          in_file >> theCurrentTemp.entby[i].xflpar[j][0] >> theCurrentTemp.entby[i].xflpar[j][1] >> theCurrentTemp.entby[i].xflpar[j][2] 
+		          >> theCurrentTemp.entby[i].xflpar[j][3] >> theCurrentTemp.entby[i].xflpar[j][4] >> theCurrentTemp.entby[i].xflpar[j][5];
 			
           if(in_file.fail()) {std::cout << "Error reading file, no template load" << std::endl; return false;}
 	   }
 			  
 	   for (j=0; j<4; ++j) {
     
-          in_file >> theCurrentTemp.entby[i].xoavg[j] >> theCurrentTemp.entby[i].xorms[j] >> theCurrentTemp.entby[i].xogx0[j] >> theCurrentTemp.entby[i].xogsig[j];
-			
+          in_file >> theCurrentTemp.entby[i].chi2yavg[j] >> theCurrentTemp.entby[i].chi2ymin[j] >> theCurrentTemp.entby[i].chi2xavg[j] >> theCurrentTemp.entby[i].chi2xmin[j];
+
           if(in_file.fail()) {std::cout << "Error reading file, no template load" << std::endl; return false;}
 	   }
+	   
+	   in_file >> theCurrentTemp.entby[i].yspare[0] >> theCurrentTemp.entby[i].yspare[1] >> theCurrentTemp.entby[i].yspare[2] >> theCurrentTemp.entby[i].yspare[3] >> theCurrentTemp.entby[i].yspare[4]
+	    >> theCurrentTemp.entby[i].yspare[5] >> theCurrentTemp.entby[i].yspare[6] >> theCurrentTemp.entby[i].yspare[7] >> theCurrentTemp.entby[i].yspare[8] >> theCurrentTemp.entby[i].yspare[9];
+
+	   if(in_file.fail()) {std::cout << "Error reading file, no template load" << std::endl; return false;}
+
+	   in_file >> theCurrentTemp.entby[i].xspare[0] >> theCurrentTemp.entby[i].xspare[1] >> theCurrentTemp.entby[i].xspare[2] >> theCurrentTemp.entby[i].xspare[3] >> theCurrentTemp.entby[i].xspare[4]
+	    >> theCurrentTemp.entby[i].xspare[5] >> theCurrentTemp.entby[i].xspare[6] >> theCurrentTemp.entby[i].xspare[7] >> theCurrentTemp.entby[i].xspare[8] >> theCurrentTemp.entby[i].xspare[9];
+
+	   if(in_file.fail()) {std::cout << "Error reading file, no template load" << std::endl; return false;}
     	   
 	}
 	
 // next, loop over all barrel x-angle entries   
 
-    for (i=0; i < theCurrentTemp.head.NBx; ++i) { 
+  for (k=0; k < theCurrentTemp.head.NByx; ++k) { 
+
+    for (i=0; i < theCurrentTemp.head.NBxx; ++i) { 
         
-       in_file >> theCurrentTemp.entbx[i].runnum >> theCurrentTemp.entbx[i].costrk[0] 
-	           >> theCurrentTemp.entbx[i].costrk[1] >> theCurrentTemp.entbx[i].costrk[2]; 
+       in_file >> theCurrentTemp.entbx[k][i].runnum >> theCurrentTemp.entbx[k][i].costrk[0] 
+	           >> theCurrentTemp.entbx[k][i].costrk[1] >> theCurrentTemp.entbx[k][i].costrk[2]; 
 			
        if(in_file.fail()) {std::cout << "Error reading file, no template load" << std::endl; return false;}
 			  
 // Calculate the alpha, beta, and cot(beta) for this entry 
 
-       theCurrentTemp.entbx[i].alpha = static_cast<float>(atan2((double)theCurrentTemp.entbx[i].costrk[2], (double)theCurrentTemp.entbx[i].costrk[0]));
+       theCurrentTemp.entbx[k][i].alpha = static_cast<float>(atan2((double)theCurrentTemp.entbx[k][i].costrk[2], (double)theCurrentTemp.entbx[k][i].costrk[0]));
 	   
-	   theCurrentTemp.entbx[i].cotalpha = theCurrentTemp.entbx[i].costrk[0]/theCurrentTemp.entbx[i].costrk[2];
+	   theCurrentTemp.entbx[k][i].cotalpha = theCurrentTemp.entbx[k][i].costrk[0]/theCurrentTemp.entbx[k][i].costrk[2];
 
-       theCurrentTemp.entbx[i].beta = static_cast<float>(atan2((double)theCurrentTemp.entbx[i].costrk[2], (double)theCurrentTemp.entbx[i].costrk[1]));
+       theCurrentTemp.entbx[k][i].beta = static_cast<float>(atan2((double)theCurrentTemp.entbx[k][i].costrk[2], (double)theCurrentTemp.entbx[k][i].costrk[1]));
 	   
-	   theCurrentTemp.entbx[i].cotbeta = theCurrentTemp.entbx[i].costrk[1]/theCurrentTemp.entbx[i].costrk[2];
+	   theCurrentTemp.entbx[k][i].cotbeta = theCurrentTemp.entbx[k][i].costrk[1]/theCurrentTemp.entbx[k][i].costrk[2];
     
-       in_file >> theCurrentTemp.entbx[i].qavg >> theCurrentTemp.entbx[i].symax >> theCurrentTemp.entbx[i].dyone
-	           >> theCurrentTemp.entbx[i].syone >> theCurrentTemp.entbx[i].sxmax >> theCurrentTemp.entbx[i].dxone >> theCurrentTemp.entbx[i].sxone;
+       in_file >> theCurrentTemp.entbx[k][i].qavg >> theCurrentTemp.entbx[k][i].symax >> theCurrentTemp.entbx[k][i].dyone
+	           >> theCurrentTemp.entbx[k][i].syone >> theCurrentTemp.entbx[k][i].sxmax >> theCurrentTemp.entbx[k][i].dxone >> theCurrentTemp.entbx[k][i].sxone;
 			
        if(in_file.fail()) {std::cout << "Error reading file, no template load" << std::endl; return false;}
     
-       in_file >> theCurrentTemp.entbx[i].dytwo >> theCurrentTemp.entbx[i].sytwo >> theCurrentTemp.entbx[i].dxtwo 
-	           >> theCurrentTemp.entbx[i].sxtwo;
+       in_file >> theCurrentTemp.entbx[k][i].dytwo >> theCurrentTemp.entbx[k][i].sytwo >> theCurrentTemp.entbx[k][i].dxtwo 
+	           >> theCurrentTemp.entbx[k][i].sxtwo;
 			
        if(in_file.fail()) {std::cout << "Error reading file, no template load" << std::endl; return false;}
 			  
 	   for (j=0; j<2; ++j) {
     
-          in_file >> theCurrentTemp.entbx[i].ypar[j][0] >> theCurrentTemp.entbx[i].ypar[j][1] 
-	              >> theCurrentTemp.entbx[i].ypar[j][2] >> theCurrentTemp.entbx[i].ypar[j][3] >> theCurrentTemp.entbx[i].ypar[j][4];
+          in_file >> theCurrentTemp.entbx[k][i].ypar[j][0] >> theCurrentTemp.entbx[k][i].ypar[j][1] 
+	              >> theCurrentTemp.entbx[k][i].ypar[j][2] >> theCurrentTemp.entbx[k][i].ypar[j][3] >> theCurrentTemp.entbx[k][i].ypar[j][4];
 			  			
           if(in_file.fail()) {std::cout << "Error reading file, no template load" << std::endl; return false;}
 	   }
 			  
 	   for (j=0; j<9; ++j) {
     
-          in_file >> theCurrentTemp.entbx[i].ytemp[j][0] >> theCurrentTemp.entbx[i].ytemp[j][1] >> theCurrentTemp.entbx[i].ytemp[j][2]
-	              >> theCurrentTemp.entbx[i].ytemp[j][3] >> theCurrentTemp.entbx[i].ytemp[j][4] >> theCurrentTemp.entbx[i].ytemp[j][5]
-	              >> theCurrentTemp.entbx[i].ytemp[j][6] >> theCurrentTemp.entbx[i].ytemp[j][7] >> theCurrentTemp.entbx[i].ytemp[j][8]
-	              >> theCurrentTemp.entbx[i].ytemp[j][9] >> theCurrentTemp.entbx[i].ytemp[j][10] >> theCurrentTemp.entbx[i].ytemp[j][11]
-	              >> theCurrentTemp.entbx[i].ytemp[j][12] >> theCurrentTemp.entbx[i].ytemp[j][13] >> theCurrentTemp.entbx[i].ytemp[j][14]
-	              >> theCurrentTemp.entbx[i].ytemp[j][15] >> theCurrentTemp.entbx[i].ytemp[j][16] >> theCurrentTemp.entbx[i].ytemp[j][17]
-	              >> theCurrentTemp.entbx[i].ytemp[j][18] >> theCurrentTemp.entbx[i].ytemp[j][19] >> theCurrentTemp.entbx[i].ytemp[j][20];
+          in_file >> theCurrentTemp.entbx[k][i].ytemp[j][0] >> theCurrentTemp.entbx[k][i].ytemp[j][1] >> theCurrentTemp.entbx[k][i].ytemp[j][2]
+	              >> theCurrentTemp.entbx[k][i].ytemp[j][3] >> theCurrentTemp.entbx[k][i].ytemp[j][4] >> theCurrentTemp.entbx[k][i].ytemp[j][5]
+	              >> theCurrentTemp.entbx[k][i].ytemp[j][6] >> theCurrentTemp.entbx[k][i].ytemp[j][7] >> theCurrentTemp.entbx[k][i].ytemp[j][8]
+	              >> theCurrentTemp.entbx[k][i].ytemp[j][9] >> theCurrentTemp.entbx[k][i].ytemp[j][10] >> theCurrentTemp.entbx[k][i].ytemp[j][11]
+	              >> theCurrentTemp.entbx[k][i].ytemp[j][12] >> theCurrentTemp.entbx[k][i].ytemp[j][13] >> theCurrentTemp.entbx[k][i].ytemp[j][14]
+	              >> theCurrentTemp.entbx[k][i].ytemp[j][15] >> theCurrentTemp.entbx[k][i].ytemp[j][16] >> theCurrentTemp.entbx[k][i].ytemp[j][17]
+	              >> theCurrentTemp.entbx[k][i].ytemp[j][18] >> theCurrentTemp.entbx[k][i].ytemp[j][19] >> theCurrentTemp.entbx[k][i].ytemp[j][20];
 			
 		  if(in_file.fail()) {std::cout << "Error reading file, no template load" << std::endl; return false;}
 	   }
    			  
 	   for (j=0; j<2; ++j) {
     
-		  in_file >> theCurrentTemp.entbx[i].xpar[j][0] >> theCurrentTemp.entbx[i].xpar[j][1] 
-	              >> theCurrentTemp.entbx[i].xpar[j][2] >> theCurrentTemp.entbx[i].xpar[j][3] >> theCurrentTemp.entbx[i].xpar[j][4];
+		  in_file >> theCurrentTemp.entbx[k][i].xpar[j][0] >> theCurrentTemp.entbx[k][i].xpar[j][1] 
+	              >> theCurrentTemp.entbx[k][i].xpar[j][2] >> theCurrentTemp.entbx[k][i].xpar[j][3] >> theCurrentTemp.entbx[k][i].xpar[j][4];
 			  
 			
           if(in_file.fail()) {std::cout << "Error reading file, no template load" << std::endl; return false;}
@@ -258,56 +274,62 @@ bool SiPixelTemplate::pushfile(int filenum)
 			  
 	   for (j=0; j<9; ++j) {
     
-          in_file >> theCurrentTemp.entbx[i].xtemp[j][0] >> theCurrentTemp.entbx[i].xtemp[j][1] >> theCurrentTemp.entbx[i].xtemp[j][2]
-	              >> theCurrentTemp.entbx[i].xtemp[j][3] >> theCurrentTemp.entbx[i].xtemp[j][4] >> theCurrentTemp.entbx[i].xtemp[j][5]
-	              >> theCurrentTemp.entbx[i].xtemp[j][6];
+          in_file >> theCurrentTemp.entbx[k][i].xtemp[j][0] >> theCurrentTemp.entbx[k][i].xtemp[j][1] >> theCurrentTemp.entbx[k][i].xtemp[j][2]
+	              >> theCurrentTemp.entbx[k][i].xtemp[j][3] >> theCurrentTemp.entbx[k][i].xtemp[j][4] >> theCurrentTemp.entbx[k][i].xtemp[j][5]
+	              >> theCurrentTemp.entbx[k][i].xtemp[j][6];
 			
           if(in_file.fail()) {std::cout << "Error reading file, no template load" << std::endl; return false;}
 	   }
 	   
 	   for (j=0; j<4; ++j) {
     
-          in_file >> theCurrentTemp.entbx[i].yavg[j] >> theCurrentTemp.entbx[i].yrms[j] >> theCurrentTemp.entbx[i].ygx0[j] >> theCurrentTemp.entbx[i].ygsig[j];
+          in_file >> theCurrentTemp.entbx[k][i].yavg[j] >> theCurrentTemp.entbx[k][i].yrms[j] >> theCurrentTemp.entbx[k][i].ygx0[j] >> theCurrentTemp.entbx[k][i].ygsig[j];
 			
           if(in_file.fail()) {std::cout << "Error reading file, no template load" << std::endl; return false;}
 	   }
 	   			  
 	   for (j=0; j<4; ++j) {
     
-          in_file >> theCurrentTemp.entbx[i].yeavg[j] >> theCurrentTemp.entbx[i].yerms[j] >> theCurrentTemp.entbx[i].yegx0[j] >> theCurrentTemp.entbx[i].yegsig[j];
+          in_file >> theCurrentTemp.entbx[k][i].yflpar[j][0] >> theCurrentTemp.entbx[k][i].yflpar[j][1] >> theCurrentTemp.entbx[k][i].yflpar[j][2] 
+				  >> theCurrentTemp.entbx[k][i].yflpar[j][3] >> theCurrentTemp.entbx[k][i].yflpar[j][4] >> theCurrentTemp.entbx[k][i].yflpar[j][5];
+			
+          if(in_file.fail()) {std::cout << "Error reading file, no template load" << std::endl; return false;}
+	   }
+	   			  
+	   for (j=0; j<4; ++j) {
+    
+          in_file >> theCurrentTemp.entbx[k][i].xavg[j] >> theCurrentTemp.entbx[k][i].xrms[j] >> theCurrentTemp.entbx[k][i].xgx0[j] >> theCurrentTemp.entbx[k][i].xgsig[j];
+			
+          if(in_file.fail()) {std::cout << "Error reading file, no template load" << std::endl; return false;}
+	   }
+			  
+	   for (j=0; j<4; ++j) {
+    
+          in_file >> theCurrentTemp.entbx[k][i].xflpar[j][0] >> theCurrentTemp.entbx[k][i].xflpar[j][1] >> theCurrentTemp.entbx[k][i].xflpar[j][2] 
+		          >> theCurrentTemp.entbx[k][i].xflpar[j][3] >> theCurrentTemp.entbx[k][i].xflpar[j][4] >> theCurrentTemp.entbx[k][i].xflpar[j][5];
+			
+          if(in_file.fail()) {std::cout << "Error reading file, no template load" << std::endl; return false;}
+	   }
+			  
+	   for (j=0; j<4; ++j) {
+    
+          in_file >> theCurrentTemp.entbx[k][i].chi2yavg[j] >> theCurrentTemp.entbx[k][i].chi2ymin[j] >> theCurrentTemp.entbx[k][i].chi2xavg[j] >> theCurrentTemp.entbx[k][i].chi2xmin[j];
 			
           if(in_file.fail()) {std::cout << "Error reading file, no template load" << std::endl; return false;}
 	   }
 	   
-	   for (j=0; j<4; ++j) {
-    
-          in_file >> theCurrentTemp.entbx[i].yoavg[j] >> theCurrentTemp.entbx[i].yorms[j] >> theCurrentTemp.entbx[i].yogx0[j] >> theCurrentTemp.entbx[i].yogsig[j];
+	   in_file >> theCurrentTemp.entbx[k][i].yspare[0] >> theCurrentTemp.entbx[k][i].yspare[1] >> theCurrentTemp.entbx[k][i].yspare[2] >> theCurrentTemp.entbx[k][i].yspare[3] >> theCurrentTemp.entbx[k][i].yspare[4]
+	    >> theCurrentTemp.entbx[k][i].yspare[5] >> theCurrentTemp.entbx[k][i].yspare[6] >> theCurrentTemp.entbx[k][i].yspare[7] >> theCurrentTemp.entbx[k][i].yspare[8] >> theCurrentTemp.entbx[k][i].yspare[9];
 			
-          if(in_file.fail()) {std::cout << "Error reading file, no template load" << std::endl; return false;}
-	   }
-			  
-	   for (j=0; j<4; ++j) {
-    
-          in_file >> theCurrentTemp.entbx[i].xavg[j] >> theCurrentTemp.entbx[i].xrms[j] >> theCurrentTemp.entbx[i].xgx0[j] >> theCurrentTemp.entbx[i].xgsig[j];
+	   if(in_file.fail()) {std::cout << "Error reading file, no template load" << std::endl; return false;}
+
+	   in_file >> theCurrentTemp.entbx[k][i].xspare[0] >> theCurrentTemp.entbx[k][i].xspare[1] >> theCurrentTemp.entbx[k][i].xspare[2] >> theCurrentTemp.entbx[k][i].xspare[3] >> theCurrentTemp.entbx[k][i].xspare[4]
+	    >> theCurrentTemp.entbx[k][i].xspare[5] >> theCurrentTemp.entbx[k][i].xspare[6] >> theCurrentTemp.entbx[k][i].xspare[7] >> theCurrentTemp.entbx[k][i].xspare[8] >> theCurrentTemp.entbx[k][i].xspare[9];
 			
-          if(in_file.fail()) {std::cout << "Error reading file, no template load" << std::endl; return false;}
-	   }
-			  
-	   for (j=0; j<4; ++j) {
-    
-          in_file >> theCurrentTemp.entbx[i].xeavg[j] >> theCurrentTemp.entbx[i].xerms[j] >> theCurrentTemp.entbx[i].xegx0[j] >> theCurrentTemp.entbx[i].xegsig[j];
-			
-          if(in_file.fail()) {std::cout << "Error reading file, no template load" << std::endl; return false;}
-	   }
-			  
-	   for (j=0; j<4; ++j) {
-    
-          in_file >> theCurrentTemp.entbx[i].xoavg[j] >> theCurrentTemp.entbx[i].xorms[j] >> theCurrentTemp.entbx[i].xogx0[j] >> theCurrentTemp.entbx[i].xogsig[j];
-			
-          if(in_file.fail()) {std::cout << "Error reading file, no template load" << std::endl; return false;}
-	   }
+	   if(in_file.fail()) {std::cout << "Error reading file, no template load" << std::endl; return false;}
     	   
 	}
+  }	
     
 // next, loop over all forward y-angle entries   
 
@@ -387,18 +409,12 @@ bool SiPixelTemplate::pushfile(int filenum)
 	   			  
 	   for (j=0; j<4; ++j) {
     
-          in_file >> theCurrentTemp.entfy[i].yeavg[j] >> theCurrentTemp.entfy[i].yerms[j] >> theCurrentTemp.entfy[i].yegx0[j] >> theCurrentTemp.entfy[i].yegsig[j];
-			
+          in_file >> theCurrentTemp.entfy[i].yflpar[j][0] >> theCurrentTemp.entfy[i].yflpar[j][1] >> theCurrentTemp.entfy[i].yflpar[j][2]
+				  >> theCurrentTemp.entfy[i].yflpar[j][3] >> theCurrentTemp.entfy[i].yflpar[j][4] >> theCurrentTemp.entfy[i].yflpar[j][5];
+ 			
           if(in_file.fail()) {std::cout << "Error reading file, no template load" << std::endl; return false;}
 	   }
 	   
-	   for (j=0; j<4; ++j) {
-    
-          in_file >> theCurrentTemp.entfy[i].yoavg[j] >> theCurrentTemp.entfy[i].yorms[j] >> theCurrentTemp.entfy[i].yogx0[j] >> theCurrentTemp.entfy[i].yogsig[j];
-			
-          if(in_file.fail()) {std::cout << "Error reading file, no template load" << std::endl; return false;}
-	   }
-			  
 	   for (j=0; j<4; ++j) {
     
           in_file >> theCurrentTemp.entfy[i].xavg[j] >> theCurrentTemp.entfy[i].xrms[j] >> theCurrentTemp.entfy[i].xgx0[j] >> theCurrentTemp.entfy[i].xgsig[j];
@@ -408,53 +424,66 @@ bool SiPixelTemplate::pushfile(int filenum)
 			  
 	   for (j=0; j<4; ++j) {
     
-          in_file >> theCurrentTemp.entfy[i].xeavg[j] >> theCurrentTemp.entfy[i].xerms[j] >> theCurrentTemp.entfy[i].xegx0[j] >> theCurrentTemp.entfy[i].xegsig[j];
+          in_file >> theCurrentTemp.entfy[i].xflpar[j][0] >> theCurrentTemp.entfy[i].xflpar[j][1] >> theCurrentTemp.entfy[i].xflpar[j][2] 
+		          >> theCurrentTemp.entfy[i].xflpar[j][3] >> theCurrentTemp.entfy[i].xflpar[j][4] >> theCurrentTemp.entfy[i].xflpar[j][5];
 			
           if(in_file.fail()) {std::cout << "Error reading file, no template load" << std::endl; return false;}
 	   }
 			  
 	   for (j=0; j<4; ++j) {
     
-          in_file >> theCurrentTemp.entfy[i].xoavg[j] >> theCurrentTemp.entfy[i].xorms[j] >> theCurrentTemp.entfy[i].xogx0[j] >> theCurrentTemp.entfy[i].xogsig[j];
+          in_file >> theCurrentTemp.entfy[i].chi2yavg[j] >> theCurrentTemp.entfy[i].chi2ymin[j] >> theCurrentTemp.entfy[i].chi2xavg[j] >> theCurrentTemp.entfy[i].chi2xmin[j];
 			
           if(in_file.fail()) {std::cout << "Error reading file, no template load" << std::endl; return false;}
 	   }
+	   
+	   in_file >> theCurrentTemp.entfy[i].yspare[0] >> theCurrentTemp.entfy[i].yspare[1] >> theCurrentTemp.entfy[i].yspare[2] >> theCurrentTemp.entfy[i].yspare[3] >> theCurrentTemp.entfy[i].yspare[4]
+	    >> theCurrentTemp.entfy[i].yspare[5] >> theCurrentTemp.entfy[i].yspare[6] >> theCurrentTemp.entfy[i].yspare[7] >> theCurrentTemp.entfy[i].yspare[8] >> theCurrentTemp.entfy[i].yspare[9];
+			
+	   if(in_file.fail()) {std::cout << "Error reading file, no template load" << std::endl; return false;}
+
+	   in_file >> theCurrentTemp.entfy[i].xspare[0] >> theCurrentTemp.entfy[i].xspare[1] >> theCurrentTemp.entfy[i].xspare[2] >> theCurrentTemp.entfy[i].xspare[3] >> theCurrentTemp.entfy[i].xspare[4]
+	    >> theCurrentTemp.entfy[i].xspare[5] >> theCurrentTemp.entfy[i].xspare[6] >> theCurrentTemp.entfy[i].xspare[7] >> theCurrentTemp.entfy[i].xspare[8] >> theCurrentTemp.entfy[i].xspare[9];
+			
+	   if(in_file.fail()) {std::cout << "Error reading file, no template load" << std::endl; return false;}
     	   
 	}
 	
 // next, loop over all forward x-angle entries   
 
-    for (i=0; i < theCurrentTemp.head.NFx; ++i) {     
+  for (k=0; k < theCurrentTemp.head.NFyx; ++k) { 
+  
+    for (i=0; i < theCurrentTemp.head.NFxx; ++i) {     
     
-       in_file >> theCurrentTemp.entfx[i].runnum >> theCurrentTemp.entfx[i].costrk[0] 
-	           >> theCurrentTemp.entfx[i].costrk[1] >> theCurrentTemp.entfx[i].costrk[2]; 
+       in_file >> theCurrentTemp.entfx[k][i].runnum >> theCurrentTemp.entfx[k][i].costrk[0] 
+	           >> theCurrentTemp.entfx[k][i].costrk[1] >> theCurrentTemp.entfx[k][i].costrk[2]; 
 			
        if(in_file.fail()) {std::cout << "Error reading file, no template load" << std::endl; return false;}
 			  
 // Calculate the alpha, beta, and cot(beta) for this entry 
 
-       theCurrentTemp.entfx[i].alpha = static_cast<float>(atan2((double)theCurrentTemp.entfx[i].costrk[2], (double)theCurrentTemp.entfx[i].costrk[0]));
+       theCurrentTemp.entfx[k][i].alpha = static_cast<float>(atan2((double)theCurrentTemp.entfx[k][i].costrk[2], (double)theCurrentTemp.entfx[k][i].costrk[0]));
 	   
-	   theCurrentTemp.entfx[i].cotalpha = theCurrentTemp.entfx[i].costrk[0]/theCurrentTemp.entfx[i].costrk[2];
+	   theCurrentTemp.entfx[k][i].cotalpha = theCurrentTemp.entfx[k][i].costrk[0]/theCurrentTemp.entfx[k][i].costrk[2];
 
-       theCurrentTemp.entfx[i].beta = static_cast<float>(atan2((double)theCurrentTemp.entfx[i].costrk[2], (double)theCurrentTemp.entfx[i].costrk[1]));
+       theCurrentTemp.entfx[k][i].beta = static_cast<float>(atan2((double)theCurrentTemp.entfx[k][i].costrk[2], (double)theCurrentTemp.entfx[k][i].costrk[1]));
 	   
-	   theCurrentTemp.entfx[i].cotbeta = theCurrentTemp.entfx[i].costrk[1]/theCurrentTemp.entfx[i].costrk[2];
+	   theCurrentTemp.entfx[k][i].cotbeta = theCurrentTemp.entfx[k][i].costrk[1]/theCurrentTemp.entfx[k][i].costrk[2];
     
-       in_file >> theCurrentTemp.entfx[i].qavg >> theCurrentTemp.entfx[i].symax >> theCurrentTemp.entfx[i].dyone
-	           >> theCurrentTemp.entfx[i].syone >> theCurrentTemp.entfx[i].sxmax >> theCurrentTemp.entfx[i].dxone >> theCurrentTemp.entfx[i].sxone;
+       in_file >> theCurrentTemp.entfx[k][i].qavg >> theCurrentTemp.entfx[k][i].symax >> theCurrentTemp.entfx[k][i].dyone
+	           >> theCurrentTemp.entfx[k][i].syone >> theCurrentTemp.entfx[k][i].sxmax >> theCurrentTemp.entfx[k][i].dxone >> theCurrentTemp.entfx[k][i].sxone;
 			
        if(in_file.fail()) {std::cout << "Error reading file, no template load" << std::endl; return false;}
     
-       in_file >> theCurrentTemp.entfx[i].dytwo >> theCurrentTemp.entfx[i].sytwo >> theCurrentTemp.entfx[i].dxtwo 
-	           >> theCurrentTemp.entfx[i].sxtwo;
+       in_file >> theCurrentTemp.entfx[k][i].dytwo >> theCurrentTemp.entfx[k][i].sytwo >> theCurrentTemp.entfx[k][i].dxtwo 
+	           >> theCurrentTemp.entfx[k][i].sxtwo;
 			
        if(in_file.fail()) {std::cout << "Error reading file, no template load" << std::endl; return false;}
 			  
 	   for (j=0; j<2; ++j) {
     
-          in_file >> theCurrentTemp.entfx[i].ypar[j][0] >> theCurrentTemp.entfx[i].ypar[j][1] 
-	              >> theCurrentTemp.entfx[i].ypar[j][2] >> theCurrentTemp.entfx[i].ypar[j][3] >> theCurrentTemp.entfx[i].ypar[j][4];
+          in_file >> theCurrentTemp.entfx[k][i].ypar[j][0] >> theCurrentTemp.entfx[k][i].ypar[j][1] 
+	              >> theCurrentTemp.entfx[k][i].ypar[j][2] >> theCurrentTemp.entfx[k][i].ypar[j][3] >> theCurrentTemp.entfx[k][i].ypar[j][4];
 			
           if(in_file.fail()) {std::cout << "Error reading file, no template load" << std::endl; return false;}
 			  
@@ -462,21 +491,21 @@ bool SiPixelTemplate::pushfile(int filenum)
 			  
 	   for (j=0; j<9; ++j) {
     
-          in_file >> theCurrentTemp.entfx[i].ytemp[j][0] >> theCurrentTemp.entfx[i].ytemp[j][1] >> theCurrentTemp.entfx[i].ytemp[j][2]
-	              >> theCurrentTemp.entfx[i].ytemp[j][3] >> theCurrentTemp.entfx[i].ytemp[j][4] >> theCurrentTemp.entfx[i].ytemp[j][5]
-	              >> theCurrentTemp.entfx[i].ytemp[j][6] >> theCurrentTemp.entfx[i].ytemp[j][7] >> theCurrentTemp.entfx[i].ytemp[j][8]
-	              >> theCurrentTemp.entfx[i].ytemp[j][9] >> theCurrentTemp.entfx[i].ytemp[j][10] >> theCurrentTemp.entfx[i].ytemp[j][11]
-	              >> theCurrentTemp.entfx[i].ytemp[j][12] >> theCurrentTemp.entfx[i].ytemp[j][13] >> theCurrentTemp.entfx[i].ytemp[j][14]
-	              >> theCurrentTemp.entfx[i].ytemp[j][15] >> theCurrentTemp.entfx[i].ytemp[j][16] >> theCurrentTemp.entfx[i].ytemp[j][17]
-	              >> theCurrentTemp.entfx[i].ytemp[j][18] >> theCurrentTemp.entfx[i].ytemp[j][19] >> theCurrentTemp.entfx[i].ytemp[j][20];
+          in_file >> theCurrentTemp.entfx[k][i].ytemp[j][0] >> theCurrentTemp.entfx[k][i].ytemp[j][1] >> theCurrentTemp.entfx[k][i].ytemp[j][2]
+	              >> theCurrentTemp.entfx[k][i].ytemp[j][3] >> theCurrentTemp.entfx[k][i].ytemp[j][4] >> theCurrentTemp.entfx[k][i].ytemp[j][5]
+	              >> theCurrentTemp.entfx[k][i].ytemp[j][6] >> theCurrentTemp.entfx[k][i].ytemp[j][7] >> theCurrentTemp.entfx[k][i].ytemp[j][8]
+	              >> theCurrentTemp.entfx[k][i].ytemp[j][9] >> theCurrentTemp.entfx[k][i].ytemp[j][10] >> theCurrentTemp.entfx[k][i].ytemp[j][11]
+	              >> theCurrentTemp.entfx[k][i].ytemp[j][12] >> theCurrentTemp.entfx[k][i].ytemp[j][13] >> theCurrentTemp.entfx[k][i].ytemp[j][14]
+	              >> theCurrentTemp.entfx[k][i].ytemp[j][15] >> theCurrentTemp.entfx[k][i].ytemp[j][16] >> theCurrentTemp.entfx[k][i].ytemp[j][17]
+	              >> theCurrentTemp.entfx[k][i].ytemp[j][18] >> theCurrentTemp.entfx[k][i].ytemp[j][19] >> theCurrentTemp.entfx[k][i].ytemp[j][20];
 			
           if(in_file.fail()) {std::cout << "Error reading file, no template load" << std::endl; return false;}
 	   }
    			  
 	   for (j=0; j<2; ++j) {
     
-		  in_file >> theCurrentTemp.entfx[i].xpar[j][0] >> theCurrentTemp.entfx[i].xpar[j][1] 
-	              >> theCurrentTemp.entfx[i].xpar[j][2] >> theCurrentTemp.entfx[i].xpar[j][3] >> theCurrentTemp.entfx[i].xpar[j][4];
+		  in_file >> theCurrentTemp.entfx[k][i].xpar[j][0] >> theCurrentTemp.entfx[k][i].xpar[j][1] 
+	              >> theCurrentTemp.entfx[k][i].xpar[j][2] >> theCurrentTemp.entfx[k][i].xpar[j][3] >> theCurrentTemp.entfx[k][i].xpar[j][4];
 			  
 			
           if(in_file.fail()) {std::cout << "Error reading file, no template load" << std::endl; return false;}
@@ -484,56 +513,62 @@ bool SiPixelTemplate::pushfile(int filenum)
 			  
 	   for (j=0; j<9; ++j) {
     
-          in_file >> theCurrentTemp.entfx[i].xtemp[j][0] >> theCurrentTemp.entfx[i].xtemp[j][1] >> theCurrentTemp.entfx[i].xtemp[j][2]
-	              >> theCurrentTemp.entfx[i].xtemp[j][3] >> theCurrentTemp.entfx[i].xtemp[j][4] >> theCurrentTemp.entfx[i].xtemp[j][5]
-	              >> theCurrentTemp.entfx[i].xtemp[j][6];
+          in_file >> theCurrentTemp.entfx[k][i].xtemp[j][0] >> theCurrentTemp.entfx[k][i].xtemp[j][1] >> theCurrentTemp.entfx[k][i].xtemp[j][2]
+	              >> theCurrentTemp.entfx[k][i].xtemp[j][3] >> theCurrentTemp.entfx[k][i].xtemp[j][4] >> theCurrentTemp.entfx[k][i].xtemp[j][5]
+	              >> theCurrentTemp.entfx[k][i].xtemp[j][6];
 			
           if(in_file.fail()) {std::cout << "Error reading file, no template load" << std::endl; return false;}
 	   }
 	   
 	   for (j=0; j<4; ++j) {
     
-          in_file >> theCurrentTemp.entfx[i].yavg[j] >> theCurrentTemp.entfx[i].yrms[j] >> theCurrentTemp.entfx[i].ygx0[j] >> theCurrentTemp.entfx[i].ygsig[j];
+          in_file >> theCurrentTemp.entfx[k][i].yavg[j] >> theCurrentTemp.entfx[k][i].yrms[j] >> theCurrentTemp.entfx[k][i].ygx0[j] >> theCurrentTemp.entfx[k][i].ygsig[j];
 			
           if(in_file.fail()) {std::cout << "Error reading file, no template load" << std::endl; return false;}
 	   }
 	   			  
 	   for (j=0; j<4; ++j) {
     
-          in_file >> theCurrentTemp.entfx[i].yeavg[j] >> theCurrentTemp.entfx[i].yerms[j] >> theCurrentTemp.entfx[i].yegx0[j] >> theCurrentTemp.entfx[i].yegsig[j];
+          in_file >> theCurrentTemp.entfx[k][i].yflpar[j][0] >> theCurrentTemp.entfx[k][i].yflpar[j][1] >> theCurrentTemp.entfx[k][i].yflpar[j][2] 
+		          >> theCurrentTemp.entfx[k][i].yflpar[j][3] >> theCurrentTemp.entfx[k][i].yflpar[j][4] >> theCurrentTemp.entfx[k][i].yflpar[j][5];
 			
           if(in_file.fail()) {std::cout << "Error reading file, no template load" << std::endl; return false;}
 	   }
 	   
 	   for (j=0; j<4; ++j) {
     
-          in_file >> theCurrentTemp.entfx[i].yoavg[j] >> theCurrentTemp.entfx[i].yorms[j] >> theCurrentTemp.entfx[i].yogx0[j] >> theCurrentTemp.entfx[i].yogsig[j];
+          in_file >> theCurrentTemp.entfx[k][i].xavg[j] >> theCurrentTemp.entfx[k][i].xrms[j] >> theCurrentTemp.entfx[k][i].xgx0[j] >> theCurrentTemp.entfx[k][i].xgsig[j];
 			
           if(in_file.fail()) {std::cout << "Error reading file, no template load" << std::endl; return false;}
 	   }
 			  
 	   for (j=0; j<4; ++j) {
     
-          in_file >> theCurrentTemp.entfx[i].xavg[j] >> theCurrentTemp.entfx[i].xrms[j] >> theCurrentTemp.entfx[i].xgx0[j] >> theCurrentTemp.entfx[i].xgsig[j];
+          in_file >> theCurrentTemp.entfx[k][i].xflpar[j][0] >> theCurrentTemp.entfx[k][i].xflpar[j][1] >> theCurrentTemp.entfx[k][i].xflpar[j][2] 
+		          >> theCurrentTemp.entfx[k][i].xflpar[j][3] >> theCurrentTemp.entfx[k][i].xflpar[j][4] >> theCurrentTemp.entfx[k][i].xflpar[j][5];
 			
           if(in_file.fail()) {std::cout << "Error reading file, no template load" << std::endl; return false;}
 	   }
 			  
 	   for (j=0; j<4; ++j) {
     
-          in_file >> theCurrentTemp.entfx[i].xeavg[j] >> theCurrentTemp.entfx[i].xerms[j] >> theCurrentTemp.entfx[i].xegx0[j] >> theCurrentTemp.entfx[i].xegsig[j];
-			
+          in_file >> theCurrentTemp.entfx[k][i].chi2yavg[j] >> theCurrentTemp.entfx[k][i].chi2ymin[j] >> theCurrentTemp.entfx[k][i].chi2xavg[j] >> theCurrentTemp.entfx[k][i].chi2xmin[j];
+
           if(in_file.fail()) {std::cout << "Error reading file, no template load" << std::endl; return false;}
 	   }
-			  
-	   for (j=0; j<4; ++j) {
-    
-          in_file >> theCurrentTemp.entfx[i].xoavg[j] >> theCurrentTemp.entfx[i].xorms[j] >> theCurrentTemp.entfx[i].xogx0[j] >> theCurrentTemp.entfx[i].xogsig[j];
-			
-          if(in_file.fail()) {std::cout << "Error reading file, no template load" << std::endl; return false;}
-	   }
+	   
+	   in_file >> theCurrentTemp.entfx[k][i].yspare[0] >> theCurrentTemp.entfx[k][i].yspare[1] >> theCurrentTemp.entfx[k][i].yspare[2] >> theCurrentTemp.entfx[k][i].yspare[3] >> theCurrentTemp.entfx[k][i].yspare[4]
+	    >> theCurrentTemp.entfx[k][i].yspare[5] >> theCurrentTemp.entfx[k][i].yspare[6] >> theCurrentTemp.entfx[k][i].yspare[7] >> theCurrentTemp.entfx[k][i].yspare[8] >> theCurrentTemp.entfx[k][i].yspare[9];
+
+	   if(in_file.fail()) {std::cout << "Error reading file, no template load" << std::endl; return false;}
+
+	   in_file >> theCurrentTemp.entfx[k][i].xspare[0] >> theCurrentTemp.entfx[k][i].xspare[1] >> theCurrentTemp.entfx[k][i].xspare[2] >> theCurrentTemp.entfx[k][i].xspare[3] >> theCurrentTemp.entfx[k][i].xspare[4]
+	    >> theCurrentTemp.entfx[k][i].xspare[5] >> theCurrentTemp.entfx[k][i].xspare[6] >> theCurrentTemp.entfx[k][i].xspare[7] >> theCurrentTemp.entfx[k][i].xspare[8] >> theCurrentTemp.entfx[k][i].xspare[9];
+
+	   if(in_file.fail()) {std::cout << "Error reading file, no template load" << std::endl; return false;}
     	   
-	}
+	}	
+  }
     
     in_file.close();
 	
@@ -578,9 +613,10 @@ void SiPixelTemplate::interpolate(int id, bool fpix, float cotalpha, float cotbe
     
     // Local variables 
     int i, j, ind;
-	int ilow, ihigh, Nx, Ny, imidy;
-	float yratio, xratio, qscale, sxmax0;
-	std::vector <float> xrms(4), xgsig(4), xerms(4), xegsig(4), xorms(4), xogsig(4);
+	int ilow, ihigh, iylow, iyhigh, Ny, Nxx, Nyx, imidy, imaxx;
+	float yratio, yxratio, xxratio, sxmax;
+	std::vector <float> xrms(4), xgsig(4);
+	std::vector <float> chi2xavg(4), chi2xmin(4);
 
 
 // Check to see if interpolation is valid     
@@ -604,9 +640,14 @@ if(id != id_current || fpix != fpix_current || cotalpha != cota_current || cotbe
           }
 	    }
      }
+	 
 	 assert(index_id >= 0 && index_id < thePixelTemp.size());
-		
-// 
+	 
+//		
+
+// Interpolate the absolute value of cot(beta)     
+    
+    abs_cotb = fabs((double)cotbeta);
 
 // Copy the pseudopixel signal size to the template     
     
@@ -619,17 +660,19 @@ if(id != id_current || fpix != fpix_current || cotalpha != cota_current || cotbe
 // Begin FPix section, make the index counters easier to use     
     
        Ny = thePixelTemp[index_id].head.NFy;
-       Nx = thePixelTemp[index_id].head.NFx;
-	   imidy = Nx/2;
+       Nyx = thePixelTemp[index_id].head.NFyx;
+       Nxx = thePixelTemp[index_id].head.NFxx;
+	   imaxx = Nyx - 1;
+	   imidy = Nxx/2;
         
 // next, loop over all y-angle entries   
 
-       if(cotbeta < thePixelTemp[index_id].entfy[0].cotbeta) {
+       if(abs_cotb < thePixelTemp[index_id].entfy[0].cotbeta) {
 	
 	       ilow = 0;
 		   yratio = 0.;
 
-	   } else if(cotbeta > thePixelTemp[index_id].entfy[Ny-1].cotbeta) {
+	   } else if(abs_cotb > thePixelTemp[index_id].entfy[Ny-1].cotbeta) {
 	
 	       ilow = Ny-2;
 		   yratio = 1.;
@@ -638,10 +681,10 @@ if(id != id_current || fpix != fpix_current || cotalpha != cota_current || cotbe
 
           for (i=0; i<Ny-1; ++i) { 
     
-             if( thePixelTemp[index_id].entfy[i].cotbeta <= cotbeta && cotbeta < thePixelTemp[index_id].entfy[i+1].cotbeta) {
+             if( thePixelTemp[index_id].entfy[i].cotbeta <= abs_cotb && abs_cotb < thePixelTemp[index_id].entfy[i+1].cotbeta) {
 		  
 	            ilow = i;
-		        yratio = (cotbeta - thePixelTemp[index_id].entfy[i].cotbeta)/(thePixelTemp[index_id].entfy[i+1].cotbeta - thePixelTemp[index_id].entfy[i].cotbeta);
+		        yratio = (abs_cotb - thePixelTemp[index_id].entfy[i].cotbeta)/(thePixelTemp[index_id].entfy[i+1].cotbeta - thePixelTemp[index_id].entfy[i].cotbeta);
 		        break;			 
 		     }
 	      }
@@ -649,42 +692,63 @@ if(id != id_current || fpix != fpix_current || cotalpha != cota_current || cotbe
 	
 	   ihigh=ilow + 1;
 			  
-// Interpolate/store all y-related quantities 
+// Interpolate/store all y-related quantities (flip displacements when cotbeta < 0)
 
        pyratio = yratio;
 	   pqavg = (1. - yratio)*thePixelTemp[index_id].entfy[ilow].qavg + yratio*thePixelTemp[index_id].entfy[ihigh].qavg;
 	   psymax = (1. - yratio)*thePixelTemp[index_id].entfy[ilow].symax + yratio*thePixelTemp[index_id].entfy[ihigh].symax;
-	   sxmax0 = (1. - yratio)*thePixelTemp[index_id].entfy[ilow].sxmax + yratio*thePixelTemp[index_id].entfy[ihigh].sxmax;
+	   sxmax = (1. - yratio)*thePixelTemp[index_id].entfy[ilow].sxmax + yratio*thePixelTemp[index_id].entfy[ihigh].sxmax;
 	   pdyone = (1. - yratio)*thePixelTemp[index_id].entfy[ilow].dyone + yratio*thePixelTemp[index_id].entfy[ihigh].dyone;
+	   if(cotbeta < 0.) {pdyone = -pdyone;}
 	   psyone = (1. - yratio)*thePixelTemp[index_id].entfy[ilow].syone + yratio*thePixelTemp[index_id].entfy[ihigh].syone;
 	   pdytwo = (1. - yratio)*thePixelTemp[index_id].entfy[ilow].dytwo + yratio*thePixelTemp[index_id].entfy[ihigh].dytwo;
+	   if(cotbeta < 0.) {pdytwo = -pdytwo;}
 	   psytwo = (1. - yratio)*thePixelTemp[index_id].entfy[ilow].sytwo + yratio*thePixelTemp[index_id].entfy[ihigh].sytwo;
 	   for(i=0; i<2 ; ++i) {
 	      for(j=0; j<5 ; ++j) {
-	         pyparl[i][j] = thePixelTemp[index_id].entfy[ilow].ypar[i][j];
-	         pyparh[i][j] = thePixelTemp[index_id].entfy[ihigh].ypar[i][j];
+// Charge loss switches sides when cot(beta) changes sign
+		     if(cotbeta < 0) {
+	            pyparl[1-i][j] = thePixelTemp[index_id].entfy[ilow].ypar[i][j];
+	            pyparh[1-i][j] = thePixelTemp[index_id].entfy[ihigh].ypar[i][j];
+			 } else {
+	            pyparl[i][j] = thePixelTemp[index_id].entfy[ilow].ypar[i][j];
+	            pyparh[i][j] = thePixelTemp[index_id].entfy[ihigh].ypar[i][j];
+			 }
+	         pxparly0[i][j] = thePixelTemp[index_id].entfy[ilow].xpar[i][j];
+	         pxparhy0[i][j] = thePixelTemp[index_id].entfy[ihigh].xpar[i][j];
 	      }
 	   }
 	   for(i=0; i<4; ++i) {
 	      pyavg[i]=(1. - yratio)*thePixelTemp[index_id].entfy[ilow].yavg[i] + yratio*thePixelTemp[index_id].entfy[ihigh].yavg[i];
+	      if(cotbeta < 0.) {pyavg[i] = -pyavg[i];}
 	      pyrms[i]=(1. - yratio)*thePixelTemp[index_id].entfy[ilow].yrms[i] + yratio*thePixelTemp[index_id].entfy[ihigh].yrms[i];
 	      pygx0[i]=(1. - yratio)*thePixelTemp[index_id].entfy[ilow].ygx0[i] + yratio*thePixelTemp[index_id].entfy[ihigh].ygx0[i];
+	      if(cotbeta < 0.) {pygx0[i] = -pygx0[i];}
 	      pygsig[i]=(1. - yratio)*thePixelTemp[index_id].entfy[ilow].ygsig[i] + yratio*thePixelTemp[index_id].entfy[ihigh].ygsig[i];
-	      pyeavg[i]=(1. - yratio)*thePixelTemp[index_id].entfy[ilow].yeavg[i] + yratio*thePixelTemp[index_id].entfy[ihigh].yeavg[i];
-	      pyerms[i]=(1. - yratio)*thePixelTemp[index_id].entfy[ilow].yerms[i] + yratio*thePixelTemp[index_id].entfy[ihigh].yerms[i];
-	      pyegx0[i]=(1. - yratio)*thePixelTemp[index_id].entfy[ilow].yegx0[i] + yratio*thePixelTemp[index_id].entfy[ihigh].yegx0[i];
-	      pyegsig[i]=(1. - yratio)*thePixelTemp[index_id].entfy[ilow].yegsig[i] + yratio*thePixelTemp[index_id].entfy[ihigh].yegsig[i];
-	      pyoavg[i]=(1. - yratio)*thePixelTemp[index_id].entfy[ilow].yoavg[i] + yratio*thePixelTemp[index_id].entfy[ihigh].yoavg[i];
-	      pyorms[i]=(1. - yratio)*thePixelTemp[index_id].entfy[ilow].yorms[i] + yratio*thePixelTemp[index_id].entfy[ihigh].yorms[i];
-	      pyogx0[i]=(1. - yratio)*thePixelTemp[index_id].entfy[ilow].yogx0[i] + yratio*thePixelTemp[index_id].entfy[ihigh].yogx0[i];
-	      pyogsig[i]=(1. - yratio)*thePixelTemp[index_id].entfy[ilow].yogsig[i] + yratio*thePixelTemp[index_id].entfy[ihigh].yogsig[i];
 	      xrms[i]=(1. - yratio)*thePixelTemp[index_id].entfy[ilow].xrms[i] + yratio*thePixelTemp[index_id].entfy[ihigh].xrms[i];
 	      xgsig[i]=(1. - yratio)*thePixelTemp[index_id].entfy[ilow].xgsig[i] + yratio*thePixelTemp[index_id].entfy[ihigh].xgsig[i];
-	      xerms[i]=(1. - yratio)*thePixelTemp[index_id].entfy[ilow].xerms[i] + yratio*thePixelTemp[index_id].entfy[ihigh].xerms[i];
-	      xegsig[i]=(1. - yratio)*thePixelTemp[index_id].entfy[ilow].xegsig[i] + yratio*thePixelTemp[index_id].entfy[ihigh].xegsig[i];
-	      xorms[i]=(1. - yratio)*thePixelTemp[index_id].entfy[ilow].xorms[i] + yratio*thePixelTemp[index_id].entfy[ihigh].xorms[i];
-	      xogsig[i]=(1. - yratio)*thePixelTemp[index_id].entfy[ilow].xogsig[i] + yratio*thePixelTemp[index_id].entfy[ihigh].xogsig[i];
+	      pchi2yavg[i]=(1. - yratio)*thePixelTemp[index_id].entfy[ilow].chi2yavg[i] + yratio*thePixelTemp[index_id].entfy[ihigh].chi2yavg[i];
+	      pchi2ymin[i]=(1. - yratio)*thePixelTemp[index_id].entfy[ilow].chi2ymin[i] + yratio*thePixelTemp[index_id].entfy[ihigh].chi2ymin[i];
+	      chi2xavg[i]=(1. - yratio)*thePixelTemp[index_id].entfy[ilow].chi2xavg[i] + yratio*thePixelTemp[index_id].entfy[ihigh].chi2xavg[i];
+	      chi2xmin[i]=(1. - yratio)*thePixelTemp[index_id].entfy[ilow].chi2xmin[i] + yratio*thePixelTemp[index_id].entfy[ihigh].chi2xmin[i];
+		  for(j=0; j<6 ; ++j) {
+			 pyflparl[i][j] = thePixelTemp[index_id].entfy[ilow].yflpar[i][j];
+			 pyflparh[i][j] = thePixelTemp[index_id].entfy[ihigh].yflpar[i][j];
+			 
+// Since Q_fl is odd under cotbeta, it flips qutomatically, change only even terms
+
+			 if(cotbeta < 0. && (j == 0 || j == 2 || j == 4)) {
+			    pyflparl[i][j] = - pyflparl[i][j];
+			    pyflparh[i][j] = - pyflparh[i][j];
+			 }
+		  }
 	   }
+	   
+// Do the spares next
+
+       for(i=0; i<10; ++i) {
+		  pyspare[i]=(1. - yratio)*thePixelTemp[index_id].entfy[ilow].yspare[i] + yratio*thePixelTemp[index_id].entfy[ihigh].yspare[i];
+       }
 			  
 // Interpolate and build the y-template 
 	
@@ -694,7 +758,14 @@ if(id != id_current || fpix != fpix_current || cotalpha != cota_current || cotbe
 	      pytemp[i+16][23] = 0.;
 	      pytemp[i+16][24] = 0.;
 	      for(j=0; j<21; ++j) {
-	        pytemp[i+16][j+2]=(1. - yratio)*thePixelTemp[index_id].entfy[ilow].ytemp[i][j] + yratio*thePixelTemp[index_id].entfy[ihigh].ytemp[i][j];
+		  
+// Flip the basic y-template when the cotbeta is negative
+
+		     if(cotbeta < 0.) {
+	            pytemp[24-i][22-j]=(1. - yratio)*thePixelTemp[index_id].entfy[ilow].ytemp[i][j] + yratio*thePixelTemp[index_id].entfy[ihigh].ytemp[i][j];
+			 } else {
+	            pytemp[i+16][j+2]=(1. - yratio)*thePixelTemp[index_id].entfy[ilow].ytemp[i][j] + yratio*thePixelTemp[index_id].entfy[ihigh].ytemp[i][j];
+			 }
 	      }
 	   }
 	   for(i=0; i<8; ++i) {
@@ -734,26 +805,51 @@ if(id != id_current || fpix != fpix_current || cotalpha != cota_current || cotbe
 	      }
 	   }
 	
-// next, loop over all x-angle entries   
+// next, loop over all x-angle entries, first, find relevant y-slices   
 
-       if(cotalpha < thePixelTemp[index_id].entfx[0].cotalpha) {
+       if(abs_cotb < thePixelTemp[index_id].entfx[0][0].cotbeta) {
 	
-	       ilow = 0;
-		   xratio = 0.;
+	       iylow = 0;
+		   yxratio = 0.;
 
-	   } else if(cotalpha > thePixelTemp[index_id].entfx[Nx-1].cotalpha) {
+	   } else if(abs_cotb > thePixelTemp[index_id].entfx[Nyx-1][0].cotbeta) {
 	
-	       ilow = Nx-2;
-		   xratio = 1.;
+	       iylow = Nyx-2;
+		   yxratio = 1.;
 		
 	   } else {
 
-          for (i=0; i<Nx-1; ++i) { 
+          for (i=0; i<Nyx-1; ++i) { 
     
-             if( thePixelTemp[index_id].entfx[i].cotalpha <= cotalpha && cotalpha < thePixelTemp[index_id].entfx[i+1].cotalpha) {
+             if( thePixelTemp[index_id].entfx[i][0].cotbeta <= abs_cotb && abs_cotb < thePixelTemp[index_id].entfx[i+1][0].cotbeta) {
+		  
+	            iylow = i;
+		        yxratio = (abs_cotb - thePixelTemp[index_id].entfx[i][0].cotbeta)/(thePixelTemp[index_id].entfx[i+1][0].cotbeta - thePixelTemp[index_id].entfx[i][0].cotbeta);
+		        break;			 
+		     }
+	      }
+	   }
+	
+	   iyhigh=iylow + 1;
+
+       if(cotalpha < thePixelTemp[index_id].entfx[0][0].cotalpha) {
+	
+	       ilow = 0;
+		   xxratio = 0.;
+
+	   } else if(cotalpha > thePixelTemp[index_id].entfx[0][Nxx-1].cotalpha) {
+	
+	       ilow = Nxx-2;
+		   xxratio = 1.;
+		
+	   } else {
+
+          for (i=0; i<Nxx-1; ++i) { 
+    
+             if( thePixelTemp[index_id].entfx[0][i].cotalpha <= cotalpha && cotalpha < thePixelTemp[index_id].entfx[0][i+1].cotalpha) {
 		  
 	            ilow = i;
-		        xratio = (cotalpha - thePixelTemp[index_id].entfx[i].cotalpha)/(thePixelTemp[index_id].entfx[i+1].cotalpha - thePixelTemp[index_id].entfx[i].cotalpha);
+		        xxratio = (cotalpha - thePixelTemp[index_id].entfx[0][i].cotalpha)/(thePixelTemp[index_id].entfx[0][i+1].cotalpha - thePixelTemp[index_id].entfx[0][i].cotalpha);
 		        break;
 			 
 		     }
@@ -761,53 +857,61 @@ if(id != id_current || fpix != fpix_current || cotalpha != cota_current || cotbe
 	   }
 	
 	   ihigh=ilow + 1;
-	
-// Define some charge scaling factors 
-
-       qscale = sxmax0/thePixelTemp[index_id].entfx[imidy].sxmax;
 			  
 // Interpolate/store all x-related quantities 
 
-       pxratio = xratio;				  
-// sxparmax defines the maximum charge for which the parameters xpar are defined (not scaled by sqscale) 
-	   psxparmax = (1. - xratio)*thePixelTemp[index_id].entfx[ilow].sxmax + xratio*thePixelTemp[index_id].entfx[ihigh].sxmax;
-	   psxmax = qscale*psxparmax;
-	   pdxone = (1. - xratio)*thePixelTemp[index_id].entfx[ilow].dxone + xratio*thePixelTemp[index_id].entfx[ihigh].dxone;
-	   psxone = (1. - xratio)*thePixelTemp[index_id].entfx[ilow].sxone + xratio*thePixelTemp[index_id].entfx[ihigh].sxone;
-	   pdxtwo = (1. - xratio)*thePixelTemp[index_id].entfx[ilow].dxtwo + xratio*thePixelTemp[index_id].entfx[ihigh].dxtwo;
-	   psxtwo = (1. - xratio)*thePixelTemp[index_id].entfx[ilow].sxtwo + xratio*thePixelTemp[index_id].entfx[ihigh].sxtwo;
+       pyxratio = yxratio;
+       pxxratio = xxratio;		
+	   		  
+// sxparmax defines the maximum charge for which the parameters xpar are defined (not rescaled by cotbeta) 
+
+	   psxparmax = (1. - xxratio)*thePixelTemp[index_id].entfx[imaxx][ilow].sxmax + xxratio*thePixelTemp[index_id].entfx[imaxx][ihigh].sxmax;
+	   psxmax = psxparmax;
+       if(thePixelTemp[index_id].entfx[imaxx][imidy].sxmax != 0.) {psxmax=psxmax/thePixelTemp[index_id].entfx[imaxx][imidy].sxmax*sxmax;}
+	   pdxone = (1. - xxratio)*thePixelTemp[index_id].entfx[0][ilow].dxone + xxratio*thePixelTemp[index_id].entfx[0][ihigh].dxone;
+	   psxone = (1. - xxratio)*thePixelTemp[index_id].entfx[0][ilow].sxone + xxratio*thePixelTemp[index_id].entfx[0][ihigh].sxone;
+	   pdxtwo = (1. - xxratio)*thePixelTemp[index_id].entfx[0][ilow].dxtwo + xxratio*thePixelTemp[index_id].entfx[0][ihigh].dxtwo;
+	   psxtwo = (1. - xxratio)*thePixelTemp[index_id].entfx[0][ilow].sxtwo + xxratio*thePixelTemp[index_id].entfx[0][ihigh].sxtwo;
 	   for(i=0; i<2 ; ++i) {
 	      for(j=0; j<5 ; ++j) {
-	         pxparl[i][j] = qscale*thePixelTemp[index_id].entfx[ilow].xpar[i][j];
-	         pxparh[i][j] = qscale*thePixelTemp[index_id].entfx[ihigh].xpar[i][j];
+	         pxpar0[i][j] = thePixelTemp[index_id].entfx[imaxx][imidy].xpar[i][j];
+	         pxparl[i][j] = thePixelTemp[index_id].entfx[imaxx][ilow].xpar[i][j];
+	         pxparh[i][j] = thePixelTemp[index_id].entfx[imaxx][ihigh].xpar[i][j];
 	      }
 	   }
 	   for(i=0; i<4; ++i) {
-	      pxavg[i]=((1. - xratio)*thePixelTemp[index_id].entfx[ilow].xavg[i] + xratio*thePixelTemp[index_id].entfx[ihigh].xavg[i])
-	                        /thePixelTemp[index_id].entfx[imidy].xrms[i]*xrms[i];
-	      pxrms[i]=((1. - xratio)*thePixelTemp[index_id].entfx[ilow].xrms[i] + xratio*thePixelTemp[index_id].entfx[ihigh].xrms[i])
-	                        /thePixelTemp[index_id].entfx[imidy].xrms[i]*xrms[i];
-	      pxgx0[i]=((1. - xratio)*thePixelTemp[index_id].entfx[ilow].xgx0[i] + xratio*thePixelTemp[index_id].entfx[ihigh].xgx0[i])
-	                        /thePixelTemp[index_id].entfx[imidy].xgsig[i]*xgsig[i];
-	      pxgsig[i]=((1. - xratio)*thePixelTemp[index_id].entfx[ilow].xgsig[i] + xratio*thePixelTemp[index_id].entfx[ihigh].xgsig[i])
-	                        /thePixelTemp[index_id].entfx[imidy].xgsig[i]*xgsig[i];
-	      pxeavg[i]=((1. - xratio)*thePixelTemp[index_id].entfx[ilow].xeavg[i] + xratio*thePixelTemp[index_id].entfx[ihigh].xeavg[i])
-	                        /thePixelTemp[index_id].entfx[imidy].xerms[i]*xerms[i];
-	      pxerms[i]=((1. - xratio)*thePixelTemp[index_id].entfx[ilow].xerms[i] + xratio*thePixelTemp[index_id].entfx[ihigh].xerms[i])
-	                        /thePixelTemp[index_id].entfx[imidy].xerms[i]*xerms[i];
-	      pxegx0[i]=((1. - xratio)*thePixelTemp[index_id].entfx[ilow].xegx0[i] + xratio*thePixelTemp[index_id].entfx[ihigh].xegx0[i])
-	                        /thePixelTemp[index_id].entfx[imidy].xegsig[i]*xegsig[i];
-	      pxegsig[i]=((1. - xratio)*thePixelTemp[index_id].entfx[ilow].xegsig[i] + xratio*thePixelTemp[index_id].entfx[ihigh].xegsig[i])
-	                        /thePixelTemp[index_id].entfx[imidy].xegsig[i]*xegsig[i];
-	      pxoavg[i]=((1. - xratio)*thePixelTemp[index_id].entfx[ilow].xoavg[i] + xratio*thePixelTemp[index_id].entfx[ihigh].xoavg[i])
-	                        /thePixelTemp[index_id].entfx[imidy].xorms[i]*xorms[i];
-	      pxorms[i]=((1. - xratio)*thePixelTemp[index_id].entfx[ilow].xorms[i] + xratio*thePixelTemp[index_id].entfx[ihigh].xorms[i])
-	                        /thePixelTemp[index_id].entfx[imidy].xorms[i]*xorms[i];
-	      pxogx0[i]=((1. - xratio)*thePixelTemp[index_id].entfx[ilow].xogx0[i] + xratio*thePixelTemp[index_id].entfx[ihigh].xogx0[i])
-	                        /thePixelTemp[index_id].entfx[imidy].xogsig[i]*xogsig[i];
-	      pxogsig[i]=((1. - xratio)*thePixelTemp[index_id].entfx[ilow].xogsig[i] + xratio*thePixelTemp[index_id].entfx[ihigh].xogsig[i])
-	                        /thePixelTemp[index_id].entfx[imidy].xogsig[i]*xogsig[i];
+	      pxavg[i]=(1. - yxratio)*((1. - xxratio)*thePixelTemp[index_id].entfx[iylow][ilow].xavg[i] + xxratio*thePixelTemp[index_id].entfx[iylow][ihigh].xavg[i])
+		          +yxratio*((1. - xxratio)*thePixelTemp[index_id].entfx[iyhigh][ilow].xavg[i] + xxratio*thePixelTemp[index_id].entfx[iyhigh][ihigh].xavg[i]);
+		  
+	      pxrms[i]=(1. - yxratio)*((1. - xxratio)*thePixelTemp[index_id].entfx[iylow][ilow].xrms[i] + xxratio*thePixelTemp[index_id].entfx[iylow][ihigh].xrms[i])
+		          +yxratio*((1. - xxratio)*thePixelTemp[index_id].entfx[iyhigh][ilow].xrms[i] + xxratio*thePixelTemp[index_id].entfx[iyhigh][ihigh].xrms[i]);
+		  
+	      pxgx0[i]=(1. - yxratio)*((1. - xxratio)*thePixelTemp[index_id].entfx[iylow][ilow].xgx0[i] + xxratio*thePixelTemp[index_id].entfx[iylow][ihigh].xgx0[i])
+		          +yxratio*((1. - xxratio)*thePixelTemp[index_id].entfx[iyhigh][ilow].xgx0[i] + xxratio*thePixelTemp[index_id].entfx[iyhigh][ihigh].xgx0[i]);
+							
+	      pxgsig[i]=(1. - yxratio)*((1. - xxratio)*thePixelTemp[index_id].entfx[iylow][ilow].xgsig[i] + xxratio*thePixelTemp[index_id].entfx[iylow][ihigh].xgsig[i])
+		          +yxratio*((1. - xxratio)*thePixelTemp[index_id].entfx[iyhigh][ilow].xgsig[i] + xxratio*thePixelTemp[index_id].entfx[iyhigh][ihigh].xgsig[i]);
+	  														
+	      pchi2xavg[i]=((1. - xxratio)*thePixelTemp[index_id].entfx[imaxx][ilow].chi2xavg[i] + xxratio*thePixelTemp[index_id].entfx[imaxx][ihigh].chi2xavg[i]);
+		  if(thePixelTemp[index_id].entfx[imaxx][imidy].chi2xavg[i] != 0.) {pchi2xavg[i]=pchi2xavg[i]/thePixelTemp[index_id].entfx[imaxx][imidy].chi2xavg[i]*chi2xavg[i];}
+							
+	      pchi2xmin[i]=((1. - xxratio)*thePixelTemp[index_id].entfx[imaxx][ilow].chi2xmin[i] + xxratio*thePixelTemp[index_id].entfx[imaxx][ihigh].chi2xmin[i]);
+		  if(thePixelTemp[index_id].entfx[imaxx][imidy].chi2xmin[i] != 0.) {pchi2xmin[i]=pchi2xmin[i]/thePixelTemp[index_id].entfx[imaxx][imidy].chi2xmin[i]*chi2xmin[i];}
+		  
+	      for(j=0; j<6 ; ++j) {
+	         pxflparll[i][j] = thePixelTemp[index_id].entfx[iylow][ilow].xflpar[i][j];
+	         pxflparlh[i][j] = thePixelTemp[index_id].entfx[iylow][ihigh].xflpar[i][j];
+	         pxflparhl[i][j] = thePixelTemp[index_id].entfx[iyhigh][ilow].xflpar[i][j];
+	         pxflparhh[i][j] = thePixelTemp[index_id].entfx[iyhigh][ihigh].xflpar[i][j];
+		  }
 	   }
+	   
+// Do the spares next
+
+       for(i=0; i<10; ++i) {
+	      pxspare[i]=(1. - yxratio)*((1. - xxratio)*thePixelTemp[index_id].entfx[iylow][ilow].xspare[i] + xxratio*thePixelTemp[index_id].entfx[iylow][ihigh].xspare[i])
+		          +yxratio*((1. - xxratio)*thePixelTemp[index_id].entfx[iyhigh][ilow].xspare[i] + xxratio*thePixelTemp[index_id].entfx[iyhigh][ihigh].xspare[i]);
+       }
 			  
 // Interpolate and build the x-template 
 	
@@ -817,7 +921,7 @@ if(id != id_current || fpix != fpix_current || cotalpha != cota_current || cotbe
 	      pxtemp[i+16][9] = 0.;
 	      pxtemp[i+16][10] = 0.;
 	      for(j=0; j<7; ++j) {
-	        pxtemp[i+16][j+2]=(1. - xratio)*thePixelTemp[index_id].entfx[ilow].xtemp[i][j] + xratio*thePixelTemp[index_id].entfx[ihigh].xtemp[i][j];
+	        pxtemp[i+16][j+2]=(1. - xxratio)*thePixelTemp[index_id].entfx[imaxx][ilow].xtemp[i][j] + xxratio*thePixelTemp[index_id].entfx[imaxx][ihigh].xtemp[i][j];
 	      }
 	   }
 	   for(i=0; i<8; ++i) {
@@ -858,20 +962,23 @@ if(id != id_current || fpix != fpix_current || cotalpha != cota_current || cotbe
 	   }
 	} else {
 	
+    
 // Begin BPix section, make the index counters easier to use     
     
        Ny = thePixelTemp[index_id].head.NBy;
-       Nx = thePixelTemp[index_id].head.NBx;
-	   imidy = Nx/2;
+       Nyx = thePixelTemp[index_id].head.NByx;
+       Nxx = thePixelTemp[index_id].head.NBxx;
+	   imaxx = Nyx - 1;
+	   imidy = Nxx/2;
         
 // next, loop over all y-angle entries   
 
-       if(cotbeta < thePixelTemp[index_id].entby[0].cotbeta) {
+       if(abs_cotb < thePixelTemp[index_id].entby[0].cotbeta) {
 	
 	       ilow = 0;
 		   yratio = 0.;
 
-	   } else if(cotbeta > thePixelTemp[index_id].entby[Ny-1].cotbeta) {
+	   } else if(abs_cotb > thePixelTemp[index_id].entby[Ny-1].cotbeta) {
 	
 	       ilow = Ny-2;
 		   yratio = 1.;
@@ -880,10 +987,10 @@ if(id != id_current || fpix != fpix_current || cotalpha != cota_current || cotbe
 
           for (i=0; i<Ny-1; ++i) { 
     
-             if( thePixelTemp[index_id].entby[i].cotbeta <= cotbeta && cotbeta < thePixelTemp[index_id].entby[i+1].cotbeta) {
+             if( thePixelTemp[index_id].entby[i].cotbeta <= abs_cotb && abs_cotb < thePixelTemp[index_id].entby[i+1].cotbeta) {
 		  
 	            ilow = i;
-		        yratio = (cotbeta - thePixelTemp[index_id].entby[i].cotbeta)/(thePixelTemp[index_id].entby[i+1].cotbeta - thePixelTemp[index_id].entby[i].cotbeta);
+		        yratio = (abs_cotb - thePixelTemp[index_id].entby[i].cotbeta)/(thePixelTemp[index_id].entby[i+1].cotbeta - thePixelTemp[index_id].entby[i].cotbeta);
 		        break;			 
 		     }
 	      }
@@ -891,42 +998,63 @@ if(id != id_current || fpix != fpix_current || cotalpha != cota_current || cotbe
 	
 	   ihigh=ilow + 1;
 			  
-// Interpolate/store all y-related quantities 
+// Interpolate/store all y-related quantities (flip displacements when cotbeta < 0)
 
        pyratio = yratio;
 	   pqavg = (1. - yratio)*thePixelTemp[index_id].entby[ilow].qavg + yratio*thePixelTemp[index_id].entby[ihigh].qavg;
 	   psymax = (1. - yratio)*thePixelTemp[index_id].entby[ilow].symax + yratio*thePixelTemp[index_id].entby[ihigh].symax;
-	   sxmax0 = (1. - yratio)*thePixelTemp[index_id].entby[ilow].sxmax + yratio*thePixelTemp[index_id].entby[ihigh].sxmax;
+	   sxmax = (1. - yratio)*thePixelTemp[index_id].entby[ilow].sxmax + yratio*thePixelTemp[index_id].entby[ihigh].sxmax;
 	   pdyone = (1. - yratio)*thePixelTemp[index_id].entby[ilow].dyone + yratio*thePixelTemp[index_id].entby[ihigh].dyone;
+	   if(cotbeta < 0.) {pdyone = -pdyone;}
 	   psyone = (1. - yratio)*thePixelTemp[index_id].entby[ilow].syone + yratio*thePixelTemp[index_id].entby[ihigh].syone;
 	   pdytwo = (1. - yratio)*thePixelTemp[index_id].entby[ilow].dytwo + yratio*thePixelTemp[index_id].entby[ihigh].dytwo;
+	   if(cotbeta < 0.) {pdytwo = -pdytwo;}
 	   psytwo = (1. - yratio)*thePixelTemp[index_id].entby[ilow].sytwo + yratio*thePixelTemp[index_id].entby[ihigh].sytwo;
 	   for(i=0; i<2 ; ++i) {
 	      for(j=0; j<5 ; ++j) {
-	         pyparl[i][j] = thePixelTemp[index_id].entby[ilow].ypar[i][j];
-	         pyparh[i][j] = thePixelTemp[index_id].entby[ihigh].ypar[i][j];
+// Charge loss switches sides when cot(beta) changes sign
+		     if(cotbeta < 0) {
+	            pyparl[1-i][j] = thePixelTemp[index_id].entby[ilow].ypar[i][j];
+	            pyparh[1-i][j] = thePixelTemp[index_id].entby[ihigh].ypar[i][j];
+			 } else {
+	            pyparl[i][j] = thePixelTemp[index_id].entby[ilow].ypar[i][j];
+	            pyparh[i][j] = thePixelTemp[index_id].entby[ihigh].ypar[i][j];
+			 }
+	         pxparly0[i][j] = thePixelTemp[index_id].entby[ilow].xpar[i][j];
+	         pxparhy0[i][j] = thePixelTemp[index_id].entby[ihigh].xpar[i][j];
 	      }
 	   }
 	   for(i=0; i<4; ++i) {
 	      pyavg[i]=(1. - yratio)*thePixelTemp[index_id].entby[ilow].yavg[i] + yratio*thePixelTemp[index_id].entby[ihigh].yavg[i];
+	      if(cotbeta < 0.) {pyavg[i] = -pyavg[i];}
 	      pyrms[i]=(1. - yratio)*thePixelTemp[index_id].entby[ilow].yrms[i] + yratio*thePixelTemp[index_id].entby[ihigh].yrms[i];
 	      pygx0[i]=(1. - yratio)*thePixelTemp[index_id].entby[ilow].ygx0[i] + yratio*thePixelTemp[index_id].entby[ihigh].ygx0[i];
+	      if(cotbeta < 0.) {pygx0[i] = -pygx0[i];}
 	      pygsig[i]=(1. - yratio)*thePixelTemp[index_id].entby[ilow].ygsig[i] + yratio*thePixelTemp[index_id].entby[ihigh].ygsig[i];
-	      pyeavg[i]=(1. - yratio)*thePixelTemp[index_id].entby[ilow].yeavg[i] + yratio*thePixelTemp[index_id].entby[ihigh].yeavg[i];
-	      pyerms[i]=(1. - yratio)*thePixelTemp[index_id].entby[ilow].yerms[i] + yratio*thePixelTemp[index_id].entby[ihigh].yerms[i];
-	      pyegx0[i]=(1. - yratio)*thePixelTemp[index_id].entby[ilow].yegx0[i] + yratio*thePixelTemp[index_id].entby[ihigh].yegx0[i];
-	      pyegsig[i]=(1. - yratio)*thePixelTemp[index_id].entby[ilow].yegsig[i] + yratio*thePixelTemp[index_id].entby[ihigh].yegsig[i];
-	      pyoavg[i]=(1. - yratio)*thePixelTemp[index_id].entby[ilow].yoavg[i] + yratio*thePixelTemp[index_id].entby[ihigh].yoavg[i];
-	      pyorms[i]=(1. - yratio)*thePixelTemp[index_id].entby[ilow].yorms[i] + yratio*thePixelTemp[index_id].entby[ihigh].yorms[i];
-	      pyogx0[i]=(1. - yratio)*thePixelTemp[index_id].entby[ilow].yogx0[i] + yratio*thePixelTemp[index_id].entby[ihigh].yogx0[i];
-	      pyogsig[i]=(1. - yratio)*thePixelTemp[index_id].entby[ilow].yogsig[i] + yratio*thePixelTemp[index_id].entby[ihigh].yogsig[i];
 	      xrms[i]=(1. - yratio)*thePixelTemp[index_id].entby[ilow].xrms[i] + yratio*thePixelTemp[index_id].entby[ihigh].xrms[i];
 	      xgsig[i]=(1. - yratio)*thePixelTemp[index_id].entby[ilow].xgsig[i] + yratio*thePixelTemp[index_id].entby[ihigh].xgsig[i];
-	      xerms[i]=(1. - yratio)*thePixelTemp[index_id].entby[ilow].xerms[i] + yratio*thePixelTemp[index_id].entby[ihigh].xerms[i];
-	      xegsig[i]=(1. - yratio)*thePixelTemp[index_id].entby[ilow].xegsig[i] + yratio*thePixelTemp[index_id].entby[ihigh].xegsig[i];
-	      xorms[i]=(1. - yratio)*thePixelTemp[index_id].entby[ilow].xorms[i] + yratio*thePixelTemp[index_id].entby[ihigh].xorms[i];
-	      xogsig[i]=(1. - yratio)*thePixelTemp[index_id].entby[ilow].xogsig[i] + yratio*thePixelTemp[index_id].entby[ihigh].xogsig[i];
+	      pchi2yavg[i]=(1. - yratio)*thePixelTemp[index_id].entby[ilow].chi2yavg[i] + yratio*thePixelTemp[index_id].entby[ihigh].chi2yavg[i];
+	      pchi2ymin[i]=(1. - yratio)*thePixelTemp[index_id].entby[ilow].chi2ymin[i] + yratio*thePixelTemp[index_id].entby[ihigh].chi2ymin[i];
+	      chi2xavg[i]=(1. - yratio)*thePixelTemp[index_id].entby[ilow].chi2xavg[i] + yratio*thePixelTemp[index_id].entby[ihigh].chi2xavg[i];
+	      chi2xmin[i]=(1. - yratio)*thePixelTemp[index_id].entby[ilow].chi2xmin[i] + yratio*thePixelTemp[index_id].entby[ihigh].chi2xmin[i];
+		  for(j=0; j<6 ; ++j) {
+			 pyflparl[i][j] = thePixelTemp[index_id].entby[ilow].yflpar[i][j];
+			 pyflparh[i][j] = thePixelTemp[index_id].entby[ihigh].yflpar[i][j];
+			 
+// Since Q_fl is odd under cotbeta, it flips qutomatically, change only even terms
+
+			 if(cotbeta < 0. && (j == 0 || j == 2 || j == 4)) {
+			    pyflparl[i][j] = - pyflparl[i][j];
+			    pyflparh[i][j] = - pyflparh[i][j];
+			 }
+		  }
 	   }
+	   
+// Do the spares next
+
+       for(i=0; i<10; ++i) {
+		  pyspare[i]=(1. - yratio)*thePixelTemp[index_id].entby[ilow].yspare[i] + yratio*thePixelTemp[index_id].entby[ihigh].yspare[i];
+       }
 			  
 // Interpolate and build the y-template 
 	
@@ -936,7 +1064,14 @@ if(id != id_current || fpix != fpix_current || cotalpha != cota_current || cotbe
 	      pytemp[i+16][23] = 0.;
 	      pytemp[i+16][24] = 0.;
 	      for(j=0; j<21; ++j) {
-	        pytemp[i+16][j+2]=(1. - yratio)*thePixelTemp[index_id].entby[ilow].ytemp[i][j] + yratio*thePixelTemp[index_id].entby[ihigh].ytemp[i][j];
+		  
+// Flip the basic y-template when the cotbeta is negative
+
+		     if(cotbeta < 0.) {
+	            pytemp[24-i][22-j]=(1. - yratio)*thePixelTemp[index_id].entby[ilow].ytemp[i][j] + yratio*thePixelTemp[index_id].entby[ihigh].ytemp[i][j];
+			 } else {
+	            pytemp[i+16][j+2]=(1. - yratio)*thePixelTemp[index_id].entby[ilow].ytemp[i][j] + yratio*thePixelTemp[index_id].entby[ihigh].ytemp[i][j];
+			 }
 	      }
 	   }
 	   for(i=0; i<8; ++i) {
@@ -976,26 +1111,51 @@ if(id != id_current || fpix != fpix_current || cotalpha != cota_current || cotbe
 	      }
 	   }
 	
-// next, loop over all x-angle entries   
+// next, loop over all x-angle entries, first, find relevant y-slices   
 
-       if(cotalpha < thePixelTemp[index_id].entbx[0].cotalpha) {
+       if(abs_cotb < thePixelTemp[index_id].entbx[0][0].cotbeta) {
 	
-	       ilow = 0;
-		   xratio = 0.;
+	       iylow = 0;
+		   yxratio = 0.;
 
-	   } else if(cotalpha > thePixelTemp[index_id].entbx[Nx-1].cotalpha) {
+	   } else if(abs_cotb > thePixelTemp[index_id].entbx[Nyx-1][0].cotbeta) {
 	
-	       ilow = Nx-2;
-		   xratio = 1.;
+	       iylow = Nyx-2;
+		   yxratio = 1.;
 		
 	   } else {
 
-          for (i=0; i<Nx-1; ++i) { 
+          for (i=0; i<Nyx-1; ++i) { 
     
-             if( thePixelTemp[index_id].entbx[i].cotalpha <= cotalpha && cotalpha < thePixelTemp[index_id].entbx[i+1].cotalpha) {
+             if( thePixelTemp[index_id].entbx[i][0].cotbeta <= abs_cotb && abs_cotb < thePixelTemp[index_id].entbx[i+1][0].cotbeta) {
+		  
+	            iylow = i;
+		        yxratio = (abs_cotb - thePixelTemp[index_id].entbx[i][0].cotbeta)/(thePixelTemp[index_id].entbx[i+1][0].cotbeta - thePixelTemp[index_id].entbx[i][0].cotbeta);
+		        break;			 
+		     }
+	      }
+	   }
+	
+	   iyhigh=iylow + 1;
+
+       if(cotalpha < thePixelTemp[index_id].entbx[0][0].cotalpha) {
+	
+	       ilow = 0;
+		   xxratio = 0.;
+
+	   } else if(cotalpha > thePixelTemp[index_id].entbx[0][Nxx-1].cotalpha) {
+	
+	       ilow = Nxx-2;
+		   xxratio = 1.;
+		
+	   } else {
+
+          for (i=0; i<Nxx-1; ++i) { 
+    
+             if( thePixelTemp[index_id].entbx[0][i].cotalpha <= cotalpha && cotalpha < thePixelTemp[index_id].entbx[0][i+1].cotalpha) {
 		  
 	            ilow = i;
-		        xratio = (cotalpha - thePixelTemp[index_id].entbx[i].cotalpha)/(thePixelTemp[index_id].entbx[i+1].cotalpha - thePixelTemp[index_id].entbx[i].cotalpha);
+		        xxratio = (cotalpha - thePixelTemp[index_id].entbx[0][i].cotalpha)/(thePixelTemp[index_id].entbx[0][i+1].cotalpha - thePixelTemp[index_id].entbx[0][i].cotalpha);
 		        break;
 			 
 		     }
@@ -1003,53 +1163,61 @@ if(id != id_current || fpix != fpix_current || cotalpha != cota_current || cotbe
 	   }
 	
 	   ihigh=ilow + 1;
-	
-// Define some charge scaling factors 
-
-       qscale = sxmax0/thePixelTemp[index_id].entbx[imidy].sxmax;
 			  
 // Interpolate/store all x-related quantities 
 
-       pxratio = xratio;				  
-// sxparmax defines the maximum charge for which the parameters xpar are defined (not scaled by sqscale) 
-	   psxparmax = (1. - xratio)*thePixelTemp[index_id].entbx[ilow].sxmax + xratio*thePixelTemp[index_id].entbx[ihigh].sxmax;
-	   psxmax = qscale*psxparmax;
-	   pdxone = (1. - xratio)*thePixelTemp[index_id].entbx[ilow].dxone + xratio*thePixelTemp[index_id].entbx[ihigh].dxone;
-	   psxone = (1. - xratio)*thePixelTemp[index_id].entbx[ilow].sxone + xratio*thePixelTemp[index_id].entbx[ihigh].sxone;
-	   pdxtwo = (1. - xratio)*thePixelTemp[index_id].entbx[ilow].dxtwo + xratio*thePixelTemp[index_id].entbx[ihigh].dxtwo;
-	   psxtwo = (1. - xratio)*thePixelTemp[index_id].entbx[ilow].sxtwo + xratio*thePixelTemp[index_id].entbx[ihigh].sxtwo;
+       pyxratio = yxratio;
+       pxxratio = xxratio;		
+	   		  
+// sxparmax defines the maximum charge for which the parameters xpar are defined (not rescaled by cotbeta) 
+
+	   psxparmax = (1. - xxratio)*thePixelTemp[index_id].entbx[imaxx][ilow].sxmax + xxratio*thePixelTemp[index_id].entbx[imaxx][ihigh].sxmax;
+	   psxmax = psxparmax;
+       if(thePixelTemp[index_id].entbx[imaxx][imidy].sxmax != 0.) {psxmax=psxmax/thePixelTemp[index_id].entbx[imaxx][imidy].sxmax*sxmax;}
+	   pdxone = (1. - xxratio)*thePixelTemp[index_id].entbx[0][ilow].dxone + xxratio*thePixelTemp[index_id].entbx[0][ihigh].dxone;
+	   psxone = (1. - xxratio)*thePixelTemp[index_id].entbx[0][ilow].sxone + xxratio*thePixelTemp[index_id].entbx[0][ihigh].sxone;
+	   pdxtwo = (1. - xxratio)*thePixelTemp[index_id].entbx[0][ilow].dxtwo + xxratio*thePixelTemp[index_id].entbx[0][ihigh].dxtwo;
+	   psxtwo = (1. - xxratio)*thePixelTemp[index_id].entbx[0][ilow].sxtwo + xxratio*thePixelTemp[index_id].entbx[0][ihigh].sxtwo;
 	   for(i=0; i<2 ; ++i) {
 	      for(j=0; j<5 ; ++j) {
-	         pxparl[i][j] = qscale*thePixelTemp[index_id].entbx[ilow].xpar[i][j];
-	         pxparh[i][j] = qscale*thePixelTemp[index_id].entbx[ihigh].xpar[i][j];
+	         pxpar0[i][j] = thePixelTemp[index_id].entbx[imaxx][imidy].xpar[i][j];
+	         pxparl[i][j] = thePixelTemp[index_id].entbx[imaxx][ilow].xpar[i][j];
+	         pxparh[i][j] = thePixelTemp[index_id].entbx[imaxx][ihigh].xpar[i][j];
 	      }
 	   }
 	   for(i=0; i<4; ++i) {
-	      pxavg[i]=((1. - xratio)*thePixelTemp[index_id].entbx[ilow].xavg[i] + xratio*thePixelTemp[index_id].entbx[ihigh].xavg[i])
-	                        /thePixelTemp[index_id].entbx[imidy].xrms[i]*xrms[i];
-	      pxrms[i]=((1. - xratio)*thePixelTemp[index_id].entbx[ilow].xrms[i] + xratio*thePixelTemp[index_id].entbx[ihigh].xrms[i])
-	                        /thePixelTemp[index_id].entbx[imidy].xrms[i]*xrms[i];
-	      pxgx0[i]=((1. - xratio)*thePixelTemp[index_id].entbx[ilow].xgx0[i] + xratio*thePixelTemp[index_id].entbx[ihigh].xgx0[i])
-	                        /thePixelTemp[index_id].entbx[imidy].xgsig[i]*xgsig[i];
-	      pxgsig[i]=((1. - xratio)*thePixelTemp[index_id].entbx[ilow].xgsig[i] + xratio*thePixelTemp[index_id].entbx[ihigh].xgsig[i])
-	                        /thePixelTemp[index_id].entbx[imidy].xgsig[i]*xgsig[i];
-	      pxeavg[i]=((1. - xratio)*thePixelTemp[index_id].entbx[ilow].xeavg[i] + xratio*thePixelTemp[index_id].entbx[ihigh].xeavg[i])
-	                        /thePixelTemp[index_id].entbx[imidy].xerms[i]*xerms[i];
-	      pxerms[i]=((1. - xratio)*thePixelTemp[index_id].entbx[ilow].xerms[i] + xratio*thePixelTemp[index_id].entbx[ihigh].xerms[i])
-	                        /thePixelTemp[index_id].entbx[imidy].xerms[i]*xerms[i];
-	      pxegx0[i]=((1. - xratio)*thePixelTemp[index_id].entbx[ilow].xegx0[i] + xratio*thePixelTemp[index_id].entbx[ihigh].xegx0[i])
-	                        /thePixelTemp[index_id].entbx[imidy].xegsig[i]*xegsig[i];
-	      pxegsig[i]=((1. - xratio)*thePixelTemp[index_id].entbx[ilow].xegsig[i] + xratio*thePixelTemp[index_id].entbx[ihigh].xegsig[i])
-	                        /thePixelTemp[index_id].entbx[imidy].xegsig[i]*xegsig[i];
-	      pxoavg[i]=((1. - xratio)*thePixelTemp[index_id].entbx[ilow].xoavg[i] + xratio*thePixelTemp[index_id].entbx[ihigh].xoavg[i])
-	                        /thePixelTemp[index_id].entbx[imidy].xorms[i]*xorms[i];
-	      pxorms[i]=((1. - xratio)*thePixelTemp[index_id].entbx[ilow].xorms[i] + xratio*thePixelTemp[index_id].entbx[ihigh].xorms[i])
-	                        /thePixelTemp[index_id].entbx[imidy].xorms[i]*xorms[i];
-	      pxogx0[i]=((1. - xratio)*thePixelTemp[index_id].entbx[ilow].xogx0[i] + xratio*thePixelTemp[index_id].entbx[ihigh].xogx0[i])
-	                        /thePixelTemp[index_id].entbx[imidy].xogsig[i]*xogsig[i];
-	      pxogsig[i]=((1. - xratio)*thePixelTemp[index_id].entbx[ilow].xogsig[i] + xratio*thePixelTemp[index_id].entbx[ihigh].xogsig[i])
-	                        /thePixelTemp[index_id].entbx[imidy].xogsig[i]*xogsig[i];
+	      pxavg[i]=(1. - yxratio)*((1. - xxratio)*thePixelTemp[index_id].entbx[iylow][ilow].xavg[i] + xxratio*thePixelTemp[index_id].entbx[iylow][ihigh].xavg[i])
+		          +yxratio*((1. - xxratio)*thePixelTemp[index_id].entbx[iyhigh][ilow].xavg[i] + xxratio*thePixelTemp[index_id].entbx[iyhigh][ihigh].xavg[i]);
+		  
+	      pxrms[i]=(1. - yxratio)*((1. - xxratio)*thePixelTemp[index_id].entbx[iylow][ilow].xrms[i] + xxratio*thePixelTemp[index_id].entbx[iylow][ihigh].xrms[i])
+		          +yxratio*((1. - xxratio)*thePixelTemp[index_id].entbx[iyhigh][ilow].xrms[i] + xxratio*thePixelTemp[index_id].entbx[iyhigh][ihigh].xrms[i]);
+		  
+	      pxgx0[i]=(1. - yxratio)*((1. - xxratio)*thePixelTemp[index_id].entbx[iylow][ilow].xgx0[i] + xxratio*thePixelTemp[index_id].entbx[iylow][ihigh].xgx0[i])
+		          +yxratio*((1. - xxratio)*thePixelTemp[index_id].entbx[iyhigh][ilow].xgx0[i] + xxratio*thePixelTemp[index_id].entbx[iyhigh][ihigh].xgx0[i]);
+							
+	      pxgsig[i]=(1. - yxratio)*((1. - xxratio)*thePixelTemp[index_id].entbx[iylow][ilow].xgsig[i] + xxratio*thePixelTemp[index_id].entbx[iylow][ihigh].xgsig[i])
+		          +yxratio*((1. - xxratio)*thePixelTemp[index_id].entbx[iyhigh][ilow].xgsig[i] + xxratio*thePixelTemp[index_id].entbx[iyhigh][ihigh].xgsig[i]);
+	  														
+	      pchi2xavg[i]=((1. - xxratio)*thePixelTemp[index_id].entbx[imaxx][ilow].chi2xavg[i] + xxratio*thePixelTemp[index_id].entbx[imaxx][ihigh].chi2xavg[i]);
+		  if(thePixelTemp[index_id].entbx[imaxx][imidy].chi2xavg[i] != 0.) {pchi2xavg[i]=pchi2xavg[i]/thePixelTemp[index_id].entbx[imaxx][imidy].chi2xavg[i]*chi2xavg[i];}
+							
+	      pchi2xmin[i]=((1. - xxratio)*thePixelTemp[index_id].entbx[imaxx][ilow].chi2xmin[i] + xxratio*thePixelTemp[index_id].entbx[imaxx][ihigh].chi2xmin[i]);
+		  if(thePixelTemp[index_id].entbx[imaxx][imidy].chi2xmin[i] != 0.) {pchi2xmin[i]=pchi2xmin[i]/thePixelTemp[index_id].entbx[imaxx][imidy].chi2xmin[i]*chi2xmin[i];}
+		  
+	      for(j=0; j<6 ; ++j) {
+	         pxflparll[i][j] = thePixelTemp[index_id].entbx[iylow][ilow].xflpar[i][j];
+	         pxflparlh[i][j] = thePixelTemp[index_id].entbx[iylow][ihigh].xflpar[i][j];
+	         pxflparhl[i][j] = thePixelTemp[index_id].entbx[iyhigh][ilow].xflpar[i][j];
+	         pxflparhh[i][j] = thePixelTemp[index_id].entbx[iyhigh][ihigh].xflpar[i][j];
+		  }
 	   }
+	   
+// Do the spares next
+
+       for(i=0; i<10; ++i) {
+	      pxspare[i]=(1. - yxratio)*((1. - xxratio)*thePixelTemp[index_id].entbx[iylow][ilow].xspare[i] + xxratio*thePixelTemp[index_id].entbx[iylow][ihigh].xspare[i])
+		          +yxratio*((1. - xxratio)*thePixelTemp[index_id].entbx[iyhigh][ilow].xspare[i] + xxratio*thePixelTemp[index_id].entbx[iyhigh][ihigh].xspare[i]);
+       }
 			  
 // Interpolate and build the x-template 
 	
@@ -1059,7 +1227,7 @@ if(id != id_current || fpix != fpix_current || cotalpha != cota_current || cotbe
 	      pxtemp[i+16][9] = 0.;
 	      pxtemp[i+16][10] = 0.;
 	      for(j=0; j<7; ++j) {
-	        pxtemp[i+16][j+2]=(1. - xratio)*thePixelTemp[index_id].entbx[ilow].xtemp[i][j] + xratio*thePixelTemp[index_id].entbx[ihigh].xtemp[i][j];
+	        pxtemp[i+16][j+2]=(1. - xxratio)*thePixelTemp[index_id].entbx[imaxx][ilow].xtemp[i][j] + xxratio*thePixelTemp[index_id].entbx[imaxx][ihigh].xtemp[i][j];
 	      }
 	   }
 	   for(i=0; i<8; ++i) {
@@ -1098,7 +1266,267 @@ if(id != id_current || fpix != fpix_current || cotalpha != cota_current || cotbe
 	        pxtemp[i+32][j+4]=pxtemp[i+16][j+2];
 	      }
 	   }
-	}	
+	}
   }
   return;
 } // interpolate
+
+
+
+
+
+// ************************************************************************************************************ 
+//! Return vector of y errors (squared) for an input vector of projected signals 
+//! \param fypix - (input) index of the first real pixel in the projected cluster (doesn't include pseudopixels)
+//! \param lypix - (input) index of the last real pixel in the projected cluster (doesn't include pseudopixels)
+//! \param ysum - (input) 25-element vector of pixel signals
+//! \param ysig2 - (output) 25-element vector of y errors (squared)
+// ************************************************************************************************************ 
+  void SiPixelTemplate::ysigma2(int fypix, int lypix, std::vector<float> ysum, std::vector<float>& ysig2)
+  
+{
+    // Interpolate using quantities already stored in the private variables
+    
+    // Local variables 
+    int i;
+	float sigi, sigi2, sigi3, sigi4, sythr;
+	
+    // Make sure that input is OK
+    
+	assert(ysum.size() == 25);
+	
+	//std::cout << "fypix = " << fypix << std::endl;
+	//std::cout << "lypix = " << lypix << std::endl;
+	//std::cout << "ysig2.size() = " << int(ysig2.size()) << std::endl;
+
+	assert(fypix > 1 && fypix < 23);
+	assert(lypix >= fypix && lypix < 23);
+	assert(ysig2.size() == 25);
+	   	     
+// Define the maximum signal to allow before de-weighting a pixel 
+
+       sythr = 1.1*psymax;
+	   
+// Evaluate pixel-by-pixel uncertainties (weights) for the templ analysis 
+
+	   for(i=fypix-2; i<=lypix+2; ++i) {
+		  if(i < fypix || i > lypix) {
+	   
+// Nearest pseudopixels have uncertainties of 50% of threshold, next-nearest have 10% of threshold
+
+			 ysig2[i] = ps50*ps50;
+		  } else {
+			 if(ysum[i] < psymax) {
+				sigi = ysum[i];
+			 } else {
+				sigi = psymax;
+			 }
+			 sigi2 = sigi*sigi; sigi3 = sigi2*sigi; sigi4 = sigi3*sigi;
+			 if(i <= 12) {
+				ysig2[i] = (1.-pyratio)*
+				(pyparl[0][0]+pyparl[0][1]*sigi+pyparl[0][2]*sigi2+pyparl[0][3]*sigi3+pyparl[0][4]*sigi4)
+				+ pyratio*
+				(pyparh[0][0]+pyparh[0][1]*sigi+pyparh[0][2]*sigi2+pyparh[0][3]*sigi3+pyparh[0][4]*sigi4);
+			 } else {
+				ysig2[i] = (1.-pyratio)*
+				(pyparl[1][0]+pyparl[1][1]*sigi+pyparl[1][2]*sigi2+pyparl[1][3]*sigi3+pyparl[1][4]*sigi4)
+				+ pyratio*
+			    (pyparh[1][0]+pyparh[1][1]*sigi+pyparh[1][2]*sigi2+pyparh[1][3]*sigi3+pyparh[1][4]*sigi4);
+			 }
+		     if(ysum[i] > sythr) {ysig2[i] = 1.e8;}
+			 if(ysig2[i] <= 0.) {std::cout << "neg y-error-squared, id = " << id_current << ", index = " << index_id << 
+			 ", cot(alpha) = " << cota_current << ", cot(beta) = " << cotb_current << ", fpix = " << fpix_current << std::endl;}
+	      }
+	   }
+	
+	return;
+	
+} // End ysigma2
+
+
+
+
+
+
+
+// ************************************************************************************************************ 
+//! Return vector of x errors (squared) for an input vector of projected signals 
+//! \param fxpix - (input) index of the first real pixel in the projected cluster (doesn't include pseudopixels)
+//! \param lxpix - (input) index of the last real pixel in the projected cluster (doesn't include pseudopixels)
+//! \param xsum - (input) 11-element vector of pixel signals
+//! \param xsig2 - (output) 11-element vector of x errors (squared)
+// ************************************************************************************************************ 
+  void SiPixelTemplate::xsigma2(int fxpix, int lxpix, std::vector<float> xsum, std::vector<float>& xsig2)
+  
+{
+    // Interpolate using quantities already stored in the private variables
+    
+    // Local variables 
+    int i;
+	float sigi, sigi2, sigi3, sigi4, sxthr, yint, x0;
+	
+    // Make sure that input is OK
+    
+	assert(xsum.size() == 11);
+	
+	//std::cout << "fxpix = " << fxpix << std::endl;
+	//std::cout << "lxpix = " << lxpix << std::endl;
+	//std::cout << "xsig2.size() = " << int(xsig2.size()) << std::endl;
+
+	assert(fxpix > 1 && fxpix < 9);
+	assert(lxpix >= fxpix && lxpix < 9);
+	assert(xsig2.size() == 11);
+	   	     
+// Define the maximum signal to allow before de-weighting a pixel 
+
+       sxthr = 1.1*psxmax;
+	   
+// Evaluate pixel-by-pixel uncertainties (weights) for the templ analysis 
+
+	   for(i=fxpix-2; i<=lxpix+2; ++i) {
+		  if(i < fxpix || i > lxpix) {
+	   
+// Nearest pseudopixels have uncertainties of 50% of threshold, next-nearest have 10% of threshold
+
+			 xsig2[i] = ps50*ps50;
+		  } else {
+			 if(xsum[i] < psxparmax) {
+				sigi = xsum[i];
+			 } else {
+				sigi = psxparmax;
+			 }
+			 sigi2 = sigi*sigi; sigi3 = sigi2*sigi; sigi4 = sigi3*sigi;
+			 
+// First, do the cotbeta interpolation			 
+			 
+			 if(i <= 5) {
+				yint = (1.-pyratio)*
+				(pxparly0[0][0]+pxparly0[0][1]*sigi+pxparly0[0][2]*sigi2+pxparly0[0][3]*sigi3+pxparly0[0][4]*sigi4)
+				+ pyratio*
+				(pxparhy0[0][0]+pxparhy0[0][1]*sigi+pxparhy0[0][2]*sigi2+pxparhy0[0][3]*sigi3+pxparhy0[0][4]*sigi4);
+			 } else {
+				yint = (1.-pyratio)*
+				(pxparly0[1][0]+pxparly0[1][1]*sigi+pxparly0[1][2]*sigi2+pxparly0[1][3]*sigi3+pxparly0[1][4]*sigi4)
+				+ pyratio*
+			    (pxparhy0[1][0]+pxparhy0[1][1]*sigi+pxparhy0[1][2]*sigi2+pxparhy0[1][3]*sigi3+pxparhy0[1][4]*sigi4);
+			 }
+			 
+// Next, do the cotalpha interpolation			 
+			 
+			 if(i <= 5) {
+				xsig2[i] = (1.-pxxratio)*
+				(pxparl[0][0]+pxparl[0][1]*sigi+pxparl[0][2]*sigi2+pxparl[0][3]*sigi3+pxparl[0][4]*sigi4)
+				+ pxxratio*
+				(pxparh[0][0]+pxparh[0][1]*sigi+pxparh[0][2]*sigi2+pxparh[0][3]*sigi3+pxparh[0][4]*sigi4);
+			 } else {
+				xsig2[i] = (1.-pxxratio)*
+				(pxparl[1][0]+pxparl[1][1]*sigi+pxparl[1][2]*sigi2+pxparl[1][3]*sigi3+pxparl[1][4]*sigi4)
+				+ pxxratio*
+			    (pxparh[1][0]+pxparh[1][1]*sigi+pxparh[1][2]*sigi2+pxparh[1][3]*sigi3+pxparh[1][4]*sigi4);
+			 }
+			 
+// Finally, get the mid-point value of the cotalpha function			 
+			 
+			 if(i <= 5) {
+				x0 = pxpar0[0][0]+pxpar0[0][1]*sigi+pxpar0[0][2]*sigi2+pxpar0[0][3]*sigi3+pxpar0[0][4]*sigi4;
+			 } else {
+				x0 = pxpar0[1][0]+pxpar0[1][1]*sigi+pxpar0[1][2]*sigi2+pxpar0[1][3]*sigi3+pxpar0[1][4]*sigi4;
+			 }
+			 
+// Finally, rescale the yint value for cotalpha variation			 
+			 
+			 if(x0 != 0.) {xsig2[i] = xsig2[i]/x0 * yint;}
+		     if(xsum[i] > sxthr) {xsig2[i] = 1.e8;}
+			 if(xsig2[i] <= 0.) {std::cout << "neg x-error-squared, id = " << id_current << ", index = " << index_id << 
+			 ", cot(alpha) = " << cota_current << ", cot(beta) = " << cotb_current << ", fpix = " << fpix_current << std::endl;}
+	      }
+	   }
+	
+	return;
+	
+} // End xsigma2
+
+
+
+
+
+
+// ************************************************************************************************************ 
+//! Return interpolated y-correction for input charge bin and qfly
+//! \param binq - (input) charge bin [0-3]
+//! \param qfly - (input) (Q_f-Q_l)/(Q_f+Q_l) for this cluster
+// ************************************************************************************************************ 
+  float SiPixelTemplate::yflcorr(int binq, float qfly)
+  
+{
+    // Interpolate using quantities already stored in the private variables
+    
+    // Local variables 
+    int i;
+	float qfl, qfl2, qfl3, qfl4, qfl5, dy;
+	
+    // Make sure that input is OK
+    
+	assert(binq >= 0 && binq < 4);
+	assert(fabs((double)qfly) <= 1.);
+	   	     
+// Define the maximum signal to allow before de-weighting a pixel 
+
+       qfl = qfly;
+
+       if(qfl < -0.9) {qfl = -0.9;}
+	   if(qfl > 0.9) {qfl = 0.9;}
+	   
+// Interpolate between the two polynomials
+
+	   qfl2 = qfl*qfl; qfl3 = qfl2*qfl; qfl4 = qfl3*qfl; qfl5 = qfl4*qfl;
+	   dy = (1.-pyratio)*(pyflparl[binq][0]+pyflparl[binq][1]*qfl+pyflparl[binq][2]*qfl2+pyflparl[binq][3]*qfl3+pyflparl[binq][4]*qfl4+pyflparl[binq][5]*qfl5)
+		  + pyratio*(pyflparh[binq][0]+pyflparh[binq][1]*qfl+pyflparh[binq][2]*qfl2+pyflparh[binq][3]*qfl3+pyflparh[binq][4]*qfl4+pyflparh[binq][5]*qfl5);
+	
+	return dy;
+	
+} // End yflcorr
+
+
+
+
+
+
+// ************************************************************************************************************ 
+//! Return interpolated x-correction for input charge bin and qflx
+//! \param binq - (input) charge bin [0-3]
+//! \param qflx - (input) (Q_f-Q_l)/(Q_f+Q_l) for this cluster
+// ************************************************************************************************************ 
+  float SiPixelTemplate::xflcorr(int binq, float qflx)
+  
+{
+    // Interpolate using quantities already stored in the private variables
+    
+    // Local variables 
+    int i;
+	float qfl, qfl2, qfl3, qfl4, qfl5, dx;
+	
+    // Make sure that input is OK
+    
+	assert(binq >= 0 && binq < 4);
+	assert(fabs((double)qflx) <= 1.);
+	   	     
+// Define the maximum signal to allow before de-weighting a pixel 
+
+       qfl = qflx;
+
+       if(qfl < -0.9) {qfl = -0.9;}
+	   if(qfl > 0.9) {qfl = 0.9;}
+	   
+// Interpolate between the two polynomials
+
+	   qfl2 = qfl*qfl; qfl3 = qfl2*qfl; qfl4 = qfl3*qfl; qfl5 = qfl4*qfl;
+	   dx = (1. - pyxratio)*((1.-pxxratio)*(pxflparll[binq][0]+pxflparll[binq][1]*qfl+pxflparll[binq][2]*qfl2+pxflparll[binq][3]*qfl3+pxflparll[binq][4]*qfl4+pxflparll[binq][5]*qfl5)
+		  + pxxratio*(pxflparlh[binq][0]+pxflparlh[binq][1]*qfl+pxflparlh[binq][2]*qfl2+pxflparlh[binq][3]*qfl3+pxflparlh[binq][4]*qfl4+pxflparlh[binq][5]*qfl5))
+	      + pyxratio*((1.-pxxratio)*(pxflparhl[binq][0]+pxflparhl[binq][1]*qfl+pxflparhl[binq][2]*qfl2+pxflparhl[binq][3]*qfl3+pxflparhl[binq][4]*qfl4+pxflparhl[binq][5]*qfl5)
+		  + pxxratio*(pxflparhh[binq][0]+pxflparhh[binq][1]*qfl+pxflparhh[binq][2]*qfl2+pxflparhh[binq][3]*qfl3+pxflparhh[binq][4]*qfl4+pxflparhh[binq][5]*qfl5));
+	
+	return dx;
+	
+} // End xflcorr
+
