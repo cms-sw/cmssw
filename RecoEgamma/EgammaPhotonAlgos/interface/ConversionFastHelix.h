@@ -12,7 +12,6 @@
 /**
    Generation of track parameters at a vertex using two hits and a vertex.
    It is used e.g. by a seed generator.
-
    21.02.2001: Old FastHelix is now called FastHelixFit. Replace FastLineFit
                by FastLine (z0, dz/drphi calculated without vertex and errors)
    14.02.2001: Replace general Circle by FastCircle.
@@ -35,25 +34,28 @@ public:
   ConversionFastHelix(const GlobalPoint& outerHit, 
 	    const GlobalPoint& middleHit,
 	    const GlobalPoint& aVertex,
-	    const MagneticField* field);
+	    const MagneticField* field
+            );
   
   ~ConversionFastHelix() {}
   
-  bool isValid() const {return theCircle.isValid();}
+  bool isValid() {return validHelix ;}
 
-  FTS stateAtVertex() const;
+  FTS stateAtVertex() ;
 
-  FTS helixStateAtVertex() const;
+  FTS helixStateAtVertex() ;
 
-  FTS straightLineStateAtVertex() const;
+  FTS straightLineStateAtVertex() ;
 
 private:
-  
+ 
+   bool validHelix; 
   GlobalPoint theOuterHit;
   GlobalPoint theMiddleHit;
   GlobalPoint theVertex;
   FastCircle theCircle;
   const MagneticField* mField;
+ 
 };
 
 #endif //Egamma_ConversionFastHelix_H_
