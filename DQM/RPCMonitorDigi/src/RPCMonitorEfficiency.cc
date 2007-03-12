@@ -2,7 +2,7 @@
  *
  *  implementation of RPCMonitorEfficiency class
  *
- *  $Date: 2006/11/08 17:03:32 $
+ *  $Date: 2006/12/12 08:30:31 $
  *  Revision: 1.5 $
  *
  * \author  Camilo Carrillo
@@ -11,26 +11,27 @@
 #include <DQM/RPCMonitorDigi/interface/RPCMonitorEfficiency.h>
 
 ///Log messages
-#include <FWCore/ServiceRegistry/interface/Service.h>
-#include <FWCore/MessageLogger/interface/MessageLogger.h>
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 
-#include "FWCore/Framework/interface/MakerMacros.h" //pe 
-#include <FWCore/Framework/interface/ESHandle.h>//
+#include "Geometry/DTGeometry/interface/DTGeometry.h"
+#include "Geometry/RPCGeometry/interface/RPCGeometry.h"
+#include "Geometry/CommonTopologies/interface/RectangularStripTopology.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
 
 ///Data Format
-#include <DataFormats/RPCDigi/interface/RPCDigi.h>
-#include <DataFormats/RPCDigi/interface/RPCDigiCollection.h>
-#include <DataFormats/MuonDetId/interface/RPCDetId.h>
-#include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"//
-#include "DataFormats/MuonDetId/interface/DTChamberId.h"//
+#include "DataFormats/RPCDigi/interface/RPCDigi.h"
+#include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
+#include "DataFormats/MuonDetId/interface/RPCDetId.h"
+#include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
+#include "DataFormats/MuonDetId/interface/DTChamberId.h"
+#include "DataFormats/GeometrySurface/interface/LocalError.h"
+#include "DataFormats/GeometryVector/interface/LocalPoint.h"
 
-#include <Geometry/DTGeometry/interface/DTGeometry.h>//
-#include <Geometry/RPCGeometry/interface/RPCGeometry.h>//
-#include <Geometry/CommonTopologies/interface/RectangularStripTopology.h>//
-#include <Geometry/CommonDetUnit/interface/GeomDet.h>//
-#include <Geometry/Records/interface/MuonGeometryRecord.h>//
-#include <Geometry/Surface/interface/LocalError.h>
-#include <Geometry/Vector/interface/LocalPoint.h>
+
 
 #include <cmath>
 #include "TFile.h"

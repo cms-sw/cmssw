@@ -5,23 +5,24 @@
  *
  * RPC Synchronization Monitoring Class
  *
- *  $Date: 2006/10/20 07:57:31 $
- *  $Revision: 0.1 $
+ *  $Date: 2006/11/15 15:08:07 $
+ *  $Revision: 1.2 $
  *
  * \author Piotr Traczyk (SINS)
  *
  */
 
-#include <FWCore/Framework/interface/Frameworkfwd.h>
-#include <FWCore/Framework/interface/EDAnalyzer.h>
-#include <FWCore/Framework/interface/Handle.h>
-#include <FWCore/Framework/interface/ESHandle.h>
-#include <FWCore/Framework/interface/Event.h>
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "DQMServices/Daemon/interface/MonitorDaemon.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
+
+#include "DataFormats/Common/interface/Handle.h"
 
 #include <string>
 #include <map>
