@@ -2,7 +2,6 @@
 <use name=rootrflx>
 <use name=CondCore/DBCommon>
 <export>
- <use name=rootrflx>
  <use name=CondCore/DBCommon>	
  <lib name=CondCoreIOVService>
 </export>
