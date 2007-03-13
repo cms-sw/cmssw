@@ -8,5 +8,6 @@
 <export>
   <use name=FWCore/Utilities>
   <use name=FWCore/Framework>
+  <use name=ObjectRelationalAccess>
   <lib name=CondCoreDBCommon>
 </export>
