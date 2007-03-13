@@ -20,6 +20,7 @@ SiPixelCondObjBuilder::SiPixelCondObjBuilder(const edm::ParameterSet& iConfig) :
       conf_(iConfig),
       appendMode_(conf_.getUntrackedParameter<bool>("appendMode",true)),
       SiPixelGainCalibration_(0),
+      SiPixelGainCalibrationService_(iConfig),
       recordName_(iConfig.getParameter<std::string>("record")),
       meanPed_(conf_.getParameter<double>("meanPed")),
       rmsPed_(conf_.getParameter<double>("rmsPed")),
@@ -100,8 +101,13 @@ SiPixelCondObjBuilder::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 // 	   }
 
 	   // Encode to use the full 8-bit range
-	   float theEncodedPed  = ped*4.25;
-	   float theEncodedGain = (gain-0.3)*2560.;
+
+	   gain =  2.8;
+	   ped  = 28.2;
+	   float theEncodedGain  = SiPixelGainCalibrationService_.encodeGain(gain);
+	   float theEncodedPed   = SiPixelGainCalibrationService_.encodePed (ped);
+
+	   //std::cout << i <<  " " << j << " EncGain " << theEncodedGain << " EncPed " << theEncodedPed << std::endl;
 
 	   // Insert data in the container
 	   SiPixelGainCalibration_->setData( theEncodedPed, theEncodedGain, theSiPixelGainCalibration);

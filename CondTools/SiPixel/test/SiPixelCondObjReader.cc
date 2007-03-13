@@ -2,6 +2,7 @@
 
 #include "CondTools/SiPixel/test/SiPixelCondObjReader.h"
 #include "CondFormats/DataRecord/interface/SiPixelGainCalibrationRcd.h"
+#include "CondTools/SiPixel/interface/SiPixelGainCalibrationService.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
@@ -55,19 +56,16 @@ SiPixelCondObjReader::analyze(const edm::Event& iEvent, const edm::EventSetup& i
     int nrows = topol.nrows();      // rows in x
     int ncols = topol.ncolumns();   // cols in y
     
-    //int dbcols = SiPixelGainCalibration_->getNCols(detid);
-    //std::cout << " ---> PIXEL DETID " << detid << " Geom Cols " << ncols << " DB Cols " << dbcols << std::endl;
-    
-    //SiPixelGainCalibration::Range theRange = SiPixelGainCalibration_->getRange(detid);
     for(int col_iter=0; col_iter<ncols; col_iter++) {
       for(int row_iter=0; row_iter<nrows; row_iter++) {
 	nchannels++;
-	//float ped  = SiPixelGainCalibration_->getPed (col_iter, row_iter, theRange, dbcols);
+
 	float ped  = SiPixelGainCalibrationService_.getPedestal(detid, col_iter, row_iter);
 	p_iter->second->Fill( ped );
-	//float gain = SiPixelGainCalibration_->getGain(col_iter, row_iter, theRange, dbcols);
+
 	float gain  = SiPixelGainCalibrationService_.getGain(detid, col_iter, row_iter);
 	g_iter->second->Fill( gain );
+
 	//std::cout << "       Col "<<col_iter<<" Row "<<row_iter<<" Ped "<<ped<<" Gain "<<gain<<std::endl;
 	   
       }
@@ -116,10 +114,10 @@ SiPixelCondObjReader::beginJob(const edm::EventSetup& iSetup)
     // Book histograms
     sprintf(name,"Pedestals_%d",detid);
     fFile->cd();fFile->cd("Pedestals");
-    _TH1F_Pedestals_m[detid] = new TH1F(name,name,100,0.,200.);    
+    _TH1F_Pedestals_m[detid] = new TH1F(name,name,50,0.,50.);    
     sprintf(name,"Gains_%d",detid);
     fFile->cd();fFile->cd("Gains");
-    _TH1F_Gains_m[detid] = new TH1F(name,name,100,0.,200.);    
+    _TH1F_Gains_m[detid] = new TH1F(name,name,100,0.,10.);    
   }
   
 }
