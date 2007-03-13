@@ -1,11 +1,7 @@
 #ifndef Alignment_CommonAlignmentAlgorithm_AlignableData_h
 #define Alignment_CommonAlignmentAlgorithm_AlignableData_h
 
-#include "DataFormats/GeometrySurface/interface/Surface.h"
-#include "DataFormats/Math/interface/Point3D.h"
-#include "DataFormats/Math/interface/Vector3D.h"
-
-#include <vector>
+#include "Alignment/CommonAlignment/interface/Utilities.h"
 
 ///  Helper class to store position data of an alignable;
 ///  Contents: position vector, rotation matrix, DetId and TypeId;
@@ -18,31 +14,32 @@ template<class T> class AlignableData
 public:
 
   /// constructor
-  AlignableData(T pos, Surface::RotationType rot, 
-				unsigned int id, int objid) :
+  AlignableData(const T& pos,
+		const align::RotationType& rot, 
+		unsigned int id, int objid) :
     thePos(pos), theRot(rot), theObjId(objid), theId(id) {}
 
   /// accessors
-  T pos(void) const { return thePos; }
-  Surface::RotationType rot(void) const { return theRot; }
-  int objId(void) const { return theObjId; }
-  unsigned int id(void) const { return theId; }
+  const T& pos() const { return thePos; }
+  const align::RotationType& rot() const { return theRot; }
+  int objId() const { return theObjId; }
+  unsigned int id() const { return theId; }
 
 private:
 
   // data members
 
   T thePos;
-  Surface::RotationType theRot;
+  align::RotationType theRot;
   int theObjId;
   unsigned int theId;
 
 };
 
 /// Absolute position/rotation 
-typedef AlignableData<GlobalPoint>  AlignableAbsData;
+typedef AlignableData<align::GlobalPoint>  AlignableAbsData;
 /// relative position/rotation 
-typedef AlignableData<GlobalVector> AlignableRelData;
+typedef AlignableData<align::GlobalVector> AlignableRelData;
 
 typedef std::vector<AlignableAbsData> AlignablePositions;
 typedef std::vector<AlignableRelData> AlignableShifts;
