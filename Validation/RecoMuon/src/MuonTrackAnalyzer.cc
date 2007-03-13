@@ -22,9 +22,14 @@
 
 #include "RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h"
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
+#include "RecoMuon/TrackingTools/interface/MuonUpdatorAtVertex.h"
 
 #include "Validation/RecoMuon/src/Histograms.h"
 #include "Validation/RecoMuon/src/HTrack.h"
+
+#include "SimDataFormats/TrackingHit/interface/PSimHit.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
+#include "SimDataFormats/Track/interface/SimTrackContainer.h"
 
 #include "TFile.h"
 #include "TH1F.h"
@@ -40,6 +45,8 @@ MuonTrackAnalyzer::MuonTrackAnalyzer(const ParameterSet& pset){
   ParameterSet serviceParameters = pset.getParameter<ParameterSet>("ServiceParameters");
   // the services
   theService = new MuonServiceProxy(serviceParameters);
+  
+  theUpdatorAtVtx = new MuonUpdatorAtVertex("SteppingHelixPropagatorOpposite",theService);
   
   theMuonTrackLabel = pset.getParameter<InputTag>("MuonTrack");
   theSeedCollectionLabel = pset.getParameter<InputTag>("MuonSeed");
@@ -74,8 +81,8 @@ void MuonTrackAnalyzer::beginJob(const EventSetup& eventSetup){
 
   hSimTracks = new HTrackVariables("SimTracks"); 
 
-  hRecoTracksVTXUpdated = new HTrack("RecoTracks","VTX_Updated"); 
-  hRecoTracksVTXUpdatedAndRefitted = new HTrack("RecoTracks","VTX_UpdatedAndRefitted"); 
+  hRecoTracksExtrAtPCA = new HTrack("RecoTracks","ExtrAtPCA"); 
+  hRecoTracksUpdatedAtVTX = new HTrack("RecoTracks","UpdatedAtVTX"); 
 
   hRecoTracksVTX = new HTrack("RecoTracks","VTX"); 
   hRecoTracksInner = new HTrack("RecoTracks","Inner"); 
@@ -142,7 +149,7 @@ void MuonTrackAnalyzer::endJob(){
 
   if(theDataType.label() == "SimData"){
     double eff = hRecoTracksVTX->computeEfficiency(hSimTracks);
-    hRecoTracksVTXUpdatedAndRefitted->computeEfficiency(hSimTracks);
+    hRecoTracksUpdatedAtVTX->computeEfficiency(hSimTracks);
     cout<<" *Efficiency* = "<< eff <<"%"<<endl<<endl;;
   }
   
@@ -151,8 +158,8 @@ void MuonTrackAnalyzer::endJob(){
   
   hSimTracks->Write(); 
 
-  hRecoTracksVTXUpdated->Write(theFile);
-  hRecoTracksVTXUpdatedAndRefitted->Write(theFile);
+  hRecoTracksExtrAtPCA->Write(theFile);
+  hRecoTracksUpdatedAtVTX->Write(theFile);
   hRecoTracksVTX->Write(theFile);  
   hRecoTracksInner->Write(theFile); 
   hRecoTracksOuter->Write(theFile);
@@ -220,58 +227,62 @@ void MuonTrackAnalyzer::analyze(const Event & event, const EventSetup& eventSetu
     
   // Loop over the Rec tracks
   for (staTrack = staTracks->begin(); staTrack != staTracks->end(); ++staTrack) {
-
+    
     reco::TransientTrack track(*staTrack,&*theService->magneticField(),theService->trackingGeometry()); 
-
+    
     cout<<"Analizer: New track, chi2: "<<track.chi2()<<" dof: "<<track.ndof()<<endl;
     hChi2->Fill(track.chi2());
     hDof->Fill(track.ndof());
     hChi2Norm->Fill(track.normalizedChi2());
-    hHitsPerTrack->Fill(track.found());
+    hHitsPerTrack->Fill(track.recHitsSize());
 
     hChi2Prob->Fill( ChiSquaredProbability(track.chi2(),track.ndof()) );
 
-    cout << "State at VTX: " << endl; 
-    TrajectoryStateOnSurface vtxTSOS   = track.impactPointState();
-    cout << debug.dumpTSOS(vtxTSOS)<<endl;
-    hRecoTracksVTX->Fill(vtxTSOS);
-
-
-    pair<bool,FreeTrajectoryState> resultOfUpdateAtVtx = updateAtVertex(track);   
-    if(resultOfUpdateAtVtx.first){
-     
-      FreeTrajectoryState vtxFTSUp = resultOfUpdateAtVtx.second;
-
-      cout << "State at VTX (updated): " << endl; 
-      cout << debug.dumpFTS(vtxFTSUp)<<endl;
-
-      hRecoTracksVTXUpdated->Fill(vtxFTSUp);
-    }
-
-
-    pair<bool,FreeTrajectoryState> resultOfUpdateAndRefitAtVtx = updateAtVertexAndRefit(track);
-
-    if(resultOfUpdateAndRefitAtVtx.first){
-      
-      FreeTrajectoryState vtxFTSUpAndRefitted = resultOfUpdateAndRefitAtVtx.second;
-
-      cout << "State at VTX (updated and refitted): " << endl;      
-      cout << debug.dumpFTS(vtxFTSUpAndRefitted)<<endl;
-      
-      hRecoTracksVTXUpdatedAndRefitted->Fill(vtxFTSUpAndRefitted);
-    }
-
-
-
+    cout << "State at the outer surface: " << endl; 
+    TrajectoryStateOnSurface outerTSOS = track.outermostMeasurementState();
+    cout << debug.dumpTSOS(outerTSOS)<<endl;
+    hRecoTracksOuter->Fill(outerTSOS);
+    
     cout << "State at the inner surface: " << endl; 
     TrajectoryStateOnSurface innerTSOS = track.innermostMeasurementState();
     cout << debug.dumpTSOS(innerTSOS)<<endl;
     hRecoTracksInner->Fill(innerTSOS);
     
-    cout << "State at the outer surface: " << endl; 
-    TrajectoryStateOnSurface outerTSOS = track.outermostMeasurementState();
-    cout << debug.dumpTSOS(outerTSOS)<<endl;
-    hRecoTracksOuter->Fill(outerTSOS);
+    cout << "State at VTX (WRONG!): " << endl; 
+    TrajectoryStateOnSurface vtxTSOS_wrong   = track.impactPointState();
+    cout << debug.dumpTSOS(vtxTSOS_wrong)<<endl;
+    // hRecoTracksVTX->Fill(vtxTSOS);
+
+
+    // Propagate the state at PCA
+    pair<bool,FreeTrajectoryState> resultOfExtrAtPCA = theUpdatorAtVtx->propagate(innerTSOS,GlobalPoint(0.,0.,0.));
+    
+    if(resultOfExtrAtPCA.first){
+     
+      FreeTrajectoryState ftsAtPCA = resultOfExtrAtPCA.second;
+
+      cout << "State at PCA (NOT updated): " << endl; 
+      cout << debug.dumpFTS(ftsAtPCA) <<endl;
+
+      // FIXME: rename it
+      hRecoTracksExtrAtPCA->Fill(ftsAtPCA);
+    
+    }
+    
+    // Update
+    pair<bool,FreeTrajectoryState> resultOfUpdateAtVtx = theUpdatorAtVtx->update(track);
+    
+    if(resultOfUpdateAtVtx.first){
+      
+      FreeTrajectoryState ftsAtVTX = resultOfUpdateAtVtx.second;
+      
+      cout << "State at VTX (updated): " << endl;      
+      cout << debug.dumpFTS(ftsAtVTX)<<endl;
+      
+      // FIXME: rename it
+      hRecoTracksUpdatedAtVTX->Fill(ftsAtVTX);
+    }
+    
     
     // Loop over the RecHits
     trackingRecHit_iterator rhbegin = staTrack->recHitsBegin();
@@ -292,47 +303,48 @@ void MuonTrackAnalyzer::analyze(const Event & event, const EventSetup& eventSetu
     }
     if(theDataType.label() == "SimData" && staTracks->size() ){  
 
-       
-      SimTrack simTrack = getSimTrack(vtxTSOS,simTracks);
+      if(resultOfExtrAtPCA.first && resultOfUpdateAtVtx.first){
 
-
-      hChargeVsEta->Fill(simTrack.momentum().eta(),vtxTSOS.charge());
-      hChargeVsPt->Fill(simTrack.momentum().perp(),vtxTSOS.charge());
-      hPtRecVsPtGen->Fill(simTrack.momentum().perp(),vtxTSOS.globalMomentum().perp());  
-
-      hChi2VsEta->Fill(simTrack.momentum().eta(),track.chi2());
-      hChi2NormVsEta->Fill(simTrack.momentum().eta(),track.normalizedChi2());
-      hChi2ProbVsEta->Fill(simTrack.momentum().eta(),ChiSquaredProbability(track.chi2(),track.ndof()));     
-      hHitsPerTrackVsEta->Fill(simTrack.momentum().eta(),track.found());
-      hDofVsEta->Fill(simTrack.momentum().eta(),track.ndof()); 
-      
-      hDeltaPtVsEta->Fill(simTrack.momentum().eta(),vtxTSOS.globalMomentum().perp()-simTrack.momentum().perp());
-      hDeltaPt_In_Out_VsEta->Fill(simTrack.momentum().eta(),
-				  innerTSOS.globalMomentum().perp()-outerTSOS.globalMomentum().perp());
-
-
-      if(resultOfUpdateAtVtx.first){
-	FreeTrajectoryState vtxFTSUp = resultOfUpdateAtVtx.second;
-	hRecoTracksVTXUpdated->computeResolutionAndPull(vtxFTSUp,simTrack);
+	FreeTrajectoryState &ftsAtPCA = resultOfExtrAtPCA.second;
+	FreeTrajectoryState &ftsAtVTX = resultOfUpdateAtVtx.second;
+	
+	SimTrack simTrack = getSimTrack(ftsAtVTX,simTracks);
+	
+	hRecoTracksExtrAtPCA->computeResolutionAndPull(ftsAtPCA,simTrack);
+	hRecoTracksUpdatedAtVTX->computeResolutionAndPull(ftsAtVTX,simTrack);
+	
+	hChargeVsEta->Fill(simTrack.momentum().eta(),ftsAtVTX.charge());
+	hChargeVsPt->Fill(simTrack.momentum().perp(),ftsAtVTX.charge());
+	hPtRecVsPtGen->Fill(simTrack.momentum().perp(),ftsAtVTX.momentum().perp());  
+	
+	hChi2VsEta->Fill(simTrack.momentum().eta(),track.chi2());
+	hChi2NormVsEta->Fill(simTrack.momentum().eta(),track.normalizedChi2());
+	hChi2ProbVsEta->Fill(simTrack.momentum().eta(),ChiSquaredProbability(track.chi2(),track.ndof()));     
+	hHitsPerTrackVsEta->Fill(simTrack.momentum().eta(),track.recHitsSize());
+	hDofVsEta->Fill(simTrack.momentum().eta(),track.ndof()); 
+	
+	hDeltaPtVsEta->Fill(simTrack.momentum().eta(),ftsAtVTX.momentum().perp()-simTrack.momentum().perp());
+	hDeltaPt_In_Out_VsEta->Fill(simTrack.momentum().eta(),
+				    innerTSOS.globalMomentum().perp()-outerTSOS.globalMomentum().perp());
+	
+	hRecoTracksVTX->computeResolutionAndPull(ftsAtVTX,simTrack);
+	hRecoTracksInner->computeResolutionAndPull(innerTSOS,simTrack);
+	hRecoTracksOuter->computeResolutionAndPull(outerTSOS,simTrack);
       }
-      
-      if(resultOfUpdateAndRefitAtVtx.first){
-	FreeTrajectoryState vtxFTSUpAndRefitted = resultOfUpdateAndRefitAtVtx.second;
-	hRecoTracksVTXUpdatedAndRefitted->computeResolutionAndPull(vtxFTSUpAndRefitted,simTrack);
-      }
-
-      hRecoTracksVTX->computeResolutionAndPull(vtxTSOS,simTrack);
-      hRecoTracksInner->computeResolutionAndPull(innerTSOS,simTrack);
-      hRecoTracksOuter->computeResolutionAndPull(outerTSOS,simTrack);
-    }
-
-    
+    }   
   }
   cout<<"---"<<endl;  
 }
 
-
 SimTrack MuonTrackAnalyzer::getSimTrack(TrajectoryStateOnSurface &tsos,
+    Handle<SimTrackContainer> simTracks){
+
+  return getSimTrack(*tsos.freeState(),simTracks);
+}
+
+
+
+SimTrack MuonTrackAnalyzer::getSimTrack(FreeTrajectoryState &fts,
 					Handle<SimTrackContainer> simTracks){
   
   // Loop over the Sim tracks
@@ -382,7 +394,7 @@ SimTrack MuonTrackAnalyzer::getSimTrack(TrajectoryStateOnSurface &tsos,
 bool MuonTrackAnalyzer::isInTheAcceptance(double eta){
   switch(theEtaRange){
   case all:
-    return ( abs(eta) <= 4.4 ) ? true : false;
+    return ( abs(eta) <= 2.4 ) ? true : false;
   case barrel:
     return ( abs(eta) < 1.1 ) ? true : false;
   case endcap:
@@ -391,74 +403,6 @@ bool MuonTrackAnalyzer::isInTheAcceptance(double eta){
     {cout<<"No correct Eta range selected!! "<<endl; return false;}
   }
 }
-
-
-#include "RecoVertex/VertexTools/interface/LinearizedTrackStateFactory.h"
-#include "RecoVertex/VertexPrimitives/interface/VertexState.h"
-#include "RecoVertex/KalmanVertexFit/interface/KalmanVertexTrackUpdator.h"
-
-pair<bool,FreeTrajectoryState>
-MuonTrackAnalyzer::updateAtVertex(const reco::TransientTrack & track) const {
-
-  pair<bool,FreeTrajectoryState> result(false,FreeTrajectoryState());
-  
-  LinearizedTrackStateFactory linFactory;
-  
-  GlobalPoint glbPos(0.,0.,0.);
-  
-  AlgebraicSymMatrix mat(3,0);
-  mat[0][0] = (20.e-04)*(20.e-04);
-  mat[1][1] = (20.e-04)*(20.e-04);
-  mat[2][2] = (5.3)*(5.3);
-
-  GlobalError glbErrPos(mat);
-  VertexState vertex(glbPos,glbErrPos);
-  
-  
-  RefCountedLinearizedTrackState linTrackState = linFactory.linearizedTrackState(glbPos,track);
-  
-  KalmanVertexTrackUpdator vtxUpdator;
-  
-  pair<RefCountedRefittedTrackState, AlgebraicMatrix> refitted = vtxUpdator.trackRefit(vertex,linTrackState);
-  
-  if(!refitted.first){
-    result.first = true;
-    result.second = refitted.first->freeTrajectoryState();
-  }
-  
-  return result;
-}
-
-#include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h"
-
-pair<bool,FreeTrajectoryState>
-MuonTrackAnalyzer::updateAtVertexAndRefit(const reco::TransientTrack & track) const {
-  
-  pair<bool,FreeTrajectoryState> result(false,FreeTrajectoryState());
-  
-    GlobalPoint glbPos(0.,0.,0.);
-    
-    AlgebraicSymMatrix mat(3,0);
-    mat[0][0] = (20.e-04)*(20.e-04);
-    mat[1][1] = (20.e-04)*(20.e-04);
-    mat[2][2] = (5.3)*(5.3);
-    GlobalError glbErrPos(mat);
-
-    vector<reco::TransientTrack> singleTrackV(1,track) ;
-    KalmanVertexFitter kvf(true);
-    CachingVertex tv = kvf.vertex(singleTrackV, glbPos, glbErrPos);
-    
-    if(!tv.tracks().empty()) {
-      result.first = true;
-      result.second = tv.tracks().front()->refittedState()->freeTrajectoryState();
-    }
-    
-    return result;
-}
-
-#include "SimDataFormats/TrackingHit/interface/PSimHit.h"
-#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
-#include "SimDataFormats/Track/interface/SimTrackContainer.h"
 
 bool MuonTrackAnalyzer::checkMuonSimHitPresence(const Event & event){
 

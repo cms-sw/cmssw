@@ -33,6 +33,7 @@ namespace reco {class TransientTrack;}
 
 class TrajectoryStateOnSurface;
 class MuonServiceProxy;
+class MuonUpdatorAtVertex;
 
 class MuonTrackAnalyzer: public edm::EDAnalyzer {
 
@@ -58,12 +59,12 @@ class MuonTrackAnalyzer: public edm::EDAnalyzer {
   bool isInTheAcceptance(double eta);
   bool checkMuonSimHitPresence(const edm::Event&);
 
-  std::pair<bool,FreeTrajectoryState> updateAtVertex(const reco::TransientTrack&) const;
-  
-  std::pair<bool,FreeTrajectoryState> updateAtVertexAndRefit(const reco::TransientTrack&) const;
-
   SimTrack getSimTrack(TrajectoryStateOnSurface &tsos,
-			edm::Handle<edm::SimTrackContainer> simTracks);
+		       edm::Handle<edm::SimTrackContainer> simTracks);
+
+  SimTrack getSimTrack(FreeTrajectoryState &tsos,
+		       edm::Handle<edm::SimTrackContainer> simTracks);
+  
 
   std::string theRootFileName;
   TFile* theFile;
@@ -78,6 +79,7 @@ class MuonTrackAnalyzer: public edm::EDAnalyzer {
   edm::InputTag theRPCSimHitLabel;
 
   MuonServiceProxy *theService;
+  MuonUpdatorAtVertex *theUpdatorAtVtx;
 
   // Histograms
   TH1F *hChi2;
@@ -102,8 +104,9 @@ class MuonTrackAnalyzer: public edm::EDAnalyzer {
 
   HTrackVariables *hSimTracks;
 
-  HTrack *hRecoTracksVTXUpdated;
-  HTrack *hRecoTracksVTXUpdatedAndRefitted;
+  HTrack *hRecoTracksExtrAtPCA;
+  HTrack *hRecoTracksUpdatedAtVTX;
+
   HTrack *hRecoTracksVTX; 
   HTrack *hRecoTracksInner;
   HTrack *hRecoTracksOuter;
