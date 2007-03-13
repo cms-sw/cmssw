@@ -1,11 +1,29 @@
 /*
  * \file EBTriggerTowerTask.cc
  *
- * $Date: 2007/02/01 15:43:57 $
- * $Revision: 1.24 $
+ * $Date: 2007/02/16 20:23:19 $
+ * $Revision: 1.25 $
  * \author G. Della Ricca
  *
 */
+
+#include <iostream>
+#include <fstream>
+#include <vector>
+
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+
+#include "DataFormats/EcalDetId/interface/EBDetId.h"
+#include "DataFormats/EcalDigi/interface/EBDataFrame.h"
+#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
+#include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
 #include <DQM/EcalBarrelMonitorTasks/interface/EBTriggerTowerTask.h>
 
