@@ -17,7 +17,8 @@ using namespace std;
 HcalDummyHitProducer::HcalDummyHitProducer(const edm::ParameterSet& ps)
   : theParameterMap(new HcalSimParameterMap())   
 {
-  energy = 0;
+  energyEM = 0;
+  energyHad= 0;
   produces<edm::PCaloHitContainer>("HcalHits");
   step_size = ps.getParameter<double>("step_size");
 }
@@ -74,7 +75,7 @@ void HcalDummyHitProducer::produce(edm::Event& e, const edm::EventSetup& eventSe
   int ncells;
   int ntowers;
   //  vector<HcalTrigTowerDetId> towerids;  
-  double cell_energy;
+  double cell_energyEM, cell_energyHad;
 
   for(vector<DetId>::const_iterator itr = hbCells.begin(); itr != hbCells.end(); ++itr)
     {
@@ -84,8 +85,9 @@ void HcalDummyHitProducer::produce(edm::Event& e, const edm::EventSetup& eventSe
       towerids = theTrigTowerGeometry.towerIds(barrelId);
       ncells = Tower_map.count(towerids[0]);
       ntowers = towerids.size();
-      cell_energy = (energy*ntowers)/(ncells*calib);
-      PCaloHit barrelHit(barrelId.rawId(), cell_energy, time, 0);
+      cell_energyEM = (energyEM*ntowers)/(ncells*calib);
+      cell_energyHad= (energyHad*ntowers)/(ncells*calib);
+      PCaloHit barrelHit(barrelId.rawId(), cell_energyEM, cell_energyHad, time, 0);
       result->push_back(barrelHit);
     }
   for(vector<DetId>::const_iterator itr = heCells.begin(); itr != heCells.end(); ++itr)
@@ -96,8 +98,9 @@ void HcalDummyHitProducer::produce(edm::Event& e, const edm::EventSetup& eventSe
       towerids = theTrigTowerGeometry.towerIds(endcapId);
       ncells = Tower_map.count(towerids[0]);
       ntowers = towerids.size();
-      cell_energy = (energy*ntowers)/(ncells*calib);
-      PCaloHit endcapHit(endcapId.rawId(), cell_energy, time, 0);
+      cell_energyEM = (energyEM*ntowers)/(ncells*calib);
+      cell_energyHad= (energyHad*ntowers)/(ncells*calib);
+      PCaloHit endcapHit(endcapId.rawId(), cell_energyEM, cell_energyHad, time, 0);
       result->push_back(endcapHit);
     }
   for(vector<DetId>::const_iterator itr = hfCells.begin(); itr != hfCells.end(); ++itr)
@@ -108,12 +111,14 @@ void HcalDummyHitProducer::produce(edm::Event& e, const edm::EventSetup& eventSe
       towerids = theTrigTowerGeometry.towerIds(forwardId);
       ncells = Tower_map.count(towerids[0]);
       ntowers = towerids.size();
-      cell_energy = (energy*ntowers)/(ncells*calib);
-      PCaloHit forwardHit(forwardId.rawId(), cell_energy, time, 0);
+      cell_energyEM = (energyEM*ntowers)/(ncells*calib);
+      cell_energyHad= (energyHad*ntowers)/(ncells*calib);
+      PCaloHit forwardHit(forwardId.rawId(), cell_energyEM, cell_energyHad, time, 0);
       result->push_back(forwardHit);
     }
   e.put(result,"HcalHits");
-  energy += step_size;
+  energyEM  += step_size;
+  energyHad += step_size;
 }
 
 

@@ -159,19 +159,19 @@ void HcalDigiProducer::sortHits(const edm::PCaloHitContainer & hits)
 
 void HcalDigiProducer::fillFakeHits() {
   HcalDetId barrelDetId(HcalBarrel, 1, 1, 1);
-  PCaloHit barrelHit(barrelDetId.rawId(), 0.855, 0., 0);
+  PCaloHit barrelHit(barrelDetId.rawId(), 0.855, 0., 0., 0);
 
   HcalDetId endcapDetId(HcalEndcap, 17, 1, 1);
-  PCaloHit endcapHit(endcapDetId.rawId(), 0.9, 0., 0);
+  PCaloHit endcapHit(endcapDetId.rawId(), 0.9, 0., 0., 0);
 
   HcalDetId outerDetId(HcalOuter, 1, 1, 4);
-  PCaloHit outerHit(outerDetId.rawId(), 0.45, 0., 0);
+  PCaloHit outerHit(outerDetId.rawId(), 0.45, 0., 0., 0);
 
   HcalDetId forwardDetId1(HcalForward, 30, 1, 1);
-  PCaloHit forwardHit1(forwardDetId1.rawId(), 35., 0., 0);
+  PCaloHit forwardHit1(forwardDetId1.rawId(), 35., 0., 0., 0);
 
   HcalDetId forwardDetId2(HcalForward, 30, 1, 2);
-  PCaloHit forwardHit2(forwardDetId2.rawId(), 48., 0., 0);
+  PCaloHit forwardHit2(forwardDetId2.rawId(), 48., 0., 0., 0);
 
   theHBHEHits.push_back(barrelHit);
   theHBHEHits.push_back(endcapHit);

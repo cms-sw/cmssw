@@ -31,7 +31,8 @@ private:
   HcalSimParameterMap * theParameterMap;
   HcalTrigTowerGeometry theTrigTowerGeometry;
   tid2cid Tower_map;
-  double energy;
+  double energyEM;
+  double energyHad;
   double step_size;
   //  vector<DetId> hbCells;
   //  vector<DetId> heCells;

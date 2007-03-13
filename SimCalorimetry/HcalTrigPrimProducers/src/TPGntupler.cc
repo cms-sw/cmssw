@@ -13,7 +13,7 @@
 //
 // Original Author:  Adam Aurisano
 //         Created:  Thur Jan 18 2007
-// $Id$
+// $Id: TPGntupler.cc,v 1.1 2007/02/23 17:17:00 mlw Exp $
 //
 //
 
@@ -97,7 +97,7 @@ TPGntupler::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   //Construct map of hit cells vs. trigger tower id 
   for(MixCollection<PCaloHit>::MixItr j = pcalo->begin(); j != pcalo->end(); ++j)
     {
-      PCaloHit cell(j->id(),j->energy(),j->time(),j->geantTrackId());
+      PCaloHit cell(j->id(),j->energyEM(),j->energyHad(),j->time(),j->geantTrackId());
       HcalDetId hcalid = HcalDetId(j->id());
       //fill energies vs. hcal ids
       Hit_cells.insert(Cell_Map::value_type(hcalid,j->energy()));
