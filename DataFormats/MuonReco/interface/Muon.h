@@ -10,7 +10,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Muon.h,v 1.23 2007/03/13 08:47:12 llista Exp $
+ * \version $Id: Muon.h,v 1.24 2007/03/13 08:49:36 llista Exp $
  *
  */
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
@@ -38,8 +38,6 @@ namespace reco {
     void setCombined( const TrackRef & t ) { combinedMuon_ = t; }
     /// set reference to associated Ecal SuperCluster
     void setSuperCluster( const SuperClusterRef & ref ) { superCluster_ = ref; }
-    /// PDG identifier
-    virtual int pdgId() const { return - 13 * charge(); }
 
   private:
     /// check overlap with another candidate
