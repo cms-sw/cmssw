@@ -1,0 +1,22 @@
+  ##   Script to compare two .root files with histograms
+ 
+  ## Define reference file (REFFILE) and current file (CURFILE)
+#  setenv REFFILE "./muonsimvalid_DT_hist_ref.root"
+#  setenv CURFILE "./muonsimvalid_DT_hist.root"
+
+   setenv REFFILE "./DTSimHitsPlots_ref.root"
+   setenv CURFILE "./DTSimHitsPlots.root"
+
+  root -b -p -q DoCompare_DT.C
+
+   setenv REFFILE "./CSCSimHitsPlots_ref.root"
+   setenv CURFILE "./CSCSimHitsPlots.root"
+
+# root -b -p -q DoCompare_CSC.C
+
+   setenv REFFILE "./RPCSimHitsPlots_ref.root"
+   setenv CURFILE "./RPCSimHitsPlots.root"
+
+# root -b -p -q DoCompare_RPC.C 
+
+
