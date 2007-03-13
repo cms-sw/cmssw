@@ -4,15 +4,15 @@
 /*
  * \file DTDigiTask.h
  *
- * $Date: 2006/10/18 18:04:09 $
- * $Revision: 1.8 $
+ * $Date: 2007/02/16 15:07:26 $
+ * $Revision: 1.9 $
  * \author M. Zanetti - INFN Padova
  *
 */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include <FWCore/Framework/interface/EDAnalyzer.h>
-#include <FWCore/Framework/interface/Handle.h>
+#include <DataFormats/Common/interface/Handle.h>
 #include <FWCore/Framework/interface/ESHandle.h>
 #include <FWCore/Framework/interface/Event.h>
 #include <FWCore/Framework/interface/MakerMacros.h>

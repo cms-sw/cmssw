@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/10/18 18:01:07 $
- *  $Revision: 1.10 $
+ *  $Date: 2007/03/07 08:19:39 $
+ *  $Revision: 1.1 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -20,7 +20,7 @@
 #include "DQMServices/Daemon/interface/MonitorDaemon.h"
 
 //Geometry
-#include "Geometry/Vector/interface/Pi.h"
+#include "DataFormats/GeometryVector/interface/Pi.h"
 
 //Digis & RecHit
 #include "DataFormats/LTCDigi/interface/LTCDigi.h"

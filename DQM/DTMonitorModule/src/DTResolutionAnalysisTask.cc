@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/10/08 16:02:31 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/03/07 08:20:55 $
+ *  $Revision: 1.1 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -20,7 +20,7 @@
 #include "DQMServices/Daemon/interface/MonitorDaemon.h"
 
 //Geometry
-#include "Geometry/Vector/interface/Pi.h"
+#include "DataFormats/GeometryVector/interface/Pi.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 

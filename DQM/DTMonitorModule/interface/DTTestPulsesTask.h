@@ -4,15 +4,15 @@
 /*
  * \file DTTestPulsesTask.h
  *
- * $Date: 2006/05/24 17:21:37 $
- * $Revision: 1.3 $
+ * $Date: 2006/10/18 18:06:16 $
+ * $Revision: 1.4 $
  * \author M. Zanetti - INFN Padova
  *
 */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include <FWCore/Framework/interface/EDAnalyzer.h>
-#include <FWCore/Framework/interface/Handle.h>
+#include <DataFormats/Common/interface/Handle.h>
 #include <FWCore/Framework/interface/ESHandle.h>
 #include <FWCore/Framework/interface/Event.h>
 #include <FWCore/Framework/interface/MakerMacros.h>
