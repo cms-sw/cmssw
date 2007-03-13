@@ -48,8 +48,8 @@
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2007/03/01 08:14:20 $
-// $Revision: 1.34 $
+// $Date: 2007/03/07 21:46:49 $
+// $Revision: 1.35 $
 //
 
 #include <vector>
@@ -219,6 +219,11 @@ void RoadSearchCloudMakerAlgorithm::run(edm::Handle<TrajectorySeedCollection> in
       // get RoadSeed from Roads
       // GlobalPoint returns phi in [-pi,pi] but rings are mapped in [0,2pi]
       const Roads::RoadSeed *roadSeed = roads->getRoadSeed(seedRingDetIds, seedRingHitsPhi, scalefactorRoadSeedWindow_);
+      
+      if ( roadSeed == 0 ) {
+	edm::LogWarning("RoadSearch") << "RoadSeed could not be resolved from TrajectorySeed hits, discard seed!";
+      } else {
+
       const Roads::type roadType = roads->getRoadType(roadSeed);
 
 //       output_ << "Inner Seed Rings: ";
@@ -399,6 +404,7 @@ void RoadSearchCloudMakerAlgorithm::run(edm::Handle<TrajectorySeedCollection> in
 	}
       }
     }
+  }
   }
 
   // Loop for initial cleaning
