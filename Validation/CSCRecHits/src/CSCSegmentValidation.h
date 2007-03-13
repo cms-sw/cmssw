@@ -15,7 +15,7 @@ public:
 
  private:
   void plotResolution(const PSimHit & simHit, const CSCSegment & recHit,
-                      const CSCLayer * layer, int chamberType);
+                      int chamberType);
 
   bool hasSegment(int chamberId) const;
   static int whatChamberType(int detId);
@@ -26,6 +26,8 @@ public:
   ChamberHitMap theLayerHitsPerChamber;
   void fillLayerHitsPerChamber();
   void fillEfficiencyPlots();
+  // decide which SimHit to use for the direction
+  const PSimHit * keyHit(int chamberId) const;
 
   typedef std::map<int, std::vector<CSCSegment> > ChamberSegmentMap;
   ChamberSegmentMap theChamberSegmentMap;
@@ -35,8 +37,11 @@ public:
   MonitorElement* theNPerEventPlot;
   MonitorElement* theNRecHitsPlot;
   MonitorElement* theNPerChamberTypePlot;
-  MonitorElement* theResolutionPlots[10];
-  MonitorElement* thePullPlots[10];
+  MonitorElement* thePhiResolutionPlots[10];
+  MonitorElement* thePhiPullPlots[10];
+  MonitorElement* theThetaResolutionPlots[10];
+  MonitorElement* theThetaPullPlots[10];
+
 
   MonitorElement* theTypePlot4HitsNoShower;
   MonitorElement* theTypePlot4HitsNoShowerSeg;

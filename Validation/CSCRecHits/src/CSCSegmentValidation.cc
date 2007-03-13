@@ -29,11 +29,16 @@ CSCSegmentValidation::CSCSegmentValidation(DaqMonitorBEInterface* dbe, const edm
 
    for(int i = 0; i < 10; ++i)
   {
-    char title1[200], title2[200];
-    sprintf(title1, "CSCSegmentResolution%d", i+1);
-    sprintf(title2, "CSCSegmentPull%d", i+1);
-    theResolutionPlots[i] = dbe_->book1D(title1, title1, 100, -1, 1);
-    thePullPlots[i] = dbe_->book1D(title2, title2, 100, -1, 1);
+    char title1[200], title2[200], title3[200], title4[200];
+    sprintf(title1, "CSCSegmentPhiResolution%d", i+1);
+    sprintf(title2, "CSCSegmentPhiPull%d", i+1);
+    sprintf(title3, "CSCSegmentThetaResolution%d", i+1);
+    sprintf(title4, "CSCSegmentThetaPull%d", i+1);
+
+    thePhiResolutionPlots[i] = dbe_->book1D(title1, title1, 100, -1, 1);
+    thePhiPullPlots[i] = dbe_->book1D(title2, title2, 100, -5, 5);
+    theThetaResolutionPlots[i] = dbe_->book1D(title3, title3, 100, -1, 1);
+    theThetaPullPlots[i] = dbe_->book1D(title4, title4, 100, -5, 5);
   }
 }
 
@@ -56,6 +61,13 @@ void CSCSegmentValidation::analyze(const edm::Event&e, const edm::EventSetup& ev
     theNRecHitsPlot->Fill(segmentItr->nRecHits());
     theNPerChamberTypePlot->Fill(chamberType);
     theChamberSegmentMap[detId].push_back(*segmentItr);
+
+    // do the resolution plots
+    const PSimHit * hit = keyHit(detId);
+    if(hit != 0) 
+    {
+      plotResolution(*hit, *segmentItr, chamberType);
+    }  
   }
 
   theNPerEventPlot->Fill(nPerEvent);
@@ -85,7 +97,6 @@ void CSCSegmentValidation::fillEfficiencyPlots()
     v.erase(std::unique(v.begin(), v.end()), v.end());
     int nLayersHit = v.size();
 
-std::cout << "SEGMENT VAL NLAYERS HIT " << nLayersHit << " chambertype " << chamberType << " HAS SEG " << hasSeg << " isshower "<< isShower << " nhitsinchamber " << nHitsInChamber << std::endl;
     if(nLayersHit == 4)
     {
 
@@ -143,15 +154,19 @@ int CSCSegmentValidation::whatChamberType(int detId)
 
 
 void CSCSegmentValidation::plotResolution(const PSimHit & simHit, const CSCSegment & segment,
-                                         const CSCLayer * layer, int chamberType)
+                                         int chamberType)
 {
-  GlobalPoint simHitPos = layer->toGlobal(simHit.localPosition());
-  GlobalPoint segmentPos = layer->toGlobal(segment.localPosition());
+  LocalVector simHitDir = simHit.localDirection();
+  LocalVector segmentDir = segment.localDirection();
 
-  double dphi = segmentPos.phi() - simHitPos.phi();
-  double rdphi = segmentPos.perp() * dphi;
-  theResolutionPlots[chamberType-1]->Fill( rdphi );
-  thePullPlots[chamberType-1]->Fill( rdphi/segment.localPositionError().xx() );
+  double dphi = segmentDir.phi() - simHitDir.phi();
+  if(dphi > M_PI/2.) dphi -= M_PI;
+  if(dphi < -M_PI/2.) dphi += M_PI;
+  double dtheta = segmentDir.theta() - simHitDir.theta();
+  thePhiResolutionPlots[chamberType-1]->Fill( dphi );
+  thePhiPullPlots[chamberType-1]->Fill( dphi/segment.localPositionError().xx() );
+  theThetaResolutionPlots[chamberType-1]->Fill( dtheta );
+  theThetaPullPlots[chamberType-1]->Fill( dtheta/segment.localPositionError().yy() );
 }
 
 
@@ -175,5 +190,27 @@ void CSCSegmentValidation::fillLayerHitsPerChamber()
 
 }
 
+namespace CSCSegmentValidationUtils {
+  bool SimHitPabsLessThan(const PSimHit & p1, const PSimHit & p2)
+  {
+    return p1.pabs() < p2.pabs();
+  }
+}
 
+
+const PSimHit * CSCSegmentValidation::keyHit(int chamberId) const
+{
+  const PSimHit * result = 0;
+  int layerId = chamberId + 3;
+  const edm::PSimHitContainer & layerHits = theSimHitMap->hits(layerId);
+
+  if(!layerHits.empty())
+  {
+    // pick the hit with maximum energy
+    edm::PSimHitContainer::const_iterator hitItr = std::max_element(layerHits.begin(), layerHits.end(),
+                                                    CSCSegmentValidationUtils::SimHitPabsLessThan);
+    result = &(*hitItr);
+  }
+  return result;
+}   
 
