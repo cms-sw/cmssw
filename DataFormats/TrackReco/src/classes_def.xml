@@ -51,4 +51,13 @@
     <field name="transientMap_" transient="true" />
   </class>
 
+  <class name="edm::helpers::KeyVal<edm::Ref<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> >,edm::Ref<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> > >" />
+ 
+  <class name="edm::helpers::KeyVal<edm::RefProd<std::vector<reco::Track> >,edm::RefProd<std::vector<reco::Track> > >" />
+
+  <class name="edm::AssociationMap<edm::OneToOne<std::vector<reco::Track>,std::vector<reco::Track>,unsigned int> >">
+    <field name="transientMap_" transient="true" />
+  </class>
+
+
   </lcgdict>

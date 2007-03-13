@@ -6,6 +6,8 @@
 #include "DataFormats/Common/interface/RefProd.h"
 #include "DataFormats/Common/interface/RefVector.h"
 #include "DataFormats/Common/interface/OneToValue.h"
+#include "DataFormats/TrackReco/interface/TrackToTrackMap.h"
+
 #include <vector>
 
 namespace {
@@ -33,5 +35,9 @@ namespace {
     edm::Wrapper<edm::AssociationMap<edm::OneToValue<std::vector<reco::Track>, float, unsigned int> > > wam2;
     edm::Wrapper<edm::AssociationMap<edm::OneToValue<std::vector<reco::Track>, int, unsigned int> > >  wam3;
     edm::Wrapper<edm::AssociationMap<edm::OneToValue<std::vector<reco::Track>, bool, unsigned int> > > wam4;
+
+    edm::helpers::KeyVal<reco::TrackRef,reco::TrackRef> kvtttmap1;
+    reco::TrackToTrackMap tttmap1;
+    edm::Wrapper<reco::TrackToTrackMap> wtttmap1;
   }
 }
