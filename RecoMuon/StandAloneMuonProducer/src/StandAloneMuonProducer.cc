@@ -6,8 +6,8 @@
  *   starting from internal seeds (L2 muon track segments).
  *
  *
- *   $Date: 2007/03/06 08:49:21 $
- *   $Revision: 1.23 $
+ *   $Date: 2007/03/07 13:20:56 $
+ *   $Revision: 1.24 $
  *
  *   \author  R.Bellan - INFN TO
  */
@@ -31,6 +31,7 @@
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackToTrackMap.h"
 
 #include <string>
 
@@ -64,6 +65,7 @@ StandAloneMuonProducer::StandAloneMuonProducer(const ParameterSet& parameterSet)
   produces<reco::TrackCollection>("UpdatedAtVtx");
   produces<TrackingRecHitCollection>();
   produces<reco::TrackExtraCollection>();
+  produces<reco::TrackToTrackMap>();
   
   produces<std::vector<Trajectory> >();
 }
