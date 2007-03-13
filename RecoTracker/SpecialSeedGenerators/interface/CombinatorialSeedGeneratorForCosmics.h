@@ -48,6 +48,7 @@ class CombinatorialSeedGeneratorForCosmics : public edm::EDProducer
 	      const edm::EventSetup& c);
  
  private:
+  bool isFirstCall;
   edm::ParameterSet conf_;
   edm::ESHandle<MagneticField> magfield;
   edm::ESHandle<TrackerGeometry> tracker;
