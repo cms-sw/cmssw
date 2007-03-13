@@ -30,6 +30,7 @@ PixelMatchGsfElectron::PixelMatchGsfElectron(const SuperClusterRef scl, const Gs
   setCharge(track_->charge());
   setP4(momentum);
   setVertex(Point(track_->vertex()));
+  setPdgId( -11 * charge() );
 
   //  math::XYZPoint trackPos= track_->vertex();
   trackPositionAtVtx_=math::XYZVector(vtxPos.x(),vtxPos.y(),vtxPos.z());
