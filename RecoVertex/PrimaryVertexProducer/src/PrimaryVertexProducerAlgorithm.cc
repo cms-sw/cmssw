@@ -7,7 +7,7 @@
 #include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h"
 #include "RecoVertex/AdaptiveVertexFit/interface/AdaptiveVertexFitter.h"
 #include "RecoVertex/VertexTools/interface/VertexDistanceXY.h"
-#include "FWCore/Utilities/interface/Exception.h"
+#include "RecoVertex/VertexPrimitives/interface/VertexException.h"
 #include <algorithm>
 
 using namespace reco;
@@ -40,18 +40,20 @@ PrimaryVertexProducerAlgorithm::PrimaryVertexProducerAlgorithm(const edm::Parame
 
   fUseBeamConstraint = conf.getParameter<bool>("useBeamConstraint");
   fVerbose           = conf.getUntrackedParameter<bool>("verbose", false);
-  std::string fitter = conf.getParameter<std::string>("fitter");
-  std::string finder = conf.getParameter<std::string>("finder");
+  std::string algorithm = conf.getParameter<std::string>("algorithm");
   fapply_finder = false;
-  if (finder == "TrimmedKalmanFinder") {
+  if (algorithm == "TrimmedKalmanFinder") {
     fapply_finder = true;
-  } else if (fitter=="KalmanVertexFitter") {
+  } else if (algorithm=="KalmanVertexFitter") {
     theFitter=new KalmanVertexFitter();
-  }else if( fitter=="AdaptiveVertexFitter") {
+  } else if( algorithm=="AdaptiveVertexFitter") {
     theFitter=new AdaptiveVertexFitter();
+  } else {
+    throw VertexException("PrimaryVertexProducerAlgorithm: unknown algorithm: " + algorithm);  
   }
+
   edm::LogInfo("RecoVertex/PrimaryVertexProducerAlgorithm") 
-    << "Using " << fitter << "\n";
+    << "Using " << algorithm << "\n";
   edm::LogInfo("RecoVertex/PrimaryVertexProducerAlgorithm") 
     << "beam-constraint  " << fUseBeamConstraint << "\n"; 
 
