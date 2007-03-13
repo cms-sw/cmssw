@@ -317,9 +317,9 @@ void CosmicTrajectoryBuilder::AddHit(Trajectory &traj,
 
 	     hits.push_back(&(*tmphitbestdet));
 	   }
-	 }else edm::LogWarning("CosmicTrackFinder")<<" State can not be updated with hit at position "
+	 }else LogDebug("CosmicTrackFinder")<<" State can not be updated with hit at position "
 						   <<gphit;
-     }else edm::LogWarning("CosmicTrackFinder")<<" State can not be propagated at det "<< iraw;
+     }else LogDebug("CosmicTrackFinder")<<" State can not be propagated at det "<< iraw;
      
      
   }
