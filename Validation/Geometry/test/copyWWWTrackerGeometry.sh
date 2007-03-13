@@ -46,3 +46,4 @@ mv Images/*.gif            $mbDir/Plots/gif/.
 mv diff_info.temp     $nsDir/ModulePositioning.diff
 mv diff_num.temp      $nsDir/ModuleNumbering.diff
 mv NumberingInfo.log  $nsDir/.
+mv num.log            $nsDir/.
