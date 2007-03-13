@@ -10,7 +10,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Muon.h,v 1.24 2007/03/13 08:49:36 llista Exp $
+ * \version $Id: Muon.h,v 1.25 2007/03/13 08:59:19 llista Exp $
  *
  */
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
@@ -28,16 +28,12 @@ namespace reco {
     TrackRef standAloneMuon() const { return standAloneMuon_; }
     /// reference to Track reconstructed in both tracked and muon detector
     TrackRef combinedMuon() const { return combinedMuon_; }
-    /// reference to associated Ecal SuperCluster
-    SuperClusterRef superCluster() const { return superCluster_; }
     /// set reference to Track
     void setTrack( const TrackRef & t ) { track_ = t; }
     /// set reference to Track
     void setStandAlone( const TrackRef & t ) { standAloneMuon_ = t; }
     /// set reference to Track
     void setCombined( const TrackRef & t ) { combinedMuon_ = t; }
-    /// set reference to associated Ecal SuperCluster
-    void setSuperCluster( const SuperClusterRef & ref ) { superCluster_ = ref; }
 
   private:
     /// check overlap with another candidate
@@ -48,9 +44,7 @@ namespace reco {
     TrackRef standAloneMuon_;
     /// reference to Track reconstructed in both tracked and muon detector
     TrackRef combinedMuon_;
-    /// reference to associated Ecal SuperCluster
-    SuperClusterRef superCluster_;
-};
+  };
 
 }
 
