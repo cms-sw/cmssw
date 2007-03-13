@@ -3,10 +3,9 @@
 
 // includes for alignment
 #include "Alignment/CommonAlignment/interface/AlignableNavigator.h"
+#include "Alignment/CommonAlignment/interface/Utilities.h"
 
 #include "Alignment/CommonAlignmentAlgorithm/interface/TrajectoryFactoryPlugin.h"
-
-#include "Alignment/CommonAlignmentParametrization/interface/AlignmentTransformations.h"
 
 #include "Alignment/TrackerAlignment/interface/TrackerAlignableId.h"
 
@@ -33,6 +32,7 @@
 #include <fstream>
 
 using namespace std;
+using namespace align;
 
 
 KalmanAlignmentAlgorithm::KalmanAlignmentAlgorithm( const edm::ParameterSet& config ) :
@@ -303,8 +303,6 @@ void KalmanAlignmentAlgorithm::initializeAlignmentParameters( const edm::EventSe
   startError[4][4] = initConfig.getUntrackedParameter< double >( "BetaStartError", 3e-5 );
   startError[5][5] = initConfig.getUntrackedParameter< double >( "GammaStartError", 3e-5 );
 
-  AlgebraicVector displacement( 3 );
-  AlgebraicVector eulerAngles( 3 );
 
   TrackerAlignableId* alignableId = new TrackerAlignableId;
 
@@ -327,25 +325,26 @@ void KalmanAlignmentAlgorithm::initializeAlignmentParameters( const edm::EventSe
     {
       alignmentParameters = alignmentParameters->clone( startParameters, startError );
 
-      displacement[0] = applyXShifts ? sigmaXShift*RandGauss::shoot() : 0.;
-      displacement[1] = applyYShifts ? sigmaZShift*RandGauss::shoot() : 0.;
-      displacement[2] = applyZShifts ? sigmaYShift*RandGauss::shoot() : 0.;
+      double shiftX = applyXShifts ? sigmaXShift*RandGauss::shoot() : 0.;
+      double shiftY = applyYShifts ? sigmaZShift*RandGauss::shoot() : 0.;
+      double shiftZ = applyZShifts ? sigmaYShift*RandGauss::shoot() : 0.;
 
       if ( applyShifts ) 
       {
-	LocalVector localShift = LocalVector( displacement[0], displacement[1], displacement[2] );
-	GlobalVector globalShift = ( *itAlignable )->surface().toGlobal( localShift );
+	align::LocalVector localShift( shiftX, shiftY, shiftZ );
+	align::GlobalVector globalShift = ( *itAlignable )->surface().toGlobal( localShift );
 	( *itAlignable )->move( globalShift );
       }
 
-      eulerAngles[0] = applyXRots ? sigmaXRot*RandGauss::shoot() : 0;
-      eulerAngles[1] = applyYRots ? sigmaYRot*RandGauss::shoot() : 0;
-      eulerAngles[2] = applyZRots ? sigmaZRot*RandGauss::shoot() : 0;
+      align::EulerAngles eulerAngles( 3 );
+
+      eulerAngles[0] = applyXRots ? sigmaXRot*RandGauss::shoot() : 0.;
+      eulerAngles[1] = applyYRots ? sigmaYRot*RandGauss::shoot() : 0.;
+      eulerAngles[2] = applyZRots ? sigmaZRot*RandGauss::shoot() : 0.;
 
       if ( applyRots )
       {
-	AlignmentTransformations TkAT;
-	Surface::RotationType localRotation = TkAT.rotationType( TkAT.rotMatrix3( eulerAngles ) );
+	align::RotationType localRotation = align::toMatrix( eulerAngles );
 	( *itAlignable )->rotateInLocalFrame( localRotation );
       }
 
