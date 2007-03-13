@@ -3,7 +3,6 @@
 <use name=CondCore/IOVService>
 <use name=CondCore/MetaDataService>
 <export>
-  <use name=boost>
   <use name=CondCore/DBCommon>
   <use name=CondCore/IOVService>
   <use name=CondCore/MetaDataService>
