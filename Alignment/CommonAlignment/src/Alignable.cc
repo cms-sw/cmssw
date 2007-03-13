@@ -1,7 +1,7 @@
 /** \file Alignable.cc
  *
- *  $Date: 2007/03/12 03:26:01 $
- *  $Revision: 1.8 $
+ *  $Date: 2007/03/12 04:04:12 $
+ *  $Revision: 1.9 $
  *  (last update by $Author: cklae $)
  */
 
@@ -25,7 +25,7 @@ Alignable::~Alignable()
 
 
 //__________________________________________________________________________________________________
-void Alignable::getTerminals( std::vector<const Alignable*>& terminals ) const
+void Alignable::deepComponents( std::vector<const Alignable*>& result ) const
 {
   const std::vector<Alignable*>& comp = components();
 
@@ -34,15 +34,15 @@ void Alignable::getTerminals( std::vector<const Alignable*>& terminals ) const
   if (nComp > 0)
     for (unsigned int i = 0; i < nComp; ++i)
     {
-      comp[i]->getTerminals(terminals);
+      comp[i]->deepComponents(result);
     }
   else
-    terminals.push_back(this);
+    result.push_back(this);
 }
 
 
 //__________________________________________________________________________________________________
-bool Alignable::firstParamComponents(std::vector<Alignable*> &daughts) const
+bool Alignable::firstCompsWithParams(std::vector<Alignable*> &daughts) const
 {
   bool isConsistent = true;
   bool hasAliDau = false; // whether there are any (grand-) daughters with parameters
@@ -56,7 +56,7 @@ bool Alignable::firstParamComponents(std::vector<Alignable*> &daughts) const
       hasAliDau = true;
     } else {
       const unsigned int nDauBefore = daughts.size();
-      if (!(*iDau)->firstParamComponents(daughts)) {
+      if (!(*iDau)->firstCompsWithParams(daughts)) {
         isConsistent = false; // problem down in hierarchy
       }
       if (daughts.size() != nDauBefore) {

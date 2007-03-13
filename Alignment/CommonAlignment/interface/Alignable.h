@@ -20,8 +20,8 @@
  * The class derives from DetPositioner, a friend class of
  * GeomDet, which allows to move the GeomDet. 
  *
- *  $Date: 2007/03/12 03:26:00 $
- *  $Revision: 1.18 $
+ *  $Date: 2007/03/12 04:04:11 $
+ *  $Revision: 1.19 $
  *  (last update by $Author: cklae $)
  */
 
@@ -61,7 +61,7 @@ public:
 
   /// Get the terminals (lowest daughters that are not composites) of
   /// Alignable. Add to existing result which is passed by reference.
-  void getTerminals( std::vector<const Alignable*>& terminals ) const;
+  void deepComponents( std::vector<const Alignable*>& result ) const;
 
   /// Provide all components, subcomponents, subsub... etc. of Alignable
   /// down to AlignableDetUnit, except for 'single childs' like e.g.
@@ -72,7 +72,7 @@ public:
   /// Steps down hierarchy until components with AlignmentParameters are found 
   /// and adds them to argument. True either if no such components are found
   /// or if all branches of components end with such components.
-  virtual bool firstParamComponents(std::vector<Alignable*> &daughts) const;
+  virtual bool firstCompsWithParams(std::vector<Alignable*> &daughts) const;
 
   /// Return pointer to container alignable (if any)
   virtual Alignable* mother() const { return theMother; }

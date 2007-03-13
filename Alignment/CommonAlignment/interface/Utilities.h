@@ -5,8 +5,8 @@
  *
  *  Namespace for common type definitions and calculations in alignment.
  *
- *  $Date: 2007/03/11 05:35:33 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/03/12 03:26:00 $
+ *  $Revision: 1.2 $
  *  \author Chung Khim Lae
  */
 
@@ -38,7 +38,7 @@ namespace align
   typedef std::vector<LocalPoint>   LocalPoints;
   typedef std::vector<LocalVector>  LocalVectors;
 
-  /// Convert rotation matrix to angles about x-, y-, z-axes.
+  /// Convert rotation matrix to angles about x-, y-, z-axes (frame rotation).
   EulerAngles toAngles(
 		       const RotationType&
 		       );
@@ -47,6 +47,11 @@ namespace align
   RotationType toMatrix(
 			const EulerAngles&
 			);
+
+  /// Find mother's position from the average of its daughters' positions.
+  PositionType motherPosition(
+			      const std::vector<const PositionType*>& dauPos
+			      ); 
 
   /// Find matrix to rotate from nominal to current vectors.
   /// Assume both sets of vectors have the same size and order.

@@ -27,13 +27,33 @@ align::EulerAngles align::toAngles(const RotationType& rot)
 
 align::RotationType align::toMatrix(const EulerAngles& angles)
 {
-  Scalar s1 = std::sin(-angles[0]), c1 = std::cos(angles[0]);
-  Scalar s2 = std::sin(-angles[1]), c2 = std::cos(angles[1]);
-  Scalar s3 = std::sin(-angles[2]), c3 = std::cos(angles[2]);
+  Scalar s1 = std::sin(angles[0]), c1 = std::cos(angles[0]);
+  Scalar s2 = std::sin(angles[1]), c2 = std::cos(angles[1]);
+  Scalar s3 = std::sin(angles[2]), c3 = std::cos(angles[2]);
 
-  return RotationType(c2 * c3, s1 * s2 * c3 - c1 * s3, c1 * s2 * c3 + s1 * s3,
-	   	      c2 * s3, s1 * s2 * s3 + c1 * c3, c1 * s2 * s3 - s1 * c3,
-		          -s2,                s1 * c2,                c1 * c2);
+  return RotationType( c2 * c3, c1 * s3 + s1 * s2 * c3, s1 * s3 - c1 * s2 * c3,
+	   	      -c2 * s3, c1 * c3 - s1 * s2 * s3, s1 * c3 + c1 * s2 * s3,
+		            s2,               -s1 * c2,                c1 * c2);
+}
+
+align::PositionType align::motherPosition(const std::vector<const PositionType*>& dauPos)
+{
+  unsigned int nDau = dauPos.size();
+
+  Scalar posX(0.), posY(0.), posZ(0.); // position of mother
+
+  for (unsigned int i = 0; i < nDau; ++i)
+  {
+    const PositionType* point = dauPos[i];
+
+    posX += point->x();
+    posY += point->y();
+    posZ += point->z();
+  }
+
+  Scalar inv = 1. / static_cast<Scalar>(nDau);
+
+  return PositionType(posX *= inv, posY *= inv, posZ *= inv);
 }
 
 align::RotationType align::diffRot(const GlobalVectors& current,
@@ -42,7 +62,7 @@ align::RotationType align::diffRot(const GlobalVectors& current,
 // Find the matrix needed to rotate the nominal surface to the current one
 // using small angle approximation through the equation:
 //
-//   I * dOmega = r * dr (sum over points)
+//   I * dOmega = dr * r (sum over points)
 //
 // where dOmega is a vector of small rotation angles about (x, y, z)-axes,
 //   and I is the inertia tensor defined as
@@ -96,21 +116,21 @@ align::RotationType align::diffRot(const GlobalVectors& current,
 
   while (true)
   {
-    AlgebraicVector rhs(3); // sum of r * dr
+    AlgebraicVector rhs(3); // sum of dr * r
 
     for (unsigned int j = 0; j < nPoints; ++j)
     {
       const GlobalVector& r = nominal[j];
       const GlobalVector& c = rotated[j];
 
-    // Cross product of r * dr (sum over points)
+    // Cross product of dr * r = c * r (sum over points)
 
-      rhs(1) += r.y() * c.z() - r.z() * c.y();
-      rhs(2) += r.z() * c.x() - r.x() * c.z();
-      rhs(3) += r.x() * c.y() - r.y() * c.x();
+      rhs(1) += c.y() * r.z() - c.z() * r.y();
+      rhs(2) += c.z() * r.x() - c.x() * r.z();
+      rhs(3) += c.x() * r.y() - c.y() * r.x();
     }
 
-    EulerAngles dOmega = -CLHEP::solve(I, rhs);
+    EulerAngles dOmega = CLHEP::solve(I, rhs);
 
     if (dOmega.normsq() < tolerance) break; // converges, so exit loop
 
