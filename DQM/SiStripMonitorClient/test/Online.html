@@ -5,12 +5,15 @@
 <title>SiStrip DQM Viewer</title>
 <meta http-equiv="content-type" content="text/html; charset=utf-8" />
 <meta name="keywords" content="css, stylesheets, form" />
-<link rel="stylesheet" type="text/css" href="style.css">
-<link rel="stylesheet" type="text/css" href="css_files/tab-view.css">
-<link rel="stylesheet" type="text/css" href="css_files/context-menu.css">
-<link rel="stylesheet" type="text/css" href="css_files/folder-tree-static.css">
+<link rel="stylesheet" type="text/css" href="style.css"/>
+<link rel="stylesheet" type="text/css" href="css_files/tab-view.css"/>
+<link rel="stylesheet" type="text/css" href="css_files/context-menu.css"/>
+<link rel="stylesheet" type="text/css" href="css_files/folder-tree-static.css"/>
+<link rel="stylesheet" type="text/css" href="css_files/tooltip.css"/>
 <script type="text/javascript" src="WebLib.js"></script> 
 <body>
+<div id="dhtmltooltip"></div>
+<script type="text/javascript" src="js_files/tooltip.js"></script>
 <form name="Form1" action="javascript:void%200">
   <div class="bloc" id="bloc1" style="width:56%;height=100%;float:left;">
     <fieldset style="background:#77FF87;">
@@ -35,7 +38,9 @@
   </div>
   <div class="bloc"  id="bloc2" style="width:44%; float:right;">
     <fieldset style="background:#DDEFFF;">
-        <div class="bloc"  id="bloc2_1" style="background:#C093FF;">
+        <div class="bloc"  id="bloc2_1" style="background:#C093FF;"
+          onmouseover="ddrivetip('Different actions for the Client ', '#EAFFF9', 200);"
+	  onmouseout="hideddrivetip();">
 	  <fieldset>
 	     <legend>Client Controls</legend>
 	       <input name="subscribe" 
@@ -90,13 +95,17 @@
 	          <input type="radio" 
 	                 class="radio" 
                          style="margin-right:2%"
-                         id="track_histos" 
+                         onmouseover="ddrivetip('Global Histograms', '#EAFFF9', 120);"
+		         onmouseout="hideddrivetip();"
+                         id="global_histos" 
                          name="HistoTypeSelection">
-                         Tracks
+                         Global
                   </input>
 	          <input type="radio" 
 	                 class="radio" 
                          style="margin-right:2%"
+                         onmouseover="ddrivetip('Module Histograms', '#EAFFF9', 120);"
+		         onmouseout="hideddrivetip();"
                          id="module_histos" 
                          name="HistoTypeSelection"
                          checked>
@@ -105,11 +114,15 @@
                   <select name="mod_num" 
                         id="module_numbers"
                         style="width:30%;"
+                        onmouseover="ddrivetip('Module Numbers present in the setup', '#EAFFF9', 120);"
+                        onmouseout="hideddrivetip();"
                   </select>
                   <input name="listhisto" 
                         id="list_histos"
                         value="Get Histo List" 
                         style="margin-left:2%;margin-top:2%"
+                        onmouseover="ddrivetip('Get list of histograms for selected choice','#EAFFF9',200);"
+                        onmouseout="hideddrivetip();"
                         onClick="RequestHistoList()" 
                         type="submit">
                     </input>
@@ -124,7 +137,9 @@
                  </select>
                 </fieldset>
               </div>
-              <div class="bloc" id="bloc2_2_3">
+              <div class="bloc" id="bloc2_2_3"
+                onmouseover="ddrivetip('Different drawing options for histograms','#EAFFF9',120);"
+                onmouseout="hideddrivetip();">
                 <fieldset style="background:#FFAD5A;">
 	         <legend >Drawing Options</legend>
 	          <input type="checkbox" 
@@ -206,7 +221,9 @@
           </div>
           <div class="dhtmlgoodies_aTab">
 	    <div class="bloc" id="bloc2_3"> 
-      	      <div class="bloc" id="bloc2_3_1">
+      	      <div class="bloc" id="bloc2_3_1"
+                onmouseover="ddrivetip('Select a sub-detector type and get the tree with summary histograms','#EAFFF9',120);"
+                onmouseout="hideddrivetip();">
 	        <fieldset>
                   <label id="structures"
                      style="margin-left:10%">
@@ -238,7 +255,9 @@
           </div>
           <div class="dhtmlgoodies_aTab">
 	    <div class="bloc" id="bloc2_4"> 
-      	      <div class="bloc" id="bloc2_4_1">
+      	      <div class="bloc" id="bloc2_4_1"
+                onmouseover="ddrivetip('Select a sub-detector type and get the tree with alarm','#EAFFF9',120);"
+                onmouseout="hideddrivetip();">
 	        <fieldset>
                   <label id="alarm_structures"
                      style="margin-left:10%">

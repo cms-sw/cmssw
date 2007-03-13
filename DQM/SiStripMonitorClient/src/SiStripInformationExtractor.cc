@@ -147,7 +147,7 @@ void SiStripInformationExtractor::printAlarmList(MonitorUserInterface * mui, ost
 //
 // --  Fill Histo and Module List
 // 
-void SiStripInformationExtractor::fillTrackHistoList(MonitorUserInterface * mui, vector<string>& histos) {
+void SiStripInformationExtractor::fillGlobalHistoList(MonitorUserInterface * mui, vector<string>& histos) {
   string currDir = mui->pwd();
   if (currDir.find("GlobalParameters") != string::npos)  {
     vector<string> contents = mui->getMEs();    
@@ -161,7 +161,7 @@ void SiStripInformationExtractor::fillTrackHistoList(MonitorUserInterface * mui,
     for (vector<string>::const_iterator it = subdirs.begin();
 	 it != subdirs.end(); it++) {
       mui->cd(*it);
-      fillTrackHistoList(mui,histos);
+      fillGlobalHistoList(mui,histos);
       mui->goUp();
     }
   }
@@ -201,7 +201,7 @@ void SiStripInformationExtractor::selectSingleModuleHistos(MonitorUserInterface 
 //
 // --  Get Selected Monitor Elements
 // 
-void SiStripInformationExtractor::selectTrackHistos(MonitorUserInterface * mui, vector<string>& names, vector<MonitorElement*>& mes) {
+void SiStripInformationExtractor::selectGlobalHistos(MonitorUserInterface * mui, vector<string>& names, vector<MonitorElement*>& mes) {
   string currDir = mui->pwd();
   if (currDir.find("GlobalParameters") != string::npos)  {
     vector<string> contents = mui->getMEs();    
@@ -222,7 +222,7 @@ void SiStripInformationExtractor::selectTrackHistos(MonitorUserInterface * mui, 
     for (vector<string>::const_iterator it = subdirs.begin();
 	 it != subdirs.end(); it++) {
       mui->cd(*it);
-      selectTrackHistos(mui,names, mes);
+      selectGlobalHistos(mui,names, mes);
       mui->goUp();
     }
   }
@@ -244,12 +244,12 @@ void SiStripInformationExtractor::plotSingleModuleHistos(MonitorUserInterface* m
   selectSingleModuleHistos(mui, mod_id, item_list, me_list);
   mui->cd();
 
-  plotHistos(req_map,me_list);
+  plotHistos(req_map,me_list,false);
 }
 //
 // --  Plot Selected Monitor Elements
 // 
-void SiStripInformationExtractor::plotTrackHistos(MonitorUserInterface* mui, multimap<string, string>& req_map) {
+void SiStripInformationExtractor::plotGlobalHistos(MonitorUserInterface* mui, multimap<string, string>& req_map) {
  
   vector<string> item_list;  
 
@@ -258,10 +258,10 @@ void SiStripInformationExtractor::plotTrackHistos(MonitorUserInterface* mui, mul
   vector<MonitorElement*> me_list;
 
   mui->cd();
-  selectTrackHistos(mui, item_list, me_list);
+  selectGlobalHistos(mui, item_list, me_list);
   mui->cd();
 
-  plotHistos(req_map,me_list);
+  plotHistos(req_map,me_list,false);
 }
 //
 // -- plot a Histogram
@@ -273,66 +273,21 @@ void SiStripInformationExtractor::plotSingleHistogram(MonitorUserInterface * mui
   string path_name = getItemValue(req_map,"Path");
   if (path_name.size() == 0) return;
   
+  string htype  = getItemValue(req_map,"histotype");
+  if (htype.size() == 0) htype="individual";
   MonitorElement* me = mui->get(path_name);
   vector<MonitorElement*> me_list;
   if (me) {
-    TProfile* prof = ExtractTObject<TProfile>().extract(me);
-    TH1F* hist1 = ExtractTObject<TH1F>().extract(me);
-    TH2F* hist2 = ExtractTObject<TH2F>().extract(me);
-  
-    TCanvas canvas("TestCanvas", "Test Canvas");
-    canvas.Clear();
-    canvas.Divide(1,2);
-    if (prof|| hist1 || hist2) {
-      if (hist2) {
-        canvas.cd(1);
-        hist2->Draw();
-	TH1F thproj(hist2->GetName(),hist2->GetTitle(),hist2->GetNbinsY(), 
-		    hist2->GetYaxis()->GetXmin(),hist2->GetYaxis()->GetXmax());
-	for (int j = 1; j < hist2->GetNbinsY()+1; j++) {
-	  for (int i = 1; i < hist2->GetNbinsX()+1; i++) {
-	    thproj.SetBinContent(j, hist2->GetBinContent(i,j));
-	  }
-	}
-        canvas.cd(2);
-	gPad->SetLogy(1);
-	thproj.DrawCopy();
-      } else if (prof) {
-        canvas.cd(1);
-        prof->Draw(); 
-	TH1F thproj(prof->GetName(),prof->GetTitle(),prof->GetNbinsX(), 
-		    0.0,prof->GetMaximum()*1.2);
-	for (int i = 1; i < prof->GetNbinsX()+1; i++) {
-	  thproj.Fill(prof->GetBinContent(i));
-	}
-        canvas.cd(2);
-	gPad->SetLogy(1);
-	thproj.DrawCopy();
-
-      } else { 
-        canvas.cd(1);
-        hist1->Draw();
-	TH1F thproj(hist1->GetName(),hist1->GetTitle(),100, 
-		    0.0,hist1->GetMaximum()*1.2);
-	for (int i = 1; i < hist1->GetNbinsX()+1; i++) {
-	  thproj.Fill(hist1->GetBinContent(i));
-	}
-        canvas.cd(2);        
-	gPad->SetLogy(1);
-	thproj.DrawCopy();
-      }
-    }
-    canvas.Update();
-    fillImageBuffer(canvas);
-    canvas.Clear();
-  }
+    me_list.push_back(me);
+    if (htype == "summary") plotHistos(req_map, me_list, true);
+    else plotHistos(req_map, me_list, false);
+  } 
 }
 //
 //  plot Histograms in a Canvas
 //
 void SiStripInformationExtractor::plotHistos(multimap<string,string>& req_map, 
- 
-  			   vector<MonitorElement*> me_list){
+  			   vector<MonitorElement*> me_list, bool sflag){
   int nhist = me_list.size();
   if (nhist == 0) return;
   int width = 600;
@@ -348,7 +303,8 @@ void SiStripInformationExtractor::plotHistos(multimap<string,string>& req_map,
     if (hasItem(req_map,"xmin")) xlow = atof(getItemValue(req_map,"xmin").c_str());
     if (hasItem(req_map,"xmax")) xhigh = atof(getItemValue(req_map,"xmax").c_str()); 
     ncol = 1;
-    nrow = 1;
+    if (sflag) nrow = 2;
+    else nrow = 1;
   } else {
     ncol = atoi(getItemValue(req_map, "cols").c_str());
     nrow = atoi(getItemValue(req_map, "rows").c_str());
@@ -387,10 +343,10 @@ void SiStripInformationExtractor::plotHistos(multimap<string,string>& req_map,
   canvas.SetWindowSize(width,height);
   canvas.Divide(ncol, nrow);
   gStyle->SetOptTitle(0);
-  int i=0;
+  int idir=0;
   for (vector<MonitorElement*>::const_iterator it = me_list.begin();
        it != me_list.end(); it++) {
-    i++;
+    idir++;
     int istat =  SiStripUtility::getStatus((*it));
     string tag;
     int icol;
@@ -401,7 +357,7 @@ void SiStripInformationExtractor::plotHistos(multimap<string,string>& req_map,
     TH2F* hist2 = ExtractTObject<TH2F>().extract((*it));
   
     if (prof|| hist1 || hist2) {
-      canvas.cd(i);
+      canvas.cd(idir);
       TText tTitle;
       tTitle.SetTextSize(0.08);
       if (hist2) {
@@ -427,7 +383,7 @@ void SiStripInformationExtractor::plotHistos(multimap<string,string>& req_map,
           xa->SetRangeUser(xlow, xhigh);
         }
         if (dopt.find("projection") != string::npos) {
-          TH1F thproj(prof->GetName(),prof->GetTitle(),prof->GetNbinsX(), 
+          TH1F thproj(prof->GetName(),prof->GetTitle(),100, 
 		      0.0,prof->GetMaximum()*1.2);
           for (int i = 1; i < prof->GetNbinsX()+1; i++) {
 	    thproj.Fill(prof->GetBinContent(i));
@@ -440,17 +396,22 @@ void SiStripInformationExtractor::plotHistos(multimap<string,string>& req_map,
           TAxis* xa = hist1->GetXaxis();
           xa->SetRangeUser(xlow, xhigh);
         }
-        if (dopt.find("projection") != string::npos) {
-          TH1F thproj(hist1->GetName(),hist1->GetTitle(),hist1->GetNbinsX(), 
+        if (dopt.find("projection") != string::npos || sflag) {
+          TH1F thproj(hist1->GetName(),hist1->GetTitle(),100, 
 		      0.0,hist1->GetMaximum()*1.2);
           for (int i = 1; i < hist1->GetNbinsX()+1; i++) {
 	    thproj.Fill(hist1->GetBinContent(i));
 	  }
-          thproj.DrawCopy();
+	  if (sflag) {
+	    hist1->Draw();
+	    canvas.cd(idir+1); 	
+            gPad->SetLogy(1);
+            thproj.DrawCopy();
+	  }
+          else thproj.DrawCopy();
         } else hist1->Draw();
         tTitle.DrawTextNDC(0.1, 0.91, hist1->GetTitle());
       }
-
       if (icol != 1) {
 	TText tt;
 	tt.SetTextSize(0.12);
@@ -458,7 +419,7 @@ void SiStripInformationExtractor::plotHistos(multimap<string,string>& req_map,
 	tt.DrawTextNDC(0.5, 0.5, tag.c_str());
       }
       if (hasItem(req_map,"logy")) {
-	  gPad->SetLogy(1);
+	gPad->SetLogy(1);
       }
     }
   }
@@ -497,20 +458,20 @@ void SiStripInformationExtractor::readModuleAndHistoList(MonitorUserInterface* m
 //
 // read the Module And HistoList
 //
-void SiStripInformationExtractor::readTrackHistoList(MonitorUserInterface* mui, xgi::Output * out, bool coll_flag) {
+void SiStripInformationExtractor::readGlobalHistoList(MonitorUserInterface* mui, xgi::Output * out, bool coll_flag) {
    if (coll_flag)  mui->cd("Collector/Collated");
    std::vector<std::string> hnames;
 
-   fillTrackHistoList(mui, hnames);
+   fillGlobalHistoList(mui, hnames);
    
    out->getHTTPResponseHeader().addHeader("Content-Type", "text/xml");
    *out << "<?xml version=\"1.0\" ?>" << std::endl;
-   *out << "<TrackHistoList>" << endl;
+   *out << "<GlobalHistoList>" << endl;
    for (vector<string>::const_iterator it = hnames.begin();
 	it != hnames.end(); it++) {
-     *out << "<THisto>" << *it << "</THisto>" << endl;      
+     *out << "<GHisto>" << *it << "</GHisto>" << endl;      
    }
-   *out << "</TrackHistoList>" << endl;
+   *out << "</GlobalHistoList>" << endl;
    if (coll_flag)  mui->cd();
 }
 //
@@ -664,10 +625,13 @@ void SiStripInformationExtractor::selectImage(string& name, dqm::qtests::QR_map&
 //
 void SiStripInformationExtractor::readStatusMessage(MonitorUserInterface* mui, string& path,xgi::Output * out) {
   MonitorElement* me = mui->get(path);
+  string hpath;
   ostringstream test_status;
   if (!me) {
     test_status << " ME Does not exist ! ";
+    hpath = "NOME";
   } else {
+    hpath = path.substr(0, path.find("."));
     dqm::qtests::QR_map test_map = me->getQReports();
     for (dqm::qtests::QR_map::const_iterator it = test_map.begin(); it != test_map.end();
 	 it++) {
@@ -678,14 +642,22 @@ void SiStripInformationExtractor::readStatusMessage(MonitorUserInterface* mui, s
       else if (status == dqm::qstatus::STATUS_OK) test_status << " Ok  ";
       else if (status == dqm::qstatus::OTHER) test_status << " Other(" << status << ") ";
       string mess_str = it->second->getMessage();
-      test_status << "<br/>";
+      test_status <<  "&lt;br/&gt;";
       mess_str = mess_str.substr(mess_str.find(" Test")+5);
       test_status <<  " QTest Name  : " << mess_str.substr(0, mess_str.find(")")+1) << endl;
-      test_status << "<br/>";
+      test_status << "&lt;br/&gt;";
       test_status <<  " QTest Detail  : " << mess_str.substr(mess_str.find(")")+2) << endl;      
     }      
   }
-  out->getHTTPResponseHeader().addHeader("Content-Type", "text/plain");
-  *out << test_status.str();
+   out->getHTTPResponseHeader().addHeader("Content-Type", "text/xml");
+   *out << "<?xml version=\"1.0\" ?>" << std::endl;
+   *out << "<StatusAndPath>" << endl;
+   *out << "<StatusList>" << endl;
+   *out << "<Status>" << test_status.str() << "</Status>" << endl;      
+   *out << "</StatusList>" << endl;
+   *out << "<PathList>" << endl;
+   *out << "<HPath>" << hpath << "</HPath>" << endl;   
+   *out << "</PathList>" << endl;
+   *out << "</StatusAndPath>" << endl;
 }
 

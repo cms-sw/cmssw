@@ -6,10 +6,10 @@ function RequestHistoList() {
     queryString = "RequestID=SingleModuleHistoList";
     url += queryString; 
     makeRequest(url, FillModuleHistoList);     
-  } else if (document.getElementById("track_histos").checked) {
-    queryString = "RequestID=TrackHistoList";    
+  } else if (document.getElementById("global_histos").checked) {
+    queryString = "RequestID=GlobalHistoList";    
     url += queryString;
-    makeRequest(url, FillTrackHistoList);     
+    makeRequest(url, FillGlobalHistoList);     
   }
 }
 function RequestSummaryHistoList() {
@@ -83,7 +83,7 @@ function FillModuleHistoList() {
     }
   }
 }
-function FillTrackHistoList() {
+function FillGlobalHistoList() {
   if (http_request.readyState == 4) {
     if (http_request.status == 200) {
       try {
@@ -96,7 +96,7 @@ function FillTrackHistoList() {
         var bobj = document.getElementById("histolistarea");
         bobj.options.length = 0;
 
-        var hrows = root.getElementsByTagName('THisto');
+        var hrows = root.getElementsByTagName('GHisto');
 //        alert(" rows = " + hrows.length);
         for (var j = 0; j < hrows.length; j++) {
           var name  = hrows[j].childNodes[0].nodeValue;

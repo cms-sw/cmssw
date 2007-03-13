@@ -103,10 +103,10 @@ void SiStripWebInterface::handleCustomRequest(xgi::Input* in,xgi::Output* out)
     infoExtractor_->readModuleAndHistoList((*mui_p), out,
                           actionExecutor_->getCollationFlag() );    
   } 
-  else if (requestID == "TrackHistoList") {
+  else if (requestID == "GlobalHistoList") {
     theActionFlag = NoAction;
     
-    infoExtractor_->readTrackHistoList((*mui_p), out,
+    infoExtractor_->readGlobalHistoList((*mui_p), out,
                           actionExecutor_->getCollationFlag() );    
   } 
   else if (requestID == "SummaryHistoList") {
@@ -129,8 +129,8 @@ void SiStripWebInterface::handleCustomRequest(xgi::Input* in,xgi::Output* out)
   else if (requestID == "PlotAsModule") {
     theActionFlag = PlotSingleModuleHistos;    
   }
-  else if (requestID == "PlotTrackHisto") {
-    theActionFlag = PlotTrackHistos;    
+  else if (requestID == "PlotGlobalHisto") {
+    theActionFlag = PlotGlobalHistos;    
   }
   else if (requestID == "PlotSingleHistogram") {
    theActionFlag = PlotSingleHistogram;
@@ -218,9 +218,9 @@ void SiStripWebInterface::performAction() {
       infoExtractor_->plotSingleModuleHistos((*mui_p), requestMap_);
       break;
     }
-  case SiStripWebInterface::PlotTrackHistos :
+  case SiStripWebInterface::PlotGlobalHistos :
     {
-      infoExtractor_->plotTrackHistos((*mui_p), requestMap_);
+      infoExtractor_->plotGlobalHistos((*mui_p), requestMap_);
       break;
     }
   case SiStripWebInterface::PlotTkMapHistogram :
