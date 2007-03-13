@@ -102,7 +102,7 @@ void SiStripRawToClustersModule::beginJob( const edm::EventSetup& setup) {
   detCabling_ = new SiStripDetCabling(*fedCabling_.product());
   
   //Prepare Fed9UEvent cache
-  fedEvents_.assign(1024,0);
+  fedEvents_.assign(1024,static_cast<Fed9U::Fed9UEvent*>(0));
 }
 
 // -----------------------------------------------------------------------------
