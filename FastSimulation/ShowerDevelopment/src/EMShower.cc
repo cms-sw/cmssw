@@ -47,7 +47,7 @@ EMShower::EMShower(const RandomEngine* engine,
   nPart = thePart->size();
   totalEnergy = 0.;
   globalMaximum = 0.;
-
+  double meanDepth=0.;
   // Initialize the shower parameters for each particle
   for ( unsigned int i=0; i<nPart; ++i ) {
     //    std::cout << (*thePart)[i] << std::endl;
@@ -96,6 +96,7 @@ EMShower::EMShower(const RandomEngine* engine,
     b.push_back((a[i]-1.)/T[i]);
     maximumOfShower.push_back((a[i]-1.)/b[i]);
     globalMaximum += maximumOfShower[i]*E[i];
+    meanDepth += a[i]/b[i]*E[i];
     //    std::cout << " Adding max " << maximumOfShower[i] << " " << E[i] << " " <<maximumOfShower[i]*E[i] << std::endl; 
     //    std::cout << std::setw(8) << std::setprecision(5) << " a /b " << a[i] << " " << b[i] << std::endl;
     Ti.push_back(
@@ -108,14 +109,15 @@ EMShower::EMShower(const RandomEngine* engine,
     //    myHistos->fill("h7000",a[i]);
     //    myHistos->fill("h7002",E[i],a[i]);
   }
-  //  cout << " PS1 : " << myGrid->ps1TotalX0()
-  //       << " PS2 : " << myGrid->ps2TotalX0()
-  //       << " ECAL : " << myGrid->ecalTotalX0()
-  //       << " HCAL : " << myGrid->hcalTotalX0() 
-  //       << " Offset : " << myGrid->x0DepthOffset()
-  //       << endl;
+//  std::cout << " PS1 : " << myGrid->ps1TotalX0()
+//         << " PS2 : " << myGrid->ps2TotalX0()
+//         << " ECAL : " << myGrid->ecalTotalX0()
+//         << " HCAL : " << myGrid->hcalTotalX0() 
+//         << " Offset : " << myGrid->x0DepthOffset()
+//         << std::endl;
 
  globalMaximum/=totalEnergy;
+ meanDepth/=totalEnergy;
  // std::cout << " Total Energy " << totalEnergy << " Global max " << globalMaximum << std::endl;
 }
 
@@ -157,6 +159,7 @@ EMShower::compute() {
   radlen += theGrid->ecalTotalX0();
   if ( radlen > 0. ) {
     stps=(int)((radlen+2.5)/5.);
+    //    stps=(int)((radlen+.5)/1.);
     if ( stps == 0 ) stps = 1;
     dt = radlen/(double)stps;
     Step step(2,dt);
@@ -221,9 +224,21 @@ EMShower::compute() {
    // middle of the step
     double tt = t-0.5*dt; 
 
+    // Computes the average depth
+    std::vector<double> Edepo;
+    double ESliceTot=0.;
+    double MeanDepth=0.;
+    for ( unsigned int i=0; i<nPart; ++i ) {
+      Edepo.push_back(deposit(t,a[i],b[i],dt));
+      ESliceTot += Edepo[i];
+      //  Computes the barycenter of the energy deposit in the slice. It should be /Edepo[i] but it is also *Edepo[i]
+      MeanDepth += deposit(t,a[i]+1.,b[i],dt)/b[i]*a[i];
+      //      if (ecal)std::cout << " CHECK " << t-dt << " " << deposit(t,a[i]+1.,b[i],dt)/b[i]*a[i]/Edepo[i] << " " << t << " " << Edepo[i] << " " << a[i] << " " << b[i] << " " << theGrid->x0DepthOffset() << std::endl;
+    }
+    MeanDepth/=ESliceTot;
 //    std::cout << " Step " << tt << std::endl;
 //    std::cout << "ecal " << ecal << " hcal "  << hcal <<std::endl;
-    if (ecal) status=theGrid->getPads(tt);
+    if (ecal) status=theGrid->getPads(MeanDepth);
     if (hcal) 
       {
 	status=theHcalHitMaker->setDepth(tt);
@@ -240,8 +255,10 @@ EMShower::compute() {
     // The particles of the shower are processed in parallel
     for ( unsigned int i=0; i<nPart; ++i ) {
 
+      //      double Edepo=deposit(t,a[i],b[i],dt);
+
      //  integration of the shower profile between t-dt and t
-      double dE = (!hcal)? deposit(t,a[i],b[i],dt):1.-deposit(a[i],b[i],t-dt);
+      double dE = (!hcal)? Edepo[i]:1.-deposit(a[i],b[i],t-dt);
 
       if(detailedShowerTail)
 	{
