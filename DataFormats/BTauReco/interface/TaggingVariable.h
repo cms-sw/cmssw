@@ -24,6 +24,7 @@ namespace reco {
       trackMomemtum,                            // track momentum
       trackEta,                                 // track pseudorapidity
       trackPhi,                                 // track polar angle
+      trackip2d,                                // track 2D impact parameter significance
       trackSip2d,                               // track 2D signed impact parameter significance
       trackSip3d,                               // track 3D signed impact parameter significance
       trackPtRel,                               // track transverse momentum, relative to the jet axis
