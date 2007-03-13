@@ -2,11 +2,13 @@
 <lib name=DQMServicesClientConfig>
 <use name=root>
 <use name=boost>
-<use name=DQMServices/NodeROOT>
+<use name=DQMServices/QualityTests>
+<use name=DQMServices/UI>
 <use name=xerces-c>
 </export>
 <use name=root>
 <use name=boost>
-<use name=DQMServices/NodeROOT>
+<use name=DQMServices/QualityTests>
+<use name=DQMServices/UI>
 <use name=xerces-c>
 
