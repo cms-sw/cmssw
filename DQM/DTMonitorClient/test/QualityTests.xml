@@ -9,8 +9,34 @@
 </QTEST>
 
 
+<QTEST name="MeanContentsYRange">
+	<TYPE>ContentsYRange</TYPE>	
+	<PARAM name="ymin">-0.015</PARAM>
+	<PARAM name="ymax">0.015</PARAM>
+	<PARAM name="error">0.80</PARAM>
+	<PARAM name="warning">0.70</PARAM>
+</QTEST>
+
+
+<QTEST name="SigmaContentsYRange">
+	<TYPE>ContentsYRange</TYPE>	
+	<PARAM name="ymin">0</PARAM>
+	<PARAM name="ymax">0.09</PARAM>
+	<PARAM name="error">0.80</PARAM>
+	<PARAM name="warning">0.70</PARAM>
+</QTEST>
+
+
 <LINK name="*tTrigTest*">
 	<TestName activate="true">ContentsYRange</TestName>
+</LINK>
+
+<LINK name="*MeanTest*">
+	<TestName activate="true">MeanContentsYRange</TestName>
+</LINK>
+
+<LINK name="*SigmaTest*">
+	<TestName activate="true">SigmaContentsYRange</TestName>
 </LINK>
 
 
