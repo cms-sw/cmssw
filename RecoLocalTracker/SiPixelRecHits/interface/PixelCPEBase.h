@@ -186,10 +186,23 @@ class PixelCPEBase : public PixelClusterParameterEstimator {
   //--- Charge on the first, last  and  inner pixels on x and y 
   std::vector<float> 
     xCharge(const std::vector<SiPixelCluster::Pixel>&, 
-	    const float&, const float&) const; 
+	    const int&, const int&) const; 
   std::vector<float> 
     yCharge(const std::vector<SiPixelCluster::Pixel>&, 
-	    const float&, const float&) const; 
+	    const int&, const int&) const; 
+
+  // Temporary fix for older classes
+  std::vector<float> 
+    xCharge(const std::vector<SiPixelCluster::Pixel>& pixelsVec, 
+	    const float& xmin, const float& xmax) const {
+    return xCharge(pixelsVec, int(xmin), int(xmax)); 
+  }
+  std::vector<float> 
+    yCharge(const std::vector<SiPixelCluster::Pixel>& pixelsVec, 
+	    const float& xmin, const float& xmax) const {
+    return yCharge(pixelsVec, int(xmin), int(xmax)); 
+  }
+
 
 
   //---------------------------------------------------------------------------

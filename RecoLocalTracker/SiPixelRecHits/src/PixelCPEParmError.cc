@@ -114,8 +114,8 @@ PixelCPEParmError::xpos(const SiPixelCluster& cluster) const {
   //calculate center
   int imin = cluster.minPixelRow();
   int imax = cluster.maxPixelRow();
-  float min = float(imin) + 0.5; // center of the edge
-  float max = float(imax) + 0.5; // center of the edge
+  //float min = float(imin) + 0.5; // center of the edge
+  //float max = float(imax) + 0.5; // center of the edge
   float minEdge = theTopol->localX(float(imin+1)); // left inner edge
   float maxEdge = theTopol->localX(float(imax));   // right inner edge
   float center = (minEdge + maxEdge)/2.; // center of inner part
@@ -123,17 +123,22 @@ PixelCPEParmError::xpos(const SiPixelCluster& cluster) const {
   
   // get the charge in the edge pixels
   const vector<SiPixelCluster::Pixel>& pixelsVec = cluster.pixels();
-  vector<float> chargeVec = xCharge(pixelsVec, min, max);
+  vector<float> chargeVec = xCharge(pixelsVec, imin, imax);
   float q1 = chargeVec[0];
   float q2 = chargeVec[1];
   
   // Estimate the charge width from track angle
   float width = chargeWidthX() * thePitchX; // chargewidth still in pitch units
   
-  // Check the valid chargewidth (WHY IS THERE THE FABS??)
+  // Check the valid chargewidth 
   float effWidth = fabs(width) - wInner;
+
+  // Check the residual width
+  if( (effWidth>(2*thePitchX)) || (effWidth<0.) ) { // for illiegal wifth
+    effWidth=thePitchX; // make it equal to pitch
+  }
   
-  // For X (no angles) use the MSI formula.
+  // For X (with track angles) use the MSI formula.
   // position msI
   float pos = center + (q2-q1)/(2.*(q1+q2)) * effWidth;
   
@@ -184,24 +189,25 @@ PixelCPEParmError::ypos(const SiPixelCluster& cluster) const
     
   // Estimate the charge width using the track angle
   float width = (chargeWidthY()) * thePitchY;
-  // Check the valid chargewidth (WHY IS THERE THE FABS??)
-  //if(width<0.) cout<<" width Y < 0"<<width<<endl;
   float effWidth = fabs(width) - wInner;
-  
+
+  // Check the validty of the width
+  if(effWidth>2*thePitchY) { //  width too large
+    float edgeLength = 2*thePitchY; // take care of big pixels
+    if(RectangularPixelTopology::isItBigPixelInY(imin) )
+      edgeLength += thePitchY;
+    if(RectangularPixelTopology::isItBigPixelInY(imax) )
+      edgeLength += thePitchY;
+
+    if(effWidth>edgeLength) effWidth=edgeLength/2.;
+
+  } else if(effWidth<0.) { // width too small
+    effWidth=thePitchY; //
+  }
+
   // For y with track angles use msI method
-  //float pos = center + (q2*arm2-q1*arm1)/(q1+q2); // position dk
-  // position msI
   float pos = center + (q2-q1)/(2.*(q1+q2)) * effWidth;
   
-  // position msII
-  //float pitch1 = thePitchY;
-  //float pitch2 = thePitchY;
-  //if(RectangularPixelTopology::isItBigPixelInY(imin) )
-  //  pitch1= 2.*thePitchY;
-  //if(RectangularPixelTopology::isItBigPixelInY(imax) )
-  //  pitch2= 2.*thePitchY;    
-  //float pos = center + (q2-q1)/(2.*(q1+q2)) * (pitch1+pitch2)/2.;
-
   // eta function for shallow tracks
   float charatio = q1/(q1+q2);
   float etashift = theEtaFunc.yEtaShift(size, thePitchY, 
@@ -210,7 +216,6 @@ PixelCPEParmError::ypos(const SiPixelCluster& cluster) const
 
   return pos;
 }
-
 
 
 //-----------------------------------------------------------------------------

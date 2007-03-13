@@ -190,18 +190,23 @@ PixelCPEInitial::xpos(const SiPixelCluster& cluster) const {
    
   // get the charge in the edge pixels
   const vector<SiPixelCluster::Pixel>& pixelsVec = cluster.pixels();
-  vector<float> chargeVec = xCharge(pixelsVec, min, max);
+  vector<float> chargeVec = xCharge(pixelsVec, imin, imax);
   float q1 = chargeVec[0];
   float q2 = chargeVec[1];
    
   // Estimate the charge width. main contribution + 2nd order geom corr.
   float tmp = (max+min)/2.;
   float width = (chargeWidthX() + geomCorrectionX(tmp)) * thePitchX;
-   
+  
   // Check the valid chargewidth (WHY IS THERE THE FABS??)
   float effWidth = fabs(width) - wInner;
    
-  // For X (no angles) use the MSI formula.
+  // Check the residual width
+  if( (effWidth>(2*thePitchX)) || (effWidth<0.) ) { // for illiegal wifth
+    effWidth=thePitchX; // make it equal to pitch
+  } 
+
+    // For X (no angles) use the MSI formula.
   // position msI
   float pos = center + (q2-q1)/(2.*(q1+q2)) * effWidth;
  
@@ -226,8 +231,8 @@ PixelCPEInitial::ypos(const SiPixelCluster& cluster) const {
   //calculate center
   int imin = cluster.minPixelCol();
   int imax = cluster.maxPixelCol();
-  float min = float(imin) + 0.5; // center of the edge
-  float max = float(imax) + 0.5; // center of the edge
+  //float min = float(imin) + 0.5; // center of the edge
+  //float max = float(imax) + 0.5; // center of the edge
   float minEdge = theTopol->localY(float(imin+1)); // left inner edge
   float maxEdge = theTopol->localY(float(imax));   // right inner edge
   float center = (minEdge + maxEdge)/2.; // center of inner part in LC
@@ -235,22 +240,10 @@ PixelCPEInitial::ypos(const SiPixelCluster& cluster) const {
    
   // get the charge in the edge pixels
   const vector<SiPixelCluster::Pixel>& pixelsVec = cluster.pixels();
-  vector<float> chargeVec = yCharge(pixelsVec, min, max);
+  vector<float> chargeVec = yCharge(pixelsVec, imin, imax);
   float q1 = chargeVec[0];
   float q2 = chargeVec[1];
-   
-  // Estimate the charge width. main contribution + 2nd order geom corr.
-  //float tmp = (max+min)/2.;
-  //float width = (chargeWidthY() + geomCorrectionY(tmp)) * thePitchY;
-  //float width = (chargeWidthY()) * thePitchY;
-  // Check the valid chargewidth (WHY IS THERE THE FABS??)
-  //if(width<0.) cout<<" width Y < 0"<<width<<endl;
-  //float effWidth = fabs(width) - wInner;
- 
-  //float pos = center + (q2*arm2-q1*arm1)/(q1+q2); // position dk
-  // position msI
-  //float pos = center + (q2-q1)/(2.*(q1+q2)) * effWidth;
- 
+    
   float pitch1 = thePitchY;
   float pitch2 = thePitchY;
   if(RectangularPixelTopology::isItBigPixelInY(imin) )

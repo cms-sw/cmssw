@@ -128,7 +128,8 @@ PixelCPEBase::setTheDet( const GeomDetUnit & det ) const
   
   // testing 
   if(thePart == GeomDetEnumerators::PixelBarrel) {
-    cout<<" lorentz shift "<<theLShiftX<<" "<<theLShiftY<<endl;
+    //cout<<" lorentz shift "<<theLShiftX<<" "<<theLShiftY<<endl;
+    theLShiftY=0.;
   }
 
   if (theVerboseLevel > 1) 
@@ -364,8 +365,7 @@ float PixelCPEBase::lorentzShiftY() const
 //-----------------------------------------------------------------------------
 vector<float> 
 PixelCPEBase::xCharge(const vector<SiPixelCluster::Pixel>& pixelsVec, 
-		      const float& xmin, const float& xmax) const
-{
+		      const int& imin, const int& imax) const {
   vector<float> charge; 
   
   //calculate charge in the first and last pixel in y
@@ -376,9 +376,9 @@ PixelCPEBase::xCharge(const vector<SiPixelCluster::Pixel>& pixelsVec,
   int isize = pixelsVec.size();
   for (int i=0;  i<isize; ++i) 
     {
-      if ( pixelsVec[i].x == xmin )
+      if ( int(pixelsVec[i].x) == imin )
 	q1 += pixelsVec[i].adc;
-      else if (pixelsVec[i].x == xmax) 
+      else if ( int(pixelsVec[i].x) == imax) 
 	q2 += pixelsVec[i].adc;
       else 
 	qm += pixelsVec[i].adc;
@@ -397,8 +397,7 @@ PixelCPEBase::xCharge(const vector<SiPixelCluster::Pixel>& pixelsVec,
 //-----------------------------------------------------------------------------
 vector<float> 
 PixelCPEBase::yCharge(const vector<SiPixelCluster::Pixel>& pixelsVec,
-		      const float& ymin, const float& ymax) const
-{
+		      const int& imin, const int& imax) const {
   vector<float> charge; 
   
   //calculate charge in the first and last pixel in y
@@ -407,11 +406,12 @@ PixelCPEBase::yCharge(const vector<SiPixelCluster::Pixel>& pixelsVec,
   int isize = pixelsVec.size();
   for (int i=0;  i<isize; ++i) 
     {
-      if (pixelsVec[i].y == ymin) 
+      if ( int(pixelsVec[i].y) == imin) 
 	q1 += pixelsVec[i].adc;
-      else if (pixelsVec[i].y == ymax) 
+      else if ( int(pixelsVec[i].y) == imax) 
 	q2 += pixelsVec[i].adc;
-      else if (pixelsVec[i].y < ymax && pixelsVec[i].y > ymin ) 
+      //else if (pixelsVec[i].y < ymax && pixelsVec[i].y > ymin ) 
+      else  
 	qm += pixelsVec[i].adc;
     }
   charge.clear();
