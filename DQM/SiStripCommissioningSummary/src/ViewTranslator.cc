@@ -76,7 +76,7 @@ uint32_t ViewTranslator::detToFec( const uint32_t& det_key_mask,
 //     edm::LogWarning(mlCabling_) 
 //       << "[ViewTranslator::" << __func__ << "]"
 //       << " Input map is empty!";
-//     return 0; 
+//     return 0 ;
 //   }
   
 //   Mapping::iterator iter;
@@ -107,6 +107,8 @@ uint32_t ViewTranslator::detToFec( const uint32_t& det_key_mask,
 //     } //for(iter=input->begin() ; iter!=input->end() ; iter++)
 //   }//if( det_key.detId_!=0xFFFFFFFF && det_key.apvPair_==0xFFFF )
 //   else cout << "Cannot find the det to fec map in the root file. " << endl;
+
+  return 0; //@@ temp!
 
 }
 

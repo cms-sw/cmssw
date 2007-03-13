@@ -7,8 +7,8 @@
 #include "DQMServices/Core/interface/MonitorUserInterface.h"
 #include "DataFormats/SiStripCommon/interface/SiStripHistoNamingScheme.h"
 
-#include "FWCore/Utilities/interface/ProblemTracker.h"
-#include "FWCore/Utilities/interface/PresenceFactory.h"
+#include "FWCore/PluginManager/interface/ProblemTracker.h"
+#include "FWCore/PluginManager/interface/PresenceFactory.h"
 #include "FWCore/Utilities/interface/Presence.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
