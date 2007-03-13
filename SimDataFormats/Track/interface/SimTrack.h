@@ -25,8 +25,8 @@ public:
     int genpartIndex() const { return igenpart;}
     bool  noGenpart() const { return igenpart==-1;}
     //
-    Hep3Vector trackerSurfacePosition() const { return tkposition; }
-    HepLorentzVector trackerSurfaceMomentum() const { return tkmomentum; }
+    const Hep3Vector& trackerSurfacePosition() const { return tkposition; }
+    const HepLorentzVector& trackerSurfaceMomentum() const { return tkmomentum; }
 private: 
     int ivert;
     int igenpart;
