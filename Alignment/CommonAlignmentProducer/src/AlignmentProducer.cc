@@ -1,13 +1,13 @@
 /// \file AlignmentProducer.cc
 ///
 ///  \author    : Frederic Ronga
-///  Revision   : $Revision: 1.25 $
-///  last update: $Date: 2007/02/19 17:46:02 $
+///  Revision   : $Revision: 1.26 $
+///  last update: $Date: 2007/03/02 18:34:08 $
 ///  by         : $Author: pivarski $
 
 #include "Alignment/CommonAlignmentProducer/interface/AlignmentProducer.h"
 
-#include "TrackingTools/PatternTools/interface/Trajectory.h" 
+#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 
 // System include files
 #include <memory>
@@ -42,19 +42,17 @@
 #include "CondFormats/DataRecord/interface/CSCAlignmentErrorRcd.h"
 
 // Tracking 	 
-#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
+#include "TrackingTools/PatternTools/interface/Trajectory.h" 
 
 // Alignment
 #include "CondFormats/Alignment/interface/Alignments.h"
 #include "CondFormats/Alignment/interface/AlignmentErrors.h"
 #include "Alignment/TrackerAlignment/interface/TrackerScenarioBuilder.h"
 #include "Alignment/MuonAlignment/interface/MuonScenarioBuilder.h"
-#include "Alignment/CommonAlignmentParametrization/interface/AlignmentTransformations.h"
+#include "Alignment/CommonAlignment/interface/Utilities.h"
 #include "Alignment/CommonAlignmentParametrization/interface/RigidBodyAlignmentParameters.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentAlgorithmPluginFactory.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterSelector.h"
-
-using namespace std;
 
 //_____________________________________________________________________________
 AlignmentProducer::AlignmentProducer(const edm::ParameterSet& iConfig) :
@@ -405,49 +403,44 @@ void AlignmentProducer::simpleMisalignment_(const Alignables &alivec, const std:
       output << "the active parameters of each alignable.";
     }
 
-    for (vector<Alignable*>::const_iterator it = alivec.begin(); it != alivec.end(); ++it) {
+    for (std::vector<Alignable*>::const_iterator it = alivec.begin(); it != alivec.end(); ++it) {
       Alignable* ali=(*it);
-      vector<bool> mysel(commSel.empty() ? ali->alignmentParameters()->selector() : commSel);
+      std::vector<bool> mysel(commSel.empty() ? ali->alignmentParameters()->selector() : commSel);
 
-      if (abs(shift)>0.00001) {
-        AlgebraicVector s(3);
-        s[0]=0; s[1]=0; s[2]=0;  
-        if (mysel[RigidBodyAlignmentParameters::dx]) {
-          s[0]=shift*double(random()%1000-500)/500.;
-        }
-        if (mysel[RigidBodyAlignmentParameters::dy]) {
-          s[1]=shift*double(random()%1000-500)/500.;
-        }
-        if (mysel[RigidBodyAlignmentParameters::dz]) {
-          s[2]=shift*double(random()%1000-500)/500.;
-        }
+      if (std::abs(shift)>0.00001) {
+
+        double s0 = mysel[RigidBodyAlignmentParameters::dx] ?
+	  shift*double(random()%1000-500)/500. : 0.;
+
+        double s1 = mysel[RigidBodyAlignmentParameters::dy] ?
+          shift*double(random()%1000-500)/500. : 0.;
+
+        double s2 = mysel[RigidBodyAlignmentParameters::dz] ?
+          shift*double(random()%1000-500)/500. : 0.;
         
-        GlobalVector globalshift;
-        if (local) {
-          globalshift = ali->surface().toGlobal(Local3DVector(s[0],s[1],s[2]));
-        } else {
-          globalshift = Global3DVector(s[0],s[1],s[2]);
-        }
-        ali->move(globalshift);
+        if (local)
+          ali->move( ali->surface().toGlobal(align::LocalVector(s0,s1,s2)) );
+	else
+          ali->move( align::GlobalVector(s0,s1,s2) );
 
       //AlignmentPositionError ape(dx,dy,dz);
       //ali->addAlignmentPositionError(ape);
       }
 
-      if (abs(rot)>0.00001) {
-        AlgebraicVector r(3);
-        r[0]=0; r[1]=0; r[2]=0;
+      if (std::abs(rot)>0.00001) {
+	align::EulerAngles r(3);
+
         if (mysel[RigidBodyAlignmentParameters::dalpha]) {
-          r[0]=rot*double(random()%1000-500)/500.;
+          r(1)=rot*double(random()%1000-500)/500.;
         }
         if (mysel[RigidBodyAlignmentParameters::dbeta]) {
-          r[1]=rot*double(random()%1000-500)/500.;
+          r(2)=rot*double(random()%1000-500)/500.;
         }
         if (mysel[RigidBodyAlignmentParameters::dgamma]) {
-          r[2]=rot*double(random()%1000-500)/500.;
+          r(3)=rot*double(random()%1000-500)/500.;
         }
-        AlignmentTransformations TkAT;
-        Surface::RotationType mrot = TkAT.rotationType(TkAT.rotMatrix3(r));
+
+        align::RotationType mrot = align::toMatrix(r);
         if (local) ali->rotateInLocalFrame(mrot);
         else ali->rotateInGlobalFrame(mrot);
         
