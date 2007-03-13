@@ -228,7 +228,7 @@ int PixelThresholdClusterizer::calibrate(int adc, int col, int row) {
     //const float gain = 1./0.313; // 1 ADC = 3.19 VCALs 
     //const float pedestal = -6.2 * gain; // -19.8
     // 
-    float vcal = adc * DBgain + DBpedestal;
+    float vcal = adc * DBgain - DBpedestal;
     
     // atanh calibration 
     // Roc-6 average
