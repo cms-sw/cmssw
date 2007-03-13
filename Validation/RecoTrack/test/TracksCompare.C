@@ -1,0 +1,470 @@
+void TracksCompare()
+{
+
+ gROOT ->Reset();
+ char*  rfilename = "validationPlots.root";//new release is in red
+ char*  sfilename = "../data/validationPlots_REF.root";//reference is in blue
+
+ delete gROOT->GetListOfFiles()->FindObject(rfilename);
+ delete gROOT->GetListOfFiles()->FindObject(sfilename); 
+
+ TText* te = new TText();
+ TFile * rfile = new TFile(rfilename);
+ TFile * sfile = new TFile(sfilename);
+
+ ///gROOT->ProcessLine(".x HistoCompare.C");
+ HistoCompare * myPV = new HistoCompare();
+
+ TCanvas *canvas;
+
+ TH1F *sh1,*rh1;
+ TH1F *sc1,*rc1;
+ TH1F *sh2,*rh2;
+ TH1F *sc2,*rc2;
+ TH1F *sh3,*rh3;
+ TH1F *sc3,*rc3;
+
+ bool hit=1;
+ bool chi2=1;
+ bool ctf=1;
+ bool rs=1;
+
+ //////////////////////////////////////
+ /////////// CTF //////////////////////
+ //////////////////////////////////////
+ if (ctf){
+   //efficiency&fakerate
+   rfile->GetObject("DQMData/ctfWithMaterial_AssociatorByHits/effic",rh1);
+   sfile->GetObject("DQMData/ctfWithMaterial_AssociatorByHits/effic",sh1);
+   rfile->GetObject("DQMData/ctfWithMaterial_AssociatorByChi2/effic",rc1);
+   sfile->GetObject("DQMData/ctfWithMaterial_AssociatorByChi2/effic",sc1);
+   rfile->GetObject("DQMData/ctfWithMaterial_AssociatorByHits/fakerate",rh2);
+   sfile->GetObject("DQMData/ctfWithMaterial_AssociatorByHits/fakerate",sh2);
+   rfile->GetObject("DQMData/ctfWithMaterial_AssociatorByChi2/fakerate",rc2);
+   sfile->GetObject("DQMData/ctfWithMaterial_AssociatorByChi2/fakerate",sc2);
+
+   canvas = new TCanvas("Tracks1","Tracks: efficiency & fakerate",1000,1000);
+
+   if (hit&&chi2) plotHist22(canvas,sh1,rh1,sc1,rc1,sh2,rh2,sc2,rc2,myPV,te);
+   else if (hit)  plotHist12(canvas,sh1,rh1,sh2,rh2,myPV,te);
+   else if (chi2) plotHist12(canvas,sc1,rc1,sc2,rc2,myPV,te);
+
+   canvas->Print("ctf_effic_fake.eps");
+
+   //chi2&chi2 probability
+   rfile->GetObject("DQMData/ctfWithMaterial_AssociatorByHits/chi2",rh1);
+   sfile->GetObject("DQMData/ctfWithMaterial_AssociatorByHits/chi2",sh1);
+   rfile->GetObject("DQMData/ctfWithMaterial_AssociatorByChi2/chi2",rc1);
+   sfile->GetObject("DQMData/ctfWithMaterial_AssociatorByChi2/chi2",sc1);
+   rfile->GetObject("DQMData/ctfWithMaterial_AssociatorByHits/chi2_prob",rh2);
+   sfile->GetObject("DQMData/ctfWithMaterial_AssociatorByHits/chi2_prob",sh2);
+   rfile->GetObject("DQMData/ctfWithMaterial_AssociatorByChi2/chi2_prob",rc2);
+   sfile->GetObject("DQMData/ctfWithMaterial_AssociatorByChi2/chi2_prob",sc2);
+
+   canvas = new TCanvas("Tracks2","Tracks: chi2 & chi2 probability",1000,1000);
+
+   if (hit&&chi2) plotHist22(canvas,sh1,rh1,sc1,rc1,sh2,rh2,sc2,rc2,myPV,te);
+   else if (hit)  plotHist12(canvas,sh1,rh1,sh2,rh2,myPV,te);
+   else if (chi2) plotHist12(canvas,sc1,rc1,sc2,rc2,myPV,te);
+
+   canvas->Print("ctf_chi2_chi2prob.eps");
+
+   //meanchi2 and #hits vs eta
+   rfile->GetObject("DQMData/ctfWithMaterial_AssociatorByHits/hits_eta",rh1);
+   sfile->GetObject("DQMData/ctfWithMaterial_AssociatorByHits/hits_eta",sh1);
+   rfile->GetObject("DQMData/ctfWithMaterial_AssociatorByChi2/hits_eta",rc1);
+   sfile->GetObject("DQMData/ctfWithMaterial_AssociatorByChi2/hits_eta",sc1);
+   rfile->GetObject("DQMData/ctfWithMaterial_AssociatorByHits/chi2mean",rh2);
+   sfile->GetObject("DQMData/ctfWithMaterial_AssociatorByHits/chi2mean",sh2);
+   rfile->GetObject("DQMData/ctfWithMaterial_AssociatorByChi2/chi2mean",rc2);
+   sfile->GetObject("DQMData/ctfWithMaterial_AssociatorByChi2/chi2mean",sc2);
+
+   canvas = new TCanvas("Tracks3","Tracks: chi2 and #hits vs eta",1000,1000);
+
+   if (hit&&chi2) plotHist22(canvas,sh1,rh1,sc1,rc1,sh2,rh2,sc2,rc2,myPV,te);
+   else if (hit)  plotHist12(canvas,sh1,rh1,sh2,rh2,myPV,te);
+   else if (chi2) plotHist12(canvas,sc1,rc1,sc2,rc2,myPV,te);
+ 
+   canvas->Print("ctf_hitseta_chi2mean.eps");
+
+   //pull Pt, Qoverp, Phi
+   rfile->GetObject("DQMData/ctfWithMaterial_AssociatorByHits/pullPt",rh1);
+   sfile->GetObject("DQMData/ctfWithMaterial_AssociatorByHits/pullPt",sh1);
+   rfile->GetObject("DQMData/ctfWithMaterial_AssociatorByChi2/pullPt",rc1);
+   sfile->GetObject("DQMData/ctfWithMaterial_AssociatorByChi2/pullPt",sc1);
+   rfile->GetObject("DQMData/ctfWithMaterial_AssociatorByHits/pullQoverp",rh2);
+   sfile->GetObject("DQMData/ctfWithMaterial_AssociatorByHits/pullQoverp",sh2);
+   rfile->GetObject("DQMData/ctfWithMaterial_AssociatorByChi2/pullQoverp",rc2);
+   sfile->GetObject("DQMData/ctfWithMaterial_AssociatorByChi2/pullQoverp",sc2);
+   rfile->GetObject("DQMData/ctfWithMaterial_AssociatorByHits/pullPhi0",rh3);
+   sfile->GetObject("DQMData/ctfWithMaterial_AssociatorByHits/pullPhi0",sh3);
+   rfile->GetObject("DQMData/ctfWithMaterial_AssociatorByChi2/pullPhi0",rc3);
+   sfile->GetObject("DQMData/ctfWithMaterial_AssociatorByChi2/pullPhi0",sc3);
+
+   canvas = new TCanvas("Tracks4","Tracks: pull of Pt, Qoverp and Phi",1000,1000);
+
+   if (hit&&chi2) plotHist23(canvas,sh1,rh1,sc1,rc1,sh2,rh2,sc2,rc2,sh3,rh3,sc3,rc3,myPV,te);
+   else if (hit)  plotHist13(canvas,sh1,rh1,sh2,rh2,sh3,rh3,myPV,te);
+   else if (chi2) plotHist13(canvas,sc1,rc1,sc2,rc2,sc3,rc3,myPV,te);
+ 
+   canvas->Print("ctf_pullPt_Qoverp_Phi.eps");
+
+   //pull D0, Z0, Theta
+   rfile->GetObject("DQMData/ctfWithMaterial_AssociatorByHits/pullD0",rh1);
+   sfile->GetObject("DQMData/ctfWithMaterial_AssociatorByHits/pullD0",sh1);
+   rfile->GetObject("DQMData/ctfWithMaterial_AssociatorByChi2/pullD0",rc1);
+   sfile->GetObject("DQMData/ctfWithMaterial_AssociatorByChi2/pullD0",sc1);
+   rfile->GetObject("DQMData/ctfWithMaterial_AssociatorByHits/pullDz",rh2);
+   sfile->GetObject("DQMData/ctfWithMaterial_AssociatorByHits/pullDz",sh2);
+   rfile->GetObject("DQMData/ctfWithMaterial_AssociatorByChi2/pullDz",rc2);
+   sfile->GetObject("DQMData/ctfWithMaterial_AssociatorByChi2/pullDz",sc2);
+   rfile->GetObject("DQMData/ctfWithMaterial_AssociatorByHits/pullTheta",rh3);
+   sfile->GetObject("DQMData/ctfWithMaterial_AssociatorByHits/pullTheta",sh3);
+   rfile->GetObject("DQMData/ctfWithMaterial_AssociatorByChi2/pullTheta",rc3);
+   sfile->GetObject("DQMData/ctfWithMaterial_AssociatorByChi2/pullTheta",sc3);
+
+   canvas = new TCanvas("Tracks5","Tracks: pull of D0, Z0, Theta",1000,1000);
+
+   if (hit&&chi2) plotHist23(canvas,sh1,rh1,sc1,rc1,sh2,rh2,sc2,rc2,sh3,rh3,sc3,rc3,myPV,te);
+   else if (hit)  plotHist13(canvas,sh1,rh1,sh2,rh2,sh3,rh3,myPV,te);
+   else if (chi2) plotHist13(canvas,sc1,rc1,sc2,rc2,sc3,rc3,myPV,te);
+ 
+   canvas->Print("ctf_pullD0_Z0_Theta.eps");
+
+   //resolution Pt, Phi
+   rfile->GetObject("DQMData/ctfWithMaterial_AssociatorByHits/sigmapt",rh1);
+   sfile->GetObject("DQMData/ctfWithMaterial_AssociatorByHits/sigmapt",sh1);
+   rfile->GetObject("DQMData/ctfWithMaterial_AssociatorByChi2/sigmapt",rc1);
+   sfile->GetObject("DQMData/ctfWithMaterial_AssociatorByChi2/sigmapt",sc1);
+   rfile->GetObject("DQMData/ctfWithMaterial_AssociatorByHits/sigmaphi",rh2);
+   sfile->GetObject("DQMData/ctfWithMaterial_AssociatorByHits/sigmaphi",sh2);
+   rfile->GetObject("DQMData/ctfWithMaterial_AssociatorByChi2/sigmaphi",rc2);
+   sfile->GetObject("DQMData/ctfWithMaterial_AssociatorByChi2/sigmaphi",sc2);
+
+   canvas = new TCanvas("Tracks6","Tracks: Pt and Phi resolution",1000,1000);
+
+   if (hit&&chi2) plotHist22(canvas,sh1,rh1,sc1,rc1,sh2,rh2,sc2,rc2,myPV,te);
+   else if (hit)  plotHist12(canvas,sh1,rh1,sh2,rh2,myPV,te);
+   else if (chi2) plotHist12(canvas,sc1,rc1,sc2,rc2,myPV,te);
+ 
+   canvas->Print("ctf_resolPt_Phi.eps");
+
+   //resolution D0, Z0, Theta
+   rfile->GetObject("DQMData/ctfWithMaterial_AssociatorByHits/sigmad0",rh1);
+   sfile->GetObject("DQMData/ctfWithMaterial_AssociatorByHits/sigmad0",sh1);
+   rfile->GetObject("DQMData/ctfWithMaterial_AssociatorByChi2/sigmad0",rc1);
+   sfile->GetObject("DQMData/ctfWithMaterial_AssociatorByChi2/sigmad0",sc1);
+   rfile->GetObject("DQMData/ctfWithMaterial_AssociatorByHits/sigmaz0",rh2);
+   sfile->GetObject("DQMData/ctfWithMaterial_AssociatorByHits/sigmaz0",sh2);
+   rfile->GetObject("DQMData/ctfWithMaterial_AssociatorByChi2/sigmaz0",rc2);
+   sfile->GetObject("DQMData/ctfWithMaterial_AssociatorByChi2/sigmaz0",sc2);
+   rfile->GetObject("DQMData/ctfWithMaterial_AssociatorByHits/sigmacotTheta",rh3);
+   sfile->GetObject("DQMData/ctfWithMaterial_AssociatorByHits/sigmacotTheta",sh3);
+   rfile->GetObject("DQMData/ctfWithMaterial_AssociatorByChi2/sigmacotTheta",rc3);
+   sfile->GetObject("DQMData/ctfWithMaterial_AssociatorByChi2/sigmacotTheta",sc3);
+
+   canvas = new TCanvas("Tracks7","Tracks: D0, Z0, Theta resolution",1000,1000);
+
+   if (hit&&chi2) plotHist23(canvas,sh1,rh1,sc1,rc1,sh2,rh2,sc2,rc2,sh3,rh3,sc3,rc3,myPV,te);
+   else if (hit)  plotHist13(canvas,sh1,rh1,sh2,rh2,sh3,rh3,myPV,te);
+   else if (chi2) plotHist13(canvas,sc1,rc1,sc2,rc2,sc3,rc3,myPV,te);
+ 
+   canvas->Print("ctf_resolD0_Z0_Theta.eps");
+ }
+
+
+
+ //////////////////////////////////////
+ /////////// RS //////////////////////
+ //////////////////////////////////////
+ if (rs){
+   //efficiency&fakerate
+   rfile->GetObject("DQMData/rsWithMaterial_AssociatorByHits/effic",rh1);
+   sfile->GetObject("DQMData/rsWithMaterial_AssociatorByHits/effic",sh1);
+   rfile->GetObject("DQMData/rsWithMaterial_AssociatorByChi2/effic",rc1);
+   sfile->GetObject("DQMData/rsWithMaterial_AssociatorByChi2/effic",sc1);
+   rfile->GetObject("DQMData/rsWithMaterial_AssociatorByHits/fakerate",rh2);
+   sfile->GetObject("DQMData/rsWithMaterial_AssociatorByHits/fakerate",sh2);
+   rfile->GetObject("DQMData/rsWithMaterial_AssociatorByChi2/fakerate",rc2);
+   sfile->GetObject("DQMData/rsWithMaterial_AssociatorByChi2/fakerate",sc2);
+
+   canvas = new TCanvas("Tracks8","Tracks: efficiency & fakerate",1000,1000);
+
+   if (hit&&chi2) plotHist22(canvas,sh1,rh1,sc1,rc1,sh2,rh2,sc2,rc2,myPV,te);
+   else if (hit)  plotHist12(canvas,sh1,rh1,sh2,rh2,myPV,te);
+   else if (chi2) plotHist12(canvas,sc1,rc1,sc2,rc2,myPV,te);
+
+   canvas->Print("rs_effic_fake.eps");
+
+   //chi2&chi2 probability
+   rfile->GetObject("DQMData/rsWithMaterial_AssociatorByHits/chi2",rh1);
+   sfile->GetObject("DQMData/rsWithMaterial_AssociatorByHits/chi2",sh1);
+   rfile->GetObject("DQMData/rsWithMaterial_AssociatorByChi2/chi2",rc1);
+   sfile->GetObject("DQMData/rsWithMaterial_AssociatorByChi2/chi2",sc1);
+   rfile->GetObject("DQMData/rsWithMaterial_AssociatorByHits/chi2_prob",rh2);
+   sfile->GetObject("DQMData/rsWithMaterial_AssociatorByHits/chi2_prob",sh2);
+   rfile->GetObject("DQMData/rsWithMaterial_AssociatorByChi2/chi2_prob",rc2);
+   sfile->GetObject("DQMData/rsWithMaterial_AssociatorByChi2/chi2_prob",sc2);
+
+   canvas = new TCanvas("Tracks9","Tracks: chi2 & chi2 probability",1000,1000);
+
+   if (hit&&chi2) plotHist22(canvas,sh1,rh1,sc1,rc1,sh2,rh2,sc2,rc2,myPV,te);
+   else if (hit)  plotHist12(canvas,sh1,rh1,sh2,rh2,myPV,te);
+   else if (chi2) plotHist12(canvas,sc1,rc1,sc2,rc2,myPV,te);
+
+   canvas->Print("rs_chi2_chi2prob.eps");
+
+   //meanchi2 and #hits vs eta
+   rfile->GetObject("DQMData/rsWithMaterial_AssociatorByHits/hits_eta",rh1);
+   sfile->GetObject("DQMData/rsWithMaterial_AssociatorByHits/hits_eta",sh1);
+   rfile->GetObject("DQMData/rsWithMaterial_AssociatorByChi2/hits_eta",rc1);
+   sfile->GetObject("DQMData/rsWithMaterial_AssociatorByChi2/hits_eta",sc1);
+   rfile->GetObject("DQMData/rsWithMaterial_AssociatorByHits/chi2mean",rh2);
+   sfile->GetObject("DQMData/rsWithMaterial_AssociatorByHits/chi2mean",sh2);
+   rfile->GetObject("DQMData/rsWithMaterial_AssociatorByChi2/chi2mean",rc2);
+   sfile->GetObject("DQMData/rsWithMaterial_AssociatorByChi2/chi2mean",sc2);
+
+   canvas = new TCanvas("Tracks10","Tracks: chi2 and #hits vs eta",1000,1000);
+
+   if (hit&&chi2) plotHist22(canvas,sh1,rh1,sc1,rc1,sh2,rh2,sc2,rc2,myPV,te);
+   else if (hit)  plotHist12(canvas,sh1,rh1,sh2,rh2,myPV,te);
+   else if (chi2) plotHist12(canvas,sc1,rc1,sc2,rc2,myPV,te);
+ 
+   canvas->Print("rs_hitseta_chi2mean.eps");
+
+   //pull Pt, Qoverp, Phi
+   rfile->GetObject("DQMData/rsWithMaterial_AssociatorByHits/pullPt",rh1);
+   sfile->GetObject("DQMData/rsWithMaterial_AssociatorByHits/pullPt",sh1);
+   rfile->GetObject("DQMData/rsWithMaterial_AssociatorByChi2/pullPt",rc1);
+   sfile->GetObject("DQMData/rsWithMaterial_AssociatorByChi2/pullPt",sc1);
+   rfile->GetObject("DQMData/rsWithMaterial_AssociatorByHits/pullQoverp",rh2);
+   sfile->GetObject("DQMData/rsWithMaterial_AssociatorByHits/pullQoverp",sh2);
+   rfile->GetObject("DQMData/rsWithMaterial_AssociatorByChi2/pullQoverp",rc2);
+   sfile->GetObject("DQMData/rsWithMaterial_AssociatorByChi2/pullQoverp",sc2);
+   rfile->GetObject("DQMData/rsWithMaterial_AssociatorByHits/pullPhi0",rh3);
+   sfile->GetObject("DQMData/rsWithMaterial_AssociatorByHits/pullPhi0",sh3);
+   rfile->GetObject("DQMData/rsWithMaterial_AssociatorByChi2/pullPhi0",rc3);
+   sfile->GetObject("DQMData/rsWithMaterial_AssociatorByChi2/pullPhi0",sc3);
+
+   canvas = new TCanvas("Tracks11","Tracks: pull of Pt, Qoverp and Phi",1000,1000);
+
+   if (hit&&chi2) plotHist23(canvas,sh1,rh1,sc1,rc1,sh2,rh2,sc2,rc2,sh3,rh3,sc3,rc3,myPV,te);
+   else if (hit)  plotHist13(canvas,sh1,rh1,sh2,rh2,sh3,rh3,myPV,te);
+   else if (chi2) plotHist13(canvas,sc1,rc1,sc2,rc2,sc3,rc3,myPV,te);
+ 
+   canvas->Print("rs_pullPt_Qoverp_Phi.eps");
+
+   //pull D0, Z0, Theta
+   rfile->GetObject("DQMData/rsWithMaterial_AssociatorByHits/pullD0",rh1);
+   sfile->GetObject("DQMData/rsWithMaterial_AssociatorByHits/pullD0",sh1);
+   rfile->GetObject("DQMData/rsWithMaterial_AssociatorByChi2/pullD0",rc1);
+   sfile->GetObject("DQMData/rsWithMaterial_AssociatorByChi2/pullD0",sc1);
+   rfile->GetObject("DQMData/rsWithMaterial_AssociatorByHits/pullDz",rh2);
+   sfile->GetObject("DQMData/rsWithMaterial_AssociatorByHits/pullDz",sh2);
+   rfile->GetObject("DQMData/rsWithMaterial_AssociatorByChi2/pullDz",rc2);
+   sfile->GetObject("DQMData/rsWithMaterial_AssociatorByChi2/pullDz",sc2);
+   rfile->GetObject("DQMData/rsWithMaterial_AssociatorByHits/pullTheta",rh3);
+   sfile->GetObject("DQMData/rsWithMaterial_AssociatorByHits/pullTheta",sh3);
+   rfile->GetObject("DQMData/rsWithMaterial_AssociatorByChi2/pullTheta",rc3);
+   sfile->GetObject("DQMData/rsWithMaterial_AssociatorByChi2/pullTheta",sc3);
+
+   canvas = new TCanvas("Tracks12","Tracks: pull of D0, Z0, Theta",1000,1000);
+
+   if (hit&&chi2) plotHist23(canvas,sh1,rh1,sc1,rc1,sh2,rh2,sc2,rc2,sh3,rh3,sc3,rc3,myPV,te);
+   else if (hit)  plotHist13(canvas,sh1,rh1,sh2,rh2,sh3,rh3,myPV,te);
+   else if (chi2) plotHist13(canvas,sc1,rc1,sc2,rc2,sc3,rc3,myPV,te);
+ 
+   canvas->Print("rs_pullD0_Z0_Theta.eps");
+
+   //resolution Pt, Phi
+   rfile->GetObject("DQMData/rsWithMaterial_AssociatorByHits/sigmapt",rh1);
+   sfile->GetObject("DQMData/rsWithMaterial_AssociatorByHits/sigmapt",sh1);
+   rfile->GetObject("DQMData/rsWithMaterial_AssociatorByChi2/sigmapt",rc1);
+   sfile->GetObject("DQMData/rsWithMaterial_AssociatorByChi2/sigmapt",sc1);
+   rfile->GetObject("DQMData/rsWithMaterial_AssociatorByHits/sigmaphi",rh2);
+   sfile->GetObject("DQMData/rsWithMaterial_AssociatorByHits/sigmaphi",sh2);
+   rfile->GetObject("DQMData/rsWithMaterial_AssociatorByChi2/sigmaphi",rc2);
+   sfile->GetObject("DQMData/rsWithMaterial_AssociatorByChi2/sigmaphi",sc2);
+
+   canvas = new TCanvas("Tracks13","Tracks: Pt and Phi resolution",1000,1000);
+
+   if (hit&&chi2) plotHist22(canvas,sh1,rh1,sc1,rc1,sh2,rh2,sc2,rc2,myPV,te);
+   else if (hit)  plotHist12(canvas,sh1,rh1,sh2,rh2,myPV,te);
+   else if (chi2) plotHist12(canvas,sc1,rc1,sc2,rc2,myPV,te);
+ 
+   canvas->Print("rs_resolPt_Phi.eps");
+
+   //resolution D0, Z0, Theta
+   rfile->GetObject("DQMData/rsWithMaterial_AssociatorByHits/sigmad0",rh1);
+   sfile->GetObject("DQMData/rsWithMaterial_AssociatorByHits/sigmad0",sh1);
+   rfile->GetObject("DQMData/rsWithMaterial_AssociatorByChi2/sigmad0",rc1);
+   sfile->GetObject("DQMData/rsWithMaterial_AssociatorByChi2/sigmad0",sc1);
+   rfile->GetObject("DQMData/rsWithMaterial_AssociatorByHits/sigmaz0",rh2);
+   sfile->GetObject("DQMData/rsWithMaterial_AssociatorByHits/sigmaz0",sh2);
+   rfile->GetObject("DQMData/rsWithMaterial_AssociatorByChi2/sigmaz0",rc2);
+   sfile->GetObject("DQMData/rsWithMaterial_AssociatorByChi2/sigmaz0",sc2);
+   rfile->GetObject("DQMData/rsWithMaterial_AssociatorByHits/sigmacotTheta",rh3);
+   sfile->GetObject("DQMData/rsWithMaterial_AssociatorByHits/sigmacotTheta",sh3);
+   rfile->GetObject("DQMData/rsWithMaterial_AssociatorByChi2/sigmacotTheta",rc3);
+   sfile->GetObject("DQMData/rsWithMaterial_AssociatorByChi2/sigmacotTheta",sc3);
+
+   canvas = new TCanvas("Tracks14","Tracks: D0, Z0, Theta resolution",1000,1000);
+
+   if (hit&&chi2) plotHist23(canvas,sh1,rh1,sc1,rc1,sh2,rh2,sc2,rc2,sh3,rh3,sc3,rc3,myPV,te);
+   else if (hit)  plotHist13(canvas,sh1,rh1,sh2,rh2,sh3,rh3,myPV,te);
+   else if (chi2) plotHist13(canvas,sc1,rc1,sc2,rc2,sc3,rc3,myPV,te);
+ 
+   canvas->Print("rs_resolD0_Z0_Theta.eps");
+ }
+}
+
+void plotHist12(TCanvas *canvas, 
+		TH1F *sh1,TH1F *rh1,
+		TH1F *sh2,TH1F *rh2,
+		HistoCompare * myPV, TText* te ){
+  canvas->Divide(1,2);
+
+  canvas->cd(1);
+  rh1->SetLineColor(2);
+  sh1->SetLineColor(4);
+  sh1->SetLineStyle(2);
+  rh1->Draw();
+  sh1->Draw("sames");
+  myPV->PVCompute(rh1, sh1, te );
+  
+  canvas->cd(2);
+  rh2->SetLineColor(2);
+  sh2->SetLineColor(4);
+  sh2->SetLineStyle(2);
+  rh2->Draw();
+  sh2->Draw("sames");
+  myPV->PVCompute(rh2, sh2, te );  
+}
+
+void plotHist22(TCanvas *canvas, 
+		TH1F *sh1,TH1F *rh1, TH1F *sc1,TH1F *rc1, 
+		TH1F *sh2,TH1F *rh2, TH1F *sc2,TH1F *rc2,
+		HistoCompare * myPV, TText* te ){
+  canvas->Divide(2,2);
+
+  canvas->cd(1);
+  rh1->SetLineColor(2);
+  sh1->SetLineColor(4);
+  sh1->SetLineStyle(2);
+  rh1->Draw();
+  sh1->Draw("sames");
+  myPV->PVCompute(rh1, sh1, te );
+  
+  canvas->cd(2);
+  rc1->SetLineColor(2);
+  sc1->SetLineColor(4);
+  sc1->SetLineStyle(2);
+  rc1->Draw();
+  sc1->Draw("sames");
+  myPV->PVCompute(rc1, sc1, te );
+  
+  canvas->cd(3);
+  rh2->SetLineColor(2);
+  sh2->SetLineColor(4);
+  sh2->SetLineStyle(2);
+  rh2->Draw();
+  sh2->Draw("sames");
+  myPV->PVCompute(rh2, sh2, te );
+  
+  canvas->cd(4);
+  rc2->SetLineColor(2);
+  sc2->SetLineColor(4);
+  sc2->SetLineStyle(2);
+  rc2->Draw();
+  sc2->Draw("sames");
+  myPV->PVCompute(rc2, sc2, te );
+  
+}
+
+void plotHist13(TCanvas *canvas, 
+		TH1F *sh1,TH1F *rh1,
+ 		TH1F *sh2,TH1F *rh2,
+ 		TH1F *sh3,TH1F *rh3,
+		HistoCompare * myPV, TText* te ){
+  canvas->Divide(1,3);
+
+  canvas->cd(1);
+  rh1->SetLineColor(2);
+  sh1->SetLineColor(4);
+  sh1->SetLineStyle(2);
+  rh1->Draw();
+  sh1->Draw("sames");
+  myPV->PVCompute(rh1, sh1, te );
+  
+  canvas->cd(2);
+  rh2->SetLineColor(2);
+  sh2->SetLineColor(4);
+  sh2->SetLineStyle(2);
+  rh2->Draw();
+  sh2->Draw("sames");
+  myPV->PVCompute(rh2, sh2, te );
+
+  canvas->cd(3);
+  rh3->SetLineColor(2);
+  sh3->SetLineColor(4);
+  sh3->SetLineStyle(2);
+  rh3->Draw();
+  sh3->Draw("sames");
+  myPV->PVCompute(rh3, sh3, te );
+}
+
+void plotHist23(TCanvas *canvas, 
+		TH1F *sh1,TH1F *rh1, TH1F *sc1,TH1F *rc1, 
+ 		TH1F *sh2,TH1F *rh2, TH1F *sc2,TH1F *rc2,
+ 		TH1F *sh3,TH1F *rh3, TH1F *sc3,TH1F *rc3,
+		HistoCompare * myPV, TText* te ){
+  canvas->Divide(2,3);
+
+  canvas->cd(1);
+  rh1->SetLineColor(2);
+  sh1->SetLineColor(4);
+  sh1->SetLineStyle(2);
+  rh1->Draw();
+  sh1->Draw("sames");
+  myPV->PVCompute(rh1, sh1, te );
+  
+  canvas->cd(2);
+  rc1->SetLineColor(2);
+  sc1->SetLineColor(4);
+  sc1->SetLineStyle(2);
+  rc1->Draw();
+  sc1->Draw("sames");
+  myPV->PVCompute(rc1, sc1, te );
+  
+  canvas->cd(3);
+  rh2->SetLineColor(2);
+  sh2->SetLineColor(4);
+  sh2->SetLineStyle(2);
+  rh2->Draw();
+  sh2->Draw("sames");
+  myPV->PVCompute(rh2, sh2, te );
+  
+  canvas->cd(4);
+  rc2->SetLineColor(2);
+  sc2->SetLineColor(4);
+  sc2->SetLineStyle(2);
+  rc2->Draw();
+  sc2->Draw("sames");
+  myPV->PVCompute(rc2, sc2, te );
+
+  canvas->cd(5);
+  rh3->SetLineColor(2);
+  sh3->SetLineColor(4);
+  sh3->SetLineStyle(2);
+  rh3->Draw();
+  sh3->Draw("sames");
+  myPV->PVCompute(rh3, sh3, te );
+  
+  canvas->cd(6);
+  rc3->SetLineColor(2);
+  sc3->SetLineColor(4);
+  sc3->SetLineStyle(2);
+  rc3->Draw();
+  sc3->Draw("sames");
+  myPV->PVCompute(rc3, sc3, te );
+}
