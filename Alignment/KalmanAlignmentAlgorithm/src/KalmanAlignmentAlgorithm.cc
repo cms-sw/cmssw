@@ -32,8 +32,6 @@
 #include <fstream>
 
 using namespace std;
-using namespace align;
-
 
 KalmanAlignmentAlgorithm::KalmanAlignmentAlgorithm( const edm::ParameterSet& config ) :
   AlignmentAlgorithmBase( config ),
