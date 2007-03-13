@@ -105,7 +105,7 @@ void CrossingFrame::addPileupSimHits(const int bcr, const std::string subdet, co
 void CrossingFrame::addPileupCaloHits(const int bcr, const std::string subdet, const PCaloHitContainer *calohits, int evtId) { 
   EncodedEventId id(bcr,evtId);
   for (unsigned int i=0;i<calohits->size();++i) {
-    PCaloHit hit((*calohits)[i].id(),(*calohits)[i].energy(),(*calohits)[i].time()+bcr*bunchSpace_,(*calohits)[i].geantTrackId());
+    PCaloHit hit((*calohits)[i].id(),(*calohits)[i].energyEM(),(*calohits)[i].energyHad(),(*calohits)[i].time()+bcr*bunchSpace_,(*calohits)[i].geantTrackId());
     hit.setEventId(id);
     (pileupCaloHits_[subdet])[bcr-firstCrossing_].push_back(hit);
   }
