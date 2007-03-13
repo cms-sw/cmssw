@@ -2,10 +2,14 @@
         <class name="CalibratedHistogram"/>
         <class name="std::vector<float>"/>
 
-        <class name="TrackProbabilityCategoryData"/>
-        
+        <class name="TrackProbabilityCategoryData"/>      
         <class name="TrackProbabilityCalibration"/>
 	<class name="TrackProbabilityCalibration::Entry"/>
 	<class name="std::vector<TrackProbabilityCalibration::Entry>"/>     
+        
+        <class name="CombinedTauTagCategoryData"/>        
+        <class name="CombinedTauTagCalibration"/>
+        <class name="CombinedTauTagCalibration::Entry"/>
+        <class name="std::vector<CombinedTauTagCalibration::Entry>"/>      
   <class pattern="*iterator*"/>
 </lcgdict>   
