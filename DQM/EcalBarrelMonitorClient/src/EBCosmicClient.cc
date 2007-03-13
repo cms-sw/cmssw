@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicClient.cc
  * 
- * $Date: 2007/02/20 11:01:17 $
- * $Revision: 1.67 $
+ * $Date: 2007/02/20 13:27:16 $
+ * $Revision: 1.68 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -13,21 +13,19 @@
 #include <fstream>
 #include <iomanip>
 
-#include "TROOT.h"
 #include "TStyle.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-
+#include "DQMServices/Core/interface/QTestStatus.h"
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
+#include "DQMServices/QualityTests/interface/QCriterionRoot.h"
 
 #include "OnlineDB/EcalCondDB/interface/RunTag.h"
 #include "OnlineDB/EcalCondDB/interface/RunIOV.h"
-
 #include "OnlineDB/EcalCondDB/interface/MonOccupancyDat.h"
 
 #include <DQM/EcalBarrelMonitorClient/interface/EBCosmicClient.h>

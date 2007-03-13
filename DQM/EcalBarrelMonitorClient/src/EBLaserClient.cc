@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2007/02/20 13:27:16 $
- * $Revision: 1.144 $
+ * $Date: 2007/02/22 09:35:44 $
+ * $Revision: 1.145 $
  * \author G. Della Ricca
  *
 */
@@ -20,29 +20,28 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
+#include "DQMServices/Core/interface/QTestStatus.h"
+#include "DQMServices/QualityTests/interface/QCriterionRoot.h"
 
 #include "OnlineDB/EcalCondDB/interface/RunTag.h"
 #include "OnlineDB/EcalCondDB/interface/RunIOV.h"
-
 #include "OnlineDB/EcalCondDB/interface/MonLaserBlueDat.h"
 #include "OnlineDB/EcalCondDB/interface/MonLaserGreenDat.h"
 #include "OnlineDB/EcalCondDB/interface/MonLaserIRedDat.h"
 #include "OnlineDB/EcalCondDB/interface/MonLaserRedDat.h"
-
 #include "OnlineDB/EcalCondDB/interface/MonPNBlueDat.h"
 #include "OnlineDB/EcalCondDB/interface/MonPNGreenDat.h"
 #include "OnlineDB/EcalCondDB/interface/MonPNIRedDat.h"
 #include "OnlineDB/EcalCondDB/interface/MonPNRedDat.h"
-
-#include <DQM/EcalBarrelMonitorClient/interface/EBLaserClient.h>
-#include <DQM/EcalBarrelMonitorClient/interface/EBMUtilsClient.h>
-
-#include "DQM/EcalBarrelMonitorClient/interface/EcalErrorMask.h"
-#include "CondTools/Ecal/interface/EcalErrorDictionary.h"
 #include "OnlineDB/EcalCondDB/interface/RunCrystalErrorsDat.h"
 #include "OnlineDB/EcalCondDB/interface/RunPNErrorsDat.h"
+
+#include "CondTools/Ecal/interface/EcalErrorDictionary.h"
+
+#include "DQM/EcalBarrelMonitorClient/interface/EcalErrorMask.h"
+#include <DQM/EcalBarrelMonitorClient/interface/EBLaserClient.h>
+#include <DQM/EcalBarrelMonitorClient/interface/EBMUtilsClient.h>
 
 using namespace cms;
 using namespace edm;

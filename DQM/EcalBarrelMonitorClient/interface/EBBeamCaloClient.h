@@ -4,8 +4,8 @@
 /*
  * \file EBBeamCaloClient.h
  *
- * $Date: 2006/12/15 09:44:49 $
- * $Revision: 1.18 $
+ * $Date: 2007/02/01 15:25:24 $
+ * $Revision: 1.19 $
  * \author G. Della Ricca
  * \author A. Ghezzi
  *
@@ -20,19 +20,14 @@
 #include "TH1F.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DQM/EcalBarrelMonitorClient/interface/EBClient.h"
+
 #include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
 #include "OnlineDB/EcalCondDB/interface/MonRunIOV.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/MonitorUserInterface.h"
 #include "DQMServices/Core/interface/CollateMonitorElement.h"
 
-#include "DQMServices/Core/interface/QTestStatus.h"
-#include "DQMServices/QualityTests/interface/QCriterionRoot.h"
-
-class MonitorUserInterface;
-class EcalCondDBInterface;
-class MonRunIOV;
+#include "DQM/EcalBarrelMonitorClient/interface/EBClient.h"
 
 class EBBeamCaloClient : public EBClient {
 

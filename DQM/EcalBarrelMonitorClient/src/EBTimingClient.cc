@@ -1,8 +1,8 @@
 /*
  * \file EBTimingClient.cc
  *
- * $Date: 2007/02/20 13:27:16 $
- * $Revision: 1.11 $
+ * $Date: 2007/02/20 15:28:48 $
+ * $Revision: 1.12 $
  * \author G. Della Ricca
  *
 */
@@ -16,24 +16,23 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
+#include "DQMServices/Core/interface/QTestStatus.h"
+#include "DQMServices/QualityTests/interface/QCriterionRoot.h"
 
 #include "OnlineDB/EcalCondDB/interface/RunTag.h"
 #include "OnlineDB/EcalCondDB/interface/RunIOV.h"
-
 #include "OnlineDB/EcalCondDB/interface/MonPedestalsOnlineDat.h"
+#include "OnlineDB/EcalCondDB/interface/RunCrystalErrorsDat.h"
+
+#include "CondTools/Ecal/interface/EcalErrorDictionary.h"
 
 #include <DQM/EcalBarrelMonitorClient/interface/EBTimingClient.h>
 #include <DQM/EcalBarrelMonitorClient/interface/EBMUtilsClient.h>
-
 #include "DQM/EcalBarrelMonitorClient/interface/EcalErrorMask.h"
-#include "CondTools/Ecal/interface/EcalErrorDictionary.h"
-#include "OnlineDB/EcalCondDB/interface/RunCrystalErrorsDat.h"
 
 using namespace cms;
 using namespace edm;

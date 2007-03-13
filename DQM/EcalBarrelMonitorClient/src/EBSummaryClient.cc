@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2007/02/22 14:45:14 $
- * $Revision: 1.8 $
+ * $Date: 2007/02/22 15:52:43 $
+ * $Revision: 1.9 $
  * \author G. Della Ricca
  *
 */
@@ -16,12 +16,12 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
+#include "DQMServices/Core/interface/QTestStatus.h"
+#include "DQMServices/QualityTests/interface/QCriterionRoot.h"
 
 #include "OnlineDB/EcalCondDB/interface/RunTag.h"
 #include "OnlineDB/EcalCondDB/interface/RunIOV.h"
@@ -30,7 +30,6 @@
 
 #include <DQM/EcalBarrelMonitorClient/interface/EBSummaryClient.h>
 #include <DQM/EcalBarrelMonitorClient/interface/EBMUtilsClient.h>
-
 #include <DQM/EcalBarrelMonitorClient/interface/EBCosmicClient.h>
 #include <DQM/EcalBarrelMonitorClient/interface/EBIntegrityClient.h>
 #include <DQM/EcalBarrelMonitorClient/interface/EBLaserClient.h>

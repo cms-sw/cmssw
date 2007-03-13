@@ -4,8 +4,8 @@
 /*
  * \file EBTimingClient.h
  *
- * $Date: 2007/02/20 15:28:47 $
- * $Revision: 1.2 $
+ * $Date: 2007/02/20 15:42:17 $
+ * $Revision: 1.3 $
  * \author G. Della Ricca
  *
 */
@@ -18,19 +18,15 @@
 #include "TH1F.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DQM/EcalBarrelMonitorClient/interface/EBClient.h"
+
 #include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
 #include "OnlineDB/EcalCondDB/interface/MonRunIOV.h"
+
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/MonitorUserInterface.h"
 #include "DQMServices/Core/interface/CollateMonitorElement.h"
 
-#include "DQMServices/Core/interface/QTestStatus.h"
-#include "DQMServices/QualityTests/interface/QCriterionRoot.h"
-
-class MonitorUserInterface;
-class EcalCondDBInterface;
-class MonRunIOV;
+#include "DQM/EcalBarrelMonitorClient/interface/EBClient.h"
 
 class EBTimingClient : public EBClient {
 

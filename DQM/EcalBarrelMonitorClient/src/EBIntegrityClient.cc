@@ -2,8 +2,8 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2007/02/20 11:01:18 $
- * $Revision: 1.136 $
+ * $Date: 2007/02/20 13:27:16 $
+ * $Revision: 1.137 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -18,31 +18,30 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
+#include "DQMServices/Core/interface/QTestStatus.h"
+#include "DQMServices/QualityTests/interface/QCriterionRoot.h"
 
 #include "OnlineDB/EcalCondDB/interface/RunTag.h"
 #include "OnlineDB/EcalCondDB/interface/RunIOV.h"
-
 #include "OnlineDB/EcalCondDB/interface/MonCrystalConsistencyDat.h"
 #include "OnlineDB/EcalCondDB/interface/MonTTConsistencyDat.h"
 #include "OnlineDB/EcalCondDB/interface/MonMemChConsistencyDat.h"
 #include "OnlineDB/EcalCondDB/interface/MonMemTTConsistencyDat.h"
-
-#include <DQM/EcalBarrelMonitorClient/interface/EBIntegrityClient.h>
-#include <DQM/EcalBarrelMonitorClient/interface/EBMUtilsClient.h>
-
-#include "DQM/EcalBarrelMonitorClient/interface/EcalErrorMask.h"
-#include "CondTools/Ecal/interface/EcalErrorDictionary.h"
 #include "OnlineDB/EcalCondDB/interface/RunCrystalErrorsDat.h"
 #include "OnlineDB/EcalCondDB/interface/RunTTErrorsDat.h"
 #include "OnlineDB/EcalCondDB/interface/RunPNErrorsDat.h"
 #include "OnlineDB/EcalCondDB/interface/RunMemChErrorsDat.h"
 #include "OnlineDB/EcalCondDB/interface/RunMemTTErrorsDat.h"
+
+#include "CondTools/Ecal/interface/EcalErrorDictionary.h"
+
+#include "DQM/EcalBarrelMonitorClient/interface/EcalErrorMask.h"
+#include <DQM/EcalBarrelMonitorClient/interface/EBIntegrityClient.h>
+#include <DQM/EcalBarrelMonitorClient/interface/EBMUtilsClient.h>
 
 using namespace cms;
 using namespace edm;

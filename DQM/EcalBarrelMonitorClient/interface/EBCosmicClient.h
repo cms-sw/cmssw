@@ -4,8 +4,8 @@
 /*
  * \file EBCosmicClient.h
  *
- * $Date: 2007/02/01 15:25:24 $
- * $Revision: 1.32 $
+ * $Date: 2007/02/20 15:42:17 $
+ * $Revision: 1.33 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -19,19 +19,12 @@
 #include "TH1F.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DQM/EcalBarrelMonitorClient/interface/EBClient.h"
 #include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
 #include "OnlineDB/EcalCondDB/interface/MonRunIOV.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/MonitorUserInterface.h"
 #include "DQMServices/Core/interface/CollateMonitorElement.h"
-
-#include "DQMServices/Core/interface/QTestStatus.h"
-#include "DQMServices/QualityTests/interface/QCriterionRoot.h"
-
-class MonitorUserInterface;
-class EcalCondDBInterface;
-class MonRunIOV;
+#include "DQM/EcalBarrelMonitorClient/interface/EBClient.h"
 
 class EBCosmicClient : public EBClient {
 

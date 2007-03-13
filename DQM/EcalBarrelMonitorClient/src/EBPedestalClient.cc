@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  *
- * $Date: 2007/02/20 13:27:16 $
- * $Revision: 1.128 $
+ * $Date: 2007/02/22 09:35:44 $
+ * $Revision: 1.129 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -17,27 +17,25 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
+#include "DQMServices/Core/interface/QTestStatus.h"
+#include "DQMServices/QualityTests/interface/QCriterionRoot.h"
 
 #include "OnlineDB/EcalCondDB/interface/RunTag.h"
 #include "OnlineDB/EcalCondDB/interface/RunIOV.h"
-
 #include "OnlineDB/EcalCondDB/interface/MonPedestalsDat.h"
-
 #include "OnlineDB/EcalCondDB/interface/MonPNPedDat.h"
+#include "OnlineDB/EcalCondDB/interface/RunCrystalErrorsDat.h"
+#include "OnlineDB/EcalCondDB/interface/RunPNErrorsDat.h"
+
+#include "CondTools/Ecal/interface/EcalErrorDictionary.h"
 
 #include <DQM/EcalBarrelMonitorClient/interface/EBPedestalClient.h>
 #include <DQM/EcalBarrelMonitorClient/interface/EBMUtilsClient.h>
-
 #include "DQM/EcalBarrelMonitorClient/interface/EcalErrorMask.h"
-#include "CondTools/Ecal/interface/EcalErrorDictionary.h"
-#include "OnlineDB/EcalCondDB/interface/RunCrystalErrorsDat.h"
-#include "OnlineDB/EcalCondDB/interface/RunPNErrorsDat.h"
 
 using namespace cms;
 using namespace edm;
