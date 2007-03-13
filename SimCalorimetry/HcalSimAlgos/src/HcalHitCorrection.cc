@@ -81,7 +81,7 @@ double HcalHitCorrection::delay(const PCaloHit & hit) const
 
 void HcalHitCorrection::correct(PCaloHit & hit) const {
   // replace the hit with a new one, with a time delay
-  hit = PCaloHit(hit.id(), hit.energy(), hit.time()+delay(hit), hit.geantTrackId());
+  hit = PCaloHit(hit.id(), hit.energyEM(), hit.energyHad(), hit.time()+delay(hit), hit.geantTrackId());
 }
 
 
