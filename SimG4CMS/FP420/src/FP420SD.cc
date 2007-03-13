@@ -4,7 +4,7 @@
 // Description: Sensitive Detector class for FP420
 // Modifications: 
 ///////////////////////////////////////////////////////////////////////////////
-
+ 
 //#include "Geometry/Vector/interface/LocalPoint.h"
 //#include "Geometry/Vector/interface/LocalVector.h"
 
