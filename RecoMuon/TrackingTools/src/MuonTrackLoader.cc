@@ -3,8 +3,8 @@
  *  Class to load the product in the event
  *
 
- *  $Date: 2007/03/06 14:32:18 $
- *  $Revision: 1.41 $
+ *  $Date: 2007/03/07 15:25:43 $
+ *  $Revision: 1.42 $
 
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
@@ -26,6 +26,7 @@
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
+#include "DataFormats/TrackReco/interface/TrackToTrackMap.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 
@@ -72,10 +73,18 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
 
   // the track collectios; they will be loaded in the event  
   auto_ptr<reco::TrackCollection> trackCollection(new reco::TrackCollection());
+  // ... and its reference into the event
+  reco::TrackRefProd trackCollectionRefProd = event.getRefBeforePut<reco::TrackCollection>(instance);
 
   // track collection for the tracks updated at vertex
   auto_ptr<reco::TrackCollection> updatedAtVtxTrackCollection(new reco::TrackCollection());
+  // ... and its (eventually) reference into the event
+  reco::TrackRefProd trackUpdatedCollectionRefProd;
+  if(theUpdatingAtVtx)  trackUpdatedCollectionRefProd = event.getRefBeforePut<reco::TrackCollection>(instance+"UpdatedAtVtx");
  
+  // Association map between updated and non updated at vtx tracks
+  auto_ptr<reco:: TrackToTrackMap> trackToTrackmap(new reco::TrackToTrackMap);
+
   // the track extra collection, it will be loaded in the event  
   auto_ptr<reco::TrackExtraCollection> trackExtraCollection(new reco::TrackExtraCollection() );
   // ... and its reference into the event
@@ -94,12 +103,17 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
     event.put(recHitCollection,instance);
     event.put(trackExtraCollection,instance);
     if(theTrajectoryFlag) event.put(trajectoryCollection,instance);
-    if(theUpdatingAtVtx)
+    if(theUpdatingAtVtx){
+      event.put(trackToTrackmap);
       event.put(updatedAtVtxTrackCollection,instance+"UpdatedAtVtx");
+    }
     return event.put(trackCollection,instance);
   }
   
   LogTrace(metname) << "Create the collection of Tracks";
+
+  reco::TrackRef::key_type trackIndex = 0;
+  reco::TrackRef::key_type trackUpdatedIndex = 0;
 
   reco::TrackExtraRef::key_type trackExtraIndex = 0;
   TrackingRecHitRef::key_type recHitsIndex = 0;
@@ -143,6 +157,10 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
 
       // set the persistent track-extra reference to the Track
       updatedTrack.setExtra(trackExtraRef);
+
+      // Fill the map
+      trackToTrackmap->insert(reco::TrackRef(trackCollectionRefProd,trackIndex++),
+			      reco::TrackRef(trackUpdatedCollectionRefProd,trackUpdatedIndex++));
     }
     
     // Fill the track extra with the rec hit (persistent-)reference
@@ -183,6 +201,7 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
 
   if(theUpdatingAtVtx){
     event.put(trackCollection,instance);
+    event.put(trackToTrackmap);
     return  event.put(updatedAtVtxTrackCollection,instance+"UpdatedAtVtx");
   }
   else
