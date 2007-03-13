@@ -33,7 +33,7 @@ GeometricDet* CmsTrackerDetIdBuilder::buildId(GeometricDet* tracker){
 
 void CmsTrackerDetIdBuilder::iterate(GeometricDet* in, int level, unsigned int ID){
   std::bitset<32> binary_ID(ID);
-  std::cout << "******** Level " << level-1 << "-->" << level << " ID " << ID << " (" << binary_ID << ")" << std::endl;
+  //  std::cout << "******** Level " << level-1 << "-->" << level << " ID " << ID << " (" << binary_ID << ")" << std::endl;
 
   // SubDetector (useful to know fron now on, valid only after level 0, where SubDetector is assigned)
   uint32_t mask = (7<<25);
