@@ -7,3 +7,6 @@ DEFINE_FWK_MODULE(TestClient);
 
 #include <DQM/DTMonitorClient/interface/DTtTrigCalibrationTest.h>
 DEFINE_ANOTHER_FWK_MODULE(DTtTrigCalibrationTest);
+
+#include <DQM/DTMonitorClient/src/DTResolutionTest.h>
+DEFINE_ANOTHER_FWK_MODULE(DTResolutionTest);
