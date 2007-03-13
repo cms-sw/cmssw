@@ -5,15 +5,15 @@
  *  to MC and (eventually) data. 
  *  Implementation file contents follow.
  *
- *  $Date: 2007/03/07 22:16:04 $
- *  $Revision: 1.29 $
+ *  $Date: 2007/03/07 22:26:41 $
+ *  $Revision: 1.30 $
  *  \author Vyacheslav Krutelyov (slava77)
  */
 
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Fri Mar  3 16:01:24 CST 2006
-// $Id: SteppingHelixPropagator.cc,v 1.29 2007/03/07 22:16:04 slava77 Exp $
+// $Id: SteppingHelixPropagator.cc,v 1.30 2007/03/07 22:26:41 slava77 Exp $
 //
 //
 
@@ -406,7 +406,7 @@ SteppingHelixPropagator::propagate(SteppingHelixPropagator::DestType type,
     }
     if (fabs(tanDistMin) < dStep){
       dStep = fabs(tanDistMin); 
-      if (type == POINT_PCA_DT){
+      if (type == POINT_PCA_DT || type == LINE_PCA_DT){
 	//being lazy here; the best is to take into account the curvature
 	dStep = fabs(tanDistMin)*0.5; 
       }
