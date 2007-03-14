@@ -311,7 +311,7 @@ void SiStripRawToClustersModule::produce( edm::Event& event,
     }
   }
 
-  //if (clusters) delete clusters; 
+  if (clusters) delete clusters; 
 }
   
 
