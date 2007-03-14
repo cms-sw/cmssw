@@ -7,7 +7,7 @@
 //
 // Original Author:  Fabian Stoeckli
 //         Created:  Tue Nov 14 13:43:02 CET 2006
-// $Id: ZeeAnalyzer.cc,v 1.3 2007/03/01 12:11:35 fabstoec Exp $
+// $Id: ZeeAnalyzer.cc,v 1.4 2007/03/08 14:49:25 fabstoec Exp $
 //
 //
 
@@ -95,6 +95,7 @@ void ZeeAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
    double weight_sign = (weight > 0) ? 1. : -1.;
    invmass_histo->Fill(inv_mass,weight_sign);
 
+   delete evt;
 }
 
 
