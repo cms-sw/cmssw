@@ -13,7 +13,7 @@
 //
 // Original Author:  Alessandro Palma
 //         Created:  Thu Sep 21 11:41:35 CEST 2006
-// $Id: ElectronAnalyzer.cc,v 1.13 2007/02/07 00:18:04 futyand Exp $
+// $Id: ElectronAnalyzer.cc,v 1.14 2007/03/07 10:54:23 uberthon Exp $
 //
 //
 
@@ -36,7 +36,6 @@
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "DataFormats/HepMCCandidate/interface/HepMCCandidate.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/ClusterShape.h"

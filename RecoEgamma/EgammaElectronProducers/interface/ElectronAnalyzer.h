@@ -16,37 +16,29 @@
 //
 // Original Author:  Alessandro Palma
 //         Created:  Thu Sep 21 11:41:35 CEST 2006
-// $Id: ElectronAnalyzer.h,v 1.7 2006/12/19 10:22:07 rahatlou Exp $
+// $Id: ElectronAnalyzer.h,v 1.8 2007/03/07 10:54:22 uberthon Exp $
 //
 //
 
 
 // system include files
-#include <memory>
+//#include <memory>
 #include<string>
-#include "math.h"
+//#include "math.h"
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/Common/interface/Handle.h"
 
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/Math/interface/LorentzVector.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Utilities/interface/Exception.h"
-#include "DataFormats/HepMCCandidate/interface/HepMCCandidate.h"
-#include "DataFormats/EgammaReco/interface/BasicCluster.h"
-#include "DataFormats/EgammaReco/interface/SuperCluster.h"
-#include "DataFormats/EgammaCandidates/interface/Electron.h"
-#include "DataFormats/EgammaCandidates/interface/Photon.h"
+//#include "FWCore/MessageLogger/interface/MessageLogger.h"
+//#include "FWCore/Utilities/interface/Exception.h"
 
-#include "TH1.h"
-#include "TFile.h"
+
+class TH1F;
+class TFile;
 
 //
 // class declaration
