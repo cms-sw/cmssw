@@ -74,12 +74,12 @@ void L2TauJetsProvider::produce(edm::Event& iEvent, const edm::EventSetup& iES)
  bool singleTauFired = singleTauMap.triggerDecision() ;
  bool doubleTauFired = doubleTauMap.triggerDecision() ;
 
- /*
+ 
  cout <<"Trigger SingleTau "<<singleTauFired<<endl;
  cout <<"Trigger DoubleTau "<<doubleTauFired<<endl;
  cout <<"SingleTau objects: "<<myL1SingleTaus.size()<<endl;
  cout <<"DoubleTau objects: "<<myL1DoubleTaus.size()<<endl;
- */
+ 
 
  
 
@@ -103,8 +103,8 @@ void L2TauJetsProvider::produce(edm::Event& iEvent, const edm::EventSetup& iES)
 	  {
 	    //Calculate the DeltaR between L1TauCandidate and L1Tau which fired the trigger
 	    deltaR = ROOT::Math::VectorUtil::DeltaR(myL1Tau[iJet].p4().Vect(), (*myTau1)->p4().Vect());
-	    cout <<"SingleTau "<<(*myTau1)->pt() << " "<<(*myTau1)->eta() << " " << (*myTau1)->phi() <<endl;
-	    cout <<"deltaR "<<deltaR<<endl;
+	    //	    cout <<"SingleTau "<<(*myTau1)->pt() << " "<<(*myTau1)->eta() << " " << (*myTau1)->phi() <<endl;
+	    //	    cout <<"deltaR "<<deltaR<<endl;
 	    if(deltaR < matchingR) {
 	      //Getting back from the map the L2TauJet
 	      const CaloJet myL2TauJet = myL2itr->second;
@@ -120,7 +120,7 @@ void L2TauJetsProvider::produce(edm::Event& iEvent, const edm::EventSetup& iES)
 //	cout <<"*** Loop over L1 DoubleTau "<<endl; 
 	for(;myTau2 != myL1DoubleTaus.end();myTau2++)
 	  {
-	    cout <<"DoubleTau "<<(*myTau2)->pt() << " "<<(*myTau2)->eta() << " " << (*myTau2)->phi() <<endl;
+	    //	    cout <<"DoubleTau "<<(*myTau2)->pt() << " "<<(*myTau2)->eta() << " " << (*myTau2)->phi() <<endl;
 	    deltaR = ROOT::Math::VectorUtil::DeltaR(myL1Tau[iJet].p4().Vect(), (*myTau2)->p4().Vect());
 //	    cout <<"detaR "<<deltaR<<endl;
 	    if(deltaR < matchingR) {
@@ -132,7 +132,7 @@ void L2TauJetsProvider::produce(edm::Event& iEvent, const edm::EventSetup& iES)
 	  }  
 	if(alreadyMatched) continue;
 	
-	double etL1Cand = myL1Tau[iJet].et();
+	double etL1Cand = myL1Tau[iJet].et(); //PAY ATTENTION THIS THRESHOLD MUST BE HIGHER THAN L1 E (OR MU)+TAU
 	if(singleTauFired && (!doubleTauFired) && etL1Cand > mEt_ExtraTau ){
 	  const CaloJet myL2TauJet = myL2itr->second;
 	  doubleTauTmp->push_back(myL2TauJet);
