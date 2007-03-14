@@ -1,6 +1,6 @@
 /*
- * $Date: 2007/02/02 18:42:37 $
- * $Revision: 1.10 $
+ * $Date: 2007/03/14 08:55:51 $
+ * $Revision: 1.12 $
  *
  * \author: D. Giordano, domenico.giordano@cern.ch
  * Modified: M.De Mattia 2/3/2007
@@ -840,7 +840,7 @@ namespace cms{
   }
 
   // To book histograms
-  void ClusterAnalysis::bookHlist( TObjArray * Hlist, char* ParameterSetLabel, TString & HistoName,
+  void ClusterAnalysis::bookHlist(char* ParameterSetLabel, TString & HistoName,
 				   char* Nbinx, char* xmin, char* xmax,
 				   char* Nbiny, char* ymin, char* ymax,
 				   char* Nbinz, char* zmin, char* zmax ) {
