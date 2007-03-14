@@ -43,6 +43,7 @@ RecoMuonValidator::RecoMuonValidator(const ParameterSet& pset)
   simTrackLabel_ = pset.getParameter<InputTag>("SimTrack");
   staTrackLabel_ = pset.getParameter<InputTag>("StaTrack");
   glbTrackLabel_ = pset.getParameter<InputTag>("GlbTrack");
+  tkTrackLabel_  = pset.getParameter<InputTag>("TkTrack");
   seedLabel_     = pset.getParameter<InputTag>("Seed");
 
   // the service parameters
@@ -91,6 +92,8 @@ void RecoMuonValidator::beginJob(const EventSetup& eventSetup)
                             nBinEta_, minEta_, maxEta_, nBinPhi_, minPhi_, maxPhi_);
   hGlbEtaVsPhi_  = new TH2F("GlbEtaVsPhi", "Glb #eta vs #phi",
                             nBinEta_, minEta_, maxEta_, nBinPhi_, minPhi_, maxPhi_);
+  hTkEtaVsPhi_   = new TH2F("TkEtaVsPhi" , "Tk #eta vs #phi",
+                            nBinEta_, minEta_, maxEta_, nBinPhi_, minPhi_, maxPhi_);
   hSeedEtaVsPhi_ = new TH2F("SeedEtaVsPhi", "Seed #eta vs #phi",
                             nBinEta_, minEta_, maxEta_, nBinPhi_, minPhi_, maxPhi_);
 
@@ -128,6 +131,7 @@ void RecoMuonValidator::endJob()
   hSimEtaVsPhi_ ->Write();
   hStaEtaVsPhi_ ->Write();
   hGlbEtaVsPhi_ ->Write();
+  hTkEtaVsPhi_  ->Write();
   hSeedEtaVsPhi_->Write();
 
   hEtaVsNDtSimHits_ ->Write();
@@ -204,6 +208,18 @@ void RecoMuonValidator::analyze(const Event& event, const EventSetup& eventSetup
     hStaEtaVsPhi_->Fill(simEta, simPhi);
     hStaEtaVsNHits_->Fill(simEta, staInfo.second.numberOfValidHits());
     hStaResol_->fillInfo(simTrack, staInfo.first);
+
+    Handle<TrackCollection> tkTracks;
+    event.getByLabel(tkTrackLabel_, tkTracks);
+    if ( tkTracks->size() > 0 
+         && staInfo.second.pt() > 1.0
+         && staInfo.second.innerMomentum().Rho() > 1.0
+         && staInfo.second.innerMomentum().R() > 2.5 ) {  
+      pair<TSOS, TransientTrack> tkInfo = matchTrack(simTrack, tkTracks);
+      if ( tkInfo.second.p() > 2.5 && tkInfo.second.pt() > 1.0 ) {
+        hTkEtaVsPhi_->Fill(simEta, simPhi);
+      }
+    }
   }
 
   Handle<TrackCollection> glbTracks;

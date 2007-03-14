@@ -141,12 +141,13 @@ class RecoMuonValidator : public edm::EDAnalyzer
   edm::InputTag simTrackLabel_;
   edm::InputTag staTrackLabel_;
   edm::InputTag glbTrackLabel_;
+  edm::InputTag tkTrackLabel_;
   edm::InputTag seedLabel_    ;
 
   std::string outputFileName_;
   TFile* outputFile_;
 
-  TH2F * hSimEtaVsPhi_, * hStaEtaVsPhi_, * hGlbEtaVsPhi_, * hSeedEtaVsPhi_;
+  TH2F * hSimEtaVsPhi_, * hStaEtaVsPhi_, * hGlbEtaVsPhi_, * hTkEtaVsPhi_, * hSeedEtaVsPhi_;
   TH2F * hEtaVsNDtSimHits_, * hEtaVsNCSCSimHits_, * hEtaVsNRPCSimHits_, * hEtaVsNSimHits_;
   TH2F * hSeedEtaVsNHits_, * hStaEtaVsNHits_, * hGlbEtaVsNHits_;
   HResolution * hStaResol_, * hGlbResol_, * hSeedResol_;
