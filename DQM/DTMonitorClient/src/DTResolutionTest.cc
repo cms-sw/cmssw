@@ -87,7 +87,7 @@ void DTResolutionTest::bookHistos(const DTChamberId & ch) {
   string MeanHistoName =  "MeanTest_W" + wheel.str() + "_Sec" + sector.str(); 
   string SigmaHistoName =  "SigmaTest_W" + wheel.str() + "_Sec" + sector.str(); 
 
-  dbe->setCurrentFolder("DT/Tests/DTresolution");
+  dbe->setCurrentFolder("DT/Tests/DTResolution");
 
   string HistoName = "W" + wheel.str() + "_Sec" + sector.str(); 
   MeanHistos[HistoName] = dbe->book1D(MeanHistoName.c_str(),MeanHistoName.c_str(),11,0,10);
@@ -130,9 +130,12 @@ void DTResolutionTest::analyze(const edm::Event& e, const edm::EventSetup& conte
   
       MonitorElement * res_histo = dbe->get(getMEName(slID));
       if (res_histo) {
-
-	//to introduce here the test with the gaussian fit for res_histo
-
+	/*cout<<"before gaussian test"<<endl;
+	// gaussian test
+	string GaussianCriterionName = "GaussianTest";
+	const QReport * GaussianReport = res_histo->getQReport(GaussianCriterionName);
+	cout<<"-------- "<<GaussianReport->getMessage()<<" ------- "<<GaussianReport->getStatus()<<endl;
+	cout<<"after gaussian test"<<endl;*/
 	int BinNumber = entry+slID.superLayer();
 	if(BinNumber == 12) BinNumber=11;
 	float mean = (*res_histo).getMean(1);
@@ -155,10 +158,10 @@ void DTResolutionTest::analyze(const edm::Event& e, const edm::EventSetup& conte
     const QReport * theMeanQReport = (*hMean).second->getQReport(MeanCriterionName);
     if(theMeanQReport) {
       vector<dqm::me_util::Channel> badChannels = theMeanQReport->getBadChannels();
-	for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
-	     channel != badChannels.end(); channel++) {
-	  cout<<(*ch_it)->id()<<" Bad mean channels: "<<(*channel).getBin()<<" "<<(*channel).getContents()<<endl;
-	}
+      for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
+	   channel != badChannels.end(); channel++) {
+	cout<<"Bad mean channels: "<<(*channel).getBin()<<" "<<(*channel).getContents()<<endl;
+      }
       cout<<"-------- "<<theMeanQReport->getMessage()<<" ------- "<<theMeanQReport->getStatus()<<endl;
     }
   }
@@ -171,12 +174,12 @@ void DTResolutionTest::analyze(const edm::Event& e, const edm::EventSetup& conte
       hSigma++) {
     const QReport * theSigmaQReport = (*hSigma).second->getQReport(SigmaCriterionName);
     if(theSigmaQReport) {
-      vector<dqm::me_util::Channel> badChannels = theSigmaQReport->getBadChannels();
-	for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
-	     channel != badChannels.end(); channel++) {
-	  cout<<(*ch_it)->id()<<" Bad sigma channels: "<<(*channel).getBin()<<" "<<(*channel).getContents()<<endl;
-	}
-      cout<<"-------- "<<theSigmaQReport->getMessage()<<" ------- "<<theSigmaQReport->getStatus()<<endl;
+    vector<dqm::me_util::Channel> badChannels = theSigmaQReport->getBadChannels();
+    for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
+         channel != badChannels.end(); channel++) {
+      cout<<"Bad sigma channels: "<<(*channel).getBin()<<" "<<(*channel).getContents()<<endl;
+    }
+    cout<<"-------- "<<theSigmaQReport->getMessage()<<" ------- "<<theSigmaQReport->getStatus()<<endl;
     }
   }
 
@@ -184,7 +187,7 @@ void DTResolutionTest::analyze(const edm::Event& e, const edm::EventSetup& conte
     if ( parameters.getUntrackedParameter<bool>("writeHisto", true) ) 
       dbe->save(parameters.getUntrackedParameter<string>("outputFile", "DTResolutionTest.root"));
   }
-
+  
 }
 
 
