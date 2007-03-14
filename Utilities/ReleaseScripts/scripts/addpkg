@@ -11,18 +11,20 @@ use Cwd;
 
 my $file;
 my $doHelp;
-my $test;
+my $quiet;
+my $tc; # tag collector format: <package> <tag>
 
 GetOptions("file|f=s" => \$file,
-           "test|t" => \$test,
+           "quiet|q" => \$quiet,
+           "tagcollector|t" => \$tc,
            "help|h" => \$doHelp);
 
 #-- main start here
 
 if( defined $doHelp )   {  usage(); }
 
-if(defined $test) {
-  print STDOUT "--test: Will not execute the CVS commands.\n";
+if(defined $quiet) {
+  print STDOUT "--quiet: Will not execute the CVS commands.\n";
 }
 
 # make sure cvs is setup
@@ -45,20 +47,19 @@ my %tags;
 open IN, "<$file";
 while(my $line = <IN>) {
   chomp $line;
-  (my $tag,my $package) = split '\s+', $line;
 
-  #print STDOUT "<$package> <$tag>\n";
-
-  unless( $package =~ m#(.*)\/(.*)# ) {
-    print STDERR "bad package name <$package> not of the form Subsystem/Package.. skipping this one\n";
-    next;
+  my ($tag, $package);
+  if(defined $tc) { # swap tag and package if using TC format
+    ($package,$tag) = split '\s+', $line;
+  } else {
+    ($tag,$package) = split '\s+', $line;
   }
 
   $tags{$package} = $tag;
 
   # run the cvs command
   my $cmd = "cvs co -r $tag $package";
-  if(defined $test) {
+  if(defined $quiet) {
     print STDOUT "$cmd\n";
   } else {
     system("$cmd");
@@ -75,9 +76,10 @@ print STDOUT <<ENDHELP;
 addpkg [option]
 
   usage:      --help|-h          print this message
-              --test|-t          do not run the actual cvs command. simple printout
-              --file|-f <file>   checkout tags in <file>. Each line must be \"tag   subsystem/package\"
-                                 as provided by showtags
+              --quiet|-q         do not run the actual cvs command. simple printout
+              --file|-f <file>   checkout tags in <file>. Each line must be <tag>  <subsystem/package>
+                                 as provided by showtags unless --tagcollector|t used
+              --tagcollector|t   Use the TC cormat: <subsyste/package> <tag>
 
 ENDHELP
 exit 0;
