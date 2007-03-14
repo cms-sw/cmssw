@@ -6,9 +6,9 @@
  * 
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.15 $
+ * \version $Revision: 1.16 $
  *
- * $Id: ObjectSelector.h,v 1.15 2007/03/09 14:07:08 llista Exp $
+ * $Id: ObjectSelector.h,v 1.16 2007/03/09 14:44:01 llista Exp $
  *
  */
 
@@ -76,42 +76,51 @@ namespace helper {
     std::auto_ptr<collection> selected_;
   };
 
-}
+  template<typename OutputCollection>
+  struct NullPostProcessor {
+    NullPostProcessor( const edm::ParameterSet & ) { }
+    void init( edm::EDFilter & ) { }
+    void process( edm::OrphanHandle<OutputCollection>, edm::Event & ) { }
+  };
 
-namespace reco {
-  namespace helpers {
-    template<typename OutputCollection>
-    struct NullPostProcessor {
-      NullPostProcessor( const edm::ParameterSet & ) { }
-      void init( edm::EDFilter & ) { }
-      void process( edm::OrphanHandle<OutputCollection>, edm::Event & ) { }
-    };
-  }
+  template<typename OutputCollection>
+  class ObjectSelectorBase : public edm::EDFilter {
+    ObjectSelectorBase( const edm::ParameterSet & cfg ) {
+      produces<OutputCollection>();
+    }    
+  };
+
+  template<typename OutputCollection>
+  struct StoreManagerTrait {
+    typedef CollectionStoreManager<OutputCollection> type;
+    typedef ObjectSelectorBase<OutputCollection> base;
+  };
+
 }
 
 template<typename Selector, 
          typename OutputCollection = typename Selector::collection,
 	 typename SizeSelector = NonNullNumberSelector,
-	 typename PostProcessor = reco::helpers::NullPostProcessor<OutputCollection> 
+	 typename PostProcessor = helper::NullPostProcessor<OutputCollection>,
+	 typename StoreManager = typename helper::StoreManagerTrait<OutputCollection>::type,
+	 typename Base = typename helper::StoreManagerTrait<OutputCollection>::base
 	 >
-class ObjectSelector : public edm::EDFilter {
+class ObjectSelector : public Base {
 public:
   /// constructor 
   explicit ObjectSelector( const edm::ParameterSet & cfg ) :
-  src_( cfg.template getParameter<edm::InputTag>( "src" ) ),
-  filter_( false ),
-  selector_( cfg ),
-  sizeSelector_( reco::modules::make<SizeSelector>( cfg ) ),
-  postProcessor_( cfg ) {
+    Base( cfg ),
+    src_( cfg.template getParameter<edm::InputTag>( "src" ) ),
+    filter_( false ),
+    selector_( cfg ),
+    sizeSelector_( reco::modules::make<SizeSelector>( cfg ) ),
+    postProcessor_( cfg ) {
     const std::string filter( "filter" );
     std::vector<std::string> bools = cfg.template getParameterNamesForType<bool>();
     bool found = std::find( bools.begin(), bools.end(), filter ) != bools.end();
     if ( found ) filter_ = cfg.template getParameter<bool>( filter );
-
     postProcessor_.init( * this );
-    produces<OutputCollection>();
-
-  }
+   }
   /// destructor
   virtual ~ObjectSelector() { }
   
@@ -120,7 +129,7 @@ private:
   bool filter( edm::Event& evt, const edm::EventSetup& ) {
     edm::Handle<typename Selector::collection> source;
     evt.getByLabel( src_, source );
-    helper::CollectionStoreManager<OutputCollection> manager;
+    StoreManager manager;
     selector_.select( source, evt );
     manager.cloneAndStore( selector_.begin(), selector_.end(), evt );
     bool result = ( ! filter_ || sizeSelector_( manager.size() ) );
