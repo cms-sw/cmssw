@@ -13,7 +13,7 @@
 //
 // Original Author:  Wolfram Erdmann
 //         Created:  Fri Jun  2 10:54:05 CEST 2006
-// $Id: PrimaryVertexAnalyzer.h,v 1.7 2006/11/08 13:59:18 werdmann Exp $
+// $Id: PrimaryVertexAnalyzer.h,v 1.8 2006/12/21 16:33:30 werdmann Exp $
 //
 //
 
@@ -26,7 +26,6 @@
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
@@ -49,16 +48,16 @@
 #include <SimDataFormats/Vertex/interface/SimVertexContainer.h>
 #include <SimDataFormats/Track/interface/SimTrack.h>
 #include <SimDataFormats/Track/interface/SimTrackContainer.h>
+#include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 
 // Root
 #include <TH1.h>
 #include <TFile.h>
 
 
-//class TrackAssociatorBase;
+
 
 // class declaration
-
 class PrimaryVertexAnalyzer : public edm::EDAnalyzer {
 
 
@@ -92,6 +91,7 @@ private:
 		   const reco::Vertex       &vrec);
   bool isResonance(const HepMC::GenParticle * p);
   bool isFinalstateParticle(const HepMC::GenParticle * p);
+  bool isCharged(const HepMC::GenParticle * p);
  
   void printRecVtxs(const edm::Handle<reco::VertexCollection> recVtxs);
   void printSimVtxs(const edm::Handle<edm::SimVertexContainer> simVtxs);
@@ -107,7 +107,9 @@ private:
   TFile*  rootFile_;             
   bool verbose_;
   edm::InputTag simG4_;
-  double simUnit_;               
+  double simUnit_;     
+  edm::ESHandle < ParticleDataTable > pdt;
+     
 
   std::map<std::string, TH1*> h;
 };

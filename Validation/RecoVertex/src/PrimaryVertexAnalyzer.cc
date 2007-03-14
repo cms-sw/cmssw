@@ -15,13 +15,9 @@
 #include <SimDataFormats/Track/interface/SimTrackContainer.h>
 
 //generator level + CLHEP
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include "CLHEP/HepMC/GenEvent.h"
 #include "CLHEP/HepMC/GenVertex.h"
-
-// HepPDT // for simtracks
-#include "SimGeneral/HepPDT/interface/HepPDTable.h"
-#include "SimGeneral/HepPDT/interface/HepParticleData.h"
+//#include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 
 #include "CommonTools/Statistics/interface/ChiSquaredProbability.h"
 
@@ -148,28 +144,24 @@ bool PrimaryVertexAnalyzer::matchVertex(const simPrimaryVertex  &vsim,
 }
 
 bool PrimaryVertexAnalyzer::isResonance(const HepMC::GenParticle * p){
-  return  ! HepPDT::theTable().getParticleData(p->pdg_id())->stable() 
-    && HepPDT::theTable().getParticleData(p->pdg_id())->cTau()<1e-6;
+  double ctau=(pdt->particle( abs(p->pdg_id()) ))->lifetime();
+  std::cout << "isResonance   " << p->pdg_id() << " " << ctau << std::endl;
+  return  ctau >0 && ctau <1e-6;
 }
 
 bool PrimaryVertexAnalyzer::isFinalstateParticle(const HepMC::GenParticle * p){
   return ( !p->end_vertex() && p->status()==1 );
 }
-/*
-bool PrimaryVertexAnalyzer::isPrimaryParticle(const HepMC::GenParticle * p){
-  HepMC::GenVertex * gv=gp->production_vertex();
-  if (gv){
-    if (position().t()==0){
-      return true;
-    }else{
-      return gp->mother() && isResonane(gp->mother()) && isPrimaryParticle(gp->mother());
-    }
+
+bool PrimaryVertexAnalyzer::isCharged(const HepMC::GenParticle * p){
+  const ParticleData * part = pdt->particle( p->pdg_id() );
+  if (part){
+    return part->charge()!=0;
   }else{
-    std::cout << "particle has no production vertex " << p->pdg_id() << std::endl;
-    return false; // don't know much about it
+    // the new/improved particle table doesn't know anti-particles
+    return  pdt->particle( -p->pdg_id() )!=0;
   }
 }
-*/
 
 void PrimaryVertexAnalyzer::printRecVtxs(const Handle<reco::VertexCollection> recVtxs){
     int ivtx=0;
@@ -242,23 +234,24 @@ std::vector<PrimaryVertexAnalyzer::simPrimaryVertex> PrimaryVertexAnalyzer::getS
     for(HepMC::GenEvent::vertex_const_iterator vitr= evt->vertices_begin();
 	vitr != evt->vertices_end(); ++vitr ) 
       { // loop for vertex ...
-	//std::cout << "looking at vertex " << idx << std::endl;
-	//std::cout << "has parents  " <<(*vitr)->hasParents() << " n= " <<  (*vitr)->numParents()<< std::endl;
-	//std::cout << "has children  " << (*vitr)->hasChildren() <<  " n= " <<  (*vitr)->numChildren()<<  std::endl;
-	
+	/*
+	std::cout << "looking at vertex " << idx << std::endl;
+	std::cout << "has parents  " <<(*vitr)->hasParents() << " n= " <<  (*vitr)->numParents()<< std::endl;
+	std::cout << "has children  " << (*vitr)->hasChildren() <<  " n= " <<  (*vitr)->numChildren()<<  std::endl;
+	*/
 	HepLorentzVector pos = (*vitr)->position();
 	if (pos.t()>0) { continue;}
 
 	bool hasMotherVertex=false;
-	//std::cout << "mothers" << std::endl;
+	std::cout << "mothers" << std::endl;
 	for ( HepMC::GenVertex::particle_iterator
 	      mother  = (*vitr)->particles_begin(HepMC::parents);
 	      mother != (*vitr)->particles_end(HepMC::parents);
               ++mother ) {
 	  HepMC::GenVertex * mv=(*mother)->production_vertex();
 	  if (mv) {hasMotherVertex=true;}
-	  //std::cout << "\t";
-	  //(*mother)->print();
+	  std::cout << "\t";
+	  (*mother)->print();
 	}
 	/*
 	std::cout << "daughters" << std::endl;
@@ -287,11 +280,11 @@ std::vector<PrimaryVertexAnalyzer::simPrimaryVertex> PrimaryVertexAnalyzer::getS
 
 	if(!vp){
 	  // this is a new vertex
-	  //std::cout << "this is a new vertex" << sv.x << " " << sv.y << " " << sv.z <<std::endl;
+	  std::cout << "this is a new vertex" << sv.x << " " << sv.y << " " << sv.z <<std::endl;
 	  simpv.push_back(sv);
 	  vp=&simpv.back();
 	}else{
-	  //std::cout << "this is not new vertex" << std::endl;
+	  std::cout << "this is not new vertex" << std::endl;
 	}
 	vp->genVertex.push_back((*vitr)->barcode());
 	// collect final state descendants
@@ -306,14 +299,13 @@ std::vector<PrimaryVertexAnalyzer::simPrimaryVertex> PrimaryVertexAnalyzer::getS
 	      HepLorentzVector m=(*daughter)->momentum();
 	      vp->ptot+=m;
 	      vp->ptsq+=(m.perp())*(m.perp());
-	      if ( (m.perp()>0.8) && fabs(m.rapidity()<2.5) 
-		   && (HepPDT::theTable().getParticleData((*daughter)->pdg_id())->charge() != 0)){
+	      if ( (m.perp()>0.8) && (fabs(m.rapidity())<2.5) && isCharged( *daughter ) ){
 		vp->nGenTrk++;
 	      }
+	      
 	      h["rapidity"]->Fill(m.rapidity());
 	      h["pt"]->Fill(m.perp());
 	    }
-	    //std::cout << (*daughter)->barcode() << "\t";
 	  }
 	}
 	idx++;
@@ -357,7 +349,8 @@ std::vector<PrimaryVertexAnalyzer::simPrimaryVertex> PrimaryVertexAnalyzer::getS
 	   primary =  ( gv->position().t()==0);
 	   resonance= ( gp->mother() && isResonance(gp->mother()));
 	   if (gp->status()==1){
-	     track=(HepPDT::theTable().getParticleData(gp->pdg_id())->charge() != 0);
+	     //track=((pdt->particle(gp->pdg_id()))->charge() != 0);
+	     track=not isCharged(&(*gp));
 	   }
 	 }
        }
@@ -412,6 +405,12 @@ PrimaryVertexAnalyzer::analyze(const Event& iEvent, const EventSetup& iSetup)
   Handle<SimTrackContainer> simTrks;
   iEvent.getByLabel( simG4_, simTrks);
 
+  try{
+    iSetup.getData(pdt);
+  }catch(const Exception&){
+    std::cout << "Some problem occurred with the particle data table. This may not work !." <<std::endl;
+  }
+
   bool MC=false;
   Handle<HepMCProduct> evtMC;
   try{
@@ -454,7 +453,6 @@ PrimaryVertexAnalyzer::analyze(const Event& iEvent, const EventSetup& iSetup)
   }
 
   if(MC){
-
    // make a list of primary vertices:
    std::vector<simPrimaryVertex> simpv;
    //simpv=getSimPVs(evtMC, simVtxs, simTrks);
