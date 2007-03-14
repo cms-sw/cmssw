@@ -4,6 +4,8 @@
 <use name=Foundation/PluginManager>
 <use name=DataFormats/FEDRawData>
 <use name=DataFormats/L1GlobalMuonTrigger>
+<use name=boost>
+<use name=xerces-c>
 <flags SEAL_PLUGIN_NAME="IORawDataRPCFileReader">
 <export>
    <lib name=IORawDataRPCFileReader>
@@ -13,4 +15,6 @@
    <use name=Foundation/PluginManager>
    <use name=DataFormats/FEDRawData>
    <use name=DataFormats/L1GlobalMuonTrigger>
+   <use name=boost>	
+   <use name=xerces-c>
 </export>
