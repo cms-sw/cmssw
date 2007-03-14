@@ -5,7 +5,7 @@
   
 RefVectorBase: Base class for a vector of interproduct references.
 
-$Id: RefVectorBase.h,v 1.8 2006/12/16 03:41:25 wmtan Exp $
+$Id: RefVectorBase.h,v 1.9 2007/03/04 04:59:59 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -17,11 +17,11 @@ $Id: RefVectorBase.h,v 1.8 2006/12/16 03:41:25 wmtan Exp $
 namespace edm {
 
   class EDProductGetter;
-  template <typename T>
+  template <typename KEY>
   class RefVectorBase {
   public:
-    typedef std::vector<RefItem<T> > RefItems;
-    typedef T key_type;
+    typedef std::vector<RefItem<KEY> > RefItems;
+    typedef KEY key_type;
     typedef typename RefItems::size_type size_type;
     /// Default constructor needed for reading from persistent store. Not for direct use.
     RefVectorBase() : product_(), items_() {}
@@ -45,7 +45,7 @@ namespace edm {
     /// Size of vector
     size_type size() const {return items_.size();}
 
-    void pushBack(RefCore const& prod_, RefItem<T> const& item_) {
+    void pushBack(RefCore const& prod_, RefItem<KEY> const& item_) {
       checkProduct(prod_, product_);
       items_.push_back(item_);
     }
@@ -68,7 +68,7 @@ namespace edm {
     }
 
     /// swap two vectors
-    void swap(RefVectorBase<T> & other) {
+    void swap(RefVectorBase<KEY> & other) {
       std::swap(product_, other.product_);
       items_.swap(other.items_);
     }
@@ -79,24 +79,24 @@ namespace edm {
   };
 
   /// Equality operator
-  template<typename T>
+  template<typename KEY>
   bool
-  operator==(RefVectorBase<T> const& lhs, RefVectorBase<T> const& rhs) {
+  operator==(RefVectorBase<KEY> const& lhs, RefVectorBase<KEY> const& rhs) {
     return lhs.refCore() == rhs.refCore() && lhs.items() == rhs.items();
   }
 
   /// Inequality operator
-  template<typename T>
+  template<typename KEY>
   bool
-  operator!=(RefVectorBase<T> const& lhs, RefVectorBase<T> const& rhs) {
+  operator!=(RefVectorBase<KEY> const& lhs, RefVectorBase<KEY> const& rhs) {
     return !(lhs == rhs);
   }
 
   /// swap two vectors
-  template<typename T>
+  template<typename KEY>
   inline
   void
-  swap(RefVectorBase<T> & a, RefVectorBase<T> & b) {
+  swap(RefVectorBase<KEY> & a, RefVectorBase<KEY> & b) {
     a.swap(b);
   }
 
