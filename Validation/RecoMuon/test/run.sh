@@ -1,12 +1,8 @@
 #!/bin/bash 
 
-cmsRun $PKGDIR/test/${1}.cfg >& ${1}.log
+cmsRun $PKGDIR/test/${1}.cfg 2>&1 | gzip > $OUTDIR/${1}.log.gz
 RETVAL=$?
 
-if [ $RETVAL != 0 ]; then
-  tar czf ${1}.log.tgz ${1}.log
-  mv -f ${1}.log.tgz  $OUTDIR/
-fi
+\mv -f *.root $OUTDIR/
 
-rm -f ${1}.log
-mv -f *.root $OUTDIR/
+exit $RETVAL
