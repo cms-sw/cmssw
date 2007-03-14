@@ -1,0 +1,12 @@
+<use name=root>
+<use name=Alignment/CommonAlignment>
+<use name=Alignment/CommonAlignmentAlgorithm>
+<use name=FWCore/ParameterSet>
+<use name=FWCore/Utilities>
+<export>
+   <lib name=AlignmentSurveyAnalysis>
+   <use name=root>
+   <use name=Alignment/CommonAlignment>
+   <use name=Alignment/CommonAlignmentAlgorithm>
+</export>
+<flags SEAL_PLUGIN_NAME="AlignmentSurveyAnalysis">
