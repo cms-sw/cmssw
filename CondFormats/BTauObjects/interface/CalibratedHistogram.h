@@ -38,7 +38,7 @@ public:
    return integral(hBound,lBound,mode)/m_normalization;
   } 
  
-  float normalization()  { return m_normalization; }
+  float normalization() const { return m_normalization; }
    
 protected:
   std::vector<float> m_binULimits;
