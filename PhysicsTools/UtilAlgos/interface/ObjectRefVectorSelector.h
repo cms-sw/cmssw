@@ -11,7 +11,7 @@
 template<typename Selector, 
 	 typename OutputCollection = edm::RefVector<typename Selector::collection>,
 	 typename SizeSelector = NonNullNumberSelector,
-         typename PostProcessor = reco::helpers::NullPostProcessor<OutputCollection> >
+         typename PostProcessor = helper::NullPostProcessor<OutputCollection> >
 class ObjectRefVectorSelector : 
   public ObjectSelector<Selector, OutputCollection, SizeSelector, PostProcessor> {
 public:

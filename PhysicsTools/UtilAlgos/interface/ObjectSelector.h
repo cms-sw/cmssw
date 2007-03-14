@@ -6,9 +6,9 @@
  * 
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.16 $
+ * \version $Revision: 1.17 $
  *
- * $Id: ObjectSelector.h,v 1.16 2007/03/09 14:44:01 llista Exp $
+ * $Id: ObjectSelector.h,v 1.17 2007/03/14 12:22:11 llista Exp $
  *
  */
 
@@ -84,7 +84,7 @@ namespace helper {
   };
 
   template<typename OutputCollection>
-  class ObjectSelectorBase : public edm::EDFilter {
+  struct ObjectSelectorBase : public edm::EDFilter {
     ObjectSelectorBase( const edm::ParameterSet & cfg ) {
       produces<OutputCollection>();
     }    

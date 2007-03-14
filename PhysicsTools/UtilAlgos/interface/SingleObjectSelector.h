@@ -6,7 +6,7 @@
 template<typename InputCollection, typename Selector, 
 	 typename OutputCollection = InputCollection,
 	 typename StoreContainer = std::vector<const typename InputCollection::value_type *>, 
-	 typename PostProcessor = reco::helpers::NullPostProcessor<OutputCollection>,
+	 typename PostProcessor = helper::NullPostProcessor<OutputCollection>,
 	 typename RefAdder = typename helper::SelectionAdderTrait<StoreContainer>::type>
 class SingleObjectSelector : 
   public ObjectSelector<SingleElementCollectionSelector<InputCollection, Selector, StoreContainer, RefAdder>, 

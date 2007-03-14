@@ -11,7 +11,7 @@
 
 template<typename Selector, 
 	 typename SizeSelector = NonNullNumberSelector,
-         typename PostProcessor = reco::helpers::NullPostProcessor<reco::CandidateCollection> >
+         typename PostProcessor = helper::NullPostProcessor<reco::CandidateCollection> >
 class ObjectShallowCloneSelector : public ObjectSelector<Selector, reco::CandidateCollection, SizeSelector> {
 public:
   explicit ObjectShallowCloneSelector( const edm::ParameterSet & cfg ) :
