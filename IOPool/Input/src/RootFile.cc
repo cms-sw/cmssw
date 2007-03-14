@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RootFile.cc,v 1.54 2007/01/25 15:30:50 wmtan Exp $
+$Id: RootFile.cc,v 1.55 2007/03/04 06:29:05 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "IOPool/Input/src/RootFile.h"
@@ -9,6 +9,7 @@ $Id: RootFile.cc,v 1.54 2007/01/25 15:30:50 wmtan Exp $
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/ParameterSetBlob.h"
 #include "DataFormats/Provenance/interface/ModuleDescriptionRegistry.h"
@@ -76,14 +77,7 @@ namespace edm {
 
     metaDataTree->GetEntry(0);
 
-    if (!fileFormatVersion_.isValid()) {
-      fileFormatVersion_.value_ = 0;
-    }
-    assert(eventTree().isValid());
-    if (fileFormatVersion_.value_ >= 2) {
-      assert(lumiTree().isValid());
-      assert(runTree().isValid());
-    }
+    validateFile();
 
     // freeze our temporary product registry
     tempReg.setFrozen();
@@ -133,6 +127,22 @@ namespace edm {
   }
 
   RootFile::~RootFile() {
+  }
+
+  void RootFile::validateFile() {
+    if (!fileFormatVersion_.isValid()) {
+      fileFormatVersion_.value_ = 0;
+    }
+    if (fileFormatVersion_.value_ <= 1 || !eventTree().isValid()) {
+      if (fileFormatVersion_.value_ <= 2) {
+	throw cms::Exception("FileNotCompatible","RootFile::RootFile()")
+          << "File " << file_ << " was written in an older release.\n"
+          "that is not backward compatible with the current release.\n";
+      }
+    } 
+    assert(eventTree().isValid());
+    assert(lumiTree().isValid());
+    assert(runTree().isValid());
   }
 
   void
@@ -211,15 +221,17 @@ namespace edm {
       return boost::shared_ptr<RunPrincipal const>(new RunPrincipal(runNumber, pReg, processConfiguration_));
     }
     RootTree::EntryNumber entry = runTree().getExactEntryNumber(runNumber, 0);
-    if (entry < 0) {
-      throw cms::Exception("NotFound", "RootFile::readRun()")
+    RunAuxiliary runAux;
+    if (entry >= 0) {
+      runTree().setEntryNumber(entry);
+      RunAuxiliary *pRunAux = &runAux;
+      runTree().fillAux<RunAuxiliary>(pRunAux);
+      assert(runNumber == runAux.run());
+    } else {
+      runAux = RunAuxiliary(runNumber);
+      LogInfo("RunNotFound")
         << "Run " << runNumber << " was not found in file " << file_ << "\n";
     }
-    runTree().setEntryNumber(entry);
-    RunAuxiliary runAux;
-    RunAuxiliary *pRunAuxiliary = &runAux;
-    runTree().fillAux<RunAuxiliary>(pRunAuxiliary);
-    assert(runNumber == runAux.run());
     boost::shared_ptr<RunPrincipal> thisRun(new RunPrincipal(runNumber, pReg, processConfiguration_,
 		runAux.processHistoryID_, runTree().makeDelayedReader()));
     // Create a group in the run for each product
@@ -239,16 +251,20 @@ namespace edm {
 	new LuminosityBlockPrincipal(lumiNumber, pReg, runPrincipal, processConfiguration_));
     }
     RootTree::EntryNumber entry = lumiTree().getExactEntryNumber(runNumber, lumiNumber);
-    if (entry < 0) {
-      throw cms::Exception("NotFound", "RootFile::read()")
-        << "Lumi Block " << lumiNumber << " in Run " << runNumber << " was not found in file " << file_ << "\n";
-    }
-    lumiTree().setEntryNumber(entry);
     LuminosityBlockAuxiliary lumiAux;
-    LuminosityBlockAuxiliary *pLumiAux = &lumiAux;
-    lumiTree().fillAux<LuminosityBlockAuxiliary>(pLumiAux);
-    assert(lumiNumber == lumiAux.luminosityBlock());
-    assert(runNumber == lumiAux.run());
+    if (entry >= 0) {
+      lumiTree().setEntryNumber(entry);
+      LuminosityBlockAuxiliary *pLumiAux = &lumiAux;
+      lumiTree().fillAux<LuminosityBlockAuxiliary>(pLumiAux);
+      assert(lumiNumber == lumiAux.luminosityBlock());
+      assert(runNumber == lumiAux.run());
+    } else {
+      lumiAux = LuminosityBlockAuxiliary(runNumber, lumiNumber);
+      LogInfo("LumiNotFound")
+        << "Lumi Block " << lumiNumber << " in Run " << runNumber << " was not found in file " << file_ << "\n";
+        //throw cms::Exception("NotFound", "RootFile::read()")
+        //<< "Lumi Block " << lumiNumber << " in Run " << runNumber << " was not found in file " << file_ << "\n";
+    } 
     boost::shared_ptr<LuminosityBlockPrincipal> thisLumi(
 	new LuminosityBlockPrincipal(lumiNumber, pReg, runPrincipal, processConfiguration_,
 		lumiAux.processHistoryID_, lumiTree().makeDelayedReader()));
