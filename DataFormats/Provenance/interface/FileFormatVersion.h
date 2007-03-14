@@ -9,7 +9,7 @@ namespace edm
   {
     FileFormatVersion() : value_(-1) { }
     explicit FileFormatVersion(int vers) : value_(vers)  { }
-    bool isValid() { return value_ >= 0; }
+    bool isValid() const { return value_ >= 0; }
     
     int value_;
   };
