@@ -5,8 +5,8 @@
 //   Description:   Build GMT tree
 //                  
 //                
-//   $Date: 2006/10/20 12:53:08 $
-//   $Revision: 1.3 $
+//   $Date: 2006/10/27 01:35:32 $
+//   $Revision: 1.4 $
 //
 //   I. Mikulec            HEPHY Vienna
 //
@@ -39,6 +39,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
+#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "CLHEP/HepMC/GenEvent.h"
 #include "L1Trigger/GlobalMuonTrigger/src/L1MuGMTConfig.h"
 //----------------
 // Constructors --
@@ -81,6 +83,20 @@ void L1MuGMTTree::analyze(const edm::Event& e, const edm::EventSetup& es) {
   // generetor block
 
   try {
+    edm::Handle<edm::HepMCProduct> vtxSmeared_handle;
+    e.getByLabel("VtxSmeared",vtxSmeared_handle);
+    HepMC::GenEvent const* genevent = vtxSmeared_handle.product()->GetEvent();
+
+    weight = genevent->weights()[0];
+    pthat = genevent->event_scale();
+  }
+  catch(...) {
+    edm::LogWarning("BlockMissing") << "HepMCProduct not found in Event" << endl;
+    pthat = 0.;
+    weight = 1.;
+  }
+
+  try {
     edm::Handle<edm::SimVertexContainer> simvertices_handle;
     e.getByLabel("g4SimHits",simvertices_handle);
     edm::SimVertexContainer const* simvertices = simvertices_handle.product();
@@ -99,7 +115,7 @@ void L1MuGMTTree::analyze(const edm::Event& e, const edm::EventSetup& es) {
       ptgen[igen]=(*isimtr).momentum().perp();
       etagen[igen]=(*isimtr).momentum().eta();
       phigen[igen]=(*isimtr).momentum().phi()>0 ? (*isimtr).momentum().phi() : (*isimtr).momentum().phi()+2*3.14159265359;
-      chagen[igen]=(*isimtr).type()>0 ? 1 : -1 ;
+      chagen[igen]=(*isimtr).type()>0 ? -1 : 1 ;
       vxgen[igen]=(*simvertices)[(*isimtr).vertIndex()].position().x();
       vygen[igen]=(*simvertices)[(*isimtr).vertIndex()].position().y();
       vzgen[igen]=(*simvertices)[(*isimtr).vertIndex()].position().z();
@@ -379,6 +395,7 @@ void L1MuGMTTree::book() {
   m_tree->Branch("Run",&runn,"Run/I");
   m_tree->Branch("Event",&eventn,"Event/I");
   m_tree->Branch("Weight",&weight,"Weight/F");  
+  m_tree->Branch("Pthat",&pthat,"Pthat/F");  
 
   // GEANT block branches
   m_tree->Branch("Ngen",&ngen,"Ngen/I");

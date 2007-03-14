@@ -6,8 +6,8 @@
  *   Description:  Build GMT Tree
 */
 //                
-//   $Date: 2006/10/20 12:53:08 $
-//   $Revision: 1.2 $
+//   $Date: 2007/03/07 13:01:02 $
+//   $Revision: 1.3 $
 //
 //   I. Mikulec            HEPHY Vienna
 //
@@ -77,6 +77,7 @@ class L1MuGMTTree : public edm::EDAnalyzer {
     int             runn;
     int             eventn;
     float           weight;
+    float           pthat;
  
     //generator block
     int             ngen;
