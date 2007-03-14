@@ -124,18 +124,20 @@ void DTResolutionTest::analyze(const edm::Event& e, const edm::EventSetup& conte
       DTSuperLayerId slID = (*sl_it)->id();
 
       stringstream wheel; wheel << chID.wheel();
-      stringstream sector; sector << chID.sector();	
+      stringstream sector; sector << chID.sector();
 
       string HistoName = "W" + wheel.str() + "_Sec" + sector.str(); 
-  
+
       MonitorElement * res_histo = dbe->get(getMEName(slID));
       if (res_histo) {
-	/*cout<<"before gaussian test"<<endl;
+	cout<<"before gaussian test"<<endl;
 	// gaussian test
-	string GaussianCriterionName = "GaussianTest";
+	string GaussianCriterionName = "MeanWithinExpected";
 	const QReport * GaussianReport = res_histo->getQReport(GaussianCriterionName);
-	cout<<"-------- "<<GaussianReport->getMessage()<<" ------- "<<GaussianReport->getStatus()<<endl;
-	cout<<"after gaussian test"<<endl;*/
+	if(GaussianReport){
+	  cout<<"-------- "<<GaussianReport->getMessage()<<" ------- "<<GaussianReport->getStatus()<<endl;
+	}
+	cout<<"after gaussian test"<<endl;
 	int BinNumber = entry+slID.superLayer();
 	if(BinNumber == 12) BinNumber=11;
 	float mean = (*res_histo).getMean(1);

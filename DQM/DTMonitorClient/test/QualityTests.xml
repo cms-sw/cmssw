@@ -27,6 +27,24 @@
 </QTEST>
 
 
+<QTEST name="MeanWithinExpected">
+        <TYPE>MeanWithinExpected</TYPE>
+        <PARAM name="error">0.05</PARAM>
+        <PARAM name="warning">0.5</PARAM>
+        <PARAM name="mean">0.0</PARAM>
+        <PARAM name="useRMS">0</PARAM>
+        <PARAM name="useSigma">0</PARAM>
+        <PARAM name="useRange">1</PARAM>
+        <PARAM name="xmin">-0.015</PARAM>
+        <PARAM name="xmax">0.015</PARAM>
+</QTEST>
+
+
+<LINK name="*hResDist*">
+        <TestName activate="true">MeanWithinExpected</TestName>
+</LINK>
+
+
 <LINK name="*tTrigTest*">
 	<TestName activate="true">ContentsYRange</TestName>
 </LINK>
