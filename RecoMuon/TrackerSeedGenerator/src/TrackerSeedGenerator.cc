@@ -3,8 +3,8 @@
 /** \class TrackerSeedGenerator
  *  Generate seed from muon trajectory.
  *
- *  $Date: 2007/02/22 05:07:37 $
- *  $Revision: 1.15 $
+ *  $Date: 2007/03/07 17:41:02 $
+ *  $Revision: 1.16 $
  *  \author Norbert Neumeister - Purdue University
  *  \porting author Chang Liu - Purdue University
  */
@@ -506,6 +506,57 @@ void TrackerSeedGenerator::pixelSeeds(const Trajectory& muon,
   combinatorialSeedGenerator.init(*pixelHits,theService->eventSetup());
   combinatorialSeedGenerator.run(region,ss,theService->eventSetup());
   
+  typedef edm::OwnVector< TrackingRecHit > 	recHitContainer;
+  typedef recHitContainer::const_iterator 	const_iterator;
+  typedef std::pair< const_iterator, const_iterator >  range;
+  
+  vector<int> mask(ss.size(),1);
+  
+  int seed1 = 0;
+  int nseeds = theSeeds.size();
+
+  vector<TrajectorySeed>::const_iterator is;
+  for ( is = ss.begin(); is != ss.end(); ++is ) { 
+    range rhits = (*is).recHits();
+    if(!((*rhits.first).isValid()&&(*(rhits.second-1)).isValid())) continue;
+    
+    const GlobalPoint& pos1 =  theService->trackingGeometry()->idToDet((*rhits.first).geographicalId())->surface().toGlobal((*rhits.first).localPosition());
+    
+    const GlobalPoint& pos2 =  theService->trackingGeometry()->idToDet((*(rhits.second-1)).geographicalId())->surface().toGlobal((*(rhits.second-1)).localPosition());
+    
+    const GlobalVector& vect1(pos2 - pos1);      
+
+    vector<TrajectorySeed>::const_iterator is2;
+    for ( is2 = is+1; is2 != ss.end(); ++is2 ) {
+      int seed2 = seed1+1;	
+      range rhits2 = (*is2).recHits();
+      if( !((*rhits2.first).isValid() && (*(rhits2.second -1)).isValid())) continue;
+      
+      const GlobalPoint& pos1a =  theService->trackingGeometry()->idToDet((*rhits2.first).geographicalId())->surface().toGlobal((*rhits2.first).localPosition());
+      
+      const GlobalPoint& pos2a =  theService->trackingGeometry()->idToDet((*(rhits2.second-1)).geographicalId())->surface().toGlobal((*(rhits2.second-1)).localPosition());
+      
+      const GlobalVector& vect2(pos2a - pos1a);      
+
+      //if(pos2.perp() == pos1a.perp() || pos1.perp() == pos2a.perp()) {      
+      double dot = vect1.unit().dot(vect2.unit());
+      if(dot > 0.99999) mask[seed2]=0;
+      //}
+      
+    }
+    seed1++;
+  }
+  
+  int seed = 0;
+  for ( is = ss.begin(); is != ss.end(); ++is ) { 
+    if(nseeds < theMaxSeeds) {
+      if(mask[seed]) theSeeds.push_back(*is); 
+      nseeds++;
+      seed++;
+    }      
+  }
+
+  /*  
   int nseeds = theSeeds.size();
   vector<TrajectorySeed>::const_iterator is;
   for ( is = ss.begin(); is != ss.end(); is++ ) {
@@ -515,7 +566,7 @@ void TrackerSeedGenerator::pixelSeeds(const Trajectory& muon,
       nseeds++;
     }
   }
-
+  */
 
   /*
     int nseeds = theSeeds.size();
