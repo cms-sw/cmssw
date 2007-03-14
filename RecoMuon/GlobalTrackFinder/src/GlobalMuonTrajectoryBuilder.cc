@@ -12,8 +12,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2007/03/02 19:50:46 $
- *  $Revision: 1.82 $
+ *  $Date: 2007/03/08 16:28:00 $
+ *  $Revision: 1.83 $
  *
  *  Authors :
  *  N. Neumeister            Purdue University
@@ -412,6 +412,13 @@ RectangularEtaPhiTrackingRegion GlobalMuonTrajectoryBuilder::defineRegionOfInter
   //Use whichever will give smallest region size
   deltaEta = min(deltaEta,deltaEta2);
   deltaPhi = min(deltaPhi,deltaPhi2);
+
+  if(theMakeTkSeedFlag) {
+    deltaEta = deltaEta2;
+    deltaPhi = deltaPhi2;
+    vertexPos = theVertexPos;
+  }
+
   
   RectangularEtaPhiTrackingRegion rectRegion(dirVector, vertexPos,
                                              minPt, 0.2,
