@@ -48,3 +48,7 @@ cmsDriver.py MU+ -n 1000 --prefix valgrind
 
 The only compulsory option is the event type. If no other preference is
 specified, default values are assigned.
+
+To run the tool correctly one needs to add to PYTONPATH environmental variable
+the location of the PyRelVal tool.
+
