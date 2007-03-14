@@ -247,7 +247,7 @@ struct CheckPaths {
   mutable int done;
   
   void operator()(std::string const & path) const {
-    bool ok = ps.doEvent() && (ps.m_allPaths || std::find(selpaths.begin(),selpaths.end(),path) != selpaths.end());
+    bool ok = ps.doEvent() && (std::find(selpaths.begin(),selpaths.end(),path) != selpaths.end());
     noselPath();
     ps.beginPath(path);
     if (ok) selPath(path);
