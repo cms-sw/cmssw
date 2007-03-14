@@ -5,7 +5,7 @@
   
 RefBase: Base class for a single interproduct reference.
 
-$Id: RefBase.h,v 1.4 2006/08/30 23:28:33 wmtan Exp $
+$Id: RefBase.h,v 1.5 2006/12/16 03:41:25 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -15,7 +15,7 @@ $Id: RefBase.h,v 1.4 2006/08/30 23:28:33 wmtan Exp $
 
 namespace edm {
 
-  template<typename T>
+  template<typename KEY>
   class RefBase {
   public:
     /// Default constructor needed for reading from persistent store. Not for direct use.
@@ -27,9 +27,9 @@ namespace edm {
     RefCore const& refCore() const { return product_;}
 
     /// Accessor for index and pointer
-    RefItem<T> const& item() const {return item_;}
+    RefItem<KEY> const& item() const {return item_;}
 
-    typedef typename RefItem<T>::key_type key_type;
+    typedef typename RefItem<KEY>::key_type key_type;
 
     /// General purpose constructor. 
     RefBase(ProductID const& productID, void const* prodPtr, key_type itemKey,
@@ -37,29 +37,29 @@ namespace edm {
       product_(productID, prodPtr, prodGetter), item_(itemKey, itemPtr) {}
 
     /// Constructor from RefVector. 
-    RefBase(RefCore const& prod, RefItem<T> const& itm) :
+    RefBase(RefCore const& prod, RefItem<KEY> const& itm) :
       product_(prod), item_(itm) {}
 
   private:
     RefCore product_;
-    RefItem<T> item_;
+    RefItem<KEY> item_;
   };
 
-  template <typename T>
+  template <typename KEY>
   bool
-  operator==(RefBase<T> const& lhs, RefBase<T> const& rhs) {
+  operator==(RefBase<KEY> const& lhs, RefBase<KEY> const& rhs) {
     return lhs.refCore() == rhs.refCore() && lhs.item() == rhs.item();
   }
   
-  template <typename T>
+  template <typename KEY>
   bool
-  operator!=(RefBase<T> const& lhs, RefBase<T> const& rhs) {
+  operator!=(RefBase<KEY> const& lhs, RefBase<KEY> const& rhs) {
     return !(lhs == rhs);
   }
 
-  template <typename T>
+  template <typename KEY>
   bool
-  operator<(RefBase<T> const& lhs, RefBase<T> const& rhs) {
+  operator<(RefBase<KEY> const& lhs, RefBase<KEY> const& rhs) {
     return (lhs.refCore() == rhs.refCore() ?  lhs.item() < rhs.item() : lhs.refCore() < rhs.refCore());
   }
 }
