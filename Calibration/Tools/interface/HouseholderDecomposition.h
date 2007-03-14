@@ -1,11 +1,15 @@
-#ifndef HouseholderDecomposition_h
-#define HouseholderDecomposition_h
+#ifndef HouseholderDecomposition_H
+#define HouseholderDecomposition_H
 
 /** \class HouseholderDecomposition
  *  Implementation of the QR decomposition of a matrix using Householder transformation
  *
- * $Date: 2006/08/25 $
- * $Revision: 1.2 $
+ *  13.03.2007: R.Ofierzynski
+ *   - using a reduced matrix
+ *   - implements Regional Householder Algorithm
+ *
+ * $Date: 2007/03/13 $
+ * $Revision: 2.0 $
  * \author Lorenzo Agostino, R.Ofierzynski, CERN
  */
 
@@ -18,30 +22,65 @@ class HouseholderDecomposition
 {
 public:
   /// Default constructor
-  /// CAVEAT: use normalise = true only if you know what you're doing!
-  HouseholderDecomposition(bool normalise = false);
+  HouseholderDecomposition(int squareMode_ = 5, int mineta_ = 1, int maxeta_ = 85, int minphi_ = 1, int maxphi_ = 20);
 
   /// Destructor
   ~HouseholderDecomposition();
 
-  /// run the Householder Algorithm several times (nIter). Returns the final vector of calibration coefficients.
-  vector<float> iterate(const vector<vector<float> >& eventMatrix, const vector<float>& energyVector, const int nIter);
+  /// Run Regional HouseholderAlgorithm (fast version), that splits matrix into regional matrices and inverts them separately.
+  /// Returns the final vector of calibration coefficients.
+  /// input: eventMatrix - the skimmed event matrix, 
+  ///        VmaxCeta, VmaxCphi - vectors containing eta and phi indices of the maximum containment crystal for each event, 
+  ///        energyVector - the energy vector, 
+  ///        nIter - number of iterations to be performed, 
+  ///        regLength - default length of the region (in eta- and phi-indices), regLength=5 recommended
+  /// Comment from author: if you use the same events, 2 iterations are recommended; the second iteration gives corrections of the order of 0.0001
+  vector<float> runRegional(const vector<vector<float> >& eventMatrix, const vector<int>& VmaxCeta, const vector<int>& VmaxCphi, const vector<float>& energyVector, const int& nIter, const int& regLength = 5);
 
-  /// run the Householder Algorithm. Returns the vector of calibration coefficients.
-  vector<float> iterate(const vector<vector<float> >& eventMatrix, const vector<float>& energyVector);
+  /// Run the Householder Algorithm several times (nIter). Returns the final vector of calibration coefficients.
+  /// Comment from author: unless you do a new selection in between the iterations you don't need to run more than once;
+  ///                      a second iteration on the same events does not improve the result in this case
+  vector<float> iterate(const vector<vector<float> >& eventMatrix, const vector<int>& VmaxCeta, const vector<int>& VmaxCphi, const vector<float>& energyVector, const int& nIter, const bool& normalizeFlag = false);
+
+  /// Run the Householder Algorithm. Returns the vector of calibration coefficients.
+  vector<float> iterate(const vector<vector<float> >& eventMatrix, const vector<int>& VmaxCeta, const vector<int>& VmaxCphi, const vector<float>& energyVectorOrig);
+
+  /// Recalibrate before next iteration: give previous solution vector as argument
+  vector<float> recalibrateEvent(const vector<float>& eventSquare, const int& maxCeta, const int& maxCphi, const vector<float>& recalibrateVector); 
+
+  /// Method to translate from square indices to region indices
+  int indexSqr2Reg(const int& sqrIndex, const int& maxCeta, const int& maxCphi);
+
 
 private:
-  /// make decomposition
+  /// Make decomposition
   /// input: m=number of events, n=number of channels, qr=event matrix
-  /// output: qr = new event matrix, alpha, pivot
+  /// output: qr = transformed event matrix, alpha, pivot
   /// returns a boolean value, true if decomposition worked, false if it didn't
-  bool decompose(const int m, const int n, vector<vector<float> >& qr,  vector<float>& alpha, vector<int>& pivot);  
+  bool decompose();  
 
   /// Apply transformations to rhs
-  /// output: r = ?, y = solution
-  void solve(int m, int n, const vector<vector<float> > &qr, const vector<float> &alpha, const vector<int> &pivot, vector<float> &r, vector<float> &y);
+  /// output: r = residual vector (energy vector), y = solution
+  void solve(vector<float> &y);
 
-  bool normaliseFlag;
+  /// Unzips the skimmed matrix into a full matrix
+  vector<vector<float> > unzipMatrix(const vector<vector<float> >& eventMatrix, const vector<int>& VmaxCeta, const vector<int>& VmaxCphi);
+
+  /// Determines the regions used for splitting of the full matrix and calibrating separately
+  /// used by the public runRegional method
+  void makeRegions(const int& regLength);
+
+  int squareMode, countEvents;
+  int mineta, maxeta, minphi, maxphi, Neta, Nphi;
+  int Nchannels, Nxtals, Nevents;
+  vector< vector<float> > eventMatrixOrig;
+  vector< vector<float> > eventMatrixProc;
+  vector<float> energyVectorProc;
+  vector<float> alpha;
+  vector<int> pivot;
+
+  vector <int> regMinPhi, regMaxPhi, regMinEta, regMaxEta;
+  float sigmaReplacement;
 };
 
-#endif
+#endif // HouseholderDecomposition_H

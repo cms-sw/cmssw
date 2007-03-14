@@ -1,16 +1,16 @@
 
-/** \file GenericMinL3Algorithm.cc
+/** \file MinL3Algorithm.cc
  *
- * $Date: 2006/10/13 $
- * $Revision: 2.0 $
+ * $Date: 2006/10/13 14:34:13 $
+ * $Revision: 1.4 $
  * \author R.Ofierzynski, CERN
  */
 
 #include "Calibration/Tools/interface/MinL3Algorithm.h"
 
 
-MinL3Algorithm::MinL3Algorithm(int squareMode_, int mineta_, int maxeta_, int minphi_, int maxphi_)
-  :squareMode(squareMode_), mineta(mineta_), maxeta(maxeta_), minphi(minphi_), maxphi(maxphi_), countEvents(0)
+MinL3Algorithm::MinL3Algorithm(float kweight_, int squareMode_, int mineta_, int maxeta_, int minphi_, int maxphi_)
+  :kweight(kweight_), squareMode(squareMode_), mineta(mineta_), maxeta(maxeta_), minphi(minphi_), maxphi(maxphi_), countEvents(0)
 {
   int Neta = maxeta - mineta + 1;
   if (mineta * maxeta < 0) Neta--; // there's no eta index = 0
@@ -95,11 +95,16 @@ void MinL3Algorithm::addEvent(const vector<float>& eventSquare, const int& maxCe
   countEvents++;
 
   float w, invsumXmatrix;
+  float eventw;
   int iFull, i;
   // Loop over the crystal matrix to find the sum
   float sumXmatrix=0.;
       
   for (i=0; i<Nxtals; i++) { sumXmatrix+=eventSquare[i]; }
+      
+  // event weighting
+  eventw = 1 - fabs(1 - sumXmatrix/energy);
+  eventw = pow(eventw,kweight);
       
   if (sumXmatrix != 0.)
     {
@@ -112,8 +117,11 @@ void MinL3Algorithm::addEvent(const vector<float>& eventSquare, const int& maxCe
 	  iFull = indexSqr2Reg(i, maxCeta, maxCphi);
 	  if (iFull >= 0)
 	    {
-	      wsum[iFull] += w;
-	      Ewsum[iFull] += (w * energy * invsumXmatrix);
+	      // with event weighting:
+	      wsum[iFull] += w*eventw;
+	      Ewsum[iFull] += (w*eventw * energy * invsumXmatrix);
+	      //	      wsum[iFull] += w;
+	      //	      Ewsum[iFull] += (w * energy * invsumXmatrix);
 	    }
 	}
     }

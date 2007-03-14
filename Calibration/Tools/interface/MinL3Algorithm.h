@@ -6,8 +6,11 @@
  *  by minimization of |Ax-B| using an iterative linear approach
  *  This class is specific for the ECAL calibration
  *
- * $Date: 2006/10/13 $
- * $Revision: 2.0 $
+ * 13.03.2007: R.Ofierzynski
+ *  - implemented event weighting
+ *
+ * $Date: 2007/03/13 14:33:42 $
+ * $Revision: 1.4 $
  * \author R.Ofierzynski, CERN
  */
 
@@ -21,7 +24,8 @@ class MinL3Algorithm
 {
 public:
   /// Default constructor
-  MinL3Algorithm(int squareMode_ = 5, int mineta_ = -85, int maxeta_ = 85, int minphi_ = 1, int maxphi_ = 360);
+  /// kweight_ = event weight, squareMode_ = side length of the cluster square
+  MinL3Algorithm(float kweight_ = 0., int squareMode_ = 5, int mineta_ = 1, int maxeta_ = 85, int minphi_ = 1, int maxphi_ = 20);
 
   /// Destructor
   ~MinL3Algorithm();
@@ -50,6 +54,7 @@ public:
 
 private:
 
+  float kweight;
   int squareMode;
   int mineta, maxeta, minphi, maxphi;
   int countEvents;
