@@ -158,8 +158,8 @@ void ElectronPixelSeedGenerator::seedsFromThisCluster( edm::Ref<reco::SuperClust
       if (valid) {
         reco::ElectronPixelSeed s(seedCluster,*pts_,recHits_,dir);
         result.push_back(s);
-	delete pts_;
       }
+      delete pts_;
     }
   }  
   aCharge=1.;  
