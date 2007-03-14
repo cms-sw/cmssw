@@ -20,6 +20,9 @@
 #include <iostream>
 #include <bitset>
 
+////////////////////////////
+#include "EventFilter/RPCRawToDigi/interface/RPCRawDataPattern.h"
+////////////////////////////
 using namespace std;
 using namespace edm;
 
@@ -35,6 +38,23 @@ bool RPCRawDataPacker::Records::samePartition(const Records & r) const
 //  LogTrace("")<<"LBRECORD 2:  " <<*reinterpret_cast<const bitset<16>*>(& (r.lb));
   return true;
 }
+
+RPCRawDataPacker::RPCRawDataPacker(){
+
+  //set vector sizes
+  int LAST_BX = 15;
+  int FIRST_BX = 0;
+  vector<RPCPacData> rpdv(18,RPCPacData(0));
+  vector<vector<RPCPacData> > rpdvv(LAST_BX-FIRST_BX,rpdv);
+  linkData_ = rpdvv;
+
+  myXMLWriter = new  LinkDataXMLWriter();
+
+}
+
+RPCRawDataPacker::~RPCRawDataPacker(){   delete myXMLWriter; }
+
+
 
 std::vector<RPCRawDataPacker::Records> RPCRawDataPacker::margeRecords(const std::vector<Records> & data) const
 {
@@ -90,12 +110,26 @@ FEDRawData * RPCRawDataPacker::rawData( int fedId, const RPCDigiCollection * dig
   //
   // create data words
   //
+  
   vector<Word64> dataWords;
   typedef vector<Records>::const_iterator IR;
   for (IR ir = merged.begin(), irEnd =  merged.end() ; ir != irEnd; ++ir) {
-    Word64 w = (((Word64(ir->bx) << 16) | ir->tb) << 16 | ir->lb) << 16 |empty ;
+    Word64 w = (((Word64(ir->bx) << 16) | ir->tb) << 16 | ir->lb) << 16 |empty;
     dataWords.push_back(w); 
-  }  
+    //////////////////////////////////////////////
+    int triggerCrateNum = 0;
+    int triggerBoardNum = 0;
+    int opticalLinkNum = ( ir->tb >> rpcraw::tb_link::TB_LINK_INPUT_NUMBER_SHIFT )& rpcraw::tb_link::TB_LINK_INPUT_NUMBER_MASK;    
+    int partitionData= (ir->lb >>rpcraw::lb::PARTITION_DATA_SHIFT)&rpcraw::lb::PARTITION_DATA_MASK;
+    int halfP = (ir->lb >> rpcraw::lb::HALFP_SHIFT ) & rpcraw::lb::HALFP_MASK;
+    int eod = (ir->lb >> rpcraw::lb::EOD_SHIFT ) & rpcraw::lb::EOD_MASK;
+    int partitionNumber = (ir->lb >> rpcraw::lb::PARTITION_NUMBER_SHIFT ) & rpcraw::lb::PARTITION_NUMBER_MASK;
+    int lbNumber = (ir->lb >> rpcraw::lb::LB_SHIFT ) & rpcraw::lb::LB_MASK ;
+    myXMLWriter->addLinkData(triggerCrateNum, triggerBoardNum , opticalLinkNum, 
+			     lbNumber, partitionNumber,  partitionData, halfP, eod);
+    //////////////////////////////////////////////
+    
+  }
 
   //
   // create raw data

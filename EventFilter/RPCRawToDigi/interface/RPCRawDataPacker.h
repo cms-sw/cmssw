@@ -8,9 +8,20 @@ class FEDRawData;
 #include <boost/cstdint.hpp>
 #include <vector>
 
+////////////////
+#include "IORawData/RPCFileReader/interface/RPCPacData.h"
+#include "IORawData/RPCFileReader/interface/LinkDataXMLWriter.h"
+////////////////
+
+
 class RPCRawDataPacker {
 
 public:
+  ///////////////////////////
+  RPCRawDataPacker();
+  ~RPCRawDataPacker();
+  ///////////////////////////
+
   FEDRawData * rawData(
       int fedId, const RPCDigiCollection* digis, const RPCRecordFormatter & formatter);
 
@@ -24,6 +35,12 @@ private:
   };
 
   std::vector<Records> margeRecords(const std::vector<Records> & data) const;
+
+  /////////////////////////////////////////////////////////////
+  LinkDataXMLWriter *myXMLWriter;
+  std::vector<std::vector<RPCPacData> > linkData_;//(nBX,18)
+  /////////////////////////////////////////////////////////////
+
 
 private:
 };

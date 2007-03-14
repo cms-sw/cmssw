@@ -61,12 +61,16 @@ void RPCPackingModule::produce( edm::Event& ev,
 
   auto_ptr<FEDRawDataCollection> buffers( new FEDRawDataCollection );
 
+
+  RPCRawDataPacker myPacker;
+
   pair<int,int> rpcFEDS=FEDNumbering::getRPCFEDIds();
   for (int id= rpcFEDS.first; id<=rpcFEDS.second; ++id){
 
     RPCRecordFormatter formatter(id, readoutMapping.product()) ;
 
-    FEDRawData *  rawData =  RPCRawDataPacker().rawData(id, digiCollection.product(), formatter);
+    //FEDRawData *  rawData =  RPCRawDataPacker().rawData(id, digiCollection.product(), formatter);
+    FEDRawData *  rawData =  myPacker.rawData(id, digiCollection.product(), formatter);
     FEDRawData& fedRawData = buffers->FEDData(id);
 
     fedRawData = *rawData;
