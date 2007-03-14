@@ -3,7 +3,7 @@
 
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: PoolOutputModule.h,v 1.19 2006/12/23 03:13:22 wmtan Exp $
+// $Id: PoolOutputModule.h,v 1.20 2007/03/04 06:32:22 wmtan Exp $
 //
 // Class PoolOutputModule. Output module to POOL file
 //
@@ -50,6 +50,7 @@ namespace edm {
     virtual void endJob();
     virtual void write(EventPrincipal const& e);
     virtual void endLuminosityBlock(LuminosityBlockPrincipal const& lb);
+    virtual void beginRun(RunPrincipal const& r);
     virtual void endRun(RunPrincipal const& r);
 
     mutable OutputFileCatalog catalog_;
@@ -58,7 +59,7 @@ namespace edm {
     unsigned int maxFileSize_;
     int compressionLevel_;
     std::string const moduleLabel_;
-    unsigned int fileCount_;
+    int fileCount_;
     boost::shared_ptr<PoolFile> poolFile_;
   };
 
@@ -66,10 +67,10 @@ namespace edm {
   public:
     explicit PoolFile(PoolOutputModule * om);
     ~PoolFile() {}
-    bool writeOne(EventPrincipal const& e);
+    void writeOne(EventPrincipal const& e);
     void endFile();
     void writeLuminosityBlock(LuminosityBlockPrincipal const& lb);
-    void writeRun(RunPrincipal const& r);
+    bool writeRun(RunPrincipal const& r);
 
   private:
     void makePlacement(std::string const& treeName, std::string const& branchName,
@@ -115,6 +116,7 @@ namespace edm {
     pool::Placement fileFormatVersionPlacement_;
     PoolOutputModule const* om_;
     mutable std::list<BranchEntryDescription> provenances_;
+    mutable bool newFileAtEndOfRun_;
   };
 }
 
