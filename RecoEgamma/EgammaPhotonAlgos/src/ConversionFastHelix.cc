@@ -4,44 +4,54 @@
 #include "TrackingTools/TrajectoryParametrization/interface/CurvilinearTrajectoryError.h"
 #include "TrackingTools/TrajectoryParametrization/interface/CartesianTrajectoryError.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+
 
 
 ConversionFastHelix::ConversionFastHelix(const GlobalPoint& outerHit,
 		     const GlobalPoint& middleHit,
-		     const GlobalPoint& aVertex,
-		    const MagneticField* field ) : theOuterHit(outerHit),
-						      theMiddleHit(middleHit),
-						      theVertex(aVertex),
-						      theCircle(outerHit,
-								middleHit,
-								aVertex),
-						      mField(field) {
+					 const GlobalPoint& aVertex,
+					 const MagneticField* field ) : 
+  theOuterHit(outerHit),
+  theMiddleHit(middleHit),
+  theVertex(aVertex),
+  theCircle(outerHit,
+	    middleHit,
+	    aVertex),
+  mField(field) {
+  
+  validStateAtVertex=false;
 
 
-		     }
+  makeHelix();
+ 
+  
+}
 
-FreeTrajectoryState ConversionFastHelix::stateAtVertex() const {
 
+void ConversionFastHelix::makeHelix()  {
 
 
   if(   theCircle.isValid()) {
-
-    return helixStateAtVertex();
+     theHelix_=helixStateAtVertex();
   } else {
-
-    return straightLineStateAtVertex();
-    
+     theHelix_= straightLineStateAtVertex();
   }
   
 
 }
 
 
-FreeTrajectoryState ConversionFastHelix::helixStateAtVertex() const {
+FreeTrajectoryState ConversionFastHelix::stateAtVertex()  {
+
+  return theHelix_;
+
+}
 
 
-
+FreeTrajectoryState ConversionFastHelix::helixStateAtVertex()  {
+  
+  
+  
   GlobalPoint pMid(theMiddleHit);
   GlobalPoint v(theVertex);
   
@@ -56,12 +66,12 @@ FreeTrajectoryState ConversionFastHelix::helixStateAtVertex() const {
   double rho = theCircle.rho();
   // pt = 0.01 * rho * (0.3*MagneticField::inTesla(GlobalPoint(0.,0.,0.)).z());
   pt = 0.01 * rho * (0.3*mField->inTesla(GlobalPoint(0,0,0)).z());
-
-
-
-
+  
+  
+  
+  
   //  pt = 0.01 * rho * (0.3*GlobalPoint(0.,0.,0.).MagneticField().z());
-
+  
   // (py/px)|x=v.x() = (dy/dx)|x=v.x()
   //remember:
   //y(x) = +-sqrt(rho^2 - (x-x0)^2) + y0 
@@ -83,8 +93,8 @@ FreeTrajectoryState ConversionFastHelix::helixStateAtVertex() const {
     px *= -1.;
     py *= -1.;
   } 
-
-
+  
+  
   //calculate z0, pz
   //(z, R*phi) linear relation in a helix
   //with R, phi defined as radius and angle w.r.t. centre of circle
@@ -92,37 +102,52 @@ FreeTrajectoryState ConversionFastHelix::helixStateAtVertex() const {
   //pz = pT*(dz/d(R*phi)))
   
   FastLine flfit(theOuterHit, theMiddleHit, theCircle.rho());
-  double z_0 = -flfit.c()/flfit.n2();
-  double dzdrphi = -flfit.n1()/flfit.n2();
-  double pz = pt*dzdrphi;
+  FTS atVertex;
 
 
+  double z_0 = 0; 
+
+  //std::cout << " ConversionFastHelix:helixStateAtVertex  flfit.n2() " <<  flfit.n2() << " flfit.c() " << flfit.c() << " flfit.n2() " << flfit.n2() << std::endl;
+  if ( flfit.n2() !=0 && !isnan( flfit.c()) && !isnan(flfit.n2())   ) {
+    //std::cout << " Accepted " << std::endl;
+    z_0 = -flfit.c()/flfit.n2();
+    double dzdrphi = -flfit.n1()/flfit.n2();
+    double pz = pt*dzdrphi;
+    
+    //get sign of particle
+
+    GlobalVector magvtx=mField->inTesla(v);
+    TrackCharge q = 
+      ((theCircle.x0()*py - theCircle.y0()*px) / 
+       (magvtx.z()) < 0.) ? 
+      -1 : 1;
+    
+    AlgebraicSymMatrix C(5,1);
+    //MP
+    
+    atVertex = FTS(GlobalTrajectoryParameters(GlobalPoint(v.x(), v.y(), z_0),
+						  GlobalVector(px, py, pz),
+						  q,
+						  mField),
+		       CurvilinearTrajectoryError(C));
+    
+    if( atVertex.transverseCurvature() >0 ) {
+      
+      validStateAtVertex=true;    
+      
+      //std::cout << " ConversionFastHelix:helixStateAtVertex validHelixStateAtVertex status " << validStateAtVertex << std::endl;
+      return atVertex;
+    }else
+      return atVertex;
+  } else {
+    //    std::cout << " ConversionFastHelix:helixStateAtVertex not accepted  validHelixStateAtVertex status  " << validStateAtVertex << std::endl;
+    return atVertex;
+  }
 
 
-  //get sign of particle
-
-
-
-  GlobalVector magvtx=mField->inTesla(v);
-  TrackCharge q = 
-    ((theCircle.x0()*py - theCircle.y0()*px) / 
-     (magvtx.z()) < 0.) ? 
-    -1 : 1;
-  
-  AlgebraicSymMatrix C(5,1);
-  //MP
-  FTS atVertex = FTS(GlobalTrajectoryParameters(GlobalPoint(v.x(), v.y(), z_0),
-						GlobalVector(px, py, pz),
-						q,
-						mField),
-		     CurvilinearTrajectoryError(C));
-
-
-  
-  return atVertex;
 }
 
-FreeTrajectoryState ConversionFastHelix::straightLineStateAtVertex() const {
+FreeTrajectoryState ConversionFastHelix::straightLineStateAtVertex() {
 
 
   //calculate FTS assuming straight line...
@@ -154,18 +179,33 @@ FreeTrajectoryState ConversionFastHelix::straightLineStateAtVertex() const {
   //pz = p*cos(theta) = pt/tan(theta) 
 
   FastLine flfit(theOuterHit, theMiddleHit);
-  double z_0 = -flfit.c()/flfit.n2();
-  double dzdr = -flfit.n1()/flfit.n2();
-  double pz = pt*dzdr; 
+  FTS atVertex;
+
+  double z_0 = 0;
+  if (flfit.n2() !=0  && !isnan( flfit.c()) && !isnan(flfit.n2())   ) {
+    z_0 = -flfit.c()/flfit.n2();
+
+    double dzdr = -flfit.n1()/flfit.n2();
+    double pz = pt*dzdr; 
+    
+    TrackCharge q = 1;
+    AlgebraicSymMatrix C(6,1);
+    //MP
+    FTS atVertex = FTS(GlobalTrajectoryParameters(GlobalPoint(v.x(), v.y(), z_0),
+						  GlobalVector(px, py, pz),
+						  q,
+						  mField),
+		       CartesianTrajectoryError(C));
+
+    validStateAtVertex=true;        
+
+    //    std::cout << " ConversionFastHelix:strighLIneStateAtVertex validStraightLineStateAtVertex status " <<validStateAtVertex  << std::endl;
+    return atVertex;
+    
+  } else {
+    
+      return atVertex;
   
-  TrackCharge q = 1;
-  AlgebraicSymMatrix C(6,1);
-  //MP
-  FTS atVertex = FTS(GlobalTrajectoryParameters(GlobalPoint(v.x(), v.y(), z_0),
-						GlobalVector(px, py, pz),
-						q,
-						mField),
-		     CartesianTrajectoryError(C));
-  
-  return atVertex;
+  }
+
 }
