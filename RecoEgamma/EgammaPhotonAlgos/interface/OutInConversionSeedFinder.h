@@ -4,9 +4,9 @@
 /** \class OutInConversionSeedFinder
  **  
  **
- **  $Id: OutInConversionSeedFinder.h,v 1.3 2006/11/14 15:20:21 nancy Exp $ 
- **  $Date: 2006/11/14 15:20:21 $ 
- **  $Revision: 1.3 $
+ **  $Id: OutInConversionSeedFinder.h,v 1.4 2007/02/05 13:22:47 nancy Exp $ 
+ **  $Date: 2007/02/05 13:22:47 $ 
+ **  $Revision: 1.4 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -56,7 +56,7 @@ class OutInConversionSeedFinder : public ConversionSeedFinder {
  private:
   
 
-  FreeTrajectoryState makeTrackState(int charge) const ;
+  std::pair<FreeTrajectoryState,bool> makeTrackState(int charge) const ;
 
   void fillClusterSeeds(const reco::BasicCluster* bc) const ;
 
