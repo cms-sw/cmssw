@@ -29,7 +29,7 @@ OutInConversionSeedFinder::OutInConversionSeedFinder( const MagneticField* field
   
   //    LogDebug("OutInConversionSeedFinder") << "OutInConversionSeedFinder CTOR " << "\n";      
     LogDebug("OutInConversionSeedFinder") << "OutInConversionSeedFinder CTOR " << "\n";      
-   theLayerMeasurements_ =  new LayerMeasurements(theInputMeasurementTracker );
+    theLayerMeasurements_ =  new LayerMeasurements(theInputMeasurementTracker );
 
 
     the2ndHitdphi_ = 0.01; 
@@ -117,18 +117,29 @@ void OutInConversionSeedFinder::fillClusterSeeds(const reco::BasicCluster* bc) c
   FreeTrajectoryState fts;  
 
   /// negative charge state
-  fts = makeTrackState(-1);
-  startSeed(fts);
-
+  if ( makeTrackState(-1).second ) {
+    fts = makeTrackState(-1).first;
+    startSeed(fts);
+  }
   /// positive charge state
 
-  fts = makeTrackState(1);
-  startSeed(fts);
+  if ( makeTrackState(1).second ) {
+    fts = makeTrackState(1).first;
+    startSeed(fts);
+  }
+
 }
 
 
-FreeTrajectoryState OutInConversionSeedFinder::makeTrackState(int  charge) const {
-  LogDebug("OutInConversionSeedFinder") << "  OutInConversionSeedFinder:makeTrackState " << "\n";
+//FreeTrajectoryState OutInConversionSeedFinder::makeTrackState(int  charge) const {
+
+std::pair<FreeTrajectoryState,bool>  OutInConversionSeedFinder::makeTrackState(int  charge) const {
+
+  std::pair<FreeTrajectoryState,bool> result;
+  result.second=false;
+ 
+
+   LogDebug("OutInConversionSeedFinder") << "  OutInConversionSeedFinder:makeTrackState " << "\n";
 
 
   //  Old GlobalPoint gpOrigine(theBCPosition_.x()*0.3, theBCPosition_.y()*0.3, theBCPosition_.z()*0.3) ;
@@ -142,7 +153,7 @@ FreeTrajectoryState OutInConversionSeedFinder::makeTrackState(int  charge) const
   double curvature = theMF_->inTesla(theBCPosition_).z() * c_light * 1.e-3 / momentumWithoutCurvature.perp() ;
   curvature /= 100. ; // in cm-1 !!
 
-   LogDebug("OutInConversionSeedFinder") << "OutInConversionSeedFinder::makeTrackState gpOrigine " << gpOrigine.x() << " " <<  gpOrigine.y() << " " <<  gpOrigine.z() << " momentumWithoutCurvature" << momentumWithoutCurvature << " curvature " << curvature << "\n";
+   LogDebug("OutInConversionSeedFinder") << "OutInConversionSeedFinder::makeTrackState gpOrigine " << gpOrigine.x() << " " <<  gpOrigine.y() << " " <<  gpOrigine.z() << " momentumWithoutCurvature " << momentumWithoutCurvature.mag() << " curvature " << curvature << "\n";
 
   // define rotation angle
   float R = theBCPosition_.perp();
@@ -151,13 +162,13 @@ FreeTrajectoryState OutInConversionSeedFinder::makeTrackState(int  charge) const
   // from the formula for the intersection of two circles
   // turns out to be about 2/3 of the deflection of the old formula
   float d = sqrt(r*r+rho*rho);
-   float u = rho + rho/d/d*(R*R-rho*rho) - r/d/d*sqrt((R*R-r*r+2*rho*R)*(R*R-r*r+2*rho*R));
+  float u = rho + rho/d/d*(R*R-rho*rho) - r/d/d*sqrt((R*R-r*r+2*rho*R)*(R*R-r*r+2*rho*R));
   //float u = rho + rho/d/d*(R*R-rho*rho) ;
-
+  if ( u <=R )   result.second=true;
 
   double newdphi = charge * asin(0.5*u/R);
 
-  LogDebug("OutInConversionSeedFinder") << "OutInConversionSeedFinder::makeTrackState charge " << charge << " u/R " << u/R << " asin(0.5*u/R) " << asin(0.5*u/R) << "\n";
+   LogDebug("OutInConversionSeedFinder") << "OutInConversionSeedFinder::makeTrackState charge " << charge << " R " << R << " u/R " << u/R << " asin(0.5*u/R) " << asin(0.5*u/R) << "\n";
 
   HepTransform3D rotation =  HepRotate3D(newdphi, HepVector3D(0., 0. ,1.));
 
@@ -176,14 +187,16 @@ FreeTrajectoryState OutInConversionSeedFinder::makeTrackState(int  charge) const
    LogDebug("OutInConversionSeedFinder") << "OutInConversionSeedFinder::makeTrackState startingPoint " << startingPoint << " calo position " << theBCPosition_ << "\n";
   GlobalVector gvTracker(momentumInTracker.x(), momentumInTracker.y(), momentumInTracker.z());
   GlobalTrajectoryParameters gtp(startingPoint, gvTracker, charge, theMF_);
-  // dummy error matrix
+  // error matrix
   AlgebraicSymMatrix m(5,1) ;
   m[0][0] = 0.1; m[1][1] = 0.1 ; m[2][2] = 0.1 ;
   m[3][3] = 0.1 ; m[4][4] = 0.1;
   
    LogDebug("OutInConversionSeedFinder") << "OutInConversionSeedFinder::makeTrackState " <<  FreeTrajectoryState(gtp, CurvilinearTrajectoryError(m) ) << std::endl;
-  return FreeTrajectoryState(gtp, CurvilinearTrajectoryError(m) ) ;
-
+   
+  result.first= FreeTrajectoryState(gtp, CurvilinearTrajectoryError(m) ) ;
+ //  return FreeTrajectoryState(gtp, CurvilinearTrajectoryError(m) ) ;
+  return result;
 
 }
 
