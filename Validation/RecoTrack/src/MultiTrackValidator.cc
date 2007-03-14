@@ -391,18 +391,18 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	  double ptError = track->p()*track->p()*sin(track->theta())*track->qoverpError()/track->charge()+track->p()*cos(track->theta())*track->thetaError();
 	  h_pt[w]->Fill(ptres/ptError);
 	  h_eta[w]->Fill(etares);
-	  etares_vs_eta[w]->Fill(track->eta(),etares);
+	  etares_vs_eta[w]->Fill(fabs(track->eta()),etares);
 
 	  //chi2 and #hit vs eta: fill 2D histos
-	  chi2_vs_eta[w]->Fill(track->eta(),track->normalizedChi2());
-	  nhits_vs_eta[w]->Fill(track->eta(),track->numberOfValidHits());
+	  chi2_vs_eta[w]->Fill(fabs(track->eta()),track->normalizedChi2());
+	  nhits_vs_eta[w]->Fill(fabs(track->eta()),track->numberOfValidHits());
 
 	  //resolution of track params: fill 2D histos
-	  d0res_vs_eta[w]->Fill(track->eta(),track->d0()-d0Sim);
-	  ptres_vs_eta[w]->Fill(track->eta(),(track->pt()-assocTrack->momentum().perp())/track->pt());
-	  z0res_vs_eta[w]->Fill(track->eta(),track->dz()-dzSim);
-	  phires_vs_eta[w]->Fill(track->eta(),track->phi()-phiSim);
-	  cotThetares_vs_eta[w]->Fill(track->eta(),1/tan(1.570796326794896558-track->lambda())-1/tan(1.570796326794896558-lambdaSim));
+	  d0res_vs_eta[w]->Fill(fabs(track->eta()),track->d0()-d0Sim);
+	  ptres_vs_eta[w]->Fill(fabs(track->eta()),(track->pt()-assocTrack->momentum().perp())/track->pt());
+	  z0res_vs_eta[w]->Fill(fabs(track->eta()),track->dz()-dzSim);
+	  phires_vs_eta[w]->Fill(fabs(track->eta()),track->phi()-phiSim);
+	  cotThetares_vs_eta[w]->Fill(fabs(track->eta()),1/tan(1.570796326794896558-track->lambda())-1/tan(1.570796326794896558-lambdaSim));
 
 	} catch (cms::Exception e){
 	  edm::LogError("TrackValidator") << "exception found: " << e.what() << "\n";
