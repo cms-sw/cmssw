@@ -8,7 +8,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Fri May 26 16:12:04 EDT 2006
-// $Id: SiStripElectronAlgo.cc,v 1.20 2007/02/05 14:07:17 rahatlou Exp $
+// $Id: SiStripElectronAlgo.cc,v 1.21 2007/02/07 00:32:58 futyand Exp $
 //
 
 // system include files
@@ -212,6 +212,8 @@ bool SiStripElectronAlgo::findElectron(reco::SiStripElectronCollection& electron
 						numberOfStereoHits_neg_,
 						numberOfBarrelRphiHits_neg_,
 						numberOfEndcapZphiHits_neg_));
+
+    delete PTraj; // ShR: fix memory leak reported per perfrmance task force
 
     return true;
   }
