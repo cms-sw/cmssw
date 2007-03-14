@@ -93,7 +93,8 @@ void  ProfilerService::beginEvent() {
   newEvent();
   //  static std::string const fullEvent("FullEvent");
   //  if (std::find(m_paths.begin(),m_paths.end(),fullEvent) != m_paths.end())
-  //    startInstrumentation();
+  if (m_allPaths) 
+    startInstrumentation();
 }
 
 void  ProfilerService::endEvent() {
@@ -105,7 +106,7 @@ void  ProfilerService::endEvent() {
 void  ProfilerService::beginPath(std::string const & path) {
   if (!doEvent()) return;
   // assume less than 5-6 path to instrument ....
-  if ( (!m_allPaths) && std::find(m_paths.begin(),m_paths.end(),path) == m_paths.end()) return; 
+  if (std::find(m_paths.begin(),m_paths.end(),path) == m_paths.end()) return; 
   m_activePath=path;
   startInstrumentation();
 }
