@@ -86,9 +86,10 @@ bool EcalSimpleSource::produce(edm::Event& evt){
 	int iPhi = cIndex2iPhi(iPhi0);
 	if(verbose_) cout << "(" << iEta0 << "," << iPhi0 << "): ";
 	
-	double e = simHitFormula_->Eval(iEta0, iPhi0, ievt-1);
+	double em = simHitFormula_->Eval(iEta0, iPhi0, ievt-1);
+        double eh = 0.;
 	double t = 0.;
-	const PCaloHit hit(EBDetId(iEta1,iPhi).rawId(), e, t, 0);
+	const PCaloHit hit(EBDetId(iEta1,iPhi).rawId(), em, eh, t, 0);
 	hits->push_back(hit);
       }
    }
