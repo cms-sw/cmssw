@@ -60,12 +60,11 @@ namespace {
 }
 
 #include "DataFormats/SiStripDigi/interface/SiStripEventSummary.h"
-#include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 namespace {
   namespace {
-    edm::Wrapper< sistrip::RunType > run_type;
-    edm::Wrapper< sistrip::FedReadoutMode > fed_mode;
-    edm::Wrapper< sistrip::ApvReadoutMode > apv_mode;
+    edm::Wrapper< sistrip::RunType > run_type; 
+    edm::Wrapper< sistrip::ApvReadoutMode > apv_mode; 
+    edm::Wrapper< sistrip::FedReadoutMode > fed_mode; 
     edm::Wrapper< SiStripEventSummary > summary;
   }
 }

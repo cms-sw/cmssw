@@ -25,10 +25,11 @@
  <class name="std::vector<sistrip::FedReadoutPath>"/>
  <class name="edm::Wrapper<std::vector<sistrip::FedReadoutPath> >"/>
 
+ <class name="edm::Wrapper<sistrip::RunType>"/>
+ <class name="edm::Wrapper<sistrip::ApvReadoutMode>"/>
+ <class name="edm::Wrapper<sistrip::FedReadoutMode>"/>
  <class name="SiStripEventSummary"/>
  <class name="edm::Wrapper<SiStripEventSummary>"/>
- <class name="std::vector<sistrip::ApvReadoutMode>"/>
- <class name="std::vector<sistrip::RunType>"/>
 
 </lcgdict>
 
