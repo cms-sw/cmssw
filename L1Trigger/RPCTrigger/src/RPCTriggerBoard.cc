@@ -66,10 +66,10 @@ bool RPCTriggerBoard::runCone(const RPCLogCone& cone)  {
         m_PacsMuonsVec.push_back(tbMuon);
         if (m_TriggerConfig->getDebugLevel()!=0){
 #ifndef _STAND_ALONE
-	  LogDebug("RPCHwDebug") << "GB 0"
+	  LogDebug("RPCHwDebug") << "GB 0 "
 			         << tbMuon.printDebugInfo(m_TriggerConfig->getDebugLevel());
 #else
-	  std::cout << "GB 0"
+	  std::cout << "GB 0 "
   	  	    << tbMuon.printDebugInfo(m_TriggerConfig->getDebugLevel())
 		    << std::endl;
 #endif //_STAND_ALONE
