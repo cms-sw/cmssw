@@ -10,6 +10,9 @@
  <class name="edm::EventAuxiliary"/>
  <class name="edm::LuminosityBlockAuxiliary"/>
  <class name="edm::RunAuxiliary"/>
+ <class name="edm::EventAux"/>
+ <class name="edm::LuminosityBlockAux"/>
+ <class name="edm::RunAux"/>
  <class name="edm::ProductRegistry">
    <field name="frozen_" transient="true"/>
  </class>
