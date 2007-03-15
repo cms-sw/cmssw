@@ -1,14 +1,14 @@
-#include "GeneratorInterface/MCatNLOInterface/interface/EmptyFilter.h"
+#include "GeneratorInterface/MCatNLOInterface/interface/MCatNLOFilter.h"
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 
-EmptyFilter::EmptyFilter(const edm::ParameterSet& ppp) 
+MCatNLOFilter::MCatNLOFilter(const edm::ParameterSet& ppp) 
 {}
 
-EmptyFilter::~EmptyFilter() 
+MCatNLOFilter::~MCatNLOFilter() 
 {}
 
 bool
-EmptyFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+MCatNLOFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace edm;
    
@@ -24,12 +24,12 @@ EmptyFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 
 void 
-EmptyFilter::beginJob(const edm::EventSetup&)
+MCatNLOFilter::beginJob(const edm::EventSetup&)
 {
 }
 
 void 
-EmptyFilter::endJob() {
+MCatNLOFilter::endJob() {
 }
 
 //define this as a plug-in

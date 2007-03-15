@@ -4,7 +4,7 @@
 //
 // Original Author:  Fabian Stoeckli
 //         Created:  Mon Mar 12 17:34:14 CET 2007
-// $Id$
+// $Id: MCatNLOFilter.h,v 1.1 2007/03/12 18:04:40 fabstoec Exp $
 //
 //
 
@@ -27,10 +27,10 @@
 // class declaration
 //
 
-class EmptyFilter : public edm::EDFilter {
+class MCatNLOFilter : public edm::EDFilter {
    public:
-      explicit EmptyFilter(const edm::ParameterSet&);
-      ~EmptyFilter();
+      explicit MCatNLOFilter(const edm::ParameterSet&);
+      ~MCatNLOFilter();
 
    private:
       virtual void beginJob(const edm::EventSetup&) ;
