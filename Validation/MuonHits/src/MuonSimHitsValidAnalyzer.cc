@@ -970,5 +970,3 @@ void MuonSimHitsValidAnalyzer::fillRPC(const edm::Event& iEvent,
 return;
 }
 
-/// define this as a plug-in
-DEFINE_FWK_MODULE(MuonSimHitsValidAnalyzer);
