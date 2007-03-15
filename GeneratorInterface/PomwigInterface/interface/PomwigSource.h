@@ -29,14 +29,12 @@ namespace edm
 
   private:
 
-    /// Pass parameters to HERWIG
-    bool hwgive(const std::string& iParm );
-
-  private:
-    
     virtual bool produce(Event & e);
     void clear();
     
+    bool hwgive(const std::string& iParm );	
+    bool setRngSeeds(int);
+	
     HepMC::GenEvent  *evt;
     
     /// Verbosity flag
@@ -48,7 +46,7 @@ namespace edm
     int diffTopology;	
 
     std::string lhapdfSetPath_;
-    
+    bool printCards_;
   };
 } 
 

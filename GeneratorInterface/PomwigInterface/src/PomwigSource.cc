@@ -5,7 +5,6 @@
  *  02/2007
  */
 
-
 #include "GeneratorInterface/PomwigInterface/interface/PomwigSource.h"
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -21,243 +20,38 @@
 using namespace edm;
 using namespace std;
 
-// Generator modifications
-// ***********************
 #include "HerwigWrapper6_4.h"
 #include "IO_HERWIG.h"
 #include "HEPEVT_Wrapper.h"
 
-//-------------------------------------------------------------------------------
-// COMMON block stuff, that doesn't come with the HerwigWrapper6_4.h ....
+// INCLUDE JIMMY,HERWIG,LHAPDF COMMON BLOCKS AND FUNTIONS
+#include "herwig.h"
 
-/*C Arrays for particle properties (NMXRES = max no of particles defined)
-      PARAMETER(NMXRES=500)
-      COMMON/HWPROP/RLTIM(0:NMXRES),RMASS(0:NMXRES),RSPIN(0:NMXRES),
-     & ICHRG(0:NMXRES),IDPDG(0:NMXRES),IFLAV(0:NMXRES),NRES,
-     & VTOCDK(0:NMXRES),VTORDK(0:NMXRES),
-     & QORQQB(0:NMXRES),QBORQQ(0:NMXRES) */
-const int nmxres = 500+1; // we need NMXRES+1 entries ...
-extern struct {
-  double RLTIM[nmxres], RMASS[nmxres], RSPIN[nmxres];
-  int ICHRG[nmxres], IDPDG[nmxres],IFLAV[nmxres], NRES;
-  int VTOCDK[nmxres], VTORDK[nmxres], QORQQB[nmxres], QBORQQ[nmxres];    
-} hwprop_;
-#define hwprop hwprop_
-
-/*C Parameters for Sudakov form factors
-C (NMXSUD= max no of entries in lookup table)
-      PARAMETER (NMXSUD=1024)
-      COMMON/HWUSUD/ACCUR,QEV(NMXSUD,6),SUD(NMXSUD,6),INTER,NQEV,NSUD,
-      & SUDORD*/
-const int nmxsud = 1024;
-extern struct {
-  double ACCUR, QEV[nmxsud][6],SUD[nmxsud][6];
-  int INTER, NQEV, NSUD, SUDORD;
-} hwusud_;
-#define hwusud hwusud_
-
-/*C  New parameters for version 6.203
-      DOUBLE PRECISION ABWGT,ABWSUM,AVABW
-      INTEGER NNEGWT,NNEGEV
-      LOGICAL NEGWTS
-      COMMON/HW6203/ABWGT,ABWSUM,AVABW,NNEGWT,NNEGEV,NEGWTS */
-extern struct {
-  double ABWGT, ABWSUM, AVABW;
-  int NNEGWT,NNEGEV,NEGWTS;
-} hw6203_;
-#define hw6203 hw6203_
-
-
-/*CHARACTER*20
-     & AUTPDF
-     COMMON/HWPRCH/AUTPDF(2),BDECAY   */
-extern struct {
-  char AUTPDF[2][20],BDECAY;
-} hwprch_;
-#define hwprch hwprch_
-
-/*C Parameters for minimum bias/soft underlying event
-      COMMON/HWMINB/
-      & PMBN1,PMBN2,PMBN3,PMBK1,PMBK2,PMBM1,PMBM2,PMBP1,PMBP2,PMBP3  */
-extern struct {
-  double PMBN1,PMBN2,PMBN3,PMBK1,PMBK2,PMBM1,PMBM2,PMBP1,PMBP2,PMBP3;
-} hwminb_;
-#define hwminb hwminb_
-
-/*C Variables controling mixing and vertex information
-C--VTXPIP should have been a 5-vector, problems with NAG compiler
-      COMMON/HWDIST/EXAG,GEV2MM,HBAR,PLTCUT,VMIN2,VTXPIP(5),XMIX(2),
-      & XMRCT(2),YMIX(2),YMRCT(2),IOPDKL,MAXDKL,MIXING,PIPSMR */
-extern struct {
-  double EXAG,GEV2MM,HBAR,PLTCUT,VMIN2,VTXPIP[5],XMIX[2],XMRCT[2],YMIX[2],YMRCT[2];
-  int IOPDKL,MAXDKL,MIXING,PIPSMR;
-} hwdist_;
-#define hwdist hwdist_
-
-/*      PARAMETER(NMXCDK=4000)
-      COMMON/HWUCLU/CLDKWT(NMXCDK),CTHRPW(12,12),PRECO,RESN(12,12),
-      & RMIN(12,12),LOCN(12,12),NCLDK(NMXCDK),NRECO,CLRECO  */
-
-const int nmxcdk=4000;
-extern struct {
-  double CLDKWT[nmxcdk],CTHRPW[12][12],PRECO,RESN[12][12], RMIN[12][12];
-  int LOCN[12][12],NCLDK[nmxcdk], NRECO,CLRECO;
-} hwuclu_;
-#define hwuclu hwuclu_ 
-
-/*C Weights used in cluster decays
-      COMMON/HWUWTS/REPWT(0:3,0:4,0:4),SNGWT,DECWT,QWT(3),PWT(12),
-      & SWTEF(NMXRES)  */
-extern struct {
-  double REPWT[4][5][5],SNGWT,DECWT,QWT[3],PWT[12],SWTEF[nmxres-1];
-} hwuwts_;
-#define hwuwts hwuwts_
-
-/*C  Other new parameters for version 6.2
-      DOUBLE PRECISION VIPWID,DXRCYL,DXZMAX,DXRSPH
-      LOGICAL WZRFR,FIX4JT
-      INTEGER IMSSM,IHIGGS,PARITY,LRSUSY
-      COMMON/HW6202/VIPWID(3),DXRCYL,DXZMAX,DXRSPH,WZRFR,FIX4JT,
-      & IMSSM,IHIGGS,PARITY,LRSUSY   */
-extern struct {
-  double VIPWID[3], DXRCYL,DXZMAX,DXRSPH;
-  int WZRFR,FIX4JT,IMSSM,IHIGGS,PARITY,LRSUSY;
-} hw6202_;
-#define hw6202 hw6202_
-
-/*      PARAMETER (MODMAX=50)
-      COMMON/HWBOSC/ALPFAC,BRHIG(12),ENHANC(12),GAMMAX,RHOHEP(3,NMXHEP),
-      & IOPHIG,MODBOS(MODMAX)  */
-const int hepevt_size = 4000; // check in HerwigWrapper
-const int modmax = 50;
-extern struct {
-  double ALPFAC, BRHIG[12], ENHANC[12], GAMMAX, RHOHEP[3][hepevt_size];
-  int IOPHIG, MODBOS[modmax];
-} hwbosc_;
-#define hwbosc hwbosc_
-
-/*      COMMON/HWHARD/ASFIXD,CLQ(7,6),COSS,COSTH,CTMAX,DISF(13,2),EMLST,
-     & EMMAX,EMMIN,EMPOW,EMSCA,EPOLN(3),GCOEF(7),GPOLN,OMEGA0,PHOMAS,
-     & PPOLN(3),PTMAX,PTMIN,PTPOW,Q2MAX,Q2MIN,Q2POW,Q2WWMN,Q2WWMX,QLIM,
-     & SINS,THMAX,Y4JT,TMNISR,TQWT,XX(2),XLMIN,XXMIN,YBMAX,YBMIN,YJMAX,
-     & YJMIN,YWWMAX,YWWMIN,WHMIN,ZJMAX,ZMXISR,IAPHIG,IBRN(2),IBSH,
-     & ICO(10),IDCMF,IDN(10),IFLMAX,IFLMIN,IHPRO,IPRO,MAPQ(6),MAXFL,
-     & BGSHAT,COLISR,FSTEVT,FSTWGT,GENEV,HVFCEN,TPOL,DURHAM   */
-extern struct {
-  double ASFIXD,CLQ[6][7],COSS,COSTH,CTMAX,DISF[2][13],EMLST, EMMAX,EMMIN,EMPOW,EMSCA,EPOLN[3],GCOEF[7],GPOLN,OMEGA0,PHOMAS, PPOLN[3],PTMAX,PTMIN,PTPOW,Q2MAX,Q2MIN,Q2POW,Q2WWMN,Q2WWMX,QLIM, SINS,THMAX,Y4JT,TMNISR,TQWT,XX[2],XLMIN,XXMIN,YBMAX,YBMIN,YJMAX,YJMIN,YWWMAX,YWWMIN,WHMIN,ZJMAX,ZMXISR;
-  int IAPHIG,IBRN[2],IBSH, ICO[10],IDCMF,IDN[10],IFLMAX,IFLMIN,IHPRO,IPRO,MAPQ[6],MAXFL,BGSHAT,COLISR,FSTEVT,FSTWGT,GENEV,HVFCEN,TPOL,DURHAM;
-} hwhard_;
-#define hwhard hwhard_
-
-/*C other HERWIG branching, event and hard subprocess common blocks
-  COMMON/HWBRCH/ANOMSC(2,2),HARDST,PTINT(3,2),XFACT,INHAD,JNHAD,
-  & NSPAC(7),ISLENT,BREIT,FROST,USECMF */
-extern struct {
-  double ANOMSC[2][2],HARDST,PTINT[2][3],XFACT;
-  int INHAD,JNHAD,NSPAC[7],ISLENT,BREIT,FROST,USECMF;
-} hwbrch_;
-#define hwbrch hwbrch_
-
-/*      LOGICAL PRESPL
-	COMMON /HW6500/ PRESPL   */
-extern struct {
-  int PRESPL;
-} hw6500_;
-#define hw6500 hw6500_
-
-/*C R-Parity violating parameters and colours
-      COMMON /HWRPAR/ LAMDA1(3,3,3),LAMDA2(3,3,3),
-      &                LAMDA3(3,3,3),HRDCOL(2,5),RPARTY,COLUPD   */
-extern struct {
-  double LAMDA1[3][3][3],LAMDA2[3][3][3],LAMDA3[3][3][3];
-  int HRDCOL[5][2],RPARTY,COLUPD;
-} hwrpar_;
-#define hwrpar hwrpar_
-
-/*C SUSY parameters
-      COMMON/HWSUSY/
-     & TANB,ALPHAH,COSBPA,SINBPA,COSBMA,SINBMA,COSA,SINA,COSB,SINB,COTB,
-     & ZMIXSS(4,4),ZMXNSS(4,4),ZSGNSS(4), LFCH(16),RFCH(16),
-     & SLFCH(16,4),SRFCH(16,4), WMXUSS(2,2),WMXVSS(2,2), WSGNSS(2),
-     & QMIXSS(6,2,2),LMIXSS(6,2,2),
-     & THETAT,THETAB,THETAL,ATSS,ABSS,ALSS,MUSS,FACTSS,
-     & GHWWSS(3),GHZZSS(3),GHDDSS(4),GHUUSS(4),GHWHSS(3),
-     & GHSQSS(4,6,2,2),XLMNSS,RMMNSS,DMSSM,SENHNC(24),SSPARITY,SUSYIN  */
-extern struct {
-  double TANB,ALPHAH,COSBPA,SINBPA,COSBMA,SINBMA,COSA,SINA,COSB,SINB,COTB,ZMIXSS[4][4],ZMXNSS[4][4],ZSGNSS[4], LFCH[16],RFCH[16],SLFCH[4][16],SRFCH[4][16], WMXUSS[2][2],WMXVSS[2][2], WSGNSS[2],QMIXSS[2][2][6],LMIXSS[2][2][6],THETAT,THETAB,THETAL,ATSS,ABSS,ALSS,MUSS,FACTSS,GHWWSS[3],GHZZSS[3],GHDDSS[4],GHUUSS[4],GHWHSS[3],GHSQSS[2][2][6][4],XLMNSS,RMMNSS,DMSSM,SENHNC[24],SSPARITY;
-  int SUSYIN;
-} hwsusy_;
-#define hwsusy hwsusy_
-
-/*INTEGER NDECSY,NSEARCH,LRDEC,LWDEC
-      LOGICAL SYSPIN,THREEB,FOURB
-      CHARACTER *6 TAUDEC
-      COMMON /HWDSPN/NDECSY,NSEARCH,LRDEC,LWDEC,SYSPIN,THREEB,
-      &	FOURB,TAUDEC */
-extern struct {
-  int NDECSY,NSEARCH,LRDEC,LWDEC,SYSPIN,THREEB,FOURB;
-  char TAUDEC[6];
-} hwdspn_;
-#define hwdspn hwdspn_
-
-/*C--common block for Les Houches interface to store information we need
-C
-      INTEGER MAXHRP
-      PARAMETER (MAXHRP=100)
-      DOUBLE PRECISION LHWGT(MAXHRP),LHWGTS(MAXHRP),LHMXSM,
-     &     LHXSCT(MAXHRP),LHXERR(MAXHRP),LHXMAX(MAXHRP)
-      INTEGER LHIWGT(MAXHRP),ITYPLH,LHNEVT(MAXHRP)
-      LOGICAL LHSOFT,LHGLSF	
-      COMMON /HWGUPR/LHWGT,LHWGTS,LHXSCT,LHXERR,LHXMAX,LHMXSM,LHIWGT,
-      &     LHNEVT,ITYPLH,LHSOFT,LHGLSF  */
-const int maxhrp = 100;
-extern struct {
-  double LHWGT[maxhrp],LHWGTS[maxhrp],LHMXSM,LHXSCT[maxhrp],LHXERR[maxhrp],LHXMAX[maxhrp];
-  int LHIWGT,LHNEVT,ITYPLH,LHSOFT,LHGLSF;
-} hwgupr_;
-#define hwgupr hwgupr_
-
-/*C  New parameters for version 6.3
-      INTEGER IMAXCH,IMAXOP
-      PARAMETER (IMAXCH=20,IMAXOP=40)
-      DOUBLE PRECISION MJJMIN,CHNPRB(IMAXCH)
-      INTEGER IOPSTP,IOPSH
-      LOGICAL OPTM,CHON(IMAXCH)
-      COMMON/HW6300/MJJMIN,CHNPRB,IOPSTP,IOPSH,OPTM,CHON   */
-const int imaxch = 20;
-extern struct {
-  double MJJMIN,CHNPRB[imaxch];
-  int IOPSTP,IOPSH,OPTM,CHON[imaxch];
-} hw6300_;
-#define hw6300 hw6300_
-//-------------------------------------------------------------------------------
-
-HepMC::IO_HERWIG conv;
-// ***********************
 
 extern"C" {
-  void setpdfpath_(char*);
+  void setpdfpath_(char*,int*);
+  void mysetpdfpath_(char*);
   void setlhaparm_(char*);
+  void setherwpdf_(void);
+  // function to chatch 'STOP' in original HWWARN
+  void cmsending_(int*);
 }
 
 #define setpdfpath setpdfpath_
+#define mysetpdfpath mysetpdfpath_
 #define setlhaparm setlhaparm_
+#define setherwpdf setherwpdf_
+#define cmsending cmsending_
 
-// Subroutine inside H1QCD
-#define qcd_1994 qcd_1994_
-extern "C" {
-    void qcd_1994(double&,double&,double*,int);
-}
-// HWABEG to initialize H1 pomeron structure function
-#define hwabeg hwabeg_
-extern "C" {
-    void hwabeg();
-}
 
-//used for defaults
+// -----------------  HepMC converter -----------------------------------------
+HepMC::IO_HERWIG conv;
+
+// -----------------  used for defaults --------------------------------------
   static const unsigned long kNanoSecPerSec = 1000000000;
   static const unsigned long kAveEventPerSec = 200;
 
+// -----------------  Source Code -----------------------------------------
 PomwigSource::PomwigSource( const ParameterSet & pset, 
 			    InputSourceDescription const& desc ) :
   GeneratedInputSource(pset, desc), evt(0), 
@@ -267,31 +61,39 @@ PomwigSource::PomwigSource( const ParameterSet & pset,
   maxEventsToPrint_ (pset.getUntrackedParameter<int>("maxEventsToPrint",0)),
   comenergy(pset.getUntrackedParameter<double>("comEnergy",14000.)),
   diffTopology(pset.getUntrackedParameter<int>("diffTopology",0)),
-  lhapdfSetPath_(pset.getUntrackedParameter<string>("lhapdfSetPath",""))
+  lhapdfSetPath_(pset.getUntrackedParameter<string>("lhapdfSetPath","")),
+  printCards_(pset.getUntrackedParameter<bool>("printCards",true))
 {
-  
-  cout << "PomwigSource: initializing Pomwig/Herwig. " << endl;
-
-  // Call hwudat to set up HERWIG block data
-  hwudat();
-
-  // herwigVerbosity Level IPRINT
-  /* valid argumets are: 0: print title only
+  cout << "----------------------------------------------" << endl;
+  cout << "Initializing PomwigSource" << endl;
+  cout << "----------------------------------------------" << endl;
+  /* herwigVerbosity Level IPRINT
+     valid argumets are: 0: print title only
                          1: + print selected input parameters
                          2: + print table of particle codes and properties
-			 3: + tables of Sudakov form factors                */
+			 3: + tables of Sudakov form factors  
+              *** NOT IMPLEMENTED ***
+      LHA vebosity:      0=silent 
+                         1=lowkey (default) 
+			 2=all 
+  */
 
-  cout << "Herwig verbosity level = " << herwigVerbosity_ << endl;
+  cout << "   Herwig verbosity level         = " << herwigVerbosity_ << endl;
+  cout << "   LHAPDF verbosity level         = " << herwigLhapdfVerbosity_ << endl;
+  cout << "   HepMC verbosity                = " << herwigHepMCVerbosity_ << endl;
+  cout << "   Number of events to be printed = " << maxEventsToPrint_ << endl;
 
-  // LHA vebosity: 0=silent, 1=lowkey, 2=defaul(all)
-
-  cout << "LHAPDF verbosity level = " << herwigLhapdfVerbosity_ << endl;
+  //Doesn't make sense for POMWIG
+  /*if(useJimmy_) {
+    cout << "   HERWIG will be using JIMMY for UE/MI." << endl;
+    if(doMPInteraction_) 
+      cout << "   JIMMY trying to generate multiple interactions." << endl;
+  }*/
   
-  //Max number of events printed on verbosity level 
-  //maxEventsToPrint_ = pset.getUntrackedParameter<int>("maxEventsToPrint",0);
-  cout << "Number of events to be printed = " << maxEventsToPrint_ << endl;
+  // Call hwudat to set up HERWIG block data
+  hwudat();
   
-  // setting basic parameters ...
+  // Setting basic parameters ...
   hwproc.PBEAM1 = comenergy/2.;
   hwproc.PBEAM2 = comenergy/2.;
   // Choose beam particles for POMWIG depending on topology
@@ -338,14 +140,17 @@ ology = 2) and Non diffractive (diffTopology = 3)";
     hwbmch.PART1[i]  = ' ';
     hwbmch.PART2[i]  = ' ';}
 
-  // process number (should be changed ... )
-  //  hwproc.IPROC = 1500;
-  // this is not used anymore ..
-  hwproc.MAXEV = 10;
+  hwproc.MAXEV = pset.getUntrackedParameter<int>("maxEvents",10);
+  hwevnt.MAXER = hwproc.MAXEV/10;
+  if(hwevnt.MAXER<10) hwevnt.MAXER = 10;
+  //Not using JIMMY
+  //if(useJimmy_) jmparm.MSFLAG = 1;
 
-  // initialize other common block ...
+  // initialize other common blocks ...
   hwigin();
-
+  //Not using JIMMY
+  //if(useJimmy_) jimmin();
+  
   // set some 'non-herwig' defaults
   hwevnt.MAXPR =  maxEventsToPrint_;           // no printing out of events
   hwpram.IPRINT = herwigVerbosity_;            // HERWIG print out mode
@@ -354,25 +159,21 @@ ology = 2) and Non diffractive (diffTopology = 3)";
   // Set HERWIG parameters in a single ParameterSet
   ParameterSet herwig_params = 
     pset.getParameter<ParameterSet>("HerwigParameters") ;
-
-  // The parameter sets to be read (default, min bias, user ...) in the
-  // proper order.
+  
+  // The parameter sets to be read (default, min bias, user ...) in the proper order.
   vector<string> setNames = 
     herwig_params.getParameter<vector<string> >("parameterSets");  
-
+  
   // Loop over the sets
-  for ( unsigned i=0; i<setNames.size(); ++i ) {
-    
+  for ( unsigned i=0; i<setNames.size(); ++i ) {    
     string mySet = setNames[i];
-
-    // Read the HERWIG parameters for each set of parameters
     vector<string> pars = 
       herwig_params.getParameter<vector<string> >(mySet);
-
+    
     cout << "----------------------------------------------" << endl;
     cout << "Read HERWIG parameter set " << mySet << endl;
     cout << "----------------------------------------------" << endl;
-
+    
     // Loop over all parameters and stop in case of mistake
     for( vector<string>::const_iterator  
 	   itPar = pars.begin(); itPar != pars.end(); ++itPar ) {
@@ -382,63 +183,41 @@ ology = 2) and Non diffractive (diffTopology = 3)";
 	throw edm::Exception(edm::errors::Configuration,"HerwigError")
 	  <<" attempted to set random number using pythia command 'NRN(.)'. This is not allowed.\n  Please use the RandomNumberGeneratorService to set the random number seed.";
       }
-
+      
       if( ! hwgive(*itPar) ) {
 	throw edm::Exception(edm::errors::Configuration,"HerwigError") 
 	  <<" herwig did not accept the following \""<<*itPar<<"\"";
       }
+      else if(printCards_)
+	cout << "   " << *itPar << endl;
     }
   }
 
-
-  //In the future, we will get the random number seed on each event and tell 
-  // HERWIG to use that new seed  
+  // setting up herwgi RNG seeds NRN(.)
   cout << "----------------------------------------------" << endl;
-  cout << "Setting Herwig random number seeds *blank*" << endl;
+  cout << "Setting Herwig random number generator seeds" << endl;
   cout << "----------------------------------------------" << endl;
-  /*edm::Service<RandomNumberGenerator> rng;
-  uint32_t seed1 = rng->mySeed();
-  uint32_t seed2 = rng->mySeed();
-  hwevnt.NRN[0] = seed1;
-  hwevnt.NRN[1] = seed2;*/
+  edm::Service<RandomNumberGenerator> rng;
+  int wwseed = rng->mySeed();
+  bool rngok = setRngSeeds(wwseed);
+  if(!rngok)
+    throw edm::Exception(edm::errors::Configuration,"HerwigError")
+      <<" Impossible error in setting 'NRN(.)'.";
+  cout << "   NRN(1) = "<<hwevnt.NRN[0]<<endl;
+  cout << "   NRN(2) = "<<hwevnt.NRN[1]<<endl;
 
-  // set the LHSPDF grid directory
-  hwprch.AUTPDF[0][0]='H';
-  hwprch.AUTPDF[0][1]='W';
-  hwprch.AUTPDF[0][2]='L';
-  hwprch.AUTPDF[0][3]='H';
-  hwprch.AUTPDF[0][4]='A';
-  hwprch.AUTPDF[0][5]='P';
-  hwprch.AUTPDF[0][6]='D';
-  hwprch.AUTPDF[0][7]='F';
-  hwprch.AUTPDF[1][0]='H';
-  hwprch.AUTPDF[1][1]='W';
-  hwprch.AUTPDF[1][2]='L';
-  hwprch.AUTPDF[1][3]='H';
-  hwprch.AUTPDF[1][4]='A';
-  hwprch.AUTPDF[1][5]='P';
-  hwprch.AUTPDF[1][6]='D';
-  hwprch.AUTPDF[1][7]='F';
-  for(int i=8; i<20; ++i) {
-    hwprch.AUTPDF[0][i]=' ';
-    hwprch.AUTPDF[1][i]=' ';
-  }
-
-
+  // set the LHAPDF grid directory and path
+  setherwpdf();
   char pdfpath[232];
-  bool dot=false;
-  for(int i=0; i<232; ++i) {
-    if(lhapdfSetPath_.c_str()[i]=='\0') dot=true;
-    if(!dot) pdfpath[i]=lhapdfSetPath_.c_str()[i];
-    else pdfpath[i]=' ';
-  }
+  int pathlen = lhapdfSetPath_.length();
+  for(int i=0; i<pathlen; ++i) 
+  pdfpath[i]=lhapdfSetPath_.at(i);
+  for(int i=pathlen; i<232; ++i) 
+  pdfpath[i]=' ';
+  mysetpdfpath(pdfpath);
 
-  setpdfpath(pdfpath);
-
-
+  // HERWIG preparations ...
   hwuinc();
-
-  // callung HWUSTA to make any particle stable (PI0 by default)
   hwusta("PI0     ",1);
 
   // Initialize H1 pomeron structure function
@@ -449,25 +228,31 @@ ology = 2) and Non diffractive (diffTopology = 3)";
   qcd_1994(xp,Q2,xpq,ifit);*/
   hwabeg();
 
-  // initialize elemetary process ...
   hweini();
-  
+  //Not using JIMMY
+  //if(useJimmy_) jminit();
+
   cout << endl; // Stetically add for the output
-  //********                                      
-  
   produces<HepMCProduct>();
-  cout << "PomwigSource: starting event generation ... " << endl<<endl;
+
+  cout << "----------------------------------------------" << endl;
+  cout << "Starting event generation" << endl;
+  cout << "----------------------------------------------" << endl;
 }
 
 
 PomwigSource::~PomwigSource(){
-  cout << "PomwigSource: event generation done. " << endl;
+  cout << "----------------------------------------------" << endl;
+  cout << "Event generation done" << endl;
+  cout << "----------------------------------------------" << endl;
   clear();
 }
 
 void PomwigSource::clear() {
   // teminate elementary process
   hwefin();
+  //Not using JIMMY
+  //if(useJimmy_) jmefin();
 }
 
 
@@ -475,37 +260,22 @@ bool PomwigSource::produce(Event & e) {
   
   auto_ptr<HepMCProduct> bare_product(new HepMCProduct());  
   
-  //********                                         
-  //
-
-  // initialize event
   hwuine();
-
-  // generate hard subprocess
   hwepro();
-
-  // generate parton cascades
-  hwbgen();
-
-  // do heavy object decays
+  hwbgen();   
+  //Not using JIMMY 
+  /*if(useJimmy_ && doMPInteraction_) {
+    double eventok = 0.0;
+    eventok = hwmsct_dummy(1.1);
+    if(eventok > 0.5) return true;
+  }*/
+  
   hwdhob();
-
-  // do cluster formation
   hwcfor();
-
-  // do cluster decays
   hwcdec();
-
-  // do unstable particle decays
   hwdhad();
-
-  // do heavy flavour hadron decays
   hwdhvy();
-
-  // add soft underlying event if needed
   hwmevt();
-
-  // finish event
   hwufne();
 
   HepMC::GenEvent* evt = new HepMC::GenEvent();
@@ -520,23 +290,17 @@ bool PomwigSource::produce(Event & e) {
 	 << "----------------------" << endl;
     evt->print();
   }
-  
-  //evt = reader_->fillCurrentEventData(); 
-  //********                                      
-  
   if(evt)  bare_product->addHepMCData(evt );
-  
   e.put(bare_product);
-  
   return true;
 }
 
-
-bool 
-PomwigSource::hwgive(const std::string& ParameterString) {
-
+// -------------------------------------------------------------------------------------------------
+// function to pass parameters to common blocks
+bool PomwigSource::hwgive(const std::string& ParameterString) {
   bool accepted = 1;
-  
+
+ 
   if(!strncmp(ParameterString.c_str(),"IPROC",5)) {
     hwproc.IPROC = atoi(&ParameterString[strcspn(ParameterString.c_str(),"=")+1]);
     if(hwproc.IPROC<0) {
@@ -545,7 +309,7 @@ PomwigSource::hwgive(const std::string& ParameterString) {
     }
   }
   else if(!strncmp(ParameterString.c_str(),"AUTPDF(",7)){
-    cout<<" WARNING: AUTPDF parameter *not* suported. HERWIG will use LHAPDF."<<endl;
+    cout<<"   WARNING: AUTPDF parameter *not* suported. HERWIG will use LHAPDF."<<endl;
   }
   else if(!strncmp(ParameterString.c_str(),"TAUDEC",6)){
     int tostart=0;
@@ -563,7 +327,7 @@ PomwigSource::hwgive(const std::string& ParameterString) {
     }
   }
   else if(!strncmp(ParameterString.c_str(),"BDECAY",6)){
-    cout<<" WARNING: BDECAY parameter *not* suported. HERWIG will use default b decay."<<endl;
+    cout<<"   WARNING: BDECAY parameter *not* suported. HERWIG will use default b decay."<<endl;
   }
   else if(!strncmp(ParameterString.c_str(),"QCDLAM",6))
     hwpram.QCDLAM = atof(&ParameterString[strcspn(ParameterString.c_str(),"=")+1]);
@@ -1260,9 +1024,15 @@ PomwigSource::hwgive(const std::string& ParameterString) {
     hw6300.IOPSTP = atoi(&ParameterString[strcspn(ParameterString.c_str(),"=")+1]); 
   else if(!strncmp(ParameterString.c_str(),"IOPSH",5))
     hw6300.IOPSH = atoi(&ParameterString[strcspn(ParameterString.c_str(),"=")+1]); 
-    
+  else if(!strncmp(ParameterString.c_str(),"JMUEO",5))
+    jmparm.JMUEO = atoi(&ParameterString[strcspn(ParameterString.c_str(),"=")+1]); 
+  else if(!strncmp(ParameterString.c_str(),"PTJIM",5))
+    jmparm.PTJIM = atof(&ParameterString[strcspn(ParameterString.c_str(),"=")+1]); 
+  else if(!strncmp(ParameterString.c_str(),"JMRAD(73)",9))
+    jmparm.JMRAD[72] = atoi(&ParameterString[strcspn(ParameterString.c_str(),"=")+1]); 
+
   else accepted = 0;
-  
+
   return accepted;
 }
 
@@ -1275,3 +1045,39 @@ extern "C" {
   void hwaend(){/*dummy*/};
 }
 //-------------------------------------------------------------------------------
+
+bool PomwigSource::setRngSeeds(int mseed)
+{
+  double temx[5];
+  for (int i=0; i<5; i++) {
+    mseed = mseed * 29943829 - 1;
+    temx[i] = mseed * (1./(65536.*65536.));
+  }
+  long double c;
+  c = (long double)2111111111.0 * temx[3] +
+    1492.0 * (temx[3] = temx[2]) +
+    1776.0 * (temx[2] = temx[1]) +
+    5115.0 * (temx[1] = temx[0]) +
+    temx[4];
+  temx[4] = floorl(c);
+  temx[0] = c - temx[4];
+  temx[4] = temx[4] * (1./(65536.*65536.));
+  hwevnt.NRN[0]=int(temx[0]*99999);
+  c = (long double)2111111111.0 * temx[3] +
+    1492.0 * (temx[3] = temx[2]) +
+    1776.0 * (temx[2] = temx[1]) +
+    5115.0 * (temx[1] = temx[0]) +
+    temx[4];
+  temx[4] = floorl(c);
+  temx[0] = c - temx[4];
+  hwevnt.NRN[1]=int(temx[0]*99999);
+
+  return true;
+}
+
+extern "C" {
+  void cmsending_(int* ecode) {
+    cout<<"   ERROR: Herwig stoped run after recieving error code "<<*ecode<<"."<<endl;
+    throw cms::Exception("HerwigError") <<" Herwig stoped run with error code "<<*ecode<<".";
+  }
+}
