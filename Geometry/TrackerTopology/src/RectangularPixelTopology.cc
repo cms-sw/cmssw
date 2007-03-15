@@ -518,3 +518,19 @@ MeasurementError RectangularPixelTopology::measurementError(
   return MeasurementError( le.xx()/float(pitchx*pitchx), 0,
 			   le.yy()/float(pitchy*pitchy));
 }
+
+bool RectangularPixelTopology::containsBigPixelInX(const int& ixmin, const int& ixmax) const {
+  bool big = false;
+  for(int i=ixmin; i!=ixmax+1; i++) {
+    if(isItBigPixelInX(i) && big==false) big=true;
+  }
+  return big;
+}
+
+bool RectangularPixelTopology::containsBigPixelInY(const int& iymin, const int& iymax) const {
+  bool big = false;
+  for(int i=iymin; i!=iymax+1; i++) {
+    if(isItBigPixelInY(i) && big==false) big=true;
+  }
+  return big;
+}

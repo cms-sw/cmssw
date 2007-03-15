@@ -29,6 +29,8 @@
 // bool isItEdgePixel (int ixbin, int iybin) 
 // ------------------------------------------------------------------
 // Add the individual measurement to local trasformations classes 01/07 d.k.
+// ------------------------------------------------------------------
+// Add big pixel flags for cluster range 15/3/07 V.Chiochia
 
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "DataFormats/SiPixelDetId/interface/PixelChannelIdentifier.h"
@@ -112,7 +114,8 @@ public:
   float localY(const float mpY) const;
 
   //-------------------------------------------------------------
-  // Return the BIG pixel information
+  // Return the BIG pixel information for a given pixel
+  //
   inline static bool isItBigPixelInX(const int ixbin) {
     return ( (ixbin == 79) || (ixbin == 80));
   } 
@@ -120,6 +123,12 @@ public:
     int iybin0 = iybin%52;
     return ( (iybin0 == 0) || (iybin0 == 51));
   } 
+  //-------------------------------------------------------------
+  // Return BIG pixel flag in a given pixel range
+  //
+  bool containsBigPixelInX(const int& ixmin, const int& ixmax) const;
+  bool containsBigPixelInY(const int& iymin, const int& iymax) const;
+
 
   // Check whether the pixel is at the edge of the module
   bool isItEdgePixelInX (int ixbin) const {
