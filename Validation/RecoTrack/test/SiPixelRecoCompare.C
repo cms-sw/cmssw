@@ -78,12 +78,11 @@ void SiPixelRecoCompare()
   sfile->cd("DQMData/Histograms_all");
   //gDirectory->ls();
   
-  gROOT->ProcessLine(".x HistoCompare.C");
-  //HistoCompare* myPV = new HistoCompare();
-  HistoCompare* myPV = new HistoCompare("RecoTrack_SiPixelRecoCompare.txt");
+  gROOT->ProcessLine(".x HistoCompare_Pixels.C");
+  HistoCompare_Pixels* myPV = new HistoCompare_Pixels("RecoTrack_SiPixelRecoCompare.txt");
   //myPV->setName("RecoTrack_SiPixelRecoCompare");
 
-  int n_bins = 169;
+  int n_bins = 159;
   double low = 0.5;
   double high = (double)n_bins + 0.5;
   TH1F* h_pv = new TH1F("h_pv", "#Chi^{2} results for each distribution", n_bins, low, high);
@@ -737,7 +736,7 @@ void SiPixelRecoCompare()
   double lwpull = 0.0;
   double hwpull = 2.0;
 
-  if (   1   ) 
+  if (   0   ) 
     {
       TCanvas* can_PullXvsAlpha = new TCanvas("can_PullXvsAlpha", "can_PullXvsAlpha", 1200, 800);
       can_PullXvsAlpha->Divide(3,2);
@@ -1137,7 +1136,7 @@ if (0)
     can_PullYvsAlpha->SaveAs("mePullYvsAlpha_compare.gif");
   }
 
-if (   1   ) 
+if (   0   ) 
   {
     TCanvas* can_PullYvsBeta = new TCanvas("can_PullYvsBeta", "can_PullYvsBeta", 1200, 800);
     can_PullYvsBeta->Divide(3,2);
