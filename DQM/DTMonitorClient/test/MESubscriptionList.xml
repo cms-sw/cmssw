@@ -1,4 +1,5 @@
 <MESUBSCRIPTION>
         <ME get="yes">*/DT/DTDigiTask/*</ME>
         <ME get="yes">*/DT/DTResolutionAnalysisTask/*</ME>
+        <ME get="yes">*/DT/FED*</ME>
 </MESUBSCRIPTION>
