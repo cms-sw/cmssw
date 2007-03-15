@@ -67,7 +67,7 @@ void testLeptonAssociator::analyze(const edm::Event& iEvent, const edm::EventSet
       if (abs(tp->pdgId()) != m_flavour) continue;
       cout << "TrackingParticle " << setw(4) << tp.index() << " type:" << setw(6) << tp->pdgId() << " pT: " << setw(6) << setprecision(3) << tp->pt() << " eta: " << setw(6) << setprecision(3) << tp->eta() << endl;
       if (map_tracks.find(tp) != map_tracks.end()) { 
-        reco::SimToRecoCollection::result_type& tracks = map_tracks[tp];
+        const reco::SimToRecoCollection::result_type & tracks = map_tracks[tp];
         // cout << " matched to " << setw(2) << right << tracks.size() << " Tracks" << std::endl;
         for (std::vector<std::pair<TrackRef, double> >::const_iterator it = tracks.begin(); it != tracks.end(); ++it) {
           TrackRef track = it->first;
@@ -82,7 +82,7 @@ void testLeptonAssociator::analyze(const edm::Event& iEvent, const edm::EventSet
         // cout << " matched to no Tracks" << std::endl;
       }
       if (map_leptons.find(tp) != map_leptons.end()) { 
-        reco::SimToRecoCollection::result_type& leptons = map_leptons[tp];
+        const reco::SimToRecoCollection::result_type & leptons = map_leptons[tp];
         // cout << " matched to " << setw(2) << right << leptons.size() << " Leptons" << std::endl;
         for (std::vector<std::pair<TrackRef, double> >::const_iterator it = leptons.begin(); it != leptons.end(); ++it) {
           TrackRef lepton = it->first;
