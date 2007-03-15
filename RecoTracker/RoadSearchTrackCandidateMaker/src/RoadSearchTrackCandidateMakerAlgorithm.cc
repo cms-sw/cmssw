@@ -9,9 +9,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Wed Mar 15 13:00:00 UTC 2006
 //
-// $Author: gutsche $
-// $Date: 2007/03/15 20:20:09 $
-// $Revision: 1.30 $
+// $Author: noeding $
+// $Date: 2007/03/15 22:33:17 $
+// $Revision: 1.31 $
 //
 
 #include <vector>
@@ -955,7 +955,7 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
     
       PTrajectoryStateOnDet *state = transformer.persistentState(firstState,FirstHitId.rawId());
     
-      std::cout<<"This track candidate has " << goodHits.size() << " hits "<<std::endl ;
+      // std::cout<<"This track candidate has " << goodHits.size() << " hits "<<std::endl ;
     
       output.push_back(TrackCandidate(goodHits,it->seed(),*state));
       delete state;
