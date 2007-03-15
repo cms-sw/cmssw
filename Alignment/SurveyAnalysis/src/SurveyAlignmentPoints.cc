@@ -43,7 +43,7 @@ void SurveyAlignmentPoints::findAlignPars()
 
     int dummy;
     sumJVJT.invert(dummy);
-    sumJVe = sumJVJT * sumJVe;
+    sumJVe = -sumJVJT * sumJVe;
 
     ali->setAlignmentParameters( new SurveyParameters(ali, sumJVe, sumJVJT) );
   }

@@ -63,7 +63,7 @@ AlgebraicVector SurveyResidual::sensorResidual() const
     currentVs[j] -= theCurrentVs[0]; // move to current pos
   }
 
-  RotationType rot = diffRot(currentVs, nominalVs);
+  RotationType rot = diffRot(nominalVs, currentVs); // frame rotation
 
   EulerAngles deltaW = toAngles( theSurface.toLocal(rot) );
 

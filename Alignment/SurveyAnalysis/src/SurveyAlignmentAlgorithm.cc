@@ -1,5 +1,5 @@
 #include "Alignment/CommonAlignment/interface/Alignable.h"
-#include "Alignment/SurveyAnalysis/interface/SurveyAlignmentPoints.h"
+#include "Alignment/SurveyAnalysis/interface/SurveyAlignmentSensor.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "Alignment/SurveyAnalysis/interface/SurveyAlignmentAlgorithm.h"
@@ -27,13 +27,13 @@ void SurveyAlignmentAlgorithm::initialize(const edm::EventSetup&,
     sensors[i] = alignables[i]->components().front();
   }
 
-  SurveyAlignmentPoints align(sensors);
+  SurveyAlignmentSensor align(sensors);
 
   align.iterate(theIterations, theOutfile);
 }
 
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentAlgorithmPluginFactory.h"
-#include "PluginManager/ModuleDef.h"
+#include "FWCore/PluginManager/interface/ModuleDef.h"
 
 DEFINE_SEAL_MODULE();
 DEFINE_SEAL_PLUGIN(AlignmentAlgorithmPluginFactory, SurveyAlignmentAlgorithm, "SurveyAlignmentAlgorithm");

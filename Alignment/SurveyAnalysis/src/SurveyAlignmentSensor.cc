@@ -39,7 +39,7 @@ void SurveyAlignmentSensor::findAlignPars()
 
     int dummy;
     cov.invert(dummy);
-    pars = cov * pars;
+    pars = -cov * pars;
 
     ali->setAlignmentParameters( new SurveyParameters(ali, pars, cov) );
   }

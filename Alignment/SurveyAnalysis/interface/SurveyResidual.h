@@ -8,8 +8,8 @@
  *  For more info, please refer to
  *    http://www.pha.jhu.edu/~gritsan/cms/cms-note-survey.pdf
  *
- *  $Date: 2007/02/23 21:36:19 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/03/14 18:05:35 $
+ *  $Revision: 1.2 $
  *  \author Chung Khim Lae
  */
 
@@ -17,6 +17,7 @@
 #include "Alignment/CommonAlignment/interface/Utilities.h"
 
 class Alignable;
+class AlignableSurface;
 
 class SurveyResidual
 {

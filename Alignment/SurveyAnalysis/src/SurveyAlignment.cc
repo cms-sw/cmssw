@@ -32,8 +32,8 @@ void SurveyAlignment::shiftSensors()
 
     rectify(rot); // correct for rounding errors
 
-    ali->move( -surf.toGlobal( align::LocalVector(pars[0], pars[1], pars[2]) ) ); // move first, then rotate
-    ali->rotateInGlobalFrame(rot); // no inverse here due to opposite sign convention in alignable(surface)
+    ali->move( surf.toGlobal( align::LocalVector(pars[0], pars[1], pars[2]) ) );
+    ali->rotateInGlobalFrame(rot);
   }
 }
 
