@@ -94,12 +94,12 @@ ExhumeSource::ExhumeSource( const ParameterSet & pset,
   pythiaHepMCVerbosity_ (pset.getUntrackedParameter<bool>("pythiaHepMCVerbosity",false)),
   maxEventsToPrint_ (pset.getUntrackedParameter<int>("maxEventsToPrint",1)),
   comenergy(pset.getUntrackedParameter<double>("comEnergy",14000.)),
-  ProcessType(pset.getUntrackedParameter<string>("ProcessType","Higgs")),
-  HiggsDecay(pset.getUntrackedParameter<int>("HiggsDecay",5)),
-  QuarkType(pset.getUntrackedParameter<int>("QuarkType",5)),
-  ThetaMin(pset.getUntrackedParameter<double>("ThetaMin",acos(0.95))),
-  MassRangeLow(pset.getUntrackedParameter<double>("MassRangeLow",110.0)),
-  MassRangeHigh(pset.getUntrackedParameter<double>("MassRangeHigh",130.0))		
+  ProcessType(pset.getParameter<string>("ProcessType")),
+  HiggsDecay(pset.getParameter<int>("HiggsDecay")),
+  QuarkType(pset.getParameter<int>("QuarkType")),
+  ThetaMin(pset.getParameter<double>("ThetaMin")),
+  MassRangeLow(pset.getParameter<double>("MassRangeLow")),
+  MassRangeHigh(pset.getParameter<double>("MassRangeHigh"))		
 {
   
   cout << "ExhumeSource: initializing Exhume/Pythia. " << endl;
@@ -215,7 +215,6 @@ ExhumeSource::ExhumeSource( const ParameterSet & pset,
 
 ExhumeSource::~ExhumeSource(){
   cout << "ExhumeSource: event generation done. " << endl;
-  call_pystat(1);
   clear(); 
 }
 
