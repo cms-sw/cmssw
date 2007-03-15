@@ -14,7 +14,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "AnalysisDataFormats/TrackInfo/interface/TrackInfo.h"
-#include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
 class TrackInfoProducerAlgorithm {
   
@@ -26,11 +27,12 @@ typedef TransientTrackingRecHit::ConstRecHitPointer ConstRecHitPointer;
 
   ~TrackInfoProducerAlgorithm() {}
   
-  void run(std::vector<Trajectory>::const_iterator input, edm::Handle<TrackingRecHitCollection> *rechits, 
+  void run(std::vector<Trajectory>::const_iterator input, reco::TrackRef track, 
 	   reco::TrackInfo &outputFwd,
 	   reco::TrackInfo &outputBwd,
 	   reco::TrackInfo &outputUpdated, 
-	   reco::TrackInfo &outputCombined);
+	   reco::TrackInfo &outputCombined,
+	   const TrackerGeometry * tracker);
     
  private:
   edm::ParameterSet conf_;

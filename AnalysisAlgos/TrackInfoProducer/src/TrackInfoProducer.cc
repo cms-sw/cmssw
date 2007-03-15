@@ -3,13 +3,14 @@
 #include <memory>
 // user include files
 #include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "DataFormats/Common/interface/EDProduct.h" 
 #include "AnalysisDataFormats/TrackInfo/interface/TrackInfo.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "AnalysisDataFormats/TrackInfo/interface/TrackInfoTrackAssociation.h"
-
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
 TrackInfoProducer::TrackInfoProducer(const edm::ParameterSet& iConfig):
     conf_(iConfig),
@@ -57,12 +58,17 @@ void TrackInfoProducer::produce(edm::Event& theEvent, const edm::EventSetup& set
   edm::InputTag RHTag = conf_.getParameter<edm::InputTag>("rechits");
     edm::Handle<std::vector<Trajectory> > TrajectoryCollection;
     edm::Handle<reco::TrackCollection > trackCollection;
-    edm::Handle<TrackingRecHitCollection> rechitscollection;
+    ///edm::Handle<TrackingRecHitCollection> rechitscollection;
+
+    edm::ESHandle<TrackerGeometry> tkgeom;
+    setup.get<TrackerDigiGeometryRecord>().get( tkgeom );
+    const TrackerGeometry * tracker=&(* tkgeom);
+    
   try{  
 
     theEvent.getByLabel(TkTag,TrajectoryCollection);
     theEvent.getByLabel(TkTag,trackCollection);
-    theEvent.getByLabel(RHTag,rechitscollection);
+    //    theEvent.getByLabel(RHTag,rechitscollection);
   } 
   catch (cms::Exception &e){ edm::LogInfo("TrackInfoProducer") << "cms::Exception caught!!!" << "\n" << e << "\n";}
     //
@@ -76,6 +82,7 @@ void TrackInfoProducer::produce(edm::Event& theEvent, const edm::EventSetup& set
     for(traj_iterator=TrajectoryCollection->begin();traj_iterator!=TrajectoryCollection->end();++traj_iterator){//loop on trajectories
       //associate the trajectory to the track
       unsigned int idtk = 0;
+      reco::TrackRef track;
       
       if(TrajectoryCollection->size()==1)trackid.push_back(idtk);
       else{
@@ -94,7 +101,6 @@ void TrackInfoProducer::produce(edm::Event& theEvent, const edm::EventSetup& set
 	
 	GlobalPoint pi = innertsos.globalParameters().position();
 	GlobalVector vi = innertsos.globalParameters().momentum();
-	
 	reco::TrackCollection::const_iterator tk_iterator;
 	for(tk_iterator=trackCollection->begin();tk_iterator!=trackCollection->end();++tk_iterator){//loop on tracks
 	  
@@ -107,6 +113,7 @@ void TrackInfoProducer::produce(edm::Event& theEvent, const edm::EventSetup& set
 	     ((po-tkpo).mag()<1e-16)&&
 	     ((vi-tkvi).mag()<1e-16)&&
 	     ((pi-tkpi).mag()<1e-16)){
+	    track=edm::Ref<reco::TrackCollection>(trackCollection, idtk);
 	    trackid.push_back(idtk);
 	  }
 	  else {
@@ -115,9 +122,9 @@ void TrackInfoProducer::produce(edm::Event& theEvent, const edm::EventSetup& set
 	  idtk++;
 	}
       }
-      theAlgo_.run(traj_iterator,&rechitscollection,
-		   outputFwd,outputBwd,outputUpdated, outputCombined
-		   );
+      theAlgo_.run(traj_iterator,track,
+		   outputFwd,outputBwd,outputUpdated, outputCombined,
+		   tracker);
       outputFwdColl->push_back(*(new reco::TrackInfo(outputFwd)));
       outputBwdColl->push_back(*(new reco::TrackInfo(outputBwd)));
       outputUpdatedColl->push_back(*(new reco::TrackInfo(outputUpdated)));

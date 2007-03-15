@@ -75,12 +75,19 @@ class TrackInfoAnalyzerExample : public edm::EDAnalyzer {
       for(iter=trackinforef->trajStateMap().begin();iter!=trackinforef->trajStateMap().end();iter++){
 	
 	//trajectory local direction and position on detector
-	LocalVector statedirection=((*iter).second.parameters()).momentum();
-	LocalPoint  stateposition=(*iter).second.parameters().position();
+	LocalVector statedirection=((*iter).second.stateOnDet().parameters()).momentum();
+	LocalPoint  stateposition=(*iter).second.stateOnDet().parameters().position();
 	edm::LogInfo("TrackInfoAnalyzerExample") <<"LocalMomentum: "<<statedirection;
 	edm::LogInfo("TrackInfoAnalyzerExample") <<"LocalPosition: "<<stateposition;
 	edm::LogInfo("TrackInfoAnalyzerExample") <<"Local x-z plane angle: "<<atan2(statedirection.x(),statedirection.z());
-	
+	if((*iter).second.type()==reco::TrackingRecHitInfo::Matched){ // get the direction for the components
+	  edm::LogInfo("TrackInfoAnalyzerExample") <<"LocalMomentum (mono): "<<(*iter).second.localTrackMomentumOnMono();
+	  edm::LogInfo("TrackInfoAnalyzerExample") <<"LocalMomentum (stereo): "<<(*iter).second.localTrackMomentumOnStereo();
+	}
+	else if ((*iter).second.type()==reco::TrackingRecHitInfo::Projected){//one should be 0
+	  edm::LogInfo("TrackInfoAnalyzerExample") <<"LocalMomentum (mono): "<<(*iter).second.localTrackMomentumOnMono();
+	  edm::LogInfo("TrackInfoAnalyzerExample") <<"LocalMomentum (stereo): "<<(*iter).second.localTrackMomentumOnStereo();
+	}
 	//hit position on detector
 	edm::LogInfo("TrackInfoAnalyzerExample") <<"LocalPosition (rechit): "<<((*iter).first)->localPosition();
       }
