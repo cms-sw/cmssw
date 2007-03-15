@@ -34,7 +34,14 @@ extern"C" {
   void setherwpdf_(void);
   // function to chatch 'STOP' in original HWWARN
   void cmsending_(int*);
+
+  // struct to check wheter HERWIG killed an event
+  extern struct {
+    double eventisok;
+  } eventstat_;
 }
+
+#define eventstat eventstat_
 
 #define setpdfpath setpdfpath_
 #define mysetpdfpath mysetpdfpath_
@@ -203,18 +210,22 @@ void Herwig6Source::clear() {
 
 
 bool Herwig6Source::produce(Event & e) {
+
+  // so far event is ok :)
+  eventstat.eventisok = 0.0;
   
-  auto_ptr<HepMCProduct> bare_product(new HepMCProduct());  
-  
+
+
+  // call herwig routines to create HEPEVT
   hwuine();
   hwepro();
   hwbgen();    
   if(useJimmy_ && doMPInteraction_) {
     double eventok = 0.0;
     eventok = hwmsct_dummy(1.1);
+    // if problems in MPI; skip event
     if(eventok > 0.5) return true;
   }
-  
   hwdhob();
   hwcfor();
   hwcdec();
@@ -222,11 +233,18 @@ bool Herwig6Source::produce(Event & e) {
   hwdhvy();
   hwmevt();
   hwufne();
+  
+  // if event was killed by HERWIG; skip 
+  if(eventstat.eventisok > 0.5) return true;
 
-  HepMC::GenEvent* evt = new HepMC::GenEvent();
+  // HEPEVT is ok, create new HepMC event
+  evt = new HepMC::GenEvent();
   bool ok = conv.fill_next_event( evt );
+  // if conversion failed; throw excpetion and stop processing
   if(!ok) throw cms::Exception("HerwigError")
     <<" Conversion problems in event nr."<<numberEventsInRun() - remainingEvents() - 1<<".";  
+
+  // set process id and event number
   evt->set_signal_process_id(hwproc.IPROC);  
   evt->set_event_number(numberEventsInRun() - remainingEvents() - 1);
   
@@ -235,8 +253,14 @@ bool Herwig6Source::produce(Event & e) {
 	 << "----------------------" << endl;
     evt->print();
   }
-  if(evt)  bare_product->addHepMCData(evt );
-  e.put(bare_product);
+  
+  // dummy if: event MUST be there
+  if(evt)  {
+    auto_ptr<HepMCProduct> bare_product(new HepMCProduct());  
+    bare_product->addHepMCData(evt );
+    e.put(bare_product);
+  }
+  
   return true;
 }
 
