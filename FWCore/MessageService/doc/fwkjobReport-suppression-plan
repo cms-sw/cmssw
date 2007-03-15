@@ -1,0 +1,39 @@
+
+
+1 - Remove the mention of the fwkJobReports destination from the .cfi file:
+    the affected lines are
+
+
+untracked vstring fwkJobReports = {"FrameworkJobReport"}
+
+      untracked PSet FrameworkJobReport = {
+             untracked PSet default = { untracked int32 limit = 0 }
+             untracked PSet FwkJob  = { untracked int32 limit = 10000000 }
+                                           }
+
+2 - By default no fwkJobReports destinations are created.
+
+3 - Check for the command-line option --fwkjobReport or --fwkjobReport=<name>
+
+4 - Equivalent options are -f or -f=<name>
+
+5 - If --fwkjobReport=<name> appears, behave as if the .cfg file contained
+    untracked vstring fwkJobReports = {"name"} (supplying the extension .xml 
+    if it is not already present), with the defaults currently set in the
+    .cfi file hardwired in to the code.  
+    
+6 - If --fwkjobReport (without specifying a name) appears, behave as if the
+    precise lines which were exceised from the .cfi file were present, thus
+    creating FrameworkJobReport.xml.
+    
+7 - If --fwkjobReport appears (with or without a name) AND the .cfg file 
+    also has one or more fwkJobReports destinations, create all these 
+    destinations plus the one caused by  --fwkjobReport.  (But if the name
+    of the --fwkjobReport destination matches one of the explicitly specified
+    names in the .cfg file, do not create the extra destination instigated
+    by the comand-line option.
+    
+8 - An additional command-line option, --nofwkjobReport, causes the suppression
+    of all fwkJobReports destinations, both those mentioned in a .cfg file and
+    those mentioned in a --fwkjobReport option.
+    
