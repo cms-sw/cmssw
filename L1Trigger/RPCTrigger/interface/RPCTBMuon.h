@@ -97,6 +97,19 @@ public:
     }
   };
 
+
+  class FSBOut {
+  private:
+  	static const int m_phiBitsCnt  = 8;  static const unsigned int m_phiBitsMask  = 0xff;
+  	static const int m_ptBitsCnt   = 5;  static const unsigned int m_ptBitsMask   = 0x1f;
+  	static const int m_qualBitsCnt = 3;  static const unsigned int m_qualBitsMask = 0x7;
+  	static const int m_etaBitsCnt  = 6;  static const unsigned int m_etaBitsMask  = 0x3f;
+  	static const int m_signBitsCnt = 1;  static const unsigned int m_signBitsMask = 0x1;
+  public:	
+  	static unsigned int toBits(const RPCTBMuon& muon);
+  	static void fromBits(RPCTBMuon& muon, unsigned int value);
+  };
+
 private:
 //------ hardware signals------------------------
   unsigned int m_EtaAddress;
@@ -113,17 +126,6 @@ private:
 //------- need to perform ghost - busting ---------
   bool m_Killed; //!< true means that muon was killed during GB
 	
-  class FSBOut {
-  private:
-  	static const int m_phiBitsCnt  = 8;  static const unsigned int m_phiBitsMask  = 0xff;
-  	static const int m_ptBitsCnt   = 5;  static const unsigned int m_ptBitsMask   = 0x1f;
-  	static const int m_qualBitsCnt = 3;  static const unsigned int m_qualBitsMask = 0x7;
-  	static const int m_etaBitsCnt  = 6;  static const unsigned int m_etaBitsMask  = 0x3f;
-  	static const int m_signBitsCnt = 1;  static const unsigned int m_signBitsMask = 0x1;
-  public:	
-  	static unsigned int toBits(const RPCTBMuon& muon);
-  	static void fromBits(RPCTBMuon& muon, unsigned int value);
-  };
   friend class FSBOut;
 
   class FSBIn {
