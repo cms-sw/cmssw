@@ -56,7 +56,11 @@ bool RPCTriggerBoard::runCone(const RPCLogCone& cone)  {
     }
     
     RPCTBMuon tbMuon(m_pacs[cone.getTower()][cone.getLogSegment()]->run(cone));  
-  
+    //Reference: RPCTBMuon(int ptCode, int quality, int sign, int patternNum, unsigned short firedPlanes);
+
+    //RPCPacMuon pmuon = m_pacs[cone.getTower()][cone.getLogSegment()]->run(cone);
+    //RPCTBMuon tbMuon(pmuon.getPtCode(), pmuon.getQuality(), pmuon.getSign(), pmuon.getPatternNum(), pmuon.getFiredPlanes());
+    
 
     if(tbMuon.getCode() > 0) {
         m_PacsMuonsVec.push_back(tbMuon);
