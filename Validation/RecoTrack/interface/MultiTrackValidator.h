@@ -89,6 +89,10 @@ class MultiTrackValidator : public edm::EDAnalyzer {
   //resolution of track params: to be used with fitslicesytool
   std::vector<TH2F*> d0res_vs_eta, ptres_vs_eta, z0res_vs_eta, phires_vs_eta, cotThetares_vs_eta;
   std::vector<MonitorElement*> h_d0rmsh, h_ptrmsh, h_z0rmsh, h_phirmsh, h_cotThetarmsh;
+
+  //pulls of track params vs eta: to be used with fitslicesytool
+  std::vector<TH2F*> d0pull_vs_eta, ptpull_vs_eta, z0pull_vs_eta, phipull_vs_eta, thetapull_vs_eta;
+  std::vector<MonitorElement*> h_d0pulleta, h_ptpulleta, h_z0pulleta, h_phipulleta, h_thetapulleta;
   
   std::vector< std::vector<double> > etaintervals;
   std::vector< std::vector<double> > pTintervals;

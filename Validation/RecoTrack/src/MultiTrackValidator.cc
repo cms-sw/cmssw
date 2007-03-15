@@ -88,8 +88,8 @@ void MultiTrackValidator::beginJob( const EventSetup & setup) {
       h_fakes.push_back( dbe_->book1D("fakes","number of fake reco tracks",20,-0.5,19.5) );
       h_charge.push_back( dbe_->book1D("charge","charge",3,-1.5,1.5) );
       h_hits.push_back( dbe_->book1D("hits", "number of hits per track", 30, -0.5, 29.5 ) );
-      h_nchi2.push_back( dbe_->book1D("chi2", "normalized chi2", 200, 0, 20 ) );
-      h_nchi2_prob.push_back( dbe_->book1D("chi2_prob", "normalized chi2 probability",100,0,1));
+      h_nchi2.push_back( dbe_->book1D("chi2", "normalized #chi^{2}", 200, 0, 20 ) );
+      h_nchi2_prob.push_back( dbe_->book1D("chi2_prob", "normalized #chi^{2} probability",100,0,1));
 
       h_effic.push_back( dbe_->book1D("effic","efficiency vs #eta",nint,min,max) );
       h_fakerate.push_back( dbe_->book1D("fakerate","fake rate vs #eta",nint,min,max) );
@@ -104,26 +104,26 @@ void MultiTrackValidator::beginJob( const EventSetup & setup) {
       
       h_eta.push_back( dbe_->book1D("eta", "pseudorapidity residue", 1000, -0.1, 0.1 ) );
       h_pt.push_back( dbe_->book1D("pullPt", "pull of p_{t}", 100, -10, 10 ) );
-      h_pullTheta.push_back( dbe_->book1D("pullTheta","pull of theta parameter",250,-25,25) );
-      h_pullPhi0.push_back( dbe_->book1D("pullPhi0","pull of phi0 parameter",250,-25,25) );
+      h_pullTheta.push_back( dbe_->book1D("pullTheta","pull of #theta parameter",250,-25,25) );
+      h_pullPhi0.push_back( dbe_->book1D("pullPhi0","pull of #phi0 parameter",250,-25,25) );
       h_pullD0.push_back( dbe_->book1D("pullD0","pull of d0 parameter",250,-25,25) );
       h_pullDz.push_back( dbe_->book1D("pullDz","pull of dz parameter",250,-25,25) );
       h_pullQoverp.push_back( dbe_->book1D("pullQoverp","pull of qoverp parameter",250,-25,25) );
       
       if (associators[ww]=="TrackAssociatorByChi2"){
-	h_assochi2.push_back( dbe_->book1D("assocChi2","track association chi2",1000000,0,100000) );
-	h_assochi2_prob.push_back(dbe_->book1D("assocChi2_prob","probability of association chi2",100,0,1));
+	h_assochi2.push_back( dbe_->book1D("assocChi2","track association #chi^{2}",1000000,0,100000) );
+	h_assochi2_prob.push_back(dbe_->book1D("assocChi2_prob","probability of association #chi^{2}",100,0,1));
       }
 
-      chi2_vs_nhits.push_back( dbe_->book2D("chi2_vs_nhits","chi2 vs nhits",25,0,25,100,0,10) );
+      chi2_vs_nhits.push_back( dbe_->book2D("chi2_vs_nhits","#chi^{2} vs nhits",25,0,25,100,0,10) );
       etares_vs_eta.push_back( dbe_->book2D("etares_vs_eta","etaresidue vs eta",nint,min,max,200,-0.1,0.1) );
-      nrec_vs_nsim.push_back( dbe_->book2D("nrec_vs_nsim","nrec_vs_nsim",20,-0.5,19.5,20,-0.5,19.5) );
+      nrec_vs_nsim.push_back( dbe_->book2D("nrec_vs_nsim","nrec vs nsim",20,-0.5,19.5,20,-0.5,19.5) );
 
       chi2_vs_eta.push_back(new TH2F("chi2_vs_eta","chi2_vs_eta",nint,min,max, 200, 0, 20 ));
       h_chi2meanh.push_back( dbe_->book1D("chi2mean","mean #chi^{2} vs #eta",nint,min,max) );
 
-      nhits_vs_eta.push_back( new TH2F("nhits_vs_eta","nhits vs eta",nint,min,max,25,0,25) );
-      h_hits_eta.push_back( dbe_->book1D("hits_eta","hits_eta",nint,min,max) );
+      nhits_vs_eta.push_back( new TH2F("nhits_vs_eta","nhits_vs_eta",nint,min,max,25,0,25) );
+      h_hits_eta.push_back( dbe_->book1D("hits_eta","mean #hits vs eta",nint,min,max) );
 
       //resolution of track parameters
       //                       dPt/Pt    cotTheta        Phi            TIP            LIP
@@ -131,19 +131,31 @@ void MultiTrackValidator::beginJob( const EventSetup & setup) {
       // 0.5<log10(pt)<1.5    100,0.1    120,0.01     100,0.003      100,0.0100    150,0.0500
       // >1.5                 100,0.3    100,0.005    100,0.0008     100,0.0060    120,0.0300
       ptres_vs_eta.push_back(new TH2F("ptres_vs_eta","ptres_vs_eta",nint,min,max, 100, -0.1, 0.1));
-      h_ptrmsh.push_back( dbe_->book1D("sigmapt","#sigmapt vs #eta",nint,min,max) );
+      h_ptrmsh.push_back( dbe_->book1D("sigmapt","#sigma(#deltap_{t}/p_{t}) vs #eta",nint,min,max) );
 
       cotThetares_vs_eta.push_back(new TH2F("cotThetares_vs_eta","cotThetares_vs_eta",nint,min,max, 120, -0.01, 0.01));
-      h_cotThetarmsh.push_back( dbe_->book1D("sigmacotTheta","#sigmacotTheta vs #eta",nint,min,max) );
+      h_cotThetarmsh.push_back( dbe_->book1D("sigmacotTheta","#sigma(#deltacot(#theta)) vs #eta",nint,min,max) );
 
       phires_vs_eta.push_back(new TH2F("phires_vs_eta","phires_vs_eta",nint,min,max, 100, -0.003, 0.003));
-      h_phirmsh.push_back( dbe_->book1D("sigmaphi","#sigmaphi vs #eta",nint,min,max) );
+      h_phirmsh.push_back( dbe_->book1D("sigmaphi","#sigma(#delta#phi) vs #eta",nint,min,max) );
 
       d0res_vs_eta.push_back(new TH2F("d0res_vs_eta","d0res_vs_eta",nint,min,max, 100, -0.01, 0.01));
-      h_d0rmsh.push_back( dbe_->book1D("sigmad0","#sigmad0 vs #eta",nint,min,max) );
+      h_d0rmsh.push_back( dbe_->book1D("sigmad0","#sigma(#deltad_{0}) vs #eta",nint,min,max) );
 
       z0res_vs_eta.push_back(new TH2F("z0res_vs_eta","z0res_vs_eta",nint,min,max, 150, -0.05, 0.05));
-      h_z0rmsh.push_back( dbe_->book1D("sigmaz0","#sigmaz0 vs #eta",nint,min,max) );
+      h_z0rmsh.push_back( dbe_->book1D("sigmaz0","#sigma(#deltaz_{0}) vs #eta",nint,min,max) );
+
+      //pulls of track params vs eta: to be used with fitslicesytool
+      d0pull_vs_eta.push_back(new TH2F("d0pull_vs_eta","d0pull_vs_eta",nint,min,max,100,-10,10));
+      ptpull_vs_eta.push_back(new TH2F("ptpull_vs_eta","ptpull_vs_eta",nint,min,max,100,-10,10)); 
+      z0pull_vs_eta.push_back(new TH2F("z0pull_vs_eta","z0pull_vs_eta",nint,min,max,100,-10,10)); 
+      phipull_vs_eta.push_back(new TH2F("phipull_vs_eta","phipull_vs_eta",nint,min,max,100,-10,10)); 
+      thetapull_vs_eta.push_back(new TH2F("thetapull_vs_eta","thetapull_vs_eta",nint,min,max,100,-10,10));
+      h_d0pulleta.push_back( dbe_->book1D("h_d0pulleta","#sigma of d0 pull vs #eta",nint,min,max) ); 
+      h_ptpulleta.push_back( dbe_->book1D("h_ptpulleta","#sigma of p_{t} pull vs #eta",nint,min,max) ); 
+      h_z0pulleta.push_back( dbe_->book1D("h_z0pulleta","#sigma of z0 pull vs #eta",nint,min,max) ); 
+      h_phipulleta.push_back( dbe_->book1D("h_phipulleta","#sigma of #phi pull vs #eta",nint,min,max) ); 
+      h_thetapulleta.push_back( dbe_->book1D("h_thetapulleta","#sigma of #theta pull vs #eta",nint,min,max) );
 
       j++;
     }
@@ -403,6 +415,12 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	  z0res_vs_eta[w]->Fill(fabs(track->eta()),track->dz()-dzSim);
 	  phires_vs_eta[w]->Fill(fabs(track->eta()),track->phi()-phiSim);
 	  cotThetares_vs_eta[w]->Fill(fabs(track->eta()),1/tan(1.570796326794896558-track->lambda())-1/tan(1.570796326794896558-lambdaSim));
+	  //pulls of track params vs eta: fill 2D histos
+	  d0pull_vs_eta[w]->Fill(fabs(track->eta()),d0Pull);
+	  ptpull_vs_eta[w]->Fill(fabs(track->eta()),ptres/ptError);
+	  z0pull_vs_eta[w]->Fill(fabs(track->eta()),dzPull);
+	  phipull_vs_eta[w]->Fill(fabs(track->eta()),phi0Pull);
+	  thetapull_vs_eta[w]->Fill(fabs(track->eta()),thetaPull);
 
 	} catch (cms::Exception e){
 	  edm::LogError("TrackValidator") << "exception found: " << e.what() << "\n";
@@ -442,7 +460,20 @@ void MultiTrackValidator::endJob() {
       //chi2 and #hit vs eta: get mean from 2D histos
       doProfileX(chi2_vs_eta[w],h_chi2meanh[w]);
       doProfileX(nhits_vs_eta[w],h_hits_eta[w]);    
-   
+
+      //pulls of track params vs eta: get sigma from 2D histos
+      FitSlicesYTool fsyt_d0p(d0pull_vs_eta[w]);
+      fsyt_d0p.getFittedSigmaWithError(h_d0pulleta[w]);
+      FitSlicesYTool fsyt_ptp(ptpull_vs_eta[w]);
+      fsyt_ptp.getFittedSigmaWithError(h_ptpulleta[w]);
+      FitSlicesYTool fsyt_z0p(z0pull_vs_eta[w]);
+      fsyt_z0p.getFittedSigmaWithError(h_z0pulleta[w]);
+      FitSlicesYTool fsyt_phip(phipull_vs_eta[w]);
+      fsyt_phip.getFittedSigmaWithError(h_phipulleta[w]);
+      FitSlicesYTool fsyt_thetap(thetapull_vs_eta[w]);
+      fsyt_thetap.getFittedSigmaWithError(h_thetapulleta[w]);
+
+
       //fill efficiency plot
       double eff,err;
       for (unsigned int j=0; j<totASSeta[w].size(); j++){
