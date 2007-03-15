@@ -2,4 +2,5 @@
   <class name="SiStripFecKey"/>
   <class name="SiStripFedKey"/>
   <class name="SiStripDetKey"/>
+  <class name="SiStripNullKey"/>
 </lcgdict>
