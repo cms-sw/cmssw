@@ -41,8 +41,8 @@ AlgebraicMatrix SurveyDet::derivatives(unsigned int index) const
 
   jac(1, 1) = 1.; jac(2, 2) = 1.; jac(3, 3) = 1.;
 
-  jac(6, 2) -= jac(5, 3) = thePoints[index].x();
-  jac(4, 3) -= jac(6, 1) = thePoints[index].y();
+  jac(5, 3) -= jac(6, 2) = thePoints[index].x();
+  jac(6, 1) -= jac(4, 3) = thePoints[index].y();
 
   return jac;
 }
