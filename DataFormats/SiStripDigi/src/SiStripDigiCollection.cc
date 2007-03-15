@@ -5,8 +5,6 @@
 #include <iostream>
 #include <iomanip>
 
-using namespace std;
-
 // -----------------------------------------------------------------------------
 // 
 const uint16_t SiStripDigiCollection::invalid_ = 0xFFFF;
@@ -14,39 +12,39 @@ const uint16_t SiStripDigiCollection::invalid_ = 0xFFFF;
 // -----------------------------------------------------------------------------
 //
 SiStripDigiCollection::SiStripDigiCollection( const edm::Handle<FEDRawDataCollection>& buffers,
-					      const vector<uint16_t>& fed_ids, 
-					      const vector<sistrip::FedBufferFormat>& format,
-					      const vector<sistrip::FedReadoutMode>& mode,
-					      const vector<uint8_t>& fe_enable_bits,
-					      const vector<uint16_t>& appended_bytes ) :
+					      const std::vector<uint16_t>& fed_ids, 
+					      const std::vector<sistrip::FedBufferFormat>& format,
+					      const std::vector<sistrip::FedReadoutMode>& mode,
+					      const std::vector<uint8_t>& fe_enable_bits,
+					      const std::vector<uint16_t>& appended_bytes ) :
   buffers_(buffers),
-  feds_( vector<bool>( 1+FEDNumbering::lastFEDId(), false ) ),
-  data_( vector<uint8_t*>( 1+FEDNumbering::lastFEDId(), static_cast<uint8_t*>(0) ) ),
-  size_( vector<uint32_t>( 1+FEDNumbering::lastFEDId(), 0 ) ),
-  readoutMode_( vector<sistrip::FedReadoutMode>( 1+FEDNumbering::lastFEDId(), sistrip::UNDEFINED_FED_READOUT_MODE ) ),
-  readoutPath_( vector<sistrip::FedReadoutPath>( 1+FEDNumbering::lastFEDId(), sistrip::UNDEFINED_FED_READOUT_PATH ) ),
-  payload_( 1+FEDNumbering::lastFEDId(), vector<uint16_t>( sistrip::FEUNITS_PER_FED, 0 ) ),
+  feds_( std::vector<bool>( 1+FEDNumbering::lastFEDId(), false ) ),
+  data_( std::vector<uint8_t*>( 1+FEDNumbering::lastFEDId(), static_cast<uint8_t*>(0) ) ),
+  size_( std::vector<uint32_t>( 1+FEDNumbering::lastFEDId(), 0 ) ),
+  readoutMode_( std::vector<sistrip::FedReadoutMode>( 1+FEDNumbering::lastFEDId(), sistrip::UNDEFINED_FED_READOUT_MODE ) ),
+  readoutPath_( std::vector<sistrip::FedReadoutPath>( 1+FEDNumbering::lastFEDId(), sistrip::UNDEFINED_FED_READOUT_PATH ) ),
+  payload_( 1+FEDNumbering::lastFEDId(), std::vector<uint16_t>( sistrip::FEUNITS_PER_FED, 0 ) ),
   error_("InvalidData") 
 {
  
   // Check vector size
   if ( format.size() != static_cast<uint16_t>(1+FEDNumbering::lastFEDId()) ) {
-    stringstream ss;
+    std::stringstream ss;
     ss << "["<<__PRETTY_FUNCTION__<<"]" 
        << "Unexpected size for vector of FedBufferFormat's! (" << format.size() 
        << "). Resizing to " << 1+FEDNumbering::lastFEDId() << "...";
     edm::LogWarning(error_) << ss.str();
-    const_cast<vector<sistrip::FedBufferFormat>&>(format).resize( 1+FEDNumbering::lastFEDId(), sistrip::APV_ERROR_FORMAT );
+    const_cast<std::vector<sistrip::FedBufferFormat>&>(format).resize( 1+FEDNumbering::lastFEDId(), sistrip::APV_ERROR_FORMAT );
   }
   
   // Check vector size
   if ( mode.size() != static_cast<uint16_t>(1+FEDNumbering::lastFEDId()) ) {
-    stringstream ss;
+    std::stringstream ss;
     ss << "["<<__PRETTY_FUNCTION__<<"]" 
        << "Unexpected size for vector of FedReadoutMode's! (" << mode.size() 
        << "). Resizing to " << 1+FEDNumbering::lastFEDId() << "...";
     edm::LogWarning(error_) << ss.str();
-    const_cast<vector<sistrip::FedReadoutMode>&>(mode).resize( 1+FEDNumbering::lastFEDId(), sistrip::ZERO_SUPPR );
+    const_cast<std::vector<sistrip::FedReadoutMode>&>(mode).resize( 1+FEDNumbering::lastFEDId(), sistrip::FED_ZERO_SUPPR );
   }
   
   // Iterate through FED ids
@@ -126,7 +124,7 @@ SiStripDigiCollection::SiStripDigiCollection( const edm::Handle<FEDRawDataCollec
       } else if ( format[*ifed] == sistrip::UNDEFINED_FED_BUFFER_FORMAT ) { 
 	//@@ anything here?
       } else {
-	stringstream ss;
+	std::stringstream ss;
 	ss << "["<<__PRETTY_FUNCTION__<<"]"
 	   << " Unexpected value for FedBufferformat! (" << format[*ifed]
 	   << "). Ignoring FED with id " << *ifed << "...";
@@ -138,7 +136,7 @@ SiStripDigiCollection::SiStripDigiCollection( const edm::Handle<FEDRawDataCollec
       readoutMode_[*ifed] = mode[*ifed];
       
     } else {
-      stringstream ss;
+      std::stringstream ss;
       ss << "["<<__PRETTY_FUNCTION__<<"]"
 	 << " Unexpected FED id! (" << *ifed
 	 << "). Allowed range is 0->"
@@ -195,9 +193,9 @@ const uint16_t& SiStripDigiCollection::adc( const uint16_t& fed_id,
     
   }
   
-  if ( readoutMode_[fed_id] == sistrip::SCOPE_MODE ||
-       readoutMode_[fed_id] == sistrip::VIRGIN_RAW ||
-       readoutMode_[fed_id] == sistrip::PROC_RAW ) {
+  if ( readoutMode_[fed_id] == sistrip::FED_SCOPE_MODE ||
+       readoutMode_[fed_id] == sistrip::FED_VIRGIN_RAW ||
+       readoutMode_[fed_id] == sistrip::FED_PROC_RAW ) {
     
     static uint16_t temporary;
     
@@ -247,12 +245,12 @@ const uint16_t& SiStripDigiCollection::adc( const uint16_t& fed_id,
     }
 
 
-  } else if ( readoutMode_[fed_id] == sistrip::ZERO_SUPPR ) {
+  } else if ( readoutMode_[fed_id] == sistrip::FED_ZERO_SUPPR ) {
 
     //iterator_ += 2;
     return invalid_;
 
-  } else if ( readoutMode_[fed_id] == sistrip::ZERO_SUPPR_LITE ) {
+  } else if ( readoutMode_[fed_id] == sistrip::FED_ZERO_SUPPR_LITE ) {
 
     //iterator_ += 7;
     return invalid_;
