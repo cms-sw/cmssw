@@ -46,11 +46,11 @@ class LinkDataXMLWriter  //: public edm::EDAnalyzer
 		   int partitionNumber,  int partitionData, 
 		   int halfPart, int eod);
   
+  void writeLinkData();  
+
    private:
-
   
-
-  void writeLinkData();
+  void clear();
 	
   std::string m_xmlDir;
 
@@ -58,8 +58,12 @@ class LinkDataXMLWriter  //: public edm::EDAnalyzer
 
   std::string IntToString(int i, int opt=0);
 
+  int nEvents;
+  DOMWriter*  theSerializer;
+  XMLFormatTarget *myFormTarget;
   DOMDocument* doc;
   DOMElement* rootElem;
+  //DOMElement* oldBX;
 
   std::vector<std::vector<std::vector<std::vector< RPCPacData> > > > linkData;
 

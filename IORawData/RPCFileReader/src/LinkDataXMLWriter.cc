@@ -79,14 +79,44 @@ LinkDataXMLWriter::LinkDataXMLWriter(){
       throw cms::Exception("xmlError") << "Could'n get DOMImplementation\n";
     }
 
+  ///Setup output
+  XMLCh tempStr[100];
+  XMLString::transcode("LS", tempStr, 99);
+  DOMImplementation *impl_1          = DOMImplementationRegistry::getDOMImplementation(tempStr);
+  theSerializer = ((DOMImplementationLS*)impl_1)->createDOMWriter();
+  
+  // set user specified output encoding
+  theSerializer->setEncoding(X("UTF-8"));
+  
+  if (theSerializer->canSetFeature(XMLUni::fgDOMWRTFormatPrettyPrint, true))
+    theSerializer->setFeature(XMLUni::fgDOMWRTFormatPrettyPrint, true);
+  
+  std::string outFileName = m_xmlDir + "/" + "testBxData.xml";
+  myFormTarget = new LocalFileFormatTarget(X(outFileName.c_str()));
+  
+  DOMNode* xmlstylesheet  = doc->createProcessingInstruction(X("xml-stylesheet"),
+							     X("type=\"text/xsl\"href=\"default.xsl\""));
+
+  doc->insertBefore(xmlstylesheet, rootElem);
+  //////////////////////////////////////////////
+  
 
   //set vector sizes
-  for(int iTC=0;iTC<12;iTC++){
+  int nTC = 1;
+  int nTB = 1;
+  for(int iTC=0;iTC<nTC;iTC++){
     std::vector< RPCPacData> rpdv(17,  RPCPacData());
     std::vector<std::vector< RPCPacData> > rpdvv(18,rpdv); 
-    std::vector<std::vector<std::vector< RPCPacData> > > rpdvvv(18,rpdvv); 
+    std::vector<std::vector<std::vector< RPCPacData> > > rpdvvv(nTB,rpdvv); 
     linkData.push_back(rpdvvv);
   }
+
+  nEvents = 0;
+
+
+  //oldBX = doc->createElement(X("bxData"));
+  //rootElem->appendChild(oldBX);
+ 
 }
 
 /*############################################################################
@@ -95,37 +125,13 @@ LinkDataXMLWriter::LinkDataXMLWriter(){
 ############################################################################*/
 LinkDataXMLWriter::~LinkDataXMLWriter(){
 
-  std::cout<<"~LinkDataXMLWriter"<<std::endl;
-
-  writeLinkData();
-
-  // save file
-  XMLCh tempStr[100];
-  XMLString::transcode("LS", tempStr, 99);
-  DOMImplementation *impl          = DOMImplementationRegistry::getDOMImplementation(tempStr);
-  DOMWriter         *theSerializer = ((DOMImplementationLS*)impl)->createDOMWriter();
-  
-  // set user specified output encoding
-  theSerializer->setEncoding(X("UTF-8"));
-  
-  if (theSerializer->canSetFeature(XMLUni::fgDOMWRTFormatPrettyPrint, true))
-    theSerializer->setFeature(XMLUni::fgDOMWRTFormatPrettyPrint, true);
-
-  XMLFormatTarget *myFormTarget;
-
-  std::string outFileName = m_xmlDir + "/" + "testBxData.xml";
-  myFormTarget = new LocalFileFormatTarget(X(outFileName.c_str()));
-  
-  DOMNode* xmlstylesheet  = doc->createProcessingInstruction(X("xml-stylesheet"),
-							     X("type=\"text/xsl\"href=\"default.xsl\""));
-
-  doc->insertBefore(xmlstylesheet, rootElem);
   theSerializer->writeNode(myFormTarget, *doc);
-  
+  doc->release();
+
   delete theSerializer;
   delete myFormTarget;
   
-  doc->release();
+
 
 }
 /*############################################################################
@@ -178,10 +184,12 @@ void LinkDataXMLWriter::addLinkData(int triggerCrateNum, int triggerBoardNum,
   */
   int delay = 2;
   for(delay=0;delay<15;delay++) {
-    //std::cout<<"delay: "<<delay<<" raw: "
-//	     <<std::hex
-//	     <<linkData[triggerCrateNum][triggerBoardNum][delay][opticalLinkNum-1].toRaw()
-//	     <<std::dec<<std::endl;
+    /*
+    std::cout<<"delay: "<<delay<<" raw: "
+	     <<std::hex
+	     <<linkData[triggerCrateNum][triggerBoardNum][delay][opticalLinkNum-1].toRaw()
+	     <<std::dec<<std::endl;
+*/
     if(!linkData[triggerCrateNum][triggerBoardNum][delay][opticalLinkNum-1].toRaw()) break;
   }
 
@@ -193,7 +201,8 @@ void LinkDataXMLWriter::addLinkData(int triggerCrateNum, int triggerBoardNum,
 ############################################################################*/
 void LinkDataXMLWriter::writeLinkData(){
 
-  int bxNum = 0;
+  int bxNum = nEvents;
+  nEvents++;
 
   time_t timer;
   struct tm *tblock;
@@ -202,16 +211,28 @@ void LinkDataXMLWriter::writeLinkData(){
 
   DOMElement* bx = doc->createElement(X("bxData"));
   bx->setAttribute(X("num"), X( IntToString(bxNum).c_str()));
+  /*
+  std::cout<<"before relpace"<<std::endl;
+  rootElem->replaceChild(bx,oldBX);
+  std::cout<<"after relpace"<<std::endl;
+  //oldBX->release();
+  std::cout<<"before set"<<std::endl;
+  oldBX = bx;
+  std::cout<<"after set"<<std::endl;
+  */
   rootElem->appendChild(bx);
 
   DOMElement*  tc = 0;
   DOMElement*  tb = 0;
   DOMElement*  ol = 0;
 
-  for(int triggerCrateNum=0;triggerCrateNum<12;triggerCrateNum++){
+  int nTC = 1;
+  int nTB = 1;
+
+  for(int triggerCrateNum=0;triggerCrateNum<nTC;triggerCrateNum++){
     tc = doc->createElement(X("tc"));
     tc->setAttribute(X("num"), X( IntToString(triggerCrateNum).c_str()));
-    for(int triggerBoardNum=0;triggerBoardNum<12;triggerBoardNum++){
+    for(int triggerBoardNum=0;triggerBoardNum<nTB;triggerBoardNum++){
       tb = doc->createElement(X("tb"));
       tb->setAttribute(X("num"), X( IntToString(triggerBoardNum).c_str()));
       for(int opticalLinkNum=0;opticalLinkNum<17;opticalLinkNum++){
@@ -238,10 +259,7 @@ void LinkDataXMLWriter::writeLinkData(){
     }
     bx->appendChild(tc);
   }
-
-  //DOMRange* range = doc->createRange();
-  //range->release();
-
+  clear();
 }
 
 std::string LinkDataXMLWriter::IntToString(int i, int opt){
@@ -254,4 +272,19 @@ std::string LinkDataXMLWriter::IntToString(int i, int opt){
 
 }
 
+void  LinkDataXMLWriter::clear(){
 
+  int nTC = 1;
+  int nTB = 1;
+
+  for(int triggerCrateNum=0;triggerCrateNum<nTC;triggerCrateNum++){
+    for(int triggerBoardNum=0;triggerBoardNum<nTB;triggerBoardNum++){
+      for(int opticalLinkNum=0;opticalLinkNum<17;opticalLinkNum++){
+	for(int iDelay=0;iDelay<18;iDelay++){
+	  linkData[triggerCrateNum][triggerBoardNum][iDelay][opticalLinkNum] = RPCPacData();
+	}
+      }
+    }
+  }
+
+}
