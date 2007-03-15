@@ -84,7 +84,10 @@ void TrackInfoProducer::produce(edm::Event& theEvent, const edm::EventSetup& set
       unsigned int idtk = 0;
       reco::TrackRef track;
       
-      if(TrajectoryCollection->size()==1)trackid.push_back(idtk);
+      if(TrajectoryCollection->size()==1){
+	trackid.push_back(idtk);
+	track=edm::Ref<reco::TrackCollection>(trackCollection, idtk);
+      }
       else{
 	TrajectoryStateOnSurface outertsos=0;
 	TrajectoryStateOnSurface innertsos=0;
