@@ -10,3 +10,6 @@ DEFINE_ANOTHER_FWK_MODULE(DTtTrigCalibrationTest);
 
 #include <DQM/DTMonitorClient/src/DTResolutionTest.h>
 DEFINE_ANOTHER_FWK_MODULE(DTResolutionTest);
+
+#include <DQM/DTMonitorClient/src/DTDataIntegrityTest.h>
+DEFINE_ANOTHER_FWK_MODULE(DTDataIntegrityTest);
