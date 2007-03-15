@@ -2,7 +2,10 @@ void TracksCompare()
 {
 
  gROOT ->Reset();
- char*  rfilename = "validationPlots.root";//new release is in red
+ gROOT->SetStyle("Plain");
+ gStyle->SetOptStat(000000);
+
+ char*  rfilename = "validationPolts.root";//new release is in red
  char*  sfilename = "../data/validationPlots_REF.root";//reference is in blue
 
  delete gROOT->GetListOfFiles()->FindObject(rfilename);
@@ -12,8 +15,8 @@ void TracksCompare()
  TFile * rfile = new TFile(rfilename);
  TFile * sfile = new TFile(sfilename);
 
- ///gROOT->ProcessLine(".x HistoCompare.C");
- HistoCompare * myPV = new HistoCompare();
+ ///gROOT->ProcessLine(".x HistoCompare_Tracks.C");
+ HistoCompare_Tracks * myPV = new HistoCompare_Tracks();
 
  TCanvas *canvas;
 
@@ -45,11 +48,17 @@ void TracksCompare()
 
    canvas = new TCanvas("Tracks1","Tracks: efficiency & fakerate",1000,1000);
 
-   if (hit&&chi2) plotHist22(canvas,sh1,rh1,sc1,rc1,sh2,rh2,sc2,rc2,myPV,te);
-   else if (hit)  plotHist12(canvas,sh1,rh1,sh2,rh2,myPV,te);
-   else if (chi2) plotHist12(canvas,sc1,rc1,sc2,rc2,myPV,te);
+   rh1->GetYaxis().SetRangeUser(0.7,1.025);
+   sh1->GetYaxis().SetRangeUser(0.7,1.025);
+   rc1->GetYaxis().SetRangeUser(0.7,1.025);
+   sc1->GetYaxis().SetRangeUser(0.7,1.025);
+
+   if (hit&&chi2) plotHist22(canvas,sh1,rh1,sc1,rc1,sh2,rh2,sc2,rc2,myPV,te,"UU");
+   else if (hit)  plotHist12(canvas,sh1,rh1,sh2,rh2,myPV,te,"UU");
+   else if (chi2) plotHist12(canvas,sc1,rc1,sc2,rc2,myPV,te,"UU");
 
    canvas->Print("ctf_effic_fake.eps");
+   canvas->Print("ctf_effic_fake.gif");
 
    //chi2&chi2 probability
    rfile->GetObject("DQMData/ctfWithMaterial_AssociatorByHits/chi2",rh1);
@@ -63,11 +72,17 @@ void TracksCompare()
 
    canvas = new TCanvas("Tracks2","Tracks: chi2 & chi2 probability",1000,1000);
 
-   if (hit&&chi2) plotHist22(canvas,sh1,rh1,sc1,rc1,sh2,rh2,sc2,rc2,myPV,te);
-   else if (hit)  plotHist12(canvas,sh1,rh1,sh2,rh2,myPV,te);
-   else if (chi2) plotHist12(canvas,sc1,rc1,sc2,rc2,myPV,te);
+   NormalizeHistograms(rh1,sh1);
+   NormalizeHistograms(rc1,sc1);
+   NormalizeHistograms(rh2,sh2);
+   NormalizeHistograms(rc2,sc2);
+
+   if (hit&&chi2) plotHist22(canvas,sh1,rh1,sc1,rc1,sh2,rh2,sc2,rc2,myPV,te,"UUNORM");
+   else if (hit)  plotHist12(canvas,sh1,rh1,sh2,rh2,myPV,te,"UUNORM");
+   else if (chi2) plotHist12(canvas,sc1,rc1,sc2,rc2,myPV,te,"UUNORM");
 
    canvas->Print("ctf_chi2_chi2prob.eps");
+   canvas->Print("ctf_chi2_chi2prob.gif");
 
    //meanchi2 and #hits vs eta
    rfile->GetObject("DQMData/ctfWithMaterial_AssociatorByHits/hits_eta",rh1);
@@ -82,10 +97,11 @@ void TracksCompare()
    canvas = new TCanvas("Tracks3","Tracks: chi2 and #hits vs eta",1000,1000);
 
    if (hit&&chi2) plotHist22(canvas,sh1,rh1,sc1,rc1,sh2,rh2,sc2,rc2,myPV,te);
-   else if (hit)  plotHist12(canvas,sh1,rh1,sh2,rh2,myPV,te);
-   else if (chi2) plotHist12(canvas,sc1,rc1,sc2,rc2,myPV,te);
+   else if (hit)  plotHist12(canvas,sh1,rh1,sh2,rh2,myPV,te,"UU");
+   else if (chi2) plotHist12(canvas,sc1,rc1,sc2,rc2,myPV,te,"UU");
  
    canvas->Print("ctf_hitseta_chi2mean.eps");
+   canvas->Print("ctf_hitseta_chi2mean.gif");
 
    //pull Pt, Qoverp, Phi
    rfile->GetObject("DQMData/ctfWithMaterial_AssociatorByHits/pullPt",rh1);
@@ -103,11 +119,19 @@ void TracksCompare()
 
    canvas = new TCanvas("Tracks4","Tracks: pull of Pt, Qoverp and Phi",1000,1000);
 
-   if (hit&&chi2) plotHist23(canvas,sh1,rh1,sc1,rc1,sh2,rh2,sc2,rc2,sh3,rh3,sc3,rc3,myPV,te);
-   else if (hit)  plotHist13(canvas,sh1,rh1,sh2,rh2,sh3,rh3,myPV,te);
-   else if (chi2) plotHist13(canvas,sc1,rc1,sc2,rc2,sc3,rc3,myPV,te);
+   NormalizeHistograms(rh1,sh1);
+   NormalizeHistograms(rc1,sc1);
+   NormalizeHistograms(rh2,sh2);
+   NormalizeHistograms(rc2,sc2);
+   NormalizeHistograms(rh3,sh3);
+   NormalizeHistograms(rc3,sc3);
+
+   if (hit&&chi2) plotHist23(canvas,sh1,rh1,sc1,rc1,sh2,rh2,sc2,rc2,sh3,rh3,sc3,rc3,myPV,te,"UUNORM");
+   else if (hit)  plotHist13(canvas,sh1,rh1,sh2,rh2,sh3,rh3,myPV,te,"UUNORM");
+   else if (chi2) plotHist13(canvas,sc1,rc1,sc2,rc2,sc3,rc3,myPV,te,"UUNORM");
  
    canvas->Print("ctf_pullPt_Qoverp_Phi.eps");
+   canvas->Print("ctf_pullPt_Qoverp_Phi.gif");
 
    //pull D0, Z0, Theta
    rfile->GetObject("DQMData/ctfWithMaterial_AssociatorByHits/pullD0",rh1);
@@ -125,11 +149,19 @@ void TracksCompare()
 
    canvas = new TCanvas("Tracks5","Tracks: pull of D0, Z0, Theta",1000,1000);
 
-   if (hit&&chi2) plotHist23(canvas,sh1,rh1,sc1,rc1,sh2,rh2,sc2,rc2,sh3,rh3,sc3,rc3,myPV,te);
-   else if (hit)  plotHist13(canvas,sh1,rh1,sh2,rh2,sh3,rh3,myPV,te);
-   else if (chi2) plotHist13(canvas,sc1,rc1,sc2,rc2,sc3,rc3,myPV,te);
+   NormalizeHistograms(rh1,sh1);
+   NormalizeHistograms(rc1,sc1);
+   NormalizeHistograms(rh2,sh2);
+   NormalizeHistograms(rc2,sc2);
+   NormalizeHistograms(rh3,sh3);
+   NormalizeHistograms(rc3,sc3);
+
+   if (hit&&chi2) plotHist23(canvas,sh1,rh1,sc1,rc1,sh2,rh2,sc2,rc2,sh3,rh3,sc3,rc3,myPV,te,"UUNORM");
+   else if (hit)  plotHist13(canvas,sh1,rh1,sh2,rh2,sh3,rh3,myPV,te,"UUNORM");
+   else if (chi2) plotHist13(canvas,sc1,rc1,sc2,rc2,sc3,rc3,myPV,te,"UUNORM");
  
    canvas->Print("ctf_pullD0_Z0_Theta.eps");
+   canvas->Print("ctf_pullD0_Z0_Theta.gif");
 
    //resolution Pt, Phi
    rfile->GetObject("DQMData/ctfWithMaterial_AssociatorByHits/sigmapt",rh1);
@@ -143,11 +175,12 @@ void TracksCompare()
 
    canvas = new TCanvas("Tracks6","Tracks: Pt and Phi resolution",1000,1000);
 
-   if (hit&&chi2) plotHist22(canvas,sh1,rh1,sc1,rc1,sh2,rh2,sc2,rc2,myPV,te);
-   else if (hit)  plotHist12(canvas,sh1,rh1,sh2,rh2,myPV,te);
-   else if (chi2) plotHist12(canvas,sc1,rc1,sc2,rc2,myPV,te);
+   if (hit&&chi2) plotHist22(canvas,sh1,rh1,sc1,rc1,sh2,rh2,sc2,rc2,myPV,te,"UU");
+   else if (hit)  plotHist12(canvas,sh1,rh1,sh2,rh2,myPV,te,"UU");
+   else if (chi2) plotHist12(canvas,sc1,rc1,sc2,rc2,myPV,te,"UU");
  
    canvas->Print("ctf_resolPt_Phi.eps");
+   canvas->Print("ctf_resolPt_Phi.gif");
 
    //resolution D0, Z0, Theta
    rfile->GetObject("DQMData/ctfWithMaterial_AssociatorByHits/sigmad0",rh1);
@@ -165,11 +198,12 @@ void TracksCompare()
 
    canvas = new TCanvas("Tracks7","Tracks: D0, Z0, Theta resolution",1000,1000);
 
-   if (hit&&chi2) plotHist23(canvas,sh1,rh1,sc1,rc1,sh2,rh2,sc2,rc2,sh3,rh3,sc3,rc3,myPV,te);
-   else if (hit)  plotHist13(canvas,sh1,rh1,sh2,rh2,sh3,rh3,myPV,te);
-   else if (chi2) plotHist13(canvas,sc1,rc1,sc2,rc2,sc3,rc3,myPV,te);
+   if (hit&&chi2) plotHist23(canvas,sh1,rh1,sc1,rc1,sh2,rh2,sc2,rc2,sh3,rh3,sc3,rc3,myPV,te,"UU");
+   else if (hit)  plotHist13(canvas,sh1,rh1,sh2,rh2,sh3,rh3,myPV,te,"UU");
+   else if (chi2) plotHist13(canvas,sc1,rc1,sc2,rc2,sc3,rc3,myPV,te,"UU");
  
    canvas->Print("ctf_resolD0_Z0_Theta.eps");
+   canvas->Print("ctf_resolD0_Z0_Theta.gif");
  }
 
 
@@ -190,11 +224,17 @@ void TracksCompare()
 
    canvas = new TCanvas("Tracks8","Tracks: efficiency & fakerate",1000,1000);
 
-   if (hit&&chi2) plotHist22(canvas,sh1,rh1,sc1,rc1,sh2,rh2,sc2,rc2,myPV,te);
-   else if (hit)  plotHist12(canvas,sh1,rh1,sh2,rh2,myPV,te);
-   else if (chi2) plotHist12(canvas,sc1,rc1,sc2,rc2,myPV,te);
+   rh1->GetYaxis().SetRangeUser(0.7,1.025);
+   sh1->GetYaxis().SetRangeUser(0.7,1.025);
+   rc1->GetYaxis().SetRangeUser(0.7,1.025);
+   sc1->GetYaxis().SetRangeUser(0.7,1.025);
+
+   if (hit&&chi2) plotHist22(canvas,sh1,rh1,sc1,rc1,sh2,rh2,sc2,rc2,myPV,te,"UU");
+   else if (hit)  plotHist12(canvas,sh1,rh1,sh2,rh2,myPV,te,"UU");
+   else if (chi2) plotHist12(canvas,sc1,rc1,sc2,rc2,myPV,te,"UU");
 
    canvas->Print("rs_effic_fake.eps");
+   canvas->Print("rs_effic_fake.gif");
 
    //chi2&chi2 probability
    rfile->GetObject("DQMData/rsWithMaterial_AssociatorByHits/chi2",rh1);
@@ -208,11 +248,17 @@ void TracksCompare()
 
    canvas = new TCanvas("Tracks9","Tracks: chi2 & chi2 probability",1000,1000);
 
-   if (hit&&chi2) plotHist22(canvas,sh1,rh1,sc1,rc1,sh2,rh2,sc2,rc2,myPV,te);
-   else if (hit)  plotHist12(canvas,sh1,rh1,sh2,rh2,myPV,te);
-   else if (chi2) plotHist12(canvas,sc1,rc1,sc2,rc2,myPV,te);
+   NormalizeHistograms(rh1,sh1);
+   NormalizeHistograms(rc1,sc1);
+   NormalizeHistograms(rh2,sh2);
+   NormalizeHistograms(rc2,sc2);
+
+   if (hit&&chi2) plotHist22(canvas,sh1,rh1,sc1,rc1,sh2,rh2,sc2,rc2,myPV,te,"UUNORM");
+   else if (hit)  plotHist12(canvas,sh1,rh1,sh2,rh2,myPV,te,"UUNORM");
+   else if (chi2) plotHist12(canvas,sc1,rc1,sc2,rc2,myPV,te,"UUNORM");
 
    canvas->Print("rs_chi2_chi2prob.eps");
+   canvas->Print("rs_chi2_chi2prob.gif");
 
    //meanchi2 and #hits vs eta
    rfile->GetObject("DQMData/rsWithMaterial_AssociatorByHits/hits_eta",rh1);
@@ -226,11 +272,12 @@ void TracksCompare()
 
    canvas = new TCanvas("Tracks10","Tracks: chi2 and #hits vs eta",1000,1000);
 
-   if (hit&&chi2) plotHist22(canvas,sh1,rh1,sc1,rc1,sh2,rh2,sc2,rc2,myPV,te);
-   else if (hit)  plotHist12(canvas,sh1,rh1,sh2,rh2,myPV,te);
-   else if (chi2) plotHist12(canvas,sc1,rc1,sc2,rc2,myPV,te);
+   if (hit&&chi2) plotHist22(canvas,sh1,rh1,sc1,rc1,sh2,rh2,sc2,rc2,myPV,te,"UU");
+   else if (hit)  plotHist12(canvas,sh1,rh1,sh2,rh2,myPV,te,"UU");
+   else if (chi2) plotHist12(canvas,sc1,rc1,sc2,rc2,myPV,te,"UU");
  
    canvas->Print("rs_hitseta_chi2mean.eps");
+   canvas->Print("rs_hitseta_chi2mean.gif");
 
    //pull Pt, Qoverp, Phi
    rfile->GetObject("DQMData/rsWithMaterial_AssociatorByHits/pullPt",rh1);
@@ -248,11 +295,19 @@ void TracksCompare()
 
    canvas = new TCanvas("Tracks11","Tracks: pull of Pt, Qoverp and Phi",1000,1000);
 
-   if (hit&&chi2) plotHist23(canvas,sh1,rh1,sc1,rc1,sh2,rh2,sc2,rc2,sh3,rh3,sc3,rc3,myPV,te);
-   else if (hit)  plotHist13(canvas,sh1,rh1,sh2,rh2,sh3,rh3,myPV,te);
-   else if (chi2) plotHist13(canvas,sc1,rc1,sc2,rc2,sc3,rc3,myPV,te);
+   NormalizeHistograms(rh1,sh1);
+   NormalizeHistograms(rc1,sc1);
+   NormalizeHistograms(rh2,sh2);
+   NormalizeHistograms(rc2,sc2);
+   NormalizeHistograms(rh3,sh3);
+   NormalizeHistograms(rc3,sc3);
+
+   if (hit&&chi2) plotHist23(canvas,sh1,rh1,sc1,rc1,sh2,rh2,sc2,rc2,sh3,rh3,sc3,rc3,myPV,te,"UUNORM");
+   else if (hit)  plotHist13(canvas,sh1,rh1,sh2,rh2,sh3,rh3,myPV,te,"UUNORM");
+   else if (chi2) plotHist13(canvas,sc1,rc1,sc2,rc2,sc3,rc3,myPV,te,"UUNORM");
  
    canvas->Print("rs_pullPt_Qoverp_Phi.eps");
+   canvas->Print("rs_pullPt_Qoverp_Phi.gif");
 
    //pull D0, Z0, Theta
    rfile->GetObject("DQMData/rsWithMaterial_AssociatorByHits/pullD0",rh1);
@@ -270,11 +325,19 @@ void TracksCompare()
 
    canvas = new TCanvas("Tracks12","Tracks: pull of D0, Z0, Theta",1000,1000);
 
-   if (hit&&chi2) plotHist23(canvas,sh1,rh1,sc1,rc1,sh2,rh2,sc2,rc2,sh3,rh3,sc3,rc3,myPV,te);
-   else if (hit)  plotHist13(canvas,sh1,rh1,sh2,rh2,sh3,rh3,myPV,te);
-   else if (chi2) plotHist13(canvas,sc1,rc1,sc2,rc2,sc3,rc3,myPV,te);
+   NormalizeHistograms(rh1,sh1);
+   NormalizeHistograms(rc1,sc1);
+   NormalizeHistograms(rh2,sh2);
+   NormalizeHistograms(rc2,sc2);
+   NormalizeHistograms(rh3,sh3);
+   NormalizeHistograms(rc3,sc3);
+
+   if (hit&&chi2) plotHist23(canvas,sh1,rh1,sc1,rc1,sh2,rh2,sc2,rc2,sh3,rh3,sc3,rc3,myPV,te,"UUNORM");
+   else if (hit)  plotHist13(canvas,sh1,rh1,sh2,rh2,sh3,rh3,myPV,te,"UUNORM");
+   else if (chi2) plotHist13(canvas,sc1,rc1,sc2,rc2,sc3,rc3,myPV,te,"UUNORM");
  
    canvas->Print("rs_pullD0_Z0_Theta.eps");
+   canvas->Print("rs_pullD0_Z0_Theta.gif");
 
    //resolution Pt, Phi
    rfile->GetObject("DQMData/rsWithMaterial_AssociatorByHits/sigmapt",rh1);
@@ -288,11 +351,12 @@ void TracksCompare()
 
    canvas = new TCanvas("Tracks13","Tracks: Pt and Phi resolution",1000,1000);
 
-   if (hit&&chi2) plotHist22(canvas,sh1,rh1,sc1,rc1,sh2,rh2,sc2,rc2,myPV,te);
-   else if (hit)  plotHist12(canvas,sh1,rh1,sh2,rh2,myPV,te);
-   else if (chi2) plotHist12(canvas,sc1,rc1,sc2,rc2,myPV,te);
+   if (hit&&chi2) plotHist22(canvas,sh1,rh1,sc1,rc1,sh2,rh2,sc2,rc2,myPV,te,"UU");
+   else if (hit)  plotHist12(canvas,sh1,rh1,sh2,rh2,myPV,te,"UU");
+   else if (chi2) plotHist12(canvas,sc1,rc1,sc2,rc2,myPV,te,"UU");
  
    canvas->Print("rs_resolPt_Phi.eps");
+   canvas->Print("rs_resolPt_Phi.gif");
 
    //resolution D0, Z0, Theta
    rfile->GetObject("DQMData/rsWithMaterial_AssociatorByHits/sigmad0",rh1);
@@ -310,18 +374,38 @@ void TracksCompare()
 
    canvas = new TCanvas("Tracks14","Tracks: D0, Z0, Theta resolution",1000,1000);
 
-   if (hit&&chi2) plotHist23(canvas,sh1,rh1,sc1,rc1,sh2,rh2,sc2,rc2,sh3,rh3,sc3,rc3,myPV,te);
-   else if (hit)  plotHist13(canvas,sh1,rh1,sh2,rh2,sh3,rh3,myPV,te);
-   else if (chi2) plotHist13(canvas,sc1,rc1,sc2,rc2,sc3,rc3,myPV,te);
+   if (hit&&chi2) plotHist23(canvas,sh1,rh1,sc1,rc1,sh2,rh2,sc2,rc2,sh3,rh3,sc3,rc3,myPV,te,"UU");
+   else if (hit)  plotHist13(canvas,sh1,rh1,sh2,rh2,sh3,rh3,myPV,te,"UU");
+   else if (chi2) plotHist13(canvas,sc1,rc1,sc2,rc2,sc3,rc3,myPV,te,"UU");
  
    canvas->Print("rs_resolD0_Z0_Theta.eps");
+   canvas->Print("rs_resolD0_Z0_Theta.gif");
  }
 }
+
+void NormalizeHistograms(TH1F* h1, TH1F* h2)
+{
+  if (h1==0 || h2==0) return;
+  float scale1 = -9999.9;
+  float scale2 = -9999.9;
+
+  if ( h1->Integral() != 0 && h2->Integral() != 0 ){
+      scale1 = 1.0/(float)h1->Integral();
+      scale2 = 1.0/(float)h2->Integral();
+    
+      h1->Sumw2();
+      h2->Sumw2();
+      h1->Scale(scale1);
+      h2->Scale(scale2);
+    }
+}
+
 
 void plotHist12(TCanvas *canvas, 
 		TH1F *sh1,TH1F *rh1,
 		TH1F *sh2,TH1F *rh2,
-		HistoCompare * myPV, TText* te ){
+		HistoCompare_Tracks * myPV, TText* te,
+		char * option){
   canvas->Divide(1,2);
 
   canvas->cd(1);
@@ -330,7 +414,7 @@ void plotHist12(TCanvas *canvas,
   sh1->SetLineStyle(2);
   rh1->Draw();
   sh1->Draw("sames");
-  myPV->PVCompute(rh1, sh1, te );
+  myPV->PVCompute(rh1, sh1, te, option );
   
   canvas->cd(2);
   rh2->SetLineColor(2);
@@ -338,13 +422,14 @@ void plotHist12(TCanvas *canvas,
   sh2->SetLineStyle(2);
   rh2->Draw();
   sh2->Draw("sames");
-  myPV->PVCompute(rh2, sh2, te );  
+  myPV->PVCompute(rh2, sh2, te, option );  
 }
 
 void plotHist22(TCanvas *canvas, 
 		TH1F *sh1,TH1F *rh1, TH1F *sc1,TH1F *rc1, 
 		TH1F *sh2,TH1F *rh2, TH1F *sc2,TH1F *rc2,
-		HistoCompare * myPV, TText* te ){
+		HistoCompare_Tracks * myPV, TText* te,
+		char * option ){
   canvas->Divide(2,2);
 
   canvas->cd(1);
@@ -353,7 +438,7 @@ void plotHist22(TCanvas *canvas,
   sh1->SetLineStyle(2);
   rh1->Draw();
   sh1->Draw("sames");
-  myPV->PVCompute(rh1, sh1, te );
+  myPV->PVCompute(rh1, sh1, te, option );
   
   canvas->cd(2);
   rc1->SetLineColor(2);
@@ -361,7 +446,7 @@ void plotHist22(TCanvas *canvas,
   sc1->SetLineStyle(2);
   rc1->Draw();
   sc1->Draw("sames");
-  myPV->PVCompute(rc1, sc1, te );
+  myPV->PVCompute(rc1, sc1, te, option );
   
   canvas->cd(3);
   rh2->SetLineColor(2);
@@ -369,7 +454,7 @@ void plotHist22(TCanvas *canvas,
   sh2->SetLineStyle(2);
   rh2->Draw();
   sh2->Draw("sames");
-  myPV->PVCompute(rh2, sh2, te );
+  myPV->PVCompute(rh2, sh2, te, option );
   
   canvas->cd(4);
   rc2->SetLineColor(2);
@@ -377,7 +462,7 @@ void plotHist22(TCanvas *canvas,
   sc2->SetLineStyle(2);
   rc2->Draw();
   sc2->Draw("sames");
-  myPV->PVCompute(rc2, sc2, te );
+  myPV->PVCompute(rc2, sc2, te, option );
   
 }
 
@@ -385,7 +470,8 @@ void plotHist13(TCanvas *canvas,
 		TH1F *sh1,TH1F *rh1,
  		TH1F *sh2,TH1F *rh2,
  		TH1F *sh3,TH1F *rh3,
-		HistoCompare * myPV, TText* te ){
+		HistoCompare_Tracks * myPV, TText* te,
+		char * option ){
   canvas->Divide(1,3);
 
   canvas->cd(1);
@@ -394,7 +480,7 @@ void plotHist13(TCanvas *canvas,
   sh1->SetLineStyle(2);
   rh1->Draw();
   sh1->Draw("sames");
-  myPV->PVCompute(rh1, sh1, te );
+  myPV->PVCompute(rh1, sh1, te, option );
   
   canvas->cd(2);
   rh2->SetLineColor(2);
@@ -402,7 +488,7 @@ void plotHist13(TCanvas *canvas,
   sh2->SetLineStyle(2);
   rh2->Draw();
   sh2->Draw("sames");
-  myPV->PVCompute(rh2, sh2, te );
+  myPV->PVCompute(rh2, sh2, te, option );
 
   canvas->cd(3);
   rh3->SetLineColor(2);
@@ -410,14 +496,15 @@ void plotHist13(TCanvas *canvas,
   sh3->SetLineStyle(2);
   rh3->Draw();
   sh3->Draw("sames");
-  myPV->PVCompute(rh3, sh3, te );
+  myPV->PVCompute(rh3, sh3, te, option );
 }
 
 void plotHist23(TCanvas *canvas, 
 		TH1F *sh1,TH1F *rh1, TH1F *sc1,TH1F *rc1, 
  		TH1F *sh2,TH1F *rh2, TH1F *sc2,TH1F *rc2,
  		TH1F *sh3,TH1F *rh3, TH1F *sc3,TH1F *rc3,
-		HistoCompare * myPV, TText* te ){
+		HistoCompare_Tracks * myPV, TText* te,
+		char * option ){
   canvas->Divide(2,3);
 
   canvas->cd(1);
@@ -426,7 +513,7 @@ void plotHist23(TCanvas *canvas,
   sh1->SetLineStyle(2);
   rh1->Draw();
   sh1->Draw("sames");
-  myPV->PVCompute(rh1, sh1, te );
+  myPV->PVCompute(rh1, sh1, te, option );
   
   canvas->cd(2);
   rc1->SetLineColor(2);
@@ -434,7 +521,7 @@ void plotHist23(TCanvas *canvas,
   sc1->SetLineStyle(2);
   rc1->Draw();
   sc1->Draw("sames");
-  myPV->PVCompute(rc1, sc1, te );
+  myPV->PVCompute(rc1, sc1, te, option );
   
   canvas->cd(3);
   rh2->SetLineColor(2);
@@ -442,7 +529,7 @@ void plotHist23(TCanvas *canvas,
   sh2->SetLineStyle(2);
   rh2->Draw();
   sh2->Draw("sames");
-  myPV->PVCompute(rh2, sh2, te );
+  myPV->PVCompute(rh2, sh2, te, option );
   
   canvas->cd(4);
   rc2->SetLineColor(2);
@@ -450,7 +537,7 @@ void plotHist23(TCanvas *canvas,
   sc2->SetLineStyle(2);
   rc2->Draw();
   sc2->Draw("sames");
-  myPV->PVCompute(rc2, sc2, te );
+  myPV->PVCompute(rc2, sc2, te, option );
 
   canvas->cd(5);
   rh3->SetLineColor(2);
@@ -458,7 +545,7 @@ void plotHist23(TCanvas *canvas,
   sh3->SetLineStyle(2);
   rh3->Draw();
   sh3->Draw("sames");
-  myPV->PVCompute(rh3, sh3, te );
+  myPV->PVCompute(rh3, sh3, te, option );
   
   canvas->cd(6);
   rc3->SetLineColor(2);
@@ -466,5 +553,5 @@ void plotHist23(TCanvas *canvas,
   sc3->SetLineStyle(2);
   rc3->Draw();
   sc3->Draw("sames");
-  myPV->PVCompute(rc3, sc3, te );
+  myPV->PVCompute(rc3, sc3, te, option );
 }
