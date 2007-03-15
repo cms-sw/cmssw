@@ -20,6 +20,7 @@ public:
   ///////////////////////////
   RPCRawDataPacker();
   ~RPCRawDataPacker();
+  LinkDataXMLWriter * getXMLWriter() const;
   ///////////////////////////
 
   FEDRawData * rawData(

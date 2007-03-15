@@ -52,9 +52,9 @@ RPCRawDataPacker::RPCRawDataPacker(){
 
 }
 
-RPCRawDataPacker::~RPCRawDataPacker(){   delete myXMLWriter; }
+RPCRawDataPacker::~RPCRawDataPacker(){ delete myXMLWriter; }
 
-
+LinkDataXMLWriter * RPCRawDataPacker::getXMLWriter() const {return myXMLWriter;}
 
 std::vector<RPCRawDataPacker::Records> RPCRawDataPacker::margeRecords(const std::vector<Records> & data) const
 {

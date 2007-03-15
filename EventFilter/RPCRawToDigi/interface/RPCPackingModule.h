@@ -12,6 +12,8 @@ namespace edm {class ParameterSet;}
 namespace edm {class EventSetup; }
 namespace edm {class Event; }
 
+class  RPCRawDataPacker;
+
 class RPCPackingModule : public edm::EDProducer {
 public:
 
@@ -33,6 +35,9 @@ private:
 // pack header  
 // pack data
 // pack trailer
+///////////////////////////////////
+  RPCRawDataPacker *myPacker;
+///////////////////////////////////
 
 private:
 
