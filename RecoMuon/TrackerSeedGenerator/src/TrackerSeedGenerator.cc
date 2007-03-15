@@ -3,8 +3,8 @@
 /** \class TrackerSeedGenerator
  *  Generate seed from muon trajectory.
  *
- *  $Date: 2007/03/07 17:41:02 $
- *  $Revision: 1.16 $
+ *  $Date: 2007/03/14 11:40:20 $
+ *  $Revision: 1.17 $
  *  \author Norbert Neumeister - Purdue University
  *  \porting author Chang Liu - Purdue University
  */
@@ -88,32 +88,8 @@ TrackerSeedGenerator::TrackerSeedGenerator(const edm::ParameterSet& par, const M
   double roadChi2 = par.getParameter<double>("maxRoadChi2");
   theRoadEstimator = new Chi2MeasurementEstimator(roadChi2,sqrt(roadChi2));
   theOutPropagator = par.getParameter<string>("StateOnTrackerBoundOutPropagator");
-  theRSPropagator = par.getParameter<string>("RSPropagator");
-
-  //ParameterSet pixelPSet = par.getParameter<ParameterSet>("PixelParameters");
-  //combinatorialSeedGenerator = new CombinatorialSeedGeneratorFromPixel(par);
-  //theDirection = static_cast<ReconstructionDirection>(par.getParameter<int>("Direction")); 
-  /*
-  edm::LogInfo ("TrackSeedGeneratorFromMuon")<<"TrackerSeedGeneratorFromMuon";
-  
-  setup.get<GlobalTrackingGeometryRecord>().get(theTrackingGeometry);
-  setup.get<IdealMagneticFieldRecord>().get(theField);
-  setup.get<TrackerRecoGeometryRecord>().get(theGeoTracker);
-  thePropagator = new AnalyticalPropagator(&*theField, oppositeToMomentum);
-  theStepPropagator = new SteppingHelixPropagator(&*theField,oppositeToMomentum);
-
-
-  
-  theUseVertex = par.getParameter<bool>("UseVertex");
-  
-  theMaxLayers = par.getParameter<int>("MaxLayers");
-
-  edm::ParameterSet meastkPar = par.getParameter<edm::ParameterSet>("MeasurementTrackerParameters");
-  theMeasurementTracker = new MeasurementTracker(setup,meastkPar);
-  theLayerMeasurements = new LayerMeasurements(theMeasurementTracker);
-  edm::ParameterSet seedPar = par.getParameter<edm::ParameterSet>("SeedGeneratorParameters");
-  theSeedGenerator = new CombinatorialSeedGeneratorFromPixel(seedPar);
-  */
+  theRSAlongPropagator = par.getParameter<string>("RSAlongPropagator");
+  theRSAnyPropagator = par.getParameter<string>("RSAnyPropagator");
 
   theMIMFlag = par.getUntrackedParameter<bool>("performMuonIntegrityMonitor",false);
   if(theMIMFlag) {
@@ -145,7 +121,10 @@ void TrackerSeedGenerator::setEvent(const edm::Event &event)
   theService->eventSetup().get<TrackerRecoGeometryRecord>().get(theSearchTracker);
 }
 
-//
+/*!
+ * \param muon the standalone muon track
+ * \param rectRegion a RectangularEtaPhiTracking region defined around the muon
+ */
 TrackerSeedGenerator::BTSeedCollection 
 TrackerSeedGenerator::trackerSeeds(const TrackCand& muon, const RectangularEtaPhiTrackingRegion& rectRegion) {
    theSeeds.clear();
@@ -556,42 +535,6 @@ void TrackerSeedGenerator::pixelSeeds(const Trajectory& muon,
     }      
   }
 
-  /*  
-  int nseeds = theSeeds.size();
-  vector<TrajectorySeed>::const_iterator is;
-  for ( is = ss.begin(); is != ss.end(); is++ ) {
-    if ( nseeds < theMaxSeeds ) {
-      //theSeeds.push_back(const_cast<TrajectorySeed*>(&((*is)))); 
-      theSeeds.push_back(*is); 
-      nseeds++;
-    }
-  }
-  */
-
-  /*
-    int nseeds = theSeeds.size();
-    TrajectoryStateTransform tsTransform;
-    vector<TrajectorySeed> ss;
-    theSeedGenerator->seeds(ss, theService->eventSetup(), regionOfInterest);
-    vector<TrajectorySeed>::const_iterator is;
-    for ( is = ss.begin(); is != ss.end(); is++ ) {
-    PTrajectoryStateOnDet ptsos = (*is).startingState();
-    const GeomDet* gdet = theTrackingGeometry->idToDet(DetId(ptsos.detId()));
-    TrajectoryStateOnSurface tsos = tsTransform.transientState(ptsos, &(gdet->surface()), &*theField);
-    float eta = tsos.globalMomentum().eta();
-    float phi = tsos.globalMomentum().phi();
-    float deta(fabs(eta-regionOfInterest.direction().eta()));
-    float dphi(fabs(Geom::Phi<float>(phi)-Geom::Phi<float>(regionOfInterest.direction().phi())));
-    if ( deta > deltaEta || dphi > deltaPhi ) continue;     
-    if ( nseeds < theMaxSeeds ) {
-    theSeeds.push_back(const_cast<TrajectorySeed*>(&((*is)))); 
-    nseeds++;
-    }
-    else {
-    break;
-    } 
-    }  
-  */
 }
 
 std::vector<TrajectorySeed> TrackerSeedGenerator::rsSeeds(const reco::Track& muon) {
@@ -606,7 +549,7 @@ std::vector<TrajectorySeed> TrackerSeedGenerator::rsSeeds(const reco::Track& muo
 
   //take state at inner surface and check the first part reached
   vector<BarrelDetLayer*> blc = theSearchTracker->tibLayers();
-  TrajectoryStateOnSurface inner = theService->propagator(theOutPropagator)->propagate(cIPFTS,blc[0]->surface());
+  TrajectoryStateOnSurface inner = theService->propagator(theRSAlongPropagator)->propagate(cIPFTS,blc[0]->surface());
   if ( !inner.isValid() ) {
     LogDebug(category) <<"inner state is not valid"; 
     return result;
@@ -631,7 +574,7 @@ std::vector<TrajectorySeed> TrackerSeedGenerator::rsSeeds(const reco::Track& muo
   }
 
   //find out at least one compatible detector reached
-  std::vector< DetLayer::DetWithState > compatible = inLayer->compatibleDets(inner,*theService->propagator(theRSPropagator),*theRoadEstimator);
+  std::vector< DetLayer::DetWithState > compatible = inLayer->compatibleDets(inner,*theService->propagator(theRSAnyPropagator),*theRoadEstimator);
   
   //loop the parts until at least a compatible is found
   while (compatible.size()==0) {
@@ -649,7 +592,7 @@ std::vector<TrajectorySeed> TrackerSeedGenerator::rsSeeds(const reco::Track& muo
       inLayer = ( z < 0 ) ? ntecc[0] : ptecc[0] ;
       break;
     }
-    compatible = inLayer->compatibleDets(inner,*theService->propagator(theRSPropagator),*theRoadEstimator);
+    compatible = inLayer->compatibleDets(inner,*theService->propagator(theRSAnyPropagator),*theRoadEstimator);
   }
 
   //transform it into a PTrajectoryStateOnDet
