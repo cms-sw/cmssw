@@ -4,8 +4,8 @@
 /** \class TrackToTrackMap
  *  No description available.
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2007/03/13 09:51:58 $
+ *  $Revision: 1.1 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -19,5 +19,5 @@ namespace reco {
     edm::OneToOne<reco::TrackCollection,
 		  reco::TrackCollection> > TrackToTrackMap;
   
-};
+}
 #endif
