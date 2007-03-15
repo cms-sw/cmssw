@@ -173,7 +173,7 @@ SiPixelTrackingRecHitsValid::SiPixelTrackingRecHitsValid(const ParameterSet& ps)
   //float forward_pos_etal = 1.5;
   //float forward_pos_etah = 2.5;
 
-  // special renages for pulls
+  // special ranges for pulls
   float pull_barrel_alphal =  80.0;
   float pull_barrel_alphah = 100.0;
   float pull_barrel_betal =  10.0;
@@ -1053,7 +1053,7 @@ SiPixelTrackingRecHitsValid::SiPixelTrackingRecHitsValid(const ParameterSet& ps)
   mePosyZpPanel2_all_hits = dbe_->book1D(chisto, chisto, 100, yl, yh);
 
   // control histograms
-  meTracksPerEvent     = dbe_->book1D("meTracksPerEvent"    , "meTracksPerEvent"    , 10, 0.0, 10.0);
+  meTracksPerEvent     = dbe_->book1D("meTracksPerEvent"    , "meTracksPerEvent"    , 200, 0.0, 200.0);
   mePixRecHitsPerTrack = dbe_->book1D("mePixRecHitsPerTrack", "mePixRecHitsPerTrack",  6, 0.0,  6.0);
 
 }
