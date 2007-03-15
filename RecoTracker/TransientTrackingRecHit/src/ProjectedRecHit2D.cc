@@ -18,6 +18,7 @@ ProjectedRecHit2D::ProjectedRecHit2D( const LocalPoint& pos, const LocalError& e
 ProjectedRecHit2D::RecHitPointer 
 ProjectedRecHit2D::clone( const TrajectoryStateOnSurface& ts) const
 {
+  if (theCPE != 0) {
   TrackingRecHitProjector<ProjectedRecHit2D> proj;
   const SiStripCluster& clust = *(originalHit().cluster());  
 
@@ -31,4 +32,7 @@ ProjectedRecHit2D::clone( const TrajectoryStateOnSurface& ts) const
   RecHitPointer hit = proj.project( *updatedOriginalHit, *det(), ts); 
 
   return hit;
+  }
+  /// FIXME: should report the problem somehow
+  else return clone();
 }
