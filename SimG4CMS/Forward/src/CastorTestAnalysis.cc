@@ -69,7 +69,7 @@ CastorTestAnalysis::~CastorTestAnalysis() {
     Finish();
   if (verbosity > 0) {
     std::cout << std::endl << "End of CastorTestAnalysis"
-      << std::cout << std::endl; 
+	      << std::endl; 
   }
   
   std::cout<<"CastorTestAnalysis: End of process"<<std::endl;
@@ -79,7 +79,7 @@ CastorTestAnalysis::~CastorTestAnalysis() {
 //=================================================================== per EVENT
 void CastorTestAnalysis::update(const BeginOfJob * job) {
 
-  cout << " Starting new job " << endl;
+  std::cout << " Starting new job " << std::endl;
 }
 
 //==================================================================== per RUN
@@ -182,10 +182,10 @@ void CastorTestAnalysis::update(const EndOfEvent * evt) {
 //  CaloG4HitCollection* theCABU = (CaloG4HitCollection*) allHC->GetHC(CABUid);
 //  CaloG4HitCollection* theCATU = (CaloG4HitCollection*) allHC->GetHC(CATUid);
 
- CastorNumberingScheme *theCastorNumScheme = new CastorNumberingScheme();
+  CastorNumberingScheme *theCastorNumScheme = new CastorNumberingScheme();
 
- unsigned int volumeID=0;
-  map<int,float,less<int> > themap;
+  unsigned int volumeID=0;
+  std::map<int,float,less<int> > themap;
   double en_in_fi = 0.;
   float totalEnergy = 0;
 //  double en_in_pl = 0.;
@@ -266,15 +266,15 @@ void CastorTestAnalysis::update(const EndOfEvent * evt) {
 	std::cout << "CASTORTest End Of Event  ERR: primary has p=0 " << std::endl;
       } else {   
 	float costheta = pz/pInit;
-	float theta = acos(min(max(costheta,float(-1.)),float(1.)));
+	float theta = acos(std::min(std::max(costheta,float(-1.)),float(1.)));
 	eta = -log(tan(theta/2));
 
 	if (px != 0) phi = atan(py/px);  
       }
       particleType	= thePrim->GetPDGcode();
     } else {
-      cout << "CASTORTest End Of Event ERR: could not find primary "
-		   << endl;
+      std::cout << "CASTORTest End Of Event ERR: could not find primary "
+		<< std::endl;
     }
     
     
@@ -291,7 +291,7 @@ void CastorTestAnalysis::update(const EndOfEvent * evt) {
   else if ((iEvt < 10000) && (iEvt%1000 == 0)) 
     std::cout << " CastorTest Event " << iEvt << std::endl;
 						 
-  std::cout << endl << "===>>> Done writing user histograms " << std::endl;
+  std::cout << std::endl << "===>>> Done writing user histograms " << std::endl;
 }
 
 void CastorTestAnalysis::update(const EndOfRun * run) {;}
