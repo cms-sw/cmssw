@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RootFile.cc,v 1.55 2007/03/04 06:29:05 wmtan Exp $
+$Id: RootFile.cc,v 1.56 2007/03/14 20:15:33 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "IOPool/Input/src/RootFile.h"
@@ -19,6 +19,11 @@ $Id: RootFile.cc,v 1.55 2007/03/04 06:29:05 wmtan Exp $
 #include "FWCore/ParameterSet/interface/Registry.h"
 //used for friendlyName translation
 #include "FWCore/Utilities/interface/FriendlyName.h"
+
+//used for backward compatibility
+#include "DataFormats/Provenance/interface/EventAux.h"
+#include "DataFormats/Provenance/interface/LuminosityBlockAux.h"
+#include "DataFormats/Provenance/interface/RunAux.h"
 
 #include "TTree.h"
 #include "Rtypes.h"
@@ -133,13 +138,6 @@ namespace edm {
     if (!fileFormatVersion_.isValid()) {
       fileFormatVersion_.value_ = 0;
     }
-    if (fileFormatVersion_.value_ <= 1 || !eventTree().isValid()) {
-      if (fileFormatVersion_.value_ <= 2) {
-	throw cms::Exception("FileNotCompatible","RootFile::RootFile()")
-          << "File " << file_ << " was written in an older release.\n"
-          "that is not backward compatible with the current release.\n";
-      }
-    } 
     assert(eventTree().isValid());
     assert(lumiTree().isValid());
     assert(runTree().isValid());
@@ -188,10 +186,17 @@ namespace edm {
   RootFile::read(ProductRegistry const& pReg) {
     EventAuxiliary evAux;
     EventAuxiliary *pEvAux = &evAux;
-    eventTree().fillAux<EventAuxiliary>(pEvAux);
-    if (fileFormatVersion_.value_ <= 1) {
+    if (fileFormatVersion_.value_ >= 3) {
+      eventTree().fillAux<EventAuxiliary>(pEvAux);
+    } else {
       // for backward compatibility.
-      evAux.luminosityBlock_ = 1;
+      EventAux evAux_;
+      EventAux *pEvAux_ = &evAux_;
+      eventTree().fillAux<EventAux>(pEvAux_);
+      conversion(evAux_, evAux);
+      if (fileFormatVersion_.value_ <= 1) {
+        evAux.luminosityBlock_ = 1;
+      }
     }
 
     bool isNewRun = (evAux.id().run() != eventAux().id().run() || luminosityBlockPrincipal_.get() == 0);
@@ -222,10 +227,17 @@ namespace edm {
     }
     RootTree::EntryNumber entry = runTree().getExactEntryNumber(runNumber, 0);
     RunAuxiliary runAux;
+    RunAuxiliary *pRunAux = &runAux;
     if (entry >= 0) {
       runTree().setEntryNumber(entry);
-      RunAuxiliary *pRunAux = &runAux;
-      runTree().fillAux<RunAuxiliary>(pRunAux);
+      if (fileFormatVersion_.value_ >= 3) {
+        runTree().fillAux<RunAuxiliary>(pRunAux);
+      } else {
+        RunAux runAux_;
+        RunAux *pRunAux_ = &runAux_;
+        runTree().fillAux<RunAux>(pRunAux_);
+        conversion(runAux_, runAux);
+      }
       assert(runNumber == runAux.run());
     } else {
       runAux = RunAuxiliary(runNumber);
@@ -252,10 +264,17 @@ namespace edm {
     }
     RootTree::EntryNumber entry = lumiTree().getExactEntryNumber(runNumber, lumiNumber);
     LuminosityBlockAuxiliary lumiAux;
+    LuminosityBlockAuxiliary *pLumiAux = &lumiAux;
     if (entry >= 0) {
       lumiTree().setEntryNumber(entry);
-      LuminosityBlockAuxiliary *pLumiAux = &lumiAux;
-      lumiTree().fillAux<LuminosityBlockAuxiliary>(pLumiAux);
+      if (fileFormatVersion_.value_ >= 3) {
+        lumiTree().fillAux<LuminosityBlockAuxiliary>(pLumiAux);
+      } else {
+        LuminosityBlockAux lumiAux_;
+        LuminosityBlockAux *pLumiAux_ = &lumiAux_;
+        lumiTree().fillAux<LuminosityBlockAux>(pLumiAux_);
+        conversion(lumiAux_, lumiAux);
+      }
       assert(lumiNumber == lumiAux.luminosityBlock());
       assert(runNumber == lumiAux.run());
     } else {
