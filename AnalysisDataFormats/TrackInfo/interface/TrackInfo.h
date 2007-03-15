@@ -8,11 +8,12 @@
  *
  * \author Chiara Genta
  *
- * \version $Id: TrackInfo.h,v 1.2 2007/02/07 12:35:30 genta Exp $
+ * \version $Id: TrackInfo.h,v 1.3 2007/02/28 14:38:43 genta Exp $
  *
  */
 
 #include "AnalysisDataFormats/TrackInfo/interface/TrackInfoFwd.h"
+#include "AnalysisDataFormats/TrackInfo/interface/TrackingRecHitInfo.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrajectoryState/interface/PTrajectoryStateOnDet.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
@@ -23,7 +24,7 @@ namespace reco {
    class TrackInfo{
   public:
     /// default constructor
-    typedef std::map<TrackingRecHitRef , PTrajectoryStateOnDet >  TrajectoryInfo;
+    typedef std::map<TrackingRecHitRef , reco::TrackingRecHitInfo >  TrajectoryInfo;
     TrackInfo() {}
 
     TrackInfo( const TrajectorySeed & seed_, const TrajectoryInfo & trajstate);
@@ -32,9 +33,15 @@ namespace reco {
 
     const TrajectorySeed &seed() const;
 
+    const reco::TrackingRecHitInfo::RecHitType  type(TrackingRecHitRef ) const;
+    
     const PTrajectoryStateOnDet &stateOnDet(TrackingRecHitRef ) const;
 
     const LocalVector localTrackMomentum(TrackingRecHitRef ) const;
+
+    const LocalVector localTrackMomentumOnMono(TrackingRecHitRef ) const;
+
+    const LocalVector localTrackMomentumOnStereo(TrackingRecHitRef ) const;
 
     const LocalPoint localTrackPosition(TrackingRecHitRef ) const;
 
