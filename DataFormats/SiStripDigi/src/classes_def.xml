@@ -27,6 +27,8 @@
 
  <class name="SiStripEventSummary"/>
  <class name="edm::Wrapper<SiStripEventSummary>"/>
+ <class name="std::vector<sistrip::ApvReadoutMode>"/>
+ <class name="std::vector<sistrip::RunType>"/>
 
 </lcgdict>
 

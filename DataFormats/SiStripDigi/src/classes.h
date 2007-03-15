@@ -31,7 +31,7 @@ namespace {
 }
 
 #include "DataFormats/SiStripDigi/interface/SiStripDigiCollection.h"
-#include "DataFormats/SiStripCommon/interface/SiStripEnumeratedTypes.h"
+#include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "boost/cstdint.hpp"
 namespace {
   namespace {
@@ -60,13 +60,13 @@ namespace {
 }
 
 #include "DataFormats/SiStripDigi/interface/SiStripEventSummary.h"
-#include "DataFormats/SiStripCommon/interface/SiStripEnumeratedTypes.h"
+#include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 namespace {
   namespace {
-    edm::Wrapper<sistrip::Task > task;
-    edm::Wrapper<sistrip::FedReadoutMode > fed_mode;
-    edm::Wrapper<SiStripEventSummary > summary;
-
+    edm::Wrapper< sistrip::RunType > run_type;
+    edm::Wrapper< sistrip::FedReadoutMode > fed_mode;
+    edm::Wrapper< sistrip::ApvReadoutMode > apv_mode;
+    edm::Wrapper< SiStripEventSummary > summary;
   }
 }
 
