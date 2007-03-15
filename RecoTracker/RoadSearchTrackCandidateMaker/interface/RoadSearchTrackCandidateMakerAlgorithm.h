@@ -12,9 +12,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Wed Mar 15 13:00:00 UTC 2006
 //
-// $Author: burkett $
-// $Date: 2007/01/17 23:17:37 $
-// $Revision: 1.6 $
+// $Author: gutsche $
+// $Date: 2007/03/01 08:18:19 $
+// $Revision: 1.7 $
 //
 
 #include <string>
@@ -95,5 +95,19 @@ class RoadSearchTrackCandidateMakerAlgorithm
   TrajectoryStateUpdator* theUpdator;
   MeasurementEstimator* theEstimator;
 };
+
+class CosmicCompareY {
+ public:
+  CosmicCompareY(const TrackerGeometry& tracker):_tracker(tracker){}
+  bool operator()( const TrackingRecHit& rh1,
+		   const TrackingRecHit& rh2) const
+  {
+    GlobalPoint gp1=_tracker.idToDet(rh1.geographicalId())->surface().toGlobal(rh1.localPosition());
+    GlobalPoint gp2=_tracker.idToDet(rh2.geographicalId())->surface().toGlobal(rh2.localPosition());
+    return gp1.y()<gp2.y();};
+ private:
+  const TrackerGeometry& _tracker;
+};
+
 
 #endif

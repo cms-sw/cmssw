@@ -10,8 +10,8 @@
 // Created:         Wed Mar 15 13:00:00 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2007/03/07 21:46:52 $
-// $Revision: 1.29 $
+// $Date: 2007/03/15 20:20:09 $
+// $Revision: 1.30 $
 //
 
 #include <vector>
@@ -160,8 +160,15 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
     
     RoadSearchCloud::SeedRefs theSeeds = cloud->seeds();
     RoadSearchCloud::SeedRefs::const_iterator iseed;
-    recHits.sort(TrackingRecHitLessFromGlobalPosition(((TrackingGeometry*)(&(*tracker))),alongMomentum));
-    
+
+    //recHits.sort(TrackingRecHitLessFromGlobalPosition(((TrackingGeometry*)(&(*tracker))),alongMomentum));
+    if (!NoFieldCosmic_){
+      recHits.sort(TrackingRecHitLessFromGlobalPosition(tracker.product(),alongMomentum));
+    }
+    else {
+      recHits.sort(CosmicCompareY(*tracker));
+    }
+
     // make a list of layers in cloud and mark stereo layers
     const int max_layers = 128;
     const DetLayer* layers[max_layers];
