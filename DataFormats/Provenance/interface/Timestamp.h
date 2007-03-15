@@ -2,7 +2,7 @@
 #define DataFormats_Provenance_Timestamp_h
 // -*- C++ -*-
 //
-// Package:     EDProduct
+// Package:     DataFormats/Provenance
 // Class:      Timestamp
 // 
 /**\class Timestamp Timestamp.h DataFormats/Provenance/interface/Timestamp.h

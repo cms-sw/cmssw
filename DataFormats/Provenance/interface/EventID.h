@@ -2,7 +2,7 @@
 #define DataFormats_Provenance_EventID_h
 // -*- C++ -*-
 //
-// Package:     EDProduct
+// Package:     DataFormats/Provenance
 // Class  :     EventID
 // 
 /**\class EventID EventID.h DataFormats/Provenance/interface/EventID.h
@@ -17,7 +17,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Aug  8 15:13:14 EDT 2005
-// $Id: EventID.h,v 1.6 2006/12/18 19:15:18 wmtan Exp $
+// $Id: EventID.h,v 1.1 2007/03/04 04:48:08 wmtan Exp $
 //
 
 // system include files
