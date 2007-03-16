@@ -1,0 +1,14 @@
+<use name=FWCore/Framework>
+<use name=Foundation/PluginManager>
+<use name=FWCore/ParameterSet>
+<use name=CondFormats/L1TObjects>
+<use name=CondFormats/DataRecord>
+<flags SEAL_PLUGIN_NAME="L1TriggerConfigGctConfigProducers">
+<export>
+   <lib name=L1TriggerConfigGctConfigProducers>
+   <use name=FWCore/Framework>
+   <use name=Foundation/PluginManager>
+   <use name=FWCore/ParameterSet>
+   <use name=CondFormats/L1TObjects>
+   <use name=CondFormats/DataRecord>
+</export>
