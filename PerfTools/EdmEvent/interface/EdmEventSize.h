@@ -60,8 +60,8 @@ namespace perftools {
     /// sort by name
     void sortAlpha();
     
-    /// transform Branch names in "short" prodcut identifiers
-    void shortNames();
+    /// transform Branch names in "formatted" prodcut identifiers
+    void formatNames();
 
     /// dump the ascii table on "co"
     void dump(std::ostream & co, bool header=true) const;

@@ -126,6 +126,7 @@ namespace perftools {
   }
 
   namespace detail {
+    // format as product:label (type)
     void shorterName(EdmEventSize::BranchRecord & br) {
       size_t b = br.fullName.find('_');
       size_t e = br.fullName.rfind('_');
@@ -133,17 +134,17 @@ namespace perftools {
       else {
 	// remove type and process
 	br.name = br.fullName.substr(b+1,e-b-1);
-	// check if a label is present
-	// if not add the type name
-	if (*br.name.rbegin()=='_') {
-	  br.name.append(br.fullName.substr(0,b));
-	}
+	// change label separator in :
+	e = br.name.rfind('_');
+	if (e!=std::npos) br.replace(e,1,":");
+	// add the type name
+	br.name.append(" ("+br.fullName.substr(0,b)+")");
       }
     }
 
   }
   
-  void EdmEventSize::shortNames() {
+  void EdmEventSize::formatNames() {
     std::for_each(m_branches.begin(),m_branches.end(),
 		  &detail::shorterName);
   }
