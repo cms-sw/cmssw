@@ -31,9 +31,8 @@
    @brief A plug-in module that takes a FEDRawDataCollection as input
    from the Event and creates EDProducts containing StripClusters.
 */
+
 class SiStripRawToClustersModule : public edm::EDProducer {
-  
-  typedef std::vector<edm::ParameterSet> Parameters;
   
  public:
   
@@ -54,11 +53,18 @@ class SiStripRawToClustersModule : public edm::EDProducer {
   edm::ESHandle<SiStripFedCabling> fedCabling_;
   SiStripDetCabling* detCabling_;
 
+  //Input labels
+  std::string productLabel_;
+  std::string productInstance_;
+
   //Fed Unpacking
   int16_t headerBytes_;
   int16_t dumpFrequency_;
   int16_t triggerFedId_;
   bool useFedKey_;
+
+  //Clusters container
+  std::vector< edm::DetSet<SiStripCluster> > clusters_;
 
   //Fed9UEvent cache
   std::vector< Fed9U::Fed9UEvent* > fedEvents_;
