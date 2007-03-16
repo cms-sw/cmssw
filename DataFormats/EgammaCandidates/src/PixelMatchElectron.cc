@@ -29,7 +29,7 @@ PixelMatchElectron::PixelMatchElectron(const SuperClusterRef scl, const TrackRef
   setCharge(track_->charge());
   setP4(momentum);
   setVertex(Point(track_->vertex()));
-  setPdgId( -11 * charge() );
+  //  setPdgId( -11 * charge() );
 
   math::XYZPoint trackPos= track_->vertex();
   trackPositionAtVtx_=math::XYZVector(trackPos.x(),trackPos.y(),trackPos.z());

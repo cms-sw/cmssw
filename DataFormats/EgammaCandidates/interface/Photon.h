@@ -6,7 +6,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Photon.h,v 1.8 2007/02/26 15:52:56 llista Exp $
+ * \version $Id: Photon.h,v 1.9 2007/03/13 09:28:37 llista Exp $
  *
  */
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
@@ -22,7 +22,7 @@ namespace reco {
     Photon( Charge q, const LorentzVector & p4, Point unconvPos,
 	    double r9, double r19, double e5x5, bool hasPixelSeed=false,
 	    const Point & vtx = Point( 0, 0, 0 ) ) : 
-      RecoCandidate( q, p4, vtx, 22 ), unconvPosition_( unconvPos ), 
+      RecoCandidate( q, p4, vtx /*, 22 */ ), unconvPosition_( unconvPos ), 
       r9_( r9 ), r19_( r19 ), e5x5_( e5x5 ), pixelSeed_( hasPixelSeed ) { }
     /// destructor
     virtual ~Photon();
@@ -46,7 +46,8 @@ namespace reco {
     double e5x5() const { return e5x5_; }
     /// Whether or not the SuperCluster has a matched pixel seed
     bool hasPixelSeed() const { return pixelSeed_; }
-
+    ///
+    int pdgId() const { return 22; }
   private:
     /// check overlap with another candidate
     virtual bool overlap( const Candidate & ) const;
