@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Alex Tapper
 //         Created:  Fri Mar  9 19:11:51 CET 2007
-// $Id$
+// $Id: SourceCardTextToRctDigi.cc,v 1.1 2007/03/12 18:30:05 tapper Exp $
 //
 //
 
@@ -23,6 +23,9 @@ Implementation:
 
 using namespace edm;
 using namespace std;
+
+// Set constant
+const static unsigned NUM_RCT_CRATES = 18;
 
 SourceCardTextToRctDigi::SourceCardTextToRctDigi(const edm::ParameterSet& iConfig):
   m_textFileName(iConfig.getParameter<std::string>("TextFileName"))
@@ -36,7 +39,7 @@ SourceCardTextToRctDigi::SourceCardTextToRctDigi(const edm::ParameterSet& iConfi
 
   if(!m_file.good())
     {
-      throw cms::Exception("SourceCardtextToRctDigiTextFileOpenError")
+      throw cms::Exception("SourceCardTextToRctDigiTextFileOpenError")
         << "SourceCardTextToRctDigi::SourceCardTextToRctDigi : "
         << " couldn't open the file " << m_textFileName << " for reading" << endl;
     }
@@ -74,14 +77,22 @@ void SourceCardTextToRctDigi::produce(edm::Event& iEvent, const edm::EventSetup&
   unsigned short Qbits[7];
   string dataString; 
 
-  while (getline(m_file,dataString)){
+  // Have to read one line per RCT crate, though order doesn't matter
+  for (int i=0; i<NUM_RCT_CRATES; i++){  
+
+    if(!getline(m_file,dataString))
+    {
+      throw cms::Exception("SourceCardTextToRctDigiTextFileReadError")
+        << "SourceCardTextToRctDigi::SourceCardTextToRctDigi : "
+        << " couldn't read from the file " << m_textFileName << endl;
+    }   
 
     // Convert the string to useful info
     m_scRouting.STRINGtoVHDCI(logicalCardID,eventNumber,dataString,VHDCI);
  
     // Are we looking at electrons or regions
     m_scRouting.LogicalCardIDtoRoutingMode(logicalCardID,routingMode,crate); 
-
+    
     if (routingMode==0){     
 
       // Electrons
@@ -112,9 +123,8 @@ void SourceCardTextToRctDigi::produce(edm::Event& iEvent, const edm::EventSetup&
         << "SourceCardTextToRctDigi::produce : "
         << " can't handle routing mode=" << routingMode << " (yet!)" << endl;
     }
-
   }
- 
+
   iEvent.put(em);
   iEvent.put(rgn);
 }
