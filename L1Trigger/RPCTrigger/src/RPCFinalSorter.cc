@@ -37,11 +37,11 @@ L1RpcTBMuonsVec2 RPCFinalSorter::run(L1RpcTBMuonsVec2 &tcsMuonsVec2) {
         for (unsigned  int iTB = 0; iTB < tcsMuonsVec2[region].size(); iTB++){
 #ifndef _STAND_ALONE
             LogDebug("RPCHwDebug")<<"GB 4" << region
-	        << "0 "
+	        << "0 " << iTB << " "
                 << tcsMuonsVec2[region][iTB].printDebugInfo(m_TrigCnfg->getDebugLevel());
 #else
             std::cout<<"GB 4" << region 
-	        << "0 "
+	        << "0 " << iTB << " "
                 << tcsMuonsVec2[region][iTB].printDebugInfo(m_TrigCnfg->getDebugLevel())
                 << std::endl;
 #endif

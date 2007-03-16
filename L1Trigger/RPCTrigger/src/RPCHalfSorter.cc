@@ -133,12 +133,12 @@ L1RpcTBMuonsVec2 RPCHalfSorter::run(L1RpcTBMuonsVec2 &tcsMuonsVec2) {
 	    halfNum = 1;
 	  }
 #ifndef _STAND_ALONE
-            LogDebug("RPCHwDebug")<<"GB 3"<< region <<halfNum
-	        << " " 
+            LogDebug("RPCHwDebug")<<"GB 3"<< region <<halfNum  
+	        << " " << i << " "
                 << m_GBOutputMuons[region][i].printDebugInfo(m_TrigCnfg->getDebugLevel());
 #else
             std::cout <<"GB 3" << region<< halfNum
-	        << " "
+	        << " " << i << " "
                 << m_GBOutputMuons[region][i].printDebugInfo(m_TrigCnfg->getDebugLevel())
                 << std::endl;
 #endif 
