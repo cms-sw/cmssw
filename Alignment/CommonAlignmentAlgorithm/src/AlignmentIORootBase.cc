@@ -3,6 +3,14 @@
 
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentIORootBase.h"
 
+#include "TFile.h"
+#include "TTree.h"
+
+AlignmentIORootBase::~AlignmentIORootBase()
+{
+  delete myFile; // tree is deleted automatically with file
+}
+
 // ----------------------------------------------------------------------------
 // open file/trees for write
 
@@ -19,31 +27,29 @@ int AlignmentIORootBase::openRoot(const char* filename, int iteration, bool writ
     if (iterfile == -1) {
       iter=iteration;
 	  edm::LogInfo("AlignmentIORootBase") << "Write to new file; first iteration: " << iter ;
-      IORoot = new TFile(filename,"recreate");
+	  myFile = TFile::Open(filename,"recreate");
     } else {
       if (iteration == -1) {
         iter=iterfile+1;
 		edm::LogInfo("AlignmentIORootBase") 
 		  << "Write to existing file; highest iteration: " << iter;
-      }
-      else {
+      } else {
         if (iteration<=iterfile) {
-		  edm::LogError("AlignmentIORootBase") 
-			<< "Iteration " << iteration 
-			<<" invalid or already exists for tree " << treename;
+          edm::LogError("AlignmentIORootBase") 
+            << "Iteration " << iteration 
+            <<" invalid or already exists for tree " << treename;
 		  return -1;
         }
         iter = iteration;
         edm::LogInfo("AlignmentIORootBase")  << "Write to new iteration: " << iter;
       }
-      IORoot = new TFile(filename,"update");
+      myFile = TFile::Open(filename,"update");
 	  
     }
 
-    IORoot->cd();
-
     // create tree
-	edm::LogInfo("AlignmentIORootBase") << "Tree: " << treeName(iter,treename);
+    myFile->cd();
+    edm::LogInfo("AlignmentIORootBase") << "Tree: " << treeName(iter,treename);
     tree = new TTree(treeName(iter,treename),treetxt);
     createBranches();
 
@@ -51,34 +57,34 @@ int AlignmentIORootBase::openRoot(const char* filename, int iteration, bool writ
 
     int iterfile = testFile(filename,treename);
     if ( iterfile == -1 ) {
-	  edm::LogError("AlignmentIORootBase") << "File does not exist!";
+      edm::LogError("AlignmentIORootBase") << "File does not exist!";
       return -1;
     } else if ( iterfile == -2 ) {
-	  edm::LogError("AlignmentIORootBase") << "Tree " << treename 
-										   << " does not exist in file " << filename;
+      edm::LogError("AlignmentIORootBase") << "Tree " << treename 
+                                           << " does not exist in file " << filename;
       return -1;
     } else {
       if (iteration == -1) {
         iter=iterfile;
-		edm::LogInfo("AlignmentIORootBase") << "Read from highest iteration: " << iter;
+        edm::LogInfo("AlignmentIORootBase") << "Read from highest iteration: " << iter;
       } else {
         if (iteration>iterfile) {
-		  edm::LogError("AlignmentIORootBase")
-			<<"Iteration " << iteration << " does not exist for tree " << treename;
-		  return -1;
+        edm::LogError("AlignmentIORootBase")
+          << "Iteration " << iteration << " does not exist for tree " << treename;
+	return -1;
         }
         iter = iteration;
         edm::LogInfo("AlignmentIORootBase")  << "Read from specified iteration: " << iter;
       }
-      IORoot = new TFile(filename,"update");
+      myFile = TFile::Open(filename, "read");
     }
 
-    IORoot->cd();
+    myFile->cd();
     // set trees
     edm::LogInfo("AlignmentIORootBase") <<" Tree: " <<treeName(iter,treename);
-    tree = (TTree*)IORoot->Get(treeName(iter,treename));
+    tree = (TTree*)myFile->Get(treeName(iter,treename));
     if (tree==NULL) {
-	  edm::LogError("AlignmentIORootBase") <<"Tree does not exist in file!";
+      edm::LogError("AlignmentIORootBase") <<"Tree does not exist in file!";
       return -1;
     }
     setBranchAddresses();
@@ -93,16 +99,12 @@ int AlignmentIORootBase::openRoot(const char* filename, int iteration, bool writ
 int AlignmentIORootBase::closeRoot(void)
 {
   if (bWrite) { //writing
-    IORoot->cd();
     tree->Write();
-    tree->Delete();
-    IORoot->Close();
   }
-  else { // reading
-    IORoot->cd();
-    tree->Delete();
-    IORoot->Close();
-  }
+
+  delete myFile;
+  myFile = 0;
+  tree = 0; // deleted with file
 
   return 0;
 }
@@ -117,16 +119,15 @@ int AlignmentIORootBase::testFile(const char* filename, const TString &tname)
   testFILE = fopen(filename,"r");
   if (testFILE == NULL) {
     return -1;
-  }
-  else {
+  } else {
     fclose(testFILE);
     int ihighest=-2;
-    TFile IORoot(filename,"update");
+    TFile *aFile = TFile::Open(filename,"read");
     for (int iter=0; iter<itermax; iter++) {
-      if ((0 != (TTree*)IORoot.Get(treeName(iter,tname))) 
-         && (iter>ihighest)) ihighest=iter; 
+      if ((0 != (TTree*)aFile->Get(treeName(iter,tname))) 
+	  && (iter>ihighest)) ihighest=iter; 
     }
-    IORoot.Close();
+    delete aFile;
     return ihighest;
   }
 }

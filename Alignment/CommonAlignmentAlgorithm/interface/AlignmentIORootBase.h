@@ -1,17 +1,10 @@
 #ifndef Alignment_CommonAlignmentAlgorithm_AlignmentIORootBase_h
 #define Alignment_CommonAlignmentAlgorithm_AlignmentIORootBase_h
 
-#include "TFile.h"
-#include "TTree.h"
-#include "TVector.h"
 #include "TString.h"
 
-#include <string>
-#include <iostream>
-#include <vector>
-#include <map>
-
-#include "Alignment/CommonAlignment/interface/Alignable.h"
+class TFile;
+class TTree;
 
 /// Base class for ROOT-based I/O of Alignment parameters etc. 
 
@@ -19,9 +12,10 @@ class AlignmentIORootBase
 {
 
   protected:
-
+  /// constructor
+  AlignmentIORootBase() : tree(0), myFile(0) {}
   /// destructor 
-  virtual ~AlignmentIORootBase(){};
+  virtual ~AlignmentIORootBase();
 
   /// open IO 
   int openRoot(const char* filename, int iteration, bool writemode);
@@ -43,7 +37,6 @@ class AlignmentIORootBase
 
   // data members
 
-  TFile* IORoot; // root file
   TTree* tree; // root tree
   TString treename; // tree identifier name
   TString treetxt;  // tree text
@@ -52,6 +45,8 @@ class AlignmentIORootBase
   const static int nParMax = 6;    // maximal number of Parameters
   const static int itermax = 1000; // max iteration to test for
 
+ private:
+  TFile* myFile; // root file
 };
 
 #endif
