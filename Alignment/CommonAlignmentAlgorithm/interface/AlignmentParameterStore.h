@@ -3,7 +3,9 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
+// #include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
+#include "Geometry/CommonDetAlgo/interface/AlgebraicObjects.h" // FIXME: backport of include 
+
 #include "Alignment/CommonAlignmentParametrization/interface/CompositeAlignmentParameters.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentCorrelationsStore.h"
 // needed for  AlignableShifts, AlignablePositions:
@@ -13,9 +15,9 @@
 ///
 /// Basic class for management of alignment parameters and correlations 
 ///
-///  $Date: 2007/02/12 16:06:18 $
-///  $Revision: 1.7 $
-/// (last update by $Author: flucke $)
+///  $Date: 2007/03/02 12:16:55 $
+///  $Revision: 1.8 $
+/// (last update by $Author: fronga $)
 
 class GeomDet;
 class Alignable;
@@ -115,6 +117,20 @@ public:
 
   /// Obtain type and layer from Alignable 
   std::pair<int,int> typeAndLayer( const Alignable* ali ) const;
+
+  /// a single alignable parameter of an Alignable
+  typedef std::pair<Alignable*, unsigned int> ParameterId;
+  /// Assuming aliMaster has (sub-)components aliComps with parameters
+  /// (cf. Alignable::firstParamComponents), paramIdsVecOut and factorsVecOut will be filled
+  /// (in parallel) with constraints on the alignment parameters of aliMaster to get rid of the
+  /// addionally introduced degrees of freedom:
+  /// The 'vector product' of the parameters identified by ParameterId in std::vector<ParameterId>
+  /// and the factors in std::vector<float> has to vanish (i.e. == 0.),
+  /// |factor| < epsilon will be treated as 0.
+  bool hierarchyConstraints(const Alignable *aliMaster, const Alignables &aliComps,
+			    std::vector<std::vector<ParameterId> > &paramIdsVecOut,
+			    std::vector<std::vector<float> > &factorsVecOut,
+			    float epsilon = 1.e-15) const;
 
 protected:
 

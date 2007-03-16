@@ -1,8 +1,8 @@
 /**
  * \file AlignmentParameterStore.cc
  *
- *  $Revision: 1.10 $
- *  $Date: 2007/03/12 21:39:04 $
+ *  $Revision: 1.11 $
+ *  $Date: 2007/03/12 21:55:54 $
  *  (last update by $Author: cklae $)
  */
 
@@ -14,6 +14,7 @@
 
 #include "Alignment/CommonAlignment/interface/Utilities.h"
 #include "Alignment/CommonAlignmentParametrization/interface/RigidBodyAlignmentParameters.h"
+#include "Alignment/CommonAlignmentParametrization/interface/FrameToFrameDerivative.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentCorrelationsStore.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentExtendedCorrelationsStore.h"
 
@@ -556,4 +557,50 @@ void AlignmentParameterStore::setAlignmentPositionError( const Alignables& alive
 
   LogDebug("StoreAPE") << "Store APE from shift: " << valshift;
   LogDebug("StoreAPE") << "Store APE from rotation: " << valrot;
+}
+
+//__________________________________________________________________________________________________
+bool AlignmentParameterStore
+::hierarchyConstraints(const Alignable *ali, const Alignables &aliComps,
+		       std::vector<std::vector<ParameterId> > &paramIdsVecOut,
+		       std::vector<std::vector<float> > &factorsVecOut,
+		       float epsilon) const
+{
+  // Weak point:
+  // Ignores constraints between non-subsequent levels in case the parameter is not considered in
+  // the intermediate level, e.g. global z for dets and layers is aligned, but not for rods!
+  if (!ali || !ali->alignmentParameters()) return false;
+
+  const std::vector<bool> &aliSel= ali->alignmentParameters()->selector();
+  paramIdsVecOut.clear();
+  factorsVecOut.clear();
+  FrameToFrameDerivative f2fDerivMaker;
+
+  bool firstComp = true;
+  for (Alignables::const_iterator iComp = aliComps.begin(), iCompE = aliComps.end();
+       iComp != iCompE; ++iComp) {
+    const AlgebraicMatrix f2fDeriv(f2fDerivMaker.frameToFrameDerivative(*iComp, ali));
+    const std::vector<bool> &aliCompSel = (*iComp)->alignmentParameters()->selector();
+    for (unsigned int iParMast = 0, iParMastUsed = 0; iParMast < aliSel.size(); ++iParMast) {
+      if (!aliSel[iParMast]) continue; // nothing to constrain if no parameter at higher level
+      if (firstComp) { // fill output with empty arrays 
+	paramIdsVecOut.push_back(std::vector<ParameterId>());
+	factorsVecOut.push_back(std::vector<float>());
+      }
+      for (int iParComp = 0; iParComp < f2fDeriv.num_col(); ++iParComp) {
+// 	if (aliCompSel[iParMast] && aliCompSel[iParComp]) {
+	if (aliCompSel[iParComp]) {
+	  const float factor = f2fDeriv[iParMast][iParComp]; // switch col/row? GF: Should be fine.
+	  if (fabs(factor) > epsilon) {
+	    paramIdsVecOut[iParMastUsed].push_back(ParameterId(*iComp, iParComp));
+	    factorsVecOut[iParMastUsed].push_back(factor);
+	  }
+	}
+      }
+      ++iParMastUsed;
+    }
+    firstComp = false;
+  } // end loop on components
+
+  return true;
 }
