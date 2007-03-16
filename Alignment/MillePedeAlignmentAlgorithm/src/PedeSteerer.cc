@@ -3,8 +3,8 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.8 $
- *  $Date: 2007/02/13 12:03:11 $
+ *  $Revision: 1.9 $
+ *  $Date: 2007/03/05 12:19:34 $
  *  (last update by $Author: flucke $)
  */
 
@@ -16,12 +16,11 @@
 #include "Alignment/TrackerAlignment/interface/TrackerAlignableId.h"
 #include "Alignment/CommonAlignment/interface/Alignable.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterStore.h"
-#include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterSelector.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/SelectionUserVariables.h"
 #include "Alignment/CommonAlignmentParametrization/interface/RigidBodyAlignmentParameters.h"
 
-// #include "Geometry/Vector/interface/GlobalPoint.h"
-#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+//#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "Geometry/Vector/interface/GlobalPoint.h" // FIXME: backport of include 
 
 #include <fstream>
 #include <algorithm>
@@ -34,12 +33,13 @@ const unsigned int PedeSteerer::theMinLabel = 1; // must be > 0
 
 //___________________________________________________________________________
 
-PedeSteerer::PedeSteerer(Alignable *highestLevelAlignable, const std::vector<Alignable*> &alis,
-                         const edm::ParameterSet &config) :
-  myConfig(config)
+PedeSteerer::PedeSteerer(Alignable *highestLevelAlignable, AlignmentParameterStore *store,
+			 const edm::ParameterSet &config) :
+  myParameterStore(store), myConfig(config)
 {
 
-  this->buildMap(highestLevelAlignable);
+  this->buildMap(highestLevelAlignable); //has to be done first
+  const std::vector<Alignable*> &alis = myParameterStore->alignables();  
 
   const std::string nameFixFile(this->fileName("FixPara"));
   const std::pair<unsigned int, unsigned int> nFixFixCor(this->fixParameters(alis, nameFixFile));
@@ -163,6 +163,7 @@ Alignable* PedeSteerer::alignableFromLabel(unsigned int label) const
 //_________________________________________________________________________
 double PedeSteerer::cmsToPedeFactor(unsigned int parNum) const
 {
+  return 1.; // mmh, otherwise would need to FIXME hierarchyConstraint...
 
   switch (parNum) {
   case RigidBodyAlignmentParameters::dx:
@@ -178,6 +179,12 @@ double PedeSteerer::cmsToPedeFactor(unsigned int parNum) const
   default:
     return 1.;
   }
+}
+
+//_________________________________________________________________________
+double PedeSteerer::parameterSign() const
+{
+  return -1.;
 }
 
 //_________________________________________________________________________
@@ -262,7 +269,7 @@ int PedeSteerer::fixParameter(Alignable *ali, unsigned int iParam, char selector
   int result = 0;
   float fixAt = 0.;
   if (selector == 'c') {
-    fixAt = RigidBodyAlignmentParameters(ali).parameters()[iParam];
+    fixAt = -this->parameterSign() * RigidBodyAlignmentParameters(ali).parameters()[iParam];
     result = -1;
   } else if (selector == 'f') {
     result = 1;
@@ -291,10 +298,76 @@ int PedeSteerer::fixParameter(Alignable *ali, unsigned int iParam, char selector
 unsigned int PedeSteerer::hierarchyConstraints(const std::vector<Alignable*> &alis,
                                                const std::string &fileName)
 {
-  edm::LogWarning("Alignment") << "@SUB=PedeSteerer::hierarchyConstraints"
-                               << "Hierarchy constraints not yet implemented!";
+  std::ofstream *filePtr = 0;
 
-  return 0;
+  unsigned int nConstraints = 0;
+  std::vector<Alignable*> aliDaughts;
+  for (std::vector<Alignable*>::const_iterator iA = alis.begin(), iEnd = alis.end();
+       iA != iEnd; ++iA) {
+    aliDaughts.clear();
+    if (!(*iA)->firstCompsWithParams(aliDaughts)) {
+      edm::LogError("Alignment") << "@SUB=PedeSteerer::hierarchyConstraints"
+                                 << "Some but not all daughters with params!";
+    }
+//     edm::LogInfo("Alignment") << "@SUB=PedeSteerer::hierarchyConstraints"
+// 			      << aliDaughts.size() << " ali param components";
+    if (aliDaughts.empty()) continue;
+//     edm::LogInfo("Alignment") << "@SUB=PedeSteerer::hierarchyConstraints"
+// 			      << aliDaughts.size() << " alignable components ("
+// 			      << (*iA)->size() << " in total) for " 
+// 			      << aliId.alignableTypeName(*iA) 
+// 			      << ", layer " << aliId.typeAndLayerFromAlignable(*iA).second
+// 			      << ", position " << (*iA)->globalPosition()
+// 			      << ", r = " << (*iA)->globalPosition().perp();
+    if (!filePtr) filePtr = this->createSteerFile(fileName, true);
+    ++nConstraints;
+    this->hierarchyConstraint(*iA, aliDaughts, *filePtr);
+  }
+
+  delete filePtr; // automatically flushes, no problem if NULL ptr.   
+
+  return nConstraints;
+}
+
+//_________________________________________________________________________
+void PedeSteerer::hierarchyConstraint(const Alignable *ali,
+                                      const std::vector<Alignable*> &components,
+                                      std::ofstream &file) const
+{
+  typedef AlignmentParameterStore::ParameterId ParameterId;
+
+  std::vector<std::vector<ParameterId> > paramIdsVec;
+  std::vector<std::vector<float> > factorsVec;
+  if (!myParameterStore->hierarchyConstraints(ali, components, paramIdsVec, factorsVec)) {
+    edm::LogWarning("Alignment") << "@SUB=PedeSteerer::hierarchyConstraint"
+				 << "Problems from store.";
+  }
+
+  for (unsigned int iConstr = 0; iConstr < paramIdsVec.size(); ++iConstr) {
+    if (true) { //debug
+      TrackerAlignableId aliId;
+      file << "\n* Nr. " << iConstr << " of " << aliId.alignableTypeName(ali) << " " 
+	   << this->alignableLabel(const_cast<Alignable*>(ali)) // ugly cast: FIXME!
+	   << ", layer " << aliId.typeAndLayerFromAlignable(ali).second
+	   << ", position " << ali->globalPosition()
+	   << ", r = " << ali->globalPosition().perp();
+    }
+    file << "\nConstraint   0.\n"; // in future 'Wconstraint'?
+    const std::vector<ParameterId> &parIds = paramIdsVec[iConstr];
+    const std::vector<float> &factors = factorsVec[iConstr];
+    // parIds.size() == factors.size() granted by myParameterStore->hierarchyConstraints
+    for (unsigned int iParam = 0; iParam < parIds.size(); ++iParam) {
+      const unsigned int aliLabel = this->alignableLabel(parIds[iParam].first);
+      const unsigned int paramLabel = this->parameterLabel(aliLabel, parIds[iParam].second);
+      if (true) { // debug
+	file << "* for param " << parIds[iParam].second << " of " << aliLabel << "\n";
+      }
+      // FIXME: multiply by cmsToPedeFactor(subcomponent)/cmsToPedeFactor(mother) (or vice a versa?)
+      file << paramLabel << "    " << factors[iParam] << "\n";
+    }
+  } // end loop on constraints
+
+
 }
 
 //_________________________________________________________________________
@@ -334,12 +407,6 @@ std::string PedeSteerer::directory() const
   }
 
   return dir;
-}
-
-//_________________________________________________________________________
-std::string PedeSteerer::pedeOutFile() const
-{
-  return "millepede.res"; // fixme: needs improvement: directory!
 }
 
 //_________________________________________________________________________
@@ -402,7 +469,11 @@ bool PedeSteerer::runPede(const std::string &masterSteer) const
   edm::LogInfo("Alignment") << "@SUB=PedeSteerer::runPede" << "Start running " << command;
   // FIXME: Recommended interface to system commands?
   int shellReturn = gSystem->Exec(command.c_str());
-  edm::LogInfo("Alignment") << "@SUB=PedeSteerer::runPede" << "Pede command returns " << shellReturn;
+  if (shellReturn) {
+    edm::LogError("Alignment") << "@SUB=PedeSteerer::runPede" << "Command returns " << shellReturn;
+  } else {
+    edm::LogInfo("Alignment") << "@SUB=PedeSteerer::runPede" << "Command returns " << shellReturn;
+  }
 
   return !shellReturn;
 }

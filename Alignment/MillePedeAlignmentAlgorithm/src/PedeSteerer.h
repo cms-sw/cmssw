@@ -8,8 +8,8 @@
  *
  * \author    : Gero Flucke
  * date       : October 2006
- * $Date: 2007/01/25 10:08:54 $
- * $Revision: 1.6 $
+ * $Date: 2007/02/13 12:03:11 $
+ * $Revision: 1.7 $
  * (last update by $Author: flucke $)
  */
 
@@ -22,14 +22,15 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 class Alignable;
+class AlignmentParameterStore;
 
 /***************************************
 ****************************************/
 class PedeSteerer
 {
  public:
-  /// constructor from e.g. AlignableTracker and the Alignables from the ParameterStore
-  PedeSteerer(Alignable *highestLevelAlignable, const std::vector<Alignable*> &alignables,
+  /// constructor from e.g. AlignableTracker and the AlignmentParameterStore
+  PedeSteerer(Alignable *highestLevelAlignable, AlignmentParameterStore *store,
 	      const edm::ParameterSet &config);
   /** non-virtual destructor: do not inherit from this class */
   ~PedeSteerer();
@@ -51,8 +52,11 @@ class PedeSteerer
   std::string buildMasterSteer(const std::vector<std::string> &binaryFiles);
   /// run pede, masterSteer should be as returned from buildMasterSteer(...)
   bool runPede(const std::string &masterSteer) const;
-  std::string pedeOutFile() const;
   double cmsToPedeFactor(unsigned int parNum) const;
+  /// results from pede (and start values for pede) might need a sign flip
+  double parameterSign() const;
+  /// directory from configuration, '/' is attached if needed
+  std::string directory() const;
 
  private:
   typedef std::map <Alignable*, unsigned int> AlignableToIdMap;
@@ -63,18 +67,21 @@ class PedeSteerer
 
   unsigned int buildMap(Alignable *highestLevelAli);
   unsigned int buildReverseMap();
+
   std::pair<unsigned int, unsigned int> fixParameters(const std::vector<Alignable*> &alignables,
 						      const std::string &file);
   int fixParameter(Alignable *ali, unsigned int iParam, char selector, std::ofstream &file) const;
   unsigned int hierarchyConstraints(const std::vector<Alignable*> &alis,
 				    const std::string &file);
+  void hierarchyConstraint(const Alignable *ali, const std::vector<Alignable*> &components,
+			   std::ofstream &file) const;
 
-  std::string directory() const;
   /// full name with directory and 'idenitfier'
   std::string fileName(const std::string &addendum) const;
   /// create and open file with name, if (addToList) append to mySteeringFiles
   std::ofstream* createSteerFile(const std::string &name, bool addToList);
 
+  const AlignmentParameterStore *myParameterStore;
   edm::ParameterSet myConfig;
   std::vector<std::string> mySteeringFiles; /// keeps track of created 'secondary' steering files
   AlignableToIdMap  myAlignableToIdMap; /// providing unique ID for alignable, space for param IDs
