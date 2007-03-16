@@ -3,8 +3,8 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.11 $
- *  $Date: 2007/02/13 12:17:00 $
+ *  $Revision: 1.12 $
+ *  $Date: 2007/03/05 12:19:34 $
  *  (last update by $Author: flucke $)
  */
 
@@ -34,8 +34,9 @@
 
 #include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
 
-// #include "Geometry/CommonDetAlgo/interface/AlgebraicObjects.h"
-#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
+// #include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
+#include "Geometry/CommonDetAlgo/interface/AlgebraicObjects.h" // FIXME: backport of include 
+
 #include <Geometry/CommonDetUnit/interface/GeomDetUnit.h>
 #include <Geometry/CommonDetUnit/interface/GeomDetType.h>
 
@@ -91,7 +92,7 @@ void MillePedeAlignmentAlgorithm::initialize(const edm::EventSetup &setup,
 
   edm::ParameterSet pedeSteerCfg(theConfig.getParameter<edm::ParameterSet>("pedeSteerer"));
   pedeSteerCfg.addUntrackedParameter("fileDir", theDir);
-  thePedeSteer = new PedeSteerer(tracker, theAlignables, pedeSteerCfg);
+  thePedeSteer = new PedeSteerer(tracker, theAlignmentParameterStore, pedeSteerCfg);
 
   // After (!) PedeSteerer which uses the SelectionUserVariables attached to the parameters:
   this->buildUserVariables(theAlignables); // for hit statistics and/or pede result
@@ -138,15 +139,12 @@ void MillePedeAlignmentAlgorithm::terminate()
   }
   
   if (this->isMode(myPedeReadBit)) {
-    const std::string pedeOutFile(theDir + thePedeSteer->pedeOutFile());//FIXME 'fragile' in new pede
-    if (pedeOk && this->readFromPede(pedeOutFile)) {
-      edm::LogInfo("Alignment") << "@SUB=MillePedeAlignmentAlgorithm::terminate"
-                                << "Read successfully from " << pedeOutFile;
+    if (pedeOk && this->readFromPede()) {
       // FIXME: problem if what is read in does not correspond to store
-      theAlignmentParameterStore->applyParameters();// FIXME, do reverse in case of mis-ali. tool?
+      theAlignmentParameterStore->applyParameters();
     } else {
       edm::LogError("Alignment") << "@SUB=MillePedeAlignmentAlgorithm::terminate"
-                                 << "Problems running pede or reading from " << pedeOutFile;
+                                 << "Problems running pede or reading result.";
     }
   }
 
@@ -380,11 +378,11 @@ MillePedeAlignmentAlgorithm::getMagneticField(const edm::EventSetup &setup) cons
 
 
 //__________________________________________________________________________________________________
-bool MillePedeAlignmentAlgorithm::readFromPede(const std::string &pedeOutName)
+bool MillePedeAlignmentAlgorithm::readFromPede()
 {
   bool allEmpty = this->areEmptyParams(theAlignables);
   
-  PedeReader reader(pedeOutName.c_str(), *thePedeSteer);
+  PedeReader reader(theConfig.getParameter<edm::ParameterSet>("pedeReader"), *thePedeSteer);
   std::vector<Alignable*> alis;
   bool okRead = reader.read(alis);
   bool numMatch = true;
@@ -446,12 +444,6 @@ unsigned int MillePedeAlignmentAlgorithm::doIO(int loop) const
                                  << "Problem " << ioerr << " in writeAlignableOriginalPositions";
       ++result;
     }
-    aliIO.writeOrigRigidBodyAlignmentParameters(theAlignables, outFile.c_str(), loop, false, ioerr);
-    if (ioerr) {
-      edm::LogError("Alignment") << "@SUB=MillePedeAlignmentAlgorithm::doIO"
-                                 << "Problem " << ioerr << " in writeAlignmentParameters, " << loop;
-      ++result;
-    }
   } else {
     if (loop > 1) {
       const std::vector<std::string> inFiles
@@ -472,14 +464,21 @@ unsigned int MillePedeAlignmentAlgorithm::doIO(int loop) const
                                  << "Problem " << ioerr << " writing MillePedeVariables";
       ++result;
     }
-    aliIO.writeAlignmentParameters(theAlignables, outFile.c_str(), loop, false, ioerr);
-    if (ioerr) {
-      edm::LogError("Alignment") << "@SUB=MillePedeAlignmentAlgorithm::doIO"
-                                 << "Problem " << ioerr << " in writeAlignmentParameters, " << loop;
-      ++result;
-    }
+// // problem with following writeOrigRigidBodyAlignmentParameters
+//     aliIO.writeAlignmentParameters(theAlignables, outFile.c_str(), loop, false, ioerr);
+//     if (ioerr) {
+//       edm::LogError("Alignment") << "@SUB=MillePedeAlignmentAlgorithm::doIO"
+//                                  << "Problem " << ioerr << " in writeAlignmentParameters, " << loop;
+//       ++result;
+//     }
   }
   
+  aliIO.writeOrigRigidBodyAlignmentParameters(theAlignables, outFile.c_str(), loop, false, ioerr);
+  if (ioerr) {
+    edm::LogError("Alignment") << "@SUB=MillePedeAlignmentAlgorithm::doIO" << "Problem " << ioerr
+			       << " in writeOrigRigidBodyAlignmentParameters, " << loop;
+    ++result;
+  }
   aliIO.writeAlignableAbsolutePositions(theAlignables, outFile.c_str(), loop, false, ioerr);
   if (ioerr) {
     edm::LogError("Alignment") << "@SUB=MillePedeAlignmentAlgorithm::doIO" << "Problem " << ioerr

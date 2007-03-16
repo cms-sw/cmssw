@@ -7,8 +7,8 @@
 ///
 ///  \author    : Gero Flucke
 ///  date       : October 2006
-///  $Revision: 1.6 $
-///  $Date: 2007/02/12 16:49:04 $
+///  $Revision: 1.7 $
+///  $Date: 2007/02/13 12:04:58 $
 ///  (last update by $Author: flucke $)
 
 
@@ -88,7 +88,7 @@ class MillePedeAlignmentAlgorithm : public AlignmentAlgorithmBase
   bool is2D(const TransientTrackingRecHit::ConstRecHitPointer &recHit) const;
   const MagneticField* getMagneticField(const edm::EventSetup& setup) const;
 
-  bool readFromPede(const std::string &pedeOutFile);
+  bool readFromPede();
   bool areEmptyParams(const std::vector<Alignable*> &alignables) const;
   unsigned int doIO(int loop) const;
   /// add MillePedeVariables for each AlignmentParameters (exception if no parameters...)
