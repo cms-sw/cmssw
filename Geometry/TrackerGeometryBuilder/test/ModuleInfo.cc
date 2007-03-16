@@ -385,9 +385,8 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 	int out_side  = (module.side() == 1 ) ? -1 : 1;
 	unsigned int out_disk = module.wheel();
 	unsigned int out_sector = thePetal[1];
-	int out_petal = (thePetal[0] == 1 ) ? -1 : 1;
+	int out_petal = (thePetal[0] == 1 ) ? 1 : -1;
 	unsigned int out_ring = module.ring();
-	unsigned int out_module = module.module();
 	int out_sensor = 0;
 	if(name == "TECModule0RphiActive")   out_sensor = -1;
 	if(name == "TECModule0StereoActive") out_sensor =  1;
@@ -399,6 +398,24 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 	if(name == "TECModule4StereoActive") out_sensor =  1;
 	if(name == "TECModule5RphiActive")   out_sensor = -1;
 	if(name == "TECModule6RphiActive")   out_sensor = -1;
+	unsigned int out_module;
+	if (out_ring == 1 || out_ring == 2 || out_ring == 5) {
+	  // rings with stereo modules
+	  // create number odd by default
+	  out_module = 2*(module.module()-1)+1;
+	  if (out_sensor == 1) {
+	    // in even rings, stereo modules are the even ones
+	    if (out_ring == 2)
+	      out_module += 1;
+	  }
+	  else
+	    // in odd rings, stereo modules are the odd ones
+	    if (out_ring != 2)
+	      out_module += 1;
+	}
+	else {
+	  out_module = module.module();
+	}
 	double out_x = modules[i]->translation()[0];
 	double out_y = modules[i]->translation()[1];
 	double out_z = modules[i]->translation()[2];
