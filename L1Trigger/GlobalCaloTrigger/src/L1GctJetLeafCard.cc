@@ -1,5 +1,11 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetLeafCard.h"
 
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctJetCand.h"
+
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetEtCalibrationLut.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctTdrJetFinder.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctHardwareJetFinder.h"
+
 #include "FWCore/Utilities/interface/Exception.h"
 
 using namespace std;
@@ -9,7 +15,6 @@ const int L1GctJetLeafCard::MAX_JET_FINDERS = 3;
 const unsigned int L1GctJetLeafCard::MAX_SOURCE_CARDS = 15;
 
 L1GctJetLeafCard::L1GctJetLeafCard(int id, int iphi, vector<L1GctSourceCard*> sourceCards,
-                                   L1GctJetEtCalibrationLut* jetEtCalLut,
 				   jetFinderType jfType):
   m_id(id),
   m_whichJetFinder(jfType),
@@ -87,15 +92,15 @@ L1GctJetLeafCard::L1GctJetLeafCard(int id, int iphi, vector<L1GctSourceCard*> so
   
   switch (m_whichJetFinder) {
   case tdrJetFinder :
-    m_jetFinderA = new L1GctTdrJetFinder(3*id, srcCardsForJetFinderA, jetEtCalLut);
-    m_jetFinderB = new L1GctTdrJetFinder(3*id+1, srcCardsForJetFinderB, jetEtCalLut);
-    m_jetFinderC = new L1GctTdrJetFinder(3*id+2, srcCardsForJetFinderC, jetEtCalLut);
+    m_jetFinderA = new L1GctTdrJetFinder(3*id, srcCardsForJetFinderA);
+    m_jetFinderB = new L1GctTdrJetFinder(3*id+1, srcCardsForJetFinderB);
+    m_jetFinderC = new L1GctTdrJetFinder(3*id+2, srcCardsForJetFinderC);
     break;
 
   case hardwareJetFinder :
-    m_jetFinderA = new L1GctHardwareJetFinder(3*id, srcCardsForJetFinderA, jetEtCalLut);
-    m_jetFinderB = new L1GctHardwareJetFinder(3*id+1, srcCardsForJetFinderB, jetEtCalLut);
-    m_jetFinderC = new L1GctHardwareJetFinder(3*id+2, srcCardsForJetFinderC, jetEtCalLut);
+    m_jetFinderA = new L1GctHardwareJetFinder(3*id, srcCardsForJetFinderA);
+    m_jetFinderB = new L1GctHardwareJetFinder(3*id+1, srcCardsForJetFinderB);
+    m_jetFinderC = new L1GctHardwareJetFinder(3*id+2, srcCardsForJetFinderC);
     break;
 
   default :
@@ -180,6 +185,10 @@ void L1GctJetLeafCard::fetchInput() {
 }
 
 void L1GctJetLeafCard::process() {
+
+  // Check the setup
+  assert(setupOk());
+
   // Perform the jet finding
   m_jetFinderA->process();
   m_jetFinderB->process();
@@ -263,4 +272,5 @@ L1GctJetLeafCard::rotateEtValue(const L1GctUnsignedInt<12> etStrip, const unsign
   temp.setOverFlow(temp.overFlow() || etStrip.overFlow());
 
   return temp;
+
 }

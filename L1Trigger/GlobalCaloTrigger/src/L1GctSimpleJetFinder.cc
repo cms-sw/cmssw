@@ -11,9 +11,8 @@ const unsigned int L1GctSimpleJetFinder::MAX_REGIONS_IN = (((L1CaloRegionDetId::
 const int L1GctSimpleJetFinder::N_COLS = 2;
 const unsigned int L1GctSimpleJetFinder::CENTRAL_COL0 = 0;
 
-L1GctSimpleJetFinder::L1GctSimpleJetFinder(int id, vector<L1GctSourceCard*> sourceCards,
-					   L1GctJetEtCalibrationLut* jetEtCalLut):
-  L1GctJetFinderBase(id, sourceCards, jetEtCalLut)
+L1GctSimpleJetFinder::L1GctSimpleJetFinder(int id, vector<L1GctSourceCard*> sourceCards):
+  L1GctJetFinderBase(id, sourceCards)
 {
   this->reset();
 }

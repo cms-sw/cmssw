@@ -2,15 +2,19 @@
 #define L1GCTJETFINDERBASE_H_
 
 #include "DataFormats/L1CaloTrigger/interface/L1CaloRegion.h"
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctJetCand.h"
 
-#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJet.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctProcessor.h"
-#include "L1Trigger/GlobalCaloTrigger/interface/L1GctSourceCard.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJet.h"
+
 #include "L1Trigger/GlobalCaloTrigger/src/L1GctUnsignedInt.h"
-#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetEtCalibrationLut.h"
 
 #include <boost/cstdint.hpp> //for uint16_t
 #include <vector>
+
+class L1GctJetEtCalibrationLut;
+class L1GctSourceCard;
+
 
 /*! \class L1GctJetFinderBase
  * \brief Base class to allow implementation of jetFinder algorithms
@@ -40,8 +44,6 @@
  * \date June 2006
  */
 
-
-
 class L1GctJetFinderBase : public L1GctProcessor
 {
 public:
@@ -49,7 +51,8 @@ public:
   typedef unsigned long int ULong;
   typedef unsigned short int UShort;
   typedef std::vector<L1CaloRegion> RegionsVector;
-  typedef std::vector<L1GctJet> JetVector;
+  typedef std::vector<L1GctJet>     RawJetVector;
+  typedef std::vector<L1GctJetCand> JetVector;
 
   //Statics
   static const unsigned int MAX_JETS_OUT;  ///< Max of 6 jets found per jetfinder in a 2*11 search area
@@ -58,16 +61,18 @@ public:
   static const unsigned int N_JF_PER_WHEEL; ///< No of jetFinders per Wheel
     
   /// id is 0-8 for -ve Eta jetfinders, 9-17 for +ve Eta, for increasing Phi.
-  L1GctJetFinderBase(int id, std::vector<L1GctSourceCard*> sourceCards,
-		     L1GctJetEtCalibrationLut* jetEtCalLut);
+  L1GctJetFinderBase(int id, std::vector<L1GctSourceCard*> sourceCards);
                  
   ~L1GctJetFinderBase();
    
   /// Set pointers to neighbours - needed to complete the setup
   void setNeighbourJetFinders(std::vector<L1GctJetFinderBase*> neighbours);
 
+  /// Set pointer to calibration Lut - needed to complete the setup
+  void setJetEtCalibrationLut(L1GctJetEtCalibrationLut* lut);
+
   /// Check setup is Ok
-  bool gotNeighbourPointers() const { return m_gotNeighbourPointers; }
+  bool setupOk() const { return m_gotNeighbourPointers && (m_jetEtCalLut != 0); }
 
   /// Overload << operator
   friend std::ostream& operator << (std::ostream& os, const L1GctJetFinderBase& algo);
@@ -96,13 +101,25 @@ public:
   /// get protoJets kept
   RegionsVector getKeptProtoJets() const { return m_keptProtoJets; }
 
+  /// get output jets in raw format
+  RawJetVector getRawJets() const { return m_outputJets; } 
+
   /// Return pointer to calibration LUT
   L1GctJetEtCalibrationLut* getJetEtCalLut() const { return m_jetEtCalLut; }
 
-  JetVector getJets() const { return m_outputJets; } ///< Get the located jets. 
+  // The hardware output quantities
+  JetVector getJets() const { return m_sortedJets; } ///< Get the located jets. 
   L1GctUnsignedInt<12> getEtStrip0() const { return m_outputEtStrip0; }  ///< Get transverse energy strip sum 0
   L1GctUnsignedInt<12> getEtStrip1() const { return m_outputEtStrip1; }  ///< Get transverse energy strip sum 1
   L1GctUnsignedInt<12> getHt() const { return m_outputHt; }              ///< Get the total calibrated energy in jets (Ht) found by this jet finder
+
+  // comparison operator for sorting jets in the Wheel Fpga, JetFinder, and JetFinalStage
+  struct rankGreaterThan : public std::binary_function<L1GctJetCand, L1GctJetCand, bool> 
+  {
+    bool operator()(const L1GctJetCand& x, const L1GctJetCand& y) {
+      return ( x.rank() > y.rank() ) ;
+    }
+  };
 
  protected:
 
@@ -135,7 +152,8 @@ public:
   RegionsVector m_keptProtoJets;
 
   /// output jets
-  JetVector m_outputJets;
+  RawJetVector m_outputJets;
+  JetVector m_sortedJets;
 
   /// output Et strip sums and Ht
   L1GctUnsignedInt<12> m_outputEtStrip0;

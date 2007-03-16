@@ -1,5 +1,8 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetFinderBase.h"
- 
+
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctSourceCard.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetEtCalibrationLut.h"
+
 #include "FWCore/Utilities/interface/Exception.h"  
 
 #include <iostream>
@@ -16,13 +19,12 @@ const int L1GctJetFinderBase::N_COLS = 2;
 const unsigned int L1GctJetFinderBase::CENTRAL_COL0 = 0;
 
 
-L1GctJetFinderBase::L1GctJetFinderBase(int id, vector<L1GctSourceCard*> sourceCards,
-				       L1GctJetEtCalibrationLut* jetEtCalLut):
+L1GctJetFinderBase::L1GctJetFinderBase(int id, vector<L1GctSourceCard*> sourceCards):
   m_id(id),
   m_sourceCards(sourceCards),
   m_neighbourJetFinders(2),
   m_gotNeighbourPointers(false),
-  m_jetEtCalLut(jetEtCalLut),
+  m_jetEtCalLut(0),
   m_inputRegions(MAX_REGIONS_IN),
   m_outputJets(MAX_JETS_OUT)
 {
@@ -54,12 +56,6 @@ L1GctJetFinderBase::L1GctJetFinderBase(int id, vector<L1GctSourceCard*> sourceCa
     }
   }
   
-  if(m_jetEtCalLut == 0)
-  {
-    throw cms::Exception("L1GctSetupError")
-    << "L1GctJetFinderBase::L1GctJetFinderBase() : Jet Finder ID " << m_id << " has been incorrectly constructed!\n"
-    << "The jet Et calibration LUT pointer has not been set!\n";  
-  }
 }
 
 L1GctJetFinderBase::~L1GctJetFinderBase()
@@ -87,6 +83,12 @@ void L1GctJetFinderBase::setNeighbourJetFinders(std::vector<L1GctJetFinderBase*>
       << " second neighbour pointer is set to zero\n";
   }
   m_gotNeighbourPointers = true;
+}
+
+/// Set pointer to calibration Lut - needed to complete the setup
+void L1GctJetFinderBase::setJetEtCalibrationLut(L1GctJetEtCalibrationLut* lut)
+{
+  m_jetEtCalLut = lut;
 }
 
 ostream& operator << (ostream& os, const L1GctJetFinderBase& algo)
@@ -123,15 +125,9 @@ void L1GctJetFinderBase::reset()
   m_inputRegions.resize(this->maxRegionsIn());
   m_outputJets.clear();
   m_outputJets.resize(MAX_JETS_OUT);
+  m_sortedJets.clear();
+  m_sortedJets.resize(MAX_JETS_OUT);
   
-  // All jets need a pointer to the calibration LUT,
-  // so set one up here.
-  JetVector::iterator currentJet;  
-  for(currentJet = m_outputJets.begin(); currentJet != m_outputJets.end(); ++currentJet)
-  {
-    currentJet->setLut(m_jetEtCalLut);
-  }
-
   m_sentProtoJets.clear();
   m_sentProtoJets.resize(MAX_JETS_OUT);
   m_rcvdProtoJets.clear();
@@ -243,8 +239,12 @@ void L1GctJetFinderBase::fetchProtoJetsFromNeighbour(const fetchType ft)
 /// Sort the found jets. All jetFinders should call this in process().
 void L1GctJetFinderBase::sortJets()
 {
+  //transform the jets to the final GCT output format
+  for (unsigned j=0; j<MAX_JETS_OUT; ++j) {
+    m_sortedJets.at(j) = m_outputJets.at(j).jetCand(m_jetEtCalLut);
+  }
   //presort the jets into descending order of energy
-  sort(m_outputJets.begin(), m_outputJets.end(), L1GctJet::rankGreaterThan());
+  sort(m_sortedJets.begin(), m_sortedJets.end(), rankGreaterThan());
 }
    
 /// Fill the Et strip sums and Ht sum. All jetFinders should call this in process().
@@ -293,7 +293,7 @@ L1GctUnsignedInt<12> L1GctJetFinderBase::calcHt() const
   {
     // Only sum Ht for valid jets
     if (!m_outputJets.at(i).isNullJet()) {
-      ht += static_cast<unsigned>(m_outputJets.at(i).calibratedEt());
+      ht += m_outputJets.at(i).calibratedEt(m_jetEtCalLut);
       of |= m_outputJets.at(i).overFlow();
     }
   }

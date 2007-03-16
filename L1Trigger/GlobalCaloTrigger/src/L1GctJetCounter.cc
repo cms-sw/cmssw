@@ -89,9 +89,8 @@ ostream& operator << (ostream& os, const L1GctJetCounter& algo)
 
 void L1GctJetCounter::reset()
 {
-  for (unsigned i=0; i<m_jets.size(); i++) {
-    m_jets.at(i).setupJet(0, 0, 0, true);
-  }
+  m_jets.clear();
+  m_jets.resize(MAX_JETS_TO_COUNT);
   m_value.reset();
 }
 

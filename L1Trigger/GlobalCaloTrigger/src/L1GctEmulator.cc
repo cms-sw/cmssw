@@ -14,13 +14,13 @@
 
 #include "FWCore/Utilities/interface/Exception.h"
 
-// Trigger includes
-#include "L1Trigger/L1Scales/interface/L1CaloEtScale.h"
-#include "L1Trigger/L1Scales/interface/L1JetEtScaleRcd.h"
+// Trigger configuration includes
+#include "CondFormats/L1TObjects/interface/L1GctJetEtCalibrationFunction.h"
+#include "CondFormats/DataRecord/interface/L1GctJetCalibFunRcd.h"
 
 // GCT include files
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetEtCalibrationLut.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GlobalCaloTrigger.h"
-#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetLeafCard.h"
 
 // RCT data includes
 #include "DataFormats/L1CaloTrigger/interface/L1CaloCollections.h"
@@ -31,9 +31,6 @@
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctJetCounts.h"
 
 using std::vector;
-using std::cout;
-using std::endl;
-
 
 L1GctEmulator::L1GctEmulator(const edm::ParameterSet& ps) :
   m_verbose(ps.getUntrackedParameter<bool>("verbose", false))
@@ -54,13 +51,8 @@ L1GctEmulator::L1GctEmulator(const edm::ParameterSet& ps) :
   edm::InputTag inputTag = ps.getParameter<edm::InputTag>("inputLabel");
   m_inputLabel = inputTag.label();
 
-  // Get the filename for the Jet Et LUT
-  edm::FileInPath fp = ps.getParameter<edm::FileInPath>("jetEtLutFile");
-
-  bool useOrcaCalib = ps.getParameter<bool>("useOrcaJetCalibration");
-
   // instantiate the GCT
-  m_gct = new L1GlobalCaloTrigger(false,L1GctJetLeafCard::tdrJetFinder,fp.fullPath(), useOrcaCalib);
+  m_gct = new L1GlobalCaloTrigger(false,L1GctJetLeafCard::tdrJetFinder);
 
   // set verbosity (not implemented yet!)
   //  m_gct->setVerbose(m_verbose);
@@ -73,25 +65,41 @@ L1GctEmulator::L1GctEmulator(const edm::ParameterSet& ps) :
 }
 
 L1GctEmulator::~L1GctEmulator() {
+  delete m_jetEtCalibLut;
   delete m_gct;
 }
 
 
-void L1GctEmulator::produce(edm::Event& e, const edm::EventSetup& c) {
+void L1GctEmulator::beginJob(const edm::EventSetup& c)
+{
+  configureGct(c);
+}
+
+void L1GctEmulator::endJob()
+{
+}
+
+void L1GctEmulator::configureGct(const edm::EventSetup& c)
+{
+  assert(&c!=0);
 
   // get data from EventSetup
-  edm::ESHandle< L1CaloEtScale > jetScale ;
-  c.get< L1JetEtScaleRcd >().get( jetScale ) ; // which record?
+  edm::ESHandle< L1GctJetEtCalibrationFunction > calibFun ;
+  c.get< L1GctJetCalibFunRcd >().get( calibFun ) ; // which record?
 
-  // tell the jet Et LUT about the scale
-  if (jetScale.product() != 0) {
-    m_gct->getJetEtCalibLut()->setOutputEtScale(jetScale.product());
-  }
-  else {
+  if (calibFun.product() == 0) {
     throw cms::Exception("L1GctConfigError")
-      << "Failed to find a L1JetEtScaleRcd:L1CaloEtScale in EventSetup!" << endl
-      << "Cannot continue without the scale" << endl;
+      << "Failed to find a L1GctJetCalibFunRcd:L1GctJetEtCalibrationFunction in EventSetup!" << std::endl
+      << "Cannot continue without this function" << std::endl;
   }
+
+  // make a jet Et Lut and tell it about the scales
+  m_jetEtCalibLut = L1GctJetEtCalibrationLut::setupLut(calibFun.product());
+  m_gct->setJetEtCalibrationLut(m_jetEtCalibLut);
+
+}
+
+void L1GctEmulator::produce(edm::Event& e, const edm::EventSetup& c) {
 
   // get the RCT data
   edm::Handle<L1CaloEmCollection> em;
@@ -120,9 +128,9 @@ void L1GctEmulator::produce(edm::Event& e, const edm::EventSetup& c) {
   for (int i=0; i<4; i++) {
     isoEmResult->push_back(m_gct->getIsoElectrons().at(i));
     nonIsoEmResult->push_back(m_gct->getNonIsoElectrons().at(i));
-    cenJetResult->push_back(m_gct->getCentralJets().at(i).makeJetCand());
-    forJetResult->push_back(m_gct->getForwardJets().at(i).makeJetCand());
-    tauJetResult->push_back(m_gct->getTauJets().at(i).makeJetCand());
+    cenJetResult->push_back(m_gct->getCentralJets().at(i));
+    forJetResult->push_back(m_gct->getForwardJets().at(i));
+    tauJetResult->push_back(m_gct->getTauJets().at(i));
   }
 
   // create the energy sum digis

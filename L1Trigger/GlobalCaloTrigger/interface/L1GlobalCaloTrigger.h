@@ -5,7 +5,8 @@
 #include "DataFormats/L1CaloTrigger/interface/L1CaloEmCand.h"
 
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEmCand.h"
-#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJet.h"
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctJetCand.h"
+
 //#include "L1Trigger/GlobalCaloTrigger/src/L1GctTwosComplement.h"
 #include "L1Trigger/GlobalCaloTrigger/src/L1GctUnsignedInt.h"
 #include "L1Trigger/GlobalCaloTrigger/src/L1GctJetCount.h"
@@ -56,8 +57,7 @@ public:
 
   /// construct the GCT
   L1GlobalCaloTrigger(bool useFile=false,
-		      L1GctJetLeafCard::jetFinderType jfType = L1GctJetLeafCard::tdrJetFinder,
-		      std::string jetEtLutFile="data/defaultJetEtCalibrationLut.dat", bool useOrcaCalib = false);
+		      L1GctJetLeafCard::jetFinderType jfType = L1GctJetLeafCard::tdrJetFinder);
 
   /// dismantle the GCT
   ~L1GlobalCaloTrigger();
@@ -70,6 +70,9 @@ public:
   
   /// process an event
   void process();
+
+  /// setup the Jet Calibration Lut
+  void setJetEtCalibrationLut(L1GctJetEtCalibrationLut* lut);
 
   /// set a jet region at the input to be processed
   void setRegion(L1CaloRegion region);
@@ -96,13 +99,13 @@ public:
   std::vector<L1GctEmCand> getNonIsoElectrons() const;
   
   /// central jet outputs to GT
-  std::vector<L1GctJet> getCentralJets() const;
+  std::vector<L1GctJetCand> getCentralJets() const;
   
   /// forward jet outputs to GT
-  std::vector<L1GctJet> getForwardJets() const;
+  std::vector<L1GctJetCand> getForwardJets() const;
   
   /// tau jet outputs to GT
-  std::vector<L1GctJet> getTauJets() const;
+  std::vector<L1GctJetCand> getTauJets() const;
   
   /// Total Et output to GT
   L1GctUnsignedInt<12> getEtSum() const;
@@ -158,6 +161,9 @@ public:
   /// setup Jet Counter LUTs
   void setupJetCounterLuts();
 
+  /// check we have done all the setup
+  // !Just the jetEtCalLut for now
+  bool setupOk() { return (m_jetEtCalLut != 0); }
  private:
   
   /// where are we getting data from?

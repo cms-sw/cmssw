@@ -104,9 +104,9 @@ ostream& operator << (ostream& os, const L1GctJetCounterLut& lut)
   return os;
 }
 
-bool L1GctJetCounterLut::passesCut(const L1GctJet jet) const
+bool L1GctJetCounterLut::passesCut(const L1GctJetCand jet) const
 {
-  bool result = !jet.isNullJet();
+  bool result = !jet.empty();
   for (unsigned i=0; i<m_nCuts; i++) {
     if (!result) { break; } // for efficiency
     result &= jetPassesThisCut(jet, i);
@@ -173,7 +173,7 @@ void L1GctJetCounterLut::checkCut(const validCutType cutType, const unsigned cut
 
 }
   
-bool L1GctJetCounterLut::jetPassesThisCut(const L1GctJet jet, const unsigned i) const
+bool L1GctJetCounterLut::jetPassesThisCut(const L1GctJetCand jet, const unsigned i) const
 {
   switch (m_cutType.at(i))
     {
@@ -184,15 +184,15 @@ bool L1GctJetCounterLut::jetPassesThisCut(const L1GctJet jet, const unsigned i) 
       return (jet.rank()<=m_cutValue1.at(i));
 
     case centralEta:
-      return (jet.rctEta()<=m_cutValue1.at(i));
+      return (rctEta(jet)<=m_cutValue1.at(i));
 
     case forwardEta:
-      return (jet.rctEta()>=m_cutValue1.at(i));
+      return (rctEta(jet)>=m_cutValue1.at(i));
 
     case phiWindow:
       return (m_cutValue2.at(i)>m_cutValue1.at(i) ?
-	      ((jet.globalPhi() >= m_cutValue1.at(i)) && (jet.globalPhi() <= m_cutValue2.at(i))) :
-	      ((jet.globalPhi() >= m_cutValue1.at(i)) || (jet.globalPhi() <= m_cutValue2.at(i))));
+	      ((globalPhi(jet) >= m_cutValue1.at(i)) && (globalPhi(jet) <= m_cutValue2.at(i))) :
+	      ((globalPhi(jet) >= m_cutValue1.at(i)) || (globalPhi(jet) <= m_cutValue2.at(i))));
 
     case nullCutType:
       return false;
@@ -202,4 +202,14 @@ bool L1GctJetCounterLut::jetPassesThisCut(const L1GctJet jet, const unsigned i) 
       << "Error in L1GctJetCounterLut; encountered unrecognised cut type " << m_cutType.at(i) << endl;
     }
 
+}
+
+unsigned L1GctJetCounterLut::rctEta(const L1GctJetCand jet) const
+{
+  return (jet.etaIndex() & 0x7) + (jet.isForward() ? 7 : 0);
+}
+
+unsigned L1GctJetCounterLut::globalPhi(const L1GctJetCand jet) const
+{
+  return jet.phiIndex();
 }

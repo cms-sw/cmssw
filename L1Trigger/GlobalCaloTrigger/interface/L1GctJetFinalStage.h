@@ -1,7 +1,8 @@
 #ifndef L1GCTJETFINALSTAGE_H_
 #define L1GCTJETFINALSTAGE_H_
 
-#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJet.h"
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctJetCand.h"
+
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctProcessor.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctWheelJetFpga.h"
 //#include "L1Trigger/GlobalCaloTrigger/src/L1Gct.h"
@@ -23,7 +24,7 @@
 class L1GctJetFinalStage : public L1GctProcessor
 {
 public:
-  typedef std::vector<L1GctJet> JetVector;
+  typedef std::vector<L1GctJetCand> JetVector;
   static const unsigned int MAX_WHEEL_FPGAS; ///< Max number of wheel FPGA pointers
 
   /// Takes a vector of 2 wheel jet FPGA pointers, with which to get input data from
@@ -42,9 +43,9 @@ public:
   /// process the data, fill output buffers
   virtual void process();
     	
-  void setInputCentralJet(int i, L1GctJet jet);  ///< set the central jets input data
-  void setInputForwardJet(int i, L1GctJet jet);  ///< set the forward jets input data
-  void setInputTauJet(int i, L1GctJet jet);      ///< set the tau jets input data
+  void setInputCentralJet(int i, L1GctJetCand jet);  ///< set the central jets input data
+  void setInputForwardJet(int i, L1GctJetCand jet);  ///< set the forward jets input data
+  void setInputTauJet(int i, L1GctJetCand jet);      ///< set the tau jets input data
 
   JetVector getInputCentralJets() const { return m_inputCentralJets; } ///< get the central jets input data
   JetVector getInputForwardJets() const { return m_inputForwardJets; } ///< get the forward jets input data

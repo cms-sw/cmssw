@@ -135,26 +135,6 @@ L1GctJetCount<nBits>& L1GctJetCount<nBits>::operator= (int value) {
 
 // overload ostream<<
 template <int nBits>
-std::ostream& operator<<(std::ostream& s, const L1GctTwosComplement<nBits>& data) {
-
-  s << "L1GctTwosComplement raw : " << data.raw() << ", " << "value : " << data.value();
-  if (data.overFlow()) { s << " Overflow set! "; }
-
-  return s;
-
-}
-
-template <int nBits>
-std::ostream& operator<<(std::ostream& s, const L1GctUnsignedInt<nBits>& data) {
-
-  s << "L1GctUnsignedInt value : " << data.value();
-  if (data.overFlow()) { s << " Overflow set! "; }
-
-  return s;
-
-}
-
-template <int nBits>
 std::ostream& operator<<(std::ostream& s, const L1GctJetCount<nBits>& data) {
 
   s << "L1GctJetCount value : " << data.value();

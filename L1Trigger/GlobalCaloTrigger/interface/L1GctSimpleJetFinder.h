@@ -25,8 +25,7 @@ class L1GctSimpleJetFinder : public L1GctJetFinderBase
  public:
 
   /// id is 0-8 for -ve Eta jetfinders, 9-17 for +ve Eta, for increasing Phi.
-  L1GctSimpleJetFinder(int id, std::vector<L1GctSourceCard*> sourceCards,
-                 L1GctJetEtCalibrationLut* jetEtCalLut);
+  L1GctSimpleJetFinder(int id, std::vector<L1GctSourceCard*> sourceCards);
                  
   ~L1GctSimpleJetFinder();
    

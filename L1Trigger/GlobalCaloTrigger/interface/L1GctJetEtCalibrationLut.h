@@ -1,17 +1,12 @@
 #ifndef L1GCTJETETCALIBRATIONLUT_H_
 #define L1GCTJETETCALIBRATIONLUT_H_
 
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "L1Trigger/GlobalCaloTrigger/src/L1GctLut.h"
 
-#include <boost/cstdint.hpp> //for uint16_t
-
-#include <vector>
-#include <string>
-
-class L1CaloEtScale;
+class L1GctJetEtCalibrationFunction;
 
 /*!
- * \author Robert Frazier
+ * \author Robert Frazier & Greg Heath
  * \date May 2006
  */
 
@@ -21,48 +16,34 @@ class L1CaloEtScale;
  * Input is 10 bit Et and 4 bit eta
  * Outputs are 6 bit rank (for jet sorting) and 10 bit Et (for Ht calculation)
  * 
- * Currently just performs a truncation from 10 to 6 bits, no eta dependence
+ * Modified March 2007 to remove the actual calculation to a separate class
  *
  */
 
-
-class L1GctJetEtCalibrationLut
+class L1GctJetEtCalibrationLut : public L1GctLut<15,16>
 {
-public:
-  static const unsigned JET_ENERGY_BITWIDTH;  ///< Input bitwidth of jet energy; must be 10 or more
-  static const unsigned NUMBER_ETA_VALUES;  ///< Number of eta bins used in correction
-  
-  L1GctJetEtCalibrationLut();
-  L1GctJetEtCalibrationLut(std::string fileName, bool useOrcaCalib);
-  ~L1GctJetEtCalibrationLut();
+ public:
+  static const int NAddress;
+  static const int NData;
+  static const unsigned JET_ENERGY_BITWIDTH;
+  static L1GctJetEtCalibrationLut* setupLut(const L1GctJetEtCalibrationFunction* lutfn);
+  virtual ~L1GctJetEtCalibrationLut();
 
-  /// set the output Et scale pointer
-  void setOutputEtScale(const L1CaloEtScale* scale);
+  void setFunction(const L1GctJetEtCalibrationFunction* lutfn);
+  const L1GctJetEtCalibrationFunction* getFunction() const { return m_lutFunction; }
 
   /// Overload << operator
   friend std::ostream& operator << (std::ostream& os, const L1GctJetEtCalibrationLut& lut);
   
-  /// Converts a 10-bit jet Et to a 6-bit rank.
-  /*! Eta takes a value from 0-10, corresponding to jet regions running from eta=0 to eta=5 */
-  uint16_t rank(const uint16_t jetEt, const unsigned eta) const;
-
-  /// Converts a 10-bit jet Et to a 10-bit Et (applying eta-dependent calibration)
-  /*! Eta takes a value from 0-10, corresponding to jet regions running from eta=0 to eta=5 */
-  uint16_t calibratedEt(const uint16_t jetEt, const unsigned eta) const;
+ protected:
   
-  float orcaCalibFn(float et, unsigned eta) const;
+  L1GctJetEtCalibrationLut();
 
-private:
+  virtual uint16_t value (const uint16_t lutAddress) const;
 
-  // quick n dirty ORCA calibration hack
-  bool m_orcaCalib;
-  float m_linearLsb;
+ private:
 
-  /// the output scale - converts linear Et to rank
-  const L1CaloEtScale* m_outputEtScale;
-
-  /// the calibration function
-  std::vector< std::vector<float> > m_calibFunc;
+  const L1GctJetEtCalibrationFunction* m_lutFunction;
 
 };
 

@@ -7,9 +7,6 @@
 
 #include "DataFormats/L1CaloTrigger/interface/L1CaloRegionDetId.h"
 
-#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctJetCand.h"
-#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetEtCalibrationLut.h"
-
 /*!
  * \author Jim Brooke & Robert Frazier
  * \date April 2006
@@ -21,6 +18,9 @@
  *  Move this to DataFormats/L1GlobalCaloTrigger if possible
  */
 
+class L1GctJetCand;
+class L1GctJetEtCalibrationLut;
+
 class L1GctJet
 {
 
@@ -29,23 +29,17 @@ public:
   static const unsigned RAWSUM_BITWIDTH;  
   
   //Constructors/destructors
-  L1GctJet(uint16_t rawsum=0, unsigned eta=0, unsigned phi=0, bool tauVeto=true,
-	   L1GctJetEtCalibrationLut* lut=0);
+  L1GctJet(uint16_t rawsum=0, unsigned eta=0, unsigned phi=0, bool tauVeto=true);
   ~L1GctJet();
   
   // set rawsum and position bits
   void setRawsum(uint16_t rawsum) { m_rawsum = rawsum; }
   void setDetId(L1CaloRegionDetId detId) { m_id = detId; }
   void setTauVeto(bool tauVeto) { m_tauVeto = tauVeto; }
-  void setLut(L1GctJetEtCalibrationLut* lut) {m_jetEtCalibrationLut = lut; }
   
   // get rawsum and position bits
   uint16_t rawsum()const { return m_rawsum; }
   bool tauVeto()const { return m_tauVeto; }
-  L1GctJetEtCalibrationLut* lut() const { return m_jetEtCalibrationLut; }
-
-  uint16_t rank()      const;
-  uint16_t calibratedEt() const;
 
   /// get overflow
   bool overFlow() const { return (m_rawsum>=(1<<RAWSUM_BITWIDTH)); }
@@ -73,17 +67,6 @@ public:
   ///Setup an existing jet all in one go
   void setupJet(uint16_t rawsum, unsigned eta, unsigned phi, bool tauVeto=true);
   
-  // comparison operator for sorting jets in the Wheel Fpga, JetFinder, and JetFinalStage
-  struct rankGreaterThan : public std::binary_function<L1GctJet, L1GctJet, bool> 
-  {
-    bool operator()(const L1GctJet& x, const L1GctJet& y) {
-      return ( x.rank() > y.rank() ) ;
-    }
-  };
-  
-  /// produce a GCT jet digi
-  L1GctJetCand makeJetCand();
-  
   /// eta value in global CMS coordinates
   unsigned globalEta() const { return m_id.ieta(); } 
 
@@ -102,6 +85,13 @@ public:
   /// phi value as encoded in hardware at the GCT output
   unsigned hwPhi() const; 
 
+  /// Function to convert from internal format to external jet candidates at the output of the jetFinder 
+  L1GctJetCand jetCand(const L1GctJetEtCalibrationLut* lut) const;
+
+  /// The two separate Lut outputs
+  uint16_t rank(const L1GctJetEtCalibrationLut* lut) const;
+  unsigned calibratedEt(const L1GctJetEtCalibrationLut* lut) const;
+
 
  private:
 
@@ -110,8 +100,8 @@ public:
   L1CaloRegionDetId m_id;
   bool m_tauVeto;
 
-  L1GctJetEtCalibrationLut* m_jetEtCalibrationLut;
-  
+  uint16_t lutValue (const L1GctJetEtCalibrationLut* lut) const;
+
 };
 
 std::ostream& operator << (std::ostream& os, const L1GctJet& cand);

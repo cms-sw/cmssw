@@ -4,7 +4,10 @@
 <use name=FWCore/Utilities>
 <use name=Foundation/PluginManager>
 <use name=DataFormats/L1GlobalCaloTrigger>
-<use name=L1Trigger/L1Scales>
+<use name=CondFormats/L1TObjects>
+<use name=CondFormats/DataRecord>
+<use name=L1TriggerConfig/L1ScalesProducers>
+<use name=L1TriggerConfig/GctConfigProducers>
 <use name=root>
 
 <flags SEAL_PLUGIN_NAME="L1TriggerGlobalCaloTrigger">
@@ -18,7 +21,10 @@
   <use name=FWCore/Utilities>
   <use name=Foundation/PluginManager>
   <use name=DataFormats/L1GlobalCaloTrigger>
-  <use name=L1Trigger/L1Scales>
+  <use name=CondFormats/L1TObjects>
+  <use name=CondFormats/DataRecord>
+  <use name=L1TriggerConfig/L1ScalesProducers>
+  <use name=L1TriggerConfig/GctConfigProducers>
   <use name=root>
   <Flags CXXFLAGS="-g">
 </export>

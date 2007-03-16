@@ -143,6 +143,17 @@ L1GctUnsignedInt<nBits>& L1GctUnsignedInt<nBits>::operator= (int value) {
 }
 
 
+// overload ostream<<
+template <int nBits>
+std::ostream& operator<<(std::ostream& s, const L1GctUnsignedInt<nBits>& data) {
+
+  s << "L1GctUnsignedInt value : " << data.value();
+  if (data.overFlow()) { s << " Overflow set! "; }
+
+  return s;
+
+}
+
 // removed typedefs for slc4 compilation
 
 /// typedef for the data type used for Ex and Ey in the energy sum calculations

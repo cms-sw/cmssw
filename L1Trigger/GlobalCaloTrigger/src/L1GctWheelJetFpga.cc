@@ -222,9 +222,9 @@ void L1GctWheelJetFpga::process()
 {
   classifyJets();
 
-  sort(m_rawCentralJets.begin(), m_rawCentralJets.end(), L1GctJet::rankGreaterThan());
-  sort(m_rawForwardJets.begin(), m_rawForwardJets.end(), L1GctJet::rankGreaterThan());
-  sort(m_rawTauJets.begin(), m_rawTauJets.end(), L1GctJet::rankGreaterThan());
+  sort(m_rawCentralJets.begin(), m_rawCentralJets.end(), L1GctJetFinderBase::rankGreaterThan());
+  sort(m_rawForwardJets.begin(), m_rawForwardJets.end(), L1GctJetFinderBase::rankGreaterThan());
+  sort(m_rawTauJets.begin(), m_rawTauJets.end(), L1GctJetFinderBase::rankGreaterThan());
 
   for(unsigned short iJet = 0; iJet < MAX_JETS_OUT; ++iJet)
   {
@@ -244,7 +244,7 @@ void L1GctWheelJetFpga::process()
     
 }
 
-void L1GctWheelJetFpga::setInputJet(int i, L1GctJet jet)
+void L1GctWheelJetFpga::setInputJet(int i, L1GctJetCand jet)
 {
   if(i >=0 && i < MAX_JETS_IN)
   {
@@ -305,20 +305,20 @@ void L1GctWheelJetFpga::classifyJets()
 
   for(currentJet = m_inputJets.begin(); currentJet != m_inputJets.end(); ++currentJet)
   {
-    if (!currentJet->isNullJet()) {
-      if(currentJet->isForwardJet())  //forward jet
+    if (!currentJet->empty()) {
+      if(currentJet->isForward())  //forward jet
 	{
 	  m_rawForwardJets.at(numFJets++) = *currentJet;
 	}
       else
 	{
-	  if(currentJet->isCentralJet())  //central non-tau jet.
+	  if(currentJet->isCentral())  //central non-tau jet.
 	    {
 	      m_rawCentralJets.at(numCJets++) = *currentJet;
 	    }
 	  else  //must be central tau-jet
 	    {
-	    if(currentJet->isTauJet())
+	    if(currentJet->isTau())
 	      {
 		m_rawTauJets.at(numTJets++) = *currentJet;
 	      }
@@ -338,11 +338,8 @@ void L1GctWheelJetFpga::classifyJets()
 
 void L1GctWheelJetFpga::setupRawTauJetsVec()
 {
-  m_rawTauJets.resize(MAX_RAW_TJETS);
-
-  //now need to set all tau veto bits to false.
-  for(JetVector::iterator currentJet = m_rawTauJets.begin(); currentJet != m_rawTauJets.end(); ++currentJet)
-  {
-    currentJet->setTauVeto(false);
-  }
+  // Create a jet candidate with the tau flag set to true,
+  // then copy it into the tauJets vector
+  L1GctJetCand temp(0, true, false);
+  m_rawTauJets.assign(MAX_RAW_TJETS, temp);
 }

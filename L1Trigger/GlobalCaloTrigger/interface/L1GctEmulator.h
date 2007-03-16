@@ -11,7 +11,7 @@
 //
 // Original Author:  Jim Brooke
 //         Created:  Thu May 18 15:04:56 CEST 2006
-// $Id: L1GctEmulator.h,v 1.5 2006/10/10 23:50:26 jbrooke Exp $
+// $Id: L1GctEmulator.h,v 1.6 2006/10/11 21:56:30 jbrooke Exp $
 //
 //
 
@@ -28,6 +28,7 @@
 
 // GCT includes
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GlobalCaloTrigger.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetEtCalibrationLut.h"
 
 class L1GctEmulator : public edm::EDProducer {
  public:
@@ -38,10 +39,12 @@ class L1GctEmulator : public edm::EDProducer {
   /// destructor
   virtual ~L1GctEmulator();
 
-  /// method inherited from EDProducer
-  virtual void produce(edm::Event& e, const edm::EventSetup& c);
-
  private:
+  virtual void beginJob(const edm::EventSetup& c) ;
+  virtual void produce(edm::Event& e, const edm::EventSetup& c);
+  virtual void endJob() ;
+
+  void configureGct(const edm::EventSetup& c) ;
 
   // input label
   std::string m_inputLabel;
@@ -49,14 +52,13 @@ class L1GctEmulator : public edm::EDProducer {
   // pointer to the actual emulator
   L1GlobalCaloTrigger* m_gct;
 
+  // the configuration Lut
+  L1GctJetEtCalibrationLut* m_jetEtCalibLut;
+
   // untracked parameters
   bool m_verbose;
 
   // tracked parameters
-  double m_jetEtLut_A;
-  double m_jetEtLut_B;
-  double m_jetEtLut_C;
-
 
 };
 

@@ -1,5 +1,6 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GlobalCaloTrigger.h"
 
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetEtCalibrationLut.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctSourceCard.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctEmLeafCard.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctWheelJetFpga.h"
@@ -7,10 +8,7 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetFinalStage.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctGlobalEnergyAlgos.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctElectronFinalSort.h"
-#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetEtCalibrationLut.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetCounterLut.h"
-
-#include "L1Trigger/L1Scales/interface/L1CaloEtScale.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -33,21 +31,15 @@ const unsigned int L1GlobalCaloTrigger::N_JET_COUNTERS_PER_WHEEL = L1GctWheelJet
 
 
 // constructor
-L1GlobalCaloTrigger::L1GlobalCaloTrigger(bool useFile, L1GctJetLeafCard::jetFinderType jfType, string jetEtLutFile, bool useOrcaCalib) :
+L1GlobalCaloTrigger::L1GlobalCaloTrigger(bool useFile, L1GctJetLeafCard::jetFinderType jfType) :
   readFromFile(useFile),
   theSourceCards(N_SOURCE_CARDS),
   theJetLeafCards(N_JET_LEAF_CARDS),
   theEmLeafCards(N_EM_LEAF_CARDS),
   theWheelJetFpgas(N_WHEEL_CARDS),
-  theWheelEnergyFpgas(N_WHEEL_CARDS)// ,
+  theWheelEnergyFpgas(N_WHEEL_CARDS),
+  m_jetEtCalLut(0)
 {
-
-  // set default et scale
-  // m_defaultJetEtScale = 
-
-  // Jet Et LUT
-  m_jetEtCalLut = new L1GctJetEtCalibrationLut(jetEtLutFile, useOrcaCalib);
-  //  m_jetEtCalLut->setOutputEtScale(m_defaultJetEtScale);
 
   // construct hardware
   build(jfType);
@@ -116,6 +108,9 @@ void L1GlobalCaloTrigger::reset() {
 
 void L1GlobalCaloTrigger::process() {
 
+  // Shouldn't get here unless the setup has been completed
+  assert (setupOk());
+
   // Source cards
   for (int i=0; i<N_SOURCE_CARDS; i++) {
     if (readFromFile) {
@@ -166,6 +161,17 @@ void L1GlobalCaloTrigger::process() {
   theEnergyFinalStage->fetchInput();
   theEnergyFinalStage->process();
 
+}
+
+/// setup the Jet Calibration Lut
+void L1GlobalCaloTrigger::setJetEtCalibrationLut(L1GctJetEtCalibrationLut* lut) {
+  m_jetEtCalLut = lut;
+  // Need to propagate the new lut to all the JetFinders
+  for (int i=0; i<N_JET_LEAF_CARDS; i++) {
+    theJetLeafCards.at(i)->getJetFinderA()->setJetEtCalibrationLut(lut);
+    theJetLeafCards.at(i)->getJetFinderB()->setJetEtCalibrationLut(lut);
+    theJetLeafCards.at(i)->getJetFinderC()->setJetEtCalibrationLut(lut);
+  }
 }
 
 void L1GlobalCaloTrigger::setRegion(L1CaloRegion region) {
@@ -315,17 +321,17 @@ vector<L1GctEmCand> L1GlobalCaloTrigger::getNonIsoElectrons() const {
 }
 
 // central jet outputs to GT
-vector<L1GctJet> L1GlobalCaloTrigger::getCentralJets() const {
+vector<L1GctJetCand> L1GlobalCaloTrigger::getCentralJets() const {
   return theJetFinalStage->getCentralJets();
 }
 
 // forward jet outputs to GT
-vector<L1GctJet> L1GlobalCaloTrigger::getForwardJets() const { 
+vector<L1GctJetCand> L1GlobalCaloTrigger::getForwardJets() const { 
   return theJetFinalStage->getForwardJets(); 
 }
 
 // tau jet outputs to GT
-vector<L1GctJet> L1GlobalCaloTrigger::getTauJets() const { 
+vector<L1GctJetCand> L1GlobalCaloTrigger::getTauJets() const { 
   return theJetFinalStage->getTauJets(); 
 }
 
@@ -364,7 +370,7 @@ void L1GlobalCaloTrigger::build(L1GctJetLeafCard::jetFinderType jfType) {
     theSourceCards.at(3*i+2) = new L1GctSourceCard(3*i+2, L1GctSourceCard::cardType3);
   }
 
-  // Now we have the source cards prepare vectors of the relevent cards for the connections
+   // Now we have the source cards prepare vectors of the relevent cards for the connections
 
   // Jet leaf cards
   vector<L1GctSourceCard*> jetSourceCards(15);
@@ -404,7 +410,7 @@ void L1GlobalCaloTrigger::build(L1GctJetLeafCard::jetFinderType jfType) {
     jetSourceCards.at(sc++)=theSourceCards.at((jdn*9+8));
     jetSourceCards.at(sc++)=theSourceCards.at((ndn*9+8));
 
-    theJetLeafCards.at(jlc) = new L1GctJetLeafCard(jlc,jlc % 3,jetSourceCards, m_jetEtCalLut, jfType);
+    theJetLeafCards.at(jlc) = new L1GctJetLeafCard(jlc,jlc % 3,jetSourceCards, jfType);
   }
 
   //Link jet leaf cards together
@@ -444,7 +450,7 @@ void L1GlobalCaloTrigger::build(L1GctJetLeafCard::jetFinderType jfType) {
      theWheelJetFpgas.at(i)    = new L1GctWheelJetFpga   (i,wheelJetLeafCards);
      theWheelEnergyFpgas.at(i) = new L1GctWheelEnergyFpga(i,wheelEnergyLeafCards);
    }
-  
+
    // Jet Final Stage  
    theJetFinalStage = new L1GctJetFinalStage(theWheelJetFpgas);
 

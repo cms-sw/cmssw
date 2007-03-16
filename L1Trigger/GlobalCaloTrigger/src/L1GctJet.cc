@@ -1,17 +1,16 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJet.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetEtCalibrationLut.h"
 
-#include "FWCore/Utilities/interface/Exception.h"  
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctJetCand.h"
 
 //DEFINE STATICS
 const unsigned L1GctJet::RAWSUM_BITWIDTH = 10;
 
 
-L1GctJet::L1GctJet(uint16_t rawsum, unsigned eta, unsigned phi, bool tauVeto,
-		   L1GctJetEtCalibrationLut* lut) :
+L1GctJet::L1GctJet(uint16_t rawsum, unsigned eta, unsigned phi, bool tauVeto) :
   m_rawsum(rawsum),
   m_id(eta, phi),
-  m_tauVeto(tauVeto),
-  m_jetEtCalibrationLut(lut)
+  m_tauVeto(tauVeto)
 {
 
 }
@@ -27,12 +26,6 @@ std::ostream& operator << (std::ostream& os, const L1GctJet& cand)
   os << " Eta " << cand.globalEta();
   os << " Phi " << cand.globalPhi();
   os << " Tau " << cand.m_tauVeto;
-  os << " rank " << cand.rank();
-  if (cand.m_jetEtCalibrationLut == 0) {
-    os << " using default lut!";
-  } else {
-    os << " lut address " << cand.m_jetEtCalibrationLut;
-  }
 
   return os;
 }	
@@ -69,36 +62,6 @@ void L1GctJet::setupJet(uint16_t rawsum, unsigned eta, unsigned phi, bool tauVet
   m_tauVeto = tauVeto;
 }
 
-/// Methods to return the jet rank
-uint16_t L1GctJet::rank()      const
-{
-  uint16_t result;
-  // If no lut setup, just return the MSB of the rawsum as the rank
-  if (m_jetEtCalibrationLut==0) {
-    result = std::min(63, m_rawsum >> (RAWSUM_BITWIDTH - 6));
-  } else {
-    result = m_jetEtCalibrationLut->rank(m_rawsum, m_id.ieta());
-  }
-  return result;
-}
-
-uint16_t L1GctJet::calibratedEt() const
-{
-  uint16_t result;
-  // If no lut setup, just return the MSB of the rawsum as the rank
-  if (m_jetEtCalibrationLut==0) {
-    result = std::min(1023, m_rawsum >> (RAWSUM_BITWIDTH - 10));
-  } else {
-    result = m_jetEtCalibrationLut->calibratedEt(m_rawsum, m_id.ieta());
-  }
-  return result;
-}
-
-/// convert to central jet digi
-L1GctJetCand L1GctJet::makeJetCand() {
-  return L1GctJetCand(this->rank(), this->hwPhi(), this->hwEta(), this->isTauJet(), this->isForwardJet());
-}
-
 /// eta value as encoded in hardware at the GCT output
 unsigned L1GctJet::hwEta() const
 {
@@ -112,4 +75,32 @@ unsigned L1GctJet::hwPhi() const
 {
   // Force into 5 bits.
   return m_id.iphi() & 0x1f;
+}
+
+/// Function to convert from internal format to external jet candidates at the output of the jetFinder 
+L1GctJetCand L1GctJet::jetCand(const L1GctJetEtCalibrationLut* lut) const
+{
+  return L1GctJetCand(rank(lut), hwPhi(), hwEta(), isTauJet(), isForwardJet());
+}
+
+/// The two separate Lut outputs
+uint16_t L1GctJet::rank(const L1GctJetEtCalibrationLut* lut) const
+{
+  return lutValue(lut) >> L1GctJetEtCalibrationLut::JET_ENERGY_BITWIDTH; 
+}
+
+unsigned L1GctJet::calibratedEt(const L1GctJetEtCalibrationLut* lut) const
+{
+  return lutValue(lut) & ((1 << L1GctJetEtCalibrationLut::JET_ENERGY_BITWIDTH) - 1);
+}
+
+// internal function to find the lut contents for a jet
+uint16_t L1GctJet::lutValue(const L1GctJetEtCalibrationLut* lut) const
+{
+  unsigned addrBits = m_rawsum | (rctEta() << L1GctJetEtCalibrationLut::JET_ENERGY_BITWIDTH);
+  if (!m_tauVeto) {
+    addrBits |= 1 << (L1GctJetEtCalibrationLut::JET_ENERGY_BITWIDTH+4);
+  }
+  uint16_t address = static_cast<uint16_t>(addrBits);
+  return lut->lutValue(address);
 }

@@ -13,9 +13,8 @@ const unsigned int L1GctHardwareJetFinder::CENTRAL_COL0 = 0;
 
 const unsigned int L1GctHardwareJetFinder::JET_THRESHOLD = 1;
 
-L1GctHardwareJetFinder::L1GctHardwareJetFinder(int id, vector<L1GctSourceCard*> sourceCards,
-					       L1GctJetEtCalibrationLut* jetEtCalLut):
-  L1GctJetFinderBase(id, sourceCards, jetEtCalLut),
+L1GctHardwareJetFinder::L1GctHardwareJetFinder(int id, vector<L1GctSourceCard*> sourceCards):
+  L1GctJetFinderBase(id, sourceCards),
   m_protoJetRegions(MAX_REGIONS_IN)
 {
   // Setup the position info in protoJetRegions.
@@ -315,7 +314,7 @@ void L1GctHardwareJetFinder::convertClustersToOutputJets()
     if (m_clusters.at(j).et()>=JET_THRESHOLD) {
       unsigned rawsum = m_clusters.at(j).et();
       if (m_clusters.at(j).overFlow()) { rawsum = rawsum | (1<<L1GctJet::RAWSUM_BITWIDTH); }
-      L1GctJet temp(rawsum, m_clusters.at(j).gctEta(), m_clusters.at(j).gctPhi(), m_clusters.at(j).tauVeto(), m_jetEtCalLut);
+      L1GctJet temp(rawsum, m_clusters.at(j).gctEta(), m_clusters.at(j).gctPhi(), m_clusters.at(j).tauVeto());
       m_outputJets.at(j) = temp;
     }
   }

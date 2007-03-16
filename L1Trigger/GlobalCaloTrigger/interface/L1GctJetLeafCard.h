@@ -1,13 +1,10 @@
 #ifndef L1GCTJETLEAFCARD_H_
 #define L1GCTJETLEAFCARD_H_
 
-#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJet.h"
-#include "L1Trigger/GlobalCaloTrigger/interface/L1GctTdrJetFinder.h"
-#include "L1Trigger/GlobalCaloTrigger/interface/L1GctHardwareJetFinder.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctSourceCard.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetFinderBase.h"
 #include "L1Trigger/GlobalCaloTrigger/src/L1GctTwosComplement.h"
 #include "L1Trigger/GlobalCaloTrigger/src/L1GctUnsignedInt.h"
-#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetEtCalibrationLut.h"
 
 #include <vector>
 
@@ -31,7 +28,6 @@ public:
 
   //Construtors/destructor
   L1GctJetLeafCard(int id, int iphi, std::vector<L1GctSourceCard*> sourceCards,
-                   L1GctJetEtCalibrationLut* jetEtCalLut,
 		   jetFinderType jfType = tdrJetFinder);
                    
   ~L1GctJetLeafCard();
@@ -40,9 +36,9 @@ public:
   void setNeighbourLeafCards(std::vector<L1GctJetLeafCard*> neighbours);
 
   /// Check setup is Ok
-  bool gotNeighbourPointers() const { return (m_jetFinderA->gotNeighbourPointers() &&
-					      m_jetFinderB->gotNeighbourPointers() &&
-					      m_jetFinderC->gotNeighbourPointers()); }
+  bool setupOk() const { return (m_jetFinderA->setupOk() &&
+				 m_jetFinderB->setupOk() &&
+				 m_jetFinderC->setupOk()); }
 
   /// Overload << operator
   friend std::ostream& operator << (std::ostream& os, const L1GctJetLeafCard& card);
@@ -65,9 +61,9 @@ public:
   L1GctJetFinderBase* getJetFinderC() const { return m_jetFinderC; }
 
   // get the jet output
-  std::vector<L1GctJet> getOutputJetsA() const { return m_jetFinderA->getJets(); }  ///< Output jetfinder A jets (lowest jetFinder in phi)
-  std::vector<L1GctJet> getOutputJetsB() const { return m_jetFinderB->getJets(); }  ///< Output jetfinder B jets (middle jetFinder in phi)
-  std::vector<L1GctJet> getOutputJetsC() const { return m_jetFinderC->getJets(); }  ///< Ouptut jetfinder C jets (highest jetFinder in phi)
+  std::vector<L1GctJetCand> getOutputJetsA() const { return m_jetFinderA->getJets(); }  ///< Output jetfinder A jets (lowest jetFinder in phi)
+  std::vector<L1GctJetCand> getOutputJetsB() const { return m_jetFinderB->getJets(); }  ///< Output jetfinder B jets (middle jetFinder in phi)
+  std::vector<L1GctJetCand> getOutputJetsC() const { return m_jetFinderC->getJets(); }  ///< Ouptut jetfinder C jets (highest jetFinder in phi)
     
   /// get the Ex output
   L1GctTwosComplement<12> getOutputEx() const { return m_exSum; }
@@ -92,9 +88,6 @@ private:
   L1GctJetFinderBase* m_jetFinderB;  ///< middle jetFinder in phi
   L1GctJetFinderBase* m_jetFinderC;  ///< highest jetFinder in phi
   
-  /// Remember whether the neighbour pointers have been stored
-  bool m_gotNeighbourPointers;
-
   // pointers to data source
   std::vector<L1GctSourceCard*> m_sourceCards;
   

@@ -15,9 +15,8 @@ const unsigned int L1GctTdrJetFinder::MAX_REGIONS_IN = (((L1CaloRegionDetId::N_E
 const int L1GctTdrJetFinder::N_COLS = 4;
 const unsigned int L1GctTdrJetFinder::CENTRAL_COL0 = 1;
 
-L1GctTdrJetFinder::L1GctTdrJetFinder(int id, vector<L1GctSourceCard*> sourceCards,
-				     L1GctJetEtCalibrationLut* jetEtCalLut):
-  L1GctJetFinderBase(id, sourceCards, jetEtCalLut)
+L1GctTdrJetFinder::L1GctTdrJetFinder(int id, vector<L1GctSourceCard*> sourceCards):
+  L1GctJetFinderBase(id, sourceCards)
 {
   this->reset();
 }
@@ -72,7 +71,7 @@ void L1GctTdrJetFinder::findJets()
       if(detectJet(centreIndex, hfBoundary))
       {
         assert(jetNum < MAX_JETS_OUT);
-                
+            
         m_outputJets.at(jetNum).setRawsum(calcJetEnergy(centreIndex, hfBoundary));
         m_outputJets.at(jetNum).setDetId(calcJetPosition(centreIndex));
         if(row < COL_OFFSET-4)  //if we are not in the HF, perform tauVeto analysis
@@ -157,8 +156,8 @@ bool L1GctTdrJetFinder::detectJet(const UShort centreIndex, const bool boundary)
   return false;           
 }
 
-// returns the energy sum of the nine regions centred (physically) about centreIndex
-ULong L1GctTdrJetFinder::calcJetEnergy(const UShort centreIndex, const bool boundary) const
+//returns the energy sum of the nine regions centred (physically) about centreIndex
+L1GctJetFinderBase::ULong L1GctTdrJetFinder::calcJetEnergy(const UShort centreIndex, const bool boundary) const
 {
   ULong energy = 0;
     
@@ -179,6 +178,7 @@ ULong L1GctTdrJetFinder::calcJetEnergy(const UShort centreIndex, const bool boun
                 m_inputRegions.at( centreIndex  + (column*COL_OFFSET)).et();
     }
   }
+
   return energy;                                   
 }
 
