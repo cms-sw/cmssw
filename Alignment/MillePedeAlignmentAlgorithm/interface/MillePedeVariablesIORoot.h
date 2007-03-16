@@ -7,8 +7,8 @@
 ///
 ///  \author    : Gero Flucke
 ///  date       : November 2006
-///  $Revision: 1.1 $
-///  $Date: 2006/11/14 08:43:38 $
+///  $Revision: 1.2 $
+///  $Date: 2006/11/30 10:34:04 $
 ///  (last update by $Author: flucke $)
 
 
@@ -73,6 +73,7 @@ class MillePedeVariablesIORoot : public AlignmentIORootBase, public AlignmentUse
   Float_t      myDiffBefore[kMaxNumPar];
   Float_t      myGlobalCor[kMaxNumPar];
   Float_t      myPreSigma[kMaxNumPar];
+  Float_t      myParameter[kMaxNumPar];
   Float_t      mySigma[kMaxNumPar];
   UInt_t       myHitsX;
   UInt_t       myHitsY;

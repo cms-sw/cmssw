@@ -3,9 +3,9 @@
  *
  *  \author    : Gero Flucke
  *  date       : November 2006
- *  $Revision: 1.2 $
- *  $Date: 2006/11/30 10:34:05 $
- *  (last update by $Author: flucke $)
+ *  $Revision: 1.3 $
+ *  $Date: 2006/12/03 17:53:57 $
+ *  (last update by $Author: fronga $)
  */
 
 // this class's header
@@ -18,6 +18,7 @@
 #include "Alignment/CommonAlignment/interface/AlignmentParameters.h"
 #include "Alignment/MillePedeAlignmentAlgorithm/interface/MillePedeVariables.h"
 
+#include "TTree.h"
 
 // -------------------------------------------------------------------------------------------------
 MillePedeVariablesIORoot::MillePedeVariablesIORoot()
@@ -99,6 +100,7 @@ int MillePedeVariablesIORoot::writeOne(Alignable* ali)
     myDiffBefore[iPar] = mpVar->diffBefore()[iPar];
     myGlobalCor[iPar]  = mpVar->globalCor()[iPar];
     myPreSigma[iPar]   = mpVar->preSigma()[iPar];
+    myParameter[iPar]  = mpVar->parameter()[iPar];
     mySigma[iPar]      = mpVar->sigma()[iPar];
   }
   myHitsX = mpVar->hitsX();
@@ -137,6 +139,7 @@ AlignmentUserVariables* MillePedeVariablesIORoot::readOne(Alignable *ali, int &i
     mpVar->diffBefore()[iPar] = myDiffBefore[iPar];
     mpVar->globalCor()[iPar]  = myGlobalCor[iPar];
     mpVar->preSigma()[iPar]   = myPreSigma[iPar];
+    mpVar->parameter()[iPar]  = myParameter[iPar];
     mpVar->sigma()[iPar]      = mySigma[iPar];
   }
   mpVar->setHitsX(myHitsX);
@@ -156,6 +159,7 @@ void MillePedeVariablesIORoot::createBranches()
   tree->Branch("DiffBefore", myDiffBefore,"DiffBefore[NumPar]/F");
   tree->Branch("GlobalCor",  myGlobalCor, "GlobalCor[NumPar]/F");
   tree->Branch("PreSigma",   myPreSigma,  "PreSigma[NumPar]/F");
+  tree->Branch("Par",        myParameter, "Par[NumPar]/F"); // name as in AlignmentParametersIORoot
   tree->Branch("Sigma",      mySigma,     "Sigma[NumPar]/F");
   tree->Branch("HitsX",     &myHitsX,     "HitsX/i");
   tree->Branch("HitsY",     &myHitsY,     "HitsY/i");
@@ -172,6 +176,7 @@ void MillePedeVariablesIORoot::setBranchAddresses()
   tree->SetBranchAddress("DiffBefore", myDiffBefore);
   tree->SetBranchAddress("GlobalCor",  myGlobalCor);
   tree->SetBranchAddress("PreSigma",   myPreSigma);
+  tree->SetBranchAddress("Par",        myParameter);
   tree->SetBranchAddress("Sigma",      mySigma);
   tree->SetBranchAddress("HitsX",     &myHitsX);
   tree->SetBranchAddress("HitsY",     &myHitsY);

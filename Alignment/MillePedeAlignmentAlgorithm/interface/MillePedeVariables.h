@@ -8,8 +8,8 @@
  *
  *  \author    : Gero Flucke
  *  date       : November 2006
- *  $Revision: 1.1 $
- *  $Date: 2006/11/14 08:43:38 $
+ *  $Revision: 1.2 $
+ *  $Date: 2006/11/30 10:34:04 $
  *  (last update by $Author: flucke $)
  */
 
@@ -57,6 +57,11 @@ class MillePedeVariables : public AlignmentUserVariables {
   /// get array of sigmas for changing it
   std::vector<float>& sigma() {return mySigma;}
 
+  /// get array of parameters
+  const std::vector<float>& parameter() const {return myParameter;}
+  /// get array of parameters for changing it
+  std::vector<float>& parameter() {return myParameter;}
+
   /// get alignable label as used by pede
   unsigned int label() const {return myLabel;}
   /// set alignable label as used by pede
@@ -82,6 +87,7 @@ class MillePedeVariables : public AlignmentUserVariables {
   std::vector<float> myDiffBefore;
   std::vector<float> myGlobalCor;
   std::vector<float> myPreSigma; /// <= 0 means fixed
+  std::vector<float> myParameter;
   std::vector<float> mySigma;
   unsigned int       myHitsX;
   unsigned int       myHitsY;
