@@ -18,9 +18,9 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.11 $
- *  $Date$
- *  (last update by $Author$)
+ *  $Revision: 1.1 $
+ *  $Date: 2006/10/20 13:57:03 $
+ *  (last update by $Author: flucke $)
  */
 
 class Mille 
@@ -42,9 +42,11 @@ class Mille
   bool myAsBinary;         // if false output as text
   bool myWriteZero;        // if true also write out derivatives/lables ==0
 
-  enum {myBufferSize = 1000};
+  enum {myBufferSize = 5000};
   int   myBufferInt[myBufferSize];   // to collect labels etc.
   float myBufferFloat[myBufferSize]; // to collect derivatives etc.
   int   myBufferPos;
+
+  enum {myMaxLabel = (0xFFFFFFFF - (1 << 31))}; // largest label allowed: 2^31 - 1
 };
 #endif

@@ -2,9 +2,9 @@
  * \file Mille.cc
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.11 $
- *  $Date$
- *  (last update by $Author$)
+ *  $Revision: 1.1 $
+ *  $Date: 2006/10/20 13:57:03 $
+ *  (last update by $Author: flucke $)
  */
 
 #include "Mille.h"
@@ -18,7 +18,7 @@ Mille::Mille(const char *outFileName, bool asBinary, bool writeZero) :
   myOutFile(outFileName, (asBinary ? (std::ios::binary | std::ios::out) : std::ios::out)),
   myAsBinary(asBinary), myWriteZero(writeZero), myBufferPos(-1)
 {
-  // opens outFileName as binary output file
+  // opens outFileName, by default as binary file
 
   myBufferInt[0]   = 0;
   myBufferFloat[0] = 0.;
@@ -69,13 +69,13 @@ void Mille::mille(int NLC, const float *derLc,
   // store global derivatives and their lables
   for (int i = 0; i < NGL; ++i) {
     if (derGl[i] || myWriteZero) { // by default store only non-zero derivatives
-      if ((label[i] > 0 || myWriteZero) && label[i] <= 99999999) { // and for valid labels
+      if ((label[i] > 0 || myWriteZero) && label[i] <= myMaxLabel) { // and for valid labels
 	++myBufferPos;
 	myBufferFloat[myBufferPos] = derGl[i]; // global derivatives
 	myBufferInt  [myBufferPos] = label[i]; // index of global parameter
       } else {
 	std::cerr << "Mille::mille: Invalid label " << label[i] 
-		  << " <= 0 or > " << 99999999 << std::endl; 
+		  << " <= 0 or > " << myMaxLabel << std::endl; 
       }
     }
   }
@@ -124,7 +124,7 @@ void Mille::end()
 
 void Mille::newSet()
 {
-  // initilise for new set of locals, i.e. new track
+  // initilise for new set of locals, e.g. new track
   myBufferPos = 0;
   myBufferFloat[0] = 0.0;
   myBufferInt  [0] = 0;   // position 0 used as error counter
