@@ -1,12 +1,14 @@
-// Last commit: $Id: $
-// Latest tag:  $Name: $
-// Location:    $Source: $
+// Last commit: $Id: SiStripEventSummary.cc,v 1.12 2007/03/15 17:30:44 bainbrid Exp $
+// Latest tag:  $Name:  $
+// Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/DataFormats/SiStripDigi/src/SiStripEventSummary.cc,v $
 
 #include "DataFormats/SiStripDigi/interface/SiStripEventSummary.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 #include <iomanip>
+
+using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 //
@@ -92,7 +94,6 @@ void SiStripEventSummary::commissioningInfo( const uint32_t* const buffer,
       if ( !found ) { 
 	ss << " Did not find DeviceId/DCUid for event " 
 	   << event << "!";
-	using namespace sistrip;
 	edm::LogWarning(mlDigis_) << ss.str();
 	params_[0] = 0; 
 	params_[1] = 0; 
@@ -104,7 +105,6 @@ void SiStripEventSummary::commissioningInfo( const uint32_t* const buffer,
 	   << std::hex << std::setw(8) << std::setfill('0') << params_[0] << std::dec
 	   << "/0x"
 	   << std::hex << std::setw(8) << std::setfill('0') << params_[3] << std::dec;
-	using namespace sistrip;
 	LogTrace(mlDigis_) << ss.str();
       }
 
@@ -132,7 +132,6 @@ void SiStripEventSummary::commissioningInfo( const uint32_t* const buffer,
 
   } else { // Unknown commissioning task
     
-    using namespace sistrip;
     edm::LogWarning(mlDigis_)
       << "[SiStripEventSummary::" << __func__ << "]"
       << " Unknown commissioning task: "
