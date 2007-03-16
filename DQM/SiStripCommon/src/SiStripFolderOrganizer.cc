@@ -8,7 +8,7 @@
 //
 // Original Author:  dkcira
 //         Created:  Thu Jan 26 23:52:43 CET 2006
-// $Id: SiStripFolderOrganizer.cc,v 1.6 2006/04/23 13:26:20 dkcira Exp $
+// $Id: SiStripFolderOrganizer.cc,v 1.7 2006/10/30 21:17:53 bainbrid Exp $
 //
 
 #include <iostream>
@@ -129,26 +129,26 @@ void SiStripFolderOrganizer::setDetectorFolder(uint32_t rawdetid){
   // ---------------------------  TIB  --------------------------- //
     TIBDetId tib1 = TIBDetId(rawdetid);
     vector<string> str_subnames(3); // translate numering of tib string-structure in (character) strings
-    if((tib1.string()).at(0)==0){str_subnames[0]="backward_strings";}else{str_subnames[0]="forward_strings";}
-    if((tib1.string()).at(1)==0){str_subnames[1]="internal_strings";}else{str_subnames[1]="external_strings";}
+    if((tib1.string()).at(0)==1){str_subnames[0]="backward_strings";}else{str_subnames[0]="forward_strings";}
+    if((tib1.string()).at(1)==1){str_subnames[1]="internal_strings";}else{str_subnames[1]="external_strings";}
     rest<<sep<<"TIB"<<sep<<"layer_"<<tib1.layer()<<sep<<str_subnames[0]<<sep<<str_subnames[1]<<sep<<"string_"<<(tib1.string()).at(2)<<sep <<"module_"<<rawdetid;
   }else if( subdetid==4){
   // ---------------------------  TID  --------------------------- //
     TIDDetId tid1 = TIDDetId(rawdetid);
     string stereo_mono;
-    if(tid1.stereo()==0){stereo_mono="mono_modules";}else{stereo_mono="stereo_modules";}
+    if(tid1.stereo()==1){stereo_mono="stereo_modules";}else{stereo_mono="mono_modules";}
     rest<<sep<<"TID"<<sep<<"side_"<<tid1.side()<<sep<<"wheel_"<<tid1.wheel()<<sep<<"ring_"<<tid1.ring()<<sep<<stereo_mono<<sep<<"module_"<<rawdetid;
   }else if( subdetid==5){
   // ---------------------------  TOB  --------------------------- //
     TOBDetId tob1 = TOBDetId(rawdetid);
     string bkw_frw;
-    if((tob1.rod()).at(0)==0){bkw_frw="backward_rods";}else{bkw_frw="forward_rods";}
+    if((tob1.rod()).at(0)==1){bkw_frw="backward_rods";}else{bkw_frw="forward_rods";}
     rest<<sep<<"TOB"<<sep<<"layer_"<<tob1.layer()<<sep<<bkw_frw<<sep<<"rod_"<<(tob1.rod()).at(1)<<sep<<"module_"<<rawdetid;
   }else if( subdetid==6){
   // ---------------------------  TEC  --------------------------- //
     TECDetId tec1 = TECDetId(rawdetid);
-    string petal_bkw_frw;     if((tec1.petal()).at(0)==0){petal_bkw_frw="backward_petals";}{petal_bkw_frw="forward_petals";}
-    string fec_stereo_mono; if(tec1.stereo()==0){fec_stereo_mono="mono_modules";}{fec_stereo_mono="stereo_modules";}
+    string petal_bkw_frw;     if((tec1.petal()).at(1)==0){petal_bkw_frw="backward_petals";}{petal_bkw_frw="forward_petals";}
+    string fec_stereo_mono; if(tec1.stereo()==1){fec_stereo_mono="stereo_modules";}{fec_stereo_mono="mono_modules";}
     rest<<sep<<"TEC"<<sep<<"side_"<<tec1.side()<<sep<<"wheel_"<<tec1.wheel()<<sep<<petal_bkw_frw<<sep<<"petal_"<<(tec1.petal()).at(1)<<sep<<"ring_"<<tec1.ring()<<sep<<fec_stereo_mono<<sep<<"module_"<<rawdetid;
   }else{
   // ---------------------------  ???  --------------------------- //

@@ -8,7 +8,7 @@
 //
 // Original Author:  dkcira
 //         Created:  Wed Jan 25 07:19:38 CET 2006
-// $Id: SiStripSubStructure.cc,v 1.3 2006/03/15 16:48:09 fambrogl Exp $
+// $Id: SiStripSubStructure.cc,v 1.4 2006/04/11 10:13:12 dkcira Exp $
 //
 
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
@@ -30,8 +30,8 @@ SiStripSubStructure::~SiStripSubStructure(){
 void SiStripSubStructure::getTIBDetectors(const std::vector<uint32_t> & inputDetRawIds,
                                           std::vector<uint32_t> & tibDetRawIds,
                                           uint32_t requested_layer,
-                                          uint32_t requested_bkw_frw, // = 1(backward) 2(forward) 0(all)
-                                          uint32_t requested_int_ext, // = 1(internal) 2(external) 0(all)
+                                          uint32_t requested_bkw_frw,
+                                          uint32_t requested_int_ext,
                                           uint32_t requested_string) const{
  // loop over all input detectors
   for(vector<uint32_t>::const_iterator it = inputDetRawIds.begin(); it!=inputDetRawIds.end();it++){
@@ -40,8 +40,8 @@ void SiStripSubStructure::getTIBDetectors(const std::vector<uint32_t> & inputDet
     if( potentialTIB.subdetId() ==  int (StripSubdetector::TIB) ){ // check if subdetector field is a TIB, both tested numbers are int
       if( // check if TIB is from the ones requested
          (    (potentialTIB.layer()==requested_layer) || requested_layer==0 )  // take everything if default value is 0
-         && ( ((potentialTIB.string()).at(0)==(requested_bkw_frw-1)) || requested_bkw_frw==0 )
-         && ( ((potentialTIB.string()).at(1)==(requested_int_ext-1)) || requested_int_ext==0 )
+         && ( ((potentialTIB.string()).at(0)==(requested_bkw_frw)) || requested_bkw_frw==0 )
+         && ( ((potentialTIB.string()).at(1)==(requested_int_ext)) || requested_int_ext==0 )
          && ( ((potentialTIB.string()).at(2)==requested_string) || requested_string==0 )
          ){
         tibDetRawIds.push_back(therawid);       // add detector to list of selected TIBdets
@@ -78,7 +78,7 @@ void SiStripSubStructure::getTIDDetectors(const std::vector<uint32_t> & inputDet
 void SiStripSubStructure::getTOBDetectors(const std::vector<uint32_t> & inputDetRawIds,
                                           std::vector<uint32_t> & tobDetRawIds,
                                           uint32_t requested_layer,
-                                          uint32_t requested_bkw_frw, // requested_bkw_frw = 1(backward) 2(forward) 0(all)
+                                          uint32_t requested_bkw_frw,
                                           uint32_t requested_rod) const{
  // loop over all input detectors
   for(vector<uint32_t>::const_iterator it = inputDetRawIds.begin(); it!=inputDetRawIds.end();it++){
@@ -87,8 +87,8 @@ void SiStripSubStructure::getTOBDetectors(const std::vector<uint32_t> & inputDet
     if( potentialTOB.subdetId() ==  int (StripSubdetector::TOB) ){ // check if subdetector field is a TOB, both tested numbers are int
       if( // check if TOB is from the ones requested
          (    (potentialTOB.layer()==requested_layer) || requested_layer==0 )  // take everything if default value is 0
+         && ( ((potentialTOB.rod()).at(0)==(requested_bkw_frw)) || requested_bkw_frw==0 )
          && ( ((potentialTOB.rod()).at(1)==requested_rod) || requested_rod==0 )
-         && ( ((potentialTOB.rod()).at(1)==(requested_bkw_frw-1)) || requested_bkw_frw==0 )
          ){
         tobDetRawIds.push_back(therawid);       // add detector to list of selected TOBdets
       }
@@ -101,10 +101,10 @@ void SiStripSubStructure::getTECDetectors(const std::vector<uint32_t> & inputDet
                                           std::vector<uint32_t> & tecDetRawIds,
                                           uint32_t requested_side,
                                           uint32_t requested_wheel,
-                                          uint32_t requested_petal_bkw_frw, // = 1(backward) 2(forward) 0(all)
+                                          uint32_t requested_petal_bkw_frw,
                                           uint32_t requested_petal,
                                           uint32_t requested_ring,
-                                          uint32_t requested_ster) const{ // requested_ster = 1(mono) 2(stereo) 0(all)
+                                          uint32_t requested_ster) const{ 
  // loop over all input detectors
   for(vector<uint32_t>::const_iterator it = inputDetRawIds.begin(); it!=inputDetRawIds.end();it++){
     uint32_t therawid = (*it);                  // raw id of single detector
@@ -116,7 +116,7 @@ void SiStripSubStructure::getTECDetectors(const std::vector<uint32_t> & inputDet
          && ( ((potentialTEC.petal()).at(0)==(requested_petal_bkw_frw-1)) || requested_petal_bkw_frw==0 )
          && ( ((potentialTEC.petal()).at(1)==requested_petal) || requested_petal==0 )
          && ( (potentialTEC.ring()==requested_ring) || requested_ring==0 )
-         && ( (potentialTEC.stereo()==(requested_ster-1)) || requested_ster==0 )
+         && ( (potentialTEC.stereo()==requested_ster) || requested_ster==0 )
          ){
         tecDetRawIds.push_back(therawid);       // add detector to list of selected TECdets
       }
