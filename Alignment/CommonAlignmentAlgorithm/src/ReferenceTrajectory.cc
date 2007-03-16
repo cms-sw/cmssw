@@ -1,14 +1,19 @@
 //  Author     : Gero Flucke (based on code by Edmund Widl replacing ORCA's TkReferenceTrack)
 //  date       : 2006/09/17
-//  last update: $Date: 2006/10/10 16:31:20 $
-//  by         : $Author: ewidl $
+//  last update: $Date: 2007/03/02 12:16:56 $
+//  by         : $Author: fronga $
 
 #include "Alignment/CommonAlignmentAlgorithm/interface/ReferenceTrajectory.h"
 
-#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
-#include "DataFormats/GeometrySurface/interface/LocalError.h"
-#include "DataFormats/GeometryVector/interface/LocalPoint.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+// #include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
+// #include "DataFormats/GeometrySurface/interface/LocalError.h"
+// #include "DataFormats/GeometryVector/interface/LocalPoint.h"
+#include "Geometry/CommonDetAlgo/interface/AlgebraicObjects.h" // FIXME: backport of include 
+#include "Geometry/Surface/interface/LocalError.h" // FIXME: backport of include 
+#include "Geometry/Vector/interface/LocalPoint.h" // FIXME: backport of include 
+#include "Geometry/CommonDetUnit/interface/GeomDet.h" // FIXME: backport of include 
 
 #include "DataFormats/TrajectoryState/interface/LocalTrajectoryParameters.h"
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
@@ -101,6 +106,9 @@ bool ReferenceTrajectory::construct(const TrajectoryStateOnSurface &refTsos,
       if (!this->propagate(previousHitPtr->det()->surface(), previousTsos,
 			   hitPtr->det()->surface(), nextTsos,
 			   nextJacobian, magField)) {
+	edm::LogInfo("Alignment") << "@SUB=ReferenceTrajectory::construct2"
+				  << "Propagation failed at hit " << iRow/nMeasPerHit
+				  << " => invalid trajectory";
 	return false; // stop if problem...
       }
 
@@ -136,7 +144,8 @@ bool ReferenceTrajectory::construct(const TrajectoryStateOnSurface &refTsos,
   } // end of loop on hits
 
   if (materialEffects != none) {
-    this->addMaterialEffectsCov(allJacobians, allProjections, allCurvatureChanges, allDeltaParameterCovs);
+    this->addMaterialEffectsCov(allJacobians, allProjections,
+				allCurvatureChanges, allDeltaParameterCovs);
   }
 
   if (refTsos.hasError()) {
@@ -214,9 +223,10 @@ void ReferenceTrajectory::fillMeasurementAndError(const TransientTrackingRecHit:
 						  unsigned int iRow,
 						  const TrajectoryStateOnSurface &updatedTsos)
 {
-  // get the measurements and their errors, use information updated with tsos 
+  // get the measurements and their errors, use information updated with tsos if improving
   // (GF: Also for measurements or only for errors or do the former not change?)
-  TransientTrackingRecHit::ConstRecHitPointer newHitPtr(hitPtr->clone(updatedTsos));
+  TransientTrackingRecHit::ConstRecHitPointer newHitPtr(hitPtr->canImproveWithTrack() ?
+							hitPtr->clone(updatedTsos) : hitPtr);
 
   const LocalPoint localMeasurement    = newHitPtr->localPosition();
   const LocalError localMeasurementCov = newHitPtr->localPositionError();
