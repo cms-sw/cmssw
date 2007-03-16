@@ -1,8 +1,6 @@
 #include "CalibFormats/SiStripObjects/interface/NumberOfDevices.h"
 #include <iomanip>
 
-using namespace std;
-
 // -----------------------------------------------------------------------------
 //
 void NumberOfDevices::clear() {
@@ -30,27 +28,27 @@ void NumberOfDevices::clear() {
 
 // -----------------------------------------------------------------------------
 //
-void NumberOfDevices::print( stringstream& ss ) const {
-  ss << "  FEC crates   : " << nFecCrates_ << endl
-     << "  FEC slots    : " << nFecSlots_ << endl
-     << "  FEC rings    : " << nFecRings_ << endl
-     << "  CCU addrs    : " << nCcuAddrs_ << endl
-     << "  CCU chans    : " << nCcuChans_ << endl
-     << "  DCU ids      : " << nDcuIds_ << endl
-     << "  DCUs         : " << nDcus_ << endl
-     << "  MUXes        : " << nMuxes_ << endl
-     << "  PLLs         : " << nPlls_ << endl
-     << "  LLDs         : " << nLlds_ << endl
-     << "  DET ids      : " << nDetIds_ << endl
-     << "  APV pairs    : " << nApvPairs_ << endl
-     << "  APVs         : " << nApvs_ << endl
-     << "  FED channels : " << nFedChans_ << endl
+void NumberOfDevices::print( std::stringstream& ss ) const {
+  ss << "  FEC crates   : " << nFecCrates_ << std::endl
+     << "  FEC slots    : " << nFecSlots_ << std::endl
+     << "  FEC rings    : " << nFecRings_ << std::endl
+     << "  CCU addrs    : " << nCcuAddrs_ << std::endl
+     << "  CCU chans    : " << nCcuChans_ << std::endl
+     << "  DCU ids      : " << nDcuIds_ << std::endl
+     << "  DCUs         : " << nDcus_ << std::endl
+     << "  MUXes        : " << nMuxes_ << std::endl
+     << "  PLLs         : " << nPlls_ << std::endl
+     << "  LLDs         : " << nLlds_ << std::endl
+     << "  DET ids      : " << nDetIds_ << std::endl
+     << "  APV pairs    : " << nApvPairs_ << std::endl
+     << "  APVs         : " << nApvs_ << std::endl
+     << "  FED channels : " << nFedChans_ << std::endl
      << "  Number of APV pairs per module (0/1/2/3/other)    : " 
      << nApvPairs0_ << " / " 
      << nApvPairs1_ << " / "
      << nApvPairs2_ << " / "
      << nApvPairs3_ << " / "
-     << nApvPairsX_ << endl
+     << nApvPairsX_ << std::endl
      << "  Total number of modules / channels (nApvPairs<=3) : " 
      << ( nApvPairs0_ + nApvPairs1_ + nApvPairs2_ + nApvPairs3_ ) << " / "
      << ( 0*nApvPairs0_ + 1*nApvPairs1_ + 2*nApvPairs2_ + 3*nApvPairs3_ );
@@ -58,8 +56,8 @@ void NumberOfDevices::print( stringstream& ss ) const {
   
 // -----------------------------------------------------------------------------
 //
-ostream& operator<< ( ostream& os, const NumberOfDevices& devs ) {
-  stringstream ss;
+std::ostream& operator<< ( std::ostream& os, const NumberOfDevices& devs ) {
+  std::stringstream ss;
   devs.print(ss);
   os << ss.str();
   return os;
