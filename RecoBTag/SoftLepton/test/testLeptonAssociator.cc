@@ -5,6 +5,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimTracker/TrackAssociation/interface/TrackAssociatorBase.h"
 #include "SimTracker/Records/interface/TrackAssociatorRecord.h"
@@ -44,6 +45,10 @@ void testLeptonAssociator::analyze(const edm::Event& iEvent, const edm::EventSet
   edm::Handle<reco::TrackCollection> recoLeptonHandle;
   iEvent.getByLabel(m_recoLeptons, recoLeptonHandle);
   const reco::TrackCollection& recoLeptonCollection = *(recoLeptonHandle.product()); 
+  
+  edm::Handle<reco::MuonCollection> globalMuonHandle;
+  iEvent.getByLabel(m_recoLeptons, globalMuonHandle);
+  const reco::MuonCollection& globalMuonCollection = *(globalMuonHandle.product()); 
   
   edm::Handle<TrackingParticleCollection> trackingParticleHandle ;
   iEvent.getByLabel(m_trackingTruth, trackingParticleHandle);
@@ -122,18 +127,18 @@ void testLeptonAssociator::analyze(const edm::Event& iEvent, const edm::EventSet
 
   // look for tracking particles associated to the reconstructed muons
   {
-    reco::RecoToSimCollection map = m_associator->associateRecoToSim (recoLeptonHandle, trackingParticleHandle, &iEvent );
-    for (TrackCollection::size_type i = 0; i < recoLeptonCollection.size(); ++i) {
-      TrackRef lepton(recoLeptonHandle, i);
+    reco::RecoToSimCollection map = m_associator->associateRecoToSim (recoTrackHandle, trackingParticleHandle, &iEvent );
+    for (MuonCollection::size_type i = 0; i < globalMuonCollection.size(); ++i) {
+      MuonRef lepton(globalMuonHandle, i);
           cout << "<-- Lepton "
-               << " {"     << setw(2) << lepton->found() << "}    "
+               << " {"     << setw(2) << lepton->track()->found() << "+" << setw(2) << lepton->standAloneMuon()->found() << "} "
                << " ["     << setw(4) << lepton.index() << "]"
                << "            "
-               << " pT: "  << setw(6) << setprecision(3) << lepton->pt()
-               << " eta: " << setw(6) << setprecision(3) << lepton->eta()
+               << " pT: "  << setw(6) << setprecision(3) << lepton->combinedMuon()->pt()
+               << " eta: " << setw(6) << setprecision(3) << lepton->combinedMuon()->eta()
                << endl;
-      if (map.find(lepton) != map.end()) {
-        reco::RecoToSimCollection::result_type particles = map[lepton];
+      if (map.find(lepton->track()) != map.end()) {
+        reco::RecoToSimCollection::result_type particles = map[lepton->track()];
         // cout << " matched to " << setw(2) << right << particles.size() << " TrackingParticles" << std::endl;
         for (std::vector<std::pair<TrackingParticleRef, double> >::const_iterator it = particles.begin(); it != particles.end(); ++it) {
           TrackingParticleRef tp = it->first;
