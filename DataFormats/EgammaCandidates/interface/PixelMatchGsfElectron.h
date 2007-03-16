@@ -7,7 +7,7 @@
  *
  * \author U.Berthon, ClaudeCharlot,LLR
  *
- * \version $Id: PixelMatchGsfElectron.h,v 1.11 2007/01/31 15:11:48 uberthon Exp $
+ * \version $Id: PixelMatchGsfElectron.h,v 1.15 2007/03/16 12:46:30 uberthon Exp $
  *
  */
 
@@ -25,6 +25,9 @@
 // Ursula Berthon - LLR Ecole polytechnique
 // 
 // $Log: PixelMatchGsfElectron.h,v $
+// Revision 1.15  2007/03/16 12:46:30  uberthon
+// make PixelMatchElectrons inherit from RecoCandidate
+//
 // Revision 1.11  2007/01/31 15:11:48  uberthon
 // adapt to changes in GsfTrack class
 //
@@ -171,9 +174,6 @@ class PixelMatchGsfElectron : public RecoCandidate {
   basicCluster_iterator basicClustersBegin() const { return superCluster_->clustersBegin(); }
   basicCluster_iterator basicClustersEnd() const { return superCluster_->clustersEnd(); }
 
-  /// PDG identifier
-  virtual int pdgId() const { return - 11 * charge(); }
-  
  private:
 
   // temporary

@@ -6,7 +6,7 @@
  *
  * \author N.Marinelli  University of Notre Dame, US
  *
- * \version $Id: ConvertedPhoton.h,v 1.2 2006/12/19 18:12:53 nancy Exp $
+ * \version $Id: ConvertedPhoton.h,v 1.4 2007/01/26 16:24:39 nancy Exp $
  *
  */
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
@@ -20,7 +20,7 @@ namespace reco {
     /// default constructor
     ConvertedPhoton() : RecoCandidate() { }
 
-   ConvertedPhoton( Charge q, const LorentzVector & p4, const Point & vtx = Point( 0, 0, 0 ), const Point & convVtx = Point( 0, 0, 0 ) ):  RecoCandidate( q, p4, vtx ), theConversionVertex_(convVtx) { }
+   ConvertedPhoton( Charge q, const LorentzVector & p4, const Point & vtx = Point( 0, 0, 0 ), const Point & convVtx = Point( 0, 0, 0 ) ):  RecoCandidate( q, p4, vtx, -11 * q ), theConversionVertex_(convVtx) { }
 
     /// destructor
     virtual ~ConvertedPhoton();
