@@ -14,6 +14,7 @@
 
 #include <TROOT.h>
 #include <TSystem.h>
+#include <TError.h>
 #include "FWCore/FWLite/interface/AutoLibraryLoader.h"
 
 static const char * const kHelpOpt = "help";
@@ -82,11 +83,13 @@ int main( int argc, char * argv[] ) {
   }
 
   gROOT->SetBatch();
-  
+
   if( vm.count( kAutoLoadOpt ) != 0 ) {
     gSystem->Load( "libFWCoreFWLite" );
     AutoLibraryLoader::enable();
   }
+  else 
+    gErrorIgnoreLevel = kError; 
 
   bool verbose = vm.count( kVerboseOpt ) > 0;
 
