@@ -1,9 +1,13 @@
-/*
- * Fitting laser profiles from the beams in the Laser Alignment System
- */
-
 #ifndef LaserAlignment_BeamProfileFitter_h
 #define LaserAlignment_BeamProfileFitter_h
+
+/** \class BeamProfileFitter
+ *  Fitting laser profiles from the beams in the Laser Alignment System
+ *
+ *  $Date: Fri Mar 16 15:26:18 CET 2007 $
+ *  $Revision: 1.1 $
+ *  \author Maarten Thomas
+ */
 
 // Framework headers
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -30,13 +34,13 @@
 
 class BeamProfileFitter {
  public:
-  // default constructor
+  /// default constructor
   BeamProfileFitter(edm::ParameterSet const& theConf);
   
-  // default destructor
+  /// default destructor
   ~BeamProfileFitter();
   
-  // fitting routine
+  /// fitting routine
   std::vector<LASBeamProfileFit> doFit(const edm::EventSetup& theSetup, 
 				       DetId theDetUnitId, TH1D * theHistogram, 
 				       bool theSaveHistograms, 
@@ -45,7 +49,7 @@ class BeamProfileFitter {
 				       int theSide, bool isTEC2TEC, 
 				       bool & isGoodResult );
 
-  // the peakfinder
+  /// the peakfinder
   std::vector<double> findPeakGaus(TH1D* theHist, int theDisc, int theRing);
 
  private:
@@ -53,10 +57,10 @@ class BeamProfileFitter {
   bool theScaleHisto;
   double theMinSignalHeight;
 
-  // function to calculate the error on phi
+  /// function to calculate the error on phi
   Double_t phiError(TVector3 thePosition, TMatrix theCovarianceMatrix);
   
-  // function to calculate an angle between 0 and 2*Pi
+  /// function to calculate an angle between 0 and 2*Pi
   double angle(double theAngle);
 };
 #endif

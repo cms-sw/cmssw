@@ -1,3 +1,10 @@
+/** \file BeamProfileFitter.cc
+ *
+ *  $Date: Fri Mar 16 15:16:03 CET 2007 $
+ *  $Revision: 1.1 $
+ *  \author Maarten Thomas
+ */
+
 #include "Alignment/LaserAlignment/interface/BeamProfileFitter.h"
 
 // Framework headers
