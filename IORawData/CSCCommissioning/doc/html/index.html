@@ -3,9 +3,110 @@
 <! References to local pages should be relative to this directory>
 <! This makes it easy for both users of the web project space and>
 <! any others who might simply look at html files directly in the source code.>
-<! e.g. href=page1.html or  href=mysubdir/page2.html > 
+<! e.g. href=page1.html or  href=mysubdir/page2.html >
 <html>
 <body>
-This Text Inserted from File doc/html/index.html
+<tt>CSCCommissioning</tt> package operates with local DAQ data of the
+<a href="http://cms-emu-slicetest.web.cern.ch/cms-emu-slicetest/">CSC SliceTest</a>.
+Two modules of this package are <tt>CSCFileReader</tt> and <tt>CSCFileDumper</tt>.
+First is capable of reading CSC local data and populating CMSSW data stream
+(<tt><a href="https://twiki.cern.ch/twiki/bin/view/CMS/WorkBookCMSSWFramework#ProcModel">edm::Event</a></tt>)
+with raw CSC data. Second module does an opposite job of selecting CSC data from the
+<tt><a href="https://twiki.cern.ch/twiki/bin/view/CMS/WorkBookCMSSWFramework#ProcModel">edm::Event</a></tt>
+and dumping them into local DAQ files.
+<br>
+<br>
+CSC DAQ data are composed of up to 40 data streams from independent sources &#151; Readout Units (RUIs).
+These streams are gathered in 4 FED crates (FED stands for Front End Driver) and travel
+downstream of global DAQ via 4 S-Links. Each FED is assigned with its own FED ID (750-759).
+Unlike global data taking, in local mode RUIs log data independently each in a separate set of files.
+<br>
+<br>
+If you work in CMSSW_1_3_0 or later (package revision V00-04-04 and higher) you should
+instruct <tt>CSCFileReader</tt> module to build FED buffers from selected RUIs (see
+<a href="http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/IORawData/CSCCommissioning/test/readFile.cfg?rev=1.6&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup">
+test/readFile.cfg</a> for example). To do that you need to specify parameter set (<tt>PSet</tt>)
+which currently defines 10 RUI file sets (<i>RUI00</i>, <i>RUI01</i>, ... <i>RUI09</i>) and then assign each
+RUI to the appropriate FED (<i>FED750</i>, <i>FED751</i>, <i>FED752</i>, <i>FED753</i>). The module builds FED buffers
+from RUI buffers with the same L1A. Therefore, you should always maintain order of files in
+RUI file sets (module expects only incrementing L1A from file to file).
+<br>
+<br>
+In CMSSW prior to CMSSW_1_3_0 (package revision prior to V00-04-04) you are
+able to handle 1 FED with 1 RUI in it. Just specify fileNames as it is done in
+<a href="http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/IORawData/CSCCommissioning/test/readFile.cfg?rev=1.4&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup">
+test/readFile.cfg</a>.
+<br>
+<br>
+Special trigger RUI should not be mixed with DAQ RUIs that were described above (such
+configuration is not forbidden, but doesn't make much sense). Instead trigger RUI solely
+goes to FED with ID=760.
+<br>
+<br>
+<tt>CSCFileDumper</tt> module selects CSC FED buffers from CMSSW data stream and
+logs them into files specified in <i>output</i> parameter. It automatically appends _FEDID
+to the end of every FED file. Be careful: one FED file may contain different several RUIs,
+while in true local DAQ mode every RUI logs separate file.
+<br>
+<br>
+
+<hr>
+Technical details on <tt>CSCFileReader</tt>:
+<br>
+<br>
+To build FED buffers <tt>CSCFileReader</tt> merges DDU data streams and
+constructs fake DCC Headers and DCC Trailers for the FED buffers.
+<br>
+Module was built around FileReaderDDU class from online software (in TriDAS).
+<br>
+
+It reads file with DDU data, searches for DDU Headers
+and Trailers, and finally returns event buffer. But unlike the old version
+it handles data corruptions.
+<br><br>
+DDUFileReader continuously reads DDU data in blocks of defined length.
+Each time it passes through block and searches for DDU Header or DDU
+Trailer. In same time it fills event buffer. Once it find DDU Trailer
+it sets an ``end mark'' in current data block and returns event buffer
+with event ``status flag'' telling that we have DDU Trailer in this
+event. On next call it continues passing data block from ``end mark''.
+If it finds DDU Header pattern in first two DDU words it sets ``status
+flag'' accordingly and goes further untill it finds DDU Header or Trailer.
+If DDU Header appeared in a place anywhere after first two DDU words
+program sets in ``status flag'' ``Unknown'' bit and returns buffer up to
+this place. If program finds DDU Header in a right place and encounters
+second DDU Header it returns event to this point, set DDU Header bit
+in ``status flag'', and starts from "second" DDU Header on next call.
+The last condition causing buffer return happens when buffer size
+reaches value of 50000 DDU words. In this case ``status flag'' contains
+``DDUoversize'' bit set.
+<br><br>
+Described scheme can be presented by following diagrams representing
+buffer structure:
+<br><br>
+<table border=0 width=100%>
+<tr>
+<td valign=top>1)</td><td valign=top><nobr>[H-T]</nobr></td><td valign=top><nobr>// Normal event</n$</tr><tr>
+<td valign=top>2)</td><td valign=top><nobr>[H-?]H</nobr></td><td valign=top><nobr>// More likely ev$</tr><tr>
+<td valign=top>3)</td><td valign=top><nobr>[H-max]</nobr></td><td valign=top><nobr>// ``DDUoversize$</tr><tr>
+<td valign=top>4)</td><td valign=top><nobr>[?-T]</nobr></td><td valign=top><nobr>// Could be anythi$</tr><tr>
+<td valign=top>5)</td><td valign=top><nobr>[?-?]H</nobr></td><td valign=top><nobr>// Could be anyth$</tr><tr>
+<td valign=top>6)</td><td valign=top><nobr>[?-max]</nobr></td><td valign=top><nobr>// Could be anyt$</tr><tr>
+<td valign=top>7)</td><td valign=top><nobr>[FFFF]</nobr></td><td valign=top><nobr>// Some standard $</tr>
+</table>
+<br><br>
+One remark to be made here is that DDU Header ( as well as DDU Trailer )
+consists of three words with identifying pattern in second word.
+If two consecutive DDU Headers were found, first word of second
+Header goes to both events.
+<br><br>
+For user convenience additional to ``read'' function ``next'' was
+implemented. Together with ``select'', ``accept'', and ``reject''
+functions it allows user to get events of specified type. Function
+``reject'' helps to filter out events with any of ``status flag''
+bits matches defined criteria. Function ``accept'' forces ``next''
+to return events with any of ``status flag'' bits matches its
+criteria. Function ``select'' requires events exactly match its
+criteria.
 </body>
 </html>
