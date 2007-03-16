@@ -4,8 +4,8 @@
 /*
  * \file EBLaserClient.h
  *
- * $Date: 2007/02/22 09:35:44 $
- * $Revision: 1.52 $
+ * $Date: 2007/03/13 10:14:25 $
+ * $Revision: 1.53 $
  * \author G. Della Ricca
  *
 */
@@ -231,6 +231,24 @@ MonitorElement* met05_[36];
 MonitorElement* met06_[36];
 MonitorElement* met07_[36];
 MonitorElement* met08_[36];
+
+MonitorElement* metav01_[36];
+MonitorElement* metav02_[36];
+MonitorElement* metav03_[36];
+MonitorElement* metav04_[36];
+MonitorElement* metav05_[36];
+MonitorElement* metav06_[36];
+MonitorElement* metav07_[36];
+MonitorElement* metav08_[36];
+
+MonitorElement* metrms01_[36];
+MonitorElement* metrms02_[36];
+MonitorElement* metrms03_[36];
+MonitorElement* metrms04_[36];
+MonitorElement* metrms05_[36];
+MonitorElement* metrms06_[36];
+MonitorElement* metrms07_[36];
+MonitorElement* metrms08_[36];
 
 MonitorElement* meaopn01_[36];
 MonitorElement* meaopn02_[36];

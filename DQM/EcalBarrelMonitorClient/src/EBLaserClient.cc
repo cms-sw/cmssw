@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2007/02/22 09:35:44 $
- * $Revision: 1.145 $
+ * $Date: 2007/03/13 10:14:26 $
+ * $Revision: 1.146 $
  * \author G. Della Ricca
  *
 */
@@ -169,6 +169,24 @@ EBLaserClient::EBLaserClient(const ParameterSet& ps){
     met06_[ism-1] = 0;
     met07_[ism-1] = 0;
     met08_[ism-1] = 0;
+
+    metav01_[ism-1] = 0;
+    metav02_[ism-1] = 0;
+    metav03_[ism-1] = 0;
+    metav04_[ism-1] = 0;
+    metav05_[ism-1] = 0;
+    metav06_[ism-1] = 0;
+    metav07_[ism-1] = 0;
+    metav08_[ism-1] = 0;
+
+    metrms01_[ism-1] = 0;
+    metrms02_[ism-1] = 0;
+    metrms03_[ism-1] = 0;
+    metrms04_[ism-1] = 0;
+    metrms05_[ism-1] = 0;
+    metrms06_[ism-1] = 0;
+    metrms07_[ism-1] = 0;
+    metrms08_[ism-1] = 0;
 
     meaopn01_[ism-1] = 0;
     meaopn02_[ism-1] = 0;
@@ -550,6 +568,56 @@ void EBLaserClient::setup(void) {
     sprintf(histo, "EBLT timing L4B SM%02d", ism);
     met08_[ism-1] = bei->book1D(histo, histo, 1700, 0., 1700.);
 
+    if ( metav01_[ism-1] ) bei->removeElement( metav01_[ism-1]->getName() );
+    sprintf(histo, "EBLT timing mean L1A SM%02d", ism);
+    metav01_[ism-1] = bei->book1D(histo, histo, 100, 0., 10.);
+    if ( metav02_[ism-1] ) bei->removeElement( metav02_[ism-1]->getName() );
+    sprintf(histo, "EBLT timing mean L2A SM%02d", ism);
+    metav02_[ism-1] = bei->book1D(histo, histo, 100, 0., 10.);
+    if ( metav03_[ism-1] ) bei->removeElement( metav03_[ism-1]->getName() );
+    sprintf(histo, "EBLT timing mean L3A SM%02d", ism);
+    metav03_[ism-1] = bei->book1D(histo, histo, 100, 0., 10.);
+    if ( metav04_[ism-1] ) bei->removeElement( metav04_[ism-1]->getName() );
+    sprintf(histo, "EBLT timing mean L4A SM%02d", ism);
+    metav04_[ism-1] = bei->book1D(histo, histo, 100, 0., 10.);
+    if ( metav05_[ism-1] ) bei->removeElement( metav05_[ism-1]->getName() );
+    sprintf(histo, "EBLT timing mean L1B SM%02d", ism);
+    metav05_[ism-1] = bei->book1D(histo, histo, 100, 0., 10.);
+    if ( metav06_[ism-1] ) bei->removeElement( metav06_[ism-1]->getName() );
+    sprintf(histo, "EBLT timing mean L2B SM%02d", ism);
+    metav06_[ism-1] = bei->book1D(histo, histo, 100, 0., 10.);
+    if ( metav07_[ism-1] ) bei->removeElement( metav07_[ism-1]->getName() );
+    sprintf(histo, "EBLT timing mean L3B SM%02d", ism);
+    metav07_[ism-1] = bei->book1D(histo, histo, 100, 0., 10.);
+    if ( metav08_[ism-1] ) bei->removeElement( metav08_[ism-1]->getName() );
+    sprintf(histo, "EBLT timing mean L4B SM%02d", ism);
+    metav08_[ism-1] = bei->book1D(histo, histo, 100, 0., 10.);
+
+    if ( metrms01_[ism-1] ) bei->removeElement( metrms01_[ism-1]->getName() );
+    sprintf(histo, "EBLT timing rms L1A SM%02d", ism);
+    metrms01_[ism-1] = bei->book1D(histo, histo, 100, 0., 0.5);
+    if ( metrms02_[ism-1] ) bei->removeElement( metrms02_[ism-1]->getName() );
+    sprintf(histo, "EBLT timing rms L2A SM%02d", ism);
+    metrms02_[ism-1] = bei->book1D(histo, histo, 100, 0., 0.5);
+    if ( metrms03_[ism-1] ) bei->removeElement( metrms03_[ism-1]->getName() );
+    sprintf(histo, "EBLT timing rms L3A SM%02d", ism);
+    metrms03_[ism-1] = bei->book1D(histo, histo, 100, 0., 0.5);
+    if ( metrms04_[ism-1] ) bei->removeElement( metrms04_[ism-1]->getName() );
+    sprintf(histo, "EBLT timing rms L4A SM%02d", ism);
+    metrms04_[ism-1] = bei->book1D(histo, histo, 100, 0., 0.5);
+    if ( metrms05_[ism-1] ) bei->removeElement( metrms05_[ism-1]->getName() );
+    sprintf(histo, "EBLT timing rms L1B SM%02d", ism);
+    metrms05_[ism-1] = bei->book1D(histo, histo, 100, 0., 0.5);
+    if ( metrms06_[ism-1] ) bei->removeElement( metrms06_[ism-1]->getName() );
+    sprintf(histo, "EBLT timing rms L2B SM%02d", ism);
+    metrms06_[ism-1] = bei->book1D(histo, histo, 100, 0., 0.5);
+    if ( metrms07_[ism-1] ) bei->removeElement( metrms07_[ism-1]->getName() );
+    sprintf(histo, "EBLT timing rms L3B SM%02d", ism);
+    metrms07_[ism-1] = bei->book1D(histo, histo, 100, 0., 0.5);
+    if ( metrms08_[ism-1] ) bei->removeElement( metrms08_[ism-1]->getName() );
+    sprintf(histo, "EBLT timing rms L4B SM%02d", ism);
+    metrms08_[ism-1] = bei->book1D(histo, histo, 100, 0., 0.5);
+
     if ( meaopn01_[ism-1] ) bei->removeElement( meaopn01_[ism-1]->getName() );
     sprintf(histo, "EBLT amplitude over PN L1A SM%02d", ism);
     meaopn01_[ism-1] = bei->book1D(histo, histo, 1700, 0., 1700.);
@@ -636,6 +704,24 @@ void EBLaserClient::setup(void) {
     EBMUtilsClient::resetHisto( met06_[ism-1] );
     EBMUtilsClient::resetHisto( met07_[ism-1] );
     EBMUtilsClient::resetHisto( met08_[ism-1] );
+
+    EBMUtilsClient::resetHisto( metav01_[ism-1] );
+    EBMUtilsClient::resetHisto( metav02_[ism-1] );
+    EBMUtilsClient::resetHisto( metav03_[ism-1] );
+    EBMUtilsClient::resetHisto( metav04_[ism-1] );
+    EBMUtilsClient::resetHisto( metav05_[ism-1] );
+    EBMUtilsClient::resetHisto( metav06_[ism-1] );
+    EBMUtilsClient::resetHisto( metav07_[ism-1] );
+    EBMUtilsClient::resetHisto( metav08_[ism-1] );
+
+    EBMUtilsClient::resetHisto( metrms01_[ism-1] );
+    EBMUtilsClient::resetHisto( metrms02_[ism-1] );
+    EBMUtilsClient::resetHisto( metrms03_[ism-1] );
+    EBMUtilsClient::resetHisto( metrms04_[ism-1] );
+    EBMUtilsClient::resetHisto( metrms05_[ism-1] );
+    EBMUtilsClient::resetHisto( metrms06_[ism-1] );
+    EBMUtilsClient::resetHisto( metrms07_[ism-1] );
+    EBMUtilsClient::resetHisto( metrms08_[ism-1] );
 
     EBMUtilsClient::resetHisto( meaopn01_[ism-1] );
     EBMUtilsClient::resetHisto( meaopn02_[ism-1] );
@@ -838,6 +924,40 @@ void EBLaserClient::cleanup(void) {
     met07_[ism-1] = 0;
     if ( met08_[ism-1] ) bei->removeElement( met08_[ism-1]->getName() );
     met08_[ism-1] = 0;
+
+    if ( metav01_[ism-1] ) bei->removeElement( metav01_[ism-1]->getName() );
+    metav01_[ism-1] = 0;
+    if ( metav02_[ism-1] ) bei->removeElement( metav02_[ism-1]->getName() );
+    metav02_[ism-1] = 0;
+    if ( metav03_[ism-1] ) bei->removeElement( metav03_[ism-1]->getName() );
+    metav03_[ism-1] = 0;
+    if ( metav04_[ism-1] ) bei->removeElement( metav04_[ism-1]->getName() );
+    metav04_[ism-1] = 0;
+    if ( metav05_[ism-1] ) bei->removeElement( metav05_[ism-1]->getName() );
+    metav05_[ism-1] = 0;
+    if ( metav06_[ism-1] ) bei->removeElement( metav06_[ism-1]->getName() );
+    metav06_[ism-1] = 0;
+    if ( metav07_[ism-1] ) bei->removeElement( metav07_[ism-1]->getName() );
+    metav07_[ism-1] = 0;
+    if ( metav08_[ism-1] ) bei->removeElement( metav08_[ism-1]->getName() );
+    metav08_[ism-1] = 0;
+
+    if ( metrms01_[ism-1] ) bei->removeElement( metrms01_[ism-1]->getName() );
+    metrms01_[ism-1] = 0;
+    if ( metrms02_[ism-1] ) bei->removeElement( metrms02_[ism-1]->getName() );
+    metrms02_[ism-1] = 0;
+    if ( metrms03_[ism-1] ) bei->removeElement( metrms03_[ism-1]->getName() );
+    metrms03_[ism-1] = 0;
+    if ( metrms04_[ism-1] ) bei->removeElement( metrms04_[ism-1]->getName() );
+    metrms04_[ism-1] = 0;
+    if ( metrms05_[ism-1] ) bei->removeElement( metrms05_[ism-1]->getName() );
+    metrms05_[ism-1] = 0;
+    if ( metrms06_[ism-1] ) bei->removeElement( metrms06_[ism-1]->getName() );
+    metrms06_[ism-1] = 0;
+    if ( metrms07_[ism-1] ) bei->removeElement( metrms07_[ism-1]->getName() );
+    metrms07_[ism-1] = 0;
+    if ( metrms08_[ism-1] ) bei->removeElement( metrms08_[ism-1]->getName() );
+    metrms08_[ism-1] = 0;
 
     if ( meaopn01_[ism-1] ) bei->removeElement( meaopn01_[ism-1]->getName() );
     meaopn01_[ism-1] = 0;
@@ -2662,6 +2782,24 @@ void EBLaserClient::analyze(void){
     EBMUtilsClient::resetHisto( met07_[ism-1] );
     EBMUtilsClient::resetHisto( met08_[ism-1] );
 
+    EBMUtilsClient::resetHisto( metav01_[ism-1] );
+    EBMUtilsClient::resetHisto( metav02_[ism-1] );
+    EBMUtilsClient::resetHisto( metav03_[ism-1] );
+    EBMUtilsClient::resetHisto( metav04_[ism-1] );
+    EBMUtilsClient::resetHisto( metav05_[ism-1] );
+    EBMUtilsClient::resetHisto( metav06_[ism-1] );
+    EBMUtilsClient::resetHisto( metav07_[ism-1] );
+    EBMUtilsClient::resetHisto( metav08_[ism-1] );
+
+    EBMUtilsClient::resetHisto( metrms01_[ism-1] );
+    EBMUtilsClient::resetHisto( metrms02_[ism-1] );
+    EBMUtilsClient::resetHisto( metrms03_[ism-1] );
+    EBMUtilsClient::resetHisto( metrms04_[ism-1] );
+    EBMUtilsClient::resetHisto( metrms05_[ism-1] );
+    EBMUtilsClient::resetHisto( metrms06_[ism-1] );
+    EBMUtilsClient::resetHisto( metrms07_[ism-1] );
+    EBMUtilsClient::resetHisto( metrms08_[ism-1] );
+
     EBMUtilsClient::resetHisto( meaopn01_[ism-1] );
     EBMUtilsClient::resetHisto( meaopn02_[ism-1] );
     EBMUtilsClient::resetHisto( meaopn03_[ism-1] );
@@ -3105,9 +3243,14 @@ void EBLaserClient::analyze(void){
                 met01_[ism-1]->setEntries(1.+met01_[ism-1]->getEntries());
               }
             }
-
+	    
+            if ( metav01_[ism-1] )
+	      metav01_[ism-1] ->Fill(mean09);
+            if ( metrms01_[ism-1] )
+	      metrms01_[ism-1]->Fill(rms09);
+    
           } else {
-
+	    
             if ( met05_[ism-1] ) {
               if ( mean09 > 0. ) {
                 met05_[ism-1]->setBinContent( ip+20*(ie-1), mean09 );
@@ -3115,8 +3258,14 @@ void EBLaserClient::analyze(void){
               } else {
                 met05_[ism-1]->setEntries(1.+met05_[ism-1]->getEntries());
               }
+	    
+            if ( metav05_[ism-1] )
+	      metav05_[ism-1] ->Fill(mean09);
+            if ( metrms05_[ism-1] )
+	      metrms05_[ism-1]->Fill(rms09);
+      
             }
-
+	    
           }
 
         }
@@ -3132,8 +3281,14 @@ void EBLaserClient::analyze(void){
               } else {
                 met02_[ism-1]->setEntries(1.+met02_[ism-1]->getEntries());
               }
-            }
+	    
+            if ( metav02_[ism-1] )
+	      metav02_[ism-1] ->Fill(mean10);
+            if ( metrms02_[ism-1] )
+	      metrms02_[ism-1]->Fill(rms10);
 
+            }
+	    
           } else {
 
             if ( met06_[ism-1] ) {
@@ -3143,6 +3298,12 @@ void EBLaserClient::analyze(void){
               } else {
                 met06_[ism-1]->setEntries(1.+met06_[ism-1]->getEntries());
               }
+
+            if ( metav06_[ism-1] )
+	      metav06_[ism-1] ->Fill(mean10);
+            if ( metrms06_[ism-1] )
+	      metrms06_[ism-1]->Fill(rms10);
+
             }
 
           }
@@ -3160,10 +3321,16 @@ void EBLaserClient::analyze(void){
               } else {
                 met03_[ism-1]->setEntries(1.+met03_[ism-1]->getEntries());
               }
+	      
+            if ( metav03_[ism-1] )
+	      metav03_[ism-1] ->Fill(mean11);
+            if ( metrms03_[ism-1] )
+	      metrms03_[ism-1]->Fill(rms11);
+
             }
-
+	    
           } else {
-
+	    
             if ( met07_[ism-1] ) {
               if ( mean11 > 0. ) {
                 met07_[ism-1]->setBinContent( ip+20*(ie-1), mean11 );
@@ -3171,6 +3338,12 @@ void EBLaserClient::analyze(void){
               } else {
                 met07_[ism-1]->setEntries(1.+met07_[ism-1]->getEntries());
               }
+	      
+            if ( metav07_[ism-1] )
+	      metav07_[ism-1] ->Fill(mean11);
+            if ( metrms07_[ism-1] )
+	      metrms07_[ism-1]->Fill(rms11);
+
             }
 
           }
@@ -3188,6 +3361,12 @@ void EBLaserClient::analyze(void){
               } else {
                 met04_[ism-1]->setEntries(1.+met04_[ism-1]->getEntries());
               }
+	      
+            if ( metav04_[ism-1] )
+	      metav04_[ism-1] ->Fill(mean12);
+            if ( metrms04_[ism-1] )
+	      metrms04_[ism-1]->Fill(rms12);
+
             }
 
           } else {
@@ -3199,6 +3378,12 @@ void EBLaserClient::analyze(void){
               } else {
                 met08_[ism-1]->setEntries(1.+met08_[ism-1]->getEntries());
               }
+	      
+            if ( metav08_[ism-1] )
+	      metav08_[ism-1] ->Fill(mean12);
+            if ( metrms08_[ism-1] )
+	      metrms08_[ism-1]->Fill(rms12);
+
             }
 
           }
@@ -3617,14 +3802,16 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
   dummy1.SetMarkerSize(2);
   dummy1.SetMinimum(0.1);
 
-  string imgNameQual[8], imgNameAmp[8], imgNameTim[8], imgNameShape[8], imgNameAmpoPN[8], imgNameMEPnQualG01[8], imgNameMEPnG01[8], imgNameMEPnPedG01[8], imgNameMEPnQualG16[8], imgNameMEPnG16[8], imgNameMEPnPedG16[8], imgName, meName;
+  string imgNameQual[8], imgNameAmp[8], imgNameTim[8], imgNameTimav[8], imgNameTimrms[8], imgNameShape[8], imgNameAmpoPN[8], imgNameMEPnQualG01[8], imgNameMEPnG01[8], imgNameMEPnPedG01[8], imgNameMEPnQualG16[8], imgNameMEPnG16[8], imgNameMEPnPedG16[8], imgName, meName;
 
-  TCanvas* cQual = new TCanvas("cQual", "Temp", 2*csize, csize);
-  TCanvas* cAmp = new TCanvas("cAmp", "Temp", csize, csize);
-  TCanvas* cTim = new TCanvas("cTim", "Temp", csize, csize);
-  TCanvas* cShape = new TCanvas("cShape", "Temp", csize, csize);
+  TCanvas* cQual   = new TCanvas("cQual", "Temp", 2*csize, csize);
+  TCanvas* cAmp    = new TCanvas("cAmp", "Temp", csize, csize);
+  TCanvas* cTim    = new TCanvas("cTim", "Temp", csize, csize);
+  TCanvas* cTimav  = new TCanvas("cTimav", "Temp", csize, csize);
+  TCanvas* cTimrms = new TCanvas("cTimrms", "Temp", csize, csize);
+  TCanvas* cShape  = new TCanvas("cShape", "Temp", csize, csize);
   TCanvas* cAmpoPN = new TCanvas("cAmpoPN", "Temp", csize, csize);
-  TCanvas* cPed = new TCanvas("cPed", "Temp", csize, csize);
+  TCanvas* cPed    = new TCanvas("cPed", "Temp", csize, csize);
 
   TH2F* obj2f;
   TH1F* obj1f;
@@ -3816,6 +4003,118 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
         obj1f->Draw();
         cTim->Update();
         cTim->SaveAs(imgName.c_str());
+        gPad->SetLogy(0);
+
+      }
+
+      // Timing mean distributions
+
+      imgNameTimav[iCanvas-1] = "";
+
+      obj1f = 0;
+      switch ( iCanvas ) {
+        case 1:
+          obj1f = EBMUtilsClient::getHisto<TH1F*>( metav01_[ism-1] );
+          break;
+        case 2:
+          obj1f = EBMUtilsClient::getHisto<TH1F*>( metav02_[ism-1] );
+          break;
+        case 3:
+          obj1f = EBMUtilsClient::getHisto<TH1F*>( metav03_[ism-1] );
+          break;
+        case 4:
+          obj1f = EBMUtilsClient::getHisto<TH1F*>( metav04_[ism-1] );
+          break;
+        case 5:
+          obj1f = EBMUtilsClient::getHisto<TH1F*>( metav05_[ism-1] );
+          break;
+        case 6:
+          obj1f = EBMUtilsClient::getHisto<TH1F*>( metav06_[ism-1] );
+          break;
+        case 7:
+          obj1f = EBMUtilsClient::getHisto<TH1F*>( metav07_[ism-1] );
+          break;
+        case 8:
+          obj1f = EBMUtilsClient::getHisto<TH1F*>( metav08_[ism-1] );
+          break;
+        default:
+          break;
+      }
+
+      if ( obj1f ) {
+
+        meName = obj1f->GetName();
+
+        for ( unsigned int i = 0; i < meName.size(); i++ ) {
+          if ( meName.substr(i, 1) == " " )  {
+            meName.replace(i, 1 ,"_" );
+          }
+        }
+        imgNameTimav[iCanvas-1] = meName + ".png";
+        imgName = htmlDir + imgNameTimav[iCanvas-1];
+
+        cTimav->cd();
+        gStyle->SetOptStat("euomr");
+        obj1f->SetStats(kTRUE);
+        obj1f->Draw();
+        cTimav->Update();
+        cTimav->SaveAs(imgName.c_str());
+        gPad->SetLogy(0);
+
+      }
+
+      // Timing rms distributions
+
+      imgNameTimrms[iCanvas-1] = "";
+
+      obj1f = 0;
+      switch ( iCanvas ) {
+        case 1:
+          obj1f = EBMUtilsClient::getHisto<TH1F*>( metrms01_[ism-1] );
+          break;
+        case 2:
+          obj1f = EBMUtilsClient::getHisto<TH1F*>( metrms02_[ism-1] );
+          break;
+        case 3:
+          obj1f = EBMUtilsClient::getHisto<TH1F*>( metrms03_[ism-1] );
+          break;
+        case 4:
+          obj1f = EBMUtilsClient::getHisto<TH1F*>( metrms04_[ism-1] );
+          break;
+        case 5:
+          obj1f = EBMUtilsClient::getHisto<TH1F*>( metrms05_[ism-1] );
+          break;
+        case 6:
+          obj1f = EBMUtilsClient::getHisto<TH1F*>( metrms06_[ism-1] );
+          break;
+        case 7:
+          obj1f = EBMUtilsClient::getHisto<TH1F*>( metrms07_[ism-1] );
+          break;
+        case 8:
+          obj1f = EBMUtilsClient::getHisto<TH1F*>( metrms08_[ism-1] );
+          break;
+        default:
+          break;
+      }
+
+      if ( obj1f ) {
+
+        meName = obj1f->GetName();
+
+        for ( unsigned int i = 0; i < meName.size(); i++ ) {
+          if ( meName.substr(i, 1) == " " )  {
+            meName.replace(i, 1 ,"_" );
+          }
+        }
+        imgNameTimrms[iCanvas-1] = meName + ".png";
+        imgName = htmlDir + imgNameTimrms[iCanvas-1];
+
+        cTimrms->cd();
+        gStyle->SetOptStat("euomr");
+        obj1f->SetStats(kTRUE);
+        obj1f->Draw();
+        cTimrms->Update();
+        cTimrms->SaveAs(imgName.c_str());
         gPad->SetLogy(0);
 
       }
@@ -4375,6 +4674,27 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
       // skip unused wavelengths
       if ( iCanvas == 2 || iCanvas == 3 ) continue;
 
+      if ( imgNameTimav[iCanvas-1].size() != 0 )
+        htmlFile << "<td><img src=\"" << imgNameTimav[iCanvas-1] << "\"></td>" << endl;
+      else
+        htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
+
+      if ( imgNameTimrms[iCanvas-1].size() != 0 )
+        htmlFile << "<td><img src=\"" << imgNameTimrms[iCanvas-1] << "\"></td>" << endl;
+      else
+        htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
+
+    }
+
+    htmlFile << "</tr>" << endl;
+
+    htmlFile << "<tr align=\"center\">" << endl;
+
+    for ( int iCanvas = 1 ; iCanvas <= 4 ; iCanvas++ ) {
+
+      // skip unused wavelengths
+      if ( iCanvas == 2 || iCanvas == 3 ) continue;
+
       if ( imgNameTim[4+iCanvas-1].size() != 0 )
         htmlFile << "<td><img src=\"" << imgNameTim[4+iCanvas-1] << "\"></td>" << endl;
       else
@@ -4382,6 +4702,27 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
 
       if ( imgNameShape[4+iCanvas-1].size() != 0 )
         htmlFile << "<td><img src=\"" << imgNameShape[4+iCanvas-1] << "\"></td>" << endl;
+      else
+        htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
+
+    }
+
+    htmlFile << "</tr>" << endl;
+
+    htmlFile << "<tr align=\"center\">" << endl;
+
+    for ( int iCanvas = 1 ; iCanvas <= 4 ; iCanvas++ ) {
+
+      // skip unused wavelengths
+      if ( iCanvas == 2 || iCanvas == 3 ) continue;
+
+      if ( imgNameTimav[4+iCanvas-1].size() != 0 )
+        htmlFile << "<td><img src=\"" << imgNameTimav[4+iCanvas-1] << "\"></td>" << endl;
+      else
+        htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
+
+      if ( imgNameTimrms[4+iCanvas-1].size() != 0 )
+        htmlFile << "<td><img src=\"" << imgNameTimrms[4+iCanvas-1] << "\"></td>" << endl;
       else
         htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
 
@@ -4517,6 +4858,8 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
   delete cShape;
   delete cAmpoPN;
   delete cPed;
+  delete cTimav;
+  delete cTimrms;
 
   // html page footer
   htmlFile << "</body> " << endl;
