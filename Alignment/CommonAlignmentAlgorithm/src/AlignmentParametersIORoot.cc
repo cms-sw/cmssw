@@ -8,8 +8,6 @@
 
 #include "Alignment/TrackerAlignment/interface/TrackerAlignableId.h"
 
-
-
 // ----------------------------------------------------------------------------
 // constructor
 
@@ -29,6 +27,7 @@ void AlignmentParametersIORoot::createBranches(void)
   tree->Branch("covarSize", &theCovarRang, "CovarRang/I");
   tree->Branch("Cov",       &theCov,       "Cov[CovarRang]/D");
   tree->Branch("ObjId",     &theObjId,     "ObjId/I");
+  tree->Branch("HieraLevel",&theHieraLevel,"HieraLevel/I");
 }
 
 // ----------------------------------------------------------------------------
@@ -41,6 +40,7 @@ void AlignmentParametersIORoot::setBranchAddresses(void)
   tree->SetBranchAddress("Par",       &thePar);
   tree->SetBranchAddress("Cov",       &theCov);
   tree->SetBranchAddress("ObjId",     &theObjId);
+  tree->SetBranchAddress("HieraLevel",&theHieraLevel);
 }
 
 // ----------------------------------------------------------------------------
@@ -59,9 +59,9 @@ int AlignmentParametersIORoot::findEntry(unsigned int detId,int comp)
 // ----------------------------------------------------------------------------
 int AlignmentParametersIORoot::writeOne(Alignable* ali)
 {
-  AlignmentParameters* ap =ali->alignmentParameters();
-  AlgebraicVector params  = ap->parameters();
-  AlgebraicSymMatrix cov  = ap->covariance();
+  const AlignmentParameters* ap =ali->alignmentParameters();
+  const AlgebraicVector& params = ap->parameters();
+  const AlgebraicSymMatrix& cov = ap->covariance();
 
   theCovRang   = params.num_row();
   theCovarRang = theCovRang*(theCovRang+1)/2;
@@ -76,6 +76,7 @@ int AlignmentParametersIORoot::writeOne(Alignable* ali)
   TrackerAlignableId converter;
   theId = converter.alignableId(ali);
   theObjId = converter.alignableTypeId(ali);
+  theHieraLevel = ap->hierarchyLevel();
 
   tree->Fill();
   return 0;
