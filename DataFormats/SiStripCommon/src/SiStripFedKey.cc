@@ -1,6 +1,6 @@
-// Last commit: $Id: $
-// Latest tag:  $Name: $
-// Location:    $Source: $
+// Last commit: $Id: SiStripFedKey.cc,v 1.3 2007/03/15 17:11:21 bainbrid Exp $
+// Latest tag:  $Name:  $
+// Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/DataFormats/SiStripCommon/src/SiStripFedKey.cc,v $
 
 #include "DataFormats/SiStripCommon/interface/SiStripFedKey.h"
 #include "DataFormats/SiStripCommon/interface/ConstantsForHardwareSystems.h"
@@ -140,11 +140,11 @@ uint16_t SiStripFedKey::feChan( const uint16_t& fed_ch ) {
 
 // -----------------------------------------------------------------------------
 //
-uint16_t SiStripFedKey::index( const uint16_t& fed_id,
-			       const uint16_t& fed_ch ) {
+uint32_t SiStripFedKey::fedIndex( const uint16_t& fed_id,
+				  const uint16_t& fed_ch ) {
   if ( fed_id < sistrip::FED_ID_MIN ||
        fed_id > sistrip::FED_ID_MAX ||
-       fed_ch >= sistrip::FEDCH_PER_FED ) { return sistrip::invalid_; }
+       fed_ch >= sistrip::FEDCH_PER_FED ) { return sistrip::invalid32_; }
   return ( fed_id * sistrip::FEDCH_PER_FED + fed_ch );
 }
 

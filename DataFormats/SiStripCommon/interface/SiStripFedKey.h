@@ -1,6 +1,6 @@
-// Last commit: $Id: $
-// Latest tag:  $Name: $
-// Location:    $Source: $
+// Last commit: $Id: SiStripFedKey.h,v 1.4 2007/03/15 17:09:30 bainbrid Exp $
+// Latest tag:  $Name:  $
+// Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/DataFormats/SiStripCommon/interface/SiStripFedKey.h,v $
 
 #ifndef DataFormats_SiStripCommon_SiStripFedKey_H
 #define DataFormats_SiStripCommon_SiStripFedKey_H
@@ -119,8 +119,8 @@ class SiStripFedKey : public SiStripKey {
   /** Returns number that encodes FED id and FED channel, which can be
       used to index vectors containing event and non-event data. Users
       should check if returned value is valid for indexing vector! */
-  static uint16_t index( const uint16_t& fed_id,
-			 const uint16_t& fed_ch );
+  static uint32_t fedIndex( const uint16_t& fed_id,
+			    const uint16_t& fed_ch );
   
   // ---------- Utility methods ---------- 
 
