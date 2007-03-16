@@ -14,10 +14,17 @@
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/Common/interface/EventID.h"
+#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/Track/interface/SimTrackContainer.h"
+#include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
+
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/JetReco/interface/CaloJetfwd.h"
 #include "DataFormats/JetReco/interface/GenJet.h"
@@ -36,10 +43,11 @@
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 
 
-#include "DataFormats/EgammaReco/interface/BasicCluster.h"
-#include "DataFormats/EgammaReco/interface/SuperCluster.h"
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+//#include "DataFormats/EgammaReco/interface/BasicCluster.h"
+//#include "DataFormats/EgammaReco/interface/SuperCluster.h"
+
+
+
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "TBDataFormats/HcalTBObjects/interface/HcalTBTriggerData.h"
@@ -48,11 +56,18 @@
 #include "RecoJets/JetAnalyzers/interface/CaloTowerBoundries.h"
 #include "RecoJets/JetAnalyzers/interface/MyCluster.h"
 
+#include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
+#include "DataFormats/ParticleFlowReco/interface/PFLayer.h"
+#include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
+#include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
+#include "DataFormats/ParticleFlowReco/interface/PFRecHitFwd.h"
+#include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
+
 
 /** \class JetAnalyzer
   *  
-  * $Date: 2006/12/22 16:08:39 $
-  * $Revision: 1.2 $
+  * $Date: 2007/01/02 11:23:28 $
+  * $Revision: 1.3 $
   * \author L. Apanasevich - UIC and Anwar Bhatti
   */
 class JetAnalyzer : public edm::EDAnalyzer {
@@ -112,6 +127,11 @@ public:
   void bookHistograms();
   void bookGeneralHistograms();
 
+  void bookRecHitHists(const TString subDetName);
+  template <typename T> void fillRecHitHists(const CaloGeometry& caloGeometry,const T& hits,const TString subDetName,double& sumEnergy);
+  //  void fillRecHitHists(const CaloGeometry& caloGeometry,const EBRecHitCollection& EBRecHits,const EERecHitCollection& EERecHits);
+
+
   void bookTBTriggerHists();
   void fillTBTriggerHists(const HcalTBTriggerData& trigger);
 
@@ -157,8 +177,11 @@ public:
   void bookJetHistograms(const TString& prefix);
 
   template <typename T> void fillJetHists(const T& jets, const TString& prefx);
+  void fillJetHists(const CaloJetCollection& calojets,const TString& prefix);
+
   template <typename T> void fillRecHits(const T& hits);
   template <typename T> void fillDigis(const T& digis);
+
 
   void bookCalculateEfficiency();
   void CalculateEfficiency(const GenJetCollection& genJets,const CaloJetCollection& calojets);
@@ -216,6 +239,9 @@ private:
 
   HepMC::GenEvent genEvent;
 
+  edm::SimVertexContainer simVertex;
+  edm::SimTrackContainer simTrack;
+
   //  const CaloTowerCollection caloTowers_;
 
 
@@ -226,6 +252,20 @@ private:
   edm::Handle<CaloMETCollection> recmet;
   edm::Handle<GenMETCollection>  genmet;
   edm::Handle<CaloTowerCollection> caloTowers;
+
+  edm::Handle<EBRecHitCollection> EBRecHits;
+  edm::Handle<EERecHitCollection> EERecHits;
+
+  edm::Handle<HBHERecHitCollection> HBHERecHits;
+  edm::Handle<HORecHitCollection> HORecHits;
+  edm::Handle<HFRecHitCollection> HFRecHits;
+
+  edm::Handle<HBHEDigiCollection> HBHEDigis;
+  edm::Handle<HODigiCollection> HODigis;
+  edm::Handle<HFDigiCollection> HFDigis;
+
+  edm::Handle<HcalTBTriggerData> trigger;
+
 
 
   // input variables

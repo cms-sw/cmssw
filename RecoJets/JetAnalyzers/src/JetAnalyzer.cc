@@ -125,9 +125,16 @@ void JetAnalyzer::analyze(edm::Event const& evt, edm::EventSetup const& iSetup) 
    iSetup.get<IdealGeometryRecord>().get(geometry);
 
 
+
+
   // These declarations create handles to the types of records that you want
   // to retrieve from event "evt".
   //
+
+  edm::Handle<edm::HepMCProduct> genEventHandle;
+  edm::Handle<edm::SimVertexContainer> simVertexContainer;
+  edm::Handle<edm::SimTrackContainer>  simTrackContainer;
+
 
   //  edm::Handle<CaloJetCollection> calojets;
   //  edm::Handle<GenJetCollection>  genjets;
@@ -135,23 +142,26 @@ void JetAnalyzer::analyze(edm::Event const& evt, edm::EventSetup const& iSetup) 
   //  edm::Handle<GenMETCollection>  genmet;
   //  edm::Handle<CaloTowerCollection> caloTowers;
 
-  edm::Handle<edm::HepMCProduct> genEventHandle;
-
-  edm::Handle<CaloTowerCollection> caloTowers;
-
-  edm::Handle<EBRecHitCollection> EBRecHits;
-  edm::Handle<EERecHitCollection> EERecHits;
-
-  edm::Handle<HBHERecHitCollection> HBHERecHits;
-  edm::Handle<HORecHitCollection> HORecHits;
-  edm::Handle<HFRecHitCollection> HFRecHits;
 
 
-  edm::Handle<HBHEDigiCollection> HBHEDigis;
-  edm::Handle<HODigiCollection> HODigis;
-  edm::Handle<HFDigiCollection> HFDigis;
+ //  edm::Handle<CaloTowerCollection> caloTowers;
 
-  edm::Handle<HcalTBTriggerData> trigger;
+//   edm::Handle<EBRecHitCollection> EBRecHits;
+//   edm::Handle<EERecHitCollection> EERecHits;
+
+//   edm::Handle<HBHERecHitCollection> HBHERecHits;
+//   edm::Handle<HORecHitCollection> HORecHits;
+//   edm::Handle<HFRecHitCollection> HFRecHits;
+
+
+ //  edm::Handle<HBHEDigiCollection> HBHEDigis;
+//   edm::Handle<HODigiCollection> HODigis;
+//   edm::Handle<HFDigiCollection> HFDigis;
+
+//   edm::Handle<HcalTBTriggerData> trigger;
+
+  edm::Handle<std::vector<reco::PFCluster> > PFCluster;
+  //  edm::Handle< vector<reco::PFCluster> > clustersECAL;
 
   // Data objects
 
@@ -161,10 +171,32 @@ void JetAnalyzer::analyze(edm::Event const& evt, edm::EventSetup const& iSetup) 
   evt.getByLabel (genmet_,genmet);
   evt.getByLabel (recmet_,recmet);
 
+  std::string pfClusterModuleLabel="particleFlowCluster";
+  std::string pfClusterECALInstanceName= "ECAL";
+
+
+  //  try {
+  //   evt.getByLabel(pfClusterModuleLabel,pfClusterECALInstanceName,PFCluster);
+  // } catch( const cms::Exception& e) {
+  //  errMsg = errMsg + "------>>>> No PF Clusters because\n"+e.what();
+  // }
+
+
+  //  evt.getByLabel("particleFlowCluster","ECAL",PFCluster);
+
+  //  int nPFClusters=PFCluster->size();
+  // cout << " PF Clusters " << PFCluster->size() << endl;
+
+  //  std::vector<reco::PFCluster> PFC = *PFCluster;
+
+  //for(int i=0;i<nPFClusters;i++){
+  //  cout << i << "  " << PFC[i].energy() <<endl;
+  // }
+
   try {
     evt.getByLabel (calotowers_,caloTowers);
-  } catch (...){
-    errMsg=errMsg + "  -- No CaloTowers";
+  } catch (const cms::Exception& e){
+    errMsg=errMsg + "  -- No CaloTowers\n"+e.what();
   }
 
 
@@ -250,6 +282,19 @@ void JetAnalyzer::analyze(edm::Event const& evt, edm::EventSetup const& iSetup) 
   }
 
   if(_Monte) {
+
+    evt.getByLabel ("g4SimHits",simVertexContainer);
+    simVertex = *simVertexContainer;
+
+    evt.getByLabel ("g4SimHits",simTrackContainer);
+    simTrack = *simTrackContainer;
+
+
+//     int simvert_size = SimVertexContainer->size();
+//     for (int j=0;j<simvert_size;++j){
+//       cout << "************************" << sim_vert[j].position().x()<<endl;
+//     }
+
     try {
       evt.getByLabel (genJets_,genJets);
     } catch (...) {
@@ -327,6 +372,14 @@ void JetAnalyzer::bookHistograms() {
 
   bookPtSpectrumInAJet();
 
+  bookRecHitHists("EB");
+  bookRecHitHists("EE");
+  bookRecHitHists("HB");
+  bookRecHitHists("HE");
+  bookRecHitHists("HFS");
+  bookRecHitHists("HFL");
+  bookRecHitHists("HO");
+
 }
 /** Analyze the hits */
 void JetAnalyzer::analyze( const CaloJetCollection& calojets,
@@ -351,6 +404,19 @@ void JetAnalyzer::analyze( const CaloJetCollection& calojets,
 
   TString hname="Nevents";
   fillHist1D(hname,1.0);
+
+
+  int nSimVertex = simVertex.size();
+  int nSimTrack  = simTrack.size();
+
+  if(nSimTrack>1 || nSimVertex > 1) return;
+
+  cout << " Number of simVertices " << nSimVertex << "  " <<  nSimTrack << endl; 
+
+  //  for (int j=0;j<nSimVertex;++j){
+  //    cout << "************************" << simVertex[j].position().x()<<endl;
+  // }
+
 
   if(_PlotTrigger) {
     if(&trigger) fillTBTriggerHists(trigger);
@@ -401,6 +467,44 @@ void JetAnalyzer::analyze( const CaloJetCollection& calojets,
       GetParentPartons(genEvent,ParentParton);
       PtSpectrumInSideAJet(genJets,genEvent);
     }
+  }
+
+  MakeLocalClusters(caloGeometry,calojets,recmets,caloTowers,EBRecHits,EERecHits,HBHERecHits,HORecHits,HFRecHits);
+
+  double sumEB(0.0);
+  double sumEE(0.0);
+  double sumHB(0.0);
+  double sumHE(0.0);
+  double sumHO(0.0);
+
+
+  fillRecHitHists(caloGeometry,EBRecHits,"EB",sumEB);
+  fillRecHitHists(caloGeometry,EERecHits,"EE",sumEE);
+
+  fillRecHitHists(caloGeometry,HBHERecHits,"HB",sumHB);
+  fillRecHitHists(caloGeometry,HBHERecHits,"HE",sumHE);
+  fillRecHitHists(caloGeometry,HORecHits,"HO",sumHO);
+
+
+  hname="RecHitsSumEmEnergy";
+  fillHist1D(hname,sumEB+sumEE);
+
+  hname="RecHitsSumHadEnergy";
+  fillHist1D(hname,sumHB+sumHE);
+
+  hname="RecHitsSumEnergy";
+  fillHist1D(hname,sumHB+sumHE+sumEB+sumEE);
+
+
+  if(sumEB+sumEE<0.6) {
+    hname="RecHitsSumEmEnergyMIP";
+    fillHist1D(hname,sumEB+sumEE);
+
+    hname="RecHitsSumHadEnergyMIP";
+    fillHist1D(hname,sumHB+sumHE);
+
+    hname="RecHitsSumEnergyMIP";
+    fillHist1D(hname,sumHB+sumHE+sumEB+sumEE);
   }
 }
 
@@ -556,38 +660,59 @@ void JetAnalyzer::bookJetHistograms(const TString& prefix) {
   std::ostringstream ch_etamin; ch_etamin << _EtaMin;
   std::ostringstream ch_etamax; ch_etamax << _EtaMax;
 
-  TString h_EtaRng= ch_etamin.str() + " < #eta < " + ch_etamax.str();
-  
-  // book rec and gen jet histograms
-  Int_t netbins=80, nengbins=100;
-  Double_t etmin=0.,etmax=400.,engmin=0.,engmax=500.;
+  hname=prefix + "NumberOfJets";
+  htitle=prefix + "NumberOfJets";
+  m_HistNames[hname]= new TH1F(hname,htitle,100,0.0,100.0);
 
-  hname=prefix + "et"; htitle=prefix+" Jet E_{T} -- " + h_EtaRng;
-  m_HistNames[hname]= new TH1F(hname,htitle,netbins,etmin,etmax);
-  hname=prefix + "pt"; htitle=prefix+" Jet p_{T} -- " + h_EtaRng;
-  m_HistNames[hname]= new TH1F(hname,htitle,netbins,etmin,etmax);
-  
-  hname=prefix + "energy"; htitle=prefix+" Jet Energy -- " + h_EtaRng;
-  m_HistNames[hname]= new TH1F(hname,htitle,nengbins,engmin,engmax);
 
-  double deltaEta=0.1,deltaPhi=0.1;
-  Int_t netabins=int((_EtaMax-_EtaMin)/deltaEta);
-  Int_t nphibins=int(2.*M_PI/deltaPhi);
+  hname=prefix + "NumberOfConstituents";
+  htitle=prefix + "NumberOfConstituents";
+  m_HistNames[hname]= new TH1F(hname,htitle,100,0.0,100.0);
 
-  hname=prefix + "phi" ;  htitle=prefix+" Jet #phi -- " + h_EtaRng;
-  m_HistNames[hname] = new TH1F(hname,htitle,nphibins,-M_PI,M_PI);
-  hname=prefix + "eta"; htitle=prefix+" Jet #eta -- " + h_EtaRng;
-  m_HistNames[hname] = new TH1F(hname,htitle,netabins,_EtaMin,_EtaMax);
+  hname =prefix + "JetEt";
+  htitle=prefix + "JetEt";
+  m_HistNames[hname]= new TH1F(hname,htitle,700,0.0,7000.);
 
-  hname=prefix + "et_Barrel";  htitle=prefix+" Jet E_{T} -- |#eta| < " + ch_eta.str();
-  m_HistNames[hname] = new TH1F(hname,htitle,netbins,etmin,etmax);
-  hname=prefix + "pt_Barrel";  htitle=prefix+" Jet p_{T} -- |#eta| < " + ch_eta.str();
-  m_HistNames[hname] = new TH1F(hname,htitle,netbins,etmin,etmax);
+  hname =prefix + "JetPt";
+  htitle=prefix + "JetPt";
+  m_HistNames[hname]= new TH1F(hname,htitle,700,0.0,7000.);
 
-  hname=prefix + "etmax"; htitle=prefix+" Max Jet E_{T} -- |#eta| < " + ch_eta.str();
-  m_HistNames[hname] = new TH1F(hname,htitle,netbins,etmin,etmax);
-  hname=prefix + "ptmax"; htitle=prefix+" Max Jet p_{T} -- |#eta| < " + ch_eta.str();
-  m_HistNames[hname] = new TH1F(hname,htitle,netbins,etmin,etmax);
+
+  hname =prefix + "JetEmf";
+  htitle=prefix + "JetEmf";
+  m_HistNames[hname]= new TH1F(hname,htitle,100,0.0,1.0);
+
+
+  hname =prefix + "JetEnergy";
+  htitle=prefix + "JetEnergy";
+  m_HistNames[hname]= new TH1F(hname,htitle,700,0.0,7000.);
+
+
+  hname=prefix + "JetPhi";
+  htitle=prefix + "JetPhi";
+  m_HistNames[hname] = new TH1F(hname,htitle,72,-M_PI,M_PI);
+
+  hname=prefix + "JetEta";
+  htitle=prefix + "JetEta";
+  m_HistNames[hname] = new TH1F(hname,htitle,110,-5.5,5.5);
+
+
+  hname=prefix + "EtJetBarrel";
+  htitle=prefix + "EtJeBarrel";
+  m_HistNames[hname] = new TH1F(hname,htitle,700,0.0,7000.0);
+
+  hname=prefix + "PtJetBarrel";
+  htitle=prefix + "PtJetBarrel";
+  m_HistNames[hname] = new TH1F(hname,htitle,700,0.0,7000.0);
+
+  hname=prefix + "JetPtMaxBarrel";
+  htitle=prefix + "JetPtMaxBarrel";
+  m_HistNames[hname] = new TH1F(hname,htitle,700,0.0,7000.0);
+
+  hname=prefix + "JetEtMaxBarrel";
+  htitle=prefix + "JetEtMaxBarrel";
+  m_HistNames[hname] = new TH1F(hname,htitle,700,0.0,7000.0);
+
 }
 
 void JetAnalyzer::bookForId(const HcalDetId& id) {
@@ -595,7 +720,9 @@ void JetAnalyzer::bookForId(const HcalDetId& id) {
   std::ostringstream ss,ss_t1,ss_t2,st;
 
   ss << "Energy " << id;
-  ss_t1 << "LowEnergy" << id;
+  ss_t1 << "LowEnergy" << id;  ss_t1 << "LowEnergy" << id;  ss_t1 << "LowEnergy" << id;
+
+
   ss_t2 << "Energy" << id;
 
   //std::cout << "Booking Histograms for HCAL Subdetector: " << id.subdet() 
@@ -683,20 +810,13 @@ template <typename T> void JetAnalyzer::fillDigis(const T& digis) {
 template <typename T> void JetAnalyzer::fillJetHists(const T& jets, const TString& prefix) {
 
   typedef typename T::const_iterator iter;
+
+  double maxPt(0.0);
+  double maxEt(0.0);
   
-  Double_t maxEt=0.,maxPt=0.;
+  int njets=jets.size();
 
-//   if(prefix=="Calo"){
-//     int i(0);
-//     for ( iter ijet=jets.begin(); ijet!=jets.end(); ijet++) {
-
-//       Double_t jetPt = ijet->pt();
-//       Double_t jetEta = ijet->eta();
-//       Double_t jetPhi = ijet->phi();
-//       i++;
-//       //  cout << " Jets " << i << " eta " << jetEta << " phi " << jetPhi << " Pt " << jetPt << endl;
-//     }
-//   }
+  fillHist1D(prefix + "NumberOfJets",njets);
 
   for ( iter ijet=jets.begin(); ijet!=jets.end(); ijet++) {
 
@@ -706,7 +826,10 @@ template <typename T> void JetAnalyzer::fillJetHists(const T& jets, const TStrin
     Double_t jetEta = ijet->eta();
     Double_t jetPhi = ijet->phi();
 
-    // Double_t emEnergyJet  = ijet->emEnergy;
+    //    const std::vector<CaloTowerDetId>&  barcodes=ijet->getTowerIndices();
+    //   int nConstituents= barcodes.size();
+
+    //  if(prefix=="Calo") Double_t emEnergyFraction  = ijet->emEnergyFraction();
 //     Double_t emEnergyInEB = ijet->emEnergyInEB();
 //     Double_t emEnergyInEE = ijet->emEnergyInEE();
 
@@ -715,52 +838,130 @@ template <typename T> void JetAnalyzer::fillJetHists(const T& jets, const TStrin
 //     Double_t emEnergyInHF = ijet->jet->emEnergyInHF();
 //     Double_t hdEnergyInHF = ijet->jet->hadEnergyInHF();
 
-    if (jetEta > _EtaMin && jetEta < _EtaMax){
-      fillHist1D(prefix + "energy",jetEnergy);
-      fillHist1D(prefix + "et",jetEt);
-      fillHist1D(prefix + "pt",jetPt);
 
-      fillHist1D(prefix + "eta",jetEta);
-      fillHist1D(prefix + "phi",jetPhi);
+
+    if (jetEta > _EtaMin && jetEta < _EtaMax){
+      fillHist1D(prefix + "JetEnergy",jetEnergy);
+      fillHist1D(prefix + "JetEt",jetEt);
+      fillHist1D(prefix + "JetPt",jetPt);
+
+      //      fillHist1D(prefix + "JetEmf",emEnergyFraction);
+
+      fillHist1D(prefix + "JetEta",jetEta);
+      fillHist1D(prefix + "JetPhi",jetPhi);
 
       if (fabs(jetEta) < etaBarrel()){
-	fillHist1D(prefix + "et_Barrel",jetEt);
-	fillHist1D(prefix + "pt_Barrel",jetPt);
+	fillHist1D(prefix + "EtJetBarrel",jetEt);
+	fillHist1D(prefix + "PtJetBarrel",jetPt);
 	if (jetEt > maxEt) maxEt = jetEt;
 	if (jetPt > maxPt) maxPt = jetPt;
       }
     }
   }
-  fillHist1D(prefix + "etmax",maxEt);
-  fillHist1D(prefix + "ptmax",maxPt);
+  fillHist1D(prefix + "JetEtMaxBarrel",maxEt);
+  fillHist1D(prefix + "JetPtMaxBarrel",maxPt);
 }
+
+void JetAnalyzer::fillJetHists(const CaloJetCollection& jets,const TString& prefix) {
+
+				  //  typedef typename T::const_iterator iter;
+
+  typedef CaloJetCollection::const_iterator iter;
+
+  TString hname;
+
+  double maxPt(0.0);
+  double maxEt(0.0);
+  
+  int njets=jets.size();
+
+  fillHist1D(prefix + "NumberOfJets",njets);
+
+  for ( iter ijet=jets.begin(); ijet!=jets.end(); ijet++) {
+
+    Double_t jetEnergy = ijet->energy();
+    Double_t jetEt = ijet->et();
+    Double_t jetPt = ijet->pt();
+    Double_t jetEta = ijet->eta();
+    Double_t jetPhi = ijet->phi();
+
+    const std::vector<CaloTowerDetId>&  barcodes=ijet->getTowerIndices();
+    int nConstituents= barcodes.size();
+
+    Double_t emEnergyFraction  = ijet->emEnergyFraction();
+
+//     Double_t emEnergyInEB = ijet->emEnergyInEB();
+//     Double_t emEnergyInEE = ijet->emEnergyInEE();
+
+//     Double_t hdEnergyInHB = ijet->hadEnergyInHB();
+//     Double_t emergyInHO   = ijet->hadEnergyInHO();
+//     Double_t emEnergyInHF = ijet->jet->emEnergyInHF();
+//     Double_t hdEnergyInHF = ijet->jet->hadEnergyInHF();
+
+
+
+//    if (jetEta > _EtaMin && jetEta < _EtaMax){
+
+      hname=prefix + "NumberOfConstituents";
+      fillHist1D(hname,nConstituents);
+
+      fillHist1D(prefix + "JetEnergy",jetEnergy);
+      fillHist1D(prefix + "JetEt",jetEt);
+      fillHist1D(prefix + "JetPt",jetPt);
+      fillHist1D(prefix + "JetEmf",emEnergyFraction);
+
+      fillHist1D(prefix + "JetEta",jetEta);
+      fillHist1D(prefix + "JetPhi",jetPhi);
+
+      if (fabs(jetEta) < etaBarrel()){
+	fillHist1D(prefix + "EtJetBarrel",jetEt);
+	fillHist1D(prefix + "PtJetBarrel",jetPt);
+	if (jetEt > maxEt) maxEt = jetEt;
+	if (jetPt > maxPt) maxPt = jetPt;
+      }
+  }
+  //}
+  fillHist1D(prefix + "JetEtMaxBarrel",maxEt);
+  fillHist1D(prefix + "JetPtMaxBarrel",maxPt);
+}
+
 
 void JetAnalyzer::bookCaloTowerHists() {
 
   TString hname;
-  int netbins=50;
-  double etmin=0.; double etmax=50.;
+  TString htitle;
+
+  hname="NumberOfCaloTowers";
+  htitle="NumberOfCaloTowers";
+  m_HistNames[hname] = new TH1F(hname,htitle,2000,0.0,2000.);
 
   hname="CaloTowerEt";
-  m_HistNames[hname] = new TH1F(hname,"CaloTower E_{T}",netbins,etmin,etmax);
+  m_HistNames[hname] = new TH1F(hname,"CaloTower E_{T}",1000,0.0,100.);
 
   hname="CaloTowerEta";
-  m_HistNames[hname] = new TH1F(hname,"CaloTower #eta",110,-5.5,5.5);
+  m_HistNames[hname] = new TH1F(hname,"CaloTower #eta",NETA,CaloTowerEtaBoundries);
+
+  hname="CaloTowerPhi";
+  m_HistNames[hname] = new TH1F(hname,"CaloTower #eta",72,-M_PI,+M_PI);
 
 
   hname="CaloTowerEnergy";
-  m_HistNames[hname] = new TH1F(hname,"CaloTower Energy",100,0.0,100.);
+  m_HistNames[hname] = new TH1F(hname,"CaloTower Energy",1000,0.0,100.);
 
 
   hname="CaloTowerEmEnergy";
-  m_HistNames[hname] = new TH1F(hname,"CaloTower EmEnergy",100,0.0,100.);
+  m_HistNames[hname] = new TH1F(hname,"CaloTower EmEnergy",1000,0.0,100.);
 
   hname="CaloTowerHadEnergy";
-  m_HistNames[hname] = new TH1F(hname,"CaloTower HadEnergy",100,0.0,100.);
+  m_HistNames[hname] = new TH1F(hname,"CaloTower HadEnergy",1000,0.0,100.);
+
+
+  hname="CaloTowerEmHadEnergy";
+  m_HistNames[hname] = new TH1F(hname,"CaloTower EmHadEnergy",1000,0.0,100.);
+
 
   hname="CaloTowerOuterEnergy";
-  m_HistNames[hname] = new TH1F(hname,"CaloTower Outer Energy",100,0.0,100.);
-
+  m_HistNames[hname] = new TH1F(hname,"CaloTower Outer Energy",1000,0.0,100.);
 
   hname="CaloTowerNRecHits";
   m_HistNames[hname] = new TH1F(hname,"CaloTower NumberOfRecHits",100,0.0,100.);
@@ -768,34 +969,158 @@ void JetAnalyzer::bookCaloTowerHists() {
   hname="CaloTowerEnergyEtaPhi";
   m_HistNames2D[hname] = new TH2F(hname,"CaloTower Energy",110,-5.5,5.5,72,-M_PI,+M_PI);
 
-
   hname="HOvsHBEnergy";
   m_HistNames2D[hname] = new TH2F(hname,"HOvsHBEnergy",1000,0.0,1000,50,0.0,50);
 
+  //
+
+
+  hname="CaloTowerSumEt";
+  m_HistNames[hname] = new TH1F(hname,"CaloTower SumEt",1000,0.0,1000.);
+
+
+  hname="CaloTowerSumEnergy";
+  m_HistNames[hname] = new TH1F(hname,"CaloTower SumEnergy",1000,0.0,1000.);
+
+
+  hname="CaloTowerSumEmEnergy";
+  m_HistNames[hname] = new TH1F(hname,"CaloTower SumEmEnergy",1000,0.0,1000.);
+
+  hname="CaloTowerSumHadEnergy";
+  m_HistNames[hname] = new TH1F(hname,"CaloTower SumHadEnergy",1000,0.0,1000.);
+
+  hname="CaloTowerSumEmHadEnergy";
+  m_HistNames[hname] = new TH1F(hname,"CaloTower SumEmHadEnergy",1000,0.0,1000.);
+
+
+  hname="CaloTowerSumHOEnergy";
+  m_HistNames[hname] = new TH1F(hname,"CaloTower SumHOEnergy",1000,0.0,1000.);
+
+  //
+
+
+  hname="CaloTowerSumEtMIP";
+  m_HistNames[hname] = new TH1F(hname,"CaloTower SumEt",1000,0.0,1000.);
+
+
+  hname="CaloTowerSumEnergyMIP";
+  m_HistNames[hname] = new TH1F(hname,"CaloTower SumEnergy",1000,0.0,1000.);
+
+
+  hname="CaloTowerSumEmEnergyMIP";
+  m_HistNames[hname] = new TH1F(hname,"CaloTower SumEmEnergy",1000,0.0,1000.);
+
+  hname="CaloTowerSumHadEnergyMIP";
+  m_HistNames[hname] = new TH1F(hname,"CaloTower SumHadEnergy",1000,0.0,1000.);
+
+  hname="CaloTowerSumEmHadEnergyMIP";
+  m_HistNames[hname] = new TH1F(hname,"CaloTower SumEmHadEnergy",1000,0.0,1000.);
+
+
+  hname="CaloTowerSumHOEnergyMIP";
+  m_HistNames[hname] = new TH1F(hname,"CaloTower SumHOEnergy",1000,0.0,1000.);
+
+
+  //----------------------rechits
+
+
+  hname="RecHitsSumEt";
+  m_HistNames[hname] = new TH1F(hname,"RecHits SumEt",1000,0.0,1000.);
+
+
+  hname="RecHitsSumEnergy";
+  m_HistNames[hname] = new TH1F(hname,"RecHits SumEnergy",1000,0.0,1000.);
+
+
+  hname="RecHitsSumEmEnergy";
+  m_HistNames[hname] = new TH1F(hname,"RecHits SumEmEnergy",1000,0.0,1000.);
+
+  hname="RecHitsSumHadEnergy";
+  m_HistNames[hname] = new TH1F(hname,"RecHits SumHadEnergy",1000,0.0,1000.);
+
+  hname="RecHitsSumEmHadEnergy";
+  m_HistNames[hname] = new TH1F(hname,"RecHits SumEmHadEnergy",1000,0.0,1000.);
+
+
+  hname="RecHitsSumHOEnergy";
+  m_HistNames[hname] = new TH1F(hname,"RecHits SumHOEnergy",1000,0.0,1000.);
+
+  //
+
+
+  hname="RecHitsSumEtMIP";
+  m_HistNames[hname] = new TH1F(hname,"RecHits SumEt",1000,0.0,1000.);
+
+
+  hname="RecHitsSumEnergyMIP";
+  m_HistNames[hname] = new TH1F(hname,"RecHits SumEnergy",1000,0.0,1000.);
+
+
+  hname="RecHitsSumEmEnergyMIP";
+  m_HistNames[hname] = new TH1F(hname,"RecHits SumEmEnergy",1000,0.0,1000.);
+
+  hname="RecHitsSumHadEnergyMIP";
+  m_HistNames[hname] = new TH1F(hname,"RecHits SumHadEnergy",1000,0.0,1000.);
+
+  hname="RecHitsSumEmHadEnergyMIP";
+  m_HistNames[hname] = new TH1F(hname,"RecHits SumEmHadEnergy",1000,0.0,1000.);
+
+
+  hname="RecHitsSumHOEnergyMIP";
+  m_HistNames[hname] = new TH1F(hname,"RecHits SumHOEnergy",1000,0.0,1000.);
 
 
 }
+
+
 void JetAnalyzer::fillCaloTowerHists(const CaloTowerCollection& caloTowers){
+
+
+  TString hname="NumberOfCaloTowers";
+  int ntowers=caloTowers.size();
+  fillHist1D(hname,ntowers);
+
+  double sumEt(0.0);
+  double sumTotEnergy(0.0);
+  double sumEmEnergy(0.0);
+  double sumHadEnergy(0.0);
+  double sumHOEnergy(0.0);
+
+  double sumEmHadEnergy(0.0);
 
   for ( CaloTowerCollection::const_iterator tower=caloTowers.begin(); 
 	tower!=caloTowers.end(); tower++) {
 
-    Double_t et=tower->et();
-    Double_t eta=tower->eta();
-    Double_t phi=tower->phi();
+    double et=tower->et();
+    double eta=tower->eta();
+    double phi=tower->phi();
 
-    Double_t  totEnergy= tower->energy();
-    Double_t  emEnergy= tower->emEnergy();
-    Double_t  hadEnergy= tower->hadEnergy();
-    Double_t  outerEnergy= tower->outerEnergy();
+    double  totEnergy= tower->energy();
+
+    double  emEnergy= tower->emEnergy();
+    double  hadEnergy= tower->hadEnergy();
+    double  outerEnergy= tower->outerEnergy();
+
+    double  emhadEnergy=  emEnergy+hadEnergy;
+
+    sumEt +=et;
+
+    sumTotEnergy +=totEnergy;
+    sumEmEnergy +=emEnergy;
+    sumHadEnergy +=hadEnergy;
+    sumEmHadEnergy +=emhadEnergy;
+    sumHOEnergy +=outerEnergy;
 
     int  numRecHits= tower->constituentsSize();
 
     fillHist1D("CaloTowerEt",et);
     fillHist1D("CaloTowerEta",eta);
+    fillHist1D("CaloTowerPhi",phi);
     fillHist1D("CaloTowerEnergy",totEnergy);
     fillHist1D("CaloTowerEmEnergy",emEnergy);
     fillHist1D("CaloTowerHadEnergy",hadEnergy);
+    fillHist1D("CaloTowerEmHadEnergy",emhadEnergy);
+
     fillHist1D("CaloTowerOuterEnergy",outerEnergy);
     fillHist1D("CaloTowerNRecHits",numRecHits);
 
@@ -804,7 +1129,76 @@ void JetAnalyzer::fillCaloTowerHists(const CaloTowerCollection& caloTowers){
     if(fabs(eta)<1.4){
       fillHist2D("HOvsHBEnergy",hadEnergy,outerEnergy);
     }
+
   }
+
+  fillHist1D("CaloTowerSumEt",sumEt);
+  fillHist1D("CaloTowerSumEnergy",sumTotEnergy);
+  fillHist1D("CaloTowerSumEmEnergy",sumEmEnergy);
+  fillHist1D("CaloTowerSumHadEnergy",sumHadEnergy);
+  fillHist1D("CaloTowerSumEmHadEnergy",sumEmHadEnergy);
+  fillHist1D("CaloTowerSumHOEnergy",sumHOEnergy);
+
+
+  if(sumEmEnergy<0.6) {
+    fillHist1D("CaloTowerSumEtMIP",sumEt);
+    fillHist1D("CaloTowerSumEnergyMIP",sumTotEnergy);
+    fillHist1D("CaloTowerSumEmEnergyMIP",sumEmEnergy);
+    fillHist1D("CaloTowerSumHadEnergyMIP",sumHadEnergy);
+    fillHist1D("CaloTowerSumEmHadEnergyMIP",sumEmHadEnergy);
+    fillHist1D("CaloTowerSumHOEnergyMIP",sumHOEnergy);
+  }
+}
+
+void JetAnalyzer::bookRecHitHists(const TString subDetName) {
+
+  TString hname;
+  TString htitle;
+
+  hname="NumberOfRecHits"+subDetName;
+  htitle="NumberOfRecHits"+subDetName;
+  m_HistNames[hname] = new TH1F(hname,htitle,10000,0.0,10000.);
+
+  hname="NumberOfRecHitsNZ"+subDetName;
+  htitle="NumberOfRecHitsNZ"+subDetName;
+  m_HistNames[hname] = new TH1F(hname,htitle,10000,0.0,10000.);
+
+  hname="SumEnergyRecHits"+subDetName;
+  htitle="SumEnergyRecHits"+subDetName;
+  m_HistNames[hname] = new TH1F(hname,htitle,1000,0.0,1000.);
+
+  hname="SumPtRecHits"+subDetName;
+  htitle="SumPtRecHits"+subDetName;
+  m_HistNames[hname] = new TH1F(hname,htitle,1000,0.0,1000.);
+
+  hname="PtRecHits"+subDetName;
+  htitle="PtRecHits"+subDetName;
+  m_HistNames[hname] = new TH1F(hname,htitle,1000,0.0,100.);
+
+
+  hname="EtaRecHits"+subDetName;
+  htitle="EatRecHits"+subDetName;
+  m_HistNames[hname] = new TH1F(hname,htitle,NETA,CaloTowerEtaBoundries);
+
+  hname="EtaPtWeightedRecHits"+subDetName;
+  htitle="EtaPtWeightedRecHits"+subDetName;
+  m_HistNames[hname] = new TH1F(hname,htitle,NETA,CaloTowerEtaBoundries);
+
+  hname="PhiRecHits"+subDetName;
+  htitle="PhiRecHits"+subDetName;
+  m_HistNames[hname] = new TH1F(hname,htitle,72,-M_PI,M_PI);
+
+
+  hname="EnergyRecHits"+subDetName;
+  htitle="EnergyRecHits"+subDetName;
+  m_HistNames[hname] = new TH1F(hname,htitle,1000,0.0,100.);
+
+  hname="CaloTowerEnergyEtaPhi";
+
+  hname="RecHitsEnergyEtaPhi"+subDetName;
+  htitle="RecHitsEnergyEtaPhi"+subDetName;
+  m_HistNames2D[hname] = new TH2F(hname,htitle,110,-5.5,5.5,72,-M_PI,+M_PI);
+
 }
 
 void JetAnalyzer::MakeCellListFromCaloTowers(const CaloGeometry& caloGeometry,
@@ -970,8 +1364,7 @@ template <typename T> void JetAnalyzer::fillMetHists(const T& mets, const TStrin
 
 
 
-void JetAnalyzer::dummyAnalyze(
-			   const CaloGeometry& geom) {
+void JetAnalyzer::dummyAnalyze(const CaloGeometry& geom) {
 
   std::cout << "Inside dummyAnalyse routine" << std::endl;
 
@@ -1370,7 +1763,6 @@ template <typename T> void JetAnalyzer::DarkEnergyPlots(const T& jets, const TSt
 	}
       }
 
-
       if(used){
         TowerUsedInJets.push_back(t);
       }
@@ -1388,7 +1780,7 @@ template <typename T> void JetAnalyzer::DarkEnergyPlots(const T& jets, const TSt
     Double_t et=TowerNotUsedInJets[i].et();
 
       //Double_t eta=tower->eta();
-    Double_t phi=TowersNotUsedInJets[i].phi();
+    Double_t phi=TowerNotUsedInJets[i].phi();
       //Double_t  totEnergy= tower->energy();
       //Double_t  emEnergy= tower->emEnergy();
       //Double_t  hadEnergy= tower->hadEnergy();
@@ -1425,9 +1817,9 @@ template <typename T> void JetAnalyzer::DarkEnergyPlots(const T& jets, const TSt
 
   double MEtDarkTowers =sqrt(sumTowerDarkPx*sumTowerDarkPx+sumTowerDarkPy*sumTowerDarkPy);
 
-  fillHist("METTowersAll0",MEtAllTowers);
-  fillHist("METTowersDark0",MEtDarkTowers);
-  fillHist("METJets0",MEtJets);
+  fillHist1D("METTowersAll0",MEtAllTowers);
+  fillHist1D("METTowersDark0",MEtDarkTowers);
+  fillHist1D("METJets0",MEtJets);
 
   //  std::cout << " Total Towers " << ntowers <<" JetTowers " << UsedTowerList.size() << " Dark Towers " << DarkTowers <<
   //    " SumPtTowers " << SumPtTowers <<" SumPtJets "<< SumPtJet << " DarkEt " <<  DarkEt << endl;
@@ -1450,8 +1842,6 @@ void JetAnalyzer::bookDarkMetPlots(const TString& prefix ){
   for(int i=0;i<=imax;i++){
     
     std::ostringstream pti;pti << i;
-    //   std::ostringstream ki;ki << k[i];
-    //    std::ostringstream si;si << k[i+1];
         
     hname="METTowersAll"+pti.str();
     htitle = "METTowersAll"+pti.str();
@@ -2062,16 +2452,16 @@ void JetAnalyzer::bookSubClusterHistograms(){
   m_HistNames[hname]= new TH1F(hname,htitle,500,0.0,500.0);
 
   hname="NumberOfCaloTowerR15Clusters"; htitle="NumberOfCaloTowerR15Clusters";
-  m_HistNames[hname]= new TH1F(hname,htitle,500,0.0,500.0);
+  m_HistNames[hname]= new TH1F(hname,htitle,1000,0.0,1000.0);
 
   hname="NumberOfEmRecHitClusters"; htitle="NumberOfEmRecHitClusters";
-  m_HistNames[hname]= new TH1F(hname,htitle,500,0.0,500.0);
+  m_HistNames[hname]= new TH1F(hname,htitle,1000,0.0,1000.0);
 
   hname="NumberOfHdRecHitClusters"; htitle="NumberOfHdRecHitClusters";
-  m_HistNames[hname]= new TH1F(hname,htitle,500,0.0,500.0);
+  m_HistNames[hname]= new TH1F(hname,htitle,1000,0.0,1000.0);
    
   hname="NumberOfEmHdClusters"; htitle="NumberOfEmHdClusters";
-  m_HistNames[hname]= new TH1F(hname,htitle,500,0.0,500.0);
+  m_HistNames[hname]= new TH1F(hname,htitle,1000,0.0,1000.0);
 
   hname="NumberOfMatchesPerCluster";
   htitle="NumberOfMatchedPerCluster";
@@ -2115,8 +2505,8 @@ void JetAnalyzer::bookSubClusterHistograms(){
   htitle="SumEtRecHitvSumEtCluster";
   m_HistNames2D[hname]= new TH2F(hname,htitle,100,0.0,2000.0,100,0.0,2000.);
 
-  hname="SumEt2DR";
-  htitle="SumEtRecHitvSumEtCluster";
+  hname="SumEt2DR2";
+  htitle="SumEtRecHitvSumEtCluster2";
   m_HistNames2D[hname]= new TH2F(hname,htitle,100,0.0,500.0,100,0.0,500.);
 
 }
@@ -2526,6 +2916,8 @@ void JetAnalyzer::MakeLocalClusters(const CaloGeometry& caloGeometry,
       SimpleConeCluster(ClusterTower,1.0,0.5,0.5,CaloTowerList,CaloClusterR05List);
       SimpleConeCluster(ClusterTower,0.5,0.5,0.3,CaloTowerList,CaloClusterR03List);
       SimpleConeCluster(ClusterTower,0.5,0.5,0.15,CaloTowerList,CaloClusterR15List);
+
+      cout <<  " CaloCluster R05 List "<< CaloClusterR05List.size()  << endl;
     }
 
   //   do local clustering using rechits
@@ -2539,6 +2931,10 @@ void JetAnalyzer::MakeLocalClusters(const CaloGeometry& caloGeometry,
       std::vector<CalCell> EmCellList;
       MakeEmCellList(caloGeometry,EBRecHits,EERecHits,EmCellList);
 
+
+
+
+
       std::vector<CalCell> HadTowerList;
       MakeHadCellList(caloTowers,HadTowerList);
 
@@ -2549,8 +2945,12 @@ void JetAnalyzer::MakeLocalClusters(const CaloGeometry& caloGeometry,
       std::vector<CalCluster> HdClusterR15List;
       SimpleConeCluster(ClusterHd,0.5,0.5,0.15,HadCellList,HdClusterR15List);
 
+      cout <<  " HdCluster R015 List "<< HdClusterR15List.size()  << endl;     
+
       std::vector<CalCluster> EmClusterR003List;
       SimpleConeCluster(ClusterEm,0.1,0.1,0.03,EmCellList,EmClusterR003List);
+
+      cout <<  " EBCluster R003 List "<< EmClusterR003List.size()  << endl;     
 
       std::vector<CalCluster> ClusterFromTowerEmCellList;
       SimpleConeCluster(CaloTowerEm,0.0,0.0,0.5,EmCalCellList,ClusterFromTowerEmCellList);
@@ -2590,27 +2990,127 @@ void JetAnalyzer::MakeLocalClusters(const CaloGeometry& caloGeometry,
       hname ="dSumEt";
       fillHist1D(hname,sumEtRecMet-sumEtCluster);
 
-  hname ="dMet";  
-  fillHist1D(hname,missEtRecMet-missEtCluster);
+      hname ="dMet";  
+      fillHist1D(hname,missEtRecMet-missEtCluster);
 
-  hname ="Met2D";  
-  fillHist2D(hname,missEtRecMet,missEtCluster);
+      hname ="Met2D";  
+      fillHist2D(hname,missEtRecMet,missEtCluster);
 
-  hname ="SumEt2D";  
-  fillHist2D(hname,sumEtRecMet,sumEtCluster);
+      hname ="SumEt2D";    
+      fillHist2D(hname,sumEtRecMet,sumEtCluster);
 
-  hname ="dSumEtR";  
-  fillHist1D(hname,sumEtRecHit-sumEtCluster);
+      hname ="dSumEtR";  
+      fillHist1D(hname,sumEtRecHit-sumEtCluster);
 
-  hname ="dMetR";  
-  fillHist1D(hname,missEtRecHit-missEtCluster);  
+      hname ="dMetR";  
+      fillHist1D(hname,missEtRecHit-missEtCluster);  
 
-  hname ="Met2DR";  
-  fillHist2D(hname,missEtRecHit,missEtCluster);
+      hname ="Met2DR";  
+      fillHist2D(hname,missEtRecHit,missEtCluster);
 
-  hname ="SumEt2DR";  
-  fillHist2D(hname,sumEtRecHit,sumEtCluster);
-  
+      hname ="SumEt2DR";  
+      fillHist2D(hname,sumEtRecHit,sumEtCluster);
+
+
+      hname ="SumEt2DR2";  
+      fillHist2D(hname,sumEtRecHit,sumEtCluster);
     }
 }
 
+////////////////////////////////////////////////////
+template <typename T> void JetAnalyzer::fillRecHitHists(const CaloGeometry& caloGeometry,const T& RecHits,const TString subDetName,double& sumEnergy){
+
+
+  //  TString subDetName;
+  //  subDetName="EB";
+
+  int nRecHits=RecHits.size();
+
+  TString hname="NumberOfRecHits"+subDetName;
+  fillHist1D(hname,nRecHits);
+
+  typedef typename T::const_iterator iter;
+
+  int nRecHitsNZ(0);
+
+  double sumPx(0);
+  double sumPy(0);
+  double sumPz(0);
+  sumEnergy=0.0;
+
+  HepLorentzVector sumP4(0.,0.,0.,0.);
+
+  for(iter theRecHit=RecHits.begin();theRecHit!=RecHits.end();theRecHit++){
+    double energy = theRecHit->energy();
+    if(energy>0.0){
+      nRecHitsNZ++;
+
+      DetId RecHitDetID = theRecHit->detid();
+      DetId::Detector DetNum=RecHitDetID.det();
+
+      bool UseIt=true;
+
+      if(DetNum == DetId::Hcal ){
+	HcalDetId HcalID = RecHitDetID;
+	HcalSubdetector HcalNum = HcalID.subdet();
+
+	if(HcalNum == HcalBarrel && subDetName != "HB") UseIt=false; 
+	if(HcalNum == HcalEndcap && subDetName != "HE") UseIt=false;
+      }
+
+      if(!UseIt) continue;
+
+    //  int RecHitIeta  = RecHitDetID.ieta();
+    //  int RecHitPhi  = RecHitDetID.iphi();
+      const CaloCellGeometry *this_cell = caloGeometry.getGeometry(RecHitDetID);
+      GlobalPoint position = this_cell->getPosition();
+
+      double eta=position.eta();
+
+      if(subDetName=="HB" && fabs(eta)>1.5) continue;
+      if(subDetName=="HE" && fabs(eta)<1.5) continue;
+
+      double phi=position.phi();
+      double theta=position.theta();
+
+      double pt=energy*sin(theta);
+
+      double px=energy*sin(theta)*cos(phi);
+      double py=energy*sin(theta)*sin(phi);
+      double pz=energy*cos(theta);
+      double e=energy;
+
+      sumPx +=px;
+      sumPy +=py;
+      sumPz +=pz;
+      sumEnergy  +=e;
+
+      hname="PtRecHits"+subDetName;
+      fillHist1D(hname,pt);
+
+      hname="EnergyRecHits"+subDetName;
+      fillHist1D(hname,energy);
+
+      hname="EtaRecHits"+subDetName;
+      fillHist1D(hname,eta);
+
+      hname="EtaPtWeightedRecHits"+subDetName;
+      fillHist1D(hname,eta,pt);
+
+      hname="PhiRecHits"+subDetName;
+      fillHist1D(hname,phi);
+    }  
+  }
+
+  hname="NumberOfRecHitsNZ"+subDetName;
+  fillHist1D(hname,nRecHitsNZ);
+
+  hname="SumEnergyRecHitsNZ"+subDetName;
+  fillHist1D(hname,sumEnergy);
+
+  double pt=sqrt(sumPx+sumPx+sumPy*sumPy);
+
+  hname="SumPtRecHitsNZ"+subDetName;
+  fillHist1D(hname,pt);
+
+}
