@@ -1,7 +1,9 @@
 /** \file BeamProfileFitter.cc
+ *  Configurable option for the beam profile fit:
+ *  \htmlinclude Alignment/LaserAlignment/data/BeamProfileFitter.cff
  *
- *  $Date: Fri Mar 16 15:16:03 CET 2007 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/03/16 14:29:56 $
+ *  $Revision: 1.4 $
  *  \author Maarten Thomas
  */
 
