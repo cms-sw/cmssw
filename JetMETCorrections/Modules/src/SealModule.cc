@@ -13,6 +13,8 @@ using namespace cms;
 
 #include "JetCorrectionProducer.h"
 DEFINE_ANOTHER_FWK_MODULE(JetCorrectionProducer);
+#include "PlotJetCorrections.h"
+DEFINE_ANOTHER_FWK_MODULE(PlotJetCorrections);
 
 #include "JetCorrectionService.icc"
 #include "JetMETCorrections/Objects/interface/SimpleJetCorrector.h"
