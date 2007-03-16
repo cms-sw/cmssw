@@ -8,8 +8,8 @@
  *
  *  \author    : Gero Flucke
  *  date       : November 2006
- *  $Revision: 1.2 $
- *  $Date: 2006/11/07 10:45:09 $
+ *  $Revision: 1.1 $
+ *  $Date: 2006/11/14 08:45:05 $
  *  (last update by $Author: flucke $)
  */
 
@@ -20,12 +20,16 @@ class PedeSteerer;
 class Alignable;
 class AlignmentParameters;
 
+namespace edm {
+  class ParameterSet;
+}
+
 /***************************************
 ****************************************/
 class PedeReader
 {
  public:
-  PedeReader(const char *pedeResultFile, const PedeSteerer &steerer);
+  PedeReader(const edm::ParameterSet &config, const PedeSteerer &steerer);
   /// non virtual destructor: do not inherit from this class
   ~PedeReader() {}
   bool read(std::vector<Alignable*> &alignables);

@@ -3,14 +3,15 @@
  *
  *  \author    : Gero Flucke
  *  date       : November 2006
- *  $Revision: 1.2 $
- *  $Date: 2006/11/30 10:34:05 $
+ *  $Revision: 1.3 $
+ *  $Date: 2007/02/05 12:51:43 $
  *  (last update by $Author: flucke $)
  */
 
 #include "PedeReader.h"
 #include "PedeSteerer.h"
 
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "Alignment/CommonAlignment/interface/Alignable.h"
@@ -23,16 +24,25 @@
 #include "Alignment/MillePedeAlignmentAlgorithm/interface/MillePedeVariables.h"
 
 #include <map>
+#include <string>
 
 
 const unsigned int PedeReader::myMaxNumValPerParam = 5;
 
 //__________________________________________________________________________________________________
-PedeReader::PedeReader(const char *pedeResultFile, const PedeSteerer &steerer) 
-  : myPedeResult(pedeResultFile, std::ios::in), mySteerer(steerer)
+PedeReader::PedeReader(const edm::ParameterSet &config, const PedeSteerer &steerer) 
+  : mySteerer(steerer)
 {
+  std::string pedeResultFile(config.getUntrackedParameter<std::string>("fileDir"));
+  if (pedeResultFile.empty()) pedeResultFile = steerer.directory(); // includes final '/'
+  else if (pedeResultFile.find_last_of('/') != pedeResultFile.size() - 1) {
+    pedeResultFile += '/'; // directory may need '/'
+  }
+
+  pedeResultFile += config.getParameter<std::string>("readFile");
+  myPedeResult.open(pedeResultFile.c_str(), std::ios::in);
   if (!myPedeResult.is_open()) {
-    edm::LogError("Alignmnet") << "@SUB=PedeReader"
+    edm::LogError("Alignment") << "@SUB=PedeReader"
                                << "Problem opening pede output file " << pedeResultFile;
   }
 }
@@ -130,7 +140,7 @@ Alignable* PedeReader::setParameter(unsigned int paramLabel,
     const unsigned int paramNum = mySteerer.paramNumFromLabel(paramLabel);
 
     userParams->setAllDefault(paramNum);
-    const float cmsToPede = mySteerer.cmsToPedeFactor(paramNum);
+    const double cmsToPede = mySteerer.cmsToPedeFactor(paramNum);
 
     switch (bufLength) {
     case 5: // global correlation
@@ -142,7 +152,8 @@ Alignable* PedeReader::setParameter(unsigned int paramLabel,
     case 3: // difference to start value
       userParams->diffBefore()[paramNum] = buf[2] / cmsToPede; // no break
     case 2: 
-      parVec[paramNum] = buf[0] / cmsToPede; // parameter
+      parVec[paramNum] = buf[0] / cmsToPede * mySteerer.parameterSign(); // parameter
+      userParams->parameter()[paramNum] = parVec[paramNum]; // duplicate in millepede parameters
       userParams->preSigma()[paramNum] = buf[1];  // presigma given, probably means fixed
       if (!userParams->isFixed(paramNum)) {
         userParams->preSigma()[paramNum] /= cmsToPede;
