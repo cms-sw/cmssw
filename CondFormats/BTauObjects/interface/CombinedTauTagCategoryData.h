@@ -6,6 +6,6 @@
 struct CombinedTauTagCategoryData {
   int truthmatched1orfake0candidates,signaltks_n;
   float EtMin,EtMax;
-  reco::TaggingVariable theTagVar;
+  reco::TaggingVariableName theTagVarName;
 };
 #endif
