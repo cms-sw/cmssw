@@ -50,13 +50,18 @@ bool L1GctJetCand::empty() const {
 
 // pretty print
 ostream& operator<<(ostream& s, const L1GctJetCand& cand) {
-  s << "L1GctJetCand : " << hex;
-  s << "rank=" << cand.rank();
-  s << ", etaSign=" << cand.etaSign() << ", eta=" << (cand.etaIndex()&0x7) << ", phi=" << cand.phiIndex() << dec;
-  s << " type=";
-  if (cand.isTau()) { s << "tau"; }
-  else if (cand.isForward()) { s << "forward"; }
-  else { s << "central"; }
+  if (cand.empty()) {
+    s << "L1GctJetCand empty jet";
+  } else {
+    s << "L1GctJetCand : " << hex;
+    s << "rank=" << cand.rank();
+    s << ", etaSign=" << cand.etaSign() << ", eta=" << (cand.etaIndex()&0x7) << ", phi=" << cand.phiIndex() << dec;
+    s << " type=";
+    if (cand.isTau()) { s << "tau"; }
+    else if (cand.isForward()) { s << "forward"; }
+    else { s << "central"; }
+  }
+  s << std::endl;
   return s;
 }
 
