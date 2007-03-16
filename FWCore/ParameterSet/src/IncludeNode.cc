@@ -6,6 +6,8 @@
 #include <iostream>
 #include <iterator>
 #include <boost/bind.hpp>
+// circular dependence here
+#include "FWCore/ParameterSet/interface/ModuleNode.h"
 using std::string;
 
 namespace edm {
@@ -123,6 +125,7 @@ namespace edm {
         assert(openFiles.back() == name());
         openFiles.pop_back();
       }
+      check();
     }
 
     void IncludeNode::insertInto(edm::ProcessDesc & procDesc) const
@@ -134,6 +137,37 @@ namespace edm {
       {
         (**i).insertInto(procDesc);
       }
+    }
+
+
+    bool IncludeNode::check() const
+    {
+      int nletters = name().length();
+      assert(nletters >= 3);
+      string lastThreeLetters = name().substr(nletters-3);
+      // count the number of module nodes
+      int nModules = 0;
+
+      if(lastThreeLetters == "cfi")
+      {
+        NodePtrList::const_iterator i(nodes_->begin()),e(nodes_->end());
+        for(;i!=e;++i)
+        {
+          if(dynamic_cast<const ModuleNode *>((*i).get()) != 0)
+          {
+            ++nModules;
+          }
+        }
+       
+        if(nModules > 1)
+        {
+          std::cerr << "WARNING: " << nModules << " modules were defined in " << name()
+           << name() << ".\nOnly one module should be defined per .cfi."
+           << "\nThis will be an error in future releases, "
+           << "so please contact the responsible developers." << std::endl;
+        }
+      }
+      return (nModules < 2);
     }
 
 

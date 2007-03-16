@@ -43,6 +43,9 @@ namespace edm {
       bool isResolved() const {return isResolved_;}
 
     private:
+      //throws an exception if more than one module defined in a .cfi
+      bool check() const;
+
       std::string type_;
       std::string fullPath_;
       bool isResolved_;
