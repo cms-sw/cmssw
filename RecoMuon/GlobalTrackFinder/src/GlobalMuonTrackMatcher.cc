@@ -2,8 +2,8 @@
  *  Class: GlobalMuonTrackMatcher
  *
  * 
- *  $Date: 2007/02/17 19:04:57 $
- *  $Revision: 1.41 $
+ *  $Date: 2007/03/15 21:02:00 $
+ *  $Revision: 1.42 $
  *
  *  Authors :
  *  \author Chang Liu  - Purdue University
@@ -40,7 +40,7 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrajectoryState/interface/LocalTrajectoryParameters.h"
 
-#include "Geometry/Surface/interface/TangentPlane.h"
+#include "DataFormats/GeometrySurface/interface/TangentPlane.h"
 
 using namespace std;
 using namespace reco;
