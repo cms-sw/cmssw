@@ -16,7 +16,7 @@
 //
 // Original Author:  Lorenzo AGOSTINO, Radek Ofierzynski
 //         Created:  Tue Jul 18 12:17:01 CEST 2006
-// $Id: ElectronCalibration.h,v 1.3 2006/10/27 14:05:25 lorenzo Exp $
+// $Id: ElectronCalibration.h,v 1.4 2006/11/20 13:47:56 malgeri Exp $
 //
 //
 
@@ -39,6 +39,7 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "TFile.h"
 #include "TH1.h"
+#include "TH2.h"
 
 
 // class decleration
@@ -74,16 +75,37 @@ class ElectronCalibration : public edm::EDAnalyzer {
       vector<vector<float> > EventMatrix;
       vector<int> MaxCCeta;
       vector<int> MaxCCphi;
+      vector<float> EnergyVectorNoCuts;
+      vector<vector<float> > EventMatrixNoCuts;
+      vector<int> MaxCCetaNoCuts;
+      vector<int> MaxCCphiNoCuts;
       MinL3Algorithm* MyL3Algo1;
       vector<float> solution;
+      vector<float> solutionNoCuts;
       vector<float> newCalibs;
       vector<float> oldCalibs;
       
       TH1F * e25;
+      TH1F * e9;
       TH1F * scE;
       TH1F * trP;
       TH1F * EoP;
       TH1F * calibs;
+      TH1F * e9Overe25;
+      TH1F * e25OverScE;
+      TH2F * Map;
+      TH1F * E25oP;
+
+      TH1F * e25NoCuts;
+      TH1F * e9NoCuts;
+      TH1F * scENoCuts;
+      TH1F * trPNoCuts;
+      TH1F * EoPNoCuts;
+      TH1F * calibsNoCuts;
+      TH1F * e9Overe25NoCuts;
+      TH1F * e25OverScENoCuts;
+      TH2F * MapNoCuts;
+      TH1F * E25oPNoCuts;
       
 };
 #endif

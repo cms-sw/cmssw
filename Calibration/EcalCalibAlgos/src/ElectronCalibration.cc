@@ -28,7 +28,7 @@
 #include <stdexcept>
 #include <vector>
 
-
+#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
 
 ElectronCalibration::ElectronCalibration(const edm::ParameterSet& iConfig)
 {
@@ -44,40 +44,53 @@ ElectronCalibration::ElectronCalibration(const edm::ParameterSet& iConfig)
 
 ElectronCalibration::~ElectronCalibration()
 {
- 
-
+  
+  
 }
 
 //========================================================================
-void
-ElectronCalibration::beginJob(edm::EventSetup const& iSetup) {
-//========================================================================
-
-// Book histograms 
-e25 = new TH1F("e25","E25 energy", 150, 0., 150.);
-scE = new TH1F("scE","SC energy", 150, 0., 150.);
-trP = new TH1F("trP","Trk momentum", 150, 0., 150.);
-EoP = new TH1F("EoP","EoP", 50, 0., 3.);
-calibs = new TH1F("calib","Calibration constants", 50, 0., 5.);
-
-//
-
- calibClusterSize=5; 
- etaMin = 1;
- etaMax = 85;
- phiMin = 11; 
- phiMax = 50;
- MyL3Algo1 = new MinL3Algorithm(calibClusterSize, etaMin, etaMax, phiMin, phiMax);
- read_events=0;
-
- // get Region to be calibrated  
- ReducedMap = calibCluster.getMap(etaMin, etaMax, phiMin, phiMax);
- 
- oldCalibs.resize(ReducedMap.size(),0.);
-
-
- CalibrationCluster::CalibMap::iterator itmap;
-
+void ElectronCalibration::beginJob(edm::EventSetup const& iSetup) {
+  //========================================================================
+  
+  // Book histograms 
+  e9 = new TH1F("e9","E9 energy", 150, 0., 150.);
+  e25 = new TH1F("e25","E25 energy", 150, 0., 150.);
+  scE = new TH1F("scE","SC energy", 150, 0., 150.);
+  trP = new TH1F("trP","Trk momentum", 150, 0., 150.);
+  EoP = new TH1F("EoP","EoP", 300, 0., 3.);
+  calibs = new TH1F("calib","Calibration constants", 400, 0., 2.);
+  e25OverScE = new TH1F("e25OverscE","E25 / SC energy", 200, 0., 2.);
+  E25oP = new TH1F("E25oP","E25 / P", 300, 0., 3.);
+  Map = new TH2F("Map","Nb Events in Crystal",85,1, 85,70 ,5, 75);
+  e9Overe25 = new TH1F("e9Overe25","E9 / E25", 200, 0., 2.);//
+  // Book histograms 
+  e9NoCuts = new TH1F("e9NoCuts","E9 energy (Before Cuts)", 150, 0., 150.);
+  e25NoCuts = new TH1F("e25NoCuts","E25 energy (Before Cuts)", 150, 0., 150.);
+  scENoCuts = new TH1F("scENoCuts","SC energy (Before Cuts)", 150, 0., 150.);
+  trPNoCuts = new TH1F("trPNoCuts","Trk momentum (Before Cuts)", 150, 0., 150.);
+  EoPNoCuts = new TH1F("EoPNoCuts","EoP (Before Cuts)", 300, 0., 3.);
+  calibsNoCuts = new TH1F("calibNoCuts","Calibration constants (Before Cuts)", 400, 0., 2.);
+  e25OverScENoCuts = new TH1F("e25OverscENoCuts","E25 / SC energy (Before Cuts)", 200, 0., 2.);
+  E25oPNoCuts = new TH1F("E25oPNoCuts","E25 / P (Before Cuts)", 300, 0., 3.);
+  MapNoCuts = new TH2F("MapNoCuts","Nb Events in Crystal (Before Cuts)",85,1, 85,70 ,5, 75);
+  e9Overe25NoCuts = new TH1F("e9Overe25NoCuts","E9 / E25 (Before Cuts)", 200, 0., 2.);//
+  
+  calibClusterSize=5; 
+  etaMin = 1;
+  etaMax = 85;
+  phiMin = 11; 
+  phiMax = 70;
+  MyL3Algo1 = new MinL3Algorithm(calibClusterSize, etaMin, etaMax, phiMin, phiMax);
+  read_events=0;
+  
+  // get Region to be calibrated  
+  ReducedMap = calibCluster.getMap(etaMin, etaMax, phiMin, phiMax);
+  
+  oldCalibs.resize(ReducedMap.size(),0.);
+  
+  
+  CalibrationCluster::CalibMap::iterator itmap;
+  
 }
 
 
@@ -90,7 +103,7 @@ int nIterations =10;
 
 solution = MyL3Algo1->iterate(EventMatrix, MaxCCeta, MaxCCphi, EnergyVector, nIterations);
 
-int ii=0;
+
 for (int ii=0;ii<solution.size();ii++)
 {
   cout << "solution[" << ii << "] = " << solution[ii] << endl;
@@ -113,20 +126,42 @@ for (itmap=ReducedMap.begin(); itmap != ReducedMap.end();itmap++){
       icry++;
 }
 
+solutionNoCuts = MyL3Algo1->iterate(EventMatrixNoCuts, MaxCCetaNoCuts, MaxCCphiNoCuts, EnergyVectorNoCuts, nIterations);
+for (int ii=0;ii<solutionNoCuts.size();ii++)
+{
+  calibsNoCuts->Fill(solutionNoCuts[ii]); 
+}
+
 ////////////////////////       FINAL STATISTICS           ////////////////////
 
    std::cout << " " << std::endl;
    std::cout << "************* STATISTICS **************" << std::endl;
-
+   std::cout << " Events Studied "<<read_events<< std::endl;
 
 /////////////////////////////////////////////////////////////////////////////
   TFile f(rootfile_.c_str(),"RECREATE");
 
+  e9NoCuts->Write();
+  e25NoCuts->Write(); 
+  scENoCuts->Write(); 
+  trPNoCuts->Write(); 
+  EoPNoCuts->Write(); 
+  calibsNoCuts->Write(); 
+  e25OverScENoCuts->Write(); 
+  e9Overe25NoCuts->Write(); 
+  E25oPNoCuts->Write(); 
+  MapNoCuts->Write();
+
+  e9->Write();
   e25->Write(); 
   scE->Write(); 
   trP->Write(); 
   EoP->Write(); 
   calibs->Write(); 
+  e25OverScE->Write(); 
+  e9Overe25->Write(); 
+  E25oP->Write(); 
+  Map->Write();
 
   f.Close();
  delete MyL3Algo1; 
@@ -205,12 +240,12 @@ ElectronCalibration::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   // Get EBRecHits
    Handle<EBRecHitCollection> phits;
    try {
-    std::cout << "Taken EBRecHitCollection " << std::endl;
-     iEvent.getByLabel( recHitLabel_, phits);
+     //    std::cout << "Taken EBRecHitCollection " << std::endl;
+         iEvent.getByLabel( recHitLabel_, phits);
    } catch ( ... ) {
-//     std::cerr << "Error! can't get the product EBRecHitCollection: " << hitCollection_.c_str() << std::endl;
+     std::cerr << "Error! can't get the product EBRecHitCollection: " << std::endl;
    }
-     const EBRecHitCollection* hits = phits.product(); // get a ptr to the product
+   const EBRecHitCollection* hits = phits.product(); // get a ptr to the product
 
   // Get pixelElectrons
   
@@ -218,9 +253,11 @@ ElectronCalibration::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   try {
     iEvent.getByLabel(electronLabel_, pElectrons);
    } catch ( ... ) {
-//     std::cerr << "Error! can't get the product ElectronCollection: " << hitCollection_.c_str() << std::endl;
+     std::cerr << "Error! can't get the product ElectronCollection: " << std::endl;
    }
-    const reco::ElectronCollection* electronCollection = pElectrons.product();
+  const reco::ElectronCollection* electronCollection = pElectrons.product();
+  read_events++;
+  cout << "read_events = " << read_events << endl;
 
 /*
   // Get pixelElectrons
@@ -241,7 +278,7 @@ ElectronCalibration::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
    if (!electronCollection)
      return;
-
+   //  cout<<" electronCollection->size() "<<electronCollection->size()<<endl;
    if (electronCollection->size() == 0)
      return;
 /*
@@ -254,8 +291,6 @@ ElectronCalibration::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 ////////////////////////////////////////////////////////////////////////////////////////
 ///                          START HERE....
 ///////////////////////////////////////////////////////////////////////////////////////
-  read_events++;
-//  cout << "read_events = " << read_events << endl;
 
   reco::ElectronCollection::const_iterator eleIt = electronCollection->begin();
 
@@ -269,7 +304,8 @@ ElectronCalibration::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
      if(eleIt->eta()<0.0) continue;
 //     if(eleIt->phi()>0.870) continue;
 //     if(eleIt->phi()<0.174) continue;
-        
+//     if(eleIt->eSuperClusterOverP()<0.5 || eleIt->eSuperClusterOverP()>1.5) continue;
+      
      if(eleIt->pt()>highestElePt) {
        highestElePt=eleIt->pt();
        highPtElectron = *eleIt;
@@ -277,7 +313,7 @@ ElectronCalibration::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
      }
 
   }
-	
+  if(highestElePt<5)return;
       if(!found) return;
 
 //    cout << "track eta = " << highPtElectron.eta() << endl;
@@ -338,17 +374,41 @@ ElectronCalibration::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 	        }
 		
      }
- 
-  e25->Fill(energy5x5); 
-  scE->Fill(sc.energy()); 
-  trP->Fill(highestElePt); 
-  EoP->Fill(sc.energy()/highestElePt); 
   
+   EventMatrixNoCuts.push_back(energy);
+   EnergyVectorNoCuts.push_back(highPtElectron.p());
+   MaxCCetaNoCuts.push_back(maxCC_Eta);
+   MaxCCphiNoCuts.push_back(maxCC_Phi);
+
+   e9NoCuts->Fill(energy3x3); 
+   e25NoCuts->Fill(energy5x5); 
+   e9Overe25NoCuts->Fill(energy3x3/energy5x5);
+   scENoCuts->Fill(sc.energy()); 
+   trPNoCuts->Fill(highPtElectron.p()); 
+   EoPNoCuts->Fill(sc.energy()/highPtElectron.p()); 
+   e25OverScENoCuts->Fill(energy5x5/sc.energy());
+   E25oPNoCuts->Fill(energy5x5/highPtElectron.p());
+   MapNoCuts->Fill(maxCC_Eta,maxCC_Phi);
+
+   //Cuts!
+   if((energy3x3/energy5x5)<0.92)return;
+   if((energy5x5/highPtElectron.p())<0.8 || (energy5x5/highPtElectron.p())>1.2)return;
+
+  e9->Fill(energy3x3); 
+  e25->Fill(energy5x5); 
+  e9Overe25->Fill(energy3x3/energy5x5);
+  scE->Fill(sc.energy()); 
+  trP->Fill(highPtElectron.p()); 
+  EoP->Fill(sc.energy()/highPtElectron.p()); 
+  e25OverScE->Fill(energy5x5/sc.energy());
+  E25oP->Fill(energy5x5/highPtElectron.p());
+  Map->Fill(maxCC_Eta,maxCC_Phi);
+
 ////////////////////////////////////////////////////
 
 
   EventMatrix.push_back(energy);
-  EnergyVector.push_back(highestElePt);
+  EnergyVector.push_back(highPtElectron.p());
   MaxCCeta.push_back(maxCC_Eta);
   MaxCCphi.push_back(maxCC_Phi);
 
