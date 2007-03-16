@@ -3,8 +3,8 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.12 $
- *  $Date: 2007/03/05 12:19:34 $
+ *  $Revision: 1.13 $
+ *  $Date: 2007/03/16 16:58:39 $
  *  (last update by $Author: flucke $)
  */
 
@@ -34,8 +34,7 @@
 
 #include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
 
-// #include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
-#include "Geometry/CommonDetAlgo/interface/AlgebraicObjects.h" // FIXME: backport of include 
+#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 
 #include <Geometry/CommonDetUnit/interface/GeomDetUnit.h>
 #include <Geometry/CommonDetUnit/interface/GeomDetType.h>
