@@ -3,9 +3,9 @@
 
 #include "CondFormats/SiStripObjects/interface/FedChannelConnection.h"
 #include <boost/cstdint.hpp>
+#include <sstream>
 #include <vector>
 #include <string>
-#include <sstream>
 
 class SiStripFedCabling;
 
@@ -21,41 +21,53 @@ class SiStripFedCabling {
   
  public:
   
+  // -------------------- Constructors, destructors --------------------
+
   /** Constructor taking FED channel connection objects as input. */
-  SiStripFedCabling( const std::vector<FedChannelConnection>& connections );
+  SiStripFedCabling( const std::vector<FedChannelConnection>& );
+
+  /** Copy constructor. */
+  SiStripFedCabling( const SiStripFedCabling& ); //@@ TO BE IMPLEMENTED
 
   /** Public default constructor. */
   SiStripFedCabling();
 
-  /** Virtual destructor. */
-  virtual ~SiStripFedCabling();
+  /** Default destructor. */
+  ~SiStripFedCabling();
+
+  // -------------------- Utility methods --------------------
   
   /** Builds FED cabling from vector of FED connections. */
   void buildFedCabling( const std::vector<FedChannelConnection>& connections );
-
-  /** Retrieve active FEDs. */
-  const std::vector<uint16_t>& feds() const;
-  
-  /** Connection info for devices connected to a given FED id and channel. */
-  const FedChannelConnection& connection( uint16_t fed_id,
-					  uint16_t fed_chan ) const; 
-
-  /** Connection info for devices connected to a given FED. */
-  const std::vector<FedChannelConnection>& connections( uint16_t fed_id ) const; 
-  
-  /** Information for detected devices that are not connected. */
-  inline const std::vector<FedChannelConnection>& detected() const; 
-  
-  /** Information for undetected devices. */
-  inline const std::vector<FedChannelConnection>& undetected() const; 
   
   /** Prints all connection information for this FED cabling object. */
   void print( std::stringstream& ) const;
+
+  // -------------------- Methods to retrieve connections --------------------
+
+  /** Retrieve vector of active FED ids. */
+  const std::vector<uint16_t>& feds() const;
   
+  /** Returns all connection info for a given FED id. */
+  const std::vector<FedChannelConnection>& connections( uint16_t fed_id ) const; 
+  
+  /** Returns Connection info for a given FED id and channel. */
+  const FedChannelConnection& connection( uint16_t fed_id,
+					  uint16_t fed_chan ) const; 
+  
+  /** Returns information for "detected, but unconnected" devices. */
+  inline const std::vector<FedChannelConnection>& detected() const; 
+  
+  /** Returns information for all "undetected" devices. */
+  inline const std::vector<FedChannelConnection>& undetected() const; 
+  
+  // -------------------- Private member data --------------------
+
  private:
   
   /** "Active" FEDs that have connected FE devices. */
   std::vector<uint16_t> feds_;
+
   /** 
       Channel-level connection information for FE devices that: 
       - have been detected (ie, have non-zero FEC-related fields),
@@ -65,6 +77,7 @@ class SiStripFedCabling {
       (1st index is FED id, 2nd index is FED channel.) 
   */
   std::vector< std::vector<FedChannelConnection> > connected_;
+
   /** 
       Channel-level connection information for FE devices that: 
       - have been detected (ie, have non-zero FEC-related fields),
@@ -72,6 +85,7 @@ class SiStripFedCabling {
       - have OR do not have a DcuId/DetId.
   */
   std::vector<FedChannelConnection> detected_;
+
   /** 
       Channel-level connection information for FE devices that: 
       - have NOT been detected (ie, have zero FEC-related fields),
@@ -84,15 +98,10 @@ class SiStripFedCabling {
 
 };
 
-// ---------- Inline methods ----------
+// -------------------- Inline methods --------------------
 
-const std::vector<FedChannelConnection>& SiStripFedCabling::detected() const {
-  return detected_;
-} 
-
-const std::vector<FedChannelConnection>& SiStripFedCabling::undetected() const{
-  return undetected_;
-}
+const std::vector<FedChannelConnection>& SiStripFedCabling::detected() const { return detected_; }
+const std::vector<FedChannelConnection>& SiStripFedCabling::undetected() const{ return undetected_; }
 
 #endif // CondFormats_SiStripObjects_SiStripFedCabling_H
 

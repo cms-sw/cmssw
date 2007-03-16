@@ -2,10 +2,69 @@
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iomanip>
-#include <sstream>
+#include <string>
 
-using namespace std;
 using namespace sistrip;
+
+// -----------------------------------------------------------------------------
+// 
+FedChannelConnection::FedChannelConnection( const uint16_t& fec_crate, 
+					    const uint16_t& fec_slot, 
+					    const uint16_t& fec_ring, 
+					    const uint16_t& ccu_addr, 
+					    const uint16_t& ccu_chan, 
+					    const uint16_t& apv0,
+					    const uint16_t& apv1,
+					    const uint32_t& dcu_id,
+					    const uint32_t& det_id,
+					    const uint16_t& pairs ,
+					    const uint16_t& fed_id,
+					    const uint16_t& fed_ch,
+					    const uint16_t& length,
+					    const bool& dcu,
+					    const bool& pll,
+					    const bool& mux,
+					    const bool& lld ) :
+  fecCrate_(fec_crate), 
+  fecSlot_(fec_slot), 
+  fecRing_(fec_ring), 
+  ccuAddr_(ccu_addr), 
+  ccuChan_(ccu_chan),
+  apv0_(apv0), 
+  apv1_(apv1),
+  dcuId_(dcu_id), 
+  detId_(det_id), 
+  nApvPairs_(pairs), 
+  fedId_(fed_id), 
+  fedCh_(fed_ch), 
+  length_(length),
+  dcu0x00_(dcu), 
+  mux0x43_(mux), 
+  pll0x44_(pll), 
+  lld0x60_(lld) 
+{;}
+
+// -----------------------------------------------------------------------------
+// 
+FedChannelConnection::FedChannelConnection() :
+  fecCrate_(sistrip::invalid_), 
+  fecSlot_(sistrip::invalid_), 
+  fecRing_(sistrip::invalid_), 
+  ccuAddr_(sistrip::invalid_), 
+  ccuChan_(sistrip::invalid_),
+  apv0_(sistrip::invalid_), 
+  apv1_(sistrip::invalid_),
+  dcuId_(sistrip::invalid_), 
+  detId_(sistrip::invalid_), 
+  nApvPairs_(sistrip::invalid_), 
+  fedId_(sistrip::invalid_), 
+  fedCh_(sistrip::invalid_), 
+  length_(sistrip::invalid_),
+  dcu0x00_(false), 
+  mux0x43_(false), 
+  pll0x44_(false), 
+  lld0x60_(false) 
+{;}
 
 // -----------------------------------------------------------------------------
 //
@@ -71,39 +130,46 @@ uint16_t FedChannelConnection::apvPairNumber() const {
   return 0;
 }
 
+
 // -----------------------------------------------------------------------------
-/** */
-void FedChannelConnection::print( stringstream& ss ) const {
-  ss << "  FedId/Ch: "
+// 
+void FedChannelConnection::print( std::stringstream& ss ) const {
+  ss << "[FedChannelConnection::" << __func__ << "]" << std::endl
+     << " FedId/Ch: "
      << fedId() << "/"
-     << fedCh() << endl
-     << "  Crate/FEC/CCU/Module/LLDchan/APV0/1: "
+     << fedCh() << std::endl
+     << " Crate/FEC/CCU/Module: "
      << fecCrate() << "/"
      << fecSlot() << "/"
      << fecRing() << "/"
      << ccuAddr() << "/"
-     << ccuChan() << "/"
-     << lldChannel() << "/"
+     << ccuChan() << std::endl
+     << " DcuId/DetId: "
+     << std::hex
+     << "0x" << std::setfill('0') << std::setw(8) << dcuId() << "/"
+     << "0x" << std::setfill('0') << std::setw(8) << detId() << "/"
+     << std::dec
+     << " LldChan/APV0/APV1: "
+     << lldChannel() << "/" 
      << i2cAddr(0) << "/"
-     << i2cAddr(1) << endl
-     << "  DcuId/DetId/nPairs/pairNum: "
-     << hex
-     << "0x" << setfill('0') << setw(8) << dcuId() << "/"
-     << "0x" << setfill('0') << setw(8) << detId() << "/"
-     << dec
+     << i2cAddr(1) << std::endl
+     << " apvPairNumber/nApvPairs/nDetStrips: "
+     << apvPairNumber() << "/"
      << nApvPairs() << "/"
-     << apvPairNumber() << endl
-     << "  DCU/MUX/PLL/LLD found: "
+     << 256*nApvPairs() << std::endl
+     << " DCU/MUX/PLL/LLD found: "
+     << std::boolalpha
      << dcu() << "/"
      << mux() << "/"
      << pll() << "/"
-     << lld();
+     << lld()
+     << std::noboolalpha;
 }
 
 // -----------------------------------------------------------------------------
 //
-ostream& operator<< ( ostream& os, const FedChannelConnection& conn ) {
-  stringstream ss;
+std::ostream& operator<< ( std::ostream& os, const FedChannelConnection& conn ) {
+  std::stringstream ss;
   conn.print(ss);
   os << ss.str();
   return os;
