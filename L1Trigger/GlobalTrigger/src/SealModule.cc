@@ -1,4 +1,4 @@
-#include "FWCore/PluginManager/ModuleDef.h"
+#include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/InputSourceMacros.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "L1Trigger/GlobalTrigger/interface/L1GlobalTrigger.h"
