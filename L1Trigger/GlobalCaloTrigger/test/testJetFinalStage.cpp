@@ -12,11 +12,17 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetFinalStage.h"  //The class to be tested
 
 //Custom headers needed for this test
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctJetCand.h"
+
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJet.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctSourceCard.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetLeafCard.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctWheelJetFpga.h"
+#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetEtCalibrationLut.h"
 #include "FWCore/Utilities/interface/Exception.h"
+
+#include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
+#include "CondFormats/L1TObjects/interface/L1GctJetEtCalibrationFunction.h"
 
 //Standard library headers
 #include <fstream>   //for file IO
@@ -29,7 +35,8 @@
 using namespace std;
 
 //Typedefs for the vector templates and other types used
-typedef vector<L1GctJet> JetsVector;
+typedef vector<L1GctJetCand> JetsVector;
+typedef vector<L1GctJet>  RawJetsVector;
 typedef unsigned long int ULong;
 
 
@@ -46,17 +53,18 @@ const int numOutputJets = 4; //Num. Jets of each type outputted.
 
 //  FUNCTION PROTOTYPES
 /// Runs the test on the L1GctJetFinalStage instance passed into it.
-void classTest(L1GctJetFinalStage *myJetFinalStage);
+void classTest(L1GctJetFinalStage *myJetFinalStage, L1GctJetEtCalibrationLut *myLut);
 /// Loads test input and also the known results from a file.
 void loadTestData(JetsVector &inputCentralJets, JetsVector &inputForwardJets,
                   JetsVector &inputTauJets, JetsVector &trueCentralJets,
-                  JetsVector &trueForwardJets, JetsVector &trueTauJets);
+                  JetsVector &trueForwardJets, JetsVector &trueTauJets,
+                  L1GctJetEtCalibrationLut *lut);
 /// Function to safely open input files of any name, using a referenced return ifstream
 void safeOpenInputFile(ifstream &fin, const string name);
 /// Function to safely open output files of any name, using a referenced return ofstream
 void safeOpenOutputFile(ofstream &fout, const string name);
 /// Reads jets from file and pushes the specified number into a vector of jets
-void putJetsInVector(ifstream &fin, JetsVector &jets, const int numJets);
+void putJetsInVector(ifstream &fin, JetsVector &jets, const int numJets, L1GctJetEtCalibrationLut *lut);
 /// Gets the data of a single jet from the testDataFile (reasonably safely).  
 L1GctJet readSingleJet(ifstream &fin);
 /// Compares JetsVectors, prints a message about the comparison, returns true if identical, else false.
@@ -79,11 +87,27 @@ int main(int argc, char **argv)
     vector<L1GctSourceCard*> srcCrds(L1GctJetLeafCard::MAX_SOURCE_CARDS);
     for(unsigned i=0; i < L1GctJetLeafCard::MAX_SOURCE_CARDS; ++i)
     {
-      srcCrds[i] = new L1GctSourceCard(i, L1GctSourceCard::cardType3);
+      srcCrds[i] = new L1GctSourceCard(i*3+2, L1GctSourceCard::cardType3);
     }
     
     //create jet calibration lookup table
-    L1GctJetEtCalibrationLut* myJetEtCalLut = new L1GctJetEtCalibrationLut();    
+    double lsb=1.0;
+    static const unsigned nThresh=64;
+    vector<double> thresh(nThresh);
+    thresh.at(0) = 0.0;
+    for (unsigned t=1; t<nThresh; ++t) {
+      thresh.at(t) = t*16.0 - 8.0;
+    }
+
+    double threshold=5.0;
+    vector< vector<double> > defaultCalib;
+    L1CaloEtScale* myScale = new L1CaloEtScale(lsb, thresh);
+    L1GctJetEtCalibrationFunction* myFun = new L1GctJetEtCalibrationFunction();
+    myFun->setOutputEtScale(*myScale);
+    myFun->setParams(lsb, threshold,
+                     defaultCalib, defaultCalib);
+
+    L1GctJetEtCalibrationLut* myJetEtCalLut = L1GctJetEtCalibrationLut::setupLut(myFun);
     
     //create jet counter lookup table
     vector<L1GctJetCounterLut*> myJetCounterLuts(L1GctWheelJetFpga::N_JET_COUNTERS);
@@ -94,7 +118,10 @@ int main(int argc, char **argv)
     vector<L1GctJetLeafCard*> jetLeafCrds(L1GctWheelJetFpga::MAX_LEAF_CARDS);
     for(unsigned i=0; i < L1GctWheelJetFpga::MAX_LEAF_CARDS; ++i)
     {
-      jetLeafCrds[i] = new L1GctJetLeafCard(0, 0, srcCrds, myJetEtCalLut);
+      jetLeafCrds[i] = new L1GctJetLeafCard(0, 0, srcCrds);
+      jetLeafCrds[i]->getJetFinderA()->setJetEtCalibrationLut(myJetEtCalLut);
+      jetLeafCrds[i]->getJetFinderB()->setJetEtCalibrationLut(myJetEtCalLut);
+      jetLeafCrds[i]->getJetFinderC()->setJetEtCalibrationLut(myJetEtCalLut);
     }
     
     vector<L1GctWheelJetFpga*> wheelJetFpgas(L1GctJetFinalStage::MAX_WHEEL_FPGAS);
@@ -104,7 +131,7 @@ int main(int argc, char **argv)
     }
     
     L1GctJetFinalStage * myJetFinalStage = new L1GctJetFinalStage(wheelJetFpgas); //TEST OBJECT on heap;    
-    classTest(myJetFinalStage); //run the test
+    classTest(myJetFinalStage, myJetEtCalLut); //run the test
 
     //clean up
     delete myJetFinalStage;
@@ -116,6 +143,7 @@ int main(int argc, char **argv)
     {
       delete *it;
     }
+    delete myScale;
     delete myJetEtCalLut;     
     for(vector<L1GctJetCounterLut*>::iterator it = myJetCounterLuts.begin(); it != myJetCounterLuts.end(); ++it)
     {
@@ -139,7 +167,7 @@ int main(int argc, char **argv)
 }
 
 // Runs the test on the L1GctJetFinalStage passed into it.
-void classTest(L1GctJetFinalStage *myJetFinalStage)
+void classTest(L1GctJetFinalStage *myJetFinalStage, L1GctJetEtCalibrationLut* lut)
 {
   bool testPass = true; //flag to mark test failure
     
@@ -161,7 +189,7 @@ void classTest(L1GctJetFinalStage *myJetFinalStage)
   
   // Load our test input data and known results
   loadTestData(inputCentralJets, inputForwardJets, inputTauJets,
-               trueCentralJets, trueForwardJets, trueTauJets);
+               trueCentralJets, trueForwardJets, trueTauJets, lut);
   
   //Fill the L1GctJetFinalStage with input data. See me care that I'm doing this three times...
   for(int i = 0; i < numInputJets; ++i)  
@@ -256,7 +284,8 @@ void classTest(L1GctJetFinalStage *myJetFinalStage)
 /// Loads test input and also the known results from a file.
 void loadTestData(JetsVector &inputCentralJets, JetsVector &inputForwardJets,
                   JetsVector &inputTauJets, JetsVector &trueCentralJets,
-                  JetsVector &trueForwardJets, JetsVector &trueTauJets)
+                  JetsVector &trueForwardJets, JetsVector &trueTauJets,
+                  L1GctJetEtCalibrationLut* lut)
 {
   // File input stream
   ifstream fin;
@@ -264,12 +293,12 @@ void loadTestData(JetsVector &inputCentralJets, JetsVector &inputForwardJets,
   safeOpenInputFile(fin, testDataFile);  //open the file
   
   // Loads the input data, and the correct results of processing from the file
-  putJetsInVector(fin, inputCentralJets, numInputJets);
-  putJetsInVector(fin, inputForwardJets, numInputJets);
-  putJetsInVector(fin, inputTauJets, numInputJets);
-  putJetsInVector(fin, trueCentralJets, numOutputJets);  
-  putJetsInVector(fin, trueForwardJets, numOutputJets);  
-  putJetsInVector(fin, trueTauJets, numOutputJets);          
+  putJetsInVector(fin, inputCentralJets, numInputJets, lut);
+  putJetsInVector(fin, inputForwardJets, numInputJets, lut);
+  putJetsInVector(fin, inputTauJets, numInputJets, lut);
+  putJetsInVector(fin, trueCentralJets, numOutputJets, lut);  
+  putJetsInVector(fin, trueForwardJets, numOutputJets, lut);  
+  putJetsInVector(fin, trueTauJets, numOutputJets, lut);          
 
   fin.close();    
       
@@ -308,11 +337,12 @@ void safeOpenOutputFile(ofstream &fout, const string name)
 }
 
 //Reads jets from file and pushes the specified number into a vector of jets
-void putJetsInVector(ifstream &fin, JetsVector &jets, const int numJets)
+void putJetsInVector(ifstream &fin, JetsVector &jets, const int numJets, L1GctJetEtCalibrationLut* lut)
 {
   for(int i=0; i < numJets; ++i)
   {
-    jets.push_back(readSingleJet(fin));
+    L1GctJet tempJet=readSingleJet(fin);
+    jets.push_back(tempJet.jetCand(lut));
   }
 }
 
@@ -341,7 +371,7 @@ L1GctJet readSingleJet(ifstream &fin)
  
   //return object
   L1GctJet tempJet(jetComponents[0], jetComponents[1],
-                       jetComponents[2], static_cast<bool>(jetComponents[3]));
+                   jetComponents[2], jetComponents[3]);
 
   return tempJet;
 }
@@ -362,10 +392,12 @@ bool compareJetsVectors(JetsVector &vector1, JetsVector &vector2, const string d
       //compare the vectors
       for(ULong i = 0; i < vector1.size(); ++i)
       {
-        if(vector1[i].rank() != vector2[i].rank()) { cout << "rank fail " << endl; testPass = false; break; }
-        if(vector1[i].globalEta() != vector2[i].globalEta()) { cout << "eta fail " << endl; testPass = false; break; }
-        if(vector1[i].globalPhi() != vector2[i].globalPhi()) { cout << "phi fail " << endl; testPass = false; break; }
-        if(vector1[i].tauVeto() != vector2[i].tauVeto()) { cout << "tau fail " << endl; testPass = false; break; }
+        if(vector1[i].rank()      != vector2[i].rank())      { cout << "rank fail " << endl; testPass = false; break; }
+        if((vector1[i].etaIndex() != vector2[i].etaIndex()) ||
+           (vector1[i].etaSign()  != vector2[i].etaSign()))  { cout << "eta fail " << endl; testPass = false; break; }
+        if(vector1[i].phiIndex()  != vector2[i].phiIndex())  { cout << "phi fail " << endl; testPass = false; break; }
+        if(vector1[i].isTau()     != vector2[i].isTau())     { cout << "tau fail " << endl; testPass = false; break; }
+        if(vector1[i].isForward() != vector2[i].isForward()) { cout << "fwd fail " << endl; testPass = false; break; }
       }
     }
   }
@@ -393,9 +425,11 @@ void outputJetsVector(ofstream &fout, JetsVector &jets, string description)
     for(ULong i=0; i < jets.size(); ++i)
     {
       fout << jets[i].rank() << "\t" 
-           << jets[i].globalEta()  << "\t"
-           << jets[i].globalPhi()  << "\t"
-           << jets[i].tauVeto() << endl;
+           << jets[i].etaIndex()  << "\t"
+           << jets[i].etaSign()  << "\t"
+           << jets[i].phiIndex()  << "\t"
+           << jets[i].isTau()  << "\t"
+           << jets[i].isForward() << endl;
     }
   }
   fout << endl;  //write a blank line to separate data

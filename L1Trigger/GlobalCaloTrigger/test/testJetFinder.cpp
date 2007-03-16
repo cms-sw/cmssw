@@ -18,6 +18,9 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctSourceCard.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
+#include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
+#include "CondFormats/L1TObjects/interface/L1GctJetEtCalibrationFunction.h"
+
 //Standard library headers
 #include <fstream>   //for file IO
 #include <string>
@@ -30,7 +33,8 @@ using namespace std;
 
 //Typedefs for the vector templates and other types used
 typedef vector<L1CaloRegion> RegionsVector;
-typedef vector<L1GctJet> JetsVector;
+typedef vector<L1GctJet> RawJetsVector;
+typedef vector<L1GctJetCand> JetsVector;
 typedef unsigned long int ULong;
 
 
@@ -50,7 +54,7 @@ const int numOutputJets = 6;     //Num. jets expected out
 /// Runs the test on the L1GctJetFinder instance passed into it.
 void classTest(L1GctTdrJetFinder *myJetFinder);
 /// Loads test input regions and also the known results from a text file.
-void loadTestData(RegionsVector &inputRegions, JetsVector &trueJets, ULong &trueHt, ULong &stripSum0, ULong &stripSum1);
+void loadTestData(RegionsVector &inputRegions, RawJetsVector &trueJets, ULong &trueHt, ULong &stripSum0, ULong &stripSum1);
 /// Function to safely open input files of any name, using a referenced return ifstream
 void safeOpenInputFile(ifstream &fin, const string name);
 /// Function to safely open output files of any name, using a referenced return ofstream
@@ -60,17 +64,17 @@ void putRegionsInVector(ifstream &fin, RegionsVector &regions, const int numRegi
 /// Gets the data of a single region from the testDataFile (reasonably safely). 
 L1CaloRegion readSingleRegion(ifstream &fin);
 /// Reads jets from file and pushes the specified number into a vector of jets
-void putJetsInVector(ifstream &fin, JetsVector &jets, const int numJets);
+void putJetsInVector(ifstream &fin, RawJetsVector &jets, const int numJets);
 /// Gets the data of a single jet from the testDataFile (reasonably safely).  
 L1GctJet readSingleJet(ifstream &fin);
 /// Compares RegionsVectors, prints a message about the comparison, returns true if identical, else false.
 bool compareRegionsVectors(RegionsVector &vector1, RegionsVector &vector2, const string description);
 /// Compares JetsVectors, prints a message about the comparison, returns true if identical, else false.
-bool compareJetsVectors(JetsVector &vector1, JetsVector &vector2, const string description);
+bool compareJetsVectors(RawJetsVector &vector1, RawJetsVector &vector2, const string description);
 /// Writes out the entire contents of a RegionsVector to the given file output stream
 void outputRegionsVector(ofstream &fout, RegionsVector &regions, string description = "Regions");
 /// Writes out the entire contents of a JetsVector to the given file output stream
-void outputJetsVector(ofstream &fout, JetsVector &jets, string description = "Jets");
+void outputJetsVector(ofstream &fout, RawJetsVector &jets, string description = "Jets");
 
 
 /// Entrypoint of unit test code + error handling
@@ -89,11 +93,28 @@ int main(int argc, char **argv)
       srcCrds[i] = new L1GctSourceCard(3*i+2, L1GctSourceCard::cardType3);
     }
         
-    //create jet calibration lookup table
-    L1GctJetEtCalibrationLut* myJetEtCalLut = new L1GctJetEtCalibrationLut();
+    double lsb=1.0;
+    static const unsigned nThresh=64;
+    vector<double> thresh(nThresh);
+    thresh.at(0) = 0.0;
+    for (unsigned t=1; t<nThresh; ++t) {
+      thresh.at(t) = t*16.0 - 8.0;
+    }
+
+    double threshold=5.0;
+    vector< vector<double> > defaultCalib;
+    L1CaloEtScale* myScale = new L1CaloEtScale(lsb, thresh);
+    L1GctJetEtCalibrationFunction* myFun = new L1GctJetEtCalibrationFunction();
+    myFun->setOutputEtScale(*myScale);
+    myFun->setParams(lsb, threshold,
+                     defaultCalib, defaultCalib);
+
+    // Instance of the class
+    L1GctJetEtCalibrationLut* myJetEtCalLut = L1GctJetEtCalibrationLut::setupLut(myFun);
   
-    L1GctTdrJetFinder * myJetFinder = new L1GctTdrJetFinder(9, srcCrds, myJetEtCalLut); //TEST OBJECT on heap;
-        
+    L1GctTdrJetFinder * myJetFinder = new L1GctTdrJetFinder(9, srcCrds); //TEST OBJECT on heap;
+    myJetFinder->setJetEtCalibrationLut(myJetEtCalLut); 
+       
     classTest(myJetFinder);
     
     //clean up
@@ -123,13 +144,13 @@ void classTest(L1GctTdrJetFinder *myJetFinder)
   
   // Vectors for reading in test data from the text file.
   RegionsVector inputRegions;  //Size?
-  JetsVector trueJets;         //Size?
+  RawJetsVector trueJets;      //Size?
   ULong trueHt;
   ULong stripSum0, stripSum1;
   
   // Vectors for receiving the output from the object under test.
   RegionsVector outputRegions; //Size?
-  JetsVector outputJets;       //Size?
+  RawJetsVector outputJets;    //Size?
   ULong outputHt;
   //Jet Counts to be added at some point
   
@@ -149,7 +170,7 @@ void classTest(L1GctTdrJetFinder *myJetFinder)
   myJetFinder->process();  //Run algorithm
   
   //Get the outputted data and store locally
-  outputJets = myJetFinder->getJets();
+  outputJets = myJetFinder->getRawJets();
   outputHt = myJetFinder->getHt().value();
 
   //Test the outputted jets against the known results
@@ -199,7 +220,7 @@ void classTest(L1GctTdrJetFinder *myJetFinder)
   
   //get all the data again - should all be empty
   outputRegions = myJetFinder->getInputRegions();
-  outputJets = myJetFinder->getJets();
+  outputJets = myJetFinder->getRawJets();
   outputHt = myJetFinder->getHt().value();
   stripSum0 = myJetFinder->getEtStrip0().value();
   stripSum1 = myJetFinder->getEtStrip1().value();
@@ -240,7 +261,7 @@ void classTest(L1GctTdrJetFinder *myJetFinder)
 
 
 // Loads test input regions from a text file.
-void loadTestData(RegionsVector &inputRegions, JetsVector &trueJets, ULong &trueHt, ULong &stripSum0, ULong &stripSum1) 
+void loadTestData(RegionsVector &inputRegions, RawJetsVector &trueJets, ULong &trueHt, ULong &stripSum0, ULong &stripSum1) 
 {
   // File input stream
   ifstream fin;
@@ -345,7 +366,7 @@ L1CaloRegion readSingleRegion(ifstream &fin)
 }
 
 //Reads jets from file and pushes the specified number into a vector of jets
-void putJetsInVector(ifstream &fin, JetsVector &jets, const int numJets)
+void putJetsInVector(ifstream &fin, RawJetsVector &jets, const int numJets)
 {
   for(int i=0; i < numJets; ++i)
   {
@@ -423,13 +444,14 @@ bool compareRegionsVectors(RegionsVector &vector1, RegionsVector &vector2, const
   return true;
 }
 
-// Compares JetsVectors, prints a message about the comparison, returns true if identical, else false.
-bool compareJetsVectors(JetsVector &vector1, JetsVector &vector2, const string description)
+// Compares RawJetsVectors, prints a message about the comparison, returns true if identical, else false.
+bool compareJetsVectors(RawJetsVector &vector1, RawJetsVector &vector2, const string description)
 {
   bool testPass = true;
   
   if(vector1.size() != vector2.size())  //First check overall size is the same
   {
+    cout << "Failed size comparison\n";
     testPass = false;
   }
   else
@@ -439,10 +461,12 @@ bool compareJetsVectors(JetsVector &vector1, JetsVector &vector2, const string d
       //compare the vectors
       for(unsigned int i = 0; i < vector1.size(); ++i)
       {
-        if(vector1[i].rank() != vector2[i].rank()) { testPass = false; break; }
-        if(vector1[i].rctEta() != vector2[i].rctEta()) { testPass = false; break; }
-        if(vector1[i].rctPhi() != vector2[i].rctPhi()) { testPass = false; break; }
-        if(vector1[i].tauVeto() != vector2[i].tauVeto()) { testPass = false; break; }
+        if(vector1[i].rawsum() != vector2[i].rawsum()) {  cout << "Failed rawsum comparison\n"; 
+          cout << "first " << vector1[i].rawsum() << " second " << vector2[i].rawsum() << "\n";
+          testPass = false; break; }
+        if(vector1[i].rctEta() != vector2[i].rctEta()) {  cout << "Failed rctEta comparison\n"; testPass = false; break; }
+        if(vector1[i].rctPhi() != vector2[i].rctPhi()) {  cout << "Failed rctPhi comparison\n"; testPass = false; break; }
+        if(vector1[i].tauVeto() != vector2[i].tauVeto()) {  cout << "Failed tauV comparison\n"; testPass = false; break; }
       }
     }
   }
@@ -471,7 +495,7 @@ void outputRegionsVector(ofstream &fout, RegionsVector &regions, string descript
     {
       fout << regions[i].et() << "\t"
            << regions[i].gctEta() << "\t"
-	   << regions[i].gctPhi() << "\t"
+ 	    << regions[i].gctPhi() << "\t"
            << regions[i].overFlow() << "\t"
            << regions[i].tauVeto() << "\t"
            << regions[i].mip() << "\t"
@@ -482,7 +506,7 @@ void outputRegionsVector(ofstream &fout, RegionsVector &regions, string descript
 }
 
 // Writes out the entire contents of a JetsVector to the given file output stream
-void outputJetsVector(ofstream &fout, JetsVector &jets, string description)
+void outputJetsVector(ofstream &fout, RawJetsVector &jets, string description)
 {
   fout << description << endl; //brief description for each JetsVector content
   
@@ -490,7 +514,7 @@ void outputJetsVector(ofstream &fout, JetsVector &jets, string description)
   {
     for(unsigned int i=0; i < jets.size(); ++i)
     {
-      fout << jets[i].rank() << "\t" 
+      fout << jets[i].rawsum() << "\t" 
            << jets[i].globalEta()  << "\t"
            << jets[i].globalPhi()  << "\t"
            << jets[i].tauVeto() << endl;
