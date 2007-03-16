@@ -136,7 +136,7 @@ namespace perftools {
 	br.name = br.fullName.substr(b+1,e-b-1);
 	// change label separator in :
 	e = br.name.rfind('_');
-	if (e!=std::npos) br.replace(e,1,":");
+	if (e!=std::string::npos) br.replace(e,1,":");
 	// add the type name
 	br.name.append(" ("+br.fullName.substr(0,b)+")");
       }
