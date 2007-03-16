@@ -123,6 +123,30 @@ Alignable* AlignmentParameters::alignable(void) const
   return theAlignable;
 }
 
+//__________________________________________________________________________________________________
+unsigned int AlignmentParameters::hierarchyLevel() const
+{
+  if (!theAlignable) {
+    edm::LogError("Alignment") << "@SUB=AlignmentParameters::hierarchyLevel"
+			       << "Called for AlignmentParameters without pointer to Alignable";
+    return 0;
+  }
+
+  std::vector<Alignable*> comps;
+  theAlignable->firstCompsWithParams(comps);
+  if (comps.empty()) return 0;
+
+  unsigned int maxLevelOfComp = 0;
+  for (std::vector<Alignable*>::const_iterator iAli = comps.begin(), iAliEnd = comps.end();
+       iAli != iAliEnd; ++iAli) {// firstCompsWithParams guaranties that alignmentParameters() != 0:
+    const unsigned int compResult = (*iAli)->alignmentParameters()->hierarchyLevel();
+    // levels might be different for components, get largest:
+    if (maxLevelOfComp < compResult) maxLevelOfComp = compResult;
+  }
+
+  return maxLevelOfComp + 1;
+}
+
 
 //__________________________________________________________________________________________________
 const int AlignmentParameters::size(void) const

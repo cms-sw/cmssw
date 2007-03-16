@@ -19,9 +19,9 @@
 /// parameters/derivatives/covariance as subvector/submatrix
 /// of reduced size.
 ///
-///  $Date: 2006/10/19 13:38:08 $
-///  $Revision: 1.3 $
-/// (last update by $Author: flucke $)
+///  $Date: 2006/12/23 15:54:19 $
+///  $Revision: 1.4 $
+/// (last update by $Author: ewidl $)
 
 class Alignable;
 class AlignableDet;
@@ -89,6 +89,12 @@ public:
 
   /// Get pointer to corresponding alignable
   Alignable* alignable( void ) const;
+
+  /// How many levels of Alignables with parameters can be found in the 
+  /// substructures of the Alignable of these parameters? E.g.
+  /// 0: lowest level, i.e. no components of hte Alignable have parameters, 
+  /// n: up to n generations of components have parameters (some 'branches' may have less)
+  virtual unsigned int hierarchyLevel() const;
 
   /// Get number of parameters
   const int size(void) const;
