@@ -185,7 +185,7 @@ void CastorTestAnalysis::update(const EndOfEvent * evt) {
   CastorNumberingScheme *theCastorNumScheme = new CastorNumberingScheme();
 
   unsigned int volumeID=0;
-  std::map<int,float,less<int> > themap;
+  std::map<int,float,std::less<int> > themap;
   double en_in_fi = 0.;
   float totalEnergy = 0;
 //  double en_in_pl = 0.;
