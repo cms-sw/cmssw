@@ -36,8 +36,8 @@ class SiStripRawToDigiUnpacker {
   /** */
   ~SiStripRawToDigiUnpacker();
 
-  typedef edm::DetSetVector<SiStripDigi> Digis;
-  typedef edm::DetSetVector<SiStripRawDigi> RawDigis;
+  typedef std::vector< edm::DetSet<SiStripDigi> > Digis;
+  typedef std::vector< edm::DetSet<SiStripRawDigi> > RawDigis;
   
   /** Creates "pseudo" digis. */
   void createDigis( const SiStripFedCabling&,

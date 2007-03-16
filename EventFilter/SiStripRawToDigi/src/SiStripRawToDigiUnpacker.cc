@@ -85,6 +85,7 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
     // Retrieve FED raw data for given FED 
     const FEDRawData& input = buffers->FEDData( static_cast<int>(*ifed) );
     
+  
     // Locate start of FED buffer within raw data
     Fed9U::u32* data_u32 = 0;
     Fed9U::u32  size_u32 = 0;
@@ -95,9 +96,10 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
       size_u32 = static_cast<Fed9U::u32>( output.size() / 4 ); 
       appended_bytes[*ifed] = input.size() - output.size();
     } else {
+    
       data_u32 = reinterpret_cast<Fed9U::u32*>( const_cast<unsigned char*>( input.data() ) );
       size_u32 = static_cast<Fed9U::u32>( input.size() / 4 ); 
-    }
+       }
       
     // Check on FEDRawData pointer
     if ( !data_u32 ) {
@@ -169,7 +171,7 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
       << "[SiStripRawToDigiUnpacker::" << __func__ << "]"
       << " Found " << feds.size() << " FED buffers with non-zero size!";
   }
-  
+
   // Retrieve FED ids from cabling map and iterate through 
   vector<uint16_t>::const_iterator ifed = cabling.feds().begin();
   for ( ; ifed != cabling.feds().end(); ifed++ ) {
@@ -233,8 +235,10 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
     
     // Iterate through FED channels, extract payload and create Digis
     Fed9U::Fed9UAddress addr;
-    vector<FedChannelConnection>::const_iterator iconn = cabling.connections(*ifed).begin();
-    for (;iconn != cabling.connections(*ifed).end(); iconn++) {
+    const vector<FedChannelConnection>& conns = cabling.connections(*ifed);
+    vector<FedChannelConnection>::const_iterator iconn = conns.begin();
+
+    for (;iconn != conns.end(); iconn++) {
       uint16_t channel = iconn->fedCh();
       //for ( uint16_t channel = 0; channel < 96; channel++ ) {
       
@@ -273,8 +277,8 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
       uint16_t ipair = ( useFedKey_ || mode == sistrip::SCOPE_MODE ) ? 0 : conn.apvPairNumber();
 
       if ( mode == sistrip::SCOPE_MODE ) {
-	
-	edm::DetSet<SiStripRawDigi>& sm = scope_mode.find_or_insert( key );
+
+	edm::DetSet<SiStripRawDigi>& sm = *scope_mode.insert(scope_mode.end(),edm::DetSet<SiStripRawDigi>(key));
 	vector<uint16_t> samples; samples.reserve( 1024 ); // theoretical maximum for scope mode length
 	try { 
    	  samples = fedEvent_->feUnit( iunit ).channel( ichan ).getSamples();
@@ -292,7 +296,7 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
 	}
       } else if ( mode == sistrip::VIRGIN_RAW ) {
 
-	edm::DetSet<SiStripRawDigi>& vr = virgin_raw.find_or_insert( key );
+	edm::DetSet<SiStripRawDigi>& vr = *virgin_raw.insert(virgin_raw.end(),edm::DetSet<SiStripRawDigi>(key));
 	vector<uint16_t> samples; samples.reserve(256); 
 	try {
    	  samples = fedEvent_->channel( iunit, ichan ).getSamples();
@@ -319,7 +323,7 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
 	
       } else if ( mode == sistrip::PROC_RAW ) {
 
-	edm::DetSet<SiStripRawDigi>& pr = proc_raw.find_or_insert( key ) ;
+	edm::DetSet<SiStripRawDigi>& pr = *proc_raw.insert(proc_raw.end(),edm::DetSet<SiStripRawDigi>(key));
 	vector<uint16_t> samples; samples.reserve(256);
 	try {
    	  samples = fedEvent_->channel( iunit, ichan ).getSamples();
@@ -344,7 +348,7 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
 
       } else if ( mode == sistrip::ZERO_SUPPR ) { 
 	
-	edm::DetSet<SiStripDigi>& zs = zero_suppr.find_or_insert( key );
+	edm::DetSet<SiStripDigi>& zs = *zero_suppr.insert(zero_suppr.end(),edm::DetSet<SiStripDigi>(key));
 	zs.data.reserve(256); // theoretical maximum (768/3, ie, clusters separated by at least 2 strips)
 	try{ 
 	  Fed9U::Fed9UEventIterator fed_iter = const_cast<Fed9U::Fed9UEventChannel&>(fedEvent_->channel( iunit, ichan )).getIterator();
@@ -366,7 +370,7 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
 
       } else if ( mode == sistrip::ZERO_SUPPR_LITE ) { 
 	
-	edm::DetSet<SiStripDigi>& zs = zero_suppr.find_or_insert( key );
+	edm::DetSet<SiStripDigi>& zs = *zero_suppr.insert(zero_suppr.end(),edm::DetSet<SiStripDigi>(key));
 	zs.data.reserve(256); // theoretical maximum (768/3, ie, clusters separated by at least 2 strips)
 	try {
 	  Fed9U::Fed9UEventIterator fed_iter = const_cast<Fed9U::Fed9UEventChannel&>(fedEvent_->channel( iunit, ichan )).getIterator();
@@ -393,7 +397,7 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
 	   << " Unknown FED readout mode (" << mode
 	   << ")! Assuming SCOPE MODE..."; 
   	edm::LogWarning(mlRawToDigi_) << ss.str();
-	edm::DetSet<SiStripRawDigi>& sm = scope_mode.find_or_insert( key );
+	edm::DetSet<SiStripRawDigi>& sm = *scope_mode.insert(scope_mode.end(),edm::DetSet<SiStripRawDigi>(key));
 	vector<uint16_t> samples; samples.reserve( 1024 ); // theoretical maximum
 	try {
    	  samples = fedEvent_->feUnit( iunit ).channel( ichan ).getSamples();
