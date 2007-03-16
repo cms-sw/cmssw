@@ -91,27 +91,33 @@ void SiStripRawToDigiModule::produce( edm::Event& event,
   // Retrieve FED raw data (by label, which is "source" by default)
   edm::Handle<FEDRawDataCollection> buffers;
   event.getByLabel( label_, instance_, buffers ); 
-  
+
   // Populate SiStripEventSummary object with "trigger FED" info
   auto_ptr<SiStripEventSummary> summary( new SiStripEventSummary() );
   rawToDigi_->triggerFed( *buffers, *summary, event.id().event() ); 
-  
-  // Create auto pointers for digi products
-  auto_ptr< edm::DetSetVector<SiStripRawDigi> > sm( new edm::DetSetVector<SiStripRawDigi> );
-  auto_ptr< edm::DetSetVector<SiStripRawDigi> > vr( new edm::DetSetVector<SiStripRawDigi> );
-  auto_ptr< edm::DetSetVector<SiStripRawDigi> > pr( new edm::DetSetVector<SiStripRawDigi> );
-  auto_ptr< edm::DetSetVector<SiStripDigi> > zs( new edm::DetSetVector<SiStripDigi> );
+
+  // Create digi containers
+  std::vector< edm::DetSet<SiStripRawDigi> > sm;
+  std::vector< edm::DetSet<SiStripRawDigi> > vr;
+  std::vector< edm::DetSet<SiStripRawDigi> > pr;
+  std::vector< edm::DetSet<SiStripDigi> > zs;
   auto_ptr<SiStripDigiCollection> digis( new SiStripDigiCollection() );
 
   // Create "real" or "pseudo" digis
   if ( !createDigis_ ) { rawToDigi_->createDigis( *cabling, buffers, *summary, digis ); }
-  else { rawToDigi_->createDigis( *cabling, *buffers, *summary, *sm, *vr, *pr, *zs ); }
+  else { rawToDigi_->createDigis( *cabling, *buffers, *summary, sm, vr, pr, zs ); }
   
+  // Create DetSetVectors of digi products
+  auto_ptr< edm::DetSetVector<SiStripRawDigi> > smdsv( new edm::DetSetVector<SiStripRawDigi>(sm) );
+  auto_ptr< edm::DetSetVector<SiStripRawDigi> > vrdsv( new edm::DetSetVector<SiStripRawDigi>(vr) );
+  auto_ptr< edm::DetSetVector<SiStripRawDigi> > prdsv( new edm::DetSetVector<SiStripRawDigi>(pr) );
+  auto_ptr< edm::DetSetVector<SiStripDigi> > zsdsv( new edm::DetSetVector<SiStripDigi>(zs) );
+
   event.put( summary );
-  event.put( sm, "ScopeMode" );
-  event.put( vr, "VirginRaw" );
-  event.put( pr, "ProcessedRaw" );
-  event.put( zs, "ZeroSuppressed" );
+  event.put( smdsv, "ScopeMode" );
+  event.put( vrdsv, "VirginRaw" );
+  event.put( prdsv, "ProcessedRaw" );
+  event.put( zsdsv, "ZeroSuppressed" );
   event.put( digis, "SiStripDigiCollection" );
   
 }
