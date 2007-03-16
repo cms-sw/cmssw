@@ -15,8 +15,8 @@ PixelMatchGsfElectron::PixelMatchGsfElectron(const SuperClusterRef scl, const Gs
 					     const GlobalPoint vtxPos, const GlobalVector vtxMom, 
 					     const GlobalPoint outPos, const GlobalVector outMom, 
 					     const double HoE) :
-  LeafCandidate(),hadOverEm_(HoE), superCluster_(scl), track_(gsft)   
-{
+  hadOverEm_(HoE), superCluster_(scl), track_(gsft)
+ {
   //
   // electron particle quantities
   //
@@ -221,4 +221,17 @@ void PixelMatchGsfElectron::correctElectronFourMomentum(const math::XYZTLorentzV
 void PixelMatchGsfElectron::classifyElectron(const int myclass)
 {
   electronClass_ = myclass;
+}
+
+bool PixelMatchGsfElectron::overlap( const Candidate & c ) const {
+  const RecoCandidate * o = dynamic_cast<const RecoCandidate *>( & c );
+  return ( o != 0 && 
+	   ( checkOverlap( gsfTrack(), o->gsfTrack() ) ||
+	     checkOverlap( superCluster(), o->superCluster() ) ) 
+	   );
+  return false;
+}
+
+PixelMatchGsfElectron * PixelMatchGsfElectron::clone() const { 
+  return new PixelMatchGsfElectron( * this ); 
 }

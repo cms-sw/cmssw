@@ -18,6 +18,9 @@
 // Ursula Berthon - LLR Ecole polytechnique
 // 
 // $Log: PixelMatchElectron.h,v $
+// Revision 1.6  2007/03/13 09:28:37  llista
+// updated to latest candidate interface
+//
 // Revision 1.5  2007/02/26 15:52:56  llista
 // restored V00-04-00
 //
@@ -46,7 +49,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/EgammaCandidates/interface/PixelMatchElectronFwd.h"
-#include "DataFormats/Candidate/interface/LeafCandidate.h"
+#include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
@@ -63,14 +66,11 @@ class ElectronClassification;
 namespace reco {
   
   // inheritance of the Electron class is not possible because of the different track type (lack of polymorphism!)
-  class PixelMatchElectron : public LeafCandidate {
+  class PixelMatchElectron : public RecoCandidate {
   public:
     /// default constructor
-    PixelMatchElectron() : LeafCandidate() { }  //FIXME: defaults
-    /*   PixelMatchElectron(const SuperClusterRef scl, const TrackRef t, */
-    /* 			const GlobalPoint tssuperPos, const GlobalVector tssuperMom, 
-			const GlobalPoint tsseedPos, const GlobalVector tsseedMom); 
-    */
+    PixelMatchElectron() {;}
+
     /// constructor
     PixelMatchElectron( const SuperClusterRef scl, const TrackRef t,
 			const GlobalPoint tssuperPos, const GlobalVector tssuperMom, 
@@ -80,15 +80,8 @@ namespace reco {
     virtual ~PixelMatchElectron() { }
     
     //Public methods
+    PixelMatchElectron * clone() const;
     
-    // particle behaviour
-    /** The electron classification.
-	barrel  :   0: golden,  10: bigbrem,  20: narrow, 30-34: showering, 
-	(30: showering nbrem=0, 31: showering nbrem=1, 32: showering nbrem=2 ,33: showering nbrem=3, 34: showering nbrem>=4)
-	40: crack
-	endcaps : 100: golden, 110: bigbrem, 120: narrow, 130-134: showering
-	(130: showering nbrem=0, 131: showering nbrem=1, 132: showering nbrem=2 ,133: showering nbrem=3, 134: showering nbrem>=4)
-    */
     int classification() const { return electronClass_; }
     
     // supercluster and electron track related quantities
@@ -139,11 +132,10 @@ namespace reco {
     float trackMomentumError() const {return trackMomentumError_;}
     
     //! get associated superCluster Pointer
-    const SuperClusterRef superCluster() const { return superCluster_; } 
+    SuperClusterRef superCluster() const { return superCluster_; } 
 
     //! get associated Track pointer
-    //  const TrackRef track() const { return Track_; } 
-    const TrackRef track() const { return track_; } 
+    TrackRef track() const { return track_; } 
     
     //! number of related brem clusters
     int numberOfClusters() const {return superCluster_->clustersSize();}
@@ -184,6 +176,9 @@ namespace reco {
     
     bool energyScaleCorrected_;
     bool momentumFromEpCombination_;
+
+    /// check overlap with another candidate
+    virtual bool overlap( const Candidate & ) const;
   };
   
 }
