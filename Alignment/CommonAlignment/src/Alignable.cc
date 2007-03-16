@@ -1,7 +1,7 @@
 /** \file Alignable.cc
  *
- *  $Date: 2007/03/12 04:04:12 $
- *  $Revision: 1.9 $
+ *  $Date: 2007/03/13 21:07:04 $
+ *  $Revision: 1.10 $
  *  (last update by $Author: cklae $)
  */
 
@@ -42,27 +42,27 @@ void Alignable::deepComponents( std::vector<const Alignable*>& result ) const
 
 
 //__________________________________________________________________________________________________
-bool Alignable::firstCompsWithParams(std::vector<Alignable*> &daughts) const
+bool Alignable::firstCompsWithParams(std::vector<Alignable*> &paramComps) const
 {
   bool isConsistent = true;
-  bool hasAliDau = false; // whether there are any (grand-) daughters with parameters
+  bool hasAliComp = false; // whether there are any (grand-) daughters with parameters
   bool first = true;
   const std::vector<Alignable*> comps(this->components());
-  for (std::vector<Alignable*>::const_iterator iDau = comps.begin(), iDauEnd = comps.end();
-       iDau != iDauEnd; ++iDau) {
-    if ((*iDau)->alignmentParameters()) { // daughter has parameters itself
-      daughts.push_back(*iDau);
-      if (!first && !hasAliDau) isConsistent = false;
-      hasAliDau = true;
+  for (std::vector<Alignable*>::const_iterator iComp = comps.begin(), iCompEnd = comps.end();
+       iComp != iCompEnd; ++iComp) {
+    if ((*iComp)->alignmentParameters()) { // component has parameters itself
+      paramComps.push_back(*iComp);
+      if (!first && !hasAliComp) isConsistent = false;
+      hasAliComp = true;
     } else {
-      const unsigned int nDauBefore = daughts.size();
-      if (!(*iDau)->firstCompsWithParams(daughts)) {
+      const unsigned int nCompBefore = paramComps.size();
+      if (!(*iComp)->firstCompsWithParams(paramComps)) {
         isConsistent = false; // problem down in hierarchy
       }
-      if (daughts.size() != nDauBefore) {
-        if (!first && !hasAliDau) isConsistent = false;
-        hasAliDau = true;
-      } else if (hasAliDau) { // no daughters with params, but previous daughters did have daughters
+      if (paramComps.size() != nCompBefore) {
+        if (!first && !hasAliComp) isConsistent = false;
+        hasAliComp = true;
+      } else if (hasAliComp) { // no components with params, but previous component did have comps.
         isConsistent = false;
       }
     }
@@ -71,7 +71,6 @@ bool Alignable::firstCompsWithParams(std::vector<Alignable*> &daughts) const
 
   return isConsistent;
 }
-
 
 //__________________________________________________________________________________________________
 void Alignable::setAlignmentParameters( AlignmentParameters* dap )

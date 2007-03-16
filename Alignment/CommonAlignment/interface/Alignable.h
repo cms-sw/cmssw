@@ -20,8 +20,8 @@
  * The class derives from DetPositioner, a friend class of
  * GeomDet, which allows to move the GeomDet. 
  *
- *  $Date: 2007/03/12 04:04:11 $
- *  $Revision: 1.19 $
+ *  $Date: 2007/03/13 21:07:03 $
+ *  $Revision: 1.20 $
  *  (last update by $Author: cklae $)
  */
 
@@ -71,9 +71,8 @@ public:
 
   /// Steps down hierarchy until components with AlignmentParameters are found 
   /// and adds them to argument. True either if no such components are found
-  /// or if all branches of components end with such components.
-  virtual bool firstCompsWithParams(std::vector<Alignable*> &daughts) const;
-
+  /// or if all branches of components end with such components (i.e. 'consistent').
+  virtual bool firstCompsWithParams(std::vector<Alignable*> &paramComps) const;
   /// Return pointer to container alignable (if any)
   virtual Alignable* mother() const { return theMother; }
 
