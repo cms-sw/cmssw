@@ -5,26 +5,19 @@
  *
  *  Namespace for common type definitions and calculations in alignment.
  *
- *  $Date: 2007/03/13 21:07:03 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/03/16 16:12:45 $
+ *  $Revision: 1.4 $
  *  \author Chung Khim Lae
  */
 
 #include <vector>
 
-// #include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
-// #include "DataFormats/GeometrySurface/interface/TkRotation.h"
-// #include "DataFormats/GeometryVector/interface/GlobalTag.h"
-// #include "DataFormats/GeometryVector/interface/LocalTag.h"
-// #include "DataFormats/GeometryVector/interface/Point3DBase.h"
-// #include "DataFormats/GeometryVector/interface/Vector3DBase.h"
-
-#include "Geometry/CommonDetAlgo/interface/AlgebraicObjects.h"
-#include "Geometry/Surface/interface/TkRotation.h"
-#include "Geometry/Vector/interface/GlobalTag.h"
-#include "Geometry/Vector/interface/LocalTag.h"
-#include "Geometry/Vector/interface/Point3DBase.h"
-#include "Geometry/Vector/interface/Vector3DBase.h"
+#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
+#include "DataFormats/GeometrySurface/interface/TkRotation.h"
+#include "DataFormats/GeometryVector/interface/GlobalTag.h"
+#include "DataFormats/GeometryVector/interface/LocalTag.h"
+#include "DataFormats/GeometryVector/interface/Point3DBase.h"
+#include "DataFormats/GeometryVector/interface/Vector3DBase.h"
 
 namespace align
 {

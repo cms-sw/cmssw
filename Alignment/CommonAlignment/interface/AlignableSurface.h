@@ -5,16 +5,15 @@
  *
  *  A class to hold a surface with width and length for alignment purposes.
  *
- *  $Date: 2007/03/12 03:26:00 $
- *  $Revision: 1.5 $
+ *  $Date: 2007/03/16 16:12:45 $
+ *  $Revision: 1.6 $
  *  \author Chung Khim Lae
  */
 
 #include <vector>
 
 #include "Alignment/CommonAlignment/interface/Utilities.h"
-// #include "DataFormats/GeometrySurface/interface/GloballyPositioned.h"
-#include "Geometry/Surface/interface/GloballyPositioned.h" // FIXME: backport of include 
+#include "DataFormats/GeometrySurface/interface/GloballyPositioned.h"
 
 class AlignableSurface:
   public GloballyPositioned<align::Scalar>
