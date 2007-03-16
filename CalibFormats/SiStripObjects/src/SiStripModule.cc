@@ -5,7 +5,6 @@
 #include <iomanip>
 #include <sstream>
 
-using namespace std;
 using namespace sistrip;
 
 // -----------------------------------------------------------------------------
@@ -13,44 +12,44 @@ using namespace sistrip;
 void SiStripModule::addDevices( const FedChannelConnection& conn ) {
   
   // Consistency check with HW addresses
-  if ( path_.fecCrate_ && path_.fecCrate_ != conn.fecCrate() ) {
+  if ( key_.fecCrate() && key_.fecCrate() != conn.fecCrate() ) {
     edm::LogWarning(mlCabling_)
       << "SiStripModule::" << __func__ << "]"
       << " Unexpected FEC crate ("
       << conn.fecCrate() << ") for this module ("
-      << path_.fecCrate_ << ")!";
+      << key_.fecCrate() << ")!";
     return;
   }
-  if ( path_.fecSlot_ && path_.fecSlot_ != conn.fecSlot() ) {
+  if ( key_.fecSlot() && key_.fecSlot() != conn.fecSlot() ) {
     edm::LogWarning(mlCabling_)
             << "SiStripModule::" << __func__ << "]"
 	    << " Unexpected FEC slot ("
 	    << conn.fecSlot() << ") for this module ("
-	    << path_.fecSlot_ << ")!";
+	    << key_.fecSlot() << ")!";
     return;
   }
-  if ( path_.fecRing_ && path_.fecRing_ != conn.fecRing() ) {
+  if ( key_.fecRing() && key_.fecRing() != conn.fecRing() ) {
     edm::LogWarning(mlCabling_)
       << "SiStripModule::" << __func__ << "]"
       << " Unexpected FEC ring ("
       << conn.fecRing() << ") for this module ("
-      << path_.fecRing_ << ")!";
+      << key_.fecRing() << ")!";
     return;
   }
-  if ( path_.ccuAddr_ && path_.ccuAddr_ != conn.ccuAddr() ) {
+  if ( key_.ccuAddr() && key_.ccuAddr() != conn.ccuAddr() ) {
     edm::LogWarning(mlCabling_)
       << "SiStripModule::" << __func__ << "]"
       << " Unexpected CCU addr ("
       << conn.ccuAddr() << ") for this module ("
-      << path_.ccuAddr_ << ")!";
+      << key_.ccuAddr() << ")!";
     return;
   }
-  if ( path_.ccuChan_ && path_.ccuChan_ != conn.ccuChan() ) {
+  if ( key_.ccuChan() && key_.ccuChan() != conn.ccuChan() ) {
     edm::LogWarning(mlCabling_)
       << "SiStripModule::" << __func__ << "]"
       << " Unexpected CCU chan ("
       << conn.ccuChan() << ") for this module ("
-      << path_.ccuChan_ << ")!";
+      << key_.ccuChan() << ")!";
     return;
   }
 
@@ -77,8 +76,8 @@ void SiStripModule::addDevices( const FedChannelConnection& conn ) {
 
 // -----------------------------------------------------------------------------
 //
-vector<uint16_t> SiStripModule::activeApvs() const {
-  vector<uint16_t> apvs;
+std::vector<uint16_t> SiStripModule::activeApvs() const {
+  std::vector<uint16_t> apvs;
   if ( apv0x32_ ) { apvs.push_back( apv0x32_ ); }
   if ( apv0x33_ ) { apvs.push_back( apv0x33_ ); }
   if ( apv0x34_ ) { apvs.push_back( apv0x34_ ); }
@@ -133,16 +132,16 @@ void SiStripModule::addApv( const uint16_t& apv_address ) {
   else if ( !apv0x36_ && apv_address == 36 ) { apv0x36_ = 36; added_apv = true; }
   else if ( !apv0x37_ && apv_address == 37 ) { apv0x37_ = 37; added_apv = true; }
   
-  stringstream ss;
+  std::stringstream ss;
   ss << "SiStripModule::" << __func__ << "]";
   if ( added_apv ) { ss << " Added new APV with"; }
   else { ss << " APV already exists with"; }
   ss << " FecCrate/FecSlot/CcuAddr/CcuChan/I2cAddr: "
-     << path_.fecCrate_ << "/"
-     << path_.fecSlot_ << "/"
-     << path_.fecRing_ << "/"
-     << path_.ccuAddr_ << "/"
-     << path_.ccuChan_ << "/"
+     << key_.fecCrate_ << "/"
+     << key_.fecSlot_ << "/"
+     << key_.fecRing_ << "/"
+     << key_.ccuAddr_ << "/"
+     << key_.ccuChan_ << "/"
      << apv_address;
   //if ( added_apv ) { LogTrace(mlCabling_) << ss.str(); }
   /* else */ if ( !added_apv ) { edm::LogWarning(mlCabling_) << ss.str(); }
@@ -265,8 +264,8 @@ bool SiStripModule::fedCh( const uint16_t& apv_address,
 				<< apv_address << ") for APV!"; 
     return false;
   }
-  // Search for entry in map
-  //@@ use FedKey as key instead of lld chan? what about "duplicates"? always append to map? then can have >3 entries. useful for debug?
+  // Search for entry in std::map
+  //@@ use FedKey as key instead of lld chan? what about "duplicates"? always append to std::map? then can have >3 entries. useful for debug?
   FedCabling::iterator ipair = cabling_.find( lld_ch );
   if ( ipair == cabling_.end() ) { cabling_[lld_ch] = fed_ch; }
   else { ipair->second = fed_ch; }
@@ -275,30 +274,30 @@ bool SiStripModule::fedCh( const uint16_t& apv_address,
 
 // -----------------------------------------------------------------------------
 //
-void SiStripModule::print( stringstream& ss ) const {
+void SiStripModule::print( std::stringstream& ss ) const {
 
-  ss << "[SiStripModule]" << endl
+  ss << "[SiStripModule]" << std::endl
      << "  crate/FEC/CCU/Module: "
-     << path().fecCrate_ << "/"
-     << path().fecSlot_ << "/"
-     << path().fecRing_ << "/"
-     << path().ccuAddr_ << "/"
-     << path().ccuChan_ << endl;
+     << key().fecCrate() << "/"
+     << key().fecSlot() << "/"
+     << key().fecRing() << "/"
+     << key().ccuAddr() << "/"
+     << key().ccuChan() << std::endl;
 
   ss << "  ActiveApvs: ";
   if ( activeApvs().empty() ) { ss << "NONE!"; }
-  vector<uint16_t>::const_iterator iapv = activeApvs().begin();
+  std::vector<uint16_t>::const_iterator iapv = activeApvs().begin();
   for ( ; iapv != activeApvs().end(); iapv++ ) {
     if ( *iapv ) { ss << *iapv << " "; }
   }
-  ss << endl;
+  ss << std::endl;
 
   ss << "  DcuId/DetId/nPairs: "
-     << hex
-     << "0x" << setfill('0') << setw(8) << dcuId() << "/"
-     << "0x" << setfill('0') << setw(8) << detId() << "/"
-     << dec
-     << nApvPairs() << endl;
+     << std::hex
+     << "0x" << std::setfill('0') << std::setw(8) << dcuId() << "/"
+     << "0x" << std::setfill('0') << std::setw(8) << detId() << "/"
+     << std::dec
+     << nApvPairs() << std::endl;
 
   ss << "  ApvPairNum/FedId/Ch: ";
   SiStripModule::FedCabling::const_iterator ichan = fedChannels().begin();
@@ -309,7 +308,7 @@ void SiStripModule::print( stringstream& ss ) const {
 	 << ichan->second.second << " ";
     }
   }
-  ss << endl;
+  ss << std::endl;
   
   ss << "  DCU/MUX/PLL/LLD found: "
      << bool(dcu0x00_) << "/"
@@ -321,8 +320,8 @@ void SiStripModule::print( stringstream& ss ) const {
 
 // -----------------------------------------------------------------------------
 //
-ostream& operator<< ( ostream& os, const SiStripModule& device ) {
-  stringstream ss;
+std::ostream& operator<< ( std::ostream& os, const SiStripModule& device ) {
+  std::stringstream ss;
   device.print(ss);
   os << ss.str();
   return os;

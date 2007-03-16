@@ -1,12 +1,12 @@
-// Last commit: $Id: SiStripModule.h,v 1.5 2006/10/30 20:09:56 bainbrid Exp $
-// Latest tag:  $Name: TIF_031106 $
+// Last commit: $Id: SiStripModule.h,v 1.6 2006/11/08 15:42:15 bainbrid Exp $
+// Latest tag:  $Name:  $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/CalibFormats/SiStripObjects/interface/SiStripModule.h,v $
 
 #ifndef CalibFormats_SiStripObjects_SiStripModule_H
 #define CalibFormats_SiStripObjects_SiStripModule_H
 
-#include "DataFormats/SiStripCommon/interface/SiStripFecKey.h"
 #include "CondFormats/SiStripObjects/interface/FedChannelConnection.h"
+#include "DataFormats/SiStripCommon/interface/SiStripFecKey.h"
 #include <boost/cstdint.hpp>
 #include <sstream>
 #include <vector>
@@ -31,11 +31,11 @@ class SiStripModule {
   
   /** */
   SiStripModule( const FedChannelConnection& conn ) 
-    : path_( conn.fecCrate(), 
-	     conn.fecSlot(), 
-	     conn.fecRing(), 
-	     conn.ccuAddr(), 
-	     conn.ccuChan() ),
+    : key_( conn.fecCrate(), 
+	    conn.fecSlot(), 
+	    conn.fecRing(), 
+	    conn.ccuAddr(), 
+	    conn.ccuChan() ),
     apv0x32_(0), apv0x33_(0), apv0x34_(0), apv0x35_(0), apv0x36_(0), apv0x37_(0), 
     dcu0x00_(0), mux0x43_(0), pll0x44_(0), lld0x60_(0),
     dcuId_(0), detId_(0), nApvPairs_(0),
@@ -68,7 +68,7 @@ class SiStripModule {
   
   /** Returns control "path" for this module, containing address
       information on FEC crate, slot, ring, CCU, and module. */
-  inline const SiStripFecKey::Path& path() const;
+  inline const SiStripFecKey& key() const;
   
   // ---------- APV devices ----------
 
@@ -159,8 +159,8 @@ class SiStripModule {
 
  private: 
   
-  /** Control "path" for this module. */
-  SiStripFecKey::Path path_;
+  /** Control key/path for this module. */
+  SiStripFecKey key_;
   
   // APVs found (with hex addr)  
   uint16_t apv0x32_;
@@ -191,13 +191,13 @@ class SiStripModule {
 
 // --------------- inline methods ---------------
 
-const uint16_t& SiStripModule::fecCrate() const { return path_.fecCrate_; } 
-const uint16_t& SiStripModule::fecSlot() const { return path_.fecSlot_; } 
-const uint16_t& SiStripModule::fecRing() const { return path_.fecRing_; }
-const uint16_t& SiStripModule::ccuAddr() const { return path_.ccuAddr_; }
-const uint16_t& SiStripModule::ccuChan() const { return path_.ccuChan_; }
+const uint16_t& SiStripModule::fecCrate() const { return key_.fecCrate(); } 
+const uint16_t& SiStripModule::fecSlot() const { return key_.fecSlot(); } 
+const uint16_t& SiStripModule::fecRing() const { return key_.fecRing(); }
+const uint16_t& SiStripModule::ccuAddr() const { return key_.ccuAddr(); }
+const uint16_t& SiStripModule::ccuChan() const { return key_.ccuChan(); }
 
-const SiStripFecKey::Path& SiStripModule::path() const { return path_; }
+const SiStripFecKey& SiStripModule::key() const { return key_; }
 
 const uint32_t& SiStripModule::dcuId() const { return dcuId_; } 
 const uint32_t& SiStripModule::detId() const { return detId_; } 
