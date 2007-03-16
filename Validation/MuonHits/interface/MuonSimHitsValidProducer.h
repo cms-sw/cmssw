@@ -195,10 +195,10 @@ class MuonSimHitsValidProducer : public edm::EDProducer
 
 /// geometry mapping
  
-//static const int dMuon            = 2;
+static const int deMuon            = 2;
 
-//static const int sdMuonDT         = 1;
-//static const int sdMuonCSC        = 2;
-//static const int sdMuonRPC        = 3;
+static const int sdeMuonDT         = 1;
+static const int sdeMuonCSC        = 2;
+static const int sdeMuonRPC        = 3;
 
 #endif

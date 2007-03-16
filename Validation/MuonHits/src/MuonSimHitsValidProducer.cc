@@ -335,8 +335,8 @@ void MuonSimHitsValidProducer::fillCSC(edm::Event& iEvent,
     int subdetector = theDetUnitId.subdetId();
 
     /// check that expected detector is returned
-    if ((detector == dMuon) && 
-        (subdetector == sdMuonCSC)) {
+    if ((detector == deMuon) && 
+        (subdetector == sdeMuonCSC)) {
 
       /// get the GeomDetUnit from the geometry using theDetUnitID
       const GeomDetUnit *theDet = theCSCMuon.idToDetUnit(theDetUnitId);
@@ -396,7 +396,7 @@ void MuonSimHitsValidProducer::fillCSC(edm::Event& iEvent,
       edm::LogWarning("MuonSimHitsValidProducer::fillCSC")
         << "MuonCsc PSimHit " << i 
         << " is expected to be (det,subdet) = (" 
-        << dMuon << "," << sdMuonCSC
+        << deMuon << "," << sdeMuonCSC
         << "); value returned is: ("
         << detector << "," << subdetector << ")";
       continue;
@@ -458,8 +458,8 @@ void MuonSimHitsValidProducer::fillDT(edm::Event& iEvent,
     int subdetector = theDetUnitId.subdetId();
 
     /// check that expected detector is returned
-    if ((detector == dMuon) && 
-        (subdetector == sdMuonDT)) {
+    if ((detector == deMuon) && 
+        (subdetector == sdeMuonDT)) {
        
       /// get the GeomDetUnit from the geometry using theDetUnitID
       const GeomDetUnit *theDet = theDTMuon.idToDetUnit(theDetUnitId);
@@ -512,7 +512,7 @@ void MuonSimHitsValidProducer::fillDT(edm::Event& iEvent,
       edm::LogWarning("MuonSimHitsValidProducer::fillDT")
         << "MuonDT PSimHit " << i 
         << " is expected to be (det,subdet) = (" 
-        << dMuon << "," << sdMuonDT
+        << deMuon << "," << sdeMuonDT
         << "); value returned is: ("
         << detector << "," << subdetector << ")";
       continue;
@@ -573,8 +573,8 @@ void MuonSimHitsValidProducer::fillRPC(edm::Event& iEvent,
     int subdetector = theDetUnitId.subdetId();
 
     /// check that expected detector is returned
-    if ((detector == dMuon) && 
-        (subdetector == sdMuonRPC)) {
+    if ((detector == deMuon) && 
+        (subdetector == sdeMuonRPC)) {
 
       /// get the GeomDetUnit from the geometry using theDetUnitID
       const GeomDetUnit *theDet = theRPCMuon.idToDetUnit(theDetUnitId);
@@ -627,7 +627,7 @@ void MuonSimHitsValidProducer::fillRPC(edm::Event& iEvent,
       edm::LogWarning("MuonSimHitsValidProducer::fillRPC")
         << "MuonRpc PSimHit " << i 
         << " is expected to be (det,subdet) = (" 
-        << dMuon << "," << sdMuonRPC
+        << deMuon << "," << sdeMuonRPC
         << "); value returned is: ("
         << detector << "," << subdetector << ")";
       continue;

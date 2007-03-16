@@ -508,7 +508,7 @@ void MuonSimHitsValidAnalyzer::fillCSC(const edm::Event& iEvent,
       ++j;
 
       /// get the Surface of the hit (knows how to go from local <-> global)
-      const BoundPlane& bsurf = theDet->surface();
+   //   const BoundPlane& bsurf = theDet->surface();
 
       /// gather necessary information
 
