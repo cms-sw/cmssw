@@ -6,7 +6,7 @@
 RefVector: A template for a vector of interproduct references.
 	Each vector element is a reference to a member of the same product.
 
-$Id: RefVector.h,v 1.17 2006/12/16 03:41:25 wmtan Exp $
+$Id: RefVector.h,v 1.18 2007/03/04 04:59:59 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -24,52 +24,51 @@ $Id: RefVector.h,v 1.17 2006/12/16 03:41:25 wmtan Exp $
 
 namespace edm {
 
-  template <typename C, typename T = typename Ref<C>::value_type, typename F = typename Ref<C,T>::finder_type>
+  template <typename C, 
+	    typename T = typename Ref<C>::value_type, 
+	    typename F = typename Ref<C,T>::finder_type>
   class RefVector {
   public:
-    typedef RefVectorIterator<C, T, F> iterator;
-    typedef iterator const_iterator;
+    typedef C                               collection_type;
+    typedef T                               member_type;
+    typedef F                               finder_type;
+    typedef RefVectorIterator<C, T, F>      iterator;
+    typedef iterator                        const_iterator;
+    typedef Ref<C, T, F>                    value_type;
 
-    // C is the type of the collection
-    // T is the type of a member the collection
-    
-    typedef Ref<C, T, F> value_type;
-    //typedef value_type& reference; //Don't define these yet until we see how people use them
-    //typedef value_type const& const_reference;
-
-    // key_type is the type of the key into the collextion
-    typedef typename Ref<C, T, F>::key_type key_type;
-    typedef RefItem<key_type> RefItemType;
+    // key_type is the type of the key into the collection
+    typedef typename value_type::key_type   key_type;
+    typedef RefItem<key_type>               RefItemType;
+    typedef std::vector<RefItemType>        RefItemVec;
 
     // size_type is the type of the index into the RefVector
-    typedef typename std::vector<RefItemType>::size_type size_type;
+    typedef typename RefItemVec::size_type  size_type;
+    typedef RefVectorBase<key_type>         contents_type;
     
-
-    /// Default constructor needed for reading from persistent store. Not for direct use.
+    /// Default constructor needed for reading from persistent
+    /// store. Not for direct use.
     RefVector() : refVector_() {}
 
-    /// Destructor
-    ~RefVector() {}
-
     /// Add a Ref<C, T> to the RefVector
-    void push_back(Ref<C, T, F> const& ref) {refVector_.pushBack(ref.ref().refCore(), ref.ref().item());}
+    void push_back(value_type const& ref) 
+    {refVector_.pushBack(ref.ref().refCore(), ref.ref().item());}
 
     /// Retrieve an element of the RefVector
-    Ref<C, T, F> const operator[](size_type idx) const {
+    value_type const operator[](size_type idx) const {
       RefItemType const& item = refVector_.items()[idx];
       RefCore const& prod = refVector_.refCore();
-      return Ref<C, T, F>(prod, item);
+      return value_type(prod, item);
     }
 
     /// Retrieve an element of the RefVector
-    Ref<C, T, F> const at(size_type idx) const {
+    value_type const at(size_type idx) const {
       RefItemType const& item = refVector_.items().at(idx);
       RefCore const& prod = refVector_.refCore();
-      return Ref<C, T, F>(prod, item);
+      return value_type(prod, item);
     }
 
     /// Accessor for all data
-    RefVectorBase<key_type> const& refVector() const {return refVector_;}
+    contents_type const& refVector() const {return refVector_;}
 
     /// Is the RefVector empty
     bool empty() const {return refVector_.empty();}
@@ -117,7 +116,7 @@ namespace edm {
     void swap(RefVector<C, T, F> & other);
 
   private:
-    RefVectorBase<key_type> refVector_;
+    contents_type refVector_;
   };
 
   template <typename C, typename T, typename F>
@@ -158,12 +157,14 @@ namespace edm {
 
   template <typename C, typename T, typename F>
   inline
-  typename RefVector<C, T, F>::iterator RefVector<C, T, F>::erase(iterator const& pos) {
-    typename RefVectorBase<key_type>::RefItems::size_type index = pos - begin();
-    typename RefVectorBase<key_type>::RefItems::iterator newPos = refVector_.eraseAtIndex(index);
+  typename RefVector<C, T, F>::iterator 
+  RefVector<C, T, F>::erase(iterator const& pos) {
+    typename contents_type::RefItems::size_type index = pos - begin();
+    typename contents_type::RefItems::iterator newPos = 
+      refVector_.eraseAtIndex(index);
     RefCore const& prod = refVector_.refCore();
-    return typename RefVector<C, T, F>::iterator(prod, newPos);
-
+    //return typename RefVector<C, T, F>::iterator(prod, newPos);
+    return iterator(prod, newPos);
   }
 
 }
