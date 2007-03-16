@@ -6,14 +6,14 @@ To build FED buffers <tt>CSCFileReader</tt> merges DDU data streams and
 constructs fake DCC Headers and DCC Trailers for FED buffers.
 <br>
 <br>
-Module was built around FileReaderDDU class from on-line software (in TriDAS).
+For every RUI stream module instantiates FileReaderDDU class from on-line software (in TriDAS).
 <br>
 <br>
-It reads file with DDU data, searches for DDU Headers
+FileReaderDDU reads file with DDU data, searches for DDU Headers
 and Trailers, and finally returns event buffer. But unlike the old version
 it handles data corruptions.
 <br><br>
-DDUFileReader continuously reads DDU data in blocks of defined length.
+FileReaderDDU continuously reads DDU data in blocks of defined length.
 Each time it passes through block and searches for DDU Header or DDU
 Trailer. In same time it fills event buffer. Once it find DDU Trailer
 it sets an ``end mark'' in current data block and returns event buffer
