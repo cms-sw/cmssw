@@ -1,9 +1,10 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2007/03/13 10:14:26 $
- * $Revision: 1.146 $
+ * $Date: 2007/03/16 12:00:48 $
+ * $Revision: 1.147 $
  * \author G. Della Ricca
+ * \author G. Franzoni
  *
 */
 
@@ -2170,7 +2171,7 @@ void EBLaserClient::unsubscribe(void){
         mui_->removeCollate(me_h23_[ism-1]);
         mui_->removeCollate(me_h24_[ism-1]);
 
-	mui_->removeCollate(me_hs01_[ism-1]);
+        mui_->removeCollate(me_hs01_[ism-1]);
         mui_->removeCollate(me_hs02_[ism-1]);
         mui_->removeCollate(me_hs03_[ism-1]);
         mui_->removeCollate(me_hs04_[ism-1]);
@@ -3243,14 +3244,14 @@ void EBLaserClient::analyze(void){
                 met01_[ism-1]->setEntries(1.+met01_[ism-1]->getEntries());
               }
             }
-	    
+            
             if ( metav01_[ism-1] )
-	      metav01_[ism-1] ->Fill(mean09);
+              metav01_[ism-1] ->Fill(mean09);
             if ( metrms01_[ism-1] )
-	      metrms01_[ism-1]->Fill(rms09);
+              metrms01_[ism-1]->Fill(rms09);
     
           } else {
-	    
+            
             if ( met05_[ism-1] ) {
               if ( mean09 > 0. ) {
                 met05_[ism-1]->setBinContent( ip+20*(ie-1), mean09 );
@@ -3258,14 +3259,14 @@ void EBLaserClient::analyze(void){
               } else {
                 met05_[ism-1]->setEntries(1.+met05_[ism-1]->getEntries());
               }
-	    
+            
             if ( metav05_[ism-1] )
-	      metav05_[ism-1] ->Fill(mean09);
+              metav05_[ism-1] ->Fill(mean09);
             if ( metrms05_[ism-1] )
-	      metrms05_[ism-1]->Fill(rms09);
+              metrms05_[ism-1]->Fill(rms09);
       
             }
-	    
+            
           }
 
         }
@@ -3281,14 +3282,14 @@ void EBLaserClient::analyze(void){
               } else {
                 met02_[ism-1]->setEntries(1.+met02_[ism-1]->getEntries());
               }
-	    
+            
             if ( metav02_[ism-1] )
-	      metav02_[ism-1] ->Fill(mean10);
+              metav02_[ism-1] ->Fill(mean10);
             if ( metrms02_[ism-1] )
-	      metrms02_[ism-1]->Fill(rms10);
+              metrms02_[ism-1]->Fill(rms10);
 
             }
-	    
+            
           } else {
 
             if ( met06_[ism-1] ) {
@@ -3300,9 +3301,9 @@ void EBLaserClient::analyze(void){
               }
 
             if ( metav06_[ism-1] )
-	      metav06_[ism-1] ->Fill(mean10);
+              metav06_[ism-1] ->Fill(mean10);
             if ( metrms06_[ism-1] )
-	      metrms06_[ism-1]->Fill(rms10);
+              metrms06_[ism-1]->Fill(rms10);
 
             }
 
@@ -3321,16 +3322,16 @@ void EBLaserClient::analyze(void){
               } else {
                 met03_[ism-1]->setEntries(1.+met03_[ism-1]->getEntries());
               }
-	      
+              
             if ( metav03_[ism-1] )
-	      metav03_[ism-1] ->Fill(mean11);
+              metav03_[ism-1] ->Fill(mean11);
             if ( metrms03_[ism-1] )
-	      metrms03_[ism-1]->Fill(rms11);
+              metrms03_[ism-1]->Fill(rms11);
 
             }
-	    
+            
           } else {
-	    
+            
             if ( met07_[ism-1] ) {
               if ( mean11 > 0. ) {
                 met07_[ism-1]->setBinContent( ip+20*(ie-1), mean11 );
@@ -3338,11 +3339,11 @@ void EBLaserClient::analyze(void){
               } else {
                 met07_[ism-1]->setEntries(1.+met07_[ism-1]->getEntries());
               }
-	      
+              
             if ( metav07_[ism-1] )
-	      metav07_[ism-1] ->Fill(mean11);
+              metav07_[ism-1] ->Fill(mean11);
             if ( metrms07_[ism-1] )
-	      metrms07_[ism-1]->Fill(rms11);
+              metrms07_[ism-1]->Fill(rms11);
 
             }
 
@@ -3361,11 +3362,11 @@ void EBLaserClient::analyze(void){
               } else {
                 met04_[ism-1]->setEntries(1.+met04_[ism-1]->getEntries());
               }
-	      
+              
             if ( metav04_[ism-1] )
-	      metav04_[ism-1] ->Fill(mean12);
+              metav04_[ism-1] ->Fill(mean12);
             if ( metrms04_[ism-1] )
-	      metrms04_[ism-1]->Fill(rms12);
+              metrms04_[ism-1]->Fill(rms12);
 
             }
 
@@ -3378,11 +3379,11 @@ void EBLaserClient::analyze(void){
               } else {
                 met08_[ism-1]->setEntries(1.+met08_[ism-1]->getEntries());
               }
-	      
+              
             if ( metav08_[ism-1] )
-	      metav08_[ism-1] ->Fill(mean12);
+              metav08_[ism-1] ->Fill(mean12);
             if ( metrms08_[ism-1] )
-	      metrms08_[ism-1]->Fill(rms12);
+              metrms08_[ism-1]->Fill(rms12);
 
             }
 
@@ -3772,7 +3773,7 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "<table border=1>" << std::endl;
   for ( unsigned int i=0; i<superModules_.size(); i ++ ) {
     htmlFile << "<td bgcolor=white><a href=""#" << superModules_[i] << ">" 
-	     << setfill( '0' ) << setw(2) << superModules_[i] << "</a></td>";
+             << setfill( '0' ) << setw(2) << superModules_[i] << "</a></td>";
   } 
   htmlFile << std::endl << "</table>" << std::endl;
 
@@ -4585,7 +4586,7 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
     if( i>0 ) htmlFile << "<a href=""#top"">Top</a>" << std::endl;
     htmlFile << "<hr>" << std::endl;
     htmlFile << "<h3><a name=""" << ism << """></a><strong>Supermodule&nbsp;&nbsp;" 
-	     << ism << "</strong></h3>" << endl;
+             << ism << "</strong></h3>" << endl;
     htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
     htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
     htmlFile << "<tr align=\"center\">" << endl;
@@ -4855,11 +4856,11 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
   delete cQual;
   delete cAmp;
   delete cTim;
+  delete cTimav;
+  delete cTimrms;
   delete cShape;
   delete cAmpoPN;
   delete cPed;
-  delete cTimav;
-  delete cTimrms;
 
   // html page footer
   htmlFile << "</body> " << endl;
