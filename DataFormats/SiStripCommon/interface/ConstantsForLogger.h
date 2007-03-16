@@ -22,8 +22,6 @@ namespace sistrip {
   static const std::string mlESSources_    = "SiStripESSources";
   static const std::string mlO2O_          = "SiStripO2O";
 
-};
+}
 
 #endif // DataFormats_SiStripCommon_ConstantsForLogger_H
-
-

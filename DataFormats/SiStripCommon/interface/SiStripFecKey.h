@@ -1,6 +1,6 @@
-// Last commit: $Id: $
-// Latest tag:  $Name: $
-// Location:    $Source: $
+// Last commit: $Id: SiStripFecKey.h,v 1.3 2007/03/15 17:09:30 bainbrid Exp $
+// Latest tag:  $Name: HEAD $
+// Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/DataFormats/SiStripCommon/interface/SiStripFecKey.h,v $
 
 #ifndef DataFormats_SiStripCommon_SiStripFecKey_H
 #define DataFormats_SiStripCommon_SiStripFecKey_H
@@ -134,14 +134,14 @@ class SiStripFecKey : public SiStripKey {
   bool isConsistent( const SiStripKey& ) const;
   
   /** Identifies all member data as being "valid" or "all" (null). */
-  inline bool isValid() const;
-  
-  /** Identifies all member data as being "invalid". */
-  inline bool isInvalid() const;
+  bool isValid() const;
   
   /** All member data to level of "Granularity" are "valid". If
       sistrip::Granularity is "undefined", returns false. */
   bool isValid( const sistrip::Granularity& ) const;
+  
+  /** Identifies all member data as being "invalid". */
+  bool isInvalid() const;
 
   /** All member data to level of "Granularity" are invalid. If
       sistrip::Granularity is "undefined", returns true.  */
