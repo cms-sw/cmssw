@@ -86,7 +86,8 @@ void testLeptonAssociator::analyze(const edm::Event& iEvent, const edm::EventSet
         for (std::vector<std::pair<TrackRef, double> >::const_iterator it = tracks.begin(); it != tracks.end(); ++it) {
           TrackRef track = it->first;
           double quality = it->second;
-          cout << "    Track           "
+          cout << "    Track  "
+               << " {"     << setw(2) << track->found() << "}    "
                << " ["     << setw(4) << track.index() << "]"
                << "            "
                << " pT: "  << setw(6) << setprecision(3) << track->pt()
@@ -103,7 +104,8 @@ void testLeptonAssociator::analyze(const edm::Event& iEvent, const edm::EventSet
         for (std::vector<std::pair<TrackRef, double> >::const_iterator it = leptons.begin(); it != leptons.end(); ++it) {
           TrackRef lepton = it->first;
           double quality = it->second;
-          cout << "    Lepton          "
+          cout << "    Lepton "
+               << " {"     << setw(2) << lepton->found() << "}    "
                << " ["     << setw(4) << lepton.index() << "]"
                << "            "
                << " pT: "  << setw(6) << setprecision(3) << lepton->pt()
@@ -123,7 +125,8 @@ void testLeptonAssociator::analyze(const edm::Event& iEvent, const edm::EventSet
     reco::RecoToSimCollection map = m_associator->associateRecoToSim (recoLeptonHandle, trackingParticleHandle, &iEvent );
     for (TrackCollection::size_type i = 0; i < recoLeptonCollection.size(); ++i) {
       TrackRef lepton(recoLeptonHandle, i);
-          cout << "--> Lepton          "
+          cout << "<-- Lepton "
+               << " {"     << setw(2) << lepton->found() << "}    "
                << " ["     << setw(4) << lepton.index() << "]"
                << "            "
                << " pT: "  << setw(6) << setprecision(3) << lepton->pt()
