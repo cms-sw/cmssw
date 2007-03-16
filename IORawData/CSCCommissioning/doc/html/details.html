@@ -9,26 +9,26 @@ constructs fake DCC Headers and DCC Trailers for FED buffers.
 For every RUI stream module instantiates FileReaderDDU class inherited from our on-line software (in TriDAS).
 <br>
 <br>
-FileReaderDDU reads file with DDU data, searches for DDU Headers
+<tt>FileReaderDDU</tt> reads file with DDU data, searches for <b>DDU Headers</b>
 and Trailers, and finally returns event buffer. It also handles data
 corruptions.
 <br><br>
-FileReaderDDU continuously reads DDU data in blocks of definite length.
-Each time it passes through block, it searches for DDU Header or DDU
-Trailer. In same time it composes event buffer. Once it find DDU Trailer
+<tt>FileReaderDDU</tt> continuously reads DDU data in blocks of definite length.
+Each time it passes through block, it searches for <b>DDU Header</b> or <b>DDU
+Trailer</b>. In same time it composes event buffer. Once it find <b>DDU Trailer</b>
 it sets an ``end mark'' in current data block and returns event buffer
-with event ``status flag'' which tells that we have DDU Trailer in this
+with event <i>status flag</i>, which tells that we have <i>DDU Trailer</i> in this
 event. On next call it continues passing through data block starting from
-``end mark''. If it finds DDU Header pattern in first two DDU words it
-sets ``status flag'' accordingly and goes further until it finds DDU Trailer
-or another DDU Header. If DDU Header appeared in a place anywhere after
-first two DDU words, program sets ``Unknown'' bit in ``status flag'' and
-returns buffer composed with data in front of this DDU Header.
-If program finds DDU Header in a right place and encounters
-second DDU Header it returns data between these Headers, sets DDU Header
-bit in ``status flag'', and starts from "second" DDU Header on next call.
-If buffer size reaches value of 50000 DDU words, ``status flag'' contains
-``DDUoversize'' bit set.
+``end mark''. If it finds <b>DDU Header</b> pattern in first two DDU words it
+sets <i>status flag</i> accordingly and goes further until it finds <b>DDU Trailer</b>
+or another <b>DDU Header</b>. If <b>DDU Header</b> appeared in a place anywhere after
+first two DDU words, program sets <i>Unknown</i> bit in <i>status flag</i> and
+returns buffer composed with data in front of this <b>DDU Header</b>.
+If program finds <b>DDU Header</b> in a right place and encounters
+second <b>DDU Header</b> it returns data between these <b>DDU Headers</b>, sets <i>DDU Header</i>
+bit in <i>status flag</i>, and starts from second <b>DDU Header</b> on next call.
+If buffer size reaches value of 50000 DDU words, <i>status flag</i> contains
+<i>DDUoversize</i> bit set.
 <br><br>
 Described scheme can be presented by following diagrams of
 buffer structure:
@@ -39,7 +39,7 @@ buffer structure:
 </tr><tr>
 <td valign=top>2)</td><td valign=top><nobr>[H-?]H</nobr></td><td valign=top><nobr>// More likely event with corrupted trailer</nobr></td>
 </tr><tr>
-<td valign=top>3)</td><td valign=top><nobr>[H-max]</nobr></td><td valign=top><nobr>// ``DDUoversize'' condition</nobr></td>
+<td valign=top>3)</td><td valign=top><nobr>[H-max]</nobr></td><td valign=top><nobr>// <i>DDUoversize</i> condition</nobr></td>
 </tr><tr>
 <td valign=top>4)</td><td valign=top><nobr>[?-T]</nobr></td><td valign=top><nobr>// Could be anything</nobr></td>
 </tr><tr>
@@ -51,18 +51,18 @@ buffer structure:
 </tr>
 </table>
 <br><br>
-One remark to be made here is that DDU Header (as well as DDU Trailer)
+One remark to be made here is that <b>DDU Header</b> (as well as <b>DDU Trailer</b>)
 consists of three words with identifying pattern in second word.
-If two consecutive DDU Headers were found, first word of second
+If two consecutive <b>DDU Headers</b> were found, first word of second
 Header goes to both events.
 <br><br>
-For user convenience additional to ``read'' function ``next'' was
-implemented. Together with ``select'', ``accept'', and ``reject''
+For user convenience additional to <tt>read</tt> function <tt>next</tt> was
+implemented. Together with <tt>select</tt>, <tt>accept</tt>, and <tt>reject</tt>
 functions it allows user to get events of specified type. Function
-``reject'' helps to filter out events with any of ``status flag''
-bits matches defined criteria. Function ``accept'' forces ``next''
-to return events with any of ``status flag'' bits matches its
-criteria. Function ``select'' requires events exactly match its
+<tt>reject</tt> helps to filter out events with any of <i>status flag</i>
+bits matches defined criteria. Function <tt>accept</tt> forces <tt>next</tt>
+to return events with any of <i>status flag</i> bits matches its
+criteria. Function <tt>select</tt> requires events exactly match its
 criteria.
 </body>
 </html>
