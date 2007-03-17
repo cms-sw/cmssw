@@ -327,3 +327,24 @@ Still missing or incomplete:
   * interface that gives out const module lists so that parameters and names
     can  be inspected by applications.
   * interface to get at statistics in the Schedule object
+
+16-03-07 jbk
+
+Updated the async run/shutdown/stop/wait calls.
+If the event loop stops before wait or the other calls are made, they
+will just return successfully now.
+The shutdown/stop/wait commands now take a timeout value.  If the timeout
+happens, then the event loop thread is assumed to be stuck (either in
+I/O or an infinite loop).  The thread is cancelled (using cancel policy
+asynchronous meaning immediately).  The state of the event processor
+is marked as "error".  It is likely that resources have been leaked or
+stuck in an invalid state at this point and the program should be shut
+down.  All the shutdown/wait/stop calls now return a "timedout" return
+code if they time out.
+
+Added a series of tests to eventprocessor_t.cpp that run the 
+async event loop and attempt to time out.  The time out test is
+commented out due to a runtime error from the environment connected to
+pthread_cancel libraries.
+
+

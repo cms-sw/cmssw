@@ -2,12 +2,13 @@
 
 Test of the EventProcessor class.
 
-$Id: eventprocessor_t.cppunit.cc,v 1.23 2007/02/08 22:36:56 chrjones Exp $
+$Id: eventprocessor_t.cppunit.cc,v 1.24 2007/03/04 06:14:45 wmtan Exp $
 
 ----------------------------------------------------------------------*/  
 #include <exception>
 #include <iostream>
 #include <string>
+#include <sstream>
 #include "boost/regex.hpp"
 #include "SealBase/Error.h"
 
@@ -20,6 +21,8 @@ $Id: eventprocessor_t.cppunit.cc,v 1.23 2007/02/08 22:36:56 chrjones Exp $
 
 #include "FWCore/Framework/interface/EventProcessor.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/Presence.h"
+#include "FWCore/PluginManager/interface/PresenceFactory.h"
 #include "FWCore/Framework/test/stubs/TestBeginEndJobAnalyzer.h"
 
 #include "FWCore/PluginManager/interface/ProblemTracker.h"
@@ -41,9 +44,17 @@ class testeventprocessor: public CppUnit::TestFixture
   CPPUNIT_TEST(activityRegistryTest);
   CPPUNIT_TEST(moduleFailureTest);
   CPPUNIT_TEST(endpathTest);
+  CPPUNIT_TEST(asyncTest);
   CPPUNIT_TEST_SUITE_END();
+
  public:
-  void setUp(){m_handler = std::auto_ptr<edm::AssertHandler>(new edm::AssertHandler());}
+
+  void setUp()
+  {
+    m_handler = std::auto_ptr<edm::AssertHandler>(new edm::AssertHandler());
+    sleep_secs_ = 0;
+  }
+
   void tearDown(){ m_handler.reset();}
   void parseTest();
   void prepostTest();
@@ -52,6 +63,13 @@ class testeventprocessor: public CppUnit::TestFixture
   void activityRegistryTest();
   void moduleFailureTest();
   void endpathTest();
+
+  void asyncTest();
+  bool asyncRunAsync(edm::EventProcessor& ep);
+  bool asyncRunTimeout(edm::EventProcessor& ep);
+  void driveAsyncTest( bool (testeventprocessor::*)(edm::EventProcessor&),
+		       const std::string& config_string);
+
  private:
   std::auto_ptr<edm::AssertHandler> m_handler;
   void work()
@@ -67,10 +85,144 @@ class testeventprocessor: public CppUnit::TestFixture
     proc.run(0);
     proc.endJob();
   }
+
+  int sleep_secs_;
 };
 
 ///registration of the test so that the runner can find it
 CPPUNIT_TEST_SUITE_REGISTRATION(testeventprocessor);
+
+static std::string makeConfig(int event_count)
+{
+  static const std::string start = "process p = {\n"
+    "service=MessageLogger{ untracked vstring destinations={\n"
+    "\"cout\",\"cerr\"}\n"
+    "untracked vstring categories={\"FwkJob\",\"FwkReport\"}\n"
+    "untracked PSet cout={untracked string thresold=\"INFO\"\n"
+    "untracked PSet FwkReport={untracked int32 limit=0}}\n"
+    "untracked PSet cerr={untracked string thresold=\"INFO\"\n"
+    "untracked PSet FwkReport={untracked int32 limit=0}}\n"
+    "} source = EmptySource { untracked int32 maxEvents = ";
+  static const std::string finish = " }\n"
+    "module m1 = IntProducer { int32 ivalue = 10 }\n"
+    "path p1 = { m1 }\n"
+    "}\n";
+
+  std::ostringstream ost;
+  ost << start << event_count << finish;
+  return ost.str();
+}
+
+void testeventprocessor::asyncTest()
+{
+  std::string test_config_2 = makeConfig(2);
+  std::string test_config_80k = makeConfig(20000);
+  
+  // Load the message service plug-in
+  boost::shared_ptr<edm::Presence> theMessageServicePresence;
+  try {
+    theMessageServicePresence =
+      boost::shared_ptr<edm::Presence>(edm::PresenceFactory::get()->makePresence("MessageServicePresence").release());
+  } catch(seal::Error& e) {
+    std::cerr << e.explainSelf() << std::endl;
+    return;
+  }
+
+  sleep_secs_=0;
+  std::cerr << "asyncRunAsync 2 event\n";
+  driveAsyncTest(&testeventprocessor::asyncRunAsync,test_config_2);
+  std::cerr << "asyncRunAsync 80k event\n";
+  driveAsyncTest(&testeventprocessor::asyncRunAsync,test_config_80k);
+  sleep_secs_=3;
+  std::cerr << "asyncRunAsync 2 event with sleep 3\n";
+  driveAsyncTest(&testeventprocessor::asyncRunAsync,test_config_2);
+  sleep_secs_=0;
+  std::cerr << "asyncRunTimeout 80k event\n";
+  // cannot run the following test from scram because of a runtime
+  // library error:
+  // libgcc_s.so.1 must be installed for pthread_cancel to work
+  // driveAsyncTest(&testeventprocessor::asyncRunTimeout,test_config_80k);
+}
+
+bool testeventprocessor::asyncRunAsync(edm::EventProcessor& ep)
+{
+  for(int i=0;i<3;++i)
+    {
+      ep.setRunNumber(i+1);
+      ep.runAsync();
+      if(sleep_secs_>0) sleep(sleep_secs_);
+      edm::EventProcessor::StatusCode rc = ep.waitTillDoneAsync(1000);
+      std::cerr << " ep runAsync run " << i << " done\n";
+  
+      switch(rc)
+	{
+	case edm::EventProcessor::epSuccess:
+	case edm::EventProcessor::epInputComplete:
+	  break;
+	case edm::EventProcessor::epTimedOut:
+	default:
+	  {
+	    std::cerr << "rc from run "<< i <<", doneAsync = " << rc << "\n";
+	    CPPUNIT_ASSERT("Bad rc from doneAsync"==0);
+	  }
+	}
+    }
+  return true;
+}
+
+bool testeventprocessor::asyncRunTimeout(edm::EventProcessor& ep)
+{
+  ep.setRunNumber(1);
+  ep.runAsync();
+  edm::EventProcessor::StatusCode rc = ep.waitTillDoneAsync(1);
+  std::cerr << " ep runAsync run " << 1 << " done\n";
+  
+  switch(rc)
+    {
+    case edm::EventProcessor::epTimedOut:
+      break;
+    case edm::EventProcessor::epSuccess:
+    case edm::EventProcessor::epInputComplete:
+      break;
+    default:
+      {
+	std::cerr << "rc from run "<< 1 <<", doneAsync = " << rc << "\n";
+	CPPUNIT_ASSERT("Bad rc from doneAsync"==0);
+      }
+    }
+  return false;
+}
+
+void testeventprocessor::driveAsyncTest( bool(testeventprocessor::*func)(edm::EventProcessor& ep),const std::string& config_str )
+{
+
+  try {
+    edm::EventProcessor proc(config_str);
+    proc.beginJob();
+    if ((this->*func)(proc))
+      proc.endJob();
+    else
+      {
+	std::cerr << "event processor is in error state\n";
+      }
+  }
+  catch(cms::Exception& e)
+    {
+      std::cerr << "cms exception: " << e.explainSelf() << "\n";
+      CPPUNIT_ASSERT("cms exeption"==0);
+    }
+  catch(std::exception& e)
+    {
+      std::cerr << "std exception: " << e.what() << "\n";
+      CPPUNIT_ASSERT("std exeption"==0);
+    }
+  catch(...)
+    {
+      std::cerr << "unknown exception " << "\n";
+      CPPUNIT_ASSERT("unknown exeption"==0);
+    }
+  std::cerr << "*********************** driveAsyncTest ending ------\n";
+}
 
 void testeventprocessor::parseTest()
 {

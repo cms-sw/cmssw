@@ -168,6 +168,10 @@ namespace edm {
       { sJobReady,      mEndJob,         sJobEnded },
       { sJobReady,      mBeginJob,       sJobReady },
       { sJobReady,      mDtor,           sEnd },    // should this be allowed?
+
+      { sJobReady,      mStopAsync,      sJobReady },
+      { sJobReady,      mCountComplete,  sJobReady },
+
       { sRunGiven,      mException,      sError },
       { sRunGiven,      mRunAsync,       sRunning },
       { sRunGiven,      mBeginJob,       sRunGiven },
@@ -179,12 +183,13 @@ namespace edm {
       { sRunning,       mShutdownSignal, sShuttingDown },
       { sRunning,       mCountComplete,  sStopping }, // sJobReady 
       { sRunning,       mInputExhausted, sStopping }, // sJobReady
+
       { sStopping,       mInputRewind, sJobReady },
       { sStopping,      mException,      sError },
       { sStopping,      mFinished,       sJobReady },
+      { sStopping,      mCountComplete,  sJobReady },
       { sStopping,      mShutdownSignal, sShuttingDown },
-      //{ sStopping,      mShutdownAsync,  sShuttingDown }, // only one at
-      //{ sStopping,      mStopAsync,      sStopping },     // a time
+      { sStopping,      mStopAsync,      sStopping },     // stay
       //{ sStopping,      mAny,            sJobReady },     // <- ??????
       { sShuttingDown,  mException,      sError },
       { sShuttingDown,  mCountComplete,  sDone }, // needed?
@@ -506,7 +511,7 @@ namespace edm {
     state_lock_(),
     stop_lock_(),
     stopper_(),
-    stop_count_(),
+    stop_count_(-1),
     last_rc_(epSuccess),
     last_error_text_(),
     id_set_(false),
@@ -537,7 +542,7 @@ namespace edm {
     state_lock_(),
     stop_lock_(),
     stopper_(),
-    stop_count_(),
+    stop_count_(-1),
     last_rc_(epSuccess),
     last_error_text_(),
     id_set_(false),
@@ -760,6 +765,7 @@ namespace edm {
     std::auto_ptr<EventPrincipal> previousPep;
 
     while(state_ == sRunning) {
+
 //  Lay on a lock
       {
         boost::mutex::scoped_lock sl(usr2_lock);
@@ -1085,31 +1091,82 @@ namespace edm {
       << "EventProcessor::setRunNumber not yet implemented\n";
   }
 
-  EventProcessor::StatusCode EventProcessor::waitTillDoneAsync()
+  EventProcessor::StatusCode 
+  EventProcessor::waitForAsyncCompletion(unsigned int timeout_seconds)
   {
-    boost::mutex::scoped_lock sl(stop_lock_);
+    bool rc = true;
+    boost::xtime timeout;
+    boost::xtime_get(&timeout, boost::TIME_UTC); 
+    timeout.sec += timeout_seconds;
 
-    while(stop_count_ == 0) stopper_.wait(sl);
-    event_loop_->join();
-    event_loop_.reset();
-    id_set_ = false;
-    stop_count_ = 0;
-    changeState(mCountComplete);
-    return last_rc_;
+    // make sure to include a timeout here so we don't wait forever
+    // I suspect there are still timing issues with thread startup
+    // and the setting of the various control variables (stop_count,id_set)
+    {
+      boost::mutex::scoped_lock sl(stop_lock_);
+
+      // look here - if runAsync not active, just return the last return code
+      if(stop_count_ < 0) return last_rc_;
+
+      if(timeout_seconds==0)
+	while(stop_count_==0) stopper_.wait(sl);
+      else
+	while(stop_count_==0 &&
+	      (rc = stopper_.timed_wait(sl,timeout)) == true);
+      
+      if(rc == false)
+	{
+	  // timeout occurred
+	  // if(id_set_) pthread_kill(event_loop_id_,my_sig_num_);
+	  // this is a temporary hack until we get the input source
+	  // upgraded to allow blocking input sources to be unblocked
+
+	  // the next line is dangerous and causes all sorts of trouble
+	  if(id_set_) pthread_cancel(event_loop_id_);
+
+	  // we will not do anything yet
+	  LogWarning("timeout")
+	    << "An asynchronous request was made to shut down "
+	    << "the event loop "
+	    << "and the event loop did not shutdown after "
+	    << timeout_seconds << " seconds\n";
+	}
+      else
+	{
+	  event_loop_->join();
+	  event_loop_.reset();
+	  id_set_ = false;
+	  stop_count_ = -1;
+	}
+    }
+    return rc==false?epTimedOut:last_rc_;
+  }
+
+  EventProcessor::StatusCode 
+  EventProcessor::waitTillDoneAsync(unsigned int timeout_value_secs)
+  {
+    StatusCode rc = waitForAsyncCompletion(timeout_value_secs);
+    if(rc!=epTimedOut) changeState(mCountComplete);
+    else errorState();
+    return rc;
   }
 
   
-  EventProcessor::StatusCode EventProcessor::stopAsync()
+  EventProcessor::StatusCode EventProcessor::stopAsync(unsigned int secs)
   {
-    StatusCode rc = doneAsync(mStopAsync);
-    changeState(mFinished);
+    changeState(mStopAsync);
+    StatusCode rc = waitForAsyncCompletion(secs);
+    if(rc!=epTimedOut) changeState(mFinished);
+    else errorState();
     return rc;
   }
   
-  EventProcessor::StatusCode EventProcessor::shutdownAsync()
+  EventProcessor::StatusCode EventProcessor::shutdownAsync(unsigned int secs)
   {
-    StatusCode rc =  doneAsync(mShutdownAsync);
-    changeState(mFinished);
+    changeState(mShutdownAsync);
+    StatusCode rc = waitForAsyncCompletion(secs);
+    if(rc!=epTimedOut) changeState(mFinished);
+    else errorState();
     return rc;
   }
   
@@ -1118,39 +1175,14 @@ namespace edm {
     state_ = sError;
   }
 
+  // next function irrelevant now
   EventProcessor::StatusCode EventProcessor::doneAsync(Msg m)
   {
-    boost::xtime timeout;
-    boost::xtime_get(&timeout, boost::TIME_UTC); 
-    timeout.sec += 60*2;
-
     // make sure to include a timeout here so we don't wait forever
     // I suspect there are still timing issues with thread startup
     // and the setting of the various control variables (stop_count,id_set)
     changeState(m);
-    {
-      boost::mutex::scoped_lock sl(stop_lock_);
-      bool rc = true;
-      while(stop_count_ == 0 && (rc = stopper_.timed_wait(sl,timeout)) == true);
-
-      if(rc == false) {
-	  // timeout occurred
-	  // if(id_set_) pthread_kill(event_loop_id_,my_sig_num_);
-	  // this is a temporary hack until we get the input source
-	  // upgraded to allow blocking input sources to be unblocked
-	  if(id_set_) pthread_cancel(event_loop_id_);
-	  // we will not do anything yet
-	  LogWarning("timeout")
-	    << "An asynchronous request was made to shut down the event loop "
-	    << "and the event loop did not shutdown after 2 minutes\n";
-      }
-
-      event_loop_->join();
-      event_loop_.reset();
-      id_set_ = false;
-      stop_count_ = 0;
-    }
-    return last_rc_;
+    return waitForAsyncCompletion(60*2);
   }
   
   void EventProcessor::changeState(Msg msg)
@@ -1188,7 +1220,28 @@ namespace edm {
   {
     using boost::thread;
     beginJob();
-    event_loop_.reset(new thread(boost::bind(EventProcessor::asyncRun,this)));
+    {
+      boost::mutex::scoped_lock sl(stop_lock_);
+      if(id_set_==true)
+	{
+	  string err("runAsync called while async event loop already running\n");
+	  edm::LogError("FwkJob") << err;
+	  throw cms::Exception("BadState") << err;
+	}
+
+      stop_count_=0;
+      last_rc_=epSuccess; // forget the last value!
+      event_loop_.reset(new thread(boost::bind(EventProcessor::asyncRun,this)));
+      boost::xtime timeout;
+      boost::xtime_get(&timeout, boost::TIME_UTC); 
+      timeout.sec += 60; // 60 seconds to start!!!!
+      if(starter_.timed_wait(sl,timeout)==false)
+	{
+	  // yikes - the thread did not start
+	  throw cms::Exception("BadState")
+	    << "Async run thread did not start in 60 seconds\n";
+	}      
+    }
   }
 
   void EventProcessor::asyncRun(EventProcessor* me)
@@ -1203,16 +1256,19 @@ namespace edm {
     // allowing cancels means that the thread just disappears at
     // certain points.  This is bad for C++ stack variables.
     pthread_setcancelstate(PTHREAD_CANCEL_DISABLE,0);
-    pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED,0);
+    //pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED,0);
+    pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS,0);
     pthread_setcancelstate(PTHREAD_CANCEL_ENABLE,0);
 
     {
       boost::mutex::scoped_lock(me->stop_lock_);
       me->event_loop_id_ = pthread_self();
       me->id_set_ = true;
+      me->starter_.notify_all();
     }
 
     Status rc = epException;
+    FDEBUG(2) << "asyncRun starting >>>>>>>>>>>>>>>>>>>>>>\n";
 
     try
       {
@@ -1255,5 +1311,6 @@ namespace edm {
       ++me->stop_count_;
       me->stopper_.notify_all();
     }
+    FDEBUG(2) << "asyncRun ending >>>>>>>>>>>>>>>>>>>>>>\n";
   }
 }

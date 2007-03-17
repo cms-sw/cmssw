@@ -32,7 +32,7 @@ problems:
   where does the pluginmanager initialize call go?
 
 
-$Id: EventProcessor.h,v 1.30 2006/12/29 20:55:07 wmtan Exp $
+$Id: EventProcessor.h,v 1.31 2007/03/04 06:00:22 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -92,8 +92,9 @@ namespace edm {
     //   2     everything else
     //   3     signal received
     //   4     input complete
+    //   5     call timed out
     enum Status { epSuccess=0, epException=1, epOther=2, epSignal=3,
-    epInputComplete=4 };
+		  epInputComplete=4,epTimedOut=5 };
 
     // Eventually, we might replace StatusCode with a class. This
     // class should have an automatic conversion to 'int'.
@@ -152,9 +153,29 @@ namespace edm {
     event_processor::State getState() const;
     void runAsync();
     StatusCode statusAsync() const;
-    StatusCode stopAsync(); // wait for the completion
-    StatusCode shutdownAsync(); // wait for the completion
-    StatusCode waitTillDoneAsync(); // wait until InputExhausted
+
+    // Concerning the async control functions:
+    // The event processor is left with the running thread.
+    // The async thread is stuck at this point and the process 
+    // is likely not going to be able to continue. 
+    // The reason for this timeout could be either an infinite loop
+    // or I/O blocking forever.
+    // The only thing to do is end the process.
+    // If you call endJob, you will likely get an exception from the
+    // state checks telling you that it is not valid to call this function.
+    // All these function force the event processor state into an
+    // error state.
+
+    // tell the event loop to stop and wait for its completion
+    StatusCode stopAsync(unsigned int timeout_secs=60*2);
+    
+    // tell the event loop to shutdown and wait for the completion
+    StatusCode shutdownAsync(unsigned int timeout_secs=60*2);
+
+    // wait until async event loop thread completes
+    // or timeout occurs (See StatusCode for return values)
+    StatusCode waitTillDoneAsync(unsigned int timeout_seconds=0);
+
     void setRunNumber(RunNumber_t runNumber);
 
     // -------------
@@ -279,6 +300,8 @@ namespace edm {
 
     void rewind();
 
+    StatusCode waitForAsyncCompletion(unsigned int timeout_seconds);
+
     void connectSigs(EventProcessor * ep);
 
     struct DoPluginInit
@@ -313,6 +336,7 @@ namespace edm {
     boost::mutex                                  state_lock_;
     boost::mutex                                  stop_lock_;
     boost::condition                              stopper_;
+    boost::condition                              starter_;
     volatile int                                  stop_count_;
     volatile Status                               last_rc_;
     std::string                                   last_error_text_;
