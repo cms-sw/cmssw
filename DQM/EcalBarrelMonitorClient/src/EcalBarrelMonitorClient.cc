@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2007/03/11 19:39:50 $
- * $Revision: 1.232 $
+ * $Date: 2007/03/17 13:14:07 $
+ * $Revision: 1.233 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1189,7 +1189,7 @@ void EcalBarrelMonitorClient::analyze(void){
 
     if ( verbose_ ) cout << " updates = " << updates << endl;
 
-    if ( status_ == "begin-of-run" || status_ == "end-of-run" || ievt_ < 10 || ievt_ % 10 == 0 ) {
+    if ( ( jevt_ < 10 || jevt_ % 10 == 0 ) || status_ == "begin-of-run" || status_ == "end-of-run" || forced_update_ ) {
 
       cout << " run = "      << run_      <<
               " event = "    << evt_      <<
@@ -1251,7 +1251,7 @@ void EcalBarrelMonitorClient::analyze(void){
 
     if ( begin_run_ && ! end_run_ ) {
 
-      if ( ( update ) || ( updates == -1 && jevt_ % 10 == 0 ) || status_ == "end-of-run" || forced_update_ ) {
+      if ( ( enableServer_ && update && ( jevt_ < 10 || jevt_ % 100 == 0 ) ) || status_ == "end-of-run" || forced_update_ ) {
 
         for ( int i=0; i<int(clients_.size()); i++ ) {
           bool analyzed; analyzed = false;
