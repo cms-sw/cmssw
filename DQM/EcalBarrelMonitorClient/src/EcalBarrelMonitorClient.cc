@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2007/02/27 09:18:50 $
- * $Revision: 1.231 $
+ * $Date: 2007/03/11 19:39:50 $
+ * $Revision: 1.232 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -131,7 +131,7 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
          << " dbHostPort = '" << dbHostPort_ << "'"
          << " dbUserName = '" << dbUserName_ << "'" << endl;
   } else {
-    cout << " Ecal Cond DB is not enabled" << endl;
+    cout << " Ecal Cond DB is OFF" << endl;
   }
 
   // Mask file
@@ -158,7 +158,7 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
     cout << " HTML output will go to"
          << " baseHtmlDir = '" << baseHtmlDir_ << "'" << endl;
   } else {
-    cout << " HTML output is not enabled" << endl;
+    cout << " HTML output is OFF" << endl;
   }
 
   // collateSources switch
@@ -268,9 +268,9 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
       cout << " Forcing the same port for Collector and Server" << endl;
       serverPort_ = hostPort_;
     }
-    cout << " Server on port '" << serverPort_ << "' is enabled" << endl;
+    cout << " Server on port '" << serverPort_ << "' is ON" << endl;
   } else {
-    cout << " Server is not enabled" << endl;
+    cout << " Server is OFF" << endl;
   }
 
   // vector of selected Super Modules (Defaults to all 36).
