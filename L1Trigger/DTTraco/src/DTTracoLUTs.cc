@@ -7,6 +7,7 @@
 //
 //   Author :
 //   Sara Vanini - 10/III/03 - INFN Padova
+//   17/III/07 SV : delete SimpleConfigurable dependence
 //--------------------------------------------------
 // #include "Utilities/Configuration/interface/Architecture.h"
 
@@ -25,20 +26,10 @@
 #include <cmath>
 #include <algorithm>
 
-
-using namespace std;
-
 //-------------------------------
 // Collaborating Class Headers --
 //-------------------------------
 
-//#include "Utilities/GenUtil/interface/FileInPath.h"
-//#include "Utilities/UI/interface/SimpleConfigurable.h"
-//#include "L1Trigger/L1CommonL1Trigger/interface/L1TriggerLutFile.h"
-
-// #include "FWCore/ParameterSet/interface/FileInPath.h "
-#include "Utilities/General/interface/FileInPath.h"
-#include "VisFramework/VisUtilities/interface/SimpleConfigurable.h"
 #include "L1Trigger/DTUtilities/interface/L1TriggerLutFile.h"
 
 using namespace std;
@@ -88,33 +79,12 @@ void DTTracoLUTs::reset() {
 //
 int DTTracoLUTs::load() {
 
-  // get directory name
+  // get file name in current directory
   string ang_file = _testfile + ".anglut";
   string pos_file = _testfile + ".poslut";
-  string defaultPath = SimpleConfigurable<string>( "luts",
-                "Trigger:DTTracoLUTs:LutPath" );
-
-  FileInPath fang(defaultPath,ang_file);
-  FileInPath fpos(defaultPath,pos_file);
-
-  if ( fang() == 0 ) {
-     cout << "ERROR: File " << ang_file << " not found in " 
-          << defaultPath << endl;
-     exit(1);
-  }
-
-  if ( fpos() == 0 ) {
-     cout << "ERROR: File " << pos_file << " not found in " 
-          << defaultPath << endl;
-     exit(1);
-  }
-
-  //debug
-  //cout << "Loading LUTs from files: " << ang_file << 
-  //        "  and  " << pos_file << endl;
  
   // open file for PSI 
-  L1TriggerLutFile filePSI(fang.name());
+  L1TriggerLutFile filePSI(ang_file);
   if ( filePSI.open() != 0 ) return -1;
 
   // ignore comment lines 
@@ -132,7 +102,7 @@ int DTTracoLUTs::load() {
   filePSI.close();
  
   // open file for PHI 
-  L1TriggerLutFile filePHI(fpos.name());
+  L1TriggerLutFile filePHI(pos_file);
   if ( filePHI.open() != 0 ) return -1;
 
   // read file for PHI values    --->  phi is 12 bits, 11+sign(12..16), resolution 12 bits
