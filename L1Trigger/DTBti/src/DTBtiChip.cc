@@ -13,6 +13,7 @@
 //   30/IX/03 SV : wire dead time = ST added
 //   22/VI/04 SV : last trigger code update
 //   15/I/07  SV : new DTConfig setup
+//   17/III/07 SV : distp2 truncation bug fixed 
 //--------------------------------------------------
 
 //-----------------------
@@ -168,7 +169,8 @@ DTBtiChip::DTBtiChip(DTTrigGeom* geom, int supl, int n, DTConfigBti* conf): _geo
 // theta bti acceptance cut is in bti chip (no traco in theta!)
     // acceptance is determined about BTI angle wrt vertex with programmable value 
     if(_id.superlayer()==2){
-      float distp2 = (int)(2*_geom->cellH()*config()->ST()/_geom->cellPitch());
+//      float distp2 = (int)(2*_geom->cellH()*config()->ST()/_geom->cellPitch());   SV fix 17/III/07
+      float distp2 = 2*_geom->cellH()*config()->ST()/_geom->cellPitch();
       float K0 = config()->ST();
 
       // position of BTI 1 and of current one
