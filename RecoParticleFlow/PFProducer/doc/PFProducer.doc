@@ -1,0 +1,47 @@
+
+/*!
+
+\page RecoParticleFlow_PFProducer Package RecoParticleFlow/PFProducer
+
+<center>
+<small>
+
+<!-- @CVS_TAG@ will be substituted at build time, no need to touch -->
+<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/RecoParticleFlow/PFProducer/?cvsroot=CMSSW&only_with_tag=@CVS_TAG@>Source code (CVS tag: @CVS_TAG@)</a> - 
+<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/RecoParticleFlow/PFProducer/.admin/developers?rev=HEAD&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup>Administrative privileges</a>
+</small>
+</center>
+
+\section desc Description
+<!-- Short description of what this package is supposed to provide -->
+
+Produces a collection of PFCandidate, reconstructed from PFCluster's and PFRecTrack's. Optionnally, this package can also produce:
+- a collection of PFSimParticle,
+- a collection of PFRecTrack
+
+\subsection interface Public interface
+<!-- List the classes that are provided for use in other packages (if any) -->
+
+- EFilter: 
+- TauHadronDecayFilter: For single tau events, keeps hadronic decays
+
+\subsection modules Modules
+<!-- Describe modules implemented in this package and their parameter set -->
+
+- PFProducer: Producer
+- TauHadronDecayFilter: For single tau events, keeps hadronic decays
+- EFilter: For single particle events, filters according to the particle total and transverse energy.
+
+\subsection tests Unit tests and examples
+<!-- Describe cppunit tests and example configuration files -->
+test/singletau_all.cfg
+
+\section status Status and planned development
+<!-- e.g. completed, stable, missing features -->
+About to change!
+
+<hr>
+Last updated:
+@DATE@  Author: Colin Bernet
+*/
+

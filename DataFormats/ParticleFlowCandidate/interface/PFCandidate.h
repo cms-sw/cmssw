@@ -8,7 +8,12 @@
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
 
 namespace reco {
-
+  /**\class PFCandidate
+     \brief Particle reconstructed by the particle flow algorithm.
+          
+     \author Colin Bernet
+     \date   February 2007
+  */
   class PFCandidate : public LeafCandidate {
   public:
 
