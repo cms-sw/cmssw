@@ -466,10 +466,22 @@ EcalElectronicsId EcalElectronicsMapping::getElectronicsId(const EcalTriggerElec
 }
 
 
+
+
 std::vector<DetId> EcalElectronicsMapping::dccConstituents(int dccId) const {
+
   EcalSubdetector sub = subdet(dccId,DCCMODE);
   std::vector<DetId> items;
+
   if (sub == EcalBarrel) { 
+	for (int tower=1; tower <= kEBTowersPerSM; tower++) {
+ 		std::vector<DetId> xtals = dccTowerConstituents(dccId,tower);
+		int size = xtals.size();
+		for (int i=0; i < size; i++) {
+			DetId detid = xtals[i];
+			items.push_back(detid);
+		}
+	}
   	return items; 
   }
   else if (sub == EcalEndcap) {
@@ -485,12 +497,42 @@ std::vector<DetId> EcalElectronicsMapping::dccConstituents(int dccId) const {
   else throw cms::Exception("InvalidDetId") << "Wrong dccId = " << dccId << " in EcalElectronicsMapping::dccConstituents. ";
 }
 
+
+
 std::vector<DetId> EcalElectronicsMapping::dccTowerConstituents(int dccId, int tower) const {
+
   EcalSubdetector sub = subdet(dccId,DCCMODE);
   std::vector<DetId> items;
+
   if (sub == EcalBarrel) {
+	int iz = zside(dccId, DCCMODE);
+	int smid = 0;
+        int iphi = 0;
+        if (iz < 0) {
+                smid = dccId + 19 - DCCID_PHI0_EBM;
+                iphi = (smid - 19) * kCrystalsInPhi;
+                iphi += 5 * ( (tower-1) % kTowersInPhi );
+        }
+        else {
+                smid = dccId +1 - DCCID_PHI0_EBP;
+                iphi = (smid - 1) * kCrystalsInPhi;
+                iphi += 5 * (
+                        kTowersInPhi - ( (tower-1) % kTowersInPhi ) -1
+                        );
+        }
+        int ieta = 5 * ((tower-1) / kTowersInPhi) + 1;
+	for (int ip=1; ip <=5; ip++) {
+	 for (int ie=0; ie <=4; ie++) {
+		int ieta_xtal = ieta + ie;
+		int iphi_xtal = iphi + ip;
+		if (iz < 0) ieta_xtal = -ieta_xtal;
+	   	EBDetId ebdetid(ieta_xtal,iphi_xtal,EBDetId::ETAPHIMODE);
+		items.push_back(ebdetid);
+  	 }
+   	}
   	return items;
   }
+
   else if (sub == EcalEndcap) {
 	EcalElectronicsMap_by_DccId_and_TowerId::const_iterator lb,ub;
 	boost::tuples::tie(lb,ub)=get<4>(m_items).equal_range(boost::make_tuple(int(dccId), int(tower)));
@@ -505,10 +547,46 @@ std::vector<DetId> EcalElectronicsMapping::dccTowerConstituents(int dccId, int t
 	"Wrong dccId = " << dccId << " tower = " << tower << " in EcalElectronicsMapping::dccTowerConstituents.";
 }
 
+
+
 std::vector<DetId> EcalElectronicsMapping::stripConstituents(int dccId, int tower, int strip) const {
+
   EcalSubdetector sub = subdet(dccId,DCCMODE);
   std::vector<DetId> items;
+
   if (sub == EcalBarrel) {
+
+        int iz = zside(dccId, DCCMODE);
+        bool RightTower = rightTower(tower);
+        int smid = 0;
+        int iphi = 0;
+        if (iz < 0) {
+                smid = dccId + 19 - DCCID_PHI0_EBM;
+                iphi = (smid - 19) * kCrystalsInPhi;
+                iphi += 5 * ( (tower-1) % kTowersInPhi );
+        }
+        else {
+                smid = dccId +1 - DCCID_PHI0_EBP;
+                iphi = (smid - 1) * kCrystalsInPhi;
+                iphi += 5 * (
+                        kTowersInPhi - ( (tower-1) % kTowersInPhi ) -1
+                        );
+        }
+        int ieta = 5 * ((tower-1) / kTowersInPhi) + 1;
+        if (RightTower) {
+                ieta += (strip-1);
+        }
+        else {
+                ieta += 4 - (strip-1);
+        }
+        for (int ip=1; ip <=5; ip++) {
+                int ieta_xtal = ieta ;
+                int iphi_xtal = iphi + ip;
+                if (iz < 0) ieta_xtal = -ieta_xtal;
+                EBDetId ebdetid(ieta_xtal,iphi_xtal,EBDetId::ETAPHIMODE);
+                items.push_back(ebdetid);
+        }
+
         return items;
   }
   else {
@@ -524,10 +602,18 @@ std::vector<DetId> EcalElectronicsMapping::stripConstituents(int dccId, int towe
   
 }
 
+
 std::vector<DetId> EcalElectronicsMapping::tccConstituents(int tccId) const {
+
   EcalSubdetector sub = subdet(tccId,TCCMODE);
   std::vector<DetId> items;
+
   if (sub == EcalBarrel) {
+	int iz =  zside(tccId,TCCMODE);
+	int dccId = tccId;
+	if (iz > 0) dccId = dccId - TCCID_PHI0_EBP + DCCID_PHI0_EBP;
+	else dccId = dccId - TCCID_PHI0_EBM + DCCID_PHI0_EBM;
+	items = dccConstituents(dccId); 
         return items;
   }
   else {
@@ -542,10 +628,19 @@ std::vector<DetId> EcalElectronicsMapping::tccConstituents(int tccId) const {
   }
 }
 
+
+
 std::vector<DetId> EcalElectronicsMapping::ttConstituents(int tccId, int tt) const {
+
   EcalSubdetector sub = subdet(tccId,TCCMODE);
   std::vector<DetId> items;
+
   if (sub == EcalBarrel) {
+	int iz =  zside(tccId,TCCMODE);
+        int dccId = tccId;
+        if (iz > 0) dccId = dccId - TCCID_PHI0_EBP + DCCID_PHI0_EBP;
+        else dccId = dccId - TCCID_PHI0_EBM + DCCID_PHI0_EBM;
+        items = dccTowerConstituents(dccId,tt);
         return items;
   }
   else {
@@ -560,10 +655,18 @@ std::vector<DetId> EcalElectronicsMapping::ttConstituents(int tccId, int tt) con
   }
 }
 
+
 std::vector<DetId> EcalElectronicsMapping::pseudoStripConstituents(int tccId, int tt, int pseudostrip) const {
+
   EcalSubdetector sub = subdet(tccId,TCCMODE);
   std::vector<DetId> items;
+
   if (sub == EcalBarrel) {
+        int iz =  zside(tccId,TCCMODE);
+        int dccId = tccId;
+        if (iz > 0) dccId = dccId - TCCID_PHI0_EBP + DCCID_PHI0_EBP;
+        else dccId = dccId - TCCID_PHI0_EBM + DCCID_PHI0_EBM;
+        items = stripConstituents(dccId,tt,pseudostrip);
         return items;
   }
   else {
@@ -638,8 +741,8 @@ EcalScDetId EcalElectronicsMapping::getEcalScDetId(int DCCid, int DCC_Channel) c
 	int ix = eedetid.ix();
 	int iy = eedetid.iy();
 	int iz = eedetid.zside();
-	int ix_SC = (ix-1)%5 + 1;
-	int iy_SC = (iy-1)%5 + 1;
+	int ix_SC = (ix-1)/5 + 1;
+	int iy_SC = (iy-1)/5 + 1;
 	EcalScDetId scdetid(ix_SC,iy_SC,iz);
 	return scdetid;
 
