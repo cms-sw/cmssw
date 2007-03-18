@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Alex Tapper
 //         Created:  Fri Mar  9 19:11:51 CET 2007
-// $Id: SourceCardTextToRctDigi.cc,v 1.1 2007/03/12 18:30:05 tapper Exp $
+// $Id: SourceCardTextToRctDigi.cc,v 1.2 2007/03/16 15:17:42 tapper Exp $
 //
 //
 
@@ -125,6 +125,15 @@ void SourceCardTextToRctDigi::produce(edm::Event& iEvent, const edm::EventSetup&
     }
   }
 
+  for (L1CaloEmCollection::const_iterator iem=em->begin(); iem!=em->end(); iem++){
+    if (iem->rank()>0){
+      LogDebug("Digis") << "Rank=" << iem->rank() 
+                        << " Card=" << iem->rctCard()
+                        << " Region=" << iem->rctRegion() 
+                        << " Crate=" << iem->rctCrate() 
+                        << " Isolated=" << iem->isolated() << endl;
+    }
+  }
   iEvent.put(em);
   iEvent.put(rgn);
 }

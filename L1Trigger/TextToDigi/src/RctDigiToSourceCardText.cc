@@ -13,7 +13,7 @@
 //
 // Original Author:  Alex Tapper
 //         Created:  Fri Feb 16 14:52:19 CET 2007
-// $Id$
+// $Id: RctDigiToSourceCardText.cc,v 1.1 2007/03/12 18:30:05 tapper Exp $
 //
 //
 
@@ -39,7 +39,7 @@ RctDigiToSourceCardText::RctDigiToSourceCardText(const edm::ParameterSet& iConfi
   {
     throw cms::Exception("RctDigiToSourceCardTextFileOpenError")
       << "RctDigiToSourceCardText::RctDigiToSourceCardText : "
-      << " couldn't open the file " + m_textFileName + " for writing" << endl;
+      << " couldn't open the file " << m_textFileName << " for writing" << endl;
   }
 
   // Make a SC routing object
@@ -63,6 +63,16 @@ void RctDigiToSourceCardText::analyze(const edm::Event& iEvent, const edm::Event
   iEvent.getByLabel(m_rctInputLabel, em);
   iEvent.getByLabel(m_rctInputLabel, rgn);
 
+  for (L1CaloEmCollection::const_iterator iem=em->begin(); iem!=em->end(); iem++){
+    if (iem->rank()>0){
+      LogDebug("Digis") << "Rank=" << iem->rank() 
+                        << " Card=" << iem->rctCard()
+                        << " Region=" << iem->rctRegion() 
+                        << " Crate=" << iem->rctCrate() 
+                        << " Isolated=" << iem->isolated() << endl;
+    }
+  }
+  
   // Have to arrange digis into arrays for each RCT crate
   for (int crate=0; crate<NUM_RCT_CRATES; crate++){
 
@@ -90,9 +100,9 @@ void RctDigiToSourceCardText::analyze(const edm::Event& iEvent, const edm::Event
           eIsoRegionId[numIsoEM]=iem->rctRegion();
           numIsoEM++;
         } else {
-          eNonIsoRank[numIsoEM]=iem->rank();
-          eNonIsoCardId[numIsoEM]=iem->rctCard();
-          eNonIsoRegionId[numIsoEM]=iem->rctRegion();
+          eNonIsoRank[numNonIsoEM]=iem->rank();
+          eNonIsoCardId[numNonIsoEM]=iem->rctCard();
+          eNonIsoRegionId[numNonIsoEM]=iem->rctRegion();
           numNonIsoEM++;
         }
       }
