@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2007/03/17 13:14:07 $
- * $Revision: 1.233 $
+ * $Date: 2007/03/17 16:17:04 $
+ * $Revision: 1.234 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1251,7 +1251,7 @@ void EcalBarrelMonitorClient::analyze(void){
 
     if ( begin_run_ && ! end_run_ ) {
 
-      if ( ( enableServer_ && update && ( jevt_ < 10 || jevt_ % 100 == 0 ) ) || status_ == "end-of-run" || forced_update_ ) {
+      if ( ( enableServer_ && update && ( jevt_ < 10 || jevt_ % 100 == 0 ) ) || status_ == "begin-of-run" || status_ == "end-of-run" || forced_update_ ) {
 
         for ( int i=0; i<int(clients_.size()); i++ ) {
           bool analyzed; analyzed = false;
