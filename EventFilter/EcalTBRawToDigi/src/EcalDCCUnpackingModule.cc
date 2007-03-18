@@ -1,7 +1,7 @@
 /* \file EcalDCCUnpackingModule.h
  *
- *  $Date: 2007/03/12 21:59:13 $
- *  $Revision: 1.30 $
+ *  $Date: 2007/03/18 12:03:09 $
+ *  $Revision: 1.31 $
  *  \author N. Marinelli
  *  \author G. Della Ricca
  *  \author G. Franzoni
@@ -235,9 +235,7 @@ void EcalDCCUnpackingModule::produce(edm::Event & e, const edm::EventSetup& c){
     cout << "[EcalDCCUnpackingModule] " << e.what() << endl;
   } catch (ECALParserBlockException &e) {
     cout << "[EcalDCCUnpackingModule] " << e.what() << endl;
-  } catch (std::runtime_error &e) {
-    cout << "[EcalDCCUnpackingModule] " << e.what() << endl;
-  } catch (std::exception &e) {
+  } catch (cms::Exception &e) {
     cout << "[EcalDCCUnpackingModule] " << e.what() << endl;
   } catch (...) {
     cout << "[EcalDCCUnpackingModule] Unknown exception ..." << endl;
