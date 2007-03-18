@@ -1,5 +1,9 @@
-/*
- * find all (resonable) pairs of layers
+/** \file LaserLayerPairs.cc
+ *  
+ *
+ *  $Date: Sun Mar 18 19:37:33 CET 2007 $
+ *  $Revision: 1.1 $
+ *  \author Maarten Thomas
  */
 
 #include "Alignment/LaserAlignment/interface/LaserLayerPairs.h"

@@ -1,9 +1,13 @@
-/* 
- * Alignment of TEC-TIB-TOB-TEC
- */
-
 #ifndef LaserAlignment_LaserAlignmentTEC2TEC_h
 #define LaserAlignment_LaserAlignmentTEC2TEC_h
+
+/** \class LaserAlignmentTEC2TEC
+ *  Alignment of TEC-TIB-TOB-TEC
+ *
+ *  $Date: Fri Mar 16 15:50:26 CET 2007 $
+ *  $Revision: 1.1 $
+ *  \author Maarten Thomas
+ */
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "Alignment/LaserAlignment/interface/LaserAlignmentAlgorithmTEC2TEC.h"
@@ -18,9 +22,12 @@
 class LaserAlignmentTEC2TEC
 {
  public:
+	/// constructor
   LaserAlignmentTEC2TEC();
+	/// destructor
   ~LaserAlignmentTEC2TEC();
-  
+
+  /// do the alignment
   void alignment(edm::ParameterSet const & theConf, 
 		 AlignableTracker * theAlignableTracker,
 		 int theNumberOfIterations, int theAlignmentIteration,

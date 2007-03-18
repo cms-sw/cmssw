@@ -1,5 +1,9 @@
-/*
- * LaserAlignmentAlignmentAlgorithm.icc --- LAS Reconstruction Program - Alignment Algorithm
+/** \file LaserAlignmentAlignmentAlgorithm.cc
+ *  LAS Reconstruction Program - Alignment Algorithm
+ *
+ *  $Date: Sun Mar 18 19:42:11 CET 2007 $
+ *  $Revision: 1.1 $
+ *  \author Maarten Thomas
  */
 
 #include "Alignment/LaserAlignment/plugins/LaserAlignment.h" 

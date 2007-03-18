@@ -1,5 +1,9 @@
-/*
- * class to align the Tracker (TEC-TIB-TOB-TEC) with Millepede
+/** \file LaserAlignmentAlgorithmTEC2TEC.cc
+ *  
+ *
+ *  $Date: Sun Mar 18 19:35:51 CET 2007 $
+ *  $Revision: 1.1 $
+ *  \author Maarten Thomas
  */
 
 #include "Alignment/LaserAlignment/interface/LaserAlignmentAlgorithmTEC2TEC.h"

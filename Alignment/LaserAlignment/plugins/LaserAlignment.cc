@@ -1,5 +1,9 @@
-/*  
- * LAS Reconstruction Program
+/** \file LaserAlignment.cc
+ *  LAS reconstruction module
+ *
+ *  $Date: Sun Mar 18 19:38:57 CET 2007 $
+ *  $Revision: 1.1 $
+ *  \author Maarten Thomas
  */
 
 #include "Alignment/LaserAlignment/plugins/LaserAlignment.h"

@@ -1,10 +1,21 @@
-/* 
- * generate hit pairs from hits on consecutive discs in the endcaps
- * used by the LaserSeedGenerator
- */
-
 #ifndef LaserAlignment_LaserHitPairGeneratorFromLayerPair_h
 #define LaserAlignment_LaserHitPairGeneratorFromLayerPair_h
+
+/** \class CompareHitPairsZ
+ *  compare hit pairs in z direction
+ *
+ *  $Date: Fri Mar 16 16:06:30 CET 2007 $
+ *  $Revision: 1.1 $
+ *  \author Maarten Thomas
+ */
+
+/** \class LaserHitPairGeneratorFromLayerPair
+ *  generate hit pairs from hits on consecutive discs in the endcaps used by the LaserSeedGenerator
+ *
+ *  $Date: Fri Mar 16 16:05:32 CET 2007 $
+ *  $Revision: 1.1 $
+ *  \author Maarten Thomas
+ */
 
 #include "RecoTracker/TkHitPairs/interface/HitPairGenerator.h"
 #include "RecoTracker/TkHitPairs/interface/CombinedHitPairGenerator.h"
@@ -18,6 +29,7 @@ class LayerWithHits;
 class CompareHitPairsZ
 {
  public:
+	/// compare hit pairs in z direction
   CompareHitPairsZ(const edm::EventSetup& iSetup)
      { iSetup.get<TrackerDigiGeometryRecord>().get(tracker); }
 
@@ -47,25 +59,30 @@ class LaserHitPairGeneratorFromLayerPair : public HitPairGenerator
  public:
   typedef CombinedHitPairGenerator::LayerCacheType LayerCacheType;
 
+	/// constructor
   LaserHitPairGeneratorFromLayerPair(const LayerWithHits * inner, const LayerWithHits * outer, 
 				     LayerCacheType * layerCache, const edm::EventSetup & iSetup) : theLayerCache(*layerCache),
     theInnerLayer(inner),theOuterLayer(outer) {}
 
+	/// destructor
   virtual ~LaserHitPairGeneratorFromLayerPair() {}
 
+	/// order hit pairs
   virtual OrderedHitPairs hitPairs(const TrackingRegion & region, const edm::EventSetup & iSetup)
   {
     return HitPairGenerator::hitPairs(region, iSetup);
   }
 
+	/// from base class
   virtual void hitPairs(const TrackingRegion & ar, OrderedHitPairs & ap, const edm::EventSetup & iSetup);
-
   virtual LaserHitPairGeneratorFromLayerPair * clone() const 
   {
     return new LaserHitPairGeneratorFromLayerPair(*this);
   }
 
+	/// return inner layer
   const LayerWithHits * innerLayer() const { return theInnerLayer; }
+	/// return outer layer
   const LayerWithHits * outerLayer() const { return theOuterLayer; }
 
  private:

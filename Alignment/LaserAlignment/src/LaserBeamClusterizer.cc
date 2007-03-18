@@ -1,7 +1,9 @@
-/*
- * uses the results of the BeamProfileFit
- * to create SiStripClusters from the 
- * StripDigis of the laser beams
+/** \file LaserBeamClusterizer.cc
+ *  
+ *
+ *  $Date: Sun Mar 18 19:36:45 CET 2007 $
+ *  $Revision: 1.1 $
+ *  \author Maarten Thomas
  */
 
 #include "Alignment/LaserAlignment/interface/LaserBeamClusterizer.h"

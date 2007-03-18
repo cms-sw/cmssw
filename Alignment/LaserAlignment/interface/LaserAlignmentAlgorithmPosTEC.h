@@ -1,9 +1,13 @@
-/* 
- * class to align the tracker (TEC+) with Millepede
- */
-
 #ifndef LaserAlignment_LaserAlignmentAlgorithmPosTEC_h
 #define LaserAlignment_LaserAlignmentAlgorithmPosTEC_H
+
+/** \class LaserAlignmentAlgorithmPosTEC
+ *  class to align the tracker (TEC+) with Millepede
+ *
+ *  $Date: Fri Mar 16 15:44:50 CET 2007 $
+ *  $Revision: 1.1 $
+ *  \author Maarten Thomas
+ */
 
 #include "Alignment/LaserAlignment/interface/Millepede.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -19,22 +23,22 @@ class LaserAlignmentAlgorithmPosTEC
 {
 
  public:
-  // constructor
+  /// constructor
   LaserAlignmentAlgorithmPosTEC(edm::ParameterSet const& theConf, int theAlignmentIteration);
 
-  // destructor
+  /// destructor
   ~LaserAlignmentAlgorithmPosTEC();
 
-  // add a LaserBeam to Millepede and do a local fit
+  /// add a LaserBeam to Millepede and do a local fit
   void addLaserBeam(std::vector<double> theMeasurements, int LaserBeam, int LaserRing);
-  // do the global fit
+  /// do the global fit
   void doGlobalFit(AlignableTracker * theAlignableTracker);
 
-  // reset Millepede
+  /// reset Millepede
   void resetMillepede(int UnitForIteration);
 
  private:
-  // initialize Millepede
+  /// initialize Millepede
   void initMillepede(int UnitForIteration);
 
  private:

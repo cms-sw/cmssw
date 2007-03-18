@@ -1,5 +1,9 @@
-/*
- * Algorith to read RecHits from the LaserBeams
+/** \file ReadLaserRecHitAlgorithm.cc
+ *  Algorithm to read RecHits from the LaserBeams
+ *
+ *  $Date: Sun Mar 18 19:51:16 CET 2007 $
+ *  $Revision: 1.1 $
+ *  \author Maarten Thomas
  */
 
 #include "Alignment/LaserAlignment/test/ReadLaserRecHitAlgorithm.h"

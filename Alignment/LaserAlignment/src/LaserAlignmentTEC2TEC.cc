@@ -1,5 +1,9 @@
-/*
- * Alignment of TEC-TIB-TOB-TEC
+/** \file LaserAlignmentTEC2TEC.cc
+ *  
+ *
+ *  $Date: Sun Mar 18 19:36:31 CET 2007 $
+ *  $Revision: 1.1 $
+ *  \author Maarten Thomas
  */
 
 #include "Alignment/LaserAlignment/interface/LaserAlignmentTEC2TEC.h"

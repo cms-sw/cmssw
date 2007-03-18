@@ -1,9 +1,13 @@
-/*
- * Seeds for Tracking of Laser Beams
- */
-
 #ifndef LaserAlignment_LaserSeedGenerator_h
 #define LaserAlignment_LaserSeedGenerator_h
+
+/** \class LaserSeedGenerator
+*  Seeds for Tracking of Laser Beams
+	*
+	*  $Date: Sun Mar 18 19:45:11 CET 2007 $
+	*  $Revision: 1.1 $
+	*  \author Maarten Thomas
+*/
 
 // system include files
 #include <memory>
@@ -27,18 +31,23 @@
 //
 
 class LaserSeedGenerator : public edm::EDProducer {
-   public:
-      explicit LaserSeedGenerator(const edm::ParameterSet&);
-      ~LaserSeedGenerator();
+public:
+		/// constructor
+	explicit LaserSeedGenerator(const edm::ParameterSet&);
+			/// destructor
+	~LaserSeedGenerator();
 
-   private:
-      virtual void beginJob(const edm::EventSetup&) ;
-      virtual void produce(edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
-      
-      // ----------member data ---------------------------
-      edm::ParameterSet conf_;
-      SeedGeneratorForLaserBeams laser_seed;
+private:
+		/// begin job
+	virtual void beginJob(const edm::EventSetup&) ;
+			/// produce seeds
+	virtual void produce(edm::Event&, const edm::EventSetup&);
+			/// end job
+	virtual void endJob() ;
+
+			// ----------member data ---------------------------
+	edm::ParameterSet conf_;
+	SeedGeneratorForLaserBeams laser_seed;
 };
 
 #endif

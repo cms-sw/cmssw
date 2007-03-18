@@ -1,5 +1,9 @@
-/*
- * function to get some information about the TrackCandidates
+/** \file RecoAnalyzerTC.cc
+ *  function to get some information about the TrackCandidates
+ *
+ *  $Date: Sun Mar 18 19:55:59 CET 2007 $
+ *  $Revision: 1.1 $
+ *  \author Maarten Thomas
  */
 
 #include "Alignment/LaserAlignment/test/RecoAnalyzer.h"

@@ -1,5 +1,9 @@
-/*
- * LaserSeedGenerator.cc --- Seeds for Tracking of Laser Beams
+/** \file LaserSeedGenerator.cc
+ *  Seeds for Tracking of Laser Beams
+ *
+ *  $Date: Sun Mar 18 19:44:52 CET 2007 $
+ *  $Revision: 1.1 $
+ *  \author Maarten Thomas
  */
 
 #include "Alignment/LaserAlignment/plugins/LaserSeedGenerator.h" 

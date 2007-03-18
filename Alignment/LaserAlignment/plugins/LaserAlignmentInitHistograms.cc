@@ -1,5 +1,9 @@
-/*
- * LaserAlignmentInitHistograms.icc --- Histograms for the Laser Alignment System
+/** \file LaserAlignmentInitHistograms.cc
+ *  Histograms for the Laser Alignment System
+ *
+ *  $Date: Sun Mar 18 19:42:48 CET 2007 $
+ *  $Revision: 1.1 $
+ *  \author Maarten Thomas
  */
 
 #include "Alignment/LaserAlignment/plugins/LaserAlignment.h"

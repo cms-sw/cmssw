@@ -1,9 +1,13 @@
-/* 
- * class to align the tracker (TEC-TIB-TOB-TEC) with Millepede
- */
-
 #ifndef LaserAlignment_LaserAlignmentAlgorithmTEC2TEC_h
 #define LaserAlignment_LaserAlignmentAlgorithmTEC2TEC_h
+
+/** \class LaserAlignmentAlgorithmTEC2TEC
+ *  class to align the tracker (TEC-TIB-TOB-TEC) with Millepede
+ *
+ *  $Date: Fri Mar 16 15:45:46 CET 2007 $
+ *  $Revision: 1.1 $
+ *  \author Maarten Thomas
+ */
 
 #include "Alignment/LaserAlignment/interface/Millepede.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -20,24 +24,24 @@ class LaserAlignmentAlgorithmTEC2TEC
 {
 
  public:
-  // constructor
+  /// constructor
   LaserAlignmentAlgorithmTEC2TEC(edm::ParameterSet const& theConf, int theLaserIteration);
 
-  // destructor
+  /// destructor
   ~LaserAlignmentAlgorithmTEC2TEC();
 
-  // add a LaserBeam to Millepede and do a local fit
+  /// add a LaserBeam to Millepede and do a local fit
   void addLaserBeam(std::vector<double> theMeasurementsPosTEC, std::vector<double> theMeasurementsTOB,
 		    std::vector<double> theMeasurementsTIB, std::vector<double> theMeasurementsNegTEC,
 		    int LaserBeam, int LaserRing);
-  // do the global fit
+  /// do the global fit
   void doGlobalFit(AlignableTracker * theAlignableTracker);
 
-  // reset Millepede
+  /// reset Millepede
   void resetMillepede(int UnitForIteration);
 
  private:
-  // initialize Millepede
+  /// initialize Millepede
   void initMillepede(int UnitForIteration);
 
  private:

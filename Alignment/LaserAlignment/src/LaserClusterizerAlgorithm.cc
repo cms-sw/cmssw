@@ -1,5 +1,9 @@
-/*
- * the Clusterizer Algorithm for the laser beams
+/** \file LaserClusterizerAlgorithm.cc
+ *  
+ *
+ *  $Date: Sun Mar 18 19:36:55 CET 2007 $
+ *  $Revision: 1.1 $
+ *  \author Maarten Thomas
  */
 
 #include "Alignment/LaserAlignment/interface/LaserClusterizerAlgorithm.h"

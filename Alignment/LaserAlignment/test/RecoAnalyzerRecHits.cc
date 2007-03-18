@@ -1,5 +1,9 @@
-/*
- * plots for RecHits
+/** \file RecoAnalyzerRecHits.cc
+ *  plots for RecHits
+ *
+ *  $Date: Sun Mar 18 19:55:35 CET 2007 $
+ *  $Revision: 1.1 $
+ *  \author Maarten Thomas
  */
 
 #include "Alignment/LaserAlignment/test/RecoAnalyzer.h"

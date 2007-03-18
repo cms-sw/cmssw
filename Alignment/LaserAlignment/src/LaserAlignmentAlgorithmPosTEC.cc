@@ -1,5 +1,9 @@
-/*
- * class to align the Tracker (TEC+) with Millepede
+/** \file LaserAlignmentAlgorithmPosTEC.cc
+ *  
+ *
+ *  $Date: Sun Mar 18 19:35:40 CET 2007 $
+ *  $Revision: 1.1 $
+ *  \author Maarten Thomas
  */
 
 #include "Alignment/LaserAlignment/interface/LaserAlignmentAlgorithmPosTEC.h"

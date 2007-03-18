@@ -1,9 +1,13 @@
-/* 
- * find all (resonable) pairs of endcap layers
- */
-
 #ifndef LaserAlignment_LaserLayerPairs_h
 #define LaserAlignment_LaserLayerPairs_h
+
+/** \class LaserLayerPairs
+ *  find all (resonable) pairs of endcap layers
+ *
+ *  $Date: Fri Mar 16 16:08:54 CET 2007 $
+ *  $Revision: 1.1 $
+ *  \author Maarten Thomas
+ */
 
 #include "FWCore/Framework/interface/EventSetup.h"
 
@@ -21,9 +25,12 @@
 class LaserLayerPairs : public SeedLayerPairs
 {
  public:
+	/// constructor
   LaserLayerPairs() : SeedLayerPairs() {};
+	/// () operator
   std::vector<LayerPair> operator()();
 
+	/// initialize layer pair finder
   void init(const SiStripRecHit2DCollection & collstereo, 
 	    const SiStripRecHit2DCollection & collrphi,
 	    const SiStripMatchedRecHit2DCollection & collmatched,

@@ -1,9 +1,13 @@
-/*
- * Clusterizer for the Laser beams
- */
-
 #ifndef LaserAlignment_LaserClusterizer_h
 #define LaserAlignment_LaserClusterizer_h
+
+/** \class LaserClusterizer
+ *  Clusterizer for the Laser beams
+ *
+ *  $Date: Sun Mar 18 19:43:53 CET 2007 $
+ *  $Revision: 1.1 $
+ *  \author Maarten Thomas
+ */
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -27,11 +31,14 @@ class LaserClusterizer : public edm::EDProducer
  public:
   typedef std::vector<edm::ParameterSet> Parameters;
 
+	/// constructor
   explicit LaserClusterizer(const edm::ParameterSet & theConf);
+	/// destructor
   virtual ~LaserClusterizer();
 
+	/// begin job
   virtual void beginJob(const edm::EventSetup& theSetup);
-
+	/// produce clusters from the laser beams
   virtual void produce(edm::Event& theEvent, const edm::EventSetup& theSetup);
 
  private:

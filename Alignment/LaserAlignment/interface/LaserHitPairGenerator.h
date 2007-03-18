@@ -1,10 +1,13 @@
-/* 
- * generate hit pairs from hits on consecutive discs in the endcaps
- * used by the LaserSeedGenerator
- */
-
 #ifndef LaserAlignment_LaserHitPairGenerator_h
 #define LaserAlignment_LaserHitPairGenerator_h
+
+/** \class LaserHitPairGenerator
+ *  generate hit pairs from hits on consecutive discs in the endcaps used by the LaserSeedGenerator
+ *
+ *  $Date: Fri Mar 16 16:03:43 CET 2007 $
+ *  $Revision: 1.1 $
+ *  \author Maarten Thomas
+ */
 
 #include "FWCore/Framework/interface/EventSetup.h"
 
@@ -30,15 +33,18 @@ class LaserHitPairGenerator : public HitPairGenerator
   typedef LayerHitMapCache LayerCacheType;
 
  public:
+	/// constructor
   LaserHitPairGenerator(SeedLayerPairs & layers, const edm::EventSetup & iSetup);
+	/// default constructor
   LaserHitPairGenerator(SeedLayerPairs & layers);
 
+  /// destructor
   ~LaserHitPairGenerator();
 
-  // add generators based on layers
+  /// add generators based on layers
   void add(const LayerWithHits * inner, const LayerWithHits * outer, const edm::EventSetup & iSetup);
 
-  // from base class
+  /// from base class
   virtual void hitPairs(const TrackingRegion & reg, OrderedHitPairs & prs, const edm::EventSetup & iSetup);
   virtual LaserHitPairGenerator * clone() const { return new LaserHitPairGenerator(*this); }
 

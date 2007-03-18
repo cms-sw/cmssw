@@ -1,9 +1,13 @@
-/* 
- * seed finding algorithm for the LAS
- */
-
 #ifndef LaserAlignment_SeedGeneratorForLaserBeams_h
 #define LaserAlignment_SeedGeneratorForLaserBeams_h
+
+/** \class SeedGeneratorForLaserBeams
+ *  seed finding algorithm for the LAS
+ *
+ *  $Date: Fri Mar 16 16:10:36 CET 2007 $
+ *  $Revision: 1.1 $
+ *  \author Maarten Thomas
+ */
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -31,14 +35,18 @@ class SeedGeneratorForLaserBeams : public SeedGeneratorFromTrackingRegion
  public:
   typedef TrajectoryStateOnSurface TSOS;
   
+	/// constructor
   SeedGeneratorForLaserBeams(const edm::ParameterSet& iConfig);
+	/// destructor
   virtual ~SeedGeneratorForLaserBeams();
   
+	/// initialize seed finder algorithm
   void init(const SiStripRecHit2DCollection &collstereo,
 	    const SiStripRecHit2DCollection &collrphi,
 	    const SiStripMatchedRecHit2DCollection &collmatched,
 	    const edm::EventSetup & iSetup);
 
+	/// run the seed finder
   void run(TrajectorySeedCollection &, const edm::EventSetup & iSetup);
 
  private:

@@ -1,9 +1,13 @@
-/*
- *  Main reconstruction module for the Laser Alignment System
- */
-
 #ifndef LaserAlignment_LaserAlignment_H
 #define LaserAlignment_LaserAlignment_H
+
+/** \class LaserAlignment
+ *  Main reconstruction module for the Laser Alignment System
+ *
+ *  $Date: Sun Mar 18 19:38:44 CET 2007 $
+ *  $Revision: 1.1 $
+ *  \author Maarten Thomas
+ */
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -36,27 +40,32 @@ class LaserAlignment : public edm::EDProducer, public TObject
  public:
   typedef std::vector<edm::ParameterSet> Parameters;
 
+	/// constructor
   explicit LaserAlignment(edm::ParameterSet const& theConf);
+	/// destructor
   ~LaserAlignment();
   
+	/// begin job
   virtual void beginJob(const edm::EventSetup&);
+	/// produce LAS products
   virtual void produce(edm::Event& theEvent, edm::EventSetup const& theSetup);
 
  private:
+	/// return angle in radian between 0 and 2*pi
   double angle(double theAngle);
-
+	/// write the ROOT file with histograms
   void closeRootFile();
-  
+  /// fill adc counts from the laser profiles into a histogram
   void fillAdcCounts(TH1D * theHistogram, DetId theDetId,
 		     edm::DetSet<SiStripDigi>::const_iterator digiRangeIterator,
 		     edm::DetSet<SiStripDigi>::const_iterator digiRangeIteratorEnd);
-
+	/// initialize the histograms
   void initHistograms();
-
+	/// search for dets which are hit by a laser beam and fill the profiles into a histogram
   void trackerStatistics(edm::Event const& theEvent, edm::EventSetup const& theSetup);
-  
+  /// do the beam profile fit
   void fit(edm::EventSetup const& theSetup);
-  
+  /// calculate alignment corrections
   void alignmentAlgorithm(edm::ParameterSet const& theAlgorithmConf, 
 			  AlignableTracker * theAlignableTracker);
     

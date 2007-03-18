@@ -1,9 +1,13 @@
-/* 
- * the Clusterizer Algorithm for the laser beams
- */
-
 #ifndef LaserAlignment_LaserClusterizerAlgorithm_h
 #define LaserAlignment_LaserClusterizerAlgorithm_h
+
+/** \class LaserClusterizerAlgorithm
+ *  the Clusterizer Algorithm for the laser beams
+ *
+ *  $Date: Fri Mar 16 15:56:29 CET 2007 $
+ *  $Revision: 1.1 $
+ *  \author Maarten Thomas
+ */
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -23,10 +27,12 @@ class LaserBeamClusterizer;
 class LaserClusterizerAlgorithm
 {
  public:
+	/// constructor
   LaserClusterizerAlgorithm(const edm::ParameterSet & theConf);
+	/// destructor
   ~LaserClusterizerAlgorithm();
 
-  // Runs the Algorithm
+  /// Runs the Algorithm
   void run(const edm::DetSetVector<SiStripDigi>& input, const LASBeamProfileFitCollection* beamFit,
 	   edm::DetSetVector<SiStripCluster>& output, const edm::ESHandle<TrackerGeometry>& theTrackerGeometry);
 

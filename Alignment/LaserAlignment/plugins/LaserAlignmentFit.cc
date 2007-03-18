@@ -1,5 +1,9 @@
-/*
- * LaserAlignmentFit.icc --- LAS Reconstruction Program - Fitting of the Beam Profiles
+/** \file LaserAlignmentFit.cc
+ *  LAS Reconstruction Program - Fitting of the Beam Profiles
+ *
+ *  $Date: Sun Mar 18 19:42:34 CET 2007 $
+ *  $Revision: 1.1 $
+ *  \author Maarten Thomas
  */
 
 #include "Alignment/LaserAlignment/plugins/LaserAlignment.h" 

@@ -1,5 +1,9 @@
-/*
- * Alignment of TEC+
+/** \file LaserAlignmentPosTEC.cc
+ *   
+ *
+ *  $Date: Sun Mar 18 19:36:20 CET 2007 $
+ *  $Revision: 1.1 $
+ *  \author Maarten Thomas
  */
 
 #include "Alignment/LaserAlignment/interface/LaserAlignmentPosTEC.h"

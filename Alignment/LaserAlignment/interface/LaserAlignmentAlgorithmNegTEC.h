@@ -1,10 +1,13 @@
-/*
- * class to align the tracker (TEC-) with Millepede
- */
-
 #ifndef LaserAlignment_LaserAlignmentAlgorithmNegTEC_h
 #define LaserAlignment_LaserAlignmentAlgorithmNegTEC_h
 
+/** \class LaserAlignmentAlgorithmNegTEC
+ *  class to align the tracker (TEC-) with Millepede
+ *
+ *  $Date: Fri Mar 16 15:41:02 CET 2007 $
+ *  $Revision: 1.1 $
+ *  \author Maarten Thomas
+ */
 #include "Alignment/LaserAlignment/interface/Millepede.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -19,22 +22,22 @@ class LaserAlignmentAlgorithmNegTEC
 {
 
  public:
-  // constructor
+  /// constructor
   LaserAlignmentAlgorithmNegTEC(edm::ParameterSet const& theConf, int theLaserIteration);
 
-  // destructor
+  /// destructor
   ~LaserAlignmentAlgorithmNegTEC();
 
-  // add a LaserBeam to Millepede and do a local fit
+  /// add a LaserBeam to Millepede and do a local fit
   void addLaserBeam(std::vector<double> theMeasurements, int LaserBeam, int LaserRing);
-  // do the global fit
+  /// do the global fit
   void doGlobalFit(AlignableTracker * theAlignableTracker);
 
-  // reset Millepede
+  /// reset Millepede
   void resetMillepede(int UnitForIteration);
 
  private:
-  // initialize Millepede
+  /// initialize Millepede
   void initMillepede(int UnitForIteration);
 
  private:

@@ -1,5 +1,9 @@
-/*
- * LaserClusterizer.cc --- Clusterizer for the Laser Beams
+/** \file LaserClusterizer.cc
+ *  Clusterizer for the Laser Beams
+ *
+ *  $Date: Sun Mar 18 19:43:37 CET 2007 $
+ *  $Revision: 1.1 $
+ *  \author Maarten Thomas
  */
 
 #include "Alignment/LaserAlignment/plugins/LaserClusterizer.h"

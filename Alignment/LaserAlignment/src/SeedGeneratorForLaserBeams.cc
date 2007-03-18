@@ -1,6 +1,10 @@
-/* 
-* seed finding algorithm for the LAS
-*/
+/** \file SeedGeneratorForLaserBeams.cc
+ *  
+ *
+ *  $Date: Sun Mar 18 19:37:59 CET 2007 $
+ *  $Revision: 1.1 $
+ *  \author Maarten Thomas
+ */
 
 #include "Alignment/LaserAlignment/interface/SeedGeneratorForLaserBeams.h"
 #include "Alignment/LaserAlignment/interface/LaserLayerPairs.h"

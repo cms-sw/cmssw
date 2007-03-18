@@ -1,5 +1,9 @@
-/*
- * LaserAlignmentStatistics.icc --- LAS Reconstruction Programm - Fill the histograms 
+/** \file LaserAlignmentTrackerStatistics.cc
+ *  LAS Reconstruction Programm - Fill the histograms
+ *
+ *  $Date: Sun Mar 18 19:43:15 CET 2007 $
+ *  $Revision: 1.1 $
+ *  \author Maarten Thomas
  */
 
 #include "Alignment/LaserAlignment/plugins/LaserAlignment.h"

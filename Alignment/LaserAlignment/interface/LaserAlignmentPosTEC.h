@@ -1,9 +1,13 @@
-/* 
- * Alignment of TEC+
- */
-
 #ifndef LaserAlignmentTracker_LaserAlignmentPosTEC_h
 #define LaserAlignmentTracker_LaserAlignmentPosTEC_h
+
+/** \class LaserAlignmentPosTEC
+ *  Alignment of TEC+
+ *
+ *  $Date: Fri Mar 16 15:47:23 CET 2007 $
+ *  $Revision: 1.1 $
+ *  \author Maarten Thomas
+ */
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "Alignment/LaserAlignment/interface/LaserAlignmentAlgorithmPosTEC.h"
@@ -18,9 +22,12 @@
 class LaserAlignmentPosTEC
 {
  public:
+	/// constructor
   LaserAlignmentPosTEC();
+  /// destructor
   ~LaserAlignmentPosTEC();
 
+	/// do the alignment
   void alignment(edm::ParameterSet const & theConf, 
 		 AlignableTracker * theAlignableTracker,
 		 int theNumberOfIterations, int theAlignmentIteration,
