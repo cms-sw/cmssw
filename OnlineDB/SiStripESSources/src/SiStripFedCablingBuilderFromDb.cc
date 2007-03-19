@@ -1,15 +1,15 @@
-// Last commit: $Id: SiStripFedCablingBuilderFromDb.cc,v 1.30 2007/01/09 13:47:49 bainbrid Exp $
-// Latest tag:  $Name:  $
+// Last commit: $Id: SiStripFedCablingBuilderFromDb.cc,v 1.31 2007/03/19 10:45:22 bainbrid Exp $
+// Latest tag:  $Name: TIF_190307 $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripESSources/src/SiStripFedCablingBuilderFromDb.cc,v $
 
 #include "OnlineDB/SiStripESSources/interface/SiStripFedCablingBuilderFromDb.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DataFormats/SiStripCommon/interface/SiStripHistoNamingScheme.h"
-#include "DataFormats/SiStripCommon/interface/SiStripFecKey.h"
+#include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 #include "CondFormats/SiStripObjects/interface/FedChannelConnection.h"
-#include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
+#include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
+#include "DataFormats/SiStripCommon/interface/SiStripFecKey.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include <cstdlib>
 #include <iostream>
@@ -32,13 +32,13 @@ SiStripFedCablingBuilderFromDb::SiStripFedCablingBuilderFromDb( const edm::Param
   
   // Defined cabling "source" (connections, devices, detids)
   string source = pset.getUntrackedParameter<string>( "CablingSource", "UNDEFINED" );
-  source_ = SiStripHistoNamingScheme::cablingSource( source );
+  source_ = SiStripEnumsAndStrings::cablingSource( source );
 
   LogTrace(mlCabling_) 
     << "[SiStripFedCablingBuilderFromDb::" << __func__ << "]"
     << " CablingSource configurable set to \"" << source << "\""
     << ". CablingSource member data set to: \"" 
-    << SiStripHistoNamingScheme::cablingSource( source_ ) << "\"";
+    << SiStripEnumsAndStrings::cablingSource( source_ ) << "\"";
 }
 
 // -----------------------------------------------------------------------------
@@ -131,7 +131,7 @@ void SiStripFedCablingBuilderFromDb::buildFecCabling( SiStripConfigDb* const db,
     LogTrace(mlCabling_)
       << "[SiStripFedCablingBuilderFromDb::" << __func__ << "]"
       << " Unexpected value for CablingSource: \"" 
-      << SiStripHistoNamingScheme::cablingSource( source )
+      << SiStripEnumsAndStrings::cablingSource( source )
       << "\" Querying DB in order to build cabling from one of connections, devices or DetIds...";
     buildFecCabling( db, fec_cabling, new_map );
     return;
@@ -142,7 +142,7 @@ void SiStripFedCablingBuilderFromDb::buildFecCabling( SiStripConfigDb* const db,
       << "[SiStripFedCablingBuilderFromDb::" << __func__ << "]"
       << " Cannot build SiStripFecCabling object!"
       << " sistrip::CablingSource has value: "  
-      << SiStripHistoNamingScheme::cablingSource( source );
+      << SiStripEnumsAndStrings::cablingSource( source );
     return;
 
   }
@@ -686,7 +686,7 @@ void SiStripFedCablingBuilderFromDb::assignDcuAndDetIds( SiStripFecCabling& fec_
 		      << ") that does not match value found in DCU-DetId map (" 
 		      << iter->second->getApvNumber()/2 
 		      << "). Some APV pairs may have not been detected by"
-		      <<< " the FEC scan or the DCU-DetId map may be incorrect."
+		      << " the FEC scan or the DCU-DetId map may be incorrect."
 		      << " Setting to value found in static map ("
 		      << iter->second->getApvNumber()/2 << ")...";
 		  edm::LogWarning(mlCabling_) << ss2.str();

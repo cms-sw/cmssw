@@ -1,12 +1,12 @@
-// Last commit: $Id: SiStripFedCablingBuilderFromDb.h,v 1.9 2006/12/22 12:19:17 bainbrid Exp $
-// Latest tag:  $Name:  $
+// Last commit: $Id: SiStripFedCablingBuilderFromDb.h,v 1.10 2007/03/19 10:44:49 bainbrid Exp $
+// Latest tag:  $Name: TIF_190307 $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripESSources/interface/SiStripFedCablingBuilderFromDb.h,v $
 
 #ifndef OnlineDB_SiStripESSources_SiStripFedCablingBuilderFromDb_H
 #define OnlineDB_SiStripESSources_SiStripFedCablingBuilderFromDb_H
 
 #include "CalibTracker/SiStripConnectivity/interface/SiStripFedCablingESSource.h"
-#include "DataFormats/SiStripCommon/interface/SiStripEnumeratedTypes.h"
+#include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "boost/cstdint.hpp"
 #include <vector>
