@@ -13,11 +13,12 @@
    <Parameter name="EtaBaskets"     value="65.0"/>
    <Parameter name="EtaBaskets"     value="85.0"/>
  </SpecPar>  
+<SpecPar name="ecalbeam">
+  <PartSelector path="//FIBR" /> 
+  <Parameter name="SensitiveDetector" value="EcalTBH4BeamDetector" eval="false"/>
+  <Parameter name="ReadOutName" value="EcalTBH4BeamHits" eval="false"/> 
+</SpecPar>   
 </SpecParSection>
-<!--  <SpecPar name="ecalbeam"> -->
-<!--    <PartSelector path="//FIBR" /> -->
-<!--    <Parameter name="SensitiveDetector" value="EcalTBH4BeamDetector" eval="false"/> -->
-<!--    <Parameter name="ReadOutName" value="EcalTBH4BeamHits" eval="false"/> -->
-<!--  </SpecPar>   -->
+
 
 </DDDefinition>

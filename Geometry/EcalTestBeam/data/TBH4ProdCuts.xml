@@ -13,9 +13,9 @@
     <PartSelector path="//FIBR"/> 
     <PartSelector path="//TRG*"/> 
     <Parameter name="CMSCutsRegion"  value="Scintillator" eval="false"/> 
-    <Parameter name="ProdCutsForElectrons" value="1*mm"/>
-    <Parameter name="ProdCutsForPositrons" value="1*mm"/>
-    <Parameter name="ProdCutsForGamma" value="10*mm"/>
+    <Parameter name="ProdCutsForElectrons" value="0.1*mm"/>
+    <Parameter name="ProdCutsForPositrons" value="0.1*mm"/>
+    <Parameter name="ProdCutsForGamma" value="0.1*mm"/>
   </SpecPar>
  </SpecParSection>
 

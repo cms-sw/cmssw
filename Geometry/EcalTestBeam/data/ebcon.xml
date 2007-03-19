@@ -4,10 +4,10 @@
 
 <!-- TBH4 geometry constants.
 
-     The constants section in ebcon.xml and ebrot.xml drive the
-     geometry.
+     The constants sections in ebcon.xml and tbrot.xml drive 
+     the TBH4 geometry geometry.
 
-     ebrot.xml has the theta and phi of the beam. That file
+     tbrot.xml has the theta and phi of the beam. That file
      is the only one to be routinely modified for production simulation.
 
      The first 2 z positions are in the H4 beamline coordinate system,
@@ -29,8 +29,8 @@
 <Constant name="hodoLastZ"  value="193*mm"/> 
 <Constant name="blLength"   value="[zPivotDist] + [hodoLastZ] + 10*mm"/>
 <Constant name="blRadius"   value="48*mm"/>
-<Constant name="ocmsdz"     value="0.5*[blLength] + 9*m"/>
-<Constant name="ocmsrx"     value="4*m"/>
+<Constant name="ocmsdz"     value="0.5*[blLength]"/>
+<Constant name="blShift"    value="[ocmsdz]-[zPivotDist]"/>
 
 <Constant name="BarTranX"  value="0*mm"/>
 <Constant name="BarTranY"  value="0*mm"/>

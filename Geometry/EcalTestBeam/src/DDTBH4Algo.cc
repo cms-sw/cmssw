@@ -240,8 +240,8 @@ void DDTBH4Algo::execute()
 
   for( unsigned int j ( 0 ) ; j != 32 ; ++j )
   {
-     const double xoff ( -planeWidth/2. +
-			 (1+  j)*fibCladThick() +
+     const double xoff ( planeWidth/2. -
+			 (1+  j)*fibCladThick() -
 			 (1+2*j)*fibSide()/2.         ) ;
      const double zoff ( -planeThick/2 + fibCladThick() + fibSide()/2. ) ;
      DDpos( fLog,

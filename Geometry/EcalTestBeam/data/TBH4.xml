@@ -2,25 +2,29 @@
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
 
 
-<!-- TBH4 geometry driver file. B. Heltsley, Feb 2, 2007
+<!-- TBH4 geometry driver file. B. Heltsley, Feb 27, 2007
 
      This file should not need modification for production simulation.
 
      The tunable numbers that must be passed around are in the
-     files ebcon.xml and ebrot.xml. Other tunables that
+     files ebcon.xml and tbrot.xml. Other tunables that
      are only needed for the beam line definition appear below
      (for example, positions of hodoscopes and trigger counters).
 
      The two numbers theta and phi specifying the angle
-     of the beam into the supermodule are at the top of ebrot.xml.
+     of the beam into the supermodule are at the top of tbrot.xml.
      To vary that angle, modify that file.
 
      The hierarchy is as follows:
 
-     Due to Iguana requirements, OCMS must be the world volume.
-     It's size and shape are determined from the beam line
-     itself. It ends up being about 4 meters in radius
-     (in order to hold the supermodule at any angle)
+     OCMS is a big box and the world volume
+     CMSSE is the same size as OCMS and its child.
+     TBH4BeamLine is a long tube with the beam line inside CMSSE.
+     CALO is a phi-slice of a polycone to hold ECAL.
+     ECAL is a phi-slice of a polycone to hold EBAR.
+     EBAR is a phi slice of a polycone to hold ESPM.
+
+     In this way the normal CMS hierarchy is preserved.
 
      To maintain compatibility with normal CMS simulation,
      eregalgo.xml in this directory defines a logical
@@ -37,7 +41,7 @@
      It is a child of eregalgo:ECAL. A single supermodule
      is placed inside this barrel.
 
-     The normal ebalgo.xml file from EcalCommonData is used
+     The normal ebalgo.xml and ebrot.xml files from EcalCommonData are used
      in conjunction with the test beam files. It receives
      some modifications from the constants defined in 
      these files.
@@ -49,11 +53,19 @@
 
 <SolidSection label="TBH4.xml">
 
- <Tubs name="OCMS" rMin="0*mm" rMax="2*[ebcon:ocmsrx]" dz="2*[ebcon:ocmsdz]"
-   startPhi="0*deg" deltaPhi="360*deg"/>
+ <Box name="OCMS" dx="2*[ebcon:ocmsdz]" dy="2*[ebcon:ocmsdz]" dz="2*[ebcon:ocmsdz]"/>
+ <Box name="CMSSE" dx="2*[ebcon:ocmsdz]" dy="2*[ebcon:ocmsdz]" dz="2*[ebcon:ocmsdz]"/>
 
- <Tubs name="ECAL" rMin="0*mm" rMax="[ebcon:ocmsrx]" dz="2*[ebcon:ocmsdz]"
-   startPhi="0*deg" deltaPhi="360*deg"/>
+
+ <Polycone name="CALO" startPhi="-35*deg" deltaPhi="70*deg" >
+  <ZSection z="-2.935*m-20*cm"  rMin="1.238*m"  rMax="1.775*m" />
+  <ZSection z="2.935*m+20*cm"  rMin="1.238*m"  rMax="1.775*m" />
+ </Polycone> 
+
+ <Polycone name="ECAL" startPhi="-30*deg" deltaPhi="60*deg" >
+  <ZSection z="-2.935*m-20*cm"  rMin="1.238*m"  rMax="1.775*m" />
+  <ZSection z="2.935*m+20*cm"  rMin="1.238*m"  rMax="1.775*m" />
+ </Polycone> 
 
  <Tubs name="TBH4BeamLine" rMin="0*mm" rMax="[ebcon:blRadius]"
    dz="0.5*[ebcon:blLength]" startPhi="0*deg" deltaPhi="360*deg"/>
@@ -69,17 +81,30 @@
   <rSolid name="OCMS"/>
   <rMaterial name="materials:Air"/>
  </LogicalPart>
+ <LogicalPart name="CMSSE" category="unspecified">
+  <rSolid name="CMSSE"/>
+  <rMaterial name="materials:Air"/>
+ </LogicalPart>
+ <LogicalPart name="CALO" category="unspecified">
+  <rSolid name="CALO"/>
+  <rMaterial name="materials:Air"/>
+ </LogicalPart>
  <LogicalPart name="MCMS" category="unspecified">
   <rSolid name="OCMS"/>
   <rMaterial name="materials:Air"/>
  </LogicalPart>
-
  <LogicalPart name="TBH4BeamLine" category="unspecified">
   <rSolid name="TBH4BeamLine"/>
   <rMaterial name="materials:Air"/>
  </LogicalPart>
-
 </LogicalPartSection>
+
+<RotationSection label="TBH4.xml">
+<Rotation name="blRot"
+                        phiX="[tbrot:phi]"        thetaX="[tbrot:theta]+90*deg"
+                        phiY="[tbrot:phi]+90*deg" thetaY="              90*deg"
+                        phiZ="[tbrot:phi]"        thetaZ="[tbrot:theta]       "   />
+</RotationSection>
 
 <PosPartSection label="TBH4.xml">
  <PosPart copyNumber="1">
@@ -88,14 +113,27 @@
  </PosPart>
  <PosPart copyNumber="1">
    <rParent name="TBH4:OCMS"/>
+   <rChild name="TBH4:CMSSE"/>
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="TBH4:CMSSE"/>
+   <rChild name="TBH4:CALO"/>
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="TBH4:CALO"/>
    <rChild name="eregalgo:ECAL"/>
  </PosPart>
  <PosPart copyNumber="1">
-   <rParent name="eregalgo:ECAL"/>
+   <rParent name="TBH4:CMSSE"/>
    <rChild name="TBH4:TBH4BeamLine"/>
-  <Translation x="0*fm" y="0*fm" z="-[ebcon:zPivotDist] + 0.5*[ebcon:blLength]" />
+  <Translation
+   x="[ebcon:blShift]*sin([tbrot:theta])*cos([tbrot:phi])"
+   y="[ebcon:blShift]*sin([tbrot:theta])*sin([tbrot:phi])"
+   z="[ebcon:blShift]*cos([tbrot:theta])"                    />
+  <rRotation name="TBH4:blRot"/>
  </PosPart>
 </PosPartSection>
+
 
 
 <Algorithm name="DDTBH4Algo">
@@ -219,11 +257,11 @@
     </Vector>
 
     <Vector  name="FibXOff" type="numeric" nEntries="4">
-      0*mm, 0*mm, 0*mm, 0*mm 
+      -0.381*mm, 0*mm, -0.454*mm, 0*mm 
     </Vector>
 
     <Vector  name="FibYOff" type="numeric" nEntries="4">
-      0*mm, 0*mm, 0*mm, 0*mm 
+      0*mm, -0.504*mm, 0*mm, -0.489*mm 
     </Vector>
 
     <Vector  name="FibZPiv" type="numeric" nEntries="4">
