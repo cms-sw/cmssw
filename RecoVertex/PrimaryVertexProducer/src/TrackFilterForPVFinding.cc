@@ -8,14 +8,11 @@ TrackFilterForPVFinding::TrackFilterForPVFinding(const edm::ParameterSet& conf)
 bool 
 TrackFilterForPVFinding::operator() (const reco::TransientTrack & tk) const
 {
-  /*
-  PerigeeTrajectoryParameters::ParameterVector  p = tk.parameters();
-  PerigeeTrajectoryError::CovarianceMatrix c = tk.covariance();
- double d0Error=sqrt(c(3,3));
-  */
-  return ( (tk.initialFreeState().momentum().perp() > minPt())
-	  && (std::abs(tk.impactPointTSCP().perigeeParameters().transverseImpactParameter() 
-	  	/ tk.impactPointTSCP().perigeeError().transverseImpactParameterError()) < maxD0Significance()));
+  double d0=tk.impactPointTSCP().position().perp();
+  double s0=sqrt(tk.impactPointTSCP().perigeeError().covarianceMatrix()(4,4)); 
+  // note: switch to tk.impactPointTSCP().perigeeError().transverseImpactParameter when TransientTrack is fixed
+  return d0<s0*maxD0Significance();
+  
 }
 
 
