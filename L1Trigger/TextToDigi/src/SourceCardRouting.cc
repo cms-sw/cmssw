@@ -712,7 +712,7 @@ for (int i=0; i<2;i++){
 			temp >> hex >> VHDCI[1][0];
 			temp >> hex >> VHDCI[1][1];
 		}else{
-	        		eventNumber=65535;
+	        	eventNumber=65535;
 	       		logicalCardID=65535;
 			VHDCI[0][0]=0;
 			VHDCI[0][1]=0;
@@ -746,8 +746,9 @@ for (int i=0; i<2;i++){
     void SourceCardRouting::LogicalCardIDtoRoutingMode( unsigned short &logicalCardID,
 				     int &RoutingMode,
 				     int &RCTCrateNumber	){
-
+		
 		RCTCrateNumber = (logicalCardID>>3);
+		if ( (logicalCardID&0x4) != 0)RCTCrateNumber+=9;
 		RoutingMode = (logicalCardID&0x3); 
 
 }
@@ -758,7 +759,7 @@ for (int i=0; i<2;i++){
 				     int &RoutingMode,
 				     int &RCTCrateNumber	){
 
-		logicalCardID = (RCTCrateNumber<<3)|(RCTCrateNumber>8?0x4:0x0)|(RoutingMode&0x3);
+		logicalCardID = ((RCTCrateNumber%9)<<3)|(RCTCrateNumber>8?0x4:0x0)|(RoutingMode&0x3);
 
 }
 
