@@ -7,12 +7,12 @@
 #include "FastSimulation/TrackerSetup/interface/TrackerLayer.h"
 #include "FastSimulation/MaterialEffects/interface/MaterialEffects.h"
 
-#include "FastSimulation/MaterialEffects/interface/PairProductionUpdator.h"
-#include "FastSimulation/MaterialEffects/interface/MultipleScatteringUpdator.h"
-#include "FastSimulation/MaterialEffects/interface/BremsstrahlungUpdator.h"
-#include "FastSimulation/MaterialEffects/interface/EnergyLossUpdator.h"
-#include "FastSimulation/MaterialEffects/interface/NuclearInteractionUpdator.h"
-#include "FastSimulation/MaterialEffects/interface/NuclearInteractionEDMUpdator.h"
+#include "FastSimulation/MaterialEffects/interface/PairProductionSimulator.h"
+#include "FastSimulation/MaterialEffects/interface/MultipleScatteringSimulator.h"
+#include "FastSimulation/MaterialEffects/interface/BremsstrahlungSimulator.h"
+#include "FastSimulation/MaterialEffects/interface/EnergyLossSimulator.h"
+#include "FastSimulation/MaterialEffects/interface/NuclearInteractionSimulator.h"
+#include "FastSimulation/MaterialEffects/interface/NuclearInteractionEDMSimulator.h"
 
 #include <list>
 #include <utility>
@@ -42,7 +42,7 @@ MaterialEffects::MaterialEffects(const edm::ParameterSet& matEff,
   if ( doPairProduction ) { 
 
     double photonEnergy = matEff.getParameter<double>("photonEnergy");
-    PairProduction = new PairProductionUpdator(photonEnergy,
+    PairProduction = new PairProductionSimulator(photonEnergy,
 					       random);
 
   }
@@ -51,7 +51,7 @@ MaterialEffects::MaterialEffects(const edm::ParameterSet& matEff,
 
     double bremEnergy = matEff.getParameter<double>("bremEnergy");
     double bremEnergyFraction = matEff.getParameter<double>("bremEnergyFraction");
-    Bremsstrahlung = new BremsstrahlungUpdator(bremEnergy,
+    Bremsstrahlung = new BremsstrahlungSimulator(bremEnergy,
 					       bremEnergyFraction,
 					       random);
 
@@ -60,13 +60,13 @@ MaterialEffects::MaterialEffects(const edm::ParameterSet& matEff,
   if ( doEnergyLoss ) { 
 
     pTmin = matEff.getParameter<double>("pTmin");
-    EnergyLoss = new EnergyLossUpdator(random);
+    EnergyLoss = new EnergyLossSimulator(random);
 
   }
 
   if ( doMultipleScattering ) { 
 
-    MultipleScattering = new MultipleScatteringUpdator(random);
+    MultipleScattering = new MultipleScatteringSimulator(random);
 
   }
 
@@ -85,7 +85,7 @@ MaterialEffects::MaterialEffects(const edm::ParameterSet& matEff,
       = matEff.getUntrackedParameter<std::string>("inputFile");
     // Construction
     NuclearInteraction = 
-      new NuclearInteractionUpdator(listOfFiles,
+      new NuclearInteractionSimulator(listOfFiles,
 				    pionEnergies,
 				    pionEnergy,
 				    lengthRatio,
@@ -104,7 +104,7 @@ MaterialEffects::MaterialEffects(const edm::ParameterSet& matEff,
     double lengthRatio 
       = matEff.getParameter<double>("lengthRatio");
     NuclearInteractionEDM = 
-      new NuclearInteractionEDMUpdator(listOfEDMFiles,
+      new NuclearInteractionEDMSimulator(listOfEDMFiles,
 				       pionEnergies,
 				       pionEnergy,
 				       lengthRatio,
@@ -130,7 +130,7 @@ void MaterialEffects::interact(FSimEvent& mySimEvent,
 			       ParticlePropagator& myTrack,
 			       unsigned itrack) {
 
-  MaterialEffectsUpdator::RHEP_const_iter DaughterIter;
+  MaterialEffectsSimulator::RHEP_const_iter DaughterIter;
   double radlen;
 
   /* For radiation length tuning */

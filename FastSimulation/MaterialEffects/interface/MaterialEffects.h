@@ -35,12 +35,12 @@
 class FSimEvent;
 class TrackerLayer;
 class ParticlePropagator;
-class PairProductionUpdator;
-class MultipleScatteringUpdator;
-class BremsstrahlungUpdator;
-class EnergyLossUpdator;
-class NuclearInteractionUpdator;
-class NuclearInteractionEDMUpdator;
+class PairProductionSimulator;
+class MultipleScatteringSimulator;
+class BremsstrahlungSimulator;
+class EnergyLossSimulator;
+class NuclearInteractionSimulator;
+class NuclearInteractionEDMSimulator;
 class RandomEngine;
 
 class MaterialEffects
@@ -75,12 +75,12 @@ class MaterialEffects
 
  private:
 
-  PairProductionUpdator* PairProduction;
-  BremsstrahlungUpdator* Bremsstrahlung;
-  MultipleScatteringUpdator* MultipleScattering;
-  EnergyLossUpdator* EnergyLoss;
-  NuclearInteractionUpdator* NuclearInteraction;
-  NuclearInteractionEDMUpdator* NuclearInteractionEDM;
+  PairProductionSimulator* PairProduction;
+  BremsstrahlungSimulator* Bremsstrahlung;
+  MultipleScatteringSimulator* MultipleScattering;
+  EnergyLossSimulator* EnergyLoss;
+  NuclearInteractionSimulator* NuclearInteraction;
+  NuclearInteractionEDMSimulator* NuclearInteractionEDM;
 
   double pTmin;
   GlobalVector theNormalVector;
