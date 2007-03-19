@@ -168,4 +168,5 @@ CrystalCenterDump::analyze( const edm::Event& iEvent, const edm::EventSetup& iSe
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(CrystalCenterDump);
+DEFINE_SEAL_MODULE();
+DEFINE_ANOTHER_FWK_MODULE(CrystalCenterDump);
