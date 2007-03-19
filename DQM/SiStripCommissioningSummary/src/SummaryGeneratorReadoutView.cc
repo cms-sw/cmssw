@@ -3,6 +3,7 @@
 #include "DataFormats/SiStripCommon/interface/SiStripEnumeratedTypes.h"
 #include "DataFormats/SiStripCommon/interface/SiStripFecKey.h"
 #include <iostream>
+#include <iomanip>
 #include <sstream>
 #include <cmath>
 #include "TProfile.h"
@@ -60,9 +61,9 @@ void SummaryGeneratorReadoutView::fill( const string& top_level_dir,
     
     // Construct bin label
     stringstream bin;
-    if ( sub_path.fedId_ != sistrip::invalid_ ) { bin << sub_path.fedId_; }
-    if ( sub_path.feUnit_  != sistrip::invalid_ ) { bin << sistrip::dot_ << sub_path.feUnit_; }
-    if ( sub_path.feChan_  != sistrip::invalid_ ) { bin << sistrip::dot_ << sub_path.feChan_; }
+    if ( sub_path.fedId_  != sistrip::invalid_ ) { bin << setw(3) << setfill('0') << sub_path.fedId_; }
+    if ( sub_path.feUnit_ != sistrip::invalid_ ) { bin << sistrip::dot_ << setw(1) << setfill('0') << sub_path.feUnit_; }
+    if ( sub_path.feChan_ != sistrip::invalid_ ) { bin << sistrip::dot_ << setw(2) << setfill('0') << sub_path.feChan_; }
     if ( granularity == sistrip::APV &&
 	 path.fedApv_ != sistrip::invalid_ ) { bin << sistrip::dot_ << path.fedApv_; }
     

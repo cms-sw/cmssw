@@ -230,9 +230,12 @@ void SummaryGenerator::summaryHisto( TH1& his ) {
     high *= 1.2;
     low  *= 1.2;
   }
-  if ( low < 20. && low > 0. ) { low = 0.; }
+  if ( low > 0. && low < 20. ) { low = 0.; }
   high = rint(high);
   low  = rint(low);
+  high = high > 1024. ? 1100. : high;
+  low = low < -1024. ? -1100. : low;
+
   // Calculate binning range 
   int32_t range = static_cast<int32_t>( high-low );
   // Use finer binning if noise or timing data 

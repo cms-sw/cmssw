@@ -44,10 +44,13 @@ void SummaryPlotFactoryBase::init( const sistrip::Monitorable& mon,
     return;
   }
   
-  // Check if map needs to be cleared
-  if ( mon != mon_ || view != view_ || level != level_ || gran != gran_ ) {
-    generator_->clearMap();
-  }
+//   // Check if map needs to be cleared
+//   if ( mon != mon_ || view != view_ || level != level_ || gran != gran_ ) {
+//     generator_->clearMap();
+//   }
+
+  // should always be cleared?... (what if map data change? yes!)
+  generator_->clearMap();
   
   // Set parameters
   mon_ = mon;

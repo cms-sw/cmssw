@@ -3,6 +3,7 @@
 #include "DataFormats/SiStripCommon/interface/SiStripEnumeratedTypes.h"
 #include "DataFormats/SiStripCommon/interface/SiStripFecKey.h"
 #include <iostream>
+#include <iomanip>
 #include <sstream>
 #include <cmath>
 #include "TProfile.h"
@@ -64,11 +65,11 @@ void SummaryGeneratorControlView::fill( const string& top_level_dir,
     
     // Construct bin label
     stringstream bin;
-    if ( sub_path.fecCrate_ != sistrip::invalid_ ) { bin << sub_path.fecCrate_; }
-    if ( sub_path.fecSlot_  != sistrip::invalid_ ) { bin << sistrip::dot_ << sub_path.fecSlot_; }
-    if ( sub_path.fecRing_  != sistrip::invalid_ ) { bin << sistrip::dot_ << sub_path.fecRing_; }
-    if ( sub_path.ccuAddr_  != sistrip::invalid_ ) { bin << sistrip::dot_ << sub_path.ccuAddr_; }
-    if ( sub_path.ccuChan_  != sistrip::invalid_ ) { bin << sistrip::dot_ << sub_path.ccuChan_; }
+    if ( sub_path.fecCrate_ != sistrip::invalid_ ) { bin << setw(1) << setfill('0') << sub_path.fecCrate_; }
+    if ( sub_path.fecSlot_  != sistrip::invalid_ ) { bin << sistrip::dot_ << setw(2) << setfill('0') << sub_path.fecSlot_; }
+    if ( sub_path.fecRing_  != sistrip::invalid_ ) { bin << sistrip::dot_ << setw(1) << setfill('0') << sub_path.fecRing_; }
+    if ( sub_path.ccuAddr_  != sistrip::invalid_ ) { bin << sistrip::dot_ << setw(3) << setfill('0') << sub_path.ccuAddr_; }
+    if ( sub_path.ccuChan_  != sistrip::invalid_ ) { bin << sistrip::dot_ << setw(2) << setfill('0') << sub_path.ccuChan_; }
     if ( ( granularity == sistrip::LLD_CHAN || 
 	   granularity == sistrip::APV ) && 
 	 path.channel_ != sistrip::invalid_ ) { bin << sistrip::dot_ << path.channel_; }
