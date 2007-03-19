@@ -495,7 +495,7 @@ void SiStripCommissioningSource::createTask( const SiStripEventSummary* const su
   // Create ME (string) that identifies commissioning task
   dqm()->setCurrentFolder( sistrip::root_ );
   string task_str = SiStripHistoNamingScheme::task( task_ );
-  dqm()->bookString( sistrip::commissioningTask_ + sistrip::sep_ + task_str, task_str ); 
+  dqm()->bookString( sistrip::taskId_ + sistrip::sep_ + task_str, task_str ); 
   
   // Check commissioning task is known / defined
   if ( task_ == sistrip::UNKNOWN_TASK ||

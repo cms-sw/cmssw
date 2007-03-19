@@ -25,7 +25,7 @@ ApvTimingHistograms::ApvTimingHistograms( MonitorUserInterface* mui )
 ApvTimingHistograms::~ApvTimingHistograms() {
   cout << endl // LogTrace(mlDqmClient_) 
        << "[ApvTimingHistograms::" << __func__ << "]"
-       << " Constructing object...";
+       << " Destructing object...";
 }
 
 // -----------------------------------------------------------------------------	 

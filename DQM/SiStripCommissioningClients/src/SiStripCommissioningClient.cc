@@ -208,10 +208,10 @@ sistrip::Task SiStripCommissioningClient::extractTask( const vector<string>& con
   while ( istr != contents.end() ) {
     
     // Search for "commissioning task" string
-    string::size_type pos = istr->find( sistrip::commissioningTask_ );
+    string::size_type pos = istr->find( sistrip::taskId_ );
     if ( pos != string::npos ) { 
       // Extract commissioning task from string 
-      string value = istr->substr( pos+sistrip::commissioningTask_.size()+1, string::npos ); 
+      string value = istr->substr( pos+sistrip::taskId_.size()+1, string::npos ); 
       if ( !value.empty() ) { 
 	edm::LogVerbatim(mlDqmClient_)
 	  << "[SiStripCommissioningClient::" << __func__ << "]"
