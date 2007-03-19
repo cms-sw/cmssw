@@ -167,34 +167,6 @@ void FedCablingAnalysis::analyse() {
   float weight    = sistrip::invalid_ * -1.;
   uint16_t id_val = sistrip::invalid_;
   uint16_t ch_val = sistrip::invalid_;
-
-  /* ORIGINAL ALGORITHM
-  // FED id
-  for ( uint16_t ifed = 0; ifed < fedid_histo->GetNbinsX(); ifed++ ) {
-  if ( fedid_histo->GetBinEntries(ifed+1) ) {
-  // FED channel
-  for ( uint16_t ichan = 0; ichan < fedch_histo->GetNbinsX(); ichan++ ) {
-  if ( fedch_histo->GetBinEntries(ichan+1) ) {
-  // Build FED key
-  SiStripFedKey::Path path( ifed, ichan );
-  uint32_t key = SiStripFedKey::key( path );
-  // Calc weighted bin contents from FED id and ch histos
-  float weight = 
-  fedid_histo->GetBinContent(ifed+1) * fedid_histo->GetBinEntries(ifed+1) + 
-  fedch_histo->GetBinContent(ichan+1) * fedch_histo->GetBinEntries(ichan+1);
-  weight /= ( fedid_histo->GetBinEntries(ifed+1) + fedch_histo->GetBinEntries(ichan+1) );
-  // Record candidates and "best" candidate
-  candidates_[key] = static_cast<uint16_t>(weight);
-  if ( candidates_[key] > max ) {
-  max = candidates_[key];
-  id_val = ifed;
-  ch_val = ichan;
-  }
-  }
-  }
-  }
-  } 
-  */
   
   // FED id
   max = 0.;
@@ -245,3 +217,72 @@ uint16_t FedCablingAnalysis::adcLevel() const {
   if ( iter != candidates_.end() ) { return iter->second; }
   else { return 0; }
 }
+
+
+
+/* ORIGINAL ALGORITHM
+
+// FED id
+for ( uint16_t ifed = 0; ifed < fedid_histo->GetNbinsX(); ifed++ ) {
+if ( fedid_histo->GetBinEntries(ifed+1) ) {
+// FED channel
+for ( uint16_t ichan = 0; ichan < fedch_histo->GetNbinsX(); ichan++ ) {
+if ( fedch_histo->GetBinEntries(ichan+1) ) {
+// Build FED key
+SiStripFedKey::Path path( ifed, ichan );
+uint32_t key = SiStripFedKey::key( path );
+// Calc weighted bin contents from FED id and ch histos
+float weight = 
+fedid_histo->GetBinContent(ifed+1) * fedid_histo->GetBinEntries(ifed+1) + 
+fedch_histo->GetBinContent(ichan+1) * fedch_histo->GetBinEntries(ichan+1);
+weight /= ( fedid_histo->GetBinEntries(ifed+1) + fedch_histo->GetBinEntries(ichan+1) );
+// Record candidates and "best" candidate
+candidates_[key] = static_cast<uint16_t>(weight);
+if ( candidates_[key] > max ) {
+max = candidates_[key];
+id_val = ifed;
+ch_val = ichan;
+}
+}
+}
+}
+} 
+
+*/
+
+/* ANOTHER ALGO
+
+// FED id
+uint16_t id_num = 0;
+uint16_t id_val = sistrip::invalid_;
+float    id_max = -1.*sistrip::invalid_;
+for ( uint16_t ibin = 0; ibin < hFedId_.first->GetNbinsX(); ibin++ ) {
+if ( hFedId_.first->GetBinEntries(ibin+1) ) {
+id_num++;
+if ( hFedId_.first->GetBinContent(ibin+1) > id_max ) {
+id_max = hFedId_.first->GetBinContent(ibin+1);
+id_val = ibin;
+}
+}
+}
+
+// FED channel
+map<uint16_t,uin16_t> candidates;
+uint16_t ch_val = sistrip::invalid_;
+float ch_max = -1.*sistrip::invalid_;
+for ( uint16_t ibin = 0; ibin < hFedCh_.first->GetNbinsX(); ibin++ ) {
+if ( hFedCh_.first->GetBinEntries(ibin+1) ) {
+candidates[ibin] = hFedCh_.first->GetBinContent(ibin+1); 
+if ( candidates[ibin] > ch_max ) {
+ch_max = candidates[ibin];
+ch_val = ibin;
+}
+}
+}
+  
+// Set monitorables
+fedId_ = id_val;
+fedCh_ = ch_val;
+candidates_ = candidates;
+
+*/
