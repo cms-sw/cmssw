@@ -347,4 +347,14 @@ async event loop and attempt to time out.  The time out test is
 commented out due to a runtime error from the environment connected to
 pthread_cancel libraries.
 
+added states:
+      { sJobReady,      mStopAsync,      sJobReady },
+      { sJobReady,      mCountComplete,  sJobReady },
+      { sStopping,      mCountComplete,  sJobReady },
+      { sStopping,      mShutdownAsync,  sShuttingDown },
+      { sStopping,      mStopAsync,      sStopping },
+
+The task_id_set / stop_count variables are overly complicated and need
+to be simplified.  The count contain all the necessary information to
+known if a task ID is present or not.
 
