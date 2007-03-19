@@ -1,7 +1,7 @@
 /** \file RPCTrigger.cc
  *
- *  $Date: 2006/10/24 10:45:53 $
- *  $Revision: 1.20 $
+ *  $Date: 2006/11/28 11:23:44 $
+ *  $Revision: 1.21 $
  *  \author Tomasz Fruboes
  */
 #include "L1Trigger/RPCTrigger/interface/RPCTrigger.h"
@@ -41,8 +41,23 @@ RPCTrigger::RPCTrigger(const edm::ParameterSet& iConfig)
   // 1 - human readable debug
   if ( triggerDebug != 1 && triggerDebug != 2)
      triggerDebug = 0;
-        
-  m_pacManager.init(patternsDirName, _12_PACS_PER_TOWER);
+   
+  int ppt = iConfig.getUntrackedParameter<int>("PACsPerTower");
+    
+  switch (ppt){
+    case 1:
+      m_pacManager.init(patternsDirName, ONE_PAC_PER_TOWER); // TODO: read that from cfg
+      break;
+    case 12:
+      m_pacManager.init(patternsDirName, _12_PACS_PER_TOWER);
+      break;
+    case 144:
+      m_pacManager.init(patternsDirName, _144_PACS_PER_TOWER);
+      break;
+    default:
+     throw cms::Exception("BadConfig")
+        << "PACsPerTower set to wrong value: " << ppt << "\n";
+  }
   
   m_trigConfig = new RPCBasicTrigConfig(&m_pacManager);
   

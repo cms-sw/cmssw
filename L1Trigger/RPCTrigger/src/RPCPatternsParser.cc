@@ -43,7 +43,10 @@ string xMLCh2String(const XMLCh* ch) {
 const L1RpcPatternsVec& RPCPatternsParser::getPatternsVec(const RPCConst::l1RpcConeCrdnts& coneCrds) const {
   TPatternsVecsMap::const_iterator patVecIt  = m_PatternsVecsMap.find(coneCrds);
   if(patVecIt == m_PatternsVecsMap.end()){
-    throw RPCException( std::string("no such a cone in m_PatternsVecsMap"));
+
+    std::stringstream ss;
+    ss << coneCrds.m_Tower << " " << coneCrds.m_LogSector << " " << coneCrds.m_LogSegment;
+    throw RPCException( std::string("no such a cone in m_PatternsVecsMap: ")+ ss.str() );
     //edm::LogError("RPCTrigger")<< "no such a cone in m_PatternsVecsMap";
   }
   return patVecIt->second; // XXX - TMF - was in if{}, changed to avoid warning

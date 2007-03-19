@@ -125,20 +125,23 @@ L1RpcTBMuonsVec2 RPCHalfSorter::run(L1RpcTBMuonsVec2 &tcsMuonsVec2) {
 	{
 	
 	  unsigned int halfNum = 0; // Number of halfsorter: 0 - first half, 1 - second half
+	  int iMod=0;
 
 	  // After second call of runHalf muons are written at the end of m_GBOutputMuons[0,1] vector
+	  // not needed - fhBMuons ==4 (always)
   	  if ( (region == 0 && i >= fhBMuons ) ||
 	       (region == 1 && i >= fhEMuons ) )
 	  {
 	    halfNum = 1;
+	    iMod=4;
 	  }
 #ifndef _STAND_ALONE
             LogDebug("RPCHwDebug")<<"GB 3"<< region <<halfNum  
-	        << " " << i << " "
+	        << " " << i - iMod << " "
                 << m_GBOutputMuons[region][i].printDebugInfo(m_TrigCnfg->getDebugLevel());
 #else
             std::cout <<"GB 3" << region<< halfNum
-	        << " " << i << " "
+	        << " " << i - iMod << " "
                 << m_GBOutputMuons[region][i].printDebugInfo(m_TrigCnfg->getDebugLevel())
                 << std::endl;
 #endif 
