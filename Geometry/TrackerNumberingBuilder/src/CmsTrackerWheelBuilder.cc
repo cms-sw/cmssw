@@ -46,16 +46,9 @@ void CmsTrackerWheelBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
 	}
       }    
       
-      // TEC+
-      if( comp.front()->translation().z() > 0 ) {
-	TrackerStablePhiSort(compfw.begin(), compfw.end(), ExtractPhiModule());
-	TrackerStablePhiSort(compbw.begin(), compbw.end(), ExtractPhiModule());
-      }
-      // TEC-
-      else {
-	TrackerStablePhiSort(compfw.begin(), compfw.end(), ExtractPhiModuleMirror());
-	TrackerStablePhiSort(compbw.begin(), compbw.end(), ExtractPhiModuleMirror());	
-      }
+      TrackerStablePhiSort(compfw.begin(), compfw.end(), ExtractPhiModule());
+      TrackerStablePhiSort(compbw.begin(), compbw.end(), ExtractPhiModule());
+      
       //
       // TEC
       // Wheel Part:   3 bits [back:1 front:2]

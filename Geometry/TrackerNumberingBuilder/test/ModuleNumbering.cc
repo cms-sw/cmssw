@@ -81,6 +81,7 @@ private:
   void fillModuleVariables(const GeometricDet* module, double& polarRadius, double& phiRad, double& z);
   double changePhiRange_From_ZeroTwoPi_To_MinusPiPlusPi(double phiRad);
   double changePhiRange_From_MinusPiPlusPi_To_MinusTwoPiZero(double phiRad);
+  double changePhiRange_From_MinusPiPlusPi_To_ZeroTwoPi(double phiRad);
   //
   // counters
   unsigned int iOK;
@@ -151,6 +152,16 @@ double ModuleNumbering::changePhiRange_From_MinusPiPlusPi_To_MinusTwoPiZero(doub
   if(fabs(fabs(new_phiRad)-M_PI) < tolerance_angle) new_phiRad=M_PI;
   // phi greater than PI: from [-PI,+PI) to [0,2PI)
   if(new_phiRad > 0) new_phiRad-=2*M_PI;
+  //
+  return new_phiRad;
+}
+
+double ModuleNumbering::changePhiRange_From_MinusPiPlusPi_To_ZeroTwoPi(double phiRad) {
+  double new_phiRad = phiRad;
+  // tolerance near phi=PI
+  if(fabs(fabs(new_phiRad)-M_PI) < tolerance_angle) new_phiRad=M_PI;
+  // phi greater than PI: from [-PI,+PI) to [0,2PI)
+  if(new_phiRad < 0) new_phiRad+=2*M_PI;
   //
   return new_phiRad;
 }
@@ -801,7 +812,7 @@ ModuleNumbering::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetu
 	      part_z              = 0.0;  
 	      part_z_previous     = 0.0;  
 	      petal_phi           = 0.0;
-	      petal_phi_previous  = 2*M_PI;
+	      petal_phi_previous  = 0.0;
 	      ring_R              = 0.0;
 	      ring_R_previous     = 0.0;
 	      module_phi          = 0.0;
@@ -890,7 +901,27 @@ ModuleNumbering::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetu
 		      }
 		      
 		      // petal must be ordered inside [0,2PI) for TEC+, [PI,-PI) for TEC-, take the phi of the central module in a ring with (2n+1) modules
-		      if( ( nModules%2 ) && ( iModule==(int)(nModules/2)+(nModules%2) ) ) petal_phi = phiRad;
+		      if( ( nModules%2 ) && ( iModule==(int)(nModules/2)+(nModules%2) ) ) {
+			switch (iSide) {
+			  // TEC+
+			case 2:
+			  {
+			    petal_phi = phiRad;
+			    break;
+			  }
+			  // TEC-
+			case 1:
+			  {
+			    petal_phi = changePhiRange_From_MinusPiPlusPi_To_ZeroTwoPi(phiRad);
+			    break;
+			  }
+			default:
+			  {
+			    // do nothing
+			  }
+			}
+		      }
+		      
 		      ring_R     = polarRadius;
 		      //		      
 		      // modules must be ordered inside petals [0,2PI)-->[-PI,PI) if the petal is near phi~0  TEC+ (petal number 1)
@@ -899,7 +930,7 @@ ModuleNumbering::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetu
 			// TEC+
 		      case 2:
 			{
-			  if( iPetal == 1 ) { // it is the request of the first petal of te loop, always at phi = 0
+			  if( iPetal == 1 ) { // it is the request of the petal at phi = 0, always the first
 			    module_phi = changePhiRange_From_ZeroTwoPi_To_MinusPiPlusPi(phiRad);
 			  } else {
 			    module_phi = phiRad;
@@ -909,7 +940,7 @@ ModuleNumbering::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetu
 			// TEC-
 		      case 1:
 			{ 
-			  if( iPetal == 1 ) { // it is the request of first the petal of te loop, always at phi = PI
+			  if( iPetal == 5 ) { // it is the request of the petal at phi = PI, always the fifth
 			    module_phi = changePhiRange_From_MinusPiPlusPi_To_MinusTwoPiZero(phiRad);
 			  } else {
 			    module_phi = phiRad;
@@ -1041,7 +1072,7 @@ ModuleNumbering::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetu
 		  // TEC-
 		case 1:
 		  {
-		    if( ( petal_phi - petal_phi_previous ) > (0 + tolerance_angle) ) {
+		    if( ( petal_phi - petal_phi_previous ) < (0 - tolerance_angle) ) {
 		      Output << "\t ERROR phi ordering not respected in petal ";
 		      iERROR++;
 		    } else {
@@ -1089,7 +1120,7 @@ ModuleNumbering::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetu
 	      case 1:
 		{
 		  part_z_previous     = part_z;
-		  petal_phi_previous  = 2*M_PI;
+		  petal_phi_previous  = 0.0;
 		  ring_R_previous     = 0.0;
 		  module_phi_previous = 2*M_PI;
 		  break;
@@ -1129,7 +1160,7 @@ ModuleNumbering::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetu
 	      {
 		wheel_z_previous    = wheel_z;
 		part_z_previous     = 0.0;
-		petal_phi_previous  = 2*M_PI;
+		petal_phi_previous  = 0.0;
 		ring_R_previous     = 0.0;
 		module_phi_previous = 2*M_PI;
 		break;
@@ -1171,7 +1202,7 @@ ModuleNumbering::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetu
 	      side_z_previous     = side_z;
 	      wheel_z_previous    = 0.0;
 	      part_z_previous     = 0.0;  
-	      petal_phi_previous  = 2*M_PI;
+	      petal_phi_previous  = 0.0;
 	      ring_R_previous     = 0.0;
 	      module_phi_previous = 2*M_PI;
 	      break;
