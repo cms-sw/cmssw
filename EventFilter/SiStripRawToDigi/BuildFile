@@ -1,4 +1,3 @@
-
 <use name=FWCore/Framework>
 <use name=FWCore/Utilities>
 <use name=FWCore/ParameterSet>
@@ -6,6 +5,7 @@
 <use name=DataFormats/Common>
 <use name=DataFormats/FEDRawData>
 <use name=DataFormats/SiStripCommon>
+<use name=DataFormats/SiStripCluster>
 <use name=DataFormats/SiStripDigi>
 <use name=CondFormats/DataRecord>
 <use name=CondFormats/SiStripObjects>
