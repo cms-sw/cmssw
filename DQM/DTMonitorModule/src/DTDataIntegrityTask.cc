@@ -1,8 +1,8 @@
 /*
  * \file DTDataIntegrityTask.cc
  * 
- * $Date: 2007/03/07 16:50:50 $
- * $Revision: 1.15 $
+ * $Date: 2007/03/15 10:26:43 $
+ * $Revision: 1.16 $
  * \author M. Zanetti (INFN Padova), S. Bolognesi (INFN Torino)
  *
 */
@@ -39,6 +39,7 @@ DTDataIntegrityTask::DTDataIntegrityTask(const edm::ParameterSet& ps,edm::Activi
 
   neventsDDU = 0;
   neventsROS25 = 0;
+  myPrev_ttsValue = -999;
 
   outputFile = ps.getUntrackedParameter<string>("outputFile", "ROS25Test.root");
 
@@ -167,8 +168,8 @@ void DTDataIntegrityTask::bookHistos(string folder, DTROChainCoding code) {
   
     histoType = "DDUROSList";
     histoName = "FED" + dduID_s.str() + "_DDUROSList";
-     (dduHistos[histoType])[code.getDDUID()] = dbe->book1D(histoName,histoName,12,0,12);
-
+    (dduHistos[histoType])[code.getDDUID()] = dbe->book1D(histoName,histoName,12,0,12);
+    
     histoType = "DDUChannelStatus";
     histoName = "FED" + dduID_s.str() + "_DDUChannelStatus";;
     (dduHistos[histoType])[code.getDDUID()] = dbe->book2D(histoName,histoName,9,0,9,12,0,12);
@@ -629,6 +630,13 @@ void DTDataIntegrityTask::processFED(DTDDUData & data, int ddu) {
     channel++;
   }
 
+  //MONITOR TTS VS TIME if the tts value is changed from the last event
+  if(trailer.ttsBits() != myPrev_ttsValue){
+    ev_ttsChange.push_back(header.lvl1ID());
+    ttsChange.push_back(trailer.ttsBits());
+    myPrev_ttsValue = trailer.ttsBits();
+  }
+
   //1D HISTOS: EVENT LENGHT from trailer
   //cout<<"1D HISTOS WITH EVENT LENGHT from trailer"<<endl;
   histoType = "DDUEventLenght";
@@ -647,7 +655,6 @@ void DTDataIntegrityTask::processFED(DTDDUData & data, int ddu) {
   
 
   //1D HISTO: NUMBER OF ROS IN THE EVENTS from 2nd status word
-  //cout<<"1D HISTO WITH NUMBER OF ROS IN THE EVENTS from 2nd status word"<<endl;
   int rosList = secondWord.rosList();
   vector<int> rosPositions;
   for(int i=0;i<12;i++){
@@ -655,20 +662,18 @@ void DTDataIntegrityTask::processFED(DTDDUData & data, int ddu) {
       rosPositions.push_back(i);
     rosList >>= 1;
   }
+
   histoType = "DDUROSList";   
   if (dduHistos[histoType].find(code.getDDUID()) == dduHistos[histoType].end()) {
     bookHistos( string("DDU"), code);
   } 
-  
   (dduHistos.find(histoType)->second).find(code.getDDUID())->second->Fill(rosPositions.size());
 
   //2D HISTO: ROS VS STATUS (8 BIT = 8 BIN) from 1st-2nd status words (9th BIN FROM LIST OF ROS in 2nd status word)
-  //cout<<"2D HISTO OF THE ROS VS STATUS (8 BIT = 8 BIN) from 1st-2nd status words"<<endl;
   histoType = "DDUChannelStatus";   
   if (dduHistos[histoType].find(code.getDDUID()) == dduHistos[histoType].end()) {
     bookHistos( string("DDU"), code);
   } 
-
   int channel=0;
   for (vector<DTDDUFirstStatusWord>::const_iterator fsw_it = data.getFirstStatusWord().begin();
        fsw_it != data.getFirstStatusWord().end(); fsw_it++) {
@@ -683,10 +688,16 @@ void DTDataIntegrityTask::processFED(DTDDUData & data, int ddu) {
     (dduHistos.find(histoType)->second).find(code.getDDUID())->second->Fill(7,channel,(*fsw_it).errorFromROS());
     channel++;
   }
-
-  //cout<<"9th BIN FROM LIST OF ROS in 2nd status word"<<endl;
+  //9th BIN FROM LIST OF ROS in 2nd status word
   for(vector<int>::const_iterator channel_it = rosPositions.begin(); channel_it != rosPositions.end(); channel_it++){
     (dduHistos.find(histoType)->second).find(code.getDDUID())->second->Fill(8,(*channel_it),1);
+  }
+
+  //MONITOR ROS LIST VS TIME if the ROS list is changed from the last event
+  if(rosPositions.size() != myPrev_ROSList){
+    ev_ROSListChange.push_back(header.lvl1ID());
+    ROSListChange.push_back(rosPositions.size());
+    myPrev_ROSList = rosPositions.size();
   }
 
   //2D HISTO: FIFO STATUS from 2nd status word
