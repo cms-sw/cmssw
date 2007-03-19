@@ -1,7 +1,7 @@
 /*  
  *
- *  $Date: 2007/02/22 10:40:58 $
- *  $Revision: 1.39 $
+ *  $Date: 2007/03/05 14:38:57 $
+ *  $Revision: 1.40 $
  *  \author  N. Marinelli IASA 
  *  \author G. Della Ricca
  *  \author G. Franzoni
@@ -164,12 +164,12 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData ,
 		tpcollection.push_back(thePrimitive);
 		
 		LogDebug("EcalTBRawToDigiTpg") << "@SUBS=EcalTBDaqFormatter::interpretRawData"
-					    << "tower: " << (i+1) 
-					    << " primitive: " << TpSamples[i].first
-					    << " flag: " << TpSamples[i].second
-					    << endl;
+					       << "tower: " << (i+1) 
+					       << " primitive: " << TpSamples[i].first
+					       << " flag: " << TpSamples[i].second;
+
 		LogDebug("EcalTBRawToDigiTpg") << "@SUBS=EcalTBDaqFormatter::interpretRawData"<<
-		  "tower: " << (i+1) << " flag: " << TpFlags[i] << endl;
+		  "tower: " << (i+1) << " flag: " << TpFlags[i];
 	      }// end loop on tower primitives
 	    
 	  }// end if
@@ -385,7 +385,7 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData ,
 						    << "\t in TT: " << _ExpectedTowers[_expTowersIndex]
 						    << "\t in event: " << (*itEventBlock)->getDataField("LV1")
 						    << "\t   (in the data, found channel:  " << ch
-						    << "\t strip:  " << strip << " ).\n";
+						    << "\t strip:  " << strip << " ).";
 
 		  
 		  // report on wrong channel id
@@ -459,11 +459,13 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData ,
 		if (firstGainWrong == -1) {
 		  firstGainWrong=i;
 		  LogWarning("EcalTBRawToDigiGainSwitch") << "@SUB=EcalTBDaqFormatter::interpretRawData"
-						<< "channelHasGainSwitchProblem: crystal eta = " << id.ieta() << " phi = " << id.iphi();
+							  << "channelHasGainSwitchProblem: crystal eta = " 
+							  << id.ieta() << " phi = " << id.iphi();
 		}
 		LogWarning("EcalTBRawToDigiGainSwitch") << "@SUB=EcalTBDaqFormatter::interpretRawData"
-					      << "channelHasGainSwitchProblem: sample = " << (i-1) 
-					      << " gain: " << xtalGain[i-1] << " sample: " << i << " gain: " << xtalGain[i];
+							<< "channelHasGainSwitchProblem: sample = " << (i-1) 
+							<< " gain: " << xtalGain[i-1] << " sample: " 
+							<< i << " gain: " << xtalGain[i];
 	      }
 	    }
 
@@ -491,14 +493,14 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData ,
 	      if (numGainWrong == 1 && (wrongGainStaysTheSame)) {
               
 		LogWarning("EcalTBRawToDigiGainSwitch") << "@SUB=EcalTBDaqFormatter:interpretRawData"
-					      << "channelHasGainSwitchProblem: wrong transition stays till last sample"<< "\n";
-
+							<< "channelHasGainSwitchProblem: wrong transition stays till last sample";
+		
 		gainswitchstaycollection.push_back(id);              
 	      }
 	      else if (numGainWrong>1) {
 		LogWarning("EcalTBRawToDigiGainSwitch") << "@SUB=EcalTBDaqFormatter:interpretRawData"
-					      << "channelHasGainSwitchProblem: more than 1 wrong transition";
-              
+							<< "channelHasGainSwitchProblem: more than 1 wrong transition";
+		
 		for (unsigned short i1=0; i1<xtalDataSamples.size(); ++i1 ) {
 		  int countADC = 0x00000FFF;
 		  countADC &= xtalDataSamples[i1];
@@ -597,7 +599,7 @@ void EcalTBDaqFormatter::DecodeMEM( DCCTowerBlock *  towerblock,  EcalPnDiodeDig
   if(tower_id != 69 && tower_id != 70) 
     {
       LogWarning("EcalTBRawToDigiTowerId") << "@SUB=EcalTBDaqFormatter:decodeMem"
-				    << "DecodeMEM: this is not a mem box tower (" << tower_id << ")"<< "\n";
+				    << "DecodeMEM: this is not a mem box tower (" << tower_id << ")";
       ++ _expTowersIndex;
       return;
     }
@@ -609,7 +611,7 @@ void EcalTBDaqFormatter::DecodeMEM( DCCTowerBlock *  towerblock,  EcalPnDiodeDig
       LogWarning("EcalTBRawToDigiTowerId") << "@SUB=EcalTBDaqFormatter:decodeMem"
 				    << "DecodeMEM: tower " << tower_id  
 				    << " is not the same as expected " << ((int)_ExpectedTowers[_expTowersIndex])
-				    << " (according to DCC header channel status)\n";
+				    << " (according to DCC header channel status)";
       
       // chosing channel 1 as representative as a dummy...
       EcalElectronicsId id(1, tower_id, 1);
