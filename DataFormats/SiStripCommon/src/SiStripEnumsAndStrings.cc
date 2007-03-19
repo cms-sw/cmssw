@@ -108,6 +108,7 @@ std::string SiStripEnumsAndStrings::granularity( const sistrip::Granularity& gra
   else if ( granularity == sistrip::FE_UNIT ) { return sistrip::feUnit_; }
   else if ( granularity == sistrip::FE_CHAN ) { return sistrip::feChan_; }
   else if ( granularity == sistrip::FED_APV ) { return sistrip::fedApv_; }
+  else if ( granularity == sistrip::FED_CHANNEL ) { return sistrip::fedChannel_; }
   // Control
   else if ( granularity == sistrip::FEC_SYSTEM ) { return sistrip::fecSystem_; }
   else if ( granularity == sistrip::FEC_CRATE ) { return sistrip::fecCrate_; }
@@ -135,6 +136,7 @@ sistrip::Granularity SiStripEnumsAndStrings::granularity( const std::string& gra
   else if ( granularity.find( sistrip::feUnit_ ) != std::string::npos ) { return sistrip::FE_UNIT; }
   else if ( granularity.find( sistrip::feChan_ ) != std::string::npos ) { return sistrip::FE_CHAN; }
   else if ( granularity.find( sistrip::fedApv_ ) != std::string::npos ) { return sistrip::FED_APV; }
+  else if ( granularity.find( sistrip::fedChannel_ ) != std::string::npos ) { return sistrip::FED_CHANNEL; }
   // Control
   else if ( granularity.find( sistrip::fecSystem_ ) != std::string::npos ) { return sistrip::FEC_SYSTEM; }
   else if ( granularity.find( sistrip::fecCrate_ ) != std::string::npos ) { return sistrip::FEC_CRATE; }

@@ -39,11 +39,12 @@ namespace sistrip {
   static const std::string apv_     = "Apv";
 
   // readout granularity
-  static const std::string fedSystem_ = "FedSystem";
-  static const std::string fedId_     = "FedId";
-  static const std::string feUnit_    = "FrontEndUnit";
-  static const std::string feChan_    = "FrontEndChannel";
-  static const std::string fedApv_    = "FedApv";
+  static const std::string fedSystem_  = "FedSystem";
+  static const std::string fedId_      = "FedId";
+  static const std::string feUnit_     = "FrontEndUnit";
+  static const std::string feChan_     = "FrontEndChannel";
+  static const std::string fedApv_     = "FedApv";
+  static const std::string fedChannel_ = "FedChannel";
 
   // control granularity
   static const std::string fecSystem_ = "FecSystem";
@@ -75,18 +76,19 @@ namespace sistrip {
 		     LLD_CHAN = 13, 
 		     APV      = 14,
 
-		     FED_SYSTEM = 15, 
-		     FED        = 16, 
-		     FE_UNIT    = 17, 
-		     FE_CHAN    = 18,
-		     FED_APV    = 19,
+		     FED_SYSTEM  = 15, 
+		     FED         = 16, 
+		     FE_UNIT     = 17, 
+		     FE_CHAN     = 18,
+		     FED_APV     = 19,
+		     FED_CHANNEL = 20,
 
-		     FEC_SYSTEM = 20,
-		     FEC_CRATE  = 21,
-		     FEC_SLOT   = 22,
-		     FEC_RING   = 23,
-		     CCU_ADDR   = 24,
-		     CCU_CHAN   = 25
+		     FEC_SYSTEM = 21,
+		     FEC_CRATE  = 22,
+		     FEC_SLOT   = 23,
+		     FEC_RING   = 24,
+		     CCU_ADDR   = 25,
+		     CCU_CHAN   = 26
 
   };
 
