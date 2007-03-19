@@ -1,23 +1,35 @@
+<use name=DataFormats/Common>
+<use name=DataFormats/EcalDetId>
+<use name=DetectorDescription/Core>
 <use name=FWCore/Framework>
-<use name=Foundation/PluginManager>
+<use name=FWCore/MessageLogger>
 <use name=FWCore/ParameterSet>
-<use name=SimDataFormats/HepMCProduct>
-<use name=SimDataFormats/Vertex>
-<use name=SimDataFormats/EcalTestBeam>
-<use name=TBDataFormats/EcalTBObjects>
+<use name=Foundation/PluginManager>
+<use name=Geometry/EcalCommonData>
 <use name=Geometry/EcalTestBeam>
+<use name=SimDataFormats/EcalTestBeam>
+<use name=SimDataFormats/HepMCProduct>
+<use name=SimG4Core/Notification>
+<use name=SimG4Core/Watcher>
+<use name=SimG4CMS/Calo>
+<use name=TBDataFormats/EcalTBObjects>
 <use name=clhep>
+<use name=geant4>
 
-<flags SEAL_PLUGIN_NAME="SimG4CMSEcalTestBeam">
 <export>
-   <lib name=SimG4CMSEcalTestBeam>
-   <use name=FWCore/Framework>
-   <use name=Foundation/PluginManager>
-   <use name=FWCore/ParameterSet>
-   <use name=SimDataFormats/HepMCProduct>
-   <use name=SimDataFormats/Vertex>
-   <use name=SimDataFormats/EcalTestBeam>
-   <use name=TBDataFormats/EcalTBObjects>
-   <use name=Geometry/EcalTestBeam>
-   <use name=clhep>
+  <use name=DataFormats/Common>
+  <use name=FWCore/Framework>
+  <use name=FWCore/MessageLogger>
+  <use name=FWCore/ParameterSet>
+  <use name=Geometry/EcalTestBeam>
+  <use name=SimDataFormats/EcalTestBeam>
+  <use name=SimDataFormats/HepMCProduct>
+  <use name=SimG4CMS/Calo>
+  <use name=SimG4Core/Notification>
+  <use name=SimG4Core/Watcher>
+  <use name=TBDataFormats/EcalTBObjects>
+  <use name=clhep>
+  <lib name=SimG4CMSEcalTestBeam>
 </export>
+
+<flags SEAL_PLUGIN_NAME=SimG4CMSEcalTestBeam> 
