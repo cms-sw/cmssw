@@ -235,51 +235,56 @@ void RecoMuonValidator::analyze(const Event& event, const EventSetup& eventSetup
 pair<TSOS, TransientTrack> RecoMuonValidator::matchTrack(const SimTrack& simTrack, 
                                                           Handle<TrackCollection> recTracks)
 {
-  double candDeltaR = 10;
+  double candDeltaR = -999.0;
 
-  TransientTrack candTrack(*recTracks->begin(), &*theMuonService_->magneticField(),
-                           theMuonService_->trackingGeometry());
-  TSOS tsos = candTrack.impactPointState();
+  TransientTrack candTrack;
+  TSOS candTSOS;
 
-  for ( TrackCollection::const_iterator recTrack = recTracks->begin()+1;
+  for ( TrackCollection::const_iterator recTrack = recTracks->begin();
         recTrack != recTracks->end(); recTrack++ ) { 
     TransientTrack track(*recTrack, &*theMuonService_->magneticField(), 
                          theMuonService_->trackingGeometry());
-    tsos = track.impactPointState();
+    TSOS tsos = track.impactPointState();
+
     GlobalVector tsosVect = tsos.globalMomentum();
-    Hep3Vector trackVect(tsosVect.x(), tsosVect.y(), tsosVect.z());
+    Hep3Vector trackVect = Hep3Vector(tsosVect.x(), tsosVect.y(), tsosVect.z());
     double deltaR = trackVect.deltaR(simTrack.momentum().vect());
-    if ( deltaR < candDeltaR ) {
+
+    if ( candDeltaR < 0 || deltaR < candDeltaR ) {
       LogDebug("RecoMuonValidator") << "Matching Track with DeltaR = " << deltaR;
       candDeltaR = deltaR;
       candTrack  = track;
+      candTSOS   = tsos;
     }
   }
-  pair<TSOS, TransientTrack> retVal(candTrack.impactPointState(), candTrack);
+  pair<TSOS, TransientTrack> retVal(candTSOS, candTrack);
   return retVal;
 }
 
 pair<TSOS, TrajectorySeed> RecoMuonValidator::matchTrack(const SimTrack& simTrack,
                                                           Handle<TrajectorySeedCollection> seeds)
 {
-  double candDeltaR = 10;
+  double candDeltaR = -999.0;
 
-  TrajectorySeed candSeed(*seeds->begin());
-  TSOS tsos = getSeedTSOS(candSeed);
+  TrajectorySeed candSeed;
+  TSOS candTSOS;
 
-  for ( TrajectorySeedCollection::const_iterator iSeed = seeds->begin()+1;
+  for ( TrajectorySeedCollection::const_iterator iSeed = seeds->begin();
         iSeed != seeds->end(); iSeed++ ) {
-    tsos = getSeedTSOS(*iSeed);
+    TSOS tsos = getSeedTSOS(*iSeed);
+
     GlobalVector tsosVect = tsos.globalMomentum();
     Hep3Vector seedVect(tsosVect.x(), tsosVect.y(), tsosVect.z());
     double deltaR = seedVect.deltaR(simTrack.momentum().vect());
-    if ( deltaR < candDeltaR ) {
+
+    if ( candDeltaR < 0 || deltaR < candDeltaR ) {
       LogDebug("RecoMuonValidator") << "Matching Track with DeltaR = " << deltaR;
       candDeltaR = deltaR;
       candSeed   = *iSeed;
+      candTSOS   = tsos;
     }
   }
-  return pair<TSOS, TrajectorySeed>(tsos, candSeed);
+  return pair<TSOS, TrajectorySeed>(candTSOS, candSeed);
 }
 
 TSOS RecoMuonValidator::getSeedTSOS(const TrajectorySeed& seed)
