@@ -1,7 +1,7 @@
 /*  
  *
- *  $Date: 2007/02/21 14:38:06 $
- *  $Revision: 1.6 $
+ *  $Date: 2007/03/05 14:54:27 $
+ *  $Revision: 1.7 $
  *  \author  N. Marinelli IASA 
  *  \author G. Della Ricca
  *  \author G. Franzoni
@@ -91,9 +91,9 @@ void EcalDCCDaqFormatter::interpretRawData(const FEDRawData & fedData ,
        itEventBlock != dccEventBlocks.end(); 
        itEventBlock++){
 
-    //     cout << " DCC ID " <<  (*itEventBlock)->getDataField("FED/DCC ID") << endl; 
-    //     cout << " BX number " << (*itEventBlock)->getDataField("BX") << endl;
-    //     cout << " RUN NUMBER  " <<  (*itEventBlock)->getDataField("RUN NUMBER") << endl;
+    LogDebug("EcalRawToDigi") << " DCC ID " <<  (*itEventBlock)->getDataField("FED/DCC ID"); 
+    LogDebug("EcalRawToDigi") << " BX number " << (*itEventBlock)->getDataField("BX");
+    LogDebug("EcalRawToDigi") << " RUN NUMBER  " <<  (*itEventBlock)->getDataField("RUN NUMBER");
 
     int DCCid=(*itEventBlock)->getDataField("FED/DCC ID");      
     int SMid=theMapper_->getSMId(DCCid);      
@@ -145,7 +145,7 @@ void EcalDCCDaqFormatter::interpretRawData(const FEDRawData & fedData ,
 	string Tower(buffer.str());
  	TowerStatus[i]= (*itEventBlock)->getDataField(Tower);
 	theTTstatus.push_back(TowerStatus[i]);
-	//cout << "tower " << i << " has status " <<  TowerStatus[i] << endl;  
+	LogDebug("EcalRawToDigi") << "tower " << i << " has status " <<  TowerStatus[i];  
       }
 
     theDCCheader.setTriggerTowerStatus(theTTstatus);
@@ -307,7 +307,7 @@ void EcalDCCDaqFormatter::interpretRawData(const FEDRawData & fedData ,
 						    << "\t in TT: " << _ExpectedTowers[_expTowersIndex]
 						    << "\t in event: " << (*itEventBlock)->getDataField("LV1")
 						    << "\t   (in the data, found channel:  " << ch
-						    << "\t strip:  " << strip << " ).\n";
+						    << "\t strip:  " << strip << " ).";
 		    
 		    
 		    // report on wrong channel id
@@ -322,8 +322,7 @@ void EcalDCCDaqFormatter::interpretRawData(const FEDRawData & fedData ,
 	    else
 	      {
 		LogInfo("EcalRawToDigi") << "@SUB=EcalDCCDaqFormatter::interpretRawData "
-					 << " this unpacker does not support 0suppressed dat, for the moment"
-					 << endl;
+					 << " this unpacker does not support 0suppressed dat, for the moment";
 	      }
 	        
 	    // data  to be stored in EBDataFrame, identified by EBDetId
@@ -382,12 +381,14 @@ void EcalDCCDaqFormatter::interpretRawData(const FEDRawData & fedData ,
 		if (firstGainWrong == -1) {
 		  firstGainWrong=i;
 		  LogWarning("EcalRawToDigiGainSwitch") << "@SUB=EcalDCCDaqFormatter::interpretRawData"
-						<< "channelHasGainSwitchProblem: crystal eta = " << id.ieta() << " phi = " << id.iphi();
+							<< "channelHasGainSwitchProblem: crystal eta = " 
+							<< id.ieta() << " phi = " << id.iphi();
 		}
-
+		
 		LogWarning("EcalRawToDigiGainSwitch") << "@SUB=EcalDCCDaqFormatter::interpretRawData"
-					      << "channelHasGainSwitchProblem: sample = " << (i-1) 
-					      << " gain: " << xtalGain[i-1] << " sample: " << i << " gain: " << xtalGain[i];
+						      << "channelHasGainSwitchProblem: sample = " << (i-1) 
+						      << " gain: " << xtalGain[i-1] << " sample: "
+						      << i << " gain: " << xtalGain[i];
 	      }
 	    }
 
@@ -415,13 +416,13 @@ void EcalDCCDaqFormatter::interpretRawData(const FEDRawData & fedData ,
 	      if (numGainWrong == 1 && (wrongGainStaysTheSame)) {
               
 		LogWarning("EcalRawToDigiGainSwitch") << "@SUB=EcalDCCDaqFormatter:interpretRawData"
-					      << "channelHasGainSwitchProblem: wrong transition stays till last sample"<< "\n";
+						      << "channelHasGainSwitchProblem: wrong transition stays till last sample";
               
 	      }
 	      else if (numGainWrong>1) {
-
+		
 		LogWarning("EcalRawToDigiGainSwitch") << "@SUB=EcalDCCDaqFormatter:interpretRawData"
-					      << "channelHasGainSwitchProblem: more than 1 wrong transition";
+						      << "channelHasGainSwitchProblem: more than 1 wrong transition";
               
 		for (unsigned short i1=0; i1<xtalDataSamples.size(); ++i1 ) {
 		  int countADC = 0x00000FFF;
@@ -523,7 +524,7 @@ void EcalDCCDaqFormatter::DecodeMEM( int SMid, DCCTowerBlock *  towerblock,  Eca
   if(tower_id != 69 && tower_id != 70) 
     {
       LogWarning("EcalRawToDigiTowerId") << "@SUB=EcalDCCDaqFormatter:decodeMem"
-				    << "DecodeMEM: this is not a mem box tower (" << tower_id << ")"<< "\n";
+					 << "DecodeMEM: this is not a mem box tower (" << tower_id << ")";
       ++ _expTowersIndex;
       return;
     }
@@ -533,9 +534,9 @@ void EcalDCCDaqFormatter::DecodeMEM( int SMid, DCCTowerBlock *  towerblock,  Eca
   if ( tower_id != ( (int)_ExpectedTowers[_expTowersIndex])  )
     {
       LogWarning("EcalRawToDigiTowerId") << "@SUB=EcalDCCDaqFormatter:decodeMem"
-				    << "DecodeMEM: tower " << tower_id  
-				    << " is not the same as expected " << ((int)_ExpectedTowers[_expTowersIndex])
-				    << " (according to DCC header channel status)\n";
+					 << "DecodeMEM: tower " << tower_id  
+					 << " is not the same as expected " << ((int)_ExpectedTowers[_expTowersIndex])
+					 << " (according to DCC header channel status)";
       
       // chosing channel 1 as representative as a dummy...
       EcalElectronicsId id(SMid, tower_id, 1);
@@ -717,8 +718,7 @@ void EcalDCCDaqFormatter::DecodeMEM( int SMid, DCCTowerBlock *  towerblock,  Eca
     // if present Pn has any of its 5 channels with problems, do not produce digi for it
     if (! pnIsOkInBlock [pnId-1] ) continue;
 
-    // fixme giof: second argumenti is DCCId, to be determined
-    //    std::cout << SMid << " " << ecalFirstFED_ << std::endl;
+    // second argumenti is DCCId, to be determined
     EcalPnDiodeDetId PnId(EcalBarrel, SMid, pnId +  kPnPerTowerBlock*mem_id);
     EcalPnDiodeDigi thePnDigi(PnId );
 
@@ -745,7 +745,6 @@ void EcalDCCDaqFormatter::DecodeMEM( int SMid, DCCTowerBlock *  towerblock,  Eca
 pair<int,int>  EcalDCCDaqFormatter::cellIndex(int tower_id, int strip, int ch) {
   
   int xtal= (strip-1)*5+ch-1;
-  //  cout << " cellIndex input xtal " << xtal << endl;
   pair<int,int> ind;
   
   int eta = (tower_id - 1)/kTowersInPhi*kCardsPerTower;
@@ -766,8 +765,6 @@ pair<int,int>  EcalDCCDaqFormatter::cellIndex(int tower_id, int strip, int ch) {
 
   ind.first =eta+1;  
   ind.second=phi+1; 
-
-  //  cout << "  EcalDCCDaqFormatter::cell_index eta " << ind.first << " phi " << ind.second << " " << endl;
 
   return ind;
 
