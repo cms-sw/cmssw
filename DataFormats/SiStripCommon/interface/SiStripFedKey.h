@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripFedKey.h,v 1.4 2007/03/15 17:09:30 bainbrid Exp $
+// Last commit: $Id: SiStripFedKey.h,v 1.5 2007/03/16 13:39:08 bainbrid Exp $
 // Latest tag:  $Name:  $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/DataFormats/SiStripCommon/interface/SiStripFedKey.h,v $
 
@@ -101,6 +101,9 @@ class SiStripFedKey : public SiStripKey {
   /** Returns APV within FED channel. */
   inline const uint16_t& fedApv() const;
 
+  /** Returns FED channel (according to "internal" numbering). */
+  inline uint16_t fedChannel() const;
+
   // ---------- Numbering schemes ---------- 
   
   /** Returns FED channel ("internal" numbering scheme) for given
@@ -191,6 +194,7 @@ const uint16_t& SiStripFedKey::fedId() const { return fedId_; }
 const uint16_t& SiStripFedKey::feUnit() const { return feUnit_; }
 const uint16_t& SiStripFedKey::feChan() const { return feChan_; }
 const uint16_t& SiStripFedKey::fedApv() const { return fedApv_; }
+uint16_t SiStripFedKey::fedChannel() const { return fedCh( feUnit_, feChan_ ); }
 
 #endif // DataFormats_SiStripCommon_SiStripFedKey_H
 

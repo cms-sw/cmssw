@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripFedKey.cc,v 1.3 2007/03/15 17:11:21 bainbrid Exp $
+// Last commit: $Id: SiStripFedKey.cc,v 1.4 2007/03/16 13:39:19 bainbrid Exp $
 // Latest tag:  $Name:  $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/DataFormats/SiStripCommon/src/SiStripFedKey.cc,v $
 
@@ -489,7 +489,7 @@ std::ostream& operator<< ( std::ostream& os, const SiStripFedKey& input ) {
 	    << " Front-End unit  : " << input.feUnit() << std::endl 
 	    << " Front-End chan  : " << input.feChan() << std::endl
 	    << " (internal chan) : " 
-	    << "(" << input.fedCh( input.feUnit(), input.feChan() ) << ")" << std::endl
+	    << "(" << input.fedChannel() << ")" << std::endl
 	    << " FED APV         : " << input.fedApv() << std::endl
 	    << " Directory       : " << input.path() << std::endl
 	    << " Granularity     : "
