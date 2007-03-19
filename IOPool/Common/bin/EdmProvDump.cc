@@ -6,6 +6,7 @@
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
 #include "DataFormats/Provenance/interface/ParameterSetBlob.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/Provenance/interface/BranchType.h"
 
@@ -16,7 +17,7 @@
 
 namespace {
   struct HistoryNode {
-    HistoryNode( const edm::ProcessConfiguration& iConfig,
+    HistoryNode(const edm::ProcessConfiguration& iConfig,
                  unsigned int iSimpleId): config_(iConfig), simpleId_(iSimpleId) {}
     edm::ProcessConfiguration config_;
     std::vector<HistoryNode> children_;
@@ -32,11 +33,11 @@ namespace {
     const_iterator end() const { return children_.end();}
 };
 }
-static void printHistory( const edm::ProcessHistory& iHist)
+static void printHistory(const edm::ProcessHistory& iHist)
 {
   const std::string indentDelta("  ");
   std::string indent = indentDelta;
-   for(edm::ProcessHistory::const_iterator itH = iHist.begin(), itHEnd = iHist.end();
+   for (edm::ProcessHistory::const_iterator itH = iHist.begin(), itHEnd = iHist.end();
        itH != itHEnd;
        ++itH) {
       std::cout << indent <<itH->processName()<<" '"<<itH->passID()<<"' '"<<itH->releaseVersion()<<"' ("<<itH->parameterSetID()<<")"<<std::endl;
@@ -44,11 +45,11 @@ static void printHistory( const edm::ProcessHistory& iHist)
    }
 }
 
-static void printHistory( const HistoryNode& iNode, const std::string& iIndent = std::string("  "))
+static void printHistory(const HistoryNode& iNode, const std::string& iIndent = std::string("  "))
 {
   const std::string indentDelta("  ");
   std::string indent = iIndent;
-  for(HistoryNode::const_iterator itH = iNode.begin(), itHEnd = iNode.end();
+  for (HistoryNode::const_iterator itH = iNode.begin(), itHEnd = iNode.end();
       itH != itHEnd;
       ++itH) {
     std::cout << indent <<itH->config_.processName()<<" '"<<itH->config_.passID()<<"' '"<<itH->config_.releaseVersion()
@@ -64,7 +65,11 @@ int main(int argc, char* argv[]) {
 
    try {
       ROOT::Cintex::Cintex::Enable();
-     std::auto_ptr<TFile> f( TFile::Open(argv[1]));
+      std::auto_ptr<TFile> f(TFile::Open(argv[1]));
+      if (f.get() == 0) {
+        throw cms::Exception("FileNotFound","RootFile::RootFile()")
+          << "File " << argv[1] << " was not found or could not be opened.\n";
+      }
 
       TTree* meta = dynamic_cast<TTree*>(f->Get(edm::poolNames::metaDataTreeName().c_str()));
       assert(0!=meta);
@@ -93,19 +98,19 @@ int main(int argc, char* argv[]) {
       std::map<edm::ProcessConfigurationID, unsigned int> simpleIDs;
 
       std::cout << "Processing History:"<<std::endl;
-      if( 1 == phm.size() ) {
+      if (1 == phm.size()) {
 	 printHistory((phm.begin()->second));
       } else {
         bool multipleHistories =false;
-        for(edm::ProcessHistoryMap::const_iterator it = phm.begin(), itEnd = phm.end();
+        for (edm::ProcessHistoryMap::const_iterator it = phm.begin(), itEnd = phm.end();
             it != itEnd;
             ++it) {
           //loop over the history entries looking for matches
           HistoryNode* parent = &historyGraph;
-          for(edm::ProcessHistory::const_iterator itH = it->second.begin(), itHEnd = it->second.end();
+          for (edm::ProcessHistory::const_iterator itH = it->second.begin(), itHEnd = it->second.end();
               itH != itHEnd;
               ++itH) {
-            if(parent->children_.size() == 0) {
+            if (parent->children_.size() == 0) {
               unsigned int id = simpleIDs[itH->id()];
               if (0 == id) {
                 id = 1;
@@ -116,16 +121,16 @@ int main(int argc, char* argv[]) {
             } else {
               //see if this is unique
               bool unique = true;
-              for(HistoryNode::iterator itChild = parent->children_.begin(), itChildEnd = parent->children_.end();
+              for (HistoryNode::iterator itChild = parent->children_.begin(), itChildEnd = parent->children_.end();
                   itChild != itChildEnd;
                   ++itChild) {
-                if( itChild->config_.id() == itH->id() ) {
+                if (itChild->config_.id() == itH->id()) {
                   unique = false;
                   parent = &(*itChild);
                   break;
                 }
               }
-              if(unique) {
+              if (unique) {
                 multipleHistories = true;
                 simpleIDs[itH->id()]=parent->children_.size()+1;
                 parent->children_.push_back(HistoryNode(*itH,simpleIDs[itH->id()]));
@@ -139,12 +144,12 @@ int main(int argc, char* argv[]) {
    
       std::cout <<"------------------"<<std::endl;
       /*
-      for(std::vector<edm::ProcessHistory>::const_iterator it = uniqueLongHistories.begin(),
+      for (std::vector<edm::ProcessHistory>::const_iterator it = uniqueLongHistories.begin(),
 	  itEnd = uniqueLongHistories.end();
 	  it != itEnd;
 	  ++it) {
 	 //ParameterSetMap::const_iterator itpsm = psm.find(psid);
-	 for(edm::ProcessHistory::const_iterator itH = it->begin(), itHEnd = it->end();
+	 for (edm::ProcessHistory::const_iterator itH = it->begin(), itHEnd = it->end();
 	     itH != itHEnd;
 	     ++itH) {
 	    std::cout << edm::ParameterSet(psm[ itH->parameterSetID() ].pset_) <<std::endl;
@@ -157,7 +162,7 @@ int main(int argc, char* argv[]) {
       typedef std::map<std::pair<std::string,std::string>,IdToBranches> ModuleToIdBranches;
       ModuleToIdBranches moduleToIdBranches;
       //IdToBranches idToBranches;
-      for( edm::ProductRegistry::ProductList::const_iterator it = 
+      for (edm::ProductRegistry::ProductList::const_iterator it = 
 	      reg.productList().begin(), itEnd = reg.productList().end();
 	   it != itEnd;
 	   ++it) {
@@ -168,7 +173,7 @@ int main(int argc, char* argv[]) {
 	 std::cout << it->second.branchName()
 		   << " id " << it->second.productID() << std::endl;
 	 */
-	 for(std::set<edm::ParameterSetID>::const_iterator itId = it->second.psetIDs().begin(),
+	 for (std::set<edm::ParameterSetID>::const_iterator itId = it->second.psetIDs().begin(),
 	     itIdEnd = it->second.psetIDs().end();
 	     itId != itIdEnd;
 	     ++itId) {
@@ -179,23 +184,23 @@ int main(int argc, char* argv[]) {
 	    //idToBranches[*itId].push_back(it->second);
 	 }
       }
-      for(ModuleToIdBranches::const_iterator it = moduleToIdBranches.begin(),
+      for (ModuleToIdBranches::const_iterator it = moduleToIdBranches.begin(),
 	  itEnd = moduleToIdBranches.end();
 	  it != itEnd;
 	  ++it) {
 	 std::cout <<"Module: "<<it->first.second<<" "<<it->first.first<<std::endl;
 	 const IdToBranches& idToBranches = it->second;
-	 for(IdToBranches::const_iterator itIdBranch = idToBranches.begin(),
+	 for (IdToBranches::const_iterator itIdBranch = idToBranches.begin(),
              itIdBranchEnd = idToBranches.end();
              itIdBranch != itIdBranchEnd;
 	     ++itIdBranch) {
 	    std::cout <<" PSet id:"<<itIdBranch->first<<std::endl;
 	    std::cout <<" products: {"<<std::endl;
-	    for(std::vector<edm::BranchDescription>::const_iterator itBranch = itIdBranch->second.begin(),
+	    for (std::vector<edm::BranchDescription>::const_iterator itBranch = itIdBranch->second.begin(),
 		itBranchEnd = itIdBranch->second.end();
 		itBranch != itBranchEnd;
 		++itBranch) {
-	       std::cout << "  "<< itBranch->branchName()<<std::endl;
+	        std::cout << "  "<< itBranch->branchName()<<std::endl;
 	    }
 	    std::cout <<"}"<<std::endl;
 	    edm::ParameterSetID psid(itIdBranch->first);
@@ -211,17 +216,17 @@ int main(int argc, char* argv[]) {
 	 }
       }
    }
-   catch ( edm::Exception const& x ) {
+   catch (cms::Exception const& x) {
       std::cerr << "cms::Exception caught\n";
       std::cerr << x.what() << '\n';
       exitCode = 2;
    }
-   catch ( std::exception& x ) {
+   catch (std::exception& x) {
        std::cerr << "std::exception caught\n";
        std::cerr << x.what() << '\n';
        exitCode = 3;
     }
-   catch ( ... ) {
+   catch (...) {
       std::cerr << "Unknown exception caught\n";
       exitCode = 4;
    }
