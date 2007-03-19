@@ -9,6 +9,8 @@
 
 #include "EventFilter/ShmBuffer/interface/FUShmBuffer.h"
 
+#include <iostream>
+
 
 using namespace std;
 using namespace evf;

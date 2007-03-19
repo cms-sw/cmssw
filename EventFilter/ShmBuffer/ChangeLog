@@ -1,3 +1,13 @@
+2007-03-19  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-02-00
+	* new API
+	* remove class FUShmBufferCell
+	* add classes FUShmRawCell, FUShmRecoCell, and FUShmDqmCell
+	* add 'segmentationMode' flag, indicating if the buffer should be
+	layout as one large shared memory segment ('false') or if each
+	cell should be allocated in its own segment ('true').
+
 2007-03-11  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-01-00

@@ -1,15 +1,20 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
-// FUShmBufferCell
-// ---------------
+// FUShmRawCell
+// ------------
 //
 //            09/11/2006 Philipp Schieferdecker <philipp.schieferdecker@cern.ch>
 ////////////////////////////////////////////////////////////////////////////////
 
 
-#include "EventFilter/ShmBuffer/interface/FUShmBufferCell.h"
+#include "EventFilter/ShmBuffer/interface/FUShmRawCell.h"
 
+#include <iostream>
 #include <iomanip>
+
+
+#define NSUPERFRAG_MAX   64
+#define NFED_MAX       1024
 
 
 using namespace std;
@@ -21,17 +26,12 @@ using namespace evf;
 ////////////////////////////////////////////////////////////////////////////////
 
 //______________________________________________________________________________
-FUShmBufferCell::FUShmBufferCell(unsigned int index,
-				 unsigned int bufferSize,
-				 unsigned int nFed,
-				 unsigned int nSuperFrag)
-  : fuResourceId_(index)
-  , nSkip_(0)
-  , bufferSize_(bufferSize)
-  , nFed_(nFed)
-  , nSuperFrag_(nSuperFrag)
+FUShmRawCell::FUShmRawCell(unsigned int payloadSize)
+  : payloadSize_(payloadSize)
+  , nFed_(NFED_MAX)
+  , nSuperFrag_(NSUPERFRAG_MAX)
 {
-  fedSizeOffset_=sizeof(FUShmBufferCell);
+  fedSizeOffset_=sizeof(FUShmRawCell);
   unsigned int* fedSizeAddr;
   fedSizeAddr=(unsigned int*)((unsigned int)this+fedSizeOffset_);
   new(fedSizeAddr) unsigned int[nFed_];
@@ -51,15 +51,15 @@ FUShmBufferCell::FUShmBufferCell(unsigned int index,
   superFragAddr=(unsigned char*)((unsigned int)this+superFragOffset_);
   new(superFragAddr) unsigned char[nSuperFrag_];
   
-  bufferOffset_=superFragOffset_+sizeof(unsigned int)*nSuperFrag_;
-  unsigned char* bufferAddr;
-  bufferAddr=(unsigned char*)((unsigned int)this+bufferOffset_);
-  new(bufferAddr) unsigned char[bufferSize_];
+  payloadOffset_=superFragOffset_+sizeof(unsigned int)*nSuperFrag_;
+  unsigned char* payloadAddr;
+  payloadAddr=(unsigned char*)((unsigned int)this+payloadOffset_);
+  new(payloadAddr) unsigned char[payloadSize_];
 }
 
 
 //______________________________________________________________________________
-FUShmBufferCell::~FUShmBufferCell()
+FUShmRawCell::~FUShmRawCell()
 {
 
 }
@@ -70,7 +70,15 @@ FUShmBufferCell::~FUShmBufferCell()
 ////////////////////////////////////////////////////////////////////////////////
 
 //______________________________________________________________________________
-unsigned int FUShmBufferCell::fedSize(unsigned int i) const
+void FUShmRawCell::initialize(unsigned int index)
+{
+  fuResourceId_=index;
+  nSkip_=0;
+}
+
+
+//______________________________________________________________________________
+unsigned int FUShmRawCell::fedSize(unsigned int i) const
 {
   if (i>=nFed()) {cout<<"invalid fed index '"<<i<<"'."<<endl; return 0; }
   unsigned int* fedSizeAddr;
@@ -82,20 +90,20 @@ unsigned int FUShmBufferCell::fedSize(unsigned int i) const
 
 
 //______________________________________________________________________________
-unsigned char* FUShmBufferCell::fedAddr(unsigned int i) const
+unsigned char* FUShmRawCell::fedAddr(unsigned int i) const
 {
   if (i>=nFed()) {cout<<"invalid fed index '"<<i<<"'."<<endl; return 0; }
   unsigned int* fedOffsetAddr;
   fedOffsetAddr=(unsigned int*)((unsigned int)this+fedOffset_);
   fedOffsetAddr+=i;
   unsigned int   fedOffset=*fedOffsetAddr;
-  unsigned char* result=(unsigned char*)((unsigned int)bufferAddr()+fedOffset);
+  unsigned char* result=(unsigned char*)((unsigned int)payloadAddr()+fedOffset);
   return result;
 }
 
 
 //______________________________________________________________________________
-unsigned int FUShmBufferCell::superFragSize(unsigned int i) const
+unsigned int FUShmRawCell::superFragSize(unsigned int i) const
 {
   if (i>=nSuperFrag()) {cout<<"invalid sf index '"<<i<<"'."<<endl; return 0; }
   unsigned int* superFragSizeAddr;
@@ -107,34 +115,34 @@ unsigned int FUShmBufferCell::superFragSize(unsigned int i) const
 
 
 //______________________________________________________________________________
-unsigned char* FUShmBufferCell::superFragAddr(unsigned int i) const
+unsigned char* FUShmRawCell::superFragAddr(unsigned int i) const
 {
   if (i>=nSuperFrag()) {cout<<"invalid fed index '"<<i<<"'."<<endl; return 0; }
   unsigned int* superFragOffsetAddr;
   superFragOffsetAddr=(unsigned int*)((unsigned int)this+superFragOffset_);
   superFragOffsetAddr+=i;
   unsigned int   superFragOffset=*superFragOffsetAddr;
-  unsigned char* result=(unsigned char*)((unsigned int)bufferAddr()+superFragOffset);
+  unsigned char* result=(unsigned char*)((unsigned int)payloadAddr()+superFragOffset);
   return result;
 }
 
 
 //______________________________________________________________________________
-unsigned char* FUShmBufferCell::bufferAddr() const
+unsigned char* FUShmRawCell::payloadAddr() const
 {
-  unsigned char* result=(unsigned char*)((unsigned int)this+bufferOffset_);
+  unsigned char* result=(unsigned char*)((unsigned int)this+payloadOffset_);
   return result;
 }
 
 
 //______________________________________________________________________________
-unsigned int FUShmBufferCell::eventSize() const
+unsigned int FUShmRawCell::eventSize() const
 {
-  return bufferPosition_;
+  return payloadPosition_;
   /*
     unsigned int result(0);
     for (unsigned int i=0;i<nSuperFrag();i++) result+=superFragSize(i);
-    unsigned int result2=bufferPosition_;
+    unsigned int result2=payloadPosition_;
     assert(result==result2);
     return result;
   */
@@ -142,20 +150,21 @@ unsigned int FUShmBufferCell::eventSize() const
 
 
 //______________________________________________________________________________
-void FUShmBufferCell::print_state()
+void FUShmRawCell::printState()
 {
   switch (state_) {
-  case 0 : cout<<"cell "<<index()<<" state: emtpy"     <<endl;
-  case 1 : cout<<"cell "<<index()<<" state: written"   <<endl;
-  case 2 : cout<<"cell "<<index()<<" state: processing"<<endl;
-  case 3 : cout<<"cell "<<index()<<" state: processed" <<endl;
-  case 4 : cout<<"cell "<<index()<<" state: dead"      <<endl;
+  case 0 : cout<<"cell "<<index()<<" state: emtpy"     <<endl; return;
+  case 1 : cout<<"cell "<<index()<<" state: writting"  <<endl; return;
+  case 2 : cout<<"cell "<<index()<<" state: written"   <<endl; return;
+  case 3 : cout<<"cell "<<index()<<" state: processing"<<endl; return;
+  case 4 : cout<<"cell "<<index()<<" state: processed" <<endl; return;
+  case 5 : cout<<"cell "<<index()<<" state: dead"      <<endl; return;
   }
 }
 
 
 //______________________________________________________________________________
-void FUShmBufferCell::clear()
+void FUShmRawCell::clear()
 {
   setStateEmpty();
   nSkip_=0;
@@ -168,21 +177,21 @@ void FUShmBufferCell::clear()
   superFragSizeAddr=(unsigned int*)((unsigned int)this+superFragSizeOffset_);
   for (unsigned int i=0;i<nSuperFrag();i++) *superFragSizeAddr++=0;
 
-  bufferPosition_=0;
+  payloadPosition_=0;
 }
 
 
 //______________________________________________________________________________
-void FUShmBufferCell::print(int verbose) const
+void FUShmRawCell::print(int verbose) const
 {
-  cout<<"FUShmBufferCell: state="<<state_<<endl;
+  cout<<"FUShmRawCell: state="<<state_<<endl;
   cout<<" fuResourceId="<<fuResourceId()
       <<" buResourceId="<<buResourceId()
       <<" evtNumber="<<evtNumber()
       <<" this=0x"<<hex<<(int)this<<dec
       <<endl
       <<"                "
-      <<" bufferSize="<<bufferSize()
+      <<" payloadSize="<<payloadSize()
       <<" nFed="<<nFed()
       <<" nSuperFrag="<<nSuperFrag()
       <<" eventSize="<<eventSize()
@@ -198,7 +207,7 @@ void FUShmBufferCell::print(int verbose) const
 
 
 //______________________________________________________________________________
-void FUShmBufferCell::dump() const
+void FUShmRawCell::dump() const
 {
   for (unsigned int i=0;i<nFed();i++) {
     cout<<"fed "<<i<<": "<<flush;
@@ -214,8 +223,8 @@ void FUShmBufferCell::dump() const
 
 
 //______________________________________________________________________________
-unsigned int FUShmBufferCell::readFed(unsigned int i,
-				      unsigned char* buffer) const
+unsigned int FUShmRawCell::readFed(unsigned int i,
+				   unsigned char* buffer) const
 {
   unsigned int   size=fedSize(i);
   unsigned char* addr=fedAddr(i);
@@ -225,36 +234,36 @@ unsigned int FUShmBufferCell::readFed(unsigned int i,
 
 
 //______________________________________________________________________________
-unsigned char* FUShmBufferCell::writeData(unsigned char* data,
-					  unsigned int   dataSize)
+unsigned char* FUShmRawCell::writeData(unsigned char* data,
+				       unsigned int   dataSize)
 {
-  if (bufferPosition_+dataSize>bufferSize_) {
-    cout<<"FUShmBufferCell::writeData: data to be written does not fit!"<<endl;
+  if (payloadPosition_+dataSize>payloadSize_) {
+    cout<<"FUShmRawCell::writeData: data to be written does not fit!"<<endl;
     return 0;
   }
   
   // result = addr of data to be written *in* the cell
   unsigned char* result=
-    (unsigned char*)((unsigned int)this+bufferOffset_+bufferPosition_);
+    (unsigned char*)((unsigned int)this+payloadOffset_+payloadPosition_);
   memcpy(result,data,dataSize);
-  bufferPosition_+=dataSize;
+  payloadPosition_+=dataSize;
   return result;
 }
 
 
 //______________________________________________________________________________
-bool FUShmBufferCell::markFed(unsigned int i,
-			      unsigned int size,
-			      unsigned char* addr)
+bool FUShmRawCell::markFed(unsigned int i,
+			   unsigned int size,
+			   unsigned char* addr)
 {
   if (i>=nFed())
     {cout<<"invalid fed index '"<<i<<"'."<<endl; return false; }
-  if (addr<bufferAddr())
+  if (addr<payloadAddr())
     { cout<<"invalid fed addr '0x"<<hex<<(int)addr<<dec<<"'."<<endl; return false; }
 
-  unsigned int offset=(unsigned int)addr-(unsigned int)bufferAddr();
+  unsigned int offset=(unsigned int)addr-(unsigned int)payloadAddr();
 
-  if (offset>=bufferSize())
+  if (offset>=payloadSize())
     { cout<<"invalid fed addr '0x"<<hex<<(int)addr<<dec<<"'."<<endl; return false; }
 
   unsigned int* fedSizeAddr;
@@ -272,18 +281,18 @@ bool FUShmBufferCell::markFed(unsigned int i,
 
 
 //______________________________________________________________________________
-bool FUShmBufferCell::markSuperFrag(unsigned int i,
-				    unsigned int size,
-				    unsigned char* addr)
+bool FUShmRawCell::markSuperFrag(unsigned int i,
+				 unsigned int size,
+				 unsigned char* addr)
 {
   if (i>=nSuperFrag())
     {cout<<"invalid sf index '"<<i<<"'."<<endl; return false; }
-  if (addr<bufferAddr())
+  if (addr<payloadAddr())
     {cout<<"invalid sf addr '0x"<<hex<<(int)addr<<dec<<"'."<<endl;return false;}
 
-  unsigned int offset=(unsigned int)addr-(unsigned int)bufferAddr();
+  unsigned int offset=(unsigned int)addr-(unsigned int)payloadAddr();
 
-  if (offset>=bufferSize())
+  if (offset>=payloadSize())
     {cout<<"invalid sf addr '0x"<<hex<<(int)addr<<dec<<"'."<<endl;return false;}
 
   unsigned int* superFragSizeAddr;
@@ -301,13 +310,10 @@ bool FUShmBufferCell::markSuperFrag(unsigned int i,
 				  
 
 //______________________________________________________________________________
-unsigned int FUShmBufferCell::size(unsigned int bufferSize,
-				   unsigned int nFed,
-				   unsigned int nSuperFrag)
-
+unsigned int FUShmRawCell::size(unsigned int payloadSize)
 {
   return 
-    sizeof(FUShmBufferCell)+
-    sizeof(unsigned int)*2*(nFed+nSuperFrag)+
-    sizeof(unsigned char)*bufferSize;
+    sizeof(FUShmRawCell)+
+    sizeof(unsigned int)*2*(NFED_MAX+NSUPERFRAG_MAX)+
+    sizeof(unsigned char)*payloadSize;
 }

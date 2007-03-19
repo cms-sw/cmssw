@@ -12,7 +12,7 @@
 
 #include <iostream>
 #include <cstdlib>   // rand()
-#include <unistd.h> // sleep
+#include <unistd.h>  // sleep
 
 
 using namespace std;
@@ -50,30 +50,8 @@ FUShmClient::~FUShmClient()
 //______________________________________________________________________________
 unsigned int FUShmClient::readNext(vector<vector<unsigned char> >& feds)
 {
-  // decrement the client sem
-  buffer_->waitReaderSem();
+  FUShmRawCell* cell=buffer_->rawCellToRead();
   
-  // lock buffer
-  buffer_->lock();
-  
-  // read&advance
-  FUShmBufferCell* cell =buffer_->currentReaderCell();
-  
-  // this would be seriously troubling!!
-  while (!cell->isWritten()) {
-    cout<<"ERROR: unexpected state of cell "<<cell->index()<<endl;
-    buffer_->sem_print();
-    buffer_->print();
-    cell=buffer_->currentReaderCell();
-
-  }
-  
-  // set state of the cell to 'Processing'
-  cell->setStateProcessing();
-  
-  // unlock buffer
-  buffer_->unlock();
-
   // read data
   unsigned int iCell=cell->index();
   unsigned int nFed =cell->nFed();
@@ -84,6 +62,7 @@ unsigned int FUShmClient::readNext(vector<vector<unsigned char> >& feds)
     unsigned char *destAddr=(unsigned char*)&(feds[i][0]);
     cell->readFed(i,destAddr);
   }
+  buffer_->finishReadingRawCell(cell);
   
   // sleep
   if (sleep_>0.0) {
@@ -98,11 +77,13 @@ unsigned int FUShmClient::readNext(vector<vector<unsigned char> >& feds)
     exit(1);
   }
 
+  buffer_->scheduleRawCellForDiscard(iCell);
+  cell=buffer_->rawCellToDiscard();
+  buffer_->discardRawCell(cell);
   // set the state of the cell to 'processed'
-  cell->setStateProcessed();
-  
+  //  cell->setStateProcessed();
   // increment the writer sem
-  buffer_->postWriterSem();
+  //buffer_->postWriterSem();
   
   return iCell;
 }

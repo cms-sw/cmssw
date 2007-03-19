@@ -2,7 +2,10 @@
 #define FUSHMBUFFER_H 1
 
 
-#include "EventFilter/ShmBuffer/interface/FUShmBufferCell.h"
+#include "EventFilter/ShmBuffer/interface/FUShmRawCell.h"
+#include "EventFilter/ShmBuffer/interface/FUShmRecoCell.h"
+#include "EventFilter/ShmBuffer/interface/FUShmDqmCell.h"
+
 
 #include <sys/ipc.h>
 #include <sys/types.h>
@@ -19,112 +22,155 @@ namespace evf {
     // construction/destruction [-> static 'createShmBuffer'/'getShmBuffer']
     //
   private:
-    FUShmBuffer(int shmid,int semid,
-		unsigned int  nCell,
-		unsigned int  cellBufferSize,
-		unsigned int  nFed,
-		unsigned int  nSuperFrag);
+    FUShmBuffer(bool         segmentationMode,
+		unsigned int nRawCells,
+		unsigned int nRecoCells,
+		unsigned int nDqmCells,
+		unsigned int rawCellSize,
+		unsigned int recoCellSize,
+		unsigned int dqmCellSize);
   public:
     ~FUShmBuffer();
     
     
+  public:
     //
-    // member functions
+    // public member functions
     //
-    int              shmid()          const { return shmid_; }
-    int              semid()          const { return semid_; }
-    unsigned int     nCell()          const { return nCell_; }
-    unsigned int     cellBufferSize() const { return cellBufferSize_; }
-    unsigned int     nFed()           const { return nFed_; }
-    unsigned int     nSuperFrag()     const { return nSuperFrag_; }
-    unsigned int     cellOffset()     const { return cellOffset_; }
-    unsigned int     cellSize()       const { return cellSize_; }
-    unsigned int     writeIndex()     const { return writeIndex_; }
-    unsigned int     readIndex()      const { return readIndex_; }
+    void           initialize(unsigned int shmid,unsigned int semid);
     
-    FUShmBufferCell* cell(unsigned int i);
-    FUShmBufferCell* currentWriterCell();
-    FUShmBufferCell* currentReaderCell();
-    FUShmBufferCell* cellToBeDiscarded();
+    int            nbRawCellsToWrite()  const;
+    int            nbRawCellsToRead()   const;
+    FUShmRawCell*  rawCellToWrite();
+    FUShmRawCell*  rawCellToRead();
+    FUShmRawCell*  rawCellToDiscard();
+    void           finishWritingRawCell(FUShmRawCell* cell);
+    void           finishReadingRawCell(FUShmRawCell* cell);
+    void           scheduleRawCellForDiscard(unsigned int iCell);
+    void           discardRawCell(FUShmRawCell* cell);
     
-    void             scheduleForDiscard(FUShmBufferCell* cell);
+    int            nbRecoCellsToWrite() const;
+    int            nbRecoCellsToRead()  const;
+    FUShmRecoCell* recoCellToWrite();
+    FUShmRecoCell* recoCellToRead();
+    void           finishWritingRecoCell(FUShmRecoCell* cell);
+    void           finishReadingRecoCell(FUShmRecoCell* cell);
     
-    void             initialize();
-
-    void             lock()             { sem_wait(2); }
-    void             unlock()           { sem_post(2); }
-    void             waitWriterSem()    { sem_wait(0); }
-    void             postWriterSem()    { sem_post(0); }
-    void             waitReaderSem()    { sem_wait(1); }
-    void             postReaderSem()    { sem_post(1); }
-    void             waitDiscardedSem() { sem_wait(3); }
-    void             postDiscardedSem() { sem_post(3); }
-    void             waitDiscardSem()   { sem_wait(4); }
-    void             postDiscardSem()   { sem_post(4); }
-
-    int              writerSemValue() const;
-    int              readerSemValue() const;
+    int            nbDqmCellsToWrite() const;
+    int            nbDqmCellsToRead()  const;
+    FUShmDqmCell*  dqmCellToWrite();
+    FUShmDqmCell*  dqmCellToRead();
+    void           finishWritingDqmCell(FUShmDqmCell* cell);
+    void           finishReadingDqmCell(FUShmDqmCell* cell);
     
-    void             sem_print();
-    void             print(int verbose=0);
-
+    void           sem_print();
     
     
     //
     // static member functions
     //
-    static unsigned int size(unsigned int nCell,
-			     unsigned int cellBufferSize,
-			     unsigned int nFed,
-			     unsigned int nSuperFrag);
-    static FUShmBuffer* createShmBuffer(unsigned int nCell,
-					unsigned int cellBufferSize=4096000, //4MB
-					unsigned int nFed=1024,
-					unsigned int nSuperFrag=64);
-
+    static FUShmBuffer* createShmBuffer(bool         semgmentationMode,
+					unsigned int nRawCells,
+					unsigned int nRecoCells,
+					unsigned int nDqmCells,
+					unsigned int rawCellSize =4096000,  //4MB
+					unsigned int recoCellSize=4096000,  //4MB
+					unsigned int dqmCellSize =4096000); //4MB
     static FUShmBuffer* getShmBuffer();
-
     static bool         releaseSharedMemory();
     
-    static key_t        getShmKey1();
-    static key_t        getShmKey();
-    static key_t        getSemKey();
+    static unsigned int size(bool         segmentationMode,
+			     unsigned int nRawCells,
+			     unsigned int nRecoCells,
+			     unsigned int nDqmCells,
+			     unsigned int rawCellSize,
+			     unsigned int recoCellSize,
+			     unsigned int dqmCellSize);
     
-    static int          shm_create(key_t key,int size);
-    static int          shm_get(key_t key,int size);
-    static void*        shm_attach(int shmid);
-    static void         shm_detach(void* addr);
-    static int          shm_nattch(int shmid);
-    static int          shm_destroy(int shmid);
+    static key_t getShmDescriptorKey();
+    static key_t getShmKey();
+    static key_t getSemKey();
     
-    static int          sem_create(key_t key,int nsem);
-    static int          sem_get(key_t key,int nsem);
-    static int          sem_destroy(int semid);
+    static int   shm_create(key_t key,int size);
+    static int   shm_get(key_t key,int size);
+    static void* shm_attach(int shmid);
+    static int   shm_nattch(int shmid);
+    static int   shm_destroy(int shmid);
+    
+    static int   sem_create(key_t key,int nsem);
+    static int   sem_get(key_t key,int nsem);
+    static int   sem_destroy(int semid);
     
     
+  private:
     //
     // private member functions
     //
-    void  sem_init(int isem,int value);
-    void  sem_wait(int isem);
-    void  sem_post(int isem);
+    int            shmid()       const { return shmid_; }
+    int            semid()       const { return semid_; }
     
+    FUShmRawCell*  rawCell(unsigned int iCell);
+    FUShmRecoCell* recoCell(unsigned int iCell);
+    FUShmDqmCell*  dqmCell(unsigned int iCell);
+    
+    key_t          shmKey(unsigned int iCell,unsigned int offset);
+    key_t          rawCellShmKey(unsigned int iCell);
+    key_t          recoCellShmKey(unsigned int iCell);
+    key_t          dqmCellShmKey(unsigned int iCell);
+
+    void           sem_init(int isem,int value);
+    void           sem_wait(int isem);
+    void           sem_post(int isem);
+
+    void           lock()             { sem_wait(0); }
+    void           unlock()           { sem_post(0); }
+    void           waitRawWrite()     { sem_wait(1); }
+    void           postRawWrite()     { sem_post(1); }
+    void           waitRawRead()      { sem_wait(2); }
+    void           postRawRead()      { sem_post(2); }
+    void           waitRawDiscard()   { sem_wait(3); }
+    void           postRawDiscard()   { sem_post(3); }
+    void           waitRawDiscarded() { sem_wait(4); }
+    void           postRawDiscarded() { sem_post(4); }
+    void           waitRecoWrite()    { sem_wait(5); }
+    void           postRecoWrite()    { sem_post(5); }
+    void           waitRecoRead()     { sem_post(6); }
+    void           postRecoRead()     { sem_post(6); }
+    void           waitDqmWrite()     { sem_wait(7); }
+    void           postDqmWrite()     { sem_post(7); }
+    void           waitDqmRead()      { sem_post(8); }
+    void           postDqmRead()      { sem_post(8); }
+
     
   private:
     //
     // member data
     //
-    int             shmid_;
-    int             semid_;
-    unsigned int    writeIndex_;
-    unsigned int    readIndex_;
-    unsigned int    cellIndexToBeDiscarded_;
-    unsigned int    nCell_;
-    unsigned int    cellBufferSize_;
-    unsigned int    nFed_;
-    unsigned int    nSuperFrag_;
-    unsigned int    cellOffset_;
-    unsigned int    cellSize_;
+    bool         segmentationMode_;
+    int          shmid_;
+    int          semid_;
+
+    unsigned int rawWriteIndex_;
+    unsigned int rawReadIndex_;
+    unsigned int rawDiscardIndex_;
+    unsigned int nRawCells_;
+    unsigned int rawCellPayloadSize_;
+    unsigned int rawCellTotalSize_;
+    unsigned int rawCellOffset_;
+    
+    unsigned int recoWriteIndex_;
+    unsigned int recoReadIndex_;
+    unsigned int nRecoCells_;
+    unsigned int recoCellPayloadSize_;
+    unsigned int recoCellTotalSize_;
+    unsigned int recoCellOffset_;
+    
+    unsigned int dqmWriteIndex_;
+    unsigned int dqmReadIndex_;
+    unsigned int nDqmCells_;
+    unsigned int dqmCellPayloadSize_;
+    unsigned int dqmCellTotalSize_;
+    unsigned int dqmCellOffset_;
     
   };
 

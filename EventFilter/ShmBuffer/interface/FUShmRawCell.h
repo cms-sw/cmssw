@@ -1,28 +1,24 @@
-#ifndef FUSHMBUFFERCELL_H
-#define FUSHMBUFFERCELL_H 1
-
-
-#include <iostream>
+#ifndef FUSHMRAWCELL_H
+#define FUSHMRAWCELL_H 1
 
 
 namespace evf {
 
-  class FUShmBufferCell
+  class FUShmRawCell
   {
   public:
     //
     // construction/destruction
     //
-    FUShmBufferCell(unsigned int index,
-		    unsigned int bufferSize,
-		    unsigned int nFed,
-		    unsigned int nSuperFrag);
-    ~FUShmBufferCell();
+    FUShmRawCell(unsigned int payloadSize);
+    ~FUShmRawCell();
     
     
     //
     // member functions
     //
+    void           initialize(unsigned int index);
+    
     unsigned int   index()                        const { return fuResourceId_; }
     unsigned int   fuResourceId()                 const { return fuResourceId_; }
     unsigned int   buResourceId()                 const { return buResourceId_; }
@@ -36,8 +32,8 @@ namespace evf {
     bool           isProcessed()                  const { return (state_==4); }
     bool           isDead()                       const { return (state_==5); }
 
-    unsigned int   bufferSize()                   const { return bufferSize_; }
-    unsigned char* bufferAddr()                   const;
+    unsigned int   payloadSize()                  const { return payloadSize_; }
+    unsigned char* payloadAddr()                  const;
     
     unsigned int   nFed()                         const { return nFed_; }
     unsigned int   fedSize(unsigned int i)        const;
@@ -62,7 +58,7 @@ namespace evf {
     void           setStateProcessed() {state_=4;}
     void           setStateDead()      {state_=5;}
     
-    void           print_state();
+    void           printState();
     
     void           clear();
     void           print(int verbose=0) const;
@@ -78,9 +74,7 @@ namespace evf {
     //
     // static member functions
     //
-    static unsigned int size(unsigned int bufferSize,
-			     unsigned int nFed,
-			     unsigned int nSuperFrag);
+    static unsigned int size(unsigned int payloadSize);
     
     
   private:
@@ -92,15 +86,15 @@ namespace evf {
     unsigned int evtNumber_;
     unsigned int nSkip_;
     unsigned int state_;
-    unsigned int bufferSize_;
+    unsigned int payloadSize_;
     unsigned int nFed_;
     unsigned int nSuperFrag_;
     unsigned int fedSizeOffset_;
     unsigned int fedOffset_;
     unsigned int superFragSizeOffset_;
     unsigned int superFragOffset_;
-    unsigned int bufferOffset_;
-    unsigned int bufferPosition_;
+    unsigned int payloadOffset_;
+    unsigned int payloadPosition_;
     
   };
 

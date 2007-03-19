@@ -22,20 +22,24 @@ using namespace evf;
 //______________________________________________________________________________
 int main(int argc,char**argv)
 {
-  unsigned int nCells        =32;
-  unsigned int nFed          = 4;
-  unsigned int bytesPerFed   =10;
-  unsigned int cellBufferSize=nFed*bytesPerFed;
+  bool         segmentationMode=false;
+  unsigned int nCells          =32;
+  unsigned int nFed            = 4;
+  unsigned int bytesPerFed     =10;
+  unsigned int cellBufferSize  =nFed*bytesPerFed;
   
-  if (argc>1) { stringstream ss; ss<<argv[1]; ss>>nCells; }
+  if (argc>1) { stringstream ss; ss<<argv[1]; ss>>segmentationMode; }
   
   cout<<" FUShmServer_t:"
+      <<" segmentationMode="<<segmentationMode
       <<" nCells="<<nCells
-      <<" nFed="<<nCells 
+      <<" nFed="<<nFed
       <<" bytesPerFed="<<bytesPerFed
       <<" cellBufferSize="<<cellBufferSize<<endl<<endl;
   
-  FUShmBuffer* buffer=FUShmBuffer::createShmBuffer(nCells,cellBufferSize,nFed,0);
+  FUShmBuffer* buffer=FUShmBuffer::createShmBuffer(segmentationMode,
+						   nCells,0,0,
+						   cellBufferSize,0,0);
   if (0==buffer) return 1;
   FUShmServer* server=new FUShmServer(buffer);
   

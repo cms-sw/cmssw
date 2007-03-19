@@ -45,20 +45,8 @@ unsigned int FUShmServer::writeNext(unsigned char *data,
 				    unsigned int   nFed,
 				    unsigned int  *fedSize)
 {
-  // decrement writer sem
-  buffer_->waitWriterSem();
-
-  // lock buffer
-  buffer_->lock();
-  
-  // write and advance
-  FUShmBufferCell* cell =buffer_->currentWriterCell();
-  cout<<"STATE "<<flush;
-  if (cell->isEmpty())     cout<<"empty"     <<endl;
-  if (cell->isWritten())   cout<<"written"   <<endl;
-  if (cell->isProcessing())cout<<"processing"<<endl;
-  if (cell->isProcessed()) cout<<"processed" <<endl;
-  if (cell->isDead())      cout<<"dead" <<endl;
+  FUShmRawCell* cell =buffer_->rawCellToWrite();
+  cell->printState();
   
   if (!cell->isEmpty()) {
     if (cell->isProcessed())
@@ -71,9 +59,6 @@ unsigned int FUShmServer::writeNext(unsigned char *data,
     }
   }
   
-  // unlock buffer
-  buffer_->unlock();
-  
   // write data
   cell->clear();
   unsigned int dataSize(0);
@@ -82,7 +67,7 @@ unsigned int FUShmServer::writeNext(unsigned char *data,
   unsigned char *cellBufferAddr=cell->writeData(data,dataSize);
   
   if (0!=cellBufferAddr) {
-    // marks feds
+    // mark feds
     unsigned int fedOffset(0);
     for (unsigned int i=0;i<nFed;i++) {
       unsigned char* fedAddr=cellBufferAddr+fedOffset;
@@ -91,12 +76,13 @@ unsigned int FUShmServer::writeNext(unsigned char *data,
     }
     
     // set cell state to 'written'
-    cell->setStateWritten();
-    
-    // increment the reader sem
-    buffer_->postReaderSem();
+    buffer_->finishWritingRawCell(cell);
+    //buffer_->lock();
+    //cell->setStateWritten();
+    //shmdt(cell);
+    //buffer_->unlock();
+    //buffer_->postReaderSem();
   }
   
   return iCell;
 }
-  

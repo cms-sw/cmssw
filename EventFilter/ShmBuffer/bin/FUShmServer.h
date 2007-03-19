@@ -22,7 +22,8 @@ namespace evf {
     // member functions
     //
     unsigned int writeNext(unsigned char *data,
-			   unsigned int   nFed,unsigned int*fedSize);
+			   unsigned int   nFed,
+			   unsigned int  *fedSize);
     
     
   private:

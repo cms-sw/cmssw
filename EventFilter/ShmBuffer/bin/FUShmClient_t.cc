@@ -29,9 +29,9 @@ void print_fed(unsigned int iFed,const vector<unsigned char>& fedData);
 int main(int argc,char**argv)
 {
   // set parameters
-  bool   waitForKey(true);if (argc>1) {stringstream ss;ss<<argv[1];ss>>waitForKey;}
-  double crashPrb(0.01);  if (argc>2) {stringstream ss;ss<<argv[2];ss>>crashPrb;  }
-  int    sleepTime(0);    if (argc>3) {stringstream ss;ss<<argv[3];ss>>sleepTime; }
+  bool   waitForKey(false);if (argc>1) {stringstream ss;ss<<argv[1];ss>>waitForKey;}
+  double crashPrb(0.0);    if (argc>2) {stringstream ss;ss<<argv[2];ss>>crashPrb;  }
+  int    sleepTime(0);     if (argc>3) {stringstream ss;ss<<argv[3];ss>>sleepTime; }
 
   // get shared memory buffer and instantiate client
   FUShmBuffer* buffer=FUShmBuffer::getShmBuffer(); if (0==buffer) return 1;
@@ -56,7 +56,7 @@ int main(int argc,char**argv)
     cout<<"READ at index "<<iCell<<endl;
 
     // print content
-    for(unsigned int i=0;i<fedData.size();i++) print_fed(i,fedData[i]);
+    for(unsigned int i=0;i<4 /*fedData.size()*/;i++) print_fed(i,fedData[i]);
     cout<<endl;
     
   }
@@ -75,4 +75,3 @@ void print_fed(unsigned int iFed,const vector<unsigned char>& fedData)
     cout<<setiosflags(ios::right)<<setw(2)<<hex<<(int)(*it)<<dec<<" ";
   cout<<endl;
 }
-
