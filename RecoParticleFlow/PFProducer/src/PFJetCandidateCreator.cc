@@ -15,7 +15,7 @@ using namespace std;
 
 
 
- PFJetCandidateCreator:: PFJetCandidateCreator( const ParameterSet & p ) 
+PFJetCandidateCreator::PFJetCandidateCreator( const ParameterSet & p ) 
   :
   mVerbose (p.getUntrackedParameter<bool> ("verbose", 0)),
   mSource (p.getParameter<edm::InputTag> ("src")){
@@ -23,7 +23,7 @@ using namespace std;
 }
 
 
- PFJetCandidateCreator::~ PFJetCandidateCreator() {
+PFJetCandidateCreator::~PFJetCandidateCreator() {
 }
 
 
