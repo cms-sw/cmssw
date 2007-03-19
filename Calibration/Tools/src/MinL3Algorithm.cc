@@ -1,13 +1,13 @@
 
 /** \file MinL3Algorithm.cc
  *
- * $Date: 2006/10/13 14:34:13 $
+ * $Date: 2007/03/14 13:55:41 $
  * $Revision: 1.4 $
  * \author R.Ofierzynski, CERN
  */
 
 #include "Calibration/Tools/interface/MinL3Algorithm.h"
-
+#include <math.h>
 
 MinL3Algorithm::MinL3Algorithm(float kweight_, int squareMode_, int mineta_, int maxeta_, int minphi_, int maxphi_)
   :kweight(kweight_), squareMode(squareMode_), mineta(mineta_), maxeta(maxeta_), minphi(minphi_), maxphi(maxphi_), countEvents(0)
