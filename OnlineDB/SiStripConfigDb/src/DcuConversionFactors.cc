@@ -1,4 +1,4 @@
-// Last commit: $Id: DcuConversionFactors.cc,v 1.6 2006/10/30 21:03:12 bainbrid Exp $
+// Last commit: $Id: DcuConversionFactors.cc,v 1.7 2006/11/24 11:41:58 bainbrid Exp $
 // Latest tag:  $Name:  $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripConfigDb/src/DcuConversionFactors.cc,v $
 
@@ -109,12 +109,12 @@ const SiStripConfigDb::DcuConversionFactors& SiStripConfigDb::createDcuConversio
 				  0x10,  // CCU channel
 				  0x0 ); // I2C address
 
-	uint32_t dcu_id = SiStripFecKey::key( icrate->fecCrate(), 
-					      ifec->fecSlot(), 
-					      iring->fecRing(), 
-					      0x7F,  // CCU address
-					      0x10,  // CCU channel
-					      0x0 ); // I2C address
+	uint32_t dcu_id = SiStripFecKey( icrate->fecCrate(), 
+					 ifec->fecSlot(), 
+					 iring->fecRing(), 
+					 0x7F,  // CCU address
+					 0x10,  // CCU channel
+					 0x0 ).key(); // I2C address
       
 	// Add DCU conversion factors (for DCU of dummy CCU) at FEC ring level
 	TkDcuConversionFactors* dcu_conv = new TkDcuConversionFactors( dcu_conv_default );
@@ -143,12 +143,12 @@ const SiStripConfigDb::DcuConversionFactors& SiStripConfigDb::createDcuConversio
 				    0x10,  // CCU channel
 				    0x0 ); // I2C address
 
-	  uint32_t dcu_id = SiStripFecKey::key( icrate->fecCrate(), 
-						ifec->fecSlot(), 
-						iring->fecRing(), 
-						iccu->ccuAddr(), 
-						0x10,  // CCU channel
-						0x0 ); // I2C address
+	  uint32_t dcu_id = SiStripFecKey( icrate->fecCrate(), 
+					   ifec->fecSlot(), 
+					   iring->fecRing(), 
+					   iccu->ccuAddr(), 
+					   0x10,  // CCU channel
+					   0x0 ).key(); // I2C address
 
 	  // Add DCU conversion factors at CCU level
 	  TkDcuConversionFactors* dcu_conv = new TkDcuConversionFactors( dcu_conv_default );
@@ -177,12 +177,12 @@ const SiStripConfigDb::DcuConversionFactors& SiStripConfigDb::createDcuConversio
 				      imod->ccuChan(), 
 				      0x0 ); // I2C address
 
-	    uint32_t dcu_id = SiStripFecKey::key( icrate->fecCrate(), 
-						  ifec->fecSlot(), 
-						  iring->fecRing(), 
-						  iccu->ccuAddr(), 
-						  imod->ccuChan(),
-						  0x0 );
+	    uint32_t dcu_id = SiStripFecKey( icrate->fecCrate(), 
+					     ifec->fecSlot(), 
+					     iring->fecRing(), 
+					     iccu->ccuAddr(), 
+					     imod->ccuChan(),
+					     0x0 ).key();
 	    
 	    // Add DCU conversion factors
 	    TkDcuConversionFactors* dcu_conv = new TkDcuConversionFactors( dcu_conv_default );

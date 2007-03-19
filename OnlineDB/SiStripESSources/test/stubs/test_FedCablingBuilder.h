@@ -1,6 +1,6 @@
-// Last commit: $Id: $
+// Last commit: $Id: test_FedCablingBuilder.h,v 1.3 2006/12/22 12:30:40 bainbrid Exp $
 // Latest tag:  $Name:  $
-// Location:    $Source: $
+// Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripESSources/test/stubs/Attic/test_FedCablingBuilder.h,v $
 
 #ifndef OnlineDB_SiStripESSources_test_FedCablingBuilder_H
 #define OnlineDB_SiStripESSources_test_FedCablingBuilder_H

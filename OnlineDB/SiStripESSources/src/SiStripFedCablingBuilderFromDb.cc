@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripFedCablingBuilderFromDb.cc,v 1.29 2006/12/22 12:21:55 bainbrid Exp $
+// Last commit: $Id: SiStripFedCablingBuilderFromDb.cc,v 1.30 2007/01/09 13:47:49 bainbrid Exp $
 // Latest tag:  $Name:  $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripESSources/src/SiStripFedCablingBuilderFromDb.cc,v $
 
@@ -61,7 +61,7 @@ SiStripFedCabling* SiStripFedCablingBuilderFromDb::makeFedCabling() {
   
   // Build and retrieve SiStripConfigDb object using service
   db_ = edm::Service<SiStripConfigDb>().operator->(); //@@ NOT GUARANTEED TO BE THREAD SAFE! 
-  LogWarning(mlCabling_) 
+  edm::LogWarning(mlCabling_) 
     << "[SiStripFedCablingBuilderFromDb::" << __func__ << "]"
     << " Nota bene: using the SiStripConfigDb API"
     << " as a \"service\" does not presently guarantee"
@@ -538,11 +538,11 @@ void SiStripFedCablingBuilderFromDb::buildFecCablingFromDetIds( SiStripConfigDb*
     // --- Check if DCU, DetId and nApvPairs are null ---
 
     if ( !dcu_id ) {
-      dcu_id = SiStripFecKey::key( fec_crate,
-				   fec_slot,
-				   fec_ring,
-				   ccu_addr,
-				   ccu_chan );
+      dcu_id = SiStripFecKey( fec_crate,
+			      fec_slot,
+			      fec_ring,
+			      ccu_addr,
+			      ccu_chan ).key();
     }
     if ( !det_id ) { det_id = 0xFFFF + imodule; } 
     if ( !npairs ) { npairs = rand()/2 ? 2 : 3; }
@@ -615,16 +615,16 @@ void SiStripFedCablingBuilderFromDb::assignDcuAndDetIds( SiStripFecCabling& fec_
 
 	    //@@ TEMP FIX UNTIL LAURENT DEBUGS FedChannelConnectionDescription CLASS
 	    module.nApvPairs(0);
-
+	    
 	    // --- Check for null DCU ---
-
+	    
 	    if ( !module.dcuId() ) { 
-	      SiStripFecKey::Path path( icrate->fecCrate(),
-					ifec->fecSlot(), 
-					iring->fecRing(), 
-					iccu->ccuAddr(), 
-					imod->ccuChan() );
-	      uint32_t module_key = SiStripFecKey::key( path );
+	      SiStripFecKey path( icrate->fecCrate(),
+				  ifec->fecSlot(), 
+				  iring->fecRing(), 
+				  iccu->ccuAddr(), 
+				  imod->ccuChan() );
+	      uint32_t module_key = path.key();
 	      module.dcuId( module_key ); // Assign DCU id equal to control key
 	      stringstream ss;
 	      ss << "[SiStripFedCablingBuilderFromDb::" << __func__ << "]"
@@ -665,9 +665,11 @@ void SiStripFedCablingBuilderFromDb::assignDcuAndDetIds( SiStripFecCabling& fec_
 		      << hex << setw(8) << setfill('0') << module.dcuId() << dec
 		      << " and DetId 0x"
 		      << hex << setw(8) << setfill('0') << module.detId() << dec
-		      << " has unexpected number of APV pairs (" << module.nApvPairs()
-		      << ")." << endl
-		      << " Setting to value found in static map (" << iter->second->getApvNumber()/2 << ")";
+		      << " has unexpected number of APV pairs (" 
+		      << module.nApvPairs()
+		      << "). Some APV pairs may have not been detected by the FEC scan."
+		      << " Setting to value found in static map (" 
+		      << iter->second->getApvNumber()/2 << ")...";
 		  edm::LogWarning(mlCabling_) << ss1.str();
 		  module.nApvPairs( iter->second->getApvNumber()/2 ); 
 		}
@@ -679,10 +681,14 @@ void SiStripFedCablingBuilderFromDb::assignDcuAndDetIds( SiStripFecCabling& fec_
 		      << hex << setw(8) << setfill('0') << module.dcuId() << dec
 		      << " and DetId 0x"
 		      << hex << setw(8) << setfill('0') << module.detId() << dec
-		      << " has number of APV pairs (" << module.nApvPairs()
-		      << " that does not match value found in static map (" << iter->second->getApvNumber()/2 
-		      << ")." << endl
-		      << " Setting to value found in static map.";
+		      << " has number of APV pairs (" 
+		      << module.nApvPairs()
+		      << ") that does not match value found in DCU-DetId map (" 
+		      << iter->second->getApvNumber()/2 
+		      << "). Some APV pairs may have not been detected by"
+		      <<< " the FEC scan or the DCU-DetId map may be incorrect."
+		      << " Setting to value found in static map ("
+		      << iter->second->getApvNumber()/2 << ")...";
 		  edm::LogWarning(mlCabling_) << ss2.str();
 		  module.nApvPairs( iter->second->getApvNumber()/2 ); 
 		}

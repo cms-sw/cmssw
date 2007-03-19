@@ -1,4 +1,4 @@
-// Last commit: $Id: DeviceDescriptions.cc,v 1.9 2006/11/24 11:41:58 bainbrid Exp $
+// Last commit: $Id: DeviceDescriptions.cc,v 1.10 2006/12/01 16:36:48 bainbrid Exp $
 // Latest tag:  $Name:  $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripConfigDb/src/DeviceDescriptions.cc,v $
 
@@ -157,12 +157,12 @@ const SiStripConfigDb::DeviceDescriptions& SiStripConfigDb::createDeviceDescript
 				  0x10,  // CCU channel
 				  0x0 ); // I2C address
 
-	uint32_t dcu_id = SiStripFecKey::key( icrate->fecCrate(), 
-					      ifec->fecSlot(), 
-					      iring->fecRing(), 
-					      0x7F,  // CCU address
-					      0x10,  // CCU channel
-					      0x0 ); // I2C address
+	uint32_t dcu_id = SiStripFecKey( icrate->fecCrate(), 
+					 ifec->fecSlot(), 
+					 iring->fecRing(), 
+					 0x7F,  // CCU address
+					 0x10,  // CCU channel
+					 0x0 ).key(); // I2C address
 	
 	// Add DCU (to "dummy" CCU) at FEC ring level
 	dcuDescription* dcu = new dcuDescription( index, // access key
@@ -186,12 +186,12 @@ const SiStripConfigDb::DeviceDescriptions& SiStripConfigDb::createDeviceDescript
 				    0x10,  // CCU channel
 				    0x0 ); // I2C address
 
-	  uint32_t dcu_id = SiStripFecKey::key( icrate->fecCrate(), 
-						ifec->fecSlot(), 
-						iring->fecRing(), 
-						iccu->ccuAddr(), 
-						0x10,  // CCU channel
-						0x0 ); // I2C address
+	  uint32_t dcu_id = SiStripFecKey( icrate->fecCrate(), 
+					   ifec->fecSlot(), 
+					   iring->fecRing(), 
+					   iccu->ccuAddr(), 
+					   0x10,  // CCU channel
+					   0x0 ).key(); // I2C address
 	  
 	  // Add DCU description at CCU level
 	  dcuDescription* dcu = new dcuDescription( index, // access key
