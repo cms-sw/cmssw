@@ -19,51 +19,96 @@ using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 //
-void ViewTranslator::generateMaps( SiStripFedCabling* fed_cabling, 
-				   Mapping& det_to_fec, 
-				   Mapping& fed_to_fec ) {
+void ViewTranslator::buildMaps( const SiStripFedCabling& cabling, 
+				Mapping& det_to_fec, 
+				Mapping& fed_to_fec ) {
   
-//   if ( !fed_cabling ) {
+//   if ( !cabling ) {
 //     edm::LogWarning(mlCabling_) 
 //       << "[ViewTranslator::" << __func__ << "]"
 //       << " NULL pointer to FED cabling object!";
 //     return;
 //   }
   
-//   // Iterator over FED cabling, construct keys and push back into map
-//   vector<uint16_t>::const_iterator ifed; 
-//   for ( ifed = fed_cabling->feds().begin();ifed != fed_cabling->feds().end(); ifed++ ) { 
+  // Iterator through cabling, construct keys and push back into map
+  vector<uint16_t>::const_iterator ifed = cabling.feds().begin();
+  for ( ; ifed != cabling.feds().end(); ifed++ ) { 
 
-//     const vector<FedChannelConnection>& conns = fed_cabling->connections( *ifed );
-//     vector<FedChannelConnection>::iterator ichan;
-//     for( ichan = conns.begin(); ichan != conns.end(); ichan++ ) {
-//       if( ichan->fedId() ) { 
+    const vector<FedChannelConnection>& conns = cabling.connections( *ifed );
+    vector<FedChannelConnection>::iterator ichan;
+    for( ichan = conns.begin(); ichan != conns.end(); ichan++ ) {
+      if( ichan->fedId() ) { 
 	
-// 	uint32_t fed = SiStripFedKey::key( *ifed, 
-// 					   ichan->fedCh() );
+	uint32_t fed = SiStripFedKey::key( *ifed, 
+					   ichan->fedCh() );
 	
-// 	uint32_t fec = SiStripFecKey::key( ichan->fecCrate(),
-// 					   ichan->fecSlot(),
-// 					   ichan->fecRing(),
-// 					   ichan->ccuAddr(),
-// 					   ichan->ccuChan(),
-// 					   ichan->lldChannel() );
+	uint32_t fec = SiStripFecKey::key( ichan->fecCrate(),
+					   ichan->fecSlot(),
+					   ichan->fecRing(),
+					   ichan->ccuAddr(),
+					   ichan->ccuChan(),
+					   ichan->lldChannel() );
 	
-// 	uint32_t det = SiStripDetKey::key( ichan->detId(),
-// 					   ichan->apvPairNumber() );
+	uint32_t det = SiStripDetKey::key( ichan->detId(),
+					   ichan->apvPairNumber() );
 	
-// 	det_to_fec[det] = fec;
-// 	fed_to_fec[fed] = fec;
+	det_to_fec[det] = fec;
+	fed_to_fec[fed] = fec;
 	
-//       } 
-//     } 
-//   } 
-
-//   LogTrace(mlCabling_) 
-//     << "[ViewTranslator::" << __func__ << "]"
-//     << " Map sizes: DetToFec=" << det_to_fec.size() 
-//     << " FedToFec=" << fed_to_fec.size();
+      } 
+    } 
+  } 
   
+  LogTrace(mlCabling_) 
+    << "[ViewTranslator::" << __func__ << "]"
+    << " Size of FedToFec map: " << fed_to_fec.size()
+    << ", size of DetToFec map: " << det_to_fec.size(); 
+  
+}
+
+
+// -----------------------------------------------------------------------------
+//
+void ViewTranslator::fedToFec( const uint32_t& fed_key_mask, 
+			       const Mapping& input,
+			       Mapping& output ) {
+  
+  if( input.empty() ) { 
+    edm::LogWarning(mlCabling_) 
+      << "[ViewTranslator::" << __func__ << "]"
+      << " Input map is empty!";
+    return 0; 
+  }
+  
+  Mapping::iterator iter;
+  SiStripFedKey::Path fed_key = SiStripFedKey::path( fed_key_mask );
+  
+  if( fed_key.detId_ == sistrip::invalid_ ||
+      fed_key.apvPair_ == sistrip::invalid_ ) {
+    edm::LogWarning(mlCabling_) 
+      << "[ViewTranslator::" << __func__ << "]"
+      << " DetKey is not defined!";
+    output = input;
+    return output.size(); 
+  }
+  
+  if( fed_key.detId_ != sistrip::invalid_ && 
+      fed_key.apvPair_ != sistrip::invalid_ ) {
+    iter=input->find( fed_key_mask );
+    output[ (*iter).first ] = (*iter).second;
+    cout << "both are not masked" << endl;
+  }
+  
+  if( fed_key.detId_!=0xFFFFFFFF && fed_key.apvPair_==0xFFFF ) {
+    cout << "apv is masked" << endl;
+    for(iter=input->begin() ; iter!=input->end() ; iter++) {
+      DetKey = SiStripFedKey::path( (*iter).first );
+      if(fed_key.detId_==DetKey.detId_)
+	output[ (*iter).first ]=( (*iter).second );
+    } //for(iter=input->begin() ; iter!=input->end() ; iter++)
+  }//if( fed_key.detId_!=0xFFFFFFFF && fed_key.apvPair_==0xFFFF )
+  else cout << "Cannot find the det to fec map in the root file. " << endl;
+
 }
 
 // -----------------------------------------------------------------------------
@@ -114,9 +159,9 @@ uint32_t ViewTranslator::detToFec( const uint32_t& det_key_mask,
 
 // -----------------------------------------------------------------------------
 //
-void ViewTranslator::fedToFec( const uint32_t& fed_key_mask, 
-			       const Mapping& input,
-			       Mapping& output ) {
+// void ViewTranslator::fedToFec( const uint32_t& fed_key_mask, 
+// 			       const Mapping& input,
+// 			       Mapping& output ) {
 
   
 //       Mapping::iterator iter;
@@ -171,7 +216,7 @@ void ViewTranslator::fedToFec( const uint32_t& fed_key_mask,
 //   } //if(TFile::Open(fname.cstr())
 //   else cout << "Error:Cannot open root file." << endl;
 
-}
+// }
 
 // -----------------------------------------------------------------------------
 //
