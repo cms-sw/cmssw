@@ -1,17 +1,18 @@
 #include "DQM/SiStripCommissioningAnalysis/interface/PedestalsAnalysis.h"
-#include "DataFormats/SiStripCommon/interface/SiStripHistoNamingScheme.h"
+#include "DataFormats/SiStripCommon/interface/SiStripHistoTitle.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TProfile.h"
 #include "TH1.h"
 #include <iostream>
 #include <iomanip>
 #include <cmath>
 
-using namespace std;
+using namespace sistrip;
 
 // ----------------------------------------------------------------------------
 // 
 PedestalsAnalysis::PedestalsAnalysis( const uint32_t& key ) 
-  : CommissioningAnalysis(key),
+  : CommissioningAnalysis(key,"PedestalsAnalysis"),
     peds_(2,VFloats(128,sistrip::invalid_)), 
     noise_(2,VFloats(128,sistrip::invalid_)), 
     dead_(2,VInts(0,sistrip::invalid_)), 
@@ -34,7 +35,7 @@ PedestalsAnalysis::PedestalsAnalysis( const uint32_t& key )
 // ----------------------------------------------------------------------------
 // 
 PedestalsAnalysis::PedestalsAnalysis() 
-  : CommissioningAnalysis(),
+  : CommissioningAnalysis("PedestalsAnalysis"),
     peds_(2,VFloats(128,sistrip::invalid_)), 
     noise_(2,VFloats(128,sistrip::invalid_)), 
     dead_(2,VInts(0,sistrip::invalid_)), 
@@ -56,16 +57,9 @@ PedestalsAnalysis::PedestalsAnalysis()
 
 // ----------------------------------------------------------------------------
 // 
-void PedestalsAnalysis::print( stringstream& ss, uint32_t iapv ) { 
+void PedestalsAnalysis::print( std::stringstream& ss, uint32_t iapv ) { 
   if ( iapv != 0 && iapv != 1 ) { iapv = 0; }
-  
-  if ( key() ) {
-    ss << "FED calibration constants for channel key 0x"
-       << hex << setw(8) << setfill('0') << key() << dec 
-       << " and APV" << iapv << "\n";
-  } else {
-    ss << "FED calibration constants for APV" << iapv << "\n";
-  }
+  header( ss );
   ss << " Number of pedestal values   : " << peds_[iapv].size() << "\n"
      << " Number of noise values      : " << noise_[iapv].size() << "\n"
      << " Dead strips  (>5s) [strip]  : (" << dead_[iapv].size() << " in total) ";
@@ -110,50 +104,54 @@ void PedestalsAnalysis::reset() {
 
 // ----------------------------------------------------------------------------
 // 
-void PedestalsAnalysis::extract( const vector<TH1*>& histos ) { 
+void PedestalsAnalysis::extract( const std::vector<TH1*>& histos ) { 
 
   // Check
   if ( histos.size() != 2 ) {
-    cerr << "[" << __PRETTY_FUNCTION__ << "]"
-	 << " Unexpected number of histograms: " 
-	 << histos.size()
-	 << endl;
+    edm::LogWarning(mlCommissioning_)
+      << "[" << myName() << "::" << __func__ << "]"
+      << " Unexpected number of histograms: " 
+      << histos.size();
   }
   
+  // Extract FED key from histo title
+  if ( !histos.empty() ) extractFedKey( histos.front() );
+
   // Extract
-  vector<TH1*>::const_iterator ihis = histos.begin();
+  std::vector<TH1*>::const_iterator ihis = histos.begin();
   for ( ; ihis != histos.end(); ihis++ ) {
     
     // Check pointer
     if ( !(*ihis) ) {
-      cerr << "[" << __PRETTY_FUNCTION__ << "]"
-	   << " NULL pointer to histogram!" << endl;
+      edm::LogWarning(mlCommissioning_) 
+	<< "[" << myName() << "::" << __func__ << "]"
+	<< " NULL pointer to histogram!";
       continue;
     }
     
     // Check name
-    static HistoTitle title;
-    title = SiStripHistoNamingScheme::histoTitle( (*ihis)->GetName() );
-    if ( title.task_ != sistrip::PEDESTALS ) {
-      cerr << "[" << __PRETTY_FUNCTION__ << "]"
-	   << " Unexpected commissioning task!"
-	   << "(" << SiStripHistoNamingScheme::task( title.task_ ) << ")"
-	   << endl;
+    SiStripHistoTitle title( (*ihis)->GetName() );
+    if ( title.runType() != sistrip::pedestals_ ) {
+      edm::LogWarning(mlCommissioning_) 
+	<< "[" << myName() << "::" << __func__ << "]"
+	<< " Unexpected commissioning task!"
+	<< "(" << title.runType() << ")";
       continue;
     }
     
     // Extract peds and noise histos
-    if ( title.extraInfo_.find(sistrip::pedsAndRawNoise_) != string::npos ) {
+    if ( title.extraInfo().find(sistrip::pedsAndRawNoise_) != std::string::npos ) {
       hPeds_.first = *ihis;
       hPeds_.second = (*ihis)->GetName();
-      //cout << "pedsAndRawNoise name: " << hPeds_.second << endl;
-    } else if ( title.extraInfo_.find(sistrip::residualsAndNoise_) != string::npos ) {
+      //LogTrace(mlCommissioning_) << "pedsAndRawNoise name: " << hPeds_.second;
+    } else if ( title.extraInfo().find(sistrip::residualsAndNoise_) != std::string::npos ) {
       hNoise_.first = *ihis;
       hNoise_.second = (*ihis)->GetName();
-      //cout << "residualsAndNoise name: " << hPeds_.second << endl;
+      //LogTrace(mlCommissioning_) << "residualsAndNoise name: " << hPeds_.second;
     } else { 
-      cerr << "[" << __PRETTY_FUNCTION__ << "]"
-	   << " Unexpected 'extra info': " << title.extraInfo_ << endl;
+      edm::LogWarning(mlCommissioning_)
+	<< "[" << myName() << "::" << __func__ << "]"
+	<< " Unexpected 'extra info': " << title.extraInfo();
     }
     
   }
@@ -167,28 +165,30 @@ void PedestalsAnalysis::analyse() {
   // Checks on whether pedestals histo exists and if binning is correct
   if ( hPeds_.first ) {
     if ( hPeds_.first->GetNbinsX() != 256 ) {
-      cerr << "[" << __PRETTY_FUNCTION__ << "]"
-	   << " Unexpected number of bins for 'peds and raw noise' histogram: "
-	   << hPeds_.first->GetNbinsX() << endl;
+      edm::LogWarning(mlCommissioning_) 
+	<< "[" << myName() << "::" << __func__ << "]"
+	<< " Unexpected number of bins for 'peds and raw noise' histogram: "
+	<< hPeds_.first->GetNbinsX();
     }
   } else { 
-    cerr << "[" << __PRETTY_FUNCTION__ << "]"
-	 << " NULL pointer to 'peds and raw noise' histogram!"
-	 << endl;
+    edm::LogWarning(mlCommissioning_)
+      << "[" << myName() << "::" << __func__ << "]"
+      << " NULL pointer to 'peds and raw noise' histogram!";
     return;
   }
 
   // Checks on whether noise histo exists and if binning is correct
   if ( hNoise_.first ) {
     if ( hNoise_.first->GetNbinsX() != 256 ) {
-      cerr << "[" << __PRETTY_FUNCTION__ << "]"
-	   << " Unexpected number of bins for 'residuals and noise' histogram: "
-	   << hNoise_.first->GetNbinsX() << endl;
+      edm::LogWarning(mlCommissioning_) 
+	<< "[" << myName() << "::" << __func__ << "]"
+	<< " Unexpected number of bins for 'residuals and noise' histogram: "
+	<< hNoise_.first->GetNbinsX();
     }
   } else {
-    cerr << "[" << __PRETTY_FUNCTION__ << "]"
-	 << " NULL pointer to 'residuals and noise' histogram!"
-	 << endl;
+    edm::LogWarning(mlCommissioning_)
+      << "[" << myName() << "::" << __func__ << "]"
+      << " NULL pointer to 'residuals and noise' histogram!";
     return;
   }
 
@@ -198,17 +198,17 @@ void PedestalsAnalysis::analyse() {
 
   // Checks on whether pedestals TProfile histo exists
   if ( !peds_histo ) {
-    cerr << "[" << __PRETTY_FUNCTION__ << "]"
-	 << " NULL pointer to 'peds and raw noise' TProfile histogram!"
-	 << endl;
+    edm::LogWarning(mlCommissioning_) 
+      << "[" << myName() << "::" << __func__ << "]"
+      << " NULL pointer to 'peds and raw noise' TProfile histogram!";
     return;
   }
 
   // Checks on whether noise TProfile histo exists
   if ( !noise_histo ) {
-    cerr << "[" << __PRETTY_FUNCTION__ << "]"
-	 << " NULL pointer to 'residuals and noise' TProfile histogram!"
-	 << endl;
+    edm::LogWarning(mlCommissioning_) 
+      << "[" << myName() << "::" << __func__ << "]"
+      << " NULL pointer to 'residuals and noise' TProfile histogram!";
     return;
   }
   
