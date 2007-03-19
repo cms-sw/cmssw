@@ -63,6 +63,10 @@ sub new {
 		   => \&define_EB_elec_crystal_number_to_EB_crystal_number,
 		   'EB_fe_crystal_number_to_EB_crystal_number',
 		   => \&define_EB_fe_crystal_number_to_EB_crystal_number
+		   'EB_t_capsule_to_EB_crystal_number'
+		   => \&define_EB_t_capsule_to_EB_crystal_number,
+		   'EB_crystal_number_to_EB_VFE'
+		   => \&define_EB_crystal_number_to_EB_VFE
 		  };
 
   bless($this, $class);
@@ -424,7 +428,7 @@ sub define_EB_PTM_H_amb {
   my @logic_ids;
   my @channel_ids;
   foreach my $SM (0..36) {
-    foreach my $channel (1..3) {
+    foreach my $channel (1..4) {
       my $logic_id = sprintf "1091%02d00%02d", $SM, $channel;
       push @logic_ids, $logic_id;
       push @channel_ids, [ $SM, $channel ];
@@ -446,7 +450,7 @@ sub define_EB_PTM_T_amb {
   my @logic_ids;
   my @channel_ids;
   foreach my $SM (0..36) {
-    foreach my $channel (1..2) {
+    foreach my $channel (1..10) {
       my $logic_id = sprintf "1101%02d00%02d", $SM, $channel;
       push @logic_ids, $logic_id;
       push @channel_ids, [ $SM, $channel ];
@@ -1076,7 +1080,7 @@ sub define_EB_crystal_number_to_EB_LM_channel {
       if (!defined $lm_id) {
 	die "Cannot determine logic_id of LM channel SM=$SM, ch=$lm\n";
       }
-      
+
       # set the mapping
       push @logic_ids, $lm_id;
       push @channel_ids, [ $SM, $xtal ];
@@ -1084,11 +1088,110 @@ sub define_EB_crystal_number_to_EB_LM_channel {
       # print "SM $SM xtal $xtal -> LM $lm\n";
     }
   }
-  
+
   return { 
 	  name => $name, maps_to => $maps_to,
 	  logic_ids => \@logic_ids, channel_ids => \@channel_ids
 	 };
+}
+
+sub define_EB_T_capsule__to_EB_crystal_number {
+  my $cn_def = define_EB_crystal_number();
+  my $cn_logic_ids = $cn_def->{logic_ids};
+  my $cn_channel_ids = $cn_def->{channel_ids};
+  my $count = scalar @{$cn_logic_ids};
+
+  my $name = "EB_T_capsule";
+  my $maps_to = "EB_crystal_number";
+
+  my @logic_ids;
+  my @channel_ids;
+
+  foreach my $SM (0..36) {
+    for my $tc (1..170) {
+      # calculate the tc channel indexes
+      my $tci = POSIX::floor($tc/10.0);
+      my $tcj = $tc - ($tci * 10);
+
+      # calculate the crystal indexes
+      my $i = ($tci*5) + 2;
+      my $j = ($tcj*2);
+
+      # calculate the crystal number
+      my $cn = ($i*20) + $j + 1;
+
+      # get the logic_id for this tc channel
+      my $cn_id;
+      for my $i (0..$count-1) {
+	my @ids = @{ $cn_channel_ids[$i] };
+	if ($ids[0] == $SM && $ids[1] == $cn) {
+	  $cn_id = $$cn_logic_ids[$i];
+	  last;
+	}
+      }
+      if (!defined $cn_id) {
+	die "Cannot determine logic_id of T_capsule SM=$SM, ch=$tc\n";
+      }
+
+      # set the mapping
+      push @logic_ids, $cn_id;
+      push @channel_ids, [ $SM, $tc ];
+
+      print "SM $SM xtal $xtal -> T_capsule $tc\n";
+    }
+  }
+
+  return {
+	  name => $name, maps_to => $maps_to,
+	  logic_ids => \@logic_ids, channel_ids => \@channel_ids
+	 };
+}
+
+sub define_EB_crystal_number_to_EB_VFE {
+  my $vfe_def = define_EB_VFE();
+  my $vfe_logic_ids = $vfe_def->{logic_ids};
+  my $vfe_channel_ids = $vfe_def->{channel_ids};
+  my $count = scalar @{$vfe_logic_ids};
+
+  my $name = "EB_crystal_number";
+  my $maps_to = "EB_VFE";
+
+  my @logic_ids;
+  my @channel_ids;
+
+  foreach my $SM (0..36) {
+    for my $xtal (1..1700) {
+      # TODO finish
+
+      # calculate the crystal number
+      my $cn = ($i*20) + $j + 1;
+
+      # get the logic_id for this tc channel
+      my $cn_id;
+      for my $i (0..$count-1) {
+	my @ids = @{ $cn_channel_ids[$i] };
+	if ($ids[0] == $SM && $ids[1] == $cn) {
+	  $cn_id = $$cn_logic_ids[$i];
+	  last;
+	}
+      }
+      if (!defined $cn_id) {
+	die "Cannot determine logic_id of T_capsule SM=$SM, ch=$tc\n";
+      }
+
+      # set the mapping
+      push @logic_ids, $cn_id;
+      push @channel_ids, [ $SM, $tc ];
+
+      print "SM $SM xtal $xtal -> T_capsule $tc\n";
+    }
+  }
+
+  return {
+	  name => $name, maps_to => $maps_to,
+	  logic_ids => \@logic_ids, channel_ids => \@channel_ids
+	 };
+
 }
 
 
