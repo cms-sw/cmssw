@@ -9,11 +9,14 @@ class PCaloHit {
 
 public: 
 
-  PCaloHit(float eEM = 0., float eHad=0., float t = 0., int i = 0);
+  PCaloHit(float e = 0., float t = 0., int i = 0, float emFraction = 1.) :
+    myEnergy(e), myEMFraction(emFraction), myTime(t), myItra(i) { }
 
-  PCaloHit(unsigned int id, float eEM = 0., float eHad =0., float t = 0., 
-	   int i = 0);
-
+  PCaloHit(unsigned int id, float e = 0., float t = 0., int i = 0, 
+	   float emFraction = 1.) : myEnergy (e), myEMFraction(emFraction), 
+    myTime (t), myItra (i), detId(id) { }
+  PCaloHit(float eEM, float eHad, float t, int i = 0);
+  PCaloHit(unsigned int id, float eEM, float eHad, float t, int i = 0);
   
   //Names
   static const char *name() { return "Hit"; }
@@ -21,9 +24,9 @@ public:
   const char * getName() const { return name (); }
 
   //Energy deposit of the Hit
-  double energy()    const { return myEnergyEM+myEnergyHad; }
-  double energyEM()  const { return myEnergyEM; }
-  double energyHad() const { return myEnergyHad; }
+  double energy()    const { return myEnergy; }
+  double energyEM()  const { return myEMFraction*myEnergy; }
+  double energyHad() const { return (1.-myEMFraction)*myEnergy; }
 
   //Time of the deposit
   double time() const { return myTime; }
@@ -43,18 +46,16 @@ public:
 
   //Comparisons
 
-  bool operator<(const PCaloHit &d) const 
-  { return (myEnergyEM+myEnergyHad) < (d.myEnergyEM+d.myEnergyHad); }
+  bool operator<(const PCaloHit &d) const { return myEnergy < d.myEnergy; }
 
   //Same Hit (by value)
   bool operator==(const PCaloHit &d) const 
-  { return ((myEnergyEM+myEnergyHad) == (d.myEnergyEM+d.myEnergyHad) &&
-	    detId == d.detId); }
+  { return (myEnergy == d.myEnergy && detId == d.detId); }
 
 
 protected: 
-  float myEnergyEM;
-  float myEnergyHad; 
+  float myEnergy;
+  float myEMFraction; 
   float myTime; 
   int   myItra; 
   unsigned int detId; 
