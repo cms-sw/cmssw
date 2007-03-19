@@ -24,16 +24,24 @@ void CmsTrackerRingBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
   compbw.clear();
 
 
-  switch(det->components().front()->type()){
-
+  switch(det->components().front()->type()) {
+  
   case GeometricDet::mergedDet: TrackerStablePhiSort(comp.begin(), comp.end(), ExtractPhi()); break;
   case GeometricDet::DetUnit:TrackerStablePhiSort(comp.begin(), comp.end(), ExtractPhi()); break;
   default:
     edm::LogError("CmsTrackerRingBuilder")<<"ERROR - wrong SubDet to sort..... "<<det->components().front()->type(); 
   }
-
+  
   std::string part="TkDDDStructure";
-  if(ExtractStringFromDDD::getString(part,&fv) == "TECGluedDet"||ExtractStringFromDDD::getString(part,&fv) == "TECDet"){
+  
+  // TEC
+  // Module Number: 3 bits [1,...,5 at most]
+  if(ExtractStringFromDDD::getString(part,&fv) == "TECGluedDet" || ExtractStringFromDDD::getString(part,&fv) == "TECDet"){
+    
+    // TEC-
+    if( det->translation().z() < 0 ) {
+      TrackerStablePhiSort(comp.begin(), comp.end(), ExtractPhiMirror());
+    }
     
     for(uint32_t i=0; i<comp.size();i++){
       uint32_t temp = i+1;
@@ -43,19 +51,19 @@ void CmsTrackerRingBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
     det->deleteComponents();
     det->addComponents(comp);
     
-  }else{
-    for(uint32_t i=0; i<comp.size();i++){
-      if(fabs(comp[i]->translation().z())<fabs(det->translation().z())){      
-	compfw.push_back(comp[i]);
-      }else{
-	compbw.push_back(comp[i]);
-      }
-    }
-    
+  } else {
     // TID
     // Ring Side: 2 bits [back:1 front:2]
     // Module Number: 5 bits [1,...,20 at most]
     //
+    for(uint32_t i=0; i<comp.size();i++){
+      if(fabs(comp[i]->translation().z())<fabs(det->translation().z())){      
+	compfw.push_back(comp[i]);
+      } else {
+	compbw.push_back(comp[i]);
+      }
+    }
+    
     if(compbw.size()){
       for(uint32_t i=0; i<compbw.size();i++){
 	uint32_t temp = i+1;

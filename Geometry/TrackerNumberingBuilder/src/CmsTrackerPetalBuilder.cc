@@ -27,12 +27,12 @@ void CmsTrackerPetalBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
     edm::LogError("CmsTrackerPetalBuilder")<<"ERROR - wrong SubDet to sort..... "<<det->components().front()->type(); 
   }
   
-  //Maximum Numebr fo TEC Ring is 7 in order 
-  //to discover from which number we have to strat
-  //the operation is MaxRing - RealRingNumber + 1 (C++)
-
+  // Maximum Number fo TEC Rings is 7 in order 
+  // to discover from which number we have to start
+  // the operation is MaxRing - RealRingNumber + 1 (C++)
+  
   uint32_t startring = 8 - comp.size();
-
+  
   for(uint32_t i=0; i<comp.size(); i++){
     comp[i]->setGeographicalID(DetId(startring+i));
   }

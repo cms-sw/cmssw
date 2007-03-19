@@ -44,6 +44,7 @@ class CmsTrackerLevelBuilder : public CmsTrackerAbstractConstruction {
     double operator()(const GeometricDet* a)const{
       const double pi = 3.141592653592;
       double phi = a->translation().phi();
+      //      std::cout << "phi = " << phi << std::endl;
       return( phi>= 0 ? phi:phi+2*pi);   
     }
   };
@@ -66,6 +67,7 @@ class CmsTrackerLevelBuilder : public CmsTrackerAbstractConstruction {
 	double temp = phi/float(comp.size()) < 0. ? 
 	  2*pi + phi/float(comp.size()):
 	  phi/float(comp.size());
+	//	std::cout << "phi = " << temp << std::endl;
 	return temp;
 	
       }else{
@@ -81,8 +83,29 @@ class CmsTrackerLevelBuilder : public CmsTrackerAbstractConstruction {
 	  pi - phi/float(comp.size()):
 	  phi/float(comp.size());
 	temp = temp >= 0? temp:2*pi+temp;
+	//	std::cout << "phi = " << temp << std::endl;
 	return temp;
       }
+    }
+  };
+  
+  struct ExtractPhiMirror:public uFcn{
+    double operator()(const GeometricDet* a)const{
+      const double pi = 3.141592653592;
+      double phi = a->translation().phi();
+      phi = (phi>= 0 ? phi : phi+2*pi); // (-pi,pi] --> [0,2pi)
+      //      std::cout << "phi = " << phi << " pi-phi = " << (pi-phi) << std::endl;
+      return ( (pi-phi) >= 0 ? (pi-phi) : (pi-phi)+2*pi ); // (-pi,pi] --> [0,2pi)
+    }
+  };
+
+  struct ExtractPhiModuleMirror:public uFcn{
+    double operator()(const GeometricDet* a)const{
+      const double pi = 3.141592653592;
+      double phi = ExtractPhiModule()(a); // [0,2pi)
+      phi = ( phi <= pi ? phi : phi-2*pi );   // (-pi,pi]   
+      //      std::cout << "phi = " << phi << " pi-phi = " << (pi-phi) << std::endl;
+      return (pi-phi);
     }
   };
   

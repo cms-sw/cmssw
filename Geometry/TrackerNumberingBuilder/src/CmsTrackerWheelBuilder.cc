@@ -45,13 +45,21 @@ void CmsTrackerWheelBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
 	  compbw.push_back(comp[i]);      
 	}
       }    
-
-      TrackerStablePhiSort(compfw.begin(), compfw.end(), ExtractPhiModule());
-      TrackerStablePhiSort(compbw.begin(), compbw.end(), ExtractPhiModule());
-
+      
+      // TEC+
+      if( comp.front()->translation().z() > 0 ) {
+	TrackerStablePhiSort(compfw.begin(), compfw.end(), ExtractPhiModule());
+	TrackerStablePhiSort(compbw.begin(), compbw.end(), ExtractPhiModule());
+      }
+      // TEC-
+      else {
+	TrackerStablePhiSort(compfw.begin(), compfw.end(), ExtractPhiModuleMirror());
+	TrackerStablePhiSort(compbw.begin(), compbw.end(), ExtractPhiModuleMirror());	
+      }
+      //
       // TEC
-      // Petal Number: 4 bits [1,...,8]
       // Wheel Part:   3 bits [back:1 front:2]
+      // Petal Number: 4 bits [1,...,8]
       //
       for(uint32_t i=0; i<compbw.size(); i++){
 	uint32_t temp = i+1;
