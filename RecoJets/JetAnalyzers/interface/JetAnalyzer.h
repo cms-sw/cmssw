@@ -66,8 +66,8 @@
 
 /** \class JetAnalyzer
   *  
-  * $Date: 2007/01/02 11:23:28 $
-  * $Revision: 1.3 $
+  * $Date: 2007/03/16 15:31:54 $
+  * $Revision: 1.4 $
   * \author L. Apanasevich - UIC and Anwar Bhatti
   */
 class JetAnalyzer : public edm::EDAnalyzer {
@@ -126,11 +126,15 @@ public:
 
   void bookHistograms();
   void bookGeneralHistograms();
+  void bookFillEoPCorrectionPlots();
 
   void bookRecHitHists(const TString subDetName);
   template <typename T> void fillRecHitHists(const CaloGeometry& caloGeometry,const T& hits,const TString subDetName,double& sumEnergy);
   //  void fillRecHitHists(const CaloGeometry& caloGeometry,const EBRecHitCollection& EBRecHits,const EERecHitCollection& EERecHits);
 
+
+  void bookClusterPlot(TString name);
+  void fillClusterPlot(TString name, std::vector<CalCluster> ClusterList);
 
   void bookTBTriggerHists();
   void fillTBTriggerHists(const HcalTBTriggerData& trigger);
@@ -215,12 +219,13 @@ public:
   void bookPtSpectrumInAJet();
   void PtSpectrumInAJet(GenJetCollection::const_iterator ijet,const HepMC::GenEvent genEvent,const double response);
 
-
   void fillSubClusterPlot(std::vector<CalCluster> CaloClusterR05List,
 			  std::vector<CalCluster> CaloClusterR03List,
 			  std::vector<CalCluster> CaloClusterR15List,
-			  std::vector<CalCluster> HdClusterR15List,
+			  std::vector<CalCluster> HdClusterR015List,
+			  std::vector<CalCluster> HdClusterR025List,
 			  std::vector<CalCluster> EmClusterR003List,
+			  std::vector<CalCluster> EmClusterR006List,
 			  std::vector<CalCluster> EmHdClusterList);
 
 
@@ -270,6 +275,7 @@ private:
 
   // input variables
   string _HistName; // Name of histogram file
+
   bool _Monte;
   bool _PlotTrigger;
   bool _PlotRecHits;
@@ -277,6 +283,9 @@ private:
   bool _PlotDijets;
   bool _PlotMCParticles;
   bool _PlotLocalClusters;
+  bool ExcludeInteractions_;
+
+  bool IsItMIP_;
 
   const double etaBarrel() {return 1.4;}
 

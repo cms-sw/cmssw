@@ -58,19 +58,21 @@ JetAnalyzer::JetAnalyzer(const edm::ParameterSet& pSet) {
   _EtaMax=5.2;
   _HistName="test.root"; 
 
-
   _Monte=true;
   _PlotTrigger=false;
   _PlotRecHits=true;
   _PlotDigis=true;
   _PlotDijets=true;
   _PlotMCParticles=true;
-  _PlotLocalClusters=false;
+  _PlotLocalClusters=true;
+
+  ExcludeInteractions_=false;
 
   // If your module takes parameters, here is where you would define
   // their names and types, and access them to initialize internal
   // variables. Example as follows:
   //
+
   std::cout << " Beginning JetAnalyzer Analysis " << std::endl;
 
   calojets_   = pSet.getParameter< std::string > ("calojets");
@@ -84,7 +86,7 @@ JetAnalyzer::JetAnalyzer(const edm::ParameterSet& pSet) {
 
   errCnt=0;
 
-  edm::ParameterSet myJetParams = pSet.getParameter<edm::ParameterSet>("RunParameters") ;
+  edm::ParameterSet myJetParams = pSet.getParameter<edm::ParameterSet>("RunParameters");
   vector<std::string> parameterNames = myJetParams.getParameterNames() ;
   
   for ( vector<std::string>::iterator iParam = parameterNames.begin();
@@ -99,6 +101,7 @@ JetAnalyzer::JetAnalyzer(const edm::ParameterSet& pSet) {
     else if ( (*iParam) == "PlotDijets" ) _PlotDijets =  myJetParams.getParameter<bool>( *iParam );
     else if ( (*iParam) == "PlotMCParticles" ) _PlotMCParticles =  myJetParams.getParameter<bool>( *iParam );
     else if ( (*iParam) == "PlotLocalClusters" ) _PlotLocalClusters =  myJetParams.getParameter<bool>( *iParam );
+    else if ( (*iParam) == "ExcludeInteractions" ) ExcludeInteractions_ =  myJetParams.getParameter<bool>( *iParam );
   }
 
   cout << "---------- Input Parameters ---------------------------" << endl;
@@ -124,9 +127,6 @@ void JetAnalyzer::analyze(edm::Event const& evt, edm::EventSetup const& iSetup) 
    edm::ESHandle<CaloGeometry> geometry;
    iSetup.get<IdealGeometryRecord>().get(geometry);
 
-
-
-
   // These declarations create handles to the types of records that you want
   // to retrieve from event "evt".
   //
@@ -146,19 +146,19 @@ void JetAnalyzer::analyze(edm::Event const& evt, edm::EventSetup const& iSetup) 
 
  //  edm::Handle<CaloTowerCollection> caloTowers;
 
-//   edm::Handle<EBRecHitCollection> EBRecHits;
-//   edm::Handle<EERecHitCollection> EERecHits;
+ //   edm::Handle<EBRecHitCollection> EBRecHits;
+ //   edm::Handle<EERecHitCollection> EERecHits;
 
-//   edm::Handle<HBHERecHitCollection> HBHERecHits;
-//   edm::Handle<HORecHitCollection> HORecHits;
-//   edm::Handle<HFRecHitCollection> HFRecHits;
+ //   edm::Handle<HBHERecHitCollection> HBHERecHits;
+ //   edm::Handle<HORecHitCollection> HORecHits;
+ //   edm::Handle<HFRecHitCollection> HFRecHits;
 
 
  //  edm::Handle<HBHEDigiCollection> HBHEDigis;
-//   edm::Handle<HODigiCollection> HODigis;
-//   edm::Handle<HFDigiCollection> HFDigis;
+ //   edm::Handle<HODigiCollection> HODigis;
+ //   edm::Handle<HFDigiCollection> HFDigis;
 
-//   edm::Handle<HcalTBTriggerData> trigger;
+ //   edm::Handle<HcalTBTriggerData> trigger;
 
   edm::Handle<std::vector<reco::PFCluster> > PFCluster;
   //  edm::Handle< vector<reco::PFCluster> > clustersECAL;
@@ -351,6 +351,8 @@ void JetAnalyzer::bookHistograms() {
 
   bookGeneralHistograms();
 
+  bookFillEoPCorrectionPlots();
+
   bookTBTriggerHists();
 
   bookCaloTowerHists();
@@ -409,14 +411,16 @@ void JetAnalyzer::analyze( const CaloJetCollection& calojets,
   int nSimVertex = simVertex.size();
   int nSimTrack  = simTrack.size();
 
-  if(nSimTrack>1 || nSimVertex > 1) return;
-
   cout << " Number of simVertices " << nSimVertex << "  " <<  nSimTrack << endl; 
 
   //  for (int j=0;j<nSimVertex;++j){
   //    cout << "************************" << simVertex[j].position().x()<<endl;
   // }
 
+
+  if(ExcludeInteractions_) {
+    if(nSimTrack>1 || nSimVertex > 1) return;
+  }
 
   if(_PlotTrigger) {
     if(&trigger) fillTBTriggerHists(trigger);
@@ -469,43 +473,46 @@ void JetAnalyzer::analyze( const CaloJetCollection& calojets,
     }
   }
 
-  MakeLocalClusters(caloGeometry,calojets,recmets,caloTowers,EBRecHits,EERecHits,HBHERecHits,HORecHits,HFRecHits);
-
   double sumEB(0.0);
   double sumEE(0.0);
   double sumHB(0.0);
   double sumHE(0.0);
   double sumHO(0.0);
 
-
   fillRecHitHists(caloGeometry,EBRecHits,"EB",sumEB);
   fillRecHitHists(caloGeometry,EERecHits,"EE",sumEE);
-
   fillRecHitHists(caloGeometry,HBHERecHits,"HB",sumHB);
   fillRecHitHists(caloGeometry,HBHERecHits,"HE",sumHE);
   fillRecHitHists(caloGeometry,HORecHits,"HO",sumHO);
 
+  double sumEmRecHits=sumEB+sumEE;
+  double sumHadRecHits=sumHB+sumHE+sumHO;
+  double sumEnergyRecHits=sumEmRecHits+sumHadRecHits;
 
   hname="RecHitsSumEmEnergy";
-  fillHist1D(hname,sumEB+sumEE);
+  fillHist1D(hname,sumEmRecHits);
 
   hname="RecHitsSumHadEnergy";
-  fillHist1D(hname,sumHB+sumHE);
+  fillHist1D(hname,sumHadRecHits);
 
   hname="RecHitsSumEnergy";
-  fillHist1D(hname,sumHB+sumHE+sumEB+sumEE);
+  fillHist1D(hname,sumEnergyRecHits);
 
-
-  if(sumEB+sumEE<0.6) {
+  if(sumEmRecHits<0.6) {
     hname="RecHitsSumEmEnergyMIP";
-    fillHist1D(hname,sumEB+sumEE);
+    fillHist1D(hname,sumEmRecHits);
 
     hname="RecHitsSumHadEnergyMIP";
-    fillHist1D(hname,sumHB+sumHE);
+    fillHist1D(hname,sumHadRecHits);
 
     hname="RecHitsSumEnergyMIP";
-    fillHist1D(hname,sumHB+sumHE+sumEB+sumEE);
+    fillHist1D(hname,sumEnergyRecHits);
   }
+  
+  IsItMIP_ = (sumEB+sumEE<0.6) ? true : false;
+  
+
+  MakeLocalClusters(caloGeometry,calojets,recmets,caloTowers,EBRecHits,EERecHits,HBHERecHits,HORecHits,HFRecHits);
 }
 
 void JetAnalyzer::bookGeneralHistograms() {
@@ -522,102 +529,6 @@ void JetAnalyzer::bookGeneralHistograms() {
 
   m_HistNames2D[hname] = new TH2F(hname,htitle,100,0.0,100.,100,0.0,100.);
 
-  for(int i=0;i<50;i++){
-    std::ostringstream oi; oi << i;
-    hname="EoPCorrection"+oi.str();
-    htitle="EoPCorrection"+oi.str();
-    m_HistNames[hname] = new TH1F(hname,htitle,100,0.0,1.0);
-
-    hname="F0"+oi.str();
-    htitle="F0"+oi.str();
-    m_HistNames[hname] = new TH1F(hname,htitle,100,0.0,1.0);
-
-    hname="EoHEm"+oi.str();
-    htitle="EoHEm"+oi.str();
-    m_HistNames[hname] = new TH1F(hname,htitle,100,0.0,1.0);
-
-    hname="EoHHd"+oi.str();
-    htitle="EoHHd"+oi.str();
-    m_HistNames[hname] = new TH1F(hname,htitle,100,0.0,1.0);
-
-    hname= "EoPiEm"+oi.str();
-    htitle="EoPiEm"+oi.str();
-    m_HistNames[hname] = new TH1F(hname,htitle,100,0.0,1.0);
-
-    hname= "EoPiHd"+oi.str();
-    htitle="EoPiHd"+oi.str();
-    m_HistNames[hname] = new TH1F(hname,htitle,100,0.0,1.0);
-  }
-
-  for(int i=0;i<10;i++){
-    std::ostringstream oi; oi << i;
-    TString hname="EoPCorrection"+oi.str();
-    TString hnamef0="F0"+oi.str();
-    TString hnameEoHEm="EoHEm"+oi.str();
-    TString hnameEoHHd="EoHHd"+oi.str();
-    TString hnameEoPiEm="EoPiEm"+oi.str();
-    TString hnameEoPiHd="EoPiHd"+oi.str();
-
-    double Etot=(i+1)*1.0;
-    //  cout << " Etot " << Etot << endl;
-    for(int j=0;j<21;j++){
-      double Em= double(j)*0.05*Etot;
-      double Had=Etot-Em;
-      double f0(0);
-      double EoHEm(0);
-      double EoHHd(0);
-
-      double EoPiEm(0);
-      double EoPiHd(0);
-  
-
-      double CorrectedEnergy=CorrectedE(Em,Had,1,f0,EoHEm,EoHHd,EoPiEm,EoPiHd);
-      double CF=CorrectedEnergy/(Etot);
-      //cout << " Etot " << Etot << " Em " << Em << " Had " << Had << " Corrected E " << CorrectedEnergy << " R " << CorrectedEnergy/Etot <<endl;
-
-      fillHist1D(hname,Em/Etot,CF);
-      fillHist1D(hnamef0,Em/Etot,f0);
-      fillHist1D(hnameEoHEm,Em/Etot,EoHEm);
-      fillHist1D(hnameEoHHd,Em/Etot,EoHHd);
-      fillHist1D(hnameEoPiEm,Em/Etot,EoPiEm);
-      fillHist1D(hnameEoPiHd,Em/Etot,EoPiHd);
-    }
-  }
-
-  for(int i=10;i<50;i++){
-    std::ostringstream oi; oi << i;
-    TString hname="EoPCorrection"+oi.str();
-    TString hnamef0="F0"+oi.str();
-    TString hnameEoHEm="EoHEm"+oi.str();
-    TString hnameEoHHd="EoHHd"+oi.str();
-    TString hnameEoPiEm="EoPiEm"+oi.str();
-    TString hnameEoPiHd="EoPiHd"+oi.str();
-
-    double Etot=(i-8)*5.0;
-    // cout << " Etot " << Etot << endl;
-    for(int j=0;j<21;j++){
-      double Em= double(j)*0.05*Etot;
-      double Had=Etot-Em;
-      double f0(0);
-      double EoHEm(0);
-      double EoHHd(0);
-
-      double EoPiEm(0);
-      double EoPiHd(0);
-  
-
-      double CorrectedEnergy=CorrectedE(Em,Had,1,f0,EoHEm,EoHHd,EoPiEm,EoPiHd);
-      double CF=CorrectedEnergy/(Etot);
-      //  cout << " Etot " << Etot << " Em " << Em << " Had " << Had << " Corrected E " << CorrectedEnergy << " R " << CorrectedEnergy/Etot <<endl;
-
-      fillHist1D(hname,Em/Etot,CF);
-      fillHist1D(hnamef0,Em/Etot,f0);
-      fillHist1D(hnameEoHEm,Em/Etot,EoHEm);
-      fillHist1D(hnameEoHHd,Em/Etot,EoHHd);
-      fillHist1D(hnameEoPiEm,Em/Etot,EoPiEm);
-      fillHist1D(hnameEoPiHd,Em/Etot,EoPiHd);
-    }
-  }
 }
 
 void JetAnalyzer::bookTBTriggerHists() {
@@ -1163,16 +1074,29 @@ void JetAnalyzer::bookRecHitHists(const TString subDetName) {
   htitle="NumberOfRecHitsNZ"+subDetName;
   m_HistNames[hname] = new TH1F(hname,htitle,10000,0.0,10000.);
 
-  hname="SumEnergyRecHits"+subDetName;
-  htitle="SumEnergyRecHits"+subDetName;
-  m_HistNames[hname] = new TH1F(hname,htitle,1000,0.0,1000.);
+  hname="SumEnergyRecHitsA"+subDetName;
+  htitle="SumEnergyRecHitsA"+subDetName;
+  m_HistNames[hname] = new TH1F(hname,htitle,1000,0.0,100.);
 
   hname="SumPtRecHits"+subDetName;
   htitle="SumPtRecHits"+subDetName;
   m_HistNames[hname] = new TH1F(hname,htitle,1000,0.0,1000.);
 
+  hname="SumEnergyRecHits"+subDetName;
+  htitle="SumEnergyRecHits"+subDetName;
+  m_HistNames[hname] = new TH1F(hname,htitle,1000,0.0,1000.);
+
+  hname="SumPtRecHitsA"+subDetName;
+  htitle="SumPtRecHitsA"+subDetName;
+  m_HistNames[hname] = new TH1F(hname,htitle,1000,0.0,1000.);
+
+
   hname="PtRecHits"+subDetName;
   htitle="PtRecHits"+subDetName;
+  m_HistNames[hname] = new TH1F(hname,htitle,1000,0.0,1000.);
+
+  hname="PtRecHitsA"+subDetName;
+  htitle="PtRecHitsA"+subDetName;
   m_HistNames[hname] = new TH1F(hname,htitle,1000,0.0,100.);
 
 
@@ -1188,12 +1112,13 @@ void JetAnalyzer::bookRecHitHists(const TString subDetName) {
   htitle="PhiRecHits"+subDetName;
   m_HistNames[hname] = new TH1F(hname,htitle,72,-M_PI,M_PI);
 
-
   hname="EnergyRecHits"+subDetName;
   htitle="EnergyRecHits"+subDetName;
-  m_HistNames[hname] = new TH1F(hname,htitle,1000,0.0,100.);
+  m_HistNames[hname] = new TH1F(hname,htitle,1000,0.0,1000.);
 
-  hname="CaloTowerEnergyEtaPhi";
+  hname="EnergyRecHitsA"+subDetName;
+  htitle="EnergyRecHitsA"+subDetName;
+  m_HistNames[hname] = new TH1F(hname,htitle,1000,0.0,100.);
 
   hname="RecHitsEnergyEtaPhi"+subDetName;
   htitle="RecHitsEnergyEtaPhi"+subDetName;
@@ -2442,23 +2367,21 @@ void JetAnalyzer::MatchEmHadClusters(std::vector<CalCluster> EmClusterList,std::
 }
 void JetAnalyzer::bookSubClusterHistograms(){
 
+  bookClusterPlot("CaloTowerClusterR05");
+  bookClusterPlot("CaloTowerClusterR03");
+  bookClusterPlot("CaloTowerClusterR015");
+
+  bookClusterPlot("EmRecHitClusterR0030");
+  bookClusterPlot("EmRecHitClusterR0045");
+  bookClusterPlot("EmRecHitClusterR0050");
+  bookClusterPlot("EmRecHitClusterR0060");
+  bookClusterPlot("EmRecHitClusterR0070");
+
+  bookClusterPlot("HadRecHitClusterR015");
+  bookClusterPlot("HadRecHitClusterR025");
+
+
   TString hname; TString htitle;
-
-  hname="NumberOfCaloTowerR05Clusters"; htitle="NumberOfCaloTowerR05Clusters";
-  m_HistNames[hname]= new TH1F(hname,htitle,500,0.0,500.0);
-
-
-  hname="NumberOfCaloTowerR03Clusters"; htitle="NumberOfCaloTowerR03Clusters";
-  m_HistNames[hname]= new TH1F(hname,htitle,500,0.0,500.0);
-
-  hname="NumberOfCaloTowerR15Clusters"; htitle="NumberOfCaloTowerR15Clusters";
-  m_HistNames[hname]= new TH1F(hname,htitle,1000,0.0,1000.0);
-
-  hname="NumberOfEmRecHitClusters"; htitle="NumberOfEmRecHitClusters";
-  m_HistNames[hname]= new TH1F(hname,htitle,1000,0.0,1000.0);
-
-  hname="NumberOfHdRecHitClusters"; htitle="NumberOfHdRecHitClusters";
-  m_HistNames[hname]= new TH1F(hname,htitle,1000,0.0,1000.0);
    
   hname="NumberOfEmHdClusters"; htitle="NumberOfEmHdClusters";
   m_HistNames[hname]= new TH1F(hname,htitle,1000,0.0,1000.0);
@@ -2510,30 +2433,134 @@ void JetAnalyzer::bookSubClusterHistograms(){
   m_HistNames2D[hname]= new TH2F(hname,htitle,100,0.0,500.0,100,0.0,500.);
 
 }
+
+void JetAnalyzer::bookClusterPlot(TString name){
+
+  TString hname; TString htitle;
+  hname="NumberOf"+name;
+  htitle="NumberOf"+name;
+  m_HistNames[hname] = new TH1F(hname,htitle,100,0.0,100.0);
+
+  hname="SumEnergy"+name+"Clusters";
+  htitle=hname;
+  m_HistNames[hname] = new TH1F(hname,htitle,500,0.0,500.0);
+
+  hname="NCells"+name+"Clusters";
+  htitle=hname;
+  m_HistNames[hname] = new TH1F(hname,htitle,100,0.0,100.0);
+  
+  hname="Energy"+name+"Clusters";
+  htitle=hname;
+  m_HistNames[hname] = new TH1F(hname,htitle,500,0.0,500.0);
+
+  for(int i=0;i<5;i++){
+    std::ostringstream oi; oi << i;
+
+    hname="NCells"+name+"Cluster"+oi.str();
+    htitle=hname;
+    m_HistNames[hname] = new TH1F(hname,htitle,100,0.0,100.0);
+  
+    hname="Energy"+name+"Cluster"+oi.str();
+    htitle=hname;
+    m_HistNames[hname] = new TH1F(hname,htitle,500,0.0,500.0);
+
+    if(i==0) {
+      hname="NCells"+name+"ClusterMIP"+oi.str();
+      htitle=hname;
+      m_HistNames[hname] = new TH1F(hname,htitle,100,0.0,100.0);
+  
+      hname="Energy"+name+"ClusterMIP"+oi.str();
+      htitle=hname;
+      m_HistNames[hname] = new TH1F(hname,htitle,500,0.0,500.0);
+    }
+  }
+}
+
+void JetAnalyzer::fillClusterPlot(TString name, std::vector<CalCluster> ClusterList){
+
+  int nClusters=ClusterList.size();
+
+  TString hname;
+
+  hname="NumberOf"+name;
+  fillHist1D(hname,nClusters);
+
+  double sumEnergy(0);
+
+  for(int i=0;i<nClusters;i++){
+    sumEnergy +=ClusterList[i].Momentum.e();
+    hname="NCells"+name+"Clusters";
+    fillHist1D(hname,ClusterList[i].ncells);
+    hname="Energy"+name+"Clusters";
+    fillHist1D(hname,ClusterList[i].Momentum.e());
+  }
+
+  for(int i=0;i<TMath::Min(5,nClusters);i++){
+    std::ostringstream oi; oi << i;
+    hname="NCells"+name+"Cluster"+oi.str();
+    fillHist1D(hname,ClusterList[i].ncells);
+    hname="Energy"+name+"Cluster"+oi.str();
+    fillHist1D(hname,ClusterList[i].Momentum.e());
+   
+    if(i==0 && IsItMIP_) {
+      hname="NCells"+name+"ClusterMIP"+oi.str();
+      fillHist1D(hname,ClusterList[i].ncells);
+      hname="Energy"+name+"ClusterMIP"+oi.str();
+      fillHist1D(hname,ClusterList[i].Momentum.e());
+    }
+
+  }
+
+  hname="SumEnergy"+name+"Clusters";
+  fillHist1D(hname,sumEnergy);
+
+}
+
 void JetAnalyzer::fillSubClusterPlot(std::vector<CalCluster> CaloClusterR05List,
 				     std::vector<CalCluster> CaloClusterR03List,
-				     std::vector<CalCluster> CaloClusterR15List,
-				     std::vector<CalCluster> HdClusterR15List,
-				     std::vector<CalCluster> EmClusterR003List,
+				     std::vector<CalCluster> CaloClusterR015List,
+				     std::vector<CalCluster> HdRHClusterR015List,
+				     std::vector<CalCluster> HdRHClusterR025List,
+				     std::vector<CalCluster> EmRHClusterR003List,
+				     std::vector<CalCluster> EmRHClusterR006List,
 				     std::vector<CalCluster> EmHdClusterList){
 
   TString hname="NumberOfCaloTowerR05Clusters";
   fillHist1D(hname,CaloClusterR05List.size());
 
+  if(CaloClusterR05List.size()>0.0){
+    hname="NCellCaloTowerR05Cluster0";
+    fillHist1D(hname,CaloClusterR05List[0].ncells);
+    hname="EnergyCaloTowerR05Cluster0";
+    fillHist1D(hname,CaloClusterR05List[0].Momentum.e());
+  }
+
+
   hname="NumberOfCaloTowerR03Clusters";
   fillHist1D(hname,CaloClusterR03List.size());
 
   hname="NumberOfCaloTowerR15Clusters";
-  fillHist1D(hname,CaloClusterR15List.size());
+  fillHist1D(hname,CaloClusterR015List.size());
 
-  hname="NumberOfEmRecHitClusters";
-  fillHist1D(hname,EmClusterR003List.size());
+  hname="NumberOfEmRecHitR003Clusters";
+  fillHist1D(hname,EmRHClusterR003List.size());
 
-  hname="NumberOfHdRecHitClusters";
-  fillHist1D(hname,HdClusterR15List.size());
+  hname="NumberOfEmRecHitR006Clusters";
+  fillHist1D(hname,EmRHClusterR006List.size());
+
+  hname="NumberOfHdRecHitR15Clusters";
+  fillHist1D(hname,HdRHClusterR015List.size());
+
+
+  hname="NumberOfHdRecHitR25Clusters";
+  fillHist1D(hname,HdRHClusterR025List.size());
 
   hname="NumberOfEmHdClusters";
   fillHist1D(hname,EmHdClusterList.size());
+
+
+
+
 
   int EmHdClusters(0);
   int EmOnlyClusters(0);
@@ -2910,50 +2937,74 @@ void JetAnalyzer::MakeLocalClusters(const CaloGeometry& caloGeometry,
     std::vector<CalCluster> CaloClusterR03List;
     std::vector<CalCluster> CaloClusterR15List;
 
-    if (&caloTowers){
+    if(&caloTowers){
       std::vector<CalCell> CaloTowerList;
       MakeCaloTowerList(caloGeometry,caloTowers,CaloTowerList);
-      SimpleConeCluster(ClusterTower,1.0,0.5,0.5,CaloTowerList,CaloClusterR05List);
+      SimpleConeCluster(ClusterTower,0.5,0.5,0.5,CaloTowerList,CaloClusterR05List);
       SimpleConeCluster(ClusterTower,0.5,0.5,0.3,CaloTowerList,CaloClusterR03List);
       SimpleConeCluster(ClusterTower,0.5,0.5,0.15,CaloTowerList,CaloClusterR15List);
 
-      cout <<  " CaloCluster R05 List "<< CaloClusterR05List.size()  << endl;
+      fillClusterPlot("CaloTowerClusterR05",CaloClusterR05List);
+      fillClusterPlot("CaloTowerClusterR03",CaloClusterR03List);
+      fillClusterPlot("CaloTowerClusterR015",CaloClusterR15List);
+
     }
 
   //   do local clustering using rechits
 
     if ((&caloTowers) && (&EBRecHits) && (&EERecHits) && (&HBHERecHits && (&HORecHits) && (&HFRecHits)) ){
+
+      std::vector<CalCell> EmRecHitsList;
+      MakeEmCellList(caloGeometry,EBRecHits,EERecHits,EmRecHitsList);
+      std::vector<CalCell> HadRecHitsList;
+      MakeHadCellList(caloGeometry,HBHERecHits,HORecHits,HFRecHits,HadRecHitsList);
+
+      std::vector<CalCluster> EmRHClusterR0030List;
+      SimpleConeCluster(ClusterEm,0.0,0.0,0.03,EmRecHitsList,EmRHClusterR0030List);
+
+      std::vector<CalCluster> EmRHClusterR0045List;
+      SimpleConeCluster(ClusterEm,0.0,0.0,0.045,EmRecHitsList,EmRHClusterR0045List);
+
+      std::vector<CalCluster> EmRHClusterR0050List;
+      SimpleConeCluster(ClusterEm,0.0,0.0,0.050,EmRecHitsList,EmRHClusterR0050List);
+
+      std::vector<CalCluster> EmRHClusterR0060List;
+      SimpleConeCluster(ClusterEm,0.0,0.0,0.060,EmRecHitsList,EmRHClusterR0060List);
+
+      std::vector<CalCluster> EmRHClusterR0070List;
+      SimpleConeCluster(ClusterEm,0.0,0.0,0.070,EmRecHitsList,EmRHClusterR0070List);
+
+      std::vector<CalCluster> HdRHClusterR15List;
+      SimpleConeCluster(ClusterHd,0.1,0.1,0.15,HadRecHitsList,HdRHClusterR15List);
+
+      std::vector<CalCluster> HdRHClusterR25List;
+      SimpleConeCluster(ClusterHd,0.1,0.1,0.25,HadRecHitsList,HdRHClusterR25List);
+
+      fillClusterPlot("EmRecHitClusterR0030",EmRHClusterR0030List);
+      fillClusterPlot("EmRecHitClusterR0045",EmRHClusterR0045List);
+      fillClusterPlot("EmRecHitClusterR0050",EmRHClusterR0050List);
+      fillClusterPlot("EmRecHitClusterR0060",EmRHClusterR0060List);
+      fillClusterPlot("EmRecHitClusterR0070",EmRHClusterR0070List);
+
+      fillClusterPlot("HadRecHitClusterR015",HdRHClusterR15List);
+      fillClusterPlot("HadRecHitClusterR025",HdRHClusterR25List);
+ 
+
+      //  Now use towers 
+
       std::vector<CalCell> EmCalCellList;
       std::vector<CalCell> HdCalCellList;
 
+
+
+
       MakeCellListFromCaloTowers(caloGeometry,caloTowers,EBRecHits,EERecHits,HBHERecHits,HORecHits,HFRecHits,EmCalCellList,HdCalCellList);
-
-      std::vector<CalCell> EmCellList;
-      MakeEmCellList(caloGeometry,EBRecHits,EERecHits,EmCellList);
-
-
-
-
-
-      std::vector<CalCell> HadTowerList;
-      MakeHadCellList(caloTowers,HadTowerList);
-
-      std::vector<CalCell> HadCellList;
-      MakeHadCellList(caloGeometry,HBHERecHits,HORecHits,HFRecHits,HadCellList);
-
-
-      std::vector<CalCluster> HdClusterR15List;
-      SimpleConeCluster(ClusterHd,0.5,0.5,0.15,HadCellList,HdClusterR15List);
-
-      cout <<  " HdCluster R015 List "<< HdClusterR15List.size()  << endl;     
-
-      std::vector<CalCluster> EmClusterR003List;
-      SimpleConeCluster(ClusterEm,0.1,0.1,0.03,EmCellList,EmClusterR003List);
-
-      cout <<  " EBCluster R003 List "<< EmClusterR003List.size()  << endl;     
 
       std::vector<CalCluster> ClusterFromTowerEmCellList;
       SimpleConeCluster(CaloTowerEm,0.0,0.0,0.5,EmCalCellList,ClusterFromTowerEmCellList);
+
+      std::vector<CalCell> HadTowerList;
+      MakeHadCellList(caloTowers,HadTowerList);
 
       std::vector<CalCluster> ClusterFromTowerHdCellList;
       SimpleConeCluster(CaloTowerHd,0.0,0.0,0.5,HdCalCellList,ClusterFromTowerHdCellList);
@@ -2963,12 +3014,15 @@ void JetAnalyzer::MakeLocalClusters(const CaloGeometry& caloGeometry,
     //  cout <<" Number of clusters " << EmHdClusterList.size() << endl;
     // cout << " Number of Towers "<< CaloTowerList.size() << " CaloClusters " <<CaloClusterR05List.size() << " Njets " << calojets.size() << endl;
 
-      std::vector<CalCluster> EmHdClusterList;
-      MatchEmHadClusters(EmClusterR003List,HdClusterR15List,EmHdClusterList);
-    //  cout <<" Number of clusters " << EmHdClusterList.size() << endl;
+      std::vector<CalCluster> EmHdRecHitClusterList;
+      MatchEmHadClusters(EmRHClusterR0030List,HdRHClusterR15List,EmHdRecHitClusterList);
+ 
+   //  cout <<" Number of clusters " << EmHdClusterList.size() << endl;
 
-      fillSubClusterPlot(CaloClusterR05List,CaloClusterR03List,CaloClusterR15List,HdClusterR15List,
-		       EmClusterR003List,EmHdClusterList);
+      //      fillSubClusterPlot(CaloClusterR05List,CaloClusterR05List,CaloClusterR15List,HdClusterR15List,
+      //	       EmRHClusterR003List,EmHdClusterList);
+
+
 
 
       double sumEtRecMet(0);
@@ -2985,7 +3039,7 @@ void JetAnalyzer::MakeLocalClusters(const CaloGeometry& caloGeometry,
       double missEtRecHit(0.);
 
       CalculateSumEtMET(EmHdClusterTowerList,sumEtCluster,missEtCluster);
-      CalculateSumEtMET(EmHdClusterList,sumEtRecHit,missEtRecHit);
+      CalculateSumEtMET(EmHdRecHitClusterList,sumEtRecHit,missEtRecHit);
 
       hname ="dSumEt";
       fillHist1D(hname,sumEtRecMet-sumEtCluster);
@@ -3067,8 +3121,8 @@ template <typename T> void JetAnalyzer::fillRecHitHists(const CaloGeometry& calo
 
       double eta=position.eta();
 
-      if(subDetName=="HB" && fabs(eta)>1.5) continue;
-      if(subDetName=="HE" && fabs(eta)<1.5) continue;
+      //      if(subDetName=="HB" && fabs(eta)>1.5) continue;
+      //   if(subDetName=="HE" && fabs(eta)<1.5) continue;
 
       double phi=position.phi();
       double theta=position.theta();
@@ -3105,12 +3159,121 @@ template <typename T> void JetAnalyzer::fillRecHitHists(const CaloGeometry& calo
   hname="NumberOfRecHitsNZ"+subDetName;
   fillHist1D(hname,nRecHitsNZ);
 
-  hname="SumEnergyRecHitsNZ"+subDetName;
+  hname="SumEnergyRecHits"+subDetName;
+  fillHist1D(hname,sumEnergy);
+
+  hname="SumEnergyRecHitsA"+subDetName;
   fillHist1D(hname,sumEnergy);
 
   double pt=sqrt(sumPx+sumPx+sumPy*sumPy);
 
-  hname="SumPtRecHitsNZ"+subDetName;
+  hname="SumPtRecHits"+subDetName;
   fillHist1D(hname,pt);
 
+
+  hname="SumPtRecHitsA"+subDetName;
+  fillHist1D(hname,pt);
+
+}
+void JetAnalyzer::bookFillEoPCorrectionPlots(){
+
+  TString hname;
+  TString htitle;
+
+  for(int i=0;i<50;i++){
+    std::ostringstream oi; oi << i;
+    hname="EoPCorrection"+oi.str();
+    htitle="EoPCorrection"+oi.str();
+    m_HistNames[hname] = new TH1F(hname,htitle,100,0.0,1.0);
+
+    hname="F0"+oi.str();
+    htitle="F0"+oi.str();
+    m_HistNames[hname] = new TH1F(hname,htitle,100,0.0,1.0);
+
+    hname="EoHEm"+oi.str();
+    htitle="EoHEm"+oi.str();
+    m_HistNames[hname] = new TH1F(hname,htitle,100,0.0,1.0);
+
+    hname="EoHHd"+oi.str();
+    htitle="EoHHd"+oi.str();
+    m_HistNames[hname] = new TH1F(hname,htitle,100,0.0,1.0);
+
+    hname= "EoPiEm"+oi.str();
+    htitle="EoPiEm"+oi.str();
+    m_HistNames[hname] = new TH1F(hname,htitle,100,0.0,1.0);
+
+    hname= "EoPiHd"+oi.str();
+    htitle="EoPiHd"+oi.str();
+    m_HistNames[hname] = new TH1F(hname,htitle,100,0.0,1.0);
+  }
+
+  for(int i=0;i<10;i++){
+    std::ostringstream oi; oi << i;
+    TString hname="EoPCorrection"+oi.str();
+    TString hnamef0="F0"+oi.str();
+    TString hnameEoHEm="EoHEm"+oi.str();
+    TString hnameEoHHd="EoHHd"+oi.str();
+    TString hnameEoPiEm="EoPiEm"+oi.str();
+    TString hnameEoPiHd="EoPiHd"+oi.str();
+
+    double Etot=(i+1)*1.0;
+    //  cout << " Etot " << Etot << endl;
+    for(int j=0;j<21;j++){
+      double Em= double(j)*0.05*Etot;
+      double Had=Etot-Em;
+      double f0(0);
+      double EoHEm(0);
+      double EoHHd(0);
+
+      double EoPiEm(0);
+      double EoPiHd(0);
+  
+
+      double CorrectedEnergy=CorrectedE(Em,Had,1,f0,EoHEm,EoHHd,EoPiEm,EoPiHd);
+      double CF=CorrectedEnergy/(Etot);
+      //cout << " Etot " << Etot << " Em " << Em << " Had " << Had << " Corrected E " << CorrectedEnergy << " R " << CorrectedEnergy/Etot <<endl;
+
+      fillHist1D(hname,Em/Etot,CF);
+      fillHist1D(hnamef0,Em/Etot,f0);
+      fillHist1D(hnameEoHEm,Em/Etot,EoHEm);
+      fillHist1D(hnameEoHHd,Em/Etot,EoHHd);
+      fillHist1D(hnameEoPiEm,Em/Etot,EoPiEm);
+      fillHist1D(hnameEoPiHd,Em/Etot,EoPiHd);
+    }
+  }
+
+  for(int i=10;i<50;i++){
+    std::ostringstream oi; oi << i;
+    TString hname="EoPCorrection"+oi.str();
+    TString hnamef0="F0"+oi.str();
+    TString hnameEoHEm="EoHEm"+oi.str();
+    TString hnameEoHHd="EoHHd"+oi.str();
+    TString hnameEoPiEm="EoPiEm"+oi.str();
+    TString hnameEoPiHd="EoPiHd"+oi.str();
+
+    double Etot=(i-8)*5.0;
+    // cout << " Etot " << Etot << endl;
+    for(int j=0;j<21;j++){
+      double Em= double(j)*0.05*Etot;
+      double Had=Etot-Em;
+      double f0(0);
+      double EoHEm(0);
+      double EoHHd(0);
+
+      double EoPiEm(0);
+      double EoPiHd(0);
+  
+
+      double CorrectedEnergy=CorrectedE(Em,Had,1,f0,EoHEm,EoHHd,EoPiEm,EoPiHd);
+      double CF=CorrectedEnergy/(Etot);
+      //  cout << " Etot " << Etot << " Em " << Em << " Had " << Had << " Corrected E " << CorrectedEnergy << " R " << CorrectedEnergy/Etot <<endl;
+
+      fillHist1D(hname,Em/Etot,CF);
+      fillHist1D(hnamef0,Em/Etot,f0);
+      fillHist1D(hnameEoHEm,Em/Etot,EoHEm);
+      fillHist1D(hnameEoHHd,Em/Etot,EoHHd);
+      fillHist1D(hnameEoPiEm,Em/Etot,EoPiEm);
+      fillHist1D(hnameEoPiHd,Em/Etot,EoPiHd);
+    }
+  }
 }
