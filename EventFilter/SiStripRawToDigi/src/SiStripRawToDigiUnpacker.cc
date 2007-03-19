@@ -258,25 +258,30 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
       const FedChannelConnection& conn = *iconn;//cabling.connection( *ifed, chan );
 
       // Determine whether FED key is inferred from cabling or channel loop
+      SiStripFedKey fed_path;
       uint32_t fed_key = 0;
-      if ( summary.task() == sistrip::FED_CABLING ) { 
-	fed_key = SiStripFedKey::key( *ifed, chan ); 
+      if ( summary.runType() == sistrip::FED_CABLING ) { 
+	fed_path = SiStripFedKey( *ifed, 
+				  SiStripFedKey::feUnit(chan),
+				  SiStripFedKey::feChan(chan) );
       } else { 
-	fed_key = SiStripFedKey::key( conn.fedId(), conn.fedCh() );
+	fed_path = SiStripFedKey( conn.fedId(), 
+				  SiStripFedKey::feUnit(conn.fedCh()),
+				  SiStripFedKey::feChan(conn.fedCh()) );
       }
-      SiStripFedKey::Path fed_path = SiStripFedKey::path(fed_key);
+      fed_key = fed_path.key(); 
       
       // Determine whether DetId or FED key should be used to index digi containers
-      uint32_t key = ( useFedKey_ || mode == sistrip::SCOPE_MODE ) ? fed_key : conn.detId();
+      uint32_t key = ( useFedKey_ || mode == sistrip::FED_SCOPE_MODE ) ? fed_key : conn.detId();
       
       // Check FedId or DetId is non-zero
-      bool ok = ( useFedKey_ || mode == sistrip::SCOPE_MODE ) ? fed_path.fedId_ : conn.detId();
+      bool ok = ( useFedKey_ || mode == sistrip::FED_SCOPE_MODE ) ? fed_path.fedId() : conn.detId();
       if ( !ok ) { continue; }
       
       // Determine APV pair number (needed only when using DetId)
-      uint16_t ipair = ( useFedKey_ || mode == sistrip::SCOPE_MODE ) ? 0 : conn.apvPairNumber();
+      uint16_t ipair = ( useFedKey_ || mode == sistrip::FED_SCOPE_MODE ) ? 0 : conn.apvPairNumber();
 
-      if ( mode == sistrip::SCOPE_MODE ) {
+      if ( mode == sistrip::FED_SCOPE_MODE ) {
 
 	edm::DetSet<SiStripRawDigi>& sm = *scope_mode.insert(scope_mode.end(),edm::DetSet<SiStripRawDigi>(key));
 	vector<uint16_t> samples; samples.reserve( 1024 ); // theoretical maximum for scope mode length
@@ -294,7 +299,7 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
 	    sm.data[i] = SiStripRawDigi( samples[i] ); 
 	  }
 	}
-      } else if ( mode == sistrip::VIRGIN_RAW ) {
+      } else if ( mode == sistrip::FED_VIRGIN_RAW ) {
 
 	edm::DetSet<SiStripRawDigi>& vr = *virgin_raw.insert(virgin_raw.end(),edm::DetSet<SiStripRawDigi>(key));
 	vector<uint16_t> samples; samples.reserve(256); 
@@ -321,7 +326,7 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
 	  }
 	}
 	
-      } else if ( mode == sistrip::PROC_RAW ) {
+      } else if ( mode == sistrip::FED_PROC_RAW ) {
 
 	edm::DetSet<SiStripRawDigi>& pr = *proc_raw.insert(proc_raw.end(),edm::DetSet<SiStripRawDigi>(key));
 	vector<uint16_t> samples; samples.reserve(256);
@@ -346,7 +351,7 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
 	  } 
 	}
 
-      } else if ( mode == sistrip::ZERO_SUPPR ) { 
+      } else if ( mode == sistrip::FED_ZERO_SUPPR ) { 
 	
 	edm::DetSet<SiStripDigi>& zs = *zero_suppr.insert(zero_suppr.end(),edm::DetSet<SiStripDigi>(key));
 	zs.data.reserve(256); // theoretical maximum (768/3, ie, clusters separated by at least 2 strips)
@@ -368,7 +373,7 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
 	  handleException( __func__, sss.str() ); 
 	} 
 
-      } else if ( mode == sistrip::ZERO_SUPPR_LITE ) { 
+      } else if ( mode == sistrip::FED_ZERO_SUPPR_LITE ) { 
 	
 	edm::DetSet<SiStripDigi>& zs = *zero_suppr.insert(zero_suppr.end(),edm::DetSet<SiStripDigi>(key));
 	zs.data.reserve(256); // theoretical maximum (768/3, ie, clusters separated by at least 2 strips)

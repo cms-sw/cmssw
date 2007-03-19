@@ -1,21 +1,17 @@
 #include "EventFilter/SiStripRawToDigi/interface/SiStripDigiToRawModule.h"
 #include "EventFilter/SiStripRawToDigi/interface/SiStripDigiToRaw.h"
-// edm
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-// data formats
-#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
-// cabling
 #include "CondFormats/DataRecord/interface/SiStripFedCablingRcd.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
-// std
 #include <cstdlib>
 
 using namespace std;

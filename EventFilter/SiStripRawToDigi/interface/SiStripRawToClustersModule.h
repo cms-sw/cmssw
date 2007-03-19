@@ -1,37 +1,32 @@
+// Last commit: $Id: $
+// Latest tag:  $Name: $
+// Location:    $Source: $
+
 #ifndef EventFilter_SiStripRawToDigi_interface_SiStripRawToClustersModule_H
 #define EventFilter_SiStripRawToDigi_interface_SiStripRawToClustersModule_H
 
-#include "FWCore/Framework/interface/EDProducer.h"
-#include <string>
-
-#include "CommonTools/SiStripClusterization/interface/SiStripClusterizerFactory.h"
-
-#include "DataFormats/Common/interface/DetSet.h"
-#include "DataFormats/Common/interface/DetSetVector.h"
-#include "DataFormats/SiStripDigi/interface/SiStripEventSummary.h"
-#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
-#include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
-#include "DataFormats/SiStripCommon/interface/SiStripEnumeratedTypes.h"
-#include "DataFormats/SiStripDigi/interface/SiStripDigiCollection.h"
-#include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
-#include "EventFilter/SiStripRawToDigi/interface/SiStripRawToDigiUnpacker.h"
-//Fed9U
+#include "DataFormats/Common/interface/DetSet.h"
+#include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
+#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "Fed9UUtils.hh"
-
-#include <memory>
-#include <sstream>
-#include <iomanip>
+#include "boost/cstdint.hpp"
 #include <string>
+#include <vector>
+
+class SiStripRawToDigiUnpacker;
+class SiStripClusterizerFactory;
+class SiStripDetCabling;
 
 /**
    @file EventFilter/SiStripRawToDigi/interface/SiStripRawToClusterModule.h
    @class SiStripRawToClusterModule 
+   @author M.Wingham
    
    @brief A plug-in module that takes a FEDRawDataCollection as input
    from the Event and creates EDProducts containing StripClusters.
 */
-
 class SiStripRawToClustersModule : public edm::EDProducer {
   
  public:

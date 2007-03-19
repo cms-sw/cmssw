@@ -3,7 +3,7 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
-#include "DataFormats/SiStripCommon/interface/SiStripEnumeratedTypes.h"
+#include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "boost/cstdint.hpp"
 #include <iostream>
 #include <string>
@@ -118,11 +118,11 @@ sistrip::FedBufferFormat SiStripRawToDigiUnpacker::fedBufferFormat( const uint16
 }
 
 sistrip::FedReadoutMode SiStripRawToDigiUnpacker::fedReadoutMode( const uint16_t& register_value ) {
-  if      ( ((register_value>>1)&0x7) == 0x0 ) { return sistrip::SCOPE_MODE; }
-  else if ( ((register_value>>1)&0x7) == 0x1 ) { return sistrip::VIRGIN_RAW; }
-  else if ( ((register_value>>1)&0x7) == 0x3 ) { return sistrip::PROC_RAW; }
-  else if ( ((register_value>>1)&0x7) == 0x5 ) { return sistrip::ZERO_SUPPR; }
-  else if ( ((register_value>>1)&0x7) == 0x6 ) { return sistrip::ZERO_SUPPR_LITE; }
+  if      ( ((register_value>>1)&0x7) == 0x0 ) { return sistrip::FED_SCOPE_MODE; }
+  else if ( ((register_value>>1)&0x7) == 0x1 ) { return sistrip::FED_VIRGIN_RAW; }
+  else if ( ((register_value>>1)&0x7) == 0x3 ) { return sistrip::FED_PROC_RAW; }
+  else if ( ((register_value>>1)&0x7) == 0x5 ) { return sistrip::FED_ZERO_SUPPR; }
+  else if ( ((register_value>>1)&0x7) == 0x6 ) { return sistrip::FED_ZERO_SUPPR_LITE; }
   else                                         { return sistrip::UNKNOWN_FED_READOUT_MODE; }
 }
 

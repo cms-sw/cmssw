@@ -1,36 +1,22 @@
 #include "EventFilter/SiStripRawToDigi/interface/SiStripRawToClustersModule.h"
-#include "EventFilter/SiStripRawToDigi/interface/SiStripRawToDigiUnpacker.h"
-
-//FWCore
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-//Data Formats
-#include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
-#include "DataFormats/SiStripDigi/interface/SiStripDigiCollection.h"
-#include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
-#include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
-#include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
-#include "DataFormats/SiStripCommon/interface/SiStripFedKey.h"
-
+#include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
+#include "CommonTools/SiStripClusterization/interface/SiStripClusterizerFactory.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 #include "CondFormats/DataRecord/interface/SiStripFedCablingRcd.h"
-#include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
-
+#include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+#include "DataFormats/SiStripCommon/interface/SiStripFedKey.h"
+#include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
+//#include "DataFormats/SiStripDigi/interface/SiStripEventSummary.h"
+#include "EventFilter/SiStripRawToDigi/interface/SiStripRawToDigiUnpacker.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "interface/shared/include/fed_header.h"
 #include "interface/shared/include/fed_trailer.h"
+#include <sstream>
 
-#include "boost/cstdint.hpp"
-#include <cstdlib>
-#include <iostream> 
-#include <memory>
-
-
-using namespace std;
 using namespace sistrip;
 
 // -----------------------------------------------------------------------------
@@ -41,8 +27,8 @@ SiStripRawToClustersModule::SiStripRawToClustersModule( const edm::ParameterSet&
   clusterizer_(0),
   fedCabling_(),
   detCabling_(0),
-  productLabel_(conf.getUntrackedParameter<string>("ProductLabel","source")),
-  productInstance_(conf.getUntrackedParameter<string>("ProductInstance","")),
+  productLabel_(conf.getUntrackedParameter<std::string>("ProductLabel","source")),
+  productInstance_(conf.getUntrackedParameter<std::string>("ProductInstance","")),
   headerBytes_(conf.getUntrackedParameter<int>("AppendedBytes",0)),
   dumpFrequency_(conf.getUntrackedParameter<int>("FedBufferDumpFreq",0)),
   triggerFedId_(conf.getUntrackedParameter<int>("TriggerFedId",0)),
@@ -149,7 +135,7 @@ void SiStripRawToClustersModule::produce( edm::Event& event,
   << " No FEDs found in cabling map!";
   // Check which FED ids have non-zero size buffers
   pair<int,int> fed_range = FEDNumbering::getSiStripFEDIds();
-  vector<uint16_t> feds;
+  std::vector<uint16_t> feds;
   for ( uint16_t ifed = static_cast<uint16_t>(fed_range.first);
   ifed < static_cast<uint16_t>(fed_range.second); ifed++ ) {
   if ( ifed != triggerFedId_ && 
@@ -165,12 +151,12 @@ void SiStripRawToClustersModule::produce( edm::Event& event,
   
   /*
   // Populate SiStripEventSummary object with "trigger FED" info
-  auto_ptr<SiStripEventSummary> summary( new SiStripEventSummary() );
+  std::auto_ptr<SiStripEventSummary> summary( new SiStripEventSummary() );
   rawToDigi_->triggerFed( *buffers, *summary ); 
   */
   
   //Iterate through det-ids
-    map< uint32_t, vector<FedChannelConnection> >::const_iterator idet = detCabling_->getDetCabling().begin();
+    std::map< uint32_t, std::vector<FedChannelConnection> >::const_iterator idet = detCabling_->getDetCabling().begin();
     for (; idet != detCabling_->getDetCabling().end(); idet++) {
 
       //If key is null continue;
@@ -253,7 +239,7 @@ void SiStripRawToClustersModule::produce( edm::Event& event,
 	  /*
 	  // Dump of FEDRawData to stdout
 	  if ( dumpFrequency_ && !(event.id().event()%dumpFrequency_) ) {
-	  stringstream ss;
+	  std::stringstream ss;
 	  rawToDigi_->dumpRawData( fed_id, input, ss );
 	  LogTrace(mlRawToDigi_) << ss.str();
 	  }
@@ -291,7 +277,7 @@ void SiStripRawToClustersModule::produce( edm::Event& event,
 	  }
 	  
 	} catch(...) { 
-	  stringstream sss;
+	  std::stringstream sss;
 	  sss << "Problem accessing ZERO_SUPPR data for FED id/ch: " 
 	      << fedId << "/" << chan;
 	  rawToDigi_->handleException( __func__, sss.str() ); 
@@ -300,14 +286,14 @@ void SiStripRawToClustersModule::produce( edm::Event& event,
       clusterizer_->algorithm()->endDet(zs);
     }
   
-  auto_ptr< edm::DetSetVector<SiStripCluster> > dsvclusters( new edm::DetSetVector<SiStripCluster>(clusters_) );
+  std::auto_ptr< edm::DetSetVector<SiStripCluster> > dsvclusters( new edm::DetSetVector<SiStripCluster>(clusters_) );
 
   // Write output to file
   //event.put(summary);
   event.put(dsvclusters);
   
   //reset fedEvents_ cache
-  vector< Fed9U::Fed9UEvent*>::iterator ifedevent = fedEvents_.begin();
+  std::vector< Fed9U::Fed9UEvent*>::iterator ifedevent = fedEvents_.begin();
   for (; ifedevent!=fedEvents_.end(); ifedevent++) {
     if (*ifedevent) {
       delete (*ifedevent);
