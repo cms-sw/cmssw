@@ -45,16 +45,25 @@ SiPixelDigiModule::~SiPixelDigiModule() {}
 void SiPixelDigiModule::book() {
   DaqMonitorBEInterface* theDMBE = edm::Service<DaqMonitorBEInterface>().operator->();
   char hkey[80];  
+  // Number of digis
   sprintf(hkey, "ndigis_module_%i",id_);
   meNDigis_ = theDMBE->book1D(hkey,"Number of Digis",50,0.,50.);
+  meNDigis_->setAxisTitle("Number of digis",1);
+  // Charge in ADC counts
   sprintf(hkey, "adc_module_%i",id_);
   meADC_ = theDMBE->book1D(hkey,"Digi charge",500,0.,500.);
-  sprintf(hkey, "col_module_%i",id_);
-  meCol_ = theDMBE->book1D(hkey,"Digi column",500,0.,500.);
-  sprintf(hkey, "row_module_%i",id_);
-  meRow_ = theDMBE->book1D(hkey,"Digi row",200,0.,200.);
+  meADC_->setAxisTitle("ADC counts",1);
+
+  //sprintf(hkey, "col_module_%i",id_);
+  //meCol_ = theDMBE->book1D(hkey,"Digi column",500,0.,500.);
+  //sprintf(hkey, "row_module_%i",id_);
+  //meRow_ = theDMBE->book1D(hkey,"Digi row",200,0.,200.);
+
+  // 2D hit map
   sprintf(hkey, "pixdigis_module_%i",id_);
   mePixDigis_ = theDMBE->book2D(hkey,"Digis per four pixels",208,0.,416.,80,0.,160.);
+  mePixDigis_->setAxisTitle("Columns",1);
+  mePixDigis_->setAxisTitle("Rows",2);
 }
 
 //
@@ -85,8 +94,8 @@ void SiPixelDigiModule::fill(const edm::DetSetVector<PixelDigi>& input) {
       int row = di->row();    // row
       (mePixDigis_)->Fill((float)col,(float)row);
       (meADC_)->Fill((float)adc);
-      (meCol_)->Fill((float)col);
-      (meRow_)->Fill((float)row);
+      //(meCol_)->Fill((float)col);
+      //(meRow_)->Fill((float)row);
       /*if(subid==2&&adc>0){
 	std::cout<<"Plaquette:"<<side<<" , "<<disk<<" , "<<blade<<" , "
 	<<panel<<" , "<<zindex<<" ADC="<<adc<<" , COL="<<col<<" , ROW="<<row<<std::endl;
