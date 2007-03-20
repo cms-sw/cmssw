@@ -1193,7 +1193,7 @@ sub define_EB_crystal_number_to_EB_VFE {
 
       # set the mapping
       push @logic_ids, $vfe_id;
-      push @channel_ids, [ $SM, $tt, $vfe ];
+      push @channel_ids, [ $SM, $xtal ];
 
 #      print "SM $SM xtal $xtal -> tt $tt vfe $vfe\n";
     }
