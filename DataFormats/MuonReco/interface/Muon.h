@@ -10,7 +10,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Muon.h,v 1.25 2007/03/13 08:59:19 llista Exp $
+ * \version $Id: Muon.h,v 1.26 2007/03/13 09:27:51 llista Exp $
  *
  */
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
@@ -22,6 +22,8 @@ namespace reco {
     Muon() { }
     /// constructor from values
     Muon(  Charge, const LorentzVector &, const Point & = Point( 0, 0, 0 ) );
+    /// create a clone
+    Muon * clone() const;
     /// reference to Track reconstructed in the tracker only
     TrackRef track() const { return track_; }
     /// reference to Track reconstructed in the muon detector only

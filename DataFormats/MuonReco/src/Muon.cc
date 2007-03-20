@@ -2,7 +2,7 @@
 using namespace reco;
 
 Muon::Muon(  Charge q, const LorentzVector & p4, const Point & vtx ) : 
-      RecoCandidate( q, p4, vtx, -13 * q ) { 
+  RecoCandidate( q, p4, vtx /*, -13 * q */ ) { 
 }
 
 
@@ -16,5 +16,7 @@ bool Muon::overlap( const Candidate & c ) const {
 	   );
 }
 
-
+Muon * Muon::clone() const {
+  return new Muon( * this );
+}
 

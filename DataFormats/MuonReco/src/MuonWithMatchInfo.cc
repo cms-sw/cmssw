@@ -48,5 +48,8 @@ float MuonWithMatchInfo::dYErr(uint i) const
      return 999.;
 }
 
+MuonWithMatchInfo * MuonWithMatchInfo::clone() const {
+  return new MuonWithMatchInfo( * this );
+}
 
 
