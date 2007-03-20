@@ -46,8 +46,8 @@ function GetPhysicsRuns(){
     #[ ! -e lastRun ] && echo 0 >> lastRun
     #lastRunNb=`tail -1 lastRun`
     #let nextRun=$lastRunNb+1
-    nextRun=0
-    echo nextRun $nextRun
+    #nextRun=6000
+    #echo nextRun $nextRun
 
     [ -e AddedRuns ] && rm -f AddedRuns
 
@@ -73,13 +73,17 @@ touch lockFile
 CondDB=""
 [ "$1" != "" ] && CondDB=$1
 
+nextRun=6000
+[ "$3" != "" ] && nextRun=$3 
+
 export lastIOV
 export Fedversion_Lastiov
+export nextRun
 
 eval `scramv1 runtime -sh`
 
 touch  RunToBeSubmitted.bkp  RunToDoO2O.bkp
-[ -e RunToBeSubmitted ] && mv -f RunToBeSubmitted RunToBeSubmitted.bkp
+[ -e RunToBeSubmitted ] && [ `cat RunToBeSubmitted | wc -l` != "0" ] && mv -f RunToBeSubmitted RunToBeSubmitted.bkp
 [ -e RunToDoO2O ] && mv -f RunToDoO2O RunToDoO2O.bkp
 touch  RunToBeSubmitted  RunToDoO2O
 
@@ -109,7 +113,10 @@ for Run in `cat AddedRuns | awk '{print $1}'`
   
   [ "$tag" == "" ] && continue
 
-  vTag=${tag}_v1
+  ver="v1"
+  [ "$2" != "" ] && ver=$2
+  
+  vTag=${tag}_${ver}
   tagPN=SiStripPedNoise_${vTag}_p
 
   FedVer=`grep $Run AddedRuns | awk '{print $3}'`
@@ -127,24 +134,25 @@ for Run in `cat AddedRuns | awk '{print $1}'`
   #echo status $status
   if [ "$status" == "0" ];
       then
-      echo $Run $vTag >> RunToBeSubmitted
+      echo $Run $vTag $CondDB>> RunToBeSubmitted
   else
       if [ "${FedVer}" != "${oldFedVer}" ] ; then
 	  oldFedVer=${FedVer}
-	  echo $Run $vTag $status $ConfigDb>> RunToDoO2O
+	  echo $Run $vTag $status $ConfigDb $CondDB >> RunToDoO2O
       fi
   fi
 done
 
 if [ `cat AddedRuns | wc -l ` != "0" ]; then
     if [ "`diff -q RunToBeSubmitted RunToBeSubmitted.bkp`" != "" ]; then
-	cat RunToBeSubmitted | mail -s "MonitorO2O cron: Submit Runs " domenico.giordano@cern.ch
-#	echo "" | mail -s "There are jobs to be Submitted" 00393402949274@sms.switch.ch
+	#cat RunToBeSubmitted | mail -s "MonitorO2O cron: Submit Runs" "domenico.giordano@cern.ch noeding@fnal.gov Nicola.Defilippis@ba.infn.it sdutta@mail.cern.ch"
+	cat RunToBeSubmitted | mail -s "MonitorO2O cron: Submit Runs" "domenico.giordano@cern.ch sdutta@mail.cern.ch"
+#	echo "There are jobs to be Submitted" | mail -s " " 00393402949274@sms.switch.ch
     fi
     
-    if [ "`diff -q RunToDoO2O RunToDoO2O.bkp`" != "" ]; then
+    if [ `cat RunToDoO2O | wc -l` != "0" ] && [ "`diff -q RunToDoO2O RunToDoO2O.bkp`" != "" ]; then
 	cat RunToDoO2O | mail -s "MonitorO2O cron: Do o2o" domenico.giordano@cern.ch
-#	echo "" | mail -s "There is o2o to be done" 00393402949274@sms.switch.ch
+#	echo "There is o2o to be done" | mail -s " " 00393402949274@sms.switch.ch
     fi
 fi
 
