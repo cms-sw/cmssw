@@ -17,9 +17,8 @@
 #include <memory>
 #include <fstream>
 #include "boost/shared_ptr.hpp"
-#include <CLHEP/HepPDT/DefaultConfig.hh>
-#include <CLHEP/HepPDT/TableBuilder.hh>
-#include <CLHEP/HepPDT/ParticleDataTableT.hh>
+#include "HepPDT/TableBuilder.hh"
+#include "HepPDT/ParticleDataTable.hh"
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
@@ -34,7 +33,7 @@ public:
   /// destructor
   ~PythiaPDTESSource();
   /// define the particle data table type
-  typedef DefaultConfig::ParticleDataTable PDT;
+  typedef HepPDT::ParticleDataTable PDT;
   /// define the return type
   typedef std::auto_ptr<PDT> ReturnType;
   /// return the particle table
