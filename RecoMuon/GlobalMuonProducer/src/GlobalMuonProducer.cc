@@ -5,8 +5,8 @@
  *   information,<BR>
  *   starting from a standalone reonstructed muon.
  *
- *   $Date: 2007/03/06 08:49:21 $
- *   $Revision: 1.26 $
+ *   $Date: 2007/03/09 21:50:32 $
+ *   $Revision: 1.27 $
  *
  *   \author  R.Bellan - INFN TO
  */
@@ -67,14 +67,13 @@ GlobalMuonProducer::GlobalMuonProducer(const ParameterSet& parameterSet) {
   GlobalMuonTrajectoryBuilder* gmtb = new GlobalMuonTrajectoryBuilder(trajectoryBuilderParameters, theService);
 
   theTrackFinder = new MuonTrackFinder(gmtb, mtl);
-  
-  produces<reco::TrackCollection>();
-  produces<TrackingRecHitCollection>();
-  produces<reco::TrackExtraCollection>();
-  produces<vector<Trajectory> >() ;
 
-  produces<reco::MuonCollection>();
-
+  setAlias( parameterSet.getParameter<std::string>( "@module_label" ) );
+  produces<reco::TrackCollection>().setBranchAlias( alias_ + "Tracks" );
+  produces<TrackingRecHitCollection>().setBranchAlias( alias_ + "RecHits" );
+  produces<reco::TrackExtraCollection>().setBranchAlias( alias_ + "TrackExtras" );
+  produces<vector<Trajectory> >().setBranchAlias( alias_ + "Trajectories" ) ;
+  produces<reco::MuonCollection>().setBranchAlias( alias_ + "s" );
 }
 
 
