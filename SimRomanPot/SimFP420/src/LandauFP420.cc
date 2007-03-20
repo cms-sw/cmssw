@@ -40,8 +40,6 @@
 //
 // -------------------------------------------------------------------
  
-//#include "Utilities/Configuration/interface/Architecture.h"
-
 #include "SimRomanPot/SimFP420/interface/LandauFP420.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "CLHEP/Units/PhysicalConstants.h"
