@@ -341,15 +341,15 @@ void createPlots(TString plot) {
     can_comparison.cd(i_category);
     //
     // Compare
-    histo_new->SetMarkerColor(2); // red
-    histo_new->SetLineColor(102); // dark red
-    histo_new->SetFillColor(0); // white
+    histo_new->SetMarkerColor(2);  // red
+    histo_new->SetLineColor(102);  // dark red
+    histo_new->SetFillColor(0);    // white
     histo_new->SetMarkerStyle(20); // cyrcles
     histo_new->SetMarkerSize(0.3); // 
-    histo_old->SetLineColor(4); // blue
+    histo_old->SetLineColor(4);    // blue
     histo_old->SetFillStyle(3002); // small points
-    histo_old->SetFillColor(4); // blue
-    histo_old->SetLineWidth(1.0); // 
+    histo_old->SetFillColor(4);    // blue
+    histo_old->SetLineWidth(1.0);  // 
     //
     // Draw
     histo_old->GetXaxis()->SetTitle(abscissaName);
@@ -364,9 +364,9 @@ void createPlots(TString plot) {
     //
     
     // Legenda
-    TLegend* theLegend = new TLegend(0.60, 0.60, 0.89, 0.89);
-    theLegend->AddEntry( histo_old , "OLD" , "l" );
-    theLegend->AddEntry( histo_new , "NEW" , "p" );
+    TLegend* theLegend = new TLegend(0.80, 0.80, 0.99, 0.99);
+    theLegend->AddEntry( histo_old , Form("OLD (%f)", histo_old.GetSumOfWeights() ) , "l" );
+    theLegend->AddEntry( histo_new , Form("NEW (%f)", histo_new.GetSumOfWeights() ) , "p" );
     theLegend->SetHeader( Form("KF: %f",compatibilityFactor) );
     theLegend->Draw();
     //
