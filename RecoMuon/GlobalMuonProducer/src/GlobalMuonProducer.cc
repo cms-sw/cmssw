@@ -5,8 +5,8 @@
  *   information,<BR>
  *   starting from a standalone reonstructed muon.
  *
- *   $Date: 2007/03/09 21:50:32 $
- *   $Revision: 1.27 $
+ *   $Date: 2007/03/20 13:38:12 $
+ *   $Revision: 1.28 $
  *
  *   \author  R.Bellan - INFN TO
  */
@@ -68,12 +68,12 @@ GlobalMuonProducer::GlobalMuonProducer(const ParameterSet& parameterSet) {
 
   theTrackFinder = new MuonTrackFinder(gmtb, mtl);
 
-  setAlias( parameterSet.getParameter<std::string>( "@module_label" ) );
-  produces<reco::TrackCollection>().setBranchAlias( alias_ + "Tracks" );
-  produces<TrackingRecHitCollection>().setBranchAlias( alias_ + "RecHits" );
-  produces<reco::TrackExtraCollection>().setBranchAlias( alias_ + "TrackExtras" );
-  produces<vector<Trajectory> >().setBranchAlias( alias_ + "Trajectories" ) ;
-  produces<reco::MuonCollection>().setBranchAlias( alias_ + "s" );
+  setAlias(parameterSet.getParameter<std::string>("@module_label"));
+  produces<reco::TrackCollection>().setBranchAlias(theAlias + "Tracks");
+  produces<TrackingRecHitCollection>().setBranchAlias(theAlias + "RecHits");
+  produces<reco::TrackExtraCollection>().setBranchAlias(theAlias + "TrackExtras");
+  produces<vector<Trajectory> >().setBranchAlias(theAlias + "Trajectories") ;
+  produces<reco::MuonCollection>().setBranchAlias(theAlias + "s");
 }
 
 
