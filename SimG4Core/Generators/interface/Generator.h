@@ -6,9 +6,9 @@
 #include "SimG4Core/Generators/interface/HepMCParticle.h"
 #include "SimG4Core/Notification/interface/GenParticleInfo.h"
 
-#include "CLHEP/HepMC/GenEvent.h"
-#include "CLHEP/HepMC/GenParticle.h"
-#include "CLHEP/HepMC/ParticleDataTableConfig.h"
+#include "HepMC/GenEvent.h"
+#include "HepMC/GenParticle.h"
+#include "HepMC/ParticleDataTable.h"
 
 #include "CLHEP/Vector/LorentzVector.h"
 
