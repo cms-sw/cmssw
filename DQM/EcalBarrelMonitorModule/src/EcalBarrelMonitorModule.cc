@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  *
- * $Date: 2007/03/20 12:37:25 $
- * $Revision: 1.119 $
+ * $Date: 2007/03/20 12:44:50 $
+ * $Revision: 1.120 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -311,7 +311,7 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
   } catch ( exception& ex) {
 
     LogWarning("EcalBarrelMonitorModule") << "EcalRawDataCollection not present in event" << endl;
-     
+
     try {
 
       e.getByLabel(EcalTBEventHeader_, pEvH);
@@ -327,7 +327,6 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
     } catch ( exception& ex ) {
 
       LogDebug("EcalBarrelMonitorModule") << "EcalTBEventHeader not present in event TOO!" << endl;
-      return;
 
     }
 
