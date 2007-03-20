@@ -33,5 +33,7 @@
 #include "OnlineDB/EcalCondDB/interface/MonPNPedDat.h"
 #include "OnlineDB/EcalCondDB/interface/MonH4TablePositionDat.h"
 #include "OnlineDB/EcalCondDB/interface/MonLaserPulseDat.h"
+#include "OnlineDB/EcalCondDB/interface/MonTimingTTDat.h"
+#include "OnlineDB/EcalCondDB/interface/MonTimingCrystalDat.h"
 
 #endif
