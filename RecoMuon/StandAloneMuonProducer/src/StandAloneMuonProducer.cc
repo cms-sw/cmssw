@@ -6,8 +6,8 @@
  *   starting from internal seeds (L2 muon track segments).
  *
  *
- *   $Date: 2007/03/07 13:20:56 $
- *   $Revision: 1.24 $
+ *   $Date: 2007/03/13 10:26:12 $
+ *   $Revision: 1.25 $
  *
  *   \author  R.Bellan - INFN TO
  */
@@ -60,14 +60,16 @@ StandAloneMuonProducer::StandAloneMuonProducer(const ParameterSet& parameterSet)
   // instantiate the concrete trajectory builder in the Track Finder
   theTrackFinder = new MuonTrackFinder(new StandAloneMuonTrajectoryBuilder(trajectoryBuilderParameters,theService),
 				       new MuonTrackLoader(trackLoaderParameters,theService));
+
+  setAlias(parameterSet.getParameter<std::string>("@module_label"));
   
-  produces<reco::TrackCollection>();
-  produces<reco::TrackCollection>("UpdatedAtVtx");
-  produces<TrackingRecHitCollection>();
-  produces<reco::TrackExtraCollection>();
-  produces<reco::TrackToTrackMap>();
+  produces<reco::TrackCollection>().setBranchAlias(theAlias + "Tracks");
+  produces<reco::TrackCollection>("UpdatedAtVtx").setBranchAlias(theAlias + "UpdatedAtVtxTracks");
+  produces<TrackingRecHitCollection>().setBranchAlias(theAlias + "RecHits");
+  produces<reco::TrackExtraCollection>().setBranchAlias(theAlias + "TrackExtras");
+  produces<reco::TrackToTrackMap>().setBranchAlias(theAlias + "TrackToTrackMap");
   
-  produces<std::vector<Trajectory> >();
+  produces<std::vector<Trajectory> >().setBranchAlias(theAlias + "Trajectories");
 }
   
 /// destructor

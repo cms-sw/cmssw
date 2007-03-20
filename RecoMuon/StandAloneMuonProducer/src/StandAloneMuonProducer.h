@@ -9,8 +9,8 @@
  *   starting from internal seeds (L2 muon track segments).
  *
  *
- *   $Date: 2006/10/19 18:43:19 $
- *   $Revision: 1.6 $
+ *   $Date: 2006/10/19 20:38:24 $
+ *   $Revision: 1.7 $
  *
  *   \author  R.Bellan - INFN TO
  */
@@ -46,6 +46,13 @@ class StandAloneMuonProducer : public edm::EDProducer {
 
   /// the event setup proxy, it takes care the services update
   MuonServiceProxy *theService;
+
+  std::string theAlias;
+
+  void setAlias( std::string alias ){
+    alias.erase( alias.size() - 1, alias.size() );
+    theAlias=alias;
+  }
 };
 
 #endif
