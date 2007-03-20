@@ -16,6 +16,8 @@ class MonTimingTTDat : public IDataItem {
   ~MonTimingTTDat();
 
   // User data methods
+  inline std::string getTable() { return "MON_TIMING_TT_DAT"; }
+
   inline void setTimingMean(float mean) { m_timingMean = mean; }
   inline float getTimingMean() const { return m_timingMean; }
   
