@@ -9,6 +9,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "RecoParticleFlow/PFProducer/interface/PFJetCandidateCreator.h"
+
 using namespace edm;
 using namespace reco;
 using namespace std;
@@ -42,7 +43,7 @@ void  PFJetCandidateCreator::produce( Event& evt, const EventSetup& ) {
   // as input for jet algorithms
   for( std::vector<PFCandidate>::const_iterator it = 
 	 (*candidates).begin (); it != (*candidates).end(); ++it) {
-                        pCopy->push_back( it->clone() );
-         }
+    pCopy->push_back( it->clone() );
+  }
   evt.put( pCopy);
 }

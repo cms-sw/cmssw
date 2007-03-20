@@ -1,6 +1,6 @@
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/ParticleFlowReco/interface/PFLayer.h"
-#include "DataFormats/Provenance/interface/ModuleDescriptionRegistry.h"
+// #include "DataFormats/Provenance/interface/ModuleDescriptionRegistry.h"
 #include "RecoParticleFlow/PFClusterAlgo/interface/PFClusterAlgo.h"
 #include "RecoParticleFlow/PFAlgo/interface/PFBlock.h"
 #include "RecoParticleFlow/PFAlgo/interface/PFBlockElement.h"
@@ -29,6 +29,7 @@
 
 #include <iostream>
 #include <vector>
+#include <stdlib.h>
 
 using namespace std;
 
@@ -335,6 +336,12 @@ void PFRootEventManager::readOptions(const char* file,
   string map_HCAL_phi;
   options_->GetOpt("particle_flow", "resolution_map_HCAL_phi", map_HCAL_phi);
 
+  //getting resolution maps
+  getMap(map_ECAL_eta);
+  getMap(map_ECAL_phi);
+  getMap(map_HCAL_eta);
+  getMap(map_HCAL_phi);
+
   try{
     PFBlock::setResMaps(map_ECAL_eta,
 			map_ECAL_phi, 
@@ -449,34 +456,7 @@ void PFRootEventManager::connect( const char* infilename ) {
   else 
     cout<<"rootfile "<<inFileName_
 	<<" opened"<<endl;
-
-
-  // retrieve CMSSW version 
-
-  releaseVersion_ = "UNKNOWN";
-  TTree* metadata = (TTree*) file_->Get("MetaData");
-  if( metadata ) {
-    edm::ModuleDescriptionMap *m = new edm::ModuleDescriptionMap;
-    metadata->SetBranchAddress("ModuleDescriptionMap", &m);
-    metadata->GetEntry(0);
-    
-//     typedef edm::ModuleDescriptionMap::iterator IM;
-//     for(IM im=m->begin(); im!=m->end(); im++) {
-//       cout<<im->second<<endl;
-//     }
-    
-    releaseVersion_ = m->begin()->second.releaseVersion();
-    cout<<"generated with "
-	<<releaseVersion_<<endl;
-    delete m;
-  }
-  else {
-    cerr<<"PFRootEventManager::ReadOptions :";
-    cerr<<"MetaData TTree Events not found in file "<<inFileName_<<endl;
-  }
-  delete metadata; 
-
-
+  
   tree_ = (TTree*) file_->Get("Events");  
   if(!tree_) {
     cerr<<"PFRootEventManager::ReadOptions :";
@@ -485,8 +465,6 @@ void PFRootEventManager::connect( const char* infilename ) {
     return; 
   }
     
-
-  
   // hits branches ----------------------------------------------
 
   string rechitsECALbranchname;
@@ -2119,7 +2097,34 @@ double PFRootEventManager::getMaxEHcal() {
   return maxERecHitHcal_;
 }
 
+void PFRootEventManager::getMap(string& map) {
 
+  string dollar = "$";
+  string slash  = "/";
+  int    lengh  = map.find(slash,0) - map.find(dollar,0) + 1;
+  string env_variable =
+    map.substr( ( map.find(dollar,0) + 1 ), lengh -2);
+  //cout << "var=" << env_variable << endl;
+
+  const char* name = env_variable.c_str();
+  string directory;
+  try{
+    directory = getenv(name);
+    directory += "/";
+  }
+  catch( const string& err ) {
+    cout<<err<<endl;
+    cout << "ERROR: YOU SHOULD SET THE VARIABLE "
+         << env_variable << endl;
+  }
+
+  map.replace( 0, lengh , directory);
+
+  if (verbosity_ == VERBOSE ) {
+    cout << "Looking for resolution " << map << endl;
+    cout << map << endl;
+  }
+}
 
 void  PFRootEventManager::print() const {
 

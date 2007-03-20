@@ -228,6 +228,9 @@ class PFRootEventManager {
   /// max rechit energy in hcal 
   double getMaxEHcal();
 
+  // retrieve resolution maps
+  void   getMap(std::string& map);
+
   /// print information
   void   print() const;
 
@@ -256,8 +259,6 @@ class PFRootEventManager {
   TTree*      outTree_;
   EventColin* outEvent_;
 
-  /// release version
-  std::string releaseVersion_;
 
   // MC branches --------------------------
   

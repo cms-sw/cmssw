@@ -15,6 +15,7 @@ my $filePattern=0;
 my $svalues=0;
 
 my $masterfile="pfRootEvent.opt";
+my $masterprocess = "Macros/process.C";
 
 my $doNotSubmit=0;
 my $help=0;
@@ -31,12 +32,13 @@ GetOptions ('tag1=s' => \$tag1,
 	    'pattern=s' => \$filePattern, 
 	    'values=s' => \$svalues,
 	    'master=s' => \$masterfile, 
+	    'process=s' => \$masterprocess,
 	    'h' => \$help,
 	    'n' => \$doNotSubmit, 
 	    'b=s' => \$bsub );
 
 if($help) {
-    print "usage : scan.pl -tag1 clustering -tag2 thresh_Ecal_Endcap -files=\"*.root\" -values \"0.1 0.3 0.5\" -master pfRootEvent.opt [-n] [-b \"bsub -q 8nm\"]\n";
+    print "usage : scan.pl -tag1 clustering -tag2 thresh_Ecal_Endcap -files=\"*.root\" -values \"0.1 0.3 0.5\" -master pfRootEvent.opt -process Macros/tauBenchmarkProcess.C [-n] [-b \"bsub -q 8nm\"]\n";
     print " -n : do not proceed\n";
     print " -b <>: run on the batch system (LSF)\n";
     exit(1);
@@ -48,6 +50,7 @@ if($doNotSubmit) {
 }
 
 print "master : $masterfile\n";
+print "process : $masterprocess\n";
 print "======== tags: $tag1 $tag2 ==  values: $svalues == $sfiles ======= \n";
 
 
@@ -57,7 +60,6 @@ chomp $scandir;
 `mkdir $scandir`;
 `echo "scan.pl @args" > scan.pl.log`;
 `mv scan.pl.log $scandir`;
-
 
 my $ls = "ls";
 my $basedir = "$sfiles"; # contains directory path
@@ -86,7 +88,7 @@ foreach my $file (@tmpfiles) {
 
 my @values = split(" ",$svalues);
 
-my $masterprocess = "Macros/process.C";
+
 
 
 foreach my $value (@values) {
@@ -134,8 +136,8 @@ foreach my $value (@values) {
 	while ( <IN> ) {
 	    my $line = $_;
 	    
-	    if($line =~ /^PFRootEventManagerColin\s+em/ && $line !~ /\s*\/\//) {
-		print OUT "PFRootEventManagerColin em(\"$optfile\");\n";
+	    if($line =~ /PFRootEventManager\s+em/ && $line !~ /\s*\/\//) {
+		print OUT "PFRootEventManager em(\"$optfile\");\n";
 	    }
 	    else {
 		print OUT "$line";
@@ -159,4 +161,3 @@ foreach my $value (@values) {
 	
     }
 }
-
