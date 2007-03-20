@@ -5,7 +5,7 @@
 #include "FWCore/Framework/src/VectorInputSourceFactory.h"
 
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/Common/interface/ModuleDescription.h"
+#include "DataFormats/Provenance/interface/ModuleDescription.h"
 
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 
