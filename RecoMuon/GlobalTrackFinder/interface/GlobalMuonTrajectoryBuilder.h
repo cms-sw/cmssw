@@ -4,8 +4,8 @@
 /** \class GlobalMuonTrajectoryBuilder
  *  class to build muon trajectory
  *
- *  $Date: 2007/02/28 16:39:32 $
- *  $Revision: 1.50 $
+ *  $Date: 2007/03/07 17:41:00 $
+ *  $Revision: 1.51 $
  *
  *  \author N. Neumeister 	 Purdue University
  *  \author C. Liu 		 Purdue University
@@ -109,6 +109,9 @@ class GlobalMuonTrajectoryBuilder : public MuonTrajectoryBuilder {
  
     /// choose final trajectory
     const Trajectory* chooseTrajectory(const std::vector<Trajectory*>&) const;
+
+    /// choose final trajectory (new version)
+    const Trajectory* chooseTrajectoryNew(const std::vector<Trajectory*>&) const;
 
     /// calculate chi2 probability (-ln(P))
     double trackProbability(const Trajectory&) const;    

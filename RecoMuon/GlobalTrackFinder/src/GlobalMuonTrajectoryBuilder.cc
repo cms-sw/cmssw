@@ -12,8 +12,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2007/03/08 16:28:00 $
- *  $Revision: 1.83 $
+ *  $Date: 2007/03/14 11:42:24 $
+ *  $Revision: 1.84 $
  *
  *  Authors :
  *  N. Neumeister            Purdue University
@@ -441,6 +441,7 @@ MuonCandidate::CandidateContainer GlobalMuonTrajectoryBuilder::build(const Track
   //                 2 - include only first muon hit(s)
   //                 3 - include only selected muon hits
   //                 4 - combined
+  //                 5 - new combined
   //
 
   const std::string category = "Muon|RecoMuon|GlobalMuonTrajectoryBuilder|build";
@@ -518,7 +519,7 @@ MuonCandidate::CandidateContainer GlobalMuonTrajectoryBuilder::build(const Track
       ConstRecHitContainer rechits(trackerRecHits);
 
       // full track with all muon hits
-      if ( theMuonHitsOption == 1 || theMuonHitsOption == 3 || theMuonHitsOption == 4 ) {
+      if ( theMuonHitsOption == 1 || theMuonHitsOption == 3 || theMuonHitsOption == 4 || theMuonHitsOption == 5) {
 	rechits.insert(rechits.end(), muonRecHits1.begin(), muonRecHits1.end());
 	if(theMIMFlag) dataMonitor->fill1("build",4);//should equal 3
 	LogTrace(category) << "Number of hits: " << rechits.size();
@@ -537,7 +538,7 @@ MuonCandidate::CandidateContainer GlobalMuonTrajectoryBuilder::build(const Track
       }
 
       // only first muon hits
-      if ( theMuonHitsOption == 2 || theMuonHitsOption == 4 ) {
+      if ( theMuonHitsOption == 2 || theMuonHitsOption == 4 || theMuonHitsOption == 5 ) {
 	rechits = trackerRecHits;
   	rechits.insert(rechits.end(), muonRecHits2.begin(), muonRecHits2.end());
 	if(theMIMFlag) dataMonitor->fill1("build",6);
@@ -557,7 +558,7 @@ MuonCandidate::CandidateContainer GlobalMuonTrajectoryBuilder::build(const Track
       } 
 
       // only selected muon hits
-      if ( theMuonHitsOption == 3 || theMuonHitsOption == 4 ) {
+      if ( theMuonHitsOption == 3 || theMuonHitsOption == 4 || theMuonHitsOption == 5 ) {
 	ConstRecHitContainer muonRecHits3;
 	if ( refitted1.size() == 1 ) muonRecHits3 = selectMuonHits(*refitted1.begin(),stationHits);
 	rechits = trackerRecHits;
@@ -580,6 +581,13 @@ MuonCandidate::CandidateContainer GlobalMuonTrajectoryBuilder::build(const Track
 
       if ( theMuonHitsOption == 4 ) {
 	finalTrajectory = new MuonCandidate(new Trajectory(*chooseTrajectory(refit)), (*it)->muonTrack(), (*it)->trackerTrack(), new Trajectory(*(*it)->trackerTrajectory()));
+        if ( (*it)->trajectory() ) delete (*it)->trajectory();
+	if ( (*it)->trackerTrajectory() ) delete (*it)->trackerTrajectory();
+        if ( *it ) delete (*it);
+      } 
+
+      if ( theMuonHitsOption == 5 ) {
+	finalTrajectory = new MuonCandidate(new Trajectory(*chooseTrajectoryNew(refit)), (*it)->muonTrack(), (*it)->trackerTrack(), new Trajectory(*(*it)->trackerTrajectory()));
         if ( (*it)->trajectory() ) delete (*it)->trajectory();
 	if ( (*it)->trackerTrajectory() ) delete (*it)->trackerTrajectory();
         if ( *it ) delete (*it);
@@ -656,7 +664,7 @@ void GlobalMuonTrajectoryBuilder::checkMuonHits(const reco::Track& muon,
   for (ConstRecHitContainer::const_iterator imrh = muonRecHits.begin(); imrh != muonRecHits.end(); imrh++ ) {
     if ( !(*imrh)->isValid() ) continue;
     
-    if ( theMuonHitsOption == 3 || theMuonHitsOption == 4 ) {
+    if ( theMuonHitsOption == 3 || theMuonHitsOption == 4 || theMuonHitsOption == 5 ) {
       
       int station = 0;
       int detRecHits = 0;
@@ -743,7 +751,7 @@ void GlobalMuonTrajectoryBuilder::checkMuonHits(const reco::Track& muon,
     } //end of if option 3, 4
     all.push_back((*imrh).get());
   } // end of loop over muon rechits
-  if ( theMuonHitsOption == 3 || theMuonHitsOption == 4 )  {
+  if ( theMuonHitsOption == 3 || theMuonHitsOption == 4 || theMuonHitsOption == 5 )  {
     for ( int i = 0; i < 4; i++ ) {
       LogTrace(category) <<"Station "<<i+1<<": "<<hits[i]<<" "<<dethits[i]; 
     }
@@ -958,6 +966,30 @@ const Trajectory* GlobalMuonTrajectoryBuilder::chooseTrajectory(const std::vecto
 
 }
 
+//
+// choose final trajectory
+//
+const Trajectory* GlobalMuonTrajectoryBuilder::chooseTrajectoryNew(const std::vector<Trajectory*>& t) const {
+
+  Trajectory* result = 0;
+  const std::string category = "Muon|RecoMuon|GlobalMuonTrajectoryBuilder|chooseTrajectoryNew";
+
+  double prob2 = ( t[2] ) ? trackProbability(*t[2]) : 0.0;
+  double prob3 = ( t[3] ) ? trackProbability(*t[3]) : 0.0; 
+
+  if ( t[2] ) {
+    result = t[2];
+    if ( t[3] && ( (prob2 - prob3) > 0.9 )  ) { result = t[3]; LogTrace(category) << "PMR"; } else LogTrace(category) << "FMS";
+  } else 
+    if ( t[3] ) { result = t[3]; LogTrace(category) << "PMR"; }
+      else 
+      if ( t[1] ) { result = t[1]; LogTrace(category) << "GMR"; }
+        else
+        if ( t[0] ) { result = t[0]; LogTrace(category) << "TO "; }
+  
+  return result;
+
+}
 
 //
 // calculate the tail probability (-ln(P)) of a fit
