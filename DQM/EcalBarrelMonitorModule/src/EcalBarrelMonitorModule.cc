@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  *
- * $Date: 2007/02/17 17:19:52 $
- * $Revision: 1.118 $
+ * $Date: 2007/03/20 12:37:25 $
+ * $Revision: 1.119 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -48,6 +48,7 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const ParameterSet& ps){
 
   // this should come from the EcalBarrel run header
   runType_ = ps.getUntrackedParameter<int>("runType", -1);
+  evtType_ = runType_;
 
   // this should come from the EcalBarrel run header
   runNumber_ = ps.getUntrackedParameter<int>("runNumber", 999999);
