@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: TrackDetectorAssociator.cc,v 1.6 2007/03/08 04:19:26 dmytro Exp $
+// $Id: TrackDetectorAssociator.cc,v 1.7 2007/03/09 14:08:15 dmytro Exp $
 //
 //
 
@@ -67,6 +67,9 @@
 #include <stack>
 #include <set>
 
+#include "DataFormats/Math/interface/LorentzVector.h"
+#include "Math/VectorUtil.h"
+#include <algorithm>
 
 #include "TrackingTools/TrackAssociator/interface/CaloDetIdAssociator.h"
 #include "TrackingTools/TrackAssociator/interface/EcalDetIdAssociator.h"
@@ -76,10 +79,16 @@
 #include "DataFormats/CSCRecHit/interface/CSCSegmentCollection.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/ErrorFrameTransformer.h"
 
+#include "SimDataFormats/TrackingHit/interface/PSimHit.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
+#include "SimDataFormats/Track/interface/SimTrack.h"
+#include "SimDataFormats/Track/interface/SimTrackContainer.h"
+#include "SimDataFormats/Vertex/interface/SimVertex.h"
+#include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
+#include "SimDataFormats/CaloHit/interface/PCaloHit.h"
+#include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
+
 #include "CLHEP/HepPDT/ParticleID.hh"
-//
-// class declaration
-//
 
 using namespace reco;
 
@@ -164,12 +173,15 @@ TrackDetMatchInfo TrackDetectorAssociator::associate( const edm::Event& iEvent,
    info.trkGlobPosAtEcal = getPoint( cachedTrajectory_.getStateAtEcal().position() );
    info.trkGlobPosAtHcal = getPoint( cachedTrajectory_.getStateAtHcal().position() );
    info.trkGlobPosAtHO = getPoint( cachedTrajectory_.getStateAtHO().position() );
-
+   // FIXME: state should be @ IP
+   info.stateAtIP = fts;
+     
    if (parameters.useEcal) fillEcal( iEvent, info, parameters);
    if (parameters.useCalo) fillCaloTowers( iEvent, info, parameters);
    if (parameters.useHcal) fillHcal( iEvent, info, parameters);
    if (parameters.useHO)   fillHO( iEvent, info, parameters);
    if (parameters.useMuon) fillMuon( iEvent, info, parameters);
+   if (parameters.truthMatch) fillCaloTruth( iEvent, info, parameters);
 
    return info;
 }
@@ -198,12 +210,12 @@ void TrackDetectorAssociator::fillEcal( const edm::Event& iEvent,
    // Find ECAL crystals
    timers.pop_and_push("TrackDetectorAssociator::fillEcal::access::EcalBarrel");
    edm::Handle<EBRecHitCollection> EBRecHits;
-   iEvent.getByLabel (theEBRecHitCollectionLabel, EBRecHits);
+   iEvent.getByLabel( parameters.theEBRecHitCollectionLabel, EBRecHits );
    if (!EBRecHits.isValid()) throw cms::Exception("FatalError") << "Unable to find EBRecHitCollection in the event!\n";
 
    timers.pop_and_push("TrackDetectorAssociator::fillEcal::access::EcalEndcaps");
    edm::Handle<EERecHitCollection> EERecHits;
-   iEvent.getByLabel (theEERecHitCollectionLabel, EERecHits);
+   iEvent.getByLabel( parameters.theEERecHitCollectionLabel, EERecHits );
    if (!EERecHits.isValid()) throw cms::Exception("FatalError") << "Unable to find EERecHitCollection in event!\n";
 
    timers.pop_and_push("TrackDetectorAssociator::fillEcal::matching");
@@ -271,7 +283,7 @@ void TrackDetectorAssociator::fillCaloTowers( const edm::Event& iEvent,
    timers.pop_and_push("TrackDetectorAssociator::fillCaloTowers::access::CaloTowers");
    edm::Handle<CaloTowerCollection> caloTowers;
 
-   iEvent.getByLabel (theCaloTowerCollectionLabel, caloTowers);
+   iEvent.getByLabel( parameters.theCaloTowerCollectionLabel, caloTowers );
    if (!caloTowers.isValid())  throw cms::Exception("FatalError") << "Unable to find CaloTowers in event!\n";
    
    timers.push("TrackDetectorAssociator::fillCaloTowers::matching");
@@ -331,7 +343,7 @@ void TrackDetectorAssociator::fillHcal( const edm::Event& iEvent,
    timers.pop_and_push("TrackDetectorAssociator::fillHcal::access::Hcal");
    edm::Handle<HBHERecHitCollection> collection;
 
-   iEvent.getByLabel (theHBHERecHitCollectionLabel, collection);
+   iEvent.getByLabel( parameters.theHBHERecHitCollectionLabel, collection );
    if ( ! collection.isValid() ) throw cms::Exception("FatalError") << "Unable to find HBHERecHits in event!\n";
    
    timers.push("TrackDetectorAssociator::fillHcal::matching");
@@ -390,7 +402,7 @@ void TrackDetectorAssociator::fillHO( const edm::Event& iEvent,
    timers.pop_and_push("TrackDetectorAssociator::fillHO::access::HO");
    edm::Handle<HORecHitCollection> collection;
 
-   iEvent.getByLabel (theHORecHitCollectionLabel, collection);
+   iEvent.getByLabel( parameters.theHORecHitCollectionLabel, collection );
    if ( ! collection.isValid() ) throw cms::Exception("FatalError") << "Unable to find HORecHits in event!\n";
    
    timers.push("TrackDetectorAssociator::fillHO::matching");
@@ -549,12 +561,12 @@ void TrackDetectorAssociator::fillMuon( const edm::Event& iEvent,
    // Get the segments from the event
    timers.push("TrackDetectorAssociator::fillMuon::access");
    edm::Handle<DTRecSegment4DCollection> dtSegments;
-   iEvent.getByLabel (theDTRecSegment4DCollectionLabel, dtSegments);
+   iEvent.getByLabel( parameters.theDTRecSegment4DCollectionLabel, dtSegments );
    if (! dtSegments.isValid()) 
      throw cms::Exception("FatalError") << "Unable to find DTRecSegment4DCollection in event!\n";
    
    edm::Handle<CSCSegmentCollection> cscSegments;
-   iEvent.getByLabel (theCSCSegmentCollectionLabel, cscSegments);
+   iEvent.getByLabel( parameters.theCSCSegmentCollectionLabel, cscSegments );
    if (! cscSegments.isValid()) 
      throw cms::Exception("FatalError") << "Unable to find CSCSegmentCollection in event!\n";
 
@@ -724,4 +736,58 @@ double TrackDetectorAssociator::getHcalEnergy( const edm::Event& iEvent,
      return info.hcalConeEnergy();
    else
      return info.hcalEnergy();
+}
+
+void TrackDetectorAssociator::fillCaloTruth( const edm::Event& iEvent,
+					     TrackDetMatchInfo& info,
+					     const AssociatorParameters& parameters)
+{
+   // get list of simulated tracks and their vertices
+   using namespace edm;
+   Handle<SimTrackContainer> simTracks;
+   iEvent.getByType<SimTrackContainer>(simTracks);
+   if (! simTracks.isValid() ) throw cms::Exception("FatalError") << "No simulated tracks found\n";
+   
+   Handle<SimVertexContainer> simVertices;
+   iEvent.getByType<SimVertexContainer>(simVertices);
+   if (! simVertices.isValid() ) throw cms::Exception("FatalError") << "No simulated vertices found\n";
+   
+   // get sim calo hits
+   Handle<PCaloHitContainer> simEcalHitsEB;
+   iEvent.getByLabel("g4SimHits","EcalHitsEB",simEcalHitsEB);
+   if (! simEcalHitsEB.isValid() ) throw cms::Exception("FatalError") << "No simulated ECAL EB hits found\n";
+
+   Handle<PCaloHitContainer> simEcalHitsEE;
+   iEvent.getByLabel("g4SimHits","EcalHitsEE",simEcalHitsEE);
+   if (! simEcalHitsEE.isValid() ) throw cms::Exception("FatalError") << "No simulated ECAL EE hits found\n";
+
+   Handle<PCaloHitContainer> simHcalHits;
+   iEvent.getByLabel("g4SimHits","HcalHits",simHcalHits);
+   if (! simHcalHits.isValid() ) throw cms::Exception("FatalError") << "No simulated HCAL hits found\n";
+
+   // find truth partner
+   SimTrackContainer::const_iterator simTrack = simTracks->begin();
+   for( ; simTrack != simTracks->end(); ++simTrack){
+      math::XYZVector simP3( simTrack->momentum().x(), simTrack->momentum().y(), simTrack->momentum().z() );
+      math::XYZVector recoP3( info.stateAtIP.momentum().x(), info.stateAtIP.momentum().y(), info.stateAtIP.momentum().z() );
+      if ( ROOT::Math::VectorUtil::DeltaR(recoP3, simP3) < 0.1 ) break;
+   }
+   if ( simTrack != simTracks->end() ) {
+      info.simTrack = &(*simTrack);
+      double ecalTrueEnergy(0);
+      double hcalTrueEnergy(0);
+      
+      // loop over calo hits
+      for( PCaloHitContainer::const_iterator hit = simEcalHitsEB->begin(); hit != simEcalHitsEB->end(); ++hit )
+	if ( hit->geantTrackId() == info.simTrack->genpartIndex() ) ecalTrueEnergy += hit->energy();
+      
+      for( PCaloHitContainer::const_iterator hit = simEcalHitsEE->begin(); hit != simEcalHitsEE->end(); ++hit )
+	if ( hit->geantTrackId() == info.simTrack->genpartIndex() ) ecalTrueEnergy += hit->energy();
+      
+      for( PCaloHitContainer::const_iterator hit = simHcalHits->begin(); hit != simHcalHits->end(); ++hit )
+	if ( hit->geantTrackId() == info.simTrack->genpartIndex() ) hcalTrueEnergy += hit->energy();
+      
+      info.ecalTrueEnergy = ecalTrueEnergy;
+      info.hcalTrueEnergy = hcalTrueEnergy;
+   }
 }

@@ -14,7 +14,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: TrackDetectorAssociator.h,v 1.4 2007/02/19 12:02:41 dmytro Exp $
+// $Id: TrackDetectorAssociator.h,v 1.5 2007/03/09 14:30:28 dmytro Exp $
 //
 //
 
@@ -45,55 +45,14 @@
 #include "SimDataFormats/Track/interface/SimTrack.h"
 #include "SimDataFormats/Vertex/interface/SimVertex.h"
 
+#include "TrackingTools/TrackAssociator/interface/TrackAssociatorParameters.h"
+
 class TrackDetectorAssociator {
  public:
    TrackDetectorAssociator();
    ~TrackDetectorAssociator();
    
-   class AssociatorParameters {
-    public:
-      ///track associator parameters
-      AssociatorParameters() {
-	 // default parameters
-	 // define match cones, dR=sqrt(dEta^2+dPhi^2)
-	 dREcal = 0.03;
-	 dRHcal = 0.2;
-	 dRMuon = 0.1;
-	 dREcalPreselection = dREcal;
-	 dRHcalPreselection = dRHcal;
-	 dRMuonPreselection = dRMuon;
-	 // match all sub-detectors by default
-	 useEcal = true;
-	 useHcal = true;
-	 useCalo = true;
-	 useHO = true;
-	 useMuon = true;
-	 useOldMuonMatching = false;
-	 muonMaxDistanceX = 5;
-	 muonMaxDistanceY = 5;
-      }
-      double dREcal;
-      double dRHcal;
-      double dRMuon;
-      // should be used if it's expected to get a set of DetIds, when the
-      // trajectory is not known yet and only a distant point with direction
-      // is available. By default it is set to the final cuts
-      double dREcalPreselection;
-      double dRHcalPreselection;
-      double dRMuonPreselection;
-      // maximal distance from a muon chamber. Can be consider as a preselection
-      // cut and fancier cuts can be applied in a muon producer, since the
-      // distance from a chamber should be available as output of the TrackAssociation
-      double muonMaxDistanceX;
-      double muonMaxDistanceY;
-      bool useEcal;
-      bool useHcal;
-      bool useHO;
-      bool useCalo;
-      bool useMuon;
-      bool useOldMuonMatching;
-   };
-   
+   typedef TrackAssociatorParameters AssociatorParameters;
    
    /// propagate a track across the whole detector and
    /// find associated objects. Association is done in
@@ -104,6 +63,8 @@ class TrackDetectorAssociator {
    ///     withing an eta-phi cone of some radius with 
    ///     respect to a track.
    ///     (the cone origin is at (0,0,0))
+   /// Trajectory bending in eta-phi is taking into account
+   /// when matching is performed
    TrackDetMatchInfo            associate( const edm::Event&,
 					   const edm::EventSetup&,
 					   const FreeTrajectoryState&,
@@ -148,17 +109,8 @@ class TrackDetectorAssociator {
    FreeTrajectoryState getFreeTrajectoryState( const edm::EventSetup&, 
 					       const SimTrack&, 
 					       const SimVertex& );
-   /// Labels of the detector EDProducts 
-   edm::InputTag theEBRecHitCollectionLabel;
-   edm::InputTag theEERecHitCollectionLabel;
-   edm::InputTag theCaloTowerCollectionLabel;
-   edm::InputTag theHBHERecHitCollectionLabel;
-   edm::InputTag theHORecHitCollectionLabel;
-   edm::InputTag theDTRecSegment4DCollectionLabel;
-   edm::InputTag theCSCSegmentCollectionLabel;
-   
  private:
-   void       fillEcal( const edm::Event&,
+   void fillEcal(       const edm::Event&,
 			TrackDetMatchInfo&, 
 			const AssociatorParameters&);
    
@@ -166,15 +118,19 @@ class TrackDetectorAssociator {
 			TrackDetMatchInfo&,
 			const AssociatorParameters&);
    
-   void       fillHcal( const edm::Event&,
+   void fillHcal(       const edm::Event&,
 			TrackDetMatchInfo&,
 			const AssociatorParameters&);
    
-   void         fillHO( const edm::Event&,
+   void fillHO(         const edm::Event&,
 			TrackDetMatchInfo&,
 			const AssociatorParameters&);
   
    void fillMuon(       const edm::Event&,
+			TrackDetMatchInfo&,
+			const AssociatorParameters&);
+   
+   void fillCaloTruth(  const edm::Event&,
 			TrackDetMatchInfo&,
 			const AssociatorParameters&);
    

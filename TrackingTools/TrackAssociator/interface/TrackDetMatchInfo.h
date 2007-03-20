@@ -8,44 +8,41 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "TrackingTools/TrackAssociator/interface/MuonChamberMatch.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 
 class TrackDetMatchInfo {
  public:
-   enum TowerEnergyType { Total, Ecal, Hcal, HO };
+   enum EnergyType { EcalRecHits, HcalRecHits, HORecHits, TowerTotal, TowerEcal, TowerHcal, TowerHO };
    
    TrackDetMatchInfo();
    
-   /// ECAL energy 
-   double ecalCrossedEnergy();
-   double ecalConeEnergy();
+   /// energy in detector elements crossed by the track by types
+   double crossedEnergy( EnergyType );
    
-   /// HCAL energy (HE+HB)
-   double hcalCrossedEnergy();
-   double hcalConeEnergy();
+   /// cone energy around the track direction at the origin (0,0,0)
+   /// ( not well defined for tracks originating away from IP)
+   double coneEnergy( double dR, EnergyType );
    
-   /// HO energy
-   double hoCrossedEnergy();
-   double hoConeEnergy();
-
-   /// Calo tower energy
-   double towerCrossedEnergy( TowerEnergyType type = Total );
-   double towerConeEnergy( TowerEnergyType type = Total );
-
    /// Find detector elements with highest energy deposition
-   DetId findEcalMaxDeposition();
-   DetId findHcalMaxDeposition();
-   DetId findTowerMaxDeposition( TowerEnergyType type = Total );
+   DetId findMaxDeposition( EnergyType );
    
-   /// get energy of the NxN matrix around the maximal deposition
-   /// N = 2*gridSize + 1
-   double ecalNxNEnergy(const DetId&, int gridSize = 1);
-   double hcalNxNEnergy(const DetId&, int gridSize = 1);
-   double towerNxNEnergy(const DetId&, int gridSize = 1, TowerEnergyType type = Total);
+   /// get energy of the NxN shape (N = 2*gridSize + 1) around given detector element
+   double nXnEnergy(const DetId&, EnergyType, int gridSize = 1);
+   
+   /// get energy of the NxN shape (N = 2*gridSize + 1) around track projection
+   double nXnEnergy(EnergyType, int gridSize = 1);
 
    /// Track position at different parts of the calorimeter
    math::XYZPoint trkGlobPosAtEcal;
    math::XYZPoint trkGlobPosAtHcal;
    math::XYZPoint trkGlobPosAtHO;
+   
+   bool isGoodEcal;
+   bool isGoodHcal;
+   bool isGoodCalo;
+   bool isGoodHO;
+   bool isGoodMuon;
    
    /// hits in the cone
    std::vector<EcalRecHit> ecalRecHits;
@@ -60,7 +57,7 @@ class TrackDetMatchInfo {
    std::vector<CaloTower>  crossedTowers;
 
    /// detector elements crossed by a track 
-   /// (regardless of whether energy energy was deposited or not)
+   /// (regardless of whether energy was deposited or not)
    std::vector<DetId>      crossedEcalIds;
    std::vector<DetId>      crossedHcalIds;
    std::vector<DetId>      crossedHOIds;
@@ -68,24 +65,32 @@ class TrackDetMatchInfo {
    
    std::vector<MuonChamberMatch> chambers;
 
-   SimTrackRef simTrackRef_;
-   reco::TrackRef trackRef_;
-
-   bool isGoodEcal;
-   bool isGoodHcal;
-   bool isGoodCalo;
-   bool isGoodHO;
-   bool isGoodMuon;
+   /// track info
+   FreeTrajectoryState stateAtIP;
+   
+   /// MC truth info
+   const SimTrack* simTrack;
+   double ecalTrueEnergy;
+   double hcalTrueEnergy;
    
    /// Obsolete methods and data members for backward compatibility.
    /// Will be removed in future releases.
+   reco::TrackRef trackRef_;
+   SimTrackRef simTrackRef_;
    
-   double ecalTowerEnergy() { return towerCrossedEnergy(Ecal); }
-   double ecalTowerConeEnergy() { return towerConeEnergy(Ecal); }
-   double hcalTowerEnergy() { return towerCrossedEnergy(Hcal); }
-   double hcalTowerConeEnergy() { return towerConeEnergy(Hcal); }
-   double hoTowerEnergy() { return towerCrossedEnergy(HO); }
-   double hoTowerConeEnergy() { return towerConeEnergy(HO); }
+   double ecalCrossedEnergy();
+   double ecalConeEnergy();
+   double hcalCrossedEnergy();
+   double hcalConeEnergy();
+   double hoCrossedEnergy();
+   double hoConeEnergy();
+
+   double ecalTowerEnergy() { return crossedEnergy(TowerEcal); }
+   double ecalTowerConeEnergy() { return coneEnergy(999,TowerEcal); }
+   double hcalTowerEnergy() { return crossedEnergy(TowerHcal); }
+   double hcalTowerConeEnergy() { return coneEnergy(999, TowerHcal); }
+   double hoTowerEnergy() { return crossedEnergy(TowerHO); }
+   double hoTowerConeEnergy() { return coneEnergy(999, TowerHO); }
 
    double ecalEnergy() { return ecalCrossedEnergy(); }
    double hcalEnergy() { return hcalCrossedEnergy(); }
@@ -95,5 +100,15 @@ class TrackDetMatchInfo {
    int numberOfSegmentsInStation(int station) const;
    int numberOfSegmentsInStation(int station, int detector) const;
    int numberOfSegmentsInDetector(int detector) const;
+   
+   void setGeometry( edm::ESHandle<CaloGeometry> geometry ) { caloGeometry = geometry; }
+   void setMomentumAtIP( const GlobalVector& p4 ) { momentum = p4; }
+   GlobalVector getMomentumAtIP() { return momentum; }
+
+ private:
+   bool insideCone(const DetId&, const double);
+   edm::ESHandle<CaloGeometry> caloGeometry;
+   GlobalVector momentum;
+   
 };
 #endif
