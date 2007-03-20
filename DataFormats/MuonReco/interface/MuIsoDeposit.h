@@ -1,7 +1,7 @@
 #ifndef MuIsoDeposit_H
 #define MuIsoDeposit_H
 
-/** \class MuIsoDeposit
+/** \class reco::MuIsoDeposit
  *  Class representing the dR profile of deposits around a muon, i.e.
  *  the differential and integral deposits around the muon as a function of dR.
  *  
