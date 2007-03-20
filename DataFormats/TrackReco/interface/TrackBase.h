@@ -25,7 +25,7 @@
  * 
  * \author Thomas Speer, Luca Lista, Pascal Vanlaer, Juan Alcaraz
  *
- * \version $Id: TrackBase.h,v 1.50 2007/01/31 08:51:35 llista Exp $
+ * \version $Id: TrackBase.h,v 1.51 2007/02/01 20:51:25 jalcaraz Exp $
  *
  */
 
@@ -64,8 +64,8 @@ namespace reco {
     /// default constructor
     TrackBase() { }
     /// constructor from fit parameters and error matrix
-    TrackBase( double chi2, double ndof, const Point & , const Vector &, int charge,
-	       const CovarianceMatrix &);
+    TrackBase( double chi2, double ndof, const Point & referencePoint,
+	       const Vector & momentum, int charge, const CovarianceMatrix &);
    
     /// chi-squared of the fit
     double chi2() const { return chi2_; }
@@ -112,7 +112,11 @@ namespace reco {
 
     /// track momentum vector
     const Vector & momentum() const { return momentum_; }
-    /// position of point of closest approach to the beamline
+
+    /// reference point for the track
+    const Point & referencePoint() const { return vertex_; }
+
+    /// reference point for the track. This method is DEPRECATED, please use referencePoint() instead
     const Point & vertex() const { return vertex_; }
 
     /// dxy with respect to a user-given beamSpot. Use with caution: new beamSpot must be close to (0,0,0), since the extrapolation is linear
@@ -186,7 +190,7 @@ namespace reco {
     Double32_t chi2_;
     /// number of degrees of freedom
     Double32_t ndof_;
-     /// innermost point
+     /// innermost (reference) point
     Point vertex_;
     /// momentum vector at innermost point
     Vector momentum_;

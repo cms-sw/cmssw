@@ -8,7 +8,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Track.h,v 1.31 2006/11/27 09:03:05 llista Exp $
+ * \version $Id: Track.h,v 1.32 2007/01/31 08:51:35 llista Exp $
  *
  */
 #include "DataFormats/TrackReco/interface/TrackBase.h"
@@ -22,11 +22,9 @@ namespace reco {
   public:
     /// default constructor
     Track() { }
-    /// constructor from fit parameters and error matrix
-    /// notice that the reference point must be 
-    /// the point of closest approch to the beamline.    
-    Track( double chi2, double ndof, const Point &, const Vector &, int charge,
-	   const CovarianceMatrix & );
+    /// constructor from fit parameters and error matrix  
+    Track( double chi2, double ndof, const Point & referencePoint,
+	   const Vector & momentum, int charge, const CovarianceMatrix & );
     /// return true if the outermost hit is valid
     bool outerOk() const { return extra_->outerOk(); }
     /// return true if the innermost hit is valid
