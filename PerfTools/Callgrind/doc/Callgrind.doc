@@ -24,7 +24,7 @@ Extending it to other tools such as IgProf is easy.
 <!-- List the classes that are provided for use in other packages (if any) -->
 
 - ProfilerService: provides a public interface mainly for the Start and Stop ProfilerAnalyzers.
-They can be used by other modules and services though...
+It can be used by other modules and services though...
 
 \subsection modules Modules
 <!-- Describe modules implemented in this package and their parameter set -->
@@ -38,6 +38,12 @@ No set of parameters required
 <!-- Describe services implemented in this package and their parameter set -->
 
 - ProfilerService
+
+Parameter Set
+
+untracked int32 firstEvent <br>
+untracked int32 lastEvent  <br>
+untracked vstring paths <br>
 
 
 \subsection tests Unit tests and examples
