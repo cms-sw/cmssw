@@ -8,12 +8,12 @@
  ***************************************/
 #include <string>
 
-#include "CLHEP/HepPDT/defs.h"
-#include "CLHEP/HepPDT/DefaultConfig.hh"
-#include "CLHEP/HepPDT/TableBuilder.hh"
-#include "CLHEP/HepPDT/ParticleDataTableT.hh"
+#include "HepPDT/defs.h"
+#include "HepPDT/DefaultConfig.hh"
+#include "HepPDT/TableBuilder.hh"
+#include "HepPDT/ParticleDataTableT.hh"
 
-#include "CLHEP/HepMC/GenEvent.h"
+#include "HepMC/GenEvent.h"
 
 #include "FWCore/Framework/interface/GeneratedInputSource.h"
 #include "FWCore/Framework/interface/ESHandle.h"

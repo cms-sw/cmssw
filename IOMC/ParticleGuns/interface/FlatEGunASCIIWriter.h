@@ -18,14 +18,14 @@
 // for local things (data members)
 #include <string>
 
-#include "CLHEP/HepPDT/defs.h"
-#include "CLHEP/HepPDT/DefaultConfig.hh"
-#include "CLHEP/HepPDT/TableBuilder.hh"
-#include "CLHEP/HepPDT/ParticleDataTableT.hh"
+#include "HepPDT/defs.h"
+#include "HepPDT/DefaultConfig.hh"
+#include "HepPDT/TableBuilder.hh"
+#include "HepPDT/ParticleDataTableT.hh"
 
-#include "CLHEP/HepMC/GenEvent.h"
+#include "HepMC/GenEvent.h"
 
-#include "CLHEP/HepMC/WriteHepMC.h"
+#include "HepMC/WriteHepMC.h"
 
 namespace edm 
 {

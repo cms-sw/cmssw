@@ -1,6 +1,6 @@
 /*
- *  $Date: 2006/07/28 21:26:42 $
- *  $Revision: 1.11 $
+ *  $Date: 2006/11/13 21:45:17 $
+ *  $Revision: 1.12 $
  *  \author Julia Yarba
  */
 
@@ -65,7 +65,8 @@ bool FlatRandomPtGunSource::produce(Event &e)
    //
    // 1st, primary vertex
    //
-   HepMC::GenVertex* Vtx = new HepMC::GenVertex(CLHEP::HepLorentzVector(0.,0.,0.));
+   //HepMC::GenVertex* Vtx = new HepMC::GenVertex(CLHEP::HepLorentzVector(0.,0.,0.));
+   HepMC::GenVertex* Vtx = new HepMC::GenVertex(HepMC::FourVector(0.,0.,0.));
 
    // loop over particles
    //
@@ -90,23 +91,29 @@ bool FlatRandomPtGunSource::produce(Event &e)
        double pz     = mom*cos(theta) ;
        double energy2= mom*mom + mass*mass ;
        double energy = sqrt(energy2) ; 
-       CLHEP::Hep3Vector p(px,py,pz) ;
+       //CLHEP::Hep3Vector p(px,py,pz) ;
+       //HepMC::GenParticle* Part = 
+       //    new HepMC::GenParticle(CLHEP::HepLorentzVector(p,energy),PartID,1);
+       HepMC::FourVector p(px,py,pz) ;
        HepMC::GenParticle* Part = 
-           new HepMC::GenParticle(CLHEP::HepLorentzVector(p,energy),PartID,1);
+           new HepMC::GenParticle(HepMC::FourVector(p,energy),PartID,1);
        Part->suggest_barcode( barcode ) ;
        barcode++ ;
        Vtx->add_particle_out(Part);
 
        if ( fAddAntiParticle )
        {
-          CLHEP::Hep3Vector ap(-px,-py,-pz) ;
+          //CLHEP::Hep3Vector ap(-px,-py,-pz) ;
+          HepMC::FourVector ap(-px,-py,-pz) ;
 	  int APartID = -PartID ;
 	  if ( PartID == 22 || PartID == 23 )
 	  {
 	     APartID = PartID ;
 	  }	  
+	  //HepMC::GenParticle* APart =
+	  //   new HepMC::GenParticle(CLHEP::HepLorentzVector(ap,energy),APartID,1);
 	  HepMC::GenParticle* APart =
-	     new HepMC::GenParticle(CLHEP::HepLorentzVector(ap,energy),APartID,1);
+	     new HepMC::GenParticle(HepMC::FourVector(ap,energy),APartID,1);
 	  APart->suggest_barcode( barcode ) ;
 	  barcode++ ;
 	  Vtx->add_particle_out(APart) ;
