@@ -1,12 +1,10 @@
-//                              -*- Mode: C++ -*- 
-// LASBeamProfileFitCollection.cc --- Collection of LASBeamProfileFits
-// Author          : Maarten Thomas
-// Created On      : Wed Apr  5 10:12:52 2006
-// Last Modified By: Maarten Thomas
-// Last Modified On: Wed Jun 14 13:02:55 2006
-// Update Count    : 10
-// Status          : Unknown, Use with caution!
-// 
+/** \file LASBeamProfileFitCollection.cc
+ *  
+ *
+ *  $Date: Mon Mar 19 12:52:26 CET 2007 $
+ *  $Revision: 1.1 $
+ *  \author Maarten Thomas
+ */
 
 #include "DataFormats/LaserAlignment/interface/LASBeamProfileFitCollection.h"
 
