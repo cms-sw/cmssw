@@ -1,4 +1,4 @@
-#include "IOMC/GeneratorInterface/interface/JetFlavourFilter.h"
+#include "GeneratorInterface/GenFilters/interface/JetFlavourFilter.h"
 
 using namespace edm;
 using namespace std;

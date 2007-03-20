@@ -1,4 +1,4 @@
-#include "IOMC/GeneratorInterface/interface/PythiaFilterZJet.h"
+#include "GeneratorInterface/GenFilters/interface/PythiaFilterZJet.h"
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include <iostream>
 #include<list>

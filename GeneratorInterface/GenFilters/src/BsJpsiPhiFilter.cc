@@ -1,4 +1,4 @@
-#include "IOMC/GeneratorInterface/interface/BsJpsiPhiFilter.h"
+#include "GeneratorInterface/GenFilters/interface/BsJpsiPhiFilter.h"
 
 using namespace edm;
 using namespace std;

@@ -1,5 +1,5 @@
 
-#include "IOMC/GeneratorInterface/interface/PythiaFilter.h"
+#include "GeneratorInterface/GenFilters/interface/PythiaFilter.h"
 
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include <iostream>
