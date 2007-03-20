@@ -386,6 +386,13 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 	unsigned int out_disk = module.wheel();
 	unsigned int out_sector = thePetal[1];
 	int out_petal = (thePetal[0] == 1 ) ? 1 : -1;
+	// swap sector numbers for TEC-
+	if (out_side == -1) {
+	  // fine for back petals, substract 1 for front petals
+	  if (out_petal == -1) {
+	    out_sector = (out_sector+6) % 8 + 1;
+	  }
+	}
 	unsigned int out_ring = module.ring();
 	int out_sensor = 0;
 	if(name == "TECModule0RphiActive")   out_sensor = -1;
