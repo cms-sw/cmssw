@@ -74,7 +74,7 @@ TkGluedMeasurementDet::recHits( const TrajectoryStateOnSurface& ts) const
       if(tmp.size()){
 	for (edm::OwnVector<SiStripMatchedRecHit2D>::const_iterator i=tmp.begin();
 	     i != tmp.end(); i++) {
-	  result.push_back( TSiStripMatchedRecHit::build( &geomDet(), &(*i)));
+	  result.push_back( TSiStripMatchedRecHit::build( &geomDet(), &(*i), theMatcher));
 	}
       }else{
 	//edm::LogVerbatim("Madf") << "in TkGluedMeasurementDet, no stereo hit matched with the mono one" ;
