@@ -284,7 +284,14 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
       for (  std::map<std::vector<reco::TransientTrack>, reco::SuperCluster>::const_iterator iPair= allPairs.begin(); iPair!= allPairs.end(); ++iPair ) {
 	LogDebug("ConvertedPhotonProducer") << " ConvertedPhotonProducer Barrel single pair size " << (iPair->first).size() << " SC Energy " << (iPair->second).energy() << " eta " << (iPair->second).eta() << " phi " <<  (iPair->second).phi() << "\n";  
 	
-	if ( (iPair->second).energy() != aClus->energy() ) continue;        
+
+
+
+	if( !( (  fabs(  (iPair->second).energy()  - aClus->energy()  ) < 0.001 ) &&  
+	       (  fabs(  (iPair->second).eta()     - aClus->eta()     ) < 0.001 )      &&
+	       (  fabs(  (iPair->second).phi()     -  aClus->phi()    ) < 0.001  ) ) )   continue;
+	
+
 
 	CachingVertex theConversionVertex;
 
@@ -409,8 +416,13 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
       for (  std::map<std::vector<reco::TransientTrack>, reco::SuperCluster>::const_iterator iPair= allPairs.begin(); iPair!= allPairs.end(); ++iPair ) {
 	LogDebug("ConvertedPhotonProducer") << " ConvertedPhotonProducer Endcap single pair size " << (iPair->first).size() << " SC Energy " << (iPair->second).energy() << " eta " << (iPair->second).eta() << " phi " <<  (iPair->second).phi() << "\n";  
 	
-	if ( (iPair->second).energy() != aClus->energy() ) continue;
+
 	
+	if( !( (  fabs(  (iPair->second).energy()  - aClus->energy()  ) < 0.001 ) &&  
+	       (  fabs(  (iPair->second).eta()     - aClus->eta()     ) < 0.001 )      &&
+	       (  fabs(  (iPair->second).phi()     -  aClus->phi()    ) < 0.001  ) ) )   continue;
+
+
 	CachingVertex theConversionVertex;
 	const string metname = "ConvertedPhotons|ConvertedPhotonProducer";
 	if ( (iPair->first).size()  > 1 ) {
