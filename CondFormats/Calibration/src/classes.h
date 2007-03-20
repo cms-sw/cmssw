@@ -2,6 +2,7 @@
 #include "CondFormats/Calibration/interface/BlobPedestals.h"
 #include "CondFormats/Calibration/interface/BlobNoises.h"
 #include "CondFormats/Calibration/interface/mySiStripNoises.h"
+#include "CondFormats/Calibration/interface/CalibHistograms.h"
 /*#include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 #include "CondFormats/SiStripObjects/interface/FedChannelConnection.h"
 #include "CondFormats/SiStripObjects/interface/SiStripPedestals.h"
@@ -21,4 +22,8 @@ namespace {
   std::vector<unsigned int>::const_iterator tmp9;
   std::vector<short>::iterator tmp10;
   std::vector<short>::const_iterator tmp11;
+  std::vector<float>::iterator tmp12;
+  std::vector<float>::const_iterator tmp13;
+  std::vector<CalibHistogram>::iterator tmp14;
+  std::vector<CalibHistogram>::const_iterator tmp15;
 }

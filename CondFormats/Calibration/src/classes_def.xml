@@ -10,5 +10,8 @@
  <class name="mySiStripNoises::SiStripData"/>
  <class name="mySiStripNoises::DetRegistry"/>
  <class name="std::vector<mySiStripNoises::DetRegistry>"/>
+ <class name="CalibHistograms"/>
+ <class name="std::vector<CalibHistogram>"/>
+ <class name="std::vector<float>"/>
  <class pattern="*iterator*"/>
 </lcgdict>   
