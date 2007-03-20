@@ -1,7 +1,7 @@
 /*
  * \file EcalTBMCInfoProducer.cc
  *
- * $Id: EcalTBMCInfoProducer.cc,v 1.6 2006/10/26 08:01:06 fabiocos Exp $
+ * $Id: EcalTBMCInfoProducer.cc,v 1.7 2007/01/19 09:57:11 fabiocos Exp $
  *
 */
 
@@ -116,8 +116,10 @@ EcalTBMCInfoProducer::~EcalTBMCInfoProducer() {
   const HepMC::GenEvent* Evt = GenEvt->GetEvent() ;
   HepMC::GenEvent::vertex_const_iterator Vtx = Evt->vertices_begin();
 
-  Hep3Vector eventCMSVertex = (*Vtx)->position().v();
-
+  Hep3Vector eventCMSVertex = Hep3Vector((*Vtx)->position().x(),
+                                         (*Vtx)->position().y(),
+                                         (*Vtx)->position().z());
+  
   LogDebug("EcalTBInfo") << "Generated vertex position = " 
                          << eventCMSVertex.x() << " " 
                          << eventCMSVertex.y() << " " 
