@@ -1,6 +1,6 @@
 /*
- *  $Date: 2007/02/14 00:21:33 $
- *  $Revision: 1.25 $
+ *  $Date: 2007/03/20 09:37:53 $
+ *  $Revision: 1.1 $
  *  
  *  Filip Moorgat & Hector Naves 
  *  26/10/05
@@ -11,7 +11,7 @@
  */
 
 
-#include "IOMC/GeneratorInterface/interface/PythiaSource.h"
+#include "GeneratorInterface/Pythia6Interface/interface/PythiaSource.h"
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -25,8 +25,7 @@
 using namespace edm;
 using namespace std;
 
-// Generator modifications
-// ***********************
+
 #include "HepMC/PythiaWrapper6_2.h"
 #include "HepMC/IO_HEPEVT.h"
 
@@ -60,9 +59,17 @@ extern "C" {
   void TXGIVE_INIT();
 }
 
+#define SLHAGIVE slhagive_
+ extern "C" {
+   void SLHAGIVE(const char*,int length);
+}
+  	 
+#define SLHA_INIT slha_init_
+ extern "C" {
+   void SLHA_INIT();
+}
 
-//HepMC::ConvertHEPEVT conv;
-// ***********************
+
 HepMC::IO_HEPEVT conv;
 
 //used for defaults
@@ -143,7 +150,7 @@ PythiaSource::PythiaSource( const ParameterSet & pset,
     vector<string> pars = 
       pythia_params.getParameter<vector<string> >(mySet);
     
-    if (mySet != "CSAParameters"){
+    if (mySet != "SLHAParameters"){
     cout << "----------------------------------------------" << endl;
     cout << "Read PYTHIA parameter set " << mySet << endl;
     cout << "----------------------------------------------" << endl;
@@ -161,25 +168,26 @@ PythiaSource::PythiaSource( const ParameterSet & pset,
 	  <<" pythia did not accept the following \""<<*itPar<<"\"";
       }
     }
-    }else if(mySet == "CSAParameters"){   
+    }else if(mySet == "SLHAParameters"){   
 
-   // Read CSA parameter
+   // Read SLHA parameter
   
-   pars = pythia_params.getParameter<vector<string> >("CSAParameters");
+   pars = pythia_params.getParameter<vector<string> >("SLHAParameters");
 
    cout << "----------------------------------------------" << endl; 
-   cout << "Reading CSA parameter settings. " << endl;
+   cout << "Reading SLHA parameters. " << endl;
    cout << "----------------------------------------------" << endl;                                                                           
 
-   call_txgive_init();
   
   
    // Loop over all parameters and stop in case of a mistake
     for (vector<string>::const_iterator 
             itPar = pars.begin(); itPar != pars.end(); ++itPar) {
-      call_txgive(*itPar); 
+      call_slhagive(*itPar); 
      
          } 
+ 
+    call_slha_init(); 
   
   }
   }
@@ -331,7 +339,25 @@ bool
 PythiaSource::call_txgive_init() {
   
    TXGIVE_INIT();
-   cout << "  Setting CSA defaults.   "   << endl; 
+   cout << "  Setting CSA reweighting parameters.   "   << endl; 
+   
+	return 1;  
+}
 
+bool
+PythiaSource::call_slhagive(const std::string& iParm ) {
+  	 
+  SLHAGIVE( iParm.c_str(), iParm.length() );
+  cout << "     " <<  iParm.c_str() << endl;
+  	 
+        return 1;
+}
+
+bool 
+PythiaSource::call_slha_init() {
+  
+   SLHA_INIT();
+   cout << "  Opening the SLHA spectrum file.   "   << endl; 
+   
 	return 1;  
 }

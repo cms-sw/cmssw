@@ -44,6 +44,8 @@ namespace edm
     bool call_pygive(const std::string& iParm );
     bool call_txgive(const std::string& iParm );
     bool call_txgive_init();
+    bool call_slhagive(const std::string& iParm );
+    bool call_slha_init();
   
   private:
     
