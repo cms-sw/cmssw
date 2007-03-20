@@ -15,7 +15,6 @@
 
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
 #include <Geometry/Records/interface/MuonGeometryRecord.h>
-//#include <DataFormats/GeometryVector/interface/GlobalPoint.h>
 #include <Geometry/CommonTopologies/interface/RectangularStripTopology.h>
 #include <Geometry/CommonTopologies/interface/TrapezoidalStripTopology.h>
 
@@ -86,10 +85,10 @@ RPCGeometryAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& i
     "  phi(0)  phi(s1)  phi(sN)    dphi    dphi'      ds     off"
     "       uR       uL       lR       lL" << std::endl;
 
-  int icount = 0, iRPCCHcount = 0;
+    int iRPCCHcount = 0;
 
-   const double dPi = 3.14159265358;
-   const double radToDeg = 180. / dPi; //@@ Where to get pi from?
+    //  const double dPi = 3.14159265358;
+   //   const double radToDeg = 180. / dPi; //@@ Where to get pi from?
 
    std::set<RPCDetId> sids;
    std::vector<LocalPoint> vlp;
