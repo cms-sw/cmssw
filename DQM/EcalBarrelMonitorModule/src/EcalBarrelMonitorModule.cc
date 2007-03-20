@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  *
- * $Date: 2007/02/14 14:21:23 $
- * $Revision: 1.117 $
+ * $Date: 2007/02/17 17:19:52 $
+ * $Revision: 1.118 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -37,14 +37,20 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const ParameterSet& ps){
 
   init_ = false;
 
+  EcalTBEventHeader_ = ps.getParameter<edm::InputTag>("EcalTBEventHeader");
+  EcalRawDataCollection_ = ps.getParameter<edm::InputTag>("EcalRawDataCollection");
+  EBDigiCollection_ = ps.getParameter<edm::InputTag>("EBDigiCollection");
+  EcalUncalibratedRecHitCollection_ = ps.getParameter<edm::InputTag>("EcalUncalibratedRecHitCollection");
+
   cout << endl;
   cout << " *** Ecal Barrel Generic Monitor ***" << endl;
   cout << endl;
 
-  runType_ = -1;
+  // this should come from the EcalBarrel run header
+  runType_ = ps.getUntrackedParameter<int>("runType", -1);
 
   // this should come from the EcalBarrel run header
-  irun_ = ps.getUntrackedParameter<int>("runNumber", 999999);
+  runNumber_ = ps.getUntrackedParameter<int>("runNumber", 999999);
 
   // DQM ROOT output
   outputFile_ = ps.getUntrackedParameter<string>("outputFile", "");
@@ -235,7 +241,7 @@ void EcalBarrelMonitorModule::endJob(void) {
   // end-of-run
   if ( meStatus_ ) meStatus_->Fill(2);
 
-  if ( meRun_ ) meRun_->Fill(irun_);
+  if ( meRun_ ) meRun_->Fill(runNumber_);
   if ( meEvt_ ) meEvt_->Fill(ievt_);
 
   if ( meRunType_ ) meRunType_->Fill(runType_);
@@ -269,7 +275,7 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
 
   try {
 
-    e.getByLabel("ecalEBunpacker", dcchs);
+    e.getByLabel(EcalRawDataCollection_, dcchs);
 
     int nebc = dcchs->size();
     LogDebug("EcalBarrelMonitor") << "event: " << ievt_ << " DCC headers collection size: " << nebc;
@@ -285,7 +291,7 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
 
       meEBDCC_->Fill((dcch.id()+1)+0.5);
 
-      if ( dcch.getRunNumber() != 0 ) irun_ = dcch.getRunNumber();
+      if ( dcch.getRunNumber() != 0 ) runNumber_ = dcch.getRunNumber();
 
       if ( dcch.getRunType() != -1 ) runType_ = dcch.getRunType();
 
@@ -307,7 +313,7 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
      
     try {
 
-      e.getByType(pEvH);
+      e.getByLabel(EcalTBEventHeader_, pEvH);
       EvHeader = pEvH.product();
 
       meEBDCC_->Fill(1);
@@ -327,7 +333,7 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
   }
 
   if ( ievt_ == 1 ) {
-    LogInfo("EcalBarrelMonitor") << "processing run " << irun_;
+    LogInfo("EcalBarrelMonitor") << "processing run " << runNumber_;
     // begin-of-run
     if ( meStatus_ ) meStatus_->Fill(0);
   } else {
@@ -335,7 +341,7 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
     if ( meStatus_ ) meStatus_->Fill(1);
   }
 
-  if ( meRun_ ) meRun_->Fill(irun_);
+  if ( meRun_ ) meRun_->Fill(runNumber_);
   if ( meEvt_ ) meEvt_->Fill(ievt_);
 
   if ( meEvtType_ ) meEvtType_->Fill(evtType_+0.5);
@@ -348,8 +354,7 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
   if ( ievt_ == 1 ) sleep(5);
 
   Handle<EBDigiCollection> digis;
-  //  e.getByLabel("ecalEBunpacker", digis);
-  e.getByType( digis );
+  e.getByLabel(EBDigiCollection_, digis);
 
   int nebd = digis->size();
   LogDebug("EcalBarrelMonitor") << "event " << ievt_ << " digi collection size " << nebd;
@@ -389,7 +394,7 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
   dbe_->unlock();
 
   Handle<EcalUncalibratedRecHitCollection> hits;
-  e.getByLabel("ecalUncalibHitMaker", "EcalUncalibRecHitsEB", hits);
+  e.getByLabel(EcalUncalibratedRecHitCollection_, hits);
 
   int nebh = hits->size();
   LogDebug("EcalBarrelMonitor") << "event " << ievt_ << " hits collection size " << nebh;

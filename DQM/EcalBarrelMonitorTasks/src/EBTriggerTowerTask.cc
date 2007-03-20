@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerTask.cc
  *
- * $Date: 2007/02/16 20:23:19 $
- * $Revision: 1.25 $
+ * $Date: 2007/03/13 10:53:18 $
+ * $Revision: 1.26 $
  * \author G. Della Ricca
  *
 */
@@ -34,6 +34,9 @@ using namespace std;
 EBTriggerTowerTask::EBTriggerTowerTask(const ParameterSet& ps){
 
   init_ = false;
+
+  EcalTrigPrimDigiCollection_ = ps.getParameter<edm::InputTag>("EcalTrigPrimDigiCollection");
+  EcalUncalibratedRecHitCollection_ = ps.getParameter<edm::InputTag>("EcalUncalibratedRecHitCollection");
 
   for (int i = 0; i < 36 ; i++) {
     meEtMap_[i] = 0;
@@ -163,7 +166,7 @@ void EBTriggerTowerTask::analyze(const Event& e, const EventSetup& c){
   try {
 
     Handle<EcalTrigPrimDigiCollection> tpdigis;
-    e.getByLabel("ecalEBunpacker", tpdigis);
+    e.getByLabel(EcalTrigPrimDigiCollection_, tpdigis);
 
     int nebtpd = tpdigis->size();
     LogDebug("EBTriggerTowerTask") << "event " << ievt_ << " trigger primitive digi collection size " << nebtpd;
@@ -224,7 +227,7 @@ void EBTriggerTowerTask::analyze(const Event& e, const EventSetup& c){
   try {
 
     Handle<EcalUncalibratedRecHitCollection> hits;
-    e.getByLabel("ecalUncalibHitMaker", "EcalUncalibRecHitsEB", hits);
+    e.getByLabel(EcalUncalibratedRecHitCollection_, hits);
 
     int nebh = hits->size();
     LogDebug("EBTriggerTowerTask") << "event " << ievt_ << " hits collection size " << nebh;

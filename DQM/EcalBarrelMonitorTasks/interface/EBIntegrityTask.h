@@ -4,8 +4,8 @@
 /*
  * \file EBIntegrityTask.h
  *
- * $Date: 2007/02/01 15:43:56 $
- * $Revision: 1.12 $
+ * $Date: 2007/03/13 10:53:16 $
+ * $Revision: 1.13 $
  * \author G. Della Ricca
  *
  */
@@ -46,6 +46,18 @@ void cleanup(void);
 private:
 
 int ievt_;
+
+edm::InputTag EBDetIdCollection0_;
+edm::InputTag EBDetIdCollection1_;
+edm::InputTag EBDetIdCollection2_;
+edm::InputTag EBDetIdCollection3_;
+edm::InputTag EBDetIdCollection4_;
+edm::InputTag EcalTrigTowerDetIdCollection1_;
+edm::InputTag EcalTrigTowerDetIdCollection2_;
+edm::InputTag EcalElectronicsIdCollection1_;
+edm::InputTag EcalElectronicsIdCollection2_;
+edm::InputTag EcalElectronicsIdCollection3_;
+edm::InputTag EcalElectronicsIdCollection4_;
 
 MonitorElement* meIntegrityChId[36];
 MonitorElement* meIntegrityGain[36];

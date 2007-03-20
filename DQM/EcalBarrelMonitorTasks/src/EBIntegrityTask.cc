@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityTask.cc
  *
- * $Date: 2007/02/01 15:43:57 $
- * $Revision: 1.31 $
+ * $Date: 2007/03/13 10:53:18 $
+ * $Revision: 1.32 $
  * \author G. Della Ricca
  *
  */
@@ -31,6 +31,18 @@ using namespace std;
 EBIntegrityTask::EBIntegrityTask(const ParameterSet& ps){
 
   init_ = false;
+
+  EBDetIdCollection0_ =  ps.getParameter<edm::InputTag>("EBDetIdCollection0");
+  EBDetIdCollection1_ =  ps.getParameter<edm::InputTag>("EBDetIdCollection1");
+  EBDetIdCollection2_ =  ps.getParameter<edm::InputTag>("EBDetIdCollection2");
+  EBDetIdCollection3_ =  ps.getParameter<edm::InputTag>("EBDetIdCollection3");
+  EBDetIdCollection4_ =  ps.getParameter<edm::InputTag>("EBDetIdCollection4");
+  EcalTrigTowerDetIdCollection1_ = ps.getParameter<edm::InputTag>("EcalTrigTowerDetIdCollection1");
+  EcalTrigTowerDetIdCollection2_ = ps.getParameter<edm::InputTag>("EcalTrigTowerDetIdCollection2");
+  EcalElectronicsIdCollection1_ = ps.getParameter<edm::InputTag>("EcalElectronicsIdCollection1");
+  EcalElectronicsIdCollection2_ = ps.getParameter<edm::InputTag>("EcalElectronicsIdCollection2");
+  EcalElectronicsIdCollection3_ = ps.getParameter<edm::InputTag>("EcalElectronicsIdCollection3");
+  EcalElectronicsIdCollection4_ = ps.getParameter<edm::InputTag>("EcalElectronicsIdCollection4");
 
   meIntegrityDCCSize = 0;
   for (int i = 0; i < 36 ; i++) {
@@ -267,7 +279,7 @@ void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
   ievt_++;
 
   Handle<EBDetIdCollection> ids0;
-  e.getByLabel("ecalEBunpacker", "EcalIntegrityDCCSizeErrors", ids0);
+  e.getByLabel(EBDetIdCollection0_, ids0);
 
   for ( EBDetIdCollection::const_iterator idItr = ids0->begin(); idItr != ids0->end(); ++ idItr ) {
 
@@ -282,7 +294,7 @@ void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
   }
 
   Handle<EBDetIdCollection> ids1;
-  e.getByLabel("ecalEBunpacker", "EcalIntegrityGainErrors", ids1);
+  e.getByLabel(EBDetIdCollection1_, ids1);
 
   for ( EBDetIdCollection::const_iterator idItr = ids1->begin(); idItr != ids1->end(); ++ idItr ) {
 
@@ -302,7 +314,7 @@ void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
   }
 
   Handle<EBDetIdCollection> ids2;
-  e.getByLabel("ecalEBunpacker", "EcalIntegrityChIdErrors", ids2);
+  e.getByLabel(EBDetIdCollection2_, ids2);
 
   for ( EBDetIdCollection::const_iterator idItr = ids2->begin(); idItr != ids2->end(); ++ idItr ) {
 
@@ -322,7 +334,7 @@ void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
   }
 
   Handle<EBDetIdCollection> ids3;
-  e.getByLabel("ecalEBunpacker", "EcalIntegrityGainSwitchErrors", ids3);
+  e.getByLabel(EBDetIdCollection3_, ids3);
 
   for ( EBDetIdCollection::const_iterator idItr = ids3->begin(); idItr != ids3->end(); ++ idItr ) {
 
@@ -342,7 +354,7 @@ void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
   }
 
   Handle<EBDetIdCollection> ids4;
-  e.getByLabel("ecalEBunpacker", "EcalIntegrityGainSwitchStayErrors", ids4);
+  e.getByLabel(EBDetIdCollection4_, ids4);
 
   for ( EBDetIdCollection::const_iterator idItr = ids4->begin(); idItr != ids4->end(); ++ idItr ) {
 
@@ -362,7 +374,7 @@ void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
   }
 
   Handle<EcalTrigTowerDetIdCollection> ids5;
-  e.getByLabel("ecalEBunpacker", "EcalIntegrityTTIdErrors", ids5);
+  e.getByLabel(EcalTrigTowerDetIdCollection1_, ids5);
 
   for ( EcalTrigTowerDetIdCollection::const_iterator idItr = ids5->begin(); idItr != ids5->end(); ++ idItr ) {
 
@@ -388,7 +400,7 @@ void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
   }
 
   Handle<EcalTrigTowerDetIdCollection> ids6;
-  e.getByLabel("ecalEBunpacker", "EcalIntegrityBlockSizeErrors", ids6);
+  e.getByLabel(EcalTrigTowerDetIdCollection2_, ids6);
 
   for ( EcalTrigTowerDetIdCollection::const_iterator idItr = ids6->begin(); idItr != ids6->end(); ++ idItr ) {
 
@@ -415,7 +427,7 @@ void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
    }
 
   Handle<EcalElectronicsIdCollection> ids7;
-  e.getByLabel("ecalEBunpacker", "EcalIntegrityMemTtIdErrors", ids7);
+  e.getByLabel(EcalElectronicsIdCollection1_, ids7);
 
   for ( EcalElectronicsIdCollection::const_iterator idItr = ids7->begin(); idItr != ids7->end(); ++ idItr ) {
 
@@ -430,7 +442,7 @@ void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
   }
 
   Handle<EcalElectronicsIdCollection> ids8;
-  e.getByLabel("ecalEBunpacker", "EcalIntegrityMemBlockSize", ids8);
+  e.getByLabel(EcalElectronicsIdCollection2_, ids8);
 
   for ( EcalElectronicsIdCollection::const_iterator idItr = ids8->begin(); idItr != ids8->end(); ++ idItr ) {
 
@@ -445,7 +457,7 @@ void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
   }
 
   Handle<EcalElectronicsIdCollection> ids9;
-  e.getByLabel("ecalEBunpacker", "EcalIntegrityMemChIdErrors", ids9);
+  e.getByLabel(EcalElectronicsIdCollection3_, ids9);
 
   for ( EcalElectronicsIdCollection::const_iterator idItr = ids9->begin(); idItr != ids9->end(); ++ idItr ) {
 
@@ -468,7 +480,7 @@ void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
   }
 
   Handle<EcalElectronicsIdCollection> ids10;
-  e.getByLabel("ecalEBunpacker", "EcalIntegrityMemGainErrors", ids10);
+  e.getByLabel(EcalElectronicsIdCollection4_, ids10);
 
   for ( EcalElectronicsIdCollection::const_iterator idItr = ids10->begin(); idItr != ids10->end(); ++ idItr ) {
 

@@ -1,8 +1,8 @@
 /*
  * \file EBBeamCaloTask.cc
  *
- * $Date: 2007/02/22 10:57:00 $
- * $Revision: 1.39 $
+ * $Date: 2007/03/13 10:53:18 $
+ * $Revision: 1.40 $
  * \author A. Ghezzi
  *
  */
@@ -37,11 +37,12 @@ using namespace std;
 
 EBBeamCaloTask::EBBeamCaloTask(const ParameterSet& ps){
 
-  //LogDebug("EBBeamCaloTask") << " 1 construct  ";
   init_ = false;
-  //digiProducer_ = ps.getUntrackedParameter<string>("digiProducer", "ecalEBunpacker");
-  digiProducer_ = ps.getParameter<string>("digiProducer");
-  //DCCHeaderProducer_= ps.getUntrackedParameter<string>("dccHeaderProducer", "ecalEBunpacker");
+
+  EcalTBEventHeader_ = ps.getParameter<edm::InputTag>("EcalTBEventHeader");
+  EcalRawDataCollection_ = ps.getParameter<edm::InputTag>("EcalRawDataCollection");
+  EBDigiCollection_ = ps.getParameter<edm::InputTag>("EBDigiCollection");
+  EcalUncalibratedRecHitCollection_ = ps.getParameter<edm::InputTag>("EcalUncalibratedRecHitCollection");
 
   for (int i = 0; i < cryInArray_ ; i++) {
     meBBCaloPulseProf_[i]=0;
@@ -348,7 +349,7 @@ void EBBeamCaloTask::analyze(const Event& e, const EventSetup& c){
   
   Handle<EcalRawDataCollection> dcchs;
   try{
-    e.getByLabel("ecalEBunpacker", dcchs);
+    e.getByLabel(EcalRawDataCollection_, dcchs);
   
     int nebc = dcchs->size();
     LogDebug("EBBeamCaloTask") << "event: " << ievt_ << " DCC headers collection size: " << nebc;
@@ -373,7 +374,7 @@ void EBBeamCaloTask::analyze(const Event& e, const EventSetup& c){
   Handle<EcalTBEventHeader> pEventHeader;
   const EcalTBEventHeader* evtHeader=0;
   try {
-    e.getByLabel( "ecalEBunpacker", pEventHeader );
+    e.getByLabel(EcalTBEventHeader_, pEventHeader);
     evtHeader = pEventHeader.product(); // get a ptr to the product
     //std::cout << "Taken EventHeader " << std::endl;
   } catch ( std::exception& ex ) {
@@ -614,8 +615,7 @@ void EBBeamCaloTask::analyze(const Event& e, const EventSetup& c){
   if (!tb_moving) {meBBCaloCryOnBeam_->Fill(xie,xip);}
 
   Handle<EBDigiCollection> digis;
-  //e.getByLabel("ecalEBunpacker", digis);
-  e.getByLabel(digiProducer_, digis);
+  e.getByLabel(EBDigiCollection_, digis);
   int nebd = digis->size();
   //  LogDebug("EBBeamCaloTask") << "event " << ievt_ << " digi collection size " << nebd;
 
@@ -734,7 +734,7 @@ void EBBeamCaloTask::analyze(const Event& e, const EventSetup& c){
   //the part involving rechits
 
   Handle<EcalUncalibratedRecHitCollection> hits;
-  e.getByLabel("ecalUncalibHitMaker", "EcalUncalibRecHitsEB", hits);
+  e.getByLabel(EcalUncalibratedRecHitCollection_, hits);
   int neh = hits->size();
   LogDebug("EBBeamCaloTask") << "event " << event <<" analyzed: "<< ievt_ << " hits collection size " << neh;
   float ene3x3=0;

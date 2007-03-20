@@ -4,8 +4,8 @@
 /*
  * \file EBOccupancyTask.h
  *
- * $Date: 2007/02/01 15:43:56 $
- * $Revision: 1.3 $
+ * $Date: 2007/03/13 10:53:16 $
+ * $Revision: 1.4 $
  * \author G. Della Ricca
  *
 */
@@ -45,6 +45,9 @@ void cleanup(void);
 private:
 
 int ievt_;
+
+edm::InputTag EBDigiCollection_;
+edm::InputTag EcalPnDiodeDigiCollection_;
 
 MonitorElement* meEvent_[36];
 MonitorElement* meOccupancy_[36];

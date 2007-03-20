@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalOnlineTask.cc
  *
- * $Date: 2007/02/01 15:43:57 $
- * $Revision: 1.17 $
+ * $Date: 2007/03/13 10:53:18 $
+ * $Revision: 1.18 $
  * \author G. Della Ricca
  *
 */
@@ -35,6 +35,8 @@ using namespace std;
 EBPedestalOnlineTask::EBPedestalOnlineTask(const ParameterSet& ps){
 
   init_ = false;
+
+  EBDigiCollection_ = ps.getParameter<edm::InputTag>("EBDigiCollection");
 
   for (int i = 0; i < 36 ; i++) {
     mePedMapG12_[i] = 0;
@@ -124,7 +126,7 @@ void EBPedestalOnlineTask::analyze(const Event& e, const EventSetup& c){
   ievt_++;
 
   Handle<EBDigiCollection> digis;
-  e.getByLabel("ecalEBunpacker", digis);
+  e.getByLabel(EBDigiCollection_, digis);
 
   int nebd = digis->size();
   LogDebug("EBPedestalOnlineTask") << "event " << ievt_ << " digi collection size " << nebd;

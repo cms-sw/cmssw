@@ -1,8 +1,8 @@
 /*
  * \file EBTimingTask.cc
  *
- * $Date: 2007/02/23 15:22:57 $
- * $Revision: 1.6 $
+ * $Date: 2007/03/13 10:53:18 $
+ * $Revision: 1.7 $
  * \author G. Della Ricca
  *
 */
@@ -35,6 +35,9 @@ using namespace std;
 EBTimingTask::EBTimingTask(const ParameterSet& ps){
 
   init_ = false;
+
+  EcalRawDataCollection_ = ps.getParameter<edm::InputTag>("EcalRawDataCollection");
+  EcalUncalibratedRecHitCollection_ = ps.getParameter<edm::InputTag>("EcalUncalibratedRecHitCollection");
 
   for (int i = 0; i < 36 ; i++) {
     meTimeMap_[i] = 0;
@@ -121,7 +124,7 @@ void EBTimingTask::analyze(const Event& e, const EventSetup& c){
   map<int, EcalDCCHeaderBlock> dccMap;
 
   Handle<EcalRawDataCollection> dcchs;
-  e.getByLabel("ecalEBunpacker", dcchs);
+  e.getByLabel(EcalRawDataCollection_, dcchs);
 
   for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
 
@@ -147,7 +150,7 @@ void EBTimingTask::analyze(const Event& e, const EventSetup& c){
   ievt_++;
 
   Handle<EcalUncalibratedRecHitCollection> hits;
-  e.getByLabel("ecalUncalibHitMaker", "EcalUncalibRecHitsEB", hits); 
+  e.getByLabel(EcalUncalibratedRecHitCollection_, hits); 
 
   int neh = hits->size();
   LogDebug("EBTimingTask") << "event " << ievt_ << " hits collection size " << neh;

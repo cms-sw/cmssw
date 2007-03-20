@@ -4,8 +4,8 @@
 /*
  * \file EBBeamHodoTask.h
  *
- * $Date: 2007/02/01 15:43:56 $
- * $Revision: 1.8 $
+ * $Date: 2007/03/13 10:53:16 $
+ * $Revision: 1.9 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -48,15 +48,22 @@ void cleanup(void);
 
 private:
  
-std::string outputFile_;
- 
- int ievt_;
- int LV1_;
- bool tableIsMoving_;
- bool resetNow_;
- int    cryInBeam_;
- int    previousCryInBeam_;
- int    cryInBeamCounter_;
+int ievt_;
+
+edm::InputTag EcalTBEventHeader_;
+edm::InputTag EcalRawDataCollection_;
+edm::InputTag EcalUncalibratedRecHitCollection_;
+edm::InputTag EcalTBTDCRawInfo_;
+edm::InputTag EcalTBHodoscopeRawInfo_;
+edm::InputTag EcalTBTDCRecInfo_;
+edm::InputTag EcalTBHodoscopeRecInfo_;
+
+int LV1_;
+bool tableIsMoving_;
+bool resetNow_;
+int    cryInBeam_;
+int    previousCryInBeam_;
+int    cryInBeamCounter_;
  
  //  ME type I
 MonitorElement* meHodoOcc_[4];
@@ -73,8 +80,6 @@ MonitorElement* meHodoPosXMinusCaloPosXVsCry_;
 MonitorElement* meHodoPosYMinusCaloPosYVsCry_;
 MonitorElement* meTDCTimeMinusCaloTimeVsCry_;
 MonitorElement* meMissingCollections_;
-
-
 
  //  ME type II
 MonitorElement* meEvsXRecProf_;

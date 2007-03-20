@@ -1,8 +1,8 @@
 /*
  * \file EBLaserTask.cc
  *
- * $Date: 2007/02/22 10:57:00 $
- * $Revision: 1.72 $
+ * $Date: 2007/03/13 10:53:18 $
+ * $Revision: 1.73 $
  * \author G. Della Ricca
  *
 */
@@ -35,6 +35,11 @@ using namespace std;
 EBLaserTask::EBLaserTask(const ParameterSet& ps){
 
   init_ = false;
+
+  EcalRawDataCollection_ = ps.getParameter<edm::InputTag>("EcalRawDataCollection");
+  EBDigiCollection_ = ps.getParameter<edm::InputTag>("EBDigiCollection");
+  EcalPnDiodeDigiCollection_ = ps.getParameter<edm::InputTag>("EcalPnDiodeDigiCollection");
+  EcalUncalibratedRecHitCollection_ = ps.getParameter<edm::InputTag>("EcalUncalibratedRecHitCollection");
 
   for (int i = 0; i < 36 ; i++) {
     meShapeMapL1A_[i] = 0;
@@ -524,7 +529,7 @@ void EBLaserTask::analyze(const Event& e, const EventSetup& c){
   map<int, EcalDCCHeaderBlock> dccMap;
 
   Handle<EcalRawDataCollection> dcchs;
-  e.getByLabel("ecalEBunpacker", dcchs);
+  e.getByLabel(EcalRawDataCollection_, dcchs);
 
   for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
 
@@ -549,7 +554,7 @@ void EBLaserTask::analyze(const Event& e, const EventSetup& c){
   ievt_++;
 
   Handle<EBDigiCollection> digis;
-  e.getByLabel("ecalEBunpacker", digis);
+  e.getByLabel(EBDigiCollection_, digis);
 
   int nebd = digis->size();
   LogDebug("EBLaserTask") << "event " << ievt_ << " digi collection size " << nebd;
@@ -611,7 +616,7 @@ void EBLaserTask::analyze(const Event& e, const EventSetup& c){
   }
 
   Handle<EcalPnDiodeDigiCollection> pns;
-  e.getByLabel("ecalEBunpacker", pns);
+  e.getByLabel(EcalPnDiodeDigiCollection_, pns);
 
   float adcA[36];
   float adcB[36];
@@ -712,7 +717,7 @@ void EBLaserTask::analyze(const Event& e, const EventSetup& c){
   }
 
   Handle<EcalUncalibratedRecHitCollection> hits;
-  e.getByLabel("ecalUncalibHitMaker", "EcalUncalibRecHitsEB", hits);
+  e.getByLabel(EcalUncalibratedRecHitCollection_, hits);
 
   int neh = hits->size();
   LogDebug("EBLaserTask") << "event " << ievt_ << " hits collection size " << neh;

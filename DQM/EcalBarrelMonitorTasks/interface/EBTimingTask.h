@@ -4,8 +4,8 @@
 /*
  * \file EBTimingTask.h
  *
- * $Date: 2007/02/17 12:25:54 $
- * $Revision: 1.1 $
+ * $Date: 2007/03/13 10:53:16 $
+ * $Revision: 1.2 $
  * \author G. Della Ricca
  *
 */
@@ -45,6 +45,9 @@ void cleanup(void);
 private:
 
 int ievt_;
+
+edm::InputTag EcalRawDataCollection_;
+edm::InputTag EcalUncalibratedRecHitCollection_;
 
 MonitorElement* meTimeMap_[36];
 

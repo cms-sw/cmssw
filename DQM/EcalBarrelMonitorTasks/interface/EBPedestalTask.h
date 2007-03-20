@@ -4,8 +4,8 @@
 /*
  * \file EBPedestalTask.h
  *
- * $Date: 2007/02/01 15:43:56 $
- * $Revision: 1.20 $
+ * $Date: 2007/03/13 10:53:16 $
+ * $Revision: 1.21 $
  * \author G. Della Ricca
  *
 */
@@ -45,6 +45,10 @@ void cleanup(void);
 private:
 
 int ievt_;
+
+edm::InputTag EcalRawDataCollection_;
+edm::InputTag EBDigiCollection_;
+edm::InputTag EcalPnDiodeDigiCollection_;
 
 MonitorElement* mePedMapG01_[36];
 MonitorElement* mePedMapG06_[36];

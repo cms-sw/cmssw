@@ -1,8 +1,8 @@
 /*
  * \file EBOccupancyTask.cc
  *
- * $Date: 2007/02/01 15:43:57 $
- * $Revision: 1.14 $
+ * $Date: 2007/03/13 10:53:18 $
+ * $Revision: 1.15 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -36,6 +36,9 @@ using namespace std;
 EBOccupancyTask::EBOccupancyTask(const ParameterSet& ps){
 
   init_ = false;
+
+  EBDigiCollection_ = ps.getParameter<edm::InputTag>("EBDigiCollection");
+  EcalPnDiodeDigiCollection_ = ps.getParameter<edm::InputTag>("EcalPnDiodeDigiCollection");
 
   for (int i = 0; i < 36; i++) {
     meOccupancy_[i]    = 0;
@@ -131,8 +134,7 @@ void EBOccupancyTask::analyze(const Event& e, const EventSetup& c){
   ievt_++;
 
   Handle<EBDigiCollection> digis;
-  //  e.getByLabel("ecalEBunpacker", digis);
-  e.getByType(digis);
+  e.getByLabel(EBDigiCollection_, digis);
 
   int nebd = digis->size();
   LogDebug("EBOccupancyTask") << "event " << ievt_ << " digi collection size " << nebd;
@@ -165,8 +167,7 @@ void EBOccupancyTask::analyze(const Event& e, const EventSetup& c){
   }
 
   Handle<EcalPnDiodeDigiCollection> PNs;
-  //  e.getByLabel("ecalEBunpacker", PNs);
-  e.getByType(PNs);
+  e.getByLabel(EcalPnDiodeDigiCollection_, PNs);
 
   // filling mem occupancy only for the 5 channels belonging
   // to a fully reconstructed PN's

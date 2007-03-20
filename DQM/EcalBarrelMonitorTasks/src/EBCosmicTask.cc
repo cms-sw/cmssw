@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicTask.cc
  *
- * $Date: 2007/02/22 15:03:42 $
- * $Revision: 1.65 $
+ * $Date: 2007/03/13 10:53:18 $
+ * $Revision: 1.66 $
  * \author G. Della Ricca
  *
 */
@@ -35,6 +35,9 @@ using namespace std;
 EBCosmicTask::EBCosmicTask(const ParameterSet& ps){
 
   init_ = false;
+
+  EcalRawDataCollection_ = ps.getParameter<edm::InputTag>("EcalRawDataCollection");
+  EcalRecHitCollection_ = ps.getParameter<edm::InputTag>("EcalRecHitCollection");
 
   for (int i = 0; i < 36 ; i++) {
     meCutMap_[i] = 0;
@@ -148,7 +151,7 @@ void EBCosmicTask::analyze(const Event& e, const EventSetup& c){
   map<int, EcalDCCHeaderBlock> dccMap;
 
   Handle<EcalRawDataCollection> dcchs;
-  e.getByLabel("ecalEBunpacker", dcchs);
+  e.getByLabel(EcalRawDataCollection_, dcchs);
 
   for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
 
@@ -171,7 +174,7 @@ void EBCosmicTask::analyze(const Event& e, const EventSetup& c){
   ievt_++;
 
   Handle<EcalRecHitCollection> hits;
-  e.getByLabel("ecalRecHitMaker", "EcalRecHitsEB", hits);
+  e.getByLabel(EcalRecHitCollection_, hits);
 
   int nebh = hits->size();
   LogDebug("EBCosmicTask") << "event " << ievt_ << " hits collection size " << nebh;

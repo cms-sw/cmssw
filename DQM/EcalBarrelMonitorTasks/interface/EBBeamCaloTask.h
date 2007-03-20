@@ -4,8 +4,8 @@
 /*
  * \file EBBeamCaloTask.h
  *
- * $Date: 2007/02/01 15:43:56 $
- * $Revision: 1.17 $
+ * $Date: 2007/03/13 10:53:16 $
+ * $Revision: 1.18 $
  * \author A. Ghezzi
  *
 */
@@ -46,12 +46,16 @@ void setup(void);
 void cleanup(void);
 
 private:
- const static int cryInArray_ = 9;
- const static int defaultPede_ = 200;
+
 int ievt_;
 
-std::string digiProducer_;
-//std::string DCCHeaderProducer_;
+edm::InputTag EcalTBEventHeader_;
+edm::InputTag EcalRawDataCollection_;
+edm::InputTag EBDigiCollection_;
+edm::InputTag EcalUncalibratedRecHitCollection_;
+
+const static int cryInArray_ = 9;
+const static int defaultPede_ = 200;
 
 MonitorElement* meBBCaloPulseProf_[cryInArray_];
 MonitorElement* meBBCaloPulseProfG12_[cryInArray_];

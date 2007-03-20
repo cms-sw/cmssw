@@ -4,8 +4,8 @@
 /*
  * \file EBLaserTask.h
  *
- * $Date: 2007/02/01 15:43:56 $
- * $Revision: 1.22 $
+ * $Date: 2007/03/13 10:53:16 $
+ * $Revision: 1.23 $
  * \author G. Della Ricca
  *
 */
@@ -45,6 +45,11 @@ void cleanup(void);
 private:
 
 int ievt_;
+
+edm::InputTag EcalRawDataCollection_;
+edm::InputTag EBDigiCollection_;
+edm::InputTag EcalPnDiodeDigiCollection_;
+edm::InputTag EcalUncalibratedRecHitCollection_;
 
 MonitorElement* meShapeMapL1A_[36];
 MonitorElement* meAmplMapL1A_[36];
