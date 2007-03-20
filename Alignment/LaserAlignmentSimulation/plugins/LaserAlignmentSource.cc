@@ -1,9 +1,12 @@
-/*
- * Source to be used for the Simulation of the Laser Alignment System
- * an empty MCHepEvent will be generated (needed by OscarProducer). The actual simulation of 
- * the laser beams is done in the SimWatcher attached to OscarProducer
+/** \file LaserAlignmentSource.cc
+ *  Source to be used for the Simulation of the Laser Alignment System
+ *  an empty MCHepEvent will be generated (needed by OscarProducer). The actual simulation of 
+ *  the laser beams is done in the SimWatcher attached to OscarProducer
+ *
+ *  $Date: Mon Mar 19 12:25:41 CET 2007 $
+ *  $Revision: 1.1 $
+ *  \author Maarten Thomas
  */
-
 // system include files
 #include "FWCore/Framework/interface/Event.h"
 

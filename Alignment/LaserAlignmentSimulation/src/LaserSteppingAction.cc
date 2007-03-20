@@ -1,5 +1,9 @@
-/*
- * Class for the stepping action
+/** \file LaserSteppingAction.cc
+ *  
+ *
+ *  $Date: Mon Mar 19 12:21:32 CET 2007 $
+ *  $Revision: 1.1 $
+ *  \author Maarten Thomas
  */
 
 #include "Alignment/LaserAlignmentSimulation/interface/LaserSteppingAction.h"

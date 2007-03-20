@@ -1,7 +1,9 @@
-/*
- * Custom Physics to activate
- * optical processes for the 
- * simulation of the Laser Alignment System
+/** \file LaserOpticalPhysics.cc
+ *  Custom Physics to activate optical processes for the simulation of the Laser Alignment System
+ *
+ *  $Date: Mon Mar 19 12:27:08 CET 2007 $
+ *  $Revision: 1.1 $
+ *  \author Maarten Thomas
  */
 
 #include "Alignment/LaserAlignmentSimulation/plugins/LaserOpticalPhysics.h"

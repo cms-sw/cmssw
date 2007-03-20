@@ -1,9 +1,13 @@
-/* 
- * DQM Monitor Elements for the Laser Alignment System
- */
-
 #ifndef LaserDQM_LaserDQM_H
 #define LaserDQM_LaserDQM_H
+
+/** \class LaserDQM
+ *  DQM Monitor Elements for the Laser Alignment System
+ *
+ *  $Date: Mon Mar 19 12:33:24 CET 2007 $
+ *  $Revision: 1.1 $
+ *  \author Maarten Thomas
+ */
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -23,23 +27,26 @@ class LaserDQM : public edm::EDAnalyzer
  public:
   typedef std::vector<edm::ParameterSet> Parameters;
 
+	/// constructor
   explicit LaserDQM(edm::ParameterSet const& theConf);
+	/// destructor
   ~LaserDQM();
   
-  // this method will do the user analysis 
+  /// this method will do the user analysis 
   virtual void analyze(edm::Event const& theEvent, edm::EventSetup const& theSetup);
-  
+  /// begin job
   virtual void beginJob(const edm::EventSetup& theSetup);
-
+	/// end job
   virtual void endJob(void);
     
  private:
+	/// fill adc counts from the laser beam into a monitor histogram
   void fillAdcCounts(MonitorElement * theMonitor,
 		     edm::DetSet<SiStripDigi>::const_iterator digiRangeIterator,
 		     edm::DetSet<SiStripDigi>::const_iterator digiRangeIteratorEnd);
-
+	/// initialize monitors
   void initMonitors();
-
+	/// find dets which are hit by a laser beam and fill the monitors
   void trackerStatistics(edm::Event const& theEvent, edm::EventSetup const& theSetup);
   
  private:

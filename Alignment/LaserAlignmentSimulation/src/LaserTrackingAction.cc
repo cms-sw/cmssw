@@ -1,5 +1,9 @@
-/*
- * the Laser Tracking Action
+/** \file LaserTrackingAction.cc
+ *  
+ *
+ *  $Date: Mon Mar 19 12:21:52 CET 2007 $
+ *  $Revision: 1.1 $
+ *  \author Maarten Thomas
  */
 
 #include "Alignment/LaserAlignmentSimulation/interface/LaserTrackingAction.h"

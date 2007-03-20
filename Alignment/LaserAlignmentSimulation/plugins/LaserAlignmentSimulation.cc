@@ -1,6 +1,9 @@
-/*
- * SimWatcher for the simulation of the
- * Laser Alignment System of the CMS Tracker 
+/** \file LaserAlignmentSimulation.cc
+ *  SimWatcher for the simulation of the Laser Alignment System of the CMS Tracker
+ *
+ *  $Date: Mon Mar 19 12:23:46 CET 2007 $
+ *  $Revision: 1.1 $
+ *  \author Maarten Thomas
  */
 
 #include "Alignment/LaserAlignmentSimulation/plugins/LaserAlignmentSimulation.h"

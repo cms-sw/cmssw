@@ -33,6 +33,7 @@
  <use name=FWCore/Framework>
  <use name=FWCore/ParameterSet>
  <use name=clhep>
+ <use name=hepmc>
 </library>
 
 <library file=LaserOpticalPhysics.cc>

@@ -1,9 +1,13 @@
-/* 
- * Get some statistics and plots about the simulation of the Laser Alignment System
- */
-
 #ifndef LaserAlignmentSimulation_SimAnalyzer_H
 #define LaserAlignmentSimulation_SimAnalyzer_H
+
+/** \class SimAnalyzer
+ *  Get some statistics and plots about the simulation of the Laser Alignment System
+ *
+ *  $Date: Mon Mar 19 12:28:55 CET 2007 $
+ *  $Revision: 1.1 $
+ *  \author Maarten Thomas
+ */
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -48,20 +52,24 @@
 class SimAnalyzer : public edm::EDAnalyzer, public TObject 
 {
  public:
+	/// constructor
   explicit SimAnalyzer(edm::ParameterSet const& theConf);
+	/// destructor
   ~SimAnalyzer();
   
-  // this method will do the user analysis 
+  /// this method will do the user analysis 
   virtual void analyze(edm::Event const& theEvent, edm::EventSetup const& theSetup);
+	/// begin job
   virtual void beginJob(const edm::EventSetup& theSetup);
     
  private:
+	/// return angle in radian betwee 0 and 2*pi
   double angle(double theAngle);
-
+	/// write the ROOT file with histograms
   void closeRootFile();
-  
+  /// initialize the histograms
   void initHistograms();
-
+	/// find the dets which are hit by a laser beam and fill the SimHit info into histograms
   void trackerStatistics(edm::Event const& theEvent, edm::EventSetup const& theSetup);
   
  private:

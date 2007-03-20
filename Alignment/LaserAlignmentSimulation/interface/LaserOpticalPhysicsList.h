@@ -1,10 +1,13 @@
-/* 
- * Define the Optical processes for the Simulation of 
- * the Laser Alignment System with CMSSW
- */
-
 #ifndef LaserAlignmentSimulation_LaserOpticalPhysicsList_H
 #define LaserAlignmentSimulation_LaserOpticalPhysicsList_H
+
+/** \class LaserOpticalPhysicsList
+ *  Define the Optical processes for the Simulation of the Laser Alignment System
+ *
+ *  $Date: Mon Mar 19 12:04:31 CET 2007 $
+ *  $Revision: 1.1 $
+ *  \author Maarten Thomas
+ */
 
 // G4 includes
 #include "globals.hh"
@@ -39,11 +42,15 @@ class G4OpBoundaryProcess;
 class LaserOpticalPhysicsList : public G4VPhysicsConstructor
 {
  public:
+	/// constructor
   LaserOpticalPhysicsList(const G4String& name="optical");
+	/// destructor
   virtual  ~LaserOpticalPhysicsList();
 
  public:
+	/// construct Optical Photons
   virtual void ConstructParticle();
+	/// construct Optical Processes
   virtual void ConstructProcess();
 
  protected:

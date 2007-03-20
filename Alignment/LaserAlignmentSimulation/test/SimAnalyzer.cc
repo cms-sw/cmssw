@@ -1,6 +1,10 @@
-/*
-* Get some statistics and plots about the simulation of the Laser Alignment System
-*/
+/** \file SimAnalyzer.cc
+ *  Get some statistics and plots about the simulation of the Laser Alignment System
+ *
+ *  $Date: Mon Mar 19 12:28:40 CET 2007 $
+ *  $Revision: 1.1 $
+ *  \author Maarten Thomas
+ */
 
 #include "Alignment/LaserAlignmentSimulation/test/SimAnalyzer.h"
 

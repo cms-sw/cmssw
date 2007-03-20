@@ -1,9 +1,13 @@
-/* 
- * Class to define custom material properties
- */
-
 #ifndef LaserAlignmentSimulation_MaterialProperties_h
 #define LaserAlignmentSimulation_MaterialProperties_h
+
+/** \class MaterialProperties
+ *  Class to define custom material properties
+ *
+ *  $Date: Mon Mar 19 12:19:25 CET 2007 $
+ *  $Revision: 1.1 $
+ *  \author Maarten Thomas
+ */
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -22,10 +26,13 @@
 class MaterialProperties
 {
  public:
-  MaterialProperties(int DebugLevel, double SiAbsLengthScale);  // constructor
-  ~MaterialProperties();    // destructor
+	/// constructor
+  MaterialProperties(int DebugLevel, double SiAbsLengthScale);
+	/// destructor
+  ~MaterialProperties();
 
  private:
+	/// define optical properties of materials in the detector
   void setMaterialProperties();
 
  private:

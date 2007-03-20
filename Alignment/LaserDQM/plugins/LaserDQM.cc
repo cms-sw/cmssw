@@ -1,5 +1,9 @@
-/*
- * DQM Monitors for Laser Alignment System
+/** \file LaserDQM.cc
+ *  DQM Monitors for Laser Alignment System
+ *
+ *  $Date: Mon Mar 19 12:33:08 CET 2007 $
+ *  $Revision: 1.1 $
+ *  \author Maarten Thomas
  */
 
 #include "Alignment/LaserDQM/plugins/LaserDQM.h"

@@ -1,6 +1,10 @@
-/*
- * Define the Laser beams in the left Endcap
-*/ 
+/** \file LaserBeamsTEC2.cc
+ *  
+ *
+ *  $Date: Mon Mar 19 12:21:04 CET 2007 $
+ *  $Revision: 1.1 $
+ *  \author Maarten Thomas
+ */
 
 #include "Alignment/LaserAlignmentSimulation/interface/LaserBeamsTEC2.h"
 

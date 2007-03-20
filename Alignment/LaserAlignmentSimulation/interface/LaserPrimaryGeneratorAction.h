@@ -1,9 +1,13 @@
-/* 
- * Primary Generator Action for the Laser Events
- */
-
 #ifndef LaserAlignmentSimulation_LaserPrimaryGeneratorAction_h
 #define LaserAlignmentSimulation_LaserPrimaryGeneratorAction_h
+
+/** \class LaserPrimaryGeneratorAction
+ *  Primary Generator Action for the Laser Events
+ *
+ *  $Date: Mon Mar 19 12:05:41 CET 2007 $
+ *  $Revision: 1.1 $
+ *  \author Maarten Thomas
+ */
 
 #include "Alignment/LaserAlignmentSimulation/interface/LaserBeamsTEC1.h"
 #include "Alignment/LaserAlignmentSimulation/interface/LaserBeamsTEC2.h"
@@ -26,11 +30,15 @@ class LaserPrimaryGeneratorMessenger;
 class LaserPrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
 {
  public:
+	/// constructor
   LaserPrimaryGeneratorAction(edm::ParameterSet const& theConf);
+	/// destructor
   ~LaserPrimaryGeneratorAction();
 
  public:
+	/// call the corresponding GeneratePrimaries routines for both TEC's and the Barrel
   void GeneratePrimaries(G4Event* myEvent);
+	/// set Id of the optical photons
   void setGeneratorId(G4PrimaryParticle * aParticle, int ID) const;
 
  private:

@@ -1,9 +1,13 @@
-/*
- * SimWatcher for the simulation of the Laser Alignment System of the CMS Tracker
- */
-
 #ifndef LaserAlignmentSimulation_LaserAlignmentSimulation_H
 #define LaserAlignmentSimulation_LaserAlignmentSimulation_H
+
+/** \class LaserAlignmentSimulation
+ *  SimWatcher for the simulation of the Laser Alignment System of the CMS Tracker
+ *
+ *  $Date: Mon Mar 19 12:24:09 CET 2007 $
+ *  $Revision: 1.1 $
+ *  \author Maarten Thomas
+ */
 
 #include "SimG4Core/Watcher/interface/SimWatcher.h"
 
@@ -59,16 +63,25 @@ class LaserAlignmentSimulation : public Observer<const BeginOfRun *>,
   public SimWatcher
 {
  public:
+	/// constructor
   explicit LaserAlignmentSimulation(edm::ParameterSet const & theConf);
+	/// destructor
   virtual ~LaserAlignmentSimulation();
   
 /*  private: */
+	/// observer for BeginOfRun
   void update(const BeginOfRun * myRun);
+	/// observer for BeginOfEvent
   void update(const BeginOfEvent * myEvent);
+	/// observer for G4Step
   void update(const G4Step * myStep);
+	/// observer for EndOfEvent
   void update(const EndOfEvent * myEvent);
+	/// observer for EndOfRun
   void update(const EndOfRun * myRun);
+	/// observer for BeginOfTrack
   void update(const BeginOfTrack * myTrack);
+	/// observer for EndOfTrack
   void update(const EndOfTrack * myTrack);
   
  private:

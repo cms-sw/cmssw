@@ -1,6 +1,10 @@
-/*
- * Primary Generator Action for the Laser Events
- */ 
+/** \file LaserPrimaryGeneratorAction.cc
+ *  
+ *
+ *  $Date: Mon Mar 19 12:21:22 CET 2007 $
+ *  $Revision: 1.1 $
+ *  \author Maarten Thomas
+ */
 
 #include "Alignment/LaserAlignmentSimulation/interface/LaserPrimaryGeneratorAction.h"
 

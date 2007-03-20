@@ -1,5 +1,9 @@
-/*
- * Fill the DQM Monitors
+/** \file LaserDQMStatistics.cc
+ *  Fill the DQM Monitors
+ *
+ *  $Date: Mon Mar 19 12:35:23 CET 2007 $
+ *  $Revision: 1.1 $
+ *  \author Maarten Thomas
  */
 
 #include "Alignment/LaserDQM/plugins/LaserDQM.h"

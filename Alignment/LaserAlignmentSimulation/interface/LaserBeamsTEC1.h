@@ -1,9 +1,13 @@
-/* 
- * Laser Beams in the right Endcap
- */
-
 #ifndef LaserAlignmentSimulation_LaserBeamsTEC1_h
 #define LaserAlignmentSimulation_LaserBeamsTEC1_h
+
+/** \class LaserBeamsTEC1
+ *  Laser Beams in the right Endcap
+ *
+ *  $Date: Mon Mar 19 12:02:49 CET 2007 $
+ *  $Revision: 1.1 $
+ *  \author Maarten Thomas
+ */
 
 #include "CLHEP/Random/DRand48Engine.h"
 #include "CLHEP/Random/RandGaussQ.h"
@@ -24,12 +28,17 @@ class G4Event;
 class LaserBeamsTEC1 : public G4VUserPrimaryGeneratorAction
 {
  public:
+	/// default constructor
   LaserBeamsTEC1();
+	/// constructor
   LaserBeamsTEC1(G4int nPhotonsInGun, G4int nPhotonsInBeam, G4double PhotonEnergy);
+	/// destructor
   ~LaserBeamsTEC1();
 
  public:
-  void GeneratePrimaries(G4Event* myEvent);
+	/// shoot optical photons into the detector at the beginning of an event
+	void GeneratePrimaries(G4Event* myEvent);
+	/// set the polarisation of the photons
   void setOptPhotonPolar(G4double Angle);
 
  private:

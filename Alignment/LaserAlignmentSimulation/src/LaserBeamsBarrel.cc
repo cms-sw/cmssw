@@ -1,7 +1,9 @@
-/* 
- * Define  the Laser Beams that connect
- * both Endcaps and the TIB and TOB which
- * eachother
+/** \file LaserBeamsBarrel.cc
+ *  
+ *
+ *  $Date: Mon Mar 19 12:20:38 CET 2007 $
+ *  $Revision: 1.1 $
+ *  \author Maarten Thomas
  */
 
 #include "Alignment/LaserAlignmentSimulation/interface/LaserBeamsBarrel.h"

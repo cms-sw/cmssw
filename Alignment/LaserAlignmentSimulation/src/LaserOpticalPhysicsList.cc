@@ -1,7 +1,10 @@
-/*
- * Define the Optical processes for the Simulation
- * of the Laser Alignment System with CMSSW
-*/ 
+/** \file LaserOpticalPhysicsList.cc
+ *  
+ *
+ *  $Date: Mon Mar 19 12:21:14 CET 2007 $
+ *  $Revision: 1.1 $
+ *  \author Maarten Thomas
+ */
 
 #include "Alignment/LaserAlignmentSimulation/interface/LaserOpticalPhysicsList.h"
 
