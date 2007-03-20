@@ -6,7 +6,7 @@
 // Package:    L1ScalesProducers
 // Class:      L1ScalesTrivialProducer
 // 
-/**\class L1ScalesTrivialProducer L1ScalesTrivialProducer.h L1Trigger/L1ScalesProducers/interface/L1ScalesTrivialProducer.h
+/**\class L1ScalesTrivialProducer L1ScalesTrivialProducer.h L1TriggerConfig/L1ScalesProducers/interface/L1ScalesTrivialProducer.h
 
  Description: A Producer for the L1 scales available via EventSetup
 
@@ -16,7 +16,7 @@
 //
 // Original Author:  Jim Brooke
 //         Created:  Wed Sep 27 17:51:32 CEST 2006
-// $Id: L1ScalesTrivialProducer.h,v 1.1 2006/10/17 09:19:10 jbrooke Exp $
+// $Id: L1ScalesTrivialProducer.h,v 1.1 2006/12/12 12:37:03 jbrooke Exp $
 //
 //
 
@@ -32,9 +32,9 @@
 
 #include "FWCore/Framework/interface/ESHandle.h"
 
-#include "L1Trigger/L1Scales/interface/L1CaloEtScale.h"
-#include "L1Trigger/L1Scales/interface/L1EmEtScaleRcd.h"
-#include "L1Trigger/L1Scales/interface/L1JetEtScaleRcd.h"
+#include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
+#include "CondFormats/DataRecord/interface/L1EmEtScaleRcd.h"
+#include "CondFormats/DataRecord/interface/L1JetEtScaleRcd.h"
 
 
 //

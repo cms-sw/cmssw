@@ -3,7 +3,7 @@
 // Package:    L1ScalesProducer
 // Class:      L1ScalesTester
 // 
-/**\class L1ScalesTester L1ScalesTester.h L1Trigger/L1Scales{Producer/interface/L1ScalesTester.h
+/**\class L1ScalesTester L1ScalesTester.h L1TriggerConfig/L1ScalesProducer/interface/L1ScalesTester.h
 
  Description: <one line class summary>
 

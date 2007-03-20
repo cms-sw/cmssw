@@ -1,6 +1,4 @@
-#include "L1Trigger/L1ScalesProducers/src/L1ScalesTrivialProducer.h"
-
-#include "L1Trigger/RegionalCaloTrigger/interface/L1RCTLookupTables.h"
+#include "L1TriggerConfig/L1ScalesProducers/interface/L1ScalesTrivialProducer.h"
 
 using std::cout;
 using std::endl;
@@ -32,12 +30,10 @@ L1ScalesTrivialProducer::L1ScalesTrivialProducer(const edm::ParameterSet& ps)
   //now do what ever other initialization is needed
   
   // get numbers from the config file -  all units are GeV
-  //  m_emEtScaleInputLsb = ps.getParameter<double>("L1CaloEmEtScaleLSB"); 
-  m_emEtScaleInputLsb = L1RCTLookupTables::eGammaLSB();
+  m_emEtScaleInputLsb = ps.getParameter<double>("L1CaloEmEtScaleLSB"); 
   m_emEtThresholds = ps.getParameter< vector<double> >("L1CaloEmThresholds");
 
-  //  m_jetEtScaleInputLsb = ps.getParameter<double>("L1CaloRegionEtScaleLSB"); 
-  m_jetEtScaleInputLsb = L1RCTLookupTables::jetMETLSB();
+  m_jetEtScaleInputLsb = ps.getParameter<double>("L1CaloRegionEtScaleLSB"); 
   m_jetEtThresholds = ps.getParameter< vector<double> >("L1CaloJetThresholds");
 
 }

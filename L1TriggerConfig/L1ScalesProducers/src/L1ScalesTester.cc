@@ -1,11 +1,11 @@
-#include "L1Trigger/L1ScalesProducers/src/L1ScalesTester.h"
+#include "L1TriggerConfig/L1ScalesProducers/interface/L1ScalesTester.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
-#include "L1Trigger/L1Scales/interface/L1CaloEtScale.h"
-#include "L1Trigger/L1Scales/interface/L1EmEtScaleRcd.h"
-#include "L1Trigger/L1Scales/interface/L1JetEtScaleRcd.h"
+#include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
+#include "CondFormats/DataRecord/interface/L1EmEtScaleRcd.h"
+#include "CondFormats/DataRecord/interface/L1JetEtScaleRcd.h"
 
 using std::cout;
 using std::endl;
@@ -37,7 +37,7 @@ void L1ScalesTester::analyze(const edm::Event& e, const edm::EventSetup& es) {
 
    // test EM lin-rank conversion
    cout << "Testing EM linear-to-rank conversion" << endl;
-   for (unsigned i=0; i<32; i++) {
+   for (unsigned short i=0; i<32; i++) {
      unsigned rank = emScale->rank(i);
      cout << "EM linear : " << i << ", Et : " << i*emScale->linearLsb() << " GeV, rank : " << rank << endl;
    }
@@ -45,7 +45,7 @@ void L1ScalesTester::analyze(const edm::Event& e, const edm::EventSetup& es) {
 
    // test jet lin-rank conversion
    cout << "Testing jet linear-to-rank conversion" << endl;
-   for (unsigned i=0; i<32; i++) {
+   for (unsigned short i=0; i<32; i++) {
      unsigned rank = jetScale->rank(i);
      cout << "jet linear : " << i << ", Et : " << i*jetScale->linearLsb() << " GeV, rank : " << rank << endl;
    }

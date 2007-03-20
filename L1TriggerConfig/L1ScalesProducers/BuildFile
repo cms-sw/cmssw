@@ -1,15 +1,15 @@
 <use name=FWCore/Framework>
 <use name=Foundation/PluginManager>
 <use name=FWCore/ParameterSet>
-<use name=L1Trigger/L1Scales>
-<use name=L1Trigger/L1RegionalCaloTrigger>
-<flags SEAL_PLUGIN_NAME="L1TriggerL1ScalesProducers">
+<use name=CondFormats/L1TObjects>
+<use name=CondFormats/DataRecord>
+<flags SEAL_PLUGIN_NAME="L1TriggerConfigL1ScalesProducers">
 
 <export>
-   <lib name=L1TriggerL1ScalesProducers>
+   <lib name=L1TriggerConfigL1ScalesProducers>
    <use name=FWCore/Framework>
    <use name=Foundation/PluginManager>
    <use name=FWCore/ParameterSet>
-   <use name=L1Trigger/L1Scales>
-   <use name=L1Trigger/L1RegionalCaloTrigger>
+   <use name=CondFormats/L1TObjects>
+   <use name=CondFormats/DataRecord>
 </export>
