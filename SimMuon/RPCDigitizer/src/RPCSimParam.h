@@ -9,6 +9,14 @@
  */
 #include "SimMuon/RPCDigitizer/src/RPCSim.h"
 
+
+#include<cstring>
+#include<iostream>
+#include<fstream>
+#include<string>
+#include<vector>
+#include<stdlib.h>
+
 class RPCSimParam : public RPCSim
 {
  public:
@@ -16,6 +24,9 @@ class RPCSimParam : public RPCSim
   ~RPCSimParam(){}
   void simulate(const RPCRoll* roll,
 			const edm::PSimHitContainer& rpcHits );
+
+  int getClSize(float posX); 
+
  private:
   void init(){};
  private:
@@ -28,5 +39,14 @@ class RPCSimParam : public RPCSim
   double sspeed;
   double lbGate;
   bool rpcdigiprint;
+  
+  std::map< int, std::vector<double> > clsMap;
+  std::vector<double> sum_clsize;
+  std::ifstream *infile;
+ 
+  std::fstream *MyOutput1; 
+  std::fstream *MyOutput2;
+  std::fstream *MyOutput3;
+
 };
 #endif
