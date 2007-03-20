@@ -7,7 +7,7 @@
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 
-#include "CLHEP/HepMC/GenEvent.h"
+#include "HepMC/GenEvent.h"
 #include "CLHEP/Vector/LorentzVector.h"
 
 #include <vector>

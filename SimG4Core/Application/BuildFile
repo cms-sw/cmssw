@@ -42,3 +42,4 @@
 <use name=seal>
 <use name=geant4>
 <use name=clhep>
+<use name=hepmc>
