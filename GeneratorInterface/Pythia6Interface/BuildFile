@@ -1,0 +1,20 @@
+<use name=boost>
+<use name=FWCore/Framework>
+<use name=SimDataFormats/HepMCProduct>
+<use name=hepmc> 
+<use name=clhep> 
+<use name=pythia6_227>
+<flags SEAL_PLUGIN_NAME="GeneratorInterfacePythia6Interface">
+<export>
+ <use name=boost>
+ <use name=FWCore/Framework>
+ <use name=SimDataFormats/HepMCProduct>
+ <use name=hepmc> 
+ <use name=clhep> 
+ <use name=pythia6_227>
+</export>
+
+ <lib name=g2c></lib>
+ <lib name=m></lib>
+
+
