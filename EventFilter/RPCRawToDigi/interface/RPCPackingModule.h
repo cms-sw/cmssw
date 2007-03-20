@@ -7,12 +7,17 @@
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
+#include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
+#include "EventFilter/RPCRawToDigi/interface/EventRecords.h"
+
+#include <vector> 
 
 namespace edm {class ParameterSet;}
 namespace edm {class EventSetup; }
 namespace edm {class Event; }
 
-class  RPCRawDataPacker;
+class FEDRawData;
+class RPCRecordFormatter;
 
 class RPCPackingModule : public edm::EDProducer {
 public:
@@ -20,24 +25,18 @@ public:
   /// ctor
   explicit RPCPackingModule( const edm::ParameterSet& );
 
-    /// dtor
+  /// dtor
   virtual ~RPCPackingModule();
-  /// initialisation. Retrieves cabling map from EventSetup.
-  //virtual void beginJob( const edm::EventSetup& );
-
-  /// dummy end of job
-  //virtual void endJob() {}
 
   /// get data, convert to raw event, attach again to Event
   virtual void produce( edm::Event&, const edm::EventSetup& );
 
+  static std::vector<rpcrawtodigi::EventRecords> eventRecords(
+      int fedId, int trigger_BX, const RPCDigiCollection* , const RPCRecordFormatter& ); 
+
 private:
-// pack header  
-// pack data
-// pack trailer
-///////////////////////////////////
-  RPCRawDataPacker *myPacker;
-///////////////////////////////////
+
+  FEDRawData * rawData( int fedId, const RPCDigiCollection* , const RPCRecordFormatter& );
 
 private:
 
