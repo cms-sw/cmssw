@@ -62,7 +62,7 @@ function settings (){
 	then
 	export CORAL_AUTH_PATH=/afs/cern.ch/cms/DB/conddb
 #	export CORAL_AUTH_PATH=.auth
-	#echo -e "\nWARNING: CORAL_AUTH_PATH environment variable is not defined in your shell\n default value will be used CORAL_AUTH_PATH=$CORAL_AUTH_PATH\n"
+	echo -e "\nWARNING: CORAL_AUTH_PATH environment variable is not defined in your shell\n default value will be used CORAL_AUTH_PATH=$CORAL_AUTH_PATH\n"
     fi
     echo ""
     
@@ -77,7 +77,6 @@ function settings (){
     getParameter firstUpload          $@ ${default_firstUpload} 
     getParameter geometry             $@ ${default_geometry}
     getParameter Debug                $@ ${default_Debug}
-    getParameter RunTable             $@ ${default_RunTable}
     getParameter RunTable             $@ ${default_RunTable}
     getParameter force                $@ ${default_force}
 
@@ -261,8 +260,7 @@ else
     [ "$doFedCablingTransfer" == "1" ] && o2otrans="#o2o_cabl"
 fi
 
-
-VerifyIfO2ONeeded
+[ "$force" == "0" ] && VerifyIfO2ONeeded
 
 cfg_file=${test_area}/SiStripO2O_Run_${Run}.cfg
 
@@ -288,9 +286,12 @@ cat $templatefile | sed -e "s@#${geometry}@@g" -e "s#insert_DBfile#$DBfile#g" -e
 
 
 echo -e "\ncmsRun ${cfg_file}"
-cmsRun ${cfg_file} > ${test_area}/SiStripO2O_${Run}.out
+logfile=${test_area}/SiStripO2O_${Run}_`date +%Y-%m-%d_%H-%M-%S`.out
+cmsRun ${cfg_file} > ${logfile}
 
 if [ "$?" == 0 ]; then
     echo -e "$0 $@ \n" >> .sistripO2O.log
     echo -e "$ConfigDb \t $ConfigDbPartition \t ${ConfigDbMajorVersion}.${ConfigDbMinorVersion} \t $CondDb \t $tag \t $Run \t $ConfigDbRunMode" >> .SiStripO2OTable.log
+else 
+    cat ${cfg_file}  ${logfile}  | mail -s "O2O Problem Run ${Run}" domenico.giordano@cern.ch
 fi
