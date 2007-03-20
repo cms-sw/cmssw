@@ -365,8 +365,8 @@ void createPlots(TString plot) {
     
     // Legenda
     TLegend* theLegend = new TLegend(0.80, 0.80, 0.99, 0.99);
-    theLegend->AddEntry( histo_old , Form("OLD (%f)", histo_old.GetSumOfWeights() ) , "l" );
-    theLegend->AddEntry( histo_new , Form("NEW (%f)", histo_new.GetSumOfWeights() ) , "p" );
+    theLegend->AddEntry( histo_old , Form("OLD (%f)", histo_old->GetSumOfWeights() ) , "l" );
+    theLegend->AddEntry( histo_new , Form("NEW (%f)", histo_new->GetSumOfWeights() ) , "p" );
     theLegend->SetHeader( Form("KF: %f",compatibilityFactor) );
     theLegend->Draw();
     //
