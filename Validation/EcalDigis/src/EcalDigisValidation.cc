@@ -1,8 +1,8 @@
 /*
  * \file EcalDigisValidation.cc
  *
- * $Date: 2006/10/26 08:30:32 $
- * $Revision: 1.18 $
+ * $Date: 2007/01/04 09:34:08 $
+ * $Revision: 1.19 $
  * \author F. Cossutti
  *
 */
@@ -193,11 +193,10 @@ void EcalDigisValidation::analyze(const Event& e, const EventSetup& c){
     for ( HepMC::GenEvent::particle_const_iterator p = MCEvt->GetEvent()->particles_begin();
           p != MCEvt->GetEvent()->particles_end(); ++p ) {
       
-      Hep3Vector hmom = Hep3Vector((*p)->momentum().vect());
       theGunEnergy = (*p)->momentum().e();
-      double htheta = hmom.theta();
+      double htheta = (*p)->momentum().theta();
       double heta = -log(tan(htheta * 0.5));
-      double hphi = hmom.phi();
+      double hphi = (*p)->momentum().phi();
       hphi = (hphi>=0) ? hphi : hphi+2*M_PI;
       hphi = hphi / M_PI * 180.;
       LogDebug("EventInfo") << "Particle gun type form MC = " << abs((*p)->pdg_id()) << "\n" << "Energy = "<< (*p)->momentum().e() << " Eta = " << heta << " Phi = " << hphi;

@@ -1,8 +1,8 @@
 /*
  * \file EcalMixingModuleValidation.cc
  *
- * $Date: 2006/11/23 13:51:34 $
- * $Revision: 1.7 $
+ * $Date: 2007/01/04 09:34:08 $
+ * $Revision: 1.8 $
  * \author F. Cossutti
  *
 */
@@ -341,7 +341,6 @@ void EcalMixingModuleValidation::analyze(const Event& e, const EventSetup& c){
     for ( HepMC::GenEvent::particle_const_iterator p = MCEvt->GetEvent()->particles_begin();
           p != MCEvt->GetEvent()->particles_end(); ++p ) {
       
-      Hep3Vector hmom = Hep3Vector((*p)->momentum().vect());
       theGunEnergy = (*p)->momentum().e();
       }
   }

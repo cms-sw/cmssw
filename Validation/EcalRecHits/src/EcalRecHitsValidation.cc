@@ -1,7 +1,7 @@
 /*
  * \file EcalRecHitsValidation.cc
  *
- * $Date: 2006/10/26 08:33:11 $
+ * $Date: 2007/01/04 09:34:43 $
  * \author C. Rovelli
  *
 */
@@ -169,10 +169,9 @@ void EcalRecHitsValidation::analyze(const Event& e, const EventSetup& c){
   if ( ! skipMC ) {
     for ( HepMC::GenEvent::particle_const_iterator p = MCEvt->GetEvent()->particles_begin(); p != MCEvt->GetEvent()->particles_end(); ++p ) 
       {      
-        Hep3Vector hmom = Hep3Vector((*p)->momentum().vect());
-        double htheta = hmom.theta();
+        double htheta = (*p)->momentum().theta();
         double heta = -log(tan(htheta * 0.5));
-        double hphi = hmom.phi();
+        double hphi = (*p)->momentum().phi();
         hphi = (hphi>=0) ? hphi : hphi+2*M_PI;
         hphi = hphi / M_PI * 180.;
 
