@@ -1,6 +1,5 @@
 #include "SimGeneral/HepPDTESSource/interface/HepPDTESSource.h"
 
-
 HepPDTESSource::HepPDTESSource( const edm::ParameterSet& cfg ) :
   pdtFileName( cfg.getParameter<edm::FileInPath>( "pdtFileName" ) ) {
   setWhatProduced( this );

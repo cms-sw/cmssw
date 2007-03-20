@@ -1,4 +1,3 @@
-
 #ifndef HepPDTAAnalyzer_H
 #define HepPDTAAnalyzer_H
 
@@ -17,48 +16,31 @@
 //
 // Original Author:  Filip Moortgat
 //         Created:  Wed Jul 19 14:41:13 CEST 2006
-// $Id$
+// $Id: HepPDTAnalyzer.h,v 1.1 2006/07/21 12:25:04 fmoortga Exp $
 //
 //
 
-
-// system include files
 #include <memory>
-
-// user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include <string>
-#include <vector>
-
-
-//
-// class decleration
-//
-
-#include <set>
 
 namespace edm {
   class ParameterSet;
 }
 
 class HepPDTAnalyzer : public edm::EDAnalyzer {
-   public:
-      explicit HepPDTAnalyzer(const edm::ParameterSet&);
-      ~HepPDTAnalyzer();
-
-
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-   private:
-      // ----------member data ---------------------------
-
-    std::string pName;
-
+public:
+  explicit HepPDTAnalyzer( const edm::ParameterSet & );
+  ~HepPDTAnalyzer();
+  
+  
+  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+private:
+  std::string particleName_;
 };
 
 #endif
