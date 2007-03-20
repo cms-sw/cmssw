@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: TestTrackAssociator.cc,v 1.11 2007/03/08 04:19:27 dmytro Exp $
+// $Id: TestTrackAssociator.cc,v 1.10 2007/02/16 13:30:38 dmytro Exp $
 //
 //
 
@@ -28,9 +28,9 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "DataFormats/Common/interface/OrphanHandle.h"
+#include "FWCore/Framework/interface/OrphanHandle.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -63,8 +63,8 @@
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 
-#include "DataFormats/GeometrySurface/interface/Cylinder.h"
-#include "DataFormats/GeometrySurface/interface/Plane.h"
+#include "Geometry/Surface/interface/Cylinder.h"
+#include "Geometry/Surface/interface/Plane.h"
 
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 
@@ -90,33 +90,15 @@ class TestTrackAssociator : public edm::EDAnalyzer {
 
  private:
    TrackDetectorAssociator trackAssociator_;
-   bool useEcal_;
-   bool useHcal_;
-   bool useMuon_;
-   bool useOldMuonMatching_;
+   TrackAssociatorParameters parameters_;
 };
 
 TestTrackAssociator::TestTrackAssociator(const edm::ParameterSet& iConfig)
 {
-   useEcal_ = iConfig.getParameter<bool>("useEcal");
-   useHcal_ = iConfig.getParameter<bool>("useHcal");
-   useMuon_ = iConfig.getParameter<bool>("useMuon");
-   if (iConfig.getParameter<bool>("disableTimers")){
-      TimerStack timers; 
-      timers.disableAllTimers();
-   }
-	
-   useOldMuonMatching_ = iConfig.getParameter<bool>("useOldMuonMatching");
+   // TrackAssociator parameters
+   edm::ParameterSet parameters = iConfig.getParameter<edm::ParameterSet>("TrackAssociatorParameters");
+   parameters_.loadParameters( parameters );
    
-   // Fill data labels
-   trackAssociator_.theEBRecHitCollectionLabel = iConfig.getParameter<edm::InputTag>("EBRecHitCollectionLabel");
-   trackAssociator_.theEERecHitCollectionLabel = iConfig.getParameter<edm::InputTag>("EERecHitCollectionLabel");
-   trackAssociator_.theCaloTowerCollectionLabel = iConfig.getParameter<edm::InputTag>("CaloTowerCollectionLabel");
-   trackAssociator_.theHBHERecHitCollectionLabel = iConfig.getParameter<edm::InputTag>("HBHERecHitCollectionLabel");
-   trackAssociator_.theHORecHitCollectionLabel = iConfig.getParameter<edm::InputTag>("HORecHitCollectionLabel");
-   trackAssociator_.theDTRecSegment4DCollectionLabel = iConfig.getParameter<edm::InputTag>("DTRecSegment4DCollectionLabel");
-   trackAssociator_.theCSCSegmentCollectionLabel = iConfig.getParameter<edm::InputTag>("CSCSegmentCollectionLabel");
-
    trackAssociator_.useDefaultPropagator();
 }
 
@@ -159,36 +141,15 @@ void TestTrackAssociator::analyze( const edm::Event& iEvent, const edm::EventSet
       LogVerbatim("TrackAssociator") << "\n-------------------------------------------------------\n Track (pt,eta,phi): " << tracksCI->momentum().perp() << " , " <<
 	tracksCI->momentum().eta() << " , " << tracksCI->momentum().phi() ;
       
-	if (1==2){ // it's just an example, and we don't need it for tests
-	   // Simply get ECAL energy of the crossed crystals
-	   if (useEcal_)
-	     LogVerbatim("TrackAssociator") << "ECAL energy of crossed crystals: " << 
-	     trackAssociator_.getEcalEnergy(iEvent, iSetup,
-					    trackAssociator_.getFreeTrajectoryState(iSetup, *tracksCI, vertex) )
-	       << " GeV" ;
-	}
-				       
-      // Get HCAL energy in more generic way
-      TrackDetectorAssociator::AssociatorParameters parameters;
-      parameters.useEcal = useEcal_ ;
-      parameters.useHcal = useHcal_ ;
-      parameters.useHO = useHcal_ ;
-      parameters.useCalo = useHcal_ ;
-      parameters.useMuon = useMuon_ ;
-      parameters.dREcal = 0.03;
-      parameters.dRHcal = 0.2;
-      parameters.dRMuon = 0.1;
-//      parameters.dRMuonPreselection = 0.5;
-      parameters.useOldMuonMatching = useOldMuonMatching_;
-      
       LogVerbatim("TrackAssociator") << "===========================================================================\nDetails:\n" ;
       TrackDetMatchInfo info = trackAssociator_.associate(iEvent, iSetup,
 							  trackAssociator_.getFreeTrajectoryState(iSetup, *tracksCI, vertex),
-							  parameters);
+							  parameters_);
       LogVerbatim("TrackAssociator") << "ECAL, number of crossed cells: " << info.crossedEcalRecHits.size() ;
       LogVerbatim("TrackAssociator") << "ECAL, energy of crossed cells: " << info.ecalEnergy() << " GeV" ;
       LogVerbatim("TrackAssociator") << "ECAL, number of cells in the cone: " << info.ecalRecHits.size() ;
       LogVerbatim("TrackAssociator") << "ECAL, energy in the cone: " << info.ecalConeEnergy() << " GeV" ;
+      LogVerbatim("TrackAssociator") << "ECAL, true energy: " << info.ecalTrueEnergy << " GeV" ;
       LogVerbatim("TrackAssociator") << "ECAL, trajectory point (z,Rho,eta,phi): " << info.trkGlobPosAtEcal.z() << ", "
 	<< info.trkGlobPosAtEcal.Rho() << " , "	<< info.trkGlobPosAtEcal.eta() << " , " 
 	<< info.trkGlobPosAtEcal.phi();
@@ -201,6 +162,7 @@ void TestTrackAssociator::analyze( const edm::Event& iEvent, const edm::EventSet
       LogVerbatim("TrackAssociator") << "HCAL, energy in the cone (towers): "             << info.hcalTowerConeEnergy() << " GeV" ;
       LogVerbatim("TrackAssociator") << "HCAL, number of elements in the cone (hits): "   << info.hcalRecHits.size() ;
       LogVerbatim("TrackAssociator") << "HCAL, energy in the cone (hits): "               << info.hcalConeEnergy() << " GeV" ;
+      LogVerbatim("TrackAssociator") << "HCAL, true energy: " << info.hcalTrueEnergy << " GeV" ;
       LogVerbatim("TrackAssociator") << "HCAL, trajectory point (z,Rho,eta,phi): " << info.trkGlobPosAtHcal.z() << ", "
 	<< info.trkGlobPosAtHcal.Rho() << " , "	<< info.trkGlobPosAtHcal.eta() << " , "
 	<< info.trkGlobPosAtHcal.phi();
@@ -213,7 +175,7 @@ void TestTrackAssociator::analyze( const edm::Event& iEvent, const edm::EventSet
 	<< info.trkGlobPosAtHO.Rho() << " , "	<< info.trkGlobPosAtHO.eta() << " , "
 	<< info.trkGlobPosAtHO.phi();
 
-      if (useMuon_) {
+      if (parameters_.useMuon) {
 	 LogVerbatim("TrackAssociator") << "Muon detector matching details: " ;
 	 for(std::vector<MuonChamberMatch>::const_iterator chamber = info.chambers.begin();
 	     chamber!=info.chambers.end(); chamber++)
