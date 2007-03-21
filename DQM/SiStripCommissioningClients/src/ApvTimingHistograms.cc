@@ -32,9 +32,9 @@ ApvTimingHistograms::~ApvTimingHistograms() {
 /** */	 
 void ApvTimingHistograms::histoAnalysis( bool debug ) {
   
-  map<uint32_t,ApvTimingAnalysis*>::iterator ianal;
+  std::map<uint32_t,ApvTimingAnalysis*>::iterator ianal;
 
-  // Clear map holding analysis objects
+  // Clear std::map holding analysis objects
   for ( ianal = data_.begin(); ianal != data_.end(); ianal++ ) { 
     if ( ianal->second ) { delete ianal->second; }
   } 
@@ -45,11 +45,11 @@ void ApvTimingHistograms::histoAnalysis( bool debug ) {
   uint32_t device_min = sistrip::invalid_;
   uint32_t device_max = sistrip::invalid_;
   
-  // Iterate through map containing vectors of profile histograms
+  // Iterate through std::map containing std::vectors of profile histograms
   CollationsMap::const_iterator iter = collations().begin();
   for ( ; iter != collations().end(); iter++ ) {
     
-    // Check vector of histos is not empty (should be 1 histo)
+    // Check std::vector of histos is not empty (should be 1 histo)
     if ( iter->second.empty() ) {
       cerr << endl // edm::LogWarning(mlDqmClient_) 
 	   << "[ApvTimingHistograms::" << __func__ << "]"
@@ -58,7 +58,7 @@ void ApvTimingHistograms::histoAnalysis( bool debug ) {
     }
     
     // Retrieve pointers to profile histos for this FED channel 
-    vector<TH1*> profs;
+    std::vector<TH1*> profs;
     Collations::const_iterator ihis = iter->second.begin(); 
     for ( ; ihis != iter->second.end(); ihis++ ) {
       TProfile* prof = ExtractTObject<TProfile>().extract( ihis->second->getMonitorElement() );
@@ -111,7 +111,7 @@ void ApvTimingHistograms::histoAnalysis( bool debug ) {
     return; 
   }
   
-  SiStripFecKey::Path max = SiStripFecKey::path( device_max );
+  SiStripFecKey max( device_max );
   cout << endl // LogTrace(mlDqmClient_) 
        << "[ApvTimingHistograms::" << __func__ << "]"
        << " Device (FEC/slot/ring/CCU/module/channel) " 
@@ -120,10 +120,10 @@ void ApvTimingHistograms::histoAnalysis( bool debug ) {
        << max.fecRing_ << "/" 
        << max.ccuAddr_ << "/"
        << max.ccuChan_ << "/"
-       << max.channel_ 
+       << max.channel() 
        << " has maximum delay (rising edge) [ns]:" << time_max;
   
-  SiStripFecKey::Path min = SiStripFecKey::path( device_min );
+  SiStripFecKey min( device_min );
   cout << endl // LogTrace(mlDqmClient_) 
        << "[ApvTimingHistograms::" << __func__ << "]"
        << " Device (FEC/slot/ring/CCU/module/channel) " 
@@ -132,7 +132,7 @@ void ApvTimingHistograms::histoAnalysis( bool debug ) {
        << min.fecRing_ << "/" 
        << min.ccuAddr_ << "/"
        << min.ccuChan_ << "/"
-       << max.channel_ 
+       << max.channel() 
        << " has minimum delay (rising edge) [ns]:" << time_min;
   
   // Set maximum time for all analysis objects
@@ -140,7 +140,7 @@ void ApvTimingHistograms::histoAnalysis( bool debug ) {
     ianal->second->maxTime( time_max ); 
     static uint16_t cntr = 0;
     if ( debug ) {
-      stringstream ss;
+      std::stringstream ss;
       ianal->second->print( ss ); 
       cout << endl // LogTrace(mlDqmClient_) 
 	   << ss.str();
@@ -154,13 +154,13 @@ void ApvTimingHistograms::histoAnalysis( bool debug ) {
 /** */
 void ApvTimingHistograms::createSummaryHisto( const sistrip::Monitorable& mon, 
 					      const sistrip::Presentation& pres, 
-					      const string& dir,
+					      const std::string& dir,
 					      const sistrip::Granularity& gran ) {
   cout << endl // LogTrace(mlDqmClient_)
        << "[ApvTimingHistograms::" << __func__ << "]";
   
   // Check view 
-  sistrip::View view = SiStripHistoNamingScheme::view(dir);
+  sistrip::View view = SiStripEnumsAndStrings::view(dir);
   if ( view == sistrip::UNKNOWN_VIEW ) { return; }
   
   // Analyze histograms

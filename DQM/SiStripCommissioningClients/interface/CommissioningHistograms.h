@@ -1,10 +1,11 @@
 #ifndef DQM_SiStripCommissioningClients_CommissioningHistograms_H
 #define DQM_SiStripCommissioningClients_CommissioningHistograms_H
 
-#include "DataFormats/SiStripCommon/interface/SiStripEnumeratedTypes.h"
+#include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "DataFormats/SiStripCommon/interface/SiStripFecKey.h"
 #include "DataFormats/SiStripCommon/interface/SiStripFedKey.h"
-#include "DataFormats/SiStripCommon/interface/SiStripHistoNamingScheme.h"
+#include "DataFormats/SiStripCommon/interface/SiStripHistoTitle.h"
+#include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
 #include "DQM/SiStripCommon/interface/ExtractTObject.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/CollateMonitorElement.h"
@@ -31,7 +32,7 @@ class CommissioningHistograms {
   
   /** */
   CommissioningHistograms( MonitorUserInterface*,
-			   const sistrip::Task& );
+			   const sistrip::RunType& );
   /** */
   virtual ~CommissioningHistograms();
 
@@ -64,7 +65,7 @@ class CommissioningHistograms {
   /** */
   inline const FedToFecMap& mapping() const;
   /** */
-  inline const sistrip::Task& task() const;
+  inline const sistrip::RunType& task() const;
   
   TH1* histogram( const sistrip::Monitorable&, 
 		  const sistrip::Presentation&, 
@@ -88,7 +89,7 @@ class CommissioningHistograms {
   /** */
   sistrip::Action action_;
 
-  sistrip::Task task_;
+  sistrip::RunType task_;
   
 };
 
@@ -97,7 +98,7 @@ class CommissioningHistograms {
 MonitorUserInterface* const CommissioningHistograms::mui() const { return mui_; }
 const CommissioningHistograms::CollationsMap& CommissioningHistograms::collations() const { return collations_; }
 const CommissioningHistograms::FedToFecMap& CommissioningHistograms::mapping() const { return mapping_; }
-const sistrip::Task& CommissioningHistograms::task() const { return task_; }
+const sistrip::RunType& CommissioningHistograms::task() const { return task_; }
 
 #endif // DQM_SiStripCommissioningClients_CommissioningHistograms_H
 
