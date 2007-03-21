@@ -305,7 +305,7 @@ void EgammaSuperClusters::analyze( const edm::Event& evt, const edm::EventSetup&
   	{
 	  	if((*currentParticle)->status()==1) 
 		{
-			HepLorentzVector vtx = (*currentParticle)->production_vertex()->position();
+			HepMC::FourVector vtx = (*currentParticle)->production_vertex()->position();
 			double phiTrue = (*currentParticle)->momentum().phi();
 			double etaTrue = ecalEta((*currentParticle)->momentum().eta(), vtx.z()/10., vtx.perp()/10.);
 			double etTrue  = (*currentParticle)->momentum().e()/cosh(etaTrue);
