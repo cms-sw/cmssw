@@ -1,6 +1,6 @@
 #include "DQM/SiStripCommissioningSources/interface/FedCablingTask.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
-#include "DataFormats/SiStripCommon/interface/SiStripHistoNamingScheme.h"
+#include "DataFormats/SiStripCommon/interface/SiStripHistoTitle.h"
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -8,7 +8,6 @@
 #include <sstream>
 #include <iomanip>
 
-using namespace std;
 using namespace sistrip;
 
 // -----------------------------------------------------------------------------
@@ -30,9 +29,9 @@ void FedCablingTask::book() {
 
   cabling_.resize(2);
   
-  string title;
+  std::string title;
   uint16_t nbins = 0;
-  string extra_info = "";
+  std::string extra_info = "";
   for ( uint16_t iter = 0; iter < 2; iter++ ) {
     
     // Define number of histo bins and title
@@ -44,12 +43,12 @@ void FedCablingTask::book() {
 	<< " Unexpected number of HistoSets: " << iter;
     }
     
-    title = SiStripHistoNamingScheme::histoTitle( HistoTitle( sistrip::FED_CABLING,
-							      sistrip::FED_KEY, 
-							      fedKey(),
-							      sistrip::LLD_CHAN, 
-							      connection().lldChannel(),
-							      extra_info ) );
+    title = SiStripHistoTitle( sistrip::FED_CABLING,
+			       sistrip::FED_KEY, 
+			       fedKey(),
+			       sistrip::LLD_CHAN, 
+			       connection().lldChannel(),
+			       extra_info ).title();
 
     cabling_[iter].histo_ = dqm()->bookProfile( title, title, 
 						nbins, -0.5, nbins*1.-0.5,
@@ -68,7 +67,7 @@ void FedCablingTask::book() {
 //
 void FedCablingTask::fill( const SiStripEventSummary& summary,
 			   const uint16_t& fed_id,
-			   const map<uint16_t,float>& fed_ch ) {
+			   const std::map<uint16_t,float>& fed_ch ) {
 
   if ( fed_ch.empty() ) { 
     edm::LogWarning(mlDqmSource_)  
@@ -77,7 +76,7 @@ void FedCablingTask::fill( const SiStripEventSummary& summary,
     return; 
   }
   
-  map<uint16_t,float>::const_iterator ichan = fed_ch.begin();
+  std::map<uint16_t,float>::const_iterator ichan = fed_ch.begin();
   for ( ; ichan != fed_ch.end(); ichan++ ) {
     updateHistoSet( cabling_[0], fed_id, ichan->second );
     updateHistoSet( cabling_[1], ichan->first, ichan->second );

@@ -3,8 +3,8 @@
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
-#include "DataFormats/SiStripCommon/interface/SiStripEnumeratedTypes.h"
-#include "DataFormats/SiStripCommon/interface/SiStripHistoNamingScheme.h"
+#include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
+#include "DataFormats/SiStripCommon/interface/SiStripHistoTitle.h"
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
@@ -99,7 +99,7 @@ class SiStripCommissioningSource : public edm::EDAnalyzer {
   std::string taskConfigurable_; 
 
   /** Identifies commissioning task. */
-  sistrip::Task task_; 
+  sistrip::RunType task_; 
 
   /** Vector of vector of task objects (indexed using FED id.ch. */
   VecOfVecOfTasks tasks_;

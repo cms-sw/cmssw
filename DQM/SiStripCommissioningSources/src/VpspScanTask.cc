@@ -1,12 +1,11 @@
 #include "DQM/SiStripCommissioningSources/interface/VpspScanTask.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
-#include "DataFormats/SiStripCommon/interface/SiStripHistoNamingScheme.h"
+#include "DataFormats/SiStripCommon/interface/SiStripHistoTitle.h"
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <algorithm>
 
-using namespace std;
 using namespace sistrip;
 
 // -----------------------------------------------------------------------------
@@ -36,21 +35,21 @@ void VpspScanTask::book() {
   
   uint16_t nbins = 60;
  
-  string title;
+  std::string title;
 
   vpsp_.resize(2);
   for ( uint16_t iapv = 0; iapv < 2; iapv++ ) {
     if ( connection().i2cAddr(iapv) ) { 
 
-      stringstream extra_info; 
+      std::stringstream extra_info; 
       extra_info << sistrip::apv_ << iapv;
       
-      title = SiStripHistoNamingScheme::histoTitle( HistoTitle( sistrip::VPSP_SCAN, 
-								sistrip::FED_KEY, 
-								fedKey(),
-								sistrip::LLD_CHAN, 
-								connection().lldChannel(),
-								extra_info.str() ) );
+      title = SiStripHistoTitle( sistrip::VPSP_SCAN, 
+				 sistrip::FED_KEY, 
+				 fedKey(),
+				 sistrip::LLD_CHAN, 
+				 connection().lldChannel(),
+				 extra_info.str() ).title();
       
       vpsp_[iapv].histo_ = dqm()->bookProfile( title, title, 
 					       nbins, -0.5, nbins*1.-0.5,
@@ -95,8 +94,8 @@ void VpspScanTask::fill( const SiStripEventSummary& summary,
       }
 
       // Determine median baseline level
-      //vector<uint16_t> baseline;
-      vector<uint16_t> baseline;
+      //std::vector<uint16_t> baseline;
+      std::vector<uint16_t> baseline;
       baseline.reserve(128); 
       for ( uint16_t idigi = 128*iapv; idigi < 128*(iapv+1); idigi++ ) {
 	baseline.push_back( digis.data[idigi].adc() ); 
@@ -104,7 +103,7 @@ void VpspScanTask::fill( const SiStripEventSummary& summary,
       sort( baseline.begin(), baseline.end() ); 
       uint16_t index = baseline.size()%2 ? baseline.size()/2 : baseline.size()/2-1;
       
-      // If baseline level found, fill HistoSet vectors
+      // If baseline level found, fill HistoSet std::vectors
       if ( !baseline.empty() ) { 
 	updateHistoSet( vpsp_[iapv], vpsp, baseline[index] );
       }
