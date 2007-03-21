@@ -18,17 +18,7 @@ namespace cms
 {
 CosmicTIFFilter::CosmicTIFFilter(const edm::ParameterSet& conf):    conf_(conf)
 {
-/*
-  rBounds = conf_.getParameter< vector<double> >("radii");
-  zBounds = conf_.getParameter< vector<double> >("zeds");
-  bFields = conf_.getParameter< vector<double> >("bfiel");
-  bReduction = conf_.getParameter< double >("factor");
 
-  for ( unsigned i=0; i<bFields.size(); ++i ) { 
-    bFields[i] *= bReduction;
-    //    cout << "r/z/b = " << rBounds[i] << " " << zBounds[i] << " " << bFields[i] << endl;
-  }
-*/
 }
 
 bool CosmicTIFFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
@@ -40,11 +30,6 @@ bool CosmicTIFFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   const HepMC::GenEvent* MCEvt = HepMCEvt->GetEvent();
 
 
-/*
-  BaseParticlePropagator PP;
-  map<unsigned,HepLorentzVector> myHits;
-*/
-
   bool hit1=false;
   bool hit2=false;
   bool hit3=false;
@@ -53,13 +38,23 @@ bool CosmicTIFFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   for(HepMC::GenEvent::particle_const_iterator i=MCEvt->particles_begin(); i != MCEvt->particles_end();++i)
     {
 
-      int myId = (*i)->ParticleID();
+      //      int myId = (*i)->ParticleID();
+
+      // New HepMC
+      int myId = (*i)->pdg_id();
+
+
       if (abs(myId)==13)
       {
 
 	// Get the muon position and momentum
-	HepLorentzVector vertex=(*i)->CreationVertex();
-	CLHEP::HepLorentzVector momentum=(*i)->Momentum();
+	//HepLorentzVector vertex=(*i)->CreationVertex();
+
+	// new HepMC
+	const HepMC::GenVertex * vertex_=(*i)->production_vertex();
+	HepLorentzVector vertex = vertex_->position();
+
+	CLHEP::HepLorentzVector momentum=(*i)->momentum();
 
 
 	// Define the Scintillator position
