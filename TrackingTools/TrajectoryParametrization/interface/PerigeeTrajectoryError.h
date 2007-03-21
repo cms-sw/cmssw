@@ -43,31 +43,31 @@ public:
     }
     return thePerigeeWeight;
   }
-  double transverseCurvatureError() const {return thePerigeeError(1,1);}
+  double transverseCurvatureError() const {return sqrt(thePerigeeError(1,1));}
 
   /**
    * The theta angle
    */
 
-  double thetaError() const {return thePerigeeError(2,2);}
+  double thetaError() const {return sqrt(thePerigeeError(2,2));}
 
   /**
    * The phi angle
    */
 
-  double phiError() const {return thePerigeeError(3,3);}
+  double phiError() const {return sqrt(thePerigeeError(3,3));}
 
   /**
    * The (signed) transverse impact parameter
    */
 
-  double transverseImpactParameterError() const {return thePerigeeError(4,4);}
+  double transverseImpactParameterError() const {return sqrt(thePerigeeError(4,4));}
 
   /**
    * The longitudinal impact parameter
    */
 
-  double longitudinalImpactParameterError() const {return thePerigeeError(5,5);}
+  double longitudinalImpactParameterError() const {return sqrt(thePerigeeError(5,5));}
 
 
 private:
