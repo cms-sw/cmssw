@@ -41,20 +41,17 @@ class SiStripDetId : public DetId {
   /** Returns enumerated type specifying sub-detector. */
   inline SubDetector subDetector() const;
   
-  /** Module id. */
-  inline uint32_t module() const;
-  
   /** A non-zero value means a glued module, null means not glued. */
-  inline uint32_t glued() const;
- 
+  inline virtual uint32_t glued() const;
+  
   /** A non-zero value means a stereo module, null means not stereo. */
-  inline uint32_t stereo() const;
+  inline virtual uint32_t stereo() const;
 
   /** Returns DetId of the partner module if glued, otherwise null. */
-  inline uint32_t partnerDetId() const;
+  inline virtual uint32_t partnerDetId() const;
  
   /** Returns strip length of strip tracker sensor, otherwise null. */
-  inline double stripLength() const;
+  inline virtual double stripLength() const;
 
   // ---------- Constructors that set "reserved" field ----------
   
@@ -74,20 +71,14 @@ class SiStripDetId : public DetId {
   /** Position of "reserved" bit field. */ 
   static const uint16_t reservedStartBit_ = 20;
 
+  /** */
+  static const uint32_t sterStartBit_ = 0;
+
   /** Mask for "reserved" bit field (3-bits wide). */ 
   static const uint16_t reservedMask_ = 0x7;
 
   /** */
-  static const uint32_t sterStartBit_ = 0;
-  
-  /** */
   static const uint32_t sterMask_ = 0x3;
-
-  /** */
-  static const unsigned int moduleStartBit_ = 2;
-
-  /** */
-  static const unsigned int moduleMask_ = 0x7;
   
 };
 
@@ -109,10 +100,6 @@ SiStripDetId::SubDetector SiStripDetId::subDetector() const {
   } else {
     return SiStripDetId::UNKNOWN;
   }
-}
-
-uint32_t SiStripDetId::module() const {
-  return ( (id_>>moduleStartBit_) & moduleMask_ );
 }
 
 uint32_t SiStripDetId::glued() const {
