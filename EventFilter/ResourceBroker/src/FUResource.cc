@@ -22,6 +22,7 @@
 #include "xcept/include/xcept/tools.h"
 
 #include <sstream>
+#include <sys/shm.h>
 
 
 #define FED_HCTRLID    0x50000000
@@ -32,6 +33,7 @@
 
 using namespace std;
 using namespace evf;
+
 
 ////////////////////////////////////////////////////////////////////////////////
 // initialize static members
@@ -46,20 +48,13 @@ bool FUResource::doFedIdCheck_ = true;
 ////////////////////////////////////////////////////////////////////////////////
 
 //______________________________________________________________________________
-FUResource::FUResource(FUShmBufferCell* eventBuffer,log4cplus::Logger logger)
+FUResource::FUResource(log4cplus::Logger logger)
   : log_(logger)
   , superFragHead_(0)
   , superFragTail_(0)
   , nbBytes_(0)
   , superFragSize_(0)
-  , eventSize_(0)
-  , eventBuffer_(eventBuffer)
 {
-  fuResourceId_   =eventBuffer_->fuResourceId();
-  eventBufferSize_=eventBuffer_->bufferSize();
-  nFedMax_        =eventBuffer_->nFed();
-  nSuperFragMax_  =eventBuffer_->nSuperFrag();
-
   release();
 }
 
@@ -76,9 +71,15 @@ FUResource::~FUResource()
 ////////////////////////////////////////////////////////////////////////////////
 
 //______________________________________________________________________________
-void FUResource::allocate()
+void FUResource::allocate(FUShmRawCell* shmCell)
 {
   release();
+  shmCell_=shmCell;
+  shmCell_->clear();
+  fuResourceId_    =shmCell_->fuResourceId();
+  eventPayloadSize_=shmCell_->payloadSize();
+  nFedMax_         =shmCell_->nFed();
+  nSuperFragMax_   =shmCell_->nSuperFrag();
 }
 
 
@@ -87,7 +88,7 @@ void FUResource::release()
 {
   doCrcCheck_   =false;
   fatalError_   =false;
-
+  
   buResourceId_ =0xffffffff;
   evtNumber_    =0xffffffff;
   
@@ -112,7 +113,12 @@ void FUResource::release()
   nbErrors_     =0;
   nbCrcErrors_  =0;
   eventSize_    =0;
-  eventBuffer_->clear();
+  
+  if (0!=shmCell_) {
+    shmdt(shmCell_);
+    shmCell_=0;
+  }
+  
 }
 
 
@@ -224,8 +230,8 @@ void FUResource::processDataBlock(MemRef_t* bufRef)
     buResourceId_=buResourceId;
     nSuperFrag_  =nSuperFrag;
     
-    eventBuffer_->setEvtNumber(evtNumber);
-    eventBuffer_->setBuResourceId(buResourceId);
+    shmCell_->setEvtNumber(evtNumber);
+    shmCell_->setBuResourceId(buResourceId);
 
     // check that buffers are allocated for nSuperFrag superfragments
     if(nSuperFrag_>nSuperFragMax_) {
@@ -299,7 +305,7 @@ void FUResource::processDataBlock(MemRef_t* bufRef)
     // ... fill the FED buffers contained in the superfragment
     try {
       superFragSize();
-      fillSuperFragBuffer();
+      fillSuperFragPayload();
       findFEDs();
     }
     catch (xcept::Exception& e) {
@@ -472,7 +478,7 @@ void FUResource::superFragSize() throw (evf::Exception)
   
   eventSize_+=superFragSize_;
 
-  if (eventSize_>eventBufferSize_) {  
+  if (eventSize_>eventPayloadSize_) {  
     nbErrors_++;
     stringstream oss;
     oss<<"Event size exceeds maximum size."
@@ -480,7 +486,7 @@ void FUResource::superFragSize() throw (evf::Exception)
        <<" evtNumber:"<<evtNumber_
        <<" iSuperFrag:"<<iSuperFrag_
        <<" eventSize:"<<eventSize_
-       <<" eventBufferSize:"<<eventBufferSize_;
+       <<" eventPayloadSize:"<<eventPayloadSize_;
     XCEPT_RAISE(evf::Exception,oss.str());
   }
   
@@ -488,7 +494,7 @@ void FUResource::superFragSize() throw (evf::Exception)
 
 
 //______________________________________________________________________________
-void FUResource::fillSuperFragBuffer() throw (evf::Exception)
+void FUResource::fillSuperFragPayload() throw (evf::Exception)
 {
   UChar_t *blockAddr    =0;
   UChar_t *frlHeaderAddr=0;
@@ -519,14 +525,14 @@ void FUResource::fillSuperFragBuffer() throw (evf::Exception)
       XCEPT_RAISE(evf::Exception,oss.str());
     }
     
-    bufferPos=eventBuffer_->writeData(fedAddr,nbBytes);
+    bufferPos=shmCell_->writeData(fedAddr,nbBytes);
     if (0==startPos) startPos=bufferPos;
     
     nbBytes_+=nbBytes;
     bufRef=bufRef->getNextReference();
   }
   
-  if (!eventBuffer_->markSuperFrag(iSuperFrag_,superFragSize_,startPos)) {
+  if (!shmCell_->markSuperFrag(iSuperFrag_,superFragSize_,startPos)) {
     nbErrors_++;
     stringstream oss;
     oss<<"Failed to mark super fragment in shared mem buffer."
@@ -560,8 +566,8 @@ void FUResource::findFEDs() throw (evf::Exception)
   fedh_t  *fedHeader     =0;
   
   
-  superFragAddr =eventBuffer_->superFragAddr(iSuperFrag_);
-  superFragSize =eventBuffer_->superFragSize(iSuperFrag_);
+  superFragAddr =shmCell_->superFragAddr(iSuperFrag_);
+  superFragSize =shmCell_->superFragSize(iSuperFrag_);
   fedTrailerAddr=superFragAddr+superFragSize-sizeof(fedt_t);
   
   while (fedTrailerAddr>superFragAddr) {
@@ -658,7 +664,7 @@ void FUResource::findFEDs() throw (evf::Exception)
     
     
     // mark fed
-    if (!eventBuffer_->markFed(fedId,fedSize,fedHeaderAddr)) {
+    if (!shmCell_->markFed(fedId,fedSize,fedHeaderAddr)) {
       nbErrors_++;
       stringstream oss;
       oss<<"Failed to mark fed in buffer."

@@ -3,7 +3,7 @@
 
 
 #include "EventFilter/ResourceBroker/interface/FUTypes.h"
-#include "EventFilter/ShmBuffer/interface/FUShmBufferCell.h"
+#include "EventFilter/ShmBuffer/interface/FUShmRawCell.h"
 #include "EventFilter/Utilities/interface/Exception.h"
 
 #include "extern/log4cplus/linuxx86/include/log4cplus/logger.h"
@@ -20,14 +20,14 @@ namespace evf {
     //
     // construction/destruction
     //
-    FUResource(FUShmBufferCell* eventBuffer,log4cplus::Logger logger);
+    FUResource(log4cplus::Logger logger);
     virtual ~FUResource();
     
     
     //
     // member functions
     //
-    void   allocate();
+    void   allocate(FUShmRawCell* shmCell);
     void   release();   
 
     void   process(MemRef_t* bufRef);
@@ -35,15 +35,15 @@ namespace evf {
     void   checkDataBlockPayload(MemRef_t* bufRef) throw (evf::Exception);
     void   appendBlockToSuperFrag(MemRef_t* bufRef);
     
-    void   superFragSize()       throw (evf::Exception);
-    void   fillSuperFragBuffer() throw (evf::Exception);
-    void   findFEDs()            throw (evf::Exception);
+    void   superFragSize()        throw (evf::Exception);
+    void   fillSuperFragPayload() throw (evf::Exception);
+    void   findFEDs()             throw (evf::Exception);
     
     void   releaseSuperFrag();
 
     static
-    void   doFedIdCheck(bool doFedIdCheck) { doFedIdCheck_ = doFedIdCheck; }
-    void   doCrcCheck(bool doCrcCheck) { doCrcCheck_=doCrcCheck; }
+    void   doFedIdCheck(bool doFedIdCheck) { doFedIdCheck_=doFedIdCheck; }
+    void   doCrcCheck(bool doCrcCheck)     { doCrcCheck_  =doCrcCheck; }
 
     bool   fatalError()   const { return fatalError_; }
     bool   isComplete()   const;
@@ -56,6 +56,8 @@ namespace evf {
     UInt_t nbCrcErrors(bool reset=true);
     UInt_t nbBytes(bool reset=true);
 
+    evf::FUShmRawCell* shmCell() { return shmCell_; }
+    
     
   private:
     //
@@ -75,7 +77,7 @@ namespace evf {
     MemRef_t* superFragHead_;
     MemRef_t* superFragTail_;
 
-    UInt_t    eventBufferSize_;
+    UInt_t    eventPayloadSize_;
     UInt_t    nFedMax_;
     UInt_t    nSuperFragMax_;
     
@@ -91,7 +93,7 @@ namespace evf {
     UInt_t    superFragSize_;
     UInt_t    eventSize_;
     
-    evf::FUShmBufferCell* eventBuffer_;
+    evf::FUShmRawCell* shmCell_;
     
   };
   

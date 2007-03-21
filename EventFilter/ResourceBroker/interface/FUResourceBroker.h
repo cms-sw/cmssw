@@ -35,18 +35,13 @@
 namespace evf {
 
   class BUProxy;
+  class SMProxy;
   
   class FUResourceBroker : public xdaq::Application,
 			   public toolbox::task::TimerListener,
 			   public xdata::ActionListener
   {
   public:
-    //
-    // typedefs
-    //
-    typedef std::vector<BUProxy*> BUVec_t;
-    
-    
     //
     // xdaq instantiator macro
     //
@@ -74,6 +69,18 @@ namespace evf {
     xoap::MessageReference fsmCallback(xoap::MessageReference msg)
       throw (xoap::exception::Exception);
     
+    // i20 callbacks
+    void I2O_FU_TAKE_Callback(toolbox::mem::Reference *bufRef);
+    void I2O_FU_DATA_DISCARD_Callback(toolbox::mem::Reference *bufRef);
+    void I2O_FU_DQM_DISCARD_Callback(toolbox::mem::Reference *bufRef);
+
+    //  connection to BuilderUnit bu_ and StorageManager sm_
+    void connectToBUandSM() throw (evf::Exception);
+    
+    // Hyper DAQ web page(s) [see Utilities/WebGUI]
+    void webPageRequest(xgi::Input *in,xgi::Output *out)
+      throw (xgi::exception::Exception);
+    
     // toolbox::task::TimerListener callback, and init/start/stop the corresp. timer
     void timeExpired(toolbox::task::TimerEvent& e);
     void initTimer();
@@ -82,16 +89,6 @@ namespace evf {
 
     // xdata::ActionListener callback(s)
     void actionPerformed(xdata::Event& e);
-    
-    //  connection to builder unit bu_
-    void connectToBUs();
-    
-    // Hyper DAQ web page(s) [see Utilities/WebGUI]
-    void webPageRequest(xgi::Input *in,xgi::Output *out)
-      throw (xgi::exception::Exception);
-    
-    // receive data from a builder unit
-    void I2O_FU_TAKE_Callback(toolbox::mem::Reference *bufRef);
     
     
   private:
@@ -122,13 +119,16 @@ namespace evf {
     // application logger
     Logger                   log_;
     
-    // vector of connected builder units (BUs)
-    BUVec_t                  bu_;
+    // BuilderUnit (BU) to receive raw event data from
+    BUProxy                 *bu_;
     
-    // memory management for bu <-> fu comunication
+    // StorageManager (SM) to send selected events to
+    SMProxy                 *sm_;
+    
+    // memory pool for bu <-> fu comunication messages
     toolbox::mem::Pool*      i2oPool_;
     
-    // manageme resources (events=fed collections) to be build
+    // managed resources
     FUResourceTable*         resourceTable_;
     
     // monitored parameters 
@@ -138,45 +138,69 @@ namespace evf {
     xdata::UnsignedInteger32 runNumber_;
     xdata::UnsignedInteger32 nbShmClients_;
     
-    xdata::Double            nbMBTot_;
-    xdata::Double            nbMBPerSec_;
-    xdata::Double            nbMBPerSecMin_;
-    xdata::Double            nbMBPerSecMax_;
-    xdata::Double            nbMBPerSecAvg_;
+    xdata::Double            acceptRate_;
+    xdata::Double            nbMBInput_;
+    xdata::Double            nbMBInputPerSec_;
+    xdata::Double            nbMBInputPerSecMin_;
+    xdata::Double            nbMBInputPerSecMax_;
+    xdata::Double            nbMBInputPerSecAvg_;
+    xdata::Double            nbMBOutput_;
+    xdata::Double            nbMBOutputPerSec_;
+    xdata::Double            nbMBOutputPerSecMin_;
+    xdata::Double            nbMBOutputPerSecMax_;
+    xdata::Double            nbMBOutputPerSecAvg_;
     
     // monitored counters
-    xdata::UnsignedInteger32 nbEvents_;
-    xdata::UnsignedInteger32 nbEventsPerSec_;
-    xdata::UnsignedInteger32 nbEventsPerSecMin_;
-    xdata::UnsignedInteger32 nbEventsPerSecMax_;
-    xdata::UnsignedInteger32 nbEventsPerSecAvg_;
+    xdata::UnsignedInteger32 nbInputEvents_;
+    xdata::UnsignedInteger32 nbInputEventsPerSec_;
+    xdata::UnsignedInteger32 nbInputEventsPerSecMin_;
+    xdata::UnsignedInteger32 nbInputEventsPerSecMax_;
+    xdata::UnsignedInteger32 nbInputEventsPerSecAvg_;
+    xdata::UnsignedInteger32 nbOutputEvents_;
+    xdata::UnsignedInteger32 nbOutputEventsPerSec_;
+    xdata::UnsignedInteger32 nbOutputEventsPerSecMin_;
+    xdata::UnsignedInteger32 nbOutputEventsPerSecMax_;
+    xdata::UnsignedInteger32 nbOutputEventsPerSecAvg_;
+    
     xdata::UnsignedInteger32 nbAllocatedEvents_;
     xdata::UnsignedInteger32 nbPendingRequests_;
-    xdata::UnsignedInteger32 nbReceivedEvents_;
-    xdata::UnsignedInteger32 nbDiscardedEvents_;
     xdata::UnsignedInteger32 nbProcessedEvents_;
+    xdata::UnsignedInteger32 nbAcceptedEvents_;
+    xdata::UnsignedInteger32 nbDiscardedEvents_;
+
     xdata::UnsignedInteger32 nbLostEvents_;
     xdata::UnsignedInteger32 nbDataErrors_;
     xdata::UnsignedInteger32 nbCrcErrors_;
-
+    
     // standard parameters
-    xdata::UnsignedInteger32 eventBufferSize_;
-    //xdata::Boolean           doDumpFragments_;
+    xdata::Boolean           segmentationMode_;
+    xdata::UnsignedInteger32 nbRawCells_;
+    xdata::UnsignedInteger32 nbRecoCells_;
+    xdata::UnsignedInteger32 nbDqmCells_;
+    xdata::UnsignedInteger32 rawCellSize_;
+    xdata::UnsignedInteger32 recoCellSize_;
+    xdata::UnsignedInteger32 dqmCellSize_;
+
     xdata::Boolean           doDropEvents_;
     xdata::Boolean           doFedIdCheck_;
     xdata::UnsignedInteger32 doCrcCheck_;
 
     xdata::String            buClassName_;
     xdata::UnsignedInteger32 buInstance_;
-    xdata::UnsignedInteger32 queueSize_;
+
+    xdata::String            smClassName_;
+    xdata::UnsignedInteger32 smInstance_;
     
     // debug parameters
     xdata::UnsignedInteger32 nbAllocateSent_;
     xdata::UnsignedInteger32 nbTakeReceived_;
+    xdata::UnsignedInteger32 nbDataDiscardReceived_;
+    xdata::UnsignedInteger32 nbDqmDiscardReceived_;
     
     // internal parameters, not exported
     unsigned int             nbMeasurements_;
-    unsigned int             nbEventsLast_;
+    unsigned int             nbInputEventsLast_;
+    unsigned int             nbOutputEventsLast_;
     
   };
 

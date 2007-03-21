@@ -3,10 +3,8 @@
 
 
 #include "EventFilter/ResourceBroker/interface/FUTypes.h"
-
-
-namespace xdaq {class ApplicationDescriptor; class ApplicationContext; }
-namespace toolbox { namespace mem { class Pool; } }
+#include "EventFilter/Utilities/interface/Exception.h"
+#include "xdaq/include/xdaq/Application.h"
 
 
 namespace evf {
@@ -17,21 +15,18 @@ namespace evf {
     //
     // construction/destruction
     //
-    BUProxy (xdaq::ApplicationDescriptor *fuAppDesc, 
-	     xdaq::ApplicationDescriptor *buAppDesc, 
-	     xdaq::ApplicationContext    *appContext,
-	     toolbox::mem::Pool          *i2oPool=0,
-	     UInt_t                       dataBufSize=1024);
-    
+    BUProxy(xdaq::ApplicationDescriptor *fuAppDesc, 
+	    xdaq::ApplicationDescriptor *buAppDesc, 
+	    xdaq::ApplicationContext    *fuAppContext,
+	    toolbox::mem::Pool          *i2oPool);
     virtual ~BUProxy();
     
     
     //
     // member functions
     //
-    void sendAllocate(const UIntVec_t& fuResourceIds);
-    void sendCollect(UInt_t fuResourceId);
-    void sendDiscard(UInt_t buResourceId);
+    void sendAllocate(const UIntVec_t& fuResourceIds) throw (evf::Exception);
+    void sendDiscard(UInt_t buResourceId) throw (evf::Exception);
     
     
   private:
@@ -40,10 +35,9 @@ namespace evf {
     //
     xdaq::ApplicationDescriptor *fuAppDesc_;
     xdaq::ApplicationDescriptor *buAppDesc_;
-    xdaq::ApplicationContext    *appContext_;
+    xdaq::ApplicationContext    *fuAppContext_;
     toolbox::mem::Pool          *i2oPool_;
-    UInt_t                       dataBufSize_;
-    
+  
   }; 
 
 } // namespace evf

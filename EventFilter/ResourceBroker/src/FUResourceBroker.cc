@@ -9,6 +9,7 @@
 
 #include "EventFilter/ResourceBroker/interface/FUResourceBroker.h"
 #include "EventFilter/ResourceBroker/interface/BUProxy.h"
+#include "EventFilter/ResourceBroker/interface/SMProxy.h"
 
 #include "EventFilter/Utilities/interface/Crc.h"
 
@@ -47,41 +48,63 @@ FUResourceBroker::FUResourceBroker(xdaq::ApplicationStub *s)
   , lock_(BSem::FULL)
   , gui_(0)
   , log_(getApplicationLogger())
+  , bu_(0)
+  , sm_(0)
   , i2oPool_(0)
   , resourceTable_(0)
   , instance_(0)
   , runNumber_(0)
   , nbShmClients_(0)
-  , nbMBTot_(0.0)
-  , nbMBPerSec_(0.0)
-  , nbMBPerSecMin_(0.0)
-  , nbMBPerSecMax_(0.0)
-  , nbMBPerSecAvg_(0.0)
-  , nbEvents_(0)
-  , nbEventsPerSec_(0)
-  , nbEventsPerSecMin_(0)
-  , nbEventsPerSecMax_(0)
-  , nbEventsPerSecAvg_(0)
+  , acceptRate_(0.0)
+  , nbMBInput_(0.0)
+  , nbMBInputPerSec_(0.0)
+  , nbMBInputPerSecMin_(0.0)
+  , nbMBInputPerSecMax_(0.0)
+  , nbMBInputPerSecAvg_(0.0)
+  , nbMBOutput_(0.0)
+  , nbMBOutputPerSec_(0.0)
+  , nbMBOutputPerSecMin_(0.0)
+  , nbMBOutputPerSecMax_(0.0)
+  , nbMBOutputPerSecAvg_(0.0)
+  , nbInputEvents_(0)
+  , nbInputEventsPerSec_(0)
+  , nbInputEventsPerSecMin_(0)
+  , nbInputEventsPerSecMax_(0)
+  , nbInputEventsPerSecAvg_(0)
+  , nbOutputEvents_(0)
+  , nbOutputEventsPerSec_(0)
+  , nbOutputEventsPerSecMin_(0)
+  , nbOutputEventsPerSecMax_(0)
+  , nbOutputEventsPerSecAvg_(0)
   , nbAllocatedEvents_(0)
   , nbPendingRequests_(0)
-  , nbReceivedEvents_(0)
-  , nbDiscardedEvents_(0)
   , nbProcessedEvents_(0)
+  , nbAcceptedEvents_(0)
+  , nbDiscardedEvents_(0)
   , nbLostEvents_(0)
   , nbDataErrors_(0)
   , nbCrcErrors_(0)
-  , eventBufferSize_(4194304) // 4MB
-  //, doDumpFragments_(false)
+  , segmentationMode_(false)
+  , nbRawCells_(32)
+  , nbRecoCells_(0)
+  , nbDqmCells_(0)
+  , rawCellSize_(4194304)  // 4MB
+  , recoCellSize_(4194304) // 4MB
+  , dqmCellSize_(4194304)  // 4MB
   , doDropEvents_(false)
   , doFedIdCheck_(true)
   , doCrcCheck_(1)
   , buClassName_("BU")
   , buInstance_(0)
-  , queueSize_(64)
+  , smClassName_("StorageManager")
+  , smInstance_(0)
   , nbAllocateSent_(0)
   , nbTakeReceived_(0)
+  , nbDataDiscardReceived_(0)
+  , nbDqmDiscardReceived_(0)
   , nbMeasurements_(0)
-  , nbEventsLast_(0)
+  , nbInputEventsLast_(0)
+  , nbOutputEventsLast_(0)
 {
   // setup finite state machine (binding relevant callbacks)
   fsm_.initialize<evf::FUResourceBroker>(this);
@@ -94,11 +117,14 @@ FUResourceBroker::FUResourceBroker(xdaq::ApplicationStub *s)
   instance_=getApplicationDescriptor()->getInstance();
   sourceId_=class_.toString()+"_"+instance_.toString();
   
-  // i2o callback for FU_TAKE messages from builder unit
-  i2o::bind(this,
-	    &FUResourceBroker::I2O_FU_TAKE_Callback,
-	    I2O_FU_TAKE,
-	    XDAQ_ORGANIZATION_ID);
+  // bind i2o callbacks
+  i2o::bind(this,&FUResourceBroker::I2O_FU_TAKE_Callback,
+	    I2O_FU_TAKE,XDAQ_ORGANIZATION_ID);
+  i2o::bind(this,&FUResourceBroker::I2O_FU_DATA_DISCARD_Callback,
+	    I2O_FU_DATA_DISCARD,XDAQ_ORGANIZATION_ID);
+  i2o::bind(this,&FUResourceBroker::I2O_FU_DQM_DISCARD_Callback,
+	    I2O_FU_DQM_DISCARD,XDAQ_ORGANIZATION_ID);
+  
   
   // bind HyperDAQ web pages
   xgi::bind(this,&evf::FUResourceBroker::webPageRequest,"Default");
@@ -149,8 +175,15 @@ bool FUResourceBroker::configuring(toolbox::task::WorkLoop* wl)
 {
   try {
     LOG4CPLUS_INFO(log_, "Start configuring ...");
-    connectToBUs();
-    resourceTable_=new FUResourceTable(queueSize_,eventBufferSize_,bu_[buInstance_],
+    connectToBUandSM();
+    resourceTable_=new FUResourceTable(segmentationMode_.value_,
+				       nbRawCells_.value_,
+				       nbRecoCells_.value_,
+				       nbDqmCells_.value_,
+				       rawCellSize_.value_,
+				       recoCellSize_.value_,
+				       dqmCellSize_.value_,
+				       bu_,sm_,
 				       log_);
     resourceTable_->resetCounters();
     reset();
@@ -229,7 +262,7 @@ bool FUResourceBroker::halting(toolbox::task::WorkLoop* wl)
     if (0!=resourceTable_) LOG4CPLUS_ERROR(log_,"Failed to destroy resource table.");
     LOG4CPLUS_INFO(log_, "Finished halting!");
     
-      fsm_.fireEvent("HaltDone",this);
+    fsm_.fireEvent("HaltDone",this);
   }
   catch (xcept::Exception &e) {
     std::string msg = "halting FAILED: " + (string)e.what();
@@ -249,6 +282,81 @@ xoap::MessageReference FUResourceBroker::fsmCallback(xoap::MessageReference msg)
 
 
 //______________________________________________________________________________
+void FUResourceBroker::I2O_FU_TAKE_Callback(toolbox::mem::Reference* bufRef)
+{
+  if (nbTakeReceived_.value_==0) startTimer();
+  nbTakeReceived_.value_++;
+  bool eventComplete=resourceTable_->buildResource(bufRef);
+  if (eventComplete&&doDropEvents_) resourceTable_->dropEvent();
+}
+
+
+//______________________________________________________________________________
+void FUResourceBroker::I2O_FU_DATA_DISCARD_Callback(toolbox::mem::Reference* bufRef)
+{
+  nbDataDiscardReceived_.value_++;
+  resourceTable_->discardDataEvent(bufRef);
+}
+
+
+//______________________________________________________________________________
+void FUResourceBroker::I2O_FU_DQM_DISCARD_Callback(toolbox::mem::Reference* bufRef)
+{
+  nbDqmDiscardReceived_.value_++;
+  resourceTable_->discardDqmEvent(bufRef);
+}
+
+
+//______________________________________________________________________________
+void FUResourceBroker::connectToBUandSM() throw (evf::Exception)
+{
+  typedef set<xdaq::ApplicationDescriptor*> AppDescSet_t;
+  typedef AppDescSet_t::iterator            AppDescIter_t;
+  
+  // locate input BU
+  AppDescSet_t setOfBUs=
+    getApplicationContext()->getDefaultZone()->
+    getApplicationDescriptors(buClassName_.toString());
+  
+  if (0!=bu_) { delete bu_; bu_=0; }
+  
+  for (AppDescIter_t it=setOfBUs.begin();it!=setOfBUs.end();++it)
+    if ((*it)->getInstance()==buInstance_)
+      bu_=new BUProxy(getApplicationDescriptor(),*it,
+		      getApplicationContext(),i2oPool_);
+  
+  if (0==bu_) {
+    string msg=sourceId_+" failed to locate input BU!";
+    XCEPT_RAISE(evf::Exception,msg);
+  }
+  
+  // locate output SM
+  AppDescSet_t setOfSMs=
+    getApplicationContext()->getDefaultZone()->
+    getApplicationDescriptors(smClassName_.toString());
+  
+  if (0!=sm_) { delete sm_; sm_=0; }
+  
+  for (AppDescIter_t it=setOfSMs.begin();it!=setOfSMs.end();++it)
+    if ((*it)->getInstance()==smInstance_)
+      sm_=new SMProxy(getApplicationDescriptor(),*it,
+		      getApplicationContext(),i2oPool_);
+  
+  if (0==sm_) LOG4CPLUS_WARN(log_,sourceId_<<" failed to locate output SM!");
+}
+
+
+//______________________________________________________________________________
+void FUResourceBroker::webPageRequest(xgi::Input *in,xgi::Output *out)
+  throw (xgi::exception::Exception)
+{
+  string name=in->getenv("PATH_INFO");
+  if (name.empty()) name="defaultWebPage";
+  static_cast<xgi::MethodSignature*>(gui_->getMethod(name))->invoke(in,out);
+}
+
+
+//______________________________________________________________________________
 void FUResourceBroker::timeExpired(toolbox::task::TimerEvent& e)
 {
   lock_.take();
@@ -257,25 +365,55 @@ void FUResourceBroker::timeExpired(toolbox::task::TimerEvent& e)
 
   nbMeasurements_++;
  
-  // number of events per second measurement
-  nbEvents_      =resourceTable_->nbCompleted();
-  nbEventsPerSec_=nbEvents_-nbEventsLast_;
-  nbEventsLast_  =nbEvents_;
-  if (nbEventsPerSec_.value_>0) {
-    if (nbEventsPerSec_<nbEventsPerSecMin_) nbEventsPerSecMin_=nbEventsPerSec_;
-    if (nbEventsPerSec_>nbEventsPerSecMax_) nbEventsPerSecMax_=nbEventsPerSec_;
+  // number of input events per second measurement
+  nbInputEvents_      =resourceTable_->nbCompleted();
+  nbInputEventsPerSec_=nbInputEvents_-nbInputEventsLast_;
+  nbInputEventsLast_  =nbInputEvents_;
+  if (nbInputEventsPerSec_.value_>0) {
+    if (nbInputEventsPerSec_<nbInputEventsPerSecMin_)
+      nbInputEventsPerSecMin_=nbInputEventsPerSec_;
+    if (nbInputEventsPerSec_>nbInputEventsPerSecMax_)
+      nbInputEventsPerSecMax_=nbInputEventsPerSec_;
   }
-  nbEventsPerSecAvg_=nbEvents_/nbMeasurements_;
+  nbInputEventsPerSecAvg_=nbInputEvents_/nbMeasurements_;
 
   // number of MB per second measurement
-  nbMBPerSec_=9.53674e-07*resourceTable_->nbBytes();
-  nbMBTot_.value_+=nbMBPerSec_;
-  if (nbMBPerSec_.value_>0) {
-    if (nbMBPerSec_<nbMBPerSecMin_) nbMBPerSecMin_=nbMBPerSec_;
-    if (nbMBPerSec_>nbMBPerSecMax_) nbMBPerSecMax_=nbMBPerSec_;
+  nbMBInputPerSec_=9.53674e-07*resourceTable_->nbBytesReceived();
+  nbMBInput_.value_+=nbMBInputPerSec_;
+  if (nbMBInputPerSec_.value_>0) {
+    if (nbMBInputPerSec_<nbMBInputPerSecMin_)
+      nbMBInputPerSecMin_=nbMBInputPerSec_;
+    if (nbMBInputPerSec_>nbMBInputPerSecMax_)
+      nbMBInputPerSecMax_=nbMBInputPerSec_;
   }
-  nbMBPerSecAvg_=nbMBTot_/nbMeasurements_;
+  nbMBInputPerSecAvg_=nbMBInput_/nbMeasurements_;
 
+  // number of output events per second measurement
+  nbOutputEvents_      =resourceTable_->nbSent();
+  nbOutputEventsPerSec_=nbOutputEvents_-nbOutputEventsLast_;
+  nbOutputEventsLast_  =nbOutputEvents_;
+  if (nbOutputEventsPerSec_.value_>0) {
+    if (nbOutputEventsPerSec_<nbOutputEventsPerSecMin_)
+      nbOutputEventsPerSecMin_=nbOutputEventsPerSec_;
+    if (nbOutputEventsPerSec_>nbOutputEventsPerSecMax_)
+      nbOutputEventsPerSecMax_=nbOutputEventsPerSec_;
+  }
+  nbOutputEventsPerSecAvg_=nbOutputEvents_/nbMeasurements_;
+
+  // number of MB per second measurement
+  nbMBOutputPerSec_=9.53674e-07*resourceTable_->nbBytesSent();
+  nbMBOutput_.value_+=nbMBOutputPerSec_;
+  if (nbMBOutputPerSec_.value_>0) {
+    if (nbMBOutputPerSec_<nbMBOutputPerSecMin_)
+      nbMBOutputPerSecMin_=nbMBOutputPerSec_;
+    if (nbMBOutputPerSec_>nbMBOutputPerSecMax_)
+      nbMBOutputPerSecMax_=nbMBOutputPerSec_;
+  }
+  nbMBOutputPerSecAvg_=nbMBOutput_/nbMeasurements_;
+  
+  // accept rate
+  acceptRate_=nbOutputEvents_/nbInputEvents_;
+  
   gui_->unlockInfoSpaces();
   
   lock_.give();
@@ -341,8 +479,8 @@ void FUResourceBroker::actionPerformed(xdata::Event& e)
     if (item=="nbShmClients")      nbShmClients_     =resourceTable_->nbShmClients();
     if (item=="nbAllocatedEvents") nbAllocatedEvents_=resourceTable_->nbAllocated();
     if (item=="nbPendingRequests") nbPendingRequests_=resourceTable_->nbPending();
-    if (item=="nbReceivedEvents")  nbReceivedEvents_ =resourceTable_->nbCompleted();
     if (item=="nbProcessedEvents") nbProcessedEvents_=resourceTable_->nbProcessed();
+    if (item=="nbAcceptedEvents")  nbAcceptedEvents_ =resourceTable_->nbAccepted();
     if (item=="nbDiscardedEvents") nbDiscardedEvents_=resourceTable_->nbDiscarded();
     if (item=="nbLostEvents")      nbLostEvents_     =resourceTable_->nbLost();
     if (item=="nbDataErrors")      nbDataErrors_     =resourceTable_->nbErrors();
@@ -367,114 +505,81 @@ void FUResourceBroker::actionPerformed(xdata::Event& e)
 
 
 //______________________________________________________________________________
-void FUResourceBroker::connectToBUs()
-{
-  if (0!=bu_.size()) return;
-  
-  typedef set<xdaq::ApplicationDescriptor*> AppDescSet_t;
-  typedef AppDescSet_t::iterator            AppDescIter_t;
-    
-  AppDescSet_t buAppDescs=
-    getApplicationContext()->getDefaultZone()->
-    getApplicationDescriptors(buClassName_.toString());
-  
-  UInt_t maxBuInstance(0);
-  for (AppDescIter_t it=buAppDescs.begin();it!=buAppDescs.end();++it)
-    if ((*it)->getInstance()>maxBuInstance) maxBuInstance=(*it)->getInstance();
-  
-  bu_.resize(maxBuInstance+1);
-  bu_.assign(bu_.size(),0);
-  
-  bool buInstValid(false);
-  
-  for (UInt_t i=0;i<bu_.size();i++) {
-    for (AppDescIter_t it=buAppDescs.begin();it!=buAppDescs.end();++it) {
-      if (i==(*it)->getInstance()&&0==bu_[i]) {
-	bu_[i]=new BUProxy(getApplicationDescriptor(),
-			   *it, 
-			   getApplicationContext(),
-			   i2oPool_);
-	if (i==buInstance_) buInstValid=true;
-      }
-    }
-  }
-
-  if (!buInstValid) LOG4CPLUS_ERROR(log_,"invalid buInstance! reset!!");
-}
-
-
-//______________________________________________________________________________
-void FUResourceBroker::I2O_FU_TAKE_Callback(toolbox::mem::Reference* bufRef)
-{
-  if (nbTakeReceived_.value_==0) startTimer();
-  nbTakeReceived_.value_++;
-  bool eventComplete=resourceTable_->buildResource(bufRef);
-  if (eventComplete&&doDropEvents_) resourceTable_->dropEvent();
-}
-
-
-//______________________________________________________________________________
-void FUResourceBroker::webPageRequest(xgi::Input *in,xgi::Output *out)
-  throw (xgi::exception::Exception)
-{
-  string name=in->getenv("PATH_INFO");
-  if (name.empty()) name="defaultWebPage";
-  static_cast<xgi::MethodSignature*>(gui_->getMethod(name))->invoke(in,out);
-}
-
-
-//______________________________________________________________________________
 void FUResourceBroker::exportParameters()
 {
   assert(0!=gui_);
   
-  gui_->addMonitorParam("url",                &url_);
-  gui_->addMonitorParam("class",              &class_);
-  gui_->addMonitorParam("instance",           &instance_);
-  gui_->addMonitorParam("runNumber",          &runNumber_);
-  gui_->addMonitorParam("stateName",           fsm_.stateName());
-  gui_->addMonitorParam("nbShmClients",       &nbShmClients_);
+  gui_->addMonitorParam("url",                      &url_);
+  gui_->addMonitorParam("class",                    &class_);
+  gui_->addMonitorParam("instance",                 &instance_);
+  gui_->addMonitorParam("runNumber",                &runNumber_);
+  gui_->addMonitorParam("stateName",                 fsm_.stateName());
+  gui_->addMonitorParam("nbShmClients",             &nbShmClients_);
 
-  gui_->addMonitorParam("nbMBTot",            &nbMBTot_);
-  gui_->addMonitorParam("nbMBPerSec",         &nbMBPerSec_);
-  gui_->addMonitorParam("nbMBPerSecMin",      &nbMBPerSecMin_);
-  gui_->addMonitorParam("nbMBPerSecMax",      &nbMBPerSecMax_);
-  gui_->addMonitorParam("nbMBPerSecAvg",      &nbMBPerSecAvg_);
+  gui_->addMonitorParam("acceptRate",               &acceptRate_);
+  
+  gui_->addMonitorParam("nbMBInput",                &nbMBInput_);
+  gui_->addMonitorParam("nbMBInputPerSec",          &nbMBInputPerSec_);
+  gui_->addDebugParam("nbMBInputPerSecMin",         &nbMBInputPerSecMin_);
+  gui_->addDebugParam("nbMBInputPerSecMax",         &nbMBInputPerSecMax_);
+  gui_->addMonitorParam("nbMBInputPerSecAvg",       &nbMBInputPerSecAvg_);
 
-  gui_->addMonitorCounter("nbEvents",         &nbEvents_);
-  gui_->addMonitorCounter("nbEventsPerSec",   &nbEventsPerSec_);
-  gui_->addMonitorCounter("nbEventsPerSecMin",&nbEventsPerSecMin_);
-  gui_->addMonitorCounter("nbEventsPerSecMax",&nbEventsPerSecMax_);
-  gui_->addMonitorCounter("nbEventsPerSecAvg",&nbEventsPerSecAvg_);
-  gui_->addMonitorCounter("nbAllocatedEvents",&nbAllocatedEvents_);
-  gui_->addMonitorCounter("nbPendingRequests",&nbPendingRequests_);
-  gui_->addMonitorCounter("nbReceivedEvents", &nbReceivedEvents_);
-  gui_->addMonitorCounter("nbDiscardedEvents",&nbDiscardedEvents_);
-  gui_->addMonitorCounter("nbProcessedEvents",&nbProcessedEvents_);
-  gui_->addMonitorCounter("nbLostEvents",     &nbLostEvents_);
-  gui_->addMonitorCounter("nbDataErrors",     &nbDataErrors_);
-  gui_->addMonitorCounter("nbCrcErrors",      &nbCrcErrors_);
+  gui_->addMonitorParam("nbMBOutput",               &nbMBOutput_);
+  gui_->addMonitorParam("nbMBOutputPerSec",         &nbMBOutputPerSec_);
+  gui_->addDebugParam("nbMBOutputPerSecMin",        &nbMBOutputPerSecMin_);
+  gui_->addDebugParam("nbMBOutputPerSecMax",        &nbMBOutputPerSecMax_);
+  gui_->addMonitorParam("nbMBOutputPerSecAvg",      &nbMBOutputPerSecAvg_);
 
-  gui_->addStandardParam("eventBufferSize",   &eventBufferSize_);
-  //gui_->addStandardParam("doDumpLostEvents",   &doDumpLostEvents_);
-  gui_->addStandardParam("doDropEvents",      &doDropEvents_);
-  gui_->addStandardParam("doFedIdCheck",      &doFedIdCheck_);
-  gui_->addStandardParam("doCrcCheck",        &doCrcCheck_);
-  gui_->addStandardParam("buClassName",       &buClassName_);
-  gui_->addStandardParam("buInstance",        &buInstance_);
-  gui_->addStandardParam("queueSize",         &queueSize_);
-  gui_->addStandardParam("foundRcmsStateListener",fsm_.foundRcmsStateListener());
+  gui_->addMonitorCounter("nbInputEvents",          &nbInputEvents_);
+  gui_->addMonitorCounter("nbInputEventsPerSec",    &nbInputEventsPerSec_);
+  gui_->addDebugCounter("nbInputEventsPerSecMin",   &nbInputEventsPerSecMin_);
+  gui_->addDebugCounter("nbInputEventsPerSecMax",   &nbInputEventsPerSecMax_);
+  gui_->addMonitorCounter("nbInputEventsPerSecAvg", &nbInputEventsPerSecAvg_);
 
-  gui_->addDebugCounter("nbAllocateSent",     &nbAllocateSent_);
-  gui_->addDebugCounter("nbTakeReceived",     &nbTakeReceived_);
+  gui_->addMonitorCounter("nbOutputEvents",         &nbOutputEvents_);
+  gui_->addMonitorCounter("nbOutputEventsPerSec",   &nbOutputEventsPerSec_);
+  gui_->addDebugCounter("nbOutputEventsPerSecMin",  &nbOutputEventsPerSecMin_);
+  gui_->addDebugCounter("nbOutputEventsPerSecMax",  &nbOutputEventsPerSecMax_);
+  gui_->addMonitorCounter("nbOutputEventsPerSecAvg",&nbOutputEventsPerSecAvg_);
+
+  gui_->addMonitorCounter("nbAllocatedEvents",      &nbAllocatedEvents_);
+  gui_->addMonitorCounter("nbPendingRequests",      &nbPendingRequests_);
+  gui_->addMonitorCounter("nbProcessedEvents",      &nbProcessedEvents_);
+  gui_->addMonitorCounter("nbAcceptedEvents",       &nbAcceptedEvents_);
+  gui_->addMonitorCounter("nbDiscardedEvents",      &nbDiscardedEvents_);
+  gui_->addMonitorCounter("nbLostEvents",           &nbLostEvents_);
+  gui_->addMonitorCounter("nbDataErrors",           &nbDataErrors_);
+  gui_->addMonitorCounter("nbCrcErrors",            &nbCrcErrors_);
+
+  gui_->addStandardParam("segmentationMode",        &segmentationMode_);
+  gui_->addStandardParam("nbRawCells",              &nbRawCells_);
+  gui_->addStandardParam("nbRecoCells",             &nbRecoCells_);
+  gui_->addStandardParam("nbDqmCells",              &nbDqmCells_);
+  gui_->addStandardParam("rawCellSize",             &rawCellSize_);
+  gui_->addStandardParam("recoCellSize",            &recoCellSize_);
+  gui_->addStandardParam("dqmCellSize",             &dqmCellSize_);
+
+  gui_->addStandardParam("doDropEvents",            &doDropEvents_);
+  gui_->addStandardParam("doFedIdCheck",            &doFedIdCheck_);
+  gui_->addStandardParam("doCrcCheck",              &doCrcCheck_);
+  gui_->addStandardParam("buClassName",             &buClassName_);
+  gui_->addStandardParam("buInstance",              &buInstance_);
+  gui_->addStandardParam("smClassName",             &smClassName_);
+  gui_->addStandardParam("smInstance",              &smInstance_);
+  gui_->addStandardParam("foundRcmsStateListener",   fsm_.foundRcmsStateListener());
+
+  gui_->addDebugCounter("nbAllocateSent",           &nbAllocateSent_);
+  gui_->addDebugCounter("nbTakeReceived",           &nbTakeReceived_);
+  gui_->addDebugCounter("nbDataDiscardReceived",    &nbDataDiscardReceived_);
+  gui_->addDebugCounter("nbDqmDiscardReceived",     &nbDqmDiscardReceived_);
 
   gui_->exportParameters();
 
   gui_->addItemRetrieveListener("nbShmClients",     this);
   gui_->addItemRetrieveListener("nbAllocatedEvents",this);
   gui_->addItemRetrieveListener("nbPendingRequests",this);
-  gui_->addItemRetrieveListener("nbReceivedEvents", this);
   gui_->addItemRetrieveListener("nbProcessedEvents",this);
+  gui_->addItemRetrieveListener("nbAcceptedEvents", this);
   gui_->addItemRetrieveListener("nbDiscardedEvents",this);
   gui_->addItemRetrieveListener("nbLostEvents",     this);
   gui_->addItemRetrieveListener("nbDataErrors",     this);
@@ -492,15 +597,23 @@ void FUResourceBroker::reset()
 {
   gui_->resetCounters();
   
-  nbMBTot_          =0.0;
-  nbMBPerSec_       =0.0;
-  nbMBPerSecMin_    =1e06;
-  nbMBPerSecMax_    =0.0;
-  nbMBPerSecAvg_    =0.0;
-  nbEventsPerSecMin_=10000;
+  nbMBInput_              =  0.0;
+  nbMBInputPerSec_        =  0.0;
+  nbMBInputPerSecMin_     = 1e06;
+  nbMBInputPerSecMax_     =  0.0;
+  nbMBInputPerSecAvg_     =  0.0;
+  nbInputEventsPerSecMin_ =10000;
+
+  nbMBOutput_             =  0.0;
+  nbMBOutputPerSec_       =  0.0;
+  nbMBOutputPerSecMin_    = 1e06;
+  nbMBOutputPerSecMax_    =  0.0;
+  nbMBOutputPerSecAvg_    =  0.0;
+  nbOutputEventsPerSecMin_=10000;
   
-  nbMeasurements_   =0;
-  nbEventsLast_     =0;
+  nbMeasurements_         =    0;
+  nbInputEventsLast_      =    0;
+  nbOutputEventsLast_     =    0;
 }
 
 

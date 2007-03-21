@@ -4,6 +4,7 @@
 
 #include "EventFilter/ResourceBroker/interface/FUResource.h"
 #include "EventFilter/ResourceBroker/interface/BUProxy.h"
+#include "EventFilter/ResourceBroker/interface/SMProxy.h"
 #include "EventFilter/ResourceBroker/interface/FUTypes.h"
 #include "EventFilter/ShmBuffer/interface/FUShmBuffer.h"
 #include "EventFilter/Utilities/interface/Exception.h"
@@ -25,29 +26,52 @@ namespace evf {
     //
     // construction/destruction
     //
-    FUResourceTable(UInt_t nbResources,UInt_t eventBufferSize,
-		    BUProxy* bu,log4cplus::Logger logger);
+    FUResourceTable(bool   segmentationMode,
+		    UInt_t nbRawCells, UInt_t nbRecoCells, UInt_t nbDqmCells,
+		    UInt_t rawCellSize,UInt_t recoCellSize,UInt_t dqmCellSize,
+		    BUProxy* bu,SMProxy* sm,
+		    log4cplus::Logger logger);
     virtual ~FUResourceTable();
-
+    
     
     //
     // member functions
     //
     
-    // allocate new events from builder unit
-    void   sendAllocate();
+    // initialization of the resource queue
+    void   initialize(bool   segmentationMode,
+		      UInt_t nbRawCells, UInt_t nbRecoCells, UInt_t nbDqmCells,
+		      UInt_t rawCellSize,UInt_t recoCellSize,UInt_t dqmCellSize);
     
-    // discard event to builder unit
-    void   sendDiscard(UInt_t buResourceId);
+    // work loop to send data events to storage manager
+    void   startSendDataWorkLoop() throw (evf::Exception);
+    bool   sendData(toolbox::task::WorkLoop* workLoop);
+    
+    // work loop to send dqm events to storage manager
+    void   startSendDqmWorkLoop() throw (evf::Exception);
+    bool   sendDqm(toolbox::task::WorkLoop* workLoop);
+    
+    // work loop to discard events to builder unit
+    void   startDiscardWorkLoop() throw (evf::Exception);
+    bool   discard(toolbox::task::WorkLoop* workLoop);
+    
+    // returns the fuResourceId of the allocated resource
+    UInt_t allocateResource();
+    
+    // process buffer received via I2O_FU_TAKE message
+    bool   buildResource(MemRef_t* bufRef);
+    
+    // process buffer received via I2O_SM_DATA_DISCARD message
+    bool   discardDataEvent(MemRef_t* bufRef);
+    
+    // process buffer received via I2O_SM_DQM_DISCARD message
+    bool   discardDqmEvent(MemRef_t* bufRef);
     
     // drop next available event
     void   dropEvent();
     
     // send empty events to notify clients to shutdown
     void   shutDownClients();
-    
-    // initialization of the resource queue
-    void   initialize(UInt_t nbResources,UInt_t eventBufferSize);
     
     // emtpy all containers (resources & ids)
     void   clear();
@@ -58,34 +82,24 @@ namespace evf {
     // reset event & error counters
     void   resetCounters();
 
-    // work loop to discard/allocate events
-    void   startDiscardWorkLoop() throw (evf::Exception);
-    bool   discard(toolbox::task::WorkLoop* workLoop);
-    
     // tell resources wether to check the crc
     void   setDoCrcCheck(UInt_t doCrcCheck) { doCrcCheck_=doCrcCheck; }
 
-    // returns the fuResourceId of the allocated resource
-    UInt_t allocateResource();
-    
-    // process buffer received via I2O_FU_TAKE message
-    bool   buildResource(MemRef_t* bufRef);
-    
-    // check if this is the last message of the events without processing the msg
-    bool   isLastMessageOfEvent(MemRef_t* bufRef);
-    
     // check if resource table can be savely destroyed
     bool   isReadyToShutDown() const { return isReadyToShutDown_; }
     
     
     // various counters
     UInt_t nbResources()  const { return resources_.size(); }
-    UInt_t nbFreeSlots()  const { return shmBuffer_->writerSemValue(); }
+    UInt_t nbFreeSlots()  const { return shmBuffer_->nbRawCellsToWrite(); }
     UInt_t nbShmClients() const;
     UInt_t nbAllocated()  const { return nbAllocated_; }
     UInt_t nbPending()    const { return nbPending_; }
     UInt_t nbCompleted()  const { return nbCompleted_; }
     UInt_t nbProcessed()  const { return nbProcessed_; }
+    UInt_t nbAccepted()   const { return nbAccepted_; }
+    UInt_t nbSent()       const { return nbSent_; }
+    UInt_t nbSentDqm()    const { return nbSentDqm_; }
     UInt_t nbDiscarded()  const { return nbDiscarded_; }
     UInt_t nbLost()       const { return nbLost_; }
     
@@ -93,18 +107,38 @@ namespace evf {
     UInt_t nbCrcErrors()  const { return nbCrcErrors_; }
     UInt_t nbAllocSent()  const { return nbAllocSent_; }
     
-    UInt_t nbBytes(bool reset=true);
+    UInt_t nbBytesReceived(bool reset=true);
+    UInt_t nbBytesSent(bool reset=true);
+    UInt_t nbBytesSentDqm(bool reset=true);
     
-  private:
+
     //
-    // private member functions
+    // helpers
     //
-    void   lock()          { lock_.take(); }
-    void   unlock()        { lock_.give(); }
-    void   waitWriterSem() { shmBuffer_->waitWriterSem(); }
-    void   postWriterSem() { shmBuffer_->postWriterSem(); }
-    void   waitReaderSem() { shmBuffer_->waitReaderSem(); }
-    void   postReaderSem() { shmBuffer_->postReaderSem(); }
+    void   sendAllocate();
+    void   sendDiscard(UInt_t buResourceId);
+    
+    void   sendInitMessage(UInt_t  fuResourceId,
+			   UChar_t*data,
+			   UInt_t  dataSize);
+
+    void   sendDataEvent(UInt_t  fuResourceId,
+			 UInt_t  runNumber,
+			 UInt_t  evtNumber,
+			 UChar_t*data,
+			 UInt_t  dataSize);
+
+    void   sendDqmEvent(UInt_t  fuDqmId,
+			UInt_t  runNumber,
+			UInt_t  evtAtUpdate,
+			UInt_t  folderId,
+			UChar_t*data,
+			UInt_t  dataSize);
+    
+    bool   isLastMessageOfEvent(MemRef_t* bufRef);
+    
+    void   lock()   { lock_.take(); }
+    void   unlock() { lock_.give(); }
     
 
   private:
@@ -114,34 +148,47 @@ namespace evf {
     typedef toolbox::task::WorkLoop        WorkLoop_t;
     typedef toolbox::task::ActionSignature ActionSignature_t;
 
-    BUProxy*          bu_;
-    log4cplus::Logger log_;
-    
-    WorkLoop_t*       workLoopDiscard_;
-    ActionSignature_t*asDiscard_;
+    BUProxy           *bu_;
+    SMProxy           *sm_;
 
-    FUShmBuffer*      shmBuffer_;
-    FUResourceVec_t   resources_;
+    log4cplus::Logger  log_;
     
-    UInt_t            doCrcCheck_;
+    WorkLoop_t        *wlSendData_;
+    ActionSignature_t *asSendData_;
 
-    UInt_t            nbAllocated_;
-    UInt_t            nbPending_;
-    UInt_t            nbCompleted_;
-    UInt_t            nbDiscarded_;
-    UInt_t            nbProcessed_;
-    UInt_t            nbLost_;
-    
-    UInt_t            nbClientsToShutDown_;
-    bool              isReadyToShutDown_;
-    
-    UInt_t            nbErrors_;
-    UInt_t            nbCrcErrors_;
-    UInt_t            nbAllocSent_;
-    
-    UInt_t            nbBytes_;
+    WorkLoop_t        *wlSendDqm_;
+    ActionSignature_t *asSendDqm_;
 
-    BSem              lock_;
+    WorkLoop_t        *wlDiscard_;
+    ActionSignature_t *asDiscard_;
+
+    FUShmBuffer       *shmBuffer_;
+    FUResourceVec_t    resources_;
+    
+    UInt_t             doCrcCheck_;
+
+    UInt_t             nbAllocated_;
+    UInt_t             nbPending_;
+    UInt_t             nbCompleted_;
+    UInt_t             nbProcessed_;
+    UInt_t             nbAccepted_;
+    UInt_t             nbSent_;
+    UInt_t             nbSentDqm_;
+    UInt_t             nbDiscarded_;
+    UInt_t             nbLost_;
+    
+    UInt_t             nbClientsToShutDown_;
+    bool               isReadyToShutDown_;
+    
+    UInt_t             nbErrors_;
+    UInt_t             nbCrcErrors_;
+    UInt_t             nbAllocSent_;
+    
+    UInt_t             nbBytesReceived_;
+    UInt_t             nbBytesSent_;
+    UInt_t             nbBytesSentDqm_;
+    
+    BSem               lock_;
     
   };
   
@@ -154,11 +201,35 @@ namespace evf {
 
 //______________________________________________________________________________
 inline
-evf::UInt_t evf::FUResourceTable::nbBytes(bool reset)
+evf::UInt_t evf::FUResourceTable::nbBytesReceived(bool reset)
 {
   lock();
-  UInt_t result=nbBytes_;
-  if (reset) nbBytes_=0;
+  UInt_t result=nbBytesReceived_;
+  if (reset) nbBytesReceived_=0;
+  unlock();
+  return result;
+}
+
+
+//______________________________________________________________________________
+inline
+evf::UInt_t evf::FUResourceTable::nbBytesSent(bool reset)
+{
+  lock();
+  UInt_t result=nbBytesSent_;
+  if (reset) nbBytesSent_=0;
+  unlock();
+  return result;
+}
+
+
+//______________________________________________________________________________
+inline
+evf::UInt_t evf::FUResourceTable::nbBytesSentDqm(bool reset)
+{
+  lock();
+  UInt_t result=nbBytesSentDqm_;
+  if (reset) nbBytesSentDqm_=0;
   unlock();
   return result;
 }
