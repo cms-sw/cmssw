@@ -5,12 +5,21 @@
 #include <boost/cstdint.hpp>
 #include <ostream>
 
-/** Det identifier class for the strip tracker */
+class SiStripDetId;
+
+/** Debug info for SiStripDetId class. */
+std::ostream& operator<< ( std::ostream&, const SiStripDetId& );
+
+/** 
+    @class SiStripDetId
+    @author R.Bainbridge
+    @brief Detector identifier class for the strip tracker.
+*/
 class SiStripDetId : public DetId {
   
  public:
 
-  // ---------- "Standard" constructors ----------
+  // ---------- Constructors, enumerated types ----------
   
   /** Construct a null id */
   SiStripDetId();
@@ -23,6 +32,29 @@ class SiStripDetId : public DetId {
 
   /** Construct and fill only the det and sub-det fields. */
   SiStripDetId( Detector det, int subdet );
+
+  /** Enumerated type for tracker sub-deteector systems. */
+  enum SubDetector { UNKNOWN=0, TIB=3, TID=4, TOB=5, TEC=6 };
+  
+  // ---------- Common methods ----------
+
+  /** Returns enumerated type specifying sub-detector. */
+  inline SubDetector subDetector() const;
+  
+  /** Module id. */
+  inline uint32_t module() const;
+  
+  /** A non-zero value means a glued module, null means not glued. */
+  inline uint32_t glued() const;
+ 
+  /** A non-zero value means a stereo module, null means not stereo. */
+  inline uint32_t stereo() const;
+
+  /** Returns DetId of the partner module if glued, otherwise null. */
+  inline uint32_t partnerDetId() const;
+ 
+  /** Returns strip length of strip tracker sensor, otherwise null. */
+  inline double stripLength() const;
 
   // ---------- Constructors that set "reserved" field ----------
   
@@ -44,15 +76,75 @@ class SiStripDetId : public DetId {
 
   /** Mask for "reserved" bit field (3-bits wide). */ 
   static const uint16_t reservedMask_ = 0x7;
+
+  /** */
+  static const uint32_t sterStartBit_ = 0;
+  
+  /** */
+  static const uint32_t sterMask_ = 0x3;
+
+  /** */
+  static const unsigned int moduleStartBit_ = 2;
+
+  /** */
+  static const unsigned int moduleMask_ = 0x7;
   
 };
+
+// ---------- inline methods ----------
+
+SiStripDetId::SubDetector SiStripDetId::subDetector() const {
+  if( det() == DetId::Tracker &&
+      subdetId() == static_cast<int>(SiStripDetId::TIB) ) {
+    return SiStripDetId::TIB;
+  } else if ( det() == DetId::Tracker &&
+	      subdetId() == static_cast<int>(SiStripDetId::TID) ) {
+    return SiStripDetId::TID;
+  } else if ( det() == DetId::Tracker &&
+	      subdetId() == static_cast<int>(SiStripDetId::TOB) ) {
+    return SiStripDetId::TOB;
+  } else if ( det() == DetId::Tracker &&
+	      subdetId() == static_cast<int>(SiStripDetId::TEC) ) {
+    return SiStripDetId::TEC;
+  } else {
+    return SiStripDetId::UNKNOWN;
+  }
+}
+
+uint32_t SiStripDetId::module() const {
+  return ( (id_>>moduleStartBit_) & moduleMask_ );
+}
+
+uint32_t SiStripDetId::glued() const {
+  if ( ((id_>>sterStartBit_) & sterMask_ ) == 1 ) {
+    return ( id_ - 1 );
+  } else if ( ((id_>>sterStartBit_) & sterMask_ ) == 2 ) {
+    return ( id_ - 2 );
+  } else { return 0; }
+}
+ 
+uint32_t SiStripDetId::stereo() const {
+  if ( ((id_>>sterStartBit_ ) & sterMask_ ) == 1 ) {
+    return ( (id_>>sterStartBit_) & sterMask_ );
+  } else { return 0; }
+}
+ 
+uint32_t SiStripDetId::partnerDetId() const {
+  if ( ((id_>>sterStartBit_) & sterMask_ ) == 1 ) {
+    return ( id_ + 1 );
+  } else if ( ((id_>>sterStartBit_) & sterMask_ ) == 2 ) {
+    return ( id_ - 1 );
+  } else { return 0; }
+}
+ 
+double SiStripDetId::stripLength() const {
+  return 0.;
+}
+
 
 uint16_t SiStripDetId::reserved() const { 
   return static_cast<uint16_t>( (id_>>reservedStartBit_) & reservedMask_ );
 }
-
-/** Debug info for SiStripDetId class. */
-std::ostream& operator<< ( std::ostream&, const SiStripDetId& );
 
 #endif // DataFormats_SiStripDetId_SiStripDetId_h
 
