@@ -1,4 +1,4 @@
-<use name=Foundation/PluginManager>
+<use name=FWCore/PluginManager>
 <use name=FWCore/ParameterSet>
 <use name=Geometry/DTGeometry>
 <use name=L1Trigger/DTBti>
@@ -13,7 +13,7 @@
 
    <use name=L1Trigger/DTUtilities>
    <use name=L1Trigger/DTBti>
-   <use name=Foundation/PluginManager>
+   <use name=FWCore/PluginManager>
    <use name=FWCore/ParameterSet>
    <use name=Geometry/DTGeometry>
 

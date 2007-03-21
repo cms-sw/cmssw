@@ -1,6 +1,6 @@
 <use name=FWCore/Framework>
 <use name=DataFormats/Common>
-<use name=Foundation/PluginManager>
+<use name=FWCore/PluginManager>
 <use name=FWCore/ParameterSet>
 <use name=DataFormats/DTDigi>
 <use name=Geometry/DTGeometry>
@@ -15,7 +15,7 @@
 
    <use name=FWCore/Framework>
    <use name=L1Trigger/DTUtilities>
-   <use name=Foundation/PluginManager>
+   <use name=FWCore/PluginManager>
    <use name=FWCore/ParameterSet>
    <use name=DataFormats/DTDigi>
    <use name=Geometry/DTGeometry>
