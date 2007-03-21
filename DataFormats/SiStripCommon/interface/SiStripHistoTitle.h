@@ -1,3 +1,5 @@
+// Last commit: $Id: $
+
 #ifndef DataFormats_SiStripCommon_SiStripHistoTitle_H
 #define DataFormats_SiStripCommon_SiStripHistoTitle_H
 

@@ -1,3 +1,5 @@
+// Last commit: $Id: $
+
 #ifndef DataFormats_SiStripCommon_ConstantsForLogger_H
 #define DataFormats_SiStripCommon_ConstantsForLogger_H
 
@@ -22,6 +24,7 @@ namespace sistrip {
   static const std::string mlO2O_           = "SiStripO2O";
   static const std::string mlRawToCluster_  = "SiStripRawToCluster";
   static const std::string mlRawToDigi_     = "SiStripRawToDigi";
+  static const std::string mlSummaryPlots_  = "SiStripSummaryPlots";
 
 }
 

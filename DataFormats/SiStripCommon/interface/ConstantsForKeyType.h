@@ -1,3 +1,5 @@
+// Last commit: $Id: $
+
 #ifndef DataFormats_SiStripCommon_ConstantsForKeyType_H
 #define DataFormats_SiStripCommon_ConstantsForKeyType_H
 

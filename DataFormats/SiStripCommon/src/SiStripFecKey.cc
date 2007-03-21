@@ -1,6 +1,4 @@
-// Last commit: $Id: $
-// Latest tag:  $Name: $
-// Location:    $Source: $
+// Last commit: $Id: SiStripFecKey.cc,v 1.3 2007/03/15 17:11:21 bainbrid Exp $
 
 #include "DataFormats/SiStripCommon/interface/SiStripFecKey.h"
 #include "DataFormats/SiStripCommon/interface/ConstantsForHardwareSystems.h"

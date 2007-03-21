@@ -1,3 +1,5 @@
+// Last commit: $Id: $
+
 #ifndef DataFormats_SiStripCommon_ConstantsForCablingSource_H
 #define DataFormats_SiStripCommon_ConstantsForCablingSource_H
 

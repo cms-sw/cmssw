@@ -1,6 +1,4 @@
-// Last commit: $Id: SiStripFedKey.h,v 1.5 2007/03/16 13:39:08 bainbrid Exp $
-// Latest tag:  $Name:  $
-// Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/DataFormats/SiStripCommon/interface/SiStripFedKey.h,v $
+// Last commit: $Id: $
 
 #ifndef DataFormats_SiStripCommon_SiStripFedKey_H
 #define DataFormats_SiStripCommon_SiStripFedKey_H

@@ -1,6 +1,4 @@
-// Last commit: $Id: SiStripFecKey.h,v 1.3 2007/03/15 17:09:30 bainbrid Exp $
-// Latest tag:  $Name: HEAD $
-// Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/DataFormats/SiStripCommon/interface/SiStripFecKey.h,v $
+// Last commit: $Id: $
 
 #ifndef DataFormats_SiStripCommon_SiStripFecKey_H
 #define DataFormats_SiStripCommon_SiStripFecKey_H

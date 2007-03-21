@@ -1,3 +1,5 @@
+// Last commit: $Id: $
+
 #ifndef DataFormats_SiStripCommon_ConstantsForSummaryPlots_H
 #define DataFormats_SiStripCommon_ConstantsForSummaryPlots_H
 

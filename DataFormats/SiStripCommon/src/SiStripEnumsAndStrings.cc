@@ -1,3 +1,5 @@
+// Last commit: $Id: $
+
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
 
 // -----------------------------------------------------------------------------

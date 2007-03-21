@@ -1,6 +1,4 @@
-// Last commit: $Id: SiStripFedKey.cc,v 1.4 2007/03/16 13:39:19 bainbrid Exp $
-// Latest tag:  $Name:  $
-// Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/DataFormats/SiStripCommon/src/SiStripFedKey.cc,v $
+// Last commit: $Id: SiStripFedKey.cc,v 1.5 2007/03/19 09:44:12 bainbrid Exp $
 
 #include "DataFormats/SiStripCommon/interface/SiStripFedKey.h"
 #include "DataFormats/SiStripCommon/interface/ConstantsForHardwareSystems.h"

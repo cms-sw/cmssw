@@ -1,6 +1,4 @@
-// Last commit: $Id: $
-// Latest tag:  $Name: $
-// Location:    $Source: $
+// Last commit: $Id: SiStripDetKey.cc,v 1.4 2007/03/15 17:11:21 bainbrid Exp $
 
 #include "DataFormats/SiStripCommon/interface/SiStripDetKey.h"
 #include "DataFormats/SiStripCommon/interface/ConstantsForHardwareSystems.h"

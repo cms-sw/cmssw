@@ -1,3 +1,5 @@
+// Last commit: $Id: $
+
 #include "DataFormats/SiStripCommon/interface/SiStripHistoTitle.h"
 #include "DataFormats/SiStripCommon/interface/SiStripKey.h"
 #include "DataFormats/SiStripCommon/interface/SiStripFedKey.h"

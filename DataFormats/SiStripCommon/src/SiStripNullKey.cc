@@ -1,6 +1,4 @@
-// Last commit: $Id: $
-// Latest tag:  $Name: $
-// Location:    $Source: $
+// Last commit: $Id: SiStripNullKey.cc,v 1.1 2007/03/15 17:11:21 bainbrid Exp $
 
 #include "DataFormats/SiStripCommon/interface/SiStripNullKey.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"

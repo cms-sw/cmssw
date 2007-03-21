@@ -1,6 +1,4 @@
 // Last commit: $Id: $
-// Latest tag:  $Name: $
-// Location:    $Source: $
 
 #ifndef DataFormats_SiStripCommon_SiStripDetKey_h
 #define DataFormats_SiStripCommon_SiStripDetKey_h
