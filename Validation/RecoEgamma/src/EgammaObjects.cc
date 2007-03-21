@@ -302,9 +302,11 @@ void EgammaObjects::analyzePhotons( const edm::Event& evt, const edm::EventSetup
   for(HepMC::GenEvent::particle_const_iterator currentParticle = genEvent->particles_begin(); 
       currentParticle != genEvent->particles_end(); currentParticle++ )
   {
-    if(abs((*currentParticle)->pdg_id())==22 && (*currentParticle)->status()==1 && (*currentParticle)->momentum().et() >= EtCut) 
+    if(abs((*currentParticle)->pdg_id())==22 && (*currentParticle)->status()==1 
+&& (*currentParticle)->momentum().e()/ecalEta((*currentParticle)->momentum().eta(), (*currentParticle)->production_vertex()->position().z()/10., 
+(*currentParticle)->production_vertex()->position().perp()/10.) >= EtCut) 
     {
-			HepLorentzVector vtx = (*currentParticle)->production_vertex()->position();
+			HepMC::FourVector vtx = (*currentParticle)->production_vertex()->position();
 			double phiTrue = (*currentParticle)->momentum().phi();
 			double etaTrue = ecalEta((*currentParticle)->momentum().eta(), vtx.z()/10., vtx.perp()/10.);
       double eTrue  = (*currentParticle)->momentum().e();
@@ -462,9 +464,11 @@ void EgammaObjects::analyzeElectrons( const edm::Event& evt, const edm::EventSet
   for(HepMC::GenEvent::particle_const_iterator currentParticle = genEvent->particles_begin(); 
       currentParticle != genEvent->particles_end(); currentParticle++ )
   {
-    if(abs((*currentParticle)->pdg_id())==11 && (*currentParticle)->status()==1 && (*currentParticle)->momentum().et() >= EtCut) 
+    if(abs((*currentParticle)->pdg_id())==11 && (*currentParticle)->status()==1 
+&& (*currentParticle)->momentum().e()/ecalEta((*currentParticle)->momentum().eta(), (*currentParticle)->production_vertex()->position().z()/10., 
+(*currentParticle)->production_vertex()->position().perp()/10.) >= EtCut)
     {
-			HepLorentzVector vtx = (*currentParticle)->production_vertex()->position();
+			HepMC::FourVector vtx = (*currentParticle)->production_vertex()->position();
 			double phiTrue = (*currentParticle)->momentum().phi();
 			double etaTrue = ecalEta((*currentParticle)->momentum().eta(), vtx.z()/10., vtx.perp()/10.);
       double eTrue  = (*currentParticle)->momentum().e();
