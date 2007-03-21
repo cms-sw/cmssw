@@ -2,8 +2,8 @@
  *
  * Digi for ALCT trigger primitives.
  *
- * $Date: 2006/06/01 07:51:29 $
- * $Revision: 1.7 $
+ * $Date: 2006/06/06 16:01:20 $
+ * $Revision: 1.8 $
  *
  * \author N. Terentiev, CMU
  */
@@ -42,6 +42,7 @@ void CSCALCTDigi::clear() {
   keywire_  = 0;
   bx_       = 0;
   trknmb_   = 0;
+  fullbx_   = 0;
 }
 
 bool CSCALCTDigi::operator > (const CSCALCTDigi& rhs) const {

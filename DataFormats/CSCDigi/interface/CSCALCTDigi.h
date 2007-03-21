@@ -5,8 +5,8 @@
  *
  * Digi for ALCT trigger primitives. 
  *
- * $Date: 2006/11/17 17:45:11 $
- * $Revision: 1.9 $
+ * $Date: 2006/12/01 19:05:48 $
+ * $Revision: 1.10 $
  *
  * \author N. Terentiev, CMU
  */
@@ -54,6 +54,12 @@ class CSCALCTDigi {
   /// Set track number (1,2) after sorting ALCTs.
   void setTrknmb(const uint16_t number) {trknmb_ = number;}
 
+  /// return 12-bit full BX.
+  int getFullBX() const {return fullbx_ ;}
+
+  /// Set 12-bit full BX.
+  void setFullBX(const uint16_t fullbx) {fullbx_ = fullbx;}
+
   /// True if the first ALCT has a larger quality, or if it has the same
   /// quality but a larger wire group.
   bool operator >  (const CSCALCTDigi&) const;
@@ -79,6 +85,7 @@ class CSCALCTDigi {
   uint16_t keywire_    ;
   uint16_t bx_         ;
   uint16_t trknmb_     ;
+  uint16_t fullbx_     ;
 };
 
 #include<iostream>

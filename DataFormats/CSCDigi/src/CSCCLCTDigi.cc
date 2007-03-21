@@ -2,8 +2,8 @@
  *
  * Digi for CLCT trigger primitives.
  *
- * $Date: 2006/06/20 14:47:50 $
- * $Revision: 1.9 $
+ * $Date: 2006/11/09 10:51:10 $
+ * $Revision: 1.10 $
  *
  * \author N. Terentiev, CMU
  */
@@ -46,6 +46,7 @@ void CSCCLCTDigi::clear() {
   cfeb_      = 0;
   bx_        = 0;
   trknmb_    = 0;
+  fullbx_   = 0;
 }
 
 bool CSCCLCTDigi::operator > (const CSCCLCTDigi& rhs) const {

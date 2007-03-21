@@ -5,8 +5,8 @@
  *
  * Digi for CLCT trigger primitives. 
  *
- * $Date: 2006/06/20 10:26:42 $
- * $Revision: 1.8 $
+ * $Date: 2006/11/17 17:45:11 $
+ * $Revision: 1.9 $
  *
  * \author N. Terentiev, CMU
  */
@@ -71,6 +71,13 @@ class CSCCLCTDigi {
   /// Set track number (1,2) after sorting CLCTs.
   void setTrknmb(const uint16_t number) {trknmb_ = number;}
 
+  /// return 12-bit full BX.
+  int getFullBX() const {return fullbx_ ;}
+
+  /// Set 12-bit full BX.
+  void setFullBX(const uint16_t fullbx) {fullbx_ = fullbx;}
+
+
   /// True if the left-hand side has a larger "quality".  Full definition
   /// of "quality" depends on quality word itself, pattern type, and strip
   /// number.
@@ -99,6 +106,8 @@ class CSCCLCTDigi {
   uint16_t cfeb_       ;
   uint16_t bx_         ;
   uint16_t trknmb_     ;
+  uint16_t fullbx_     ;
+
 };
 
 #include<iostream>
