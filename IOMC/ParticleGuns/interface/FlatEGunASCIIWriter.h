@@ -19,13 +19,13 @@
 #include <string>
 
 #include "HepPDT/defs.h"
-#include "HepPDT/DefaultConfig.hh"
+//#include "HepPDT/DefaultConfig.hh"
 #include "HepPDT/TableBuilder.hh"
-#include "HepPDT/ParticleDataTableT.hh"
+#include "HepPDT/ParticleDataTable.hh"
 
 #include "HepMC/GenEvent.h"
 
-#include "HepMC/WriteHepMC.h"
+//#include "HepMC/WriteHepMC.h"
 
 namespace edm 
 {
@@ -65,7 +65,8 @@ namespace edm
          // (for particle/event construction)
          std::string    fPDGTablePath ;
          std::string    fPDGTableName ; 
-         DefaultConfig::ParticleDataTable* fPDGTable;
+         //DefaultConfig::ParticleDataTable* fPDGTable;
+	 HepPDT::ParticleDataTable* fPDGTable ;
 	 
          std::string    fOutFileName;
 	 std::ofstream* fOutStream ;

@@ -9,9 +9,10 @@
 #include <string>
 
 #include "HepPDT/defs.h"
-#include "HepPDT/DefaultConfig.hh"
+// #include "HepPDT/DefaultConfig.hh"
 #include "HepPDT/TableBuilder.hh"
-#include "HepPDT/ParticleDataTableT.hh"
+//#include "HepPDT/ParticleDataTableT.hh"
+#include "HepPDT/ParticleDataTable.hh"
 
 #include "HepMC/GenEvent.h"
 
@@ -60,7 +61,8 @@ namespace edm
     //std::string      fPDGTableName ; 
     // DefaultConfig::ParticleDataTable* fPDGTable;
     // DefaultConfig::ParticleDataTable* fTestTable ;
-    ESHandle<DefaultConfig::ParticleDataTable> fPDGTable ;
+    // ESHandle<DefaultConfig::ParticleDataTable> fPDGTable ;
+    ESHandle<HepPDT::ParticleDataTable> fPDGTable ;
             	    	
     int              fVerbosity ;
 

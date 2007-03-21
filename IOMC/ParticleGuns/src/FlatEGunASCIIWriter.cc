@@ -34,7 +34,7 @@ using namespace std;
       
 FlatEGunASCIIWriter::FlatEGunASCIIWriter( const ParameterSet& pset )
    : fEvt(0), 
-     fPDGTable( new DefaultConfig::ParticleDataTable("PDG Table") ),
+     fPDGTable( new HepPDT::ParticleDataTable("PDG Table") ),
      fOutFileName( pset.getUntrackedParameter<string>("OutFileName","FlatEGunHepMC.dat") ),
      fOutStream( new ofstream( fOutFileName.c_str() ) ),
      fCurrentEvent(0)
@@ -100,7 +100,7 @@ void FlatEGunASCIIWriter::beginJob( const EventSetup& )
   // the tb dtor fills fPDGTable
 */
    fPDGTable->writeParticleData( *fOutStream ) ;
-   HepMC::writeLegend( *fOutStream ) ;
+   //HepMC::writeLegend( *fOutStream ) ;
    
    return ;
 
@@ -132,7 +132,7 @@ void FlatEGunASCIIWriter::analyze( const Event& ,
        double energy = RandFlat::shoot( fMinE, fMaxE ) ;
        double eta    = RandFlat::shoot( fMinEta, fMaxEta ) ;
        double phi    = RandFlat::shoot( fMinPhi, fMaxPhi ) ;
-       const DefaultConfig::ParticleData* 
+       const HepPDT::ParticleData* 
           PData = fPDGTable->particle(HepPDT::ParticleID(abs(fPartIDs[ip]))) ;
        double mass   = PData->mass().value() ;
        double mom2   = energy*energy - mass*mass ;
@@ -145,9 +145,9 @@ void FlatEGunASCIIWriter::analyze( const Event& ,
        //CLHEP::Hep3Vector p(px,py,pz) ;
        //HepMC::GenParticle* Part = 
        //    new HepMC::GenParticle(CLHEP::HepLorentzVector(p,energy),fPartIDs[ip],1);
-       HepMC::FourVector p(px,py,pz);
+       HepMC::FourVector p(px,py,pz,energy);
        HepMC::GenParticle* Part = 
-           new HepMC::GenParticle(HepMC::FourVector(p,energy),fPartIDs[ip],1);
+           new HepMC::GenParticle(p,fPartIDs[ip],1);
        Vtx->add_particle_out(Part);
    }
    fEvt->add_vertex( Vtx ) ;
