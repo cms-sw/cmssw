@@ -1,7 +1,7 @@
 // CLHEP Headers
 #include "CLHEP/config/CLHEP.h"
 #include "CLHEP/Vector/LorentzVector.h"
-#include "CLHEP/HepMC/include/PythiaWrapper6_2.h"
+#include "HepMC/PythiaWrapper6_2.h"
 // FAMOS Headers
 #include "FastSimulation/ParticlePropagator/interface/ParticlePropagator.h"
 #include "FastSimulation/ParticleDecay/interface/Pythia6Decays.h"

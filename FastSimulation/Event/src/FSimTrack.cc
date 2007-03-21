@@ -1,6 +1,6 @@
 //#include "CommonReco/PatternTools/interface/TTrack.h"
 
-#include "CLHEP/HepMC/GenParticle.h"
+#include "HepMC/GenParticle.h"
 #include "FastSimulation/Event/interface/FBaseSimEvent.h"
 #include "FastSimulation/Event/interface/FSimVertex.h"
 #include "FastSimulation/Event/interface/FSimTrack.h"

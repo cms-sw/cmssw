@@ -18,7 +18,7 @@
 #include "FastSimulation/Calorimetry/interface/CalorimetryManager.h"
 #include "FastSimulation/TrajectoryManager/interface/TrajectoryManager.h"
 
-#include "CLHEP/HepMC/GenEvent.h"
+#include "HepMC/GenEvent.h"
 
 #include <iostream>
 #include <memory>

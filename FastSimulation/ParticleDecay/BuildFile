@@ -1,4 +1,5 @@
 <use name=clhep>
+<use name=hepmc>
 <use name=pythia>
 <use name=FastSimulation/ParticlePropagator>
 <use name=f77compiler>

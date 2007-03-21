@@ -16,7 +16,7 @@
 #include "FastSimulation/Event/interface/FSimEvent.h"
 #include "FastSimulation/Utilities/interface/RandomEngine.h"
 
-#include "CLHEP/HepMC/GenEvent.h"
+#include "HepMC/GenEvent.h"
 
 #include <iostream>
 #include <memory>

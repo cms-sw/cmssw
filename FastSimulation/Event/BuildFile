@@ -5,8 +5,10 @@
 <use name=FastSimulation/Utilities>
 <use name=SimDataFormats/Track>
 <use name=SimDataFormats/Vertex>
+<use name=SimDataFormats/HepMCProduct>
 <use name=SimGeneral/HepPDTRecord>
 <use name=clhep>
+<use name=hepmc>
 <export>
   <use name=DataFormats/Provenance>
   <use name=FWCore/ParameterSet>

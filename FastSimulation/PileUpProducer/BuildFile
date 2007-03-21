@@ -9,7 +9,7 @@
 <use name=IOPool/Input>
 <use name=SimDataFormats/HepMCProduct>
 <use name=boost>
-<use name=clhep>
+<use name=hepmc>
 <flags SEAL_PLUGIN_NAME="FastSimulationPileUpProducer">
 <export>
   <use name=FWCore/Framework>

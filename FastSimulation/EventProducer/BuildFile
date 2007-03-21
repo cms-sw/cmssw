@@ -30,7 +30,8 @@
 <use name=SimDataFormats/TrackingHit>
 <use name=SimDataFormats/Vertex>
 <use name=SimGeneral/HepPDTRecord>
-<use name=clhep>
+#<use name=clhep>
+<use name=hepmc>
 <flags SEAL_PLUGIN_NAME="FastSimulationEventProducer">
 <export>
   <use name=DataFormats/Common>

@@ -27,7 +27,7 @@
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 
 // CLHEP headers
-#include "CLHEP/HepMC/GenEvent.h"
+#include "HepMC/GenEvent.h"
 
 // FAMOS Header
 #include "FastSimulation/Utilities/interface/RandomEngine.h"
@@ -171,7 +171,8 @@ FamosManager::reconstruct(const HepMC::GenEvent* evt) {
 
     // Fill the event from the original generated event
     mySimEvent->fill(*evt,id);
-    //    mySimEvent->printMCTruth(*evt);
+    mySimEvent->printMCTruth(*evt);
+    std::cout << "----------------------------------------" << std::endl;
 
     // Get the pileup events and add the particles to the main event
     if ( myPileUpProducer ) myPileUpProducer->produce();
@@ -179,7 +180,10 @@ FamosManager::reconstruct(const HepMC::GenEvent* evt) {
 
     // And propagate the particles through the detector
     myTrajectoryManager->reconstruct();
-    //    mySimEvent->print();
+    mySimEvent->print();
+    std::cout << "=========================================" 
+	      << std::endl
+	      << std::endl;
 
     if ( myCalorimetry ) myCalorimetry->reconstruct();
 
