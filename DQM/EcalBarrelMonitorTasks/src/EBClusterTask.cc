@@ -1,8 +1,8 @@
 /*
  * \file EBClusterTask.cc
  *
- * $Date: 2007/03/21 16:10:40 $
- * $Revision: 1.11 $
+ * $Date: 2007/03/21 16:38:44 $
+ * $Revision: 1.12 $
  * \author G. Della Ricca
  *
 */
@@ -100,10 +100,10 @@ void EBClusterTask::setup(void){
     meBCry_ = dbe->book1D(histo, histo, 100, 0., 100.);
 
     sprintf(histo, "EBCLT basic cluster energy map");
-    meBEneMap_ = dbe->bookProfile2D(histo, histo, 170, -1.479, 1.479, 360, -M_PI, M_PI, 100, 0., 500., "s");
+    meBEneMap_ = dbe->bookProfile2D(histo, histo, 34, -1.479, 1.479, 72, -M_PI, M_PI, 100, 0., 500., "s");
 
     sprintf(histo, "EBCLT basic cluster number map");
-    meBNumMap_ = dbe->book2D(histo, histo, 170, -1.479, 1.479, 360, -M_PI, M_PI);
+    meBNumMap_ = dbe->book2D(histo, histo, 34, -1.479, 1.479, 72, -M_PI, M_PI);
 
     sprintf(histo, "EBCLT super cluster energy");
     meSEne_ = dbe->book1D(histo, histo, 100, 0., 500.);
@@ -115,10 +115,10 @@ void EBClusterTask::setup(void){
     meSSiz_ = dbe->book1D(histo, histo, 20, 0., 20.);
 
     sprintf(histo, "EBCLT super cluster energy map");
-    meSEneMap_ = dbe->bookProfile2D(histo, histo, 170, -1.479, 1.479, 360, -M_PI, M_PI, 100, 0., 500., "s");
+    meSEneMap_ = dbe->bookProfile2D(histo, histo, 34, -1.479, 1.479, 72, -M_PI, M_PI, 100, 0., 500., "s");
 
     sprintf(histo, "EBCLT super cluster number map");
-    meSNumMap_ = dbe->book2D(histo, histo, 170, -1.479, 1.479, 360, -M_PI, M_PI);
+    meSNumMap_ = dbe->book2D(histo, histo, 34, -1.479, 1.479, 72, -M_PI, M_PI);
 
   }
 
