@@ -137,6 +137,8 @@ class RecoMuonValidator : public edm::EDAnalyzer
   double minPhi_, maxPhi_;
   double widthStaErrQPt_, widthGlbErrQPt_, widthSeedErrQPt_;
   double widthPull_;
+  double staMinPt_, staMinRho_, staMinR_;
+  double tkMinP_, tkMinPt_;
 
   edm::InputTag simTrackLabel_;
   edm::InputTag staTrackLabel_;

@@ -46,6 +46,14 @@ RecoMuonValidator::RecoMuonValidator(const ParameterSet& pset)
   tkTrackLabel_  = pset.getParameter<InputTag>("TkTrack");
   seedLabel_     = pset.getParameter<InputTag>("Seed");
 
+  // Track Cuts
+  staMinPt_  = pset.getParameter<double>("staMinPt");
+  staMinRho_ = pset.getParameter<double>("staMinRho");
+  staMinR_   = pset.getParameter<double>("staMinR");
+
+  tkMinPt_ = pset.getParameter<double>("tkMinPt");
+  tkMinP_  = pset.getParameter<double>("tkMinP");
+
   // the service parameters
   ParameterSet serviceParameters 
     = pset.getParameter<ParameterSet>("ServiceParameters");
@@ -153,7 +161,7 @@ void RecoMuonValidator::endJob()
 void RecoMuonValidator::analyze(const Event& event, const EventSetup& eventSetup)
 {
   theMuonService_->update(eventSetup);
-
+    
   // get a SimMuon Track from the event.
   int nSimMuon = 0;
   Handle<SimTrackContainer> simTracks;
@@ -212,11 +220,11 @@ void RecoMuonValidator::analyze(const Event& event, const EventSetup& eventSetup
     Handle<TrackCollection> tkTracks;
     event.getByLabel(tkTrackLabel_, tkTracks);
     if ( tkTracks->size() > 0 
-         && staInfo.second.pt() > 1.0
-         && staInfo.second.innerMomentum().Rho() > 1.0
-         && staInfo.second.innerMomentum().R() > 2.5 ) {  
+         && staInfo.second.track().pt() > staMinPt_
+         && staInfo.second.track().innerMomentum().Rho() > staMinRho_
+         && staInfo.second.track().innerMomentum().R() > staMinR_ ) {  
       pair<TSOS, TransientTrack> tkInfo = matchTrack(simTrack, tkTracks);
-      if ( tkInfo.second.p() > 2.5 && tkInfo.second.pt() > 1.0 ) {
+      if ( tkInfo.second.track().p() > tkMinP_ && tkInfo.second.track().pt() > tkMinPt_ ) {
         hTkEtaVsPhi_->Fill(simEta, simPhi);
       }
     }
