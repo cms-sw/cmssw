@@ -70,28 +70,24 @@ bool FUShmReader::fillRawData(EventID& eID,
   
   // discard old event
   if(0!=event_) {
-    FUShmBufferCell* oldCell=shmBuffer_->cell(fuResourceId_);
-    assert(oldCell->isProcessing());
-    oldCell->setStateProcessed();
-    shmBuffer_->scheduleForDiscard(oldCell);
+    shmBuffer_->scheduleRawCellForDiscard(fuResourceId_);
     event_ = 0;
   }
-
+  
   // wait for an event to become available, retrieve it
-  shmBuffer_->sem_print();
-  shmBuffer_->waitReaderSem();
-  FUShmBufferCell* newCell=shmBuffer_->currentReaderCell();
+  FUShmRawCell* newCell=shmBuffer_->rawCellToRead();
   
   // if the event is 'empty', the reader is being told to shut down!
-  if (newCell->isEmpty()) {
+  evt::State_t state=shmBuffer_->evtState(newCell->index());
+  if (state==evt::EMPTY) {
     edm::LogInfo("ShutDown")<<"Received empty event, shut down."<<endl;
-    shmBuffer_->scheduleForDiscard(newCell);
-    FUShmBuffer::shm_detach((void*)shmBuffer_);
+    shmBuffer_->scheduleRawEmptyCellForDiscard(newCell);
+    shmdt(shmBuffer_);
     shmBuffer_=0;
     event_=0;
     return false;
   }
-  else assert(newCell->isWritten());
+  else assert(state==evt::RAWREADING);
   
   // read the event data into the fwk raw data format
   evtNumber_   =newCell->evtNumber();
@@ -106,11 +102,11 @@ bool FUShmReader::fillRawData(EventID& eID,
     }
   }
   
-  // set cell state to 'processing' and hand back over to the processor
-  newCell->setStateProcessing();
+  // reading the cell is finished (new state will be 'isProcessing')
+  shmBuffer_->finishReadingRawCell(newCell);
   eID=EventID(runNumber_,evtNumber_);
   data=event_;
-
+  
   return true;
 }
 
