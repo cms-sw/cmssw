@@ -1,6 +1,7 @@
 <use name=FWCore/Framework>
 <use name=Foundation/PluginManager>
 <use name=FWCore/ParameterSet>
+<use name = hepmc> 
 <use name=clhep>
 <use name=root>
 <use name=MagneticField/Engine>
@@ -37,4 +38,7 @@
    <use name=RecoEgamma/EgammaElectronAlgos>
    <use name=RecoTracker/CkfPattern>
    <use name=RecoTracker/TrackProducer>
+   <use name = hepmc> 
+   <use name=clhep>
+   <use name=root>
 </export>

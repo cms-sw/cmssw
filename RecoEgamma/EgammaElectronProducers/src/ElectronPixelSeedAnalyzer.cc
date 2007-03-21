@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronPixelSeedAnalyzer.cc,v 1.7 2006/10/13 16:01:45 uberthon Exp $
+// $Id: ElectronPixelSeedAnalyzer.cc,v 1.8 2007/01/26 13:05:03 uberthon Exp $
 //
 //
 
@@ -45,6 +45,8 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "HepMC/GenParticle.h"
+#include "HepMC/SimpleVector.h"
 
 #include <iostream>
 #include "TFile.h"
@@ -203,10 +205,13 @@ ElectronPixelSeedAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& i
     for (HepMC::GenEvent::vertex_const_iterator vertIter = MCEvt->vertices_begin();
      vertIter != MCEvt->vertices_end(); ++vertIter) {
 
-      CLHEP::HepLorentzVector creation = (*partIter)->CreationVertex();
-      CLHEP::HepLorentzVector momentum = (*partIter)->Momentum();
-      HepPDT::ParticleID id = (*partIter)->particleID();  // electrons and positrons are 11 and -11
-      LogDebug("")  << "MC particle id " << id.pid() << ", creationVertex " << creation << " cm, initialMomentum " << momentum << " GeV/c" << std::endl;
+      //      CLHEP::HepLorentzVector creation = (*partIter)->CreationVertex();
+      HepMC::GenVertex * creation = (*partIter)->production_vertex();
+      //      CLHEP::HepLorentzVector momentum = (*partIter)->Momentum();
+      HepMC::FourVector momentum = (*partIter)->momentum();
+      //      HepPDT::ParticleID id = (*partIter)->particleID();  // electrons and positrons are 11 and -11
+       int id = (*partIter)->pdg_id();  // electrons and positrons are 11 and -11
+     LogDebug("")  << "MC particle id " << id << ", creationVertex " << (*creation) << " cm, initialMomentum " << momentum << " GeV/c" << std::endl;
       if (id == 11 || id == -11) {
 	histptMC_->Fill(momentum.perp());
 	histetaMC_->Fill(momentum.pseudoRapidity());
