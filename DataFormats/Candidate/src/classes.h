@@ -8,6 +8,7 @@
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/Common/interface/AssociationVector.h"
 #include "DataFormats/Candidate/interface/CandMatchMap.h"
+#include "DataFormats/Candidate/interface/CandMatchMapMany.h"
 
 namespace {
   namespace {
@@ -33,5 +34,8 @@ namespace {
     reco::CandMatchMap cmm1;
     edm::Wrapper<reco::CandMatchMap> wcmm1;
     edm::helpers::KeyVal<edm::RefProd<edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> > > ,edm::RefProd<edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> > > > kv2;
+
+    reco::CandMatchMapMany cmm2;
+    edm::Wrapper<reco::CandMatchMapMany> wcmm2;
   }
 }
