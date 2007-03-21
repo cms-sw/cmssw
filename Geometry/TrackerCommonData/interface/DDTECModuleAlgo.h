@@ -1,3 +1,4 @@
+
 #ifndef DD_TECModuleAlgo_h
 #define DD_TECModuleAlgo_h
 
@@ -22,7 +23,18 @@ class DDTECModuleAlgo : public DDAlgorithm {
   void execute();
 
 private:
-
+  //this positions  toPos in mother
+  void doPos( DDLogicalPart toPos,  DDLogicalPart mother, int copyNr,
+			  double x, double y, double z, 
+			  std::string rotName);                     
+  void doPos( DDLogicalPart toPos,
+			  double x, double y, double z, 
+			  std::string rotName);                     
+  //variables:
+  bool                     isStereo;
+  bool                     isRing6;
+  //  DDLogicalPart*           motherModule;         // pointer to module mother object
+  //  int                      isStereo;       // == 0 for normal == 1 for stereo
   std::string              idNameSpace;    //Namespace of this and ALL parts
   std::string              genMat;         //General material name
   double                   moduleThick;    //Module thickness
@@ -37,33 +49,61 @@ private:
   std::string              topFrameMat;    //Top frame     material
   double                   topFrameHeight; //              height
   double                   topFrameThick;  //              thickness
-  std::vector<double>      topFrameZ;      //              z-positions
+  double                   topFrameTopWidth;//             Width at the top
+  double                   topFrameBotWidth;//             Width at the bottom
+  double                   topFrame2Width;  //  Stereo:2ndPart   Width
+  double                   topFrame2LHeight;//             left  height
+  double                   topFrame2RHeight;//             right height
+  double                   topFrameZ;      //              z-positions
   std::string              sideFrameMat;   //Side frame    material
   double                   sideFrameThick; //              thickness
-  std::vector<double>      sideFrameZ;     //              z-positions
+  double                   sideFrameLWidth; //    Left     Width (for stereo modules upper one)
+  double                   sideFrameLWidthLow;//           Width (only for stereo modules: lower Width)
+  double                   sideFrameLHeight;//             Height
+  double                   sideFrameLtheta;//              angle of the trapezoid shift
+  double                   sideFrameRWidth; //    Right    Width (for stereo modules upper one)
+  double                   sideFrameRWidthLow;//           Width (only for stereo modules: lower Width)
+  double                   sideFrameRHeight;//             Height
+  double                   sideFrameRtheta;//              angle of the trapezoid shift
+  std::vector<double>      siFrSuppBoxWidth;//    Supp.Box Width
+  std::vector<double>      siFrSuppBoxHeight;//            Height
+  std::vector<double>      siFrSuppBoxYPos;//              y-position of the supplies box (with HV an thermal sensor...)
+  double                   sideFrameZ;     //              z-positions
+  double                   siFrSuppBoxThick;//             thickness
+  std::string              siFrSuppBoxMat; //              material
   std::string              waferMat;       //Wafer         material
-  double                   sideWidth;      //              widths on the side
-  std::vector<std::string> waferRot;       //              rotation matrix
+  double                   waferPosition;  //              position of the wafer (was formaly done by adjusting topFrameHeigt)
+  double                   sideWidthTop;   //              widths on the side Top
+  double                   sideWidthBottom;//                                 Bottom
+  std::string              waferRot;       //              rotation matrix
   std::string              activeMat;      //Sensitive     material
   double                   activeHeight;   //              height
-  std::vector<double>      activeThick;    //              thickness
+  double                   activeThick;    //              thickness
   std::string              activeRot;      //              Rotation matrix
-  std::vector<double>      activeZ;        //              z-positions
+  double                   activeZ;        //              z-positions
   std::string              hybridMat;      //Hybrid        material
   double                   hybridHeight;   //              height
   double                   hybridWidth;    //              width
   double                   hybridThick;    //              thickness
-  std::vector<double>      hybridZ;        //              z-positions
+  double                   hybridZ;        //              z-positions
   std::string              pitchMat;       //Pitch adapter material
+  double                   pitchWidth;     //              width
   double                   pitchHeight;    //              height
   double                   pitchThick;     //              thickness
-  std::vector<double>      pitchZ;         //              z-positions
+  double                   pitchZ;         //              z-positions
   std::string              pitchRot;       //              rotation matrix
   std::string              bridgeMat;      //Bridge        material
   double                   bridgeWidth;    //              width 
   double                   bridgeThick;    //              thickness
   double                   bridgeHeight;   //              height
   double                   bridgeSep;      //              separation
+  std::vector<double>      siReenforceHeight;// SiReenforcement Height
+  std::vector<double>      siReenforceWidth;//             Width
+  std::vector<double>      siReenforceYPos;//              Y - Position
+  //  double                   siReenforceZPos;//              Z - Position done by the side frames Z Position an t
+  double                   siReenforceThick;//             Thick
+  std::string              siReenforceMat;  //             Materieal
+  double                   posCorrectionR;  //  Correct Positions of the Stereo Modules radial coordinate
 };
 
 #endif

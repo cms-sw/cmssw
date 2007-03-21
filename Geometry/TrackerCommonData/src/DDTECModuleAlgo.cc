@@ -1,6 +1,7 @@
+
 ///////////////////////////////////////////////////////////////////////////////
-// File: DDTECModuleAlgo.cc
-// Description: Creation of a TEC Module
+// File: DDTECModuleAlgo	.cc
+// Description: Creation of a TEC Test
 ///////////////////////////////////////////////////////////////////////////////
 
 #include <cmath>
@@ -18,10 +19,12 @@
 #include "CLHEP/Units/SystemOfUnits.h"
 
 
-DDTECModuleAlgo::DDTECModuleAlgo():
-  topFrameZ(0),sideFrameZ(0),waferRot(0),activeThick(0),activeZ(0),hybridZ(0),
-  pitchZ(0) {
-  LogDebug("TECGeom") << "DDTECModuleAlgo info: Creating an instance";
+DDTECModuleAlgo::DDTECModuleAlgo()
+//:
+//  topFrameZ(0),sideFrameZ(0),waferRot(0),activeThick(0),activeZ(0),hybridZ(0),
+//  pitchZ(0) 
+{
+  edm::LogInfo("TECGeom") << "DDTECModuleAlgo info: Creating an instance";
 }
 
 DDTECModuleAlgo::~DDTECModuleAlgo() {}
@@ -48,6 +51,8 @@ void DDTECModuleAlgo::initialize(const DDNumericArguments & nArgs,
   dlBottom       = nArgs["DlBottom"];
   dlHybrid       = nArgs["DlHybrid"];
 
+  isRing6 = dlHybrid < dlTop;
+
   LogDebug("TECGeom") << "DDTECModuleAlgo debug: ModuleThick " << moduleThick
 		      << " Detector Tilt " << detTilt/deg << " Height "
 		      << fullHeight << " dl(Top) " << dlTop << " dl(Bottom) "
@@ -62,67 +67,88 @@ void DDTECModuleAlgo::initialize(const DDNumericArguments & nArgs,
 
   topFrameMat    = sArgs["TopFrameMaterial"];
   topFrameHeight = nArgs["TopFrameHeight"];
+  topFrameTopWidth= nArgs["TopFrameTopWidth"];
+  topFrameBotWidth= nArgs["TopFrameBotWidth"];
   topFrameThick  = nArgs["TopFrameThick"];
-  topFrameZ      = vArgs["TopFrameZ"];
+  topFrameZ      = nArgs["TopFrameZ"];
   LogDebug("TECGeom") << "DDTECModuleAlgo debug: Top Frame Material " 
 		      << topFrameMat << " Height " << topFrameHeight 
-		      << " Thickness " << topFrameThick <<" positioned at";
-  for (int i = 0; i < (int)(topFrameZ.size()); i++)
-    LogDebug("TECGeom") << "\t[" << i << "] = " << topFrameZ[i];
+		      << " Top Width " << topFrameTopWidth << " Bottom Width "
+		      << topFrameTopWidth
+		      << " Thickness " << topFrameThick <<" positioned at"
+		      << topFrameZ;
 
   sideFrameMat   = sArgs["SideFrameMaterial"];
   sideFrameThick = nArgs["SideFrameThick"];
-  sideFrameZ     = vArgs["SideFrameZ"];
+  sideFrameLWidth =  nArgs["SideFrameLWidth"]; 
+  sideFrameLHeight = nArgs["SideFrameLHeight"];
+  sideFrameLtheta =  nArgs["SideFrameLtheta"];
+  sideFrameRWidth =  nArgs["SideFrameRWidth"]; 
+  sideFrameRHeight = nArgs["SideFrameRHeight"];
+  sideFrameRtheta =  nArgs["SideFrameRtheta"];
+  siFrSuppBoxWidth  = vArgs["SiFrSuppBoxWidth"];
+  siFrSuppBoxHeight = vArgs["SiFrSuppBoxHeight"];
+  siFrSuppBoxYPos = vArgs["SiFrSuppBoxYPos"];
+  siFrSuppBoxThick =  nArgs["SiFrSuppBoxThick"]; 
+  siFrSuppBoxMat = sArgs["SiFrSuppBoxMaterial"]; 
+  sideFrameZ     = nArgs["SideFrameZ"];
   LogDebug("TECGeom") << "DDTECModuleAlgo debug : Side Frame Material " 
-		      << sideFrameMat << " Thickness " << sideFrameThick 
-		      << " positioned at";
-  for (int i = 0; i < (int)(sideFrameZ.size()); i++)
-    LogDebug("TECGeom") << "\t[" << i << "] = " << sideFrameZ[i];
-
+		      << sideFrameMat << " Thickness " << sideFrameThick
+		      << " left Leg's Width: " << sideFrameLWidth
+		      << " left Leg's Height: " << sideFrameLHeight
+		      << " left Leg's tilt(theta): " << sideFrameLtheta
+		      << " right Leg's Width: " << sideFrameRWidth
+		      << " right Leg's Height: " << sideFrameRHeight
+		      << " right Leg's tilt(theta): " << sideFrameRtheta
+		      << "Supplies Box's Material: " << siFrSuppBoxMat
+		      << " positioned at" << sideFrameZ;
+  for (int i= 0; i < (int)(siFrSuppBoxWidth.size());i++){
+    LogDebug("TECGeom") << " Supplies Box"<<i<<"'s Width: " << siFrSuppBoxWidth[i]
+			<< " Supplies Box"<<i<<"'s Height: " << siFrSuppBoxHeight[i]
+			<< " Supplies Box"<<i<<"'s y Position: " << siFrSuppBoxYPos[i];
+  }
   waferMat       = sArgs["WaferMaterial"];
-  sideWidth      = nArgs["SideWidth"];
-  waferRot       =vsArgs["WaferRotation"];
+  sideWidthTop   = nArgs["SideWidthTop"];
+  sideWidthBottom= nArgs["SideWidthBottom"];
+  waferRot       = sArgs["WaferRotation"];
+  waferPosition  = nArgs["WaferPosition"];
   LogDebug("TECGeom") << "DDTECModuleAlgo debug: Wafer Material " 
-		      << waferMat << " Side Width " << sideWidth 
-		      << " positioned with rotation"	<< " matrix:";
-  for (int i=0; i<(int)(waferRot.size()); i++)
-    LogDebug("TECGeom") << "\t[" << i << "] = " << waferRot[i];
+		      << waferMat << " Side Width Top" << sideWidthTop
+		      << " Side Width Bottom" << sideWidthBottom
+		      << " and positioned at "<<waferPosition
+		      << " positioned with rotation"	<< " matrix:"
+		      << waferRot;
 
   activeMat      = sArgs["ActiveMaterial"];
   activeHeight   = nArgs["ActiveHeight"];
-  activeThick    = vArgs["ActiveThick"];
+  activeThick    = nArgs["ActiveThick"];
   activeRot      = sArgs["ActiveRotation"];
-  activeZ        = vArgs["ActiveZ"];
+  activeZ        = nArgs["ActiveZ"];
   LogDebug("TECGeom") << "DDTECModuleAlgo debug: Active Material " 
 		      << activeMat << " Height " << activeHeight 
-		      << " rotated by " << activeRot << " Thickness/Z";
-  for (int i=0; i<(int)(activeThick.size()); i++)
-    LogDebug("TECGeom") << "\t[" << i << "] = " << activeThick[i] << "/" 
-			<< activeZ[i];
+		      << " rotated by " << activeRot << " Thickness/Z"
+		      << activeThick << "/"	<< activeZ;
 
   hybridMat      = sArgs["HybridMaterial"];
   hybridHeight   = nArgs["HybridHeight"];
   hybridWidth    = nArgs["HybridWidth"];
   hybridThick    = nArgs["HybridThick"];
-  hybridZ        = vArgs["HybridZ"];
+  hybridZ        = nArgs["HybridZ"];
   LogDebug("TECGeom") << "DDTECModuleAlgo debug: Hybrid Material " 
 		      << hybridMat << " Height " << hybridHeight 
 		      << " Width " << hybridWidth << " Thickness " 
-		      << hybridThick << " Z";
-  for (int i=0; i<(int)(hybridZ.size()); i++)
-    LogDebug("TECGeom") << "\t[" << i << "] = " << hybridZ[i];
+		      << hybridThick << " Z"  << hybridZ;
 
   pitchMat       = sArgs["PitchMaterial"];
   pitchHeight    = nArgs["PitchHeight"];
   pitchThick     = nArgs["PitchThick"];
-  pitchZ         = vArgs["PitchZ"];
+  pitchWidth     = nArgs["PitchWidth"];
+  pitchZ         = nArgs["PitchZ"];
   pitchRot       = sArgs["PitchRotation"];
   LogDebug("TECGeom") << "DDTECModuleAlgo debug: Pitch Adapter Material " 
 		      << pitchMat << " Height " << pitchHeight 
 		      << " Thickness " << pitchThick << " position with "
-		      << " rotation " << pitchRot << " at Z";
-  for (int i=0; i<(int)(pitchZ.size()); i++)
-    LogDebug("TECGeom") << "\t[" << i << "] = " << pitchZ[i];
+		      << " rotation " << pitchRot << " at Z" << pitchZ;
 
   bridgeMat      = sArgs["BridgeMaterial"];
   bridgeWidth    = nArgs["BridgeWidth"];
@@ -133,279 +159,445 @@ void DDTECModuleAlgo::initialize(const DDNumericArguments & nArgs,
 		      << bridgeMat << " Width " << bridgeWidth 
 		      << " Thickness " << bridgeThick << " Height " 
 		      << bridgeHeight << " Separation "<< bridgeSep;
+
+  siReenforceWidth  = vArgs["SiReenforcementWidth"];
+  siReenforceHeight = vArgs["SiReenforcementHeight"];
+  siReenforceYPos =   vArgs["SiReenforcementPosY"];
+  siReenforceThick =  nArgs["SiReenforcementThick"]; 
+  //  siReenforceZPos =   nArgs["SiReenforcementPosZ"]; 
+  siReenforceMat   =  sArgs["SiReenforcementMaterial"];
+ 
+  LogDebug("TECGeom") << "FALTBOOT DDTECModuleAlgo debug : Si-Reenforcement Material " 
+		      << sideFrameMat << " Thickness " << siReenforceThick;
+    //		      << " z-Position "<< siReenforceZPos;
+    
+  for (int i= 0; i < (int)(siReenforceWidth.size());i++){
+    LogDebug("TECGeom") << " SiReenforcement"<<i<<"'s Width: " <<     siReenforceWidth[i]
+			<< " SiReenforcement"<<i<<"'s Height: " <<    siReenforceHeight[i]
+			<< " SiReenforcement"<<i<<"'s y Position: " <<siReenforceYPos[i];
+  }
+  
+  //Everything that is normal/stereo specific comes here
+  isStereo = (int)nArgs["isStereo"] == 1;
+  if(!isStereo){
+    LogDebug("TECGeom") << "This is a normal module!"; 
+  }
+  else{
+    LogDebug("TECGeom") << "This is a stereo module!"; 
+    topFrame2LHeight = nArgs["TopFrame2LHeight"];
+    topFrame2RHeight = nArgs["TopFrame2RHeight"];
+    topFrame2Width   = nArgs["TopFrame2Width"];
+
+    LogDebug("TECGeom") << "DDTECModuleAlgo debug: stereo Top Frame 2nd Part left Heigt " 
+			<< topFrame2LHeight << " right Height " << topFrame2RHeight 
+      		        << " Width " << topFrame2Width ;
+
+    sideFrameLWidthLow =  nArgs["SideFrameLWidthLow"]; 
+    sideFrameRWidthLow =  nArgs["SideFrameRWidthLow"]; 
+
+    LogDebug("TECGeom") << " left Leg's lower Width: " << sideFrameLWidthLow
+			<< " right Leg's lower Width: " << sideFrameRWidthLow;
+
+    posCorrectionR =  nArgs["PosCorrectionR"]; 
+    LogDebug("TECGeom") << "Stereo Module Position Correction with R = " << posCorrectionR;
+  }
 }
 
+void DDTECModuleAlgo::doPos( DDLogicalPart toPos,  DDLogicalPart mother, int copyNr,
+							 double x, double y, double z, 
+							 std::string rotName)
+{
+  DDTranslation tran(x,y,z);
+  DDRotation rot;
+  std::string rotstr = DDSplit(rotName).first;
+  std::string rotns; 
+  if (rotstr != "NULL") {
+    rotns = DDSplit(rotName).second;
+    rot   = DDRotation(DDName(rotstr, rotns));
+  }else{
+	rot = DDRotation();
+  }
+	
+  DDpos (toPos, mother, copyNr, tran, rot);
+  LogDebug("TECGeom") << "DDTECModuleAlgo test: " << toPos.name()
+					  << " positioned in "<< mother.name() 
+					  << " at " << tran 
+					  << " with " << rot;
+}
+
+void DDTECModuleAlgo::doPos( DDLogicalPart toPos, double x, double y, double z,  std::string rotName)
+{
+  int copyNr = 1;
+  if(isStereo){
+    copyNr = 2;
+    x+=posCorrectionR;
+  }
+  doPos(toPos,parent(),copyNr,x,y,z,rotName);
+}
 void DDTECModuleAlgo::execute() {
-  
   LogDebug("TECGeom") << "==>> Constructing DDTECModuleAlgo...";
+  //declarations
+  double tmp;
+  double dxdif, dzdif;
+  double dxbot, dxtop, topfr;
+  //positions
+  double xpos, ypos, zpos;
+  //dimensons
+  double bl1, bl2;
+  double h1;
+  double dx, dy, dz;
+  double thet;
+  //names
+  std::string idName;
+  std::string name;
+  std::string tag("Rphi");
+  if (isStereo) tag = "Stereo";
+  char buf[5]; //for string operations
+  //toDo: delete these
+  int stereoCounter =0;
+  if(isStereo) stereoCounter =1;
 
   DDName  parentName = parent().name(); 
-  std::string idName = DDSplit(parentName).first;
+  idName = DDSplit(parentName).first;
+  LogDebug("TECGeom") << "==>> " << idName << " parent " << parentName << " namespace " << idNameSpace;
+  DDSolid solid;
+
+  //set global parameters
   DDName matname(DDSplit(genMat).first, DDSplit(genMat).second);
   DDMaterial matter(matname);
-  double dzdif = fullHeight + topFrameHeight;
-  double dxbot, dxtop, topfr;
-  if (dlHybrid > dlTop) {
-    dxbot = 0.5*dlBottom + frameWidth - frameOver;
-    dxtop = 0.5*dlHybrid + frameWidth - frameOver;
-    topfr = 0.5*dlBottom * sin(detTilt);
-  } else {
-    dxbot = 0.5*dlHybrid + frameWidth - frameOver;
-    dxtop = 0.5*dlTop    + frameWidth - frameOver;
-    topfr = 0.5*dlTop    * sin(detTilt);
-  }
-  double dxdif = dxtop - dxbot;
-  double bl1   = dxbot - dxdif * topfr / (2.0 * dzdif);
-  double bl2   = dxtop + dxdif * topfr / (2.0 * dzdif);
-  double h1    = 0.5 * frameThick;
-  double dz    = 0.5 * dzdif + topfr;
+  dzdif = fullHeight + topFrameHeight;
+  if(isStereo) dzdif += 0.5*(topFrame2LHeight+topFrame2RHeight);
   
-  DDSolid solid = DDSolidFactory::trap(DDName(idName,idNameSpace), dz, 0, 0, 
-				       h1, bl1, bl1, 0, h1, bl2, bl2, 0);
-  LogDebug("TECGeom") << "DDTECModuleAlgo test:\t" << solid.name() 
-		      << " Trap made of " << matname << " of dimensions " 
-		      << dz << ", 0, 0, " << h1 << ", " << bl1 << ", " 
-		      << bl1 << ", 0, " << h1 << ", " << bl2 << ", " 
-		      << bl2 << ", 0";
-  DDLogicalPart module(solid.ddname(), matter, solid);
-
-  //Top of the frame
-  std::string name = idName + "TopFrame";
-  matname = DDName(DDSplit(topFrameMat).first, DDSplit(topFrameMat).second);
-  matter  = DDMaterial(matname);
-  if (dlHybrid > dlTop) {
-    bl1 = dxtop - topFrameHeight * dxdif / dzdif;
-    bl2 = dxtop;
-  } else {
-    bl1 = dxbot;
-    bl2 = dxbot + topFrameHeight * dxdif / dzdif;
+  dxbot = 0.5*dlBottom + frameWidth - frameOver;
+  dxtop = 0.5*dlHybrid + frameWidth - frameOver;
+  topfr = 0.5*dlBottom * sin(detTilt);
+  if(isRing6){
+	dxbot = dxtop;
+	dxtop = 0.5*dlTop    + frameWidth - frameOver;
+	topfr = 0.5*dlTop    * sin(detTilt);
   }
-  h1 = 0.5 * topFrameThick;
-  dz = 0.5 * topFrameHeight;
-  solid = DDSolidFactory::trap(DDName(name,idNameSpace), dz, 0, 0, h1, bl1, 
-			       bl1, 0, h1, bl2, bl2, 0);
-  LogDebug("TECGeom") << "DDTECModuleAlgo test:\t" << solid.name() 
-		      << " Trap made of " << matname << " of dimensions " 
-		      << dz << ", 0, 0, " << h1 << ", " << bl1 << ", "  
-		      << bl1 << ", 0, " << h1 << ", " << bl2 << ", " << bl2
-		      << ", 0";
-  DDLogicalPart topFrame(solid.ddname(), matter, solid);
-
+  dxdif = dxtop - dxbot;
+//  bl1   = 0.5*(sideFrameLWidth+sideFrameRWidth+dlBottom);//dxbot - dxdif * topfr / (2.0 * dzdif);
+//  if(stereoCounter==1) bl1 += 0.5*(-sideFrameLWidth-sideFrameRWidth+sideFrameLWidthLow+sideFrameRWidthLow);
+//  double maxWidth = sideFrameLWidth+sideFrameRWidth+dlTop;
+//  h1    = 0.5*fabs(fabs(pitchZ[stereoCounter])-fabs(sideFrameZ[stereoCounter]*(0.5+(siReenforceThick/sideFrameThick)))) + 0.5*( siReenforceThick+ pitchThick);//0.5 * frameThick;
+//					  //    ^-PA             ^-[ ----------------- SiReenforcement --------------------------------]
+//  dz    = 0.5*(dzdif-fullHeight);
+//  dz+=0.5*((sideFrameRHeight>sideFrameLHeight)?sideFrameRHeight:sideFrameLHeight);//0.5 * dzdif + topfr;
+//  bl2   = ((0.5*maxWidth-bl1)/(2*dz-dzdif+fullHeight))*(dzdif-fullHeight)+0.5*maxWidth;//dxtop + dxdif * topfr / (2.0 * dzdif);
+//  //                                                                      ^-maximum(sideFrameRHeight,sideFrameLHeight)
+//  DDSolid solid = DDSolidFactory::trap(DDName(idName,idNameSpace), dz, 0, 0, 
+//				       h1, bl1, bl1, 0, h1, bl2, bl2, 0);
+//  LogDebug("TECGeom") << "DDTECModuleAlgo test:\t" << solid.name() 
+//		      << " Trap made of " << matname << " of dimensions " 
+//		      << dz << ", 0, 0, " << h1 << ", " << bl1 << ", " 
+//		      << bl1 << ", 0, " << h1 << ", " << bl2 << ", " 
+//		      << bl2 << ", 0";
+//  DDLogicalPart module(solid.ddname(), matter, solid);
+//  this->motherModule = &module;
+//
   //Frame Sides
-  name    = idName + "SideFrame";
-  matname = DDName(DDSplit(sideFrameMat).first, DDSplit(sideFrameMat).second);
+  // left Frame
+  name    = idName + "SideFrameLeft";
+  matname =  DDName(DDSplit(sideFrameMat).first, DDSplit(sideFrameMat).second);
   matter  = DDMaterial(matname);
-  if (dlHybrid > dlTop) {
-    bl2 = bl1;
-    bl1 = dxbot;
-  } else {
-    bl1 = bl2;
-    bl2 = dxtop;
-  }
+
   h1 = 0.5 * sideFrameThick;
-  dz = 0.5 * fullHeight;
-  solid = DDSolidFactory::trap(DDName(name,idNameSpace), dz, 0, 0, h1, bl1, 
+  dz = 0.5 * sideFrameLHeight;
+  bl1 = bl2 = 0.5 * sideFrameLWidth;
+  thet = sideFrameLtheta;
+  //for stereo modules
+  if(isStereo)  bl1 = 0.5 * sideFrameLWidthLow;
+  solid = DDSolidFactory::trap(DDName(name,idNameSpace), dz, thet, 0, h1, bl1, 
 			       bl1, 0, h1, bl2, bl2, 0);
   LogDebug("TECGeom") << "DDTECModuleAlgo test:\t" << solid.name() 
 		      << " Trap made of " << matname << " of dimensions "
-		      << dz << ", 0, 0, " << h1 << ", " << bl1 << ", "
+		      << dz << ",  "<<thet<<", 0, " << h1 << ", " << bl1 << ", "
 		      << bl1 << ", 0, " << h1 << ", " << bl2 << ", " << bl2
 		      << ", 0";
-  DDLogicalPart sideFrame(solid.ddname(), matter, solid);
+  DDLogicalPart sideFrameLeft(solid.ddname(), matter, solid);
+  //translate
+  xpos = - 0.5*topFrameBotWidth +bl1+ tan(fabs(thet)) * dz;
+  ypos = sideFrameZ;
+  zpos  =  0.5*( waferPosition +fullHeight) -topFrameHeight-dz;
+  //flip ring 6
+  if (isRing6){
+    zpos *= -1;
+    xpos -= 2*tan(fabs(thet)) * dz; // because of the flip the tan(..) to be in the otheer direction
+  }
+  //the stereo modules are on the back of the normal ones...
+  if(isStereo) {
+    xpos = -xpos;
+    zpos += -topFrame2LHeight-tan(detTilt)*(fabs(xpos)-0.5*topFrame2Width);
+  }
+  //position
+  doPos(sideFrameLeft,xpos,ypos,zpos,waferRot);
 
-  name    = idName + "Frame";
-  matname = DDName(DDSplit(genMat).first, DDSplit(genMat).second);
+  //right Frame
+  name    = idName + "SideFrameRight";
+  matname = DDName(DDSplit(sideFrameMat).first, DDSplit(sideFrameMat).second);
   matter  = DDMaterial(matname);
-  bl1    -= frameWidth;
-  bl2    -= frameWidth;
-  solid = DDSolidFactory::trap(DDName(name,idNameSpace), dz, 0, 0, h1, bl1, 
+
+  h1 = 0.5 * sideFrameThick;
+  dz = 0.5 * sideFrameRHeight;
+  bl1 = bl2 = 0.5 * sideFrameRWidth;
+  thet = sideFrameRtheta;
+  if(isStereo) bl1 = 0.5 * sideFrameRWidthLow;
+  solid = DDSolidFactory::trap(DDName(name,idNameSpace), dz, thet, 0, h1, bl1, 
 			       bl1, 0, h1, bl2, bl2, 0);
   LogDebug("TECGeom") << "DDTECModuleAlgo test:\t" << solid.name() 
-		      << " Trap made of " << matname << " of dimensions " 
-		      << dz << ", 0, 0, " << h1 << ", " << bl1 << ", " 
+		      << " Trap made of " << matname << " of dimensions "
+		      << dz << ", "<<thet<<", 0, " << h1 << ", " << bl1 << ", "
 		      << bl1 << ", 0, " << h1 << ", " << bl2 << ", " << bl2
 		      << ", 0";
-  DDLogicalPart frame(solid.ddname(), matter, solid);
-  DDpos (frame, sideFrame, 1, DDTranslation(0.0, 0.0, 0.0), DDRotation());
-  LogDebug("TECGeom") << "DDTECModuleAlgo test: " << frame.name() 
-		      << " number 1 positioned in " << sideFrame.name() 
-		      << " at (0,0,0) with no rotation";
+  DDLogicalPart sideFrameRight(solid.ddname(), matter, solid);
+  //translate
+  xpos =  0.5*topFrameBotWidth -bl1- tan(fabs(thet)) * dz;
+  ypos = sideFrameZ;
+  zpos =0.5*( waferPosition +fullHeight)-topFrameHeight -dz; 
+        
+  if (isRing6){
+    zpos *= -1;
+    xpos += 2*tan(fabs(thet)) * dz; // because of the flip the tan(..) has to be in the other direction
+  }
+  if(isStereo){
+    xpos = -xpos;
+	zpos += -topFrame2RHeight+tan(detTilt)*(fabs(xpos)-0.5*topFrame2Width);
+  }
+  //position it
+  doPos(sideFrameRight,xpos,ypos,zpos,waferRot);
+
+
+  //Supplies Box(es)
+  for (int i= 0; i < (int)(siFrSuppBoxWidth.size());i++){
+    sprintf(buf,"%i",i);
+    name    = idName + "SuppliesBox"+buf;
+    matname = DDName(DDSplit(siFrSuppBoxMat).first, DDSplit(siFrSuppBoxMat).second);
+    matter  = DDMaterial(matname);
+    
+    h1 = 0.5 * siFrSuppBoxThick;
+    dz = 0.5 * siFrSuppBoxHeight[i];
+    bl1 = bl2 = 0.5 * siFrSuppBoxWidth[i];
+    thet = sideFrameRtheta;
+    if(isStereo) thet = atan((sideFrameRWidthLow-sideFrameRWidth)/(2*sideFrameRHeight)+tan(fabs(thet)));
+                   // ^-- this calculates the lower left angel of the tipped trapezoid...
+
+    solid = DDSolidFactory::trap(DDName(name,idNameSpace), dz, thet, 0, h1, bl1, 
+				 bl1, 0, h1, bl2, bl2, 0);
+    LogDebug("TECGeom") << "DDTECModuleAlgo test:\t" << solid.name() 
+			<< " Trap made of " << matname << " of dimensions "
+			<< dz << ", 0, 0, " << h1 << ", " << bl1 << ", "
+			<< bl1 << ", 0, " << h1 << ", " << bl2 << ", " << bl2
+			<< ", 0";
+    DDLogicalPart siFrSuppBox(solid.ddname(), matter, solid);
+    //translate
+    xpos =  0.5*topFrameBotWidth  -sideFrameRWidth - bl1-fabs(tan(thet) * siFrSuppBoxYPos[i]);
+    ypos = sideFrameZ*(0.5+(siFrSuppBoxThick/sideFrameThick)); //via * so I do not have to worry about the sign of sideFrameZ
+    zpos = -0.5* ( waferPosition -fullHeight)+waferPosition-topFrameHeight -siFrSuppBoxYPos[i];        
+	if (isRing6){ 
+	  xpos += 2*fabs(tan(thet))*  siFrSuppBoxYPos[i]; // the flipped issue again
+	  zpos *= -1;
+	}
+	if(isStereo){ 
+	  //here is a small bias in module 4s
+	  xpos = 0.5*topFrameBotWidth-bl1-sideFrameRWidth;
+	  zpos = -0.5* ( waferPosition -fullHeight)+waferPosition-topFrameHeight-topFrame2RHeight-sin(detTilt)*(sideFrameRWidth+bl1)-siFrSuppBoxYPos[i];
+	  xpos = -xpos;
+	}
+	//position it;
+	doPos(siFrSuppBox,xpos,ypos,zpos,waferRot);
+  }
 
   name    = idName + "Hybrid";
   matname = DDName(DDSplit(hybridMat).first, DDSplit(hybridMat).second);
   matter  = DDMaterial(matname);
-  double dx = 0.5 * hybridWidth;
-  double dy = 0.5 * hybridThick;
+  dx = 0.5 * hybridWidth;
+  dy = 0.5 * hybridThick;
   dz        = 0.5 * hybridHeight;
   solid = DDSolidFactory::box(DDName(name, idNameSpace), dx, dy, dz);
   LogDebug("TECGeom") << "DDTECModuleAlgo test:\t" << solid.name() 
-		      << " Box made of " << matname << " of dimensions "
-		      << dx << ", " << dy << ", " << dz;
+					  << " Box made of " << matname << " of dimensions "
+					  << dx << ", " << dy << ", " << dz;
   DDLogicalPart hybrid(solid.ddname(), matter, solid);
 
-  // Loop over detectors to be placed
-  for (int k = 0; k < (int)(waferRot.size()); k++) {
-    std::string tag("Rphi");
-    if (k>0) tag = "Stereo";
+  ypos = hybridZ;
+  zpos = 0.5 * (waferPosition + fullHeight - hybridHeight);
+  if (isRing6)	zpos *=-1;
+  //position it
+  doPos(hybrid,0,ypos,zpos,"NULL");  
 
-    // Wafer
-    name    = idName + tag + "Wafer";
-    matname = DDName(DDSplit(waferMat).first, DDSplit(waferMat).second);
-    matter  = DDMaterial(matname);
-    bl1     = 0.5 * dlBottom;
-    bl2     = 0.5 * dlTop;
-    h1      = 0.5 * activeThick[k];
-    dz      = 0.5 * fullHeight;
-    solid = DDSolidFactory::trap(DDName(name,idNameSpace), dz, 0, 0, h1, bl1, 
-				 bl1, 0, h1, bl2, bl2, 0);
-    LogDebug("TECGeom") << "DDTECModuleAlgo test:\t" << solid.name()
+  // Wafer
+  name    = idName + tag +"Wafer";
+  matname = DDName(DDSplit(waferMat).first, DDSplit(waferMat).second);
+  matter  = DDMaterial(matname);
+  bl1     = 0.5 * dlBottom;
+  bl2     = 0.5 * dlTop;
+  h1      = 0.5 * activeThick;
+  dz      = 0.5 * fullHeight;
+  solid = DDSolidFactory::trap(DDName(name,idNameSpace), dz, 0, 0, h1, bl1, 
+							   bl1, 0, h1, bl2, bl2, 0);
+  LogDebug("TECGeom") << "DDTECModuleAlgo test:\t" << solid.name()
 			<< " Trap made of " << matname << " of dimensions "
 			<< dz << ", 0, 0, " << h1 << ", " << bl1 << ", "
 			<< bl1 << ", 0, " << h1 << ", " << bl2 << ", "
 			<< bl2 << ", 0";
-    DDLogicalPart wafer(solid.ddname(), matter, solid);
-    double zpos;
-    double ypos = activeZ[k];
-    if (dlHybrid > dlTop) {
-      zpos =-0.5 * topFrameHeight;
-    } else {
-      zpos = 0.5 * topFrameHeight;
+  DDLogicalPart wafer(solid.ddname(), matter, solid);
+  
+  ypos = activeZ;
+  zpos =-0.5 * waferPosition;//topFrameHeight;
+  if (isRing6) zpos *= -1;
+  
+  doPos(wafer,0,ypos,zpos,waferRot);
+  
+  // Active
+  name    = idName + tag +"Active";
+  matname = DDName(DDSplit(activeMat).first, DDSplit(activeMat).second);
+  matter  = DDMaterial(matname);
+  bl1    -= sideWidthBottom;
+  bl2    -= sideWidthTop;
+  dz      = 0.5 * activeThick;
+  h1      = 0.5 * activeHeight;
+  if (isRing6) { //switch bl1 <->bl2
+	tmp = bl2;	bl2 =bl1;	bl1 = tmp;
+  }
+  solid = DDSolidFactory::trap(DDName(name,idNameSpace), dz, 0, 0, h1, bl2, 
+							   bl1, 0, h1, bl2, bl1, 0);
+  LogDebug("TECGeom") << "DDTECModuleAlgo test:\t" << solid.name() 
+					  << " Trap made of " << matname << " of dimensions "
+					  << dz << ", 0, 0, " << h1 << ", " << bl2 << ", "
+					  << bl1 << ", 0, " << h1 << ", " << bl2 << ", "
+					  << bl1 << ", 0";
+  DDLogicalPart active(solid.ddname(), matter, solid);
+  doPos(active, wafer, 1, 0,0,0, activeRot);
+  
+  //Pitch Adapter
+  name    = idName + "PA";
+  matname = DDName(DDSplit(pitchMat).first, DDSplit(pitchMat).second);
+  matter  = DDMaterial(matname);
+  
+  if (!isStereo) {
+	dx      = 0.5 * pitchWidth;
+	dy      = 0.5 * pitchThick;
+	dz      = 0.5 * pitchHeight;
+	solid   = DDSolidFactory::box(DDName(name, idNameSpace), dx, dy, dz);
+	LogDebug("TECGeom") << "DDTECModuleAlgo test:\t" << solid.name() 
+						<< " Box made of " << matname <<" of dimensions "
+						<< dx << ", " << dy << ", " << dz;
+  } else {
+	dz      = 0.5 * pitchWidth;    
+	h1      = 0.5 * pitchThick;
+	bl1     = 0.5 * pitchHeight + 0.5 * dz * sin(detTilt);
+	bl2     = 0.5 * pitchHeight - 0.5 * dz * sin(detTilt);
+	double thet = atan((bl1-bl2)/(2.*dz));
+	solid   = DDSolidFactory::trap(DDName(name,idNameSpace), dz, thet, 0, h1,
+								   bl1, bl1, 0, h1, bl2, bl2, 0);
+	LogDebug("TECGeom") << "DDTECModuleAlgo test:\t" << solid.name()
+						<< " Trap made of " << matname 
+						<< " of dimensions " << dz << ", " << thet/deg
+						<< ", 0, " << h1 << ", " << bl1 << ", " << bl1
+						<< ", 0, " << h1 << ", " << bl2 << ", " << bl2
+						<< ", 0";
     }
-    DDTranslation tran(0, ypos, zpos);
-    std::string rotstr = DDSplit(waferRot[k]).first;
-    std::string rotns;
-    DDRotation rot;
-    if (rotstr != "NULL") {
-      rotns = DDSplit(waferRot[k]).second;
-      rot   = DDRotation(DDName(rotstr, rotns));
-    }
-    DDpos (wafer, module, k+1, tran, rot);
-    LogDebug("TECGeom") << "DDTECModuleAlgo test: " << wafer.name() 
-			<< " number " << k+1 << " positioned in " 
-			<< module.name() << " at " << tran << " with " 
-			<< rot;
+  xpos = 0;
+  ypos = pitchZ;
+  zpos = 0.5 * (waferPosition + fullHeight + pitchHeight) - topFrameHeight ;
+  if (isRing6) zpos *= -1;
+  if(isStereo){
+	xpos    = 0.5 * fullHeight * sin(detTilt);
+	zpos    -= 0.5*(  topFrame2LHeight+ topFrame2RHeight); 
+  }
+  
+  DDLogicalPart pa(solid.ddname(), matter, solid);
+  if(isStereo)doPos(pa, xpos, ypos,zpos, pitchRot);
+  else        doPos(pa, xpos, ypos,zpos, "NULL");
+  //Top of the frame
+  name = idName + "TopFrame";
+  matname = DDName(DDSplit(topFrameMat).first, DDSplit(topFrameMat).second);
+  matter  = DDMaterial(matname);
+  
+  h1 = 0.5 * topFrameThick;
+  dz = 0.5 * topFrameHeight;
+  bl1 = 0.5 * topFrameBotWidth;
+  bl2 = 0.5 * topFrameTopWidth;
+  if (isRing6) {    // ring 6 faces the other way!
+	bl1 = 0.5 * topFrameTopWidth;
+	bl2 = 0.5 * topFrameBotWidth;
+  }
+  
+  solid = DDSolidFactory::trap(DDName(name,idNameSpace), dz, 0, 0, h1, bl1, 
+							   bl1,0, h1, bl2, bl2, 0);
+  LogDebug("TECGeom") << "DDTECModuleAlgo test:\t" << solid.name() 
+					  << " Trap made of " << matname << " of dimensions " 
+					  << dz << ", 0, 0, " << h1 << ", " << bl1 << ", "  
+					  << bl1 << ", 0, " << h1 << ", " << bl2 << ", " << bl2
+					  << ", 0";
+  DDLogicalPart topFrame(solid.ddname(), matter, solid);
+  
+  if(isStereo){ 
+	name = idName + "TopFrame2";
+      //additional object to build the not trapzoid geometry of the stereo topframes
+	dz      = 0.5 * topFrame2Width;    
+	h1      = 0.5 * topFrameThick;
+	bl1     = 0.5 * topFrame2LHeight;
+	bl2     = 0.5 * topFrame2RHeight;
+	double thet = atan((bl1-bl2)/(2.*dz));
+	
+	solid   = DDSolidFactory::trap(DDName(name,idNameSpace), dz, thet, 0, h1,
+								   bl1, bl1, 0, h1, bl2, bl2, 0);
+	LogDebug("TECGeom") << "DDTECModuleAlgo test:\t" << solid.name()
+						<< " Trap made of " << matname 
+						<< " of dimensions " << dz << ", " << thet/deg
+						<< ", 0, " << h1 << ", " << bl1 << ", " << bl1
+						<< ", 0, " << h1 << ", " << bl2 << ", " << bl2
+						<< ", 0";
+  }
+  
+  // Position the topframe
+  ypos = topFrameZ;
+  zpos = 0.5 * (waferPosition + fullHeight - topFrameHeight);
+  if(isRing6){
+	zpos =-0.5 * (waferPosition + fullHeight - topFrameHeight);
+  }
 
-    // Active
-    name    = idName + tag + "Active";
-    matname = DDName(DDSplit(activeMat).first, DDSplit(activeMat).second);
+  doPos(topFrame, 0,ypos,zpos,"NULL");
+  if(isStereo){
+	//create
+	DDLogicalPart topFrame2(solid.ddname(), matter, solid);
+	zpos -= 0.5*(topFrameHeight + 0.5*(topFrame2LHeight+topFrame2RHeight));
+	doPos(topFrame2, 0,ypos,zpos,pitchRot);
+  }
+  
+  //Si - Reencorcement
+  for (int i= 0; i < (int)(siReenforceWidth.size());i++){
+	char buf[5];
+	sprintf(buf,"%i",i);
+	name    = idName + "SiReenforce"+buf;
+    matname = DDName(DDSplit(siReenforceMat).first, DDSplit(siReenforceMat).second);
     matter  = DDMaterial(matname);
-    bl1    -= sideWidth;
-    bl2    -= sideWidth;
-    dz      = 0.5 * activeThick[k];
-    h1      = 0.5 * activeHeight;
-    double bl1p = bl1;
-    double bl2p = bl2;
-    if (dlHybrid > dlTop) {
-      bl1p = bl2;
-      bl2p = bl1;
-    }
-    solid = DDSolidFactory::trap(DDName(name,idNameSpace), dz, 0, 0, h1, bl1p, 
-				 bl2p, 0, h1, bl1p, bl2p, 0);
+    
+    h1 = 0.5 * siReenforceThick;
+    dz = 0.5 * siReenforceHeight[i];
+    bl1 = bl2 = 0.5 * siReenforceWidth[i];
+    
+    solid = DDSolidFactory::trap(DDName(name,idNameSpace), dz, 0, 0, h1, bl1, 
+								 bl1, 0, h1, bl2, bl2, 0);
     LogDebug("TECGeom") << "DDTECModuleAlgo test:\t" << solid.name() 
-			<< " Trap made of " << matname << " of dimensions "
-			<< dz << ", 0, 0, " << h1 << ", " << bl1p << ", "
-			<< bl2p << ", 0, " << h1 << ", " << bl1p << ", "
-			<< bl2p << ", 0";
-    DDLogicalPart active(solid.ddname(), matter, solid);
-    rotstr = DDSplit(activeRot).first;
-    rot    = DDRotation();
-    if (rotstr != "NULL") {
-      rotns = DDSplit(activeRot).second;
-      rot   = DDRotation(DDName(rotstr, rotns));
+						<< " Trap made of " << matname << " of dimensions "
+						<< dz << ", 0, 0, " << h1 << ", " << bl1 << ", "
+						<< bl1 << ", 0, " << h1 << ", " << bl2 << ", " << bl2
+						<< ", 0";
+    DDLogicalPart siReenforce(solid.ddname(), matter, solid);
+    //translate
+    xpos =0 ;
+    ypos = sideFrameZ*(0.5+(siReenforceThick/sideFrameThick)); //via * so I do not have to worry about the sign of sideFrameZ
+	zpos = 0.5 * (waferPosition + fullHeight) - topFrameHeight-siReenforceYPos[i];
+	
+    if (isRing6)  zpos *= -1;
+    if(isStereo){ 
+	  xpos = (-siReenforceYPos[i]+0.5*fullHeight)*sin(detTilt);
+	  zpos = 0.5 * (waferPosition + fullHeight) - topFrameHeight-0.5*(topFrame2RHeight+topFrame2LHeight)-siReenforceYPos[i];	  
     }
-    DDpos (active, wafer, 1, DDTranslation(0.0, 0.0, 0.0), rot);
-    LogDebug("TECGeom") << "DDTECModuleAlgo test: " << active.name()
-			<< " number 1 positioned in " << wafer.name()
-			<< " at (0, 0, 0) with " << rot;
-
-    //Pitch Adapter
-    name    = idName + tag + "PA";
-    matname = DDName(DDSplit(pitchMat).first, DDSplit(pitchMat).second);
-    matter  = DDMaterial(matname);
-    if (dlHybrid > dlTop) {
-      dz   = 0.5 * dlTop;
-      zpos = 0.5 * (dzdif - pitchHeight) - hybridHeight;
-    } else {
-      dz   = 0.5 * dlBottom;
-      zpos =-0.5 * (dzdif - pitchHeight) + hybridHeight;
-    }
-    ypos = pitchZ[k];
-    double xpos = 0;
-    if (k == 0) {
-      dx      = dz;
-      dy      = 0.5 * pitchThick;
-      dz      = 0.5 * pitchHeight;
-      solid   = DDSolidFactory::box(DDName(name, idNameSpace), dx, dy, dz);
-      LogDebug("TECGeom") << "DDTECModuleAlgo test:\t" << solid.name() 
-			  << " Box made of " << matname <<" of dimensions "
-			  << dx << ", " << dy << ", " << dz;
-      rot     = DDRotation();
-    } else {
-      h1      = 0.5 * pitchThick;
-      bl1     = 0.5 * pitchHeight + 0.5 * dz * sin(detTilt);
-      bl2     = 0.5 * pitchHeight - 0.5 * dz * sin(detTilt);
-      double thet = atan((bl1-bl2)/(2.*dz));
-      solid   = DDSolidFactory::trap(DDName(name,idNameSpace), dz, thet, 0, h1,
-				     bl1, bl1, 0, h1, bl2, bl2, 0);
-      LogDebug("TECGeom") << "DDTECModuleAlgo test:\t" << solid.name()
-			  << " Trap made of " << matname 
-			  << " of dimensions " << dz << ", " << thet/deg
-			  << ", 0, " << h1 << ", " << bl1 << ", " << bl1
-			  << ", 0, " << h1 << ", " << bl2 << ", " << bl2
-			  << ", 0";
-      xpos    = 0.5 * fullHeight * sin(detTilt);
-      rotstr  = DDSplit(pitchRot).first;
-      rotns   = DDSplit(pitchRot).second;
-      rot     = DDRotation(DDName(rotstr, rotns));
-    }
-    DDLogicalPart pa(solid.ddname(), matter, solid);
-    tran = DDTranslation(xpos,ypos,zpos);
-    DDpos (pa, module, k+1, tran, rot);
-    LogDebug("TECGeom") << "DDTECModuleAlgo test: " << pa.name() 
-			<< " number " << k+1 << " positioned in "
-			<< module.name() << " at " << tran << " with "
-			<< rot;
-
-    // Position the hybrid now
-    ypos = hybridZ[k];
-    if (dlHybrid > dlTop) {
-      zpos = 0.5 * (dzdif - hybridHeight);
-    } else {
-      zpos =-0.5 * (dzdif - hybridHeight);
-    }
-    tran = DDTranslation(0,ypos,zpos);
-    rot  = DDRotation();
-    DDpos (hybrid, module, k+1, tran, rot);
-    LogDebug("TECGeom") << "DDTECModuleAlgo test: " << hybrid.name()
-			<< " number "  << k+1 << " positioned in "
-			<< module.name() << " at " << tran << " with " << rot;
-
-    // Position the frame
-    ypos = topFrameZ[k];
-    if (dlHybrid > dlTop) {
-      zpos = 0.5 * (dzdif - topFrameHeight);
-    } else {
-      zpos =-0.5 * (dzdif - topFrameHeight);
-    }
-    tran = DDTranslation(0,ypos,zpos);
-    rot  = DDRotation();
-    DDpos (topFrame, module, k+1, tran, rot);
-    LogDebug("TECGeom") << "DDTECModuleAlgo test: " << topFrame.name()
-			<< " number " << k+1 << " positioned in "
-			<< module.name() << " at " << tran << " with " << rot;
-
-    ypos = sideFrameZ[k];
-    if (dlHybrid > dlTop) {
-      zpos =-0.5 * topFrameHeight;
-    } else {
-      zpos = 0.5 * topFrameHeight;
-    }
-    tran = DDTranslation(0,ypos,zpos);
-    rot  = DDRotation();
-    DDpos (sideFrame, module, k+1, tran, rot);
-    LogDebug("TECGeom") << "DDTECModuleAlgo test: " << sideFrame.name()
-			<< " number " << k+1 << " positioned in " 
-			<< module.name() << " at " << tran << " with " << rot;
+    doPos(siReenforce,xpos,ypos,zpos,waferRot);
   }
 
   //Bridge 
