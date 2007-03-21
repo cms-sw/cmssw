@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Alex Tapper
 //         Created:  Fri Mar  9 19:11:51 CET 2007
-// $Id: SourceCardTextToRctDigi.cc,v 1.2 2007/03/16 15:17:42 tapper Exp $
+// $Id: SourceCardTextToRctDigi.cc,v 1.3 2007/03/18 04:02:21 tapper Exp $
 //
 //
 
@@ -28,7 +28,9 @@ using namespace std;
 const static unsigned NUM_RCT_CRATES = 18;
 
 SourceCardTextToRctDigi::SourceCardTextToRctDigi(const edm::ParameterSet& iConfig):
-  m_textFileName(iConfig.getParameter<std::string>("TextFileName"))
+  m_textFileName(iConfig.getParameter<std::string>("TextFileName")),
+  m_skipEvents(iConfig.getParameter<int>("SkipEvents")),
+  m_nevt(0)
 {
   // Produces collections
   produces<L1CaloEmCollection>();
@@ -58,6 +60,9 @@ SourceCardTextToRctDigi::~SourceCardTextToRctDigi()
 // ------------ method called to produce the data  ------------
 void SourceCardTextToRctDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+  // Skip event if required
+  if (m_nevt < m_skipEvents) return;
+
   auto_ptr<L1CaloEmCollection> em (new L1CaloEmCollection);
   auto_ptr<L1CaloRegionCollection> rgn (new L1CaloRegionCollection);
 
@@ -134,7 +139,10 @@ void SourceCardTextToRctDigi::produce(edm::Event& iEvent, const edm::EventSetup&
                         << " Isolated=" << iem->isolated() << endl;
     }
   }
+  
   iEvent.put(em);
   iEvent.put(rgn);
+
+  m_nevt++;
 }
 

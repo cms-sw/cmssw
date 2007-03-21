@@ -16,7 +16,7 @@
 //
 // Original Author:  Alex Tapper
 //         Created:  Fri Mar  9 19:11:51 CET 2007
-// $Id$
+// $Id: SourceCardTextToRctDigi.h,v 1.1 2007/03/12 18:30:05 tapper Exp $
 //
 //
 
@@ -51,7 +51,13 @@ class SourceCardTextToRctDigi : public edm::EDProducer {
   
   /// Name out input file
   std::string m_textFileName;
-  
+
+  /// Number of events to skip at the start of the file
+  int m_skipEvents;
+
+  /// Event counter
+  int m_nevt;
+
   /// file handle
   std::ifstream m_file;
   
