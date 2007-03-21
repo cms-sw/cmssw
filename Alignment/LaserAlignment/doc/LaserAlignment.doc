@@ -20,39 +20,54 @@ This package contains the reconstruction code for the Laser Alignment System in 
 \subsection interface Public interface
 <!-- List the classes that are provided for use in other packages (if any) -->
 
-- BeamProfileFitter: fit a gaussian to the laser beam profiles
-- LaserAlignmentAlgorithmNegTEC: interface to the alignment algorithm for TEC-
-- LaserAlignmentAlgorithmPosTEC: interface to the alignment algorithm for TEC+
-- LaserAlignmentAlgorithmTEC2TEC: interface to the alignment algorithm to align TIB, TOB and both TEC's relative to each other
-- LaserAlignmentNegTEC: pass the reconstructed beam positions to the alignment algorithm for TEC-
-- LaserAlignmentPosTEC: pass the reconstructed beam positions to the alignment algorithm for TEC+
-- LaserAlignmentTEC2TEC: pass the reconstructed beam positions to the alignment algorithm for TIB, TOB and TEC alignment
-- LaserBeamClusterizer: clusterize the laser signals
-- LaserClusterizerAlgorithm: algorithm to clusterize the laser signals (based on the result of the beam profile fit)
-- LaserHitPairGeneratorFromLayerPair: search for hit pairs on consecutive layers (used by the seed finder)
-- LaserHitPairGenerator: create hit pairs (used by the seed finder)
-- LaserLayerPairs: create pairs of layers (used by the seed finder)
-- Millepede: algorithm used for alignment
-- SeedGeneratorForLaserBeams: seed finder; seeds are used to create reconstructed tracks out of the laser beams in the endcaps
+- BeamProfileFitter: fit a gaussian to the laser beam profiles.
+- LaserAlignmentAlgorithmNegTEC: interface to the alignment algorithm for TEC-.
+- LaserAlignmentAlgorithmPosTEC: interface to the alignment algorithm for TEC+.
+- LaserAlignmentAlgorithmTEC2TEC: interface to the alignment algorithm to align TIB, TOB and both TEC's relative to each other.
+- LaserAlignmentNegTEC: pass the reconstructed beam positions to the alignment algorithm for TEC-.
+- LaserAlignmentPosTEC: pass the reconstructed beam positions to the alignment algorithm for TEC+.
+- LaserAlignmentTEC2TEC: pass the reconstructed beam positions to the alignment algorithm for TIB, TOB and TEC alignment.
+- LaserBeamClusterizer: clusterize the laser signals.
+- LaserClusterizerAlgorithm: algorithm to clusterize the laser signals (based on the result of the beam profile fit).
+- LaserHitPairGeneratorFromLayerPair: search for hit pairs on consecutive layers (used by the seed finder).
+- LaserHitPairGenerator: create hit pairs (used by the seed finder).
+- LaserLayerPairs: create pairs of layers (used by the seed finder).
+- Millepede: algorithm used for alignment.
+- SeedGeneratorForLaserBeams: seed finder; seeds are used to create reconstructed tracks out of the laser beams in the endcaps.
 
 \subsection modules Modules
 <!-- Describe modules implemented in this package and their parameter set -->
 
-- LaserAlignment: main reconstruction module of the Laser Alignment System
+- LaserAlignment: main reconstruction module of the Laser Alignment System.
 
+<pre>
 \htmlinclude LaserAlignment.cfi
+</pre>
 
-- LaserClusterizer: build clusters from the laser signals
+- LaserClusterizer: build clusters from the laser signals.
 
+<pre>
 \htmlinclude LaserClusterizer.cfi
+</pre>
 
-- LaserSeedGenerator: create seeds for the track reconstruction of the laser beams
+- LaserSeedGenerator: create seeds for the track reconstruction of the laser beams.
 
+<pre>
 \htmlinclude LaserSeedGenerator.cfi
+</pre>
 
 \subsection tests Unit tests and examples
 <!-- Describe cppunit tests and example configuration files -->
-(INCLUDE HERE A SHORT DESCRIPTION OF THE MODULES AND CONFIGURATION FILES IN THE TEST DIRECTORY)
+- ExpectedCorrectionsCalculator: calculate the expected alignment corrections from the applied misalignment (you have to provide the applied misalignments in the configuration file!).
+- ReadLaserRecHit: analyzer for printing information about reconstructed hits from the laser beams.
+- RecoAnalyzer: small analyzer to fill some histograms with information about the reconstruction of the laser beams.
+
+<pre>
+\htmlinclude RecoAnalyzer.cfi
+</pre>
+
+- runP.cfg: run the reconstruction code of the Laser Alignment System, clusterize the beams, convert the clusters to RecHits, create seeds and do the track reconstruction of the laser beams.
+- iguana.cfg: configuration file to visualize lasertracks with IGUANA
 
 \section status Status and planned development
 <!-- e.g. completed, stable, missing features -->
