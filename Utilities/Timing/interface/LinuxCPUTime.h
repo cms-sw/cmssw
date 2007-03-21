@@ -16,6 +16,8 @@
 class LinuxCPUTime {
 public:
 
+   typedef long long int TimeType;
+
 
   /// constructor
   explicit LinuxCPUTime(int pid=0): 
