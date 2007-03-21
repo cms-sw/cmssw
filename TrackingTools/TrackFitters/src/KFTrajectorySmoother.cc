@@ -35,7 +35,7 @@ KFTrajectorySmoother::trajectories(const Trajectory& aTraj) const {
   predTsos.rescaleError(theErrorRescaling);
 
   if(!predTsos.isValid()) {
-    LogDebug("TrackingTools/TrackFitters") << 
+    LogDebug("TrackFitters") << 
       "KFTrajectorySmoother: predicted tsos of last measurement not valid!";
     return std::vector<Trajectory>();
   }
@@ -67,7 +67,7 @@ KFTrajectorySmoother::trajectories(const Trajectory& aTraj) const {
 					(*itm).recHit()->det()->surface());
 
     if(!predTsos.isValid()) {
-      LogDebug("TrackingTools/TrackFitters") << 
+      LogDebug("TrackFitters") << 
 	"KFTrajectorySmoother: predicted tsos not valid!";
       return std::vector<Trajectory>();
     }
@@ -81,7 +81,7 @@ KFTrajectorySmoother::trajectories(const Trajectory& aTraj) const {
       //3: combine bwd-prediction with fwd-filter
       TSOS combTsos = combiner(predTsos, (*itm).forwardPredictedState());
       if(!combTsos.isValid()) {
-	LogDebug("TrackingTools/TrackFitters") << 
+	LogDebug("TrackFitters") << 
 	  "KFTrajectorySmoother: combined tsos not valid!\n"<<
 	  "pred Tsos pos: "<<predTsos.globalPosition()<< "\n" <<
 	  "pred Tsos mom: "<<predTsos.globalMomentum()<< "\n" <<
@@ -92,7 +92,7 @@ KFTrajectorySmoother::trajectories(const Trajectory& aTraj) const {
       TSOS smooTsos = combiner((*itm).updatedState(), predTsos);
 
       if(!smooTsos.isValid()) {
-	LogDebug("TrackingTools/TrackFitters") <<
+	LogDebug("TrackFitters") <<
 	  "KFTrajectorySmoother: smoothed tsos not valid!";
 	return std::vector<Trajectory>();
       }
@@ -110,7 +110,7 @@ KFTrajectorySmoother::trajectories(const Trajectory& aTraj) const {
       TSOS combTsos = combiner(predTsos, (*itm).forwardPredictedState());
       
       if(!combTsos.isValid()) {
-	LogDebug("TrackingTools/TrackFitters") << 
+	LogDebug("TrackFitters") << 
 	  "KFTrajectorySmoother: combined tsos not valid!";
 	return std::vector<Trajectory>();
       }
@@ -128,7 +128,7 @@ KFTrajectorySmoother::trajectories(const Trajectory& aTraj) const {
 				      avtm.front().recHit()->det()->surface());
   
   if(!predTsos.isValid()) {
-	LogDebug("TrackingTools/TrackFitters") << 
+	LogDebug("TrackFitters") << 
 	  "KFTrajectorySmoother: predicted tsos not valid!";
     return std::vector<Trajectory>();
   }

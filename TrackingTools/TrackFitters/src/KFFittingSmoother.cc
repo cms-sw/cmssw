@@ -35,7 +35,7 @@ fit(const TrajectorySeed& aSeed,
   vector<Trajectory> fitted = 
     //    fitter()->fit(aSeed, hits, tsosWithError(firstPredTsos));
     fitter()->fit(aSeed, hits, firstPredTsos);
-  LogDebug("TrackingTools/TrackFitters") << "In KFFittingSmoother::fit "<<fitted.size();
+  LogDebug("TrackFitters") << "In KFFittingSmoother::fit "<<fitted.size();
    
    return smoothingStep(fitted);
 }
@@ -51,13 +51,13 @@ KFFittingSmoother::smoothingStep(vector<Trajectory>& fitted) const
     vector<Trajectory> smoothed = smoother()->trajectories(*it);
     result.insert(result.end(), smoothed.begin(), smoothed.end());
   }
-  LogDebug("TrackingTools/TrackFitters") << "In KFFittingSmoother::smoothingStep "<<result.size();
+  LogDebug("TrackFitters") << "In KFFittingSmoother::smoothingStep "<<result.size();
   return result;
 }
 vector<Trajectory> KFFittingSmoother::fit(const TrajectorySeed& aSeed,
 					   const RecHitContainer& hits) const{
 
-  throw cms::Exception("TrackingTools/TrackFitters", 
+  throw cms::Exception("TrackFitters", 
 		       "KFFittingSmoother::fit(TrajectorySeed, <TransientTrackingRecHit>) not implemented"); 
 
   return vector<Trajectory>();
