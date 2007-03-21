@@ -155,8 +155,7 @@ void FastGenParticleCandidateProducer::fillOutput( const std::vector<const GenPa
   cands.reserve( size );
   for( size_t i = 0; i < size; ++ i ) {
     const GenParticle * part = particles[ i ];
-    FourVector p4 =part->momentum();
-    Candidate::LorentzVector momentum( p4.x(), p4.y(), p4.z(), p4.t() );
+    Candidate::LorentzVector momentum( part->momentum() );
     Candidate::Point vertex( 0, 0, 0 );
     const GenVertex * v = part->production_vertex();
     if ( v != 0 ) {

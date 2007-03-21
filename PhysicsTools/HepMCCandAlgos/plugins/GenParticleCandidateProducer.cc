@@ -369,8 +369,7 @@ void GenParticleCandidateProducer::fillOutput( const vector<const GenParticle *>
     GenParticleCandidate * cand = 0;
     size_t index = 0;
     if ( ! skip[ i ] ) {
-      FourVector p4 =part->momentum();
-      Candidate::LorentzVector momentum( p4.x(), p4.y(), p4.z(), p4.t() );
+      Candidate::LorentzVector momentum( part->momentum() );
       Candidate::Point vertex( 0, 0, 0 );
       const HepMC::GenVertex * v = part->production_vertex();
       if ( v != 0 ) {
