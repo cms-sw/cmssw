@@ -88,11 +88,20 @@ void SiStripInformationExtractor::printSummaryHistoList(MonitorUserInterface * m
     }
   }
 
+  string mtag ="Modules: ";  
   for (vector<string>::const_iterator ic = subDirVec.begin();
        ic != subDirVec.end(); ic++) {
     mui->cd(*ic);
+    string titl = (*ic);
+    if (titl.find("module_") == 0)  {
+      titl = titl.substr(titl.find("module_")+7);
+      mtag += titl + " ";
+    }
     printSummaryHistoList(mui, str_val);
     mui->goUp();
+  }
+  if (mtag.size() > 10) {
+    str_val << "<li class=\"note.gif\"><a href=\"#\">" << mtag << "</a></li>" << endl;
   }
   str_val << "</ul> "<< endl;  
   str_val << "</li> "<< endl;  
