@@ -1,7 +1,7 @@
 #ifndef DQM_SiStripCommon_SummaryGenerator_H
 #define DQM_SiStripCommon_SummaryGenerator_H
 
-#include "DataFormats/SiStripCommon/interface/SiStripEnumeratedTypes.h"
+#include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "boost/cstdint.hpp"
 #include <string>
 #include <vector>
@@ -36,7 +36,7 @@ class SummaryGenerator {
   // ---------- Contruct name and TObject ----------
 
   /** Constructs the summary histogram name. */
-  static std::string name( const sistrip::Task&, 
+  static std::string name( const sistrip::RunType&, 
 			   const sistrip::Monitorable&, 
 			   const sistrip::Presentation&,
 			   const sistrip::View&, 
@@ -80,7 +80,7 @@ class SummaryGenerator {
   // ---------- Histogram formatting ----------
   
   /** Some generic formatting of histogram. */
-  void format( const sistrip::Task&, 
+  void format( const sistrip::RunType&, 
 	       const sistrip::Monitorable&, 
 	       const sistrip::Presentation&,
 	       const sistrip::View&, 

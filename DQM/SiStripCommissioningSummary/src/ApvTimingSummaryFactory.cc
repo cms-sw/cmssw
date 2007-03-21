@@ -1,25 +1,26 @@
 #include "DQM/SiStripCommissioningSummary/interface/ApvTimingSummaryFactory.h"
 #include "DQM/SiStripCommissioningSummary/interface/SummaryGenerator.h"
-#include "DataFormats/SiStripCommon/interface/SiStripHistoNamingScheme.h"
+#include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 
-using namespace std;
+using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 //
 uint32_t SummaryPlotFactory<ApvTimingAnalysis*>::init( const sistrip::Monitorable& mon, 
 						       const sistrip::Presentation& pres,
 						       const sistrip::View& view, 
-						       const string& level, 
+						       const std::string& level, 
 						       const sistrip::Granularity& gran,
-						       const map<uint32_t,ApvTimingAnalysis*>& data ) {
+						       const std::map<uint32_t,ApvTimingAnalysis*>& data ) {
   
   // Some initialisation
   SummaryPlotFactoryBase::init( mon, pres, view, level, gran );
   
   // Transfer appropriate monitorables info to generator object
   if ( !SummaryPlotFactoryBase::generator_ ) { return 0; }
-  map<uint32_t,ApvTimingAnalysis*>::const_iterator iter = data.begin();
+  std::map<uint32_t,ApvTimingAnalysis*>::const_iterator iter = data.begin();
   for ( ; iter != data.end(); iter++ ) {
     static float value = 1.*sistrip::invalid_;
     if ( SummaryPlotFactoryBase::mon_ == sistrip::APV_TIMING_TIME ) { value = iter->second->time(); }
@@ -58,10 +59,10 @@ void SummaryPlotFactory<ApvTimingAnalysis*>::fill( TH1& summary_histo ) {
   } else if ( SummaryPlotFactoryBase::mon_ == sistrip::APV_TIMING_PEAK ) { 
   } else if ( SummaryPlotFactoryBase::mon_ == sistrip::APV_TIMING_HEIGHT ) {
   } else { 
-    cerr << "[" << __PRETTY_FUNCTION__ << "]" 
-	 << " Unexpected SummaryHisto value:"
-	 << SiStripHistoNamingScheme::monitorable( SummaryPlotFactoryBase::mon_ ) 
-	 << endl;
+    edm::LogWarning(mlSummaryPlots_)
+      << "[SummaryPlotFactory::" << __func__ << "]" 
+      << " Unexpected SummaryHisto value:"
+      << SiStripEnumsAndStrings::monitorable( SummaryPlotFactoryBase::mon_ );
   } 
   
 }

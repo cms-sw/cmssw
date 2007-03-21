@@ -1,10 +1,11 @@
 #include "DQM/SiStripCommissioningSummary/interface/FedCablingSummaryFactory.h"
 #include "DQM/SiStripCommissioningSummary/interface/SummaryGenerator.h"
-#include "DataFormats/SiStripCommon/interface/SiStripHistoNamingScheme.h"
+#include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 #include <sstream>
 
-using namespace std;
+using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 //
@@ -30,7 +31,7 @@ SummaryHistogramFactory<FedCablingAnalysis>::~SummaryHistogramFactory() {
 void SummaryHistogramFactory<FedCablingAnalysis>::init( const sistrip::Monitorable& mon, 
 							const sistrip::Presentation& pres,
 							const sistrip::View& view, 
-							const string& top_level_dir, 
+							const std::string& top_level_dir, 
 							const sistrip::Granularity& gran ) {
   mon_ = mon;
   pres_ = pres;
@@ -46,25 +47,25 @@ void SummaryHistogramFactory<FedCablingAnalysis>::init( const sistrip::Monitorab
 
 //------------------------------------------------------------------------------
 //
-uint32_t SummaryHistogramFactory<FedCablingAnalysis>::extract( const map<uint32_t,FedCablingAnalysis>& data  ) {
+uint32_t SummaryHistogramFactory<FedCablingAnalysis>::extract( const std::map<uint32_t,FedCablingAnalysis>& data  ) {
   
   // Check if data are present
   if ( data.empty() ) { 
-    cerr << "[SummaryHistogramFactory<FedCablingAnalysis>::" << __func__ << "]" 
-	 << " No data to histogram!" << endl;
+    edm::LogWarning(mlSummaryPlots_) << "[SummaryHistogramFactory<FedCablingAnalysis>::" << __func__ << "]" 
+	 << " No data to histogram!";
     return 0; 
   } 
   
   // Check if instance of generator class exists
   if ( !generator_ ) { 
-    cerr << "[SummaryHistogramFactory<FedCablingAnalysis>::" << __func__ << "]" 
-	 << " NULL pointer to SummaryGenerator object!" << endl;
+    edm::LogWarning(mlSummaryPlots_) << "[SummaryHistogramFactory<FedCablingAnalysis>::" << __func__ << "]" 
+	 << " NULL pointer to SummaryGenerator object!";
     return 0;  
   }
   
   // Transfer appropriate monitorables info to generator object
   generator_->clearMap();
-  map<uint32_t,FedCablingAnalysis>::const_iterator iter = data.begin();
+  std::map<uint32_t,FedCablingAnalysis>::const_iterator iter = data.begin();
   for ( ; iter != data.end(); iter++ ) {
     if ( mon_ == sistrip::FED_CABLING_FED_ID ) {
       generator_->fillMap( level_, gran_, iter->first, iter->second.fedId() ); 
@@ -73,10 +74,10 @@ uint32_t SummaryHistogramFactory<FedCablingAnalysis>::extract( const map<uint32_
     } else if ( mon_ == sistrip::FED_CABLING_ADC_LEVEL ) { 
       generator_->fillMap( level_, gran_, iter->first, iter->second.adcLevel() ); 
     } else { 
-      cerr << "[SummaryHistogramFactory<FedCablingAnalysis>::" << __func__ << "]" 
+      edm::LogWarning(mlSummaryPlots_) << "[SummaryHistogramFactory<FedCablingAnalysis>::" << __func__ << "]" 
 	   << " Unexpected SummaryHisto value: "
-	   << SiStripHistoNamingScheme::monitorable( mon_ ) 
-	   << endl;
+	   << SiStripEnumsAndStrings::monitorable( mon_ ) 
+	  ;
       continue;
     }
   }
@@ -89,22 +90,22 @@ void SummaryHistogramFactory<FedCablingAnalysis>::fill( TH1& summary_histo ) {
 
   // Check if instance of generator class exists
   if ( !generator_ ) { 
-    cerr << "[SummaryHistogramFactory<FedCablingAnalysis>::" << __func__ << "]" 
-	 << " NULL pointer to SummaryGenerator object!" << endl;
+    edm::LogWarning(mlSummaryPlots_) << "[SummaryHistogramFactory<FedCablingAnalysis>::" << __func__ << "]" 
+	 << " NULL pointer to SummaryGenerator object!";
     return;
   }
 
   // Check if instance of generator class exists
   if ( !(&summary_histo) ) { 
-    cerr << "[SummaryHistogramFactory<FedCablingAnalysis>::" << __func__ << "]" 
-	 << " NULL pointer to SummaryGenerator object!" << endl;
+    edm::LogWarning(mlSummaryPlots_) << "[SummaryHistogramFactory<FedCablingAnalysis>::" << __func__ << "]" 
+	 << " NULL pointer to SummaryGenerator object!";
     return;
   }
 
-  // Check if map is filled
+  // Check if std::map is filled
   if ( !generator_->size() ) { 
-    cerr << "[SummaryHistogramFactory<FedCablingAnalysis>::" << __func__ << "]" 
-	 << " No data in the monitorables map!" << endl;
+    edm::LogWarning(mlSummaryPlots_) << "[SummaryHistogramFactory<FedCablingAnalysis>::" << __func__ << "]" 
+	 << " No data in the monitorables std::map!";
     return; 
   } 
 
@@ -118,10 +119,10 @@ void SummaryHistogramFactory<FedCablingAnalysis>::fill( TH1& summary_histo ) {
   } else if ( pres_ == sistrip::SUMMARY_PROF ) {
     generator_->summaryProf( summary_histo );
   } else { 
-    cerr << "[SummaryHistogramFactory<FedCablingAnalysis>::" << __func__ << "]" 
+    edm::LogWarning(mlSummaryPlots_) << "[SummaryHistogramFactory<FedCablingAnalysis>::" << __func__ << "]" 
 	 << " Unexpected SummaryType value:"
-	 << SiStripHistoNamingScheme::presentation( pres_ ) 
-	 << endl;
+	 << SiStripEnumsAndStrings::presentation( pres_ ) 
+	;
     return; 
   }
   
@@ -133,10 +134,10 @@ void SummaryHistogramFactory<FedCablingAnalysis>::fill( TH1& summary_histo ) {
   } else if ( mon_ == sistrip::FED_CABLING_ADC_LEVEL ) { 
     generator_->axisLabel( "ADC level" );
   } else { 
-    cerr << "[SummaryHistogramFactory<FedCablingAnalysis>::" << __func__ << "]" 
+    edm::LogWarning(mlSummaryPlots_) << "[SummaryHistogramFactory<FedCablingAnalysis>::" << __func__ << "]" 
 	 << " Unexpected SummaryHisto value:"
-	 << SiStripHistoNamingScheme::monitorable( mon_ ) 
-	 << endl;
+	 << SiStripEnumsAndStrings::monitorable( mon_ ) 
+	;
   } 
   generator_->format( sistrip::FED_CABLING, mon_, pres_, view_, level_, gran_, summary_histo );
   

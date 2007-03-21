@@ -1,10 +1,11 @@
 #include "DQM/SiStripCommissioningSummary/interface/SummaryHistogramFactory.h"
 #include "DQM/SiStripCommissioningSummary/interface/SummaryGenerator.h"
-#include "DataFormats/SiStripCommon/interface/SiStripHistoNamingScheme.h"
+#include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 #include <sstream>
 
-using namespace std;
+using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 //
@@ -17,14 +18,14 @@ SummaryHistogramFactory<T>::SummaryHistogramFactory() :
   gran_(sistrip::UNKNOWN_GRAN),
   generator_(0) 
 {
-  cout << "[" << __PRETTY_FUNCTION__ << "]" << endl;
+  LogTrace(mlSummaryPlots_) << "[SummaryHistogramFactory::" << __func__ << "]";
 } 
 
 // -----------------------------------------------------------------------------
 //
 template<class T> 
 SummaryHistogramFactory<T>::~SummaryHistogramFactory() {
-  cout << "[" << __PRETTY_FUNCTION__ << "]" << endl;
+  LogTrace(mlSummaryPlots_) << "[SummaryHistogramFactory::" << __func__ << "]";
   if ( generator_ ) { delete generator_; }
 }
 
@@ -34,9 +35,9 @@ template<class T>
 void SummaryHistogramFactory<T>::init( const sistrip::Monitorable& mon, 
 				       const sistrip::Presentation& pres,
 				       const sistrip::View& view, 
-				       const string& top_level_dir, 
+				       const std::string& top_level_dir, 
 				       const sistrip::Granularity& gran ) {
-  cout << "[" << __PRETTY_FUNCTION__ << "]" << endl;
+  LogTrace(mlSummaryPlots_) << "[SummaryHistogramFactory::" << __func__ << "]";
   mon_ = mon;
   pres_ = pres;
   view_ = view;
@@ -55,26 +56,26 @@ void SummaryHistogramFactory<T>::init( const sistrip::Monitorable& mon,
 // -----------------------------------------------------------------------------
 //
 template<class T> 
-uint32_t SummaryHistogramFactory<T>::extract( const map<uint32_t,T>& data ) {
-  cout << "[" << __PRETTY_FUNCTION__ << "]" << endl;
+uint32_t SummaryHistogramFactory<T>::extract( const std::map<uint32_t,T>& data ) {
+  LogTrace(mlSummaryPlots_) << "[SummaryHistogramFactory::" << __func__ << "]";
   
   // Check if data are present
   if ( data.empty() ) { 
-    cerr << "[" << __PRETTY_FUNCTION__ << "]" 
-	 << " No data in monitorables map!" << endl;
+    edm::LogWarning(mlSummaryPlots_) << "[SummaryHistogramFactory::" << __func__ << "]" 
+				     << " No data in monitorables std::map!";
     return 0; 
   }
   
   // Check if instance of generator class exists
   if ( !generator_ ) { 
-    cerr << "[" << __PRETTY_FUNCTION__ << "]" 
-	 << " NULL pointer to SummaryGenerator object!" << endl;
+    edm::LogWarning(mlSummaryPlots_) << "[SummaryHistogramFactory::" << __func__ << "]" 
+	 << " NULL pointer to SummaryGenerator object!";
     return 0;
   }
   
   // Transfer appropriate monitorables info to generator object
   generator_->clearMap();
-  typename map<uint32_t,T>::const_iterator iter = data.begin();
+  typename std::map<uint32_t,T>::const_iterator iter = data.begin();
   for ( ; iter != data.end(); iter++ ) {
     generator_->fillMap( level_,                             // top-level directory
 			 gran_,                              // granularity
@@ -89,26 +90,26 @@ uint32_t SummaryHistogramFactory<T>::extract( const map<uint32_t,T>& data ) {
 //
 template<class T> 
 void SummaryHistogramFactory<T>::fill( TH1& summary_histo ) {
-  cout << "[" << __PRETTY_FUNCTION__ << "]" << endl;
+  LogTrace(mlSummaryPlots_) << "[SummaryHistogramFactory::" << __func__ << "]";
   
   // Check if instance of generator class exists
   if ( !generator_ ) { 
-    cerr << "[" << __PRETTY_FUNCTION__ << "]" 
-	 << " NULL pointer to SummaryGenerator object!" << endl;
+    edm::LogWarning(mlSummaryPlots_) << "[SummaryHistogramFactory::" << __func__ << "]" 
+	 << " NULL pointer to SummaryGenerator object!";
     return;
   }
 
   // Check if instance of generator class exists
   if ( !(&summary_histo) ) { 
-    cerr << "[" << __PRETTY_FUNCTION__ << "]" 
-	 << " NULL pointer to SummaryGenerator object!" << endl;
+    edm::LogWarning(mlSummaryPlots_) << "[SummaryHistogramFactory::" << __func__ << "]" 
+	 << " NULL pointer to SummaryGenerator object!";
     return;
   }
 
-  // Check if map is filled
+  // Check if std::map is filled
   if ( !generator_->size() ) { 
-    cerr << "[" << __PRETTY_FUNCTION__ << "]" 
-	 << " No data in the monitorables map!" << endl;
+    edm::LogWarning(mlSummaryPlots_) << "[SummaryHistogramFactory::" << __func__ << "]" 
+	 << " No data in the monitorables std::map!";
     return; 
   } 
   
@@ -124,7 +125,7 @@ void SummaryHistogramFactory<T>::fill( TH1& summary_histo ) {
   } else { return; }
   
   // Histogram formatting
-  generator_->format( sistrip::UNKNOWN_TASK, mon_, pres_, view_, level_, gran_, summary_histo );
+  generator_->format( sistrip::UNKNOWN_RUN_TYPE, mon_, pres_, view_, level_, gran_, summary_histo );
   
 }
 

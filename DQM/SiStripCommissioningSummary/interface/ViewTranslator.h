@@ -32,9 +32,9 @@ class ViewTranslator {
 			 Mapping& fed_to_fec );
   
   /** Build "reduced" map based on "masked" FED key */
-  void fedToFec( const uint32_t& fed_key_mask, 
-		 const Mapping& input,
-		 Mapping& output );
+  uint32_t fedToFec( const uint32_t& fed_key_mask, 
+		     const Mapping& input,
+		     Mapping& output );
   
   /** Build "reduced" map based on "masked" DET key */
   uint32_t detToFec( const uint32_t& det_key_mask, 
