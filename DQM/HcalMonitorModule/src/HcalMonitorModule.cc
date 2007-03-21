@@ -3,8 +3,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2006/10/26 23:35:37 $
- * $Revision: 1.25 $
+ * $Date: 2006/12/12 19:06:25 $
+ * $Revision: 1.26 $
  * \author W Fisher
  *
 */
@@ -253,7 +253,9 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
   if((m_dfMon != NULL) && (evtMask&DO_HCAL_DFMON)){
     edm::Handle<FEDRawDataCollection> rawraw;  
     try{e.getByType(rawraw);} catch(...){};           
-    m_dfMon->processEvent(*rawraw,*m_readoutMap);
+    edm::Handle<HcalUnpackerReport> report;  
+    try{e.getByType(report);} catch(...){};
+    m_dfMon->processEvent(*rawraw,*report,*m_readoutMap);
   }
 
   // Rec Hit monitor task
