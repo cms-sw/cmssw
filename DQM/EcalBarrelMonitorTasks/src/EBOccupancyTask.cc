@@ -1,8 +1,8 @@
 /*
  * \file EBOccupancyTask.cc
  *
- * $Date: 2007/03/13 10:53:18 $
- * $Revision: 1.15 $
+ * $Date: 2007/03/20 12:37:27 $
+ * $Revision: 1.16 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -166,24 +166,33 @@ void EBOccupancyTask::analyze(const Event& e, const EventSetup& c){
 
   }
 
-  Handle<EcalPnDiodeDigiCollection> PNs;
-  e.getByLabel(EcalPnDiodeDigiCollection_, PNs);
+  try {
 
-  // filling mem occupancy only for the 5 channels belonging
-  // to a fully reconstructed PN's
-  for ( EcalPnDiodeDigiCollection::const_iterator pnItr = PNs->begin(); pnItr != PNs->end(); ++pnItr ) {
+    Handle<EcalPnDiodeDigiCollection> PNs;
+    e.getByLabel(EcalPnDiodeDigiCollection_, PNs);
 
-    int   ism   = (*pnItr).id().iDCCId();
-    float PnId  = (*pnItr).id().iPnId();
-    PnId        = PnId - 0.5;
-    float st    = 0.0;
+    // filling mem occupancy only for the 5 channels belonging
+    // to a fully reconstructed PN's
 
-    for (int chInStrip = 1; chInStrip <= 5; chInStrip++){
-      if ( meOccupancyMem_[ism-1] ) {
-         st = chInStrip - 0.5;
-	 meOccupancyMem_[ism-1]->Fill(PnId, st);
+    for ( EcalPnDiodeDigiCollection::const_iterator pnItr = PNs->begin(); pnItr != PNs->end(); ++pnItr ) {
+
+      int   ism   = (*pnItr).id().iDCCId();
+      float PnId  = (*pnItr).id().iPnId();
+      PnId        = PnId - 0.5;
+      float st    = 0.0;
+
+      for (int chInStrip = 1; chInStrip <= 5; chInStrip++){
+        if ( meOccupancyMem_[ism-1] ) {
+           st = chInStrip - 0.5;
+           meOccupancyMem_[ism-1]->Fill(PnId, st);
+        }
       }
+
     }
+
+  } catch ( exception& ex) {
+
+    LogWarning("EBOccupancyTask") << "EcalPnDiodeDigiCollection not present in event";
 
   }
 
