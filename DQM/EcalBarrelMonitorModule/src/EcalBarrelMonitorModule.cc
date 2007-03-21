@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  *
- * $Date: 2007/03/20 21:38:45 $
- * $Revision: 1.121 $
+ * $Date: 2007/03/21 06:59:26 $
+ * $Revision: 1.122 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -310,7 +310,7 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
 
   } catch ( exception& ex) {
 
-    LogWarning("EcalBarrelMonitorModule") << "EcalRawDataCollection not present in event";
+    LogWarning("EcalBarrelMonitorModule") << EcalRawDataCollection_ << " not available";
 
     try {
 
@@ -322,11 +322,9 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
       runType_ = EcalDCCHeaderBlock::BEAMH4;
       evtType_ = EcalDCCHeaderBlock::BEAMH4;
 
-      LogWarning("EcalBarrelMonitorModule") << "EcalTBEventHeader found, instead";
-
     } catch ( exception& ex ) {
 
-      LogDebug("EcalBarrelMonitorModule") << "EcalTBEventHeader not present in event TOO!";
+      LogWarning("EcalBarrelMonitorModule") << EcalTBEventHeader_ << " not available, TOO!";
 
     }
 
@@ -353,63 +351,23 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
 
   if ( ievt_ == 1 ) sleep(5);
 
-  Handle<EBDigiCollection> digis;
-  e.getByLabel(EBDigiCollection_, digis);
+  try {
 
-  int nebd = digis->size();
-  LogDebug("EcalBarrelMonitor") << "event " << ievt_ << " digi collection size " << nebd;
+    Handle<EBDigiCollection> digis;
+    e.getByLabel(EBDigiCollection_, digis);
 
-  if ( meEBdigi_ ) meEBdigi_->Fill(float(nebd));
+    int nebd = digis->size();
+    LogDebug("EcalBarrelMonitor") << "event " << ievt_ << " digi collection size " << nebd;
 
-  // pause the shipping of monitoring elements
-  dbe_->lock();
-
-  for ( EBDigiCollection::const_iterator digiItr = digis->begin(); digiItr != digis->end(); ++digiItr ) {
-
-    EBDataFrame dataframe = (*digiItr);
-    EBDetId id = dataframe.id();
-
-    int ic = id.ic();
-    int ie = (ic-1)/20 + 1;
-    int ip = (ic-1)%20 + 1;
-
-    int ism = id.ism();
-
-    float xie = ie - 0.5;
-    float xip = ip - 0.5;
-
-    LogDebug("EcalBarrelMonitor") << " det id = " << id;
-    LogDebug("EcalBarrelMonitor") << " sm, eta, phi " << ism << " " << ie << " " << ip;
-
-    if ( xie <= 0. || xie >= 85. || xip <= 0. || xip >= 20. ) {
-      LogWarning("EcalBarrelMonitor") << " det id = " << id;
-      LogWarning("EcalBarrelMonitor") << " sm, eta, phi " << ism << " " << ie << " " << ip;
-      LogWarning("EcalBarrelMonitor") << " xie, xip " << xie << " " << xip;
-      return;
-    }
-
-  }
-
-  // resume the shipping of monitoring elements
-  dbe_->unlock();
-
-  Handle<EcalUncalibratedRecHitCollection> hits;
-  e.getByLabel(EcalUncalibratedRecHitCollection_, hits);
-
-  int nebh = hits->size();
-  LogDebug("EcalBarrelMonitor") << "event " << ievt_ << " hits collection size " << nebh;
-
-  if ( meEBhits_ ) meEBhits_->Fill(float(nebh));
-
-  if ( enableEventDisplay_ ) {
+    if ( meEBdigi_ ) meEBdigi_->Fill(float(nebd));
 
     // pause the shipping of monitoring elements
     dbe_->lock();
 
-    for ( EcalUncalibratedRecHitCollection::const_iterator hitItr = hits->begin(); hitItr != hits->end(); ++hitItr ) {
+    for ( EBDigiCollection::const_iterator digiItr = digis->begin(); digiItr != digis->end(); ++digiItr ) {
 
-      EcalUncalibratedRecHit hit = (*hitItr);
-      EBDetId id = hit.id();
+      EBDataFrame dataframe = (*digiItr);
+      EBDetId id = dataframe.id();
 
       int ic = id.ic();
       int ie = (ic-1)/20 + 1;
@@ -427,20 +385,76 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
         LogWarning("EcalBarrelMonitor") << " det id = " << id;
         LogWarning("EcalBarrelMonitor") << " sm, eta, phi " << ism << " " << ie << " " << ip;
         LogWarning("EcalBarrelMonitor") << " xie, xip " << xie << " " << xip;
-      }
-
-      float xval = hit.amplitude();
-
-      LogDebug("EcalBarrelMonitor") << " hit amplitude " << xval;
-
-      if ( xval >= 10 ) {
-         if ( meEvent_[ism-1] ) meEvent_[ism-1]->Fill(xie, xip, xval);
+        return;
       }
 
     }
 
     // resume the shipping of monitoring elements
     dbe_->unlock();
+
+  } catch ( exception& ex) {
+
+    LogWarning("EcalBarrelMonitorModule") << EBDigiCollection_ << " not available";
+
+  }
+
+  try {
+
+    Handle<EcalUncalibratedRecHitCollection> hits;
+    e.getByLabel(EcalUncalibratedRecHitCollection_, hits);
+
+    int nebh = hits->size();
+    LogDebug("EcalBarrelMonitor") << "event " << ievt_ << " hits collection size " << nebh;
+
+    if ( meEBhits_ ) meEBhits_->Fill(float(nebh));
+
+    if ( enableEventDisplay_ ) {
+
+      // pause the shipping of monitoring elements
+      dbe_->lock();
+
+      for ( EcalUncalibratedRecHitCollection::const_iterator hitItr = hits->begin(); hitItr != hits->end(); ++hitItr ) {
+
+        EcalUncalibratedRecHit hit = (*hitItr);
+        EBDetId id = hit.id();
+
+        int ic = id.ic();
+        int ie = (ic-1)/20 + 1;
+        int ip = (ic-1)%20 + 1;
+
+        int ism = id.ism();
+
+        float xie = ie - 0.5;
+        float xip = ip - 0.5;
+
+        LogDebug("EcalBarrelMonitor") << " det id = " << id;
+        LogDebug("EcalBarrelMonitor") << " sm, eta, phi " << ism << " " << ie << " " << ip;
+
+        if ( xie <= 0. || xie >= 85. || xip <= 0. || xip >= 20. ) {
+          LogWarning("EcalBarrelMonitor") << " det id = " << id;
+          LogWarning("EcalBarrelMonitor") << " sm, eta, phi " << ism << " " << ie << " " << ip;
+          LogWarning("EcalBarrelMonitor") << " xie, xip " << xie << " " << xip;
+        }
+
+        float xval = hit.amplitude();
+
+        LogDebug("EcalBarrelMonitor") << " hit amplitude " << xval;
+
+        if ( xval >= 10 ) {
+          if ( meEvent_[ism-1] ) meEvent_[ism-1]->Fill(xie, xip, xval);
+        }
+
+      }
+
+      // resume the shipping of monitoring elements
+      dbe_->unlock();
+
+    }
+
+  } catch ( exception& ex) {
+
+    LogWarning("EcalBarrelMonitorModule") << EcalUncalibratedRecHitCollection_ << " not available";
 
   }
 
