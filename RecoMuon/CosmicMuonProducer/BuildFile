@@ -7,6 +7,7 @@
 <use name=RecoMuon/Navigation>
 <use name=RecoMuon/TrackingTools>
 <use name=RecoMuon/MeasurementDet>
+<use name=TrackingTools/TrackRefitter>
 <use name=rootrflx>
 <use name=root>
 <use name=clhep>
