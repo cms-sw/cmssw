@@ -1,8 +1,8 @@
 /*
  * \file EBClusterClient.cc
  *
- * $Date: 2007/02/21 14:32:06 $
- * $Revision: 1.11 $
+ * $Date: 2007/03/13 10:14:25 $
+ * $Revision: 1.12 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -58,6 +58,22 @@ EBClusterClient::EBClusterClient(const ParameterSet& ps){
   superModules_.reserve(36);
   for ( unsigned int i = 1; i < 37; i++ ) superModules_.push_back(i);
   superModules_ = ps.getUntrackedParameter<vector<int> >("superModules", superModules_);
+
+  h01_[0] = 0;
+  h01_[1] = 0;
+  h01_[2] = 0;
+
+  h02_ = 0;
+
+  h03_ = 0;
+
+  i01_[0] = 0;
+  i01_[1] = 0;
+  i01_[2] = 0;
+
+  i02_ = 0;
+
+  i03_ = 0;
 
 }
 
