@@ -1,6 +1,5 @@
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "RecoMET/METAlgorithms/interface/GenSpecificAlgo.h"
-#include "CLHEP/HepMC/GenEvent.h"
 
 using namespace reco;
 using namespace std;

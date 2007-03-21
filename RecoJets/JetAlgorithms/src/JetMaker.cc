@@ -1,14 +1,13 @@
 /// Algorithm to convert transient protojets into persistent jets
 /// Author: F.Ratnikov, UMd
 /// Mar. 8, 2006
-/// $Id: JetMaker.cc,v 1.15 2006/12/06 22:43:23 fedor Exp $
+/// $Id: JetMaker.cc,v 1.16 2006/12/08 21:18:30 fedor Exp $
 
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
 #include "DataFormats/RecoCandidate/interface/RecoCaloTowerCandidate.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
-#include "CLHEP/HepMC/GenEvent.h"
 
 #include "RecoJets/JetAlgorithms/interface/JetMaker.h"
 
