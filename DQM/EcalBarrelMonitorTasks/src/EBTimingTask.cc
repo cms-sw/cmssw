@@ -1,8 +1,8 @@
 /*
  * \file EBTimingTask.cc
  *
- * $Date: 2007/03/13 10:53:18 $
- * $Revision: 1.7 $
+ * $Date: 2007/03/20 12:37:27 $
+ * $Revision: 1.8 $
  * \author G. Della Ricca
  *
 */
@@ -36,7 +36,6 @@ EBTimingTask::EBTimingTask(const ParameterSet& ps){
 
   init_ = false;
 
-  EcalRawDataCollection_ = ps.getParameter<edm::InputTag>("EcalRawDataCollection");
   EcalUncalibratedRecHitCollection_ = ps.getParameter<edm::InputTag>("EcalUncalibratedRecHitCollection");
 
   for (int i = 0; i < 36 ; i++) {
@@ -120,83 +119,57 @@ void EBTimingTask::endJob(void){
 
 void EBTimingTask::analyze(const Event& e, const EventSetup& c){
 
-  bool enable = false;
-  map<int, EcalDCCHeaderBlock> dccMap;
-
-  Handle<EcalRawDataCollection> dcchs;
-  e.getByLabel(EcalRawDataCollection_, dcchs);
-
-  for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
-
-    EcalDCCHeaderBlock dcch = (*dcchItr);
-
-    map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(dcch.id());
-    if ( i != dccMap.end() ) continue;
-
-    dccMap[dcch.id()] = dcch;
-
-    if ( dcch.getRunType() == EcalDCCHeaderBlock::COSMIC ||
-         dcch.getRunType() == EcalDCCHeaderBlock::LASER_STD ||
-         dcch.getRunType() == EcalDCCHeaderBlock::BEAMH4 ||
-         dcch.getRunType() == EcalDCCHeaderBlock::BEAMH2 ||
-         dcch.getRunType() == EcalDCCHeaderBlock::MTCC ) enable = true;
-
-  }
-
-  if ( ! enable ) return;
-
   if ( ! init_ ) this->setup();
 
   ievt_++;
 
-  Handle<EcalUncalibratedRecHitCollection> hits;
-  e.getByLabel(EcalUncalibratedRecHitCollection_, hits); 
+  try {
 
-  int neh = hits->size();
-  LogDebug("EBTimingTask") << "event " << ievt_ << " hits collection size " << neh;
+    Handle<EcalUncalibratedRecHitCollection> hits;
+    e.getByLabel(EcalUncalibratedRecHitCollection_, hits); 
 
-  for ( EcalUncalibratedRecHitCollection::const_iterator hitItr = hits->begin(); hitItr != hits->end(); ++hitItr ) {
+    int neh = hits->size();
+    LogDebug("EBTimingTask") << "event " << ievt_ << " hits collection size " << neh;
+
+    for ( EcalUncalibratedRecHitCollection::const_iterator hitItr = hits->begin(); hitItr != hits->end(); ++hitItr ) {
     
-    EcalUncalibratedRecHit hit = (*hitItr);
-    EBDetId id = hit.id(); 
+      EcalUncalibratedRecHit hit = (*hitItr);
+      EBDetId id = hit.id(); 
 
-    int ic = id.ic();
-    int ie = (ic-1)/20 + 1;
-    int ip = (ic-1)%20 + 1;
+      int ic = id.ic();
+      int ie = (ic-1)/20 + 1;
+      int ip = (ic-1)%20 + 1;
 
-    int ism = id.ism();
+      int ism = id.ism();
 
-    float xie = ie - 0.5;
-    float xip = ip - 0.5;
+      float xie = ie - 0.5;
+      float xip = ip - 0.5;
 
-    map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(ism);
-    if ( i == dccMap.end() ) continue;
+      LogDebug("EBTimingTask") << " det id = " << id;
+      LogDebug("EBTimingTask") << " sm, eta, phi " << ism << " " << ie << " " << ip;
 
-    if ( ! ( dccMap[ism].getRunType() == EcalDCCHeaderBlock::COSMIC ||
-             dccMap[ism].getRunType() == EcalDCCHeaderBlock::LASER_STD ||
-             dccMap[ism].getRunType() == EcalDCCHeaderBlock::BEAMH4 ||
-             dccMap[ism].getRunType() == EcalDCCHeaderBlock::BEAMH2 ||
-             dccMap[ism].getRunType() == EcalDCCHeaderBlock::MTCC ) ) continue;
+      MonitorElement* meTimeMap = 0;
 
-    LogDebug("EBTimingTask") << " det id = " << id;
-    LogDebug("EBTimingTask") << " sm, eta, phi " << ism << " " << ie << " " << ip;
+      meTimeMap = meTimeMap_[ism-1];
 
-    MonitorElement* meTimeMap = 0;
+      float xval = hit.amplitude();
+      if ( xval <= 0. ) xval = 0.0;
+      float yval = hit.jitter();
+      if ( yval <= 0. ) yval = 0.0;
+      float zval = hit.pedestal();
+      if ( zval <= 0. ) zval = 0.0;
 
-    meTimeMap = meTimeMap_[ism-1];
+      LogDebug("EBTimingTask") << " hit amplitude " << xval;
+      LogDebug("EBTimingTask") << " hit jitter " << yval;
+      LogDebug("EBTimingTask") << " hit pedestal " << zval;
 
-    float xval = hit.amplitude();
-    if ( xval <= 0. ) xval = 0.0;
-    float yval = hit.jitter();
-    if ( yval <= 0. ) yval = 0.0;
-    float zval = hit.pedestal();
-    if ( zval <= 0. ) zval = 0.0;
+      if ( meTimeMap ) meTimeMap->Fill(xie, xip, yval);
 
-    LogDebug("EBTimingTask") << " hit amplitude " << xval;
-    LogDebug("EBTimingTask") << " hit jitter " << yval;
-    LogDebug("EBTimingTask") << " hit pedestal " << zval;
+    }
 
-    if ( meTimeMap ) meTimeMap->Fill(xie, xip, yval);
+  } catch ( exception& ex) {
+
+    LogWarning("EBTimingTask") << EcalUncalibratedRecHitCollection_ << " not available";
 
   }
 

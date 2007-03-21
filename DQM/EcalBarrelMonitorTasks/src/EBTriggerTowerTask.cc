@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerTask.cc
  *
- * $Date: 2007/03/13 10:53:18 $
- * $Revision: 1.26 $
+ * $Date: 2007/03/20 12:37:27 $
+ * $Revision: 1.27 $
  * \author G. Della Ricca
  *
 */
@@ -213,7 +213,7 @@ void EBTriggerTowerTask::analyze(const Event& e, const EventSetup& c){
     }
 
   } catch ( std::exception& ex) {
-    LogDebug("EBTriggerTowerTask") << " EcalTrigPrimDigiCollection not in event.";
+    LogWarning("EBTriggerTowerTask") << EcalTrigPrimDigiCollection_ << " not available";
   }
 
   float xmap[36][68];
@@ -272,7 +272,7 @@ void EBTriggerTowerTask::analyze(const Event& e, const EventSetup& c){
     }
 
   } catch ( std::exception& ex) {
-    LogDebug("EBTriggerTowerTask") << " EcalUncalibratedRecHitCollection not in event.";
+    LogWarning("EBTriggerTowerTask") << EcalUncalibratedRecHitCollection_ << " not available";
   }
 
 }

@@ -1,8 +1,8 @@
 /*
  * \file EBClusterTask.cc
  *
- * $Date: 2007/02/21 14:31:32 $
- * $Revision: 1.9 $
+ * $Date: 2007/03/13 10:53:18 $
+ * $Revision: 1.10 $
  * \author G. Della Ricca
  *
 */
@@ -187,7 +187,7 @@ void EBClusterTask::analyze(const Event& e, const EventSetup& c){
   try {
 
     Handle<BasicClusterCollection> bclusters;
-    e.getByLabel("islandBasicClusterProducer", "islandBarrelBasicClusterCollection", bclusters);
+    e.getByLabel("islandBasicClusters", "islandBarrelBasicClusters", bclusters);
 
     int nbcc = bclusters->size();
     LogDebug("EBClusterTask") << "event " << ievt_ << " basic cluster collection size " << nbcc;
@@ -213,7 +213,7 @@ void EBClusterTask::analyze(const Event& e, const EventSetup& c){
   try {
 
     Handle<SuperClusterCollection> sclusters;
-    e.getByLabel("islandSuperClusterProducer", "islandBarrelSuperClusterCollection", sclusters);
+    e.getByLabel("islandSuperClusters", "islandBarrelSuperClusters", sclusters);
 
     int nscc = sclusters->size();
     LogDebug("EBClusterTask") << "event " << ievt_ << " super cluster collection size " << nscc; 

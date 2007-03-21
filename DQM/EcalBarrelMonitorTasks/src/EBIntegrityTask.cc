@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityTask.cc
  *
- * $Date: 2007/03/13 10:53:18 $
- * $Revision: 1.32 $
+ * $Date: 2007/03/20 12:37:26 $
+ * $Revision: 1.33 $
  * \author G. Della Ricca
  *
  */
@@ -278,227 +278,315 @@ void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
   ievt_++;
 
-  Handle<EBDetIdCollection> ids0;
-  e.getByLabel(EBDetIdCollection0_, ids0);
+  try {
 
-  for ( EBDetIdCollection::const_iterator idItr = ids0->begin(); idItr != ids0->end(); ++ idItr ) {
+    Handle<EBDetIdCollection> ids0;
+    e.getByLabel(EBDetIdCollection0_, ids0);
 
-    EBDetId id = (*idItr);
+    for ( EBDetIdCollection::const_iterator idItr = ids0->begin(); idItr != ids0->end(); ++ idItr ) {
 
-    int ism = id.ism();
+      EBDetId id = (*idItr);
 
-    float xism = ism - 0.5;
+      int ism = id.ism();
 
-    if ( meIntegrityDCCSize ) meIntegrityDCCSize->Fill(xism);
+      float xism = ism - 0.5;
 
-  }
+      if ( meIntegrityDCCSize ) meIntegrityDCCSize->Fill(xism);
 
-  Handle<EBDetIdCollection> ids1;
-  e.getByLabel(EBDetIdCollection1_, ids1);
+    }
 
-  for ( EBDetIdCollection::const_iterator idItr = ids1->begin(); idItr != ids1->end(); ++ idItr ) {
+  } catch ( exception& ex) {
 
-    EBDetId id = (*idItr);
-
-    int ic = id.ic();
-    int ie = (ic-1)/20 + 1;
-    int ip = (ic-1)%20 + 1;
-
-    int ism = id.ism();
-
-    float xie = ie - 0.5;
-    float xip = ip - 0.5;
-
-    if ( meIntegrityGain[ism-1] ) meIntegrityGain[ism-1]->Fill(xie, xip);
+    LogWarning("EBIntegrityTask") << EBDetIdCollection0_ << " not available";
 
   }
 
-  Handle<EBDetIdCollection> ids2;
-  e.getByLabel(EBDetIdCollection2_, ids2);
+  try {
 
-  for ( EBDetIdCollection::const_iterator idItr = ids2->begin(); idItr != ids2->end(); ++ idItr ) {
+    Handle<EBDetIdCollection> ids1;
+    e.getByLabel(EBDetIdCollection1_, ids1);
 
-    EBDetId id = (*idItr);
+    for ( EBDetIdCollection::const_iterator idItr = ids1->begin(); idItr != ids1->end(); ++ idItr ) {
 
-    int ic = id.ic();
-    int ie = (ic-1)/20 + 1;
-    int ip = (ic-1)%20 + 1;
+      EBDetId id = (*idItr);
 
-    int ism = id.ism();
+      int ic = id.ic();
+      int ie = (ic-1)/20 + 1;
+      int ip = (ic-1)%20 + 1;
 
-    float xie = ie - 0.5;
-    float xip = ip - 0.5;
+      int ism = id.ism();
 
-    if ( meIntegrityChId[ism-1] ) meIntegrityChId[ism-1]->Fill(xie, xip);
+      float xie = ie - 0.5;
+      float xip = ip - 0.5;
 
-  }
+      if ( meIntegrityGain[ism-1] ) meIntegrityGain[ism-1]->Fill(xie, xip);
 
-  Handle<EBDetIdCollection> ids3;
-  e.getByLabel(EBDetIdCollection3_, ids3);
+    }
 
-  for ( EBDetIdCollection::const_iterator idItr = ids3->begin(); idItr != ids3->end(); ++ idItr ) {
+  } catch ( exception& ex) {
 
-    EBDetId id = (*idItr);
-
-    int ic = id.ic();
-    int ie = (ic-1)/20 + 1;
-    int ip = (ic-1)%20 + 1;
-
-    int ism = id.ism();
-
-    float xie = ie - 0.5;
-    float xip = ip - 0.5;
-
-    if ( meIntegrityGainSwitch[ism-1] ) meIntegrityGainSwitch[ism-1]->Fill(xie, xip);
+    LogWarning("EBIntegrityTask") << EBDetIdCollection1_ << " not available";
 
   }
 
-  Handle<EBDetIdCollection> ids4;
-  e.getByLabel(EBDetIdCollection4_, ids4);
+  try {
 
-  for ( EBDetIdCollection::const_iterator idItr = ids4->begin(); idItr != ids4->end(); ++ idItr ) {
+    Handle<EBDetIdCollection> ids2;
+    e.getByLabel(EBDetIdCollection2_, ids2);
 
-    EBDetId id = (*idItr);
+    for ( EBDetIdCollection::const_iterator idItr = ids2->begin(); idItr != ids2->end(); ++ idItr ) {
 
-    int ic = id.ic();
-    int ie = (ic-1)/20 + 1;
-    int ip = (ic-1)%20 + 1;
+      EBDetId id = (*idItr);
 
-    int ism = id.ism();
+      int ic = id.ic();
+      int ie = (ic-1)/20 + 1;
+      int ip = (ic-1)%20 + 1;
 
-    float xie = ie - 0.5;
-    float xip = ip - 0.5;
+      int ism = id.ism();
 
-    if ( meIntegrityGainSwitchStay[ism-1] ) meIntegrityGainSwitchStay[ism-1]->Fill(xie, xip);
+      float xie = ie - 0.5;
+      float xip = ip - 0.5;
 
-  }
+      if ( meIntegrityChId[ism-1] ) meIntegrityChId[ism-1]->Fill(xie, xip);
 
-  Handle<EcalTrigTowerDetIdCollection> ids5;
-  e.getByLabel(EcalTrigTowerDetIdCollection1_, ids5);
+    }
 
-  for ( EcalTrigTowerDetIdCollection::const_iterator idItr = ids5->begin(); idItr != ids5->end(); ++ idItr ) {
+  } catch ( exception& ex) {
 
-    EcalTrigTowerDetId id = (*idItr);
-
-    int iet = id.ieta();
-    int ipt = id.iphi();
-
-    // phi_tower: change the range from global to SM-local
-    ipt     = ( (ipt-1) % 4) +1;
-
-    // phi_tower: range matters too
-    //    if ( id.zside() >0)
-    //      { ipt = 5 - ipt;      }
-
-    int ismt = id.iDCC();
-
-    float xiet = iet - 0.5;
-    float xipt = ipt - 0.5;
-
-    if ( meIntegrityTTId[ismt-1] ) meIntegrityTTId[ismt-1]->Fill(xiet, xipt);
+    LogWarning("EBIntegrityTask") << EBDetIdCollection2_ << " not available";
 
   }
 
-  Handle<EcalTrigTowerDetIdCollection> ids6;
-  e.getByLabel(EcalTrigTowerDetIdCollection2_, ids6);
+  try {
 
-  for ( EcalTrigTowerDetIdCollection::const_iterator idItr = ids6->begin(); idItr != ids6->end(); ++ idItr ) {
+    Handle<EBDetIdCollection> ids3;
+    e.getByLabel(EBDetIdCollection3_, ids3);
 
-    EcalTrigTowerDetId id = (*idItr);
+    for ( EBDetIdCollection::const_iterator idItr = ids3->begin(); idItr != ids3->end(); ++ idItr ) {
 
-    int iet = id.ieta();
-    int ipt = id.iphi();
+      EBDetId id = (*idItr);
 
+      int ic = id.ic();
+      int ie = (ic-1)/20 + 1;
+      int ip = (ic-1)%20 + 1;
 
-    // phi_tower: change the range from global to SM-local
-    ipt     = ( (ipt-1) % 4) +1;
+      int ism = id.ism();
 
-    // phi_tower: range matters too
-    //    if ( id.zside() >0)
-    //      { ipt = 5 - ipt;      }
+      float xie = ie - 0.5;
+      float xip = ip - 0.5;
 
-    int ismt = id.iDCC();
+      if ( meIntegrityGainSwitch[ism-1] ) meIntegrityGainSwitch[ism-1]->Fill(xie, xip);
 
-    float xiet = iet - 0.5;
-    float xipt = ipt - 0.5;
+    }
 
-     if ( meIntegrityTTBlockSize[ismt-1] ) meIntegrityTTBlockSize[ismt-1]->Fill(xiet, xipt);
+  } catch ( exception& ex) {
 
-   }
-
-  Handle<EcalElectronicsIdCollection> ids7;
-  e.getByLabel(EcalElectronicsIdCollection1_, ids7);
-
-  for ( EcalElectronicsIdCollection::const_iterator idItr = ids7->begin(); idItr != ids7->end(); ++ idItr ) {
-
-    EcalElectronicsId id = (*idItr);
-
-    int itt   = id.towerId();
-    float iTt = itt + 0.5 - 69;
-    int ism = id.dccId();
-
-    if ( meIntegrityMemTTId[ism-1] ) meIntegrityMemTTId[ism-1]->Fill(iTt,0);
+    LogWarning("EBIntegrityTask") << EBDetIdCollection3_ << " not available";
 
   }
 
-  Handle<EcalElectronicsIdCollection> ids8;
-  e.getByLabel(EcalElectronicsIdCollection2_, ids8);
+  try {
 
-  for ( EcalElectronicsIdCollection::const_iterator idItr = ids8->begin(); idItr != ids8->end(); ++ idItr ) {
+    Handle<EBDetIdCollection> ids4;
+    e.getByLabel(EBDetIdCollection4_, ids4);
 
-    EcalElectronicsId id = (*idItr);
+    for ( EBDetIdCollection::const_iterator idItr = ids4->begin(); idItr != ids4->end(); ++ idItr ) {
 
-    int itt   = id.towerId();
-    float iTt = itt + 0.5 - 69;
-    int ism = id.dccId();
+      EBDetId id = (*idItr);
 
-    if ( meIntegrityMemTTBlockSize[ism-1] ) meIntegrityMemTTBlockSize[ism-1]->Fill(iTt,0);
+      int ic = id.ic();
+      int ie = (ic-1)/20 + 1;
+      int ip = (ic-1)%20 + 1;
 
-  }
+      int ism = id.ism();
 
-  Handle<EcalElectronicsIdCollection> ids9;
-  e.getByLabel(EcalElectronicsIdCollection3_, ids9);
+      float xie = ie - 0.5;
+      float xip = ip - 0.5;
 
-  for ( EcalElectronicsIdCollection::const_iterator idItr = ids9->begin(); idItr != ids9->end(); ++ idItr ) {
+      if ( meIntegrityGainSwitchStay[ism-1] ) meIntegrityGainSwitchStay[ism-1]->Fill(xie, xip);
 
-    EcalElectronicsId id = (*idItr);
+    }
 
-    int ism = id.dccId();
+  } catch ( exception& ex) {
 
-    int chid = id.channelId();
-    int ie = EBIntegrityTask::chMemAbscissa[chid-1];
-    int ip = EBIntegrityTask::chMemOrdinate[chid-1];
-
-    int iTt = id.towerId();
-    ie += (iTt-69)*5;
-
-    float xie = ie - 0.5;
-    float xip = ip - 0.5;
-
-    if ( meIntegrityMemChId[ism-1] ) meIntegrityMemChId[ism-1]->Fill(xie,xip);
+    LogWarning("EBIntegrityTask") << EBDetIdCollection4_ << " not available";
 
   }
 
-  Handle<EcalElectronicsIdCollection> ids10;
-  e.getByLabel(EcalElectronicsIdCollection4_, ids10);
+  try {
 
-  for ( EcalElectronicsIdCollection::const_iterator idItr = ids10->begin(); idItr != ids10->end(); ++ idItr ) {
+    Handle<EcalTrigTowerDetIdCollection> ids5;
+    e.getByLabel(EcalTrigTowerDetIdCollection1_, ids5);
 
-    EcalElectronicsId id = (*idItr);
+    for ( EcalTrigTowerDetIdCollection::const_iterator idItr = ids5->begin(); idItr != ids5->end(); ++ idItr ) {
 
-    int ism = id.dccId();
+      EcalTrigTowerDetId id = (*idItr);
 
-    int chid = id.channelId();
-    int ie = EBIntegrityTask::chMemAbscissa[chid-1];
-    int ip = EBIntegrityTask::chMemOrdinate[chid-1];
+      int iet = id.ieta();
+      int ipt = id.iphi();
 
-    int iTt = id.towerId();
-    ie += (iTt-69)*5;
+      // phi_tower: change the range from global to SM-local
+      ipt     = ( (ipt-1) % 4) +1;
 
-    float xie = ie - 0.5;
-    float xip = ip - 0.5;
+      // phi_tower: range matters too
+      //    if ( id.zside() >0)
+      //      { ipt = 5 - ipt;      }
 
-    if ( meIntegrityMemGain[ism-1] ) meIntegrityMemGain[ism-1]->Fill(xie,xip);
+      int ismt = id.iDCC();
+
+      float xiet = iet - 0.5;
+      float xipt = ipt - 0.5;
+
+      if ( meIntegrityTTId[ismt-1] ) meIntegrityTTId[ismt-1]->Fill(xiet, xipt);
+
+    }
+
+  } catch ( exception& ex) {
+
+    LogWarning("EBIntegrityTask") << EcalTrigTowerDetIdCollection1_ << " not available";
+
+  }
+
+  try {
+
+    Handle<EcalTrigTowerDetIdCollection> ids6;
+    e.getByLabel(EcalTrigTowerDetIdCollection2_, ids6);
+
+    for ( EcalTrigTowerDetIdCollection::const_iterator idItr = ids6->begin(); idItr != ids6->end(); ++ idItr ) {
+
+      EcalTrigTowerDetId id = (*idItr);
+
+      int iet = id.ieta();
+      int ipt = id.iphi();
+
+
+      // phi_tower: change the range from global to SM-local
+      ipt     = ( (ipt-1) % 4) +1;
+
+      // phi_tower: range matters too
+      //    if ( id.zside() >0)
+      //      { ipt = 5 - ipt;      }
+
+      int ismt = id.iDCC();
+
+      float xiet = iet - 0.5;
+      float xipt = ipt - 0.5;
+
+      if ( meIntegrityTTBlockSize[ismt-1] ) meIntegrityTTBlockSize[ismt-1]->Fill(xiet, xipt);
+
+    }
+
+  } catch ( exception& ex) {
+  
+    LogWarning("EBIntegrityTask") << EcalTrigTowerDetIdCollection2_ << " not available";
+
+  }
+
+  try {
+
+    Handle<EcalElectronicsIdCollection> ids7;
+    e.getByLabel(EcalElectronicsIdCollection1_, ids7);
+
+    for ( EcalElectronicsIdCollection::const_iterator idItr = ids7->begin(); idItr != ids7->end(); ++ idItr ) {
+
+      EcalElectronicsId id = (*idItr);
+
+      int itt   = id.towerId();
+      float iTt = itt + 0.5 - 69;
+      int ism = id.dccId();
+
+      if ( meIntegrityMemTTId[ism-1] ) meIntegrityMemTTId[ism-1]->Fill(iTt,0);
+
+    }
+
+  } catch ( exception& ex) {
+  
+    LogWarning("EBIntegrityTask") << EcalElectronicsIdCollection1_ << " not available";
+
+  }
+
+  try {
+
+    Handle<EcalElectronicsIdCollection> ids8;
+    e.getByLabel(EcalElectronicsIdCollection2_, ids8);
+
+    for ( EcalElectronicsIdCollection::const_iterator idItr = ids8->begin(); idItr != ids8->end(); ++ idItr ) {
+
+      EcalElectronicsId id = (*idItr);
+
+      int itt   = id.towerId();
+      float iTt = itt + 0.5 - 69;
+      int ism = id.dccId();
+
+      if ( meIntegrityMemTTBlockSize[ism-1] ) meIntegrityMemTTBlockSize[ism-1]->Fill(iTt,0);
+
+    }
+
+  } catch ( exception& ex) {
+
+    LogWarning("EBIntegrityTask") << EcalElectronicsIdCollection2_ << " not available";
+
+  }
+
+  try {
+
+    Handle<EcalElectronicsIdCollection> ids9;
+    e.getByLabel(EcalElectronicsIdCollection3_, ids9);
+
+    for ( EcalElectronicsIdCollection::const_iterator idItr = ids9->begin(); idItr != ids9->end(); ++ idItr ) {
+
+      EcalElectronicsId id = (*idItr);
+
+      int ism = id.dccId();
+
+      int chid = id.channelId();
+      int ie = EBIntegrityTask::chMemAbscissa[chid-1];
+      int ip = EBIntegrityTask::chMemOrdinate[chid-1];
+
+      int iTt = id.towerId();
+      ie += (iTt-69)*5;
+
+      float xie = ie - 0.5;
+      float xip = ip - 0.5;
+
+      if ( meIntegrityMemChId[ism-1] ) meIntegrityMemChId[ism-1]->Fill(xie,xip);
+
+    }
+
+  } catch ( exception& ex) {
+
+    LogWarning("EBIntegrityTask") << EcalElectronicsIdCollection3_ << " not available";
+
+  }
+
+  try {
+
+    Handle<EcalElectronicsIdCollection> ids10;
+    e.getByLabel(EcalElectronicsIdCollection4_, ids10);
+
+    for ( EcalElectronicsIdCollection::const_iterator idItr = ids10->begin(); idItr != ids10->end(); ++ idItr ) {
+
+      EcalElectronicsId id = (*idItr);
+
+      int ism = id.dccId();
+
+      int chid = id.channelId();
+      int ie = EBIntegrityTask::chMemAbscissa[chid-1];
+      int ip = EBIntegrityTask::chMemOrdinate[chid-1];
+
+      int iTt = id.towerId();
+      ie += (iTt-69)*5;
+
+      float xie = ie - 0.5;
+      float xip = ip - 0.5;
+
+      if ( meIntegrityMemGain[ism-1] ) meIntegrityMemGain[ism-1]->Fill(xie,xip);
+
+    }
+
+  } catch ( exception& ex) {
+
+    LogWarning("EBIntegrityTask") << EcalElectronicsIdCollection4_ << " not available";
 
   }
 

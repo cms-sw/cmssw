@@ -1,8 +1,8 @@
 /*
  * \file EBBeamHodoTask.cc
  *
- * $Date: 2007/03/13 10:53:18 $
- * $Revision: 1.32 $
+ * $Date: 2007/03/20 12:37:26 $
+ * $Revision: 1.33 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -281,7 +281,7 @@ void EBBeamHodoTask::analyze(const Event& e, const EventSetup& c){
     e.getByLabel(EcalTBEventHeader_, pHeader);
     Header = pHeader.product(); // get a ptr to the product
     if (!Header) {
-      LogDebug("EBBeamHodoTask") << "Event header not found. Returning. ";
+      LogWarning("EBBeamHodoTask") << "Event header not found. Returning. ";
       meMissingCollections_ -> Fill(0); // bin1: missing CMSSW Event header
       return;
     }
@@ -321,7 +321,7 @@ void EBBeamHodoTask::analyze(const Event& e, const EventSetup& c){
     
   }
   catch ( std::exception& ex) {
-    LogDebug("EcalBeamTask") << " EcalRawDataCollection not in event. Returning.";
+    LogWarning("EcalBeamTask") << EcalRawDataCollection_ << " not available";
     meMissingCollections_ -> Fill(1); // bin2: missing DCC headers
     return;
     // see bottom of cc file for compatibility to 2004 data [***]
@@ -342,10 +342,10 @@ void EBBeamHodoTask::analyze(const Event& e, const EventSetup& c){
     e.getByLabel(EcalUncalibratedRecHitCollection_, pUncalRH);
     uncalRecH = pUncalRH.product(); // get a ptr to the product
     int neh = pUncalRH->size();
-    LogDebug("EBBeamHodoTask") << "EcalUncalibRecHitsEB found in event " << ievt_ << "; hits collection size " << neh;
+    LogDebug("EBBeamHodoTask") << EcalUncalibratedRecHitCollection_ << " found in event " << ievt_ << "; hits collection size " << neh;
   } 
   catch ( std::exception& ex ) {
-    LogError("EBBeamHodoTask") << "EcalUncalibRecHitsEB not found in event! Returning.";
+    LogWarning("EBBeamHodoTask") << EcalUncalibratedRecHitCollection_ << " not available";
     meMissingCollections_ -> Fill(2); // bin3: missing uncalibRecHits
     return;
   }

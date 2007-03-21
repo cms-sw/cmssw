@@ -1,8 +1,8 @@
 /*
  * \file EBBeamCaloTask.cc
  *
- * $Date: 2007/03/13 10:53:18 $
- * $Revision: 1.40 $
+ * $Date: 2007/03/20 12:37:26 $
+ * $Revision: 1.41 $
  * \author A. Ghezzi
  *
  */
@@ -363,7 +363,7 @@ void EBBeamCaloTask::analyze(const Event& e, const EventSetup& c){
     
   }
   catch ( std::exception& ex) {
-    LogDebug("EBBeamCaloTask") << " EcalRawDataCollection not in event.";
+    LogWarning("EBBeamCaloTask") << EcalRawDataCollection_ << " not available";
   }
   
   if ( ! enable ) return;

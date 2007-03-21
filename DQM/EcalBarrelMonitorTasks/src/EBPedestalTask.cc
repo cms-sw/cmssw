@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalTask.cc
  *
- * $Date: 2007/03/13 10:53:18 $
- * $Revision: 1.53 $
+ * $Date: 2007/03/20 12:37:27 $
+ * $Revision: 1.54 $
  * \author G. Della Ricca
  *
 */
@@ -222,19 +222,27 @@ void EBPedestalTask::analyze(const Event& e, const EventSetup& c){
   bool enable = false;
   map<int, EcalDCCHeaderBlock> dccMap;
 
-  Handle<EcalRawDataCollection> dcchs;
-  e.getByLabel(EcalRawDataCollection_, dcchs);
+  try {
 
-  for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
+    Handle<EcalRawDataCollection> dcchs;
+    e.getByLabel(EcalRawDataCollection_, dcchs);
 
-    EcalDCCHeaderBlock dcch = (*dcchItr);
+    for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
 
-    map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(dcch.id());
-    if ( i != dccMap.end() ) continue;
+      EcalDCCHeaderBlock dcch = (*dcchItr);
 
-    dccMap[dcch.id()] = dcch;
+      map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(dcch.id());
+      if ( i != dccMap.end() ) continue;
 
-    if ( dcch.getRunType() == EcalDCCHeaderBlock::PEDESTAL_STD ) enable = true;
+      dccMap[dcch.id()] = dcch;
+
+      if ( dcch.getRunType() == EcalDCCHeaderBlock::PEDESTAL_STD ) enable = true;
+
+    }
+
+  } catch ( exception& ex) {
+
+    LogWarning("EBPedestalTask") << EcalRawDataCollection_ << " not available";
 
   }
 
@@ -244,183 +252,199 @@ void EBPedestalTask::analyze(const Event& e, const EventSetup& c){
 
   ievt_++;
 
-  Handle<EBDigiCollection> digis;
-  e.getByLabel(EBDigiCollection_, digis);
+  try {
 
-  int nebd = digis->size();
-  LogDebug("EBPedestalTask") << "event " << ievt_ << " digi collection size " << nebd;
+    Handle<EBDigiCollection> digis;
+    e.getByLabel(EBDigiCollection_, digis);
 
-  float xmap01[36][85][20];
-  float xmap06[36][85][20];
-  float xmap12[36][85][20];
+    int nebd = digis->size();
+    LogDebug("EBPedestalTask") << "event " << ievt_ << " digi collection size " << nebd;
 
-  for ( int ism = 1; ism <= 36; ism++ ) {
-    for ( int ie = 1; ie <= 85; ie++ ) {
-      for ( int ip = 1; ip <= 20; ip++ ) {
+    float xmap01[36][85][20];
+    float xmap06[36][85][20];
+    float xmap12[36][85][20];
 
-	 xmap01[ism-1][ie-1][ip-1] = 0.;
-         xmap06[ism-1][ie-1][ip-1] = 0.;
-         xmap12[ism-1][ie-1][ip-1] = 0.;
+    for ( int ism = 1; ism <= 36; ism++ ) {
+      for ( int ie = 1; ie <= 85; ie++ ) {
+        for ( int ip = 1; ip <= 20; ip++ ) {
 
-      }
-    }
-  }
-
-  for ( EBDigiCollection::const_iterator digiItr = digis->begin(); digiItr != digis->end(); ++digiItr ) {
-
-    EBDataFrame dataframe = (*digiItr);
-    EBDetId id = dataframe.id();
-
-    int ic = id.ic();
-    int ie = (ic-1)/20 + 1;
-    int ip = (ic-1)%20 + 1;
-
-    int ism = id.ism();
-
-    float xie = ie - 0.5;
-    float xip = ip - 0.5;
-
-    map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(ism);
-    if ( i == dccMap.end() ) continue;
-
-    if ( dccMap[ism].getRunType() != EcalDCCHeaderBlock::PEDESTAL_STD ) continue;
-
-    LogDebug("EBPedestalTask") << " det id = " << id;
-    LogDebug("EBPedestalTask") << " sm, eta, phi " << ism << " " << ie << " " << ip;
-
-    for (int i = 0; i < 10; i++) {
-
-      EcalMGPASample sample = dataframe.sample(i);
-      int adc = sample.adc();
-
-      MonitorElement* mePedMap = 0;
-
-      if ( sample.gainId() == 1 ) mePedMap = mePedMapG12_[ism-1];
-      if ( sample.gainId() == 2 ) mePedMap = mePedMapG06_[ism-1];
-      if ( sample.gainId() == 3 ) mePedMap = mePedMapG01_[ism-1];
-
-      float xval = float(adc);
-
-      if ( mePedMap ) mePedMap->Fill(xie, xip, xval);
-
-      if ( sample.gainId() == 1 ) xmap12[ism-1][ie-1][ip-1] = xmap12[ism-1][ie-1][ip-1] + xval;
-      if ( sample.gainId() == 2 ) xmap06[ism-1][ie-1][ip-1] = xmap06[ism-1][ie-1][ip-1] + xval;
-      if ( sample.gainId() == 3 ) xmap01[ism-1][ie-1][ip-1] = xmap01[ism-1][ie-1][ip-1] + xval;
-
-    }
-
-    xmap12[ism-1][ie-1][ip-1]=xmap12[ism-1][ie-1][ip-1]/10.;
-    xmap06[ism-1][ie-1][ip-1]=xmap06[ism-1][ie-1][ip-1]/10.;
-    xmap01[ism-1][ie-1][ip-1]=xmap01[ism-1][ie-1][ip-1]/10.;
-
-  }
-
-  // to be re-done using the 3x3 & 5x5 Selectors (if faster)
-
-  for ( int ism = 1; ism <= 36; ism++ ) {
-    for ( int ie = 1; ie <= 85; ie++ ) {
-      for ( int ip = 1; ip <= 20; ip++ ) {
-
-        float xie = ie - 0.5;
-        float xip = ip - 0.5;
-
-        float x3val01;
-        float x3val06;
-        float x3val12;
-
-        if ( ie >= 2 && ie <= 84 && ip >= 2 && ip <= 19 ) {
-
-          x3val01 = 0.;
-          x3val06 = 0.;
-          x3val12 = 0.;
-          for ( int i = -1; i <= +1; i++ ) {
-            for ( int j = -1; j <= +1; j++ ) {
-
-              x3val01 = x3val01 + xmap01[ism-1][ie-1+i][ip-1+j];
-              x3val06 = x3val06 + xmap06[ism-1][ie-1+i][ip-1+j];
-              x3val12 = x3val12 + xmap12[ism-1][ie-1+i][ip-1+j];
-
-            }
-          }
-          x3val01 = x3val01 / 9.;
-          x3val06 = x3val06 / 9.;
-          x3val12 = x3val12 / 9.;
-          if ( mePed3SumMapG01_[ism-1] && x3val01 != 0. ) mePed3SumMapG01_[ism-1]->Fill(xie, xip, x3val01);
-          if ( mePed3SumMapG06_[ism-1] && x3val06 != 0. ) mePed3SumMapG06_[ism-1]->Fill(xie, xip, x3val06);
-          if ( mePed3SumMapG12_[ism-1] && x3val12 != 0. ) mePed3SumMapG12_[ism-1]->Fill(xie, xip, x3val12);
+          xmap01[ism-1][ie-1][ip-1] = 0.;
+          xmap06[ism-1][ie-1][ip-1] = 0.;
+          xmap12[ism-1][ie-1][ip-1] = 0.;
 
         }
-
-        float x5val01;
-        float x5val06;
-        float x5val12;
-
-        if ( ie >= 3 && ie <= 83 && ip >= 3 && ip <= 18 ) {
-
-          x5val01 = 0.;
-          x5val06 = 0.;
-          x5val12 = 0.;
-          for ( int i = -2; i <= +2; i++ ) {
-            for ( int j = -2; j <= +2; j++ ) {
-
-              x5val01 = x5val01 + xmap01[ism-1][ie-1+i][ip-1+j];
-              x5val06 = x5val06 + xmap06[ism-1][ie-1+i][ip-1+j];
-              x5val12 = x5val12 + xmap12[ism-1][ie-1+i][ip-1+j];
-
-            }
-          }
-          x5val01 = x5val01 / 25.;
-          x5val06 = x5val06 / 25.;
-          x5val12 = x5val12 / 25.;
-          if ( mePed5SumMapG01_[ism-1] && x5val01 != 0. ) mePed5SumMapG01_[ism-1]->Fill(xie, xip, x5val01);
-          if ( mePed5SumMapG06_[ism-1] && x5val06 != 0. ) mePed5SumMapG06_[ism-1]->Fill(xie, xip, x5val06);
-          if ( mePed5SumMapG12_[ism-1] && x5val12 != 0. ) mePed5SumMapG12_[ism-1]->Fill(xie, xip, x5val12);
-
-        }
-
       }
     }
-  }
 
-  Handle<EcalPnDiodeDigiCollection> pns;
-  e.getByLabel(EcalPnDiodeDigiCollection_, pns);
+    for ( EBDigiCollection::const_iterator digiItr = digis->begin(); digiItr != digis->end(); ++digiItr ) {
 
-  int nep = pns->size();
-  LogDebug("EBPedestalTask") << "event " << ievt_ << " pns collection size " << nep;
+      EBDataFrame dataframe = (*digiItr);
+      EBDetId id = dataframe.id();
 
-  for ( EcalPnDiodeDigiCollection::const_iterator pnItr = pns->begin(); pnItr != pns->end(); ++pnItr ) {
+      int ic = id.ic();
+      int ie = (ic-1)/20 + 1;
+      int ip = (ic-1)%20 + 1;
 
-    EcalPnDiodeDigi pn = (*pnItr);
-    EcalPnDiodeDetId id = pn.id();
+      int ism = id.ism();
 
-//    int ism = id.ism();
-    int ism = id.iDCCId();
+      float xie = ie - 0.5;
+      float xip = ip - 0.5;
 
-    int num = id.iPnId();
+      map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(ism);
+      if ( i == dccMap.end() ) continue;
 
-    map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(ism);
-    if ( i == dccMap.end() ) continue;
+      if ( dccMap[ism].getRunType() != EcalDCCHeaderBlock::PEDESTAL_STD ) continue;
 
-    if ( dccMap[ism].getRunType() != EcalDCCHeaderBlock::PEDESTAL_STD ) continue;
+      LogDebug("EBPedestalTask") << " det id = " << id;
+      LogDebug("EBPedestalTask") << " sm, eta, phi " << ism << " " << ie << " " << ip;
 
-    LogDebug("EBPedestalTask") << " det id = " << id;
-    LogDebug("EBPedestalTask") << " sm, num " << ism << " " << num;
+      for (int i = 0; i < 10; i++) {
 
-    for (int i = 0; i < 50; i++) {
+        EcalMGPASample sample = dataframe.sample(i);
+        int adc = sample.adc();
 
-      EcalFEMSample sample = pn.sample(i);
-      int adc = sample.adc();
+        MonitorElement* mePedMap = 0;
 
-      MonitorElement* mePNPed = 0;
+        if ( sample.gainId() == 1 ) mePedMap = mePedMapG12_[ism-1];
+        if ( sample.gainId() == 2 ) mePedMap = mePedMapG06_[ism-1];
+        if ( sample.gainId() == 3 ) mePedMap = mePedMapG01_[ism-1];
 
-      if ( sample.gainId() == 0 ) mePNPed = mePnPedMapG01_[ism-1];
-      if ( sample.gainId() == 1 ) mePNPed = mePnPedMapG16_[ism-1];
+        float xval = float(adc);
 
-      float xval = float(adc);
+        if ( mePedMap ) mePedMap->Fill(xie, xip, xval);
 
-      if ( mePNPed ) mePNPed->Fill(0.5, num - 0.5, xval);
+        if ( sample.gainId() == 1 ) xmap12[ism-1][ie-1][ip-1] = xmap12[ism-1][ie-1][ip-1] + xval;
+        if ( sample.gainId() == 2 ) xmap06[ism-1][ie-1][ip-1] = xmap06[ism-1][ie-1][ip-1] + xval;
+        if ( sample.gainId() == 3 ) xmap01[ism-1][ie-1][ip-1] = xmap01[ism-1][ie-1][ip-1] + xval;
+
+      }
+
+      xmap12[ism-1][ie-1][ip-1]=xmap12[ism-1][ie-1][ip-1]/10.;
+      xmap06[ism-1][ie-1][ip-1]=xmap06[ism-1][ie-1][ip-1]/10.;
+      xmap01[ism-1][ie-1][ip-1]=xmap01[ism-1][ie-1][ip-1]/10.;
 
     }
+
+    // to be re-done using the 3x3 & 5x5 Selectors (if faster)
+
+    for ( int ism = 1; ism <= 36; ism++ ) {
+      for ( int ie = 1; ie <= 85; ie++ ) {
+        for ( int ip = 1; ip <= 20; ip++ ) {
+
+          float xie = ie - 0.5;
+          float xip = ip - 0.5;
+
+          float x3val01;
+          float x3val06;
+          float x3val12;
+
+          if ( ie >= 2 && ie <= 84 && ip >= 2 && ip <= 19 ) {
+
+            x3val01 = 0.;
+            x3val06 = 0.;
+            x3val12 = 0.;
+            for ( int i = -1; i <= +1; i++ ) {
+              for ( int j = -1; j <= +1; j++ ) {
+
+                x3val01 = x3val01 + xmap01[ism-1][ie-1+i][ip-1+j];
+                x3val06 = x3val06 + xmap06[ism-1][ie-1+i][ip-1+j];
+                x3val12 = x3val12 + xmap12[ism-1][ie-1+i][ip-1+j];
+
+              }
+            }
+            x3val01 = x3val01 / 9.;
+            x3val06 = x3val06 / 9.;
+            x3val12 = x3val12 / 9.;
+            if ( mePed3SumMapG01_[ism-1] && x3val01 != 0. ) mePed3SumMapG01_[ism-1]->Fill(xie, xip, x3val01);
+            if ( mePed3SumMapG06_[ism-1] && x3val06 != 0. ) mePed3SumMapG06_[ism-1]->Fill(xie, xip, x3val06);
+            if ( mePed3SumMapG12_[ism-1] && x3val12 != 0. ) mePed3SumMapG12_[ism-1]->Fill(xie, xip, x3val12);
+
+          }
+
+          float x5val01;
+          float x5val06;
+          float x5val12;
+
+          if ( ie >= 3 && ie <= 83 && ip >= 3 && ip <= 18 ) {
+
+            x5val01 = 0.;
+            x5val06 = 0.;
+            x5val12 = 0.;
+            for ( int i = -2; i <= +2; i++ ) {
+              for ( int j = -2; j <= +2; j++ ) {
+
+                x5val01 = x5val01 + xmap01[ism-1][ie-1+i][ip-1+j];
+                x5val06 = x5val06 + xmap06[ism-1][ie-1+i][ip-1+j];
+                x5val12 = x5val12 + xmap12[ism-1][ie-1+i][ip-1+j];
+
+              }
+            }
+            x5val01 = x5val01 / 25.;
+            x5val06 = x5val06 / 25.;
+            x5val12 = x5val12 / 25.;
+            if ( mePed5SumMapG01_[ism-1] && x5val01 != 0. ) mePed5SumMapG01_[ism-1]->Fill(xie, xip, x5val01);
+            if ( mePed5SumMapG06_[ism-1] && x5val06 != 0. ) mePed5SumMapG06_[ism-1]->Fill(xie, xip, x5val06);
+            if ( mePed5SumMapG12_[ism-1] && x5val12 != 0. ) mePed5SumMapG12_[ism-1]->Fill(xie, xip, x5val12);
+
+          }
+
+        }
+      }
+    }
+
+  } catch ( exception& ex) {
+
+    LogWarning("EBPedestalTask") << EBDigiCollection_ << " not available";
+
+  }
+
+  try {
+
+    Handle<EcalPnDiodeDigiCollection> pns;
+    e.getByLabel(EcalPnDiodeDigiCollection_, pns);
+
+    int nep = pns->size();
+    LogDebug("EBPedestalTask") << "event " << ievt_ << " pns collection size " << nep;
+
+    for ( EcalPnDiodeDigiCollection::const_iterator pnItr = pns->begin(); pnItr != pns->end(); ++pnItr ) {
+
+      EcalPnDiodeDigi pn = (*pnItr);
+      EcalPnDiodeDetId id = pn.id();
+
+//      int ism = id.ism();
+      int ism = id.iDCCId();
+
+      int num = id.iPnId();
+
+      map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(ism);
+      if ( i == dccMap.end() ) continue;
+
+      if ( dccMap[ism].getRunType() != EcalDCCHeaderBlock::PEDESTAL_STD ) continue;
+
+      LogDebug("EBPedestalTask") << " det id = " << id;
+      LogDebug("EBPedestalTask") << " sm, num " << ism << " " << num;
+
+      for (int i = 0; i < 50; i++) {
+
+        EcalFEMSample sample = pn.sample(i);
+        int adc = sample.adc();
+
+        MonitorElement* mePNPed = 0;
+
+        if ( sample.gainId() == 0 ) mePNPed = mePnPedMapG01_[ism-1];
+        if ( sample.gainId() == 1 ) mePNPed = mePnPedMapG16_[ism-1];
+
+        float xval = float(adc);
+
+        if ( mePNPed ) mePNPed->Fill(0.5, num - 0.5, xval);
+
+      }
+
+    }
+
+  } catch ( exception& ex) {
+
+    LogWarning("EBPedestalTask") << EcalPnDiodeDigiCollection_ << " not available";
 
   }
 

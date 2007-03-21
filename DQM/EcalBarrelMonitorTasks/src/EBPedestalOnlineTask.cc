@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalOnlineTask.cc
  *
- * $Date: 2007/03/13 10:53:18 $
- * $Revision: 1.18 $
+ * $Date: 2007/03/20 12:37:27 $
+ * $Revision: 1.19 $
  * \author G. Della Ricca
  *
 */
@@ -125,45 +125,53 @@ void EBPedestalOnlineTask::analyze(const Event& e, const EventSetup& c){
 
   ievt_++;
 
-  Handle<EBDigiCollection> digis;
-  e.getByLabel(EBDigiCollection_, digis);
+  try {
 
-  int nebd = digis->size();
-  LogDebug("EBPedestalOnlineTask") << "event " << ievt_ << " digi collection size " << nebd;
+    Handle<EBDigiCollection> digis;
+    e.getByLabel(EBDigiCollection_, digis);
 
-  for ( EBDigiCollection::const_iterator digiItr = digis->begin(); digiItr != digis->end(); ++digiItr ) {
+    int nebd = digis->size();
+    LogDebug("EBPedestalOnlineTask") << "event " << ievt_ << " digi collection size " << nebd;
 
-    EBDataFrame dataframe = (*digiItr);
-    EBDetId id = dataframe.id();
+    for ( EBDigiCollection::const_iterator digiItr = digis->begin(); digiItr != digis->end(); ++digiItr ) {
 
-    int ic = id.ic();
-    int ie = (ic-1)/20 + 1;
-    int ip = (ic-1)%20 + 1;
+      EBDataFrame dataframe = (*digiItr);
+      EBDetId id = dataframe.id();
 
-    int ism = id.ism();
+      int ic = id.ic();
+      int ie = (ic-1)/20 + 1;
+      int ip = (ic-1)%20 + 1;
 
-    float xie = ie - 0.5;
-    float xip = ip - 0.5;
+      int ism = id.ism();
 
-    LogDebug("EBPedestalOnlineTask") << " det id = " << id;
-    LogDebug("EBPedestalOnlineTask") << " sm, eta, phi " << ism << " " << ie << " " << ip;
+      float xie = ie - 0.5;
+      float xip = ip - 0.5;
 
-    for (int i = 0; i < 3; i++) {
+      LogDebug("EBPedestalOnlineTask") << " det id = " << id;
+      LogDebug("EBPedestalOnlineTask") << " sm, eta, phi " << ism << " " << ie << " " << ip;
 
-      EcalMGPASample sample = dataframe.sample(i);
-      int adc = sample.adc();
+      for (int i = 0; i < 3; i++) {
 
-      MonitorElement* mePedMap = 0;
+        EcalMGPASample sample = dataframe.sample(i);
+        int adc = sample.adc();
 
-      if ( sample.gainId() == 1 ) mePedMap = mePedMapG12_[ism-1];
-      if ( sample.gainId() == 2 ) mePedMap = 0;
-      if ( sample.gainId() == 3 ) mePedMap = 0;
+        MonitorElement* mePedMap = 0;
 
-      float xval = float(adc);
+        if ( sample.gainId() == 1 ) mePedMap = mePedMapG12_[ism-1];
+        if ( sample.gainId() == 2 ) mePedMap = 0;
+        if ( sample.gainId() == 3 ) mePedMap = 0;
 
-      if ( mePedMap ) mePedMap->Fill(xie, xip, xval);
+        float xval = float(adc);
+
+        if ( mePedMap ) mePedMap->Fill(xie, xip, xval);
+
+      }
 
     }
+
+  } catch ( exception& ex) {
+
+    LogWarning("EBPedestalOnlineTask") << EBDigiCollection_ << " not available";
 
   }
 

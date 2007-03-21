@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseTask.cc
  *
- * $Date: 2007/03/13 10:53:18 $
- * $Revision: 1.65 $
+ * $Date: 2007/03/20 12:37:27 $
+ * $Revision: 1.66 $
  * \author G. Della Ricca
  *
 */
@@ -238,19 +238,27 @@ void EBTestPulseTask::analyze(const Event& e, const EventSetup& c){
   bool enable = false;
   map<int, EcalDCCHeaderBlock> dccMap;
 
-  Handle<EcalRawDataCollection> dcchs;
-  e.getByLabel(EcalRawDataCollection_, dcchs);
+  try {
 
-  for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
+    Handle<EcalRawDataCollection> dcchs;
+    e.getByLabel(EcalRawDataCollection_, dcchs);
 
-    EcalDCCHeaderBlock dcch = (*dcchItr);
+    for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
 
-    map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(dcch.id());
-    if ( i != dccMap.end() ) continue;
+      EcalDCCHeaderBlock dcch = (*dcchItr);
 
-    dccMap[dcch.id()] = dcch;
+      map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(dcch.id());
+      if ( i != dccMap.end() ) continue;
 
-    if ( dcch.getRunType() == EcalDCCHeaderBlock::TESTPULSE_MGPA ) enable = true;
+      dccMap[dcch.id()] = dcch;
+
+      if ( dcch.getRunType() == EcalDCCHeaderBlock::TESTPULSE_MGPA ) enable = true;
+
+    }
+
+  } catch ( exception& ex) {
+
+    LogWarning("EBTestPulseTask") << EcalRawDataCollection_ << " not available";
 
   }
 
@@ -260,184 +268,208 @@ void EBTestPulseTask::analyze(const Event& e, const EventSetup& c){
 
   ievt_++;
 
-  Handle<EBDigiCollection> digis;
-  e.getByLabel(EBDigiCollection_, digis);
+  try {
 
-  int nebd = digis->size();
-  LogDebug("EBTestPulseTask") << "event " << ievt_ << " digi collection size " << nebd;
+    Handle<EBDigiCollection> digis;
+    e.getByLabel(EBDigiCollection_, digis);
 
-  for ( EBDigiCollection::const_iterator digiItr = digis->begin(); digiItr != digis->end(); ++digiItr ) {
+    int nebd = digis->size();
+    LogDebug("EBTestPulseTask") << "event " << ievt_ << " digi collection size " << nebd;
 
-    EBDataFrame dataframe = (*digiItr);
-    EBDetId id = dataframe.id();
+    for ( EBDigiCollection::const_iterator digiItr = digis->begin(); digiItr != digis->end(); ++digiItr ) {
 
-    int ic = id.ic();
-    int ie = (ic-1)/20 + 1;
-    int ip = (ic-1)%20 + 1;
+      EBDataFrame dataframe = (*digiItr);
+      EBDetId id = dataframe.id();
 
-    int ism = id.ism();
+      int ic = id.ic();
+      int ie = (ic-1)/20 + 1;
+      int ip = (ic-1)%20 + 1;
 
-    map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(ism);
-    if ( i == dccMap.end() ) continue;
+      int ism = id.ism();
 
-    if ( dccMap[ism].getRunType() != EcalDCCHeaderBlock::TESTPULSE_MGPA ) continue;
+      map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(ism);
+      if ( i == dccMap.end() ) continue;
 
-    LogDebug("EBTestPulseTask") << " det id = " << id;
-    LogDebug("EBTestPulseTask") << " sm, eta, phi " << ism << " " << ie << " " << ip;
+      if ( dccMap[ism].getRunType() != EcalDCCHeaderBlock::TESTPULSE_MGPA ) continue;
 
-    for (int i = 0; i < 10; i++) {
+      LogDebug("EBTestPulseTask") << " det id = " << id;
+      LogDebug("EBTestPulseTask") << " sm, eta, phi " << ism << " " << ie << " " << ip;
 
-      EcalMGPASample sample = dataframe.sample(i);
-      int adc = sample.adc();
-      float gain = 1.;
+      for (int i = 0; i < 10; i++) {
 
-      MonitorElement* meShapeMap = 0;
+        EcalMGPASample sample = dataframe.sample(i);
+        int adc = sample.adc();
+        float gain = 1.;
 
-      if ( sample.gainId() == 1 ) gain = 1./12.;
-      if ( sample.gainId() == 2 ) gain = 1./ 6.;
-      if ( sample.gainId() == 3 ) gain = 1./ 1.;
+        MonitorElement* meShapeMap = 0;
 
-      if ( dccMap[ism].getMgpaGain() == 3 ) meShapeMap = meShapeMapG01_[ism-1];
-      if ( dccMap[ism].getMgpaGain() == 2 ) meShapeMap = meShapeMapG06_[ism-1];
-      if ( dccMap[ism].getMgpaGain() == 1 ) meShapeMap = meShapeMapG12_[ism-1];
+        if ( sample.gainId() == 1 ) gain = 1./12.;
+        if ( sample.gainId() == 2 ) gain = 1./ 6.;
+        if ( sample.gainId() == 3 ) gain = 1./ 1.;
 
-//      float xval = float(adc) * gain;
-      float xval = float(adc);
+        if ( dccMap[ism].getMgpaGain() == 3 ) meShapeMap = meShapeMapG01_[ism-1];
+        if ( dccMap[ism].getMgpaGain() == 2 ) meShapeMap = meShapeMapG06_[ism-1];
+        if ( dccMap[ism].getMgpaGain() == 1 ) meShapeMap = meShapeMapG12_[ism-1];
 
-      if ( meShapeMap ) meShapeMap->Fill(ic - 0.5, i + 0.5, xval);
+//        float xval = float(adc) * gain;
+        float xval = float(adc);
+
+        if ( meShapeMap ) meShapeMap->Fill(ic - 0.5, i + 0.5, xval);
+
+      }
 
     }
+
+  } catch ( exception& ex) {
+
+    LogWarning("EBTestPulseTask") << EBDigiCollection_ << " not available";
 
   }
 
-  Handle<EcalUncalibratedRecHitCollection> hits;
-  e.getByLabel(EcalUncalibratedRecHitCollection_, hits);
+  try {
 
-  int neh = hits->size();
-  LogDebug("EBTestPulseTask") << "event " << ievt_ << " hits collection size " << neh;
+    Handle<EcalUncalibratedRecHitCollection> hits;
+    e.getByLabel(EcalUncalibratedRecHitCollection_, hits);
 
-  for ( EcalUncalibratedRecHitCollection::const_iterator hitItr = hits->begin(); hitItr != hits->end(); ++hitItr ) {
+    int neh = hits->size();
+    LogDebug("EBTestPulseTask") << "event " << ievt_ << " hits collection size " << neh;
 
-    EcalUncalibratedRecHit hit = (*hitItr);
-    EBDetId id = hit.id();
+    for ( EcalUncalibratedRecHitCollection::const_iterator hitItr = hits->begin(); hitItr != hits->end(); ++hitItr ) {
 
-    int ic = id.ic();
-    int ie = (ic-1)/20 + 1;
-    int ip = (ic-1)%20 + 1;
+      EcalUncalibratedRecHit hit = (*hitItr);
+      EBDetId id = hit.id();
 
-    int ism = id.ism();
+      int ic = id.ic();
+      int ie = (ic-1)/20 + 1;
+      int ip = (ic-1)%20 + 1;
 
-    float xie = ie - 0.5;
-    float xip = ip - 0.5;
+      int ism = id.ism();
 
-    map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(ism);
-    if ( i == dccMap.end() ) continue;
+      float xie = ie - 0.5;
+      float xip = ip - 0.5;
 
-    if ( dccMap[ism].getRunType() != EcalDCCHeaderBlock::TESTPULSE_MGPA ) continue;
+      map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(ism);
+      if ( i == dccMap.end() ) continue;
 
-    LogDebug("EBTestPulseTask") << " det id = " << id;
-    LogDebug("EBTestPulseTask") << " sm, eta, phi " << ism << " " << ie << " " << ip;
+      if ( dccMap[ism].getRunType() != EcalDCCHeaderBlock::TESTPULSE_MGPA ) continue;
 
-    MonitorElement* meAmplMap = 0;
+      LogDebug("EBTestPulseTask") << " det id = " << id;
+      LogDebug("EBTestPulseTask") << " sm, eta, phi " << ism << " " << ie << " " << ip;
 
-    if ( dccMap[ism].getMgpaGain() == 3 ) meAmplMap = meAmplMapG01_[ism-1];
-    if ( dccMap[ism].getMgpaGain() == 2 ) meAmplMap = meAmplMapG06_[ism-1];
-    if ( dccMap[ism].getMgpaGain() == 1 ) meAmplMap = meAmplMapG12_[ism-1];
+      MonitorElement* meAmplMap = 0;
 
-    float xval = hit.amplitude();
-    if ( xval <= 0. ) xval = 0.0;
+      if ( dccMap[ism].getMgpaGain() == 3 ) meAmplMap = meAmplMapG01_[ism-1];
+      if ( dccMap[ism].getMgpaGain() == 2 ) meAmplMap = meAmplMapG06_[ism-1];
+      if ( dccMap[ism].getMgpaGain() == 1 ) meAmplMap = meAmplMapG12_[ism-1];
 
-//    if ( dccMap[ism].getMgpaGain() == 3 ) xval = xval * 1./12.;
-//    if ( dccMap[ism].getMgpaGain() == 2 ) xval = xval * 1./ 2.;
-//    if ( dccMap[ism].getMgpaGain() == 1 ) xval = xval * 1./ 1.;
+      float xval = hit.amplitude();
+      if ( xval <= 0. ) xval = 0.0;
 
-    LogDebug("EBTestPulseTask") << " hit amplitude " << xval;
+//      if ( dccMap[ism].getMgpaGain() == 3 ) xval = xval * 1./12.;
+//      if ( dccMap[ism].getMgpaGain() == 2 ) xval = xval * 1./ 2.;
+//      if ( dccMap[ism].getMgpaGain() == 1 ) xval = xval * 1./ 1.;
 
-    if ( meAmplMap ) meAmplMap->Fill(xie, xip, xval);
+      LogDebug("EBTestPulseTask") << " hit amplitude " << xval;
 
-    MonitorElement* meAmplErrorMap = 0;
+      if ( meAmplMap ) meAmplMap->Fill(xie, xip, xval);
 
-    if ( dccMap[ism].getMgpaGain() == 3 ) meAmplErrorMap = meAmplErrorMapG01_[ism-1];
-    if ( dccMap[ism].getMgpaGain() == 2 ) meAmplErrorMap = meAmplErrorMapG06_[ism-1];
-    if ( dccMap[ism].getMgpaGain() == 1 ) meAmplErrorMap = meAmplErrorMapG12_[ism-1];
+      MonitorElement* meAmplErrorMap = 0;
 
-    LogDebug("EBTestPulseTask") << "Crystal " << ie << " " << ip << " Amplitude = " << xval;
+      if ( dccMap[ism].getMgpaGain() == 3 ) meAmplErrorMap = meAmplErrorMapG01_[ism-1];
+      if ( dccMap[ism].getMgpaGain() == 2 ) meAmplErrorMap = meAmplErrorMapG06_[ism-1];
+      if ( dccMap[ism].getMgpaGain() == 1 ) meAmplErrorMap = meAmplErrorMapG12_[ism-1];
 
-    if ( xval < amplitudeThreshold_ ) {
+      LogDebug("EBTestPulseTask") << "Crystal " << ie << " " << ip << " Amplitude = " << xval;
 
-      if ( meAmplErrorMap ) meAmplErrorMap->Fill(xie, xip);
+      if ( xval < amplitudeThreshold_ ) {
+
+        if ( meAmplErrorMap ) meAmplErrorMap->Fill(xie, xip);
+
+      }
 
     }
+
+  } catch ( exception& ex) {
+
+    LogWarning("EBTestPulseTask") << EcalUncalibratedRecHitCollection_ << " not available";
 
   }
 
-  Handle<EcalPnDiodeDigiCollection> pns;
-  e.getByLabel(EcalPnDiodeDigiCollection_, pns);
+  try {
 
-  int nep = pns->size();
-  LogDebug("EBTestPulseTask") << "event " << ievt_ << " pns collection size " << nep;
+    Handle<EcalPnDiodeDigiCollection> pns;
+    e.getByLabel(EcalPnDiodeDigiCollection_, pns);
 
-  for ( EcalPnDiodeDigiCollection::const_iterator pnItr = pns->begin(); pnItr != pns->end(); ++pnItr ) {
+    int nep = pns->size();
+    LogDebug("EBTestPulseTask") << "event " << ievt_ << " pns collection size " << nep;
 
-    EcalPnDiodeDigi pn = (*pnItr);
-    EcalPnDiodeDetId id = pn.id();
+    for ( EcalPnDiodeDigiCollection::const_iterator pnItr = pns->begin(); pnItr != pns->end(); ++pnItr ) {
 
-//    int ism = id.ism();
-    int ism = id.iDCCId();
+      EcalPnDiodeDigi pn = (*pnItr);
+      EcalPnDiodeDetId id = pn.id();
 
-    int num = id.iPnId();
+//      int ism = id.ism();
+      int ism = id.iDCCId();
 
-    map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(ism);
-    if ( i == dccMap.end() ) continue;
+      int num = id.iPnId();
 
-    if ( dccMap[ism].getRunType() != EcalDCCHeaderBlock::TESTPULSE_MGPA ) continue;
+      map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(ism);
+      if ( i == dccMap.end() ) continue;
 
-    LogDebug("EBTestPulseTask") << " det id = " << id;
-    LogDebug("EBTestPulseTask") << " sm, num " << ism << " " << num;
+      if ( dccMap[ism].getRunType() != EcalDCCHeaderBlock::TESTPULSE_MGPA ) continue;
 
-    float xvalped = 0.;
+      LogDebug("EBTestPulseTask") << " det id = " << id;
+      LogDebug("EBTestPulseTask") << " sm, num " << ism << " " << num;
 
-    for (int i = 0; i < 4; i++) {
+      float xvalped = 0.;
 
-      EcalFEMSample sample = pn.sample(i);
-      int adc = sample.adc();
+      for (int i = 0; i < 4; i++) {
 
-      MonitorElement* mePNPed = 0;
+        EcalFEMSample sample = pn.sample(i);
+        int adc = sample.adc();
 
-      if ( sample.gainId() == 0 ) mePNPed = mePnPedMapG01_[ism-1];
-      if ( sample.gainId() == 1 ) mePNPed = mePnPedMapG16_[ism-1];
+        MonitorElement* mePNPed = 0;
 
-      float xval = float(adc);
+        if ( sample.gainId() == 0 ) mePNPed = mePnPedMapG01_[ism-1];
+        if ( sample.gainId() == 1 ) mePNPed = mePnPedMapG16_[ism-1];
 
-      if ( mePNPed ) mePNPed->Fill(0.5, num - 0.5, xval);
+        float xval = float(adc);
 
-      xvalped = xvalped + xval;
+        if ( mePNPed ) mePNPed->Fill(0.5, num - 0.5, xval);
+
+        xvalped = xvalped + xval;
+
+      }
+
+      xvalped = xvalped / 4;
+
+      float xvalmax = 0.;
+
+      MonitorElement* mePN = 0;
+
+      for (int i = 0; i < 50; i++) {
+
+        EcalFEMSample sample = pn.sample(i);
+        int adc = sample.adc();
+
+        float xval = float(adc);
+
+        if ( xval >= xvalmax ) xvalmax = xval;
+
+      }
+
+      xvalmax = xvalmax - xvalped;
+
+      if ( pn.sample(0).gainId() == 0 ) mePN = mePnAmplMapG01_[ism-1];
+      if ( pn.sample(0).gainId() == 1 ) mePN = mePnAmplMapG16_[ism-1];
+
+      if ( mePN ) mePN->Fill(0.5, num - 0.5, xvalmax);
 
     }
 
-    xvalped = xvalped / 4;
+  } catch ( exception& ex) {
 
-    float xvalmax = 0.;
-
-    MonitorElement* mePN = 0;
-
-    for (int i = 0; i < 50; i++) {
-
-      EcalFEMSample sample = pn.sample(i);
-      int adc = sample.adc();
-
-      float xval = float(adc);
-
-      if ( xval >= xvalmax ) xvalmax = xval;
-
-    }
-
-    xvalmax = xvalmax - xvalped;
-
-    if ( pn.sample(0).gainId() == 0 ) mePN = mePnAmplMapG01_[ism-1];
-    if ( pn.sample(0).gainId() == 1 ) mePN = mePnAmplMapG16_[ism-1];
-
-    if ( mePN ) mePN->Fill(0.5, num - 0.5, xvalmax);
+    LogWarning("EBTestPulseTask") << EcalPnDiodeDigiCollection_ << " not available";
 
   }
 

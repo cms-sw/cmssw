@@ -1,8 +1,8 @@
 /*
  * \file EBOccupancyTask.cc
  *
- * $Date: 2007/03/20 12:37:27 $
- * $Revision: 1.16 $
+ * $Date: 2007/03/21 08:12:10 $
+ * $Revision: 1.17 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -133,36 +133,44 @@ void EBOccupancyTask::analyze(const Event& e, const EventSetup& c){
 
   ievt_++;
 
-  Handle<EBDigiCollection> digis;
-  e.getByLabel(EBDigiCollection_, digis);
+  try {
 
-  int nebd = digis->size();
-  LogDebug("EBOccupancyTask") << "event " << ievt_ << " digi collection size " << nebd;
+    Handle<EBDigiCollection> digis;
+    e.getByLabel(EBDigiCollection_, digis);
 
-  for ( EBDigiCollection::const_iterator digiItr = digis->begin(); digiItr != digis->end(); ++digiItr ) {
+    int nebd = digis->size();
+    LogDebug("EBOccupancyTask") << "event " << ievt_ << " digi collection size " << nebd;
 
-    EBDataFrame dataframe = (*digiItr);
-    EBDetId id = dataframe.id();
+    for ( EBDigiCollection::const_iterator digiItr = digis->begin(); digiItr != digis->end(); ++digiItr ) {
 
-    int ic = id.ic();
-    int ie = (ic-1)/20 + 1;
-    int ip = (ic-1)%20 + 1;
+      EBDataFrame dataframe = (*digiItr);
+      EBDetId id = dataframe.id();
 
-    int ism = id.ism();
+      int ic = id.ic();
+      int ie = (ic-1)/20 + 1;
+      int ip = (ic-1)%20 + 1;
 
-    float xie = ie - 0.5;
-    float xip = ip - 0.5;
+      int ism = id.ism();
 
-    LogDebug("EBOccupancyTask") << " det id = " << id;
-    LogDebug("EBOccupancyTask") << " sm, eta, phi " << ism << " " << ie << " " << ip;
+      float xie = ie - 0.5;
+      float xip = ip - 0.5;
 
-    if ( xie <= 0. || xie >= 85. || xip <= 0. || xip >= 20. ) {
-      LogWarning("EBOccupancyTask") << " det id = " << id;
-      LogWarning("EBOccupancyTask") << " sm, eta, phi " << ism << " " << ie << " " << ip;
-      LogWarning("EBOccupancyTask") << " xie, xip " << xie << " " << xip;
+      LogDebug("EBOccupancyTask") << " det id = " << id;
+      LogDebug("EBOccupancyTask") << " sm, eta, phi " << ism << " " << ie << " " << ip;
+
+      if ( xie <= 0. || xie >= 85. || xip <= 0. || xip >= 20. ) {
+        LogWarning("EBOccupancyTask") << " det id = " << id;
+        LogWarning("EBOccupancyTask") << " sm, eta, phi " << ism << " " << ie << " " << ip;
+        LogWarning("EBOccupancyTask") << " xie, xip " << xie << " " << xip;
+      }
+
+      if ( meOccupancy_[ism-1] ) meOccupancy_[ism-1]->Fill(xie, xip);
+
     }
 
-    if ( meOccupancy_[ism-1] ) meOccupancy_[ism-1]->Fill(xie, xip);
+  } catch ( exception& ex) {
+
+    LogWarning("EBOccupancyTask") << EBDigiCollection_ << " not available";
 
   }
 
@@ -192,7 +200,7 @@ void EBOccupancyTask::analyze(const Event& e, const EventSetup& c){
 
   } catch ( exception& ex) {
 
-    LogWarning("EBOccupancyTask") << "EcalPnDiodeDigiCollection not present in event";
+    LogWarning("EBOccupancyTask") << EcalPnDiodeDigiCollection_ << " not available";
 
   }
 

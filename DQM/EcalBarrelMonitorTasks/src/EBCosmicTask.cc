@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicTask.cc
  *
- * $Date: 2007/03/13 10:53:18 $
- * $Revision: 1.66 $
+ * $Date: 2007/03/20 12:37:26 $
+ * $Revision: 1.67 $
  * \author G. Della Ricca
  *
 */
@@ -150,20 +150,28 @@ void EBCosmicTask::analyze(const Event& e, const EventSetup& c){
   bool enable = false;
   map<int, EcalDCCHeaderBlock> dccMap;
 
-  Handle<EcalRawDataCollection> dcchs;
-  e.getByLabel(EcalRawDataCollection_, dcchs);
+  try {
 
-  for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
+    Handle<EcalRawDataCollection> dcchs;
+    e.getByLabel(EcalRawDataCollection_, dcchs);
 
-    EcalDCCHeaderBlock dcch = (*dcchItr);
+    for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
 
-    map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(dcch.id());
-    if ( i != dccMap.end() ) continue;
+      EcalDCCHeaderBlock dcch = (*dcchItr);
 
-    dccMap[dcch.id()] = dcch;
+      map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(dcch.id());
+      if ( i != dccMap.end() ) continue;
 
-    if ( dcch.getRunType() == EcalDCCHeaderBlock::COSMIC ||
-         dcch.getRunType() == EcalDCCHeaderBlock::MTCC ) enable = true;
+      dccMap[dcch.id()] = dcch;
+
+      if ( dcch.getRunType() == EcalDCCHeaderBlock::COSMIC ||
+           dcch.getRunType() == EcalDCCHeaderBlock::MTCC ) enable = true;
+
+    }
+
+  } catch ( exception& ex) {
+
+    LogWarning("EBCosmicTask") << EcalRawDataCollection_ << " not available";
 
   }
 
@@ -173,52 +181,60 @@ void EBCosmicTask::analyze(const Event& e, const EventSetup& c){
 
   ievt_++;
 
-  Handle<EcalRecHitCollection> hits;
-  e.getByLabel(EcalRecHitCollection_, hits);
+  try {
 
-  int nebh = hits->size();
-  LogDebug("EBCosmicTask") << "event " << ievt_ << " hits collection size " << nebh;
+    Handle<EcalRecHitCollection> hits;
+    e.getByLabel(EcalRecHitCollection_, hits);
 
-  for ( EcalRecHitCollection::const_iterator hitItr = hits->begin(); hitItr != hits->end(); ++hitItr ) {
+    int nebh = hits->size();
+    LogDebug("EBCosmicTask") << "event " << ievt_ << " hits collection size " << nebh;
 
-    EcalRecHit hit = (*hitItr);
-    EBDetId id = hit.id();
+    for ( EcalRecHitCollection::const_iterator hitItr = hits->begin(); hitItr != hits->end(); ++hitItr ) {
 
-    int ic = id.ic();
-    int ie = (ic-1)/20 + 1;
-    int ip = (ic-1)%20 + 1;
+      EcalRecHit hit = (*hitItr);
+      EBDetId id = hit.id();
 
-    int ism = id.ism();
+      int ic = id.ic();
+      int ie = (ic-1)/20 + 1;
+      int ip = (ic-1)%20 + 1;
 
-    float xie = ie - 0.5;
-    float xip = ip - 0.5;
+      int ism = id.ism();
 
-    map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(ism);
-    if ( i == dccMap.end() ) continue;
+      float xie = ie - 0.5;
+      float xip = ip - 0.5;
 
-    if ( ! ( dccMap[ism].getRunType() == EcalDCCHeaderBlock::COSMIC ||
-             dccMap[ism].getRunType() == EcalDCCHeaderBlock::MTCC ) ) continue;
+      map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(ism);
+      if ( i == dccMap.end() ) continue;
 
-    LogDebug("EBCosmicTask") << " det id = " << id;
-    LogDebug("EBCosmicTask") << " sm, eta, phi " << ism << " " << ie << " " << ip;
+      if ( ! ( dccMap[ism].getRunType() == EcalDCCHeaderBlock::COSMIC ||
+               dccMap[ism].getRunType() == EcalDCCHeaderBlock::MTCC ) ) continue;
 
-    float xval = hit.energy();
-    if ( xval <= 0. ) xval = 0.0;
+      LogDebug("EBCosmicTask") << " det id = " << id;
+      LogDebug("EBCosmicTask") << " sm, eta, phi " << ism << " " << ie << " " << ip;
 
-    LogDebug("EBCosmicTask") << " hit energy " << xval;
+      float xval = hit.energy();
+      if ( xval <= 0. ) xval = 0.0;
 
-    const float lowThreshold  = 0.06125;
-    const float highThreshold = 0.12500;
+      LogDebug("EBCosmicTask") << " hit energy " << xval;
 
-    if ( xval >= lowThreshold ) {
-      if ( meCutMap_[ism-1] ) meCutMap_[ism-1]->Fill(xie, xip, xval);
+      const float lowThreshold  = 0.06125;
+      const float highThreshold = 0.12500;
+
+      if ( xval >= lowThreshold ) {
+        if ( meCutMap_[ism-1] ) meCutMap_[ism-1]->Fill(xie, xip, xval);
+      }
+
+      if ( xval >= highThreshold ) {
+        if ( meSelMap_[ism-1] ) meSelMap_[ism-1]->Fill(xie, xip, xval);
+      }
+
+      if ( meSpectrumMap_[ism-1] ) meSpectrumMap_[ism-1]->Fill(xval);
+
     }
 
-    if ( xval >= highThreshold ) {
-      if ( meSelMap_[ism-1] ) meSelMap_[ism-1]->Fill(xie, xip, xval);
-    }
+  } catch ( exception& ex) {
 
-    if ( meSpectrumMap_[ism-1] ) meSpectrumMap_[ism-1]->Fill(xval);
+    LogWarning("EBCosmicTask") << EcalRecHitCollection_ << " not available";
 
   }
 

@@ -1,8 +1,8 @@
 /*
  * \file EBLaserTask.cc
  *
- * $Date: 2007/03/13 10:53:18 $
- * $Revision: 1.73 $
+ * $Date: 2007/03/20 12:37:26 $
+ * $Revision: 1.74 $
  * \author G. Della Ricca
  *
 */
@@ -528,22 +528,30 @@ void EBLaserTask::analyze(const Event& e, const EventSetup& c){
   bool enable = false;
   map<int, EcalDCCHeaderBlock> dccMap;
 
-  Handle<EcalRawDataCollection> dcchs;
-  e.getByLabel(EcalRawDataCollection_, dcchs);
+  try {
 
-  for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
+    Handle<EcalRawDataCollection> dcchs;
+    e.getByLabel(EcalRawDataCollection_, dcchs);
 
-    EcalDCCHeaderBlock dcch = (*dcchItr);
+    for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
 
-    map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(dcch.id());
-    if ( i != dccMap.end() ) continue;
+      EcalDCCHeaderBlock dcch = (*dcchItr);
 
-    dccMap[dcch.id()] = dcch;
+      map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(dcch.id());
+      if ( i != dccMap.end() ) continue;
 
-    if ( dcch.getRunType() == EcalDCCHeaderBlock::LASER_STD ) enable = true;
+      dccMap[dcch.id()] = dcch;
 
-    // uncomment the following line to mix fake 'laser' events w/ cosmic & beam events
-    // if ( dcch.getRunType() == EcalDCCHeaderBlock::COSMIC ) enable = true;
+      if ( dcch.getRunType() == EcalDCCHeaderBlock::LASER_STD ) enable = true;
+
+      // uncomment the following line to mix fake 'laser' events w/ cosmic & beam events
+      // if ( dcch.getRunType() == EcalDCCHeaderBlock::COSMIC ) enable = true;
+
+    }
+
+  } catch ( exception& ex) {
+
+    LogWarning("EBLaserTask") << EcalRawDataCollection_ << " not available";
 
   }
 
@@ -553,70 +561,75 @@ void EBLaserTask::analyze(const Event& e, const EventSetup& c){
 
   ievt_++;
 
-  Handle<EBDigiCollection> digis;
-  e.getByLabel(EBDigiCollection_, digis);
+  try {
 
-  int nebd = digis->size();
-  LogDebug("EBLaserTask") << "event " << ievt_ << " digi collection size " << nebd;
+    Handle<EBDigiCollection> digis;
+    e.getByLabel(EBDigiCollection_, digis);
 
-  for ( EBDigiCollection::const_iterator digiItr = digis->begin(); digiItr != digis->end(); ++digiItr ) {
+    int nebd = digis->size();
+    LogDebug("EBLaserTask") << "event " << ievt_ << " digi collection size " << nebd;
 
-    EBDataFrame dataframe = (*digiItr);
-    EBDetId id = dataframe.id();
+    for ( EBDigiCollection::const_iterator digiItr = digis->begin(); digiItr != digis->end(); ++digiItr ) {
 
-    int ic = id.ic();
-    int ie = (ic-1)/20 + 1;
-    int ip = (ic-1)%20 + 1;
+      EBDataFrame dataframe = (*digiItr);
+      EBDetId id = dataframe.id();
 
-    int ism = id.ism();
+      int ic = id.ic();
+      int ie = (ic-1)/20 + 1;
+      int ip = (ic-1)%20 + 1;
 
-    map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(ism);
-    if ( i == dccMap.end() ) continue;
+      int ism = id.ism();
 
-    if ( dccMap[ism].getRunType() != EcalDCCHeaderBlock::LASER_STD ) continue;
+      map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(ism);
+      if ( i == dccMap.end() ) continue;
 
-    LogDebug("EBLaserTask") << " det id = " << id;
-    LogDebug("EBLaserTask") << " sm, eta, phi " << ism << " " << ie << " " << ip;
+      if ( dccMap[ism].getRunType() != EcalDCCHeaderBlock::LASER_STD ) continue;
 
-    for (int i = 0; i < 10; i++) {
+      LogDebug("EBLaserTask") << " det id = " << id;
+      LogDebug("EBLaserTask") << " sm, eta, phi " << ism << " " << ie << " " << ip;
 
-      EcalMGPASample sample = dataframe.sample(i);
-      int adc = sample.adc();
-      float gain = 1.;
+      for (int i = 0; i < 10; i++) {
 
-      MonitorElement* meShapeMap = 0;
+        EcalMGPASample sample = dataframe.sample(i);
+        int adc = sample.adc();
+        float gain = 1.;
 
-      if ( sample.gainId() == 1 ) gain = 1./12.;
-      if ( sample.gainId() == 2 ) gain = 1./ 6.;
-      if ( sample.gainId() == 3 ) gain = 1./ 1.;
+        MonitorElement* meShapeMap = 0;
 
-      if ( ie < 6 || ip > 10 ) {
+        if ( sample.gainId() == 1 ) gain = 1./12.;
+        if ( sample.gainId() == 2 ) gain = 1./ 6.;
+        if ( sample.gainId() == 3 ) gain = 1./ 1.;
 
-        if ( dccMap[ism].getEventSettings().wavelength == 0 ) meShapeMap = meShapeMapL1A_[ism-1];
-        if ( dccMap[ism].getEventSettings().wavelength == 1 ) meShapeMap = meShapeMapL2A_[ism-1];
-        if ( dccMap[ism].getEventSettings().wavelength == 2 ) meShapeMap = meShapeMapL3A_[ism-1];
-        if ( dccMap[ism].getEventSettings().wavelength == 3 ) meShapeMap = meShapeMapL4A_[ism-1];
+        if ( ie < 6 || ip > 10 ) {
 
-      } else {
+          if ( dccMap[ism].getEventSettings().wavelength == 0 ) meShapeMap = meShapeMapL1A_[ism-1];
+          if ( dccMap[ism].getEventSettings().wavelength == 1 ) meShapeMap = meShapeMapL2A_[ism-1];
+          if ( dccMap[ism].getEventSettings().wavelength == 2 ) meShapeMap = meShapeMapL3A_[ism-1];
+          if ( dccMap[ism].getEventSettings().wavelength == 3 ) meShapeMap = meShapeMapL4A_[ism-1];
 
-        if ( dccMap[ism].getEventSettings().wavelength == 0 ) meShapeMap = meShapeMapL1B_[ism-1];
-        if ( dccMap[ism].getEventSettings().wavelength == 1 ) meShapeMap = meShapeMapL2B_[ism-1];
-        if ( dccMap[ism].getEventSettings().wavelength == 2 ) meShapeMap = meShapeMapL3B_[ism-1];
-        if ( dccMap[ism].getEventSettings().wavelength == 3 ) meShapeMap = meShapeMapL4B_[ism-1];
+        } else {
+
+          if ( dccMap[ism].getEventSettings().wavelength == 0 ) meShapeMap = meShapeMapL1B_[ism-1];
+          if ( dccMap[ism].getEventSettings().wavelength == 1 ) meShapeMap = meShapeMapL2B_[ism-1];
+          if ( dccMap[ism].getEventSettings().wavelength == 2 ) meShapeMap = meShapeMapL3B_[ism-1];
+          if ( dccMap[ism].getEventSettings().wavelength == 3 ) meShapeMap = meShapeMapL4B_[ism-1];
+
+        }
+
+//        float xval = float(adc) * gain;
+        float xval = float(adc);
+
+        if ( meShapeMap ) meShapeMap->Fill(ic - 0.5, i + 0.5, xval);
 
       }
 
-//      float xval = float(adc) * gain;
-      float xval = float(adc);
-
-      if ( meShapeMap ) meShapeMap->Fill(ic - 0.5, i + 0.5, xval);
-
     }
 
-  }
+  } catch ( exception& ex) {
 
-  Handle<EcalPnDiodeDigiCollection> pns;
-  e.getByLabel(EcalPnDiodeDigiCollection_, pns);
+    LogWarning("EBLaserTask") << EBDigiCollection_ << " not available";
+
+  }
 
   float adcA[36];
   float adcB[36];
@@ -626,206 +639,225 @@ void EBLaserTask::analyze(const Event& e, const EventSetup& c){
     adcB[i] = 0.;
   }
 
-  int nep = pns->size();
-  LogDebug("EBLaserTask") << "event " << ievt_ << " pns collection size " << nep;
+  try {
 
-  for ( EcalPnDiodeDigiCollection::const_iterator pnItr = pns->begin(); pnItr != pns->end(); ++pnItr ) {
+    Handle<EcalPnDiodeDigiCollection> pns;
+    e.getByLabel(EcalPnDiodeDigiCollection_, pns);
 
-    EcalPnDiodeDigi pn = (*pnItr);
-    EcalPnDiodeDetId id = pn.id();
+    int nep = pns->size();
+    LogDebug("EBLaserTask") << "event " << ievt_ << " pns collection size " << nep;
 
-//    int ism = id.ism();
-    int ism = id.iDCCId();
+    for ( EcalPnDiodeDigiCollection::const_iterator pnItr = pns->begin(); pnItr != pns->end(); ++pnItr ) {
 
-    int num = id.iPnId();
+      EcalPnDiodeDigi pn = (*pnItr);
+      EcalPnDiodeDetId id = pn.id();
 
-    map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(ism);
-    if ( i == dccMap.end() ) continue;
+//      int ism = id.ism();
+      int ism = id.iDCCId();
 
-    if ( dccMap[ism].getRunType() != EcalDCCHeaderBlock::LASER_STD ) continue;
+      int num = id.iPnId();
 
-    LogDebug("EBLaserTask") << " det id = " << id;
-    LogDebug("EBLaserTask") << " sm, num " << ism << " " << num;
+      map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(ism);
+      if ( i == dccMap.end() ) continue;
 
-    float xvalped = 0.;
+      if ( dccMap[ism].getRunType() != EcalDCCHeaderBlock::LASER_STD ) continue;
 
-    for (int i = 0; i < 4; i++) {
+      LogDebug("EBLaserTask") << " det id = " << id;
+      LogDebug("EBLaserTask") << " sm, num " << ism << " " << num;
 
-      EcalFEMSample sample = pn.sample(i);
-      int adc = sample.adc();
+      float xvalped = 0.;
 
-      MonitorElement* mePNPed = 0;
+      for (int i = 0; i < 4; i++) {
 
-      if ( sample.gainId() == 0 ) {
-        if ( dccMap[ism].getEventSettings().wavelength == 0 ) mePNPed = mePnPedMapG01L1_[ism-1];
-        if ( dccMap[ism].getEventSettings().wavelength == 1 ) mePNPed = mePnPedMapG01L2_[ism-1];
-        if ( dccMap[ism].getEventSettings().wavelength == 2 ) mePNPed = mePnPedMapG01L3_[ism-1];
-        if ( dccMap[ism].getEventSettings().wavelength == 3 ) mePNPed = mePnPedMapG01L4_[ism-1];
+        EcalFEMSample sample = pn.sample(i);
+        int adc = sample.adc();
+
+        MonitorElement* mePNPed = 0;
+
+        if ( sample.gainId() == 0 ) {
+          if ( dccMap[ism].getEventSettings().wavelength == 0 ) mePNPed = mePnPedMapG01L1_[ism-1];
+          if ( dccMap[ism].getEventSettings().wavelength == 1 ) mePNPed = mePnPedMapG01L2_[ism-1];
+          if ( dccMap[ism].getEventSettings().wavelength == 2 ) mePNPed = mePnPedMapG01L3_[ism-1];
+          if ( dccMap[ism].getEventSettings().wavelength == 3 ) mePNPed = mePnPedMapG01L4_[ism-1];
+        }
+        if ( sample.gainId() == 1 ) {
+          if ( dccMap[ism].getEventSettings().wavelength == 0 ) mePNPed = mePnPedMapG16L1_[ism-1];
+          if ( dccMap[ism].getEventSettings().wavelength == 1 ) mePNPed = mePnPedMapG16L2_[ism-1];
+          if ( dccMap[ism].getEventSettings().wavelength == 2 ) mePNPed = mePnPedMapG16L3_[ism-1];
+          if ( dccMap[ism].getEventSettings().wavelength == 3 ) mePNPed = mePnPedMapG16L4_[ism-1];
+        }
+
+        float xval = float(adc);
+
+        if ( mePNPed ) mePNPed->Fill(0.5, num - 0.5, xval);
+
+        xvalped = xvalped + xval;
+
       }
-      if ( sample.gainId() == 1 ) {
-        if ( dccMap[ism].getEventSettings().wavelength == 0 ) mePNPed = mePnPedMapG16L1_[ism-1];
-        if ( dccMap[ism].getEventSettings().wavelength == 1 ) mePNPed = mePnPedMapG16L2_[ism-1];
-        if ( dccMap[ism].getEventSettings().wavelength == 2 ) mePNPed = mePnPedMapG16L3_[ism-1];
-        if ( dccMap[ism].getEventSettings().wavelength == 3 ) mePNPed = mePnPedMapG16L4_[ism-1];
+
+      xvalped = xvalped / 4;
+
+      float xvalmax = 0.;
+
+      MonitorElement* mePN = 0;
+
+      for (int i = 0; i < 50; i++) {
+
+        EcalFEMSample sample = pn.sample(i);
+        int adc = sample.adc();
+
+        float xval = float(adc);
+
+        if ( xval >= xvalmax ) xvalmax = xval;
+
       }
 
-      float xval = float(adc);
+      xvalmax = xvalmax - xvalped;
 
-      if ( mePNPed ) mePNPed->Fill(0.5, num - 0.5, xval);
+      if ( pn.sample(0).gainId() == 0 ) {
+        if ( dccMap[ism].getEventSettings().wavelength == 0 ) mePN = mePnAmplMapG01L1_[ism-1];
+        if ( dccMap[ism].getEventSettings().wavelength == 1 ) mePN = mePnAmplMapG01L2_[ism-1];
+        if ( dccMap[ism].getEventSettings().wavelength == 2 ) mePN = mePnAmplMapG01L3_[ism-1];
+        if ( dccMap[ism].getEventSettings().wavelength == 3 ) mePN = mePnAmplMapG01L4_[ism-1];
+      }
+      if ( pn.sample(0).gainId() == 1 ) {
+        if ( dccMap[ism].getEventSettings().wavelength == 0 ) mePN = mePnAmplMapG16L1_[ism-1];
+        if ( dccMap[ism].getEventSettings().wavelength == 1 ) mePN = mePnAmplMapG16L2_[ism-1];
+        if ( dccMap[ism].getEventSettings().wavelength == 2 ) mePN = mePnAmplMapG16L3_[ism-1];
+        if ( dccMap[ism].getEventSettings().wavelength == 3 ) mePN = mePnAmplMapG16L4_[ism-1];
+      }
 
-      xvalped = xvalped + xval;
+      if ( mePN ) mePN->Fill(0.5, num - 0.5, xvalmax);
 
-    }
-
-    xvalped = xvalped / 4;
-
-    float xvalmax = 0.;
-
-    MonitorElement* mePN = 0;
-
-    for (int i = 0; i < 50; i++) {
-
-      EcalFEMSample sample = pn.sample(i);
-      int adc = sample.adc();
-
-      float xval = float(adc);
-
-      if ( xval >= xvalmax ) xvalmax = xval;
+      if ( num == 1 ) adcA[ism-1] = xvalmax;
+      if ( num == 6 ) adcB[ism-1] = xvalmax;
 
     }
 
-    xvalmax = xvalmax - xvalped;
+  } catch ( exception& ex) {
 
-    if ( pn.sample(0).gainId() == 0 ) {
-      if ( dccMap[ism].getEventSettings().wavelength == 0 ) mePN = mePnAmplMapG01L1_[ism-1];
-      if ( dccMap[ism].getEventSettings().wavelength == 1 ) mePN = mePnAmplMapG01L2_[ism-1];
-      if ( dccMap[ism].getEventSettings().wavelength == 2 ) mePN = mePnAmplMapG01L3_[ism-1];
-      if ( dccMap[ism].getEventSettings().wavelength == 3 ) mePN = mePnAmplMapG01L4_[ism-1];
-    }
-    if ( pn.sample(0).gainId() == 1 ) {
-      if ( dccMap[ism].getEventSettings().wavelength == 0 ) mePN = mePnAmplMapG16L1_[ism-1];
-      if ( dccMap[ism].getEventSettings().wavelength == 1 ) mePN = mePnAmplMapG16L2_[ism-1];
-      if ( dccMap[ism].getEventSettings().wavelength == 2 ) mePN = mePnAmplMapG16L3_[ism-1];
-      if ( dccMap[ism].getEventSettings().wavelength == 3 ) mePN = mePnAmplMapG16L4_[ism-1];
-    }
-
-    if ( mePN ) mePN->Fill(0.5, num - 0.5, xvalmax);
-
-    if ( num == 1 ) adcA[ism-1] = xvalmax;
-    if ( num == 6 ) adcB[ism-1] = xvalmax;
+    LogWarning("EBLaserTask") << EcalPnDiodeDigiCollection_ << " not available";
 
   }
 
-  Handle<EcalUncalibratedRecHitCollection> hits;
-  e.getByLabel(EcalUncalibratedRecHitCollection_, hits);
+  try {
 
-  int neh = hits->size();
-  LogDebug("EBLaserTask") << "event " << ievt_ << " hits collection size " << neh;
+    Handle<EcalUncalibratedRecHitCollection> hits;
+    e.getByLabel(EcalUncalibratedRecHitCollection_, hits);
 
-  for ( EcalUncalibratedRecHitCollection::const_iterator hitItr = hits->begin(); hitItr != hits->end(); ++hitItr ) {
+    int neh = hits->size();
+    LogDebug("EBLaserTask") << "event " << ievt_ << " hits collection size " << neh;
 
-    EcalUncalibratedRecHit hit = (*hitItr);
-    EBDetId id = hit.id();
+    for ( EcalUncalibratedRecHitCollection::const_iterator hitItr = hits->begin(); hitItr != hits->end(); ++hitItr ) {
 
-    int ic = id.ic();
-    int ie = (ic-1)/20 + 1;
-    int ip = (ic-1)%20 + 1;
+      EcalUncalibratedRecHit hit = (*hitItr);
+      EBDetId id = hit.id();
 
-    int ism = id.ism();
+      int ic = id.ic();
+      int ie = (ic-1)/20 + 1;
+      int ip = (ic-1)%20 + 1;
 
-    float xie = ie - 0.5;
-    float xip = ip - 0.5;
+      int ism = id.ism();
 
-    map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(ism);
-    if ( i == dccMap.end() ) continue;
+      float xie = ie - 0.5;
+      float xip = ip - 0.5;
 
-    if ( dccMap[ism].getRunType() != EcalDCCHeaderBlock::LASER_STD ) continue;
+      map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(ism);
+      if ( i == dccMap.end() ) continue;
 
-    LogDebug("EBLaserTask") << " det id = " << id;
-    LogDebug("EBLaserTask") << " sm, eta, phi " << ism << " " << ie << " " << ip;
+      if ( dccMap[ism].getRunType() != EcalDCCHeaderBlock::LASER_STD ) continue;
 
-    MonitorElement* meAmplMap = 0;
-    MonitorElement* meTimeMap = 0;
-    MonitorElement* meAmplPNMap = 0;
+      LogDebug("EBLaserTask") << " det id = " << id;
+      LogDebug("EBLaserTask") << " sm, eta, phi " << ism << " " << ie << " " << ip;
 
-    if ( ie < 6 || ip > 10 ) {
+      MonitorElement* meAmplMap = 0;
+      MonitorElement* meTimeMap = 0;
+      MonitorElement* meAmplPNMap = 0;
 
-      if ( dccMap[ism].getEventSettings().wavelength == 0 ) {
-        meAmplMap = meAmplMapL1A_[ism-1];
-        meTimeMap = meTimeMapL1A_[ism-1];
-        meAmplPNMap = meAmplPNMapL1A_[ism-1];
+      if ( ie < 6 || ip > 10 ) {
+
+        if ( dccMap[ism].getEventSettings().wavelength == 0 ) {
+          meAmplMap = meAmplMapL1A_[ism-1];
+          meTimeMap = meTimeMapL1A_[ism-1];
+          meAmplPNMap = meAmplPNMapL1A_[ism-1];
+        }
+        if ( dccMap[ism].getEventSettings().wavelength == 1 ) {
+          meAmplMap = meAmplMapL2A_[ism-1];
+          meTimeMap = meTimeMapL2A_[ism-1];
+          meAmplPNMap = meAmplPNMapL2A_[ism-1];
+        }
+        if ( dccMap[ism].getEventSettings().wavelength == 2 ) {
+          meAmplMap = meAmplMapL3A_[ism-1];
+          meTimeMap = meTimeMapL3A_[ism-1];
+          meAmplPNMap = meAmplPNMapL3A_[ism-1];
+        }
+        if ( dccMap[ism].getEventSettings().wavelength == 3 ) {
+          meAmplMap = meAmplMapL4A_[ism-1];
+          meTimeMap = meTimeMapL4A_[ism-1];
+          meAmplPNMap = meAmplPNMapL4A_[ism-1];
+        }
+
+      } else {
+
+        if ( dccMap[ism].getEventSettings().wavelength == 0 ) {
+          meAmplMap = meAmplMapL1B_[ism-1];
+          meTimeMap = meTimeMapL1B_[ism-1];
+          meAmplPNMap = meAmplPNMapL1B_[ism-1];
+        }
+        if ( dccMap[ism].getEventSettings().wavelength == 1 ) {
+          meAmplMap = meAmplMapL2B_[ism-1];
+          meTimeMap = meTimeMapL2B_[ism-1];
+          meAmplPNMap = meAmplPNMapL2B_[ism-1];
+        }
+        if ( dccMap[ism].getEventSettings().wavelength == 2 ) {
+          meAmplMap = meAmplMapL3B_[ism-1];
+          meTimeMap = meTimeMapL3B_[ism-1];
+          meAmplPNMap = meAmplPNMapL3B_[ism-1];
+        }
+        if ( dccMap[ism].getEventSettings().wavelength == 3 ) {
+          meAmplMap = meAmplMapL4B_[ism-1];
+          meTimeMap = meTimeMapL4B_[ism-1];
+          meAmplPNMap = meAmplPNMapL4B_[ism-1];
+        }
+
       }
-      if ( dccMap[ism].getEventSettings().wavelength == 1 ) {
-        meAmplMap = meAmplMapL2A_[ism-1];
-        meTimeMap = meTimeMapL2A_[ism-1];
-        meAmplPNMap = meAmplPNMapL2A_[ism-1];
-      }
-      if ( dccMap[ism].getEventSettings().wavelength == 2 ) {
-        meAmplMap = meAmplMapL3A_[ism-1];
-        meTimeMap = meTimeMapL3A_[ism-1];
-        meAmplPNMap = meAmplPNMapL3A_[ism-1];
-      }
-      if ( dccMap[ism].getEventSettings().wavelength == 3 ) {
-        meAmplMap = meAmplMapL4A_[ism-1];
-        meTimeMap = meTimeMapL4A_[ism-1];
-        meAmplPNMap = meAmplPNMapL4A_[ism-1];
+
+      float xval = hit.amplitude();
+      if ( xval <= 0. ) xval = 0.0;
+      float yval = hit.jitter();
+      if ( yval <= 0. ) yval = 0.0;
+      float zval = hit.pedestal();
+      if ( zval <= 0. ) zval = 0.0;
+
+      LogDebug("EBLaserTask") << " hit amplitude " << xval;
+      LogDebug("EBLaserTask") << " hit jitter " << yval;
+      LogDebug("EBLaserTask") << " hit pedestal " << zval;
+
+      if ( meAmplMap ) meAmplMap->Fill(xie, xip, xval);
+
+      if ( meTimeMap ) meTimeMap->Fill(xie, xip, yval);
+
+      float wval = 0.;
+
+      if ( ie < 6 || ip > 10 ) {
+
+        if ( adcA[ism-1] != 0. ) wval = xval / adcA[ism-1];
+
+      } else {
+
+        if ( adcB[ism-1] != 0. ) wval = xval / adcB[ism-1];
+
       }
 
-    } else {
+      LogDebug("EBLaserTask") << " hit amplitude over PN " << wval;
 
-      if ( dccMap[ism].getEventSettings().wavelength == 0 ) {
-        meAmplMap = meAmplMapL1B_[ism-1];
-        meTimeMap = meTimeMapL1B_[ism-1];
-        meAmplPNMap = meAmplPNMapL1B_[ism-1];
-      }
-      if ( dccMap[ism].getEventSettings().wavelength == 1 ) {
-        meAmplMap = meAmplMapL2B_[ism-1];
-        meTimeMap = meTimeMapL2B_[ism-1];
-        meAmplPNMap = meAmplPNMapL2B_[ism-1];
-      }
-      if ( dccMap[ism].getEventSettings().wavelength == 2 ) {
-        meAmplMap = meAmplMapL3B_[ism-1];
-        meTimeMap = meTimeMapL3B_[ism-1];
-        meAmplPNMap = meAmplPNMapL3B_[ism-1];
-      }
-      if ( dccMap[ism].getEventSettings().wavelength == 3 ) {
-        meAmplMap = meAmplMapL4B_[ism-1];
-        meTimeMap = meTimeMapL4B_[ism-1];
-        meAmplPNMap = meAmplPNMapL4B_[ism-1];
-      }
+      if ( meAmplPNMap ) meAmplPNMap->Fill(xie, xip, wval);
 
     }
 
-    float xval = hit.amplitude();
-    if ( xval <= 0. ) xval = 0.0;
-    float yval = hit.jitter();
-    if ( yval <= 0. ) yval = 0.0;
-    float zval = hit.pedestal();
-    if ( zval <= 0. ) zval = 0.0;
+  } catch ( exception& ex) {
 
-    LogDebug("EBLaserTask") << " hit amplitude " << xval;
-    LogDebug("EBLaserTask") << " hit jitter " << yval;
-    LogDebug("EBLaserTask") << " hit pedestal " << zval;
-
-    if ( meAmplMap ) meAmplMap->Fill(xie, xip, xval);
-
-    if ( meTimeMap ) meTimeMap->Fill(xie, xip, yval);
-
-    float wval = 0.;
-
-    if ( ie < 6 || ip > 10 ) {
-
-      if ( adcA[ism-1] != 0. ) wval = xval / adcA[ism-1];
-
-    } else {
-
-      if ( adcB[ism-1] != 0. ) wval = xval / adcB[ism-1];
-
-    }
-
-    LogDebug("EBLaserTask") << " hit amplitude over PN " << wval;
-
-    if ( meAmplPNMap ) meAmplPNMap->Fill(xie, xip, wval);
+    LogWarning("EBLaserTask") << EcalUncalibratedRecHitCollection_ << " not available";
 
   }
 
