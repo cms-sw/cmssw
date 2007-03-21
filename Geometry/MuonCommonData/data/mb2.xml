@@ -179,11 +179,16 @@
 
 <!-- ####  MB2: RPC chambers -->
  <Box name="MB2RPC" dx="[mb2:MB2RPC_x]" dy="[mbCommon:MBRPC_z]" dz="[mbCommon:MBRPC_y]"/>
- <Box name="MB2RPC_IGasLeft" dx="[mb2:MB2RPC_Gas_x]" dy="384.5*mm" dz="[mbCommon:MBRPC_Gas_y]"/>
- <Box name="MB2RPC_IGasMiddle" dx="[mb2:MB2RPC_Gas_x]" dy="397.*mm" dz="[mbCommon:MBRPC_Gas_y]"/>
- <Box name="MB2RPC_IGasRight" dx="[mb2:MB2RPC_Gas_x]" dy="426.*mm" dz="[mbCommon:MBRPC_Gas_y]"/>
- <Box name="MB2RPC_OGasLeft" dx="[mb2:MB2RPC_Gas_x]" dy="[mbCommon:MBRPC_GasLeft_z]" dz="[mbCommon:MBRPC_Gas_y]"/>
- <Box name="MB2RPC_OGasRight" dx="[mb2:MB2RPC_Gas_x]" dy="[mbCommon:MBRPC_GasRight_z]" dz="[mbCommon:MBRPC_Gas_y]"/>
+ <Box name="MB23RPC_IGasLeft" dx="[mb2:MB2RPC_Gas_x]" dy="384.5*mm" dz="[mbCommon:MBRPC_Gas_y]"/>
+ <Box name="MB23RPC_IGasMiddle" dx="[mb2:MB2RPC_Gas_x]" dy="397.*mm" dz="[mbCommon:MBRPC_Gas_y]"/>
+ <Box name="MB23RPC_IGasRight" dx="[mb2:MB2RPC_Gas_x]" dy="426.*mm" dz="[mbCommon:MBRPC_Gas_y]"/>
+ <Box name="MB23RPC_OGasLeft" dx="[mb2:MB2RPC_Gas_x]" dy="384.5*mm" dz="[mbCommon:MBRPC_Gas_y]"/>
+ <Box name="MB23RPC_OGasMiddle" dx="[mb2:MB2RPC_Gas_x]" dy="397.*mm" dz="[mbCommon:MBRPC_Gas_y]"/>
+ <Box name="MB23RPC_OGasRight" dx="[mb2:MB2RPC_Gas_x]" dy="426.*mm" dz="[mbCommon:MBRPC_Gas_y]"/>
+ <Box name="MB22RPC_IGasLeft" dx="[mb2:MB2RPC_Gas_x]" dy="[mbCommon:MBRPC_GasLeft_z]" dz="[mbCommon:MBRPC_Gas_y]"/>
+ <Box name="MB22RPC_IGasRight" dx="[mb2:MB2RPC_Gas_x]" dy="[mbCommon:MBRPC_GasRight_z]" dz="[mbCommon:MBRPC_Gas_y]"/>
+ <Box name="MB22RPC_OGasLeft" dx="[mb2:MB2RPC_Gas_x]" dy="[mbCommon:MBRPC_GasLeft_z]" dz="[mbCommon:MBRPC_Gas_y]"/>
+ <Box name="MB22RPC_OGasRight" dx="[mb2:MB2RPC_Gas_x]" dy="[mbCommon:MBRPC_GasRight_z]" dz="[mbCommon:MBRPC_Gas_y]"/>
 
 <!-- ####  MB2Chimney Unit -->
 <!-- ####  MB2Chim: DTBX chamber -->
@@ -459,40 +464,79 @@ plus MB2ChimP (32P) , MB2ChimN (32N)
  </LogicalPart>
 
 <!-- ####  MB2: RPC chambers -->
- <LogicalPart name="MB2RPC_IP" category="unspecified">
+ <LogicalPart name="MB22RPC_IP" category="unspecified">
   <rSolid name="MB2RPC"/>
   <rMaterial name="materials:M_RPC_Bakelite"/>
  </LogicalPart>
- <LogicalPart name="MB2RPC_IN" category="unspecified">
+ <LogicalPart name="MB22RPC_IN" category="unspecified">
   <rSolid name="MB2RPC"/>
   <rMaterial name="materials:M_RPC_Bakelite"/>
  </LogicalPart>
- <LogicalPart name="MB2RPC_IGasLeft" category="unspecified">
-  <rSolid name="MB2RPC_IGasLeft"/>
-  <rMaterial name="materials:M_RPC_Gas"/>
- </LogicalPart>
- <LogicalPart name="MB2RPC_IGasMiddle" category="unspecified">
-  <rSolid name="MB2RPC_IGasMiddle"/>
-  <rMaterial name="materials:M_RPC_Gas"/>
- </LogicalPart>
- <LogicalPart name="MB2RPC_IGasRight" category="unspecified">
-  <rSolid name="MB2RPC_IGasRight"/>
-  <rMaterial name="materials:M_RPC_Gas"/>
- </LogicalPart>
- <LogicalPart name="MB2RPC_OP" category="unspecified">
+ <LogicalPart name="MB23RPC_IP" category="unspecified">
   <rSolid name="MB2RPC"/>
   <rMaterial name="materials:M_RPC_Bakelite"/>
  </LogicalPart>
- <LogicalPart name="MB2RPC_ON" category="unspecified">
+ <LogicalPart name="MB23RPC_IN" category="unspecified">
   <rSolid name="MB2RPC"/>
   <rMaterial name="materials:M_RPC_Bakelite"/>
  </LogicalPart>
- <LogicalPart name="MB2RPC_OGasLeft" category="unspecified">
-  <rSolid name="MB2RPC_OGasLeft"/>
+ <LogicalPart name="MB23RPC_IGasLeft" category="unspecified">
+  <rSolid name="MB23RPC_IGasLeft"/>
   <rMaterial name="materials:M_RPC_Gas"/>
  </LogicalPart>
- <LogicalPart name="MB2RPC_OGasRight" category="unspecified">
-  <rSolid name="MB2RPC_OGasRight"/>
+ <LogicalPart name="MB23RPC_IGasMiddle" category="unspecified">
+  <rSolid name="MB23RPC_IGasMiddle"/>
+  <rMaterial name="materials:M_RPC_Gas"/>
+ </LogicalPart>
+ <LogicalPart name="MB23RPC_IGasRight" category="unspecified">
+  <rSolid name="MB23RPC_IGasRight"/>
+  <rMaterial name="materials:M_RPC_Gas"/>
+ </LogicalPart>
+ <LogicalPart name="MB22RPC_IGasLeft" category="unspecified">
+  <rSolid name="MB22RPC_IGasLeft"/>
+  <rMaterial name="materials:M_RPC_Gas"/>
+ </LogicalPart>
+ <LogicalPart name="MB22RPC_IGasRight" category="unspecified">
+  <rSolid name="MB22RPC_IGasRight"/>
+  <rMaterial name="materials:M_RPC_Gas"/>
+ </LogicalPart>
+
+
+
+ <LogicalPart name="MB22RPC_OP" category="unspecified">
+  <rSolid name="MB2RPC"/>
+  <rMaterial name="materials:M_RPC_Bakelite"/>
+ </LogicalPart>
+ <LogicalPart name="MB22RPC_ON" category="unspecified">
+  <rSolid name="MB2RPC"/>
+  <rMaterial name="materials:M_RPC_Bakelite"/>
+ </LogicalPart>
+ <LogicalPart name="MB23RPC_OP" category="unspecified">
+  <rSolid name="MB2RPC"/>
+  <rMaterial name="materials:M_RPC_Bakelite"/>
+ </LogicalPart>
+ <LogicalPart name="MB23RPC_ON" category="unspecified">
+  <rSolid name="MB2RPC"/>
+  <rMaterial name="materials:M_RPC_Bakelite"/>
+ </LogicalPart>
+ <LogicalPart name="MB23RPC_OGasLeft" category="unspecified">
+  <rSolid name="MB23RPC_OGasLeft"/>
+  <rMaterial name="materials:M_RPC_Gas"/>
+ </LogicalPart>
+ <LogicalPart name="MB23RPC_OGasMiddle" category="unspecified">
+  <rSolid name="MB23RPC_OGasMiddle"/>
+  <rMaterial name="materials:M_RPC_Gas"/>
+ </LogicalPart>
+ <LogicalPart name="MB23RPC_OGasRight" category="unspecified">
+  <rSolid name="MB23RPC_OGasRight"/>
+  <rMaterial name="materials:M_RPC_Gas"/>
+ </LogicalPart>
+ <LogicalPart name="MB22RPC_OGasLeft" category="unspecified">
+  <rSolid name="MB22RPC_OGasLeft"/>
+  <rMaterial name="materials:M_RPC_Gas"/>
+ </LogicalPart>
+ <LogicalPart name="MB22RPC_OGasRight" category="unspecified">
+  <rSolid name="MB22RPC_OGasRight"/>
   <rMaterial name="materials:M_RPC_Gas"/>
  </LogicalPart>
 
@@ -621,14 +665,15 @@ plus MB2ChimP (32P) , MB2ChimN (32N)
  </LogicalPart>
  <LogicalPart name="MB2ChimRPC_IGasLeft" category="unspecified">
   <rSolid name="MB2ChimRPC_IGasLeft"/>
+
   <rMaterial name="materials:M_RPC_Gas"/>
  </LogicalPart>
  <LogicalPart name="MB2ChimRPC_IGasMiddle" category="unspecified">
-  <rSolid name="MB2RPC_IGasMiddle"/>
+  <rSolid name="MB23RPC_IGasMiddle"/>
   <rMaterial name="materials:M_RPC_Gas"/>
  </LogicalPart>
  <LogicalPart name="MB2ChimRPC_IGasRight" category="unspecified">
-  <rSolid name="MB2RPC_IGasRight"/>
+  <rSolid name="MB23RPC_IGasRight"/>
   <rMaterial name="materials:M_RPC_Gas"/>
  </LogicalPart>
  <LogicalPart name="MB2ChimRPC_OP" category="unspecified">
@@ -644,7 +689,7 @@ plus MB2ChimP (32P) , MB2ChimN (32N)
   <rMaterial name="materials:M_RPC_Gas"/>
  </LogicalPart>
  <LogicalPart name="MB2ChimRPC_OGasRight" category="unspecified">
-  <rSolid name="MB2RPC_OGasRight"/>
+  <rSolid name="MB22RPC_OGasRight"/>
   <rMaterial name="materials:M_RPC_Gas"/>
  </LogicalPart>
 
@@ -943,7 +988,7 @@ plus MB2ChimP (32P) , MB2ChimN (32N)
  <PosPart copyNumber="1">
    <rParent name="mb2:MB2SuperLayerPhi"/>
    <rChild name="mb2:MB2SLPhiLayer_59Cells"/>
-  <Translation x="-10.5*mm" y="0*fm" z="3*[mbCommon:MBCell_height]" />
+ <Translation x="-10.5*mm" y="0*fm" z="3*[mbCommon:MBCell_height]" />
  </PosPart>
  <PosPart copyNumber="2">
    <rParent name="mb2:MB2SuperLayerPhi"/>
@@ -1437,115 +1482,214 @@ plus MB2ChimP (32P) , MB2ChimN (32N)
 
 
 <!-- ##### MB2: RPC chambers -->
-<!-- ##### MB2: RPC_IP chamber -->
+<!-- ##### MB2/3:  RPC_IP chamber -->
+
  <PosPart copyNumber="1">
    <rParent name="mb2:MB2P32P"/>
-   <rChild name="mb2:MB2RPC_IP"/>
+   <rChild name="mb2:MB23RPC_IP"/>
   <Translation x="-[mb2:MB2RPC_I_x_pos]" y="0*fm" z="[mbCommon:MBRPC_z_pos]" />
- </PosPart>
- <PosPart copyNumber="2">
-   <rParent name="mb2:MB2P23P"/>
-   <rChild name="mb2:MB2RPC_IP"/>
-  <Translation x="-[mb2:MB2RPC_O_x_pos]" y="0*fm" z="-[mbCommon:MBRPC_z_pos]" />
- </PosPart>
- <PosPart copyNumber="1">
-   <rParent name="mb2:MB2N32P"/>
-   <rChild name="mb2:MB2RPC_IP"/>
-  <Translation x="[mb2:MB2RPC_I_x_pos]" y="0*fm" z="[mbCommon:MBRPC_z_pos]" />
  </PosPart>
 
  <PosPart copyNumber="1">
-   <rParent name="mb2:MB2RPC_IP"/>
-   <rChild name="mb2:MB2RPC_IGasLeft"/>
+   <rParent name="mb2:MB23RPC_IP"/>
+   <rChild name="mb2:MB23RPC_IGasLeft"/>
+  <rRotation name="rotations:R180" />
   <Translation x="0*cm" y="-[mb2:MB2RPC_IGasLeft_y_pos]" z="0*cm" />
  </PosPart>
  <PosPart copyNumber="1">
-   <rParent name="mb2:MB2RPC_IP"/>
-   <rChild name="mb2:MB2RPC_IGasMiddle"/>
+   <rParent name="mb2:MB23RPC_IP"/>
+   <rChild name="mb2:MB23RPC_IGasMiddle"/>
+  <rRotation name="rotations:R180" />
   <Translation x="0*cm" y="-[mb2:MB2RPC_IGasMiddle_y_pos]" z="0*cm" />
  </PosPart>
  <PosPart copyNumber="1">
-   <rParent name="mb2:MB2RPC_IP"/>
-   <rChild name="mb2:MB2RPC_IGasRight"/>
+   <rParent name="mb2:MB23RPC_IP"/>
+   <rChild name="mb2:MB23RPC_IGasRight"/>
+  <rRotation name="rotations:R180" />
   <Translation x="0*cm" y="[mb2:MB2RPC_IGasRight_y_pos]" z="0*cm" />
  </PosPart>
-<!-- ##### MB2: RPC_OP chamber -->
- <PosPart copyNumber="1">
-   <rParent name="mb2:MB2P32P"/>
-   <rChild name="mb2:MB2RPC_OP"/>
-  <Translation x="-[mb2:MB2RPC_O_x_pos]" y="0*fm" z="-[mbCommon:MBRPC_z_pos]" />
- </PosPart>
+
+<!-- ##### MB2/3:  RPC_OP chamber -->
+
  <PosPart copyNumber="2">
    <rParent name="mb2:MB2P23P"/>
-   <rChild name="mb2:MB2RPC_OP"/>
-  <Translation x="-[mb2:MB2RPC_I_x_pos]" y="0*fm" z="[mbCommon:MBRPC_z_pos]" />
- </PosPart>
- <PosPart copyNumber="1">
-   <rParent name="mb2:MB2N32P"/>
-   <rChild name="mb2:MB2RPC_OP"/>
-  <Translation x="[mb2:MB2RPC_O_x_pos]" y="0*fm" z="-[mbCommon:MBRPC_z_pos]" />
+   <rChild name="mb2:MB23RPC_OP"/>
+  <Translation x="-[mb2:MB2RPC_O_x_pos]" y="0*fm" z="[mbCommon:MBRPC_z_pos]" />
  </PosPart>
 
  <PosPart copyNumber="1">
-   <rParent name="mb2:MB2RPC_OP"/>
-   <rChild name="mb2:MB2RPC_OGasLeft"/>
+   <rParent name="mb2:MB23RPC_OP"/>
+   <rChild name="mb2:MB23RPC_OGasLeft"/>
+  <rRotation name="rotations:RPCD" />
+  <Translation x="0*cm" y="-[mb2:MB2RPC_IGasLeft_y_pos]" z="0*cm" />
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="mb2:MB23RPC_OP"/>
+   <rChild name="mb2:MB23RPC_OGasMiddle"/>
+  <rRotation name="rotations:RPCD" />
+  <Translation x="0*cm" y="-[mb2:MB2RPC_IGasMiddle_y_pos]" z="0*cm" />
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="mb2:MB23RPC_OP"/>
+   <rChild name="mb2:MB23RPC_OGasRight"/>
+  <rRotation name="rotations:RPCD" />
+  <Translation x="0*cm" y="[mb2:MB2RPC_IGasRight_y_pos]" z="0*cm" />
+ </PosPart>
+
+<!-- ##### MB2/3:  RPC_IN chamber -->
+ <PosPart copyNumber="1">
+   <rParent name="mb2:MB2N32P"/>
+   <rChild name="mb2:MB23RPC_IN"/>
+  <Translation x="[mb2:MB2RPC_I_x_pos]" y="0*fm" z="[mbCommon:MBRPC_z_pos]" />
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="mb2:MB2N32N"/>
+   <rChild name="mb2:MB23RPC_IN"/>
+  <Translation x="[mb2:MB2RPC_I_x_pos]" y="0*fm" z="[mbCommon:MBRPC_z_pos]" />
+ </PosPart>
+
+
+ <PosPart copyNumber="1">
+   <rParent name="mb2:MB23RPC_IN"/>
+   <rChild name="mb2:MB23RPC_IGasLeft"/>
+  <rRotation name="rotations:R180" />
+  <Translation x="0*cm" y="-[mb2:MB2RPC_IGasLeft_y_pos]" z="0*cm" />
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="mb2:MB23RPC_IN"/>
+   <rChild name="mb2:MB23RPC_IGasMiddle"/>
+  <rRotation name="rotations:R180" />
+  <Translation x="0*cm" y="-[mb2:MB2RPC_IGasMiddle_y_pos]" z="0*cm" />
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="mb2:MB23RPC_IN"/>
+   <rChild name="mb2:MB23RPC_IGasRight"/>
+  <rRotation name="rotations:R180" />
+  <Translation x="0*cm" y="[mb2:MB2RPC_IGasRight_y_pos]" z="0*cm" />
+ </PosPart>
+
+
+<!-- ##### MB2/2:  RPC_IP chamber -->
+ <PosPart copyNumber="1">
+   <rParent name="mb2:MB2P23P"/>
+   <rChild name="mb2:MB22RPC_IP"/>
+  <Translation x="-[mb2:MB2RPC_O_x_pos]" y="0*fm" z="-[mbCommon:MBRPC_z_pos]" />
+ </PosPart>
+
+ <PosPart copyNumber="1">
+   <rParent name="mb2:MB22RPC_IP"/>
+   <rChild name="mb2:MB22RPC_IGasLeft"/>
+  <rRotation name="rotations:R180" />
   <Translation x="0*cm" y="-[mbCommon:MBRPC_GasLeft_y_pos]" z="0*cm" />
  </PosPart>
  <PosPart copyNumber="1">
-   <rParent name="mb2:MB2RPC_OP"/>
-   <rChild name="mb2:MB2RPC_OGasRight"/>
+   <rParent name="mb2:MB22RPC_IP"/>
+   <rChild name="mb2:MB22RPC_IGasRight"/>
+  <rRotation name="rotations:R180" />
   <Translation x="0*cm" y="[mbCommon:MBRPC_GasRight_y_pos]" z="0*cm" />
  </PosPart>
-<!-- ##### MB2: RPC_IN chamber -->
+
+
+<!-- ##### MB2/2:  RPC_OP chamber -->
  <PosPart copyNumber="1">
-   <rParent name="mb2:MB2N32N"/>
-   <rChild name="mb2:MB2RPC_IN"/>
+   <rParent name="mb2:MB2P32P"/>
+   <rChild name="mb2:MB22RPC_OP"/>
+  <Translation x="-[mb2:MB2RPC_O_x_pos]" y="0*fm" z="-[mbCommon:MBRPC_z_pos]" />
+ </PosPart>
+
+ <PosPart copyNumber="1">
+   <rParent name="mb2:MB22RPC_OP"/>
+   <rChild name="mb2:MB22RPC_OGasLeft"/>
+  <rRotation name="rotations:RPCD" />
+  <Translation x="0*cm" y="-[mbCommon:MBRPC_GasLeft_y_pos]" z="0*cm" />
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="mb2:MB22RPC_OP"/>
+   <rChild name="mb2:MB22RPC_OGasRight"/>
+  <rRotation name="rotations:RPCD" />
+  <Translation x="0*cm" y="[mbCommon:MBRPC_GasRight_y_pos]" z="0*cm" />
+ </PosPart>
+
+
+<!-- ##### MB2/2:  RPC_IN chamber -->
+ <PosPart copyNumber="1">
+   <rParent name="mb2:MB2N23N"/>
+   <rChild name="mb2:MB22RPC_IN"/>
   <Translation x="[mb2:MB2RPC_I_x_pos]" y="0*fm" z="[mbCommon:MBRPC_z_pos]" />
  </PosPart>
+
+ <PosPart copyNumber="1">
+   <rParent name="mb2:MB22RPC_IN"/>
+   <rChild name="mb2:MB22RPC_IGasLeft"/>
+  <rRotation name="rotations:R180" />
+  <Translation x="0*cm" y="-[mbCommon:MBRPC_GasLeft_y_pos]" z="0*cm" />
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="mb2:MB22RPC_IN"/>
+   <rChild name="mb2:MB22RPC_IGasRight"/>
+  <rRotation name="rotations:R180" />
+  <Translation x="0*cm" y="[mbCommon:MBRPC_GasRight_y_pos]" z="0*cm" />
+ </PosPart>
+
+<!-- ##### MB2/3:  RPC_ON chamber -->
  <PosPart copyNumber="2">
    <rParent name="mb2:MB2N23N"/>
-   <rChild name="mb2:MB2RPC_IN"/>
+   <rChild name="mb2:MB23RPC_ON"/>
   <Translation x="[mb2:MB2RPC_O_x_pos]" y="0*fm" z="-[mbCommon:MBRPC_z_pos]" />
  </PosPart>
 
  <PosPart copyNumber="1">
-   <rParent name="mb2:MB2RPC_IN"/>
-   <rChild name="mb2:MB2RPC_IGasLeft"/>
+   <rParent name="mb2:MB23RPC_ON"/>
+   <rChild name="mb2:MB23RPC_OGasLeft"/>
+  <rRotation name="rotations:RPCD" />
   <Translation x="0*cm" y="-[mb2:MB2RPC_IGasLeft_y_pos]" z="0*cm" />
  </PosPart>
  <PosPart copyNumber="1">
-   <rParent name="mb2:MB2RPC_IN"/>
-   <rChild name="mb2:MB2RPC_IGasMiddle"/>
+   <rParent name="mb2:MB23RPC_ON"/>
+   <rChild name="mb2:MB23RPC_OGasMiddle"/>
+  <rRotation name="rotations:RPCD" />
   <Translation x="0*cm" y="-[mb2:MB2RPC_IGasMiddle_y_pos]" z="0*cm" />
  </PosPart>
  <PosPart copyNumber="1">
-   <rParent name="mb2:MB2RPC_IN"/>
-   <rChild name="mb2:MB2RPC_IGasRight"/>
+   <rParent name="mb2:MB23RPC_ON"/>
+   <rChild name="mb2:MB23RPC_OGasRight"/>
+  <rRotation name="rotations:RPCD" />
   <Translation x="0*cm" y="[mb2:MB2RPC_IGasRight_y_pos]" z="0*cm" />
  </PosPart>
+
+
+<!-- ##### MB2/2:  RPC_ON chamber -->
+ <PosPart copyNumber="1">
+   <rParent name="mb2:MB2N32P"/>
+   <rChild name="mb2:MB22RPC_ON"/>
+  <Translation x="[mb2:MB2RPC_O_x_pos]" y="0*fm" z="-[mbCommon:MBRPC_z_pos]" />
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="mb2:MB2N32N"/>
+   <rChild name="mb2:MB22RPC_ON"/>
+  <Translation x="[mb2:MB2RPC_O_x_pos]" y="0*fm" z="-[mbCommon:MBRPC_z_pos]" />
+ </PosPart>
+
+ <PosPart copyNumber="1">
+   <rParent name="mb2:MB22RPC_ON"/>
+   <rChild name="mb2:MB22RPC_OGasLeft"/>
+  <rRotation name="rotations:RPCD" />
+  <Translation x="0*cm" y="-[mbCommon:MBRPC_GasLeft_y_pos]" z="0*cm" />
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="mb2:MB22RPC_ON"/>
+   <rChild name="mb2:MB22RPC_OGasRight"/>
+  <rRotation name="rotations:RPCD" />
+  <Translation x="0*cm" y="[mbCommon:MBRPC_GasRight_y_pos]" z="0*cm" />
+ </PosPart>
+
+############################################################
+
 
 <!-- ##### MB2: RPC_ON chamber -->
- <PosPart copyNumber="1">
-   <rParent name="mb2:MB2N32N"/>
-   <rChild name="mb2:MB2RPC_ON"/>
-  <Translation x="[mb2:MB2RPC_O_x_pos]" y="0*fm" z="-[mbCommon:MBRPC_z_pos]" />
- </PosPart>
- <PosPart copyNumber="2">
-   <rParent name="mb2:MB2N23N"/>
-   <rChild name="mb2:MB2RPC_ON"/>
-  <Translation x="[mb2:MB2RPC_I_x_pos]" y="0*fm" z="[mbCommon:MBRPC_z_pos]" />
- </PosPart>
 
- <PosPart copyNumber="1">
-   <rParent name="mb2:MB2RPC_ON"/>
-   <rChild name="mb2:MB2RPC_OGasLeft"/>
-  <Translation x="0*cm" y="-[mbCommon:MBRPC_GasLeft_y_pos]" z="0*cm" />
- </PosPart>
- <PosPart copyNumber="1">
-   <rParent name="mb2:MB2RPC_ON"/>
-   <rChild name="mb2:MB2RPC_OGasRight"/>
-  <Translation x="0*cm" y="[mbCommon:MBRPC_GasRight_y_pos]" z="0*cm" />
- </PosPart>
+
+
 
 
 <!-- ####  MB2Chimney Unit -->
@@ -2048,16 +2192,19 @@ plus MB2ChimP (32P) , MB2ChimN (32N)
  <PosPart copyNumber="1">
    <rParent name="mb2:MB2ChimRPC_IP"/>
    <rChild name="mb2:MB2ChimRPC_IGasLeft"/>
+  <rRotation name="rotations:R180" />
   <Translation x="0*cm" y="-[mb2:MB2ChimRPC_IGasLeft_y_pos]" z="0*cm" />
  </PosPart>
  <PosPart copyNumber="1">
    <rParent name="mb2:MB2ChimRPC_IP"/>
    <rChild name="mb2:MB2ChimRPC_IGasMiddle"/>
+  <rRotation name="rotations:R180" />
   <Translation x="0*cm" y="-[mb2:MB2ChimRPC_IGasMiddle_y_pos]" z="0*cm" />
  </PosPart>
  <PosPart copyNumber="1">
    <rParent name="mb2:MB2ChimRPC_IP"/>
    <rChild name="mb2:MB2ChimRPC_IGasRight"/>
+  <rRotation name="rotations:R180" />
   <Translation x="0*cm" y="[mb2:MB2ChimRPC_IGasRight_y_pos]" z="0*cm" />
  </PosPart>
 <!-- ##### MB2Chim: RPC_OP chamber -->
@@ -2069,13 +2216,16 @@ plus MB2ChimP (32P) , MB2ChimN (32N)
  <PosPart copyNumber="1">
    <rParent name="mb2:MB2ChimRPC_OP"/>
    <rChild name="mb2:MB2ChimRPC_OGasLeft"/>
+  <rRotation name="rotations:RPCD" />
   <Translation x="0*cm" y="-[mbCommon:MBRPC_GasLeft_y_pos]" z="0*cm" />
  </PosPart>
  <PosPart copyNumber="1">
    <rParent name="mb2:MB2ChimRPC_OP"/>
    <rChild name="mb2:MB2ChimRPC_OGasRight"/>
+  <rRotation name="rotations:RPCD" />
   <Translation x="0*cm" y="[mb2:MB2ChimRPC_OGasRight_y_pos]" z="0*cm" />
  </PosPart>
+
 <!-- ##### MB2Chim: RPC_IN chamber -->
  <PosPart copyNumber="1">
    <rParent name="mb2:MB2ChimN"/>
@@ -2085,16 +2235,19 @@ plus MB2ChimP (32P) , MB2ChimN (32N)
  <PosPart copyNumber="1">
    <rParent name="mb2:MB2ChimRPC_IN"/>
    <rChild name="mb2:MB2ChimRPC_IGasLeft"/>
+  <rRotation name="rotations:R180" />
   <Translation x="0*cm" y="-[mb2:MB2ChimRPC_IGasLeft_y_pos]" z="0*cm" />
  </PosPart>
  <PosPart copyNumber="1">
    <rParent name="mb2:MB2ChimRPC_IN"/>
    <rChild name="mb2:MB2ChimRPC_IGasMiddle"/>
+  <rRotation name="rotations:R180" />
   <Translation x="0*cm" y="-[mb2:MB2ChimRPC_IGasMiddle_y_pos]" z="0*cm" />
  </PosPart>
  <PosPart copyNumber="1">
    <rParent name="mb2:MB2ChimRPC_IN"/>
    <rChild name="mb2:MB2ChimRPC_IGasRight"/>
+  <rRotation name="rotations:R180" />
   <Translation x="0*cm" y="[mb2:MB2ChimRPC_IGasRight_y_pos]" z="0*cm" />
  </PosPart>
 <!-- ##### MB2Chim: RPC_ON chamber -->
@@ -2106,14 +2259,16 @@ plus MB2ChimP (32P) , MB2ChimN (32N)
  <PosPart copyNumber="1">
    <rParent name="mb2:MB2ChimRPC_ON"/>
    <rChild name="mb2:MB2ChimRPC_OGasLeft"/>
+  <rRotation name="rotations:RPCD" />
+
   <Translation x="0*cm" y="-[mbCommon:MBRPC_GasLeft_y_pos]" z="0*cm" />
  </PosPart>
  <PosPart copyNumber="1">
    <rParent name="mb2:MB2ChimRPC_ON"/>
    <rChild name="mb2:MB2ChimRPC_OGasRight"/>
+  <rRotation name="rotations:RPCD" />
   <Translation x="0*cm" y="[mb2:MB2ChimRPC_OGasRight_y_pos]" z="0*cm" />
  </PosPart>
-
 </PosPartSection>
 
 

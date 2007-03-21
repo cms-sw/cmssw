@@ -1374,12 +1374,14 @@
  </PosPart>
  <PosPart copyNumber="1">
    <rParent name="mb1:MB1RPC_IP"/>
-   <rChild name="mb1:MB1RPC_IGasLeft"/>
+   <rChild name="mb1:MB1RPC_IGasLeft"/>  
+  <rRotation name="rotations:R180" />
   <Translation x="0*cm" y="-[mbCommon:MBRPC_GasLeft_y_pos]" z="0*cm" />
  </PosPart>
  <PosPart copyNumber="1">
    <rParent name="mb1:MB1RPC_IP"/>
    <rChild name="mb1:MB1RPC_IGasRight"/>
+  <rRotation name="rotations:R180" />
   <Translation x="0*cm" y="[mbCommon:MBRPC_GasRight_y_pos]" z="0*cm" />
  </PosPart>
 <!-- ##### MB1: RPC_OP chamber -->
@@ -1391,11 +1393,13 @@
  <PosPart copyNumber="1">
    <rParent name="mb1:MB1RPC_OP"/>
    <rChild name="mb1:MB1RPC_OGasLeft"/>
+  <rRotation name="rotations:RPCD" />
   <Translation x="0*cm" y="-[mbCommon:MBRPC_GasLeft_y_pos]" z="0*cm" />
  </PosPart>
  <PosPart copyNumber="1">
    <rParent name="mb1:MB1RPC_OP"/>
    <rChild name="mb1:MB1RPC_OGasRight"/>
+  <rRotation name="rotations:RPCD" />
   <Translation x="0*cm" y="[mbCommon:MBRPC_GasRight_y_pos]" z="0*cm" />
  </PosPart>
 <!-- ##### MB1: RPC_IN chamber -->
@@ -1412,11 +1416,13 @@
  <PosPart copyNumber="1">
    <rParent name="mb1:MB1RPC_IN"/>
    <rChild name="mb1:MB1RPC_IGasLeft"/>
+  <rRotation name="rotations:R180" />
   <Translation x="0*cm" y="-[mbCommon:MBRPC_GasLeft_y_pos]" z="0*cm" />
  </PosPart>
  <PosPart copyNumber="1">
    <rParent name="mb1:MB1RPC_IN"/>
    <rChild name="mb1:MB1RPC_IGasRight"/>
+  <rRotation name="rotations:R180" />
   <Translation x="0*cm" y="[mbCommon:MBRPC_GasRight_y_pos]" z="0*cm" />
  </PosPart>
 <!-- ##### MB1: RPC_ON chamber -->
@@ -1433,11 +1439,13 @@
  <PosPart copyNumber="1">
    <rParent name="mb1:MB1RPC_ON"/>
    <rChild name="mb1:MB1RPC_OGasLeft"/>
+  <rRotation name="rotations:RPCD" />
   <Translation x="0*cm" y="-[mbCommon:MBRPC_GasLeft_y_pos]" z="0*cm" />
  </PosPart>
  <PosPart copyNumber="1">
    <rParent name="mb1:MB1RPC_ON"/>
    <rChild name="mb1:MB1RPC_OGasRight"/>
+  <rRotation name="rotations:RPCD" />
   <Translation x="0*cm" y="[mbCommon:MBRPC_GasRight_y_pos]" z="0*cm" />
  </PosPart>
 
@@ -1944,11 +1952,13 @@
  <PosPart copyNumber="1">
    <rParent name="mb1:MB1ChimRPC_IP"/>
    <rChild name="mb1:MB1ChimRPC_IGasLeft"/>
+  <rRotation name="rotations:R180" />
   <Translation x="0*cm" y="-[mbCommon:MBRPC_GasLeft_y_pos]" z="0*cm" />
  </PosPart>
  <PosPart copyNumber="1">
    <rParent name="mb1:MB1ChimRPC_IP"/>
    <rChild name="mb1:MB1ChimRPC_IGasRight"/>
+  <rRotation name="rotations:R180" />
   <Translation x="0*cm" y="[mb1:MB1ChimRPC_GasRight_y_pos]" z="0*cm" />
  </PosPart>
 <!-- ##### MB1Chim: RPC_OP chamber -->
@@ -1960,11 +1970,13 @@
  <PosPart copyNumber="1">
    <rParent name="mb1:MB1ChimRPC_OP"/>
    <rChild name="mb1:MB1ChimRPC_OGasLeft"/>
+  <rRotation name="rotations:RPCD" />
   <Translation x="0*cm" y="-[mbCommon:MBRPC_GasLeft_y_pos]" z="0*cm" />
  </PosPart>
  <PosPart copyNumber="1">
    <rParent name="mb1:MB1ChimRPC_OP"/>
    <rChild name="mb1:MB1ChimRPC_OGasRight"/>
+  <rRotation name="rotations:RPCD" />
   <Translation x="0*cm" y="[mb1:MB1ChimRPC_GasRight_y_pos]" z="0*cm" />
  </PosPart>
 <!-- ##### MB1Chim: RPC_IN chamber -->
@@ -1976,11 +1988,13 @@
  <PosPart copyNumber="1">
    <rParent name="mb1:MB1ChimRPC_IN"/>
    <rChild name="mb1:MB1ChimRPC_IGasLeft"/>
+  <rRotation name="rotations:R180" />
   <Translation x="0*cm" y="-[mbCommon:MBRPC_GasLeft_y_pos]" z="0*cm" />
  </PosPart>
  <PosPart copyNumber="1">
    <rParent name="mb1:MB1ChimRPC_IN"/>
    <rChild name="mb1:MB1ChimRPC_IGasRight"/>
+  <rRotation name="rotations:R180" />
   <Translation x="0*cm" y="[mb1:MB1ChimRPC_GasRight_y_pos]" z="0*cm" />
  </PosPart>
 <!-- ##### MB1Chim: RPC_ON chamber -->
@@ -1992,11 +2006,13 @@
  <PosPart copyNumber="1">
    <rParent name="mb1:MB1ChimRPC_ON"/>
    <rChild name="mb1:MB1ChimRPC_OGasLeft"/>
+  <rRotation name="rotations:RPCD" />
   <Translation x="0*cm" y="-[mbCommon:MBRPC_GasLeft_y_pos]" z="0*cm" />
  </PosPart>
  <PosPart copyNumber="1">
    <rParent name="mb1:MB1ChimRPC_ON"/>
    <rChild name="mb1:MB1ChimRPC_OGasRight"/>
+  <rRotation name="rotations:RPCD" />
   <Translation x="0*cm" y="[mb1:MB1ChimRPC_GasRight_y_pos]" z="0*cm" />
  </PosPart>
 
