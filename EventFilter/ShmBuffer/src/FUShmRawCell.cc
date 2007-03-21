@@ -139,34 +139,12 @@ unsigned char* FUShmRawCell::payloadAddr() const
 unsigned int FUShmRawCell::eventSize() const
 {
   return payloadPosition_;
-  /*
-    unsigned int result(0);
-    for (unsigned int i=0;i<nSuperFrag();i++) result+=superFragSize(i);
-    unsigned int result2=payloadPosition_;
-    assert(result==result2);
-    return result;
-  */
-}
-
-
-//______________________________________________________________________________
-void FUShmRawCell::printState()
-{
-  switch (state_) {
-  case 0 : cout<<"cell "<<index()<<" state: emtpy"     <<endl; return;
-  case 1 : cout<<"cell "<<index()<<" state: writting"  <<endl; return;
-  case 2 : cout<<"cell "<<index()<<" state: written"   <<endl; return;
-  case 3 : cout<<"cell "<<index()<<" state: processing"<<endl; return;
-  case 4 : cout<<"cell "<<index()<<" state: processed" <<endl; return;
-  case 5 : cout<<"cell "<<index()<<" state: dead"      <<endl; return;
-  }
 }
 
 
 //______________________________________________________________________________
 void FUShmRawCell::clear()
 {
-  setStateEmpty();
   nSkip_=0;
   
   unsigned int* fedSizeAddr;
@@ -178,31 +156,6 @@ void FUShmRawCell::clear()
   for (unsigned int i=0;i<nSuperFrag();i++) *superFragSizeAddr++=0;
 
   payloadPosition_=0;
-}
-
-
-//______________________________________________________________________________
-void FUShmRawCell::print(int verbose) const
-{
-  cout<<"FUShmRawCell: state="<<state_<<endl;
-  cout<<" fuResourceId="<<fuResourceId()
-      <<" buResourceId="<<buResourceId()
-      <<" evtNumber="<<evtNumber()
-      <<" this=0x"<<hex<<(int)this<<dec
-      <<endl
-      <<"                "
-      <<" payloadSize="<<payloadSize()
-      <<" nFed="<<nFed()
-      <<" nSuperFrag="<<nSuperFrag()
-      <<" eventSize="<<eventSize()
-      <<endl;
-  if (verbose>0) {
-    for (unsigned int i=0;i<nFed();i++)
-      cout<<" "<<i<<". fed:"
-	  <<" size="<<fedSize(i)
-	  <<" addr0x="<<hex<<(int)fedAddr(i)<<dec
-	  <<endl;
-  }
 }
 
 

@@ -24,13 +24,6 @@ namespace evf {
     unsigned int   buResourceId()                 const { return buResourceId_; }
     unsigned int   evtNumber()                    const { return evtNumber_; }
     unsigned int   nSkip()                        const { return nSkip_; }
-    
-    bool           isEmpty()                      const { return (state_==0); }
-    bool           isWriting()                    const { return (state_==1); }
-    bool           isWritten()                    const { return (state_==2); }
-    bool           isProcessing()                 const { return (state_==3); }
-    bool           isProcessed()                  const { return (state_==4); }
-    bool           isDead()                       const { return (state_==5); }
 
     unsigned int   payloadSize()                  const { return payloadSize_; }
     unsigned char* payloadAddr()                  const;
@@ -38,7 +31,7 @@ namespace evf {
     unsigned int   nFed()                         const { return nFed_; }
     unsigned int   fedSize(unsigned int i)        const;
     unsigned char* fedAddr(unsigned int i)        const;
-
+    
     unsigned int   nSuperFrag()                   const { return nSuperFrag_; }
     unsigned int   superFragSize(unsigned int i)  const;
     unsigned char* superFragAddr(unsigned int i)  const;
@@ -51,17 +44,7 @@ namespace evf {
     void           skip()              { nSkip_++; }
     void           resetSkip()         { nSkip_=0; }
     
-    void           setStateEmpty()     {state_=0;buResourceId_=evtNumber_=0xffffffff;}
-    void           setStateWriting()   {state_=1;}
-    void           setStateWritten()   {state_=2;}
-    void           setStateProcessing(){state_=3;}
-    void           setStateProcessed() {state_=4;}
-    void           setStateDead()      {state_=5;}
-    
-    void           printState();
-    
     void           clear();
-    void           print(int verbose=0) const;
     void           dump() const;
     
     unsigned int   readFed(unsigned int i,unsigned char*buffer) const;
@@ -85,7 +68,6 @@ namespace evf {
     unsigned int buResourceId_;
     unsigned int evtNumber_;
     unsigned int nSkip_;
-    unsigned int state_;
     unsigned int payloadSize_;
     unsigned int nFed_;
     unsigned int nSuperFrag_;

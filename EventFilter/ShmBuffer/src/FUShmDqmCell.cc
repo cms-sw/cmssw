@@ -58,28 +58,18 @@ unsigned char* FUShmDqmCell::payloadAddr() const
 
 
 //______________________________________________________________________________
-void FUShmDqmCell::printState()
-{
-  switch (state_) {
-  case 0 : cout<<"dqm cell "<<index()<<" state: emtpy"  <<endl; return;
-  case 1 : cout<<"dqm cell "<<index()<<" state: writing"<<endl; return;
-  case 2 : cout<<"dqm cell "<<index()<<" state: written"<<endl; return;
-  case 3 : cout<<"dqm cell "<<index()<<" state: sending"<<endl; return;
-  case 4 : cout<<"dqm cell "<<index()<<" state: sent"   <<endl; return;
-  }
-}
-
-
-//______________________________________________________________________________
 void FUShmDqmCell::clear()
 {
-  setStateEmpty();
   eventSize_=0;
 }
 
 
 //______________________________________________________________________________
-void FUShmDqmCell::writeData(unsigned char* data,unsigned int dataSize)
+void FUShmDqmCell::writeData(unsigned int   runNumber,
+			     unsigned int   evtAtUpdate,
+			     unsigned int   folderId,
+			     unsigned char *data,
+			     unsigned int   dataSize)
 {
   if (eventSize_!=0)
     cout<<"FUShmDqmCell::writeData WARNING: overwriting data!"<<endl;
@@ -89,9 +79,11 @@ void FUShmDqmCell::writeData(unsigned char* data,unsigned int dataSize)
     return;
   }
   
-  // result = addr of data to be written *in* the cell
-  unsigned char* target=(unsigned char*)((unsigned int)this+payloadOffset_);
-  memcpy(target,data,dataSize);
+  runNumber_  =runNumber;
+  evtAtUpdate_=evtAtUpdate;
+  folderId_   =folderId;
+  unsigned char* targetAddr=payloadAddr();
+  memcpy(targetAddr,data,dataSize);
   eventSize_=dataSize;
 }
 

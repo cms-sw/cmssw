@@ -80,10 +80,6 @@ unsigned int FUShmClient::readNext(vector<vector<unsigned char> >& feds)
   buffer_->scheduleRawCellForDiscard(iCell);
   cell=buffer_->rawCellToDiscard();
   buffer_->discardRawCell(cell);
-  // set the state of the cell to 'processed'
-  //  cell->setStateProcessed();
-  // increment the writer sem
-  //buffer_->postWriterSem();
   
   return iCell;
 }

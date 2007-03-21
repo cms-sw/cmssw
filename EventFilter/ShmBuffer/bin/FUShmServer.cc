@@ -46,18 +46,7 @@ unsigned int FUShmServer::writeNext(unsigned char *data,
 				    unsigned int  *fedSize)
 {
   FUShmRawCell* cell =buffer_->rawCellToWrite();
-  cell->printState();
-  
-  if (!cell->isEmpty()) {
-    if (cell->isProcessed())
-      cout<<"DISCARD "<<cell->index()<<endl;
-    else if (cell->isDead())
-      cout<<"dead cell "<<cell->index()<<", HANDLE&DISCARD"<<endl;
-    else{
-      cout<<"ERROR: unexpected state of cell "<<cell->index()<<endl;
-      cell->dump();
-    }
-  }
+  buffer_->printEvtState(cell->index());
   
   // write data
   cell->clear();
@@ -75,13 +64,7 @@ unsigned int FUShmServer::writeNext(unsigned char *data,
       fedOffset+=fedSize[i];
     }
     
-    // set cell state to 'written'
     buffer_->finishWritingRawCell(cell);
-    //buffer_->lock();
-    //cell->setStateWritten();
-    //shmdt(cell);
-    //buffer_->unlock();
-    //buffer_->postReaderSem();
   }
   
   return iCell;
