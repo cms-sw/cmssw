@@ -267,7 +267,7 @@ id_val = ibin;
 }
 
 // FED channel
-map<uint16_t,uin16_t> candidates;
+std::map<uint16_t,uin16_t> candidates;
 uint16_t ch_val = sistrip::invalid_;
 float ch_max = -1.*sistrip::invalid_;
 for ( uint16_t ibin = 0; ibin < hFedCh_.first->GetNbinsX(); ibin++ ) {
