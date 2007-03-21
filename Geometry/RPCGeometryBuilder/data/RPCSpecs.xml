@@ -24,9 +24,9 @@
       <PartSelector path="//MB1RPC.*Gas.*"/>
       <PartSelector path="//MB1RPC_I.*/MB.*RPC.*Gas.*"/>
       <PartSelector path="//MB1ChimRPC_I.*/MB.*RPC.*Gas.*"/>
-      <PartSelector path="//MBWheel_0.*/MB2.*/MB2RPC_I.*/MB.*RPC.*Gas.*"/>
-      <PartSelector path="//MBWheel_1.*/MB2.*/MB2RPC_I.*/MB.*RPC.*Gas.*"/>
-      <PartSelector path="//MBWheel_2.*/MB2.*/MB2RPC_O.*/MB.*RPC.*Gas.*"/>
+      <PartSelector path="//MBWheel_0.*/MB2.*/MB23RPC_I.*/MB.*RPC.*Gas.*"/>
+      <PartSelector path="//MBWheel_1.*/MB2.*/MB23RPC_I.*/MB.*RPC.*Gas.*"/>
+      <PartSelector path="//MBWheel_2.*/MB2.*/MB22RPC_I.*/MB.*RPC.*Gas.*"/>
       <PartSelector path="//MB2ChimRPC_I.*/MB.*RPC.*Gas.*"/>
       <Parameter name="nStrips" value="90"/>
     </SpecPar>
@@ -34,12 +34,13 @@
     <SpecPar name="nStrips84" eval="true">
       <PartSelector path="//MB1RPC_O.*/MB.*RPC.*Gas.*"/>
       <PartSelector path="//MB1ChimRPC_O.*/MB.*RPC.*Gas.*"/>
+      <PartSelector path="//MBWheel_0.*/MB2.*/MB22RPC_O.*/MB.*RPC.*Gas.*"/>
+      <PartSelector path="//MBWheel_1.*/MB2.*/MB22RPC_O.*/MB.*RPC.*Gas.*"/>
+      <PartSelector path="//MBWheel_2.*/MB2.*/MB23RPC_O.*/MB.*RPC.*Gas.*"/>
       <PartSelector path="//MB2ChimRPC_O.*/MB.*RPC.*Gas.*"/>
-      <PartSelector path="//MBWheel_0.*/MB2.*/MB2RPC_O.*/MB.*RPC.*Gas.*"/>
-      <PartSelector path="//MBWheel_1.*/MB2.*/MB2RPC_O.*/MB.*RPC.*Gas.*"/>
-      <PartSelector path="//MBWheel_2.*/MB2.*/MB2RPC_I.*/MB.*RPC.*Gas.*"/>
       <Parameter name="nStrips" value="84"/>
     </SpecPar>
+
 
     <SpecPar name="nStrips42" eval="true">
       <Parameter name="nStrips" value="42"/>
