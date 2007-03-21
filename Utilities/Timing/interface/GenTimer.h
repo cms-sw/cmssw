@@ -3,7 +3,6 @@
 //
 //   V 0.0 
 //
-#include "Utilities/General/interface/Proc.h"
 #include <iosfwd>
 
 /** a generic Time interval
@@ -85,7 +84,7 @@ public:
 
 public:
   /// constructor
-  GenTimer() : elapsed(0),  running_(0), pid(Capri::Proc::instanceId()) {}
+  GenTimer() : elapsed(0),  running_(0), pid(0) {}
   /// from known context
   GenTimer(int ipid) : elapsed(0),  running_(0), pid(ipid) {}
 
