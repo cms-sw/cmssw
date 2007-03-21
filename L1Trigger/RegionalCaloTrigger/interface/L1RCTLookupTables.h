@@ -11,6 +11,7 @@ class L1RCTLookupTables {
   // constructor
 
   L1RCTLookupTables(const std::string& filename);
+  L1RCTLookupTables(const std::string& filename, const std::string& filename2);
   L1RCTLookupTables(const std::string& filename, edm::ESHandle<CaloTPGTranscoder> transcoder);
 
   // function needs to output an unsigned long
@@ -41,6 +42,7 @@ class L1RCTLookupTables {
   L1RCTLookupTables();  // Do not implement so one cannot instantiate without input file
 
   float convertEcal(unsigned short ecal, int iAbsEta);
+  float convertHcal(unsigned short hcal, int iAbsEta);
   unsigned short calcActivityBit(float ecal, float hcal);
   unsigned short calcHEBit(float ecal,float hcal, bool fgbit);
   unsigned long convertToInteger(float et, float lsb, int precision);
@@ -53,6 +55,7 @@ class L1RCTLookupTables {
   // This same code can be used to write out real LUTs and load in the hardware
   // The read in conversion constants should come from the database, but for the moment we use a flat file
   void loadLUTConstants(const std::string& filename);
+  void loadHcalLut(const std::string& filename);
   static float eActivityCut_;
   static float hActivityCut_;
   static float eMaxForFGCut_;
@@ -60,5 +63,6 @@ class L1RCTLookupTables {
   static float eGammaLSB_;
   static float jetMETLSB_;
   static float eGammaSCF_[32];
+  static float hcalSCF_[32];
 };
 #endif

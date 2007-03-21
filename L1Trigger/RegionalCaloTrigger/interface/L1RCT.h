@@ -28,6 +28,9 @@ class L1RCT {
  public:
   
   L1RCT(std::string lutFile);
+  L1RCT(std::string lutFile, std::string lutFile2, 
+	std::string rctTestInputFile,
+	std::string rctTestOutputFile);
   L1RCT(std::string lutFile, edm::ESHandle<CaloTPGTranscoder> transcoder,
 	std::string rctTestInputFile, std::string rctTestOutputFile);
 

@@ -30,5 +30,7 @@ class L1RCTProducer : public edm::EDProducer
   edm::FileInPath lutFile;
   std::string rctTestInputFile;
   std::string rctTestOutputFile;
+  bool patternTest;
+  edm::FileInPath lutFile2;
 };
 #endif

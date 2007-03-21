@@ -20,12 +20,20 @@ float L1RCTLookupTables::hOeCut_ = 0.05;
 float L1RCTLookupTables::eGammaLSB_ = 0.5;
 float L1RCTLookupTables::jetMETLSB_ = 0.5;
 float L1RCTLookupTables::eGammaSCF_[32] = {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1};
+float L1RCTLookupTables::hcalSCF_[32] = {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1};
 
 // constructor
 
 L1RCTLookupTables::L1RCTLookupTables(const std::string& filename)
 {
   loadLUTConstants(filename);
+  useTranscoder_ = false;
+}
+
+L1RCTLookupTables::L1RCTLookupTables(const std::string& filename, const std::string& filename2)
+{
+  loadLUTConstants(filename);
+  loadHcalLut(filename2);
   useTranscoder_ = false;
 }
 
@@ -64,9 +72,7 @@ unsigned long L1RCTLookupTables::lookup(unsigned short ecal,unsigned short hcal,
   int iAbsEta = abs(iEta);
   if(iAbsEta < 1 || iAbsEta > 28) throw cms::Exception("Invalid Data") << "1 <= |IEta| <= 28, is " << iAbsEta;
   float ecalLinear = convertEcal(ecal, iAbsEta);
-  float hcalLinear;
-  if(useTranscoder_) hcalLinear = transcoder_->hcaletValue(iAbsEta, hcal);
-  else hcalLinear = hcal;
+  float hcalLinear = convertHcal(hcal, iAbsEta);
   
   float etLinear = ecalLinear + hcalLinear;
   unsigned long HE_FGBit = calcHEBit(ecalLinear,hcalLinear, fgbit);
@@ -84,6 +90,18 @@ unsigned long L1RCTLookupTables::lookup(unsigned short ecal,unsigned short hcal,
 // converts compressed ecal energy to linear (real) scale
 float L1RCTLookupTables::convertEcal(unsigned short ecal, int iAbsEta){
   return ((float) ecal) * eGammaLSB_ * eGammaSCF_[iAbsEta];
+}
+
+// converts compressed hcal energy to linear (real) scale
+float L1RCTLookupTables::convertHcal(unsigned short hcal, int iAbsEta){
+  if(useTranscoder_) 
+    {
+      return (transcoder_->hcaletValue(iAbsEta, hcal));
+    }
+  else 
+    {
+      return ((float) hcal) * jetMETLSB_ * hcalSCF_[iAbsEta];
+    }
 }
 
 // calculates activity bit for each tower - assume that noise is well suppressed
@@ -148,6 +166,24 @@ void L1RCTLookupTables::loadLUTConstants(const std::string& filename)
       userfile.close();
     }
   else 
+    {
+      throw cms::Exception("Invalid Data") << "Unable to open " << filename;
+    }
+}
+
+void L1RCTLookupTables::loadHcalLut(const std::string& filename)
+{
+  std::ifstream userfile;
+  userfile.open(filename.c_str());
+  if ( userfile )
+    {
+      char junk[1024];
+      userfile >> junk;
+      for (int i = 0; i < 26; i++) userfile >> hcalSCF_[i];
+      for (int i = 26; i < 32; i++) hcalSCF_[i] = hcalSCF_[i-1];
+      userfile.close();
+    }
+  else
     {
       throw cms::Exception("Invalid Data") << "Unable to open " << filename;
     }
