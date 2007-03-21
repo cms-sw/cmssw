@@ -1,8 +1,8 @@
 /*
  * \file EBClusterClient.cc
  *
- * $Date: 2007/03/13 10:14:25 $
- * $Revision: 1.12 $
+ * $Date: 2007/03/21 12:49:08 $
+ * $Revision: 1.13 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -469,7 +469,7 @@ void EBClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   // Produce the plots to be shown as .png files from existing histograms
 
-  const int csize = 500;
+  const int csize = 250;
 
   const double histMax = 1.e15;
 
@@ -479,7 +479,7 @@ void EBClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
   string imgNameB[3], imgNameBMap[2], imgNameS[3], imgNameSMap[2], imgName, meName;
 
   TCanvas* cEne = new TCanvas("cEne", "Temp", csize, csize);
-  TCanvas* cMap = new TCanvas("cMap", "Temp", 2*csize, csize);
+  TCanvas* cMap = new TCanvas("cMap", "Temp", csize, 2*csize);
 
   TH1F* obj1f = 0;
   TProfile2D* objp;
@@ -558,11 +558,12 @@ void EBClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
     cMap->cd();
     gStyle->SetOptStat(" ");
     gStyle->SetPalette(10, pCol4);
-    objp->GetXaxis()->SetNdivisions(18, kFALSE);
-    objp->GetYaxis()->SetNdivisions(2);
+    objp->GetXaxis()->SetNdivisions(2);
+    objp->GetYaxis()->SetNdivisions(18, kFALSE);
     cMap->SetGridx();
     cMap->SetGridy();
     cMap->SetRightMargin(0.15);
+    cMap->SetLeftMargin(0.15);
     if ( objp->GetMaximum(histMax) > 0. ) {
       gPad->SetLogz(1);
     } else {
@@ -599,6 +600,7 @@ void EBClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
     cMap->SetGridx();
     cMap->SetGridy();
     cMap->SetRightMargin(0.15);
+    cMap->SetLeftMargin(0.15);
     if ( obj2f->GetMaximum(histMax) > 0. ) {
       gPad->SetLogz(1); 
     } else {
@@ -706,6 +708,7 @@ void EBClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
     cMap->SetGridx();
     cMap->SetGridy();
     cMap->SetRightMargin(0.15);
+    cMap->SetLeftMargin(0.15);
     if ( objp->GetMaximum(histMax) > 0. ) {
       gPad->SetLogz(1);
     } else {
@@ -742,6 +745,7 @@ void EBClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
     cMap->SetGridx();
     cMap->SetGridy();
     cMap->SetRightMargin(0.15);
+    cMap->SetLeftMargin(0.15);
     if ( obj2f->GetMaximum(histMax) > 0. ) {
       gPad->SetLogz(1);
     } else { 
