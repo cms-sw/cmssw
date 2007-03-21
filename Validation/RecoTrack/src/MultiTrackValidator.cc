@@ -448,6 +448,18 @@ void MultiTrackValidator::endJob() {
   for (unsigned int ww=0;ww<associators.size();ww++){
     for (unsigned int www=0;www<label.size();www++){
 
+      //resolution of track params: get sigma from 2D histos
+      FitSlicesYTool fsyt_d0(d0res_vs_eta[w]);
+      fsyt_d0.getFittedSigmaWithError(h_d0rmsh[w]);
+      FitSlicesYTool fsyt_pt(ptres_vs_eta[w]);
+      fsyt_pt.getFittedSigmaWithError(h_ptrmsh[w]);
+      FitSlicesYTool fsyt_z0(z0res_vs_eta[w]);
+      fsyt_z0.getFittedSigmaWithError(h_z0rmsh[w]);
+      FitSlicesYTool fsyt_phi(phires_vs_eta[w]);
+      fsyt_phi.getFittedSigmaWithError(h_phirmsh[w]);
+      FitSlicesYTool fsyt_cotTheta(cotThetares_vs_eta[w]);
+      fsyt_cotTheta.getFittedSigmaWithError(h_cotThetarmsh[w]);
+
       //chi2 and #hit vs eta: get mean from 2D histos
       doProfileX(chi2_vs_eta[w],h_chi2meanh[w]);
       doProfileX(nhits_vs_eta[w],h_hits_eta[w]);    
