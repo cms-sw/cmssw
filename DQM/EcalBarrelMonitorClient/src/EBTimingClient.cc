@@ -1,8 +1,8 @@
 /*
  * \file EBTimingClient.cc
  *
- * $Date: 2007/02/20 15:28:48 $
- * $Revision: 1.12 $
+ * $Date: 2007/03/13 10:14:26 $
+ * $Revision: 1.13 $
  * \author G. Della Ricca
  *
 */
@@ -91,7 +91,7 @@ EBTimingClient::EBTimingClient(const ParameterSet& ps){
 
   expectedMean_ = 6.0;
   discrepancyMean_ = 0.5;
-  RMSThreshold_ = 0.5;
+  RMSThreshold_ = 1.5;
 
 }
 
@@ -190,7 +190,7 @@ void EBTimingClient::setup(void) {
 
     if ( mer01_[ism-1] ) bei->removeElement( mer01_[ism-1]->getName() );
     sprintf(histo, "EBTMT timing rms SM%02d", ism);
-    mer01_[ism-1] = bei->book1D(histo, histo, 100, 0.0,  0.5);
+    mer01_[ism-1] = bei->book1D(histo, histo, 100, 0.0,  2.5);
 
   }
 
