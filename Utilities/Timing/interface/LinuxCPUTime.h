@@ -16,12 +16,12 @@
 class LinuxCPUTime {
 public:
 
-   typedef long long int TimeType;
+   typedef double TimeType;
 
 
   /// constructor
   explicit LinuxCPUTime(int pid=0): 
-    utime_(std::clock()), stime_(0) {
+    utime_(0.01*std::clock()), stime_(0) {
   }
 
   /// destructor
