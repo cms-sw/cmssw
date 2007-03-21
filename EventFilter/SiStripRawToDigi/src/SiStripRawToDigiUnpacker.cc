@@ -1,4 +1,4 @@
-// Last commit: $Id: $
+// Last commit: $Id: SiStripRawToDigiUnpacker.cc,v 1.26 2007/03/21 16:38:14 bainbrid Exp $
 
 #include "EventFilter/SiStripRawToDigi/interface/SiStripRawToDigiUnpacker.h"
 //
@@ -197,7 +197,7 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
       if ( !ok ) { continue; }
       
       // Determine APV std::pair number (needed only when using DetId)
-      uint16_t std::ipair = ( useFedKey_ || mode == sistrip::FED_SCOPE_MODE ) ? 0 : conn.apvPairNumber();
+      uint16_t ipair = ( useFedKey_ || mode == sistrip::FED_SCOPE_MODE ) ? 0 : conn.apvPairNumber();
 
       if ( mode == sistrip::FED_SCOPE_MODE ) {
 
@@ -231,8 +231,8 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
 	} 
 	//@@ NEED FIX BELOW: vr.data.size() should be 256 * conn.nApvPairs()
 	if ( !samples.empty() ) { 
-	  if ( vr.data.size() < static_cast<uint16_t>(256*(std::ipair+1)) ) { 
-	    vr.data.reserve( 256*(std::ipair+1) ); vr.data.resize( 256*(std::ipair+1) ); 
+	  if ( vr.data.size() < static_cast<uint16_t>(256*(ipair+1)) ) { 
+	    vr.data.reserve( 256*(ipair+1) ); vr.data.resize( 256*(ipair+1) ); 
 	  }
 	  uint16_t physical;
 	  uint16_t readout; 
@@ -240,7 +240,7 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
 	    physical = i%128;
 	    readoutOrder( physical, readout ); // convert from physical to readout order
 	    (i/128) ? readout=readout*2+1 : readout=readout*2; // multiplexed data
-	    vr.data[std::ipair*256+i] = SiStripRawDigi( samples[readout] ); 
+	    vr.data[ipair*256+i] = SiStripRawDigi( samples[readout] ); 
 	  }
 	}
 	
@@ -258,14 +258,14 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
 	} 
 	//@@ NEED FIX BELOW: pr.data.size() should be 256 * conn.nApvPairs()
 	if ( !samples.empty() ) { 
-	  if ( pr.data.size() < static_cast<uint16_t>(256*(std::ipair+1)) ) { 
-	    pr.data.reserve( 256*(std::ipair+1) ); pr.data.resize( 256*(std::ipair+1) ); 
+	  if ( pr.data.size() < static_cast<uint16_t>(256*(ipair+1)) ) { 
+	    pr.data.reserve( 256*(ipair+1) ); pr.data.resize( 256*(ipair+1) ); 
 	  }
 	  int physical;
 	  for ( uint16_t i = 0; i < samples.size(); i++ ) {
 	    physical = i%128; 
 	    (i/128) ? physical=physical*2+1 : physical=physical*2; // multiplexed data
-	    pr.data[std::ipair*256+i] = SiStripRawDigi( samples[physical] ); 
+	    pr.data[ipair*256+i] = SiStripRawDigi( samples[physical] ); 
 	  } 
 	}
 
@@ -279,7 +279,7 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
 	    unsigned char first_strip = *i++; // first strip of cluster
 	    unsigned char width = *i++;       // cluster width in strips 
 	    for ( uint16_t istr = 0; istr < width; istr++) {
-	      uint16_t strip = std::ipair*256 + first_strip + istr;
+	      uint16_t strip = ipair*256 + first_strip + istr;
 	      zs.data.push_back( SiStripDigi( strip, static_cast<uint16_t>(*i) ) );
 	      *i++; // Iterate to next sample
 	    }
@@ -301,7 +301,7 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
 	    unsigned char first_strip = *i++; // first strip of cluster
 	    unsigned char width = *i++;       // cluster width in strips 
 	    for ( uint16_t istr = 0; istr < width; istr++) {
-	      uint16_t strip = std::ipair*256 + first_strip + istr;
+	      uint16_t strip = ipair*256 + first_strip + istr;
 	      zs.data.push_back( SiStripDigi( strip, static_cast<uint16_t>(*i) ) );
 	      *i++; // Iterate to next sample
 	    }
@@ -671,7 +671,7 @@ void SiStripRawToDigiUnpacker::handleException( std::string method_name,
     edm::LogWarning(mlRawToDigi_) << ss.str();
     //throw cms::Exception(mlRawToDigi_) << ss.str();
   }
-  catch ( const exception& e ) {
+  catch ( const std::exception& e ) {
     std::stringstream ss;
     ss << "Caught std::exception in ["
        << method_name << "] with message:" << std::endl 
