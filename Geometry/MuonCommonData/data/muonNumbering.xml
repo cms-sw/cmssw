@@ -178,16 +178,20 @@
    <Parameter name="CopyNoOffset" value="2*[super]"/>
  </SpecPar>  
  <SpecPar name="MuonRpcPlane2I">
-   <PartSelector path="//MB2RPC_IP"/>
-   <PartSelector path="//MB2RPC_IN"/>
+   <PartSelector path="//MB22RPC_IP"/>
+   <PartSelector path="//MB22RPC_IN"/>
+   <PartSelector path="//MB23RPC_IP"/>
+   <PartSelector path="//MB23RPC_IN"/>
    <PartSelector path="//MB2ChimRPC_IP"/>
    <PartSelector path="//MB2ChimRPC_IN"/>
    <Parameter name="CopyNoTag" value="[mr_bplane]"/>
    <Parameter name="CopyNoOffset" value="3*[super]"/>
  </SpecPar>  
  <SpecPar name="MuonRpcPlane2O">
-   <PartSelector path="//MB2RPC_OP"/>
-   <PartSelector path="//MB2RPC_ON"/>
+   <PartSelector path="//MB22RPC_OP"/>
+   <PartSelector path="//MB22RPC_ON"/>
+   <PartSelector path="//MB23RPC_OP"/>
+   <PartSelector path="//MB23RPC_ON"/>
    <PartSelector path="//MB2ChimRPC_OP"/>
    <PartSelector path="//MB2ChimRPC_ON"/>
    <Parameter name="CopyNoTag" value="[mr_bplane]"/>
