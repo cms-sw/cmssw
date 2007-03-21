@@ -2,15 +2,19 @@
 <use name=FWCore/Framework>
 <use name=SimDataFormats/HepMCProduct>
 <use name=clhep> 
+<use name=hepmc>
 <use name=herwig6_510>
+<use name=lhapdf>
 <flags SEAL_PLUGIN_NAME="GeneratorInterfaceHerwig6Interface">
 <export>
  <lib name=GeneratorInterfaceHerwig6Interface>
  <use name=boost>
  <use name=FWCore/Framework>
  <use name=SimDataFormats/HepMCProduct>
- <use name=clhep> 
+ <use name=clhep>
+ <use name=hepmc> 
  <use name=herwig6_510>
+ <use name=lhapdf>
 </export>
 
  <lib name=g2c></lib>

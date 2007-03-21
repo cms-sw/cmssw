@@ -5,7 +5,9 @@
  */
 
 #include "GeneratorInterface/Herwig6Interface/interface/Herwig6Source.h"
+
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
@@ -19,9 +21,9 @@
 using namespace edm;
 using namespace std;
 
-#include "HerwigWrapper6_4.h"
-#include "IO_HERWIG.h"
-#include "HEPEVT_Wrapper.h"
+#include "HepMC/HerwigWrapper6_4.h"
+#include "HepMC/IO_HERWIG.h"
+#include "HepMC/HEPEVT_Wrapper.h"
 
 // INCLUDE JIMMY,HERWIG,LHAPDF COMMON BLOCKS AND FUNTIONS
 #include "herwig.h"

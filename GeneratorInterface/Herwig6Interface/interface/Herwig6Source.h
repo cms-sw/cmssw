@@ -13,7 +13,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include <map>
 #include <string>
-#include "CLHEP/HepMC/GenEvent.h"
+#include "HepMC/GenEvent.h"
 
 namespace edm
 {
