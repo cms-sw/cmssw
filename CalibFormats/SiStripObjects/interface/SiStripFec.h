@@ -1,6 +1,4 @@
-// Last commit: $Id$
-// Latest tag:  $Name$
-// Location:    $Source$
+// Last commit: $Id: $
 
 #ifndef CalibFormats_SiStripObjects_SiStripFec_H
 #define CalibFormats_SiStripObjects_SiStripFec_H

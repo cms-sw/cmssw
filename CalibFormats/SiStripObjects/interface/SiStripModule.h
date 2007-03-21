@@ -1,6 +1,4 @@
-// Last commit: $Id: SiStripModule.h,v 1.6 2006/11/08 15:42:15 bainbrid Exp $
-// Latest tag:  $Name:  $
-// Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/CalibFormats/SiStripObjects/interface/SiStripModule.h,v $
+// Last commit: $Id: $
 
 #ifndef CalibFormats_SiStripObjects_SiStripModule_H
 #define CalibFormats_SiStripObjects_SiStripModule_H
@@ -66,7 +64,7 @@ class SiStripModule {
   inline const uint16_t& ccuAddr() const;
   inline const uint16_t& ccuChan() const;
   
-  /** Returns control "path" for this module, containing address
+  /** Returns control "key" for this module, containing address
       information on FEC crate, slot, ring, CCU, and module. */
   inline const SiStripFecKey& key() const;
   

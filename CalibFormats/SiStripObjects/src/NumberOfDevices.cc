@@ -1,3 +1,5 @@
+// Last commit: $Id: $
+
 #include "CalibFormats/SiStripObjects/interface/NumberOfDevices.h"
 #include <iomanip>
 

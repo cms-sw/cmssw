@@ -1,3 +1,5 @@
+// Last commit: $Id: $
+
 #include "CalibFormats/SiStripObjects/interface/SiStripFec.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
