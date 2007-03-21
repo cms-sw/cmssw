@@ -17,8 +17,8 @@
 
 /** \class HcalMtccmonitor2
   *  
-  * $Date: 2006/10/23 19:31:56 $
-  * $Revision: 1.5 $
+  * $Date: 2006/11/20 23:22:29 $
+  * $Revision: 1.6 $
   * \author W. Fisher - FNAL
   */
 class HcalMTCCMonitor: public HcalBaseMonitor {
@@ -47,8 +47,8 @@ private:
   HcalCalibrations calibs_;
 
   double dumpThresh_;
-  double dumpEtaLo_, dumpEtaHi_;
-  double dumpPhiLo_, dumpPhiHi_;
+  int dumpEtaLo_, dumpEtaHi_;
+  int dumpPhiLo_, dumpPhiHi_;
 
 private:  ///Monitoring elements
 

@@ -30,45 +30,57 @@ void HcalDataFormatMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInter
     meEVT_ = m_dbe->bookInt("Data Format Task Event Number");    
     meEVT_->Fill(ievt_);
 
-    string type = "HBHE Data Format Error Words";
-    hbHists.DCC_ERRWD =  m_dbe->book1D(type.c_str(),type.c_str(),12,0,12);
+    char* type = "Spigot Format Errors";
+    meSpigotFormatErrors_=  m_dbe->book1D(type,type,100,0,100);
+    type = "Bad Quality Digis";
+    meBadQualityDigis_=  m_dbe->book1D(type,type,100,0,100);
+    type = "Unmapped Digis";
+    meUnmappedDigis_=  m_dbe->book1D(type,type,100,0,100);
+    type = "Unmapped Trigger Primitive Digis";
+    meUnmappedTPDigis_=  m_dbe->book1D(type,type,100,0,100);
+    type = "FED Error Map";
+    meFEDerrorMap_ = m_dbe->book1D(type,type,100,0,100);
+
+
+    type = "HBHE Data Format Error Words";
+    hbHists.DCC_ERRWD =  m_dbe->book1D(type,type,12,0,12);
     type = "HBHE Data Format Crate Error Map";
-    hbHists.ERR_MAP = m_dbe->book2D(type.c_str(),type.c_str(),20,0,20,20,0,20);
+    hbHists.ERR_MAP = m_dbe->book2D(type,type,20,0,20,20,0,20);
     type = "HBHE Data Format Fiber Error Map";
-    hbHists.FiberMap = m_dbe->book2D(type.c_str(),type.c_str(),3,0,2,9,0,8);
+    hbHists.FiberMap = m_dbe->book2D(type,type,3,0,2,9,0,8);
     type = "HBHE Data Format Spigot Error Map";
-    hbHists.SpigotMap = m_dbe->book2D(type.c_str(),type.c_str(),
+    hbHists.SpigotMap = m_dbe->book2D(type,type,
 				      HcalDCCHeader::SPIGOT_COUNT,0,HcalDCCHeader::SPIGOT_COUNT-1,
-				      fedUnpackList_.size(),firstFED_,firstFED_+fedUnpackList_.size());
+				      fedUnpackList_.size(),0,fedUnpackList_.size());
     
     type = "HF Data Format Error Words";
-    hfHists.DCC_ERRWD =  m_dbe->book1D(type.c_str(),type.c_str(),12,0,12);
+    hfHists.DCC_ERRWD =  m_dbe->book1D(type,type,12,0,12);
     type = "HF Data Format Crate Error Map";
-    hfHists.ERR_MAP = m_dbe->book2D(type.c_str(),type.c_str(),20,0,20,20,0,20);
+    hfHists.ERR_MAP = m_dbe->book2D(type,type,20,0,20,20,0,20);
     type = "HF Data Format Fiber Error Map";
-    hfHists.FiberMap = m_dbe->book2D(type.c_str(),type.c_str(),3,0,2,9,0,8);
+    hfHists.FiberMap = m_dbe->book2D(type,type,3,0,2,9,0,8);
     type = "HF Data Format Spigot Error Map";
-    hfHists.SpigotMap = m_dbe->book2D(type.c_str(),type.c_str(),
+    hfHists.SpigotMap = m_dbe->book2D(type,type,
 				      HcalDCCHeader::SPIGOT_COUNT,0,HcalDCCHeader::SPIGOT_COUNT-1,
-				      fedUnpackList_.size(),firstFED_,firstFED_+fedUnpackList_.size());
+				      fedUnpackList_.size(),0,fedUnpackList_.size());
 
     type = "HO Data Format Error Words";
-    hoHists.DCC_ERRWD =  m_dbe->book1D(type.c_str(),type.c_str(),12,0,12);
+    hoHists.DCC_ERRWD =  m_dbe->book1D(type,type,12,0,12);
     type = "HO Data Format Crate Error Map";
-    hoHists.ERR_MAP = m_dbe->book2D(type.c_str(),type.c_str(),20,0,20,20,0,20);
+    hoHists.ERR_MAP = m_dbe->book2D(type,type,20,0,20,20,0,20);
     type = "HO Data Format Fiber Error Map";
-    hoHists.FiberMap = m_dbe->book2D(type.c_str(),type.c_str(),3,0,2,9,0,8);
+    hoHists.FiberMap = m_dbe->book2D(type,type,3,0,2,9,0,8);
     type = "HO Data Format Spigot Error Map";
-    hoHists.SpigotMap = m_dbe->book2D(type.c_str(),type.c_str(),
+    hoHists.SpigotMap = m_dbe->book2D(type,type,
 				      HcalDCCHeader::SPIGOT_COUNT,0,HcalDCCHeader::SPIGOT_COUNT-1,
-				      fedUnpackList_.size(),firstFED_,firstFED_+fedUnpackList_.size());
+				      fedUnpackList_.size(),0,fedUnpackList_.size());
 
   }
 
   return;
 }
 
-void HcalDataFormatMonitor::processEvent(const FEDRawDataCollection& rawraw, const HcalElectronicsMap& emap){
+void HcalDataFormatMonitor::processEvent(const FEDRawDataCollection& rawraw, const HcalUnpackerReport& report, const HcalElectronicsMap& emap){
 
   if(!m_dbe) { printf("HcalDataFormatMonitor::processEvent   DaqMonitorBEInterface not instantiated!!!\n");  return;}
   
@@ -77,10 +89,23 @@ void HcalDataFormatMonitor::processEvent(const FEDRawDataCollection& rawraw, con
 
   for (vector<int>::const_iterator i=fedUnpackList_.begin(); i!=fedUnpackList_.end(); i++) {
     const FEDRawData& fed = rawraw.FEDData(*i);
-    //    cout << "Data format monitor: Processing FED " << *i << endl;
-    // look only at the potential ones, to save time.
     unpack(fed,emap);
   }
+
+  meSpigotFormatErrors_->Fill(report.spigotFormatErrors());
+  meBadQualityDigis_->Fill(report.badQualityDigis());
+  meUnmappedDigis_->Fill(report.unmappedDigis());
+  meUnmappedTPDigis_->Fill(report.unmappedTPDigis());
+  for(vector<int>::iterator i=report.getFedsError().begin(); 
+      i!=report.getFedsError().end(); 
+      i++){
+    const FEDRawData& fed = rawraw.FEDData(*i);
+    const HcalDCCHeader* dccHeader=(const HcalDCCHeader*)(fed.data());
+    if(!dccHeader) continue;
+    int dccid=dccHeader->getSourceId()-firstFED_;  
+    meFEDerrorMap_->Fill(dccid);
+  }
+
   return;
 }
 
@@ -91,13 +116,15 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw, const HcalElectronicsM
   // check the summary status
   if(!dccHeader) return;
   int dccid=dccHeader->getSourceId()-firstFED_;  
-
+  
   // walk through the HTR data...
   HcalHTRData htr;
-
+  
   for (int spigot=0; spigot<HcalDCCHeader::SPIGOT_COUNT; spigot++) {
+    
     if (!dccHeader->getSpigotPresent(spigot)) continue;    
     dccHeader->getSpigotData(spigot,htr);
+    
     // check
     if (!htr.check() || htr.isHistogramEvent()) continue;
     
@@ -107,6 +134,7 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw, const HcalElectronicsM
     MonitorElement* tmpMapF = 0;
     int fchan=0; int fib=0;
     bool valid = false;
+
     for(fchan=0; fchan<3 && !valid; fchan++){
       for(int fib=0; fib<9 && !valid; fib++){
 	HcalElectronicsId eid(fchan,fib,spigot,dccid);
@@ -145,7 +173,8 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw, const HcalElectronicsM
       tmpMapC->Fill(htr.readoutVMECrateId(),htr.htrSlot());
       tmpMapF->Fill(fchan,fib);
       tmpMapS->Fill(spigot,dccid);
-    }    
+    }  
+  
   }
   
   return;
