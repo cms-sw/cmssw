@@ -79,6 +79,7 @@ std::vector<CSCALCTDigi> CSCALCTHeader::ALCTDigis() const {
 
   CSCALCTDigi digi(alct0Valid(), alct0Quality(), alct0Accel(), alct0Pattern(),
 		   alct0KeyWire(), alct0BXN(), 1);
+  digi.setFullBX(BXNCount());
   result.push_back(digi);
 
   //for the first ALCT word:  
@@ -93,6 +94,7 @@ std::vector<CSCALCTDigi> CSCALCTHeader::ALCTDigis() const {
 
   digi = CSCALCTDigi(alct1Valid(), alct1Quality(), alct1Accel(), alct1Pattern(),
 		     alct1KeyWire(), alct1BXN(), 2);
+  digi.setFullBX(BXNCount());
   result.push_back(digi);
   return result;
 }
