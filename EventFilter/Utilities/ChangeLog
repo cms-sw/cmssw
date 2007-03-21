@@ -1,3 +1,9 @@
+2007-03-21  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-12-01
+	* add i2oEvfMsgs.h which contains the i2o communication structures
+	for broker / storage manager communication.
+
 2007-03-08  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-12-00
