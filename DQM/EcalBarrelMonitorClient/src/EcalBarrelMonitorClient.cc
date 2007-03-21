@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2007/03/18 11:48:19 $
- * $Revision: 1.235 $
+ * $Date: 2007/03/21 06:13:03 $
+ * $Revision: 1.236 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -406,6 +406,9 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
   clients_.push_back( new EBTriggerTowerClient(ps) );
   clientNames_.push_back( "TriggerTower" );
   if ( enableTCC_ ) {
+#if 0
+    chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::COSMIC ));
+#endif
     chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH4 ));
     chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH2 ));
   }
@@ -420,6 +423,9 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
 
   clients_.push_back(  new EBTimingClient(ps) );
   clientNames_.push_back( "Timing" );
+#if 0
+  chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::COSMIC ));
+#endif
   chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::LASER_STD ));
 
   summaryClient_ = new EBSummaryClient(ps);
