@@ -3,12 +3,12 @@
 //
 //   V 0.0 
 //
-#ifdef __linux__
+
 
 #include <iosfwd>
 #include <string>
 #include <fstream>
-#include "Utilities/General/interface/Proc.h"
+#include "ctime"
 #include "Utilities/Timing/interface/GenTimer.h"
 
 /**
@@ -16,20 +16,12 @@
 class LinuxCPUTime {
 public:
 
-  static Capri::ProcStat & procStat(){
-    static Capri::ProcStat local;
-    return local;
-  }
-
-  //  typedef long long int TimeType;
-  typedef Capri::Proc::d TimeType;
 
   /// constructor
-  explicit LinuxCPUTime(int pid=0): proc(pid) {
-    proc.refreshTime(utime_,stime_);
+  explicit LinuxCPUTime(int pid=0): 
+    utime_(std::clock()), stime_(0) {
   }
 
-  LinuxCPUTime(const Capri::ProcStat & p) : utime_(p.utime), stime_(p.stime){}
   /// destructor
   ~LinuxCPUTime(){}
 
@@ -40,7 +32,6 @@ public:
   inline TimeType operator()() const { return cputime();}
 
 private:
-  Capri::Proc proc;
   TimeType utime_;
   TimeType stime_;
 };
@@ -84,6 +75,5 @@ struct LCPUTime {
 
 typedef GenTimer<LCPUTime> LinuxCPUTimer; 
 
-#endif // __linux__
 
 #endif // UTILITIES_TIMING_LINUXCPUTIME_H
