@@ -6,7 +6,7 @@
 //
 // Original Author:  Fabian Stoeckli
 //         Created:  Tue Nov 14 13:43:02 CET 2006
-// $Id: H4muAnalyzer.cc,v 1.2 2007/02/14 15:51:35 fabstoec Exp $
+// $Id: H4muAnalyzer.cc,v 1.3 2007/03/02 15:41:37 fabstoec Exp $
 //
 //
 
@@ -27,8 +27,10 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "CLHEP/HepMC/GenEvent.h"
-#include "CLHEP/HepMC/GenParticle.h"
+#include "HepMC/GenEvent.h"
+#include "HepMC/GenParticle.h"
+
+#include "DataFormats/Math/interface/LorentzVector.h"
 
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 
@@ -70,16 +72,15 @@ H4muAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    
    // if there are at least four muons
    // calculate invarant mass of first two and fill it into histogram
-   HepLorentzVector tot_momentum;
+   math::XYZTLorentzVector tot_momentum;
    double inv_mass = 0.0;
    if(muons.size()>3) {
-     tot_momentum = muons[0]->momentum();
-     tot_momentum += muons[1]->momentum();
-     tot_momentum += muons[2]->momentum();
-     tot_momentum += muons[3]->momentum();     
-     inv_mass = sqrt(tot_momentum.m2());
+     for(unsigned int i=0; i<4; ++i) {
+       math::XYZTLorentzVector mom(muons[i]->momentum());
+       tot_momentum += mom;
+     }
+     inv_mass = sqrt(tot_momentum.mass2());
    }
-   
    invmass_histo->Fill(inv_mass);
 
 }
