@@ -13,7 +13,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Mon Oct 16 23:19:38 EDT 2006
-// $Id: L1ExtraParticleMapProd.cc,v 1.3 2007/01/24 00:13:02 wsun Exp $
+// $Id: L1ExtraParticleMapProd.cc,v 1.4 2007/03/07 13:33:33 wsun Exp $
 //
 //
 
@@ -90,8 +90,16 @@ L1ExtraParticleMapProd::L1ExtraParticleMapProd(
      isoEmJetMinJetEt_( iConfig.getParameter< double >( "isoEmJetMinJetEt" ) ),
      muonTauMinMuonEt_( iConfig.getParameter< double >( "muonTauMinMuonEt" ) ),
      muonTauMinTauEt_( iConfig.getParameter< double >( "muonTauMinTauEt" ) ),
+     muonTauMinDeltaPhi_( iConfig.getParameter< double >(
+	"muonTauMinDeltaPhi" ) ),
+     muonTauMinDeltaEta_( iConfig.getParameter< double >(
+        "muonTauMinDeltaEta" ) ),
      isoEmTauMinEmEt_( iConfig.getParameter< double >( "isoEmTauMinEmEt" ) ),
      isoEmTauMinTauEt_( iConfig.getParameter< double >( "isoEmTauMinTauEt" ) ),
+     isoEmTauMinDeltaPhi_( iConfig.getParameter< double >(
+	 "isoEmTauMinDeltaPhi" ) ),
+     isoEmTauMinDeltaEta_( iConfig.getParameter< double >(
+	 "isoEmTauMinDeltaEta" ) ),
      isoEmMuonMinEmEt_( iConfig.getParameter< double >( "isoEmMuonMinEmEt" ) ),
      isoEmMuonMinMuonEt_( iConfig.getParameter< double >(
 	"isoEmMuonMinMuonEt" ) ),
@@ -438,6 +446,8 @@ L1ExtraParticleMapProd::produce(edm::Event& iEvent,
 	    inputJetRefs,
 	    muonJetMinMuonEt_,
 	    muonJetMinJetEt_,
+	    0.,
+	    0.,
 	    decision,
 	    outputMuonRefs,
 	    outputJetRefs,
@@ -453,6 +463,8 @@ L1ExtraParticleMapProd::produce(edm::Event& iEvent,
 	    inputJetRefs,
 	    isoEmJetMinEmEt_,
 	    isoEmJetMinJetEt_,
+	    0.,
+	    0.,
 	    decision,
 	    outputEmRefs,
 	    outputJetRefs,
@@ -468,6 +480,8 @@ L1ExtraParticleMapProd::produce(edm::Event& iEvent,
 	    inputTauRefs,
 	    muonTauMinMuonEt_,
 	    muonTauMinTauEt_,
+	    muonTauMinDeltaPhi_,
+	    muonTauMinDeltaEta_,
 	    decision,
 	    outputMuonRefs,
 	    outputJetRefs,
@@ -483,6 +497,8 @@ L1ExtraParticleMapProd::produce(edm::Event& iEvent,
 	    inputTauRefs,
 	    isoEmTauMinEmEt_,
 	    isoEmTauMinTauEt_,
+	    isoEmTauMinDeltaPhi_,
+	    isoEmTauMinDeltaEta_,
 	    decision,
 	    outputEmRefs,
 	    outputJetRefs,
@@ -498,6 +514,8 @@ L1ExtraParticleMapProd::produce(edm::Event& iEvent,
 	    inputMuonRefs,
 	    isoEmMuonMinEmEt_,
 	    isoEmMuonMinMuonEt_,
+	    0.,
+	    0.,
 	    decision,
 	    outputEmRefs,
 	    outputMuonRefs,
@@ -913,6 +931,8 @@ L1ExtraParticleMapProd::evaluateDoubleDifferentObjectTrigger(
    const std::vector< edm::Ref< TCollection2 > >& inputRefs2, // input
    const double& etThreshold1,                                // input
    const double& etThreshold2,                                // input
+   const double& deltaPhiMin,                                 // input
+   const double& deltaEtaMin,                                 // input
    bool& decision,                                            // output
    std::vector< edm::Ref< TCollection1 > >& outputRefs1,      // output
    std::vector< edm::Ref< TCollection2 > >& outputRefs2,      // output
@@ -923,10 +943,22 @@ L1ExtraParticleMapProd::evaluateDoubleDifferentObjectTrigger(
       const edm::Ref< TCollection1 >& refi = inputRefs1[ i ] ;
       if( refi.get()->et() >= etThreshold1 )
       {
+ 	 double phi1 = refi.get()->phi() ;
+	 double eta1 = refi.get()->eta() ;
+
 	 for( size_t j = 0 ; j < inputRefs2.size() ; ++j )
 	 {
 	    const edm::Ref< TCollection2 >& refj = inputRefs2[ j ] ;
-	    if( refj.get()->et() >= etThreshold2 )
+
+	    double phi2 = refj.get()->phi() ;
+	    double eta2 = refj.get()->eta() ;
+	    double deltaPhi = fabs( phi1 - phi2 ) ;
+	    deltaPhi =
+	       ( deltaPhi > M_PI ) ? fabs( deltaPhi - 2. * M_PI ) : deltaPhi ;
+
+	    if( refj.get()->et() >= etThreshold2 &&
+		deltaPhi > deltaPhiMin &&
+		fabs( eta1 - eta2 ) > deltaEtaMin )
 	    {
 	       decision = true ;
 

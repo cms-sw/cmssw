@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Tue Oct 17 00:14:00 EDT 2006
-// $Id$
+// $Id: L1ExtraParticleMapProd.h,v 1.1 2006/10/17 21:41:32 wsun Exp $
 //
 
 // system include files
@@ -89,6 +89,8 @@ class L1ExtraParticleMapProd : public edm::EDProducer {
 	 const std::vector< edm::Ref< TCollection2 > >& inputRefs2, // input
 	 const double& etThreshold1,                                // input
 	 const double& etThreshold2,                                // input
+	 const double& deltaPhiMin,                                 // input
+	 const double& deltaEtaMin,                                 // input
 	 bool& decision,                                            // output
 	 std::vector< edm::Ref< TCollection1 > >& outputRefs1,      // output
 	 std::vector< edm::Ref< TCollection2 > >& outputRefs2,      // output
@@ -146,9 +148,13 @@ class L1ExtraParticleMapProd : public edm::EDProducer {
 
       double muonTauMinMuonEt_ ;
       double muonTauMinTauEt_ ;
+      double muonTauMinDeltaPhi_ ;
+      double muonTauMinDeltaEta_ ;
 
       double isoEmTauMinEmEt_ ;
       double isoEmTauMinTauEt_ ;
+      double isoEmTauMinDeltaPhi_ ;
+      double isoEmTauMinDeltaEta_ ;
 
       double isoEmMuonMinEmEt_ ;
       double isoEmMuonMinMuonEt_ ;
