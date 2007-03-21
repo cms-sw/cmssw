@@ -15,7 +15,7 @@ private:
   void analyze( const edm::Event &, const edm::EventSetup & );
   edm::InputTag src_;
   std::string decay( const reco::Candidate &, std::list<const reco::Candidate *> & ) const;
-  edm::ESHandle<DefaultConfig::ParticleDataTable> pdt_;
+  edm::ESHandle<ParticleDataTable> pdt_;
   /// print parameters
   bool printP4_, printPtEtaPhi_, printVertex_;
   /// print 4 momenta
@@ -138,7 +138,7 @@ string ParticleDecayDrawer::decay( const Candidate & c,
 
   
   int id = c.pdgId();
-  const DefaultConfig::ParticleData * pd = pdt_->particle( id );  
+  const ParticleData * pd = pdt_->particle( id );  
   assert( pd != 0 );
   out += ( pd->name() + printP4( c ) );
   

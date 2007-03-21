@@ -2,7 +2,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: GenParticleCandidateSelector.cc,v 1.2 2007/03/01 17:06:09 llista Exp $
+ * \version $Id: GenParticleCandidateSelector.cc,v 1.3 2007/03/07 11:29:46 llista Exp $
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -103,14 +103,14 @@ GenParticleCandidateSelector::~GenParticleCandidateSelector() {
 
 void GenParticleCandidateSelector::beginJob( const EventSetup & es ) {
   //  const PDTRecord & rec = es.get<PDTRecord>();
-  ESHandle<DefaultConfig::ParticleDataTable> pdt;
+  ESHandle<ParticleDataTable> pdt;
   es.getData( pdt );
   
   if ( verbose_ && stableOnly_ )
     LogInfo ( "INFO" ) << "Excluding unstable particles";
   for( vstring::const_iterator name = pNameList_.begin(); 
        name != pNameList_.end(); ++ name ) {
-    const DefaultConfig::ParticleData * p = pdt->particle( * name );
+    const ParticleData * p = pdt->particle( * name );
     if ( p == 0 ) 
       throw cms::Exception( "ConfigError", "can't find particle" )
 	<< "can't find particle: " << * name;

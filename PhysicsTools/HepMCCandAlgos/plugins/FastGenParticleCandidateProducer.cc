@@ -2,7 +2,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: FastGenParticleCandidateProducer.cc,v 1.4 2007/03/05 13:27:02 llista Exp $
+ * \version $Id: FastGenParticleCandidateProducer.cc,v 1.5 2007/03/07 11:29:46 llista Exp $
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -72,6 +72,7 @@ static const int tId = 6;
 static const int stringId = 92;
 static const int clusterId = 92;
 static const int PDGCacheMax = 32768;
+static const double mmToCm = 0.1;
 
 FastGenParticleCandidateProducer::FastGenParticleCandidateProducer( const ParameterSet & p ) :
   src_( p.getParameter<string>( "src" ) ),
@@ -93,9 +94,9 @@ int FastGenParticleCandidateProducer::chargeTimesThree( int id ) const {
 }
 
 void FastGenParticleCandidateProducer::beginJob( const EventSetup & es ) {
-  ESHandle<DefaultConfig::ParticleDataTable> pdt;
+  ESHandle<HepPDT::ParticleDataTable> pdt;
   es.getData( pdt );
-  for( DefaultConfig::ParticleDataTable::const_iterator p = pdt->begin(); p != pdt->end(); ++ p ) {
+  for( HepPDT::ParticleDataTable::const_iterator p = pdt->begin(); p != pdt->end(); ++ p ) {
     const HepPDT::ParticleID & id = p->first;
     int pdgId = id.pid(), apdgId = abs( pdgId );
     int q3 = id.threeCharge();
@@ -154,13 +155,13 @@ void FastGenParticleCandidateProducer::fillOutput( const std::vector<const GenPa
   cands.reserve( size );
   for( size_t i = 0; i < size; ++ i ) {
     const GenParticle * part = particles[ i ];
-    CLHEP::HepLorentzVector p4 =part->momentum();
+    FourVector p4 =part->momentum();
     Candidate::LorentzVector momentum( p4.x(), p4.y(), p4.z(), p4.t() );
     Candidate::Point vertex( 0, 0, 0 );
-    const HepMC::GenVertex * v = part->production_vertex();
+    const GenVertex * v = part->production_vertex();
     if ( v != 0 ) {
-      HepGeom::Point3D<double> vtx = v->point3d();
-      vertex.SetXYZ( vtx.x() / 10. , vtx.y() / 10. , vtx.z() / 10. );
+      ThreeVector vtx = v->point3d();
+      vertex.SetXYZ( vtx.x() * mmToCm, vtx.y() * mmToCm, vtx.z() * mmToCm );
     }
     int pdgId = part->pdg_id();
     GenParticleCandidate * c = 
@@ -177,12 +178,16 @@ void FastGenParticleCandidateProducer::fillRefs( const std::vector<const GenPart
 						 const vector<GenParticleCandidate *> & candVector ) const {
   for( size_t d = 0; d < candVector.size(); ++ d ) {
     const GenParticle * part = particles[ d ];
-    if ( part->hasParents() ) {
-      const GenParticle * mother = part->mother();
+    const GenVertex * productionVertex = part-> production_vertex();
+    size_t numberOfMothers = productionVertex->particles_in_size();
+    if ( numberOfMothers > 0 ) {
+      GenVertex::particles_in_const_iterator motherIt = productionVertex->particles_in_const_begin();
+      const GenParticle * mother = * motherIt;
       size_t m = mother->barcode() - 1;
       candVector[ m ]->addDaughter( CandidateRef( ref, d ) );
-      const GenParticle * mother2 = part->secondMother();
-      if ( mother2 != 0 && mother2 != mother ) {
+      if ( numberOfMothers > 1 ) {
+	++ motherIt;
+	const GenParticle * mother2 = * motherIt;
 	m = mother2->barcode() - 1;
 	candVector[ m ]->addDaughter( CandidateRef( ref, d ) );
       }

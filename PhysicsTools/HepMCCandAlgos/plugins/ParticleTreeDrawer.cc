@@ -15,7 +15,7 @@ private:
   void analyze( const edm::Event &, const edm::EventSetup & );
   edm::InputTag src_;
   void printDecay( const reco::Candidate &, const std::string & pre ) const;
-  edm::ESHandle<DefaultConfig::ParticleDataTable> pdt_;
+  edm::ESHandle<ParticleDataTable> pdt_;
   /// print parameters
   bool printP4_, printPtEtaPhi_, printVertex_, printStatus_, printIndex_;
   /// accepted status codes
@@ -104,7 +104,7 @@ void ParticleTreeDrawer::printInfo( const Candidate & c ) const {
 
 void ParticleTreeDrawer::printDecay( const Candidate & c, const string & pre ) const {
   int id = c.pdgId();
-  const DefaultConfig::ParticleData * pd = pdt_->particle( id );  
+  const ParticleData * pd = pdt_->particle( id );  
   assert( pd != 0 );
 
   cout << pd->name(); 
@@ -131,7 +131,7 @@ void ParticleTreeDrawer::printDecay( const Candidate & c, const string & pre ) c
     for( size_t i = 0; i < ndau; ++ i ) {
       const Candidate * d = c.daughter( i );
       if ( accept( * d ) ) {
-	const DefaultConfig::ParticleData * pd = pdt_->particle( d->pdgId() );  
+	const ParticleData * pd = pdt_->particle( d->pdgId() );  
 	assert( pd != 0 );
 	cout << pd->name();
 	printInfo( * d );
