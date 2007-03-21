@@ -20,9 +20,9 @@
 #include <ctype.h>
 
 // include Herwig stuff
-#include "HEPEVT_Wrapper.h"
-#include "HerwigWrapper6_4.h"
-#include "IO_HERWIG.h"
+#include "HepMC/HEPEVT_Wrapper.h"
+#include "HepMC/HerwigWrapper6_4.h"
+#include "HepMC/IO_HERWIG.h"
 #include "herwig.h"
 
 extern"C" {

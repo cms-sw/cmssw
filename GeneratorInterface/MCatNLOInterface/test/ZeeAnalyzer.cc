@@ -7,7 +7,7 @@
 //
 // Original Author:  Fabian Stoeckli
 //         Created:  Tue Nov 14 13:43:02 CET 2006
-// $Id: ZeeAnalyzer.cc,v 1.4 2007/03/08 14:49:25 fabstoec Exp $
+// $Id: ZeeAnalyzer.cc,v 1.5 2007/03/14 16:51:32 fabstoec Exp $
 //
 //
 
@@ -28,9 +28,11 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "CLHEP/HepMC/WeightContainer.h"
-#include "CLHEP/HepMC/GenEvent.h"
-#include "CLHEP/HepMC/GenParticle.h"
+#include "DataFormats/Math/interface/LorentzVector.h"
+
+#include "HepMC/WeightContainer.h"
+#include "HepMC/GenEvent.h"
+#include "HepMC/GenParticle.h"
 
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 
@@ -83,12 +85,13 @@ void ZeeAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
    
    // if there are at least two electrons/positrons, 
    // calculate invarant mass of first two and fill it into histogram
-   HepLorentzVector tot_momentum;
+
    double inv_mass = 0.0;
    if(electrons.size()>1) {
-     tot_momentum = electrons[0]->momentum();
-     tot_momentum += electrons[1]->momentum();
-     inv_mass = sqrt(tot_momentum.m2());
+     math::XYZTLorentzVector tot_momentum(electrons[0]->momentum());
+     math::XYZTLorentzVector mom2(electrons[1]->momentum());
+     tot_momentum += mom2;
+     inv_mass = sqrt(tot_momentum.mass2());
    }
    
    // IMPORTANT: use the weight of the event ... 
