@@ -509,6 +509,11 @@ class PFRootEventManager {
   /// hcal p1 for position calculation
   double posCalcP1Hcal_;
 
+  /// hcal number of crystals for position calculation
+  int    posCalcNCrystalHcal_;
+
+  /// Hcal shower sigma
+  double showerSigmaHcal_;
 
   /// ps threshold
   double threshPS_;

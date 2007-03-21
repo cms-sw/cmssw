@@ -307,6 +307,13 @@ void PFRootEventManager::readOptions(const char* file,
   options_->GetOpt("clustering", "posCalc_p1_Hcal", 
 		   posCalcP1Hcal_);
 
+  posCalcNCrystalHcal_ = 5;
+  options_->GetOpt("clustering", "posCalc_nCrystal_Hcal",
+                   posCalcNCrystalHcal_);
+
+  showerSigmaHcal_    = 10;
+  options_->GetOpt("clustering", "shower_Sigma_Hcal",
+                   showerSigmaHcal_);
 
   threshPS_ = 0.00001;
   options_->GetOpt("clustering", "thresh_PS", threshPS_);
@@ -876,7 +883,6 @@ void PFRootEventManager::clustering() {
 
   fillOutEventWithClusters( *clustersECAL_ );
 
-
   // HCAL clustering -------------------------------------------
 
   if( clusterAlgoHCAL_ ) { 
@@ -894,11 +900,13 @@ void PFRootEventManager::clustering() {
   clusterAlgoHCAL_->setNNeighbours( nNeighboursHcal_  );
   clusterAlgoHCAL_->setPosCalcP1( posCalcP1Hcal_ );
   
+  clusterAlgoHCAL_->setShowerSigma( showerSigmaHcal_  );
+  clusterAlgoHCAL_->setPosCalcNCrystal( posCalcNCrystalHcal_ );
+
   clusterAlgoHCAL_->doClustering();
   clustersHCAL_ = clusterAlgoHCAL_->clusters();
 
   fillOutEventWithClusters( *clustersHCAL_ );
-
 
   // PS clustering -------------------------------------------
   
