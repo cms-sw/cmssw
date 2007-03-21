@@ -107,26 +107,27 @@ int RPCNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber num) {
 
       } else if (level==theBPlaneLevel) {
 	const int plane_tag = num.getSuperNo(level);      
-//        const int copyno = num.getBaseNo(level);
+	//        const int copyno = num.getBaseNo(level);
 	if (plane_tag == 1) {
 	  plane_id=1;
 	} else if (plane_tag == 2) {
 	  plane_id=5;
 	} else if (plane_tag == 3) {
-//          if(copyno == 1) {
-          if(eta_id == 4 || eta_id == 8) {
-            plane_id=6;
-          } else {
-   	    plane_id=2;
-          }
+	  //          if(copyno == 1) {
+	  //if(eta_id == 4 || eta_id == 8) {
+          //  plane_id=6;
+          
+	  plane_id=2;
+	    // }
+	  
 //          std::cout<<" KONTROLA w RPCNumberingScheme: eta_id: "<<eta_id<<", plane_tag: "<<plane_tag<<", plane_id: "<<plane_id<<std::endl;
 	} else if (plane_tag == 4) {
 //          if(copyno == 1) {
-          if(eta_id == 4 || eta_id == 8) {
-            plane_id=2;
-          } else {
+	  // if(eta_id == 4 || eta_id == 8) {
+	    //  plane_id=2;
+          //} else {
 	    plane_id=6;
-          }
+	    //}
 //          std::cout<<" KONTROLA w RPCNumberingScheme: eta_id: "<<eta_id<<", plane_tag: "<<plane_tag<<", plane_id: "<<plane_id<<std::endl;
 	} else if (plane_tag == 5) {
 	  plane_id=3;
