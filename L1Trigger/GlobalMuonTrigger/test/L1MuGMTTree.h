@@ -6,8 +6,8 @@
  *   Description:  Build GMT Tree
 */
 //                
-//   $Date: 2007/03/07 13:01:02 $
-//   $Revision: 1.3 $
+//   $Date: 2007/03/14 08:56:11 $
+//   $Revision: 1.4 $
 //
 //   I. Mikulec            HEPHY Vienna
 //
@@ -48,7 +48,7 @@ class TTree;
 //              -- Class Interface --
 //              ---------------------
 
-    const int MAXGEN = 10;
+    const int MAXGEN = 20;
     const int MAXRPC = 20;
     const int MAXDTBX = 20;
     const int MAXCSC = 20;    
@@ -91,6 +91,7 @@ class L1MuGMTTree : public edm::EDAnalyzer {
     float           vxgen[MAXGEN];
     float           vygen[MAXGEN];
     float           vzgen[MAXGEN];
+    int             pargen[MAXGEN];
     
     //DTBX Trigger block
     int             ndt;

@@ -5,8 +5,8 @@
 //   Description:   Build GMT tree
 //                  
 //                
-//   $Date: 2006/10/27 01:35:32 $
-//   $Revision: 1.4 $
+//   $Date: 2007/03/14 08:51:51 $
+//   $Revision: 1.5 $
 //
 //   I. Mikulec            HEPHY Vienna
 //
@@ -81,13 +81,15 @@ void L1MuGMTTree::analyze(const edm::Event& e, const edm::EventSetup& es) {
   edm::LogVerbatim("GMTDump") << "run: " << runn << ", event: " << eventn << endl;
 
   // generetor block
+  HepMC::GenEvent const* genevent = NULL;
 
   try {
     edm::Handle<edm::HepMCProduct> vtxSmeared_handle;
     e.getByLabel("VtxSmeared",vtxSmeared_handle);
-    HepMC::GenEvent const* genevent = vtxSmeared_handle.product()->GetEvent();
+    genevent = vtxSmeared_handle.product()->GetEvent();
 
-    weight = genevent->weights()[0];
+    weight = 1.;
+    if(genevent->weights().size() > 0) weight = genevent->weights()[0];
     pthat = genevent->event_scale();
   }
   catch(...) {
@@ -119,6 +121,11 @@ void L1MuGMTTree::analyze(const edm::Event& e, const edm::EventSetup& es) {
       vxgen[igen]=(*simvertices)[(*isimtr).vertIndex()].position().x();
       vygen[igen]=(*simvertices)[(*isimtr).vertIndex()].position().y();
       vzgen[igen]=(*simvertices)[(*isimtr).vertIndex()].position().z();
+      pargen[igen]=-1;
+      if(genevent && (*isimtr).genpartIndex()!=-1 && genevent->particle((*isimtr).genpartIndex())->listParents().size()>0) {
+        pargen[igen] = genevent->particle((*isimtr).genpartIndex())->listParents()[0]->pdg_id();
+      }
+      
       igen++;
     }
     ngen=igen;  
@@ -127,7 +134,6 @@ void L1MuGMTTree::analyze(const edm::Event& e, const edm::EventSetup& es) {
     edm::LogWarning("BlockMissing") << "Simulated vertex/track block missing" << endl;
     ngen=0;
   }
-
 
   // Get GMTReadoutCollection
 
@@ -156,7 +162,7 @@ void L1MuGMTTree::analyze(const edm::Event& e, const edm::EventSetup& es) {
       if ( idt < MAXDTBX ) {
 	bxd[idt]=(*iter1).bx();
 	ptd[idt]=(*iter1).ptValue();
-	chad[idt]=(*iter1).chargeValue();
+	chad[idt]=(*iter1).chargeValue(); if(!(*iter1).chargeValid()) chad[idt]=0;
 	etad[idt]=(*iter1).etaValue();
 	etafined[idt]=0; // etafined[idt]=(*iter1).fineEtaBit();
 	phid[idt]=(*iter1).phiValue();
@@ -177,7 +183,7 @@ void L1MuGMTTree::analyze(const edm::Event& e, const edm::EventSetup& es) {
       if ( icsc < MAXCSC ) {
 	bxc[icsc]=(*iter1).bx();
 	ptc[icsc]=(*iter1).ptValue();
-	chac[icsc]=(*iter1).chargeValue();
+	chac[icsc]=(*iter1).chargeValue(); if(!(*iter1).chargeValid()) chac[icsc]=0;
 	etac[icsc]=(*iter1).etaValue();
 	phic[icsc]=(*iter1).phiValue();
 	qualc[icsc]=(*iter1).quality();
@@ -197,7 +203,7 @@ void L1MuGMTTree::analyze(const edm::Event& e, const edm::EventSetup& es) {
       if ( irpcb < MAXRPC ) {
 	bxrb[irpcb]=(*iter1).bx();
 	ptrb[irpcb]=(*iter1).ptValue();
-	charb[irpcb]=(*iter1).chargeValue();
+	charb[irpcb]=(*iter1).chargeValue(); if(!(*iter1).chargeValid()) charb[irpcb]=0;
 	etarb[irpcb]=(*iter1).etaValue();
 	phirb[irpcb]=(*iter1).phiValue();
 	qualrb[irpcb]=(*iter1).quality();
@@ -214,7 +220,7 @@ void L1MuGMTTree::analyze(const edm::Event& e, const edm::EventSetup& es) {
       if ( irpcf < MAXRPC ) {
 	bxrf[irpcf]=(*iter1).bx();
 	ptrf[irpcf]=(*iter1).ptValue();
-	charf[irpcf]=(*iter1).chargeValue();
+	charf[irpcf]=(*iter1).chargeValue(); if(!(*iter1).chargeValid()) charf[irpcf]=0;
 	etarf[irpcf]=(*iter1).etaValue();
 	phirf[irpcf]=(*iter1).phiValue();
 	qualrf[irpcf]=(*iter1).quality();
@@ -233,7 +239,7 @@ void L1MuGMTTree::analyze(const edm::Event& e, const edm::EventSetup& es) {
       if ( igmt < MAXGMT ) {
 	bxg[igmt]=(*gmt_iter).bx();
 	ptg[igmt]=(*gmt_iter).ptValue();
-	chag[igmt]=(*gmt_iter).charge();
+	chag[igmt]=(*gmt_iter).charge(); if(!(*gmt_iter).charge_valid()) chag[igmt]=0;
 	etag[igmt]=(*gmt_iter).etaValue();
 	phig[igmt]=(*gmt_iter).phiValue(); 
 	qualg[igmt]=(*gmt_iter).quality();
@@ -409,6 +415,7 @@ void L1MuGMTTree::book() {
   m_tree->Branch("Vxgen",vxgen,"Vxgen[Ngen]/F");
   m_tree->Branch("Vygen",vygen,"Vygen[Ngen]/F");
   m_tree->Branch("Vzgen",vzgen,"Vzgen[Ngen]/F");
+  m_tree->Branch("Pargen",pargen,"Pargen[Ngen]/I");
   
   // DTBX Trigger block branches
   m_tree->Branch("Ndt",&ndt,"Ndt/I");
