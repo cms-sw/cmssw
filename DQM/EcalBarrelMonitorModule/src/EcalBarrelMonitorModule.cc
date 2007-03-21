@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  *
- * $Date: 2007/03/20 12:44:50 $
- * $Revision: 1.120 $
+ * $Date: 2007/03/20 21:38:45 $
+ * $Revision: 1.121 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -310,7 +310,7 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
 
   } catch ( exception& ex) {
 
-    LogWarning("EcalBarrelMonitorModule") << "EcalRawDataCollection not present in event" << endl;
+    LogWarning("EcalBarrelMonitorModule") << "EcalRawDataCollection not present in event";
 
     try {
 
@@ -322,11 +322,11 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
       runType_ = EcalDCCHeaderBlock::BEAMH4;
       evtType_ = EcalDCCHeaderBlock::BEAMH4;
 
-      LogWarning("EcalBarrelMonitorModule") << "EcalTBEventHeader found, instead" << endl;
+      LogWarning("EcalBarrelMonitorModule") << "EcalTBEventHeader found, instead";
 
     } catch ( exception& ex ) {
 
-      LogDebug("EcalBarrelMonitorModule") << "EcalTBEventHeader not present in event TOO!" << endl;
+      LogDebug("EcalBarrelMonitorModule") << "EcalTBEventHeader not present in event TOO!";
 
     }
 
