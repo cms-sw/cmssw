@@ -6,6 +6,7 @@
 <use name=FWCore/ParameterSet>
 <use name=SimDataFormats/HepMCProduct>
 <use name=clhep>
+<use name=hepmc>
 <flags SEAL_PLUGIN_NAME="GeneratorInterfaceMCatNLOInterface">
 <export>
  <lib name=GeneratorInterfaceMCatNLOInterface>
@@ -17,6 +18,7 @@
  <use name=FWCore/ParameterSet>
  <use name=SimDataFormats/HepMCProduct>
  <use name=clhep>
+ <use name=hepmc>
 </export>
 
 <lib name=g2c></lib>
