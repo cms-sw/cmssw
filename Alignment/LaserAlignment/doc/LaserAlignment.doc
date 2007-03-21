@@ -15,40 +15,51 @@
 \section desc Description
 <!-- Short description of what this package is supposed to provide -->
 
-(THE PACKAGE ADMINISTATOR SHOULD REPLACE THIS SENTENCE WITH HAND-WRITTEN DOCUMENTATION SAYING WHAT THE PACKAGE DOES.)
+This package contains the reconstruction code for the Laser Alignment System in the Tracker. 
 
 \subsection interface Public interface
 <!-- List the classes that are provided for use in other packages (if any) -->
 
-- BeamProfileFitter
-- LaserAlignmentAlgorithmNegTEC
-- LaserAlignmentAlgorithmPosTEC
-- LaserAlignmentAlgorithmTEC2TEC
-- LaserAlignmentNegTEC
-- LaserAlignmentPosTEC
-- LaserAlignmentTEC2TEC
-- LaserBeamClusterizer
-- LaserClusterizerAlgorithm
-- LaserHitPairGeneratorFromLayerPair
-- LaserHitPairGenerator
-- LaserLayerPairs
-- Millepede
-- SeedGeneratorForLaserBeams
+- BeamProfileFitter: fit a gaussian to the laser beam profiles
+- LaserAlignmentAlgorithmNegTEC: interface to the alignment algorithm for TEC-
+- LaserAlignmentAlgorithmPosTEC: interface to the alignment algorithm for TEC+
+- LaserAlignmentAlgorithmTEC2TEC: interface to the alignment algorithm to align TIB, TOB and both TEC's relative to each other
+- LaserAlignmentNegTEC: pass the reconstructed beam positions to the alignment algorithm for TEC-
+- LaserAlignmentPosTEC: pass the reconstructed beam positions to the alignment algorithm for TEC+
+- LaserAlignmentTEC2TEC: pass the reconstructed beam positions to the alignment algorithm for TIB, TOB and TEC alignment
+- LaserBeamClusterizer: clusterize the laser signals
+- LaserClusterizerAlgorithm: algorithm to clusterize the laser signals (based on the result of the beam profile fit)
+- LaserHitPairGeneratorFromLayerPair: search for hit pairs on consecutive layers (used by the seed finder)
+- LaserHitPairGenerator: create hit pairs (used by the seed finder)
+- LaserLayerPairs: create pairs of layers (used by the seed finder)
+- Millepede: algorithm used for alignment
+- SeedGeneratorForLaserBeams: seed finder; seeds are used to create reconstructed tracks out of the laser beams in the endcaps
 
 \subsection modules Modules
 <!-- Describe modules implemented in this package and their parameter set -->
 
+- LaserAlignment: main reconstruction module of the Laser Alignment System
+
+\htmlinclude LaserAlignment.cfi
+
+- LaserClusterizer: build clusters from the laser signals
+
+\htmlinclude LaserClusterizer.cfi
+
+- LaserSeedGenerator: create seeds for the track reconstruction of the laser beams
+
+\htmlinclude LaserSeedGenerator.cfi
 
 \subsection tests Unit tests and examples
 <!-- Describe cppunit tests and example configuration files -->
-Unknown
+(INCLUDE HERE A SHORT DESCRIPTION OF THE MODULES AND CONFIGURATION FILES IN THE TEST DIRECTORY)
 
 \section status Status and planned development
 <!-- e.g. completed, stable, missing features -->
-Unknown
+Almost completed; finish storage of alignment corrections in the DB, implement algorithm to automatically select the layer for which the intensity of the laser beam is currently optimized.
 
 <hr>
 Last updated:
-@DATE@  Author: computer-generated.
+@DATE@  Author: Maarten Thomas.
 */
 
