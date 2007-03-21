@@ -3,6 +3,7 @@
 </export>
 <use name=FWCore/ParameterSet>
 <use name=FWCore/MessageLogger>
+<use name=SimDataFormats/HepMCProduct>
 <use name=boost>
 <use name=geant4>
 <use name=clhep>
