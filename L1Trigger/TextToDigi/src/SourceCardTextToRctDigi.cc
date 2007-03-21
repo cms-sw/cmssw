@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Alex Tapper
 //         Created:  Fri Mar  9 19:11:51 CET 2007
-// $Id: SourceCardTextToRctDigi.cc,v 1.3 2007/03/18 04:02:21 tapper Exp $
+// $Id: SourceCardTextToRctDigi.cc,v 1.4 2007/03/21 00:43:26 tapper Exp $
 //
 //
 
@@ -61,8 +61,16 @@ SourceCardTextToRctDigi::~SourceCardTextToRctDigi()
 void SourceCardTextToRctDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   // Skip event if required
-  if (m_nevt < m_skipEvents) return;
+  if (m_nevt < m_skipEvents){
+    string tmp;
+    for (int i=0;i<NUM_RCT_CRATES;i++){
+      getline(m_file,tmp);
+    }
+    m_nevt++;
+    return;
+  }
 
+  // New collections
   auto_ptr<L1CaloEmCollection> em (new L1CaloEmCollection);
   auto_ptr<L1CaloRegionCollection> rgn (new L1CaloRegionCollection);
 
@@ -82,6 +90,14 @@ void SourceCardTextToRctDigi::produce(edm::Event& iEvent, const edm::EventSetup&
   unsigned short Qbits[7];
   string dataString; 
 
+  // Check we're not at the end of the file
+  if(m_file.eof())
+    {
+      throw cms::Exception("SourceCardTextToRctDigiTextFileReadError")
+        << "SourceCardTextToRctDigi::produce : "
+        << " unexpected end of file " << m_textFileName << endl;
+    }      
+  
   // Have to read one line per RCT crate, though order doesn't matter
   for (int i=0; i<NUM_RCT_CRATES; i++){  
 
