@@ -1,0 +1,19 @@
+<use name=DQM/SiStripCommissioningClients>
+<use name=DataFormats/SiStripCommon>
+<use name=OnlineDB/SiStripConfigDb>
+<use name=FWCore/MessageLogger>
+<use name=boost>
+<use name=xdaq>
+<lib name=xgi>
+
+<export>
+  <lib name=DQMSiStripCommissioningDbClients>
+  <use name=DQM/SiStripCommissioningClients>
+  <use name=DataFormats/SiStripCommon>
+  <use name=OnlineDB/SiStripConfigDb>
+  <use name=FWCore/MessageLogger>
+  <use name=boost>
+  <use name=xdaq>
+  <lib name=xgi>
+</export>
+
