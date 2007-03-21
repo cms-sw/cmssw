@@ -30,7 +30,8 @@ class L1RCT {
   L1RCT(std::string lutFile);
   L1RCT(std::string lutFile, std::string lutFile2, 
 	std::string rctTestInputFile,
-	std::string rctTestOutputFile);
+	std::string rctTestOutputFile,
+	bool patternTest, bool maskFG);
   L1RCT(std::string lutFile, edm::ESHandle<CaloTPGTranscoder> transcoder,
 	std::string rctTestInputFile, std::string rctTestOutputFile);
 
@@ -139,6 +140,9 @@ class L1RCT {
 
   std::string rctTestInputFile_;
   std::string rctTestOutputFile_;
+
+  bool patternTest_;
+  bool maskFineGrain_;
 
 };
 

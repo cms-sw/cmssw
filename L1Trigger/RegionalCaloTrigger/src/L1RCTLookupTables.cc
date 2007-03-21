@@ -22,6 +22,9 @@ float L1RCTLookupTables::jetMETLSB_ = 0.5;
 float L1RCTLookupTables::eGammaSCF_[32] = {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1};
 float L1RCTLookupTables::hcalSCF_[32] = {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1};
 
+bool patternTest_ = false;
+bool ignoreFG_ = false;
+
 // constructor
 
 L1RCTLookupTables::L1RCTLookupTables(const std::string& filename)
@@ -30,10 +33,12 @@ L1RCTLookupTables::L1RCTLookupTables(const std::string& filename)
   useTranscoder_ = false;
 }
 
-L1RCTLookupTables::L1RCTLookupTables(const std::string& filename, const std::string& filename2)
+L1RCTLookupTables::L1RCTLookupTables(const std::string& filename, const std::string& filename2, bool patternTest, bool maskFG)
 {
   loadLUTConstants(filename);
   loadHcalLut(filename2);
+  patternTest_ = patternTest;
+  ignoreFG_ = maskFG;
   useTranscoder_ = false;
 }
 
@@ -75,8 +80,24 @@ unsigned long L1RCTLookupTables::lookup(unsigned short ecal,unsigned short hcal,
   float hcalLinear = convertHcal(hcal, iAbsEta);
   
   float etLinear = ecalLinear + hcalLinear;
-  unsigned long HE_FGBit = calcHEBit(ecalLinear,hcalLinear, fgbit);
-  if(ecal == 0xFF) HE_FGBit = 0; // For saturated towers ignore H/E & FG veto
+  unsigned long HE_FGBit;
+  if(patternTest_)
+    {
+      if(ignoreFG_)
+	{
+	  HE_FGBit = calcHEBit(ecalLinear,hcalLinear,false);
+	  cout << "L1RCT: fine grain bit ignored!" << endl;
+	}
+      else
+	{
+	  HE_FGBit = calcHEBit(ecalLinear,hcalLinear,fgbit);
+	}
+    }
+  else
+    {
+      HE_FGBit = calcHEBit(ecalLinear,hcalLinear, fgbit);
+      if(ecal == 0xFF) HE_FGBit = 0; // For saturated towers ignore H/E & FG veto
+    }
   unsigned long etIn7Bits = convertToInteger(ecalLinear, eGammaLSB_, 7);
   unsigned long etIn9Bits = convertToInteger(etLinear, jetMETLSB_, 9);
   unsigned long activityBit = calcActivityBit(ecalLinear, hcalLinear);

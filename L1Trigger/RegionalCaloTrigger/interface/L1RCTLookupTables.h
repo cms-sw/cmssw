@@ -11,7 +11,7 @@ class L1RCTLookupTables {
   // constructor
 
   L1RCTLookupTables(const std::string& filename);
-  L1RCTLookupTables(const std::string& filename, const std::string& filename2);
+  L1RCTLookupTables(const std::string& filename, const std::string& filename2, bool patternTest, bool maskFG);
   L1RCTLookupTables(const std::string& filename, edm::ESHandle<CaloTPGTranscoder> transcoder);
 
   // function needs to output an unsigned long
@@ -37,6 +37,9 @@ class L1RCTLookupTables {
   static float eGammaLSB() {return eGammaLSB_;}
   static float jetMETLSB() {return jetMETLSB_;}
 
+  //  void setPatternTest(bool patternTestBit) {patternTest_ = patternTestBit;}
+  //  void setIgnoreFineGrain(bool ignoreFineGrainBit) {ignoreFG_ = ignoreFineGrainBit;}
+
  private:
 
   L1RCTLookupTables();  // Do not implement so one cannot instantiate without input file
@@ -49,6 +52,9 @@ class L1RCTLookupTables {
 
   bool useTranscoder_;
   edm::ESHandle<CaloTPGTranscoder> transcoder_;
+
+  bool patternTest_;
+  bool ignoreFG_;
 
   // We implement LUTs in code -- real lookup tables are large 2^17 (addresses) x 18 phi bins x 18 bits
   // So we only read in conversion constants in float given by TPG developers, and implement LUTs on-the-fly

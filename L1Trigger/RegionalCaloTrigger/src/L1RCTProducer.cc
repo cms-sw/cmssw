@@ -26,7 +26,8 @@ L1RCTProducer::L1RCTProducer(const edm::ParameterSet& conf) :
   rctTestInputFile(conf.getParameter<std::string>("rctTestInputFile")),
   rctTestOutputFile(conf.getParameter<std::string>("rctTestOutputFile")),
   patternTest(conf.getUntrackedParameter<bool>("patternTest")),
-  lutFile2(conf.getParameter<edm::FileInPath>("lutFile2"))
+  lutFile2(conf.getParameter<edm::FileInPath>("lutFile2")),
+  ignoreFG(conf.getUntrackedParameter<bool>("ignoreFineGrain"))
 {
   //produces<JSCOutput>();
   
@@ -47,9 +48,8 @@ void L1RCTProducer::beginJob(const edm::EventSetup& eventSetup)
 {
   if (patternTest)
     {
-      //edm::ESHandle<CaloTPGTranscoder> transcoder;
-      //eventSetup.get<CaloTPGRecord>().get(transcoder);
-      rct = new L1RCT(lutFile.fullPath(), lutFile2.fullPath(), rctTestInputFile, rctTestOutputFile);
+      rct = new L1RCT(lutFile.fullPath(), lutFile2.fullPath(), rctTestInputFile, rctTestOutputFile,true,ignoreFG);
+      //rct.setLUTFineGrainMask(ignoreFG);
     }
   else
     {
@@ -57,6 +57,7 @@ void L1RCTProducer::beginJob(const edm::EventSetup& eventSetup)
       eventSetup.get<CaloTPGRecord>().get(transcoder);
       rct = new L1RCT(lutFile.fullPath(), transcoder, rctTestInputFile, rctTestOutputFile);
     }
+  //rct.setLUTPatternTest(patternTest);
 }
 
 void L1RCTProducer::produce(edm::Event& e, const edm::EventSetup& c)
