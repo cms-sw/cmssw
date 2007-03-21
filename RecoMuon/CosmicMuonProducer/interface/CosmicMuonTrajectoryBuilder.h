@@ -2,8 +2,8 @@
 #define CosmicMuonTrajectoryBuilder_H
 /** \file CosmicMuonTrajectoryBuilder
  *
- *  $Date: 2007/03/08 18:27:41 $
- *  $Revision: 1.11 $
+ *  $Date: 2007/03/08 20:14:10 $
+ *  $Revision: 1.12 $
  *  \author Chang Liu  -  Purdue University
  */
 
@@ -19,7 +19,6 @@
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 #include "RecoMuon/MeasurementDet/interface/MuonDetLayerMeasurements.h"
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
-#include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
 #include "RecoMuon/CosmicMuonProducer/interface/CosmicMuonSmoother.h"
 
 namespace edm {class ParameterSet; class Event; class EventSetup;}
@@ -34,9 +33,13 @@ typedef TransientTrackingRecHit::ConstRecHitPointer ConstRecHitPointer;
 class CosmicMuonTrajectoryBuilder : public MuonTrajectoryBuilder{
 public:
 
+  /// Constructor 
   CosmicMuonTrajectoryBuilder(const edm::ParameterSet&,const MuonServiceProxy* service);
+
+  /// Destructor
   virtual ~CosmicMuonTrajectoryBuilder();
 
+  /// build trajectories from seed
   std::vector<Trajectory*> trajectories(const TrajectorySeed&);
 
   /// dummy implementation, unused in this class
