@@ -14,6 +14,14 @@ function getFedVersionFromRunSummaryTIF(){
 
     wget -q -r "http://cmsdaq.cern.ch/cmsmon/cmsdb/servlet/RunSummaryTIF?RUN_BEGIN=$1&RUN_END=$1&TEXT=1&DB=omds" -O out.txt
 
+    #Verify query integrity
+    if [ `grep -c "STOPTIME" out.txt` != 1 ]; then
+	echo -e "ERROR: RunSummaryTIF provided a strange output"
+	cat out.txt	
+	FEDVersion_lastIOV=""
+	return
+    fi
+
     FEDVersion_lastIOV=`cat out.txt | awk -F"\t" '{if (NR>1) print $11}'` 
 }
 
@@ -24,7 +32,8 @@ function CheckIOV(){
     #//Verify that FEDVersion is not NULL
     FEDVersion_Run=`grep $Run AddedRuns | awk '{print $3}'`
     #echo ${FEDVersion_Run}
-    [ "${FEDVersion_Run}" == "" ] && return 2  #//FedVersion NULL: perhaps you are asking for a not existing runNumber 
+    [ "${FEDVersion_Run}" == "" ] && return 11  #//FedVersion NULL: perhaps you are asking for a not existing runNumber 
+    [ "${FEDVersion_lastIOV}" == "" ] && return 12  #//FedVersion NULL: perhaps you are asking for a not existing runNumber 
 
     if [ "$lastIOV" == "" ]; then
     #//tag $tagPN not found in orcon, check failed//
@@ -53,8 +62,22 @@ function GetPhysicsRuns(){
 
     #// Get List of PHYSIC RUNS
     wget -q -r "http://cmsdaq.cern.ch/cmsmon/cmsdb/servlet/RunSummaryTIF?RUN_BEGIN=$nextRun&RUN_END=1000000000&RUNMODE=PHYSIC&TEXT=1&DB=omds" -O physicsRuns.txt  
+    #Verify query integrity
+    if [ `grep -c "STOPTIME" physicsRuns.txt` != 1 ]; then
+	echo -e "ERROR: RunSummaryTIF provided a strange output"
+	cat physicsRuns.txt
+	rm -f lockFile
+	exit
+    fi
+
     #// Get List of LATENCY RUNS
     wget -q -r "http://cmsdaq.cern.ch/cmsmon/cmsdb/servlet/RunSummaryTIF?RUN_BEGIN=$nextRun&RUN_END=1000000000&RUNMODE=LATENCY&TEXT=1&DB=omds" -O latencyRuns.txt
+    if [ `grep -c "STOPTIME" latencyRuns.txt` != 1 ]; then
+	echo -e "ERROR: RunSummaryTIF provided a strange output"
+	cat latencyRuns.txt
+	rm -f lockFile
+	exit
+    fi
 
     cat physicsRuns.txt latencyRuns.txt | sort -r | awk -F"\t" '{if (NR>2) print $1" "$2" "$11" "$13}' | sort >> AddedRuns
 }
@@ -93,7 +116,7 @@ oldFedVer=0
 oldtagPN=""
 for Run in `cat AddedRuns | awk '{print $1}'`
   do
-  echo Looking at run $Run
+  echo "[MonitorO2O.sh] Looking at run $Run"
   
   ConfigDb=`grep $Run AddedRuns | awk '{print $4}'`   
 
@@ -134,12 +157,15 @@ for Run in `cat AddedRuns | awk '{print $1}'`
   #echo status $status
   if [ "$status" == "0" ];
       then
-      echo $Run $vTag $CondDB>> RunToBeSubmitted
-  else
+      echo -e "$Run \t$CondDB \t$vTag">> RunToBeSubmitted
+  elif [ $status < 10 ]; then
       if [ "${FedVer}" != "${oldFedVer}" ] ; then
 	  oldFedVer=${FedVer}
 	  echo $Run $vTag $status $ConfigDb $CondDB >> RunToDoO2O
       fi
+  else
+      # case of error 11 and 12 in CheckIOV
+      echo "[MonitorO2O.sh] ERROR: CheckIOV answer $status"
   fi
 done
 
