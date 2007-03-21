@@ -83,8 +83,8 @@ class MultiTrackValidator : public edm::EDAnalyzer {
   std::vector<MonitorElement*> h_assochi2, h_assochi2_prob;
 
   //chi2 and #hit vs eta: to be used with doProfileX
-  std::vector<TH2F*> chi2_vs_eta, nhits_vs_eta;
-  std::vector<MonitorElement*>  h_chi2meanh, h_hits_eta;
+  std::vector<TH2F*> chi2_vs_eta, nhits_vs_eta, nlosthits_vs_eta;
+  std::vector<MonitorElement*>  h_chi2meanh, h_hits_eta, h_losthits_eta;
 
   //resolution of track params: to be used with fitslicesytool
   std::vector<TH2F*> d0res_vs_eta, ptres_vs_eta, z0res_vs_eta, phires_vs_eta, cotThetares_vs_eta;
@@ -112,6 +112,7 @@ class MultiTrackValidator : public edm::EDAnalyzer {
       TH1F * h1 = (TH1F*) th2->ProfileX();
       for (int bin=0;bin!=h1->GetNbinsX();bin++){
 	me->setBinContent(bin+1,h1->GetBinContent(bin+1));
+	me->setBinError(bin+1,h1->GetBinError(bin+1));
       }
     } else {
       throw cms::Exception("MultiTrackValidator") << "Different number of bins!";

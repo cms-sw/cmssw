@@ -125,6 +125,9 @@ void MultiTrackValidator::beginJob( const EventSetup & setup) {
       nhits_vs_eta.push_back( new TH2F("nhits_vs_eta","nhits_vs_eta",nint,min,max,25,0,25) );
       h_hits_eta.push_back( dbe_->book1D("hits_eta","mean #hits vs eta",nint,min,max) );
 
+      nlosthits_vs_eta.push_back( new TH2F("nlosthits_vs_eta","nlosthits vs eta",nint,min,max,25,0,25) );
+      h_losthits_eta.push_back( dbe_->book1D("losthits_eta","losthits_eta",nint,min,max) );
+
       //resolution of track parameters
       //                       dPt/Pt    cotTheta        Phi            TIP            LIP
       // log10(pt)<0.5        100,0.1    240,0.08     100,0.015      100,0.1000    150,0.3000
@@ -408,6 +411,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	  //chi2 and #hit vs eta: fill 2D histos
 	  chi2_vs_eta[w]->Fill(fabs(track->eta()),track->normalizedChi2());
 	  nhits_vs_eta[w]->Fill(fabs(track->eta()),track->numberOfValidHits());
+	  nlosthits_vs_eta[w]->Fill(fabs(track->eta()),track->numberOfLostHits());
 
 	  //resolution of track params: fill 2D histos
 	  d0res_vs_eta[w]->Fill(fabs(track->eta()),track->d0()-d0Sim);
@@ -444,23 +448,11 @@ void MultiTrackValidator::endJob() {
   for (unsigned int ww=0;ww<associators.size();ww++){
     for (unsigned int www=0;www<label.size();www++){
 
-      //resolution of track params: get sigma from 2D histos
-      FitSlicesYTool fsyt_d0(d0res_vs_eta[w]);
-      fsyt_d0.getFittedSigmaWithError(h_d0rmsh[w]);
-      FitSlicesYTool fsyt_pt(ptres_vs_eta[w]);
-      fsyt_pt.getFittedSigmaWithError(h_ptrmsh[w]);
-      FitSlicesYTool fsyt_z0(z0res_vs_eta[w]);
-      fsyt_z0.getFittedSigmaWithError(h_z0rmsh[w]);
-      FitSlicesYTool fsyt_phi(phires_vs_eta[w]);
-      fsyt_phi.getFittedSigmaWithError(h_phirmsh[w]);
-      FitSlicesYTool fsyt_cotTheta(cotThetares_vs_eta[w]);
-      fsyt_cotTheta.getFittedSigmaWithError(h_cotThetarmsh[w]);
-
-
       //chi2 and #hit vs eta: get mean from 2D histos
       doProfileX(chi2_vs_eta[w],h_chi2meanh[w]);
       doProfileX(nhits_vs_eta[w],h_hits_eta[w]);    
-
+      doProfileX(nlosthits_vs_eta[w],h_losthits_eta[w]);    
+   
       //pulls of track params vs eta: get sigma from 2D histos
       FitSlicesYTool fsyt_d0p(d0pull_vs_eta[w]);
       fsyt_d0p.getFittedSigmaWithError(h_d0pulleta[w]);
@@ -472,7 +464,6 @@ void MultiTrackValidator::endJob() {
       fsyt_phip.getFittedSigmaWithError(h_phipulleta[w]);
       FitSlicesYTool fsyt_thetap(thetapull_vs_eta[w]);
       fsyt_thetap.getFittedSigmaWithError(h_thetapulleta[w]);
-
 
       //fill efficiency plot
       double eff,err;
