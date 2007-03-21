@@ -142,14 +142,14 @@ PixelCPEParmError::xpos(const SiPixelCluster& cluster) const {
   // position msI
   float pos = center + (q2-q1)/(2.*(q1+q2)) * effWidth;
   
-  // &&& should go away there too:  float alpha = estimatedAlphaForBarrel(xcenter);
-  if (alpha_ < 1.53) {
-    float etashift=0;
-    float charatio = q1/(q1+q2);
-    etashift = theEtaFunc.xEtaShift(size, thePitchX, 
-				    charatio, alpha_);
-    pos = pos - etashift;
-  }
+
+  // Delete the eta correction, it did not bring much d.k.3/07
+  //if (alpha_ < 1.53) {
+  //float etashift=0;
+  //float charatio = q1/(q1+q2);
+  //etashift = theEtaFunc.xEtaShift(size,thePitchX,charatio,alpha_);
+  //pos = pos - etashift;
+  //}
 
   return pos;
 }
@@ -208,11 +208,11 @@ PixelCPEParmError::ypos(const SiPixelCluster& cluster) const
   // For y with track angles use msI method
   float pos = center + (q2-q1)/(2.*(q1+q2)) * effWidth;
   
+  // Delete the eta correction. It did not bring much
   // eta function for shallow tracks
-  float charatio = q1/(q1+q2);
-  float etashift = theEtaFunc.yEtaShift(size, thePitchY, 
-					  charatio, beta_);
-  pos = pos - etashift;
+  //float charatio = q1/(q1+q2);
+  //float etashift = theEtaFunc.yEtaShift(size,thePitchY,charatio,beta_);
+  //pos = pos - etashift;
 
   return pos;
 }
