@@ -1,10 +1,11 @@
+// Last commit: $Id: $
+
 #ifndef EventFilter_SiStripRawToDigi_SiStripDigiToRaw_H
 #define EventFilter_SiStripRawToDigi_SiStripDigiToRaw_H
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
-#include "EventFilter/SiStripRawToDigi/interface/SiStripTrivialDigiAnalysis.h"
 #include "Fed9UUtils.hh"
 #include "boost/cstdint.hpp"
 #include <string>
@@ -39,8 +40,6 @@ class SiStripDigiToRaw {
 
   std::string readoutMode_;
   uint16_t nAppendedBytes_;
-
-  SiStripTrivialDigiAnalysis anal_;
 
 };
 

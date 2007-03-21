@@ -1,3 +1,5 @@
+// Last commit: $Id: $
+
 #include "EventFilter/SiStripRawToDigi/interface/SiStripRawToDigiModule.h"
 #include "EventFilter/SiStripRawToDigi/interface/SiStripRawToDigiUnpacker.h"
 // 
@@ -11,10 +13,9 @@
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
-#include "DataFormats/SiStripDigi/interface/SiStripDigiCollection.h"
+#include "DataFormats/SiStripCommon/interface/SiStripEventSummary.h"
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
-#include "DataFormats/SiStripDigi/interface/SiStripEventSummary.h"
 //
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 #include "CondFormats/DataRecord/interface/SiStripFedCablingRcd.h"
@@ -22,16 +23,14 @@
 #include "boost/cstdint.hpp"
 #include <cstdlib>
 
-using namespace std;
 using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 //
 SiStripRawToDigiModule::SiStripRawToDigiModule( const edm::ParameterSet& pset ) :
   rawToDigi_(0),
-  createDigis_( pset.getUntrackedParameter<bool>("CreateDigis",true) ),
-  label_( pset.getUntrackedParameter<string>("ProductLabel","source") ),
-  instance_( pset.getUntrackedParameter<string>("ProductInstance","") )
+  label_( pset.getUntrackedParameter<std::string>("ProductLabel","source") ),
+  instance_( pset.getUntrackedParameter<std::string>("ProductInstance","") )
 {
   LogTrace(mlRawToDigi_)
     << "[SiStripRawToDigiModule::" << __func__ << "]"
@@ -53,10 +52,7 @@ SiStripRawToDigiModule::SiStripRawToDigiModule( const edm::ParameterSet& pset ) 
   produces< edm::DetSetVector<SiStripRawDigi> >("VirginRaw");
   produces< edm::DetSetVector<SiStripRawDigi> >("ProcessedRaw");
   produces< edm::DetSetVector<SiStripDigi> >("ZeroSuppressed");
-  produces< SiStripDigiCollection >("SiStripDigiCollection");
   
-  createDigis_ = true; //@@ force this for the time being...  
-
 }
 
 // -----------------------------------------------------------------------------
@@ -70,10 +66,10 @@ SiStripRawToDigiModule::~SiStripRawToDigiModule() {
 
 // -----------------------------------------------------------------------------
 /** 
-    Retrieves cabling map from EventSetup, retrieves
-    FEDRawDataCollection from Event, creates a DetSetVector of
-    SiStripDigiCollection (EDProduct), uses RawToDigi converter to fill the
-    DetSetVector, attaches StripDigiCollection to Event.
+    Retrieves cabling map from EventSetup and FEDRawDataCollection
+    from Event, creates a DetSetVector of SiStrip(Raw)Digis, uses the
+    SiStripRawToDigiUnpacker class to fill the DetSetVector, and
+    attaches the container to the Event.
 */
 void SiStripRawToDigiModule::produce( edm::Event& event, 
 				      const edm::EventSetup& setup ) {
@@ -93,32 +89,35 @@ void SiStripRawToDigiModule::produce( edm::Event& event,
   event.getByLabel( label_, instance_, buffers ); 
 
   // Populate SiStripEventSummary object with "trigger FED" info
-  auto_ptr<SiStripEventSummary> summary( new SiStripEventSummary() );
+  std::auto_ptr<SiStripEventSummary> summary( new SiStripEventSummary() );
   rawToDigi_->triggerFed( *buffers, *summary, event.id().event() ); 
 
-  // Create digi containers
+  // Create containers for digis
   std::vector< edm::DetSet<SiStripRawDigi> > sm;
   std::vector< edm::DetSet<SiStripRawDigi> > vr;
   std::vector< edm::DetSet<SiStripRawDigi> > pr;
   std::vector< edm::DetSet<SiStripDigi> > zs;
-  auto_ptr<SiStripDigiCollection> digis( new SiStripDigiCollection() );
 
-  // Create "real" or "pseudo" digis
-  if ( !createDigis_ ) { rawToDigi_->createDigis( *cabling, buffers, *summary, digis ); }
-  else { rawToDigi_->createDigis( *cabling, *buffers, *summary, sm, vr, pr, zs ); }
+  // Create digis
+  if ( rawToDigi_ ) { rawToDigi_->createDigis( *cabling, 
+					       *buffers, 
+					       *summary, 
+					       sm, 
+					       vr, 
+					       pr, 
+					       zs ); }
   
   // Create DetSetVectors of digi products
-  auto_ptr< edm::DetSetVector<SiStripRawDigi> > smdsv( new edm::DetSetVector<SiStripRawDigi>(sm) );
-  auto_ptr< edm::DetSetVector<SiStripRawDigi> > vrdsv( new edm::DetSetVector<SiStripRawDigi>(vr) );
-  auto_ptr< edm::DetSetVector<SiStripRawDigi> > prdsv( new edm::DetSetVector<SiStripRawDigi>(pr) );
-  auto_ptr< edm::DetSetVector<SiStripDigi> > zsdsv( new edm::DetSetVector<SiStripDigi>(zs) );
-
+  std::auto_ptr< edm::DetSetVector<SiStripRawDigi> > sm_dsv( new edm::DetSetVector<SiStripRawDigi>(sm) );
+  std::auto_ptr< edm::DetSetVector<SiStripRawDigi> > vr_dsv( new edm::DetSetVector<SiStripRawDigi>(vr) );
+  std::auto_ptr< edm::DetSetVector<SiStripRawDigi> > pr_dsv( new edm::DetSetVector<SiStripRawDigi>(pr) );
+  std::auto_ptr< edm::DetSetVector<SiStripDigi> > zs_dsv( new edm::DetSetVector<SiStripDigi>(zs) );
+  
   event.put( summary );
-  event.put( smdsv, "ScopeMode" );
-  event.put( vrdsv, "VirginRaw" );
-  event.put( prdsv, "ProcessedRaw" );
-  event.put( zsdsv, "ZeroSuppressed" );
-  event.put( digis, "SiStripDigiCollection" );
+  event.put( sm_dsv, "ScopeMode" );
+  event.put( vr_dsv, "VirginRaw" );
+  event.put( pr_dsv, "ProcessedRaw" );
+  event.put( zs_dsv, "ZeroSuppressed" );
   
 }
 

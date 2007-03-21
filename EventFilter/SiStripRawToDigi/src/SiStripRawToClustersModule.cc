@@ -1,3 +1,5 @@
+// Last commit: $Id: $
+
 #include "EventFilter/SiStripRawToDigi/interface/SiStripRawToClustersModule.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 #include "CommonTools/SiStripClusterization/interface/SiStripClusterizerFactory.h"
@@ -8,7 +10,7 @@
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/SiStripCommon/interface/SiStripFedKey.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
-//#include "DataFormats/SiStripDigi/interface/SiStripEventSummary.h"
+//#include "DataFormats/SiStripCommon/interface/SiStripEventSummary.h"
 #include "EventFilter/SiStripRawToDigi/interface/SiStripRawToDigiUnpacker.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -134,7 +136,7 @@ void SiStripRawToClustersModule::produce( edm::Event& event,
   << "[SiStripRawToClustersModule::" << __func__ << "]"
   << " No FEDs found in cabling map!";
   // Check which FED ids have non-zero size buffers
-  pair<int,int> fed_range = FEDNumbering::getSiStripFEDIds();
+  std::pair<int,int> fed_range = FEDNumbering::getSiStripFEDIds();
   std::vector<uint16_t> feds;
   for ( uint16_t ifed = static_cast<uint16_t>(fed_range.first);
   ifed < static_cast<uint16_t>(fed_range.second); ifed++ ) {
@@ -169,7 +171,7 @@ void SiStripRawToClustersModule::produce( edm::Event& event,
       edm::DetSet<SiStripCluster>& zs = *clusters_.insert(clusters_.end(),edm::DetSet<SiStripCluster>(index));
       zs.data.reserve(768); 
 
-      //Loop over apv-pairs of det (ipair)
+      //Loop over apv-std::pairs of det (ipair)
       for (uint16_t ipair = 0; ipair < idet->second.size(); ipair++) {
 	
 	//Get FedChannelConnection

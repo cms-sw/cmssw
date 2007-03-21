@@ -1,3 +1,5 @@
+// Last commit: $Id: $
+
 #ifndef EventFilter_SiStripRawToDigi_SiStripRawToDigiUnpacker_H
 #define EventFilter_SiStripRawToDigi_SiStripRawToDigiUnpacker_H
 
@@ -12,7 +14,6 @@
 namespace Fed9U { class Fed9UEvent; }
 class FEDRawDataCollection;
 class FEDRawData;
-class SiStripDigiCollection;
 class SiStripDigi;
 class SiStripRawDigi;
 class SiStripEventSummary;
@@ -39,13 +40,7 @@ class SiStripRawToDigiUnpacker {
   typedef std::vector< edm::DetSet<SiStripDigi> > Digis;
   typedef std::vector< edm::DetSet<SiStripRawDigi> > RawDigis;
   
-  /** Creates "pseudo" digis. */
-  void createDigis( const SiStripFedCabling&,
-  		    const edm::Handle<FEDRawDataCollection>&,
-  		    const SiStripEventSummary&,
-		    std::auto_ptr<SiStripDigiCollection>& );
-  
-  /** Creates "real" digis. */
+  /** Creates digis. */
   void createDigis( const SiStripFedCabling&,
 		    const FEDRawDataCollection&,
 		    const SiStripEventSummary&,

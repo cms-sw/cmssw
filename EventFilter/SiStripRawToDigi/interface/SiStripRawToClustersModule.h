@@ -1,6 +1,4 @@
 // Last commit: $Id: $
-// Latest tag:  $Name: $
-// Location:    $Source: $
 
 #ifndef EventFilter_SiStripRawToDigi_interface_SiStripRawToClustersModule_H
 #define EventFilter_SiStripRawToDigi_interface_SiStripRawToClustersModule_H

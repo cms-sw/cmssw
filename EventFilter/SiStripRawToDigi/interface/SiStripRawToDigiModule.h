@@ -1,3 +1,5 @@
+// Last commit: $Id: $
+
 #ifndef EventFilter_SiStripRawToDigi_SiStripRawToDigiModule_H
 #define EventFilter_SiStripRawToDigi_SiStripRawToDigiModule_H
 
@@ -28,8 +30,6 @@ class SiStripRawToDigiModule : public edm::EDProducer {
  private: 
   
   SiStripRawToDigiUnpacker* rawToDigi_;
-
-  bool createDigis_;
 
   std::string label_;
   std::string instance_;

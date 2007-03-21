@@ -1,3 +1,5 @@
+// Last commit: $Id: $
+
 #include "EventFilter/SiStripRawToDigi/interface/SiStripDigiToRawModule.h"
 #include "EventFilter/SiStripRawToDigi/interface/SiStripDigiToRaw.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -21,14 +23,14 @@ using namespace std;
     Creates instance of DigiToRaw converter, defines EDProduct type.
 */
 SiStripDigiToRawModule::SiStripDigiToRawModule( const edm::ParameterSet& pset ) :
-  inputModuleLabel_( pset.getParameter<string>( "InputModuleLabel" ) ),
+  inputModuleLabel_( pset.getParameter<std::string>( "InputModuleLabel" ) ),
   digiToRaw_(0),
   eventCounter_(0)
 {
   LogDebug("DigiToRaw") << "[SiStripDigiToRawModule::SiStripDigiToRawModule] Constructing object...";
   
   // Create instance of DigiToRaw formatter
-  string mode    = pset.getUntrackedParameter<string>("FedReadoutMode","VIRGIN_RAW");
+  std::string mode    = pset.getUntrackedParameter<std::string>("FedReadoutMode","VIRGIN_RAW");
   int16_t nbytes = pset.getUntrackedParameter<int>("AppendedBytes",0);
   digiToRaw_ = new SiStripDigiToRaw( mode, nbytes );
   

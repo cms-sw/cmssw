@@ -1,3 +1,5 @@
+// Last commit: $Id: $
+
 #ifndef EventFilter_SiStripRawToDigi_SiStripDigiToRawModule_H
 #define EventFilter_SiStripRawToDigi_SiStripDigiToRawModule_H
 
