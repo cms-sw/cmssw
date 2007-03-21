@@ -1,9 +1,9 @@
 #! /bin/bash
 export RELEASE=$CMSSW_VERSION
 
-#export wwwDir=/afs/cern.ch/cms/cpt/Software/html/General/Validation/SVSuite/TrackerBTau/$RELEASE/
+export wwwDir=/afs/cern.ch/cms/cpt/Software/html/General/Validation/SVSuite/TrackerBTau/$RELEASE/
 
-export wwwDir=./prova
+#export wwwDir=./prova
 
 if [ ! -d $wwwDir ]; then
     echo Creating directory $wwwDir
