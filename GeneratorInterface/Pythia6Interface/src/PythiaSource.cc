@@ -1,6 +1,6 @@
 /*
- *  $Date: 2007/03/20 09:37:53 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/03/20 10:58:25 $
+ *  $Revision: 1.2 $
  *  
  *  Filip Moorgat & Hector Naves 
  *  26/10/05
@@ -16,8 +16,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
-#include "CLHEP/Random/JamesRandom.h"
-#include "CLHEP/Random/RandFlat.h"
 
 #include <iostream>
 #include "time.h"
@@ -127,8 +125,8 @@ PythiaSource::PythiaSource( const ParameterSet & pset,
     Service<RandomNumberGenerator> rng;
     long seed = (long)(rng->mySeed());
     cout << " seed= " << seed << endl ;
-    fRandomEngine = new HepJamesRandom(seed) ;
-    fRandomGenerator = new RandFlat(fRandomEngine) ;
+    fRandomEngine = new CLHEP::HepJamesRandom(seed) ;
+    fRandomGenerator = new CLHEP::RandFlat(fRandomEngine) ;
     cout << "Internal BaseFlatGunSource is initialzed" << endl ;
  
   }

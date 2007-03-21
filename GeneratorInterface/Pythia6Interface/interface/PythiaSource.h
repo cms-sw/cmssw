@@ -19,13 +19,10 @@
 #include <map>
 #include <string>
 #include "HepMC/GenEvent.h"
+#include "CLHEP/Random/JamesRandom.h"
+#include "CLHEP/Random/RandFlat.h"
 
 
-namespace CLHEP
-{
-  class RandFlat ;
-  class HepRandomEngine;
-}
 
 namespace edm
 {
@@ -70,8 +67,8 @@ namespace edm
     double phimin, phimax;
     double comenergy;
     
-    HepRandomEngine* fRandomEngine;
-    RandFlat*        fRandomGenerator; 
+    CLHEP::HepRandomEngine* fRandomEngine;
+    CLHEP::RandFlat*        fRandomGenerator; 
 
   };
 } 
