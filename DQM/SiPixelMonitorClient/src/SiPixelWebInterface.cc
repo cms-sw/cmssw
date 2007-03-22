@@ -22,7 +22,6 @@
 SiPixelWebInterface::SiPixelWebInterface(std::string theContextURL, std::string theApplicationURL, MonitorUserInterface ** _mui_p)
   : WebInterface(theContextURL, theApplicationURL, _mui_p)
 {
-//  cout<<"entering WebInterface"<<endl;
   theActionFlag = NoAction;
   actionExecutor_ = 0;
   infoExtractor_  = 0;
@@ -33,7 +32,6 @@ SiPixelWebInterface::SiPixelWebInterface(std::string theContextURL, std::string 
 
   if (actionExecutor_ == 0) actionExecutor_ = new SiPixelActionExecutor();
   if (infoExtractor_ == 0) infoExtractor_ = new SiPixelInformationExtractor();
-//  cout<<"leaving WebInterface"<<endl;
 }
 
 
@@ -41,32 +39,21 @@ SiPixelWebInterface::SiPixelWebInterface(std::string theContextURL, std::string 
 // -- Create default and customised Widgets
 // 
 void SiPixelWebInterface::createAll() { 
-//  cout<<"entering createAll"<<endl;
-//  Navigator * nav = new Navigator(getApplicationURL(), "50px", "50px");
-//  ContentViewer * cont = new ContentViewer(getApplicationURL(), "180px", "50px");
-//  GifDisplay * dis = new GifDisplay(getApplicationURL(), "25px","300px", "500px", "600px", "MyGifDisplay"); 
-  // an html link
   HTMLLink *link = new HTMLLink(getApplicationURL(), "50px", "50px", 
 				"<i>SiPixelWebInterface</i>", 
 				"/temporary/Online.html");
   
   page_p = new WebPage(getApplicationURL());
-//  page_p->add("navigator", nav);
-//  page_p->add("contentViewer", cont);
-//  page_p->add("gifDisplay", dis);
   page_p->add("htmlLink", link);
-//  cout<<"leaving createAll"<<endl;
 }
 //
 // --  Destructor
 // 
 SiPixelWebInterface::~SiPixelWebInterface() {
-//  cout<<"entering WebInterface destructor"<<endl;
   if (actionExecutor_) delete actionExecutor_;
   actionExecutor_ = 0;
   if (infoExtractor_) delete infoExtractor_;
   infoExtractor_ = 0; 
-//  cout<<"leaving WebInterface destructor"<<endl;
 }
 // 
 // -- Handles requests from WebElements submitting non-default requests 
@@ -148,25 +135,20 @@ void SiPixelWebInterface::handleCustomRequest(xgi::Input* in,xgi::Output* out)
 // -- Schedule Custom Action
 //
 void SiPixelWebInterface::configureCustomRequest(xgi::Input * in, xgi::Output * out) throw (xgi::exception::Exception){
-//  cout<<"entering configureCustomRequest"<<endl;
   seal::Callback action(seal::CreateCallback(this, 
                       &SiPixelWebInterface::performAction));
   (*mui_p)->addCallback(action);
-//  cout<<"leaving configureCustomRequest"<<endl;
 }
 //
 // -- Setup Quality Tests
 // 
 void SiPixelWebInterface::setupQTests() {
-//  cout<<"entering setupQTests"<<endl;
   actionExecutor_->setupQTests((*mui_p));
-//  cout<<"leaving setupQTests"<<endl;
 }
 //
 // -- Read Configurations 
 //
 void SiPixelWebInterface::readConfiguration(int& tkmap_freq, int& sum_barrel_freq, int& sum_endcap_freq){
-//cout<<"entering readConfiguration"<<endl;
   if (actionExecutor_)  {
     if (actionExecutor_->readConfiguration(tkmap_freq,sum_barrel_freq,sum_endcap_freq));
   } else {
@@ -174,7 +156,6 @@ void SiPixelWebInterface::readConfiguration(int& tkmap_freq, int& sum_barrel_fre
     sum_barrel_freq   = -1;
     sum_endcap_freq   = -1;
   }
-//cout<<"leaving readConfiguration"<<endl;
 }
 //
 // -- Perform action
@@ -223,7 +204,7 @@ void SiPixelWebInterface::performAction() {
   case SiPixelWebInterface::SaveData :
     {
 //      cout << " Saving Monitoring Elements " << endl;
-      actionExecutor_->saveMEs((*mui_p), "SiPixelWebInterface.root");
+      actionExecutor_->saveMEs((*mui_p), "SiPixelWebClient.root");
       break;
     }
   case SiPixelWebInterface::PlotSingleModuleHistos :
@@ -260,7 +241,6 @@ void SiPixelWebInterface::performAction() {
 }
 
 void SiPixelWebInterface::returnReplyXml(xgi::Output * out, const std::string& name, const std::string& comment){
-//  cout<<"entering returnReplyXml"<<endl;
    out->getHTTPResponseHeader().addHeader("Content-Type", "text/xml");
   *out << "<?xml version=\"1.0\" ?>" << std::endl;
   *out << "<TkMap>" << endl;
@@ -270,7 +250,6 @@ void SiPixelWebInterface::returnReplyXml(xgi::Output * out, const std::string& n
   cout << "<TkMap>" << endl;
   cout << " <Response>" << comment << "</Response>" << endl;
   cout << "</TkMap>" << endl;
-//  cout<<"leaving returnReplyXml"<<endl;
 
 }
 

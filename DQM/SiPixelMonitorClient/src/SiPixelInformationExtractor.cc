@@ -314,6 +314,7 @@ void SiPixelInformationExtractor::printAlarmList(MonitorUserInterface * mui, ost
 
   string currDir = mui->pwd();
   string dname = currDir.substr(currDir.find_last_of("/")+1);
+  if (dname.find("_module_") ==0) return;
   string image_name;
   selectImage(image_name,mui->getStatus(currDir));
   str_val << "<li><a href=\"#\" id=\"" 
@@ -326,22 +327,18 @@ void SiPixelInformationExtractor::printAlarmList(MonitorUserInterface * mui, ost
     return;
   }
   str_val << "<ul>" << endl;
-  if (dname.find("Module_") != string::npos) {
-    if (meVec.size() > 0) {
-      for (vector<string>::const_iterator it = meVec.begin();
+  for (vector<string>::const_iterator it = meVec.begin();
 	   it != meVec.end(); it++) {
-        string full_path = currDir + "/" + (*it);
-	MonitorElement * me = mui->get(full_path);
-	if (!me) continue;
-        dqm::qtests::QR_map my_map = me->getQReports();
-        if (my_map.size() > 0) {
-	  string image_name1;
-	  selectImage(image_name1,my_map);
-	  str_val << "<li class=\"dhtmlgoodies_sheet.gif\"><a href=\"javascript:ReadStatus('"
+    string full_path = currDir + "/" + (*it);
+    MonitorElement * me = mui->get(full_path);
+    if (!me) continue;
+    dqm::qtests::QR_map my_map = me->getQReports();
+    if (my_map.size() > 0) {
+      string image_name1;
+      selectImage(image_name1,my_map);
+      str_val << "<li class=\"dhtmlgoodies_sheet.gif\"><a href=\"javascript:ReadStatus('"
 		<< full_path<< "')\">" << (*it) << "</a><img src=\""
 		<< image_name1 << "\""<< "</li>" << endl;
-        }
-      }
     }
   }
   for (vector<string>::const_iterator ic = subDirVec.begin();
@@ -752,23 +749,40 @@ void SiPixelInformationExtractor::selectImage(string& name, dqm::qtests::QR_map&
 void SiPixelInformationExtractor::readStatusMessage(MonitorUserInterface* mui, string& path,xgi::Output * out) {
 //cout<<"entering SiPixelInformationExtractor::readStatusMessage"<<endl;
   MonitorElement* me = mui->get(path);
-  ostringstream test_status;
+  string hpath;
+  ostringstream test_status; //this is the output stream displayed in browser!
   if (!me) {
     test_status << " ME Does not exist ! ";
+    hpath = "NOME";
   } else {
+    hpath = path.substr(0,path.find("."));
     dqm::qtests::QR_map test_map = me->getQReports();
     for (dqm::qtests::QR_map::const_iterator it = test_map.begin(); it != test_map.end();
 	 it++) {
       int status = it->second->getStatus();
-      if (status == dqm::qstatus::WARNING) test_status << " Warning : ";
-      else if (status == dqm::qstatus::ERROR) test_status << " Error : ";
-      else if (status == dqm::qstatus::STATUS_OK) test_status << " Ok : ";
-      else if (status == dqm::qstatus::OTHER) test_status << " Other(" << status << ") : ";
-      test_status << it->second->getMessage();
+      test_status << " QTest Status   ";
+      if (status == dqm::qstatus::WARNING) test_status << " Warning : " << endl;
+      else if (status == dqm::qstatus::ERROR) test_status << " Error : " << endl;
+      else if (status == dqm::qstatus::STATUS_OK) test_status << " Ok : " << endl;
+      else if (status == dqm::qstatus::OTHER) test_status << " Other(" << status << ") : " << endl;
+      string mess_str = it->second->getMessage();
+      //test_status << "&lt;br/&gt;";
+      mess_str = mess_str.substr(mess_str.find(" Test")+5);
+      //test_status << " QTest Name  : " << mess_str.substr(0, mess_str.find(")")+1) << endl;
+      //test_status << "&lt;br/&gt;";
+      test_status <<  " QTest Detail  : " << mess_str.substr(mess_str.find(")")+2) << endl;
     }      
   }
-  out->getHTTPResponseHeader().addHeader("Content-Type", "text/plain");
-  *out << test_status.str();
+  out->getHTTPResponseHeader().addHeader("Content-Type", "text/xml");
+  *out << "<?xml version=\"1.0\" ?>" << std::endl;
+  *out << "<StatusAndPath>" << endl;
+  *out << "<StatusList>" << endl;
+  *out << "<Status>" << test_status.str() << "</Status>" << endl;      
+  *out << "</StatusList>" << endl;
+  *out << "<PathList>" << endl;
+  *out << "<HPath>" << hpath << "</HPath>" << endl;   
+  *out << "</PathList>" << endl;
+  *out << "</StatusAndPath>" << endl;
 //cout<<"leaving SiPixelInformationExtractor::readStatusMessage"<<endl;
 }
 

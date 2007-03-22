@@ -1,12 +1,13 @@
 #include "DQM/SiPixelMonitorClient/interface/SiPixelWebClient.h"
 #include "DQM/SiPixelMonitorClient/interface/SiPixelActionExecutor.h"
+#include "DQMServices/ClientConfig/interface/QTestHandle.h"
 #include <SealBase/Callback.h>
 
 
 SiPixelWebClient::SiPixelWebClient(xdaq::ApplicationStub *stub) 
   : DQMBaseClient(
 		  stub,       // the application stub - do not change
-		  "test",     // the name by which the collector identifies the client
+		  "SiPixelClient",     // the name by which the collector identifies the client
 		  "localhost.cern.ch",// the name of the computer hosting the collector
 		  9090       // the port at which the collector listens
 		  )

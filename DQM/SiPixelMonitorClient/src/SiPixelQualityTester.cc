@@ -2,8 +2,8 @@
  *
  *  Implementation of SiPixelQualityTester
  *
- *  $Date: 2007/02/01 16:41:58 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/02/16 15:45:00 $
+ *  $Revision: 1.3 $
  *  \author Petra Merkel
  */
 #include "DQM/SiPixelMonitorClient/interface/SiPixelQualityTester.h"
@@ -39,15 +39,18 @@ SiPixelQualityTester::~SiPixelQualityTester() {
 void SiPixelQualityTester::setupQTests(MonitorUserInterface* mui) {
   if (theQTestMap.size() == 0) {
     readQualityTests("sipixel_qualitytest_config.xml");
+    cout<<"how many qtests found?"<<theQTestMap.size()<<endl;
   }
   for (SiPixelQualityTester::QTestMapType::iterator it = theQTestMap.begin();
        it != theQTestMap.end(); it++) {
     string qTestName = it->first;
     map<string, string> qTestParams = it->second;
     string qTestType = qTestParams[dqm::qtest_config::type];
-    if (qTestType == dqm::qtest_config::XRangeContent) {
+    if (qTestType == "ContentsXRange") {
       setXRangeTest(mui, qTestName, qTestParams);
-    } else if (qTestType == "MeanWithinExpectedROOT") {
+    } else if (qTestType == "ContentsYRange") {
+      setYRangeTest(mui, qTestName, qTestParams);
+    } else if (qTestType == "MeanWithinExpected") {
       setMeanWithinExpectedTest(mui, qTestName, qTestParams);
     }
   }
@@ -63,6 +66,8 @@ void SiPixelQualityTester::readQualityTests(string fname) {
   // Instantiate the parser and read tests 
   QTestConfigurationParser qTestParser;
   qTestParser.getDocument(fname);
+  bool fetchfile = qTestParser.parseQTestsConfiguration();
+  cout<<"file opened ok? "<<fetchfile<<"(if 0, no errors.)"<<endl;
   qTestParser.parseQTestsConfiguration();
   theQTestMap = qTestParser.testsList();
   theMeAssociateMap =  qTestParser.meToTestsList();
@@ -116,6 +121,26 @@ void SiPixelQualityTester::setXRangeTest(MonitorUserInterface * mui,
   me_qc->setErrorProb(atof(params["error"].c_str()));
 }
 //
+// -- Set up ContentsYRange test with it's parameters
+//
+void SiPixelQualityTester::setYRangeTest(MonitorUserInterface * mui, 
+                   string name, map<string, string>& params){
+  
+  QCriterion* qc = mui->createQTest(ContentsYRangeROOT::getAlgoName(),name);
+
+  MEContentsYRangeROOT * me_qc = (MEContentsYRangeROOT *) qc;
+  if (params.size() < 4) return;
+//  cout << " Setting Parameters for " <<ContentsXRangeROOT::getAlgoName() << endl; 
+  // set allowed range in X-axis (default values: histogram's X-range)
+  float ymin =  atof(params["ymin"].c_str());
+  float ymax =  atof(params["ymax"].c_str());
+  me_qc->setAllowedYRange(ymin, ymax);
+  //set probability limit for test warning 
+  me_qc->setWarningProb(atof(params["warning"].c_str()));
+  //set probability limit for test error 
+  me_qc->setErrorProb(atof(params["error"].c_str()));
+}
+//
 // -- Set up MeanWithinExpected test with it's parameters
 //
 void SiPixelQualityTester::setMeanWithinExpectedTest(MonitorUserInterface* mui,
@@ -130,9 +155,12 @@ void SiPixelQualityTester::setMeanWithinExpectedTest(MonitorUserInterface* mui,
   me_qc->setErrorProb(atof(params["error"].c_str()));
   // set Expected Mean
   me_qc->setExpectedMean(atof(params["mean"].c_str()));
+  float xmin =  atof(params["xmin"].c_str());
+  float xmax =  atof(params["xmax"].c_str());
   // set Test Type
   if (params["useRMS"] == "1") me_qc->useRMS();
   else if (params["useSigma"] != "0") me_qc->useSigma(atof(params["useSigma"].c_str()));
+  else if (params["useRange"] != "0") me_qc->useRange(xmin,xmax);
 }
 //
 // -- Get names of MEs under Quality Test

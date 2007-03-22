@@ -5,8 +5,8 @@
  * *
  *  Class that handles the SiPixel Quality Tests
  * 
- *  $Date: 2006/10/16 18:14:27 $
- *  $Revision: 0.0 $
+ *  $Date: 2006/10/19 14:11:47 $
+ *  $Revision: 1.1 $
  *  \author Petra Merkel
   */
 
@@ -43,6 +43,10 @@ class SiPixelQualityTester
   
   // Configures Test of type ContentsXRangeROOT 
   void setXRangeTest(MonitorUserInterface * mui, std::string name,
+        std::map<std::string, std::string>& params);
+
+  // Configures Test of type ContentsYRangeROOT 
+  void setYRangeTest(MonitorUserInterface * mui, std::string name,
         std::map<std::string, std::string>& params);
 
   // Configures Test of type MeanWithinExpectedROOT
