@@ -1,8 +1,8 @@
 /*
  * \file EBClusterClient.cc
  *
- * $Date: 2007/03/21 12:49:08 $
- * $Revision: 1.13 $
+ * $Date: 2007/03/21 21:08:39 $
+ * $Revision: 1.14 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -138,6 +138,40 @@ void EBClusterClient::setup(void) {
 void EBClusterClient::cleanup(void) {
 
   mui_->setCurrentFolder( "EcalBarrel/EBClusterClient" );
+
+  if ( cloneME_ ) {
+    if ( h01_[0] ) delete h01_[0];
+    if ( h01_[1] ) delete h01_[1];
+    if ( h01_[2] ) delete h01_[2];
+
+    if ( h02_ ) delete h02_;
+
+    if ( h03_ ) delete h03_;
+
+    if ( i01_[0] ) delete i01_[0];
+    if ( i01_[1] ) delete i01_[1];
+    if ( i01_[2] ) delete i01_[2];
+    
+    if ( i02_ ) delete i02_;
+
+    if ( i03_ ) delete i03_;
+  }
+
+  h01_[0] = 0;
+  h01_[1] = 0;
+  h01_[2] = 0;
+
+  h02_ = 0;
+
+  h03_ = 0;
+
+  i01_[0] = 0;
+  i01_[1] = 0;
+  i01_[2] = 0;
+
+  i02_ = 0;
+
+  i03_ = 0;
 
 }
 
