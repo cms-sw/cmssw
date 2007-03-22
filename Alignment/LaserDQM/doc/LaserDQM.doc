@@ -15,7 +15,7 @@
 \section desc Description
 <!-- Short description of what this package is supposed to provide -->
 
-(THE PACKAGE ADMINISTATOR SHOULD REPLACE THIS SENTENCE WITH HAND-WRITTEN DOCUMENTATION SAYING WHAT THE PACKAGE DOES.)
+Data Quality Monitoring (DQM) for the Laser Alignment System of the Tracker.
 
 \subsection interface Public interface
 <!-- List the classes that are provided for use in other packages (if any) -->
@@ -24,17 +24,22 @@
 \subsection modules Modules
 <!-- Describe modules implemented in this package and their parameter set -->
 
+- LaserDQM: monitor the signals from the laser beams.
+<pre>
+\htmlinclude LaserDQM.cfi
+</pre>
 
 \subsection tests Unit tests and examples
 <!-- Describe cppunit tests and example configuration files -->
-Unknown
+
+- LaserDQM.cfg: configuration file to run the DQM for the Laser Alignment System.
 
 \section status Status and planned development
 <!-- e.g. completed, stable, missing features -->
-Unknown
+Stable, might be extended in the future.
 
 <hr>
 Last updated:
-@DATE@  Author: computer-generated.
+@DATE@  Author: Maarten Thomas.
 */
 
