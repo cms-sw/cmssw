@@ -83,6 +83,7 @@ class SiStripCommissioningSource : public edm::EDAnalyzer {
 
   /** Name of digi input module. */
   std::string inputModuleLabel_;
+  std::string inputModuleLabelSummary_;
 
   /** Filename of output root file containing source histos. */
   std::string filename_;

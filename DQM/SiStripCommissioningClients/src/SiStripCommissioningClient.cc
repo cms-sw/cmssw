@@ -7,6 +7,7 @@
 #include "DQM/SiStripCommissioningClients/interface/FedTimingHistograms.h"
 #include "DQM/SiStripCommissioningClients/interface/OptoScanHistograms.h"
 #include "DQM/SiStripCommissioningClients/interface/VpspScanHistograms.h"
+#include "DQM/SiStripCommissioningClients/interface/FineDelayHistograms.h"
 #include "DQM/SiStripCommissioningClients/interface/PedestalsHistograms.h"
 #include "DQM/SiStripCommissioningClients/interface/DaqScopeModeHistograms.h"
 #include "DQM/SiStripCommissioningClients/interface/HistogramDisplayHandler.h"
@@ -237,15 +238,16 @@ void SiStripCommissioningClient::createHistograms( const sistrip::RunType& task 
   if ( histos_ ) { return; }
   
   // Create corresponding "commissioning histograms" object 
-  if      ( task == sistrip::APV_TIMING ) { histos_ = new ApvTimingHistograms( mui_ ); }
-  else if ( task == sistrip::FED_CABLING ) { histos_ = new FedCablingHistograms( mui_ ); }
-  else if ( task == sistrip::FED_TIMING ) { histos_ = new FedTimingHistograms( mui_ ); }
-  else if ( task == sistrip::OPTO_SCAN ) { histos_ = new OptoScanHistograms( mui_ ); }
-  else if ( task == sistrip::VPSP_SCAN ) { histos_ = new VpspScanHistograms( mui_ ); }
-  else if ( task == sistrip::PEDESTALS ) { histos_ = new PedestalsHistograms( mui_ ); }
-  else if ( task == sistrip::DAQ_SCOPE_MODE ) { histos_ = new DaqScopeModeHistograms( mui_ ); }
+  if      ( task == sistrip::APV_TIMING )         { histos_ = new ApvTimingHistograms( mui_ ); }
+  else if ( task == sistrip::FED_CABLING )        { histos_ = new FedCablingHistograms( mui_ ); }
+  else if ( task == sistrip::FED_TIMING )         { histos_ = new FedTimingHistograms( mui_ ); }
+  else if ( task == sistrip::OPTO_SCAN )          { histos_ = new OptoScanHistograms( mui_ ); }
+  else if ( task == sistrip::VPSP_SCAN )          { histos_ = new VpspScanHistograms( mui_ ); }
+  else if ( task == sistrip::PEDESTALS )          { histos_ = new PedestalsHistograms( mui_ ); }
+  else if ( task == sistrip::FINE_DELAY )         { histos_ = new FineDelayHistograms( mui_ ); }
+  else if ( task == sistrip::DAQ_SCOPE_MODE )     { histos_ = new DaqScopeModeHistograms( mui_ ); }
   else if ( task == sistrip::UNDEFINED_RUN_TYPE ) { histos_ = 0; }
-  else if ( task == sistrip::UNKNOWN_RUN_TYPE ) {
+  else if ( task == sistrip::UNKNOWN_RUN_TYPE )   {
     histos_ = 0;
     edm::LogWarning(mlDqmClient_)
       << "[SiStripCommissioningClient::" << __func__ << "]"
