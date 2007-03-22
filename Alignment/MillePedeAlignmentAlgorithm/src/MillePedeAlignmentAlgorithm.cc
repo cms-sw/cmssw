@@ -3,8 +3,8 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.13 $
- *  $Date: 2007/03/16 16:58:39 $
+ *  $Revision: 1.14 $
+ *  $Date: 2007/03/16 18:01:22 $
  *  (last update by $Author: flucke $)
  */
 
@@ -31,6 +31,7 @@
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentIORoot.h"
 
 #include "Alignment/CommonAlignment/interface/AlignableNavigator.h"
+#include "Alignment/CommonAlignment/interface/AlignableDet.h"
 
 #include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
 
