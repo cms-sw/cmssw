@@ -1,0 +1,19 @@
+<use name=DataFormats/Common>
+<use name=FWCore/Framework>
+<use name=Foundation/PluginManager>
+<use name=FWCore/ParameterSet>
+<use name=SimDataFormats/HepMCProduct>
+<use name=MagneticField/Engine>
+<use name=MagneticField/Records>
+<use name=RecoEgamma/EgammaElectronProducers>
+<use name=clhep>
+<use name=root>
+<flags SEAL_PLUGIN_NAME="RecoEgammaExamples">
+<export>
+  <use name=DataFormats/Common>
+  <use name=FWCore/Framework>
+  <use name=Foundation/PluginManager>
+  <use name=FWCore/ParameterSet>
+  <use name=SimDataFormats/HepMCProduct>
+  <lib name=RecoEgammaExamples>
+</export>
