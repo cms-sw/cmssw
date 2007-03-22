@@ -43,7 +43,8 @@ void CommissioningHistograms::createCollations( const std::vector<std::string>& 
   for ( idir = contents.begin(); idir != contents.end(); idir++ ) {
     
     // Ignore directories on client side
-    if ( idir->find("Collector") == std::string::npos ) { continue; }
+    if ( idir->find("Collector") == std::string::npos &&
+	 idir->find("EvF") == std::string::npos ) { continue; }
     
     // Extract directory paths
     std::string collector_dir = idir->substr( 0, idir->find(":") );
