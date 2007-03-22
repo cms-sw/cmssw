@@ -110,13 +110,13 @@ FBaseSimEvent::~FBaseSimEvent(){
 }
 
 void 
-FBaseSimEvent::initializePdt(const DefaultConfig::ParticleDataTable* aPdt) { 
+FBaseSimEvent::initializePdt(const HepPDT::ParticleDataTable* aPdt) { 
 
   pdt = aPdt; 
 
 }
 
-const DefaultConfig::ParticleDataTable*
+const HepPDT::ParticleDataTable*
 FBaseSimEvent::theTable() const {
   return pdt;
 }
@@ -346,8 +346,6 @@ FBaseSimEvent::addParticles(const HepMC::GenEvent& myGenEvent) {
   myFilter->setMainVertex(primaryVertexPosition+smearedVertex);
 
   // This is the smeared main vertex
-  //  GenVertex* mainVertex = new GenVertex(myFilter.vertex());
-  //  addSimVertex(mainVertex);
   int mainVertex = addSimVertex(myFilter->vertex());
 
   // Loop on the particles of the generated event
@@ -358,6 +356,7 @@ FBaseSimEvent::addParticles(const HepMC::GenEvent& myGenEvent) {
 
     // This is the generated particle pointer - for the signal event only
     GenParticle* p = *piter;
+
     if  ( !offset && nGenParts() != 20000 ) theGenParticles->push_back(p);
     // Keep only: 
     // 1) Stable particles
@@ -365,21 +364,25 @@ FBaseSimEvent::addParticles(const HepMC::GenEvent& myGenEvent) {
 
     // 2) or particles with stable daughters
     bool testDaugh = false;
-    GenVertex::particles_out_const_iterator firstDaughterIt = 
-      p->end_vertex()->particles_out_const_begin();
-    GenVertex::particles_out_const_iterator lastDaughterIt = 
-      p->end_vertex()->particles_out_const_end();
-    for ( ; firstDaughterIt != lastDaughterIt ; ++firstDaughterIt ) {
-      GenParticle* daugh = *firstDaughterIt;
-      if ( daugh->status()==1 ) {
-	testDaugh=true;
-	break;
+    if ( !testStable && 
+	 p->end_vertex() && 
+	 p->end_vertex()->particles_out_size() ) { 
+      GenVertex::particles_out_const_iterator firstDaughterIt = 
+	p->end_vertex()->particles_out_const_begin();
+      GenVertex::particles_out_const_iterator lastDaughterIt = 
+	p->end_vertex()->particles_out_const_end();
+      for ( ; firstDaughterIt != lastDaughterIt ; ++firstDaughterIt ) {
+	GenParticle* daugh = *firstDaughterIt;
+	if ( daugh->status()==1 ) {
+	  testDaugh=true;
+	  break;
+	}
       }
     }
 
     // 3) or particles that fly more than one micron.
     double dist = 0.;
-    if ( p->production_vertex() ) {
+    if ( !testStable && !testDaugh && p->production_vertex() ) {
       HepLorentzVector 
 	productionVertexPosition(p->production_vertex()->position().x()/10.,
 				 p->production_vertex()->position().y()/10.,
@@ -391,23 +394,10 @@ FBaseSimEvent::addParticles(const HepMC::GenEvent& myGenEvent) {
 
     // Save the corresponding particle and vertices
     if ( testStable || testDaugh || testDecay ) {
-
-      // The particle is the copy of the original
-      //      GenParticle* part = 
-      //	new GenParticle(p->momentum(),
-      //			p->pdg_id(),
-      //			p->status(),
-      //			p->flow(),
-      //			p->polarization());
-
-      // The origin vertex is either the primary, 
-      // or the end vertex of the mother, if saved
-      //      GenVertex* originVertex = 
-      //	p->mother() &&  
-      //	myGenVertices.find(p->mother()) != myGenVertices.end() ? 
-      //      	originVertex = myGenVertices[p->mother()] : mainVertex;
+      
       const GenParticle* mother = p->production_vertex() ?
 	*(p->production_vertex()->particles_in_const_begin()) : 0;
+
       int originVertex = 
 	mother &&  
 	myGenVertices.find(mother) != myGenVertices.end() ? 
@@ -426,11 +416,6 @@ FBaseSimEvent::addParticles(const HepMC::GenEvent& myGenEvent) {
       // It there an end vertex ?
       if ( !p->end_vertex() ) continue; 
 
-      // If yes, create it
-      //      GenVertex* decayVertex = 
-      //	new GenVertex(p->end_vertex()->position()
-      //		      +mainVertex->position());
-
       // Add the vertex to the event and to the various lists
       HepLorentzVector decayVertex = 
 	HepLorentzVector(p->end_vertex()->position().x()/10.,
@@ -440,16 +425,12 @@ FBaseSimEvent::addParticles(const HepMC::GenEvent& myGenEvent) {
 	vertex(mainVertex).position();
       int theVertex = addSimVertex(decayVertex,theTrack);
 
-      // And record it for later use 
-      //      if ( theVertex != -1 ) myGenVertices[p] = decayVertex;
       if ( theVertex != -1 ) myGenVertices[p] = theVertex;
 
       // There we are !
 
     }
   }
-
-  //  printMCTruth(*this);
 
 }
 
@@ -544,13 +525,16 @@ FBaseSimEvent::printMCTruth(const HepMC::GenEvent& myGenEvent) {
     } else {
       name = "none";
     }
-       
+  
     HepLorentzVector momentum1(p->momentum().px(),
 			       p->momentum().py(),
 			       p->momentum().pz(),
 			       p->momentum().e());
+
     int vertexId1 = 0;
+
     if ( !p->production_vertex() ) continue;
+
     Hep3Vector vertex1 = Hep3Vector(p->production_vertex()->position().x()/10.,
 				    p->production_vertex()->position().y()/10.,
 				    p->production_vertex()->position().z()/10.);
@@ -580,7 +564,7 @@ FBaseSimEvent::printMCTruth(const HepMC::GenEvent& myGenEvent) {
       *(p->production_vertex()->particles_in_const_begin());
 
     if ( mother )
-      cout << setw(4) << mother->barcode() << " ";
+      cout << setw(4) << mother->barcode()-1 << " ";
     else 
       cout << "     " ;
     
@@ -590,18 +574,27 @@ FBaseSimEvent::printMCTruth(const HepMC::GenEvent& myGenEvent) {
 			       p->end_vertex()->position().z()/10.,
 			       p->end_vertex()->position().t()/10.);
       int vertexId2 = p->end_vertex()->barcode();
-      
-      GenParticle* firstDaughter 
-	= *(p->end_vertex()->particles_out_const_begin());
-      GenParticle* lastDaughter 
-	= *(p->end_vertex()->particles_out_const_end()--);
+
+      vector<const GenParticle*> children;
+      GenVertex::particles_out_const_iterator firstDaughterIt = 
+        p->end_vertex()->particles_out_const_begin();
+      GenVertex::particles_out_const_iterator lastDaughterIt = 
+        p->end_vertex()->particles_out_const_end();
+      for ( ; firstDaughterIt != lastDaughterIt ; ++firstDaughterIt ) {
+	children.push_back(*firstDaughterIt);
+      }      
+      //      const GenParticle* firstDaughter = children[0];
+      //      const GenParticle* lastDaughter = children[children.size()-1]; 
+
       cout << setw(4) << vertexId2 << " "
 	   << setw(6) << setprecision(2) << vertex2.eta() << " " 
 	   << setw(6) << setprecision(2) << vertex2.phi() << " " 
 	   << setw(5) << setprecision(1) << vertex2.perp() << " " 
-	   << setw(6) << setprecision(1) << vertex2.z() << " "
-	   << setw(4) << firstDaughter->barcode() << " " 
-	   << setw(4) << lastDaughter->barcode() << " ";
+	   << setw(6) << setprecision(1) << vertex2.z() << " ";
+      for ( unsigned id=0; id<children.size(); ++id )
+	cout << setw(4) << children[id]->barcode()-1 << " ";
+      //	   << setw(4) << firstDaughter->barcode()-1 << " " 
+      //	   << setw(4) << lastDaughter->barcode()-1 << " ";
     }
     cout << endl;
 

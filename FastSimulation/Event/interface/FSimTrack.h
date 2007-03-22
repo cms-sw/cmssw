@@ -40,7 +40,7 @@ class FSimTrack : public SimTrack {
   virtual ~FSimTrack();
 
   /// particle info...
-  const DefaultConfig::ParticleData* particleInfo() const;
+  const HepPDT::ParticleData* particleInfo() const;
   
   /// four momentum
   //inline HepLorentzVector momentum() const { return me().momentum(); }

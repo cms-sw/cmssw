@@ -4,7 +4,7 @@ ParticleTable*
 ParticleTable::myself=0; 
 
 ParticleTable* 
-ParticleTable::instance(const DefaultConfig::ParticleDataTable* pdt) {
+ParticleTable::instance(const HepPDT::ParticleDataTable* pdt) {
   if (!myself) myself = new ParticleTable(pdt);
   return myself;
 }

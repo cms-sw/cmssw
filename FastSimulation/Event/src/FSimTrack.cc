@@ -32,7 +32,7 @@ FSimTrack::~FSimTrack() {
   //  theSimHits.clear();
 }
 
-const DefaultConfig::ParticleData*
+const HepPDT::ParticleData*
 FSimTrack::particleInfo() const {
   return mom_->theTable()->particle(ParticleID(type()));
 }

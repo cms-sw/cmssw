@@ -111,7 +111,7 @@ FamosManager::~FamosManager()
 void FamosManager::setupGeometryAndField(const edm::EventSetup & es)
 {
   // Particle data table (from Pythia)
-  edm::ESHandle < DefaultConfig::ParticleDataTable > pdt;
+  edm::ESHandle < HepPDT::ParticleDataTable > pdt;
   es.getData(pdt);
   mySimEvent->initializePdt(&(*pdt));
   ParticleTable::instance(&(*pdt));
@@ -171,8 +171,8 @@ FamosManager::reconstruct(const HepMC::GenEvent* evt) {
 
     // Fill the event from the original generated event
     mySimEvent->fill(*evt,id);
-    mySimEvent->printMCTruth(*evt);
-    std::cout << "----------------------------------------" << std::endl;
+    //    mySimEvent->printMCTruth(*evt);
+    //    std::cout << "----------------------------------------" << std::endl;
 
     // Get the pileup events and add the particles to the main event
     if ( myPileUpProducer ) myPileUpProducer->produce();
@@ -180,10 +180,10 @@ FamosManager::reconstruct(const HepMC::GenEvent* evt) {
 
     // And propagate the particles through the detector
     myTrajectoryManager->reconstruct();
-    mySimEvent->print();
-    std::cout << "=========================================" 
-	      << std::endl
-	      << std::endl;
+    //    mySimEvent->print();
+    //    std::cout << "=========================================" 
+    //	      << std::endl
+    //	      << std::endl;
 
     if ( myCalorimetry ) myCalorimetry->reconstruct();
 

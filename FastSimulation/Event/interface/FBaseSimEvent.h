@@ -53,10 +53,10 @@ public:
   ~FBaseSimEvent();
 
   /// Initialize the particle data table
-  void initializePdt(const DefaultConfig::ParticleDataTable* aPdt);
+  void initializePdt(const HepPDT::ParticleDataTable* aPdt);
 
   /// Get the pointer to the particle data table
-  const DefaultConfig::ParticleDataTable* theTable() const;
+  const HepPDT::ParticleDataTable* theTable() const;
 
   /// fill the FBaseSimEvent from the current HepMC::GenEvent
   void fill(const HepMC::GenEvent& hev);
@@ -139,7 +139,7 @@ public:
   double sigmaVerteY;
   double sigmaVerteZ;
 
-  const DefaultConfig::ParticleDataTable * pdt;
+  const ParticleDataTable * pdt;
 
   PrimaryVertexGenerator* theVertexGenerator;
 
