@@ -18,14 +18,16 @@
 // ----------------------------------------------------------------------
 
 #include <iostream>
+#include <fstream>
 // header
 #include "IOMC/ParticleGuns/interface/FlatEGunASCIIWriter.h"
 
 // essentials !!!
 #include "FWCore/Framework/interface/Event.h"
-// #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Utilities/interface/Exception.h"
+
+#include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 
 #include "CLHEP/Random/RandFlat.h"
 
@@ -34,9 +36,7 @@ using namespace std;
       
 FlatEGunASCIIWriter::FlatEGunASCIIWriter( const ParameterSet& pset )
    : fEvt(0), 
-     fPDGTable( new HepPDT::ParticleDataTable("PDG Table") ),
      fOutFileName( pset.getUntrackedParameter<string>("OutFileName","FlatEGunHepMC.dat") ),
-     fOutStream( new ofstream( fOutFileName.c_str() ) ),
      fCurrentEvent(0)
 {
       
@@ -49,26 +49,6 @@ FlatEGunASCIIWriter::FlatEGunASCIIWriter( const ParameterSet& pset )
   fMinE       = pgun_params.getParameter<double>("MinE");
   fMaxE       = pgun_params.getParameter<double>("MaxE");
   
-    
-  // 
-  // fPDGTablePath = "/afs/cern.ch/sw/lcg/external/clhep/1.9.2.1/slc3_ia32_gcc323/data/HepPDT/" ;
-  string HepPDTBase( getenv("HEPPDT_PARAM_PATH") ) ; 
-  fPDGTablePath = HepPDTBase + "/data/" ;
-  fPDGTableName = "PDG_mass_width_2004.mc";
-
-
-  string TableFullName = fPDGTablePath + fPDGTableName ;
-  ifstream PDFile( TableFullName.c_str() ) ;
-  if( !PDFile ) 
-  {
-      throw cms::Exception("FileNotFound", "FlatEGunASCIIWriter::FlatEGunASCIIWriter()")
-	<< "File " << TableFullName << " cannot be opened.\n";
-  }
-
-  HepPDT::TableBuilder tb(*fPDGTable) ;
-  if ( !addPDGParticles( PDFile, tb ) ) { cout << " Error reading PDG !" << endl; }
-  // the tb dtor fills fPDGTable
-
   cout << "HepMC Particle Gun ASCII Writer is initialized" << endl ;
   cout << "Requested # of Particles : " << fPartIDs.size() << endl ;
             
@@ -78,31 +58,22 @@ FlatEGunASCIIWriter::~FlatEGunASCIIWriter()
 {
    
   if ( fEvt != NULL ) delete fEvt ;
-  delete fPDGTable;
-  delete fOutStream ;
+  delete fOutStream;
 
 }
 
-void FlatEGunASCIIWriter::beginJob( const EventSetup& )
+void FlatEGunASCIIWriter::beginJob( const EventSetup& es)
 {
 
-/*
-  string TableFullName = fPDGTablePath + fPDGTableName ;
-  ifstream PDFile( TableFullName.c_str() ) ;
-  if( !PDFile ) 
-  {
-      throw cms::Exception("FileNotFound", "FlatEGunASCIIWriter::beginJob()")
-	<< "File " << TableFullName << " cannot be opened.\n";
-  }
+  es.getData( fPDGTable );
 
-  HepPDT::TableBuilder tb(*fPDGTable) ;
-  if ( !addPDGParticles( PDFile, tb ) ) { cout << " Error reading PDG !" << endl; }
-  // the tb dtor fills fPDGTable
-*/
-   fPDGTable->writeParticleData( *fOutStream ) ;
-   //HepMC::writeLegend( *fOutStream ) ;
-   
-   return ;
+  fOutStream = new HepMC::IO_Ascii( fOutFileName.c_str() ); 
+  if ( fOutStream->rdstate() == std::ios::failbit ) {
+    throw cms::Exception("FileNotOpen", "FlatEGunASCIIWriter::beginJob()")
+      << "File " << fOutFileName << " was not open.\n";
+  }
+  
+  return ;
 
 }
 
@@ -157,8 +128,8 @@ void FlatEGunASCIIWriter::analyze( const Event& ,
    // for testing purpose only
    // fEvt->print() ;     
 
-   (*fOutStream) << fEvt ;
-   
+   fOutStream->write_event( fEvt );
+
    fCurrentEvent++ ;
 
    return ;

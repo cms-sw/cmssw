@@ -19,13 +19,15 @@
 #include <string>
 
 #include "HepPDT/defs.h"
-//#include "HepPDT/DefaultConfig.hh"
 #include "HepPDT/TableBuilder.hh"
 #include "HepPDT/ParticleDataTable.hh"
 
 #include "HepMC/GenEvent.h"
+#include "HepMC/IO_Ascii.h"
 
-//#include "HepMC/WriteHepMC.h"
+#include "FWCore/Framework/interface/GeneratedInputSource.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 
 namespace edm 
 {
@@ -35,47 +37,43 @@ namespace edm
 
       public:
 
-         // The following is not yet used, but will be the primary
-         // constructor when the parameter set system is available.
-         //
-         explicit FlatEGunASCIIWriter( const edm::ParameterSet& ) ;
-
-         virtual ~FlatEGunASCIIWriter() ;
-
-         virtual void analyze(  const edm::Event&, const edm::EventSetup& );
+     // The following is not yet used, but will be the primary
+     // constructor when the parameter set system is available.
+     //
+     explicit FlatEGunASCIIWriter( const edm::ParameterSet& ) ;
+     
+     virtual ~FlatEGunASCIIWriter() ;
+     
+     virtual void analyze(  const edm::Event&, const edm::EventSetup& );
 	 virtual void beginJob( const EventSetup& ) ;
-
-      private:
-      
-
-         // gun particle(s) characteristics
-         std::vector<int>        fPartIDs ;
-         double                  fMinEta ;
-         double                  fMaxEta ;
-         double                  fMinPhi ;
-         double                  fMaxPhi ;
-         double                  fMinE   ;
-         double                  fMaxE   ;
-
-         // the event format itself
-         HepMC::GenEvent*  fEvt;
-
-
-         // HepMC/HepPDT related things 
-         // (for particle/event construction)
-         std::string    fPDGTablePath ;
-         std::string    fPDGTableName ; 
-         //DefaultConfig::ParticleDataTable* fPDGTable;
-	 HepPDT::ParticleDataTable* fPDGTable ;
+     
+   private:
+     
+     
+     // gun particle(s) characteristics
+     std::vector<int>        fPartIDs ;
+     double                  fMinEta ;
+     double                  fMaxEta ;
+     double                  fMinPhi ;
+     double                  fMaxPhi ;
+     double                  fMinE   ;
+     double                  fMaxE   ;
+     
+     // the event format itself
+     HepMC::GenEvent*  fEvt;
+     
+     
+     // HepMC/HepPDT related things 
+     ESHandle<HepPDT::ParticleDataTable> fPDGTable ;
 	 
-         std::string    fOutFileName;
-	 std::ofstream* fOutStream ;
-	 
-	 int            fCurrentEvent ; // event counter - untill I learn how to get it
+     std::string    fOutFileName;
+     HepMC::IO_Ascii * fOutStream ;
+     
+     int            fCurrentEvent ; // event counter - untill I learn how to get it
 	                                // from edm::Event ) EventID ??? or what ?)
-
+     
    };
-
+   
 }
 
 #endif
