@@ -1,5 +1,6 @@
 <flags SEAL_PLUGIN_NAME="DQMDTMonitorClient">
 <use name=FWCore/Framework>
+<use name=DataFormats/FEDRawData>
 <use name=DQMServices/CoreROOT>
 <use name=CondFormats/DTObjects>
 <use name=CalibMuon/DTCalibration>
