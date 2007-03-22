@@ -105,21 +105,21 @@ public:
   /// is precise error calculation switched on 
   bool  isPrecise() const { return thePrecise; }
 
+  virtual std::vector<ctfseeding::SeedingHit> hits(
+      const edm::Event& ev,  
+      const edm::EventSetup& es, 
+      const ctfseeding::SeedingLayer* layer) const;
 
-  //  virtual vector<RecHit> hits(const DetLayer* layer) const;
-
-  virtual HitRZCompatibility* checkRZ(const DetLayer* layer, 
-				      const TrackingRecHit*  outerHit,
-				      const edm::EventSetup& iSetup) const;
+  virtual HitRZCompatibility* checkRZ(
+      const DetLayer* layer, 
+      const TrackingRecHit*  outerHit,
+      const edm::EventSetup& iSetup) const;
 
   virtual RectangularEtaPhiTrackingRegion* clone() const { 
     return new RectangularEtaPhiTrackingRegion(*this);
   }
 
-  static std::string const & name() 
-    { static std::string local("RectangularEtaPhiTrackingRegion"); return local; }
-  virtual std::string const & getName() const {return name();}
-
+  virtual std::string name() const { return "RectangularEtaPhiTrackingRegion"; }
 
 private:
 

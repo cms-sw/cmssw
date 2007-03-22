@@ -12,6 +12,7 @@
 #include "RecoTracker/TkTrackingRegions/interface/OuterHitPhiPrediction.h"
 #include "RecoTracker/TkTrackingRegions/interface/HitRZCompatibility.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
+#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 class OuterHitCompatibility {
 public:
 
@@ -29,6 +30,7 @@ public:
    { delete theRZCompatibility; }  
 
 
+  bool operator() (const TransientTrackingRecHit * hit) const;
   bool operator() (const TrackingRecHit* hit,  const edm::EventSetup& iSetup) const;
 
   bool checkPhi(const float & phi, const float & r) const;

@@ -15,6 +15,7 @@
 #include "TrackingTools/GeomPropagators/interface/StraightLinePlaneCrossing.h"
 
 
+
 CombinatorialSeedGeneratorForCosmics::CombinatorialSeedGeneratorForCosmics(edm::ParameterSet const& conf): 
   isFirstCall(true), conf_(conf),meanRadius(0)
 {
@@ -134,7 +135,7 @@ CombinatorialSeedGeneratorForCosmics::init(const SiStripRecHit2DCollection &coll
 		std::vector<const TrackingRecHit*>::const_iterator iInnerHit;
 		for (iInnerHit = inner->recHits().begin(); iInnerHit != inner->recHits().end(); iInnerHit++){
 			if ((*iInnerHit) && (*iOuterHit)){
-			  HitPairs.push_back( OrderedHitPair(*iInnerHit, *iOuterHit) );
+			  HitPairs.push_back( OrderedHitPair(ctfseeding::SeedingHit(*iInnerHit,iSetup), ctfseeding::SeedingHit(*iOuterHit,iSetup) ) );
 			}
 		}
 	}
@@ -160,9 +161,9 @@ void CombinatorialSeedGeneratorForCosmics::seeds(TrajectorySeedCollection &outpu
 				    const edm::EventSetup& iSetup){
 	for(uint is=0;is<HitPairs.size();is++){
 		//inner point position in global coordinates
-    		GlobalPoint inner = tracker->idToDet(HitPairs[is].inner()->geographicalId())->surface().toGlobal(HitPairs[is].inner()->localPosition());
+    		GlobalPoint inner = tracker->idToDet(HitPairs[is].inner().RecHit()->geographicalId())->surface().toGlobal(HitPairs[is].inner().RecHit()->localPosition());
 		//outer point position in global coordinates 
-    		GlobalPoint outer = tracker->idToDet(HitPairs[is].outer()->geographicalId())->surface().toGlobal(HitPairs[is].outer()->localPosition());
+    		GlobalPoint outer = tracker->idToDet(HitPairs[is].outer().RecHit()->geographicalId())->surface().toGlobal(HitPairs[is].outer().RecHit()->localPosition());
     		edm::OwnVector<TrackingRecHit> hits;
 		//for the moment the seed is only built from hits at positive y
 		//the inner hit must have a y less than the outer hit		
@@ -175,27 +176,27 @@ void CombinatorialSeedGeneratorForCosmics::seeds(TrajectorySeedCollection &outpu
                         const TrackingRecHit* firstHit;
 			const TrackingRecHit* secondHit;
 			//if hits are in endcaps we are seeding in the TEC
-			if ( (StripSubdetector(HitPairs[is].inner()->geographicalId()).subdetId()==StripSubdetector::TEC) && 
-			   (StripSubdetector(HitPairs[is].outer()->geographicalId()).subdetId()==StripSubdetector::TEC) ){
+			if ( (StripSubdetector(HitPairs[is].inner().RecHit()->geographicalId()).subdetId()==StripSubdetector::TEC) && 
+			   (StripSubdetector(HitPairs[is].outer().RecHit()->geographicalId()).subdetId()==StripSubdetector::TEC) ){
 				dir = alongMomentum;
 				firstPoint = &outer;
-				firstHit = HitPairs[is].outer();
-				secondHit = HitPairs[is].inner();
-			} else if ( ((StripSubdetector(HitPairs[is].inner()->geographicalId()).subdetId()==StripSubdetector::TOB)&&(StripSubdetector(HitPairs[is].outer()->geographicalId()).subdetId()==StripSubdetector::TOB)) 
+				firstHit = HitPairs[is].outer().RecHit();
+				secondHit = HitPairs[is].inner().RecHit();
+			} else if ( ((StripSubdetector(HitPairs[is].inner().RecHit()->geographicalId()).subdetId()==StripSubdetector::TOB)&&(StripSubdetector(HitPairs[is].outer().RecHit()->geographicalId()).subdetId()==StripSubdetector::TOB)) 
 				|| 
-				     ((StripSubdetector(HitPairs[is].inner()->geographicalId()).subdetId()==StripSubdetector::TIB)&&(StripSubdetector(HitPairs[is].outer()->geographicalId()).subdetId()==StripSubdetector::TIB)) ){//seed in the barrel
+				     ((StripSubdetector(HitPairs[is].inner().RecHit()->geographicalId()).subdetId()==StripSubdetector::TIB)&&(StripSubdetector(HitPairs[is].outer().RecHit()->geographicalId()).subdetId()==StripSubdetector::TIB)) ){//seed in the barrel
 				//if the inner hit is at a radius < meanRadius we are building a seed from inner layers
 	                        //prop direction and hit order enstablished accordingly
 				if ( (inner.perp() < meanRadius) ){
                                 	dir = oppositeToMomentum;
                                 	firstPoint = &inner;
-                                	firstHit = HitPairs[is].inner();
-					secondHit = HitPairs[is].outer();
+                                	firstHit = HitPairs[is].inner().RecHit();
+					secondHit = HitPairs[is].outer().RecHit();
                         	} else if ( (outer.perp() > meanRadius)) {  // otherwise we are building a seed from outer layers
                                 	dir = alongMomentum;
                                 	firstPoint = &outer;
-                                	firstHit = HitPairs[is].outer();
-					secondHit = HitPairs[is].inner();
+                                	firstHit = HitPairs[is].outer().RecHit();
+					secondHit = HitPairs[is].inner().RecHit();
                         	} else {edm::LogError("CombinatorialSeedGeneratorForCosmics::seeds") << "unable to determine direction outer " << outer.perp()	<< " inner " << inner.perp() ; return;}			
 			} else {
 				edm::LogError("CombinatorialSeedGeneratorForCosmics::seeds") << "This pair is not implemented for seeding";
