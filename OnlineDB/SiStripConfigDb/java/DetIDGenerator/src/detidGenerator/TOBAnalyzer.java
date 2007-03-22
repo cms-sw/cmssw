@@ -93,6 +93,7 @@ public class TOBAnalyzer implements IDetIdGenerator{
 	int half = Integer.parseInt(dbPos[0]);
 	if(half==2)
 	    half=0;
+	half++; // 1:TOB- 2:TOB+
 	return(dbPos[1]+"."+half+"."+rodPosition);//Layer.backForw.Rod
     }
 

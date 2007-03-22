@@ -7,9 +7,13 @@ package detidGenerator;
 **/
 
 /*
-  $Date: 2006/08/30 15:21:12 $
+  $Date: 2006/08/31 15:24:29 $
   
   $Log: TOBDetIdConverter.java,v $
+  Revision 1.3  2006/08/31 15:24:29  gbaulieu
+  The TOBCS are directly in the TOB
+  Correction on the Stereo flag
+
   Revision 1.2  2006/08/30 15:21:12  gbaulieu
   Add the TOB analyzer
 
@@ -30,17 +34,20 @@ public class TOBDetIdConverter extends DetIdConverter{
     private int moduleNumber;
     private int stereo;
 
-    private final short layerStartBit =     16;
-    private final short rod_fw_bwStartBit = 15;
-    private final short rodStartBit =        8;
-    private final short detStartBit =        2;
-    private final short sterStartBit =       0;
+    /// two bits would be enough, but  we could use the number "0" as a wildcard
+    private final short layerStartBit =     14;
+    private final short rod_fw_bwStartBit = 12;
+    private final short rodStartBit =       5;
+    private final short detStartBit =    2;
+    private final short sterStartBit =      0;
+    /// two bits would be enough, but  we could use the number "0" as a wildcard
 
-    private final short layerMask =       0xF;
-    private final short rod_fw_bwMask =   0x1;
+    private final short layerMask =       0x7;
+    private final short rod_fw_bwMask =   0x3;
     private final short rodMask =         0x7F;
-    private final short detMask =         0x3F;
+    private final short detMask =      0x7;
     private final short sterMask =        0x3;
+
 
     public TOBDetIdConverter(int l, int fb, int r, int mn, int s){
 	super(1, 5);
@@ -111,7 +118,7 @@ public class TOBDetIdConverter extends DetIdConverter{
 
     public String toString(){
 	return "TOB"+
-	    ((getFrontBack()==1)?"+":"-")+
+	    ((getFrontBack()==2)?"+":"-")+
 	    " Layer "+getLayer()+" "+
 	    " Rod "+getRod()+
 	    " module "+getModNumber()+

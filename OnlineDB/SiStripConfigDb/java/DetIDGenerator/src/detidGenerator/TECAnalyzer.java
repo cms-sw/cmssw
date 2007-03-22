@@ -11,9 +11,13 @@ import java.util.ArrayList;
  */
 
 /*
-  $Date: 2006/06/28 11:42:24 $
+  $Date: 2007/01/18 17:04:45 $
   
   $Log: TECAnalyzer.java,v $
+  Revision 1.2  2007/01/18 17:04:45  gbaulieu
+  Use an external library for database connections
+  Use preparedStatements to speed up the queries
+
   Revision 1.1  2006/06/28 11:42:24  gbaulieu
   First import of the sources
 
@@ -125,7 +129,7 @@ public class TECAnalyzer implements IDetIdGenerator{
 						      CRID+"' and number_in_container="+(forward?"1":"2"));
 	    //Get the front or back petal
 	    for(int j=0;j<v2.size();j++){
-		String nDetID = detID+(forward?".1.":".0.");
+		String nDetID = detID+(forward?".2.":".1.");
 		if(tec!=1 || (tec==1 && !forward))
 		    nDetID += sector;
 		else//TEC- forward : shift in the petal numbering (Sector 1 contains B1 and F2)
