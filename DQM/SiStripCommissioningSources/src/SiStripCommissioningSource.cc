@@ -167,11 +167,11 @@ void SiStripCommissioningSource::endJob() {
   // ---------- Delete histograms ----------
   
   // Remove all MonitorElements in "SiStrip" dir and below
-  dqm()->rmdir(sistrip::root_);
+  // dqm()->rmdir(sistrip::root_);
 
   // Delete histogram objects
-  clearCablingTasks();
-  clearTasks();
+  // clearCablingTasks();
+  // clearTasks();
   
   // ---------- Delete cabling ----------
 
