@@ -10,8 +10,8 @@
 *  always invoke the method initialize before starting using the interface
 *  it exposes.
 *
-*  $Date: 2005/08/19 09:01:43 $
-*  $Revision: 1.2 $
+*  $Date: 2005/10/05 04:45:33 $
+*  $Revision: 1.1 $
 *  \author G. Bruno - CERN, EP Division
 */   
 #include <iostream>
@@ -20,8 +20,8 @@
 #include <fstream>
 #include <string>
 #include <algorithm>
-#include "CLHEP/HepMC/ReadHepMC.h"
-#include "CLHEP/HepMC/GenEvent.h"
+#include "HepMC/GenEvent.h"
+#include "HepMC/IO_Ascii.h"
 
 class HepMCFileReader {
 	
@@ -63,7 +63,7 @@ class HepMCFileReader {
 	// current  HepMC evt
 	HepMC::GenEvent * evt;
 	bool initialized_;
-	std::ifstream * input_;
+        HepMC::IO_Ascii * input_;
       	// # of particles in evt
 	int  nParticles;
 

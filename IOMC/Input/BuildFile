@@ -1,13 +1,11 @@
-<use name=boost>
 <use name=FWCore/Framework>
+<use name=FWCore/ParameterSet>
+<use name=FWCore/Utilities>
+<use name=Foundation/PluginManager>
 <use name=SimDataFormats/HepMCProduct>
-<use name=clhep> 
-<flags SEAL_PLUGIN_NAME="IOMCInput">
+<use name=hepmc>
 <export>
- <lib name=IOMCInput>
- <use name=boost>
- <use name=FWCore/Framework>
- <use name=SimDataFormats/HepMCProduct>
- <use name=clhep> 
+  <use name=FWCore/Framework>
+  <use name=hepmc>
+  <lib name=IOMCInput>
 </export>
-

@@ -2,15 +2,15 @@
 *  See header file for a description of this class.
 *
 *
-*  $Date: 2006/04/25 16:33:45 $
-*  $Revision: 1.3 $
+*  $Date: 2006/09/20 13:21:39 $
+*  $Revision: 1.4 $
 *  \author Jo. Weng  - CERN, Ph Division & Uni Karlsruhe
 */
 #include "IOMC/Input/interface/HepMCFileReader.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-#include "CLHEP/HepMC/ReadHepMC.h"
-#include "CLHEP/HepMC/GenEvent.h"
+#include "CLHEP/Units/PhysicalConstants.h"
+
 #include<iostream>
 
 using namespace std;
@@ -42,12 +42,10 @@ HepMCFileReader::HepMCFileReader(): initialized_(false), input_(0), index_to_par
 
 
 HepMCFileReader::~HepMCFileReader(){ 
-	//if ( infoV ) cout << "Destructing HepMCFileReader" << endl;
 	cout << "Destructing HepMCFileReader" << endl;
 	
 	if(input_) {
-		input_->close();
-		delete input_;
+      delete input_;
 	}
 	instance_=0;    
 	
@@ -63,13 +61,12 @@ void HepMCFileReader::initialize(const string & filename){
 	if (initialized_) {
 		cout << "HepMCFileReader was already initialized... reinitializing it " << endl;
 		if(input_) {
-			input_->close();
-			delete input_;
+          delete input_;
 		}		
 	}
 	cout<<"HepMCFileReader::initialize : Opening file "<<filename<<endl;	
-	input_ = new ifstream(filename.c_str(), ios::in | ios::binary);
-	if(! (*input_)) {
+        input_ = new HepMC::IO_Ascii(filename.c_str(), std::ios::in);
+        if (input_->rdstate() == std::ios::failbit) {
 		throw cms::Exception("FileNotFound", "HepMCFileReader::initialize()")
 		<< "File " << filename << " was not found.\n";
 	}
@@ -85,7 +82,7 @@ bool HepMCFileReader::isInitialized(){
 
 bool  HepMCFileReader::readCurrentEvent() {
 	bool filter=false;
-	evt = HepMC::readGenEvent( *input_);
+        evt = input_->read_next_event();
 	if (evt){ 
 		cout <<"| --- HepMCFileReader: Event Nr. "  <<evt->event_number() <<" with " <<evt->particles_size()<<" particles --- !" <<endl;	
 		nParticles= evt->particles_size();
@@ -227,8 +224,8 @@ int j) const {
 		pid = index_to_particle[j]->pdg_id();
 		if ( index_to_particle[j]->production_vertex() ) {
 			
-			HepLorentzVector p = index_to_particle[j]->
-			production_vertex()->position();
+          //HepLorentzVector p = index_to_particle[j]->
+          //production_vertex()->position();
 			
 			int num_mothers = index_to_particle[j]->production_vertex()->
 			particles_in_size();
@@ -245,7 +242,7 @@ int j) const {
 			mo1 =0;
 			mo2 =0;
 		}		
-		if (index_to_particle[j]->hasChildren()) {
+		if (!index_to_particle[j]->end_vertex()) {
 			//find # of 1. daughter
 			int first_daughter = find_in_map( particle_to_index,
 			*(index_to_particle[j]->end_vertex()->particles_begin(HepMC::children)));
