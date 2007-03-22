@@ -288,7 +288,23 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
     ++vertexIndex;
   } // Loop on MixCollection<SimVertex>
 
-  edm::LogInfo(MessageCategory) << "TrackingTruth found "  << tVC -> size()
+// Find HepMC vertices, put them in a close TrackingVertex (this could conceivably add the same GenVertex to multiple TrackingVertices)
+  for (HepMC::GenEvent::vertex_const_iterator genVIt = genEvent->vertices_begin(); genVIt != genEvent->vertices_end(); ++genVIt) {
+    HepLorentzVector pos = (**genVIt).position()/10.0;
+    for (TrackingVertexCollection::iterator iTrkVtx = tVC -> begin(); iTrkVtx != tVC ->end(); ++iTrkVtx) {
+      double distance = HepLorentzVector(iTrkVtx -> position() - pos).v().mag();
+      if (distance <= distanceCut_) {
+         TrackingVertex::genv_iterator tvGenVIt;
+         for (tvGenVIt = iTrkVtx->genVertices_begin(); tvGenVIt != iTrkVtx->genVertices_end(); ++tvGenVIt) {
+           if ((**genVIt).barcode()  == (**tvGenVIt).barcode()) break;
+         }
+         if (tvGenVIt== iTrkVtx->genVertices_end() )
+           iTrkVtx->addGenVertex(GenVertexRef(hepMC,(**genVIt).barcode())); // Add HepMC vertex
+      }
+    }
+  }
+
+  edm::LogInfo(MessageCategory) << "TrackingTruthProducer found "  << tVC -> size()
                                 << " unique vertices and " << tPC -> size() << " tracks.";
 
 // Put TrackingParticles and TrackingVertices in event
