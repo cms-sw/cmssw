@@ -13,7 +13,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Mon Oct 16 23:19:38 EDT 2006
-// $Id: L1ExtraParticleMapProd.cc,v 1.4 2007/03/07 13:33:33 wsun Exp $
+// $Id: L1ExtraParticleMapProd.cc,v 1.5 2007/03/21 20:16:51 wsun Exp $
 //
 //
 
@@ -957,8 +957,8 @@ L1ExtraParticleMapProd::evaluateDoubleDifferentObjectTrigger(
 	       ( deltaPhi > M_PI ) ? fabs( deltaPhi - 2. * M_PI ) : deltaPhi ;
 
 	    if( refj.get()->et() >= etThreshold2 &&
-		deltaPhi > deltaPhiMin &&
-		fabs( eta1 - eta2 ) > deltaEtaMin )
+		( deltaPhi > deltaPhiMin ||
+		  fabs( eta1 - eta2 ) > deltaEtaMin ) )
 	    {
 	       decision = true ;
 
