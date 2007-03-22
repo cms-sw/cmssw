@@ -28,5 +28,6 @@
 <use name=SimDataFormats/CaloHit>
 <use name=SimDataFormats/CaloTest>
 <use name=SimDataFormats/HcalValidation>
+<use name=hepmc>
 
 <Flags SEAL_PLUGIN_NAME="ValidationHcalHits">
