@@ -7,6 +7,7 @@
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
 
 using namespace std;
+typedef ctfseeding::SeedingHit TkHitPairsCachedHit;
 
 CosmicHitPairGeneratorFromLayerPair::CosmicHitPairGeneratorFromLayerPair(const LayerWithHits* inner, 
 							     const LayerWithHits* outer, 
@@ -23,6 +24,7 @@ CosmicHitPairGeneratorFromLayerPair::CosmicHitPairGeneratorFromLayerPair(const L
 }
 void CosmicHitPairGeneratorFromLayerPair::hitPairs(
   const TrackingRegion & region, OrderedHitPairs & result,
+  const edm::Event & ev,
   const edm::EventSetup& iSetup)
 {
 //  static int NSee = 0; static int Ntry = 0; static int Nacc = 0;
@@ -94,9 +96,9 @@ void CosmicHitPairGeneratorFromLayerPair::hitPairs(
 	  // for the other geometries must be verified
 	  //Overlaps in the difference in z is decreased and the difference in phi is
 	  //less than 0.05
-	  if ((DeltaR<0)&&(abs(z_diff)<18)&&(abs(ih->phi()-oh->phi())<0.05)&&(dxdy<2)) result.push_back( OrderedHitPair(ih->RecHit(), oh->RecHit()));
+	  if ((DeltaR<0)&&(abs(z_diff)<18)&&(abs(ih->phi()-oh->phi())<0.05)&&(dxdy<2)) result.push_back( OrderedHitPair(*ih, *oh));
 	}
-	else  result.push_back( OrderedHitPair(ih->RecHit(), oh->RecHit()));
+	else  result.push_back( OrderedHitPair(*ih, *oh));
       
 	
 
@@ -104,7 +106,7 @@ void CosmicHitPairGeneratorFromLayerPair::hitPairs(
       }
       if( InTheForward &&  (abs(z_diff) > 1.)) {
 	//	cout << " ******** sono dentro intheforward *********** " << endl;
-	result.push_back( OrderedHitPair(ih->RecHit(), oh->RecHit()));
+	result.push_back( OrderedHitPair(*ih, *oh));
       }
     }
     

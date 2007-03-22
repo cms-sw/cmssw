@@ -3,8 +3,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-void CombinatorialRegionalSeedGeneratorFromPixel::init(const SiPixelRecHitCollection &coll ,
-					       const edm::EventSetup& iSetup)
+void CombinatorialRegionalSeedGeneratorFromPixel::init(const SiPixelRecHitCollection &coll , const edm::EventSetup& iSetup)
 {
   pixelLayers->init(coll,iSetup);
   initPairGenerator(pixelLayers,iSetup);
@@ -21,8 +20,8 @@ CombinatorialRegionalSeedGeneratorFromPixel::CombinatorialRegionalSeedGeneratorF
 }
 
 void CombinatorialRegionalSeedGeneratorFromPixel::run(RectangularEtaPhiTrackingRegion& etaphiRegion, TrajectorySeedCollection &output,
-					      const edm::EventSetup& iSetup){
+const edm::Event & ev,					      const edm::EventSetup& iSetup){
 
   region = etaphiRegion;
-  seeds(output,iSetup,region);
+  seeds(output,ev, iSetup,region);
 }

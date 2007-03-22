@@ -50,7 +50,7 @@ void GlobalPixelLessSeedGenerator::produce(edm::Event& e, const edm::EventSetup&
   //
 
   combinatorialSeedGenerator.init(*matchedrecHits,*stereorecHits,*rphirecHits,es);
-  combinatorialSeedGenerator.run(*output,es);
+  combinatorialSeedGenerator.run(*output,e,es);
 
   // write output to file
   LogDebug("Algorithm Performance")<<" number of seeds = "<< output->size();

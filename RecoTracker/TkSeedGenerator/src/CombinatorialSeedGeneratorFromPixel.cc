@@ -28,6 +28,6 @@ CombinatorialSeedGeneratorFromPixel::CombinatorialSeedGeneratorFromPixel(edm::Pa
 }
 
 void CombinatorialSeedGeneratorFromPixel::run(TrajectorySeedCollection &output,
-					      const edm::EventSetup& iSetup){
-  seeds(output,iSetup,region);
+    const edm::Event & ev, const edm::EventSetup& iSetup){
+  seeds(output,ev,iSetup,region);
 }

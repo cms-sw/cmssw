@@ -9,6 +9,8 @@ class LayerHitMap;
 
 class LayerHitMapLoop {
 public:
+  typedef ctfseeding::SeedingHit TkHitPairsCachedHit;
+
   typedef std::vector<TkHitPairsCachedHit>::const_iterator HitIter;
   typedef PixelRecoRange<HitIter> HitIterRange;
   typedef PixelRecoRange<float> RangeF;

@@ -31,6 +31,7 @@ class SeedGeneratorForCosmics : public SeedGeneratorFromTrackingRegion {
   void init(const SiStripRecHit2DCollection &collstereo,
 	    const SiStripRecHit2DCollection &collrphi,
 	    const SiStripMatchedRecHit2DCollection &collmatched,
+          const edm::Event& ev,
 	    const edm::EventSetup& c);
 
 

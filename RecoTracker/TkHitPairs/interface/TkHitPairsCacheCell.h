@@ -1,13 +1,15 @@
 #ifndef TkHitPairsCacheCell_H
 #define TkHitPairsCacheCell_H
 
-#include "RecoTracker/TkHitPairs/interface/TkHitPairsCachedHit.h"
+#include "RecoTracker/TkSeedingLayers/interface/SeedingHit.h"
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoRange.h"
 #include <algorithm>
+#include <vector>
 
 class TkHitPairsCacheCell {
 
 public:
+  typedef ctfseeding::SeedingHit TkHitPairsCachedHit;
   typedef std::vector<TkHitPairsCachedHit>::const_iterator HitIter;
   typedef PixelRecoRange<HitIter> HitIterRange;
 

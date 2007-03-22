@@ -3,55 +3,43 @@
 
 #include "RecoTracker/TkHitPairs/interface/HitPairGenerator.h"
 #include "RecoTracker/TkHitPairs/interface/CombinedHitPairGenerator.h"
-#include "RecoTracker/TkHitPairs/interface/LayerWithHits.h"
+#include "RecoTracker/TkSeedingLayers/interface/SeedingLayer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
 
 class DetLayer;
 class TrackingRegion;
-class LayerWithHits;
+
 class HitPairGeneratorFromLayerPair : public HitPairGenerator {
 
 public:
 
   typedef CombinedHitPairGenerator::LayerCacheType       LayerCacheType;
+  typedef ctfseeding::SeedingLayer Layer;
  
-
-
-
-  HitPairGeneratorFromLayerPair(const LayerWithHits* inner, 
-				const LayerWithHits* outer, 
-				LayerCacheType* layerCache, 
-				const edm::EventSetup& iSetup);
+  HitPairGeneratorFromLayerPair(const Layer& inner, const Layer& outer, LayerCacheType* layerCache);
 
   virtual ~HitPairGeneratorFromLayerPair() { }
 
-  virtual OrderedHitPairs hitPairs( const TrackingRegion& region,const edm::EventSetup& iSetup ) {
-    return HitPairGenerator::hitPairs(region, iSetup);
-  }
-  virtual void hitPairs( const TrackingRegion& ar, OrderedHitPairs & ap,const edm::EventSetup& iSetup);
+  virtual void hitPairs( const TrackingRegion& reg, OrderedHitPairs & prs, 
+      const edm::Event & ev,  const edm::EventSetup& es);
 
   virtual HitPairGeneratorFromLayerPair* clone() const {
     return new HitPairGeneratorFromLayerPair(*this);
   }
 
-  const LayerWithHits* innerLayer() const { return theInnerLayer; }
-  const LayerWithHits* outerLayer() const { return theOuterLayer; }
+  const Layer & innerLayer() const { return theInnerLayer; }
+  const Layer & outerLayer() const { return theOuterLayer; }
 
 private:
+
   void hitPairsWithErrors( const TrackingRegion& ar,
 			   OrderedHitPairs & ap,
-			   const edm::EventSetup& iSetup);
+    const edm::Event & iEvent,
+    const edm::EventSetup& iSetup);
 
-
-  const TransientTrackingRecHitBuilder * TTRHbuilder;
-  const TrackerGeometry* trackerGeometry;
   LayerCacheType & theLayerCache;
-  const LayerWithHits* theOuterLayer;  
-  const LayerWithHits* theInnerLayer; 
-  const DetLayer* innerlay;
-  const DetLayer* outerlay;
-
+  Layer theOuterLayer;  
+  Layer theInnerLayer; 
 };
 
 #endif

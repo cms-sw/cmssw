@@ -1,27 +1,26 @@
 #ifndef OrderedHitPair_H
 #define OrderedHitPair_H
 
+#include "RecoTracker/TkSeedingLayers/interface/SeedingHit.h"
+#include "RecoTracker/TkSeedingLayers/interface/SeedingHitSet.h"
 
-#include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 
-class OrderedHitPair {
+class OrderedHitPair : public SeedingHitSet {
 public:
 
-  typedef TrackingRecHit OuterHit;
-  typedef TrackingRecHit InnerHit;
+  typedef ctfseeding::SeedingHit OuterHit;
+  typedef ctfseeding::SeedingHit InnerHit;
 
- 
+  OrderedHitPair( const InnerHit & ih, const OuterHit & oh)
+  {
+    theHits.push_back(ih);
+    theHits.push_back(oh);
+  }
 
-   OrderedHitPair( const InnerHit * ih, const OuterHit * oh)
-     : theInnerHit(ih), theOuterHit(oh)  { }
+  virtual ~OrderedHitPair() {}
 
-
-
-  const InnerHit * inner() const { return theInnerHit; }
-  const OuterHit * outer() const { return theOuterHit; } 
-private:
-  const  InnerHit* theInnerHit;
- const   OuterHit* theOuterHit;
+  const InnerHit & inner() const { return theHits.front(); }
+  const OuterHit & outer() const { return theHits.back(); } 
 };
 
 #endif

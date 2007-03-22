@@ -1,30 +1,38 @@
-//#include "RecoTracker/TkHitPairs/interface/LayerWithHits.h"
 #include "RecoTracker/TkHitPairs/interface/CombinedHitPairGenerator.h"
-#include "RecoTracker/TkHitPairs/interface/SeedLayerPairs.h"
 #include "RecoTracker/TkHitPairs/interface/HitPairGeneratorFromLayerPair.h"
+#include "RecoTracker/TkSeedingLayers/interface/SeedingLayerSets.h"
+#include "RecoTracker/TkSeedingLayers/interface/SeedingLayerSetsBuilder.h"
 
 using namespace std;
+using namespace ctfseeding;
 
+CombinedHitPairGenerator::CombinedHitPairGenerator(const edm::ParameterSet& cfg)
+  : initialised(false), theConfig(cfg)
+{ }
 
-//CombinedHitPairGenerator::CombinedHitPairGenerator(SeedLayerPairs& layers)
-CombinedHitPairGenerator::CombinedHitPairGenerator(SeedLayerPairs& layers,
-						   const edm::EventSetup& iSetup)
+CombinedHitPairGenerator::CombinedHitPairGenerator(const SeedingLayerSets & layerSets)
+  : initialised(false)
 {
-  vector<SeedLayerPairs::LayerPair> layerPairs = layers();
-  vector<SeedLayerPairs::LayerPair>::const_iterator it;
-  for (it = layerPairs.begin(); it != layerPairs.end(); it++) {
-    add( (*it).first, (*it).second,iSetup);
-  }
-
+  init (layerSets);
 }
 
-// CombinedHitPairGenerator::CombinedHitPairGenerator(
-//     const CombinedHitPairGenerator &o)
-// {
-//   typedef Container::const_iterator IC;
-//   for (IC i = o.theGenerators.begin(); i != o.theGenerators.end(); i++) 
-//       add( (**i).innerLayer(), (**i).outerLayer() );
-// }
+void CombinedHitPairGenerator::init(const edm::ParameterSet & cfg, const edm::EventSetup& es)
+{
+  edm::ParameterSet leyerPSet = cfg.getParameter<edm::ParameterSet>("LayerPSet");
+  SeedingLayerSets layerSets  = SeedingLayerSetsBuilder(leyerPSet).layers(es);
+  init(layerSets);
+}
+
+void CombinedHitPairGenerator::init(const SeedingLayerSets & layerSets)
+{
+  initialised = true;
+  typedef SeedingLayerSets::const_iterator IL;
+  for (IL il=layerSets.begin(), ilEnd=layerSets.end(); il != ilEnd; ++il) {
+    const SeedingLayers & set = *il;
+    if (set.size() != 2) continue;
+    add( set[0], set[1] );
+  }
+}
 
 CombinedHitPairGenerator::~CombinedHitPairGenerator()
 {
@@ -34,31 +42,20 @@ CombinedHitPairGenerator::~CombinedHitPairGenerator()
   }
 }
 
-// void CombinedHitPairGenerator::add(
-//     const DetLayer* inner, const DetLayer* outer) 
-void CombinedHitPairGenerator::add(
-				   const LayerWithHits *inner, const LayerWithHits *outer,
-				   const edm::EventSetup& iSetup) 
+void CombinedHitPairGenerator::add( const SeedingLayer& inner, const SeedingLayer& outer)
 { 
-
-  theGenerators.push_back( 
-			  new HitPairGeneratorFromLayerPair( inner, outer, &theLayerCache,iSetup));
+  theGenerators.push_back( new HitPairGeneratorFromLayerPair( inner, outer, &theLayerCache));
 }
 
 void CombinedHitPairGenerator::hitPairs(
-					const TrackingRegion& region, 
-					OrderedHitPairs & pairs,
-					const edm::EventSetup& iSetup)
+   const TrackingRegion& region, OrderedHitPairs  & result,
+   const edm::Event& ev, const edm::EventSetup& es)
 {
- 
+  if (!initialised) init(theConfig,es);
+
   Container::const_iterator i;
   for (i=theGenerators.begin(); i!=theGenerators.end(); i++) {
- 
-    (**i).hitPairs( region, pairs,iSetup); 
+    (**i).hitPairs( region, result, ev, es); 
   }
- 
   theLayerCache.clear();
- 
 }
-
-

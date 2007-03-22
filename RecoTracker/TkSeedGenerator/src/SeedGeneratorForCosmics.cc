@@ -14,6 +14,7 @@ void
 SeedGeneratorForCosmics::init(const SiStripRecHit2DCollection &collstereo,
 			      const SiStripRecHit2DCollection &collrphi ,
 			      const SiStripMatchedRecHit2DCollection &collmatched,
+                        const edm::Event& ev,
 			      const edm::EventSetup& iSetup)
 {
   iSetup.get<IdealMagneticFieldRecord>().get(magfield);
@@ -37,7 +38,7 @@ SeedGeneratorForCosmics::init(const SiStripRecHit2DCollection &collstereo,
     thePairGenerator=new CosmicHitPairGenerator(cosmiclayers,iSetup);
     HitPairs.clear();
     if ((hitsforseeds=="pairs")||(hitsforseeds=="pairsandtriplets")){
-      thePairGenerator->hitPairs(region,HitPairs,iSetup);
+      thePairGenerator->hitPairs(region,HitPairs,ev,iSetup);
   }
 
     CosmicLayerTriplets cosmiclayers2;
@@ -45,7 +46,7 @@ SeedGeneratorForCosmics::init(const SiStripRecHit2DCollection &collstereo,
     theTripletGenerator=new CosmicHitTripletGenerator(cosmiclayers2,iSetup);
     HitTriplets.clear();
     if ((hitsforseeds=="triplets")||(hitsforseeds=="pairsandtriplets")){
-      theTripletGenerator->hitTriplets(region,HitTriplets,iSetup);
+      theTripletGenerator->hitTriplets(region,HitTriplets,ev,iSetup);
     }
 }
 
@@ -80,19 +81,19 @@ void SeedGeneratorForCosmics::seeds(TrajectorySeedCollection &output,
   LogDebug("CosmicSeedFinder")<<"Number of pairs "<<HitPairs.size();
 
   for (uint it=0;it<HitTriplets.size();it++){
-    GlobalPoint inner = tracker->idToDet(HitTriplets[it].inner()->
+    GlobalPoint inner = tracker->idToDet(HitTriplets[it].inner().RecHit()->
 					 geographicalId())->surface().
-      toGlobal(HitTriplets[it].inner()->localPosition());
-    GlobalPoint middle = tracker->idToDet(HitTriplets[it].middle()->
+      toGlobal(HitTriplets[it].inner().RecHit()->localPosition());
+    GlobalPoint middle = tracker->idToDet(HitTriplets[it].middle().RecHit()->
 					  geographicalId())->surface().
-      toGlobal(HitTriplets[it].middle()->localPosition());
-    GlobalPoint outer = tracker->idToDet(HitTriplets[it].outer()->
+      toGlobal(HitTriplets[it].middle().RecHit()->localPosition());
+    GlobalPoint outer = tracker->idToDet(HitTriplets[it].outer().RecHit()->
 					 geographicalId())->surface().
-      toGlobal(HitTriplets[it].outer()->localPosition());   
+      toGlobal(HitTriplets[it].outer().RecHit()->localPosition());   
 
-    TransientTrackingRecHit::ConstRecHitPointer outrhit=TTTRHBuilder->build(HitTriplets[it].outer());
+    TransientTrackingRecHit::ConstRecHitPointer outrhit=TTTRHBuilder->build(HitTriplets[it].outer().RecHit());
     edm::OwnVector<TrackingRecHit> hits;
-    hits.push_back(HitTriplets[it].outer()->clone());
+    hits.push_back(HitTriplets[it].outer().RecHit()->clone());
     FastHelix helix(inner, middle, outer,iSetup);
     GlobalVector gv=helix.stateAtVertex().parameters().momentum();
     float ch=helix.stateAtVertex().parameters().charge();
@@ -109,7 +110,7 @@ void SeedGeneratorForCosmics::seeds(TrajectorySeedCollection &output,
     if((outer.y()-inner.y())>0){
       const TSOS outerState =
 	thePropagatorAl->propagate(CosmicSeed,
-				   tracker->idToDet(HitTriplets[it].outer()->geographicalId())->surface());
+				   tracker->idToDet(HitTriplets[it].outer().RecHit()->geographicalId())->surface());
       if ( outerState.isValid()) {
 	LogDebug("CosmicSeedFinder") <<"outerState "<<outerState;
 	const TSOS outerUpdated= theUpdator->update( outerState,*outrhit);
@@ -117,7 +118,7 @@ void SeedGeneratorForCosmics::seeds(TrajectorySeedCollection &output,
 	  LogDebug("CosmicSeedFinder") <<"outerUpdated "<<outerUpdated;
 	  
 	  PTrajectoryStateOnDet *PTraj=  
-	    transformer.persistentState(outerUpdated, HitTriplets[it].outer()->geographicalId().rawId());
+	    transformer.persistentState(outerUpdated, HitTriplets[it].outer().RecHit()->geographicalId().rawId());
 	  
 	  TrajectorySeed *trSeed=new TrajectorySeed(*PTraj,hits,alongMomentum);
 	  output.push_back(*trSeed);
@@ -126,7 +127,7 @@ void SeedGeneratorForCosmics::seeds(TrajectorySeedCollection &output,
     } else {
       const TSOS outerState =
 	thePropagatorOp->propagate(CosmicSeed,
-				   tracker->idToDet(HitTriplets[it].outer()->geographicalId())->surface());
+				   tracker->idToDet(HitTriplets[it].outer().RecHit()->geographicalId())->surface());
       if ( outerState.isValid()) {
 	LogDebug("CosmicSeedFinder") <<"outerState "<<outerState;
 	const TSOS outerUpdated= theUpdator->update( outerState,*outrhit);
@@ -134,7 +135,7 @@ void SeedGeneratorForCosmics::seeds(TrajectorySeedCollection &output,
 	  LogDebug("CosmicSeedFinder") <<"outerUpdated "<<outerUpdated;
 	  
 	  PTrajectoryStateOnDet *PTraj=  
-	    transformer.persistentState(outerUpdated, HitTriplets[it].outer()->geographicalId().rawId());
+	    transformer.persistentState(outerUpdated, HitTriplets[it].outer().RecHit()->geographicalId().rawId());
 	  
 	  TrajectorySeed *trSeed=new TrajectorySeed(*PTraj,hits,oppositeToMomentum);
 	  output.push_back(*trSeed);
@@ -147,15 +148,15 @@ void SeedGeneratorForCosmics::seeds(TrajectorySeedCollection &output,
   for(uint is=0;is<HitPairs.size();is++){
 
     
-    GlobalPoint inner = tracker->idToDet(HitPairs[is].inner()->geographicalId())->surface().toGlobal(HitPairs[is].inner()->localPosition());
-    GlobalPoint outer = tracker->idToDet(HitPairs[is].outer()->geographicalId())->surface().toGlobal(HitPairs[is].outer()->localPosition());
+    GlobalPoint inner = tracker->idToDet(HitPairs[is].inner().RecHit()->geographicalId())->surface().toGlobal(HitPairs[is].inner().RecHit()->localPosition());
+    GlobalPoint outer = tracker->idToDet(HitPairs[is].outer().RecHit()->geographicalId())->surface().toGlobal(HitPairs[is].outer().RecHit()->localPosition());
     
     LogDebug("CosmicSeedFinder") <<"inner point of the seed "<<inner <<" outer point of the seed "<<outer; 
-    //RC const TransientTrackingRecHit* outrhit=TTTRHBuilder->build(HitPairs[is].outer());  
-    TransientTrackingRecHit::ConstRecHitPointer outrhit=TTTRHBuilder->build(HitPairs[is].outer());
+    //RC const TransientTrackingRecHit* outrhit=TTTRHBuilder->build(HitPairs[is].outer().RecHit());  
+    TransientTrackingRecHit::ConstRecHitPointer outrhit=TTTRHBuilder->build(HitPairs[is].outer().RecHit());
 
     edm::OwnVector<TrackingRecHit> hits;
-    hits.push_back(HitPairs[is].outer()->clone());
+    hits.push_back(HitPairs[is].outer().RecHit()->clone());
     //    hits.push_back(HitPairs[is].inner()->clone());
 
     for (int i=0;i<2;i++){
@@ -175,7 +176,7 @@ void SeedGeneratorForCosmics::seeds(TrajectorySeedCollection &output,
 	//First propagation
 	const TSOS outerState =
 	  thePropagatorAl->propagate(CosmicSeed,
-				     tracker->idToDet(HitPairs[is].outer()->geographicalId())->surface());
+				     tracker->idToDet(HitPairs[is].outer().RecHit()->geographicalId())->surface());
 	if ( outerState.isValid()) {
 	  LogDebug("CosmicSeedFinder") <<"outerState "<<outerState;
 	  const TSOS outerUpdated= theUpdator->update( outerState,*outrhit);
@@ -183,7 +184,7 @@ void SeedGeneratorForCosmics::seeds(TrajectorySeedCollection &output,
 	    LogDebug("CosmicSeedFinder") <<"outerUpdated "<<outerUpdated;
 	    
 	    PTrajectoryStateOnDet *PTraj=  
-	      transformer.persistentState(outerUpdated, HitPairs[is].outer()->geographicalId().rawId());
+	      transformer.persistentState(outerUpdated, HitPairs[is].outer().RecHit()->geographicalId().rawId());
 	    
 	    TrajectorySeed *trSeed=new TrajectorySeed(*PTraj,hits,alongMomentum);
 	    output.push_back(*trSeed);
@@ -204,7 +205,7 @@ void SeedGeneratorForCosmics::seeds(TrajectorySeedCollection &output,
 	//First propagation
 	const TSOS outerState =
 	  thePropagatorAl->propagate(CosmicSeed,
-				     tracker->idToDet(HitPairs[is].outer()->geographicalId())->surface());
+				     tracker->idToDet(HitPairs[is].outer().RecHit()->geographicalId())->surface());
 	if ( outerState.isValid()) {
 	  
 	  LogDebug("CosmicSeedFinder") <<"outerState "<<outerState;
@@ -212,7 +213,7 @@ void SeedGeneratorForCosmics::seeds(TrajectorySeedCollection &output,
 	  if ( outerUpdated.isValid()) {
 	  LogDebug("CosmicSeedFinder") <<"outerUpdated "<<outerUpdated;
 	  PTrajectoryStateOnDet *PTraj=  
-	    transformer.persistentState(outerUpdated, HitPairs[is].outer()->geographicalId().rawId());
+	    transformer.persistentState(outerUpdated, HitPairs[is].outer().RecHit()->geographicalId().rawId());
 	  
 	  TrajectorySeed *trSeed=new TrajectorySeed(*PTraj,hits,oppositeToMomentum);
 	  output.push_back(*trSeed);

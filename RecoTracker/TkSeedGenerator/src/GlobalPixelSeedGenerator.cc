@@ -49,7 +49,7 @@ void GlobalPixelSeedGenerator::produce(edm::Event& e, const edm::EventSetup& es)
 
   // should they be put together in an unique method 
   combinatorialSeedGenerator.init(*pixelHits,es);
-  combinatorialSeedGenerator.run(*output,es);
+  combinatorialSeedGenerator.run(*output,e,es);
 
   // write output to file
   LogDebug("Algorithm Performance")<<" number of seeds = "<< output->size();

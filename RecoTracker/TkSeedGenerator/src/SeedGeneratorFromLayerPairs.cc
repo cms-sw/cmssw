@@ -2,7 +2,7 @@
 //#include "RecoTracker/TkTrackingRegions/interface/TrackingRegionFactory.h"
 #include "RecoTracker/TkTrackingRegions/interface/GlobalTrackingRegion.h"
 #include "RecoTracker/TkHitPairs/interface/SeedLayerPairs.h"
-#include "RecoTracker/TkHitPairs/interface/CombinedHitPairGenerator.h"
+#include "RecoTracker/TkHitPairs/interface/CombinedHitPairGeneratorBC.h"
 
 using namespace std;
 
@@ -10,7 +10,7 @@ void SeedGeneratorFromLayerPairs::initPairGenerator(SeedLayerPairs * layerPairs,
 						    const edm::EventSetup& iSetup) 
 {
   if (layerPairs) { 
-    thePairGenerator.reset(new CombinedHitPairGenerator(*layerPairs,iSetup));
+    thePairGenerator.reset(new CombinedHitPairGeneratorBC(*layerPairs,iSetup));
   } else thePairGenerator.reset(0);
 }
 

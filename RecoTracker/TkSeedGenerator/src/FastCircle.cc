@@ -1,4 +1,4 @@
-#include "RecoTracker/TkSeedGenerator/interface/FastCircle.h"
+#include "FastCircle.h"
 
 FastCircle::FastCircle(const GlobalPoint& outerHit,
 		       const GlobalPoint& middleHit,

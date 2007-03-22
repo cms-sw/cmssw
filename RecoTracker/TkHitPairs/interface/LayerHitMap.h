@@ -5,20 +5,22 @@
 #include "RecoTracker/TkHitPairs/interface/TkHitPairsCacheCell.h"
 #include "RecoTracker/TkHitPairs/interface/TkHitPairsCellManager.h"
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoRange.h"
+#include "RecoTracker/TkSeedingLayers/interface/SeedingLayer.h"
+#include "RecoTracker/TkSeedingLayers/interface/SeedingHit.h"
 #include <vector>
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "RecoTracker/TkHitPairs/interface/LayerWithHits.h"
-#include "FWCore/Framework/interface/EventSetup.h"
+
 class LayerHitMapLoop;
 
 class LayerHitMap {
 
 public:
   typedef PixelRecoRange<float> Range;
+  typedef ctfseeding::SeedingHit TkHitPairsCachedHit;
   typedef std::vector<TkHitPairsCachedHit>::const_iterator HitIter;
+
   LayerHitMap() : theCells(0) { }
-  LayerHitMap(const LayerWithHits*  ,  const edm::EventSetup& iSetup);
-  LayerHitMap(const LayerHitMap & lhm,  const edm::EventSetup& iSetup); 
+  LayerHitMap( const DetLayer* layer, const std::vector<ctfseeding::SeedingHit> & hits);
+  LayerHitMap(const LayerHitMap & lhm); 
   ~LayerHitMap() { delete theCells; }
 
   LayerHitMapLoop loop() const;
@@ -35,10 +37,8 @@ private:
   friend class LayerHitMapLoop;
 
 private:
-  //  edm::ParameterSet conf_;
-   mutable TkHitPairsCellManager * theCells;
-   //TkHitPairsCellManager * theCells;
-  mutable std::vector<TkHitPairsCachedHit> theHits;
+  mutable TkHitPairsCellManager * theCells;
+  mutable std::vector<ctfseeding::SeedingHit> theHits;
   float theLayerRZmin, theCellDeltaRZ;
   float theLayerPhimin, theCellDeltaPhi; 
   int theNbinsRZ, theNbinsPhi;

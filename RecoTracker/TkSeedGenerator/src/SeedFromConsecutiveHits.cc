@@ -1,7 +1,6 @@
-#include "RecoTracker/TkSeedGenerator/interface/SeedFromConsecutiveHits.h"
+#include "SeedFromConsecutiveHits.h"
 #include "TrackingTools/KalmanUpdators/interface/KFUpdator.h"
 #include "RecoTracker/TkSeedGenerator/interface/FastHelix.h"
-//#include "RecoTracker/TkSeedGenerator/interface/TrivialVertex.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -26,6 +25,26 @@ SeedFromConsecutiveHits( const TrackingRecHit* outerHit,
   isValid_ = construct( outerHit,  innerHit, vertexPos, vertexErr,iSetup,p) ;
 }
 
+SeedFromConsecutiveHits:: SeedFromConsecutiveHits(
+    const SeedingHitSet & ordered,
+    const GlobalPoint& vertexPos,
+    const GlobalError& vertexErr,
+    const edm::EventSetup& es, const edm::ParameterSet& p)
+  : isValid_(false)
+{
+  const SeedingHitSet::Hits & hits = ordered.hits(); 
+
+  //
+  // FIXME - clearly temporary !!!!
+  //
+
+  if (hits.size() >=2) {
+    const TrackingRecHit* innerHit = hits[0].RecHit();
+    const TrackingRecHit* outerHit = hits[1].RecHit();
+    isValid_ = construct( outerHit,  innerHit, vertexPos, vertexErr, es, p);
+  }
+}
+
 
 bool SeedFromConsecutiveHits::
 construct( const TrackingRecHit* outerHit, 
@@ -33,9 +52,7 @@ construct( const TrackingRecHit* outerHit,
 	   const GlobalPoint& vertexPos,
 	   const GlobalError& vertexErr,
 	   const edm::EventSetup& iSetup,
-	   const edm::ParameterSet& p
-
-) 
+	   const edm::ParameterSet& p) 
 {
   typedef TrajectoryStateOnSurface     TSOS;
   typedef TrajectoryMeasurement        TM;
@@ -45,73 +62,59 @@ construct( const TrackingRecHit* outerHit,
   edm::ESHandle<TrackerGeometry> tracker;
   iSetup.get<TrackerDigiGeometryRecord>().get(tracker);
 
-  GlobalPoint inner = tracker->idToDet(innerHit->geographicalId())->surface().toGlobal(innerHit->localPosition());
-  GlobalPoint outer = tracker->idToDet(outerHit->geographicalId())->surface().toGlobal(outerHit->localPosition());
+  GlobalPoint inner = 
+      tracker->idToDet(innerHit->geographicalId())->surface().toGlobal(innerHit->localPosition());
+  GlobalPoint outer = 
+      tracker->idToDet(outerHit->geographicalId())->surface().toGlobal(outerHit->localPosition());
 
-  // make a spiral
-  //  TrivialVertex vtx( vertexPos, vertexErr);
-  //  FastHelix helix(outerHit.globalPosition(), innerHit.globalPosition(),vtx.position());
-  FastHelix helix(outer, inner, 
-		  GlobalPoint(0.,0.,0.),iSetup);
+  FastHelix helix(outer, inner, GlobalPoint(0.,0.,0.),iSetup);
 
-//   if ( helix.isValid()) {
-    FreeTrajectoryState fts( helix.stateAtVertex().parameters(),
-			     initialError( outerHit, innerHit, 
-					   vertexPos, vertexErr));
+  FreeTrajectoryState fts( 
+      helix.stateAtVertex().parameters(), initialError( outerHit, innerHit, vertexPos, vertexErr));
 
     
-    edm::ESHandle<Propagator>  thePropagatorHandle;
-    iSetup.get<TrackingComponentsRecord>().get("PropagatorWithMaterial",thePropagatorHandle);
-    const Propagator*  thePropagator = &(*thePropagatorHandle);
+  edm::ESHandle<Propagator>  thePropagatorHandle;
+  iSetup.get<TrackingComponentsRecord>().get("PropagatorWithMaterial",thePropagatorHandle);
+  const Propagator*  thePropagator = &(*thePropagatorHandle);
 
 
 
-    KFUpdator     theUpdator;
+  KFUpdator     theUpdator;
 
-    const TSOS innerState = thePropagator->propagate(fts,tracker->idToDet(innerHit->geographicalId())->surface());
-    if ( !innerState.isValid()) return false;
-
-
-    //
-    // get the transient builder
-    //
-    edm::ESHandle<TransientTrackingRecHitBuilder> theBuilder;
-    std::string builderName = p.getParameter<std::string>("TTRHBuilder");  
-    iSetup.get<TransientRecHitRecord>().get(builderName,theBuilder);
+  const TSOS innerState = 
+      thePropagator->propagate(fts,tracker->idToDet(innerHit->geographicalId())->surface());
+  if ( !innerState.isValid()) return false;
 
 
-    intrhit=theBuilder.product()->build(innerHit);
-    // this could be an option. But it doesn't seem to help much
-    //intrhit=theBuilder.product()->build(innerHit)->clone(innerState);
+  //
+  // get the transient builder
+  //
+  edm::ESHandle<TransientTrackingRecHitBuilder> theBuilder;
+  std::string builderName = p.getParameter<std::string>("TTRHBuilder");  
+  iSetup.get<TransientRecHitRecord>().get(builderName,theBuilder);
 
-    const TSOS innerUpdated= theUpdator.update( innerState,*intrhit);			      
 
-    TSOS outerState = 
-      thePropagator->propagate( innerUpdated,
-				tracker->idToDet(outerHit->geographicalId())->surface());
+  intrhit=theBuilder.product()->build(innerHit);
+
+  const TSOS innerUpdated= theUpdator.update( innerState,*intrhit);			      
+
+  TSOS outerState = thePropagator->propagate( innerUpdated,
+      tracker->idToDet(outerHit->geographicalId())->surface());
  
-    if ( !outerState.isValid()) return false;
+  if ( !outerState.isValid()) return false;
   
-    outrhit=theBuilder.product()->build(outerHit);
-    // this could be an option. But it doesn't seem to help much
-    //outrhit=theBuilder.product()->build(outerHit)->clone(outerState);
+  outrhit=theBuilder.product()->build(outerHit);
 
-    TSOS outerUpdated = theUpdator.update( outerState, *outrhit);
+  TSOS outerUpdated = theUpdator.update( outerState, *outrhit);
  
+  _hits.push_back(innerHit->clone());
+  _hits.push_back(outerHit->clone());
 
-    //MP
-    //what is the estimate value?
-    //theInnerMeas = TM( innerState, innerUpdated, intrhit, 0);
-    //theOuterMeas = TM( outerState, outerUpdated, outrhit, 0);
- 
+  PTraj = boost::shared_ptr<PTrajectoryStateOnDet>( 
+      transformer.persistentState(outerUpdated, outerHit->geographicalId().rawId()) );
 
-
-    _hits.push_back(innerHit->clone());
-    _hits.push_back(outerHit->clone());
-    PTraj = boost::shared_ptr<PTrajectoryStateOnDet>( transformer.persistentState(outerUpdated, outerHit->geographicalId().rawId()) );
-    return true;
+  return true;
 }
-
 
 
 CurvilinearTrajectoryError SeedFromConsecutiveHits::

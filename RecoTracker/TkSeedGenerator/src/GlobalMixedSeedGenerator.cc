@@ -54,7 +54,7 @@ void GlobalMixedSeedGenerator::produce(edm::Event& e, const edm::EventSetup& es)
   //
 
   combinatorialSeedGenerator.init(*pixelHits,*matchedrecHits,*stereorecHits,*rphirecHits,es);
-  combinatorialSeedGenerator.run(*output,es);
+  combinatorialSeedGenerator.run(*output,e,es);
 
   // write output to file
   LogDebug("Algorithm Performance")<<" number of seeds = "<< output->size();

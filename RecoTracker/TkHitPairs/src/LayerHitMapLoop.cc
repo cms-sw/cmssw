@@ -55,7 +55,7 @@ void LayerHitMapLoop::setSafeRzRange(const RangeF & rzSafe, bool * status)
 } 
 
 
-const TkHitPairsCachedHit * LayerHitMapLoop::getHit()
+const LayerHitMapLoop::TkHitPairsCachedHit * LayerHitMapLoop::getHit()
 {
 
 

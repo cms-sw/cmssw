@@ -1,6 +1,4 @@
-#include "RecoTracker/TkHitPairs/interface/RecHitsSortedInPhi.h"
-//#include "ClassReuse/GeomVector/interface/Pi.h"
-//#include "Utilities/UI/interface/SimpleConfigurable.h"
+#include "RecHitsSortedInPhi.h"
 #include <algorithm>
 
 using namespace std;
