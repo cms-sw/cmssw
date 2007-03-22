@@ -4,8 +4,8 @@
 /*
  * \file DTDigiTask.h
  *
- * $Date: 2007/02/16 15:07:26 $
- * $Revision: 1.9 $
+ * $Date: 2007/03/13 18:59:53 $
+ * $Revision: 1.10 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -33,7 +33,6 @@
 #include <map>
 
 class DTGeometry;
-class DTLayerId;
 class DTSuperLayerId;
 class DTChamberId;
 class DTTtrig;
@@ -56,7 +55,6 @@ protected:
   void beginJob(const edm::EventSetup& c);
 
   /// Book the ME
-  void bookHistos(const DTLayerId& dtLayer, std::string histoTag);
   void bookHistos(const DTSuperLayerId& dtSL, std::string folder, std::string histoTag);
   void bookHistos(const DTChamberId& dtCh, std::string folder, std::string histoTag);
  
@@ -94,11 +92,9 @@ private:
 
 
   std::string outputFile;
-  ofstream logFile;
 
   std::map<std::string, std::map<uint32_t, MonitorElement*> > digiHistos;
 
-  MonitorElement * runId;
 
 };
 
