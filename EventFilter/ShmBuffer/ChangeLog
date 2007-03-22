@@ -1,3 +1,13 @@
+2007-03-22  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-03-01
+	* implement nice suggestion from Markus to have raw event cells
+	properly discarded regardless of the event being selected or
+	rejected.
+	* fix to the discard chain for data events being acknowledged by
+	the SM
+	
+
 2007-03-21  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-03-00

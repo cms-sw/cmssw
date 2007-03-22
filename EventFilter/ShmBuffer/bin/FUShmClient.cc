@@ -63,7 +63,7 @@ unsigned int FUShmClient::readNext(vector<vector<unsigned char> >& feds)
     cell->readFed(i,destAddr);
   }
   buffer_->finishReadingRawCell(cell);
-  
+
   // sleep
   if (sleep_>0.0) {
     cout<<"PROCESSING cell "<<cell->index()<<" ... "<<flush;
@@ -80,7 +80,7 @@ unsigned int FUShmClient::readNext(vector<vector<unsigned char> >& feds)
   buffer_->scheduleRawCellForDiscard(iCell);
   cell=buffer_->rawCellToDiscard();
   buffer_->discardRawCell(cell);
-  
+
   return iCell;
 }
 

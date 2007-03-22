@@ -72,15 +72,19 @@ FUShmBuffer::FUShmBuffer(bool         segmentationMode,
   addr=(void*)((unsigned int)this+dqmWriteOffset_);
   new (addr) unsigned int[nDqmCells_];
 
-  dqmReadOffset_=dqmWriteOffset_+nDqmCells*sizeof(unsigned int);
+  dqmReadOffset_=dqmWriteOffset_+nDqmCells_*sizeof(unsigned int);
   addr=(void*)((unsigned int)this+dqmReadOffset_);
   new (addr) unsigned int[nDqmCells_];
 
-  evtStateOffset_=dqmReadOffset_+nDqmCells*sizeof(unsigned int);
+  evtStateOffset_=dqmReadOffset_+nDqmCells_*sizeof(unsigned int);
   addr=(void*)((unsigned int)this+evtStateOffset_);
+  new (addr) evt::State_t[nRawCells_];
+  
+  evtDiscardOffset_=evtStateOffset_+nRawCells_*sizeof(evt::State_t);
+  addr=(void*)((unsigned int)this+evtDiscardOffset_);
   new (addr) unsigned int[nRawCells_];
   
-  evtNumberOffset_=evtStateOffset_+nRawCells_*sizeof(evt::State_t);
+  evtNumberOffset_=evtDiscardOffset_+nRawCells_*sizeof(unsigned int);
   addr=(void*)((unsigned int)this+evtNumberOffset_);
   new (addr) unsigned int[nRawCells_];
   
@@ -90,7 +94,7 @@ FUShmBuffer::FUShmBuffer(bool         segmentationMode,
 
   dqmStateOffset_=evtRecoIdOffset_+nRawCells_*sizeof(unsigned int);
   addr=(void*)((unsigned int)this+dqmStateOffset_);
-  new (addr) unsigned int[nDqmCells_];
+  new (addr) dqm::State_t[nDqmCells_];
   
   rawCellOffset_=dqmStateOffset_+nDqmCells_*sizeof(dqm::State_t);
   
@@ -172,9 +176,6 @@ void FUShmBuffer::initialize(unsigned int shmid,unsigned int semid)
   }
   
   for (unsigned int i=0;i<nRawCells_;i++) {
-    setEvtState(i,evt::EMPTY);
-    setEvtNumber(i,0xffffffff);
-    setRecoCellId(i,0xffffffff);
     FUShmRawCell* cell=rawCell(i);
     cell->initialize(i);
     if (segmentationMode_) shmdt(cell);
@@ -187,7 +188,6 @@ void FUShmBuffer::initialize(unsigned int shmid,unsigned int semid)
   }
   
   for (unsigned int i=0;i<nDqmCells_;i++) {
-    setDqmState(i,dqm::EMPTY);
     FUShmDqmCell* cell=dqmCell(i);
     cell->initialize(i);
     if (segmentationMode_) shmdt(cell);
@@ -200,6 +200,20 @@ void FUShmBuffer::initialize(unsigned int shmid,unsigned int semid)
 //______________________________________________________________________________
 void FUShmBuffer::reset()
 {
+// setup ipc semaphores
+  sem_init(0,1);          // lock (binary)
+  sem_init(1,nRawCells_); // raw  write semaphore
+  sem_init(2,0);          // raw  read  semaphore
+  sem_init(3,1);          // binary semaphore to schedule raw event for discard
+  sem_init(4,0);          // binary semaphore to discard raw event
+  sem_init(5,nRecoCells_);// reco write semaphore
+  sem_init(6,0);          // reco send (read) semaphore
+  sem_init(7,nDqmCells_); // dqm  write semaphore
+  sem_init(8,0);          // dqm  send (read) semaphore
+
+  sem_print();
+
+
   unsigned int *iWrite,*iRead;
   
   rawWriteNext_=0; rawWriteLast_=0; rawReadNext_ =0; rawReadLast_ =0;
@@ -217,18 +231,15 @@ void FUShmBuffer::reset()
   iRead =(unsigned int*)((unsigned int)this+dqmReadOffset_);
   for (unsigned int i=0;i<nDqmCells_;i++) { *iWrite++=i; *iRead++ =0xffffffff; }
   
-  // setup ipc semaphores
-  sem_init(0,1);          // lock (binary)
-  sem_init(1,nRawCells_); // raw  write semaphore
-  sem_init(2,0);          // raw  read  semaphore
-  sem_init(3,1);          // binary semaphore to schedule raw event for discard
-  sem_init(4,0);          // binary semaphore to discard raw event
-  sem_init(5,nRecoCells_);// reco write semaphore
-  sem_init(6,0);          // reco send (read) semaphore
-  sem_init(7,nDqmCells_); // dqm  write semaphore
-  sem_init(8,0);          // dqm  send (read) semaphore
+  for (unsigned int i=0;i<nRawCells_;i++) {
+    setEvtState(i,evt::EMPTY);
+    setEvtDiscard(i,0);
+    setEvtNumber(i,0xffffffff);
+    setRecoCellId(i,0xffffffff);
+  }
+  
+  for (unsigned int i=0;i<nDqmCells_;i++) setDqmState(i,dqm::EMPTY);
 
-  sem_print();
 }
 
 
@@ -262,6 +273,7 @@ FUShmRawCell* FUShmBuffer::rawCellToWrite()
   evt::State_t  state=evtState(iCell);
   assert(state==evt::EMPTY);
   setEvtState(iCell,evt::RAWWRITING);
+  setEvtDiscard(iCell,1);
   return cell;
 }
 
@@ -365,13 +377,14 @@ void FUShmBuffer::finishReadingDqmCell(FUShmDqmCell* cell)
 void FUShmBuffer::scheduleRawCellForDiscard(unsigned int iCell)
 {
   waitRawDiscard();
-  rawDiscardIndex_=iCell;
-  FUShmRawCell* cell=rawCell(iCell);
-  evt::State_t  state=evtState(iCell);
-  assert(state==evt::PROCESSING||state==evt::SENT||state==evt::EMPTY);
-  if (state==evt::PROCESSING) setEvtState(cell->index(),evt::PROCESSED);
-  if (segmentationMode_) shmdt(cell);
-  postRawDiscarded();
+  if (rawCellReadyForDiscard(iCell)) {
+    rawDiscardIndex_=iCell;
+    evt::State_t  state=evtState(iCell);
+    assert(state==evt::PROCESSING||state==evt::SENT||state==evt::EMPTY);
+    if (state==evt::PROCESSING) setEvtState(iCell,evt::PROCESSED);
+    postRawDiscarded();
+  }
+  else postRawDiscard();
 }
 
 
@@ -386,8 +399,12 @@ void FUShmBuffer::discardRawCell(FUShmRawCell* cell)
 //______________________________________________________________________________
 void FUShmBuffer::discardRecoCell(unsigned int iCell)
 {
-  unsigned int iRawCell=indexForRecoCellId(iCell);
-  scheduleRawCellForDiscard(iRawCell);
+  FUShmRecoCell* cell=recoCell(iCell);
+  if (cell->type()==1) {
+    unsigned int iRawCell=indexForRecoCellId(iCell);
+    scheduleRawCellForDiscard(iRawCell);
+  }
+  if (segmentationMode_) shmdt(cell);
   postRecoIndexToWrite(iCell);
   postRecoWrite();
 }
@@ -408,6 +425,7 @@ void FUShmBuffer::releaseRawCell(FUShmRawCell* cell)
   evt::State_t state=evtState(cell->index());
   assert(state==evt::DISCARDING||state==evt::RAWWRITING||state==evt::EMPTY);
   setEvtState(cell->index(),evt::EMPTY);
+  setEvtDiscard(cell->index(),0);
   setEvtNumber(cell->index(),0xffffffff);
   setRecoCellId(cell->index(),0xffffffff);
   postRawIndexToWrite(cell->index());
@@ -465,12 +483,15 @@ void FUShmBuffer::scheduleRawEmptyCellForDiscard()
 void FUShmBuffer::scheduleRawEmptyCellForDiscard(FUShmRawCell* cell)
 {
   waitRawDiscard();
-  rawDiscardIndex_=cell->index();
-  setEvtState(cell->index(),evt::EMPTY);
-  setEvtNumber(cell->index(),0xffffffff);
-  setRecoCellId(cell->index(),0xffffffff);
-  if (segmentationMode_) shmdt(cell);
-  postRawDiscarded();
+  if (rawCellReadyForDiscard(cell->index())) {
+    rawDiscardIndex_=cell->index();
+    setEvtState(cell->index(),evt::EMPTY);
+    setEvtNumber(cell->index(),0xffffffff);
+    setRecoCellId(cell->index(),0xffffffff);
+    if (segmentationMode_) shmdt(cell);
+    postRawDiscarded();
+  }
+  else postRawDiscard();
 }
 
 
@@ -492,6 +513,7 @@ bool FUShmBuffer::writeRecoEventData(unsigned int   runNumber,
   evt::State_t state=evtState(rawCellIndex);
   assert(state==evt::PROCESSING);
   setEvtState(rawCellIndex,evt::RECOWRITING);
+  setEvtDiscard(rawCellIndex,2);
   setRecoCellId(rawCellIndex,cell->index());
   cell->writeEventData(rawCellIndex,runNumber,evtNumber,data,dataSize);
   setEvtState(rawCellIndex,evt::RECOWRITTEN);
@@ -574,9 +596,7 @@ void FUShmBuffer::sem_print()
 //______________________________________________________________________________
 void FUShmBuffer::printEvtState(unsigned int index)
 {
-  lock();
   evt::State_t state=evtState(index);
-  unlock();
   std::string stateName;
   if      (state==evt::EMPTY)      stateName="EMPTY";
   else if (state==evt::RAWWRITING) stateName="RAWWRITING";
@@ -597,9 +617,7 @@ void FUShmBuffer::printEvtState(unsigned int index)
 //______________________________________________________________________________
 void FUShmBuffer::printDqmState(unsigned int index)
 {
-  lock();
   dqm::State_t state=dqmState(index);
-  unlock();
   cout<<"dqm evt "<<index<<" in state '"<<state<<"'."<<endl;
 }
 
@@ -1125,7 +1143,22 @@ bool FUShmBuffer::setEvtState(unsigned int index,evt::State_t state)
   assert(index<nRawCells_);
   evt::State_t *pstate=(evt::State_t*)((unsigned int)this+evtStateOffset_);
   pstate+=index;
+  lock();
   *pstate=state;
+  unlock();
+  return true;
+}
+
+
+//______________________________________________________________________________
+bool FUShmBuffer::setEvtDiscard(unsigned int index,unsigned int discard)
+{
+  assert(index<nRawCells_);
+  unsigned int *pcount=(unsigned int*)((unsigned int)this+evtDiscardOffset_);
+  pcount+=index;
+  lock();
+  *pcount=discard;
+  unlock();
   return true;
 }
 
@@ -1136,7 +1169,9 @@ bool FUShmBuffer::setEvtNumber(unsigned int index,unsigned int evtNumber)
   assert(index<nRawCells_);
   unsigned int *pevt=(unsigned int*)((unsigned int)this+evtNumberOffset_);
   pevt+=index;
+  lock();
   *pevt=evtNumber;
+  unlock();
   return true;
 }
 
@@ -1147,7 +1182,9 @@ bool FUShmBuffer::setRecoCellId(unsigned int index,unsigned int recoCellId)
   assert(index<nRawCells_);
   unsigned int *precoid=(unsigned int*)((unsigned int)this+evtRecoIdOffset_);
   precoid+=index;
+  lock();
   *precoid=recoCellId;
+  unlock();
   return true;
 }
 
@@ -1158,7 +1195,9 @@ bool FUShmBuffer::setDqmState(unsigned int index,dqm::State_t state)
   assert(index<nDqmCells_);
   dqm::State_t *pstate=(dqm::State_t*)((unsigned int)this+dqmStateOffset_);
   pstate+=index;
+  lock();
   *pstate=state;
+  unlock();
   return true;
 }
 
@@ -1237,6 +1276,21 @@ FUShmDqmCell* FUShmBuffer::dqmCell(unsigned int iCell)
       (FUShmDqmCell*)((unsigned int)this+dqmCellOffset_+iCell*dqmCellTotalSize_);
   }
   
+  return result;
+}
+
+
+//______________________________________________________________________________
+bool FUShmBuffer::rawCellReadyForDiscard(unsigned int index)
+{
+  assert(index<nRawCells_);
+  unsigned int *pcount=(unsigned int*)((unsigned int)this+evtDiscardOffset_);
+  pcount+=index;
+  lock();
+  assert(*pcount>0);
+  --(*pcount);
+  bool result=(*pcount==0);
+  unlock();
   return result;
 }
 
