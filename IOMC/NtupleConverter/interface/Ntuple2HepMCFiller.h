@@ -14,9 +14,8 @@
 #include <fstream>
 #include <string>
 #include <algorithm>
-#include "CLHEP/HepMC/ReadHepMC.h"
-#include "CLHEP/HepMC/GenEvent.h"
-
+#include "HepMC/IO_Ascii.h"
+#include "HepMC/GenEvent.h"
 class NtupleROOTFile;
 class Ntuple2HepMCFiller {
 	

@@ -3,8 +3,7 @@
 *  \author Joanna Weng  - CERN, Ph Division & Uni Karlsruhe
 */
 #include "IOMC/NtupleConverter/interface/Ntuple2HepMCFiller.h"
-#include "CLHEP/HepMC/ReadHepMC.h"
-#include "CLHEP/HepMC/GenEvent.h"
+
 #include<iostream>
 #include "IOMC/NtupleConverter/interface/NtupleROOTFile.h"  
 using namespace std;
@@ -145,7 +144,7 @@ HepMC::GenParticle* Ntuple2HepMCFiller::createParticle( int index ) {
 	
 	// Builds a particle object corresponding to index in HEPEVT
 	HepMC::GenParticle* p 
-	= new HepMC::GenParticle(CLHEP::HepLorentzVector( input_->getPhep(index,0), 
+	= new HepMC::GenParticle(FourVector( input_->getPhep(index,0), 
 	input_->getPhep(index,1), 
 	input_->getPhep(index,2), 
 	input_->getPhep(index,3)),
@@ -180,16 +179,16 @@ HepMC::GenEvent* evt, bool printInconsistencyErrors )
 	// b. if no suitable production vertex exists - and the particle
 	// has atleast one mother or position information to store - 
 	// make one@@@
-	CLHEP::HepLorentzVector prod_pos( input_->getVhep(i,0), input_->getVhep(i,1), 
+	FourVector prod_pos( input_->getVhep(i,0), input_->getVhep(i,1), 
 	input_->getVhep(i,2), input_->getVhep(i,3));
        	// orginal:
-	if ( !prod_vtx && (number_parents(i)>0	|| prod_pos!=CLHEP::HepLorentzVector(0,0,0,0) )){
+	if ( !prod_vtx && (number_parents(i)>0	|| prod_pos!=FourVector(0,0,0,0) )){
 		prod_vtx = new HepMC::GenVertex();	
 		prod_vtx->add_particle_out( p );
 		evt->add_vertex( prod_vtx );
 	}
 	// c. if prod_vtx doesn't already have position specified, fill it
-	if ( prod_vtx && prod_vtx->position()==CLHEP::HepLorentzVector(0,0,0,0) ) {
+	if ( prod_vtx && prod_vtx->position()==FourVector(0,0,0,0) ) {
 		prod_vtx->set_position( prod_pos );
 	}
 	// d. loop over mothers to make sure their end_vertices are

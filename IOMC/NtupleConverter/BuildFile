@@ -1,7 +1,7 @@
 <use name=boost>
 <use name=FWCore/Framework>
 <use name=SimDataFormats/HepMCProduct>
-<use name=clhep>
+<use name=hepmc>
 <use name=root> 
 <flags SEAL_PLUGIN_NAME="IOMCNtupleConverter">
 <export>
@@ -9,7 +9,7 @@
  <use name=boost>
  <use name=FWCore/Framework>
  <use name=SimDataFormats/HepMCProduct>
- <use name=clhep>  
+ <use name=hepmc>  
  <use name=root> 
 </export>
 
