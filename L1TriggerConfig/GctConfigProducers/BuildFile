@@ -1,5 +1,5 @@
 <use name=FWCore/Framework>
-<use name=Foundation/PluginManager>
+<use name=FWCore/PluginManager>
 <use name=FWCore/ParameterSet>
 <use name=CondFormats/L1TObjects>
 <use name=CondFormats/DataRecord>
@@ -7,7 +7,7 @@
 <export>
    <lib name=L1TriggerConfigGctConfigProducers>
    <use name=FWCore/Framework>
-   <use name=Foundation/PluginManager>
+   <use name=FWCore/PluginManager>
    <use name=FWCore/ParameterSet>
    <use name=CondFormats/L1TObjects>
    <use name=CondFormats/DataRecord>
