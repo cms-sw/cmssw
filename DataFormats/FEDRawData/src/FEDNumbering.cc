@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2005/10/18 13:29:04 $
- *  $Revision: 1.5 $
+ *  $Date: 2006/05/16 10:33:53 $
+ *  $Revision: 1.6 $
  *  \author G. Bruno  - CERN, EP Division
  */
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
@@ -10,7 +10,7 @@
 const int FEDNumbering::MAXFEDID = 1023; // 10 bits
 
 const int FEDNumbering::MINSiPixelFEDID = 0;
-const int FEDNumbering::MAXSiPixelFEDID = 37;
+const int FEDNumbering::MAXSiPixelFEDID = 39;
 
 const int FEDNumbering::MINSiStripFEDID = 50;
 const int FEDNumbering::MAXSiStripFEDID = 489;
