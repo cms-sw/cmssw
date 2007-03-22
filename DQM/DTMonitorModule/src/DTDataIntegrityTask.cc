@@ -1,8 +1,8 @@
 /*
  * \file DTDataIntegrityTask.cc
  * 
- * $Date: 2007/03/15 10:26:43 $
- * $Revision: 1.16 $
+ * $Date: 2007/03/19 13:39:26 $
+ * $Revision: 1.17 $
  * \author M. Zanetti (INFN Padova), S. Bolognesi (INFN Torino)
  *
 */
@@ -39,7 +39,6 @@ DTDataIntegrityTask::DTDataIntegrityTask(const edm::ParameterSet& ps,edm::Activi
 
   neventsDDU = 0;
   neventsROS25 = 0;
-  myPrev_ttsValue = -999;
 
   outputFile = ps.getUntrackedParameter<string>("outputFile", "ROS25Test.root");
 
@@ -631,11 +630,11 @@ void DTDataIntegrityTask::processFED(DTDDUData & data, int ddu) {
   }
 
   //MONITOR TTS VS TIME if the tts value is changed from the last event
-  if(trailer.ttsBits() != myPrev_ttsValue){
-    ev_ttsChange.push_back(header.lvl1ID());
-    ttsChange.push_back(trailer.ttsBits());
-    myPrev_ttsValue = trailer.ttsBits();
-  }
+ //  if(trailer.ttsBits() != myPrev_ttsValue){
+//     ev_ttsChange.push_back(header.lvl1ID());
+//     ttsChange.push_back(trailer.ttsBits());
+//     myPrev_ttsValue = trailer.ttsBits();
+//   }
 
   //1D HISTOS: EVENT LENGHT from trailer
   //cout<<"1D HISTOS WITH EVENT LENGHT from trailer"<<endl;
@@ -694,11 +693,11 @@ void DTDataIntegrityTask::processFED(DTDDUData & data, int ddu) {
   }
 
   //MONITOR ROS LIST VS TIME if the ROS list is changed from the last event
-  if(rosPositions.size() != myPrev_ROSList){
-    ev_ROSListChange.push_back(header.lvl1ID());
-    ROSListChange.push_back(rosPositions.size());
-    myPrev_ROSList = rosPositions.size();
-  }
+  // if(rosPositions.size() != myPrev_ROSList){
+//     ev_ROSListChange.push_back(header.lvl1ID());
+//     ROSListChange.push_back(rosPositions.size());
+//     myPrev_ROSList = rosPositions.size();
+//   }
 
   //2D HISTO: FIFO STATUS from 2nd status word
   histoType = "DDUFIFOStatus";   
