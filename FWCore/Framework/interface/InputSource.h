@@ -38,7 +38,7 @@ Some examples of InputSource subclasses may be:
  3) DAQInputSource: creats EventPrincipals which contain raw data, as
     delivered by the L1 trigger and event builder. 
 
-$Id: InputSource.h,v 1.22 2007/03/04 06:00:22 wmtan Exp $
+$Id: InputSource.h,v 1.23 2007/03/22 06:07:18 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -131,7 +131,8 @@ namespace edm {
     void doEndJob();
 
     /// Called by framework when events are exhausted.
-    void doEndLumiAndRun() {endLumiAndRun();}
+    void doFinishLumi() {finishLumi();}
+    void doFinishRun() {finishRun();}
 
     using ProductRegistryHelper::produces;
     using ProductRegistryHelper::typeLabelList;
@@ -141,41 +142,26 @@ namespace edm {
     // Indicate inability to get a new event by returning a null
     // auto_ptr.
     virtual std::auto_ptr<EventPrincipal> read() = 0;
-
     virtual std::auto_ptr<EventPrincipal> readIt(EventID const&);
-
     virtual void skip(int);
-
     virtual void setRun(RunNumber_t r);
-
     virtual void setLumi(LuminosityBlockNumber_t lb);
-
     virtual void rewind_();
-
     virtual void wakeUp_(){}
-
     void preRead();
-
     void postRead(Event& event);
-
-    virtual void endLumiAndRun(){}
-
+    virtual void finishLumi(){}
+    virtual void finishRun(){}
     virtual void beginJob(EventSetup const&){}
-
     virtual void endJob(){}
 
   private:
 
     int maxEvents_;
-
     int remainingEvents_;
-
     int readCount_;
-
     bool unlimited_;
-
     InputSourceDescription const isDesc_;
-
     bool const primary_;
   };
 }

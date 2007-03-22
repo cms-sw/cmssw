@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: ConfigurableInputSource.cc,v 1.17 2007/03/04 06:10:25 wmtan Exp $
+$Id: ConfigurableInputSource.cc,v 1.18 2007/03/22 06:09:27 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -79,24 +79,18 @@ namespace edm {
     lb.commit_();
   }
 
-  void
-  ConfigurableInputSource::endLumiAndRun() {
-    if (luminosityBlockPrincipal_.get() == 0) {
-      if (runPrincipal_.get() == 0) {
-        startRun();
-      }
-      startLumi();
-    }
-    finishLumi();
-    finishRun();
-  }
-
   std::auto_ptr<EventPrincipal>
   ConfigurableInputSource::read() {
     RunNumber_t oldRun = eventID_.run();
     LuminosityBlockNumber_t oldLumi = luminosityBlock_;
     setRunAndEventInfo();
     if (eventID_ == EventID()) {
+      if (luminosityBlockPrincipal_.get() == 0) {
+        if (runPrincipal_.get() == 0) {
+          startRun();
+        }
+        startLumi();
+      }
       return std::auto_ptr<EventPrincipal>(0); 
     }
     bool isNewRun = justBegun_ || oldRun != eventID_.run();

@@ -227,8 +227,6 @@ namespace edm
     demandGroups_(),
     endpathsAreActive_(true)
   {
-    typedef std::vector<ParameterSet> VPSet;
-
     ParameterSet maxEventsPSet(pset_.getUntrackedParameter<ParameterSet>("maxEvents", ParameterSet()));
 
     std::string const input("input");
@@ -237,7 +235,7 @@ namespace edm
     int maxEventSpecs = 0; 
     int maxEventsIn = -1;
     int maxEventsOut = -1;
-    VPSet vMaxEventsOut;
+    ParameterSet vMaxEventsOut;
     std::vector<std::string> intNames = maxEventsPSet.getParameterNamesForType<int>(false);
     if (intNames.end() != std::find(intNames.begin(), intNames.end(), input)) {
       maxEventsIn = maxEventsPSet.getUntrackedParameter<int>(input);
@@ -247,10 +245,10 @@ namespace edm
       maxEventsOut = maxEventsPSet.getUntrackedParameter<int>(output);
       ++maxEventSpecs;
     }
-    std::vector<std::string> vpsetNames;
-    maxEventsPSet.getParameterSetVectorNames(vpsetNames, false);
-    if (vpsetNames.end() != std::find(vpsetNames.begin(), vpsetNames.end(), output)) {
-      vMaxEventsOut = maxEventsPSet.getUntrackedParameter<VPSet>(output);
+    std::vector<std::string> psetNames;
+    maxEventsPSet.getParameterSetNames(psetNames, false);
+    if (psetNames.end() != std::find(psetNames.begin(), psetNames.end(), output)) {
+      vMaxEventsOut = maxEventsPSet.getUntrackedParameter<ParameterSet>(output);
       ++maxEventSpecs;
     }
 
@@ -373,26 +371,22 @@ namespace edm
           all_output_workers_.push_back(std::make_pair(maxEventsOut, workerPtr));
 	}
       }
+      if (all_output_workers_.empty()) {
+	throw edm::Exception(edm::errors::Configuration) <<
+	  "\nMaximum output specified, and there are no output modules configured.\n";
+      }
     } else if (!vMaxEventsOut.empty()) {
       for (AllWorkers::const_iterator it = workersBegin(), itEnd = workersEnd();
 	  it != itEnd; ++it) {
         OutputWorker const* workerPtr = dynamic_cast<OutputWorker*>(*it);
 	if (workerPtr) {
-	  bool found = false;
 	  std::string moduleLabel = workerPtr->description().moduleLabel_;
-	  for (VPSet::const_iterator i = vMaxEventsOut.begin(), iEnd = vMaxEventsOut.end();
-	      i != iEnd; ++i) {
-            std::vector<std::string> iNames = i->getParameterNamesForType<int>(false);
-	    if (iNames.end() != std::find(iNames.begin(), iNames.end(), moduleLabel)) {
-	      found = true;
-              all_output_workers_.push_back(std::make_pair(i->getUntrackedParameter<int>(moduleLabel), workerPtr));
-	      break;
-	    }
-	  }
-	  if (!found) {
+	  try {
+            all_output_workers_.push_back(std::make_pair(vMaxEventsOut.getUntrackedParameter<int>(moduleLabel), workerPtr));
+	  } catch (edm::Exception) {
 	    throw edm::Exception(edm::errors::Configuration) <<
-	      "\nNo entry in 'maxEvents' for output module with label " << moduleLabel << ".\n";
-	    }
+	      "\nNo entry in 'maxEvents' for output module label '" << moduleLabel << "'.\n";
+	  }
 	}
       }
     }
@@ -413,18 +407,22 @@ namespace edm
   }
 
   bool const Schedule::terminate() const {
+    if (all_output_workers_.empty()) {
+      // not terminating on output event count.
+      return false;
+    }
     for (AllOutputWorkers::const_iterator it = all_output_workers_.begin(),
 	itEnd = all_output_workers_.end();
 	it != itEnd; ++it) {
-      if (it->first >= 0 && it->second->eventCount() >= it->first) {
-	LogInfo("SuccessfulTermination")
-	  << "The job is terminating successfully because output module '"
-	  << it->second->description().moduleLabel_
-	  << "'\nhas reached the configured limit of " << it->second->eventCount() << " events.\n";
-	return true;
+      if (it->first < 0 || it->second->eventCount() < it->first) {
+        // Found an output module that has not reached output event count.
+        return false;
       }
     }
-    return false;
+    LogInfo("SuccessfulTermination")
+      << "The job is terminating successfully because each output module\n"
+      << "has reached its configured limit.\n";
+    return true;
   }
 
   void Schedule::handleWronglyPlacedModules()

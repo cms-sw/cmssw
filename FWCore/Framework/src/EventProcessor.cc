@@ -748,10 +748,13 @@ namespace edm {
   void
   EventProcessor::endLumiAndRun(EventPrincipal & ep, bool isNewRun) const {
     IOVSyncValue ts(ep.id(), ep.time());
-    input_->doEndLumiAndRun();
+    input_->doFinishLumi();
     EventSetup const& es = esp_->eventSetupForInstance(ts);
     schedule_->runOneEvent(ep, es, BranchActionEndLumi);
-    if (isNewRun) schedule_->runOneEvent(ep, es, BranchActionEndRun);
+    if (isNewRun) {
+      input_->doFinishRun();
+      schedule_->runOneEvent(ep, es, BranchActionEndRun);
+    }
   }
 
   EventProcessor::StatusCode
