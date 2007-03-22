@@ -19,6 +19,7 @@ rm -f ${LOCAL_TMP_DIR}/PreEdmFastMergeTest_1.cfg          ${LOCAL_TMP_DIR}/PreEd
 cat > ${LOCAL_TMP_DIR}/PreEdmFastMergeTest_1.cfg << !
 # Configuration file for PreEdmFastMergeTest_1
 process TESTPROD = {
+	untracked PSet maxEvents = {untracked int32 input = 10}
         include "FWCore/Framework/test/cmsExceptionsFatal.cff"
 	path p = {Thing, OtherThing}
 	module Thing = ThingProducer {untracked int32 debugLevel = 0}
@@ -30,7 +31,6 @@ process TESTPROD = {
 		untracked int32 maxSize = 100000
 	}
 	source = EmptySource {
-                 untracked int32 maxEvents = 10
                  untracked uint32 firstEvent = 1
                  untracked uint32 firstRun = 100
 
@@ -47,6 +47,7 @@ cmsRun --parameter-set ${LOCAL_TMP_DIR}/PreEdmFastMergeTest_1.cfg || die 'Failur
 cat > ${LOCAL_TMP_DIR}/PreEdmFastMergeTest_2.cfg << !
 # Configuration file for PreEdmFastMergeTest_2
 process TESTPROD = {
+	untracked PSet maxEvents = {untracked int32 input = 15}
         include "FWCore/Framework/test/cmsExceptionsFatal.cff"
 	path p = {Thing, OtherThing}
 	module Thing = ThingProducer {untracked int32 debugLevel = 0}
@@ -58,7 +59,6 @@ process TESTPROD = {
 		untracked int32 maxSize = 100000
 	}
 	source = EmptySource {
-                 untracked int32 maxEvents = 15
                  untracked uint32 firstEvent = 100
                  untracked uint32 firstRun = 200
         }

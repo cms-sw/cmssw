@@ -29,9 +29,10 @@ process TEST = {
     PSet critical.txt     = { <font color=red>bool noLineBreaks = true</font>   }
     PSet detailedInfo.txt = { <font color=red>int32  lineLength = 132</font>    } 
   }
+  untracked PSet maxEvents = {untracked int32 input = 5}
   path p = { myAnalysisModule }
   module myAnalysisModule = ModuleThatIssuesMessages { }
-  source = EmptySource {untracked int32 maxEvents = 5}
+  source = EmptySource { }
 }
 </pre>
 

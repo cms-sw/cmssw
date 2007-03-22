@@ -33,9 +33,10 @@ process TEST = {
     <font color=red>PSet long_job_report.xml  = { string threshold = "INFO"  }</font>
     <font color=red>PSet terse_job_report.xml = { string threshold = "ERROR" }</font>
   }
+  untracked PSet maxEvents = {untracked int32 input = 5}
   path p = { myAnalysisModule }
   module myAnalysisModule = ModuleThatIssuesMessages { }
-  source = EmptySource {untracked int32 maxEvents = 5}
+  source = EmptySource { }
 }
 </pre>
 

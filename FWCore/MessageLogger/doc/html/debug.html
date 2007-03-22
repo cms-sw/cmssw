@@ -75,11 +75,12 @@ process TEST = {
                              , "myOtherModule   
 			   }</font>
   }
+  untracked PSet maxEvents = {untracked int32 input = 5}
   path p = { myAnalysisModule, myOtherModule, aThirdModule }
   module myAnalysisModule = ModuleThatIssuesDebugMessages { }
   module myOtherModule    = ModuleThatIssuesDebugMessages { }
   module aThirdModule     = ModuleThatIssuesDebugMessages { }
-  source = EmptySource {untracked int32 maxEvents = 5}
+  source = EmptySource { }
 }
 </pre>
 
@@ -113,11 +114,12 @@ process TEST = {
     PSet detailedInfo.txt = { string threshold = "DEBUG"    } 
     <font color=red>vstring debugModules = {  "*"  } </font>
   }
+  untracked PSet maxEvents = {untracked int32 input = 5}
   path p = { myAnalysisModule, myOtherModule, aThirdModule }
   module myAnalysisModule = ModuleThatIssuesDebugMessages { }
   module myOtherModule    = ModuleThatIssuesDebugMessages { }
   module aThirdModule     = ModuleThatIssuesDebugMessages { }
-  source = EmptySource {untracked int32 maxEvents = 5}
+  source = EmptySource { }
 }
 </pre>
 (Remember that you still have to set one or more thresholds to 

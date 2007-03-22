@@ -9,6 +9,7 @@ rm -f ${LOCAL_TMP_DIR}/PrePoolInputTest.cfg ${LOCAL_TMP_DIR}/PoolInputTest.cfg
 cat > ${LOCAL_TMP_DIR}/PrePoolInputTest.cfg << !
 # Configuration file for PrePoolInputTest 
 process TESTPROD = {
+	untracked PSet maxEvents = {untracked int32 input = 11}
 	include "FWCore/Framework/test/cmsExceptionsFatal.cff"
 	path p = {Thing}
 	module Thing = ThingProducer {untracked int32 debugLevel = 1}
@@ -19,7 +20,6 @@ process TESTPROD = {
 		untracked int32 maxSize = 100000
 	}
 	source = EmptySource {
-		untracked int32 maxEvents = 11
 		untracked uint32 firstRun = 561
 		untracked uint32 firstLuminosityBlock = 6
 		untracked uint32 numberEventsInLuminosityBlock = 3
@@ -35,6 +35,7 @@ cp ${LOCAL_TMP_DIR}/PoolInputTest.root ${LOCAL_TMP_DIR}/PoolInputOther.root
 cat > ${LOCAL_TMP_DIR}/PoolInputTest.cfg << !
 # Configuration file for PoolInputTest
 process TESTRECO = {
+	untracked PSet maxEvents = {untracked int32 input = -1}
 	include "FWCore/Framework/test/cmsExceptionsFatal.cff"
 	path p = {OtherThing, Analysis}
 	module OtherThing = OtherThingProducer {untracked int32 debugLevel = 1}
@@ -46,7 +47,6 @@ process TESTRECO = {
 			'file:${LOCAL_TMP_DIR}/PoolInputOther.root'
 		}
 		untracked string catalog = '${LOCAL_TMP_DIR}/PoolInputTestCatalog.xml'
-		untracked int32 maxEvents = -1
 	}
 }
 !

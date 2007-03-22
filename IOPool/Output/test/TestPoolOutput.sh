@@ -7,6 +7,7 @@ rm -f ${LOCAL_TMP_DIR}/PoolOutputTest.root ${LOCAL_TMP_DIR}/PoolOutputTestCatalo
 cat > ${LOCAL_TMP_DIR}/PoolOutputTest.cfg << !
 # Configuration file for PoolOutputTest
 process TESTPROD = {
+	untracked PSet maxEvents = {untracked int32 input = 20}
 	include "FWCore/Framework/test/cmsExceptionsFatal.cff"
 	path p = {Thing, OtherThing}
 	module Thing = ThingProducer {untracked int32 debugLevel = 1}
@@ -17,7 +18,7 @@ process TESTPROD = {
 		untracked string logicalFileName = 'PoolTest.root'
 		untracked int32 maxSize = 100000
 	}
-	source = EmptySource {untracked int32 maxEvents = 20}
+	source = EmptySource {}
 	endpath ep = {output}
 }
 !

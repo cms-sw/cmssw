@@ -21,9 +21,10 @@ process TEST = {
     vstring destinations = {   "detailedInfo.txt"  }
     <font color=red>PSet log4cplus     = { string threshold = "ERROR"   }</font>
   }
+  untracked PSet maxEvents = {untracked int32 input = 5}
   path p = { myAnalysisModule }
   module myAnalysisModule = ModuleThatIssuesMessages { }
-  source = EmptySource {untracked int32 maxEvents = 5}
+  source = EmptySource { }
 }
 </pre>
 

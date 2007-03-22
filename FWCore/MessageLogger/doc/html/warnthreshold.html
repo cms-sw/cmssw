@@ -28,9 +28,10 @@ process TEST = {
     PSet detailedInfo.txt = { string threshold = "INFO"    } 
     PSet cerr             = { <font color=red>string threshold = "WARNING"</font> }
   }
+  untracked PSet maxEvents = {untracked int32 input = 5}
   path p = { myAnalysisModule }
   module myAnalysisModule = ModuleThatIssuesMessages { }
-  source = EmptySource {untracked int32 maxEvents = 5}
+  source = EmptySource { }
 }
 </pre>
 

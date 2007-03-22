@@ -48,9 +48,10 @@ process TEST =
     PSet anotherStats         = { string output = "more_stats.txt" }
     PSet error_messages.txt   = { string threshold  = "ERROR" }
   }
+  untracked PSet maxEvents = {untracked int32 input = 5}
   path p = { myAnalysisModule }
   module myAnalysisModule = ModuleThatIssuesMessages { }
-  source = EmptySource {untracked int32 maxEvents = 5}
+  source = EmptySource { }
 }
 </pre>
 
@@ -154,9 +155,10 @@ process TEST =
     PSet statistics.txt  = { string threshold  = "WARNING"   }
     <font color=red>PSet runstats.txt    = { bool reset = true }</font>
   }
+  untracked PSet maxEvents = {untracked int32 input = 5}
   path p = { myAnalysisModule }
   module myAnalysisModule = ModuleThatIssuesMessages { }
-  source = EmptySource {untracked int32 maxEvents = 5}
+  source = EmptySource { }
 }
 </pre>
 

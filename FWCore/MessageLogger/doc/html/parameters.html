@@ -176,9 +176,10 @@ process TEST = {
     <a href="filename.html">PSet detailedInfo.txt</a> = { <a href="infothreshold.html">string threshold = "INFO"</a>    } 
     <a href="cerr.html">PSet cerr</a>             = { <a href="warnthreshold.html">string threshold = "WARNING"</a> }
   }
+  untracked PSet maxEvents = {untracked int32 input = 5}
   path p = { myAnalysisModule }
   module myAnalysisModule = ModuleThatIssuesMessages { }
-  source = EmptySource {untracked int32 maxEvents = 5}
+  source = EmptySource { }
 }
 </pre>
 
@@ -252,9 +253,10 @@ process TEST = {
     vstring destinations = {   "detailedInfo.txt"  }
     <a href="log4cplus.html">PSet log4cplus     = { string threshold = "ERROR"   }</a>
   }
+  untracked PSet maxEvents = {untracked int32 input = 5}
   path p = { myAnalysisModule }
   module myAnalysisModule = ModuleThatIssuesMessages { }
-  source = EmptySource {untracked int32 maxEvents = 5}
+  source = EmptySource { }
 }
 </pre>
 
@@ -331,9 +333,10 @@ process TEST = {
                      <a href="defdefault.html">int32 timespan = 60</a>
 		   <a href="defdefault.html">}</a>
   }
+  untracked PSet maxEvents = {untracked int32 input = 10}
   path p = { sendSomeMessages }
   module sendSomeMessages = MessageLoggerClient { }
-  source = EmptySource {untracked int32 maxEvents = 10}
+  source = EmptySource { }
 }
 </pre>
 
@@ -357,9 +360,10 @@ process TEST = {
     PSet critical.txt     = { <a href="linebreak.html">bool noLineBreaks = true</a>   }
     PSet detailedInfo.txt = { <a href="linebreak.html">int32  lineLength = 132</a>    } 
   }
+  untracked PSet maxEvents = {untracked int32 input = 5}
   path p = { myAnalysisModule }
   module myAnalysisModule = ModuleThatIssuesMessages { }
-  source = EmptySource {untracked int32 maxEvents = 5}
+  source = EmptySource { }
 }
 </pre>
 

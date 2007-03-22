@@ -59,9 +59,11 @@ process TEST = {
                      int32 timespan = 60
 		   }
   }
+
+  untracked PSet maxEvents = {untracked int32 input = 10}
   path p = { myAnalysisModule }
   module myAnalysisModule = ModuleThatIssuesMessages { }
-  source = EmptySource {untracked int32 maxEvents = 10}
+  source = EmptySource { }
 }
 </pre>
 

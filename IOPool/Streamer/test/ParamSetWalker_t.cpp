@@ -83,11 +83,12 @@ class ParamSetWalker {
   
 int main() {
   string test_config =   "process PROD  = { 
+    untracked PSet maxEvents = { untracked int32 input = 10 }
     untracked PSet options = { 
           untracked bool wantSummary=false 
           // untracked bool makeTriggerResults=true 
     } 
-    source = EmptySource { untracked int32 maxEvents = 10 } 
+    source = EmptySource { } 
     module m1 = TestWalkPSets { int32 ivalue = 10 } 
     module m2 = DoubleProducer { double dvalue = 3.3 } 
     module m3 = DoubleProducer { double dvalue = 3.3 } 
