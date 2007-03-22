@@ -80,8 +80,8 @@ TIFNtupleMaker::TIFNtupleMaker(edm::ParameterSet const& conf) :
   bTriggerRBC2(false),
   bTriggerRPC(false) {
   
-  Anglefinder = new TrackLocalAngleTIF();  
-}
+    Anglefinder = new TrackLocalAngleTIF();  
+  }
 
 void TIFNtupleMaker::beginJob(const edm::EventSetup& c) {
 
@@ -199,7 +199,7 @@ void TIFNtupleMaker::analyze(const edm::Event& e, const edm::EventSetup& es) {
 
   using namespace edm;
 
-  std::map<uint32_t, int>                           oProcessedClusters;
+  std::map<std::pair<uint32_t, int>, int>           oProcessedClusters;
   std::map<SiSubDet, std::map<unsigned char, int> > oClustersPerLayer;
   std::vector<SiStripDigi>                          oDigis;
   std::vector<SiStripClusterInfo>                   oClusterInfos;
@@ -242,7 +242,7 @@ void TIFNtupleMaker::analyze(const edm::Event& e, const edm::EventSetup& es) {
     std::cout << "else" << std::endl;
     e.getByLabel( oSiStripDigisLabel_.c_str(), oDSVDigis);
   }
-//   std::cout << "numberOfCLusters:= oDSVDigis->size() = " << oDSVDigis->size() << std::endl;
+  //   std::cout << "numberOfCLusters:= oDSVDigis->size() = " << oDSVDigis->size() << std::endl;
 
   // Take the number of cluster in the event
   // ---------------------------------------
@@ -454,9 +454,9 @@ void TIFNtupleMaker::analyze(const edm::Event& e, const edm::EventSetup& es) {
 
 	    // To select which clusters belong to more than one track
 	    // ------------------------------------------------------
-	    pair<std::map<uint32_t, int>::iterator, bool> inserted;
-	    inserted = oProcessedClusters.insert(make_pair(cluster->geographicalId(),
-							   oIter->firstStrip()));
+	    std::pair<std::map<pair<uint32_t, int>,int>::iterator, bool> inserted;
+	    inserted = oProcessedClusters.insert(std::make_pair( std::make_pair(cluster->geographicalId(),
+								      oIter->firstStrip()), 0) );
 	    shared = false;
 
 	    // Write if the cluster is shared
@@ -658,166 +658,162 @@ void TIFNtupleMaker::analyze(const edm::Event& e, const edm::EventSetup& es) {
     oClustersPerLayer[SiSubDet( oStripSubdet.subdetId())][ucLayer] += oDSVIter->data.size();
     std::cout << "oDSVIter->size() = " << oDSVIter->size() << std::endl;
 
-    if( oProcessedClusters.end() ==
-	oProcessedClusters.find(oDSVIter->id) ){
-
-      // Extract ClusterInfos collection for given module
-      oClusterInfos = oDSVIter->data;
-      oDigis        = oDSVDigis->operator[]( oDSVIter->id).data;
+    // Extract ClusterInfos collection for given module
+    oClusterInfos = oDSVIter->data;
+    oDigis        = oDSVDigis->operator[]( oDSVIter->id).data;
  
-      // Work in progress
-      // ----------------
-      // Different detectors -> different counters,
-      // or else we cannot distinguish in simulation
-      //       if(conf_.getParameter<bool>("TIB_ON") && StripSubdetector::TIB == oStripSubdet.subdetId()){
-      // 	nTotClustersTIB += oClusterInfos.size();
-      //       }
-      //       if(conf_.getParameter<bool>("TOB_ON") && StripSubdetector::TOB == oStripSubdet.subdetId()){
-      // 	nTotClustersTOB += oClusterInfos.size();
-      //       }
-      //       if(conf_.getParameter<bool>("TID_ON") && StripSubdetector::TID == oStripSubdet.subdetId()){
-      // 	nTotClustersTID += oClusterInfos.size();
-      //       }
-      //       if(conf_.getParameter<bool>("TEC_ON") && StripSubdetector::TEC == oStripSubdet.subdetId()){
-      // 	nTotClustersTEC += oClusterInfos.size();
-      //       }
-      // ----------------
+    // Work in progress
+    // ----------------
+    // Different detectors -> different counters,
+    // or else we cannot distinguish in simulation
+    //       if(conf_.getParameter<bool>("TIB_ON") && StripSubdetector::TIB == oStripSubdet.subdetId()){
+    // 	nTotClustersTIB += oClusterInfos.size();
+    //       }
+    //       if(conf_.getParameter<bool>("TOB_ON") && StripSubdetector::TOB == oStripSubdet.subdetId()){
+    // 	nTotClustersTOB += oClusterInfos.size();
+    //       }
+    //       if(conf_.getParameter<bool>("TID_ON") && StripSubdetector::TID == oStripSubdet.subdetId()){
+    // 	nTotClustersTID += oClusterInfos.size();
+    //       }
+    //       if(conf_.getParameter<bool>("TEC_ON") && StripSubdetector::TEC == oStripSubdet.subdetId()){
+    // 	nTotClustersTEC += oClusterInfos.size();
+    //       }
+    // ----------------
 
-      std::cout << "clusterinfo size = " << oClusterInfos.size() << std::endl;
+    std::cout << "clusterinfo size = " << oClusterInfos.size() << std::endl;
 
-      numberoftkclusters = nTrackClusters;
-      numberofnontkclusters = numberofclusters - nTrackClusters;
+    numberoftkclusters = nTrackClusters;
+    numberofnontkclusters = numberofclusters - nTrackClusters;
 
-      // Loop over ClusterInfos collection
-      // ---------------------------------
-      std::vector<SiStripClusterInfo>::iterator oIter;
-      for( oIter= oClusterInfos.begin(); oIter != oClusterInfos.end();	++oIter ){
+    // Loop over ClusterInfos collection
+    // ---------------------------------
+    std::vector<SiStripClusterInfo>::iterator oIter;
+    for( oIter= oClusterInfos.begin(); oIter != oClusterInfos.end();	++oIter ){
 
-	// Check if given ClusterInfo was already processed
-	// ------------------------------------------------
-	if( oProcessedClusters[oDSVIter->id] !=
-	    oIter->firstStrip()) {
+      // 	// Check if given ClusterInfo was already processed
+      // 	// ------------------------------------------------
+      if( oProcessedClusters.end() ==
+	  oProcessedClusters.find( std::make_pair( oDSVIter->id, oIter->firstStrip() ) ) ) {
 
-	  // Initializations per hit
-	  // -----------------------
-	  module                = -99;
-	  type                  = -99;
-	  layer                 = -99;      // There is no layer for TID and TEC
-	  string                = -99;      // String exists only for TIB
-	  rod                   = -99;      // Only for TOB
-	  extint                = -99;      // Olny for TIB
-	  size                  = -99;
-	  angle                 = -9999;    // filled Only for hits belonging to track
-	  tk_phi                = -9999;    // filled Only for hits belonging to track
-	  tk_theta              = -9999;    // filled Only for hits belonging to track
-	  tk_id                 = 0;        // Only for track
-	  shared                = false;    // Only for track
-	  momentum              = -99;      // Only for track
-	  pt	                = -99;      // Only for track
-	  charge                = -99;      // Only for track
-	  eta	                = -99;      // Only for track
-	  phi	                = -99;      // Only for track
-	  hitspertrack          = -99;      // Only for track
-	  normchi2              = -99;      // Only for track
-	  chi2                  = -99;      // Only for track
-	  ndof                  = -99;      // Only for track
-	  sign                  = -99;      // Not needed
-	  bwfw                  = -99;
-	  wheel                 = -99;      // Only for TID, TEC
-	  monostereo            = -99; 
-	  stereocorrection      = -9999;    // Only for track
-	  localmagfield         = -99.;
-	  clusterpos            = -99.;  
-	  clustereta            = -99.;
-	  clusterchg            = -99.;
-	  clusterchgl           = -99.;
-	  clusterchgr           = -99.;
-	  clusternoise          = -99;
-	  clusterbarycenter     = -99;
-	  clustermaxchg         = -99.;
-	  clusterseednoise      = -99;
-	  clustercrosstalk      = -99.;
-	  dLclX	                = -99;
-	  dLclY	                = -99;
-	  dLclZ	                = -99;
-	  dGlbX	                = -99;
-	  dGlbY	                = -99;
-	  dGlbZ	                = -99;
-	  numberoftkclusters    = -99;   // could be filled before?
-	  numberofnontkclusters = -99;
+	// Initializations per hit
+	// -----------------------
+	module                = -99;
+	type                  = -99;
+	layer                 = -99;      // There is no layer for TID and TEC
+	string                = -99;      // String exists only for TIB
+	rod                   = -99;      // Only for TOB
+	extint                = -99;      // Olny for TIB
+	size                  = -99;
+	angle                 = -9999;    // filled Only for hits belonging to track
+	tk_phi                = -9999;    // filled Only for hits belonging to track
+	tk_theta              = -9999;    // filled Only for hits belonging to track
+	tk_id                 = 0;        // Only for track
+	shared                = false;    // Only for track
+	momentum              = -99;      // Only for track
+	pt	                = -99;      // Only for track
+	charge                = -99;      // Only for track
+	eta	                = -99;      // Only for track
+	phi	                = -99;      // Only for track
+	hitspertrack          = -99;      // Only for track
+	normchi2              = -99;      // Only for track
+	chi2                  = -99;      // Only for track
+	ndof                  = -99;      // Only for track
+	sign                  = -99;      // Not needed
+	bwfw                  = -99;
+	wheel                 = -99;      // Only for TID, TEC
+	monostereo            = -99; 
+	stereocorrection      = -9999;    // Only for track
+	localmagfield         = -99.;
+	clusterpos            = -99.;  
+	clustereta            = -99.;
+	clusterchg            = -99.;
+	clusterchgl           = -99.;
+	clusterchgr           = -99.;
+	clusternoise          = -99;
+	clusterbarycenter     = -99;
+	clustermaxchg         = -99.;
+	clusterseednoise      = -99;
+	clustercrosstalk      = -99.;
+	dLclX	                = -99;
+	dLclY	                = -99;
+	dLclZ	                = -99;
+	dGlbX	                = -99;
+	dGlbY	                = -99;
+	dGlbZ	                = -99;
+	numberoftkclusters    = -99;   // could be filled before?
+	numberofnontkclusters = -99;
 
 
-	  StripSubdetector oStripSubdet( oIter->geographicalId());
-	  module     = oStripSubdet.rawId();
-	  type	     = oStripSubdet.subdetId();
-	  monostereo = oStripSubdet.stereo();
+	StripSubdetector oStripSubdet( oIter->geographicalId());
+	module     = oStripSubdet.rawId();
+	type	     = oStripSubdet.subdetId();
+	monostereo = oStripSubdet.stereo();
 
-	  switch( type) {
-	  case StripSubdetector::TIB:
-	    {
-	      if(conf_.getParameter<bool>("TIB_ON")){
-		TIBDetId oTIBDetId( oStripSubdet);
-		layer  = oTIBDetId.layer();
-		bwfw   = oTIBDetId.string()[0];
-		extint = oTIBDetId.string()[1];
-		string = oTIBDetId.string()[2];
-	      }
-	      break;
+	switch( type) {
+	case StripSubdetector::TIB:
+	  {
+	    if(conf_.getParameter<bool>("TIB_ON")){
+	      TIBDetId oTIBDetId( oStripSubdet);
+	      layer  = oTIBDetId.layer();
+	      bwfw   = oTIBDetId.string()[0];
+	      extint = oTIBDetId.string()[1];
+	      string = oTIBDetId.string()[2];
 	    }
-	  case StripSubdetector::TID:
-	    {
-	      if(conf_.getParameter<bool>("TID_ON")){
-		TIDDetId oTIDDetId( oStripSubdet);
-		wheel = oTIDDetId.wheel();
-		bwfw  = oTIDDetId.module()[0];
-	      }
-	      break;
-	    }
-	  case StripSubdetector::TOB:
-	    {
-	      if(conf_.getParameter<bool>("TOB_ON")) {
-		TOBDetId oTOBDetId( oStripSubdet);
-		layer = oTOBDetId.layer();
-		bwfw  = oTOBDetId.rod()[0];
-		rod   = oTOBDetId.rod()[1];
-	      }
-	      break;
-	    }
-	  case StripSubdetector::TEC:
-	    {
-	      if(conf_.getParameter<bool>("TEC_ON")) {
-		TECDetId oTECDetId( oStripSubdet);
-		wheel = oTECDetId.wheel();
-		bwfw  = oTECDetId.petal()[0];
-	      }
-	      break;
-	    }
+	    break;
 	  }
-
-	  // ClusterInfo was not processed yet
-	  // ---------------------------------
-	  size             = (int)oIter->width(); // cluster width
-	  clusterpos       = oIter->position();
-	  clusterchg       = oIter->charge();
-	  clusterchgl      = oIter->chargeL();
-	  clusterchgr      = oIter->chargeR();
-	  clusternoise     = oIter->noise();
-	  clustermaxchg    = oIter->maxCharge();
- 	  clustereta       = getClusterEta( oIter->stripAmplitudes(), 
-					    oIter->firstStrip(),
-					    oDigis);
- 	  clustercrosstalk = getClusterCrossTalk( oIter->stripAmplitudes(),
- 						  oIter->firstStrip(),
- 						  oDigis);
-
-	  // Filling Main Tree on hits not belonging to track
-	  // ------------------------------------------------  
-	  TIFNtupleMakerTree->Fill();
+	case StripSubdetector::TID:
+	  {
+	    if(conf_.getParameter<bool>("TID_ON")){
+	      TIDDetId oTIDDetId( oStripSubdet);
+	      wheel = oTIDDetId.wheel();
+	      bwfw  = oTIDDetId.module()[0];
+	    }
+	    break;
+	  }
+	case StripSubdetector::TOB:
+	  {
+	    if(conf_.getParameter<bool>("TOB_ON")) {
+	      TOBDetId oTOBDetId( oStripSubdet);
+	      layer = oTOBDetId.layer();
+	      bwfw  = oTOBDetId.rod()[0];
+	      rod   = oTOBDetId.rod()[1];
+	    }
+	    break;
+	  }
+	case StripSubdetector::TEC:
+	  {
+	    if(conf_.getParameter<bool>("TEC_ON")) {
+	      TECDetId oTECDetId( oStripSubdet);
+	      wheel = oTECDetId.wheel();
+	      bwfw  = oTECDetId.petal()[0];
+	    }
+	    break;
+	  }
 	}
-      }
-    } // if oProcessedClusters.find()
-    std::cout << "end of loop over modules" << std::endl;
-  } // end loop over modules
+
+	// ClusterInfo was not processed yet
+	// ---------------------------------
+	size             = (int)oIter->width(); // cluster width
+	clusterpos       = oIter->position();
+	clusterchg       = oIter->charge();
+	clusterchgl      = oIter->chargeL();
+	clusterchgr      = oIter->chargeR();
+	clusternoise     = oIter->noise();
+	clustermaxchg    = oIter->maxCharge();
+	clustereta       = getClusterEta( oIter->stripAmplitudes(), 
+					  oIter->firstStrip(),
+					  oDigis);
+	clustercrosstalk = getClusterCrossTalk( oIter->stripAmplitudes(),
+						oIter->firstStrip(),
+						oDigis);
+
+	// Filling Main Tree on hits not belonging to track
+	// ------------------------------------------------  
+	TIFNtupleMakerTree->Fill();
+      } // if was not already processed
+    } // end loop on clusterinfo in detset
+  } // end loop on detsetvector
+  std::cout << "end of loop over modules" << std::endl;
 
   // Work in progress
   // ----------------
