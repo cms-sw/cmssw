@@ -36,6 +36,7 @@ namespace {
     edm::Wrapper<reco::CandMatchMap> wcmm1;
     edm::helpers::KeyVal<edm::RefProd<edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> > > ,edm::RefProd<edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> > > > kv2;
     std::map<const reco::Candidate *, const reco::Candidate *> m1;
+    std::vector<const reco::Candidate *> vp1;
     reco::CandMatchMapMany cmm2;
     edm::Wrapper<reco::CandMatchMapMany> wcmm2;
   }

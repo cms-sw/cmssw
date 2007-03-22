@@ -123,7 +123,17 @@ namespace edm {
     typename Tag::transient_map_type transientMap() { 
       return Tag::transientMap( ref_, map_ ); 
     }
-    /// post insert action
+    /// fill and return a transient key vector
+    /// required for ROOT interactive usage
+    typename Tag::transient_key_vector keys() { 
+      return Tag::transientKeyVector( ref_, map_ ); 
+    }
+    /// fill and return a transient key vector
+    /// required for ROOT interactive usage
+    typename Tag::transient_val_vector values() { 
+      return Tag::transientValVector( ref_, map_ ); 
+    }
+     /// post insert action
     void post_insert() { Tag::sort(map_); }
 
     // Find should be private!  However, generated reflex dictionaries do not compile
