@@ -1,8 +1,8 @@
 /*
  * \file DTDigiTask.cc
  * 
- * $Date: 2007/02/16 15:07:37 $
- * $Revision: 1.16 $
+ * $Date: 2007/03/22 18:52:02 $
+ * $Revision: 1.18 $
  * \author M. Zanetti - INFN Padova
  *
  */
@@ -11,7 +11,6 @@
 
 // Framework
 #include <FWCore/Framework/interface/Event.h>
-#include <FWCore/Framework/interface/Handle.h>
 #include <FWCore/Framework/interface/ESHandle.h>
 #include <FWCore/Framework/interface/MakerMacros.h>
 #include <FWCore/Framework/interface/EventSetup.h>
