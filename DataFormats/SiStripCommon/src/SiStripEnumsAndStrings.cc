@@ -1,4 +1,4 @@
-// Last commit: $Id: $
+// Last commit: $Id: SiStripEnumsAndStrings.cc,v 1.8 2007/03/21 08:22:59 bainbrid Exp $
 
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
 
@@ -32,6 +32,7 @@ std::string SiStripEnumsAndStrings::runType( const sistrip::RunType& run_type ) 
   else if ( run_type == sistrip::VPSP_SCAN ) { return sistrip::vpspScan_; }
   else if ( run_type == sistrip::PEDESTALS ) { return sistrip::pedestals_; }
   else if ( run_type == sistrip::APV_LATENCY ){ return sistrip::apvLatency_; }
+  else if ( run_type == sistrip::FINE_DELAY ){ return sistrip::fineDelay_; }
   else if ( run_type == sistrip::DAQ_SCOPE_MODE ){ return sistrip::daqScopeMode_; }
   else if ( run_type == sistrip::PHYSICS ){ return sistrip::physics_; }
   else if ( run_type == sistrip::UNDEFINED_RUN_TYPE ) { return sistrip::undefinedRunType_; }
@@ -58,6 +59,7 @@ sistrip::RunType SiStripEnumsAndStrings::runType( const std::string& run_type ) 
   else if ( run_type == "VPSP_SCAN" ) { return sistrip::VPSP_SCAN; }
   else if ( run_type == "PEDESTALS" ) { return sistrip::PEDESTALS; }
   else if ( run_type == "APV_LATENCY" ) { return sistrip::APV_LATENCY; }
+  else if ( run_type == "FINE_DELAY" ) { return sistrip::FINE_DELAY; }
   else if ( run_type == "DAQ_SCOPE_MODE" ) { return sistrip::DAQ_SCOPE_MODE; }
   else if ( run_type == "PHYSICS" ) { return sistrip::PHYSICS; }
   else if ( run_type == "UNDEFINED" ) { return sistrip::UNDEFINED_RUN_TYPE; }
@@ -262,6 +264,10 @@ std::string SiStripEnumsAndStrings::monitorable( const sistrip::Monitorable& mon
   else if ( mon == sistrip::NUM_OF_DEAD ) { return sistrip::numOfDead_; }
   else if ( mon == sistrip::NUM_OF_NOISY ) { return sistrip::numOfNoisy_; }
 
+  // fine delay
+  else if ( mon == sistrip::FINE_DELAY_POS) { return sistrip::fineDelayPos_; }
+  else if ( mon == sistrip::FINE_DELAY_ERROR) { return sistrip::fineDelayErr_; }
+
   // scope mode 
   else if ( mon == sistrip::DAQ_SCOPE_MODE_MEAN_SIGNAL ) { return sistrip::daqScopeModeMeanSignal_; }
 
@@ -326,6 +332,10 @@ sistrip::Monitorable SiStripEnumsAndStrings::monitorable( const std::string& mon
   else if ( mon.find( sistrip::noiseMin_ ) != std::string::npos ) { return sistrip::NOISE_MIN; }
   else if ( mon.find( sistrip::numOfDead_ ) != std::string::npos ) { return sistrip::NUM_OF_DEAD; }
   else if ( mon.find( sistrip::numOfNoisy_ ) != std::string::npos ) { return sistrip::NUM_OF_NOISY; }
+
+  // fine delay
+  else if ( mon.find( sistrip::fineDelayPos_ ) != std::string::npos ) { return sistrip::FINE_DELAY_POS; }
+  else if ( mon.find( sistrip::fineDelayErr_ ) != std::string::npos ) { return sistrip::FINE_DELAY_ERROR; }
   
   // scope mode
   else if ( mon.find( sistrip::daqScopeModeMeanSignal_ ) != std::string::npos ) { return sistrip::DAQ_SCOPE_MODE_MEAN_SIGNAL; }

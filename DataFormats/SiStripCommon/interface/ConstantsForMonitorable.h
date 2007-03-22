@@ -1,4 +1,4 @@
-// Last commit: $Id: $
+// Last commit: $Id: ConstantsForMonitorable.h,v 1.2 2007/03/21 08:22:59 bainbrid Exp $
 
 #ifndef DataFormats_SiStripCommon_ConstantsForMonitorable_H
 #define DataFormats_SiStripCommon_ConstantsForMonitorable_H
@@ -74,6 +74,9 @@ namespace sistrip {
   static const std::string numOfDead_          = "NumOfDeadStrips";
   static const std::string numOfNoisy_         = "NumOfNoisyStrips";
 
+  // Fine Delay
+  static const std::string fineDelayPos_       = "FineDelayPosition";
+  static const std::string fineDelayErr_       = "FineDelayError";
   // daq scope mode
   static const std::string daqScopeModeMeanSignal_ = "DaqScopeMode_MeanSignal";
 
@@ -129,6 +132,9 @@ namespace sistrip {
 		     NOISE_MIN        = 210, 
 		     NUM_OF_DEAD      = 211, 
 		     NUM_OF_NOISY     = 212,
+
+                     FINE_DELAY_POS = 601,
+                     FINE_DELAY_ERROR = 602,
 
 		     DAQ_SCOPE_MODE_MEAN_SIGNAL = 1501
   };

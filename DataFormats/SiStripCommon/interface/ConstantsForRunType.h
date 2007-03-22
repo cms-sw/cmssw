@@ -1,4 +1,4 @@
-// Last commit: $Id: $
+// Last commit: $Id: ConstantsForRunType.h,v 1.2 2007/03/21 08:22:59 bainbrid Exp $
 
 #ifndef DataFormats_SiStripCommon_ConstantsForRunType_H
 #define DataFormats_SiStripCommon_ConstantsForRunType_H
@@ -26,6 +26,7 @@ namespace sistrip {
   static const std::string vpspScan_     = "VpspScan";
   static const std::string pedestals_    = "Pedestals";
   static const std::string apvLatency_   = "ApvLatency";
+  static const std::string fineDelay_    = "FineDelay";
   static const std::string daqScopeMode_ = "DaqScopeMode";
   static const std::string physics_      = "Physics";
   
@@ -60,6 +61,7 @@ namespace sistrip {
 		 VPSP_SCAN      = 14,
 		 PEDESTALS      = 2,
 		 APV_LATENCY    = 6,
+                 FINE_DELAY     = 7,
 		 DAQ_SCOPE_MODE = 15,
 		 PHYSICS        = 1
   };
