@@ -120,7 +120,7 @@ namespace edm {
 
     /// fill and return a transient map
     /// required for ROOT interactive usage
-    typename Tag::transient_map_type transientMap() { 
+    typename Tag::transient_map_type map() { 
       return Tag::transientMap( ref_, map_ ); 
     }
     /// fill and return a transient key vector
