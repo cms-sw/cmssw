@@ -14,6 +14,7 @@ namespace edm {
     typedef edm::RefProd<CVal> ValRefProd;
     /// internal map associated data
     typedef index map_assoc;
+
   public:
     /// values reference collection type
     typedef edm::Ref<CVal> val_type;
@@ -27,9 +28,12 @@ namespace edm {
     typedef std::map<index_type, map_assoc> map_type;
     /// reference set type
     typedef helpers::KeyVal<KeyRefProd, ValRefProd> ref_type;
+    /// transient map type
+    typedef std::map<const typename CKey::value_type *,
+    		     const typename CVal::value_type *> transient_map_type;
     /// insert in the map
     static void insert(ref_type & ref, map_type & m,
-			const key_type & k, const data_type & v) {
+		       const key_type & k, const data_type & v) {
       if (k.isNull() || v.isNull())
 	throw edm::Exception(edm::errors::InvalidReference)
 	  << "can't insert null references in AssociationMap";
@@ -49,6 +53,18 @@ namespace edm {
     static typename map_type::size_type size(const map_assoc & v) { return 1; }
     /// sort
     static void sort(map_type &) { }
+    /// fill transient map
+    static transient_map_type transientMap(const ref_type & ref, const map_type & map) {
+      transient_map_type m;
+      const CKey & ckey = * ref.key;
+      const CVal & cval = * ref.val;
+      for(typename map_type::const_iterator i = map.begin(); i != map.end(); ++ i) {
+	const typename CKey::value_type * k = & ckey[i->first];
+	const typename CVal::value_type * v = & cval[i->second];
+	m.insert(std::make_pair(k, v));
+      }
+      return m;
+    }
   };
 }
 

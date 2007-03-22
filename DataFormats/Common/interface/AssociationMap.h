@@ -6,7 +6,7 @@
  *
  * \author Luca Lista, INFN
  *
- * $Id: AssociationMap.h,v 1.32 2007/01/08 21:07:23 wmtan Exp $
+ * $Id: AssociationMap.h,v 1.33 2007/01/23 00:25:52 wmtan Exp $
  *
  */
 #include "DataFormats/Common/interface/RefVector.h"
@@ -42,7 +42,7 @@ namespace edm {
     /// result type
     typedef typename value_type::value_type result_type;
     /// transient map type
-    typedef typename std::map<index_type, value_type> transient_map_type;
+    typedef typename std::map<index_type, value_type> internal_transient_map_type;
 
     /// const iterator
     struct const_iterator {
@@ -117,6 +117,12 @@ namespace edm {
     }
     /// return ref-prod structure
     const ref_type & refProd() const { return ref_; }
+
+    /// fill and return a transient map
+    /// required for ROOT interactive usage
+    typename Tag::transient_map_type transientMap() { 
+      return Tag::transientMap( ref_, map_ ); 
+    }
     /// post insert action
     void post_insert() { Tag::sort(map_); }
 
@@ -131,13 +137,14 @@ namespace edm {
 	return &(*c.find(i));
       }
     };
+
   private:
     /// reference set
     ref_type ref_;
     /// index map
     map_type map_;
     /// transient reference map
-    mutable transient_map_type transientMap_;
+    mutable internal_transient_map_type transientMap_;
     /// find element with index i
     const_iterator find(size_type i) const {
       typename map_type::const_iterator f = map_.find(i);
@@ -146,14 +153,14 @@ namespace edm {
     }
     /// return value_typeelement with key i
     const value_type & operator[](size_type i) const {
-      typename transient_map_type::const_iterator tf = transientMap_.find(i);
+      typename internal_transient_map_type::const_iterator tf = transientMap_.find(i);
       if (tf == transientMap_.end()) {
 	typename map_type::const_iterator f = map_.find(i);
 	if (f == map_.end())
 	  throw edm::Exception(edm::errors::InvalidReference)
 	    << "can't find reference in AssociationMap at position " << i;
 	value_type v(key_type(ref_.key, i), Tag::val(ref_, f->second));
-	std::pair<typename transient_map_type::const_iterator, bool> ins =
+	std::pair<typename internal_transient_map_type::const_iterator, bool> ins =
 	  transientMap_.insert(std::make_pair(i, v));
 	return ins.first->second;
       } else {
@@ -163,6 +170,10 @@ namespace edm {
     friend struct const_iterator;
     friend struct Find;
     friend struct refhelper::FindTrait<self,value_type>;
+    template<typename, typename, typename> friend class OneToValue;
+    template<typename, typename, typename> friend class OneToOne;
+    template<typename, typename, typename> friend class OneToMany;
+    template<typename, typename, typename, typename> friend class OneToManyWithQuality;
   };
 
   namespace refhelper {

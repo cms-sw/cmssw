@@ -32,6 +32,10 @@ namespace edm {
     typedef std::map<index_type, map_assoc> map_type;
     /// reference set type
     typedef helpers::KeyVal<KeyRefProd, ValRefProd> ref_type;
+    /// transient map type
+    typedef std::map<const typename CKey::value_type *,
+    		     std::vector<std::pair<const typename CVal::value_type *, Q > > 
+                    > transient_map_type;
     /// insert in the map
     static void insert(ref_type & ref, map_type & m,
 			const key_type & k, const data_type & v) {
@@ -67,8 +71,25 @@ namespace edm {
 	map_assoc & v = i->second;
 	double std::pair<index, Q>:: *quality = &std::pair<index, Q>::second;
 	std::sort(v.begin(), v.end(),
-		   bind(quality, boost::lambda::_2) < bind(quality, boost::lambda::_1));
+		  bind(quality, boost::lambda::_2) < bind(quality, boost::lambda::_1));
       }
+    }
+    /// fill transient map
+    static transient_map_type transientMap(const ref_type & ref, const map_type & map) {
+      transient_map_type m;
+      const CKey & ckey = * ref.key;
+      const CVal & cval = * ref.val;
+      for(typename map_type::const_iterator i = map.begin(); i != map.end(); ++ i) {
+	const map_assoc & a = i->second;
+	const typename CKey::value_type * k = & ckey[i->first];
+	std::vector<std::pair<const typename CVal::value_type *, Q> > v;
+	for(typename map_assoc::const_iterator j = a.begin(); j != a.end(); ++j) {
+	  const typename CVal::value_type * val = & cval[j->first];
+	  v.push_back(std::make_pair(val, j->second));
+	}
+	m.insert(std::make_pair(k, v));
+      }
+      return m;
     }
   };
 }

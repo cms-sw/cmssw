@@ -29,6 +29,10 @@ namespace edm {
     typedef std::map<index_type, map_assoc > map_type;
     /// reference set type
     typedef helpers::KeyVal<KeyRefProd, ValRefProd> ref_type;
+    /// transient map type
+    typedef std::map<const typename CKey::value_type *,
+    		     std::vector<const typename CVal::value_type *> 
+                    > transient_map_type;
     /// insert in the map
     static void insert(ref_type & ref, map_type & m,
 			const key_type & k, const data_type & v) {
@@ -58,6 +62,23 @@ namespace edm {
     static typename map_type::size_type size(const map_assoc & v) { return v.size(); }
     /// sort
     static void sort(map_type &) { }
+    /// fill transient map
+    static transient_map_type transientMap(const ref_type & ref, const map_type & map) {
+      transient_map_type m;
+      const CKey & ckey = * ref.key;
+      const CVal & cval = * ref.val;
+      for(typename map_type::const_iterator i = map.begin(); i != map.end(); ++ i) {
+	const map_assoc & a = i->second;
+	const typename CKey::value_type * k = & ckey[ i->first ];
+	std::vector<const typename CVal::value_type *> v;
+	for(typename map_assoc::const_iterator j = a.begin(); j != a.end(); ++j) {
+	  const typename CVal::value_type * val = & cval[ *j ];
+	  v.push_back(val);
+	}
+	m.insert(std::make_pair(k, v));
+      }
+      return m;
+    }
   };
 }
 
