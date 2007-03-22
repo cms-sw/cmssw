@@ -1,7 +1,7 @@
 
 /*
-*  $Date: 2006/11/07 19:38:47 $
-*  $Revision: 1.2 $
+*  $Date: 2006/12/01 19:03:53 $
+*  $Revision: 1.3 $
 */
 
 #include "IOMC/EventVertexGenerators/interface/BaseEvtVtxGenerator.h"
@@ -16,13 +16,14 @@
 
 #include "FWCore/Utilities/interface/Exception.h"
 
-#include "CLHEP/HepMC/GenEvent.h"
-#include "CLHEP/Vector/ThreeVector.h"
+//#include "HepMC/GenEvent.h"
+// #include "CLHEP/Vector/ThreeVector.h"
+// #include "HepMC/SimpleVector.h"
 
 using namespace edm;
 using namespace std;
 using namespace CLHEP;
-using namespace HepMC;
+//using namespace HepMC;
 
 BaseEvtVtxGenerator::BaseEvtVtxGenerator( const ParameterSet& pset ) 
   : fVertex(0), fEngine(0)

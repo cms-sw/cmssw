@@ -1,7 +1,7 @@
 #ifndef IOMC_BetafuncEvtVtxGenerator_H
 #define IOMC_BetafuncEvtVtxGenerator_H
 
-// $Id: BetafuncEvtVtxGenerator.h,v 1.1 2006/11/09 00:20:59 yumiceva Exp $
+// $Id: BetafuncEvtVtxGenerator.h,v 1.2 2007/02/18 16:09:25 yumiceva Exp $
 /*
 ________________________________________________________________________
 
@@ -32,7 +32,8 @@ public:
   virtual ~BetafuncEvtVtxGenerator();
 
   /// return a new event vertex
-  virtual CLHEP::Hep3Vector * newVertex();
+  //virtual CLHEP::Hep3Vector * newVertex();
+  virtual HepMC::FourVector* newVertex() ;
 
   /// set resolution in Z in cm
   void sigmaZ(double s=1.0);

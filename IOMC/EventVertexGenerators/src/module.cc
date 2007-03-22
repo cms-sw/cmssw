@@ -1,6 +1,6 @@
 
-#include "IOMC/EventVertexGenerators/interface/BaseEventVertexGenerator.h"
-#include "IOMC/EventVertexGenerators/interface/VertexGenerator.h"
+//#include "IOMC/EventVertexGenerators/interface/BaseEventVertexGenerator.h"
+//#include "IOMC/EventVertexGenerators/interface/VertexGenerator.h"
 
 #include "IOMC/EventVertexGenerators/interface/BaseEvtVtxGenerator.h"
 #include "IOMC/EventVertexGenerators/interface/GaussEvtVtxGenerator.h"
@@ -14,8 +14,8 @@
 
 DEFINE_SEAL_MODULE ();
 
-using edm::VertexGenerator;
-DEFINE_ANOTHER_FWK_MODULE(VertexGenerator) ;
+//using edm::VertexGenerator;
+//DEFINE_ANOTHER_FWK_MODULE(VertexGenerator) ;
 DEFINE_ANOTHER_FWK_MODULE(GaussEvtVtxGenerator) ;
 DEFINE_ANOTHER_FWK_MODULE(FlatEvtVtxGenerator) ;
 DEFINE_ANOTHER_FWK_MODULE(BeamProfileVtxGenerator) ;

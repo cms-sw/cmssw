@@ -1,5 +1,5 @@
 
-// $Id: BetafuncEvtVtxGenerator.cc,v 1.2 2006/11/28 18:52:17 yumiceva Exp $
+// $Id: BetafuncEvtVtxGenerator.cc,v 1.3 2007/02/18 16:09:25 yumiceva Exp $
 /*
 ________________________________________________________________________
 
@@ -25,7 +25,8 @@ ________________________________________________________________________
 
 #include "CLHEP/Random/RandGauss.h"
 #include "CLHEP/Units/SystemOfUnits.h"
-#include "CLHEP/Vector/ThreeVector.h"
+//#include "CLHEP/Vector/ThreeVector.h"
+#include "HepMC/SimpleVector.h"
 
 #include <iostream>
 
@@ -59,8 +60,8 @@ BetafuncEvtVtxGenerator::~BetafuncEvtVtxGenerator()
     delete fRandom; 
 }
 
-Hep3Vector* BetafuncEvtVtxGenerator::newVertex() {
-	
+//Hep3Vector* BetafuncEvtVtxGenerator::newVertex() {
+HepMC::FourVector* BetafuncEvtVtxGenerator::newVertex() {	
 	double X,Y,Z;
 	
 	double tmp_sigz = fRandom->fire(0., fSigmaZ);
@@ -72,9 +73,10 @@ Hep3Vector* BetafuncEvtVtxGenerator::newVertex() {
 	double tmp_sigy = BetaFunction(tmp_sigz,fZ0);
 	Y = fRandom->fire(0.,tmp_sigy) + fY0 + Z*fdydz;
 	  
-	if (fVertex == 0) fVertex = new CLHEP::Hep3Vector;
-	
-	fVertex->set(X, Y, Z);
+	//if (fVertex == 0) fVertex = new CLHEP::Hep3Vector;
+	//fVertex->set(X, Y, Z);
+	if ( fVertex == 0 ) fVertex = new HepMC::FourVector();
+	fVertex->set(X,Y,Z,0.);
 		
 	return fVertex;
 }

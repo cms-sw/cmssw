@@ -8,6 +8,7 @@
  <use name=Utilities/General>
  <use name=boost>
  <use name=clhep>
+ <use name=hepmc>
 </export>
 
 <use name=Framework/SealKernel>
@@ -17,4 +18,5 @@
 <use name=Utilities/General>
 <use name=boost>
 <use name=clhep>
+<use name=hepmc>
 

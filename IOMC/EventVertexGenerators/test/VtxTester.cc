@@ -7,7 +7,8 @@
 
 // essentials !!!
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/Handle.h"
+//#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 
 #include "TFile.h"
 #include "TH1.h"
@@ -70,7 +71,8 @@ void VtxTester::analyze( const Event& e, const EventSetup& )
          for (HepMC::GenEvent::particle_const_iterator 
             Part = Evt->particles_begin() ; Part!=Evt->particles_end(); Part++ )
 	 {
-            HepLorentzVector Mom = (*Part)->momentum() ;
+            //HepLorentzVector Mom = (*Part)->momentum() ;
+	    HepMC::FourVector Mom = (*Part)->momentum() ;
             double Phi = Mom.phi() ;
             double Eta = -log(tan(Mom.theta()/2.));
 	 

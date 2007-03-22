@@ -1,5 +1,5 @@
 
-// $Id$
+// $Id: GaussEvtVtxGenerator.cc,v 1.2 2006/11/07 19:38:47 wdd Exp $
 
 #include "IOMC/EventVertexGenerators/interface/GaussEvtVtxGenerator.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -8,7 +8,8 @@
 
 #include "CLHEP/Random/RandGauss.h"
 #include "CLHEP/Units/SystemOfUnits.h"
-#include "CLHEP/Vector/ThreeVector.h"
+//#include "CLHEP/Vector/ThreeVector.h"
+#include "HepMC/SimpleVector.h"
 
 GaussEvtVtxGenerator::GaussEvtVtxGenerator(const edm::ParameterSet & p )
 : BaseEvtVtxGenerator(p)
@@ -45,15 +46,16 @@ GaussEvtVtxGenerator::~GaussEvtVtxGenerator()
   delete fRandom; 
 }
 
-Hep3Vector* GaussEvtVtxGenerator::newVertex() {
-
+//Hep3Vector* GaussEvtVtxGenerator::newVertex() {
+HepMC::FourVector* GaussEvtVtxGenerator::newVertex() {
   double X,Y,Z;
   X = fSigmaX * fRandom->fire() + fMeanX ;
   Y = fSigmaY * fRandom->fire() + fMeanY ;
   Z = fSigmaZ * fRandom->fire() + fMeanZ ;
 
-  if (fVertex == 0) fVertex = new CLHEP::Hep3Vector;
-  fVertex->set(X, Y, Z);
+  //if (fVertex == 0) fVertex = new CLHEP::Hep3Vector;
+  if ( fVertex == 0 ) fVertex = new HepMC::FourVector() ;
+  fVertex->set( X, Y, Z, 0. ) ;
 
   return fVertex;
 }

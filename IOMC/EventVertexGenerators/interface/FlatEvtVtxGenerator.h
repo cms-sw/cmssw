@@ -5,7 +5,7 @@
  * Generate event vertices according to a Flat distribution. 
  * Attention: All values are assumed to be cm!
  *
- * $Id$
+ * $Id: FlatEvtVtxGenerator.h,v 1.2 2006/11/07 19:38:31 wdd Exp $
  */
 
 #include "IOMC/EventVertexGenerators/interface/BaseEvtVtxGenerator.h"
@@ -21,7 +21,8 @@ public:
   virtual ~FlatEvtVtxGenerator();
 
   /// return a new event vertex
-  virtual CLHEP::Hep3Vector * newVertex();
+  //virtual CLHEP::Hep3Vector* newVertex();
+  virtual HepMC::FourVector* newVertex() ;
 
   /// set min in X in cm
   void minX(double m=0.0);

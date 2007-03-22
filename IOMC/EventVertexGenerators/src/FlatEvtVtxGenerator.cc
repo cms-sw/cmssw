@@ -1,5 +1,5 @@
 
-// $Id$
+// $Id: FlatEvtVtxGenerator.cc,v 1.2 2006/11/07 19:38:47 wdd Exp $
 
 #include "IOMC/EventVertexGenerators/interface/FlatEvtVtxGenerator.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -8,7 +8,8 @@
 
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Units/SystemOfUnits.h"
-#include "CLHEP/Vector/ThreeVector.h"
+//#include "CLHEP/Vector/ThreeVector.h"
+#include "HepMC/SimpleVector.h"
 
 FlatEvtVtxGenerator::FlatEvtVtxGenerator(const edm::ParameterSet& p )
 : BaseEvtVtxGenerator(p)
@@ -45,15 +46,17 @@ FlatEvtVtxGenerator::~FlatEvtVtxGenerator()
   delete fRandom; 
 }
 
-Hep3Vector * FlatEvtVtxGenerator::newVertex() {
-
+//Hep3Vector * FlatEvtVtxGenerator::newVertex() {
+HepMC::FourVector* FlatEvtVtxGenerator::newVertex() {
   double aX,aY,aZ;
   aX = fRandom->fire(fMinX,fMaxX) ;
   aY = fRandom->fire(fMinY,fMaxY) ;
   aZ = fRandom->fire(fMinZ,fMaxZ) ;
 
-  if (fVertex == 0) fVertex = new CLHEP::Hep3Vector;
-  fVertex->set(aX, aY, aZ);
+  //if (fVertex == 0) fVertex = new CLHEP::Hep3Vector;
+  //fVertex->set(aX,aY,aZ);
+  if ( fVertex == 0 ) fVertex = new HepMC::FourVector() ;
+  fVertex->set(aX,aY,aZ,0.);
 
   return fVertex;
 }

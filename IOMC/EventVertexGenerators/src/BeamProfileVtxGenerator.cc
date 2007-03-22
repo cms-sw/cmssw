@@ -1,5 +1,5 @@
 
-// $Id$
+// $Id: BeamProfileVtxGenerator.cc,v 1.2 2006/11/07 19:38:47 wdd Exp $
 
 #include "IOMC/EventVertexGenerators/interface/BeamProfileVtxGenerator.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -10,7 +10,9 @@
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandGauss.h"
 #include "CLHEP/Units/SystemOfUnits.h"
-#include "CLHEP/Vector/ThreeVector.h"
+//#include "CLHEP/Vector/ThreeVector.h"
+#include "HepMC/SimpleVector.h"
+
 
 BeamProfileVtxGenerator::BeamProfileVtxGenerator(const edm::ParameterSet & p) :
   BaseEvtVtxGenerator(p), fRandom(0) {
@@ -41,8 +43,8 @@ BeamProfileVtxGenerator::~BeamProfileVtxGenerator() {
   delete fRandom;
 }
 
-Hep3Vector * BeamProfileVtxGenerator::newVertex() {
-
+//Hep3Vector * BeamProfileVtxGenerator::newVertex() {
+HepMC::FourVector* BeamProfileVtxGenerator::newVertex() {
   double aX, aY;
   if (fType) 
     aX = fSigmaX * (dynamic_cast<CLHEP::RandGauss*>(fRandom))->fire() + fMeanX;
@@ -57,11 +59,13 @@ Hep3Vector * BeamProfileVtxGenerator::newVertex() {
   double yp = -aX*cos(fTheta)*sin(fPhi) -aY*cos(fPhi) +fMeanZ*sin(fTheta)*sin(fPhi);
   double zp =  aX*sin(fTheta)                          +fMeanZ*cos(fTheta);
 
-  if (fVertex == 0) fVertex = new CLHEP::Hep3Vector;
-  fVertex->set(xp, yp, zp);
+  //if (fVertex == 0) fVertex = new CLHEP::Hep3Vector;
+  //fVertex->set(xp, yp, zp);
+  if (fVertex == 0 ) fVertex = new HepMC::FourVector() ;
+  fVertex->set(xp, yp, zp, 0.);
 
-  LogDebug("BeamProfileVtxGenerator") << "BeamProfileVtxGenerator: Vertex created "
-			      << "at " << *fVertex;
+//  LogDebug("BeamProfileVtxGenerator") << "BeamProfileVtxGenerator: Vertex created "
+//			      << "at " << *fVertex;
   return fVertex;
 }
 
