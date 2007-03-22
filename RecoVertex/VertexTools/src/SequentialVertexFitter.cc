@@ -11,6 +11,10 @@ namespace {
   // workaround while waiting for Geometry service
   static const float TrackerBoundsRadius = 112;
   static const float TrackerBoundsHalfLength = 273.5;
+  bool insideTrackerBounds(const GlobalPoint& point) {
+    return ((point.transverse() < TrackerBoundsRadius)
+        && (abs(point.z()) < TrackerBoundsHalfLength));
+  }
 }
 
 
@@ -68,8 +72,6 @@ void SequentialVertexFitter::setDefaultParameters()
   thePSet.addParameter<double>("maxDistance", 0.01);
   thePSet.addParameter<int>("maxNbrOfIterations", 10); //10
   readParameters();
-  cout << "theMaxShift " << theMaxShift << endl;
-  cout << "theMaxStep " << theMaxStep << endl;
 }
 
 CachingVertex 
@@ -77,6 +79,7 @@ SequentialVertexFitter::vertex(const vector<reco::TransientTrack> & tracks) cons
 { 
   // Linearization Point
   GlobalPoint linP = theLinP->getLinearizationPoint(tracks);
+  if (!insideTrackerBounds(linP)) linP = GlobalPoint(0,0,0);
 
   // Initial vertex state, with a very large error matrix
   AlgebraicSymMatrix we(3,1);
@@ -212,8 +215,8 @@ SequentialVertexFitter::fit(const vector<RefCountedVertexTrack> & tracks,
   vector<RefCountedVertexTrack> globalVTracks = tracks;
 
   // main loop through all the VTracks
+  bool validVertex = true;
   int step = 0;
-  bool inTrackerBounds = true;
   GlobalPoint newPosition = priorVertexPosition;
   GlobalPoint previousPosition;
   do {
@@ -228,23 +231,25 @@ SequentialVertexFitter::fit(const vector<RefCountedVertexTrack> & tracks,
       fVertex = theUpdator->add(fVertex,*i);
     }
 
-    // check tracker bounds
-    if (fVertex.position().transverse() > TrackerBoundsRadius
-        || abs(fVertex.position().z()) > TrackerBoundsHalfLength) {
+    validVertex = true;
+    // check tracker bounds and NaN in position
+    if (!insideTrackerBounds(fVertex.position())) {
+      edm::LogError("RecoVertex/SequentialVertexFitter") 
+	 << "Fitted position is out of tracker bounds.\n";
+      validVertex = false;
+    }
+    
+    if (hasNan(fVertex.position())) {
+      edm::LogError("RecoVertex/SequentialVertexFitter") 
+	 << "Fitted position is NaN.\n";
+      validVertex = false;
+    }
 
-      // vertex got out of tracker bounds !
-      // reset initial vertex position to (0,0,0) and resume iteration
-      inTrackerBounds = false;
+    if (!validVertex) {
+      // reset initial vertex position to (0,0,0) and force new iteration 
+      // if number of steps not exceeded
       fVertex = CachingVertex(GlobalPoint(0,0,0), fVertex.error(),
                               initialTracks, 0);
-      if (withPrior) {
-        returnVertex = CachingVertex(priorVertexPosition, priorVertexError,
-                                     GlobalPoint(0,0,0), fVertex.error(),
-                                     initialTracks,0);
-      }
-    }
-    else {
-      inTrackerBounds = true;
     }
 
     previousPosition = newPosition;
@@ -254,16 +259,18 @@ SequentialVertexFitter::fit(const vector<RefCountedVertexTrack> & tracks,
     globalVTracks.clear();
     step++;
   } while ( (step != theMaxStep) &&
-  	    ((previousPosition - newPosition).transverse() > theMaxShift) );
+  	    (((previousPosition - newPosition).transverse() > theMaxShift) ||
+		(!validVertex) ) );
+
+  if (!validVertex) {
+    edm::LogError("RecoVertex/SequentialVertexFitter") 
+       << "Fitted position is invalid (out of tracker bounds or has NaN). Returned vertex is invalid\n";
+    return CachingVertex(); // return invalid vertex
+  }
 
   if (step >= theMaxStep) {
     edm::LogError("RecoVertex/SequentialVertexFitter") 
        << "The maximum number of steps has been exceeded. Returned vertex is invalid\n";
-    return CachingVertex(); // return invalid vertex
-  }
-  if (!inTrackerBounds) {
-    edm::LogError("RecoVertex/SequentialVertexFitter") 
-       << "Fitted position is out of tracker bounds. Returned vertex is invalid\n";
     return CachingVertex(); // return invalid vertex
   }
 

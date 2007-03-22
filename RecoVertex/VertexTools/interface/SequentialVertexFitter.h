@@ -217,6 +217,13 @@ private:
   void readParameters();
   void setDefaultParameters();
 
+  /**
+   * Checks whether any of the three coordinates is a Nan
+   */
+  inline bool hasNan(const GlobalPoint& point) const {
+    return (isnan(point.x())|| isnan(point.y()) || isnan(point.z()));
+  }
+
 
   float theMaxShift;
   int theMaxStep;
