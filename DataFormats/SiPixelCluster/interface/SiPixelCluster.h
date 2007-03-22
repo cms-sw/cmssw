@@ -3,14 +3,14 @@
 
 //---------------------------------------------------------------------------
 //!  \class SiPixelCluster
-//!  \brief Pixel cluster -- collection of pixels with ADC counts + misc info.
+//!  \brief Pixel cluster -- collection of neighboring pixels above threshold
 //!
 //!  Class to contain and store all the topological information of pixel clusters:
 //!  charge, global size, size and the barycenter in x and y
 //!  local directions. It builds a vector of SiPixel (which is
 //!  an inner class) and a container of channels. 
 //!
-//!  Mostly ported from ORCA's class PixelReco::Cluster.
+//!  March 2007: Edge methods moved to RectangularPixelTopology class (V.Chiochia)
 //!
 //!  \author Petar Maksimovic, JHU
 //---------------------------------------------------------------------------
@@ -86,9 +86,10 @@ class SiPixelCluster {
   // Return cluster dimension in the y direction.
   int sizeY() const {return theMaxPixelCol - theMinPixelCol +1;}
 
-  // Detect clusters at the edge of the detector
-  bool edgeHitX() const;
-  bool edgeHitY() const;
+  // Detect clusters at the edge of the detector.
+  // NOTE: Moved to RectangularPixelTopology class
+  // bool edgeHitX() const;
+  // bool edgeHitY() const;
 
   inline float charge() const { return theCharge;} // Return total cluster charge.
   inline int minPixelRow() const { return theMinPixelRow;} // The min x index.
@@ -151,4 +152,4 @@ typedef edm::Ref<SiPixelClusterCollection, SiPixelCluster> SiPixelClusterRef;
 typedef edm::DetSetRefVector<SiPixelCluster> SiPixelClusterRefVector;
 typedef edm::RefProd<SiPixelClusterCollection> SiPixelClusterRefProd;
 
-#endif // DATAFORMATS_SISTRIPCLUSTER_H
+#endif 

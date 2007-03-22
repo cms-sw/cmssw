@@ -3,15 +3,15 @@
 
 //---------------------------------------------------------------------------
 //!  \class SiPixelCluster
-//!  \brief Pixel cluster -- collection of pixels with ADC counts + misc info.
+//!  \brief Pixel cluster -- collection of pixels with ADC counts
 //!
 //!  Class to contain and store all the topological information of pixel clusters:
 //!  charge, global size, size and the barycenter in x and y
 //!  local directions. It builds a vector of SiPixel (which is
 //!  an inner class) and a container of channels. 
 //!
-//!  Mostly ported from ORCA's class PixelReco::Cluster.
-//!
+//!  March 2007: Edge pixel methods moved to RectangularPixelTopology (V.Chiochia)
+//! 
 //!  \author Petar Maksimovic, JHU
 //---------------------------------------------------------------------------
 
@@ -46,25 +46,3 @@ void SiPixelCluster::add( const SiPixelCluster::PixelPos& pix, float adc) {
   if (pix.col() > theMaxPixelCol) theMaxPixelCol = pix.col();
 }
 
-bool SiPixelCluster::edgeHitX() const {
-  bool t1 = (theMinPixelRow == 0);
-  bool t2 = false; /// !buffer.inside(theMaxSiPixelRow+1,0);
-  return (t1||t2);
-}
-bool SiPixelCluster::edgeHitY() const {
-  bool t1 = (theMinPixelCol == 0);
-  bool t2 = false; /// !buffer.inside(0,theMaxSiPixelCol+1);
-  return (t1||t2);
-}
-
-// &&& Do we need this?
-// SiPixelCluster::ChannelContainer SiPixelCluster::channels() const 
-// {
-//   ChannelContainer result; 
-//   result.reserve( pixels().size());
-//   for (vector<SiPixel>::const_iterator i=pixels().begin();
-//        i != pixels().end(); i++) {
-//     result.push_back( PixelDigi::pixelToChannel( int(i->x), int(i->y)) );
-//   }
-//   return result;
-// }
