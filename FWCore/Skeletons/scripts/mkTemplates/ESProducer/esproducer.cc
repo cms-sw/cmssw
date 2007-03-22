@@ -88,7 +88,7 @@ prodname::produce(const recordname& iRecord)
    using namespace edm::es;
 @perl $result=""; foreach $type (@::datatypes) {$result ="$result   std::auto_ptr<$type> p$type ;\n";} @\perl
 
-   return @perl if( 1 eq scalar( @::datatypes ) ) { $result="p$::datatypes[0]" } else { $result="products("; $line = 0; foreach $type ( @::datatypes ) { if ($line) { $result = "$result,"; } $result= "$result $type"; $line +=1; } $result="$result)"; }  @\perl ;
+   return @perl if( 1 eq scalar( @::datatypes ) ) { $result="p$::datatypes[0]" } else { $result="products("; $line = 0; foreach $type ( @::datatypes ) { if ($line) { $result = "$result,"; } $result= "$result p$type"; $line +=1; } $result="$result)"; }  @\perl ;
 }
 
 //define this as a plug-in
