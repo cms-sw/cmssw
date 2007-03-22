@@ -10,16 +10,16 @@
 #include "RecoPixelVertexing/PixelTriplets/interface/HitTripletGenerator.h"
 #include "RecoTracker/TkHitPairs/interface/HitPairGenerator.h"
 #include <vector>
-#include "RecoPixelVertexing/PixelTriplets/interface/PixelHitTripletGenerator.h"
-#include "RecoTracker/TkHitPairs/interface/LayerWithHits.h"
+#include "RecoPixelVertexing/PixelTriplets/interface/CombinedHitTripletGenerator.h"
+#include "RecoTracker/TkSeedingLayers/interface/SeedingLayer.h"
 
 class HitTripletGeneratorFromPairAndLayers : public HitTripletGenerator {
 
 public:
-  typedef PixelHitTripletGenerator::LayerCacheType       LayerCacheType;
+  typedef CombinedHitTripletGenerator::LayerCacheType       LayerCacheType;
   virtual ~HitTripletGeneratorFromPairAndLayers() {}
   virtual void init( const HitPairGenerator & pairs, 
-    std::vector<const LayerWithHits*> layers, LayerCacheType* layerCache) = 0; 
+    const std::vector<ctfseeding::SeedingLayer>& layers, LayerCacheType* layerCache) = 0; 
 };
 #endif
 

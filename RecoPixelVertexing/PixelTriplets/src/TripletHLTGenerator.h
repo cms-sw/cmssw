@@ -9,8 +9,8 @@
 
 #include "RecoTracker/TkHitPairs/interface/HitPairGenerator.h"
 #include "RecoPixelVertexing/PixelTriplets/interface/HitTripletGenerator.h"
-#include "RecoPixelVertexing/PixelTriplets/interface/CombinedHitTripletGenerator.h"
-#include "RecoTracker/TkSeedingLayers/interface/SeedingLayer.h"
+#include "RecoPixelVertexing/PixelTriplets/interface/PixelHitTripletGenerator.h"
+#include "RecoTracker/TkHitPairs/interface/LayerWithHits.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "RecoPixelVertexing/PixelTriplets/interface/HitTripletGeneratorFromPairAndLayers.h"
@@ -21,7 +21,7 @@
 
 class PixelTripletHLTGenerator : public HitTripletGeneratorFromPairAndLayers {
 
-typedef CombinedHitTripletGenerator::LayerCacheType       LayerCacheType;
+typedef PixelHitTripletGenerator::LayerCacheType       LayerCacheType;
 
 public:
   PixelTripletHLTGenerator( const edm::ParameterSet& cfg) 
@@ -30,13 +30,13 @@ public:
   virtual ~PixelTripletHLTGenerator() { delete thePairGenerator; }
 
   virtual void init( const HitPairGenerator & pairs,
-      const std::vector<ctfseeding::SeedingLayer> & layers, LayerCacheType* layerCache);
+      std::vector<const LayerWithHits*> layers, LayerCacheType* layerCache);
 
-  virtual void hitTriplets( const TrackingRegion& region, OrderedHitTriplets & trs, 
-      const edm::Event & ev, const edm::EventSetup& es);
+  virtual void hitTriplets(
+      const TrackingRegion& region, OrderedHitTriplets & trs, const edm::EventSetup& iSetup);
 
   const HitPairGenerator & pairGenerator() const { return *thePairGenerator; }
-  const std::vector<ctfseeding::SeedingLayer> & thirdLayers() const { return theLayers; }
+  const std::vector<const LayerWithHits*> thirdLayers() const { return theLayers; }
 
 private:
   bool checkPhiInRange(float phi, float phi1, float phi2) const;
@@ -45,7 +45,7 @@ private:
 
   edm::ParameterSet         theConfig;
   HitPairGenerator * thePairGenerator;
-  std::vector<ctfseeding::SeedingLayer> theLayers;
+  std::vector<const LayerWithHits*> theLayers;
   LayerCacheType * theLayerCache;
 };
 #endif

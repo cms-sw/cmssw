@@ -5,26 +5,30 @@
  *  compatible with a TrackingRegion.
  */
 
-#include <vector>
+#include "RecoTracker/TkTrackingRegions/interface/OrderedHitsGenerator.h"
 #include "RecoPixelVertexing/PixelTriplets/interface/OrderedHitTriplets.h"
-#include "FWCore/Framework/interface/EventSetup.h"
+
 class TrackingRegion;
+namespace edm { class Event; class EventSetup; }
+#include <vector>
 
-
-class HitTripletGenerator {
-
+class HitTripletGenerator : public OrderedHitsGenerator {
 public:
+
+  HitTripletGenerator(unsigned int size=500);
+
   virtual ~HitTripletGenerator() { }
-  virtual OrderedHitTriplets hitTriplets( const TrackingRegion& region, 
-      const edm::EventSetup& iSetup ) {
-    OrderedHitTriplets triplets;
-    hitTriplets(region, triplets, iSetup);
-    return triplets;
-  }
-  virtual void hitTriplets(
-      const TrackingRegion& region, OrderedHitTriplets & trs,
-      const edm::EventSetup& iSetup) = 0;
+
+  virtual const OrderedHitTriplets & run(
+    const TrackingRegion& region, const edm::Event & ev, const edm::EventSetup& es);
+
+  virtual void hitTriplets( const TrackingRegion& reg, OrderedHitTriplets & prs,
+      const edm::Event & ev,  const edm::EventSetup& es) = 0;
+
+private:
+  OrderedHitTriplets theTriplets;
 
 };
+
 
 #endif

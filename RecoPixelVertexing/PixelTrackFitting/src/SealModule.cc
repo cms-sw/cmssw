@@ -5,8 +5,8 @@ DEFINE_SEAL_MODULE();
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackProducer.h"
 DEFINE_ANOTHER_FWK_MODULE(PixelTrackProducer);
 
-#include "RecoPixelVertexing/PixelTrackFitting/interface/PixelHitPairTrackProducer.h"
-DEFINE_ANOTHER_FWK_MODULE(PixelHitPairTrackProducer);
+//#include "RecoPixelVertexing/PixelTrackFitting/interface/PixelHitPairTrackProducer.h"
+//DEFINE_ANOTHER_FWK_MODULE(PixelHitPairTrackProducer);
 
 
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackFilter.h"

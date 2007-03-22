@@ -6,7 +6,9 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "RecoTracker/TkHitPairs/interface/TkHitPairsCachedHit.h"
+
+typedef ctfseeding::SeedingHit TkHitPairsCachedHit;
+
 CosmicHitTripletGeneratorFromLayerTriplet::CosmicHitTripletGeneratorFromLayerTriplet
 (const LayerWithHits* inner, 
  const LayerWithHits* middle, 
@@ -22,7 +24,7 @@ CosmicHitTripletGeneratorFromLayerTriplet::CosmicHitTripletGeneratorFromLayerTri
   trackerGeometry = tracker.product();
 }
 void CosmicHitTripletGeneratorFromLayerTriplet::hitTriplets(
-  const TrackingRegion & region, OrderedHitTriplets & result,
+  const TrackingRegion & region, OrderedHitTriplets & result, const edm::Event& ev,
   const edm::EventSetup& iSetup)
 {
   
@@ -59,7 +61,7 @@ void CosmicHitTripletGeneratorFromLayerTriplet::hitTriplets(
 	      float dxdy=abs((innx-midx)/(inny-midy));
 	      if ((abs(z_diff)<30) && (inny*midy>0) &&(dxdy<2)&&(!seedfromoverlaps))
 		{
-		  result.push_back( OrderedHitTriplet(ih->RecHit(),mh->RecHit(), oh->RecHit()));
+		  result.push_back( OrderedHitTriplet(*ih,*mh, *oh) );
 		}
 	      delete ih;
 	    } 
@@ -89,7 +91,7 @@ void CosmicHitTripletGeneratorFromLayerTriplet::hitTriplets(
 	    float dxdy=abs((innx-midx)/(inny-midy));
 	    if ((abs(z_diff)<30) && (inny*midy>0) &&(dxdy<2))
 	      {
-		result.push_back( OrderedHitTriplet(ih->RecHit(),mh->RecHit(), oh->RecHit()));
+		result.push_back( OrderedHitTriplet(*ih,*mh,*oh));
 	      }
 	    delete ih;
 	  }

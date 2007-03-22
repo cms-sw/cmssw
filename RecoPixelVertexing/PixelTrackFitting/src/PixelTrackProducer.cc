@@ -24,11 +24,12 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 #include "RecoPixelVertexing/PixelTriplets/interface/OrderedHitTriplets.h"
 #include "RecoTracker/TkTrackingRegions/interface/GlobalTrackingRegion.h"
-#include "RecoPixelVertexing/PixelTriplets/interface/PixelHitTripletGenerator.h"
+#include "RecoPixelVertexing/PixelTriplets/interface/CombinedHitTripletGenerator.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
 #include "DataFormats/Common/interface/OrphanHandle.h"
 
 #include "FWCore/ParameterSet/interface/InputTag.h"
+#include "RecoPixelVertexing/PixelTriplets/interface/CombinedHitTripletGenerator.h"
 
 using namespace pixeltrackfitting;
 
@@ -56,15 +57,14 @@ void PixelTrackProducer::produce(edm::Event& ev, const edm::EventSetup& es)
   LogDebug("PixelTrackProducer, produce")<<"event# :"<<ev.id();
   typedef std::vector<const TrackingRecHit *> RecHits;
 
-  edm::Handle<SiPixelRecHitCollection> pixelHits;
-  edm::InputTag hitCollectionLabel = theConfig.getParameter<edm::InputTag>("HitCollectionLabel");
-  ev.getByLabel( hitCollectionLabel, pixelHits);
+//  edm::Handle<SiPixelRecHitCollection> pixelHits;
+//  edm::InputTag hitCollectionLabel = theConfig.getParameter<edm::InputTag>("HitCollectionLabel");
+//  ev.getByLabel( hitCollectionLabel, pixelHits);
 
   if (!theGenerator) {
     edm::ParameterSet tripletsPSet = theConfig.getParameter<edm::ParameterSet>("TripletsPSet");
-    theGenerator = new PixelHitTripletGenerator(tripletsPSet);
+    theGenerator = new CombinedHitTripletGenerator(tripletsPSet);
   } 
-  theGenerator->init(*pixelHits,es);
 
   edm::ParameterSet regionPSet = theConfig.getParameter<edm::ParameterSet>("RegionPSet");
   GlobalTrackingRegion region(
@@ -75,7 +75,7 @@ void PixelTrackProducer::produce(edm::Event& ev, const edm::EventSetup& es)
     regionPSet.getParameter<bool>("precise") );
 
   OrderedHitTriplets triplets;
-  theGenerator->hitTriplets(region,triplets,es);
+  theGenerator->hitTriplets(region,triplets,ev,es);
   edm::LogInfo("PixelTrackProducer") << "number of triplets: " << triplets.size();
 
   if (!theFitter) {
@@ -102,9 +102,9 @@ void PixelTrackProducer::produce(edm::Event& ev, const edm::EventSetup& es)
   typedef OrderedHitTriplets::const_iterator IT;
   for (IT it = triplets.begin(); it != triplets.end(); it++) {
     RecHits hits;
-    hits.push_back( (*it).inner() );
-    hits.push_back( (*it).middle() );
-    hits.push_back( (*it).outer() );
+    hits.push_back( (*it).inner().RecHit() );
+    hits.push_back( (*it).middle().RecHit() );
+    hits.push_back( (*it).outer().RecHit() );
 
     // fitting
     reco::Track* track = theFitter->run(es, hits, region);

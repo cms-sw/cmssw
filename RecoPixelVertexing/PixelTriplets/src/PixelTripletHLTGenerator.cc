@@ -7,15 +7,18 @@
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoUtilities.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "RecoPixelVertexing/PixelTriplets/src/ThirdHitCorrection.h"
 #include <iostream>
 
 using pixelrecoutilities::LongitudinalBendingCorrection;
 typedef PixelRecoRange<float> Range;
 using namespace std;
+using namespace ctfseeding;
 
 void PixelTripletHLTGenerator::init( const HitPairGenerator & pairs,
-      std::vector<const LayerWithHits*> layers,
+      const std::vector<SeedingLayer> & layers,
       LayerCacheType* layerCache)
 {
   thePairGenerator = pairs.clone();
@@ -23,17 +26,18 @@ void PixelTripletHLTGenerator::init( const HitPairGenerator & pairs,
   theLayerCache = layerCache;
 }
 
-
 void PixelTripletHLTGenerator::hitTriplets( 
     const TrackingRegion& region, 
     OrderedHitTriplets & result,
-    const edm::EventSetup& iSetup)
+    const edm::Event & ev,
+    const edm::EventSetup& es)
 {
-
 
   OrderedHitPairs pairs; pairs.reserve(30000);
   OrderedHitPairs::const_iterator ip;
-  thePairGenerator->hitPairs(region,pairs,iSetup);
+  thePairGenerator->hitPairs(region,pairs,ev,es);
+
+  cout <<"HERE, pairs: "<<pairs.size() << endl; 
 
   if (pairs.size() ==0) return;
 
@@ -41,14 +45,14 @@ void PixelTripletHLTGenerator::hitTriplets(
 
   const LayerHitMap **thirdHitMap = new const LayerHitMap* [size];
   for (int il=0; il <=size-1; il++) {
-     thirdHitMap[il] = &(*theLayerCache)(theLayers[il], region, iSetup);
+     thirdHitMap[il] = &(*theLayerCache)(&theLayers[il], region, ev, es);
   }
 
   edm::ESHandle<TrackerGeometry> tracker;
-  iSetup.get<TrackerDigiGeometryRecord>().get(tracker);
+  es.get<TrackerDigiGeometryRecord>().get(tracker);
 
   double imppar = region.originRBound();;
-  double curv = PixelRecoUtilities::curvature(1/region.ptMin(), iSetup);
+  double curv = PixelRecoUtilities::curvature(1/region.ptMin(), es);
 
   static bool useFixedPreFiltering =  theConfig.getParameter<bool>("useFixedPreFiltering");
   static float extraHitRZtolerance = theConfig.getParameter<double>("extraHitRPhitolerance");
@@ -58,8 +62,8 @@ void PixelTripletHLTGenerator::hitTriplets(
 
 
   for (ip = pairs.begin(); ip != pairs.end(); ip++) {
-    const TrackingRecHit * h1 = (*ip).inner();
-    const TrackingRecHit * h2 = (*ip).outer();
+    const TrackingRecHit * h1 = (*ip).inner().RecHit();
+    const TrackingRecHit * h2 = (*ip).outer().RecHit();
     GlobalPoint gp1 = tracker->idToDet( 
         h1->geographicalId())->surface().toGlobal(h1->localPosition());
     GlobalPoint gp2 = tracker->idToDet( 
@@ -74,13 +78,12 @@ void PixelTripletHLTGenerator::hitTriplets(
 
 
     for (int il=0; il <=size-1; il++) {
-      const LayerWithHits * layerwithhits = theLayers[il];
-      const DetLayer * layer = layerwithhits->layer();
+      const DetLayer * layer = theLayers[il].detLayer();
       bool pixelLayer = (    layer->subDetector() == GeomDetEnumerators::PixelBarrel 
                           || layer->subDetector() == GeomDetEnumerators::PixelEndcap); 
       bool barrelLayer = (layer->location() == GeomDetEnumerators::barrel);
 
-      ThirdHitCorrection correction(iSetup, region.ptMin(), layer, line, point2, useMScat, useBend);
+      ThirdHitCorrection correction(es, region.ptMin(), layer, line, point2, useMScat, useBend);
       
       ThirdHitRZPrediction::Range rzRange = predictionRZ(layer);
       correction.correctRZRange(rzRange);
@@ -88,7 +91,7 @@ void PixelTripletHLTGenerator::hitTriplets(
       Range phiRange;
       if (useFixedPreFiltering) { 
         static float dphi = theConfig.getParameter<double>("phiPreFiltering");
-        float phi0 = TkHitPairsCachedHit((*ip).outer(), iSetup).phi();
+        float phi0 = (*ip).outer().phi();
         phiRange = Range(phi0-dphi,phi0+dphi);
       }
       else {
@@ -121,7 +124,7 @@ void PixelTripletHLTGenerator::hitTriplets(
           pixelLayer ? thirdHitMap[il]->loop(phiRange, rzRange) : 
           thirdHitMap[il]->loop();
 
-      const TkHitPairsCachedHit * th;
+      const SeedingHit * th;
       while ( (th = thirdHits.getHit()) ) {
          float p3_r = th->r();
          float p3_z = th->z();
@@ -141,8 +144,7 @@ void PixelTripletHLTGenerator::hitTriplets(
          correction.correctRPhiRange(rangeRPhi);
          if (!checkPhiInRange(p3_phi, rangeRPhi.first/p3_r, rangeRPhi.second/p3_r)) continue;
 
-         const TrackingRecHit * h3 = th->RecHit();
-         result.push_back( OrderedHitTriplet(h1, h2, h3)); 
+         result.push_back( OrderedHitTriplet( (*ip).inner(), (*ip).outer(), *th)); 
       }
     }
   }

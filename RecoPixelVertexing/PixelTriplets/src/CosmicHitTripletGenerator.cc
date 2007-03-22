@@ -49,12 +49,13 @@ void CosmicHitTripletGenerator::add(
 void CosmicHitTripletGenerator::hitTriplets(
 					const TrackingRegion& region, 
 					OrderedHitTriplets & pairs,
+                              const edm::Event & ev,
 					const edm::EventSetup& iSetup)
 {
 
   Container::const_iterator i;
   for (i=theGenerators.begin(); i!=theGenerators.end(); i++) {
-    (**i).hitTriplets( region, pairs,iSetup); 
+    (**i).hitTriplets( region, pairs, ev, iSetup); 
   }
  
 }
