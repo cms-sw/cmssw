@@ -59,19 +59,14 @@ namespace edm
     public:
       typedef void result_type;
       run_one_event(EventPrincipal& principal, EventSetup const& setup, BranchActionType const& branchActionType) :
-	ep(principal), es(setup), bat(branchActionType), terminate_(false) {};
+	ep(principal), es(setup), bat(branchActionType) {};
 
-      void operator()(Path& p) {
-	p.runOneEvent(ep, es, bat);
-	if (p.terminate()) terminate_ = true;
-      }
-      bool const terminate() const {return terminate_;}
+      void operator()(Path& p) {p.runOneEvent(ep, es, bat);}
 
     private:      
       EventPrincipal&   ep;
       EventSetup const& es;
       BranchActionType const& bat;
-      bool terminate_;
     };
 
     // Function template to transform each element in the input range to
@@ -219,6 +214,7 @@ namespace edm
     endpath_results_(), // delay!
     results_inserter_(),
     all_workers_(),
+    all_output_workers_(),
     trig_paths_(),
     end_paths_(),
     tmp_wrongly_placed_(),
@@ -229,10 +225,41 @@ namespace edm
     stopwatch_(new RunStopwatch::StopwatchPointer::element_type),
     unscheduled_(new UnscheduledCallProducer),
     demandGroups_(),
-    endpathsAreActive_(true),
-    terminate_(false)
+    endpathsAreActive_(true)
   {
-    ParameterSet opts(pset_.getUntrackedParameter("options", ParameterSet()));
+    typedef std::vector<ParameterSet> VPSet;
+
+    ParameterSet maxEventsPSet(pset_.getUntrackedParameter<ParameterSet>("maxEvents", ParameterSet()));
+
+    std::string const input("input");
+    std::string const output("output");
+
+    int maxEventSpecs = 0; 
+    int maxEventsIn = -1;
+    int maxEventsOut = -1;
+    VPSet vMaxEventsOut;
+    std::vector<std::string> intNames = maxEventsPSet.getParameterNamesForType<int>(false);
+    if (intNames.end() != std::find(intNames.begin(), intNames.end(), input)) {
+      maxEventsIn = maxEventsPSet.getUntrackedParameter<int>(input);
+      ++maxEventSpecs;
+    }
+    if (intNames.end() != std::find(intNames.begin(), intNames.end(), output)) {
+      maxEventsOut = maxEventsPSet.getUntrackedParameter<int>(output);
+      ++maxEventSpecs;
+    }
+    std::vector<std::string> vpsetNames;
+    maxEventsPSet.getParameterSetVectorNames(vpsetNames, false);
+    if (vpsetNames.end() != std::find(vpsetNames.begin(), vpsetNames.end(), output)) {
+      vMaxEventsOut = maxEventsPSet.getUntrackedParameter<VPSet>(output);
+      ++maxEventSpecs;
+    }
+
+    if (maxEventSpecs > 1) {
+        throw edm::Exception(edm::errors::Configuration) <<
+	 "\nAt most, one of 'input' and 'output' may appear in the 'maxEvents' parameter set";
+    }
+
+    ParameterSet opts(pset_.getUntrackedParameter<ParameterSet>("options", ParameterSet()));
 
     bool hasFilter = false;
     int trig_bitpos=0, non_bitpos=0;
@@ -240,19 +267,15 @@ namespace edm
     for (vstring::const_iterator i = path_name_list_.begin(),
 	    e = path_name_list_.end();
 	  i != e;
-	  ++i)
-       {
-	 if (trig_name_set_.find(*i) != trig_name_set_end) 
-	   {
+	  ++i) {
+	 if (trig_name_set_.find(*i) != trig_name_set_end) {
 	     hasFilter += fillTrigPath(trig_bitpos,*i, results_);
 	     ++trig_bitpos;
-	   } 
-	 else
-	   {
+	 } else {
 	     fillTrigPath(non_bitpos,*i, nontrig_results_);
 	     ++non_bitpos;
-	   }
-       }
+	 }
+    }
 
     // the results inserter stands alone
     if(hasFilter || makeTriggerResults_) {
@@ -340,6 +363,40 @@ namespace edm
       }
     }
     prod_reg_->setProductIDs();
+
+    // Set up all_output_workers_ if limiting the amount of output.
+    if (maxEventsOut >= 0) {
+      for (AllWorkers::const_iterator it = workersBegin(), itEnd = workersEnd();
+	  it != itEnd; ++it) {
+	OutputWorker const* workerPtr = dynamic_cast<OutputWorker*>(*it);
+	if (workerPtr) {
+          all_output_workers_.push_back(std::make_pair(maxEventsOut, workerPtr));
+	}
+      }
+    } else if (!vMaxEventsOut.empty()) {
+      for (AllWorkers::const_iterator it = workersBegin(), itEnd = workersEnd();
+	  it != itEnd; ++it) {
+        OutputWorker const* workerPtr = dynamic_cast<OutputWorker*>(*it);
+	if (workerPtr) {
+	  bool found = false;
+	  std::string moduleLabel = workerPtr->description().moduleLabel_;
+	  for (VPSet::const_iterator i = vMaxEventsOut.begin(), iEnd = vMaxEventsOut.end();
+	      i != iEnd; ++i) {
+            std::vector<std::string> iNames = i->getParameterNamesForType<int>(false);
+	    if (iNames.end() != std::find(iNames.begin(), iNames.end(), moduleLabel)) {
+	      found = true;
+              all_output_workers_.push_back(std::make_pair(i->getUntrackedParameter<int>(moduleLabel), workerPtr));
+	      break;
+	    }
+	  }
+	  if (!found) {
+	    throw edm::Exception(edm::errors::Configuration) <<
+	      "\nNo entry in 'maxEvents' for output module with label " << moduleLabel << ".\n";
+	    }
+	}
+      }
+    }
+
     //Now that these have been set, we can create the list of Groups we need for the 'on demand'
     const ProductRegistry::ProductList& prodsList = prod_reg_->productList();
     for(ProductRegistry::ProductList::const_iterator itProdInfo = prodsList.begin(),
@@ -353,6 +410,21 @@ namespace edm
           demandGroups_.push_back(theGroup);
 	}
       }
+  }
+
+  bool const Schedule::terminate() const {
+    for (AllOutputWorkers::const_iterator it = all_output_workers_.begin(),
+	itEnd = all_output_workers_.end();
+	it != itEnd; ++it) {
+      if (it->first >= 0 && it->second->eventCount() >= it->first) {
+	LogInfo("SuccessfulTermination")
+	  << "The job is terminating successfully because output module '"
+	  << it->second->description().moduleLabel_
+	  << "'\nhas reached the configured limit of " << it->second->eventCount() << " events.\n";
+	return true;
+      }
+    }
+    return false;
   }
 
   void Schedule::handleWronglyPlacedModules()
@@ -935,9 +1007,7 @@ namespace edm
   bool
   Schedule::runTriggerPaths(EventPrincipal& ep, EventSetup const& es, BranchActionType const& bat)
   {
-    if (for_each(trig_paths_.begin(), trig_paths_.end(), run_one_event(ep, es, bat)).terminate()) {
-      terminate_ = true;
-    }
+    for_each(trig_paths_.begin(), trig_paths_.end(), run_one_event(ep, es, bat));
     return results_->accept();
   }
 
@@ -973,9 +1043,7 @@ namespace edm
   {
     // Note there is no state-checking safety controlling the
     // activation/deactivation of endpaths.
-    if (for_each(end_paths_.begin(), end_paths_.end(), run_one_event(ep, es, bat)).terminate()) {
-      terminate_ = true;
-    }
+    for_each(end_paths_.begin(), end_paths_.end(), run_one_event(ep, es, bat));
 
     // We could get rid of the functor run_one_event if we used
     // boost::lambda, but the use of lambda with member functions

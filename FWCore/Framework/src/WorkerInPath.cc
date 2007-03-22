@@ -11,8 +11,7 @@ namespace edm
     timesFailed_(),
     timesExcept_(),
     filterAction_(theFilterAction),
-    worker_(w),
-    terminate_(false)
+    worker_(w)
   {
   }
 
@@ -23,8 +22,7 @@ namespace edm
     timesFailed_(),
     timesExcept_(),
     filterAction_(Normal),
-    worker_(w),
-    terminate_(false)
+    worker_(w)
   {
   }
 
@@ -47,7 +45,6 @@ namespace edm
 	// the Worker::FilterAction so conditions in the path will be easier to 
 	// identify
 	rc = worker_->doWork(ep, es, bat, cpc);
-	if (worker_->terminate()) terminate_ = true;
 
 	if (filterAction_ == Veto) rc = !rc;
         else if (filterAction_ == Ignore) rc = true;

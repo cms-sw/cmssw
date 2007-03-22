@@ -24,7 +24,6 @@ namespace edm
     timesFailed_(),
     timesExcept_(),
     state_(edm::hlt::Ready),
-    terminate_(false),
     bitpos_(bitpos),
     name_(path_name),
     trptr_(trptr),
@@ -94,7 +93,6 @@ namespace edm
       try {
         cpc.activate(idx, i->getWorker()->descPtr());
         should_continue = i->runWorker(ep, es, bat, &cpc);
-        if (i->terminate()) terminate_ = true;
       }
       catch(cms::Exception& e) {
         // handleWorkerFailure may throw a new exception.

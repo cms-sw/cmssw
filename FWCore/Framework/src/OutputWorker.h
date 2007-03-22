@@ -9,7 +9,7 @@ this object is to call the output module.
 According to our current definition, a single output module can only
 appear in one worker.
 
-$Id: OutputWorker.h,v 1.17 2006/06/20 23:13:27 paterno Exp $
+$Id: OutputWorker.h,v 1.18 2006/11/03 17:57:52 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <memory>
@@ -34,6 +34,9 @@ namespace edm
     template <class ModType>
     static std::auto_ptr<OutputModule> makeOne(const ModuleDescription& md,
 					const WorkerParams& wp);
+
+    int eventCount() const;
+
   private:
     virtual bool implDoWork(EventPrincipal& e, EventSetup const& c,
 			    CurrentProcessingContext const* cpc);

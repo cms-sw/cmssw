@@ -32,7 +32,7 @@ problems:
   where does the pluginmanager initialize call go?
 
 
-$Id: EventProcessor.h,v 1.31 2007/03/04 06:00:22 wmtan Exp $
+$Id: EventProcessor.h,v 1.32 2007/03/17 02:30:48 jbk Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -181,12 +181,12 @@ namespace edm {
     // -------------
 
     // Invoke event processing.  We will process a total of
-    // 'numberToProcess' events. If numberToProcess is zero, we will
+    // 'numberToProcess' events. If numberToProcess is -1, we will
     // process events intil the input sources are exhausted. If it is
-    // given a non-zero number, processing continues until either (1)
+    // given a non-negative number, processing continues until either (1)
     // this number of events has been processed, or (2) the input
     // sources are exhausted.
-    StatusCode run(unsigned int numberToProcess);
+    StatusCode run(int numberToProcess);
 
     // Process until the input source is exhausted.
     StatusCode run();
@@ -263,20 +263,24 @@ namespace edm {
       CommonParams():
 	processName_(),
 	releaseVersion_(),
-	passID_()
+	passID_(),
+	maxEventsInput_()
       { }
 
       CommonParams(std::string const& processName,
 		   ReleaseVersion const& releaseVersion,
-		   PassID const& passID):
+		   PassID const& passID,
+		   int maxEvents):
 	processName_(processName),
 	releaseVersion_(releaseVersion),
-	passID_(passID)
+	passID_(passID),
+        maxEventsInput_(maxEvents)
       { }
       
       std::string processName_;
       ReleaseVersion releaseVersion_;
       PassID passID_;
+      int maxEventsInput_;
     }; // struct CommonParams
 
     // Really should not be public,
@@ -291,7 +295,7 @@ namespace edm {
 		std::vector<std::string> const& defaultServices,
 		std::vector<std::string> const& forcedServices);
   
-    StatusCode run_p(unsigned int numberToProcess,
+    StatusCode run_p(int numberToProcess,
 		     event_processor::Msg m);
     StatusCode doneAsync(event_processor::Msg m);
     EventHelperDescription runOnce();
@@ -320,7 +324,8 @@ namespace edm {
     // really needed, we should remove them.    
 
     DoPluginInit                                  plug_init_;
-    CommonParams                                  common_;
+    edm::ParameterSet			          maxEventsPset_;
+    int                                           maxEventsInput_;
     boost::shared_ptr<ActivityRegistry>           actReg_;
     WorkerRegistry                                wreg_;
     SignallingProductRegistry                     preg_;
@@ -350,11 +355,11 @@ namespace edm {
 
   //--------------------------------------------------------------------
   // ----- implementation details below ------
-  
+
   inline
   EventProcessor::StatusCode
   EventProcessor::run() {
-    return run(0);
+    return run(maxEventsInput_);
   }
 
   template <class T> T& EventProcessor::getSpecificInputSource()

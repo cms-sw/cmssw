@@ -5,7 +5,7 @@
 
   Author: Jim Kowalkowski 28-01-06
 
-  $Id: Path.h,v 1.10 2006/12/01 03:33:42 wmtan Exp $
+  $Id: Path.h,v 1.11 2007/03/07 00:06:01 wmtan Exp $
 
   An object of this type represents one path in a job configuration.
   It holds the assigned bit position and the list of workers that are
@@ -76,7 +76,6 @@ namespace edm
     int timesFailed (size_type i) const { return workers_.at(i).timesFailed() ; }
     int timesExcept (size_type i) const { return workers_.at(i).timesExcept() ; }
     Worker const * getWorker(size_type i) const { return workers_.at(i).getWorker(); }
-    bool const terminate() const {return terminate_;}
 
   private:
     RunStopwatch::StopwatchPointer stopwatch_;
@@ -86,8 +85,6 @@ namespace edm
     int timesExcept_;
     //int abortWorker_;
     State state_;
-
-    bool terminate_;
 
     int bitpos_;
     std::string name_;

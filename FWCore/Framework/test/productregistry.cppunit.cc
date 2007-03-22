@@ -3,7 +3,7 @@
    test for ProductRegistry 
 
    \author Stefano ARGIRO
-   \version $Id: productregistry.cppunit.cc,v 1.18 2007/02/07 23:21:14 wmtan Exp $
+   \version $Id: productregistry.cppunit.cc,v 1.19 2007/03/04 06:14:45 wmtan Exp $
    \date 21 July 2005
 */
 
@@ -192,10 +192,11 @@ void  testProductRegistry:: testProductRegistration(){
   const std::string config=
 
     "process TEST = { \n"
+      "untracked PSet maxEvents = {untracked int32 input = -1}\n"
       "module m1 = TestPRegisterModule1{ } \n"
       "module m2 = TestPRegisterModule2{ } \n" 
       "path p = {m1,m2}\n"
-      "source = DummySource{ untracked int32 maxEvents = 1 }\n"
+      "source = DummySource{ }\n"
     "}\n";
 
   try {

@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: InputSource.cc,v 1.19 2007/01/10 05:58:48 wmtan Exp $
+$Id: InputSource.cc,v 1.20 2007/03/04 06:10:25 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <cassert> 
 #include "FWCore/Framework/interface/InputSource.h"
@@ -14,9 +14,12 @@ $Id: InputSource.cc,v 1.19 2007/01/10 05:58:48 wmtan Exp $
 
 namespace edm {
 
+  namespace {
+	int const improbable = -65783927;
+  }
   InputSource::InputSource(ParameterSet const& pset, InputSourceDescription const& desc) :
       ProductRegistryHelper(),
-      maxEvents_(pset.getUntrackedParameter<int>("maxEvents", -1)),
+      maxEvents_(desc.maxEvents_),
       remainingEvents_(maxEvents_),
       readCount_(0),
       unlimited_(maxEvents_ < 0),
@@ -25,6 +28,22 @@ namespace edm {
     // Secondary input sources currently do not have a product registry.
     if (primary_) {
       assert(isDesc_.productRegistry_ != 0);
+    }
+    int maxEventsOldStyle = pset.getUntrackedParameter<int>("maxEvents", improbable);
+    if (maxEventsOldStyle != improbable) {
+      if (unlimited_) {
+        maxEvents_ = maxEventsOldStyle;
+	remainingEvents_ = maxEventsOldStyle;
+	unlimited_ = (maxEvents_ < 0);
+        LogWarning("maxEvents deprecated") << "The 'maxEvents' parameter"
+	  << " for sources has been deprecated.\n"
+	  << "Please use instead the process level block\n"
+          << "'untracked PSet maxEvents = {untracked int32 input = " << maxEvents_ << "}'\n";
+      } else {
+        LogWarning("maxEvents deprecated") << "The deprecated 'maxEvents' parameter\n"
+	  << "for sources has been overidden by\n"
+          << "'untracked PSet maxEvents = {untracked int32 input = " << maxEvents_ << "}'\n";
+      }
     }
   }
 
@@ -62,8 +81,6 @@ namespace edm {
 	++readCount_;
 	issueReports(result->id());
       }
-    } else {
-      endLumiAndRun();
     }
     return result;
   }

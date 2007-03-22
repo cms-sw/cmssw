@@ -2,7 +2,7 @@
 
 Test of the EventProcessor class.
 
-$Id: eventprocessor_t.cppunit.cc,v 1.24 2007/03/04 06:14:45 wmtan Exp $
+$Id: eventprocessor_t.cppunit.cc,v 1.25 2007/03/17 02:30:49 jbk Exp $
 
 ----------------------------------------------------------------------*/  
 #include <exception>
@@ -75,14 +75,15 @@ class testeventprocessor: public CppUnit::TestFixture
   void work()
   {
     std::string configuration("process p = {\n"
-			      "source = EmptySource { untracked int32 maxEvents = 5 }\n"
+			      "untracked PSet maxEvents = {untracked int32 input = 5}\n"
+			      "source = EmptySource { }\n"
 			      "module m1 = TestMod { int32 ivalue = 10 }\n"
 			      "module m2 = TestMod { int32 ivalue = -3 }\n"
 			      "path p1 = { m1,m2 }\n"
 			      "}\n");
     edm::EventProcessor proc(configuration);
     proc.beginJob();
-    proc.run(0);
+    proc.run();
     proc.endJob();
   }
 
@@ -95,6 +96,8 @@ CPPUNIT_TEST_SUITE_REGISTRATION(testeventprocessor);
 static std::string makeConfig(int event_count)
 {
   static const std::string start = "process p = {\n"
+    "untracked PSet maxEvents = {untracked int32 input = ";
+  static const std::string finish = " }\n"
     "service=MessageLogger{ untracked vstring destinations={\n"
     "\"cout\",\"cerr\"}\n"
     "untracked vstring categories={\"FwkJob\",\"FwkReport\"}\n"
@@ -102,8 +105,7 @@ static std::string makeConfig(int event_count)
     "untracked PSet FwkReport={untracked int32 limit=0}}\n"
     "untracked PSet cerr={untracked string thresold=\"INFO\"\n"
     "untracked PSet FwkReport={untracked int32 limit=0}}\n"
-    "} source = EmptySource { untracked int32 maxEvents = ";
-  static const std::string finish = " }\n"
+    "} source = EmptySource { }\n"
     "module m1 = IntProducer { int32 ivalue = 10 }\n"
     "path p1 = { m1 }\n"
     "}\n";
@@ -266,7 +268,8 @@ void doPost(const edm::Event&, const edm::EventSetup&)
 void testeventprocessor::prepostTest()
 {
   std::string configuration("process p = {\n"
-			    "source = EmptySource { untracked int32 maxEvents = 5 }\n"
+			    "untracked PSet maxEvents = {untracked int32 input = 5}\n"
+			    "source = EmptySource { }\n"
 			    "module m1 = TestMod { int32 ivalue = -3 }\n"
 			    "path p1 = { m1 }\n"
 			    "}\n");
@@ -275,7 +278,7 @@ void testeventprocessor::prepostTest()
   proc.preProcessEventSignal.connect(&doPre);
   proc.postProcessEventSignal.connect(&doPost);
   proc.beginJob();
-  proc.run(0);
+  proc.run();
   proc.endJob();
   CPPUNIT_ASSERT(5 == g_pre);
   CPPUNIT_ASSERT(5 == g_post);
@@ -303,7 +306,8 @@ void testeventprocessor::prepostTest()
 void testeventprocessor::beginEndJobTest()
 {
   std::string configuration("process p = {\n"
-			    "source = EmptySource { untracked int32 maxEvents = 2 }\n"
+			    "untracked PSet maxEvents = {untracked int32 input = 2}\n"
+			    "source = EmptySource { }\n"
 			    "module m1 = TestBeginEndJobAnalyzer { }\n"
 			    "path p1 = { m1 }\n"
 			    "}\n");
@@ -341,7 +345,8 @@ void testeventprocessor::beginEndJobTest()
 void testeventprocessor::cleanupJobTest()
 {
   std::string configuration("process p = {\n"
-			    "source = EmptySource { untracked int32 maxEvents = 2 }\n"
+			    "untracked PSet maxEvents = {untracked int32 input = 2}\n"
+			    "source = EmptySource { }\n"
 			    "module m1 = TestBeginEndJobAnalyzer { }\n"
 			    "path p1 = { m1 }\n"
 			    "}\n");
@@ -423,7 +428,8 @@ void
 testeventprocessor::activityRegistryTest()
 {
   std::string configuration("process p = {\n"
-			    "source = EmptySource { untracked int32 maxEvents = 5 }\n"
+			    "untracked PSet maxEvents = {untracked int32 input = 5}\n"
+			    "source = EmptySource { }\n"
 			    "module m1 = TestMod { int32 ivalue = -3 }\n"
 			    "path p1 = { m1 }\n"
 			    "}\n");
@@ -441,7 +447,7 @@ testeventprocessor::activityRegistryTest()
   edm::EventProcessor proc(configuration,token, edm::serviceregistry::kOverlapIsError);
    
   proc.beginJob();
-  proc.run(0);
+  proc.run();
   proc.endJob();
    
   CPPUNIT_ASSERT(listener.postBeginJob_);
@@ -466,7 +472,8 @@ testeventprocessor::moduleFailureTest()
 {
   try {
     const std::string preC("process p = {\n"
-			   "source = EmptySource { untracked int32 maxEvents = 2 }\n"
+			   "untracked PSet maxEvents = {untracked int32 input = 2}\n"
+			   "source = EmptySource { }\n"
 			   "module m1 = TestFailuresAnalyzer { int32 whichFailure =");
     const std::string postC(" }\n"
 			    "path p1 = { m1 }\n"
@@ -542,7 +549,8 @@ testeventprocessor::moduleFailureTest()
       bool threw = true;
       try {
         const std::string configuration("process p = {\n"
-                               "source = EmptySource { untracked int32 maxEvents = 2 }\n"
+			       "untracked PSet maxEvents = {untracked int32 input = 2}\n"
+                               "source = EmptySource { }\n"
                                 "path p1 = { m1 }\n"
                                 "}\n");
         edm::EventProcessor proc(configuration);
@@ -568,7 +576,8 @@ void
 testeventprocessor::endpathTest()
 {
   std::string configuration("process p = {\n"
-			    "source = EmptySource { untracked int32 maxEvents = 5 }\n"
+			    "untracked PSet maxEvents = {untracked int32 input = 5}\n"
+			    "source = EmptySource { }\n"
 			    "module m1 = TestMod { int32 ivalue = -3 }\n"
 			    "path p1 = { m1 }\n"
 			    "}\n");

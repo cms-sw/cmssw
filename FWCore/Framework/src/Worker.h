@@ -6,7 +6,7 @@
 Worker: this is a basic scheduling unit - an abstract base class to
 something that is really a producer or filter.
 
-$Id: Worker.h,v 1.19 2007/03/04 06:10:25 wmtan Exp $
+$Id: Worker.h,v 1.20 2007/03/07 00:06:01 wmtan Exp $
 
 A worker will not actually call through to the module unless it is
 in a Ready state.  After a module is actually run, the state will not
@@ -86,8 +86,6 @@ namespace edm {
 
     int timesPass() const { return timesPassed(); } // for backward compatibility only - to be removed soon
 
-    bool const terminate() const {return terminate_;}
-
   protected:
     virtual std::string workerType() const = 0;
     virtual bool implDoWork(EventPrincipal&, EventSetup const& c, 
@@ -103,9 +101,8 @@ namespace edm {
     virtual bool implEndLuminosityBlock(LuminosityBlockPrincipal& lbp, EventSetup const& c,
 			    CurrentProcessingContext const* cpc) = 0;
 
-    void setTerminate() {terminate_ = true;}
-
   private:
+
     RunStopwatch::StopwatchPointer stopwatch_;
 
     int timesRun_;
@@ -120,8 +117,6 @@ namespace edm {
     boost::shared_ptr<cms::Exception> cached_exception_; // if state is 'exception'
 
     Sigs sigs_;
-
-    bool terminate_;
   };
 
   template <class WT>

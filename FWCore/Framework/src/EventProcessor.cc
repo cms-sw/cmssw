@@ -240,7 +240,7 @@ namespace edm {
 				params.id(), getReleaseVersion(), getPassID());
 
       sourceSpecified = true;
-      InputSourceDescription isdesc(md, preg);
+      InputSourceDescription isdesc(md, preg, common.maxEventsInput_);
       areg.preSourceConstructionSignal_(md);
       shared_ptr<InputSource> input(InputSourceFactory::get()->makeInputSource(main_input, isdesc).release());
       areg.postSourceConstructionSignal_(md);
@@ -497,7 +497,8 @@ namespace edm {
     preProcessEventSignal(),
     postProcessEventSignal(),
     plug_init_(),
-    common_(),
+    maxEventsPset_(),
+    maxEventsInput_(-1),
     actReg_(new ActivityRegistry),
     wreg_(actReg_),
     preg_(),
@@ -528,7 +529,8 @@ namespace edm {
     preProcessEventSignal(),
     postProcessEventSignal(),
     plug_init_(),
-    common_(),
+    maxEventsPset_(),
+    maxEventsInput_(-1),
     actReg_(new ActivityRegistry),
     wreg_(actReg_),
     preg_(),
@@ -563,9 +565,11 @@ namespace edm {
     // returned here should be const, so that we can be sure they are
     // not modified.
 
+    shared_ptr<ParameterSet> parameterSet;
     shared_ptr<vector<ParameterSet> > pServiceSets;
-    shared_ptr<ParameterSet> processParamsPtr; // change this name!
-    makeParameterSets(config, processParamsPtr, pServiceSets);
+    makeParameterSets(config, parameterSet, pServiceSets);
+    maxEventsPset_ = parameterSet->getUntrackedParameter<ParameterSet>("maxEvents", ParameterSet());
+    maxEventsInput_ = maxEventsPset_.getUntrackedParameter<int>("input", -1);
 
     // Add the forced and default services to pServiceSets.
     // In pServiceSets, we want the default services first, then the forced
@@ -602,13 +606,13 @@ namespace edm {
 
     // the next thing is ugly: pull out the trigger path pset and 
     // create a service and extra token for it
-    string processName = processParamsPtr->getParameter<string>("@process_name");
+    string processName = parameterSet->getParameter<string>("@process_name");
 
     typedef edm::service::TriggerNamesService TNS;
     typedef serviceregistry::ServiceWrapper<TNS> w_TNS;
 
     shared_ptr<w_TNS> tnsptr
-      (new w_TNS(std::auto_ptr<TNS>(new TNS(*processParamsPtr))));
+      (new w_TNS(std::auto_ptr<TNS>(new TNS(*parameterSet))));
 
     serviceToken_ = ServiceRegistry::createContaining(tnsptr, 
 						    tempToken2, 
@@ -617,19 +621,20 @@ namespace edm {
     //make the services available
     ServiceRegistry::Operate operate(serviceToken_);
      
-    //processParamsPtr = builder.getProcessPSet();
-    act_table_ = ActionTable(*processParamsPtr);
-    common_ = CommonParams(processName,
+    //parameterSet = builder.getProcessPSet();
+    act_table_ = ActionTable(*parameterSet);
+    CommonParams common = CommonParams(processName,
 			   getReleaseVersion(),
-			   getPassID());
+			   getPassID(),
+			   maxEventsInput_);
 
-    esp_ = makeEventSetupProvider(*processParamsPtr);
-    fillEventSetupProvider(*esp_, *processParamsPtr, common_);
-    looper_ = fillLooper(*esp_, *processParamsPtr, common_);
+    esp_ = makeEventSetupProvider(*parameterSet);
+    fillEventSetupProvider(*esp_, *parameterSet, common);
+    looper_ = fillLooper(*esp_, *parameterSet, common);
      
-    input_= makeInput(*processParamsPtr, common_, preg_,*actReg_);
+    input_= makeInput(*parameterSet, common, preg_,*actReg_);
     schedule_ = std::auto_ptr<Schedule>
-      (new Schedule(*processParamsPtr,
+      (new Schedule(*parameterSet,
 		    ServiceRegistry::instance().get<TNS>(),
 		    wreg_,
 		    preg_,
@@ -637,7 +642,7 @@ namespace edm {
 		    actReg_));
 
     //   initialize(iToken,iLegacy);
-    FDEBUG(2) << processParamsPtr->toString() << std::endl;
+    FDEBUG(2) << parameterSet->toString() << std::endl;
     connectSigs(this);
   }
 
@@ -743,13 +748,14 @@ namespace edm {
   void
   EventProcessor::endLumiAndRun(EventPrincipal & ep, bool isNewRun) const {
     IOVSyncValue ts(ep.id(), ep.time());
+    input_->doEndLumiAndRun();
     EventSetup const& es = esp_->eventSetupForInstance(ts);
     schedule_->runOneEvent(ep, es, BranchActionEndLumi);
     if (isNewRun) schedule_->runOneEvent(ep, es, BranchActionEndRun);
   }
 
   EventProcessor::StatusCode
-  EventProcessor::run_p(unsigned int numberToProcess, Msg m)
+  EventProcessor::run_p(int numberToProcess, Msg m)
   {
     changeState(m);
     StateSentry toerror(this);
@@ -757,9 +763,9 @@ namespace edm {
     //make the services available
     ServiceRegistry::Operate operate(serviceToken_);
 
-    bool runforever = numberToProcess == 0;
+    bool runforever = numberToProcess < 0;
     bool got_sig = false;
-    unsigned int eventcount = 0;
+    int eventcount = 0;
     StatusCode rc = epSuccess;
 
     std::auto_ptr<EventPrincipal> previousPep;
@@ -779,7 +785,9 @@ namespace edm {
       }
 
       if(!runforever && eventcount >= numberToProcess) {
-	if (previousPep.get() != 0) endLumiAndRun(*previousPep.get());
+	if (previousPep.get() != 0) {
+	  endLumiAndRun(*previousPep.get());
+	}
 	changeState(mCountComplete);
 	continue;
       }
@@ -837,7 +845,7 @@ namespace edm {
   }
 
   EventProcessor::StatusCode
-  EventProcessor::run(unsigned int numberToProcess)
+  EventProcessor::run(int numberToProcess)
   {
     beginJob(); //make sure this was called
     StatusCode rc = epInputComplete;
@@ -1270,10 +1278,9 @@ namespace edm {
     Status rc = epException;
     FDEBUG(2) << "asyncRun starting >>>>>>>>>>>>>>>>>>>>>>\n";
 
-    try
-      {
-	rc = me->run_p(0,mRunAsync);
-      }
+    try {
+	rc = me->run_p(-1, mRunAsync);
+    }
     catch (cms::Exception& e) {
       edm::LogError("FwkJob") << "cms::Exception caught in "
 			      << "EventProcessor::asyncRun" 

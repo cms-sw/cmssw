@@ -1,6 +1,6 @@
 /*----------------------------------------------------------------------
 
-$Id: OutputModule.cc,v 1.29 2007/01/17 06:26:51 wmtan Exp $
+$Id: OutputModule.cc,v 1.30 2007/03/07 00:03:49 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <iostream>
@@ -25,22 +25,19 @@ using std::vector;
 using std::string;
 
 
-namespace edm
-{
+namespace edm {
   // This grotesque little function exists just to allow calling of
   // ConstProductRegistry::allBranchDescriptions in the context of
   // OutputModule's initialization list, rather than in the body of
   // the constructor.
 
   vector<edm::BranchDescription const*>
-  getAllBranchDescriptions()
-  {
+  getAllBranchDescriptions() {
     edm::Service<edm::ConstProductRegistry> reg;
     return reg->allBranchDescriptions();
   }
 
-  vector<string> const& getAllTriggerNames()
-  {
+  vector<string> const& getAllTriggerNames() {
     edm::Service<edm::service::TriggerNamesService> tns;
     return tns->getTrigPaths();
   }
@@ -51,19 +48,17 @@ namespace
 {
   //--------------------------------------------------------
   // Remove whitespace (spaces and tabs) from a string.
-  void remove_whitespace(string& s)
-  {
+  void remove_whitespace(string& s) {
     s.erase(remove(s.begin(), s.end(), ' '), s.end());
     s.erase(remove(s.begin(), s.end(), '\t'), s.end());
   }
 
-  void test_remove_whitespace()
-  {
+  void test_remove_whitespace() {
     string a("noblanks");
     string b("\t   no   blanks    \t");
 
     remove_whitespace(b);
-    assert( a == b);
+    assert(a == b);
   }
 
   //--------------------------------------------------------
@@ -72,26 +67,21 @@ namespace
 
   typedef std::pair<string,string> parsed_path_spec_t;
   void parse_path_spec(string const& path_spec, 
-		       parsed_path_spec_t& output)
-  {
+		       parsed_path_spec_t& output) {
     string trimmed_path_spec(path_spec);
     remove_whitespace(trimmed_path_spec);
     
     string::size_type colon = trimmed_path_spec.find(":");
-    if (colon == string::npos)
-      {
+    if (colon == string::npos) {
 	output.first = trimmed_path_spec;
-      }
-    else
-      {
+    } else {
 	output.first  = trimmed_path_spec.substr(0, colon);
 	output.second = trimmed_path_spec.substr(colon+1, 
 						 trimmed_path_spec.size());
-      }
+    }
   }
 
-  void test_parse_path_spec()
-  {
+  void test_parse_path_spec() {
     vector<string> paths;
     paths.push_back("a:p1");
     paths.push_back("b:p2");
@@ -103,26 +93,23 @@ namespace
     for (size_t i = 0; i < paths.size(); ++i)
       parse_path_spec(paths[i], parsed[i]);
 
-    assert( parsed[0].first  == "a" );
-    assert( parsed[0].second == "p1" );
-    assert( parsed[1].first  == "b" );
-    assert( parsed[1].second == "p2" );
-    assert( parsed[2].first  == "c" );
-    assert( parsed[2].second == "" );
-    assert( parsed[3].first  == "ddd" );
-    assert( parsed[3].second == "p3" );
-    assert( parsed[4].first  == "eee" );
-    assert( parsed[4].second == "p4" );
+    assert(parsed[0].first  == "a");
+    assert(parsed[0].second == "p1");
+    assert(parsed[1].first  == "b");
+    assert(parsed[1].second == "p2");
+    assert(parsed[2].first  == "c");
+    assert(parsed[2].second == "");
+    assert(parsed[3].first  == "ddd");
+    assert(parsed[3].second == "p3");
+    assert(parsed[4].first  == "eee");
+    assert(parsed[4].second == "p4");
   }
 }
 
 
-namespace edm
-{
-  namespace test
-  {
-    void run_all_output_module_tests()
-    {
+namespace edm {
+  namespace test {
+    void run_all_output_module_tests() {
       test_remove_whitespace();
       test_parse_path_spec();
     }
@@ -145,12 +132,7 @@ namespace edm
     current_md_(0),
     wantAllEvents_(false),
     selectors_(),
-    maxEvents_(pset.getUntrackedParameter<int>("maxEvents", -1)),
-    remainingEvents_(maxEvents_),
-    writeCount_(0),
-    unlimited_(maxEvents_ < 0),
-    maxEventsExit_(pset.getUntrackedParameter<bool>("maxEventsExit", true)),
-    terminate_(false)
+    eventCount_(0)
   {
     hasNewlyDroppedBranch_.assign(false);
 
@@ -165,22 +147,20 @@ namespace edm
     // all events, or one which contains a vstrig 'SelectEvents' that
     // is empty, we are to write all events. We have no need for any
     // EventSelectors.
-    if (selectevents.empty())
-      {
+    if (selectevents.empty()) {
 	wantAllEvents_ = true;
 	selectors_.setupDefault(getAllTriggerNames());
 	return;
-      }
+    }
 
     vector<string> path_specs = 
       selectevents.getParameter<vector<string> >("SelectEvents");
 
-    if (path_specs.empty())
-      {
+    if (path_specs.empty()) {
 	wantAllEvents_ = true;
 	selectors_.setupDefault(getAllTriggerNames());
 	return;
-      }
+    }
 
     // If we get here, we have the possibility of having to deal with
     // path_specs that look at more than one process.
@@ -206,7 +186,7 @@ namespace edm
     ProductRegistry::ProductList::const_iterator end = 
       reg->productList().end();
 
-    for ( ; it != end; ++it) {
+    for (; it != end; ++it) {
       BranchDescription const& desc = it->second;
       if(!desc.provenancePresent() & !desc.produced()) {
 	// If the branch containing the provenance has been previously dropped,
@@ -242,13 +222,11 @@ namespace edm
   }
 
 
-  Trig OutputModule::getTriggerResults(Event const& ev) const
-  {
+  Trig OutputModule::getTriggerResults(Event const& ev) const {
     return selectors_.getOneTriggerResults(ev);
   }
 
-  Trig OutputModule::getTriggerResults(EventPrincipal const& ep) const
-  {
+  Trig OutputModule::getTriggerResults(EventPrincipal const& ep) const {
     // This is bad, because we're returning handles into an Event that
     // is destructed before the return. It might not fail, because the
     // actual EventPrincipal is not destroyed, but it still needs to
@@ -258,26 +236,23 @@ namespace edm
     return getTriggerResults(ev);
   }
 
-  size_t OutputModule::getManyTriggerResults(EventPrincipal const& ep) const
-  {
+  size_t OutputModule::getManyTriggerResults(EventPrincipal const& ep) const {
      assert(current_md_ == current_context_->moduleDescription());
      size_t numFound = 0;
 
      // Fill in selectors_ if it has not already been done for this event...
-     if (! prodsValid_)
-       {
+     if (! prodsValid_) {
  	// use module description and const_cast unless interface to
  	// event is changed to just take a const EventPrincipal
  	Event e(const_cast<EventPrincipal&>(ep), *current_md_);
 	numFound = selectors_.fill(e);
-       }
+     }
      prodsValid_ = true;
      return  numFound;
   }
 
    namespace {
-     class  PVSentry
-     {
+     class  PVSentry {
      public:
        PVSentry (detail::CachedProducts& prods, bool& valid) : p(prods), v(valid) {}
        ~PVSentry() { p.clear(); v=false; }
@@ -285,7 +260,7 @@ namespace edm
        detail::CachedProducts& p;
        bool&           v;
 
-       PVSentry(PVSentry const& );  // not implemented
+       PVSentry(PVSentry const&);  // not implemented
        PVSentry& operator=(PVSentry const&); // not implemented
      };
    }
@@ -299,27 +274,24 @@ namespace edm
 
     //Save the current Mod Desc
     current_md_ = &md;
-    assert( current_md_ == c->moduleDescription());
+    assert(current_md_ == c->moduleDescription());
 
     FDEBUG(2) << "writeEvent called\n";
 
-    if (remainingEvents_ != 0) {
-      // This ugly little bit is here to prevent making the Event if
-      // don't need it.
-      if (wantAllEvents_) {
-	write(ep); 
-      } else {
-	// use module description and const_cast unless interface to
-	// event is changed to just take a const EventPrincipal
-	Event e(const_cast<EventPrincipal&>(ep), *c->moduleDescription());
-	if (selectors_.wantEvent(e)) write(ep);
+    // This ugly little bit is here to prevent making the Event if
+    // don't need it.
+    if (wantAllEvents_) {
+      write(ep); 
+      ++eventCount_;
+    } else {
+      // use module description and const_cast unless interface to
+      // event is changed to just take a const EventPrincipal
+      Event e(const_cast<EventPrincipal&>(ep), *c->moduleDescription());
+      if (selectors_.wantEvent(e)) {
+	write(ep);
+        ++eventCount_;
       }
-      if (!unlimited_) --remainingEvents_;
-      ++writeCount_;
     }
-    if (remainingEvents_ == 0 && maxEventsExit_) {
-      terminate_ = true;
-    }      
   }
 
 //   bool OutputModule::wantEvent(Event const& ev)

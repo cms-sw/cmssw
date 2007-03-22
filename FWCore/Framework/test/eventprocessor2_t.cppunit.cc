@@ -2,7 +2,7 @@
 
 Test of the EventProcessor class.
 
-$Id: eventprocessor2_t.cppunit.cc,v 1.6 2005/09/28 04:45:18 wmtan Exp $
+$Id: eventprocessor2_t.cppunit.cc,v 1.7 2006/05/01 16:59:10 wmtan Exp $
 
 ----------------------------------------------------------------------*/  
 #include <exception>
@@ -31,7 +31,8 @@ CPPUNIT_TEST_SUITE_REGISTRATION(testeventprocessor2);
 void work()
 {
   std::string configuration("process PROD = {\n"
-		    "source = EmptySource { untracked int32 maxEvents = 5 }\n"
+		    "untracked PSet maxEvents = {untracked int32 input = 5}\n"
+		    "source = EmptySource { }\n"
 		    "module m1 = IntProducer { int32 ivalue = 10 }\n"
 		    "module m2 = DoubleProducer { double dvalue = 3.3 }\n"
 		    "module out = AsciiOutputModule { }\n"
@@ -39,7 +40,7 @@ void work()
 		    "}\n");
   edm::EventProcessor proc(configuration);
   proc.beginJob();
-  proc.run(0);
+  proc.run();
   proc.endJob();
 }
 

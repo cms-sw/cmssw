@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: ConfigurableInputSource.cc,v 1.16 2007/02/27 00:45:47 wmtan Exp $
+$Id: ConfigurableInputSource.cc,v 1.17 2007/03/04 06:10:25 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -97,7 +97,6 @@ namespace edm {
     LuminosityBlockNumber_t oldLumi = luminosityBlock_;
     setRunAndEventInfo();
     if (eventID_ == EventID()) {
-      endLumiAndRun();
       return std::auto_ptr<EventPrincipal>(0); 
     }
     bool isNewRun = justBegun_ || oldRun != eventID_.run();
@@ -121,8 +120,6 @@ namespace edm {
 	  productRegistry(), luminosityBlockPrincipal_, processConfiguration()));
     Event e(*result, moduleDescription());
     if (!produce(e)) {
-      finishLumi();
-      finishRun();
       return std::auto_ptr<EventPrincipal>(0); 
     }
     e.commit_();

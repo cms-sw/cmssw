@@ -4,7 +4,7 @@
 /*
   Author: Jim Kowalkowski  28-01-06
 
-  $Id: Schedule.h,v 1.19 2007/03/04 06:00:22 wmtan Exp $
+  $Id: Schedule.h,v 1.20 2007/03/07 00:06:01 wmtan Exp $
 
   A class for creating a schedule based on paths in the configuration file.
   The schedule is maintained as a sequence of paths.
@@ -111,6 +111,7 @@
 namespace edm
 {
   class UnscheduledCallProducer;
+  class OutputWorker;
   class Schedule
   {
   public:
@@ -121,6 +122,8 @@ namespace edm
     typedef boost::shared_ptr<Worker> WorkerPtr;
     typedef boost::shared_ptr<ActivityRegistry> ActivityRegistryPtr;
     typedef std::set<Worker*> AllWorkers;
+    typedef std::pair<int, OutputWorker const*> OneOutputWorker;
+    typedef std::vector<OneOutputWorker> AllOutputWorkers;
     typedef std::vector<Worker*> Workers;
     typedef std::vector<WorkerInPath> PathWorkers;
 
@@ -187,9 +190,8 @@ namespace edm
     /// modules-in-path, modules-in-endpath, and modules.
     void getTriggerReport(TriggerReport& rep) const;      
 
-    /// Return whether a module has decided to terminate the job
-    /// normally after the event is processed.
-    bool const terminate() const {return terminate_;}
+    /// Return whether a module has reached its maximum count.
+    bool const terminate() const;
 
   private:
     AllWorkers::const_iterator workersBegin() const 
@@ -235,6 +237,7 @@ namespace edm
 
     WorkerPtr   results_inserter_;
     AllWorkers  all_workers_;
+    AllOutputWorkers  all_output_workers_;
     TrigPaths   trig_paths_;
     TrigPaths   end_paths_;
 
@@ -250,7 +253,6 @@ namespace edm
     std::vector<boost::shared_ptr<Group> >     demandGroups_;
 
     volatile bool       endpathsAreActive_;
-    bool terminate_;
   };
 }
 
