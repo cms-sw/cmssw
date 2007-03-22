@@ -1,7 +1,7 @@
 /**\class PhotonSimpleAnalyzer
  **
- ** $Date: 2007/03/12 20:05:52 $ 
- ** $Revision: 1.6 $
+ ** $Date: 2007/03/15 18:29:29 $ 
+ ** $Revision: 1.7 $
  ** \author Nancy Marinelli, U. of Notre Dame, US
 */
 
@@ -66,9 +66,9 @@ SimplePhotonAnalyzer::beginJob(edm::EventSetup const&) {
   h1_deltaEta_ = new TH1F("deltaEta"," Reco photon Eta minus Generated photon Eta  ",100,-0.2, 0.2);
   h1_deltaPhi_ = new TH1F("deltaPhi","Reco photon Phi minus Generated photon Phi ",100,-0.2, 0.2);
   //
-  h1_corrPho_scE_ = new TH1F("scCorrE","Corrected photons : SC Energy ",100,0., 100.);
-  h1_corrPho_scEta_ = new TH1F("scCorrEta","Corrected photons: SC Eta ",40,-3., 3.);
-  h1_corrPho_scPhi_ = new TH1F("scCorrPhi","Corrected photons: SC Phi ",40,-3.14, 3.14);
+  h1_corrPho_E_ = new TH1F("corrPhoE","Corrected photons : Energy ",100,0., 100.);
+  h1_corrPho_Eta_ = new TH1F("corrPhoEta","Corrected photons:  Eta ",40,-3., 3.);
+  h1_corrPho_Phi_ = new TH1F("corrPhoPhi","Corrected photons:  Phi ",40,-3.14, 3.14);
 
 
 }
@@ -86,24 +86,16 @@ SimplePhotonAnalyzer::analyze( const edm::Event& evt, const edm::EventSetup& es 
 
   // Get theuncorrected  photon collection
  Handle<reco::PhotonCollection> uncorrectedPhotonHandle; 
-  try {
-    evt.getByLabel(photonCollectionProducer_, uncorrectedPhotonCollection_ , uncorrectedPhotonHandle);
-  } catch ( cms::Exception& ex ) {
-    edm::LogError("SimplePhotonAnalyzer") << "Error! can't get collection with label " << uncorrectedPhotonCollection_.c_str() ;
-  }
-  const reco::PhotonCollection phoCollection = *(uncorrectedPhotonHandle.product());
+ evt.getByLabel(photonCollectionProducer_, uncorrectedPhotonCollection_ , uncorrectedPhotonHandle);
+ const reco::PhotonCollection phoCollection = *(uncorrectedPhotonHandle.product());
 
 
 
 
   // Get the  corrected  photon collection
  Handle<reco::PhotonCollection> correctedPhotonHandle; 
-  try {
-    evt.getByLabel(photonCorrCollectionProducer_, correctedPhotonCollection_ , correctedPhotonHandle);
-  } catch ( cms::Exception& ex ) {
-    edm::LogError("SimplePhotonAnalyzer") << "Error! can't get collection with label " << correctedPhotonCollection_.c_str() ;
-  }
-  const reco::PhotonCollection corrPhoCollection = *(correctedPhotonHandle.product());
+ evt.getByLabel(photonCorrCollectionProducer_, correctedPhotonCollection_ , correctedPhotonHandle);
+ const reco::PhotonCollection corrPhoCollection = *(correctedPhotonHandle.product());
 
 
 
@@ -144,13 +136,14 @@ SimplePhotonAnalyzer::analyze( const edm::Event& evt, const edm::EventSetup& es 
   for( reco::PhotonCollection::const_iterator  iPho = corrPhoCollection.begin(); iPho != corrPhoCollection.end(); iPho++) {
     
     /////  Fill histos
-   
 
-    h1_corrPho_scE_->Fill( (*iPho).superCluster()->energy() );
-    h1_corrPho_scEta_->Fill( (*iPho).superCluster()->position().eta() );
-    h1_corrPho_scPhi_->Fill( (*iPho).superCluster()->position().phi() );
+    h1_corrPho_E_->Fill( (*iPho).energy() );
+    h1_corrPho_Eta_->Fill( (*iPho).eta() );
+    h1_corrPho_Phi_->Fill( (*iPho).phi() );
+
+
     
-  }  
+  } 
 
 
 
@@ -222,9 +215,9 @@ SimplePhotonAnalyzer::endJob() {
   h1_deltaPhi_ ->  Write();
 
 
-  h1_corrPho_scE_->Write();
-  h1_corrPho_scEta_->Write();
-  h1_corrPho_scPhi_->Write();
+  h1_corrPho_E_->Write();
+  h1_corrPho_Eta_->Write();
+  h1_corrPho_Phi_->Write();
 
 
   rootFile_->Close();
