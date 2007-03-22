@@ -1,19 +1,16 @@
 //  Author     : Gero Flucke (based on code by Edmund Widl replacing ORCA's TkReferenceTrack)
 //  date       : 2006/09/17
-//  last update: $Date: 2007/03/02 12:16:56 $
-//  by         : $Author: fronga $
+//  last update: $Date: 2007/03/16 16:37:52 $
+//  by         : $Author: flucke $
 
 #include "Alignment/CommonAlignmentAlgorithm/interface/ReferenceTrajectory.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-// #include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
-// #include "DataFormats/GeometrySurface/interface/LocalError.h"
-// #include "DataFormats/GeometryVector/interface/LocalPoint.h"
-#include "Geometry/CommonDetAlgo/interface/AlgebraicObjects.h" // FIXME: backport of include 
-#include "Geometry/Surface/interface/LocalError.h" // FIXME: backport of include 
-#include "Geometry/Vector/interface/LocalPoint.h" // FIXME: backport of include 
-#include "Geometry/CommonDetUnit/interface/GeomDet.h" // FIXME: backport of include 
+#include "DataFormats/CLHEP/interface/AlgebraicObjects.h" 
+#include "DataFormats/GeometrySurface/interface/LocalError.h"
+#include "DataFormats/GeometryVector/interface/LocalPoint.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 
 #include "DataFormats/TrajectoryState/interface/LocalTrajectoryParameters.h"
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"

@@ -3,8 +3,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-// #include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
-#include "Geometry/CommonDetAlgo/interface/AlgebraicObjects.h" // FIXME: backport of include 
+#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 
 #include "Alignment/CommonAlignmentParametrization/interface/CompositeAlignmentParameters.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentCorrelationsStore.h"
@@ -15,9 +14,9 @@
 ///
 /// Basic class for management of alignment parameters and correlations 
 ///
-///  $Date: 2007/03/02 12:16:55 $
-///  $Revision: 1.8 $
-/// (last update by $Author: fronga $)
+///  $Date: 2007/03/16 16:33:52 $
+///  $Revision: 1.9 $
+/// (last update by $Author: flucke $)
 
 class GeomDet;
 class Alignable;
