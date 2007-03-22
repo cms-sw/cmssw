@@ -13,7 +13,6 @@
 <use name=DataFormats/PixelMatchTrackReco>
 <use name=Geometry/CommonDetUnit>
 <use name=Geometry/TrackerGeometryBuilder>
-<use name=SimDataFormats/HepMCProduct>
 <use name=DataFormats/EgammaCandidates>
 <use name=RecoEgamma/EgammaElectronAlgos>
 <use name=RecoTracker/CkfPattern>
@@ -33,7 +32,6 @@
    <use name=DataFormats/PixelMatchTrackReco>
    <use name=Geometry/CommonDetUnit>
    <use name=Geometry/TrackerGeometryBuilder>
-   <use name=SimDataFormats/HepMCProduct>
    <use name=DataFormats/EgammaCandidates>
    <use name=RecoEgamma/EgammaElectronAlgos>
    <use name=RecoTracker/CkfPattern>
