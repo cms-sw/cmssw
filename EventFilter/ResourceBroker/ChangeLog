@@ -1,3 +1,9 @@
+2007-03-22  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-06-01
+	* fix to the handling of discards from the SM
+	* tested with EventFilter/ShmBuffer V00-03-01
+
 2007-03-21  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-06-00

@@ -115,7 +115,7 @@ bool FUResourceTable::sendData(toolbox::task::WorkLoop* /* wl */)
 {
   bool reschedule=true;
   
-  FUShmRecoCell* cell =shmBuffer_->recoCellToRead();
+  FUShmRecoCell* cell=shmBuffer_->recoCellToRead();
   nbAccepted_++;
   
   if (0==cell->eventSize()) {
@@ -125,11 +125,15 @@ bool FUResourceTable::sendData(toolbox::task::WorkLoop* /* wl */)
   else {
     try {
       if (cell->type()==0) {
-	sendInitMessage(cell->rawCellIndex(),cell->payloadAddr(),cell->eventSize());
+	sendInitMessage(cell->index(),cell->payloadAddr(),cell->eventSize());
+      }
+      else if (cell->type()==1) {
+	sendDataEvent(cell->index(),cell->runNumber(),cell->evtNumber(),
+		      cell->payloadAddr(),cell->eventSize());
       }
       else {
-	sendDataEvent(cell->rawCellIndex(),cell->runNumber(),cell->evtNumber(),
-		      cell->payloadAddr(),cell->eventSize());
+	string errmsg="Unknown RecoCell type (neither DATA nor INIT).";
+	XCEPT_RAISE(evf::Exception,errmsg);
       }
     }
     catch (xcept::Exception& e) {
@@ -249,12 +253,10 @@ UInt_t FUResourceTable::allocateResource()
   FUShmRawCell* cell=shmBuffer_->rawCellToWrite();
   UInt_t fuResourceId=cell->fuResourceId();
   
-  // initialize the new resource and update the relevant counters
   resources_[fuResourceId]->allocate(cell);
   nbPending_++;
   nbAllocated_++;
   
-  // set the resource to check the crc for each fed if requested
   if (0==nbAllocated_%doCrcCheck_) resources_[fuResourceId]->doCrcCheck(true);
   
   return fuResourceId;
