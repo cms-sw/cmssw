@@ -6,7 +6,6 @@
 #include "Geometry/RPCGeometryBuilder/src/RPCGeometryBuilderFromDDD.h"
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
 #include "Geometry/RPCGeometry/interface/RPCRollSpecs.h"
-//#include "Geometry/RPCSimAlgo/interface/RPCChamber.h"
 
 #include <DetectorDescription/Core/interface/DDFilter.h>
 #include <DetectorDescription/Core/interface/DDFilteredView.h>
@@ -89,7 +88,6 @@ RPCGeometry* RPCGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview, con
   std::cout <<"Building the geometry service"<<std::endl;
 #endif
   RPCGeometry* geometry = new RPCGeometry();
-  //  RPCChamber* ch = new RPCChamber();
 
 #ifdef LOCAL_DEBUG  
   std::cout << "About to run through the RPC structure" << std::endl;
@@ -131,9 +129,8 @@ RPCGeometry* RPCGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview, con
     RPCDetId rpcid(detid);
     RPCDetId chid(rpcid.region(),rpcid.ring(),rpcid.station(),rpcid.sector(),rpcid.layer(),rpcid.subsector(),0);
 
-    //    rpcid.buildfromTrIndex(detid);
 #ifdef LOCAL_DEBUG  
-    std::cout <<"The RPCDEtid is "<<detid<<" trigger index"<<rpcid.trIndex()<< std::endl;
+    std::cout <<"The RPCDetid is "<<rpcid<<std::endl;
 #endif
 
     DDValue numbOfStrips("nStrips");
