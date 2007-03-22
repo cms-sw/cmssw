@@ -13,7 +13,7 @@
 //
 // Original Author:  Jim Brooke
 //         Created:  Thu Nov 16 00:07:32 CET 2006
-// $Id: FakeGctInputProducer.h,v 1.1 2006/11/16 00:38:20 jbrooke Exp $
+// $Id: FakeGctInputProducer.h,v 1.1 2006/11/24 17:28:47 jbrooke Exp $
 //
 //
 

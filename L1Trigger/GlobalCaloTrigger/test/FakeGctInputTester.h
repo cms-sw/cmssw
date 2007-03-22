@@ -14,7 +14,7 @@
 //
 // Original Author:  Jim Brooke
 //         Created:  Tue Nov 21 14:49:14 CET 2006
-// $Id: FakeGctInputTester.h,v 1.3 2006/11/28 14:24:50 jbrooke Exp $
+// $Id: FakeGctInputTester.h,v 1.4 2006/12/08 09:33:11 jbrooke Exp $
 //
 //
 

@@ -5,6 +5,7 @@
 #include <vector>
 
 // EDM includes
+#include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -149,4 +150,6 @@ void L1GctEmulator::produce(edm::Event& e, const edm::EventSetup& c) {
   e.put(etMissResult);
 
 }
+
+DEFINE_FWK_MODULE(L1GctEmulator);
 

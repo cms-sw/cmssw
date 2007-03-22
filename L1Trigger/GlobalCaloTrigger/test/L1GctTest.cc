@@ -166,5 +166,3 @@ L1GctTest::configureGct(const edm::EventSetup& c)
 
 }
 
-//define this as a plug-in
-DEFINE_FWK_MODULE(L1GctTest);

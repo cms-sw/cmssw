@@ -12,7 +12,7 @@
 #include "DataFormats/L1CaloTrigger/interface/L1CaloEmCand.h"
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctCollections.h"
 
-#include "L1Trigger/GlobalCaloTrigger/src/FakeGctInputTester.h"
+#include "L1Trigger/GlobalCaloTrigger/test/FakeGctInputTester.h"
 
 // Root includes
 #include "TFile.h"
@@ -79,7 +79,7 @@ FakeGctInputTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
    
    // find non-zero RCT iso candidate
    int nRctIso=-1;
-   for (int i=0; i<rctCands->size(); i++) {
+   for (unsigned i=0; i<rctCands->size(); i++) {
      if ( rctCands->at(i).isolated() && (rctCands->at(i).rank() > 0) ) {
        nRctIso = i;
      }
@@ -106,7 +106,7 @@ FakeGctInputTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
    // find non-zero RCT non-iso candidate
    int nRctNonIso=-1;
-   for (int i=0; i<rctCands->size(); i++) {
+   for (unsigned i=0; i<rctCands->size(); i++) {
      if ( !(rctCands->at(i).isolated()) && (rctCands->at(i).rank() > 0) ) {
        nRctNonIso = i;
      }
@@ -135,7 +135,7 @@ FakeGctInputTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
    // find non-zero RCT region
    int nRctRgn=-1;
-   for (int i=0; i<rctRgns->size(); i++) {
+   for (unsigned i=0; i<rctRgns->size(); i++) {
      if ( rctRgns->at(i).et() > 0 ) {
        nRctRgn = i;
      }
@@ -150,19 +150,19 @@ FakeGctInputTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
      unsigned int gctEta=999;
      unsigned int gctPhi=999;
      
-     for (int i=0; i<gctCJets->size(); i++) {
+     for (unsigned i=0; i<gctCJets->size(); i++) {
        if (gctCJets->at(i).rank() > 0) {
 	 gctEta = gctCJets->at(i).regionId().ieta();
 	 gctPhi = gctCJets->at(i).regionId().iphi();
        }
      }
-     for (int i=0; i<gctTJets->size(); i++) {
+     for (unsigned i=0; i<gctTJets->size(); i++) {
        if (gctTJets->at(i).rank() > 0) {
 	 gctEta = gctTJets->at(i).regionId().ieta();
 	 gctPhi = gctTJets->at(i).regionId().iphi();
        }
      }
-     for (int i=0; i<gctFJets->size(); i++) {
+     for (unsigned i=0; i<gctFJets->size(); i++) {
        if (gctFJets->at(i).rank() > 0) {
 	 gctEta = gctFJets->at(i).regionId().ieta();
 	 gctPhi = gctFJets->at(i).regionId().iphi();

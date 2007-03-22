@@ -1,4 +1,4 @@
-#include "L1Trigger/GlobalCaloTrigger/src/FakeGctInputProducer.h"
+#include "L1Trigger/GlobalCaloTrigger/test/FakeGctInputProducer.h"
 
 #include "DataFormats/L1CaloTrigger/interface/L1CaloCollections.h"
 #include "DataFormats/L1CaloTrigger/interface/L1CaloRegion.h"
