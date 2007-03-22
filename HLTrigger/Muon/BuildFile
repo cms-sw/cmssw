@@ -1,4 +1,3 @@
-<use name=SimDataFormats/HepMCProduct>
 <use name=SimGeneral/HepPDTRecord>
 <use name=DataFormats/L1Trigger>
 <use name=DataFormats/MuonReco>
