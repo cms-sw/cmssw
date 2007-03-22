@@ -111,7 +111,6 @@ PixelMatchGsfElectronAnalyzer::analyze(const edm::Event& e, const edm::EventSetu
 
     // track informations 
     //    reco::GsfTrackRef tr =(*MyS).track();
-    /*
     reco::GsfTrackRef tr =(*MyS).gsfTrack();
     histTrCharge_->Fill(tr->charge());
     histTrInP_->Fill((*tr).innerMomentum().R());
@@ -124,7 +123,6 @@ PixelMatchGsfElectronAnalyzer::analyze(const edm::Event& e, const edm::EventSetu
     double pTr=tr->outerP();
     histTrOutP_->Fill(pTr);
     histTrOutPt_->Fill(tr->outerPt());
-    */
 
     // SCL informations
     reco::SuperClusterRef sclRef=(*MyS).superCluster();
@@ -136,7 +134,7 @@ PixelMatchGsfElectronAnalyzer::analyze(const edm::Event& e, const edm::EventSetu
     histSclPhi_->Fill(sclRef->phi());
 
     // correlation etc
-    //histESclOPTr_->Fill((sclRef->energy())/pTr);
+    histESclOPTr_->Fill((sclRef->energy())/pTr);
     //CC@@
     //histDeltaEta_->Fill(sclRef->eta()-(*tr).outerEta());
     histDeltaEta_->Fill((*MyS).deltaEtaSuperClusterTrackAtVtx());
