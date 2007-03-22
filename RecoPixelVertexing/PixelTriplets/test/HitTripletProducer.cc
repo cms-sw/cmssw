@@ -12,7 +12,7 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 #include "RecoPixelVertexing/PixelTriplets/interface/OrderedHitTriplets.h"
 #include "RecoTracker/TkTrackingRegions/interface/GlobalTrackingRegion.h"
-#include "RecoPixelVertexing/PixelTriplets/interface/PixelHitTripletGenerator.h"
+#include "RecoPixelVertexing/PixelTriplets/interface/CombinedHitTripletGenerator.h"
 
 
 class HitTripletProducer : public edm::EDAnalyzer {
@@ -24,7 +24,7 @@ public:
   virtual void endJob() { }
 private:
   edm::ParameterSet theConfig;
-  PixelHitTripletGenerator * generator;
+  CombinedHitTripletGenerator * generator;
 };
 
 HitTripletProducer::HitTripletProducer(const edm::ParameterSet& conf) 
@@ -53,13 +53,12 @@ void HitTripletProducer::analyze(
 
   if (!generator) {
     edm::ParameterSet pset = theConfig.getParameter<edm::ParameterSet>("TripletsPSet");
-    generator = new PixelHitTripletGenerator(pset);
+    generator = new CombinedHitTripletGenerator(pset);
   }
-  generator->init(*pixelHits,es); 
 
   GlobalTrackingRegion region;
   OrderedHitTriplets triplets;
-  generator->hitTriplets(region,triplets,es);
+  generator->hitTriplets(region,triplets,ev,es);
   edm::LogInfo("HitTripletProducer") << "size of triplets: "<<triplets.size();
   delete generator; generator=0;
 
