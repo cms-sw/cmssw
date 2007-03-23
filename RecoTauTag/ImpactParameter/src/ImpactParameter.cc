@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Rizzi
 //         Created:  Thu Apr  6 09:56:23 CEST 2006
-// $Id: ImpactParameter.cc,v 1.1 2006/10/10 07:42:16 slehti Exp $
+// $Id: ImpactParameter.cc,v 1.2 2006/10/24 12:50:15 slehti Exp $
 //
 //
 
@@ -50,13 +50,10 @@ ImpactParameter::ImpactParameter(const edm::ParameterSet& iConfig) {
 
 	algo = new ImpactParameterAlgorithm(iConfig);
 
-//	produces<reco::JetTagCollection>();
-//	produces<reco::TauImpactParameterInfoCollection>();
 	std::string modulname = iConfig.getParameter<string>( "@module_label" );
 	produces<reco::JetTagCollection>().setBranchAlias(modulname);
 	string infoBranchName = modulname + "Info";
 	produces<reco::TauImpactParameterInfoCollection>().setBranchAlias(infoBranchName);
-
 }
 
 
@@ -76,7 +73,7 @@ void ImpactParameter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 	Handle<IsolatedTauTagInfoCollection> isolatedTaus;
 	iEvent.getByLabel(jetTrackSrc,isolatedTaus);
-   
+
 	JetTagCollection                 *baseCollection = new JetTagCollection();
 	TauImpactParameterInfoCollection *extCollection  = new TauImpactParameterInfoCollection();
 
@@ -98,9 +95,9 @@ void ImpactParameter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 	}else{
 	  Vertex::Error e;
-	  e(0,0)=1;
-	  e(1,1)=1;
-	  e(2,2)=1;
+	  e(0,0)=0;
+	  e(1,1)=0;
+	  e(2,2)=0;
 	  Vertex::Point p(0,0,0);
 
 	  Vertex dummyPV(p,e,1,1,1);
@@ -111,10 +108,12 @@ void ImpactParameter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	int theKey = 0;
 	for(it = isolatedTaus->begin(); it != isolatedTaus->end(); it++) {
 		IsolatedTauTagInfoRef tauRef(isolatedTaus,theKey);
+
 		pair<JetTag,TauImpactParameterInfo> ipInfo = algo->tag(tauRef,PV);
 
 	        baseCollection->push_back(ipInfo.first);    
 	        extCollection->push_back(ipInfo.second);
+
 		theKey++;
 	}
 

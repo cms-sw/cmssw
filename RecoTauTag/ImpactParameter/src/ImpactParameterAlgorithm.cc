@@ -29,6 +29,11 @@ void ImpactParameterAlgorithm::setTransientTrackBuilder(const TransientTrackBuil
 
 pair<JetTag,TauImpactParameterInfo> ImpactParameterAlgorithm::tag(const IsolatedTauTagInfoRef & tauRef, const Vertex & pv) {
 
+	if(transientTrackBuilder == 0){
+	     cout << "Transient track builder is 0. abort!" << endl;
+	     abort(); //FIXME: trow an exception here
+	}
+
         TauImpactParameterInfo resultExtended;
 	resultExtended.setIsolatedTauTag(tauRef);
 
@@ -47,8 +52,7 @@ pair<JetTag,TauImpactParameterInfo> ImpactParameterAlgorithm::tag(const Isolated
 
 	  SignedImpactParameter3D signed_ip3D;
 	  Measurement1D ip3D = signed_ip3D.apply(*transientTrack,direction,pv).second;
-
-
+	  //cout << "check pv,ip3d,track z " << pv.z() << " " << ip3D.value() << " " << transientTrack->dz() << endl;
 	  if(!use_sign){
 	    Measurement1D tmp2D(fabs(ip.value()),ip.error());
 	    ip = tmp2D;
@@ -62,9 +66,11 @@ pair<JetTag,TauImpactParameterInfo> ImpactParameterAlgorithm::tag(const Isolated
 	  theData.transverseIp = ip;
           theData.ip3D = ip3D;
 	  resultExtended.storeTrackData(*iTrack,theData);
+
 	}
 
 	double discriminator = resultExtended.discriminator(ip_min,ip_max,sip_min,use_sign,use3D);
+
 	const JetTracksAssociationRef& jtaRef = tauRef->jetRef()->jtaRef();
 	JetTag resultBase(discriminator,jtaRef);
 
