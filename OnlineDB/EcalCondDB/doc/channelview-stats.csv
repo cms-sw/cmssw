@@ -38,4 +38,6 @@ EB_crystal_number,EB_module,62900,1031000001,1031360004,SM,0,36,crystal_number,1
 EB_crystal_number,EB_HV_channel,62900,1051000001,1051360034,SM,0,36,crystal_number,1,1700,,,,"Crystals in ECAL barrel super-modules by number"
 EB_crystal_number,EB_LV_channel,62900,1071000001,1071360017,SM,0,36,crystal_number,1,1700,,,,"Crystals in ECAL barrel super-modules by number"
 EB_crystal_number,EB_LM_channel,62900,1121000001,1121360009,SM,0,36,crystal_number,1,1700,,,,"Crystals in ECAL barrel super-modules by number"
+EB_crystal_number,EB_LM_PN,62900,1131000000,1131360009,SM,0,36,crystal_number,1,1700,,,,"Crystals in ECAL barrel super-modules by number"
+EB_crystal_number,EB_T_capsule,62900,1141000001,1141360170,SM,0,36,crystal_number,1,1700,,,,"Crystals in ECAL barrel super-modules by number"
 EB_crystal_number,EB_VFE,62900,1151000101,1151366805,SM,0,36,crystal_number,1,1700,,,,"Crystals in ECAL barrel super-modules by number"
