@@ -47,6 +47,7 @@ namespace {
 
   edm::Wrapper<std::pair<unsigned long, unsigned long> > dymmywp1;
   edm::Wrapper<std::pair<unsigned int, unsigned int> > dymmywp2;
+  edm::Wrapper<std::pair<unsigned int, int> > dymmywp2_1;
   edm::Wrapper<std::pair<unsigned short, unsigned short> > dymmywp3;
   edm::Wrapper<std::pair<int, int> > dymmywp4;
   edm::Wrapper<std::pair<unsigned int, bool> > dymmywp5;
@@ -59,6 +60,7 @@ namespace {
   edm::Wrapper<std::pair<std::basic_string<char>,std::vector<std::pair<std::basic_string<char>,double> > > > dummywp11;
   edm::Wrapper<std::map<unsigned long, unsigned long> > dymmywm1;
   edm::Wrapper<std::map<unsigned int, unsigned int> > dymmywm2;
+  edm::Wrapper<std::map<unsigned int, int> > dymmywm2_1;
   edm::Wrapper<std::map<unsigned short, unsigned short> > dymmywm3;
   edm::Wrapper<std::map<int, int> > dymmywm4;
   edm::Wrapper<std::map<unsigned int, bool> > dymmywm5;
