@@ -184,7 +184,7 @@ void TauImpactParameterTest::analyze(const edm::Event& iEvent, const edm::EventS
 			}
 		    }
 ////		    if(tauTracks.size() == 1 || tauTracks.size() == 3) {
-                    if(tauTracks.size() == 1 && ip2d < 0.03) { // ipt < 300um like in fig 12 (CMS Note 2006/028)
+                    if(tauTracks.size() == 1 && tip.value() < 0.03) { // ipt < 300um like in fig 12 (CMS Note 2006/028)
 
 			ip2d = 10*tip.value();
 			ip3d = 10*tzip.value();
