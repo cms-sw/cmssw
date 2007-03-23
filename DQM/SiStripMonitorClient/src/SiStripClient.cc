@@ -104,4 +104,11 @@ void SiStripClient::onUpdate() const
       mui_->addCallback(action); 
     }
   }
+  // Save to File
+  if (nUpdate%500 == 1) {
+      webInterface_p->setActionFlag(SiStripWebInterface::SaveData);
+      seal::Callback action(seal::CreateCallback(webInterface_p, 
+				 &SiStripWebInterface::performAction));
+      mui_->addCallback(action); 
+  }
 }
