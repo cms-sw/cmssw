@@ -1,7 +1,7 @@
 #include "Alignment/CommonAlignment/interface/Alignable.h"
 #include "Alignment/CommonAlignment/interface/SurveyDet.h"
+#include "Alignment/CommonAlignment/interface/SurveyResidual.h"
 #include "Alignment/SurveyAnalysis/interface/SurveyParameters.h"
-#include "Alignment/SurveyAnalysis/interface/SurveyResidual.h"
 
 #include "Alignment/SurveyAnalysis/interface/SurveyAlignmentPoints.h"
 
