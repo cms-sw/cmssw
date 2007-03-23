@@ -7,9 +7,9 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.15 $
+ * \version $Revision: 1.16 $
  *
- * $Id: CandCombiner.h,v 1.15 2007/03/02 13:13:27 llista Exp $
+ * $Id: CandCombiner.h,v 1.16 2007/03/07 09:06:05 llista Exp $
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -57,7 +57,11 @@ class CandCombiner : public CandCombinerBase {
 public:
   /// constructor from parameter set
   explicit CandCombiner( const edm::ParameterSet & cfg ) :
-    CandCombinerBase( cfg ), combiner_( reco::modules::make<S>( cfg ), Setup(), true, dauCharge_ ) {
+    CandCombinerBase( cfg ), 
+    combiner_( reco::modules::make<S>( cfg ), 
+	       Setup( cfg ), 
+	       true, 
+	       dauCharge_ ) {
   }
   /// destructor
   virtual ~CandCombiner() { }
