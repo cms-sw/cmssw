@@ -13,15 +13,15 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronPixelSeedGenerator.cc,v 1.18 2007/03/07 10:57:01 uberthon Exp $
+// $Id: ElectronPixelSeedGenerator.cc,v 1.20 2007/03/14 17:09:18 uberthon Exp $
 //
 //
 #include "RecoEgamma/EgammaElectronAlgos/interface/PixelHitMatcher.h" 
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronPixelSeedGenerator.h" 
+
 #include "RecoTracker/TransientTrackingRecHit/interface/TSiPixelRecHit.h" 
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h" 
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
-#include "RecoTracker/TkSeedGenerator/interface/SeedFromConsecutiveHits.h"
 #include "RecoTracker/TkSeedGenerator/interface/FastHelix.h"
 #include "RecoTracker/TkNavigation/interface/SimpleNavigationSchool.h"
 
