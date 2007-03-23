@@ -7,7 +7,7 @@
 namespace ctfseeding {
   typedef std::vector<SeedingLayer>               SeedingLayers;
   typedef std::vector<std::vector<SeedingLayer> > SeedingLayerSets;
-};
+}
 
   
 #endif

@@ -3,7 +3,7 @@
 
 #include <vector>
 class TrackingRegion;
-namespace edm { class Event; class EventSetup; } ;
+namespace edm { class Event; class EventSetup; }
 
 class TrackingRegionProducer {
 public:

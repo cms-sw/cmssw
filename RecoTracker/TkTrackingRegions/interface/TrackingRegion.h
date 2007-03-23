@@ -23,7 +23,7 @@
 class DetLayer;
 class TrackingRecHit;
 class HitRZCompatibility;
-namespace edm { class Event; class EventSetup; } ;
+namespace edm { class Event; class EventSetup; }
 
 class TrackingRegion{
 public:

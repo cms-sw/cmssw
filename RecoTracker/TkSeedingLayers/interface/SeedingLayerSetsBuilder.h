@@ -5,8 +5,8 @@
 #include "RecoTracker/TkSeedingLayers/interface/SeedingLayerSets.h"
 #include <string>
 #include <vector>
-namespace edm { class EventSetup; };
-namespace edm { class ParameterSet; };
+namespace edm { class EventSetup; }
+namespace edm { class ParameterSet; }
 
 namespace ctfseeding {
 class SeedingLayerSetsBuilder {

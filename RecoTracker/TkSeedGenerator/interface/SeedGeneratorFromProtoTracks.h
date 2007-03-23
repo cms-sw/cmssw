@@ -4,7 +4,7 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
 
-namespace edm { class ParameterSet; class Event; class EventSetup; }; 
+namespace edm { class ParameterSet; class Event; class EventSetup; }
 
 
 class SeedGeneratorFromProtoTracks : public edm::EDProducer {

@@ -2,7 +2,7 @@
 #define TkSeedingLayers_SeedingHit_H
 
 
-namespace edm { class EventSetup; };
+namespace edm { class EventSetup; }
 class TrackingRecHit;
 
 namespace ctfseeding {

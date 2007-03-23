@@ -5,7 +5,7 @@
 #include <vector>
 #include "RecoTracker/TkSeedingLayers/interface/SeedingHit.h"
 class DetLayer;
-namespace edm { class Event; class EventSetup; };
+namespace edm { class Event; class EventSetup; }
 
 
 namespace ctfseeding {
