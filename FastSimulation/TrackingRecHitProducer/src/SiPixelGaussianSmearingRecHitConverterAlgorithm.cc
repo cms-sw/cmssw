@@ -329,7 +329,10 @@ void SiPixelGaussianSmearingRecHitConverterAlgorithm::smearHit(
   //  thePositionX = theAlphaHistos[alphaHistN]->getHisto()->GetRandom();
   //  thePositionY = theBetaHistos[betaHistN]->getHisto()->GetRandom();
   thePositionZ = 0.0; // set at the centre of the active area
-  thePosition = Local3DPoint( thePositionX , thePositionY , thePositionZ );
+  thePosition = 
+    Local3DPoint(simHit.localPosition().x() + thePositionX , 
+		 simHit.localPosition().y() + thePositionY , 
+		 simHit.localPosition().z() + thePositionZ );
 #ifdef FAMOS_DEBUG
   std::cout << " Generated local position "
 	    << "\tx = " << thePositionX
