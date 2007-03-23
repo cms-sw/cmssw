@@ -11,15 +11,15 @@ function getLastIOV(){
 }
 
 function getFedVersionFromRunSummaryTIF(){
-
+    echo  "http://cmsdaq.cern.ch/cmsmon/cmsdb/servlet/RunSummaryTIF?RUN_BEGIN=$1&RUN_END=$1&TEXT=1&DB=omds"
     wget -q -r "http://cmsdaq.cern.ch/cmsmon/cmsdb/servlet/RunSummaryTIF?RUN_BEGIN=$1&RUN_END=$1&TEXT=1&DB=omds" -O out.txt
 
     #Verify query integrity
     if [ `grep -c "STOPTIME" out.txt` != 1 ]; then
 	echo -e "ERROR: RunSummaryTIF provided a strange output"
 	cat out.txt	
-	FEDVersion_lastIOV=""
-	return
+	rm -f lockFile
+	exit
     fi
 
     FEDVersion_lastIOV=`cat out.txt | awk -F"\t" '{if (NR>1) print $11}'` 
@@ -33,16 +33,18 @@ function CheckIOV(){
     FEDVersion_Run=`grep $Run AddedRuns | awk '{print $3}'`
     #echo ${FEDVersion_Run}
     [ "${FEDVersion_Run}" == "" ] && return 11  #//FedVersion NULL: perhaps you are asking for a not existing runNumber 
-    [ "${FEDVersion_lastIOV}" == "" ] && return 12  #//FedVersion NULL: perhaps you are asking for a not existing runNumber 
 
     if [ "$lastIOV" == "" ]; then
     #//tag $tagPN not found in orcon, check failed//
 	return 1
     fi
+
     if [ "$lastIOV" -ge "$Run" ]; then
     #//tag $tagPN found in orcon, Run inside a closed IOV, check successful//
 	return 0
     fi
+
+    [ "${FEDVersion_lastIOV}" == "" ] && return 12  #//FedVersion NULL: perhaps you are asking for a not existing runNumber 
     
     #//Check FEDVersion of $Run and $lastIOV//
     #echo ${FEDVersion_lastIOV}
@@ -64,7 +66,7 @@ function GetPhysicsRuns(){
     wget -q -r "http://cmsdaq.cern.ch/cmsmon/cmsdb/servlet/RunSummaryTIF?RUN_BEGIN=$nextRun&RUN_END=1000000000&RUNMODE=PHYSIC&TEXT=1&DB=omds" -O physicsRuns.txt  
     #Verify query integrity
     if [ `grep -c "STOPTIME" physicsRuns.txt` != 1 ]; then
-	echo -e "ERROR: RunSummaryTIF provided a strange output"
+	echo -e "ERROR: RunSummaryTIF provided a strange output for physicsRuns"
 	cat physicsRuns.txt
 	rm -f lockFile
 	exit
@@ -73,7 +75,7 @@ function GetPhysicsRuns(){
     #// Get List of LATENCY RUNS
     wget -q -r "http://cmsdaq.cern.ch/cmsmon/cmsdb/servlet/RunSummaryTIF?RUN_BEGIN=$nextRun&RUN_END=1000000000&RUNMODE=LATENCY&TEXT=1&DB=omds" -O latencyRuns.txt
     if [ `grep -c "STOPTIME" latencyRuns.txt` != 1 ]; then
-	echo -e "ERROR: RunSummaryTIF provided a strange output"
+	echo -e "ERROR: RunSummaryTIF provided a strange output for latencyRuns"
 	cat latencyRuns.txt
 	rm -f lockFile
 	exit
@@ -96,19 +98,20 @@ touch lockFile
 CondDB=""
 [ "$1" != "" ] && CondDB=$1
 
-nextRun=6000
+nextRun=5000
 [ "$3" != "" ] && nextRun=$3 
 
 export lastIOV
-export Fedversion_Lastiov
+export Fedversion_LastIOV
 export nextRun
 
 eval `scramv1 runtime -sh`
 
-touch  RunToBeSubmitted.bkp  RunToDoO2O.bkp
-[ -e RunToBeSubmitted ] && [ `cat RunToBeSubmitted | wc -l` != "0" ] && mv -f RunToBeSubmitted RunToBeSubmitted.bkp
-[ -e RunToDoO2O ] && mv -f RunToDoO2O RunToDoO2O.bkp
-touch  RunToBeSubmitted  RunToDoO2O
+rm -f RunToBeSubmitted.tmp  RunToDoO2O.tmp
+
+#[ -e RunToBeSubmitted ] && [ `cat RunToBeSubmitted | wc -l` != "0" ] && mv -f RunToBeSubmitted RunToBeSubmitted.bkp
+#[ -e RunToDoO2O ] && mv -f RunToDoO2O RunToDoO2O.bkp
+#touch  RunToBeSubmitted  RunToDoO2O
 
 GetPhysicsRuns
 
@@ -148,7 +151,9 @@ for Run in `cat AddedRuns | awk '{print $1}'`
   if [ "${oldtagPN}" != "${tagPN}" ]; then
       oldtagPN=${tagPN}
       getLastIOV $tagPN $CondDB
-      getFedVersionFromRunSummaryTIF $lastIOV
+      Fedversion_LastIOV=""
+      [ "$lastIOV" != "" ] && getFedVersionFromRunSummaryTIF $lastIOV
+      echo -e "[MonitorO2O.sh] DB=$CondDB \ttag=$vTag \tlastIOV=$lastIOV \tFedversion_LastIOV=${Fedversion_LastIOV}"
   fi
   
   CheckIOV $Run 
@@ -157,28 +162,35 @@ for Run in `cat AddedRuns | awk '{print $1}'`
   #echo status $status
   if [ "$status" == "0" ];
       then
-      echo -e "$Run \t$CondDB \t$vTag">> RunToBeSubmitted
-  elif [ $status < 10 ]; then
+      echo -e "$Run \t $CondDB \t $vTag \t \t ${FedVer}">> RunToBeSubmitted.tmp
+  elif [ $status -lt 10 ]; then
       if [ "${FedVer}" != "${oldFedVer}" ] ; then
 	  oldFedVer=${FedVer}
-	  echo $Run $vTag $status $ConfigDb $CondDB >> RunToDoO2O
+	  echo -e "$Run \t $status \t $CondDB \t $vTag \t ${FedVer} \t $ConfigDb" >> RunToDoO2O.tmp
       fi
   else
       # case of error 11 and 12 in CheckIOV
       echo "[MonitorO2O.sh] ERROR: CheckIOV answer $status"
+      rm -f lockFile
+      exit
   fi
 done
 
 if [ `cat AddedRuns | wc -l ` != "0" ]; then
-    if [ "`diff -q RunToBeSubmitted RunToBeSubmitted.bkp`" != "" ]; then
+    if [ -e RunToBeSubmitted.tmp ] && [ "`diff -q RunToBeSubmitted RunToBeSubmitted.tmp`" != "" ]; then
+	mv -f RunToBeSubmitted.tmp RunToBeSubmitted
 	#cat RunToBeSubmitted | mail -s "MonitorO2O cron: Submit Runs" "domenico.giordano@cern.ch noeding@fnal.gov Nicola.Defilippis@ba.infn.it sdutta@mail.cern.ch"
 	cat RunToBeSubmitted | mail -s "MonitorO2O cron: Submit Runs" "domenico.giordano@cern.ch sdutta@mail.cern.ch"
 #	echo "There are jobs to be Submitted" | mail -s " " 00393402949274@sms.switch.ch
     fi
     
-    if [ `cat RunToDoO2O | wc -l` != "0" ] && [ "`diff -q RunToDoO2O RunToDoO2O.bkp`" != "" ]; then
-	cat RunToDoO2O | mail -s "MonitorO2O cron: Do o2o" domenico.giordano@cern.ch
+#    if [ `cat RunToDoO2O.tmp | wc -l` != "0" ] && [ "`diff -q RunToDoO2O RunToDoO2O.tmp`" != "" ]; then
+    if [ -e RunToDoO2O.tmp ] && [ "`diff -q RunToDoO2O RunToDoO2O.tmp`" != "" ]; then
+	mv -f RunToDoO2O.tmp RunToDoO2O
+	if [ `cat RunToDoO2O | wc -l` != "0" ]; then
+	    cat RunToDoO2O | mail -s "MonitorO2O cron: Do o2o" domenico.giordano@cern.ch
 #	echo "There is o2o to be done" | mail -s " " 00393402949274@sms.switch.ch
+	fi
     fi
 fi
 
