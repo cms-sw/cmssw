@@ -33,7 +33,7 @@
 
 #include <FWCore/Framework/interface/Event.h>
 #include <FWCore/Framework/interface/EventSetup.h>
-#include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/Framework/interface/Handle.h"
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 // data formats
@@ -143,6 +143,8 @@ void SiStripMonitorPedestals::beginJob(const edm::EventSetup& es){
       hid = hidmanager.createHistoId("CMDistribution","det", detid);
       local_modmes.CMDistribution = dbe_->book2D(hid, hid, napvs,-0.5,napvs-0.5, 150, -15., 15.); 
 
+      hid = hidmanager.createHistoId("CMSlopeDistribution","det", detid);
+      local_modmes.CMSlopeDistribution = dbe_->book2D(hid, hid, napvs,-0.5,napvs-0.5, 100, -0.05, 0.05); 
 
       // data from CondDB
 
@@ -231,12 +233,10 @@ void SiStripMonitorPedestals::analyze(const edm::Event& iEvent, const edm::Event
     if (digis->data.size() == 0 || 
         digis->data.size() > 768 || 
         digis == digi_collection->end() ) {
+         std::cout <<  " Event " <<  nEvTot_ << " DetId " <<  detid << " # of Digis " << digis->data.size() << std::endl;
          continue;
     }
 
-    if ( digis->data.empty() ) { 
-      edm::LogError("MonitorDigi_tmp") << "[SiStripRawDigiToRaw::createFedBuffers] Zero digis found!"; 
-    } 
     if ( digis->data.empty() ) { 
       edm::LogError("MonitorDigi_tmp") << "[SiStripRawDigiToRaw::createFedBuffers] Zero digis found!"; 
     } 
@@ -257,6 +257,16 @@ void SiStripMonitorPedestals::analyze(const edm::Event& iEvent, const edm::Event
 	  (local_modmes.CMDistribution)->Fill(iapv,static_cast<float>(*iped));
 	  ibin++;
 	    
+	}
+      }
+      if(local_modmes.CMSlopeDistribution != NULL){ 
+	std::vector<float> tmp;
+	tmp.clear();
+        int iapv = 0;
+	apvFactory_->getCommonModeSlope(id, tmp);
+	for (std::vector<float>::const_iterator it=tmp.begin(); it!=tmp.end();it++) {
+	  (local_modmes.CMSlopeDistribution)->Fill(iapv,static_cast<float>(*it));
+	  iapv++;
 	}
       }
     }

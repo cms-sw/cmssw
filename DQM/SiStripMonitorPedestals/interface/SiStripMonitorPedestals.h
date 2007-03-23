@@ -16,7 +16,7 @@
 //
 // Original Author:  gennai, dutta
 //         Created:  Sat Feb  4 20:49:51 CET 2006
-// $Id: SiStripMonitorPedestals.h,v 1.8 2006/11/17 08:54:29 dutta Exp $
+// $Id: SiStripMonitorPedestals.h,v 1.9 2007/02/15 15:32:18 dutta Exp $
 //
 
 // system include files
@@ -88,6 +88,7 @@ class SiStripMonitorPedestals : public edm::EDAnalyzer {
 	 MonitorElement* NoisyStripDistribution;
 
 	 MonitorElement* CMDistribution;
+	 MonitorElement* CMSlopeDistribution;
 
 
 	 //MonitorElements for CondDB data display
