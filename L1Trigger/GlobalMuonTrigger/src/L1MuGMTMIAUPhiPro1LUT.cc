@@ -3,8 +3,8 @@
 //   Class: L1MuGMTMIAUPhiPro1LUT
 //
 // 
-//   $Date: 2006/08/21 14:23:13 $
-//   $Revision: 1.2 $
+//   $Date: 2006/11/17 08:25:34 $
+//   $Revision: 1.3 $
 //
 //   Author :
 //   H. Sakulin            HEPHY Vienna
@@ -34,6 +34,8 @@
 #include "L1Trigger/GlobalMuonTrigger/src/L1MuGMTPhiLUT.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+using namespace std;
 
 //-------------------
 // InitParameters  --

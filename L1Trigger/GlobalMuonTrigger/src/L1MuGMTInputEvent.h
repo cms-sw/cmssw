@@ -6,8 +6,8 @@
 //			all the input data the GMT receives (CSC, RPC, DT, GCT)
 //
 //                
-//   $Date$
-//   $Revision$
+//   $Date: 2006/05/15 13:56:02 $
+//   $Revision: 1.1 $
 //
 //   Author :
 //   Tobias Noebauer                 HEPHY Vienna
@@ -39,7 +39,6 @@ class L1MuRegionalCand;
 //---------------------
 //-- Class Interface --
 //---------------------
-using namespace std;
 
 class L1MuGMTInputEvent {
 
@@ -60,7 +59,7 @@ class L1MuGMTInputEvent {
 
     void setEventNumber(unsigned long eventnr) { m_evtnr=eventnr; };
 
-    void addInputMuon(string chipid, const L1MuRegionalCand& inMu);
+    void addInputMuon(std::string chipid, const L1MuRegionalCand& inMu);
 
     //eta = [0,13], phi = [0,17]
     void setMipBit(unsigned etaIndex, unsigned phiIndex, bool val) { 
@@ -83,7 +82,7 @@ class L1MuGMTInputEvent {
     /// @param chipid is the input chip ID (IND, INC, INB, INF)
     /// @param index  is the index of the muon in the input chip (starting with 0)
     /// @return the L1MuRegionalCand specified or 0 if index is out of range
-    const L1MuRegionalCand* getInputMuon(string chipid, unsigned index) const;
+    const L1MuRegionalCand* getInputMuon(std::string chipid, unsigned index) const;
 
     /// get the MIP / ISO bits
     const L1MuGMTMatrix<bool>& getMipBits() const { return m_mip_bits; };
@@ -96,7 +95,7 @@ class L1MuGMTInputEvent {
     unsigned long m_runnr;
     unsigned long m_evtnr;
 
-    map<string, vector <L1MuRegionalCand> > m_inputmuons;
+    std::map<std::string, std::vector <L1MuRegionalCand> > m_inputmuons;
 
     L1MuGMTMatrix<bool> m_mip_bits;
     L1MuGMTMatrix<bool> m_iso_bits;

@@ -5,8 +5,8 @@
 //   Description: Look-up table for GMT Phi Projection Unit
 //
 //
-//   $Date: 2006/05/15 13:56:02 $
-//   $Revision: 1.1 $
+//   $Date: 2006/08/21 14:23:13 $
+//   $Revision: 1.2 $
 //
 //   Author :
 //   H. Sakulin                CERN EP 
@@ -61,7 +61,7 @@ int L1MuGMTPhiLUT::etabin(float eta, int isys) {
   int i;
   for (i=0; i<(int)NETA;i++)
     if (eta >= etabins[isys][i] && eta < etabins[isys][i+1]) break;
-  if (i>=(int)NETA) edm::LogWarning("LUTProblem") << "L1MuGMTPhiLUT::etabin(): could not assign eta bin " << endl;
+  if (i>=(int)NETA) edm::LogWarning("LUTProblem") << "L1MuGMTPhiLUT::etabin(): could not assign eta bin ";
   return i;
 }
 

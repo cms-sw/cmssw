@@ -4,8 +4,8 @@
 //
 //   Description:  
 //
-//   $Date$
-//   $Revision$
+//   $Date: 2006/05/15 13:56:02 $
+//   $Revision: 1.1 $
 //
 //   Author :
 //   Tobias Noebauer              HEPHY Vienna
@@ -37,7 +37,7 @@
 //----------------
 L1MuGMTInputEvent::L1MuGMTInputEvent() : 
   		m_runnr(0L), m_evtnr(0L), m_mip_bits(14,18), m_iso_bits(14,18) {
-  vector<L1MuRegionalCand> empty_vec;
+  std::vector<L1MuRegionalCand> empty_vec;
   m_inputmuons["INC"] = empty_vec;
   m_inputmuons["IND"] = empty_vec;
   m_inputmuons["INB"] = empty_vec;
@@ -66,10 +66,10 @@ L1MuGMTInputEvent::~L1MuGMTInputEvent() {
 //--------------
 // Operations --
 //--------------
-void L1MuGMTInputEvent::addInputMuon(const string chipid, 
+void L1MuGMTInputEvent::addInputMuon(const std::string chipid, 
                                      const L1MuRegionalCand& inMu) {
   if (m_inputmuons.count(chipid) == 0)
-    throw runtime_error("L1MuGMTInputEvent::addInputMuon: invalid chipid:" + chipid);
+    throw std::runtime_error("L1MuGMTInputEvent::addInputMuon: invalid chipid:" + chipid);
   m_inputmuons[chipid].push_back(inMu);
 }
 
@@ -77,7 +77,7 @@ void L1MuGMTInputEvent::reset() {
   m_runnr = 0L;
   m_evtnr = 0L;
 
-  map<string, vector<L1MuRegionalCand> >::iterator it = m_inputmuons.begin();
+  std::map<std::string, std::vector<L1MuRegionalCand> >::iterator it = m_inputmuons.begin();
   for (; it != m_inputmuons.end(); it++) {
     it->second.clear();
   }
@@ -86,10 +86,10 @@ void L1MuGMTInputEvent::reset() {
   m_iso_bits.init(true); //see CTOR for info on this
 }
 
-const L1MuRegionalCand* L1MuGMTInputEvent::getInputMuon(string chipid, unsigned index) const {
+const L1MuRegionalCand* L1MuGMTInputEvent::getInputMuon(std::string chipid, unsigned index) const {
 
   if (m_inputmuons.count(chipid) == 0 )
-    throw runtime_error("L1GMTInputEvent::getInputMuon: invalid chipid:" + chipid);
+    throw std::runtime_error("L1GMTInputEvent::getInputMuon: invalid chipid:" + chipid);
   
   if (index >= m_inputmuons.find(chipid)->second.size()) return 0;
   return &(m_inputmuons.find(chipid)->second.at(index));

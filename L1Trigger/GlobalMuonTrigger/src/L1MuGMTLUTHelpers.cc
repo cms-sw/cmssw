@@ -6,8 +6,8 @@
  * 
 */ 
 //
-//   $Date: 2004/11/30 13:56:06 $
-//   $Revision: 1.2 $
+//   $Date: 2006/05/15 13:56:02 $
+//   $Revision: 1.1 $
 //
 //   Author :
 //   H. Sakulin            HEPHY Vienna
@@ -23,6 +23,7 @@
 //---------------
 #include <ctype.h>
 
+using namespace std;
 
 //--------------------------------------------------------------------------------
 // Replace substring in string

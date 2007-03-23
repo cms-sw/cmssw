@@ -3,8 +3,8 @@
 //   Class: L1MuGMTDebugBlock
 //
 //
-//   $Date: 2006/08/21 14:23:13 $
-//   $Revision: 1.3 $
+//   $Date: 2006/11/17 08:25:34 $
+//   $Revision: 1.4 $
 //
 //   Author :
 //   H. Sakulin                HEPHY Vienna
@@ -33,16 +33,16 @@
 
 L1MuGMTDebugBlock::L1MuGMTDebugBlock(int minbx, int maxbx) :
   _minbx(minbx), _maxbx(maxbx), _bx(_minbx),
-  _prophi(maxbx-minbx+1, vector<float>(32,0)),
-  _proeta(maxbx-minbx+1, vector<float>(32,0)),
-  _phisel(maxbx-minbx+1, vector<unsigned>(32,0)),
-  _etasel(maxbx-minbx+1, vector<unsigned>(32,0)),
-  _isMIPISO(maxbx-minbx+1, vector<unsigned>(32,0)),
-  _pairMatrices(maxbx-minbx+1, vector<L1MuGMTMatrix<bool> >(NumMatrices, L1MuGMTMatrix<bool> (4,4))),
-  _mqMatrices(maxbx-minbx+1, vector<L1MuGMTMatrix<int> >(NumMatrices, L1MuGMTMatrix<int> (4,4))),
-  _cancelbits(maxbx-minbx+1, vector<unsigned>(4)),
-  _brlmuons(maxbx-minbx+1, vector<L1MuGMTExtendedCand>(4)),
-  _fwdmuons(maxbx-minbx+1, vector<L1MuGMTExtendedCand>(4))
+  _prophi(maxbx-minbx+1, std::vector<float>(32,0)),
+  _proeta(maxbx-minbx+1, std::vector<float>(32,0)),
+  _phisel(maxbx-minbx+1, std::vector<unsigned>(32,0)),
+  _etasel(maxbx-minbx+1, std::vector<unsigned>(32,0)),
+  _isMIPISO(maxbx-minbx+1, std::vector<unsigned>(32,0)),
+  _pairMatrices(maxbx-minbx+1, std::vector<L1MuGMTMatrix<bool> >(NumMatrices, L1MuGMTMatrix<bool> (4,4))),
+  _mqMatrices(maxbx-minbx+1, std::vector<L1MuGMTMatrix<int> >(NumMatrices, L1MuGMTMatrix<int> (4,4))),
+  _cancelbits(maxbx-minbx+1, std::vector<unsigned>(4)),
+  _brlmuons(maxbx-minbx+1, std::vector<L1MuGMTExtendedCand>(4)),
+  _fwdmuons(maxbx-minbx+1, std::vector<L1MuGMTExtendedCand>(4))
   // will not work w/o copy constructor  
 {
   if (maxbx < minbx) edm::LogWarning("BxRangeMismatch") << "*** error in L1MuGMTDebugBlock::L1MuGMTDebugBlock(): minbx > maxbx" << endl; 
@@ -75,7 +75,7 @@ L1MuGMTDebugBlock::~L1MuGMTDebugBlock() {
   _fwdmuons.clear();
 }
 
-void L1MuGMTDebugBlock::SetCancelBits (int idx, vector<bool> mine, vector<bool> others) {
+void L1MuGMTDebugBlock::SetCancelBits (int idx, std::vector<bool> mine, vector<bool> others) {
   unsigned bits = 0;
   unsigned mask = 1;
   

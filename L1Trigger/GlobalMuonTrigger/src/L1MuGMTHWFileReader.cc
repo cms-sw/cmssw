@@ -6,8 +6,8 @@
 //                a GMT ascii HW testfile into the Event
 //
 //
-//   $Date: 2006/05/15 13:56:02 $
-//   $Revision: 1.1 $
+//   $Date: 2006/08/21 14:23:13 $
+//   $Revision: 1.2 $
 //
 //   Author :
 //   Tobias Noebauer                 HEPHY Vienna
@@ -45,12 +45,12 @@ L1MuGMTHWFileReader::L1MuGMTHWFileReader(edm::ParameterSet const& ps,
   produces<std::vector<L1MuRegionalCand> >("RPCf");
 
   if(!fileNames().size()) {
-    throw runtime_error("L1MuGMTHWFileReader: no input file");
+    throw std::runtime_error("L1MuGMTHWFileReader: no input file");
   }
-  edm::LogInfo("GMT_HWFileReader_info") << "opening file " << fileNames()[0] << endl;
+  edm::LogInfo("GMT_HWFileReader_info") << "opening file " << fileNames()[0];
   m_in.open((fileNames()[0].substr(fileNames()[0].find(":")+1)).c_str());
   if(!m_in) {
-    throw runtime_error("L1MuGMTHWFileReader: file " + fileNames()[0]
+    throw std::runtime_error("L1MuGMTHWFileReader: file " + fileNames()[0]
 			+ " could not be openned");
   }
 
@@ -72,7 +72,7 @@ void L1MuGMTHWFileReader::setRunAndEventInfo() {
   setEventNumber(m_evt.getEventNumber());
 
   edm::LogInfo("GMT_HWFileReader_info") << "run: " << m_evt.getRunNumber() << 
-          "   evt: " << m_evt.getEventNumber() << endl;
+          "   evt: " << m_evt.getEventNumber();
 }
 
 bool L1MuGMTHWFileReader::produce(edm::Event& e) {
@@ -118,7 +118,7 @@ bool L1MuGMTHWFileReader::produce(edm::Event& e) {
 void L1MuGMTHWFileReader::readNextEvent() {
   m_evt.reset();
 
-  string line_id;
+  std::string line_id;
   do {
     int bx = 0;
 
@@ -153,7 +153,7 @@ void L1MuGMTHWFileReader::readNextEvent() {
       m_in >> val; inpmu |= (val & 0x1f) <<  8; // pt
       m_in >> val; inpmu |= (val & 0xff)      ; // phi
 
-      string chipid("IN");
+      std::string chipid("IN");
       chipid += line_id[0];
 
       int type=0;

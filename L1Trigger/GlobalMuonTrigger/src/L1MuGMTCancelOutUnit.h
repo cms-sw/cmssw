@@ -30,8 +30,8 @@
  *
 */
 //
-//   $Date: 2003/12/19 10:22:03 $
-//   $Revision: 1.4 $
+//   $Date: 2006/05/15 13:56:02 $
+//   $Revision: 1.1 $
 //
 //   Author :
 //   H. Sakulin            CERN EP 
@@ -65,7 +65,6 @@ class L1MuGlobalMuonTrigger;
 //              -- Class Interface --
 //              ---------------------
 
-using namespace std;
 
 class L1MuGMTCancelOutUnit {
 
@@ -103,8 +102,8 @@ class L1MuGMTCancelOutUnit {
     int m_id;
 
     L1MuGMTMatcher m_matcher;
-    vector<bool> m_MyChipCancelbits;
-    vector<bool> m_OtherChipCancelbits;
+    std::vector<bool> m_MyChipCancelbits;
+    std::vector<bool> m_OtherChipCancelbits;
 };
   
 #endif

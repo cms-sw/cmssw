@@ -5,8 +5,8 @@
 //   Description: DT/CSC cancel-out unit
 //
 //
-//   $Date: 2006/05/15 13:56:02 $
-//   $Revision: 1.1 $
+//   $Date: 2006/08/21 14:23:13 $
+//   $Revision: 1.2 $
 //
 //   Author :
 //   H. Sakulin                CERN EP 
@@ -100,7 +100,7 @@ void L1MuGMTCancelOutUnit::reset() {
 //
 void L1MuGMTCancelOutUnit::print() {
 
-  stringstream outmy;
+  std::stringstream outmy;
   switch (m_id) {
     case 0 : outmy << "DT  " ; break;
     case 1 : outmy << "CSC " ; break;
@@ -111,7 +111,7 @@ void L1MuGMTCancelOutUnit::print() {
   for ( int i = 0; i < 4; i++ ) outmy << m_MyChipCancelbits[i] << "  ";
   edm::LogVerbatim("GMT_CancelOut_info") << outmy.str() << endl;
 
-  stringstream outother;
+  std::stringstream outother;
   if (m_id==2 || m_id==3) {
     outother << (m_id==2 ? "CSC" : "DT" ) <<  "(other chip) cancel-bits : " ;
     for ( int i = 0; i < 4; i++ ) outother << m_OtherChipCancelbits[i] << "  ";

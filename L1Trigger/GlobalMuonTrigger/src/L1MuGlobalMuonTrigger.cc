@@ -5,8 +5,8 @@
 //   Description: L1 Global Muon Trigger
 //
 //
-//   $Date: 2006/08/21 14:23:13 $
-//   $Revision: 1.2 $
+//   $Date: 2006/10/20 12:53:07 $
+//   $Revision: 1.3 $
 //
 //   Author :
 //   Norbert Neumeister              CERN EP
@@ -142,7 +142,7 @@ void L1MuGlobalMuonTrigger::produce(edm::Event& e, const edm::EventSetup& es) {
   m_ExtendedCands.clear();
 
   // clear readout ring buffer
-  vector<L1MuGMTReadoutRecord*>::iterator irr = m_ReadoutRingbuffer.begin();
+  std::vector<L1MuGMTReadoutRecord*>::iterator irr = m_ReadoutRingbuffer.begin();
   for ( ;irr!=m_ReadoutRingbuffer.end(); irr++) delete (*irr);
   m_ReadoutRingbuffer.clear();
 
@@ -213,8 +213,8 @@ void L1MuGlobalMuonTrigger::produce(edm::Event& e, const edm::EventSetup& es) {
 
       // store found track candidates in a container
       if ( m_Sorter->numberOfCands() > 0 ) {
-        const vector<const L1MuGMTExtendedCand*>&  gmt_cont = m_Sorter->Cands();
-        vector<const L1MuGMTExtendedCand*>::const_iterator iexc;
+        const std::vector<const L1MuGMTExtendedCand*>&  gmt_cont = m_Sorter->Cands();
+        std::vector<const L1MuGMTExtendedCand*>::const_iterator iexc;
         for ( iexc = gmt_cont.begin(); iexc != gmt_cont.end(); iexc++ ) {
           if ( *iexc ) m_ExtendedCands.push_back( **iexc );
         }
@@ -227,8 +227,8 @@ void L1MuGlobalMuonTrigger::produce(edm::Event& e, const edm::EventSetup& es) {
   }
 
   // produce the output
-  auto_ptr<vector<L1MuGMTCand> > GMTCands(new vector<L1MuGMTCand>);
-  vector<L1MuGMTExtendedCand>::const_iterator iexc;
+  auto_ptr<std::vector<L1MuGMTCand> > GMTCands(new vector<L1MuGMTCand>);
+  std::vector<L1MuGMTExtendedCand>::const_iterator iexc;
   for(iexc=m_ExtendedCands.begin(); iexc!=m_ExtendedCands.end(); iexc++) {
     GMTCands->push_back(*iexc);
   }
@@ -269,7 +269,7 @@ auto_ptr<L1MuGMTReadoutCollection> L1MuGlobalMuonTrigger::getReadoutCollection()
   auto_ptr<L1MuGMTReadoutCollection> rrc(new L1MuGMTReadoutCollection(bx_size));
 
   for (int bx = bx_min_ro; bx <= bx_max_ro; bx++) {
-    vector<L1MuGMTReadoutRecord*>::const_iterator iter = m_ReadoutRingbuffer.begin();
+    std::vector<L1MuGMTReadoutRecord*>::const_iterator iter = m_ReadoutRingbuffer.begin();
 
     for ( ;iter!=m_ReadoutRingbuffer.end(); iter++) {
 

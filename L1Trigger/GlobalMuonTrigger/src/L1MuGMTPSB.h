@@ -10,8 +10,8 @@
  *                regional Calorimeter Trigger
 */
 //
-//   $Date: 2004/02/04 13:29:54 $
-//   $Revision: 1.7 $
+//   $Date: 2006/05/15 13:56:02 $
+//   $Revision: 1.1 $
 //
 //   Author :
 //   N. Neumeister            CERN EP 
@@ -46,7 +46,6 @@ class L1MuGlobalMuonTrigger;
 //              ---------------------
 //              -- Class Interface --
 //              ---------------------
-using namespace std;
 
 class L1MuGMTPSB {
 
@@ -127,9 +126,9 @@ class L1MuGMTPSB {
 
     const L1MuGlobalMuonTrigger& m_gmt;
     
-    vector<L1MuRegionalCand> m_RpcMuons;
-    vector<L1MuRegionalCand> m_DtbxMuons;
-    vector<L1MuRegionalCand> m_CscMuons;
+    std::vector<L1MuRegionalCand> m_RpcMuons;
+    std::vector<L1MuRegionalCand> m_DtbxMuons;
+    std::vector<L1MuRegionalCand> m_CscMuons;
     
     L1MuGMTMatrix<bool> m_Isol;
     L1MuGMTMatrix<bool> m_Mip;

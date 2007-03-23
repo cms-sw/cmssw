@@ -5,8 +5,8 @@
 //   Description: Pipelined Synchronising Buffer module 
 //
 //
-//   $Date: 2006/08/25 15:12:16 $
-//   $Revision: 1.3 $
+//   $Date: 2007/03/07 13:01:57 $
+//   $Revision: 1.4 $
 //
 //   Author :
 //   N. Neumeister            CERN EP 
@@ -121,7 +121,7 @@ void L1MuGMTPSB::receiveData(edm::Event& e, int bx) {
 //
 void L1MuGMTPSB::reset() {
 
-  vector<L1MuRegionalCand>::iterator iter; 
+  std::vector<L1MuRegionalCand>::iterator iter; 
   iter = m_RpcMuons.begin();
   while ( iter != m_RpcMuons.end() ) (*(iter++)).reset();
 
@@ -187,7 +187,7 @@ const L1MuRegionalCand* L1MuGMTPSB::CSCMuon(int index) const {
 int L1MuGMTPSB::numberRPC() const {
 
   int count = 0;
-  vector<L1MuRegionalCand>::const_iterator iter = m_RpcMuons.begin();
+  std::vector<L1MuRegionalCand>::const_iterator iter = m_RpcMuons.begin();
   while ( iter != m_RpcMuons.end() ) {
     if ( !(*iter).empty() ) count++;
     iter++;
@@ -203,7 +203,7 @@ int L1MuGMTPSB::numberRPC() const {
 int L1MuGMTPSB::numberDTBX() const {
 
   int count = 0;
-  vector<L1MuRegionalCand>::const_iterator iter = m_DtbxMuons.begin();
+  std::vector<L1MuRegionalCand>::const_iterator iter = m_DtbxMuons.begin();
   while ( iter != m_DtbxMuons.end() ) {
     if ( !(*iter).empty() ) count++;
     iter++;
@@ -219,7 +219,7 @@ int L1MuGMTPSB::numberDTBX() const {
 int L1MuGMTPSB::numberCSC() const {
 
   int count = 0;
-  vector<L1MuRegionalCand>::const_iterator iter = m_CscMuons.begin();
+  std::vector<L1MuRegionalCand>::const_iterator iter = m_CscMuons.begin();
   while ( iter != m_CscMuons.end() ) {
     if ( !(*iter).empty() ) count++;
     iter++;

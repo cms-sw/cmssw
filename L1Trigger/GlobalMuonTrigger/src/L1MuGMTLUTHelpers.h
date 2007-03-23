@@ -2,13 +2,13 @@
 //
 //   \class L1MuGMTLUTHelpers
 /**
- *   Description: Helper Functions for string handling in L1MuGMTLUT
+ *   Description: Helper Functions for std::string handling in L1MuGMTLUT
  *                (could be found in Cobra but classes
  *                 should be independet of COBRA/ORCA)
  *
 */ 
 //
-//   $Date: 2003/12/18 19:24:07 $
+//   $Date: 2006/05/15 13:56:02 $
 //   $Revision: 1.1 $
 //
 //   Author :
@@ -33,7 +33,6 @@
 //              ---------------------
 //              -- Class Interface --
 //              ---------------------
-using namespace std;
 
 class L1MuGMTLUTHelpers {
 
@@ -46,13 +45,13 @@ class L1MuGMTLUTHelpers {
 
     /// Lookup Functions
 
-    /// some string tools
+    /// some std::string tools
 
-    class Tokenizer : public std::vector<string> {
+    class Tokenizer : public std::vector<std::string> {
     public:
-      Tokenizer(const string & sep, const string & input){
+      Tokenizer(const std::string & sep, const std::string & input){
 	size_type i=0, j=0;
-	while( (j=input.find(sep,i))!=string::npos) {
+	while( (j=input.find(sep,i))!=std::string::npos) {
 	  push_back(input.substr(i,j-i));
 	  i = j+sep.size();
 	}
@@ -61,11 +60,11 @@ class L1MuGMTLUTHelpers {
 
     };
 
-    static int replace(string& input, const string& gone, const string& it, bool multiple);
+    static int replace(std::string& input, const std::string& gone, const std::string& it, bool multiple);
 
-    static string upperCase(const string& s);
+    static std::string upperCase(const std::string& s);
 
-    static string lowerCase(const string& s);
+    static std::string lowerCase(const std::string& s);
 
 };
 

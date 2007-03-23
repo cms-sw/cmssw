@@ -9,8 +9,8 @@
  *  MIP and Isolation.
  */
 //
-//   $Date: 2004/02/03 16:33:44 $
-//   $Revision: 1.4 $
+//   $Date: 2006/05/15 13:56:02 $
+//   $Revision: 1.1 $
 //
 //   Author :
 //   H. Sakulin            CERN EP 
@@ -50,7 +50,6 @@ class L1MuGMTCand;
 //              -- Class Interface --
 //              ---------------------
 
-using namespace std;
 
 class L1MuGMTEtaProjectionUnit {
 
@@ -82,7 +81,7 @@ class L1MuGMTEtaProjectionUnit {
   void load();
 
  private:
-  typedef bitset<14> TEtaBits;
+  typedef std::bitset<14> TEtaBits;
 
   const L1MuGMTMipIsoAU& m_MIAU;
     

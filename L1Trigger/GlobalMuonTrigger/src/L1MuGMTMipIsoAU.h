@@ -11,8 +11,8 @@
  *           1 endcap MIP & ISO bit Assignment unit
  */          
 //
-//   $Date: 2004/11/30 13:56:06 $
-//   $Revision: 1.5 $
+//   $Date: 2006/05/15 13:56:02 $
+//   $Revision: 1.1 $
 //
 //   Author :
 //   H. Sakulin            CERN EP 
@@ -50,7 +50,6 @@ class L1MuGMTEtaProjectionUnit;
 //              -- Class Interface --
 //              ---------------------
 
-using namespace std;
 
 class L1MuGMTMipIsoAU {
 
@@ -94,16 +93,16 @@ class L1MuGMTMipIsoAU {
   const L1MuGlobalMuonTrigger& m_gmt;
   int m_id;
     
-  vector<const L1MuRegionalCand*> m_muons;
+  std::vector<const L1MuRegionalCand*> m_muons;
     
-  vector<bool> m_MIP;
-  vector<bool> m_ISO;
+  std::vector<bool> m_MIP;
+  std::vector<bool> m_ISO;
 
-  vector<L1MuGMTPhiProjectionUnit*> m_MIP_PPUs;
-  vector<L1MuGMTEtaProjectionUnit*> m_MIP_EPUs;
+  std::vector<L1MuGMTPhiProjectionUnit*> m_MIP_PPUs;
+  std::vector<L1MuGMTEtaProjectionUnit*> m_MIP_EPUs;
 
-  vector<L1MuGMTPhiProjectionUnit*> m_ISO_PPUs;
-  vector<L1MuGMTEtaProjectionUnit*> m_ISO_EPUs;
+  std::vector<L1MuGMTPhiProjectionUnit*> m_ISO_PPUs;
+  std::vector<L1MuGMTEtaProjectionUnit*> m_ISO_EPUs;
 };
   
 #endif

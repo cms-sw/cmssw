@@ -107,7 +107,7 @@ void L1MuGMTMerger::reset() {
     rpc_mu[i] = 0;
   }
   
-  vector<L1MuGMTExtendedCand*>::iterator iter;
+  std::vector<L1MuGMTExtendedCand*>::iterator iter;
   for ( iter = m_MuonCands.begin(); iter != m_MuonCands.end(); iter++ ) {
     if ( *iter ) delete (*iter); 
     *iter = 0;
@@ -125,7 +125,7 @@ void L1MuGMTMerger::print() const {
 
   edm::LogVerbatim("GMT_Merger_info") << endl;
 
-  vector<L1MuGMTExtendedCand*>::const_iterator iter;
+  std::vector<L1MuGMTExtendedCand*>::const_iterator iter;
   for ( iter = m_MuonCands.begin(); iter != m_MuonCands.end(); iter++ ) {
     if ( *iter && !(*iter)->empty() ) (*iter)->print();
   }

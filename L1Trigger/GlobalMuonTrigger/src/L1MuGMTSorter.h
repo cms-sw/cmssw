@@ -4,8 +4,8 @@
  *  L1 Global Muon Trigger Sorter.
 */
 //
-//   $Date: 2003/12/19 10:22:04 $
-//   $Revision: 1.4 $
+//   $Date: 2006/05/15 13:56:02 $
+//   $Revision: 1.1 $
 //
 //   Author :
 //   N. Neumeister            CERN EP
@@ -39,7 +39,6 @@ class L1MuGMTExtendedCand;
 //              -- Class Interface --
 //              ---------------------
 
-using namespace std;
 
 class L1MuGMTSorter {
 
@@ -63,13 +62,13 @@ class L1MuGMTSorter {
     /// return number of found muon candidates after sorter
     inline int numberOfCands() const { return m_MuonCands.size(); }
     
-    /// return vector with all muon candidates
-    inline const vector<const L1MuGMTExtendedCand*>& Cands() const { return m_MuonCands; }
+    /// return std::vector with all muon candidates
+    inline const std::vector<const L1MuGMTExtendedCand*>& Cands() const { return m_MuonCands; }
 
   private:
 
     const L1MuGlobalMuonTrigger&  m_gmt;
-    vector<const L1MuGMTExtendedCand*>    m_MuonCands;
+    std::vector<const L1MuGMTExtendedCand*>    m_MuonCands;
 
 };
 

@@ -10,8 +10,8 @@
  *                CMS121 geometry
 */
 //
-//   $Date: 2004/11/30 13:56:06 $
-//   $Revision: 1.4 $
+//   $Date: 2006/05/15 13:56:02 $
+//   $Revision: 1.1 $
 //
 //   Author :
 //   H. Sakulin            CERN EP 
@@ -44,7 +44,6 @@
 //              -- Class Interface --
 //              ---------------------
 
-using namespace std;
 
 class L1MuGMTPhiLUT {
 

@@ -19,8 +19,8 @@
  *
 */
 //
-//   $Date: 2004/02/03 16:33:44 $
-//   $Revision: 1.3 $
+//   $Date: 2006/05/15 13:56:02 $
+//   $Revision: 1.1 $
 //
 //   Author :
 //   H. Sakulin           HEPHY Vienna
@@ -59,7 +59,6 @@ class L1MuGlobalMuonTrigger;
 //              -- Class Interface --
 //              ---------------------
 
-using namespace std;
 
 class L1MuGMTMerger {
 
@@ -83,8 +82,8 @@ class L1MuGMTMerger {
     /// return identifier
     inline int id() const { return m_id; }
    
-    /// return vector with all muon candidates
-    inline const vector<L1MuGMTExtendedCand*>& Cands() const { return m_MuonCands; }
+    /// return std::vector with all muon candidates
+    inline const std::vector<L1MuGMTExtendedCand*>& Cands() const { return m_MuonCands; }
      
    private:
 
@@ -111,12 +110,12 @@ class L1MuGMTMerger {
     const L1MuGlobalMuonTrigger& m_gmt;
     int m_id;
     
-    vector<const L1MuRegionalCand*> dtcsc_mu; 
-    vector<const L1MuRegionalCand*> rpc_mu;
+    std::vector<const L1MuRegionalCand*> dtcsc_mu; 
+    std::vector<const L1MuRegionalCand*> rpc_mu;
     
-    vector<L1MuGMTExtendedCand*> m_MuonCands; // up to eight
+    std::vector<L1MuGMTExtendedCand*> m_MuonCands; // up to eight
 
-    vector<int> singleRank;              //@ 8 bits
+    std::vector<int> singleRank;              //@ 8 bits
 };
   
 #endif

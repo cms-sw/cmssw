@@ -20,11 +20,11 @@
  *             |      |   0
  *             --------
  *
- *  vector<unsigned> inp; 
+ *  std::vector<unsigned> inp; 
  *  inp [0] = phi
  *  inp [1] = eta
  *
- *  vector<unsigned> out = MyLUT.Lookup (lutidx, inp);
+ *  std::vector<unsigned> out = MyLUT.Lookup (lutidx, inp);
  *  X = out[0];
  *  Y = out[1];
  *
@@ -32,8 +32,8 @@
  * 
 */ 
 //
-//   $Date: 2006/07/07 16:57:06 $
-//   $Revision: 1.2 $
+//   $Date: 2006/08/21 14:23:13 $
+//   $Revision: 1.3 $
 //
 //   Author :
 //   H. Sakulin            HEPHY Vienna
@@ -73,12 +73,11 @@ class L1MuGMTLUTConverter;
 //              ---------------------
 //              -- Class Interface --
 //              ---------------------
-using namespace std;
 
 class L1MuGMTLUT {
 
   public:  
-    typedef pair<string, unsigned> port;
+    typedef std::pair<std::string, unsigned> port;
 
     /// Init and Destruct
 
@@ -87,17 +86,17 @@ class L1MuGMTLUT {
 
     /// constructor with init
     L1MuGMTLUT(const char* name, 
-	       const vector<string>&  instances, 
-	       const vector<port>& in_widths, 
-	       const vector<port>& out_widths, 
+	       const std::vector<std::string>&  instances, 
+	       const std::vector<port>& in_widths, 
+	       const std::vector<port>& out_widths, 
 	       unsigned vme_addr_width=0, bool distrRAM=false) : m_initialized(0), m_NLUTS(0), m_UseLookupFunction(true), m_saveFlag(false) {
       Init (name, instances, in_widths, out_widths, vme_addr_width, distrRAM); 
       };
 
     L1MuGMTLUT(const char* name, 
-	       const string& instances, 
-	       const string& inputs, 
-	       const string& outputs, 
+	       const std::string& instances, 
+	       const std::string& inputs, 
+	       const std::string& outputs, 
 	       unsigned vme_addr_width=0, bool distrRAM=false) : m_initialized(0), m_NLUTS(0), m_UseLookupFunction(true), m_saveFlag(false) {
       Init (name, L1MuGMTLUTHelpers::Tokenizer(" ",instances), PortDecoder(inputs), PortDecoder(outputs), 
 	    vme_addr_width, distrRAM); 
@@ -110,16 +109,16 @@ class L1MuGMTLUT {
     /// all lookup functions go through this one
     inline unsigned LookupPacked (int idx, unsigned ) const;
 
-    /// additional lookup function (vector -> unisgned)
-    inline unsigned LookupPacked (int idx, const vector<unsigned>& address) const { 
+    /// additional lookup function (std::vector -> unisgned)
+    inline unsigned LookupPacked (int idx, const std::vector<unsigned>& address) const { 
       return LookupPacked (idx, vec2u ( address, m_Inputs ) ); };
 
-    /// additional lookup function (vector -> vector)
-    inline vector<unsigned> Lookup (int idx, const vector<unsigned>& address) const { 
+    /// additional lookup function (std::vector -> vector)
+    inline std::vector<unsigned> Lookup (int idx, const std::vector<unsigned>& address) const { 
       return Lookup (idx, vec2u ( address, m_Inputs ) ); };
 
-    /// additional lookup function (unsigned -> vector)
-    inline vector<unsigned> Lookup (int idx, unsigned address) const {
+    /// additional lookup function (unsigned -> std::vector)
+    inline std::vector<unsigned> Lookup (int idx, unsigned address) const {
       return u2vec ( LookupPacked(idx, address), m_Outputs );
     };
 
@@ -140,7 +139,7 @@ class L1MuGMTLUT {
     void MakeSubClass (const char* fname = "", const char* template_file_h = "../interface/L1MuGMTLUT_SubClass.h_template",
 		       const char* template_file_cc = "../interface/L1MuGMTLUT_SubClass.cc_template");
 
-    string Name() {return m_name;};
+    std::string Name() {return m_name;};
 
     friend class L1MuGMTLUTConverter;
 
@@ -150,43 +149,43 @@ class L1MuGMTLUT {
   protected:
 
     /// Initialize the LUT
-    void Init(const char* name, const vector<string>& instances, 
-	      const vector<port>& in_widths, const vector<port>& out_widths, 
+    void Init(const char* name, const std::vector<std::string>& instances, 
+	      const std::vector<port>& in_widths, const std::vector<port>& out_widths, 
 	      unsigned vme_addr_width=0, bool distrRAM=false);
 
     /// generate address or value from composite address or value
-    inline unsigned vec2u (const vector <unsigned>& vec, const vector<port>& widths) const;
+    inline unsigned vec2u (const std::vector <unsigned>& vec, const std::vector<port>& widths) const;
 
     /// generate composite address or value from compact unsigned
-    inline vector<unsigned> u2vec (unsigned value, const vector<port>& widths) const;
+    inline std::vector<unsigned> u2vec (unsigned value, const std::vector<port>& widths) const;
 
     /// set with single address and value 
     void Set (int idx, unsigned address, unsigned value);  
 
-    class PortDecoder : public vector<port> { 
-      typedef vector<port> base;
+    class PortDecoder : public std::vector<port> { 
+      typedef std::vector<port> base;
       public:
-      PortDecoder(const vector<port> &pt) : base(pt) {};
+      PortDecoder(const std::vector<port> &pt) : base(pt) {};
 
-      PortDecoder(const string& input){
-	// decode string of style "phi(2) eta(4)"
+      PortDecoder(const std::string& input){
+	// decode std::string of style "phi(2) eta(4)"
 	L1MuGMTLUTHelpers::Tokenizer tok(" ", input);
 	for (unsigned int i=0;i<tok.size(); i++) {
 	  size_type obrace=tok[i].find("("), cbrace=tok[i].find(")");
-	  if (obrace != string::npos && cbrace != string::npos) 
+	  if (obrace != std::string::npos && cbrace != std::string::npos) 
 	    push_back( port ( tok[i].substr(0,obrace), (unsigned) atoi (tok[i].substr(obrace+1,cbrace-obrace-1).c_str() ) ) );
 	  else 
-	    edm::LogWarning("LUTMismatch") << "L1MuGMTLUT::PortDecoder: error decoding port " << tok[i] << endl; 
+	    edm::LogWarning("LUTMismatch") << "L1MuGMTLUT::PortDecoder: error decoding port " << tok[i]; 
 	}
       };
-      string str() {
-	string temp;
+      std::string str() {
+	std::string temp;
 	for  (unsigned int i=0; i<size();i++) {
-	  // ostringstream os; os << (*this)[i].second << ends;
-	  //	  temp += (*this)[i].first + "(" + string( os.str() ) + ")";
+	  // ostd::stringstream os; os << (*this)[i].second << ends;
+	  //	  temp += (*this)[i].first + "(" + std::string( os.str() ) + ")";
 	  
 	  char buf[100]; sprintf(buf,"(%d)",(*this)[i].second);
-	  temp += (*this)[i].first + string(buf);
+	  temp += (*this)[i].first + std::string(buf);
 
 	  if (i!=size()-1) temp += " ";
 	}
@@ -199,23 +198,23 @@ class L1MuGMTLUT {
     bool m_initialized;
     int m_NLUTS; 
     bool m_UseLookupFunction;
-    vector <string> m_InstNames;
-    vector <vector <unsigned> > m_Contents;
-    vector <port> m_Inputs;                  // first port in vector is most significant bits
-    vector <port> m_Outputs;
+    std::vector <std::string> m_InstNames;
+    std::vector <std::vector <unsigned> > m_Contents;
+    std::vector <port> m_Inputs;                  // first port in vector is most significant bits
+    std::vector <port> m_Outputs;
     unsigned m_TotalInWidth;
     unsigned m_TotalOutWidth;
     unsigned m_vme_addr_width;
     bool m_distrRAM;
-    string m_name;
+    std::string m_name;
     bool m_saveFlag;
 };
 
 //--------------------------------------------------------------------------------
 
-unsigned L1MuGMTLUT::vec2u (const vector <unsigned>& vec, const vector<port>& widths) const{
+unsigned L1MuGMTLUT::vec2u (const std::vector <unsigned>& vec, const std::vector<port>& widths) const{
   if (vec.size() != widths.size()) {
-    edm::LogWarning("LUTMismatch") << "Error in L1MuGMTLUT::vec2u: number of LUT inputs/outputs does not match definition" << endl;
+    edm::LogWarning("LUTMismatch") << "Error in L1MuGMTLUT::vec2u: number of LUT inputs/outputs does not match definition";
     return (0);
   }
   
@@ -226,7 +225,7 @@ unsigned L1MuGMTLUT::vec2u (const vector <unsigned>& vec, const vector<port>& wi
     if ( vec[i] >= (unsigned) (1 << widths[i].second) ) {
       edm::LogWarning("LUTMismatch") << "Error in L1MuGMTLUT::vec2u: LUT input/output number " << i 
 	   << " exceeds range (0 to " << ( (1 << widths[i].second) -1 ) << ")." 
-	   << endl;
+	  ;
     }
     else
       value |= vec[i] << start_ofs;
@@ -238,8 +237,8 @@ unsigned L1MuGMTLUT::vec2u (const vector <unsigned>& vec, const vector<port>& wi
 
 //--------------------------------------------------------------------------------
 
-vector <unsigned> L1MuGMTLUT::u2vec (unsigned value, const vector<port>& widths) const {
-  vector<unsigned> output( widths.size(), 0);
+std::vector <unsigned> L1MuGMTLUT::u2vec (unsigned value, const std::vector<port>& widths) const {
+  std::vector<unsigned> output( widths.size(), 0);
  
   unsigned start_ofs=0;
 
@@ -261,17 +260,17 @@ vector <unsigned> L1MuGMTLUT::u2vec (unsigned value, const vector<port>& widths)
 //
 unsigned L1MuGMTLUT::LookupPacked (int idx, unsigned address) const {
   if (! m_initialized) {
-    edm::LogWarning("LUTMismatch")  << "Error in L1MuGMTLUT::LookupPacked: LUT not initialized. " << endl;
+    edm::LogWarning("LUTMismatch")  << "Error in L1MuGMTLUT::LookupPacked: LUT not initialized. ";
     return 0;
   }
   if ( idx >= m_NLUTS ) {
     edm::LogWarning("LUTMismatch")  << "Error in L1MuGMTLUT::LookupPacked: LUT index exceeds range (0 to " << ( m_NLUTS -1 ) << ")." 
-	 << endl;
+	;
     return 0;
   }
   if ( address >= (unsigned) (1 << m_TotalInWidth) ) {
     edm::LogWarning("LUTMismatch")  << "Error in L1MuGMTLUT::LookupPacked: LUT input exceeds range (0 to " << ( (1 << m_TotalInWidth) -1 ) << ")." 
-	 << endl;
+	;
     return 0;
   }
 
@@ -286,12 +285,12 @@ unsigned L1MuGMTLUT::LookupPacked (int idx, unsigned address) const {
   if ( value >= (unsigned) (1 << m_TotalOutWidth) ) {
     edm::LogWarning("LUTMismatch")  << "Error in L1MuGMTLUT::LookupPacked(): LUT output value " << value
 	 << " exceeds range (0 to " << ( (1 << m_TotalOutWidth) -1 ) << ")." 
-	 << endl;
-    edm::LogWarning("LUTMismatch")  << "  LUT name: " << m_name << endl;
+	;
+    edm::LogWarning("LUTMismatch")  << "  LUT name: " << m_name;
     if (m_UseLookupFunction) 
-      edm::LogWarning("LUTMismatch")  << "  Lookup Function has to be corrected!!!" << endl;
+      edm::LogWarning("LUTMismatch")  << "  Lookup Function has to be corrected!!!";
     else
-      edm::LogWarning("LUTMismatch")  << "  LUT File has to be corrected!!!" << endl;
+      edm::LogWarning("LUTMismatch")  << "  LUT File has to be corrected!!!";
     return (1 << m_TotalOutWidth) - 1;
   }
   return value;

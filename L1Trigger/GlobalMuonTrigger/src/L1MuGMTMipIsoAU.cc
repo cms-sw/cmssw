@@ -5,8 +5,8 @@
 //   Description:  GMT MIP & ISO bit assignment unit
 //
 //
-//   $Date: 2006/05/15 13:56:02 $
-//   $Revision: 1.1 $
+//   $Date: 2006/08/21 14:23:13 $
+//   $Revision: 1.2 $
 //
 //   Author :
 //   H. Sakulin                CERN EP 
@@ -84,7 +84,7 @@ L1MuGMTMipIsoAU::~L1MuGMTMipIsoAU() {
   reset();
 	
   // delete MIP phi projection units	
-  vector<L1MuGMTPhiProjectionUnit*>::iterator p_iter;
+  std::vector<L1MuGMTPhiProjectionUnit*>::iterator p_iter;
   for ( p_iter = m_MIP_PPUs.begin(); p_iter != m_MIP_PPUs.end(); p_iter++ )
     delete *p_iter;
   m_MIP_PPUs.clear();
@@ -95,7 +95,7 @@ L1MuGMTMipIsoAU::~L1MuGMTMipIsoAU() {
   m_ISO_PPUs.clear();
 
   // delete MIP eta projection units	
-  vector<L1MuGMTEtaProjectionUnit*>::iterator e_iter;
+  std::vector<L1MuGMTEtaProjectionUnit*>::iterator e_iter;
   for ( e_iter = m_MIP_EPUs.begin(); e_iter != m_MIP_EPUs.end(); e_iter++ )
   	delete *e_iter;
   m_MIP_EPUs.clear();
@@ -118,7 +118,7 @@ void L1MuGMTMipIsoAU::run() {
   load();
 
   // run MIP phi projection units	
-  vector<L1MuGMTPhiProjectionUnit*>::iterator p_iter;
+  std::vector<L1MuGMTPhiProjectionUnit*>::iterator p_iter;
   for ( p_iter = m_MIP_PPUs.begin(); p_iter != m_MIP_PPUs.end(); p_iter++ )
     (*p_iter)->run();
 	
@@ -127,7 +127,7 @@ void L1MuGMTMipIsoAU::run() {
     (*p_iter)->run();
 
   // run MIP eta projection units	
-  vector<L1MuGMTEtaProjectionUnit*>::iterator e_iter;
+  std::vector<L1MuGMTEtaProjectionUnit*>::iterator e_iter;
   for ( e_iter = m_MIP_EPUs.begin(); e_iter != m_MIP_EPUs.end(); e_iter++ )
     (*e_iter)->run();
 	
@@ -152,7 +152,7 @@ void L1MuGMTMipIsoAU::reset() {
   }
 	
   // reset MIP phi projection units	
-  vector<L1MuGMTPhiProjectionUnit*>::iterator p_iter;
+  std::vector<L1MuGMTPhiProjectionUnit*>::iterator p_iter;
   for ( p_iter = m_MIP_PPUs.begin(); p_iter != m_MIP_PPUs.end(); p_iter++ ) {
     (*p_iter)->reset();
   }
@@ -162,7 +162,7 @@ void L1MuGMTMipIsoAU::reset() {
     (*p_iter)->reset();
 
   // reset MIP eta projection units	
-  vector<L1MuGMTEtaProjectionUnit*>::iterator e_iter;
+  std::vector<L1MuGMTEtaProjectionUnit*>::iterator e_iter;
   for ( e_iter = m_MIP_EPUs.begin(); e_iter != m_MIP_EPUs.end(); e_iter++ )
     (*e_iter)->reset();
 	
@@ -177,15 +177,15 @@ void L1MuGMTMipIsoAU::reset() {
 //
 void L1MuGMTMipIsoAU::print() const {
 
-  stringstream outmip;
+  std::stringstream outmip;
   outmip << "Assigned MIP bits : ";
-  vector<bool>::const_iterator iter;
+  std::vector<bool>::const_iterator iter;
   for ( iter = m_MIP.begin(); iter != m_MIP.end(); iter++ ) {
     outmip << (*iter) << "  ";
   }
   edm::LogVerbatim("GMT_MipIso_info") << outmip.str() << endl << endl;
 
-  stringstream outiso;
+  std::stringstream outiso;
   outiso << "Assigned ISO bits : ";
   for ( iter = m_ISO.begin(); iter != m_ISO.end(); iter++ ) {
     outiso << (*iter) << "  ";

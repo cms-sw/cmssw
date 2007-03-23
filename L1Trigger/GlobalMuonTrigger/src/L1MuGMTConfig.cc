@@ -5,8 +5,8 @@
 //   Description: Configuration parameters for L1GlobalMuonTrigger
 //
 //
-//   $Date: 2006/07/07 16:57:06 $
-//   $Revision: 1.2 $
+//   $Date: 2006/08/21 14:23:13 $
+//   $Revision: 1.3 $
 //
 //   Author :
 //   N. Neumeister             CERN EP
@@ -80,7 +80,7 @@ L1MuGMTConfig::L1MuGMTConfig(const edm::ParameterSet& ps) {
 
   bool writeLUTsAndRegs = m_ps->getUntrackedParameter<bool>("WriteLUTsAndRegs",false);
   if(writeLUTsAndRegs) {
-    string dir = "gmtconfig";
+    std::string dir = "gmtconfig";
   
     mkdir(dir.c_str(), S_ISUID|S_ISGID|S_ISVTX|S_IRUSR|S_IWUSR|S_IXUSR);
 
@@ -200,8 +200,8 @@ void L1MuGMTConfig::setDefaults() {
 
 }
 
-void L1MuGMTConfig::dumpLUTs(string dir) {
-  vector<L1MuGMTLUT*> theLUTs;
+void L1MuGMTConfig::dumpLUTs(std::string dir) {
+  std::vector<L1MuGMTLUT*> theLUTs;
 
   theLUTs.push_back( m_LFSortRankEtaQLUT );  
   theLUTs.push_back( m_LFSortRankPtQLUT );   
@@ -231,12 +231,12 @@ void L1MuGMTConfig::dumpLUTs(string dir) {
   theLUTs.push_back( m_MIAUPhiPro2LUT );
   theLUTs.push_back( m_MIAUEtaProLUT );
 
-  vector<L1MuGMTLUT*>::iterator it = theLUTs.begin();
+  std::vector<L1MuGMTLUT*>::iterator it = theLUTs.begin();
   for (;it != theLUTs.end(); it++) {
     edm::LogVerbatim("GMT_LUTGen_info")
      << "**** Generating " << (*it)->Name() << " LUT ****" << endl
      << "saving" << endl;
-    string fn = dir + "/" + (*it)->Name() + ".lut";
+    std::string fn = dir + "/" + (*it)->Name() + ".lut";
     (*it)->Save(fn.c_str());    
   }
 
@@ -245,8 +245,8 @@ void L1MuGMTConfig::dumpLUTs(string dir) {
 
 }
 
-void L1MuGMTConfig::dumpRegs(string dir) {
-  vector<L1MuGMTReg*> theRegs;
+void L1MuGMTConfig::dumpRegs(std::string dir) {
+  std::vector<L1MuGMTReg*> theRegs;
 
   theRegs.push_back( m_RegCDLConfig );
   theRegs.push_back( m_RegMMConfigPhi );
@@ -261,7 +261,7 @@ void L1MuGMTConfig::dumpRegs(string dir) {
 
   ofstream of( (dir + "/LogicFPGARegs.cfg").c_str() );
 
-  vector<L1MuGMTReg*>::iterator it = theRegs.begin();
+  std::vector<L1MuGMTReg*>::iterator it = theRegs.begin();
   for (;it != theRegs.end(); it++) {
 
     for (unsigned int i=0; i<(*it)->getNumberOfInstances(); i++)

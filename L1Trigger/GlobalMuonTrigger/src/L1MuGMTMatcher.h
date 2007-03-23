@@ -4,8 +4,8 @@
  *  Matching Unit in the L1 Global Muon Trigger.
 */
 //
-//   $Date: 2004/02/03 16:33:44 $
-//   $Revision: 1.5 $
+//   $Date: 2006/05/15 13:56:02 $
+//   $Revision: 1.1 $
 //
 //   Author :
 //   N. Neumeister            CERN EP 
@@ -39,7 +39,6 @@ class L1MuGlobalMuonTrigger;
 //              ---------------------
 //              -- Class Interface --
 //              ---------------------
-using namespace std;
 
 class L1MuGMTMatcher {
 
@@ -85,8 +84,8 @@ class L1MuGMTMatcher {
     const L1MuGlobalMuonTrigger& m_gmt;
     int m_id;
 
-    vector<const L1MuRegionalCand*> first;
-    vector<const L1MuRegionalCand*> second;
+    std::vector<const L1MuRegionalCand*> first;
+    std::vector<const L1MuRegionalCand*> second;
 
     L1MuGMTMatrix<int>  matchQuality;
     L1MuGMTMatrix<bool> pairMatrix;

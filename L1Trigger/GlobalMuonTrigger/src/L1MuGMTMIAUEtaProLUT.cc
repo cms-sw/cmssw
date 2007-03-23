@@ -3,8 +3,8 @@
 //   Class: L1MuGMTMIAUEtaProLUT
 //
 // 
-//   $Date: 2006/08/21 14:23:13 $
-//   $Revision: 1.3 $
+//   $Date: 2006/11/17 08:25:34 $
+//   $Revision: 1.4 $
 //
 //   Author :
 //   H. Sakulin            HEPHY Vienna
@@ -91,7 +91,7 @@ unsigned L1MuGMTMIAUEtaProLUT::TheLookupFunction (int idx, unsigned eta, unsigne
        (isRPC && !isFWD && fabs(oldeta) > 1.04 ) ) {
     if(!m_saveFlag) edm::LogWarning("LUTRangeViolation") 
                          << "L1MuGMTMIAUEtaProLUT::TheLookupFunction: RPC " << (isFWD?"fwd":"brl") 
-	                 << " eta value out of range: " << oldeta << endl;
+	                 << " eta value out of range: " << oldeta;
   }
 
   // eta conversion depends only on isys by default

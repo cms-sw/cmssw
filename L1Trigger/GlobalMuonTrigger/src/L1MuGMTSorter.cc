@@ -5,8 +5,8 @@
 //   Description: GMT Muon Sorter
 //
 //
-//   $Date: 2006/05/15 13:56:02 $
-//   $Revision: 1.1 $
+//   $Date: 2006/08/21 14:23:13 $
+//   $Revision: 1.2 $
 //
 //   Author :
 //   N. Neumeister             CERN EP
@@ -78,13 +78,13 @@ L1MuGMTSorter::~L1MuGMTSorter() {
 //
 void L1MuGMTSorter::run() {
 
-  vector<L1MuGMTExtendedCand*> mycands;
-   vector<L1MuGMTExtendedCand*> my_brl_cands;
+  std::vector<L1MuGMTExtendedCand*> mycands;
+   std::vector<L1MuGMTExtendedCand*> my_brl_cands;
 
-  vector<L1MuGMTExtendedCand*>::const_iterator iter;
+  std::vector<L1MuGMTExtendedCand*>::const_iterator iter;
   
   // get muon candidates from barrel Merger 
-  const vector<L1MuGMTExtendedCand*>& brl_cands = m_gmt.Merger(0)->Cands();
+  const std::vector<L1MuGMTExtendedCand*>& brl_cands = m_gmt.Merger(0)->Cands();
   iter = brl_cands.begin();
   while ( iter != brl_cands.end() ) {
     if ( *iter && !(*iter)->empty() ) {
@@ -109,10 +109,10 @@ void L1MuGMTSorter::run() {
   }
 
    
-  vector<L1MuGMTExtendedCand*> my_fwd_cands;
+  std::vector<L1MuGMTExtendedCand*> my_fwd_cands;
 
   // get muon candidates from barrel Merger 
-  const vector<L1MuGMTExtendedCand*>& fwd_cands = m_gmt.Merger(1)->Cands();
+  const std::vector<L1MuGMTExtendedCand*>& fwd_cands = m_gmt.Merger(1)->Cands();
   iter = fwd_cands.begin();
   while ( iter != fwd_cands.end() ) {
     if ( *iter && !(*iter)->empty() ) {
@@ -142,7 +142,7 @@ void L1MuGMTSorter::run() {
   if ( L1MuGMTConfig::Debug(5) ) {
     edm::LogVerbatim("GMT_Sorter_info") << "GMT Sorter input: "
          << mycands.size() << endl;
-    vector<L1MuGMTExtendedCand*>::const_iterator iter;
+    std::vector<L1MuGMTExtendedCand*>::const_iterator iter;
     for ( iter = mycands.begin(); iter != mycands.end(); iter++ ) {
       if (*iter ) (*iter)->print();
     }
@@ -153,7 +153,7 @@ void L1MuGMTSorter::run() {
 
   // copy the best 4 candidates
   int number_of_cands = 0;
-  vector<L1MuGMTExtendedCand*>::const_iterator iter1 = mycands.begin();
+  std::vector<L1MuGMTExtendedCand*>::const_iterator iter1 = mycands.begin();
   while ( iter1 != mycands.end() ) {
     if ( *iter1 && number_of_cands < 4 ) {
       m_MuonCands.push_back(*iter1);
@@ -171,7 +171,7 @@ void L1MuGMTSorter::run() {
 //
 void L1MuGMTSorter::reset() {
 
-  vector<const L1MuGMTExtendedCand*>::iterator iter;
+  std::vector<const L1MuGMTExtendedCand*>::iterator iter;
   for ( iter = m_MuonCands.begin(); iter != m_MuonCands.end(); iter++ ) {
     *iter = 0;
   }
@@ -188,7 +188,7 @@ void L1MuGMTSorter::print() {
   edm::LogVerbatim("GMT_Sorter_info") << endl;
   edm::LogVerbatim("GMT_Sorter_info") << "Muon candidates found by the L1 Global Muon Trigger : "
        << numberOfCands() << endl;
-  vector<const L1MuGMTExtendedCand*>::const_iterator iter = m_MuonCands.begin();
+  std::vector<const L1MuGMTExtendedCand*>::const_iterator iter = m_MuonCands.begin();
   while ( iter != m_MuonCands.end() ) {
     if ( *iter ) (*iter)->print();
     iter++;

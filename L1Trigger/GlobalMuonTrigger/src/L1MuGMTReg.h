@@ -9,8 +9,8 @@
  *   multiple instances of the register in the hardware (by default 2)
 */ 
 //
-//   $Date: 2006/05/15 13:56:02 $
-//   $Revision: 1.1 $
+//   $Date: 2006/08/21 14:23:13 $
+//   $Revision: 1.2 $
 //
 //   Author :
 //   H. Sakulin            HEPHY Vienna
@@ -42,7 +42,6 @@
 //              -- Class Interface --
 //              ---------------------
 
-using namespace std;
 
 class L1MuGMTReg {
 
@@ -60,10 +59,10 @@ class L1MuGMTReg {
   unsigned getNumberOfInstances() { return m_value.size(); }
   
   /// get Name
-  virtual string getName() =0;
+  virtual std::string getName() =0;
   
  protected:
-  vector<unsigned> m_value;
+  std::vector<unsigned> m_value;
 };
 
 //
@@ -78,7 +77,7 @@ class L1MuGMTRegMMConfig : public L1MuGMTReg {
   enum MergeMethods { takeDTCSC, takeRPC, byRank, byMinPt, byCombi, Special };
 
   //// constructor
-  L1MuGMTRegMMConfig(const string& param, MergeMethods def_brl, MergeMethods def_fwd) :
+  L1MuGMTRegMMConfig(const std::string& param, MergeMethods def_brl, MergeMethods def_fwd) :
     m_param(param) { 
     m_default[0] = def_brl;
     m_default[1] = def_fwd;
@@ -89,20 +88,20 @@ class L1MuGMTRegMMConfig : public L1MuGMTReg {
   virtual ~L1MuGMTRegMMConfig() {};
 
   //// get Name
-  virtual string getName() { return "MMConfig_" + m_param; };
+  virtual std::string getName() { return "MMConfig_" + m_param; };
 
   //// read the merge method from .orcarc
   void setMergeMethod() {
     static MergeMethods avlMethods[6] = { takeDTCSC, takeRPC, byRank, byMinPt, byCombi, Special };
-    string mn[6] = { "takeDT", "takeRPC", "byRank", "byMinPt", "byCombi", "Special" };
+    std::string mn[6] = { "takeDT", "takeRPC", "byRank", "byMinPt", "byCombi", "Special" };
 
     for (int i=0; i<2; i++) {
       if (i==1) mn[0] = "takeCSC";
-      //      string conf_name = "L1GlobalMuonTrigger:MergeMethod" + m_param + (i ? "Fwd" : "Brl");    
+      //      std::string conf_name = "L1GlobalMuonTrigger:MergeMethod" + m_param + (i ? "Fwd" : "Brl");    
       //      ConfigurableEnum<MergeMethods,6> mm(m_default[i], avlMethods, mn, conf_name);
       MergeMethods mm = m_default[i];
-      string conf_name = "MergeMethod" + m_param + (i ? "Fwd" : "Brl");    
-      string mm_str = L1MuGMTConfig::getParameterSet()->getParameter<string> (conf_name);
+      std::string conf_name = "MergeMethod" + m_param + (i ? "Fwd" : "Brl");    
+      std::string mm_str = L1MuGMTConfig::getParameterSet()->getParameter<std::string> (conf_name);
       for(int ii=0; ii<6; ii++) if(mm_str == mn[ii]) {mm = avlMethods[ii]; break;}
       
       m_value[i] = 1 << (5-(int) MergeMethods(mm));
@@ -110,12 +109,12 @@ class L1MuGMTRegMMConfig : public L1MuGMTReg {
       if ( L1MuGMTConfig::Debug(1) ) edm::LogVerbatim("GMT_Register_Info") << " " << conf_name
 				       //					  << " is " << mm.get() 
 					  << " is " << mm
-					  << "( value " << m_value[i] << " )" << endl;
+					  << "( value " << m_value[i] << " )";
     }
   };
 
  protected:
-  string m_param;
+  std::string m_param;
   MergeMethods m_default[2];
 } ;
 
@@ -171,19 +170,19 @@ class L1MuGMTRegMMConfigMIPISO : public L1MuGMTRegMMConfig {
 
  public: 
   //// constructor
-  L1MuGMTRegMMConfigMIPISO(const string& param, MergeMethods def_brl, MergeMethods def_fwd, bool def_and_brl, bool def_and_fwd) :
+  L1MuGMTRegMMConfigMIPISO(const std::string& param, MergeMethods def_brl, MergeMethods def_fwd, bool def_and_brl, bool def_and_fwd) :
     L1MuGMTRegMMConfig(param, def_brl, def_fwd) { 
 
     for (int i=0; i<2; i++) {
-      //      string conf_name = "L1GlobalMuonTrigger:MergeMethod" + m_param  + "SpecialUseAND" + (i ? "Fwd" : "Brl");    
+      //      std::string conf_name = "L1GlobalMuonTrigger:MergeMethod" + m_param  + "SpecialUseAND" + (i ? "Fwd" : "Brl");    
       //      bool doAND = SimpleConfigurable<bool> (i? def_and_fwd: def_and_brl, conf_name.c_str() );
-      string conf_name = "MergeMethod" + m_param  + "SpecialUseAND" + (i ? "Fwd" : "Brl");    
+      std::string conf_name = "MergeMethod" + m_param  + "SpecialUseAND" + (i ? "Fwd" : "Brl");    
       bool doAND = L1MuGMTConfig::getParameterSet()->getParameter<bool> (conf_name);
 
       if (doAND) m_value[i] |= 64;
       
       if ( L1MuGMTConfig::Debug(1) ) edm::LogVerbatim("GMT_Register_Info") << " " << conf_name
-					  << " is " << doAND << endl;
+					  << " is " << doAND;
     }
   };
 
@@ -225,15 +224,15 @@ class L1MuGMTRegMMConfigSRK : public L1MuGMTRegMMConfig {
   L1MuGMTRegMMConfigSRK() : L1MuGMTRegMMConfig("SRK", L1MuGMTRegMMConfig::takeDTCSC, L1MuGMTRegMMConfig::takeDTCSC) { 
 
     for (int i=0; i<2; i++) {
-      //      string conf_name = string("L1GlobalMuonTrigger:HaloOverwritesMatched") + (i ? "Fwd" : "Brl");    
+      //      std::string conf_name = string("L1GlobalMuonTrigger:HaloOverwritesMatched") + (i ? "Fwd" : "Brl");    
       //      bool haloOverwrites = SimpleConfigurable<bool> (true, conf_name.c_str()); // edit default, here
-      string conf_name = string("HaloOverwritesMatched") + (i ? "Fwd" : "Brl");    
+      std::string conf_name = std::string("HaloOverwritesMatched") + (i ? "Fwd" : "Brl");    
       bool haloOverwrites = L1MuGMTConfig::getParameterSet()->getParameter<bool> (conf_name); // edit default, here
 
       if (haloOverwrites) m_value[i] |= 64;
       
       if ( L1MuGMTConfig::Debug(1) ) edm::LogVerbatim("GMT_Register_info") << " " << conf_name
-					  << " is " << haloOverwrites << endl;
+					  << " is " << haloOverwrites;
     }
   };
 
@@ -254,20 +253,20 @@ class L1MuGMTRegSortRankOffset : public L1MuGMTReg {
   L1MuGMTRegSortRankOffset() {
 
     for (int i=0; i<2; i++) {
-      //      string conf_name = string("L1GlobalMuonTrigger:SortRankOffset") + (i ? "Fwd" : "Brl");
+      //      std::string conf_name = string("L1GlobalMuonTrigger:SortRankOffset") + (i ? "Fwd" : "Brl");
       //      unsigned ofs = SimpleConfigurable<unsigned> (10, conf_name.c_str()); // edit default, here
-      string conf_name = string("SortRankOffset") + (i ? "Fwd" : "Brl");
+      std::string conf_name = std::string("SortRankOffset") + (i ? "Fwd" : "Brl");
       unsigned ofs = L1MuGMTConfig::getParameterSet()->getParameter<unsigned> (conf_name);
 
       m_value[i] = ofs;
       
       if ( L1MuGMTConfig::Debug(1) ) edm::LogVerbatim("GMT_Register_info") << " " << conf_name 
-					  << " is " << ofs << endl;
+					  << " is " << ofs;
     }
   };
 
   //// get Name
-  virtual string getName() { return "SortRankOffset"; };
+  virtual std::string getName() { return "SortRankOffset"; };
 
   //// destructor
   virtual ~L1MuGMTRegSortRankOffset() {};
@@ -291,7 +290,7 @@ class L1MuGMTRegCDLConfig : public L1MuGMTReg {
   virtual ~L1MuGMTRegCDLConfig() {};
 
   //// get Name
-  virtual string getName() { return string("CDLConfig"); };
+  virtual std::string getName() { return std::string("CDLConfig"); };
 
   //// read the merge method from .orcarc
   void setCDLConfig() {
@@ -299,15 +298,15 @@ class L1MuGMTRegCDLConfig : public L1MuGMTReg {
     //    static unsigned defaults[4] = {2, 3, 16, 1}; // change defaults, here
 
     for (int i=0; i<4; i++) {
-      //      string conf_name = string("L1GlobalMuonTrigger:CDLConfigWord") + names[i];
+      //      std::string conf_name = string("L1GlobalMuonTrigger:CDLConfigWord") + names[i];
       //      unsigned cfgword = SimpleConfigurable<unsigned> (defaults[i], conf_name.c_str()); 
-      string conf_name = string("CDLConfigWord") + names[i];
+      std::string conf_name = std::string("CDLConfigWord") + names[i];
       unsigned cfgword = L1MuGMTConfig::getParameterSet()->getParameter<unsigned> (conf_name);
 
       m_value[i] = cfgword;
       
       if ( L1MuGMTConfig::Debug(1) ) edm::LogVerbatim("GMT_Register_info") << " " << conf_name 
-					  << " is " << cfgword << endl;
+					  << " is " << cfgword;
     }    
   };
 

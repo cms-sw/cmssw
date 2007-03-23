@@ -3,8 +3,8 @@
 //   Class: L1MuGMTMIAUEtaConvLUT
 //
 // 
-//   $Date: 2006/08/21 14:23:13 $
-//   $Revision: 1.3 $
+//   $Date: 2006/11/17 08:25:34 $
+//   $Revision: 1.4 $
 //
 //   Author :
 //   H. Sakulin            HEPHY Vienna
@@ -73,7 +73,7 @@ unsigned L1MuGMTMIAUEtaConvLUT::TheLookupFunction (int idx, unsigned eta_in) con
   if ( (isRPC && isFWD && fabs(etaValue) < m_theGMTScales->getReducedEtaScale(3)->getScaleMin() ) ||
        (isRPC && !isFWD && fabs(etaValue) > m_theGMTScales->getReducedEtaScale(1)->getScaleMax() )) {
     if(!m_saveFlag) edm::LogWarning("LUTRangeViolation") 
-       << "L1MuGMTMIAUEtaConvLUT::TheLookupFunction: RPC " << (isFWD?"fwd":"brl") << " eta value out of range: " << etaValue << endl;
+       << "L1MuGMTMIAUEtaConvLUT::TheLookupFunction: RPC " << (isFWD?"fwd":"brl") << " eta value out of range: " << etaValue;
   }
   else 
     eta4bit = m_theGMTScales->getReducedEtaScale(idx_drcr)->getPacked( etaValue );
