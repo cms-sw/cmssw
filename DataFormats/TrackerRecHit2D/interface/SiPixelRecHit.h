@@ -36,6 +36,8 @@ public:
   edm::Ref<edm::DetSetVector<SiPixelCluster>, 
     SiPixelCluster>  const& cluster() const { return cluster_;}
 
+  virtual bool sharesInput( const TrackingRecHit* other, SharedInputType what) const;
+
 private:
 
   edm::Ref<edm::DetSetVector<SiPixelCluster>, SiPixelCluster > const cluster_;

@@ -43,4 +43,9 @@ std::vector<TrackingRecHit*> InvalidTrackingRecHit::recHits() {
   return std::vector<TrackingRecHit*>();
 }
 
+bool InvalidTrackingRecHit::sharesInput( const TrackingRecHit* other, 
+					 SharedInputType what) const
+{
+  return false;
+}
 

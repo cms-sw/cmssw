@@ -20,6 +20,8 @@ public:
   virtual SiStripRecHit2D * clone() const {return new SiStripRecHit2D( * this); }
 
   edm::Ref<edm::DetSetVector<SiStripCluster> ,SiStripCluster, edm::refhelper::FindForDetSetVector<SiStripCluster> > const&  cluster()  const { return cluster_;}
+
+  virtual bool sharesInput( const TrackingRecHit* other, SharedInputType what) const;
   
 private:
   //  std::vector<const SiStripCluster*>   cluster_;

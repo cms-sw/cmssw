@@ -16,6 +16,10 @@ public:
 
   const SiStripRecHit2D& originalHit() const {return originalHit_;}
 
+  virtual bool sharesInput( const TrackingRecHit* other, SharedInputType what) const {
+    return originalHit().sharesInput(other,what);
+  }
+
 private:
 
   const SiStripRecHit2D originalHit_;

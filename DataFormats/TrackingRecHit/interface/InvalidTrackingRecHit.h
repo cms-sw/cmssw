@@ -38,6 +38,8 @@ public:
   virtual bool isValid() const {return false;}
   virtual Type getType() const { return type_; }
 
+  virtual bool sharesInput( const TrackingRecHit* other, SharedInputType what) const;
+
 private:
 
   DetId detId_;
