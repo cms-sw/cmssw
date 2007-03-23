@@ -290,7 +290,9 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
 
 // Find HepMC vertices, put them in a close TrackingVertex (this could conceivably add the same GenVertex to multiple TrackingVertices)
   for (HepMC::GenEvent::vertex_const_iterator genVIt = genEvent->vertices_begin(); genVIt != genEvent->vertices_end(); ++genVIt) {
-    HepLorentzVector pos = (**genVIt).position()/10.0;
+    HepLorentzVector rawPos = (**genVIt).position();
+    // Convert to mm
+    HepLorentzVector pos = HepLorentzVector(rawPos.x()/10.0,rawPos.y()/10.0,rawPos.z()/10.0);
     for (TrackingVertexCollection::iterator iTrkVtx = tVC -> begin(); iTrkVtx != tVC ->end(); ++iTrkVtx) {
       double distance = HepLorentzVector(iTrkVtx -> position() - pos).v().mag();
       if (distance <= distanceCut_) {
