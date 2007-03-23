@@ -348,3 +348,27 @@ void ApvAnalysisFactory::deleteApv(ApvAnalysis* apv){
   delete apv;
 
 }
+//
+// -- Get Common Mode Slope
+//
+float ApvAnalysisFactory::getCommonModeSlope(uint32_t detId, int apvNumber){
+  map<uint32_t, vector<ApvAnalysis* > >::const_iterator theApvs_map =  apvMap_.find(detId);
+  float tmp = -100.0;
+  if(theApvs_map != apvMap_.end()) { 
+    vector<ApvAnalysis* > theApvs = theApvs_map->second;
+    tmp = theApvs[apvNumber]->commonModeCalculator().getCMSlope();
+    return tmp;
+  }
+  return tmp;
+}
+void ApvAnalysisFactory::getCommonModeSlope(uint32_t detId,ApvAnalysis::PedestalType& tmp)
+{
+  tmp.clear();
+  map<uint32_t, vector<ApvAnalysis*> >::const_iterator apvAnalysisIt = apvMap_.find(detId);
+  if(apvAnalysisIt != apvMap_.end()) {
+    vector<ApvAnalysis* > theApvs = apvAnalysisIt->second;
+    for(int i=0; i< theApvs.size(); i++) {
+      tmp.push_back(theApvs[i]->commonModeCalculator().getCMSlope());
+    }
+  }
+}

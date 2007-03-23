@@ -23,16 +23,19 @@ public:
   TkCommonMode* commonMode() {return theTkCommonMode;}
 
   void newEvent();
+  float getCMSlope() { return slope;}
   
 protected:
   
   void calculateCommonMode(ApvAnalysis::PedestalType&);
+  void calculateCMSlope(ApvAnalysis::PedestalType&);
   
   TkCommonMode*        theTkCommonMode;
   std::vector<float>        theCommonModeValues;
   TkNoiseCalculator*   theNoiseCalculator;
   TkApvMask*           theApvMask;
   bool alreadyUsedEvent;
+  float slope;
 
 
   float cutToAvoidSignal;

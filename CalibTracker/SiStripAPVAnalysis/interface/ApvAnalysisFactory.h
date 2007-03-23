@@ -54,6 +54,8 @@ class ApvAnalysisFactory
   void getRawNoise(uint32_t det_id,  ApvAnalysis::PedestalType& noise);
   float getStripRawNoise(uint32_t det_id, int stripNumber);
 
+  void getCommonModeSlope(uint32_t det_id, ApvAnalysis::PedestalType& tmp);
+  float getCommonModeSlope(uint32_t det_id, int apvNumber);
 
   void update(uint32_t det_id, const edm::DetSet<SiStripRawDigi>& in);
   std::string getStatus(uint32_t det_id);

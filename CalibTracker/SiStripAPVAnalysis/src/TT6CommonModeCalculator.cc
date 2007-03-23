@@ -70,12 +70,26 @@ void TT6CommonModeCalculator::calculateCommonMode(ApvAnalysis::PedestalType& ind
     }
   }
   TT6CommonModeCalculator::setCM(theCommonModeValues);
-      
+  calculateCMSlope(indat);     
 }
 //
 // Define New Event
 // 
 void TT6CommonModeCalculator::newEvent() {
   alreadyUsedEvent = false;
+}
+//
+// Calculate CMSlope 
+// 
+void TT6CommonModeCalculator::calculateCMSlope(ApvAnalysis::PedestalType& indat) {
+  if (indat.size() != 128) {
+    slope = -100.0;
+    return;
+  }
+  ApvAnalysis::PedestalType diffVec;
+  diffVec.clear();
+  for(int s=0;s<64;s++) diffVec.push_back(indat[s+64]-indat[s]);
+  std::sort(diffVec.begin(),diffVec.end());
+  slope = (diffVec[31]+diffVec[32])/2./64.;
 }
 

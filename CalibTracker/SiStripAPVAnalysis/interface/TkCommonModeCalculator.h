@@ -17,6 +17,8 @@ class TkCommonModeCalculator{
   virtual TkCommonMode* commonMode() = 0;
   /** Tell CM calculator that a new event is available */
   virtual void newEvent() {}
+  /** Get Slope */
+  virtual float getCMSlope() = 0;
 };
 
 #endif
