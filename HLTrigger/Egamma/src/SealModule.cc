@@ -14,6 +14,8 @@
 #include "HLTrigger/Egamma/interface/HLTPMMassFilter.h"
 #include "HLTrigger/Egamma/interface/HLTPMDocaFilter.h"
 
+#include "HLTrigger/Egamma/interface/HLTElectronEoverpFilterRegional.h"
+#include "HLTrigger/Egamma/interface/HLTElectronTrackIsolFilterRegional.h"
 
 DEFINE_SEAL_MODULE();
 DEFINE_ANOTHER_FWK_MODULE(HLTEgammaL1MatchFilter);
@@ -28,3 +30,6 @@ DEFINE_ANOTHER_FWK_MODULE(HLTElectronPixelMatchFilter);
 DEFINE_ANOTHER_FWK_MODULE(HLTElectronEoverpFilter);
 DEFINE_ANOTHER_FWK_MODULE(HLTPMMassFilter);
 DEFINE_ANOTHER_FWK_MODULE(HLTPMDocaFilter);
+
+DEFINE_ANOTHER_FWK_MODULE(HLTElectronEoverpFilterRegional);
+DEFINE_ANOTHER_FWK_MODULE(HLTElectronTrackIsolFilterRegional);
