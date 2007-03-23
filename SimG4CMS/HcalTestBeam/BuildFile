@@ -13,6 +13,7 @@
 <use name=geant4>
 <use name=boost>
 <use name=root>
+<use name=hepmc>
 
 <export>
  <lib name=SimG4CMSHcalTestBeam>
