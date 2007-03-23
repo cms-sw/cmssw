@@ -15,8 +15,8 @@
 CmsTrackerDetIdBuilder::CmsTrackerDetIdBuilder(){
   // rr
   std::cout << " ************************************************************************ " << std::endl;
-  std::cout << "       You are running New rr Tracker Microstrip numbering scheme         " << std::endl;
-  std::cout << "               no backward compatibility with CMSSW_1_3_*                 " << std::endl;
+  std::cout << "         You are running New Tracker Microstrip numbering scheme          " << std::endl;
+  std::cout << "      see CMS-IN 2007/020 no backward compatibility with CMSSW_1_3_*      " << std::endl;
   std::cout << " ************************************************************************ " << std::endl;
   // rr
 }
