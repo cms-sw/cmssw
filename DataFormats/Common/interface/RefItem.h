@@ -5,7 +5,7 @@
   
 RefItem: Index and pointer to a referenced item.
 
-$Id: RefItem.h,v 1.5 2006/08/22 05:50:16 wmtan Exp $
+$Id: RefItem.h,v 1.6 2007/03/14 21:21:04 paterno Exp $
 
 ----------------------------------------------------------------------*/
 #include <vector>
@@ -57,7 +57,8 @@ private:
     template< typename C, typename T, typename F, typename KEY>
     struct GetPtrImpl {
       static T const* getPtr_(RefCore const& product, RefItem<KEY> const& item) {
-        C const* prod = getProduct<C>(product);
+        //C const* prod = getProduct<C>(product);
+	C const* prod = product.template getProduct<C>();
         /*
         typename C::const_iterator it = prod->begin();
          std::advance(it, item.key());

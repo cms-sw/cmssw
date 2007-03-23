@@ -43,4 +43,6 @@ void TestRefVector::map_string_to_double()
   refvec_t  refvec;
   CPPUNIT_ASSERT(refvec.size() == 0);
   CPPUNIT_ASSERT(refvec.empty());
+
+
 }

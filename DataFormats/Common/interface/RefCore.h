@@ -5,24 +5,25 @@
   
 RefCore: The component of edm::Ref containing the product ID and product getter.
 
-$Id: RefCore.h,v 1.7 2006/10/28 04:10:59 wmtan Exp $
+$Id: RefCore.h,v 1.8 2007/03/04 04:59:59 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <typeinfo>
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/Common/interface/EDProductGetter.h"
+#include "DataFormats/Common/interface/EDProductfwd.h"
 
 namespace edm {
-  class EDProductGetter;
+
   class RefCore {
   public:
     RefCore() : id_(), prodPtr_(0), prodGetter_(0) {}
+
     RefCore(ProductID const& theId, void const *prodPtr, EDProductGetter const* prodGetter) :
-        id_(theId), prodPtr_(prodPtr), prodGetter_(prodGetter) {
-      if (theId == ProductID()) {badID();}
-    }
-    ~RefCore() {}
+      id_(theId), 
+      prodPtr_(prodPtr), 
+      prodGetter_(prodGetter) { }
 
     ProductID id() const {return id_;}
 
@@ -31,26 +32,53 @@ namespace edm {
     void setProductPtr(void const* prodPtr) const {prodPtr_ = prodPtr;}
 
     // Checks for null
-    bool isNull() const {return id() == ProductID();}
+    bool isNull() const {return !isNonnull(); }
 
     // Checks for non-null
-    bool isNonnull() const {return !isNull();}
+    bool isNonnull() const {return id_.isValid(); }
 
     // Checks for null
     bool operator!() const {return isNull();}
 
-    EDProductGetter const* productGetter() const {return prodGetter_;}
+    EDProductGetter const* productGetter() const {
+      if (!prodGetter_) prodGetter_ = EDProductGetter::instance();
+      return prodGetter_;
+    }
 
     void setProductGetter(EDProductGetter const* prodGetter) const {prodGetter_ = prodGetter;}
 
-    void nullID() const;
+    template <typename T>
+    T const*
+    getProduct() const {
+      T const* p = static_cast<T const *>(prodPtr_);
+      return (p != 0)
+  	? p 
+	: this->template getProduct_<T>();
+    }
+    
+ private:
 
-  private:
-    void badID() const;
+    void checkDereferenceability() const;
+    //    void throwInvalidReference() const;
+    void throwWrongReferenceType(std::string const& found,
+				 std::string const& requested) const;
 
-  private:
+    template <typename T>
+    T const* 
+    getProduct_() const {
+      checkDereferenceability();
+      //if (isNull()) throwInvalidReference();
+
+      EDProduct const* product = prodGetter_->getIt(id_);      
+      Wrapper<T> const* wrapper = dynamic_cast<Wrapper<T> const*>(product);
+      if (wrapper == 0) { throwWrongReferenceType(typeid(product).name(), typeid(T).name()); }
+      prodPtr_ = wrapper->product();
+      return wrapper->product();
+  }
+
+
     ProductID id_;
-    mutable void const *prodPtr_; // transient
+    mutable void const *prodPtr_;               // transient
     mutable EDProductGetter const* prodGetter_; // transient
   };
 
@@ -72,30 +100,7 @@ namespace edm {
     return lhs.id() < rhs.id();
   }
 
-  void wrongRefType(std::string const& found, std::string const& requested);
-
-  template <typename T>
-  T const* getProduct_(RefCore const& product) {
-    if (product.isNull()) {
-      product.nullID();
-    }
-    if (!product.productGetter()) {
-      product.setProductGetter(EDProductGetter::instance());
-      assert(product.productGetter());
-    }
-    Wrapper<T> const* edpw = dynamic_cast<Wrapper<T> const*>(product.productGetter()->getIt(product.id()));
-    if (edpw == 0) {
-      wrongRefType(typeid(product.productGetter()->getIt(product.id())).name(), typeid(T).name());
-    }
-    return edpw->product();
-  }
-
-  template <typename T>
-  inline
-  T const* getProduct(RefCore const& product) {
-    T const* p = static_cast<T const *>(product.productPtr());
-    return(p != 0 ? p : getProduct_<T>(product));
-  }
+  void wrongReType(std::string const& found, std::string const& requested);
 
   void checkProduct(RefCore const& prod, RefCore & product);
 

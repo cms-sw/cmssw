@@ -6,7 +6,7 @@
 RefVector: A template for a vector of interproduct references.
 	Each vector element is a reference to a member of the same product.
 
-$Id: RefVector.h,v 1.18 2007/03/04 04:59:59 wmtan Exp $
+$Id: RefVector.h,v 1.19 2007/03/16 13:04:03 paterno Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -103,7 +103,7 @@ namespace edm {
     /// Accessor for product collection
     // Accessor must get the product if necessary
     C const* product() const {
-      return isNull() ? 0 : getProduct<C>(refVector_.refCore());
+      return isNull() ? 0 : refVector_.refCore().template getProduct<C>();
     }
 
     /// Erase an element from the vector.
