@@ -7,10 +7,10 @@
  *   L2 muon reconstruction
  *
  *
- *   $Date: 2007/03/06 08:49:23 $
- *   $Revision: 1.7 $
+ *   $Date: 2007/03/07 13:20:54 $
+ *   $Revision: 1.8 $
  *
- *   \author  A.Everett, R.Bellan
+ *   \author  A.Everett, R.Bellan, J. Alcaraz
  *
  *    ORCA's author: N. Neumeister 
  */
@@ -26,7 +26,9 @@
 #include "DataFormats/TrajectoryState/interface/PTrajectoryStateOnDet.h"
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
-#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTCand.h"
+#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTExtendedCand.h"
+#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTReadoutCollection.h"
+#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuRegionalCand.h"
 #include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
 #include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -60,6 +62,7 @@ using namespace l1extra;
 // constructors
 L2MuonSeedGenerator::L2MuonSeedGenerator(const edm::ParameterSet& iConfig) : 
   theSource(iConfig.getParameter<InputTag>("InputObjects")),
+  theL1GMTReadoutCollection(iConfig.getParameter<InputTag>("GMTReadoutCollection")),
   thePropagatorName(iConfig.getParameter<string>("Propagator")),
   theL1MinPt(iConfig.getParameter<double>("L1MinPt")),
   theL1MaxEta(iConfig.getParameter<double>("L1MaxEta")),
@@ -90,7 +93,11 @@ void L2MuonSeedGenerator::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 
   auto_ptr<TrajectorySeedCollection> output(new TrajectorySeedCollection());
   
-  // Muon particles
+  // Muon particles and GMT readout collection
+  edm::Handle<L1MuGMTReadoutCollection> gmtrc_handle;
+  iEvent.getByLabel(theL1GMTReadoutCollection,gmtrc_handle);
+  L1MuGMTReadoutRecord const& gmtrr = gmtrc_handle.product()->getRecord(0);
+
   edm::Handle<L1MuonParticleCollection> muColl;
   iEvent.getByLabel(theSource, muColl);
   LogTrace(metname) << "Number of muons " << muColl->size() << endl;
@@ -98,24 +105,52 @@ void L2MuonSeedGenerator::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   L1MuonParticleCollection::const_iterator it;
   for(it = muColl->begin(); it != muColl->end(); it++) {
     
-    const L1MuGMTCand muonCand = (*it).gmtMuonCand();
+    const L1MuGMTExtendedCand muonCand = (*it).gmtMuonCand();
     unsigned int quality = 0;
+    bool valid_charge = false;;
 
     if ( muonCand.empty() ) {
       LogWarning(metname) << "L2MuonSeedGenerator: WARNING, no L1MuGMTCand! " << endl;
       LogWarning(metname) << "L2MuonSeedGenerator:   this should make sense only within MC tests" << endl;
       // FIXME! Temporary to handle the MC input
       quality = 7;
+      valid_charge = true;
     }
-    else
+    else {
       quality =  muonCand.quality();
+      valid_charge = muonCand.charge_valid();
+    }
     
     float pt    =  (*it).pt();
     float eta   =  (*it).eta();
     float theta =  2*atan(exp(-eta));
     float phi   =  (*it).phi();      
     int charge  =  (*it).charge();
+    // Set charge=0 for the time being if the valid charge bit is zero
+    if (!valid_charge) charge = 0;
     bool barrel = !(*it).isForward();
+
+    // Get a better eta and charge from regional information
+    // Phi has the same resolution in GMT than regionally, is not it?
+    if ( !(muonCand.empty()) ) {
+      int idx = -1;
+      vector<L1MuRegionalCand> rmc;
+      if ( !muonCand.isRPC() ) {
+            idx = muonCand.getDTCSCIndex();
+            if (muonCand.isFwd()) rmc = gmtrr.getCSCCands();
+            else rmc = gmtrr.getDTBXCands();
+      } else {
+            idx = muonCand.getRPCIndex();
+            if (muonCand.isFwd()) rmc = gmtrr.getFwdRPCCands();
+            else rmc = gmtrr.getBrlRPCCands();
+      }
+      if (idx>=0) {
+            eta = rmc[idx].etaValue();
+            //phi = rmc[idx].phiValue();
+            // Use this charge if the valid charge bit is zero
+            if (!valid_charge) charge = rmc[idx].chargeValue();
+      }
+    }
 
     if ( pt < theL1MinPt || fabs(eta) > theL1MaxEta ) continue;
     
@@ -187,6 +222,9 @@ void L2MuonSeedGenerator::produce(edm::Event& iEvent, const edm::EventSetup& iSe
     
     mat[0][0] = (0.25/pt)*(0.25/pt);  // sigma^2(charge/abs_momentum)
     if ( !barrel ) mat[0][0] = (0.4/pt)*(0.4/pt);
+
+    //Assign q/pt = 0 +- 1/pt if charge has been declared invalid
+    if (!valid_charge) mat[0][0] = (1./pt)*(1./pt);
     
     mat[1][1] = 0.05*0.05;        // sigma^2(lambda)
     mat[2][2] = 0.2*0.2;          // sigma^2(phi)
