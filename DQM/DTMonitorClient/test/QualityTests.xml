@@ -1,33 +1,14 @@
 <TESTSCONFIGURATION>
 
-<QTEST name="ContentsYRange">
+<QTEST name="tTrigOffSet">
 	<TYPE>ContentsYRange</TYPE>	
 	<PARAM name="ymin">-10</PARAM>
 	<PARAM name="ymax">10</PARAM>
-	<PARAM name="error">0.80</PARAM>
+	<PARAM name="error">0.30</PARAM>
 	<PARAM name="warning">0.70</PARAM>
 </QTEST>
 
-
-<QTEST name="MeanContentsYRange">
-	<TYPE>ContentsYRange</TYPE>	
-	<PARAM name="ymin">-0.015</PARAM>
-	<PARAM name="ymax">0.015</PARAM>
-	<PARAM name="error">0.80</PARAM>
-	<PARAM name="warning">0.70</PARAM>
-</QTEST>
-
-
-<QTEST name="SigmaContentsYRange">
-	<TYPE>ContentsYRange</TYPE>	
-	<PARAM name="ymin">0</PARAM>
-	<PARAM name="ymax">0.09</PARAM>
-	<PARAM name="error">0.80</PARAM>
-	<PARAM name="warning">0.70</PARAM>
-</QTEST>
-
-
-<QTEST name="MeanWithinExpected">
+<QTEST name="ResidualsDistributionGaussianTest">
         <TYPE>MeanWithinExpected</TYPE>
         <PARAM name="error">0.05</PARAM>
         <PARAM name="warning">0.5</PARAM>
@@ -39,22 +20,39 @@
         <PARAM name="xmax">0.015</PARAM>
 </QTEST>
 
+<QTEST name="ResidualsMeanInRange">
+	<TYPE>ContentsYRange</TYPE>	
+	<PARAM name="ymin">-0.015</PARAM>
+	<PARAM name="ymax">0.015</PARAM>
+	<PARAM name="error">0.30</PARAM>
+	<PARAM name="warning">0.70</PARAM>
+</QTEST>
 
-<LINK name="*hResDist*">
-        <TestName activate="true">MeanWithinExpected</TestName>
-</LINK>
+
+<QTEST name="ResidualsSigmaInRange">
+	<TYPE>ContentsYRange</TYPE>	
+	<PARAM name="ymin">0</PARAM>
+	<PARAM name="ymax">0.09</PARAM>
+	<PARAM name="error">0.30</PARAM>
+	<PARAM name="warning">0.70</PARAM>
+</QTEST>
 
 
 <LINK name="*tTrigTest*">
-	<TestName activate="true">ContentsYRange</TestName>
+	<TestName activate="true">tTrigOffSet</TestName>
+</LINK>
+
+
+<LINK name="*hResDist_W*">
+        <TestName activate="true">ResidualsDistributionGaussianTest</TestName>
 </LINK>
 
 <LINK name="*MeanTest*">
-	<TestName activate="true">MeanContentsYRange</TestName>
+	<TestName activate="true">ResidualsMeanInRange</TestName>
 </LINK>
 
 <LINK name="*SigmaTest*">
-	<TestName activate="true">SigmaContentsYRange</TestName>
+	<TestName activate="true">ResidualsSigmaInRange</TestName>
 </LINK>
 
 
