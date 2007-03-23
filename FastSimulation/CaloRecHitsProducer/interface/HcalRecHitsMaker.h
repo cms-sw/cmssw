@@ -27,32 +27,35 @@ class HcalRecHitsMaker
  private:
   unsigned createVectorsOfCells(const edm::EventSetup &es);
   unsigned createVectorOfSubdetectorCells( const CaloGeometry&,int subdetn,std::vector<uint32_t>&);
-  void noisifySubdet(std::map<uint32_t,std::pair<float,bool> >& theMap, const std::vector<uint32_t>& thecells, unsigned ncells); 
+  void noisifySubdet(std::map<uint32_t,std::pair<float,bool> >& theMap, const std::vector<uint32_t>& thecells, unsigned ncells, double  hcalHotFraction_); 
   // Not currently used. Will probably be removed soon.
   //  void noisifySignal(std::map<uint32_t,std::pair<float,bool> >& theMap); 
   void noisify();
-  void Fill(uint32_t id,float energy, std::map<uint32_t,std::pair<float,bool> >& myHits,bool signal=true);
+  void Fill(uint32_t id,float energy, std::map<uint32_t,std::pair<float,bool> >& myHits,bool signal=true, double noise_=0.);
   void loadPCaloHits(const edm::Event & iEvent);
   
   void clean();
 
  private:
-  double threshold_;
-  double noise_;
-  double hcalHotFraction_; 
+  double thresholdHB_,  thresholdHE_, thresholdHO_, thresholdHF_;
+  double noiseHB_, noiseHE_, noiseHO_, noiseHF_;
+  double hcalHotFractionHB_,  hcalHotFractionHE_, hcalHotFractionHO_, hcalHotFractionHF_; 
 
   //  edm::ESHandle<CaloTowerConstituentsMap> calotowerMap_;
   
   bool initialized_;
   //the bool means killed ! 
-  std::map<uint32_t,std::pair<float,bool> > hbheRecHits_;
+  std::map<uint32_t,std::pair<float,bool> > hbRecHits_;
+  std::map<uint32_t,std::pair<float,bool> > heRecHits_;
   std::map<uint32_t,std::pair<float,bool> > hoRecHits_;
   std::map<uint32_t,std::pair<float,bool> > hfRecHits_;
 
-  std::vector<uint32_t> hbhecells_;
+  std::vector<uint32_t> hbcells_;
+  std::vector<uint32_t> hecells_;
   std::vector<uint32_t> hocells_;
   std::vector<uint32_t> hfcells_;
-  unsigned nhbhecells_;
+  unsigned nhbcells_;
+  unsigned nhecells_;
   unsigned nhocells_;
   unsigned nhfcells_;
 
