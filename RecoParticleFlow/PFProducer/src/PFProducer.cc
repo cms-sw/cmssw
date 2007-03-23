@@ -196,7 +196,7 @@ PFProducer::beginJob(const edm::EventSetup & es)
 {
   
   // init Particle data table (from Pythia)
-  edm::ESHandle < DefaultConfig::ParticleDataTable > pdt;
+  edm::ESHandle < HepPDT::ParticleDataTable > pdt;
   es.getData(pdt);
   if ( !ParticleTable::instance() ) ParticleTable::instance(&(*pdt));
   mySimEvent->initializePdt(&(*pdt));

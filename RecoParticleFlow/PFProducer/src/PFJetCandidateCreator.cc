@@ -5,7 +5,8 @@
 #include <cmath>
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
-#include "FWCore/Framework/interface/Handle.h"
+// #include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "RecoParticleFlow/PFProducer/interface/PFJetCandidateCreator.h"
