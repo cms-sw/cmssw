@@ -3,7 +3,6 @@
 
 #include <vector>
 #include "RecoPixelVertexing/PixelTriplets/interface/HitTripletGenerator.h"
-#include "RecoPixelVertexing/PixelTriplets/interface/LayerTriplets.h"
 #include "RecoPixelVertexing/PixelTriplets/interface/CosmicHitTripletGeneratorFromLayerTriplet.h"
 #include "DataFormats/Common/interface/RangeMap.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -11,6 +10,7 @@
 class LayerWithHits;
 class DetLayer;
 class TrackingRegion;
+class CosmicLayerTriplets;
 class HitTripletGeneratorFromLayerTriplet;
 
 
@@ -23,8 +23,8 @@ class CosmicHitTripletGenerator : public HitTripletGenerator{
   typedef std::vector<CosmicHitTripletGeneratorFromLayerTriplet *>   Container;
 
 public:
-  CosmicHitTripletGenerator(LayerTriplets& layers, const edm::EventSetup& iSetup);
-  CosmicHitTripletGenerator(LayerTriplets& layers);
+  CosmicHitTripletGenerator(CosmicLayerTriplets& layers, const edm::EventSetup& iSetup);
+  CosmicHitTripletGenerator(CosmicLayerTriplets& layers);
 
 
   ~CosmicHitTripletGenerator();

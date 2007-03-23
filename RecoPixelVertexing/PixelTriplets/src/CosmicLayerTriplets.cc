@@ -15,7 +15,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 
 using std::vector;
-vector<LayerTriplets::LayerPairAndLayers> CosmicLayerTriplets::layers()
+vector<CosmicLayerTriplets::LayerPairAndLayers> CosmicLayerTriplets::layers()
 {
   vector<LayerPairAndLayers> result;
 

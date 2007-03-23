@@ -1,4 +1,4 @@
-#include "RecoPixelVertexing/PixelTriplets/interface/LayerTriplets.h"
+#include "RecoPixelVertexing/PixelTriplets/interface/CosmicLayerTriplets.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "RecoPixelVertexing/PixelTriplets/interface/CosmicHitTripletGenerator.h"
 
@@ -6,12 +6,12 @@
 
 using namespace std;
 
-CosmicHitTripletGenerator::CosmicHitTripletGenerator(LayerTriplets& layers,
+CosmicHitTripletGenerator::CosmicHitTripletGenerator(CosmicLayerTriplets& layers,
 						   const edm::EventSetup& iSetup)
 {
   //  vector<LayerTriplets::LayerTriplet> layerTriplets = layers();
-  vector<LayerTriplets::LayerPairAndLayers> layerTriplets = layers.layers();
-  vector<LayerTriplets::LayerPairAndLayers>::const_iterator it;
+  vector<CosmicLayerTriplets::LayerPairAndLayers> layerTriplets = layers.layers();
+  vector<CosmicLayerTriplets::LayerPairAndLayers>::const_iterator it;
   for (it = layerTriplets.begin(); it != layerTriplets.end(); it++) {
     vector<const LayerWithHits*>::const_iterator ilwh;
     for(ilwh=(*it).second.begin();ilwh!=(*it).second.end();ilwh++){

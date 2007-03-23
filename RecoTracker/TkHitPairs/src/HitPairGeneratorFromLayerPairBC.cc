@@ -10,9 +10,9 @@
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegionBase.h"
 #include "RecoTracker/TkHitPairs/interface/OrderedHitPairs.h"
-#include "RecoTracker/TkHitPairs/interface/InnerDeltaPhi.h"
+#include "RecoTracker/TkHitPairs/src/InnerDeltaPhi.h"
 #include "RecoTracker/TkHitPairs/interface/LayerHitMapLoop.h"
-#include "RecoTracker/TkHitPairs/interface/RecHitsSortedInPhi.h"
+#include "RecoTracker/TkHitPairs/src/RecHitsSortedInPhi.h"
 
 using namespace GeomDetEnumerators;
 using namespace std;

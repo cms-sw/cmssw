@@ -1,4 +1,4 @@
-#include "RecoTracker/TkHitPairs/interface/InnerDeltaPhi.h"
+#include "RecoTracker/TkHitPairs/src/InnerDeltaPhi.h"
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
 #include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoUtilities.h"

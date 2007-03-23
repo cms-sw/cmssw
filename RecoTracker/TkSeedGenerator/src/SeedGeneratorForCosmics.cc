@@ -5,11 +5,11 @@
 #include "RecoPixelVertexing/PixelTriplets/interface/CosmicLayerTriplets.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/GlobalError.h"
-#include "RecoTracker/TkSeedGenerator/interface/SeedFromConsecutiveHits.h"
+#include "SeedFromConsecutiveHits.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h" 
-#include "RecoTracker/TkSeedGenerator/interface/FastHelix.h"
+#include "FastHelix.h"
 void 
 SeedGeneratorForCosmics::init(const SiStripRecHit2DCollection &collstereo,
 			      const SiStripRecHit2DCollection &collrphi ,

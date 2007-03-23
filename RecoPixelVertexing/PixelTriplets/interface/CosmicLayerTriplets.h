@@ -5,7 +5,6 @@
  * find all (resonable) pairs of pixel layers
  */
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerLayerIdAccessor.h"
-#include "RecoPixelVertexing/PixelTriplets/interface/LayerTriplets.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
 #include "DataFormats/Common/interface/RangeMap.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -15,14 +14,20 @@
 //#include "RecoTracker/TkDetLayers/interface/PixelForwardLayer.h"
 #include "RecoTracker/TkDetLayers/interface/TOBLayer.h"
 #include "RecoTracker/TkDetLayers/interface/TIBLayer.h"
+#include "RecoTracker/TkHitPairs/interface/SeedLayerPairs.h"
+
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
+
 
 #include <vector>
-class CosmicLayerTriplets : public LayerTriplets{
+class CosmicLayerTriplets {
 public:
   CosmicLayerTriplets():isFirstCall(true){};
   ~CosmicLayerTriplets();
   //  explicit PixelSeedLayerPairs(const edm::EventSetup& iSetup);
-
+ typedef std::pair<SeedLayerPairs::LayerPair, std::vector<const LayerWithHits*> > LayerPairAndLayers;
 
 
   //  virtual std::vector<LayerPair> operator()() const;
