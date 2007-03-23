@@ -6,8 +6,8 @@
 //                 
 //                  
 //                
-//   $Date: 2006/08/21 14:26:07 $
-//   $Revision: 1.2 $ 
+//   $Date: 2006/11/16 18:23:46 $
+//   $Revision: 1.3 $ 
 //
 //   Author :
 //   Hannes Sakulin      HEPHY / Vienna
@@ -23,8 +23,6 @@
 #include <vector>
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuPacking.h"
-
-using namespace std;
 
 /**
  * \class L1MuScale
@@ -143,7 +141,7 @@ class L1MuBinnedScale : public L1MuScale {
 
   virtual unsigned getPacked(float value) const {
     if (value < m_Scale[0] || value > m_Scale[m_NBins]) 
-      edm::LogWarning("ScaleRangeViolation") << "L1MuBinnedScale::getPacked: value out of scale range: " << value << endl;
+      edm::LogWarning("ScaleRangeViolation") << "L1MuBinnedScale::getPacked: value out of scale range: " << value;
     int idx = 0;
     if (value < m_Scale[0]) idx=0;
     else if (value >= m_Scale[m_NBins]) idx = m_NBins-1;
@@ -172,7 +170,7 @@ class L1MuBinnedScale : public L1MuScale {
   L1MuPacking*  m_packing;
   int m_NBins;
   int m_idxoffset;
-  vector<float> m_Scale;
+  std::vector<float> m_Scale;
 };
 
 /**
@@ -249,7 +247,7 @@ class L1MuSymmetricBinnedScale : public L1MuScale {
 
   /// get the upper edge of bin represented by packed
   virtual float getHighEdge(unsigned packed) const{
-    edm::LogWarning("NotImplemented") << "L1MuSymmetricBinnedScale::getHighEdge not implemented" << endl;
+    edm::LogWarning("NotImplemented") << "L1MuSymmetricBinnedScale::getHighEdge not implemented";
     return 0;
   };
 
@@ -258,7 +256,7 @@ class L1MuSymmetricBinnedScale : public L1MuScale {
     float absval = fabs ( value );
     if (absval < m_Scale[0] || absval > m_Scale[m_NBins]) edm::LogWarning("ScaleRangeViolation") 
                  << "L1MuSymmetricBinnedScale::getPacked: value out of scale range!!! abs(val) = " 
-	         << absval << " min= " << m_Scale[0] << " max = " << m_Scale[m_NBins] << endl;
+	         << absval << " min= " << m_Scale[0] << " max = " << m_Scale[m_NBins];
     int idx = 0;
     for (; idx<m_NBins; idx++) 
       if (absval >= m_Scale[idx] && absval < m_Scale[idx+1]) break;
@@ -273,7 +271,7 @@ class L1MuSymmetricBinnedScale : public L1MuScale {
  protected:
   L1MuPseudoSignedPacking* m_packing;
   int m_NBins;
-  vector<float> m_Scale;
+  std::vector<float> m_Scale;
 };
 #endif
 

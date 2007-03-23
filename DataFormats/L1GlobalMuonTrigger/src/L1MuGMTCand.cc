@@ -5,8 +5,8 @@
 //   Description: L1 Global Muon Trigger Candidate
 //
 //
-//   $Date: 2006/07/03 15:18:05 $
-//   $Revision: 1.2 $
+//   $Date: 2006/08/21 14:26:08 $
+//   $Revision: 1.3 $
 //
 //   Author :
 //   N. Neumeister            CERN EP 
@@ -41,6 +41,8 @@
 //---------------------------------
 //       class L1MuGMTCand
 //---------------------------------
+
+using namespace std;
 
 //----------------
 // Constructors --

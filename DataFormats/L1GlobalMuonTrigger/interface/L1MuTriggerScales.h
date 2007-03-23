@@ -8,8 +8,8 @@
  *                  to the Global Trigger
 */                  
 //                
-//   $Date: 2006/08/21 14:26:07 $
-//   $Revision: 1.2 $ 
+//   $Date: 2006/11/16 18:23:46 $
+//   $Revision: 1.3 $ 
 //
 //   Author :
 //   Hannes Sakulin      HEPHY / Vienna
@@ -100,7 +100,7 @@ class L1MuTriggerScales {
   
   /// get the regioanl muon trigger eta scale, isys = 0(DT), 1(bRPC), 2(CSC), 3(fwdRPC)
   L1MuScale* getRegionalEtaScale(int isys) const { 
-    if (isys<0 || isys>3) edm::LogWarning("ScaleRangeViolation") << "Error in L1MuTriggerScales:: isys out of range: " << isys << endl; 
+    if (isys<0 || isys>3) edm::LogWarning("ScaleRangeViolation") << "Error in L1MuTriggerScales:: isys out of range: " << isys; 
     return m_RegionalEtaScale[isys]; 
   };
 

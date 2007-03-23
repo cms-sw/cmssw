@@ -5,8 +5,8 @@
 //   Description: 
 //
 //
-//   $Date: 2006/08/17 16:11:27 $
-//   $Revision: 1.2 $
+//   $Date: 2006/10/18 16:23:19 $
+//   $Revision: 1.3 $
 //
 //   Author :
 //   Hannes Sakulin                  HEPHY Vienna
@@ -36,7 +36,6 @@
 //---------------------
 //-- Class Interface --
 //---------------------
-using namespace std;
 
 class L1MuGMTReadoutCollection {
 

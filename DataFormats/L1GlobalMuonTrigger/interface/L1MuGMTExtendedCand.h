@@ -42,6 +42,7 @@
 // Collaborating Class Declarations --
 //------------------------------------
 
+using namespace std;
 
 //              ---------------------
 //              -- Class Interface --

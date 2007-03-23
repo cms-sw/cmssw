@@ -4,8 +4,8 @@
  *  A regional muon trigger candidate as received by the GMT
 */
 //
-//   $Date: 2006/08/21 14:26:08 $
-//   $Revision: 1.2 $
+//   $Date: 2006/11/16 18:23:47 $
+//   $Revision: 1.3 $
 //
 //   Author :
 //   H. Sakulin                    HEPHY Vienna
@@ -38,6 +38,8 @@
 //              ---------------------
 //              -- Class Interface --
 //              ---------------------
+
+using namespace std;
 
 /// get phi-value of muon candidate in radians (low edge of bin)
 float L1MuRegionalCand::phiValue() const {

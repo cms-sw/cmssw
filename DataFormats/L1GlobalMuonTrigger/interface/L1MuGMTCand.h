@@ -7,8 +7,8 @@
  *   This candidate contains only information sent to the GT.
 */
 //
-//   $Date: 2006/07/03 15:16:52 $
-//   $Revision: 1.2 $
+//   $Date: 2006/10/09 08:21:58 $
+//   $Revision: 1.3 $
 //
 //   Author :
 //   H. Sakulin               HEPHY Vienna
@@ -38,7 +38,6 @@
 //              ---------------------
 //              -- Class Interface --
 //              ---------------------
-using namespace std;
 
 class L1MuGMTCand {
 
@@ -70,7 +69,7 @@ class L1MuGMTCand {
     unsigned getDataWord() const { return m_dataWord; }
 
     /// get name of object
-    string name() const { return m_name; }
+    std::string name() const { return m_name; }
 
     /// get phi-code
     unsigned int phiIndex() const { return readDataField( PHI_START, PHI_LENGTH); }
@@ -197,7 +196,7 @@ class L1MuGMTCand {
     void print() const;
   
     /// output stream operator
-    friend ostream& operator<<(ostream&, const L1MuGMTCand&);
+    friend std::ostream& operator<<(std::ostream&, const L1MuGMTCand&);
 
   protected: 
 
@@ -205,7 +204,7 @@ class L1MuGMTCand {
     inline unsigned readDataField(unsigned start, unsigned count) const; 
     inline void writeDataField(unsigned start, unsigned count, unsigned value); 
 
-    string       m_name;
+    std::string       m_name;
     int          m_bx;      // in here only for technical reasons in simulation
 
 

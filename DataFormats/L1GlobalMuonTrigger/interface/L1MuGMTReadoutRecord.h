@@ -43,7 +43,6 @@ class L1MuRegionalCand;
 //              ---------------------
 //              -- Class Interface --
 //              ---------------------
-using namespace std;
 
 class L1MuGMTReadoutRecord {
 
