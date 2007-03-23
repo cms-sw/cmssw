@@ -101,7 +101,7 @@ void EgammaHLTHybridClusterProducer::produce(edm::Event& evt, const edm::EventSe
   if (!(rhcHandle.isValid())) 
     {
       if (debugL <= HybridClusterAlgo::pINFO)
-	std::cout << "could not get a handle on the EcalRecHitCollection!" << std::endl;
+	//std::cout << "could not get a handle on the EcalRecHitCollection!" << std::endl;
       return;
     }
   const EcalRecHitCollection *hit_collection = rhcHandle.product();
@@ -113,8 +113,8 @@ void EgammaHLTHybridClusterProducer::produce(edm::Event& evt, const edm::EventSe
   const CaloSubdetectorGeometry *geometry_p;
   std::auto_ptr<const CaloSubdetectorTopology> topology;
 
-  if (debugL == HybridClusterAlgo::pDEBUG)
-    std::cout << "\n\n\n" << hitcollection_ << "\n\n" << std::endl;
+  //if (debugL == HybridClusterAlgo::pDEBUG)
+  //std::cout << "\n\n\n" << hitcollection_ << "\n\n" << std::endl;
 
   if(hitcollection_ == "EcalRecHitsEB") {
     geometry_p = geometry.getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
@@ -138,8 +138,10 @@ void EgammaHLTHybridClusterProducer::produce(edm::Event& evt, const edm::EventSe
 
   for( l1extra::L1EmParticleCollection::const_iterator emItr = emColl->begin(); emItr != emColl->end() ;++emItr ){
 
-    if (emItr->et() > l1LowerThr_ && emItr->et() < l1UpperThr_ &&
-	!emItr->gctEmCand()->regionId().isForward()) {
+    if (emItr->et() > l1LowerThr_ && emItr->et() < l1UpperThr_
+        //&&
+	//!emItr->gctEmCand()->regionId().isForward()
+) {
 
       //bool isolated = emItr->gctEmCand()->isolated();
       //if ((l1Isolated_ &&isolated) || (!l1Isolated_ &&!isolated)) {
@@ -153,12 +155,17 @@ void EgammaHLTHybridClusterProducer::produce(edm::Event& evt, const edm::EventSe
       double phiLow  = l1CaloGeom->emJetPhiBinLowEdge( phiIndex ) ;
       double phiHigh = l1CaloGeom->emJetPhiBinHighEdge( phiIndex ) ;
 
+       int isforw=0;
+        if(fabs((float) ((etaLow+etaHigh)/2.))>1.5) isforw=1;
+
+	//std::cout<<"Hybrid etaindex "<<etaIndex<<" low hig : "<<etaLow<<" "<<etaHigh<<" phi low hig" <<phiLow<<" " << phiHigh<<" isforw "<<emItr->gctEmCand()->regionId().isForward()<<" isforwnew" <<isforw<< std::endl;
+
       etaLow -= regionEtaMargin_;
       etaHigh += regionEtaMargin_;
       phiLow -= regionPhiMargin_;
       phiHigh += regionPhiMargin_;
 
-      regions.push_back(EcalEtaPhiRegion(etaLow,etaHigh,phiLow,phiHigh));
+      if(!isforw) regions.push_back(EcalEtaPhiRegion(etaLow,etaHigh,phiLow,phiHigh));
 
     }
   }
@@ -166,8 +173,8 @@ void EgammaHLTHybridClusterProducer::produce(edm::Event& evt, const edm::EventSe
   // make the Basic clusters!
   reco::BasicClusterCollection basicClusters;
   hybrid_p->makeClusters(hit_collection, geometry_p, basicClusters, true, regions);
-  if (debugL == HybridClusterAlgo::pDEBUG)
-    std::cout << "Finished clustering - BasicClusterCollection returned to producer..." << std::endl;
+  //if (debugL == HybridClusterAlgo::pDEBUG)
+  //std::cout << "Hybrid Finished clustering - BasicClusterCollection returned to producer..." << std::endl;
 
   // create an auto_ptr to a BasicClusterCollection, copy the clusters into it and put in the Event:
   std::auto_ptr< reco::BasicClusterCollection > basicclusters_p(new reco::BasicClusterCollection);
@@ -175,21 +182,21 @@ void EgammaHLTHybridClusterProducer::produce(edm::Event& evt, const edm::EventSe
   edm::OrphanHandle<reco::BasicClusterCollection> bccHandle =  evt.put(basicclusters_p, 
                                                                        basicclusterCollection_);
   //Basic clusters now in the event.
-  if (debugL == HybridClusterAlgo::pDEBUG)
-    std::cout << "Basic Clusters now put into event." << std::endl;
+  //if (debugL == HybridClusterAlgo::pDEBUG)
+  //std::cout << "Basic Clusters now put into event." << std::endl;
   
   //Weird though it is, get the BasicClusters back out of the event.  We need the
   //edm::Ref to these guys to make our superclusters for Hybrid.
 //  edm::Handle<reco::BasicClusterCollection> bccHandle;
  // evt.getByLabel("clusterproducer",basicclusterCollection_, bccHandle);
   if (!(bccHandle.isValid())) {
-    if (debugL <= HybridClusterAlgo::pINFO)
-      std::cout << "could not get a handle on the BasicClusterCollection!" << std::endl;
+    //if (debugL <= HybridClusterAlgo::pINFO)
+    //std::cout << "could not get a handle on the BasicClusterCollection!" << std::endl;
     return;
   }
   reco::BasicClusterCollection clusterCollection = *bccHandle;
-  if (debugL == HybridClusterAlgo::pDEBUG)
-    std::cout << "Got the BasicClusterCollection" << std::endl;
+  //if (debugL == HybridClusterAlgo::pDEBUG)
+  //std::cout << "Got the BasicClusterCollection" << std::endl;
 
   reco::BasicClusterRefVector clusterRefVector;
   for (unsigned int i = 0; i < clusterCollection.size(); i++){
@@ -197,15 +204,15 @@ void EgammaHLTHybridClusterProducer::produce(edm::Event& evt, const edm::EventSe
   }
 
   reco::SuperClusterCollection superClusters = hybrid_p->makeSuperClusters(clusterRefVector);
-  if (debugL == HybridClusterAlgo::pDEBUG)
-    std::cout << "Found: " << superClusters.size() << " superclusters." << std::endl;
+  //if (debugL == HybridClusterAlgo::pDEBUG)
+  //std::cout << "Found: " << superClusters.size() << " superclusters." << std::endl;
 
   std::auto_ptr< reco::SuperClusterCollection > superclusters_p(new reco::SuperClusterCollection);
   superclusters_p->assign(superClusters.begin(), superClusters.end());
   evt.put(superclusters_p, superclusterCollection_);
 
-  if (debugL == HybridClusterAlgo::pDEBUG)
-    std::cout << "Hybrid Clusters (Basic/Super) added to the Event! :-)" << std::endl;
+  //if (debugL == HybridClusterAlgo::pDEBUG)
+  //std::cout << "Hybrid Clusters (Basic/Super) added to the Event! :-)" << std::endl;
 
   nEvt_++;
 }

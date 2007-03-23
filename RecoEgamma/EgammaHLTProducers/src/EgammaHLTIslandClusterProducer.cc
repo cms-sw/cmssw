@@ -116,6 +116,8 @@ void EgammaHLTIslandClusterProducer::produce(edm::Event& evt, const edm::EventSe
 
       // Access the GCT hardware object corresponding to the L1Extra EM object.
       int etaIndex = emItr->gctEmCand()->etaIndex() ;
+
+
       int phiIndex = emItr->gctEmCand()->phiIndex() ;
       // Use the L1CaloGeometry to find the eta, phi bin boundaries.
       double etaLow  = l1CaloGeom->etaBinLowEdge( etaIndex ) ;
@@ -123,13 +125,21 @@ void EgammaHLTIslandClusterProducer::produce(edm::Event& evt, const edm::EventSe
       double phiLow  = l1CaloGeom->emJetPhiBinLowEdge( phiIndex ) ;
       double phiHigh = l1CaloGeom->emJetPhiBinHighEdge( phiIndex ) ;
 
+
+	int isforw=0;
+        if(fabs((float) ((etaLow+etaHigh)/2.))>1.5) isforw=1;
+
+	//std::cout<<"Island etaindex "<<etaIndex<<" low hig : "<<etaLow<<" "<<etaHigh<<" phi low hig" <<phiLow<<" " << phiHigh<<" isforw "<<emItr->gctEmCand()->regionId().isForward()<<" isforwnew" <<isforw<< std::endl;
+
       etaLow -= regionEtaMargin_;
       etaHigh += regionEtaMargin_;
       phiLow -= regionPhiMargin_;
       phiHigh += regionPhiMargin_;
 
+
       EcalEtaPhiRegion region(etaLow,etaHigh,phiLow,phiHigh);
-      if (emItr->gctEmCand()->regionId().isForward()) {
+      //if (emItr->gctEmCand()->regionId().isForward()) {
+      if (isforw) {
 	endcapRegions.push_back(region);
       } else {
 	barrelRegions.push_back(region);
@@ -138,8 +148,24 @@ void EgammaHLTIslandClusterProducer::produce(edm::Event& evt, const edm::EventSe
     }
   }
 
-  clusterizeECALPart(evt, es, endcapHitProducer_, endcapHitCollection_, endcapClusterCollection_, endcapRegions, IslandClusterAlgo::endcap);
-  clusterizeECALPart(evt, es, barrelHitProducer_, barrelHitCollection_, barrelClusterCollection_, barrelRegions, IslandClusterAlgo::barrel);
+  //if (
+  //endcapRegions.size()!=0
+  //) {
+  //std::cout<<"endcapregions: "<<endcapRegions.size()<<std::endl;
+  //std::cout<<"barrelregions: "<<barrelRegions.size()<<std::endl;
+  if (!doBarrel_ 
+      //&&endcapRegions.size()!=0
+) {
+
+    clusterizeECALPart(evt, es, endcapHitProducer_, endcapHitCollection_, endcapClusterCollection_, endcapRegions, IslandClusterAlgo::endcap);
+  }
+  //if (doBarrel_ 
+  //&& barrelRegions.size()!=0) {
+  if (doBarrel_ 
+      //&& barrelRegions.size()!=0
+      ) {
+    clusterizeECALPart(evt, es, barrelHitProducer_, barrelHitCollection_, barrelClusterCollection_, barrelRegions, IslandClusterAlgo::barrel);
+  }
   nEvt_++;
 }
 
@@ -154,7 +180,7 @@ const EcalRecHitCollection * EgammaHLTIslandClusterProducer::getCollection(edm::
       evt.getByLabel(hitProducer_, hitCollection_, rhcHandle);
       if (!(rhcHandle.isValid())) 
 	{
-	  std::cout << "could not get a handle on the EcalRecHitCollection!" << std::endl;
+	  //std::cout << "could not get a handle on the EcalRecHitCollection!" << std::endl;
 	  return 0;
 	}
     }
