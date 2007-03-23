@@ -1,23 +1,10 @@
 #include "TrackingTools/TrajectoryCleaning/interface/TrajectoryCleanerBySharedHits.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
-
+#include "TrackingTools/TransientTrackingRecHit/interface/RecHitComparatorByPosition.h"
 #include <map>
 #include <vector>
 
 using namespace std;
-
-class RecHitComparatorByPosition{
-public:
-  bool operator() (const  TransientTrackingRecHit* a, const TransientTrackingRecHit* b) const  {
-    float xcut = 0.01;
-    float ycut = 0.2;
-    if (a->det()<b->det()) return true;  
-    if (b->det()<a->det()) return false;  
-    if (a->localPosition().x() < b->localPosition().x() - xcut)  return true;
-    if (b->localPosition().x() < a->localPosition().x() - xcut) return false;
-    return (a->localPosition().y() < b->localPosition().y() - ycut );
-  }
-};
 
 void TrajectoryCleanerBySharedHits::clean( TrajectoryPointerContainer & tc) const
 {
