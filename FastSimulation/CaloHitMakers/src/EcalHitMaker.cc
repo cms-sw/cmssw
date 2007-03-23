@@ -309,6 +309,7 @@ void EcalHitMaker::setTrackParameters(const HepNormal3D& normal,
 				   const FSimTrack& theTrack)
 {
   //  myHistos->debug("setTrackParameters");
+  //  std::cout << " Track " << theTrack << std::endl;
   intersections_.clear();
   myTrack_=&theTrack;
   normal_=normal.unit();
@@ -392,11 +393,55 @@ void EcalHitMaker::cellLine(std::vector<CaloPoint>& cp)
   if(onEcal_)ecalCellLine(EcalEntrance_,EcalEntrance_+normal_,cp);
   //    }
   
-  hcalCellLine(cp);
+  HepPoint3D vertex(myTrack_->vertex().position());;
   //sort the points by distance (in the ECAL they are not necessarily ordered)
-  HepPoint3D vertex(myTrack_->vertex().position());
+  HepVector3D dir(0.,0.,0.);
+  if(myTrack_->onLayer1())
+    {
+      vertex=(myTrack_->layer1Entrance().vertex()).vect();
+      dir=myTrack_->layer1Entrance().vect().unit();
+    }
+  else if(myTrack_->onLayer2())
+    {
+      vertex=(myTrack_->layer2Entrance().vertex()).vect();
+      dir=myTrack_->layer2Entrance().vect().unit();
+    }  
+  else if(myTrack_->onEcal())
+    {
+      vertex=(myTrack_->ecalEntrance().vertex()).vect();
+      dir=myTrack_->ecalEntrance().vect().unit();
+    }
+  else if(myTrack_->onHcal())
+    {
+      vertex=(myTrack_->hcalEntrance().vertex()).vect();
+      dir=myTrack_->hcalEntrance().vect().unit();
+    }
+  else if(myTrack_->onVFcal()==2)
+    {
+      vertex=(myTrack_->vfcalEntrance().vertex()).vect();
+      dir=myTrack_->vfcalEntrance().vect().unit();
+    }
+  else
+    {
+      std::cout << " Problem with the grid " << std::endl;
+    }
+ 
+  // Move the vertex for distance comparison (5cm)
+  vertex -= 5.*dir;
   CaloPoint::DistanceToVertex myDistance(vertex);
   sort(cp.begin(),cp.end(),myDistance);
+  
+  // The intersections with the HCAL shouldn't need to be sorted
+  // with the N.I it is actually a source of problems
+  hcalCellLine(cp);
+
+//  std::cout << " Intersections ordered by distance to " << vertex << std::endl;
+//
+//  for (unsigned ic=0;ic<cp.size();++ic)
+//    {
+//      HepVector3D t=cp[ic]-vertex;
+//      std::cout << cp[ic] << " " << t.mag() << std::endl;
+//    }
 }
 
 
@@ -462,6 +507,7 @@ void EcalHitMaker::hcalCellLine(std::vector<CaloPoint>& cp) const
   //  FSimEvent& mySimEvent = myEventMgr->simSignal();
   //  FSimTrack myTrack = mySimEvent.track(fsimtrack_);
   int onHcal=myTrack_->onHcal();
+
   if(onHcal<=2&&onHcal>0)
     {
       HepPoint3D point1=(myTrack_->hcalEntrance().vertex()).vect();
@@ -474,6 +520,7 @@ void EcalHitMaker::hcalCellLine(std::vector<CaloPoint>& cp) const
       HepPoint3D point2=point1+dir*thickness;
 
       cp.push_back(CaloPoint(DetId::Hcal,point2));
+      
     }
   int onVFcal=myTrack_->onVFcal();
   if(onVFcal==2)
@@ -489,6 +536,7 @@ void EcalHitMaker::hcalCellLine(std::vector<CaloPoint>& cp) const
 	  HepPoint3D point2=point1+dir*thickness;
 	  cp.push_back(CaloPoint(DetId::Hcal,point2));
 	}
+
     }
 }
 
@@ -586,7 +634,6 @@ void EcalHitMaker::buildSegments(const std::vector<CaloPoint>& cp)
   //  myHistos->debug();
   //  TimeMe theT("FamosGrid::buildSegments");
   unsigned size=cp.size();
-  //  std::cout << " Starting building segment " << size << std::endl;
   if(size%2!=0) 
     {
       //      std::cout << " There is a problem " << std::endl;
@@ -611,8 +658,8 @@ void EcalHitMaker::buildSegments(const std::vector<CaloPoint>& cp)
 	{
 //	  std::cout << " Problem with the segments " << std::endl;
 //	  std::cout << cp[2*is].whichDetector() << " " << cp[2*is+1].whichDetector() << std::endl;
-//	  std::cout << is << " " <<cp[2*is].getDetId() << std::endl; 
-//	  std::cout << (2*is+1) << " " <<cp[2*is+1].getDetId() << std::endl; 
+//	  std::cout << is << " " <<cp[2*is].getDetId().rawId() << std::endl; 
+//	  std::cout << (2*is+1) << " " <<cp[2*is+1].getDetId().rawId() << std::endl; 
 	  ++is;
 	  continue;
 	}
