@@ -107,7 +107,7 @@ FreeTrajectoryState ConversionFastHelix::helixStateAtVertex()  {
 
   double z_0 = 0; 
 
-  //std::cout << " ConversionFastHelix:helixStateAtVertex  flfit.n2() " <<  flfit.n2() << " flfit.c() " << flfit.c() << " flfit.n2() " << flfit.n2() << std::endl;
+  //  std::cout << " ConversionFastHelix:helixStateAtVertex  flfit.n2() " <<  flfit.n2() << " flfit.c() " << flfit.c() << " flfit.n2() " << flfit.n2() << std::endl;
   if ( flfit.n2() !=0 && !isnan( flfit.c()) && !isnan(flfit.n2())   ) {
     //std::cout << " Accepted " << std::endl;
     z_0 = -flfit.c()/flfit.n2();
@@ -131,7 +131,8 @@ FreeTrajectoryState ConversionFastHelix::helixStateAtVertex()  {
 						  mField),
 		       CurvilinearTrajectoryError(C));
     
-    if( atVertex.transverseCurvature() >0 ) {
+    //std::cout << " ConversionFastHelix:helixStateAtVertex atVertex.transverseCurvature() " << atVertex.transverseCurvature() << std::endl;
+    if( atVertex.transverseCurvature() !=0 ) {
       
       validStateAtVertex=true;    
       
