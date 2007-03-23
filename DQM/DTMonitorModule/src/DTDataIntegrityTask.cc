@@ -1,8 +1,8 @@
 /*
  * \file DTDataIntegrityTask.cc
  * 
- * $Date: 2007/03/19 13:39:26 $
- * $Revision: 1.17 $
+ * $Date: 2007/03/22 08:54:12 $
+ * $Revision: 1.18 $
  * \author M. Zanetti (INFN Padova), S. Bolognesi (INFN Torino)
  *
 */
@@ -72,6 +72,8 @@ Folder Structure:
 void DTDataIntegrityTask::postEndJob(){
  if(debug)
    cout<<"[DTDataIntegrityTask]: postEndJob called!"<<endl;
+
+   dbe->save(parameters.getUntrackedParameter<string>("outputFile", "ROS25Test.root"));
    dbe->rmdir("DT/FED770");
 }
 
@@ -211,9 +213,51 @@ void DTDataIntegrityTask::bookHistos(string folder, DTROChainCoding code) {
   }
 
   // ROS Histograms
+
+  if ( folder == "ROS_S" ) {
+    dbe->setCurrentFolder("DT/FED" + dduID_s.str());
+
+    histoType = "ROSSummary";
+    histoName = "FED" + dduID_s.str() + "_ROSSummary";
+
+    rosSHistos[histoType] = dbe->book2D(histoName,histoName,13,0,13,12,1,13);
+
+    rosSHistos[histoType] ->setBinLabel(1,"Link TimeOut",1);
+    rosSHistos[histoType] ->setBinLabel(2,"Ev.Id.Mis.",1);
+    rosSHistos[histoType] ->setBinLabel(3,"FIFO almost full",1);
+    rosSHistos[histoType] ->setBinLabel(4,"FIFO full",1);
+    rosSHistos[histoType] ->setBinLabel(5,"Ceros TimeOut",1);
+    rosSHistos[histoType] ->setBinLabel(6,"Max. wds",1);
+    rosSHistos[histoType] ->setBinLabel(7,"L1A FF",1);
+    rosSHistos[histoType] ->setBinLabel(8,"PC from TDC",1);
+    rosSHistos[histoType] ->setBinLabel(9,"BX ID Mis.",1);
+    rosSHistos[histoType] ->setBinLabel(10,"TXP",1);
+    rosSHistos[histoType] ->setBinLabel(11,"TDC Fatal",1);
+    rosSHistos[histoType] ->setBinLabel(12,"TDC FIFO Ov.",1);
+    rosSHistos[histoType] ->setBinLabel(13,"L1 Buffer Ov.",1);
+
+    rosSHistos[histoType] ->setBinLabel(1,"ROS1",2);
+    rosSHistos[histoType] ->setBinLabel(2,"ROS2",2);
+    rosSHistos[histoType] ->setBinLabel(3,"ROS3",2);
+    rosSHistos[histoType] ->setBinLabel(4,"ROS4",2);
+    rosSHistos[histoType] ->setBinLabel(5,"ROS5",2);
+    rosSHistos[histoType] ->setBinLabel(6,"ROS6",2);
+    rosSHistos[histoType] ->setBinLabel(7,"ROS7",2);
+    rosSHistos[histoType] ->setBinLabel(8,"ROS8",2);
+    rosSHistos[histoType] ->setBinLabel(9,"ROS9",2);
+    rosSHistos[histoType] ->setBinLabel(10,"ROS10",2);
+    rosSHistos[histoType] ->setBinLabel(11,"ROS11",2);
+    rosSHistos[histoType] ->setBinLabel(12,"ROS12",2);
+
+  }
+
   if ( folder == "ROS" ) {
 
     dbe->setCurrentFolder("DT/FED" + dduID_s.str() + "/" + folder + rosID_s.str());
+
+    histoType = "ROSEventLenght";
+    histoName = "FED" + dduID_s.str() + "_" + folder + rosID_s.str() + "_ROSEventLenght";
+    (rosHistos[histoType])[code.getROSID()] = dbe->book1D(histoName,histoName,100,0,1000);
 
     histoType = "ROSTrailerBits";
     histoName = "FED" + dduID_s.str() + "_" + folder + rosID_s.str() + "_ROSTrailerBits";
@@ -222,20 +266,58 @@ void DTDataIntegrityTask::bookHistos(string folder, DTROChainCoding code) {
 
     histoType = "ROSError";
     histoName = "FED" + dduID_s.str() + "_" + folder + rosID_s.str() + "_ROSError";
-    string histoTitle = histoName + " (Error type vs ROBID)";
-    (rosHistos[histoType])[code.getROSID()] = dbe->book2D(histoName,histoTitle,32,0,32,8,0,8);
+    string histoTitle = histoName + " (ROBID error summary)";
+    (rosHistos[histoType])[code.getROSID()] = dbe->book2D(histoName,histoTitle,13,0,13,26,0,26);
+
+    ((rosHistos[histoType])[code.getROSID()]) ->setBinLabel(1,"Link TimeOut",1);
+    ((rosHistos[histoType])[code.getROSID()]) ->setBinLabel(2,"Ev.Id.Mis.",1);
+    ((rosHistos[histoType])[code.getROSID()]) ->setBinLabel(3,"FIFO almost full",1);
+    ((rosHistos[histoType])[code.getROSID()]) ->setBinLabel(4,"FIFO full",1);
+    ((rosHistos[histoType])[code.getROSID()]) ->setBinLabel(5," ",1);
+    ((rosHistos[histoType])[code.getROSID()]) ->setBinLabel(6,"Max. wds",1);
+    ((rosHistos[histoType])[code.getROSID()]) ->setBinLabel(7,"L1A FF",1);
+    ((rosHistos[histoType])[code.getROSID()]) ->setBinLabel(8,"PC from TDC",1);
+    ((rosHistos[histoType])[code.getROSID()]) ->setBinLabel(9,"BX ID Mis.",1);
+    ((rosHistos[histoType])[code.getROSID()]) ->setBinLabel(10," ",1);
+    ((rosHistos[histoType])[code.getROSID()]) ->setBinLabel(11,"TDC Fatal",1);
+    ((rosHistos[histoType])[code.getROSID()]) ->setBinLabel(12,"TDC FIFO Ov.",1);
+    ((rosHistos[histoType])[code.getROSID()]) ->setBinLabel(13,"L1 Buffer Ov.",1);
+
+    ((rosHistos[histoType])[code.getROSID()]) ->setBinLabel(1,"ROB0",2);
+    ((rosHistos[histoType])[code.getROSID()]) ->setBinLabel(2,"ROB1",2);
+    ((rosHistos[histoType])[code.getROSID()]) ->setBinLabel(3,"ROB2",2);
+    ((rosHistos[histoType])[code.getROSID()]) ->setBinLabel(4,"ROB3",2);
+    ((rosHistos[histoType])[code.getROSID()]) ->setBinLabel(5,"ROB4",2);
+    ((rosHistos[histoType])[code.getROSID()]) ->setBinLabel(6,"ROB5",2);
+    ((rosHistos[histoType])[code.getROSID()]) ->setBinLabel(7,"ROB6",2);
+    ((rosHistos[histoType])[code.getROSID()]) ->setBinLabel(8,"ROB7",2);
+    ((rosHistos[histoType])[code.getROSID()]) ->setBinLabel(9,"ROB8",2);
+    ((rosHistos[histoType])[code.getROSID()]) ->setBinLabel(10,"ROB9",2);
+    ((rosHistos[histoType])[code.getROSID()]) ->setBinLabel(11,"ROB10",2);
+    ((rosHistos[histoType])[code.getROSID()]) ->setBinLabel(12,"ROB11",2);
+    ((rosHistos[histoType])[code.getROSID()]) ->setBinLabel(13,"ROB12",2);
+    ((rosHistos[histoType])[code.getROSID()]) ->setBinLabel(14,"ROB13",2);
+    ((rosHistos[histoType])[code.getROSID()]) ->setBinLabel(15,"ROB14",2);
+    ((rosHistos[histoType])[code.getROSID()]) ->setBinLabel(16,"ROB15",2);
+    ((rosHistos[histoType])[code.getROSID()]) ->setBinLabel(17,"ROB16",2);
+    ((rosHistos[histoType])[code.getROSID()]) ->setBinLabel(18,"ROB17",2);
+    ((rosHistos[histoType])[code.getROSID()]) ->setBinLabel(19,"ROB18",2);
+    ((rosHistos[histoType])[code.getROSID()]) ->setBinLabel(20,"ROB19",2);
+    ((rosHistos[histoType])[code.getROSID()]) ->setBinLabel(21,"ROB20",2);
+    ((rosHistos[histoType])[code.getROSID()]) ->setBinLabel(22,"ROB21",2);
+    ((rosHistos[histoType])[code.getROSID()]) ->setBinLabel(23,"ROB22",2);
+    ((rosHistos[histoType])[code.getROSID()]) ->setBinLabel(24,"ROB23",2);
+    ((rosHistos[histoType])[code.getROSID()]) ->setBinLabel(25,"ROB24",2);
+    ((rosHistos[histoType])[code.getROSID()]) ->setBinLabel(26,"SC",2);
 
     histoType = "ROSDebug_BunchNumber";
     histoName = "FED" + dduID_s.str() + "_" + folder + rosID_s.str() + "_ROSDebug_BunchNumber";
-    (rosHistos[histoType])[code.getROSID()] = dbe->book1D(histoName,histoName,2048,0,2048);
+    (rosHistos[histoType])[code.getROSID()] = dbe->book1D(histoName,histoName,3564,0,3564);
 
-    histoType = "ROSDebug_BcntResCntLow";
-    histoName = "FED" + dduID_s.str() + "_" + folder + rosID_s.str() + "_ROSDebug_BcntResCntLow";
-    (rosHistos[histoType])[code.getROSID()] = dbe->book1D(histoName,histoName,16348,0,16348);
+    histoType = "ROSDebug_BcntResCnt";
+    histoName = "FED" + dduID_s.str() + "_" + folder + rosID_s.str() + "_ROSDebug_BcntResCnt";
+    (rosHistos[histoType])[code.getROSID()] = dbe->book1D(histoName,histoName,16384,0,65536);
 
-    histoType = "ROSDebug_BcntResCntHigh";
-    histoName = "FED" + dduID_s.str() + "_" + folder + rosID_s.str() + "_ROSDebug_BcntResCntHigh";
-    (rosHistos[histoType])[code.getROSID()] = dbe->book1D(histoName,histoName,16348,0,16348);
   }  
 
   // ROB/TDC Histograms
@@ -293,15 +375,24 @@ void DTDataIntegrityTask::bookHistos(string folder, DTROChainCoding code) {
   
 
   if ( folder == "TDCError") {
-    
+
     dbe->setCurrentFolder("DT/FED" + dduID_s.str()+"/ROS"+rosID_s.str()+"/ROB"+robID_s.str());
 
     histoType = "TDCError";
-    string histoTitle = histoName + " (Error type vs TDC)";
     histoName = "FED" + dduID_s.str() + "_ROS" + rosID_s.str() + "_ROB"+robID_s.str()+"_TDCError";
-    (robHistos[histoType])[code.getROBID()] = dbe->book2D(histoName,histoTitle,3000,0,3000,4,0,4);
+    string histoTitle = histoName + " (TDC Errors)";
+    (robHistos[histoType])[code.getROBID()] = dbe->book2D(histoName,histoTitle,3,0,3,4,0,4);
+
+    ((robHistos[histoType])[code.getROBID()]) ->setBinLabel(1,"TDC Fatal",1);
+    ((robHistos[histoType])[code.getROBID()]) ->setBinLabel(2,"TDC FIFO Ov.",1);
+    ((robHistos[histoType])[code.getROBID()]) ->setBinLabel(3,"L1 Buffer Ov.",1);
+    ((robHistos[histoType])[code.getROBID()]) ->setBinLabel(1,"TDC0",2);
+    ((robHistos[histoType])[code.getROBID()]) ->setBinLabel(2,"TDC1",2);
+    ((robHistos[histoType])[code.getROBID()]) ->setBinLabel(3,"TDC2",2);
+    ((robHistos[histoType])[code.getROBID()]) ->setBinLabel(4,"TDC3",2);
 
   }
+
 
 
   // SC Histograms
@@ -340,6 +431,16 @@ void DTDataIntegrityTask::processROS25(DTROS25Data & data, int ddu, int ros) {
   string histoType;
 
   /// ROS Data
+  histoType = "ROSSummary";
+  if (rosSHistos.find(histoType) == rosSHistos.end() ) bookHistos( string("ROS_S"), code);
+
+  if (data.getROSTrailer().TPX() != 0) {
+    if (debug) cout << " TXP error en ROS " << code.getROS() << endl;
+    rosSHistos.find("ROSSummary")->second->Fill(9,code.getROS());
+  }
+
+
+  /// ROS Trailer
   histoType = "ROSTrailerBits";
 
   // relic
@@ -367,45 +468,109 @@ void DTDataIntegrityTask::processROS25(DTROS25Data & data, int ddu, int ros) {
     (rosHistos.find(histoType)->second).find(code.getROSID())->second->Fill(3,data.getROSTrailer().BCO());
   }
   
+  histoType = "ROSEventLenght";
+  if (rosHistos[histoType].find(code.getROSID()) != rosHistos[histoType].end()) {
+    (rosHistos.find(histoType)->second).find(code.getROSID())->second->Fill(data.getROSTrailer().EventWordCount());
+  }
+  else {
+    bookHistos( string("ROS"), code);
+    (rosHistos.find(histoType)->second).find(code.getROSID())->second->Fill(data.getROSTrailer().EventWordCount());
+  }
+
+
   histoType = "ROSError";
   for (vector<DTROSErrorWord>::const_iterator error_it = data.getROSErrors().begin();
        error_it != data.getROSErrors().end(); error_it++) {
-    if (rosHistos[histoType].find(code.getROSID()) != rosHistos[histoType].end())
-      (rosHistos.find(histoType)->second).find(code.getROSID())->second->Fill((*error_it).robID(), 
-									      (*error_it).errorType());
+
+    if (debug)
+    cout << " Error in ROS " << code.getROS() << " ROB Id " << (*error_it).robID() << " Error type " << (*error_it).errorType() << endl;
+
+    rosSHistos.find("ROSSummary")->second->Fill((*error_it).errorType(),code.getROS());
+
+    if (rosHistos[histoType].find(code.getROSID()) != rosHistos[histoType].end()) {
+//    (rosHistos.find(histoType)->second).find(code.getROSID())->second->Fill((*error_it).robID(),
+//             (*error_it).errorType());
+      if ((*error_it).errorType() != 4)
+        (rosHistos.find(histoType)->second).find(code.getROSID())->second->Fill((*error_it).errorType(),(*error_it).robID());
+    }
     else {
       bookHistos( string("ROS"), code);
-      (rosHistos.find(histoType)->second).find(code.getROSID())->second->Fill((*error_it).robID(), 
-									      (*error_it).errorType());
+//    (rosHistos.find(histoType)->second).find(code.getROSID())->second->Fill((*error_it).robID(),
+//             (*error_it).errorType());
+      if ((*error_it).errorType() != 4)
+        (rosHistos.find(histoType)->second).find(code.getROSID())->second->Fill((*error_it).errorType(),(*error_it).robID());
     }
   }
-  
+
+  int ROSDebug_BunchNumber;
+  int ROSDebug_BcntResCntLow = 0;
+  int ROSDebug_BcntResCntHigh = 0;
+  int ROSDebug_BcntResCnt = 0;
+
   for (vector<DTROSDebugWord>::const_iterator debug_it = data.getROSDebugs().begin();
        debug_it != data.getROSDebugs().end(); debug_it++) {
-    histoType = "ROSDebug_BunchNumber";
-    if (rosHistos[histoType].find(code.getROSID()) != rosHistos[histoType].end())
-      (rosHistos.find(histoType)->second).find(code.getROSID())->second->Fill((*debug_it).debugMessage());
-    else {
-      bookHistos( string("ROS"), code);
-      (rosHistos.find(histoType)->second).find(code.getROSID())->second->Fill((*debug_it).debugMessage());
+
+    if ((*debug_it).debugType() == 0 ) {
+      ROSDebug_BunchNumber = (*debug_it).debugMessage();
+      histoType = "ROSDebug_BunchNumber";
+      if (rosHistos[histoType].find(code.getROSID()) != rosHistos[histoType].end())
+        (rosHistos.find(histoType)->second).find(code.getROSID())->second->Fill((*debug_it).debugMessage());
+      else {
+        bookHistos( string("ROS"), code);
+        (rosHistos.find(histoType)->second).find(code.getROSID())->second->Fill((*debug_it).debugMessage());
+      }
     }
 
-    histoType = "ROSDebug_BcntResCntLow";
-    if (rosHistos[histoType].find(code.getROSID()) != rosHistos[histoType].end())
-      (rosHistos.find(histoType)->second).find(code.getROSID())->second->Fill((*debug_it).debugMessage());
-    else {
-      bookHistos( string("ROS"), code);
-      (rosHistos.find(histoType)->second).find(code.getROSID())->second->Fill((*debug_it).debugMessage());
+    if ((*debug_it).debugType() == 1 ) {
+      ROSDebug_BcntResCntLow = (*debug_it).debugMessage();
+      // This histo has been removed; 
+      histoType = "ROSDebug_BcntResCntLow";
     }
 
-    histoType = "ROSDebug_BcntResCntHigh";
-    if (rosHistos[histoType].find(code.getROSID()) != rosHistos[histoType].end())
-      (rosHistos.find(histoType)->second).find(code.getROSID())->second->Fill((*debug_it).debugMessage());
-    else {
-      bookHistos( string("ROS"), code);
-      (rosHistos.find(histoType)->second).find(code.getROSID())->second->Fill((*debug_it).debugMessage());
+    if ((*debug_it).debugType() == 2 ) {
+      ROSDebug_BcntResCntHigh = (*debug_it).debugMessage();
+      // This histo has been removed; 
+      histoType = "ROSDebug_BcntResCntHigh";
     }
   }
+
+
+  ROSDebug_BcntResCnt = (ROSDebug_BcntResCntHigh << 15) + ROSDebug_BcntResCntLow;
+  if (debug)
+  cout << " ROS: " << code.getROS() << " ROSDebug_BunchNumber " << ROSDebug_BunchNumber
+       << " ROSDebug_BcntResCnt " << ROSDebug_BcntResCnt << endl;
+
+  histoType = "ROSDebug_BcntResCnt";
+  if (rosHistos[histoType].find(code.getROSID()) != rosHistos[histoType].end())
+    (rosHistos.find(histoType)->second).find(code.getROSID())->second->Fill(ROSDebug_BcntResCnt);
+  else {
+    bookHistos( string("ROS"), code);
+    (rosHistos.find(histoType)->second).find(code.getROSID())->second->Fill(ROSDebug_BcntResCnt);
+  }
+
+
+  /// ROB Group Header     
+
+  for (vector<DTROBHeader>::const_iterator rob_it = data.getROBHeaders().begin();
+       rob_it != data.getROBHeaders().end(); rob_it++) {
+
+       code.setROB((*rob_it).first);
+       DTROBHeaderWord robheader = (*rob_it).second;
+
+       if (robheader.robID() != ROSDebug_BunchNumber) {
+//     fill ROS Summary plot
+         rosSHistos.find("ROSSummary")->second->Fill(8,code.getROS());
+//     fill ROB Summary plot for that particular ROS
+         histoType = "ROSError";
+         if (rosHistos[histoType].find(code.getROSID()) != rosHistos[histoType].end())
+           (rosHistos.find(histoType)->second).find(code.getROSID())->second->Fill(8,robheader.robID());
+         else {
+           bookHistos( string("ROS"), code);
+           (rosHistos.find(histoType)->second).find(code.getROSID())->second->Fill(8,robheader.robID());
+         }
+       }
+  }
+
   
   /// TDC Data  
   for (vector<DTTDCData>::const_iterator tdc_it = data.getTDCData().begin();
@@ -413,6 +578,21 @@ void DTDataIntegrityTask::processROS25(DTROS25Data & data, int ddu, int ros) {
 
 
     DTTDCMeasurementWord tdcDatum = (*tdc_it).second;
+
+    if ( tdcDatum.PC() !=0)  {
+       if (debug) cout << " PC error en ROS " << code.getROS() << " TDC " << (*tdc_it).first << endl;
+//     fill ROS Summary plot
+       rosSHistos.find("ROSSummary")->second->Fill(7,code.getROS());
+//     fill ROB Summary plot for that particular ROS
+         histoType = "ROSError";
+         if (rosHistos[histoType].find(code.getROSID()) != rosHistos[histoType].end())
+           (rosHistos.find(histoType)->second).find(code.getROSID())->second->Fill(7,(*tdc_it).first);
+         else {
+           bookHistos( string("ROS"), code);
+           (rosHistos.find(histoType)->second).find(code.getROSID())->second->Fill(7,(*tdc_it).first);
+         }
+    }
+
     int index;
     switch (parameters.getUntrackedParameter<int>("TBhistoGranularity",1)) {
     case 1:
@@ -460,23 +640,58 @@ void DTDataIntegrityTask::processROS25(DTROS25Data & data, int ddu, int ros) {
 
 
   /// TDC Error  
-  for (vector<DTTDCError>::const_iterator tdc_it = data.getTDCError().begin();
+ for (vector<DTTDCError>::const_iterator tdc_it = data.getTDCError().begin();
        tdc_it != data.getTDCError().end(); tdc_it++) {
 
     code.setROB((*tdc_it).first);
 
+    float type_TDC_error_for_plot_1 = 0;
+    float type_TDC_error_for_plot_2 = 0;
+
+    if ( ((*tdc_it).second).tdcError() & 0x4000 ) {
+       if (debug)
+       cout << " ROS " << code.getROS() << " ROB " << code.getROB() << " Internal fatal Error 4000 in TDC " << (*tdc_it).first << endl;
+       type_TDC_error_for_plot_1 = 10;
+       type_TDC_error_for_plot_2 = 0;
+    }
+    else if ( ((*tdc_it).second).tdcError() & 0x1b6d ) {
+       if (debug)
+       cout << " ROS " << code.getROS() << " ROB " << code.getROB() << " TDC FIFO full in TDC " << (*tdc_it).first << endl;
+       type_TDC_error_for_plot_1 = 11;
+       type_TDC_error_for_plot_2 = 1;
+    }
+    else if ( ((*tdc_it).second).tdcError() & 0x2492 ) {
+       if (debug)
+       cout << " ROS " << code.getROS() << " ROB " << code.getROB() << " L1 buffer overflow in TDC " << (*tdc_it).first << endl;
+       type_TDC_error_for_plot_1 = 12;
+       type_TDC_error_for_plot_2 = 2;
+    }
+    else {
+       cout << " TDC error code not known " << ((*tdc_it).second).tdcError() << endl;
+    }
+
+    histoType = "ROSError";
+    if (rosHistos[histoType].find(code.getROSID()) != rosHistos[histoType].end()) {
+      rosSHistos.find("ROSSummary")->second->Fill(type_TDC_error_for_plot_1,code.getROS());
+      (rosHistos.find(histoType)->second).find(code.getROSID())->second->Fill(type_TDC_error_for_plot_1,(*tdc_it).first);
+    }
+    else {
+      bookHistos( string("ROS"), code);
+      rosSHistos.find("ROSSummary")->second->Fill(type_TDC_error_for_plot_1,code.getROS());
+      (rosHistos.find(histoType)->second).find(code.getROSID())->second->Fill(type_TDC_error_for_plot_1,(*tdc_it).first);
+    }
+
     histoType = "TDCError";
     if (robHistos[histoType].find(code.getROBID()) != robHistos[histoType].end()) {
-      (robHistos.find(histoType)->second).find(code.getROBID())->second->Fill(((*tdc_it).second).tdcError(), 
-									      ((*tdc_it).second).tdcID());
+      (robHistos.find(histoType)->second).find(code.getROBID())->second->Fill(type_TDC_error_for_plot_2,((*tdc_it).second).tdcID());
     }
     else {
       bookHistos( string("TDCError"), code);
-      (robHistos.find(histoType)->second).find(code.getROBID())->second->Fill(((*tdc_it).second).tdcError(), 
-									      ((*tdc_it).second).tdcID());
+      (robHistos.find(histoType)->second).find(code.getROBID())->second->Fill(type_TDC_error_for_plot_2,((*tdc_it).second).tdcID());
     }
 
   }
+
 
   /// SC Data
   int stationGroup = 0 ; //= ((*sc_it).second)%2;
