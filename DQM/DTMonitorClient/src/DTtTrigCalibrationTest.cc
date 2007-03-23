@@ -1,8 +1,8 @@
 /*
  * \file DTtTrigCalibrationTest.cc
  * 
- * $Date: 2006/08/10 16:27:18 $
- * $Revision: 1.5 $
+ * $Date: 2007/02/15 18:33:46 $
+ * $Revision: 1.1 $
  * \author M. Zanetti - CERN
  *
  */
@@ -148,7 +148,7 @@ void DTtTrigCalibrationTest::analyze(const edm::Event& e, const edm::EventSetup&
 
     // tmp
     if (histos.find((*ch_it)->id().rawId()) != histos.end()) {
-      string criterionName = "ContentsYRange"; // this as to be the same in QualityTests.xml
+      string criterionName = parameters.getUntrackedParameter<string>("tTrigTestName","tTrigOffSet"); 
       const QReport * theQReport = histos.find((*ch_it)->id().rawId())->second->getQReport(criterionName);
       if(theQReport) {
 	vector<dqm::me_util::Channel> badChannels = theQReport->getBadChannels();

@@ -105,6 +105,8 @@ void DTResolutionTest::analyze(const edm::Event& e, const edm::EventSetup& conte
   vector<DTChamber*>::const_iterator ch_it = muonGeom->chambers().begin();
   vector<DTChamber*>::const_iterator ch_end = muonGeom->chambers().end();
 
+  cout<<endl;
+  cout<<"[DTResolutionTest]: Residual Distribution tests results"<<endl;
   for (; ch_it != ch_end; ++ch_it) {
 
     DTChamberId chID = (*ch_it)->id();
@@ -130,20 +132,18 @@ void DTResolutionTest::analyze(const edm::Event& e, const edm::EventSetup& conte
 
       MonitorElement * res_histo = dbe->get(getMEName(slID));
       if (res_histo) {
-	cout<<"before gaussian test"<<endl;
 	// gaussian test
-	string GaussianCriterionName = "MeanWithinExpected";
+	string GaussianCriterionName = 
+	  parameters.getUntrackedParameter<string>("resDistributionTestName",
+						   "ResidualsDistributionGaussianTest");
 	const QReport * GaussianReport = res_histo->getQReport(GaussianCriterionName);
 	if(GaussianReport){
 	  cout<<"-------- "<<GaussianReport->getMessage()<<" ------- "<<GaussianReport->getStatus()<<endl;
 	}
-	cout<<"after gaussian test"<<endl;
 	int BinNumber = entry+slID.superLayer();
 	if(BinNumber == 12) BinNumber=11;
 	float mean = (*res_histo).getMean(1);
 	float sigma = (*res_histo).getRMS(1);
-	cout<<"mean : "<<mean<<endl;
-	cout<<"sigma : "<<sigma<<endl;
 	if (MeanHistos.find(HistoName) == MeanHistos.end()) bookHistos((*ch_it)->id());
 	MeanHistos.find(HistoName)->second->setBinContent(BinNumber, mean);	
 	SigmaHistos.find(HistoName)->second->setBinContent(BinNumber, sigma);
@@ -151,9 +151,9 @@ void DTResolutionTest::analyze(const edm::Event& e, const edm::EventSetup& conte
     }
   }
 
-  cout<<"Mean Test"<<endl;
   // Mean test 
-  string MeanCriterionName = "MeanContentsYRange"; 
+  cout<<"[DTResolutionTest]: Residuals Mean Tests results"<<endl;
+  string MeanCriterionName = parameters.getUntrackedParameter<string>("meanTestName","ResidualsMeanInRange"); 
   for(map<string, MonitorElement*>::const_iterator hMean = MeanHistos.begin();
       hMean != MeanHistos.end();
       hMean++) {
@@ -168,24 +168,24 @@ void DTResolutionTest::analyze(const edm::Event& e, const edm::EventSetup& conte
     }
   }
 
-  cout<<"Sigma Test"<<endl;
   // Sigma test
-  string SigmaCriterionName = "SigmaContentsYRange"; 
+  cout<<"[DTResolutionTest]: Residuals Sigma Tests results"<<endl;
+  string SigmaCriterionName = parameters.getUntrackedParameter<string>("sigmaTestName","ResidualsSigmaInRange"); 
   for(map<string , MonitorElement*>::const_iterator hSigma = SigmaHistos.begin();
       hSigma != SigmaHistos.end();
       hSigma++) {
     const QReport * theSigmaQReport = (*hSigma).second->getQReport(SigmaCriterionName);
     if(theSigmaQReport) {
-    vector<dqm::me_util::Channel> badChannels = theSigmaQReport->getBadChannels();
-    for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
-         channel != badChannels.end(); channel++) {
-      cout<<"Bad sigma channels: "<<(*channel).getBin()<<" "<<(*channel).getContents()<<endl;
-    }
-    cout<<"-------- "<<theSigmaQReport->getMessage()<<" ------- "<<theSigmaQReport->getStatus()<<endl;
+      vector<dqm::me_util::Channel> badChannels = theSigmaQReport->getBadChannels();
+      for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
+	   channel != badChannels.end(); channel++) {
+	cout<<"Bad sigma channels: "<<(*channel).getBin()<<" "<<(*channel).getContents()<<endl;
+      }
+      cout<<"-------- "<<theSigmaQReport->getMessage()<<" ------- "<<theSigmaQReport->getStatus()<<endl;
     }
   }
 
-  if (nevents%15 == 0){
+  if (nevents%parameters.getUntrackedParameter<int>("resultsSavingRate",100) == 0){
     if ( parameters.getUntrackedParameter<bool>("writeHisto", true) ) 
       dbe->save(parameters.getUntrackedParameter<string>("outputFile", "DTResolutionTest.root"));
   }
