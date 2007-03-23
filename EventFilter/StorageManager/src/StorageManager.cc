@@ -71,18 +71,20 @@ static void deleteSMBuffer(void* Ref)
 StorageManager::StorageManager(xdaq::ApplicationStub * s)
   throw (xdaq::exception::Exception) :
   xdaq::Application(s),
-  fsm_(this), 
+  fsm_(0), 
   ah_(0), 
   writeStreamerOnly_(true), 
   connectedFUs_(0), 
   storedEvents_(0), 
+  dqmRecords_(0), 
   storedVolume_(0.),
   progressMarker_(ProgressMarker::instance()->idle())
 {  
   LOG4CPLUS_INFO(this->getApplicationLogger(),"Making StorageManager");
 
   ah_   = new edm::AssertHandler();
-  fsm_.initialize<StorageManager>(this);
+  fsm_  = new stor::SMStateMachine(getApplicationLogger());
+  fsm_->init<StorageManager>(this);
 
   // Careful with next line: state machine fsm_ has to be setup first
   setupFlashList();
@@ -91,9 +93,10 @@ StorageManager::StorageManager(xdaq::ApplicationStub * s)
 
   ispace->fireItemAvailable("STparameterSet",&offConfig_);
   ispace->fireItemAvailable("runNumber",     &runNumber_);
-  ispace->fireItemAvailable("stateName",     fsm_.stateName());
+  ispace->fireItemAvailable("stateName",     &fsm_->stateName_);
   ispace->fireItemAvailable("connectedFUs",  &connectedFUs_);
   ispace->fireItemAvailable("storedEvents",  &storedEvents_);
+  ispace->fireItemAvailable("dqmRecords",  &dqmRecords_);
   ispace->fireItemAvailable("closedFiles",&closedFiles_);
   ispace->fireItemAvailable("fileList",&fileList_);
   ispace->fireItemAvailable("eventsInFile",&eventsInFile_);
@@ -129,7 +132,6 @@ StorageManager::StorageManager(xdaq::ApplicationStub * s)
   pool_is_set_    = 0;
   pool_           = 0;
   nLogicalDisk_   = 0;
-  streamer_only_  = true;
 
   // Variables needed for streamer file writing
   // should be getting these from SM config file - put them in xml for now
@@ -195,6 +197,7 @@ StorageManager::StorageManager(xdaq::ApplicationStub * s)
 
 StorageManager::~StorageManager()
 {
+  delete fsm_;
   delete ah_;
   delete pmeter_;
 }
@@ -208,6 +211,181 @@ StorageManager::ParameterGet(xoap::MessageReference message)
 }
 
 
+void StorageManager::configureAction(toolbox::Event::Reference e) 
+  throw (toolbox::fsm::exception::Exception)
+{
+  // Get into the Ready state from Halted state
+
+  seal::PluginManager::get()->initialise();
+
+  // give the JobController a configuration string and
+  // get the registry data coming over the network (the first one)
+  // Note that there is currently no run number check for the INIT
+  // message, just the first one received once in Enabled state is used
+  evf::ParameterSetRetriever smpset(offConfig_.value_);
+
+  string my_config = smpset.getAsString();
+
+  writeStreamerOnly_ = (bool) streamer_only_;
+  smConfigString_    = my_config;
+  smFileCatalog_     = fileCatalog_.toString();
+
+  boost::shared_ptr<stor::Parameter> smParameter_ = stor::Configurator::instance()->getParameter();
+  smParameter_ -> setCloseFileScript(closeFileScript_.toString());
+  smParameter_ -> setNotifyTier0Script(notifyTier0Script_.toString());
+  smParameter_ -> setInsertFileScript(insertFileScript_.toString());
+  smParameter_ -> setFileCatalog(fileCatalog_.toString());
+
+  if (maxESEventRate_ < 0.0)
+    maxESEventRate_ = 0.0;
+
+  xdata::Integer cutoff(1);
+  if (consumerQueueSize_ < cutoff)
+    consumerQueueSize_ = cutoff;
+
+  // the rethrows below need to be XDAQ exception types (JBK)
+  try {
+    jc_.reset(new stor::JobController(my_config, &deleteSMBuffer));
+
+    int value_4oneinN(oneinN_);
+    int disks(nLogicalDisk_);
+
+    if(value_4oneinN <= 0) value_4oneinN = -1;
+    jc_->set_oneinN(value_4oneinN);
+    jc_->set_outoption(writeStreamerOnly_);
+ 
+    jc_->setNumberOfFileSystems(disks);
+    jc_->setFileCatalog(smFileCatalog_);
+    jc_->setSourceId(sourceId_);
+
+    boost::shared_ptr<EventServer>
+      eventServer(new EventServer(value_4oneinN, maxESEventRate_));
+    jc_->setEventServer(eventServer);
+  }
+  catch(cms::Exception& e)
+    {
+      XCEPT_RAISE (toolbox::fsm::exception::Exception, 
+		   e.explainSelf());
+    }
+  catch(seal::Error& e)
+    {
+      XCEPT_RAISE (toolbox::fsm::exception::Exception, 
+		   e.explainSelf());
+    }
+  catch(std::exception& e)
+    {
+      XCEPT_RAISE (toolbox::fsm::exception::Exception, 
+		   e.what());
+    }
+  catch(...)
+  {
+      XCEPT_RAISE (toolbox::fsm::exception::Exception, 
+		   "Unknown Exception");
+  }
+}
+
+
+void StorageManager::enableAction(toolbox::Event::Reference e) 
+  throw (toolbox::fsm::exception::Exception)
+{
+  // Get into the Enabled (running) state from Ready state
+  fileList_.clear();
+  eventsInFile_.clear();
+  fileSize_.clear();
+  storedEvents_ = 0;
+  dqmRecords_ = 0;
+  jc_->start();
+}       
+
+
+void StorageManager::haltAction(toolbox::Event::Reference e) 
+  throw (toolbox::fsm::exception::Exception)
+{
+  // Get into the Halted (stopped and unconfigured) state from Enabled state
+  // First check that all senders have closed connections
+  int timeout = 60; // make this configurable (and advertize the value)
+  std::cout << "waiting " << timeout << " sec for " <<  smfusenders_.size() 
+	    << " senders to end the run " << std::endl;
+  while(smfusenders_.size() > 0)
+    {
+      ::sleep(1);
+      if(timeout-- == 0) {
+	LOG4CPLUS_WARN(this->getApplicationLogger(),
+		       "Timeout in SM waiting for end of run from "
+		       << smfusenders_.size() << "senders ");
+	break;
+      }
+    }
+
+  std::list<std::string> files = jc_->get_filelist();
+  std::list<std::string> currfiles= jc_->get_currfiles();
+  closedFiles_ = files.size() - currfiles.size();
+
+  unsigned int totInFile = 0;
+  for(list<string>::const_iterator it = files.begin();
+      it != files.end(); it++)
+    {
+      string name;
+      unsigned int nev;
+      unsigned int size;
+      parseFileEntry((*it),name,nev,size);
+      fileList_.push_back(name);
+      eventsInFile_.push_back(nev);
+      totInFile += nev;
+      fileSize_.push_back(size);
+      FDEBUG(5) << name << " " << nev << " " << size << std::endl;
+    }
+
+  jc_->stop();
+  jc_->join();
+
+  // make sure serialized product registry is cleared also as its used
+  // to check state readiness for web transactions
+  ser_prods_size_ = 0;
+
+  {
+    boost::mutex::scoped_lock sl(halt_lock_);
+    jc_.reset();
+  }
+}
+
+
+
+void StorageManager::nullAction(toolbox::Event::Reference e) 
+  throw (toolbox::fsm::exception::Exception)
+{
+  // This method is called when we allow for a state transition call but
+  // whose the action has no effect. A warning is issued to this end
+  LOG4CPLUS_WARN(this->getApplicationLogger(),
+                    "Null action invoked");
+}
+
+
+xoap::MessageReference
+StorageManager::fireEvent(xoap::MessageReference msg)
+  throw (xoap::exception::Exception)
+{
+  xoap::SOAPPart     part      = msg->getSOAPPart();
+  xoap::SOAPEnvelope env       = part.getEnvelope();
+  xoap::SOAPBody     body      = env.getBody();
+  DOMNode            *node     = body.getDOMNode();
+  DOMNodeList        *bodyList = node->getChildNodes();
+  DOMNode            *command  = 0;
+  std::string        commandName;
+
+  for (unsigned int i = 0; i < bodyList->getLength(); i++)
+    {
+      command = bodyList->item(i);
+
+      if(command->getNodeType() == DOMNode::ELEMENT_NODE)
+        {
+          commandName = xoap::XMLCh2String(command->getLocalName());
+          return fsm_->processFSMCommand(commandName);
+        }
+    }
+
+  XCEPT_RAISE(xoap::exception::Exception, "Command not found");
+}
 
 
 ////////// *** I2O frame call back functions /////////////////////////////////////////////
@@ -229,11 +407,11 @@ void StorageManager::receiveRegistryMessage(toolbox::mem::Reference *ref)
   FDEBUG(10) << "StorageManager: registry size " << msg->dataSize << "\n";
 
   // *** check the Storage Manager is in the Ready or Enabled state first!
-  if(fsm_.stateName()->toString() != "Enabled" && fsm_.stateName()->toString() != "Ready" )
+  if(fsm_->stateName_ != "Enabled" && fsm_->stateName_ != "Ready" )
   {
     LOG4CPLUS_ERROR(this->getApplicationLogger(),
                        "Received INIT message but not in Ready/Enabled state! Current state = "
-                       << fsm_.stateName()->toString() << " INIT from " << msg->hltURL
+                       << fsm_->stateName_.toString() << " INIT from " << msg->hltURL
                        << " application " << msg->hltClassName);
     // just release the memory at least - is that what we want to do?
     ref->release();
@@ -327,11 +505,11 @@ void StorageManager::receiveDataMessage(toolbox::mem::Reference *ref)
   FDEBUG(10) << "StorageManager: received data frame size = " << len << std::endl;
 
   // check the storage Manager is in the Ready state first!
-  if(fsm_.stateName()->toString() != "Enabled")
+  if(fsm_->stateName_ != "Enabled")
   {
     LOG4CPLUS_ERROR(this->getApplicationLogger(),
                        "Received EVENT message but not in Enabled state! Current state = "
-                       << fsm_.stateName()->toString() << " EVENT from" << msg->hltURL
+                       << fsm_->stateName_.toString() << " EVENT from" << msg->hltURL
                        << " application " << msg->hltClassName);
     // just release the memory at least - is that what we want to do?
     ref->release();
@@ -484,11 +662,11 @@ void StorageManager::receiveOtherMessage(toolbox::mem::Reference *ref)
 
   // check the storage Manager is in the correct state to process each message
   // the end-of-run message is only valid when in the "Enabled" state
-  if(fsm_.stateName()->toString() != "Enabled")
+  if(fsm_->stateName_ != "Enabled")
   {
     LOG4CPLUS_ERROR(this->getApplicationLogger(),
                        "Received OTHER (End-of-run) message but not in Enabled state! Current state = "
-                       << fsm_.stateName()->toString() << " OTHER from" << msg->hltURL
+                       << fsm_->stateName_.toString() << " OTHER from" << msg->hltURL
                        << " application " << msg->hltClassName);
     // just release the memory at least - is that what we want to do?
     ref->release();
@@ -541,16 +719,18 @@ void StorageManager::receiveDQMMessage(toolbox::mem::Reference *ref)
   FDEBUG(10) << "StorageManager: received DQM frame size = " << len << std::endl;
 
   // check the storage Manager is in the Ready state first!
-  if(fsm_.stateName()->toString() != "Enabled")
+  if(fsm_->stateName_ != "Enabled")
   {
     LOG4CPLUS_ERROR(this->getApplicationLogger(),
                        "Received DQM message but not in Enabled state! Current state = "
-                       << fsm_.stateName()->toString() << " DQMMessage from" << msg->hltURL
+                       << fsm_->stateName_.toString() << " DQMMessage from" << msg->hltURL
                        << " application " << msg->hltClassName);
     // just release the memory at least - is that what we want to do?
     ref->release();
     return;
   }
+
+  (dqmRecords_.value_)++;
 
   // If running with local transfers, a chain of I2O frames when posted only has the
   // head frame sent. So a single frame can complete a chain for local transfers.
@@ -758,6 +938,14 @@ void StorageManager::defaultWebPage(xgi::Input *in, xgi::Output *out)
           *out << "</td>" << endl;
           *out << "<td align=right>" << endl;
           *out << storedEvents_ << endl;
+          *out << "</td>" << endl;
+        *out << "  </tr>" << endl;
+        *out << "<tr>" << endl;
+          *out << "<td >" << endl;
+          *out << "DQM Records Received" << endl;
+          *out << "</td>" << endl;
+          *out << "<td align=right>" << endl;
+          *out << dqmRecords_ << endl;
           *out << "</td>" << endl;
         *out << "  </tr>" << endl;
         if(pool_is_set_ == 1) 
@@ -1344,7 +1532,7 @@ void StorageManager::eventdataWebPage(xgi::Input *in, xgi::Output *out)
   
   // first test if StorageManager is in Enabled state and registry is filled
   // this must be the case for valid data to be present
-  if(fsm_.stateName()->toString() == "Enabled" && ser_prods_size_ != 0)
+  if(fsm_->stateName_ == "Enabled" && ser_prods_size_ != 0)
   {
     if (consumerId == 0)
       {
@@ -1442,9 +1630,9 @@ void StorageManager::headerdataWebPage(xgi::Input *in, xgi::Output *out)
   // check we are in the right state
   // first test if StorageManager is in Enabled state and registry is filled
   // this must be the case for valid data to be present
-  if(fsm_.stateName()->toString() == "Enabled" && ser_prods_size_ != 0)
+  if(fsm_->stateName_ == "Enabled" && ser_prods_size_ != 0)
     // should check this as it should work in the enabled state?
-    //  if(fsm_.stateName()->toString() == "Enabled")
+    //  if(fsm_->stateName_ == "Enabled")
     {
       if(ser_prods_size_ == 0)
 	{ // not available yet - return zero length stream, should return MsgCode NOTREADY
@@ -1498,7 +1686,7 @@ void StorageManager::headerdataWebPage(xgi::Input *in, xgi::Output *out)
 void StorageManager::consumerWebPage(xgi::Input *in, xgi::Output *out)
   throw (xgi::exception::Exception)
 {
-  if(fsm_.stateName()->toString() == "Enabled")
+  if(fsm_->stateName_ == "Enabled")
   { // what is the right place for this?
 
   std::string consumerName = "None provided";
@@ -1618,6 +1806,7 @@ void StorageManager::setupFlashList()
   // Body
   is->fireItemAvailable("receivedFrames",       &receivedFrames_);
   is->fireItemAvailable("storedEvents",         &storedEvents_);
+  is->fireItemAvailable("dqmRecords",           &dqmRecords_);
   is->fireItemAvailable("storedVolume",         &storedVolume_);
   is->fireItemAvailable("memoryUsed",           &memoryUsed_);
   is->fireItemAvailable("instantBandwidth",     &instantBandwidth_);
@@ -1631,7 +1820,7 @@ void StorageManager::setupFlashList()
   is->fireItemAvailable("meanRate",             &meanRate_);
   is->fireItemAvailable("meanLatency",          &meanLatency_);
   is->fireItemAvailable("STparameterSet",       &offConfig_);
-  is->fireItemAvailable("stateName",            fsm_.stateName());
+  is->fireItemAvailable("stateName",            &fsm_->stateName_);
   is->fireItemAvailable("progressMarker",       &progressMarker_);
   is->fireItemAvailable("connectedFUs",         &connectedFUs_);
   is->fireItemAvailable("streamerOnly",         &streamer_only_);
@@ -1653,6 +1842,7 @@ void StorageManager::setupFlashList()
   // Body
   is->addItemRetrieveListener("receivedFrames",       this);
   is->addItemRetrieveListener("storedEvents",         this);
+  is->addItemRetrieveListener("dqmRecords",           this);
   is->addItemRetrieveListener("storedVolume",         this);
   is->addItemRetrieveListener("memoryUsed",           this);
   is->addItemRetrieveListener("instantBandwidth",     this);
@@ -1704,220 +1894,12 @@ void StorageManager::actionPerformed(xdata::Event& e)
 }
 
 
-
 void StorageManager::parseFileEntry(std::string in, std::string &out, unsigned int &nev, unsigned int &sz)
 {
   unsigned int no;
   stringstream pippo;
   pippo << in;
   pippo >> no >> out >> nev >> sz;
-}
-
-
-
-bool StorageManager::configuring(toolbox::task::WorkLoop* wl)
-{
-  try {
-    LOG4CPLUS_INFO(getApplicationLogger(),"Start configuring ...");
-    
-    
-    // Get into the Ready state from Halted state
-    
-    seal::PluginManager::get()->initialise();
-    
-    // give the JobController a configuration string and
-    // get the registry data coming over the network (the first one)
-    // Note that there is currently no run number check for the INIT
-    // message, just the first one received once in Enabled state is used
-    evf::ParameterSetRetriever smpset(offConfig_.value_);
-    
-    string my_config = smpset.getAsString();
-    
-    writeStreamerOnly_ = (bool) streamer_only_;
-    smConfigString_    = my_config;
-    smFileCatalog_     = fileCatalog_.toString();
-    
-    boost::shared_ptr<stor::Parameter> smParameter_ = stor::Configurator::instance()->getParameter();
-    smParameter_ -> setCloseFileScript(closeFileScript_.toString());
-    smParameter_ -> setNotifyTier0Script(notifyTier0Script_.toString());
-    smParameter_ -> setInsertFileScript(insertFileScript_.toString());
-    smParameter_ -> setFileCatalog(fileCatalog_.toString());
-    
-    if (maxESEventRate_ < 0.0)
-      maxESEventRate_ = 0.0;
-    
-    xdata::Integer cutoff(1);
-    if (consumerQueueSize_ < cutoff)
-      consumerQueueSize_ = cutoff;
-    
-    // the rethrows below need to be XDAQ exception types (JBK)
-    try {
-      jc_.reset(new stor::JobController(my_config, &deleteSMBuffer));
-      
-      int value_4oneinN(oneinN_);
-      int disks(nLogicalDisk_);
-      
-      if(value_4oneinN <= 0) value_4oneinN = -1;
-      jc_->set_oneinN(value_4oneinN);
-      jc_->set_outoption(writeStreamerOnly_);
-      
-      jc_->setNumberOfFileSystems(disks);
-      jc_->setFileCatalog(smFileCatalog_);
-      jc_->setSourceId(sourceId_);
-      
-      boost::shared_ptr<EventServer>
-	eventServer(new EventServer(value_4oneinN, maxESEventRate_));
-      jc_->setEventServer(eventServer);
-    }
-    catch(cms::Exception& e)
-      {
-	XCEPT_RAISE (toolbox::fsm::exception::Exception, 
-		     e.explainSelf());
-      }
-    catch(seal::Error& e)
-      {
-	XCEPT_RAISE (toolbox::fsm::exception::Exception, 
-		     e.explainSelf());
-      }
-    catch(std::exception& e)
-      {
-	XCEPT_RAISE (toolbox::fsm::exception::Exception, 
-		     e.what());
-      }
-    catch(...)
-      {
-	XCEPT_RAISE (toolbox::fsm::exception::Exception, 
-		     "Unknown Exception");
-      }
-    
-    
-    LOG4CPLUS_INFO(getApplicationLogger(),"Finished configuring!");
-    
-    fsm_.fireEvent("ConfigureDone",this);
-  }
-  catch (xcept::Exception &e) {
-    string msg = "configuring FAILED: " + (string)e.what();
-    fsm_.fireFailed(msg,this);
-  }
-
-  return false;
-}
-
-
-bool StorageManager::enabling(toolbox::task::WorkLoop* wl)
-{
-  try {
-    LOG4CPLUS_INFO(getApplicationLogger(),"Start enabling ...");
-    
-    fileList_.clear();
-    eventsInFile_.clear();
-    fileSize_.clear();
-    storedEvents_ = 0;
-    jc_->start();
-
-    LOG4CPLUS_INFO(getApplicationLogger(),"Finished enabling!");
-    
-    fsm_.fireEvent("EnableDone",this);
-  }
-  catch (xcept::Exception &e) {
-    string msg = "enabling FAILED: " + (string)e.what();
-    fsm_.fireFailed(msg,this);
-  }
-  
-  return false;
-}
-
-
-bool StorageManager::stopping(toolbox::task::WorkLoop* wl)
-{
-  try {
-    LOG4CPLUS_INFO(getApplicationLogger(),"Start stopping :) ...");
-
-    LOG4CPLUS_INFO(getApplicationLogger(),"Finished stopping!");
-    
-    fsm_.fireEvent("StopDone",this);
-  }
-  catch (xcept::Exception &e) {
-    string msg = "stopping FAILED: " + (string)e.what();
-    fsm_.fireFailed(msg,this);
-  }
-  
-  return false;
-}
-
-
-bool StorageManager::halting(toolbox::task::WorkLoop* wl)
-{
-  try {
-    LOG4CPLUS_INFO(getApplicationLogger(),"Start halting ...");
-
-    // Get into the Halted (stopped and unconfigured) state from Enabled state
-    // First check that all senders have closed connections
-    int timeout = 60; // make this configurable (and advertize the value)
-    std::cout << "waiting " << timeout << " sec for " <<  smfusenders_.size() 
-	      << " senders to end the run " << std::endl;
-    while(smfusenders_.size() > 0)
-      {
-	::sleep(1);
-	if(timeout-- == 0) {
-	  LOG4CPLUS_WARN(this->getApplicationLogger(),
-			 "Timeout in SM waiting for end of run from "
-			 << smfusenders_.size() << "senders ");
-	  break;
-	}
-      }
-    
-    std::list<std::string> files = jc_->get_filelist();
-    std::list<std::string> currfiles= jc_->get_currfiles();
-    closedFiles_ = files.size() - currfiles.size();
-    
-    unsigned int totInFile = 0;
-    for(list<string>::const_iterator it = files.begin();
-	it != files.end(); it++)
-      {
-	string name;
-	unsigned int nev;
-	unsigned int size;
-	parseFileEntry((*it),name,nev,size);
-	fileList_.push_back(name);
-	eventsInFile_.push_back(nev);
-	totInFile += nev;
-	fileSize_.push_back(size);
-	FDEBUG(5) << name << " " << nev << " " << size << std::endl;
-      }
-    
-    jc_->stop();
-    jc_->join();
-    
-    // make sure serialized product registry is cleared also as its used
-    // to check state readiness for web transactions
-    ser_prods_size_ = 0;
-    
-    {
-      boost::mutex::scoped_lock sl(halt_lock_);
-      jc_.reset();
-    }
-    
-    
-    LOG4CPLUS_INFO(getApplicationLogger(),"Finished halting!");
-    
-    fsm_.fireEvent("HaltDone",this);
-  }
-  catch (xcept::Exception &e) {
-    string msg = "halting FAILED: " + (string)e.what();
-    fsm_.fireFailed(msg,this);
-  }
-  
-  return false;
-}
-
-
-
-//
-xoap::MessageReference StorageManager::fsmCallback(xoap::MessageReference msg)
-  throw (xoap::exception::Exception)
-{
-  return fsm_.commandCallback(msg);
 }
 
 
