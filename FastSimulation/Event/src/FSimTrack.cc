@@ -37,8 +37,8 @@ FSimTrack::particleInfo() const {
   return mom_->theTable()->particle(ParticleID(type()));
 }
 
-//float 
-//FSimTrack::charge() const { return particleInfo()->charge();}
+float 
+FSimTrack::charge() const { return particleInfo()->charge();}
   
 const FSimVertex& 
 FSimTrack::vertex() const { return mom_->vertex(vertIndex()); }

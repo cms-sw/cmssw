@@ -49,7 +49,7 @@ class FSimTrack : public SimTrack {
   //inline int type() const { return me().type(); }
 
   /// charge
-  //  float charge() const; 
+  float charge() const; 
 
   /// Origin vertex
   const FSimVertex& vertex() const;
