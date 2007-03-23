@@ -55,18 +55,22 @@ sub new {
 		   => \&define_EB_crystal_number_to_EB_LV_channel,
 		   'EB_crystal_number_to_EB_LM_channel'
 		   => \&define_EB_crystal_number_to_EB_LM_channel,
-		   'EB_crystal_number_to_EB_elec_crystal_number'
+		   'EB_crystal_number_to_EB_LM_PN'
+		   => \&define_EB_crystal_number_to_EB_LM_PN,
+		   'EB_crystal_number_to_EB_T_capsule'
+		   => \&define_EB_crystal_number_to_EB_T_capsule,
+		   'EB_T_capsule_to_EB_crystal_number'
+		   => \&define_EB_T_capsule_to_EB_crystal_number,
+		   'EB_crystal_number_to_EB_VFE'
+		   => \&define_EB_crystal_number_to_EB_VFE,
+		   'EB_crystal_number_to_EB_elec_crystal_number',
 		   => \&define_EB_crystal_number_to_EB_elec_crystal_number,
 		   'EB_crystal_number_to_EB_fe_crystal_number'
 		   => \&define_EB_crystal_number_to_EB_fe_crystal_number,
 		   'EB_elec_crystal_number_to_EB_crystal_number',
 		   => \&define_EB_elec_crystal_number_to_EB_crystal_number,
 		   'EB_fe_crystal_number_to_EB_crystal_number',
-		   => \&define_EB_fe_crystal_number_to_EB_crystal_number,
-		   'EB_T_capsule_to_EB_crystal_number'
-		   => \&define_EB_T_capsule_to_EB_crystal_number,
-		   'EB_crystal_number_to_EB_VFE'
-		   => \&define_EB_crystal_number_to_EB_VFE
+		   => \&define_EB_fe_crystal_number_to_EB_crystal_number
 		  };
 
   bless($this, $class);
@@ -1095,6 +1099,123 @@ sub define_EB_crystal_number_to_EB_LM_channel {
 	 };
 }
 
+sub define_EB_crystal_number_to_EB_LM_PN {
+  my $pn_def = define_EB_LM_PN();
+  my $pn_logic_ids = $pn_def->{logic_ids};
+  my $pn_channel_ids = $pn_def->{channel_ids};
+  my $count = scalar @{$pn_logic_ids};
+
+  my $name = "EB_crystal_number";
+  my $maps_to = "EB_LM_PN";
+
+  my @logic_ids;
+  my @channel_ids;
+
+  foreach my $SM (0..36) {
+    for my $xtal (1..1700) {
+      # crystal indexes
+      my $i = POSIX::floor(($xtal-1)/20.0);
+      my $j = ($xtal-1) - 20*$i;
+
+      # LM channel
+      my $lm;
+      if ($i < 5) {
+	  $lm = 1;
+      } else {
+	  # calculate the lm channel indexes
+	  my $lmj = POSIX::floor($j/10.0);
+	  my $lmi = POSIX::floor(($i-5)/20.0);
+	  
+	  $lm = (2*$lmi) + $lmj + 2;
+      }
+
+      # PN channel
+      my $pn;
+      if ($lm == 1) { 
+	  if ($j < 10 ) { $pn = 0; }
+	  else          { $pn = 5; }
+      } else {
+	  if ($lm % 2 == 0) { $pn = $lm/2; }
+	  else              { $pn = (($lm-1)/2) + 5; }
+      }
+
+      # get the logic_id for this PN
+      my $pn_id;
+      for my $n (0..$count-1) {
+	my @ids = @{ $$pn_channel_ids[$n] };
+	if ($ids[0] == $SM && $ids[1] == $pn) {
+	  $pn_id = $$pn_logic_ids[$n];
+	  last;
+	}
+      }
+      if (!defined $pn_id) {
+	die "Cannot determine logic_id of PN SM=$SM, pn=$pn\n";
+      }
+
+      # set the mapping
+      push @logic_ids, $pn_id;
+      push @channel_ids, [ $SM, $xtal ];
+
+      print "SM $SM xtal $xtal -> LM_channel $lm -> PN $pn\n";
+    }
+  }
+
+  return {
+	  name => $name, maps_to => $maps_to,
+	  logic_ids => \@logic_ids, channel_ids => \@channel_ids
+	 };
+}
+
+sub define_EB_crystal_number_to_EB_T_capsule {
+  my $t_def = define_EB_T_capsule();
+  my $t_logic_ids = $t_def->{logic_ids};
+  my $t_channel_ids = $t_def->{channel_ids};
+  my $count = scalar @{$t_logic_ids};
+
+  my $name = "EB_crystal_number";
+  my $maps_to = "EB_T_capsule";
+
+  my @logic_ids;
+  my @channel_ids;
+
+  foreach my $SM (0..36) {
+    for my $xtal (1..1700) {
+      # crystal indexes
+      my $i = POSIX::floor(($xtal-1)/20.0);
+      my $j = ($xtal-1) - 20*$i;
+
+      # T_capsule channel
+      my $ti = POSIX::floor($i/5.0);
+      my $tj = POSIX::floor($j/2.0);
+      my $t = ($ti * 10) + $tj + 1;
+
+      # get the logic_id for this vfe channel
+      my $t_id;
+      for my $n (0..$count-1) {
+	my @ids = @{ $$t_channel_ids[$n] };
+	if ($ids[0] == $SM && $ids[1] == $t) {
+	  $t_id = $$t_logic_ids[$n];
+	  last;
+	}
+      }
+      if (!defined $t_id) {
+	die "Cannot determine logic_id of T_capsule channel SM=$SM, t=$t\n";
+      }
+
+      # set the mapping
+      push @logic_ids, $t_id;
+      push @channel_ids, [ $SM, $xtal ];
+
+      print "SM $SM xtal $xtal ($i, $j) -> t $t ($ti, $tj)\n";
+    }
+  }
+
+  return {
+	  name => $name, maps_to => $maps_to,
+	  logic_ids => \@logic_ids, channel_ids => \@channel_ids
+	 };
+}
+
 sub define_EB_T_capsule_to_EB_crystal_number {
   my $cn_def = define_EB_crystal_number();
   my $cn_logic_ids = $cn_def->{logic_ids};
@@ -1203,7 +1324,6 @@ sub define_EB_crystal_number_to_EB_VFE {
 	  name => $name, maps_to => $maps_to,
 	  logic_ids => \@logic_ids, channel_ids => \@channel_ids
 	 };
-
 }
 
 
