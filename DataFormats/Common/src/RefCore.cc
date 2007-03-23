@@ -17,16 +17,17 @@ namespace edm {
     // already have the pointer to the product, or we have a valid
     // EDProductGetter to use.
     //
-    //     assert(!id_.isValid() || prodGetter_ || prodPtr_);
+    //     assert(!id_.isValid() || productGetter() || prodPtr_);
 
-    if (!id_.isValid() )
+    if (!id_.isValid()) {
       throw Exception(errors::InvalidReference,
 		      "BadRefCore")
 	<< "Attempt to dereference a RefCore containing an invalid\n"
 	<< "ProductID has been detected. Please modify the calling\n"
 	<< "code to test validity before dereferencing.\n";
+    }
 
-    if (prodPtr_ == 0 && prodGetter_ ==0)
+    if (prodPtr_ == 0 && productGetter() == 0) {
       throw Exception(errors::InvalidReference,
 		      "BadRefCore")
 	<< "Attempt to dereference a RefCore containing a valid ProductID\n"
@@ -34,6 +35,7 @@ namespace edm {
 	<< "been detected. The calling code must be modified to establish\n"
 	<< "a functioning EDProducterGetter for the context in which this\n"
 	<< "call is mode\n";
+    }
   }
 
 //   void

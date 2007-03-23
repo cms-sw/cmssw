@@ -5,7 +5,7 @@
   
 RefCore: The component of edm::Ref containing the product ID and product getter.
 
-$Id: RefCore.h,v 1.8 2007/03/04 04:59:59 wmtan Exp $
+$Id: RefCore.h,v 1.9 2007/03/23 16:54:31 paterno Exp $
 
 ----------------------------------------------------------------------*/
 #include <typeinfo>
@@ -41,7 +41,7 @@ namespace edm {
     bool operator!() const {return isNull();}
 
     EDProductGetter const* productGetter() const {
-      if (!prodGetter_) prodGetter_ = EDProductGetter::instance();
+      if (!prodGetter_) setProductGetter(EDProductGetter::instance());
       return prodGetter_;
     }
 
@@ -69,7 +69,7 @@ namespace edm {
       checkDereferenceability();
       //if (isNull()) throwInvalidReference();
 
-      EDProduct const* product = prodGetter_->getIt(id_);      
+      EDProduct const* product = productGetter()->getIt(id_);      
       Wrapper<T> const* wrapper = dynamic_cast<Wrapper<T> const*>(product);
       if (wrapper == 0) { throwWrongReferenceType(typeid(product).name(), typeid(T).name()); }
       prodPtr_ = wrapper->product();
