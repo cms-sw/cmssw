@@ -5,7 +5,7 @@
   
 Forward declarations of types in the EDM.
 
-$Id: EDProductfwd.h,v 1.7 2006/12/21 00:04:09 wmtan Exp $
+$Id: EDProductfwd.h,v 1.8 2007/03/04 04:59:58 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -18,8 +18,8 @@ namespace edm
   class RefCore;
 
   template <typename C, typename T, typename F> class Ref;
-  template <typename T> class RefBase;
-  template <typename T> class RefItem;
+  template <typename K> class RefBase;
+  template <typename K> class RefItem;
   template <typename T> class RefProd;
   template <typename C, typename T, typename F> class RefVector;
   template <typename T> class RefVectorBase;
