@@ -80,7 +80,7 @@ class CaloPoint : public HepPoint3D
       ~DistanceToVertex(){};
       bool operator() (const CaloPoint& point1,const CaloPoint& point2)
 	{
-	  return ((point1-vertex).mag()<(point2-vertex).mag());
+	  return ((point1-vertex).mag2()<(point2-vertex).mag2());
 	}
     private:
       HepPoint3D vertex;
