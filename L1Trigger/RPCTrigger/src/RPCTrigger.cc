@@ -1,7 +1,7 @@
 /** \file RPCTrigger.cc
  *
- *  $Date: 2006/11/28 11:23:44 $
- *  $Revision: 1.21 $
+ *  $Date: 2007/03/19 08:08:25 $
+ *  $Revision: 1.22 $
  *  \author Tomasz Fruboes
  */
 #include "L1Trigger/RPCTrigger/interface/RPCTrigger.h"
@@ -196,6 +196,7 @@ std::vector<L1MuRegionalCand> RPCTrigger::giveFinallCandindates(L1RpcTBMuonsVec 
     etaAddr &= 63; // 6 bits only
          
     l1Cand.setEtaPacked(etaAddr);
+    l1Cand.setChargeValid(true);
 
     /*    
     std::cout<< std::endl << "RBMuon::" << finalMuons[iMu].getEtaAddr() << " " 
