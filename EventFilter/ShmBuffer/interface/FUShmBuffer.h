@@ -219,11 +219,11 @@ namespace evf {
     void           postRawDiscarded() { sem_post(4); }
     void           waitRecoWrite()    { sem_wait(5); }
     void           postRecoWrite()    { sem_post(5); }
-    void           waitRecoRead()     { sem_post(6); }
+    void           waitRecoRead()     { sem_wait(6); }
     void           postRecoRead()     { sem_post(6); }
     void           waitDqmWrite()     { sem_wait(7); }
     void           postDqmWrite()     { sem_post(7); }
-    void           waitDqmRead()      { sem_post(8); }
+    void           waitDqmRead()      { sem_wait(8); }
     void           postDqmRead()      { sem_post(8); }
 
     
