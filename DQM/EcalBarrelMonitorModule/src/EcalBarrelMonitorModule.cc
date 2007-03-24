@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  *
- * $Date: 2007/03/24 12:57:52 $
- * $Revision: 1.124 $
+ * $Date: 2007/03/24 13:33:48 $
+ * $Revision: 1.125 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -305,7 +305,7 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
 
     }
 
-  } catch ( exception& ex) {
+  } catch ( exception& ex ) {
 
     LogWarning("EcalBarrelMonitorModule") << EcalRawDataCollection_ << " not available";
 
