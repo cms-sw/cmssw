@@ -90,9 +90,9 @@ void printAssociations(const char* label, TrackingParticleRef tp, const reco::Si
   }
   
   for (std::map<reco::TrackRef, Quality>::const_iterator it = found.begin(); it != found.end(); ++it) {
-    std::cout << "    " << std::setw(7) << std::left << label << it->first << std::right;
-    if (it->second.get<0>().first) std::cout << " [" << std::setw(6) << std::setprecision(3) << it->second.get<0>().second << "]"; else std::cout << "         ";
-    if (it->second.get<1>().first) std::cout << " [" << std::setw(6) << std::setprecision(3) << it->second.get<1>().second << "]"; else std::cout << "         ";
+    std::cout << "    " << std::setw(7) << std::left << label << std::right << it->first;
+    if (it->second.get<0>().first) std::cout << " [" << std::setw(5) << std::setprecision(3) << it->second.get<0>().second << "]"; else std::cout << "         ";
+    if (it->second.get<1>().first) std::cout << " [" << std::setw(7) << std::setprecision(3) << it->second.get<1>().second << "]"; else std::cout << "         ";
     std::cout << std::endl;
   }
 }
@@ -120,9 +120,9 @@ void printAssociations(const char* label, reco::TrackRef tp, const reco::RecoToS
   }
   
   for (std::map<TrackingParticleRef, Quality>::const_iterator it = found.begin(); it != found.end(); ++it) {
-    std::cout << "    " << std::setw(7) << std::left << label << it->first << std::right;
-    if (it->second.get<0>().first) std::cout << " [" << std::setw(6) << std::setprecision(3) << it->second.get<0>().second << "]"; else std::cout << "         ";
-    if (it->second.get<1>().first) std::cout << " [" << std::setw(6) << std::setprecision(3) << it->second.get<1>().second << "]"; else std::cout << "         ";
+    std::cout << "    " << std::setw(7) << std::left << label << std::right << it->first;
+    if (it->second.get<0>().first) std::cout << " [" << std::setw(5) << std::setprecision(3) << it->second.get<0>().second << "]"; else std::cout << "         ";
+    if (it->second.get<1>().first) std::cout << " [" << std::setw(7) << std::setprecision(3) << it->second.get<1>().second << "]"; else std::cout << "         ";
     std::cout << std::endl;
   }
 }
@@ -216,7 +216,7 @@ void testLeptonAssociator::analyze(const edm::Event& iEvent, const edm::EventSet
 
   }
 
-  // look for tracking particles associated to the (tracker part of the) reconstructed (global) muons
+  // look for tracking particles associated to the (tracker part of the) reconstructed global muons
   reco::RecoToSimCollection byhits_globalfake = m_associatorByHits->associateRecoToSim (recoTrackHandle, trackingParticleHandle, &iEvent );
   reco::RecoToSimCollection bychi2_globalfake = m_associatorByChi2->associateRecoToSim (recoTrackHandle, trackingParticleHandle, &iEvent );
   for (reco::MuonCollection::size_type i = 0; i < globalMuonCollection.size(); ++i) {
@@ -225,7 +225,7 @@ void testLeptonAssociator::analyze(const edm::Event& iEvent, const edm::EventSet
     printAssociations("TrackingParticle", lepton->track(), byhits_globalfake, bychi2_globalfake);
   }
 
-  // look for tracking particles associated to the reconstructed (standAlone) muons
+  // look for tracking particles associated to the reconstructed standAlone muons
   reco::RecoToSimCollection byhits_standalonefake = m_associatorByHits->associateRecoToSim (standAloneMuonHandle, trackingParticleHandle, &iEvent );
   reco::RecoToSimCollection bychi2_standalonefake = m_associatorByChi2->associateRecoToSim (standAloneMuonHandle, trackingParticleHandle, &iEvent );
   for (reco::TrackCollection::size_type i = 0; i < standAloneMuonCollection.size(); ++i) {
