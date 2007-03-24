@@ -1,8 +1,8 @@
 /*
  * \file EBLaserTask.cc
  *
- * $Date: 2007/03/20 12:37:26 $
- * $Revision: 1.74 $
+ * $Date: 2007/03/21 16:10:40 $
+ * $Revision: 1.75 $
  * \author G. Della Ricca
  *
 */
@@ -543,9 +543,6 @@ void EBLaserTask::analyze(const Event& e, const EventSetup& c){
       dccMap[dcch.id()] = dcch;
 
       if ( dcch.getRunType() == EcalDCCHeaderBlock::LASER_STD ) enable = true;
-
-      // uncomment the following line to mix fake 'laser' events w/ cosmic & beam events
-      // if ( dcch.getRunType() == EcalDCCHeaderBlock::COSMIC ) enable = true;
 
     }
 

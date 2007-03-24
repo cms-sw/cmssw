@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  *
- * $Date: 2007/03/21 12:54:45 $
- * $Revision: 1.123 $
+ * $Date: 2007/03/24 12:57:52 $
+ * $Revision: 1.124 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -298,10 +298,7 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
 
       if ( dcch.getRunType() != -1 ) evtType_ = dcch.getRunType();
 
-      // uncomment the following line to mix fake 'laser' events w/ cosmic & beam events
-      // if ( ievt_ % 10 == 0 && ( runType_ == EcalDCCHeaderBlock::COSMIC || runType_ == EcalDCCHeaderBlock::BEAMH4 ) ) evtType_ = EcalDCCHeaderBlock::LASER_STD;
-
-      if ( evtType_ < 0 || evtType_ > 10 ) {
+      if ( evtType_ < 0 || evtType_ > 12 ) {
         LogWarning("EcalBarrelMonitor") << "Unknown event type = " << evtType_;
         evtType_ = -1;
       }
