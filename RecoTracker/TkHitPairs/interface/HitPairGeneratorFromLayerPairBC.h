@@ -30,7 +30,9 @@ public:
 
   virtual ~HitPairGeneratorFromLayerPairBC() { }
 
-  virtual void hitPairs( const TrackingRegion& ar, OrderedHitPairs & ap, const edm::Event& ev, const edm::EventSetup& iSetup);
+  virtual void hitPairs( const TrackingRegion& ar, OrderedHitPairs & ap, const edm::EventSetup& iSetup);
+
+  virtual void hitPairs( const TrackingRegion& ar, OrderedHitPairs & ap, const edm::Event& ev, const edm::EventSetup& iSetup) {}
 
   virtual HitPairGeneratorFromLayerPairBC* clone() const {
     return new HitPairGeneratorFromLayerPairBC(*this);

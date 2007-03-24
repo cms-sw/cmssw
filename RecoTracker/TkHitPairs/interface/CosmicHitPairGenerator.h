@@ -36,8 +36,11 @@ public:
   /// form base class
   virtual void hitPairs( const TrackingRegion& reg, 
 			 OrderedHitPairs & prs, 
-                   const edm::Event & ev,
 			 const edm::EventSetup& iSetup);
+  virtual void hitPairs( const TrackingRegion& reg, 
+			 OrderedHitPairs & prs, 
+                   const edm::Event & ev,
+			 const edm::EventSetup& iSetup) {}
 
   /// from base class
   virtual CosmicHitPairGenerator * clone() const 

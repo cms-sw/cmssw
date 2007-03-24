@@ -24,7 +24,7 @@ class CombinatorialRegionalSeedGeneratorFromPixel : public SeedGeneratorFromLaye
   ~CombinatorialRegionalSeedGeneratorFromPixel(){delete pixelLayers;} 
   
   void init(const SiPixelRecHitCollection &coll, const edm::EventSetup& c);
-  void  run(RectangularEtaPhiTrackingRegion& etaphiRegion, TrajectorySeedCollection &, const edm::Event & ev, const edm::EventSetup& c);
+  void  run(RectangularEtaPhiTrackingRegion& etaphiRegion, TrajectorySeedCollection &, const edm::EventSetup& c);
  private:
   //  edm::ParameterSet conf_;
   RectangularEtaPhiTrackingRegion region;

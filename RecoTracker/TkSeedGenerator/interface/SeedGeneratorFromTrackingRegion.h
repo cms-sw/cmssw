@@ -37,7 +37,6 @@ public:
 
    //  virtual vector<TrajectorySeed> seeds(const edm::EventSetup& c,const TrackingRegion& region)=0;
    virtual  void  seeds(TrajectorySeedCollection &output,
-			const edm::Event& ev,
 			const edm::EventSetup& c,
 			const TrackingRegion& region){};
   virtual const TrackingRegion * trackingRegion() const { return 0; }

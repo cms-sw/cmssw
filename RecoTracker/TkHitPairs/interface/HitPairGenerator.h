@@ -24,6 +24,10 @@ public:
   virtual const OrderedHitPairs & run(
     const TrackingRegion& region, const edm::Event & ev, const edm::EventSetup& es);
 
+  // temporary interface for backward compatibility only
+  virtual void hitPairs( 
+    const TrackingRegion& reg, OrderedHitPairs & prs, const edm::EventSetup& es) {}
+
   virtual void hitPairs( const TrackingRegion& reg, OrderedHitPairs & prs, 
       const edm::Event & ev,  const edm::EventSetup& es) = 0;
 

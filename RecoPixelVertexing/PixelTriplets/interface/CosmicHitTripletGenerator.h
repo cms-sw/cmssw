@@ -38,8 +38,12 @@ public:
   /// form base class
   virtual void hitTriplets( const TrackingRegion& reg, 
 			 OrderedHitTriplets & prs, 
-                   const edm::Event& ev,
 			 const edm::EventSetup& iSetup);
+
+  virtual void hitTriplets( const TrackingRegion& reg, 
+			 OrderedHitTriplets & prs, 
+                   const edm::Event& ev,
+			 const edm::EventSetup& iSetup) { }
 
   /// from base class
   virtual CosmicHitTripletGenerator * clone() const 

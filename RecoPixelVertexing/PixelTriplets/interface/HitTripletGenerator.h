@@ -22,6 +22,10 @@ public:
   virtual const OrderedHitTriplets & run(
     const TrackingRegion& region, const edm::Event & ev, const edm::EventSetup& es);
 
+  // temporary interface, for bckwd compatibility
+  virtual void hitTriplets( const TrackingRegion& reg, OrderedHitTriplets & prs,
+       const edm::EventSetup& es){}
+
   virtual void hitTriplets( const TrackingRegion& reg, OrderedHitTriplets & prs,
       const edm::Event & ev,  const edm::EventSetup& es) = 0;
 

@@ -47,7 +47,9 @@ public:
 //  virtual OrderedHitPairs hitPairs( const TrackingRegion& region,const edm::EventSetup& iSetup ) {
 //    return HitPairGenerator::hitPairs(region, iSetup);
 //  }
-  virtual void hitPairs( const TrackingRegion& ar, OrderedHitPairs & ap, const edm::Event & ev, const edm::EventSetup& iSetup);
+  virtual void hitPairs( const TrackingRegion& ar, OrderedHitPairs & ap, const edm::EventSetup& iSetup);
+
+  virtual void hitPairs( const TrackingRegion& ar, OrderedHitPairs & ap, const edm::Event & ev, const edm::EventSetup& iSetup) {}
 
   virtual CosmicHitPairGeneratorFromLayerPair* clone() const {
     return new CosmicHitPairGeneratorFromLayerPair(*this);

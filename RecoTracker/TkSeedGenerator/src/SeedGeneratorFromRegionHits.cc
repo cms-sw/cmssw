@@ -9,7 +9,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "SeedFromConsecutiveHits.h"
+#include "RecoTracker/TkSeedGenerator/interface/SeedFromConsecutiveHits.h"
 
 #include <vector>
 

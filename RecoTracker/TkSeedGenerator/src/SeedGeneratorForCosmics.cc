@@ -5,16 +5,15 @@
 #include "RecoPixelVertexing/PixelTriplets/interface/CosmicLayerTriplets.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/GlobalError.h"
-#include "SeedFromConsecutiveHits.h"
+#include "RecoTracker/TkSeedGenerator/interface/SeedFromConsecutiveHits.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h" 
-#include "FastHelix.h"
+#include "RecoTracker/TkSeedGenerator/interface/FastHelix.h"
 void 
 SeedGeneratorForCosmics::init(const SiStripRecHit2DCollection &collstereo,
 			      const SiStripRecHit2DCollection &collrphi ,
 			      const SiStripMatchedRecHit2DCollection &collmatched,
-                        const edm::Event& ev,
 			      const edm::EventSetup& iSetup)
 {
   iSetup.get<IdealMagneticFieldRecord>().get(magfield);
@@ -38,7 +37,7 @@ SeedGeneratorForCosmics::init(const SiStripRecHit2DCollection &collstereo,
     thePairGenerator=new CosmicHitPairGenerator(cosmiclayers,iSetup);
     HitPairs.clear();
     if ((hitsforseeds=="pairs")||(hitsforseeds=="pairsandtriplets")){
-      thePairGenerator->hitPairs(region,HitPairs,ev,iSetup);
+      thePairGenerator->hitPairs(region,HitPairs,iSetup);
   }
 
     CosmicLayerTriplets cosmiclayers2;
@@ -46,7 +45,7 @@ SeedGeneratorForCosmics::init(const SiStripRecHit2DCollection &collstereo,
     theTripletGenerator=new CosmicHitTripletGenerator(cosmiclayers2,iSetup);
     HitTriplets.clear();
     if ((hitsforseeds=="triplets")||(hitsforseeds=="pairsandtriplets")){
-      theTripletGenerator->hitTriplets(region,HitTriplets,ev,iSetup);
+      theTripletGenerator->hitTriplets(region,HitTriplets,iSetup);
     }
 }
 

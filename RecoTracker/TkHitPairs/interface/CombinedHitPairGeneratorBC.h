@@ -37,15 +37,17 @@ public:
   ~CombinedHitPairGeneratorBC();
 
   /// add generators based on layers
-    //  void  add(const DetLayer* inner, const DetLayer* outer);
     void  add(const LayerWithHits* inner, 
 	      const LayerWithHits* outer,
 	      const edm::EventSetup& iSetup);
   /// form base class
   virtual void hitPairs( const TrackingRegion& reg, 
 			 OrderedHitPairs & prs, 
-                   const edm::Event & ev,
 			 const edm::EventSetup& iSetup);
+  virtual void hitPairs( const TrackingRegion& reg, 
+			 OrderedHitPairs & prs, 
+                   const edm::Event& ev,
+			 const edm::EventSetup& iSetup) {}
 
   /// from base class
   virtual CombinedHitPairGeneratorBC * clone() const 

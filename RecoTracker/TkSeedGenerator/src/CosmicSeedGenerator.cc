@@ -49,7 +49,7 @@ void CosmicSeedGenerator::produce(edm::Event& ev, const edm::EventSetup& es)
   std::auto_ptr<TrajectorySeedCollection> output(new TrajectorySeedCollection);
   //
  
-  cosmic_seed.init(*stereorecHits,*rphirecHits,*matchedrecHits,ev, es);
+  cosmic_seed.init(*stereorecHits,*rphirecHits,*matchedrecHits, es);
  
   // invoke the seed finding algorithm
   cosmic_seed.run(*output,es);

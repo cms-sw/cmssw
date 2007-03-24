@@ -36,7 +36,6 @@ HitPairGeneratorFromLayerPairBC::HitPairGeneratorFromLayerPairBC(const LayerWith
 
 void HitPairGeneratorFromLayerPairBC::hitPairs(
   const TrackingRegion & region, OrderedHitPairs & result,
-  const edm::Event & ev,
   const edm::EventSetup& iSetup)
 {
   if (theInnerLayer->layer()->subDetector() != PixelBarrel &&

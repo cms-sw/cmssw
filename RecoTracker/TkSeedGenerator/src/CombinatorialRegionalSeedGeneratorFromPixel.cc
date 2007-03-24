@@ -19,9 +19,8 @@ CombinatorialRegionalSeedGeneratorFromPixel::CombinatorialRegionalSeedGeneratorF
   pixelLayers = new PixelSeedLayerPairs();
 }
 
-void CombinatorialRegionalSeedGeneratorFromPixel::run(RectangularEtaPhiTrackingRegion& etaphiRegion, TrajectorySeedCollection &output,
-const edm::Event & ev,					      const edm::EventSetup& iSetup){
+void CombinatorialRegionalSeedGeneratorFromPixel::run(RectangularEtaPhiTrackingRegion& etaphiRegion, TrajectorySeedCollection &output, const edm::EventSetup& iSetup){
 
   region = etaphiRegion;
-  seeds(output,ev, iSetup,region);
+  seeds(output, iSetup,region);
 }

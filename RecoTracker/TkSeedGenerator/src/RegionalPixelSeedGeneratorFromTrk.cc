@@ -84,7 +84,7 @@ void RegionalPixelSeedGeneratorFromTrk::produce(edm::Event& e, const edm::EventS
 											       deltaPhi);
 	  
 	  combinatorialSeedGenerator.init(*pixelHits,es);
-	  combinatorialSeedGenerator.run(*etaphiRegion,*output,e,es);
+	  combinatorialSeedGenerator.run(*etaphiRegion,*output,es);
 	}
 
     LogDebug("Algorithm Performance")<<" number of seeds = "<< output->size();

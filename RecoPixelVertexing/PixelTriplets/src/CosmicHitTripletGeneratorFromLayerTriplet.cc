@@ -24,7 +24,7 @@ CosmicHitTripletGeneratorFromLayerTriplet::CosmicHitTripletGeneratorFromLayerTri
   trackerGeometry = tracker.product();
 }
 void CosmicHitTripletGeneratorFromLayerTriplet::hitTriplets(
-  const TrackingRegion & region, OrderedHitTriplets & result, const edm::Event& ev,
+  const TrackingRegion & region, OrderedHitTriplets & result,
   const edm::EventSetup& iSetup)
 {
   

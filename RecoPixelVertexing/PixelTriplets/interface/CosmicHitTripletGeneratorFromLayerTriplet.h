@@ -26,7 +26,9 @@ public:
 				const edm::EventSetup& iSetup);
   virtual ~CosmicHitTripletGeneratorFromLayerTriplet() { }
 
-  virtual void hitTriplets( const TrackingRegion& ar, OrderedHitTriplets & ap, const edm::Event& ev, const edm::EventSetup& iSetup);
+  virtual void hitTriplets( const TrackingRegion& ar, OrderedHitTriplets & ap, const edm::EventSetup& iSetup);
+
+  virtual void hitTriplets( const TrackingRegion& ar, OrderedHitTriplets & ap, const edm::Event& ev, const edm::EventSetup& iSetup) {}
 
   virtual CosmicHitTripletGeneratorFromLayerTriplet* clone() const {
     return new CosmicHitTripletGeneratorFromLayerTriplet(*this);

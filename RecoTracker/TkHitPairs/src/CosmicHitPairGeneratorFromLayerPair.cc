@@ -24,7 +24,6 @@ CosmicHitPairGeneratorFromLayerPair::CosmicHitPairGeneratorFromLayerPair(const L
 }
 void CosmicHitPairGeneratorFromLayerPair::hitPairs(
   const TrackingRegion & region, OrderedHitPairs & result,
-  const edm::Event & ev,
   const edm::EventSetup& iSetup)
 {
 //  static int NSee = 0; static int Ntry = 0; static int Nacc = 0;

@@ -1,6 +1,6 @@
-#include "SeedFromConsecutiveHits.h"
+#include "RecoTracker/TkSeedGenerator/interface/SeedFromConsecutiveHits.h"
 #include "TrackingTools/KalmanUpdators/interface/KFUpdator.h"
-#include "FastHelix.h"
+#include "RecoTracker/TkSeedGenerator/interface/FastHelix.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"

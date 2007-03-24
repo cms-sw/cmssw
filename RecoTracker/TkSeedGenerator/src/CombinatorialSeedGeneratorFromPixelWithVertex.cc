@@ -33,7 +33,7 @@ CombinatorialSeedGeneratorFromPixelWithVertex::CombinatorialSeedGeneratorFromPix
 }
 
 void CombinatorialSeedGeneratorFromPixelWithVertex::run(TrajectorySeedCollection &output,
-        const edm::Event& ev, const edm::EventSetup& iSetup){
+        const edm::EventSetup& iSetup){
     if (pixelVertices_ == 0) throw cms::Exception("NO Pixel Vertices available");
 
     reco::VertexCollection::const_iterator it, end = pixelVertices_->end();
@@ -42,7 +42,7 @@ void CombinatorialSeedGeneratorFromPixelWithVertex::run(TrajectorySeedCollection
 
     if ((pixelVertices_->size() == 0) && (fallbackDeltaZ_ > 0)) {
 	region = GlobalTrackingRegion(ptMin_, vertexRadius_, fallbackDeltaZ_ , 0);
-	seeds(output, ev, iSetup, region);
+	seeds(output, iSetup, region);
     } else {
 	if (mergeOverlaps_) {
 	    // collect [z1,z2] intervals to use
@@ -71,13 +71,13 @@ void CombinatorialSeedGeneratorFromPixelWithVertex::run(TrajectorySeedCollection
 	    for (it0 = out.begin(), itEnd = out.end(); it0 < itEnd; ++it0) {
 		float z1 = it0->first, dz = 0.5*(it0->second - z1);
 		region = GlobalTrackingRegion(ptMin_, vertexRadius_, dz, z1 + dz);
-		seeds(output, ev, iSetup, region);
+		seeds(output, iSetup, region);
 	    }
 	} else {
 	    for (it = pixelVertices_->begin(); it != end; ++it) {
 		if (--nRemaining < 0) break;
 		region = GlobalTrackingRegion(ptMin_, vertexRadius_, vertexDeltaZ_ , it->z());
-		seeds(output, ev, iSetup, region);
+		seeds(output, iSetup, region);
 	    }
 	}
     }

@@ -32,6 +32,6 @@ CombinatorialSeedGeneratorFromMixed::CombinatorialSeedGeneratorFromMixed(edm::Pa
   stripLayers = new MixedSeedLayerPairs();
 }
 
-void CombinatorialSeedGeneratorFromMixed::run(TrajectorySeedCollection &output, const edm::Event & ev, const edm::EventSetup& iSetup){
-  seeds(output,ev,iSetup,region);
+void CombinatorialSeedGeneratorFromMixed::run(TrajectorySeedCollection &output, const edm::EventSetup& iSetup){
+  seeds(output,iSetup,region);
 }

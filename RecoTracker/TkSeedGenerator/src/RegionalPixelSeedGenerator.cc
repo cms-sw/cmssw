@@ -102,7 +102,7 @@ void RegionalPixelSeedGenerator::produce(edm::Event& e, const edm::EventSetup& e
 											       deltaPhi);
 	  
 	  combinatorialSeedGenerator.init(*pixelHits,es);
-	  combinatorialSeedGenerator.run(*etaphiRegion,*output,e,es);
+	  combinatorialSeedGenerator.run(*etaphiRegion,*output,es);
 	  // write output to file
 	}
       //    }   

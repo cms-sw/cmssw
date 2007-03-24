@@ -1,4 +1,4 @@
-#include "FastLine.h"
+#include "RecoTracker/TkSeedGenerator/interface/FastLine.h"
 
 FastLine::FastLine(const GlobalPoint& outerHit,
 		   const GlobalPoint& innerHit) : 

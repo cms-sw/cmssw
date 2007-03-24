@@ -48,14 +48,13 @@ void CombinedHitPairGeneratorBC::add(
 void CombinedHitPairGeneratorBC::hitPairs(
 					const TrackingRegion& region, 
 					OrderedHitPairs & pairs,
-                              const edm::Event& ev,
 					const edm::EventSetup& iSetup)
 {
  
   Container::const_iterator i;
   for (i=theGenerators.begin(); i!=theGenerators.end(); i++) {
  
-    (**i).hitPairs( region, pairs,ev, iSetup); 
+    (**i).hitPairs( region, pairs, iSetup); 
   }
  
   theLayerCache.clear();

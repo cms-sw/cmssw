@@ -76,7 +76,7 @@ void RegionalPixelSeedGeneratorFromRectangularTrackingRegion::produce(edm::Event
 	  
 	  RectangularEtaPhiTrackingRegion* region = const_cast<RectangularEtaPhiTrackingRegion*>(&(*iReg));
 	  combinatorialSeedGenerator.init(*pixelHits,es);
-	  combinatorialSeedGenerator.run(*region,*output,e,es);
+	  combinatorialSeedGenerator.run(*region,*output,es);
 	  // write output to file
 	}
       //    }   

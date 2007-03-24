@@ -45,6 +45,11 @@ ThirdHitCorrection::ThirdHitCorrection(const edm::EventSetup& es,
   }
 }
 
+ThirdHitCorrection::~ThirdHitCorrection()
+{
+  delete theBendingCorrection;
+}
+
 void ThirdHitCorrection::correctRPhiRange( Range & range) const
 {
   if (theUseMultipleScattering) {
