@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  *
- * $Date: 2007/03/21 06:59:26 $
- * $Revision: 1.122 $
+ * $Date: 2007/03/21 12:54:45 $
+ * $Revision: 1.123 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -47,11 +47,11 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const ParameterSet& ps){
   cout << endl;
 
   // this should come from the EcalBarrel run header
-  runType_ = ps.getUntrackedParameter<int>("runType", -1);
-  evtType_ = runType_;
+  runNumber_ = ps.getUntrackedParameter<int>("runNumber", 999999);
 
   // this should come from the EcalBarrel run header
-  runNumber_ = ps.getUntrackedParameter<int>("runNumber", 999999);
+  runType_ = ps.getUntrackedParameter<int>("runType", -1);
+  evtType_ = runType_;
 
   // DQM ROOT output
   outputFile_ = ps.getUntrackedParameter<string>("outputFile", "");
@@ -101,8 +101,8 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const ParameterSet& ps){
   meStatus_ = 0;
   meRun_ = 0;
   meEvt_ = 0;
-  meEvtType_ = 0;
   meRunType_ = 0;
+  meEvtType_ = 0;
 
   meEBDCC_ = 0;
 
@@ -146,8 +146,8 @@ void EcalBarrelMonitorModule::setup(void){
     meRun_ = dbe_->bookInt("RUN");
     meEvt_ = dbe_->bookInt("EVT");
 
-    meEvtType_ = dbe_->book1D("EVTTYPE", "EVTTYPE", 30, 0., 30.);
     meRunType_ = dbe_->bookInt("RUNTYPE");
+    meEvtType_ = dbe_->book1D("EVTTYPE", "EVTTYPE", 30, 0., 30.);
   }
 
   // unknown
@@ -202,11 +202,11 @@ void EcalBarrelMonitorModule::cleanup(void){
     if ( meEvt_ ) dbe_->removeElement( meEvt_->getName() );
     meEvt_ = 0;
 
-    if ( meEvtType_ ) dbe_->removeElement( meEvtType_->getName() );
-    meEvtType_ = 0;
-
     if ( meRunType_ ) dbe_->removeElement( meRunType_->getName() );
     meRunType_ = 0;
+
+    if ( meEvtType_ ) dbe_->removeElement( meEvtType_->getName() );
+    meEvtType_ = 0;
 
     if ( meEBDCC_ ) dbe_->removeElement( meEBDCC_->getName() );
     meEBDCC_ = 0;
@@ -342,8 +342,8 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
   if ( meRun_ ) meRun_->Fill(runNumber_);
   if ( meEvt_ ) meEvt_->Fill(ievt_);
 
-  if ( meEvtType_ ) meEvtType_->Fill(evtType_+0.5);
   if ( meRunType_ ) meRunType_->Fill(runType_);
+  if ( meEvtType_ ) meEvtType_->Fill(evtType_+0.5);
 
   // this should give enough time to all the MEs to reach the Collector,
   // and then hopefully the Client, especially when using CollateMEs,

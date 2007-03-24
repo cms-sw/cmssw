@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorModule.h
  *
- * $Date: 2007/02/01 10:25:25 $
- * $Revision: 1.38 $
+ * $Date: 2007/03/20 12:37:24 $
+ * $Revision: 1.39 $
  * \author G. Della Ricca
  *
 */
@@ -72,8 +72,8 @@ MonitorElement* meStatus_;
 MonitorElement* meRun_;
 MonitorElement* meEvt_;
 
-MonitorElement* meEvtType_;
 MonitorElement* meRunType_;
+MonitorElement* meEvtType_;
 
 MonitorElement* meEBDCC_;
 
