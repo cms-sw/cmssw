@@ -17,8 +17,6 @@
 #include "xdata/include/xdata/UnsignedInteger32.h"
 #include "xdata/include/xdata/Double.h"
 
-#include "toolbox/include/toolbox/task/TimerFactory.h"
-#include "toolbox/include/Task.h"
 #include "toolbox/include/toolbox/mem/Reference.h"
 #include "toolbox/include/toolbox/fsm/exception/Exception.h"
 #include "toolbox/include/BSem.h"
@@ -30,6 +28,7 @@
 #include <vector>
 #include <string>
 #include <semaphore.h>
+#include <sys/time.h>
 
 
 namespace evf {
@@ -38,7 +37,6 @@ namespace evf {
   class SMProxy;
   
   class FUResourceBroker : public xdaq::Application,
-			   public toolbox::task::TimerListener,
 			   public xdata::ActionListener
   {
   public:
@@ -81,22 +79,21 @@ namespace evf {
     void webPageRequest(xgi::Input *in,xgi::Output *out)
       throw (xgi::exception::Exception);
     
-    // toolbox::task::TimerListener callback, and init/start/stop the corresp. timer
-    void timeExpired(toolbox::task::TimerEvent& e);
-    void initTimer();
-    void startTimer();
-    void stopTimer();
-
     // xdata::ActionListener callback(s)
     void actionPerformed(xdata::Event& e);
+    
+    // calculate monitoring information in separate thread
+    void startMonitoringWorkLoop() throw (evf::Exception);
+    bool monitoring(toolbox::task::WorkLoop* wl);
     
     
   private:
     //
     // private member functions
     //
-    void exportParameters();
-    void reset();
+    void   exportParameters();
+    void   reset();
+    double deltaT(const struct timeval *start,const struct timeval *end);
     
     
   private:    
@@ -106,9 +103,6 @@ namespace evf {
     
     // finite state machine
     evf::StateMachine        fsm_;
-    
-    // application identifier
-    std::string              sourceId_;
     
     // binary semaphore
     BSem                     lock_;
@@ -130,6 +124,13 @@ namespace evf {
     
     // managed resources
     FUResourceTable*         resourceTable_;
+
+    // workloop / action signature for monitoring
+    toolbox::task::WorkLoop *wlMonitoring_;      
+    toolbox::task::ActionSignature *asMonitoring_;
+    
+    // application identifier
+    std::string              sourceId_;
     
     // monitored parameters 
     xdata::String            url_;
@@ -138,36 +139,33 @@ namespace evf {
     xdata::UnsignedInteger32 runNumber_;
     xdata::UnsignedInteger32 nbShmClients_;
     
+    xdata::Double            deltaT_;
+    xdata::UnsignedInteger32 deltaNbInput_;
+    xdata::UnsignedInteger32 deltaNbOutput_;
+    xdata::UnsignedInteger32 deltaInputSumOfSquares_;
+    xdata::UnsignedInteger32 deltaOutputSumOfSquares_;
+    xdata::UnsignedInteger32 deltaInputSumOfSizes_;
+    xdata::UnsignedInteger32 deltaOutputSumOfSizes_;
+    
     xdata::Double            acceptRate_;
-    xdata::Double            nbMBInput_;
-    xdata::Double            nbMBInputPerSec_;
-    xdata::Double            nbMBInputPerSecMin_;
-    xdata::Double            nbMBInputPerSecMax_;
-    xdata::Double            nbMBInputPerSecAvg_;
-    xdata::Double            nbMBOutput_;
-    xdata::Double            nbMBOutputPerSec_;
-    xdata::Double            nbMBOutputPerSecMin_;
-    xdata::Double            nbMBOutputPerSecMax_;
-    xdata::Double            nbMBOutputPerSecAvg_;
+    xdata::Double            inputRate_;
+    xdata::Double            outputRate_;
+    xdata::Double            inputEventRate_;
+    xdata::Double            outputEventRate_;
+    xdata::Double            inputAvgEventSize_;
+    xdata::Double            outputAvgEventSize_;
+    xdata::Double            inputRmsEventSize_;
+    xdata::Double            outputRmsEventSize_;
     
     // monitored counters
-    xdata::UnsignedInteger32 nbInputEvents_;
-    xdata::UnsignedInteger32 nbInputEventsPerSec_;
-    xdata::UnsignedInteger32 nbInputEventsPerSecMin_;
-    xdata::UnsignedInteger32 nbInputEventsPerSecMax_;
-    xdata::UnsignedInteger32 nbInputEventsPerSecAvg_;
-    xdata::UnsignedInteger32 nbOutputEvents_;
-    xdata::UnsignedInteger32 nbOutputEventsPerSec_;
-    xdata::UnsignedInteger32 nbOutputEventsPerSecMin_;
-    xdata::UnsignedInteger32 nbOutputEventsPerSecMax_;
-    xdata::UnsignedInteger32 nbOutputEventsPerSecAvg_;
-    
     xdata::UnsignedInteger32 nbAllocatedEvents_;
     xdata::UnsignedInteger32 nbPendingRequests_;
+    xdata::UnsignedInteger32 nbReceivedEvents_;
     xdata::UnsignedInteger32 nbProcessedEvents_;
     xdata::UnsignedInteger32 nbAcceptedEvents_;
+    xdata::UnsignedInteger32 nbSentEvents_;
     xdata::UnsignedInteger32 nbDiscardedEvents_;
-
+    
     xdata::UnsignedInteger32 nbLostEvents_;
     xdata::UnsignedInteger32 nbDataErrors_;
     xdata::UnsignedInteger32 nbCrcErrors_;
@@ -180,27 +178,33 @@ namespace evf {
     xdata::UnsignedInteger32 rawCellSize_;
     xdata::UnsignedInteger32 recoCellSize_;
     xdata::UnsignedInteger32 dqmCellSize_;
-
+    
     xdata::Boolean           doDropEvents_;
     xdata::Boolean           doFedIdCheck_;
     xdata::UnsignedInteger32 doCrcCheck_;
 
     xdata::String            buClassName_;
     xdata::UnsignedInteger32 buInstance_;
-
     xdata::String            smClassName_;
     xdata::UnsignedInteger32 smInstance_;
     
+    xdata::UnsignedInteger32 monSleepSec_;
+    
+
     // debug parameters
     xdata::UnsignedInteger32 nbAllocateSent_;
     xdata::UnsignedInteger32 nbTakeReceived_;
     xdata::UnsignedInteger32 nbDataDiscardReceived_;
     xdata::UnsignedInteger32 nbDqmDiscardReceived_;
     
-    // internal parameters, not exported
-    unsigned int             nbMeasurements_;
-    unsigned int             nbInputEventsLast_;
-    unsigned int             nbOutputEventsLast_;
+    // helper variables for monitoring
+    struct timeval           monStartTime_;
+    UInt_t                   nbInputLast_;
+    UInt_t                   nbInputLastSumOfSquares_;
+    UInt_t                   nbInputLastSumOfSizes_;
+    UInt_t                   nbOutputLast_;
+    UInt_t                   nbOutputLastSumOfSquares_;
+    UInt_t                   nbOutputLastSumOfSizes_;
     
   };
 

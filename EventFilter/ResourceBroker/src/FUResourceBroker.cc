@@ -52,34 +52,33 @@ FUResourceBroker::FUResourceBroker(xdaq::ApplicationStub *s)
   , sm_(0)
   , i2oPool_(0)
   , resourceTable_(0)
+  , wlMonitoring_(0)
+  , asMonitoring_(0)
   , instance_(0)
   , runNumber_(0)
   , nbShmClients_(0)
+  , deltaT_(0.0)
+  , deltaNbInput_(0)
+  , deltaNbOutput_(0)
+  , deltaInputSumOfSquares_(0)
+  , deltaOutputSumOfSquares_(0)
+  , deltaInputSumOfSizes_(0)
+  , deltaOutputSumOfSizes_(0)
   , acceptRate_(0.0)
-  , nbMBInput_(0.0)
-  , nbMBInputPerSec_(0.0)
-  , nbMBInputPerSecMin_(0.0)
-  , nbMBInputPerSecMax_(0.0)
-  , nbMBInputPerSecAvg_(0.0)
-  , nbMBOutput_(0.0)
-  , nbMBOutputPerSec_(0.0)
-  , nbMBOutputPerSecMin_(0.0)
-  , nbMBOutputPerSecMax_(0.0)
-  , nbMBOutputPerSecAvg_(0.0)
-  , nbInputEvents_(0)
-  , nbInputEventsPerSec_(0)
-  , nbInputEventsPerSecMin_(0)
-  , nbInputEventsPerSecMax_(0)
-  , nbInputEventsPerSecAvg_(0)
-  , nbOutputEvents_(0)
-  , nbOutputEventsPerSec_(0)
-  , nbOutputEventsPerSecMin_(0)
-  , nbOutputEventsPerSecMax_(0)
-  , nbOutputEventsPerSecAvg_(0)
+  , inputRate_(0.0)
+  , outputRate_(0.0)
+  , inputEventRate_(0.0)
+  , outputEventRate_(0.0)
+  , inputAvgEventSize_(0.0)
+  , outputAvgEventSize_(0.0)
+  , inputRmsEventSize_(0.0)
+  , outputRmsEventSize_(0.0)
   , nbAllocatedEvents_(0)
   , nbPendingRequests_(0)
+  , nbReceivedEvents_(0)
   , nbProcessedEvents_(0)
   , nbAcceptedEvents_(0)
+  , nbSentEvents_(0)
   , nbDiscardedEvents_(0)
   , nbLostEvents_(0)
   , nbDataErrors_(0)
@@ -98,13 +97,17 @@ FUResourceBroker::FUResourceBroker(xdaq::ApplicationStub *s)
   , buInstance_(0)
   , smClassName_("StorageManager")
   , smInstance_(0)
+  , monSleepSec_(1)
   , nbAllocateSent_(0)
   , nbTakeReceived_(0)
   , nbDataDiscardReceived_(0)
   , nbDqmDiscardReceived_(0)
-  , nbMeasurements_(0)
-  , nbInputEventsLast_(0)
-  , nbOutputEventsLast_(0)
+  , nbInputLast_(0)
+  , nbInputLastSumOfSquares_(0)
+  , nbInputLastSumOfSizes_(0)
+  , nbOutputLast_(0)
+  , nbOutputLastSumOfSquares_(0)
+  , nbOutputLastSumOfSizes_(0)
 {
   // setup finite state machine (binding relevant callbacks)
   fsm_.initialize<evf::FUResourceBroker>(this);
@@ -205,8 +208,10 @@ bool FUResourceBroker::enabling(toolbox::task::WorkLoop* wl)
 {
   try {
     LOG4CPLUS_INFO(log_, "Start enabling ...");
-    initTimer();
+    startMonitoringWorkLoop();
     resourceTable_->startDiscardWorkLoop();
+    resourceTable_->startSendDataWorkLoop();
+    resourceTable_->startSendDqmWorkLoop();
     resourceTable_->sendAllocate();
     LOG4CPLUS_INFO(log_, "Finished enabling!");
     fsm_.fireEvent("EnableDone",this);
@@ -226,7 +231,6 @@ bool FUResourceBroker::stopping(toolbox::task::WorkLoop* wl)
   try {
     LOG4CPLUS_INFO(log_, "Start stopping :) ...");
     resourceTable_->shutDownClients();
-    stopTimer();
     LOG4CPLUS_INFO(log_, "Finished stopping!");
     fsm_.fireEvent("StopDone",this);
   }
@@ -245,7 +249,6 @@ bool FUResourceBroker::halting(toolbox::task::WorkLoop* wl)
   try {
     LOG4CPLUS_INFO(log_, "Start halting ...");
     resourceTable_->shutDownClients();
-    stopTimer();
     UInt_t count = 0;
     while (count<10) {
       if (resourceTable_->isReadyToShutDown()) {
@@ -284,7 +287,6 @@ xoap::MessageReference FUResourceBroker::fsmCallback(xoap::MessageReference msg)
 //______________________________________________________________________________
 void FUResourceBroker::I2O_FU_TAKE_Callback(toolbox::mem::Reference* bufRef)
 {
-  if (nbTakeReceived_.value_==0) startTimer();
   nbTakeReceived_.value_++;
   bool eventComplete=resourceTable_->buildResource(bufRef);
   if (eventComplete&&doDropEvents_) resourceTable_->dropEvent();
@@ -357,115 +359,6 @@ void FUResourceBroker::webPageRequest(xgi::Input *in,xgi::Output *out)
 
 
 //______________________________________________________________________________
-void FUResourceBroker::timeExpired(toolbox::task::TimerEvent& e)
-{
-  lock_.take();
-
-  gui_->lockInfoSpaces();
-
-  nbMeasurements_++;
- 
-  // number of input events per second measurement
-  nbInputEvents_      =resourceTable_->nbCompleted();
-  nbInputEventsPerSec_=nbInputEvents_-nbInputEventsLast_;
-  nbInputEventsLast_  =nbInputEvents_;
-  if (nbInputEventsPerSec_.value_>0) {
-    if (nbInputEventsPerSec_<nbInputEventsPerSecMin_)
-      nbInputEventsPerSecMin_=nbInputEventsPerSec_;
-    if (nbInputEventsPerSec_>nbInputEventsPerSecMax_)
-      nbInputEventsPerSecMax_=nbInputEventsPerSec_;
-  }
-  nbInputEventsPerSecAvg_=nbInputEvents_/nbMeasurements_;
-
-  // number of MB per second measurement
-  nbMBInputPerSec_=9.53674e-07*resourceTable_->nbBytesReceived();
-  nbMBInput_.value_+=nbMBInputPerSec_;
-  if (nbMBInputPerSec_.value_>0) {
-    if (nbMBInputPerSec_<nbMBInputPerSecMin_)
-      nbMBInputPerSecMin_=nbMBInputPerSec_;
-    if (nbMBInputPerSec_>nbMBInputPerSecMax_)
-      nbMBInputPerSecMax_=nbMBInputPerSec_;
-  }
-  nbMBInputPerSecAvg_=nbMBInput_/nbMeasurements_;
-
-  // number of output events per second measurement
-  nbOutputEvents_      =resourceTable_->nbSent();
-  nbOutputEventsPerSec_=nbOutputEvents_-nbOutputEventsLast_;
-  nbOutputEventsLast_  =nbOutputEvents_;
-  if (nbOutputEventsPerSec_.value_>0) {
-    if (nbOutputEventsPerSec_<nbOutputEventsPerSecMin_)
-      nbOutputEventsPerSecMin_=nbOutputEventsPerSec_;
-    if (nbOutputEventsPerSec_>nbOutputEventsPerSecMax_)
-      nbOutputEventsPerSecMax_=nbOutputEventsPerSec_;
-  }
-  nbOutputEventsPerSecAvg_=nbOutputEvents_/nbMeasurements_;
-
-  // number of MB per second measurement
-  nbMBOutputPerSec_=9.53674e-07*resourceTable_->nbBytesSent();
-  nbMBOutput_.value_+=nbMBOutputPerSec_;
-  if (nbMBOutputPerSec_.value_>0) {
-    if (nbMBOutputPerSec_<nbMBOutputPerSecMin_)
-      nbMBOutputPerSecMin_=nbMBOutputPerSec_;
-    if (nbMBOutputPerSec_>nbMBOutputPerSecMax_)
-      nbMBOutputPerSecMax_=nbMBOutputPerSec_;
-  }
-  nbMBOutputPerSecAvg_=nbMBOutput_/nbMeasurements_;
-  
-  // accept rate
-  acceptRate_=nbOutputEvents_/nbInputEvents_;
-  
-  gui_->unlockInfoSpaces();
-  
-  lock_.give();
-}
-
-
-//______________________________________________________________________________
-void FUResourceBroker::initTimer()
-{
-  try {
-    toolbox::task::getTimerFactory()->createTimer(sourceId_);
-    toolbox::task::Timer *timer=toolbox::task::getTimerFactory()->getTimer(sourceId_);
-    timer->stop();
-  }
-  catch (xcept::Exception& e) {
-    LOG4CPLUS_WARN(log_,"FUResourceBroker::initTimer() failed: "<<e.what());
-  }
-}
-
-
-//______________________________________________________________________________
-void FUResourceBroker::startTimer()
-{
-  try {
-    toolbox::task::Timer* timer=toolbox::task::getTimerFactory()->getTimer(sourceId_);
-    toolbox::TimeInterval oneSec(1.);
-    toolbox::TimeVal      startTime=toolbox::TimeVal::gettimeofday();
-    timer->start();
-    timer->scheduleAtFixedRate(startTime,this,oneSec,gui_->monInfoSpace(),sourceId_);
-    
-  }
-  catch (xcept::Exception& e) {
-    LOG4CPLUS_WARN(log_,"FUResourceBroker::startTimer() failed: "<<e.what());
-  }
-}
-
-
-//______________________________________________________________________________
-void FUResourceBroker::stopTimer()
-{ 
-  try {
-    toolbox::task::Timer *timer=toolbox::task::getTimerFactory()->getTimer(sourceId_);
-    timer->stop();
-    toolbox::task::getTimerFactory()->removeTimer(sourceId_);
-  }
-  catch (xcept::Exception& e) {
-    LOG4CPLUS_WARN(log_,"FUResourceBroker::stopTimer() failed: "<<e.what());
-  }
-}
-
-
-//______________________________________________________________________________
 void FUResourceBroker::actionPerformed(xdata::Event& e)
 {
   if (0==resourceTable_) return;
@@ -479,8 +372,10 @@ void FUResourceBroker::actionPerformed(xdata::Event& e)
     if (item=="nbShmClients")      nbShmClients_     =resourceTable_->nbShmClients();
     if (item=="nbAllocatedEvents") nbAllocatedEvents_=resourceTable_->nbAllocated();
     if (item=="nbPendingRequests") nbPendingRequests_=resourceTable_->nbPending();
+    if (item=="nbReceivedEvents")  nbReceivedEvents_ =resourceTable_->nbCompleted();
     if (item=="nbProcessedEvents") nbProcessedEvents_=resourceTable_->nbProcessed();
     if (item=="nbAcceptedEvents")  nbAcceptedEvents_ =resourceTable_->nbAccepted();
+    if (item=="nbSentEvents")      nbSentEvents_     =resourceTable_->nbSent();
     if (item=="nbDiscardedEvents") nbDiscardedEvents_=resourceTable_->nbDiscarded();
     if (item=="nbLostEvents")      nbLostEvents_     =resourceTable_->nbLost();
     if (item=="nbDataErrors")      nbDataErrors_     =resourceTable_->nbErrors();
@@ -505,6 +400,122 @@ void FUResourceBroker::actionPerformed(xdata::Event& e)
 
 
 //______________________________________________________________________________
+void FUResourceBroker::startMonitoringWorkLoop() throw (evf::Exception)
+{
+  struct timezone timezone;
+  gettimeofday(&monStartTime_,&timezone);
+  
+  try {
+    wlMonitoring_=
+      toolbox::task::getWorkLoopFactory()->getWorkLoop(sourceId_+"Monitoring",
+						       "waiting");
+    if (!wlMonitoring_->isActive()) wlMonitoring_->activate();
+    asMonitoring_=toolbox::task::bind(this,&FUResourceBroker::monitoring,
+				      sourceId_+"Monitoring");
+    wlMonitoring_->submit(asMonitoring_);
+  }
+  catch (xcept::Exception& e) {
+    string msg = "Failed to start workloop 'Monitoring'.";
+    XCEPT_RETHROW(evf::Exception,msg,e);
+  }
+}
+
+
+//______________________________________________________________________________
+bool FUResourceBroker::monitoring(toolbox::task::WorkLoop* wl)
+{
+  if (0==resourceTable_) return false;
+  
+  struct timeval  monEndTime;
+  struct timezone timezone;
+  
+  gettimeofday(&monEndTime,&timezone);
+  
+  unsigned int nbInput             =resourceTable_->nbCompleted();
+  unsigned int nbInputSumOfSquares =resourceTable_->inputSumOfSquares();
+  unsigned int nbInputSumOfSizes   =resourceTable_->inputSumOfSizes();
+  unsigned int nbOutput            =resourceTable_->nbSent();
+  unsigned int nbOutputSumOfSquares=resourceTable_->outputSumOfSquares();
+  unsigned int nbOutputSumOfSizes  =resourceTable_->outputSumOfSizes();
+  
+  gui_->lockInfoSpaces();
+  
+  deltaT_.value_=deltaT(&monStartTime_,&monEndTime);
+  monStartTime_=monEndTime;
+  
+  deltaNbInput_.value_=nbInput-nbInputLast_;
+  nbInputLast_=nbInput;
+
+  deltaNbOutput_.value_=nbOutput-nbOutputLast_;
+  nbOutputLast_=nbOutput;
+  
+  deltaInputSumOfSquares_.value_=nbInputSumOfSquares-nbInputLastSumOfSquares_;
+  nbInputLastSumOfSquares_=nbInputSumOfSquares;
+
+  deltaOutputSumOfSquares_.value_=nbOutputSumOfSquares-nbOutputLastSumOfSquares_;
+  nbOutputLastSumOfSquares_=nbOutputSumOfSquares;
+  
+  deltaInputSumOfSizes_.value_=nbInputSumOfSizes-nbInputLastSumOfSizes_;
+  nbInputLastSumOfSizes_=nbInputSumOfSizes;
+
+  deltaOutputSumOfSizes_.value_=nbOutputSumOfSizes-nbOutputLastSumOfSizes_;
+  nbOutputLastSumOfSizes_=nbOutputSumOfSizes;
+  
+  gui_->unlockInfoSpaces();
+  
+  if (nbInput!=0)
+    acceptRate_=nbOutput/nbInput;
+  else
+    acceptRate_=0.0;
+  
+  if (deltaT_.value_!=0) {
+    inputRate_=deltaInputSumOfSizes_.value_/deltaT_.value_;
+    outputRate_=deltaOutputSumOfSizes_.value_/deltaT_.value_;
+    inputEventRate_=deltaNbInput_.value_/deltaT_.value_;
+    outputEventRate_=deltaNbOutput_.value_/deltaT_.value_;
+  }
+  else {
+    inputRate_ =0.0;
+    outputRate_=0.0;
+    inputEventRate_=0.0;
+    outputEventRate_=0.0;
+  }
+  
+  double meanOfSquares,mean,squareOfMean,variance;
+  
+  if(deltaNbInput_.value_!=0) {
+    inputAvgEventSize_=deltaInputSumOfSizes_.value_/deltaNbInput_.value_;
+    meanOfSquares=deltaInputSumOfSquares_.value_/((double)(deltaNbInput_.value_));
+    mean=((double)(deltaInputSumOfSizes_.value_))/((double)(deltaNbInput_.value_));
+    squareOfMean=mean*mean;
+    variance=meanOfSquares-squareOfMean; if(variance<0.0) variance=0.0;
+    inputRmsEventSize_=std::sqrt(variance);
+  }
+  else {
+    inputAvgEventSize_=0.0;
+    inputRmsEventSize_=0.0;
+  }
+  
+  if(deltaNbOutput_.value_!=0) {
+    outputAvgEventSize_=deltaOutputSumOfSizes_.value_/deltaNbOutput_.value_;
+    meanOfSquares=deltaOutputSumOfSquares_.value_/((double)(deltaNbOutput_.value_));
+    mean=((double)(deltaOutputSumOfSizes_.value_))/((double)(deltaNbOutput_.value_));
+    squareOfMean=mean*mean;
+    variance=meanOfSquares-squareOfMean; if(variance<0.0) variance=0.0;
+    outputRmsEventSize_=std::sqrt(variance);
+  }
+  else {
+    outputAvgEventSize_=0.0;
+    outputRmsEventSize_=0.0;
+  }
+  
+  ::sleep(monSleepSec_.value_);
+
+  return true;
+}
+    
+
+//______________________________________________________________________________
 void FUResourceBroker::exportParameters()
 {
   assert(0!=gui_);
@@ -516,36 +527,30 @@ void FUResourceBroker::exportParameters()
   gui_->addMonitorParam("stateName",                 fsm_.stateName());
   gui_->addMonitorParam("nbShmClients",             &nbShmClients_);
 
+  gui_->addMonitorParam("deltaT",                   &deltaT_);
+  gui_->addMonitorParam("deltaNbInput",             &deltaNbInput_);
+  gui_->addMonitorParam("deltaNbOutput",            &deltaNbOutput_);
+  gui_->addMonitorParam("deltaInputSumOfSquares",   &deltaInputSumOfSquares_);
+  gui_->addMonitorParam("deltaOutputSumOfSquares",  &deltaOutputSumOfSquares_);
+  gui_->addMonitorParam("deltaInputSumOfSizes",     &deltaInputSumOfSizes_);
+  gui_->addMonitorParam("deltaOutputSumOfSizes",    &deltaOutputSumOfSizes_);
+    
   gui_->addMonitorParam("acceptRate",               &acceptRate_);
+  gui_->addMonitorParam("inputRate",                &inputRate_);
+  gui_->addMonitorParam("outputRate",               &outputRate_);
+  gui_->addMonitorParam("inputEventRate",           &inputEventRate_);
+  gui_->addMonitorParam("outputEventRate",          &outputEventRate_);
+  gui_->addMonitorParam("inputAvgEventSize",        &inputAvgEventSize_);
+  gui_->addMonitorParam("outputAvgEventSize",       &outputAvgEventSize_);
+  gui_->addMonitorParam("inputRmsEventSize",        &inputRmsEventSize_);
+  gui_->addMonitorParam("outputRmsEventSize",       &outputRmsEventSize_);
   
-  gui_->addMonitorParam("nbMBInput",                &nbMBInput_);
-  gui_->addMonitorParam("nbMBInputPerSec",          &nbMBInputPerSec_);
-  gui_->addDebugParam("nbMBInputPerSecMin",         &nbMBInputPerSecMin_);
-  gui_->addDebugParam("nbMBInputPerSecMax",         &nbMBInputPerSecMax_);
-  gui_->addMonitorParam("nbMBInputPerSecAvg",       &nbMBInputPerSecAvg_);
-
-  gui_->addMonitorParam("nbMBOutput",               &nbMBOutput_);
-  gui_->addMonitorParam("nbMBOutputPerSec",         &nbMBOutputPerSec_);
-  gui_->addDebugParam("nbMBOutputPerSecMin",        &nbMBOutputPerSecMin_);
-  gui_->addDebugParam("nbMBOutputPerSecMax",        &nbMBOutputPerSecMax_);
-  gui_->addMonitorParam("nbMBOutputPerSecAvg",      &nbMBOutputPerSecAvg_);
-
-  gui_->addMonitorCounter("nbInputEvents",          &nbInputEvents_);
-  gui_->addMonitorCounter("nbInputEventsPerSec",    &nbInputEventsPerSec_);
-  gui_->addDebugCounter("nbInputEventsPerSecMin",   &nbInputEventsPerSecMin_);
-  gui_->addDebugCounter("nbInputEventsPerSecMax",   &nbInputEventsPerSecMax_);
-  gui_->addMonitorCounter("nbInputEventsPerSecAvg", &nbInputEventsPerSecAvg_);
-
-  gui_->addMonitorCounter("nbOutputEvents",         &nbOutputEvents_);
-  gui_->addMonitorCounter("nbOutputEventsPerSec",   &nbOutputEventsPerSec_);
-  gui_->addDebugCounter("nbOutputEventsPerSecMin",  &nbOutputEventsPerSecMin_);
-  gui_->addDebugCounter("nbOutputEventsPerSecMax",  &nbOutputEventsPerSecMax_);
-  gui_->addMonitorCounter("nbOutputEventsPerSecAvg",&nbOutputEventsPerSecAvg_);
-
   gui_->addMonitorCounter("nbAllocatedEvents",      &nbAllocatedEvents_);
   gui_->addMonitorCounter("nbPendingRequests",      &nbPendingRequests_);
+  gui_->addMonitorCounter("nbReceivedEvents",       &nbReceivedEvents_);
   gui_->addMonitorCounter("nbProcessedEvents",      &nbProcessedEvents_);
   gui_->addMonitorCounter("nbAcceptedEvents",       &nbAcceptedEvents_);
+  gui_->addMonitorCounter("nbSentEvents",           &nbSentEvents_);
   gui_->addMonitorCounter("nbDiscardedEvents",      &nbDiscardedEvents_);
   gui_->addMonitorCounter("nbLostEvents",           &nbLostEvents_);
   gui_->addMonitorCounter("nbDataErrors",           &nbDataErrors_);
@@ -566,6 +571,7 @@ void FUResourceBroker::exportParameters()
   gui_->addStandardParam("buInstance",              &buInstance_);
   gui_->addStandardParam("smClassName",             &smClassName_);
   gui_->addStandardParam("smInstance",              &smInstance_);
+  gui_->addStandardParam("monSleepSec",             &monSleepSec_);
   gui_->addStandardParam("foundRcmsStateListener",   fsm_.foundRcmsStateListener());
 
   gui_->addDebugCounter("nbAllocateSent",           &nbAllocateSent_);
@@ -578,8 +584,10 @@ void FUResourceBroker::exportParameters()
   gui_->addItemRetrieveListener("nbShmClients",     this);
   gui_->addItemRetrieveListener("nbAllocatedEvents",this);
   gui_->addItemRetrieveListener("nbPendingRequests",this);
+  gui_->addItemRetrieveListener("nbReceivedEvents", this);
   gui_->addItemRetrieveListener("nbProcessedEvents",this);
   gui_->addItemRetrieveListener("nbAcceptedEvents", this);
+  gui_->addItemRetrieveListener("nbSentEvents",     this);
   gui_->addItemRetrieveListener("nbDiscardedEvents",this);
   gui_->addItemRetrieveListener("nbLostEvents",     this);
   gui_->addItemRetrieveListener("nbDataErrors",     this);
@@ -597,23 +605,52 @@ void FUResourceBroker::reset()
 {
   gui_->resetCounters();
   
-  nbMBInput_              =  0.0;
-  nbMBInputPerSec_        =  0.0;
-  nbMBInputPerSecMin_     = 1e06;
-  nbMBInputPerSecMax_     =  0.0;
-  nbMBInputPerSecAvg_     =  0.0;
-  nbInputEventsPerSecMin_ =10000;
-
-  nbMBOutput_             =  0.0;
-  nbMBOutputPerSec_       =  0.0;
-  nbMBOutputPerSecMin_    = 1e06;
-  nbMBOutputPerSecMax_    =  0.0;
-  nbMBOutputPerSecAvg_    =  0.0;
-  nbOutputEventsPerSecMin_=10000;
+  deltaT_                  =0.0;
+  deltaNbInput_            =  0;
+  deltaNbOutput_           =  0;
+  deltaInputSumOfSquares_  =  0;
+  deltaOutputSumOfSquares_ =  0;
+  deltaInputSumOfSizes_    =  0;
+  deltaOutputSumOfSizes_   =  0;
   
-  nbMeasurements_         =    0;
-  nbInputEventsLast_      =    0;
-  nbOutputEventsLast_     =    0;
+  acceptRate_              =0.0;
+  inputRate_               =0.0;
+  outputRate_              =0.0;
+  inputEventRate_          =0.0;
+  outputEventRate_         =0.0;
+  inputAvgEventSize_       =0.0;
+  outputAvgEventSize_      =0.0;
+  inputRmsEventSize_       =0.0;
+  outputRmsEventSize_      =0.0;
+  
+  nbInputLast_             =  0;
+  nbInputLastSumOfSquares_ =  0;
+  nbInputLastSumOfSizes_   =  0;
+  nbOutputLast_            =  0;
+  nbOutputLastSumOfSquares_=  0;
+  nbOutputLastSumOfSizes_  =  0;
+  
+}
+
+
+//______________________________________________________________________________
+double FUResourceBroker::deltaT(const struct timeval *start,
+				const struct timeval *end)
+{
+  unsigned int  sec;
+  unsigned int  usec;
+  
+  sec = end->tv_sec - start->tv_sec;
+  
+  if(end->tv_usec > start->tv_usec) {
+    usec = end->tv_usec - start->tv_usec;
+  }
+  else {
+    sec--;
+    usec = 1000000 - ((unsigned int )(start->tv_usec - end->tv_usec));
+  }
+  
+  return ((double)sec) + ((double)usec) / 1000000.0;
 }
 
 

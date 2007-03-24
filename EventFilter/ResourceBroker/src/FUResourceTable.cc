@@ -279,9 +279,12 @@ bool FUResourceTable::buildResource(MemRef_t* bufRef)
   if (!resource->fatalError()) {
     resource->process(bufRef);
     lock();
-    nbBytesReceived_+=resource->nbBytes();
-    nbErrors_       +=resource->nbErrors();
-    nbCrcErrors_    +=resource->nbCrcErrors();
+    UInt_t nbBytes     =resource->nbBytes();
+    UInt_t nbBytesSq   =nbBytes*nbBytes;
+    inputSumOfSquares_+=nbBytesSq;
+    inputSumOfSizes_  +=nbBytes;
+    nbErrors_         +=resource->nbErrors();
+    nbCrcErrors_      +=resource->nbCrcErrors();
     unlock();
     
     // make resource available for pick-up
@@ -387,20 +390,23 @@ void FUResourceTable::reset()
 //______________________________________________________________________________
 void FUResourceTable::resetCounters()
 {
-  nbAllocated_    =0;
-  nbPending_      =0;
-  nbCompleted_    =0;
-  nbProcessed_    =0;
-  nbAccepted_     =0;
-  nbSent_         =0;
-  nbDiscarded_    =0;
-  nbLost_         =0;
+  nbAllocated_       =0;
+  nbPending_         =0;
+  nbCompleted_       =0;
+  nbProcessed_       =0;
+  nbAccepted_        =0;
+  nbSent_            =0;
+  nbDiscarded_       =0;
+  nbLost_            =0;
 
-  nbErrors_       =0;
-  nbCrcErrors_    =0;
-  nbAllocSent_    =0;
-  nbBytesReceived_=0;
-  nbBytesSent_    =0;
+  nbErrors_          =0;
+  nbCrcErrors_       =0;
+  nbAllocSent_       =0;
+
+  inputSumOfSquares_ =0;
+  outputSumOfSquares_=0;
+  inputSumOfSizes_   =0;
+  outputSumOfSizes_  =0;
 }
 
 
@@ -447,7 +453,10 @@ void FUResourceTable::sendInitMessage(UInt_t   fuResourceId,
 				      UChar_t *data,
 				      UInt_t   dataSize)
 {
-  nbBytesSent_+=sm_->sendInitMessage(fuResourceId,data,dataSize);
+  UInt_t nbBytes      =sm_->sendInitMessage(fuResourceId,data,dataSize);
+  UInt_t nbBytesSq    =nbBytes*nbBytes;
+  outputSumOfSquares_+=nbBytesSq;
+  outputSumOfSizes_  +=nbBytes;
 }
 
 
@@ -458,7 +467,11 @@ void FUResourceTable::sendDataEvent(UInt_t   fuResourceId,
 				    UChar_t *data,
 				    UInt_t   dataSize)
 {
-  nbBytesSent_+=sm_->sendDataEvent(fuResourceId,runNumber,evtNumber,data,dataSize);
+  UInt_t nbBytes      =sm_->sendDataEvent(fuResourceId,
+					  runNumber,evtNumber,data,dataSize);
+  UInt_t nbBytesSq    =nbBytes*nbBytes;
+  outputSumOfSquares_+=nbBytesSq;
+  outputSumOfSizes_  +=nbBytes;
   nbSent_++;
 }
 
@@ -471,8 +484,7 @@ void FUResourceTable::sendDqmEvent(UInt_t   fuDqmId,
 				   UChar_t* data,
 				   UInt_t   dataSize)
 {
-  nbBytesSentDqm_+=sm_->sendDqmEvent(fuDqmId,
-				     runNumber,evtAtUpdate,folderId,data,dataSize);
+  sm_->sendDqmEvent(fuDqmId,runNumber,evtAtUpdate,folderId,data,dataSize);
   nbSentDqm_++;
 }
 

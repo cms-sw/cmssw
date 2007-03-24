@@ -1,3 +1,11 @@
+2007-03-24  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-06-02
+	* call startSendDataWorkLoop() and startSendDqmWorkLoop() in
+	enabling()
+	* replace TimerListener interface with a WorkLoop for monitoring
+	* change monitoring variables according to what is done in BU
+
 2007-03-22  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-06-01

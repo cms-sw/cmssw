@@ -90,28 +90,29 @@ namespace evf {
     
     
     // various counters
-    UInt_t nbResources()  const { return resources_.size(); }
-    UInt_t nbFreeSlots()  const { return shmBuffer_->nbRawCellsToWrite(); }
-    UInt_t nbShmClients() const;
-    UInt_t nbAllocated()  const { return nbAllocated_; }
-    UInt_t nbPending()    const { return nbPending_; }
-    UInt_t nbCompleted()  const { return nbCompleted_; }
-    UInt_t nbProcessed()  const { return nbProcessed_; }
-    UInt_t nbAccepted()   const { return nbAccepted_; }
-    UInt_t nbSent()       const { return nbSent_; }
-    UInt_t nbSentDqm()    const { return nbSentDqm_; }
-    UInt_t nbDiscarded()  const { return nbDiscarded_; }
-    UInt_t nbLost()       const { return nbLost_; }
+    UInt_t nbResources()        const { return resources_.size(); }
+    UInt_t nbFreeSlots()        const { return shmBuffer_->nbRawCellsToWrite(); }
+    UInt_t nbShmClients()       const;
+    UInt_t nbAllocated()        const { return nbAllocated_; }
+    UInt_t nbPending()          const { return nbPending_; }
+    UInt_t nbCompleted()        const { return nbCompleted_; }
+    UInt_t nbProcessed()        const { return nbProcessed_; }
+    UInt_t nbAccepted()         const { return nbAccepted_; }
+    UInt_t nbSent()             const { return nbSent_; }
+    UInt_t nbSentDqm()          const { return nbSentDqm_; }
+    UInt_t nbDiscarded()        const { return nbDiscarded_; }
+    UInt_t nbLost()             const { return nbLost_; }
     
-    UInt_t nbErrors()     const { return nbErrors_; }
-    UInt_t nbCrcErrors()  const { return nbCrcErrors_; }
-    UInt_t nbAllocSent()  const { return nbAllocSent_; }
+    UInt_t nbErrors()           const { return nbErrors_; }
+    UInt_t nbCrcErrors()        const { return nbCrcErrors_; }
+    UInt_t nbAllocSent()        const { return nbAllocSent_; }
     
-    UInt_t nbBytesReceived(bool reset=true);
-    UInt_t nbBytesSent(bool reset=true);
-    UInt_t nbBytesSentDqm(bool reset=true);
+    UInt_t inputSumOfSquares()  const { return inputSumOfSquares_; }
+    UInt_t outputSumOfSquares() const { return outputSumOfSquares_; }
+    UInt_t inputSumOfSizes()    const { return inputSumOfSizes_; }
+    UInt_t outputSumOfSizes()   const { return outputSumOfSizes_; }
     
-
+    
     //
     // helpers
     //
@@ -184,55 +185,16 @@ namespace evf {
     UInt_t             nbCrcErrors_;
     UInt_t             nbAllocSent_;
     
-    UInt_t             nbBytesReceived_;
-    UInt_t             nbBytesSent_;
-    UInt_t             nbBytesSentDqm_;
+    UInt_t             inputSumOfSquares_;
+    UInt_t             outputSumOfSquares_;
+    UInt_t             inputSumOfSizes_;
+    UInt_t             outputSumOfSizes_;
     
     BSem               lock_;
     
   };
   
 } // namespace evf
-
-
-//
-// implementation of inline member functions
-//
-
-//______________________________________________________________________________
-inline
-evf::UInt_t evf::FUResourceTable::nbBytesReceived(bool reset)
-{
-  lock();
-  UInt_t result=nbBytesReceived_;
-  if (reset) nbBytesReceived_=0;
-  unlock();
-  return result;
-}
-
-
-//______________________________________________________________________________
-inline
-evf::UInt_t evf::FUResourceTable::nbBytesSent(bool reset)
-{
-  lock();
-  UInt_t result=nbBytesSent_;
-  if (reset) nbBytesSent_=0;
-  unlock();
-  return result;
-}
-
-
-//______________________________________________________________________________
-inline
-evf::UInt_t evf::FUResourceTable::nbBytesSentDqm(bool reset)
-{
-  lock();
-  UInt_t result=nbBytesSentDqm_;
-  if (reset) nbBytesSentDqm_=0;
-  unlock();
-  return result;
-}
 
 
 #endif
