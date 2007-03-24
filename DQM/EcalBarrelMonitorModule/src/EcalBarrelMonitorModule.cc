@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  *
- * $Date: 2007/03/24 13:33:48 $
- * $Revision: 1.125 $
+ * $Date: 2007/03/24 19:25:43 $
+ * $Revision: 1.126 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -47,7 +47,7 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const ParameterSet& ps){
   cout << endl;
 
   // this should come from the EcalBarrel run header
-  runNumber_ = ps.getUntrackedParameter<int>("runNumber", 999999);
+  runNumber_ = ps.getUntrackedParameter<int>("runNumber", 0);
 
   // this should come from the EcalBarrel run header
   runType_ = ps.getUntrackedParameter<int>("runType", -1);
@@ -271,9 +271,6 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
   map<int, EcalDCCHeaderBlock> dccMap;
   Handle<EcalRawDataCollection> dcchs;
 
-  Handle<EcalTBEventHeader> pEvH;
-  const EcalTBEventHeader* EvHeader=0;
-
   try {
 
     e.getByLabel(EcalRawDataCollection_, dcchs);
@@ -292,7 +289,9 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
 
       meEBDCC_->Fill((dcch.id()+1)+0.5);
 
-      if ( dcch.getRunNumber() != 0 ) runNumber_ = dcch.getRunNumber();
+      if ( runNumber_ == 0 ) {
+        if ( dcch.getRunNumber() != 0 ) runNumber_ = dcch.getRunNumber();
+      }
 
       if ( dcch.getRunType() != -1 ) runType_ = dcch.getRunType();
 
@@ -311,12 +310,20 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
 
     try {
 
-      e.getByLabel(EcalTBEventHeader_, pEvH);
-      EvHeader = pEvH.product();
+      Handle<EcalTBEventHeader> pEvtH;
+      const EcalTBEventHeader* evtHeader=0;
+
+      e.getByLabel(EcalTBEventHeader_, pEvtH);
+      evtHeader = pEvtH.product();
 
       meEBDCC_->Fill(1);
 
+      if ( runNumber_ == 0 ) {
+        if ( evtHeader->runNumber() != 0 ) runNumber_ = evtHeader->runNumber();
+      }
+
       runType_ = EcalDCCHeaderBlock::BEAMH4;
+
       evtType_ = EcalDCCHeaderBlock::BEAMH4;
 
     } catch ( exception& ex ) {
@@ -325,6 +332,10 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
 
     }
 
+  }
+
+  if ( runNumber_ == 0 ) {
+    if ( e.id().run() != 0 ) runNumber_ = e.id().run();
   }
 
   if ( ievt_ == 1 ) {
