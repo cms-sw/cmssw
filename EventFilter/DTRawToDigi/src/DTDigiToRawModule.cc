@@ -1,9 +1,8 @@
-
 #include <EventFilter/DTRawToDigi/src/DTDigiToRawModule.h>
 #include <EventFilter/DTRawToDigi/src/DTDigiToRaw.h>
 #include <DataFormats/FEDRawData/interface/FEDRawDataCollection.h>
 #include <DataFormats/DTDigi/interface/DTDigiCollection.h>
-#include <FWCore/Framework/interface/Handle.h>
+#include <DataFormats/Common/interface/Handle.h>
 #include <FWCore/Framework/interface/Event.h>
 
 
