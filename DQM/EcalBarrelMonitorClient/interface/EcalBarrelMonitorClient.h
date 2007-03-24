@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorClient.h
  *
- * $Date: 2007/02/15 10:03:04 $
- * $Revision: 1.64 $
+ * $Date: 2007/02/21 15:06:32 $
+ * $Revision: 1.65 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -110,6 +110,7 @@ bool cloneME_;
 bool enableQT_;
 
 bool enableTCC_;
+bool enableCluster_;
  
 bool verbose_;
 

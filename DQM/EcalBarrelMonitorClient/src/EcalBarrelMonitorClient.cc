@@ -92,6 +92,7 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
   runTypes_[EcalDCCHeaderBlock::BEAMH4]                 = "BEAM";
   runTypes_[EcalDCCHeaderBlock::BEAMH2]                 = "BEAM";
   runTypes_[EcalDCCHeaderBlock::MTCC]                   = "PHYSICS";
+//  runTypes_[EcalDCCHeaderBlock::PHYSICS]                = "PHYSICS";
   runTypes_[EcalDCCHeaderBlock::LASER_STD]              = "LASER";
   runTypes_[EcalDCCHeaderBlock::TESTPULSE_MGPA]         = "TEST_PULSE";
   runTypes_[EcalDCCHeaderBlock::PEDESTAL_STD]           = "PEDESTAL";
@@ -199,6 +200,16 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
     cout << " enableTCC switch is ON" << endl;
   } else {
     cout << " enableTCC switch is OFF" << endl;
+  }
+
+  // enableCluster switch
+
+  enableCluster_ = ps.getUntrackedParameter<bool>("enableCluster", false);
+
+  if ( enableCluster_ ) {
+    cout << " enableCluster switch is ON" << endl;
+  } else {
+    cout << " enableCluster switch is OFF" << endl;
   }
 
   // enableExit switch
@@ -366,7 +377,7 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
   clients_.push_back( new EBCosmicClient(ps) );
   clientNames_.push_back( "Cosmic" );
   chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::COSMIC ));
-  chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::MTCC ));
+//  chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::MTCC ));
 
   clients_.push_back(  new EBLaserClient(ps) );
   clientNames_.push_back( "Laser" );
@@ -406,27 +417,25 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
   clients_.push_back( new EBTriggerTowerClient(ps) );
   clientNames_.push_back( "TriggerTower" );
   if ( enableTCC_ ) {
-#if 0
-    chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::COSMIC ));
-#endif
     chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH4 ));
     chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH2 ));
+    chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::MTCC ));
   }
 
   clients_.push_back(  new EBClusterClient(ps) );
   clientNames_.push_back( "Cluster" );
-#if 0
-  chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::COSMIC ));
-  chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH4 ));
-  chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH2 ));
-#endif
+  if ( enableCluster_ ) {
+    chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH4 ));
+    chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH2 ));
+    chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::MTCC ));
+  }
 
   clients_.push_back(  new EBTimingClient(ps) );
   clientNames_.push_back( "Timing" );
-#if 0
-  chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::COSMIC ));
-#endif
+//  chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::COSMIC ));
   chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::LASER_STD ));
+//  chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_MGPA ));
+  chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::MTCC ));
 
   summaryClient_ = new EBSummaryClient(ps);
 
