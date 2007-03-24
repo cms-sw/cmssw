@@ -73,26 +73,24 @@ void printAssociations(const char* label, TrackingParticleRef tp, const reco::Si
   reco::SimToRecoCollection::result_type found_bychi2;
   if (bychi2.find(tp) != bychi2.end()) found_bychi2 = bychi2[tp];
 
-  typedef boost::tuple< std::pair<bool, double>, std::pair<bool, double> > Quality;
+  typedef boost::tuple<double, double> Quality;
   Quality quality;
   std::map<reco::TrackRef, Quality> found;
   for (std::vector<std::pair<reco::TrackRef, double> >::const_iterator it = found_byhits.begin(); it != found_byhits.end(); ++it) {
     const reco::TrackRef ref = it->first;
     found.insert( std::make_pair(ref, Quality()) );
-    found[ref].get<0>().first  = true;
-    found[ref].get<0>().second = it->second;
+    found[ref].get<0>() = it->second;
   }
   for (std::vector<std::pair<reco::TrackRef, double> >::const_iterator it = found_bychi2.begin(); it != found_bychi2.end(); ++it) {
     const reco::TrackRef ref = it->first;
     found.insert( std::make_pair(ref, Quality()) );
-    found[ref].get<1>().first  = true;
-    found[ref].get<1>().second = it->second;
+    found[ref].get<1>() = - it->second;  // why is chi2 negative ?
   }
   
   for (std::map<reco::TrackRef, Quality>::const_iterator it = found.begin(); it != found.end(); ++it) {
     std::cout << "    " << std::setw(7) << std::left << label << std::right << it->first;
-    if (it->second.get<0>().first) std::cout << " [" << std::setw(5) << std::setprecision(3) << it->second.get<0>().second << "]"; else std::cout << "         ";
-    if (it->second.get<1>().first) std::cout << " [" << std::setw(7) << std::setprecision(3) << it->second.get<1>().second << "]"; else std::cout << "         ";
+    if (it->second.get<0>()) std::cout << " [" << std::setw(6) << std::setprecision(3) << it->second.get<0>() << "]"; else std::cout << "         ";
+    if (it->second.get<1>()) std::cout << " [" << std::setw(6) << std::setprecision(3) << it->second.get<1>() << "]"; else std::cout << "         ";
     std::cout << std::endl;
   }
 }
@@ -103,26 +101,24 @@ void printAssociations(const char* label, reco::TrackRef tp, const reco::RecoToS
   reco::RecoToSimCollection::result_type found_bychi2;
   if (bychi2.find(tp) != bychi2.end()) found_bychi2 = bychi2[tp];
 
-  typedef boost::tuple< std::pair<bool, double>, std::pair<bool, double> > Quality;
+  typedef boost::tuple<double, double> Quality;
   Quality quality;
   std::map<TrackingParticleRef, Quality> found;
   for (std::vector<std::pair<TrackingParticleRef, double> >::const_iterator it = found_byhits.begin(); it != found_byhits.end(); ++it) {
     const TrackingParticleRef ref = it->first;
     found.insert( std::make_pair(ref, Quality()) );
-    found[ref].get<0>().first  = true;
-    found[ref].get<0>().second = it->second;
+    found[ref].get<0>() = it->second;
   }
   for (std::vector<std::pair<TrackingParticleRef, double> >::const_iterator it = found_bychi2.begin(); it != found_bychi2.end(); ++it) {
     const TrackingParticleRef ref = it->first;
     found.insert( std::make_pair(ref, Quality()) );
-    found[ref].get<1>().first  = true;
-    found[ref].get<1>().second = it->second;
+    found[ref].get<1>() = - it->second;  // why is chi2 negative ?
   }
   
   for (std::map<TrackingParticleRef, Quality>::const_iterator it = found.begin(); it != found.end(); ++it) {
     std::cout << "    " << std::setw(7) << std::left << label << std::right << it->first;
-    if (it->second.get<0>().first) std::cout << " [" << std::setw(5) << std::setprecision(3) << it->second.get<0>().second << "]"; else std::cout << "         ";
-    if (it->second.get<1>().first) std::cout << " [" << std::setw(7) << std::setprecision(3) << it->second.get<1>().second << "]"; else std::cout << "         ";
+    if (it->second.get<0>()) std::cout << " [" << std::setw(6) << std::setprecision(3) << it->second.get<0>() << "]"; else std::cout << "         ";
+    if (it->second.get<1>()) std::cout << " [" << std::setw(6) << std::setprecision(3) << it->second.get<1>() << "]"; else std::cout << "         ";
     std::cout << std::endl;
   }
 }
