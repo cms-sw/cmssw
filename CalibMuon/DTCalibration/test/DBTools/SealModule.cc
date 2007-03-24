@@ -7,10 +7,12 @@
 
 #include "DumpDBToFile.h"
 #include "DumpFileToDB.h"
+#include "ProduceFakeMap.h"
 
 
 DEFINE_SEAL_MODULE();
 DEFINE_ANOTHER_FWK_MODULE(DumpDBToFile);
 DEFINE_ANOTHER_FWK_MODULE(DumpFileToDB);
+DEFINE_ANOTHER_FWK_MODULE(ProduceFakeMap);
 
 
