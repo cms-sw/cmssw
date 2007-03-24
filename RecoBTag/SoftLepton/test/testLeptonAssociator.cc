@@ -194,7 +194,7 @@ void testLeptonAssociator::analyze(const edm::Event& iEvent, const edm::EventSet
     )
       ++count;
 
-  cout << " ( " << setw(2) << count << " leptons with pT above " << m_ptcut << ")" << endl;
+  cout << " ( " << setw(2) << count << " leptons with pT above " << m_ptcut << " GeV)" << endl;
   cout << "      " << setw(6) << recoTrackCollection.size()  << " Tracks" << endl;
   cout << "      " << setw(6) << globalMuonCollection.size() << " Leptons" << endl;
 
