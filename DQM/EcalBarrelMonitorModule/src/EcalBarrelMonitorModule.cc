@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  *
- * $Date: 2007/03/24 19:25:43 $
- * $Revision: 1.126 $
+ * $Date: 2007/03/24 19:52:20 $
+ * $Revision: 1.127 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -48,6 +48,7 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const ParameterSet& ps){
 
   // this should come from the EcalBarrel run header
   runNumber_ = ps.getUntrackedParameter<int>("runNumber", 0);
+  evtNumber_ = 0;
 
   // this should come from the EcalBarrel run header
   runType_ = ps.getUntrackedParameter<int>("runType", -1);
@@ -243,7 +244,7 @@ void EcalBarrelMonitorModule::endJob(void) {
   if ( meStatus_ ) meStatus_->Fill(2);
 
   if ( meRun_ ) meRun_->Fill(runNumber_);
-  if ( meEvt_ ) meEvt_->Fill(ievt_);
+  if ( meEvt_ ) meEvt_->Fill(evtNumber_);
 
   if ( meRunType_ ) meRunType_->Fill(runType_);
 
@@ -338,6 +339,8 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
     if ( e.id().run() != 0 ) runNumber_ = e.id().run();
   }
 
+  evtNumber_ = e.id().event();
+
   if ( ievt_ == 1 ) {
     LogInfo("EcalBarrelMonitor") << "processing run " << runNumber_;
     // begin-of-run
@@ -348,7 +351,7 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
   }
 
   if ( meRun_ ) meRun_->Fill(runNumber_);
-  if ( meEvt_ ) meEvt_->Fill(ievt_);
+  if ( meEvt_ ) meEvt_->Fill(evtNumber_);
 
   if ( meRunType_ ) meRunType_->Fill(runType_);
   if ( meEvtType_ ) meEvtType_->Fill(evtType_+0.5);
