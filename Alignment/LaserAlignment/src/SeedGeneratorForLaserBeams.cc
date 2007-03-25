@@ -1,8 +1,8 @@
 /** \file SeedGeneratorForLaserBeams.cc
  *  
  *
- *  $Date: Sun Mar 18 19:37:59 CET 2007 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/03/18 19:00:21 $
+ *  $Revision: 1.3 $
  *  \author Maarten Thomas
  */
 
@@ -73,14 +73,14 @@ void SeedGeneratorForLaserBeams::run(TrajectorySeedCollection & output, const ed
 
 		for (uint i = 0; i < HitPairs.size(); i++)
 		{
-			GlobalPoint inner = tracker->idToDet(HitPairs[i].inner()->geographicalId())->surface().toGlobal(HitPairs[i].inner()->localPosition());
-			GlobalPoint outer = tracker->idToDet(HitPairs[i].outer()->geographicalId())->surface().toGlobal(HitPairs[i].outer()->localPosition());
+		  GlobalPoint inner = tracker->idToDet(HitPairs[i].inner().RecHit()->geographicalId())->surface().toGlobal(HitPairs[i].inner().RecHit()->localPosition());
+		  GlobalPoint outer = tracker->idToDet(HitPairs[i].outer().RecHit()->geographicalId())->surface().toGlobal(HitPairs[i].outer().RecHit()->localPosition());
 
-			TransientTrackingRecHit::ConstRecHitPointer outrhit = TTRHBuilder->build(HitPairs[i].outer());
+			TransientTrackingRecHit::ConstRecHitPointer outrhit = TTRHBuilder->build(HitPairs[i].outer().RecHit());
 
 			edm::OwnVector<TrackingRecHit> hits;
-			hits.push_back(HitPairs[i].inner()->clone());
-			hits.push_back(HitPairs[i].outer()->clone());
+			hits.push_back(HitPairs[i].inner().RecHit()->clone());
+			hits.push_back(HitPairs[i].outer().RecHit()->clone());
 
 			if ( ( (outer.z()-inner.z())>0 && outer.z() > 0 && inner.z() > 0 ) 
 				|| ( (outer.z() - inner.z()) < 0 && outer.z() < 0 && inner.z() < 0 ) )
@@ -93,7 +93,7 @@ void SeedGeneratorForLaserBeams::run(TrajectorySeedCollection & output, const ed
 				LogDebug("LaserSeedFinder") << " FirstTSOS " << LaserSeed;
 
 				// First propagation
-				const TSOS outerState = thePropagatorAl->propagate(LaserSeed, tracker->idToDet(HitPairs[i].outer()->geographicalId())->surface());
+				const TSOS outerState = thePropagatorAl->propagate(LaserSeed, tracker->idToDet(HitPairs[i].outer().RecHit()->geographicalId())->surface());
 
 				if (outerState.isValid())
 				{
@@ -104,7 +104,7 @@ void SeedGeneratorForLaserBeams::run(TrajectorySeedCollection & output, const ed
 					{
 						LogDebug("LaserSeedFinder") << " outerUpdated " << outerUpdated;
 
-						PTrajectoryStateOnDet *pTraj = transformer.persistentState(outerUpdated, HitPairs[i].outer()->geographicalId().rawId());
+						PTrajectoryStateOnDet *pTraj = transformer.persistentState(outerUpdated, HitPairs[i].outer().RecHit()->geographicalId().rawId());
 						TrajectorySeed * trSeed = new TrajectorySeed(*pTraj, hits, alongMomentum);
 					// store seed
 						output.push_back(*trSeed);
@@ -122,7 +122,7 @@ void SeedGeneratorForLaserBeams::run(TrajectorySeedCollection & output, const ed
 				LogDebug("LaserSeedFinder") << " FirstTSOS " << LaserSeed;
 
 				// First propagation
-				const TSOS outerState = thePropagatorOp->propagate(LaserSeed, tracker->idToDet(HitPairs[i].outer()->geographicalId())->surface());
+				const TSOS outerState = thePropagatorOp->propagate(LaserSeed, tracker->idToDet(HitPairs[i].outer().RecHit()->geographicalId())->surface());
 
 				if (outerState.isValid())
 				{
@@ -132,7 +132,7 @@ void SeedGeneratorForLaserBeams::run(TrajectorySeedCollection & output, const ed
 					if (outerUpdated.isValid())
 					{
 						LogDebug("LaserSeedFinder") << " outerUpdated " << outerUpdated;
-						PTrajectoryStateOnDet *pTraj = transformer.persistentState(outerUpdated, HitPairs[i].outer()->geographicalId().rawId());
+						PTrajectoryStateOnDet *pTraj = transformer.persistentState(outerUpdated, HitPairs[i].outer().RecHit()->geographicalId().rawId());
 
 						TrajectorySeed *trSeed = new TrajectorySeed(*pTraj, hits, oppositeToMomentum);
 					// store seed

@@ -4,8 +4,8 @@
 /** \class LaserHitPairGenerator
  *  generate hit pairs from hits on consecutive discs in the endcaps used by the LaserSeedGenerator
  *
- *  $Date: Fri Mar 16 16:03:43 CET 2007 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/03/18 19:00:19 $
+ *  $Revision: 1.2 $
  *  \author Maarten Thomas
  */
 
@@ -46,6 +46,7 @@ class LaserHitPairGenerator : public HitPairGenerator
 
   /// from base class
   virtual void hitPairs(const TrackingRegion & reg, OrderedHitPairs & prs, const edm::EventSetup & iSetup);
+  virtual void hitPairs(const TrackingRegion & reg, OrderedHitPairs & prs, const edm::Event & ev, const edm::EventSetup & iSetup) {}
   virtual LaserHitPairGenerator * clone() const { return new LaserHitPairGenerator(*this); }
 
  private:

@@ -1,8 +1,8 @@
 /** \file LaserHitPairGeneratorFromLayerPair.cc
  *  
  *
- *  $Date: Sun Mar 18 19:37:12 CET 2007 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/03/18 19:00:21 $
+ *  $Revision: 1.4 $
  *  \author Maarten Thomas
  */
 
@@ -12,7 +12,6 @@
 
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
 #include "RecoTracker/TkHitPairs/interface/OrderedHitPairs.h"
-#include "RecoTracker/TkHitPairs/interface/InnerDeltaPhi.h"
 #include "RecoTracker/TkTrackingRegions/interface/HitRZCompatibility.h"
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegionBase.h"
 #include "RecoTracker/TkHitPairs/interface/LayerHitMapLoop.h"
@@ -23,27 +22,38 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
+typedef ctfseeding::SeedingHit TkHitPairsCachedHit;
+
 void LaserHitPairGeneratorFromLayerPair::hitPairs(const TrackingRegion & region, OrderedHitPairs & result, const edm::EventSetup & iSetup)
 {
 	typedef OrderedHitPair::InnerHit InnerHit;
 	typedef OrderedHitPair::OuterHit OuterHit;
 
 	const LayerHitMap & innerHitsMap = theLayerCache(theInnerLayer, region, iSetup);
-	if (innerHitsMap.empty()) return;
+// 	if (innerHitsMap.empty()) return;
+	if (theInnerLayer->recHits().empty()) return;
 
 	const LayerHitMap & outerHitsMap = theLayerCache(theOuterLayer, region, iSetup);
-	if (outerHitsMap.empty()) return;
+// 	if (outerHitsMap.empty()) return;
+	if (theOuterLayer->recHits().empty()) return;
 
 	std::vector<OrderedHitPair> allthepairs;
-	const TkHitPairsCachedHit * oh;
-	LayerHitMapLoop outerHits = outerHitsMap.loop();
+// 	const TkHitPairsCachedHit * oh;
+// 	LayerHitMapLoop outerHits = outerHitsMap.loop();
 
-	while ( (oh = outerHits.getHit()) )
-	{
-		LayerHitMapLoop innerHits = innerHitsMap.loop();
-		const TkHitPairsCachedHit * ih;
-		while ( (ih = innerHits.getHit()) )
-		{
+// 	while ( (oh = outerHits.getHit()) )
+// 	{
+// 		LayerHitMapLoop innerHits = innerHitsMap.loop();
+// 		const TkHitPairsCachedHit * ih;
+// 		while ( (ih = innerHits.getHit()) )
+// 		{
+	std::vector<const TrackingRecHit*>::const_iterator ohh;
+	for(ohh=theOuterLayer->recHits().begin();ohh!=theOuterLayer->recHits().end();ohh++){
+	  const TkHitPairsCachedHit * oh=new TkHitPairsCachedHit(*ohh,iSetup);
+	  std::vector<const TrackingRecHit*>::const_iterator ihh;
+	  for(ihh=theInnerLayer->recHits().begin();ihh!=theInnerLayer->recHits().end();ihh++){
+	    const TkHitPairsCachedHit * ih=new TkHitPairsCachedHit(*ihh,iSetup);
+
 			double inny = ih->r() * sin(ih->phi());
 			double outy = oh->r() * sin(oh->phi());
 			double innz = ih->z();
@@ -55,7 +65,7 @@ void LaserHitPairGeneratorFromLayerPair::hitPairs(const TrackingRegion & region,
 
 			if ( ( inny * outy > 0.0 ) && ( innz * outz > 0.0 ) && ( fabs(phi_diff) < 0.005 ) && ( fabs(r_diff) < 0.5 ) )
 			{
-				allthepairs.push_back( OrderedHitPair(ih->RecHit(), oh->RecHit() ));
+				allthepairs.push_back( OrderedHitPair(*ih, *oh ));
 			}
 		}
 	}
