@@ -34,7 +34,7 @@
 #include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h" 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "Validation/RecoTrack/interface/TrackLocalAngle.h"
+//#include "Validation/RecoTrack/interface/TrackLocalAngle.h"
 #include <TROOT.h>
 #include <TTree.h>
 #include <TFile.h>
@@ -83,7 +83,7 @@ class SiPixelTrackingRecHitsValid : public edm::EDAnalyzer
  private:
 
   edm::ParameterSet conf_;
-  TrackLocalAngle *anglefinder_;
+  //TrackLocalAngle *anglefinder_;
   DaqMonitorBEInterface* dbe_;
   std::string outputFile_;
   std::string src_;
