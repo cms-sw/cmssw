@@ -1,0 +1,32 @@
+<use name=FWCore/Framework>
+<use name=Foundation/PluginManager>
+<use name=FWCore/ParameterSet>
+<use name=CondFormats/DataRecord>
+<use name=DataFormats/EcalDetId>
+<use name=DataFormats/HcalDetId>
+<use name=CondFormats/EcalObjects>
+<use name=CondFormats/HcalObjects>
+<use name=DataFormats/DetId>
+<use name=DataFormats/EcalRecHit>
+<use name=DataFormats/HcalRecHit>
+<use name=Geometry/CaloTopology>
+<use name=CondTools/Hcal>
+<use name=xerces-c>
+<flags SEAL_PLUGIN_NAME="CalibrationHcalCalibAlgos">
+<export>
+   <lib name=CalibrationHcalCalibAlgos>
+   <use name=FWCore/Framework>
+   <use name=Foundation/PluginManager>
+   <use name=FWCore/ParameterSet>
+   <use name=CondFormats/DataRecord> 
+   <use name=DataFormats/EcalDetId> 
+   <use name=DataFormats/EcalDetId> 
+   <use name=CondFormats/HcalObjects>
+   <use name=CondFormats/HcalObjects>
+   <use name=DataFormats/DetId>
+   <use name=DataFormats/EcalRecHit>
+   <use name=DataFormats/HcalRecHit>
+   <use name=Geometry/CaloTopology>
+   <use name=CondTools/Hcal>
+   <use name=xerces-c>
+</export>
