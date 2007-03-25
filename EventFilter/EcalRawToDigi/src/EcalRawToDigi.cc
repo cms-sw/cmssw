@@ -10,6 +10,7 @@
  *
  */
 
+#include "FWCore/Framework/interface/Handle.h"
 #include "EventFilter/EcalRawToDigi/interface/EcalRawToDigi.h"
 #include "EventFilter/EcalRawToDigi/src/DCCMapper.h"
 
@@ -121,58 +122,61 @@ void EcalRawToDigi::produce(edm::Event& e, const edm::EventSetup& es) {
 
   // create the collection of Ecal Integrity Mem ch_id errors
   auto_ptr<EcalElectronicsIdCollection> productMemChIdErrors(new EcalElectronicsIdCollection);
-
+  
   
   // Step C: unpack all requested FEDs
-  try{
-    for (std::vector<int>::const_iterator i=fedUnpackList_.begin(); i!=fedUnpackList_.end(); i++) 
-      {
+  for (std::vector<int>::const_iterator i=fedUnpackList_.begin(); i!=fedUnpackList_.end(); i++) 
+    {
+      try{
 	//get fed raw data and SM id
 	const FEDRawData &fedData = rawdata->FEDData(*i);
-
+	
 	
 	//if data size is no null interpret data
 	if (fedData.size())
 	  {
-	    ulong smId_ = myMap_->getSMId(*i);
-	    
-	    //for debug purposes
- 	    edm::LogInfo("EcalRawToDigi") << "Getting FED nb: " << *i << " data size is: " << fedData.size() << endl;
-
-	    // do the data unpacking and fill the collections
-	    formatter_->interpretRawData(fedData,  *productEb, *productPN, 
-					*productDCCHeader, *productDCCSize, *productTTId, *productBlockSize, 
-					*productChId, *productGain, *productGainSwitch, *productGainSwitchStay, 
-					*productMemTtId,  *productMemBlockSize,*productMemGain,  *productMemChIdErrors);      
+	      ulong smId_ = myMap_->getSMId(*i);
+	      
+	      //for debug purposes
+	      edm::LogInfo("EcalRawToDigi") << "Getting FED nb: " << *i << " data size is: " << fedData.size() << endl;
+	      
+	      // do the data unpacking and fill the collections
+	      formatter_->interpretRawData(fedData,  *productEb, *productPN, 
+					   *productDCCHeader, *productDCCSize, *productTTId, *productBlockSize, 
+					   *productChId, *productGain, *productGainSwitch, *productGainSwitchStay, 
+					   *productMemTtId,  *productMemBlockSize,*productMemGain,  *productMemChIdErrors);      
 	  }
+	
+	}
+      catch(ECALParserException &e){
+	  cout << "Exception caught after looping over feds: " << e.what() << endl;
       }
-    
-    // Step D: Put outputs into event 
-    e.put(productPN);
-    e.put(productEb);
-    e.put(productDCCHeader);
+	catch(ECALParserBlockException &e){
+	  cout << "Exception caught after looping over feds: " << e.what() << endl;
+	}
 
-    e.put(productDCCSize,"EcalIntegrityDCCSizeErrors");
-    e.put(productTTId,"EcalIntegrityTTIdErrors");
-    e.put(productBlockSize,"EcalIntegrityBlockSizeErrors");
-    e.put(productChId,"EcalIntegrityChIdErrors");
-    e.put(productGain,"EcalIntegrityGainErrors");
-    e.put(productGainSwitch,"EcalIntegrityGainSwitchErrors");
-    e.put(productGainSwitchStay,"EcalIntegrityGainSwitchStayErrors");
-    
-    e.put(productMemTtId,"EcalIntegrityMemTtIdErrors");
-    e.put(productMemBlockSize,"EcalIntegrityMemBlockSize");
-    e.put(productMemChIdErrors,"EcalIntegrityMemChIdErrors");
-    e.put(productMemGain,"EcalIntegrityMemGainErrors"); 
-  }
-  catch(ECALParserException &e){
-    cout << "Exception caught: " << e.what() << endl;
-  }
-  catch(ECALParserBlockException &e){
-    cout << "Exception caught: " << e.what() << endl;
-  }
-}
+    }// end loop on fed
   
+  // Step D: Put outputs into event 
+  e.put(productPN);
+  e.put(productEb);
+  e.put(productDCCHeader);
+  
+  e.put(productDCCSize,"EcalIntegrityDCCSizeErrors");
+  e.put(productTTId,"EcalIntegrityTTIdErrors");
+  e.put(productBlockSize,"EcalIntegrityBlockSizeErrors");
+  e.put(productChId,"EcalIntegrityChIdErrors");
+  e.put(productGain,"EcalIntegrityGainErrors");
+  e.put(productGainSwitch,"EcalIntegrityGainSwitchErrors");
+  e.put(productGainSwitchStay,"EcalIntegrityGainSwitchStayErrors");
+  
+  e.put(productMemTtId,"EcalIntegrityMemTtIdErrors");
+  e.put(productMemBlockSize,"EcalIntegrityMemBlockSize");
+  e.put(productMemChIdErrors,"EcalIntegrityMemChIdErrors");
+  e.put(productMemGain,"EcalIntegrityMemGainErrors"); 
+  
+}
+
 
 /*------------------------------------------------------*/
 /* EcalRawToDigi::~EcalRawToDigi()                      */
