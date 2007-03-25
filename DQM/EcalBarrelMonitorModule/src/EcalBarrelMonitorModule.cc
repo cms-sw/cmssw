@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  *
- * $Date: 2007/03/24 19:52:20 $
- * $Revision: 1.127 $
+ * $Date: 2007/03/24 20:52:10 $
+ * $Revision: 1.128 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -269,6 +269,12 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
 
   LogInfo("EcalBarrelMonitor") << "processing event " << ievt_;
 
+  if ( runNumber_ == 0 ) {
+    if ( e.id().run() != 0 ) runNumber_ = e.id().run();
+  }
+
+  evtNumber_ = e.id().event();
+
   map<int, EcalDCCHeaderBlock> dccMap;
   Handle<EcalRawDataCollection> dcchs;
 
@@ -334,12 +340,6 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
     }
 
   }
-
-  if ( runNumber_ == 0 ) {
-    if ( e.id().run() != 0 ) runNumber_ = e.id().run();
-  }
-
-  evtNumber_ = e.id().event();
 
   if ( ievt_ == 1 ) {
     LogInfo("EcalBarrelMonitor") << "processing run " << runNumber_;
