@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: PixelMatchGsfElectronAnalyzer.cc,v 1.2 2007/03/22 16:24:19 futyand Exp $
+// $Id: PixelMatchGsfElectronAnalyzer.cc,v 1.3 2007/03/23 00:36:05 futyand Exp $
 //
 //
 
@@ -28,6 +28,10 @@
 #include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
+#include "DataFormats/EgammaReco/interface/ClusterShapeFwd.h"
+#include "DataFormats/EgammaReco/interface/BasicClusterShapeAssociation.h"
+#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
+#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 
 #include <iostream>
 #include "TFile.h"
@@ -44,6 +48,9 @@ PixelMatchGsfElectronAnalyzer::PixelMatchGsfElectronAnalyzer(const edm::Paramete
   histfile_ = new TFile("gsfElectronHistos.root","RECREATE");
   electronProducer_=conf.getParameter<std::string>("ElectronProducer");
   electronLabel_=conf.getParameter<std::string>("ElectronLabel");
+  barrelClusterShapeAssocProducer_ = conf.getParameter<edm::InputTag>("barrelClusterShapeAssociation");
+  endcapClusterShapeAssocProducer_ = conf.getParameter<edm::InputTag>("endcapClusterShapeAssociation");
+  MCTruthProducer_ = conf.getParameter<std::string>("MCTruthProducer");
 }  
   
 PixelMatchGsfElectronAnalyzer::~PixelMatchGsfElectronAnalyzer()
@@ -85,33 +92,40 @@ void PixelMatchGsfElectronAnalyzer::beginJob(edm::EventSetup const&iSetup){
   histSclPhi_ = new TH1F("phiSCL","phi of Supercluster",100,-3.5,3.5);
 
   histESclOPTr_ =new TH1F("esOpT","Enscl/pTrack",50,0.,5.);
-  histDeltaEta_ =new TH1F("DeltaEta","Eta Scl - Eta Track",100,-0.25,0.25);
-  histDeltaPhi_ =new TH1F("DeltaPhi","Phi Scl - Phi Track",100,-0.25,0.25);
+  histDeltaEta_ =new TH1F("DeltaEta","Eta Scl - Eta Track",100,-0.01,0.01);
+  histDeltaPhi_ =new TH1F("DeltaPhi","Phi Scl - Phi Track",100,-0.1,0.1);
+
+  histS1overS9_ =new TH1F("S1overS9","ratio of max energy crystal to 3x3 energy for seed BasicCluster",100,0.,1.);
+
+  hist_EOverTruth_ = new TH1F("EOverTruth","Reco energy over true energy",100,.5,1.5);
+  hist_EtOverTruth_ = new TH1F("EtOverTruth","Reco Et over True Et",100,.5,1.5);
+  hist_DeltaEtaTruth_ = new TH1F("DeltaEtaTruth","Reco eta - true eta",100,-.01,.01);
+  hist_DeltaPhiTruth_ = new TH1F("DeltaPhiTruth","Reco phi - true phi",100,-.1,.1);
 }     
 
 void
-PixelMatchGsfElectronAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& iSetup)
+PixelMatchGsfElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 
   // get electrons
   
   edm::Handle<PixelMatchGsfElectronCollection> electrons;
-  e.getByLabel(electronProducer_,electronLabel_,electrons); 
-  edm::LogInfo("")<<"\n\n =================> Treating event "<<e.id()<<" Number of electrons "<<electrons.product()->size();
+  iEvent.getByLabel(electronProducer_,electronLabel_,electrons); 
+  edm::LogInfo("")<<"\n\n =================> Treating event "<<iEvent.id()<<" Number of electrons "<<electrons.product()->size();
 
-  for( PixelMatchGsfElectronCollection::const_iterator MyS= (*electrons).begin(); MyS != (*electrons).end(); ++MyS) {
+  PixelMatchGsfElectronCollection::const_iterator electron;
+  for(electron = (*electrons).begin(); electron != (*electrons).end(); ++electron) {
     
     //electron quantities
-    histCharge_->Fill((*MyS).charge());
-    histMass_->Fill((*MyS).mass());
-    histEn_->Fill((*MyS).energy());
-    if ((*MyS).et()<150.) histEt_->Fill((*MyS).et());
-    histEta_->Fill((*MyS).eta());
-    histPhi_->Fill((*MyS).phi());
+    histCharge_->Fill((*electron).charge());
+    histMass_->Fill((*electron).mass());
+    histEn_->Fill((*electron).energy());
+    if ((*electron).et()<150.) histEt_->Fill((*electron).et());
+    histEta_->Fill((*electron).eta());
+    histPhi_->Fill((*electron).phi());
 
     // track informations 
-    //    reco::GsfTrackRef tr =(*MyS).track();
-    reco::GsfTrackRef tr =(*MyS).track();
+    reco::GsfTrackRef tr =(*electron).track();
     histTrCharge_->Fill(tr->charge());
     histTrInP_->Fill((*tr).innerMomentum().R());
     histTrInPt_->Fill((*tr).innerMomentum().Rho());
@@ -125,7 +139,7 @@ PixelMatchGsfElectronAnalyzer::analyze(const edm::Event& e, const edm::EventSetu
     histTrOutPt_->Fill(tr->outerPt());
 
     // SCL informations
-    reco::SuperClusterRef sclRef=(*MyS).superCluster();
+    reco::SuperClusterRef sclRef=(*electron).superCluster();
     histSclEn_->Fill(sclRef->energy());
     double R=TMath::Sqrt(sclRef->x()*sclRef->x() + sclRef->y()*sclRef->y() +sclRef->z()*sclRef->z());
     double Rt=TMath::Sqrt(sclRef->x()*sclRef->x() + sclRef->y()*sclRef->y());
@@ -137,13 +151,80 @@ PixelMatchGsfElectronAnalyzer::analyze(const edm::Event& e, const edm::EventSetu
     histESclOPTr_->Fill((sclRef->energy())/pTr);
     //CC@@
     //histDeltaEta_->Fill(sclRef->eta()-(*tr).outerEta());
-    histDeltaEta_->Fill((*MyS).deltaEtaSuperClusterTrackAtVtx());
+    histDeltaEta_->Fill((*electron).deltaEtaSuperClusterTrackAtVtx());
     //CC@@
     //histDeltaPhi_->Fill(sclRef->phi()-(*tr).outerPhi());
-    histDeltaPhi_->Fill((*MyS).deltaPhiSuperClusterTrackAtVtx());
+    histDeltaPhi_->Fill((*electron).deltaPhiSuperClusterTrackAtVtx());
 
+    // Get association maps linking BasicClusters to ClusterShape
+    edm::Handle<reco::BasicClusterShapeAssociationCollection> barrelClShpHandle;
+    iEvent.getByLabel(barrelClusterShapeAssocProducer_, barrelClShpHandle);
+    edm::Handle<reco::BasicClusterShapeAssociationCollection> endcapClShpHandle;
+    iEvent.getByLabel(endcapClusterShapeAssocProducer_, endcapClShpHandle);
+
+    reco::BasicClusterShapeAssociationCollection::const_iterator seedShpItr;
+
+    // Find the entry in the map corresponding to the seed BasicCluster of the SuperCluster
+    DetId id = sclRef->seed()->getHitsByDetId()[0];
+    if (id.subdetId() == EcalBarrel) {
+      seedShpItr = barrelClShpHandle->find(sclRef->seed());
+    } else {
+      seedShpItr = endcapClShpHandle->find(sclRef->seed());
+    }
+
+    // Get the ClusterShapeRef corresponding to the BasicCluster
+    const reco::ClusterShapeRef& seedShapeRef = seedShpItr->val;
+    histS1overS9_->Fill(seedShapeRef->eMax()/seedShapeRef->e3x3());
   }
-  
+
+  // Get generator level information
+  edm::Handle<edm::HepMCProduct> hepMCHandle ;
+  iEvent.getByLabel(MCTruthProducer_, hepMCHandle) ;
+  const HepMC::GenEvent * genEvent = hepMCHandle->GetEvent();
+
+  const double pi = 3.14159;
+
+  // Loop over MC electrons
+  HepMC::GenEvent::particle_const_iterator currentParticle; 
+  for(currentParticle = genEvent->particles_begin(); 
+      currentParticle != genEvent->particles_end(); currentParticle++ ) {
+    if(abs((*currentParticle)->pdg_id())==11 && (*currentParticle)->status()==1) {
+      double phiTrue = (*currentParticle)->momentum().phi();
+      double etaTrue = (*currentParticle)->momentum().eta();
+      double eTrue  = (*currentParticle)->momentum().e();
+      double etTrue  = (*currentParticle)->momentum().e()/cosh(etaTrue);   
+
+      double etaFound,phiFound,etFound,eFound;
+      double deltaRMin = 999.;
+      double deltaPhiMin = 999.;
+
+      // find closest RECO electron to MC electron
+      for(electron = electrons->begin(); electron != electrons->end(); electron++) {
+	double deltaEta = electron->eta() - etaTrue;
+	double deltaPhi = electron->phi() - phiTrue;
+	if(deltaPhi > pi) deltaPhi -= 2.*pi;
+	if(deltaPhi < -pi) deltaPhi += 2.*pi;
+	double deltaR = sqrt(deltaEta*deltaEta + deltaPhi*deltaPhi);
+
+	if(deltaR < deltaRMin) {
+	  etFound  = electron->et();
+	  eFound   = electron->energy();
+	  etaFound = electron->eta();
+	  phiFound = electron->phi();
+	  deltaRMin = deltaR;
+	  deltaPhiMin = deltaPhi;
+	}
+      }
+
+      // Fill histos for matched electrons
+      if(deltaRMin < 0.1) { 
+	hist_EtOverTruth_->Fill(etFound/etTrue);   
+	hist_EOverTruth_->Fill(eFound/eTrue);
+	hist_DeltaEtaTruth_->Fill(etaFound-etaTrue);
+	hist_DeltaPhiTruth_->Fill(deltaPhiMin);
+      }    
+    }
+  }
 }
 
 
