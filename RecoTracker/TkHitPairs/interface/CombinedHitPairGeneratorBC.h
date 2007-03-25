@@ -25,7 +25,7 @@ class CombinedHitPairGeneratorBC : public HitPairGenerator{
 public:
   CombinedHitPairGeneratorBC(SeedLayerPairs& layers, const edm::EventSetup& iSetup);
   CombinedHitPairGeneratorBC(SeedLayerPairs& layers);
-  typedef LayerHitMapCache LayerCacheType;
+  typedef LayerHitMapCacheBC LayerCacheType;
 
   
   //  CombinedHitPairGeneratorBC(const SeedLayerPairs & layers);

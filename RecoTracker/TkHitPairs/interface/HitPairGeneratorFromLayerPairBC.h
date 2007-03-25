@@ -2,7 +2,7 @@
 #define HitPairGeneratorFromLayerPairBC_h
 
 #include "RecoTracker/TkHitPairs/interface/HitPairGenerator.h"
-#include "RecoTracker/TkHitPairs/interface/CombinedHitPairGenerator.h"
+#include "RecoTracker/TkHitPairs/interface/CombinedHitPairGeneratorBC.h"
 #include "RecoTracker/TkHitPairs/interface/LayerWithHits.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
@@ -18,7 +18,7 @@ class HitPairGeneratorFromLayerPairBC : public HitPairGenerator {
 
 public:
 
-  typedef CombinedHitPairGenerator::LayerCacheType       LayerCacheType;
+  typedef CombinedHitPairGeneratorBC::LayerCacheType       LayerCacheType;
  
 
 
