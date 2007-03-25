@@ -1,9 +1,10 @@
-#ifndef CachingSeedCleanerByHitPosition_H
-#define CachingSeedCleanerByHitPosition_H
+#ifndef CachingSeedCleanerBySharedInput_H
+#define CachingSeedCleanerBySharedInput_H
 #include "RecoTracker/CkfPattern/interface/RedundantSeedCleaner.h"
 #include <map>
 
-class CachingSeedCleanerByHitPosition : public RedundantSeedCleaner  {
+/** Merge of SeedCleanerBySharedInput and CachingSeedCleanerByHitPosition */
+class CachingSeedCleanerBySharedInput : public RedundantSeedCleaner  {
   public:
 
    /** In this implementation, it does nothing */
@@ -17,9 +18,9 @@ class CachingSeedCleanerByHitPosition : public RedundantSeedCleaner  {
    /** \brief Returns true if the seed is not overlapping with another trajectory */
    virtual bool good(const TrajectorySeed *seed) ;
 
-   CachingSeedCleanerByHitPosition() : RedundantSeedCleaner(), theVault(), theCache()
-                                            /*, comps_(0), tracks_(0), calls_(0)*/ {}
-   virtual ~CachingSeedCleanerByHitPosition() { theVault.clear(); theCache.clear(); }
+   CachingSeedCleanerBySharedInput() : RedundantSeedCleaner(), theVault(), theCache()
+                                             /*,comps_(0), tracks_(0), calls_(0)*/ {}
+   virtual ~CachingSeedCleanerBySharedInput() { theVault.clear(); theCache.clear(); }
   private:
     std::vector<Trajectory::RecHitContainer> theVault;
     std::multimap<uint32_t, unsigned short> theCache;

@@ -26,6 +26,7 @@
 #include "RecoTracker/CkfPattern/interface/SeedCleanerByHitPosition.h"
 #include "RecoTracker/CkfPattern/interface/CachingSeedCleanerByHitPosition.h"
 #include "RecoTracker/CkfPattern/interface/SeedCleanerBySharedInput.h"
+#include "RecoTracker/CkfPattern/interface/CachingSeedCleanerBySharedInput.h"
 
 using namespace edm;
 using namespace std;
@@ -76,6 +77,8 @@ namespace cms{
         theSeedCleaner = new SeedCleanerBySharedInput();
     } else if (cleaner == "CachingSeedCleanerByHitPosition") {
         theSeedCleaner = new CachingSeedCleanerByHitPosition();
+    } else if (cleaner == "CachingSeedCleanerBySharedInput") {
+        theSeedCleaner = new CachingSeedCleanerBySharedInput();
     } else if (cleaner == "none") {
         theSeedCleaner = 0;
     } else {

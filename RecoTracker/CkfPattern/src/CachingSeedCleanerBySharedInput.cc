@@ -1,14 +1,13 @@
-#include "RecoTracker/CkfPattern/interface/CachingSeedCleanerByHitPosition.h"
-#include "TrackingTools/TransientTrackingRecHit/interface/RecHitComparatorByPosition.h"
+#include "RecoTracker/CkfPattern/interface/CachingSeedCleanerBySharedInput.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-void CachingSeedCleanerByHitPosition::init(const std::vector<Trajectory> *vect) { 
+void CachingSeedCleanerBySharedInput::init(const std::vector<Trajectory> *vect) { 
     theVault.clear(); theCache.clear();
 }
 
-void CachingSeedCleanerByHitPosition::done() { 
-    //edm::LogInfo("CachingSeedCleanerByHitPosition") << " Calls: " << calls_ << ", Tracks: " << tracks_ <<", Comps: " << comps_ << " Vault: " << theVault.size() << ".";
+void CachingSeedCleanerBySharedInput::done() { 
+    //edm::LogInfo("CachingSeedCleanerBySharedInput") << " Calls: " << calls_ << ", Tracks: " << tracks_ <<", Comps: " << comps_ << " Vault: " << theVault.size() << ".";
     //calls_ = comps_ = tracks_ = 0;
 
     theVault.clear(); theCache.clear();
@@ -16,7 +15,7 @@ void CachingSeedCleanerByHitPosition::done() {
 
 
 
-void CachingSeedCleanerByHitPosition::add(const Trajectory *trj) {
+void CachingSeedCleanerBySharedInput::add(const Trajectory *trj) {
     typedef Trajectory::RecHitContainer::const_iterator TI;
     unsigned short idx = theVault.size();
     Trajectory::RecHitContainer hits = trj->recHits();
@@ -31,8 +30,7 @@ void CachingSeedCleanerByHitPosition::add(const Trajectory *trj) {
     }
 }
 
-bool CachingSeedCleanerByHitPosition::good(const TrajectorySeed *seed) {
-    static RecHitComparatorByPosition comp;
+bool CachingSeedCleanerBySharedInput::good(const TrajectorySeed *seed) {
     typedef BasicTrajectorySeed::const_iterator SI;
     typedef Trajectory::RecHitContainer::const_iterator TI;
     BasicTrajectorySeed::range range = seed->recHits();
@@ -50,7 +48,7 @@ bool CachingSeedCleanerByHitPosition::good(const TrajectorySeed *seed) {
             bool found = false;
             for (TI t = ts; t != te; ++t) {
                 //comps_++;
-                if (comp.equals(&(*curr), &(**t))) { found = true; break; }
+                if ( curr->sharesInput((**t).hit(),TrackingRecHit::all) ) { found = true; break; }
             }
             if (!found) break;
         }
