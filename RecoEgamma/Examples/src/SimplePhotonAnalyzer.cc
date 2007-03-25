@@ -1,7 +1,7 @@
 /**\class PhotonSimpleAnalyzer
  **
- ** $Date: 2007/03/22 20:30:06 $ 
- ** $Revision: 1.2 $
+ ** $Date: 2007/03/23 13:53:52 $ 
+ ** $Revision: 1.3 $
  ** \author Nancy Marinelli, U. of Notre Dame, US
 */
 
@@ -14,6 +14,7 @@
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 //
 #include "CLHEP/Units/PhysicalConstants.h"
@@ -31,6 +32,7 @@ SimplePhotonAnalyzer::SimplePhotonAnalyzer( const edm::ParameterSet& ps )
   correctedPhotonCollection_ = ps.getParameter<std::string>("correctedPhotonCollection");
   mcProducer_ = ps.getParameter<std::string>("mcProducer");
   //mcCollection_ = ps.getParameter<std::string>("mcCollection");
+  vertexProducer_ = ps.getParameter<std::string>("primaryVertexProducer");
  
 
   outputFile_   = ps.getParameter<std::string>("outputFile");
@@ -70,6 +72,7 @@ SimplePhotonAnalyzer::beginJob(edm::EventSetup const&) {
   h1_corrPho_E_ = new TH1F("corrPhoE","Corrected photons : Energy ",100,0., 100.);
   h1_corrPho_Eta_ = new TH1F("corrPhoEta","Corrected photons:  Eta ",40,-3., 3.);
   h1_corrPho_Phi_ = new TH1F("corrPhoPhi","Corrected photons:  Phi ",40,-3.14, 3.14);
+  h1_corrPho_R9_ = new TH1F("corrPhoR9","Corrected photons:  3x3 energy / SuperCluster energy",100,0.,1.2);
 
 
 }
@@ -100,8 +103,17 @@ SimplePhotonAnalyzer::analyze( const edm::Event& evt, const edm::EventSetup& es 
 
 
 
-  /// Get the MC truth
 
+  // Get the primary event vertex
+  Handle<reco::VertexCollection> vertexHandle;
+  evt.getByLabel(vertexProducer_, vertexHandle);
+  reco::VertexCollection vertexCollection = *(vertexHandle.product());
+  math::XYZPoint vtx(0.,0.,0.);
+  if (vertexCollection.size()>0) vtx = vertexCollection.begin()->position();
+
+
+
+  /// Get the MC truth
   Handle< HepMCProduct > hepProd ;
   evt.getByLabel( mcProducer_.c_str(),  hepProd ) ;
   const HepMC::GenEvent * myGenEvent = hepProd->GetEvent();
@@ -111,23 +123,20 @@ SimplePhotonAnalyzer::analyze( const edm::Event& evt, const edm::EventSetup& es 
 
   // Just simply loop over uncorrected  Photon candidates 
   for( reco::PhotonCollection::const_iterator  iPho = phoCollection.begin(); iPho != phoCollection.end(); iPho++) {
-    
+
+    /////  Set event vertex
+    reco::Photon localPho(*iPho);
+    localPho.setVertex(vtx);
+
     /////  Fill histos
-   
 
-    h1_scE_->Fill( (*iPho).superCluster()->energy() );
-    h1_scEta_->Fill( (*iPho).superCluster()->position().eta() );
-    h1_scPhi_->Fill( (*iPho).superCluster()->position().phi() );
+    h1_scE_->Fill( localPho.superCluster()->energy() );
+    h1_scEta_->Fill( localPho.superCluster()->position().eta() );
+    h1_scPhi_->Fill( localPho.superCluster()->position().phi() );
 
-
-    h1_phoE_->Fill( (*iPho).energy() );
-    h1_phoEta_->Fill( (*iPho).eta() );
-    h1_phoPhi_->Fill( (*iPho).phi() );
-
-
-
-
-
+    h1_phoE_->Fill( localPho.energy() );
+    h1_phoEta_->Fill( localPho.eta() );
+    h1_phoPhi_->Fill( localPho.phi() );
     
   }  
 
@@ -136,13 +145,15 @@ SimplePhotonAnalyzer::analyze( const edm::Event& evt, const edm::EventSetup& es 
   // Loop over corrected  Photon candidates 
   for( reco::PhotonCollection::const_iterator  iPho = corrPhoCollection.begin(); iPho != corrPhoCollection.end(); iPho++) {
     
+    /////  Set event vertex
+    reco::Photon localPho(*iPho);
+    localPho.setVertex(vtx);
+
     /////  Fill histos
-
-    h1_corrPho_E_->Fill( (*iPho).energy() );
-    h1_corrPho_Eta_->Fill( (*iPho).eta() );
-    h1_corrPho_Phi_->Fill( (*iPho).phi() );
-
-
+    h1_corrPho_E_->Fill( localPho.energy() );
+    h1_corrPho_Eta_->Fill( localPho.eta() );
+    h1_corrPho_Phi_->Fill( localPho.phi() );
+    h1_corrPho_R9_->Fill( localPho.r9() );
     
   } 
 
@@ -155,13 +166,17 @@ SimplePhotonAnalyzer::analyze( const edm::Event& evt, const edm::EventSetup& es 
   HepMC::GenParticle mcMatchedPhoton;
 
 
-  for( reco::PhotonCollection::const_iterator  iPho = phoCollection.begin(); iPho != phoCollection.end(); iPho++) {
+  for( reco::PhotonCollection::const_iterator  iPho = corrPhoCollection.begin(); iPho != corrPhoCollection.end(); iPho++) {
+
+    /////  Set event vertex
+    reco::Photon localPho(*iPho);
+    localPho.setVertex(vtx);
 
     for ( HepMC::GenEvent::particle_const_iterator p = myGenEvent->particles_begin(); p != myGenEvent->particles_end(); ++p ) {
       if ( !( (*p)->pdg_id() == 22 && (*p)->status()==1 )  )  continue;
       
-      float phiClu=(*iPho).phi();
-      float etaClu=(*iPho).eta();
+      float phiClu=localPho.phi();
+      float etaClu=localPho.eta();
       float phiPho=(*p)->momentum().phi();
       float etaPho=(*p)->momentum().eta();
       float deltaPhi = phiClu-phiPho;
@@ -170,8 +185,6 @@ SimplePhotonAnalyzer::analyze( const edm::Event& evt, const edm::EventSetup& es 
       
       if ( deltaPhi > pi )  deltaPhi -= twopi;
       if ( deltaPhi < -pi) deltaPhi += twopi;
-      std::cout << " TheSC_ phi " << phiClu << " Photon phi " << phiPho <<  std::endl;
-      std::cout << " TheSC_ eta " << etaClu << " Photon eta " << etaPho <<  std::endl;
       deltaPhi=pow(deltaPhi,2);
       deltaEta=pow(deltaEta,2);
       delta = sqrt( deltaPhi+deltaEta); 
@@ -182,9 +195,9 @@ SimplePhotonAnalyzer::analyze( const edm::Event& evt, const edm::EventSetup& es 
     } //loop over MC particles
     
 
-    h1_recEoverTrueE_     -> Fill( (*iPho).energy()/ mcMatchedPhoton.momentum().e() );
-    h1_deltaEta_ -> Fill(  (*iPho).eta()- mcMatchedPhoton.momentum().eta()  );
-    h1_deltaPhi_ -> Fill(  (*iPho).phi()-mcMatchedPhoton.momentum().phi()  );
+    h1_recEoverTrueE_     -> Fill( localPho.energy()/ mcMatchedPhoton.momentum().e() );
+    h1_deltaEta_ -> Fill(  localPho.eta()- mcMatchedPhoton.momentum().eta()  );
+    h1_deltaPhi_ -> Fill(  localPho.phi()-mcMatchedPhoton.momentum().phi()  );
     
 
 
@@ -219,6 +232,7 @@ SimplePhotonAnalyzer::endJob() {
   h1_corrPho_E_->Write();
   h1_corrPho_Eta_->Write();
   h1_corrPho_Phi_->Write();
+  h1_corrPho_R9_->Write();
 
 
   rootFile_->Close();
