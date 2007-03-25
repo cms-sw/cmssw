@@ -15,16 +15,17 @@ namespace HcalUnpacker_impl {
 
     // what is my sample number?
     int myFiberChan=startPoint->fiberAndChan();
-    int ncurr=0;
+    int ncurr=0,ntaken=0;
     const HcalQIESample* qie_work=startPoint;
     while (qie_work!=limit && qie_work->fiberAndChan()==myFiberChan) {
       if (ncurr>=startSample && ncurr<=endSample) {
-	digi.setSample(digi.size(),*qie_work);
-	digi.setSize(digi.size()+1);
+	digi.setSample(ntaken,*qie_work);
+	++ntaken;
       }
       ncurr++;
       qie_work++;
     }
+    digi.setSize(ntaken);
     return qie_work;
   }
 }
