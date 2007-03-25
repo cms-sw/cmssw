@@ -14,10 +14,10 @@ RPCGeometry::RPCGeometry(){}
 RPCGeometry::~RPCGeometry()
 {
   // delete all the chamber associated to the geometry
-  for (std::vector<RPCChamber*>::const_iterator ich = allChambers.begin();
-       ich != allChambers.end(); ++ich){
-    delete (*ich);
-  }
+  //for (std::vector<RPCChamber*>::const_iterator ich = allChambers.begin();
+  //      ich != allChambers.end(); ++ich){
+  //  delete (*ich);
+  //}
 }  
 
  
