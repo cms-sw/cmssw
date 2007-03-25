@@ -5,8 +5,8 @@
  *
  * Class for DT Data Integrity.
  *  
- *  $Date: 2006/11/03 15:52:50 $
- *  $Revision: 1.7 $
+ *  $Date: 2007/03/23 10:45:21 $
+ *  $Revision: 1.8 $
  *
  * \author Marco Zanetti  - INFN Padova
  *
@@ -28,6 +28,7 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <list>
 
 class DTROS25Data;
 class DTDDUData;
@@ -71,7 +72,19 @@ private:
   int neventsDDU;
   int neventsROS25;
   std::string outputFile;
-
+  
+  //Event counter for the graphs VS time
+  int myPrevEv;
+  
+  //Monitor TTS,ROS,FIFO VS time
+  int myPrevTtsVal;
+  int myPrevRosVal;
+  int myPrevFifoVal[7];
+  //list of pair<events, values>
+  std::list<std::pair<int,int> > ttsVSTime;
+  std::list<std::pair<int,int> > rosVSTime;
+  std::list<std::pair<int,int*> > fifoVSTime;
+ 
 };
 
 

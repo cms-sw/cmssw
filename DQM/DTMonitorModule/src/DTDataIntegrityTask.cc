@@ -1,8 +1,8 @@
 /*
  * \file DTDataIntegrityTask.cc
  * 
- * $Date: 2007/03/22 08:54:12 $
- * $Revision: 1.18 $
+ * $Date: 2007/03/23 10:44:27 $
+ * $Revision: 1.19 $
  * \author M. Zanetti (INFN Padova), S. Bolognesi (INFN Torino)
  *
 */
@@ -39,13 +39,21 @@ DTDataIntegrityTask::DTDataIntegrityTask(const edm::ParameterSet& ps,edm::Activi
 
   neventsDDU = 0;
   neventsROS25 = 0;
+  
+  //Counter and containers for info(tts,ros,fifo) VS time
+  myPrevEv=0;
+  myPrevTtsVal = -999;
+  myPrevRosVal = -999;
+  for (int i=0;i++;i<7){
+    myPrevFifoVal[i] = -999;
+  }
 
+  //Root output file with histograms
   outputFile = ps.getUntrackedParameter<string>("outputFile", "ROS25Test.root");
 
   parameters = ps;
 
-  dbe = edm::Service<DaqMonitorBEInterface>().operator->();
-  
+  dbe = edm::Service<DaqMonitorBEInterface>().operator->();  
   edm::Service<MonitorDaemon> daemon;
   daemon.operator->();
 
@@ -844,12 +852,47 @@ void DTDataIntegrityTask::processFED(DTDDUData & data, int ddu) {
     channel++;
   }
 
-  //MONITOR TTS VS TIME if the tts value is changed from the last event
- //  if(trailer.ttsBits() != myPrev_ttsValue){
-//     ev_ttsChange.push_back(header.lvl1ID());
-//     ttsChange.push_back(trailer.ttsBits());
-//     myPrev_ttsValue = trailer.ttsBits();
-//   }
+ //MONITOR TTS VS TIME 
+  pair<int,int> ev_tts= make_pair(header.lvl1ID(),trailer.ttsBits());
+  //insert the pair at the right position
+  for (list<pair<int,int> >::iterator ev_it = ttsVSTime.begin(); ; ev_it++) {
+    if(ev_it == ttsVSTime.end()){
+      ttsVSTime.push_back(ev_tts);
+      break;
+    }
+    else if(header.lvl1ID() < (*ev_it).first) {
+      ttsVSTime.insert(ev_it, ev_tts);
+      break;
+    }
+  }
+  //loop until the event number are sequential
+  if(!(header.lvl1ID() % 10)){
+    //create a copy of the list to remove elements already analyzed
+    list<pair<int,int> > ttsVSTime_copy(ttsVSTime);
+    int counter_ev=myPrevEv;
+      for (list<pair<int,int> >::iterator ev_it = ttsVSTime.begin(); ; ev_it++) {
+	counter_ev++;
+
+	if((*ev_it).first != counter_ev || ev_it == ttsVSTime.end())
+	  break;
+
+	if((*ev_it).first > myPrevEv){
+	  myPrevEv = (*ev_it).first;
+
+	  //add a point if the value is changed
+	  if((*ev_it).second != myPrevTtsVal){
+	    //graphTTS->addPoint
+	    myPrevTtsVal = (*ev_it).second;
+	  }
+	}
+
+	//remove from the list the ordered events already analyzed
+	list<pair<int,int> >::iterator copy_it = ev_it;
+	ttsVSTime_copy.remove(*copy_it);
+      }
+      ttsVSTime.clear();
+      ttsVSTime.merge(ttsVSTime_copy);
+  }
 
   //1D HISTOS: EVENT LENGHT from trailer
   //cout<<"1D HISTOS WITH EVENT LENGHT from trailer"<<endl;
@@ -907,12 +950,41 @@ void DTDataIntegrityTask::processFED(DTDDUData & data, int ddu) {
     (dduHistos.find(histoType)->second).find(code.getDDUID())->second->Fill(8,(*channel_it),1);
   }
 
-  //MONITOR ROS LIST VS TIME if the ROS list is changed from the last event
-  // if(rosPositions.size() != myPrev_ROSList){
-//     ev_ROSListChange.push_back(header.lvl1ID());
-//     ROSListChange.push_back(rosPositions.size());
-//     myPrev_ROSList = rosPositions.size();
-//   }
+  //MONITOR ROS LIST VS TIME 
+  pair<int,int> ev_ros= make_pair(header.lvl1ID(),rosPositions.size());
+  //insert the pair at the right position
+  for (list<pair<int,int> >::iterator ev_it = rosVSTime.begin(); ; ev_it++) {
+    if(ev_it == rosVSTime.end()){
+      rosVSTime.push_back(ev_ros);
+      break;
+    }
+    else if(header.lvl1ID() < (*ev_it).first) {
+      rosVSTime.insert(ev_it, ev_ros);
+      break;
+    }
+  }
+
+  //loop until the last sequential event number (= myPrevEv set by loop on ttsVSTime)
+  if(!(header.lvl1ID() % 10)){
+    //create a copy of the list to remove elements already analyzed
+    list<pair<int,int> > rosVSTime_copy(rosVSTime);
+    for (list<pair<int,int> >::iterator ev_it = rosVSTime.begin(); ; ev_it++) {
+      
+      if((*ev_it).first > myPrevEv || ev_it == rosVSTime.end())
+	break;
+      
+      //add a point if the value is changed
+      if((*ev_it).second != myPrevRosVal){
+	//graphROS->addPoint
+	myPrevRosVal = (*ev_it).second;
+     }
+      //remove from the list the ordered events already analyzed
+      list<pair<int,int> >::iterator copy_it = ev_it;
+      rosVSTime_copy.remove(*copy_it);
+    }
+    rosVSTime.clear();
+    rosVSTime.merge(rosVSTime_copy);
+  }
 
   //2D HISTO: FIFO STATUS from 2nd status word
   histoType = "DDUFIFOStatus";   
@@ -920,6 +992,7 @@ void DTDataIntegrityTask::processFED(DTDDUData & data, int ddu) {
     bookHistos( string("DDU"), code);
   } 
   
+  int fifoStatus[7]; //Input*3,L1A*3,Output with value 0=full,1=AlmostFull,2=NotFull
   int inputFifoFull = secondWord.inputFifoFull();
   int inputFifoAlmostFull = secondWord.inputFifoAlmostFull();
   int fifoFull = secondWord.fifoFull();
@@ -927,31 +1000,86 @@ void DTDataIntegrityTask::processFED(DTDDUData & data, int ddu) {
   int outputFifoFull = secondWord.outputFifoFull();
   int outputFifoAlmostFull = secondWord.outputFifoAlmostFull();
   for(int i=0;i<3;i++){
-    if(inputFifoFull & 0x1)
+    if(inputFifoFull & 0x1){
+      fifoStatus[i]=0;
       (dduHistos.find(histoType)->second).find(code.getDDUID())->second->Fill(i,0);
-    if(inputFifoAlmostFull & 0x1)
+    }
+    if(inputFifoAlmostFull & 0x1){
+      fifoStatus[i]=1;
       (dduHistos.find(histoType)->second).find(code.getDDUID())->second->Fill(i,1);
-    if(fifoFull & 0x1)
+    }
+    if(fifoFull & 0x1){
+      fifoStatus[3+i]=0;
       (dduHistos.find(histoType)->second).find(code.getDDUID())->second->Fill(3+i,0);
-    if(fifoAlmostFull & 0x1)
+    }
+    if(fifoAlmostFull & 0x1){
+      fifoStatus[3+i]=1;
       (dduHistos.find(histoType)->second).find(code.getDDUID())->second->Fill(3+i,1);
-
-    if(!(inputFifoFull & 0x1) && !(inputFifoAlmostFull & 0x1))
-      (dduHistos.find(histoType)->second).find(code.getDDUID())->second->Fill(i,2);
-    if(!(fifoFull & 0x1) && !(fifoAlmostFull & 0x1))
+    }
+    if(!(inputFifoFull & 0x1) && !(inputFifoAlmostFull & 0x1)){
+      fifoStatus[i]=2;
+     (dduHistos.find(histoType)->second).find(code.getDDUID())->second->Fill(i,2);
+    }
+    if(!(fifoFull & 0x1) && !(fifoAlmostFull & 0x1)){
+      fifoStatus[3+i]=2;
       (dduHistos.find(histoType)->second).find(code.getDDUID())->second->Fill(3+i,2);
-    
+    }
     inputFifoFull >>= 1;
     inputFifoAlmostFull >>= 1;
     fifoFull >>= 1;
     fifoAlmostFull >>= 1;
   }
 
-  if(outputFifoFull)
+  if(outputFifoFull){
+    fifoStatus[6]=0;
     (dduHistos.find(histoType)->second).find(code.getDDUID())->second->Fill(6,0);
-  if(outputFifoAlmostFull)
+  }
+  if(outputFifoAlmostFull){
+    fifoStatus[6]=1;
     (dduHistos.find(histoType)->second).find(code.getDDUID())->second->Fill(6,1);
-  if(!outputFifoFull && !outputFifoAlmostFull)
+  }
+  if(!outputFifoFull && !outputFifoAlmostFull){
+    fifoStatus[6]=2;
     (dduHistos.find(histoType)->second).find(code.getDDUID())->second->Fill(6,2);
+  }
+
+  //MONITOR FIFO VS TIME 
+  pair<int,int*> ev_fifo= make_pair(header.lvl1ID(),fifoStatus);
+  //insert the pair at the right position
+  for (list<pair<int,int*> >::iterator ev_it = fifoVSTime.begin(); ; ev_it++) {
+    if(ev_it == fifoVSTime.end()){
+      fifoVSTime.push_back(ev_fifo);
+      break;
+    }
+    else if(header.lvl1ID() < (*ev_it).first) {
+      fifoVSTime.insert(ev_it, ev_fifo);
+      break;
+    }
+  }
+
+  //loop until the last sequential event number (= myPrevEv set by loop on ttsVSTime)
+  if(!(header.lvl1ID() % 10)){
+    //create a copy of the list to remove elements already analyzed
+    list<pair<int,int*> > fifoVSTime_copy(fifoVSTime);
+    for (list<pair<int,int*> >::iterator ev_it = fifoVSTime.begin(); ; ev_it++) {
+      if((*ev_it).first > myPrevEv || ev_it == fifoVSTime.end())
+	break;
+      
+      //add a point if one of the values is changed
+      for(int i=0; i<7; i++){
+	if((*ev_it).second[i] != myPrevFifoVal[i]){
+	  //graphFIFO[i]->addPoint
+	  myPrevFifoVal[i] = (*ev_it).second[i];
+	}
+      }
+      //remove from the list the ordered events already analyzed
+      list<pair<int,int*> >::iterator copy_it = ev_it;
+      fifoVSTime_copy.remove(*copy_it);
+    }
+    fifoVSTime.clear();
+    fifoVSTime.merge(fifoVSTime_copy);
+  }
+
+ 
 }
   
