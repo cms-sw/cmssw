@@ -15,7 +15,7 @@ DCCFEBlock::DCCFEBlock( DCCDataUnpacker * u, EcalElectronicsMapper * m, DCCEvent
   expXtalTSamples_           = mapper_->numbXtalTSamples();
   numbDWInXtalBlock_         = (expXtalTSamples_-2)/4+1;
   unfilteredDataBlockLength_ = mapper_->getUnfilteredTowerBlockLength();
- 
+  xtalGains_                 = new short[expXtalTSamples_]; 
  
 }
 

@@ -115,8 +115,7 @@ void DCCTowerBlock::unpackXtalData(uint expStripID, uint expXtalID){
 
      pDFId_ = (EBDataFrame*) mapper_->getDFramePointer(towerId_,stripId,xtalId);	
 //     if(pDFId_){ //thisis not needed for the EB
-
-      vector<int> xtalGain;   
+   
       bool wrongGain(false);
 	 
       //set samples in the frame
@@ -124,7 +123,8 @@ void DCCTowerBlock::unpackXtalData(uint expStripID, uint expXtalID){
         xData_++;
         uint data =  (*xData_) & TOWER_DIGI_MASK;
         uint gain =  data>>12;
-        xtalGain.push_back(gain);
+        //xtalGain.push_back(gain);
+        xtalGains_[i]=gain;
         if(gain == 0){ wrongGain = true; } 
  
         pDFId_->setSample(i,data);
@@ -144,8 +144,8 @@ void DCCTowerBlock::unpackXtalData(uint expStripID, uint expXtalID){
       short firstGainWrong=-1;
       short numGainWrong=0;
 	    
-      for (uint i=0; i<xtalGain.size(); i++ ) {
-        if (i>0 && xtalGain[i-1]>xtalGain[i]) {
+      for (uint i=0; i<nTSamples_; i++ ) {
+        if (i>0 && xtalGains_[i-1]>xtalGains_[i]) {
           numGainWrong++;
           if (firstGainWrong == -1) { firstGainWrong=i;}
         }
@@ -154,11 +154,11 @@ void DCCTowerBlock::unpackXtalData(uint expStripID, uint expXtalID){
       bool wrongGainStaysTheSame=false;
    
       if (firstGainWrong!=-1 && firstGainWrong<9){
-        short gainWrong = xtalGain[firstGainWrong];
+        short gainWrong = xtalGains_[firstGainWrong];
         // does wrong gain stay the same after the forbidden transition?
-        for (unsigned short u=firstGainWrong+1; u<xtalGain.size(); u++){
-          if( gainWrong == xtalGain[u]) wrongGainStaysTheSame=true; 
-          else                          wrongGainStaysTheSame=false; 
+        for (unsigned short u=firstGainWrong+1; u<nTSamples_; u++){
+          if( gainWrong == xtalGains_[u]) wrongGainStaysTheSame=true; 
+          else                            wrongGainStaysTheSame=false; 
         }// END loop on samples after forbidden transition
       }// if firstGainWrong!=0 && firstGainWrong<8
 

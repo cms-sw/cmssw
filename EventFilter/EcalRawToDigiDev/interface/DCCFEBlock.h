@@ -28,6 +28,8 @@ class DCCFEBlock : public DCCDataBlockPrototype {
 
     DCCFEBlock(DCCDataUnpacker * u,EcalElectronicsMapper * m, DCCEventBlock * e, bool unpack);
     
+    virtual ~DCCFEBlock(){ delete [] xtalGains_;}
+
     void zsFlag(bool zs){ zs_ = zs;}
 	 
     virtual void updateCollectors();
@@ -60,7 +62,7 @@ class DCCFEBlock : public DCCDataBlockPrototype {
     uint bx_;
     uint l1_;
     
-	 
+    short * xtalGains_;	 
     auto_ptr<EcalTrigTowerDetIdCollection> * invalidTTIds_;
     auto_ptr<EcalTrigTowerDetIdCollection> * invalidBlockLengths_;
 	 
