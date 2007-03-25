@@ -1,8 +1,8 @@
 /*
  * \file DTDataIntegrityTask.cc
  * 
- * $Date: 2007/03/23 10:44:27 $
- * $Revision: 1.19 $
+ * $Date: 2007/03/25 14:06:52 $
+ * $Revision: 1.20 $
  * \author M. Zanetti (INFN Padova), S. Bolognesi (INFN Torino)
  *
 */
@@ -44,7 +44,7 @@ DTDataIntegrityTask::DTDataIntegrityTask(const edm::ParameterSet& ps,edm::Activi
   myPrevEv=0;
   myPrevTtsVal = -999;
   myPrevRosVal = -999;
-  for (int i=0;i++;i<7){
+  for (int i=0;i<7;i++){
     myPrevFifoVal[i] = -999;
   }
 
