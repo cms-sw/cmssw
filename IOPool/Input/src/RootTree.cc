@@ -84,7 +84,6 @@ namespace edm {
     if (metaTree_ == 0) return;
     fillMetaData();
     // Loop over provenance
-    metaTree_->GetEntry(entryNumber_);
     std::vector<BranchEntryDescription>::const_iterator pit = provenance_.begin();
     std::vector<BranchEntryDescription>::const_iterator pitEnd = provenance_.end();
     for (; pit != pitEnd; ++pit) {
