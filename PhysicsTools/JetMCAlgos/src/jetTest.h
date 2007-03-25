@@ -19,7 +19,7 @@
 #include "DataFormats/JetReco/interface/GenJet.h"
 
 #include "DataFormats/Candidate/interface/CandMatchMap.h"
-#include "PhysicsTools/JetMCUtils/interface/CandMatchMapMany.h"
+#include "DataFormats/Candidate/interface/CandMatchMapMany.h"
 
 #include "TFile.h"
 #include "TH1.h"

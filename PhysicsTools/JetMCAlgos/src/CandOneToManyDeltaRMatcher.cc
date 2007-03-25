@@ -1,5 +1,4 @@
 #include "PhysicsTools/JetMCAlgos/interface/CandOneToManyDeltaRMatcher.h"
-#include "PhysicsTools/JetMCUtils/interface/CandMatchMapMany.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -13,7 +12,9 @@
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
 #include "DataFormats/Candidate/interface/CandMatchMap.h"
+#include "DataFormats/Candidate/interface/CandMatchMapMany.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
+
 
 #include <Math/VectorUtil.h>
 #include <TMath.h>
