@@ -42,7 +42,7 @@ KFTrajectorySmoother::trajectories(const Trajectory& aTraj) const {
   TSOS currTsos;
 
   //first smoothed tm is last fitted
-  if(avtm.back().recHit()->isValid()) {
+  if(avtm.back().recHit()->isValid() && avtm.back().recHit()->det() != 0) {
     currTsos = updator()->update(predTsos, *(avtm.back().recHit()));
     myTraj.push(TM(avtm.back().forwardPredictedState(), 
 		   predTsos,
@@ -72,7 +72,7 @@ KFTrajectorySmoother::trajectories(const Trajectory& aTraj) const {
       return std::vector<Trajectory>();
     }
 
-    if((*itm).recHit()->isValid()) {
+    if((*itm).recHit()->isValid() && (*itm).recHit()->det() != 0) {
       //update
       currTsos = updator()->update(predTsos, (*(*itm).recHit()));
       //3 different possibilities to calculate smoothed state:
@@ -133,7 +133,7 @@ KFTrajectorySmoother::trajectories(const Trajectory& aTraj) const {
     return std::vector<Trajectory>();
   }
   
-  if(avtm.front().recHit()->isValid()) {
+  if(avtm.front().recHit()->isValid() && avtm.front().recHit()->det() != 0) {
     //update
     currTsos = updator()->update(predTsos, *(avtm.front().recHit()));
     myTraj.push(TM(avtm.front().forwardPredictedState(),
