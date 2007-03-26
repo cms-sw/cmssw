@@ -34,7 +34,7 @@ void MultiTrackValidator::beginJob( const EventSetup & setup) {
       string algo = label[www];
       string assoc= associators[ww];
       if (algo.find("Tracks")<algo.length()){
-	algo.replace(algo.find("Track"),5,"");
+	algo.replace(algo.find("Tracks"),6,"");
       }
       if (assoc.find("Track")<assoc.length()){
 	assoc.replace(assoc.find("Track"),5,"");
