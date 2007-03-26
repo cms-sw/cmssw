@@ -1,10 +1,11 @@
 /*
  * \file EBClusterClient.cc
  *
- * $Date: 2007/03/21 21:08:39 $
- * $Revision: 1.14 $
+ * $Date: 2007/03/21 12:49:08 $
+ * $Revision: 1.13 $
  * \author G. Della Ricca
  * \author F. Cossutti
+ * \author E. Di Marco
  *
 */
 
@@ -63,17 +64,24 @@ EBClusterClient::EBClusterClient(const ParameterSet& ps){
   h01_[1] = 0;
   h01_[2] = 0;
 
-  h02_ = 0;
+  h02_[0] = 0;
+  h02_[1] = 0;
 
   h03_ = 0;
+  h04_ = 0;
 
   i01_[0] = 0;
   i01_[1] = 0;
   i01_[2] = 0;
 
-  i02_ = 0;
+  i02_[0] = 0;
+  i02_[1] = 0;
 
   i03_ = 0;
+  i04_ = 0;
+
+  s01_[0] = 0;
+  s01_[1] = 0;
 
 }
 
@@ -137,41 +145,53 @@ void EBClusterClient::setup(void) {
 
 void EBClusterClient::cleanup(void) {
 
-  mui_->setCurrentFolder( "EcalBarrel/EBClusterClient" );
-
   if ( cloneME_ ) {
-    if ( h01_[0] ) delete h01_[0];
-    if ( h01_[1] ) delete h01_[1];
-    if ( h01_[2] ) delete h01_[2];
 
-    if ( h02_ ) delete h02_;
+    for ( unsigned int i=0; i<3; i++ ) {
 
-    if ( h03_ ) delete h03_;
+      if ( h01_[i] ) delete h01_[i];
+      if ( i01_[i] ) delete i01_[i];
 
-    if ( i01_[0] ) delete i01_[0];
-    if ( i01_[1] ) delete i01_[1];
-    if ( i01_[2] ) delete i01_[2];
-    
-    if ( i02_ ) delete i02_;
+    }
 
-    if ( i03_ ) delete i03_;
+    for ( unsigned int i=0; i<2; i++ ) {
+      
+      if( h02_[i] ) delete h02_[i];
+      if( i02_[i] ) delete i02_[i];
+
+      if( h03_ ) delete h03_;
+      if( h04_ ) delete h04_;
+      if( i03_ ) delete i03_;
+      if( i04_ ) delete i04_;
+
+      if( s01_[i] ) delete s01_[i];
+
+    }
   }
-
+  
   h01_[0] = 0;
   h01_[1] = 0;
   h01_[2] = 0;
 
-  h02_ = 0;
+  h02_[0] = 0;
+  h02_[1] = 0;
 
   h03_ = 0;
+  h04_ = 0;
 
   i01_[0] = 0;
   i01_[1] = 0;
   i01_[2] = 0;
 
-  i02_ = 0;
+  i02_[0] = 0;
+  i02_[1] = 0;
 
   i03_ = 0;
+  i04_ = 0;
+
+  s01_[0] = 0;
+  s01_[1] = 0;
+
 
 }
 
@@ -189,90 +209,137 @@ void EBClusterClient::subscribe(void){
 
   Char_t histo[200];
 
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT basic cluster energy");
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island basic cluster energy");
   mui_->subscribe(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT basic cluster number");
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island basic cluster number");
   mui_->subscribe(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT basic cluster crystals");
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island basic cluster crystals");
   mui_->subscribe(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT basic cluster energy map");
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island basic cluster energy map");
   mui_->subscribe(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT basic cluster number map");
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island basic cluster number map");
   mui_->subscribe(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT super cluster energy");
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island basic cluster ET map");
   mui_->subscribe(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT super cluster number");
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island basic cluster size map");
   mui_->subscribe(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT super cluster size");
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island super cluster energy");
   mui_->subscribe(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT super cluster energy map");
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island super cluster number");
   mui_->subscribe(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT super cluster number map");
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island super cluster size");
+  mui_->subscribe(histo);
+
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island super cluster energy map");
+  mui_->subscribe(histo);
+
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island super cluster number map");
+  mui_->subscribe(histo);
+
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island super cluster ET map");
+  mui_->subscribe(histo);
+
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island super cluster size map");
+  mui_->subscribe(histo);
+
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT hybrid S1toE");
+  mui_->subscribe(histo);
+
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT dicluster invariant mass");
   mui_->subscribe(histo);
 
   if ( collateSources_ ) {
 
     if ( verbose_ ) cout << "EBClusterClient: collate" << endl;
 
-    sprintf(histo, "EBCLT basic cluster energy");
+    sprintf(histo, "EBCLT island basic cluster energy");
     me_h01_[0] = mui_->collate1D(histo, histo, "EcalBarrel/Sums/EBClusterTask");
-    sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT basic cluster energy");
+    sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island basic cluster energy");
     mui_->add(me_h01_[0], histo);
 
-    sprintf(histo, "EBCLT basic cluster number");
+    sprintf(histo, "EBCLT island basic cluster number");
     me_h01_[1] = mui_->collate1D(histo, histo, "EcalBarrel/Sums/EBClusterTask");
-    sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT basic cluster number");
+    sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island basic cluster number");
     mui_->add(me_h01_[1], histo);
 
-    sprintf(histo, "EBCLT basic cluster crystals");
+    sprintf(histo, "EBCLT island basic cluster crystals");
     me_h01_[2] = mui_->collate1D(histo, histo, "EcalBarrel/Sums/EBClusterTask");
-    sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT basic cluster crystals");
+    sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island basic cluster crystals");
     mui_->add(me_h01_[2], histo);
 
-    sprintf(histo, "EBCLT basic cluster energy map");
-    me_h02_ = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBClusterTask");
-    sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT basic cluster energy map");
-    mui_->add(me_h02_, histo);
+    sprintf(histo, "EBCLT island basic cluster energy map");
+    me_h02_[0] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBClusterTask");
+    sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island basic cluster energy map");
+    mui_->add(me_h02_[0], histo);
 
-    sprintf(histo, "EBCLT basic cluster number map");
+    sprintf(histo, "EBCLT island basic cluster ET map");
+    me_h02_[1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBClusterTask");
+    sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island basic cluster ET map");
+    mui_->add(me_h02_[1], histo);
+
+    sprintf(histo, "EBCLT island basic cluster number map");
     me_h03_ = mui_->collate2D(histo, histo, "EcalBarrel/Sums/EBClusterTask");
-    sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT basic cluster number map");
+    sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island basic cluster number map");
     mui_->add(me_h03_, histo);
 
-    sprintf(histo, "EBCLT super cluster energy");
+    sprintf(histo, "EBCLT island basic cluster size map");
+    me_h04_ = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBClusterTask");
+    sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island basic cluster size map");
+    mui_->add(me_h04_, histo);
+
+    sprintf(histo, "EBCLT island super cluster energy");
     me_i01_[0] = mui_->collate1D(histo, histo, "EcalBarrel/Sums/EBClusterTask");
-    sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT super cluster energy");
+    sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island super cluster energy");
     mui_->add(me_i01_[0], histo);
 
-    sprintf(histo, "EBCLT super cluster number");
+    sprintf(histo, "EBCLT island super cluster number");
     me_i01_[1] = mui_->collate1D(histo, histo, "EcalBarrel/Sums/EBClusterTask");
-    sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT super cluster number");
+    sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island super cluster number");
     mui_->add(me_i01_[1], histo);
 
-    sprintf(histo, "EBCLT super cluster size");
+    sprintf(histo, "EBCLT island super cluster size");
     me_i01_[2] = mui_->collate1D(histo, histo, "EcalBarrel/Sums/EBClusterTask");
-    sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT super cluster size");
+    sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island super cluster size");
     mui_->add(me_i01_[2], histo);
 
-    sprintf(histo, "EBCLT super cluster energy map");
-    me_i02_ = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBClusterTask");
-    sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT super cluster energy map");
-    mui_->add(me_i02_, histo);
+    sprintf(histo, "EBCLT island super cluster energy map");
+    me_i02_[0] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBClusterTask");
+    sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island super cluster energy map");
+    mui_->add(me_i02_[0], histo);
 
-    sprintf(histo, "EBCLT super cluster number map");
+    sprintf(histo, "EBCLT island super cluster ET map");
+    me_i02_[1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBClusterTask");
+    sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island super cluster ET map");
+    mui_->add(me_i02_[1], histo);
+
+    sprintf(histo, "EBCLT island super cluster number map");
     me_i03_ = mui_->collate2D(histo, histo, "EcalBarrel/Sums/EBClusterTask");
-    sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT super cluster number map");
+    sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island super cluster number map");
     mui_->add(me_i03_, histo);
 
+    sprintf(histo, "EBCLT island super cluster size map");
+    me_i04_ = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBClusterTask");
+    sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island super cluster size map");
+    mui_->add(me_i04_, histo);
+
+    sprintf(histo, "EBCLT hybrid S1toE");
+    me_s01_[0] = mui_->collate1D(histo, histo, "EcalBarrel/Sums/EBClusterTask");
+    sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT hybrid S1toE");
+    mui_->add(me_s01_[0], histo);
+
+    sprintf(histo, "EBCLT dicluster invariant mass");
+    me_s01_[1] = mui_->collate1D(histo, histo, "EcalBarrel/Sums/EBClusterTask");
+    sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT dicluster invariant mass");
+    mui_->add(me_s01_[1], histo);
   }
 
 }
@@ -281,34 +348,52 @@ void EBClusterClient::subscribeNew(void){
 
   Char_t histo[200];
 
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT basic cluster energy");
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island basic cluster energy");
   mui_->subscribeNew(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT basic cluster number");
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island basic cluster number");
   mui_->subscribeNew(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT basic cluster crystals");
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island basic cluster crystals");
   mui_->subscribeNew(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT basic cluster energy map");
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island basic cluster energy map");
   mui_->subscribeNew(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT basic cluster number map");
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island basic cluster ET map");
   mui_->subscribeNew(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT super cluster energy");
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island basic cluster number map");
   mui_->subscribeNew(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT super cluster number");
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island basic cluster size map");
   mui_->subscribeNew(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT super cluster size");
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island super cluster energy");
   mui_->subscribeNew(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT super cluster energy map");
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island super cluster number");
   mui_->subscribeNew(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT super cluster number map");
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island super cluster size");
+  mui_->subscribeNew(histo);
+
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island super cluster energy map");
+  mui_->subscribeNew(histo);
+
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island super cluster ET map");
+  mui_->subscribeNew(histo);
+
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island super cluster number map");
+  mui_->subscribeNew(histo);
+
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island super cluster size map");
+  mui_->subscribeNew(histo);
+
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT hybrid S1toE");
+  mui_->subscribeNew(histo);
+
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT dicluster invariant mass");
   mui_->subscribeNew(histo);
 
 }
@@ -326,14 +411,21 @@ void EBClusterClient::unsubscribe(void){
       mui_->removeCollate(me_h01_[0]);
       mui_->removeCollate(me_h01_[1]);
       mui_->removeCollate(me_h01_[2]);
-      mui_->removeCollate(me_h02_);
+      mui_->removeCollate(me_h02_[0]);
+      mui_->removeCollate(me_h02_[1]);
       mui_->removeCollate(me_h03_);
+      mui_->removeCollate(me_h04_);
 
       mui_->removeCollate(me_i01_[0]);
       mui_->removeCollate(me_i01_[1]);
       mui_->removeCollate(me_i01_[2]);
-      mui_->removeCollate(me_i02_);
+      mui_->removeCollate(me_i02_[0]);
+      mui_->removeCollate(me_i02_[1]);
       mui_->removeCollate(me_i03_);
+      mui_->removeCollate(me_i04_);
+
+      mui_->removeCollate(me_s01_[0]);
+      mui_->removeCollate(me_s01_[1]);
 
     }
 
@@ -341,34 +433,52 @@ void EBClusterClient::unsubscribe(void){
 
   Char_t histo[200];
 
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT basic cluster energy");
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island basic cluster energy");
   mui_->unsubscribe(histo);
   
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT basic cluster number");
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island basic cluster number");
   mui_->unsubscribe(histo);
   
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT basic cluster crystals");
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island basic cluster crystals");
   mui_->unsubscribe(histo);
   
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT basic cluster energy map");
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island basic cluster energy map");
   mui_->unsubscribe(histo);
   
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT basic cluster number map");
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island basic cluster ET map");
+  mui_->unsubscribe(histo);
+
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island basic cluster number map");
+  mui_->unsubscribe(histo);
+
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island basic cluster size map");
   mui_->unsubscribe(histo);
   
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT super cluster energy");
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island super cluster energy");
   mui_->unsubscribe(histo);
   
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT super cluster number");
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island super cluster number");
   mui_->unsubscribe(histo);
   
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT super cluster size");
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island super cluster size");
   mui_->unsubscribe(histo);
   
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT super cluster energy map");
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island super cluster energy map");
+  mui_->unsubscribe(histo);
+
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island super cluster ET map");
   mui_->unsubscribe(histo);
   
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT super cluster number map");
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island super cluster number map");
+  mui_->unsubscribe(histo);
+
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island super cluster size map");
+  mui_->unsubscribe(histo);
+
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT hybrid S1toE");
+  mui_->unsubscribe(histo);
+
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT dicluster invariant mass");
   mui_->unsubscribe(histo);
 
 }
@@ -390,84 +500,132 @@ void EBClusterClient::analyze(void){
   MonitorElement* me;
 
   if ( collateSources_ ) {
-    sprintf(histo, "EcalBarrel/Sums/EBClusterTask/EBCLT basic cluster energy");
+    sprintf(histo, "EcalBarrel/Sums/EBClusterTask/EBCLT island basic cluster energy");
   } else {
-    sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT basic cluster energy").c_str());
+    sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT island basic cluster energy").c_str());
   }
   me = mui_->get(histo);
   h01_[0] = EBMUtilsClient::getHisto<TH1F*>( me, cloneME_, h01_[0] );
 
   if ( collateSources_ ) {
-    sprintf(histo, "EcalBarrel/Sums/EBClusterTask/EBCLT basic cluster number");
+    sprintf(histo, "EcalBarrel/Sums/EBClusterTask/EBCLT island basic cluster number");
   } else {
-    sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT basic cluster number").c_str());
+    sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT island basic cluster number").c_str());
   }
   me = mui_->get(histo);
   h01_[1] = EBMUtilsClient::getHisto<TH1F*>( me, cloneME_, h01_[1] );
 
   if ( collateSources_ ) {
-    sprintf(histo, "EcalBarrel/Sums/EBClusterTask/EBCLT basic cluster crystals");
+    sprintf(histo, "EcalBarrel/Sums/EBClusterTask/EBCLT island basic cluster crystals");
   } else {
-    sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT basic cluster crystals").c_str());
+    sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT island basic cluster crystals").c_str());
   }
   me = mui_->get(histo);
   h01_[2] = EBMUtilsClient::getHisto<TH1F*>( me, cloneME_, h01_[2] );
 
   if ( collateSources_ ) {
-    sprintf(histo, "EcalBarrel/Sums/EBClusterTask/EBCLT basic cluster energy map");
+    sprintf(histo, "EcalBarrel/Sums/EBClusterTask/EBCLT island basic cluster energy map");
   } else {
-    sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT basic cluster energy map").c_str());
+    sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT island basic cluster energy map").c_str());
   }
   me = mui_->get(histo);
-  h02_ = EBMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, h02_ );
+  h02_[0] = EBMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, h02_[0] );
 
   if ( collateSources_ ) {
-    sprintf(histo, "EcalBarrel/Sums/EBClusterTask/EBCLT basic cluster number map");
+    sprintf(histo, "EcalBarrel/Sums/EBClusterTask/EBCLT island basic cluster ET map");
   } else {
-    sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT basic cluster number map").c_str());
+    sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT island basic cluster ET map").c_str());
+  }
+  me = mui_->get(histo);
+  h02_[1] = EBMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, h02_[1] );
+
+  if ( collateSources_ ) {
+    sprintf(histo, "EcalBarrel/Sums/EBClusterTask/EBCLT island basic cluster number map");
+  } else {
+    sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT island basic cluster number map").c_str());
   }
   me = mui_->get(histo);
   h03_ = EBMUtilsClient::getHisto<TH2F*>( me, cloneME_, h03_ );
 
   if ( collateSources_ ) {
-    sprintf(histo, "EcalBarrel/Sums/EBClusterTask/EBCLT super cluster energy");
+    sprintf(histo, "EcalBarrel/Sums/EBClusterTask/EBCLT island basic cluster size map");
   } else {
-    sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT super cluster energy").c_str());
+    sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT island basic cluster size map").c_str());
+  }
+  me = mui_->get(histo);
+  h04_ = EBMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, h04_ );
+
+  if ( collateSources_ ) {
+    sprintf(histo, "EcalBarrel/Sums/EBClusterTask/EBCLT island super cluster energy");
+  } else {
+    sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT island super cluster energy").c_str());
   }
   me = mui_->get(histo);
   i01_[0] = EBMUtilsClient::getHisto<TH1F*>( me, cloneME_, i01_[0] );
 
   if ( collateSources_ ) {
-    sprintf(histo, "EcalBarrel/Sums/EBClusterTask/EBCLT super cluster number");
+    sprintf(histo, "EcalBarrel/Sums/EBClusterTask/EBCLT island super cluster number");
   } else {
-    sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT super cluster number").c_str());
+    sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT island super cluster number").c_str());
   }
   me = mui_->get(histo);
   i01_[1] = EBMUtilsClient::getHisto<TH1F*>( me, cloneME_, i01_[1] );
 
   if ( collateSources_ ) {
-    sprintf(histo, "EcalBarrel/Sums/EBClusterTask/EBCLT super cluster size");
+    sprintf(histo, "EcalBarrel/Sums/EBClusterTask/EBCLT island super cluster size");
   } else {
-    sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT super cluster size").c_str());
+    sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT island super cluster size").c_str());
   }
   me = mui_->get(histo);
   i01_[2] = EBMUtilsClient::getHisto<TH1F*>( me, cloneME_, i01_[2] );
 
   if ( collateSources_ ) {
-    sprintf(histo, "EcalBarrel/Sums/EBClusterTask/EBCLT super cluster energy map");
+    sprintf(histo, "EcalBarrel/Sums/EBClusterTask/EBCLT island super cluster energy map");
   } else {
-    sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT super cluster energy map").c_str());
+    sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT island super cluster energy map").c_str());
   }
   me = mui_->get(histo);
-  i02_ = EBMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, i02_ );
+  i02_[0] = EBMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, i02_[0] );
 
   if ( collateSources_ ) {
-    sprintf(histo, "EcalBarrel/Sums/EBClusterTask/EBCLT super cluster number map");
+    sprintf(histo, "EcalBarrel/Sums/EBClusterTask/EBCLT island super cluster ET map");
   } else {
-    sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT super cluster number map").c_str());
+    sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT island super cluster ET map").c_str());
+  }
+  me = mui_->get(histo);
+  i02_[1] = EBMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, i02_[1] );
+
+  if ( collateSources_ ) {
+    sprintf(histo, "EcalBarrel/Sums/EBClusterTask/EBCLT island super cluster number map");
+  } else {
+    sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT island super cluster number map").c_str());
   }
   me = mui_->get(histo);
   i03_ = EBMUtilsClient::getHisto<TH2F*>( me, cloneME_, i03_ );
+
+  if ( collateSources_ ) {
+    sprintf(histo, "EcalBarrel/Sums/EBClusterTask/EBCLT island super cluster size map");
+  } else {
+    sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT island super cluster size map").c_str());
+  }
+  me = mui_->get(histo);
+  i04_ = EBMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, i04_ );
+
+  if ( collateSources_ ) {
+    sprintf(histo, "EcalBarrel/Sums/EBClusterTask/EBCLT hybrid S1toE");
+  } else {
+    sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT hybrid S1toE").c_str());
+  }
+  me = mui_->get(histo);
+  s01_[0] = EBMUtilsClient::getHisto<TH1F*>( me, cloneME_, s01_[0] );
+
+  if ( collateSources_ ) {
+    sprintf(histo, "EcalBarrel/Sums/EBClusterTask/EBCLT dicluster invariant mass");
+  } else {
+    sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT dicluster invariant mass").c_str());
+  }
+  me = mui_->get(histo);
+  s01_[1] = EBMUtilsClient::getHisto<TH1F*>( me, cloneME_, s01_[1] );
 
 }
 
@@ -496,31 +654,48 @@ void EBClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "<h2>Monitoring task:&nbsp;&nbsp;&nbsp;&nbsp; <span " << endl;
   htmlFile << " style=\"color: rgb(0, 0, 153);\">CLUSTER</span></h2> " << endl;
   htmlFile << "<hr>" << endl;
-//  htmlFile << "<table border=1><tr><td bgcolor=red>channel has problems in this task</td>" << endl;
-//  htmlFile << "<td bgcolor=lime>channel has NO problems</td>" << endl;
-//  htmlFile << "<td bgcolor=yellow>channel is missing</td></table>" << endl;
-//  htmlFile << "<hr>" << endl;
+  //  htmlFile << "<table border=1><tr><td bgcolor=red>channel has problems in this task</td>" << endl;
+  //  htmlFile << "<td bgcolor=lime>channel has NO problems</td>" << endl;
+  //  htmlFile << "<td bgcolor=yellow>channel is missing</td></table>" << endl;
+  //  htmlFile << "<hr>" << endl;
+
+  htmlFile <<  "<a href=\"#bc_plots\"> Basic Clusters plots </a>" << endl;
+  htmlFile << "<p>" << endl;
+  htmlFile <<  "<a href=\"#sc_plots\"> Super Clusters plots </a>" << endl;
+  htmlFile << "<p>" << endl;
+  htmlFile <<  "<a href=\"#hl_plots\"> Higher Level Quantities plots </a>" << endl;
+  htmlFile << "<p>" << endl;
+
+  htmlFile << "<hr>" << endl;
+  htmlFile << "<p>" << endl;
 
   // Produce the plots to be shown as .png files from existing histograms
 
-  const int csize = 250;
-
-  const double histMax = 1.e15;
+  const int csize1D = 250;
+  const int csize2D = 700;
+  //  const double histMax = 1.e15;
 
   int pCol4[10];
   for ( int i = 0; i < 10; i++ ) pCol4[i] = 401+i;
 
-  string imgNameB[3], imgNameBMap[2], imgNameS[3], imgNameSMap[2], imgName, meName;
-
-  TCanvas* cEne = new TCanvas("cEne", "Temp", csize, csize);
-  TCanvas* cMap = new TCanvas("cMap", "Temp", csize, 2*csize);
+  string imgNameB[3], imgNameBMap[4], imgNameS[3], imgNameSMap[4];
+  string imgNameBXproj[4], imgNameBYproj[4], imgNameSXproj[4], imgNameSYproj[4];
+  string imgNameHL[2], imgName, meName;
+  
+  TCanvas* cEne = new TCanvas("cEne", "Temp", csize1D, csize1D);
+  TCanvas* cMap = new TCanvas("cMap", "Temp", int(34./72.*csize2D), csize2D);
 
   TH1F* obj1f = 0;
   TProfile2D* objp;
   TH2F* obj2f = 0;
+  TH1D* obj1dX;
+  TH1D* obj1dY;
 
+
+
+  // ==========================================================================
   // basic clusters
-
+  // ==========================================================================
   for ( int iCanvas = 1; iCanvas <= 3; iCanvas++ ) {
 
     imgNameB[iCanvas-1] = "";
@@ -542,19 +717,18 @@ void EBClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
       cEne->cd();
       gStyle->SetOptStat("euomr");
       obj1f->SetStats(kTRUE);
-      if ( obj1f->GetMaximum(histMax) > 0. ) {
-        gPad->SetLogy(1);
-      } else {
-        gPad->SetLogy(0);
-      }
       obj1f->Draw();
       cEne->Update();
       cEne->SaveAs(imgName.c_str());
-      gPad->SetLogy(0);
-
     }
-
   }
+
+
+  ///*****************************************************************************///
+  htmlFile << "<br>" << endl;
+  htmlFile <<  "<a name=\"bc_plots\"> <B> Basic Clusters plots </B> </a> " << endl;
+  htmlFile << "</br>" << endl;
+  ///*****************************************************************************///
 
   htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
   htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
@@ -573,59 +747,100 @@ void EBClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "</table>" << endl;
   htmlFile << "<br>" << endl;
 
-  imgNameBMap[0] = "";
 
-  objp = h02_;
 
-  if ( objp ) {
+  // dummy histogram labelling the SM's
+  TH2C labelGrid("labelGrid","label grid for SM", 2, -1.479, 1.479, 18, -1*TMath::Pi(), TMath::Pi() );
+  Int_t sm=1;
+  Float_t X=-1.479/2.;
+  while(X<1.479) {
+    Float_t Y=-1*TMath::Pi()+TMath::Pi()/18.;
+    while(Y<TMath::Pi()){
+      labelGrid.Fill(X,Y,sm);
+      Y+=TMath::Pi()/9.;
+      sm++;
+    }
+    X+=1.479;
+  }
+  labelGrid.SetMarkerSize(2);
 
-    meName = objp->GetName();
 
-    for ( unsigned int i = 0; i < meName.size(); i++ ) {
-      if ( meName.substr(i, 1) == " " )  {
-        meName.replace(i, 1 ,"_" ); 
+  for ( int iCanvas = 1; iCanvas <= 3; iCanvas++ ) {
+    
+    imgNameBMap[iCanvas-1] = "";
+  
+    objp = (iCanvas!=3) ? h02_[iCanvas-1] : h04_;
+    
+    if ( objp ) {
+      
+      meName = objp->GetName();
+
+      for ( unsigned int i = 0; i < meName.size(); i++ ) {
+	if ( meName.substr(i, 1) == " " )  {
+	  meName.replace(i, 1 ,"_" ); 
+	}
       }
-    }
-    imgNameBMap[0] = meName + ".png";
-    imgName = htmlDir + imgNameBMap[0];
+      imgNameBMap[iCanvas-1] = meName + ".png";
+      imgName = htmlDir + imgNameBMap[iCanvas-1];
 
-    cMap->cd();
-    gStyle->SetOptStat(" ");
-    gStyle->SetPalette(10, pCol4);
-    objp->GetXaxis()->SetNdivisions(2);
-    objp->GetYaxis()->SetNdivisions(18, kFALSE);
-    cMap->SetGridx();
-    cMap->SetGridy();
-    cMap->SetRightMargin(0.15);
-    cMap->SetLeftMargin(0.15);
-    if ( objp->GetMaximum(histMax) > 0. ) {
-      gPad->SetLogz(1);
-    } else {
-      gPad->SetLogz(0);
-    }
-    objp->Draw("colz");
-    cMap->Update();
-    cMap->SaveAs(imgName.c_str());
-    gPad->SetLogz(0);
+      cMap->cd();
+      gStyle->SetOptStat(" ");
+      gStyle->SetPalette(10, pCol4);
+      objp->GetXaxis()->SetNdivisions(2);
+      objp->GetYaxis()->SetNdivisions(18, kFALSE);
+      cMap->SetGridx();
+      cMap->SetGridy();
+      cMap->SetRightMargin(0.15);
+      objp->Draw("colz");
+      labelGrid.Draw("text,same");
+      cMap->Update();
+      cMap->SaveAs(imgName.c_str());
 
+      char projXName[100];
+      char projYName[100];
+      sprintf(projXName,"%s_px",meName.c_str());
+      sprintf(projYName,"%s_py",meName.c_str());
+      imgNameBXproj[iCanvas-1] = string(projXName) + ".png";
+      imgName = htmlDir + imgNameBXproj[iCanvas-1];
+
+      obj1dX = objp->ProjectionX(projXName,1,objp->GetNbinsY(),"e");
+      obj1dY = objp->ProjectionY(projYName,1,objp->GetNbinsX(),"e");
+      obj1dX->GetXaxis()->SetNdivisions(6, kFALSE);
+      obj1dY->GetXaxis()->SetNdivisions(6, kFALSE);
+
+      cEne->cd();
+      gStyle->SetOptStat("emr");
+      obj1dX->SetStats(kTRUE);
+      obj1dX->Draw("pe");
+      cEne->Update();
+      cEne->SaveAs(imgName.c_str());
+
+      imgNameBYproj[iCanvas-1] = string(projYName) + ".png";
+      imgName = htmlDir + imgNameBYproj[iCanvas-1];
+      obj1dY->SetStats(kTRUE);
+      obj1dY->Draw("pe");
+      cEne->Update();
+      cEne->SaveAs(imgName.c_str());
+    }      
   }
 
-  imgNameBMap[1] = "";
 
+  imgNameBMap[3] = "";
+    
   obj2f = h03_;
-
+    
   if ( obj2f ) {
   
     meName = obj2f->GetName();
-  
+      
     for ( unsigned int i = 0; i < meName.size(); i++ ) {
       if ( meName.substr(i, 1) == " " )  {
-        meName.replace(i, 1 ,"_" );
+	meName.replace(i, 1 ,"_" );
       }
     }
-    imgNameBMap[1] = meName + ".png";
-    imgName = htmlDir + imgNameBMap[1];
-
+    imgNameBMap[3] = meName + ".png";
+    imgName = htmlDir + imgNameBMap[3];
+      
     cMap->cd();
     gStyle->SetOptStat(" ");
     gStyle->SetPalette(10, pCol4);
@@ -634,18 +849,37 @@ void EBClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
     cMap->SetGridx();
     cMap->SetGridy();
     cMap->SetRightMargin(0.15);
-    cMap->SetLeftMargin(0.15);
-    if ( obj2f->GetMaximum(histMax) > 0. ) {
-      gPad->SetLogz(1); 
-    } else {
-      gPad->SetLogz(0);
-    }
     obj2f->Draw("colz");
+    labelGrid.Draw("text,same");
     cMap->Update();
     cMap->SaveAs(imgName.c_str());
-    gPad->SetLogz(0);
-    
+
+    char projXName[100];
+    char projYName[100];
+    sprintf(projXName,"%s_px",meName.c_str());
+    sprintf(projYName,"%s_py",meName.c_str());
+    imgNameBXproj[3] = string(projXName) + ".png";
+    imgName = htmlDir + imgNameBXproj[3];
+    obj1dX = obj2f->ProjectionX("_px",1,obj2f->GetNbinsY(),"e");
+    obj1dY = obj2f->ProjectionY("_py",1,obj2f->GetNbinsX(),"e");
+    cEne->cd();
+    gStyle->SetOptStat("emr");
+    obj1dX->GetXaxis()->SetNdivisions(6, kFALSE);
+    obj1dY->GetXaxis()->SetNdivisions(6, kFALSE);
+    obj1dX->SetStats(kTRUE);
+    obj1dX->Draw("pe");
+    cEne->Update();
+    cEne->SaveAs(imgName.c_str());
+
+    imgNameBYproj[3] = string(projYName) + ".png";
+    imgName = htmlDir + imgNameBYproj[3];
+    obj1dY->SetStats(kTRUE);
+    obj1dY->Draw("pe");
+    cEne->Update();
+    cEne->SaveAs(imgName.c_str());
+
   }
+
 
   htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
   htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
@@ -664,8 +898,67 @@ void EBClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "</table>" << endl;
   htmlFile << "<br>" << endl;
 
-  // super clusters
 
+
+  htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
+  htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
+  htmlFile << "<tr align=\"center\">" << endl;
+
+  for ( int iCanvas = 3; iCanvas <= 4; iCanvas++ ) {
+
+    if ( imgNameBMap[iCanvas-1].size() != 0 )
+      htmlFile << "<td><img src=\"" << imgNameBMap[iCanvas-1] << "\"></td>" << endl;
+    else
+      htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
+
+  }
+
+  htmlFile << "</tr>" << endl;
+  htmlFile << "</table>" << endl;
+  htmlFile << "<br>" << endl;
+
+
+
+  // projections X...
+  htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
+  htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
+  htmlFile << "<tr align=\"center\">" << endl;
+
+  for ( int iCanvas = 1; iCanvas <= 4; iCanvas++ ) {
+
+    if ( imgNameBXproj[iCanvas-1].size() != 0 )
+      htmlFile << "<td><img src=\"" << imgNameBXproj[iCanvas-1] << "\"></td>" << endl;
+    else
+      htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
+
+  }
+
+  htmlFile << "</tr>" << endl;
+  htmlFile << "</table>" << endl;
+  htmlFile << "<br>" << endl;
+
+  // projections Y...
+  htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
+  htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
+  htmlFile << "<tr align=\"center\">" << endl;
+
+  for ( int iCanvas = 1; iCanvas <= 4; iCanvas++ ) {
+
+    if ( imgNameBYproj[iCanvas-1].size() != 0 )
+      htmlFile << "<td><img src=\"" << imgNameBYproj[iCanvas-1] << "\"></td>" << endl;
+    else
+      htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
+
+  }
+
+  htmlFile << "</tr>" << endl;
+  htmlFile << "</table>" << endl;
+  htmlFile << "<br>" << endl;
+
+
+  // ====================================================================
+  // super clusters
+  // ====================================================================
   for ( int iCanvas = 1; iCanvas <= 3; iCanvas++ ) {
 
     imgNameS[iCanvas-1] = "";
@@ -687,19 +980,18 @@ void EBClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
       cEne->cd();
       gStyle->SetOptStat("euomr");
       obj1f->SetStats(kTRUE);
-      if ( obj1f->GetMaximum(histMax) > 0. ) {
-        gPad->SetLogy(1);
-      } else {
-        gPad->SetLogy(0);
-      }
       obj1f->Draw();
       cEne->Update();
       cEne->SaveAs(imgName.c_str());
-      gPad->SetLogy(0);
-
     }
-
   }
+
+
+  ///*****************************************************************************///
+  htmlFile << "<br>" << endl;
+  htmlFile <<  "<a name=\"sc_plots\"> <B> Super Clusters plots </B> </a> " << endl;
+  htmlFile << "</br>" << endl;
+  ///*****************************************************************************///
 
   htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
   htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
@@ -718,44 +1010,68 @@ void EBClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "</table>" << endl;
   htmlFile << "<br>" << endl;
 
-  imgNameSMap[0] = "";
-  
-  objp = i02_;
-  
-  if ( objp ) {
-  
-    meName = objp->GetName();
 
-    for ( unsigned int i = 0; i < meName.size(); i++ ) {
-      if ( meName.substr(i, 1) == " " )  {
-        meName.replace(i, 1 ,"_" ); 
+
+  for ( int iCanvas = 1; iCanvas <= 3; iCanvas++ ) {
+
+    imgNameSMap[iCanvas-1] = "";
+  
+    objp = (iCanvas!=3) ? i02_[iCanvas-1] : i04_;
+  
+    if ( objp ) {
+  
+      meName = objp->GetName();
+
+      for ( unsigned int i = 0; i < meName.size(); i++ ) {
+	if ( meName.substr(i, 1) == " " )  {
+	  meName.replace(i, 1 ,"_" ); 
+	}
       }
-    }
-    imgNameSMap[0] = meName + ".png";
-    imgName = htmlDir + imgNameSMap[0];
+      imgNameSMap[iCanvas-1] = meName + ".png";
+      imgName = htmlDir + imgNameSMap[iCanvas-1];
     
-    cMap->cd();
-    gStyle->SetOptStat(" ");
-    gStyle->SetPalette(10, pCol4);
-    objp->GetXaxis()->SetNdivisions(2);
-    objp->GetYaxis()->SetNdivisions(18, kFALSE);
-    cMap->SetGridx();
-    cMap->SetGridy();
-    cMap->SetRightMargin(0.15);
-    cMap->SetLeftMargin(0.15);
-    if ( objp->GetMaximum(histMax) > 0. ) {
-      gPad->SetLogz(1);
-    } else {
-      gPad->SetLogz(0);
-    }
-    objp->Draw("colz");
-    cMap->Update();
-    cMap->SaveAs(imgName.c_str());
-    gPad->SetLogz(0);
+      cMap->cd();
+      gStyle->SetOptStat(" ");
+      gStyle->SetPalette(10, pCol4);
+      objp->GetXaxis()->SetNdivisions(2);
+      objp->GetYaxis()->SetNdivisions(18, kFALSE);
+      cMap->SetGridx();
+      cMap->SetGridy();
+      cMap->SetRightMargin(0.15);
+      objp->Draw("colz");
+      labelGrid.Draw("text,same");
+      cMap->Update();
+      cMap->SaveAs(imgName.c_str());
 
+      char projXName[100];
+      char projYName[100];
+      sprintf(projXName,"%s_px",meName.c_str());
+      sprintf(projYName,"%s_py",meName.c_str());
+      imgNameSXproj[iCanvas-1] = string(projXName) + ".png";
+      imgName = htmlDir + imgNameSXproj[iCanvas-1];
+
+      obj1dX = objp->ProjectionX(projXName,1,objp->GetNbinsY(),"e");
+      obj1dY = objp->ProjectionY(projYName,1,objp->GetNbinsX(),"e");
+      cEne->cd();
+      gStyle->SetOptStat("emr");
+      obj1dX->GetXaxis()->SetNdivisions(6, kFALSE);
+      obj1dY->GetXaxis()->SetNdivisions(6, kFALSE);
+      obj1dX->SetStats(kTRUE);
+      obj1dX->Draw("pe");
+      cEne->Update();
+      cEne->SaveAs(imgName.c_str());
+
+      imgNameSYproj[iCanvas-1] = string(projYName) + ".png";
+      imgName = htmlDir + imgNameSYproj[iCanvas-1];
+      obj1dY->SetStats(kTRUE);
+      obj1dY->Draw("pe");
+      cEne->Update();
+      cEne->SaveAs(imgName.c_str());
+    }
   }
 
-  imgNameSMap[1] = "";
+
+  imgNameSMap[3] = "";
 
   obj2f = i03_;
 
@@ -765,11 +1081,11 @@ void EBClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
 
     for ( unsigned int i = 0; i < meName.size(); i++ ) {
       if ( meName.substr(i, 1) == " " )  {
-        meName.replace(i, 1 ,"_" ); 
+	meName.replace(i, 1 ,"_" ); 
       }
     }
-    imgNameSMap[1] = meName + ".png";
-    imgName = htmlDir + imgNameSMap[1];
+    imgNameSMap[3] = meName + ".png";
+    imgName = htmlDir + imgNameSMap[3];
 
     cMap->cd();
     gStyle->SetOptStat(" ");
@@ -779,18 +1095,38 @@ void EBClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
     cMap->SetGridx();
     cMap->SetGridy();
     cMap->SetRightMargin(0.15);
-    cMap->SetLeftMargin(0.15);
-    if ( obj2f->GetMaximum(histMax) > 0. ) {
-      gPad->SetLogz(1);
-    } else { 
-      gPad->SetLogz(0);
-    }
     obj2f->Draw("colz");
+    labelGrid.Draw("text,same");
     cMap->Update();
     cMap->SaveAs(imgName.c_str());
-    gPad->SetLogz(0);
+
+    char projXName[100];
+    char projYName[100];
+    sprintf(projXName,"%s_px",meName.c_str());
+    sprintf(projYName,"%s_py",meName.c_str());
+
+    imgNameSXproj[3] = string(projXName) + ".png";
+    imgName = htmlDir + imgNameSXproj[3];
+    obj1dX = obj2f->ProjectionX("_px",1,obj2f->GetNbinsY(),"e");
+    obj1dY = obj2f->ProjectionY("_py",1,obj2f->GetNbinsX(),"e");
+    cEne->cd();
+    gStyle->SetOptStat("e30MAR07     ALITALIA AZ 571mr");
+    obj1dX->GetXaxis()->SetNdivisions(6, kFALSE);
+    obj1dY->GetXaxis()->SetNdivisions(6, kFALSE);
+    obj1dX->SetStats(kTRUE);
+    obj1dX->Draw("pe");
+    cEne->Update();
+    cEne->SaveAs(imgName.c_str());
+
+    imgNameSYproj[3] = string(projYName) + ".png";
+    imgName = htmlDir + imgNameSYproj[3];
+    obj1dY->SetStats(kTRUE);
+    obj1dY->Draw("pe");
+    cEne->Update();
+    cEne->SaveAs(imgName.c_str());
 
   }
+  
 
   htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
   htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
@@ -808,6 +1144,123 @@ void EBClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "</tr>" << endl;
   htmlFile << "</table>" << endl;
   htmlFile << "<br>" << endl;
+
+
+
+  htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
+  htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
+  htmlFile << "<tr align=\"center\">" << endl;
+
+  for ( int iCanvas = 3; iCanvas <= 4; iCanvas++ ) {
+
+    if ( imgNameSMap[iCanvas-1].size() != 0 )
+      htmlFile << "<td><img src=\"" << imgNameSMap[iCanvas-1] << "\"></td>" << endl;
+    else
+      htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
+
+  }
+
+  htmlFile << "</tr>" << endl;
+  htmlFile << "</table>" << endl;
+  htmlFile << "<br>" << endl;
+
+
+
+  // projections X...
+  htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
+  htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
+  htmlFile << "<tr align=\"center\">" << endl;
+
+  for ( int iCanvas = 1; iCanvas <= 4; iCanvas++ ) {
+
+    if ( imgNameSXproj[iCanvas-1].size() != 0 )
+      htmlFile << "<td><img src=\"" << imgNameSXproj[iCanvas-1] << "\"></td>" << endl;
+    else
+      htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
+
+  }
+
+  htmlFile << "</tr>" << endl;
+  htmlFile << "</table>" << endl;
+  htmlFile << "<br>" << endl;
+
+  // projections Y...
+  htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
+  htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
+  htmlFile << "<tr align=\"center\">" << endl;
+
+  for ( int iCanvas = 1; iCanvas <= 4; iCanvas++ ) {
+
+    if ( imgNameSYproj[iCanvas-1].size() != 0 )
+      htmlFile << "<td><img src=\"" << imgNameSYproj[iCanvas-1] << "\"></td>" << endl;
+    else
+      htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
+
+  }
+
+  htmlFile << "</tr>" << endl;
+  htmlFile << "</table>" << endl;
+  htmlFile << "<br>" << endl;
+
+
+
+
+  // ===========================================================================
+  // Higher Level variables
+  // ===========================================================================
+
+  for( int iCanvas = 1; iCanvas <= 2; iCanvas++ ) {
+
+    imgNameHL[iCanvas-1] = "";
+  
+    obj1f = s01_[iCanvas-1];
+  
+    if ( obj1f ) {
+    
+      meName = obj1f->GetName();
+    
+      for ( unsigned int i = 0; i < meName.size(); i++ ) {
+	if ( meName.substr(i, 1) == " " )  {
+	  meName.replace(i, 1, "_");
+	}
+      }
+      imgNameHL[iCanvas-1] = meName + ".png";
+      imgName = htmlDir + imgNameHL[iCanvas-1];
+    
+      cEne->cd();
+      gStyle->SetOptStat("euomr");
+      obj1f->SetStats(kTRUE);
+      obj1f->Draw();
+      cEne->Update();
+      cEne->SaveAs(imgName.c_str());
+    }
+  }
+  
+
+
+  ///*****************************************************************************///
+  htmlFile << "<br>" << endl;
+  htmlFile <<  "<a name=\"hl_plots\"> <B> Higher Level Quantities plots </B> </a> " << endl;
+  htmlFile << "</br>" << endl;
+  ///*****************************************************************************///
+
+  htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
+  htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
+  htmlFile << "<tr align=\"center\">" << endl;
+  
+  // for now only E1/Etot
+  for ( int iCanvas = 1; iCanvas <= 2; iCanvas++ ) {
+    
+    if ( imgNameHL[iCanvas-1].size() != 0 )
+      htmlFile << "<td><img src=\"" << imgNameHL[iCanvas-1] << "\"></td>" << endl;
+    else
+      htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
+  }
+  
+  htmlFile << "</tr>" << endl;
+  htmlFile << "</table>" << endl;
+  htmlFile << "<br>" << endl;
+    
 
   delete cEne;
   delete cMap;
