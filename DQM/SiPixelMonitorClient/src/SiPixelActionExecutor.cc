@@ -448,7 +448,7 @@ MonitorElement* SiPixelActionExecutor::getSummaryME(MonitorUserInterface* mui,st
 //
 void SiPixelActionExecutor::drawMEs(int idet, 
   vector<MonitorElement*>& mon_elements, vector<pair <int, float> > & values) {
-cout<<"Entering SiPixelActionExecutor::drawMEs..."<<endl;
+//cout<<"Entering SiPixelActionExecutor::drawMEs..."<<endl;
   TCanvas canvas("display");
   canvas.Clear();
   if (mon_elements.size() == 2) canvas.Divide(1,2);
@@ -476,7 +476,7 @@ cout<<"Entering SiPixelActionExecutor::drawMEs..."<<endl;
       tag = "Ok";
       icol = 3;
     }
-    cout<<"qstatus:"<<status<<" "<<tag<<" "<<icol<<endl;
+//    cout<<"qstatus:"<<status<<" "<<tag<<" "<<icol<<endl;
     // Access the Root object and plot
     MonitorElementT<TNamed>* ob = 
         dynamic_cast<MonitorElementT<TNamed>*>(mon_elements[i]);
@@ -494,7 +494,7 @@ cout<<"Entering SiPixelActionExecutor::drawMEs..."<<endl;
   ostringstream name_str;
   name_str << idet << ".jpg";
   canvas.SaveAs(name_str.str().c_str());    
-cout<<"...leaving SiPixelActionExecutor::drawMEs!"<<endl;
+//cout<<"...leaving SiPixelActionExecutor::drawMEs!"<<endl;
   
 }
 

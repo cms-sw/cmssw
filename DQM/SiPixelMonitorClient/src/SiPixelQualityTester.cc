@@ -2,8 +2,8 @@
  *
  *  Implementation of SiPixelQualityTester
  *
- *  $Date: 2007/02/16 15:45:00 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/03/22 20:22:59 $
+ *  $Revision: 1.4 $
  *  \author Petra Merkel
  */
 #include "DQM/SiPixelMonitorClient/interface/SiPixelQualityTester.h"
@@ -39,7 +39,7 @@ SiPixelQualityTester::~SiPixelQualityTester() {
 void SiPixelQualityTester::setupQTests(MonitorUserInterface* mui) {
   if (theQTestMap.size() == 0) {
     readQualityTests("sipixel_qualitytest_config.xml");
-    cout<<"how many qtests found?"<<theQTestMap.size()<<endl;
+    //cout<<"how many qtests found?"<<theQTestMap.size()<<endl;
   }
   for (SiPixelQualityTester::QTestMapType::iterator it = theQTestMap.begin();
        it != theQTestMap.end(); it++) {
@@ -67,7 +67,7 @@ void SiPixelQualityTester::readQualityTests(string fname) {
   QTestConfigurationParser qTestParser;
   qTestParser.getDocument(fname);
   bool fetchfile = qTestParser.parseQTestsConfiguration();
-  cout<<"file opened ok? "<<fetchfile<<"(if 0, no errors.)"<<endl;
+  //cout<<"file opened ok? "<<fetchfile<<"(if 0, no errors.)"<<endl;
   qTestParser.parseQTestsConfiguration();
   theQTestMap = qTestParser.testsList();
   theMeAssociateMap =  qTestParser.meToTestsList();

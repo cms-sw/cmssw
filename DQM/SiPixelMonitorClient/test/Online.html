@@ -94,110 +94,6 @@
 	    <div class="bloc" id="bloc2_2" style="background:#226684"> 
       	      <div class="bloc" id="bloc2_2_1" style="background:#226684">
 	        <fieldset>
-                  <input name="listhisto" 
-                        id="list_histos"
-                        value="Get Histo List" 
-                        style="width:30%;margin-left:2%;margin-top:2%"
-                        onClick="RequestModuleHistoList()" 
-                        type="submit">
-                    </input>           
-                  <label id="modules"
-                     style="margin-left:5%">
-                     Modules:
-	          </label>
-                  <select name="mod_num" 
-                        id="module_numbers"
-                        style="width:30%;"
-                  </select>
-	        </fieldset>
-              </div>
-              <div class="bloc" id="bloc2_2_2">
-                <fieldset>
-                  <select size=12 multiple
-                          style="width:100%;font-size:10pt;"
-                          name="HistoListArea"
-                          id="histolistarea">
-                 </select>
-                </fieldset>
-              </div>
-              <div class="bloc" id="bloc2_2_3">
-                <fieldset style="background:#772288;">
-	         <legend >Drawing Options</legend>
-	          <input type="checkbox" 
-	                 class="check" 
-	      	   style="margin-right:2%"
-                         id="logy" 
-                         name="logy">
-                         Toggle logy
-                  </input>
-                  <label id="zoom"
-                        style="margin-left:15%">
-                    Zoom on X-Axis:
-                  </label> 
-                 <input type="text"
-                        style="width:13%;border:1px solid #000;" 
-                        value=""
-                        id="x-low" 
-                        name="xLow">
-                 </input>
-                 <input type="text"
-                        style="width:13%;border:1px solid #000;" 
-                        value=""
-                        id="x-high" 
-                        name="xHigh">
-                 </input>
-                 <br/>
-                 <input type="checkbox" 
-	                class="check" 
-                        style="margin-right:2%"
-                        id="multizone" 
-                        name="MultiZone">
-                     Multiple Plot
-                  </input>
-                  <label id="rows"
-                        style="margin-left:30%">
-                    Rows:
-                  </label> 
-                 <input type="text"
-                        style="width:5%;border:1px solid #000;" 
-                        value="1"
-                        id="nrow" 
-                        name="nRows">
-                 </input>
-                  <label id="cols"
-                        style="margin-left:2%">
-                    Columns:
-                  </label> 
-                 <input type="text"
-                        style="width:5%;border:1px solid #000;" 
-                        value="1"
-                        id="ncol" 
-                        name="nColumns">
-                 </input>
-                 <br/>
-	          <input type="checkbox" 
-	                 class="check" 
-	      	   style="margin-right:2%"
-                         id="colpal" 
-                         name="colpal">
-			 Color Palette
-                  </input>
-                 <input name="drawhisto" 
-                        id="draw_histos"
-                        value="Draw Histogram(s)" 
-                        style="width:35%;margin-left:60%;"
-                        onClick="DrawSelectedHistos();" 
-                        type="submit">
-                   </input>
-                  <br/>
-                </fieldset>
-              </div>
-            </div>
-          </div>
-          <div class="dhtmlgoodies_aTab">
-	    <div class="bloc" id="bloc2_3"> 
-      	      <div class="bloc" id="bloc2_3_1">
-	        <fieldset>
                   <label id="structures"
                      style="margin-left:10%">
                      Sub-Detectors:
@@ -220,11 +116,11 @@
 	      </br>
    	      <div class="bloc" id="modtree_list" style="overflow:scroll;height:300px;width:100%;background:#FFF;"> 
       	      </div> 
-	    </div>
+            </div>
           </div>
           <div class="dhtmlgoodies_aTab">
-	    <div class="bloc" id="bloc2_4"> 
-      	      <div class="bloc" id="bloc2_4_1">
+	    <div class="bloc" id="bloc2_3"> 
+      	      <div class="bloc" id="bloc2_3_1">
 	        <fieldset>
                   <label id="structures"
                      style="margin-left:10%">
@@ -251,8 +147,8 @@
 	    </div>
           </div>
           <div class="dhtmlgoodies_aTab">
-	    <div class="bloc" id="bloc2_5"> 
-      	      <div class="bloc" id="bloc2_5_1">
+	    <div class="bloc" id="bloc2_4"> 
+      	      <div class="bloc" id="bloc2_4_1">
 	        <fieldset>
                   <label id="alarm_structures"
                      style="margin-left:10%">
@@ -285,7 +181,7 @@
   </div>
 </form>
 <script type="text/javascript">
-  initTabs('dhtmlgoodies_tabView1', Array('Single Module View','Module Tree','Summary View','Alarm View'), 0, '99.5%','100%');
+  initTabs('dhtmlgoodies_tabView1', Array('Single Module View','Summary View','Alarm View'), 0, '99.5%','100%');
 </script>
 </body>
 </html>

@@ -72,7 +72,6 @@ void SiPixelWebClient::newRun()
 */
 void SiPixelWebClient::endRun()
 {
-  cout<<"endRun"<<endl;
 }
 
 /*
@@ -82,16 +81,12 @@ void SiPixelWebClient::onUpdate() const
 {
 /*  cout<<"entering onUpdate"<<endl;
   if (!mui_) return;
-  cout<<"onUpdate::0"<<endl;
   int nUpdate = mui_->getNumUpdates();
-  cout<<"onUpdate::1"<<endl;
 //******************  if (nUpdate == 0) mui_->subscribe("Collector/*");
 
   // put here the code that needs to be executed on every update:
   std::vector<std::string> uplist;
-  cout<<"onUpdate::2"<<endl;
   mui_->getUpdatedContents(uplist);
-  cout<<"onUpdate::3"<<endl;
 */
   // Collation of Monitor Element
   /*  if (nUpdate == 10) {
@@ -103,7 +98,6 @@ void SiPixelWebClient::onUpdate() const
   
   // Set Up Quality Tests
 /*  if (nUpdate == 2) webInterface_p->setupQTests();
-  cout<<"onUpdate::4"<<endl;
 
 
   // Creation of Summary 
@@ -116,7 +110,6 @@ void SiPixelWebClient::onUpdate() const
       //mui_->addCallback(action);	 
     }
   }	
-  cout<<"onUpdate::5"<<endl;*/
 /*  // Creation of TrackerMap
   if (updateFrequencyForTrackerMap_ != -1 && nUpdate > 30) {
     if (nUpdate%updateFrequencyForTrackerMap_ == 1) {

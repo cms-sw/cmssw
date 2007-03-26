@@ -1,5 +1,4 @@
 function DrawSelectedHistos() {
-  //alert("BUTTON!");
   var queryString;
   var url = getApplicationURL2();
   url += "/Request?";
@@ -8,7 +7,6 @@ function DrawSelectedHistos() {
   var obj = document.getElementById("module_numbers");
   var value =  obj.options[obj.selectedIndex].value;
   queryString += '&ModId='+value;
-  //alert("queryString="+queryString);
   var hist_opt = SetHistosAndPlotOption();
   if (hist_opt == " ") return;
   queryString += hist_opt;	
@@ -20,7 +18,6 @@ function DrawSelectedHistos() {
   }
   queryString += '&width='+canvas.width+'&height='+canvas.height;
   url += queryString;
-  //alert(" "+url);
   makeRequest(url, dummy);
   setTimeout('UpdatePlot()', 2000);   
 }
@@ -38,12 +35,72 @@ function SetHistosAndPlotOption() {
   }
 //  
   var nhist = histos.length;
-// alert(" "+nhist);
   for (var i = 0; i < nhist; i++) {
     if (i == 0) qstring = '&histo='+histos[i];
     else qstring += '&histo='+histos[i];
   }
-  //alert("histos:"+qstring);
+  // Rows and columns
+  var nr = 1;
+  var nc = 1;
+  if (nhist == 1) {
+    // logy option
+    if (document.getElementById("logy").checked) {
+      qstring += '&logy=true';
+    }
+    // color palette option
+    if (document.getElementById("colpal").checked) {
+      qstring += '&colpal=true';
+    }
+    obj = document.getElementById("x-low");
+    value = parseFloat(obj.value);
+    if (!isNaN(value)) qstring += '&xmin=' + value;
+
+    obj = document.getElementById("x-high");
+    value = parseFloat(obj.value);
+    if (!isNaN(value)) qstring += '&xmax=' + value;
+  } else {
+    if (document.getElementById("multizone").checked) {
+      obj = document.getElementById("nrow");
+      nr =  parseInt(obj.value);
+      if (isNaN(nr)) {
+        nr = 1;
+      }
+      obj = document.getElementById("ncol");
+      nc = parseInt(obj.value);
+      if (isNaN(nc)) {
+        nc = 2;       
+      }
+    }
+    if (nr*nc < nhist) {
+      if (nhist <= 10) {
+        nc = 2;
+      } else if (nhist <= 20) {
+        nc = 3;
+      } else if (nhist <= 30) {
+         nc = 4;
+      } 		
+       nr = Math.ceil(nhist*1.0/nc);
+    }
+    qstring += '&cols=' + nc + '&rows=' + nr;       
+  }
+  return qstring;
+}  
+//
+//  -- Set Histograms and plotting options 
+//    
+function SetPlotOptions(histo) {
+  var dummy = " ";
+  var qstring;
+  if (histo.length == 0) {
+    alert("Plot is not defined!");
+    return dummy;
+  }
+//  
+  var nhist = histo.length;
+  for (var i = 0; i < nhist; i++) {
+    if (i == 0) qstring = '&histo='+histo[i];
+    else qstring += '&histo='+histo[i];
+  }
   // Rows and columns
   var nr = 1;
   var nc = 1;
@@ -101,10 +158,16 @@ function UpdatePlot() {
   canvas.src = url; 
 }
 function DrawSingleHisto(path){
-  var url = getApplicationURL2();
+ var url = getApplicationURL2();
   url += "/Request?";
   queryString = 'RequestID=PlotSingleHistogram';
   queryString += '&Path='+path;
+  
+  //try this for plotting options:
+  //var hist_opt = SetPlotOptions(path);
+  //if (hist_opt == " ") return;
+  //queryString += hist_opt;
+  //end trial
   var canvas = document.getElementById("drawingcanvas");
   if (canvas == null) {
     alert("Canvas is not defined!");

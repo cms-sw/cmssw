@@ -33,47 +33,6 @@ SiPixelInformationExtractor::~SiPixelInformationExtractor() {
     " Deleting SiPixelInformationExtractor " << "\n" ;
   //  if (theCanvas) delete theCanvas;
 }
-//
-// --  Fill Histo and Module List
-// 
-void SiPixelInformationExtractor::fillModuleAndHistoList(MonitorUserInterface * mui, vector<string>& modules, vector<string>& histos) {
-//cout<<"entering SiPixelInformationExtractor::fillModuleAndHistoList"<<endl;
-  string currDir = mui->pwd();
-  if (currDir.find("Module_") != string::npos)  {
-    if (histos.size() == 0) {
-      //cout<<"currDir="<<currDir<<endl;
-      vector<string> contents = mui->getMEs();    
-      for (vector<string>::const_iterator it = contents.begin();
-	   it != contents.end(); it++) {
-	string hname = (*it).substr(0, (*it).find("_module_"));
-	//cout<<"hname="<<hname<<endl;
-        histos.push_back(hname);
-        string mId=" ";
-	if(hname.find("adc")!=string::npos) mId = (*it).substr((*it).find("adc_module_")+11, 9);
-        if(mId!=" ") modules.push_back(mId);
-        //cout<<"mId="<<mId<<endl;
-      }    
-    }
-  } else {  
-    vector<string> subdirs = mui->getSubdirs();
-    for (vector<string>::const_iterator it = subdirs.begin();
-	 it != subdirs.end(); it++) {
-      mui->cd(*it);
-      fillModuleAndHistoList(mui, modules, histos);
-      mui->goUp();
-    }
-  }
-//  fillBarrelList(mui, modules, histos);
-//cout<<"leaving SiPixelInformationExtractor::fillModuleAndHistoList"<<endl;
-}
-/*void SiPixelInformationExtractor::fillModuleAndHistoList(MonitorUserInterface * mui, vector<string>& modules, vector<string>& histos) {
-cout<<"entering SiPixelInformationExtractor::fillModuleAndHistoList"<<endl;
-  mui->cd();
-  fillBarrelList(mui, modules, histos); 
-  mui->cd();
-
-cout<<"leaving SiPixelInformationExtractor::fillModuleAndHistoList"<<endl;
-}*/
 void SiPixelInformationExtractor::createModuleTree(MonitorUserInterface* mui) {
 //cout<<"entering SiPixelInformationExtractor::createModuleTree..."<<endl;
   string structure_name;
@@ -231,43 +190,6 @@ MonitorElement* SiPixelInformationExtractor::getModuleME(MonitorUserInterface* m
 
 
 
-//
-// --  Fill Module Histo List
-// 
-void SiPixelInformationExtractor::printModuleHistoList(MonitorUserInterface * mui, ostringstream& str_val){
-//cout<<"entering SiPixelInformationExtractor::printModuleHistoList"<<endl;
-  static string indent_str = "";
-
-  string currDir = mui->pwd();
-  string dname = currDir.substr(currDir.find_last_of("/")+1);
-  //if (dname.find("_module_") ==0) return;
-  str_val << "<li><a href=\"#\" id=\"" 
-          << currDir << "\">" << dname << "</a>" << endl;
-  vector<string> meVec = mui->getMEs(); 
-  vector<string> subDirVec = mui->getSubdirs();
-  if ( meVec.size()== 0  && subDirVec.size() == 0 ) {
-    str_val << "</li> "<< endl;    
-    return;
-  }
-  str_val << "<ul>" << endl; 
-  for (vector<string>::const_iterator it = meVec.begin();
-       it != meVec.end(); it++) {
-    if ((*it).find("_module_")!=string::npos) {
-      str_val << "<li class=\"dhtmlgoodies_sheet.gif\"><a href=\"javascript:DrawSingleHisto('"
-           << currDir << "/"<< (*it) << "')\">" << (*it) << "</a></li>" << endl;
-    }
-  }
-
-  for (vector<string>::const_iterator ic = subDirVec.begin();
-       ic != subDirVec.end(); ic++) {
-    mui->cd(*ic);
-    printModuleHistoList(mui, str_val);
-    mui->goUp();
-  }
-  str_val << "</ul> "<< endl;  
-  str_val << "</li> "<< endl;  
-//cout<<"leaving SiPixelInformationExtractor::printModuleHistoList"<<endl;
-}
 //
 // --  Fill Summary Histo List
 // 
@@ -434,7 +356,6 @@ void SiPixelInformationExtractor::plotSingleHistogram(MonitorUserInterface * mui
 //  plot Histograms in a Canvas
 //
 void SiPixelInformationExtractor::plotHistos(multimap<string,string>& req_map, 
- 
   			   vector<MonitorElement*> me_list){
 //cout<<"entering SiPixelInformationExtractor::plotHistos"<<endl;
   int nhist = me_list.size();
@@ -500,16 +421,23 @@ void SiPixelInformationExtractor::plotHistos(multimap<string,string>& req_map,
     MonitorElementT<TNamed>* ob = 
       dynamic_cast<MonitorElementT<TNamed>*>((*it));
     if (ob) {
-//    cout<<"Has a ME to plot!"<<endl;
       canvas.cd(i);
       //      TAxis* xa = ob->operator->()->GetXaxis();
       //      xa->SetRangeUser(xlow, xhigh);
       if(hasItem(req_map,"colpal")){
+        //cout<<"IE::plotHistos found colpal!"<<endl;
         gROOT->Reset(); gStyle->SetPalette(1); gStyle->SetOptStat(0);
         ob->operator->()->Draw("colz");
       }else{
-        gStyle->SetOptStat(1);
-        ob->operator->()->Draw();
+	string hname = ob->operator->()->GetName();
+	//cout<<"histo name:"<<hname<<endl;
+	if(hname.find("pixdigis") != string::npos){
+          gROOT->Reset(); gStyle->SetPalette(1); gStyle->SetOptStat(0);
+          ob->operator->()->Draw("colz");
+	}else{  
+          gStyle->SetOptStat(1);
+          ob->operator->()->Draw();
+	}
       }
       if (icol != 1) {
 	TText tt;
@@ -561,6 +489,39 @@ void SiPixelInformationExtractor::readModuleAndHistoList(MonitorUserInterface* m
 //cout<<"leaving SiPixelInformationExtractor::readModuleAndHistoList"<<endl;
 }
 //
+// --  Fill Histo and Module List
+// 
+void SiPixelInformationExtractor::fillModuleAndHistoList(MonitorUserInterface * mui, vector<string>& modules, vector<string>& histos) {
+//cout<<"entering SiPixelInformationExtractor::fillModuleAndHistoList"<<endl;
+  string currDir = mui->pwd();
+  if (currDir.find("Module_") != string::npos)  {
+    if (histos.size() == 0) {
+      //cout<<"currDir="<<currDir<<endl;
+      vector<string> contents = mui->getMEs();    
+      for (vector<string>::const_iterator it = contents.begin();
+	   it != contents.end(); it++) {
+	string hname = (*it).substr(0, (*it).find("_module_"));
+	//cout<<"hname="<<hname<<endl;
+        histos.push_back(hname);
+        string mId=" ";
+	if(hname.find("adc")!=string::npos) mId = (*it).substr((*it).find("adc_module_")+11, 9);
+        if(mId!=" ") modules.push_back(mId);
+        //cout<<"mId="<<mId<<endl;
+      }    
+    }
+  } else {  
+    vector<string> subdirs = mui->getSubdirs();
+    for (vector<string>::const_iterator it = subdirs.begin();
+	 it != subdirs.end(); it++) {
+      mui->cd(*it);
+      fillModuleAndHistoList(mui, modules, histos);
+      mui->goUp();
+    }
+  }
+//  fillBarrelList(mui, modules, histos);
+//cout<<"leaving SiPixelInformationExtractor::fillModuleAndHistoList"<<endl;
+}
+//
 // read the Structure And ModuleHisto Tree
 //
 void SiPixelInformationExtractor::readModuleHistoTree(MonitorUserInterface* mui, string& str_name, xgi::Output * out, bool coll_flag) {
@@ -577,6 +538,43 @@ void SiPixelInformationExtractor::readModuleHistoTree(MonitorUserInterface* mui,
   *out << modtree.str();
    mui->cd();
 //cout<<"leaving  SiPixelInformationExtractor::readModuleHistoTree"<<endl;
+}
+//
+// --  Print Module Histo List
+// 
+void SiPixelInformationExtractor::printModuleHistoList(MonitorUserInterface * mui, ostringstream& str_val){
+//cout<<"entering SiPixelInformationExtractor::printModuleHistoList"<<endl;
+  static string indent_str = "";
+
+  string currDir = mui->pwd();
+  string dname = currDir.substr(currDir.find_last_of("/")+1);
+  //if (dname.find("_module_") ==0) return;
+  str_val << "<li><a href=\"#\" id=\"" 
+          << currDir << "\">" << dname << "</a>" << endl;
+  vector<string> meVec = mui->getMEs(); 
+  vector<string> subDirVec = mui->getSubdirs();
+  if ( meVec.size()== 0  && subDirVec.size() == 0 ) {
+    str_val << "</li> "<< endl;    
+    return;
+  }
+  str_val << "<ul>" << endl; 
+  for (vector<string>::const_iterator it = meVec.begin();
+       it != meVec.end(); it++) {
+    if ((*it).find("_module_")!=string::npos) {
+      str_val << "<li class=\"dhtmlgoodies_sheet.gif\"><a href=\"javascript:DrawSingleHisto('"
+           << currDir << "/"<< (*it) << "')\">" << (*it) << "</a></li>" << endl;
+    }
+  }
+
+  for (vector<string>::const_iterator ic = subDirVec.begin();
+       ic != subDirVec.end(); ic++) {
+    mui->cd(*ic);
+    printModuleHistoList(mui, str_val);
+    mui->goUp();
+  }
+  str_val << "</ul> "<< endl;  
+  str_val << "</li> "<< endl;  
+//cout<<"leaving SiPixelInformationExtractor::printModuleHistoList"<<endl;
 }
 //
 // read the Structure And SummaryHistogram List

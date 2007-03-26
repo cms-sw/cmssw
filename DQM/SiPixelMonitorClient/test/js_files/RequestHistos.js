@@ -4,7 +4,6 @@ function RequestModuleHistoList() {
   url += "/Request?";
   queryString = "RequestID=SingleModuleHistoList";
   url += queryString; 
-  //alert("BUTTON!");
   makeRequest(url, FillModuleHistoList);     
 }
 function RequestSummaryHistoList() {
@@ -54,7 +53,6 @@ function FillModuleHistoList() {
         aobj.options.length = 0;
         
         var mrows = root.getElementsByTagName('ModuleNum');
-//        alert(" rows = " + mrows.length);
         for (var i = 0; i < mrows.length; i++) {
           var mnum  = mrows[i].childNodes[0].nodeValue;
           var aoption = new Option(mnum, mnum);
@@ -71,7 +69,6 @@ function FillModuleHistoList() {
         bobj.options.length = 0;
 
         var hrows = root.getElementsByTagName('Histo');
-//        alert(" rows = " + hrows.length);
         for (var j = 0; j < hrows.length; j++) {
           var name  = hrows[j].childNodes[0].nodeValue;
           var boption = new Option(name, name);
@@ -89,36 +86,6 @@ function FillModuleHistoList() {
     }
   }
 }
-/*function FillSummaryHistoList() {
-  if (http_request.readyState == 4) {
-    if (http_request.status == 200) {
-      try {
-        var doc = http_request.responseXML;
-        var root = doc.documentElement;
-        
-        // Histogram  select box
-        var obj = document.getElementById("histolistarea");
-        obj.options.length = 0;
-
-        var hrows = root.getElementsByTagName('SummaryHisto');
-//        alert(" rows = " + hrows.length);
-        for (var j = 0; j < hrows.length; j++) {
-          var name  = hrows[j].childNodes[0].nodeValue;
-          var option = new Option(name, name);
-          try {
-            obj.add(option, null);
-          }
-          catch (e) {
-            obj.add(option, -1);
-          }
-        }
-      }
-      catch (err) {
-        alert ("Error detail: " + err.message); 
-      }
-    }
-  }
-}*/
 function FillSummaryHistoList() {
   if (http_request.readyState == 4) {
     if (http_request.status == 200) {
@@ -165,7 +132,7 @@ function FillAlarmList() {
         }       
       }
       catch (err) {
-//        alert ("Error detail: " + err.message); 
+        //alert ("Error detail: " + err.message); 
       }
     }
   }

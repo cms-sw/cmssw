@@ -5,6 +5,7 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQM/SiPixelMonitorClient/interface/SiPixelConfigParser.h"
 #include "DQM/SiPixelMonitorClient/interface/SiPixelConfigWriter.h"
+#include "DQMServices/ClientConfig/interface/QTestHandle.h"
 #include <fstream>
 #include <map>
 #include <vector>
@@ -13,7 +14,6 @@
 class SiPixelActionExecutor {
 
  public:
-  typedef std::map<int,std::vector <std::pair <int,float> > > DetMapType;
 
   SiPixelActionExecutor();
  ~SiPixelActionExecutor();
@@ -23,14 +23,14 @@ class SiPixelActionExecutor {
  void setupQTests(MonitorUserInterface * mui);
  void checkQTestResults(MonitorUserInterface * mui);
  void createCollation(MonitorUserInterface * mui);
-// void createTkMap(MonitorUserInterface* mui);
+ void createTkMap(MonitorUserInterface* mui);
  bool readConfiguration(int& tkmap_freq, int& sum_barrel_freq, int& sum_endcap_freq);
  void readConfiguration();
  void createLayout(MonitorUserInterface * mui);
  void fillLayout(MonitorUserInterface * mui);
  void saveMEs(MonitorUserInterface * mui, std::string fname);
  bool getCollationFlag(){return collationDone;}
-// int getTkMapMENames(std::vector<std::string>& names);
+ int getTkMapMENames(std::vector<std::string>& names);
 
  private:
   MonitorElement* getSummaryME(MonitorUserInterface* mui, std::string me_name);
@@ -52,7 +52,11 @@ class SiPixelActionExecutor {
   SiPixelConfigWriter* configWriter_;
   
   std::vector<std::string> summaryMENames;
-//  std::vector<std::string> tkMapMENames;
+  std::vector<std::string> tkMapMENames;
+  
   bool collationDone;
+  
+  QTestHandle* qtHandler_;
+  
 };
 #endif
