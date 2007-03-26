@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerClient.cc
  *
- * $Date: 2007/02/20 13:27:16 $
- * $Revision: 1.28 $
+ * $Date: 2007/03/11 18:58:27 $
+ * $Revision: 1.29 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -503,9 +503,9 @@ void EBTriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile[0] << "<hr>" << std::endl;
   htmlFile[0] << "<table border=1>" << std::endl;
   for ( unsigned int i=0; i<superModules_.size(); i ++ ) {
-    htmlFile[0] << "<td bgcolor=white><a href=""#" << superModules_[i] << ">" 
+    htmlFile[0] << "<td bgcolor=white><a href=""#" << superModules_[i] << ">"
 	     << setfill( '0' ) << setw(2) << superModules_[i] << "</a></td>";
-  } 
+  }
   htmlFile[0] << std::endl << "</table>" << std::endl;
 
 
@@ -538,10 +538,10 @@ void EBTriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
 
     if( i>0 ) htmlFile[0] << "<a href=""#top"">Top</a>" << std::endl;
     htmlFile[0] << "<hr>" << std::endl;
-    htmlFile[0] << "<h3><a name=""" << ism << """></a><strong>Supermodule&nbsp;&nbsp;" 
+    htmlFile[0] << "<h3><a name=""" << ism << """></a><strong>Supermodule&nbsp;&nbsp;"
 	     << ism << "</strong></h3>" << endl;
 
-////  --------> no quality plot yet... 
+////  --------> no quality plot yet...
 //     // Quality plot
 
 //     imgName = "";
@@ -571,7 +571,7 @@ void EBTriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
 //       rectangle->SaveAs(imgName.c_str());
 //     }
 
-    
+
     // ---------------------------  Et plot
 
     imgName = "";
@@ -604,7 +604,7 @@ void EBTriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
 
     std::stringstream subpage;
     subpage << htmlName.substr( 0, htmlName.find( ".html" ) ) << "_SM" << ism << ".html" << std::ends;
-    htmlFile[0] << "<a href=\"" << subpage.str().c_str() << "\">SM" << ism << " details</a><br>" << std::endl; 
+    htmlFile[0] << "<a href=\"" << subpage.str().c_str() << "\">SM" << ism << " details</a><br>" << std::endl;
     htmlFile[0] << "<hr>" << std::endl;
 
 
@@ -630,9 +630,9 @@ void EBTriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
     htmlFile[ism] << "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span " << std::endl;
     htmlFile[ism] << " style=\"color: rgb(0, 0, 153);\">" << ism << "</span></h3>" << std::endl;
     htmlFile[ism] << "<hr>" << std::endl;
-    
+
     // ---------------------------  Flag bits plots
-    
+
     htmlFile[ism] << "<h3><strong>Trigger Tower Flags</strong></h3>" << std::endl;
     htmlFile[ism] << "<table border=\"0\" cellspacing=\"0\" " << std::endl;
     htmlFile[ism] << "cellpadding=\"10\" align=\"center\"> " << std::endl;
@@ -649,7 +649,7 @@ void EBTriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
       }
       int counter = 0;
       for( int j=1; j<=7; j++ ) {
-	if( j == 3 ) continue;   //  010 bits combination is not used 
+	if( j == 3 ) continue;   //  010 bits combination is not used
 	counter++;
 	if( j <= 6 ) {
 	  imgName = meName + "_" + char(48+j) + ".png";
@@ -658,12 +658,12 @@ void EBTriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
 	  imgName = meName + "_6-7.png";
 	}
 	imgFullName = htmlDir + imgName;
-	
+
 	if( j != 6 ) {
 	  obj3f->GetZaxis()->SetRange( j, j );
 	}
 	else {
-	  obj3f->GetZaxis()->SetRange( j, j );    
+	  obj3f->GetZaxis()->SetRange( j, j );
 	}
 	obj2f = (TH2F*) obj3f->Project3D( "yx" );
 	rectsmall->cd();
@@ -674,27 +674,27 @@ void EBTriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
 	rectsmall->SetGridx();
 	rectsmall->SetGridy();
 	obj2f->SetMinimum(0.00000001);
-	std::stringstream title; 
+	std::stringstream title;
 	if( j <= 6 ) { title << "EBTTT Flags SM" << ism << ", bit " << binary(j-1); }
 	else         { title << "EBTTT Flags SM" << ism << " bits 110+111"; }
 	obj2f->SetTitle( title.str().c_str() );
 	obj2f->Draw("colz");
 	dummy.Draw("text,same");
 	rectsmall->Update();
-	rectsmall->SaveAs(imgFullName.c_str()); 
+	rectsmall->SaveAs(imgFullName.c_str());
 	htmlFile[ism] << "<td><img src=\"" << imgName << "\"></td>" << std::endl;
-	if( counter%2 == 0 ) htmlFile[ism] << "</tr><tr>" << std::endl; 
-      }      
-    }      
+	if( counter%2 == 0 ) htmlFile[ism] << "</tr><tr>" << std::endl;
+      }
+    }
     htmlFile[ism] << "</tr>" << std::endl << "</table>" << std::endl;
 
     // ---------------------------  Fine Grain Veto
-      
+
     htmlFile[ism] << "<h3><strong>Fine Grain Veto</strong></h3>" << std::endl;
     htmlFile[ism] << "<table border=\"0\" cellspacing=\"0\" " << std::endl;
     htmlFile[ism] << "cellpadding=\"10\" align=\"center\"> " << std::endl;
     htmlFile[ism] << "<tr align=\"center\">" << std::endl;
-    
+
     obj3f = i01_[ism-1];
     if ( obj3f ) {
       imgName = "";
@@ -717,13 +717,13 @@ void EBTriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
 	rectsmall->SetGridx();
 	rectsmall->SetGridy();
 	obj2f->SetMinimum(0.00000001);
-	std::stringstream title; 
+	std::stringstream title;
 	title << "EBTTT FineGrainVeto SM" << ism << ", FineGrainVeto = " << j-1;
 	obj2f->SetTitle( title.str().c_str() );
 	obj2f->Draw("colz");
 	dummy.Draw("text,same");
 	rectsmall->Update();
-	rectsmall->SaveAs(imgFullName.c_str()); 
+	rectsmall->SaveAs(imgFullName.c_str());
 	htmlFile[ism] << "<td><img src=\"" << imgName << "\"></td>" << std::endl;
       }
     }
@@ -731,12 +731,12 @@ void EBTriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
 
 
     // ---------------------------  Et plots per Tower
-      
+
     htmlFile[ism] << "<h3><strong>Et</strong></h3>" << std::endl;
     htmlFile[ism] << "<table border=\"0\" cellspacing=\"0\" " << std::endl;
     htmlFile[ism] << "cellpadding=\"10\" align=\"center\"> " << std::endl;
     htmlFile[ism] << "<tr align=\"center\">" << std::endl;
-    
+
 
     for( int j=0; j<68; j++ ) {
       TH1F* obj1f1 = k01_[ism-1][j];
@@ -772,7 +772,7 @@ void EBTriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
 	  gStyle->SetStatTextColor( kBlack );
 	}
 	gStyle->SetStatW( gStyle->GetStatW() / 1.5 );
-	square->SaveAs(imgFullName.c_str()); 
+	square->SaveAs(imgFullName.c_str());
 	htmlFile[ism] << "<td><img src=\"" << imgName << "\"></td>" << std::endl;
       }
       if( (j+1)%4 == 0 ) htmlFile[ism] << "</tr><tr>" << std::endl;

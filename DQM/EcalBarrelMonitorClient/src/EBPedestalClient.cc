@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  *
- * $Date: 2007/02/22 09:35:44 $
- * $Revision: 1.129 $
+ * $Date: 2007/03/13 10:14:26 $
+ * $Revision: 1.130 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -168,13 +168,13 @@ void EBPedestalClient::beginJob(MonitorUserInterface* mui){
 
       sprintf(qtname, "EBPT quality SM%02d G12", ism);
       qth03_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
- 
+
       sprintf(qtname, "EBPT pedestal quality PNs SM%02d G01", ism);
       qth04_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
 
       sprintf(qtname, "EBPT pedestal quality PNs SM%02d G16", ism);
       qth05_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
- 
+
       qth01_[ism-1]->setMeanRange(expectedMean_[0] - discrepancyMean_[0], expectedMean_[0] + discrepancyMean_[0]);
       qth02_[ism-1]->setMeanRange(expectedMean_[1] - discrepancyMean_[1], expectedMean_[1] + discrepancyMean_[1]);
       qth03_[ism-1]->setMeanRange(expectedMean_[2] - discrepancyMean_[2], expectedMean_[2] + discrepancyMean_[2]);
@@ -757,11 +757,11 @@ void EBPedestalClient::subscribe(void){
         if ( qth05_[ism-1] ) mui_->useQTest(histo, qth05_[ism-1]->getName());
       } else {
         sprintf(histo, "EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal SM%02d G01", ism);
-        if ( qth01_[ism-1] ) mui_->useQTest(histo, qth01_[ism-1]->getName()); 
+        if ( qth01_[ism-1] ) mui_->useQTest(histo, qth01_[ism-1]->getName());
         sprintf(histo, "EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal SM%02d G06", ism);
-        if ( qth02_[ism-1] ) mui_->useQTest(histo, qth02_[ism-1]->getName()); 
+        if ( qth02_[ism-1] ) mui_->useQTest(histo, qth02_[ism-1]->getName());
         sprintf(histo, "EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal SM%02d G12", ism);
-        if ( qth03_[ism-1] ) mui_->useQTest(histo, qth03_[ism-1]->getName()); 
+        if ( qth03_[ism-1] ) mui_->useQTest(histo, qth03_[ism-1]->getName());
         sprintf(histo, "EcalBarrel/EBPnDiodeTask/Gain01/EBPDT PNs pedestal SM%02d G01", ism);
         if ( qth04_[ism-1] ) mui_->useQTest(histo, qth04_[ism-1]->getName());
         sprintf(histo, "EcalBarrel/EBPnDiodeTask/Gain16/EBPDT PNs pedestal SM%02d G16", ism);
@@ -958,7 +958,7 @@ void EBPedestalClient::analyze(void){
     me = mui_->get(histo);
     j01_[ism-1] = EBMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, j01_[ism-1] );
 
-    if ( collateSources_ ) { 
+    if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBPedestalTask/Gain06/EBPT pedestal 3sum SM%02d G06", ism);
     } else {
       sprintf(histo, (prefixME_+"EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal 3sum SM%02d G06").c_str(), ism);
@@ -966,7 +966,7 @@ void EBPedestalClient::analyze(void){
     me = mui_->get(histo);
     j02_[ism-1] = EBMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, j02_[ism-1] );
 
-    if ( collateSources_ ) { 
+    if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBPedestalTask/Gain12/EBPT pedestal 3sum SM%02d G12", ism);
     } else {
       sprintf(histo, (prefixME_+"EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal 3sum SM%02d G12").c_str(), ism);
@@ -1104,7 +1104,7 @@ void EBPedestalClient::analyze(void){
 
         }
 
-        // masking 
+        // masking
 
         if ( mask1.size() != 0 ) {
           map<EcalLogicID, RunCrystalErrorsDat>::const_iterator m;
@@ -1138,7 +1138,7 @@ void EBPedestalClient::analyze(void){
           }
         }
 
-      } 
+      }
     }
 
     for ( int i = 1; i <= 10; i++ ) {
@@ -1172,7 +1172,7 @@ void EBPedestalClient::analyze(void){
         float val;
 
         val = 1.;
-        if ( mean02 < pedestalThresholdPn_ ) 
+        if ( mean02 < pedestalThresholdPn_ )
           val = 0.;
         if ( meg05_[ism-1] ) meg05_[ism-1]->setBinContent(i, 1, val);
 
@@ -1223,7 +1223,7 @@ void EBPedestalClient::analyze(void){
 //        if ( meg02_[ism-1] ) meg02_[ism-1]->setBinContent(it->getBinX(), it->getBinY(), 0.);
 //      }
 //    }
-    
+
     if ( qth03_[ism-1] ) badChannels = qth03_[ism-1]->getBadChannels();
 
 //    if ( ! badChannels.empty() ) {
@@ -1270,8 +1270,8 @@ void EBPedestalClient::analyze(void){
         if ( ie >= 2 && ie <= 84 && ip >= 2 && ip <= 19 ) {
 
           x3val01 = 0.;
-          x3val02 = 0.; 
-          x3val03 = 0.; 
+          x3val02 = 0.;
+          x3val03 = 0.;
           for ( int i = -1; i <= +1; i++ ) {
             for ( int j = -1; j <= +1; j++ ) {
 
@@ -1280,10 +1280,10 @@ void EBPedestalClient::analyze(void){
 
               if ( h02_[ism-1] ) x3val02 = x3val02 + h02_[ism-1]->GetBinError(ie+i, ip+j) *
                                                      h02_[ism-1]->GetBinError(ie+i, ip+j);
- 
+
               if ( h03_[ism-1] ) x3val03 = x3val03 + h03_[ism-1]->GetBinError(ie+i, ip+j) *
                                                      h03_[ism-1]->GetBinError(ie+i, ip+j);
- 
+
             }
           }
           x3val01 = x3val01 / (9.*9.);
@@ -1311,13 +1311,13 @@ void EBPedestalClient::analyze(void){
           z3val02 = -999.;
           if ( x3val02 != 0 && y3val02 != 0 ) z3val02 = sqrt(fabs(x3val02 - y3val02));
           if ( (x3val02 - y3val02) < 0 ) z3val02 = -z3val02;
-          
+
           if ( mes02_[ism-1] ) mes02_[ism-1]->setBinContent(ie, ip, z3val02);
 
           z3val03 = -999.;
           if ( x3val03 != 0 && y3val03 != 0 ) z3val03 = sqrt(fabs(x3val03 - y3val03));
           if ( (x3val03 - y3val03) < 0 ) z3val03 = -z3val03;
-          
+
           if ( mes03_[ism-1] ) mes03_[ism-1]->setBinContent(ie, ip, z3val03);
 
         }
@@ -1341,8 +1341,8 @@ void EBPedestalClient::analyze(void){
         if ( ie >= 3 && ie <= 83 && ip >= 3 && ip <= 18 ) {
 
           x5val01 = 0.;
-          x5val02 = 0.; 
-          x5val03 = 0.; 
+          x5val02 = 0.;
+          x5val03 = 0.;
           for ( int i = -2; i <= +2; i++ ) {
             for ( int j = -2; j <= +2; j++ ) {
 
@@ -1351,10 +1351,10 @@ void EBPedestalClient::analyze(void){
 
               if ( h02_[ism-1] ) x5val02 = x5val02 + h02_[ism-1]->GetBinError(ie+i, ip+j) *
                                                      h02_[ism-1]->GetBinError(ie+i, ip+j);
- 
+
               if ( h03_[ism-1] ) x5val03 = x5val03 + h03_[ism-1]->GetBinError(ie+i, ip+j) *
                                                      h03_[ism-1]->GetBinError(ie+i, ip+j);
- 
+
             }
           }
           x5val01 = x5val01 / (25.*25.);
@@ -1382,13 +1382,13 @@ void EBPedestalClient::analyze(void){
           z5val02 = -999.;
           if ( x5val02 != 0 && y5val02 != 0 ) z5val02 = sqrt(fabs(x5val02 - y5val02));
           if ( (x5val02 - y5val02) < 0 ) z5val02 = -z5val02;
-          
+
           if ( met02_[ism-1] ) met02_[ism-1]->setBinContent(ie, ip, z5val02);
 
           z5val03 = -999.;
           if ( x5val03 != 0 && y5val03 != 0 ) z5val03 = sqrt(fabs(x5val03 - y5val03));
           if ( (x5val03 - y5val03) < 0 ) z5val03 = -z5val03;
-          
+
           if ( met03_[ism-1] ) met03_[ism-1]->setBinContent(ie, ip, z5val03);
 
         }
@@ -1432,9 +1432,9 @@ void EBPedestalClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "<br>" << endl;
   htmlFile << "<table border=1>" << std::endl;
   for ( unsigned int i=0; i<superModules_.size(); i ++ ) {
-    htmlFile << "<td bgcolor=white><a href=""#" << superModules_[i] << ">" 
+    htmlFile << "<td bgcolor=white><a href=""#" << superModules_[i] << ">"
 	     << setfill( '0' ) << setw(2) << superModules_[i] << "</a></td>";
-  } 
+  }
   htmlFile << std::endl << "</table>" << std::endl;
 
   // Produce the plots to be shown as .png files from existing histograms
@@ -1820,7 +1820,7 @@ void EBPedestalClient::htmlOutput(int run, string htmlDir, string htmlName){
 
     if( i>0 ) htmlFile << "<a href=""#top"">Top</a>" << std::endl;
     htmlFile << "<hr>" << std::endl;
-    htmlFile << "<h3><a name=""" << ism << """></a><strong>Supermodule&nbsp;&nbsp;" 
+    htmlFile << "<h3><a name=""" << ism << """></a><strong>Supermodule&nbsp;&nbsp;"
 	     << ism << "</strong></h3>" << endl;
     htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
     htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;

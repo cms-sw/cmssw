@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2007/03/16 12:00:48 $
- * $Revision: 1.147 $
+ * $Date: 2007/03/16 12:23:05 $
+ * $Revision: 1.148 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -72,9 +72,9 @@ EBLaserClient::EBLaserClient(const ParameterSet& ps){
   superModules_.reserve(36);
   for ( unsigned int i = 1; i < 37; i++ ) superModules_.push_back(i);
   superModules_ = ps.getUntrackedParameter<vector<int> >("superModules", superModules_);
-  
+
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-  
+
     int ism = superModules_[i];
 
     h01_[ism-1] = 0;
@@ -474,7 +474,7 @@ void EBLaserClient::setup(void) {
   Char_t histo[200];
 
   mui_->setCurrentFolder( "EcalBarrel/EBLaserClient" );
-  
+
   DaqMonitorBEInterface* bei = mui_->getBEInterface();
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
@@ -687,7 +687,7 @@ void EBLaserClient::setup(void) {
         meg12_[ism-1]->setBinContent( i, 1, 2. );
 
     }
- 
+
     EBMUtilsClient::resetHisto( mea01_[ism-1] );
     EBMUtilsClient::resetHisto( mea02_[ism-1] );
     EBMUtilsClient::resetHisto( mea03_[ism-1] );
@@ -903,9 +903,9 @@ void EBLaserClient::cleanup(void) {
     if ( mea05_[ism-1] ) bei->removeElement( mea05_[ism-1]->getName() );
     mea05_[ism-1] = 0;
     if ( mea06_[ism-1] ) bei->removeElement( mea06_[ism-1]->getName() );
-    mea06_[ism-1] = 0; 
+    mea06_[ism-1] = 0;
     if ( mea07_[ism-1] ) bei->removeElement( mea07_[ism-1]->getName() );
-    mea07_[ism-1] = 0; 
+    mea07_[ism-1] = 0;
     if ( mea08_[ism-1] ) bei->removeElement( mea08_[ism-1]->getName() );
     mea08_[ism-1] = 0;
 
@@ -2056,7 +2056,7 @@ void EBLaserClient::subscribeNew(void){
     mui_->subscribeNew(histo, ism);
     sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser2/EBLT amplitude SM%02d L2B", ism);
     mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser2/EBLT timing SM%02d L2B", ism); 
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser2/EBLT timing SM%02d L2B", ism);
     mui_->subscribeNew(histo, ism);
     sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser2/EBLT amplitude over PN SM%02d L2B", ism);
     mui_->subscribeNew(histo, ism);
@@ -3035,7 +3035,7 @@ void EBLaserClient::analyze(void){
             if ( mea06_[ism-1] ) {
               if ( mean03 > 0. ) {
                 mea06_[ism-1]->setBinContent( ip+20*(ie-1), mean03 );
-                mea06_[ism-1]->setBinError( ip+20*(ie-1), rms03 ); 
+                mea06_[ism-1]->setBinError( ip+20*(ie-1), rms03 );
               } else {
                 mea06_[ism-1]->setEntries( 1.+mea06_[ism-1]->getEntries() );
               }
@@ -3059,7 +3059,7 @@ void EBLaserClient::analyze(void){
             if ( mea03_[ism-1] ) {
               if ( mean05 > 0. ) {
                 mea03_[ism-1]->setBinContent( ip+20*(ie-1), mean05 );
-                mea03_[ism-1]->setBinError( ip+20*(ie-1), rms05 ); 
+                mea03_[ism-1]->setBinError( ip+20*(ie-1), rms05 );
               } else {
                 mea03_[ism-1]->setEntries( 1.+mea03_[ism-1]->getEntries() );
               }
@@ -3244,14 +3244,14 @@ void EBLaserClient::analyze(void){
                 met01_[ism-1]->setEntries(1.+met01_[ism-1]->getEntries());
               }
             }
-            
+
             if ( metav01_[ism-1] )
               metav01_[ism-1] ->Fill(mean09);
             if ( metrms01_[ism-1] )
               metrms01_[ism-1]->Fill(rms09);
-    
+
           } else {
-            
+
             if ( met05_[ism-1] ) {
               if ( mean09 > 0. ) {
                 met05_[ism-1]->setBinContent( ip+20*(ie-1), mean09 );
@@ -3259,14 +3259,14 @@ void EBLaserClient::analyze(void){
               } else {
                 met05_[ism-1]->setEntries(1.+met05_[ism-1]->getEntries());
               }
-            
+
             if ( metav05_[ism-1] )
               metav05_[ism-1] ->Fill(mean09);
             if ( metrms05_[ism-1] )
               metrms05_[ism-1]->Fill(rms09);
-      
+
             }
-            
+
           }
 
         }
@@ -3282,14 +3282,14 @@ void EBLaserClient::analyze(void){
               } else {
                 met02_[ism-1]->setEntries(1.+met02_[ism-1]->getEntries());
               }
-            
+
             if ( metav02_[ism-1] )
               metav02_[ism-1] ->Fill(mean10);
             if ( metrms02_[ism-1] )
               metrms02_[ism-1]->Fill(rms10);
 
             }
-            
+
           } else {
 
             if ( met06_[ism-1] ) {
@@ -3322,16 +3322,16 @@ void EBLaserClient::analyze(void){
               } else {
                 met03_[ism-1]->setEntries(1.+met03_[ism-1]->getEntries());
               }
-              
+
             if ( metav03_[ism-1] )
               metav03_[ism-1] ->Fill(mean11);
             if ( metrms03_[ism-1] )
               metrms03_[ism-1]->Fill(rms11);
 
             }
-            
+
           } else {
-            
+
             if ( met07_[ism-1] ) {
               if ( mean11 > 0. ) {
                 met07_[ism-1]->setBinContent( ip+20*(ie-1), mean11 );
@@ -3339,7 +3339,7 @@ void EBLaserClient::analyze(void){
               } else {
                 met07_[ism-1]->setEntries(1.+met07_[ism-1]->getEntries());
               }
-              
+
             if ( metav07_[ism-1] )
               metav07_[ism-1] ->Fill(mean11);
             if ( metrms07_[ism-1] )
@@ -3362,7 +3362,7 @@ void EBLaserClient::analyze(void){
               } else {
                 met04_[ism-1]->setEntries(1.+met04_[ism-1]->getEntries());
               }
-              
+
             if ( metav04_[ism-1] )
               metav04_[ism-1] ->Fill(mean12);
             if ( metrms04_[ism-1] )
@@ -3379,7 +3379,7 @@ void EBLaserClient::analyze(void){
               } else {
                 met08_[ism-1]->setEntries(1.+met08_[ism-1]->getEntries());
               }
-              
+
             if ( metav08_[ism-1] )
               metav08_[ism-1] ->Fill(mean12);
             if ( metrms08_[ism-1] )
@@ -3495,14 +3495,14 @@ void EBLaserClient::analyze(void){
 
       if ( update02 && update06 ) {
 
-        float val; 
+        float val;
 
         val = 1.;
         if ( mean02 < amplitudeThresholdPnG01_ )
           val = 0.;
         if ( mean06 < pedestalThresholdPn_ )
           val = 0.;
-        if ( meg06_[ism-1] ) meg06_[ism-1]->setBinContent(i, 1, val); 
+        if ( meg06_[ism-1] ) meg06_[ism-1]->setBinContent(i, 1, val);
 
       }
 
@@ -3541,7 +3541,7 @@ void EBLaserClient::analyze(void){
           val = 0.;
         if ( mean13 < pedestalThresholdPn_ )
           val = 0.;
-        if ( meg09_[ism-1] ) meg09_[ism-1]->setBinContent(i, 1, val); 
+        if ( meg09_[ism-1] ) meg09_[ism-1]->setBinContent(i, 1, val);
 
       }
 
@@ -3554,7 +3554,7 @@ void EBLaserClient::analyze(void){
           val = 0.;
         if ( mean14 < pedestalThresholdPn_ )
           val = 0.;
-        if ( meg10_[ism-1] ) meg10_[ism-1]->setBinContent(i, 1, val); 
+        if ( meg10_[ism-1] ) meg10_[ism-1]->setBinContent(i, 1, val);
 
       }
 
@@ -3772,9 +3772,9 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "<br>" << endl;
   htmlFile << "<table border=1>" << std::endl;
   for ( unsigned int i=0; i<superModules_.size(); i ++ ) {
-    htmlFile << "<td bgcolor=white><a href=""#" << superModules_[i] << ">" 
+    htmlFile << "<td bgcolor=white><a href=""#" << superModules_[i] << ">"
              << setfill( '0' ) << setw(2) << superModules_[i] << "</a></td>";
-  } 
+  }
   htmlFile << std::endl << "</table>" << std::endl;
 
   // Produce the plots to be shown as .png files from existing histograms
@@ -3796,7 +3796,7 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   TH2C dummy1( "dummy1", "dummy1 for sm mem", 10, 0, 10, 5, 0, 5 );
   for ( short i=0; i<2; i++ ) {
-    int a = 2 + i*5; 
+    int a = 2 + i*5;
     int b = 2;
     dummy1.Fill( a, b, i+1+68 );
   }
@@ -4135,7 +4135,7 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
         case 3:
           if ( hs03_[ism-1] ) obj1d = hs03_[ism-1]->ProjectionY("_py", 1, 1, "e");
           break;
-        case 4: 
+        case 4:
           if ( hs04_[ism-1] ) obj1d = hs04_[ism-1]->ProjectionY("_py", 1, 1, "e");
           break;
         case 5:
@@ -4585,7 +4585,7 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
 
     if( i>0 ) htmlFile << "<a href=""#top"">Top</a>" << std::endl;
     htmlFile << "<hr>" << std::endl;
-    htmlFile << "<h3><a name=""" << ism << """></a><strong>Supermodule&nbsp;&nbsp;" 
+    htmlFile << "<h3><a name=""" << ism << """></a><strong>Supermodule&nbsp;&nbsp;"
              << ism << "</strong></h3>" << endl;
     htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
     htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
@@ -4757,7 +4757,7 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
 
       if ( imgNameMEPnQualG01[iCanvas-1].size() != 0 )
         htmlFile << "<td colspan=\"2\"><img src=\"" << imgNameMEPnQualG01[iCanvas-1] << "\"></td>" << endl;
-      else 
+      else
         htmlFile << "<td colspan=\"2\"><img src=\"" << " " << "\"></td>" << endl;
 
     }

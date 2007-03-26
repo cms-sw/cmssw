@@ -4,8 +4,8 @@
 /*
  * \file EBBeamCaloClient.h
  *
- * $Date: 2007/02/01 15:25:24 $
- * $Revision: 1.19 $
+ * $Date: 2007/03/13 10:14:25 $
+ * $Revision: 1.20 $
  * \author G. Della Ricca
  * \author A. Ghezzi
  *
@@ -77,11 +77,12 @@ bool writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, int 
 template<class T> void AdjustRange(T obj);
 
 /// Get Functions
- inline int getEvtPerJob() { return ievt_; }
- inline int getEvtPerRun() { return jevt_; }
+inline int getEvtPerJob() { return ievt_; }
+inline int getEvtPerRun() { return jevt_; }
 
 private:
- const static int cryInArray_ = 9;
+
+const static int cryInArray_ = 9;
 
 int ievt_;
 int jevt_;
@@ -102,7 +103,7 @@ MonitorUserInterface* mui_;
 
 //specific task me
 vector<int> checkedSteps_;
-float prescaling_; 
+float prescaling_;
 //specific task me
 
 TH1F* hBGains_[cryInArray_];
@@ -112,7 +113,6 @@ TH1F* hBEne1_;
 
 //TH1F* hBGainsMoving_[cryInArray_];
 //TH1F* hBEne1Moving_;
-
 
 TH1F* hBAllNeededCry_;
 
@@ -134,7 +134,7 @@ TProfile* hBE3x3vsCry_;
 
 TH1F* hBEntriesvsCry_;
 
-TH1F* hBcryDone_; 
+TH1F* hBcryDone_;
 
 TH2F* hBBeamCentered_;
 
@@ -146,20 +146,21 @@ TH1F* hbDesync_;
 
 TProfile* pBCriInBeamEvents_;
 
-
-
 MonitorElement* meEBBCaloRedGreen_;
 MonitorElement* meEBBCaloRedGreenReadCry_;
-MonitorElement* meEBBCaloRedGreenSteps_; 
+MonitorElement* meEBBCaloRedGreenSteps_;
+
 // quality check parameters
- int minEvtNum_;
- float aveEne1_;
- float E1Th_;
- float aveEne3x3_;
- float E3x3Th_;
- float RMSEne3x3_;
- float ReadCryErrThr_;
- 
+
+int minEvtNum_;
+
+float aveEne1_;
+float E1Th_;
+float aveEne3x3_;
+float E3x3Th_;
+float RMSEne3x3_;
+float ReadCryErrThr_;
+
 };
 
 #endif

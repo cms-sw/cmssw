@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2007/02/22 15:52:43 $
- * $Revision: 1.9 $
+ * $Date: 2007/03/13 10:14:26 $
+ * $Revision: 1.10 $
  * \author G. Della Ricca
  *
 */
@@ -344,9 +344,9 @@ void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
   obj2f = EBMUtilsClient::getHisto<TH2F*>( meIntegrity_ );
 
   if ( obj2f ) {
-  
+
     meName = obj2f->GetName();
-  
+
     for ( unsigned int i = 0; i < meName.size(); i++ ) {
       if ( meName.substr(i, 1) == " " )  {
         meName.replace(i, 1 ,"_" );
@@ -354,13 +354,13 @@ void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
     }
     imgNameMapI = meName + ".png";
     imgName = htmlDir + imgNameMapI;
-  
-    cMap->cd(); 
+
+    cMap->cd();
     gStyle->SetOptStat(" ");
     gStyle->SetPalette(6, pCol3);
     obj2f->GetXaxis()->SetNdivisions(18, kFALSE);
     obj2f->GetYaxis()->SetNdivisions(2);
-    cMap->SetGridx();  
+    cMap->SetGridx();
     cMap->SetGridy();
     obj2f->SetMinimum(-0.00000001);
     obj2f->SetMaximum(6.0);
@@ -409,7 +409,7 @@ void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   if ( imgNameMapI.size() != 0 )
     htmlFile << "<td><img src=\"" << imgNameMapI << "\" usemap=""#Int"" border=0></td>" << endl;
-  else 
+  else
     htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
 
   htmlFile << "</tr>" << endl;
@@ -422,7 +422,7 @@ void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   if ( imgNameMapPO.size() != 0 )
     htmlFile << "<td><img src=\"" << imgNameMapPO << "\" usemap=""#PeOnl"" border=0></td>" << endl;
-  else 
+  else
     htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
 
   htmlFile << "</tr>" << endl;
@@ -449,12 +449,12 @@ void EBSummaryClient::writeMap( std::ofstream& hf, std::string mapname ) {
  std::map<std::string, std::string> refhtml;
  refhtml["Int"] = "EBIntegrityClient.html";
  refhtml["PeOnl"] = "EBPedestalOnlineClient.html";
- 
+
  const int A0 =  78;
  const int A1 = 716;
  const int B0 =  35;
  const int B1 = 334;
-  
+
  hf << "<map name=\"" << mapname << "\">" << std::endl;
  for( unsigned int sm=0; sm<superModules_.size(); sm ++ ) {
   int i=(superModules_[sm]-1)/18;
@@ -468,4 +468,4 @@ void EBSummaryClient::writeMap( std::ofstream& hf, std::string mapname ) {
  }
  hf << "</map>" << std::endl;
 }
-     
+

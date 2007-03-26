@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicClient.cc
- * 
- * $Date: 2007/02/20 13:27:16 $
- * $Revision: 1.68 $
+ *
+ * $Date: 2007/03/13 10:14:25 $
+ * $Revision: 1.69 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -61,7 +61,7 @@ EBCosmicClient::EBCosmicClient(const ParameterSet& ps){
   superModules_ = ps.getUntrackedParameter<vector<int> >("superModules", superModules_);
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-  
+
     int ism = superModules_[i];
 
     h01_[ism-1] = 0;
@@ -313,10 +313,10 @@ void EBCosmicClient::unsubscribe(void){
   if ( verbose_ ) cout << "EBCosmicClient: unsubscribe" << endl;
 
   if ( collateSources_ ) {
-  
+
     if ( verbose_ ) cout << "EBCosmicClient: uncollate" << endl;
 
-    if ( mui_ ) { 
+    if ( mui_ ) {
 
       for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
@@ -431,7 +431,7 @@ void EBCosmicClient::htmlOutput(int run, string htmlDir, string htmlName){
   //htmlFile << "<br>  " << endl;
   htmlFile << "<a name=""top""></a>" << endl;
   htmlFile << "<h2>Run:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" << endl;
-  htmlFile << "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span " << endl; 
+  htmlFile << "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span " << endl;
   htmlFile << " style=\"color: rgb(0, 0, 153);\">" << run << "</span></h2>" << endl;
   htmlFile << "<h2>Monitoring task:&nbsp;&nbsp;&nbsp;&nbsp; <span " << endl;
   htmlFile << " style=\"color: rgb(0, 0, 153);\">COSMIC</span></h2> " << endl;
@@ -442,9 +442,9 @@ void EBCosmicClient::htmlOutput(int run, string htmlDir, string htmlName){
 //  htmlFile << "<hr>" << endl;
   htmlFile << "<table border=1>" << std::endl;
   for ( unsigned int i=0; i<superModules_.size(); i ++ ) {
-    htmlFile << "<td bgcolor=white><a href=""#" << superModules_[i] << ">" 
+    htmlFile << "<td bgcolor=white><a href=""#" << superModules_[i] << ">"
 	     << setfill( '0' ) << setw(2) << superModules_[i] << "</a></td>";
-  } 
+  }
   htmlFile << std::endl << "</table>" << std::endl;
 
   // Produce the plots to be shown as .png files from existing histograms
@@ -471,7 +471,7 @@ void EBCosmicClient::htmlOutput(int run, string htmlDir, string htmlName){
   TCanvas* cAmp = new TCanvas("cAmp", "Temp", csize, csize);
 
   TProfile2D* objp;
-  TH1F* obj1f; 
+  TH1F* obj1f;
 
   // Loop on barrel supermodules
 
@@ -560,7 +560,7 @@ void EBCosmicClient::htmlOutput(int run, string htmlDir, string htmlName){
 
     if( i>0 ) htmlFile << "<a href=""#top"">Top</a>" << std::endl;
     htmlFile << "<hr>" << std::endl;
-    htmlFile << "<h3><a name=""" << ism << """></a><strong>Supermodule&nbsp;&nbsp;" 
+    htmlFile << "<h3><a name=""" << ism << """></a><strong>Supermodule&nbsp;&nbsp;"
 	     << ism << "</strong></h3>" << endl;
     htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
     htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
@@ -568,7 +568,7 @@ void EBCosmicClient::htmlOutput(int run, string htmlDir, string htmlName){
 
     for ( int iCanvas = 1 ; iCanvas <= 2 ; iCanvas++ ) {
 
-      if ( imgNameME[iCanvas-1].size() != 0 ) 
+      if ( imgNameME[iCanvas-1].size() != 0 )
         htmlFile << "<td colspan=\"2\"><img src=\"" << imgNameME[iCanvas-1] << "\"></td>" << endl;
       else
         htmlFile << "<td colspan=\"2\"><img src=\"" << " " << "\"></td>" << endl;

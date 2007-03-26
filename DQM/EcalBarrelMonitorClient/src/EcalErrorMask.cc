@@ -1,11 +1,11 @@
-// $Id: EcalErrorMask.cc,v 1.15 2007/03/11 19:43:07 dellaric Exp $
+// $Id: EcalErrorMask.cc,v 1.16 2007/03/12 09:30:41 dellaric Exp $
 
 /*!
   \file EcalErrorMask.cc
   \brief Error mask from text file or database
-  \author B. Gobbo 
-  \version $Revision: 1.15 $
-  \date $Date: 2007/03/11 19:43:07 $
+  \author B. Gobbo
+  \version $Revision: 1.16 $
+  \date $Date: 2007/03/12 09:30:41 $
 */
 
 #include "DQM/EcalBarrelMonitorClient/interface/EcalErrorMask.h"
@@ -17,11 +17,11 @@
 
 bool EcalErrorMask::done_ = false;
 int  EcalErrorMask::runNb_ = -1;
-std::map<EcalLogicID, RunCrystalErrorsDat> EcalErrorMask::mapCrystalErrors_; 
-std::map<EcalLogicID, RunTTErrorsDat>      EcalErrorMask::mapTTErrors_; 
-std::map<EcalLogicID, RunPNErrorsDat>      EcalErrorMask::mapPNErrors_; 
-std::map<EcalLogicID, RunMemChErrorsDat>   EcalErrorMask::mapMemChErrors_; 
-std::map<EcalLogicID, RunMemTTErrorsDat>   EcalErrorMask::mapMemTTErrors_; 
+std::map<EcalLogicID, RunCrystalErrorsDat> EcalErrorMask::mapCrystalErrors_;
+std::map<EcalLogicID, RunTTErrorsDat>      EcalErrorMask::mapTTErrors_;
+std::map<EcalLogicID, RunPNErrorsDat>      EcalErrorMask::mapPNErrors_;
+std::map<EcalLogicID, RunMemChErrorsDat>   EcalErrorMask::mapMemChErrors_;
+std::map<EcalLogicID, RunMemTTErrorsDat>   EcalErrorMask::mapMemTTErrors_;
 
 //---------------------------------------------------------------------------------------------
 
@@ -58,7 +58,7 @@ void EcalErrorMask::readFile( std::string inFile, bool verbose, bool verifySynta
   EcalErrorDictionary::getDictionary( errors );
 
   if( verbose ) std::cout << std::endl
-			  << "--------- Input Mask File Dump ----------" 
+			  << "--------- Input Mask File Dump ----------"
 			  << std::endl;
 
   while( f.getline( line, lineSize ) ) {
@@ -67,7 +67,7 @@ void EcalErrorMask::readFile( std::string inFile, bool verbose, bool verifySynta
 
     EcalErrorMask::clearComments_( line );
     EcalErrorMask::clearFinalBlanks_( line );
-  
+
     std::istringstream is( line );
     std::string s;
     is >> s;
@@ -89,7 +89,7 @@ void EcalErrorMask::readFile( std::string inFile, bool verbose, bool verifySynta
 	return;
       }
     }
-    
+
     if( s == "Crystal" ) {
       int ic; is >> ic;
       if( ic < 1 || ic > 1700 ) {
@@ -107,7 +107,7 @@ void EcalErrorMask::readFile( std::string inFile, bool verbose, bool verifySynta
       }
       std::string shortDesc; is >> shortDesc;
       uint64_t bitmask; bitmask = 0;
-      
+
       for( unsigned int i=0; i<errors.size(); i++ ) {
 	if( shortDesc == errors[i].shortDesc ) {
 	  bitmask = errors[i].bitmask;
@@ -158,7 +158,7 @@ void EcalErrorMask::readFile( std::string inFile, bool verbose, bool verifySynta
       }
       std::string shortDesc; is >> shortDesc;
       uint64_t bitmask; bitmask = 0;
-      
+
       for( unsigned int i=0; i<errors.size(); i++ ) {
 	if( shortDesc == errors[i].shortDesc ) {
 	  bitmask = errors[i].bitmask;
@@ -209,7 +209,7 @@ void EcalErrorMask::readFile( std::string inFile, bool verbose, bool verifySynta
       }
       std::string shortDesc; is >> shortDesc;
       uint64_t bitmask; bitmask = 0;
-      
+
       for( unsigned int i=0; i<errors.size(); i++ ) {
 	if( shortDesc == errors[i].shortDesc ) {
 	  bitmask = errors[i].bitmask;
@@ -260,7 +260,7 @@ void EcalErrorMask::readFile( std::string inFile, bool verbose, bool verifySynta
       }
       std::string shortDesc; is >> shortDesc;
       uint64_t bitmask; bitmask = 0;
-      
+
       for( unsigned int i=0; i<errors.size(); i++ ) {
 	if( shortDesc == errors[i].shortDesc ) {
 	  bitmask = errors[i].bitmask;
@@ -311,7 +311,7 @@ void EcalErrorMask::readFile( std::string inFile, bool verbose, bool verifySynta
       }
       std::string shortDesc; is >> shortDesc;
       uint64_t bitmask; bitmask = 0;
-      
+
       for( unsigned int i=0; i<errors.size(); i++ ) {
 	if( shortDesc == errors[i].shortDesc ) {
 	  bitmask = errors[i].bitmask;
@@ -376,7 +376,7 @@ void EcalErrorMask::readFile( std::string inFile, bool verbose, bool verifySynta
     std::cout << "----------------------------------------------------------------" << std::endl;
   }
 
-  if( verbose ) std::cout << "------- End Input Mask File Dump --------" 
+  if( verbose ) std::cout << "------- End Input Mask File Dump --------"
 			  << std::endl;
 
   f.close();
@@ -628,7 +628,7 @@ void EcalErrorMask::clearComments_( char* line ) {
 
   (void) regcomp( &rec, "#", REG_EXTENDED );
 
-  int i = regexec( &rec, line, (size_t) 1, &pmc, 0 ); 
+  int i = regexec( &rec, line, (size_t) 1, &pmc, 0 );
 
   if( i == 0 ) {
     line[pmc.rm_so] = '\0';

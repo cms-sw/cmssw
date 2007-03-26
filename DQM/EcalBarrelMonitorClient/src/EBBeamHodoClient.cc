@@ -1,8 +1,8 @@
 /*
  * \file EBBeamHodoClient.cc
  *
- * $Date: 2007/02/08 15:23:59 $
- * $Revision: 1.33 $
+ * $Date: 2007/03/13 10:14:25 $
+ * $Revision: 1.34 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -329,9 +329,9 @@ void EBBeamHodoClient::subscribe(void){
 void EBBeamHodoClient::subscribeNew(void){
 
   Char_t histo[200];
-  
+
   int smId = 1;
-  
+
   for (int i=0; i<4; i++) {
 
     sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT occup SM%02d, %02d", smId, i+1);
@@ -352,13 +352,13 @@ void EBBeamHodoClient::subscribeNew(void){
 
   sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT SloX SM%02d", smId);
   mui_->subscribeNew(histo);
-  
+
   sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT SloY SM%02d", smId);
   mui_->subscribeNew(histo);
 
   sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT QualX SM%02d", smId);
   mui_->subscribeNew(histo);
-  
+
   sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT QualY SM%02d", smId);
   mui_->subscribeNew(histo);
 
@@ -382,7 +382,7 @@ void EBBeamHodoClient::subscribeNew(void){
 
   sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT prof E1 vs Y SM%02d", smId);
   mui_->subscribeNew(histo);
-  
+
   sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT his E1 vs X SM%02d", smId);
   mui_->subscribeNew(histo);
 
@@ -419,7 +419,7 @@ void EBBeamHodoClient::unsubscribe(void){
 
   sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT PosX rec SM%02d", smId);
   mui_->unsubscribe(histo);
-  
+
   sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT PosY rec SM%02d", smId);
   mui_->unsubscribe(histo);
 
@@ -434,7 +434,7 @@ void EBBeamHodoClient::unsubscribe(void){
 
   sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT QualX SM%02d", smId);
   mui_->unsubscribe(histo);
-  
+
   sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT QualY SM%02d", smId);
   mui_->unsubscribe(histo);
 
@@ -455,16 +455,16 @@ void EBBeamHodoClient::unsubscribe(void){
 
   sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT prof E1 vs X SM%02d", smId);
   mui_->unsubscribe(histo);
-    
+
   sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT prof E1 vs Y SM%02d", smId);
   mui_->unsubscribe(histo);
-  
+
   sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT his E1 vs X SM%02d", smId);
   mui_->unsubscribe(histo);
 
   sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT his E1 vs Y SM%02d", smId);
   mui_->unsubscribe(histo);
-  
+
   sprintf(histo, "*/EcalBarrel/EBBeamHodoTask/EBBHT PosX Hodo-Calo SM%02d", smId);
   mui_->unsubscribe(histo);
 
@@ -705,18 +705,18 @@ void EBBeamHodoClient::htmlOutput(int run, string htmlDir, string htmlName){
 
 
   const int csize = 250;
-  
+
   const double histMax = 1.e15;
- 
+
   int pCol4[10];
   for ( int i = 0; i < 10; i++ ) pCol4[i] = 401+i;
- 
+
   TH2C dummy( "dummy", "dummy for sm", 85, 0., 85., 20, 0., 20. );
   for ( int i = 0; i < 68; i++ ) {
     int a = 2 + ( i/4 ) * 5;
     int b = 2 + ( i%4 ) * 5;
     dummy.Fill( a, b, i+1 );
-  } 
+  }
   dummy.SetMarkerSize(2);
   dummy.SetMinimum(0.1);
 
@@ -770,7 +770,7 @@ void EBBeamHodoClient::htmlOutput(int run, string htmlDir, string htmlName){
     if ( obj1f ) {
 
       meName = obj1f->GetName();
-    
+
       for ( unsigned int j = 0; j < meName.size(); j++ ) {
         if ( meName.substr(j, 1) == " " )  {
           meName.replace(j, 1, "_");
@@ -883,7 +883,7 @@ void EBBeamHodoClient::htmlOutput(int run, string htmlDir, string htmlName){
     }
     imgNameP = meName + ".png";
     imgName = htmlDir + imgNameP;
-  
+
     cP->cd();
 //    gStyle->SetOptStat("euomr");
 //    obj2f->SetStats(kTRUE);
@@ -989,7 +989,7 @@ void EBBeamHodoClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
   htmlFile << "<tr align=\"center\">" << endl;
 
-  for (int i=0; i<3; i++) { 
+  for (int i=0; i<3; i++) {
 
     obj1f = 0;
 
@@ -1096,7 +1096,7 @@ void EBBeamHodoClient::htmlOutput(int run, string htmlDir, string htmlName){
 
       cP->cd();
       gStyle->SetOptStat("euomr");
-      obj1f->SetStats(kTRUE); 
+      obj1f->SetStats(kTRUE);
 //      if ( obj1f->GetMaximum(histMax) > 0. ) {
 //        gPad->SetLogy(1);
 //      } else {
@@ -1158,7 +1158,7 @@ void EBBeamHodoClient::htmlOutput(int run, string htmlDir, string htmlName){
     }
 
     if ( objp ) {
-      
+
       meName = objp->GetName();
 
       for ( unsigned int j = 0; j < meName.size(); j++ ) {
@@ -1167,11 +1167,11 @@ void EBBeamHodoClient::htmlOutput(int run, string htmlDir, string htmlName){
         }
       }
       imgNameP = meName + ".png";
-      imgName = htmlDir + imgNameP; 
-    
+      imgName = htmlDir + imgNameP;
+
       cP->cd();
       gStyle->SetOptStat("euomr");
-      objp->SetStats(kTRUE); 
+      objp->SetStats(kTRUE);
       objp->Draw();
       cP->Update();
       cP->SaveAs(imgName.c_str());
@@ -1180,9 +1180,9 @@ void EBBeamHodoClient::htmlOutput(int run, string htmlDir, string htmlName){
     }
 
     obj2f = 0;
-  
+
     imgNameR = "";
-  
+
     switch ( i ) {
     case 0:
       obj2f = he02_[0];
@@ -1203,7 +1203,7 @@ void EBBeamHodoClient::htmlOutput(int run, string htmlDir, string htmlName){
     }
 
     if ( obj2f ) {
-  
+
       meName = obj2f->GetName();
 
       for ( unsigned int j = 0; j < meName.size(); j++ ) {
@@ -1239,7 +1239,7 @@ void EBBeamHodoClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "</tr>" << endl;
   htmlFile << "</table>" << endl;
   htmlFile << "<br>" << endl;
-  
+
   htmlFile << "<br>" << endl;
   htmlFile <<  "<a name=\"missingColl\"> <B> Missing collections  </B> </a> " << endl;
   htmlFile << "</br>" << endl;
@@ -1247,26 +1247,26 @@ void EBBeamHodoClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
   htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
   htmlFile << "<tr align=\"center\">" << endl;
-    
+
   obj1f = hm01_;
-  
+
   imgNameP = "";
-  
+
   if ( obj1f ) {
-    
+
     meName = obj1f->GetName();
-    
+
     for ( unsigned int j = 0; j < meName.size(); j++ ) {
       if ( meName.substr(j, 1) == " " )  {
 	meName.replace(j, 1, "_");
       }
     }
     imgNameP = meName + ".png";
-    imgName = htmlDir + imgNameP; 
-    
+    imgName = htmlDir + imgNameP;
+
     cP->cd();
     gStyle->SetOptStat("euomr");
-    obj1f->SetStats(kTRUE); 
+    obj1f->SetStats(kTRUE);
     obj1f->GetXaxis()->SetTitle("missing collection");
     obj1f->GetXaxis()->SetTitleColor(1);
     obj1f->Draw();
@@ -1275,12 +1275,12 @@ void EBBeamHodoClient::htmlOutput(int run, string htmlDir, string htmlName){
     gPad->SetLogy(0);
 
   }
-  
+
   if ( imgNameP.size() != 0 )
     htmlFile << "<td><img src=\"" << imgNameP << "\"></td>" << endl;
   else
     htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
-  
+
   htmlFile << "</tr>" << endl;
   htmlFile << "</table>" << endl;
   htmlFile << "<br>" << endl;

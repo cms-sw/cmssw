@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2007/03/21 06:13:03 $
- * $Revision: 1.236 $
+ * $Date: 2007/03/24 14:36:39 $
+ * $Revision: 1.238 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -87,7 +87,7 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
   // Set runTypes
 
   runTypes_.resize( 13 );
-  for ( unsigned int i=0; i<runTypes_.size(); ++i ) runTypes_[i] =  "UNKNOWN"; 
+  for ( unsigned int i=0; i<runTypes_.size(); ++i ) runTypes_[i] =  "UNKNOWN";
   runTypes_[EcalDCCHeaderBlock::COSMIC]                 = "COSMIC";
   runTypes_[EcalDCCHeaderBlock::BEAMH4]                 = "BEAM";
   runTypes_[EcalDCCHeaderBlock::BEAMH2]                 = "BEAM";
@@ -220,7 +220,7 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
     cout << " enableExit switch is ON" << endl;
   } else {
     cout << " enableExit switch is OFF" << endl;
-  } 
+  }
 
   // verbosity switch
 
@@ -289,7 +289,7 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
   superModules_.reserve(36);
   for ( unsigned int i = 1; i < 37; i++ ) superModules_.push_back(i);
 
-  superModules_ = ps.getUntrackedParameter<vector<int> >("superModules", superModules_); 
+  superModules_ = ps.getUntrackedParameter<vector<int> >("superModules", superModules_);
 
   cout << " Selected SMs:" << endl;
 
@@ -345,7 +345,7 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
       color = gROOT->GetColor( 301+i );
       color->SetRGB( ecdqm::rgb[i][0], ecdqm::rgb[i][1], ecdqm::rgb[i][2] );
     }
-  }  
+  }
 
   for( int i=0; i<10; i++ ) {
     TColor* color;
@@ -356,7 +356,7 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
       color = gROOT->GetColor( 401+i );
       color->SetRGB( ecdqm::rgb2[i][0], ecdqm::rgb2[i][1], ecdqm::rgb2[i][2] );
     }
-  }  
+  }
 
   // clients' constructors
 
@@ -707,7 +707,7 @@ void EcalBarrelMonitorClient::beginRunDb(void) {
   RunTypeDef rundef;
 
   rundef.setRunType( runtype_ == -1 ? "UNKNOWN" : runTypes_[runtype_]  );
- 
+
   RunTag runtag;
 
   runtag.setLocationDef(locdef);
@@ -769,7 +769,7 @@ void EcalBarrelMonitorClient::beginRunDb(void) {
   // end - setup the RunIOV (on behalf of the DAQ)
 
   string st = runiov_.getRunTag().getRunTypeDef().getRunType();
-  if ( st == "UNKNOWN" ) runtype_ = -1; 
+  if ( st == "UNKNOWN" ) runtype_ = -1;
   else for ( unsigned int i=0; i<runTypes_.size(); i++ ) if ( st == runTypes_[i] ) runtype_ = i;
 
   cout << endl;
@@ -891,9 +891,9 @@ void EcalBarrelMonitorClient::writeDb(void) {
     for ( int j = 0; j<int(clients_.size()); ++j ) {
       bool written; written = false;
       for ( EBCIMMap::iterator k = chb_.lower_bound(clients_[j]); k != chb_.upper_bound(clients_[j]); ++k ) {
-        if ( h_ && h_->GetBinContent((*k).second+1) != 0 && runtype_ != -1 && runtype_ == (*k).second && !written ) { 
+        if ( h_ && h_->GetBinContent((*k).second+1) != 0 && runtype_ != -1 && runtype_ == (*k).second && !written ) {
           if ( clientNames_[j] == "Laser" && h_->GetBinContent(EcalDCCHeaderBlock::LASER_STD+1) == 0 ) continue;
-          written = true; 
+          written = true;
           taskl |= 0x1 << j;
           if ( clients_[j]->writeDb(econn, &runiov_, &moniov_, ism) ) {
             tasko |= 0x1 << j;
@@ -1260,7 +1260,7 @@ void EcalBarrelMonitorClient::analyze(void){
       }
 
     }
-    
+
   }
 
   if ( status_ == "begin-of-run" || status_ == "running" || status_ == "end-of-run" ) {
@@ -1304,14 +1304,14 @@ void EcalBarrelMonitorClient::analyze(void){
         }
 
         forced_update_ = false;
-        
+
       }
-      
+
       if ( enableSubRun_ ) {
         time_t seconds = 15 * 60;
         if ( (current_time_ - last_time_) > seconds ) {
-          if ( runtype_ == EcalDCCHeaderBlock::COSMIC || 
-               runtype_ == EcalDCCHeaderBlock::BEAMH2 || 
+          if ( runtype_ == EcalDCCHeaderBlock::COSMIC ||
+               runtype_ == EcalDCCHeaderBlock::BEAMH2 ||
                runtype_ == EcalDCCHeaderBlock::BEAMH4 ) this->writeDb();
         }
       }
@@ -1332,7 +1332,7 @@ void EcalBarrelMonitorClient::analyze(void){
       }
 
     }
-    
+
   }
 
   // BEGIN: run-time fixes for missing state transitions
@@ -1340,25 +1340,25 @@ void EcalBarrelMonitorClient::analyze(void){
   // too many 'unknown' states
 
   if ( status_ == "unknown" ) {
-    
+
     if ( update ) unknowns_++;
-    
+
     if ( unknowns_ >= 50 ) {
-      
+
       cout << endl;
       cout << "Too many 'unknown' states ..." << endl;
       cout << endl;
-      
+
       if ( enableExit_ ) throw exception();
 
     }
-    
+
   }
 
   // 'running' state without a previous 'begin-of-run' state
 
   if ( status_ == "running" ) {
-    
+
     if ( run_ > 0 && evt_ > 0 && runtype_ != -1 ) {
 
       if ( ! forced_status_ ) {
@@ -1383,7 +1383,7 @@ void EcalBarrelMonitorClient::analyze(void){
   // too many 'running' states without updates (obsolete)
 
   if ( status_ == "running" ) {
-    
+
     if ( run_ > 0 && evt_ > 0 && runtype_ != -1 ) {
 
       if ( ! forced_status_ ) {
@@ -1460,7 +1460,7 @@ void EcalBarrelMonitorClient::analyze(void){
     }
 
   }
-  
+
   // END: run-time fixes for missing state transitions
 
 }
@@ -1505,9 +1505,9 @@ void EcalBarrelMonitorClient::htmlOutput(void){
   for ( int j = 0; j<int(clients_.size()); ++j ) {
     bool written; written = false;
     for ( EBCIMMap::iterator k = chb_.lower_bound(clients_[j]); k != chb_.upper_bound(clients_[j]); ++k ) {
-      if ( h_ && h_->GetBinContent((*k).second+1) != 0 && runtype_ != -1 && runtype_ == (*k).second && !written ) { 
+      if ( h_ && h_->GetBinContent((*k).second+1) != 0 && runtype_ != -1 && runtype_ == (*k).second && !written ) {
         if ( clientNames_[j] == "Laser" && h_->GetBinContent(EcalDCCHeaderBlock::LASER_STD+1) == 0 ) continue;
-        written = true; 
+        written = true;
         htmlName = "EB" + clientNames_[j] + "Client.html";
         clients_[j]->htmlOutput(run_, htmlDir, htmlName);
         htmlFile << "<li><a href=\"" << htmlName << "\">Data " << clientNames_[j] << "</a></li>" << endl;

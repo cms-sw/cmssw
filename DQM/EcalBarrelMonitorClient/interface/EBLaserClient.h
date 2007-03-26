@@ -4,15 +4,15 @@
 /*
  * \file EBLaserClient.h
  *
- * $Date: 2007/03/13 10:14:25 $
- * $Revision: 1.53 $
+ * $Date: 2007/03/16 12:00:48 $
+ * $Revision: 1.54 $
  * \author G. Della Ricca
  *
 */
 
 #include <vector>
 #include <string>
- 
+
 #include "TROOT.h"
 #include "TProfile2D.h"
 #include "TH1F.h"
@@ -76,8 +76,8 @@ void htmlOutput(int run, string htmlDir, string htmlName);
 bool writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV* moniov, int ism);
 
 /// Get Functions
- inline int getEvtPerJob() { return ievt_; }
- inline int getEvtPerRun() { return jevt_; }
+inline int getEvtPerJob() { return ievt_; }
+inline int getEvtPerRun() { return jevt_; }
 
 private:
 
@@ -158,7 +158,7 @@ TProfile2D* h17_[36];
 TProfile2D* h18_[36];
 TProfile2D* h19_[36];
 TProfile2D* h20_[36];
- 
+
 TProfile2D* h21_[36];
 TProfile2D* h22_[36];
 TProfile2D* h23_[36];

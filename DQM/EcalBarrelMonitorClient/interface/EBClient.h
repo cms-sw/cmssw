@@ -1,11 +1,11 @@
-// $Id: EBClient.h,v 1.7 2006/11/21 13:16:51 dellaric Exp $
+// $Id: EBClient.h,v 1.8 2006/12/15 09:44:49 dellaric Exp $
 
 /*!
   \file EBClient.h
   \brief Ecal Barrel Monitor Client mom class
-  \author B. Gobbo 
-  \version $Revision: 1.7 $
-  \date $Date: 2006/11/21 13:16:51 $
+  \author B. Gobbo
+  \version $Revision: 1.8 $
+  \date $Date: 2006/12/15 09:44:49 $
 */
 
 
@@ -15,26 +15,26 @@
 #include <vector>
 #include <string>
 
-class EcalCondDBInterface; 
+class EcalCondDBInterface;
 class RunIOV;
 class MonRunIOV;
 
 class EBClient {
-  
+
  public:
 
-  /*! \fn virtual void subscribe(void) 
-    \brief Subscribe to Monitoring Elements 
+  /*! \fn virtual void subscribe(void)
+    \brief Subscribe to Monitoring Elements
   */
   virtual void subscribe(void)    = 0;
 
-  /*! \fn virtual void subscribeNew(void) 
-    \brief Subscribe to Monitoring Elements 
+  /*! \fn virtual void subscribeNew(void)
+    \brief Subscribe to Monitoring Elements
   */
   virtual void subscribeNew(void) = 0;
 
-  /*! \fn virtual void unsubscribe(void) 
-    \brief Unsubscribe to Monitoring Elements 
+  /*! \fn virtual void unsubscribe(void)
+    \brief Unsubscribe to Monitoring Elements
   */
   virtual void unsubscribe(void)  = 0;
 
@@ -43,37 +43,37 @@ class EBClient {
   */
   virtual void softReset(void)  = 0;
 
-  /*! \fn virtual void analyze(void) 
+  /*! \fn virtual void analyze(void)
     \brief analyze method
   */
   virtual void analyze(void)      = 0;
 
-  /*! \fn virtual void beginJob(MonitorUserInterface* mui) 
+  /*! \fn virtual void beginJob(MonitorUserInterface* mui)
     \brief Begin of job method
   */
   virtual void beginJob(MonitorUserInterface* mui)     = 0;
 
-  /*! \fn virtual void endJob(void) 
+  /*! \fn virtual void endJob(void)
     \brief End of Job method
   */
   virtual void endJob(void)       = 0;
 
-  /*! \fn virtual void beginRun(void) 
+  /*! \fn virtual void beginRun(void)
     \brief Begin of Run method
   */
   virtual void beginRun(void)     = 0;
 
-  /*! \fn virtual void endRun(void) 
+  /*! \fn virtual void endRun(void)
     \brief End of Run method
   */
   virtual void endRun(void)       = 0;
 
-  /*! \fn virtual void setup(void) 
+  /*! \fn virtual void setup(void)
     \brief setup method
   */
   virtual void setup(void)        = 0;
 
-  /*! \fn virtual void cleanup(void) 
+  /*! \fn virtual void cleanup(void)
     \brief Clean up method
   */
   virtual void cleanup(void)      = 0;
@@ -104,7 +104,6 @@ class EBClient {
     \brief Returns the number of processed events in this Run
   */
   virtual int getEvtPerRun( void ) = 0;
-
 
   virtual ~EBClient(void) {}
 

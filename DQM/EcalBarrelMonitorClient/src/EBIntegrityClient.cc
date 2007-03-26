@@ -2,8 +2,8 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2007/02/20 13:27:16 $
- * $Revision: 1.137 $
+ * $Date: 2007/03/13 10:14:26 $
+ * $Revision: 1.138 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -71,7 +71,7 @@ EBIntegrityClient::EBIntegrityClient(const ParameterSet& ps){
   superModules_.reserve(36);
   for ( unsigned int i = 1; i < 37; i++ ) superModules_.push_back(i);
   superModules_ = ps.getUntrackedParameter<vector<int> >("superModules", superModules_);
-  
+
   h00_ = 0;
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
@@ -137,7 +137,7 @@ void EBIntegrityClient::beginJob(MonitorUserInterface* mui){
     Char_t qtname[200];
 
     for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-  
+
       int ism = superModules_[i];
 
       sprintf(qtname, "EBIT data integrity quality gain SM%02d", ism);
@@ -160,7 +160,7 @@ void EBIntegrityClient::beginJob(MonitorUserInterface* mui){
 
       sprintf(qtname, "EBIT data integrity quality MemChId SM%02d", ism);
       qth07_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
-  
+
       sprintf(qtname, "EBIT data integrity quality MemGain SM%02d", ism);
       qth08_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
 
@@ -180,7 +180,7 @@ void EBIntegrityClient::beginJob(MonitorUserInterface* mui){
       qth08_[ism-1]->setMeanRange(-1.0, threshCry_);
       qth09_[ism-1]->setMeanRange(-1.0, threshCry_);
       qth10_[ism-1]->setMeanRange(-1.0, threshCry_);
-  
+
       qth01_[ism-1]->setMinimumEntries(0);
       qth02_[ism-1]->setMinimumEntries(0);
       qth03_[ism-1]->setMinimumEntries(0);
@@ -249,7 +249,7 @@ void EBIntegrityClient::setup(void) {
   DaqMonitorBEInterface* bei = mui_->getBEInterface();
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-  
+
     int ism = superModules_[i];
 
     if ( meg01_[ism-1] ) bei->removeElement( meg01_[ism-1]->getName() );
@@ -263,7 +263,7 @@ void EBIntegrityClient::setup(void) {
   }
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-  
+
     int ism = superModules_[i];
 
     EBMUtilsClient::resetHisto( meg01_[ism-1] );
@@ -299,7 +299,7 @@ void EBIntegrityClient::cleanup(void) {
   h00_ = 0;
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-  
+
     int ism = superModules_[i];
 
     if ( cloneME_ ) {
@@ -338,7 +338,7 @@ void EBIntegrityClient::cleanup(void) {
   DaqMonitorBEInterface* bei = mui_->getBEInterface();
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-  
+
     int ism = superModules_[i];
 
     if ( meg01_[ism-1] ) bei->removeElement( meg01_[ism-1]->getName() );
@@ -787,7 +787,7 @@ void EBIntegrityClient::subscribe(void){
     mui_->add(me_h00_, histo);
 
     for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-  
+
       int ism = superModules_[i];
 
       sprintf(histo, "EBOT occupancy SM%02d", ism);
@@ -855,7 +855,7 @@ void EBIntegrityClient::subscribe(void){
   }
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-  
+
     int ism = superModules_[i];
 
     if ( collateSources_ ) {
@@ -982,7 +982,7 @@ void EBIntegrityClient::unsubscribe(void){
       mui_->removeCollate(me_h00_);
 
       for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-  
+
         int ism = superModules_[i];
 
         mui_->removeCollate(me_h_[ism-1]);
@@ -1096,7 +1096,7 @@ void EBIntegrityClient::analyze(void){
   h00_ = EBMUtilsClient::getHisto<TH1F*>( me, cloneME_, h00_ );
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-  
+
     int ism = superModules_[i];
 
     if ( collateSources_ ) {
@@ -1130,7 +1130,7 @@ void EBIntegrityClient::analyze(void){
     }
     me = mui_->get(histo);
     h02_[ism-1] = EBMUtilsClient::getHisto<TH2F*>( me, cloneME_, h02_[ism-1] );
- 
+
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBIntegrityTask/GainSwitch/EBIT gain switch SM%02d", ism);
     } else {
@@ -1291,7 +1291,7 @@ void EBIntegrityClient::analyze(void){
 
         }
 
-        // masking 
+        // masking
 
         if ( mask1.size() != 0 ) {
           map<EcalLogicID, RunCrystalErrorsDat>::const_iterator m;
@@ -1510,9 +1510,9 @@ void EBIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "<br>" << endl;
   htmlFile << "<table border=1>" << std::endl;
   for ( unsigned int i=0; i<superModules_.size(); i ++ ) {
-    htmlFile << "<td bgcolor=white><a href=""#" << superModules_[i] << ">" 
+    htmlFile << "<td bgcolor=white><a href=""#" << superModules_[i] << ">"
 	     << setfill( '0' ) << setw(2) << superModules_[i] << "</a></td>";
-  } 
+  }
   htmlFile << std::endl << "</table>" << std::endl;
   htmlFile << "<hr>" << std::endl;
 
@@ -1880,7 +1880,7 @@ void EBIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
 
     if( i>0 ) htmlFile << "<a href=""#top"">Top</a>" << std::endl;
     htmlFile << "<hr>" << std::endl;
-    htmlFile << "<h3><a name=""" << ism << """></a><strong>Supermodule&nbsp;&nbsp;" 
+    htmlFile << "<h3><a name=""" << ism << """></a><strong>Supermodule&nbsp;&nbsp;"
 	     << ism << "</strong></h3>" << endl;
     htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
     htmlFile << "cellpadding=\"10\"> " << endl;

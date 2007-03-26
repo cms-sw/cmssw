@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  *
- * $Date: 2007/02/22 09:35:44 $
- * $Revision: 1.129 $
+ * $Date: 2007/03/13 10:14:26 $
+ * $Revision: 1.130 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -161,13 +161,13 @@ void EBTestPulseClient::beginJob(MonitorUserInterface* mui){
 
       sprintf(qtname, "EBTPT amplitude quality PNs SM%02d G16", ism);
       qtha05_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
- 
+
       sprintf(qtname, "EBTPT pedestal quality PNs SM%02d G01", ism);
       qtha06_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
 
       sprintf(qtname, "EBTPT pedestal quality PNs SM%02d G16", ism);
       qtha07_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
- 
+
       qtha01_[ism-1]->setMeanRange(amplitudeThreshold_, 4096.0*12.);
       qtha02_[ism-1]->setMeanRange(amplitudeThreshold_, 4096.0*12.);
       qtha03_[ism-1]->setMeanRange(amplitudeThreshold_, 4096.0*12.);
@@ -805,7 +805,7 @@ void EBTestPulseClient::subscribeNew(void){
 
   Char_t histo[200];
 
-  for ( unsigned int i=0; i<superModules_.size(); i++ ) { 
+  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
     unsigned int ism = superModules_[i];
 
@@ -836,7 +836,7 @@ void EBTestPulseClient::subscribeNew(void){
     mui_->subscribeNew(histo, ism);
     sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Gain16/EBPDT PNs pedestal SM%02d G16", ism);
     mui_->subscribeNew(histo, ism);
-  
+
   }
 
 }
@@ -911,7 +911,7 @@ void EBTestPulseClient::unsubscribe(void){
     mui_->unsubscribe(histo, ism);
     sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Gain16/EBPDT PNs pedestal SM%02d G16", ism);
     mui_->unsubscribe(histo, ism);
- 
+
   }
 
 }
@@ -1319,7 +1319,7 @@ void EBTestPulseClient::analyze(void){
 //    }
 
     if ( qtha03_[ism-1] ) badChannels = qtha03_[ism-1]->getBadChannels();
- 
+
 //    if ( ! badChannels.empty() ) {
 //      for ( vector<dqm::me_util::Channel>::iterator it = badChannels.begin(); it != badChannels.end(); ++it ) {
 //        if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent(it->getBinX(), it->getBinY(), 0.);
@@ -1394,9 +1394,9 @@ void EBTestPulseClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "<br>" << endl;
   htmlFile << "<table border=1>" << std::endl;
   for ( unsigned int i=0; i<superModules_.size(); i ++ ) {
-    htmlFile << "<td bgcolor=white><a href=""#" << superModules_[i] << ">" 
+    htmlFile << "<td bgcolor=white><a href=""#" << superModules_[i] << ">"
 	     << setfill( '0' ) << setw(2) << superModules_[i] << "</a></td>";
-  } 
+  }
   htmlFile << std::endl << "</table>" << std::endl;
 
   // Produce the plots to be shown as .png files from existing histograms
@@ -1733,7 +1733,7 @@ void EBTestPulseClient::htmlOutput(int run, string htmlDir, string htmlName){
 
     if( i>0 ) htmlFile << "<a href=""#top"">Top</a>" << std::endl;
     htmlFile << "<hr>" << std::endl;
-    htmlFile << "<h3><a name=""" << ism << """></a><strong>Supermodule&nbsp;&nbsp;" 
+    htmlFile << "<h3><a name=""" << ism << """></a><strong>Supermodule&nbsp;&nbsp;"
 	     << ism << "</strong></h3>" << endl;
     htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
     htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
