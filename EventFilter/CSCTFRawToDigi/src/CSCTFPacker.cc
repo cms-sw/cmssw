@@ -1,5 +1,6 @@
 #include "EventFilter/CSCTFRawToDigi/interface/CSCTFPacker.h"
 #include "EventFilter/CSCTFRawToDigi/src/CSCTFEvent.h"
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 
 #include <strings.h>
 
@@ -22,6 +23,8 @@ CSCTFPacker::CSCTFPacker(const edm::ParameterSet &conf):edm::EDProducer(){
 	file = 0;
 	if( outputFile.length() && (file = fopen(outputFile.c_str(),"wt"))==NULL )
 		throw cms::Exception("OutputFile ")<<"CSCTFPacker: cannot open output file (errno="<<errno<<"). Try outputFile=\"\"";
+
+	produces<FEDRawDataCollection>("CSCTFRawData");
 }
 
 CSCTFPacker::~CSCTFPacker(void){
@@ -232,7 +235,7 @@ void CSCTFPacker::produce(edm::Event& e, const edm::EventSetup& c){
 		FEDRawData& fedRawData = data->FEDData((unsigned int)FEDNumbering::getCSCTFFEDIds().first);
 		fedRawData.resize((pos-spDDUrecord)*sizeof(unsigned short));
 		std::copy((unsigned char*)spDDUrecord,(unsigned char*)pos,fedRawData.data());
-		e.put(data);
+		e.put(data,"CSCTFRawData");
 	}
 
 	if(file) fwrite(spDDUrecord,2,pos-spDDUrecord,file);
