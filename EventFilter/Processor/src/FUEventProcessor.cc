@@ -91,6 +91,7 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
   , outPut_(true)
   , inputPrescale_(1)
   , outputPrescale_(1)
+  , timeoutOnStop_(10)
   , outprev_(true)
 {
   // bind relevant callbacks to finite state machine
@@ -125,6 +126,7 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
   ispace->fireItemAvailable("outputEnabled",        &outPut_);
   ispace->fireItemAvailable("globalInputPrescale",  &inputPrescale_);
   ispace->fireItemAvailable("globalOutputPrescale", &outputPrescale_);
+  ispace->fireItemAvailable("timeoutOnStop",        &timeoutOnStop_);
   
   ispace->fireItemAvailable("foundRcmsStateListener",fsm_.foundRcmsStateListener());
   
@@ -444,10 +446,12 @@ bool FUEventProcessor::stopping(toolbox::task::WorkLoop* wl)
 {
   try {
     LOG4CPLUS_INFO(getApplicationLogger(),"Start stopping :) ...");
-    stopEventProcessor();
+    edm::EventProcessor::StatusCode rc = stopEventProcessor();
     LOG4CPLUS_INFO(getApplicationLogger(),"Finished stopping!");
-    
-    fsm_.fireEvent("StopDone",this);
+    if(rc != edm::EventProcessor::epTimedOut) 
+      fsm_.fireEvent("StopDone",this);
+    else
+      fsm_.fireFailed("EventProcessor stop timed out",this);
   }
   catch (xcept::Exception &e) {
     string msg = "stopping FAILED: " + (string)e.what();
@@ -463,15 +467,19 @@ bool FUEventProcessor::halting(toolbox::task::WorkLoop* wl)
 {
   try {
     LOG4CPLUS_INFO(getApplicationLogger(),"Start halting ...");
-    stopEventProcessor();
-    // NEW
-    //evtProcessor_->endJob();
-    //delete evtProcessor_;
-    //evtProcessor_ = 0;
-    epInitialized_ = false;
-    LOG4CPLUS_INFO(getApplicationLogger(),"Finished halting!");
+    edm::EventProcessor::StatusCode rc = stopEventProcessor();
+    if(rc != edm::EventProcessor::epTimedOut)
+      {
+	evtProcessor_->endJob();
+	delete evtProcessor_;
+	evtProcessor_ = 0;
+	epInitialized_ = false;
+	LOG4CPLUS_INFO(getApplicationLogger(),"Finished halting!");
   
-    fsm_.fireEvent("HaltDone",this);
+	fsm_.fireEvent("HaltDone",this);
+      }
+    else
+      fsm_.fireFailed("EventProcessor stop timed out",this);
   }
   catch (xcept::Exception &e) {
     string msg = "halting FAILED: " + (string)e.what();
@@ -679,109 +687,26 @@ void FUEventProcessor::initEventProcessor()
 
 
 //______________________________________________________________________________
-void FUEventProcessor::stopEventProcessor()
+edm::EventProcessor::StatusCode FUEventProcessor::stopEventProcessor()
 {
-  int trycount=0;
+  edm::EventProcessor::StatusCode rc = edm::EventProcessor::epSuccess;
   try  {
-    // wait until event processor reaches state 'sStopping'
-    while(evtProcessor_->getState()!=edm::event_processor::sStopping && trycount<10) {
-      trycount++;
-      ::sleep(1);
-    }
-    
-    // wait until even processor reaches state 'sDone'
-    trycount=0;
-    if(evtProcessor_->getState()==edm::event_processor::sStopping) {
-
-      // OLD
-      evtProcessor_->shutdownAsync();
-      
-      // NEW
-      // 
-      //LOG4CPLUS_WARN(getApplicationLogger(),
-      //	     "about to call stopAsync, state "<<(evtProcessor_->getState()));
-      //evtProcessor_->stopAsync();
-      //LOG4CPLUS_WARN(getApplicationLogger(),
-      //		     "called stopAsync, state "<<(evtProcessor_->getState()));
-      
-      // OLD
-      while(evtProcessor_->getState()!=edm::event_processor::sDone && trycount<10) {
-	trycount++;
-	::sleep(1);
-      }
-      
-      // NEW
-      //
-      //while(evtProcessor_->getState()!=edm::event_processor::sJobReady&&trycount<10){
-      //	trycount++;
-      //::sleep(1);
-      //}
-    }
-    
-    // OLD
-    if (evtProcessor_->getState()!=edm::event_processor::sDone) {
-      LOG4CPLUS_WARN(getApplicationLogger(),
-		     "Halting with triggers still to be processed. "
-		     <<"EventProcessor state"
-		     <<evtProcessor_->stateName(evtProcessor_->getState()));
-      int retval = evtProcessor_->shutdownAsync();
-      if(retval != 0) {
-	LOG4CPLUS_WARN(getApplicationLogger(),
-		       "Failed to shut down EventProcessor. Return code "<<retval);
-      }	  
-      else {
-	LOG4CPLUS_INFO(getApplicationLogger(),
-		       "EventProcessor successfully shut down "<<retval);
-      }
-    }
-    else {
-      LOG4CPLUS_INFO(this->getApplicationLogger(),
-		     "EventProcessor halted. State" 
-		     << evtProcessor_->stateName(evtProcessor_->getState()));  
-    }
-    
-    evtProcessor_->endJob();
-    delete evtProcessor_;
-    evtProcessor_ = 0;
-    
-    /* NEW
-       
-      if(evtProcessor_->getState()!=edm::event_processor::sJobReady) {
-      LOG4CPLUS_WARN(getApplicationLogger(),
-      "Halting with triggers still to be processed. "
-      <<"EventProcessor state"
-      <<evtProcessor_->stateName(evtProcessor_->getState()));
-      
-      int retval = evtProcessor_->shutdownAsync();
-      
-      if (retval!=0) {
-      LOG4CPLUS_WARN(getApplicationLogger(),
-      "Failed to shut down EventProcessor. Return code "<<retval);
-      }	  
-      else {
-      LOG4CPLUS_INFO(getApplicationLogger(),
-      "EventProcessor successfully shut down. Return code "<<retval);
-      }
-      }
-      else {
-      LOG4CPLUS_INFO(getApplicationLogger(),
-      "EventProcessor stopped. State "
-      <<evtProcessor_->stateName(evtProcessor_->getState()));  
-      }
-    */
+    rc = evtProcessor_->waitTillDoneAsync(timeoutOnStop_.value_);
   }
   catch(seal::Error& e) {
-    fsm_.fireFailed(e.explainSelf(),this);
+    XCEPT_RAISE(evf::Exception,e.explainSelf());
   }
   catch(cms::Exception &e) {
-    fsm_.fireFailed(e.explainSelf(),this);
+    XCEPT_RAISE(evf::Exception,e.explainSelf());
   }    
   catch(std::exception &e) {
-    fsm_.fireFailed(e.what(),this);
+    XCEPT_RAISE(evf::Exception,e.what());
   }
   catch(...) {
-    fsm_.fireFailed("Unknown Exception",this);
+    XCEPT_RAISE(evf::Exception,"Unknown Exception");
   }
+  return rc;
+
 }
 
 

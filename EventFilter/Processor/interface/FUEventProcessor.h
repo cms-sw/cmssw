@@ -76,7 +76,7 @@ namespace evf
     
     // initialize the cmssw event processor
     void initEventProcessor();
-    void stopEventProcessor();
+    edm::EventProcessor::StatusCode stopEventProcessor();
     
     // xdata:ActionListener interface
     void actionPerformed(xdata::Event& e);
@@ -123,6 +123,7 @@ namespace evf
     xdata::Boolean                   outPut_;
     xdata::UnsignedInteger32         inputPrescale_;
     xdata::UnsignedInteger32         outputPrescale_;
+    xdata::UnsignedInteger32         timeoutOnStop_; // in seconds
     bool                             outprev_;
     
     // dqm monitor thread configuration
