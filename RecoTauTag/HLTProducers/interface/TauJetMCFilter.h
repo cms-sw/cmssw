@@ -10,6 +10,7 @@
 #include "FWCore/ParameterSet/interface/InputTag.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "HepMC/GenEvent.h"
 #include <string>
 #include <vector>
 #include <set>

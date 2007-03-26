@@ -73,8 +73,8 @@ bool TauJetMCFilter::filter(edm::Event& iEvent, const edm::EventSetup& iES)
       //if(fabs(partMom.eta()) > mEtaMax) event_passed = false;
       
       TLorentzVector tau((*p)->momentum().px(),(*p)->momentum().py(),(*p)->momentum().pz(),(*p)->momentum().e());
-      vector< GenParticle * > child = (*p)->listChildren();
-      for(GenPartVectIt z = child.begin(); z != child.end(); z++)
+      HepMC::GenVertex::particle_iterator z = (*p)->end_vertex()->particles_begin(HepMC::descendants);
+      for(; z != (*p)->end_vertex()->particles_end(HepMC::descendants); z++)
 	{
 	  if(abs((*z)->pdg_id()) == 11 || abs((*z)->pdg_id()) == 13)lept_decay=true;
 	  if(abs((*z)->pdg_id()) == 11)
