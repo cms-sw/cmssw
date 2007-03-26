@@ -19,7 +19,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: DetIdAssociator.h,v 1.7 2007/02/19 11:57:42 dmytro Exp $
+// $Id: DetIdAssociator.h,v 1.8 2007/03/08 04:19:26 dmytro Exp $
 //
 //
 
@@ -32,7 +32,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixStateInfo.h"
-
+#include "TrackingTools/TrackAssociator/interface/FiducialVolume.h"
 #include <set>
 #include <vector>
 
@@ -80,6 +80,8 @@ class DetIdAssociator{
    double etaBinSize(){ return etaBinSize_;};
    /// make the look-up map
    virtual void buildMap();
+   /// get active detector volume
+   FiducialVolume volume();
    
  protected:
    virtual void check_setup()
@@ -114,5 +116,16 @@ class DetIdAssociator{
    const int nEta_;
    const double etaBinSize_;
    Propagator *ivProp_;
+   // struct greater_energy : public binary_function<const CaloRecHit, const CaloRecHit, bool>
+   //  {
+   //	bool operator()(const CaloRecHit& x, const CaloRecHit& y) const
+   //	  {  return x.energy() > y.energy();  }
+   //  };
+   // sort(v.begin(),v.end(), greater_energy())
+   
+   // Detector fiducial volume 
+   // approximated as a closed cylinder with non-zero width.
+   // Parameters are extracted from the active detector elements.
+   FiducialVolume volume_;
 };
 #endif
