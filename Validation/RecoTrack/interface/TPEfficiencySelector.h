@@ -1,6 +1,14 @@
 #ifndef TPEfficiencySelector_h
 #define TPEfficiencySelector_h
 
+/** \class TPEfficiencySelector
+ *  Filter to select TrackingParticles for efficiency studies according to pt, rapidity, tip, lip, number of hits
+ *
+ *  $Date: 2007/03/26 10:13:49 $
+ *  $Revision: 1.1 $
+ *  \author cerati
+ */
+
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -13,6 +21,7 @@ class Event;
 class TPEfficiencySelector {
 
 public:
+  /// Constructor
   TPEfficiencySelector ( const edm::ParameterSet & cfg ) :
     ptMin_( cfg.getParameter<double>( "ptMin" ) ),
     minRapidity_( cfg.getParameter<double>( "minRapidity" ) ),
@@ -22,6 +31,7 @@ public:
     minHit_( cfg.getParameter<int>( "minHit" ) ) 
   { }
   
+  /// Operator() performs the selection: e.g. if (tPEfficiencySelector(tp)) {...}
   bool operator()( const TrackingParticle & tp ) const { 
     return (
 	    tp.matchedHit() >= minHit_ &&

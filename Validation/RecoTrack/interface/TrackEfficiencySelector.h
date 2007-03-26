@@ -1,6 +1,14 @@
 #ifndef TrackEfficiencySelector_h
 #define TrackEfficiencySelector_h
 
+/** \class TrackEfficiencySelector
+ *  Use RecoTrackSelector instead
+ *
+ *  $Date: 2007/03/26 10:13:49 $
+ *  $Revision: 1.1 $
+ *  \author cerati
+ */
+
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"

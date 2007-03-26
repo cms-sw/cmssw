@@ -1,6 +1,14 @@
 #ifndef RecoTrackSelector_h
 #define RecoTrackSelector_h
 
+/** \class RecoTrackSelector
+ *  Filter to select tracks according to pt, rapidity, tip, lip, number of hits
+ *
+ *  $Date: 2007/03/26 10:13:49 $
+ *  $Revision: 1.1 $
+ *  \author cerati
+ */
+
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -12,6 +20,7 @@ class Event;
 class RecoTrackSelector {
 
 public:
+  /// Constructor
   RecoTrackSelector ( const edm::ParameterSet & cfg ) :
     ptMin_( cfg.getParameter<double>( "ptMin" ) ),
     minRapidity_( cfg.getParameter<double>( "minRapidity" ) ),
@@ -21,6 +30,7 @@ public:
     minHit_( cfg.getParameter<int>( "minHit" ) ) 
   { }
   
+  /// Operator() performs the selection: e.g. if (recoTrackSelector(track)) {...}
   bool operator()( const reco::Track & t ) {
     return
       (t.numberOfValidHits() >= minHit_ &&

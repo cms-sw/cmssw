@@ -1,6 +1,14 @@
 #ifndef MultiTrackValidator_h
 #define MultiTrackValidator_h
 
+/** \class MultiTrackValidator
+ *  Class that prodecs histrograms to validate Track Reconstruction performances
+ *
+ *  $Date: 2007/03/26 10:13:49 $
+ *  $Revision: 1.1 $
+ *  \author cerati
+ */
+
 #include <memory>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -29,7 +37,7 @@
 
 class MultiTrackValidator : public edm::EDAnalyzer {
  public:
-
+  /// Constructor
   MultiTrackValidator(const edm::ParameterSet& pset):
     dbe_(0),
     sim(pset.getParameter<std::string>("sim")),
@@ -48,11 +56,15 @@ class MultiTrackValidator : public edm::EDAnalyzer {
     {
       dbe_ = edm::Service<DaqMonitorBEInterface>().operator->();
     }
-  
+
+  /// Destructor
   ~MultiTrackValidator(){ }
 
+  /// Method called before the event loop
   void beginJob( const edm::EventSetup &);
+  /// Method called once per event
   virtual void analyze(const edm::Event&, const edm::EventSetup& );
+  /// Method called at the end of the event loop
   void endJob();
 
  private:
