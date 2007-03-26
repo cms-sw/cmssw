@@ -15,6 +15,7 @@
 <use name=PhysicsTools/Parser>
 <use name=SimDataFormats/HepMCProduct>
 <use name=hepmc>
+<use name=heppdt>
 <export>
   <use name=FWCore/Framework>
   <use name=FWCore/ParameterSet>
