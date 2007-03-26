@@ -39,6 +39,8 @@ class EgammaHLTIslandClusterProducer : public edm::EDProducer
       IslandClusterAlgo::VerbosityLevel verbosity;
 
       bool doBarrel_;
+      bool doEndcaps_;
+      bool doIsolated_;
 
       std::string barrelHitProducer_;
       std::string endcapHitProducer_;
@@ -48,9 +50,12 @@ class EgammaHLTIslandClusterProducer : public edm::EDProducer
       std::string barrelClusterCollection_;
       std::string endcapClusterCollection_;
 
-      edm::InputTag l1Tag_;
+      edm::InputTag l1TagIsolated_;
+      edm::InputTag l1TagNonIsolated_;
       double l1LowerThr_;
       double l1UpperThr_;
+      double l1LowerThrIgnoreIsolation_;
+
       double regionEtaMargin_;
       double regionPhiMargin_;
 

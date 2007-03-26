@@ -49,6 +49,8 @@ EgammaHLTIslandClusterProducer::EgammaHLTIslandClusterProducer(const edm::Parame
   else                                   verbosity = IslandClusterAlgo::pERROR;
 
   doBarrel_   = ps.getParameter<bool>("doBarrel");
+  doEndcaps_   = ps.getParameter<bool>("doEndcaps");
+  doIsolated_   = ps.getParameter<bool>("doIsolated");
 
   // Parameters to identify the hit collections
   barrelHitProducer_   = ps.getParameter<std::string>("barrelHitProducer");
@@ -65,9 +67,12 @@ EgammaHLTIslandClusterProducer::EgammaHLTIslandClusterProducer(const edm::Parame
   double endcapSeedThreshold = ps.getParameter<double>("IslandEndcapSeedThr");
 
   // L1 matching parameters
-  l1Tag_ = ps.getParameter< edm::InputTag > ("l1Tag");
+  l1TagIsolated_ = ps.getParameter< edm::InputTag > ("l1TagIsolated");
+  l1TagNonIsolated_ = ps.getParameter< edm::InputTag > ("l1TagNonIsolated");
   l1LowerThr_ = ps.getParameter<double> ("l1LowerThr");
   l1UpperThr_ = ps.getParameter<double> ("l1UpperThr");
+  l1LowerThrIgnoreIsolation_ = ps.getParameter<double> ("l1LowerThrIgnoreIsolation");
+
   regionEtaMargin_   = ps.getParameter<double>("regionEtaMargin");
   regionPhiMargin_   = ps.getParameter<double>("regionPhiMargin");
 
@@ -101,8 +106,12 @@ EgammaHLTIslandClusterProducer::~EgammaHLTIslandClusterProducer()
 void EgammaHLTIslandClusterProducer::produce(edm::Event& evt, const edm::EventSetup& es)
 {
   //Get the L1 EM Particle Collection
-  edm::Handle< l1extra::L1EmParticleCollection > emColl ;
-  evt.getByLabel(l1Tag_, emColl ) ;
+  edm::Handle< l1extra::L1EmParticleCollection > emIsolColl ;
+  if(doIsolated_)
+    evt.getByLabel(l1TagIsolated_, emIsolColl);
+  //Get the L1 EM Particle Collection
+  edm::Handle< l1extra::L1EmParticleCollection > emNonIsolColl ;
+  evt.getByLabel(l1TagNonIsolated_, emNonIsolColl);
   // Get the CaloGeometry
   edm::ESHandle<L1CaloGeometry> l1CaloGeom ;
   es.get<L1CaloGeometryRecord>().get(l1CaloGeom) ;
@@ -110,57 +119,95 @@ void EgammaHLTIslandClusterProducer::produce(edm::Event& evt, const edm::EventSe
   std::vector<EcalEtaPhiRegion> barrelRegions;
   std::vector<EcalEtaPhiRegion> endcapRegions;
 
-  for( l1extra::L1EmParticleCollection::const_iterator emItr = emColl->begin(); emItr != emColl->end() ;++emItr ){
+  if(doIsolated_) {
+    for( l1extra::L1EmParticleCollection::const_iterator emItr = emIsolColl->begin(); emItr != emIsolColl->end() ;++emItr ){
 
-    if (emItr->et() > l1LowerThr_ && emItr->et() < l1UpperThr_) {
+      if (emItr->et() > l1LowerThr_ && emItr->et() < l1UpperThr_) {
+	
+	// Access the GCT hardware object corresponding to the L1Extra EM object.
+	int etaIndex = emItr->gctEmCand()->etaIndex() ;
+	
+	
+	int phiIndex = emItr->gctEmCand()->phiIndex() ;
+	// Use the L1CaloGeometry to find the eta, phi bin boundaries.
+	double etaLow  = l1CaloGeom->etaBinLowEdge( etaIndex ) ;
+	double etaHigh = l1CaloGeom->etaBinHighEdge( etaIndex ) ;
+	double phiLow  = l1CaloGeom->emJetPhiBinLowEdge( phiIndex ) ;
+	double phiHigh = l1CaloGeom->emJetPhiBinHighEdge( phiIndex ) ;
 
-      // Access the GCT hardware object corresponding to the L1Extra EM object.
-      int etaIndex = emItr->gctEmCand()->etaIndex() ;
+	//Attention isForward does not work
+	int isforw=0;
+        if(fabs((float) ((etaLow+etaHigh)/2.))>1.5) isforw=1;
+
+	std::cout<<"Island etaindex "<<etaIndex<<" low hig : "<<etaLow<<" "<<etaHigh<<" phi low hig" <<phiLow<<" " << phiHigh<<" isforw "<<emItr->gctEmCand()->regionId().isForward()<<" isforwnew" <<isforw<< std::endl;
+	
+	etaLow -= regionEtaMargin_;
+	etaHigh += regionEtaMargin_;
+	phiLow -= regionPhiMargin_;
+	phiHigh += regionPhiMargin_;
 
 
-      int phiIndex = emItr->gctEmCand()->phiIndex() ;
-      // Use the L1CaloGeometry to find the eta, phi bin boundaries.
-      double etaLow  = l1CaloGeom->etaBinLowEdge( etaIndex ) ;
-      double etaHigh = l1CaloGeom->etaBinHighEdge( etaIndex ) ;
-      double phiLow  = l1CaloGeom->emJetPhiBinLowEdge( phiIndex ) ;
-      double phiHigh = l1CaloGeom->emJetPhiBinHighEdge( phiIndex ) ;
+	EcalEtaPhiRegion region(etaLow,etaHigh,phiLow,phiHigh);
+	//if (emItr->gctEmCand()->regionId().isForward()) {
+	if (isforw) {
+	  endcapRegions.push_back(region);
+	} else {
+	  barrelRegions.push_back(region);
+	}
+	
+      }
+    }
+  }
+
+
+  if(!doIsolated_||l1LowerThrIgnoreIsolation_<64) {
+    for( l1extra::L1EmParticleCollection::const_iterator emItr = emNonIsolColl->begin(); emItr != emNonIsolColl->end() ;++emItr ){
+
+      if(doIsolated_&&emItr->et()<l1LowerThrIgnoreIsolation_) continue;
+
+      if (emItr->et() > l1LowerThr_ && emItr->et() < l1UpperThr_) {
+	
+	// Access the GCT hardware object corresponding to the L1Extra EM object.
+	int etaIndex = emItr->gctEmCand()->etaIndex() ;
+	
+	
+	int phiIndex = emItr->gctEmCand()->phiIndex() ;
+	// Use the L1CaloGeometry to find the eta, phi bin boundaries.
+	double etaLow  = l1CaloGeom->etaBinLowEdge( etaIndex ) ;
+	double etaHigh = l1CaloGeom->etaBinHighEdge( etaIndex ) ;
+	double phiLow  = l1CaloGeom->emJetPhiBinLowEdge( phiIndex ) ;
+	double phiHigh = l1CaloGeom->emJetPhiBinHighEdge( phiIndex ) ;
 
 
 	int isforw=0;
         if(fabs((float) ((etaLow+etaHigh)/2.))>1.5) isforw=1;
 
-	//std::cout<<"Island etaindex "<<etaIndex<<" low hig : "<<etaLow<<" "<<etaHigh<<" phi low hig" <<phiLow<<" " << phiHigh<<" isforw "<<emItr->gctEmCand()->regionId().isForward()<<" isforwnew" <<isforw<< std::endl;
+	std::cout<<"Island etaindex "<<etaIndex<<" low hig : "<<etaLow<<" "<<etaHigh<<" phi low hig" <<phiLow<<" " << phiHigh<<" isforw "<<emItr->gctEmCand()->regionId().isForward()<<" isforwnew" <<isforw<< std::endl;
+	
+	etaLow -= regionEtaMargin_;
+	etaHigh += regionEtaMargin_;
+	phiLow -= regionPhiMargin_;
+	phiHigh += regionPhiMargin_;
 
-      etaLow -= regionEtaMargin_;
-      etaHigh += regionEtaMargin_;
-      phiLow -= regionPhiMargin_;
-      phiHigh += regionPhiMargin_;
 
-
-      EcalEtaPhiRegion region(etaLow,etaHigh,phiLow,phiHigh);
-      //if (emItr->gctEmCand()->regionId().isForward()) {
-      if (isforw) {
-	endcapRegions.push_back(region);
-      } else {
-	barrelRegions.push_back(region);
+	EcalEtaPhiRegion region(etaLow,etaHigh,phiLow,phiHigh);
+	//if (emItr->gctEmCand()->regionId().isForward()) {
+	if (isforw) {
+	  endcapRegions.push_back(region);
+	} else {
+	  barrelRegions.push_back(region);
+	}
+	
       }
-
     }
   }
 
-  //if (
-  //endcapRegions.size()!=0
-  //) {
-  //std::cout<<"endcapregions: "<<endcapRegions.size()<<std::endl;
-  //std::cout<<"barrelregions: "<<barrelRegions.size()<<std::endl;
-  if (!doBarrel_ 
+  if (doEndcaps_ 
       //&&endcapRegions.size()!=0
-) {
+      ) {
 
     clusterizeECALPart(evt, es, endcapHitProducer_, endcapHitCollection_, endcapClusterCollection_, endcapRegions, IslandClusterAlgo::endcap);
   }
-  //if (doBarrel_ 
-  //&& barrelRegions.size()!=0) {
   if (doBarrel_ 
       //&& barrelRegions.size()!=0
       ) {
@@ -180,7 +227,7 @@ const EcalRecHitCollection * EgammaHLTIslandClusterProducer::getCollection(edm::
       evt.getByLabel(hitProducer_, hitCollection_, rhcHandle);
       if (!(rhcHandle.isValid())) 
 	{
-	  //std::cout << "could not get a handle on the EcalRecHitCollection!" << std::endl;
+	  std::cout << "could not get a handle on the EcalRecHitCollection!" << std::endl;
 	  return 0;
 	}
     }

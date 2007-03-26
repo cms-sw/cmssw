@@ -55,11 +55,18 @@ EgammaHLTHybridClusterProducer::EgammaHLTHybridClusterProducer(const edm::Parame
   hitproducer_ = ps.getParameter<std::string>("ecalhitproducer");
   hitcollection_ =ps.getParameter<std::string>("ecalhitcollection");
 
+
+
   // L1 matching parameters
-  l1Tag_ = ps.getParameter< edm::InputTag > ("l1Tag");
-  //l1Isolated_   = ps.getParameter<bool>("l1Isolated");
+  l1TagIsolated_ = ps.getParameter< edm::InputTag > ("l1TagIsolated");
+  l1TagNonIsolated_ = ps.getParameter< edm::InputTag > ("l1TagNonIsolated");
+
+  doIsolated_   = ps.getParameter<bool>("doIsolated");
+
   l1LowerThr_ = ps.getParameter<double> ("l1LowerThr");
   l1UpperThr_ = ps.getParameter<double> ("l1UpperThr");
+  l1LowerThrIgnoreIsolation_ = ps.getParameter<double> ("l1LowerThrIgnoreIsolation");
+
   regionEtaMargin_   = ps.getParameter<double>("regionEtaMargin");
   regionPhiMargin_   = ps.getParameter<double>("regionPhiMargin");
 
@@ -101,7 +108,7 @@ void EgammaHLTHybridClusterProducer::produce(edm::Event& evt, const edm::EventSe
   if (!(rhcHandle.isValid())) 
     {
       if (debugL <= HybridClusterAlgo::pINFO)
-	//std::cout << "could not get a handle on the EcalRecHitCollection!" << std::endl;
+	std::cout << "could not get a handle on the EcalRecHitCollection!" << std::endl;
       return;
     }
   const EcalRecHitCollection *hit_collection = rhcHandle.product();
@@ -128,15 +135,22 @@ void EgammaHLTHybridClusterProducer::produce(edm::Event& evt, const edm::EventSe
   } else throw(std::runtime_error("\n\nHybrid Cluster Producer encountered invalied ecalhitcollection type.\n\n"));
     
   //Get the L1 EM Particle Collection
-  edm::Handle< l1extra::L1EmParticleCollection > emColl ;
-  evt.getByLabel(l1Tag_, emColl ) ;
+  //Get the L1 EM Particle Collection
+  edm::Handle< l1extra::L1EmParticleCollection > emIsolColl ;
+  if(doIsolated_)
+    evt.getByLabel(l1TagIsolated_, emIsolColl);
+  //Get the L1 EM Particle Collection
+  edm::Handle< l1extra::L1EmParticleCollection > emNonIsolColl ;
+  evt.getByLabel(l1TagNonIsolated_, emNonIsolColl);
+
   // Get the CaloGeometry
   edm::ESHandle<L1CaloGeometry> l1CaloGeom ;
   es.get<L1CaloGeometryRecord>().get(l1CaloGeom) ;
 
   std::vector<EcalEtaPhiRegion> regions;
 
-  for( l1extra::L1EmParticleCollection::const_iterator emItr = emColl->begin(); emItr != emColl->end() ;++emItr ){
+  if(doIsolated_) {
+    for( l1extra::L1EmParticleCollection::const_iterator emItr = emIsolColl->begin(); emItr != emIsolColl->end() ;++emItr ){
 
     if (emItr->et() > l1LowerThr_ && emItr->et() < l1UpperThr_
         //&&
@@ -168,6 +182,45 @@ void EgammaHLTHybridClusterProducer::produce(edm::Event& evt, const edm::EventSe
       if(!isforw) regions.push_back(EcalEtaPhiRegion(etaLow,etaHigh,phiLow,phiHigh));
 
     }
+  }
+  }
+
+  if(!doIsolated_||l1LowerThrIgnoreIsolation_<64) {
+    for( l1extra::L1EmParticleCollection::const_iterator emItr = emNonIsolColl->begin(); emItr != emNonIsolColl->end() ;++emItr ){
+
+      if(doIsolated_&&emItr->et()<l1LowerThrIgnoreIsolation_) continue;
+
+    if (emItr->et() > l1LowerThr_ && emItr->et() < l1UpperThr_
+        //&&
+	//!emItr->gctEmCand()->regionId().isForward()
+) {
+
+      //bool isolated = emItr->gctEmCand()->isolated();
+      //if ((l1Isolated_ &&isolated) || (!l1Isolated_ &&!isolated)) {
+
+      // Access the GCT hardware object corresponding to the L1Extra EM object.
+      int etaIndex = emItr->gctEmCand()->etaIndex() ;
+      int phiIndex = emItr->gctEmCand()->phiIndex() ;
+      // Use the L1CaloGeometry to find the eta, phi bin boundaries.
+      double etaLow  = l1CaloGeom->etaBinLowEdge( etaIndex ) ;
+      double etaHigh = l1CaloGeom->etaBinHighEdge( etaIndex ) ;
+      double phiLow  = l1CaloGeom->emJetPhiBinLowEdge( phiIndex ) ;
+      double phiHigh = l1CaloGeom->emJetPhiBinHighEdge( phiIndex ) ;
+
+       int isforw=0;
+        if(fabs((float) ((etaLow+etaHigh)/2.))>1.5) isforw=1;
+
+	//std::cout<<"Hybrid etaindex "<<etaIndex<<" low hig : "<<etaLow<<" "<<etaHigh<<" phi low hig" <<phiLow<<" " << phiHigh<<" isforw "<<emItr->gctEmCand()->regionId().isForward()<<" isforwnew" <<isforw<< std::endl;
+
+      etaLow -= regionEtaMargin_;
+      etaHigh += regionEtaMargin_;
+      phiLow -= regionPhiMargin_;
+      phiHigh += regionPhiMargin_;
+
+      if(!isforw) regions.push_back(EcalEtaPhiRegion(etaLow,etaHigh,phiLow,phiHigh));
+
+    }
+  }
   }
 
   // make the Basic clusters!

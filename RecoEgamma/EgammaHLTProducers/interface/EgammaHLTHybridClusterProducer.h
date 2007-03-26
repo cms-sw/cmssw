@@ -32,14 +32,20 @@ class EgammaHLTHybridClusterProducer : public edm::EDProducer
       int nMaxPrintout_; // max # of printouts
       int nEvt_;         // internal counter of events
 
+      bool doIsolated_;
+
       std::string basicclusterCollection_;
       std::string superclusterCollection_;
       std::string hitproducer_;
       std::string hitcollection_;
 
-      edm::InputTag l1Tag_;
+      edm::InputTag l1TagIsolated_;
+      edm::InputTag l1TagNonIsolated_;
+      //edm::InputTag l1Tag_;
       double l1LowerThr_;
       double l1UpperThr_;
+      double l1LowerThrIgnoreIsolation_;
+
       double regionEtaMargin_;
       double regionPhiMargin_;
 
