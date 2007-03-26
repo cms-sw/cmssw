@@ -4,8 +4,8 @@
  *  class to build trajectories of cosmic muons and beam-halo muons
  *
  *
- *  $Date: 2007/03/08 18:33:42 $
- *  $Revision: 1.24 $
+ *  $Date: 2007/03/08 20:14:36 $
+ *  $Revision: 1.25 $
  *  \author Chang Liu  - Purdue Univeristy
  */
 
@@ -757,35 +757,48 @@ void CosmicMuonTrajectoryBuilder::estimateDirection(Trajectory& traj) const {
   LogTrace(metname) <<"Their mom eta: "<<firstTSOS.globalMomentum().eta()
                     <<", "<<lastTSOS.globalMomentum().eta();
 
-  // momentum eta can be used to estimate direction also.
+  // momentum eta can be used to estimate direction
   // the beam-halo muon seems enter with a larger |eta|
+
+
+  if ( fabs(firstTSOS.globalMomentum().eta()) > fabs(lastTSOS.globalMomentum().eta()) ) {
+
+     vector<Trajectory> refitted = theSmoother->trajectories(traj.seed(),hits,firstTSOS);
+     traj = refitted.front();
+
+   } else {
+     std::reverse(hits.begin(), hits.end());
+     utilities()->reverseDirection(lastTSOS,&*theService->magneticField());
+     vector<Trajectory> refittedback = theSmoother->trajectories(traj.seed(),hits,lastTSOS);
+     traj = refittedback.front();
+
+   }
+
 
 // print(hits);
 
-  vector<Trajectory> refitted = theSmoother->trajectories(traj.seed(),hits,firstTSOS);
+//  vector<Trajectory> refitted = theSmoother->trajectories(traj.seed(),hits,firstTSOS);
+//  std::reverse(hits.begin(), hits.end());
 
-  std::reverse(hits.begin(), hits.end());
+//  utilities()->reverseDirection(lastTSOS,&*theService->magneticField());
+//  vector<Trajectory> refittedback = theSmoother->trajectories(traj.seed(),hits,lastTSOS);
 
-  utilities()->reverseDirection(lastTSOS,&*theService->magneticField());
+//   if ( !refitted.empty() && !refittedback.empty() ) {
+//     LogTrace(metname) <<"Along Mom: chi2 " << refitted.front().chiSquared()
+//          << " NDOF "<<computeNDOF(refitted.front())<<endl;
 
-  vector<Trajectory> refittedback = theSmoother->trajectories(traj.seed(),hits,lastTSOS);
+//     LogTrace(metname) <<"Opposite To Mom: chi2 " << refittedback.front().chiSquared()
+//          << " NDOF "<<computeNDOF(refittedback.front())<<endl;
 
-   if ( !refitted.empty() && !refittedback.empty() ) {
-     LogTrace(metname) <<"Along Mom: chi2 " << refitted.front().chiSquared()
-          << " NDOF "<<computeNDOF(refitted.front())<<endl;
-
-     LogTrace(metname) <<"Opposite To Mom: chi2 " << refittedback.front().chiSquared()
-          << " NDOF "<<computeNDOF(refittedback.front())<<endl;
-
-     float nchi2along = refitted.front().chiSquared()/computeNDOF(refitted.front());
-     float nchi2opposite = refittedback.front().chiSquared()/computeNDOF(refittedback.front());
+//     float nchi2along = refitted.front().chiSquared()/computeNDOF(refitted.front());
+//     float nchi2opposite = refittedback.front().chiSquared()/computeNDOF(refittedback.front());
      //flip the direction if backward is better
-     if ( nchi2along > nchi2opposite ) { 
-          LogTrace(metname) <<"flip the trajectory";
-          traj = refittedback.front();
-      }
+//     if ( nchi2along > nchi2opposite ) { 
+//          LogTrace(metname) <<"flip the trajectory";
+//          traj = refittedback.front();
+//      }
 
-  }
+//  }
   return;
 
 }
