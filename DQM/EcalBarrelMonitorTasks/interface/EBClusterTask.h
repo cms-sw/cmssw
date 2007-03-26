@@ -4,8 +4,8 @@
 /*
  * \file EBClusterTask.h
  *
- * $Date: 2007/03/26 13:58:42 $
- * $Revision: 1.6 $
+ * $Date: 2007/03/26 15:19:31 $
+ * $Revision: 1.7 $
  * \author G. Della Ricca
  *
  */
@@ -46,15 +46,10 @@ private:
 
 int ievt_;
 
-std::string islandBarrelBasicClusterCollection_;
-std::string islandBarrelBasicClusterProducer_;
-std::string islandBarrelBasicClusterShapes_; 
+edm::InputTag islandBarrelBasicClusterCollection_;
+edm::InputTag islandBarrelSuperClusterCollection_;
 
-std::string islandBarrelSuperClusterCollection_;
-std::string islandBarrelSuperClusterProducer_;
-
-std::string hybridSuperClusterCollection_;
-std::string hybridSuperClusterProducer_;
+edm::InputTag hybridSuperClusterCollection_;
 
 edm::InputTag hybridBarrelClusterShapeAssociation_;
 

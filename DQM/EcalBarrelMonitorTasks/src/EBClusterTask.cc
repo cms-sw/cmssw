@@ -1,8 +1,8 @@
 /*
  * \file EBClusterTask.cc
  *
- * $Date: 2007/03/26 13:57:58 $
- * $Revision: 1.14 $
+ * $Date: 2007/03/26 15:19:31 $
+ * $Revision: 1.15 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -45,17 +45,13 @@ EBClusterTask::EBClusterTask(const ParameterSet& ps){
   init_ = false;
 
   // parameters...
-  islandBarrelBasicClusterCollection_ = ps.getParameter<std::string>("islandBarrelBasicClusterCollection");
-  islandBarrelBasicClusterProducer_   = ps.getParameter<std::string>("islandBarrelBasicClusterProducer");
-  islandBarrelBasicClusterShapes_   = ps.getParameter<std::string>("islandBarrelBasicClusterShapes");
+  islandBarrelBasicClusterCollection_ = ps.getParameter<edm::InputTag>("islandBarrelBasicClusterCollection");
 
-  islandBarrelSuperClusterCollection_ = ps.getParameter<std::string>("islandBarrelSuperClusterCollection");
-  islandBarrelSuperClusterProducer_   = ps.getParameter<std::string>("islandBarrelSuperClusterProducer");
+  islandBarrelSuperClusterCollection_ = ps.getParameter<edm::InputTag>("islandBarrelSuperClusterCollection");
 
-  hybridSuperClusterCollection_ = ps.getParameter<std::string>("hybridSuperClusterCollection");
-  hybridSuperClusterProducer_   = ps.getParameter<std::string>("hybridSuperClusterProducer");
+  hybridSuperClusterCollection_ = ps.getParameter<edm::InputTag>("hybridSuperClusterCollection");
 
-  hybridBarrelClusterShapeAssociation_ = ps.getParameter<InputTag>("hybridBarrelClusterShapeAssociation");
+  hybridBarrelClusterShapeAssociation_ = ps.getParameter<edm::InputTag>("hybridBarrelClusterShapeAssociation");
 
   // histograms...
   meIslBEne_ = 0;
@@ -251,7 +247,7 @@ void EBClusterTask::analyze(const Event& e, const EventSetup& c){
   try {
 
     Handle<BasicClusterCollection> pIslandBarrelBasicClusters;
-    e.getByLabel(islandBarrelBasicClusterProducer_, islandBarrelBasicClusterCollection_, pIslandBarrelBasicClusters);
+    e.getByLabel(islandBarrelBasicClusterCollection_, pIslandBarrelBasicClusters);
     
     Int_t nbcc = pIslandBarrelBasicClusters->size();
 
@@ -279,7 +275,7 @@ void EBClusterTask::analyze(const Event& e, const EventSetup& c){
   try {
 
     Handle<SuperClusterCollection> pIslandBarrelSuperClusters;
-    e.getByLabel(islandBarrelSuperClusterProducer_, islandBarrelSuperClusterCollection_, pIslandBarrelSuperClusters);
+    e.getByLabel(islandBarrelSuperClusterCollection_, pIslandBarrelSuperClusters);
 
     Int_t nscc = pIslandBarrelSuperClusters->size();
 
@@ -307,7 +303,7 @@ void EBClusterTask::analyze(const Event& e, const EventSetup& c){
   try {
 
     Handle<SuperClusterCollection> pHybridSuperClusters;
-    e.getByLabel(hybridSuperClusterProducer_, hybridSuperClusterCollection_, pHybridSuperClusters);
+    e.getByLabel(hybridSuperClusterCollection_, pHybridSuperClusters);
     Int_t nscc = pHybridSuperClusters->size();
 
     Handle<BasicClusterShapeAssociationCollection> pHybridBarrelClusterShapeAssociation;
