@@ -14,6 +14,8 @@
 class SimpleEDProductGetter : public edm::EDProductGetter
 {
  public:
+
+  typedef std::map<edm::ProductID, boost::shared_ptr<edm::EDProduct> > map_t;
   template <class T>
   void 
   addProduct(edm::ProductID const& id, std::auto_ptr<T> p)
@@ -24,19 +26,22 @@ class SimpleEDProductGetter : public edm::EDProductGetter
     database[id] = product;    
   }
 
-
   size_t size() const 
   { return database.size(); }
 
   virtual edm::EDProduct const* getIt(edm::ProductID const& id) const
   { 
-    boost::shared_ptr<edm::EDProduct> pprod = database[id];
-    return &*pprod;
+    map_t::const_iterator i = database.find(id);
+    if (i == database.end())
+      throw edm::Exception(edm::errors::ProductNotFound, "InvalidID")
+	<< "No product with ProductID " 
+	<< id 
+	<< " is available from this EDProductGetter\n";
+    return i->second.get();
   }
 
  private:
-
-  mutable std::map<edm::ProductID, boost::shared_ptr<edm::EDProduct> > database;
+  map_t database;
 };
 
 #endif

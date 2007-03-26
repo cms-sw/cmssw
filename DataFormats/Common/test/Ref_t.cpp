@@ -15,6 +15,7 @@ class TestRef: public CppUnit::TestFixture
   CPPUNIT_TEST(default_ctor_without_active_getter);
   CPPUNIT_TEST(default_ctor_with_active_getter);
   CPPUNIT_TEST(nondefault_ctor);
+  CPPUNIT_TEST(using_wrong_productid);
   CPPUNIT_TEST_SUITE_END();
 
  public:
@@ -30,6 +31,7 @@ class TestRef: public CppUnit::TestFixture
   void default_ctor_without_active_getter();
   void default_ctor_with_active_getter();
   void nondefault_ctor();
+  void using_wrong_productid();
 
  private:
 };
@@ -89,5 +91,26 @@ void TestRef::nondefault_ctor()
   // Note that nothing stops one from making an edm::Ref into a
   // collection using an index that is invalid. So there is no testing
   // of such use to be done.
+}
+
+void TestRef::using_wrong_productid()
+{
+  SimpleEDProductGetter getter;
+  
+  edm::EDProductGetter::Operate op(&getter);
+  edm::ProductID id(1U);
+  CPPUNIT_ASSERT(id.isValid());
+
+  std::auto_ptr<product_t> prod(new product_t);
+  prod->push_back(1);
+  prod->push_back(2);
+  getter.addProduct(id, prod);
+
+  edm::ProductID wrong_id(100U);
+  CPPUNIT_ASSERT(wrong_id.isValid()); // its valid, but not used.
+
+  ref_t  ref(wrong_id, 0, &getter);
+  CPPUNIT_ASSERT_THROW(*ref, edm::Exception);
+  CPPUNIT_ASSERT_THROW(ref.operator->(), edm::Exception);
 }
 
