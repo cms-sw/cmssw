@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripDetKey.cc,v 1.4 2007/03/15 17:11:21 bainbrid Exp $
+// Last commit: $Id: SiStripDetKey.cc,v 1.5 2007/03/21 08:22:59 bainbrid Exp $
 
 #include "DataFormats/SiStripCommon/interface/SiStripDetKey.h"
 #include "DataFormats/SiStripCommon/interface/ConstantsForHardwareSystems.h"
@@ -161,7 +161,8 @@ void SiStripDetKey::initGranularity() {;}
 // -----------------------------------------------------------------------------
 //
 std::ostream& operator<< ( std::ostream& os, const SiStripDetKey& input ) {
-  return os << "[SiStripDetKey::print]" << std::endl
+  return os << std::endl
+	    << " [SiStripDetKey::print]" << std::endl
 	    << std::hex
 	    << " 32-bit key  : 0x" 
 	    << std::setfill('0') 

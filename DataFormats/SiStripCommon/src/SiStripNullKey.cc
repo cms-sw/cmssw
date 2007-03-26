@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripNullKey.cc,v 1.1 2007/03/15 17:11:21 bainbrid Exp $
+// Last commit: $Id: SiStripNullKey.cc,v 1.2 2007/03/21 08:22:59 bainbrid Exp $
 
 #include "DataFormats/SiStripCommon/interface/SiStripNullKey.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
@@ -66,7 +66,8 @@ void SiStripNullKey::initGranularity() {;}
 // -----------------------------------------------------------------------------
 //
 std::ostream& operator<< ( std::ostream& os, const SiStripNullKey& input ) {
-  return os << "[SiStripNullKey::print]" << std::endl
+  return os << std::endl
+	    << " [SiStripNullKey::print]" << std::endl
 	    << std::hex
 	    << " 32-bit key  : 0x" 
 	    << std::setfill('0') 

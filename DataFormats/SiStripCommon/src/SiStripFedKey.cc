@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripFedKey.cc,v 1.5 2007/03/19 09:44:12 bainbrid Exp $
+// Last commit: $Id: SiStripFedKey.cc,v 1.6 2007/03/21 08:22:59 bainbrid Exp $
 
 #include "DataFormats/SiStripCommon/interface/SiStripFedKey.h"
 #include "DataFormats/SiStripCommon/interface/ConstantsForHardwareSystems.h"
@@ -476,7 +476,8 @@ void SiStripFedKey::initGranularity() {
 // -----------------------------------------------------------------------------
 //
 std::ostream& operator<< ( std::ostream& os, const SiStripFedKey& input ) {
-  return os << "[SiStripFedKey::print]" << std::endl
+  return os << std::endl
+	    << " [SiStripFedKey::print]" << std::endl
 	    << std::hex
 	    << " FED key         : 0x" 
 	    << std::setfill('0') 
