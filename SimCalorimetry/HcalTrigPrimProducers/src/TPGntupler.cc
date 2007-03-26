@@ -13,11 +13,13 @@
 //
 // Original Author:  Adam Aurisano
 //         Created:  Thur Jan 18 2007
-// $Id: TPGntupler.cc,v 1.1 2007/02/23 17:17:00 mlw Exp $
+// $Id$
 //
 //
 
 #include "TPGntupler.h"
+#include "CalibCalorimetry/CaloTPG/src/CaloTPGTranscoderULUT.h"
+#include "TMath.h"
 
 using namespace std;
 using namespace edm;
@@ -28,12 +30,18 @@ TPGntupler::TPGntupler(const edm::ParameterSet& iConfig) :
   file("tpg_ntuple.root", "RECREATE" ),
   tree("TPGntuple","Trigger Primitive Ntuple")
 {
+  //  gROOT->ProcessLine(".L TPinfo.cc+");
+  //infoarray = new TClonesArray("TPinfo",4176);
+  //tree.Branch("tpinfoarray","TClonesArray",&infoarray,32000,99);
   tree.Branch("run",&run_num,"run/I");
   tree.Branch("event",&event_num,"event/I");
-  tree.Branch("ieta",&ieta,"ieta/I");
-  tree.Branch("iphi",&iphi,"iphi/I");
-  tree.Branch("tpg_energy",&tpg_energy,"tpg_energy/F");
-  tree.Branch("hit_energy",&hit_energy,"hit_energy/F");
+  tree.Branch("ieta",ieta,"ieta[4176]/I");
+  tree.Branch("iphi",iphi,"iphi[4176]/I");
+  tree.Branch("tpg_energy",tpg_energy,"tpg_energy[4176]/F");
+  tree.Branch("hit_energy",hit_energy,"hit_energy[4176]/F");
+  tree.Branch("tpg_uncompressed",tpg_uncompressed,"tpg_uncompressed[4176]/F");
+  tree.Branch("tpg_index",index,"index[4176]/I");
+  //transcoder_ = transcoder;
 }
 
 
@@ -58,6 +66,8 @@ TPGntupler::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   using namespace edm;
   using namespace std;
 
+  edm::ESHandle<CaloTPGTranscoder> _transcoder;
+  iSetup.get<CaloTPGRecord>().get(_transcoder);
   // get the appropriate gains, noises, & widths for this event
   edm::ESHandle<HcalDbService> conditions;
   iSetup.get<HcalDbRecord>().get(conditions);
@@ -85,6 +95,7 @@ TPGntupler::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   double hit_e;
   double tpg_e;
   double temp_e;
+  double eta1, eta2;
   //double hit_energy, tpg_energy;
   std::vector<HcalTrigTowerDetId> towerids;
   std::vector<HcalDetId> cellids;
@@ -142,65 +153,23 @@ TPGntupler::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       TP_towers.insert(IdtoEnergy::value_type(j->id(),tpg_e));
     }
 
-  //Now Hit_towers, Digi_towers, TP_towers, Hit_cells, and Digi_cells are filled
-  //Next, fill histgrams using them
-  //Now go through all cells and find digi and hit energy associated with them
-  //Fill digi_v_hit_HE,HB,HF
-  //for(vector<DetId>::const_iterator j = hbCells.begin(); j != hbCells.end(); ++j)
-  // {
-  //   HcalDetId id = HcalDetId(*j);
-  //   towerids = theTrigTowerGeometry.towerIds(id);
-  //   Cell_Map::const_iterator hit = Hit_cells.find(id);
-  //  double hite;
-  //  if (hit != Hit_cells.end()) 
-  //{
-  //  hite = (hit->second)*117;
-  //}
-  //  else 
-  //{
-  //  hite = 0;
-  //}
-  //}
-  //for(vector<DetId>::const_iterator j = heCells.begin(); j != heCells.end(); ++j)
-  //{
-  //  HcalDetId id = HcalDetId(*j);
-  //  towerids = theTrigTowerGeometry.towerIds(id);
-  //  Cell_Map::const_iterator hit = Hit_cells.find(id);
-  //  double hite;
-  //  if (hit != Hit_cells.end()) 
-  //{
-  //  hite = (hit->second)*178;
-  //}
-  //  else 
-  //{
-  //  hite = 0;
-  //}
-  //}
-  //for(vector<DetId>::const_iterator j = hfCells.begin(); j != hfCells.end(); ++j)
-  //{
-  //  HcalDetId id = HcalDetId(*j);
-  //  towerids = theTrigTowerGeometry.towerIds(id);
-  //  Cell_Map::const_iterator hit = Hit_cells.find(id);
-  //  double hite;
-  //  if (hit != Hit_cells.end()) 
-  //{
-  //  hite = hit->second;
-  //}
-  //  else 
-  //{
-  //  hite = 0;
-  //}
-  //}
-
+  int ntower = 0;
+  double eta;
   for(IdtoEnergy::const_iterator j = TP_towers.begin(); j != TP_towers.end(); ++j)
     {
-      ieta = j->first.ieta();
-      iphi = j->first.iphi();
-      tpg_energy = j->second;
-      hit_energy = (Hit_towers.find(j->first))->second;
-      //cout << "ieta=" << ieta << " iphi=" << iphi << " tpg_energy=" << tpg_energy << " hit_energy=" << hit_energy << "\n";
-      tree.Fill();
+      ieta[ntower] = j->first.ieta();
+      iphi[ntower] = j->first.iphi();
+      tpg_energy[ntower] = j->second;
+      hit_energy[ntower] = (Hit_towers.find(j->first))->second;
+      theTrigTowerGeometry.towerEtaBounds(ieta[ntower],eta1,eta2);
+      eta = (eta1+eta2)/2;
+      //      cout << "Eta value " << eta << " ieta value " << ieta[ntower] << "\n";
+      tpg_uncompressed[ntower] = float(_transcoder->hcaletValue(j->first.ietaAbs(),int(j->second)));
+      index[ntower] = 100*ieta[ntower]+iphi[ntower];
+      //cout << "Hit energy = " << hit_energy[ntower] << " Uncommpressed = " << tpg_uncompressed[ntower] << "\n";
+      ++ntower;
     }
+  tree.Fill();
 }
 
 

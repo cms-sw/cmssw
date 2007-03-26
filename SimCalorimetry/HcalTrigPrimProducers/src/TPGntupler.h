@@ -11,6 +11,7 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+//#include "FWCore/Framework/interface/Handle.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -48,7 +49,9 @@
 //CalibFormats
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
-
+#include "CalibCalorimetry/CaloTPG/src/CaloTPGTranscoderULUT.h"
+#include "CalibFormats/HcalObjects/interface/HcalTPGRecord.h"
+#include "CalibFormats/CaloTPG/interface/CaloTPGRecord.h"
 
 using namespace std;
 using namespace edm;
@@ -77,8 +80,13 @@ class TPGntupler : public edm::EDAnalyzer {
   Cell_Map Hit_cells;
   int run_num;
   int event_num;
-  int ieta;
-  int iphi;
-  float tpg_energy;
-  float hit_energy;
+  int ieta[4176];
+  int iphi[4176];
+  float tpg_energy[4176];
+  float hit_energy[4176];
+  float tpg_uncompressed[4176];
+  int index[4176];
+  edm::ESHandle<CaloTPGTranscoder> transcoder_;
+  //TClonesArray *infoarray;
+
 };
