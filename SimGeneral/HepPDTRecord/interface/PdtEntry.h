@@ -51,6 +51,59 @@ namespace edm {
 	<< " to value of type PdtEntry. "
 	<< "Please, provide a parameter either of type int32 or string.";
   }
+
+  template<>
+    inline PdtEntry ParameterSet::getUntrackedParameter<PdtEntry>(std::string const& name) const {
+    const Entry * e = getEntryPointerOrThrow_(name);
+    if ( e->typeCode() == 'I' ) 
+      return PdtEntry( e->getInt32() );
+    else if( e->typeCode() == 'S' ) 
+      return PdtEntry( e->getString() );
+    else 
+      throw Exception(errors::Configuration, "EntryError")
+	<< "can not convert representation of " << name 
+	<< " to value of type PdtEntry. "
+	<< "Please, provide a parameter either of type int32 or string.";
+  }
+
+  template<>
+    inline PdtEntry ParameterSet::getUntrackedParameter<PdtEntry>(std::string const& name, const PdtEntry & defaultValue ) const {
+    const Entry * e = retrieveUntracked(name);
+    if ( e == 0 ) return defaultValue;
+    if ( e->typeCode() == 'I' ) 
+      return PdtEntry( e->getInt32() );
+    else if( e->typeCode() == 'S' ) 
+      return PdtEntry( e->getString() );
+    else 
+      throw Exception(errors::Configuration, "EntryError")
+	<< "can not convert representation of " << name 
+	<< " to value of type PdtEntry. "
+	<< "Please, provide a parameter either of type int32 or string.";
+  }
+
+  template<>
+    inline std::vector<PdtEntry> ParameterSet::getParameter<std::vector<PdtEntry> >(std::string const& name) const {
+    const Entry & e = retrieve(name);
+    std::vector<PdtEntry> ret;
+    if ( e.typeCode() == 'i' ) { 
+      std::vector<int> v( e.getVInt32() );
+      for( std::vector<int>::const_iterator i = v.begin(); i != v.end(); ++ i )
+        ret.push_back( PdtEntry( * i ) );
+      return ret;
+    }
+    else if( e.typeCode() == 's' ) {
+      std::vector<std::string> v( e.getVString() );
+      for( std::vector<std::string>::const_iterator i = v.begin(); i != v.end(); ++ i )
+        ret.push_back( PdtEntry( * i ) );
+      return ret;
+    }
+    else 
+      throw Exception(errors::Configuration, "EntryError")
+	<< "can not convert representation of " << name 
+	<< " to value of type PdtEntry. "
+	<< "Please, provide a parameter either of type int32 or string.";
+  }
+
 }
 
 #endif
