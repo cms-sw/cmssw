@@ -2,6 +2,7 @@
 <use name=FWCore/Framework>
 <use name=SimDataFormats/HepMCProduct>
 <use name=clhep> 
+<use name=hepmc> 
 <use name=pythia6_227>
 #<use name=photos215>
  
@@ -12,6 +13,7 @@
  <use name=FWCore/Framework>
  <use name=SimDataFormats/HepMCProduct>
  <use name=clhep> 
+ <use name=hepmc> 
  <use name=pythia6_227>
 # <use name=tauola27.121_aux1>
 # <use name=tauola27.121>

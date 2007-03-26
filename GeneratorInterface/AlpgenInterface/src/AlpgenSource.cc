@@ -1,6 +1,6 @@
 /*
- *  $Date: 2006/07/07 07:19:42 $
- *  $Revision: 1.20 $
+ *  $Date: 2006/11/24 08:48:13 $
+ *  $Revision: 1.1 $
  *  
  *  Filip Moorgat & Hector Naves 
  *  26/10/05
@@ -27,15 +27,17 @@ using namespace std;
 
 // Generator modifications
 // ***********************
-#include "CLHEP/HepMC/include/PythiaWrapper6_2.h"
+#include "HepMC/PythiaWrapper6_2.h"
+#include "HepMC/IO_HEPEVT.h"
+
 //#include "GeneratorInterface/CommonInterface/interface/PretauolaWrapper.h"
-#include "CLHEP/HepMC/ConvertHEPEVT.h"
-#include "CLHEP/HepMC/CBhepevt.h"
+//#include "CLHEP/HepMC/ConvertHEPEVT.h"
+//#include "CLHEP/HepMC/CBhepevt.h"
 
 #include "GeneratorInterface/CommonInterface/interface/PythiaCMS.h"
 #include "GeneratorInterface/CommonInterface/interface/Txgive.h"
 
-HepMC::ConvertHEPEVT conv;
+HepMC::IO_HEPEVT conv;
 // ***********************
 
 
@@ -148,7 +150,8 @@ bool AlpgenSource::produce(Event & e) {
 
     call_pyhepc( 1 );
     
-    HepMC::GenEvent* evt = conv.getGenEventfromHEPEVT();
+    //    HepMC::GenEvent* evt = conv.getGenEventfromHEPEVT();
+    HepMC::GenEvent* evt = conv.read_next_event();
     evt->set_signal_process_id(pypars.msti[0]);
     evt->set_event_number(numberEventsInRun() - remainingEvents() - 1);
     

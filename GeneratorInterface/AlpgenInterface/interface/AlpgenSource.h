@@ -18,7 +18,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <map>
 #include <string>
-#include "CLHEP/HepMC/GenEvent.h"
+#include "HepMC/GenEvent.h"
 
 
 namespace CLHEP
@@ -66,8 +66,8 @@ namespace edm
     double etamin, etamax;
     double phimin, phimax;
     
-    HepRandomEngine* fRandomEngine;
-    RandFlat*        fRandomGenerator; 
+    CLHEP::HepRandomEngine* fRandomEngine;
+    CLHEP::RandFlat*        fRandomGenerator; 
 
   };
 } 
