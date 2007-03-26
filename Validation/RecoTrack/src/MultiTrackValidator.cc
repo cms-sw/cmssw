@@ -190,7 +190,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 			       << "====================================================\n" << "\n";
 
   edm::Handle<TrackingParticleCollection>  TPCollectionH ;
-  event.getByLabel("trackingtruth","TrackTruth",TPCollectionH);
+  event.getByLabel("trackingParticles",TPCollectionH);
   const TrackingParticleCollection tPC = *(TPCollectionH.product());
   
   int w=0;
