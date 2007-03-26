@@ -2,15 +2,15 @@
  *
  * See header file for documentation
  *
- *  $Date: 2007/02/17 14:39:20 $
- *  $Revision: 1.19 $
+ *  $Date: 2007/03/26 11:31:42 $
+ *  $Revision: 1.1 $
  *
  *  \author Martin Grunewald
  *
  */
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "HLTrigger/HLTexample/interface/HLTSmartSinglet.h"
+#include "HLTrigger/HLTfilters/interface/HLTSmartSinglet.h"
 
 #include "DataFormats/Common/interface/Handle.h"
 

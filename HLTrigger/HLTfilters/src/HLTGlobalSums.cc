@@ -2,15 +2,15 @@
  *
  * See header file for documentation
  *
- *  $Date: 2007/03/11 08:23:57 $
- *  $Revision: 1.6 $
+ *  $Date: 2007/03/26 11:31:42 $
+ *  $Revision: 1.1 $
  *
  *  \author Martin Grunewald
  *
  */
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "HLTrigger/HLTexample/interface/HLTGlobalSums.h"
+#include "HLTrigger/HLTfilters/interface/HLTGlobalSums.h"
 
 #include "DataFormats/Common/interface/Handle.h"
 

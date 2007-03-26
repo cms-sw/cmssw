@@ -2,14 +2,14 @@
  *
  * See header file for documentation
  *
- *  $Date: 2007/02/17 14:39:20 $
- *  $Revision: 1.22 $
+ *  $Date: 2007/03/26 11:31:42 $
+ *  $Revision: 1.1 $
  *
  *  \author Martin Grunewald
  *
  */
 
-#include "HLTrigger/HLTexample/interface/HLTLevel1Seed.h"
+#include "HLTrigger/HLTfilters/interface/HLTLevel1Seed.h"
 
 #include "DataFormats/Common/interface/Handle.h"
 
