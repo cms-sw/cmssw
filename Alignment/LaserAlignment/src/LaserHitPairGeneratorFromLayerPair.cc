@@ -1,8 +1,8 @@
 /** \file LaserHitPairGeneratorFromLayerPair.cc
  *  
  *
- *  $Date: 2007/03/25 17:26:51 $
- *  $Revision: 1.5 $
+ *  $Date: 2007/03/26 08:12:48 $
+ *  $Revision: 1.6 $
  *  \author Maarten Thomas
  */
 
@@ -24,9 +24,9 @@
 
 typedef ctfseeding::SeedingHit TkHitPairsCachedHit;
 
-void LaserHitPairGeneratorFromLayerPair::LaserHitPairGeneratorFromLayerPair(const LayerWithHits* inner, 
-	const LayerWithHits* outer, const edm::EventSetup& iSetup) : TTRHbuilder(0),trackerGeometry(0),
-	theOuterLayer(outer), theInnerLayer(inner)
+LaserHitPairGeneratorFromLayerPair::LaserHitPairGeneratorFromLayerPair(const LayerWithHits* inner, 
+	const LayerWithHits* outer, const edm::EventSetup& iSetup) : trackerGeometry(0),
+	theInnerLayer(inner), theOuterLayer(outer)
 {
 
   edm::ESHandle<TrackerGeometry> tracker;
