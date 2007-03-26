@@ -12,8 +12,7 @@ using namespace edm;
 
 TestTrackHits::TestTrackHits(const edm::ParameterSet& iConfig):
   conf_(iConfig){
-  cout << "superpippo" << endl;
-  LogTrace("TestTrackHits") << conf_<< std::endl;
+  LogTrace("TestTrackHits") << conf_;
   propagatorName = conf_.getParameter<std::string>("Propagator");   
   builderName = conf_.getParameter<std::string>("TTRHBuilder");   
   srcName = conf_.getParameter<std::string>("src");   
@@ -26,7 +25,7 @@ TestTrackHits::~TestTrackHits(){}
 
 void TestTrackHits::beginJob(const edm::EventSetup& iSetup)
 {
-  cout << "pippo" << endl;
+  LogVerbatim("CkfDebugger") << "pippo" ;
   iSetup.get<TrackerDigiGeometryRecord>().get(theG);
   iSetup.get<IdealMagneticFieldRecord>().get(theMF);  
   iSetup.get<TrackingComponentsRecord>().get(propagatorName,thePropagator);
@@ -175,8 +174,7 @@ void TestTrackHits::beginJob(const edm::EventSetup& iSetup)
 
 void TestTrackHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  LogTrace("TestTrackHits") << "new event" << std::endl;
-  cout << "new event" << std::endl;
+  LogVerbatim("CkfDebugger") << "new event" ;
   iEvent.getByLabel(srcName,trajCollectionHandle);
   iEvent.getByLabel(srcName,trajTrackAssociationCollectionHandle);
 
@@ -185,8 +183,7 @@ void TestTrackHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   int i=0;
   for(vector<Trajectory>::const_iterator it = trajCollectionHandle->begin(); it!=trajCollectionHandle->end();it++){
     
-    LogTrace("TestTrackHits") << "new collection" << std::endl;
-    cout << "new collection" << std::endl;
+    LogVerbatim("CkfDebugger") << "new collection" ;
     double tchi2 = 0;
 
     vector<TrajectoryMeasurement> tmColl = it->measurements();
@@ -197,8 +194,7 @@ void TestTrackHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
       tchi2+=tm->estimate();
 
-      LogTrace("TestTrackHits") << "new hit" << std::endl;
-      cout << "new hit" << std::endl;
+      LogVerbatim("CkfDebugger") << "new hit" ;
       CTTRHp rhit = tm->recHit();
       //TSOS state = tm->backwardPredictedState();
       TSOS state = tm->forwardPredictedState();
@@ -237,25 +233,25 @@ void TestTrackHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
       GlobalPoint rhitGPos = (rhit)->globalPosition();
       GlobalError rhitGPEr = (rhit)->globalPositionError();
 
-      cout << "\nsubdetId=" << subdetId << " layerId=" << layerId << endl;
-      cout << "assSimHits.size()=" << assSimHits.size() << endl;
-      cout << "tsosGPos=" << tsosGPos << endl;
-      cout << "shitGPos=" << shitGPos << endl;
-      cout << "rhitGPos=" << rhitGPos << endl;
-      cout << "surf->position=" << surf->position() << endl;
-      cout << "rhit->det()->geographicalId()=" << rhit->det()->geographicalId().rawId() << endl;
-      if (rhit->detUnit()) cout << "rhit->detUnit()->geographicalId()=" << rhit->detUnit()->geographicalId().rawId() << endl;
-      cout << "rhit->det()->surface().position()=" << rhit->det()->surface().position() << endl;
-      if (rhit->detUnit()) cout << "rhit->detUnit()->surface().position()="  << rhit->detUnit()->surface().position() << endl;
-      cout << "rhit->det()->position()=" << rhit->det()->position() << endl;
-      if (rhit->detUnit()) cout << "rhit->detUnit()->position()="  << rhit->detUnit()->position() << endl;
+      LogVerbatim("CkfDebugger") << "\nsubdetId=" << subdetId << " layerId=" << layerId ;
+      LogVerbatim("CkfDebugger") << "assSimHits.size()=" << assSimHits.size() ;
+      LogVerbatim("CkfDebugger") << "tsosGPos=" << tsosGPos ;
+      LogVerbatim("CkfDebugger") << "shitGPos=" << shitGPos ;
+      LogVerbatim("CkfDebugger") << "rhitGPos=" << rhitGPos ;
+      LogVerbatim("CkfDebugger") << "surf->position=" << surf->position() ;
+      LogVerbatim("CkfDebugger") << "rhit->det()->geographicalId()=" << rhit->det()->geographicalId().rawId() ;
+      if (rhit->detUnit()) LogVerbatim("CkfDebugger") << "rhit->detUnit()->geographicalId()=" << rhit->detUnit()->geographicalId().rawId() ;
+      LogVerbatim("CkfDebugger") << "rhit->det()->surface().position()=" << rhit->det()->surface().position() ;
+      if (rhit->detUnit()) LogVerbatim("CkfDebugger") << "rhit->detUnit()->surface().position()="  << rhit->detUnit()->surface().position() ;
+      LogVerbatim("CkfDebugger") << "rhit->det()->position()=" << rhit->det()->position() ;
+      if (rhit->detUnit()) LogVerbatim("CkfDebugger") << "rhit->detUnit()->position()="  << rhit->detUnit()->position() ;
 
-      cout << "rhit->det()->surface().bounds().length()=" << rhit->det()->surface().bounds().length() << endl;
-      if (rhit->detUnit()) cout << "rhit->detUnit()->surface().bounds().length()="  << rhit->detUnit()->surface().bounds().length() << endl;
-      cout << "rhit->det()->surface().bounds().width()=" << rhit->det()->surface().bounds().width() << endl;
-      if (rhit->detUnit()) cout << "rhit->detUnit()->surface().bounds().width()="  << rhit->detUnit()->surface().bounds().width() << endl;
-      cout << "rhit->det()->surface().bounds().thickness()=" << rhit->det()->surface().bounds().thickness() << endl;
-      if (rhit->detUnit()) cout << "rhit->detUnit()->surface().bounds().thickness()="  << rhit->detUnit()->surface().bounds().thickness() << endl;
+      LogVerbatim("CkfDebugger") << "rhit->det()->surface().bounds().length()=" << rhit->det()->surface().bounds().length() ;
+      if (rhit->detUnit()) LogVerbatim("CkfDebugger") << "rhit->detUnit()->surface().bounds().length()="  << rhit->detUnit()->surface().bounds().length() ;
+      LogVerbatim("CkfDebugger") << "rhit->det()->surface().bounds().width()=" << rhit->det()->surface().bounds().width() ;
+      if (rhit->detUnit()) LogVerbatim("CkfDebugger") << "rhit->detUnit()->surface().bounds().width()="  << rhit->detUnit()->surface().bounds().width() ;
+      LogVerbatim("CkfDebugger") << "rhit->det()->surface().bounds().thickness()=" << rhit->det()->surface().bounds().thickness() ;
+      if (rhit->detUnit()) LogVerbatim("CkfDebugger") << "rhit->detUnit()->surface().bounds().thickness()="  << rhit->detUnit()->surface().bounds().thickness() ;
 
       double pullGPX_rs = (rhitGPos.x()-shitGPos.x())/sqrt(rhitGPEr.cxx());
       double pullGPY_rs = (rhitGPos.y()-shitGPos.y())/sqrt(rhitGPEr.cyy());
@@ -264,7 +260,7 @@ void TestTrackHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 //       double pullGPY_rs = (rhitGPos.y()-shitGPos.y())/*/sqrt(rhitGPEr.cyy())*/;
 //       double pullGPZ_rs = (rhitGPos.z()-shitGPos.z())/*/sqrt(rhitGPEr.czz())*/;
 
-      LogTrace("TestTrackHits") << "rs" << std::endl;
+      LogVerbatim("CkfDebugger") << "rs" ;
 
       title.str("");
       title << "PullGP_X_" << subdetId << "-" << layerId << "_rs";
@@ -283,7 +279,7 @@ void TestTrackHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 //       double pullGPY_tr = (tsosGPos.y()-rhitGPos.y())/*/sqrt(tsosGPEr.cyy()+rhitGPEr.cyy())*/;
 //       double pullGPZ_tr = (tsosGPos.z()-rhitGPos.z())/*/sqrt(tsosGPEr.czz()+rhitGPEr.czz())*/;
 
-      LogTrace("TestTrackHits") << "tr" << std::endl;
+      LogVerbatim("CkfDebugger") << "tr" ;
 
       title.str("");
       title << "PullGP_X_" << subdetId << "-" << layerId << "_tr";
@@ -302,7 +298,7 @@ void TestTrackHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 //       double pullGPY_ts = (tsosGPos.y()-shitGPos.y())/*/sqrt(tsosGPEr.cyy())*/;
 //       double pullGPZ_ts = (tsosGPos.z()-shitGPos.z())/*/sqrt(tsosGPEr.czz())*/;
 
-      LogTrace("TestTrackHits") << "ts1" << std::endl;
+      LogVerbatim("CkfDebugger") << "ts1" ;
 
       title.str("");
       title << "PullGP_X_" << subdetId << "-" << layerId << "_ts";
@@ -321,7 +317,7 @@ void TestTrackHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 //       double pullGMY_ts = (tsosGMom.y()-shitGMom.y())/*/sqrt(tsosGMEr.cyy())*/;
 //       double pullGMZ_ts = (tsosGMom.z()-shitGMom.z())/*/sqrt(tsosGMEr.czz())*/;
 
-      LogTrace("TestTrackHits") << "ts2" << std::endl;
+      LogVerbatim("CkfDebugger") << "ts2" ;
 
       title.str("");
       title << "PullGM_X_" << subdetId << "-" << layerId << "_ts";
@@ -336,7 +332,7 @@ void TestTrackHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
       if (dynamic_cast<const SiStripMatchedRecHit2D*>(rhit->hit())) {
 	Propagator* thePropagatorAnyDir = new PropagatorWithMaterial(anyDirection,0.105,theMF.product(),1.6);
 	//mono
-	LogTrace("TestTrackHits") << "MONO HIT" << endl;
+	LogVerbatim("CkfDebugger") << "MONO HIT" ;
 	CTTRHp tMonoHit = 
 	  theBuilder->build(dynamic_cast<const SiStripMatchedRecHit2D*>(rhit->hit())->monoHit());
 	if (tMonoHit==0) continue;
@@ -353,8 +349,8 @@ void TestTrackHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 	LocalPoint monoShitLPos = sMonoHit.localPosition();
 	GlobalPoint monoShitGPos = monoSurf->toGlobal(monoShitLPos);
 
-// 	cout << "assMonoSimHits.size()=" << assMonoSimHits.size() << endl;
-// 	cout << "mono shit=" << monoShitGPos << endl;
+// 	LogVerbatim("CkfDebugger") << "assMonoSimHits.size()=" << assMonoSimHits.size() ;
+// 	LogVerbatim("CkfDebugger") << "mono shit=" << monoShitGPos ;
 
 	GlobalVector monoTsosGMom = monoState.globalMomentum();
 	GlobalError  monoTsosGMEr(monoState.cartesianError().matrix().sub(4,6));
@@ -433,7 +429,7 @@ void TestTrackHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 	hPullGM_Z_ts_mono[title.str()]->Fill( pullGMZ_ts_mono );
 
 	//stereo
-	LogTrace("TestTrackHits") << "STEREO HIT" << endl;
+	LogVerbatim("CkfDebugger") << "STEREO HIT" ;
 	CTTRHp tStereoHit = 
 	  theBuilder->build(dynamic_cast<const SiStripMatchedRecHit2D*>(rhit->hit())->stereoHit());
 	if (tStereoHit==0) continue;
@@ -450,8 +446,8 @@ void TestTrackHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 	LocalPoint stereoShitLPos = sStereoHit.localPosition();
 	GlobalPoint stereoShitGPos = stereoSurf->toGlobal(stereoShitLPos);
 
-// 	cout << "assStereoSimHits.size()=" << assStereoSimHits.size() << endl;
-// 	cout << "stereo shit=" << stereoShitGPos << endl;
+// 	LogVerbatim("CkfDebugger") << "assStereoSimHits.size()=" << assStereoSimHits.size() ;
+// 	LogVerbatim("CkfDebugger") << "stereo shit=" << stereoShitGPos ;
 
 	GlobalVector stereoTsosGMom = stereoState.globalMomentum();
 	GlobalError  stereoTsosGMEr(stereoState.cartesianError().matrix().sub(4,6));
@@ -531,13 +527,13 @@ void TestTrackHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
       }
       //#endif
     }
-    cout << "tchi2="  << tchi2 << endl;
+    LogVerbatim("CkfDebugger") << "tchi2="  << tchi2 ;
     edm::Ref<vector<Trajectory> >  traj(trajCollectionHandle, i);
-    cout << "chi2=" << (*trajTrackAssociationCollectionHandle.product())[traj]->chi2() << endl;
+    LogVerbatim("CkfDebugger") << "chi2=" << (*trajTrackAssociationCollectionHandle.product())[traj]->chi2() ;
     i++;
   }
   delete hitAssociator;
-  LogTrace("TestTrackHits") << "end of event" << std::endl;
+  LogVerbatim("CkfDebugger") << "end of event" ;
 }
 
 void TestTrackHits::endJob() {
@@ -801,7 +797,7 @@ GlobalPoint TestTrackHits::matchSimHits(PSimHit& monoH, PSimHit& stereoH,const G
   
   LocalPoint projectedPos = localHit + scale*dir;
   
-  //  std::cout << "projectedPos " << projectedPos << std::endl;
+  //  std::LogVerbatim("CkfDebugger") << "projectedPos " << projectedPos ;
   
   float selfAngle = topol.stripAngle( topol.strip( hit.localPosition()));
   
