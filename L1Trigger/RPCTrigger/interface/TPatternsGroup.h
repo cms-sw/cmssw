@@ -13,7 +13,7 @@
     <usage>
 
 */
-#include "L1Trigger/RPCTrigger/interface/RPCPattern.h"
+#include "CondFormats/L1TObjects/interface/RPCPattern.h"
 #include "L1Trigger/RPCTrigger/interface/RPCLogCone.h"
   /** \class TPatternsGroup
  * Basic class for storing grouped patterns inside Pac.
@@ -24,25 +24,25 @@
     friend class RPCPac;
     
     public:
-      void addPattern(const L1RpcPatternsVec::const_iterator& pattern);
+      void addPattern(const RPCPattern::RPCPatVec::const_iterator& pattern);
 
     ///Updates m_GroupShape, i.e. sets to true strips belonging to the pattern. Coleed in addPattern()
-      void updateShape(const L1RpcPatternsVec::const_iterator& pattern); 
+      void updateShape(const RPCPattern::RPCPatVec::const_iterator& pattern); 
 
-      void setPatternsGroupType(RPCConst::TPatternType patternsGroupType);
+      void setPatternsGroupType(RPCPattern::TPatternType patternsGroupType);
 
-      RPCConst::TPatternType getPatternsGroupType() const;
+      RPCPattern::TPatternType getPatternsGroupType() const;
 
       void setGroupDescription(std::string groupDescription);
 
       std::string getGroupDescription() const;
           
     protected:
-      RPCConst::TPatternType m_PatternsGroupType;
+      RPCPattern::TPatternType m_PatternsGroupType;
     //L1RpcPatternsVec m_PatternsVec; //!< Vector of patterns.
       
       //!< Vector of itereator on m_PatternsVec in Pac.
-      std::vector<L1RpcPatternsVec::const_iterator> m_PatternsItVec; 
+      std::vector<RPCPattern::RPCPatVec::const_iterator> m_PatternsItVec; 
       
       //!< Set LogStrips denotes strips beloging to the group.
       RPCLogCone m_GroupShape; 

@@ -7,14 +7,14 @@
  *
  */
  
-TEPatternsGroup::TEPatternsGroup(const L1RpcPatternsVec::const_iterator& pattern) {
+TEPatternsGroup::TEPatternsGroup(const RPCPattern::RPCPatVec::const_iterator& pattern) {
   addPattern(pattern);
-  m_PatternsGroupType = RPCConst::PAT_TYPE_E;
+  m_PatternsGroupType = RPCPattern::PAT_TYPE_E;
   m_QualityTabNumber = pattern->getQualityTabNumber(); //it is uded in m_PAC algorithm, so we want to have fast acces.
 }
 
 
-bool TEPatternsGroup::check(const L1RpcPatternsVec::const_iterator& pattern) {
+bool TEPatternsGroup::check(const RPCPattern::RPCPatVec::const_iterator& pattern) {
   if(m_PatternsItVec[0]->getRefGroup() == pattern->getRefGroup() &&
      m_PatternsItVec[0]->getCode() == pattern->getCode() &&
      m_PatternsItVec[0]->getSign() == pattern->getSign() &&

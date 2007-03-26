@@ -1,11 +1,15 @@
 /** \file RPCTrigger.cc
  *
- *  $Date: 2007/03/19 08:08:25 $
- *  $Revision: 1.22 $
+ *  $Date: 2007/03/23 12:45:27 $
+ *  $Revision: 1.23 $
  *  \author Tomasz Fruboes
  */
 #include "L1Trigger/RPCTrigger/interface/RPCTrigger.h"
-#include <FWCore/ParameterSet/interface/FileInPath.h>
+
+// Configuration via eventsetup:
+#include "CondFormats/DataRecord/interface/L1RPCConfigRcd.h"
+#include "CondFormats/L1TObjects/interface/L1RPCConfig.h"
+
 
 //#define ML_DEBUG 
 
@@ -18,53 +22,18 @@ RPCTrigger::RPCTrigger(const edm::ParameterSet& iConfig)
   produces<std::vector<L1MuRegionalCand> >("RPCb");
   produces<std::vector<L1MuRegionalCand> >("RPCf");
   
-  std::string patternsDirNameLocal = iConfig.getParameter<std::string>("RPCPatternsDir");
-  //std::string patternsDirName = patternsDirNameLocal;
 
+  m_firstRun = true;
 
-  // Since fileInPath doesnt allow us to use directory we use this quick and dirty solution
-  edm::FileInPath fp(patternsDirNameLocal+"keepme.txt"); 
-  std::string patternsDirNameUnstriped = fp.fullPath();
-  std::string patternsDirName = patternsDirNameUnstriped.substr(0,patternsDirNameUnstriped.find_last_of("/")+1);
-
-  /*
-  const char * rb = ::getenv("CMSSW_RELEASE_BASE"); 
-  std::string patternsDirName(rb);
-  std::cout << std::endl << patternsDirName << std::endl;
-  patternsDirName+="/src/"+patternsDirNameLocal;
-  std::cout << std::endl << patternsDirName << std::endl;*/
-
-  int triggerDebug = iConfig.getUntrackedParameter("RPCTriggerDebug",0);
+  m_triggerDebug = iConfig.getUntrackedParameter("RPCTriggerDebug",0);
   
   // 0 - no debug
   // 2 - technical debug
   // 1 - human readable debug
-  if ( triggerDebug != 1 && triggerDebug != 2)
-     triggerDebug = 0;
+  if ( m_triggerDebug != 1 && m_triggerDebug != 2)
+     m_triggerDebug = 0;
    
-  int ppt = iConfig.getUntrackedParameter<int>("PACsPerTower");
-    
-  switch (ppt){
-    case 1:
-      m_pacManager.init(patternsDirName, ONE_PAC_PER_TOWER); // TODO: read that from cfg
-      break;
-    case 12:
-      m_pacManager.init(patternsDirName, _12_PACS_PER_TOWER);
-      break;
-    case 144:
-      m_pacManager.init(patternsDirName, _144_PACS_PER_TOWER);
-      break;
-    default:
-     throw cms::Exception("BadConfig")
-        << "PACsPerTower set to wrong value: " << ppt << "\n";
-  }
-  
-  m_trigConfig = new RPCBasicTrigConfig(&m_pacManager);
-  
-  m_trigConfig->setDebugLevel(triggerDebug);
-  
-  m_pacTrigger = new RPCPacTrigger(m_trigConfig);
-
+ 
 }
 
 
@@ -73,7 +42,6 @@ RPCTrigger::RPCTrigger(const edm::ParameterSet& iConfig)
 RPCTrigger::~RPCTrigger(){ 
   delete m_pacTrigger;
   delete m_trigConfig;
-
 }
 
 
@@ -81,7 +49,50 @@ RPCTrigger::~RPCTrigger(){
 void
 RPCTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+ 
+
+  if (m_firstRun){ // IOV checking?
+     m_firstRun = false;  
+     edm::ESHandle<L1RPCConfig> conf;
+     iSetup.get<L1RPCConfigRcd>().get(conf);
+     const L1RPCConfig *rpcconf = conf.product();
+
+     int ppt =  rpcconf->getPPT();
+
+     //std::string patternsDirNameLocal = rpcconf->getDataDir();
+     
+     // Since fileInPath doesnt allow us to use directory we use this quick and dirty solution
+     //edm::FileInPath fp(patternsDirNameLocal+"keepme.txt"); 
+     //std::string patternsDirNameUnstriped = fp.fullPath();
+     //std::string patternsDirName = patternsDirNameUnstriped.substr(0,patternsDirNameUnstriped.find_last_of("/")+1);
+     
+     /*
+     switch (ppt){
+        case 1:
+          m_pacManager.init(patternsDirName, ONE_PAC_PER_TOWER); // TODO: read that from cfg
+          break;
+        case 12:
+          m_pacManager.init(patternsDirName, _12_PACS_PER_TOWER);
+          break;
+        case 144:
+          m_pacManager.init(patternsDirName, _144_PACS_PER_TOWER);
+          break;
+        default:
+          throw cms::Exception("BadConfig")
+                  << "PACsPerTower set to wrong value: " << ppt << "\n";
+       }*/
+       m_pacManager.init(rpcconf);
   
+       m_trigConfig = new RPCBasicTrigConfig(&m_pacManager);
+  
+       m_trigConfig->setDebugLevel(m_triggerDebug);
+  
+       m_pacTrigger = new RPCPacTrigger(m_trigConfig);
+
+      
+  }
+
+ 
   // Build the trigger linksystem geometry;
   if (!m_theLinksystem.isGeometryBuilt()){
 

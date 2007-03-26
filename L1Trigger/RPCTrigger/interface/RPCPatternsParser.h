@@ -15,7 +15,7 @@
 #include <xercesc/sax2/DefaultHandler.hpp>
 
 #include "L1Trigger/RPCTrigger/interface/RPCConst.h"
-#include "L1Trigger/RPCTrigger/interface/RPCPattern.h"
+#include "CondFormats/L1TObjects/interface/RPCPattern.h"
 //#include "L1Trigger/RPCTrigger/interface/RPCException.h"
 
 XERCES_CPP_NAMESPACE_USE
@@ -43,17 +43,11 @@ public:
 
   void parse(std::string fileName);
 
-  const L1RpcPatternsVec& getPatternsVec(const RPCConst::l1RpcConeCrdnts& coneCrds) const;
+  const RPCPattern::RPCPatVec& getPatternsVec(const RPCConst::l1RpcConeCrdnts& coneCrds) const;
 
-  struct TQuality {
-    int m_QualityTabNumber;
-    std::string m_FiredPlanes;
-    short m_QualityValue;
-  };
+  const RPCPattern::RPCPatVec& getPatternsVec(const int tower, const int sc, const int sg) const;
 
-  typedef std::vector<TQuality> TQualityVec;
-
-  const TQualityVec & getQualityVec() const{ //XXX - clean me!
+  const RPCPattern::TQualityVec & getQualityVec() const{ //XXX - clean me!
     return m_QualityVec;
   };
 
@@ -67,9 +61,9 @@ private:
 
   std::string m_CurrElement;
 
-  TQualityVec m_QualityVec;
+  RPCPattern::TQualityVec m_QualityVec;
 
-  typedef std::map<RPCConst::l1RpcConeCrdnts, L1RpcPatternsVec> TPatternsVecsMap;
+  typedef std::map<RPCConst::l1RpcConeCrdnts, RPCPattern::RPCPatVec> TPatternsVecsMap;
 
   TPatternsVecsMap m_PatternsVecsMap;
   

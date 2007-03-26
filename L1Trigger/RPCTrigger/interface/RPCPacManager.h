@@ -20,6 +20,9 @@
 #include <vector>
 #include "L1Trigger/RPCTrigger/interface/RPCConst.h"
 #include "L1Trigger/RPCTrigger/interface/RPCException.h"
+
+#include "CondFormats/L1TObjects/interface/L1RPCConfig.h"
+
 #include <xercesc/util/PlatformUtils.hpp>
 #include <cstdlib>
 #ifndef _STAND_ALONE
@@ -27,6 +30,7 @@
 #endif // _STAND_ALONE
 
 ///Suported configurations
+// TODO: should be moved to L1RPConfig
 enum L1RpcPACsCntEnum {
   ONE_PAC_PER_TOWER = 1,
   _12_PACS_PER_TOWER = 12, //the same m_PAC in the same segment in every sector,
@@ -47,7 +51,7 @@ public:
       }
   }
 
-  /** Creates the PACs. @param patFilesDirectory The directory where files defining
+  /** Gets data for PACs. @param patFilesDirectory The directory where files defining
     * PACs are stored. The files should be named acording to special convencion.
     * @param  _PACsCnt The configuration version.
     * Should be caled once, before using PACs
@@ -84,6 +88,54 @@ public:
     xercesc::XMLPlatformUtils::Terminate();
   };
 
+  
+  void init(const L1RPCConfig *rpcconf)  {
+  
+    switch (rpcconf->getPPT()){
+      case 1:
+        m_PACsCnt = ONE_PAC_PER_TOWER;
+        break;
+      case 12:
+        m_PACsCnt = _12_PACS_PER_TOWER;
+        break;
+      case 144:
+        m_PACsCnt = _144_PACS_PER_TOWER;
+        break;
+    
+    }
+  
+    
+    if(m_PACsCnt == ONE_PAC_PER_TOWER) {
+      m_SectorsCnt = 1;
+      m_SegmentCnt = 1;
+    }
+    else if(m_PACsCnt == _12_PACS_PER_TOWER) {
+      m_SectorsCnt = 1;
+      m_SegmentCnt = 12;
+    }
+    else if(m_PACsCnt == _144_PACS_PER_TOWER) {
+      m_SectorsCnt = 12;
+      m_SegmentCnt = 12;
+    }
+    else if(m_PACsCnt == TB_TESTS) {
+      m_SectorsCnt = 1;
+      m_SegmentCnt = 4;
+    }
+
+    for (int tower = 0; tower < RPCConst::m_TOWER_COUNT; tower++) {
+      m_PacTab.push_back(std::vector<std::vector<TPacType*> >());
+      for (int logSector = 0; logSector < m_SectorsCnt; logSector++) {
+        m_PacTab[tower].push_back(std::vector<TPacType*>());
+        for (int logSegment = 0; logSegment < m_SegmentCnt; logSegment++) {
+          TPacType* pac  = new TPacType(rpcconf->m_pats[tower][logSector][logSegment],
+                                        rpcconf->m_quals[tower][logSector][logSegment]); 
+          m_PacTab[tower][logSector].push_back(pac);                   
+        }
+      } 
+    } 
+    xercesc::XMLPlatformUtils::Terminate();
+  };
+  
   /** Returns the pointer to m_PAC for given LogCone defined by m_tower, logSector, logSegment.
     * Here you do not have to care, what configuration is curent used.
     * @param m_tower -16 : 16, @param logSector 0 : 11, @param logSegment 0 : 11.

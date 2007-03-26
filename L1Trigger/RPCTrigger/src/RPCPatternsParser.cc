@@ -40,7 +40,7 @@ string xMLCh2String(const XMLCh* ch) {
 #endif
 }
 
-const L1RpcPatternsVec& RPCPatternsParser::getPatternsVec(const RPCConst::l1RpcConeCrdnts& coneCrds) const {
+const RPCPattern::RPCPatVec& RPCPatternsParser::getPatternsVec(const RPCConst::l1RpcConeCrdnts& coneCrds) const {
   TPatternsVecsMap::const_iterator patVecIt  = m_PatternsVecsMap.find(coneCrds);
   if(patVecIt == m_PatternsVecsMap.end()){
 
@@ -51,6 +51,15 @@ const L1RpcPatternsVec& RPCPatternsParser::getPatternsVec(const RPCConst::l1RpcC
   }
   return patVecIt->second; // XXX - TMF - was in if{}, changed to avoid warning
 }
+
+const RPCPattern::RPCPatVec& RPCPatternsParser::getPatternsVec(const int tower, const int sc, const int sg) const {
+
+    RPCConst::l1RpcConeCrdnts cords(tower,sc,sg);
+
+    return getPatternsVec(cords);
+
+}
+
 
 // ---------------------------------------------------------------------------
 //  This is a simple class that lets us do easy(though not terribly efficient)
@@ -145,7 +154,7 @@ void RPCPatternsParser::startElement(const XMLCh* const uri,
   m_CurrElement = xMLCh2String(localname);
   if(m_CurrElement == "quality") {
     //<quality id = "0" planes = "011110" val = 1/>
-    TQuality quality;
+    RPCPattern::TQuality quality;
     
     
     quality.m_QualityTabNumber = rpcconst.stringToInt(xMLCh2String(attrs.getValue(Char2XMLCh("id"))));
@@ -161,7 +170,7 @@ void RPCPatternsParser::startElement(const XMLCh* const uri,
     cone.m_LogSector = rpcconst.stringToInt(xMLCh2String(attrs.getValue(Char2XMLCh("logSector"))));
     cone.m_LogSegment = rpcconst.stringToInt(xMLCh2String(attrs.getValue(Char2XMLCh("logSegment"))));
     pair <TPatternsVecsMap::iterator, bool> res = m_PatternsVecsMap.insert(TPatternsVecsMap::value_type(cone,
-                                                                                                L1RpcPatternsVec()));
+                                                                                                RPCPattern::RPCPatVec()));
     if(res.second == true)
       m_CurPacIt = res.first;
     else
@@ -172,9 +181,9 @@ void RPCPatternsParser::startElement(const XMLCh* const uri,
     //<pat type="E" grp="0" qual="0" sign="0" code="31" num="0">
     string pt = xMLCh2String(attrs.getValue(Char2XMLCh("type")));
     if(pt == "E")
-      m_CurPattern.setPatternType(RPCConst::PAT_TYPE_E);
+      m_CurPattern.setPatternType(RPCPattern::PAT_TYPE_E);
     else if(pt == "T")
-      m_CurPattern.setPatternType(RPCConst::PAT_TYPE_T);
+      m_CurPattern.setPatternType(RPCPattern::PAT_TYPE_T);
     else
       throw RPCException("unknown pattern type: " + pt);
       //edm::LogError("RPCTrigger") << "unknown pattern type: " + pt;

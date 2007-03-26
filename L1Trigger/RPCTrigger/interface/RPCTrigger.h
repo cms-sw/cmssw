@@ -4,10 +4,9 @@
 /** \class RPCTrigger
  *  \brief Implements RPC trigger emulation
  *
- *  $Date: 2006/12/11 11:27:23 $
- *  $Revision: 1.9 $
+ *  $Date: 2007/01/30 08:12:52 $
+ *  $Revision: 1.10 $
  *  \author Tomasz Fruboes
- *  \todo All the code must be reviewed and cleaned to comply coding rules
  */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -65,7 +64,9 @@ class RPCTrigger : public edm::EDProducer {
     RPCBasicTrigConfig* m_trigConfig;
     
     RPCPacTrigger* m_pacTrigger;
-    
+ 
+    bool m_firstRun;   
+    int m_triggerDebug;
     std::vector<L1MuRegionalCand> giveFinallCandindates(L1RpcTBMuonsVec finalMuons, short type);
 
 };

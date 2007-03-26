@@ -25,10 +25,10 @@
     friend class RPCPac;
     public:
       
-      TEPatternsGroup(const L1RpcPatternsVec::const_iterator& pattern);
+      TEPatternsGroup(const RPCPattern::RPCPatVec::const_iterator& pattern);
 
     ///Checks, if patern can belong to this group, i.e. if has the same m_Code, m_Sign, m_RefGroup and m_QualityTabNumber.
-      bool check(const L1RpcPatternsVec::const_iterator& pattern);
+      bool check(const RPCPattern::RPCPatVec::const_iterator& pattern);
 
     ///used for sorting TEPatternsGroups
       bool operator < (const TEPatternsGroup& ePatternsGroup) const;

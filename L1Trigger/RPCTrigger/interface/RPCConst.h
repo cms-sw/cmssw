@@ -94,12 +94,6 @@ public:
     
     static const int m_NOT_CONECTED = 99; //!< Denotes Logic m_Strips that is not valid (f.e. in Patterns denotes, that in given plane the pattern is not defined).
     
-    /** The m_PAC algorith that should be used for given Pattern.
-      * PAT_TYPE_T - Basic (clasic), PAT_TYPE_E - "impoved" (energetic),
-      * @see "Pattern Comparator Trigger Algorithm – implementation in FPGA"
-      */
-    enum TPatternType {PAT_TYPE_T, PAT_TYPE_E};
-    
     
     //-------------------------quallity tab-----------------------------------------
     //should be moved somwhere else

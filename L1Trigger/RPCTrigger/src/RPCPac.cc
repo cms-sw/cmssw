@@ -154,7 +154,7 @@ RPCPac::runEnergeticPatternsGroups(const RPCLogCone & cone) const
       for(unsigned int vecNum = 0; vecNum < iEGroup->m_PatternsItVec.size();
            vecNum++)
         {
-          const L1RpcPatternsVec::const_iterator patternIt =
+          const RPCPattern::RPCPatVec::const_iterator patternIt =
             iEGroup->m_PatternsItVec[vecNum];
           const RPCPattern & pattern = *patternIt;
           bool wasHit = false;

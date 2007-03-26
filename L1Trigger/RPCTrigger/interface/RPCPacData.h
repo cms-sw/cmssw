@@ -20,11 +20,8 @@ sprawdzic konwencje znaku mionu !!!!! (takze w L1RpcMuon0)
 #include <map>
 #include <list>
 #include <iostream>
-#include "L1Trigger/RPCTrigger/interface/RPCLogCone.h"
-#include "L1Trigger/RPCTrigger/interface/RPCPacMuon.h"
-//#include "Trigger/L1RpcTrigger/interface/RPCException.h"
-#include "L1Trigger/RPCTrigger/interface/RPCPattern.h"
-#include "L1Trigger/RPCTrigger/interface/RPCPacBase.h"
+#include "CondFormats/L1TObjects/interface/RPCPattern.h"
+//#include "L1Trigger/RPCTrigger/interface/RPCPacBase.h"
 #include "L1Trigger/RPCTrigger/interface/RPCPatternsParser.h"
 #include "L1Trigger/RPCTrigger/interface/TPatternsGroup.h"
 #include "L1Trigger/RPCTrigger/interface/TEPatternsGroup.h"
@@ -40,6 +37,8 @@ public:
   
   RPCPacData(std::string patFilesDir, int m_tower, int logSector, int logSegment);
    
+  RPCPacData(const RPCPattern::RPCPatVec &patVec, const RPCPattern::TQualityVec &qualVec);
+  
   void init(const RPCPatternsParser& parser, const RPCConst::l1RpcConeCrdnts& coneCrdnts);
 
   /*RPCPacMuon run(const RPCLogCone& cone) const;*/
@@ -70,7 +69,7 @@ private:
   /** filled only if in constructor RPCPacData() createPatternsVec == true.
     * Contains all patterns from pac file. Needed for patterns expolorer,
     * does not used in trigger algorithm. */
-  L1RpcPatternsVec m_PatternsVec;
+  RPCPattern::RPCPatVec m_PatternsVec;
   
   /** The definiton of allowed coincidence of hits in planes and quality values assigned to them.
     * There can be few quality tables in one m_PAC, to every pattern one of those quality table is asigned.
@@ -102,7 +101,7 @@ private:
   /** Adds pattern to m_TrackPatternsGroup or appropriate group
     * from m_EnergeticPatternsGroupList. If the appropriate TEPatternsGroup does
     * not exist, it is created.*/
-  void insertPatterns(const L1RpcPatternsVec& pattern);
+  void insertPatterns(const RPCPattern::RPCPatVec &pattern);
 
   /** Runs the "baselie" m_PAC algorithm. Compares the hits from cone with patterns
    * from m_TrackPatternsGroup. If many patterns fist to the hits (like usual),
@@ -116,7 +115,7 @@ private:
    * is that here the coincidance (and quality) are searched for LogStrips belonging to the group,
    * and not for every pattern separetly.
    * @see For detailes of algorith see
-   * "Pattern Comparator Trigger Algorithm – implementation in FPGA" */
+   * "Pattern Comparator Trigger Algorithm  implementation in FPGA" */
   /*RPCPacMuon runEnergeticPatternsGroups(const RPCLogCone& cone) const;*/
 };
 #endif

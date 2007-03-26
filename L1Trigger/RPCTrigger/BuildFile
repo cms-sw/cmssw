@@ -12,6 +12,9 @@
 <use name=DataFormats/L1GlobalMuonTrigger>
 <use name=xerces-c>
 
+<use name=CondFormats/L1TObjects>
+<use name=CondFormats/DataRecord>
+
 <flags SEAL_PLUGIN_NAME="L1TriggerRPCTrigger">
 <export>
    <lib name=L1TriggerRPCTrigger>

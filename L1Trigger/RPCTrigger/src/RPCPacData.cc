@@ -35,32 +35,45 @@ RPCPacData::RPCPacData(std::string patFilesDir, int tower, int logSector, int lo
   
   RPCConst rpcconst;
 
-//  if(patFilesDir.find("pat") != std::string::npos) {
-    patFileName = patFilesDir 
-        + "pacPat_t" + rpcconst.intToString(tower) 
-        + "sc" + rpcconst.intToString(logSector) 
-        + "sg" + rpcconst.intToString(logSegment) 
-        + ".xml";
 
-    RPCConst::l1RpcConeCrdnts coneCrds;
-    coneCrds.m_Tower=tower;
-    coneCrds.m_LogSector=logSector;
-    coneCrds.m_LogSegment=logSegment;
+  patFileName = patFilesDir 
+      + "pacPat_t" + rpcconst.intToString(tower) 
+      + "sc" + rpcconst.intToString(logSector) 
+      + "sg" + rpcconst.intToString(logSegment) 
+      + ".xml";
+
+  RPCConst::l1RpcConeCrdnts coneCrds;
+  coneCrds.m_Tower=tower;
+  coneCrds.m_LogSector=logSector;
+  coneCrds.m_LogSegment=logSegment;
         
-        
-    RPCPatternsParser parser;
-    parser.parse(patFileName);
-    init(parser, coneCrds);
-//  }
-/*
-  else {
-    throw RPCException("patFilesDir empty (no patterns)");
-    //edm::LogError("RPCTrigger")<< "patFilesDir not containes XML";
-  }
-*/  
+  RPCPatternsParser parser;
+  parser.parse(patFileName);
+  init(parser, coneCrds);
 
   m_TrackPatternsGroup.setGroupDescription("Track PatternsGroup");
     
+}
+/**
+ *
+ * Construct from given qualities and patterns
+ *
+ */
+RPCPacData::RPCPacData(const RPCPattern::RPCPatVec &patVec, 
+                       const RPCPattern::TQualityVec &qualVec)
+{
+  for(unsigned int i = 0; i < qualVec.size(); ++i) {    
+    RPCPattern::TQuality quality = qualVec[i];
+    std::bitset<RPCConst::m_LOGPLANES_COUNT> qualBits(quality.m_FiredPlanes);
+    unsigned short firedPlanes = qualBits.to_ulong();
+
+    insertQualityRecord(quality.m_QualityTabNumber, firedPlanes, quality.m_QualityValue);  
+  }
+
+  
+  insertPatterns(patVec);
+
+   
 }
 /**
  *
@@ -168,17 +181,17 @@ void RPCPacData::insertQualityRecord(unsigned int qualityTabNumber,
 }
 
 
-void RPCPacData::insertPatterns(const L1RpcPatternsVec& patternsVec) {
+void RPCPacData::insertPatterns(const RPCPattern::RPCPatVec& patternsVec) {
      
   RPCConst rpcconst;
   
-  for(L1RpcPatternsVec::const_iterator patIt = patternsVec.begin();
+  for(RPCPattern::RPCPatVec::const_iterator patIt = patternsVec.begin();
       patIt != patternsVec.end();
       patIt++)
   {
-    if(patIt->getPatternType() == RPCConst::PAT_TYPE_T)
+    if(patIt->getPatternType() == RPCPattern::PAT_TYPE_T)
       m_TrackPatternsGroup.addPattern(patIt);
-    else if(patIt->getPatternType() == RPCConst::PAT_TYPE_E) {
+    else if(patIt->getPatternType() == RPCPattern::PAT_TYPE_E) {
       TEPatternsGroupList::iterator iEGroup;
       for(iEGroup = m_EnergeticPatternsGroupList.begin();
           iEGroup != m_EnergeticPatternsGroupList.end(); iEGroup++)
@@ -213,7 +226,7 @@ void RPCPacData::insertPatterns(const L1RpcPatternsVec& patternsVec) {
 
 void RPCPacData::init(const RPCPatternsParser& parser, const RPCConst::l1RpcConeCrdnts& coneCrdnts) {
   for(unsigned int i = 0; i < parser.getQualityVec().size(); i++) {    
-    RPCPatternsParser::TQuality quality = parser.getQualityVec()[i];
+    RPCPattern::TQuality quality = parser.getQualityVec()[i];
     std::bitset<RPCConst::m_LOGPLANES_COUNT> qualBits(quality.m_FiredPlanes);
     unsigned short firedPlanes = qualBits.to_ulong();
 
