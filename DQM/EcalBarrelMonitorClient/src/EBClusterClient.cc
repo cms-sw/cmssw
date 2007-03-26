@@ -1,8 +1,8 @@
 /*
  * \file EBClusterClient.cc
  *
- * $Date: 2007/03/21 12:49:08 $
- * $Revision: 1.13 $
+ * $Date: 2007/03/26 14:13:22 $
+ * $Revision: 1.16 $
  * \author G. Della Ricca
  * \author F. Cossutti
  * \author E. Di Marco
@@ -791,6 +791,7 @@ void EBClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
       cMap->SetGridx();
       cMap->SetGridy();
       cMap->SetRightMargin(0.15);
+      cMap->SetLeftMargin(0.15);
       objp->Draw("colz");
       labelGrid.Draw("text,same");
       cMap->Update();
@@ -849,6 +850,7 @@ void EBClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
     cMap->SetGridx();
     cMap->SetGridy();
     cMap->SetRightMargin(0.15);
+    cMap->SetLeftMargin(0.15);
     obj2f->Draw("colz");
     labelGrid.Draw("text,same");
     cMap->Update();
@@ -1038,6 +1040,7 @@ void EBClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
       cMap->SetGridx();
       cMap->SetGridy();
       cMap->SetRightMargin(0.15);
+      cMap->SetLeftMargin(0.15);
       objp->Draw("colz");
       labelGrid.Draw("text,same");
       cMap->Update();
@@ -1095,6 +1098,7 @@ void EBClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
     cMap->SetGridx();
     cMap->SetGridy();
     cMap->SetRightMargin(0.15);
+    cMap->SetLeftMargin(0.15);
     obj2f->Draw("colz");
     labelGrid.Draw("text,same");
     cMap->Update();
