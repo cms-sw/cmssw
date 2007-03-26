@@ -1,3 +1,5 @@
+#include <set>
+
 #include "RecoJets/JetAlgorithms/interface/JetMatchingTools.h"
 
 #include "FWCore/Framework/interface/Event.h"
@@ -11,6 +13,7 @@
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
 
 using namespace edm;
 
@@ -212,7 +215,6 @@ const SimTrack* JetMatchingTools::getTrack (unsigned fSimTrackId) {
   for (unsigned i = 0; i < getSimTrackCollection ()->size (); ++i) {
     if ((*getSimTrackCollection ())[i].trackId() == fSimTrackId) return &(*getSimTrackCollection ())[i];
   }
-  std::cerr << "JetMatchingTools::getTrack-> Can not find track for ID " << fSimTrackId << std::endl;
   return 0;
 }
   /// Generator ID
@@ -236,9 +238,89 @@ int JetMatchingTools::generatorId (unsigned fSimTrackId) {
 
   /// GenParticle
 const reco::GenParticleCandidate* JetMatchingTools::getGenParticle (int fGeneratorId) {
-  if (fGeneratorId >= int (getGenParticlesCollection ()->size())) {
+  if (fGeneratorId > int (getGenParticlesCollection ()->size())) {
     std::cerr << "JetMatchingTools::getGenParticle-> requested index " << fGeneratorId << " is grater then container size " << getGenParticlesCollection ()->size() << std::endl;
     return 0;
   }
-  return reco::GenJet::genParticle ( &(*getGenParticlesCollection ())[fGeneratorId]);
+  return reco::GenJet::genParticle ( &(*getGenParticlesCollection ())[fGeneratorId-1]); // knowhow: index is shifted by 1
+}
+
+/// GenParticles for CaloJet
+std::vector <const reco::GenParticleCandidate*> JetMatchingTools::getGenParticles (const reco::CaloJet& fJet, bool fVerbose) {
+  std::set <const reco::GenParticleCandidate*> result;
+  // follow the chain
+  std::vector <const CaloTower*> towers = getConstituents (fJet) ;
+  for (unsigned itower = 0; itower < towers.size (); ++itower) {
+    std::vector <DetId> detids = getConstituentIds (*(towers[itower])) ;
+    for (unsigned iid = 0; iid < detids.size(); ++iid) {
+      std::vector <const PCaloHit*> phits = getPCaloHits (detids[iid]);
+      for (unsigned iphit = 0; iphit < phits.size(); ++iphit) {
+	int trackId = getTrackId (*(phits[iphit]));
+	if (trackId >= 0) {
+	  int genId = generatorId (trackId);
+	  if (genId >= 0) {
+	    const reco::GenParticleCandidate* genPart = getGenParticle (genId);
+	    if (genPart) {
+	      result.insert (genPart);
+	    }
+	    else if (fVerbose) {
+	      std::cerr << "JetMatchingTools::getGenParticles-> Can not convert genId " << genId << " to GenParticle" << std::endl;
+	    }
+	  }
+	  else if (fVerbose) {
+	    std::cerr << "JetMatchingTools::getGenParticles-> Can not convert trackId " << trackId << " to genId" << std::endl;
+	  }
+	}
+	else if (fVerbose) {
+	  std::cerr << "JetMatchingTools::getGenParticles-> Unknown trackId for PCaloHit " << *(phits[iphit]) << std::endl;
+	}
+      }
+    }
+  }
+  return std::vector <const reco::GenParticleCandidate*> (result.begin (), result.end());
+}
+
+/// GenParticles for GenJet
+std::vector <const reco::GenParticleCandidate*> JetMatchingTools::getGenParticles (const reco::GenJet& fJet) {
+  return fJet.getConstituents ();
+}
+
+  /// energy in broken links
+double JetMatchingTools::lostEnergyFraction (const reco::CaloJet& fJet ) {
+  double totalEnergy = 0;
+  double lostEnergy = 0;
+  // follow the chain
+  std::vector <const CaloTower*> towers = getConstituents (fJet) ;
+  for (unsigned itower = 0; itower < towers.size (); ++itower) {
+    std::vector <const CaloRecHit*> recHits = getConstituents (*(towers[itower]));
+    for (unsigned ihit = 0; ihit < recHits.size(); ++ihit) {
+      double foundSimEnergy = 0;
+      double lostSimEnergy = 0;
+      std::vector <const PCaloHit*> phits = getPCaloHits (recHits[ihit]->detid());
+      for (unsigned iphit = 0; iphit < phits.size(); ++iphit) {
+	double simEnergy = phits[iphit]->energy ();
+	int trackId = getTrackId (*(phits[iphit]));
+	if (trackId < 0 || generatorId (trackId) < 0)   lostSimEnergy += simEnergy;
+	else   foundSimEnergy += simEnergy;
+      }
+      if (foundSimEnergy > 0 || lostSimEnergy > 0) {
+	totalEnergy += recHits[ihit]->energy ();
+	lostEnergy += recHits[ihit]->energy () * lostSimEnergy / (foundSimEnergy + lostSimEnergy);
+      }
+    }
+  }
+  return lostEnergy / totalEnergy;
+}
+
+  /// energy overlap
+double JetMatchingTools::overlapEnergyFraction (const std::vector <const reco::GenParticleCandidate*>& fObject, 
+						const std::vector <const reco::GenParticleCandidate*>& fReference) const {
+  if (fObject.empty()) return 0;
+  double totalEnergy = 0;
+  double overlapEnergy = 0;
+  for (unsigned i = 0; i < fObject.size(); ++i) {
+    totalEnergy += fObject [i]->energy();
+    if (find (fReference.begin(), fReference.end(), fObject [i]) != fReference.end ()) overlapEnergy += fObject [i]->energy();
+  }
+  return overlapEnergy / totalEnergy;
 }

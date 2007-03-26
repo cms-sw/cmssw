@@ -53,7 +53,7 @@ ExtKtJetAlgorithmWrapper::ExtKtJetAlgorithmWrapper(const edm::ParameterSet& ps)
 }
 
 void ExtKtJetAlgorithmWrapper::run(const std::vector <FJCand>& fInput, 
-				  std::vector<ProtoJet>* fOutput){
+				  std::vector<ProtoJet>* fOutput) const {
   if (theMode==-1) return;
    int index_=0;
    vector<KtJet::KtLorentzVector> theInput;

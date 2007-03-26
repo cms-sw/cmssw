@@ -1,5 +1,5 @@
 // Original author: A. Ulyanov
-// $Id: CMSIterativeConeAlgorithm.cc,v 1.5 2006/12/05 18:37:44 fedor Exp $
+// $Id: CMSIterativeConeAlgorithm.cc,v 1.6 2007/02/08 01:46:10 fedor Exp $
 
 #include "RecoJets/JetAlgorithms/interface/CMSIterativeConeAlgorithm.h"
 
@@ -15,7 +15,7 @@ using namespace JetReco;
 
 //  Run the algorithm
 //  ------------------
-void CMSIterativeConeAlgorithm::run(const InputCollection& fInput, OutputCollection* fOutput){
+void CMSIterativeConeAlgorithm::run(const InputCollection& fInput, OutputCollection* fOutput) const {
   if (!fOutput) return;
 
   //make a list of input objects ordered by ET

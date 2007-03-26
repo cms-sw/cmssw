@@ -43,6 +43,10 @@ class JetMatchingTools {
   int generatorId (unsigned fSimTrackId) ;
   /// GenParticle
   const reco::GenParticleCandidate* getGenParticle (int fGeneratorId);
+  /// GenParticles for CaloJet
+  std::vector <const reco::GenParticleCandidate*> getGenParticles (const reco::CaloJet& fJet, bool fVerbose = true);
+  /// GenParticles for GenJet
+  std::vector <const reco::GenParticleCandidate*> getGenParticles (const reco::GenJet& fJet);
 
   // reverse propagation
   /// CaloSimHits
@@ -51,6 +55,13 @@ class JetMatchingTools {
   std::vector <const CaloRecHit*> getCaloRecHits (int fGeneratorId);
   /// CaloTowers
   std::vector <const CaloTower*> getCaloTowers (int fGeneratorId);
+
+  /// energy in broken links
+  double lostEnergyFraction (const reco::CaloJet& fJet );
+
+  /// energy overlap
+  double overlapEnergyFraction (const std::vector <const reco::GenParticleCandidate*>& fObject, 
+				const std::vector <const reco::GenParticleCandidate*>& fReference) const;
 
 
   const EBRecHitCollection* getEBRecHitCollection ();

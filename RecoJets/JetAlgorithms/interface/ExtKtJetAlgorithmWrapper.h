@@ -35,7 +35,7 @@ class ExtKtJetAlgorithmWrapper
   ExtKtJetAlgorithmWrapper();
   ExtKtJetAlgorithmWrapper(const edm::ParameterSet& ps);
   ~ExtKtJetAlgorithmWrapper(){};
-  void run (const std::vector <FJCand>& fInput, std::vector<ProtoJet>* fOutput);
+  void run (const std::vector <FJCand>& fInput, std::vector<ProtoJet>* fOutput) const;
  private:
   int theMode;
   double thePtMin;

@@ -4,6 +4,7 @@
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/JetReco/interface/GenJet.h"
 #include "DataFormats/JetReco/interface/BasicJet.h"
+#include "DataFormats/JetReco/interface/GenericJet.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 
 #include "DataFormats/Common/interface/RefToBase.h"
@@ -32,6 +33,13 @@ namespace {
     BasicJetRefProd rrr3;
     edm::Wrapper<BasicJetCollection> w3;
     edm::reftobase::Holder<reco::Candidate, reco::BasicJetRef> rtb3;
+
+    GenericJetCollection o4;
+    GenericJetRef r4;
+    GenericJetRefVector rr4;
+    GenericJetRefProd rrr4;
+    edm::Wrapper<GenericJetCollection> w4;
+    edm::reftobase::Holder<reco::Candidate, reco::GenericJetRef> rtb4;
   }
 }
 #endif

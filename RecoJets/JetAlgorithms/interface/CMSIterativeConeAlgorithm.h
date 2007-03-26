@@ -8,7 +8,7 @@
  * Documented in CMS NOTE-2006/036
  *
  * \author A.Ulyanov, ITEP
- * $Id: CMSIterativeConeAlgorithm.h,v 1.4 2006/12/05 18:37:43 fedor Exp $
+ * $Id: CMSIterativeConeAlgorithm.h,v 1.5 2007/02/08 01:46:09 fedor Exp $
  ************************************************************/
 
 
@@ -29,7 +29,7 @@ class CMSIterativeConeAlgorithm{
     { }
 
   /// Find the ProtoJets from the collection of input Candidates.
-  void run(const JetReco::InputCollection& fInput, JetReco::OutputCollection* fOutput);
+  void run(const JetReco::InputCollection& fInput, JetReco::OutputCollection* fOutput) const;
 
  private:
 

@@ -149,7 +149,7 @@ FastJetAlgorithmWrapper::FastJetAlgorithmWrapper(const edm::ParameterSet& ps){
 //void FastJetAlgorithmWrapper::run(const std::vector <const reco::Candidate*>& fInput, 
 //			  std::vector<ProtoJet>* fOutput){
 void FastJetAlgorithmWrapper::run(const std::vector<FJCand>& fInput, 
-				  std::vector<ProtoJet>* fOutput){
+				  std::vector<ProtoJet>* fOutput) {
   
   std::vector<fastjet::PseudoJet> input_vectors;
    int index_=0;
