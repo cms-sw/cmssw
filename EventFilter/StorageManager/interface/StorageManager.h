@@ -9,6 +9,8 @@
      I2O frames to remake event data. 
 
      See CMS EventFilter wiki page for further notes.
+
+   $Id$
 */
 
 #include <string>
