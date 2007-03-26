@@ -96,9 +96,11 @@ void TowerBlockFormatter::DigiToRaw(const EBDataFrame& dataframe, FEDRawData& ra
 		unsigned char* pData = rawdata.data();
 		pData[8*FE_index] = iFE & 0xFF;
 		pData[8*FE_index+1] = (nsamples & 0x7F);
-		pData[8*FE_index+2] = bx & 0xFFF;
-		pData[8*FE_index+3] = lv1 & 0xFFF;
-		pData[8*FE_index+3] |= 0xa0;
+		pData[8*FE_index+2] = bx & 0xFF;
+		pData[8*FE_index+3] = (bx >>8) & 0x0F;
+                pData[8*FE_index+3] |= 0xa0;
+		pData[8*FE_index+4] = lv1 & 0xFF;
+		pData[8*FE_index+5] = (lv1 >>8) & 0x0F;
 		pData[8*FE_index+6] = 1;
 		pData[8*FE_index+7] = 0xc0;
 		if (debug_) print(rawdata);
@@ -484,9 +486,11 @@ void TowerBlockFormatter::DigiToRaw(const EEDataFrame& dataframe, FEDRawData& ra
 
                 pData[8*FE_index] = iFE & 0xFF;
                 pData[8*FE_index+1] = (nsamples & 0x7F);
-                pData[8*FE_index+2] = bx & 0xFFF;
-                pData[8*FE_index+3] = lv1 & 0xFFF;
+                pData[8*FE_index+2] = bx & 0xFF;
+		pData[8*FE_index+3] = (bx >>8) & 0x0F;
                 pData[8*FE_index+3] |= 0xa0;
+                pData[8*FE_index+4] = lv1 & 0xFF;
+                pData[8*FE_index+5] = (lv1 >>8) & 0x0F;
                 pData[8*FE_index+6] = 1;
                 pData[8*FE_index+7] = 0xc0;
                 if (debug_) print(rawdata);

@@ -31,6 +31,7 @@ class TowerBlockFormatter : public BlockFormatter {
 	void StartEvent();
 	void EndEvent(FEDRawDataCollection* productRawData);
 
+	map<int, map<int,int> >* GetFEDorder() {return FEDorder; }
 
  private :
         map<int, map<int,int> >* FEDmap;

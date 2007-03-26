@@ -73,15 +73,18 @@ void BlockFormatter::DigiToRaw(FEDRawDataCollection* productRawData) {
                 pData = rawdata.data();
                 pData[11] = DCC_ERRORS & 0xFF;
                 pData[12] = run_number & 0xFF;
-                pData[13] = run_number & 0xFF00;
-                pData[14] = run_number & 0xFF0000;
+                pData[13] = (run_number >>8) & 0xFF;
+                pData[14] = (run_number >> 16) & 0xFF;
                 pData[15] = 0x01;
 
                 for (int i=16; i <= 22; i++) {
                  pData[i] = 0;    // to be filled for local data taking or calibration
                 }
                 pData[23] = 0x02;
-                pData[24] = orbit_number_ & 0xFFFFFFFF;
+                pData[24] = orbit_number_ & 0xFF;
+		pData[25] = (orbit_number_ >>8) & 0xFF;
+		pData[26] = (orbit_number_ >>16) & 0xFF;
+		pData[27] = (orbit_number_ >>24) & 0xFF;
 		int SRenable_ = 1;
                 int SR = SRenable_;
                 int ZS = 0;
@@ -120,7 +123,8 @@ void BlockFormatter::print(FEDRawData& rawdata) {
 
 
 
-void BlockFormatter::CleanUp(FEDRawDataCollection* productRawData) {
+void BlockFormatter::CleanUp(FEDRawDataCollection* productRawData,
+				map<int, map<int,int> >* FEDorder ) {
 
 
  for (int id=0; id < 36 + 18; id++) {
@@ -138,16 +142,37 @@ void BlockFormatter::CleanUp(FEDRawDataCollection* productRawData) {
 	int event_length = (lastline + 8) / 8;   // in 64 bits words
 
 	pData[lastline+7] = 0xa0;
- 	pData[lastline+4] = event_length & 0xFFFFFF;
+ 	// pData[lastline+4] = event_length & 0xFFFFFF;
+	pData[lastline+4] = event_length & 0xFF;
+	pData[lastline+5] = (event_length >> 8) & 0xFF;
+	pData[lastline+6] = (event_length >> 16) & 0xFF;
         int event_status = 0;
         pData[lastline+1] = event_status & 0x0F;
         int tts = 0 <<4;
         pData[lastline] = tts & 0xF0;
 
         // ---- Write the event length in the DCC header
-        pData[8] = event_length & 0xFFFFFF;
+        // pData[8] = event_length & 0xFFFFFF;
+	pData[8] = event_length & 0xFF;
+	pData[9] = (event_length >> 8) & 0xFF;
+	pData[10] = (event_length >> 16) & 0xFF;
 	
+  	// cout << " in BlockFormatter::CleanUp. FEDid = " << FEDid << " event_length*8 " << dec << event_length*8 << endl;
 
+	map<int, map<int,int> >::iterator fen = FEDorder -> find(FEDid);
+	map<int, int>& FEorder = (*fen).second;
+
+	for (int iFE=1; iFE <= 68; iFE++) {
+	  map<int,int>::iterator fe = FEorder.find(iFE);
+	  int ch_status = 0;
+	  if (fe == FEorder.end())	// FE not present due to SRP, update CH_status
+		ch_status = 7;  	// CH_SUPPRESS
+  	  int irow = (iFE-1) / 14;
+	  int kval = ( (iFE-1) % 14) / 2;
+	  if (iFE % 2 ==1) pData[32 + 8*irow + kval] |= ch_status & 0xFF;
+	  else pData[32 + 8*irow + kval] |= ((ch_status <<4) & 0xFF);
+
+	}
  	
  }
 }

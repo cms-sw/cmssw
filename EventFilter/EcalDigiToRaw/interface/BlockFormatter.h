@@ -27,7 +27,9 @@ class BlockFormatter {
         static const int kCardsPerTower = 5;     // Number of VFE cards per trigger tower
 	void DigiToRaw(FEDRawDataCollection* productRawData);
 	void print(FEDRawData& rawdata);
-	void CleanUp(FEDRawDataCollection* productRawData);
+	// void CleanUp(FEDRawDataCollection* productRawData);
+	void CleanUp(FEDRawDataCollection* productRawData,
+			map<int, map<int,int> >* FEDorder);
 	void PrintSizes(FEDRawDataCollection* productRawData);
 
  protected :

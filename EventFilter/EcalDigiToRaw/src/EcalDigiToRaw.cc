@@ -180,6 +180,7 @@ EcalDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		int Dccid = TheMapping -> DCCid(id);
 		int DCC_Channel = TheMapping -> iTT(id);
 		int FEDid = EcalFEDIds.first + Dccid;
+		// if (Dccid == 10) cout << "Dcc " << Dccid << " DCC_Channel " << DCC_Channel << " flag " << flag << endl;
 		if (debug_) cout << "will process SRblockformatter_ for FEDid " << dec << FEDid << endl;
 		FEDRawData& rawdata = productRawData.get() -> FEDData(FEDid);
 		if (debug_) Headerblockformatter_ -> print(rawdata);
@@ -253,7 +254,9 @@ EcalDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 // -------- Clean up things ...
 
-  Headerblockformatter_ -> CleanUp(productRawData.get());
+  map<int, map<int,int> >* FEDorder = Towerblockformatter_ -> GetFEDorder();
+
+  Headerblockformatter_ -> CleanUp(productRawData.get(), FEDorder);
 
 
 /*
