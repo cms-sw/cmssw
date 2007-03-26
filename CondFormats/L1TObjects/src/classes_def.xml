@@ -3,4 +3,5 @@
   <class name="L1MuGMTScales"/>
   <class name="L1CaloEtScale"/>
   <class name="L1GctJetEtCalibrationFunction"/>
+  <class name="L1RPCConfig"/>
 </lcgdict>  
