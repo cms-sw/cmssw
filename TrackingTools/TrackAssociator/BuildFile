@@ -22,7 +22,7 @@
 <use name=Geometry/Records>
 
 <use name=SimCalorimetry/EcalSimProducers>
-#
+<use name=heppdt>
 # <use name=SimDataFormats/HepMCProduct>
 <use name=DataFormats/DetId>
 
