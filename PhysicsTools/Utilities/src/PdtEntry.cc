@@ -1,5 +1,4 @@
 #include "PhysicsTools/Utilities/interface/PdtEntry.h"
-#include "FWCore/Utilities/interface/EDMException.h"
 
 using namespace std;
 

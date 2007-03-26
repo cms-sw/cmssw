@@ -18,4 +18,23 @@ private:
   std::string name_;
 };
 
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/EDMException.h"
+
+namespace edm {
+  template<>
+    inline PdtEntry ParameterSet::getParameter<PdtEntry>(std::string const& name) const {
+    const Entry & e = retrieve(name);
+    if ( e.typeCode() == 'I' ) 
+      return PdtEntry( e.getInt32() );
+    else if( e.typeCode() == 'S' ) 
+      return PdtEntry( e.getString() );
+    else 
+      throw Exception(errors::Configuration, "EntryError")
+	<< "can not convert representation of " << name 
+	<< " to value of type PdtEntry. "
+	<< "Please, provide a parameter either of type int32 or string.";
+  }
+}
+
 #endif
