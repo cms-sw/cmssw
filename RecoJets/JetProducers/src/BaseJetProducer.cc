@@ -1,6 +1,6 @@
 // File: BaseJetProducer.cc
 // Author: F.Ratnikov UMd Aug 22, 2006
-// $Id: BaseJetProducer.cc,v 1.9 2007/03/07 18:43:44 fedor Exp $
+// $Id: BaseJetProducer.cc,v 1.10 2007/03/26 20:42:27 fedor Exp $
 //--------------------------------------------
 #include <memory>
 
@@ -46,7 +46,7 @@ namespace {
   template <class T>  
   void dumpJets (const T& fJets) {
     for (unsigned i = 0; i < fJets.size(); ++i) {
-      std::cout << "CaloJet # " << i << std::endl << fJets[i].print();
+      std::cout << "Jet # " << i << std::endl << fJets[i].print();
     }
   }
 

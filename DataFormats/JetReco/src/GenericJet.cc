@@ -1,6 +1,6 @@
 // GenericJet.cc
 // Fedor Ratnikov, UMd
-// $Id: Jet.cc,v 1.3 2006/12/11 12:21:39 fedor Exp $
+// $Id: GenericJet.cc,v 1.1 2007/03/26 20:44:31 fedor Exp $
 
 #include <sstream>
 
@@ -11,17 +11,14 @@ using namespace reco;
 
 GenericJet::GenericJet (const LorentzVector& fP4, 
 	  const Point& fVertex, 
-	  const std::vector<unsigned>& fConstituents)
-  :  CompositeRefBaseCandidate (0, fP4, fVertex),
-     mConstituents (fConstituents)
-{}
-
-int GenericJet::nConstituents () const {
-  return mConstituents.size ();
+	  const std::vector<CandidateBaseRef>& fConstituents)
+  :  CompositeRefBaseCandidate (0, fP4, fVertex)
+{
+  for (unsigned i = 0; i < fConstituents.size (); i++) addDaughter (fConstituents [i]);
 }
 
-std::vector <unsigned>  GenericJet::getJetConstituents () const {
-  return mConstituents;
+int GenericJet::nConstituents () const {
+  return numberOfDaughters();
 }
 
 std::string GenericJet::print () const {
@@ -29,6 +26,6 @@ std::string GenericJet::print () const {
   out << "GenericJet p/px/py/pz/pt: " << p() << '/' << px () << '/' << py() << '/' << pz() << '/' << pt() << std::endl
       << "    eta/phi: " << eta () << '/' << phi () << std::endl
       << "    # of constituents: " << nConstituents () << std::endl;
-  out << "    No Constituents details available" << std::endl;
+  out << "    No Constituents details available for this version" << std::endl;
   return out.str ();
 }
