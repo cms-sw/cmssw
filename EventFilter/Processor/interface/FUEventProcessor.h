@@ -36,8 +36,7 @@ namespace evf
   
   
   class FUEventProcessor : public xdaq::Application,
-			   public xdata::ActionListener,
-			   public evf::RunBase
+			   public xdata::ActionListener
   {
   public:
     //
