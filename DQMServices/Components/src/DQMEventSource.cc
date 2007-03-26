@@ -1,7 +1,7 @@
 /** \file 
  *
- *  $Date: 2007/02/01 15:11:50 $
- *  $Revision: 1.11 $
+ *  $Date: 2007/03/26 14:37:04 $
+ *  $Revision: 1.2 $
  *  \author S. Bolognesi - M. Zanetti
  */
 
@@ -51,6 +51,16 @@ DQMEventSource::DQMEventSource(const ParameterSet& pset,
   iRunMEName = pset.getUntrackedParameter<string>("iRunMEName", "Collector/FU0/iRun");
   iEventMEName = pset.getUntrackedParameter<string>("iEventMEName", "Collector/FU0/iEvent");
   timeStampMEName = pset.getUntrackedParameter<string>("timeStampMEName", "Collector/FU0/timeStamp");
+
+  subscriber->makeSubscriptions(mui);
+  
+  // getting the run coordinates 
+  RunNumber_t iRun = 0;
+  MonitorElementInt * iRun_p = dynamic_cast<MonitorElementInt*>(mui->get(iRunMEName));
+  if (iRun_p) iRun = iRun_p->getValue(); 
+
+  setRunNumber(iRun);
+
 }
 
 
@@ -59,14 +69,8 @@ std::auto_ptr<Event> DQMEventSource::readOneEvent() {
   // the "onUpdate" call. 
   mui->doMonitoring();
 
-  subscriber->makeSubscriptions(mui);
-  if (getQualityTestsFromFile) qtHandler->attachTests(mui);
 
-  // getting the run coordinates 
-  RunNumber_t iRun = 0;
-  MonitorElementInt * iRun_p = dynamic_cast<MonitorElementInt*>(mui->get(iRunMEName));
-  if (iRun_p) iRun = iRun_p->getValue(); 
-  else iRun = 2;
+  if (getQualityTestsFromFile) qtHandler->attachTests(mui);
 
   EventNumber_t iEvent = 0;
   MonitorElementInt * iEvent_p = dynamic_cast<MonitorElementInt*>(mui->get(iEventMEName));
@@ -78,7 +82,7 @@ std::auto_ptr<Event> DQMEventSource::readOneEvent() {
   if (tStamp_p) tStamp = tStamp_p->getValue(); 
   else tStamp = 1;
   
-
+  RunNumber_t iRun = 0; // fake 
   EventID eventId(iRun,iEvent);
   Timestamp timeStamp (tStamp);
 
