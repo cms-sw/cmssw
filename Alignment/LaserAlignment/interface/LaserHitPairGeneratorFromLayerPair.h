@@ -4,16 +4,16 @@
 /** \class CompareHitPairsZ
  *  compare hit pairs in z direction
  *
- *  $Date: 2007/03/18 19:00:19 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/03/25 17:26:50 $
+ *  $Revision: 1.5 $
  *  \author Maarten Thomas
  */
 
 /** \class LaserHitPairGeneratorFromLayerPair
  *  generate hit pairs from hits on consecutive discs in the endcaps used by the LaserSeedGenerator
  *
- *  $Date: 2007/03/18 19:00:19 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/03/25 17:26:50 $
+ *  $Revision: 1.5 $
  *  \author Maarten Thomas
  */
 
@@ -63,9 +63,12 @@ class LaserHitPairGeneratorFromLayerPair : public HitPairGenerator
   typedef CombinedHitPairGenerator::LayerCacheType LayerCacheType;
 
 	/// constructor
-  LaserHitPairGeneratorFromLayerPair(const LayerWithHits * inner, const LayerWithHits * outer, 
+/*  LaserHitPairGeneratorFromLayerPair(const LayerWithHits * inner, const LayerWithHits * outer, 
 				     LayerCacheType * layerCache, const edm::EventSetup & iSetup) : theLayerCache(*layerCache),
     theInnerLayer(inner),theOuterLayer(outer) {}
+*/
+  	LaserHitPairGeneratorFromLayerPair(const LayerWithHits * inner, const LayerWithHits * outer, 
+			const edm::EventSetup & iSetup);
 
 	/// destructor
   virtual ~LaserHitPairGeneratorFromLayerPair() {}
@@ -91,11 +94,13 @@ class LaserHitPairGeneratorFromLayerPair : public HitPairGenerator
 
  private:
   // all data members are "shallow copy" 
-  LayerCacheType & theLayerCache;
+/*  LayerCacheType & theLayerCache;
+*/
+  const TrackerGeometry* trackerGeometry;
   const LayerWithHits * theInnerLayer;
   const LayerWithHits * theOuterLayer;
   const DetLayer * innerlay;
-  const DetLayer * outerlay;}
-;
+  const DetLayer * outerlay;
+};
 
 #endif

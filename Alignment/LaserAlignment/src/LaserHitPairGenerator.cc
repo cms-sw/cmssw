@@ -1,8 +1,8 @@
 /** \file LaserHitPairGenerator.cc
  *  
  *
- *  $Date: Sun Mar 18 19:37:03 CET 2007 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/03/18 19:00:20 $
+ *  $Revision: 1.2 $
  *  \author Maarten Thomas
  */
 
@@ -30,7 +30,7 @@ LaserHitPairGenerator::~LaserHitPairGenerator()
 
 void LaserHitPairGenerator::add(const LayerWithHits * inner, const LayerWithHits * outer, const edm::EventSetup & iSetup)
 {
-  theGenerators.push_back(new LaserHitPairGeneratorFromLayerPair(inner, outer, &theLayerCache, iSetup));
+  theGenerators.push_back(new LaserHitPairGeneratorFromLayerPair(inner, outer, iSetup));
 }
 
 void LaserHitPairGenerator::hitPairs(const TrackingRegion & region, OrderedHitPairs & pairs, const edm::EventSetup & iSetup)
