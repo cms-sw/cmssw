@@ -13,7 +13,7 @@
 //
 // Original Author:  Wolfram Erdmann
 //         Created:  Fri Jun  2 10:54:05 CEST 2006
-// $Id: PrimaryVertexAnalyzer.h,v 1.8 2006/12/21 16:33:30 werdmann Exp $
+// $Id: PrimaryVertexAnalyzer.h,v 1.9 2007/03/14 10:27:05 werdmann Exp $
 //
 //
 
@@ -33,11 +33,11 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-//generator level + CLHEP
+//generator level
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
-#include "CLHEP/HepMC/GenEvent.h"
-#include "CLHEP/HepMC/GenVertex.h"
-#include "CLHEP/HepMC/GenParticle.h"
+#include "HepMC/GenEvent.h"
+#include "HepMC/GenVertex.h"
+#include "HepMC/GenParticle.h"
  
 // vertex stuff
 #include <DataFormats/VertexReco/interface/Vertex.h>
@@ -66,7 +66,8 @@ class simPrimaryVertex {
 public:
   simPrimaryVertex(double x1,double y1,double z1):x(x1),y(y1),z(z1),ptsq(0),nGenTrk(0){};
   double x,y,z;
-  HepLorentzVector ptot;
+   HepMC::FourVector ptot;
+  //HepLorentzVector ptot;
   double ptsq;
   int nGenTrk;
   std::vector<int> finalstateParticles;

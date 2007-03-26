@@ -6,6 +6,7 @@
 <use name=SimDataFormats/Track>
 <use name=SimDataFormats/HepMCProduct>
 <use name=SimGeneral/HepPDTESSource>
+<use name = hepmc>
 <use name=RecoVertex/PrimaryVertexProducer>
 <use name=root>
 <use name=gsl>
@@ -22,5 +23,6 @@
    <use name=SimGeneral/HepPDTESSource>
    <use name=RecoVertex/PrimaryVertexProducer>
    <use name=root>
+   <use name = hepmc>
    <use name=gsl>
 </export>

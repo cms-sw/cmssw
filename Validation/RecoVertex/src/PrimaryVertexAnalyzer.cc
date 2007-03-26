@@ -227,7 +227,6 @@ std::vector<PrimaryVertexAnalyzer::simPrimaryVertex> PrimaryVertexAnalyzer::getS
     std::cout <<"signal process vertex "<< ( evt->signal_process_vertex() ?
 					     evt->signal_process_vertex()->barcode() : 0 )   <<std::endl;
     std::cout <<"number of vertices " << evt->vertices_size() << std::endl;
-    //std::cout <<"isVtxGenApplied   " << evtMC->isVtxGenApplied() << std::endl; 
 
 
     int idx=0;
@@ -239,7 +238,8 @@ std::vector<PrimaryVertexAnalyzer::simPrimaryVertex> PrimaryVertexAnalyzer::getS
 	std::cout << "has parents  " <<(*vitr)->hasParents() << " n= " <<  (*vitr)->numParents()<< std::endl;
 	std::cout << "has children  " << (*vitr)->hasChildren() <<  " n= " <<  (*vitr)->numChildren()<<  std::endl;
 	*/
-	HepLorentzVector pos = (*vitr)->position();
+	HepMC::FourVector pos = (*vitr)->position();
+	//HepLorentzVector pos = (*vitr)->position();
 	if (pos.t()>0) { continue;}
 
 	bool hasMotherVertex=false;
@@ -296,14 +296,19 @@ std::vector<PrimaryVertexAnalyzer::simPrimaryVertex> PrimaryVertexAnalyzer::getS
 	    if ( find(vp->finalstateParticles.begin(), vp->finalstateParticles.end(),(*daughter)->barcode())
 		 == vp->finalstateParticles.end()){
 	      vp->finalstateParticles.push_back((*daughter)->barcode());
-	      HepLorentzVector m=(*daughter)->momentum();
-	      vp->ptot+=m;
+	      HepMC::FourVector m=(*daughter)->momentum();
+	      // the next four lines used to be "vp->ptot+=m;" in the days of CLHEP::HepLorentzVector
+	      // but adding FourVectors seems not to be foreseen
+	      vp->ptot.setPx(vp->ptot.px()+m.px());
+	      vp->ptot.setPy(vp->ptot.py()+m.py());
+	      vp->ptot.setPz(vp->ptot.pz()+m.pz());
+	      vp->ptot.setE(vp->ptot.e()+m.e());
 	      vp->ptsq+=(m.perp())*(m.perp());
-	      if ( (m.perp()>0.8) && (fabs(m.rapidity())<2.5) && isCharged( *daughter ) ){
+	      if ( (m.perp()>0.8) && (fabs(m.pseudoRapidity())<2.5) && isCharged( *daughter ) ){
 		vp->nGenTrk++;
 	      }
 	      
-	      h["rapidity"]->Fill(m.rapidity());
+	      h["rapidity"]->Fill(m.pseudoRapidity());
 	      h["pt"]->Fill(m.perp());
 	    }
 	  }
@@ -333,7 +338,7 @@ std::vector<PrimaryVertexAnalyzer::simPrimaryVertex> PrimaryVertexAnalyzer::getS
        bool primary=false;   // something coming directly from the primary vertex
        bool resonance=false; // resonance
        bool track=false;     // undecayed, charged particle
-       HepMC::GenParticle* gp=evtMC->GetEvent()->particle( (*t).genpartIndex() );
+       HepMC::GenParticle* gp=evtMC->GetEvent()->barcode_to_particle( (*t).genpartIndex() );
        if (gp) {
 	 HepMC::GenVertex * gv=gp->production_vertex();
 	 if (gv) {
@@ -341,21 +346,23 @@ std::vector<PrimaryVertexAnalyzer::simPrimaryVertex> PrimaryVertexAnalyzer::getS
                  daughter =  gv->particles_begin(HepMC::descendants);
 		 daughter != gv->particles_end(HepMC::descendants);
 		 ++daughter ) {
-	     //(*daughter)->print();
 	     if (isFinalstateParticle(*daughter)){
 	       ptsq+=(*daughter)->momentum().perp()*(*daughter)->momentum().perp();
 	     }
 	   }
 	   primary =  ( gv->position().t()==0);
-	   resonance= ( gp->mother() && isResonance(gp->mother()));
+	   //resonance= ( gp->mother() && isResonance(gp->mother()));  // in CLHEP/HepMC days
+	   // no more mother pointer in the improved HepMC GenParticle
+	   resonance= ( isResonance(*(gp->production_vertex()->particles_in_const_begin())));
 	   if (gp->status()==1){
 	     //track=((pdt->particle(gp->pdg_id()))->charge() != 0);
-	     track=not isCharged(&(*gp));
+	     track=not isCharged(gp);
 	   }
 	 }
        }
 
-       const HepLorentzVector & v=(*simVtxs)[t->vertIndex()].position();
+       const HepMC::FourVector & v=(*simVtxs)[t->vertIndex()].position();
+       //const HepLorentzVector & v=(*simVtxs)[t->vertIndex()].position();
        if(primary or resonance){
 	 {
 	   // check all primaries found so far to avoid multiple entries
@@ -517,7 +524,7 @@ PrimaryVertexAnalyzer::analyze(const Event& iEvent, const EventSetup& iSetup)
 	   h["efftag"]->Fill( 0.); 
 	 }
        }
-       h["effvseta"]->Fill(vsim->ptot.rapidity(),1.);
+       h["effvseta"]->Fill(vsim->ptot.pseudoRapidity(),1.);
        h["effvsptsq"]->Fill(vsim->ptsq,1.);
        h["effvsntrk"]->Fill(vsim->nGenTrk,1.);
        h["effvsnrectrk"]->Fill(recTrks->size(),1.);
@@ -529,7 +536,7 @@ PrimaryVertexAnalyzer::analyze(const Event& iEvent, const EventSetup& iSetup)
 
        h["eff"]->Fill( 0.);
        if(simpv.size()==1){ h["efftag"]->Fill( 0.); }
-       h["effvseta"]->Fill(vsim->ptot.rapidity(),0.);
+       h["effvseta"]->Fill(vsim->ptot.pseudoRapidity(),0.);
        h["effvsptsq"]->Fill(vsim->ptsq,0.);
        h["effvsntrk"]->Fill(float(vsim->nGenTrk),0.);
        h["effvsnrectrk"]->Fill(recTrks->size(),0.);
