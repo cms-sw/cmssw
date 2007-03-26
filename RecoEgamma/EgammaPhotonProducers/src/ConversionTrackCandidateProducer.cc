@@ -99,7 +99,7 @@ ConversionTrackCandidateProducer::~ConversionTrackCandidateProducer() {
 
 
 void  ConversionTrackCandidateProducer::beginJob (edm::EventSetup const & theEventSetup) {
-
+  nEvt_=0;
   //get magnetic field
   edm::LogInfo("ConversionTrackCandidateProducer") << " get magnetic field" << "\n";
   theEventSetup.get<IdealMagneticFieldRecord>().get(theMF_);  
@@ -143,9 +143,9 @@ void  ConversionTrackCandidateProducer::beginJob (edm::EventSetup const & theEve
 void ConversionTrackCandidateProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEventSetup) {
   
   using namespace edm;
-  
-  edm::LogInfo("ConversionTrackCandidateProducer") << "ConversionTrackCandidateProducer Analyzing event number: " << theEvent.id() << "\n";
- LogDebug("ConversionTrackCandidateProducer") << "ConversionTrackCandidateProducer Analyzing event number " <<   theEvent.id() << "\n";
+  nEvt_++;
+  edm::LogInfo("ConversionTrackCandidateProducer") << "ConversionTrackCandidateProducer Analyzing event number: " << theEvent.id() << " Global Counter " << nEvt_ << "\n";
+  LogDebug("ConversionTrackCandidateProducer") << "ConversionTrackCandidateProducer Analyzing event number " <<   theEvent.id() <<  " Global Counter " << nEvt_ << "\n";
   
   
   // Update MeasurementTracker
@@ -218,7 +218,6 @@ void ConversionTrackCandidateProducer::produce(edm::Event& theEvent, const edm::
   reco::SuperClusterCollection::iterator aClus;
   for(aClus = scBarrelCollection.begin(); aClus != scBarrelCollection.end(); ++aClus) {
   
-    //    if ( abs( aClus->eta() ) > 0.9 ) return; 
    LogDebug("ConversionTrackCandidateProducer")  << "ConversionTrackCandidateProducer  SC eta " <<  aClus->eta() << " phi " <<  aClus->phi() <<  " Energy " <<  aClus->energy() << "\n";
 
     theOutInSeedFinder_->setCandidate(*aClus);
@@ -268,8 +267,7 @@ void ConversionTrackCandidateProducer::produce(edm::Event& theEvent, const edm::
   lSC=0; // reset local index for endcap
   for(aClus = scEndcapCollection.begin(); aClus != scEndcapCollection.end(); ++aClus) {
   
-    //    if ( abs( aClus->eta() ) > 0.9 ) return; 
-   LogDebug("ConversionTrackCandidateProducer")  << "ConversionTrackCandidateProducer SC eta " <<  aClus->eta() << " phi " <<  aClus->phi() << " Energy " <<  aClus->energy() << "\n";
+     LogDebug("ConversionTrackCandidateProducer")  << "ConversionTrackCandidateProducer SC eta " <<  aClus->eta() << " phi " <<  aClus->phi() << " Energy " <<  aClus->energy() << "\n";
 
     theOutInSeedFinder_->setCandidate(*aClus);
     theOutInSeedFinder_->makeSeeds(  clusterCollectionEndcap );
