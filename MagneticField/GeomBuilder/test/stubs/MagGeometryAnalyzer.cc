@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2007/03/09 18:23:05 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/03/26 17:43:18 $
+ *  $Revision: 1.2 $
  *  \author N. Amapane - CERN
  */
 
@@ -58,14 +58,14 @@ void MagGeometryAnalyzer::analyze(const edm::Event & event, const edm::EventSetu
   const MagGeometry* field = (dynamic_cast<const VolumeBasedMagneticField*>(magfield.product()))->field;
   
   
-  // Test findVolume for random points
+  // Test that findVolume succeeds for random points
   MagGeometryExerciser exe(field);
   exe.testFindVolume(100000);
 
   // Test that random points are inside one and only one volume
   // exe.testInside(100000);
 
-  // Test that each grid point 
+  // Test that each grid point is inside its own volume
   cout << "***TEST GRIDS:" << endl;
   testGrids( field->barrelVolumes());
   testGrids( field->endcapVolumes());
@@ -89,7 +89,7 @@ void MagGeometryAnalyzer::testGrids(const vector<MagVolume6Faces*>& bvol) {
     const MagProviderInterpol* prov = (**i).provider();
     VolumeGridTester tester(*i, prov);
     if (tester.testInside()) cout << "testGrids: success: " << (**i).name << endl;
-    else cout << "testGrids: FAILURE: " << (**i).name << endl;
+    else cout << "testGrids: ERROR: " << (**i).name << endl;
   }
 }
 
