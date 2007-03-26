@@ -4,9 +4,9 @@
 /** \class InOutConversionSeedFinder
  **  
  **
- **  $Id: InOutConversionSeedFinder.h,v 1.5 2006/12/19 17:35:31 nancy Exp $ 
- **  $Date: 2006/12/19 17:35:31 $ 
- **  $Revision: 1.5 $
+ **  $Id: InOutConversionSeedFinder.h,v 1.6 2007/02/05 13:22:58 nancy Exp $ 
+ **  $Date: 2007/02/05 13:22:58 $ 
+ **  $Revision: 1.6 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -21,11 +21,10 @@
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
 #include "RecoTracker/TkNavigation/interface/SimpleNavigationSchool.h"
-
 #include "TrackingTools/PatternTools/interface/MeasurementEstimator.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
-
+#include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
 #include <string>
 #include <vector>
 
@@ -50,6 +49,7 @@ class InOutConversionSeedFinder : public ConversionSeedFinder {
   
   
   InOutConversionSeedFinder( const MagneticField* field, const MeasurementTracker* theInputMeasurementTracker);
+
     
      
   virtual ~InOutConversionSeedFinder();
@@ -77,12 +77,12 @@ class InOutConversionSeedFinder : public ConversionSeedFinder {
 
  private:
   float  the2ndHitdphi_;
-  float   the2ndHitdzConst_;    
+  float  the2ndHitdzConst_;    
   float  the2ndHitdznSigma_;
   mutable int track2Charge_;
   mutable GlobalVector track2InitialMomentum_; 
      
-
+  const TrackingGeometry* theTrackerGeom_;
 
   
   std::vector<Trajectory> inputTracks_;
