@@ -14,6 +14,9 @@ DEFINE_ANOTHER_FWK_MODULE(DTSegmentAnalysisTask);
 #include <DQM/DTMonitorModule/src/DTResolutionAnalysisTask.h>
 DEFINE_ANOTHER_FWK_MODULE(DTResolutionAnalysisTask);
 
+#include <DQM/DTMonitorModule/src/DTEfficiencyTask.h>
+DEFINE_ANOTHER_FWK_MODULE(DTEfficiencyTask);
+
 #include "DQM/DTMonitorModule/interface/DTTriggerCheck.h"
 DEFINE_ANOTHER_FWK_MODULE(DTTriggerCheck);
 
