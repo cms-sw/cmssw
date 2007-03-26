@@ -3,8 +3,8 @@
  *  an empty MCHepEvent will be generated (needed by OscarProducer). The actual simulation of 
  *  the laser beams is done in the SimWatcher attached to OscarProducer
  *
- *  $Date: Mon Mar 19 12:25:41 CET 2007 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/03/20 12:01:00 $
+ *  $Revision: 1.2 $
  *  \author Maarten Thomas
  */
 // system include files
@@ -41,11 +41,11 @@ bool LaserAlignmentSource::produce(edm::Event& iEvent)
   theEvent = new HepMC::GenEvent();
 
   // create a primary vertex
-  HepMC::GenVertex * theVtx = new HepMC::GenVertex(CLHEP::HepLorentzVector(0.,0.,0.));
+  HepMC::GenVertex * theVtx = new HepMC::GenVertex(HepMC::FourVector(0.,0.,0.));
 
   // add a particle to the vertex; this is needed to avoid crashes in OscarProducer. Use a 
   // electron neutrino, with zero energy and mass
-  HepMC::GenParticle * theParticle = new HepMC::GenParticle(CLHEP::HepLorentzVector(0.,0.,0.,0.),12,1);
+  HepMC::GenParticle * theParticle = new HepMC::GenParticle(HepMC::FourVector(0.,0.,0.,0.),12,1);
   
   theVtx->add_particle_out(theParticle);
 
