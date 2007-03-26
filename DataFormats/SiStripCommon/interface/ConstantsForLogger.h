@@ -1,4 +1,4 @@
-// Last commit: $Id: $
+// Last commit: $Id: ConstantsForLogger.h,v 1.4 2007/03/21 08:22:59 bainbrid Exp $
 
 #ifndef DataFormats_SiStripCommon_ConstantsForLogger_H
 #define DataFormats_SiStripCommon_ConstantsForLogger_H
@@ -25,6 +25,7 @@ namespace sistrip {
   static const std::string mlRawToCluster_  = "SiStripRawToCluster";
   static const std::string mlRawToDigi_     = "SiStripRawToDigi";
   static const std::string mlSummaryPlots_  = "SiStripSummaryPlots";
+  static const std::string mlTest_          = "SiStripTEST";
 
 }
 
