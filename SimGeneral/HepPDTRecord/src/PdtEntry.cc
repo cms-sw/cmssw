@@ -9,16 +9,26 @@ using namespace edm;
 int PdtEntry::pdgId() const {
   if ( pdgId_ == 0 )
     throw cms::Exception( "ConfigError" )
-      << "PdtEntry::pdgId was not set.";
+      << "PdtEntry::pdgId was not set.\n"
+      << "please, call PdtEntry::setup( const edm::EventSetup & es )";
   return pdgId_;
 }
 
 const string & PdtEntry::name() const {
   if ( name_.empty() )
     throw cms::Exception( "ConfigError" )
-      << "PdtEntry::name was not set.";
+      << "PdtEntry::name was not set."
+      << "please, call PdtEntry::setup( const edm::EventSetup & es )";
   return name_;
 }
+
+const HepPDT::ParticleData & PdtEntry::data() const { 
+  if( data_ == 0 )
+    throw cms::Exception( "ConfigError" )
+      << "PdtEntry::name was not set."
+      << "please, call PdtEntry::setup( const edm::EventSetup & es )";
+  return * data_; 
+} 
 
 void PdtEntry::setup( const edm::EventSetup & es ) {
   ESHandle<HepPDT::ParticleDataTable> pdt;

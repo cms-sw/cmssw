@@ -13,15 +13,15 @@ namespace HepPDT { class ParticleData; }
 class PdtEntry {
 public:
   /// construct from PDG id
-  explicit PdtEntry( int pdgId ) : pdgId_( pdgId ) { }
+  explicit PdtEntry( int pdgId ) : pdgId_( pdgId ), data_( 0 ) { }
   /// construct from particle name
-  explicit PdtEntry( const std::string & name ) : pdgId_( 0 ), name_( name ) { }
+  explicit PdtEntry( const std::string & name ) : pdgId_( 0 ), name_( name ), data_( 0 ) { }
   /// PDG id
   int pdgId() const;
   /// particle name
   const std::string & name() const;
   /// particle data
-  const HepPDT::ParticleData & data() const { return * data_; } 
+  const HepPDT::ParticleData & data() const; 
   /// fill data from Event Setup
   void setup( const edm::EventSetup & ); 
 
