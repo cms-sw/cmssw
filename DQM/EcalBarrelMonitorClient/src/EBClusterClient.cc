@@ -1,8 +1,8 @@
 /*
  * \file EBClusterClient.cc
  *
- * $Date: 2007/03/26 14:13:22 $
- * $Revision: 1.16 $
+ * $Date: 2007/03/26 15:02:00 $
+ * $Revision: 1.17 $
  * \author G. Della Ricca
  * \author F. Cossutti
  * \author E. Di Marco
@@ -146,29 +146,31 @@ void EBClusterClient::setup(void) {
 void EBClusterClient::cleanup(void) {
 
   if ( cloneME_ ) {
+    if ( h01_[0] ) delete h01_[0];
+    if ( h01_[1] ) delete h01_[1];
+    if ( h01_[2] ) delete h01_[2];
 
-    for ( unsigned int i=0; i<3; i++ ) {
+    if ( h02_[0] ) delete h02_[0];
+    if ( h02_[1] ) delete h02_[1];
 
-      if ( h01_[i] ) delete h01_[i];
-      if ( i01_[i] ) delete i01_[i];
+    if ( h03_ ) delete h03_;
+    if ( h04_ ) delete h04_;
 
-    }
+    if ( i01_[0] ) delete i01_[0];
+    if ( i01_[1] ) delete i01_[1];
+    if ( i01_[2] ) delete i01_[2];
 
-    for ( unsigned int i=0; i<2; i++ ) {
-      
-      if( h02_[i] ) delete h02_[i];
-      if( i02_[i] ) delete i02_[i];
+    if ( i02_[0] ) delete i02_[0];
+    if ( i02_[1] ) delete i02_[1];
 
-      if( h03_ ) delete h03_;
-      if( h04_ ) delete h04_;
-      if( i03_ ) delete i03_;
-      if( i04_ ) delete i04_;
+    if ( i03_ ) delete i03_;
+    if ( i04_ ) delete i04_;
 
-      if( s01_[i] ) delete s01_[i];
+    if ( s01_[0] ) delete s01_[0];
+    if ( s01_[1] ) delete s01_[1];
 
-    }
   }
-  
+
   h01_[0] = 0;
   h01_[1] = 0;
   h01_[2] = 0;
@@ -191,7 +193,6 @@ void EBClusterClient::cleanup(void) {
 
   s01_[0] = 0;
   s01_[1] = 0;
-
 
 }
 
@@ -435,16 +436,16 @@ void EBClusterClient::unsubscribe(void){
 
   sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island basic cluster energy");
   mui_->unsubscribe(histo);
-  
+
   sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island basic cluster number");
   mui_->unsubscribe(histo);
-  
+
   sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island basic cluster crystals");
   mui_->unsubscribe(histo);
-  
+
   sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island basic cluster energy map");
   mui_->unsubscribe(histo);
-  
+
   sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island basic cluster ET map");
   mui_->unsubscribe(histo);
 
@@ -453,22 +454,22 @@ void EBClusterClient::unsubscribe(void){
 
   sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island basic cluster size map");
   mui_->unsubscribe(histo);
-  
+
   sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island super cluster energy");
   mui_->unsubscribe(histo);
-  
+
   sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island super cluster number");
   mui_->unsubscribe(histo);
-  
+
   sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island super cluster size");
   mui_->unsubscribe(histo);
-  
+
   sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island super cluster energy map");
   mui_->unsubscribe(histo);
 
   sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island super cluster ET map");
   mui_->unsubscribe(histo);
-  
+
   sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island super cluster number map");
   mui_->unsubscribe(histo);
 
@@ -681,7 +682,7 @@ void EBClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
   string imgNameB[3], imgNameBMap[4], imgNameS[3], imgNameSMap[4];
   string imgNameBXproj[4], imgNameBYproj[4], imgNameSXproj[4], imgNameSYproj[4];
   string imgNameHL[2], imgName, meName;
-  
+
   TCanvas* cEne = new TCanvas("cEne", "Temp", csize1D, csize1D);
   TCanvas* cMap = new TCanvas("cMap", "Temp", int(34./72.*csize2D), csize2D);
 
@@ -690,8 +691,6 @@ void EBClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
   TH2F* obj2f = 0;
   TH1D* obj1dX;
   TH1D* obj1dY;
-
-
 
   // ==========================================================================
   // basic clusters
@@ -723,7 +722,6 @@ void EBClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
     }
   }
 
-
   ///*****************************************************************************///
   htmlFile << "<br>" << endl;
   htmlFile <<  "<a name=\"bc_plots\"> <B> Basic Clusters plots </B> </a> " << endl;
@@ -747,8 +745,6 @@ void EBClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "</table>" << endl;
   htmlFile << "<br>" << endl;
 
-
-
   // dummy histogram labelling the SM's
   TH2C labelGrid("labelGrid","label grid for SM", 2, -1.479, 1.479, 18, -1*TMath::Pi(), TMath::Pi() );
   Int_t sm=1;
@@ -764,21 +760,20 @@ void EBClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
   }
   labelGrid.SetMarkerSize(2);
 
-
   for ( int iCanvas = 1; iCanvas <= 3; iCanvas++ ) {
-    
+
     imgNameBMap[iCanvas-1] = "";
-  
+
     objp = (iCanvas!=3) ? h02_[iCanvas-1] : h04_;
-    
+
     if ( objp ) {
-      
+
       meName = objp->GetName();
 
       for ( unsigned int i = 0; i < meName.size(); i++ ) {
-	if ( meName.substr(i, 1) == " " )  {
-	  meName.replace(i, 1 ,"_" ); 
-	}
+        if ( meName.substr(i, 1) == " " )  {
+          meName.replace(i, 1 ,"_" );
+        }
       }
       imgNameBMap[iCanvas-1] = meName + ".png";
       imgName = htmlDir + imgNameBMap[iCanvas-1];
@@ -822,26 +817,25 @@ void EBClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
       obj1dY->Draw("pe");
       cEne->Update();
       cEne->SaveAs(imgName.c_str());
-    }      
+    }
   }
 
-
   imgNameBMap[3] = "";
-    
+
   obj2f = h03_;
-    
+
   if ( obj2f ) {
-  
+
     meName = obj2f->GetName();
-      
+
     for ( unsigned int i = 0; i < meName.size(); i++ ) {
       if ( meName.substr(i, 1) == " " )  {
-	meName.replace(i, 1 ,"_" );
+        meName.replace(i, 1 ,"_" );
       }
     }
     imgNameBMap[3] = meName + ".png";
     imgName = htmlDir + imgNameBMap[3];
-      
+
     cMap->cd();
     gStyle->SetOptStat(" ");
     gStyle->SetPalette(10, pCol4);
@@ -882,7 +876,6 @@ void EBClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   }
 
-
   htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
   htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
   htmlFile << "<tr align=\"center\">" << endl;
@@ -900,8 +893,6 @@ void EBClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "</table>" << endl;
   htmlFile << "<br>" << endl;
 
-
-
   htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
   htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
   htmlFile << "<tr align=\"center\">" << endl;
@@ -918,8 +909,6 @@ void EBClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "</tr>" << endl;
   htmlFile << "</table>" << endl;
   htmlFile << "<br>" << endl;
-
-
 
   // projections X...
   htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
@@ -957,7 +946,6 @@ void EBClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "</table>" << endl;
   htmlFile << "<br>" << endl;
 
-
   // ====================================================================
   // super clusters
   // ====================================================================
@@ -968,9 +956,9 @@ void EBClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
     obj1f = i01_[iCanvas-1];
 
     if ( obj1f ) {
-    
+
       meName = obj1f->GetName();
-    
+
       for ( unsigned int i = 0; i < meName.size(); i++ ) {
         if ( meName.substr(i, 1) == " " )  {
           meName.replace(i, 1, "_");
@@ -987,7 +975,6 @@ void EBClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
       cEne->SaveAs(imgName.c_str());
     }
   }
-
 
   ///*****************************************************************************///
   htmlFile << "<br>" << endl;
@@ -1012,26 +999,24 @@ void EBClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "</table>" << endl;
   htmlFile << "<br>" << endl;
 
-
-
   for ( int iCanvas = 1; iCanvas <= 3; iCanvas++ ) {
 
     imgNameSMap[iCanvas-1] = "";
-  
+
     objp = (iCanvas!=3) ? i02_[iCanvas-1] : i04_;
-  
+
     if ( objp ) {
-  
+
       meName = objp->GetName();
 
       for ( unsigned int i = 0; i < meName.size(); i++ ) {
-	if ( meName.substr(i, 1) == " " )  {
-	  meName.replace(i, 1 ,"_" ); 
-	}
+        if ( meName.substr(i, 1) == " " )  {
+          meName.replace(i, 1 ,"_" );
+        }
       }
       imgNameSMap[iCanvas-1] = meName + ".png";
       imgName = htmlDir + imgNameSMap[iCanvas-1];
-    
+
       cMap->cd();
       gStyle->SetOptStat(" ");
       gStyle->SetPalette(10, pCol4);
@@ -1073,7 +1058,6 @@ void EBClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
     }
   }
 
-
   imgNameSMap[3] = "";
 
   obj2f = i03_;
@@ -1084,7 +1068,7 @@ void EBClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
 
     for ( unsigned int i = 0; i < meName.size(); i++ ) {
       if ( meName.substr(i, 1) == " " )  {
-	meName.replace(i, 1 ,"_" ); 
+        meName.replace(i, 1 ,"_" );
       }
     }
     imgNameSMap[3] = meName + ".png";
@@ -1130,7 +1114,6 @@ void EBClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
     cEne->SaveAs(imgName.c_str());
 
   }
-  
 
   htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
   htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
@@ -1149,8 +1132,6 @@ void EBClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "</table>" << endl;
   htmlFile << "<br>" << endl;
 
-
-
   htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
   htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
   htmlFile << "<tr align=\"center\">" << endl;
@@ -1167,8 +1148,6 @@ void EBClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "</tr>" << endl;
   htmlFile << "</table>" << endl;
   htmlFile << "<br>" << endl;
-
-
 
   // projections X...
   htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
@@ -1206,9 +1185,6 @@ void EBClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "</table>" << endl;
   htmlFile << "<br>" << endl;
 
-
-
-
   // ===========================================================================
   // Higher Level variables
   // ===========================================================================
@@ -1216,21 +1192,21 @@ void EBClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
   for( int iCanvas = 1; iCanvas <= 2; iCanvas++ ) {
 
     imgNameHL[iCanvas-1] = "";
-  
+
     obj1f = s01_[iCanvas-1];
-  
+
     if ( obj1f ) {
-    
+
       meName = obj1f->GetName();
-    
+
       for ( unsigned int i = 0; i < meName.size(); i++ ) {
-	if ( meName.substr(i, 1) == " " )  {
-	  meName.replace(i, 1, "_");
-	}
+        if ( meName.substr(i, 1) == " " )  {
+          meName.replace(i, 1, "_");
+        }
       }
       imgNameHL[iCanvas-1] = meName + ".png";
       imgName = htmlDir + imgNameHL[iCanvas-1];
-    
+
       cEne->cd();
       gStyle->SetOptStat("euomr");
       obj1f->SetStats(kTRUE);
@@ -1239,8 +1215,6 @@ void EBClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
       cEne->SaveAs(imgName.c_str());
     }
   }
-  
-
 
   ///*****************************************************************************///
   htmlFile << "<br>" << endl;
@@ -1251,20 +1225,19 @@ void EBClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
   htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
   htmlFile << "<tr align=\"center\">" << endl;
-  
+
   // for now only E1/Etot
   for ( int iCanvas = 1; iCanvas <= 2; iCanvas++ ) {
-    
+
     if ( imgNameHL[iCanvas-1].size() != 0 )
       htmlFile << "<td><img src=\"" << imgNameHL[iCanvas-1] << "\"></td>" << endl;
     else
       htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
   }
-  
+
   htmlFile << "</tr>" << endl;
   htmlFile << "</table>" << endl;
   htmlFile << "<br>" << endl;
-    
 
   delete cEne;
   delete cMap;
