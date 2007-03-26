@@ -1,15 +1,24 @@
-<use name=DataFormats/RecoCandidate>
-<use name=DataFormats/MuonReco>
+<use name=DataFormats/Common>
 <use name=DataFormats/EgammaCandidates>
+<use name=DataFormats/HLTReco>
+<use name=DataFormats/JetReco>
+<use name=DataFormats/L1GlobalTrigger>
+<use name=DataFormats/L1Trigger>
+<use name=DataFormats/METReco>
+<use name=DataFormats/MuonReco>
+<use name=DataFormats/RecoCandidate>
 <use name=FWCore/Framework>
-<use name=Foundation/PluginManager>
+<use name=FWCore/MessageLogger>
 <use name=FWCore/ParameterSet>
+<use name=Foundation/PluginManager>
 <use name=HLTrigger/HLTcore>
-<flags SEAL_PLUGIN_NAME="HLTriggerHLTfilters">
+<use name=PhysicsTools/Parser>
 <export>
-   <lib name=HLTriggerHLTfilters>
-   <use name=FWCore/Framework>
-   <use name=Foundation/PluginManager>
-   <use name=FWCore/ParameterSet>
-   <use name=HLTrigger/HLTcore>
+  <use name=FWCore/Framework>
+  <use name=FWCore/ParameterSet>
+  <use name=HLTrigger/HLTcore>
+  <use name=PhysicsTools/Parser>
+  <lib name=HLTriggerHLTfilters>
 </export>
+
+<flags SEAL_PLUGIN_NAME="HLTriggerHLTfilters">
