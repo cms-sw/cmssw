@@ -1,8 +1,8 @@
 /*
  * \file EBClusterClient.cc
  *
- * $Date: 2007/03/26 16:39:42 $
- * $Revision: 1.18 $
+ * $Date: 2007/03/26 20:31:29 $
+ * $Revision: 1.19 $
  * \author G. Della Ricca
  * \author F. Cossutti
  * \author E. Di Marco
@@ -783,6 +783,8 @@ void EBClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
       gStyle->SetPalette(10, pCol4);
       objp->GetXaxis()->SetNdivisions(170102, kFALSE);
       objp->GetYaxis()->SetNdivisions(40018, kFALSE);
+      cMap->SetGridx();
+      cMap->SetGridy();
       cMap->SetTopMargin(0.06);
       cMap->SetBottomMargin(0.05);
       cMap->SetRightMargin(0.15);
@@ -841,6 +843,8 @@ void EBClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
     gStyle->SetPalette(10, pCol4);
     obj2f->GetXaxis()->SetNdivisions(170102, kFALSE);
     obj2f->GetYaxis()->SetNdivisions(40018, kFALSE);
+    cMap->SetGridx();
+    cMap->SetGridy();
     cMap->SetTopMargin(0.06);
     cMap->SetBottomMargin(0.05);
     cMap->SetRightMargin(0.15);
@@ -1024,6 +1028,8 @@ void EBClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
       gStyle->SetPalette(10, pCol4);
       objp->GetXaxis()->SetNdivisions(170102, kFALSE);
       objp->GetYaxis()->SetNdivisions(40018, kFALSE);
+      cMap->SetGridx();
+      cMap->SetGridy();
       cMap->SetTopMargin(0.06);
       cMap->SetBottomMargin(0.05);
       cMap->SetRightMargin(0.15);
@@ -1082,6 +1088,8 @@ void EBClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
     gStyle->SetPalette(10, pCol4);
     obj2f->GetXaxis()->SetNdivisions(170102, kFALSE);
     obj2f->GetYaxis()->SetNdivisions(40018, kFALSE);
+    cMap->SetGridx();
+    cMap->SetGridy();
     cMap->SetTopMargin(0.06);
     cMap->SetBottomMargin(0.05);
     cMap->SetRightMargin(0.15);
