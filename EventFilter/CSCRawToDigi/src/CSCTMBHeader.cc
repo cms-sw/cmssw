@@ -30,13 +30,13 @@ std::vector<CSCCLCTDigi> CSCTMBHeader::CLCTDigis() const {
   /// for the zeroth clct:
   CSCCLCTDigi digi(clct0Valid(),clct0Quality(),clct0Shape(),clct0StripType(),clct0Bend(), 
 		   clct0Key(),clct0CFEB(), clct0BXN(), 1);
-  digi.setFullBX(BXNCount());
+  digi.setFullBX(BXNPreTrigger());
   result.push_back(digi);
 
   /// for the first clct:
   digi = CSCCLCTDigi(clct1Valid(),clct1Quality(),clct1Shape(),clct1StripType(),clct1Bend(), 
 		   clct1Key(),clct1CFEB(), clct1BXN(), 2);
-  digi.setFullBX(BXNCount());
+  digi.setFullBX(BXNPreTrigger());
   result.push_back(digi);
   
   return result;
