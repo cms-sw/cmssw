@@ -1,8 +1,8 @@
 /*
  * \file EBClusterClient.cc
  *
- * $Date: 2007/03/26 15:02:00 $
- * $Revision: 1.17 $
+ * $Date: 2007/03/26 16:39:42 $
+ * $Revision: 1.18 $
  * \author G. Della Ricca
  * \author F. Cossutti
  * \author E. Di Marco
@@ -746,14 +746,14 @@ void EBClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "<br>" << endl;
 
   // dummy histogram labelling the SM's
-  TH2C labelGrid("labelGrid","label grid for SM", 2, -1.479, 1.479, 18, -1*TMath::Pi(), TMath::Pi() );
+  TH2C labelGrid("labelGrid","label grid for SM", 2, -1.479, 1.479, 18, -M_PI, M_PI );
   Int_t sm=1;
   Float_t X=-1.479/2.;
   while(X<1.479) {
-    Float_t Y=-1*TMath::Pi()+TMath::Pi()/18.;
-    while(Y<TMath::Pi()){
+    Float_t Y=-1*M_PI+M_PI/18.;
+    while(Y<M_PI){
       labelGrid.Fill(X,Y,sm);
-      Y+=TMath::Pi()/9.;
+      Y+=M_PI/9.;
       sm++;
     }
     X+=1.479;
@@ -781,10 +781,10 @@ void EBClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
       cMap->cd();
       gStyle->SetOptStat(" ");
       gStyle->SetPalette(10, pCol4);
-      objp->GetXaxis()->SetNdivisions(2);
-      objp->GetYaxis()->SetNdivisions(18, kFALSE);
-      cMap->SetGridx();
-      cMap->SetGridy();
+      objp->GetXaxis()->SetNdivisions(170102, kFALSE);
+      objp->GetYaxis()->SetNdivisions(40018, kFALSE);
+      cMap->SetTopMargin(0.06);
+      cMap->SetBottomMargin(0.05);
       cMap->SetRightMargin(0.15);
       cMap->SetLeftMargin(0.15);
       objp->Draw("colz");
@@ -801,12 +801,12 @@ void EBClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
 
       obj1dX = objp->ProjectionX(projXName,1,objp->GetNbinsY(),"e");
       obj1dY = objp->ProjectionY(projYName,1,objp->GetNbinsX(),"e");
-      obj1dX->GetXaxis()->SetNdivisions(6, kFALSE);
-      obj1dY->GetXaxis()->SetNdivisions(6, kFALSE);
 
       cEne->cd();
       gStyle->SetOptStat("emr");
       obj1dX->SetStats(kTRUE);
+      obj1dX->GetXaxis()->SetNdivisions(6, kFALSE);
+      obj1dY->GetXaxis()->SetNdivisions(6, kFALSE);
       obj1dX->Draw("pe");
       cEne->Update();
       cEne->SaveAs(imgName.c_str());
@@ -839,10 +839,10 @@ void EBClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
     cMap->cd();
     gStyle->SetOptStat(" ");
     gStyle->SetPalette(10, pCol4);
-    obj2f->GetXaxis()->SetNdivisions(2);
-    obj2f->GetYaxis()->SetNdivisions(18, kFALSE);
-    cMap->SetGridx();
-    cMap->SetGridy();
+    obj2f->GetXaxis()->SetNdivisions(170102, kFALSE);
+    obj2f->GetYaxis()->SetNdivisions(40018, kFALSE);
+    cMap->SetTopMargin(0.06);
+    cMap->SetBottomMargin(0.05);
     cMap->SetRightMargin(0.15);
     cMap->SetLeftMargin(0.15);
     obj2f->Draw("colz");
@@ -856,13 +856,15 @@ void EBClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
     sprintf(projYName,"%s_py",meName.c_str());
     imgNameBXproj[3] = string(projXName) + ".png";
     imgName = htmlDir + imgNameBXproj[3];
-    obj1dX = obj2f->ProjectionX("_px",1,obj2f->GetNbinsY(),"e");
-    obj1dY = obj2f->ProjectionY("_py",1,obj2f->GetNbinsX(),"e");
+
+    obj1dX = obj2f->ProjectionX(projXName,1,obj2f->GetNbinsY(),"e");
+    obj1dY = obj2f->ProjectionY(projYName,1,obj2f->GetNbinsX(),"e");
+
     cEne->cd();
     gStyle->SetOptStat("emr");
+    obj1dX->SetStats(kTRUE);
     obj1dX->GetXaxis()->SetNdivisions(6, kFALSE);
     obj1dY->GetXaxis()->SetNdivisions(6, kFALSE);
-    obj1dX->SetStats(kTRUE);
     obj1dX->Draw("pe");
     cEne->Update();
     cEne->SaveAs(imgName.c_str());
@@ -1020,10 +1022,10 @@ void EBClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
       cMap->cd();
       gStyle->SetOptStat(" ");
       gStyle->SetPalette(10, pCol4);
-      objp->GetXaxis()->SetNdivisions(2);
-      objp->GetYaxis()->SetNdivisions(18, kFALSE);
-      cMap->SetGridx();
-      cMap->SetGridy();
+      objp->GetXaxis()->SetNdivisions(170102, kFALSE);
+      objp->GetYaxis()->SetNdivisions(40018, kFALSE);
+      cMap->SetTopMargin(0.06);
+      cMap->SetBottomMargin(0.05);
       cMap->SetRightMargin(0.15);
       cMap->SetLeftMargin(0.15);
       objp->Draw("colz");
@@ -1040,11 +1042,12 @@ void EBClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
 
       obj1dX = objp->ProjectionX(projXName,1,objp->GetNbinsY(),"e");
       obj1dY = objp->ProjectionY(projYName,1,objp->GetNbinsX(),"e");
+
       cEne->cd();
       gStyle->SetOptStat("emr");
+      obj1dX->SetStats(kTRUE);
       obj1dX->GetXaxis()->SetNdivisions(6, kFALSE);
       obj1dY->GetXaxis()->SetNdivisions(6, kFALSE);
-      obj1dX->SetStats(kTRUE);
       obj1dX->Draw("pe");
       cEne->Update();
       cEne->SaveAs(imgName.c_str());
@@ -1077,10 +1080,10 @@ void EBClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
     cMap->cd();
     gStyle->SetOptStat(" ");
     gStyle->SetPalette(10, pCol4);
-    obj2f->GetXaxis()->SetNdivisions(2);
-    obj2f->GetYaxis()->SetNdivisions(18, kFALSE);
-    cMap->SetGridx();
-    cMap->SetGridy();
+    obj2f->GetXaxis()->SetNdivisions(170102, kFALSE);
+    obj2f->GetYaxis()->SetNdivisions(40018, kFALSE);
+    cMap->SetTopMargin(0.06);
+    cMap->SetBottomMargin(0.05);
     cMap->SetRightMargin(0.15);
     cMap->SetLeftMargin(0.15);
     obj2f->Draw("colz");
@@ -1095,13 +1098,15 @@ void EBClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
 
     imgNameSXproj[3] = string(projXName) + ".png";
     imgName = htmlDir + imgNameSXproj[3];
+
     obj1dX = obj2f->ProjectionX("_px",1,obj2f->GetNbinsY(),"e");
     obj1dY = obj2f->ProjectionY("_py",1,obj2f->GetNbinsX(),"e");
+
     cEne->cd();
-    gStyle->SetOptStat("e30MAR07     ALITALIA AZ 571mr");
+    gStyle->SetOptStat("emr");
+    obj1dX->SetStats(kTRUE);
     obj1dX->GetXaxis()->SetNdivisions(6, kFALSE);
     obj1dY->GetXaxis()->SetNdivisions(6, kFALSE);
-    obj1dX->SetStats(kTRUE);
     obj1dX->Draw("pe");
     cEne->Update();
     cEne->SaveAs(imgName.c_str());
