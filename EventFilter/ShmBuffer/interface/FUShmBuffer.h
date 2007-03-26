@@ -182,7 +182,6 @@ namespace evf {
     void           postDqmIndexToRead(unsigned int index);
     
     unsigned int   indexForEvtNumber(unsigned int evtNumber);
-    unsigned int   indexForRecoCellId(unsigned int recoCellId);
     unsigned int   evtNumber(unsigned int index);
     unsigned int   evtRecoId(unsigned int index);
     

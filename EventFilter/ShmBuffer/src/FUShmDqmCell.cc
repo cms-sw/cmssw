@@ -46,6 +46,7 @@ FUShmDqmCell::~FUShmDqmCell()
 void FUShmDqmCell::initialize(unsigned int index)
 {
   index_=index;
+  clear();
 }
 
 

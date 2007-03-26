@@ -46,6 +46,7 @@ FUShmRecoCell::~FUShmRecoCell()
 void FUShmRecoCell::initialize(unsigned int index)
 {
   index_=index;
+  clear();
 }
 
 
@@ -61,6 +62,7 @@ unsigned char* FUShmRecoCell::payloadAddr() const
 void FUShmRecoCell::clear()
 {
   eventSize_=0;
+  rawCellIndex_=0xffffffff;
 }
 
 
