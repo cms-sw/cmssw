@@ -4,11 +4,11 @@
 /*
  * \file EBClusterTask.h
  *
- * $Date: 2007/02/01 15:43:56 $
- * $Revision: 1.4 $
+ * $Date: 2007/03/13 10:53:16 $
+ * $Revision: 1.5 $
  * \author G. Della Ricca
  *
-*/
+ */
 
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -18,50 +18,69 @@
 
 class EBClusterTask: public edm::EDAnalyzer{
 
-public:
+ public:
 
-/// Constructor
-EBClusterTask(const edm::ParameterSet& ps);
+  /// Constructor
+  EBClusterTask(const edm::ParameterSet& ps);
 
-/// Destructor
-virtual ~EBClusterTask();
+  /// Destructor
+  virtual ~EBClusterTask();
 
-protected:
+ protected:
 
-/// Analyze
-void analyze(const edm::Event& e, const edm::EventSetup& c);
+  /// Analyze
+  void analyze(const edm::Event& e, const edm::EventSetup& c);
 
-/// BeginJob
-void beginJob(const edm::EventSetup& c);
+  /// BeginJob
+  void beginJob(const edm::EventSetup& c);
 
-/// EndJob
-void endJob(void);
+  /// EndJob
+  void endJob(void);
 
-/// Setup
-void setup(void);
+  /// Setup
+  void setup(void);
 
-/// Cleanup
-void cleanup(void);
+  /// Cleanup
+  void cleanup(void);
 
-private:
+ private:
 
-int ievt_;
+  int ievt_;
 
-MonitorElement* meBEne_;
-MonitorElement* meBNum_;
-MonitorElement* meBCry_;
+  std::string islandBarrelBasicClusterCollection_;
+  std::string islandBarrelBasicClusterProducer_;
+  std::string islandBarrelBasicClusterShapes_; 
+  
+  std::string islandBarrelSuperClusterCollection_;
+  std::string islandBarrelSuperClusterProducer_;
+  
+  std::string hybridSuperClusterCollection_;
+  std::string hybridSuperClusterProducer_;
 
-MonitorElement* meBEneMap_;
-MonitorElement* meBNumMap_;
+  edm::InputTag hybridBarrelClusterShapeAssociation_;
 
-MonitorElement* meSEne_;
-MonitorElement* meSNum_;
-MonitorElement* meSSiz_;
+  MonitorElement* meIslBEne_;
+  MonitorElement* meIslBNum_;
+  MonitorElement* meIslBCry_;
+  
+  MonitorElement* meIslBEneMap_;
+  MonitorElement* meIslBNumMap_;
+  MonitorElement* meIslBETMap_;
+  MonitorElement* meIslBCryMap_;
+  
+  MonitorElement* meIslSEne_;
+  MonitorElement* meIslSNum_;
+  MonitorElement* meIslSSiz_;
+  
+  MonitorElement* meIslSEneMap_;
+  MonitorElement* meIslSNumMap_;
+  MonitorElement* meIslSETMap_;
+  MonitorElement* meIslSSizMap_;
 
-MonitorElement* meSEneMap_;
-MonitorElement* meSNumMap_;
+  MonitorElement* meHybS1toE_;
+  MonitorElement* meInvMass_;
 
-bool init_;
+  bool init_;
 
 };
 
