@@ -67,9 +67,13 @@ uint32_t DBSpecToDetUnit::operator()(const ChamberLocationSpec & ch,
   // ROLL
   string roll = feb.cmsEtaPartition;
   int iroll=0;
-  if      (roll=="1" || roll=="A") iroll = 1;
+  //MB A (temporary?) change to fix an invalid FEB z-rotation
+  string localRoll = feb.localEtaPartition;
+  //if      (roll=="1" || roll=="A") iroll = 1;
+  if      ((roll=="1"&& localRoll=="Backward") || (roll=="3"&& localRoll=="Forward") || roll=="A") iroll = 1;  
   else if (roll=="2" || roll=="B") iroll = 2;
-  else if (roll=="3" || roll=="C") iroll = 3;
+  //else if (roll=="3" || roll=="C") iroll = 3;
+  else if ((roll=="3"&& localRoll=="Backward") || (roll=="1"&& localRoll=="Forward") || roll=="C") iroll = 3;
   else if (roll=="D") iroll = 4;
   else {
     cout << "** RPC: DBSpecToDetUnit, how to assigne roll to: "
