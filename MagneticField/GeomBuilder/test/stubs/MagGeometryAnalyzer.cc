@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2007/03/09 18:23:05 $
+ *  $Revision: 1.1 $
  *  \author N. Amapane - CERN
  */
 
@@ -24,9 +24,10 @@
 #include "MagneticField/VolumeBasedEngine/interface/VolumeBasedMagneticField.h"
 #undef public
 
+#include <iostream>
 #include <vector>
-#include <map>
-#include <string>
+
+using namespace std;
 
 class MagGeometryAnalyzer : public edm::EDAnalyzer {
  public:
@@ -44,7 +45,7 @@ class MagGeometryAnalyzer : public edm::EDAnalyzer {
   }
   
  private:
-
+  void testGrids( const vector<MagVolume6Faces*>& bvol);
 };
 
 using namespace edm;
@@ -54,24 +55,42 @@ void MagGeometryAnalyzer::analyze(const edm::Event & event, const edm::EventSetu
   ESHandle<MagneticField> magfield;
   eventSetup.get<IdealMagneticFieldRecord>().get(magfield);
 
-//   edm::ParameterSet p;
-//   p.addParameter<double>("findVolumeTolerance", 0.0);
-//   p.addUntrackedParameter<bool>("cacheLastVolume", true);
-//   p.addUntrackedParameter<bool>("timerOn", true);
-//   MagGeoBuilderFromDDD builder;
-//   MagGeometry* field = new MagGeometry(p,
-// 				       builder.barrelLayers(),
-// 				       builder.endcapSectors(),
-// 				       builder.barrelVolumes(),
-// 				       builder.endcapVolumes());
-
   const MagGeometry* field = (dynamic_cast<const VolumeBasedMagneticField*>(magfield.product()))->field;
-
+  
+  
+  // Test findVolume for random points
   MagGeometryExerciser exe(field);
   exe.testFindVolume(100000);
 
-  //  exe.testInside(100000);
+  // Test that random points are inside one and only one volume
+  // exe.testInside(100000);
 
+  // Test that each grid point 
+  cout << "***TEST GRIDS:" << endl;
+  testGrids( field->barrelVolumes());
+  testGrids( field->endcapVolumes());
+}
+
+
+#include "MagneticField/VolumeGeometry/interface/MagVolume6Faces.h"
+#include "VolumeGridTester.h"
+
+
+void MagGeometryAnalyzer::testGrids(const vector<MagVolume6Faces*>& bvol) {
+  static map<string,int> nameCalls;
+
+  for (vector<MagVolume6Faces*>::const_iterator i=bvol.begin();
+       i!=bvol.end(); i++) {
+    if (++nameCalls[(*i)->name] > 1) {
+      //      cout << (*i)->name << " already checked, skipping... "; 
+      continue;
+    }
+
+    const MagProviderInterpol* prov = (**i).provider();
+    VolumeGridTester tester(*i, prov);
+    if (tester.testInside()) cout << "testGrids: success: " << (**i).name << endl;
+    else cout << "testGrids: FAILURE: " << (**i).name << endl;
+  }
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
