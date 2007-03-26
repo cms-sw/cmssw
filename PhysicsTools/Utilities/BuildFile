@@ -1,17 +1,4 @@
 <export>
-<<<<<<< BuildFile
-  <lib name=PhysicsToolsUtilities>
-  <use name=SimGeneral/HepPDTRecord>
-  <use name=FWCore/Framework>
-  <use name=FWCore/Utilities>
-=======
->>>>>>> 1.12
   <use name=DataFormats/Math>
   <use name=boost>
-  <use name=heppdt>
 </export>
-<<<<<<< BuildFile
-<use name=FWCore/Utilities>
-<use name=SimGeneral/HepPDTRecord>
-=======
->>>>>>> 1.12
