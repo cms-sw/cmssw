@@ -45,13 +45,13 @@ pair<JetTag,TauImpactParameterInfo> ImpactParameterAlgorithm::tag(const Isolated
 	RefVector<TrackCollection>::const_iterator iTrack;
 	for(iTrack = tracks.begin(); iTrack!= tracks.end(); iTrack++){
 
-          const TransientTrack * transientTrack = (transientTrackBuilder->build(&(**iTrack)));
+          const TransientTrack transientTrack = (transientTrackBuilder->build(&(**iTrack)));
 
           SignedTransverseImpactParameter stip;
-	  Measurement1D ip = stip.apply(*transientTrack,direction,pv).second;
+	  Measurement1D ip = stip.apply(transientTrack,direction,pv).second;
 
 	  SignedImpactParameter3D signed_ip3D;
-	  Measurement1D ip3D = signed_ip3D.apply(*transientTrack,direction,pv).second;
+	  Measurement1D ip3D = signed_ip3D.apply(transientTrack,direction,pv).second;
 	  //cout << "check pv,ip3d,track z " << pv.z() << " " << ip3D.value() << " " << transientTrack->dz() << endl;
 	  if(!use_sign){
 	    Measurement1D tmp2D(fabs(ip.value()),ip.error());
@@ -71,7 +71,7 @@ pair<JetTag,TauImpactParameterInfo> ImpactParameterAlgorithm::tag(const Isolated
 
 	double discriminator = resultExtended.discriminator(ip_min,ip_max,sip_min,use_sign,use3D);
 
-	const JetTracksAssociationRef& jtaRef = tauRef->jetRef()->jtaRef();
+	const JetTracksAssociationRef& jtaRef = tauRef->jtaRef();
 	JetTag resultBase(discriminator,jtaRef);
 
 	return pair<JetTag,TauImpactParameterInfo> (resultBase,resultExtended);
