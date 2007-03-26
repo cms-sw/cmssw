@@ -76,6 +76,7 @@ StorageManager::StorageManager(xdaq::ApplicationStub * s)
   writeStreamerOnly_(true), 
   connectedFUs_(0), 
   storedEvents_(0), 
+  dqmRecords_(0), 
   storedVolume_(0.),
   progressMarker_(ProgressMarker::instance()->idle())
 {  
@@ -94,6 +95,7 @@ StorageManager::StorageManager(xdaq::ApplicationStub * s)
   ispace->fireItemAvailable("stateName",     fsm_.stateName());
   ispace->fireItemAvailable("connectedFUs",  &connectedFUs_);
   ispace->fireItemAvailable("storedEvents",  &storedEvents_);
+  ispace->fireItemAvailable("dqmRecords",    &dqmRecords_);
   ispace->fireItemAvailable("closedFiles",&closedFiles_);
   ispace->fireItemAvailable("fileList",&fileList_);
   ispace->fireItemAvailable("eventsInFile",&eventsInFile_);
@@ -551,6 +553,7 @@ void StorageManager::receiveDQMMessage(toolbox::mem::Reference *ref)
     ref->release();
     return;
   }
+  (dqmRecords_.value_)++;
 
   // If running with local transfers, a chain of I2O frames when posted only has the
   // head frame sent. So a single frame can complete a chain for local transfers.
@@ -758,6 +761,14 @@ void StorageManager::defaultWebPage(xgi::Input *in, xgi::Output *out)
           *out << "</td>" << endl;
           *out << "<td align=right>" << endl;
           *out << storedEvents_ << endl;
+          *out << "</td>" << endl;
+        *out << "  </tr>" << endl;
+        *out << "<tr>" << endl;
+          *out << "<td >" << endl;
+          *out << "DQM Records Received" << endl;
+          *out << "</td>" << endl;
+          *out << "<td align=right>" << endl;
+          *out << dqmRecords_ << endl;
           *out << "</td>" << endl;
         *out << "  </tr>" << endl;
         if(pool_is_set_ == 1) 
@@ -1618,6 +1629,7 @@ void StorageManager::setupFlashList()
   // Body
   is->fireItemAvailable("receivedFrames",       &receivedFrames_);
   is->fireItemAvailable("storedEvents",         &storedEvents_);
+  is->fireItemAvailable("dqmRecords",           &dqmRecords_);
   is->fireItemAvailable("storedVolume",         &storedVolume_);
   is->fireItemAvailable("memoryUsed",           &memoryUsed_);
   is->fireItemAvailable("instantBandwidth",     &instantBandwidth_);
@@ -1653,6 +1665,7 @@ void StorageManager::setupFlashList()
   // Body
   is->addItemRetrieveListener("receivedFrames",       this);
   is->addItemRetrieveListener("storedEvents",         this);
+  is->addItemRetrieveListener("dqmRecords",           this);
   is->addItemRetrieveListener("storedVolume",         this);
   is->addItemRetrieveListener("memoryUsed",           this);
   is->addItemRetrieveListener("instantBandwidth",     this);
@@ -1813,6 +1826,7 @@ bool StorageManager::enabling(toolbox::task::WorkLoop* wl)
     eventsInFile_.clear();
     fileSize_.clear();
     storedEvents_ = 0;
+    dqmRecords_   = 0;
     jc_->start();
 
     LOG4CPLUS_INFO(getApplicationLogger(),"Finished enabling!");

@@ -143,6 +143,7 @@ namespace stor {
     xdata::UnsignedInteger32 connectedFUs_;
 
     xdata::UnsignedInteger32 storedEvents_;
+    xdata::UnsignedInteger32 dqmRecords_;
     xdata::UnsignedInteger32 closedFiles_;
     xdata::Vector<xdata::String> fileList_;
     xdata::Vector<xdata::UnsignedInteger32> eventsInFile_;
