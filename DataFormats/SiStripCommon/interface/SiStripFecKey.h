@@ -1,4 +1,4 @@
-// Last commit: $Id: $
+// Last commit: $Id: SiStripFecKey.h,v 1.5 2007/03/21 08:22:59 bainbrid Exp $
 
 #ifndef DataFormats_SiStripCommon_SiStripFecKey_H
 #define DataFormats_SiStripCommon_SiStripFecKey_H
@@ -67,8 +67,8 @@ class SiStripFecKey : public SiStripKey {
 		 const uint16_t& lld_chan = 0,
 		 const uint16_t& i2c_addr = 0 );
   
-  /** Constructor using 32-bit "FED key". */
-  SiStripFecKey( const uint32_t& fed_key );
+  /** Constructor using 32-bit "FEC key". */
+  SiStripFecKey( const uint32_t& fec_key );
   
   /** Constructor using directory path. */
   SiStripFecKey( const std::string& directory_path );
