@@ -1,3 +1,11 @@
+2007-03-26  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V00-11-02
+	* compliant with edm::EventProcessor for pre2
+	* based on evf::StateMachine provided by EventFilter/Utilities
+	V00-12-00
+	* stopping and halting logic now should function properly
+
 2007-03-10  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-11-01
