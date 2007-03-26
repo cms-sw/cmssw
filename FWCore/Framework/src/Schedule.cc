@@ -784,32 +784,68 @@ namespace edm
     cout << endl;
     cout << "TimeReport " << "---------- Path   Summary ---[sec]----\n";
     cout << "TimeReport "
-	 << right << setw(10) << "CPU/event" << " "
-	 << right << setw(10) << "Real/event" << " "
+	 << right << setw(22) << "per event "
+	 << right << setw(22) << "per path-run "
+	 << "\n";
+    cout << "TimeReport "
+	 << right << setw(10) << "CPU" << " "
+	 << right << setw(10) << "Real" << " "
+	 << right << setw(10) << "CPU" << " "
+	 << right << setw(10) << "Real" << " "
 	 << "Name" << "\n";
     pi=trig_paths_.begin();
     pe=trig_paths_.end();
     for(; pi != pe; ++pi) {
       cout << "TimeReport "
+	   << right << setw(10) << pi->timeCpuReal().first/max(1,totalEvents()) << " "
+	   << right << setw(10) << pi->timeCpuReal().second/max(1,totalEvents()) << " "
 	   << right << setw(10) << pi->timeCpuReal().first/max(1,pi->timesRun()) << " "
 	   << right << setw(10) << pi->timeCpuReal().second/max(1,pi->timesRun()) << " "
 	   << pi->name() << "\n";
     }
+    cout << "TimeReport "
+	 << right << setw(10) << "CPU" << " "
+	 << right << setw(10) << "Real" << " "
+	 << right << setw(10) << "CPU" << " "
+	 << right << setw(10) << "Real" << " "
+	 << "Name" << "\n";
+    cout << "TimeReport "
+	 << right << setw(22) << "per event "
+	 << right << setw(22) << "per path-run "
+	 << "\n";
 
     cout << endl;
     cout << "TimeReport " << "-------End-Path   Summary ---[sec]----\n";
     cout << "TimeReport "
-	 << right << setw(10) << "CPU/event" << " "
-	 << right << setw(10) << "Real/event" << " "
+	 << right << setw(22) << "per event "
+	 << right << setw(22) << "per endpath-run "
+	 << "\n";
+    cout << "TimeReport "
+	 << right << setw(10) << "CPU" << " "
+	 << right << setw(10) << "Real" << " "
+	 << right << setw(10) << "CPU" << " "
+	 << right << setw(10) << "Real" << " "
 	 << "Name" << "\n";
     pi=end_paths_.begin();
     pe=end_paths_.end();
     for(; pi != pe; ++pi) {
       cout << "TimeReport "
+	   << right << setw(10) << pi->timeCpuReal().first/max(1,totalEvents()) << " "
+	   << right << setw(10) << pi->timeCpuReal().second/max(1,totalEvents()) << " "
 	   << right << setw(10) << pi->timeCpuReal().first/max(1,pi->timesRun()) << " "
 	   << right << setw(10) << pi->timeCpuReal().second/max(1,pi->timesRun()) << " "
 	   << pi->name() << "\n";
     }
+    cout << "TimeReport "
+	 << right << setw(10) << "CPU" << " "
+	 << right << setw(10) << "Real" << " "
+	 << right << setw(10) << "CPU" << " "
+	 << right << setw(10) << "Real" << " "
+	 << "Name" << "\n";
+    cout << "TimeReport "
+	 << right << setw(22) << "per event "
+	 << right << setw(22) << "per endpath-run "
+	 << "\n";
 
     pi=trig_paths_.begin();
     pe=trig_paths_.end();
@@ -817,36 +853,24 @@ namespace edm
       cout << endl;
       cout << "TimeReport " << "---------- Modules in Path: " << pi->name() << " ---[sec]----\n";
       cout << "TimeReport "
-	   << right << setw(10) << "CPU/event" << " "
-	   << right << setw(10) << "Real/event" << " "
-	   << "Name" << "\n";
-      for (unsigned int i = 0; i < pi->size(); ++i) {
-	cout << "TimeReport "
-	     << right << setw(10) << pi->timeCpuReal(i).first/max(1,pi->timesVisited(i)) << " "
-	     << right << setw(10) << pi->timeCpuReal(i).second/max(1,pi->timesVisited(i)) << " "
-	     << pi->getWorker(i)->description().moduleLabel_ << "\n";
-      }
-    }
-
-    pi=end_paths_.begin();
-    pe=end_paths_.end();
-    for(; pi != pe; ++pi) {
-      cout << endl;
-      cout << "TimeReport " << "------ Modules in End-Path: " << pi->name() << " ---[sec]----\n";
+	   << right << setw(22) << "per event "
+	   << right << setw(22) << "per module-visit "
+	   << "\n";
       cout << "TimeReport "
-	   << right << setw(10) << "CPU/event" << " "
-	   << right << setw(10) << "Real/event" << " "
+	   << right << setw(10) << "CPU" << " "
+	   << right << setw(10) << "Real" << " "
+	   << right << setw(10) << "CPU" << " "
+	   << right << setw(10) << "Real" << " "
 	   << "Name" << "\n";
       for (unsigned int i = 0; i < pi->size(); ++i) {
 	cout << "TimeReport "
+	     << right << setw(10) << pi->timeCpuReal(i).first/max(1,totalEvents()) << " "
+	     << right << setw(10) << pi->timeCpuReal(i).second/max(1,totalEvents()) << " "
 	     << right << setw(10) << pi->timeCpuReal(i).first/max(1,pi->timesVisited(i)) << " "
 	     << right << setw(10) << pi->timeCpuReal(i).second/max(1,pi->timesVisited(i)) << " "
 	     << pi->getWorker(i)->description().moduleLabel_ << "\n";
       }
     }
-
-    cout << endl;
-    cout << "TimeReport " << "---------- Module Summary ---[sec]----\n";
     cout << "TimeReport "
 	 << right << setw(10) << "CPU" << " "
 	 << right << setw(10) << "Real" << " "
@@ -854,18 +878,86 @@ namespace edm
 	 << right << setw(10) << "Real" << " "
 	 << "Name" << "\n";
     cout << "TimeReport "
-	 << right << setw(22) << "per visited event "
-	 << right << setw(22) << "per run event " << "\n";
+	 << right << setw(22) << "per event "
+	 << right << setw(22) << "per module-visit "
+	 << "\n";
+
+    pi=end_paths_.begin();
+    pe=end_paths_.end();
+    for(; pi != pe; ++pi) {
+      cout << endl;
+      cout << "TimeReport " << "------ Modules in End-Path: " << pi->name() << " ---[sec]----\n";
+      cout << "TimeReport "
+	   << right << setw(22) << "per event "
+	   << right << setw(22) << "per module-visit "
+	   << "\n";
+      cout << "TimeReport "
+	   << right << setw(10) << "CPU" << " "
+	   << right << setw(10) << "Real" << " "
+	   << right << setw(10) << "CPU" << " "
+	   << right << setw(10) << "Real" << " "
+	   << "Name" << "\n";
+      for (unsigned int i = 0; i < pi->size(); ++i) {
+	cout << "TimeReport "
+	     << right << setw(10) << pi->timeCpuReal(i).first/max(1,totalEvents()) << " "
+	     << right << setw(10) << pi->timeCpuReal(i).second/max(1,totalEvents()) << " "
+	     << right << setw(10) << pi->timeCpuReal(i).first/max(1,pi->timesVisited(i)) << " "
+	     << right << setw(10) << pi->timeCpuReal(i).second/max(1,pi->timesVisited(i)) << " "
+	     << pi->getWorker(i)->description().moduleLabel_ << "\n";
+      }
+    }
+    cout << "TimeReport "
+	 << right << setw(10) << "CPU" << " "
+	 << right << setw(10) << "Real" << " "
+	 << right << setw(10) << "CPU" << " "
+	 << right << setw(10) << "Real" << " "
+	 << "Name" << "\n";
+    cout << "TimeReport "
+	 << right << setw(22) << "per event "
+	 << right << setw(22) << "per module-visit "
+	 << "\n";
+
+    cout << endl;
+    cout << "TimeReport " << "---------- Module Summary ---[sec]----\n";
+    cout << "TimeReport "
+	 << right << setw(22) << "per event "
+	 << right << setw(22) << "per module-run "
+	 << right << setw(22) << "per module-visit "
+	 << "\n";
+    cout << "TimeReport "
+	 << right << setw(10) << "CPU" << " "
+	 << right << setw(10) << "Real" << " "
+	 << right << setw(10) << "CPU" << " "
+	 << right << setw(10) << "Real" << " "
+	 << right << setw(10) << "CPU" << " "
+	 << right << setw(10) << "Real" << " "
+	 << "Name" << "\n";
     ai=workersBegin();
     ae=workersEnd();
     for(; ai != ae; ++ai) {
       cout << "TimeReport "
-	   << right << setw(10) << (*ai)->timeCpuReal().first/max(1,(*ai)->timesVisited()) << " "
-	   << right << setw(10) << (*ai)->timeCpuReal().second/max(1,(*ai)->timesVisited()) << " "
+	   << right << setw(10) << (*ai)->timeCpuReal().first/max(1,totalEvents()) << " "
+	   << right << setw(10) << (*ai)->timeCpuReal().second/max(1,totalEvents()) << " "
 	   << right << setw(10) << (*ai)->timeCpuReal().first/max(1,(*ai)->timesRun()) << " "
 	   << right << setw(10) << (*ai)->timeCpuReal().second/max(1,(*ai)->timesRun()) << " "
+	   << right << setw(10) << (*ai)->timeCpuReal().first/max(1,(*ai)->timesVisited()) << " "
+	   << right << setw(10) << (*ai)->timeCpuReal().second/max(1,(*ai)->timesVisited()) << " "
 	   << (*ai)->description().moduleLabel_ << "\n";
     }
+    cout << "TimeReport "
+	 << right << setw(10) << "CPU" << " "
+	 << right << setw(10) << "Real" << " "
+	 << right << setw(10) << "CPU" << " "
+	 << right << setw(10) << "Real" << " "
+	 << right << setw(10) << "CPU" << " "
+	 << right << setw(10) << "Real" << " "
+	 << "Name" << "\n";
+    cout << "TimeReport "
+	 << right << setw(22) << "per event "
+	 << right << setw(22) << "per module-run "
+	 << right << setw(22) << "per module-visit "
+	 << "\n";
+
     cout << endl;
     cout << "T---Report end!" << endl;
     cout << endl;
