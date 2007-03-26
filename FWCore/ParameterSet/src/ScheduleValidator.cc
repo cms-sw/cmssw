@@ -3,11 +3,11 @@
    Implementation of class ScheduleValidator
 
    \author Stefano ARGIRO
-   \version $Id: ScheduleValidator.cc,v 1.14 2007/01/20 00:09:56 wmtan Exp $
+   \version $Id: ScheduleValidator.cc,v 1.15 2007/03/02 01:08:10 rpw Exp $
    \date 10 Jun 2005
 */
 
-static const char CVSId[] = "$Id: ScheduleValidator.cc,v 1.14 2007/01/20 00:09:56 wmtan Exp $";
+static const char CVSId[] = "$Id: ScheduleValidator.cc,v 1.15 2007/03/02 01:08:10 rpw Exp $";
 
 #include "FWCore/ParameterSet/src/ScheduleValidator.h"
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -138,19 +138,20 @@ void ScheduleValidator::validate(){
       // then we have an inconsitency
       if (old_deplist != dep) {
 
-	ostringstream olddepstr,newdepstr;
+	ostringstream olddepstr,newdepstr, traceback;
 	copy(old_deplist.begin(), old_deplist.end(), 
 	      ostream_iterator<string>(olddepstr,","));
 	copy(dep.begin(), dep.end(), 
 	      ostream_iterator<string>(newdepstr,","));
-
+        (*leafIt)->printTrace(traceback);
 	throw edm::Exception(errors::Configuration,"InconsistentSchedule")
 	  << "Inconsistent schedule for module "
 	  << leafName
 	  << "\n"
 	  << "Depends on " << olddepstr.str() 
 	  << " but also on " << newdepstr.str()
-	  << "\n";
+	  << "\n"
+          << "Second set of dependencies comes from: " << traceback.str() << "\n";
       }
     }
     else {
