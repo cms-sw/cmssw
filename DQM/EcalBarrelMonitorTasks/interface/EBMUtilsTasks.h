@@ -1,11 +1,11 @@
-// $Id: EBMUtilsTasks.h,v 1.9 2006/05/23 09:06:49 benigno Exp $
+// $Id: EBMUtilsTasks.h,v 1.1 2006/06/03 11:59:51 dellaric Exp $
 
 /*!
   \file EBMUtilsTasks.h
   \brief Ecal Barrel Monitor Utils for Tasks
-  \author B. Gobbo 
-  \version $Revision: 1.9 $
-  \date $Date: 2006/05/23 09:06:49 $
+  \author B. Gobbo
+  \version $Revision: 1.1 $
+  \date $Date: 2006/06/03 11:59:51 $
 */
 
 #ifndef EBMUtilsTasks_H
@@ -32,7 +32,7 @@ class EBMUtilsTasks {
   static void resetHisto( const MonitorElement* me ) {
     if( me ) {
       MonitorElementT<TNamed>* ob = dynamic_cast<MonitorElementT<TNamed>*>( const_cast<MonitorElement*>(me) );
-      if( ob ) { 
+      if( ob ) {
 	ob->Reset();
       }
     }

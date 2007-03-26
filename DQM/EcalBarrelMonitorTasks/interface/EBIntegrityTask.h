@@ -4,8 +4,8 @@
 /*
  * \file EBIntegrityTask.h
  *
- * $Date: 2007/03/13 10:53:16 $
- * $Revision: 1.13 $
+ * $Date: 2007/03/20 12:37:26 $
+ * $Revision: 1.14 $
  * \author G. Della Ricca
  *
  */
@@ -72,7 +72,7 @@ MonitorElement* meIntegrityMemTTBlockSize[36];
 MonitorElement* meIntegrityDCCSize;
 
 bool init_;
- 
+
 const static int chMemAbscissa[25];
 const static int chMemOrdinate[25];
 

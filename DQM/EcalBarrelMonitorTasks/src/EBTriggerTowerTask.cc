@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerTask.cc
  *
- * $Date: 2007/03/20 12:37:27 $
- * $Revision: 1.27 $
+ * $Date: 2007/03/21 16:10:40 $
+ * $Revision: 1.28 $
  * \author G. Della Ricca
  *
 */
@@ -127,7 +127,7 @@ void EBTriggerTowerTask::cleanup(void){
       if ( meEtMap_[i] ) dbe->removeElement( meEtMap_[i]->getName() );
       meEtMap_[i] = 0;
       if ( meVeto_[i] ) dbe->removeElement( meVeto_[i]->getName() );
-      meVeto_[i] = 0; 
+      meVeto_[i] = 0;
       if ( meFlags_[i] ) dbe->removeElement( meFlags_[i]->getName() );
       meFlags_[i] = 0;
     }
@@ -140,7 +140,7 @@ void EBTriggerTowerTask::cleanup(void){
         meEtMapT_[i][j] = 0;
         if ( meEtMapR_[i][j] ) dbe->removeElement( meEtMapR_[i][j]->getName() );
         meEtMapR_[i][j] = 0;
-      }      
+      }
     }
 
   }

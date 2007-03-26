@@ -1,8 +1,8 @@
 /*
  * \file EBClusterTask.cc
  *
- * $Date: 2007/03/26 15:19:31 $
- * $Revision: 1.15 $
+ * $Date: 2007/03/26 16:17:13 $
+ * $Revision: 1.16 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -155,7 +155,7 @@ void EBClusterTask::setup(void){
 
     sprintf(histo, "EBCLT hybrid S1toE");
     meHybS1toE_ = dbe->book1D(histo, histo, 50, 0., 1.);
-    
+
     sprintf(histo, "EBCLT dicluster invariant mass");
     meInvMass_ = dbe->book1D(histo, histo, 50, 60., 120.);
 
@@ -248,7 +248,7 @@ void EBClusterTask::analyze(const Event& e, const EventSetup& c){
 
     Handle<BasicClusterCollection> pIslandBarrelBasicClusters;
     e.getByLabel(islandBarrelBasicClusterCollection_, pIslandBarrelBasicClusters);
-    
+
     Int_t nbcc = pIslandBarrelBasicClusters->size();
 
     meIslBNum_->Fill(float(nbcc));
@@ -280,7 +280,7 @@ void EBClusterTask::analyze(const Event& e, const EventSetup& c){
     Int_t nscc = pIslandBarrelSuperClusters->size();
 
     meIslSNum_->Fill(float(nscc));
-    
+
     for ( SuperClusterCollection::const_iterator sclusterItr = pIslandBarrelSuperClusters->begin(); sclusterItr != pIslandBarrelSuperClusters->end(); ++sclusterItr ) {
 
       SuperCluster scluster = *(sclusterItr);
@@ -307,10 +307,10 @@ void EBClusterTask::analyze(const Event& e, const EventSetup& c){
     Int_t nscc = pHybridSuperClusters->size();
 
     Handle<BasicClusterShapeAssociationCollection> pHybridBarrelClusterShapeAssociation;
-    try	{		
-      e.getByLabel(hybridBarrelClusterShapeAssociation_, pHybridBarrelClusterShapeAssociation);  	
-    }	catch ( cms::Exception& ex )	{		
-      LogWarning("EBClusterTask") << "Can't get collection with label "   << hybridBarrelClusterShapeAssociation_.label();  	
+    try	{
+      e.getByLabel(hybridBarrelClusterShapeAssociation_, pHybridBarrelClusterShapeAssociation);
+    }	catch ( cms::Exception& ex )	{
+      LogWarning("EBClusterTask") << "Can't get collection with label "   << hybridBarrelClusterShapeAssociation_.label();
     }
 
     //    meHybSNum_->Fill(float(nscc));
@@ -325,7 +325,7 @@ void EBClusterTask::analyze(const Event& e, const EventSetup& c){
       //       meHybS1toS9_->Fill(tempClusterShape->eMax()/tempClusterShape->e3x3());
       meHybS1toE_->Fill(tempClusterShape->eMax()/sCluster->energy());
 
-      
+
 //       // for each basic cluster evaluate the distance from the seed
 //       if (sCluster->clustersSize()>1) {
 // 	basicCluster_iterator bc;
@@ -336,7 +336,7 @@ void EBClusterTask::analyze(const Event& e, const EventSetup& c){
 // 	  if (dtheta!=0 && dphi!=0) {
 // 	    meHybDTheta_->Fill( dtheta );
 // 	    meHybDPhi_->Fill( dphi );
-	
+
 // 	    meHybEneVsDTheta_->Fill( dtheta, (*bc)->energy() );
 // 	    meHybEneVsDPhi_->Fill( dphi, (*bc)->energy() );
 // 	  }
@@ -345,7 +345,7 @@ void EBClusterTask::analyze(const Event& e, const EventSetup& c){
 
       // look for the two most energetic super clusters
       if (nscc>1) {
-	if (sCluster->energy()>sc1_p.Energy()) { 
+	if (sCluster->energy()>sc1_p.Energy()) {
 	  sc2_p=sc1_p;
 	  sc1_p.SetPtEtaPhiE(sCluster->energy()*sin(sCluster->position().theta()),
 			     sCluster->eta(), sCluster->phi(), sCluster->energy());
@@ -364,7 +364,7 @@ void EBClusterTask::analyze(const Event& e, const EventSetup& c){
 
   } catch ( exception& ex ) {
     LogWarning("EBClusterTask") << " SuperClusterCollection: not in event.";
-  } 
+  }
 
 }
 

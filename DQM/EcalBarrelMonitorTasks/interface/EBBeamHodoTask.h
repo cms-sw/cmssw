@@ -4,8 +4,8 @@
 /*
  * \file EBBeamHodoTask.h
  *
- * $Date: 2007/03/13 10:53:16 $
- * $Revision: 1.9 $
+ * $Date: 2007/03/20 12:37:26 $
+ * $Revision: 1.10 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -47,7 +47,7 @@ void setup(void);
 void cleanup(void);
 
 private:
- 
+
 int ievt_;
 
 edm::InputTag EcalTBEventHeader_;
@@ -64,7 +64,7 @@ bool resetNow_;
 int    cryInBeam_;
 int    previousCryInBeam_;
 int    cryInBeamCounter_;
- 
+
  //  ME type I
 MonitorElement* meHodoOcc_[4];
 MonitorElement* meHodoRaw_[4];

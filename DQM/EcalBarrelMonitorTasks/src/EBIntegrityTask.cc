@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityTask.cc
  *
- * $Date: 2007/03/20 12:37:26 $
- * $Revision: 1.33 $
+ * $Date: 2007/03/21 16:10:40 $
+ * $Revision: 1.34 $
  * \author G. Della Ricca
  *
  */
@@ -188,10 +188,10 @@ void EBIntegrityTask::setup(void){
 void EBIntegrityTask::cleanup(void){
 
   DaqMonitorBEInterface* dbe = 0;
-  
+
   // get hold of back-end interface
   dbe = Service<DaqMonitorBEInterface>().operator->();
-  
+
   if ( dbe ) {
     dbe->setCurrentFolder("EcalBarrel/EBIntegrityTask");
 
@@ -477,7 +477,7 @@ void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
     }
 
   } catch ( exception& ex) {
-  
+
     LogWarning("EBIntegrityTask") << EcalTrigTowerDetIdCollection2_ << " not available";
 
   }
@@ -500,7 +500,7 @@ void EBIntegrityTask::analyze(const Event& e, const EventSetup& c){
     }
 
   } catch ( exception& ex) {
-  
+
     LogWarning("EBIntegrityTask") << EcalElectronicsIdCollection1_ << " not available";
 
   }

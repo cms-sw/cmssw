@@ -4,8 +4,8 @@
 /*
  * \file EBBeamCaloTask.h
  *
- * $Date: 2007/03/13 10:53:16 $
- * $Revision: 1.18 $
+ * $Date: 2007/03/20 12:37:26 $
+ * $Revision: 1.19 $
  * \author A. Ghezzi
  *
 */
@@ -102,14 +102,14 @@ MonitorElement* meEBBCaloE1MaxCry_;
 
 MonitorElement* meEBBCaloDesync_;
 
-bool init_; 
+bool init_;
 
 bool profileArranged_;
 
 int PreviousTableStatus_[2];
 int PreviousCrystalinBeam_[3];
 
- int cib_[12];// used 10
+int cib_[12];// used 10
 bool changed_tb_status_;
 bool changed_cry_in_beam_;
 int evt_after_change_ ;
@@ -119,8 +119,8 @@ int table_step_, crystal_step_;
 int event_last_reset_;
 int last_cry_in_beam_;
 int previous_cry_in_beam_;
-int previous_ev_num_; 
-// 0=stable, 1=moving, 
+int previous_ev_num_;
+// 0=stable, 1=moving,
 // PreviousTableStatus_[0]-> event=current -2
 // PreviousTableStatus_[1]-> event=current -1
 

@@ -1,8 +1,8 @@
 /*
  * \file EBTimingTask.cc
  *
- * $Date: 2007/03/20 12:37:27 $
- * $Revision: 1.8 $
+ * $Date: 2007/03/21 16:10:40 $
+ * $Revision: 1.9 $
  * \author G. Della Ricca
  *
 */
@@ -126,15 +126,15 @@ void EBTimingTask::analyze(const Event& e, const EventSetup& c){
   try {
 
     Handle<EcalUncalibratedRecHitCollection> hits;
-    e.getByLabel(EcalUncalibratedRecHitCollection_, hits); 
+    e.getByLabel(EcalUncalibratedRecHitCollection_, hits);
 
     int neh = hits->size();
     LogDebug("EBTimingTask") << "event " << ievt_ << " hits collection size " << neh;
 
     for ( EcalUncalibratedRecHitCollection::const_iterator hitItr = hits->begin(); hitItr != hits->end(); ++hitItr ) {
-    
+
       EcalUncalibratedRecHit hit = (*hitItr);
-      EBDetId id = hit.id(); 
+      EBDetId id = hit.id();
 
       int ic = id.ic();
       int ie = (ic-1)/20 + 1;
