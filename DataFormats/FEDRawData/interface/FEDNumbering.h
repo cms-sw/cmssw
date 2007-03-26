@@ -43,6 +43,22 @@ class FEDNumbering {
   static std::pair<int,int> getTriggerLTCmtccFEDIds();
   static std::pair<int,int> getTriggerLTCFEDIds();
 
+  static std::pair<int, int> getTriggerLTCTriggerFEDID();
+  static std::pair<int, int> getTriggerLTCHCALFEDID();
+  static std::pair<int, int> getTriggerLTCSiStripFEDID();
+  static std::pair<int, int> getTriggerLTCECALFEDID();
+  static std::pair<int, int> getTriggerLTCTotemCastorFEDID();
+  static std::pair<int, int> getTriggerLTCRPCFEDID();
+  static std::pair<int, int> getTriggerLTCCSCFEDID();
+  static std::pair<int, int> getTriggerLTCDTFEDID();
+  static std::pair<int, int> getTriggerLTCSiPixelFEDID();
+
+  static std::pair<int, int> getCSCDDUFEDIds();
+  static std::pair<int, int> getCSCContingencyFEDIds();
+  static std::pair<int, int> getCSCTFSPFEDIds();
+
+  static std::pair<int, int> getDAQeFEDFEDIds();
+
   static int lastFEDId();
 
   static void init();
@@ -96,6 +112,36 @@ class FEDNumbering {
   static const int MAXTriggerLTCFEDID;
   static const int MINTriggerLTCmtccFEDID;
   static const int MAXTriggerLTCmtccFEDID;
+
+  static const int MINTriggerLTCTriggerFEDID;
+  static const int MAXTriggerLTCTriggerFEDID;
+  static const int MINTriggerLTCHCALFEDID;
+  static const int MAXTriggerLTCHCALFEDID;
+  static const int MINTriggerLTCSiStripFEDID;
+  static const int MAXTriggerLTCSiStripFEDID;
+  static const int MINTriggerLTCECALFEDID;
+  static const int MAXTriggerLTCECALFEDID;
+  static const int MINTriggerLTCTotemCastorFEDID;
+  static const int MAXTriggerLTCTotemCastorFEDID;
+  static const int MINTriggerLTCRPCFEDID;
+  static const int MAXTriggerLTCRPCFEDID;
+  static const int MINTriggerLTCCSCFEDID;
+  static const int MAXTriggerLTCCSCFEDID;
+  static const int MINTriggerLTCDTFEDID;
+  static const int MAXTriggerLTCDTFEDID;
+  static const int MINTriggerLTCSiPixelFEDID;
+  static const int MAXTriggerLTCSiPixelFEDID;
+  
+  static const int MINCSCDDUFEDID;
+  static const int MAXCSCDDUFEDID;  
+  static const int MINCSCContingencyFEDID;
+  static const int MAXCSCContingencyFEDID;  
+  static const int MINCSCTFSPFEDID;
+  static const int MAXCSCTFSPFEDID;  
+  
+  static const int MINDAQeFEDFEDID;
+  static const int MAXDAQeFEDFEDID;  
+  
 
   static std::vector<std::string> from_;
   static bool *in_;

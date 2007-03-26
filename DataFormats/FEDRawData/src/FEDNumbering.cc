@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/05/16 10:33:53 $
- *  $Revision: 1.6 $
+ *  $Date: 2007/03/22 15:42:59 $
+ *  $Revision: 1.7 $
  *  \author G. Bruno  - CERN, EP Division
  */
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
@@ -48,6 +48,35 @@ const int FEDNumbering::MINTriggerLTCFEDID = 816;
 const int FEDNumbering::MAXTriggerLTCFEDID = 823;
 const int FEDNumbering::MINTriggerLTCmtccFEDID = 815;
 const int FEDNumbering::MAXTriggerLTCmtccFEDID = 815;
+const int FEDNumbering::MINTriggerLTCTriggerFEDID = 816;
+const int FEDNumbering::MAXTriggerLTCTriggerFEDID = 816;
+const int FEDNumbering::MINTriggerLTCHCALFEDID = 817;
+const int FEDNumbering::MAXTriggerLTCHCALFEDID = 817;
+const int FEDNumbering::MINTriggerLTCSiStripFEDID = 818;
+const int FEDNumbering::MAXTriggerLTCSiStripFEDID = 818;
+const int FEDNumbering::MINTriggerLTCECALFEDID = 819;
+const int FEDNumbering::MAXTriggerLTCECALFEDID = 819;
+const int FEDNumbering::MINTriggerLTCTotemCastorFEDID = 820;
+const int FEDNumbering::MAXTriggerLTCTotemCastorFEDID = 820;
+const int FEDNumbering::MINTriggerLTCRPCFEDID = 821;
+const int FEDNumbering::MAXTriggerLTCRPCFEDID = 821;
+const int FEDNumbering::MINTriggerLTCCSCFEDID = 822;
+const int FEDNumbering::MAXTriggerLTCCSCFEDID = 822;
+const int FEDNumbering::MINTriggerLTCDTFEDID = 823;
+const int FEDNumbering::MAXTriggerLTCDTFEDID = 823;
+const int FEDNumbering::MINTriggerLTCSiPixelFEDID = 824;
+const int FEDNumbering::MAXTriggerLTCSiPixelFEDID = 824;
+
+const int FEDNumbering::MINCSCDDUFEDID = 830;
+const int FEDNumbering::MAXCSCDDUFEDID = 869;  
+const int FEDNumbering::MINCSCContingencyFEDID = 880;
+const int FEDNumbering::MAXCSCContingencyFEDID = 887;  
+const int FEDNumbering::MINCSCTFSPFEDID = 890;
+const int FEDNumbering::MAXCSCTFSPFEDID = 901;  
+
+const int FEDNumbering::MINDAQeFEDFEDID = 900;
+const int FEDNumbering::MAXDAQeFEDFEDID = 931;  
+
 
 using namespace std;
 
@@ -148,6 +177,82 @@ pair<int,int> FEDNumbering::getTriggerLTCFEDIds(){
 
 }
 
+
+pair<int, int> FEDNumbering::getTriggerLTCTriggerFEDID(){
+
+return pair<int,int>(MINTriggerLTCTriggerFEDID, MAXTriggerLTCTriggerFEDID);
+
+}
+
+pair<int, int> FEDNumbering::getTriggerLTCHCALFEDID(){
+
+  return pair<int,int>(MINTriggerLTCHCALFEDID, MAXTriggerLTCHCALFEDID);
+
+}
+
+pair<int, int> FEDNumbering::getTriggerLTCSiStripFEDID(){
+
+  return pair<int,int>(MINTriggerLTCSiStripFEDID, MAXTriggerLTCSiStripFEDID);
+
+}
+
+pair<int, int> FEDNumbering::getTriggerLTCECALFEDID(){
+
+return pair<int,int>(MINTriggerLTCECALFEDID, MAXTriggerLTCECALFEDID);
+
+}
+
+pair<int, int> FEDNumbering::getTriggerLTCTotemCastorFEDID(){
+
+  return pair<int,int>(MINTriggerLTCTotemCastorFEDID, MAXTriggerLTCTotemCastorFEDID);
+
+}
+
+pair<int, int> FEDNumbering::getTriggerLTCRPCFEDID(){
+
+return pair<int,int>(MINTriggerLTCRPCFEDID, MAXTriggerLTCRPCFEDID);
+
+}
+pair<int, int> FEDNumbering::getTriggerLTCCSCFEDID(){
+
+return pair<int,int>(MINTriggerLTCCSCFEDID, MAXTriggerLTCCSCFEDID);
+
+}
+pair<int, int> FEDNumbering::getTriggerLTCDTFEDID(){
+
+return pair<int,int>(MINTriggerLTCDTFEDID, MAXTriggerLTCDTFEDID);
+
+}
+pair<int, int> FEDNumbering::getTriggerLTCSiPixelFEDID(){
+
+return pair<int,int>(MINTriggerLTCSiPixelFEDID, MAXTriggerLTCSiPixelFEDID);
+
+}
+
+pair<int, int> FEDNumbering::getCSCDDUFEDIds(){
+
+return pair<int,int>(MINCSCDDUFEDID, MAXCSCDDUFEDID);  
+
+}
+
+pair<int, int> FEDNumbering::getCSCContingencyFEDIds(){
+
+return pair<int,int>(MINCSCContingencyFEDID, MAXCSCContingencyFEDID);  
+
+}
+
+pair<int, int> FEDNumbering::getCSCTFSPFEDIds(){
+
+return pair<int,int>(MINCSCTFSPFEDID, MAXCSCTFSPFEDID);  
+
+}
+
+pair<int, int> FEDNumbering::getDAQeFEDFEDIds(){
+
+return pair<int,int>(MINDAQeFEDFEDID, MAXDAQeFEDFEDID);  
+
+}
+
 int FEDNumbering::lastFEDId(){
   return MAXFEDID;
 }
@@ -227,6 +332,28 @@ void FEDNumbering::init()
       in_[i] = true;
       from_[i] = "TriggerLTCmtcc";
     }
+  for(i=getCSCDDUFEDIds().first; i<=getCSCDDUFEDIds().second; i++)
+    {
+      in_[i] = true;
+      from_[i] = "CSCDDU";
+    }
+  for(i=getCSCContingencyFEDIds().first; i<=getCSCContingencyFEDIds().second; i++)
+    {
+      in_[i] = true;
+      from_[i] = "CSCContingency";
+    }
+  for(i=getCSCTFSPFEDIds().first; i<=getCSCTFSPFEDIds().second; i++)
+    {
+      in_[i] = true;
+      from_[i] = "CSCTFSP";
+    }
+  for(i=getDAQeFEDFEDIds().first; i<=getDAQeFEDFEDIds().second; i++)
+    {
+      in_[i] = true;
+      from_[i] = "DAQeFED";
+    }
+
+
   init_ = false;
 }
 
