@@ -1,4 +1,7 @@
 <export>
+  <lib name=PhysicsToolsUtilities>
+  <use name=FWCore/Utilities>
   <use name=DataFormats/Math>
   <use name=boost>
 </export>
+<use name=FWCore/Utilities>
