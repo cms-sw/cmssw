@@ -10,6 +10,8 @@
 #include <FWCore/Framework/interface/EventSetup.h>
 #include <DataFormats/DTDigi/interface/DTLocalTriggerCollection.h>
 
+#include <iostream>
+
 using namespace edm;
 using namespace std;
 

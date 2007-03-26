@@ -4,6 +4,7 @@
 #include <DataFormats/FEDRawData/interface/FEDRawDataCollection.h>
 
 #include <math.h>
+#include <iostream>
 
 using namespace edm;
 using namespace std;
@@ -28,25 +29,19 @@ FEDRawData* DTDigiToRaw::createFedBuffers(const DTDigiCollection& digis,
    int NROB = 25;
    
    vector<uint32_t> words;
-   uint32_t fakeGroupHeaderWord = 197120;
-   uint32_t fakeTDCHeaderWord = 1358954507;
-   uint32_t fakeROSHeaderWord = 520093706;
    
-   
-   uint32_t fakeROSTrailer = 1056964874;
-   
-   uint32_t fakeGroupHeaderWord2 = 256;
-   uint32_t fakeGroupHeaderWord3 = 0;
-   uint32_t fakeGroupHeaderWord4 = 65537;
-   //uint32_t fakeGroupHeaderWord5 = 84017152;
-   uint32_t fakeSCTrailer = 968032384;
-   uint32_t fakeControl = 2684354986;
-   
+   uint32_t fakeROSHeaderWord =
+              DTROSWordType::headerControlWord << WORDCONTROLSHIFT |
+	      DTROSWordType::rosTypeWord << WORDTYPESHIFT;
+	    
+   uint32_t fakeROSTrailerWord =
+              DTROSWordType::trailerControlWord << WORDCONTROLSHIFT |
+	      DTROSWordType::rosTypeWord << WORDTYPESHIFT;  
    
    
    int NWords = 2;
-   words.push_back(fakeTDCHeaderWord);//add random TDCHeaderWord
-   words.push_back(fakeGroupHeaderWord);//add random GroupHeaderWord
+   words.push_back(0);
+   words.push_back(0);
 
    
    
@@ -108,7 +103,7 @@ FEDRawData* DTDigiToRaw::createFedBuffers(const DTDigiCollection& digis,
        DTTDCMeasurementWord dttdc_mw;
        uint32_t word;
        int ntdc = (*digi).countsTDC();
-       dttdc_mw.set(word, 1, 1, 1, tdcId, channelId, ntdc*4);//FIXME
+       dttdc_mw.set(word, 0, 0, 0, tdcId, channelId, ntdc*4);//FIXME
 
        NTDCMeaWords++;
        
@@ -141,7 +136,7 @@ FEDRawData* DTDigiToRaw::createFedBuffers(const DTDigiCollection& digis,
        if (w_ROBROS[i_ros][i_rob].begin() != w_ROBROS[i_ros][i_rob].end()) {
          uint32_t word = 0;
          DTROBHeaderWord rob_header;
-	 rob_header.set(word, i_rob, 1, 1);
+	 rob_header.set(word, i_rob, 0, 0);
 	 //static void set(uint32_t &word, int rob_id, int event_id, int bunch_id)
          words.push_back(word);
 	 NWords++;
@@ -155,7 +150,7 @@ FEDRawData* DTDigiToRaw::createFedBuffers(const DTDigiCollection& digis,
 	 
 	 NWords++;
 	 DTROBTrailerWord rob_trailer;
-	 rob_trailer.set(word, i_rob, 1, n_robros +  2);
+	 rob_trailer.set(word, i_rob, 0, n_robros +  2);
 	 //static void set(uint32_t &word, int rob_id, int event_id, int word_count)
          words.push_back(word);
 	 
@@ -163,31 +158,30 @@ FEDRawData* DTDigiToRaw::createFedBuffers(const DTDigiCollection& digis,
      }
      
      if (b_ros[i_ros]) {
-       words.push_back(fakeROSTrailer);
+       words.push_back(fakeROSTrailerWord);
        NWords++;
      }
      
    }
    
    if (NWords%2 == 1) {
-     words.push_back(fakeGroupHeaderWord);
+     words.push_back(0);
      NWords++;
    }
    
   
    
    NWords += 6;
-   words.push_back(fakeGroupHeaderWord3);
-   words.push_back(fakeGroupHeaderWord2);
-   
+
+   words.push_back(0);
+   words.push_back(0);   
    //include rosList in raw data information
    uint32_t secondstatusword = therosList << 16;
    words.push_back(secondstatusword);
-   words.push_back(fakeGroupHeaderWord4);
-   
-   words.push_back(fakeControl);
-   words.push_back(fakeSCTrailer);
-   
+ 
+   words.push_back(0);
+   words.push_back(0);
+   words.push_back(0);
    
    
    // Write Raw Data
