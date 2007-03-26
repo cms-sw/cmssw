@@ -3,9 +3,14 @@
 #include "SimTracker/TrackAssociation/interface/TrackAssociatorByChi2.h"
 #include "FWCore/Framework/interface/ESProducer.h"
 
-//
-// class decleration
-//
+
+/** \class TrackAssociatorByChi2ESProducer
+ *  ESProducer for TrackAssociatorByChi2
+ *
+ *  $Date: 2007/03/26 10:13:49 $
+ *  $Revision: 1.1 $
+ *  \author magni
+ */
 
 class TrackAssociatorByChi2ESProducer : public edm::ESProducer {
    public:

@@ -3,9 +3,13 @@
 #include "SimTracker/TrackAssociation/interface/TrackAssociatorByHits.h"
 #include "FWCore/Framework/interface/ESProducer.h"
 
-//
-// class decleration
-//
+/** \class TrackAssociatorByHitsESProducer
+ *  ESProducer for TrackAssociatorByHits
+ *
+ *  $Date: 2007/03/26 10:13:49 $
+ *  $Revision: 1.1 $
+ *  \author magni
+ */
 
 class TrackAssociatorByHitsESProducer : public edm::ESProducer {
    public:
