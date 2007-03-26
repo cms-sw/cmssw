@@ -52,10 +52,10 @@ namespace perftools {
     /// Constructor
     EdmEventSize();
     /// Constructor and parse 
-    explicit EdmEventSize(std::string const & fileName);
+    explicit EdmEventSize(std::string const & fileName, std::string const & treeName="Events");
     
     /// read file, compute branch size, sort by size
-    void parseFile(std::string const & fileName);
+    void parseFile(std::string const & fileName, std::string const & treeName="Events");
 
     /// sort by name
     void sortAlpha();

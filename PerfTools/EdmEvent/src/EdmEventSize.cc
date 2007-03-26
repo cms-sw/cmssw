@@ -68,12 +68,12 @@ namespace perftools {
   EdmEventSize::EdmEventSize() : 
     m_nEvents(0) {}
   
-  EdmEventSize::EdmEventSize(std::string const & fileName) : 
+  EdmEventSize::EdmEventSize(std::string const & fileName, std::string const & treeName ) : 
     m_nEvents(0) {
     parseFile(fileName);
   }
   
-  void EdmEventSize::parseFile(std::string const & fileName) {
+  void EdmEventSize::parseFile(std::string const & fileName, std::string const & treeName) {
     m_fileName = fileName;
     m_branches.clear();
 
@@ -81,22 +81,22 @@ namespace perftools {
     if( ! (*file).IsOpen() )
       throw Error( "unable to open data file " + fileName, 7002);
     
-    TObject * o = file->Get( "Events" );
+    TObject * o = file->Get(treeName.c_str() );
     if ( o == 0 )
-      throw Error("no object \"Events\" found in file: " + fileName, 7003);
+      throw Error("no object \"" + treeName + "\" found in file: " + fileName, 7003);
     
     TTree * events = dynamic_cast<TTree*> (o);
     if ( events == 0 )
-      throw Error("object \"Events\" is not a TTree in file: " + fileName, 7004);
+      throw Error("object \"" + treeName + "\" is not a TTree in file: " + fileName, 7004);
     
     m_nEvents = events->GetEntries();
     if ( m_nEvents == 0 )
-      throw Error("tree \"Events\" in file " + fileName + " contains no Events", 7005);
+      throw Error("tree \"" + treeName + "\" in file " + fileName + " contains no Events", 7005);
 
 
     TObjArray * branches = events->GetListOfBranches();
     if ( branches == 0 )
-      throw Error("tree \"Events\" in file " + fileName + " contains no branches", 7006);
+      throw Error("tree \"" + treeName+ "\" in file " + fileName + " contains no branches", 7006);
     
     const size_t n =  branches->GetEntries();
     m_branches.reserve(n);
