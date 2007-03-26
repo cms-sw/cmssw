@@ -106,10 +106,23 @@ namespace edm {
       if(!ignore)
       {
         openFiles.push_back(name());
-        FileInPath fip(name());
-        fullPath_ = fip.fullPath();
+        try
+        {
+          FileInPath fip(name());
+          fullPath_ = fip.fullPath();
+        }
+        catch(const edm::Exception & e)
+        {
+          // re-throw with the traceback info
+          std::ostringstream traceback;
+          printTrace(traceback);
+          throw edm::Exception(errors::Configuration, "IncludeError")
+          << "Exception found trying to include " << name() << ":\n"
+          << e.what() << "\nIncluded from:\n" << traceback.str();
+        }
+
         isResolved_ = true;
-        string configuration = read_whole_file(fip.fullPath());
+        string configuration = read_whole_file(fullPath_);
         // save the name of the file
         extern string currentFile;
         string oldFile = currentFile;
