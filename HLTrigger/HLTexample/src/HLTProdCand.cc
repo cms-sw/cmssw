@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2007/02/17 14:39:20 $
- *  $Revision: 1.29 $
+ *  $Date: 2007/02/20 13:31:21 $
+ *  $Revision: 1.30 $
  *
  *  \author Martin Grunewald
  *
@@ -29,7 +29,7 @@
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
 
-#include "CLHEP/HepMC/ReadHepMC.h"
+#include "HepMC/ReadHepMC.h"
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"

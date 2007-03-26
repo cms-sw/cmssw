@@ -14,7 +14,7 @@
 <use name=HLTrigger/HLTcore>
 <use name=PhysicsTools/Parser>
 <use name=SimDataFormats/HepMCProduct>
-<use name=clhep>
+<use name=hepmc>
 <export>
   <use name=FWCore/Framework>
   <use name=FWCore/ParameterSet>
