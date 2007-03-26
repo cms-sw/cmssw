@@ -33,7 +33,16 @@ void MultiTrackValidator::beginJob( const EventSetup & setup) {
       dbe_->cd();
       string algo = label[www];
       string assoc= associators[ww];
-      string dirName = algo.erase(algo.size()-6,algo.size())+"_"+assoc.erase(0,5);
+      if (algo.find("Tracks")<algo.length()){
+	algo.replace(algo.find("Track"),5,"");
+      }
+      if (assoc.find("Track")<assoc.length()){
+	assoc.replace(assoc.find("Track"),5,"");
+      }
+      if (algo.find(":")<algo.length()) {
+	algo.replace(algo.find(":"),1,"_");
+      }
+      string dirName = algo+"_"+assoc;
       dbe_->setCurrentFolder(dirName.c_str());
 
       vector<double> etaintervalsv;
