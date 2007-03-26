@@ -11,8 +11,6 @@
      See CMS EventFilter wiki page for further notes.
 */
 
-// $Id: StorageManager.h,v 1.4 2007/03/06 19:41:37 wmtan Exp $
-
 #include <string>
 #include <list>
 
@@ -23,10 +21,11 @@
 
 #include "EventFilter/Utilities/interface/Css.h"
 #include "EventFilter/Utilities/interface/RunBase.h"
+#include "EventFilter/Utilities/interface/StateMachine.h"
+
 #include "EventFilter/StorageManager/interface/JobController.h"
 #include "EventFilter/StorageManager/interface/SMPerformanceMeter.h"
 #include "EventFilter/StorageManager/interface/SMFUSenderList.h"
-#include "EventFilter/StorageManager/interface/SMStateMachine.h"
 
 #include "PluginManager/PluginManager.h"
 
@@ -52,8 +51,9 @@
 
 namespace stor {
 
-  class StorageManager: public xdaq::Application, xdata::ActionListener,
-                            public evf::RunBase
+  class StorageManager: public xdaq::Application, 
+                        public xdata::ActionListener,
+                        public evf::RunBase
   {
    public:
     StorageManager(xdaq::ApplicationStub* s) throw (xdaq::exception::Exception);
@@ -67,17 +67,19 @@ namespace stor {
     // *** Anything to do with the flash list
     void setupFlashList();
     void actionPerformed(xdata::Event& e);
-  
-   private:
-    void configureAction(toolbox::Event::Reference e) throw (toolbox::fsm::exception::Exception);
-    void enableAction(toolbox::Event::Reference e) throw (toolbox::fsm::exception::Exception);
-    virtual void haltAction(toolbox::Event::Reference e) 
-      throw (toolbox::fsm::exception::Exception);
-    virtual void nullAction(toolbox::Event::Reference e) 
-      throw (toolbox::fsm::exception::Exception);
-    xoap::MessageReference fireEvent(xoap::MessageReference msg)
+
+    // *** Callbacks to be executed during transitional states
+    bool configuring(toolbox::task::WorkLoop* wl);
+    bool enabling(toolbox::task::WorkLoop* wl);
+    bool stopping(toolbox::task::WorkLoop* wl);
+    bool halting(toolbox::task::WorkLoop* wl);
+
+    // *** FSM soap command callback
+    xoap::MessageReference fsmCallback(xoap::MessageReference msg)
       throw (xoap::exception::Exception);
-  
+
+    
+   private:  
     void receiveRegistryMessage(toolbox::mem::Reference *ref);
     void receiveDataMessage(toolbox::mem::Reference *ref);
     void receiveOtherMessage(toolbox::mem::Reference *ref);
@@ -100,12 +102,11 @@ namespace stor {
 
     void parseFileEntry(std::string in, std::string &out, unsigned int &nev, unsigned int &sz);
 	
-    stor::SMStateMachine *fsm_;
+    evf::StateMachine fsm_;
+
     edm::AssertHandler *ah_;
     edm::service::MessageServicePresence theMessageServicePresence;
     xdata::String offConfig_;
- 
-    friend class stor::SMStateMachine;
   
     boost::shared_ptr<stor::JobController> jc_;
     boost::mutex                           halt_lock_;
@@ -142,7 +143,6 @@ namespace stor {
     xdata::UnsignedInteger32 connectedFUs_;
 
     xdata::UnsignedInteger32 storedEvents_;
-    xdata::UnsignedInteger32 dqmRecords_;
     xdata::UnsignedInteger32 closedFiles_;
     xdata::Vector<xdata::String> fileList_;
     xdata::Vector<xdata::UnsignedInteger32> eventsInFile_;
