@@ -1,4 +1,4 @@
-// EventFilter/StorageManager/src/StorageManager.cc
+// $Id$
 
 #include <iostream>
 #include <iomanip>
@@ -7,11 +7,11 @@
 #include <sys/statfs.h>
 
 #include "EventFilter/StorageManager/interface/StorageManager.h"
-#include "EventFilter/StorageManager/interface/i2oStorageManagerMsg.h"
 #include "EventFilter/StorageManager/interface/ConsumerPipe.h"
 #include "EventFilter/StorageManager/interface/ProgressMarker.h"
 #include "EventFilter/StorageManager/interface/Configurator.h"
 #include "EventFilter/StorageManager/interface/Parameter.h"
+#include "EventFilter/Utilities/interface/i2oEvfMsgs.h"
 #include "EventFilter/Utilities/interface/ModuleWebRegistry.h"
 #include "EventFilter/Utilities/interface/ModuleWebRegistry.h"
 #include "EventFilter/Utilities/interface/ParameterSetRetriever.h"
