@@ -16,7 +16,7 @@
 */
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: MuonIdProducer.h,v 1.7 2007/02/20 11:49:58 dmytro Exp $
+// $Id: MuonIdProducer.h,v 1.8 2007/03/07 19:07:51 bellan Exp $
 //
 //
 
@@ -41,7 +41,7 @@
 
 class MuonIdProducer : public edm::EDProducer {
  public:
-   enum InputMode {TrackCollection, MuonCollection};
+   enum InputMode {TrackCollection=0, MuonCollection=1};
    explicit MuonIdProducer(const edm::ParameterSet&);
    
    ~MuonIdProducer();
@@ -56,12 +56,10 @@ class MuonIdProducer : public edm::EDProducer {
 				 const edm::EventSetup& iSetup);
 
    TrackDetectorAssociator trackAssociator_;
-   bool useEcal_;
-   bool useMuon_;
+   TrackAssociatorParameters parameters_;
    
-   bool useHcalRecHits_;
-   
-   edm::InputTag inputCollectionLabel_;
+   edm::InputTag inputTrackCollectionLabel_;
+   edm::InputTag inputMuonCollectionLabel_;
    std::string branchAlias_;
    InputMode mode_;
 
@@ -73,14 +71,7 @@ class MuonIdProducer : public edm::EDProducer {
    double maxAbsPullX_;
    double maxAbsDy_;
    double maxAbsPullY_;
-   double ecalPreselectionCone_;
-   double ecalSelectionCone_;
-   double hcalPreselectionCone_;
-   double hcalSelectionCone_;
-   double muonPreselectionCone_;
-   double muonSelectionCone_;
    bool debugWithTruthMatching_;
-   bool inputTypeIsTrack_;
 
    edm::Handle<reco::TrackCollection> trackCollectionHandle_;
    reco::TrackCollection::const_iterator trackCollectionIter_;

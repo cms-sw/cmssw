@@ -13,7 +13,7 @@
 */
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: MuonIdProducer.cc,v 1.9 2007/02/20 11:49:58 dmytro Exp $
+// $Id: MuonIdProducer.cc,v 1.10 2007/03/07 19:07:51 bellan Exp $
 //
 //
 
@@ -48,9 +48,6 @@ MuonIdProducer::MuonIdProducer(const edm::ParameterSet& iConfig)
 {
    branchAlias_ = iConfig.getParameter<std::string>("branchAlias");
    produces<reco::MuonWithMatchInfoCollection>().setBranchAlias(branchAlias_);
-   useEcal_ = true;
-   useMuon_ = true;
-   useHcalRecHits_ = iConfig.getParameter<bool>("useHcalRecHits");
    
    minPt_ = iConfig.getParameter<double>("minPt");
    minP_ = iConfig.getParameter<double>("minP");
@@ -60,24 +57,14 @@ MuonIdProducer::MuonIdProducer(const edm::ParameterSet& iConfig)
    maxAbsPullX_ = iConfig.getParameter<double>("maxAbsPullX");
    maxAbsDy_ = iConfig.getParameter<double>("maxAbsDy");
    maxAbsPullY_ = iConfig.getParameter<double>("maxAbsPullY");
-   ecalPreselectionCone_ = iConfig.getParameter<double>("ecalPreselectionCone");
-   // ecalSelectionCone_ = iConfig.getParameter<double>("ecalSelectionCone");
-   hcalPreselectionCone_ = iConfig.getParameter<double>("hcalPreselectionCone");
-   // hcalSelectionCone_ = iConfig.getParameter<double>("hcalSelectionCone");
-   muonPreselectionCone_ = iConfig.getParameter<double>("muonPreselectionCone");
-   // muonSelectionCone_ = iConfig.getParameter<double>("muonSelectionCone");
-   
-   // Fill data labels
-   trackAssociator_.theEBRecHitCollectionLabel = iConfig.getParameter<edm::InputTag>("EBRecHitCollectionLabel");
-   trackAssociator_.theEERecHitCollectionLabel = iConfig.getParameter<edm::InputTag>("EERecHitCollectionLabel");
-   trackAssociator_.theCaloTowerCollectionLabel = iConfig.getParameter<edm::InputTag>("CaloTowerCollectionLabel");
-   trackAssociator_.theHBHERecHitCollectionLabel = iConfig.getParameter<edm::InputTag>("HBHERecHitCollectionLabel");
-   trackAssociator_.theHORecHitCollectionLabel = iConfig.getParameter<edm::InputTag>("HORecHitCollectionLabel");
-   trackAssociator_.theDTRecSegment4DCollectionLabel = iConfig.getParameter<edm::InputTag>("DTRecSegment4DCollectionLabel");
-   trackAssociator_.theCSCSegmentCollectionLabel = iConfig.getParameter<edm::InputTag>("CSCSegmentCollectionLabel");
+   // Load TrackDetectorAssociator parameters
+   edm::ParameterSet parameters = iConfig.getParameter<edm::ParameterSet>("TrackAssociatorParameters");
+   parameters_.loadParameters( parameters );
 
-   inputCollectionLabel_ = iConfig.getParameter<edm::InputTag>("inputCollectionLabel");
-   inputTypeIsTrack_ =  iConfig.getParameter<bool>("inputTypeIsTrack");
+   inputTrackCollectionLabel_ = iConfig.getParameter<edm::InputTag>("inputTrackCollection");
+   inputMuonCollectionLabel_  = iConfig.getParameter<edm::InputTag>("inputMuonCollection");
+   if ( iConfig.getParameter<bool>("useMuonCollectionAsInput") ) mode_ = MuonCollection;
+   else mode_ = TrackCollection;
 
    debugWithTruthMatching_ = iConfig.getParameter<bool>("debugWithTruthMatching");
    if (debugWithTruthMatching_) edm::LogWarning("MuonIdentification") 
@@ -95,18 +82,16 @@ MuonIdProducer::~MuonIdProducer()
 
 void MuonIdProducer::init(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-   if ( inputTypeIsTrack_ ) {
-      iEvent.getByLabel(inputCollectionLabel_, trackCollectionHandle_);
+   if ( mode_ == TrackCollection ) {
+      iEvent.getByLabel(inputTrackCollectionLabel_, trackCollectionHandle_);
       if (! trackCollectionHandle_.isValid()) 
-	throw cms::Exception("FatalError") << "Cannot find input track collection with label: " << inputCollectionLabel_; 
-      mode_ = TrackCollection;
+	throw cms::Exception("FatalError") << "Cannot find input track collection with label: " << inputTrackCollectionLabel_;
       trackCollectionIter_ = trackCollectionHandle_->begin();
       index_ = 0;
    }else{
-      iEvent.getByLabel(inputCollectionLabel_, muonCollectionHandle_);
+      iEvent.getByLabel(inputMuonCollectionLabel_, muonCollectionHandle_);
       if (! muonCollectionHandle_.isValid()) 
-	throw cms::Exception("FatalError") << "Cannot find input muon collection with label: " << inputCollectionLabel_; 
-      mode_ = MuonCollection;
+	throw cms::Exception("FatalError") << "Cannot find input muon collection with label: " << inputMuonCollectionLabel_; 
       muonCollectionIter_ = muonCollectionHandle_->begin();
    }
 }
@@ -227,35 +212,13 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 void MuonIdProducer::fillMuonId(edm::Event& iEvent, const edm::EventSetup& iSetup,
 				reco::MuonWithMatchInfo& aMuon)
 {
-   TrackDetectorAssociator::AssociatorParameters parameters;
-   parameters.useEcal = useEcal_ ;
-   parameters.useHcal = useHcalRecHits_ ;
-   parameters.useHO   = useHcalRecHits_ ;
-   parameters.useCalo = ! useHcalRecHits_ ;
-   parameters.useMuon = useMuon_ ;
-   
-   parameters.dREcalPreselection = ecalPreselectionCone_;
-   // parameters.dREcal = ecalSelectionCone_;  TEMPORARY (no cone selection is applied)
-   parameters.dREcal = ecalPreselectionCone_;
-   parameters.dRHcalPreselection = hcalPreselectionCone_;
-   parameters.dRHcal = hcalSelectionCone_;
-   // parameters.dRHcal = hcalSelectionCone_;  TEMPORARY (no cone selection is applied)
-   parameters.dRMuonPreselection = muonPreselectionCone_;
-   // parameters.dRMuon = muonSelectionCone_;  TEMPORARY (no cone selection is applied)
-   parameters.dRMuon = muonPreselectionCone_;
-
    TrackDetMatchInfo info = trackAssociator_.associate(iEvent, iSetup, 
 						       trackAssociator_.getFreeTrajectoryState(iSetup, *(aMuon.track().get()) ),
-						       parameters);
+						       parameters_);
    reco::MuonWithMatchInfo::MuonEnergy muonEnergy;
-   muonEnergy.em = info.ecalEnergy();
-   if (useHcalRecHits_){
-      muonEnergy.had = info.hcalEnergy();
-      muonEnergy.ho = info.hoEnergy();
-   }else{
-      muonEnergy.had = info.hcalTowerEnergy();
-      muonEnergy.ho = info.hoTowerEnergy();
-   }
+   muonEnergy.em  = info.crossedEnergy(TrackDetMatchInfo::EcalRecHits);
+   muonEnergy.had = info.crossedEnergy(TrackDetMatchInfo::HcalRecHits);
+   muonEnergy.ho  = info.crossedEnergy(TrackDetMatchInfo::HORecHits);
       
    aMuon.setCalEnergy( muonEnergy );
       
