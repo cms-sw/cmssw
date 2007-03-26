@@ -1,0 +1,15 @@
+<use name=FWCore/Framework>
+<use name=Foundation/PluginManager>
+<use name=FWCore/ParameterSet>
+<use name=CondFormats/L1TObjects>
+<use name=CondFormats/DataRecord>
+<use name=L1Trigger/RPCTrigger>
+<flags SEAL_PLUGIN_NAME="L1TriggerConfigRPCTriggerConfig">
+<export>
+   <lib name=L1TriggerConfigRPCTriggerConfig>
+   <use name=FWCore/Framework>
+   <use name=Foundation/PluginManager>
+   <use name=FWCore/ParameterSet>
+   <use name=CondFormats/L1TObjects>
+   <use name=CondFormats/DataRecord>
+</export>
