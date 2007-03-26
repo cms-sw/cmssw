@@ -87,6 +87,7 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
   , serviceToken_()
   , servicesDone_(false)
   , prescaleSvc_(0)
+  , runNumber_(0)
   , epInitialized_(false)
   , outPut_(true)
   , inputPrescale_(1)
@@ -102,8 +103,7 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
   unsigned int instance = getApplicationDescriptor()->getInstance();
   ostringstream sourcename;
   sourcename<<xmlClass<<"_"<<instance;
-  sourceId_=sourcename.str();
-  LOG4CPLUS_INFO(getApplicationLogger(),sourceId_<<" constructor");
+  LOG4CPLUS_INFO(getApplicationLogger(),sourcename.str()<<" constructor");
   cout<<"FUEventProcessor constructor"<<endl;
   LOG4CPLUS_INFO(getApplicationLogger(),"plugin path:"<<getenv("SEAL_PLUGINS"));
   

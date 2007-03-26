@@ -116,6 +116,7 @@ namespace evf
     edm::service::PrescaleService*  prescaleSvc_;
     
     // parameters published to XDAQ info space(s)
+    xdata::UnsignedInteger32         runNumber_;
     xdata::Boolean                   epInitialized_; 
     xdata::String                    configString_;
     xdata::String                    sealPluginPath_;
