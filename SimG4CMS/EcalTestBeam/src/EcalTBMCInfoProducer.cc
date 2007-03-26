@@ -1,7 +1,7 @@
 /*
  * \file EcalTBMCInfoProducer.cc
  *
- * $Id: EcalTBMCInfoProducer.cc,v 1.7 2007/01/19 09:57:11 fabiocos Exp $
+ * $Id: EcalTBMCInfoProducer.cc,v 1.8 2007/03/20 12:59:25 fabiocos Exp $
  *
 */
 
@@ -16,7 +16,7 @@ EcalTBMCInfoProducer::EcalTBMCInfoProducer(const edm::ParameterSet& ps) {
   produces<PEcalTBInfo>();
 
   edm::FileInPath CrystalMapFile = ps.getParameter<edm::FileInPath>("CrystalMapFile");
-  GenVtxLabel = ps.getUntrackedParameter<string>("moduleLabelVtx","VtxSmeared");
+  GenVtxLabel = ps.getUntrackedParameter<string>("moduleLabelVtx","source");
   double fMinEta = ps.getUntrackedParameter<double>("MinEta");
   double fMaxEta = ps.getUntrackedParameter<double>("MaxEta");
   double fMinPhi = ps.getUntrackedParameter<double>("MinPhi");
