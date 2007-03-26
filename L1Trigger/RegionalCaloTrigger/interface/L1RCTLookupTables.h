@@ -11,7 +11,7 @@ class L1RCTLookupTables {
   // constructor
 
   L1RCTLookupTables(const std::string& filename);
-  L1RCTLookupTables(const std::string& filename, const std::string& filename2, bool patternTest, bool maskFG);
+  L1RCTLookupTables(const std::string& filename, const std::string& filename2, bool patternTest);
   L1RCTLookupTables(const std::string& filename, edm::ESHandle<CaloTPGTranscoder> transcoder);
 
   // function needs to output an unsigned long

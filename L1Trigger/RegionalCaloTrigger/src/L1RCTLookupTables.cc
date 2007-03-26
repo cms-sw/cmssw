@@ -33,12 +33,11 @@ L1RCTLookupTables::L1RCTLookupTables(const std::string& filename)
   useTranscoder_ = false;
 }
 
-L1RCTLookupTables::L1RCTLookupTables(const std::string& filename, const std::string& filename2, bool patternTest, bool maskFG)
+L1RCTLookupTables::L1RCTLookupTables(const std::string& filename, const std::string& filename2, bool patternTest)
 {
   loadLUTConstants(filename);
   loadHcalLut(filename2);
   patternTest_ = patternTest;
-  ignoreFG_ = maskFG;
   useTranscoder_ = false;
 }
 
@@ -86,7 +85,7 @@ unsigned long L1RCTLookupTables::lookup(unsigned short ecal,unsigned short hcal,
       if(ignoreFG_)
 	{
 	  HE_FGBit = calcHEBit(ecalLinear,hcalLinear,false);
-	  cout << "L1RCT: fine grain bit ignored!" << endl;
+	  //cout << "L1RCT: fine grain bit ignored!" << endl;
 	}
       else
 	{
@@ -163,6 +162,7 @@ void L1RCTLookupTables::loadLUTConstants(const std::string& filename)
   if( userfile )
     {
       char junk[1024];
+      int answer;
       userfile >> junk >> eActivityCut_;
       std::cout << "L1RCTLookupTables: Using eActivityCut = " 
 		<< eActivityCut_ << std::endl;
@@ -181,8 +181,29 @@ void L1RCTLookupTables::loadLUTConstants(const std::string& filename)
       userfile >> junk >> jetMETLSB_;
       std::cout << "L1RCTLookupTables: Using jetMETLSB = " 
 		<< jetMETLSB_ << std::endl;
+      userfile >> junk >> answer;
+      //      userfile.getline(junk,199);
+      //      std::cout << "junk is " << junk << endl;
+      if(answer == 1)
+	{
+	  ignoreFG_ = true;
+	}
+      else if(answer == 0)
+	{
+	  ignoreFG_ = false;
+	}
+      else
+	{
+	  std::cout << "L1RCTLookupTables: ignoreFineGrain not true or false! answer is " << answer << std::endl;
+	}
+      std:: cout << "L1RCTLookupTables: ignoreFineGrain is "
+		 << ignoreFG_ << std::endl;
       userfile >> junk;
-      for(int i = 0; i < 26; i++) userfile >> eGammaSCF_[i];
+      for(int i = 0; i < 26; i++) 
+	{
+	  userfile >> eGammaSCF_[i];
+	  //std::cout << "L1RCTLookupTables: eGammaSCF_[" << i << "] is " << eGammaSCF_[i] << endl;
+	}
       for(int i = 26; i < 32; i++) eGammaSCF_[i] = eGammaSCF_[i-1];
       userfile.close();
     }
@@ -200,7 +221,11 @@ void L1RCTLookupTables::loadHcalLut(const std::string& filename)
     {
       char junk[1024];
       userfile >> junk;
-      for (int i = 0; i < 26; i++) userfile >> hcalSCF_[i];
+      for (int i = 0; i < 26; i++) 
+	{
+	  userfile >> hcalSCF_[i];
+	  //std::cout << "L1RCTLookupTables: hcalSCF_[" << i << "] is " << hcalSCF_[i] << endl;
+	}
       for (int i = 26; i < 32; i++) hcalSCF_[i] = hcalSCF_[i-1];
       userfile.close();
     }

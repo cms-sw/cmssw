@@ -60,16 +60,14 @@ L1RCT::L1RCT(std::string lutFile,
 	     std::string lutFile2,
 	     std::string rctTestInputFile,
 	     std::string rctTestOutputFile,
-	     bool patternTest,
-	     bool maskFG) : 
+	     bool patternTest) : 
   empty(),
   neighborMap(),
   rctTestInputFile_(rctTestInputFile),
   rctTestOutputFile_(rctTestOutputFile),
-  patternTest_(patternTest),
-  maskFineGrain_(maskFG)
+  patternTest_(patternTest)
 {
-  lut = new L1RCTLookupTables(lutFile, lutFile2, patternTest_, maskFineGrain_);
+  lut = new L1RCTLookupTables(lutFile, lutFile2, patternTest_);
   makeCrates();
 }
 

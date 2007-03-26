@@ -13,7 +13,7 @@
 //
 // Original Author:  pts/47
 //         Created:  Thu Jul 13 21:38:08 CEST 2006
-// $Id: L1RCTTestAnalyzer.h,v 1.3 2006/09/18 15:22:27 jleonard Exp $
+// $Id: L1RCTTestAnalyzer.h,v 1.4 2007/03/03 09:23:44 dasu Exp $
 //
 //
 
@@ -46,6 +46,8 @@ public:
 private:
   // ----------member data ---------------------------
   std::string m_HepMCProduct;
+  bool showEmCands;
+  bool showRegionSums;
 };
 
 //
