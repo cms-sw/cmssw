@@ -7,8 +7,8 @@
  *      within cylinders
  *
  *
- *  $Date: 2007/03/08 18:34:58 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/03/08 20:14:45 $
+ *  $Revision: 1.2 $
  *  \author Chang Liu  -  Purdue University
  */
 
@@ -97,7 +97,7 @@ vector<Trajectory> CosmicMuonSmoother::fit(const Trajectory& t) const {
   if (firstTsos.globalPosition().y() < firstTsos.globalPosition().y())
         firstTsos = lastTsos;
 
-  if (firstTsos.globalMomentum().y()>0 && firstTsos.globalMomentum().eta()< 4.0 ) 
+  if (firstTsos.globalMomentum().y()> 1.0 && firstTsos.globalMomentum().eta()< 4.0 ) 
      theUtilities->reverseDirection(firstTsos,&*theService->magneticField());
 
   ConstRecHitContainer hits = t.recHits();
@@ -218,8 +218,8 @@ vector<Trajectory> CosmicMuonSmoother::smooth(const Trajectory& t) const {
 
   if ( !predTsos.isValid() ) return vector<Trajectory>();
 
-  if ( predTsos.globalMomentum().y() > 0 && predTsos.globalMomentum().eta()< 4.0 )  
-     theUtilities->reverseDirection(predTsos, &*theService->magneticField());
+//  if ( predTsos.globalMomentum().y() > 0 && predTsos.globalMomentum().eta()< 4.0 )  
+//     theUtilities->reverseDirection(predTsos, &*theService->magneticField());
 
   TrajectoryStateOnSurface currTsos;
 
