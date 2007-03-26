@@ -12,6 +12,8 @@ namespace HepPDT { class ParticleData; }
 
 class PdtEntry {
 public:
+  /// default construct
+  explicit PdtEntry() : pdgId_( 0 ), data_( 0 ) { }
   /// construct from PDG id
   explicit PdtEntry( int pdgId ) : pdgId_( pdgId ), data_( 0 ) { }
   /// construct from particle name
