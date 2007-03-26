@@ -1,9 +1,10 @@
 /*
  * \file EBClusterTask.cc
  *
- * $Date: 2007/03/21 16:38:44 $
- * $Revision: 1.12 $
+ * $Date: 2007/03/21 17:36:49 $
+ * $Revision: 1.13 $
  * \author G. Della Ricca
+ * \author E. Di Marco
  *
 */
 
@@ -27,8 +28,12 @@
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
+#include "DataFormats/EgammaReco/interface/BasicClusterShapeAssociation.h"
+#include "DataFormats/Math/interface/Point3D.h"
 
 #include <DQM/EcalBarrelMonitorTasks/interface/EBClusterTask.h>
+
+#include <TLorentzVector.h>
 
 using namespace cms;
 using namespace edm;
@@ -39,20 +44,41 @@ EBClusterTask::EBClusterTask(const ParameterSet& ps){
 
   init_ = false;
 
-  meBEne_ = 0;
-  meBNum_ = 0;
-  meBCry_ = 0;
+  // parameters...
+  islandBarrelBasicClusterCollection_ = ps.getParameter<std::string>("islandBarrelBasicClusterCollection");
+  islandBarrelBasicClusterProducer_   = ps.getParameter<std::string>("islandBarrelBasicClusterProducer");
+  islandBarrelBasicClusterShapes_   = ps.getParameter<std::string>("islandBarrelBasicClusterShapes");
 
-  meSEneMap_ = 0;
-  meSNumMap_ = 0;
+  islandBarrelSuperClusterCollection_ = ps.getParameter<std::string>("islandBarrelSuperClusterCollection");
+  islandBarrelSuperClusterProducer_   = ps.getParameter<std::string>("islandBarrelSuperClusterProducer");
 
-  meSEne_ = 0;
-  meSNum_ = 0;
+  hybridSuperClusterCollection_ = ps.getParameter<std::string>("hybridSuperClusterCollection");
+  hybridSuperClusterProducer_   = ps.getParameter<std::string>("hybridSuperClusterProducer");
 
-  meSSiz_ = 0;
+  hybridBarrelClusterShapeAssociation_ = ps.getParameter<InputTag>("hybridBarrelClusterShapeAssociation");
 
-  meSEneMap_ = 0;
-  meSNumMap_ = 0;
+
+  // histograms...
+  meIslBEne_ = 0;
+  meIslBNum_ = 0;
+  meIslBCry_ = 0;
+
+  meIslBEneMap_ = 0;
+  meIslBNumMap_ = 0;
+  meIslBETMap_  = 0;
+  meIslBCryMap_ = 0;
+
+  meIslSEne_ = 0;
+  meIslSNum_ = 0;
+  meIslSSiz_ = 0;
+
+  meIslSEneMap_ = 0;
+  meIslSNumMap_ = 0;
+  meIslSETMap_ = 0;
+  meIslSSizMap_ = 0;
+
+  meHybS1toE_  = 0;
+  meInvMass_ = 0;
 
 }
 
@@ -90,35 +116,53 @@ void EBClusterTask::setup(void){
   if ( dbe ) {
     dbe->setCurrentFolder("EcalBarrel/EBClusterTask");
 
-    sprintf(histo, "EBCLT basic cluster energy");
-    meBEne_ = dbe->book1D(histo, histo, 100, 0., 500.);
+    sprintf(histo, "EBCLT island basic cluster energy");
+    meIslBEne_ = dbe->book1D(histo, histo, 100, 0., 150.);
 
-    sprintf(histo, "EBCLT basic cluster number");
-    meBNum_ = dbe->book1D(histo, histo, 100, 0., 100.);
+    sprintf(histo, "EBCLT island basic cluster number");
+    meIslBNum_ = dbe->book1D(histo, histo, 100, 0., 100.);
 
-    sprintf(histo, "EBCLT basic cluster crystals");
-    meBCry_ = dbe->book1D(histo, histo, 100, 0., 100.);
+    sprintf(histo, "EBCLT island basic cluster crystals");
+    meIslBCry_ = dbe->book1D(histo, histo, 100, 0., 100.);
 
-    sprintf(histo, "EBCLT basic cluster energy map");
-    meBEneMap_ = dbe->bookProfile2D(histo, histo, 34, -1.479, 1.479, 72, -M_PI, M_PI, 100, 0., 500., "s");
+    sprintf(histo, "EBCLT island basic cluster energy map");
+    meIslBEneMap_ = dbe->bookProfile2D(histo, histo, 34, -1.479, 1.479, 72, -1*M_PI, M_PI, 100, 0., 500., "s");
 
-    sprintf(histo, "EBCLT basic cluster number map");
-    meBNumMap_ = dbe->book2D(histo, histo, 34, -1.479, 1.479, 72, -M_PI, M_PI);
+    sprintf(histo, "EBCLT island basic cluster number map");
+    meIslBNumMap_ = dbe->book2D(histo, histo, 34, -1.479, 1.479, 72, -1*M_PI, M_PI);
 
-    sprintf(histo, "EBCLT super cluster energy");
-    meSEne_ = dbe->book1D(histo, histo, 100, 0., 500.);
+    sprintf(histo, "EBCLT island basic cluster ET map");
+    meIslBETMap_ = dbe->bookProfile2D(histo, histo, 34, -1.479, 1.479, 72, -1*M_PI, M_PI, 100, 0., 500., "s");
 
-    sprintf(histo, "EBCLT super cluster number");
-    meSNum_ = dbe->book1D(histo, histo, 100, 0., 100.);
+    sprintf(histo, "EBCLT island basic cluster size map");
+    meIslBCryMap_ = dbe->bookProfile2D(histo, histo, 34, -1.479, 1.479, 72, -1*M_PI, M_PI, 100, 0., 100., "s");
 
-    sprintf(histo, "EBCLT super cluster size");
-    meSSiz_ = dbe->book1D(histo, histo, 20, 0., 20.);
+    sprintf(histo, "EBCLT island super cluster energy");
+    meIslSEne_ = dbe->book1D(histo, histo, 100, 0., 150.);
 
-    sprintf(histo, "EBCLT super cluster energy map");
-    meSEneMap_ = dbe->bookProfile2D(histo, histo, 34, -1.479, 1.479, 72, -M_PI, M_PI, 100, 0., 500., "s");
+    sprintf(histo, "EBCLT island super cluster number");
+    meIslSNum_ = dbe->book1D(histo, histo, 50, 0., 50.);
 
-    sprintf(histo, "EBCLT super cluster number map");
-    meSNumMap_ = dbe->book2D(histo, histo, 34, -1.479, 1.479, 72, -M_PI, M_PI);
+    sprintf(histo, "EBCLT island super cluster size");
+    meIslSSiz_ = dbe->book1D(histo, histo, 10, 0., 10.);
+
+    sprintf(histo, "EBCLT island super cluster energy map");
+    meIslSEneMap_ = dbe->bookProfile2D(histo, histo, 34, -1.479, 1.479, 72, -1*M_PI, M_PI, 100, 0., 500., "s");
+
+    sprintf(histo, "EBCLT island super cluster number map");
+    meIslSNumMap_ = dbe->book2D(histo, histo, 34, -1.479, 1.479, 72, -1*M_PI, M_PI);
+
+    sprintf(histo, "EBCLT island super cluster ET map");
+    meIslSETMap_ = dbe->bookProfile2D(histo, histo, 34, -1.479, 1.479, 72, -1*M_PI, M_PI, 100, 0., 500., "s");
+
+    sprintf(histo, "EBCLT island super cluster size map");
+    meIslSSizMap_ = dbe->bookProfile2D(histo, histo, 34, -1.479, 1.479, 72, -1*M_PI, M_PI, 100, 0., 500., "s");
+
+    sprintf(histo, "EBCLT hybrid S1toE");
+    meHybS1toE_ = dbe->book1D(histo, histo, 50, 0., 1.);
+    
+    sprintf(histo, "EBCLT dicluster invariant mass");
+    meInvMass_ = dbe->book1D(histo, histo, 50, 60., 120.);
 
   }
 
@@ -134,35 +178,53 @@ void EBClusterTask::cleanup(void){
   if ( dbe ) {
     dbe->setCurrentFolder("EcalBarrel/EBClusterTask");
 
-    if ( meBEne_ ) dbe->removeElement( meBEne_->getName() );
-    meBEne_ = 0;
+    if ( meIslBEne_ ) dbe->removeElement( meIslBEne_->getName() );
+    meIslBEne_ = 0;
 
-    if ( meBNum_ ) dbe->removeElement( meBNum_->getName() );
-    meBNum_ = 0;
+    if ( meIslBNum_ ) dbe->removeElement( meIslBNum_->getName() );
+    meIslBNum_ = 0;
 
-    if ( meBEneMap_ ) dbe->removeElement( meBEneMap_->getName() );
-    meBEneMap_ = 0;
+    if ( meIslBCry_ ) dbe->removeElement( meIslBCry_->getName() );
+    meIslBCry_ = 0;
 
-    if ( meBNumMap_ ) dbe->removeElement( meBNumMap_->getName() );
-    meBNumMap_ = 0;
+    if ( meIslBEneMap_ ) dbe->removeElement( meIslBEneMap_->getName() );
+    meIslBEneMap_ = 0;
 
-    if ( meBCry_ ) dbe->removeElement( meBCry_->getName() );
-    meBCry_ = 0;
+    if ( meIslBNumMap_ ) dbe->removeElement( meIslBNumMap_->getName() );
+    meIslBNumMap_ = 0;
 
-    if ( meSEne_ ) dbe->removeElement( meSEne_->getName() );
-    meSEne_ = 0;
+    if ( meIslBETMap_ ) dbe->removeElement( meIslBETMap_->getName() );
+    meIslBETMap_ = 0;
 
-    if ( meSNum_ ) dbe->removeElement( meSNum_->getName() );
-    meSNum_ = 0;
+    if ( meIslBCryMap_ ) dbe->removeElement( meIslBCryMap_->getName() );
+    meIslBCryMap_ = 0;
 
-    if ( meSSiz_ ) dbe->removeElement( meSSiz_->getName() );
-    meSSiz_ = 0;
+    if ( meIslSEne_ ) dbe->removeElement( meIslSEne_->getName() );
+    meIslSEne_ = 0;
 
-    if ( meSEneMap_ ) dbe->removeElement( meSEneMap_->getName() );
-    meSEneMap_ = 0;
+    if ( meIslSNum_ ) dbe->removeElement( meIslSNum_->getName() );
+    meIslSNum_ = 0;
 
-    if ( meSNumMap_ ) dbe->removeElement( meSNumMap_->getName() );
-    meSNumMap_ = 0;
+    if ( meIslSSiz_ ) dbe->removeElement( meIslSSiz_->getName() );
+    meIslSSiz_ = 0;
+
+    if ( meIslSEneMap_ ) dbe->removeElement( meIslSEneMap_->getName() );
+    meIslSEneMap_ = 0;
+
+    if ( meIslSNumMap_ ) dbe->removeElement( meIslSNumMap_->getName() );
+    meIslSNumMap_ = 0;
+
+    if ( meIslSETMap_ ) dbe->removeElement( meIslSETMap_->getName() );
+    meIslSETMap_ = 0;
+
+    if ( meIslSSizMap_ ) dbe->removeElement( meIslSSizMap_->getName() );
+    meIslSSizMap_ = 0;
+
+    if ( meHybS1toE_ ) dbe->removeElement( meHybS1toE_->getName() );
+    meHybS1toE_ = 0;
+
+    if ( meInvMass_ ) dbe->removeElement( meInvMass_->getName() );
+    meInvMass_ = 0;
 
   }
 
@@ -184,57 +246,141 @@ void EBClusterTask::analyze(const Event& e, const EventSetup& c){
 
   ievt_++;
 
+  // --- Get the Basic Clusters from Island and Hybrid Algorithms ---
+
+  // --- Barrel "Island" Basic Clusters ---
   try {
 
-    Handle<BasicClusterCollection> bclusters;
-    e.getByLabel("islandBasicClusters", "islandBarrelBasicClusters", bclusters);
+    Handle<BasicClusterCollection> pIslandBarrelBasicClusters;
+    e.getByLabel(islandBarrelBasicClusterProducer_, islandBarrelBasicClusterCollection_, pIslandBarrelBasicClusters);
+    
+    Int_t nbcc = pIslandBarrelBasicClusters->size();
 
-    int nbcc = bclusters->size();
-    LogDebug("EBClusterTask") << "event " << ievt_ << " basic cluster collection size " << nbcc;
+    meIslBNum_->Fill(float(nbcc));
 
-    meBNum_->Fill(float(nbcc));
-
-    for ( BasicClusterCollection::const_iterator bclusterItr = bclusters->begin(); bclusterItr != bclusters->end(); ++bclusterItr ) {
+    for ( BasicClusterCollection::const_iterator bclusterItr = pIslandBarrelBasicClusters->begin(); bclusterItr != pIslandBarrelBasicClusters->end(); ++bclusterItr ) {
 
       BasicCluster bcluster = *(bclusterItr);
 
-      meBEne_->Fill(bcluster.energy());
-      meBCry_->Fill(float(bcluster.getHitsByDetId().size()));
+      
+      meIslBEne_->Fill(bcluster.energy());
+      meIslBCry_->Fill(float(bcluster.getHitsByDetId().size()));
 
-      meBEneMap_->Fill(bcluster.eta(), bcluster.phi(), bcluster.energy());
-      meBNumMap_->Fill(bcluster.eta(), bcluster.phi());
+      meIslBEneMap_->Fill(bcluster.eta(), bcluster.phi(), bcluster.energy());
+      meIslBNumMap_->Fill(bcluster.eta(), bcluster.phi() );
+      meIslBCryMap_->Fill(bcluster.eta(), bcluster.phi(), float(bcluster.getHitsByDetId().size()) );
+      meIslBETMap_->Fill(bcluster.eta(), bcluster.phi(), float(bcluster.energy()) * sin(bcluster.position().theta()) );
 
     }
 
   } catch ( std::exception& ex ) {
-    LogDebug("EBClusterTask") << " BasicClusterCollection not in event.";
+    LogWarning("EBClusterTask") << " BasicClusterCollection: " << islandBarrelBasicClusterCollection_ << " not in event.";
   }
 
+  // --- Barrel "Island" Super Clusters ----
   try {
 
-    Handle<SuperClusterCollection> sclusters;
-    e.getByLabel("islandSuperClusters", "islandBarrelSuperClusters", sclusters);
+    Handle<SuperClusterCollection> pIslandBarrelSuperClusters;
+    e.getByLabel(islandBarrelSuperClusterProducer_, islandBarrelSuperClusterCollection_, pIslandBarrelSuperClusters);
 
-    int nscc = sclusters->size();
-    LogDebug("EBClusterTask") << "event " << ievt_ << " super cluster collection size " << nscc; 
+    Int_t nscc = pIslandBarrelSuperClusters->size();
 
-    meSNum_->Fill(float(nscc));
+    meIslSNum_->Fill(float(nscc));
+    
+    for ( SuperClusterCollection::const_iterator sclusterItr = pIslandBarrelSuperClusters->begin(); sclusterItr != pIslandBarrelSuperClusters->end(); ++sclusterItr ) {
 
-    for ( SuperClusterCollection::const_iterator sclusterItr = sclusters->begin(); sclusterItr != sclusters->end(); ++sclusterItr ) {
-  
       SuperCluster scluster = *(sclusterItr);
 
-      meSEne_->Fill(scluster.energy());
-      meSSiz_->Fill(float(1+scluster.clustersSize()));
+      meIslSEne_->Fill(scluster.energy());
+      meIslSSiz_->Fill(float(scluster.clustersSize()));
 
-      meSEneMap_->Fill(scluster.eta(), scluster.phi(), scluster.energy());
-      meSNumMap_->Fill(scluster.eta(), scluster.phi());
+      meIslSEneMap_->Fill(scluster.eta(), scluster.phi(), scluster.energy());
+      meIslSNumMap_->Fill(scluster.eta(), scluster.phi() );
+      meIslSETMap_->Fill(scluster.eta(), scluster.phi(), float(scluster.energy()) * sin(scluster.position().theta()) );
+      meIslSSizMap_->Fill(scluster.eta(), scluster.phi(), float(scluster.clustersSize()) );
 
     }
 
   } catch ( std::exception& ex ) {
-    LogDebug("EBClusterTask") << " SuperClusterCollection not in event.";
+    LogWarning("EBClusterTask") << " SuperClusterCollection: " << islandBarrelSuperClusterCollection_ << " not in event.";
   }
+
+
+
+
+
+  // --- Barrel "Hybrid" Super Clusters ---
+  try {
+
+    Handle<SuperClusterCollection> pHybridSuperClusters;
+    e.getByLabel(hybridSuperClusterProducer_, hybridSuperClusterCollection_, pHybridSuperClusters);
+    Int_t nscc = pHybridSuperClusters->size();
+
+    Handle<BasicClusterShapeAssociationCollection> pHybridBarrelClusterShapeAssociation;
+    try	{		
+      e.getByLabel(hybridBarrelClusterShapeAssociation_, pHybridBarrelClusterShapeAssociation);  	
+    }	catch ( cms::Exception& ex )	{		
+      LogWarning("EBClusterTask") << "Can't get collection with label "   << hybridBarrelClusterShapeAssociation_.label();  	
+    }
+
+    
+    //    meHybSNum_->Fill(float(nscc));
+
+    TLorentzVector sc1_p(0,0,0,0);
+    TLorentzVector sc2_p(0,0,0,0);
+
+    for(  SuperClusterCollection::const_iterator sCluster = pHybridSuperClusters->begin(); sCluster != pHybridSuperClusters->end(); ++sCluster ) {
+
+      // seed
+      const ClusterShapeRef& tempClusterShape = pHybridBarrelClusterShapeAssociation->find(sCluster->seed())->val;
+      //       meHybS1toS9_->Fill(tempClusterShape->eMax()/tempClusterShape->e3x3());
+      meHybS1toE_->Fill(tempClusterShape->eMax()/sCluster->energy());
+
+      
+//       // for each basic cluster evaluate the distance from the seed
+//       if(sCluster->clustersSize()>1) {
+// 	basicCluster_iterator bc;
+// 	for(bc = sCluster->clustersBegin(); bc!=sCluster->clustersEnd(); bc++) {
+// 	  Float_t dtheta=fabs( (*bc)->position().theta() - sCluster->seed()->position().theta() );
+// 	  Float_t dphi=fabs( (*bc)->position().phi() - sCluster->seed()->position().phi() );
+// 	  // exclude the seed...
+// 	  if(dtheta!=0 && dphi!=0) {
+// 	    meHybDTheta_->Fill( dtheta );
+// 	    meHybDPhi_->Fill( dphi );
+	
+// 	    meHybEneVsDTheta_->Fill( dtheta, (*bc)->energy() );
+// 	    meHybEneVsDPhi_->Fill( dphi, (*bc)->energy() );
+// 	  }
+// 	}
+//       }
+
+
+      // look for the two most energetic super clusters
+      if(nscc>1) {
+	if(sCluster->energy()>sc1_p.Energy()) { 
+	  sc2_p=sc1_p;
+	  sc1_p.SetPtEtaPhiE(sCluster->energy()*sin(sCluster->position().theta()),
+			     sCluster->eta(), sCluster->phi(), sCluster->energy());
+	}
+	else if(sCluster->energy()>sc2_p.Energy()) {
+	  sc2_p.SetPtEtaPhiE(sCluster->energy()*sin(sCluster->position().theta()),
+			     sCluster->eta(), sCluster->phi(), sCluster->energy());
+	}
+      }
+    }
+    // Get the invariant mass of the two most energetic super clusters
+    if(nscc>1) {
+      TLorentzVector sum = sc1_p+sc2_p;
+      meInvMass_->Fill(sum.M());
+    }
+
+
+  } catch ( std::exception& ex ) {
+    LogWarning("EBClusterTask") << " SuperClusterCollection: not in event.";
+  } 
+
+  
+
 
 }
 
