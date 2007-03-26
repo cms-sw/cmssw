@@ -7,9 +7,43 @@
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DataFormats/Math/interface/LorentzVector.h"
+#include "Math/VectorUtil.h"
+#include <algorithm>
 
 
 ///////////////////////////
+
+std::string TrackDetMatchInfo::dumpGeometry( const DetId& id )
+{
+   if ( ! caloGeometry.isValid() || 
+	! caloGeometry->getSubdetectorGeometry(id) ||
+	! caloGeometry->getSubdetectorGeometry(id)->getGeometry(id) ) {
+      edm::LogWarning("TrackAssociator")  << "Failed to access geometry for DetId: " << id.rawId();
+      return std::string("");
+   }
+   std::ostringstream oss;
+
+   const std::vector<GlobalPoint>& points = caloGeometry->getSubdetectorGeometry(id)->getGeometry(id)->getCorners();
+   for(std::vector<GlobalPoint>::const_iterator point = points.begin();
+       point != points.end(); ++point)
+     oss << "(" << point->z() << ", " << point->perp() << ", " << point->eta() << ", " << point->phi() << "), \t";
+   return oss.str();
+}
+
+
+GlobalPoint TrackDetMatchInfo::getPosition( const DetId& id)
+{
+   // this part might be slow
+   if ( ! caloGeometry.isValid() || 
+	! caloGeometry->getSubdetectorGeometry(id) ||
+	! caloGeometry->getSubdetectorGeometry(id)->getGeometry(id) ) {
+      edm::LogWarning("TrackAssociator")  << "Failed to access geometry for DetId: " << id.rawId();
+      return GlobalPoint(0,0,0);
+   }
+   return caloGeometry->getSubdetectorGeometry(id)->getGeometry(id)->getPosition();
+}
+
 
 double TrackDetMatchInfo::crossedEnergy( EnergyType type )
 {
@@ -64,18 +98,12 @@ double TrackDetMatchInfo::crossedEnergy( EnergyType type )
 }
 
 bool TrackDetMatchInfo::insideCone(const DetId& id, const double dR) {
-   // this part might be slow
-   if ( ! caloGeometry.isValid() ) return false;
-   if ( ! caloGeometry->getSubdetectorGeometry(id) ) return false;
-   if ( ! caloGeometry->getSubdetectorGeometry(id)->getGeometry(id) ) return false;
+   GlobalPoint idPosition = getPosition(id);
+   if (idPosition.mag()<0.01) return false;
    
-   GlobalPoint center = caloGeometry->getSubdetectorGeometry(id)->getGeometry(id)->getPosition();
-   double pi = 3.1415926535;
-
-   double deltaPhi(fabs(momentum.phi()-center.phi()));
-   if(deltaPhi>pi) deltaPhi = fabs(deltaPhi-pi*2.);
-
-   return sqrt(pow(momentum.eta()-center.eta(),2)+pow(deltaPhi,2)) < dR;
+   math::XYZVector idPositionRoot( idPosition.x(), idPosition.y(), idPosition.z() );
+   math::XYZVector trackP3( stateAtIP.momentum().x(), stateAtIP.momentum().y(), stateAtIP.momentum().z() );
+   return ROOT::Math::VectorUtil::DeltaR(trackP3, idPositionRoot) < 0.5;
 }
 
 double TrackDetMatchInfo::coneEnergy( double dR, EnergyType type )
@@ -233,11 +261,64 @@ double TrackDetMatchInfo::nXnEnergy(const DetId& id, EnergyType type, int gridSi
 	   return energy;
 	}
       break;
+    case HORecHits:
+	{
+	   if( id.det() != DetId::Hcal || (id.subdetId() != HcalOuter) ) {
+	      edm::LogWarning("TrackAssociator") << "Wrong DetId. Expected HO, but found:\n" <<
+		DetIdInfo::info(id)<<"\n";
+	      return -99999;
+	   }
+	   HcalDetId centerId(id);
+	   double energy(0);
+	   for(std::vector<HORecHit>::const_iterator hit=hoRecHits.begin(); hit!=hoRecHits.end(); hit++) {
+	      HcalDetId neighborId(hit->id());
+	      int dEta = abs( (centerId.ieta()<0?centerId.ieta()+1:centerId.ieta() )
+			      -(neighborId.ieta()<0?neighborId.ieta()+1:neighborId.ieta() ) ) ;
+	      int dPhi = abs( centerId.iphi()-neighborId.iphi() );
+	      if ( abs(72-dPhi) < dPhi ) dPhi = 72-dPhi;
+	      if(  dEta <= gridSize && dPhi <= gridSize ) energy += hit->energy();
+	   }
+	   return energy;
+	}
+      break;
     default:
       edm::LogWarning("TrackAssociator") << "Unkown or not implemented energy type requested, type:" << type;
    }
    return 0;
 }
+
+double TrackDetMatchInfo::nXnEnergy(EnergyType type, int gridSize )
+{
+   switch (type)  {
+    case TowerTotal:
+    case TowerHcal:
+    case TowerEcal:
+    case TowerHO:
+      if( crossedTowerIds.empty() ) return -9999;
+      if( crossedTowers.empty() ) return nXnEnergy(crossedTowerIds.front(), type, gridSize);
+      return nXnEnergy(crossedTowers.front().id(), type, gridSize);
+      break;
+    case EcalRecHits:
+      if( crossedEcalIds.empty() ) return -9999;
+      if( crossedEcalRecHits.empty() )	return nXnEnergy(crossedEcalIds.front(), type, gridSize);
+      return nXnEnergy(crossedEcalRecHits.front().id(), type, gridSize);
+      break;
+    case HcalRecHits:
+      if( crossedHcalIds.empty() ) return -9999;
+      if( crossedHcalRecHits.empty() )	return nXnEnergy(crossedHcalIds.front(), type, gridSize);
+      return nXnEnergy(crossedHcalRecHits.front().id(), type, gridSize);
+      break;
+    case HORecHits:
+      if( crossedHOIds.empty() ) return -9999;
+      if( crossedHORecHits.empty() ) 	return nXnEnergy(crossedHOIds.front(), type, gridSize);
+      return nXnEnergy(crossedHORecHits.front().id(), type, gridSize);
+      break;
+    default:
+      edm::LogWarning("TrackAssociator") << "Unkown or not implemented energy type requested, type:" << type;
+   }
+   return 0;
+}
+
 
 TrackDetMatchInfo::TrackDetMatchInfo():
        trkGlobPosAtEcal(0,0,0)

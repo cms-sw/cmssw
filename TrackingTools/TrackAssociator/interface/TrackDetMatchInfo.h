@@ -72,6 +72,7 @@ class TrackDetMatchInfo {
    const SimTrack* simTrack;
    double ecalTrueEnergy;
    double hcalTrueEnergy;
+   double hcalTrueEnergyCorrected;
    
    /// Obsolete methods and data members for backward compatibility.
    /// Will be removed in future releases.
@@ -101,14 +102,11 @@ class TrackDetMatchInfo {
    int numberOfSegmentsInStation(int station, int detector) const;
    int numberOfSegmentsInDetector(int detector) const;
    
-   void setGeometry( edm::ESHandle<CaloGeometry> geometry ) { caloGeometry = geometry; }
-   void setMomentumAtIP( const GlobalVector& p4 ) { momentum = p4; }
-   GlobalVector getMomentumAtIP() { return momentum; }
-
+   void setCaloGeometry( edm::ESHandle<CaloGeometry> geometry ) { caloGeometry = geometry; }
+   GlobalPoint getPosition( const DetId& );
+   std::string dumpGeometry( const DetId& );
  private:
    bool insideCone(const DetId&, const double);
    edm::ESHandle<CaloGeometry> caloGeometry;
-   GlobalVector momentum;
-   
 };
 #endif

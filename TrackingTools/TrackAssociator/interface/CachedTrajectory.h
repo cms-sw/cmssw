@@ -18,12 +18,13 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: MuonDetIdAssociator.h,v 1.1 2006/12/19 01:01:00 dmytro Exp $
+// $Id: CachedTrajectory.h,v 1.1 2007/01/21 15:30:35 dmytro Exp $
 //
 //
 
 #include "TrackingTools/TrackAssociator/interface/DetIdAssociator.h"
 #include "TrackingTools/TrackAssociator/interface/MuonChamberMatch.h"
+#include "TrackingTools/TrackAssociator/interface/FiducialVolume.h"
 #include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixStateInfo.h"
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
@@ -49,20 +50,21 @@ class CachedTrajectory {
    void setPropagator(Propagator* ptr){	propagator_ = ptr; }
    
    // get a set of points representing the trajectory between two cylinders
-   // of radius R1 and R2 and length L1 and L2. Step < 0 corresonds to the 
-   // default step used during trajectory caching.
+   // of radius R1 and R2 and length L1 and L2. Parameter steps defines
+   // maximal number of steps in the detector.
 
    void getTrajectory(std::vector<SteppingHelixStateInfo>&,
-		      const float r1,
-		      const float r2, 
-		      const float l1, 
-		      const float l2, 
-		      const float step = -999.);
+		      const FiducialVolume&,
+		      int steps = 4);
    
+   void findEcalTrajectory(const FiducialVolume&);
+   void findHcalTrajectory(const FiducialVolume&);
+   void findHOTrajectory(const FiducialVolume&);
+
    const std::vector<SteppingHelixStateInfo>& getEcalTrajectory();
    const std::vector<SteppingHelixStateInfo>& getHcalTrajectory();
    const std::vector<SteppingHelixStateInfo>& getHOTrajectory();
-   
+
    SteppingHelixStateInfo getStateAtEcal();
    SteppingHelixStateInfo getStateAtHcal();
    SteppingHelixStateInfo getStateAtHO();
@@ -96,9 +98,6 @@ class CachedTrajectory {
    std::vector<SteppingHelixStateInfo> hoTrajectory_;
    
    bool fullTrajectoryFilled_;
-   bool ecalTrajectoryFilled_;
-   bool hcalTrajectoryFilled_;
-   bool hoTrajectoryFilled_;
    
    Propagator* propagator_;
    
