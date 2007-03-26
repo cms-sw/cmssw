@@ -1,5 +1,5 @@
-// $Id: CandCombiner.cc,v 1.14 2006/10/11 10:08:59 llista Exp $
-#include "PhysicsTools/CandAlgos/src/CandCombiner.h"
+// $Id: CandCombiner.cc,v 1.15 2007/03/02 13:13:27 llista Exp $
+#include "PhysicsTools/CandAlgos/interface/CandCombiner.h"
 #include "PhysicsTools/Parser/interface/cutParser.h"
 #include "PhysicsTools/Parser/interface/MethodMap.h"
 #include "DataFormats/Candidate/interface/Candidate.h"

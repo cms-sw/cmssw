@@ -7,7 +7,7 @@
  */
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "PhysicsTools/UtilAlgos/interface/StringCutObjectSelector.h"
-#include "PhysicsTools/CandAlgos/src/CandCombiner.h"
+#include "PhysicsTools/CandAlgos/interface/CandCombiner.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 
 DEFINE_SEAL_MODULE();

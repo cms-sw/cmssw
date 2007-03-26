@@ -4,7 +4,7 @@
  *
  */
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "PhysicsTools/CandAlgos/src/CandCombiner.h"
+#include "PhysicsTools/CandAlgos/interface/CandCombiner.h"
 #include "PhysicsTools/UtilAlgos/interface/AndSelector.h"
 #include "PhysicsTools/UtilAlgos/interface/MassRangeSelector.h"
 #include "PhysicsTools/UtilAlgos/interface/ChargeSelector.h"
