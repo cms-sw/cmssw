@@ -50,8 +50,11 @@ class DQMEventSource : public edm::RawInputSource {
   QTestHandle * qtHandler;
 
   bool getQualityTestsFromFile;
-
+  unsigned int skipUpdates;
+  std::string iRunMEName, iEventMEName, timeStampMEName;
   unsigned int updatesCounter;
+
+
 
 };
 
