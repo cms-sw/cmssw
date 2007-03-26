@@ -32,7 +32,7 @@ using namespace edm;
 ////////////////////////////////////////////////////////////////////////////////
 
 //______________________________________________________________________________
-FUShmReader::FUShmReader(const edm::ParameterSet& pset)
+FUShmReader::FUShmReader()
   : event_(0)
   , shmBuffer_(0)
   , runNumber_(0xffffffff)
@@ -116,4 +116,4 @@ bool FUShmReader::fillRawData(EventID& eID,
 ////////////////////////////////////////////////////////////////////////////////
 
 DEFINE_SEAL_MODULE();
-DEFINE_SEAL_PLUGIN(DaqReaderPluginFactory,FUShmReader,"FUShmReader");
+DEFINE_SEAL_PLUGIN(DaqReaderPluginFactoryU,FUShmReader,"FUShmReader");

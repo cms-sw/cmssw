@@ -1,3 +1,9 @@
+2007-03-26  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-04-01
+	* make FUShmReader 'pset-less': no (dummy) pset needs to be
+	provided for the configuration of the DaqSource anymore
+
 2007-03-21  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-04-00

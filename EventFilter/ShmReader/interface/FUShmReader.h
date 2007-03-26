@@ -13,7 +13,7 @@ public:
   //
   //construction/destruction
   //
-  FUShmReader(const edm::ParameterSet& pset);
+  FUShmReader();
   virtual ~FUShmReader();
   
   
