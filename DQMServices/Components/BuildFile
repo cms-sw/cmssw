@@ -2,8 +2,11 @@
 <lib name=DQMServicesComponents>
 <use name=EventFilter/Utilities>
 <use name=FWCore/MessageLogger>
+<use name=FWCore/Framework>
 </export>
+<use name=DQMServices/ClientConfig>
 <use name=DQMServices/UI>
 <use name=EventFilter/Utilities>
 <use name=boost>
 <use name=FWCore/MessageLogger>
+<use name=FWCore/Framework>
