@@ -7,7 +7,7 @@
 #include "boost/shared_ptr.hpp"
 #include "boost/thread/thread.hpp"
 
-#include "EventFilter/StorageManager/interface/i2oStorageManagerMsg.h"
+#include "EventFilter/Utilities/interface/i2oEvfMsgs.h"
 #include "toolbox/mem/Reference.h"
 #include "toolbox/Chrono.h"
 
