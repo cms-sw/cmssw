@@ -1,8 +1,8 @@
 /** \file LaserHitPairGeneratorFromLayerPair.cc
  *  
  *
- *  $Date: 2007/03/18 19:00:21 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/03/25 17:26:51 $
+ *  $Revision: 1.5 $
  *  \author Maarten Thomas
  */
 
@@ -24,16 +24,26 @@
 
 typedef ctfseeding::SeedingHit TkHitPairsCachedHit;
 
+void LaserHitPairGeneratorFromLayerPair::LaserHitPairGeneratorFromLayerPair(const LayerWithHits* inner, 
+	const LayerWithHits* outer, const edm::EventSetup& iSetup) : TTRHbuilder(0),trackerGeometry(0),
+	theOuterLayer(outer), theInnerLayer(inner)
+{
+
+  edm::ESHandle<TrackerGeometry> tracker;
+  iSetup.get<TrackerDigiGeometryRecord>().get(tracker);
+  trackerGeometry = tracker.product();
+}
+
 void LaserHitPairGeneratorFromLayerPair::hitPairs(const TrackingRegion & region, OrderedHitPairs & result, const edm::EventSetup & iSetup)
 {
 	typedef OrderedHitPair::InnerHit InnerHit;
 	typedef OrderedHitPair::OuterHit OuterHit;
 
-	const LayerHitMap & innerHitsMap = theLayerCache(theInnerLayer, region, iSetup);
+	// const LayerHitMap & innerHitsMap = theLayerCache(theInnerLayer, region, iSetup);
 // 	if (innerHitsMap.empty()) return;
 	if (theInnerLayer->recHits().empty()) return;
 
-	const LayerHitMap & outerHitsMap = theLayerCache(theOuterLayer, region, iSetup);
+	// const LayerHitMap & outerHitsMap = theLayerCache(theOuterLayer, region, iSetup);
 // 	if (outerHitsMap.empty()) return;
 	if (theOuterLayer->recHits().empty()) return;
 
