@@ -142,8 +142,8 @@ namespace evf {
     xdata::Double            deltaT_;
     xdata::UnsignedInteger32 deltaNbInput_;
     xdata::UnsignedInteger32 deltaNbOutput_;
-    xdata::UnsignedInteger32 deltaInputSumOfSquares_;
-    xdata::UnsignedInteger32 deltaOutputSumOfSquares_;
+    xdata::Double            deltaInputSumOfSquares_;
+    xdata::Double            deltaOutputSumOfSquares_;
     xdata::UnsignedInteger32 deltaInputSumOfSizes_;
     xdata::UnsignedInteger32 deltaOutputSumOfSizes_;
     
@@ -200,10 +200,10 @@ namespace evf {
     // helper variables for monitoring
     struct timeval           monStartTime_;
     UInt_t                   nbInputLast_;
-    UInt_t                   nbInputLastSumOfSquares_;
+    uint64_t                 nbInputLastSumOfSquares_;
     UInt_t                   nbInputLastSumOfSizes_;
     UInt_t                   nbOutputLast_;
-    UInt_t                   nbOutputLastSumOfSquares_;
+    uint64_t                 nbOutputLastSumOfSquares_;
     UInt_t                   nbOutputLastSumOfSizes_;
     
   };

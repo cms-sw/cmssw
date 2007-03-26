@@ -1,4 +1,4 @@
-///////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 //
 // FUResourceBroker
 // ----------------
@@ -85,11 +85,11 @@ FUResourceBroker::FUResourceBroker(xdaq::ApplicationStub *s)
   , nbCrcErrors_(0)
   , segmentationMode_(false)
   , nbRawCells_(32)
-  , nbRecoCells_(0)
-  , nbDqmCells_(0)
-  , rawCellSize_(4194304)  // 4MB
-  , recoCellSize_(4194304) // 4MB
-  , dqmCellSize_(4194304)  // 4MB
+  , nbRecoCells_(1)
+  , nbDqmCells_(1)
+  , rawCellSize_(0x400000)  // 4MB
+  , recoCellSize_(0x800000) // 8MB
+  , dqmCellSize_(0x800000)  // 8MB
   , doDropEvents_(false)
   , doFedIdCheck_(true)
   , doCrcCheck_(1)
@@ -431,12 +431,16 @@ bool FUResourceBroker::monitoring(toolbox::task::WorkLoop* wl)
   
   gettimeofday(&monEndTime,&timezone);
   
+  lock_.take();
   unsigned int nbInput             =resourceTable_->nbCompleted();
-  unsigned int nbInputSumOfSquares =resourceTable_->inputSumOfSquares();
+  uint64_t     nbInputSumOfSquares =resourceTable_->inputSumOfSquares();
   unsigned int nbInputSumOfSizes   =resourceTable_->inputSumOfSizes();
   unsigned int nbOutput            =resourceTable_->nbSent();
-  unsigned int nbOutputSumOfSquares=resourceTable_->outputSumOfSquares();
+  uint64_t     nbOutputSumOfSquares=resourceTable_->outputSumOfSquares();
   unsigned int nbOutputSumOfSizes  =resourceTable_->outputSumOfSizes();
+  uint64_t     deltaInputSumOfSquares;
+  uint64_t     deltaOutputSumOfSquares;
+  lock_.give();
   
   gui_->lockInfoSpaces();
   
@@ -449,10 +453,12 @@ bool FUResourceBroker::monitoring(toolbox::task::WorkLoop* wl)
   deltaNbOutput_.value_=nbOutput-nbOutputLast_;
   nbOutputLast_=nbOutput;
   
-  deltaInputSumOfSquares_.value_=nbInputSumOfSquares-nbInputLastSumOfSquares_;
+  deltaInputSumOfSquares=nbInputSumOfSquares-nbInputLastSumOfSquares_;
+  deltaInputSumOfSquares_.value_=(double)deltaInputSumOfSquares;
   nbInputLastSumOfSquares_=nbInputSumOfSquares;
 
   deltaOutputSumOfSquares_.value_=nbOutputSumOfSquares-nbOutputLastSumOfSquares_;
+  deltaOutputSumOfSquares_.value_=(double)deltaOutputSumOfSquares;
   nbOutputLastSumOfSquares_=nbOutputSumOfSquares;
   
   deltaInputSumOfSizes_.value_=nbInputSumOfSizes-nbInputLastSumOfSizes_;
@@ -608,8 +614,8 @@ void FUResourceBroker::reset()
   deltaT_                  =0.0;
   deltaNbInput_            =  0;
   deltaNbOutput_           =  0;
-  deltaInputSumOfSquares_  =  0;
-  deltaOutputSumOfSquares_ =  0;
+  deltaInputSumOfSquares_  =0.0;
+  deltaOutputSumOfSquares_ =0.0;
   deltaInputSumOfSizes_    =  0;
   deltaOutputSumOfSizes_   =  0;
   

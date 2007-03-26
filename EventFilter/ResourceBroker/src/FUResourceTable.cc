@@ -114,12 +114,13 @@ void FUResourceTable::startSendDataWorkLoop() throw (evf::Exception)
 bool FUResourceTable::sendData(toolbox::task::WorkLoop* /* wl */)
 {
   bool reschedule=true;
-  
+
   FUShmRecoCell* cell=shmBuffer_->recoCellToRead();
   nbAccepted_++;
   
   if (0==cell->eventSize()) {
     LOG4CPLUS_WARN(log_,"Don't reschedule sendData workloop.");
+    shmBuffer_->discardRecoCell(cell->index());
     reschedule=false;
   }
   else {
@@ -175,6 +176,7 @@ bool FUResourceTable::sendDqm(toolbox::task::WorkLoop* /* wl */)
   
   if (state==dqm::EMPTY) {
     LOG4CPLUS_WARN(log_,"Don't reschedule sendDqm workloop.");
+    shmBuffer_->discardDqmCell(cell->index());
     reschedule=false;
   }
   else {
@@ -240,7 +242,11 @@ bool FUResourceTable::discard(toolbox::task::WorkLoop* /* wl */)
     sendAllocate();
   }
   
-  if (!reschedule) isReadyToShutDown_ = true;
+  if (!reschedule) {
+    shmBuffer_->writeRecoEmptyEvent();
+    shmBuffer_->writeDqmEmptyEvent();
+    isReadyToShutDown_ = true;
+  }
   
   return reschedule;
 }
@@ -279,10 +285,6 @@ bool FUResourceTable::buildResource(MemRef_t* bufRef)
   if (!resource->fatalError()) {
     resource->process(bufRef);
     lock();
-    UInt_t nbBytes     =resource->nbBytes();
-    UInt_t nbBytesSq   =nbBytes*nbBytes;
-    inputSumOfSquares_+=nbBytesSq;
-    inputSumOfSizes_  +=nbBytes;
     nbErrors_         +=resource->nbErrors();
     nbCrcErrors_      +=resource->nbCrcErrors();
     unlock();
@@ -290,6 +292,9 @@ bool FUResourceTable::buildResource(MemRef_t* bufRef)
     // make resource available for pick-up
     if (resource->isComplete()) {
       lock();
+      UInt_t evtSize     =resource->shmCell()->eventSize();
+      inputSumOfSquares_+=(uint64_t)evtSize*(uint64_t)evtSize;
+      inputSumOfSizes_  +=evtSize;
       nbCompleted_++;
       nbPending_--;
       unlock();
@@ -453,8 +458,8 @@ void FUResourceTable::sendInitMessage(UInt_t   fuResourceId,
 				      UChar_t *data,
 				      UInt_t   dataSize)
 {
-  UInt_t nbBytes      =sm_->sendInitMessage(fuResourceId,data,dataSize);
-  UInt_t nbBytesSq    =nbBytes*nbBytes;
+  UInt_t   nbBytes    =sm_->sendInitMessage(fuResourceId,data,dataSize);
+  uint64_t nbBytesSq  =(uint64_t)nbBytes*(uint64_t)nbBytes;
   outputSumOfSquares_+=nbBytesSq;
   outputSumOfSizes_  +=nbBytes;
 }
@@ -467,9 +472,9 @@ void FUResourceTable::sendDataEvent(UInt_t   fuResourceId,
 				    UChar_t *data,
 				    UInt_t   dataSize)
 {
-  UInt_t nbBytes      =sm_->sendDataEvent(fuResourceId,
+  UInt_t   nbBytes    =sm_->sendDataEvent(fuResourceId,
 					  runNumber,evtNumber,data,dataSize);
-  UInt_t nbBytesSq    =nbBytes*nbBytes;
+  uint64_t nbBytesSq  =(uint64_t)nbBytes*(uint64_t)nbBytes;
   outputSumOfSquares_+=nbBytesSq;
   outputSumOfSizes_  +=nbBytes;
   nbSent_++;

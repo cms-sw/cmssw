@@ -1,3 +1,13 @@
+2007-03-26  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-06-03
+	* based on EventFilter/ShmBuffer V00-03-03, which provides some
+	crucial fixes!
+	* initialize nRecoCells_ and nDqmCells_ to 1, 0 currently not
+	allowed!
+	* the sendData and sendDqm threads are now cleanly exited upon
+	halt/stop.
+
 2007-03-24  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-06-02
