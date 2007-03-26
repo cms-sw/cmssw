@@ -37,29 +37,26 @@ BU::BU(xdaq::ApplicationStub *s)
   , log_(getApplicationLogger())
   , fsm_(this)
   , gui_(0)
+  , wlMonitoring_(0)
+  , asMonitoring_(0)
   , fedN_(0)
   , fedData_(0)
   , fedSize_(0)
   , fedId_(0)
   , instance_(0)
   , runNumber_(0)
-  , nbMBTot_(0.0)
-  , nbMBPerSec_(0.0)
-  , nbMBPerSecMin_(0.0)
-  , nbMBPerSecMax_(0.0)
-  , nbMBPerSecAvg_(0.0)
   , memUsedInMB_(0.0)
-  , nbEventsInBU_(0)
   , deltaT_(0.0)
   , deltaN_(0)
   , deltaSumOfSquares_(0)
   , deltaSumOfSizes_(0)
-  , nbEvents_(0)
-  , nbEventsPerSec_(0)
-  , nbEventsPerSecMin_(0)
-  , nbEventsPerSecMax_(0)
-  , nbEventsPerSecAvg_(0)
-  , nbDiscardedEvents_(0)
+  , throughput_(0.0)
+  , average_(0.0)
+  , rate_(0.0)
+  , rms_(0.0)
+  , nbEventsInBU_(0)
+  , nbEventsBuilt_(0)
+  , nbEventsDiscarded_(0)
   , mode_("RANDOM")
   , dataBufSize_(32768)
   , nSuperFrag_(64)
@@ -67,11 +64,12 @@ BU::BU(xdaq::ApplicationStub *s)
   , fedSizeMean_(1024)   // mean  of fed size for rnd generation
   , fedSizeWidth_(256)   // width of fed size for rnd generation
   , useFixedFedSize_(false)
+  , monSleepSec_(1)
   , nbPostFrame_(0)
   , nbPostFrameFailed_(0)
-  , nbMeasurements_(0)
-  , nbEventsLast_(0)
-  , nbBytes_(0)
+  , monLastN_(0)
+  , monLastSumOfSquares_(0)
+  , monLastSumOfSizes_(0)
   , sumOfSquares_(0)
   , sumOfSizes_(0)
   , i2oPool_(0)
@@ -89,24 +87,8 @@ BU::BU(xdaq::ApplicationStub *s)
   hostname_=getApplicationDescriptor()->getContextDescriptor()->getURL();
   sourceId_=class_.toString()+instance_.toString();
   
-  // web interface
-  xgi::bind(this,&evf::BU::webPageRequest,"Default");
-  gui_=new WebGUI(this,&fsm_);
-  gui_->setSmallAppIcon("/daq/evb/bu/images/bu32x32.gif");
-  gui_->setLargeAppIcon("/daq/evb/bu/images/bu64x64.gif");
-  
-  vector<toolbox::lang::Method*> methods=gui_->getMethods();
-  vector<toolbox::lang::Method*>::iterator it;
-  for (it=methods.begin();it!=methods.end();++it) {
-    if ((*it)->type()=="cgi") {
-      string name=static_cast<xgi::MethodSignature*>(*it)->name();
-      xgi::bind(this,&evf::BU::webPageRequest,name);
-    }
-  }
-  
   // i2o callbacks
   i2o::bind(this,&BU::I2O_BU_ALLOCATE_Callback,I2O_BU_ALLOCATE,XDAQ_ORGANIZATION_ID);
-  i2o::bind(this,&BU::I2O_BU_COLLECT_Callback, I2O_BU_COLLECT, XDAQ_ORGANIZATION_ID);
   i2o::bind(this,&BU::I2O_BU_DISCARD_Callback, I2O_BU_DISCARD, XDAQ_ORGANIZATION_ID);
   
   // allocate i2o memery pool
@@ -124,8 +106,27 @@ BU::BU(xdaq::ApplicationStub *s)
     XCEPT_RETHROW(xcept::Exception,s,e);
   }
   
+  // web interface
+  xgi::bind(this,&evf::BU::webPageRequest,"Default");
+  gui_=new WebGUI(this,&fsm_);
+  gui_->setSmallAppIcon("/daq/evb/bu/images/bu32x32.gif");
+  gui_->setLargeAppIcon("/daq/evb/bu/images/bu64x64.gif");
+  
+  vector<toolbox::lang::Method*> methods=gui_->getMethods();
+  vector<toolbox::lang::Method*>::iterator it;
+  for (it=methods.begin();it!=methods.end();++it) {
+    if ((*it)->type()=="cgi") {
+      string name=static_cast<xgi::MethodSignature*>(*it)->name();
+      xgi::bind(this,&evf::BU::webPageRequest,name);
+    }
+  }
+  
   // export parameters to info space(s)
   exportParameters();
+
+  // start monitoring thread, once and for all
+  startMonitoringWorkLoop();
+  
 }
 
 
@@ -141,117 +142,12 @@ BU::~BU()
 ////////////////////////////////////////////////////////////////////////////////
 
 //______________________________________________________________________________
-void BU::timeExpired(toolbox::task::TimerEvent& e)
-{
-  
-  lock();
-  gui_->lockInfoSpaces();
-
-  nbMeasurements_++;
-  
-  // number of events per second measurement
-  nbEventsPerSec_=nbEvents_-nbEventsLast_;
-  nbEventsLast_  =nbEvents_;
-  if (nbEventsPerSec_.value_>0) {
-    if (nbEventsPerSec_<nbEventsPerSecMin_) nbEventsPerSecMin_=nbEventsPerSec_;
-    if (nbEventsPerSec_>nbEventsPerSecMax_) nbEventsPerSecMax_=nbEventsPerSec_;
-  }
-  nbEventsPerSecAvg_=nbEvents_/nbMeasurements_;
-
-  // throughput measurements
-  nbMBPerSec_=9.53674e-07*nbBytes_;
-  nbBytes_=0;
-  nbMBTot_.value_+=nbMBPerSec_;
-  if (nbMBPerSec_.value_>0.0) {
-    if (nbMBPerSec_<nbMBPerSecMin_) nbMBPerSecMin_=nbMBPerSec_;
-    if (nbMBPerSec_>nbMBPerSecMax_) nbMBPerSecMax_=nbMBPerSec_;
-  }
-  nbMBPerSecAvg_=nbMBTot_/nbMeasurements_;
-  
-  // time interval since last evaluation
-  deltaT_=1.0;
-
-  // number of events processed in that interval
-  deltaN_=nbEventsPerSec_;
-  
-  // sum of squared events sizes
-  deltaSumOfSquares_=sumOfSquares_;
-  sumOfSquares_=0;
-
-  // sum of squared events sizes
-  deltaSumOfSizes_=sumOfSizes_;
-  sumOfSizes_=0;
-
-  gui_->unlockInfoSpaces();
-  unlock();
-}
-
-
-//______________________________________________________________________________
-void BU::initTimer()
-{
-  toolbox::task::getTimerFactory()->createTimer(sourceId_);
-  toolbox::task::Timer *timer=toolbox::task::getTimerFactory()->getTimer(sourceId_);
-  timer->stop();
-}
-
-
-//______________________________________________________________________________
-void BU::startTimer()
-{
-  toolbox::task::Timer *timer(0);
-  try {
-    timer=toolbox::task::getTimerFactory()->getTimer(sourceId_);
-  }
-  catch (toolbox::task::exception::Exception& e) {
-    LOG4CPLUS_ERROR(log_,"getTimer() failed.");
-  }
-  
-  if (0!=timer) {
-    toolbox::TimeInterval oneSec(1.);
-    toolbox::TimeVal      startTime=toolbox::TimeVal::gettimeofday();
-    timer->start();
-    timer->scheduleAtFixedRate(startTime,this,oneSec,gui_->appInfoSpace(),sourceId_);
-  }
-}
-
-
-//______________________________________________________________________________
-void BU::stopTimer()
-{
-  toolbox::task::Timer *timer =toolbox::task::getTimerFactory()->getTimer(sourceId_);
-  timer->stop();
-  toolbox::task::getTimerFactory()->removeTimer(sourceId_);
-}
-
-
-//______________________________________________________________________________
-void BU::actionPerformed(xdata::Event& e)
-{
-  gui_->lockInfoSpaces();
-  if (e.type()=="ItemRetrieveEvent") {
-    string item=dynamic_cast<xdata::ItemRetrieveEvent&>(e).itemName();
-    if (item=="mode") {
-      mode_=(0==PlaybackRawDataProvider::instance())?"RANDOM":"PLAYBACK";
-    }
-    if (item=="memUsedInMB") {
-      if (0!=i2oPool_) memUsedInMB_=i2oPool_->getMemoryUsage().getUsed()*0.000001;
-      else             memUsedInMB_=0.0;
-    }
-  }
-  gui_->unlockInfoSpaces();
-}
-
-
-//______________________________________________________________________________
 bool BU::configuring(toolbox::task::WorkLoop* wl)
 {
   try {
     LOG4CPLUS_INFO(log_,"Start configuring ...");
     reset();
-    initTimer();
     LOG4CPLUS_INFO(log_,"Finished configuring!");
-    
     fsm_.fireEvent("ConfigureDone",this);
   }
   catch (xcept::Exception &e) {
@@ -286,7 +182,6 @@ bool BU::stopping(toolbox::task::WorkLoop* wl)
   try {
     LOG4CPLUS_INFO(log_,"Start stopping :) ...");
     LOG4CPLUS_INFO(log_,"Finished stopping!");
-    
     fsm_.fireEvent("StopDone",this);
   }
   catch (xcept::Exception &e) {
@@ -303,9 +198,7 @@ bool BU::halting(toolbox::task::WorkLoop* wl)
 {
   try {
     LOG4CPLUS_INFO(log_,"Start halting ...");
-    stopTimer();
     LOG4CPLUS_INFO(log_,"Finished halting!");
-    
     fsm_.fireEvent("HaltDone",this);
   }
   catch (xcept::Exception &e) {
@@ -326,16 +219,6 @@ xoap::MessageReference BU::fsmCallback(xoap::MessageReference msg)
 
 
 //______________________________________________________________________________
-void BU::webPageRequest(xgi::Input *in,xgi::Output *out)
-  throw (xgi::exception::Exception)
-{
-  string name=in->getenv("PATH_INFO");
-  if (name.empty()) name="defaultWebPage";
-  static_cast<xgi::MethodSignature*>(gui_->getMethod(name))->invoke(in,out);
-}
-
-
-//______________________________________________________________________________
 void BU::I2O_BU_ALLOCATE_Callback(toolbox::mem::Reference *bufRef)
 {
   // check if the BU is enabled
@@ -345,9 +228,6 @@ void BU::I2O_BU_ALLOCATE_Callback(toolbox::mem::Reference *bufRef)
     bufRef->release();
     return;
   }
-  
-  // start timer for performance measurements upon receiving first request
-  if (nbEvents_.value_==0) startTimer();
   
   
   // process message
@@ -369,7 +249,7 @@ void BU::I2O_BU_ALLOCATE_Callback(toolbox::mem::Reference *bufRef)
     
     // if a raw data provider is present, request an event from it
     unsigned int runNumber=0; // not needed
-    unsigned int evtNumber=(nbEvents_+1)%0x1000000;
+    unsigned int evtNumber=(nbEventsInBU_+nbEventsBuilt_+1)%0x1000000;
     FEDRawDataCollection* event(0);
     if (0!=PlaybackRawDataProvider::instance())
       event=PlaybackRawDataProvider::instance()->getFEDRawData(runNumber,evtNumber);
@@ -400,7 +280,6 @@ void BU::I2O_BU_ALLOCATE_Callback(toolbox::mem::Reference *bufRef)
 
       superFrag->setDataSize(msgSizeInBytes);
       lock();
-      nbBytes_      +=msgSizeInBytes;
       evtSizeInBytes+=msgSizeInBytes;
       unlock();
       
@@ -428,9 +307,9 @@ void BU::I2O_BU_ALLOCATE_Callback(toolbox::mem::Reference *bufRef)
     if (0!=event) delete event;
     
     lock();
-    nbEvents_.value_++;
+    nbEventsBuilt_.value_++;
     nbEventsInBU_.value_--;
-    sumOfSquares_+=evtSizeInBytes*evtSizeInBytes;
+    sumOfSquares_+=(uint64_t)evtSizeInBytes*(uint64_t)evtSizeInBytes;
     sumOfSizes_  +=evtSizeInBytes;
     unlock();
   }
@@ -441,18 +320,213 @@ void BU::I2O_BU_ALLOCATE_Callback(toolbox::mem::Reference *bufRef)
 
 
 //______________________________________________________________________________
-void BU::I2O_BU_COLLECT_Callback(toolbox::mem::Reference *bufRef)
+void BU::I2O_BU_DISCARD_Callback(toolbox::mem::Reference *bufRef)
 {
   bufRef->release();
-  LOG4CPLUS_WARN(log_,"I2O_BU_COLLECT_Callback() not implemented!");
+  nbEventsDiscarded_.value_++;
 }
 
 
 //______________________________________________________________________________
-void BU::I2O_BU_DISCARD_Callback(toolbox::mem::Reference *bufRef)
+void BU::actionPerformed(xdata::Event& e)
 {
-  bufRef->release();
-  nbDiscardedEvents_.value_++;
+  gui_->lockInfoSpaces();
+  if (e.type()=="ItemRetrieveEvent") {
+    string item=dynamic_cast<xdata::ItemRetrieveEvent&>(e).itemName();
+    if (item=="mode") {
+      mode_=(0==PlaybackRawDataProvider::instance())?"RANDOM":"PLAYBACK";
+    }
+    if (item=="memUsedInMB") {
+      if (0!=i2oPool_) memUsedInMB_=i2oPool_->getMemoryUsage().getUsed()*9.53674e-07;
+      else             memUsedInMB_=0.0;
+    }
+  }
+  gui_->unlockInfoSpaces();
+}
+
+
+//______________________________________________________________________________
+void BU::webPageRequest(xgi::Input *in,xgi::Output *out)
+  throw (xgi::exception::Exception)
+{
+  string name=in->getenv("PATH_INFO");
+  if (name.empty()) name="defaultWebPage";
+  static_cast<xgi::MethodSignature*>(gui_->getMethod(name))->invoke(in,out);
+}
+
+
+//______________________________________________________________________________
+void BU::startMonitoringWorkLoop() throw (evf::Exception)
+{
+  struct timezone timezone;
+  gettimeofday(&monStartTime_,&timezone);
+  
+  try {
+    wlMonitoring_=
+      toolbox::task::getWorkLoopFactory()->getWorkLoop(sourceId_+"Monitoring",
+						       "waiting");
+    if (!wlMonitoring_->isActive()) wlMonitoring_->activate();
+    asMonitoring_=toolbox::task::bind(this,&BU::monitoring,sourceId_+"Monitoring");
+    wlMonitoring_->submit(asMonitoring_);
+  }
+  catch (xcept::Exception& e) {
+    string msg = "Failed to start workloop 'Monitoring'.";
+    XCEPT_RETHROW(evf::Exception,msg,e);
+  }
+}
+
+
+//______________________________________________________________________________
+bool BU::monitoring(toolbox::task::WorkLoop* wl)
+{
+  struct timeval  monEndTime;
+  struct timezone timezone;
+  
+  gettimeofday(&monEndTime,&timezone);
+  
+  lock();
+  unsigned int monN           =nbEventsBuilt_.value_;
+  uint64_t     monSumOfSquares=sumOfSquares_;
+  unsigned int monSumOfSizes  =sumOfSizes_;
+  uint64_t     deltaSumOfSquares;
+  unlock();
+  
+  gui_->lockInfoSpaces();
+  
+  deltaT_.value_=deltaT(&monStartTime_,&monEndTime);
+  monStartTime_=monEndTime;
+  
+  deltaN_.value_=monN-monLastN_;
+  monLastN_=monN;
+
+  deltaSumOfSquares=monSumOfSquares-monLastSumOfSquares_;
+  deltaSumOfSquares_.value_=(double)deltaSumOfSquares;
+  monLastSumOfSquares_=monSumOfSquares;
+  
+  deltaSumOfSizes_.value_=monSumOfSizes-monLastSumOfSizes_;
+  monLastSumOfSizes_=monSumOfSizes;
+  
+  gui_->unlockInfoSpaces();
+  
+  if (deltaT_.value_!=0) {
+    throughput_=deltaSumOfSizes_.value_/deltaT_.value_;
+    rate_      =deltaN_.value_/deltaT_.value_;
+  }
+  else {
+    throughput_=0.0;
+    rate_      =0.0;
+  }
+  
+  double meanOfSquares,mean,squareOfMean,variance;
+  
+  if(deltaN_.value_!=0) {
+    meanOfSquares=deltaSumOfSquares_.value_/((double)(deltaN_.value_));
+    mean=((double)(deltaSumOfSizes_.value_))/((double)(deltaN_.value_));
+    squareOfMean=mean*mean;
+    variance=meanOfSquares-squareOfMean;
+    average_=deltaSumOfSizes_.value_/deltaN_.value_;
+    rms_    =std::sqrt(variance);
+  }
+  else {
+    average_=0.0;
+    rms_    =0.0;
+  }
+  
+  ::sleep(monSleepSec_.value_);
+
+  return true;
+}
+    
+
+
+////////////////////////////////////////////////////////////////////////////////
+// implementation of private member functions
+////////////////////////////////////////////////////////////////////////////////
+
+//______________________________________________________________________________
+void BU::exportParameters()
+{
+  if (0==gui_) {
+    LOG4CPLUS_ERROR(log_,"No GUI, can't export parameters");
+    return;
+  }
+  
+  gui_->addMonitorParam("url",                &url_);
+  gui_->addMonitorParam("class",              &class_);
+  gui_->addMonitorParam("instance",           &instance_);
+  gui_->addMonitorParam("hostname",           &hostname_);
+  gui_->addMonitorParam("runNumber",          &runNumber_);
+  gui_->addMonitorParam("stateName",          fsm_.stateName());
+  gui_->addMonitorParam("memUsedInMB",        &memUsedInMB_);
+  gui_->addMonitorParam("deltaT",             &deltaT_);
+  gui_->addMonitorParam("deltaN",             &deltaN_);
+  gui_->addMonitorParam("deltaSumOfSquares",  &deltaSumOfSquares_);
+  gui_->addMonitorParam("deltaSumOfSizes",    &deltaSumOfSizes_);
+  gui_->addMonitorParam("throughput",         &throughput_);
+  gui_->addMonitorParam("average",            &average_);
+  gui_->addMonitorParam("rate",               &rate_);
+  gui_->addMonitorParam("rms",                &rms_);
+
+  gui_->addMonitorCounter("nbEvtsInBU",       &nbEventsInBU_);
+  gui_->addMonitorCounter("nbEvtsBuilt",      &nbEventsBuilt_);
+  gui_->addMonitorCounter("nbEvtsDiscarded",  &nbEventsDiscarded_);
+
+  gui_->addStandardParam("mode",              &mode_);
+  gui_->addStandardParam("dataBufSize",       &dataBufSize_);
+  gui_->addStandardParam("nSuperFrag",        &nSuperFrag_);
+  gui_->addStandardParam("fedSizeMax",        &fedSizeMax_);
+  gui_->addStandardParam("fedSizeMean",       &fedSizeMean_);
+  gui_->addStandardParam("fedSizeWidth",      &fedSizeWidth_);
+  gui_->addStandardParam("useFixedFedSize",   &useFixedFedSize_);
+
+  gui_->addDebugCounter("nbPostFrame",        &nbPostFrame_);
+  gui_->addDebugCounter("nbPostFrameFailed",  &nbPostFrameFailed_);
+  
+  gui_->exportParameters();
+
+  gui_->addItemRetrieveListener("mode",       this);
+  gui_->addItemRetrieveListener("memUsedInMB",this);
+}
+
+
+//______________________________________________________________________________
+void BU::reset()
+{
+  gui_->resetCounters();
+  
+  deltaT_             =0.0;
+  deltaN_             =  0;
+  deltaSumOfSquares_  =  0;
+  deltaSumOfSizes_    =  0;
+  
+  throughput_         =0.0;
+  average_            =  0;
+  rate_               =  0;
+  rms_                =  0;
+
+  monLastN_           =  0;
+  monLastSumOfSquares_=  0;
+  monLastSumOfSizes_  =  0;
+}
+  
+
+//______________________________________________________________________________
+double BU::deltaT(const struct timeval *start,const struct timeval *end)
+{
+  unsigned int  sec;
+  unsigned int  usec;
+  
+  sec = end->tv_sec - start->tv_sec;
+  
+  if(end->tv_usec > start->tv_usec) {
+    usec = end->tv_usec - start->tv_usec;
+  }
+  else {
+    sec--;
+    usec = 1000000 - ((unsigned int )(start->tv_usec - end->tv_usec));
+  }
+  
+  return ((double)sec) + ((double)usec) / 1000000.0;
 }
 
 
@@ -571,86 +645,6 @@ void BU::fillFedBuffers(unsigned int iSuperFrag,FEDRawDataCollection* event)
   
 }
 
-
-//______________________________________________________________________________
-void BU::exportParameters()
-{
-  if (0==gui_) {
-    LOG4CPLUS_ERROR(log_,"No GUI, can't export parameters");
-    return;
-  }
-  
-  gui_->addMonitorParam("url",                &url_);
-  gui_->addMonitorParam("class",              &class_);
-  gui_->addMonitorParam("instance",           &instance_);
-  gui_->addMonitorParam("hostname",           &hostname_);
-  gui_->addMonitorParam("runNumber",          &runNumber_);
-  gui_->addMonitorParam("stateName",          fsm_.stateName());
-  gui_->addMonitorParam("nbMBTot",            &nbMBTot_);
-  gui_->addMonitorParam("nbMBPerSec",         &nbMBPerSec_);
-  gui_->addMonitorParam("nbMBPerSecMin",      &nbMBPerSecMin_);
-  gui_->addMonitorParam("nbMBPerSecMax",      &nbMBPerSecMax_);
-  gui_->addMonitorParam("nbMBPerSecAvg",      &nbMBPerSecAvg_);
-  gui_->addMonitorParam("memUsedInMB",        &memUsedInMB_);
-  gui_->addMonitorParam("nbEventsInBU",       &nbEventsInBU_);
-  gui_->addMonitorParam("deltaT",             &deltaT_);
-  gui_->addMonitorParam("deltaN",             &deltaN_);
-  gui_->addMonitorParam("deltaSumOfSquares",  &deltaSumOfSquares_);
-  gui_->addMonitorParam("deltaSumOfSizes",    &deltaSumOfSizes_);
-
-  
-  gui_->addMonitorCounter("nbEvents",         &nbEvents_);
-  gui_->addMonitorCounter("nbEventsPerSec",   &nbEventsPerSec_);
-  gui_->addMonitorCounter("nbEventsPerSecMin",&nbEventsPerSecMin_);
-  gui_->addMonitorCounter("nbEventsPerSecMax",&nbEventsPerSecMax_);
-  gui_->addMonitorCounter("nbEventsPerSecAvg",&nbEventsPerSecAvg_);
-  gui_->addMonitorCounter("nbDiscardedEvents",&nbDiscardedEvents_);
-
-  gui_->addStandardParam("mode",              &mode_);
-  gui_->addStandardParam("dataBufSize",       &dataBufSize_);
-  gui_->addStandardParam("nSuperFrag",        &nSuperFrag_);
-  gui_->addStandardParam("fedSizeMax",        &fedSizeMax_);
-  gui_->addStandardParam("fedSizeMean",       &fedSizeMean_);
-  gui_->addStandardParam("fedSizeWidth",      &fedSizeWidth_);
-  gui_->addStandardParam("useFixedFedSize",   &useFixedFedSize_);
-  
-  gui_->addDebugCounter("nbPostFrame",        &nbPostFrame_);
-  gui_->addDebugCounter("nbPostFrameFailed",  &nbPostFrameFailed_);
-  
-  gui_->exportParameters();
-
-  gui_->addItemRetrieveListener("mode",       this);
-  gui_->addItemRetrieveListener("memUsedInMB",this);
-}
-
-
-//______________________________________________________________________________
-void BU::reset()
-{
-  gui_->resetCounters();
-  
-  nbEventsPerSecMin_=10000;
-  nbMBTot_          =0.0;
-  nbMBPerSec_       =0.0;
-  nbMBPerSecMin_    =1e6;
-  nbMBPerSecMax_    =0.0;
-  nbMBPerSecAvg_    =0.0;
-  nbEventsInBU_     =0;
-  deltaN_           =0;
-  deltaSumOfSquares_=0;
-  deltaSumOfSizes_  =0;
-  
-  nbMeasurements_   =0;
-  nbEventsLast_     =0;
-  nbBytes_          =0;
-  sumOfSquares_     =0;
-  sumOfSizes_       =0;
-}
-  
-
-////////////////////////////////////////////////////////////////////////////////
-// implementation of private member functions
-////////////////////////////////////////////////////////////////////////////////
 
 //______________________________________________________________________________
 toolbox::mem::Reference *BU::createSuperFrag(const I2O_TID& fuTid,
