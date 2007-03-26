@@ -10,7 +10,7 @@
  *
  */
 
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "EventFilter/EcalRawToDigi/interface/EcalRawToDigi.h"
 #include "EventFilter/EcalRawToDigi/src/DCCMapper.h"
 
