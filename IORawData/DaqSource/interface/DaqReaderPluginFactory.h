@@ -4,8 +4,8 @@
 /** \class DaqReaderPluginFactory
  *  Plugin factory for actual data sources for DaqSource.
  *
- *  $Date: 2005/09/30 08:17:48 $
- *  $Revision: 1.1 $
+ *  $Date: 2005/10/06 18:23:47 $
+ *  $Revision: 1.2 $
  *  \author N. Amapane - CERN
  */
 
@@ -20,6 +20,13 @@ class DaqReaderPluginFactory : public seal::PluginFactory<DaqBaseReader *(const 
   static DaqReaderPluginFactory* get (void);
  private:
   static DaqReaderPluginFactory s_instance;
+};
+class DaqReaderPluginFactoryU :public seal::PluginFactory<DaqBaseReader *()>{
+ public:
+  DaqReaderPluginFactoryU();
+  static DaqReaderPluginFactoryU* get (void);
+ private:
+  static DaqReaderPluginFactoryU s_instance;
 };
 #endif
 

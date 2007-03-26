@@ -1,7 +1,7 @@
 /** \file 
  *
- *  $Date: 2006/10/24 15:11:50 $
- *  $Revision: 1.11 $
+ *  $Date: 2007/03/07 08:31:19 $
+ *  $Revision: 1.12 $
  *  \author N. Amapane - S. Argiro'
  */
 
@@ -16,6 +16,8 @@
 
 #include <IORawData/DaqSource/interface/DaqBaseReader.h>
 #include <IORawData/DaqSource/interface/DaqReaderPluginFactory.h>
+
+#include "SealBase/Error.h"
 
 #include <iostream>
 #include <string>
@@ -40,9 +42,16 @@ DaqSource::DaqSource(const ParameterSet& pset,
   
   // Instantiate the requested data source
   string reader = pset.getParameter<string>("reader");
-  reader_=
-    DaqReaderPluginFactory::get()->create(reader,
-					  pset.getParameter<ParameterSet>("pset"));
+  try{
+    pset.getParameter<ParameterSet>("pset");
+    reader_=
+      DaqReaderPluginFactory::get()->create(reader,
+					    pset.getParameter<ParameterSet>("pset"));
+  }
+  catch(edm::Exception &e){
+      reader_=
+	DaqReaderPluginFactoryU::get()->create(reader);
+  }  
 }
 
 //______________________________________________________________________________
@@ -59,6 +68,9 @@ DaqSource::~DaqSource()
 //______________________________________________________________________________
 std::auto_ptr<Event> DaqSource::readOneEvent()
 {
+  if(reader_==0)
+    throw cms::Exception("LogicError")
+      << "DaqSource is used without a reader. Check your configuration !";
   EventID eventId;
   edm::TimeValue_t time = 0LL;
   gettimeofday((timeval *)(&time),0);
