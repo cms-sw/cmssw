@@ -4,16 +4,16 @@
 /** \class CompareHitPairsZ
  *  compare hit pairs in z direction
  *
- *  $Date: 2007/03/25 17:26:50 $
- *  $Revision: 1.5 $
+ *  $Date: 2007/03/26 06:24:17 $
+ *  $Revision: 1.6 $
  *  \author Maarten Thomas
  */
 
 /** \class LaserHitPairGeneratorFromLayerPair
  *  generate hit pairs from hits on consecutive discs in the endcaps used by the LaserSeedGenerator
  *
- *  $Date: 2007/03/25 17:26:50 $
- *  $Revision: 1.5 $
+ *  $Date: 2007/03/26 06:24:17 $
+ *  $Revision: 1.6 $
  *  \author Maarten Thomas
  */
 
@@ -60,24 +60,12 @@ class CompareHitPairsZ
 class LaserHitPairGeneratorFromLayerPair : public HitPairGenerator
 {
  public:
-  typedef CombinedHitPairGenerator::LayerCacheType LayerCacheType;
-
 	/// constructor
-/*  LaserHitPairGeneratorFromLayerPair(const LayerWithHits * inner, const LayerWithHits * outer, 
-				     LayerCacheType * layerCache, const edm::EventSetup & iSetup) : theLayerCache(*layerCache),
-    theInnerLayer(inner),theOuterLayer(outer) {}
-*/
   	LaserHitPairGeneratorFromLayerPair(const LayerWithHits * inner, const LayerWithHits * outer, 
 			const edm::EventSetup & iSetup);
 
 	/// destructor
   virtual ~LaserHitPairGeneratorFromLayerPair() {}
-
-/* 	/// order hit pairs */
-/*   virtual OrderedHitPairs hitPairs(const TrackingRegion & region, const edm::EventSetup & iSetup) */
-/*   { */
-/*     return HitPairGenerator::hitPairs(region, iSetup); */
-/*   } */
 
 	/// from base class
   virtual void hitPairs(const TrackingRegion & ar, OrderedHitPairs & ap, const edm::EventSetup & iSetup);
@@ -94,8 +82,6 @@ class LaserHitPairGeneratorFromLayerPair : public HitPairGenerator
 
  private:
   // all data members are "shallow copy" 
-/*  LayerCacheType & theLayerCache;
-*/
   const TrackerGeometry* trackerGeometry;
   const LayerWithHits * theInnerLayer;
   const LayerWithHits * theOuterLayer;
