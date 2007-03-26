@@ -7,12 +7,16 @@
  */
 #include <string>
 
+namespace edm { class EventSetup; }
+
 class PdtEntry {
 public:
   explicit PdtEntry( int pdgId ) : pdgId_( pdgId ) { }
   explicit PdtEntry( const std::string & name ) : pdgId_( 0 ), name_( name ) { }
   int pdgId() const;
   const std::string & name() const;
+  void setup( const edm::EventSetup & ); 
+
 private:
   int pdgId_;
   std::string name_;
