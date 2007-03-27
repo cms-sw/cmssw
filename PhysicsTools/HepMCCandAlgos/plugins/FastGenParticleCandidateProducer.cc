@@ -2,7 +2,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: FastGenParticleCandidateProducer.cc,v 1.8 2007/03/27 08:43:51 llista Exp $
+ * \version $Id: FastGenParticleCandidateProducer.cc,v 1.9 2007/03/27 09:06:03 llista Exp $
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -176,20 +176,19 @@ void FastGenParticleCandidateProducer::fillRefs( const std::vector<const GenPart
   for( size_t d = 0; d < candVector.size(); ++ d ) {
     const GenParticle * part = particles[ d ];
     const GenVertex * productionVertex = part->production_vertex();
-    if ( productionVertex == 0 ) 
-      throw edm::Exception( edm::errors::InvalidReference ) 
-	<< "particle has no production vertex. PDG id: " << part->pdg_id() << endl;
-    size_t numberOfMothers = productionVertex->particles_in_size();
-    if ( numberOfMothers > 0 ) {
-      GenVertex::particles_in_const_iterator motherIt = productionVertex->particles_in_const_begin();
-      const GenParticle * mother = * motherIt;
-      size_t m = mother->barcode() - 1;
-      candVector[ m ]->addDaughter( CandidateRef( ref, d ) );
-      if ( numberOfMothers > 1 ) {
-	++ motherIt;
-	const GenParticle * mother2 = * motherIt;
-	m = mother2->barcode() - 1;
+    if ( productionVertex != 0 ) {
+      size_t numberOfMothers = productionVertex->particles_in_size();
+      if ( numberOfMothers > 0 ) {
+	GenVertex::particles_in_const_iterator motherIt = productionVertex->particles_in_const_begin();
+	const GenParticle * mother = * motherIt;
+	size_t m = mother->barcode() - 1;
 	candVector[ m ]->addDaughter( CandidateRef( ref, d ) );
+	if ( numberOfMothers > 1 ) {
+	  ++ motherIt;
+	  const GenParticle * mother2 = * motherIt;
+	  m = mother2->barcode() - 1;
+	  candVector[ m ]->addDaughter( CandidateRef( ref, d ) );
+	}
       }
     }
   }

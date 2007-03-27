@@ -2,7 +2,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: GenParticleCandidateProducer.cc,v 1.8 2007/03/27 08:43:51 llista Exp $
+ * \version $Id: GenParticleCandidateProducer.cc,v 1.9 2007/03/27 09:06:03 llista Exp $
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -228,22 +228,23 @@ void GenParticleCandidateProducer::fillMothers( const vector<const HepMC::GenPar
   for( size_t i = 0; i < size; ++ i ) {
     const GenParticle * part = particles[ i ];
     const GenVertex * productionVertex = part-> production_vertex();
-    if ( productionVertex == 0 ) 
+    if ( productionVertex != 0 ) {
       throw edm::Exception( edm::errors::InvalidReference ) 
 	<< "particle has no production vertex. PDG id: " << part->pdg_id() << endl;
-    size_t numberOfMothers = productionVertex->particles_in_size();
-    if ( numberOfMothers > 0 ) {
-      GenVertex::particles_in_const_iterator motherIt = productionVertex->particles_in_const_begin();
-      const GenParticle * mother = * motherIt;
-      mothers[ i ] = mother->barcode() - 1;
-      if ( numberOfMothers > 1 ) {
-	++ motherIt;
-	const GenParticle * mother2 = * motherIt;
-	mothers2[ i ] = mother2->barcode() - 1;
+      size_t numberOfMothers = productionVertex->particles_in_size();
+      if ( numberOfMothers > 0 ) {
+	GenVertex::particles_in_const_iterator motherIt = productionVertex->particles_in_const_begin();
+	const GenParticle * mother = * motherIt;
+	mothers[ i ] = mother->barcode() - 1;
+	if ( numberOfMothers > 1 ) {
+	  ++ motherIt;
+	  const GenParticle * mother2 = * motherIt;
+	  mothers2[ i ] = mother2->barcode() - 1;
+	}
+      } else {
+	mothers[ i ] = -1;
+	mothers2[ i ] = -1;
       }
-    } else {
-      mothers[ i ] = -1;
-      mothers2[ i ] = -1;
     }
   }
 }
