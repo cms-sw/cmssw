@@ -7,8 +7,8 @@
  *      within cylinders
  *
  *
- *  $Date: 2007/03/27 20:48:12 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/03/27 20:49:45 $
+ *  $Revision: 1.5 $
  *  \author Chang Liu  -  Purdue University
  */
 
@@ -217,14 +217,6 @@ vector<Trajectory> CosmicMuonSmoother::smooth(const Trajectory& t) const {
  // predTsos.rescaleError(theErrorRescaling);
 
   if ( !predTsos.isValid() ) return vector<Trajectory>();
-
-<<<<<<< CosmicMuonSmoother.cc
-//  if ( predTsos.globalMomentum().y() > 0 && predTsos.globalMomentum().eta()< 2.5 )  
-//     theUtilities->reverseDirection(predTsos, &*theService->magneticField());
-=======
-//  if ( predTsos.globalMomentum().y() > 0 && predTsos.globalMomentum().eta()< 4.0 )  
-//     theUtilities->reverseDirection(predTsos, &*theService->magneticField());
->>>>>>> 1.3
 
   TrajectoryStateOnSurface currTsos;
 
