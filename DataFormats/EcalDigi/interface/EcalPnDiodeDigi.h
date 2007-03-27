@@ -10,7 +10,7 @@
 
 /** \class EcalPnDiodeDigi
       
-$Id: $
+$Id: EcalPnDiodeDigi.h,v 1.1 2005/10/11 07:47:04 meridian Exp $
 */
 
 class EcalPnDiodeDigi {
@@ -23,11 +23,11 @@ class EcalPnDiodeDigi {
   const EcalPnDiodeDetId& id() const { return id_; }
   int size() const { return size_; }
     
-  const EcalFEMSample& operator[](int i) const { return data_[i]; }
-  const EcalFEMSample& sample(int i) const { return data_[i]; }
+  const EcalFEMSample& operator[](const int& i) const { return data_[i]; }
+  const EcalFEMSample& sample(const int& i) const { return data_[i]; }
     
-  void setSize(int size);
-  void setSample(int i, const EcalFEMSample& sam) { data_[i]=sam; }
+  void setSize(const int& size);
+  void setSample(const int& i, const EcalFEMSample& sam) { data_[i]=sam; }
     
   static const int MAXSAMPLES = 50;
  private:

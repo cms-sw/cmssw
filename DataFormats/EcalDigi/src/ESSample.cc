@@ -1,6 +1,6 @@
 #include "DataFormats/EcalDigi/interface/ESSample.h"
 
-ESSample::ESSample(int adc) {
+ESSample::ESSample(const int& adc) {
   theSample = (adc&0xFFF);
 }
 
