@@ -5,7 +5,7 @@
   
 RefBase: Base class for a single interproduct reference.
 
-$Id: RefBase.h,v 1.5 2006/12/16 03:41:25 wmtan Exp $
+$Id: RefBase.h,v 1.6 2007/03/14 22:09:14 paterno Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -39,6 +39,15 @@ namespace edm {
     /// Constructor from RefVector. 
     RefBase(RefCore const& prod, RefItem<KEY> const& itm) :
       product_(prod), item_(itm) {}
+
+    // /// Return the index for the referenced element.
+    // key_type key() const { return item_.key(); }
+    
+
+    /// Return true if this RefBase is non-null
+    bool isValid() const { return item_.isValid(); }
+    bool isNull() const { return item_.isNull(); }
+    bool isNonnull() const { return item_.isNonnull(); }
 
   private:
     RefCore product_;

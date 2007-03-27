@@ -5,7 +5,7 @@
   
 Ref: A template for a interproduct reference to a member of a product.
 
-$Id: Ref.h,v 1.19 2007/03/04 04:59:59 wmtan Exp $
+$Id: Ref.h,v 1.20 2007/03/23 16:54:31 paterno Exp $
 
 ----------------------------------------------------------------------*/
 /**
@@ -222,10 +222,11 @@ namespace edm {
     }
 
     /// Checks for null
-    bool isNull() const {return id() == ProductID();}
+    bool isNull() const {return !isNonnull(); }
 
     /// Checks for non-null
-    bool isNonnull() const {return !isNull();}
+    //bool isNonnull() const {return id().isValid(); }
+    bool isNonnull() const { return ref_.isNonnull(); }
 
     /// Checks for null
     bool operator!() const {return isNull();}

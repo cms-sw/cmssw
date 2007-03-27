@@ -5,7 +5,7 @@
 
 Definition of traits templates used in the EDM.  
 
-$Id: traits.h,v 1.12 2007/02/07 23:01:43 paterno Exp $
+$Id: traits.h,v 1.13 2007/03/15 13:32:23 paterno Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -14,8 +14,9 @@ $Id: traits.h,v 1.12 2007/02/07 23:01:43 paterno Exp $
 #include <list>
 #include <map>
 #include <set>
-#include <vector>
 #include <string>
+#include <utility>
+#include <vector>
 
 #include "FWCore/Utilities/interface/GCCPrerequisite.h"
 
@@ -43,6 +44,20 @@ namespace edm
   typename  key_traits<K>::key_type const
   key_traits<K>::value =
     std::numeric_limits<typename key_traits<K>::key_type>::max();
+
+  // Partial specialization for std::pair
+
+  template <class U, class V>
+  struct key_traits<std::pair<U,V> >
+  {
+    typedef std::pair<U,V>  key_type;
+    static const key_type value;
+  };
+
+  template <class U, class V>
+  typename key_traits<std::pair<U,V> >::key_type const
+  key_traits<std::pair<U,V> >::value = 
+    std::make_pair(key_traits<U>::value, key_traits<V>::value);
 
   // If we ever need to support instantiations of std::basic_string
   // other than std::string, this is the place to do it.

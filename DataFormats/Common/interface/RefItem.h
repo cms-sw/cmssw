@@ -5,12 +5,13 @@
   
 RefItem: Index and pointer to a referenced item.
 
-$Id: RefItem.h,v 1.6 2007/03/14 21:21:04 paterno Exp $
+$Id: RefItem.h,v 1.7 2007/03/23 16:54:31 paterno Exp $
 
 ----------------------------------------------------------------------*/
 #include <vector>
 
 #include "DataFormats/Common/interface/RefCore.h"
+#include "DataFormats/Common/interface/traits.h"
 
 namespace edm {
   
@@ -18,14 +19,20 @@ namespace edm {
   class RefItem {
   public:
     typedef KEY key_type;
-    //typedef std::vector<int>::size_type size_type;
-    //RefItem() : index_(0), ptr_(refhelper::DefaultHelper<KEY>::defaultValue()) {}
-    RefItem() : index_(), ptr_(0) {}
+
+    RefItem() : index_(key_traits<key_type>::value), ptr_(0) {}
+
     RefItem(key_type inx, void const* p) : index_(inx), ptr_(p) {}
+
     ~RefItem() {}
+
     key_type key() const {return index_;}
     void const *ptr() const {return ptr_;}
     void const *setPtr(void const* p) const {return(ptr_ = p);}
+
+    bool isValid() const { return index_!=edm::key_traits<key_type>::value; }
+    bool isNonnull() const { return isValid(); }
+    bool isNull() const { return !isValid(); }
        
 private:
     key_type index_;
