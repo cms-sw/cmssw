@@ -41,7 +41,7 @@ void
   if( edm::isInfoEnabled() ) 
      edm::LogInfo  ("cat_B") << "LogInfo was used to send this other message\n" ;
 
-  if( e.id()==5 )
+  if( e.id().event() == 5 )
    {
     std::cerr << "Raising Signal " << SigName << " = " << signum << std::endl;
     edm::LogInfo("Signals") << "Raising Signal " << SigName << " = " << signum ;
