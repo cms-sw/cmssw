@@ -8,8 +8,8 @@
  *  All histos are produced per Layer
  *
  *
- *  $Date: 2007/03/26 17:30:00 $
- *  $Revision: 1.0 $
+ *  $Date: 2007/03/26 14:52:30 $
+ *  $Revision: 1.1 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -58,6 +58,9 @@ private:
 
   // Lable of 4D segments in the event
   std::string theRecHits4DLabel;
+
+  // Lable of 1D rechits in the event
+  std::string theRecHitLabel;
   
   edm::ParameterSet parameters;
 
@@ -65,8 +68,8 @@ private:
   void bookHistos(DTLayerId lId, int fisrtWire, int lastWire);
 
   // Fill a set of histograms for a given L 
-  void fillHistos(DTLayerId lId, int firstWire, int lastWire);
-  void fillHistos(DTLayerId lId, int firstWire, int lastWire, int missingWire);
+  void fillHistos(DTLayerId lId, int firstWire, int lastWire, int numWire);
+  void fillHistos(DTLayerId lId, int firstWire, int lastWire, int missingWire, bool UnassHit);
 
   std::map<DTLayerId, std::vector<MonitorElement*> > histosPerL;
 

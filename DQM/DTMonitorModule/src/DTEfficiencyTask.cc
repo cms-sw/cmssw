@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/03/26 14:52:17 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/03/27 07:51:45 $
+ *  $Revision: 1.2 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -30,6 +30,7 @@
 //RecHit
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
 #include "DataFormats/DTRecHit/interface/DTRecHitCollection.h"
+#include "DataFormats/DTRecHit/interface/DTRangeMapAccessor.h"
 
 #include "CondFormats/DataRecord/interface/DTStatusFlagRcd.h"
 #include "CondFormats/DTObjects/interface/DTStatusFlag.h"
@@ -69,6 +70,8 @@ DTEfficiencyTask::~DTEfficiencyTask(){
 void DTEfficiencyTask::beginJob(const edm::EventSetup& context){
   // the name of the 4D rec hits collection
   theRecHits4DLabel = parameters.getParameter<string>("recHits4DLabel");
+  // the name of the rechits collection
+  theRecHitLabel = parameters.getParameter<string>("recHitLabel");
 }
 
 void DTEfficiencyTask::endJob(){
@@ -92,6 +95,10 @@ void DTEfficiencyTask::analyze(const edm::Event& event, const edm::EventSetup& s
   edm::Handle<DTRecSegment4DCollection> all4DSegments;
   event.getByLabel(theRecHits4DLabel, all4DSegments);
 
+  // Get the rechit collection from the event
+  Handle<DTRecHitCollection> dtRecHits;
+  event.getByLabel(theRecHitLabel, dtRecHits);
+
   // Get the DT Geometry
   ESHandle<DTGeometry> dtGeom;
   setup.get<MuonGeometryRecord>().get(dtGeom);
@@ -102,16 +109,33 @@ void DTEfficiencyTask::analyze(const edm::Event& event, const edm::EventSetup& s
        chamberId != all4DSegments->id_end();
        ++chamberId) {
 
-    // Get the range for the corresponding ChamerId
+    // Get the chamber
+    const DTChamber* chamber = dtGeom->chamber(*chamberId); 
+
+    // Get all 1D RecHits to be used for searches of hits not associated to segments and map them by wire
+    const vector<const DTSuperLayer*> SLayers = chamber->superLayers();
+    map<DTWireId, int> wireAnd1DRecHits;
+    for(vector<const DTSuperLayer*>::const_iterator superlayer = SLayers.begin();
+	superlayer != SLayers.end();
+	superlayer++) {
+	DTRecHitCollection::range  range = dtRecHits->get(DTRangeMapAccessor::layersBySuperLayer((*superlayer)->id()));
+	// Loop over the rechits of this ChamberId
+	for (DTRecHitCollection::const_iterator rechit = range.first;
+	     rechit!=range.second;
+	     ++rechit){
+	  wireAnd1DRecHits[(*rechit).wireId()] = (*rechit).wireId().wire();
+	}
+      }
+
+
+    // Get the 4D segment range for the corresponding ChamerId
     DTRecSegment4DCollection::range  range = all4DSegments->get(*chamberId);
     int nsegm = distance(range.first, range.second);
     if(debug)
       cout << "   Chamber: " << *chamberId << " has " << nsegm
 	   << " 4D segments" << endl;
 
-    // Get the chamber
-    const DTChamber* chamber = dtGeom->chamber(*chamberId);
-  
+    
     // Loop over the rechits of this ChamerId
     for (DTRecSegment4DCollection::const_iterator segment4D = range.first;
 	 segment4D!=range.second;
@@ -228,10 +252,12 @@ void DTEfficiencyTask::analyze(const edm::Event& event, const edm::EventSetup& s
 	  }
 	}
 	// Loop over segment 1D RecHit
+	map<DTLayerId, int> NumWireMap; 
 	for(vector<DTRecHit1D>::const_iterator recHit = recHits1D.begin();
 	    recHit != recHits1D.end();
 	    recHit++) {
 	  layerMap[(*recHit).wireId().layerId()]= true;
+	  NumWireMap[(*recHit).wireId().layerId()]= (*recHit).wireId().wire();
 	}
 	DTLayerId missLayerId;
 	//Loop over the map and find the layer without hits
@@ -274,29 +300,38 @@ void DTEfficiencyTask::analyze(const edm::Event& event, const edm::EventSetup& s
 	  cout << "[DTEfficiencyTask] Cell without hit is: " << missWireId << endl;
 	// ----------------------------------------------------------
 
+
+	bool foundUnAssRechit = false;
+
+	// Look for unassociated hits in this cell
+	if(wireAnd1DRecHits.find(missWireId) != wireAnd1DRecHits.end()) {
+	  if(debug)
+	    cout << "[DTEfficiencyTask] Unassociated Hit found!" << endl;
+	  foundUnAssRechit = true;
+	}
+
+
 	for(map<DTLayerId, bool>::const_iterator iter = layerMap.begin();
 	    iter != layerMap.end(); iter++) {
 	  if((*iter).second) 
-	    fillHistos((*iter).first, dtGeom->layer((*iter).first)->specificTopology().firstChannel(), dtGeom->layer((*iter).first)->specificTopology().lastChannel());
+	    fillHistos((*iter).first, dtGeom->layer((*iter).first)->specificTopology().firstChannel(), dtGeom->layer((*iter).first)->specificTopology().lastChannel(), NumWireMap[(*iter).first]);
 	  else
-	    fillHistos((*iter).first, dtGeom->layer((*iter).first)->specificTopology().firstChannel(), dtGeom->layer((*iter).first)->specificTopology().lastChannel(), missWireId.wire());
+	    fillHistos((*iter).first, dtGeom->layer((*iter).first)->specificTopology().firstChannel(), dtGeom->layer((*iter).first)->specificTopology().lastChannel(), missWireId.wire(), foundUnAssRechit);
 	}
-      }
 
+      } // End of the loop for segment with 7 or 11 recHits
+      
       if((rPhi && recHits1D.size() == 8) || (rZ && recHits1D.size() == 12)) {
-	const vector<const DTSuperLayer*> SupLayers = chamber->superLayers();
-	for(vector<const DTSuperLayer*>::const_iterator superlayer = SupLayers.begin();
-	    superlayer != SupLayers.end();
-	    superlayer++) {
-	  const vector<const DTLayer*> Layers = (*superlayer)->layers();
-	  for(vector<const DTLayer*>::const_iterator layer = Layers.begin();
-	      layer != Layers.end();
-	      layer++) {
-	    fillHistos((*layer)->id(), dtGeom->layer((*layer)->id())->specificTopology().firstChannel(), dtGeom->layer((*layer)->id())->specificTopology().lastChannel());
-	  }
+	map<DTLayerId, int> NumWireMap; 
+	DTLayerId LayerID;
+	for(vector<DTRecHit1D>::const_iterator recHit = recHits1D.begin();
+	    recHit != recHits1D.end();
+	    recHit++) {
+	  LayerID = (*recHit).wireId().layerId();
+	  NumWireMap[LayerID]= (*recHit).wireId().wire();
 	}
+	fillHistos(LayerID, dtGeom->layer(LayerID)->specificTopology().firstChannel(), dtGeom->layer(LayerID)->specificTopology().lastChannel(), NumWireMap[LayerID]);
       }
-
 
     } // End of loop over the 4D segments inside a sigle chamber
   } // End of loop over all tha chamber with at least a 4D segment in the event
@@ -328,8 +363,10 @@ void DTEfficiencyTask::bookHistos(DTLayerId lId, int firstWire, int lastWire) {
 			   "/SuperLayer" +superLayer.str());
   // Create the monitor elements
   vector<MonitorElement *> histos;
-  // Note hte order matters
+  // histo for hits associated to the 4D reconstructed segment
   histos.push_back(theDbe->book1D("hEfficiency"+lHistoName, "Efficiency per cell",lastWire-firstWire+1, firstWire-0.5, lastWire+0.5));
+  // histo for hits not associated to the segment
+  histos.push_back(theDbe->book1D("hEfficiencyUnass"+lHistoName, "Efficiency per cell",lastWire-firstWire+1, firstWire-0.5, lastWire+0.5));
 
   histosPerL[lId] = histos;
 }
@@ -337,26 +374,25 @@ void DTEfficiencyTask::bookHistos(DTLayerId lId, int firstWire, int lastWire) {
 
 // Fill a set of histograms for a given Layer 
 void DTEfficiencyTask::fillHistos(DTLayerId lId,
-				  int firstWire, int lastWire) {
+				  int firstWire, int lastWire,
+				  int numWire) {
   if(histosPerL.find(lId) == histosPerL.end()){
       bookHistos(lId, firstWire, lastWire);
   }
   vector<MonitorElement *> histos =  histosPerL[lId]; 
-  for(int i=firstWire; i <= lastWire; i++) {
-      histos[0]->Fill(i);
-  }
+  histos[0]->Fill(numWire);
+  histos[1]->Fill(numWire);
 }
 
 // Fill a set of histograms for a given Layer
 void DTEfficiencyTask::fillHistos(DTLayerId lId,
 				  int firstWire, int lastWire,
-				  int missingWire) {
+				  int missingWire,
+				  bool unassHit) {
  if(histosPerL.find(lId) == histosPerL.end()){
       bookHistos(lId, firstWire, lastWire);
   }
- vector<MonitorElement *> histos =  histosPerL[lId]; 
- for(int i=firstWire; i <= lastWire; i++) {
-   if( i != missingWire )
-     histos[0]->Fill(i);
- }
+ vector<MonitorElement *> histos =  histosPerL[lId];
+ if(unassHit) 
+   histos[1]->Fill(missingWire);
 }
