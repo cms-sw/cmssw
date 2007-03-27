@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RootFile.cc,v 1.59 2007/03/22 22:25:14 wmtan Exp $
+$Id: RootFile.cc,v 1.60 2007/03/23 17:20:53 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "IOPool/Input/src/RootFile.h"
@@ -222,10 +222,10 @@ namespace edm {
     return thisEvent;
   }
 
-  boost::shared_ptr<RunPrincipal const>
+  boost::shared_ptr<RunPrincipal>
   RootFile::readRun(ProductRegistry const& pReg, RunNumber_t const& runNumber) {
     if (!runTree().isValid()) {
-      return boost::shared_ptr<RunPrincipal const>(new RunPrincipal(runNumber, pReg, processConfiguration_));
+      return boost::shared_ptr<RunPrincipal>(new RunPrincipal(runNumber, pReg, processConfiguration_));
     }
     RootTree::EntryNumber entry = runTree().getExactEntryNumber(runNumber, 0);
     RunAuxiliary runAux;
@@ -246,7 +246,7 @@ namespace edm {
         LogInfo("RunNotFound")
           << "Run " << runNumber << " was not found in file " << file_ << "\n";
       }
-      return boost::shared_ptr<RunPrincipal const>(new RunPrincipal(runNumber, pReg, processConfiguration_));
+      return boost::shared_ptr<RunPrincipal>(new RunPrincipal(runNumber, pReg, processConfiguration_));
     }
     boost::shared_ptr<RunPrincipal> thisRun(new RunPrincipal(runNumber, pReg, processConfiguration_,
 		runAux.processHistoryID_, runTree().makeDelayedReader()));
@@ -255,15 +255,15 @@ namespace edm {
     return thisRun;
   }
 
-  boost::shared_ptr<LuminosityBlockPrincipal const>
+  boost::shared_ptr<LuminosityBlockPrincipal>
   RootFile::readLumi(ProductRegistry const& pReg, RunNumber_t const& runNumber,
 						  LuminosityBlockNumber_t const& lumiNumber,
 						  bool isNewRun) {
-    boost::shared_ptr<RunPrincipal const> runPrincipal = (isNewRun ?
+    boost::shared_ptr<RunPrincipal> runPrincipal = (isNewRun ?
 	readRun(pReg, runNumber) :
-	luminosityBlockPrincipal_->runPrincipalConstSharedPtr());
+	luminosityBlockPrincipal_->runPrincipalSharedPtr());
     if (!lumiTree().isValid()) {
-      return boost::shared_ptr<LuminosityBlockPrincipal const>(
+      return boost::shared_ptr<LuminosityBlockPrincipal>(
 	new LuminosityBlockPrincipal(lumiNumber, pReg, runPrincipal, processConfiguration_));
     }
     RootTree::EntryNumber entry = lumiTree().getExactEntryNumber(runNumber, lumiNumber);
@@ -286,7 +286,7 @@ namespace edm {
         LogInfo("LumiNotFound")
           << "Lumi Block " << lumiNumber << " in Run " << runNumber << " was not found in file " << file_ << "\n";
       }
-      return boost::shared_ptr<LuminosityBlockPrincipal const>(
+      return boost::shared_ptr<LuminosityBlockPrincipal>(
 	new LuminosityBlockPrincipal(lumiNumber, pReg, runPrincipal, processConfiguration_));
     } 
     boost::shared_ptr<LuminosityBlockPrincipal> thisLumi(
