@@ -2,46 +2,6 @@
 <use name=FWCore/ParameterSet>
 <use name=PhysicsTools/UtilAlgos>
 
-<library file=TrackCountFilter.cc>
-  <use name=DataFormats/TrackReco>
-</library>
-<library file=MuonCountFilter.cc>
-  <use name=DataFormats/MuonReco>
-</library>
-<library file=ElectronCountFilter.cc>
-  <use name=DataFormats/EgammaCandidates>
-</library>
-<library file=PhotonCountFilter.cc>
-  <use name=DataFormats/EgammaCandidates>
-</library>
-
-<library file=PtMinTrackCountFilter.cc>
-  <use name=DataFormats/TrackReco>
-</library>
-<library file=PtMinMuonCountFilter.cc>
-  <use name=DataFormats/MuonReco>
-</library>
-<library file=PtMinElectronCountFilter.cc>
-  <use name=DataFormats/EgammaCandidates>
-</library>
-<library file=EtMinCaloJetCountFilter.cc>
-  <use name=DataFormats/JetReco>
-</library>
-<library file=EtMinPhotonCountFilter.cc>
-  <use name=DataFormats/EgammaCandidates>
-</library>
-
-<library file=EtaEtMinCaloJetCountFilter.cc>
-  <use name=DataFormats/JetReco>
-</library>
-
-<library file=ElectronPairMassFilter.cc>
-  <use name=DataFormats/EgammaCandidates>
-</library>
-<library file=MuonPairMassFilter.cc>
-  <use name=DataFormats/MuonReco>
-</library>
-
 <library file=TrackMerger.cc>
   <use name=DataFormats/TrackReco>
 </library>
