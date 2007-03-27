@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2007/03/26 09:23:44 $
- *  $Revision: 1.31 $
+ *  $Date: 2007/03/26 09:59:04 $
+ *  $Revision: 1.32 $
  *
  *  \author Martin Grunewald
  *
@@ -29,11 +29,11 @@
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
 
-#include "HepPDT/ParticleID.hh"
-#include "HepMC/ReadHepMC.h"
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include "HepPDT/ParticleID.hh"
 
 //
 // constructors and destructor
