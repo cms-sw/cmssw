@@ -1,17 +1,13 @@
 #ifndef TrackProducerBase_h
 #define TrackProducerBase_h
 
-//
-// Package:    RecoTracker/TrackProducer
-// Class:      TrackProducerBase
-// 
-//
-// Description: Base Class To Produce Tracks
-//
-//
-// Original Author:  Giuseppe Cerati
-//         Created:  Wed May  10 12:29:31 CET 2006
-//
+/** \class TrackProducerBase
+ *  Base Class To Produce Tracks
+ *
+ *  $Date: 2007/03/26 10:13:49 $
+ *  $Revision: 1.1 $
+ *  \author cerati
+ */
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -30,11 +26,14 @@ class TrackerGeometry;
 
 class TrackProducerBase {
 public:
+  /// Constructor
   TrackProducerBase(bool trajectoryInEvent = false):
     trajectoryInEvent_(trajectoryInEvent){}
 
+  /// Destructor
   virtual ~TrackProducerBase();
   
+  /// Get needed services from the Event Setup
   virtual void getFromES(const edm::EventSetup&,
 			 edm::ESHandle<TrackerGeometry>& ,
 			 edm::ESHandle<MagneticField>& ,
@@ -42,9 +41,12 @@ public:
 			 edm::ESHandle<Propagator>& ,
 			 edm::ESHandle<TransientTrackingRecHitBuilder>& );
 
+  /// Get TrackCandidateCollection from the Event (needed by TrackProducer)
   virtual void getFromEvt(edm::Event&, edm::Handle<TrackCandidateCollection>&);
+  /// Get TrackCollection from the Event (needed by TrackRefitter)
   virtual void getFromEvt(edm::Event&, edm::Handle<reco::TrackCollection>&);
 
+  /// Put produced collections in the event
   virtual void putInEvt(edm::Event&,
 			std::auto_ptr<TrackingRecHitCollection>&,
 			std::auto_ptr<reco::TrackCollection>&,
@@ -52,12 +54,19 @@ public:
 			std::auto_ptr<std::vector<Trajectory> >&,
 			AlgoProductCollection&);
 
+  /// Method where the procduction take place. To be implemented in concrete classes
   virtual void produce(edm::Event&, const edm::EventSetup&) = 0;
 
+  /// Set parameter set
   void setConf(edm::ParameterSet conf){conf_=conf;}
-  //edm::ParameterSet conf(){return conf;}
+
+  /// set label of source collection
   void setSrc(std::string src){src_=src;}
+
+  /// set the producer of source collection
   void setProducer(std::string pro){pro_=pro;}
+
+  /// set the aliases of produced collections
   void setAlias(std::string alias){
     alias.erase(alias.size()-6,alias.size());
     alias_=alias;
