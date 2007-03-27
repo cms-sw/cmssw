@@ -25,11 +25,11 @@ type_energy_dict={"MU+":qed_ene,
                   "E+":qed_ene,
                   "E-":qed_ene,
                   "GAMMA":qed_ene,
-                  "10MU+":qed_ene,
+                  #"10MU+":qed_ene,
                   "10MU-":qed_ene,
-                  "10E+":qed_ene,
-                  "10E-":qed_ene,
-                  "10GAMMA":qed_ene,
+                  #"10E+":qed_ene,
+                  #"10E-":qed_ene,
+                  #"10GAMMA":qed_ene,
                   "QCD":"380_470",
                   "B_JETS":jet_en,"C_JETS":jet_en,"UDS_JETS":jet_en,
                   "ZPJJ":"",
@@ -45,7 +45,7 @@ executable="$CMSSW_BASE/src/Configuration/PyReleaseValidation/data/cmsDriver.py"
 for evt_type in type_energy_dict.keys():                             
     job_content=\
 """#! /bin/sh
-"""+cmssw_base+"""
+cd """+cmssw_base+"""
 eval `scramv1 runtime -sh`
 PYTHONPATH=$PYTHONPATH:$CMSSW_BASE/src/Configuration/PyReleaseValidation/data
 cd """+my_workdir+"""/"""+evt_type+"""

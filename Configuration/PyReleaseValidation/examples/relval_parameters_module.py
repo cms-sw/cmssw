@@ -1,20 +1,14 @@
 
 #############################################################
 #                                                           #
-#              relval_parameters_module                     #
+#             + relval_parameters_module +                  #
 #                                                           #
-#  This module contains a dictionary in which               #
-#  the parameters relevant for the process are stored.      #
-#  The parameters are:                                      #
-#   - Type of the events          (string)                  #
-#   - Number of the events        (int)                     # 
-#   - Energy of the events        (string)                  #
-#   - input and output files      (string)                  #
-#   - Step: SIM DIGI RECO ALL     (string)                  #
 #  The supported types are:                                 #
+#                                                           #
 #   - QCD (energy in the form min_max)                      #
-#   - B_JETS, C_JETS (energy in the form min_max for cuts)  #
+#   - B_JETS, C_JETS, UDS_JETS (energy in the form min_max) #
 #   - TTBAR                                                 #
+#   - BSJPSIPHI                                             #
 #   - MU+,MU-,E+,E-,GAMMA,10MU+,10E-...                     #
 #   - TAU (energy in the form min_max for cuts)             #
 #   - HZZEEEE, HZZMUMUMUMU                                  #
@@ -26,22 +20,24 @@
 # Process Parameters
 
 # The name of the process
-process_name='ALL'
+process_name='SIM'
 # The type of the process. Please see the complete list of 
 # available processes.
-evt_type='MU+'
+evt_type='QCD'
 # The energy in GeV. Some of the tipes require an
 # energy in the form "Emin_Emax"
-energy='10'
+energy='380_470'
 # Number of evts to generate
-evtnumber=10
+evtnumber=1
 # Input and output file names
 infile_name=''
-outfile_name='MU+_10_ALL.root'
+outfile_name='QCD_380_470_SIM.root'
 # The step: SIM DIGI RECO and ALL to do the 3 in one go.
-step='ALL'
+step='SIM'
 # Omit the output in a root file
-output_flag= True
+output_flag=True
+# Use the profiler service
+profiler_service_cuts=''
 
 # Pyrelval parameters
 # Enable verbosity
