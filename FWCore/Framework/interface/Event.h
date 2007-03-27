@@ -15,7 +15,7 @@ For its usage, see "FWCore/Framework/interface/DataViewImpl.h"
 */
 /*----------------------------------------------------------------------
 
-$Id: Event.h,v 1.54 2007/01/10 05:58:01 wmtan Exp $
+$Id: Event.h,v 1.55 2007/03/04 06:00:22 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -67,14 +67,15 @@ namespace edm {
       return *luminosityBlock_;
     }
 
+
     LuminosityBlockNumber_t
-    luminosityBlock() const;    
+    luminosityBlock() const {return aux_.luminosityBlock();}
 
     Run const&
     getRun() const;
 
     RunNumber_t
-    run() const;    
+    run() const {return id().run();}   
 
   private:
     // commit_() is called to complete the transaction represented by

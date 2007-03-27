@@ -16,7 +16,7 @@ For its usage, see "FWCore/Framework/interface/DataViewImpl.h"
 */
 /*----------------------------------------------------------------------
 
-$Id: LuminosityBlock.h,v 1.8 2007/01/10 05:58:01 wmtan Exp $
+$Id: LuminosityBlock.h,v 1.9 2007/03/04 06:00:22 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -48,7 +48,9 @@ namespace edm {
     // AUX functions.
     LuminosityBlockNumber_t luminosityBlock() const {return aux_.luminosityBlock();}
 
-    RunNumber_t run() const;
+    RunNumber_t run() const {
+      return aux_.run();
+    }
 
     LuminosityBlockID id() const {
       return aux_.id();
