@@ -1976,13 +1976,13 @@
  <Rotation name="RM1290" thetaX="91.69291*deg" phiX="-90.50626*deg" thetaY="106.64454*deg" phiY="0*deg" thetaZ="16.73543*deg" phiZ="-6.14711*deg" />
  <Rotation name="RM1291" thetaX="93.38568*deg" phiX="-91.01341*deg" thetaY="106.64454*deg" phiY="0*deg" thetaZ="17.00518*deg" phiZ="-12.16711*deg" />
  <Rotation name="RM1299" thetaX="0*deg" phiX="0*deg" thetaY="90*deg" phiY="180*deg" thetaZ="90*deg" phiZ="-90*deg" />
- <Rotation name="RM1298" thetaX="90*deg" phiX="0*deg" thetaY="86.5853*deg" phiY="90*deg" thetaZ="3.4147*deg" phiZ="-90*deg" />
+ <Rotation name="RM1298" thetaX="90*deg" phiX="0*deg" thetaY="86.20004*deg" phiY="90*deg" thetaZ="3.79996*deg" phiZ="-90*deg" />
  <Rotation name="RM1303" thetaX="0*deg" phiX="0*deg" thetaY="90*deg" phiY="0*deg" thetaZ="90*deg" phiZ="90*deg" />
- <Rotation name="RM1302" thetaX="90*deg" phiX="180*deg" thetaY="86.5853*deg" phiY="-90*deg" thetaZ="3.4147*deg" phiZ="90*deg" />
+ <Rotation name="RM1302" thetaX="90*deg" phiX="180*deg" thetaY="86.20004*deg" phiY="-90*deg" thetaZ="3.79996*deg" phiZ="90*deg" />
  <Rotation name="RM1301" thetaX="0*deg" phiX="0*deg" thetaY="90*deg" phiY="90*deg" thetaZ="90*deg" phiZ="-180*deg" />
- <Rotation name="RM1300" thetaX="86.5853*deg" phiX="0*deg" thetaY="90*deg" phiY="90*deg" thetaZ="3.4147*deg" phiZ="-180*deg" />
+ <Rotation name="RM1300" thetaX="86.20004*deg" phiX="0*deg" thetaY="90*deg" phiY="90*deg" thetaZ="3.79996*deg" phiZ="-180*deg" />
  <Rotation name="RM1305" thetaX="0*deg" phiX="0*deg" thetaY="90*deg" phiY="-90*deg" thetaZ="90*deg" phiZ="0*deg" />
- <Rotation name="RM1304" thetaX="86.5853*deg" phiX="180*deg" thetaY="90*deg" phiY="-90*deg" thetaZ="3.4147*deg" phiZ="0*deg" />
+ <Rotation name="RM1304" thetaX="86.20004*deg" phiX="180*deg" thetaY="90*deg" phiY="-90*deg" thetaZ="3.79996*deg" phiZ="0*deg" />
  <Rotation name="YXZ4" thetaX="90*deg" phiX="-90*deg" thetaY="90*deg" phiY="0*deg" thetaZ="0*deg" phiZ="0*deg" />
  <Rotation name="DIV2" thetaX="90*deg" phiX="20*deg" thetaY="90*deg" phiY="110*deg" thetaZ="0*deg" phiZ="0*deg" />
  <Rotation name="DIV3" thetaX="90*deg" phiX="40*deg" thetaY="90*deg" phiY="130*deg" thetaZ="0*deg" phiZ="0*deg" />
