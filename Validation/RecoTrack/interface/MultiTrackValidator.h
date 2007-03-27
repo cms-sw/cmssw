@@ -4,8 +4,8 @@
 /** \class MultiTrackValidator
  *  Class that prodecs histrograms to validate Track Reconstruction performances
  *
- *  $Date: 2007/03/26 10:13:49 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/03/26 15:01:35 $
+ *  $Revision: 1.22 $
  *  \author cerati
  */
 
@@ -41,7 +41,8 @@ class MultiTrackValidator : public edm::EDAnalyzer {
   MultiTrackValidator(const edm::ParameterSet& pset):
     dbe_(0),
     sim(pset.getParameter<std::string>("sim")),
-    label(pset.getParameter< std::vector<std::string> >("label")),
+    label(pset.getParameter< std::vector<edm::InputTag> >("label")),
+    label_tp(pset.getParameter< edm::InputTag >("label_tp")),
     associators(pset.getParameter< std::vector<std::string> >("associators")),
     out(pset.getParameter<std::string>("out")),
     min(pset.getParameter<double>("min")),
@@ -72,7 +73,9 @@ class MultiTrackValidator : public edm::EDAnalyzer {
   DaqMonitorBEInterface* dbe_;
 
   std::string sim;
-  std::vector<std::string> label, associators;
+  std::vector<edm::InputTag> label;
+  edm::InputTag label_tp;
+  std::vector<std::string> associators;
   std::string out;
   double  min, max;
   int nint;

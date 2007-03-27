@@ -31,18 +31,22 @@ void MultiTrackValidator::beginJob( const EventSetup & setup) {
     for (unsigned int www=0;www<label.size();www++){
 
       dbe_->cd();
-      string algo = label[www];
-      string assoc= associators[ww];
-      if (algo.find("Tracks")<algo.length()){
-	algo.replace(algo.find("Tracks"),6,"");
+      InputTag algo = label[www];
+      string dirName="";
+      if (algo.process()!="")
+	dirName+=algo.process()+"_";
+      if(algo.label()!="")
+	dirName+=algo.label()+"_";
+      if(algo.instance()!="")
+	dirName+=algo.instance()+"_";      
+      if (dirName.find("Tracks")<dirName.length()){
+	dirName.replace(dirName.find("Tracks"),6,"");
       }
+      string assoc= associators[ww];
       if (assoc.find("Track")<assoc.length()){
 	assoc.replace(assoc.find("Track"),5,"");
       }
-      if (algo.find(":")<algo.length()) {
-	algo.replace(algo.find(":"),1,"_");
-      }
-      string dirName = algo+"_"+assoc;
+      dirName+=assoc;
       dbe_->setCurrentFolder(dirName.c_str());
 
       vector<double> etaintervalsv;
@@ -190,13 +194,16 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 			       << "====================================================\n" << "\n";
 
   edm::Handle<TrackingParticleCollection>  TPCollectionH ;
-  event.getByLabel("trackingParticles",TPCollectionH);
+  event.getByLabel(label_tp,TPCollectionH);
   const TrackingParticleCollection tPC = *(TPCollectionH.product());
   
   int w=0;
   for (unsigned int ww=0;ww<associators.size();ww++){
     for (unsigned int www=0;www<label.size();www++){
-      edm::LogVerbatim("TrackValidator") << "Analyzing " << label[www].c_str() << " with " 
+      edm::LogVerbatim("TrackValidator") << "Analyzing " 
+					 << label[www].process()<<":"
+					 << label[www].label()<<":"
+					 << label[www].instance()<<" with "
 					 << associators[ww].c_str() <<"\n";
       //
       //get collections from the event
@@ -276,8 +283,11 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
       //
       //fill reconstructed track histograms
       // 
-      edm::LogVerbatim("TrackValidator") << "\n# of reco::Tracks with " << label[www].c_str()  
-					 << "(before cuts): " << tC.size() << "\n";
+      edm::LogVerbatim("TrackValidator") << "\n# of reco::Tracks with "
+					 << label[www].process()<<":"
+					 << label[www].label()<<":"
+					 << label[www].instance()
+					 << " (before cuts): " << tC.size() << "\n";
       int at=0;
       int rT=0;
       for(reco::TrackCollection::size_type i=0; i<tC.size(); ++i){
@@ -362,47 +372,46 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	  double phi0Pull=(track->phi()-phiSim)/track->phiError();
 	  double d0Pull=(track->d0()-d0Sim)/track->d0Error();
 	  double dzPull=(track->dz()-dzSim)/track->dzError();
-	  if (tp.begin()->second>100){
-	    double contrib_Qoverp = ((track->qoverp()-qoverpSim)/track->qoverpError())*
-	      ((track->qoverp()-qoverpSim)/track->qoverpError())/5;
-	    double contrib_d0 = ((track->d0()-d0Sim)/track->d0Error())*((track->d0()-d0Sim)/track->d0Error())/5;
-	    double contrib_dz = ((track->dz()-dzSim)/track->dzError())*((track->dz()-dzSim)/track->dzError())/5;
-	    double contrib_theta = ((track->lambda()-lambdaSim)/track->thetaError())*
-	      ((track->lambda()-lambdaSim)/track->thetaError())/5;
-	    double contrib_phi = ((track->phi()-phiSim)/track->phiError())*
-	      ((track->phi()-phiSim)/track->phiError())/5;
-	    LogTrace("TrackValidatorTEST") << "assocChi2=" << tp.begin()->second << "\n"
-					   << "" <<  "\n"
-					   << "ptREC=" << track->pt() << "\n"
-					   << "etaREC=" << track->eta() << "\n"
+
+	  double contrib_Qoverp = ((track->qoverp()-qoverpSim)/track->qoverpError())*
+	    ((track->qoverp()-qoverpSim)/track->qoverpError())/5;
+	  double contrib_d0 = ((track->d0()-d0Sim)/track->d0Error())*((track->d0()-d0Sim)/track->d0Error())/5;
+	  double contrib_dz = ((track->dz()-dzSim)/track->dzError())*((track->dz()-dzSim)/track->dzError())/5;
+	  double contrib_theta = ((track->lambda()-lambdaSim)/track->thetaError())*
+	    ((track->lambda()-lambdaSim)/track->thetaError())/5;
+	  double contrib_phi = ((track->phi()-phiSim)/track->phiError())*
+	    ((track->phi()-phiSim)/track->phiError())/5;
+	  LogTrace("TrackValidatorTEST") << "assocChi2=" << tp.begin()->second << "\n"
+					 << "" <<  "\n"
+					 << "ptREC=" << track->pt() << "\n"
+					 << "etaREC=" << track->eta() << "\n"
 					   << "qoverpREC=" << track->qoverp() << "\n"
-					   << "d0REC=" << track->d0() << "\n"
-					   << "dzREC=" << track->dz() << "\n"
-					   << "thetaREC=" << track->theta() << "\n"
-					   << "phiREC=" << track->phi() << "\n"
-					   << "" <<  "\n"
-					   << "qoverpError()=" << track->qoverpError() << "\n"
-					   << "d0Error()=" << track->d0Error() << "\n"
-					   << "dzError()=" << track->dzError() << "\n"
-					   << "thetaError()=" << track->thetaError() << "\n"
-					   << "phiError()=" << track->phiError() << "\n"
-					   << "" <<  "\n"
-					   << "ptSIM=" << assocTrack->momentum().perp() << "\n"
-					   << "etaSIM=" << assocTrack->momentum().pseudoRapidity() << "\n"
-					   << "qoverpSIM=" << qoverpSim << "\n"
-					   << "d0SIM=" << d0Sim << "\n"
-					   << "dzSIM=" << dzSim << "\n"
-					   << "thetaSIM=" << M_PI/2-lambdaSim << "\n"
-					   << "phiSIM=" << phiSim << "\n"
-					   << "" << "\n"
-					   << "contrib_Qoverp=" << contrib_Qoverp << "\n"
-					   << "contrib_d0=" << contrib_d0 << "\n"
-					   << "contrib_dz=" << contrib_dz << "\n"
-					   << "contrib_theta=" << contrib_theta << "\n"
-					   << "contrib_phi=" << contrib_phi << "\n"
-					   << "" << "\n"
-					   <<"chi2PULL="<<contrib_Qoverp+contrib_d0+contrib_dz+contrib_theta+contrib_phi<<"\n";
-	  }
+					 << "d0REC=" << track->d0() << "\n"
+					 << "dzREC=" << track->dz() << "\n"
+					 << "thetaREC=" << track->theta() << "\n"
+					 << "phiREC=" << track->phi() << "\n"
+					 << "" <<  "\n"
+					 << "qoverpError()=" << track->qoverpError() << "\n"
+					 << "d0Error()=" << track->d0Error() << "\n"
+					 << "dzError()=" << track->dzError() << "\n"
+					 << "thetaError()=" << track->thetaError() << "\n"
+					 << "phiError()=" << track->phiError() << "\n"
+					 << "" <<  "\n"
+					 << "ptSIM=" << assocTrack->momentum().perp() << "\n"
+					 << "etaSIM=" << assocTrack->momentum().pseudoRapidity() << "\n"
+					 << "qoverpSIM=" << qoverpSim << "\n"
+					 << "d0SIM=" << d0Sim << "\n"
+					 << "dzSIM=" << dzSim << "\n"
+					 << "thetaSIM=" << M_PI/2-lambdaSim << "\n"
+					 << "phiSIM=" << phiSim << "\n"
+					 << "" << "\n"
+					 << "contrib_Qoverp=" << contrib_Qoverp << "\n"
+					 << "contrib_d0=" << contrib_d0 << "\n"
+					 << "contrib_dz=" << contrib_dz << "\n"
+					 << "contrib_theta=" << contrib_theta << "\n"
+					 << "contrib_phi=" << contrib_phi << "\n"
+					 << "" << "\n"
+					 <<"chi2PULL="<<contrib_Qoverp+contrib_d0+contrib_dz+contrib_theta+contrib_phi<<"\n";
 	  
 	  h_pullQoverp[w]->Fill(qoverpPull);
 	  h_pullTheta[w]->Fill(thetaPull);
