@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Fri May 26 16:11:30 EDT 2006
-// $Id: SiStripElectronProducer.cc,v 1.10 2007/02/02 14:50:20 duboscq Exp $
+// $Id: SiStripElectronProducer.cc,v 1.11 2007/03/07 10:54:23 uberthon Exp $
 //
 
 // system include files
@@ -32,8 +32,6 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h" 
-
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 
 //
 // constants, enums and typedefs
