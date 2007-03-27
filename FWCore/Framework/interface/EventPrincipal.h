@@ -10,7 +10,7 @@ such code sees the Event class, which is a proxy for EventPrincipal.
 The major internal component of the EventPrincipal
 is the DataBlock.
 
-$Id: EventPrincipal.h,v 1.48 2007/01/12 18:02:55 wmtan Exp $
+$Id: EventPrincipal.h,v 1.49 2007/03/04 06:00:22 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -33,13 +33,14 @@ namespace edm {
     EventPrincipal(EventID const& id,
 	Timestamp const& time,
 	ProductRegistry const& reg,
-        boost::shared_ptr<LuminosityBlockPrincipal const> lbp,
+        boost::shared_ptr<LuminosityBlockPrincipal> lbp,
         ProcessConfiguration const& pc,
 	ProcessHistoryID const& hist = ProcessHistoryID(),
 	boost::shared_ptr<DelayedReader> rtrv = boost::shared_ptr<DelayedReader>(new NoDelayedReader));
     EventPrincipal(EventID const& id,
 	Timestamp const& time,
 	ProductRegistry const& reg,
+	LuminosityBlockNumber_t lumi,
         ProcessConfiguration const& pc,
 	ProcessHistoryID const& hist = ProcessHistoryID(),
 	boost::shared_ptr<DelayedReader> rtrv = boost::shared_ptr<DelayedReader>(new NoDelayedReader));
@@ -49,8 +50,12 @@ namespace edm {
       return *luminosityBlockPrincipal_;
     }
 
-    boost::shared_ptr<LuminosityBlockPrincipal const> const
-    luminosityBlockPrincipalConstSharedPtr() const {
+    LuminosityBlockPrincipal & luminosityBlockPrincipal() {
+      return *luminosityBlockPrincipal_;
+    }
+
+    boost::shared_ptr<LuminosityBlockPrincipal>
+    luminosityBlockPrincipalSharedPtr() {
       return luminosityBlockPrincipal_;
     }
 
@@ -75,6 +80,8 @@ namespace edm {
     }
 
     RunPrincipal const& runPrincipal() const;
+
+    RunPrincipal & runPrincipal();
 
     using Base::addGroup;
     using Base::addToProcessHistory;
@@ -109,7 +116,7 @@ namespace edm {
     virtual bool fillAndMatchSelector(Provenance& prov, SelectorBase const& selector) const;
 
     EventAuxiliary aux_;
-    boost::shared_ptr<LuminosityBlockPrincipal const> const luminosityBlockPrincipal_;
+    boost::shared_ptr<LuminosityBlockPrincipal> luminosityBlockPrincipal_;
     // Handler for unscheduled modules
     boost::shared_ptr<UnscheduledHandler> unscheduledHandler_;
     // Provenance filler for unscheduled modules

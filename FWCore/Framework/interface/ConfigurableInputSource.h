@@ -2,7 +2,7 @@
 #define Framework_ConfigurableInputSource_h
 
 /*----------------------------------------------------------------------
-$Id: ConfigurableInputSource.h,v 1.18 2007/03/04 06:00:22 wmtan Exp $
+$Id: ConfigurableInputSource.h,v 1.19 2007/03/22 22:26:11 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "boost/shared_ptr.hpp"
@@ -74,8 +74,8 @@ namespace edm {
     LuminosityBlockNumber_t origLuminosityBlockNumber_t_;
     bool justBegun_;
 
-    boost::shared_ptr<LuminosityBlockPrincipal const> luminosityBlockPrincipal_;
-    boost::shared_ptr<RunPrincipal const> runPrincipal_;
+    boost::shared_ptr<LuminosityBlockPrincipal> luminosityBlockPrincipal_;
+    boost::shared_ptr<RunPrincipal> runPrincipal_;
   };
 }
 #endif
