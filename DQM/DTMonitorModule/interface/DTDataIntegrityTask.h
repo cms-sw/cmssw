@@ -5,8 +5,8 @@
  *
  * Class for DT Data Integrity.
  *  
- *  $Date: 2007/03/23 10:45:21 $
- *  $Revision: 1.8 $
+ *  $Date: 2007/03/25 14:07:00 $
+ *  $Revision: 1.9 $
  *
  * \author Marco Zanetti  - INFN Padova
  *
@@ -63,7 +63,7 @@ private:
   // <histoType, <index , histo> >    
   std::map<std::string, std::map<int, MonitorElement*> > dduHistos;
   // <histoType, histo> >    
-  map<string, MonitorElement*> rosSHistos;
+  std::map<std::string, MonitorElement*> rosSHistos;
   // <histoType, <index , histo> >    
   std::map<std::string, std::map<int, MonitorElement*> > rosHistos;
   // <histoType, <tdcID, histo> >   
