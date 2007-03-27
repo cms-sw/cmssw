@@ -1,7 +1,7 @@
 /// Algorithm to convert transient protojets into persistent jets
 /// Author: F.Ratnikov, UMd
 /// Mar. 8, 2006
-/// $Id: JetMaker.cc,v 1.17 2007/03/21 19:03:32 fedor Exp $
+/// $Id: JetMaker.cc,v 1.18 2007/03/26 20:42:26 fedor Exp $
 
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
@@ -188,10 +188,8 @@ GenJet JetMaker::makeGenJet (const ProtoJet& fProtojet) const {
 
 GenericJet JetMaker::makeGenericJet (const ProtoJet& fProtojet) const {
   // count constituents
-  std::vector <unsigned> constituents;
-  for (unsigned i = 0; i < fProtojet.getTowerList().size (); ++i) {
-    constituents.push_back (fProtojet.getTowerList() [i].index ());
-  }
+  std::vector<CandidateBaseRef>  constituents;
+  // fill nothing into consituents for now
   return  GenericJet (fProtojet.p4(), reco::Particle::Point (0, 0, 0), constituents);
 }
 
