@@ -121,7 +121,6 @@ void DetIdAssociator::buildMap()
 		  << "\nSkipped the element";
 	      continue;
 	   }
-	   volume_.addActivePoint(*iter);
 	   int ieta = iEta(*iter);
 	   int iphi = iPhi(*iter);
 	   if (ieta<0 || ieta>=nEta_) {
@@ -175,9 +174,6 @@ void DetIdAssociator::buildMap()
      nEta_/2*etaBinSize_ << "): " << numberOfDetIdsOutsideEtaRange << "\n";
    LogTrace("TrackAssociator") << "Number of active DetId's mapped: " << 
      numberOfDetIdsActive << "\n";
-   volume_.determinInnerDimensions();
-   edm::LogVerbatim("TrackAssociator") << "Volume (minR, maxR, minZ, maxZ): " << volume_.minR() << ", " << volume_.maxR() <<
-     ", " << volume_.minZ() << ", " << volume_.maxZ();
 }
 
 std::set<DetId> DetIdAssociator::getDetIdsInACone(const std::set<DetId>& inset, 
@@ -193,7 +189,7 @@ std::set<DetId> DetIdAssociator::getDetIdsInACone(const std::set<DetId>& inset,
 }
 
 std::set<DetId> DetIdAssociator::getCrossedDetIds(const std::set<DetId>& inset,
-						  const std::vector<GlobalPoint>& trajectory)
+					     const std::vector<GlobalPoint>& trajectory)
 {
    check_setup();
    std::set<DetId> outset;
@@ -204,7 +200,7 @@ std::set<DetId> DetIdAssociator::getCrossedDetIds(const std::set<DetId>& inset,
 }
 
 std::vector<DetId> DetIdAssociator::getCrossedDetIdsOrdered(const std::set<DetId>& inset,
-							   const std::vector<GlobalPoint>& trajectory)
+							    const std::vector<GlobalPoint>& trajectory)
 {
    check_setup();
    std::vector<DetId> output;
@@ -252,8 +248,3 @@ void DetIdAssociator::dumpMapContent(int ieta_min, int ieta_max, int iphi_min, i
 }
 
 
-FiducialVolume DetIdAssociator::DetIdAssociator::volume()
-{
-   if (! theMap_) buildMap(); // volume is computed during buildMap;
-   return volume_; 
-}
