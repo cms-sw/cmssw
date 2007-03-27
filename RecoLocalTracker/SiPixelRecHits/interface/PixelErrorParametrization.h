@@ -30,7 +30,8 @@ class PixelErrorParametrization
   std::pair<float,float> 
     getError(GeomDetType::SubDetector pixelPart, 
 	     int sizex, int sizey, 
-	     float alpha, float beta);
+	     float alpha, float beta,
+	     bool bigInX, bool bigInX ); // Gavril: add big pixel flags, 03/27/07
 
 private:
   float a_min; 
@@ -75,7 +76,8 @@ private:
   // for X-FORWARD
   std::vector<float> bbins_xf;
 
-  float error_XB(int sizex, float alpha, float beta);
+  // Gavril: for barrel x errors, add big pixel flag  
+  float error_XB(int sizex, float alpha, float beta, bool bigInX); 
   float error_XF(int sizex, float alpha, float beta);
   float error_YB(int sizey, float alpha, float beta);
   float error_YF(int sizey, float alpha, float beta);
