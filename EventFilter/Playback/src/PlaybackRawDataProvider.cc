@@ -39,7 +39,7 @@ PlaybackRawDataProvider::PlaybackRawDataProvider(const ParameterSet& iConfig)
   , writeIndex_(0)
   , readIndex_(0)
 {
-  queueSize_=iConfig.getUntrackedParameter<unsigned int>("QueueSize",128);
+  queueSize_=iConfig.getUntrackedParameter<unsigned int>("queueSize",32);
   sem_init(&lock_,0,1);
   sem_init(&writeSem_,0,queueSize_);
   sem_init(&readSem_,0,0);
