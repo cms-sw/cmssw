@@ -249,7 +249,7 @@
    <rParent name="forward:Castor"/>
    <rChild name="castor:CAST"/>
   <rRotation name="rotations:000D"/>
-  <Translation x="0.0*cm" y="0.0*cm" z="560*mm" />
+  <Translation x="0.0*mm" y="0.0*mm" z="0.0*mm" />
  </PosPart>
 <!--  -->
 <!-- calorimeter  1 copy -->

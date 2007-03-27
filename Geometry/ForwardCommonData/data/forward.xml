@@ -8,8 +8,10 @@
  <Constant name="TotemT1Rout1" value="74.60*cm"/>
  <Constant name="TotemT1Rout2" value="79.10*cm"/>
  <Constant name="TotemT1Rout3" value="1.0111*m"/>
- <Constant name="TotemT2Z1"    value="13.971*m"/>
- <Constant name="CastorZ1"     value="13.989*m"/>
+ <Constant name="TotemT2Z1"    value="14.225*m"/>
+ <Constant name="CastorL1"     value="1.6165*m"/>
+ <Constant name="CastorL2"     value="1.334*m"/>
+ <Constant name="CastorZ1"     value="[cms:ForwdDetsZ1]-[CastorL1]"/>
 </ConstantsSection>
 
 <SolidSection label="forward.xml">
@@ -28,10 +30,11 @@
   <ZSection z="[cms:TotemBeamZ4]" rMin="[cms:ForwdBeamR4]" rMax="[cms:ForwdDetsR1]"/>
   <ZSection z="[TotemT2Z1]"       rMin="[cms:ForwdBeamR4]" rMax="[cms:ForwdDetsR1]"/>
  </Polycone> 
- <Tubs name="Castor" rMin="[cms:ForwdBeamR4]" rMax="[cms:ForwdDetsR1]" 
-       dz="([cms:ForwdDetsZ1]-[CastorZ1])/2" 
-       startPhi="0*deg" deltaPhi="360*deg"/>
-</SolidSection>
+ <Polycone name="Castor" startPhi="0*deg" deltaPhi="360*deg" >
+  <ZSection z="0.0*fm"      rMin="[cms:ForwdBeamR4]" rMax="[cms:ForwdDetsR1]"/>
+  <ZSection z="[CastorL2]"  rMin="[cms:ForwdBeamR4]" rMax="[cms:ForwdDetsR1]"/>
+  <ZSection z="[CastorL1]"  rMin="[cms:ForwdDetsR1]" rMax="[cms:ForwdDetsR1]"/>
+ </Polycone> 
 
 <LogicalPartSection label="forward.xml">
  <LogicalPart name="TotemT1" category="unspecified">
@@ -73,13 +76,13 @@
    <rParent name="cms:CMSE"/>
    <rChild name="forward:Castor"/>
   <rRotation name="rotations:000D"/>
-  <Translation x="0*fm" y="0*fm" z="([cms:ForwdDetsZ1]+[CastorZ1])/2" />
+  <Translation x="0*fm" y="0*fm" z="[CastorZ1]" />
  </PosPart>
  <PosPart copyNumber="2">
    <rParent name="cms:CMSE"/>
    <rChild name="forward:Castor"/>
   <rRotation name="rotations:180D"/>
-  <Translation x="0*fm" y="0*fm" z="-([cms:ForwdDetsZ1]+[CastorZ1])/2"/>
+  <Translation x="0*fm" y="0*fm" z="-[CastorZ1]"/>
  </PosPart>
 </PosPartSection>
 
