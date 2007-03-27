@@ -5,7 +5,7 @@ namespace edm {
   EventPrincipal::EventPrincipal(EventID const& id,
 	Timestamp const& time,
 	ProductRegistry const& reg,
-        boost::shared_ptr<LuminosityBlockPrincipal const> lbp,
+        boost::shared_ptr<LuminosityBlockPrincipal> lbp,
 	ProcessConfiguration const& pc,
 	ProcessHistoryID const& hist,
 	boost::shared_ptr<DelayedReader> rtrv) :
@@ -18,17 +18,23 @@ namespace edm {
   EventPrincipal::EventPrincipal(EventID const& id,
 	Timestamp const& time,
 	ProductRegistry const& reg,
+	LuminosityBlockNumber_t lumi,
 	ProcessConfiguration const& pc,
 	ProcessHistoryID const& hist,
 	boost::shared_ptr<DelayedReader> rtrv) :
 	  Base(reg, pc, hist, rtrv),
-	  aux_(id, time, 1),
-	  luminosityBlockPrincipal_(new LuminosityBlockPrincipal(1, reg, pc)),
+	  aux_(id, time, lumi),
+	  luminosityBlockPrincipal_(new LuminosityBlockPrincipal(lumi, reg, id.run(), pc)),
 	  unscheduledHandler_(),
 	  provenanceFiller_() {}
 
   RunPrincipal const&
   EventPrincipal::runPrincipal() const {
+    return luminosityBlockPrincipal().runPrincipal();
+  }
+
+  RunPrincipal &
+  EventPrincipal::runPrincipal() {
     return luminosityBlockPrincipal().runPrincipal();
   }
 
