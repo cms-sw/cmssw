@@ -49,6 +49,9 @@ public:
                            AlignableTracker* tracker,
                            AlignableMuon* muon,
                            AlignmentParameterStore* store ) = 0;
+   /// Call at start of loop
+   /// Default implementation is dummy for non-iterative algorithms
+   virtual void startNewLoop(void) {}
 
   /// Call at end of job (must be implemented in derived class)
   virtual void terminate(void) = 0;
