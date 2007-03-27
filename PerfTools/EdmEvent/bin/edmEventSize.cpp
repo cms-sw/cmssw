@@ -21,6 +21,8 @@ static const char * const kHelpOpt = "help";
 static const char * const kHelpCommandOpt = "help,h";
 static const char * const kDataFileOpt = "data-file";
 static const char * const kDataFileCommandOpt = "data-file,d";
+static const char * const kTreeNameOpt = "tree-name";
+static const char * const kTreeNameCommandOpt = "tree-name,t";
 static const char * const kOutputOpt = "output";
 static const char * const kOutputCommandOpt = "output,o";
 static const char * const kAutoLoadOpt ="auto-loader";
@@ -52,6 +54,7 @@ int main( int argc, char * argv[] ) {
     ( kHelpCommandOpt, "produce help message" )
     ( kAutoLoadCommandOpt, "automatic library loading (avoid root warnings)" )
     ( kDataFileCommandOpt, value<string>(), "data file" )
+    ( kTreeNameCommandOpt, value<string>(), "tree name (default \"Events\")" )
     ( kOutputCommandOpt, value<string>(), "output file" )
     ( kAlphabeticOrderCommandOpt, "sort by alphabetic order (default: sort by size)" )
     ( kFormatNamesCommandOpt, "format product name as \"product:label (type)\" (default: use full branch name)" )
@@ -94,12 +97,16 @@ int main( int argc, char * argv[] ) {
   bool verbose = vm.count( kVerboseOpt ) > 0;
 
 
-  string fileName = vm[kDataFileOpt].as<string>();
+  std::string fileName = vm[kDataFileOpt].as<string>();
+
+  std::string treeName = "Events";
+  if ( vm.count( kTreeNameOpt) )
+    treeName=vm[kTreeNameOpt].as<string>();
 
   perftools::EdmEventSize me;
   
   try {
-    me.parseFile(fileName);
+    me.parseFile(fileName,treeName);
   } catch(perftools::EdmEventSize::Error const & error) {
     std::cerr <<  programName << ":" << error.descr << std::endl;
     return error.code;

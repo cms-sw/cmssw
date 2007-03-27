@@ -78,7 +78,7 @@ namespace perftools {
     m_branches.clear();
 
     TFile * file = TFile::Open( fileName.c_str() );
-    if( ! (*file).IsOpen() )
+    if( file==0  || ( !(*file).IsOpen() ) )
       throw Error( "unable to open data file " + fileName, 7002);
     
     TObject * o = file->Get(treeName.c_str() );
