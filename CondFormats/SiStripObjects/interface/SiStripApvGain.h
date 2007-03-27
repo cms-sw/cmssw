@@ -13,7 +13,7 @@ class SiStripApvGain {
 
   typedef std::vector<short>::const_iterator               ContainerIterator;  
   typedef std::pair<ContainerIterator, ContainerIterator>  Range;      
-  typedef std::vector<int>                                 Registry;
+  typedef std::vector<unsigned int>                        Registry;
   typedef Registry::iterator                               RegistryIterator;
   typedef Registry::const_iterator                         RegistryConstIterator;
  
@@ -29,9 +29,9 @@ class SiStripApvGain {
 
  private:
   std::vector<short> v_gains; 
-  std::vector<int>   v_detids;
-  std::vector<int>   v_ibegin;
-  std::vector<int>   v_iend;
+  std::vector<unsigned int>   v_detids;
+  std::vector<unsigned int>   v_ibegin;
+  std::vector<unsigned int>   v_iend;
 };
 
 #endif

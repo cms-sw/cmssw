@@ -21,6 +21,8 @@ namespace {
   std::vector< SiStripNoises::DetRegistry >::iterator tmp10;
   std::vector< SiStripNoises::DetRegistry >::const_iterator tmp11;
 
+  std::vector<unsigned int>::iterator tmp12;
+  std::vector<unsigned int>::const_iterator tmp13;
 }  
   
 /* 
