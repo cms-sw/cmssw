@@ -2,6 +2,8 @@
 #define AUTOBU_BU_H 1
 
 
+#include "EventFilter/AutoBU/interface/BUEvent.h"
+
 #include "EventFilter/Utilities/interface/StateMachine.h"
 #include "EventFilter/Utilities/interface/WebGUI.h"
 #include "EventFilter/Utilities/interface/Exception.h"
@@ -14,7 +16,6 @@
 #include "toolbox/include/toolbox/mem/MemoryPoolFactory.h"
 #include "toolbox/include/toolbox/net/URN.h"
 #include "toolbox/include/toolbox/fsm/exception/Exception.h"
-#include "toolbox/include/BSem.h"
 
 #include "xdata/include/xdata/InfoSpace.h"
 #include "xdata/include/xdata/UnsignedInteger32.h"
@@ -34,11 +35,11 @@
 
 #include "CLHEP/Random/RandGauss.h"
 
-//#include "extern/i2o/include/i2o/i2oDdmLib.h"
-
 
 #include <vector>
+#include <queue>
 #include <cmath>
+#include <semaphore.h>
 #include <sys/time.h>
 
 
@@ -77,8 +78,8 @@ namespace evf {
       throw (xoap::exception::Exception);
     
     // i2o callbacks
-    inline void I2O_BU_ALLOCATE_Callback(toolbox::mem::Reference *bufRef);
-    inline void I2O_BU_DISCARD_Callback(toolbox::mem::Reference *bufRef);
+    void I2O_BU_ALLOCATE_Callback(toolbox::mem::Reference *bufRef);
+    void I2O_BU_DISCARD_Callback(toolbox::mem::Reference *bufRef);
     
     // xdata::ActionListener callback
     void actionPerformed(xdata::Event& e);
@@ -87,6 +88,14 @@ namespace evf {
     void webPageRequest(xgi::Input *in,xgi::Output *out)
       throw (xgi::exception::Exception);
   
+    // build events (random or playback)
+    void startBuildingWorkLoop() throw (evf::Exception);
+    bool building(toolbox::task::WorkLoop* wl);
+
+    // send events to connected FU
+    void startSendingWorkLoop() throw (evf::Exception);
+    bool sending(toolbox::task::WorkLoop* wl);
+
     // calculate monitoring information in separate thread
     void startMonitoringWorkLoop() throw (evf::Exception);
     bool monitoring(toolbox::task::WorkLoop* wl);
@@ -96,32 +105,24 @@ namespace evf {
     //
     // private member functions
     //
+    void   lock()      { sem_wait(&lock_); }
+    void   unlock()    { sem_post(&lock_); }
+    void   waitBuild() { sem_wait(&buildSem_); }
+    void   postBuild() { sem_post(&buildSem_); }
+    void   waitSend()  { sem_wait(&sendSem_); }
+    void   postSend()  { sem_post(&sendSem_); }
+    void   waitRqst()  { sem_wait(&rqstSem_); }
+    void   postRqst()  { sem_post(&rqstSem_); }
     
     void   exportParameters();
     void   reset();
     double deltaT(const struct timeval *start,const struct timeval *end);
     
-    // fed buffers for one superfragment
-    void initFedBuffers(unsigned int nFed);
-    void fillFedBuffers(unsigned int iSuperFrag,FEDRawDataCollection* event);
-    void clearFedBuffers();
+    bool   generateEvent(evf::BUEvent* evt);
+    toolbox::mem::Reference *createMsgChain(evf::BUEvent *evt,
+					    unsigned int fuResourceId);
     
-    //estimate number of blocks needed for a superfragment
-    int  estimateNBlocks(unsigned int iSuperFrag,unsigned int fullBlockPayload);
     
-    // create a supefragment
-    inline
-    toolbox::mem::Reference *createSuperFrag(const I2O_TID& fuTid,
-					     const U32&     fuTransaction,
-					     const U32&     trigNo,
-					     const U32&     iSuperFrag,
-					     const U32&     nSuperFrag);
-    
-    // synchronization operations
-    void lock();
-    void unlock();
-
-    // debug functionality
     void dumpFrame(unsigned char* data,unsigned int len);
   
   
@@ -129,74 +130,102 @@ namespace evf {
     //
     // member data
     //
-    Logger                    log_;
-    StateMachine              fsm_;
-    WebGUI*                   gui_;
+
+    // BU message logger
+    Logger                          log_;
+
+    // BU application descriptor
+    xdaq::ApplicationDescriptor    *buAppDesc_;
+    
+    // FU application descriptor
+    xdaq::ApplicationDescriptor    *fuAppDesc_;
+    
+    // BU application context
+    xdaq::ApplicationContext       *buAppContext_;
+    
+    // BU state machine
+    StateMachine                    fsm_;
+    
+    // BU web interface
+    WebGUI                         *gui_;
+    
+    // resource management
+    std::vector<evf::BUEvent*>      events_;
+    std::queue<unsigned int>        rqstIds_;
+    std::queue<unsigned int>        freeIds_;
+    std::queue<unsigned int>        builtIds_;
+    std::set<unsigned int>          sentIds_;
+    unsigned int                    evtNumber_;
+    std::vector<unsigned int>       validFedIds_;
+    
+    // workloop / action signature for building events
+    toolbox::task::WorkLoop        *wlBuilding_;      
+    toolbox::task::ActionSignature *asBuilding_;
+    
+    // workloop / action signature for sending events
+    toolbox::task::WorkLoop        *wlSending_;      
+    toolbox::task::ActionSignature *asSending_;
     
     // workloop / action signature for monitoring
-    toolbox::task::WorkLoop *wlMonitoring_;      
+    toolbox::task::WorkLoop        *wlMonitoring_;      
     toolbox::task::ActionSignature *asMonitoring_;
     
-    std::string               sourceId_;
     
-    unsigned int             *fedN_;       // nFED/SF,    [iSF ]
-    unsigned char           **fedData_;    // current SF, [iFED][pos]
-    unsigned int             *fedSize_;    // current SF, [iFED]
-    unsigned int            **fedId_;      // fedid,      [iSF ][iFED]
-    
-    // parameters and counters to be exported
-
+    std::string                     sourceId_;
+        
     // monitored parameters
-    xdata::String             url_;
-    xdata::String             class_;
-    xdata::UnsignedInteger32  instance_;
-    xdata::String             hostname_;
-    xdata::UnsignedInteger32  runNumber_;
-    xdata::Double             memUsedInMB_;
+    xdata::String                   url_;
+    xdata::String                   class_;
+    xdata::UnsignedInteger32        instance_;
+    xdata::String                   hostname_;
+    xdata::UnsignedInteger32        runNumber_;
+    xdata::Double                   memUsedInMB_;
 
-    xdata::Double             deltaT_;
-    xdata::UnsignedInteger32  deltaN_;
-    xdata::Double             deltaSumOfSquares_;
-    xdata::UnsignedInteger32  deltaSumOfSizes_;
+    xdata::Double                   deltaT_;
+    xdata::UnsignedInteger32        deltaN_;
+    xdata::Double                   deltaSumOfSquares_;
+    xdata::UnsignedInteger32        deltaSumOfSizes_;
 
-    xdata::Double             throughput_;
-    xdata::Double             average_;
-    xdata::Double             rate_;
-    xdata::Double             rms_;
+    xdata::Double                   throughput_;
+    xdata::Double                   average_;
+    xdata::Double                   rate_;
+    xdata::Double                   rms_;
     
     // monitored counters
-    xdata::UnsignedInteger32  nbEventsInBU_;
-    xdata::UnsignedInteger32  nbEventsBuilt_;
-    xdata::UnsignedInteger32  nbEventsDiscarded_;
+    xdata::UnsignedInteger32        nbEventsInBU_;
+    xdata::UnsignedInteger32        nbEventsBuilt_;
+    xdata::UnsignedInteger32        nbEventsDiscarded_;
     
     // standard parameters
-    xdata::String             mode_;
-    xdata::UnsignedInteger32  dataBufSize_;
-    xdata::UnsignedInteger32  nSuperFrag_;
-    xdata::UnsignedInteger32  fedSizeMax_;
-    xdata::UnsignedInteger32  fedSizeMean_;
-    xdata::UnsignedInteger32  fedSizeWidth_;
-    xdata::Boolean            useFixedFedSize_;
-    xdata::UnsignedInteger32  monSleepSec_;
-    
-    // debug counters
-    xdata::UnsignedInteger32  nbPostFrame_;
-    xdata::UnsignedInteger32  nbPostFrameFailed_;
+    xdata::String                   mode_;
+    xdata::Boolean                  replay_;
+    xdata::Boolean                  crc_;
+    xdata::UnsignedInteger32        queueSize_;
+    xdata::UnsignedInteger32        eventBufferSize_;
+    xdata::UnsignedInteger32        msgBufferSize_;
+    xdata::UnsignedInteger32        fedSizeMax_;
+    xdata::UnsignedInteger32        fedSizeMean_;
+    xdata::UnsignedInteger32        fedSizeWidth_;
+    xdata::Boolean                  useFixedFedSize_;
+    xdata::UnsignedInteger32        monSleepSec_;
     
     // monitoring helpers
-    struct timeval            monStartTime_;
-    unsigned int              monLastN_;
-    uint64_t                  monLastSumOfSquares_;
-    unsigned int              monLastSumOfSizes_;
-    uint64_t                  sumOfSquares_;
-    unsigned int              sumOfSizes_;
+    struct timeval                  monStartTime_;
+    unsigned int                    monLastN_;
+    uint64_t                        monLastSumOfSquares_;
+    unsigned int                    monLastSumOfSizes_;
+    uint64_t                        sumOfSquares_;
+    unsigned int                    sumOfSizes_;
     
 
     // memory pool for i20 communication
-    toolbox::mem::Pool*       i2oPool_;
+    toolbox::mem::Pool*             i2oPool_;
 
     // synchronization
-    BSem                      lock_;
+    sem_t                           lock_;
+    sem_t                           buildSem_;
+    sem_t                           sendSem_;
+    sem_t                           rqstSem_;
     
   
     //

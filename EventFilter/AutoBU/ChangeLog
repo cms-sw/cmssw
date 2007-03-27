@@ -1,3 +1,18 @@
+2007-03-27  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-04-00
+	* pretty much rewrote the whole application
+	* three different threads now for receiving requests, building
+	events, and sending events
+	* parameter 'dataBufSize' renamed 'msgBufferSize'
+	* add class evf::BUEvent
+	* events are (pre-) built in a queue
+	* option 'replay': build the queue once, then keep rerunning on
+	those events
+	* option 'crc': do / don't calculate crc check
+	* in PLAYBACK mode, I see a strange error in the
+	BU_DISCARD_Callback. To be investigated
+	
 2007-03-26  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-03-02

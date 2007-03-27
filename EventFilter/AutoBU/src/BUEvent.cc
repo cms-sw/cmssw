@@ -1,0 +1,147 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+// BUEvent
+// -------
+//
+//            03/26/2007 Philipp Schieferdecker <philipp.schieferdecker@cern.ch>
+////////////////////////////////////////////////////////////////////////////////
+
+
+#include "EventFilter/AutoBU/interface/BUEvent.h"
+#include <assert.h>
+#include "EventFilter/Utilities/interface/Crc.h"
+
+#include "interface/shared/include/fed_header.h"
+#include "interface/shared/include/fed_trailer.h"
+
+#include <iostream>
+
+
+using namespace std;
+using namespace evf;
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+// initialize static member data 
+////////////////////////////////////////////////////////////////////////////////
+
+//______________________________________________________________________________
+bool BUEvent::computeCrc_=true;
+
+
+////////////////////////////////////////////////////////////////////////////////
+// construction/destruction
+////////////////////////////////////////////////////////////////////////////////
+
+//______________________________________________________________________________
+BUEvent::BUEvent(unsigned int buResourceId,unsigned int bufferSize)
+  : buResourceId_(buResourceId)
+  , evtNumber_(0xffffffff)
+  , evtSize_(0)
+  , bufferSize_(bufferSize)
+  , nFed_(0)
+  , fedId_(0)
+  , fedPos_(0)
+  , fedSize_(0)
+  , buffer_(0)
+{
+  fedId_  = new unsigned int[1024];
+  fedPos_ = new unsigned int[1024];
+  fedSize_= new unsigned int[1024];
+  buffer_ = new unsigned char[bufferSize];
+}
+
+
+//______________________________________________________________________________
+BUEvent::~BUEvent()
+{
+  if (0!=fedId_)   delete [] fedId_;
+  if (0!=fedPos_)  delete [] fedPos_;
+  if (0!=fedSize_) delete [] fedSize_;
+  if (0!=buffer_)  delete [] buffer_;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+// implementation of member functions
+////////////////////////////////////////////////////////////////////////////////
+
+//______________________________________________________________________________
+void BUEvent::initialize(unsigned int evtNumber)
+ {
+   evtNumber_=evtNumber;
+   evtSize_=0;
+   nFed_=0;
+ }
+
+
+//______________________________________________________________________________
+bool BUEvent::writeFed(unsigned int id,unsigned char* data,unsigned int size)
+{
+  if (evtSize_+size > bufferSize_) {
+    cout<<"BUEvent::writeFed() ERROR: buffer overflow."<<endl;
+    return false;
+  }
+  
+  if (nFed_==1024) {
+    cout<<"BUEvent::writeFed() ERROR: too many feds (max=1024)."<<endl;
+    return false;
+  }
+  
+  fedId_[nFed_]  =id;
+  fedPos_[nFed_] =evtSize_;
+  fedSize_[nFed_]=size;
+  if (0!=data) memcpy(fedAddr(nFed_),data,size);
+  ++nFed_;
+  evtSize_+=size;
+  return true;
+}
+
+
+//______________________________________________________________________________
+bool BUEvent::writeFedHeader(unsigned int i)
+{
+  if (i>=nFed_) {
+    cout<<"BUEvent::writeFedHeader() ERROR: invalid fed index '"<<i<<"'."<<endl;
+    return false;
+  }
+  
+  fedh_t *fedHeader=(fedh_t*)fedAddr(i);
+  fedHeader->eventid =evtNumber();
+  fedHeader->eventid|=0x50000000;
+  fedHeader->sourceid=(fedId(i) << 8) & FED_SOID_MASK;
+  
+  return true;
+}
+
+
+//______________________________________________________________________________
+bool BUEvent::writeFedTrailer(unsigned int i)
+{
+  if (i>=nFed_) {
+    cout<<"BUEvent::writeFedTrailer() ERROR: invalid fed index '"<<i<<"'."<<endl;
+    return false;
+  }
+  
+  fedt_t *fedTrailer=(fedt_t*)(fedAddr(i)+fedSize(i)-sizeof(fedt_t));
+  fedTrailer->eventsize =fedSize(i);
+  fedTrailer->eventsize/=8; //wc in fed trailer in 64bit words
+  fedTrailer->eventsize|=0xa0000000;
+  fedTrailer->conscheck =0x0;
+  
+  if (BUEvent::computeCrc()) {
+    unsigned short crc=evf::compute_crc(fedAddr(i),fedSize(i));
+    fedTrailer->conscheck=(crc<<FED_CRCS_SHIFT);
+  }
+
+  return true;
+}
+
+
+//______________________________________________________________________________
+unsigned char* BUEvent::fedAddr(unsigned int i) const
+{
+  return (buffer_+fedPos_[i]);
+}
+
