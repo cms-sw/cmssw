@@ -33,13 +33,12 @@ directory.
 
 The possibility to select the step is of great advantage when the benchmarking is concerned.
 For example one can get rid of the computational costs of simulation and focus
-on the bare reconstruction
-procedure.
+on the bare reconstruction procedure.
 
 The technique to call Pyrelval might be a wrapper like cmsDriver.py. This
 program is able to build the metaconfiguration file relval_parameters.py from a
 few command line arguments. 
-Some examples are of its usage are:
+Some examples of its usage might be:
 cmsDriver.py QCD
 cmsDriver.py 10MU+ -e 45 -n 100 --no_output
 cmsDriver.py B_JETS -s DIGI -e 40_130 -n 50 --filein MYSIMJETS 
@@ -47,8 +46,4 @@ cmsDriver.py MU+ -n 1000 --prefix valgrind
 (For a further help type cmsDriver.py -h)
 
 The only compulsory option is the event type. If no other preference is
-specified, default values are assigned.
-
-To run the tool correctly one needs to add to PYTONPATH environmental variable
-the location of the PyRelVal tool.
-
+specified for the other parameters, default values are assigned.
