@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/03/27 07:51:45 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/03/27 11:10:17 $
+ *  $Revision: 1.3 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -161,8 +161,7 @@ void DTEfficiencyTask::analyze(const edm::Event& event, const edm::EventSetup& s
       bool rPhi = false;
       bool rZ = false;
 
-      // Get 1D RecHits and select only events with
-      // 7 or 8 hits in phi and 3 or 4 hits in theta (if any)
+      // Get 1D RecHits and select only events with 7 or 8 hits in phi and 3 or 4 hits in theta (if any)
       const DTChamberRecSegment2D* phiSeg = (*segment4D).phiSegment();
       vector<DTRecHit1D> phiRecHits = phiSeg->specificRecHits();
       rPhi = true;
@@ -173,9 +172,10 @@ void DTEfficiencyTask::analyze(const edm::Event& event, const edm::EventSetup& s
 	continue;
       }
       copy(phiRecHits.begin(), phiRecHits.end(), back_inserter(recHits1D));
+      const DTSLRecSegment2D* zSeg;
       if((*segment4D).dimension() == 4) {
 	rZ = true;
-	const DTSLRecSegment2D* zSeg = (*segment4D).zSegment();
+	zSeg = (*segment4D).zSegment();
 	vector<DTRecHit1D> zRecHits = zSeg->specificRecHits();
 	if(zRecHits.size() < 3 || zRecHits.size() > 4 ) {
 	  if(debug)
@@ -211,16 +211,45 @@ void DTEfficiencyTask::analyze(const edm::Event& event, const edm::EventSetup& s
 	continue;
       }
 
-      // Skip if the segment has only 10 hits
+
+      // Select 2D segments with angle smaller than 45 deg
+      LocalVector phiDirectionInChamber = (*phiSeg).localDirection();
+      if(rPhi && fabs(phiDirectionInChamber.x()/phiDirectionInChamber.z()) > 1) {
+	if(debug) {
+	  cout << "         RPhi segment has angle > 45 deg, skipping! " << endl;
+	  cout << "              Theta = " << phiDirectionInChamber.theta() << endl;
+	}
+	continue;
+      }
+      if(rZ) {
+	 LocalVector zDirectionInChamber = (*zSeg).localDirection();
+	 if(fabs(zDirectionInChamber.y()/zDirectionInChamber.z()) > 1) {
+	   if(debug){
+	     cout << "         RZ segment has angle > 45 deg, skipping! "  << endl;
+	     cout << "              Theta = " << zDirectionInChamber.theta() << endl;
+	   }
+	   continue;
+	 }
+      }
+
+
+      // Skip if the 4D segment has only 10 hits
       if(recHits1D.size() == 10) {
 	if(debug)
-	  cout << "[DTEfficiencyTask] Segment with only 10 hits, skipping!" << endl;
+	  cout << "[DTEfficiencyTask] 4D Segment with only 10 hits, skipping!" << endl;
 	continue;
       }
 
+
+      // Analyse the case of 11 recHits for MB1,MB2,MB3 and of 7 recHits for MB4
       if((rPhi && recHits1D.size() == 7) || (rZ && recHits1D.size() == 11)) {
-	if(debug)
-	  cout << "[DTEfficiencyTask] Segment with only 7 hits!" << endl;
+
+	if(debug) {
+	  if(rPhi && recHits1D.size() == 7)
+	    cout << "[DTEfficiencyTask] MB4 Segment with only 7 hits!" << endl;
+	  if(rZ && recHits1D.size() == 11)
+	     cout << "[DTEfficiencyTask] 4D Segment with only 11 hits!" << endl;
+	}
 
 	// Find the layer without RecHits ----------------------------------------
 	const vector<const DTSuperLayer*> SupLayers = chamber->superLayers();
@@ -364,9 +393,9 @@ void DTEfficiencyTask::bookHistos(DTLayerId lId, int firstWire, int lastWire) {
   // Create the monitor elements
   vector<MonitorElement *> histos;
   // histo for hits associated to the 4D reconstructed segment
-  histos.push_back(theDbe->book1D("hEfficiency"+lHistoName, "Efficiency per cell",lastWire-firstWire+1, firstWire-0.5, lastWire+0.5));
+  histos.push_back(theDbe->book1D("hEffOccupancy"+lHistoName, "4D segments cells occupancy",lastWire-firstWire+1, firstWire-0.5, lastWire+0.5));
   // histo for hits not associated to the segment
-  histos.push_back(theDbe->book1D("hEfficiencyUnass"+lHistoName, "Efficiency per cell",lastWire-firstWire+1, firstWire-0.5, lastWire+0.5));
+  histos.push_back(theDbe->book1D("hEffUnassOccupancy"+lHistoName, "4D segments and hits not associated cells occupancy",lastWire-firstWire+1, firstWire-0.5, lastWire+0.5));
 
   histosPerL[lId] = histos;
 }
