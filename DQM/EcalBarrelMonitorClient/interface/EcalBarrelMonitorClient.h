@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorClient.h
  *
- * $Date: 2007/02/21 15:06:32 $
- * $Revision: 1.65 $
+ * $Date: 2007/03/24 14:36:38 $
+ * $Revision: 1.66 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -88,17 +88,17 @@ void writeDb(void);
 /// EndRunDB
 void endRunDb(void);
 
- inline int                      getEvtPerJob()      { return( ievt_ ); }
- inline int                      getEvtPerRun()      { return( jevt_ ); }
- inline int                      getEvt( void )      { return( evt_ ); }
- inline int                      getRun( void )      { return( run_ ); }
- inline string                   getRunType( void )  { return( runtype_ == -1 ? "UNKNOWN" : runTypes_[runtype_] ); }
- inline vector<string>           getRunTypes( void ) { return( runTypes_ ); }
- inline const vector<EBClient*>  getClients()        { return( clients_ ); }
- inline const vector<string>     getClientNames()    { return( clientNames_ ); }
- inline RunIOV                   getRunIOV()         { return( runiov_ ); }
- inline MonRunIOV                getMonIOV()         { return( moniov_ ); }
- inline const TH1F*              getEntryHisto()     { return( h_ ); }
+inline int                      getEvtPerJob()      { return( ievt_ ); }
+inline int                      getEvtPerRun()      { return( jevt_ ); }
+inline int                      getEvt( void )      { return( evt_ ); }
+inline int                      getRun( void )      { return( run_ ); }
+inline string                   getRunType( void )  { return( runtype_ == -1 ? "UNKNOWN" : runTypes_[runtype_] ); }
+inline vector<string>           getRunTypes( void ) { return( runTypes_ ); }
+inline const vector<EBClient*>  getClients()        { return( clients_ ); }
+inline const vector<string>     getClientNames()    { return( clientNames_ ); }
+inline RunIOV                   getRunIOV()         { return( runiov_ ); }
+inline MonRunIOV                getMonIOV()         { return( moniov_ ); }
+inline const TH1F*              getEntryHisto()     { return( h_ ); }
 
 private:
 
