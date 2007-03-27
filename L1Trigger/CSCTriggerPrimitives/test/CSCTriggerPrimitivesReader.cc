@@ -7,8 +7,8 @@
 //
 //   Author List: S. Valuev, UCLA.
 //
-//   $Date: 2007/01/26 17:45:39 $
-//   $Revision: 1.10 $
+//   $Date: 2007/03/07 10:14:19 $
+//   $Revision: 1.11 $
 //
 //   Modifications:
 //
@@ -387,14 +387,11 @@ void CSCTriggerPrimitivesReader::bookCompHistos() {
   // ALCTs.
   for (int i = 0; i < CSC_TYPES; i++) {
     float csc_max = static_cast<float>(NCHAMBERS[i]);
-    string s1 = "ALCTs found, " + csc_type[i];
-    hAlctCompFoundCsc[i] = new TH1F("", s1.c_str(), NCHAMBERS[i], 0., csc_max);
-    string s2 = "ALCTs found same, " + csc_type[i];
-    hAlctCompSameNCsc[i] = new TH1F("", s2.c_str(), NCHAMBERS[i], 0., csc_max);
-    string s3 = "ALCTs total, " + csc_type[i];
-    hAlctCompTotalCsc[i] = new TH1F("", s3.c_str(), NCHAMBERS[i], 0., csc_max);
-    string s4 = "ALCTs matched, " + csc_type[i];
-    hAlctCompMatchCsc[i] = new TH1F("", s4.c_str(), NCHAMBERS[i], 0., csc_max);
+    string s = "ALCTs, " + csc_type[i];
+    hAlctCompFoundCsc[i] = new TH1F("", s.c_str(), NCHAMBERS[i], 0., csc_max);
+    hAlctCompSameNCsc[i] = new TH1F("", s.c_str(), NCHAMBERS[i], 0., csc_max);
+    hAlctCompTotalCsc[i] = new TH1F("", s.c_str(), NCHAMBERS[i], 0., csc_max);
+    hAlctCompMatchCsc[i] = new TH1F("", s.c_str(), NCHAMBERS[i], 0., csc_max);
     hAlctCompFoundCsc[i]->Sumw2();
     hAlctCompSameNCsc[i]->Sumw2();
     hAlctCompTotalCsc[i]->Sumw2();
@@ -404,14 +401,11 @@ void CSCTriggerPrimitivesReader::bookCompHistos() {
   // CLCTs.
   for (int i = 0; i < CSC_TYPES; i++) {
     float csc_max = static_cast<float>(NCHAMBERS[i]);
-    string s1 = "CLCTs found, " + csc_type[i];
-    hClctCompFoundCsc[i] = new TH1F("", s1.c_str(), NCHAMBERS[i], 0., csc_max);
-    string s2 = "CLCTs found same, " + csc_type[i];
-    hClctCompSameNCsc[i] = new TH1F("", s2.c_str(), NCHAMBERS[i], 0., csc_max);
-    string s3 = "CLCTs total, " + csc_type[i];
-    hClctCompTotalCsc[i] = new TH1F("", s3.c_str(), NCHAMBERS[i], 0., csc_max);
-    string s4 = "CLCTs matched, " + csc_type[i];
-    hClctCompMatchCsc[i] = new TH1F("", s4.c_str(), NCHAMBERS[i], 0., csc_max);
+    string s = "CLCTs, " + csc_type[i];
+    hClctCompFoundCsc[i] = new TH1F("", s.c_str(), NCHAMBERS[i], 0., csc_max);
+    hClctCompSameNCsc[i] = new TH1F("", s.c_str(), NCHAMBERS[i], 0., csc_max);
+    hClctCompTotalCsc[i] = new TH1F("", s.c_str(), NCHAMBERS[i], 0., csc_max);
+    hClctCompMatchCsc[i] = new TH1F("", s.c_str(), NCHAMBERS[i], 0., csc_max);
     hClctCompFoundCsc[i]->Sumw2();
     hClctCompSameNCsc[i]->Sumw2();
     hClctCompTotalCsc[i]->Sumw2();
@@ -421,14 +415,11 @@ void CSCTriggerPrimitivesReader::bookCompHistos() {
   // Correlated LCTs.
   for (int i = 0; i < CSC_TYPES; i++) {
     float csc_max = static_cast<float>(NCHAMBERS[i]);
-    string s1 = "LCTs found, " + csc_type[i];
-    hLctCompFoundCsc[i] = new TH1F("", s1.c_str(), NCHAMBERS[i], 0., csc_max);
-    string s2 = "LCTs found same, " + csc_type[i];
-    hLctCompSameNCsc[i] = new TH1F("", s2.c_str(), NCHAMBERS[i], 0., csc_max);
-    string s3 = "LCTs total, " + csc_type[i];
-    hLctCompTotalCsc[i] = new TH1F("", s3.c_str(), NCHAMBERS[i], 0., csc_max);
-    string s4 = "LCTs matched, " + csc_type[i];
-    hLctCompMatchCsc[i] = new TH1F("", s4.c_str(), NCHAMBERS[i], 0., csc_max);
+    string s = "LCTs, " + csc_type[i];
+    hLctCompFoundCsc[i] = new TH1F("", s.c_str(), NCHAMBERS[i], 0., csc_max);
+    hLctCompSameNCsc[i] = new TH1F("", s.c_str(), NCHAMBERS[i], 0., csc_max);
+    hLctCompTotalCsc[i] = new TH1F("", s.c_str(), NCHAMBERS[i], 0., csc_max);
+    hLctCompMatchCsc[i] = new TH1F("", s.c_str(), NCHAMBERS[i], 0., csc_max);
     hLctCompFoundCsc[i]->Sumw2();
     hLctCompSameNCsc[i]->Sumw2();
     hLctCompTotalCsc[i]->Sumw2();
@@ -825,21 +816,19 @@ void CSCTriggerPrimitivesReader::compareALCTs(
 		    << " chamber " << detid.chamber()
 		    << " (trig id. " << detid.triggerCscId() << "):\n";
 	    strstrm << "  **** " << ndata << " valid data ALCTs found:\n";
-	    // For 1_4_0
-	    //for (pd = alctV_data.begin(); pd != alctV_data.end(); pd++) {
-	    //  strstrm << "     " << (*pd)
-	    //	      << " Full BX = " << (*pd).getFullBX() << "\n";
-	    //}
+	    for (pd = alctV_data.begin(); pd != alctV_data.end(); pd++) {
+	      strstrm << "     " << (*pd)
+	    	      << " Full BX = " << (*pd).getFullBX() << "\n";
+	    }
 	    strstrm << "  **** " << nemul << " valid emul ALCTs found:\n";
 	    for (pe = alctV_emul.begin(); pe != alctV_emul.end(); pe++) {
 	      strstrm << "     " << (*pe);
 	      for (pd = alctV_data.begin(); pd != alctV_data.end(); pd++) {
 		if ((*pd).getTrknmb() == (*pe).getTrknmb()) {
 		  int emul_bx = (*pe).getBX();
-		  // For 1_4_0
-		  //int corr_bx =
-		  //((*pd).getFullBX() + emul_bx - tbin_anode_offset) & 0x1f;
-		  //strstrm << " Corr BX = " << corr_bx;
+		  int corr_bx =
+		    ((*pd).getFullBX() + emul_bx - tbin_anode_offset) & 0x1f;
+		  strstrm << " Corr BX = " << corr_bx;
 		  break;
 		}
 	      }
@@ -867,9 +856,7 @@ void CSCTriggerPrimitivesReader::compareALCTs(
 	    int data_collB     = (*pd).getCollisionB();
 	    int data_wiregroup = (*pd).getKeyWG();
 	    int data_bx        = (*pd).getBX();
-	    // For 1_4_0
-	    //int fullBX = (*pd).getFullBX(); // full 12-bit BX
-	    int fullBX = 0; // full 12-bit BX
+	    int fullBX = (*pd).getFullBX(); // full 12-bit BX
 
 	    for (pe = alctV_emul.begin(); pe != alctV_emul.end(); pe++) {
 	      if ((*pe).isValid() == 0) continue;
@@ -953,21 +940,19 @@ void CSCTriggerPrimitivesReader::compareCLCTs(
 		    << " chamber " << detid.chamber()
 		    << " (trig id. " << detid.triggerCscId() << "):\n";
 	    strstrm << "  **** " << ndata << " valid data CLCTs found:\n";
-	    // For 1_4_0
-	    //for (pd = clctV_data.begin(); pd != clctV_data.end(); pd++) {
-	    //  strstrm << "     " << (*pd)
-	    //      << " Full BX = " << (*pd).getFullBX() << "\n";
-	    //}
+	    for (pd = clctV_data.begin(); pd != clctV_data.end(); pd++) {
+	      strstrm << "     " << (*pd)
+		      << " Full BX = " << (*pd).getFullBX() << "\n";
+	    }
 	    strstrm << "  **** " << nemul << " valid emul CLCTs found:\n";
 	    for (pe = clctV_emul.begin(); pe != clctV_emul.end(); pe++) {
 	      strstrm << "     " << (*pe);
 	      for (pd = clctV_data.begin(); pd != clctV_data.end(); pd++) {
 		if ((*pd).getTrknmb() == (*pe).getTrknmb()) {
 		  int emul_bx = (*pe).getBX();
-		  // For 1_4_0
-		  //int corr_bx =
-		  // ((*pd).getFullBX() + emul_bx - tbin_cathode_offset) & 0x03;
-		  //strstrm << " Corr BX = " << corr_bx;
+		  int corr_bx =
+		    ((*pd).getFullBX() + emul_bx - tbin_cathode_offset) & 0x03;
+		  strstrm << " Corr BX = " << corr_bx;
 		  break;
 		}
 	      }
@@ -997,9 +982,7 @@ void CSCTriggerPrimitivesReader::compareCLCTs(
 	    int data_keystrip  = (*pd).getKeyStrip();
 	    int data_cfeb      = (*pd).getCFEB();
 	    int data_bx        = (*pd).getBX();
-	    // For 1_4_0
-	    //int fullBX = (*pd).getFullBX(); // 12-bit full BX
-	    int fullBX = 0; // 12-bit full BX
+	    int fullBX = (*pd).getFullBX(); // 12-bit full BX
 
 	    for (pe = clctV_emul.begin(); pe != clctV_emul.end(); pe++) {
 	      if ((*pe).isValid() == 0) continue;
@@ -1182,9 +1165,7 @@ int CSCTriggerPrimitivesReader::convertBXofLCT(
   for (CSCALCTDigiCollection::const_iterator digiIt = arange.first;
        digiIt != arange.second; digiIt++) {
     if ((*digiIt).isValid()) {
-      // For 1_4_0
-      // full_anode_bx = (*digiIt).getFullBX();
-      full_anode_bx = 0;
+      full_anode_bx = (*digiIt).getFullBX();
       break;
     }
   }
@@ -1194,9 +1175,7 @@ int CSCTriggerPrimitivesReader::convertBXofLCT(
   for (CSCCLCTDigiCollection::const_iterator digiIt = crange.first;
        digiIt != crange.second; digiIt++) {
     if ((*digiIt).isValid()) {
-      // For 1_4_0
-      //full_cathode_bx = (*digiIt).getFullBX();
-      full_cathode_bx = 0;
+      full_cathode_bx = (*digiIt).getFullBX();
       break;
     }
   }
@@ -1906,7 +1885,7 @@ void CSCTriggerPrimitivesReader::drawCompHistos() {
 
   TText teff;
   teff.SetTextFont(32);
-  teff.SetTextSize(0.06);
+  teff.SetTextSize(0.08);
   char eff[25];
 
   //TPostScript *eps1 = new TPostScript("alcts_comp1.eps", 113);
@@ -1916,20 +1895,28 @@ void CSCTriggerPrimitivesReader::drawCompHistos() {
 			 "ALCT firmware-emulator: match in number found");
   title->SetFillColor(10);  title->Draw();
   sprintf(pagenum, "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
-  gStyle->SetOptStat(110010);
+  //gStyle->SetOptStat(110010);
+  gStyle->SetOptStat(0);
   pad[page]->Draw();
   pad[page]->Divide(2,4);
   TH1F *hAlctFoundEffVsCsc[CSC_TYPES];
-  // Leave out station 4 for now.
+  // Leave out ME1/A and station 4 for now.
   for (int idh = 0; idh < CSC_TYPES-2; idh++) {
+    if (idh == 3) continue;
     hAlctFoundEffVsCsc[idh] = (TH1F*)hAlctCompFoundCsc[idh]->Clone();
     hAlctFoundEffVsCsc[idh]->Divide(hAlctCompSameNCsc[idh],
 				    hAlctCompFoundCsc[idh], 1., 1., "B");
     gPad->Update();  gStyle->SetStatX(0.65);
     hAlctFoundEffVsCsc[idh]->SetMinimum(0.00);
     hAlctFoundEffVsCsc[idh]->SetMaximum(1.05);
+    hAlctFoundEffVsCsc[idh]->GetXaxis()->SetTitleOffset(0.7);
+    hAlctFoundEffVsCsc[idh]->GetYaxis()->SetTitleOffset(0.8);
+    hAlctFoundEffVsCsc[idh]->GetXaxis()->SetLabelSize(0.06); // default=0.04
+    hAlctFoundEffVsCsc[idh]->GetYaxis()->SetLabelSize(0.06); // default=0.04
+    hAlctFoundEffVsCsc[idh]->GetXaxis()->SetTitleSize(0.07); // default=0.05
+    hAlctFoundEffVsCsc[idh]->GetYaxis()->SetTitleSize(0.07); // default=0.05
     hAlctFoundEffVsCsc[idh]->GetXaxis()->SetTitle("CSC id");
-    hAlctFoundEffVsCsc[idh]->GetYaxis()->SetTitle("Percentage of same number found");
+    hAlctFoundEffVsCsc[idh]->GetYaxis()->SetTitle("% of same number found");
     pad[page]->cd(idh+1);  hAlctFoundEffVsCsc[idh]->Draw("e");
     double numer = hAlctCompSameNCsc[idh]->Integral();
     double denom = hAlctCompFoundCsc[idh]->Integral();
@@ -1939,7 +1926,7 @@ void CSCTriggerPrimitivesReader::drawCompHistos() {
       error = sqrt(ratio*(1.-ratio)/denom);
     }
     sprintf(eff, "eff = (%4.1f +/- %4.1f)%%", ratio*100., error*100.);
-    teff.DrawTextNDC(0.2, 0.5, eff);
+    teff.DrawTextNDC(0.3, 0.5, eff);
   }
   page++;  c1->Update();
   //eps1->Close();
@@ -1951,20 +1938,28 @@ void CSCTriggerPrimitivesReader::drawCompHistos() {
 			 "ALCT firmware-emulator: exact match");
   title->SetFillColor(10);  title->Draw();
   sprintf(pagenum, "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
-  gStyle->SetOptStat(110010);
+  //gStyle->SetOptStat(110010);
+  gStyle->SetOptStat(0);
   pad[page]->Draw();
   pad[page]->Divide(2,4);
   TH1F *hAlctMatchEffVsCsc[CSC_TYPES];
-  // Leave out station 4 for now.
+  // Leave out ME1/A and station 4 for now.
   for (int idh = 0; idh < CSC_TYPES-2; idh++) {
+    if (idh == 3) continue;
     hAlctMatchEffVsCsc[idh] = (TH1F*)hAlctCompTotalCsc[idh]->Clone();
     hAlctMatchEffVsCsc[idh]->Divide(hAlctCompMatchCsc[idh],
 				    hAlctCompTotalCsc[idh], 1., 1., "B");
     gPad->Update();  gStyle->SetStatX(0.65);
     hAlctMatchEffVsCsc[idh]->SetMinimum(0.00);
     hAlctMatchEffVsCsc[idh]->SetMaximum(1.05);
+    hAlctMatchEffVsCsc[idh]->GetXaxis()->SetTitleOffset(0.7);
+    hAlctMatchEffVsCsc[idh]->GetYaxis()->SetTitleOffset(0.8);
+    hAlctMatchEffVsCsc[idh]->GetXaxis()->SetLabelSize(0.06); // default=0.04
+    hAlctMatchEffVsCsc[idh]->GetYaxis()->SetLabelSize(0.06); // default=0.04
+    hAlctMatchEffVsCsc[idh]->GetXaxis()->SetTitleSize(0.07); // default=0.05
+    hAlctMatchEffVsCsc[idh]->GetYaxis()->SetTitleSize(0.07); // default=0.05
     hAlctMatchEffVsCsc[idh]->GetXaxis()->SetTitle("CSC id");
-    hAlctMatchEffVsCsc[idh]->GetYaxis()->SetTitle("Percentage of matched ALCTs");
+    hAlctMatchEffVsCsc[idh]->GetYaxis()->SetTitle("% of exact match");
     pad[page]->cd(idh+1);  hAlctMatchEffVsCsc[idh]->Draw("e");
     double numer = hAlctCompMatchCsc[idh]->Integral();
     double denom = hAlctCompTotalCsc[idh]->Integral();
@@ -1974,7 +1969,7 @@ void CSCTriggerPrimitivesReader::drawCompHistos() {
       error = sqrt(ratio*(1.-ratio)/denom);
     }
     sprintf(eff, "eff = (%4.1f +/- %4.1f)%%", ratio*100., error*100.);
-    teff.DrawTextNDC(0.2, 0.5, eff);
+    teff.DrawTextNDC(0.3, 0.5, eff);
   }
   page++;  c1->Update();
   //eps2->Close();
@@ -1986,20 +1981,28 @@ void CSCTriggerPrimitivesReader::drawCompHistos() {
 			 "CLCT firmware-emulator: match in number found");
   title->SetFillColor(10);  title->Draw();
   sprintf(pagenum, "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
-  gStyle->SetOptStat(110010);
+  //gStyle->SetOptStat(110010);
+  gStyle->SetOptStat(0);
   pad[page]->Draw();
   pad[page]->Divide(2,4);
   TH1F *hClctFoundEffVsCsc[CSC_TYPES];
-  // Leave out station 4 for now.
+  // Leave out ME1/A and station 4 for now.
   for (int idh = 0; idh < CSC_TYPES-2; idh++) {
+    if (idh == 3) continue;
     hClctFoundEffVsCsc[idh] = (TH1F*)hClctCompFoundCsc[idh]->Clone();
     hClctFoundEffVsCsc[idh]->Divide(hClctCompSameNCsc[idh],
 				    hClctCompFoundCsc[idh], 1., 1., "B");
     gPad->Update();  gStyle->SetStatX(0.65);
     hClctFoundEffVsCsc[idh]->SetMinimum(0.00);
     hClctFoundEffVsCsc[idh]->SetMaximum(1.05);
+   hClctFoundEffVsCsc[idh]->GetXaxis()->SetTitleOffset(0.7);
+    hClctFoundEffVsCsc[idh]->GetYaxis()->SetTitleOffset(0.8);
+    hClctFoundEffVsCsc[idh]->GetXaxis()->SetLabelSize(0.06); // default=0.04
+    hClctFoundEffVsCsc[idh]->GetYaxis()->SetLabelSize(0.06); // default=0.04
+    hClctFoundEffVsCsc[idh]->GetXaxis()->SetTitleSize(0.07); // default=0.05
+    hClctFoundEffVsCsc[idh]->GetYaxis()->SetTitleSize(0.07); // default=0.05
     hClctFoundEffVsCsc[idh]->GetXaxis()->SetTitle("CSC id");
-    hClctFoundEffVsCsc[idh]->GetYaxis()->SetTitle("Percentage of same number found");
+    hClctFoundEffVsCsc[idh]->GetYaxis()->SetTitle("% of same number found");
     pad[page]->cd(idh+1);  hClctFoundEffVsCsc[idh]->Draw("e");
     double numer = hClctCompSameNCsc[idh]->Integral();
     double denom = hClctCompFoundCsc[idh]->Integral();
@@ -2009,7 +2012,7 @@ void CSCTriggerPrimitivesReader::drawCompHistos() {
       error = sqrt(ratio*(1.-ratio)/denom);
     }
     sprintf(eff, "eff = (%4.1f +/- %4.1f)%%", ratio*100., error*100.);
-    teff.DrawTextNDC(0.2, 0.5, eff);
+    teff.DrawTextNDC(0.3, 0.5, eff);
   }
   page++;  c1->Update();
   //eps3->Close();
@@ -2021,20 +2024,28 @@ void CSCTriggerPrimitivesReader::drawCompHistos() {
 			 "CLCT firmware-emulator: exact match");
   title->SetFillColor(10);  title->Draw();
   sprintf(pagenum, "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
-  gStyle->SetOptStat(110010);
+  //gStyle->SetOptStat(110010);
+  gStyle->SetOptStat(0);
   pad[page]->Draw();
   pad[page]->Divide(2,4);
   TH1F *hClctMatchEffVsCsc[CSC_TYPES];
-  // Leave out station 4 for now.
+  // Leave out ME1/A and station 4 for now.
   for (int idh = 0; idh < CSC_TYPES-2; idh++) {
+    if (idh == 3) continue;
     hClctMatchEffVsCsc[idh] = (TH1F*)hClctCompTotalCsc[idh]->Clone();
     hClctMatchEffVsCsc[idh]->Divide(hClctCompMatchCsc[idh],
 				    hClctCompTotalCsc[idh], 1., 1., "B");
     gPad->Update();  gStyle->SetStatX(0.65);
     hClctMatchEffVsCsc[idh]->SetMinimum(0.00);
     hClctMatchEffVsCsc[idh]->SetMaximum(1.05);
+    hClctMatchEffVsCsc[idh]->GetXaxis()->SetTitleOffset(0.7);
+    hClctMatchEffVsCsc[idh]->GetYaxis()->SetTitleOffset(0.8);
+    hClctMatchEffVsCsc[idh]->GetXaxis()->SetLabelSize(0.06); // default=0.04
+    hClctMatchEffVsCsc[idh]->GetYaxis()->SetLabelSize(0.06); // default=0.04
+    hClctMatchEffVsCsc[idh]->GetXaxis()->SetTitleSize(0.07); // default=0.05
+    hClctMatchEffVsCsc[idh]->GetYaxis()->SetTitleSize(0.07); // default=0.05
     hClctMatchEffVsCsc[idh]->GetXaxis()->SetTitle("CSC id");
-    hClctMatchEffVsCsc[idh]->GetYaxis()->SetTitle("Percentage of matched CLCTs");
+    hClctMatchEffVsCsc[idh]->GetYaxis()->SetTitle("% of exact match");
     pad[page]->cd(idh+1);  hClctMatchEffVsCsc[idh]->Draw("e");
     double numer = hClctCompMatchCsc[idh]->Integral();
     double denom = hClctCompTotalCsc[idh]->Integral();
@@ -2044,7 +2055,7 @@ void CSCTriggerPrimitivesReader::drawCompHistos() {
       error = sqrt(ratio*(1.-ratio)/denom);
     }
     sprintf(eff, "eff = (%4.1f +/- %4.1f)%%", ratio*100., error*100.);
-    teff.DrawTextNDC(0.2, 0.5, eff);
+    teff.DrawTextNDC(0.3, 0.5, eff);
   }
   page++;  c1->Update();
   //eps4->Close();
@@ -2055,20 +2066,28 @@ void CSCTriggerPrimitivesReader::drawCompHistos() {
 			 "LCT firmware-emulator: match in number found");
   title->SetFillColor(10);  title->Draw();
   sprintf(pagenum, "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
-  gStyle->SetOptStat(110010);
+  //gStyle->SetOptStat(110010);
+  gStyle->SetOptStat(0);
   pad[page]->Draw();
   pad[page]->Divide(2,4);
   TH1F *hLctFoundEffVsCsc[CSC_TYPES];
-  // Leave out station 4 for now.
+  // Leave out ME1/A and station 4 for now.
   for (int idh = 0; idh < CSC_TYPES-2; idh++) {
+    if (idh == 3) continue;
     hLctFoundEffVsCsc[idh] = (TH1F*)hLctCompFoundCsc[idh]->Clone();
     hLctFoundEffVsCsc[idh]->Divide(hLctCompSameNCsc[idh],
 				   hLctCompFoundCsc[idh], 1., 1., "B");
     gPad->Update();  gStyle->SetStatX(0.65);
     hLctFoundEffVsCsc[idh]->SetMinimum(0.00);
     hLctFoundEffVsCsc[idh]->SetMaximum(1.05);
+    hLctFoundEffVsCsc[idh]->GetXaxis()->SetTitleOffset(0.7);
+    hLctFoundEffVsCsc[idh]->GetYaxis()->SetTitleOffset(0.8);
+    hLctFoundEffVsCsc[idh]->GetXaxis()->SetLabelSize(0.06); // default=0.04
+    hLctFoundEffVsCsc[idh]->GetYaxis()->SetLabelSize(0.06); // default=0.04
+    hLctFoundEffVsCsc[idh]->GetXaxis()->SetTitleSize(0.07); // default=0.05
+    hLctFoundEffVsCsc[idh]->GetYaxis()->SetTitleSize(0.07); // default=0.05
     hLctFoundEffVsCsc[idh]->GetXaxis()->SetTitle("CSC id");
-    hLctFoundEffVsCsc[idh]->GetYaxis()->SetTitle("Percentage of same number found");
+    hLctFoundEffVsCsc[idh]->GetYaxis()->SetTitle("% of same number found");
     pad[page]->cd(idh+1);  hLctFoundEffVsCsc[idh]->Draw("e");
     double numer = hLctCompSameNCsc[idh]->Integral();
     double denom = hLctCompFoundCsc[idh]->Integral();
@@ -2078,7 +2097,7 @@ void CSCTriggerPrimitivesReader::drawCompHistos() {
       error = sqrt(ratio*(1.-ratio)/denom);
     }
     sprintf(eff, "eff = (%4.1f +/- %4.1f)%%", ratio*100., error*100.);
-    teff.DrawTextNDC(0.2, 0.5, eff);
+    teff.DrawTextNDC(0.3, 0.5, eff);
   }
   page++;  c1->Update();
 
@@ -2088,20 +2107,28 @@ void CSCTriggerPrimitivesReader::drawCompHistos() {
 			 "LCT firmware-emulator: exact match");
   title->SetFillColor(10);  title->Draw();
   sprintf(pagenum, "- %d -", page);  t.DrawText(0.9, 0.02, pagenum);
-  gStyle->SetOptStat(110010);
+  //gStyle->SetOptStat(110010);
+  gStyle->SetOptStat(0);
   pad[page]->Draw();
   pad[page]->Divide(2,4);
   TH1F *hLctMatchEffVsCsc[CSC_TYPES];
-  // Leave out station 4 for now.
+  // Leave out ME1/A and station 4 for now.
   for (int idh = 0; idh < CSC_TYPES-2; idh++) {
+    if (idh == 3) continue;
     hLctMatchEffVsCsc[idh] = (TH1F*)hLctCompTotalCsc[idh]->Clone();
     hLctMatchEffVsCsc[idh]->Divide(hLctCompMatchCsc[idh],
 				   hLctCompTotalCsc[idh], 1., 1., "B");
     gPad->Update();  gStyle->SetStatX(0.65);
     hLctMatchEffVsCsc[idh]->SetMinimum(0.00);
     hLctMatchEffVsCsc[idh]->SetMaximum(1.05);
+    hLctMatchEffVsCsc[idh]->GetXaxis()->SetTitleOffset(0.7);
+    hLctMatchEffVsCsc[idh]->GetYaxis()->SetTitleOffset(0.8);
+    hLctMatchEffVsCsc[idh]->GetXaxis()->SetLabelSize(0.06); // default=0.04
+    hLctMatchEffVsCsc[idh]->GetYaxis()->SetLabelSize(0.06); // default=0.04
+    hLctMatchEffVsCsc[idh]->GetXaxis()->SetTitleSize(0.07); // default=0.05
+    hLctMatchEffVsCsc[idh]->GetYaxis()->SetTitleSize(0.07); // default=0.05
     hLctMatchEffVsCsc[idh]->GetXaxis()->SetTitle("CSC id");
-    hLctMatchEffVsCsc[idh]->GetYaxis()->SetTitle("Percentage of matched LCTs");
+    hLctMatchEffVsCsc[idh]->GetYaxis()->SetTitle("% of exact match");
     pad[page]->cd(idh+1);  hLctMatchEffVsCsc[idh]->Draw("e");
     double numer = hLctCompMatchCsc[idh]->Integral();
     double denom = hLctCompTotalCsc[idh]->Integral();
@@ -2111,7 +2138,7 @@ void CSCTriggerPrimitivesReader::drawCompHistos() {
       error = sqrt(ratio*(1.-ratio)/denom);
     }
     sprintf(eff, "eff = (%4.1f +/- %4.1f)%%", ratio*100., error*100.);
-    teff.DrawTextNDC(0.2, 0.5, eff);
+    teff.DrawTextNDC(0.3, 0.5, eff);
   }
   page++;  c1->Update();
 
