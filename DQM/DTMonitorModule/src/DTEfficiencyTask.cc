@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/03/26 17:30:00 $
- *  $Revision: 1.0 $
+ *  $Date: 2007/03/26 14:52:17 $
+ *  $Revision: 1.1 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -187,14 +187,14 @@ void DTEfficiencyTask::analyze(const edm::Event& event, const edm::EventSetup& s
 	continue;
       }
 
-      // Skip if the segment has only 6 hits
-      if(recHits1D.size() == 6) {
+      // Skip if the segment has only 10 hits
+      if(recHits1D.size() == 10) {
 	if(debug)
-	  cout << "[DTEfficiencyTask] Segment with only 6 hits, skipping!" << endl;
+	  cout << "[DTEfficiencyTask] Segment with only 10 hits, skipping!" << endl;
 	continue;
       }
 
-      if(recHits1D.size() == 7) {
+      if((rPhi && recHits1D.size() == 7) || (rZ && recHits1D.size() == 11)) {
 	if(debug)
 	  cout << "[DTEfficiencyTask] Segment with only 7 hits!" << endl;
 
@@ -229,14 +229,9 @@ void DTEfficiencyTask::analyze(const edm::Event& event, const edm::EventSetup& s
 	}
 	// Loop over segment 1D RecHit
 	for(vector<DTRecHit1D>::const_iterator recHit = recHits1D.begin();
-	  recHit != recHits1D.end();
-	  recHit++) {
-	  
-	  layerMap[DTLayerId((*recHit).wireId().layerId().superlayerId().chamberId().wheel(),
-			  (*recHit).wireId().layerId().superlayerId().chamberId().station(),
-			  (*recHit).wireId().layerId().superlayerId().chamberId().sector(),
-			  (*recHit).wireId().layerId().superlayerId().superlayer(),
-			  (*recHit).wireId().layerId().layer())] = true;
+	    recHit != recHits1D.end();
+	    recHit++) {
+	  layerMap[(*recHit).wireId().layerId()]= true;
 	}
 	DTLayerId missLayerId;
 	//Loop over the map and find the layer without hits
@@ -250,7 +245,7 @@ void DTEfficiencyTask::analyze(const edm::Event& event, const edm::EventSetup& s
 
 
 
-	const DTLayer* missLayer = chamber->superLayer(missLayerId.superlayerId())->layer(missLayerId);
+	const DTLayer* missLayer = chamber->layer(missLayerId);
 	
 	LocalPoint missLayerPosInChamber = chamber->toLocal(missLayer->toGlobal(LocalPoint(0,0,0)));
 	
@@ -288,7 +283,7 @@ void DTEfficiencyTask::analyze(const edm::Event& event, const edm::EventSetup& s
 	}
       }
 
-      if(recHits1D.size() == 8) {
+      if((rPhi && recHits1D.size() == 8) || (rZ && recHits1D.size() == 12)) {
 	const vector<const DTSuperLayer*> SupLayers = chamber->superLayers();
 	for(vector<const DTSuperLayer*>::const_iterator superlayer = SupLayers.begin();
 	    superlayer != SupLayers.end();
