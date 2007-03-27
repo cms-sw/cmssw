@@ -48,8 +48,8 @@
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2007/03/13 20:49:17 $
-// $Revision: 1.36 $
+// $Date: 2007/03/15 20:19:11 $
+// $Revision: 1.37 $
 //
 
 #include <vector>
@@ -504,8 +504,8 @@ unsigned int RoadSearchCloudMakerAlgorithm::FillRecHitsIntoCloudGeneral(DetId id
             // switch cut to dx instead of dphi
             if ( std::abs(dx) < phiMax(seed,roadType,phi0,k0) ) {
               if ( cloud.size() < maxDetHitsInCloudPerDetId ) {
-                cloud.addHit((TrackingRecHit*)theCorrectedHit->clone());
-                //cloud.addHit((TrackingRecHit*)recHit->clone());
+                //cloud.addHit((TrackingRecHit*)theCorrectedHit->clone());
+                cloud.addHit((TrackingRecHit*)recHit->clone());
                 ++usedRecHits;
               }
             }
