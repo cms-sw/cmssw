@@ -145,7 +145,7 @@ namespace edm
 	s_types.reset(new Set);
       }
   
-      while(t.IsPointer() == true || t.IsArray() == true || t.IsTypedef() == true || t.IsReference() == true) {
+      while (t.IsUnqualified() == false) {
 	t = t.ToType();
       }
   
