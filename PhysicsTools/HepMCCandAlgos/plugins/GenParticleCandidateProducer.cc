@@ -2,7 +2,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: GenParticleCandidateProducer.cc,v 1.7 2007/03/21 10:42:09 llista Exp $
+ * \version $Id: GenParticleCandidateProducer.cc,v 1.8 2007/03/27 08:43:51 llista Exp $
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -228,6 +228,9 @@ void GenParticleCandidateProducer::fillMothers( const vector<const HepMC::GenPar
   for( size_t i = 0; i < size; ++ i ) {
     const GenParticle * part = particles[ i ];
     const GenVertex * productionVertex = part-> production_vertex();
+    if ( productionVertex == 0 ) 
+      throw edm::Exception( edm::errors::InvalidReference ) 
+	<< "particle has no production vertex. PDG id: " << part->pdg_id() << endl;
     size_t numberOfMothers = productionVertex->particles_in_size();
     if ( numberOfMothers > 0 ) {
       GenVertex::particles_in_const_iterator motherIt = productionVertex->particles_in_const_begin();
