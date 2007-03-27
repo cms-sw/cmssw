@@ -4,8 +4,8 @@
 /** \class DTVDriftCalibration
  *  No description available.
  *
- *  $Date: 2006/09/12 08:00:46 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/11/28 14:25:25 $
+ *  $Revision: 1.5 $
  *  \author M. Giunta
  */
 
@@ -129,9 +129,6 @@ private:
 
   // Choose the chamber you want to calibrate
   std::string theCalibChamber;
-
-  // Tag for the DB
-  std::string theTag;
 
 };
 #endif

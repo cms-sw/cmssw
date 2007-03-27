@@ -6,8 +6,8 @@
  *  for t_trig computation, fits the rising edge and write results to DB.
  *  The time boxes are written to file.
  *
- *  $Date: 2006/08/22 14:41:10 $
- *  $Revision: 1.7 $
+ *  $Date: 2006/09/12 07:52:54 $
+ *  $Revision: 1.8 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -88,7 +88,6 @@ private:
   DTTimeBoxFitter *theFitter;
   // The module for t0 subtraction
   DTTTrigBaseSync *theSync;//FIXME: should be const
-  std::string theTag;
 
 };
 #endif
