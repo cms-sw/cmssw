@@ -257,17 +257,17 @@ void SiPixelGaussianSmearingRecHitConverterAlgorithm::smearHit(
 							  (int)alphaMultiplicity , (int)betaMultiplicity ,
 							  alpha                  , beta                    );
   // define private mebers --> Errors
-  theErrorX = theErrors.first;  // PixelErrorParametrization returns sigma^2
-  theErrorY = theErrors.second; // PixelErrorParametrization returns sigma^2
+  theErrorX = theErrors.first;  // PixelErrorParametrization returns sigma, not sigma^2
+  theErrorY = theErrors.second; // PixelErrorParametrization returns sigma, not sigma^2
   theErrorZ = 1e-8; // 1 um means zero
-  theError = LocalError( theErrorX, 0., theErrorY);
+  theError = LocalError( theErrorX*theErrorX, 0., theErrorY*theErrorY);
   // Local Error is 2D: (xx,xy,yy), square of sigma in first an third position 
   // as for resolution matrix
   //
 #ifdef FAMOS_DEBUG
   std::cout << " Pixel Errors "
-	    << "\talpha(x) = " << sqrt(theErrorX)
-	    << "\tbeta(y) = "  << sqrt(theErrorY)
+	    << "\talpha(x) = " << theErrorX
+	    << "\tbeta(y) = "  << theErrorY
 	    << std::endl;	
 #endif
   
