@@ -3,7 +3,7 @@
 %{
 
 /*
- * $Id: pset_parse.y,v 1.54 2006/11/30 20:51:29 rpw Exp $
+ * $Id: pset_parse.y,v 1.55 2006/12/05 22:01:40 rpw Exp $
  *
  * Author: Us
  * Date:   4/28/05
@@ -604,22 +604,12 @@ stranys:         stranys COMMA_tok anyquote
 
 /* returns char* */
 any:             VALUE_tok
-                 {
-                   DBPRINT("any: VALUE");
-                   //$<str>$ = $<str>1;
-                 }
                |
                  LETTERSTART_tok
-                 {
-                   DBPRINT("any: LETTERSTART");
-                   //$<str>$ = $<str>1;
-                 }
                |
                  MINUSINF_tok
-                 {
-                   DBPRINT("any: MINUSINF");
-                   //$<str>$ = $<str>1;
-                 } 
+               |
+                 PRODUCTTAG_tok
                ;
 
 /* with or without a colon.  Some people even use the "source"
