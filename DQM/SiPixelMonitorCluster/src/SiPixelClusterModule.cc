@@ -54,17 +54,17 @@ void SiPixelClusterModule::book() {
   sprintf(hkey, "x_module_%i",id_);
   meX_ = theDMBE->book1D(hkey,"Cluster(barycenter) X",200,0.,200.);
   sprintf(hkey, "charge_module_%i",id_);
-  meCharge_ = theDMBE->book1D(hkey,"Cluster charge",500,0.,500.);     
+  meCharge_ = theDMBE->book1D(hkey,"Cluster charge",500,0.,500.);  //in MeV   
   sprintf(hkey, "size_module_%i",id_);
-  meSize_ = theDMBE->book1D(hkey,"Cluster size (total pixels)",500,0.,500.);
+  meSize_ = theDMBE->book1D(hkey,"Cluster size (total pixels)",100,0.,100.);
   sprintf(hkey, "sizeX_module_%i",id_);
-  meSizeX_ = theDMBE->book1D(hkey,"Cluster x size",500,0.,500.);
+  meSizeX_ = theDMBE->book1D(hkey,"Cluster x size",10,0.,10.);
   sprintf(hkey, "sizeY_module_%i",id_);
-  meSizeY_ = theDMBE->book1D(hkey,"Cluster y size",500,0.,500.);
+  meSizeY_ = theDMBE->book1D(hkey,"Cluster y size",20,0,20.);
   sprintf(hkey, "minrow_module_%i",id_);
-  meMinRow_ = theDMBE->book1D(hkey,"Lowest Cluster row",500,0.,500.);
+  meMinRow_ = theDMBE->book1D(hkey,"Lowest Cluster row",200,0.,200.);
   sprintf(hkey, "maxrow_module_%i",id_);
-  meMaxRow_ = theDMBE->book1D(hkey,"Highest Cluster row",500,0.,500.);
+  meMaxRow_ = theDMBE->book1D(hkey,"Highest Cluster row",200,0.,200.);
   sprintf(hkey, "mincol_module_%i",id_);
   meMinCol_ = theDMBE->book1D(hkey,"Lowest Cluster column",500,0.,500.);
   sprintf(hkey, "maxcol_module_%i",id_);
@@ -82,12 +82,12 @@ void SiPixelClusterModule::book() {
 // Fill histograms
 //
 void SiPixelClusterModule::fill(const edm::DetSetVector<SiPixelCluster>& input) {
-  
+
   edm::DetSetVector<SiPixelCluster>::const_iterator isearch = input.find(id_); // search  clusters of detid
   
   if( isearch != input.end() ) {  // Not at empty iterator
     
-    unsigned int numberOfClusters = 0;
+    unsigned int numberOfClusters = 0;    
     
     // Look at clusters now
     edm::DetSet<SiPixelCluster>::const_iterator  di;
@@ -103,7 +103,7 @@ void SiPixelClusterModule::fill(const edm::DetSetVector<SiPixelCluster>& input) 
       numberOfClusters++;
       float y = di->y();                   // barycenter y position
       float x = di->x();                   // barycenter x position
-      float charge = di->charge();         // total charge of cluster
+      float charge = 0.001*(di->charge()); // total charge of cluster
       int size = di->size();               // total size of cluster (in pixels)
       int sizeX = di->sizeX();             // size of cluster in x-direction
       int sizeY = di->sizeY();             // size of cluster in y-direction
@@ -139,9 +139,8 @@ void SiPixelClusterModule::fill(const edm::DetSetVector<SiPixelCluster>& input) 
     }
     (meNClusters_)->Fill((float)numberOfClusters);
     //std::cout<<"number of clusters="<<numberOfClusters<<std::endl;
-      
+    
   }
-  
   
   //std::cout<<"number of detector units="<<numberOfDetUnits<<std::endl;
   
