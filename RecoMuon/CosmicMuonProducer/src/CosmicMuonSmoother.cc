@@ -7,8 +7,8 @@
  *      within cylinders
  *
  *
- *  $Date: 2007/03/08 20:14:45 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/03/26 18:44:28 $
+ *  $Revision: 1.3 $
  *  \author Chang Liu  -  Purdue University
  */
 
@@ -97,8 +97,13 @@ vector<Trajectory> CosmicMuonSmoother::fit(const Trajectory& t) const {
   if (firstTsos.globalPosition().y() < firstTsos.globalPosition().y())
         firstTsos = lastTsos;
 
+<<<<<<< CosmicMuonSmoother.cc
+//  if (firstTsos.globalMomentum().y()>0 && firstTsos.globalMomentum().eta()< 2.5 ) 
+//     theUtilities->reverseDirection(firstTsos,&*theService->magneticField());
+=======
   if (firstTsos.globalMomentum().y()> 1.0 && firstTsos.globalMomentum().eta()< 4.0 ) 
      theUtilities->reverseDirection(firstTsos,&*theService->magneticField());
+>>>>>>> 1.3
 
   ConstRecHitContainer hits = t.recHits();
 
@@ -134,7 +139,7 @@ vector<Trajectory> CosmicMuonSmoother::fit(const TrajectorySeed& seed,
 
     currTsos = theUpdator->update(predTsos, *preciseHit);
     myTraj.push(TrajectoryMeasurement(predTsos, currTsos, hits.front(),
-                   theEstimator->estimate(predTsos, *hits.front()).second));
+                theEstimator->estimate(predTsos, *hits.front()).second));
 
   } else {
 
@@ -218,8 +223,13 @@ vector<Trajectory> CosmicMuonSmoother::smooth(const Trajectory& t) const {
 
   if ( !predTsos.isValid() ) return vector<Trajectory>();
 
+<<<<<<< CosmicMuonSmoother.cc
+//  if ( predTsos.globalMomentum().y() > 0 && predTsos.globalMomentum().eta()< 2.5 )  
+//     theUtilities->reverseDirection(predTsos, &*theService->magneticField());
+=======
 //  if ( predTsos.globalMomentum().y() > 0 && predTsos.globalMomentum().eta()< 4.0 )  
 //     theUtilities->reverseDirection(predTsos, &*theService->magneticField());
+>>>>>>> 1.3
 
   TrajectoryStateOnSurface currTsos;
 

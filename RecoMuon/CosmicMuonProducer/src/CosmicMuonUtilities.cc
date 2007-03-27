@@ -1,8 +1,8 @@
 /** \file CosmicMuonUtilities
  *
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2007/03/08 20:25:28 $
+ *  $Revision: 1.1 $
  *  \author Chang Liu  -  Purdue University
  */
 
@@ -46,7 +46,7 @@ string CosmicMuonUtilities::print(const MuonTransientTrackingRecHit::ConstMuonRe
 
     for (ConstMuonRecHitContainer::const_iterator ir = hits.begin(); ir != hits.end(); ir++ ) {
     if ( !(*ir)->isValid() ) {
-      output << "invalid RecHit";
+      output << "invalid RecHit"<<endl;
       continue;
     }
 
@@ -56,7 +56,7 @@ string CosmicMuonUtilities::print(const MuonTransientTrackingRecHit::ConstMuonRe
     << "radius "<<pos.perp()
     << "  dim " << (*ir)->dimension()
     << "  det " << (*ir)->det()->geographicalId().det()
-    << "  sub det " << (*ir)->det()->subDetector();
+    << "  sub det " << (*ir)->det()->subDetector()<<endl;
   }
   return output.str();
 
@@ -68,7 +68,7 @@ string CosmicMuonUtilities::print(const MuonTransientTrackingRecHit::MuonRecHitC
 
     for (MuonRecHitContainer::const_iterator ir = hits.begin(); ir != hits.end(); ir++ ) {
     if ( !(*ir)->isValid() ) {
-      output << "invalid RecHit";
+      output << "invalid RecHit"<<endl;
       continue;
     }
 
@@ -78,7 +78,7 @@ string CosmicMuonUtilities::print(const MuonTransientTrackingRecHit::MuonRecHitC
     << "radius "<<pos.perp()
     << "  dim " << (*ir)->dimension()
     << "  det " << (*ir)->det()->geographicalId().det()
-    << "  sub det " << (*ir)->det()->subDetector();
+    << "  sub det " << (*ir)->det()->subDetector()<<endl;
   }
   return output.str();
 
@@ -107,13 +107,13 @@ TrajectoryStateOnSurface CosmicMuonUtilities::stepPropagate(const TrajectoryStat
   for ( int istep = 0 ; istep < steps - 1 ; istep++) {
         GP += oneStep*UnitStepVector;
         Surface::PositionType pos(GP.x(),GP.y(),GP.z());
-        LogDebug(metname)<<"stepPropagate: a middle plane: "<<pos;
+        LogDebug(metname)<<"stepPropagate: a middle plane: "<<pos<<endl;
         Surface::RotationType rot( Basic3DV , float(0));
         PlaneBuilder::ReturnType SteppingPlane = PlaneBuilder().plane(pos,rot);
         TrajectoryStateOnSurface predTsos = prop.propagate( result, *SteppingPlane);
         if (predTsos.isValid()) {
             result=predTsos;
-            LogDebug(metname)<<"result "<< result.globalPosition();
+            LogDebug(metname)<<"result "<< result.globalPosition()<<endl;
           }
  }
 
@@ -130,7 +130,7 @@ string CosmicMuonUtilities::print(const TransientTrackingRecHit::ConstRecHitCont
 
     for (TransientTrackingRecHit::ConstRecHitContainer::const_iterator ir = hits.begin(); ir != hits.end(); ir++ ) {
     if ( !(*ir)->isValid() ) {
-      output << "invalid RecHit";
+      output << "invalid RecHit"<<endl;
       continue;
     }
 
@@ -140,7 +140,7 @@ string CosmicMuonUtilities::print(const TransientTrackingRecHit::ConstRecHitCont
     << "radius "<<pos.perp()
     << "  dim " << (*ir)->dimension()
     << "  det " << (*ir)->det()->geographicalId().det()
-    << "  sub det " << (*ir)->det()->subDetector();
+    << "  sub det " << (*ir)->det()->subDetector()<<endl;
   }
 
   return output.str();
