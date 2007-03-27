@@ -17,7 +17,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Aug  8 15:13:14 EDT 2005
-// $Id: EventID.h,v 1.1 2007/03/04 04:48:08 wmtan Exp $
+// $Id: EventID.h,v 1.2 2007/03/15 21:43:39 wmtan Exp $
 //
 
 // system include files
@@ -43,10 +43,6 @@ class EventID
       EventID(RunNumber_t iRun, EventNumber_t iEvent, bool iSim=false) :
 	run_(iRun), event_(iEvent), simulated_(iSim) {}
       
-      //FIXME: only used for backwards compatibility
-      EventID(EventNumber_t iEvent) : run_(1U), event_(iEvent), simulated_(false) {} 
-      //virtual ~EventID();
-
       // ---------- const member functions ---------------------
       RunNumber_t run() const { return run_; }
       EventNumber_t event() const { return event_; }

@@ -18,13 +18,7 @@ namespace edm
 	id_(),
 	time_(),
 	luminosityBlock_() {}
-    //FIXME: keep temporarily for backwards compatibility
-    explicit EventAuxiliary(EventID const& theId) :
-	processHistoryID_(),
-	id_(theId),
-	time_(),
-	luminosityBlock_() {}
-    EventAuxiliary(EventID const& theId, Timestamp const& theTime, LuminosityBlockNumber_t lb = 1U) :
+    EventAuxiliary(EventID const& theId, Timestamp const& theTime, LuminosityBlockNumber_t lb) :
 	processHistoryID_(),
 	id_(theId),
 	time_(theTime),

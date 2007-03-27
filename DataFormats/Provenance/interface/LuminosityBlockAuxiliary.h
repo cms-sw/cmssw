@@ -19,7 +19,7 @@ namespace edm
     LuminosityBlockAuxiliary(LuminosityBlockID const& theID) :
 	processHistoryID_(),
 	id_(theID) {}
-    LuminosityBlockAuxiliary(LuminosityBlockNumber_t const& theLumi, RunNumber_t const& theRun = 1U) :
+    LuminosityBlockAuxiliary(RunNumber_t const& theRun, LuminosityBlockNumber_t const& theLumi) :
 	processHistoryID_(),
 	id_(theRun, theLumi) {}
     ~LuminosityBlockAuxiliary() {}
