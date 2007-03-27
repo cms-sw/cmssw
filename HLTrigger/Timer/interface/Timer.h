@@ -17,9 +17,9 @@
 
 #include "DataFormats/HLTReco/interface/ModuleTiming.h"
 // use for CMSSW_1_3_x
-#include "DataFormats/Common/interface/ModuleDescription.h"
+//#include "DataFormats/Common/interface/ModuleDescription.h"
 // use for CMSSW_1_4_x
-//#include "DataFormats/Provenance/interface/ModuleDescription.h"
+#include "DataFormats/Provenance/interface/ModuleDescription.h"
 
 
 #include "HLTrigger/Timer/interface/CPUTimerService.h"
@@ -34,7 +34,7 @@
 //
 // Original Author:  Christos Leonidopoulos
 //         Created:  Mon Jul 10 14:13:58 CEST 2006
-// $Id: Timer.h,v 1.7 2007/03/09 08:05:45 gruen Exp $
+// $Id: Timer.h,v 1.8 2007/03/27 16:49:47 cleonido Exp $
 //
 //
 //
