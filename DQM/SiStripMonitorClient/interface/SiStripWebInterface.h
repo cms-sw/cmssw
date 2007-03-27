@@ -16,7 +16,7 @@ class SiStripWebInterface : public WebInterface
                          QTestResult=4, CreateTkMap=5, 
                          SaveData=6, 
                          PlotSingleModuleHistos=7, PlotGlobalHistos=8,
-                         PlotSingleHistogram=9, PlotTkMapHistogram=10};
+                         PlotHistogramFormPath=9, PlotTkMapHistogram=10};
 
   SiStripWebInterface(std::string theContextURL, std::string theApplicationURL, MonitorUserInterface ** _mui_p);
  ~SiStripWebInterface();

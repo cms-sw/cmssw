@@ -26,13 +26,29 @@
            name="canvas">
       </img>
       <br/>
-      <button name="Make PDF" 
-              id="makepdfbutton"
+      <label id="summ_plot"
+        style="margin-left:10%">
+        Summary Plot Types:
+      </label>
+      <select name="SummaryPlotType" 
+         id="summary_plot_type"
+         style="width:20%;height:5%;text-align;margin-right:2%">
+         <option value="Track_Summary_1"> Global Tracks </option>
+         <option value="Track_Summary_2"> Local Tracks </option>
+         <option value="TOB_Summary"> TOB Summary </option>
+         <option value="TIB_Summary"> TIB Summary </option>
+         <option value="TECF_Summary"> TECF Summary </option>
+         <option value="TECF_Summary"> TECB Summary </option>
+         <option value="TIDF_Summary"> TIDF Summary </option>
+         <option value="TIDB_Summary"> TIDB Summary </option>
+      </select>
+      <button name="DrawSummary" 
+              id="draw_summary"
               value="MakePDF" 
-              style="width:15%;margin-left:85%;"
-              onClick="RequestPlots('true');" 
+              style="width:35%;margin-left:5%;"
+              onClick="DrawSelectedSummary();" 
               type="submit">
-         <img alt="Make PDF"/>
+         <img alt="Draw Selected Summary"/>
       </button>
     </fieldset>
   </div>
@@ -46,34 +62,39 @@
 	       <input name="collate" 
                   id="collate_me"
                   value="Collate ME" 
-                  style="width:23%;margin-left:2%;margin-bottom:1%;margin-top:1%;margin-right:2%"                  
+                  style="width:30%;margin-left:2%;margin-bottom:1%;margin-top:1%;margin-right:2%"                  
                   onClick="CollateME()" 
                   type="submit">
                </input>
 	       <input name="summary" 
                   id="create_summary"
                   value="Update Summary" 
-                  style="width:25%;margin-left:2%;margin-bottom:1%;margin-top:1%;margin-right:2%"                  
+                  style="width:30%;margin-left:2%;margin-bottom:1%;margin-top:1%;margin-right:2%"                  
                   onClick="CreateSummary()" 
                   type="submit">
                </input>
+               <img id="progress_icon"
+                 src="images/loading.gif"
+                 style="height:10%;padding:0.1%;margin-top:5%;margin-left:0.1%;margin-bottom:-1%;visibility:hidden;">
+               </img>
+               <br/>
              <input name="QtestResult" 
                  id="check_qtest_result"
                  value="QTest Result" 
-                 style="width:23%;margin-left:2%;margin-bottom:1%;margin-top:1%;margin-right:2%"
+                 style="width:30%;margin-left:2%;margin-bottom:1%;margin-top:1%;margin-right:2%"
                  onClick="CheckQualityTestResults()" 
                  type="submit">
              </input>  
              <input name="UpdateTrackerMap" 
                  id="create_tkmap"
                  value="Create Tk Map"
-		 style="width:23%;margin-left:2%;margin-bottom:1%;margin-top:1%;margin-right:2%"
+		 style="width:30%;margin-left:2%;margin-bottom:1%;margin-top:1%;margin-right:2%"
                  onClick="CreateTrackerMap()"
                  type="submit">                   
              </input>
           </fieldset>
         </div>  
-        <div id="dhtmlgoodies_tabView1" style="float=right:width:50%;padding:0.1% 0%">
+        <div id="dhtmlgoodies_tabView1" style="float=right:width:50%;padding:0.1% 0%,visibility:hidden">
           <div class="dhtmlgoodies_aTab">
 	    <div class="bloc" id="bloc2_2" style="background:#A9FF84"> 
       	      <div class="bloc" id="bloc2_2_1" style="background:#A9FF84">
@@ -279,8 +300,10 @@
     </fieldset>
   </div>
 </form>
+<!--
 <script type="text/javascript">
   initTabs('dhtmlgoodies_tabView1', Array('Single Module View','Summary View','Alarm View'), 0, '99.5%','100%');
 </script>
+-->
 </body>
 </html>

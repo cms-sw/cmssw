@@ -275,22 +275,28 @@ void SiStripInformationExtractor::plotGlobalHistos(MonitorUserInterface* mui, mu
 //
 // -- plot a Histogram
 //
-void SiStripInformationExtractor::plotSingleHistogram(MonitorUserInterface * mui,
-		       std::multimap<std::string, std::string>& req_map){
+void SiStripInformationExtractor::plotHistosFromPath(MonitorUserInterface * mui, std::multimap<std::string, std::string>& req_map){
   vector<string> item_list;  
-
-  string path_name = getItemValue(req_map,"Path");
-  if (path_name.size() == 0) return;
+  getItemList(req_map,"Path", item_list);
   
+  if (item_list.size() == 0) return;
+
+  vector<MonitorElement*> me_list;
   string htype  = getItemValue(req_map,"histotype");
   if (htype.size() == 0) htype="individual";
-  MonitorElement* me = mui->get(path_name);
-  vector<MonitorElement*> me_list;
-  if (me) {
-    me_list.push_back(me);
-    if (htype == "summary") plotHistos(req_map, me_list, true);
-    else plotHistos(req_map, me_list, false);
-  } 
+
+  for (vector<string>::iterator it = item_list.begin(); it != item_list.end(); it++) {  
+
+    string path_name = (*it);
+    if (path_name.size() == 0) continue;
+    
+    MonitorElement* me = mui->get(path_name);
+
+    if (me) me_list.push_back(me);
+  }
+  if (me_list.size() == 0) return; 
+  if (htype == "summary") plotHistos(req_map, me_list, true);
+  else plotHistos(req_map, me_list, false); 
 }
 //
 //  plot Histograms in a Canvas
@@ -326,7 +332,7 @@ void SiStripInformationExtractor::plotHistos(multimap<string,string>& req_map,
 	nrow = 3;
       } else if (nhist == 4) {
 	ncol = 2;
-	nrow = 3;
+	nrow = 2;
       } else if (nhist > 4 && nhist <= 10) {
         ncol = 2;
 	nrow = nhist/ncol+1;
@@ -385,7 +391,7 @@ void SiStripInformationExtractor::plotHistos(multimap<string,string>& req_map,
 	  }
           thproj.DrawCopy();
 	} else hist2->Draw(dopt.c_str());
-        tTitle.DrawTextNDC(0.1, 0.91, hist2->GetTitle());
+        tTitle.DrawTextNDC(0.1, 0.81, hist2->GetName());
       } else if (prof) {
         if (xlow != -1 &&  xhigh != -1.0) {
           TAxis* xa = prof->GetXaxis();
@@ -399,7 +405,7 @@ void SiStripInformationExtractor::plotHistos(multimap<string,string>& req_map,
 	  }
 	  thproj.DrawCopy();
         } else prof->Draw(dopt.c_str());
-        tTitle.DrawTextNDC(0.1, 0.91, prof->GetTitle());
+        tTitle.DrawTextNDC(0.1, 0.81, prof->GetName());
       } else {
         if (xlow != -1 &&  xhigh != -1.0) {
           TAxis* xa = hist1->GetXaxis();
@@ -419,7 +425,7 @@ void SiStripInformationExtractor::plotHistos(multimap<string,string>& req_map,
 	  }
           else thproj.DrawCopy();
         } else hist1->Draw();
-        tTitle.DrawTextNDC(0.1, 0.91, hist1->GetTitle());
+        tTitle.DrawTextNDC(0.1, 0.81, hist1->GetName());
       }
       if (icol != 1) {
 	TText tt;

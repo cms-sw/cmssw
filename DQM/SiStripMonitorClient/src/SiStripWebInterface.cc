@@ -71,7 +71,14 @@ void SiStripWebInterface::handleCustomRequest(xgi::Input* in,xgi::Output* out)
   std::string requestID = get_from_multimap(requestMap_, "RequestID");
   // get the string that identifies the request:
   cout << " requestID " << requestID << endl;
-  if (requestID == "SubscribeAll") {
+  if (requestID == "IsReady") {
+    std::string name = "ReadyState";
+    std::string comment = "wait";
+    if ((*mui_p)->getNumUpdates() > 3) comment = "ready";
+    returnReplyXml(out, name, comment);
+    theActionFlag = NoAction;    
+  }    
+    else if (requestID == "SubscribeAll") {
     theActionFlag = SubscribeAll;
   } 
   else if (requestID == "CheckQTResults") {
@@ -132,8 +139,8 @@ void SiStripWebInterface::handleCustomRequest(xgi::Input* in,xgi::Output* out)
   else if (requestID == "PlotGlobalHisto") {
     theActionFlag = PlotGlobalHistos;    
   }
-  else if (requestID == "PlotSingleHistogram") {
-   theActionFlag = PlotSingleHistogram;
+  else if (requestID == "PlotHistogramFormPath") {
+   theActionFlag = PlotHistogramFormPath;
   } 
    else if (requestID == "PlotTkMapHistogram") {
    theActionFlag = PlotTkMapHistogram;
@@ -235,9 +242,9 @@ void SiStripWebInterface::performAction() {
       infoExtractor_->plotSingleModuleHistos((*mui_p), requestMap_);
       break;
     }
-  case SiStripWebInterface::PlotSingleHistogram :
+  case SiStripWebInterface::PlotHistogramFormPath :
     {
-      infoExtractor_->plotSingleHistogram((*mui_p), requestMap_);
+      infoExtractor_->plotHistosFromPath((*mui_p), requestMap_);
       break;
     }
   case SiStripWebInterface::NoAction :
@@ -250,14 +257,12 @@ void SiStripWebInterface::performAction() {
 void SiStripWebInterface::returnReplyXml(xgi::Output * out, const std::string& name, const std::string& comment){
    out->getHTTPResponseHeader().addHeader("Content-Type", "text/xml");
   *out << "<?xml version=\"1.0\" ?>" << std::endl;
-  *out << "<TkMap>" << endl;
+  *out << "<"<<name<<">" << endl;
   *out << " <Response>" << comment << "</Response>" << endl;
-  *out << "</TkMap>" << endl;
-  cout <<  "<?xml version=\"1.0\" ?>" << std::endl;
-  cout << "<TkMap>" << endl;
-  cout << " <Response>" << comment << "</Response>" << endl;
-  cout << "</TkMap>" << endl;
-
+  *out << "</"<<name<<">" << endl;
+  //  cout << "<"<<name<<">" << endl;
+  //  cout << " <Response>" << comment << "</Response>" << endl;
+  //  cout << "</"<<name<<">" << endl;
 }
 bool SiStripWebInterface::createTkMap() {
   if (theActionFlag == SiStripWebInterface::CreateTkMap) {
