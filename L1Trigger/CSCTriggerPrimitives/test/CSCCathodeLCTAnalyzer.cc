@@ -4,8 +4,8 @@
  * Slava Valuev  May 26, 2004
  * Porting from ORCA by S. Valuev in September 2006.
  *
- * $Date: 2007/01/26 17:45:39 $
- * $Revision: 1.6 $
+ * $Date: 2007/03/07 09:41:21 $
+ * $Revision: 1.7 $
  *
  */
 
@@ -13,7 +13,7 @@
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 
 #include <Geometry/CSCGeometry/interface/CSCGeometry.h>
-#include <Geometry/CSCGeometry/src/RadialStripTopology.h>
+#include <Geometry/CSCGeometry/interface/OffsetRadialStripTopology.h>
 
 #include <L1Trigger/CSCCommonTrigger/interface/CSCConstants.h>
 #include <L1Trigger/CSCTriggerPrimitives/src/CSCCathodeLCTProcessor.h>
@@ -352,15 +352,13 @@ int CSCCathodeLCTAnalyzer::nearestHS(
     const CSCLayer* csclayer = geom_->layer(layerId);
     const CSCLayerGeometry* layerGeom = csclayer->geometry();
     //nearestStrip = layerGeom->nearestStrip(matchedHit.localPosition());
-    const RadialStripTopology* topology =
-      (const RadialStripTopology*)layerGeom->topology();
     // Float in units of the strip (angular) width.  From RadialStripTopology
     // comments: "Strip in which a given LocalPoint lies. This is a float
     // which represents the fractional strip position within the detector.
     // Returns zero if the LocalPoint falls at the extreme low edge of the
     // detector or BELOW, and float(nstrips) if it falls at the extreme high
     // edge or ABOVE."
-    float strip = topology->strip(matchedHit.localPosition());
+    float strip = layerGeom->topology()->strip(matchedHit.localPosition());
 
     // Should be in the interval [0-MAX_STRIPS).  I see (rarely) cases when
     // strip = nearestStrip = MAX_STRIPS; do not know how to handle them.
@@ -413,11 +411,9 @@ double CSCCathodeLCTAnalyzer::getStripPhi(const CSCDetId& layerId,
 
   const CSCLayer* csclayer = geom_->layer(layerId);
   const CSCLayerGeometry* layerGeom = csclayer->geometry();
-  const RadialStripTopology* topology =
-    (const RadialStripTopology*)layerGeom->topology();
 
   // Position at the center of the strip.
-  LocalPoint  digiLP = topology->localPosition(strip);
+  LocalPoint  digiLP = layerGeom->topology()->localPosition(strip);
   // The alternative calculation gives exactly the same answer.
   // double ystrip = 0.0;
   // double xstrip = topology->xOfStrip(strip, ystrip);
