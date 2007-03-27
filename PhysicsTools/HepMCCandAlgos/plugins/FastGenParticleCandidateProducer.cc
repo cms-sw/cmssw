@@ -2,7 +2,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: FastGenParticleCandidateProducer.cc,v 1.5 2007/03/07 11:29:46 llista Exp $
+ * \version $Id: FastGenParticleCandidateProducer.cc,v 1.7 2007/03/21 10:42:09 llista Exp $
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -23,8 +23,6 @@ class FastGenParticleCandidateProducer : public edm::EDProducer {
   ~FastGenParticleCandidateProducer();
 
  private:
-  /// vector of strings
-  typedef std::vector<std::string> vstring;
   /// module init at begin of job
   void beginJob( const edm::EventSetup & );
   /// process one event

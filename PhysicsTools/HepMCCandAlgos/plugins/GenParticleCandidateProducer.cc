@@ -2,12 +2,13 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: GenParticleCandidateProducer.cc,v 1.5 2007/03/07 11:29:46 llista Exp $
+ * \version $Id: GenParticleCandidateProducer.cc,v 1.7 2007/03/21 10:42:09 llista Exp $
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleCandidateFwd.h"
+#include "SimGeneral/HepPDTRecord/interface/PdtEntry.h"
 #include <vector>
 #include <map>
 #include <set>
@@ -26,7 +27,7 @@ class GenParticleCandidateProducer : public edm::EDProducer {
 
  private:
   /// vector of strings
-  typedef std::vector<std::string> vstring;
+  typedef std::vector<PdtEntry> vpdt;
   /// module init at begin of job
   void beginJob( const edm::EventSetup & );
   /// process one event
@@ -36,7 +37,7 @@ class GenParticleCandidateProducer : public edm::EDProducer {
   // selects only stable particles (HEPEVT status = 1)
   bool stableOnly_;
   /// exclude list
-  vstring excludeList_;
+  vpdt excludeList_;
   /// set of excluded particle id's
   std::set<int> excludedIds_;
   /// minimum thresholds
@@ -111,7 +112,7 @@ static const int PDGCacheMax = 32768;
 GenParticleCandidateProducer::GenParticleCandidateProducer( const ParameterSet & p ) :
   src_( p.getParameter<string>( "src" ) ),
   stableOnly_( p.getParameter<bool>( "stableOnly" ) ),
-  excludeList_( p.getParameter<vstring>( "excludeList" ) ),
+  excludeList_( p.getParameter<vpdt>( "excludeList" ) ),
   ptMinNeutral_( p.getParameter<double>( "ptMinNeutral" ) ),
   ptMinCharged_( p.getParameter<double>( "ptMinCharged" ) ),
   ptMinGluon_( p.getParameter<double>( "ptMinGluon" ) ),
@@ -135,17 +136,14 @@ int GenParticleCandidateProducer::chargeTimesThree( int id ) const {
 }
 
 void GenParticleCandidateProducer::beginJob( const EventSetup & es ) {
+  for( vpdt::iterator e = excludeList_.begin(); 
+       e != excludeList_.end(); ++ e ) {
+    e->setup( es );
+    excludedIds_.insert( abs( e->pdgId() ) );
+  }
+
   ESHandle<ParticleDataTable> pdt;
   es.getData( pdt );
-  
-  for( vstring::const_iterator e = excludeList_.begin(); 
-       e != excludeList_.end(); ++ e ) {
-    const ParticleData * p = pdt->particle( * e );
-    if ( p == 0 ) 
-      throw cms::Exception( "ConfigError" )
-	<< "can't find particle: " << * e;
-    excludedIds_.insert( abs( p->pid() ) );
-  }
 
   for( ParticleDataTable::const_iterator p = pdt->begin(); p != pdt->end(); ++ p ) {
     const HepPDT::ParticleID & id = p->first;
