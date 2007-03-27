@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/09/12 07:57:14 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/01/22 11:08:05 $
+ *  $Revision: 1.2 $
  *  \author S. Bolognesi
  */
 
@@ -51,8 +51,7 @@ DTTTrigWriter::DTTTrigWriter(const ParameterSet& pset) {
     theFitter->setVerbosity(1);
 
   // Create the object to be written to DB
-  string tag = pset.getUntrackedParameter<string>("tTrigTag", "ttrig_test");
-  tTrig = new DTTtrig(tag);
+  tTrig = new DTTtrig();
   
   if(debug)
     cout << "[DTTTrigWriter]Constructor called!" << endl;
@@ -64,6 +63,8 @@ DTTTrigWriter::DTTTrigWriter(const ParameterSet& pset) {
 DTTTrigWriter::~DTTTrigWriter(){
   if(debug)
     cout << "[DTTTrigWriter]Destructor called!" << endl;
+  theFile->Close();
+  delete theFitter;
 }
 
 

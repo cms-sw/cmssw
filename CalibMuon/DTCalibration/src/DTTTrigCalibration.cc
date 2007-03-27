@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/02/19 12:35:32 $
- *  $Revision: 1.19 $
+ *  $Date: 2007/03/07 18:32:31 $
+ *  $Revision: 1.20 $
  *  \author G. Cerminara - INFN Torino
  */
 #include "CalibMuon/DTCalibration/src/DTTTrigCalibration.h"
@@ -72,7 +72,6 @@ DTTTrigCalibration::DTTTrigCalibration(const edm::ParameterSet& pset) {
     theSync = 0;
   }
 
-  theTag = pset.getUntrackedParameter<string>("tTrigTag", "ttrig_test");
   checkNoisyChannels = pset.getUntrackedParameter<bool>("checkNoisyChannels","false");
 
   if(debug) 
@@ -212,7 +211,7 @@ void DTTTrigCalibration::endJob() {
 
   if(findTMeanAndSigma) {
       // Create the object to be written to DB
-      DTTtrig* tTrig = new DTTtrig(theTag);
+      DTTtrig* tTrig = new DTTtrig();
 
       // Loop over the map, fit the histos and write the resulting values to the DB
       for(map<DTSuperLayerId, TH1F*>::const_iterator slHisto = theHistoMap.begin();
