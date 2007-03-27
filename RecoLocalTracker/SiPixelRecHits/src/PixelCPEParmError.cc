@@ -69,6 +69,10 @@ PixelCPEParmError::localError( const SiPixelCluster& cluster, const GeomDetUnit 
   bool edgey = (theTopol->isItEdgePixelInY(minPixelCol)) ||
     (theTopol->isItEdgePixelInY(maxPixelCol));
   
+  // Gavril: check if this rechit contains big pixels, 03/27/07
+  bool bigInX = theTopol->containsBigPixelInX(minPixelRow, maxPixelRow);
+  bool bigInY = theTopol->containsBigPixelInY(minPixelCol, maxPixelCol);
+
   if (edgex && edgey) {
     //--- Both axes on the edge, no point in calling PixelErrorParameterization,
     //--- just return the max errors on both.
@@ -77,7 +81,8 @@ PixelCPEParmError::localError( const SiPixelCluster& cluster, const GeomDetUnit 
     pair<float,float> errPair = 
       pixelErrorParametrization_->getError(thePart, 
 					   cluster.sizeX(), cluster.sizeY(), 
-					   alpha_         , beta_);
+					   alpha_         , beta_,
+					   bigInX         , bigInY); // Gavril: add big pixel flags, 03/27/07
     if (!edgex) xerr = errPair.first;
     if (!edgey) yerr = errPair.second;
   }       
