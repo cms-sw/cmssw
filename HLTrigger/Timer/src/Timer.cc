@@ -14,13 +14,12 @@
 //
 // Original Author:  Christos Leonidopoulos
 //         Created:  Mon Jul 10 14:13:58 CEST 2006
-// $Id: Timer.cc,v 1.6 2006/08/14 15:26:49 gruen Exp $
+// $Id: Timer.cc,v 1.7 2006/10/24 14:07:31 gruen Exp $
 //
 //
 
 
 #include "HLTrigger/Timer/interface/Timer.h"
-#include "FWCore/Framework/interface/CurrentProcessingContext.h"
 
 #include <iostream>
 
@@ -40,28 +39,42 @@ Timer::Timer(const ParameterSet& iConfig)
   
   // whether to include timing info about Timer module (default: false)
   includeSelf = iConfig.getUntrackedParameter<bool>("includeSelf", false);
+  // 
+  cputimer = 0;
+  // whether to use CPU-time (default) or wall-clock time
+  useCPUtime = (edm::Service<CPUTimerService>().isAvailable() );
+  if(useCPUtime)
+    cputimer = edm::Service<CPUTimerService>().operator->();
 
   timing.reset();
 
   // attach method to Timing service's "new measurement" signal
   Service<edm::service::Timing> time;
   time->newMeasurementSignal.connect(boost::bind(boost::mem_fn(&Timer::newTimingMeasurement), this, _1, _2) );
-
+  
   self_module_name = string(iConfig.getParameter<string>("@module_type"));
 }
 
-
 Timer::~Timer()
 {
+  using namespace std;
+  string longLine("=========================================================="); 
+  cout << longLine << endl;
+  cout << " Timer Info:";
+
+  if(useCPUtime)
+    std::cout << " Used CPU-time ";
+  else
+    std::cout << " Used wall-clock-time ";
+  std::cout << "for timing information " << std::endl;
+
   if(!includeSelf){
-    using namespace std;
-    string longLine("=========================================================="); 
     cout << longLine << endl;
-    cout << " Timer Info:\n";
     cout << " Timer module was excluded from time measurements\n";
     cout << " (to include, set 'bool includeSelf = true' in .cfg file)\n";
-    cout << longLine << endl << endl;
   }
+  cout << longLine << endl << endl;
+
 }
 
 // fwk calls this method when new module measurement arrives
@@ -71,8 +84,14 @@ void Timer::newTimingMeasurement(const ModuleDescription& iMod, double iTime)
   if(!includeSelf && iMod.moduleName() == self_module_name)
      return;
 
+  double time = -999;
+  if(useCPUtime)
+    time = cputimer->getTime();
+  else
+    time = iTime;
+
   // new measurement; add to private member
-  ModuleTime newModuleTime(iMod.moduleLabel(), iTime); 
+  ModuleTime newModuleTime(iMod.moduleLabel(), time); 
   timing.addModuleTime(newModuleTime);
 }
 
@@ -92,5 +111,3 @@ Timer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    iEvent.put(out);
 }
 
-//define this as a plug-in
-DEFINE_FWK_MODULE(Timer);
