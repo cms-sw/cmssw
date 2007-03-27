@@ -1,5 +1,12 @@
 
 
+/*
+ *  See header file for a description of this class.
+ *
+ *  $Date: 2007/03/27 18:00:00 $
+ *  $Revision: 1.0 $
+ *  \author G. Mila - INFN Torino
+ */
 
 
 #include <DQM/DTMonitorClient/src/DTResolutionTest.h>
@@ -23,13 +30,12 @@
 #include "CondFormats/DataRecord/interface/DTStatusFlagRcd.h"
 #include "CondFormats/DTObjects/interface/DTStatusFlag.h"
 
-
-
 #include <iostream>
 #include <stdio.h>
 #include <string>
 #include <sstream>
 #include <math.h>
+
 
 using namespace edm;
 using namespace std;
@@ -90,9 +96,32 @@ void DTResolutionTest::bookHistos(const DTChamberId & ch) {
   dbe->setCurrentFolder("DT/Tests/DTResolution");
 
   string HistoName = "W" + wheel.str() + "_Sec" + sector.str(); 
-  MeanHistos[HistoName] = dbe->book1D(MeanHistoName.c_str(),MeanHistoName.c_str(),11,0,10);
-  SigmaHistos[HistoName] = dbe->book1D(SigmaHistoName.c_str(),SigmaHistoName.c_str(),11,0,10);
 
+  MeanHistos[HistoName] = dbe->book1D(MeanHistoName.c_str(),MeanHistoName.c_str(),11,0,10);
+  (MeanHistos[HistoName])->setBinLabel(1,"MB1_L1",1);
+  (MeanHistos[HistoName])->setBinLabel(2,"MB1_L2",1);
+  (MeanHistos[HistoName])->setBinLabel(3,"MB1_L3",1);
+  (MeanHistos[HistoName])->setBinLabel(4,"MB2_L1",1);
+  (MeanHistos[HistoName])->setBinLabel(5,"MB2_L2",1);
+  (MeanHistos[HistoName])->setBinLabel(6,"MB2_L3",1);
+  (MeanHistos[HistoName])->setBinLabel(7,"MB3_L1",1);
+  (MeanHistos[HistoName])->setBinLabel(8,"MB3_L2",1);
+  (MeanHistos[HistoName])->setBinLabel(9,"MB3_L3",1);
+  (MeanHistos[HistoName])->setBinLabel(10,"MB4_L1",1);
+  (MeanHistos[HistoName])->setBinLabel(11,"MB4_L3",1);
+
+  SigmaHistos[HistoName] = dbe->book1D(SigmaHistoName.c_str(),SigmaHistoName.c_str(),11,0,10);
+  (SigmaHistos[HistoName])->setBinLabel(1,"MB1_L1",1);  
+  (SigmaHistos[HistoName])->setBinLabel(2,"MB1_L2",1);
+  (SigmaHistos[HistoName])->setBinLabel(3,"MB1_L3",1);
+  (SigmaHistos[HistoName])->setBinLabel(4,"MB2_L1",1);
+  (SigmaHistos[HistoName])->setBinLabel(5,"MB2_L2",1);
+  (SigmaHistos[HistoName])->setBinLabel(6,"MB2_L3",1);
+  (SigmaHistos[HistoName])->setBinLabel(7,"MB3_L1",1);
+  (SigmaHistos[HistoName])->setBinLabel(8,"MB3_L2",1);
+  (SigmaHistos[HistoName])->setBinLabel(9,"MB3_L3",1);
+  (SigmaHistos[HistoName])->setBinLabel(10,"MB4_L1",1);
+  (SigmaHistos[HistoName])->setBinLabel(11,"MB4_L3",1);
 }
 
 
@@ -189,7 +218,6 @@ void DTResolutionTest::analyze(const edm::Event& e, const edm::EventSetup& conte
     if ( parameters.getUntrackedParameter<bool>("writeHisto", true) ) 
       dbe->save(parameters.getUntrackedParameter<string>("outputFile", "DTResolutionTest.root"));
   }
-  
 }
 
 

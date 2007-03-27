@@ -2,9 +2,15 @@
 #define DTResolutionTest_H
 
 
-
-
-
+/** \class DTResolutionTest
+ * *
+ *  DQM Test Client
+ *
+ *  $Date: 2007/03/27 18:00:00 $
+ *  $Revision: 1.0 $
+ *  \author  G. Mila - INFN Torino
+ *   
+ */
 
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
