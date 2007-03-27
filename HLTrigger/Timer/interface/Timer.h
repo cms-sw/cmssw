@@ -13,16 +13,15 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Services/interface/Timing.h"
 
 #include "DataFormats/HLTReco/interface/ModuleTiming.h"
 // use for CMSSW_1_3_x
-//#include "DataFormats/Common/interface/ModuleDescription.h"
+#include "DataFormats/Common/interface/ModuleDescription.h"
 // use for CMSSW_1_4_x
-#include "DataFormats/Provenance/interface/ModuleDescription.h"
+//#include "DataFormats/Provenance/interface/ModuleDescription.h"
 
 
-#include "HLTrigger/Timer/interface/CPUTimerService.h"
+#include "HLTrigger/Timer/interface/TimerService.h"
 
 /*
   Description: EDProducer that uses the EventTime structure to store in the Event 
@@ -34,7 +33,7 @@
 //
 // Original Author:  Christos Leonidopoulos
 //         Created:  Mon Jul 10 14:13:58 CEST 2006
-// $Id: Timer.h,v 1.8 2007/03/27 16:49:47 cleonido Exp $
+// $Id: Timer.h,v 1.9 2007/03/27 16:55:36 cleonido Exp $
 //
 //
 //
@@ -46,7 +45,6 @@ class Timer : public edm::EDProducer {
   explicit Timer(const edm::ParameterSet&);
   ~Timer();
   // fwk calls this method when new module measurement arrives;
-  // Note: iTime is the wall-clock time (used only if useCPUtime = false)
   void newTimingMeasurement(const edm::ModuleDescription& iMod, double iTime);
   // put output into Event
   virtual void produce(edm::Event&, const edm::EventSetup&);
@@ -56,13 +54,9 @@ class Timer : public edm::EDProducer {
   edm::EventTime timing; // structure with module names & processing times
   // whether to store information about itself (ie. Timer module)
   bool includeSelf;
-  // whether to use CPU-time (default) or wall-clock time
-  bool useCPUtime;
 
   // this should be just this class' name
   std::string self_module_name;
-  // access the service
-  CPUTimerService * cputimer;
 
 };
 
