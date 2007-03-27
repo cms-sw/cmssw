@@ -7,6 +7,7 @@
 
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducerFactory.h"
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducer.h"
+#include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
 
 #include "RecoTracker/TkTrackingRegions/interface/OrderedHitsGeneratorFactory.h"
 #include "RecoTracker/TkTrackingRegions/interface/OrderedHitsGenerator.h"
@@ -16,13 +17,14 @@
 
 SeedGeneratorFromRegionHitsEDProducer::SeedGeneratorFromRegionHitsEDProducer(
     const edm::ParameterSet& cfg) 
-  : theConfig(cfg), theGenerator(0)
+  : theConfig(cfg), theGenerator(0), theRegionProducer(0)
 {
     produces<TrajectorySeedCollection>();
 }
 
 SeedGeneratorFromRegionHitsEDProducer::~SeedGeneratorFromRegionHitsEDProducer()
 {
+  delete theRegionProducer;
   delete theGenerator;
 }
 
@@ -31,8 +33,7 @@ void SeedGeneratorFromRegionHitsEDProducer::beginJob(const edm::EventSetup& es)
   edm::ParameterSet regfactoryPSet = 
       theConfig.getParameter<edm::ParameterSet>("RegionFactoryPSet");
   std::string regfactoryName = regfactoryPSet.getParameter<std::string>("ComponentName");
-  TrackingRegionProducer*  regionProducer = 
-        TrackingRegionProducerFactory::get()->create( regfactoryName, regfactoryPSet);
+  theRegionProducer = TrackingRegionProducerFactory::get()->create(regfactoryName,regfactoryPSet);
 
   edm::ParameterSet hitsfactoryPSet = 
       theConfig.getParameter<edm::ParameterSet>("OrderedHitsFactoryPSet");
@@ -40,15 +41,29 @@ void SeedGeneratorFromRegionHitsEDProducer::beginJob(const edm::EventSetup& es)
   OrderedHitsGenerator*  hitsGenerator = 
         OrderedHitsGeneratorFactory::get()->create( hitsfactoryName, hitsfactoryPSet);
 
-  theGenerator = new SeedGeneratorFromRegionHits(regionProducer,hitsGenerator,
-     theConfig); // config is passed temporary!!!!
+  theGenerator = new SeedGeneratorFromRegionHits(hitsGenerator, theConfig); // config is passed temporary!!!!
   
 }
-
 
 void SeedGeneratorFromRegionHitsEDProducer::produce(edm::Event& ev, const edm::EventSetup& es)
 {
   std::auto_ptr<TrajectorySeedCollection> result(new TrajectorySeedCollection());
-  theGenerator->run(*result, ev,es);
+
+  typedef std::vector<TrackingRegion* > Regions;
+  typedef Regions::const_iterator IR;
+  Regions regions = theRegionProducer->regions(ev,es);
+
+  for (IR ir=regions.begin(), irEnd=regions.end(); ir < irEnd; ++ir) {
+    const TrackingRegion & region = **ir;
+    std::cout << region.name() << std::endl;
+
+    // make job
+    theGenerator->run(*result, region, ev,es);
+  }
+
+  // clear memory
+  for (IR ir=regions.begin(), irEnd=regions.end(); ir < irEnd; ++ir) delete (*ir);
+
+  // put to event
   ev.put(result);
 }

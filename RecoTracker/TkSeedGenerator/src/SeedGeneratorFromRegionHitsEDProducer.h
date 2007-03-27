@@ -7,7 +7,7 @@
 namespace edm { class Event; class EventSetup; }
 
 class SeedGeneratorFromRegionHits;
-
+class TrackingRegionProducer;
 
 class SeedGeneratorFromRegionHitsEDProducer : public edm::EDProducer {
 public:
@@ -22,6 +22,7 @@ public:
 private:
   edm::ParameterSet theConfig;
   SeedGeneratorFromRegionHits * theGenerator; 
+  TrackingRegionProducer* theRegionProducer;
 };
 
 #endif
