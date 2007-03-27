@@ -4,8 +4,10 @@
 
 #include "IOMC/RandomEngine/src/RandomNumberGeneratorService.h"
 #include "IOMC/RandomEngine/src/RandomEngineStateProducer.h"
+#include "IOMC/RandomEngine/src/RandomFilter.h"
 
 using edm::service::RandomNumberGeneratorService;
+using edm::RandomFilter;
 
 DEFINE_SEAL_MODULE();
 
@@ -13,3 +15,4 @@ typedef edm::serviceregistry::AllArgsMaker<edm::RandomNumberGenerator,RandomNumb
 DEFINE_ANOTHER_FWK_SERVICE_MAKER(RandomNumberGeneratorService, RandomMaker);
 
 DEFINE_ANOTHER_FWK_MODULE(RandomEngineStateProducer);
+DEFINE_ANOTHER_FWK_MODULE(RandomFilter);
