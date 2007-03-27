@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/01/22 11:08:05 $
- *  $Revision: 1.8 $
+ *  $Date: 2007/02/19 12:35:33 $
+ *  $Revision: 1.9 $
  *  \author M. Giunta
  */
 
@@ -93,9 +93,6 @@ DTVDriftCalibration::DTVDriftCalibration(const ParameterSet& pset) {
 
   // Maximum incidence angle for Theta SL 
   theMaxZAngle =  pset.getParameter<double>("maxAngleZ");
-  
-  //tag fro the DB
-  theTag = pset.getUntrackedParameter<string>("meanTimerTag", "vDrift");
   
   // the granularity to be used for tMax
   string tMaxGranularity = pset.getUntrackedParameter<string>("tMaxGranularity","bySL");
@@ -334,7 +331,7 @@ void DTVDriftCalibration::endJob() {
   // Instantiate a DTCalibrationMap object if you want to calculate the calibration constants
   DTCalibrationMap calibValuesFile(theCalibFilePar);  
   // Create the object to be written to DB
-  DTMtime* mTime = new DTMtime(theTag);
+  DTMtime* mTime = new DTMtime();
   
   // write the TMax histograms of each SL to the root file
   if(theGranularity == bySL) {

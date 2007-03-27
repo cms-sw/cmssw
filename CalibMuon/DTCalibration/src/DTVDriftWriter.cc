@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/11/28 14:25:53 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/01/22 11:08:05 $
+ *  $Revision: 1.5 $
  *  \author M. Giunta
  */
 
@@ -59,9 +59,7 @@ DTVDriftWriter::DTVDriftWriter(const ParameterSet& pset) {
   // the granularity to be used for calib constants evaluation
   theGranularity = pset.getUntrackedParameter<string>("calibGranularity","bySL");
   
-  //tag for the DB
-  string tag = pset.getUntrackedParameter<string>("meanTimerTag", "vDrift");
-  theMTime = new DTMtime(tag);
+  theMTime = new DTMtime();
 
   if(debug)
     cout << "[DTVDriftWriter]Constructor called!" << endl;
