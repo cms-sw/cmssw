@@ -1,4 +1,4 @@
-#include "RecoTracker/TkSeedGenerator/interface/SeedGeneratorFromProtoTracks.h"
+#include "SeedGeneratorFromProtoTracksEDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -11,13 +11,13 @@
 
 using namespace edm;
 
-SeedGeneratorFromProtoTracks::SeedGeneratorFromProtoTracks(const ParameterSet& cfg)
+SeedGeneratorFromProtoTracksEDProducer::SeedGeneratorFromProtoTracksEDProducer(const ParameterSet& cfg)
   : theInputCollectionTag(cfg.getParameter<InputTag>("InputCollection"))
 {
   produces<TrajectorySeedCollection>();
 }
 
-void SeedGeneratorFromProtoTracks::produce(edm::Event& ev, const edm::EventSetup& es)
+void SeedGeneratorFromProtoTracksEDProducer::produce(edm::Event& ev, const edm::EventSetup& es)
 {
   std::auto_ptr<TrajectorySeedCollection> result(new TrajectorySeedCollection());
   Handle<reco::TrackCollection> trks;
