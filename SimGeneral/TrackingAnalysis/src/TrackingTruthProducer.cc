@@ -292,16 +292,20 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
   for (HepMC::GenEvent::vertex_const_iterator genVIt = genEvent->vertices_begin(); genVIt != genEvent->vertices_end(); ++genVIt) {
     HepMC::FourVector rawPos = (**genVIt).position();
     // Convert to cm
-    HepMC::FourVector pos = HepMC::FourVector(rawPos.x()/10.0,rawPos.y()/10.0,rawPos.z()/10.0);
+    HepMC::FourVector genPos = HepMC::FourVector(rawPos.x()/10.0,rawPos.y()/10.0,rawPos.z()/10.0);
     for (TrackingVertexCollection::iterator iTrkVtx = tVC -> begin(); iTrkVtx != tVC ->end(); ++iTrkVtx) {
-      double distance = HepLorentzVector(iTrkVtx -> position() - pos).v().mag();
+      HepMC::FourVector simPos = iTrkVtx->position();
+      double distance = (simPos-genPos).v().mag();
       if (distance <= distanceCut_) {
-         TrackingVertex::genv_iterator tvGenVIt;
-         for (tvGenVIt = iTrkVtx->genVertices_begin(); tvGenVIt != iTrkVtx->genVertices_end(); ++tvGenVIt) {
-           if ((**genVIt).barcode()  == (**tvGenVIt).barcode()) break;
-         }
-         if (tvGenVIt== iTrkVtx->genVertices_end() )
-           iTrkVtx->addGenVertex(GenVertexRef(hepMC,(**genVIt).barcode())); // Add HepMC vertex
+        TrackingVertex::genv_iterator tvGenVIt;
+        for (tvGenVIt = iTrkVtx->genVertices_begin(); tvGenVIt != iTrkVtx->genVertices_end(); ++tvGenVIt) {
+          if ((**genVIt).barcode()  == (**tvGenVIt).barcode()) {
+            break;
+          }  
+        }
+        if (tvGenVIt== iTrkVtx->genVertices_end() ) {
+          iTrkVtx->addGenVertex(GenVertexRef(hepMC,(**genVIt).barcode())); // Add HepMC vertex
+        }
       }
     }
   }
