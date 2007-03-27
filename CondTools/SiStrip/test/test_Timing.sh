@@ -2,6 +2,8 @@
 
 function test_db() {
 
+    [ $# = 0 ] && echo -e "usage: test_db -mode<write/read> -what<gain,ped,noise,pednoise> -stream<blob,noblob> -geom_mtcc<-geom_ideal> <-debug>\n"
+
     mode=""
     [ `echo $@ | grep -c "\-write[ ]*"` = 1 ] && mode=write 
     [ `echo $@ | grep -c "\-read[ ]*"`  = 1 ] && mode=read 
@@ -59,27 +61,33 @@ function test_db() {
     export timereport=`grep "Time report complete in" ${workdir}/out | awk '{print $6}'`
 }
 
-#&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
-### MAIN
-#&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+function setEnvironment(){
+    [ -n "$setEnvironment" ] && return
+    setEnvironment=1
+    
+    echo -e "Creating sqlite db schema from custom mapping"
+    
+    export workdir=/tmp/$USER/$$
+    export CORAL_AUTH_USER="me"
+    export CORAL_AUTH_PASSWORD="me"
+    
+    if [ ! -n "$CORAL_AUTH_PATH" ];
+	then
+	export CORAL_AUTH_PATH=/afs/cern.ch/cms/DB/conddb
+	echo -e "\nWARNING: CORAL_AUTH_PATH environment variable is not defined in your shell\n default value will be used CORAL_AUTH_PATH=$CORAL_AUTH_PATH"
+    fi
+    
 
-echo -e "Creating sqlite db schema from custom mapping"
+    echo -e "workdir $workdir\n"
 
-export workdir=/tmp/$USER/$$
-export CORAL_AUTH_USER="me"
-export CORAL_AUTH_PASSWORD="me"
+    [ -e ${workdir} ] && rm -rf ${workdir} 
+    mkdir ${workdir}
+}
+#%%%%%%%%%%%%%%%%%%%%
+#   Main
+#%%%%%%%%%%%%%%%%%%%%
 
-if [ ! -n "$CORAL_AUTH_PATH" ];
-    then
-    export CORAL_AUTH_PATH=/afs/cern.ch/cms/DB/conddb
-    echo -e "\nWARNING: CORAL_AUTH_PATH environment variable is not defined in your shell\n default value will be used CORAL_AUTH_PATH=$CORAL_AUTH_PATH"
-fi
-
-
-echo -e "workdir $workdir\n"
-
-[ -e ${workdir} ] && rm -rf ${workdir} 
-mkdir ${workdir}
+setEnvironment
 
 if [ "$1" == "doLoop" ];
     then
@@ -88,12 +96,12 @@ if [ "$1" == "doLoop" ];
       do
       for mode in write read;
 	do
-	for what in gain;# ped noise pednoise;
+	for what in gain ped noise pednoise;
 	  do
-	  echo -e "\n\n$mode $what with $stream on geometry mtcc\n\n"      
-	  test_db -$mode -$what -$stream -geom_mtcc -debug
-	  timeis[$i]=$timereport
-	  let i++
+	      #echo -e "\n\n$mode $what with $stream on geometry mtcc\n\n"      
+	      #test_db -$mode -$what -$stream -geom_mtcc -debug
+	      #timeis[$i]=$timereport
+	      #let i++
 	  echo -e "\n\n$mode $what with $stream on geometry ideal\n\n"      
 	  test_db -$mode -$what -$stream -geom_ideal
 	  timeis[$i]=$timereport
@@ -110,10 +118,10 @@ if [ "$1" == "doLoop" ];
       do
       for mode in write read;
 	do
-	for what in gain;# ped noise pednoise;
+	for what in gain ped noise pednoise;
 	  do
-	  echo -e "$mode \t$what \twith $stream on geometry mtcc debug \t\t" ${timeis[$i]}     
-	  let i++
+	     # echo -e "$mode \t$what \twith $stream on geometry mtcc debug \t\t" ${timeis[$i]}     
+	     # let i++
 	  echo -e "$mode \t$what \twith $stream on geometry ideal      \t\t" ${timeis[$i]}     
 	  let i++
 	done
