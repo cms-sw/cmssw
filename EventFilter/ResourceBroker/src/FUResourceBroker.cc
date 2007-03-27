@@ -64,15 +64,15 @@ FUResourceBroker::FUResourceBroker(xdaq::ApplicationStub *s)
   , deltaOutputSumOfSquares_(0)
   , deltaInputSumOfSizes_(0)
   , deltaOutputSumOfSizes_(0)
-  , acceptRate_(0.0)
+  , ratio_(0.0)
+  , inputThroughput_(0.0)
   , inputRate_(0.0)
+  , inputAverage_(0.0)
+  , inputRms_(0.0)
+  , outputThroughput_(0.0)
   , outputRate_(0.0)
-  , inputEventRate_(0.0)
-  , outputEventRate_(0.0)
-  , inputAvgEventSize_(0.0)
-  , outputAvgEventSize_(0.0)
-  , inputRmsEventSize_(0.0)
-  , outputRmsEventSize_(0.0)
+  , outputAverage_(0.0)
+  , outputRms_(0.0)
   , nbAllocatedEvents_(0)
   , nbPendingRequests_(0)
   , nbReceivedEvents_(0)
@@ -217,7 +217,7 @@ bool FUResourceBroker::enabling(toolbox::task::WorkLoop* wl)
     fsm_.fireEvent("EnableDone",this);
   }
   catch (xcept::Exception &e) {
-    std::string msg = "enabling FAILED: " + (string)e.what();
+    std::string msg="enabling FAILED: "+xcept::stdformat_exception_history(e);
     fsm_.fireFailed(msg,this);
   }
   
@@ -235,7 +235,7 @@ bool FUResourceBroker::stopping(toolbox::task::WorkLoop* wl)
     fsm_.fireEvent("StopDone",this);
   }
   catch (xcept::Exception &e) {
-    std::string msg = "stopping FAILED: " + (string)e.what();
+    std::string msg = "stopping FAILED: "+xcept::stdformat_exception_history(e);
     fsm_.fireFailed(msg,this);
   }
   
@@ -268,7 +268,7 @@ bool FUResourceBroker::halting(toolbox::task::WorkLoop* wl)
     fsm_.fireEvent("HaltDone",this);
   }
   catch (xcept::Exception &e) {
-    std::string msg = "halting FAILED: " + (string)e.what();
+    std::string msg = "halting FAILED: "+xcept::stdformat_exception_history(e);
     fsm_.fireFailed(msg,this);
   }
   
@@ -470,53 +470,55 @@ bool FUResourceBroker::monitoring(toolbox::task::WorkLoop* wl)
   gui_->unlockInfoSpaces();
   
   if (nbInput!=0)
-    acceptRate_=nbOutput/nbInput;
+    ratio_=nbOutput/nbInput;
   else
-    acceptRate_=0.0;
+    ratio_=0.0;
   
   if (deltaT_.value_!=0) {
-    inputRate_=deltaInputSumOfSizes_.value_/deltaT_.value_;
-    outputRate_=deltaOutputSumOfSizes_.value_/deltaT_.value_;
-    inputEventRate_=deltaNbInput_.value_/deltaT_.value_;
-    outputEventRate_=deltaNbOutput_.value_/deltaT_.value_;
+    inputThroughput_ =deltaInputSumOfSizes_.value_/deltaT_.value_;
+    outputThroughput_=deltaOutputSumOfSizes_.value_/deltaT_.value_;
+    inputRate_       =deltaNbInput_.value_/deltaT_.value_;
+    outputRate_      =deltaNbOutput_.value_/deltaT_.value_;
   }
   else {
-    inputRate_ =0.0;
-    outputRate_=0.0;
-    inputEventRate_=0.0;
-    outputEventRate_=0.0;
+    inputThroughput_ =0.0;
+    outputThroughput_=0.0;
+    inputRate_       =0.0;
+    outputRate_      =0.0;
   }
   
   double meanOfSquares,mean,squareOfMean,variance;
   
   if(deltaNbInput_.value_!=0) {
-    inputAvgEventSize_=deltaInputSumOfSizes_.value_/deltaNbInput_.value_;
     meanOfSquares=deltaInputSumOfSquares_.value_/((double)(deltaNbInput_.value_));
     mean=((double)(deltaInputSumOfSizes_.value_))/((double)(deltaNbInput_.value_));
     squareOfMean=mean*mean;
     variance=meanOfSquares-squareOfMean; if(variance<0.0) variance=0.0;
-    inputRmsEventSize_=std::sqrt(variance);
+    
+    inputAverage_=deltaInputSumOfSizes_.value_/deltaNbInput_.value_;
+    inputRms_    =std::sqrt(variance);
   }
   else {
-    inputAvgEventSize_=0.0;
-    inputRmsEventSize_=0.0;
+    inputAverage_=0.0;
+    inputRms_    =0.0;
   }
   
   if(deltaNbOutput_.value_!=0) {
-    outputAvgEventSize_=deltaOutputSumOfSizes_.value_/deltaNbOutput_.value_;
     meanOfSquares=deltaOutputSumOfSquares_.value_/((double)(deltaNbOutput_.value_));
     mean=((double)(deltaOutputSumOfSizes_.value_))/((double)(deltaNbOutput_.value_));
     squareOfMean=mean*mean;
     variance=meanOfSquares-squareOfMean; if(variance<0.0) variance=0.0;
-    outputRmsEventSize_=std::sqrt(variance);
+
+    outputAverage_=deltaOutputSumOfSizes_.value_/deltaNbOutput_.value_;
+    outputRms_    =std::sqrt(variance);
   }
   else {
-    outputAvgEventSize_=0.0;
-    outputRmsEventSize_=0.0;
+    outputAverage_=0.0;
+    outputRms_    =0.0;
   }
   
   ::sleep(monSleepSec_.value_);
-
+  
   return true;
 }
     
@@ -541,15 +543,15 @@ void FUResourceBroker::exportParameters()
   gui_->addMonitorParam("deltaInputSumOfSizes",     &deltaInputSumOfSizes_);
   gui_->addMonitorParam("deltaOutputSumOfSizes",    &deltaOutputSumOfSizes_);
     
-  gui_->addMonitorParam("acceptRate",               &acceptRate_);
+  gui_->addMonitorParam("ratio",                    &ratio_);
+  gui_->addMonitorParam("inputThroughput",          &inputThroughput_);
   gui_->addMonitorParam("inputRate",                &inputRate_);
+  gui_->addMonitorParam("inputAverage",             &inputAverage_);
+  gui_->addMonitorParam("inputRms",                 &inputRms_);
+  gui_->addMonitorParam("outputThroughput",         &outputThroughput_);
   gui_->addMonitorParam("outputRate",               &outputRate_);
-  gui_->addMonitorParam("inputEventRate",           &inputEventRate_);
-  gui_->addMonitorParam("outputEventRate",          &outputEventRate_);
-  gui_->addMonitorParam("inputAvgEventSize",        &inputAvgEventSize_);
-  gui_->addMonitorParam("outputAvgEventSize",       &outputAvgEventSize_);
-  gui_->addMonitorParam("inputRmsEventSize",        &inputRmsEventSize_);
-  gui_->addMonitorParam("outputRmsEventSize",       &outputRmsEventSize_);
+  gui_->addMonitorParam("outputAverage",            &outputAverage_);
+  gui_->addMonitorParam("outputRms",                &outputRms_);
   
   gui_->addMonitorCounter("nbAllocatedEvents",      &nbAllocatedEvents_);
   gui_->addMonitorCounter("nbPendingRequests",      &nbPendingRequests_);
@@ -619,15 +621,15 @@ void FUResourceBroker::reset()
   deltaInputSumOfSizes_    =  0;
   deltaOutputSumOfSizes_   =  0;
   
-  acceptRate_              =0.0;
+  ratio_                   =0.0;
+  inputThroughput_         =0.0;
   inputRate_               =0.0;
+  inputAverage_            =0.0;
+  inputRms_                =0.0;
+  outputThroughput_        =0.0;
   outputRate_              =0.0;
-  inputEventRate_          =0.0;
-  outputEventRate_         =0.0;
-  inputAvgEventSize_       =0.0;
-  outputAvgEventSize_      =0.0;
-  inputRmsEventSize_       =0.0;
-  outputRmsEventSize_      =0.0;
+  outputAverage_           =0.0;
+  outputRms_               =0.0;
   
   nbInputLast_             =  0;
   nbInputLastSumOfSquares_ =  0;

@@ -489,8 +489,10 @@ void FUResourceTable::sendDqmEvent(UInt_t   fuDqmId,
 				   UChar_t* data,
 				   UInt_t   dataSize)
 {
+  lock();
   sm_->sendDqmEvent(fuDqmId,runNumber,evtAtUpdate,folderId,data,dataSize);
   nbSentDqm_++;
+  unlock();
 }
 
 

@@ -147,15 +147,15 @@ namespace evf {
     xdata::UnsignedInteger32 deltaInputSumOfSizes_;
     xdata::UnsignedInteger32 deltaOutputSumOfSizes_;
     
-    xdata::Double            acceptRate_;
+    xdata::Double            ratio_;
+    xdata::Double            inputThroughput_;
     xdata::Double            inputRate_;
+    xdata::Double            inputAverage_;
+    xdata::Double            inputRms_;
+    xdata::Double            outputThroughput_;
     xdata::Double            outputRate_;
-    xdata::Double            inputEventRate_;
-    xdata::Double            outputEventRate_;
-    xdata::Double            inputAvgEventSize_;
-    xdata::Double            outputAvgEventSize_;
-    xdata::Double            inputRmsEventSize_;
-    xdata::Double            outputRmsEventSize_;
+    xdata::Double            outputAverage_;
+    xdata::Double            outputRms_;
     
     // monitored counters
     xdata::UnsignedInteger32 nbAllocatedEvents_;

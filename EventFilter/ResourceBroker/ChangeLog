@@ -1,3 +1,9 @@
+2007-03-27  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-06-04
+	* adjust monitoring variable names. time to write a flash list!
+	* report exception history in case state transition fails.
+	
 2007-03-26  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-06-03
