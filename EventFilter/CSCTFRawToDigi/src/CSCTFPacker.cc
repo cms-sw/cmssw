@@ -3,7 +3,7 @@
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 
 #include <strings.h>
-
+#include <errno.h>
 #include <iostream>
 
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
