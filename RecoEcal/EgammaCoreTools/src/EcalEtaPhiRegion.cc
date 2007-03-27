@@ -13,17 +13,17 @@ EcalEtaPhiRegion::EcalEtaPhiRegion(double etaLow, double etaHigh, double phiLow,
 bool EcalEtaPhiRegion::inRegion(const GlobalPoint& position) const {
 
   double phi = position.phi();
+  double phihightemp = phiHigh_;
+
+  if(phihightemp<phiLow_) phihightemp += Geom::twoPi();
 
   // put phi in range -pi to pi
   if(phi > Geom::pi()) phi -= Geom::twoPi();
   if(phi < -Geom::pi()) phi += Geom::twoPi();
+  if(phi<phiLow_) phi += Geom::twoPi();
 
-  //resolve ambiguity in case region crosses phi=pi
-  if (phi - phiLow_ > Geom::pi() || phi - phiHigh_ > Geom::pi())
-    phi -= Geom::twoPi();
-  if (phi - phiLow_ < -Geom::pi() || phi - phiHigh_ < -Geom::pi())
-    phi += Geom::twoPi();
 
   return (position.eta() > etaLow_ && position.eta() < etaHigh_ &&
-	  phi > phiLow_ && phi < phiHigh_);
+	  phi > phiLow_ && phi < phihightemp);
+
 }
