@@ -2,7 +2,7 @@
 
 Test of the EventPrincipal class.
 
-$Id: event_getrefbeforeput_t.cppunit.cc,v 1.8 2007/02/07 00:53:01 chrjones Exp $
+$Id: event_getrefbeforeput_t.cppunit.cc,v 1.9 2007/03/04 06:14:45 wmtan Exp $
 
 ----------------------------------------------------------------------*/  
 #include <cassert>
@@ -54,10 +54,10 @@ void testEventGetRefBeforePut::failGetProductNotRegisteredTest() {
 
   edm::ProductRegistry preg;
   preg.setProductIDs();
-  edm::EventID col(1L);
+  edm::EventID col(1L, 1L);
   edm::Timestamp fakeTime;
   edm::ProcessConfiguration pc("PROD", edm::ParameterSetID(), edm::getReleaseVersion(), edm::getPassID());
-  edm::EventPrincipal ep(col, fakeTime, preg, pc);
+  edm::EventPrincipal ep(col, fakeTime, preg, 1, pc);
   try {
      edm::ModuleDescription modDesc;
      modDesc.moduleName_ = "Blah";
@@ -104,10 +104,10 @@ void testEventGetRefBeforePut::getRefTest() {
   edm::ProductRegistry preg;
   preg.addProduct(product);
   preg.setProductIDs();
-  edm::EventID col(1L);
+  edm::EventID col(1L, 1L);
   edm::Timestamp fakeTime;
   edm::ProcessConfiguration pc(processName, edm::ParameterSetID(), edm::getReleaseVersion(), edm::getPassID());
-  edm::EventPrincipal ep(col, fakeTime, preg, pc);
+  edm::EventPrincipal ep(col, fakeTime, preg, 1, pc);
 
   edm::RefProd<edmtest::IntProduct> refToProd;
   try {

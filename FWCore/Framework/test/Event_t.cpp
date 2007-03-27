@@ -6,7 +6,7 @@
 
 Test program for edm::Event.
 
-$Id: Event_t.cpp,v 1.10 2007/01/23 00:33:29 wmtan Exp $
+$Id: Event_t.cpp,v 1.11 2007/03/04 06:14:45 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <Utilities/Testing/interface/CppUnit_testdriver.icpp>
 #include <cppunit/extensions/HelperMacros.h>
@@ -265,7 +265,7 @@ void testEvent::setUp()
 {
   principal_  = new EventPrincipal(make_id(),
 				   make_timestamp(),
-				   *availableProducts_, currentModuleDescription_->processConfiguration());
+				   *availableProducts_, 1, currentModuleDescription_->processConfiguration());
 
   currentEvent_ = new Event(*principal_, *currentModuleDescription_);
 }
