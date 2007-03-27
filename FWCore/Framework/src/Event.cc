@@ -7,21 +7,12 @@ namespace edm {
 
     Event::Event(EventPrincipal& dbk, ModuleDescription const& md) :
 	DataViewImpl(dbk.groupGetter(), md, InEvent),
-	aux_(dbk.aux()) {
-    }
-
-    LuminosityBlockNumber_t
-    Event::luminosityBlock() const {
-      return getLuminosityBlock().luminosityBlock();
+	aux_(dbk.aux()),
+	luminosityBlock_(new LuminosityBlock(dbk.luminosityBlockPrincipal(), md)) {
     }
 
     Run const&
     Event::getRun() const {
       return getLuminosityBlock().getRun();
-    }
-
-    RunNumber_t
-    Event::run() const {
-      return getRun().run();
     }
 }
