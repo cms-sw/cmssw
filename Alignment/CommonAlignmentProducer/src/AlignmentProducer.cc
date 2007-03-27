@@ -1,9 +1,9 @@
 /// \file AlignmentProducer.cc
 ///
 ///  \author    : Frederic Ronga
-///  Revision   : $Revision: 1.26 $
-///  last update: $Date: 2007/03/02 18:34:08 $
-///  by         : $Author: pivarski $
+///  Revision   : $Revision: 1.27 $
+///  last update: $Date: 2007/03/13 01:50:03 $
+///  by         : $Author: cklae $
 
 #include "Alignment/CommonAlignmentProducer/interface/AlignmentProducer.h"
 
@@ -226,24 +226,6 @@ void AlignmentProducer::beginOfJob( const edm::EventSetup& iSetup )
   // Initialize alignment algorithm
   theAlignmentAlgo->initialize( iSetup, theAlignableTracker,
                                 theAlignableMuon, theAlignmentParameterStore );
-  edm::LogInfo("Alignment") << "@SUB=AlignmentProducer::beginOfJob" 
-                            << "Now physically apply alignments to  geometry...";
-
-  // Actually execute all misalignments
-  if ( doTracker_ ) {
-    std::auto_ptr<Alignments> alignments(theAlignableTracker->alignments());
-    std::auto_ptr<AlignmentErrors> alignmentErrors(theAlignableTracker->alignmentErrors());
-    aligner.applyAlignments<TrackerGeometry>( &(*theTracker),&(*alignments),&(*alignmentErrors));
-  }
-  if ( doMuon_ ) {
-    std::auto_ptr<Alignments>      dtAlignments(       theAlignableMuon->dtAlignments());
-    std::auto_ptr<AlignmentErrors> dtAlignmentErrors(  theAlignableMuon->dtAlignmentErrors());
-    std::auto_ptr<Alignments>      cscAlignments(      theAlignableMuon->cscAlignments());
-    std::auto_ptr<AlignmentErrors> cscAlignmentErrors( theAlignableMuon->cscAlignmentErrors());
-
-    aligner.applyAlignments<DTGeometry>( &(*theMuonDT), &(*dtAlignments), &(*dtAlignmentErrors) );
-    aligner.applyAlignments<CSCGeometry>( &(*theMuonCSC), &(*cscAlignments), &(*cscAlignmentErrors) );
-  }
 }
 
 //_____________________________________________________________________________
@@ -251,9 +233,6 @@ void AlignmentProducer::beginOfJob( const edm::EventSetup& iSetup )
 void AlignmentProducer::endOfJob()
 {
 
-  edm::LogInfo("Alignment") << "@SUB=AlignmentProducer::endOfJob" 
-                            << "Terminating algorithm.";
-  theAlignmentAlgo->terminate();
 
   // Save alignments to database
   if (saveToDB_) {
@@ -333,6 +312,29 @@ void AlignmentProducer::startingNewLoop(unsigned int iLoop )
 {
   edm::LogInfo("Alignment") << "@SUB=AlignmentProducer::startingNewLoop" 
                             << "Starting loop number " << iLoop;
+
+  theAlignmentAlgo->startNewLoop();
+
+  edm::LogInfo("Alignment") << "@SUB=AlignmentProducer::startingNewLoop" 
+                            << "Now physically apply alignments to  geometry...";
+
+
+  // Propagate changes to reconstruction geometry (from initialisation or iteration)
+  GeometryAligner aligner;
+  if ( doTracker_ ) {
+    std::auto_ptr<Alignments> alignments(theAlignableTracker->alignments());
+    std::auto_ptr<AlignmentErrors> alignmentErrors(theAlignableTracker->alignmentErrors());
+    aligner.applyAlignments<TrackerGeometry>( &(*theTracker),&(*alignments),&(*alignmentErrors));
+  }
+  if ( doMuon_ ) {
+    std::auto_ptr<Alignments>      dtAlignments(       theAlignableMuon->dtAlignments());
+    std::auto_ptr<AlignmentErrors> dtAlignmentErrors(  theAlignableMuon->dtAlignmentErrors());
+    std::auto_ptr<Alignments>      cscAlignments(      theAlignableMuon->cscAlignments());
+    std::auto_ptr<AlignmentErrors> cscAlignmentErrors( theAlignableMuon->cscAlignmentErrors());
+
+    aligner.applyAlignments<DTGeometry>( &(*theMuonDT), &(*dtAlignments), &(*dtAlignmentErrors) );
+    aligner.applyAlignments<CSCGeometry>( &(*theMuonCSC), &(*cscAlignments), &(*cscAlignmentErrors) );
+  }
 }
 
 
@@ -343,6 +345,10 @@ AlignmentProducer::endOfLoop(const edm::EventSetup& iSetup, unsigned int iLoop)
 {
   edm::LogInfo("Alignment") << "@SUB=AlignmentProducer::endOfLoop" 
                             << "Ending loop " << iLoop;
+
+  edm::LogInfo("Alignment") << "@SUB=AlignmentProducer::endOfLoop" 
+                            << "Terminating algorithm.";
+  theAlignmentAlgo->terminate();
 
   if ( iLoop == theMaxLoops-1 || iLoop >= theMaxLoops ) return kStop;
   else return kContinue;
