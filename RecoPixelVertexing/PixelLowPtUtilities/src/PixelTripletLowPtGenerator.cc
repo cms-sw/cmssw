@@ -8,11 +8,16 @@
 
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoPointRZ.h"
 
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+
+using namespace ctfseeding;
+using namespace std;
 
 /*****************************************************************************/
 void PixelTripletLowPtGenerator::init( const HitPairGenerator & pairs,
-      std::vector<const LayerWithHits*> layers,
+      const std::vector<ctfseeding::SeedingLayer> & layers,
       LayerCacheType* layerCache)
 {
   thePairGenerator = pairs.clone();
@@ -50,6 +55,7 @@ GlobalPoint PixelTripletLowPtGenerator::getGlobalPosition
 void PixelTripletLowPtGenerator::hitTriplets(
     const TrackingRegion& region,
     OrderedHitTriplets & result,
+    const edm::Event & ev,
     const edm::EventSetup& es) 
 {
   // Generate pairs
@@ -66,7 +72,7 @@ void PixelTripletLowPtGenerator::hitTriplets(
   // Set aliases
   const LayerHitMap **thirdHitMap = new const LayerHitMap* [size];
   for(int il=0; il<size; il++)
-    thirdHitMap[il] = &(*theLayerCache)(theLayers[il], region, es);
+    thirdHitMap[il] = &(*theLayerCache)(&theLayers[il], region, ev, es);
 
   // Get tracker
   getTracker(es);
@@ -79,8 +85,8 @@ void PixelTripletLowPtGenerator::hitTriplets(
     vector<const TrackingRecHit*> recHits(3);
     vector<GlobalPoint> points(3);
 
-    recHits[0] = (*ip).inner();
-    recHits[1] = (*ip).outer();
+    recHits[0] = (*ip).inner().RecHit();
+    recHits[1] = (*ip).outer().RecHit();
 
     for(int i=0; i<2; i++)
       points[i] = getGlobalPosition(recHits[i]);
@@ -93,8 +99,8 @@ void PixelTripletLowPtGenerator::hitTriplets(
     // Look at all layers
     for(int il=0; il<size; il++)
     {
-      const LayerWithHits * layerwithhits = theLayers[il];
-      const DetLayer * layer = layerwithhits->layer();
+      const SeedingLayer & layerwithhits = theLayers[il];
+      const DetLayer * layer = layerwithhits.detLayer();
 
       // Get ranges for the third hit
       float phi[2],rz[2];
@@ -104,7 +110,7 @@ void PixelTripletLowPtGenerator::hitTriplets(
 
       // Get third hit candidates from cache
       LayerHitMapLoop thirdHits = thirdHitMap[il]->loop(phiRange, rzRange);
-      const TkHitPairsCachedHit * th;
+      const SeedingHit * th;
       while( (th = thirdHits.getHit()) )
       {
         // Fill rechit and point
@@ -137,7 +143,7 @@ void PixelTripletLowPtGenerator::hitTriplets(
         }
 
         // All checks passed, put triplet back
-        result.push_back(OrderedHitTriplet(recHits[0],recHits[1],recHits[2]));
+        result.push_back(OrderedHitTriplet((*ip).inner(),(*ip).outer(),*th));
       }
     }
   } 
