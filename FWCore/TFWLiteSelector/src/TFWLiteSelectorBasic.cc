@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jun 27 17:58:10 EDT 2006
-// $Id: TFWLiteSelectorBasic.cc,v 1.13 2007/01/28 05:36:44 wmtan Exp $
+// $Id: TFWLiteSelectorBasic.cc,v 1.14 2007/03/04 05:30:52 wmtan Exp $
 //
 
 // system include files
@@ -263,7 +263,7 @@ TFWLiteSelectorBasic::Process(Long64_t iEntry) {
 	 m_->reader_->setEntry(iEntry);
 	 edm::ProcessConfiguration pc;
 	 edm::EventPrincipal ep(aux.id(), aux.time(), m_->reg_,
-	     pc, aux.processHistoryID(), m_->reader_);
+	     1, pc, aux.processHistoryID(), m_->reader_);
          m_->processNames_ = ep.processHistory();
 
 	 using namespace edm;

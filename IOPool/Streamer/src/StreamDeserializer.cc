@@ -120,6 +120,7 @@ namespace edm
     auto_ptr<EventPrincipal> ep(new EventPrincipal(sd->id_,
                                                    sd->time_,
                                                    productRegistry,
+                                                   1,
                                                    processConfiguration_));
     // Add processConfiguration_ to the process history.
     ep->addToProcessHistory();
