@@ -18,7 +18,8 @@
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 #include "SimDataFormats/Track/interface/SimTrack.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+
+//#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 
 #include "RecoPixelVertexing/PixelVertexFinding/interface/PVPositionBuilder.h"
 #include "RecoPixelVertexing/PixelVertexFinding/interface/PVClusterComparer.h"
