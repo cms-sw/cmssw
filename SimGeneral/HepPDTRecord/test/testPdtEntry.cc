@@ -35,6 +35,8 @@ void testPdtEntry::checkAll() {
     PdtEntry e2  = cfg.getParameter<PdtEntry>( "pdt2" );
     CPPUNIT_ASSERT( pdt1 == e1.pdgId() );
     CPPUNIT_ASSERT( pdt2 == e2.name() );
+    vector<string> p = cfg.getParameterNamesForType<PdtEntry>();
+    CPPUNIT_ASSERT( p.size() == 2 );
   }
   {
     ParameterSet cfg;

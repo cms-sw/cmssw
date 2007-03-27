@@ -6,6 +6,7 @@
  *
  */
 #include <string>
+#include <iterator>
 
 namespace edm { class EventSetup; }
 namespace HepPDT { class ParticleData; }
@@ -155,6 +156,21 @@ namespace edm {
 	<< "Please, provide a parameter either of type int32 or string.";
   }
 
-}
+  template<>
+  std::vector<std::string> ParameterSet::getParameterNamesForType<PdtEntry>(bool trackiness) const {
+    std::vector<std::string> ints = getParameterNamesForType<int>(trackiness);
+    std::vector<std::string> strings = getParameterNamesForType<std::string>(trackiness);
+    std::copy( strings.begin(), strings.end(), std::back_insert_iterator<std::vector<std::string> >( ints ) ); 
+    return ints;
+  }
+  
+  template<>
+  std::vector<std::string> ParameterSet::getParameterNamesForType<std::vector<PdtEntry> >(bool trackiness) const {
+    std::vector<std::string> ints = getParameterNamesForType<std::vector<int> >(trackiness);
+    std::vector<std::string> strings = getParameterNamesForType<std::vector<std::string> >(trackiness);
+    std::copy( strings.begin(), strings.end(), std::back_insert_iterator<std::vector<std::string> >( ints ) ); 
+    return ints;
+  }
 
+}
 #endif
