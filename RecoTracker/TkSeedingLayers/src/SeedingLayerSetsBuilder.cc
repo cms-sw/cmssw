@@ -28,19 +28,9 @@ typedef std::vector<std::vector<std::string> >::const_iterator IT;
 
 
 SeedingLayerSetsBuilder::SeedingLayerSetsBuilder(const edm::ParameterSet & cfg)
- : theNumberOfLayersInSet(cfg.getParameter<int>("layerSetSize")) 
 {
   std::vector<std::string> names = cfg.getParameter<std::vector<std::string> >("layerList");
   init(names);
-}
-
-
-SeedingLayerSetsBuilder::SeedingLayerSetsBuilder(
-    unsigned int NumLayers, 
-    const std::vector<std::string> & layerNames)
-  : theNumberOfLayersInSet(NumLayers)
-{
-  init(layerNames);
 }
 
 
