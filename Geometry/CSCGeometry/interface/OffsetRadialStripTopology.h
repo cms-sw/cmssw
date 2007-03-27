@@ -29,7 +29,7 @@ public:
 
   /** LocalPoint for a given strip
    */
-  virtual LocalPoint localPosition(float strip) {
+  virtual LocalPoint localPosition(float strip) const {
     // pass through to base class since otherwise it is shadowed by the localPosition(const MP&).
     // Note that base class version is OK because it uses stripAngle() which is overridden in ORST!
     // Also note that xOfStrip from base class RST also works for ORST for the same reason.
