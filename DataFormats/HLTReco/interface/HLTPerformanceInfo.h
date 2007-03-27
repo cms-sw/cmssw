@@ -1,5 +1,5 @@
 // -*-c++-*-
-// $Id: HLTPerformanceInfo.h,v 1.5 2007/01/13 06:26:51 dlange Exp $
+// $Id: HLTPerformanceInfo.h,v 1.6 2007/01/16 23:57:13 dlange Exp $
 #ifndef HLTPERFORMANCEINFO_H
 #define HLTPERFORMANCEINFO_H
 
@@ -55,6 +55,9 @@ class HLTPerformanceInfo
     }
     void setTime(double t) { dt_=t;}
     void setStatus(edm::HLTPathStatus status) { status_=status;} 
+    void setStatusByPath(Path *p) ; 
+    int indexInPath(Path path) const ; 
+
   };
   ///////////////////////////////////////////////////
   class Path {
@@ -105,6 +108,7 @@ class HLTPerformanceInfo
     void setStatus( const edm::HLTPathStatus & result ) {
       status_ = result;
     }
+
     edm::HLTPathStatus status() const {
       return status_;
     }
@@ -152,7 +156,7 @@ class HLTPerformanceInfo
   // returns endModules() on failure
   Modules::const_iterator findModule(const char* moduleInstanceName) ;
   PathList::const_iterator findPath(const char* pathName) ;
- 
+
   size_t numberOfPaths() const {
     return paths_.size();
   }
