@@ -194,7 +194,8 @@ void L1RCTLookupTables::loadLUTConstants(const std::string& filename)
 	}
       else
 	{
-	  std::cout << "L1RCTLookupTables: ignoreFineGrain not true or false! answer is " << answer << std::endl;
+	  std::cout << "L1RCTLookupTables: ignoreFineGrain not true or false!" << std::endl; 
+	  //std::cout << "variable 'answer' is " << answer << std::endl;
 	}
       std:: cout << "L1RCTLookupTables: ignoreFineGrain is "
 		 << ignoreFG_ << std::endl;
