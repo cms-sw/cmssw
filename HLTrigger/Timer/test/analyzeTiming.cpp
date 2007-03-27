@@ -10,9 +10,9 @@
 // needed for timing studies
 #include "DataFormats/HLTReco/interface/ModuleTiming.h"
 // needed for event-id info
-#include "DataFormats/Common/interface/EventAux.h"
+#include "DataFormats/Provenance/interface/EventAuxiliary.h"
 //
-#include "FWCore/FWLite/src/AutoLibraryLoader.h"
+#include "FWCore/FWLite/interface/AutoLibraryLoader.h"
 
 #include "HLTrigger/Timer/test/AnalyzeTiming.h"
 
@@ -58,7 +58,7 @@ int main(int argc, char ** argv)
   assert(events);
 
   TBranch * TBevtTime = 0;
-  TBranch * TBevtAux = events->GetBranch("EventAux");
+  TBranch * TBevtAux = events->GetBranch("EventAuxiliary");
   assert(TBevtAux);
   //  std::cout << " TBevtAux = " << int(TBevtAux) << std::endl;
 
@@ -67,7 +67,7 @@ int main(int argc, char ** argv)
 
 #if PRINT_EVTRUN_NO
   // structure holding event information
-  edm::EventAux * evtAux = new edm::EventAux;
+  edm::EventAuxiliary * evtAux = new edm::EventAuxiliary;
 
   TBevtAux->SetAddress((void *)&evtAux);
 #endif
