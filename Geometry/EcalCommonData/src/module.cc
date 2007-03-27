@@ -9,6 +9,6 @@
 DEFINE_SEAL_MODULE ();
 //DEFINE_SEAL_PLUGIN (DDAlgorithmFactory, DDTestAlgorithm, "DDTestAlgorithm");
 
-DEFINE_SEAL_PLUGIN (DDAlgorithmFactory, DDEcalBarrelAlgo, "DDEcalBarrelAlgo");
+DEFINE_SEAL_PLUGIN (DDAlgorithmFactory, DDEcalBarrelAlgo, "ecal:DDEcalBarrelAlgo");
 
-DEFINE_SEAL_PLUGIN (DDAlgorithmFactory, DDEcalPreshowerAlgo, "DDEcalPreshowerAlgo");
+DEFINE_SEAL_PLUGIN (DDAlgorithmFactory, DDEcalPreshowerAlgo, "ecal:DDEcalPreshowerAlgo");

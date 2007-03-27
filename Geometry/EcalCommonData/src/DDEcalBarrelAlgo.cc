@@ -15,6 +15,7 @@
 #include "DetectorDescription/Core/interface/DDMaterial.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
 #include "DetectorDescription/Core/interface/DDSplit.h"
+#include "DetectorDescription/Base/interface/DDException.h"
 #include "Geometry/EcalCommonData/interface/DDEcalBarrelAlgo.h"
 #include "CLHEP/Units/PhysicalConstants.h"
 #include "CLHEP/Units/SystemOfUnits.h"
@@ -2628,6 +2629,7 @@ void DDEcalBarrelAlgo::execute()
 
 	 for( unsigned int iRod ( 0 ) ; iRod != vecPincerRodAzimuth().size() ; ++iRod )
 	 {
+	   try {
 	    const DDTranslation rodTra ( radius*cos(vecPincerRodAzimuth()[iRod]) ,
 					 radius*sin(vecPincerRodAzimuth()[iRod]) ,
 					 0 ) ;
@@ -2638,6 +2640,11 @@ void DDEcalBarrelAlgo::execute()
 		   rodTra,
 		   myrot( pincerRodName().name() + int_to_string(iRod),
 			  HepRotationZ( 90*deg + vecPincerRodAzimuth()[iRod] ) ) ) ;
+	   } catch ( DDException & e ) {
+	     std::cout << "DDEcalBarrelAlgo:  caught DDException in DDAlgorithm execute. e.what() = " << e.what() << std::endl;
+	   } catch (...) {
+	     std::cout << "DDEcalBarrelAlgo:  caught ANY exception in DDAlgorithm execute." << std::endl;
+	   }
 	 }
       }
 //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
