@@ -4,6 +4,7 @@
 <use name=Foundation/PluginManager>
 <use name=SimDataFormats/HepMCProduct>
 <use name=hepmc>
+<flags SEAL_PLUGIN_NAME="IOMCInput">
 <export>
   <use name=FWCore/Framework>
   <use name=hepmc>
