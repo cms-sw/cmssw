@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2007/03/24 14:36:39 $
- * $Revision: 1.238 $
+ * $Date: 2007/03/26 17:35:05 $
+ * $Revision: 1.239 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -101,20 +101,20 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
   clients_.clear();
   clientNames_.clear();
 
-  // DQM ROOT input
+  // DQM ROOT input file
 
   inputFile_ = ps.getUntrackedParameter<string>("inputFile", "");
 
   if ( inputFile_.size() != 0 ) {
-    cout << " Reading DQM from inputFile = '" << inputFile_ << "'" << endl;
+    cout << " Reading DQM data from inputFile = '" << inputFile_ << "'" << endl;
   }
 
-  // DQM ROOT output
+  // DQM ROOT output file
 
   outputFile_ = ps.getUntrackedParameter<string>("outputFile", "");
 
   if ( outputFile_.size() != 0 ) {
-    cout << " Writing DQM to outputFile = '" << outputFile_ << "'" << endl;
+    cout << " Writing DQM data to outputFile = '" << outputFile_ << "'" << endl;
   }
 
   // Ecal Cond DB
