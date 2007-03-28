@@ -1,1 +1,1 @@
-#include "HLTrigger/HLTfilters/interface/HLTGlobalSums.h"
+#error: Header moved. Use #include "HLTrigger/HLTfilters/interface/HLTGlobalSums.h"

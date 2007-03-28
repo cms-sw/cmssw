@@ -1,1 +1,1 @@
-#include "HLTrigger/HLTfilters/interface/HLTHighLevel.h"
+#error: Header moved. Use #include "HLTrigger/HLTfilters/interface/HLTHighLevel.h"

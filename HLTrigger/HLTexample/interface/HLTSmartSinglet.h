@@ -1,1 +1,1 @@
-#include "HLTrigger/HLTfilters/interface/HLTSmartSinglet.h"
+#error: Header moved. Use #include "HLTrigger/HLTfilters/interface/HLTSmartSinglet.h"
