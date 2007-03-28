@@ -9,9 +9,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Wed Mar 15 13:00:00 UTC 2006
 //
-// $Author: noeding $
-// $Date: 2007/03/15 22:33:17 $
-// $Revision: 1.31 $
+// $Author: gutsche $
+// $Date: 2007/03/15 23:47:26 $
+// $Revision: 1.32 $
 //
 
 #include <vector>
@@ -69,6 +69,8 @@
 #include "TrackingTools/TrajectoryState/interface/BasicSingleTrajectoryState.h"
 
 #include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
+#include "RecoLocalTracker/SiStripRecHitConverter/interface/SiStripRecHitMatcher.h"
+#include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
 
 RoadSearchTrackCandidateMakerAlgorithm::RoadSearchTrackCandidateMakerAlgorithm(const edm::ParameterSet& conf) : conf_(conf) { 
   
@@ -144,6 +146,9 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
   
   KFTrajectorySmoother theSmoother(*theRevPropagator, *theUpdator, *theEstimator);
   
+  // get hit matcher
+  SiStripRecHitMatcher* theHitMatcher = new SiStripRecHitMatcher(3.0);
+
   LogDebug("RoadSearch") << "Clean Clouds input size: " << input->size();
   if (debug_) std::cout << std::endl << std::endl
 			<< "*** NEW EVENT: Clean Clouds input size: " << input->size() << std::endl;
@@ -554,13 +559,27 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
                 }
                 
                 // update
-                MeasurementEstimator::HitReturnType est = theEstimator->estimate(predTsos, *rhit);
-                if (debug_) std::cout << "estimation: " << est.first << " " << est.second << std::endl;
-                if (!est.first) continue;
-                currTsos = theUpdator->update(predTsos, *rhit);
-                tm = TrajectoryMeasurement(predTsos, currTsos, &(*rhit),est.second,thisLayer);
-                traj.push(tm,est.second);
-                newTrajectories.push_back(traj);
+		// first correct for angle
+
+		const SiStripMatchedRecHit2D *origHit = dynamic_cast<const SiStripMatchedRecHit2D *>(&(*ihit));
+		if (origHit !=0){
+		  const GluedGeomDet *gdet = dynamic_cast<const GluedGeomDet*>(rhit->det());
+		  const SiStripMatchedRecHit2D *corrHit = theHitMatcher->match(origHit,gdet,predTsos.localDirection());
+		  if (corrHit!=0){
+		    rhit = ttrhBuilder->build(&(*corrHit));
+		    delete corrHit;
+		  }
+		}
+
+		MeasurementEstimator::HitReturnType est = theEstimator->estimate(predTsos, *rhit);
+		if (debug_) std::cout << "estimation: " << est.first << " " << est.second << std::endl;
+		if (!est.first) continue;
+		currTsos = theUpdator->update(predTsos, *rhit);
+		tm = TrajectoryMeasurement(predTsos, currTsos, &(*rhit),est.second,thisLayer);
+		traj.push(tm,est.second);
+		newTrajectories.push_back(traj);
+
+
 	      }
 	    }
             
@@ -831,7 +850,7 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
 			   << ")  in layer " << ilr->second <<std::endl;
               
               const TrajectoryStateOnSurface theTSOS = newTrajectory.lastMeasurement().updatedState();
-              std::vector<TrajectoryMeasurement> theGoodHits = FindBestHits(theTSOS,dets,skipped_hits);
+              std::vector<TrajectoryMeasurement> theGoodHits = FindBestHits(theTSOS,dets,theHitMatcher,skipped_hits);
               if (!theGoodHits.empty()){
                 if (debug_) std::cout<<"Found " << theGoodHits.size() << " good hits to add" << std::endl;
                 for (std::vector<TrajectoryMeasurement>::const_iterator im=theGoodHits.begin();im!=theGoodHits.end();++im){
@@ -966,6 +985,7 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
 
   delete thePropagator;
   delete theRevPropagator; 
+  delete theHitMatcher;
   if (debug_) std::cout<< "Found " << output.size() << " track candidates."<<std::endl;
 
 }
@@ -1108,6 +1128,7 @@ RoadSearchTrackCandidateMakerAlgorithm::FindBestHit(const TrajectoryStateOnSurfa
 std::vector<TrajectoryMeasurement>
 RoadSearchTrackCandidateMakerAlgorithm::FindBestHits(const TrajectoryStateOnSurface& tsosBefore,
                                                      const std::set<const GeomDet*>& theDets,
+ 						     const SiStripRecHitMatcher* theHitMatcher,
                                                      edm::OwnVector<TrackingRecHit>& theHits)
 //			 edm::OwnVector<TrackingRecHit> *theBestHits)
 {
@@ -1138,6 +1159,17 @@ RoadSearchTrackCandidateMakerAlgorithm::FindBestHits(const TrajectoryStateOnSurf
     if (idm == dmmap.end()) continue;
     TrajectoryStateOnSurface predTsos = idm->second;
     TransientTrackingRecHit::RecHitPointer rhit = ttrhBuilder->build(&(*ih));
+
+    const SiStripMatchedRecHit2D *origHit = dynamic_cast<const SiStripMatchedRecHit2D *>(&(*ih));
+    if (origHit !=0){
+      const GluedGeomDet *gdet = dynamic_cast<const GluedGeomDet*>(det);
+      const SiStripMatchedRecHit2D *corrHit = theHitMatcher->match(origHit,gdet,predTsos.localDirection());
+      if (corrHit!=0){
+	rhit = ttrhBuilder->build(&(*corrHit));
+	delete corrHit;
+      }
+    }
+
     MeasurementEstimator::HitReturnType est = theEstimator->estimate(predTsos, *rhit);
     if (debug_) std::cout<< "hit " << ih-theHits.begin() 
 			 << ": est = " << est.first << " " << est.second  <<std::endl;

@@ -12,9 +12,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Wed Mar 15 13:00:00 UTC 2006
 //
-// $Author: gutsche $
-// $Date: 2007/03/01 08:18:19 $
-// $Revision: 1.7 $
+// $Author: noeding $
+// $Date: 2007/03/15 22:33:27 $
+// $Revision: 1.8 $
 //
 
 #include <string>
@@ -69,6 +69,7 @@ class RoadSearchTrackCandidateMakerAlgorithm
 
   std::vector<TrajectoryMeasurement>  FindBestHits(const TrajectoryStateOnSurface& tsosBefore,
                                      const std::set<const GeomDet*>& theDets,
+				     const SiStripRecHitMatcher* theHitMatcher,
                                      edm::OwnVector<TrackingRecHit>& theHits);
 
 
