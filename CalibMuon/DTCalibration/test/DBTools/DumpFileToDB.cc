@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/01/22 11:10:50 $
- *  $Revision: 1.5 $
+ *  $Date: 2007/01/24 16:04:11 $
+ *  $Revision: 1.6 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -42,7 +42,7 @@ DumpFileToDB::~DumpFileToDB(){}
 
 
 void DumpFileToDB::endJob() {
-  if(dbToDump == "VDriftDB") { // Write the TTrig
+  if(dbToDump == "VDriftDB") { // Write the Vdrift
 
     // Create the object to be written to DB
     DTMtime* mtime = new DTMtime();
