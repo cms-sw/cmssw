@@ -73,6 +73,8 @@ void SiStripFedCabling::buildFedCabling( const std::vector<FedChannelConnection>
   
   // Iterate through FEDs
   for ( uint16_t iconn = 0; iconn < input.size(); iconn++ ) {
+
+    if ( !input[iconn].isConnected() ) { continue; }
     
     uint16_t fed_id = input[iconn].fedId();
     uint16_t fed_ch = input[iconn].fedCh();
@@ -231,7 +233,7 @@ void SiStripFedCabling::print( std::stringstream& ss ) const {
     uint16_t connected = 0;
     std::vector<FedChannelConnection>::const_iterator iconn = conns.begin();
     for ( ; iconn != conns.end(); iconn++ ) { 
-      if ( iconn->fedId() ) { 
+      if ( iconn->fedId() != sistrip::invalid_ ) { 
 	connected++; 
 	ss << *iconn << std::endl;
       } else {
@@ -241,7 +243,7 @@ void SiStripFedCabling::print( std::stringstream& ss ) const {
       }
       ichan++;
     } 
-
+    
     ss << " Found " << connected 
        << " connected channels for FED id " << *ifed << std::endl
        << std::endl;

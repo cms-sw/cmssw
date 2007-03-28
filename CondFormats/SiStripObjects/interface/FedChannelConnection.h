@@ -1,6 +1,7 @@
 #ifndef CondFormats_SiStripObjects_FedChannelConnection_H
 #define CondFormats_SiStripObjects_FedChannelConnection_H
 
+#include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include <boost/cstdint.hpp>
 #include <ostream>
 #include <sstream>
@@ -51,21 +52,15 @@ class FedChannelConnection {
 
   // ---------- Utility methods ----------
   
-  /** Identifies valid connection. */
-  bool isConnected() const { return true; } //@@ TO BE IMPLEMENTED...
-  
-  /** Identifies a valid APV device. */
-  bool isValidApv() const { return true; } //@@ TO BE IMPLEMENTED...
-  
-  /** Identifies a valid module. */
-  bool isValidModule() const { return true; } //@@ TO BE IMPLEMENTED...
+  /** Identifies a valid connection. */
+  inline bool isConnected() const;
   
   /** Performs consistency check for this connection object. */
   void consistencyCheck() const {;} //@@ TO BE IMPLEMENTED...
-
+  
   /** Prints all information for this connection object. */
   void print( std::stringstream& ) const;
-
+  
   // -------------------- Module and detector information --------------------
 
   /** Returns DCUid for this module. */
@@ -90,7 +85,7 @@ class FedChannelConnection {
   uint16_t apvPairNumber() const;
 
   /** Returns Linear Laser Driver channel (0->2) for this connection. */
-  uint16_t lldChannel() const; 
+  uint16_t lldChannel() const; //@@ SHOULD RETURN 1->3 !!!
 
   /** Returns FED id for this channel. */
   inline const uint16_t& fedId() const;
@@ -174,6 +169,11 @@ class FedChannelConnection {
 };
 
 // ---------- Inline methods ----------
+
+bool FedChannelConnection::isConnected() const { 
+  return ( fedId_ != sistrip::invalid_ && 
+	   fedCh_ != sistrip::invalid_ );
+}
 
 const uint16_t& FedChannelConnection::fecCrate() const { return fecCrate_; } 
 const uint16_t& FedChannelConnection::fecSlot() const { return fecSlot_; } 
