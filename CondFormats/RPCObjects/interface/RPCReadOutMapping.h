@@ -48,7 +48,8 @@ public:
   std::vector<const LinkBoardSpec*> getLBforChamber(const std::string & name) const;
 
   /// get RAW data specification for a given CMS strip in given chamber
-  std::pair<ChamberRawDataSpec, int> getRAWSpecForCMSChamberSrip(uint32_t  detId, int strip,  int dccInputChannel) const;
+  std::pair<ChamberRawDataSpec, int> getRAWSpecForCMSChamberSrip(uint32_t  detId, 
+  int strip,  int dccInputChannel) const;
 
   /// get strip info for given LB channel in given LB location.
   StripInDetUnit strip(const ChamberRawDataSpec & linkboard, int chanelLB) const;
@@ -57,7 +58,9 @@ public:
   StripInDetUnit detUnitFrame(const LinkBoardSpec* location, 
       int febInLB, int stripPinInFeb) const;
 
-  std::pair< ChamberRawDataSpec, LinkBoardChannelCoding> rawDataFrame (uint32_t rawDetId, int stripInDU) const;
+  /// connection "path" that lead from one digi to one strip
+  std::vector< std::pair< ChamberRawDataSpec, LinkBoardChannelCoding> >
+       rawDataFrame (uint32_t rawDetId, int stripInDU) const;
   
 
 private:

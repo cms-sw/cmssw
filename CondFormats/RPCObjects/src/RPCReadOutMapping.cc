@@ -109,7 +109,7 @@ std::vector<const LinkBoardSpec*> RPCReadOutMapping::getLBforChamber(const std::
  return vLBforChamber;
 }
 
-std::pair< ChamberRawDataSpec, LinkBoardChannelCoding> 
+std::vector< std::pair< ChamberRawDataSpec, LinkBoardChannelCoding> > 
     RPCReadOutMapping::rawDataFrame( uint32_t rawDetId, int stripInDU) const 
 {
   std::vector< std::pair< ChamberRawDataSpec, LinkBoardChannelCoding> > result;
@@ -117,28 +117,20 @@ std::pair< ChamberRawDataSpec, LinkBoardChannelCoding>
 
   for (IMAP im=theFeds.begin(); im != theFeds.end(); im++) {
     const DccSpec & dccSpec = (*im).second; 
-//    LogTrace("rawDataFrame")<< dccSpec.print(1);
-//    if (dccSpec.id() != 790) continue;
     const std::vector<TriggerBoardSpec> & triggerBoards = dccSpec.triggerBoards();
     for ( std::vector<TriggerBoardSpec>::const_iterator 
         it = triggerBoards.begin(); it != triggerBoards.end(); it++) {
       const TriggerBoardSpec & triggerBoard = (*it);
-//      if (triggerBoard.dccInputChannelNum() != 13) continue;
-//      LogTrace("rawDataFrame")<< triggerBoard.print(1);
       const std::vector<LinkConnSpec> & linkConns = triggerBoard.linkConns();
       for ( std::vector<LinkConnSpec>::const_iterator
           ic = linkConns.begin(); ic != linkConns.end(); ic++) {
               
         const LinkConnSpec & link = (*ic); 
-//        if (link.triggerBoardInputNumber() != 17) continue;
-//        LogTrace("rawDataFrame")<< link.print(1);
         const std::vector<LinkBoardSpec> & boards = link.linkBoards();
         for ( std::vector<LinkBoardSpec>::const_iterator
             ib = boards.begin(); ib != boards.end(); ib++) { 
 
           const LinkBoardSpec & board = (*ib);
-//          if (board.linkBoardNumInLink() != 2) continue;
-//          LogTrace("rawDataFrame")<< board.print(2);
           
           eleIndex.dccId = dccSpec.id();
           eleIndex.dccInputChannelNum = triggerBoard.dccInputChannelNum();
@@ -158,19 +150,13 @@ std::pair< ChamberRawDataSpec, LinkBoardChannelCoding>
             }
             const std::vector<ChamberStripSpec> & strips = febConnector.strips();
 
-//          int ipinCheck = 0;
             for (std::vector<ChamberStripSpec>::const_iterator 
                 is = strips.begin(); is != strips.end(); is++) {
               const ChamberStripSpec & strip = (*is);
               int stripPinInFeb = strip.cablePinNumber;
-//            if (stripPinInFeb != ++ipinCheck) {
-//              edm::LogError("rawDataFrame") << " problem!, strip pin check, ipin= "<<ipinCheck
-//                   <<" strip: "<< strip.print(1); 
-//            }
               if ( strip.cmsStripNumber == stripInDU) {
-                 return std::make_pair( eleIndex, LinkBoardChannelCoding( fedInLB, stripPinInFeb) );
-//                result.push_back(
-//                    std::make_pair( eleIndex, LinkBoardChannelCoding( fedInLB, stripPinInFeb) ) ); 
+                result.push_back(
+                    std::make_pair( eleIndex, LinkBoardChannelCoding( fedInLB, stripPinInFeb) ) ); 
               }
             } 
           } 
@@ -178,12 +164,7 @@ std::pair< ChamberRawDataSpec, LinkBoardChannelCoding>
       }
     }
   }
-  if (result.size() > 0) {
-    return result.front();
-  } else {
-    std::cout << " not found in the map! " << std::endl;
-    return std::make_pair( eleIndex, LinkBoardChannelCoding(0,0) );
-  }
+  return result;
 }
 
 std::pair<ChamberRawDataSpec, int>  

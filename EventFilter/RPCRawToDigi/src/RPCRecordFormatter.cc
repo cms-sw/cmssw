@@ -1,8 +1,8 @@
 /** \file
  * Implementation of class RPCRecordFormatter
  *
- *  $Date: 2007/03/09 11:41:16 $
- *  $Revision: 1.25 $
+ *  $Date: 2007/03/20 09:18:53 $
+ *  $Revision: 1.26 $
  *
  * \author Ilaria Segoni
  */
@@ -51,42 +51,44 @@ std::vector<EventRecords> RPCRecordFormatter::recordPack(
   int stripInDU = digi.strip();
 
   // decode digi<->map
-  std::pair< ChamberRawDataSpec, LinkBoardChannelCoding>
-      rawDataFrame = readoutMapping->rawDataFrame(rawDetId, stripInDU);
+  typedef std::vector< std::pair< ChamberRawDataSpec, LinkBoardChannelCoding> > RawDataFrames;
+  RawDataFrames rawDataFrames = readoutMapping->rawDataFrame(rawDetId, stripInDU);
 
-  const ChamberRawDataSpec & eleIndex = rawDataFrame.first;
-  const LinkBoardChannelCoding & channelCoding = rawDataFrame.second;
-  if (eleIndex.dccId == currentFED) {
+  for (RawDataFrames::const_iterator ir = rawDataFrames.begin(); ir != rawDataFrames.end(); ir++) {
+    
+    const ChamberRawDataSpec & eleIndex = (*ir).first;
+    const LinkBoardChannelCoding & channelCoding = (*ir).second;
 
-    LogTrace("pack:")
-         <<" dccId= "<<eleIndex.dccId
-         <<" dccInputChannelNum= "<<eleIndex.dccInputChannelNum
-         <<" tbLinkInputNum= "<<eleIndex.tbLinkInputNum
-         <<" lbNumInLink="<<eleIndex.lbNumInLink;
+    if (eleIndex.dccId != currentFED) {
 
+      LogTrace("pack:")
+           <<" dccId= "<<eleIndex.dccId
+           <<" dccInputChannelNum= "<<eleIndex.dccInputChannelNum
+           <<" tbLinkInputNum= "<<eleIndex.tbLinkInputNum
+           <<" lbNumInLink="<<eleIndex.lbNumInLink;
 
-    // BX 
-    int current_BX = trigger_BX+digi.bx();
-    BXRecord bxr(current_BX);
-   
+      // BX 
+      int current_BX = trigger_BX+digi.bx();
+      BXRecord bxr(current_BX);
 
-    // TB 
-    int tbLinkInputNumber = eleIndex.tbLinkInputNum;
-    int rmb = eleIndex.dccInputChannelNum; 
-    TBRecord tbr( tbLinkInputNumber, rmb);   
+      // TB 
+      int tbLinkInputNumber = eleIndex.tbLinkInputNum;
+      int rmb = eleIndex.dccInputChannelNum; 
+      TBRecord tbr( tbLinkInputNumber, rmb);   
 
-    // LB record
-    RPCLinkBoardData lbData;
-    lbData.setLbNumber(eleIndex.lbNumInLink);
-    lbData.setEod(0);
-    lbData.setHalfP(0);
-    int channel = channelCoding.channel();
-    vector<int> bitsOn; bitsOn.push_back(channel);                        
-    lbData.setPartitionNumber( channel/8 );
-    lbData.setBits(bitsOn);
-    LBRecord lbr(lbData);
+      // LB record
+      RPCLinkBoardData lbData;
+      lbData.setLbNumber(eleIndex.lbNumInLink);
+      lbData.setEod(0);
+      lbData.setHalfP(0);
+      int channel = channelCoding.channel();
+      vector<int> bitsOn; bitsOn.push_back(channel);                        
+      lbData.setPartitionNumber( channel/8 );
+      lbData.setBits(bitsOn);
+      LBRecord lbr(lbData);
 
-    result.push_back(  EventRecords(trigger_BX, bxr, tbr, lbr) );
+      result.push_back(  EventRecords(trigger_BX, bxr, tbr, lbr) );
+    }
   }
   return result;
 }
