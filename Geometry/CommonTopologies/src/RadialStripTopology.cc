@@ -6,34 +6,35 @@
 #include <cmath>
 #include <algorithm>
 
-RadialStripTopology::RadialStripTopology(int ns, float aw, float dh, float r, int yAx) :
+RadialStripTopology::RadialStripTopology(int ns, float aw, float dh, float r, int yAx, float yMid) :
   theNumberOfStrips(ns), theAngularWidth(aw), 
   theDetHeight(dh), theCentreToIntersection(r),
-  theYAxisOrientation(yAx) {   
+  theYAxisOrientation(yAx), yCentre( yMid) {   
   // Angular offset of extreme edge of detector, so that angle is
   // zero for a strip lying along local y axis = long symmetry axis of plane of strips
   thePhiOfOneEdge = -(theNumberOfStrips/2.) * theAngularWidth;
   
-  LogDebug("RadialStripTopology") << "Constructing RadialStripTopology:"
+  LogTrace("RadialStripTopology") << "Constructing RadialStripTopology:"
         << " strips = " << ns
-        << " of width = " << aw << " rad "
-        << " det height = " << dh
+        << " width = " << aw << " rad "
+        << " det_height = " << dh
         << " ctoi = " << r 
-        << " thePhiOfOneEdge = " << thePhiOfOneEdge << " rad "
-        << " theYAxisOrientation = " << theYAxisOrientation 
+        << " phi_edge = " << thePhiOfOneEdge << " rad "
+        << " y_ax_ori = " << theYAxisOrientation
+	<< " y_det_centre = " << yCentre 
         << "\n";
 }    
 
 float 
 RadialStripTopology::xOfStrip(int strip, float y) const {
-  //@@ Expect input 'strip' to be in range 1 to nstrips()
+  // Expect input 'strip' to be in range 1 to nstrips()
   float tanPhi = tan( stripAngle(static_cast<float>(strip) - 0.5 ) );
-  return ( y*theYAxisOrientation+centreToIntersection() ) * tanPhi;
+  return ( y*theYAxisOrientation+originToIntersection() ) * tanPhi;
 }
 
 LocalPoint 
 RadialStripTopology::localPosition(float strip) const {
-  return LocalPoint( theCentreToIntersection * tan( stripAngle(strip) ), 0.0 );
+  return LocalPoint( originToIntersection() * tan( stripAngle(strip) ), 0.0 );
 }
 
 LocalPoint 
@@ -42,18 +43,17 @@ RadialStripTopology::localPosition(const MeasurementPoint& mp) const {
   // 2nd component of MP is fractional position along strip, range +/-0.5,
   // so distance along strip (measured from mid-point of length of strip) is
   //     mp.y() * (length of strip). 
-  // Strip is always bisected by x=0. Thus local y is 
+  // Thus distance along y direction, from mid-point of strip, is 
   //    mp.y() * (length of strip) * cos(phi)
   // But (length of strip) = theDetHeight/cos(phi), so
-  float y =  mp.y() * theDetHeight;
-  float x = ( theCentreToIntersection + y * theYAxisOrientation ) * tan ( phi );
+  float y =  mp.y() * theDetHeight + yCentreOfStripPlane();
+  float x = ( originToIntersection() + y * theYAxisOrientation ) * tan ( phi );
   return LocalPoint( x, y );
 }
 
 LocalError 
 RadialStripTopology::localError(float strip, float stripErr2) const {
-  // Consider measurement as strip (phi) position and 
-  // mid-point of strip (which is on local x axis).
+  // Consider measurement as strip (phi) position and mid-point of strip
   // Since 'strip' is in units of angular strip-widths, stripErr2 is
   // required to be in corresponding units.
 
@@ -62,14 +62,12 @@ RadialStripTopology::localError(float strip, float stripErr2) const {
   float cs = t*c2;                             // sin(angle)*cos(angle); tan carries sign of sin!
   float s2 = t*t * c2;                         // sin(angle)**2
 
-  float D2 = theCentreToIntersection*theCentreToIntersection / c2;
+  float D2 = originToIntersection()*originToIntersection() / c2;
   float L2 = theDetHeight*theDetHeight / c2;   // length**2 of strip across detector
   float A2 = theAngularWidth*theAngularWidth;
 
-  // @@ CHECK THIS ERROR ASSIGNMENT MAKES SENSE... GIVING THE SAME
-  // @@ ERROR TO *ANY* MEASUREMENT ALONG STRIP, INDEPENDENT OF ORIGIN.  SEEMS SUSPECT?
-  // But the error**2 we're assigning is L2/12 wherever we measure the position along the strip
-  // from... we just know the measurement is somewhere ON the strip. So probably OK.
+  // The error**2 we're assigning is L2/12 wherever we measure the position along the strip
+  // from... we just know the measurement is somewhere ON the strip. 
 
   float SD2 = L2 / 12.;       // SR = Sigma-Radius ('Radius' is along strip)
   float SA2 = A2 * stripErr2; // SA = Sigma-Angle
@@ -98,7 +96,7 @@ RadialStripTopology::localError(const MeasurementPoint& mp,
   float A2 = A * A;
 
   // D is distance from intersection of edges to hit on strip
-  float D = (theCentreToIntersection + mp.y() * theYAxisOrientation * theDetHeight) / sqrt(c2);
+  float D = (originToIntersection() + mp.y() * theYAxisOrientation * theDetHeight) / sqrt(c2);
   float D2 = D * D;
 
   // L is length of strip across face of chamber
@@ -107,7 +105,7 @@ RadialStripTopology::localError(const MeasurementPoint& mp,
 
   // MeasurementError elements are already squared
   // but they're normalized to products of A and L (N.B. L not D!)
-  // @@ ENSURE MEASUREMENT ERROR COMPONENTS INDEED ARE NORMALIZED LIKE THIS!
+  // @@ ENSURE MEASUREMENT ERROR COMPONENTS ARE INDEED NORMALIZED LIKE THIS!
 
   float SA2 = merr.uu() * A2;
   float SD2 = merr.vv() * L2; // Note this norm uses stripLength**2
@@ -124,7 +122,7 @@ float
 RadialStripTopology::strip(const LocalPoint& lp) const {
   // Note that this phi is (pi/2 - conventional local phi)
   // This means use atan2(x,y) rather than more usual atan2(y,x)
-  float phi = atan2( lp.x(), lp.y()*theYAxisOrientation+theCentreToIntersection );
+  float phi = atan2( lp.x(), lp.y()*theYAxisOrientation+originToIntersection() );
   float aStrip = (phi-thePhiOfOneEdge)/theAngularWidth;
   aStrip = (aStrip >= 0. ? aStrip : 0.);
   aStrip = (aStrip <= theNumberOfStrips ? aStrip : theNumberOfStrips);
@@ -135,7 +133,7 @@ MeasurementPoint
 RadialStripTopology::measurementPosition(const LocalPoint& lp) const {
   // Note that this phi is (pi/2 - conventional local phi)
   // This means use atan2(x,y) rather than more usual atan2(y,x)
-  float phi = atan2( lp.x(), lp.y()*theYAxisOrientation+theCentreToIntersection );
+  float phi = atan2( lp.x(), lp.y()*theYAxisOrientation+originToIntersection() );
   return MeasurementPoint( (phi-thePhiOfOneEdge)/theAngularWidth,
                           lp.y()/theDetHeight );
 }
@@ -144,7 +142,7 @@ MeasurementError
 RadialStripTopology::measurementError(const LocalPoint& lp,
   const LocalError& lerr) const {
 
-  float yHitToInter = lp.y()*theYAxisOrientation + theCentreToIntersection;
+  float yHitToInter = lp.y()*theYAxisOrientation + originToIntersection();
 
   float t  = lp.x() / yHitToInter;    // tan(angle between strip and y) = tan(phi)
   float c2 = 1./(1. + t*t);           // cos(angle)**2
@@ -188,7 +186,7 @@ RadialStripTopology::localPitch(const LocalPoint& lp) const {
   int istrip = static_cast<int>(fstrip + 1.0); // which strip number
   istrip = (istrip>nstrips() ? nstrips() : istrip); // enforce maximum
   float fangle = stripAngle(static_cast<float>(istrip - 0.5)); // angle of strip centre
-  float localp = ( lp.y()*theYAxisOrientation + theCentreToIntersection ) * sin(theAngularWidth) /
+  float localp = ( lp.y()*theYAxisOrientation + originToIntersection() ) * sin(theAngularWidth) /
     ( cos(fangle-theAngularWidth/2.)*cos(fangle+theAngularWidth/2.) );
   return localp;
 }
@@ -199,7 +197,7 @@ RadialStripTopology::stripAngle(float strip) const {
 }
   
 float RadialStripTopology::localStripLength(const LocalPoint& lp) const {
-  float yHitToInter = lp.y()*theYAxisOrientation + theCentreToIntersection;
+  float yHitToInter = lp.y()*theYAxisOrientation + originToIntersection();
   float t  = lp.x() / yHitToInter;    // tan(angle between strip and y)
   float c2 = 1./(1. + t*t);           // cos(angle)**2
   return theDetHeight / sqrt(c2);
@@ -227,7 +225,7 @@ std::ostream & operator<<( std::ostream & os, const RadialStripTopology & rst )
       << "detector height in y      " << rst.stripLength() << std::endl
       << "angular width of strips   " << rst.phiPitch() << std::endl
       << "phi of one edge           " << rst.thePhiOfOneEdge << std::endl
-    //      << "approximate pitch in x    " << rst.pitch() << std::endl 
-      << "y axis orientation        " << rst.yAxisOrientation() << std::endl;
+      << "y axis orientation        " << rst.yAxisOrientation() << std::endl
+      << "y of centre of strip plane " << rst.yCentreOfStripPlane() << std::endl;
   return os;
 }

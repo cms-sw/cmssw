@@ -19,24 +19,28 @@
  * This is for consistency with CommonDet usage of 'float strip' (but
  * where units are strip pitch rather than strip angular width.)<BR>
  *
+ * WARNING! If the mid-point along local y of the plane of strips does not correspond
+ * to the local coordinate origin, set the fianl ctor argument appropriately. <BR>
  */
 
 class RadialStripTopology : public StripTopology {
  public:
 
   /** 
-   * Constructor from:<BR>
-   *    number of strips<BR>
-   *    angular width of a strip<BR>
-   *    detector height (2 x apothem - we love that word)<BR>
-   *    radial distance from symmetry centre of detector to the point at which 
-   *    the outer edges of the two extreme strips (projected) intersect.<BR>
-   *    orientation of local y axis: 1 means pointing from the smaller side of
+   * Constructor from:
+   *    \param ns number of strips
+   *    \param aw angular width of a strip
+   *    \param dh detector height (usually 2 x apothem of TrapezoidalPlaneBounds)
+   *    \param r radial distance from symmetry centre of detector to the point at which 
+   *    the outer edges of the two extreme strips (projected) intersect.
+   *    \param yAx orientation of local y axis: 1 means pointing from the smaller side of
    *    the module to the larger side (along apothem), and -1 means in the 
    *    opposite direction, i.e. from the larger side along the apothem to the 
-   *    smaller side. Default value is 1.
+   *    smaller side. Default value is 1. 
+   *    \param yMid local y offset if mid-point of detector (strip plane) does not coincide with local origin.
+   *    This decouples the extent of strip plane from the boundary of the detector in which the RST is embedded.
    */
-  RadialStripTopology( int ns, float aw, float dh, float r, int yAx = 1);
+  RadialStripTopology( int ns, float aw, float dh, float r, int yAx = 1, float yMid = 0.);
 
   /** 
    * Destructor
@@ -126,8 +130,7 @@ class RadialStripTopology : public StripTopology {
   virtual int nstrips() const { return theNumberOfStrips; }
 
   /** 
-   * Height of detector (= length of long symmetry axis),
-   * just as for a TrapezoidalStripTopology. <BR>
+   * Height of detector (= length of long symmetry axis of the plane of strips).
    */
   virtual float stripLength() const { return theDetHeight; }
 
@@ -150,7 +153,7 @@ class RadialStripTopology : public StripTopology {
    * Channel number corresponding to a given LocalPoint.<BR>
    * This is effectively an integer version of strip(), with range 0 to
    * nstrips-1.  <BR>
-   * LocalPoints outside the detector will be considered
+   * LocalPoints outside the detector strip plane will be considered
    * as contributing to the edge channels 0 or nstrips-1.
    */
   virtual int channel( const LocalPoint& ) const;
@@ -176,11 +179,23 @@ class RadialStripTopology : public StripTopology {
   float detHeight() const { return theDetHeight;}
 
   /** 
+   * y extent of strip plane
+   */
+  float yExtentOfStripPlane() const { return theDetHeight; } // same as detHeight()
+
+  /** 
    * Distance from the intersection of the projections of
    * the extreme edges of the two extreme strips to the symmetry
    * centre of the plane of strips. 
    */
   float centreToIntersection() const { return theCentreToIntersection; }
+
+  /** 
+   * (y) distance from intersection of the projections of the strips
+   * to the local coordinate origin. Same as centreToIntersection()
+   * if symmetry centre of strip plane coincides with local origin.
+   */
+  float originToIntersection() const { return (theCentreToIntersection - yCentre); }
 
   /**
    * Convenience function to access azimuthal angle of extreme edge of first strip 
@@ -197,7 +212,8 @@ class RadialStripTopology : public StripTopology {
   float phiOfOneEdge() const { return thePhiOfOneEdge; }
 
   /**
-   * Local x where centre of strip intersects input local y
+   * Local x where centre of strip intersects input local y <BR>
+   * 'strip' should be in range 1 to nstrips() <BR>
    */
   float xOfStrip(int strip, float y) const;
  
@@ -210,7 +226,12 @@ class RadialStripTopology : public StripTopology {
    * y axis orientation, 1 means detector width increases with local y
    */
   int yAxisOrientation() const { return theYAxisOrientation; }
- 
+
+  /**
+   * Offset in local y between midpoint of detector (strip plane) extent and local origin
+   */
+  float yCentreOfStripPlane() const { return yCentre; }
+
   friend std::ostream & operator<<(std::ostream&, const RadialStripTopology& );
 
  private:
@@ -221,6 +242,7 @@ class RadialStripTopology : public StripTopology {
   float theCentreToIntersection;  // distance centre of detector face to intersection of edge strips (projected)
   float thePhiOfOneEdge;   // local 'phi' of one edge of plane of strips (I choose it negative!)
   int   theYAxisOrientation; // 1 means y axis going from smaller to larger side, -1 means opposite direction
+  float yCentre; // Non-zero if offset in local y between midpoint of detector (strip plane) extent and local origin.
 };
 
 #endif
