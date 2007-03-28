@@ -9,12 +9,11 @@
 namespace edmtest {
 
   struct OtherThing {
-    OtherThing():a(), refProd(), ref(), refVec() { }
-    ~OtherThing() {}
-    int a;
-    edm::RefProd<ThingCollection> refProd;
-    edm::Ref<ThingCollection> ref;
+    int                             a;
+    edm::RefProd<ThingCollection>   refProd;
+    edm::Ref<ThingCollection>       ref;
     edm::RefVector<ThingCollection> refVec;
+    edm::RefVector<ThingCollection> oneNullOneNot;
   };
 }
 

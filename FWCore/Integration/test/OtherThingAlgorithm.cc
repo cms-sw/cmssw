@@ -6,24 +6,32 @@
 #include "DataFormats/Common/interface/Handle.h"
 
 namespace edmtest {
-  void OtherThingAlgorithm::run(edm::DataViewImpl const& dv, OtherThingCollection & otherThingCollection,
-	std::string const& thingLabel, std::string const& instance) {
-    otherThingCollection.reserve(20);
-    edm::Handle<ThingCollection> things;
-    dv.getByLabel(thingLabel, instance, things);
-    for (int i = 0; i < 20; ++i) {
-      OtherThing tc;
-      tc.a = i;
-      tc.refProd = edm::RefProd<ThingCollection>(things);
-      // tc.ref = edm::Ref<ThingCollection>(things, i);
-      tc.ref = edm::Ref<ThingCollection>(tc.refProd, i);
-      tc.refVec.push_back(tc.ref);
-      tc.refVec.push_back(tc.ref);
-      tc.refVec.push_back(edm::Ref<ThingCollection>(things, 19-i));
-      edm::RefVector<ThingCollection>::iterator ri = tc.refVec.begin();
-      tc.refVec.erase(ri);
-      otherThingCollection.push_back(tc);
-      tc.refVec.clear();
+  void OtherThingAlgorithm::run(edm::DataViewImpl const& event, 
+				OtherThingCollection& result,
+				std::string const& thingLabel, 
+				std::string const& instance) {
+
+    const size_t numToMake = 20;
+    result.reserve(numToMake);
+    edm::Handle<ThingCollection> parent;
+    event.getByLabel(thingLabel, instance, parent);
+    assert(parent.isValid());
+
+    for (size_t i = 0; i < numToMake; ++i) {
+      OtherThing element;
+      element.a = i;
+      element.refProd = edm::RefProd<ThingCollection>(parent);
+      element.ref = edm::Ref<ThingCollection>(element.refProd, i);
+      element.refVec.push_back(element.ref);
+      element.refVec.push_back(element.ref);
+      element.refVec.push_back(edm::Ref<ThingCollection>(parent, 19-i));
+      edm::RefVector<ThingCollection>::iterator ri = element.refVec.begin();
+      element.refVec.erase(ri);
+      element.oneNullOneNot.push_back(edm::Ref<ThingCollection>(parent.id()));
+      element.oneNullOneNot.push_back(edm::Ref<ThingCollection>(parent, 0));
+      assert(element.oneNullOneNot.size() == 2); // we'll check this in our tests
+      result.push_back(element);
+      //      element.refVec.clear(); // no need to clear; 'element' is created anew on every loop
     }
   }
 }

@@ -5,7 +5,7 @@
   
 Ref: A template for a interproduct reference to a member of a product.
 
-$Id: Ref.h,v 1.20 2007/03/23 16:54:31 paterno Exp $
+$Id: Ref.h,v 1.21 2007/03/27 16:16:36 paterno Exp $
 
 ----------------------------------------------------------------------*/
 /**
@@ -64,6 +64,13 @@ $Id: Ref.h,v 1.20 2007/03/23 16:54:31 paterno Exp $
      the templated class edm::refhelper::FindTrait<C,T> such that it
      has a typedef named 'value' which refers to the specialized
      helper class (i.e., F)
+
+     The class template Ref<C,T,F> supports 'null' references.
+
+     -- a default-constructed Ref is 'null'; furthermore, it also
+        has an invalid (or 'null') ProductID.
+     -- a Ref constructed through the single-arguement constructor
+        that takes a ProductID is also null.        
 */
 
 /*----------------------------------------------------------------------
@@ -197,6 +204,14 @@ namespace edm {
     Ref(ProductID const& productID, key_type itemKey, EDProductGetter const* prodGetter) :
       ref_(productID, 0, itemKey, 0, prodGetter) {
       }
+
+    /** Constructor that creates an invalid ("null") Ref that is
+	associated with a given product (denoted by that product's
+	ProductID). */
+
+    explicit Ref(ProductID const& id) :
+      ref_(id, 0, key_traits<key_type>::value, 0, 0)
+    { }
 
     /// Constructor from RefProd<C> and key
     Ref(RefProd<C> const& refProd, key_type itemKey);

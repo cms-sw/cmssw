@@ -13,7 +13,10 @@ namespace edmtest {
   
     /// Runs the algorithm and returns a list of OtherThings
     /// The user declares the vector and calls this method.
-    void run(edm::DataViewImpl const& dv, OtherThingCollection& otherThingCollection, std::string const& thingLabel = std::string("Thing"), std::string const& instance = std::string());
+    void run(edm::DataViewImpl const& dv, 
+	     OtherThingCollection& otherThingCollection, 
+	     std::string const& thingLabel = std::string("Thing"),
+	     std::string const& instance = std::string());
   
   private:
     int    theDebugLevel;
