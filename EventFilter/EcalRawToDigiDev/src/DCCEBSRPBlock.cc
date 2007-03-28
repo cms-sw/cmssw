@@ -33,7 +33,6 @@ void DCCEBSRPBlock::addSRFlagToCollection(){
   uint16_t * my16Bitp_ = reinterpret_cast<uint16_t *> (data_);
 
 
-
   for( uint n=0; n<expNumbSrFlags_ ; n++ ){
     
     if(n>0&&n%4==0) my16Bitp_++;
@@ -42,9 +41,9 @@ void DCCEBSRPBlock::addSRFlagToCollection(){
     srFlags_[n] = srFlag;
 
     if(unpackInternalData_){  
-     pTTDetId_  = mapper_->getTTDetIdPointer(mapper_->getActiveSM()+TCCID_SMID_SHIFT_EB,n+1); 
-     EBSrFlag sr(*pTTDetId_,srFlag);    
-    (*ebSrFlagsDigis_)->push_back(sr);
+     EBSrFlag * sr = (EBSrFlag*) mapper_->getSrFlagPointer(n+1);
+     sr->setValue(srFlag);
+     (*ebSrFlagsDigis_)->push_back(*sr);
     } 
   }
   

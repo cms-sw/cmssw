@@ -59,7 +59,7 @@ void DCCEBTCCBlock::addTriggerPrimitivesToCollection(){
 	 
     for(uint ns = 0; ns<nTSamples_;ns++,tccP_++){
       
-      pTP_->setSample(ns, EcalTriggerPrimitiveSample(*tccP_));
+      pTP_->setSampleValue(ns, (*tccP_));
       (*tps_)->push_back(*pTP_);
         	  
     }

@@ -10,8 +10,8 @@
  
  * \file EcalElectronicsMapper.h
  *
- * $Date: 2007/03/20 14:42:36 $
- * $Revision: 1.1.2.2 $
+ * $Date: 2007/03/23 16:26:45 $
+ * $Revision: 1.2 $
  * \author N. Almeida
  * \author G. Franzoni
  *
@@ -29,6 +29,7 @@
 #include <DataFormats/EcalDetId/interface/EcalScDetId.h>
 #include <DataFormats/EcalDigi/interface/EcalDataFrame.h>
 #include <DataFormats/EcalDigi/interface/EcalTriggerPrimitiveDigi.h>
+#include <DataFormats/EcalDigi/interface/EcalSrFlag.h>
 #include <iostream>
 #include <sstream>
 
@@ -93,11 +94,11 @@ public:
   EcalTriggerPrimitiveDigi * getTPPointer(uint tccId, uint tower){ return ttTPIds_[tccId-1][tower-1];}
 
   EcalScDetId  * getSCDetIdPointer(uint feChannel){ return  scDetIds_[smId_-1][feChannel-1];}
-
+  
+  EcalSrFlag * getSrFlagPointer(uint feChannel){ return srFlags_[smId_-1][feChannel-1]; }
   
   vector<uint> * getTccs(){ return mapSmIdToTccIds_[smId_];}
 	
-  
   uint getActiveDCC()                 { return dccId_;                      }
  
   uint getActiveSM()                  { return smId_;                       }
@@ -172,12 +173,14 @@ private:
   uint ebTccBlockLength_, eeTccBlockLength_;
 
 
+
   // ARRAYS OF DetId  
   DetId                     * xtalDetIds_[NUMB_SM][NUMB_FE][NUMB_STRIP][NUMB_XTAL];
   EcalScDetId               * scDetIds_[NUMB_SM][NUMB_FE];
   EcalTrigTowerDetId        * ttDetIds_[NUMB_TCC][NUMB_FE];
   EcalTriggerPrimitiveDigi  * ttTPIds_[NUMB_TCC][NUMB_FE];
   EcalDataFrame             * xtalDFrames_[NUMB_SM][NUMB_FE][NUMB_STRIP][NUMB_XTAL]; 
+  EcalSrFlag                * srFlags_[NUMB_SM][NUMB_FE];
   EcalElectronicsMapping    * mappingBuilder_;
   
 

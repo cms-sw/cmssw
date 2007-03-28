@@ -35,6 +35,7 @@ mappingBuilder_(0)
       }
       //Reset SC Det Ids
       scDetIds_[sm][fe]=0;
+      srFlags_[sm][fe]=0;
     }
   }
   
@@ -153,6 +154,7 @@ EcalElectronicsMapper::~EcalElectronicsMapper(){
 
       if(scDetIds_[sm][fe]){ 
         delete scDetIds_[sm][fe];
+        delete srFlags_[sm][fe];
       }
 
     }
@@ -358,8 +360,13 @@ void EcalElectronicsMapper::fillMaps(){
         ttDetIds_[tccId-1][feChannel-1] = ttDetId;
         EcalTriggerPrimitiveDigi * tp     = new EcalTriggerPrimitiveDigi(*ttDetId);
         tp->setSize(numbTriggerTSamples_);
+        for(uint i=0;i<numbTriggerTSamples_;i++){
+          tp->setSample( i, EcalTriggerPrimitiveSample(0) );
+        }
         ttTPIds_[tccId-1][feChannel-1]  = tp;   
 	
+        // Buil SRP Flag
+        srFlags_[smId-1][feChannel-1] = new EBSrFlag(*ttDetId,0);
  
         for(uint stripId =1; stripId<=5; stripId++){
 		    
@@ -398,6 +405,10 @@ void EcalElectronicsMapper::fillMaps(){
 	       ttDetIds_[tccId-1][feChannel-1] = new EcalTrigTowerDetId(ttDetId.rawId());
                EcalTriggerPrimitiveDigi * tp   = new EcalTriggerPrimitiveDigi(ttDetId);
                tp->setSize(numbTriggerTSamples_);
+               for(uint i=0;i<numbTriggerTSamples_;i++){
+                 tp->setSample( i, EcalTriggerPrimitiveSample(0) );
+               }
+
                ttTPIds_[tccId-1][feChannel-1]  = tp;
 			
 	     }catch(cms::Exception){
@@ -413,8 +424,8 @@ void EcalElectronicsMapper::fillMaps(){
 		
 	  //EcalSCDetIds
           EcalScDetId scDetId = mappingBuilder_->getEcalScDetId(smId,feChannel);
-          scDetIds_[smId-1][feChannel-1]= new EcalScDetId(scDetId.rawId());;
-			  
+          scDetIds_[smId-1][feChannel-1] = new EcalScDetId(scDetId.rawId());;
+          srFlags_[smId-1][feChannel-1]  = new EESrFlag( EcalScDetId( scDetId.rawId() ) , 0 ); 
           vector<DetId> ecalDetIds = mappingBuilder_->dccTowerConstituents(smId,feChannel);
           vector<DetId>::iterator it;
 				  

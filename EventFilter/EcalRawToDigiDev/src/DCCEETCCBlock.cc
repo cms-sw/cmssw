@@ -35,7 +35,7 @@ void DCCEETCCBlock::addTriggerPrimitivesToCollection(){
     pTP_ =  mapper_->getTPPointer(tccId_,i);
 
     for(uint ns = 0; ns<nTSamples_;ns++,tccP_++){
-      pTP_->setSample(ns, EcalTriggerPrimitiveSample(*tccP_) );
+      pTP_->setSample(ns, *tccP_ );
       (*tps_)->push_back(*pTP_);
      }
     }else{ break; } //if invalid we dont have more tts
