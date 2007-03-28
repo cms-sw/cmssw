@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/03/27 11:10:17 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/03/27 15:31:45 $
+ *  $Revision: 1.4 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -393,10 +393,12 @@ void DTEfficiencyTask::bookHistos(DTLayerId lId, int firstWire, int lastWire) {
   // Create the monitor elements
   vector<MonitorElement *> histos;
   // histo for hits associated to the 4D reconstructed segment
-  histos.push_back(theDbe->book1D("hEffOccupancy"+lHistoName, "4D segments cells occupancy",lastWire-firstWire+1, firstWire-0.5, lastWire+0.5));
+  histos.push_back(theDbe->book1D("hEffOccupancy"+lHistoName, "4D segments recHits occupancy",lastWire-firstWire+1, firstWire-0.5, lastWire+0.5));
   // histo for hits not associated to the segment
-  histos.push_back(theDbe->book1D("hEffUnassOccupancy"+lHistoName, "4D segments and hits not associated cells occupancy",lastWire-firstWire+1, firstWire-0.5, lastWire+0.5));
-
+  histos.push_back(theDbe->book1D("hEffUnassOccupancy"+lHistoName, "4D segments recHits and Hits not associated occupancy",lastWire-firstWire+1, firstWire-0.5, lastWire+0.5));
+  // histo for cells associated to the 4D reconstructed segment
+  histos.push_back(theDbe->book1D("hRecSegmOccupancy"+lHistoName, "4D segments cells occupancy",lastWire-firstWire+1, firstWire-0.5, lastWire+0.5));
+  
   histosPerL[lId] = histos;
 }
 
@@ -411,6 +413,7 @@ void DTEfficiencyTask::fillHistos(DTLayerId lId,
   vector<MonitorElement *> histos =  histosPerL[lId]; 
   histos[0]->Fill(numWire);
   histos[1]->Fill(numWire);
+  histos[2]->Fill(numWire);
 }
 
 // Fill a set of histograms for a given Layer
@@ -424,4 +427,5 @@ void DTEfficiencyTask::fillHistos(DTLayerId lId,
  vector<MonitorElement *> histos =  histosPerL[lId];
  if(unassHit) 
    histos[1]->Fill(missingWire);
+ histos[2]->Fill(missingWire);
 }
