@@ -10,16 +10,20 @@
 #include "CondCore/DBCommon/interface/PoolStorageManager.h"
 #include "CondCore/DBCommon/interface/ConfigSessionFromParameterSet.h"
 #include "CondCore/DBCommon/interface/SessionConfiguration.h"
+#include "CondCore/DBCommon/src/ServiceLoader.h"
 #include "FWCore/Framework/interface/SourceFactory.h"
 #include "FWCore/Framework/interface/DataProxy.h"
 #include "CondCore/PluginSystem/interface/ProxyFactory.h"
 #include "CondCore/IOVService/interface/IOVService.h"
+#include "CondCore/IOVService/interface/IOVNames.h"
 #include "CondCore/MetaDataService/interface/MetaData.h"
 #include "POOLCore/Exception.h"
+#include "RelationalAccess/IConnectionService.h"
+#include "RelationalAccess/IWebCacheControl.h"
 #include "FWCore/Catalog/interface/SiteLocalConfig.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include <exception>
-#include <iostream>
+//#include <iostream>
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <sstream>
 #include <cstdlib>
@@ -105,19 +109,6 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
   connect=iConfig.getParameter<std::string>("connect");
   catconnect=iConfig.getUntrackedParameter<std::string>("catalog","file::PoolFileCatalog.xml");
   bool siteLocalConfig=iConfig.getUntrackedParameter<bool>("siteLocalConfig",false);
-  if( siteLocalConfig ){
-    edm::Service<edm::SiteLocalConfig> localconfservice;
-    if( !localconfservice.isAvailable() ){
-      throw cms::Exception("edm::SiteLocalConfigService is not available");       
-    }
-    connect=localconfservice->lookupCalibConnect(connect);
-    catconnect=iConfig.getUntrackedParameter<std::string>("catalog","");
-    if(catconnect.empty()){
-      mycatalog=localconfservice->calibCatalog();
-    }
-  }else{
-    mycatalog=iConfig.getUntrackedParameter<std::string>("catalog","");
-  }
   m_session=new cond::DBSession(true);
   edm::ParameterSet connectionPset = iConfig.getParameter<edm::ParameterSet>("DBParameters"); 
   //cond::ConfigSessionFromParameterSet configConnection(*m_session,connectionPset);
@@ -195,12 +186,34 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
       }
     }
   }
-  m_con=connect;
   cond::ConfigSessionFromParameterSet configConnection(*m_session,connectionPset);
   //std::string authpath("CORAL_AUTH_PATH=");
   //authpath+=m_session->sessionConfiguration().authName();
   //::putenv(const_cast<char*>(authpath.c_str()));
   m_session->open();
+
+  if( siteLocalConfig ){
+    edm::Service<edm::SiteLocalConfig> localconfservice;
+    if( !localconfservice.isAvailable() ){
+      throw cms::Exception("edm::SiteLocalConfigService is not available");       
+    }
+    connect=localconfservice->lookupCalibConnect(connect);
+    catconnect=iConfig.getUntrackedParameter<std::string>("catalog","");
+    if(catconnect.empty()){
+      mycatalog=localconfservice->calibCatalog();
+    }
+    std::string logicalconnect=localconfservice->calibLogicalServer();
+    
+    //get handle to IConnectionService
+    seal::IHandle<coral::IConnectionService>
+      connSvc = m_session->serviceLoader().context()->query<coral::IConnectionService>( "CORAL/Services/ConnectionService" );
+    //get handle to webCacheControl()
+    connSvc->webCacheControl().refreshTable( logicalconnect,cond::IOVNames::iovTableName() );
+    connSvc->webCacheControl().refreshTable( logicalconnect,cond::IOVNames::iovDataTableName() );
+  }else{
+    mycatalog=iConfig.getUntrackedParameter<std::string>("catalog","");
+  }
+  m_con=connect;
   m_pooldb=new cond::PoolStorageManager(m_con,mycatalog,m_session);
   if(m_timetype=="timestamp"){
     m_iovservice=new cond::IOVService(*m_pooldb,cond::timestamp);
