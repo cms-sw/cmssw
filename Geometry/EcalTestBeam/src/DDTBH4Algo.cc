@@ -140,14 +140,14 @@ void DDTBH4Algo::execute()
   const double halfZbl ( ( blZEnd() - blZBeg() )/2. ) ;
   for( unsigned int i ( 0 ) ; i != vecVacZBeg().size() ; ++i )
   {
-     DDName vacName ( ddname( vacName() + int_to_string(i+1) ) ) ;
+     DDName vacNameNm ( ddname( vacName() + int_to_string(i+1) ) ) ;
      const double halfZvac ( ( vecVacZEnd()[i] - vecVacZBeg()[i] )/2. ) ;
-     DDSolid vTubeSolid ( DDSolidFactory::tubs( vacName ,
+     DDSolid vTubeSolid ( DDSolidFactory::tubs( vacNameNm ,
 						halfZvac,
 						0, 
 						blRadius(),
 						0*deg, 360*deg ) ) ;
-     const DDLogicalPart vacLog ( vacName, vacMat(), vTubeSolid ) ;
+     const DDLogicalPart vacLog ( vacNameNm, vacMat(), vTubeSolid ) ;
      
      DDpos( vacLog,
 	    parent().name(), 
