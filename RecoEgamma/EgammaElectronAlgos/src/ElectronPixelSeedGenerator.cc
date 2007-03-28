@@ -13,15 +13,15 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronPixelSeedGenerator.cc,v 1.16 2006/10/25 08:51:54 uberthon Exp $
+// $Id: ElectronPixelSeedGenerator.cc,v 1.20 2007/03/14 17:09:18 uberthon Exp $
 //
 //
 #include "RecoEgamma/EgammaElectronAlgos/interface/PixelHitMatcher.h" 
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronPixelSeedGenerator.h" 
+
 #include "RecoTracker/TransientTrackingRecHit/interface/TSiPixelRecHit.h" 
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h" 
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
-#include "RecoTracker/TkSeedGenerator/interface/SeedFromConsecutiveHits.h"
 #include "RecoTracker/TkSeedGenerator/interface/FastHelix.h"
 #include "RecoTracker/TkNavigation/interface/SimpleNavigationSchool.h"
 
@@ -39,7 +39,7 @@
 #include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -159,6 +159,7 @@ void ElectronPixelSeedGenerator::seedsFromThisCluster( edm::Ref<reco::SuperClust
         reco::ElectronPixelSeed s(seedCluster,*pts_,recHits_,dir);
         result.push_back(s);
       }
+      delete pts_;
     }
   }  
   aCharge=1.;  
@@ -175,6 +176,7 @@ void ElectronPixelSeedGenerator::seedsFromThisCluster( edm::Ref<reco::SuperClust
     for (v = posPixelHits.begin(); v != posPixelHits.end(); v++) {
       bool valid = prepareElTrackSeed((*v).first.recHit(),(*v).second,posVertex);
       if (valid) result.push_back(reco::ElectronPixelSeed(seedCluster,*pts_,recHits_,dir));
+      delete pts_;
     }
   } 
 
@@ -221,5 +223,4 @@ bool ElectronPixelSeedGenerator::prepareElTrackSeed(ConstRecHitPointer innerhit,
   pts_ =  transformer_.persistentState(updatedState_out, outerhit->geographicalId().rawId());
 
   return true;
-  
 }

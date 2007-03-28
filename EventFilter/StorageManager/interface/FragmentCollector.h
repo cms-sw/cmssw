@@ -44,7 +44,7 @@ namespace stor
     // type of data.  It is like this because there is not much time
     // available to create the prototype.
     typedef std::vector<FragEntry> Fragments;
-    typedef std::map<stor::FragKey, Fragments> Collection;
+    typedef std::map<edm::EventNumber_t, Fragments> Collection;
 
     //FragmentCollector(const HLTInfo& h, Deleter d,
     FragmentCollector(HLTInfo& h, Deleter d,
@@ -67,7 +67,6 @@ namespace stor
     void processFragments();
     void processEvent(FragEntry* msg);
     void processHeader(FragEntry* msg);
-    void processDQMEvent(FragEntry* msg);
 
     edm::EventBuffer* cmd_q_;
     edm::EventBuffer* evtbuf_q_;

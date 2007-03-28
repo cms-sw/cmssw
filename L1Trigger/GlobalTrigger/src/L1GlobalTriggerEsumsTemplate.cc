@@ -106,6 +106,14 @@ void L1GlobalTriggerEsumsTemplate::setConditionParameter(
  
 const bool L1GlobalTriggerEsumsTemplate::blockCondition() const {
 
+    // store for completness the indices of the calorimeter objects 
+    // from the combination evaluated in the condition
+    SingleCombInCond objectsInComb;
+
+    // clear the p_combinationsInCond vector 
+    (*p_combinationsInCond).clear(); 
+    
+
     unsigned int candEt = 0;    
     unsigned int candPhi = 0;
 
@@ -151,7 +159,36 @@ const bool L1GlobalTriggerEsumsTemplate::blockCondition() const {
         if (!checkBit(p_conditionparameter.phi, candPhi)) return false;
     }
 
-    // condition matches    
+    // condition matches 
+    
+    // index is always zero, as they are global quantities (there is only one object)
+    int indexEsum = 0;
+                 
+    objectsInComb.push_back(indexEsum);
+    (*p_combinationsInCond).push_back(objectsInComb);
+    
+    CombinationsInCond::const_iterator itVV;
+    std::ostringstream myCout1;                 
+
+    for(itVV  = (*p_combinationsInCond).begin(); 
+        itVV != (*p_combinationsInCond).end(); itVV++) {
+        
+        myCout1 << "( ";
+    
+        std::copy((*itVV).begin(), (*itVV).end(), 
+            std::ostream_iterator<int> (myCout1, " "));
+        
+        myCout1 << "); ";
+
+    }
+
+    LogTrace("L1GlobalTriggerEsumsTemplate") 
+        << "\n  List of combinations passing all requirements for this condition: \n  " 
+        <<  myCout1.str() 
+        << " \n" 
+        << std::endl;
+           
+       
     return true;
 }
     

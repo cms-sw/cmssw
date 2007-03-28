@@ -1,7 +1,7 @@
 /*
  * \file L1TRCT.cc
  *
- * $Date: 2007/02/19 22:49:54 $
+ * $Date: 2007/02/19 19:24:09 $
  * $Revision: 1.1 $
  * \author P. Wittich
  *
@@ -40,9 +40,7 @@ const float ETAMAX = 21.5;
 
 
 
-L1TRCT::L1TRCT(const ParameterSet & ps) :
-   rctSource_( ps.getParameter< InputTag >("rctSource") )
-
+L1TRCT::L1TRCT(const ParameterSet & ps)
 {
 
   // verbosity switch
@@ -163,17 +161,16 @@ void L1TRCT::endJob(void)
 void L1TRCT::analyze(const Event & e, const EventSetup & c)
 {
   nev_++;
-  if (verbose_) {
+  if (verbose_)
     std::cout << "L1TRCT: analyze...." << std::endl;
-  }
 
   // Get the RCT digis
   edm::Handle < L1CaloEmCollection > em;
   edm::Handle < L1CaloRegionCollection > rgn;
 
   // need to change to getByLabel
-  e.getByLabel(rctSource_, em);
-  e.getByLabel(rctSource_, rgn);
+  e.getByType(em);
+  e.getByType(rgn);
 
   // Fill the RCT histograms
 

@@ -16,7 +16,6 @@ cond::ConfigSessionFromParameterSet::ConfigSessionFromParameterSet(
   bool loadBlobStreamer=connectionPset.getUntrackedParameter<bool>("loadBlobStreamer",false);
   int connectionRetrialPeriod=connectionPset.getUntrackedParameter<int>("connectionRetrialPeriod",30);
   int connectionRetrialTimeOut=connectionPset.getUntrackedParameter<int>("connectionRetrialTimeOut",180);
-  bool enablePoolAutomaticCleanUp=connectionPset.getUntrackedParameter<bool>("enablePoolAutomaticCleanUp",false);
   if( xmlauthName.empty() ){
     session.sessionConfiguration().setAuthenticationMethod(cond::Env);
   }else{
@@ -41,19 +40,10 @@ cond::ConfigSessionFromParameterSet::ConfigSessionFromParameterSet(
   }
   if(enableConnectionSharing){
     session.connectionConfiguration().enableConnectionSharing();
-  }else{
-    session.connectionConfiguration().disableConnectionSharing();
   }
   session.connectionConfiguration().setConnectionTimeOut(connectionTimeOut);
   if(enableReadOnlySessionOnUpdateConnection){
     session.connectionConfiguration().enableReadOnlySessionOnUpdateConnections();
-  }else{
-    session.connectionConfiguration().disableReadOnlySessionOnUpdateConnections();
-  }
-  if( enablePoolAutomaticCleanUp ){
-    session.connectionConfiguration().enablePoolAutomaticCleanUp();
-  }else{
-    session.connectionConfiguration().disablePoolAutomaticCleanUp();
   }
   if(loadBlobStreamer){
     session.sessionConfiguration().setBlobStreamer("");

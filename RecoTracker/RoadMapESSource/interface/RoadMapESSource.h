@@ -12,8 +12,8 @@
 // Created:         Thu Jan 12 21:00:00 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2007/02/05 19:15:00 $
-// $Revision: 1.3 $
+// $Date: 2007/03/01 07:46:29 $
+// $Revision: 1.4 $
 //
 
 // system include files
@@ -50,6 +50,8 @@ class RoadMapESSource : public edm::ESProducer, public edm::EventSetupRecordInte
   std::string fileName_;
 
   std::string ringsLabel_;
+  
+  Roads *roads_;
 
 };
 

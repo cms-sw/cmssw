@@ -45,11 +45,11 @@ void L3MuonAltProducer::produce(Event& event, const EventSetup& eventSetup){
   const string metname = "Muon|RecoMuon|L3MuonAltProducer";
   
   // Take the L3 container
-  LogTrace(metname)<<" Taking the regional track collection: "<<theTrackCollectionLabel;
+  LogTrace(metname)<<" Taking the regional track collection: "<<theTrackCollectionLabel.label();
   Handle<TrackCollection> tracks; 
   event.getByLabel(theTrackCollectionLabel,tracks);
 
-  LogTrace(metname)<<" Taking the StandAlone muon collection: "<<theMuonCollectionLabel;
+  LogTrace(metname)<<" Taking the StandAlone muon collection: "<<theMuonCollectionLabel.label();
   Handle<TrackCollection> muons; 
   event.getByLabel(theMuonCollectionLabel,muons);
 

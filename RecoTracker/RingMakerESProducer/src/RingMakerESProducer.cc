@@ -9,8 +9,8 @@
 // Created:         Tue Oct  3 23:51:34 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2007/02/05 19:09:04 $
-// $Revision: 1.1 $
+// $Date: 2007/03/01 07:43:21 $
+// $Revision: 1.2 $
 //
 
 #include "RecoTracker/RingMakerESProducer/interface/RingMakerESProducer.h"
@@ -31,12 +31,18 @@ RingMakerESProducer::RingMakerESProducer(const edm::ParameterSet& iConfig)
   dumpDetIds_                = iConfig.getUntrackedParameter<bool>("DumpDetIds",false);
   detIdsDumpFileName_        = iConfig.getUntrackedParameter<std::string>("DetIdsDumpFileName","");
   configuration_             = iConfig.getUntrackedParameter<std::string>("Configuration","FULL");
+  
+  rings_ = 0;
 
 }
 
 
 RingMakerESProducer::~RingMakerESProducer()
 {
+  if ( rings_ != 0) {
+    delete rings_;
+  }
+  
 }
 
 
@@ -55,12 +61,12 @@ RingMakerESProducer::produce(const RingRecord& iRecord)
     maker.dumpDetIdsIntoFile(detIdsDumpFileName_);
   }
 
-  Rings *rings = maker.getRings();
+  rings_ = maker.getRings();
   
-  ReturnType pRings(rings) ;
+  ReturnType pRings(rings_) ;
 
   if ( writeOut_ ) {
-    rings->dump(fileName_);
+    rings_->dump(fileName_);
   }
 
   return pRings ;

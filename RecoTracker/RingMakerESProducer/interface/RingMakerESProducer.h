@@ -12,8 +12,8 @@
 // Created:         Tue Oct  3 23:51:34 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2006/03/03 22:23:12 $
-// $Revision: 1.3 $
+// $Date: 2007/02/05 19:09:03 $
+// $Revision: 1.1 $
 //
 
 // system include files
@@ -48,7 +48,7 @@ class RingMakerESProducer : public edm::ESProducer {
   bool        dumpDetIds_;
   std::string detIdsDumpFileName_;
   std::string configuration_;
-
+  Rings       *rings_;
 };
 
 #endif

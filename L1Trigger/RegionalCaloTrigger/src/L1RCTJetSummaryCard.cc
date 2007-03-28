@@ -4,6 +4,10 @@
 #include <iostream>
 using std::cout;
 using std::endl;
+#include <vector>
+using std::vector;
+#include <bitset>
+using std::bitset;
 
 L1RCTJetSummaryCard::L1RCTJetSummaryCard(int crtNo):isolatedEGObjects(4),
 						    nonisolatedEGObjects(4),

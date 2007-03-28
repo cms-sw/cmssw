@@ -6,7 +6,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Candidate.h,v 1.21 2007/02/23 15:50:01 llista Exp $
+ * \version $Id: Candidate.h,v 1.20 2007/02/19 12:59:04 llista Exp $
  *
  */
 #include "DataFormats/Candidate/interface/Particle.h"

@@ -1,7 +1,7 @@
 #ifndef IOMC_BetafuncEvtVtxGenerator_H
 #define IOMC_BetafuncEvtVtxGenerator_H
 
-// $Id: BetafuncEvtVtxGenerator.h,v 1.1 2006/11/09 00:20:59 yumiceva Exp $
+// $Id: BetafuncEvtVtxGenerator.h,v 1.0 2006/07/20 14:34:40 yumiceva Exp $
 /*
 ________________________________________________________________________
 
@@ -51,8 +51,7 @@ public:
 
   /// set beta_star
   void betastar(double m=0) { fbetastar=m; }
-  /// emittance (no the normalized)
-  void emittance(double m=0) { femittance=m; }
+  void emmitance(double m=0) { femmitance=m; }
 
   /// beta function
   double BetaFunction(double z, double z0);
@@ -68,7 +67,7 @@ private:
   double fX0, fY0, fZ0;
   double fSigmaZ;
   double fdxdz, fdydz;
-  double fbetastar, femittance;
+  double fbetastar, femmitance;
   
   CLHEP::RandGauss*  fRandom ;
   

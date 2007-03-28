@@ -5,8 +5,8 @@
  *
  * Digi for Correlated LCT trigger primitives. 
  *
- * $Date: 2006/11/17 17:45:11 $
- * $Revision: 1.9 $
+ * $Date: 2006/06/01 07:48:09 $
+ * $Revision: 1.7 $
  *
  * \author L. Gray, UF
  */
@@ -74,11 +74,9 @@ class CSCCorrelatedLCTDigi
   bool operator != (const CSCCorrelatedLCTDigi &rhs) const
     { return !(this->operator==(rhs)); }
 
-  /// set wiregroup number
-  void setWireGroup(unsigned int wiregroup) {keywire= wiregroup;}
-
  private:
 
+  friend class testCSCDigis;
   uint16_t valid;
   uint16_t quality;
   uint16_t keywire;

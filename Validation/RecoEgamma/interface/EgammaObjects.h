@@ -27,7 +27,10 @@ class EgammaObjects : public edm::EDAnalyzer {
     virtual void endJob();
 
   private:
+    std::string outputFile_;
     TFile*  rootFile_;
+
+    DaqMonitorBEInterface * dbe;
 
     edm::InputTag MCTruthCollection_;
     edm::InputTag RecoCollection_;
@@ -81,87 +84,87 @@ class EgammaObjects : public edm::EDAnalyzer {
     double hist_max_recoMass_;
     int    hist_bins_recoMass_;
     
-    TH1D* hist_Et_;
-    TH1D* hist_EtOverTruth_;
-    TH1D* hist_EtEfficiency_;
-    TH1D* hist_EtNumRecoOverNumTrue_;
-    TH1D* hist_EtOverTruthVsEt_;
-    TH1D* hist_EtOverTruthVsE_;
-    TH1D* hist_EtOverTruthVsEta_;
-    TH1D* hist_EtOverTruthVsPhi_;
-    TH1D* hist_resolutionEtVsEt_;
-    TH1D* hist_resolutionEtVsE_;    
-    TH1D* hist_resolutionEtVsEta_;
-    TH1D* hist_resolutionEtVsPhi_;
+    TH1F* hist_Et_;
+    TH1F* hist_EtOverTruth_;
+    TH1F* hist_EtEfficiency_;
+    TH1F* hist_EtNumRecoOverNumTrue_;
+    TH1F* hist_EtOverTruthVsEt_;
+    TH1F* hist_EtOverTruthVsE_;
+    TH1F* hist_EtOverTruthVsEta_;
+    TH1F* hist_EtOverTruthVsPhi_;
+    TH1F* hist_resolutionEtVsEt_;
+    TH1F* hist_resolutionEtVsE_;    
+    TH1F* hist_resolutionEtVsEta_;
+    TH1F* hist_resolutionEtVsPhi_;
     
-    TH1D* hist_E_;
-    TH1D* hist_EOverTruth_;
-    TH1D* hist_EEfficiency_;
-    TH1D* hist_ENumRecoOverNumTrue_;
-    TH1D* hist_EOverTruthVsEt_;
-    TH1D* hist_EOverTruthVsE_;
-    TH1D* hist_EOverTruthVsEta_;
-    TH1D* hist_EOverTruthVsPhi_;
-    TH1D* hist_resolutionEVsEt_;
-    TH1D* hist_resolutionEVsE_;    
-    TH1D* hist_resolutionEVsEta_;
-    TH1D* hist_resolutionEVsPhi_;
+    TH1F* hist_E_;
+    TH1F* hist_EOverTruth_;
+    TH1F* hist_EEfficiency_;
+    TH1F* hist_ENumRecoOverNumTrue_;
+    TH1F* hist_EOverTruthVsEt_;
+    TH1F* hist_EOverTruthVsE_;
+    TH1F* hist_EOverTruthVsEta_;
+    TH1F* hist_EOverTruthVsPhi_;
+    TH1F* hist_resolutionEVsEt_;
+    TH1F* hist_resolutionEVsE_;    
+    TH1F* hist_resolutionEVsEta_;
+    TH1F* hist_resolutionEVsPhi_;
     
-    TH1D* hist_Eta_;
-    TH1D* hist_EtaOverTruth_;
-    TH1D* hist_EtaEfficiency_;
-    TH1D* hist_EtaNumRecoOverNumTrue_;
-    TH1D* hist_deltaEtaVsEt_;
-    TH1D* hist_deltaEtaVsE_;
-    TH1D* hist_deltaEtaVsEta_;
-    TH1D* hist_deltaEtaVsPhi_;
-    TH1D* hist_resolutionEtaVsEt_;
-    TH1D* hist_resolutionEtaVsE_;    
-    TH1D* hist_resolutionEtaVsEta_;
-    TH1D* hist_resolutionEtaVsPhi_;
+    TH1F* hist_Eta_;
+    TH1F* hist_EtaOverTruth_;
+    TH1F* hist_EtaEfficiency_;
+    TH1F* hist_EtaNumRecoOverNumTrue_;
+    TH1F* hist_deltaEtaVsEt_;
+    TH1F* hist_deltaEtaVsE_;
+    TH1F* hist_deltaEtaVsEta_;
+    TH1F* hist_deltaEtaVsPhi_;
+    TH1F* hist_resolutionEtaVsEt_;
+    TH1F* hist_resolutionEtaVsE_;    
+    TH1F* hist_resolutionEtaVsEta_;
+    TH1F* hist_resolutionEtaVsPhi_;
     
-    TH1D* hist_Phi_;
-    TH1D* hist_PhiOverTruth_;
-    TH1D* hist_PhiEfficiency_;
-    TH1D* hist_PhiNumRecoOverNumTrue_;
-    TH1D* hist_deltaPhiVsEt_;
-    TH1D* hist_deltaPhiVsE_;
-    TH1D* hist_deltaPhiVsEta_;
-    TH1D* hist_deltaPhiVsPhi_;
-    TH1D* hist_resolutionPhiVsEt_;
-    TH1D* hist_resolutionPhiVsE_;    
-    TH1D* hist_resolutionPhiVsEta_;
-    TH1D* hist_resolutionPhiVsPhi_;
+    TH1F* hist_Phi_;
+    TH1F* hist_PhiOverTruth_;
+    TH1F* hist_PhiEfficiency_;
+    TH1F* hist_PhiNumRecoOverNumTrue_;
+    TH1F* hist_deltaPhiVsEt_;
+    TH1F* hist_deltaPhiVsE_;
+    TH1F* hist_deltaPhiVsEta_;
+    TH1F* hist_deltaPhiVsPhi_;
+    TH1F* hist_resolutionPhiVsEt_;
+    TH1F* hist_resolutionPhiVsE_;    
+    TH1F* hist_resolutionPhiVsEta_;
+    TH1F* hist_resolutionPhiVsPhi_;
     
-    TH1D* hist_All_recoMass_;
-    TH1D* hist_BarrelOnly_recoMass_;
-    TH1D* hist_EndcapOnly_recoMass_;
-    TH1D* hist_Mixed_recoMass_;
+    TH1F* hist_All_recoMass_;
+    TH1F* hist_BarrelOnly_recoMass_;
+    TH1F* hist_EndcapOnly_recoMass_;
+    TH1F* hist_Mixed_recoMass_;
 
-    TH1D* hist_recoMass_withBackgroud_NoEtCut_;
-    TH1D* hist_recoMass_withBackgroud_5EtCut_;
-    TH1D* hist_recoMass_withBackgroud_10EtCut_;
-    TH1D* hist_recoMass_withBackgroud_20EtCut_;
+    TH1F* hist_recoMass_withBackgroud_NoEtCut_;
+    TH1F* hist_recoMass_withBackgroud_5EtCut_;
+    TH1F* hist_recoMass_withBackgroud_10EtCut_;
+    TH1F* hist_recoMass_withBackgroud_20EtCut_;
     
-    TH2D* _TEMP_scatterPlot_EtOverTruthVsEt_;
-    TH2D* _TEMP_scatterPlot_EtOverTruthVsE_;
-    TH2D* _TEMP_scatterPlot_EtOverTruthVsEta_;
-    TH2D* _TEMP_scatterPlot_EtOverTruthVsPhi_;
+    TH2F* _TEMP_scatterPlot_EtOverTruthVsEt_;
+    TH2F* _TEMP_scatterPlot_EtOverTruthVsE_;
+    TH2F* _TEMP_scatterPlot_EtOverTruthVsEta_;
+    TH2F* _TEMP_scatterPlot_EtOverTruthVsPhi_;
     
-    TH2D* _TEMP_scatterPlot_EOverTruthVsEt_;
-    TH2D* _TEMP_scatterPlot_EOverTruthVsE_;
-    TH2D* _TEMP_scatterPlot_EOverTruthVsEta_;
-    TH2D* _TEMP_scatterPlot_EOverTruthVsPhi_;
+    TH2F* _TEMP_scatterPlot_EOverTruthVsEt_;
+    TH2F* _TEMP_scatterPlot_EOverTruthVsE_;
+    TH2F* _TEMP_scatterPlot_EOverTruthVsEta_;
+    TH2F* _TEMP_scatterPlot_EOverTruthVsPhi_;
     
-    TH2D* _TEMP_scatterPlot_deltaEtaVsEt_;
-    TH2D* _TEMP_scatterPlot_deltaEtaVsE_;    
-    TH2D* _TEMP_scatterPlot_deltaEtaVsEta_;
-    TH2D* _TEMP_scatterPlot_deltaEtaVsPhi_;
+    TH2F* _TEMP_scatterPlot_deltaEtaVsEt_;
+    TH2F* _TEMP_scatterPlot_deltaEtaVsE_;    
+    TH2F* _TEMP_scatterPlot_deltaEtaVsEta_;
+    TH2F* _TEMP_scatterPlot_deltaEtaVsPhi_;
     
-    TH2D* _TEMP_scatterPlot_deltaPhiVsEt_;
-    TH2D* _TEMP_scatterPlot_deltaPhiVsE_;
-    TH2D* _TEMP_scatterPlot_deltaPhiVsEta_;
-    TH2D* _TEMP_scatterPlot_deltaPhiVsPhi_;
+    TH2F* _TEMP_scatterPlot_deltaPhiVsEt_;
+    TH2F* _TEMP_scatterPlot_deltaPhiVsE_;
+    TH2F* _TEMP_scatterPlot_deltaPhiVsEta_;
+    TH2F* _TEMP_scatterPlot_deltaPhiVsPhi_;
 
     void loadCMSSWObjects(const edm::ParameterSet& ps);
     void loadHistoParameters(const edm::ParameterSet& ps);
@@ -178,7 +181,8 @@ class EgammaObjects : public edm::EDAnalyzer {
     
     void applyLabels(); 
     void setDrawOptions();
-    void saveHistos();
+    void saveHistosToRoot();
+    void covertRootFileToDQMFile();
 
     double findRecoMass(reco::Photon pOne, reco::Photon pTwo);
     double findRecoMass(reco::PixelMatchGsfElectron eOne, reco::PixelMatchGsfElectron eTwo);

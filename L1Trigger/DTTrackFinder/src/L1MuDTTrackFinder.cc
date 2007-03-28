@@ -30,7 +30,9 @@
 // Collaborating Class Headers --
 //-------------------------------
 
+#include <FWCore/Framework/interface/Handle.h>
 #include <FWCore/Framework/interface/Event.h>
+#include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h"
 #include "L1Trigger/DTTrackFinder/src/L1MuDTTFConfig.h"
 #include "L1Trigger/DTTrackFinder/src/L1MuDTSecProcId.h"
 #include "L1Trigger/DTTrackFinder/src/L1MuDTSecProcMap.h"
@@ -151,6 +153,10 @@ void L1MuDTTrackFinder::run(const edm::Event& e) {
 
   // run the barrel Muon Trigger Track Finder
 
+  edm::Handle<L1MuDTChambPhContainer> dttrig;
+  e.getByType(dttrig);
+  if ( dttrig->getContainer()->size() == 0 ) return;
+
   if ( L1MuDTTFConfig::Debug(2) ) cout << endl;
   if ( L1MuDTTFConfig::Debug(2) ) cout << "**** L1MuDTTrackFinder processing ****" << endl;
   if ( L1MuDTTFConfig::Debug(2) ) cout << endl;
@@ -159,6 +165,8 @@ void L1MuDTTrackFinder::run(const edm::Event& e) {
   int bx_max = L1MuDTTFConfig::getBxMax();
 
   for ( int bx = bx_min; bx <= bx_max; bx++ ) {
+
+  if ( dttrig->bxEmpty(bx) ) continue;
 
   if ( L1MuDTTFConfig::Debug(2) ) cout << "L1MuDTTrackFinder processing bunch-crossing : " << bx << endl;
 

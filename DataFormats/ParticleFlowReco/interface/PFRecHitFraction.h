@@ -1,7 +1,6 @@
 #ifndef DataFormats_ParticleFlowReco_PFRecHitFraction_h
 #define DataFormats_ParticleFlowReco_PFRecHitFraction_h
 
-//C these can probably be removed
 #include "Math/GenVector/PositionVector3D.h"
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/Math/interface/Vector3D.h"
@@ -9,18 +8,14 @@
 #include <iostream>
 #include <vector>
 
-//C no more dependance to rechit
 #include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
 
-//C replace rechit pointer by an unsigned
-//C remove DistToCluster stuff
 
 namespace reco {
   
 
   /**\class PFRecHitFraction
-     \brief Fraction of a PFRecHit 
-     (rechits can be shared between several PFCluster's)
+     \brief Fraction of a PFRecHit (rechits can be shared between several PFCluster's)
           
      \author Colin Bernet
      \date   July 2006
@@ -45,23 +40,20 @@ namespace reco {
     
     /// \return pointer to rechit
     const reco::PFRecHit* getRecHit() const {return recHit_;} 
-						
+    
     /// sets distance to cluster
     void   setDistToCluster(double dist) { distance_ = dist;}
     
     /// \return energy fraction
     double getFraction() const {return fraction_;}
     
-    //C remove this function. 
     /// \return recHit_->energy() * fraction_
     double energy() const 
       { return recHit_->energy() * fraction_;}
     
-    //C remove this 
     /// \return distance to cluster
     double getDistToCluster() const {return distance_;}
     
-    //C change the implementation. 
     friend    std::ostream& operator<<(std::ostream& out,
 				       const PFRecHitFraction& hit);
     

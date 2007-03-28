@@ -12,32 +12,20 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DataFormats/L1CaloTrigger/interface/L1CaloCollections.h"
-
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctCollections.h"
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEtSums.h"
 
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctTestAnalyzer.h"
 
-using std::string;
-using std::ios;
+using std::cout;
 using std::endl;
 
 //
 // constructors and destructor
 //
-L1GctTestAnalyzer::L1GctTestAnalyzer(const edm::ParameterSet& iConfig) :
-  rawLabel_( iConfig.getUntrackedParameter<string>("rawLabel", "L1GctRawDigis") ),
-  emuLabel_( iConfig.getUntrackedParameter<string>("emuLabel", "L1GctEmuDigis") ),
-  outFilename_( iConfig.getUntrackedParameter<string>("outFile", "gctAnalyzer.txt") ),
-  doRctEM_( iConfig.getUntrackedParameter<unsigned>("doRctEm", 1) ),
-  doInternEM_( iConfig.getUntrackedParameter<unsigned>("doInternEm", 1) ),
-  doEM_( iConfig.getUntrackedParameter<unsigned>("doEm", 1) ),
-  doJets_( iConfig.getUntrackedParameter<unsigned>("doJets", 0) )
+L1GctTestAnalyzer::L1GctTestAnalyzer(const edm::ParameterSet& iConfig)
 {
-  //now do what ever initialization is needed
-
-  outFile_.open(outFilename_.c_str(), ios::out);
+   //now do what ever initialization is needed
 
 }
 
@@ -47,8 +35,6 @@ L1GctTestAnalyzer::~L1GctTestAnalyzer()
  
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
-
-  outFile_.close();
 
 }
 
@@ -63,131 +49,55 @@ L1GctTestAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 {
    using namespace edm;
 
-   if (doRctEM_!=0) {
-     doRctEM(iEvent, rawLabel_);
-     //doRctEM(iEvent, emuLabel_);
-   }
-   if (doInternEM_!=0) {
-     doInternEM(iEvent, rawLabel_);
-     //doInternEM(iEvent, emuLabel_);
-   }
-   if (doEM_!=0) {
-     doEM(iEvent, rawLabel_);
-     doEM(iEvent, emuLabel_);
-   }
+   // get some GCT digis
 
-   if (doJets_!=0) {
-     doJets(iEvent, rawLabel_);
-     doJets(iEvent, emuLabel_);
-   }
-}
+   Handle<L1GctEmCandCollection> isoEm;
+   Handle<L1GctEmCandCollection> nonIsoEm;
+   Handle<L1GctJetCandCollection> cenJets;
+   Handle<L1GctJetCandCollection> forJets;
+   Handle<L1GctJetCandCollection> tauJets;
 
-void L1GctTestAnalyzer::doEM(const edm::Event& iEvent, string label) {
+   L1GctEmCandCollection::const_iterator ie;
+   L1GctEmCandCollection::const_iterator ne;
+   L1GctJetCandCollection::const_iterator cj;
+   L1GctJetCandCollection::const_iterator fj;
+   L1GctJetCandCollection::const_iterator tj;
 
-  using namespace edm;
+   iEvent.getByLabel("gct","isoEm",isoEm);
+   iEvent.getByLabel("gct","nonIsoEm",nonIsoEm);
+   iEvent.getByLabel("gct","cenJets",cenJets);
+   iEvent.getByLabel("gct","forJets",forJets);
+   iEvent.getByLabel("gct","tauJets",tauJets);
 
-  Handle<L1GctEmCandCollection> isoEm;
-  Handle<L1GctEmCandCollection> nonIsoEm;
+   cout << "Isolated EM objects :" << endl;
+   for (ie=isoEm->begin(); ie!=isoEm->end(); ie++) {
+     cout << (*ie) << endl;
+   } 
+   cout << endl;
 
-  L1GctEmCandCollection::const_iterator ie;
-  L1GctEmCandCollection::const_iterator ne;
-  
-  iEvent.getByLabel(label,"isoEm",isoEm);
-  iEvent.getByLabel(label,"nonIsoEm",nonIsoEm);
+   cout << "Non-isolated EM objects :" << endl;
+   for (ne=nonIsoEm->begin(); ne!=nonIsoEm->end(); ne++) {
+     cout << (*ne) << endl;
+   } 
+   cout << endl;
 
-  outFile_ << "From : " << label << endl;
+   cout << "Central jets :" << endl;
+   for (cj=cenJets->begin(); cj!=cenJets->end(); cj++) {
+     cout << (*cj) << endl;
+   } 
+   cout << endl;
 
-  outFile_ << "Iso EM :" << endl;
-  for (ie=isoEm->begin(); ie!=isoEm->end(); ie++) {
-    outFile_ << (*ie) << endl;
-  } 
-  outFile_ << endl;
-  
-  outFile_ << "Non-iso EM :" << endl;
-  for (ne=nonIsoEm->begin(); ne!=nonIsoEm->end(); ne++) {
-    outFile_ << (*ne) << endl;
-  } 
-  outFile_ << endl;
+   cout << "Forward jets : " << endl;
+   for (fj=forJets->begin(); fj!=forJets->end(); fj++) {
+     cout << (*fj) << endl;
+   } 
+   cout << endl;
 
-}
-
-void L1GctTestAnalyzer::doRctEM(const edm::Event& iEvent, string label) {
-
-  using namespace edm;
-
-  Handle<L1CaloEmCollection> em;
-
-  L1CaloEmCollection::const_iterator e;
- 
-  iEvent.getByLabel(label, "", em);
-
-  outFile_ << "From : " << label << endl;
-
-  outFile_ << "RCT EM :" << endl;
-  for (e=em->begin(); e!=em->end(); e++) {
-    outFile_ << (*e) << endl;
-  } 
-  outFile_ << endl;
-  
-}
-
-
-void L1GctTestAnalyzer::doInternEM(const edm::Event& iEvent, string label) {
-
-  using namespace edm;
-
-  Handle<L1GctInternEmCandCollection> em;
-
-  L1GctInternEmCandCollection::const_iterator e;
-  
-  iEvent.getByLabel(label, "", em);
-
-  outFile_ << "From : " << label << endl;
-
-  outFile_ << "Internal EM :" << endl;
-  for (e=em->begin(); e!=em->end(); e++) {
-    outFile_ << (*e) << endl;
-  } 
-  outFile_ << endl;
-  
-}
-
-
-
-void L1GctTestAnalyzer::doJets(const edm::Event& iEvent, string label) {
-
-  using namespace edm;
-
-  Handle<L1GctJetCandCollection> cenJets;
-  Handle<L1GctJetCandCollection> forJets;
-  Handle<L1GctJetCandCollection> tauJets;
-  
-  L1GctJetCandCollection::const_iterator cj;
-  L1GctJetCandCollection::const_iterator fj;
-  L1GctJetCandCollection::const_iterator tj;
-  
-  
-  iEvent.getByLabel(label,cenJets);
-  iEvent.getByLabel(label,"forJets",forJets);
-  iEvent.getByLabel(label,"tauJets",tauJets);
-  
-  outFile_ << "Central jets :" << endl;
-  for (cj=cenJets->begin(); cj!=cenJets->end(); cj++) {
-    outFile_ << (*cj) << endl;
-  } 
-  outFile_ << endl;
-  
-  outFile_ << "Forward jets : " << endl;
-  for (fj=forJets->begin(); fj!=forJets->end(); fj++) {
-    outFile_ << (*fj) << endl;
-  } 
-  outFile_ << endl;
-  
-  outFile_ << "Tau jets :" << endl;
-  for (tj=tauJets->begin(); tj!=tauJets->end(); tj++) {
-    outFile_ << (*tj) << endl;
-  } 
-  outFile_ << endl;
-  
+   cout << "Tau jets :" << endl;
+   for (tj=tauJets->begin(); tj!=tauJets->end(); tj++) {
+     cout << (*tj) << endl;
+   } 
+   cout << endl;
 
 }
+
