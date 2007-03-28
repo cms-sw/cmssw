@@ -16,7 +16,9 @@
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 #include "SimDataFormats/Track/interface/SimTrack.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "CLHEP/HepMC/GenEvent.h"
+#include "CLHEP/HepMC/GenVertex.h"
+
 
 
 #include <iostream>
