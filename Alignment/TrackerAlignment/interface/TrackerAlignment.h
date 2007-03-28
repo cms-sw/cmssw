@@ -12,6 +12,8 @@
 
 class TrackerAlignment{
  
+  typedef Surface::RotationType RotationType;
+ 
 public:
   TrackerAlignment( const edm::EventSetup& setup );
 	
@@ -25,14 +27,16 @@ public:
   void moveAlignableInnerHalfBarrels( int rawId, std::vector<float> localDisplacements, std::vector<float> localRotations  );
   void moveAlignableOuterHalfBarrels( int rawId, std::vector<float> localDisplacements, std::vector<float> localRotations  );	
   void moveAlignableTIDs( int rawId, std::vector<float> localDisplacements, std::vector<float> localRotations  );
+  void moveAlignableTIBTIDs( int rawId, std::vector<float> globalDisplacements,  RotationType rotation, std::vector<double> APEvector );
   
   void saveToDB();
   int rawid;
   
   std::vector<float> local_displacements;
-  
+  std::vector<float> globalDisplacements;
+  std::vector<double> APEvector;
   std::vector<float> local_rotations;
-	
+  RotationType rotation;	
   
 private:  
   AlignableTracker* theAlignableTracker;

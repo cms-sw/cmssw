@@ -631,7 +631,18 @@ std::vector<Alignable*> AlignableTracker::barrelGeomDets()
 
 }
 
+//--------------------------------------------------------------------------------------------------
+std::vector<Alignable*> AlignableTracker::TIBTIDGeomDets()
+{
 
+  std::vector<Alignable*> ib = innerBarrelGeomDets();
+  std::vector<Alignable*> tid = TIDGeomDets();
+  std::vector<Alignable*> result( ib.size() + tid.size() );
+  merge( ib.begin(), ib.end(), tid.begin(), tid.end(), result.begin() );
+
+  return result;
+
+}
 //--------------------------------------------------------------------------------------------------
 std::vector<Alignable*> AlignableTracker::outerBarrelGeomDets()
 {

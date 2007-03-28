@@ -73,6 +73,8 @@ public:
 
   /// Return inner and outer barrel GeomDets together 
   std::vector<Alignable*> barrelGeomDets(); 
+  /// Return inner barrel and TID GeomDets together 
+  std::vector<Alignable*> TIBTIDGeomDets(); 
   /// Return inner barrel GeomDets 
   std::vector<Alignable*> innerBarrelGeomDets();
   /// Return outer barrel GeomDets

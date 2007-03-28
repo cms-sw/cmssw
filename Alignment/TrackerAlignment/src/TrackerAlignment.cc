@@ -230,7 +230,39 @@ void TrackerAlignment::moveAlignableTIDs( int rawid , std::vector<float> local_d
 	}
 }
 
+//__________________________________________________________________
+//
+void TrackerAlignment::moveAlignableTIBTIDs( int rawId, std::vector<float> globalDisplacements, RotationType rotation, std::vector<double> APEvector ){
 
+        // Displace and rotate TIB and TID
+	std::vector<Alignable*> theTIBTIDAlignables = theAlignableTracker->TIBTIDGeomDets();
+	for ( std::vector<Alignable*>::iterator iter = theTIBTIDAlignables.begin(); 
+          iter != theTIBTIDAlignables.end(); ++iter )
+	  { 
+	    
+	    // Get the raw ID of the associated GeomDet
+	    int id = (*iter)->geomDetId().rawId();
+	    
+	    // Select the given module
+	    if ( id == rawId ){
+	      
+	      // global displacement 
+	      GlobalVector gvector (globalDisplacements.at(0), globalDisplacements.at(1), globalDisplacements.at(2));
+	      (*iter)->move( gvector );
+	      
+	      // local rotation 
+	      // (*iter)->rotateAroundLocalX( eulerAngles.at(0) ); // Local X axis rotation
+	      // (*iter)->rotateAroundLocalZ( eulerAngles.at(1) ); // Local Z axis rotation
+	      // (*iter)->rotateAroundLocalX( eulerAngles.at(2) ); // Local X axis rotation
+	      (*iter)->rotateInLocalFrame( rotation );
+      
+              // APE
+              AlignmentPositionError theAPE ( APEvector.at(0), APEvector.at(1), APEvector.at(2));
+              (*iter)->setAlignmentPositionError( theAPE );     
+	      (*iter)->addAlignmentPositionErrorFromLocalRotation( rotation );  
+	    }
+      }
+}
 //__________________________________________________________________
 //
 void TrackerAlignment::saveToDB(void){
