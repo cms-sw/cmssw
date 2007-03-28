@@ -38,11 +38,26 @@ class DDHCalBarrelAlgo : public DDAlgorithm {
   int         getLayerAbsorb(unsigned int i)  const {return layerAbsorb[i];}
   double      getLayerGap(unsigned int i)     const {return layerGap[i];}
 
+  std::string getSideMat(unsigned int i)      const {return sideMat[i];}
+  double      getSideD(unsigned int i)        const {return sideD[i];}
+  double      getSideT(unsigned int i)        const {return sideT[i];}
+  int         getSideAbsorber()               const {return nSideAbs;}
+  std::string getSideAbsName(unsigned int i)  const {return sideAbsName[i];}
+  std::string getSideAbsMat(unsigned int i)   const {return sideAbsMat[i];}
+  double      getSideAbsW(unsigned int i)     const {return sideAbsW[i];}
+
+  int         getAbsorberN()                  const {return nAbsorber;}
   std::string getAbsorbName(unsigned int i)   const {return absorbName[i];}
   std::string getAbsorbMat(unsigned int i)    const {return absorbMat[i];}
   double      getAbsorbD(unsigned int i)      const {return absorbD[i];}
-  double      getAbsorbAlpha(unsigned int i)  const {return absorbAlpha[i];}
   double      getAbsorbT(unsigned int i)      const {return absorbT[i];}
+  std::string getMiddleMat()                  const {return middleMat;}
+  double      getMiddleD()                    const {return middleD;}
+  double      getMiddleW()                    const {return middleW;}
+  int         getMidAbsorber()                const {return nMidAbs;}
+  std::string getMidAbsName(unsigned int i)   const {return midName[i];}
+  std::string getMidAbsMat(unsigned int i)    const {return midMat[i];}
+  double      getMidAbsW(unsigned int i)      const {return midW[i];}
 
   std::string getDetMat()                     const {return detMat;}
   std::string getDetMatPl()                   const {return detMatPl;}
@@ -57,10 +72,10 @@ class DDHCalBarrelAlgo : public DDAlgorithm {
   int         getDetPosY(unsigned int i)      const {return detPosY[i];}
 
   void initialize(const DDNumericArguments & nArgs,
-			  const DDVectorArguments & vArgs,
-			  const DDMapArguments & mArgs,
-			  const DDStringArguments & sArgs,
-			  const DDStringVectorArguments & vsArgs);
+		  const DDVectorArguments & vArgs,
+		  const DDMapArguments & mArgs,
+		  const DDStringArguments & sArgs,
+		  const DDStringVectorArguments & vsArgs);
 
   void execute();
 
@@ -71,6 +86,10 @@ protected:
   void constructInsideLayers(DDLogicalPart laylog, std::string name, int id, 
 			     int nAbs, double rin, double d1, double alpha1, 
 			     double d2, double alpha2, double t);
+  DDLogicalPart constructSideLayer(DDLogicalPart laylog, std::string nm,
+				   int nAbs, double rin, double alpha);
+  DDLogicalPart constructMidLayer(DDLogicalPart laylog, std::string nm,
+				  double rin, double alpha);
   void constructInsideDetectors(DDLogicalPart detector,
 				std::string name, int id, double dx, 
 				double dy, double dz, int type);
@@ -138,12 +157,27 @@ private:
   std::vector<int>         layerAbsorb; //Absorber flag
   std::vector<double>      layerGap;    //Gap at the edge
 
+  int                      nAbsorber;   //Number of absorber layers in middle
   std::vector<std::string> absorbName;  //Absorber name
   std::vector<std::string> absorbMat;   //Absorber material
-  std::vector<double>      absorbD;     //Distance from the bottom layer surface
-  std::vector<double>      absorbAlpha; //Angular extent
+  std::vector<double>      absorbD;     //Distance from the bottom surface
   std::vector<double>      absorbT;     //Thickness
-  
+  std::string              middleMat;   //Material of the detector layer
+  double                   middleD;     //Distance from the bottom surface
+  double                   middleW;     //Half width
+  int                      nMidAbs;     //Number of absorbers in front part
+  std::vector<std::string> midName;     //Absorber names in the front part
+  std::vector<std::string> midMat;      //Absorber material
+  std::vector<double>      midW;        //Half width
+
+  std::vector<std::string> sideMat;     //Material for special side layers
+  std::vector<double>      sideD;       //Depth from bottom surface
+  std::vector<double>      sideT;       //Thickness
+  int                      nSideAbs;    //Number of absorbers in special side
+  std::vector<std::string> sideAbsName; //Absorber name
+  std::vector<std::string> sideAbsMat;  //Absorber material
+  std::vector<double>      sideAbsW;    //Half width
+
   // Detectors. Each volume inside the layer has the shape:
   //
   // ******************************* |
