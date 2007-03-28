@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripModule.cc,v 1.10 2007/03/21 09:54:21 bainbrid Exp $
+// Last commit: $Id: SiStripModule.cc,v 1.11 2007/03/28 09:13:33 bainbrid Exp $
 
 #include "CalibFormats/SiStripObjects/interface/SiStripModule.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
@@ -338,7 +338,7 @@ void SiStripModule::print( std::stringstream& ss ) const {
      << nApvPairs() << std::endl;
   
   FedCabling channels = fedChannels();
-  ss << " ApvPairNum/FedId/FedCh    : " << channels.size() << " ";
+  ss << " ApvPairNum/FedId/FedCh    : ";
   FedCabling::const_iterator ichan = channels.begin();
   for ( ; ichan != channels.end(); ichan++ ) {
     ss << ichan->first << "/"
