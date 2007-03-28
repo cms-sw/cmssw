@@ -7,12 +7,14 @@
 
 #include "DumpDBToFile.h"
 #include "DumpFileToDB.h"
-#include "ProduceFakeMap.h"
+//#include "DTT0Analyzer.h"
+#include "ProduceFakeDB.h"
 
 
 DEFINE_SEAL_MODULE();
 DEFINE_ANOTHER_FWK_MODULE(DumpDBToFile);
 DEFINE_ANOTHER_FWK_MODULE(DumpFileToDB);
-DEFINE_ANOTHER_FWK_MODULE(ProduceFakeMap);
+//DEFINE_ANOTHER_FWK_MODULE(DTT0Analyzer);
+DEFINE_ANOTHER_FWK_MODULE(ProduceFakeDB);
 
 
