@@ -62,10 +62,12 @@ It provides the following classes:
 - DTMeanTimerPlotter: for interactive plot of meantimer histograms
 - DTMeanTimerBoxFitter: for the fit of the meantimer histograms using exactly the same code used by DTVDriftCalibration module.
 
-Some utilities are available to write DB in a textual file and viceversa
+Some utilities are available to manage and analyze the DB content
 - DumpDBToFile and DumpFileToDB can manage channels map, noise, t0, ttrig and vdrift databases. 
 They use the DTCalibrationMap class to manage calibration constants with different <br>
 granularity (by wire, by SL, by chamber)
+- ProduceFakeDB produce t0, ttrig and vdrift DB with everywhere the same values set in the cfg
+- DTT0Analyzer make plots of the t0 contained in a DB and it saved them in a root file
 
 \section status Status and planned development
 <!-- e.g. completed, stable, missing features -->
