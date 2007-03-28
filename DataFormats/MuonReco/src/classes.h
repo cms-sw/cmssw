@@ -1,9 +1,11 @@
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonWithMatchInfo.h"
+#include "DataFormats/MuonReco/interface/Direction.h"
 #include "DataFormats/MuonReco/interface/MuIsoDeposit.h"
 #include "DataFormats/Common/interface/AssociationMap.h"
 #include <vector>
+#include <map>
 
 namespace {
   namespace {
@@ -14,6 +16,7 @@ namespace {
     edm::RefVector<std::vector<reco::Muon> > rv1;
     edm::reftobase::Holder<reco::Candidate, reco::MuonRef> rb1;
 
+    std::multimap<muonisolation::Direction::Distance,float> v2b;
     std::vector<reco::MuIsoDeposit> v2;
     edm::Wrapper<std::vector<reco::MuIsoDeposit> > c2;
     edm::Ref<std::vector<reco::MuIsoDeposit> > r2;

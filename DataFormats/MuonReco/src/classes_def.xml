@@ -31,4 +31,9 @@
       <field name="transientMap_" transient="true" />
   </class>
   <class name="edm::Wrapper<edm::AssociationMap<edm::OneToValue<std::vector<reco::Track>, reco::MuIsoDeposit, unsigned int > > >" />
+  <class name="muonisolation::Direction"/>
+  <class name="muonisolation::Direction::Distance"/>
+  <class name="reco::MuIsoDeposit::Veto"/>
+  <class name="std::multimap<muonisolation::Direction::Distance,float>"/>
 </lcgdict>
+
