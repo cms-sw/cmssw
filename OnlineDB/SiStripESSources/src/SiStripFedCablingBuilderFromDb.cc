@@ -1,5 +1,5 @@
-// Last commit: $Id: SiStripFedCablingBuilderFromDb.cc,v 1.31 2007/03/19 10:45:22 bainbrid Exp $
-// Latest tag:  $Name: TIF_190307 $
+// Last commit: $Id: SiStripFedCablingBuilderFromDb.cc,v 1.32 2007/03/19 13:23:07 bainbrid Exp $
+// Latest tag:  $Name: TIF_210307 $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripESSources/src/SiStripFedCablingBuilderFromDb.cc,v $
 
 #include "OnlineDB/SiStripESSources/interface/SiStripFedCablingBuilderFromDb.h"
@@ -76,7 +76,7 @@ SiStripFedCabling* SiStripFedCablingBuilderFromDb::makeFedCabling() {
       SiStripFecCabling fec_cabling;
       SiStripConfigDb::DcuDetIdMap dcu_detid_map;
       buildFecCabling( db_, fec_cabling, dcu_detid_map, source_ );
-
+      
       // Populate FED cabling object
       getFedCabling( fec_cabling, *fed_cabling );
       
@@ -257,9 +257,9 @@ void SiStripFedCablingBuilderFromDb::buildFecCablingFromFedConnections( SiStripC
 
   SiStripConfigDb::FedConnections::const_iterator ifed = conns.begin();
   for ( ; ifed != conns.end(); ifed++ ) {
-    uint16_t fec_crate = static_cast<uint16_t>( (*ifed)->getFecInstance() );
+    uint16_t fec_crate = static_cast<uint16_t>( (*ifed)->getFecInstance() + sistrip::FEC_CRATE_OFFSET ); //@@ temporary offset!
     uint16_t fec_slot  = static_cast<uint16_t>( (*ifed)->getSlot() );
-    uint16_t fec_ring  = static_cast<uint16_t>( (*ifed)->getRing() );
+    uint16_t fec_ring  = static_cast<uint16_t>( (*ifed)->getRing() + sistrip::FEC_RING_OFFSET ); //@@ temporary offset!
     uint16_t ccu_addr  = static_cast<uint16_t>( (*ifed)->getCcu() );
     uint16_t ccu_chan  = static_cast<uint16_t>( (*ifed)->getI2c() );
     uint16_t apv0      = static_cast<uint16_t>( (*ifed)->getApv() );
@@ -268,14 +268,14 @@ void SiStripFedCablingBuilderFromDb::buildFecCablingFromFedConnections( SiStripC
     uint32_t det_id    = static_cast<uint32_t>( (*ifed)->getDetId() );
     uint16_t npairs    = static_cast<uint16_t>( (*ifed)->getApvPairs() );
     uint16_t fed_id    = static_cast<uint16_t>( (*ifed)->getFedId() );
-    uint16_t fed_ch    = static_cast<uint16_t>( (*ifed)->getFedChannel() );
+    uint16_t fed_ch    = static_cast<uint16_t>( (*ifed)->getFedChannel() ); // "internal" numbering scheme
     FedChannelConnection conn( fec_crate, fec_slot, fec_ring, ccu_addr, ccu_chan,
 			       apv0, apv1,
 			       dcu_id, det_id, npairs,
 			       fed_id, fed_ch );
     fec_cabling.addDevices( conn );
   }
-
+  
   // ---------- Assign DCU and DetIds and then FED cabling ----------
   
   assignDcuAndDetIds( fec_cabling, cached_map, used_map );
@@ -643,7 +643,7 @@ void SiStripFedCablingBuilderFromDb::assignDcuAndDetIds( SiStripFecCabling& fec_
 	      if ( iter != in.end() ) { 
 
 		// --- Assign DetId and set nApvPairs based on APVs found in given Module ---
-
+		
 		module.detId( iter->second->getDetId() ); 
 		module.nApvPairs(0); 
 		
@@ -654,7 +654,7 @@ void SiStripFedCablingBuilderFromDb::assignDcuAndDetIds( SiStripFecCabling& fec_
 		   << " from static table for module with DCU id 0x"
 		   << hex << setw(8) << setfill('0') << module.dcuId() << dec;
 		LogTrace(mlCabling_) << ss.str();
-
+		
 		// --- Check number of APV pairs is valid and consistent with cached map ---
 
 		if ( module.nApvPairs() != 2 &&
