@@ -1,7 +1,7 @@
 /** \file 
  *
- *  $Date: 2007/03/26 14:37:04 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/03/26 17:17:45 $
+ *  $Revision: 1.3 $
  *  \author S. Bolognesi - M. Zanetti
  */
 
@@ -19,7 +19,6 @@
 #include <iostream>
 #include <string>
 #include <sys/time.h>
-
 
 using namespace edm;
 using namespace std;
@@ -48,18 +47,10 @@ DQMEventSource::DQMEventSource(const ParameterSet& pset,
   if (getQualityTestsFromFile)
     qtHandler->configureTests(pset.getUntrackedParameter<string>("qtList", "QualityTests.xml"),mui);
 
-  iRunMEName = pset.getUntrackedParameter<string>("iRunMEName", "Collector/FU0/iRun");
-  iEventMEName = pset.getUntrackedParameter<string>("iEventMEName", "Collector/FU0/iEvent");
-  timeStampMEName = pset.getUntrackedParameter<string>("timeStampMEName", "Collector/FU0/timeStamp");
+  iRunMEName = pset.getUntrackedParameter<string>("iRunMEName", "Collector/FU0/EventInfo/iRun");
+  iEventMEName = pset.getUntrackedParameter<string>("iEventMEName", "Collector/FU0/EventInfo/iEvent");
+  timeStampMEName = pset.getUntrackedParameter<string>("timeStampMEName", "Collector/FU0/EventInfo/timeStamp");
 
-  subscriber->makeSubscriptions(mui);
-  
-  // getting the run coordinates 
-  RunNumber_t iRun = 0;
-  MonitorElementInt * iRun_p = dynamic_cast<MonitorElementInt*>(mui->get(iRunMEName));
-  if (iRun_p) iRun = iRun_p->getValue(); 
-
-  setRunNumber(iRun);
 
 }
 
@@ -69,20 +60,26 @@ std::auto_ptr<Event> DQMEventSource::readOneEvent() {
   // the "onUpdate" call. 
   mui->doMonitoring();
 
+  subscriber->makeSubscriptions(mui);
 
   if (getQualityTestsFromFile) qtHandler->attachTests(mui);
+  
+  // getting the run coordinates 
+  RunNumber_t iRun = 0;
+  MonitorElementInt * iRun_p = dynamic_cast<MonitorElementInt*>(mui->get(iRunMEName));
+  if (iRun_p) iRun = iRun_p->getValue(); 
+  setRunNumber(iRun); // <<=== here is where the run is set
 
   EventNumber_t iEvent = 0;
   MonitorElementInt * iEvent_p = dynamic_cast<MonitorElementInt*>(mui->get(iEventMEName));
   if (iEvent_p) iEvent = iEvent_p->getValue(); 
-  else iEvent=updatesCounter;
+  else iEvent=updatesCounter; // if the event is not received set number of updates as eventId 
 
   TimeValue_t tStamp = 0;
   MonitorElementInt * tStamp_p = dynamic_cast<MonitorElementInt*>(mui->get(timeStampMEName));
   if (tStamp_p) tStamp = tStamp_p->getValue(); 
   else tStamp = 1;
   
-  RunNumber_t iRun = 0; // fake 
   EventID eventId(iRun,iEvent);
   Timestamp timeStamp (tStamp);
 
