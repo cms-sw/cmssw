@@ -1,6 +1,11 @@
 <?xml version="1.0"?>
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../DDLSchema/DDLSchema.xsd">
 
+<RotationSection label="mf.xml">
+ <Rotation name="RotYZaroundX90" phiX="0"      thetaX="90*deg"
+                                 phiY="0"      thetaY="180*deg"
+                                 phiZ="90*deg" thetaZ="90*deg" />
+</RotationSection>
 <SolidSection label="mf.xml">
  <Polycone name="ME" startPhi="0*deg" deltaPhi="360*deg" >
   <ZSection z="5.541*m  "  rMin="55.41*cm "  rMax="2.95*m  " />
@@ -49,6 +54,8 @@
  <Trd1 name="ME1A_ActiveGasVol" dz="21.5*cm " dy1="2.8*mm " dy2="2.8*mm " dx1="9.361*cm " dx2="13.123*cm " />
  <Trd1 name="ME11_ActiveGasVol" dz="52.75*cm " dy1="2.8*mm " dy2="2.8*mm " dx1="13.123*cm " dx2="22.353*cm " />
  <Box name="MEEQ" dx="15*cm " dy="2.5*cm " dz="30*cm "/>
+ <Tubs name="AlgPinNarrowEnd" rMin="0*mm " rMax="4.06*mm " dz="18.8*mm " startPhi="0*deg" deltaPhi="360*deg"/>
+ <Tubs name="AlgPinWideEnd" rMin="0*mm " rMax="4.06*mm " dz="18.8*mm " startPhi="0*deg" deltaPhi="360*deg"/>
  <Tubs name="RR11" rMin="1.3*m  " rMax="2.51*m  " dz="4.5*cm " startPhi="0*deg" deltaPhi="360*deg"/>
  <Tubs name="RT1A" rMin="1.35*m  " rMax="2.46*m  " dz="2*cm " startPhi="-8*deg" deltaPhi="16*deg"/>
  <Trd1 name="RFAX" dz="52.6*cm " dy1="5.5*mm " dy2="5.5*mm " dx1="12.028*cm " dx2="21.233*cm " />
@@ -142,7 +149,7 @@
  <Trd1 name="REF3" dz="30.2*cm " dy1="1*mm " dy2="1*mm " dx1="44.041*cm " dx2="49.325*cm " />
  <Tubs name="ME22Space" rMin="3.575*m  " rMax="6.9968*m  " dz="12.6*cm " startPhi="0*deg" deltaPhi="360*deg"/>
  <Trd1 name="ME22" dz="1.6875*m  " dy1="12.5*cm " dy2="12.5*cm " dx1="44.585*cm " dx2="76.34*cm " />
- <Trd1 name="ME22AlumFrame" dz="1.6875*m  " dy1="8.614*cm " dy2="8.614*cm " dx1="44.585*cm " dx2="76.34*cm " />
+ <Trd1 name="ME22AlumFrame" dz="1.6900*m  " dy1="8.614*cm " dy2="8.614*cm " dx1="44.585*cm " dx2="76.34*cm " />
  <Trd1 name="ME22FR4Body" dz="1.6875*m  " dy1="8.414*cm " dy2="8.414*cm " dx1="44.585*cm " dx2="76.34*cm " />
  <Trd1 name="ME22PolycarbPanel" dz="1.67095*m  " dy1="8.414*cm " dy2="8.414*cm " dx1="41.95*cm " dx2="73.345*cm " />
  <Trd1 name="ME_FR4Skin_1_ME22Layer" dz="1.67095*m  " dy1="794*mum" dy2="794*mum" dx1="41.95*cm " dx2="73.345*cm " />
@@ -333,6 +340,14 @@
  <LogicalPart name="MEEQ" category="unspecified">
   <rSolid name="MEEQ"/>
   <rMaterial name="materials:FrontEnd Electronics"/>
+ </LogicalPart>
+<LogicalPart name="AlgPinNarrowEnd" category="unspecified">
+  <rSolid name="AlgPinNarrowEnd"/>
+  <rMaterial name="materials:StainlessSteel"/>
+ </LogicalPart>
+<LogicalPart name="AlgPinWideEnd" category="unspecified">
+  <rSolid name="AlgPinWideEnd"/>
+  <rMaterial name="materials:StainlessSteel"/>
  </LogicalPart>
  <LogicalPart name="RR11" category="unspecified">
   <rSolid name="RR11"/>
@@ -1222,6 +1237,90 @@
    <rChild name="mf:MEEQ"/>
   <rRotation name="rotations:000D"/>
   <Translation x="0*fm " y="-9.614*cm " z="0*fm " />
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="mf:ME12"/>
+   <rChild name="mf:AlgPinNarrowEnd"/>
+  <rRotation name="RotYZaroundX90"/>
+  <Translation x="0*fm " y="-8.994*cm " z="-90.26*cm " />
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="mf:ME12"/>
+   <rChild name="mf:AlgPinWideEnd"/>
+  <rRotation name="RotYZaroundX90"/>
+  <Translation x="0*fm " y="-8.994*cm " z="90.26*cm " />
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="mf:ME13"/>
+   <rChild name="mf:AlgPinNarrowEnd"/>
+  <rRotation name="RotYZaroundX90"/>
+  <Translation x="0*fm " y="-8.994*cm " z="-85.20*cm " />
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="mf:ME13"/>
+   <rChild name="mf:AlgPinWideEnd"/>
+  <rRotation name="RotYZaroundX90"/>
+  <Translation x="0*fm " y="-8.994*cm " z="85.21*cm " />
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="mf:ME21"/>
+   <rChild name="mf:AlgPinNarrowEnd"/>
+  <rRotation name="RotYZaroundX90"/>
+  <Translation x="0*fm " y="-8.994*cm " z="-97.85*cm " />
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="mf:ME21"/>
+   <rChild name="mf:AlgPinWideEnd"/>
+  <rRotation name="RotYZaroundX90"/>
+  <Translation x="0*fm " y="-8.994*cm " z="97.86*cm " />
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="mf:ME22"/>
+   <rChild name="mf:AlgPinNarrowEnd"/>
+  <rRotation name="RotYZaroundX90"/>
+  <Translation x="0*fm " y="-8.994*cm " z="-164.56*cm " />
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="mf:ME22"/>
+   <rChild name="mf:AlgPinWideEnd"/>
+  <rRotation name="RotYZaroundX90"/>
+  <Translation x="0*fm " y="-8.994*cm " z="164.55*cm " />
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="mf:ME31"/>
+   <rChild name="mf:AlgPinNarrowEnd"/>
+  <rRotation name="RotYZaroundX90"/>
+  <Translation x="0*fm " y="-8.994*cm " z="-87.87*cm " />
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="mf:ME31"/>
+   <rChild name="mf:AlgPinWideEnd"/>
+  <rRotation name="RotYZaroundX90"/>
+  <Translation x="0*fm " y="-8.994*cm " z="87.87*cm " />
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="mf:ME32"/>
+   <rChild name="mf:AlgPinNarrowEnd"/>
+  <rRotation name="RotYZaroundX90"/>
+  <Translation x="0*fm " y="-8.994*cm " z="-164.56*cm " />
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="mf:ME32"/>
+   <rChild name="mf:AlgPinWideEnd"/>
+  <rRotation name="RotYZaroundX90"/>
+  <Translation x="0*fm " y="-8.994*cm " z="164.55*cm " />
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="mf:ME41"/>
+   <rChild name="mf:AlgPinNarrowEnd"/>
+  <rRotation name="RotYZaroundX90"/>
+  <Translation x="0*fm " y="-8.994*cm " z="-77.89*cm " />
+ </PosPart>
+ <PosPart copyNumber="1">
+   <rParent name="mf:ME41"/>
+   <rChild name="mf:AlgPinWideEnd"/>
+  <rRotation name="RotYZaroundX90"/>
+  <Translation x="0*fm " y="-8.994*cm " z="77.89*cm " />
  </PosPart>
  <PosPart copyNumber="1">
    <rParent name="mf:ME1Ring"/>
