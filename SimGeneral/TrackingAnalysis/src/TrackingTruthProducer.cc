@@ -289,6 +289,7 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
   } // Loop on MixCollection<SimVertex>
 
 // Find HepMC vertices, put them in a close TrackingVertex (this could conceivably add the same GenVertex to multiple TrackingVertices)
+/*
   for (HepMC::GenEvent::vertex_const_iterator genVIt = genEvent->vertices_begin(); genVIt != genEvent->vertices_end(); ++genVIt) {
     HepMC::FourVector rawPos = (**genVIt).position();
     // Convert to cm
@@ -301,7 +302,7 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
         for (tvGenVIt = iTrkVtx->genVertices_begin(); tvGenVIt != iTrkVtx->genVertices_end(); ++tvGenVIt) {
           if ((**genVIt).barcode()  == (**tvGenVIt).barcode()) {
             break;
-          }  
+          }
         }
         if (tvGenVIt== iTrkVtx->genVertices_end() ) {
           iTrkVtx->addGenVertex(GenVertexRef(hepMC,(**genVIt).barcode())); // Add HepMC vertex
@@ -309,7 +310,7 @@ void TrackingTruthProducer::produce(Event &event, const EventSetup &) {
       }
     }
   }
-
+*/
   edm::LogInfo(MessageCategory) << "TrackingTruthProducer found "  << tVC -> size()
                                 << " unique vertices and " << tPC -> size() << " tracks.";
 
