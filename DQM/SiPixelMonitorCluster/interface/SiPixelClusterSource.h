@@ -16,7 +16,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelClusterSource.h,v 1.2 2006/07/13 09:48:48 chiochia Exp $
+// $Id: SiPixelClusterSource.h,v 1.1 2007/03/23 22:16:24 andrewdc Exp $
 //
 
 #include <memory>
@@ -39,7 +39,7 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"

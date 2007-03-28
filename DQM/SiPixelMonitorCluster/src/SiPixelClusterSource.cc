@@ -14,14 +14,13 @@
 // Original Author:  Vincenzo Chiochia
 //                   
 //         Created:  
-// $Id: SiPixelClusterSource.cc,v 1.7 2007/02/02 08:53:26 chiochia Exp $
+// $Id: SiPixelClusterSource.cc,v 1.1 2007/03/23 22:16:25 andrewdc Exp $
 //
 //
 #include "DQM/SiPixelMonitorCluster/interface/SiPixelClusterSource.h"
 // Framework
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
 // DQM Framework
