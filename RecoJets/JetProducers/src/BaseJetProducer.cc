@@ -1,6 +1,6 @@
 // File: BaseJetProducer.cc
 // Author: F.Ratnikov UMd Aug 22, 2006
-// $Id: BaseJetProducer.cc,v 1.10 2007/03/26 20:42:27 fedor Exp $
+// $Id: BaseJetProducer.cc,v 1.11 2007/03/26 22:05:40 fedor Exp $
 //--------------------------------------------
 #include <memory>
 
@@ -8,7 +8,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/View.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/Common/interface/ProductID.h"
+#include "DataFormats/Provenance/interface/ProductID.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/JetReco/interface/CaloJet.h"
