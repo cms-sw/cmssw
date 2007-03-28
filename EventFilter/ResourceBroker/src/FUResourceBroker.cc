@@ -93,6 +93,7 @@ FUResourceBroker::FUResourceBroker(xdaq::ApplicationStub *s)
   , doDropEvents_(false)
   , doFedIdCheck_(true)
   , doCrcCheck_(1)
+  , doDumpEvents_(0)
   , buClassName_("BU")
   , buInstance_(0)
   , smClassName_("StorageManager")
@@ -188,6 +189,8 @@ bool FUResourceBroker::configuring(toolbox::task::WorkLoop* wl)
 				       dqmCellSize_.value_,
 				       bu_,sm_,
 				       log_);
+    resourceTable_->setDoCrcCheck(doCrcCheck_);
+    resourceTable_->setDoDumpEvents(doDumpEvents_);
     resourceTable_->resetCounters();
     reset();
     LOG4CPLUS_INFO(log_, "Finished configuring!");
@@ -389,6 +392,7 @@ void FUResourceBroker::actionPerformed(xdata::Event& e)
     
     if (item=="doFedIdCheck") FUResource::doFedIdCheck(doFedIdCheck_);
     if (item=="doCrcCheck")   resourceTable_->setDoCrcCheck(doCrcCheck_);
+    if (item=="doDumpEvents") resourceTable_->setDoCrcCheck(doDumpEvents_);
     if (item=="runNumber") {
       resourceTable_->reset();
       gui_->resetCounters();
@@ -575,6 +579,7 @@ void FUResourceBroker::exportParameters()
   gui_->addStandardParam("doDropEvents",            &doDropEvents_);
   gui_->addStandardParam("doFedIdCheck",            &doFedIdCheck_);
   gui_->addStandardParam("doCrcCheck",              &doCrcCheck_);
+  gui_->addStandardParam("doDumpEvents",            &doDumpEvents_);
   gui_->addStandardParam("buClassName",             &buClassName_);
   gui_->addStandardParam("buInstance",              &buInstance_);
   gui_->addStandardParam("smClassName",             &smClassName_);
@@ -604,6 +609,7 @@ void FUResourceBroker::exportParameters()
   
   gui_->addItemChangedListener("doFedIdCheck",      this);
   gui_->addItemChangedListener("doCrcCheck",        this);
+  gui_->addItemChangedListener("doDumpEvents",      this);
   gui_->addItemChangedListener("runNumber",         this);
 }
 

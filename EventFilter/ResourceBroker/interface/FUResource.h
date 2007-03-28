@@ -44,6 +44,8 @@ namespace evf {
     static
     void   doFedIdCheck(bool doFedIdCheck) { doFedIdCheck_=doFedIdCheck; }
     void   doCrcCheck(bool doCrcCheck)     { doCrcCheck_  =doCrcCheck; }
+    
+    bool   crcBeingChecked() { return doCrcCheck_; }
 
     bool   fatalError()   const { return fatalError_; }
     bool   isComplete()   const;

@@ -13,6 +13,9 @@
 #include "interface/evb/include/i2oEVBMsgs.h"
 #include "xcept/include/xcept/tools.h"
 
+
+#include <fstream>
+#include <iomanip>
 #include <unistd.h>
 
 
@@ -116,7 +119,6 @@ bool FUResourceTable::sendData(toolbox::task::WorkLoop* /* wl */)
   bool reschedule=true;
 
   FUShmRecoCell* cell=shmBuffer_->recoCellToRead();
-  nbAccepted_++;
   
   if (0==cell->eventSize()) {
     LOG4CPLUS_WARN(log_,"Don't reschedule sendData workloop.");
@@ -126,11 +128,18 @@ bool FUResourceTable::sendData(toolbox::task::WorkLoop* /* wl */)
   else {
     try {
       if (cell->type()==0) {
+	lock();
 	sendInitMessage(cell->index(),cell->payloadAddr(),cell->eventSize());
+	shmBuffer_->finishReadingRecoCell(cell);
+	unlock();
       }
       else if (cell->type()==1) {
+	lock();
+	nbAccepted_++;
 	sendDataEvent(cell->index(),cell->runNumber(),cell->evtNumber(),
 		      cell->payloadAddr(),cell->eventSize());
+	shmBuffer_->finishReadingRecoCell(cell);
+	unlock();
       }
       else {
 	string errmsg="Unknown RecoCell type (neither DATA nor INIT).";
@@ -138,13 +147,13 @@ bool FUResourceTable::sendData(toolbox::task::WorkLoop* /* wl */)
       }
     }
     catch (xcept::Exception& e) {
+      shmBuffer_->finishReadingRecoCell(cell); // ?
+      unlock();                                // ?
       LOG4CPLUS_FATAL(log_,"Failed to send EVENT DATA to StorageManager: "
 		      <<xcept::stdformat_exception_history(e));
       reschedule=false;
     }
   }
-  
-  shmBuffer_->finishReadingRecoCell(cell);
   
   return reschedule;
 }
@@ -181,18 +190,21 @@ bool FUResourceTable::sendDqm(toolbox::task::WorkLoop* /* wl */)
   }
   else {
     try {
+      lock();
       sendDqmEvent(cell->index(),
 		   cell->runNumber(),cell->evtAtUpdate(),cell->folderId(),
 		   cell->payloadAddr(),cell->eventSize());
+      shmBuffer_->finishReadingDqmCell(cell);
+      unlock();
     }
     catch (xcept::Exception& e) {
+      shmBuffer_->finishReadingDqmCell(cell); // ?
+      unlock(); // ?
       LOG4CPLUS_FATAL(log_,"Failed to send DQM DATA to StorageManager: "
 		      <<xcept::stdformat_exception_history(e));
       reschedule=false;
     }
   }
-  
-  shmBuffer_->finishReadingDqmCell(cell);
   
   return reschedule;
 }
@@ -263,8 +275,13 @@ UInt_t FUResourceTable::allocateResource()
   nbPending_++;
   nbAllocated_++;
   
-  if (0==nbAllocated_%doCrcCheck_) resources_[fuResourceId]->doCrcCheck(true);
-  
+  if (doCrcCheck_>0&&0==nbAllocated_%doCrcCheck_) {
+    resources_[fuResourceId]->doCrcCheck(true);
+  }
+  else {
+    resources_[fuResourceId]->doCrcCheck(false);
+  }
+
   return fuResourceId;
 }
 
@@ -298,6 +315,8 @@ bool FUResourceTable::buildResource(MemRef_t* bufRef)
       nbCompleted_++;
       nbPending_--;
       unlock();
+      if (doDumpEvents_>0&&nbCompleted_%doDumpEvents_==0)
+	dumpEvent(resource->shmCell());
       shmBuffer_->finishWritingRawCell(resource->shmCell());
       eventComplete=true;
     }
@@ -325,11 +344,13 @@ bool FUResourceTable::buildResource(MemRef_t* bufRef)
 //______________________________________________________________________________
 bool FUResourceTable::discardDataEvent(MemRef_t* bufRef)
 {
+  lock();
   I2O_FU_DATA_DISCARD_MESSAGE_FRAME *msg;
   msg=(I2O_FU_DATA_DISCARD_MESSAGE_FRAME*)bufRef->getDataLocation();
   UInt_t recoIndex=msg->fuID;
   shmBuffer_->discardRecoCell(recoIndex);
   bufRef->release();
+  unlock();
   return true;
 }
 
@@ -337,11 +358,13 @@ bool FUResourceTable::discardDataEvent(MemRef_t* bufRef)
 //______________________________________________________________________________
 bool FUResourceTable::discardDqmEvent(MemRef_t* bufRef)
 {
+  lock();
   I2O_FU_DQM_DISCARD_MESSAGE_FRAME *msg;
   msg=(I2O_FU_DQM_DISCARD_MESSAGE_FRAME*)bufRef->getDataLocation();
   UInt_t dqmIndex=msg->fuID;
   shmBuffer_->discardDqmCell(dqmIndex);
   bufRef->release();
+  unlock();
   return true;
 }
 
@@ -353,6 +376,29 @@ void FUResourceTable::dropEvent()
   UInt_t fuResourceId=cell->fuResourceId();
   shmBuffer_->finishReadingRawCell(cell);
   shmBuffer_->scheduleRawCellForDiscard(fuResourceId);
+}
+
+
+//______________________________________________________________________________
+void FUResourceTable::dumpEvent(FUShmRawCell* cell)
+{
+  ostringstream oss; oss<<"/tmp/evt"<<cell->evtNumber()<<".dump";
+  ofstream fout(oss.str().c_str());
+  fout.fill('0');
+
+  fout<<"#\n# evt "<<cell->evtNumber()<<"\n#\n"<<endl;
+  for (unsigned int i=0;i<cell->nFed();i++) {
+    if (cell->fedSize(i)==0) continue;
+    fout<<"# fedid "<<i<<endl;
+    unsigned char* addr=cell->fedAddr(i);
+    for (unsigned int j=0;j<cell->fedSize(i);j++) {
+      fout<<setiosflags(ios::right)<<setw(2)<<hex<<(int)(*addr)<<dec;
+      if ((j+1)%8) fout<<" "; else fout<<endl;
+      ++addr;
+    }
+    fout<<endl;
+  }
+  fout.close();
 }
 
 

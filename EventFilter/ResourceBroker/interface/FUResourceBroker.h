@@ -182,6 +182,7 @@ namespace evf {
     xdata::Boolean           doDropEvents_;
     xdata::Boolean           doFedIdCheck_;
     xdata::UnsignedInteger32 doCrcCheck_;
+    xdata::UnsignedInteger32 doDumpEvents_;
 
     xdata::String            buClassName_;
     xdata::UnsignedInteger32 buInstance_;

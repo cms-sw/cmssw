@@ -70,6 +70,9 @@ namespace evf {
     // drop next available event
     void   dropEvent();
     
+    // dump event to ascii file
+    void   dumpEvent(evf::FUShmRawCell* cell);
+    
     // send empty events to notify clients to shutdown
     void   shutDownClients();
     
@@ -84,6 +87,9 @@ namespace evf {
 
     // tell resources wether to check the crc
     void   setDoCrcCheck(UInt_t doCrcCheck) { doCrcCheck_=doCrcCheck; }
+
+    // tell resources wether to dump events to an ascii file
+    void   setDoDumpEvents(UInt_t doDumpEvents) { doDumpEvents_=doDumpEvents; }
 
     // check if resource table can be savely destroyed
     bool   isReadyToShutDown() const { return isReadyToShutDown_; }
@@ -167,6 +173,7 @@ namespace evf {
     FUResourceVec_t    resources_;
     
     UInt_t             doCrcCheck_;
+    UInt_t             doDumpEvents_;
 
     UInt_t             nbAllocated_;
     UInt_t             nbPending_;

@@ -1,3 +1,12 @@
+2007-03-28  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-06-05
+	* fixed synchronization issue, broker has been witnessed to
+	successfully send data to the storage manager now! :)
+	* add option to dump events: doDumpEvents parameter (uint, one out
+	of doDumpEvents will be dumped to /tmp/evtnumber.dump)
+	* fixed doCrcCheck option
+
 2007-03-27  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-06-04
