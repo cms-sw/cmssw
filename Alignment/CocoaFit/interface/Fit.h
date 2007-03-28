@@ -83,6 +83,8 @@ public:
   //----- Propagate the error of every Entry to every Measurement
   static void PropagateErrors();
 
+  static void CheckIfFitPossible();
+
  public:
   //----- Calculate the simulated value of each Measurement propagating the LightRay when all the entries have their original values
   static void calculateSimulatedMeasurementsWithOriginalValues();

@@ -4,7 +4,7 @@
 //
 //   History: v1.0 
 //   Pedro Arce
-
+#include "CLHEP/Matrix/SymMatrix.h"
 #include <tree.h>
 
 #include "Alignment/CocoaModel/interface/Model.h"
@@ -610,7 +610,7 @@ void Fit::FillMatricesWithMeasurements()
 	  if( ALIUtils::debug >= 6) std::cout << "AMATRIX (" << Aline+jj << "," << (*vecite)->fitPos() << " = " << derivRE[jj] << std::endl;
 	  //---------- Reset Measurement simulated_value
 	  (*vmcite)->setValueSimulated( jj, (*vmcite)->valueSimulated_orig(jj) );	  
-	}
+}
       }
     }
     delete[] derivRE;
@@ -780,15 +780,20 @@ void Fit::multiplyMatrices()
   //  if(ALIUtils::debug >= 5) AtWAMatrix->Dump("AtWAMatrix=0");
   *AtWAMatrix = *AtMatrix * *WMatrix * *AMatrix;   
   if(ALIUtils::debug >= 5) AtWAMatrix->Dump("AtWAMatrix");
+
+  CheckIfFitPossible();
+
   //t  AtWAMatrix->EliminateLines(0,48);
   //t AtWAMatrix->EliminateColumns(0,48);
   time_t now;
   now = clock();
   if(ALIUtils::debug >= 0) std::cout << "TIME:BEFORE_INVERSE : " << now << " " << difftime(now, ALIUtils::time_now())/1.E6 << std::endl;
   ALIUtils::set_time_now(now); 
+std::cout << " norm1 AtWA " <<  m_norm1( AtWAMatrix->MatNonConst() ) << std::endl;
 
   AtWAMatrix->inverse();
   if(ALIUtils::debug >= 4) AtWAMatrix->Dump("inverse AtWAmatrix");
+
   now = clock();
   if(ALIUtils::debug >= 0) std::cout << "TIME:AFTER_INVERSE  : " << now << " " << difftime(now, ALIUtils::time_now())/1.E6 << std::endl;
   ALIUtils::set_time_now(now); 
@@ -1384,3 +1389,20 @@ std::pair<double,double> Fit::calculateChi2( )
   return chi2;
 }
 
+
+void Fit::CheckIfFitPossible()
+{
+  CLHEP::HepSymMatrix sm(AtWAMatrix->NoLines());
+  for (uint ii=0; ii<AtWAMatrix->NoLines(); ii++) {
+    for (uint jj=0; jj<AtWAMatrix->NoColumns(); jj++) {
+      sm(ii+1,jj+1) = AtWAMatrix->Mat()->me[ii][jj];
+    }
+  }
+  
+  std::cout << " AtWA determinant " << sm.determinant()  << std::endl << sm << std::endl;
+
+  if( sm.determinant() < ALI_DBL_MIN ) {
+    //----- Check if there is an unknown parameter that is not affecting any measurement
+
+  }
+}
