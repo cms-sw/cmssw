@@ -12,46 +12,39 @@
  *
  */
 
-#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
-
+#include "MagneticField/Engine/interface/MagneticField.h"
 #include <vector>
 
-class RecHit;
-class BoundPlane;
-class GeomDet;
 
 namespace edm {class EventSetup;}
 
-class MuonSeedFromRecHits {
-  typedef std::pair<const GeomDet*,TrajectoryStateOnSurface> DetWithState;
-
-  public:
-  MuonSeedFromRecHits(){}
+class MuonSeedFromRecHits 
+{
+public:
+  MuonSeedFromRecHits(const edm::EventSetup & eSetup);
+  virtual ~MuonSeedFromRecHits() {}
 
   void add(MuonTransientTrackingRecHit::MuonRecHitPointer hit) { theRhits.push_back(hit); }
-  TrajectorySeed seed(const edm::EventSetup& eSetup) const;
+  virtual TrajectorySeed seed() const = 0;
   MuonTransientTrackingRecHit::ConstMuonRecHitPointer firstRecHit() const { return theRhits.front(); }
   unsigned int nrhit() const { return  theRhits.size(); }
 
-  private:
+  protected:
   friend class MuonSeedFinder;
+  typedef MuonTransientTrackingRecHit::MuonRecHitContainer MuonRecHitContainer;
+  typedef MuonTransientTrackingRecHit::MuonRecHitPointer MuonRecHitPointer;
+  typedef MuonTransientTrackingRecHit::ConstMuonRecHitPointer ConstMuonRecHitPointer;
 
-  MuonTransientTrackingRecHit::ConstMuonRecHitPointer best_cand() const;
-  // was
-  // TrackingRecHit best_cand() const;
-
-  void computePtWithVtx(double* pt, double* spt) const;
-  void computePtWithoutVtx(double* pt, double* spt) const;
-  void computeBestPt(double* pt, double* spt, float& ptmean, float& sptmean) const;
 
   TrajectorySeed createSeed(float ptmean, float sptmean,
-			    MuonTransientTrackingRecHit::ConstMuonRecHitPointer last,
-			    const edm::EventSetup& eSetup) const;
+			    MuonTransientTrackingRecHit::ConstMuonRecHitPointer last) const;
 
-  private:
+  protected:
   MuonTransientTrackingRecHit::MuonRecHitContainer theRhits;
+  const MagneticField * theField;
+
 };
 
 #endif
