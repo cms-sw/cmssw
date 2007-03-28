@@ -13,7 +13,7 @@
 //
 // Original Author:  Simone Gennai and Suchandra Dutta
 //         Created:  Sat Feb  4 20:49:10 CET 2006
-// $Id: SiStripMonitorPedestals.cc,v 1.14 2007/02/17 18:18:52 giordano Exp $
+// $Id: SiStripMonitorPedestals.cc,v 1.16 2007/03/23 14:31:28 dutta Exp $
 //
 //
 
@@ -233,7 +233,13 @@ void SiStripMonitorPedestals::analyze(const edm::Event& iEvent, const edm::Event
     if (digis->data.size() == 0 || 
         digis->data.size() > 768 || 
         digis == digi_collection->end() ) {
-         std::cout <<  " Event " <<  nEvTot_ << " DetId " <<  detid << " # of Digis " << digis->data.size() << std::endl;
+         std::cout <<  " Event " <<  nEvTot_ << " DetId " <<  detid << " # of Digis " << digis->data.size() ;
+	 std::vector<FedChannelConnection> fed_conns = detcabling->getConnections(detid);
+         for (unsigned int  k = 0; k < fed_conns.size() ; k++) {
+           if (k==0) std::cout <<  " Fed Id " << fed_conns[k].fedId() << " Channel " << fed_conns[k].fedCh();
+           else  std::cout <<  " Channel " << fed_conns[k].fedCh();
+         }
+         std::cout << std::endl;
          continue;
     }
 
