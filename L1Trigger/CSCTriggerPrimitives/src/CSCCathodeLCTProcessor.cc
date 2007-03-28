@@ -22,8 +22,8 @@
 //                Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch),
 //                May 2006.
 //
-//   $Date: 2007/02/19 14:59:46 $
-//   $Revision: 1.14 $
+//   $Date: 2007/03/07 09:33:53 $
+//   $Revision: 1.15 $
 //
 //   Modifications: 
 //
@@ -596,10 +596,10 @@ bool CSCCathodeLCTProcessor::getDigis(const CSCComparatorDigiCollection* compdc)
   return noDigis;
 }
 
-void CSCCathodeLCTProcessor::distripStagger(int stag_triad[CSCConstants::NUM_DI_STRIPS],
-				    int stag_time[CSCConstants::NUM_DI_STRIPS],
-				    int stag_digi[CSCConstants::NUM_DI_STRIPS],
-				    int i_strip, bool debug) {
+void CSCCathodeLCTProcessor::distripStagger(int stag_triad[CSCConstants::MAX_NUM_STRIPS],
+				   int stag_time[CSCConstants::MAX_NUM_STRIPS],
+				   int stag_digi[CSCConstants::MAX_NUM_STRIPS],
+				   int i_strip, bool debug) {
   // Author: Jason Mumford (mumford@physics.ucla.edu)
   // This routine takes care of the stagger situation where there is a hit
   // on the right half-strip of a di-strip.  If there is a stagger, then
