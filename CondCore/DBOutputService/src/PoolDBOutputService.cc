@@ -9,13 +9,14 @@
 #include "CondCore/DBCommon/interface/RelationalStorageManager.h"
 #include "CondCore/IOVService/interface/IOVService.h"
 #include "CondCore/IOVService/interface/IOVEditor.h"
+#include "CondCore/IOVService/interface/IOVNames.h"
 #include "CondCore/DBCommon/interface/AuthenticationMethod.h"
 #include "CondCore/DBCommon/interface/ConnectMode.h"
 #include "CondCore/DBCommon/interface/MessageLevel.h"
 #include "CondCore/DBCommon/interface/Exception.h"
-//#include "CondCore/DBCommon/interface/Time.h"
 #include "CondCore/DBCommon/interface/ConfigSessionFromParameterSet.h"
 #include "CondCore/DBOutputService/interface/Exception.h"
+#include "CondCore/DBCommon/interface/ObjectRelationalMappingUtility.h"
 #include "serviceCallbackToken.h"
 //#include <iostream>
 #include <vector>
@@ -69,8 +70,15 @@ cond::service::PoolDBOutputService::initDB()
 {
   if(m_dbstarted) return;
   try{
-    cond::MetaData metadata(*m_coraldb);
     m_coraldb->connect(cond::ReadWriteCreate);
+    cond::ObjectRelationalMappingUtility* mappingUtil=new cond::ObjectRelationalMappingUtility(*m_coraldb);
+    m_coraldb->startTransaction(false); 
+    if( !mappingUtil->existsMapping(cond::IOVNames::iovMappingVersion()) ){
+      mappingUtil->buildAndStoreMappingFromBuffer(cond::IOVNames::iovMappingXML());
+    }
+    m_coraldb->commit();
+    delete mappingUtil;
+    cond::MetaData metadata(*m_coraldb);
     m_coraldb->startTransaction(true);
     for(std::map<size_t,cond::service::serviceCallbackRecord>::iterator it=m_callbacks.begin(); it!=m_callbacks.end(); ++it){
       std::string iovtoken;
@@ -104,9 +112,9 @@ cond::service::PoolDBOutputService::postEndJob()
     m_inTransaction=false;
   }
   m_pooldb->disconnect();
-  cond::MetaData metadata(*m_coraldb);
   m_coraldb->connect(cond::ReadWriteCreate);
   m_coraldb->startTransaction(false); 
+  cond::MetaData metadata(*m_coraldb);
   for(std::vector<std::pair<std::string,std::string> >::iterator it=m_newtags.begin(); it!=m_newtags.end(); ++it){
     //std::cout<<"adding "<<it->first<<" "<<it->second<<std::endl;
     metadata.addMapping(it->first,it->second);
