@@ -110,7 +110,7 @@ void SiStripCommissioningSource::beginJob( const edm::EventSetup& setup ) {
        << " Check if database connection failed...";
     edm::LogWarning(mlDqmSource_) << ss.str();
   }
-  
+
   // ---------- Reset ---------- 
 
   tasksExist_ = false;
@@ -147,9 +147,9 @@ void SiStripCommissioningSource::endJob() {
     const std::vector<FedChannelConnection>& conns = fedCabling_->connections(*ifed);
     std::vector<FedChannelConnection>::const_iterator iconn = conns.begin();
     for ( ; iconn != conns.end(); iconn++ ) {
+      if ( !iconn->isConnected() ) { continue; }
       fed_id = iconn->fedId();
       fed_ch = iconn->fedCh();
-      if ( !fed_id ) { continue; }
       if ( tasks_[fed_id][fed_ch] ) { 
 	tasks_[fed_id][fed_ch]->updateHistograms();
       }
@@ -241,6 +241,7 @@ void SiStripCommissioningSource::analyze( const edm::Event& event,
     edm::LogWarning(mlDqmSource_) << ss.str();
     return;
   }
+
   // Check for NULL pointer to digi container
   if ( &(*raw) == 0 ) {
     std::stringstream ss;
@@ -293,7 +294,7 @@ void SiStripCommissioningSource::fillCablingHistos( const SiStripEventSummary* c
   for ( ; ifed != fedCabling_->feds().end(); ifed++ ) {
 
     // Check if FedId is non-zero
-    if ( !(*ifed) ) { continue; }
+    if ( *ifed == sistrip::invalid_ ) { continue; }
     
     // Container to hold median signal level for FED cabling task
     std::map<uint16_t,float> medians; medians.clear(); 
@@ -705,7 +706,7 @@ void SiStripCommissioningSource::createTasks() {
       uint32_t fed_key = SiStripFedKey( iconn->fedId(), 
 					SiStripFedKey::feUnit(iconn->fedCh()),
 					SiStripFedKey::feChan(iconn->fedCh()) ).key();
-      if ( !(iconn->fedId()) ) { continue; }
+      if ( !iconn->isConnected() ) { continue; }
       
       // Set working directory prior to booking histograms 
       SiStripFecKey path( iconn->fecCrate(), 

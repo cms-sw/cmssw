@@ -27,7 +27,7 @@ CommissioningTask::CommissioningTask( DaqMonitorBEInterface* dqm,
   uint16_t fed_ch = connection_.fedCh();
   fedKey_ = SiStripFedKey( connection_.fedId(), 
 			   SiStripFedKey::feUnit(fed_ch),
-			   SiStripFedKey::feUnit(fed_ch) ).key();
+			   SiStripFedKey::feChan(fed_ch) ).key();
   fecKey_ = SiStripFecKey( connection_.fecCrate(),
 			   connection_.fecSlot(),
 			   connection_.fecRing(),
