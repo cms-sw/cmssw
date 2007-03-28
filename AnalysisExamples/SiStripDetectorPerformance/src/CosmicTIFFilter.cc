@@ -52,16 +52,23 @@ bool CosmicTIFFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 	// new HepMC
 	const HepMC::GenVertex * vertex_=(*i)->production_vertex();
-	HepLorentzVector vertex = vertex_->position();
 
-	CLHEP::HepLorentzVector momentum=(*i)->momentum();
+	HepMC::FourVector vertex__ = vertex_->position();
+	CLHEP::HepLorentzVector vertex = (vertex__.x(),vertex__.y(),vertex__.z(),vertex__.t());
+
+	HepMC::FourVector momentum__=(*i)->momentum();
+	CLHEP::HepLorentzVector momentum=(momentum__.x(),momentum__.y(),momentum__.z(),momentum__.t());
 
 
 	// Define the Scintillator position
-	HepLorentzVector S1(0,3000.,500);
-	HepLorentzVector S2(0,-1500.,500);
-	HepLorentzVector S3(0,3000.,3500);
-	
+	//	HepLorentzVector S1(0,3000.,500);
+	//	HepLorentzVector S2(0,-1500.,500);
+	//	HepLorentzVector S3(0,3000.,3500);
+
+	HepLorentzVector S1(350,1600.,500);
+        HepLorentzVector S2(350,-1600.,400);
+        HepLorentzVector S3(350,1600.,1600);
+
 	hit1=Sci_trig(vertex, momentum, S1);
 	hit2=Sci_trig(vertex, momentum, S2);
 	hit3=Sci_trig(vertex, momentum, S3);

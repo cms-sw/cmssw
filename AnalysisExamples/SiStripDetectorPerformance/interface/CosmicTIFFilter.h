@@ -8,8 +8,16 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "AnalysisExamples/SiStripDetectorPerformance/interface/CosmicGenFilter.h"
+#include "FastSimulation/BaseParticlePropagator/interface/BaseParticlePropagator.h"
 
+#include <map>
+#include <vector>
+
+using namespace std;
 namespace cms
+
 {
 class CosmicTIFFilter : public edm::EDFilter {
   public:
@@ -17,7 +25,7 @@ class CosmicTIFFilter : public edm::EDFilter {
   virtual ~CosmicTIFFilter() {}
   //   virtual bool filter(edm::Event & e, edm::EventSetup const& c);
   bool filter(edm::Event & iEvent, edm::EventSetup const& c);
-  bool Sci_trig(HepLorentzVector,  HepLorentzVector, HepLorentzVector);
+  bool Sci_trig(CLHEP::HepLorentzVector,  HepLorentzVector, HepLorentzVector);
 
  private:
   edm::ParameterSet conf_;

@@ -58,13 +58,20 @@ bool CosmicGenFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	//	HepLorentzVector vertex=(*i)->production_vertex();
 
 	const HepMC::GenVertex * vertex_=(*i)->production_vertex();
-	HepLorentzVector vertex = vertex_->position();
-	
+	HepMC::FourVector vertex__ = (vertex_->position().x(),vertex_->position().y(),vertex_->position().z());
+	CLHEP::HepLorentzVector vertex = (vertex__.x(), vertex__.y(), vertex__.z(), vertex__.t());
 
-	  CLHEP::HepLorentzVector momentum=(*i)->momentum();
+
+	//HepMC::FourVector vertex = vertex_->position();
+	      
+
+	HepMC::FourVector momentum__=(*i)->momentum();
+	CLHEP::HepLorentzVector momentum = (momentum__.x(), momentum__.y(), momentum__.z(), momentum__.t());
+	
 
 	  // Set-up (back) propagation -> momentum and charge are reversed
 	  RawParticle myMuon(-momentum, vertex/10.);
+
 	  if ( myId < 0 ) 
 	    myMuon.setCharge(-1.);
 	  else
