@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2007/03/26 11:39:20 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/03/28 12:58:55 $
+ *  $Revision: 1.1 $
  *
  *  \author Martin Grunewald
  *
@@ -18,6 +18,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <cassert>
+#include <iomanip>
 
 //
 // constructors and destructor
