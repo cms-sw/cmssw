@@ -1,8 +1,8 @@
 #ifndef bstream_iterator_H
 #define bstream_iterator_H
 
-#include "MagneticField/Interpolation/interface/binary_ifstream.h"
-#include "MagneticField/Interpolation/interface/binary_ofstream.h"
+#include "MagneticField/Interpolation/src/binary_ifstream.h"
+#include "MagneticField/Interpolation/src/binary_ofstream.h"
 #include <iterator>
 
 template <typename T>

@@ -1,7 +1,5 @@
-// #include "Utilities/Configuration/interface/Architecture.h"
-
-#include "MagneticField/Interpolation/interface/GlobalGridWrapper.h"
-#include "MagneticField/Interpolation/interface/MagneticFieldGrid.h"
+#include "MagneticField/Interpolation/src/GlobalGridWrapper.h"
+#include "MagneticField/Interpolation/src/MagneticFieldGrid.h"
 #include "MagneticField/VolumeGeometry/interface/MagExceptions.h"
 
 // #include "Utilities/Notification/interface/TimingReport.h"

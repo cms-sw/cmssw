@@ -1,6 +1,6 @@
-#include "MagneticField/Interpolation/interface/TrapezoidalCartesianMFGrid.h"
-#include "MagneticField/Interpolation/interface/binary_ifstream.h"
-#include "MagneticField/Interpolation/interface/LinearGridInterpolator3D.h"
+#include "MagneticField/Interpolation/src/TrapezoidalCartesianMFGrid.h"
+#include "MagneticField/Interpolation/src/binary_ifstream.h"
+#include "MagneticField/Interpolation/src/LinearGridInterpolator3D.h"
 #include "MagneticField/VolumeGeometry/interface/MagExceptions.h"
 
 // #include "Utilities/Notification/interface/TimingReport.h"

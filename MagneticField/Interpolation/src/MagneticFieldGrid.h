@@ -17,12 +17,9 @@
  *
  */
 
-// essential files
-/* #include "Utilities/Configuration/interface/Architecture.h" */
-
 // interpolation package
-#include "MagneticField/Interpolation/interface/VectorFieldInterpolation.h"
-#include "MagneticField/Interpolation/interface/binary_ifstream.h"
+#include "MagneticField/Interpolation/src/VectorFieldInterpolation.h"
+#include "MagneticField/Interpolation/src/binary_ifstream.h"
 
 // used libs
 #include <vector>

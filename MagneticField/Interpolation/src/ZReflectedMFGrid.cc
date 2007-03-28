@@ -1,4 +1,4 @@
-#include "MagneticField/Interpolation/interface/ZReflectedMFGrid.h"
+#include "MagneticField/Interpolation/src/ZReflectedMFGrid.h"
 #include "MagneticField/VolumeGeometry/interface/MagExceptions.h"
 
 #include <iostream>

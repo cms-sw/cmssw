@@ -1,6 +1,6 @@
-#include "MagneticField/Interpolation/interface/RectangularCylindricalMFGrid.h"
-#include "MagneticField/Interpolation/interface/binary_ifstream.h"
-#include "MagneticField/Interpolation/interface/LinearGridInterpolator3D.h"
+#include "MagneticField/Interpolation/src/RectangularCylindricalMFGrid.h"
+#include "MagneticField/Interpolation/src/binary_ifstream.h"
+#include "MagneticField/Interpolation/src/LinearGridInterpolator3D.h"
 
 // #include "Utilities/Notification/interface/TimingReport.h"
 // #include "Utilities/UI/interface/SimpleConfigurable.h"

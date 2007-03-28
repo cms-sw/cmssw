@@ -2,7 +2,7 @@
 #define TrapezoidalCylindricalMFGrid_H
 
 #include "MagneticField/Interpolation/interface/MFGrid3D.h"
-#include "MagneticField/Interpolation/interface/Trapezoid2RectangleMappingX.h"
+#include "MagneticField/Interpolation/src/Trapezoid2RectangleMappingX.h"
 
 class binary_ifstream;
 

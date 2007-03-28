@@ -1,5 +1,5 @@
 // include header for MagneticFieldGrid (regular + extension for some trapezoids)
-#include "MagneticField/Interpolation/interface/MagneticFieldGrid.h"
+#include "MagneticField/Interpolation/src/MagneticFieldGrid.h"
 
 using namespace std;
 

@@ -3,8 +3,8 @@
 
 #include "MagneticField/Interpolation/interface/MFGrid.h"
 #include "DataFormats/GeometryVector/interface/Basic3DVector.h"
-#include "MagneticField/Interpolation/interface/Grid1D.h"
-#include "MagneticField/Interpolation/interface/Grid3D.h"
+#include "MagneticField/Interpolation/src/Grid1D.h"
+#include "MagneticField/Interpolation/src/Grid3D.h"
 
 class MFGrid3D : public MFGrid {
 public:
@@ -42,6 +42,8 @@ public:
   }
 
   virtual LocalVector valueInTesla( const LocalPoint& p) const;
+
+  /// Interpolated field value at given point; does not check for exceptions
   virtual LocalVector uncheckedValueInTesla( const LocalPoint& p) const = 0;
 
 protected:

@@ -23,11 +23,6 @@
  *
  */
 
-
-// interpolation package
-#include "MagneticField/Interpolation/interface/VectorFieldInterpolation.h"
-#include "MagneticField/Interpolation/interface/binary_ofstream.h"
-
 // used libs
 #include <vector>
 #include <algorithm>

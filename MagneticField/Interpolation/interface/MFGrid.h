@@ -18,16 +18,15 @@ public:
 
   virtual ~MFGrid() {}
 
+  /// Interpolated field value at given point.
   virtual LocalVector valueInTesla( const LocalPoint& p) const = 0;
 
   virtual void dump() const {}
 
-  /** find grid coordinates for point. For debugging and validation only.
-   */
+  /// find grid coordinates for point. For debugging and validation only.
   virtual void toGridFrame( const LocalPoint& p, double& a, double& b, double& c) const = 0;
 
-  /** find grid coordinates for point. For debugging and validation only.
-   */
+  /// find grid coordinates for point. For debugging and validation only.
   virtual LocalPoint fromGridFrame( double a, double b, double c) const = 0;
 
   virtual std::vector<int> dimensions() const = 0;

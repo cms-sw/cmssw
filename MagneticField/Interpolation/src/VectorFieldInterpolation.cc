@@ -1,5 +1,5 @@
 // include header for VectorFieldInterpolation
-#include "MagneticField/Interpolation/interface/VectorFieldInterpolation.h"
+#include "MagneticField/Interpolation/src/VectorFieldInterpolation.h"
 
 
 void VectorFieldInterpolation::defineCellPoint000(double X1, double X2, double X3, double F1, double F2, double F3){

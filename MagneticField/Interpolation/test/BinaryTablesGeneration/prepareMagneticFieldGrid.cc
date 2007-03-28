@@ -1,5 +1,8 @@
 // include header for prepareMagneticFieldGrid (regular + extension for some trapezoids)
-#include "MagneticField/Interpolation/interface/prepareMagneticFieldGrid.h"
+#include "prepareMagneticFieldGrid.h"
+
+#include "MagneticField/Interpolation/src/VectorFieldInterpolation.h"
+#include "MagneticField/Interpolation/src/binary_ofstream.h"
 
 using std::cout;
 using std::endl;

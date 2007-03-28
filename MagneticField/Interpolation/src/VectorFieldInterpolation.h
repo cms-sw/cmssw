@@ -54,11 +54,6 @@
 //
 // ***************************************************************
 
-
-// essential files
-/* #include "Utilities/Configuration/interface/Architecture.h" */
-
-
 class VectorFieldInterpolation{
 public:
   // constructor
