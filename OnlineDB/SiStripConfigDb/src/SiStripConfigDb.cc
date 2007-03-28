@@ -1,6 +1,6 @@
-// Last commit: $Id: $
-// Latest tag:  $Name: $
-// Location:    $Source: $
+// Last commit: $Id: SiStripConfigDb.cc,v 1.28 2007/01/19 15:30:14 bainbrid Exp $
+// Latest tag:  $Name:  $
+// Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripConfigDb/src/SiStripConfigDb.cc,v $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
@@ -323,7 +323,7 @@ void SiStripConfigDb::DbParams::confdb( const string& user,
 // -----------------------------------------------------------------------------
 // 
 void SiStripConfigDb::DbParams::print( stringstream& ss ) const {
-  ss << " Using database            : " << usingDb_ << endl
+  ss << " Using database            : " << std::boolalpha << usingDb_ << std::noboolalpha << endl
      << " ConfDb                    : " << confdb_ << endl
      << " User/Passwd@Path          : " << user_ << "/" << passwd_ << "@" << path_ << endl
      << " Partition                 : " << partition_ << endl

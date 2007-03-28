@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripConfigDb.h,v 1.18 2006/11/24 11:41:57 bainbrid Exp $
+// Last commit: $Id: SiStripConfigDb.h,v 1.19 2006/12/01 16:36:48 bainbrid Exp $
 // Latest tag:  $Name:  $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h,v $
 
@@ -185,7 +185,7 @@ class SiStripConfigDb {
   const DeviceDescriptions& createDeviceDescriptions( const SiStripFecCabling& );
   
   /** Extracts unique hardware address of device from description. */
-  const DeviceAddress& deviceAddress( const deviceDescription& );
+  const DeviceAddress& deviceAddress( const deviceDescription& ); //@@ uses temp offsets!
   
   // -------------------- FED descriptions --------------------
 

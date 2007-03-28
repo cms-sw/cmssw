@@ -1,5 +1,5 @@
-// Last commit: $Id: DeviceDescriptions.cc,v 1.10 2006/12/01 16:36:48 bainbrid Exp $
-// Latest tag:  $Name:  $
+// Last commit: $Id: DeviceDescriptions.cc,v 1.11 2007/03/19 10:44:03 bainbrid Exp $
+// Latest tag:  $Name: TIF_210307 $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripConfigDb/src/DeviceDescriptions.cc,v $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
@@ -339,14 +339,14 @@ const SiStripConfigDb::DeviceAddress& SiStripConfigDb::deviceAddress( const devi
   addr.reset();
   
   // Retrieve FEC key
-  keyType key;
+  keyType key = 0;
   try { key = const_cast<deviceDescription&>(description).getKey(); }
   catch (...) { handleException( __func__ ); }
   
   // Extract hardware addresses
-  addr.fecCrate_ = static_cast<uint16_t>( 0 ); //@@ always zero???
+  addr.fecCrate_ = static_cast<uint16_t>( 0 + sistrip::FEC_CRATE_OFFSET ); //@@ always zero? temporary offset!
   addr.fecSlot_  = static_cast<uint16_t>( getFecKey(key) );
-  addr.fecRing_  = static_cast<uint16_t>( getRingKey(key) );
+  addr.fecRing_  = static_cast<uint16_t>( getRingKey(key) + sistrip::FEC_RING_OFFSET ); //@@ temporary offset!
   addr.ccuAddr_  = static_cast<uint16_t>( getCcuKey(key) );
   addr.ccuChan_  = static_cast<uint16_t>( getChannelKey(key) );
   addr.i2cAddr_  = static_cast<uint16_t>( getAddressKey(key) );
