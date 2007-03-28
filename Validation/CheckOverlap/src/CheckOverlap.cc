@@ -12,6 +12,7 @@
 #include "G4PVPlacement.hh"
 #include "G4PVParameterised.hh"
 #include "G4LogicalVolume.hh"
+#include "G4Material.hh"
 #include "G4TransportationManager.hh"
 
 #include <set>
@@ -91,6 +92,17 @@ void CheckOverlap::checkPV(G4VPhysicalVolume * pv, uint leafDepth) {
     std::cout << "Placed PV " << pvplace->GetName() << " Number "
 	      << pvplace->GetCopyNo() << " in mother " << mother 
 	      << " at depth " << leafDepth << " Status " << ok << std::endl;
+    if (ok) {
+      std::cout << "Translation " << pv->GetTranslation();
+      if(pv->GetRotation() == 0) std::cout << " with no rotation" << std::endl;
+      else std::cout << " with rotation " << *(pv->GetRotation()) << std::endl;
+      G4LogicalVolume* lv = pv->GetLogicalVolume();
+      dumpLV(lv, "Self");
+      if (pv->GetMotherLogical()) {
+	lv = pv->GetMotherLogical();
+	dumpLV (lv, "Mother");
+      }
+    }
   } else {
     if (pv->GetParameterisation() != 0) {
       G4PVParameterised* pvparam = dynamic_cast<G4PVParameterised* >(pv);
@@ -107,3 +119,11 @@ G4VPhysicalVolume * CheckOverlap::getTopPV() {
   return G4TransportationManager::GetTransportationManager()
     ->GetNavigatorForTracking()->GetWorldVolume();
 }
+
+void CheckOverlap::dumpLV(G4LogicalVolume* lv, std::string str) {
+  std::cout << "Dump of " << str << " Logical Volume " << lv->GetName()
+            << "  Solid: " << lv->GetSolid()->GetName() << "  Material: "
+            << lv->GetMaterial()->GetName() << std::endl;
+  std::cout << *(lv->GetSolid()) << std::endl;
+}
+
