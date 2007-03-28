@@ -1,4 +1,4 @@
-// Last commit: $Id: $
+// Last commit: $Id: SiStripFecCrate.h,v 1.2 2007/03/21 09:54:20 bainbrid Exp $
 
 #ifndef CalibFormats_SiStripObjects_SiStripFecCrate_H
 #define CalibFormats_SiStripObjects_SiStripFecCrate_H
@@ -17,8 +17,7 @@ class SiStripFecCrate {
  public: 
 
   /** */
-  SiStripFecCrate( const FedChannelConnection& conn )
-    : fecCrate_( conn.fecCrate() ), fecs_() { addDevices( conn ); }
+  SiStripFecCrate( const FedChannelConnection& conn );
   
   /** */
   ~SiStripFecCrate() {;}

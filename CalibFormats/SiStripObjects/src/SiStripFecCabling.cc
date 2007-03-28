@@ -1,4 +1,4 @@
-// Last commit: $Id: $
+// Last commit: $Id: SiStripFecCabling.cc,v 1.19 2007/03/21 09:54:21 bainbrid Exp $
 
 #include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
@@ -6,16 +6,18 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 #include <iomanip>
-#include <sstream>
 
 using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 //
-SiStripFecCabling::SiStripFecCabling( const SiStripFedCabling& fed_cabling ) : crates_() {
+SiStripFecCabling::SiStripFecCabling( const SiStripFedCabling& fed_cabling ) 
+  : crates_() 
+{
   LogTrace(mlCabling_)
     << "[SiStripFecCabling::" << __func__ << "]"
     << " Constructing object...";
+  crates_.reserve(4);
   buildFecCabling( fed_cabling );
 }
 
@@ -25,18 +27,23 @@ void SiStripFecCabling::buildFecCabling( const SiStripFedCabling& fed_cabling ) 
   LogTrace(mlCabling_)
     << "[SiStripFecCabling::" << __func__ << "]"
     << " Building FEC cabling...";
+
   // Retrieve and iterate through FED ids
   const std::vector<uint16_t>& feds = fed_cabling.feds();
   std::vector<uint16_t>::const_iterator ifed;
   for ( ifed = feds.begin(); ifed != feds.end(); ifed++ ) {
+
     // Retrieve and iterate through FED channel connections
     const std::vector<FedChannelConnection>& conns = fed_cabling.connections( *ifed ); 
     std::vector<FedChannelConnection>::const_iterator iconn;
     for ( iconn = conns.begin(); iconn != conns.end(); iconn++ ) {
-      // Check that FED id is non-zero and add devices
-      if ( iconn->fedId() ) { addDevices( *iconn ); } 
+
+      // Check that FED id is not invalid and add devices
+      if ( iconn->fedId() != sistrip::invalid_ ) { addDevices( *iconn ); } 
+      
     }
   }
+
   // Consistency checks
   for ( std::vector<SiStripFecCrate>::const_iterator icrate = this->crates().begin(); icrate != this->crates().end(); icrate++ ) {
     for ( std::vector<SiStripFec>::const_iterator ifec = icrate->fecs().begin(); ifec != icrate->fecs().end(); ifec++ ) {
@@ -153,10 +160,9 @@ const SiStripModule& SiStripFecCabling::module( const uint32_t& dcu_id ) const {
 
 // -----------------------------------------------------------------------------
 //
-const NumberOfDevices& SiStripFecCabling::countDevices() const {
-
-  static NumberOfDevices num_of_devices; // simple container class used for counting
-  num_of_devices.clear();
+NumberOfDevices SiStripFecCabling::countDevices() const {
+  
+  NumberOfDevices num_of_devices; // simple container class used for counting
 
   std::vector<uint16_t> fed_ids; std::vector<uint16_t>::iterator ifed;
   for ( std::vector<SiStripFecCrate>::const_iterator icrate = this->crates().begin(); icrate != this->crates().end(); icrate++ ) {
@@ -213,6 +219,31 @@ const NumberOfDevices& SiStripFecCabling::countDevices() const {
   
   return num_of_devices;
   
+}
+
+// -----------------------------------------------------------------------------
+//
+void SiStripFecCabling::print( std::stringstream& ss ) const {
+  for ( std::vector<SiStripFecCrate>::const_iterator icrate = crates().begin(); icrate != crates().end(); icrate++ ) {
+    for ( std::vector<SiStripFec>::const_iterator ifec = icrate->fecs().begin(); ifec != icrate->fecs().end(); ifec++ ) {
+      for ( std::vector<SiStripRing>::const_iterator iring = ifec->rings().begin(); iring != ifec->rings().end(); iring++ ) {
+	for ( std::vector<SiStripCcu>::const_iterator iccu = iring->ccus().begin(); iccu != iring->ccus().end(); iccu++ ) {
+	  for ( std::vector<SiStripModule>::const_iterator imod = iccu->modules().begin(); imod != iccu->modules().end(); imod++ ) {
+	    ss << *imod << std::endl;
+	  } 
+	}
+      }
+    }
+  }
+}
+
+// -----------------------------------------------------------------------------
+//
+std::ostream& operator<< ( std::ostream& os, const SiStripFecCabling& cabling ) {
+  std::stringstream ss;
+  cabling.print(ss);
+  os << ss.str();
+  return os;
 }
 
 // -----------------------------------------------------------------------------

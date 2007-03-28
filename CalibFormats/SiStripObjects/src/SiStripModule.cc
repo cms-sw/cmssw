@@ -1,4 +1,4 @@
-// Last commit: $Id: $
+// Last commit: $Id: SiStripModule.cc,v 1.10 2007/03/21 09:54:21 bainbrid Exp $
 
 #include "CalibFormats/SiStripObjects/interface/SiStripModule.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
@@ -11,9 +11,27 @@ using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 //
+SiStripModule::SiStripModule( const FedChannelConnection& conn ) 
+  : key_( conn.fecCrate(), 
+	  conn.fecSlot(), 
+	  conn.fecRing(), 
+	  conn.ccuAddr(), 
+	  conn.ccuChan() ),
+    apv32_(0), apv33_(0), apv34_(0), apv35_(0), apv36_(0), apv37_(0), 
+    dcu0x00_(0), mux0x43_(0), pll0x44_(0), lld0x60_(0), 
+    dcuId_(0), 
+    detId_(0), 
+    nApvPairs_(0),
+    cabling_(), 
+    length_(0) 
+{ 
+  addDevices( conn ); 
+}
+
+// -----------------------------------------------------------------------------
+//
 void SiStripModule::addDevices( const FedChannelConnection& conn ) {
   
-  // Consistency check with HW addresses
   if ( key_.fecCrate() && key_.fecCrate() != conn.fecCrate() ) {
     edm::LogWarning(mlCabling_)
       << "SiStripModule::" << __func__ << "]"
@@ -22,6 +40,7 @@ void SiStripModule::addDevices( const FedChannelConnection& conn ) {
       << key_.fecCrate() << ")!";
     return;
   }
+
   if ( key_.fecSlot() && key_.fecSlot() != conn.fecSlot() ) {
     edm::LogWarning(mlCabling_)
             << "SiStripModule::" << __func__ << "]"
@@ -30,6 +49,7 @@ void SiStripModule::addDevices( const FedChannelConnection& conn ) {
 	    << key_.fecSlot() << ")!";
     return;
   }
+
   if ( key_.fecRing() && key_.fecRing() != conn.fecRing() ) {
     edm::LogWarning(mlCabling_)
       << "SiStripModule::" << __func__ << "]"
@@ -38,6 +58,7 @@ void SiStripModule::addDevices( const FedChannelConnection& conn ) {
       << key_.fecRing() << ")!";
     return;
   }
+
   if ( key_.ccuAddr() && key_.ccuAddr() != conn.ccuAddr() ) {
     edm::LogWarning(mlCabling_)
       << "SiStripModule::" << __func__ << "]"
@@ -46,6 +67,7 @@ void SiStripModule::addDevices( const FedChannelConnection& conn ) {
       << key_.ccuAddr() << ")!";
     return;
   }
+
   if ( key_.ccuChan() && key_.ccuChan() != conn.ccuChan() ) {
     edm::LogWarning(mlCabling_)
       << "SiStripModule::" << __func__ << "]"
@@ -80,24 +102,24 @@ void SiStripModule::addDevices( const FedChannelConnection& conn ) {
 //
 std::vector<uint16_t> SiStripModule::activeApvs() const {
   std::vector<uint16_t> apvs;
-  if ( apv0x32_ ) { apvs.push_back( apv0x32_ ); }
-  if ( apv0x33_ ) { apvs.push_back( apv0x33_ ); }
-  if ( apv0x34_ ) { apvs.push_back( apv0x34_ ); }
-  if ( apv0x35_ ) { apvs.push_back( apv0x35_ ); }
-  if ( apv0x36_ ) { apvs.push_back( apv0x36_ ); }
-  if ( apv0x37_ ) { apvs.push_back( apv0x37_ ); }
+  if ( apv32_ ) { apvs.push_back( apv32_ ); }
+  if ( apv33_ ) { apvs.push_back( apv33_ ); }
+  if ( apv34_ ) { apvs.push_back( apv34_ ); }
+  if ( apv35_ ) { apvs.push_back( apv35_ ); }
+  if ( apv36_ ) { apvs.push_back( apv36_ ); }
+  if ( apv37_ ) { apvs.push_back( apv37_ ); }
   return apvs;
 }
 
 // -----------------------------------------------------------------------------
 //
  const uint16_t& SiStripModule::activeApv( const uint16_t& apv_address ) const {
-  if      ( apv_address == 0 || apv_address == 32 ) { return apv0x32_; }
-  else if ( apv_address == 1 || apv_address == 33 ) { return apv0x33_; }
-  else if ( apv_address == 2 || apv_address == 34 ) { return apv0x34_; }
-  else if ( apv_address == 3 || apv_address == 35 ) { return apv0x35_; }
-  else if ( apv_address == 4 || apv_address == 36 ) { return apv0x36_; }
-  else if ( apv_address == 5 || apv_address == 37 ) { return apv0x37_; }
+  if      ( apv_address == 0 || apv_address == 32 ) { return apv32_; }
+  else if ( apv_address == 1 || apv_address == 33 ) { return apv33_; }
+  else if ( apv_address == 2 || apv_address == 34 ) { return apv34_; }
+  else if ( apv_address == 3 || apv_address == 35 ) { return apv35_; }
+  else if ( apv_address == 4 || apv_address == 36 ) { return apv36_; }
+  else if ( apv_address == 5 || apv_address == 37 ) { return apv37_; }
   else {
     edm::LogWarning(mlCabling_)
       << "SiStripModule::" << __func__ << "]"
@@ -127,18 +149,18 @@ void SiStripModule::addApv( const uint16_t& apv_address ) {
   }
 
   bool added_apv = false; 
-  if      ( !apv0x32_ && apv_address == 32 ) { apv0x32_ = 32; added_apv = true; }
-  else if ( !apv0x33_ && apv_address == 33 ) { apv0x33_ = 33; added_apv = true; }
-  else if ( !apv0x34_ && apv_address == 34 ) { apv0x34_ = 34; added_apv = true; }
-  else if ( !apv0x35_ && apv_address == 35 ) { apv0x35_ = 35; added_apv = true; }
-  else if ( !apv0x36_ && apv_address == 36 ) { apv0x36_ = 36; added_apv = true; }
-  else if ( !apv0x37_ && apv_address == 37 ) { apv0x37_ = 37; added_apv = true; }
+  if      ( !apv32_ && apv_address == 32 ) { apv32_ = 32; added_apv = true; }
+  else if ( !apv33_ && apv_address == 33 ) { apv33_ = 33; added_apv = true; }
+  else if ( !apv34_ && apv_address == 34 ) { apv34_ = 34; added_apv = true; }
+  else if ( !apv35_ && apv_address == 35 ) { apv35_ = 35; added_apv = true; }
+  else if ( !apv36_ && apv_address == 36 ) { apv36_ = 36; added_apv = true; }
+  else if ( !apv37_ && apv_address == 37 ) { apv37_ = 37; added_apv = true; }
   
   std::stringstream ss;
   ss << "SiStripModule::" << __func__ << "]";
-  if ( added_apv ) { ss << " Added new APV with"; }
-  else { ss << " APV already exists with"; }
-  ss << " FecCrate/FecSlot/CcuAddr/CcuChan/I2cAddr: "
+  if ( added_apv ) { ss << " Added new APV for"; }
+  else { ss << " APV already exists for"; }
+  ss << " Crate/FEC/Ring/CCU/Module: "
      << key_.fecCrate_ << "/"
      << key_.fecSlot_ << "/"
      << key_.fecRing_ << "/"
@@ -156,9 +178,9 @@ void SiStripModule::nApvPairs( const uint16_t& npairs ) {
   if ( npairs == 2 || npairs == 3 ) { nApvPairs_ = npairs; } 
   else if ( npairs == 0 ) {
     nApvPairs_ = 0;
-    if ( apv0x32_ || apv0x33_ ) { nApvPairs_++; }
-    if ( apv0x34_ || apv0x35_ ) { nApvPairs_++; }
-    if ( apv0x36_ || apv0x37_ ) { nApvPairs_++; }
+    if ( apv32_ || apv33_ ) { nApvPairs_++; }
+    if ( apv34_ || apv35_ ) { nApvPairs_++; }
+    if ( apv36_ || apv37_ ) { nApvPairs_++; }
   } else { 
     edm::LogWarning(mlCabling_)
       << "SiStripModule::" << __func__ << "]"
@@ -170,9 +192,9 @@ void SiStripModule::nApvPairs( const uint16_t& npairs ) {
 // -----------------------------------------------------------------------------
 //
 SiStripModule::FedChannel SiStripModule::activeApvPair( const uint16_t& lld_channel ) const {
-  if      ( lld_channel == 0 ) { return FedChannel(apv0x32_,apv0x33_); }
-  else if ( lld_channel == 1 ) { return FedChannel(apv0x34_,apv0x35_); }
-  else if ( lld_channel == 2 ) { return FedChannel(apv0x36_,apv0x37_); }
+  if      ( lld_channel == 0 ) { return FedChannel(apv32_,apv33_); }
+  else if ( lld_channel == 1 ) { return FedChannel(apv34_,apv35_); }
+  else if ( lld_channel == 2 ) { return FedChannel(apv36_,apv37_); }
   else                         { return FedChannel(0,0); }
 }
 
@@ -213,16 +235,22 @@ uint16_t SiStripModule::apvPairNumber( const uint16_t& lld_channel ) const {
 
 // -----------------------------------------------------------------------------
 //
-const SiStripModule::FedChannel& SiStripModule::fedCh( const uint16_t& apv_pair ) const {
-  static const FedChannel fed_ch = FedChannel(0,0);
+SiStripModule::FedChannel SiStripModule::fedCh( const uint16_t& apv_pair ) const {
+
+  FedChannel fed_ch(0,0);
+
   if ( !nApvPairs() ) {
+
     edm::LogWarning(mlCabling_)
       << "SiStripModule::" << __func__ << "]"
       << " No APV pairs exist!";
     return fed_ch; 
+
   } else {
+
     uint16_t lld_ch;
     if ( nApvPairs() == 2 ) {
+
       if      ( apv_pair == 0 ) { lld_ch = 0; }
       else if ( apv_pair == 1 ) { lld_ch = 2; }
       else { 
@@ -230,7 +258,9 @@ const SiStripModule::FedChannel& SiStripModule::fedCh( const uint16_t& apv_pair 
 	  << "SiStripModule::" << __func__ << "]"
 	  << " Unexpected pair number! " << apv_pair;
       }
+
     } else if ( nApvPairs() == 3 ) {
+
       if      ( apv_pair == 0 ) { lld_ch = 0; }
       else if ( apv_pair == 1 ) { lld_ch = 1; }
       else if ( apv_pair == 2 ) { lld_ch = 2; }
@@ -239,15 +269,21 @@ const SiStripModule::FedChannel& SiStripModule::fedCh( const uint16_t& apv_pair 
 	  << "SiStripModule::" << __func__ << "]"
 	  << " Unexpected pair number! " << apv_pair;
       }
+
     } else {
+
       edm::LogWarning(mlCabling_) 
 	<< "SiStripModule::" << __func__ << "]"
 	<< " Unexpected number of APV pairs: " << nApvPairs();
+
     }
+
     FedCabling::const_iterator ipair = cabling_.find( lld_ch );
     if ( ipair != cabling_.end() ) { return (*ipair).second; }
     else { return fed_ch; }
+
   }
+
 }
 
 // -----------------------------------------------------------------------------
@@ -267,7 +303,8 @@ bool SiStripModule::fedCh( const uint16_t& apv_address,
     return false;
   }
   // Search for entry in std::map
-  //@@ use FedKey as key instead of lld chan? what about "duplicates"? always append to std::map? then can have >3 entries. useful for debug?
+  //@@ use FedKey as key instead of lld chan? what about "duplicates"? 
+  //@@ always append to std::map? then can have >3 entries. useful for debug?
   FedCabling::iterator ipair = cabling_.find( lld_ch );
   if ( ipair == cabling_.end() ) { cabling_[lld_ch] = fed_ch; }
   else { ipair->second = fed_ch; }
@@ -278,41 +315,39 @@ bool SiStripModule::fedCh( const uint16_t& apv_address,
 //
 void SiStripModule::print( std::stringstream& ss ) const {
 
-  ss << "[SiStripModule]" << std::endl
-     << "  crate/FEC/CCU/Module: "
+  ss << " [SiStripModule::" << __func__ << "]" << std::endl
+     << " Crate/FEC/Ring/CCU/Module : "
      << key().fecCrate() << "/"
      << key().fecSlot() << "/"
      << key().fecRing() << "/"
      << key().ccuAddr() << "/"
      << key().ccuChan() << std::endl;
 
-  ss << "  ActiveApvs: ";
-  if ( activeApvs().empty() ) { ss << "NONE!"; }
-  std::vector<uint16_t>::const_iterator iapv = activeApvs().begin();
-  for ( ; iapv != activeApvs().end(); iapv++ ) {
-    if ( *iapv ) { ss << *iapv << " "; }
-  }
+  ss << " ActiveApvs                : ";
+  std::vector<uint16_t> apvs = activeApvs();
+  if ( apvs.empty() ) { ss << "NONE!"; }
+  std::vector<uint16_t>::const_iterator iapv = apvs.begin();
+  for ( ; iapv != apvs.end(); iapv++ ) { ss << *iapv << ", "; }
   ss << std::endl;
-
-  ss << "  DcuId/DetId/nPairs: "
+  
+  ss << " DcuId/DetId/nPairs        : "
      << std::hex
      << "0x" << std::setfill('0') << std::setw(8) << dcuId() << "/"
      << "0x" << std::setfill('0') << std::setw(8) << detId() << "/"
      << std::dec
      << nApvPairs() << std::endl;
-
-  ss << "  ApvPairNum/FedId/Ch: ";
-  SiStripModule::FedCabling::const_iterator ichan = fedChannels().begin();
-  for ( ; ichan != fedChannels().end(); ichan++ ) {
-    if ( ichan->first ) {
-      ss << ichan->first << "/"
-	 << ichan->second.first << "/"
-	 << ichan->second.second << " ";
-    }
+  
+  FedCabling channels = fedChannels();
+  ss << " ApvPairNum/FedId/FedCh    : " << channels.size() << " ";
+  FedCabling::const_iterator ichan = channels.begin();
+  for ( ; ichan != channels.end(); ichan++ ) {
+    ss << ichan->first << "/"
+       << ichan->second.first << "/"
+       << ichan->second.second << ", ";
   }
   ss << std::endl;
   
-  ss << "  DCU/MUX/PLL/LLD found: "
+  ss << " DCU/MUX/PLL/LLD found     : "
      << bool(dcu0x00_) << "/"
      << bool(mux0x43_) << "/"
      << bool(pll0x44_) << "/"

@@ -1,8 +1,18 @@
-// Last commit: $Id: $
+// Last commit: $Id: SiStripFec.cc,v 1.5 2007/03/21 09:54:21 bainbrid Exp $
 
 #include "CalibFormats/SiStripObjects/interface/SiStripFec.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
+
+// -----------------------------------------------------------------------------
+//
+SiStripFec::SiStripFec( const FedChannelConnection& conn )
+  : fecSlot_( conn.fecSlot() ), 
+    rings_() 
+{ 
+  rings_.reserve(8);
+  addDevices( conn ); 
+}
 
 // -----------------------------------------------------------------------------
 //

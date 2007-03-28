@@ -1,4 +1,4 @@
-// Last commit: $Id: $
+// Last commit: $Id: SiStripFecCabling.h,v 1.15 2007/03/21 09:54:20 bainbrid Exp $
 
 #ifndef CalibFormats_SiStripObjects_SiStripFecCabling_H
 #define CalibFormats_SiStripObjects_SiStripFecCabling_H
@@ -8,7 +8,14 @@
 #include "CalibFormats/SiStripObjects/interface/SiStripFecCrate.h"
 #include "CalibFormats/SiStripObjects/interface/NumberOfDevices.h"
 #include <boost/cstdint.hpp>
+#include <sstream>
+#include <ostream>
 #include <vector>
+
+class SiStripFecCabling;
+
+/** Debug info for SiStripFecCabling class. */
+std::ostream& operator<< ( std::ostream&, const SiStripFecCabling& );
 
 /* 
    @class SiStripFecCabling
@@ -41,8 +48,10 @@ class SiStripFecCabling {
   /** */
   const SiStripModule& module( const uint32_t& dcu_id ) const;
   /** */
-  const NumberOfDevices& countDevices() const;
-  
+  NumberOfDevices countDevices() const;
+  /** */
+  void print( std::stringstream& ) const;
+
   // ---------- Methods used to build FEC cabling ----------
 
   /** */

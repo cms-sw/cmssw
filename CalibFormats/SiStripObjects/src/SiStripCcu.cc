@@ -1,8 +1,18 @@
-// Last commit: $Id: $
+// Last commit: $Id: SiStripCcu.cc,v 1.5 2007/03/21 09:54:21 bainbrid Exp $
 
 #include "CalibFormats/SiStripObjects/interface/SiStripCcu.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
+  
+// -----------------------------------------------------------------------------
+//
+SiStripCcu::SiStripCcu( const FedChannelConnection& conn ) 
+  : ccuAddr_( conn.ccuAddr() ), 
+    modules_() 
+{ 
+  modules_.reserve(32);
+  addDevices( conn ); 
+}
 
 // -----------------------------------------------------------------------------
 //

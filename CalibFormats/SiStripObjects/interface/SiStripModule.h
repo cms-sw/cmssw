@@ -1,4 +1,4 @@
-// Last commit: $Id: $
+// Last commit: $Id: SiStripModule.h,v 1.8 2007/03/21 09:54:20 bainbrid Exp $
 
 #ifndef CalibFormats_SiStripObjects_SiStripModule_H
 #define CalibFormats_SiStripObjects_SiStripModule_H
@@ -7,6 +7,7 @@
 #include "DataFormats/SiStripCommon/interface/SiStripFecKey.h"
 #include <boost/cstdint.hpp>
 #include <sstream>
+#include <ostream>
 #include <vector>
 #include <map>
 
@@ -27,21 +28,12 @@ class SiStripModule {
 
   // ---------- Constructors and adding devices ----------
   
-  /** */
-  SiStripModule( const FedChannelConnection& conn ) 
-    : key_( conn.fecCrate(), 
-	    conn.fecSlot(), 
-	    conn.fecRing(), 
-	    conn.ccuAddr(), 
-	    conn.ccuChan() ),
-    apv0x32_(0), apv0x33_(0), apv0x34_(0), apv0x35_(0), apv0x36_(0), apv0x37_(0), 
-    dcu0x00_(0), mux0x43_(0), pll0x44_(0), lld0x60_(0),
-    dcuId_(0), detId_(0), nApvPairs_(0),
-    cabling_(), length_(0) { addDevices( conn ); }
-
+  /** Constructor. */
+  SiStripModule( const FedChannelConnection& conn );
+  
   /** Default constructor. */
   ~SiStripModule() {;}
-
+  
   /** Sets device info (addresses, DetID, etc) for this module. */
   void addDevices( const FedChannelConnection& conn );
 
@@ -138,11 +130,12 @@ class SiStripModule {
   inline const FedCabling& fedChannels() const;
   
   /** Returns FedChannel for a given apvPairNumber. */
-  const FedChannel& fedCh( const uint16_t& apv_pair_num ) const;
+  FedChannel fedCh( const uint16_t& apv_pair_num ) const;
   
   /** Sets FedChannel for given APV address (32->37). Returns true
       if connection made, false otherwise. */
-  bool fedCh( const uint16_t& apv_address, const FedChannel& fed_ch );
+  bool fedCh( const uint16_t& apv_address, 
+	      const FedChannel& fed_ch );
   
   // ---------- Miscellaneous ----------
 
@@ -160,13 +153,13 @@ class SiStripModule {
   /** Control key/path for this module. */
   SiStripFecKey key_;
   
-  // APVs found (with hex addr)  
-  uint16_t apv0x32_;
-  uint16_t apv0x33_;
-  uint16_t apv0x34_;
-  uint16_t apv0x35_;
-  uint16_t apv0x36_;
-  uint16_t apv0x37_;
+  // APVs found (identified by decimal I2C address)  
+  uint16_t apv32_;
+  uint16_t apv33_;
+  uint16_t apv34_;
+  uint16_t apv35_;
+  uint16_t apv36_;
+  uint16_t apv37_;
   
   // Devices found (with hex addr)  
   uint16_t dcu0x00_;
