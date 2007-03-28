@@ -15,6 +15,9 @@
 #include "interface/shared/include/fed_trailer.h"
 
 #include <iostream>
+#include <iomanip>
+#include <fstream>
+#include <sstream>
 
 
 using namespace std;
@@ -145,3 +148,25 @@ unsigned char* BUEvent::fedAddr(unsigned int i) const
   return (buffer_+fedPos_[i]);
 }
 
+
+//________________________________________________________________________________
+void BUEvent::dump()
+{
+  ostringstream oss; oss<<"/tmp/autobu_evt"<<evtNumber()<<".dump";
+  ofstream fout(oss.str().c_str());
+  fout.fill('0');
+  
+  fout<<"#\n# evt "<<evtNumber()<<"\n#\n"<<endl;
+  for (unsigned int i=0;i<nFed();i++) {
+    if (fedSize(i)==0) continue;
+    fout<<"# fedid "<<fedId(i)<<endl;
+    unsigned char* addr=fedAddr(i);
+    for (unsigned int j=0;j<fedSize(i);j++) {
+      fout<<setiosflags(ios::right)<<setw(2)<<hex<<(int)(*addr)<<dec;
+      if ((j+1)%8) fout<<" "; else fout<<endl;
+      ++addr;
+    }
+    fout<<endl;
+  }
+  fout.close();
+}

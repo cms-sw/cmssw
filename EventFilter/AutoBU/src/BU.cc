@@ -18,8 +18,8 @@
 #include "xoap/include/xoap/SOAPBody.h"
 #include "xoap/include/xoap/domutils.h"
 
-#include <netinet/in.h>
 
+#include <netinet/in.h>
 #include <sstream>
 
 
@@ -67,12 +67,13 @@ BU::BU(xdaq::ApplicationStub *s)
   , queueSize_(32)
   , eventBufferSize_(0x400000)
   , msgBufferSize_(32768)
-  //, fedSizeMax_(65536)
-  , fedSizeMax_(4096)
-  , fedSizeMean_(1024)   // mean  of fed size for rnd generation
-  , fedSizeWidth_(256)   // width of fed size for rnd generation
+  , fedSizeMax_(65536)
+  , fedSizeMean_(1024)
+  , fedSizeWidth_(1024)
   , useFixedFedSize_(false)
   , monSleepSec_(1)
+  , gaussianMean_(0.0)
+  , gaussianWidth_(1.0)
   , monLastN_(0)
   , monLastSumOfSquares_(0)
   , monLastSumOfSizes_(0)
@@ -133,9 +134,19 @@ BU::BU(xdaq::ApplicationStub *s)
   // export parameters to info space(s)
   exportParameters();
 
+  // compute parameters for fed size generation (a la Emilio)
+  gaussianMean_ =std::log((double)fedSizeMean_);
+  gaussianWidth_=std::sqrt(std::log
+			   (0.5*
+			    (1+std::sqrt
+			     (1.0+4.0*
+			      fedSizeWidth_.value_*fedSizeWidth_.value_/
+			      fedSizeMean_.value_/fedSizeMean_.value_))));
+
   // start monitoring thread, once and for all
   startMonitoringWorkLoop();
   
+  // propagate crc flag to BUEvent
   BUEvent::setComputeCrc(crc_.value_);
 }
 
@@ -279,7 +290,12 @@ void BU::I2O_BU_DISCARD_Callback(toolbox::mem::Reference *bufRef)
   I2O_MESSAGE_FRAME           *stdMsg=(I2O_MESSAGE_FRAME*)bufRef->getDataLocation();
   I2O_BU_DISCARD_MESSAGE_FRAME*msg   =(I2O_BU_DISCARD_MESSAGE_FRAME*)stdMsg;
   unsigned int buResourceId=msg->buResourceId[0];
-  if (0==sentIds_.erase(buResourceId)) {
+
+  lock();
+  int result=sentIds_.erase(buResourceId);
+  unlock();
+  
+  if (!result) {
     LOG4CPLUS_ERROR(log_,"can't discard unknown buResourceId '"<<buResourceId<<"'");
   }
   else {
@@ -289,6 +305,7 @@ void BU::I2O_BU_DISCARD_Callback(toolbox::mem::Reference *bufRef)
     unlock();
     postBuild();
   }
+  
   bufRef->release();
 }
 
@@ -409,7 +426,6 @@ bool BU::sending(toolbox::task::WorkLoop* wl)
   
   BUEvent* evt=events_[buResourceId];
   toolbox::mem::Reference* msg=createMsgChain(evt,fuResourceId);
-  buAppContext_->postFrame(msg,buAppDesc_,fuAppDesc_);
   
   lock();
   sumOfSquares_+=(uint64_t)evt->evtSize()*(uint64_t)evt->evtSize();
@@ -417,7 +433,9 @@ bool BU::sending(toolbox::task::WorkLoop* wl)
   nbEventsInBU_--;
   sentIds_.insert(buResourceId);
   unlock();
-  
+
+  buAppContext_->postFrame(msg,buAppDesc_,fuAppDesc_);  
+
   return true;
 }
 
@@ -651,11 +669,8 @@ bool BU::generateEvent(BUEvent* evt)
       unsigned int fedId(validFedIds_[i]);
       unsigned int fedSize(fedSizeMean_);
       if (!useFixedFedSize_) {
-	double logFedSize=RandGauss::shoot(std::log((double)fedSizeMean_),
-	std::log((double)fedSizeMean_)-
-					   std::log((double)fedSizeWidth_/2.));
+	double logFedSize=RandGauss::shoot(gaussianMean_,gaussianWidth_);
 	fedSize=(unsigned int)(std::exp(logFedSize));
-		
 	if (fedSize<fedSizeMin)  fedSize=fedSizeMin;
 	if (fedSize>fedSizeMax_) fedSize=fedSizeMax_;
 	fedSize-=fedSize%8;

@@ -36,6 +36,8 @@ namespace evf
     static bool    computeCrc() { return computeCrc_; }
     static void    setComputeCrc(bool computeCrc) { computeCrc_=computeCrc; }
 
+    void           dump();
+    
     
   private:
     //

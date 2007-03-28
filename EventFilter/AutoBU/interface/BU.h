@@ -208,6 +208,10 @@ namespace evf {
     xdata::UnsignedInteger32        fedSizeWidth_;
     xdata::Boolean                  useFixedFedSize_;
     xdata::UnsignedInteger32        monSleepSec_;
+
+    // gaussian aprameters for randpm fed size generation (log-normal)
+    double                          gaussianMean_;
+    double                          gaussianWidth_;
     
     // monitoring helpers
     struct timeval                  monStartTime_;

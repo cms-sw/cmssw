@@ -1,3 +1,11 @@
+2007-03-28  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-04-01
+	* fix fedSize generation according to Emilio's input concerning
+	the correct way to generate a log-normal distribution
+	* fix sync issue where an event could have actually been discarded
+	before being added to the sentIds std::set before.
+
 2007-03-27  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-04-00
