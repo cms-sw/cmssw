@@ -487,7 +487,15 @@ L1CaloEmCollection L1RCT::getIsolatedEGObjects(int crate){
     unsigned short rgn = ((isoEmObjects.at(i)) & 1);
     unsigned short crd = (((isoEmObjects.at(i))/2) & 7);
     unsigned short energy = ((isoEmObjects.at(i))/16);
-    unsigned short rank = gctEmScale->rank(energy);
+    unsigned short rank;
+    if (!patternTest_)
+      {
+	rank = gctEmScale->rank(energy);
+      }
+    else
+      {
+	rank = energy;
+      }
     L1CaloEmCand isoCand(rank, rgn, crd, crate, 1);
     // L1CaloEmCand isoCand(energy, rgn, crd, crate, 1);  // uses 7-bit energy as rank here, temporarily
     // cout << "card " << crd << "region " << rgn << "energy " << energy << endl;
@@ -506,7 +514,15 @@ L1CaloEmCollection L1RCT::getNonisolatedEGObjects(int crate){
     unsigned short rgn = ((nonIsoEmObjects.at(i)) & 1);
     unsigned short crd = (((nonIsoEmObjects.at(i))/2) & 7);
     unsigned short energy = ((nonIsoEmObjects.at(i))/16);
-    unsigned short rank = gctEmScale->rank(energy);
+    unsigned short rank;
+    if (!patternTest_)
+      {
+	rank = gctEmScale->rank(energy);
+      }
+    else
+      {
+	rank = energy;
+      }
     L1CaloEmCand nonIsoCand(rank, rgn, crd, crate, 0);
     //L1CaloEmCand nonIsoCand(energy, rgn, crd, crate, 0);  // uses 7-bit energy as rank here, temporarily
     nonIsoEmCands.push_back(nonIsoCand);

@@ -57,9 +57,10 @@ unsigned short L1RCTLookupTables::lookup(unsigned short hfenergy,
   int iEta = L1RCT::calcIEta(crtNo, crdNo, twrNo);
   int iAbsEta = abs(iEta);
   if(iAbsEta < 29 || iAbsEta > 32) throw cms::Exception("Invalid Data") << "29 <= |iEta| <= 32, is " << iAbsEta;
-  float et;
-  if(useTranscoder_) et = transcoder_->hcaletValue(iAbsEta, hfenergy);
-  else et = hfenergy;           // This is so debugging can happen without the transcoder
+  //  float et;
+  //  if(useTranscoder_) et = transcoder_->hcaletValue(iAbsEta, hfenergy);
+  //  else et = hfenergy;           // This is so debugging can happen without the transcoder
+  float et = convertHcal(hfenergy, iAbsEta);
   return convertToInteger(et, jetMETLSB(), 8);
 }
 
@@ -225,9 +226,13 @@ void L1RCTLookupTables::loadHcalLut(const std::string& filename)
       for (int i = 0; i < 26; i++) 
 	{
 	  userfile >> hcalSCF_[i];
-	  //std::cout << "L1RCTLookupTables: hcalSCF_[" << i << "] is " << hcalSCF_[i] << endl;
+	  //std::cout << "L1RCTLookupTables: hcalSCF_[" << i << "] is " << hcalSCF_[i] << std::endl;
 	}
-      for (int i = 26; i < 32; i++) hcalSCF_[i] = hcalSCF_[i-1];
+      for (int i = 26; i < 32; i++) 
+	{
+	  hcalSCF_[i] = hcalSCF_[i-1];
+	  //std::cout << "L1RCTLookupTables: hcalSCF_[" << i << "] is " << hcalSCF_[i] << std::endl;
+	}
       userfile.close();
     }
   else
