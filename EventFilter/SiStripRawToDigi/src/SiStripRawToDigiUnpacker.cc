@@ -1,29 +1,23 @@
-// Last commit: $Id: SiStripRawToDigiUnpacker.cc,v 1.26 2007/03/21 16:38:14 bainbrid Exp $
+// Last commit: $Id: SiStripRawToDigiUnpacker.cc,v 1.27 2007/03/21 17:08:58 bainbrid Exp $
 
 #include "EventFilter/SiStripRawToDigi/interface/SiStripRawToDigiUnpacker.h"
-//
-#include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "Utilities/Timing/interface/TimingReport.h"
-//
+#include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 #include "DataFormats/Common/interface/DetSet.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "DataFormats/SiStripCommon/interface/SiStripFedKey.h"
+#include "DataFormats/SiStripCommon/interface/SiStripEventSummary.h"
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
-#include "DataFormats/SiStripCommon/interface/SiStripEventSummary.h"
-//
-#include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
-//
 #include "EventFilter/SiStripRawToDigi/interface/TFHeaderDescription.h"
+#include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "Utilities/Timing/interface/TimingReport.h"
 #include "interface/shared/include/fed_header.h"
 #include "interface/shared/include/fed_trailer.h"
-//
 #include "Fed9UUtils.hh"
 #include "ICException.hh"
-//
 #include <iostream>
 #include <sstream>
 #include <iomanip>
@@ -155,14 +149,14 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
     Fed9U::Fed9UAddress addr;
     const std::vector<FedChannelConnection>& conns = cabling.connections(*ifed);
     std::vector<FedChannelConnection>::const_iterator iconn = conns.begin();
-
-    for (;iconn != conns.end(); iconn++) {
-      uint16_t channel = iconn->fedCh();
-      //for ( uint16_t channel = 0; channel < 96; channel++ ) {
+    for ( ; iconn != conns.end(); iconn++ ) {
       
+      if ( !iconn->isConnected() ) { continue; }
+      uint16_t channel = iconn->fedCh();
       uint16_t iunit = channel / 12;
       uint16_t ichan = channel % 12;
-      uint16_t chan  = channel;
+      uint16_t chan  = 12 * iunit + ichan;
+      
       try {
 	addr.setFedChannel( static_cast<unsigned char>( channel ) );
 	iunit = addr.getFedFeUnit();
@@ -174,7 +168,7 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
       
       // Retrieve cabling map information and define "FED key" for Digis
       const FedChannelConnection& conn = *iconn;//cabling.connection( *ifed, chan );
-
+      
       // Determine whether FED key is inferred from cabling or channel loop
       SiStripFedKey fed_path;
       uint32_t fed_key = 0;
@@ -187,7 +181,7 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
 				  SiStripFedKey::feUnit(conn.fedCh()),
 				  SiStripFedKey::feChan(conn.fedCh()) );
       }
-      fed_key = fed_path.key(); 
+      fed_key = fed_path.key();
       
       // Determine whether DetId or FED key should be used to index digi containers
       uint32_t key = ( useFedKey_ || mode == sistrip::FED_SCOPE_MODE ) ? fed_key : conn.detId();
@@ -664,27 +658,39 @@ void SiStripRawToDigiUnpacker::handleException( std::string method_name,
   }
   catch ( const ICUtils::ICException& e ) {
     std::stringstream ss;
-    ss << "Caught ICUtils::ICException in ["
+    ss << "[SiStripRawToDigiUnpacker::" << __func__ << "]"
+       << " Caught exception!" << std::endl;
+    if ( extra_info != "" ) { 
+      ss << " Information: " << extra_info << std::endl;
+    }
+    ss << " Caught ICUtils::ICException in ["
        << method_name << "] with message:" << std::endl 
        << e.what();
-    if ( extra_info != "" ) { ss << "Additional info: " << extra_info; }
     edm::LogWarning(mlRawToDigi_) << ss.str();
     //throw cms::Exception(mlRawToDigi_) << ss.str();
   }
   catch ( const std::exception& e ) {
     std::stringstream ss;
-    ss << "Caught std::exception in ["
+    ss << "[SiStripRawToDigiUnpacker::" << __func__ << "]"
+       << " Caught exception!" << std::endl;
+    if ( extra_info != "" ) { 
+      ss << " Information: " << extra_info << std::endl;
+    }
+    ss << " Caught std::exception in ["
        << method_name << "] with message:" << std::endl 
        << e.what();
-    if ( extra_info != "" ) { ss << "Additional info: " << extra_info; }
     edm::LogWarning(mlRawToDigi_) << ss.str();
     //throw cms::Exception(mlRawToDigi_) << ss.str();
   }
   catch (...) {
     std::stringstream ss;
+    ss << "[SiStripRawToDigiUnpacker::" << __func__ << "]"
+       << " Caught exception!" << std::endl;
+    if ( extra_info != "" ) { 
+      ss << " Information: " << extra_info << std::endl;
+    }
     ss << "Caught unknown exception in ["
        << method_name << "]" << std::endl;
-    if ( extra_info != "" ) { ss << "Additional info: " << extra_info; }
     edm::LogWarning(mlRawToDigi_) << ss.str();
     //throw cms::Exception(mlRawToDigi_) << ss.str();
   }
