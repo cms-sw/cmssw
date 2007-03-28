@@ -37,7 +37,7 @@ void SRBlockFormatter::DigiToRaw(int dccid, int dcc_channel, int flag, FEDRawDat
   int SRid = (dccid -1) / 3 +1;
 
 
-	int Number_SRP_Flags = 68;
+	// int Number_SRP_Flags = 68;
 
 	int SRP_index;
 	int icode = 1000 * dccid +  SRid;
