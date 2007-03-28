@@ -1019,7 +1019,7 @@ void DDEcalBarrelAlgo::execute()
 		   Vec3(0,0,0),
 		   DDRotation() ) ;
 
-	    unsigned int copyNum[] = {20*0} ;
+	    unsigned int copyNum[] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0} ;
 
 	    if( 10*mm <  vecIlyThick()[ily] &&
 		vecIlyThick().size() != (ily+1) &&
