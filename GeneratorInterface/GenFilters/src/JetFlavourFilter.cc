@@ -41,12 +41,25 @@ JetFlavourFilter::printHisto(const HepMC::GenEvent::particle_iterator start,
   HepMC::GenEvent::particle_iterator p;
   for (p = start; p != end; p++) 
     {
-      vector< GenParticle * > parents = (*p)->listParents();
+      //vector< GenParticle * > parents = (*p)->listParents();
+      vector< GenParticle * > parents;
+      HepMC::GenVertex* inVertex = (*p)->production_vertex();
+      for(std::set<GenParticle*>::const_iterator iter = inVertex->particles_in_const_begin();
+	  iter != inVertex->particles_in_const_end();iter++)
+	parents.push_back(*iter);
+      
       cout << "isC "<<(*p)->pdg_id()<<" status "<<(*p)->status()<<" Parents: "<<parents.size()<<" - ";
       for (GenPartVectIt z = parents.begin(); z != parents.end(); z++){
 	cout << (*z)->pdg_id()<<" ";
       }
-      vector< GenParticle * > child = (*p)->listChildren();
+
+      //vector< GenParticle * > child = (*p)->listChildren();
+      vector< GenParticle * > child;
+      HepMC::GenVertex* outVertex = (*p)->end_vertex();
+      for(std::set<GenParticle*>::const_iterator iter = outVertex->particles_in_const_begin();
+	  iter != outVertex->particles_in_const_end();iter++)
+	child.push_back(*iter);
+      
       cout << " - Child: "<<child.size()<<" - ";
       for (GenPartVectIt z = child.begin(); z != child.end(); z++){
 	cout << (*z)->pdg_id()<<" ";
@@ -70,9 +83,22 @@ bool JetFlavourFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   for (p = generated_event->particles_begin(); p != generated_event->particles_end(); p++) {
     if (((*p)->pdg_id() < 1) && ((*p)->pdg_id() > -10)) { // We have an anti-quark
 //       cout << "antiQ "<< (*p)->pdg_id();
-      vector< GenParticle * > parents = (*p)->listParents();
+      //vector< GenParticle * > parents = (*p)->listParents();
+      vector< GenParticle * > parents;
+      HepMC::GenVertex* inVertex = (*p)->production_vertex();
+      for(std::set<GenParticle*>::const_iterator iter = inVertex->particles_in_const_begin();
+	  iter != inVertex->particles_in_const_end();iter++)
+	parents.push_back(*iter);
+      
       for (GenPartVectIt z = parents.begin(); z != parents.end(); z++){
-	if (findParticle((*z)->listChildren(), -(*p)->pdg_id())) foundQ.push_back(-(*p)->pdg_id());
+
+	vector< GenParticle * > child;
+	HepMC::GenVertex* outVertex = (*z)->end_vertex();
+	for(std::set<GenParticle*>::const_iterator iter = outVertex->particles_in_const_begin();
+	    iter != outVertex->particles_in_const_end();iter++)
+	  child.push_back(*iter);
+	
+	if (findParticle(child, -(*p)->pdg_id())) foundQ.push_back(-(*p)->pdg_id());
       }
 //       cout << " "<< foundQ.size()<<endl;
       

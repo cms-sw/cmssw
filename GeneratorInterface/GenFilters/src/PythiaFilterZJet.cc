@@ -1,5 +1,6 @@
 #include "GeneratorInterface/GenFilters/interface/PythiaFilterZJet.h"
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "DataFormats/Math/interface/LorentzVector.h"
 #include <iostream>
 #include<list>
 #include<vector>
@@ -45,8 +46,14 @@ bool PythiaFilterZJet::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     if(mu.size()>1) break;
   }
 
+  //***
+  
   if(mu.size()>1){
-    double ptZ= (mu[0]->momentum() + mu[1]->momentum()).perp();
+    math::XYZTLorentzVector tot_mom(mu[0]->momentum());
+    math::XYZTLorentzVector mom2(mu[1]->momentum());
+    tot_mom += mom2;
+    //    double ptZ= (mu[0]->momentum() + mu[1]->momentum()).perp();
+    double ptZ = tot_mom.pt();
     if (ptZ > ptZMin && ptZ < ptZMax  && 
 	std::abs(mu[0]->momentum().eta()) < etaMuMax &&
 	std::abs(mu[1]->momentum().eta()) < etaMuMax) 

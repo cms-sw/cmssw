@@ -2,16 +2,22 @@
 <use name=FWCore/Framework>
 <use name=SimDataFormats/HepMCProduct>
 <use name=hepmc> 
+<use name=heppdt>
 <use name=clhep> 
+<use name=root>
 <use name=pythia6_227>
 <use name=GeneratorInterface/Pythia6Interface>
+<use name=SimGeneral/HepPDTRecord>
 <flags SEAL_PLUGIN_NAME="GeneratorInterfaceGenFilters">
 <export>
  <use name=boost>
  <use name=FWCore/Framework>
  <use name=SimDataFormats/HepMCProduct>
- <use name=hepmc> 
- <use name=clhep> 
+ <use name=hepmc>
+ <use name=heppdt> 
+ <use name=SimGeneral/HepPDTRecord>
+ <use name=clhep>
+ <use name=root> 
  <use name=pythia6_227>
  <use name=GeneratorInterface/Pythia6Interface>
 </export>

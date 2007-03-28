@@ -69,11 +69,27 @@ bool PythiaFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
            	     accepted = true;
 	     }
 	     if (status != 0 && motherID == 0){
-           	if ((*p)->status() == status)   
+	       if ((*p)->status() == status)   
+		 accepted = true;
+	     }
+	     
+	     HepMC::GenParticle* mother = (*((*p)->production_vertex()->particles_in_const_begin()));
+
+	       if (status == 0 && motherID != 0){    
+		 if (abs(mother->pdg_id()) == abs(motherID)) {
 		     accepted = true;
 	        }
-	     
-	     if (status == 0 && motherID != 0){
+	     }
+	     if (status != 0 && motherID != 0){
+                
+	       if ((*p)->status() == status && abs(mother->pdg_id()) == abs(motherID)){   
+		 accepted = true;
+		 
+		     }
+	     }
+
+	       /*
+	     if (status == 0 && motherID != 0){    
            	if (abs(((*p)->mother())->pdg_id()) == abs(motherID)) {
 		     accepted = true;
 	        }
@@ -81,10 +97,11 @@ bool PythiaFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	     if (status != 0 && motherID != 0){
                 
            	if ((*p)->status() == status && abs(((*p)->mother())->pdg_id()) == abs(motherID)){   
-		     accepted = true;
-                    
-	        }
+		accepted = true;
+		     
+		     }
 	     }
+	       */
 	     
 	 }    
 	     

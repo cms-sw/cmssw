@@ -1,5 +1,8 @@
 #include "GeneratorInterface/GenFilters/interface/PythiaFilterGammaJet.h"
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include <iostream>
 #include<list>
 #include<vector>
@@ -87,17 +90,27 @@ bool PythiaFilterGammaJet::filter(edm::Event& iEvent, const edm::EventSetup& iSe
     double etaPhoton=(*is)->momentum().eta();
     double phiPhoton=(*is)->momentum().phi();
 
+    HepMC::GenEvent::particle_const_iterator ppp = myGenEvent->particles_begin();
+    for(int i=0;i<6;++i) ppp++;
+    HepMC::GenParticle* particle7 = (*ppp);
+    ppp++;
+    HepMC::GenParticle* particle8 = (*ppp);
+
     double dphi7=std::abs(deltaPhi(phiPhoton, 
-			       myGenEvent->particle(7)->momentum().phi()));
+				   particle7->momentum().phi()));
     double dphi=std::abs(deltaPhi(phiPhoton, 
-			      myGenEvent->particle(8)->momentum().phi()));
+				  particle8->momentum().phi()));
     int jetline=8;
     if(dphi7>dphi) {
       dphi=dphi7;
       jetline=7;
     }
     if(dphi<dphiMin) continue;
-    double etaJet= myGenEvent->particle(jetline)->momentum().eta();
+    //double etaJet= myGenEvent->particle(jetline)->momentum().eta();
+    double etaJet = 0.0;
+    if(jetline==8) etaJet = particle8->momentum().eta();
+    else etaJet = particle7->momentum().eta();
+
     double eta1=etaJet-detaMax;
     double eta2=etaJet+detaMax;
     if (eta1>etaPhotonCut2) eta1=etaPhotonCut2;
@@ -131,8 +144,15 @@ bool PythiaFilterGammaJet::filter(edm::Event& iEvent, const edm::EventSetup& iSe
       if (deltaR2(etaPhoton, phiPhoton, eta, phi)>cone*cone) continue;
       double pt=(*p)->momentum().perp();
 
+
+      edm::ESHandle<ParticleDataTable> pdt;
+      iSetup.getData( pdt );
+
+
 //       double charge=(*p)->particledata().charge();
-      int charge3=(*p)->particleID().threeCharge();
+      //int charge3=(*p)->particleID().threeCharge();
+
+      int charge3 = ((pdt->particle((*p)->pdg_id()))->ID().threeCharge());
       etCone+=pt;
       if(charge3 && pt<2) etConeCharged+=pt;
 

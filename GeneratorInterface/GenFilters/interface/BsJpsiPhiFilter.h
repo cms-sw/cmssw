@@ -18,6 +18,8 @@
 
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 
+#include "HepMC/GenVertex.h"
+
 
 // 
 
@@ -42,7 +44,11 @@ private:
   typedef std::vector< HepMC::GenParticle * > GenPartVect;
   typedef std::vector< HepMC::GenParticle * >::const_iterator GenPartVectIt;
 
-  HepMC::GenParticle * findParticle(const GenPartVect genPartVect, const int requested_id) ;
+  //  HepMC::GenParticle * findParticle(const GenPartVect genPartVect, const int requested_id) ;
+
+  //***
+  HepMC::GenParticle * findParticle(HepMC::GenVertex* , const int requested_id) ;
+  //***
 
   HepMC::GenEvent::particle_iterator getNextBs(const HepMC::GenEvent::particle_iterator start, 
 			       const HepMC::GenEvent::particle_iterator end);

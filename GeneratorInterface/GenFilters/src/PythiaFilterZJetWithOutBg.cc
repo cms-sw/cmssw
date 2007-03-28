@@ -1,5 +1,6 @@
 #include "GeneratorInterface/GenFilters/interface/PythiaFilterZJetWithOutBg.h"
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "DataFormats/Math/interface/LorentzVector.h"
 #include <iostream>
 #include<list>
 #include<vector>
@@ -86,8 +87,16 @@ bool PythiaFilterZJetWithOutBg::filter(edm::Event& iEvent, const edm::EventSetup
     
     if(std::fabs(massZ-m_z)>dm_z) return false;
     
-    double ptZ= (mu[0]->momentum() + mu[1]->momentum()).perp();
+    //    double ptZ= (mu[0]->momentum() + mu[1]->momentum()).perp();
 //    std::cout<<" MassZ accept "<<ptZ<<std::endl;
+
+    math::XYZTLorentzVector tot_mom(mu[0]->momentum());
+    math::XYZTLorentzVector mom2(mu[1]->momentum());
+    tot_mom += mom2;
+    //    double ptZ= (mu[0]->momentum() + mu[1]->momentum()).perp();
+    double ptZ = tot_mom.pt();
+    
+
     if (ptZ > ptZMin && ptZ < ptZMax ) accepted=true;
  
 
