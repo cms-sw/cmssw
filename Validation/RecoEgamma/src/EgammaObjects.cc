@@ -303,8 +303,8 @@ void EgammaObjects::analyzePhotons( const edm::Event& evt, const edm::EventSetup
       currentParticle != genEvent->particles_end(); currentParticle++ )
   {
     if(abs((*currentParticle)->pdg_id())==22 && (*currentParticle)->status()==1 
-&& (*currentParticle)->momentum().e()/ecalEta((*currentParticle)->momentum().eta(), (*currentParticle)->production_vertex()->position().z()/10., 
-(*currentParticle)->production_vertex()->position().perp()/10.) >= EtCut) 
+      && (*currentParticle)->momentum().e()/cosh(ecalEta((*currentParticle)->momentum().eta(), (*currentParticle)->production_vertex()->position().z()/10., 
+      (*currentParticle)->production_vertex()->position().perp()/10.)) >= EtCut) 
     {
 			HepMC::FourVector vtx = (*currentParticle)->production_vertex()->position();
 			double phiTrue = (*currentParticle)->momentum().phi();
@@ -329,8 +329,11 @@ void EgammaObjects::analyzePhotons( const edm::Event& evt, const edm::EventSetup
           phiCurrent = aClus->phi();
           etCurrent  = aClus->et();
           eCurrent  = aClus->energy();
-  									
-          double deltaR = std::sqrt(std::pow(etaCurrent-etaTrue,2)+std::pow(phiCurrent-phiTrue,2));
+          
+          double deltaPhi = phiCurrent-phiTrue;
+          if(deltaPhi > pi) deltaPhi -= 2.*pi;
+          if(deltaPhi < -pi) deltaPhi += 2.*pi;
+          double deltaR = std::sqrt(std::pow(etaCurrent-etaTrue,2)+std::pow(deltaPhi,2));
 
   	      if(deltaR < closestParticleDistance)
           {
@@ -344,7 +347,7 @@ void EgammaObjects::analyzePhotons( const edm::Event& evt, const edm::EventSetup
         }
       }
       
-      if(closestParticleDistance < 0.3 && etFound/etTrue > .5 && etFound/etTrue < 1.5)
+      if(closestParticleDistance < 0.05 && etFound/etTrue > .5 && etFound/etTrue < 1.5)
       {   
         hist_EtOverTruth_->Fill(etFound/etTrue);   
         hist_EOverTruth_->Fill(eFound/eTrue);
@@ -355,6 +358,10 @@ void EgammaObjects::analyzePhotons( const edm::Event& evt, const edm::EventSetup
         hist_EEfficiency_->Fill(eTrue);
         hist_EtaEfficiency_->Fill(etaTrue);
         hist_PhiEfficiency_->Fill(phiTrue);
+        
+        double deltaPhi = phiFound-phiTrue;
+        if(deltaPhi > pi) deltaPhi -= 2.*pi;
+        if(deltaPhi < -pi) deltaPhi += 2.*pi;
           	  
         _TEMP_scatterPlot_EtOverTruthVsEt_->Fill(etFound,etFound/etTrue);
         _TEMP_scatterPlot_EtOverTruthVsE_->Fill(eFound,etFound/etTrue);
@@ -371,10 +378,10 @@ void EgammaObjects::analyzePhotons( const edm::Event& evt, const edm::EventSetup
         _TEMP_scatterPlot_deltaEtaVsEta_->Fill(etaFound,etaFound-etaTrue);
         _TEMP_scatterPlot_deltaEtaVsPhi_->Fill(phiFound,etaFound-etaTrue);
     
-        _TEMP_scatterPlot_deltaPhiVsEt_->Fill(etFound,phiFound-phiTrue);
-        _TEMP_scatterPlot_deltaPhiVsE_->Fill(eFound,phiFound-phiTrue);
-        _TEMP_scatterPlot_deltaPhiVsEta_->Fill(etaFound,phiFound-phiTrue);
-        _TEMP_scatterPlot_deltaPhiVsPhi_->Fill(phiFound,phiFound-phiTrue);
+        _TEMP_scatterPlot_deltaPhiVsEt_->Fill(etFound,deltaPhi);
+        _TEMP_scatterPlot_deltaPhiVsE_->Fill(eFound,deltaPhi);
+        _TEMP_scatterPlot_deltaPhiVsEta_->Fill(etaFound,deltaPhi);
+        _TEMP_scatterPlot_deltaPhiVsPhi_->Fill(phiFound,deltaPhi);
      	          
         photonsMCMatched.push_back(bestMatchPhoton);	
       }
@@ -465,12 +472,11 @@ void EgammaObjects::analyzeElectrons( const edm::Event& evt, const edm::EventSet
       currentParticle != genEvent->particles_end(); currentParticle++ )
   {
     if(abs((*currentParticle)->pdg_id())==11 && (*currentParticle)->status()==1 
-&& (*currentParticle)->momentum().e()/ecalEta((*currentParticle)->momentum().eta(), (*currentParticle)->production_vertex()->position().z()/10., 
-(*currentParticle)->production_vertex()->position().perp()/10.) >= EtCut)
+      && (*currentParticle)->momentum().e()/cosh((*currentParticle)->momentum().eta()) >= EtCut)
     {
 			HepMC::FourVector vtx = (*currentParticle)->production_vertex()->position();
 			double phiTrue = (*currentParticle)->momentum().phi();
-			double etaTrue = ecalEta((*currentParticle)->momentum().eta(), vtx.z()/10., vtx.perp()/10.);
+			double etaTrue = (*currentParticle)->momentum().eta();
       double eTrue  = (*currentParticle)->momentum().e();
 			double etTrue  = (*currentParticle)->momentum().e()/cosh(etaTrue);   
 
@@ -492,7 +498,10 @@ void EgammaObjects::analyzeElectrons( const edm::Event& evt, const edm::EventSet
           etCurrent  = aClus->et();
           eCurrent  = aClus->energy();
   									
-          double deltaR = std::sqrt(std::pow(etaCurrent-etaTrue,2)+std::pow(phiCurrent-phiTrue,2));
+          double deltaPhi = phiCurrent-phiTrue;
+          if(deltaPhi > pi) deltaPhi -= 2.*pi;
+          if(deltaPhi < -pi) deltaPhi += 2.*pi;
+          double deltaR = std::sqrt(std::pow(etaCurrent-etaTrue,2)+std::pow(deltaPhi,2));
 
   	      if(deltaR < closestParticleDistance)
           {
@@ -506,7 +515,7 @@ void EgammaObjects::analyzeElectrons( const edm::Event& evt, const edm::EventSet
         }
       }
       
-      if(closestParticleDistance < 0.3 && etFound/etTrue > .5 && etFound/etTrue < 1.5)
+      if(closestParticleDistance < 0.05 && etFound/etTrue > .5 && etFound/etTrue < 1.5)
       {   
         hist_EtOverTruth_->Fill(etFound/etTrue);   
         hist_EOverTruth_->Fill(eFound/eTrue);
@@ -517,6 +526,10 @@ void EgammaObjects::analyzeElectrons( const edm::Event& evt, const edm::EventSet
         hist_EEfficiency_->Fill(eTrue);
         hist_EtaEfficiency_->Fill(etaTrue);
         hist_PhiEfficiency_->Fill(phiTrue);
+        
+        double deltaPhi = phiFound-phiTrue;
+        if(deltaPhi > pi) deltaPhi -= 2.*pi;
+        if(deltaPhi < -pi) deltaPhi += 2.*pi;
           	  
         _TEMP_scatterPlot_EtOverTruthVsEt_->Fill(etFound,etFound/etTrue);
         _TEMP_scatterPlot_EtOverTruthVsE_->Fill(eFound,etFound/etTrue);
@@ -533,10 +546,10 @@ void EgammaObjects::analyzeElectrons( const edm::Event& evt, const edm::EventSet
         _TEMP_scatterPlot_deltaEtaVsEta_->Fill(etaFound,etaFound-etaTrue);
         _TEMP_scatterPlot_deltaEtaVsPhi_->Fill(phiFound,etaFound-etaTrue);
     
-        _TEMP_scatterPlot_deltaPhiVsEt_->Fill(etFound,phiFound-phiTrue);
-        _TEMP_scatterPlot_deltaPhiVsE_->Fill(eFound,phiFound-phiTrue);
-        _TEMP_scatterPlot_deltaPhiVsEta_->Fill(etaFound,phiFound-phiTrue);
-        _TEMP_scatterPlot_deltaPhiVsPhi_->Fill(phiFound,phiFound-phiTrue);
+        _TEMP_scatterPlot_deltaPhiVsEt_->Fill(etFound,deltaPhi);
+        _TEMP_scatterPlot_deltaPhiVsE_->Fill(eFound,deltaPhi);
+        _TEMP_scatterPlot_deltaPhiVsEta_->Fill(etaFound,deltaPhi);
+        _TEMP_scatterPlot_deltaPhiVsPhi_->Fill(phiFound,deltaPhi);
      	          
         electronsMCMatched.push_back(bestMatchElectron);	
       }
