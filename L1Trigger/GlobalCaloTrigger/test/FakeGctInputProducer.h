@@ -5,7 +5,7 @@
 // 
 /**\class FakeGctInputProducer FakeGctInputProducer.h L1Trigger/GlobalCaloTrigger/src/FakeGctInputProducer.h
 
- Description: <one line class summary>
+ \brief EDProducer to fill GCT input buffers for testing
 
  Implementation:
      <Notes on implementation>
@@ -13,7 +13,7 @@
 //
 // Original Author:  Jim Brooke
 //         Created:  Thu Nov 16 00:07:32 CET 2006
-// $Id: FakeGctInputProducer.h,v 1.1 2006/11/24 17:28:47 jbrooke Exp $
+// $Id: FakeGctInputProducer.h,v 1.1 2007/03/22 17:55:43 heath Exp $
 //
 //
 

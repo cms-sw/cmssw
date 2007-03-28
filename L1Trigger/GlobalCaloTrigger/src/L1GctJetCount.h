@@ -7,7 +7,26 @@
 #include <boost/cstdint.hpp>
 #include <ostream>
 
-/// Jet counts
+/*!
+ * \class L1GctJetCount
+ * \brief Definition of unsigned integer types with increment and overflow
+ *
+ * This file defines the template class L1GctJetCount. It is used to store
+ * energy values that are represented in a given number of bits in hardware.
+ * The value is set to the maximum (all bits set to '1') to represent an overFlow
+ * condition, if the number to be represented is outside the allowed range
+ * for that number of bits. The counters are unsigned integers.
+ * Functions are defined to increment the counter, to add two values,
+ * and to copy data into a different number of bits.
+ *
+ * this header file contains method definitions because these are template classes
+ * see http://www.parashift.com/c++-faq-lite/templates.html#faq-35.12
+ *
+ * \author Jim Brooke & Greg Heath
+ * \date May 2006
+ * 
+ */
+
 template <int nBits>
 class L1GctJetCount : public L1GctUnsignedInt<nBits> {
 

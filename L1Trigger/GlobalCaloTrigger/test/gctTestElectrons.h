@@ -1,11 +1,16 @@
 #ifndef GCTTESTELECTRONS_H_
 #define GCTTESTELECTRONS_H_
 
-//
-// Electron sort test functionality migrated from standalone test programs
-//
-// Greg Heath, March 2007
-//
+/*!
+ * \class gctTestElectrons
+ * \brief Test of the electron sorting
+ * 
+ * Electron sort test functionality migrated from standalone test programs
+ *
+ * \author Greg Heath
+ * \date March 2007
+ *
+ */
 
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEmCand.h"
 #include "DataFormats/L1CaloTrigger/interface/L1CaloEmCand.h"

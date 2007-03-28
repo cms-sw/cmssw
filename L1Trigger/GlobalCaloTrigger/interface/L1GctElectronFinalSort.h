@@ -12,7 +12,7 @@
 
 /*!
  * \Class L1GctElectronFinalSort
- * \Class does the final sorting of electron candidates
+ * \brief Does the final sorting of electron candidates
  *
  * This class can be constructed to sort iso or non-iso
  * electron candidates, which have been through the

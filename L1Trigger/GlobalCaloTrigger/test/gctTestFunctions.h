@@ -1,15 +1,20 @@
 #ifndef GCTTEST_H_
 #define GCTTEST_H_
 
-//
-// This massive class contains a bunch of test functionality
-// migrated from standalone test programs, to reduce duplication
-// of code and allow the tests to be done in an EDAnalyzer.
-//
-// Split into separate files to keep file sizes down.
-//
-// Greg Heath, March 2007
-//
+/*!
+ * \class gctTestFunctions
+ * \brief Top level skeleton for standalone testing
+ * 
+ * Contains a bunch of test functionality migrated from 
+ * standalone test programs, to reduce duplication of code
+ * and allow the tests to be done in an EDAnalyzer.
+ *
+ * Split into separate files to keep file sizes down.
+ *
+ * \author Greg Heath
+ * \date March 2007
+ *
+ */
 
 #include <vector>
 

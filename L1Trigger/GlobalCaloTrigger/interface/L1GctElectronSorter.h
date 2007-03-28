@@ -13,7 +13,7 @@
 
 /*!
  * \Class L1GctElectronSorter
- * \Class that sorts electron candidates
+ * \brief Class that sorts electron candidates
  *
  * This class can be constructed to sort iso or non-iso
  * electron candidates from 4 or 5 source cards.

@@ -6,7 +6,7 @@
 // 
 /**\class FakeGctInputTester FakeGctInputTester.h L1Trigger/GlobalCalotrigger/src/FakeGctInputTester.h
 
- Description: <one line class summary>
+ \brief EDAnalyzer to check GCT output using fake input
 
  Implementation:
      <Notes on implementation>
@@ -14,7 +14,7 @@
 //
 // Original Author:  Jim Brooke
 //         Created:  Tue Nov 21 14:49:14 CET 2006
-// $Id: FakeGctInputTester.h,v 1.4 2006/12/08 09:33:11 jbrooke Exp $
+// $Id: FakeGctInputTester.h,v 1.1 2007/03/22 17:55:43 heath Exp $
 //
 //
 

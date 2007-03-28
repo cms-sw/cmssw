@@ -36,8 +36,10 @@ public:
   /// Overload << operator
   friend std::ostream& operator << <> (std::ostream& os, const L1GctLut<NAddressBits, NDataBits>& lut);
 
+  /// Access the look-up table contents for a given Address
   uint16_t lutValue (const uint16_t lutAddress) const;
 
+  /// Access the look-up table contents for a given Address
   uint16_t operator[] (const uint16_t lutAddress) const { return lutValue(lutAddress); } 
 
 protected:

@@ -5,18 +5,16 @@
 #include <ostream>
 
 /*!
- * \class L1GctEtTypes
- * \brief Definitions of unsigned and signed integer types with overflow
+ * \class L1GctTwosComplement
+ * \brief Definition of signed integer types with overflow
  *
- * This file defines the template classes L1GctUnsignedInteger and L1GctTwosComplement.
- * They are used to store energy values that are represented in a given number of bits
- * in hardware. Each type has a built-in overFlow that is set if the value to be
- * represented is outside the allowed range for that number of bits. The two types
- * represent unsigned and signed integers respectively. Functionss are defined to
- * add two values, and to copy data into a different number of bits.
- *
- * We also define L1GctJetCount, as a special case of an unsigned counter that sets
- * its value to the maximum when an overFlow condition occurs.
+ * This file defines the template class L1GctTwosComplement. It is used
+ * to store energy values that are represented in a given number of bits
+ * in hardware. The type has a built-in overFlow that is set if the value
+ * to be represented is outside the allowed range for that number of bits.
+ * This type represents signed integers; unsigned integers are represented
+ * by L1GctUnsignedInt. Functions are defined to add two values,
+ * and to copy data into a different number of bits.
  *
  * this header file contains method definitions because these are template classes
  * see http://www.parashift.com/c++-faq-lite/templates.html#faq-35.12

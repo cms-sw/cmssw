@@ -9,6 +9,9 @@
 #include <vector>
 
 /*
+ * \class L1GctJetLeafCard
+ * \brief Emulates a leaf card programmed for jetfinding
+ *
  * Represents a GCT Leaf Card
  * programmed for jet finding
  * author: Jim Brooke

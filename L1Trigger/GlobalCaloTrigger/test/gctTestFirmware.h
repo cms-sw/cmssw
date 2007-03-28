@@ -1,12 +1,17 @@
 #ifndef GCTTESTFIRMWARE_H_
 #define GCTTESTFIRMWARE_H_
 
-//
-// Test functionality for comparison of emulator and firmware jetfinders,
-// migrated from standalone test programs
-//
-// Greg Heath, March 2007
-//
+/*!
+ * \class gctTestFirmware
+ * \brief Test of the emulation of jetfinder firmware
+ * 
+ * Test functionality for comparison of emulator and firmware jetfinders,
+ * migrated from standalone test programs
+ *
+ * \author Greg Heath
+ * \date March 2007
+ *
+ */
 
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJet.h"
 

@@ -1,11 +1,16 @@
 #ifndef GCTTESTENERGYALGOS_H_
 #define GCTTESTENERGYALGOS_H_
 
-//
-// Energy sum test functionality migrated from standalone test programs
-//
-// Greg Heath, March 2007
-//
+/*!
+ * \class gctTestEnergyAlgos
+ * \brief Test of the wheel card and final stage energy summing
+ * 
+ * Energy sum test functionality migrated from standalone test programs
+ *
+ * \author Greg Heath
+ * \date March 2007
+ *
+ */
  
 #include <vector>
 #include <fstream>

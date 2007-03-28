@@ -4,7 +4,25 @@
 #include <boost/cstdint.hpp>
 #include <ostream>
 
-/* unsigned integer representations */
+/*!
+ * \class L1GctUnsignedInt
+ * \brief Definition of unsigned integer types with overflow
+ *
+ * This file defines the template class L1GctUnsignedInt. It is used
+ * to store energy values that are represented in a given number of bits
+ * in hardware. The type has a built-in overFlow that is set if the value
+ * to be represented is outside the allowed range for that number of bits.
+ * This type represents unsigned integers; signed integers are represented
+ * by L1GctTwosComplement. Functions are defined to add two values,
+ * and to copy data into a different number of bits.
+ *
+ * this header file contains method definitions because these are template classes
+ * see http://www.parashift.com/c++-faq-lite/templates.html#faq-35.12
+ *
+ * \author Jim Brooke & Greg Heath
+ * \date May 2006
+ * 
+ */
 
 
 template <int nBits>

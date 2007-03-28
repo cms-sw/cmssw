@@ -10,7 +10,7 @@
 
 /*!
  * \Class L1GctEmLeafCard
- * \Class does the 1st stage sorting of electron candidates.
+ * \brief Emulates a leaf card programmed for electron sorting
  *
  * This class get the electron candidates from the source cards
  * and do the 1st stage sorting of them.
