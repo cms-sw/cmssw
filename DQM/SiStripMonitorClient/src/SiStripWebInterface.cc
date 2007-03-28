@@ -139,8 +139,8 @@ void SiStripWebInterface::handleCustomRequest(xgi::Input* in,xgi::Output* out)
   else if (requestID == "PlotGlobalHisto") {
     theActionFlag = PlotGlobalHistos;    
   }
-  else if (requestID == "PlotHistogramFormPath") {
-   theActionFlag = PlotHistogramFormPath;
+  else if (requestID == "PlotHistogramFromPath") {
+   theActionFlag = PlotHistogramFromPath;
   } 
    else if (requestID == "PlotTkMapHistogram") {
    theActionFlag = PlotTkMapHistogram;
@@ -242,7 +242,7 @@ void SiStripWebInterface::performAction() {
       infoExtractor_->plotSingleModuleHistos((*mui_p), requestMap_);
       break;
     }
-  case SiStripWebInterface::PlotHistogramFormPath :
+  case SiStripWebInterface::PlotHistogramFromPath :
     {
       infoExtractor_->plotHistosFromPath((*mui_p), requestMap_);
       break;
