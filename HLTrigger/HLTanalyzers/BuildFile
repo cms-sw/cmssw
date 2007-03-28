@@ -20,6 +20,7 @@
 <use name=TBDataFormats/HcalTBObjects>
 <use name=SimDataFormats/HepMCProduct>
 <use name=DataFormats/L1Trigger>
+<use name=DataFormats/L1GlobalTrigger>
 <flags SEAL_PLUGIN_NAME="HLTriggerHLTanalyzers">
 <export>
   <lib name=HLTriggerHLTanalyzers>
@@ -44,4 +45,5 @@
   <use name=TBDataFormats/HcalTBObjects>
   <use name=SimDataFormats/HepMCProduct>
   <use name=DataFormats/L1Trigger>
+  <use name=DataFormats/L1GlobalTrigger>
 </export>

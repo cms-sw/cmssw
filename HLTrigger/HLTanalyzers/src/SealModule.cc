@@ -4,8 +4,10 @@
 #include "PluginManager/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
+#include "HLTrigger/HLTanalyzers/interface/L1TrigReport.h"
 #include "HLTrigger/HLTanalyzers/interface/HLTAnalyzer.h"
 
 DEFINE_SEAL_MODULE();
+DEFINE_ANOTHER_FWK_MODULE(L1TrigReport);
 DEFINE_ANOTHER_FWK_MODULE(HLTAnalyzer);
 
