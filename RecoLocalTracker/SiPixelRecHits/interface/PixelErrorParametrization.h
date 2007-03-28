@@ -27,13 +27,15 @@ class PixelErrorParametrization
   PixelErrorParametrization(edm::ParameterSet const& conf);
   ~PixelErrorParametrization();
   
-  std::pair<float,float> 
+  /// Returns error (sigma) for local x and y coordinates
+  std::pair<float,float>
     getError(GeomDetType::SubDetector pixelPart, 
 	     int sizex, int sizey, 
 	     float alpha, float beta,
-	     bool bigInX, bool bigInX ); // Gavril: add big pixel flags, 03/27/07
-
-private:
+	     bool bigInX = false, 
+	     bool bigInX = false); // Gavril: add big pixel flags, 03/27/07
+  
+ private:
   float a_min; 
   float a_max;
   float a_bin; 
