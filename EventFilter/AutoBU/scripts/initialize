@@ -749,7 +749,7 @@ sub makeCtlDestroy
     $result = $result . "print \"$cmd ...\\n\";\n\n";
     $result = $result . "`$cmd`;\n\n";
     $result = $result . "print \"remove files and dirs ...\n\";\n\n";
-    $result = $result . "`rm -rf cfg/ soap/ xml/ log/ " .
+    $result = $result . "`rm -rf cfg/ soap/ xml/ log/ /tmp/sm " .
 	"configure enable halt stop gennums.txt summaryCatalog.txt`;\n\n";
     $result = $result . "print \"FUShmCleanup_t ...\\n\";\n\n";
     $result = $result . "`FUShmCleanup_t`;\n\n";
