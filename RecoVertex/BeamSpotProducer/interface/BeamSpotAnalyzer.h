@@ -9,7 +9,7 @@
 
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
- version $Id: BeamSpotAnalyzer.h,v 1.3 2007/02/10 23:13:30 yumiceva Exp $
+ version $Id: BeamSpotAnalyzer.h,v 1.1 2007/02/11 03:32:52 yumiceva Exp $
 
 ________________________________________________________________**/
 
@@ -37,9 +37,11 @@ class BeamSpotAnalyzer : public edm::EDAnalyzer {
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
 
+  std::string outputfilename_;
   TFile* file_;
   TTree* ftree_;
 
+  int    ftotalevents;
   double ftheta;
   double fpt;
   double feta;
@@ -60,6 +62,9 @@ class BeamSpotAnalyzer : public edm::EDAnalyzer {
   unsigned int fnTECHit;
   unsigned int fnPXBHit;
   unsigned int fnPXFHit;
+  double fd0phi_chi2;
+  double fd0phi_d0;
+  double fcov[7][7];
   
   std::vector< BSTrkParameters > fBSvector;
   
@@ -72,6 +77,9 @@ class BeamSpotAnalyzer : public edm::EDAnalyzer {
   float fptmin;
   int fmaxNtracks;  
 
+  bool write2DB_;
+
+  int ftotal_tracks;
 };
 
 #endif

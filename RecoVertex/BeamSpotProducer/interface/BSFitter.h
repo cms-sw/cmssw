@@ -9,7 +9,7 @@
 
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
- version $Id: BSFitter.h,v 1.1 2006/12/15 20:00:37 yumiceva Exp $
+ version $Id: BSFitter.h,v 1.2 2007/01/22 23:36:07 yumiceva Exp $
 
 ________________________________________________________________**/
 
@@ -19,7 +19,8 @@ ________________________________________________________________**/
 #include "RecoVertex/BeamSpotProducer/interface/BSTrkParameters.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
-// ROT
+// ROOT
+#include "TMatrixD.h"
 #include "TMath.h"
 #include "Minuit2/VariableMetricMinimizer.h"
 
@@ -59,7 +60,19 @@ class BSFitter {
 	
 	// Fit only d0-phi distribution with a chi2
 	reco::BeamSpot Fit_d0phi();
-
+	void Setd0Cut_d0phi(double d0cut);
+	void SetChi2Cut_d0phi(double chi2cut);
+	int GetAcceptedTrks() { return ftmprow; }
+	void d0phi_Init() {
+		ftmprow = 0;
+		ftmp.ResizeTo(4,1);
+		ftmp.Zero();
+		fnthite=0;
+	}
+	std::vector < BSTrkParameters > GetData() { return fBSvector; }
+	
+	reco::BeamSpot Fit_ited0phi();
+		
 	reco::BeamSpot Fit_d_likelihood(double *inipar);
 	reco::BeamSpot Fit_d_z_likelihood(double *inipar);
 	reco::BeamSpot Fit_dres_z_likelihood(double *inipar);
@@ -109,6 +122,14 @@ class BSFitter {
 	double fres_c0_err;
 	double fres_c1_err;
 	reco::BeamSpot::ResCovMatrix fres_matrix;
+	//reco::BeamSpot fBSforCuts;
+	TMatrixD ftmp;
+	bool fapplyd0cut;
+	bool fapplychi2cut;
+	double fd0cut;
+	double fchi2cut;
+	int ftmprow;
+	int fnthite;
 	
 };
 
