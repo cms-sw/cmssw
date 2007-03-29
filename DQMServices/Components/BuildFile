@@ -2,11 +2,16 @@
 <lib name=DQMServicesComponents>
 <use name=EventFilter/Utilities>
 <use name=FWCore/MessageLogger>
-<use name=FWCore/Framework>
 </export>
-<use name=DQMServices/ClientConfig>
-<use name=DQMServices/UI>
-<use name=EventFilter/Utilities>
-<use name=boost>
 <use name=FWCore/MessageLogger>
 <use name=FWCore/Framework>
+<use name=DataFormats/FEDRawData>
+<use name=EventFilter/Utilities>
+<use name=DQMServices/Core>
+<use name=DQMServices/UI>
+<use name=DQMServices/ClientConfig>
+<use name=boost>
+<use name=CLHEP>
+
+
+<flags SEAL_PLUGIN_NAME="DQMServicesComponents">
