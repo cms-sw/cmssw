@@ -14,7 +14,7 @@ RadialStripTopology::RadialStripTopology(int ns, float aw, float dh, float r, in
   // zero for a strip lying along local y axis = long symmetry axis of plane of strips
   thePhiOfOneEdge = -(theNumberOfStrips/2.) * theAngularWidth;
   
-  LogTrace("RadialStripTopology") << "Constructing RadialStripTopology:"
+  LogTrace("RadialStripTopology") << "RadialStripTopology: constructed with"
         << " strips = " << ns
         << " width = " << aw << " rad "
         << " det_height = " << dh
