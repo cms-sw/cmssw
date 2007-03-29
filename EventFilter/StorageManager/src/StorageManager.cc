@@ -1,4 +1,4 @@
-// $Id: StorageManager.cc,v 1.9 2007/03/26 23:02:51 hcheung Exp $
+// $Id: StorageManager.cc,v 1.10 2007/03/29 09:08:17 klute Exp $
 
 #include <iostream>
 #include <iomanip>
@@ -304,13 +304,13 @@ void StorageManager::receiveRegistryMessage(toolbox::mem::Reference *ref)
       } // end of streamer writing test - should an else with an error/warning message
         // or decide once and for all we only write streamer files and get rid of test
     } // end of test on if registry data was saved
-  } // end of test on if registryFUSender returned that registry is complete
 
-  string hltClassName(msg->hltClassName);
-  sendDiscardMessage(msg->fuID, 
-		     msg->hltInstance, 
-		     I2O_FU_DATA_DISCARD,
-		     hltClassName);
+    string hltClassName(msg->hltClassName);
+    sendDiscardMessage(msg->fuID, 
+		       msg->hltInstance, 
+		       I2O_FU_DATA_DISCARD,
+		       hltClassName);
+  } // end of test on if registryFUSender returned that registry is complete
 }
 
 void StorageManager::receiveDataMessage(toolbox::mem::Reference *ref)
@@ -409,10 +409,15 @@ void StorageManager::receiveDataMessage(toolbox::mem::Reference *ref)
          // for FU sender list update
          // msg->frameCount start from 0, but in EventMsg header it starts from 1!
          bool isLocal = true;
-         int status = smfusenders_.updateFUSender4data(&msg->hltURL[0], &msg->hltClassName[0],
+
+         int status = 1;
+	 /*
+	   smfusenders_.updateFUSender4data(&msg->hltURL[0], &msg->hltClassName[0],
            msg->hltLocalId, msg->hltInstance, msg->hltTid,
            msg->runID, msg->eventID, msg->frameCount+1, msg->numFrames,
            msg->originalSize, isLocal);
+	 */
+
          if(status == 1) ++(storedEvents_.value_);
          if(status == -1) {
            LOG4CPLUS_ERROR(this->getApplicationLogger(),
@@ -458,18 +463,21 @@ void StorageManager::receiveDataMessage(toolbox::mem::Reference *ref)
     // for FU sender list update
     // msg->frameCount start from 0, but in EventMsg header it starts from 1!
     bool isLocal = false;
-    int status = smfusenders_.updateFUSender4data(&msg->hltURL[0], &msg->hltClassName[0],
+    int status = 1;
+    /*
+      smfusenders_.updateFUSender4data(&msg->hltURL[0], &msg->hltClassName[0],
       msg->hltLocalId, msg->hltInstance, msg->hltTid,
       msg->runID, msg->eventID, msg->frameCount+1, msg->numFrames,
       msg->originalSize, isLocal);
-      if(status == 1) ++(storedEvents_.value_);
-      if(status == -1) {
-        LOG4CPLUS_ERROR(this->getApplicationLogger(),
-                 "updateFUSender4data: Cannot find FU in FU Sender list!"
-                 << " With URL "
-                 << msg->hltURL << " class " << msg->hltClassName  << " instance "
-                 << msg->hltInstance << " Tid " << msg->hltTid);
-      }
+    */
+    if(status == 1) ++(storedEvents_.value_);
+    if(status == -1) {
+      LOG4CPLUS_ERROR(this->getApplicationLogger(),
+		      "updateFUSender4data: Cannot find FU in FU Sender list!"
+		      << " With URL "
+		      << msg->hltURL << " class " << msg->hltClassName  << " instance "
+		      << msg->hltInstance << " Tid " << msg->hltTid);
+    }
   }
 
   if (  msg->frameCount == msg->numFrames-1 )
@@ -1968,6 +1976,14 @@ void StorageManager::sendDiscardMessage(unsigned int    fuID,
 					unsigned int    msgType,
 					string          hltClassName)
 {
+  /*
+  std::cout << "sendDiscardMessage ... " 
+	    << fuID           << "  "
+	    << hltInstance    << "  "
+	    << msgType        << "  "
+	    << hltClassName   << std::endl;
+  */
+    
   set<xdaq::ApplicationDescriptor*> setOfFUs=
     getApplicationContext()->getDefaultZone()->
     getApplicationDescriptors(hltClassName.c_str());
