@@ -16,20 +16,24 @@
 #include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h"
 #include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
- 
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+
+
+using namespace edm;
+using namespace reco;
+using namespace std; 
+
 //
 // constructors and destructor
 //
 HLTDisplacedmumuFilter::HLTDisplacedmumuFilter(const edm::ParameterSet& iConfig)
 {
-	nevent_ = 0;
-	ntrigger_ = 0;
 	//now do what ever initialization is needed
 	minLxySignificance_ = iConfig.getParameter<double>("MinLxySignificance");       
 	maxNormalisedChi2_ = iConfig.getParameter<double>("MaxNormalisedChi2");  
 	minCosinePointingAngle_ = iConfig.getParameter<double>("MinCosinePointingAngle");
 	src_ = iConfig.getParameter<edm::InputTag>("Src");
-	std::cout << "cos alpha cut: " << minCosinePointingAngle_ << ", chi2cut: " << maxNormalisedChi2_ << ", lxycut: " << minLxySignificance_ << endl;
+	produces<VertexCollection>();
 }
 
 
@@ -51,19 +55,14 @@ void HLTDisplacedmumuFilter::beginJob(const edm::EventSetup&)
 // ------------ method called once each job just after ending the event loop  ------------
 void HLTDisplacedmumuFilter::endJob() 
 {
- 	std::cout << "out of " << nevent_ << " events, " << ntrigger_ << " events were triggered" << endl;
+ 	
 }
 
 // ------------ method called on each new Event  ------------
 bool HLTDisplacedmumuFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-	nevent_++;
 
-	using namespace edm;
-	using namespace reco;
-	using namespace std;
 			
-	cout << endl << "event " << nevent_ << endl << endl;
 	//get the jpsi collection 
 	
 	Handle<CandidateCollection> candCollection;
@@ -72,8 +71,7 @@ bool HLTDisplacedmumuFilter::filter(edm::Event& iEvent, const edm::EventSetup& i
 	//get the transient track builder:
 	edm::ESHandle<TransientTrackBuilder> theB;
 	iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",theB);
-	
-	
+	std::auto_ptr<VertexCollection> vertexCollection(new VertexCollection());
 	
 	if(candCollection->size()>0) {
 		CandidateCollection::const_iterator it=(*candCollection).begin();
@@ -103,26 +101,31 @@ bool HLTDisplacedmumuFilter::filter(edm::Event& iEvent, const edm::EventSetup& i
 				
 					KalmanVertexFitter kvf;
 					TransientVertex tv = kvf.vertex(t_tks);
-				
+					if (tv.isValid()) {
+						Vertex vertex = tv;
 					
-					GlobalPoint v = tv.position();
-					GlobalError err = tv.positionError();
+						
+						GlobalPoint v = tv.position();
+						GlobalError err = tv.positionError();
+						
+						float lxy = v.perp();
+						float lxyerr = err.rerr(v);
+						
+						float normChi2 = tv.normalisedChiSquared();
 					
-					float lxy = v.perp();
-					float lxyerr = err.rerr(v);
+						
+					//     float cosAlpha = v.Dot((*it).momentum())/(v.R()*(*it).momentum().R());
 					
-					float normChi2 = tv.normalisedChiSquared();
-				
+						Vertex::Point vperp(v.x(),v.y(),0.);
+						math::XYZVector pperp((*it).momentum().x(),(*it).momentum().y(),0.);
 					
-				//     float cosAlpha = v.Dot((*it).momentum())/(v.R()*(*it).momentum().R());
-				
-					Vertex::Point vperp(v.x(),v.y(),0.);
-					math::XYZVector pperp((*it).momentum().x(),(*it).momentum().y(),0.);
-				
-					float cosAlpha = vperp.Dot(pperp)/(vperp.R()*pperp.R());
-					if( (cosAlpha > minCosinePointingAngle_) && (normChi2 < maxNormalisedChi2_) && ( lxy/lxyerr > minLxySignificance_ ) ){
-						ntrigger_++;
-						return true;
+						float cosAlpha = vperp.Dot(pperp)/(vperp.R()*pperp.R());
+						if( (cosAlpha > minCosinePointingAngle_) && (normChi2 < maxNormalisedChi2_) && ( lxy/lxyerr > minLxySignificance_ ) ){
+	// 						Vertex vertex = tv.vertex();
+							vertexCollection->push_back(vertex);
+							iEvent.put(vertexCollection);
+							return true;
+						}
 					}
 				}
 			}	
