@@ -33,7 +33,8 @@ class PFBlockElement;
 class TH1F;
 class PFJetAlgorithm;
 class EventColin;
-
+class PFEnergyCalibration;
+class PFEnergyResolution;
 
 
 /// \brief ROOT interface to particle flow package
@@ -534,6 +535,12 @@ class PFRootEventManager {
   double seedEt_;
   double coneMerge_;
   bool   jetsDebug_;
+
+ protected:
+  // auxiliary classes for calibration of energy deposits in ECAL and HCAL
+  //  and estimation of energy resolution for electrons/photons and hadrons
+  PFEnergyCalibration* energyCalibration_;
+  PFEnergyResolution* energyResolution_;
 
  private:
 
