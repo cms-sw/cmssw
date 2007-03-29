@@ -664,6 +664,7 @@ namespace edm {
     esp_.reset();
     schedule_.reset();
     input_.reset();
+    looper_.reset();
     wreg_.clear();
     actReg_.reset();
   }
