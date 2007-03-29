@@ -331,8 +331,8 @@ void EgammaObjects::analyzePhotons( const edm::Event& evt, const edm::EventSetup
           eCurrent  = aClus->energy();
           
           double deltaPhi = phiCurrent-phiTrue;
-          if(deltaPhi > pi) deltaPhi -= 2.*pi;
-          if(deltaPhi < -pi) deltaPhi += 2.*pi;
+          if(deltaPhi > Geom::pi()) deltaPhi -= 2.*Geom::pi();
+          if(deltaPhi < -Geom::pi()) deltaPhi += 2.*Geom::pi();
           double deltaR = std::sqrt(std::pow(etaCurrent-etaTrue,2)+std::pow(deltaPhi,2));
 
   	      if(deltaR < closestParticleDistance)
@@ -360,8 +360,8 @@ void EgammaObjects::analyzePhotons( const edm::Event& evt, const edm::EventSetup
         hist_PhiEfficiency_->Fill(phiTrue);
         
         double deltaPhi = phiFound-phiTrue;
-        if(deltaPhi > pi) deltaPhi -= 2.*pi;
-        if(deltaPhi < -pi) deltaPhi += 2.*pi;
+        if(deltaPhi > Geom::pi()) deltaPhi -= 2.*Geom::pi();
+        if(deltaPhi < -Geom::pi()) deltaPhi += 2.*Geom::pi();
           	  
         _TEMP_scatterPlot_EtOverTruthVsEt_->Fill(etFound,etFound/etTrue);
         _TEMP_scatterPlot_EtOverTruthVsE_->Fill(eFound,etFound/etTrue);
@@ -499,8 +499,8 @@ void EgammaObjects::analyzeElectrons( const edm::Event& evt, const edm::EventSet
           eCurrent  = aClus->energy();
   									
           double deltaPhi = phiCurrent-phiTrue;
-          if(deltaPhi > pi) deltaPhi -= 2.*pi;
-          if(deltaPhi < -pi) deltaPhi += 2.*pi;
+          if(deltaPhi > Geom::pi()) deltaPhi -= 2.*Geom::pi();
+          if(deltaPhi < -Geom::pi()) deltaPhi += 2.*Geom::pi();
           double deltaR = std::sqrt(std::pow(etaCurrent-etaTrue,2)+std::pow(deltaPhi,2));
 
   	      if(deltaR < closestParticleDistance)
@@ -528,8 +528,8 @@ void EgammaObjects::analyzeElectrons( const edm::Event& evt, const edm::EventSet
         hist_PhiEfficiency_->Fill(phiTrue);
         
         double deltaPhi = phiFound-phiTrue;
-        if(deltaPhi > pi) deltaPhi -= 2.*pi;
-        if(deltaPhi < -pi) deltaPhi += 2.*pi;
+        if(deltaPhi > Geom::pi()) deltaPhi -= 2.*Geom::pi();
+        if(deltaPhi < -Geom::pi()) deltaPhi += 2.*Geom::pi();
           	  
         _TEMP_scatterPlot_EtOverTruthVsEt_->Fill(etFound,etFound/etTrue);
         _TEMP_scatterPlot_EtOverTruthVsE_->Fill(eFound,etFound/etTrue);
