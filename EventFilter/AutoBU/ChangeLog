@@ -1,3 +1,22 @@
+2007-03-29  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-04-02
+	* add perl script 'scripts/initialize'
+	* executing the script will start a complete AutoBU-RB-EP-SM
+	system on the local machine
+	* perl scripts 'configure', 'enable', 'stop', 'halt', and
+	'destroy' are created as well. Execute them to control the system
+	* destroy is actually going to remove any trace of your test,
+	including the logs
+	* command line options are:
+	  -playback
+	  -drop
+	  -noSM
+	  -host <machine.cern.ch>
+	* the playback option will assume one playback file at
+	/tmp/playback.root. In a future version, the file or list of files
+	can be passed to the -playback option.
+
 2007-03-28  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-04-01
