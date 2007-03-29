@@ -1,3 +1,9 @@
+2007-03-29  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-06-06
+	* bugfix to SMProxy: add '\0' add the end of hltURL / hltClassName
+	in the I2O message struct.
+
 2007-03-28  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-06-05

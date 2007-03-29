@@ -47,12 +47,12 @@ SMProxy::SMProxy(xdaq::ApplicationDescriptor *fuAppDesc,
   , dqmHeaderSize_(sizeof(I2O_SM_DQM_MESSAGE_FRAME))
 {
   fuUrl_=fuAppDesc_->getContextDescriptor()->getURL();
-  if (fuUrl_.size()>MAX_I2O_SM_URLCHARS)
-    fuUrl_=fuUrl_.substr(0,MAX_I2O_SM_URLCHARS);
+  if (fuUrl_.size()>=MAX_I2O_SM_URLCHARS)
+    fuUrl_=fuUrl_.substr(0,MAX_I2O_SM_URLCHARS-1);
   
   fuClassName_=fuAppDesc_->getClassName();
-  if (fuClassName_.size()>MAX_I2O_SM_URLCHARS)
-    fuClassName_=fuClassName_.substr(0,MAX_I2O_SM_URLCHARS);
+  if (fuClassName_.size()>=MAX_I2O_SM_URLCHARS)
+    fuClassName_=fuClassName_.substr(0,MAX_I2O_SM_URLCHARS-1);
 }
 
 
@@ -247,11 +247,13 @@ MemRef_t* SMProxy::createFragmentChain(UShort_t i2oFunctionCode,
       msg->originalSize       =dataSize;
       
       for (UInt_t i=0;i<fuUrl_.size();i++)
-	msg->hltURL[i]=fuUrl_[i];
+      msg->hltURL[i]=fuUrl_[i];
+      msg->hltURL[fuUrl_.size()]='\0';
       
       for (UInt_t i=0;i<fuClassName_.size();i++)
-	msg->hltClassName[i]=fuClassName_[i];
-      
+      msg->hltClassName[i]=fuClassName_[i];
+      msg->hltClassName[fuClassName_.size()]='\0';
+
       if (iFragment==0) {
 	head=bufRef;
 	tail=bufRef;
