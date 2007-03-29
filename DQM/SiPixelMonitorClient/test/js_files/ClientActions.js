@@ -63,7 +63,7 @@ function CreateTrackerMap() {
    
   makeRequest(url, dummy);
  
-  setTimeout('OpenTrackerMap()', 500000);   
+  setTimeout('OpenTrackerMap()', 5000);   
 }
 //
 // Create Tracker Map

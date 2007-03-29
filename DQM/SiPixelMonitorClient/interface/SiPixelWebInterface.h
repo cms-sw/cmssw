@@ -34,7 +34,7 @@ public:
   SiPixelActionType getActionFlag() {return theActionFlag;}
   void setActionFlag(SiPixelActionType flag) {theActionFlag = flag;}
    
-//  bool createTkMap();
+  bool createTkMap();
    
 private:
 
@@ -45,7 +45,7 @@ private:
   void returnReplyXml(xgi::Output * out, const std::string& name, const std::string& comment);
 
   std::vector<std::string> tkMapOptions_;
-//  bool tkMapCreated;
+  bool tkMapCreated;
   std::multimap<std::string, std::string> requestMap_;
   
 protected:

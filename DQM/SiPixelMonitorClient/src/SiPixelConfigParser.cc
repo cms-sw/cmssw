@@ -23,7 +23,7 @@ SiPixelConfigParser::~SiPixelConfigParser() {
 //
 // -- Read ME list for the TrackerMap
 //
-/*bool SiPixelConfigParser::getMENamesForTrackerMap(string& tkmap_name, 
+bool SiPixelConfigParser::getMENamesForTrackerMap(string& tkmap_name, 
 						 vector<string>& me_names){
   if (!doc) {
     cout << " SiPixelConfigParser::Configuration File is not set!!! " << endl;
@@ -55,11 +55,11 @@ SiPixelConfigParser::~SiPixelConfigParser() {
   if (me_names.size() == 0) return false;
   else return true;
   
-}*/
+}
 //
 // -- Read Update Frequency for the TrackerMap
 //
-/*bool SiPixelConfigParser::getFrequencyForTrackerMap(int& u_freq){
+bool SiPixelConfigParser::getFrequencyForTrackerMap(int& u_freq){
   if (!doc) {
     cout << " SiPixelConfigParser::Configuration File is not set!!! " << endl;
     return false;
@@ -76,7 +76,7 @@ SiPixelConfigParser::~SiPixelConfigParser() {
 		
   u_freq = atoi(qtxml::_toString(tkMapElement->getAttribute(qtxml::_toDOMS("update_frequency"))).c_str());
   return true;
-}*/
+}
 //
 // -- Get List of MEs for the module tree plots:
 //

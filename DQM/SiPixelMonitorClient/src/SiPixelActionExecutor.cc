@@ -1,6 +1,7 @@
 #include "DQM/SiPixelMonitorClient/interface/SiPixelActionExecutor.h"
 #include "DQM/SiPixelMonitorClient/interface/SiPixelUtility.h"
 #include "DQM/SiPixelMonitorClient/interface/SiPixelQualityTester.h"
+#include "DQM/SiPixelMonitorClient/interface/TrackerMapCreator.h"
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DQM/SiStripCommon/interface/ExtractTObject.h"
@@ -64,7 +65,7 @@ bool SiPixelActionExecutor::readConfiguration(int& tkmap_freq, int& sum_barrel_f
 //
 // -- Create Tracker Map
 //
-/*void SiPixelActionExecutor::createTkMap(MonitorUserInterface* mui) {
+void SiPixelActionExecutor::createTkMap(MonitorUserInterface* mui) {
   string tkmap_name;
   vector<string> me_names;
   if (!configParser_->getMENamesForTrackerMap(tkmap_name, tkMapMENames)){
@@ -81,7 +82,7 @@ bool SiPixelActionExecutor::readConfiguration(int& tkmap_freq, int& sum_barrel_f
   tkmap_creator.create(mui, tkMapMENames);
   
   mui->cd();  
-}*/
+}
 void SiPixelActionExecutor::createSummary(MonitorUserInterface* mui) {
 //cout<<"entering SiPixelActionExecutor::createSummary..."<<endl;
   string barrel_structure_name;
@@ -568,7 +569,7 @@ void SiPixelActionExecutor::createCollation(MonitorUserInterface * mui){
     if ((*it).find("Module_") == string::npos) continue;
     string dir_path;
     vector<string> contents;
-    int nval = SiPixelUtility::getMEList((*it), dir_path, contents);
+//    int nval = SiPixelUtility::getMEList((*it), dir_path, contents);
     string tag = dir_path.substr(dir_path.find("Module_")+7, dir_path.size()-1);
     for (vector<string>::iterator ic = contents.begin(); ic != contents.end(); ic++) {
       
@@ -666,7 +667,7 @@ void SiPixelActionExecutor::saveMEs(MonitorUserInterface* mui, string fname){
 //
 // -- Get TkMap ME names
 //
-/*int SiPixelActionExecutor::getTkMapMENames(std::vector<std::string>& names) {
+int SiPixelActionExecutor::getTkMapMENames(std::vector<std::string>& names) {
   if (tkMapMENames.size() == 0) return 0;
   for (vector<string>::iterator it = tkMapMENames.begin();
        it != tkMapMENames.end(); it++) {
@@ -674,4 +675,4 @@ void SiPixelActionExecutor::saveMEs(MonitorUserInterface* mui, string fname){
   }
   return names.size();
 }
-*/
+

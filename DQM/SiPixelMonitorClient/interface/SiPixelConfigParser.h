@@ -5,8 +5,8 @@
  * *
  *  Class that handles the SiPixel Quality Tests
  * 
- *  $Date: 2007/02/01 16:44:06 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/02/16 15:45:51 $
+ *  $Revision: 1.3 $
  *  \author Petra Merkel
   */
 
@@ -29,8 +29,8 @@ class SiPixelConfigParser : public DQMParserBase {
   ~SiPixelConfigParser();
 
   // get List of MEs for TrackerMap
-//  bool getMENamesForTrackerMap(std::string& tkmap_name,std::vector<std::string>& me_names);
-//  bool getFrequencyForTrackerMap(int& u_freq);
+  bool getMENamesForTrackerMap(std::string& tkmap_name,std::vector<std::string>& me_names);
+  bool getFrequencyForTrackerMap(int& u_freq);
   bool getMENamesForTree(std::string &structure_name, std::vector<std::string>& me_names);
   bool getMENamesForBarrelSummary(std::string &structure_name, std::vector<std::string>& me_names);
   bool getMENamesForEndcapSummary(std::string &structure_name, std::vector<std::string>& me_names);

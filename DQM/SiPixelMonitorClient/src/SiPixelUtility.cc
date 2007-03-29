@@ -1,4 +1,5 @@
 #include "DQM/SiPixelMonitorClient/interface/SiPixelUtility.h"
+#include "DQM/SiPixelMonitorClient/interface/SiPixelContinuousPalette.h"
 #include "DQMServices/Core/interface/QTestStatus.h"
 using namespace std;
 //
@@ -103,6 +104,14 @@ void SiPixelUtility::getStatusColor(int status, int& icol, string& tag) {
   }     
 }
 //
+// -- Get Color code from Status
+//
+void SiPixelUtility::getStatusColor(double status, int& rval, int&gval, int& bval) {
+  rval = SiPixelContinuousPalette::r[(int)(status * 100)] ;
+  gval = SiPixelContinuousPalette::g[(int)(status * 100)] ;
+  bval = SiPixelContinuousPalette::b[(int)(status * 100)] ; 
+}
+//
 // -- Get Status of Monitor Element
 //
 int SiPixelUtility::getStatus(MonitorElement* me) {
@@ -120,3 +129,4 @@ int SiPixelUtility::getStatus(MonitorElement* me) {
   }
   return status;
 }
+

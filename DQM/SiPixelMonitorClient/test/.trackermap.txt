@@ -1,17 +1,15 @@
 <?xml version="1.0"  standalone="no" ?>
-<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<svg width="100%" height="100%" viewBox="0 0 1400 700" xmlns="http://www.w3.org/2000/svg" onload="init(evt)" onresize="myMapApp.resetFactors();" zoomAndPan="disable">
+<html xmlns="http://www.w3.org/1999/xhtml"
+xmlns:svg="http://www.w3.org/2000/svg" 
+xmlns:xlink="http://www.w3.org/1999/xlink"
+>
+<head>
 <script type="text/ecmascript"> <![CDATA[
   //section to contain script code
-  //global variable to hold reference to svgdocument element
-  var svgdoc;
   var myMapApp = new mapApp();
   var myMainMap;
   var myRefMapDragger;
-  function init(evt) {
-     //get the svgdocument reference
-     svgdoc = evt.target.ownerDocument;
-     
+  function init() {
      myMapApp.resetFactors();
      myMainMap = new map("mainMap",3000,100,1000,0.6);
      //set constraints to draggable rect in reference map
@@ -21,26 +19,28 @@
   }
   function showData(evt) {
         var xlinkns = "http://www.w3.org/1999/xlink"; 
-	var myPoly = evt.target;
-	var myDynamicTrackerText = svgdoc.getElementById("TrackerText");
-        var myDynamicTrackerText1 = svgdoc.getElementById("TrackerText1");
-        var myDynamicTrackerMessage = svgdoc.getElementById("TrackerMessage");
-        var myTrackerPlot = svgdoc.getElementById("plot");
+	var myPoly = evt.currentTarget;
+	var myDynamicTrackerText = document.getElementById("TrackerText");
+        var myDynamicTrackerText1 = document.getElementById("TrackerText1");
+        var myDynamicTrackerMessage = document.getElementById("TrackerMessage");
+        var myTrackerPlot = document.getElementById("plot");
         if (evt.type == "mouseover") {
                 var myTracker = myPoly.getAttribute("POS");
                 var myTracker1 = "  value="+myPoly.getAttribute("value");
                 var myMessage = myPoly.getAttribute("MESSAGE");
                 myTracker1 = myTracker1+" count="+myPoly.getAttribute("count");
-                myDynamicTrackerText.firstChild.setData(myTracker);
-                myDynamicTrackerText1.firstChild.setData(myTracker1);
-                myDynamicTrackerMessage.firstChild.setData(myMessage);
+//		alert (myTracker+" "+myTracker1);
+                myDynamicTrackerText.firstChild.nodeValue=myTracker;
+                myDynamicTrackerText1.firstChild.nodeValue=myTracker1;
+                myDynamicTrackerMessage.firstChild.nodeValue=myMessage;
         }
 
 	if (evt.type == "mouseout") {
-		myDynamicTrackerText.firstChild.setData("-");				
+		myDynamicTrackerText.firstChild.nodeValue="-";				
 	}
+
 	if (evt.type == "click") {
-		myDynamicTrackerText.firstChild.setData("-");	
+		myDynamicTrackerText.firstChild.nodeValue="-";	
 		var moduleId = myPoly.getAttribute("detid");
                 var url_serv = "http://.host:1972/urn:xdaq-application:lid=15/Request?";
                 var queryString = "RequestID=PlotTkMapHistogram";
@@ -59,11 +59,12 @@
 		var myTracker = myPoly.getAttribute("POS");
                 myTracker = myTracker+"  value="+myPoly.getAttribute("value");
 	        myTracker = myTracker+"  count="+myPoly.getAttribute("count");
-		myDynamicTrackerText.firstChild.setData(myTracker);
+		myDynamicTrackerText.firstChild.nodeValue=myTracker;
 	}
+
   }
   function colorRegion() {
-	var myGroup = svgdoc.getElementById("tracker");
+	var myGroup = document.getElementById("tracker");
 	var children = myGroup.childNodes;
 	var myModule;					
 	//loop over all children
@@ -88,7 +89,7 @@
   }
   //holds data on map
   function map(mapName,origWidth,minZoom,maxZoom,zoomFact) {
-	var mapSVG = svgdoc.getElementById(mapName);
+	var mapSVG = document.getElementById(mapName);
 	this.mapName = mapName;
 	this.origWidth = origWidth;
 	this.minZoom = minZoom;
@@ -109,8 +110,8 @@
 	this.zoomVal = this.origWidth / this.curWidth * 100;
   }
   map.prototype.newViewBox = function(refRectId,refMapId) {
-	var myRefRect = svgdoc.getElementById(refRectId);
-	var myRefMapSVG = svgdoc.getElementById(refMapId);
+	var myRefRect = document.getElementById(refRectId);
+	var myRefMapSVG = document.getElementById(refMapId);
 	var viewBoxArray = myRefMapSVG.getAttributeNS(null,"viewBox").split(" ");
 	var refPixSize = viewBoxArray[2] / myRefMapSVG.getAttributeNS(null,"width");
 	this.curxOrig = parseFloat(viewBoxArray[0]) + (myRefRect.getAttributeNS(null,"x") - myRefMapSVG.getAttributeNS(null,"x")) * refPixSize;
@@ -120,14 +121,14 @@
 	var myViewBoxString = this.curxOrig + " " + this.curyOrig + " " + this.curWidth + " " + this.curHeight;
 	this.pixSize = this.curWidth / this.pixWidth;
 	this.zoomVal = this.origWidth / this.curWidth * 100;
-	svgdoc.getElementById(this.mapName).setAttributeNS(null,"viewBox",myViewBoxString);
+	document.getElementById(this.mapName).setAttributeNS(null,"viewBox",myViewBoxString);
   }
   //holds data on window size
   function mapApp() {
   }		
   //calculate ratio and offset values of app window
   mapApp.prototype.resetFactors = function() {
-	var svgroot = svgdoc.documentElement;
+	var svgroot = document.documentElement;
 	if (!svgroot.getScreenCTM) {
 		//case for ASV3 and Corel
 		var viewBoxArray = svgroot.getAttributeNS(null,"viewBox").split(" ");
@@ -143,7 +144,7 @@
 		}
   }
    mapApp.prototype.calcCoord = function(coordx,coordy) {
-	var svgroot = svgdoc.documentElement;
+	var svgroot = document.documentElement;
 	var coords = new Array();
 	if (!svgroot.getScreenCTM) {
 	  //case ASV3 a. Corel
@@ -233,7 +234,7 @@
 	}			
   }
   dragObj.prototype.zoom = function(inOrOut) {
-	var myDragElement = svgdoc.getElementById(this.dragId);
+	var myDragElement = document.getElementById(this.dragId);
 	var myOldX = myDragElement.getAttributeNS(null,"x");
 	var myOldY = myDragElement.getAttributeNS(null,"y");
 	var myOldWidth = myDragElement.getAttributeNS(null,"width");
@@ -251,6 +252,85 @@
 		var myNewWidth = myOldWidth * (1 + myMainMap.zoomFact);
 		var myNewHeight = myOldHeight * (1 + myMainMap.zoomFact);
 		break;
+           case "down":
+                var myNewX = parseFloat(myOldX);
+                var myNewY = parseFloat(myOldY) +1.3* 6.*myMainMap.zoomFact;
+                var myNewWidth = myOldWidth ;
+                var myNewHeight = myOldHeight ;
+                break;
+           case "up":
+                var myNewX = parseFloat(myOldX);
+                var myNewY = parseFloat(myOldY) -1.3*6.* myMainMap.zoomFact;
+                var myNewWidth = myOldWidth ;
+                var myNewHeight = myOldHeight ;
+                break;
+           case "left":
+                var myNewX = parseFloat(myOldX) - 3.*6.* myMainMap.zoomFact;
+                var myNewY = parseFloat(myOldY);
+                var myNewWidth = myOldWidth ;
+                var myNewHeight = myOldHeight ;
+                break;
+           case "right":
+                var myNewX = parseFloat(myOldX)+3.*6.* myMainMap.zoomFact;
+                var myNewY = parseFloat(myOldY);
+                var myNewWidth = myOldWidth ;
+                var myNewHeight = myOldHeight ;
+                break;
+           case "PIXB":
+                var myNewX = 0.;
+                var myNewY = 540.;
+                var myNewWidth = 62. ;
+                var myNewHeight = 36. ;
+                break;
+           case "FPIX-z":
+                var myNewX = 0.;
+                var myNewY = 581.;
+                var myNewWidth = 35.83 ;
+                var myNewHeight = 21.01 ;
+                break;
+           case "FPIX+z":
+                var myNewX = 0.;
+                var myNewY = 516.;
+                var myNewWidth = 35.83 ;
+                var myNewHeight = 21.01 ;
+                break;
+           case "TID-z":
+                var myNewX = 40.0;
+                var myNewY = 585.;
+                var myNewWidth = 34. ;
+                var myNewHeight = 15. ;
+                break;
+           case "TID+z":
+                var myNewX = 40.0;
+                var myNewY = 520.;
+                var myNewWidth = 34. ;
+                var myNewHeight = 15. ;
+                break;
+           case "TOB":
+                var myNewX = 97.;
+                var myNewY = 542.;
+                var myNewWidth = 72. ;
+                var myNewHeight = 36. ;
+                break;
+           case "TIB":
+                var myNewX = 46.8;
+                var myNewY = 540.;
+                var myNewWidth = 64.8 ;
+                var myNewHeight = 38. ;
+                break;
+           case "TEC-z":
+                var myNewX = 73.8;
+                var myNewY = 568.;
+                var myNewWidth = 115.2 ;
+                var myNewHeight = 57.6 ;
+                break;
+           case "TEC+z":
+                var myNewX = 73.8;
+                var myNewY = 500.;
+                var myNewWidth = 115.2 ;
+                var myNewHeight = 57.6 ;
+                break;
+
 	   default:
 		var myNewX = this.constrXmin;
 		var myNewY = this.constrYmin;
@@ -258,6 +338,7 @@
 		var myNewHeight = this.constrYmax - this.constrYmin;
 		break;
 	}
+if(inOrOut=="in" || inOrOut=="out" || inOrOut=="full"){
 	if (myNewWidth > (this.constrXmax - this.constrXmin)) {
 		myNewWidth = this.constrXmax - this.constrXmin;
 	}
@@ -275,6 +356,7 @@
 	}
 	if ((myNewY + myNewHeight) > this.constrYmax) {
 		myNewY = this.constrYmax - myNewHeight;
+	}
 	}
 	myDragElement.setAttributeNS(null,"x",myNewX);
 	myDragElement.setAttributeNS(null,"y",myNewY);
@@ -340,63 +422,89 @@
 	     else {	
 	     }		
 	}
+if(inOrOut!="in" && inOrOut!="out" && inOrOut!="full") myRefMapDragger.zoom(inOrOut);
   }
 
 function pausecomp(millis)
 {
-var inizio = new Date();
-var inizioint=inizio.getTime();
-var intervallo = 0;
-while(intervallo<millis){
-var fine = new Date();
-var fineint=fine.getTime();
- intervallo = fineint-inizioint;
-}
-return;
+  var inizio = new Date();
+  var inizioint=inizio.getTime();
+  var intervallo = 0;
+  while(intervallo<millis){
+    var fine = new Date();
+    var fineint=fine.getTime();
+     intervallo = fineint-inizioint;
+   }
+  return;
 }
 
 ]]> </script>
-<defs>
 <!-- section for CSS stylesheet definitions -->
 <style type="text/css"><![CDATA[  
       .normalText {font-size:20;fill:black;font-weight:bold;}
       .dragRect {fill:darkcyan;stroke:none;opacity:0.4;}
   ]]></style>
-   <symbol id="magnifyer" overflow="visible" style="fill:white;stroke:darkcyan;stroke-width:2;" >
-    <circle r="12" />
-  </symbol>
-  <symbol id="magnifyerZoomOut" overflow="visible" style="fill:white;stroke:darkcyan;stroke-width:2;" >
-    <use xlink:href="#magnifyer"/>
-    <line x1="-6" y1="0" x2="6" y2="0" style="stroke:darkcyan;stroke-width:2;"/>
-  </symbol>
-  <symbol id="magnifyerZoomIn" overflow="visible">
-    <use xlink:href="#magnifyer"/>
-    <line x1="-6" y1="0" x2="6" y2="0" style="stroke:darkcyan;stroke-width:2;"/>
-    <line x1="0" y1="-6" x2="0" y2="6" style="stroke:darkcyan;stroke-width:2;"/>
-  </symbol>
-  <symbol id="magnifyerFull" overflow="visible">
-    <use xlink:href="#magnifyer"/>
-    <line x1="-2" y1="0" x2="4" y2="0" style="stroke:darkcyan;stroke-width:2;"/>
-    <line x1="-2" y1="-6" x2="-4" y2="6" style="stroke:darkcyan;stroke-width:2;"/>
-    <line x1="-2" y1="-6" x2="5" y2="-6" style="stroke:darkcyan;stroke-width:2;"/>
-  </symbol>
-</defs>
-<svg id="referenceMap" x="0" y="510" viewBox="0 0 3000 1600" width="180" height="100" pointer-events="none">
-	<use xlink:href="#tracker" />
-</svg>
-<rect id="dragRectForRefMap" class="dragRect" x="0" y="510" width="180" height="100" onmousedown="myRefMapDragger.drag(evt)" onmousemove="myRefMapDragger.drag(evt)" onmouseup="myRefMapDragger.drag(evt);myMainMap.newViewBox('dragRectForRefMap','referenceMap')" />
- 
-  <g id="navigatorElements" class="normalText">       	  
+</head>
+<body onload="init()" onresize="myMapApp.resetFactors();">
+<button onclick="zoomIt('in');">Zoom in</button>
+<button onclick="zoomIt('out');">Zoom out</button>
+<button onclick="zoomIt('full');">Home</button>
+<button onclick="zoomIt('up');">Up</button>
+<button onclick="zoomIt('down');">Down</button>
+<button onclick="zoomIt('left');">Left</button>
+<button onclick="zoomIt('right');">Right</button>
+<button onclick="zoomIt('TIB');">TIB</button>
+<button onclick="zoomIt('TOB');">TOB</button>
+<button onclick="zoomIt('TID+z');">TID+z</button>
+<button onclick="zoomIt('TID-z');">TID-z</button>
+<button onclick="zoomIt('TEC+z');">TEC+z</button>
+<button onclick="zoomIt('TEC-z');">TEC-z</button>
+<button onclick="zoomIt('PIXB');">PIXB</button>
+<button onclick="zoomIt('FPIX+z');">FPIX+z</button>
+<button onclick="zoomIt('FPIX-z');">FPIX-z</button>
+<br />
+<svg:svg width="100%" height="100%" viewBox="0 0 1400 700"  >
+<svg:defs>
+   <svg:symbol id="magnifyer" overflow="visible" style="fill:white;stroke:darkcyan;stroke-width:2;" >
+    <svg:circle r="12" />
+  </svg:symbol>
+  <svg:symbol id="magnifyerZoomOut" overflow="visible" style="fill:white;stroke:darkcyan;stroke-width:2;" >
+    <svg:use xlink:href="#magnifyer"/>
+    <svg:line x1="-6" y1="0" x2="6" y2="0" style="stroke:darkcyan;stroke-width:2;"/>
+  </svg:symbol>
+  <svg:symbol id="magnifyerZoomIn" overflow="visible">
+    <svg:use xlink:href="#magnifyer"/>
+    <svg:line x1="-6" y1="0" x2="6" y2="0" style="stroke:darkcyan;stroke-width:2;"/>
+    <svg:line x1="0" y1="-6" x2="0" y2="6" style="stroke:darkcyan;stroke-width:2;"/>
+  </svg:symbol>
+  <svg:symbol id="magnifyerFull" overflow="visible">
+    <svg:use xlink:href="#magnifyer"/>
+    <svg:line x1="-2" y1="0" x2="4" y2="0" style="stroke:darkcyan;stroke-width:2;"/>
+    <svg:line x1="-2" y1="-6" x2="-4" y2="6" style="stroke:darkcyan;stroke-width:2;"/>
+    <svg:line x1="-2" y1="-6" x2="5" y2="-6" style="stroke:darkcyan;stroke-width:2;"/>
+  </svg:symbol>
+</svg:defs>
+<svg:svg id="referenceMap" x="0" y="510" viewBox="0 0 3000 1600" width="180"
+height="100" pointer-events="none">
+        <svg:use xlink:href="#tracker" />
+</svg:svg>
+<svg:rect id="dragRectForRefMap" class="dragRect" x="0" y="510" width="180"
+height="100" onmousedown="myRefMapDragger.drag(evt)"
+onmousemove="myRefMapDragger.drag(evt)"
+onmouseup="myRefMapDragger.drag(evt);myMainMap.newViewBox('dragRectForRefMap','referenceMap')"
+/>
+  <svg:g id="navigatorElements" class="normalText">       	  
+  <!--
 	<text x="220" y="530">Zoom</text>	
-        <!--istanziare il simbolo-->
-	<use  id="zoomOut" x="230" y="560" xlink:href="#magnifyerZoomOut" onclick="zoomIt('out');"  onmouseover="magnify(evt,1.2,'out');" onmouseout="magnify(evt,1,'out');" />
-	<use  id="zoomIn" x="270" y="560" xlink:href="#magnifyerZoomIn" onclick="zoomIt('in');"  onmouseover="magnify(evt,1.2,'in');" onmouseout="magnify(evt,1,'in');"/>
-	<use  id="zoomFull" x="310" y="560" xlink:href="#magnifyerFull" onclick="zoomIt('full');"  onmouseover="magnify(evt,1.2,'full');" onmouseout="magnify(evt,1,'full');"/>
-        <text id="TrackerText" x="350" y="530"> - </text>
-        <text id="TrackerText1" x="350" y="565"> - </text>
-        <text id="TrackerMessage" x="350" y="600"> - </text>
-  </g>
-<image id="plot" x="900" y="10" width="420" height="400" /> 
-<svg id="mainMap" x="0" y="0" viewBox="0 0 3000 1600" width="900" height="500">
-<rect fill="lightblue" stroke="none" x="0" y="0" width="3000" height="1600" /> 
-<g id="tracker" transform="translate(10,1500) rotate(270)" style="fill:none;stroke:black;stroke-width:0;"> 
+	<svg:use  id="zoomOut" x="230" y="560" xlink:href="#magnifyerZoomOut" onclick="zoomIt('out');"  onmouseover="magnify(evt,1.2,'out');" onmouseout="magnify(evt,1,'out');" />
+	<svg:use  id="zoomIn" x="270" y="560" xlink:href="#magnifyerZoomIn" onclick="zoomIt('in');"  onmouseover="magnify(evt,1.2,'in');" onmouseout="magnify(evt,1,'in');"/>
+	<svg:use  id="zoomFull" x="310" y="560" xlink:href="#magnifyerFull" onclick="zoomIt('full');"  onmouseover="magnify(evt,1.2,'full');" onmouseout="magnify(evt,1,'full');"/>
+	-->
+        <svg:text id="TrackerText" x="350" y="530"> - </svg:text>
+        <svg:text id="TrackerText1" x="350" y="565"> - </svg:text>
+        <svg:text id="TrackerMessage" x="350" y="600"> - </svg:text>
+  </svg:g>
+<svg:image id="plot" xlink:href="plot.jpg" x="900" y="10" width="420" height="400" /> 
+<svg:svg id="mainMap" x="0" y="0" viewBox="0 0 3000 1600" width="900" height="500">
+<svg:rect fill="lightblue" stroke="none" x="0" y="0" width="3000" height="1600" /> 
+<svg:g id="tracker" transform="translate(10,1500) rotate(270)" style="fill:none;stroke:black;stroke-width:0;"> 

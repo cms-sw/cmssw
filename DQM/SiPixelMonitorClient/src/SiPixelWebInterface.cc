@@ -1,7 +1,7 @@
 #include "DQM/SiPixelMonitorClient/interface/SiPixelWebInterface.h"
 #include "DQM/SiPixelMonitorClient/interface/SiPixelActionExecutor.h"
 #include "DQM/SiPixelMonitorClient/interface/SiPixelInformationExtractor.h"
-#include "DQMServices/WebComponents/interface/Button.h"
+#include "DQM/SiPixelMonitorClient/interface/ANSIColors.h"
 #include "DQMServices/WebComponents/interface/CgiWriter.h"
 #include "DQMServices/WebComponents/interface/CgiReader.h"
 #include "DQMServices/WebComponents/interface/ConfigBox.h"
@@ -10,6 +10,7 @@
 #include "DQMServices/WebComponents/interface/GifDisplay.h"
 #include "DQMServices/WebComponents/interface/Select.h"
 #include "DQMServices/WebComponents/interface/HTMLLink.h"
+#include "DQMServices/WebComponents/interface/Button.h"
 
 #include <SealBase/Callback.h>
 #include <map>
@@ -25,9 +26,9 @@ SiPixelWebInterface::SiPixelWebInterface(std::string theContextURL, std::string 
   theActionFlag = NoAction;
   actionExecutor_ = 0;
   infoExtractor_  = 0;
-/*  tkMapOptions_.push_back("Persistant");
+  tkMapOptions_.push_back("Persistant");
   tkMapOptions_.push_back("Temporary");
-  tkMapCreated = false;*/
+  tkMapCreated = false;
   createAll();
 
   if (actionExecutor_ == 0) actionExecutor_ = new SiPixelActionExecutor();
@@ -82,7 +83,7 @@ void SiPixelWebInterface::handleCustomRequest(xgi::Input* in,xgi::Output* out)
      theActionFlag = SaveData;
   } else if (requestID == "CollateME") {
      theActionFlag = Collate;
-/*  } else if (requestID == "CreateTkMap") {
+  } else if (requestID == "CreateTkMap") {
      theActionFlag = CreateTkMap;
   } else if (requestID == "OpenTkMap") {
     std::string name = "TkMap";
@@ -90,7 +91,7 @@ void SiPixelWebInterface::handleCustomRequest(xgi::Input* in,xgi::Output* out)
     if (tkMapCreated) comment = "Successful";
     else  comment = "Failed";
     returnReplyXml(out, name, comment);
-    theActionFlag = NoAction;  */  
+    theActionFlag = NoAction;   
   } else if (requestID == "SingleModuleHistoList") {
     theActionFlag = NoAction;
     infoExtractor_->readModuleAndHistoList((*mui_p), out,
@@ -176,13 +177,13 @@ void SiPixelWebInterface::performAction() {
       actionExecutor_->createCollation((*mui_p));
       break;
     }
-/*  case SiPixelWebInterface::CreateTkMap :
+  case SiPixelWebInterface::CreateTkMap :
     {
      if (createTkMap()) {
        tkMapCreated = true;
      }
       break;
-    }*/
+    }
   case SiPixelWebInterface::Summary :
     {
 //      cout << " SiPixelWebInterface::Summary " << endl;
@@ -213,7 +214,7 @@ void SiPixelWebInterface::performAction() {
       infoExtractor_->plotSingleModuleHistos((*mui_p), requestMap_);
       break;
     }
-/*  case SiPixelWebInterface::PlotTkMapHistogram :
+  case SiPixelWebInterface::PlotTkMapHistogram :
     {
       vector<string> mes;
       int nval = actionExecutor_->getTkMapMENames(mes);
@@ -224,7 +225,7 @@ void SiPixelWebInterface::performAction() {
       }
       infoExtractor_->plotSingleModuleHistos((*mui_p), requestMap_);
       break;
-    }*/
+    }
   case SiPixelWebInterface::PlotSingleHistogram :
     {
 //      cout << " SiPixelWebInterface::PlotSingleHistogram " << endl;
@@ -253,7 +254,7 @@ void SiPixelWebInterface::returnReplyXml(xgi::Output * out, const std::string& n
 
 }
 
-/*bool SiPixelWebInterface::createTkMap() {
+bool SiPixelWebInterface::createTkMap() {
   if (theActionFlag == SiPixelWebInterface::CreateTkMap) {
     actionExecutor_->createTkMap((*mui_p));
     return true;
@@ -261,4 +262,3 @@ void SiPixelWebInterface::returnReplyXml(xgi::Output * out, const std::string& n
     return false;
   }
 }
-*/

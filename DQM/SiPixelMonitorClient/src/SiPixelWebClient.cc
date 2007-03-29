@@ -1,5 +1,6 @@
 #include "DQM/SiPixelMonitorClient/interface/SiPixelWebClient.h"
 #include "DQM/SiPixelMonitorClient/interface/SiPixelActionExecutor.h"
+#include "DQM/SiPixelMonitorClient/interface/ANSIColors.h"
 #include "DQMServices/ClientConfig/interface/QTestHandle.h"
 #include <SealBase/Callback.h>
 

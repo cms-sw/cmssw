@@ -5,8 +5,8 @@
  * *
  *  Class that handles the SiPixel Quality Tests
  * 
- *  $Date: 2006/10/19 14:11:47 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/02/01 16:44:39 $
+ *  $Revision: 1.2 $
  *  \author Petra Merkel
   */
 
@@ -26,9 +26,11 @@ class SiPixelUtility
 
  static void split(const std::string& str, std::vector<std::string>& tokens, 
              const std::string& delimiters=" ");
- static void getStatusColor(int status, int& rval, int&gval, int& bval);
- static void getStatusColor(int status, int& icol, std::string& tag);
- static int getStatus(MonitorElement* me);
+ static void getStatusColor(int    status, int& rval, int&gval, int& bval);
+ static void getStatusColor(int    status, int& icol, std::string& tag);
+ static void getStatusColor(double status, int& rval, int&gval, int& bval);
+ static int  getStatus(MonitorElement* me);
+ 
 };
 
 #endif
