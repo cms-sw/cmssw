@@ -437,6 +437,7 @@ bool FUResourceBroker::monitoring(toolbox::task::WorkLoop* wl)
   
   lock_.take();
   unsigned int nbInput             =resourceTable_->nbCompleted();
+  unsigned int nbProcessed         =resourceTable_->nbProcessed();
   uint64_t     nbInputSumOfSquares =resourceTable_->inputSumOfSquares();
   unsigned int nbInputSumOfSizes   =resourceTable_->inputSumOfSizes();
   unsigned int nbOutput            =resourceTable_->nbSent();
@@ -473,8 +474,8 @@ bool FUResourceBroker::monitoring(toolbox::task::WorkLoop* wl)
   
   gui_->unlockInfoSpaces();
   
-  if (nbInput!=0)
-    ratio_=nbOutput/nbInput;
+  if (nbProcessed!=0)
+    ratio_=(double)nbOutput/(double)nbProcessed;
   else
     ratio_=0.0;
   

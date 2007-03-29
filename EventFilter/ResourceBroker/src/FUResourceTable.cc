@@ -505,8 +505,7 @@ void FUResourceTable::sendInitMessage(UInt_t   fuResourceId,
 				      UInt_t   dataSize)
 {
   UInt_t   nbBytes    =sm_->sendInitMessage(fuResourceId,data,dataSize);
-  uint64_t nbBytesSq  =(uint64_t)nbBytes*(uint64_t)nbBytes;
-  outputSumOfSquares_+=nbBytesSq;
+  outputSumOfSquares_+=(uint64_t)nbBytes*(uint64_t)nbBytes;
   outputSumOfSizes_  +=nbBytes;
 }
 
@@ -520,8 +519,7 @@ void FUResourceTable::sendDataEvent(UInt_t   fuResourceId,
 {
   UInt_t   nbBytes    =sm_->sendDataEvent(fuResourceId,
 					  runNumber,evtNumber,data,dataSize);
-  uint64_t nbBytesSq  =(uint64_t)nbBytes*(uint64_t)nbBytes;
-  outputSumOfSquares_+=nbBytesSq;
+  outputSumOfSquares_+=(uint64_t)nbBytes*(uint64_t)nbBytes;
   outputSumOfSizes_  +=nbBytes;
   nbSent_++;
 }
@@ -535,10 +533,8 @@ void FUResourceTable::sendDqmEvent(UInt_t   fuDqmId,
 				   UChar_t* data,
 				   UInt_t   dataSize)
 {
-  lock();
   sm_->sendDqmEvent(fuDqmId,runNumber,evtAtUpdate,folderId,data,dataSize);
   nbSentDqm_++;
-  unlock();
 }
 
 
