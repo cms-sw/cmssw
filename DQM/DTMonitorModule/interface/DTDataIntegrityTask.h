@@ -5,8 +5,8 @@
  *
  * Class for DT Data Integrity.
  *  
- *  $Date: 2007/03/25 14:07:00 $
- *  $Revision: 1.9 $
+ *  $Date: 2007/03/27 14:10:22 $
+ *  $Revision: 1.10 $
  *
  * \author Marco Zanetti  - INFN Padova
  *
@@ -45,7 +45,7 @@ public:
   void bookHistos(std::string folder, DTROChainCoding code);
 
   void processROS25(DTROS25Data & data, int dduID, int ros);
-  void processFED(DTDDUData & data, int dduID);
+  void processFED(DTDDUData & dduData, const std::vector<DTROS25Data> & rosData, int dduID);
 
   void postEndJob();
 

@@ -1,8 +1,8 @@
 /*
  * \file DTDataIntegrityTask.cc
  * 
- * $Date: 2007/03/25 14:06:52 $
- * $Revision: 1.20 $
+ * $Date: 2007/03/25 14:12:51 $
+ * $Revision: 1.21 $
  * \author M. Zanetti (INFN Padova), S. Bolognesi (INFN Torino)
  *
 */
@@ -451,14 +451,6 @@ void DTDataIntegrityTask::processROS25(DTROS25Data & data, int ddu, int ros) {
   /// ROS Trailer
   histoType = "ROSTrailerBits";
 
-  // relic
-  int datum = 
-    data.getROSTrailer().TFF() << (23-16) | 
-    data.getROSTrailer().TPX() << (22-16) |
-    data.getROSTrailer().ECHO() << (20-16) |
-    data.getROSTrailer().ECLO() << (18-16) |
-    data.getROSTrailer().BCO()<< (16-16);
-
   /// FIXME: EC* data are not correctly treated. One histo each is needed
   if (rosHistos[histoType].find(code.getROSID()) != rosHistos[histoType].end()) {
     (rosHistos.find(histoType)->second).find(code.getROSID())->second->Fill(1,data.getROSTrailer().TFF());
@@ -545,8 +537,8 @@ void DTDataIntegrityTask::processROS25(DTROS25Data & data, int ddu, int ros) {
 
   ROSDebug_BcntResCnt = (ROSDebug_BcntResCntHigh << 15) + ROSDebug_BcntResCntLow;
   if (debug)
-  cout << " ROS: " << code.getROS() << " ROSDebug_BunchNumber " << ROSDebug_BunchNumber
-       << " ROSDebug_BcntResCnt " << ROSDebug_BcntResCnt << endl;
+    cout << " ROS: " << code.getROS() << " ROSDebug_BunchNumber " << ROSDebug_BunchNumber
+	 << " ROSDebug_BcntResCnt " << ROSDebug_BcntResCnt << endl;
 
   histoType = "ROSDebug_BcntResCnt";
   if (rosHistos[histoType].find(code.getROSID()) != rosHistos[histoType].end())
@@ -759,13 +751,14 @@ void DTDataIntegrityTask::processROS25(DTROS25Data & data, int ddu, int ros) {
     stationGroup = (stationGroup == 0 ? 1 : 0);  //switch between MB1-2 and MB3-4 data
   }
   
-  if ((neventsROS25%parameters.getUntrackedParameter<int>("saveResultsFrequency", 10000)==0) && (parameters.getUntrackedParameter<bool>("writeHisto", true)) ) 
+  if ((neventsROS25%parameters.getUntrackedParameter<int>("saveResultsFrequency", 10000)==0) 
+      && (parameters.getUntrackedParameter<bool>("writeHisto", true)) ) 
     dbe->save(parameters.getUntrackedParameter<string>("outputFile", "ROS25Test.root"));
   
 
 }
 
-void DTDataIntegrityTask::processFED(DTDDUData & data, int ddu) {
+void DTDataIntegrityTask::processFED(DTDDUData & data, const std::vector<DTROS25Data> & rosData, int ddu) {
 
   neventsDDU++;
   if ((neventsDDU%1000 == 0) && debug)
