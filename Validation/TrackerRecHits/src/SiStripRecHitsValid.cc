@@ -312,7 +312,7 @@ void SiStripRecHitsValid::endJob() {
 void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es) {
 
   LogInfo("EventInfo") << " Run = " << e.id().run() << " Event = " << e.id().event();  
-  cout  << " Run = " << e.id().run() << " Event = " << e.id().event() << endl;  
+  //cout  << " Run = " << e.id().run() << " Event = " << e.id().event() << endl;  
   
   //--- get RecHits
   
