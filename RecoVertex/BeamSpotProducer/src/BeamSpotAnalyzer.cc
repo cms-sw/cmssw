@@ -6,7 +6,7 @@
 
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
- version $Id: BeamSpotAnalyzer.cc,v 1.1 2007/02/11 03:32:53 yumiceva Exp $
+ version $Id: BeamSpotAnalyzer.cc,v 1.2 2007/03/29 16:57:53 yumiceva Exp $
 
 ________________________________________________________________**/
 
@@ -31,10 +31,10 @@ ________________________________________________________________**/
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 
-//#include "FWCore/Framework/interface/MakerMacros.h"
-//#include "FWCore/ServiceRegistry/interface/Service.h"
-//#include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
-//#include "CondFormats/BeamSpotObjects/interface/BeamSpotObjects.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
+#include "CondFormats/BeamSpotObjects/interface/BeamSpotObjects.h"
 
 #include "TMath.h"
 
@@ -330,7 +330,7 @@ BeamSpotAnalyzer::endJob() {
 	std::cout << "c0 = " << myalgo->GetResPar0() << " +- " << myalgo->GetResPar0Err() << std::endl;
 	std::cout << "c1 = " << myalgo->GetResPar1() << " +- " << myalgo->GetResPar1Err() << std::endl;
 	
-/*
+
 	if (write2DB_) {
 		std::cout << "\n-------------------------------------\n\n" << std::endl;
 		std::cout << " write results to DB..." << std::endl;
@@ -357,7 +357,7 @@ BeamSpotAnalyzer::endJob() {
 		
 		}
 	}
-*/
+
 }
 
 //define this as a plug-in

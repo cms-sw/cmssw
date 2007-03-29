@@ -3,4 +3,4 @@
 #include "RecoVertex/BeamSpotProducer/interface/BeamSpotAnalyzer.h"
 
 DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(BeamSpotAnalyzer)
+DEFINE_ANOTHER_FWK_MODULE(BeamSpotAnalyzer);
