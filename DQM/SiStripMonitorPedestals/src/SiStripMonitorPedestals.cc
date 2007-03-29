@@ -13,12 +13,13 @@
 //
 // Original Author:  Simone Gennai and Suchandra Dutta
 //         Created:  Sat Feb  4 20:49:10 CET 2006
-// $Id: SiStripMonitorPedestals.cc,v 1.16 2007/03/23 14:31:28 dutta Exp $
+// $Id: SiStripMonitorPedestals.cc,v 1.17 2007/03/28 19:25:40 dutta Exp $
 //
 //
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "DataFormats/Common/interface/Handle.h"
 
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 
@@ -33,7 +34,6 @@
 
 #include <FWCore/Framework/interface/Event.h>
 #include <FWCore/Framework/interface/EventSetup.h>
-#include "FWCore/Framework/interface/Handle.h"
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 // data formats
