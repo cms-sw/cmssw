@@ -3,8 +3,8 @@
  * Test suit for CSCDigi.
  * Based on testDTDigis.cpp
  *
- * $Date: 2006/12/05 22:48:07 $
- * $Revision: 1.14 $
+ * $Date: 2006/12/14 22:35:09 $
+ * $Revision: 1.15 $
  *
  * \author N. Terentiev, CMU (for CSCWireDigi, CSCRPCDigi, 
  *                                CSCALCTDigi, CSCCLCTDigi)
@@ -12,7 +12,7 @@
  * \author A. Tumanov, Rice U.
  */
 
-static const char CVSId[] = "$Id: testCSCDigis.cpp,v 1.14 2006/12/05 22:48:07 teren Exp $";
+static const char CVSId[] = "$Id: testCSCDigis.cpp,v 1.15 2006/12/14 22:35:09 tumanov Exp $";
 
 #include <cppunit/extensions/HelperMacros.h>
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
@@ -41,6 +41,9 @@ static const char CVSId[] = "$Id: testCSCDigis.cpp,v 1.14 2006/12/05 22:48:07 te
 #include <DataFormats/CSCDigi/interface/CSCCFEBStatusDigi.h>
 #include <DataFormats/CSCDigi/interface/CSCCFEBStatusDigiCollection.h>
 
+#include <DataFormats/CSCDigi/interface/CSCTMBStatusDigi.h>
+#include <DataFormats/CSCDigi/interface/CSCTMBStatusDigiCollection.h>
+
 #include <DataFormats/CSCDigi/interface/CSCDCCFormatStatusDigi.h>
 #include <DataFormats/CSCDigi/interface/CSCDCCFormatStatusDigiCollection.h>
 
@@ -68,6 +71,7 @@ public:
   void fillCSCCLCTDigi(CSCCLCTDigiCollection &);
   void fillCSCCorrLCTDigi(CSCCorrelatedLCTDigiCollection &);
   void fillCSCCFEBStatusDigi(CSCCFEBStatusDigiCollection &);
+  void fillCSCTMBStatusDigi(CSCTMBStatusDigiCollection &);
   void fillCSCDCCFormatStatusDigi(CSCDCCFormatStatusDigiCollection &);
 
   void readCSCWireDigi(CSCWireDigiCollection &);
@@ -78,6 +82,7 @@ public:
   void readCSCCLCTDigi(CSCCLCTDigiCollection &);
   void readCSCCorrLCTDigi(CSCCorrelatedLCTDigiCollection &);
   void readCSCCFEBStatusDigi(CSCCFEBStatusDigiCollection &);
+  void readCSCTMBStatusDigi(CSCTMBStatusDigiCollection &);
   void readCSCDCCFormatStatusDigi(CSCDCCFormatStatusDigiCollection &);
 
   void testDigiCollectionPut();
@@ -310,6 +315,29 @@ void testCSCDigis::fillCSCCFEBStatusDigi(CSCCFEBStatusDigiCollection & collectio
         collection.put(std::make_pair(digivec.begin(), digivec.end()),detid);
  
       } // end of for(int endcp=1 ...for(int csc=1 ...) 
+}
+
+void testCSCDigis::fillCSCTMBStatusDigi(CSCTMBStatusDigiCollection & collection) {
+  for(int endcp=1; endcp<3; endcp++)
+   for(int stn=1; stn<5; stn++)
+    for(int rng=1; rng<4; rng++)
+      for(int csc=1; csc<37; csc++) {
+                                                                                
+       CSCDetId detid(endcp,stn,rng,csc,0);
+                                                                                
+       std::vector<CSCTMBStatusDigi> digivec;
+       int tmbdduhdtr=87;   // 01010111
+       int boardid=5;
+       int cscid=10;
+       int bxncntL1arv=512;
+       int bxncntpretrig=256;
+       int nmbtbinpretrig=8;
+       CSCTMBStatusDigi digi(tmbdduhdtr, boardid, cscid,  bxncntL1arv,bxncntpretrig,nmbtbinpretrig);
+       digivec.push_back(digi);
+                                                                                
+       collection.put(std::make_pair(digivec.begin(), digivec.end()),detid);
+                                                                                
+      } // end of for(int endcp=1 ...for(int csc=1 ...)
 }
 
 void testCSCDigis::fillCSCDCCFormatStatusDigi(CSCDCCFormatStatusDigiCollection & collection){
@@ -567,7 +595,7 @@ void testCSCDigis::readCSCCFEBStatusDigi(CSCCFEBStatusDigiCollection & collectio
       cfebcount++;
       CPPUNIT_ASSERT((*digiIt).getCFEBNmb()==cfebcount);
       printf("CSC CFEBStatus - endcap station ring csc cfeb: %3d %3d %3d %3d %3d \n",id.endcap(),id.station(),id.ring(),id.chamber(),(*digiIt).getCFEBNmb());
-
+/*  Commented because the latest changes in CFEBStatusdDigi are not reflected
       std::cout<<"CSC CFEBStatus - SCA Full Condition:";
       for(int i=0;i<4;i++) std::cout<<" "<<(*digiIt).getSCAFullCond()[i];
       std::cout<<std::endl;
@@ -592,10 +620,44 @@ void testCSCDigis::readCSCCFEBStatusDigi(CSCCFEBStatusDigiCollection & collectio
       std::cout<<"CSC CFEBStatus - TRIGGER_TIME:";
       for(int i=0;i<8;i++) std::cout<<" "<<(*digiIt).getTRIG_TIME()[i];
       std::cout<<std::endl;
-
+*/
     }// for digis in collection
   }// end of for (detUnitIt=...
    
+}
+
+void testCSCDigis::readCSCTMBStatusDigi(CSCTMBStatusDigiCollection & collection) {
+
+  CSCTMBStatusDigiCollection::DigiRangeIterator detUnitIt;
+  for (detUnitIt=collection.begin();
+       detUnitIt!=collection.end();
+       ++detUnitIt){
+
+    const CSCDetId& id = (*detUnitIt).first;
+
+    const CSCTMBStatusDigiCollection::Range& range = (*detUnitIt).second;
+
+    for (CSCTMBStatusDigiCollection::const_iterator digiIt =
+           range.first; digiIt!=range.second; ++digiIt){
+
+      CPPUNIT_ASSERT((*digiIt).getDAV()==7);
+      //      CPPUNIT_ASSERT((*digiIt).getDAV()==3);
+      CPPUNIT_ASSERT((*digiIt).getHALF()==0);
+      CPPUNIT_ASSERT((*digiIt).getEMPTY()==1);
+      CPPUNIT_ASSERT((*digiIt).getStart_Timeout()==0);
+      CPPUNIT_ASSERT((*digiIt).getEnd_Timeout()==1);
+      CPPUNIT_ASSERT((*digiIt).getFULL()==0);
+      CPPUNIT_ASSERT((*digiIt).getBoardId()==5);
+      CPPUNIT_ASSERT((*digiIt).getCscId()==10);
+      CPPUNIT_ASSERT((*digiIt).getBXNCntL1A()==512);
+      CPPUNIT_ASSERT((*digiIt).getBXNCntPretr()==256);
+      CPPUNIT_ASSERT((*digiIt).getNmbTbinsPretr()==8);
+
+      printf("CSC TMBStatus - endcap station ring csc TMB_DAV: %3d %3d %3d %3d%3d \n",id.endcap(),id.station(),id.ring(),id.chamber(),(*digiIt).getDAV());
+
+    }// for digis in collection
+  }// end of for (detUnitIt=...
+
 }
 
 void testCSCDigis::readCSCDCCFormatStatusDigi(CSCDCCFormatStatusDigiCollection & collection) {
@@ -662,6 +724,9 @@ void testCSCDigis::testDigiCollectionPut(){
        CSCCFEBStatusDigiCollection cfebstatusdigiCollection;
        fillCSCCFEBStatusDigi(cfebstatusdigiCollection);
 
+       CSCTMBStatusDigiCollection tmbstatusdigiCollection;
+       fillCSCTMBStatusDigi(tmbstatusdigiCollection);
+
        CSCDCCFormatStatusDigiCollection dccformatstatusdigiCollection;
        fillCSCDCCFormatStatusDigi(dccformatstatusdigiCollection);
       
@@ -675,6 +740,7 @@ void testCSCDigis::testDigiCollectionPut(){
        readCSCCLCTDigi(clctdigiCollection);
        readCSCCorrLCTDigi(corrlctdigiCollection);
        readCSCCFEBStatusDigi(cfebstatusdigiCollection);
+       readCSCTMBStatusDigi(tmbstatusdigiCollection);
        readCSCDCCFormatStatusDigi(dccformatstatusdigiCollection);
 }
 #include <Utilities/Testing/interface/CppUnit_testdriver.icpp>
