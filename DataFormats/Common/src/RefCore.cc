@@ -58,20 +58,25 @@ namespace edm {
   }
 
   void
-  checkProduct(RefCore const& prod, RefCore & product) {
-    if (product.id() == ProductID()) {
-      product = prod; 
-    } else if (product == prod) {
-      if (product.productGetter() == 0 && prod.productGetter() != 0) {
-        product.setProductGetter(prod.productGetter());
+  checkProduct(RefCore const& productToBeInserted, RefCore & commonProduct) {
+    if (productToBeInserted.isNull()) {
+      throw edm::Exception(errors::InvalidReference,"Inconsistency")
+	<< "RefVectorBase::push_back: Ref has invalid (zero) product ID. "
+	<< "id should be (" << commonProduct.id() << ")";
+    }
+    if (commonProduct.isNull()) {
+      commonProduct = productToBeInserted; 
+    } else if (commonProduct == productToBeInserted) {
+      if (commonProduct.productGetter() == 0 && productToBeInserted.productGetter() != 0) {
+        commonProduct.setProductGetter(productToBeInserted.productGetter());
       }
-      if (product.productPtr() == 0 && prod.productPtr() != 0) {
-        product.setProductPtr(prod.productPtr());
+      if (commonProduct.productPtr() == 0 && productToBeInserted.productPtr() != 0) {
+        commonProduct.setProductPtr(productToBeInserted.productPtr());
       }
     } else {
       throw edm::Exception(errors::InvalidReference,"Inconsistency")
 	<< "RefVectorBase::push_back: Ref is inconsistent. "
-	<< "id = (" << prod.id() << ") should be (" << product.id() << ")";
+	<< "id = (" << productToBeInserted.id() << ") should be (" << commonProduct.id() << ")";
     }
   }
 }
