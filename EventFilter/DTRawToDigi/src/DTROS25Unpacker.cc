@@ -1,9 +1,9 @@
 /** \file
  *
- *  $Date: 2006/11/16 13:33:20 $
- *  $Revision: 1.28 $
+ *  $Date: 2007/03/16 18:02:16 $
+ *  $Revision: 1.29 $
  *  \author  M. Zanetti - INFN Padova
- * FRC 060906
+ *  \revision FRC 060906
  */
 
 #include <EventFilter/DTRawToDigi/src/DTROS25Unpacker.h>
@@ -52,21 +52,25 @@ DTROS25Unpacker::~DTROS25Unpacker() {
 }
 
 void DTROS25Unpacker::interpretRawData(const unsigned int* index, int datasize,
-				       int dduID,
+				       int dduIDfromDDU,
 				       edm::ESHandle<DTReadOutMapping>& mapping,
 				       std::auto_ptr<DTDigiCollection>& product,
 				       std::auto_ptr<DTLocalTriggerCollection>& product2,
 				       uint16_t rosList) {
 
 
-  /// FIXME! (temporary). The DDU number is set by hand
-  dduID = pset.getUntrackedParameter<int>("dduID",730);
+  int dduID;
+  if (pset.getUntrackedParameter<bool>("readDDUIDfromDDU",false))
+    dduID = dduIDfromDDU;
+  else
+    dduID = pset.getUntrackedParameter<int>("dduID",770);
   
   const int wordLength = 4;
   int numberOfWords = datasize / wordLength;
   
   int rosID = 0;
   DTROS25Data controlData(rosID);
+  controlDataFromAllROS.clear();
   
   int wordCounter = 0;
   uint32_t word = index[swap(wordCounter)];
@@ -83,13 +87,14 @@ void DTROS25Unpacker::interpretRawData(const unsigned int* index, int datasize,
   
   // Loop on ROSs
   while (wordCounter < numberOfWords) {
+
+    controlData.clean();
     
     rosID++; // to be mapped;
-    
+
     if ( pset.getUntrackedParameter<bool>("readingDDU",true) ) {
       // matching the ROS number with the enabled DDU channel
       if ( rosID <= 12 && !((rosList & int(pow(2., (rosID-1) )) ) >> (rosID-1) ) ) continue;
-
       if (debug) cout<<"[DTROS25Unpacker]: ros list: "<<rosList
 		     <<" ROS ID "<<rosID<<endl;
     }
@@ -171,10 +176,9 @@ void DTROS25Unpacker::interpretRawData(const unsigned int* index, int datasize,
 	    else if ( DTROSWordType(word).type() == DTROSWordType::TDCDebug) {
 	      if (debug) cout<<"TDC Debugging"<<endl;
 	    }
-
+	    
 	    // The TDC information
 	    else if (DTROSWordType(word).type() == DTROSWordType::TDCMeasurement) {
-
 
 	      DTTDCMeasurementWord tdcMeasurementWord(word);
 	      DTTDCData tdcData(robID,tdcMeasurementWord);
@@ -191,7 +195,6 @@ void DTROS25Unpacker::interpretRawData(const unsigned int* index, int datasize,
 
 	      hitOrder[channelIndex.getCode()]++;
 
-
 	      if (debug) {
 		cout<<"[DTROS25Unpacker] ROAddress: DDU "<< dduID
 		    <<", ROS "<< rosID
@@ -201,7 +204,6 @@ void DTROS25Unpacker::interpretRawData(const unsigned int* index, int datasize,
 	      }
 
 	      // FRC if not already done for this ROS, find wheel and sector for SC data
-
 	      if (writeSC && (SCsector < 1 || SCwheel < -2) ) {
 
 		if (debug) cout <<" second try to find SCwheel and SCsector "<<endl;
@@ -216,7 +218,6 @@ void DTROS25Unpacker::interpretRawData(const unsigned int* index, int datasize,
 
 
 	      // Map the RO channel to the DetId and wire
-
 	      DTWireId detId;
 	      if ( ! mapping->readOutToGeometry(dduID, rosID, robID, tdcID, tdcChannel, detId)) {
 		if (debug) cout<<"[DTROS25Unpacker] "<<detId<<endl;
@@ -264,7 +265,6 @@ void DTROS25Unpacker::interpretRawData(const unsigned int* index, int datasize,
 
 	    // if no SC data -> no loop ;
 	    // otherwise subtract 1 word (subheader) and countdown for bx assignment
-
 	    if(numofscword > 0){
 
 	      int bx_received = (numofscword - 1) / 2;
@@ -284,14 +284,8 @@ void DTROS25Unpacker::interpretRawData(const unsigned int* index, int datasize,
 		}
 
 
-		// M.Z.   ... RT comments!
-		//int bx_counter=0;
-		//
-
 		// actual loop on SC time slots
-
 		int stationGroup=0;
-		//              uint16_t thetaBits;
 		do {
 		  wordCounter++; word = index[swap(wordCounter)];
 		  int SCstation=0;
@@ -303,11 +297,10 @@ void DTROS25Unpacker::interpretRawData(const unsigned int* index, int datasize,
 		    int bx_counter = int(round( (leftword + 1)/ 2.));
 
 		    if(debug){
-		      if(bx_counter < 0 || leftword < 0)cout<<
-							  "[DTROS25Unpacker]: SC data more than expected; negative bx counter reached! "<<
-							  endl;
+		      if(bx_counter < 0 || leftword < 0)
+			cout<<"[DTROS25Unpacker]: SC data more than expected; negative bx counter reached! "<<endl;
 		    }
-
+		    
 		    DTLocalTriggerDataWord scDataWord(word);
 
 		    // DTSectorCollectorData scData(scDataWord, int(round(bx_counter/2.))); M.Z.
@@ -331,8 +324,6 @@ void DTROS25Unpacker::interpretRawData(const unsigned int* index, int datasize,
 
 		      // FRC: start constructing persistent SC objects:
 		      // first identify the station (data come in 2 triggers per word: MB1+MB2, MB3+MB4)
-
-
 		      if ( scDataWord.hasTrigger(0) || (scDataWord.getBits(0) & 0x30) ) {
 			if ( stationGroup%2 == 0) SCstation = 1;
 			else                      SCstation = 3;
@@ -342,10 +333,11 @@ void DTROS25Unpacker::interpretRawData(const unsigned int* index, int datasize,
 			// ... and commit it to the event
 			DTChamberId chamberId (SCwheel,SCstation,SCsector);
 			product2->insertDigi(chamberId,localtrigger);
-			if (debug) { cout << " FRC: just put in product2: "
-					  <<chamberId.wheel()<<" "<<" "<<chamberId.station()<<" "<<chamberId.sector()
-					  <<endl;;
-			localtrigger.print(); }
+			if (debug) { 
+			  cout<<"FRC: just put in product2: "<<chamberId.wheel()
+			      <<" "<<chamberId.station()<<" "<<chamberId.sector()
+			      <<endl;;
+			  localtrigger.print(); }
 		      }
 		      if ( scDataWord.hasTrigger(1) || (scDataWord.getBits(1) & 0x30) ) {
 			if ( stationGroup%2 == 0) SCstation = 2;
@@ -356,12 +348,13 @@ void DTROS25Unpacker::interpretRawData(const unsigned int* index, int datasize,
 			// ... and commit it to the event
 			DTChamberId chamberId (SCwheel,SCstation,SCsector);
 			product2->insertDigi(chamberId,localtrigger);
-			if (debug) { cout << " FRC: just put in product2: "
-					  <<chamberId.wheel()<<" "<<" "<<chamberId.station()<<" "<<chamberId.sector()
-					  <<endl;;
+			if (debug) { 
+			  cout<<"FRC: just put in product2: "
+			      <<chamberId.wheel()<<" "<<chamberId.station()<<" "<<chamberId.sector()
+			      <<endl;;
 			localtrigger.print(); }
 		      }
-
+		      
 		      stationGroup++;
 		    } // if writeSC
 		  } // if SC data
@@ -386,7 +379,7 @@ void DTROS25Unpacker::interpretRawData(const unsigned int* index, int datasize,
 	controlData.addROSTrailer(rosTrailerWord);
 	if (debug) cout<<"[DTROS25Unpacker]: ROSTrailer "<<rosTrailerWord.EventWordCount()<<endl;
       }
-
+      
       // Perform dqm if requested:
       // DQM IS PERFORMED FOR EACH ROS SEPARATELY
       if (pset.getUntrackedParameter<bool>("performDataIntegrityMonitor",false)) {
@@ -402,17 +395,17 @@ void DTROS25Unpacker::interpretRawData(const unsigned int* index, int datasize,
       if (debug) cout<<"[DTROS25Unpacker]: odd number of ROS words"<<endl;
       rosID--;
     } // if ROS header
-
+    
     else {
       cout<<"[DTROS25Unpacker]: ERROR! First word is not a ROS Header"<<endl;
     }
-
-
+    
     // (needed if there are more than 1 ROS)
     wordCounter++; word = index[swap(wordCounter)];
 
+    // fill the vector with ROS's control data
+    controlDataFromAllROS.push_back(controlData);
   } // loop on ROS!
-
 
 }
 
