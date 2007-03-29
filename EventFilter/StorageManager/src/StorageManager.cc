@@ -1,4 +1,4 @@
-// $Id: StorageManager.cc,v 1.10 2007/03/29 09:08:17 klute Exp $
+// $Id: StorageManager.cc,v 1.11 2007/03/29 12:53:38 klute Exp $
 
 #include <iostream>
 #include <iomanip>
@@ -410,13 +410,11 @@ void StorageManager::receiveDataMessage(toolbox::mem::Reference *ref)
          // msg->frameCount start from 0, but in EventMsg header it starts from 1!
          bool isLocal = true;
 
-         int status = 1;
-	 /*
+         int status = 
 	   smfusenders_.updateFUSender4data(&msg->hltURL[0], &msg->hltClassName[0],
-           msg->hltLocalId, msg->hltInstance, msg->hltTid,
-           msg->runID, msg->eventID, msg->frameCount+1, msg->numFrames,
-           msg->originalSize, isLocal);
-	 */
+					    msg->hltLocalId, msg->hltInstance, msg->hltTid,
+					    msg->runID, msg->eventID, msg->frameCount+1, msg->numFrames,
+					    msg->originalSize, isLocal);
 
          if(status == 1) ++(storedEvents_.value_);
          if(status == -1) {
@@ -463,13 +461,12 @@ void StorageManager::receiveDataMessage(toolbox::mem::Reference *ref)
     // for FU sender list update
     // msg->frameCount start from 0, but in EventMsg header it starts from 1!
     bool isLocal = false;
-    int status = 1;
-    /*
+    int status = 
       smfusenders_.updateFUSender4data(&msg->hltURL[0], &msg->hltClassName[0],
-      msg->hltLocalId, msg->hltInstance, msg->hltTid,
-      msg->runID, msg->eventID, msg->frameCount+1, msg->numFrames,
-      msg->originalSize, isLocal);
-    */
+				       msg->hltLocalId, msg->hltInstance, msg->hltTid,
+				       msg->runID, msg->eventID, msg->frameCount+1, msg->numFrames,
+				       msg->originalSize, isLocal);
+    
     if(status == 1) ++(storedEvents_.value_);
     if(status == -1) {
       LOG4CPLUS_ERROR(this->getApplicationLogger(),
