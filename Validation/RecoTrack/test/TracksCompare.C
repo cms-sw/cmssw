@@ -96,7 +96,7 @@ void TracksCompare()
 
    canvas = new TCanvas("Tracks3","Tracks: chi2 and #hits vs eta",1000,1000);
 
-   if (hit&&chi2) plotHist22(canvas,sh1,rh1,sc1,rc1,sh2,rh2,sc2,rc2,myPV,te);
+   if (hit&&chi2) plotHist22(canvas,sh1,rh1,sc1,rc1,sh2,rh2,sc2,rc2,myPV,te, "UU");
    else if (hit)  plotHist12(canvas,sh1,rh1,sh2,rh2,myPV,te,"UU");
    else if (chi2) plotHist12(canvas,sc1,rc1,sc2,rc2,myPV,te,"UU");
  
