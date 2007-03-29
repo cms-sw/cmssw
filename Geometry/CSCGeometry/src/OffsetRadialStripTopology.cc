@@ -9,20 +9,17 @@
 OffsetRadialStripTopology::OffsetRadialStripTopology( 
   int numberOfStrips, float stripPhiPitch,
   float detectorHeight, float radialDistance,
-  float stripOffset):
-  RadialStripTopology( numberOfStrips, stripPhiPitch,
-		       detectorHeight, radialDistance),
+  float stripOffset, float yCentre ) :
+  RadialStripTopology( numberOfStrips, stripPhiPitch, detectorHeight, radialDistance, +1, yCentre),
 	     theStripOffset( stripOffset )
 { 
-  // Reset offset in base class
-  //  float off = RadialStripTopology::shiftOffset( stripOffset );
-  float rotate_by = stripOffset * angularWidth(); // now in angular units
+  float rotate_by = stripOffset * angularWidth(); // now in angular units (radians, I hope)
   theCosOff = cos(rotate_by);
   theSinOff = sin(rotate_by);
 
-  LogDebug("CSC") << "fractional strip offset = " << stripOffset <<
+  LogTrace("CSC") << "fractional strip offset = " << stripOffset <<
     "\n angle = " << rotate_by << 
-    " cos = " << theCosOff << " sin = " << theSinOff << "\n";
+    " cos = " << theCosOff << " sin = " << theSinOff;
 }
 
 LocalPoint OffsetRadialStripTopology::localPosition(const MeasurementPoint & mp) const {
@@ -34,20 +31,19 @@ LocalPoint OffsetRadialStripTopology::localPosition(const MeasurementPoint & mp)
   // 2nd component of MP is fractional position along strip, with range +/-0.5,
   // so distance along strip, measured from mid-point of length of strip, is
   //     mp.y() * (length of strip). 
-  // Strip is always bisected by y'=0, so perpendicular distance
-  // from this axis, coordinate y' is
+  // Distance in direction of coordinate y' is
   //    mp.y() * (length of strip) * cos(phi)
   // where phi is angle between strip and y' axis.
   // But (length of strip) = detHeight/cos(phi), so
-  float yprime =  mp.y() * detHeight();
-  float xprime = ( centreToIntersection() + yprime ) * tan ( phi );
+  float yprime =  mp.y() * detHeight() + yCentreOfStripPlane();
+  float xprime = ( originToIntersection() + yprime ) * tan ( phi );
   //  Rotate to (x,y)
   return toLocal(xprime, yprime);
 }
 
 float OffsetRadialStripTopology::strip(const LocalPoint& lp) const {
   LocalPoint pnt = toPrime(lp);
-  float phi = atan2( pnt.x(), pnt.y()+centreToIntersection() );
+  float phi = atan2( pnt.x(), pnt.y()+originToIntersection() );
   float fstrip = ( phi - phiOfOneEdge() ) / angularWidth();
   fstrip = ( fstrip>=0. ? fstrip : 0. );
   fstrip = ( fstrip<=nstrips() ? fstrip : nstrips() );
@@ -60,17 +56,17 @@ float OffsetRadialStripTopology::stripAngle(float strip) const {
 
 LocalPoint OffsetRadialStripTopology::toLocal(float xprime, float yprime) const {
   float x =  theCosOff * xprime + theSinOff * yprime
-             + centreToIntersection() * theSinOff;
+             + originToIntersection() * theSinOff;
   float y = -theSinOff * xprime + theCosOff * yprime
-             - centreToIntersection() * (1. - theCosOff);
+             - originToIntersection() * (1. - theCosOff);
   return LocalPoint(x, y);
 }
 
 LocalPoint OffsetRadialStripTopology::toPrime(const LocalPoint& lp) const {
   float xprime = theCosOff * lp.x() - theSinOff * lp.y()
-                  - centreToIntersection() * theSinOff;
+                  - originToIntersection() * theSinOff;
   float yprime = theSinOff * lp.x() + theCosOff * lp.y()
-                  - centreToIntersection() * (1. - theCosOff);
+                  - originToIntersection() * (1. - theCosOff);
   return LocalPoint(xprime, yprime);
 }
 

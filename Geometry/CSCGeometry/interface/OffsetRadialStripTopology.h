@@ -17,8 +17,11 @@ class OffsetRadialStripTopology : public RadialStripTopology
 {
 public:
 
+  /** Constructor: note that yCentre is local y of symmetry centre of strip plane
+   *  _before_ the rotation shift: it is passed directly to RST base.
+   */
   OffsetRadialStripTopology( int numberOfStrips, float stripPhiPitch,
-     float detectorHeight, float radialDistance, float stripOffset);
+     float detectorHeight, float radialDistance, float stripOffset, float yCentre);
 
   virtual ~OffsetRadialStripTopology(){};
 
