@@ -28,7 +28,7 @@ within the edm::Event where those objects are only related by a base class, T.
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Apr  3 16:37:59 EDT 2006
-// $Id: RefToBase.h,v 1.11 2007/01/23 00:25:52 wmtan Exp $
+// $Id: RefToBase.h,v 1.12 2007/03/04 04:59:59 wmtan Exp $
 //
 
 // system include files
@@ -113,7 +113,7 @@ namespace edm {
     }
     
     /// Checks for null
-    bool isNull() const { return id() == ProductID(); }
+    bool isNull() const { return !id().isValid(); }
     
     /// Checks for non-null
     bool isNonnull() const { return !isNull(); }

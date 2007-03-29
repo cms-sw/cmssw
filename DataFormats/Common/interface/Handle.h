@@ -19,7 +19,7 @@ Handles can have:
 
 To check validity, one can use the isValid() function.
 
-$Id: Handle.h,v 1.1 2007/01/12 21:05:28 wmtan Exp $
+$Id: Handle.h,v 1.2 2007/03/04 04:59:59 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -94,7 +94,7 @@ namespace edm
     id_(prov->event.productID_) { 
       assert(prod_);
       assert(prov_);
-      assert(id_ != ProductID());
+      assert(id_.isValid());
   }
 
   template <class T>

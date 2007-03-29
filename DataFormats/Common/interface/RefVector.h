@@ -6,7 +6,7 @@
 RefVector: A template for a vector of interproduct references.
 	Each vector element is a reference to a member of the same product.
 
-$Id: RefVector.h,v 1.19 2007/03/16 13:04:03 paterno Exp $
+$Id: RefVector.h,v 1.20 2007/03/23 16:54:31 paterno Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -92,7 +92,7 @@ namespace edm {
     ProductID id() const {return refVector_.refCore().id();}
 
     /// Checks for null
-    bool isNull() const {return id() == ProductID();}
+    bool isNull() const {return !id().isValid();}
 
     /// Checks for non-null
     bool isNonnull() const {return !isNull();}
