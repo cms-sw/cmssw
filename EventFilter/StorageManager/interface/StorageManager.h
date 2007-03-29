@@ -10,7 +10,7 @@
 
      See CMS EventFilter wiki page for further notes.
 
-   $Id$
+   $Id: StorageManager.h,v 1.9 2007/03/26 23:04:41 hcheung Exp $
 */
 
 #include <string>
@@ -81,11 +81,17 @@ namespace stor {
       throw (xoap::exception::Exception);
 
     
+////////////////////////////////////////////////////////////////////////////////
    private:  
     void receiveRegistryMessage(toolbox::mem::Reference *ref);
     void receiveDataMessage(toolbox::mem::Reference *ref);
     void receiveOtherMessage(toolbox::mem::Reference *ref);
     void receiveDQMMessage(toolbox::mem::Reference *ref);
+
+    void sendDiscardMessage(unsigned int, 
+			    unsigned int, 
+			    unsigned int, 
+			    std::string);
 
     void defaultWebPage
       (xgi::Input *in, xgi::Output *out) throw (xgi::exception::Exception);

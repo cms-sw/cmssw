@@ -1,4 +1,4 @@
-// $Id$
+// $Id: StorageManager.cc,v 1.9 2007/03/26 23:02:51 hcheung Exp $
 
 #include <iostream>
 #include <iomanip>
@@ -11,6 +11,8 @@
 #include "EventFilter/StorageManager/interface/ProgressMarker.h"
 #include "EventFilter/StorageManager/interface/Configurator.h"
 #include "EventFilter/StorageManager/interface/Parameter.h"
+#include "EventFilter/StorageManager/interface/FUProxy.h"
+
 #include "EventFilter/Utilities/interface/i2oEvfMsgs.h"
 #include "EventFilter/Utilities/interface/ModuleWebRegistry.h"
 #include "EventFilter/Utilities/interface/ModuleWebRegistry.h"
@@ -303,6 +305,12 @@ void StorageManager::receiveRegistryMessage(toolbox::mem::Reference *ref)
         // or decide once and for all we only write streamer files and get rid of test
     } // end of test on if registry data was saved
   } // end of test on if registryFUSender returned that registry is complete
+
+  string hltClassName(msg->hltClassName);
+  sendDiscardMessage(msg->fuID, 
+		     msg->hltInstance, 
+		     I2O_FU_DATA_DISCARD,
+		     hltClassName);
 }
 
 void StorageManager::receiveDataMessage(toolbox::mem::Reference *ref)
@@ -318,15 +326,15 @@ void StorageManager::receiveDataMessage(toolbox::mem::Reference *ref)
     (I2O_MESSAGE_FRAME*)ref->getDataLocation();
   I2O_SM_DATA_MESSAGE_FRAME *msg    =
     (I2O_SM_DATA_MESSAGE_FRAME*)stdMsg;
-  FDEBUG(10) << "StorageManager: Received data message from HLT at " << msg->hltURL 
-             << " application " << msg->hltClassName << " id " << msg->hltLocalId
-             << " instance " << msg->hltInstance << " tid " << msg->hltTid << std::endl;
-  FDEBUG(10) << "                 for run " << msg->runID << " event " << msg->eventID
-             << " total frames = " << msg->numFrames << std::endl;
-  FDEBUG(10) << "StorageManager: Frame " << msg->frameCount << " of " 
-             << msg->numFrames-1 << std::endl;
+  FDEBUG(10)   << "StorageManager: Received data message from HLT at " << msg->hltURL 
+	       << " application " << msg->hltClassName << " id " << msg->hltLocalId
+	       << " instance " << msg->hltInstance << " tid " << msg->hltTid << std::endl;
+  FDEBUG(10)   << "                 for run " << msg->runID << " event " << msg->eventID
+	       << " total frames = " << msg->numFrames << std::endl;
+  FDEBUG(10)   << "StorageManager: Frame " << msg->frameCount << " of " 
+	       << msg->numFrames-1 << std::endl;
+  
   int len = msg->dataSize;
-  FDEBUG(10) << "StorageManager: received data frame size = " << len << std::endl;
 
   // check the storage Manager is in the Ready state first!
   if(fsm_.stateName()->toString() != "Enabled")
@@ -463,7 +471,17 @@ void StorageManager::receiveDataMessage(toolbox::mem::Reference *ref)
                  << msg->hltInstance << " Tid " << msg->hltTid);
       }
   }
+
+  if (  msg->frameCount == msg->numFrames-1 )
+    {
+      string hltClassName(msg->hltClassName);
+      sendDiscardMessage(msg->fuID, 
+			 msg->hltInstance, 
+			 I2O_FU_DATA_DISCARD,
+			 hltClassName);
+    }
 }
+
 
 void StorageManager::receiveOtherMessage(toolbox::mem::Reference *ref)
 {
@@ -637,8 +655,16 @@ void StorageManager::receiveDQMMessage(toolbox::mem::Reference *ref)
 
     // no FU sender list update yet for DQM data, should add it here
   }
-}
 
+  if (  msg->frameCount == msg->numFrames-1 )
+    {
+      string hltClassName(msg->hltClassName);
+      sendDiscardMessage(msg->fuID, 
+			 msg->hltInstance, 
+			 I2O_FU_DQM_DISCARD,
+			 hltClassName);
+    }
+}
 //////////// ***  Performance //////////////////////////////////////////////////////////
 void StorageManager::addMeasurement(unsigned long size)
 {
@@ -1927,7 +1953,7 @@ bool StorageManager::halting(toolbox::task::WorkLoop* wl)
 
 
 
-//
+////////////////////////////////////////////////////////////////////////////////
 xoap::MessageReference StorageManager::fsmCallback(xoap::MessageReference msg)
   throw (xoap::exception::Exception)
 {
@@ -1935,6 +1961,39 @@ xoap::MessageReference StorageManager::fsmCallback(xoap::MessageReference msg)
 }
 
 
+
+////////////////////////////////////////////////////////////////////////////////
+void StorageManager::sendDiscardMessage(unsigned int    fuID, 
+					unsigned int    hltInstance,
+					unsigned int    msgType,
+					string          hltClassName)
+{
+  set<xdaq::ApplicationDescriptor*> setOfFUs=
+    getApplicationContext()->getDefaultZone()->
+    getApplicationDescriptors(hltClassName.c_str());
+  
+  for (set<xdaq::ApplicationDescriptor*>::iterator 
+	 it=setOfFUs.begin();it!=setOfFUs.end();++it)
+    {
+      if ((*it)->getInstance()==hltInstance)
+	{
+	  
+	  stor::FUProxy* proxy =  new stor::FUProxy(getApplicationDescriptor(),
+						    *it,
+						    getApplicationContext(),
+						    pool_);
+	  if ( msgType == I2O_FU_DATA_DISCARD )
+	    proxy -> sendDataDiscard(fuID);	
+	  else if ( msgType == I2O_FU_DQM_DISCARD )
+	    proxy -> sendDQMDiscard(fuID);
+	  else assert("Unknown discard message type" == 0);
+	  delete proxy;
+	}
+    }
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
 // *** Provides factory method for the instantiation of SM applications
 // should probably use the MACRO? Could a XDAQ version change cause problems?
 extern "C" xdaq::Application
@@ -1944,3 +2003,4 @@ extern "C" xdaq::Application
 	    << std::endl;
   return new stor::StorageManager(stub);
 }
+
