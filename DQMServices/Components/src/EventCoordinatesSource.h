@@ -58,7 +58,6 @@ private:
   MonitorElement * eventId;
   MonitorElement * timeStamp;
 
-
 };
 
 #endif

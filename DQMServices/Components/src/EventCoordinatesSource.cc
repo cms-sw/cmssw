@@ -26,7 +26,7 @@
 using namespace edm;
 using namespace std;
 
-EventCoordinatesSource::EventCoordinatesSource(const edm::ParameterSet& ps){
+EventCoordinatesSource::EventCoordinatesSource(const ParameterSet& ps){
   
   parameters = ps;
   
@@ -36,6 +36,7 @@ EventCoordinatesSource::EventCoordinatesSource(const edm::ParameterSet& ps){
   daemon.operator->();
 
   dbe->setVerbose(1);
+  dbe->setCurrentFolder(parameters.getUntrackedParameter<string>("eventInfoFolder", "EventInfo/")) ;
   runId = dbe->bookInt("iRun");
   eventId = dbe->bookInt("iEvent");
   timeStamp = dbe->bookFloat("timeStamp");
@@ -48,7 +49,7 @@ EventCoordinatesSource::~EventCoordinatesSource(){
 
 }
 
-void EventCoordinatesSource::analyze(const edm::Event& e, const edm::EventSetup& c){
+void EventCoordinatesSource::analyze(const Event& e, const EventSetup& c){
 
   runId->Fill(e.id().run());
   eventId->Fill(e.id().event());
