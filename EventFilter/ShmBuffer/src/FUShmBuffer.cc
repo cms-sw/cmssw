@@ -405,7 +405,11 @@ void FUShmBuffer::discardRecoCell(unsigned int iCell)
 {
   FUShmRecoCell* cell=recoCell(iCell);
   unsigned int iRawCell=cell->rawCellIndex();
-  if (iRawCell<nRawCells_) scheduleRawCellForDiscard(iRawCell);
+  if (iRawCell<nRawCells_) {
+    evt::State_t state=evtState(iRawCell);
+    assert(state==evt::SENT);
+    scheduleRawCellForDiscard(iRawCell);
+  }
   cell->clear();
   if (segmentationMode_) shmdt(cell);
   postRecoIndexToWrite(iCell);
