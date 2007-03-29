@@ -25,22 +25,24 @@ JetPlusTrackCorrector::JetPlusTrackCorrector(const edm::ParameterSet& iConfig)
 			  theRcalo = iConfig.getParameter<double>("rcalo");
 			  theRvert = iConfig.getParameter<double>("rvert");
 			  theResponseAlgo = iConfig.getParameter<int>("respalgo");
-   trackAssociator_.theEBRecHitCollectionLabel = iConfig.getParameter<edm::InputTag>("EBRecHitCollectionLabel");
-   trackAssociator_.theEERecHitCollectionLabel = iConfig.getParameter<edm::InputTag>("EERecHitCollectionLabel");
-   trackAssociator_.theCaloTowerCollectionLabel = iConfig.getParameter<edm::InputTag>("CaloTowerCollectionLabel");
-   trackAssociator_.theHBHERecHitCollectionLabel = iConfig.getParameter<edm::InputTag>("HBHERecHitCollectionLabel");
-   trackAssociator_.theHORecHitCollectionLabel = iConfig.getParameter<edm::InputTag>("HORecHitCollectionLabel");
-   trackAssociator_.theDTRecSegment4DCollectionLabel = iConfig.getParameter<edm::InputTag>("DTRecSegment4DCollectionLabel");
-   trackAssociator_.theCSCSegmentCollectionLabel = iConfig.getParameter<edm::InputTag>("CSCSegmentCollectionLabel");
-			  
-                          trackAssociator_.useDefaultPropagator();
+   m_inputTrackLabel = iConfig.getUntrackedParameter<std::string>("inputTrackLabel","ctfWithMaterialTracks");
+
+   ebrechit = iConfig.getParameter<edm::InputTag>("EBRecHitCollectionLabel");
+   eerechit = iConfig.getParameter<edm::InputTag>("EERecHitCollectionLabel");
+   calotower = iConfig.getParameter<edm::InputTag>("CaloTowerCollectionLabel");
+   hbherechit = iConfig.getParameter<edm::InputTag>("HBHERecHitCollectionLabel");
+   horechit = iConfig.getParameter<edm::InputTag>("HORecHitCollectionLabel");
+   dtrecseg = iConfig.getParameter<edm::InputTag>("DTRecSegment4DCollectionLabel");
+   cscseg = iConfig.getParameter<edm::InputTag>("CSCSegmentCollectionLabel");
+
                           theSingle = new SingleParticleJetResponseTmp;
 			  setParameters(theRcalo,theRvert,theResponseAlgo);
-			  
+//    cout<<" JetPlusTrack constructor "<<endl;			  
 }
 
 JetPlusTrackCorrector::~JetPlusTrackCorrector()
 {
+//    cout<<" JetPlusTrack destructor "<<endl;
 }
 
 void JetPlusTrackCorrector::setParameters(double aCalo, double aVert, int theResp )
@@ -55,13 +57,29 @@ void JetPlusTrackCorrector::setParameters(double aCalo, double aVert, int theRes
 double JetPlusTrackCorrector::correction( const LorentzVector& fJet) const 
 {
          float mScale = 1.;
-	 		
+	 	cout<<" JetPlusTrack fake correction "<<endl;	
      return mScale;
 }
-double JetPlusTrackCorrector::correction( const LorentzVector& fJet, 
-                                                edm::Event& iEvent, 
-			                  const edm::EventSetup& theEventSetup) 
+double JetPlusTrackCorrector::correction(const reco::Jet& fJet,
+                                         const edm::Event& iEvent,
+                                         const edm::EventSetup& theEventSetup) const 
 {
+//   cout<<" JetPlusTrackCorrector::correction::starts "<<endl;
+
+// New part
+//
+   TrackDetectorAssociator trackAssociator_;
+
+   trackAssociator_.theEBRecHitCollectionLabel = ebrechit;
+   trackAssociator_.theEERecHitCollectionLabel = eerechit;
+   trackAssociator_.theCaloTowerCollectionLabel = calotower;
+   trackAssociator_.theHBHERecHitCollectionLabel = hbherechit;
+   trackAssociator_.theHORecHitCollectionLabel = horechit;
+   trackAssociator_.theDTRecSegment4DCollectionLabel = dtrecseg;
+   trackAssociator_.theCSCSegmentCollectionLabel = cscseg;
+   trackAssociator_.useDefaultPropagator();
+
+
 
          if(fabs(fJet.eta())>2.1) return 1.;
 // Get Tracker information
@@ -116,12 +134,6 @@ double JetPlusTrackCorrector::correction( const LorentzVector& fJet,
          parameters.useHcal = false ;
          parameters.useMuon = false ;
          parameters.dREcal = 0.03;
-//         parameters.dRHcal = 0.07;
-//        parameters.dRMuon = 0.1;
-	 
-//	 std::vector<GlobalPoint> AllTracks;
-//         std::vector<GlobalPoint> AllTracks1;
-//         cout<<" JetPlusTrackCorrector::The position of the primary vertex "<<theRecVertex.position()<<endl;
 
       double NewResponse = fJet.energy(); double echar = 0.; double echarsum = 0.;
       
@@ -132,13 +144,13 @@ double JetPlusTrackCorrector::correction( const LorentzVector& fJet,
 	     double dphi = fabs((*track).phi() - fJet.phi());
 	     if (dphi > 4.*atan(1.)) dphi = 8.*atan(1.) - dphi;
 	     double dr = sqrt(dphi*dphi+deta*deta);
-             cout<<" Momentum of track= "<<(*track).pt() <<" "<<(*track).eta()<<endl;
-	     cout<<" Vertex level track eta,phi "<<(*track).eta()<<" "<<(*track).phi()<<endl;
-	     cout<<" Vertex level jet eta,phi "<<fJet.eta()<<" "<<fJet.phi()<<" dr "<<dr<<endl;
+//             cout<<" Momentum of track= "<<(*track).pt() <<" "<<(*track).eta()<<endl;
+//	     cout<<" Vertex level track eta,phi "<<(*track).eta()<<" "<<(*track).phi()<<endl;
+//	     cout<<" Vertex level jet eta,phi "<<fJet.eta()<<" "<<fJet.phi()<<" dr "<<dr<<endl;
 	     
 	     if (dr > theRvert) continue;
 
-             cout<<" Track inside jet cone at vertex"<<endl;
+//             cout<<" Track inside jet cone at vertex"<<endl;
 
 //
 // Add energy of charged particles
@@ -152,27 +164,27 @@ double JetPlusTrackCorrector::correction( const LorentzVector& fJet,
    
       const FreeTrajectoryState fts = trackAssociator_.getFreeTrajectoryState(theEventSetup, *track);
       const TrackDetectorAssociator::AssociatorParameters myparameters = parameters;   
-      std::cout << "Details:\n" <<std::endl;
+//      std::cout << "Details:\n" <<std::endl;
       TrackDetMatchInfo info = trackAssociator_.associate(iEvent, theEventSetup,
 							  fts,
 							  myparameters);
 							  
-      std::cout << "ECAL, track reach ECAL: "<<info.isGoodEcal<<std::endl;
-      std::cout << "ECAL, number of crossed cells: " << info.crossedEcalRecHits.size() << std::endl;
-      std::cout << "ECAL, energy of crossed cells: " << info.ecalEnergy() << " GeV" << std::endl;
-      std::cout << "ECAL, number of cells in the cone: " << info.ecalRecHits.size() << std::endl;
-      std::cout << "ECAL, energy in the cone: " << info.ecalConeEnergy() << " GeV" << std::endl;
-      std::cout << "ECAL, trajectory point (z,R,eta,phi): " << info.trkGlobPosAtEcal.z() << ", "
-	<< info.trkGlobPosAtEcal.R() << " , "	<< info.trkGlobPosAtEcal.eta() << " , " 
-	<< info.trkGlobPosAtEcal.phi()<< std::endl;
+//      std::cout << "ECAL, track reach ECAL: "<<info.isGoodEcal<<std::endl;
+//      std::cout << "ECAL, number of crossed cells: " << info.crossedEcalRecHits.size() << std::endl;
+//      std::cout << "ECAL, energy of crossed cells: " << info.ecalEnergy() << " GeV" << std::endl;
+//      std::cout << "ECAL, number of cells in the cone: " << info.ecalRecHits.size() << std::endl;
+//      std::cout << "ECAL, energy in the cone: " << info.ecalConeEnergy() << " GeV" << std::endl;
+//      std::cout << "ECAL, trajectory point (z,R,eta,phi): " << info.trkGlobPosAtEcal.z() << ", "
+//	<< info.trkGlobPosAtEcal.R() << " , "	<< info.trkGlobPosAtEcal.eta() << " , " 
+//	<< info.trkGlobPosAtEcal.phi()<< std::endl;
       
-      std::cout << "HCAL, number of crossed towers: " << info.crossedTowers.size() << std::endl;
-      std::cout << "HCAL, energy of crossed towers: " << info.hcalEnergy() << " GeV" << std::endl;
-      std::cout << "HCAL, number of towers in the cone: " << info.towers.size() << std::endl;
-      std::cout << "HCAL, energy in the cone: " << info.hcalConeEnergy() << " GeV" << std::endl;
-      std::cout << "HCAL, trajectory point (z,R,eta,phi): " << info.trkGlobPosAtHcal.z() << "  , "
-	<< info.trkGlobPosAtHcal.R() << " , "	<< info.trkGlobPosAtHcal.eta() << " , "
-	<< info.trkGlobPosAtHcal.phi()<< std::endl;
+//      std::cout << "HCAL, number of crossed towers: " << info.crossedTowers.size() << std::endl;
+//      std::cout << "HCAL, energy of crossed towers: " << info.hcalEnergy() << " GeV" << std::endl;
+//      std::cout << "HCAL, number of towers in the cone: " << info.towers.size() << std::endl;
+//      std::cout << "HCAL, energy in the cone: " << info.hcalConeEnergy() << " GeV" << std::endl;
+//      std::cout << "HCAL, trajectory point (z,R,eta,phi): " << info.trkGlobPosAtHcal.z() << "  , "
+//	<< info.trkGlobPosAtHcal.R() << " , "	<< info.trkGlobPosAtHcal.eta() << " , "
+//	<< info.trkGlobPosAtHcal.phi()<< std::endl;
 
        if( info.isGoodEcal == 0 ) continue;
 
@@ -180,8 +192,8 @@ double JetPlusTrackCorrector::correction( const LorentzVector& fJet,
        dphi = fabs( info.trkGlobPosAtEcal.phi() - fJet.phi());
        if (dphi > 4.*atan(1.)) dphi = 8.*atan(1.) - dphi;
        dr = sqrt(dphi*dphi+deta*deta);
- 	     cout<<" Calo level track eta,phi "<<info.trkGlobPosAtEcal.eta()<<" "<<info.trkGlobPosAtEcal.phi()<<endl;
-	     cout<<" Calo level jet eta,phi "<<fJet.eta()<<" "<<fJet.phi()<<" dr "<<dr<<endl;
+ //	     cout<<" Calo level track eta,phi "<<info.trkGlobPosAtEcal.eta()<<" "<<info.trkGlobPosAtEcal.phi()<<endl;
+//	     cout<<" Calo level jet eta,phi "<<fJet.eta()<<" "<<fJet.phi()<<" dr "<<dr<<endl;
       
        
        if (dr > theRcalo)
@@ -191,13 +203,13 @@ double JetPlusTrackCorrector::correction( const LorentzVector& fJet,
 
          vector<double> resp=theSingle->response(echar,info.ecalConeEnergy(),theResponseAlgo);
 	 
-      cout<<" Single particle response= "<< resp.front()<<" "<<resp.back()<<endl;
+  //    cout<<" Single particle response= "<< resp.front()<<" "<<resp.back()<<endl;
 
          NewResponse =  NewResponse - resp.front() - resp.back();
-    
+   
       } 
-       cout<<" Energy of charged= "<<echar<<" energy of jet "<<fJet.energy()<<" "<<NewResponse<<
-       " "<<echarsum<<endl;
+       cout<<"old energy of jet "<<fJet.energy()<<" new energy of jet  "<<NewResponse<<
+       " sum of charged energy "<<echarsum<<" correction factor "<<NewResponse/fJet.energy()<<endl;
 	 
          float mScale = NewResponse/fJet.energy();
 	 		

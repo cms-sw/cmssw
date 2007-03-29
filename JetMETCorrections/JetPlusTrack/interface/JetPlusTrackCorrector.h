@@ -7,6 +7,8 @@
 class SingleParticleJetResponseTmp;
 
 namespace edm {
+  class Event;
+  class EventSetup;
   class ParameterSet;
 }
 
@@ -18,6 +20,8 @@ class JetPlusTrackCorrector : public JetCorrector
 {
 public:  
 
+  typedef reco::Particle::LorentzVector LorentzVector;
+
   JetPlusTrackCorrector(const edm::ParameterSet& fParameters);
 
   virtual ~JetPlusTrackCorrector();
@@ -25,24 +29,30 @@ public:
   /// apply correction using Jet information only
   virtual double  correction (const LorentzVector& fJet) const;
   
-  virtual double correction (const LorentzVector& fJet, edm::Event& iEvent, const edm::EventSetup& iSetup);
+  virtual double correction (const reco::Jet& fJet, const edm::Event& fEvent, const edm::EventSetup& fSetup) const;
 
   void setParameters(double, double, int );
-//  void setPrimaryVertex(reco::Vertex & a) {theRecVertex = a;}
-//  void setTracksFromPrimaryVertex(vector<reco::Track> & a) {theTrack = a;}
   
   /// if correction needs event information
-  virtual bool eventRequired () const {return false;}
+  virtual bool eventRequired () const {return true;}
    
 private:
   int theResponseAlgo;
   double theRcalo;
   double theRvert;  
-  TrackDetectorAssociator trackAssociator_;
+//  TrackDetectorAssociator trackAssociator_;
   SingleParticleJetResponseTmp * theSingle;
   edm::InputTag mInputCaloTower;
   edm::InputTag mInputPVfCTF;
   std::string m_inputTrackLabel;
+  edm::InputTag ebrechit;
+  edm::InputTag eerechit;
+  edm::InputTag calotower;
+  edm::InputTag hbherechit;
+  edm::InputTag horechit;
+  edm::InputTag dtrecseg;
+  edm::InputTag cscseg; 
+
 };
 
 #endif
