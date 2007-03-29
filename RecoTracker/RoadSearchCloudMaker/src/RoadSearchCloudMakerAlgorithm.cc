@@ -47,9 +47,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
-// $Author: gutsche $
-// $Date: 2007/03/15 20:19:11 $
-// $Revision: 1.37 $
+// $Author: burkett $
+// $Date: 2007/03/27 16:28:36 $
+// $Revision: 1.38 $
 //
 
 #include <vector>
@@ -503,7 +503,7 @@ unsigned int RoadSearchCloudMakerAlgorithm::FillRecHitsIntoCloudGeneral(DetId id
             //if ( std::abs(hitphi-phi) < 6.0*phiMax(seed,roadType,phi0,k0) ) {
             // switch cut to dx instead of dphi
             if ( std::abs(dx) < phiMax(seed,roadType,phi0,k0) ) {
-              if ( cloud.size() < maxDetHitsInCloudPerDetId ) {
+              if ((usedRecHits < maxDetHitsInCloudPerDetId) && (cloud.size() < maxRecHitsInCloud_)) {
                 //cloud.addHit((TrackingRecHit*)theCorrectedHit->clone());
                 cloud.addHit((TrackingRecHit*)recHit->clone());
                 ++usedRecHits;
@@ -527,7 +527,7 @@ unsigned int RoadSearchCloudMakerAlgorithm::FillRecHitsIntoCloudGeneral(DetId id
 	    //if ( std::abs(hitphi-phi) < phiMax(seed,roadType,phi0,k0) ) {
 	    // switch cut to dx instead of dphi
 	    if ( std::abs(dx) < phiMax(seed,roadType,phi0,k0) ) {
-	      if ( cloud.size() < maxDetHitsInCloudPerDetId ) {
+              if ((usedRecHits < maxDetHitsInCloudPerDetId) && (cloud.size() < maxRecHitsInCloud_)) {
 		cloud.addHit((TrackingRecHit*)recHit->clone());
 		++usedRecHits;
 	      }
@@ -556,7 +556,7 @@ unsigned int RoadSearchCloudMakerAlgorithm::FillRecHitsIntoCloudGeneral(DetId id
 	      //
 	      if ( ((lowerBoundaryPhi - phiMax(seed,roadType,phi0,k0)) < hitPhi) &&
 		   ((upperBoundaryPhi + phiMax(seed,roadType,phi0,k0)) > hitPhi) ) {
-		if ( cloud.size() < maxDetHitsInCloudPerDetId ) {
+		if ((usedRecHits < maxDetHitsInCloudPerDetId) && (cloud.size() < maxRecHitsInCloud_)) {
 		  cloud.addHit((TrackingRecHit*)recHit->clone());
 		  ++usedRecHits;
 		}
@@ -567,7 +567,7 @@ unsigned int RoadSearchCloudMakerAlgorithm::FillRecHitsIntoCloudGeneral(DetId id
 	      //
 	      if ( ((upperBoundaryPhi - phiMax(seed,roadType,phi0,k0)) < hitPhi) &&
 		   ((lowerBoundaryPhi + phiMax(seed,roadType,phi0,k0)) > hitPhi) ) {
-		if ( cloud.size() < maxDetHitsInCloudPerDetId ) {
+		if ((usedRecHits < maxDetHitsInCloudPerDetId) && (cloud.size() < maxRecHitsInCloud_)) {
 		  cloud.addHit((TrackingRecHit*)recHit->clone());
 		  ++usedRecHits;
 		}
@@ -592,7 +592,7 @@ unsigned int RoadSearchCloudMakerAlgorithm::FillRecHitsIntoCloudGeneral(DetId id
 	  //  This is where the disk stereoRecHits end up for Roads::ZPhi
 	  //
 	  if ( std::abs(hitphi-phi) < 6.0*phiMax(seed,roadType,phi0,k0) ) {
-	    if ( cloud.size() < maxDetHitsInCloudPerDetId ) {
+	    if ((usedRecHits < maxDetHitsInCloudPerDetId) && (cloud.size() < maxRecHitsInCloud_)) {
 	      cloud.addHit((TrackingRecHit*)recHit->clone());
 	      ++usedRecHits;
 	    }
@@ -620,7 +620,7 @@ unsigned int RoadSearchCloudMakerAlgorithm::FillRecHitsIntoCloudGeneral(DetId id
 	      //
 	      if ( ((lowerBoundaryPhi - phiMax(seed,roadType,phi0,k0)) < hitPhi) &&
 		   ((upperBoundaryPhi + phiMax(seed,roadType,phi0,k0)) > hitPhi) ) {
-		if ( cloud.size() < maxDetHitsInCloudPerDetId ) {
+		if ((usedRecHits < maxDetHitsInCloudPerDetId) && (cloud.size() < maxRecHitsInCloud_)) {
 		  cloud.addHit((TrackingRecHit*)recHit->clone());
 		  ++usedRecHits;
 		}
@@ -631,7 +631,7 @@ unsigned int RoadSearchCloudMakerAlgorithm::FillRecHitsIntoCloudGeneral(DetId id
 	      //
 	      if ( ((upperBoundaryPhi - phiMax(seed,roadType,phi0,k0)) < hitPhi) &&
 		   ((lowerBoundaryPhi + phiMax(seed,roadType,phi0,k0)) > hitPhi) ) {
-		if ( cloud.size() < maxDetHitsInCloudPerDetId ) {
+		if ((usedRecHits < maxDetHitsInCloudPerDetId) && (cloud.size() < maxRecHitsInCloud_)) {
 		  cloud.addHit((TrackingRecHit*)recHit->clone());
 		  ++usedRecHits;
 		}
@@ -660,7 +660,7 @@ unsigned int RoadSearchCloudMakerAlgorithm::FillRecHitsIntoCloudGeneral(DetId id
 	      //
 	      if ( ((lowerBoundaryPhi - phiMax(seed,roadType,phi0,k0)) < roadPhi) &&
 		   ((upperBoundaryPhi + phiMax(seed,roadType,phi0,k0)) > roadPhi) ) {
-		if ( cloud.size() < maxDetHitsInCloudPerDetId ) {
+		if ((usedRecHits < maxDetHitsInCloudPerDetId) && (cloud.size() < maxRecHitsInCloud_)) {
 		  cloud.addHit((TrackingRecHit*)recHit->clone());
 		  ++usedRecHits;
 		}
@@ -671,7 +671,7 @@ unsigned int RoadSearchCloudMakerAlgorithm::FillRecHitsIntoCloudGeneral(DetId id
 	      //
 	      if ( ((upperBoundaryPhi - phiMax(seed,roadType,phi0,k0)) < roadPhi) &&
 		   ((lowerBoundaryPhi + phiMax(seed,roadType,phi0,k0)) > roadPhi) ) {
-		if ( cloud.size() < maxDetHitsInCloudPerDetId ) {
+		if ((usedRecHits < maxDetHitsInCloudPerDetId) && (cloud.size() < maxRecHitsInCloud_)) {
 		  cloud.addHit((TrackingRecHit*)recHit->clone());
 		  ++usedRecHits;
 		}
