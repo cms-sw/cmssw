@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: PoolDataSvc.cc,v 1.5 2006/08/29 22:49:36 wmtan Exp $
+// $Id: PoolDataSvc.cc,v 1.6 2007/03/04 06:22:37 wmtan Exp $
 //
 // Author: Luca Lista
 // Co-Author: Bill Tanenbaum
@@ -9,10 +9,7 @@
 
 #include "IOPool/Common/interface/PoolDataSvc.h"
 #include "FWCore/Catalog/interface/FileCatalog.h"
-#include "StorageSvc/DbLonglong.h"
-#include "PersistencySvc/IDatabase.h"
 #include "DataSvc/IDataSvc.h"
-#include "PersistencySvc/ITechnologySpecificAttributes.h"
 #include "PersistencySvc/ISession.h"
 #include "DataSvc/DataSvcContext.h"
 #include "PersistencySvc/DatabaseConnectionPolicy.h"
@@ -43,32 +40,4 @@ namespace edm {
     policy.setWriteModeForExisting(pool::DatabaseConnectionPolicy::OVERWRITE);
     context_->session().setDefaultConnectionPolicy(policy);
   }
-
-  size_t
-  PoolDataSvc::getFileSize(std::string const& fileName) const {
-    return getAttribute<pool::DbLonglong>(std::string("FILE_SIZE"), fileName);
-  }
-
-  void
-  PoolDataSvc::setCompressionLevel(std::string const& fileName, int value) const {
-      setAttribute<int>(std::string("COMPRESSION_LEVEL"), fileName, value);
-  }
-
-  // These templated functions are called only from this file, so they need not be in a header.
-  template <typename T>
-  T
-  PoolDataSvc::getAttribute(std::string const& attributeName, std::string const& fileName) const {
-    std::auto_ptr<pool::IDatabase>
-      idb(context_->session().databaseHandle(fileName, pool::DatabaseSpecification::PFN));
-    return idb->technologySpecificAttributes().template attribute<T>(attributeName);
-  }
-
-  template <typename T>
-  void
-  PoolDataSvc::setAttribute(std::string const& attributeName, std::string const& fileName, T const& value) const {
-    std::auto_ptr<pool::IDatabase>
-      idb(context_->session().databaseHandle(fileName, pool::DatabaseSpecification::PFN));
-      idb->technologySpecificAttributes().template setAttribute<T>(attributeName, value);
-  }
-
 }
