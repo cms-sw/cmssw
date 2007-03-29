@@ -23,6 +23,7 @@
 <use name=FastSimulation/Event>
 <use name=FastSimulation/Particle>
 <use name=RecoParticleFlow/PFAlgo>
+<use name=RecoParticleFlow/PFClusterTools>
 <flags SEAL_PLUGIN_NAME="RecoParticleFlowPFProducer">
 <export>
    <lib name=RecoParticleFlowPFProducer>
@@ -51,4 +52,5 @@
    <use name=FastSimulation/Event>
    <use name=FastSimulation/Particle>
    <use name=RecoParticleFlow/PFAlgo>
+   <use name=RecoParticleFlow/PFClusterTools>
 </export>

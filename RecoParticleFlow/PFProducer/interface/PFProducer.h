@@ -33,6 +33,8 @@ This producer makes use of PFAlgo, the particle flow algorithm.
 */
 
 class FSimEvent;
+class PFEnergyCalibration;
+class PFEnergyResolution;
 
 class PFProducer : public edm::EDProducer {
  public:
@@ -117,7 +119,11 @@ class PFProducer : public edm::EDProducer {
 
   // particle flow parameters ------------------------------
   int pfReconMethod_;
-  
+
+  // auxiliary classes for calibration of energy deposits in ECAL and HCAL
+  //  and estimation of energy resolution for electrons/photons and hadrons
+  const PFEnergyCalibration* energyCalibration_;
+  const PFEnergyResolution* energyResolution_;
 };
 
 #endif
