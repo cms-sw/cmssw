@@ -2,22 +2,32 @@
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 //typedef std::pair<LocalPoint,LocalError>  LocalValues;
 
-StripCPE::StripCPE(edm::ParameterSet & conf, const MagneticField * mag, const TrackerGeometry* geom){
-  //--- Lorentz angle tangent per Tesla
-  //theTanLorentzAnglePerTesla_ =
-    //    conf.getParameter<double>("TanLorentzAnglePerTesla");  
-
-   appliedVoltage_   = conf.getParameter<double>("AppliedVoltage");
-   chargeMobility_   = conf.getParameter<double>("ChargeMobility");
-   temperature_      = conf.getParameter<double>("Temperature");
-   rhall_            = conf.getParameter<double>("HoleRHAllParameter");
-   holeBeta_         = conf.getParameter<double>("HoleBeta");
-   holeSaturationVelocity_ = conf.getParameter<double>("HoleSaturationVelocity");
-
-   //useMagneticField_=  conf.getParameter<bool>("UseMagneticField");  
-    
+StripCPE::StripCPE(edm::ParameterSet & conf, const MagneticField * mag, const TrackerGeometry* geom)
+{
+  conf_=conf;
+  appliedVoltage_   = conf.getParameter<double>("AppliedVoltage");
+  double chargeMobility   = conf.getParameter<double>("ChargeMobility");
+  double temperature = conf.getParameter<double>("Temperature");
+  rhall_            = conf.getParameter<double>("HoleRHAllParameter");
+  double holeBeta    = conf.getParameter<double>("HoleBeta");
+  double holeSaturationVelocity = conf.getParameter<double>("HoleSaturationVelocity");
+  
+  mulow_ = chargeMobility*pow((temperature/300.),-2.5);
+  vsat_ = holeSaturationVelocity*pow((temperature/300.),0.52);
+  beta_ = holeBeta*pow((temperature/300.),0.17);
+  
   magfield_  = mag;
   geom_ = geom;
+  LorentzAngleMap_=0;
+}
+
+
+StripCPE::StripCPE(edm::ParameterSet & conf, const MagneticField * mag, const TrackerGeometry* geom,const SiStripLorentzAngle* LorentzAngle)
+{
+  conf_=conf;
+  magfield_  = mag;
+  geom_ = geom;
+  LorentzAngleMap_=LorentzAngle;
 }
 
 StripClusterParameterEstimator::LocalValues StripCPE::localParameters( const SiStripCluster & cl)const {
@@ -44,22 +54,23 @@ StripClusterParameterEstimator::LocalValues StripCPE::localParameters( const SiS
 
 LocalVector StripCPE::driftDirection(const StripGeomDetUnit* det)const{
   LocalVector lbfield=(det->surface()).toLocal(magfield_->inTesla(det->surface().position()));
-
   float thickness=det->specificSurface().bounds().thickness();
+  
+  float tanLorentzAnglePerTesla=0;
 
-  float mulow = chargeMobility_*pow((temperature_/300.),-2.5);
-  float vsat = holeSaturationVelocity_*pow((temperature_/300.),0.52);
-  float beta = holeBeta_*pow((temperature_/300.),0.17);
- 
-  float e = appliedVoltage_/thickness;
-  float mu = ( mulow/(pow(double((1+pow((mulow*e/vsat),beta))),1./beta)));
-  float hallMobility = mu*rhall_;
- 
-   float dir_x = 1.E-4 * hallMobility * lbfield.y();
-   float dir_y = -1.E-4 * hallMobility * lbfield.x();
-   float dir_z = 1.; // E field always in z direction
-
-   LocalVector drift = LocalVector(dir_x,dir_y,dir_z);
+  if(conf_.getParameter<bool>("UseCalibrationFromDB"))tanLorentzAnglePerTesla=  LorentzAngleMap_->getLorentzAngle(det->geographicalId().rawId());
+  else{
+    float e = appliedVoltage_/thickness;
+    float mu = ( mulow_/(pow(double((1+pow((mulow_*e/vsat_),beta_))),1./beta_)));
+    tanLorentzAnglePerTesla = 1.E-4 *mu*rhall_;
+  }
+  
+  float dir_x =tanLorentzAnglePerTesla * lbfield.y();
+  float dir_y =-tanLorentzAnglePerTesla * lbfield.x();
+  float dir_z = 1.; // E field always in z direction
+  
+  LocalVector drift = LocalVector(dir_x,dir_y,dir_z);
+  //  if((drift-drift_old).mag()>1.E-7)std::cout<<"old drift= "<<drift_old<<" new drift="<<drift<<std::endl;
   return drift;
 
 }

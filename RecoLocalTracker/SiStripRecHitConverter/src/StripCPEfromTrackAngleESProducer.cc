@@ -10,7 +10,7 @@
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
 
-
+#include "CondFormats/DataRecord/interface/SiStripLorentzAngleRcd.h"
 
 #include <string>
 #include <memory>
@@ -38,7 +38,12 @@ StripCPEfromTrackAngleESProducer::produce(const TrackerCPERecord & iRecord){
   edm::ESHandle<TrackerGeometry> pDD;
   iRecord.getRecord<TrackerDigiGeometryRecord>().get( pDD );
 
-  _cpe  = boost::shared_ptr<StripClusterParameterEstimator>(new StripCPEfromTrackAngle(pset_,magfield.product(), pDD.product()));
+  if(pset_.getParameter<bool>("UseCalibrationFromDB")){
+    edm::ESHandle<SiStripLorentzAngle> SiStripLorentzAngle_;
+    iRecord.getRecord<SiStripLorentzAngleRcd>().get(SiStripLorentzAngle_);
+    _cpe  = boost::shared_ptr<StripClusterParameterEstimator>(new StripCPEfromTrackAngle(pset_,magfield.product(), pDD.product(),SiStripLorentzAngle_.product() ));
+  }
+  else _cpe  = boost::shared_ptr<StripClusterParameterEstimator>(new StripCPEfromTrackAngle(pset_,magfield.product(), pDD.product()));
   return _cpe;
 }
 
