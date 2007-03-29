@@ -1,3 +1,9 @@
+2007-03-29  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-03-04
+	* bugfix: reco and dqm cells were not 'clear'ed before being
+	declared 'free'.
+
 2007-03-26  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-03-03

@@ -406,6 +406,7 @@ void FUShmBuffer::discardRecoCell(unsigned int iCell)
   FUShmRecoCell* cell=recoCell(iCell);
   unsigned int iRawCell=cell->rawCellIndex();
   if (iRawCell<nRawCells_) scheduleRawCellForDiscard(iRawCell);
+  cell->clear();
   if (segmentationMode_) shmdt(cell);
   postRecoIndexToWrite(iCell);
   postRecoWrite();
@@ -415,6 +416,12 @@ void FUShmBuffer::discardRecoCell(unsigned int iCell)
 //______________________________________________________________________________
 void FUShmBuffer::discardDqmCell(unsigned int iCell)
 {
+  dqm::State_t state=dqmState(iCell);
+  assert(state==dqm::EMPTY||state==dqm::SENT);
+  setDqmState(iCell,dqm::DISCARDING);
+  FUShmDqmCell* cell=dqmCell(iCell);
+  cell->clear();
+  if (segmentationMode_) shmdt(cell);
   setDqmState(iCell,dqm::EMPTY);
   postDqmIndexToWrite(iCell);
   postDqmWrite();
