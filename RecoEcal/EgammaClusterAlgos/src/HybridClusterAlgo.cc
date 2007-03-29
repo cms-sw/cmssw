@@ -32,8 +32,6 @@ void HybridClusterAlgo::makeClusters(const EcalRecHitCollection*recColl,
 				     const std::vector<EcalEtaPhiRegion>& regions)
 {
 
-  if (regional && regions.size()==0) return;
-
   //clear vector of seeds
   seeds.clear();
   //clear map of supercluster/basiccluster association
@@ -49,49 +47,57 @@ void HybridClusterAlgo::makeClusters(const EcalRecHitCollection*recColl,
   std::cout << "Cleared vectors, starting clusterization..." << std::endl;
   }
 
-  EcalRecHitCollection::const_iterator it;
+  int nregions=0;
+  if(regional) nregions=regions.size();
 
-  for (it = recHits_->begin(); it != recHits_->end(); it++){
+  if(!regional || nregions) {
+
+    EcalRecHitCollection::const_iterator it;
+
+    for (it = recHits_->begin(); it != recHits_->end(); it++){
     
-    //Make the vector of seeds that we're going to use.
-    //One of the few places position is used, needed for ET calculation.    
-    const CaloCellGeometry *this_cell = (*geometry).getGeometry(it->id());
-    GlobalPoint position = this_cell->getPosition();
+      //Make the vector of seeds that we're going to use.
+      //One of the few places position is used, needed for ET calculation.    
+      const CaloCellGeometry *this_cell = (*geometry).getGeometry(it->id());
+      GlobalPoint position = this_cell->getPosition();
+      
+      // Require that RecHit is within clustering region in case
+      // of regional reconstruction
+      bool withinRegion = false;
+      if (regional) {
+	std::vector<EcalEtaPhiRegion>::const_iterator region;
+	for (region=regions.begin(); region!=regions.end(); region++) {
+	  if (region->inRegion(position)) {
+	    withinRegion =  true;
+	    break;
+	  }
+	}
+      }
+      
+      if (!regional || withinRegion) {
+	float ET = it->energy() * sin(position.theta());
 
-    // Require that RecHit is within clustering region in case
-    // of regional reconstruction
-    bool withinRegion = false;
-    if (regional) {
-      std::vector<EcalEtaPhiRegion>::const_iterator region;
-      for (region=regions.begin(); region!=regions.end(); region++) {
-	if (region->inRegion(position)) {
-	  withinRegion =  true;
-	  break;
+	//Must pass seed threshold.
+	if (ET > eb_st){
+	  seeds.push_back(*it);
+	  if ( debugLevel_ == pDEBUG ){
+	    std::cout << "Seed ET: " << ET << std::endl;
+	    std::cout << "Seed E: " << it->energy() << std::endl;
+	  }
 	}
       }
     }
-
-    if (!regional || withinRegion) {
-      float ET = it->energy() * sin(position.theta());
-
-      //Must pass seed threshold.
-      if (ET > eb_st){
-	seeds.push_back(*it);
-	if ( debugLevel_ == pDEBUG ){
-	  std::cout << "Seed ET: " << ET << std::endl;
-	  std::cout << "Seed E: " << it->energy() << std::endl;
-	}
-      }
-    }
+    
   }
-   
+  
+
   //Yay sorting.
   if ( debugLevel_ == pDEBUG )
     std::cout << "Built vector of seeds, about to sort them...";
-
+  
   //Needs three argument sort with seed comparison operator
   sort(seeds.begin(), seeds.end(), less_mag());
-
+  
   if ( debugLevel_ == pDEBUG )
     std::cout << "done" << std::endl;
 

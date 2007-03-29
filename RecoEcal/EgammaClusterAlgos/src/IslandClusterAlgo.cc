@@ -25,8 +25,6 @@ std::vector<reco::BasicCluster> IslandClusterAlgo::makeClusters(
   used_s.clear();
   clusters_v.clear();
 
-  if (regional && regions.size()==0) return clusters_v;
-
   recHits_ = hits;
 
   double threshold = 0;
@@ -49,33 +47,41 @@ std::vector<reco::BasicCluster> IslandClusterAlgo::makeClusters(
       std::cout << "Looking for seeds, energy threshold used = " << threshold << " GeV" <<std::endl;
     }
 
-  EcalRecHitCollection::const_iterator it;
-  for(it = hits->begin(); it != hits->end(); it++)
-    {
-      double energy = it->energy();
-      if (energy < threshold) continue; // need to check to see if this line is useful!
+  int nregions=0;
+  if(regional) nregions=regions.size();
 
-      const CaloCellGeometry *thisCell = geometry_p->getGeometry(it->id());
-      GlobalPoint position = thisCell->getPosition();
+  if(!regional || nregions) {
 
-      // Require that RecHit is within clustering region in case
-      // of regional reconstruction
-      bool withinRegion = false;
-      if (regional) {
-	std::vector<EcalEtaPhiRegion>::const_iterator region;
+    EcalRecHitCollection::const_iterator it;
+    for(it = hits->begin(); it != hits->end(); it++)
+      {
+	double energy = it->energy();
+	if (energy < threshold) continue; // need to check to see if this line is useful!
+
+	const CaloCellGeometry *thisCell = geometry_p->getGeometry(it->id());
+	GlobalPoint position = thisCell->getPosition();
+
+	// Require that RecHit is within clustering region in case
+	// of regional reconstruction
+	bool withinRegion = false;
+	if (regional) {
+	  std::vector<EcalEtaPhiRegion>::const_iterator region;
 	  for (region=regions.begin(); region!=regions.end(); region++) {
 	    if (region->inRegion(position)) {
 	      withinRegion =  true;
 	      break;
 	    }
 	  }
-      }
+	}
 
-      if (!regional || withinRegion) {
-	float ET = it->energy() * sin(position.theta());
-	if (ET > threshold) seeds.push_back(*it);
+	if (!regional || withinRegion) {
+	  float ET = it->energy() * sin(position.theta());
+	  if (ET > threshold) seeds.push_back(*it);
+	}
       }
-    }
+    
+  }
+  
   sort(seeds.begin(), seeds.end(), ecalRecHitLess());
 
   if (verbosity < pINFO)
