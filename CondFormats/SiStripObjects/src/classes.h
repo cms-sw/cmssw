@@ -3,6 +3,7 @@
 #include "CondFormats/SiStripObjects/interface/SiStripPedestals.h"
 #include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
 #include "CondFormats/SiStripObjects/interface/SiStripApvGain.h"
+#include "CondFormats/SiStripObjects/interface/SiStripLorentzAngle.h"
 
 namespace {
 
