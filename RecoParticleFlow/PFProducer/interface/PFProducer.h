@@ -122,8 +122,8 @@ class PFProducer : public edm::EDProducer {
 
   // auxiliary classes for calibration of energy deposits in ECAL and HCAL
   //  and estimation of energy resolution for electrons/photons and hadrons
-  const PFEnergyCalibration* energyCalibration_;
-  const PFEnergyResolution* energyResolution_;
+  PFEnergyCalibration* energyCalibration_;
+  PFEnergyResolution* energyResolution_;
 };
 
 #endif
