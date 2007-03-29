@@ -1,0 +1,15 @@
+<use name=CondFormats/BeamSpotObjects>
+<use name=CondFormats/DataRecord>
+<use name=CondCore/DBCommon>
+<use name=Foundation/PluginManager>
+<use name=CondCore/PluginSystem>
+
+<flags SEAL_PLUGIN_NAME="CondCoreBeamSpotPlugins">
+<export>
+   <lib name=CondCoreBeamSpotPlugins>
+   <use name=CondFormats/BeamSpotObjects>
+   <use name=CondFormats/DataRecord>
+   <use name=CondCore/DBCommon>
+   <use name=Foundation/PluginManager>
+   <use name=CondCore/PluginSystem>
+</export>
