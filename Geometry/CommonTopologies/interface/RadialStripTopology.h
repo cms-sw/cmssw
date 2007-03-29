@@ -20,7 +20,7 @@
  * where units are strip pitch rather than strip angular width.)<BR>
  *
  * WARNING! If the mid-point along local y of the plane of strips does not correspond
- * to the local coordinate origin, set the fianl ctor argument appropriately. <BR>
+ * to the local coordinate origin, set the final ctor argument appropriately. <BR>
  */
 
 class RadialStripTopology : public StripTopology {
