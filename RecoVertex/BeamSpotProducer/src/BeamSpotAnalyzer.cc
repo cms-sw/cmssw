@@ -6,7 +6,7 @@
 
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
- version $Id: BeamSpotAnalyzer.cc,v 1.4 2007/02/10 23:13:31 yumiceva Exp $
+ version $Id: BeamSpotAnalyzer.cc,v 1.1 2007/02/11 03:32:53 yumiceva Exp $
 
 ________________________________________________________________**/
 
@@ -31,11 +31,19 @@ ________________________________________________________________**/
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 
+//#include "FWCore/Framework/interface/MakerMacros.h"
+//#include "FWCore/ServiceRegistry/interface/Service.h"
+//#include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
+//#include "CondFormats/BeamSpotObjects/interface/BeamSpotObjects.h"
+
+#include "TMath.h"
 
 BeamSpotAnalyzer::BeamSpotAnalyzer(const edm::ParameterSet& iConfig)
 {
 
-  file_ = new TFile(iConfig.getUntrackedParameter<std::string>("OutputFileName").c_str(),"RECREATE");
+	outputfilename_ = iConfig.getUntrackedParameter<std::string>("OutputFileName");
+	
+  file_ = new TFile(outputfilename_.c_str(),"RECREATE");
 
   ftree_ = new TTree("mytree","mytree");
   
@@ -59,6 +67,8 @@ BeamSpotAnalyzer::BeamSpotAnalyzer(const edm::ParameterSet& iConfig)
   ftree_->Branch("nTECHit",&fnTECHit,"fnTECHit/i");
   ftree_->Branch("nPXBHit",&fnPXBHit,"fnPXBHit/i");
   ftree_->Branch("nPXFHit",&fnPXFHit,"fnPXFHit/i");
+  ftree_->Branch("cov",&fcov,"fcov[7][7]/D");
+  
    
   fBSvector.clear();
 
@@ -76,7 +86,11 @@ BeamSpotAnalyzer::BeamSpotAnalyzer(const edm::ParameterSet& iConfig)
   fmaxNtracks = iConfig.getParameter<edm::ParameterSet>("BSAnalyzerParameters").getParameter<int>("MaximumNtracks");
   ckfTrackProducerLabel_ = iConfig.getParameter<edm::ParameterSet>("BSAnalyzerParameters").getUntrackedParameter<std::string>("TrackCollection");
    
+  write2DB_ = iConfig.getParameter<edm::ParameterSet>("BSAnalyzerParameters").getParameter<bool>("WriteToDB");
 
+  ftotal_tracks = 0;
+  ftotalevents = 0;
+  
 }
 
 
@@ -95,7 +109,7 @@ BeamSpotAnalyzer::~BeamSpotAnalyzer()
 void
 BeamSpotAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-
+	
 	ftree_->SetBranchAddress("theta",&ftheta);
 	ftree_->SetBranchAddress("pt",&fpt);
 	ftree_->SetBranchAddress("eta",&feta);
@@ -116,6 +130,7 @@ BeamSpotAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	ftree_->SetBranchAddress("nTECHit",&fnTECHit);
 	ftree_->SetBranchAddress("nPXBHit",&fnPXBHit);
 	ftree_->SetBranchAddress("nPXFHit",&fnPXFHit);
+	ftree_->SetBranchAddress("cov",&fcov);
 	
   
 	// get collections
@@ -123,19 +138,29 @@ BeamSpotAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	//edm::Handle<TrackCandidateCollection> ckfTrackCandidateCollectionHandle;
 	//iEvent.getByLabel(ckfTrackCandidateProducerLabel_,ckfTrackCandidateCollectionHandle);
 	//const TrackCandidateCollection *ckfTrackCandidateCollection = ckfTrackCandidateCollectionHandle.product();
-
+	
 	edm::Handle<reco::TrackCollection> ckfTrackCollectionHandle;
+	//iEvent.getByLabel(TkTag,tkCollection);
 	iEvent.getByLabel(ckfTrackProducerLabel_,ckfTrackCollectionHandle);
 	const reco::TrackCollection *ckfTrackCollection = ckfTrackCollectionHandle.product();
 
 
-
   // Ckf tracks
-  
-  for ( reco::TrackCollection::const_iterator track = ckfTrackCollection->begin();
-	track != ckfTrackCollection->end();
-	++track ) {
+  //for (unsigned int itrack=0;itrack<tkCollection->size();++itrack){
+	  //build the ref to the track
+	  //reco::TrackRef track=reco::TrackRef(ckfTrackCollectionHandly,itrack);
+
+	//std::cout << "track collection size: "<< ckfTrackCollection->size() << std::endl;
+	
+	for ( reco::TrackCollection::const_iterator track = ckfTrackCollection->begin();
+		  track != ckfTrackCollection->end();
+		  ++track ) {
+
+		
 	  fpt = track->pt();
+	  //std::cout << "pt= "<< track->pt() << std::endl;
+	  //std::cout << "eta= "<< track->eta() << std::endl;
+	  
 	  feta = track->eta();
 	  fphi0 = track->momentum().phi();
 	  fcharge = track->charge();
@@ -148,6 +173,12 @@ BeamSpotAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	  fz0 = track->dz();
 	  fsigmaz0 = track->dzError();
 	  ftheta = track->theta();
+
+	  for (int i=0; i<5; ++i) {
+		  for (int j=0; j<5; ++j) {
+			  fcov[i][j] = track->covariance(i,j);
+		  }
+	  }
 	  
 	  // loop over hits in tracks, count
 	  fnHit      = 0;
@@ -164,7 +195,10 @@ BeamSpotAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 			recHit != track->recHitsEnd();
 			++ recHit ) {
 
+		  
 		  ++fnHit;
+		  //std::cout << "fnHit="<< fnHit << std::endl;
+		  
 		  DetId id((*recHit)->geographicalId());
 
 		  if ( (unsigned int)id.subdetId() == StripSubdetector::TIB ) {
@@ -189,16 +223,19 @@ BeamSpotAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	  }
 
 	  ftree_->Fill();
+
+	  ftotal_tracks++;
           // track quality
-	  if (fnStripHit>=8 && fnPixelHit >= 2 &&
-		  fchi2/fndof<5 && fpt>fptmin) {
-		  fBSvector.push_back(BSTrkParameters(fz0,fsigmaz0,fd0,fsigmad0,fphi0,fpt));
+	  if (fnStripHit>=8 && fnPixelHit >= 2 && fchi2/fndof<5 && fpt>2 && std::abs(fd0)<0.9) {
+		  //fchi2/fndof<5 && fpt>4 && std::abs(fd0)<0.1 && TMath::Prob(fchi2,((int)fndof))>0.02 ) {
+		  //if 
+		  fBSvector.push_back(BSTrkParameters(fz0,fsigmaz0,fd0,fsigmad0,fphi0,fpt,0.,0.));
 	  }
 	  
     
-  }
+	}
   
-
+	ftotalevents++;
 }
 
 
@@ -211,9 +248,11 @@ BeamSpotAnalyzer::beginJob(const edm::EventSetup&)
 void 
 BeamSpotAnalyzer::endJob() {
 
+	std::cout << "\n-------------------------------------\n" << std::endl;
+	std::cout << "\n Total number of events processed: "<< ftotalevents << std::endl;
 	std::cout << "\n-------------------------------------\n\n" << std::endl;
 	std::cout << " calculating beam spot..." << std::endl;
-	std::cout << " we will use " << fBSvector.size() << " tracks." << std::endl;
+	std::cout << " we will use " << fBSvector.size() << " good tracks out of " << ftotal_tracks << std::endl;
 
 	// default fit to extract beam spot info
 	BSFitter *myalgo = new BSFitter( fBSvector );
@@ -221,6 +260,35 @@ BeamSpotAnalyzer::endJob() {
 	std::cout << " DEFAULT:" << std::endl;
 	std::cout << beam_default << std::endl;
 
+
+	// add new branches
+	std::cout << " add new branches to output file " << std::endl;
+	beam_default = myalgo->Fit_d0phi();
+	file_->cd();
+	TTree *newtree = new TTree("mytreecorr","mytreecorr");
+	newtree->Branch("d0phi_chi2",&fd0phi_chi2,"fd0phi_chi2/D");
+	newtree->Branch("d0phi_d0",&fd0phi_d0,"fd0phi_d0/D");
+	newtree->SetBranchAddress("d0phi_chi2",&fd0phi_chi2);
+	newtree->SetBranchAddress("d0phi_d0",&fd0phi_d0);
+	std::vector<BSTrkParameters>  tmpvector = myalgo->GetData();
+	
+	std::vector<BSTrkParameters>::iterator iparam = tmpvector.begin();
+	for( iparam = tmpvector.begin() ;
+		 iparam != tmpvector.end() ; ++iparam) {
+		fd0phi_chi2 = iparam->d0phi_chi2();
+		fd0phi_d0   = iparam->d0phi_d0();
+		newtree->Fill();
+	}
+	newtree->Write();
+
+	// iterative
+	std::cout << " d0-phi Iterative:" << std::endl;
+	BSFitter *myitealgo = new BSFitter( fBSvector );
+	myitealgo->Setd0Cut_d0phi(4.0);
+	reco::BeamSpot beam_ite = myitealgo->Fit_ited0phi();
+	std::cout << beam_ite << std::endl;
+
+	
 	std::cout << "\n Now run tests of the different fits\n";
 	// from here are just tests
 	std::string fit_type = "chi2";
@@ -262,5 +330,35 @@ BeamSpotAnalyzer::endJob() {
 	std::cout << "c0 = " << myalgo->GetResPar0() << " +- " << myalgo->GetResPar0Err() << std::endl;
 	std::cout << "c1 = " << myalgo->GetResPar1() << " +- " << myalgo->GetResPar1Err() << std::endl;
 	
-	
+/*
+	if (write2DB_) {
+		std::cout << "\n-------------------------------------\n\n" << std::endl;
+		std::cout << " write results to DB..." << std::endl;
+
+		BeamSpotObjects *pBSObjects = new BeamSpotObjects();
+
+		//pBSObjects->Put(beam_default);
+		pBSObjects->SetPosition(beam_default.position().X(),beam_default.position().Y(),beam_default.position().Z());
+				
+		edm::Service<cond::service::PoolDBOutputService> poolDbService;
+		if( poolDbService.isAvailable() ) {
+		  std::cout << "poolDBService available"<<std::endl;
+		  if ( poolDbService->isNewTagRequest( "BeamSpotObjectsRcd" ) ) {
+		    std::cout << "new tag requested" << std::endl;
+		    poolDbService->createNewIOV<BeamSpotObjects>( pBSObjects, poolDbService->endOfTime(),
+								  "BeamSpotObjectsRcd"  );
+		  }
+		  else {
+		    std::cout << "no new tag requested" << std::endl;
+		    poolDbService->appendSinceTime<BeamSpotObjects>( pBSObjects, poolDbService->currentTime(),
+								     "BeamSpotObjectsRcd" );
+		  }
+
+		
+		}
+	}
+*/
 }
+
+//define this as a plug-in
+//DEFINE_ANOTHER_FWK_MODULE(BeamSpotAnalyzer);

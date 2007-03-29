@@ -6,7 +6,7 @@
 
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
- version $Id: BSFitter.cc,v 1.2 2007/01/22 23:36:08 yumiceva Exp $
+ version $Id: BSFitter.cc,v 1.3 2007/02/10 23:13:31 yumiceva Exp $
 
 ________________________________________________________________**/
 
@@ -46,7 +46,7 @@ BSFitter::BSFitter( std:: vector< BSTrkParameters > BSvector ) {
 	ffit_type = "default";
 	ffit_variable = "default";
 	
-	fBSvector = std::vector<BSTrkParameters> (BSvector);
+	fBSvector = BSvector;
 
 	fsqrt2pi = sqrt(2.* TMath::Pi());
 	
@@ -65,13 +65,19 @@ BSFitter::BSFitter( std:: vector< BSTrkParameters > BSvector ) {
 //}
 		//if (theFitter == 0 ) {
 		
-		theFitter    = new VariableMetricMinimizer();
+	theFitter    = new VariableMetricMinimizer();
 		//std::cout << "new VariableMetricMinimizer object"<<std::endl;
 		//}
 
 		//std::cout << "BSFitter:: initialized" << std::endl;
 		//std::cout << "fBSvector size = " << fBSvector.size() << std::endl;
-	
+
+	fapplyd0cut = false;
+	fapplychi2cut = false;
+	ftmprow = 0;
+	ftmp.ResizeTo(4,1);
+	ftmp.Zero();
+	fnthite=0;
 }
 
 //______________________________________________________________________
@@ -119,7 +125,7 @@ reco::BeamSpot BSFitter::Fit(double *inipar = 0) {
 	} else if ( ffit_variable == "d" ) {
 
 		if ( ffit_type == "d0phi" ) {
-
+			this->d0phi_Init();
 			return Fit_d0phi();
 			
 		} else if ( ffit_type == "likelihood" ) {
@@ -128,6 +134,7 @@ reco::BeamSpot BSFitter::Fit(double *inipar = 0) {
 			
 		} else if ( ffit_type == "combined" ) {
 
+			this->d0phi_Init();
 			reco::BeamSpot tmp_beamspot = Fit_d0phi();
 			double tmp_par[4] = {tmp_beamspot.x0(), tmp_beamspot.y0(), tmp_beamspot.dxdz(), tmp_beamspot.dydz()};
 			return Fit_d_likelihood(tmp_par);
@@ -151,7 +158,11 @@ reco::BeamSpot BSFitter::Fit(double *inipar = 0) {
 			}
 		
 			// use d0-phi algorithm to extract transverse position
-			reco::BeamSpot tmp_d0phi= Fit_d0phi();
+			this->d0phi_Init();
+			//reco::BeamSpot tmp_d0phi= Fit_d0phi(); // change to iterative procedure:
+			this->Setd0Cut_d0phi(4.0);
+			reco::BeamSpot tmp_d0phi= Fit_ited0phi();
+			
 			for (int j = 0 ; j < 2 ; ++j) {
 				for(int k = j ; k < 2 ; ++k) {
 					matrix(j,k) = tmp_d0phi.covariance()(j,k);
@@ -186,7 +197,7 @@ reco::BeamSpot BSFitter::Fit(double *inipar = 0) {
 			if ( isnan(ff_minimum) || isinf(ff_minimum) ) {
 
 				if (ffit_type == "likelihood" ) {
-					std::cout << "BSFitter: Result is non physical. Log-Likelihood fit did not converge." << std::endl;
+					std::cout << "BSFitter: Result is non physical. Log-Likelihood fit to extract beam width did not converge." << std::endl;
 					return tmp_lh;
 				}
 				
@@ -195,6 +206,7 @@ reco::BeamSpot BSFitter::Fit(double *inipar = 0) {
 			if (ffit_type == "likelihood") {
 				return tmp_lh;
 			} else {
+				std::cout << "BSFitter: default fit does not extract beam width, assigning a width of zero." << std::endl;
 				return spot;
 			}
 			
@@ -347,10 +359,43 @@ reco::BeamSpot BSFitter::Fit_z_chi2(double *inipar) {
 }
 
 //______________________________________________________________________
+reco::BeamSpot BSFitter::Fit_ited0phi() {
+
+	this->d0phi_Init();
+	reco::BeamSpot theanswer = Fit_d0phi(); //get initial ftmp and ftmprow
+	fnthite++;
+	//std::cout << theanswer << std::endl;
+	reco::BeamSpot preanswer;
+	
+	while ( ftmprow > 0.5 * fBSvector.size()  ) {
+		
+		theanswer = Fit_d0phi();
+		fd0cut /= 1.5;
+		fchi2cut /= 1.5;
+		if (ftmprow > 0.5 * fBSvector.size() ) {
+			preanswer = theanswer;
+			fnthite++;
+		}
+		//std::cout << preanswer << std::endl;
+	}
+	std::cout << " total number of iterations = " << fnthite << std::endl;
+	
+	return theanswer;
+}
+
+
+//______________________________________________________________________
 reco::BeamSpot BSFitter::Fit_d0phi() {
 
 	//LogDebug ("BSFitter") << " we will use " << fBSvector.size() << " tracks.";
+	std::cout << " number of tracks used: " << ftmprow << std::endl;
+	//std::cout << " ftmp = matrix("<<ftmp.GetNrows()<<","<<ftmp.GetNcols()<<")"<<std::endl;
+	//std::cout << " ftmp(0,0)="<<ftmp(0,0)<<std::endl;
+	//std::cout << " ftmp(1,0)="<<ftmp(1,0)<<std::endl;
+	//std::cout << " ftmp(2,0)="<<ftmp(2,0)<<std::endl;
+	//std::cout << " ftmp(3,0)="<<ftmp(3,0)<<std::endl;
 	
+
 	TMatrixD x_result(4,1);
 	TMatrixDSym V_result(4);
 	
@@ -365,8 +410,8 @@ reco::BeamSpot BSFitter::Fit_d0phi() {
 	TMatrixD g(4,1);
 	TMatrixDSym temp(4);
 	
-	std::vector<BSTrkParameters>::const_iterator iparam = fBSvector.begin();
-	int tmprow=0;
+	std::vector<BSTrkParameters>::iterator iparam = fBSvector.begin();
+	ftmprow=0;
 
 	
 	//edm::LogInfo ("BSFitter") << " test";
@@ -379,30 +424,57 @@ reco::BeamSpot BSFitter::Fit_d0phi() {
 		
 		//if(i->weight2 == 0) continue;
 		
-		//if (tmprow==0) {
+		//if (ftmprow==0) {
 		//std::cout << "d0=" << iparam->d0() << " sigd0=" << iparam->sigd0()
 		//<< " phi0="<< iparam->sigd0() << " z0=" << iparam->z0() << std::endl;
+		//std::cout << "d0phi_d0=" << iparam->d0phi_d0() << " d0phi_chi2="<<iparam->d0phi_chi2() << std::endl; 
 		//}
 		g(0,0) = sin(iparam->phi0());
-		g(1,0) = - cos(iparam->phi0());
+		g(1,0) = -cos(iparam->phi0());
 		g(2,0) = iparam->z0() * g(0,0);
 		g(3,0) = iparam->z0() * g(1,0);
 		
-		temp.Zero();
-		for(int j = 0 ; j < 4 ; ++j) {
-			for(int k = j ; k < 4 ; ++k) {
-				temp(j,k) += g(j,0) * g(k,0);
-			}
-		}
+		
+		// average transverse beam width
 		double sigmabeam2 = 0.002 * 0.002;
 
 		//double sigma2 = sigmabeam2 +  (iparam->sigd0())* (iparam->sigd0()) / iparam->weight2;
+		// this should be 2*sigmabeam2?
 		double sigma2 = sigmabeam2 +  (iparam->sigd0())* (iparam->sigd0());
-		Vint += (temp * (1 / sigma2));
-		b += (iparam->d0() / sigma2 * g);
-		//weightsum += sqrt(i->weight2);
 
-		tmprow++;
+		TMatrixD ftmptrans(1,4);
+		ftmptrans = ftmptrans.Transpose(ftmp);
+		TMatrixD dcor = ftmptrans * g;
+		double chi2tmp = (iparam->d0() - dcor(0,0)) * (iparam->d0() - dcor(0,0))/sigma2;
+		(*iparam) = BSTrkParameters(iparam->z0(),iparam->sigz0(),iparam->d0(),iparam->sigd0(),
+					    iparam->phi0(), iparam->pt(),dcor(0,0),chi2tmp);
+
+		bool pass = true;
+		if (fapplyd0cut && fnthite>0 ) {
+	       		if ( std::abs(iparam->d0() - dcor(0,0)) > fd0cut ) pass = false;
+			
+		}
+		if (fapplychi2cut && fnthite>0 ) {
+			if ( chi2tmp > fchi2cut ) pass = false;
+			
+		}
+		
+		if (pass) {
+			temp.Zero();
+			for(int j = 0 ; j < 4 ; ++j) {
+				for(int k = j ; k < 4 ; ++k) {
+					temp(j,k) += g(j,0) * g(k,0);
+				}
+			}
+
+		
+			Vint += (temp * (1 / sigma2));
+			b += (iparam->d0() / sigma2 * g);
+			//weightsum += sqrt(i->weight2);
+			ftmprow++;
+		}
+
+		
 	}
 	Double_t determinant;
 	V_result = Vint.InvertFast(&determinant);
@@ -424,6 +496,8 @@ reco::BeamSpot BSFitter::Fit_d0phi() {
 			matrix(j,k) = V_result(j-2,k-2);
 		}
 	}
+
+	ftmp = x_result;
 	
 	return reco::BeamSpot( reco::BeamSpot::Point(x_result(0,0),
 												 x_result(1,0),
@@ -436,6 +510,24 @@ reco::BeamSpot BSFitter::Fit_d0phi() {
 	
 }
 
+
+//______________________________________________________________________
+void BSFitter::Setd0Cut_d0phi(double d0cut) {
+
+	fapplyd0cut = true;
+
+	//fBSforCuts = BSfitted;
+	fd0cut = d0cut;
+}
+
+//______________________________________________________________________
+void BSFitter::SetChi2Cut_d0phi(double chi2cut) {
+
+	fapplychi2cut = true;
+
+	//fBSforCuts = BSfitted;
+	fchi2cut = chi2cut;
+}
 
 //______________________________________________________________________
 reco::BeamSpot BSFitter::Fit_d_likelihood(double *inipar) {
