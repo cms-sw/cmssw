@@ -30,7 +30,8 @@ function CheckIOV(){
     Run=$1
     
     #//Verify that FEDVersion is not NULL
-    FEDVersion_Run=`grep $Run AddedRuns | awk '{print $3}'`
+    #FEDVersion_Run=`grep $Run AddedRuns | awk '{print $3}'`
+    FEDVersion_Run=$FedVer
     #echo ${FEDVersion_Run}
     [ "${FEDVersion_Run}" == "" ] && return 11  #//FedVersion NULL: perhaps you are asking for a not existing runNumber 
 
@@ -142,7 +143,7 @@ for Run in `cat AddedRuns | awk '{print $1}'`
   vTag=${tag}_${ver}
   tagPN=SiStripPedNoise_${vTag}_p
 
-  FedVer=`grep $Run AddedRuns | awk '{print $3}'`
+  export FedVer=`grep $Run AddedRuns | awk '{print $3}'`
 
   #echo CheckIOV $Run $tagPN
   if [ "${oldtagPN}" != "${tagPN}" ]; then
