@@ -8764,4 +8764,34 @@
   </CompositeMaterial>
 </MaterialSection>
 
+
+<!-- Tracker Cooling Fluids INIT -->
+
+<!-- 3M type is the old one used for Thermal Screen only -->
+
+  <CompositeMaterial name="C6F14_3M_-15C" density="1.80340*g/cm3" symbol=" " method="mixture by weight">
+    <MaterialFraction fraction="1.00000000">
+      <rMaterial name="materials:C6F14"/>
+    </MaterialFraction>
+  </CompositeMaterial>
+
+
+<!-- F2 type is the new one used for subdetectors and preshower -->
+
+  <CompositeMaterial name="C6F14_F2_-30C" density="1.87917*g/cm3" symbol=" " method="mixture by weight">
+    <MaterialFraction fraction="1.00000000">
+      <rMaterial name="materials:C6F14"/>
+    </MaterialFraction>
+  </CompositeMaterial>
+
+  <CompositeMaterial name="C6F14_F2_-20C" density="1.84675*g/cm3" symbol=" " method="mixture by weight">
+    <MaterialFraction fraction="1.00000000">
+      <rMaterial name="materials:C6F14"/>
+    </MaterialFraction>
+  </CompositeMaterial>
+
+
+<!-- Tracker Cooling Fluids END -->
+
+
 </DDDefinition>
