@@ -20,20 +20,20 @@
 //
 // Original Author:  Christian Veelken
 //         Created:  Tue Aug  8 16:26:18 CDT 2006
-// $Id: UCDTauRecAssociationAlgorithm.cc,v 1.2 2006/10/12 00:44:44 veelken Exp $
+// $Id: PFEnergyResolution.h,v 1.1 2007/03/27 15:13:53 veelken Exp $
 //
 //
 
 #include <iostream>
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+//#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 class PFEnergyResolution 
 {
  public:
   PFEnergyResolution(); // default constructor;
                         // needed by PFRootEvent
-  PFEnergyResolution(const edm::ParameterSet& parameters);
+  //PFEnergyResolution(const edm::ParameterSet& parameters);
   ~PFEnergyResolution();
   
   //double getEnergyResolutionEm(double energyECAL, double eta, double phi) const;

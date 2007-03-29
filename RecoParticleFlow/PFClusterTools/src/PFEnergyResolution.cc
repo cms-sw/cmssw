@@ -1,12 +1,12 @@
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyResolution.h"
 
 #include <math.h>
-
+/*
 PFEnergyResolution::PFEnergyResolution(const edm::ParameterSet& parameters)
 {
 //--- nothing to be done yet
 }
-
+*/
 PFEnergyResolution::PFEnergyResolution()
 {
 //--- nothing to be done yet

@@ -1,5 +1,7 @@
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibration.h"
 
+#include <math.h>
+
 PFEnergyCalibration::PFEnergyCalibration()
 {
 //--- initialize calibration parameters
@@ -19,7 +21,7 @@ PFEnergyCalibration::PFEnergyCalibration()
   paramECALplusHCAL_slopeHCAL_ = 1.06;
   paramECALplusHCAL_offset_ = 8.61;
 }
-
+/*
 PFEnergyCalibration::PFEnergyCalibration(const edm::ParameterSet& parameters)
 {
 //--- initialize calibration parameters
@@ -44,7 +46,7 @@ PFEnergyCalibration::PFEnergyCalibration(const edm::ParameterSet& parameters)
   paramECALplusHCAL_slopeHCAL_ = 1.06;
   paramECALplusHCAL_offset_ = 8.61;
 }
-
+*/
 void PFEnergyCalibration::setCalibrationParametersEm(double paramECAL_slope, double paramECAL_offset)
 {
 //--- set calibration parameters for energy deposits of electrons and photons in ECAL;
