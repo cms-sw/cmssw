@@ -130,10 +130,10 @@ SiStripTrackingRecHitsValid::SiStripTrackingRecHitsValid(const ParameterSet& ps)
   PullvsTrackanglebetaTEC = new TH2F("PullvsTrackanglebetaTEC","PullvsTrackanglebetaTEC",9,0.,90.,20,-5.,5.);
 
   //Read config file
-  MTCCtrack_ = ps.getParameter<bool>("MTCCtrack");
+  //MTCCtrack_ = ps.getParameter<bool>("MTCCtrack");
   outputFile_ = ps.getUntrackedParameter<string>("outputFile", "striptrackingrechitshisto.root");
-  src_ = ps.getUntrackedParameter<std::string>( "src" );
-  builderName_ = ps.getParameter<std::string>("TTRHBuilder");   
+  //src_ = ps.getUntrackedParameter<std::string>( "src" );
+  //builderName_ = ps.getParameter<std::string>("TTRHBuilder");   
 
   // Book histograms
   dbe_ = Service<DaqMonitorBEInterface>().operator->();
@@ -146,7 +146,6 @@ SiStripTrackingRecHitsValid::SiStripTrackingRecHitsValid(const ParameterSet& ps)
   sprintf(histo,"Errx_LF");
   meErrxLF = dbe_->book1D(histo,"RecHit err(x) Local Frame coord.",100,0,0.005);  
   const float Entries1 = meErrxLF->getEntries();
-  cout<<"Entries1 = "<<Entries1<<endl;
 
   sprintf(histo,"Errx_MF");
   meErrxMF = dbe_->book1D(histo,"RecHit err(x) Meas. Frame coord.",100,0,0.5);  
@@ -1290,7 +1289,7 @@ void SiStripTrackingRecHitsValid::endJob() {
 
 // Virtual destructor needed.
 SiStripTrackingRecHitsValid::~SiStripTrackingRecHitsValid() {  
-  cout<<"SiStripTrackingRecHitsValid:Destructor"<<endl;
+
 }  
 
 // Functions that gets called by framework every event
@@ -1328,7 +1327,7 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
   float dist;
   std::vector<PSimHit> matched;
   
-  TrackerHitAssociator associate(e);
+  TrackerHitAssociator associate(e, conf_);
   PSimHit closest;
 
   
@@ -1360,13 +1359,13 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 
   edm::LogVerbatim("TrajectoryAnalyzer") << "trajColl->size(): " << trajCollectionHandle->size() ;
 
-  cout<<"trajColl->size() = "<<trajCollectionHandle->size()<<endl;
+  //cout<<"trajColl->size() = "<<trajCollectionHandle->size()<<endl;
 
   for(vector<Trajectory>::const_iterator it = trajCollectionHandle->begin(); it!=trajCollectionHandle->end();it++){
      
     edm::LogVerbatim("TrajectoryAnalyzer") << "this traj has " << it->foundHits() << " valid hits"  << " , "
 					    << "isValid: " << it->isValid() ;
-    cout<< "this traj has " << it->foundHits() << " valid hits"  << " , "
+    //cout<< "this traj has " << it->foundHits() << " valid hits"  << " , "
 					    << "isValid: " << it->isValid() ;
     vector<TrajectoryMeasurement> tmColl = it->measurements();
     for(vector<TrajectoryMeasurement>::const_iterator itTraj = tmColl.begin(); itTraj!=tmColl.end(); itTraj++){
@@ -1556,7 +1555,6 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
       GluedGeomDet * gdet;
       const GeomDetUnit * monodet;
       const SiStripRecHit2D *monohit;
-      if (monohit) cout<<"monohit"<<endl;
       const StripGeomDetUnit * stripdet;
 
       if (matchedhit)
@@ -1578,8 +1576,6 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 	  }
 	  
 	  if(monohit){
-
-	    cout<<"monohit from matched hit"<<endl;
 
 	    const StripTopology &topol=(StripTopology&)stripdet->topology();
 
@@ -1618,7 +1614,7 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 	    clusiz=0;
 	    totcharge=0;
 	    clusiz = cluster->amplitudes().size();
-	    cout<<"clusiz = "<<clusiz<<endl;
+	    //	    cout<<"clusiz = "<<clusiz<<endl;
 	    const std::vector<uint16_t> amplitudes=cluster->amplitudes();
 	    for(size_t ia=0; ia<amplitudes.size();ia++){
 	      totcharge+=amplitudes[ia];
@@ -1628,7 +1624,7 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 	    rechitrphiz = position.z();
 	    rechitrphierrxLF = error.xx();
 	    rechitrphierrxMF = Merror.uu();
-	    cout<<"rechitrphierrxMF from Matched hit= "<<sqrt(rechitrphierrxMF)<<endl;
+	    //	    cout<<"rechitrphierrxMF from Matched hit= "<<sqrt(rechitrphierrxMF)<<endl;
 	    clusizrphi = clusiz;
 	    cluchgrphi = totcharge;
 
@@ -1639,7 +1635,7 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 	    matched = associate.associateHit(*monohit);
 	    if(!matched.empty()){
 	      //		  cout << "\t\t\tmatched  " << matched.size() << endl;
-	      cout<<"associatesimplehit"<<endl;
+	      //	      cout<<"associatesimplehit"<<endl;
 	      for(vector<PSimHit>::const_iterator m=matched.begin(); m<matched.end(); m++){
 		dist = abs((monohit)->localPosition().x() - (*m).localPosition().x());
 		if(dist<mindist){
@@ -1691,7 +1687,7 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 	  
 	  if (stereohit)
 	    {
-	      cout<<"stereohit from matched hit"<<endl;
+	      //	      cout<<"stereohit from matched hit"<<endl;
 	      isrechitsas = 1;
 	      const edm::Ref<edm::DetSetVector<SiStripCluster>, SiStripCluster, edm::refhelper::FindForDetSetVector<SiStripCluster> > cluster=stereohit->cluster();
 	    
@@ -1737,9 +1733,9 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 	      rechitsasy = position.y();
 	      rechitsasz = position.z();
 	      rechitsaserrxLF = error.xx();
-	      cout<<"rechitsaserrxLF = "<<rechitsaserrxLF<<endl;
+	      //	      cout<<"rechitsaserrxLF = "<<rechitsaserrxLF<<endl;
 	      rechitsaserrxMF = Merror.uu();
-	      cout<<"rechitsaserrxMF from Matched hit = "<<sqrt(rechitsaserrxMF)<<endl;
+	      //	      cout<<"rechitsaserrxMF from Matched hit = "<<sqrt(rechitsaserrxMF)<<endl;
 	      clusizsas = clusiz;
 	      cluchgsas = totcharge;
 
@@ -1797,10 +1793,10 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
       
       if(hit){
 	// simple hits are mono or stereo
-	cout<<"simple hit"<<endl;
+	//	cout<<"simple hit"<<endl;
 	if (StripSubdet.stereo() == 0){
 	  isrechitrphi = 1;
-	  cout<<"simple hit mono"<<endl;
+	  //	  cout<<"simple hit mono"<<endl;
 
 	  const GeomDetUnit *  det = tracker.idToDetUnit(detid2);
 	  const StripGeomDetUnit * stripdet=(const StripGeomDetUnit*)(det);
@@ -1812,18 +1808,18 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 	  const edm::Ref<edm::DetSetVector<SiStripCluster>, SiStripCluster, edm::refhelper::FindForDetSetVector<SiStripCluster> > cluster=hit->cluster();
 
 	  SiStripClusterInfo clusterinfo(*cluster);// = new SiStripClusterInfo();
-	  cout<<"clusterinfocharge = "<<clusterinfo.charge()<<endl;
-	  cout<<"clusterinfofirststrip = "<<clusterinfo.firstStrip()<<endl;
+	  //	  cout<<"clusterinfocharge = "<<clusterinfo.charge()<<endl;
+	  //cout<<"clusterinfofirststrip = "<<clusterinfo.firstStrip()<<endl;
 	  const std::vector<float>  VecNoise = clusterinfo.stripNoises();
-	  cout<<"vecnoisesize = "<<VecNoise.size()<<endl;
-	  for(size_t ia=0; ia<VecNoise.size();ia++){
-	    cout<<"Noise = "<<VecNoise[ia]<<endl;
-	  }
+	  //cout<<"vecnoisesize = "<<VecNoise.size()<<endl;
+	  //for(size_t ia=0; ia<VecNoise.size();ia++){
+	  //  cout<<"Noise = "<<VecNoise[ia]<<endl;
+	  //}
 	  const std::vector<uint16_t> stripamplitudes=clusterinfo.stripAmplitudes();
-	  cout<<"stripamplitudessize = "<<stripamplitudes.size()<<endl;
-	  for(size_t ia=0; ia<stripamplitudes.size();ia++){
-	    cout<<"stripamplitudes = "<<stripamplitudes[ia]<<endl;
-	  }
+	  //cout<<"stripamplitudessize = "<<stripamplitudes.size()<<endl;
+	  //for(size_t ia=0; ia<stripamplitudes.size();ia++){
+	  //  cout<<"stripamplitudes = "<<stripamplitudes[ia]<<endl;
+	  //}
 
 	  position = thit->localPosition();
 	  error = thit->localPositionError();
@@ -1834,21 +1830,21 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 	  LocalVector driftcpe = stripcpe.driftDirection(stripdet);
 	  float thickness=stripdet->surface().bounds().thickness();
 	  rechitrphithickness = thickness;
-	  cout<<"Valid:thickness = "<<thickness<<endl;
+	  //cout<<"Valid:thickness = "<<thickness<<endl;
 	  float pitch = topol.localPitch(position);
-	  cout<<"Valid:pitch = "<<pitch<<endl;
+	  //cout<<"Valid:pitch = "<<pitch<<endl;
 	  float tanalpha = tan(anglealpha/57.3);
-	  cout<<"Valid:tanalpha = "<<tanalpha<<endl;
+	  //cout<<"Valid:tanalpha = "<<tanalpha<<endl;
 	  float tanalphaL = drift.x()/drift.z();
-	  cout<<"Valid:tanalphaL = "<<tanalphaL<<endl;
+	  //cout<<"Valid:tanalphaL = "<<tanalphaL<<endl;
 	  float tanalphaLcpe = driftcpe.x()/driftcpe.z();
-	  cout<<"Valid:tanalphaLcpe = "<<tanalphaLcpe<<endl;
+	  //cout<<"Valid:tanalphaLcpe = "<<tanalphaLcpe<<endl;
 	  //cout<<"Validmono:drift.x() = "<<drift.x()<<endl;
 	  //cout<<"Valid:drift.z() = "<<drift.z()<<endl;
 	  //cout<<"Valid:tanalphaL = "<<tanalphaL<<endl;
 	  Wtrack = fabs((thickness/pitch)*tanalpha - (thickness/pitch)*tanalphaL);
 	  //       fabs((thickness/pitch)*tanalpha - (thickness/pitch)*tanalphaL);
-	  cout<<"Valid2:Wtrack = "<<Wtrack<<endl;
+	  //cout<<"Valid2:Wtrack = "<<Wtrack<<endl;
 	  float SLorentz = 0.5*(thickness/pitch)*tanalphaL;
 	  //int nstrips = topol.nstrips(); 
 	  int Sp = int(position.x()/pitch+SLorentz+0.5*Wtrack);
@@ -1858,7 +1854,7 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 	  clusiz=0;
 	  totcharge=0;
 	  clusiz = cluster->amplitudes().size();
-	  cout<<"cluster->firstStrip() = "<<cluster->firstStrip()<<endl;
+	  //cout<<"cluster->firstStrip() = "<<cluster->firstStrip()<<endl;
 	  const std::vector<uint16_t> amplitudes=cluster->amplitudes();
 	  for(size_t ia=0; ia<amplitudes.size();ia++){
 	    totcharge+=amplitudes[ia];
@@ -1869,9 +1865,9 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 	  rechitrphierrx = error.xx();
 	  rechitrphierrxLF = error.xx();
 	  rechitrphierrxMF = Merror.uu();
-	  cout<<"rechitrphierrxMF simple hit= "<<sqrt(rechitrphierrxMF)<<endl;
+	  //cout<<"rechitrphierrxMF simple hit= "<<sqrt(rechitrphierrxMF)<<endl;
 	  clusizrphi = clusiz;
-	  cout<<"clusizrphi = "<<clusiz<<endl;
+	  //cout<<"clusizrphi = "<<clusiz<<endl;
 	  cluchgrphi = totcharge;
 
 	  //Association of the rechit to the simhit
@@ -1909,8 +1905,8 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 	    iopt = 4;
 	  }
 	  rechitrphicategory = iopt;
-
-	  	  if (rechitrphiexpectedwidth == 1 && clusterWidth == 3) {
+	  /*
+	  if (rechitrphiexpectedwidth == 1 && clusterWidth == 3) {
 	  //if ( clusterWidth == 3) {
 	    cout<<"TRUE"<<endl;
 	    cout<<"TestClus2:Position SH = "<<(closest).localPosition().x()<<" , "<<(topol.measurementPosition(closest.localPosition())).x()<<endl;
@@ -1926,13 +1922,13 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 	    }
 	    cout<<"TestClus2:Trackwidth = "<<Wtrack<<endl;
 	  }
-
+	  */
 	
-	  cout<<"rechitrphicategory = "<<rechitrphicategory<<endl;
+	  //cout<<"rechitrphicategory = "<<rechitrphicategory<<endl;
 
 	  //	  if ((detid.subdetId() == int(StripSubdetector::TID)) || (detid.subdetId() == int(StripSubdetector::TEC))) {
 	    //if ((detid.subdetId() == int(StripSubdetector::TIB))) {
-	  
+	  /*  
 	    if (clusterWidth ==2 && Wexp == 1 && Wtrack<0.1) {
 	      cout<<"TestClus:begin"<<endl;
 	      LocalVector  drift2 = drift * fabs(thickness/drift.z());       
@@ -1968,8 +1964,9 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 	      }
 
 	    }
+*/
 	    //}
-
+	  /*
 	  cout<<"int() = "<<int((topol.measurementPosition(closest.localPosition())).x())<<endl;
 	  diff = int((topol.measurementPosition(closest.localPosition())).x()) -topol.measurementPosition(closest.localPosition()).x();
 	  cout<<"diff = "<<diff<<endl;
@@ -1980,12 +1977,13 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 	    }
 	  }
 	  positionshx = (topol.measurementPosition(closest.localPosition())).x();
+*/
 
 	}
 
 	if (StripSubdet.stereo() == 1){
 
-	  cout<<"simple hit stereo"<<endl;
+	  //cout<<"simple hit stereo"<<endl;
 	  isrechitsas = 1;
 
           const GeomDetUnit *  det = tracker.idToDetUnit(detid2);
@@ -2006,17 +2004,17 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 	  LocalVector drift= driftDirection(stripdet);
 	  float thickness=stripdet->surface().bounds().thickness();
 	  rechitsasthickness = thickness;
-	  cout<<"thickness = "<<thickness<<endl;
+	  //cout<<"thickness = "<<thickness<<endl;
 	  float pitch = topol.localPitch(position);
-	  cout<<"Valid:pitch = "<<pitch<<endl;
+	  //cout<<"Valid:pitch = "<<pitch<<endl;
 	  float tanalpha = tan(anglealpha/57.3);
-	  cout<<"Valid:tanalpha = "<<tanalpha<<endl;
+	  //cout<<"Valid:tanalpha = "<<tanalpha<<endl;
 	  float tanalphaL = drift.x()/drift.z();
-	  cout<<"Validstereo:drift.x() = "<<drift.x()<<endl;
-	  cout<<"Valid:drift.z() = "<<drift.z()<<endl;
-	  cout<<"Valid:tanalphaL = "<<tanalphaL<<endl;
+	  //cout<<"Validstereo:drift.x() = "<<drift.x()<<endl;
+	  //cout<<"Valid:drift.z() = "<<drift.z()<<endl;
+	  //cout<<"Valid:tanalphaL = "<<tanalphaL<<endl;
 	  Wtrack = fabs((thickness/pitch)*tanalpha - (thickness/pitch)*tanalphaL);
-	  cout<<"Valid:Wtrack = "<<Wtrack<<endl;
+	  //cout<<"Valid:Wtrack = "<<Wtrack<<endl;
 	  float SLorentz = 0.5*(thickness/pitch)*tanalphaL;
 	  //int nstrips = topol.nstrips(); 
 	  int Sp = int(position.x()/pitch+SLorentz+0.5*Wtrack);
@@ -2034,9 +2032,9 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 	  rechitsasy = position.y();
 	  rechitsasz = position.z();
 	  rechitsaserrxLF = error.xx();
-	  cout<<"rechitsaserrxLF = "<<rechitsaserrxLF<<endl;
+	  //cout<<"rechitsaserrxLF = "<<rechitsaserrxLF<<endl;
 	  rechitsaserrxMF = Merror.uu();
-	  cout<<"rechitsaserrxMF simple hit= "<<sqrt(rechitsaserrxMF)<<endl;
+	  //cout<<"rechitsaserrxMF simple hit= "<<sqrt(rechitsaserrxMF)<<endl;
 	  clusizsas = clusiz;
 	  cluchgsas = totcharge;
 
@@ -2083,7 +2081,7 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
       
 
       //Filling Histograms for simple hits
-      cout<<"isrechitrphi,isrechitsas = "<<isrechitrphi<<","<<isrechitsas<<endl;
+      //cout<<"isrechitrphi,isrechitsas = "<<isrechitrphi<<","<<isrechitsas<<endl;
 
       float CutThickness=0.04;
       //CutThickness=0.;
@@ -2093,7 +2091,7 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 
 	if (isrechitrphi>0) {
 	  
-	  cout<<"rechitrphitrackwidth,rechitrphipullMF = "<<rechitrphitrackwidth<<" "<<rechitrphipullMF<<endl;
+	  //cout<<"rechitrphitrackwidth,rechitrphipullMF = "<<rechitrphitrackwidth<<" "<<rechitrphipullMF<<endl;
 	  if (rechitrphithickness > CutThickness)
 	    {
 	      PullvsTrackwidth->Fill(rechitrphitrackwidth,rechitrphipullMF);
@@ -2108,7 +2106,7 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 	      PositionSHx->Fill(positionshx);
 
 	      ErrxMF->Fill(sqrt(rechitrphierrxMF));
-	      cout<<"ICI1:rechitrphitrackwidth = "<<rechitrphitrackwidth<<endl;
+	      //cout<<"ICI1:rechitrphitrackwidth = "<<rechitrphitrackwidth<<endl;
 	      ErrxMFvsTrackwidth->Fill(rechitrphitrackwidth,sqrt(rechitrphierrxMF));
 	      ResMFvsTrackwidth->Fill(rechitrphitrackwidth,rechitrphiresMF);
 
@@ -2161,7 +2159,7 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 		if (rechitrphiexpectedwidth==4) ResMFvsTrackwidthWClus2Wexp4->Fill(rechitrphitrackwidth,rechitrphiresMF);
 		}
 		//	    meResMFTrackwidthProfileWClus22->Fill(rechitrphitrackwidth,rechitrphiresMF);
-		cout<<"ICI2:rechitrphitrackwidth = "<<rechitrphitrackwidth<<endl;
+		//cout<<"ICI2:rechitrphitrackwidth = "<<rechitrphitrackwidth<<endl;
 
 		ErrxMFvsTrackwidthWClus2->Fill(rechitrphitrackwidth,sqrt(rechitrphierrxMF));
 		    // }
@@ -2352,9 +2350,9 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 	  TIBDetId tibid(myid);
 	  int Tibisrechitrphi    = isrechitrphi;
 	  int Tibisrechitsas     = isrechitsas;
-	  cout<<"Tibisrechitrphi,Tibisrechitsas = "<<Tibisrechitrphi<<" "<<Tibisrechitsas<<endl;
+	  //cout<<"Tibisrechitrphi,Tibisrechitsas = "<<Tibisrechitrphi<<" "<<Tibisrechitsas<<endl;
 	  int ilay = tibid.layer() - 1; //for histogram filling
-	  cout<<"ilay1 = "<<ilay<<endl;
+	  //cout<<"ilay1 = "<<ilay<<endl;
 	  if(Tibisrechitrphi!=0){
 	    if (rechitrphithickness > CutThickness)
 	      {
@@ -2364,7 +2362,7 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 		PullvsTrackangleTIB->Fill(rechitrphitrackangle,rechitrphipullMF);
 		PullvsTrackanglebetaTIB->Fill(rechitrphitrackanglebeta,rechitrphipullMF);
 	      }
-	    cout<<"TIB:rechitrphitrackwidth,rechitrphipullMF = "<<rechitrphitrackwidth<<" "<<rechitrphipullMF<<endl;
+	    //cout<<"TIB:rechitrphitrackwidth,rechitrphipullMF = "<<rechitrphitrackwidth<<" "<<rechitrphipullMF<<endl;
 	    //cout<<"ilay2 = "<<ilay<<endl;
 	    //cout<<"je suis la RPHI"<<endl;
 	    meNstpRphiTIB[ilay]->Fill(clusizrphi);
@@ -2482,7 +2480,7 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 		PullvsTrackangleTOB->Fill(rechitrphitrackangle,rechitrphipullMF);
 		PullvsTrackanglebetaTOB->Fill(rechitrphitrackanglebeta,rechitrphipullMF);
 	      }
-	    cout<<"TOB:rechitrphitrackwidth,rechitrphipullMF = "<<rechitrphitrackwidth<<" "<<rechitrphipullMF<<endl;
+	    //cout<<"TOB:rechitrphitrackwidth,rechitrphipullMF = "<<rechitrphitrackwidth<<" "<<rechitrphipullMF<<endl;
 	    meNstpRphiTOB[ilay]->Fill(clusizrphi);
 	    meAdcRphiTOB[ilay]->Fill(cluchgrphi);
 	    mePosxRphiTOB[ilay]->Fill(rechitrphix);
@@ -2599,7 +2597,7 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 		PullvsTrackangleTID->Fill(rechitrphitrackangle,rechitrphipullMF);
 		PullvsTrackanglebetaTID->Fill(rechitrphitrackanglebeta,rechitrphipullMF);
 	      }
-	    cout<<"TID:rechitrphitrackwidth,rechitrphipullMF = "<<rechitrphitrackwidth<<" "<<rechitrphipullMF<<endl;
+	    //cout<<"TID:rechitrphitrackwidth,rechitrphipullMF = "<<rechitrphitrackwidth<<" "<<rechitrphipullMF<<endl;
 	    meNstpRphiTID[ilay]->Fill(clusizrphi);
 	    meAdcRphiTID[ilay]->Fill(cluchgrphi);
 	    mePosxRphiTID[ilay]->Fill(rechitrphix);
@@ -2697,7 +2695,7 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 		PullvsTrackangleTEC->Fill(rechitrphitrackangle,rechitrphipullMF);
 		PullvsTrackanglebetaTEC->Fill(rechitrphitrackanglebeta,rechitrphipullMF);
 	      }
-	    cout<<"TEC:rechitrphitrackwidth,rechitrphipullMF = "<<rechitrphitrackwidth<<" "<<rechitrphipullMF<<endl;
+	    //cout<<"TEC:rechitrphitrackwidth,rechitrphipullMF = "<<rechitrphitrackwidth<<" "<<rechitrphipullMF<<endl;
 	    meNstpRphiTEC[ilay]->Fill(clusizrphi);
 	    meAdcRphiTEC[ilay]->Fill(cluchgrphi);
 	    mePosxRphiTEC[ilay]->Fill(rechitrphix);

@@ -88,9 +88,9 @@ class SiStripTrackingRecHitsValid : public edm::EDAnalyzer
 
   DaqMonitorBEInterface* dbe_;
   string outputFile_;
-  string src_;
-  string builderName_;
-  bool MTCCtrack_;
+  //string src_;
+  //string builderName_;
+  //  bool MTCCtrack_;
 
   // slices
 
