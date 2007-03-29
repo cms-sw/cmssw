@@ -56,14 +56,10 @@ public:
   static const unsigned int N_JET_COUNTERS_PER_WHEEL;
 
   /// construct the GCT
-  L1GlobalCaloTrigger(bool useFile=false,
-		      L1GctJetLeafCard::jetFinderType jfType = L1GctJetLeafCard::tdrJetFinder);
+  L1GlobalCaloTrigger(L1GctJetLeafCard::jetFinderType jfType = L1GctJetLeafCard::tdrJetFinder);
 
   /// dismantle the GCT
   ~L1GlobalCaloTrigger();
-  
-  /// load files into Source Cards
-  void openSourceCardFiles(std::string fileBase);
   
   /// Reset internal buffers
   void reset();
@@ -166,9 +162,6 @@ public:
   bool setupOk() { return (m_jetEtCalLut != 0); }
  private:
   
-  /// where are we getting data from?
-  bool readFromFile;
-
   /// pointers to the Source Cards
   std::vector<L1GctSourceCard*> theSourceCards;
   

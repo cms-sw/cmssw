@@ -31,8 +31,7 @@ const unsigned int L1GlobalCaloTrigger::N_JET_COUNTERS_PER_WHEEL = L1GctWheelJet
 
 
 // constructor
-L1GlobalCaloTrigger::L1GlobalCaloTrigger(bool useFile, L1GctJetLeafCard::jetFinderType jfType) :
-  readFromFile(useFile),
+L1GlobalCaloTrigger::L1GlobalCaloTrigger(L1GctJetLeafCard::jetFinderType jfType) :
   theSourceCards(N_SOURCE_CARDS),
   theJetLeafCards(N_JET_LEAF_CARDS),
   theEmLeafCards(N_EM_LEAF_CARDS),
@@ -52,20 +51,6 @@ L1GlobalCaloTrigger::L1GlobalCaloTrigger(bool useFile, L1GctJetLeafCard::jetFind
 L1GlobalCaloTrigger::~L1GlobalCaloTrigger()
 {
   theSourceCards.clear();
-}
-
-void L1GlobalCaloTrigger::openSourceCardFiles(string fileBase){
-  //Loop running over the 18 RCT-crate files, allocating 3 sourcecards per file
-  for(int i = 0;i < 18; i++){
-    string fileNo;
-    stringstream ss;
-    ss << i;
-    ss >> fileNo;
-    string fileName = fileBase+fileNo;
-    theSourceCards.at(3*i)->openInputFile(fileName);
-    theSourceCards.at(3*i+1)->openInputFile(fileName);
-    theSourceCards.at(3*i+2)->openInputFile(fileName);
-  }
 }
 
 void L1GlobalCaloTrigger::reset() {
@@ -110,13 +95,6 @@ void L1GlobalCaloTrigger::process() {
 
   // Shouldn't get here unless the setup has been completed
   assert (setupOk());
-
-  // Source cards
-  for (int i=0; i<N_SOURCE_CARDS; i++) {
-    if (readFromFile) {
-      theSourceCards.at(i)->readBX();
-    }
-  }
 
   // EM Leaf Card
   for (int i=0; i<N_EM_LEAF_CARDS; i++) {
@@ -174,13 +152,8 @@ void L1GlobalCaloTrigger::setJetEtCalibrationLut(L1GctJetEtCalibrationLut* lut) 
   }
 }
 
-void L1GlobalCaloTrigger::setRegion(L1CaloRegion region) {
-
-  if (readFromFile) {
-    throw cms::Exception("L1GctInputError")
-      << " L1 Global Calo Trigger is set to read input data from file, "
-      << " setRegion method should not be used\n"; 
-  }
+void L1GlobalCaloTrigger::setRegion(L1CaloRegion region) 
+{
   unsigned scnum = region.gctCard();
   unsigned input = region.gctRegionIndex();
   L1GctSourceCard* sc = theSourceCards.at(scnum);
@@ -195,13 +168,8 @@ void L1GlobalCaloTrigger::setRegion(unsigned et, unsigned ieta, unsigned iphi, b
   setRegion(temp);
 }
 
-void L1GlobalCaloTrigger::setIsoEm(L1CaloEmCand em) {
-
-  if (readFromFile) {
-    throw cms::Exception("L1GctInputError")
-      << " L1 Global Calo Trigger is set to read input data from file, "
-      << " setIsoEm method should not be used\n"; 
-  }
+void L1GlobalCaloTrigger::setIsoEm(L1CaloEmCand em) 
+{
   unsigned scnum = em.rctCrate()*3;
   L1GctSourceCard* sc = theSourceCards.at(scnum);
   std::vector<L1CaloEmCand> tempEmCands = sc->getIsoElectrons();
@@ -214,13 +182,8 @@ void L1GlobalCaloTrigger::setIsoEm(L1CaloEmCand em) {
   sc->setIsoEm(tempEmCands);
 }
 
-void L1GlobalCaloTrigger::setNonIsoEm(L1CaloEmCand em) {
-
-  if (readFromFile) {
-    throw cms::Exception("L1GctInputError")
-      << " L1 Global Calo Trigger is set to read input data from file, "
-      << " setIsoEm method should not be used\n"; 
-  }
+void L1GlobalCaloTrigger::setNonIsoEm(L1CaloEmCand em) 
+{
   unsigned scnum = em.rctCrate()*3;
   L1GctSourceCard* sc = theSourceCards.at(scnum);
   std::vector<L1CaloEmCand> tempEmCands = sc->getNonIsoElectrons();

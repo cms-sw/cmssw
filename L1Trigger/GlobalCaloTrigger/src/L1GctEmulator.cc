@@ -53,7 +53,7 @@ L1GctEmulator::L1GctEmulator(const edm::ParameterSet& ps) :
   m_inputLabel = inputTag.label();
 
   // instantiate the GCT
-  m_gct = new L1GlobalCaloTrigger(false,L1GctJetLeafCard::tdrJetFinder);
+  m_gct = new L1GlobalCaloTrigger(L1GctJetLeafCard::tdrJetFinder);
 
   // set verbosity (not implemented yet!)
   //  m_gct->setVerbose(m_verbose);
