@@ -3,7 +3,7 @@
 
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: PoolOutputModule.h,v 1.20 2007/03/04 06:32:22 wmtan Exp $
+// $Id: PoolOutputModule.h,v 1.21 2007/03/14 20:15:00 wmtan Exp $
 //
 // Class PoolOutputModule. Output module to POOL file
 //
@@ -22,6 +22,7 @@
 #include "FWCore/Catalog/interface/FileCatalog.h"
 #include "FWCore/MessageLogger/interface/JobReport.h"
 #include "IOPool/Common/interface/PoolDataSvc.h"
+#include "IOPool/Common/interface/PoolDatabase.h"
 #include "PersistencySvc/Placement.h"
 
 namespace pool {
@@ -41,9 +42,13 @@ namespace edm {
     virtual ~PoolOutputModule();
     std::string const& fileName() const {return catalog_.fileName();}
     std::string const& logicalFileName() const {return catalog_.logicalFileName();}
+    int const& compressionLevel() const {return compressionLevel_;}
+    int const& basketSize() const {return basketSize_;}
+    int const& splitLevel() const {return splitLevel_;}
 
   private:
-    pool::IDataSvc *context() const {return context_.context();}
+    pool::IDataSvc *context() const {return dataSvc_.context();}
+    PoolDataSvc const& dataSvc() const {return dataSvc_;}
 
   private:
     virtual void beginJob(EventSetup const&);
@@ -54,10 +59,12 @@ namespace edm {
     virtual void endRun(RunPrincipal const& r);
 
     mutable OutputFileCatalog catalog_;
-    mutable PoolDataSvc context_;
+    mutable PoolDataSvc dataSvc_;
     unsigned int commitInterval_;
     unsigned int maxFileSize_;
     int compressionLevel_;
+    int basketSize_;
+    int splitLevel_;
     std::string const moduleLabel_;
     int fileCount_;
     boost::shared_ptr<PoolFile> poolFile_;
@@ -117,6 +124,7 @@ namespace edm {
     PoolOutputModule const* om_;
     mutable std::list<BranchEntryDescription> provenances_;
     mutable bool newFileAtEndOfRun_;
+    mutable PoolDatabase database_;
   };
 }
 

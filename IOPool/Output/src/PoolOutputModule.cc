@@ -1,7 +1,8 @@
-// $Id: PoolOutputModule.cc,v 1.67 2007/03/04 06:33:12 wmtan Exp $
+// $Id: PoolOutputModule.cc,v 1.68 2007/03/14 20:15:00 wmtan Exp $
 
 #include "IOPool/Output/src/PoolOutputModule.h"
 #include "IOPool/Common/interface/PoolDataSvc.h"
+#include "IOPool/Common/interface/PoolDatabase.h"
 #include "IOPool/Common/interface/ClassFiller.h"
 #include "IOPool/Common/interface/RefStreamer.h"
 #include "IOPool/Common/interface/CustomStreamer.h"
@@ -44,10 +45,12 @@ namespace edm {
   PoolOutputModule::PoolOutputModule(ParameterSet const& pset) :
     OutputModule(pset),
     catalog_(pset),
-    context_(catalog_, false),
+    dataSvc_(catalog_, false),
     commitInterval_(pset.getUntrackedParameter<unsigned int>("commitInterval", 100U)),
     maxFileSize_(pset.getUntrackedParameter<int>("maxSize", 0x7f000000)),
     compressionLevel_(pset.getUntrackedParameter<int>("compressionLevel", 1)),
+    basketSize_(pset.getUntrackedParameter<int>("basketSize", 16384)),
+    splitLevel_(pset.getUntrackedParameter<int>("splitLevel", 99)),
     moduleLabel_(pset.getParameter<std::string>("@module_label")),
     fileCount_(-1),
     poolFile_() {
@@ -122,7 +125,8 @@ namespace edm {
       processHistoryPlacement_(),
       fileFormatVersionPlacement_(),
       om_(om),
-      newFileAtEndOfRun_(false) {
+      newFileAtEndOfRun_(false),
+      database_() {
     TTree::SetMaxTreeSize(kMaxLong64);
     std::string suffix(".root");
     std::string::size_type offset = om_->fileName().rfind(suffix);
@@ -142,6 +146,13 @@ namespace edm {
       file_ = fileBase + suffix;
       lfn_ = om_->logicalFileName();
     }
+    startTransaction();
+    database_ = PoolDatabase(file_, om_->dataSvc());
+    database_.setCompressionLevel(om_->compressionLevel());
+    database_.setBasketSize(om_->basketSize());
+    database_.setSplitLevel(om_->splitLevel());
+    commitAndFlushTransaction();
+
     makePlacement(poolNames::metaDataTreeName(), poolNames::productDescriptionBranchName(),
 	productDescriptionPlacement_);
     makePlacement(poolNames::metaDataTreeName(), poolNames::parameterSetMapBranchName(),
@@ -186,9 +197,6 @@ namespace edm {
 
     pool::Ref<FileFormatVersion const> fft(om_->context(), &fileFormatVersion);
     fft.markWrite(fileFormatVersionPlacement_);
-
-    // Now, we can set the ROOT compression level
-    om_->context_.setCompressionLevel(file_, om_->compressionLevel_);
 
     commitAndFlushTransaction();
     // Register the output file with the JobReport service
@@ -257,7 +265,7 @@ namespace edm {
 
     if (eventCount_ >= fileSizeCheckEvent_) {
 	unsigned int const oneK = 1024;
-	unsigned int size = om_->context_.getFileSize(file_)/oneK;
+	unsigned int size = database_.getFileSize()/oneK;
 	unsigned int eventSize = std::max(size/eventCount_, 1U);
 	if (size + 2*eventSize >= om_->maxFileSize_) {
 	  newFileAtEndOfRun_ = true;
