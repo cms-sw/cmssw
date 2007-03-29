@@ -19,30 +19,31 @@ class SourceCardRouting {
 
 //SFP arrays are SFP[cycle<2][sfp number<4]
 //electron arrays are eIsoRank[candidate number<4]
-//muon arrays are MIPbits[rec card number<7]
+//muon arrays are MIPbits[rec card number<7][region<2]
     void EMUtoSFP(	unsigned short (&eIsoRank)[4],
 			unsigned short (&eIsoCardId)[4],
 			unsigned short (&eIsoRegionId)[4],
 			unsigned short (&eNonIsoRank)[4],
 			unsigned short (&eNonIsoCardId)[4],
 			unsigned short (&eNonIsoRegionId)[4],
-			unsigned short (&MIPbits)[7],
-			unsigned short (&Qbits)[7],
+			unsigned short (&MIPbits)[7][2],
+			unsigned short (&Qbits)[7][2],
 			unsigned short (&SFP)[2][4] 	);
 
 //SFP arrays are SFP[cycle<2][sfp number<4]
 //electron arrays are eIsoRank[candidate number<4]
-//muon arrays are MIPbits[rec card number<7]
+//muon arrays are MIPbits[rec card number<7][region<2]
     void SFPtoEMU(	unsigned short (&eIsoRank)[4],
 			unsigned short (&eIsoCardId)[4],
 			unsigned short (&eIsoRegionId)[4],
 			unsigned short (&eNonIsoRank)[4],
 			unsigned short (&eNonIsoCardId)[4],
 			unsigned short (&eNonIsoRegionId)[4],
-			unsigned short (&MIPbits)[7],
-			unsigned short (&Qbits)[7],
+			unsigned short (&MIPbits)[7][2],
+			unsigned short (&Qbits)[7][2],
 			unsigned short (&SFP)[2][4]	);
 
+/***********************************************************************************************************************/
 //RC arrays are RC[receiver card number<7][region<2]
 //HF arrays are HF[eta<4][HF region<2]
 //SFP arrays are SFP[cycle<2][sfp number<4]
@@ -117,7 +118,7 @@ class SourceCardRouting {
 
 //VHDCI arrays are VHDCI[VHDCI<2][cycle<2]
 //electron arrays are eIsoRank[candidate number<4]
-//muon arrays are MIPbits[rec card number<7]
+//muon arrays are MIPbits[rec card number<7][region<2]
 
     void EMUtoVHDCI(	unsigned short (&eIsoRank)[4],
 			unsigned short (&eIsoCardId)[4],
@@ -125,23 +126,27 @@ class SourceCardRouting {
 			unsigned short (&eNonIsoRank)[4],
 			unsigned short (&eNonIsoCardId)[4],
 			unsigned short (&eNonIsoRegionId)[4],
-			unsigned short (&MIPbits)[7],
-			unsigned short (&Qbits)[7],
+			unsigned short (&MIPbits)[7][2],
+			unsigned short (&Qbits)[7][2],
 			unsigned long (&VHDCI)[2][2] 	);
 
 
 //VHDCI arrays are VHDCI[VHDCI<2][cycle<2]
 //electron arrays are eIsoRank[candidate number<4]
-//muon arrays are MIPbits[rec card number<7]
+//muon arrays are MIPbits[rec card number<7][region<2]
     void VHDCItoEMU(	unsigned short (&eIsoRank)[4],
 			unsigned short (&eIsoCardId)[4],
 			unsigned short (&eIsoRegionId)[4],
 			unsigned short (&eNonIsoRank)[4],
 			unsigned short (&eNonIsoCardId)[4],
 			unsigned short (&eNonIsoRegionId)[4],
-			unsigned short (&MIPbits)[7],
-			unsigned short (&Qbits)[7],
+			unsigned short (&MIPbits)[7][2],
+			unsigned short (&Qbits)[7][2],
 			unsigned long (&VHDCI)[2][2]	);
+
+
+
+/***********************************************************************************************************************/
 
 //RC arrays are RC[receiver card number<7][region<2]
 //HF arrays are HF[eta<4][HF region<2]
@@ -200,7 +205,7 @@ class SourceCardRouting {
 /***********************************************************************************************************************/
 
 //electron arrays are eIsoRank[candidate number<4]
-//muon arrays are MIPbits[rec card number<7]
+//muon arrays are MIPbits[rec card number<7][region<2]
 
     void EMUtoSTRING(	unsigned short &logicalCardID,
 			unsigned short &eventNumber,
@@ -210,8 +215,8 @@ class SourceCardRouting {
 			unsigned short (&eNonIsoRank)[4],
 			unsigned short (&eNonIsoCardId)[4],
 			unsigned short (&eNonIsoRegionId)[4],
-			unsigned short (&MIPbits)[7],
-			unsigned short (&Qbits)[7],
+			unsigned short (&MIPbits)[7][2],
+			unsigned short (&Qbits)[7][2],
 			std::string &dataString	);
 
 //RC arrays are RC[receiver card number<7][region<2]
@@ -289,6 +294,88 @@ class SourceCardRouting {
 
 
 
+
+
+
+
+
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//These were going to be implimented but made things a lot more complicated than necessary
+/*
+//RC arrays are RC[receiver card number<7][region<2]
+//HF arrays are HF[eta<4][HF region<2]
+//SFP arrays are SFP[cycle<2][sfp number<4]
+    void RCtoSFP(	int &RoutingMode,
+			unsigned short (&RC)[7][2],
+			unsigned short (&RCof)[7][2],
+			unsigned short (&RCtau)[7][2],
+			unsigned short (&sisterRC)[7][2],
+			unsigned short (&sisterRCof)[7][2],
+			unsigned short (&sisterRCtau)[7][2],
+			unsigned short (&HF)[4][2],
+			unsigned short (&HFQ)[4][2],
+			unsigned short (&SFP)[2][4] );
+
+
+//RC arrays are RC[receiver card number<7][region<2]
+//HF arrays are HF[eta<4][HF region<2]
+//SFP arrays are SFP[cycle<2][sfp number<4]
+    void SFPtoRC(	int &RoutingMode,
+			unsigned short (&RC)[7][2],
+			unsigned short (&RCof)[7][2],
+			unsigned short (&RCtau)[7][2],
+			unsigned short (&sisterRC)[7][2],
+			unsigned short (&sisterRCof)[7][2],
+			unsigned short (&sisterRCtau)[7][2],
+			unsigned short (&HF)[4][2],
+			unsigned short (&HFQ)[4][2],
+			unsigned short (&SFP)[2][4] );*/
+
+/*
+//RC arrays are RC[receiver card number<7][region<2]
+//VHDCI arrays are VHDCI[VHDCI<2][cycle<2]
+    void RCtoSTRING(	unsigned short &logicalCardID,
+			unsigned short &eventNumber,
+			unsigned short (&RC)[7][2],
+			unsigned short (&RCof)[7][2],
+			unsigned short (&RCtau)[7][2],
+			unsigned short (&sisterRC)[7][2],
+			unsigned short (&sisterRCof)[7][2],
+			unsigned short (&sisterRCtau)[7][2],
+			unsigned short (&HF)[4][2],
+			unsigned short (&HFQ)[4][2],
+			std::string &dataString	);
+*/	
+
+/*
+//RC arrays are RC[receiver card number<7][region<2]
+//VHDCI arrays are VHDCI[VHDCI<2][cycle<2]
+    void RCtoVHDCI(	int &RoutingMode,
+			unsigned short (&RC)[7][2],
+			unsigned short (&RCof)[7][2],
+			unsigned short (&RCtau)[7][2],
+			unsigned short (&sisterRC)[7][2],
+			unsigned short (&sisterRCof)[7][2],
+			unsigned short (&sisterRCtau)[7][2],
+			unsigned short (&HF)[4][2],
+			unsigned short (&HFQ)[4][2],
+			unsigned long (&VHDCI)[2][2]	);
+
+//RC arrays are RC[receiver card number<7][region<2]
+//VHDCI arrays are VHDCI[VHDCI<2][cycle<2]
+    void VHDCItoRC(	int &RoutingMode,
+			unsigned short (&RC)[7][2],
+			unsigned short (&RCof)[7][2],
+			unsigned short (&RCtau)[7][2],
+			unsigned short (&sisterRC)[7][2],
+			unsigned short (&sisterRCof)[7][2],
+			unsigned short (&sisterRCtau)[7][2],
+			unsigned short (&HF)[4][2],
+			unsigned short (&HFQ)[4][2],
+			unsigned long (&VHDCI)[2][2]	);
+*/
 
 
 

@@ -7,13 +7,11 @@
 
 Description: Input text file to be loaded into the source cards and output RCT digis for pattern tests. 
 
-Implementation:
-<Notes on implementation>
 */
 //
 // Original Author:  Alex Tapper
 //         Created:  Fri Mar  9 19:11:51 CET 2007
-// $Id: SourceCardTextToRctDigi.cc,v 1.4 2007/03/21 00:43:26 tapper Exp $
+// $Id: SourceCardTextToRctDigi.cc,v 1.5 2007/03/21 16:35:54 tapper Exp $
 //
 //
 
@@ -24,7 +22,8 @@ Implementation:
 using namespace edm;
 using namespace std;
 
-// Set constant
+// Set constants
+const static unsigned NUM_LINES_PER_EVENT = 63;
 const static unsigned NUM_RCT_CRATES = 18;
 
 SourceCardTextToRctDigi::SourceCardTextToRctDigi(const edm::ParameterSet& iConfig):
@@ -63,7 +62,7 @@ void SourceCardTextToRctDigi::produce(edm::Event& iEvent, const edm::EventSetup&
   // Skip event if required
   if (m_nevt < m_skipEvents){
     string tmp;
-    for (int i=0;i<NUM_RCT_CRATES;i++){
+    for (unsigned i=0;i<NUM_LINES_PER_EVENT;i++){
       getline(m_file,tmp);
     }
     m_nevt++;
@@ -74,21 +73,30 @@ void SourceCardTextToRctDigi::produce(edm::Event& iEvent, const edm::EventSetup&
   auto_ptr<L1CaloEmCollection> em (new L1CaloEmCollection);
   auto_ptr<L1CaloRegionCollection> rgn (new L1CaloRegionCollection);
 
-  // Arrays etc.  
+  // General variables  
   unsigned long VHDCI[2][2];
   int routingMode;
   int crate;
+  string dataString; 
   unsigned short eventNumber;
   unsigned short logicalCardID;
-  unsigned short eIsoRank[4];
-  unsigned short eIsoCardId[4];
-  unsigned short eIsoRegionId[4];
-  unsigned short eNonIsoRank[4];
-  unsigned short eNonIsoCardId[4];
-  unsigned short eNonIsoRegionId[4];
-  unsigned short MIPbits[7];
-  unsigned short Qbits[7];
-  string dataString; 
+
+  // Arrays to hold electron variables
+  unsigned short eIsoRank[18][4];
+  unsigned short eIsoCardId[18][4];
+  unsigned short eIsoRegionId[18][4];
+  unsigned short eNonIsoRank[18][4];
+  unsigned short eNonIsoCardId[18][4];
+  unsigned short eNonIsoRegionId[18][4];
+
+  // Arrays to hold region variables
+  unsigned short RC[18][7][2];
+  unsigned short RCof[18][7][2];
+  unsigned short RCtau[18][7][2];
+  unsigned short MIPbits[18][7][2];
+  unsigned short Qbits[18][7][2];
+  unsigned short HF[18][4][2];
+  unsigned short HFQ[18][4][2];
 
   // Check we're not at the end of the file
   if(m_file.eof())
@@ -98,8 +106,8 @@ void SourceCardTextToRctDigi::produce(edm::Event& iEvent, const edm::EventSetup&
         << " unexpected end of file " << m_textFileName << endl;
     }      
   
-  // Have to read one line per RCT crate, though order doesn't matter
-  for (int i=0; i<NUM_RCT_CRATES; i++){  
+  // Read in file one line at a time 
+  for (unsigned line=0; line<NUM_LINES_PER_EVENT; line++){  
 
     if(!getline(m_file,dataString))
     {
@@ -117,45 +125,85 @@ void SourceCardTextToRctDigi::produce(edm::Event& iEvent, const edm::EventSetup&
     if (routingMode==0){     
 
       // Electrons
-      m_scRouting.VHDCItoEMU(eIsoRank,eIsoCardId,eIsoRegionId,
-                             eNonIsoRank,eNonIsoCardId,eNonIsoRegionId, 
-                             MIPbits,Qbits,VHDCI);
+      m_scRouting.VHDCItoEMU(eIsoRank[crate],eIsoCardId[crate],eIsoRegionId[crate],
+                             eNonIsoRank[crate],eNonIsoCardId[crate],eNonIsoRegionId[crate], 
+                             MIPbits[crate],Qbits[crate],VHDCI);
 
-      // Make collections
-      for (int i=0; i<4; i++){
-        em->push_back(L1CaloEmCand(eIsoRank[i],eIsoRegionId[i],eIsoCardId[i],crate,true));
-        em->push_back(L1CaloEmCand(eNonIsoRank[i],eNonIsoRegionId[i],eNonIsoCardId[i],crate,false));
-      }
+    } else if (routingMode==1) {
 
-      // Debug info
-      LogDebug("Electrons") << "Crate=" << crate << " LogicalCardID=" << logicalCardID << " Event=" << eventNumber << endl;;
-      for (int i=0; i<4; i++){
-        LogDebug("Electrons") << "i=" << i 
-                              << " IsoEmRank=" << eIsoRank[i]
-                              << " IsoEmCardId=" << eIsoCardId[i]
-                              << " IsoEmRegionId=" << eIsoRegionId[i]
-                              << " NonIsoRank=" << eNonIsoRank[i]
-                              << " NonIsoCardId=" << eNonIsoCardId[i]
-                              << " NonIsoRegionId=" << eNonIsoRegionId[i] << endl;
-      }  
+      // Regions
+      m_scRouting.VHDCItoRC56HF(RC[crate],RCof[crate],RCtau[crate],HF[crate],HFQ[crate],VHDCI);
+
+    } else if (routingMode==2) {
+
+      // Regions
+      m_scRouting.VHDCItoRC012(RC[crate],RCof[crate],RCtau[crate],VHDCI);
+
+    } else if (routingMode==3) {
+
+      // Regions
+      m_scRouting.VHDCItoRC234(RC[crate],RCof[crate],RCtau[crate],RC[crate+9],RCof[crate+9],RCtau[crate+9],VHDCI);
+
     } else {
-      // Regions not coded right now so throw an exception
+      // Something went wrong
       throw cms::Exception("SourceCardtextToRctDigiError")
         << "SourceCardTextToRctDigi::produce : "
-        << " can't handle routing mode=" << routingMode << " (yet!)" << endl;
+        << " unknown routing mode=" << routingMode << endl;
     }
   }
 
-  for (L1CaloEmCollection::const_iterator iem=em->begin(); iem!=em->end(); iem++){
-    if (iem->rank()>0){
-      LogDebug("Digis") << "Rank=" << iem->rank() 
-                        << " Card=" << iem->rctCard()
-                        << " Region=" << iem->rctRegion() 
-                        << " Crate=" << iem->rctCrate() 
-                        << " Isolated=" << iem->isolated() << endl;
+  // Make RCT digis
+  for (crate=0; crate<NUM_RCT_CRATES; crate++){
+
+    // Make EM collections
+    for (int i=0; i<4; i++){
+      em->push_back(L1CaloEmCand(eIsoRank[crate][i],eIsoRegionId[crate][i],eIsoCardId[crate][i],crate,true));
+      em->push_back(L1CaloEmCand(eNonIsoRank[crate][i],eNonIsoRegionId[crate][i],eNonIsoCardId[crate][i],crate,false));
+    }
+    
+    // Make region collections
+    for (int i=0; i<7; i++){// Receiver card
+      for (int j=0; j<2; j++){// Region
+        rgn->push_back(L1CaloRegion(RC[crate][i][j],RCof[crate][i][j],RCtau[crate][i][j],MIPbits[crate][i][j],Qbits[crate][i][j],crate,i,j));
+      }
+    }
+    
+    // Make HF region collections
+    for (int i=0; i<4; i++){// Eta bin
+      for (int j=0; j<2; j++){// HF0, HF1
+        rgn->push_back(L1CaloRegion(HF[crate][i][j],HFQ[crate][i][j],crate,i+(4*j)));// region=eta+4*phi for eta 0-3 
+      }
     }
   }
+
+  // Debug info
+  for (L1CaloEmCollection::const_iterator iem=em->begin(); iem!=em->end(); iem++){
+    LogDebug("Electrons") << "Rank=" << iem->rank() 
+                          << " Card=" << iem->rctCard()
+                          << " Region=" << iem->rctRegion() 
+                          << " Crate=" << iem->rctCrate() 
+                          << " Isolated=" << iem->isolated() << endl;
+  }
   
+  for (L1CaloRegionCollection::const_iterator irgn=rgn->begin(); irgn!=rgn->end(); irgn++){
+    if (irgn->id().isForward()){
+      LogDebug("HFRegions") << "Et=" << irgn->et()
+                            << " FineGrain=" << irgn->fineGrain()
+                            << " Eta=" << irgn->id().rctEta()
+                            << " Phi=" << irgn->id().rctPhi()
+                            << " Crate=" << irgn->rctCrate();
+    } else {
+      LogDebug("Regions") << "Et=" << irgn->et()
+                          << " OverFlow=" << irgn->overFlow()
+                          << " tauVeto=" << irgn->tauVeto()
+                          << " mip=" << irgn->mip()
+                          << " quiet=" << irgn->quiet()
+                          << " Card=" << irgn->rctCard()
+                          << " Region=" << irgn->rctRegionIndex()
+                          << " Crate=" << irgn->rctCrate();
+    }
+  }
+
   iEvent.put(em);
   iEvent.put(rgn);
 

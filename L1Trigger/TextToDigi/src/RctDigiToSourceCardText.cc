@@ -5,10 +5,8 @@
 // 
 /**\class RctDigiToSourceCardText RctDigiToSourceCardText.cc L1Trigger/TextToDigi/src/RctDigiToSourceCardText.cc
 
- Description: Input RCT digis and output GCT text file to be loaded into the source cards for pattern tests. 
+Description: Input RCT digis and output GCT text file to be loaded into the source cards for pattern tests. 
 
- Implementation:
-     <Notes on implementation>
 */
 //
 // Original Author:  Alex Tapper
@@ -36,11 +34,11 @@ RctDigiToSourceCardText::RctDigiToSourceCardText(const edm::ParameterSet& iConfi
   m_file.open(m_textFileName.c_str(),ios::out);
 
   if(!m_file.good())
-  {
-    throw cms::Exception("RctDigiToSourceCardTextFileOpenError")
-      << "RctDigiToSourceCardText::RctDigiToSourceCardText : "
-      << " couldn't open the file " << m_textFileName << " for writing" << endl;
-  }
+    {
+      throw cms::Exception("RctDigiToSourceCardTextFileOpenError")
+	<< "RctDigiToSourceCardText::RctDigiToSourceCardText : "
+	<< " couldn't open the file " << m_textFileName << " for writing" << endl;
+    }
 
   // Make a SC routing object
   SourceCardRouting m_scRouting; 
@@ -63,121 +61,161 @@ void RctDigiToSourceCardText::analyze(const edm::Event& iEvent, const edm::Event
   iEvent.getByLabel(m_rctInputLabel, em);
   iEvent.getByLabel(m_rctInputLabel, rgn);
 
+  // General variables
+  int RoutingMode;
+  unsigned short logicalCardID;
+  string dataString;
+
+  // Arrays to hold electron variables
+  unsigned short eIsoRank[18][4]={{0}};
+  unsigned short eIsoCardId[18][4]={{0}};
+  unsigned short eIsoRegionId[18][4]={{0}};
+  unsigned short eNonIsoRank[18][4]={{0}};
+  unsigned short eNonIsoCardId[18][4]={{0}};
+  unsigned short eNonIsoRegionId[18][4]={{0}};
+
+  // Fill electrons
+  unsigned numIsoEM[18]={0};
+  unsigned numNonIsoEM[18]={0};
+
   for (L1CaloEmCollection::const_iterator iem=em->begin(); iem!=em->end(); iem++){
-    if (iem->rank()>0){
-      LogDebug("Digis") << "Rank=" << iem->rank() 
-                        << " Card=" << iem->rctCard()
-                        << " Region=" << iem->rctRegion() 
-                        << " Crate=" << iem->rctCrate() 
-                        << " Isolated=" << iem->isolated() << endl;
+    if (iem->isolated()){
+      eIsoRank[iem->rctCrate()][numIsoEM[iem->rctCrate()]]=iem->rank();
+      eIsoCardId[iem->rctCrate()][numIsoEM[iem->rctCrate()]]=iem->rctCard();
+      eIsoRegionId[iem->rctCrate()][numIsoEM[iem->rctCrate()]]=iem->rctRegion();
+      numIsoEM[iem->rctCrate()]++;
+    } else {
+      eNonIsoRank[iem->rctCrate()][numNonIsoEM[iem->rctCrate()]]=iem->rank();
+      eNonIsoCardId[iem->rctCrate()][numNonIsoEM[iem->rctCrate()]]=iem->rctCard();
+      eNonIsoRegionId[iem->rctCrate()][numNonIsoEM[iem->rctCrate()]]=iem->rctRegion();
+      numNonIsoEM[iem->rctCrate()]++;
+    }
+    // Debug info
+    LogDebug("Electrons") << "Rank=" << iem->rank()
+                          << " Card=" << iem->rctCard()
+                          << " Region=" << iem->rctRegion()
+                          << " Crate=" << iem->rctCrate()
+                          << " Isolated=" << iem->isolated();
+  }
+
+  // Arrays to hold region variables
+  unsigned short RC[18][7][2]={{{0}}};
+  unsigned short RCof[18][7][2]={{{0}}};
+  unsigned short RCtau[18][7][2]={{{0}}};
+  unsigned short HF[18][4][2]={{{0}}};
+  unsigned short HFQ[18][4][2]={{{0}}};
+  unsigned short MIPbits[18][7][2]={{{0}}};
+  unsigned short Qbits[18][7][2]={{{0}}};  
+
+  // Fill regions
+  for (L1CaloRegionCollection::const_iterator irgn=rgn->begin(); irgn!=rgn->end(); irgn++){
+    if (irgn->id().isForward()){
+      HF[irgn->rctCrate()][irgn->id().rctEta()-7][irgn->id().rctPhi()]=irgn->et();
+      HFQ[irgn->rctCrate()][irgn->id().rctEta()-7][irgn->id().rctPhi()]=irgn->fineGrain();	
+      // Debug info
+      LogDebug("HFRegions") << "Et=" << irgn->et()
+                            << " FineGrain=" << irgn->fineGrain()
+                            << " Eta=" << irgn->id().rctEta()
+                            << " Phi=" << irgn->id().rctPhi()
+                            << " Crate=" << irgn->rctCrate();
+    } else {
+      RC[irgn->rctCrate()][irgn->rctCard()][irgn->rctRegionIndex()]=irgn->et();		
+      RCof[irgn->rctCrate()][irgn->rctCard()][irgn->rctRegionIndex()]=irgn->overFlow();			
+      RCtau[irgn->rctCrate()][irgn->rctCard()][irgn->rctRegionIndex()]=irgn->tauVeto();
+      MIPbits[irgn->rctCrate()][irgn->rctCard()][irgn->rctRegionIndex()]=irgn->mip();
+      Qbits[irgn->rctCrate()][irgn->rctCard()][irgn->rctRegionIndex()]=irgn->quiet();
+      // Debug info
+      LogDebug("Regions") << "Et=" << irgn->et()
+                          << " OverFlow=" << irgn->overFlow()
+                          << " tauVeto=" << irgn->tauVeto()
+                          << " mip=" << irgn->mip()
+                          << " quiet=" << irgn->quiet()
+                          << " Card=" << irgn->rctCard()
+                          << " Region=" << irgn->rctRegionIndex()
+                          << " Crate=" << irgn->rctCrate();
     }
   }
-  
-  // Have to arrange digis into arrays for each RCT crate
+
   for (int crate=0; crate<NUM_RCT_CRATES; crate++){
 
-    // Arrays etc. 
-    unsigned short logicalCardID;
-    unsigned short eIsoRank[4]={0,0,0,0};
-    unsigned short eIsoCardId[4]={0,0,0,0};
-    unsigned short eIsoRegionId[4]={0,0,0,0};
-    unsigned short eNonIsoRank[4]={0,0,0,0};
-    unsigned short eNonIsoCardId[4]={0,0,0,0};
-    unsigned short eNonIsoRegionId[4]={0,0,0,0};
-    unsigned short MIPbits[7]={0,0,0,0,0,0,0};
-    unsigned short Qbits[7]={0,0,0,0,0,0,0};
-    string dataString;
-
-    unsigned numIsoEM=0;
-    unsigned numNonIsoEM=0;
-    
-    // Fill electrons
-    for (L1CaloEmCollection::const_iterator iem=em->begin(); iem!=em->end(); iem++){
-      if (iem->rctCrate()==crate){
-        if (iem->isolated()){
-          eIsoRank[numIsoEM]=iem->rank();
-          eIsoCardId[numIsoEM]=iem->rctCard();
-          eIsoRegionId[numIsoEM]=iem->rctRegion();
-          numIsoEM++;
-        } else {
-          eNonIsoRank[numNonIsoEM]=iem->rank();
-          eNonIsoCardId[numNonIsoEM]=iem->rctCard();
-          eNonIsoRegionId[numNonIsoEM]=iem->rctRegion();
-          numNonIsoEM++;
-        }
-      }
-    }
-
     // Logical Card ID = Source Card number
-    int RoutingMode = 0;
+    RoutingMode=0;
     m_scRouting.RoutingModetoLogicalCardID(logicalCardID,RoutingMode,crate);
 
-    // Debug info
-    LogDebug("Electrons") << "Crate=" << crate << " LogicalCardID=" << logicalCardID << " Event=" << m_nevt << endl;;
-    for (int i=0; i<4; i++){
-      LogDebug("Electrons") << "i=" << i 
-                            << " IsoEmRank=" << eIsoRank[i]
-                            << " IsoEmCardId=" << eIsoCardId[i]
-                            << " IsoEmRegionId=" << eIsoRegionId[i]
-                            << " NonIsoRank=" << eNonIsoRank[i]
-                            << " NonIsoCardId=" << eNonIsoCardId[i]
-                            << " NonIsoRegionId=" << eNonIsoRegionId[i] << endl;
-    }
-    
     // Convert electrons to SC format
     m_scRouting.EMUtoSTRING(logicalCardID,
-                            m_nevt,
-                            eIsoRank,
-                            eIsoCardId,
-                            eIsoRegionId,
-                            eNonIsoRank,
-                            eNonIsoCardId,
-                            eNonIsoRegionId,
-                            MIPbits,
-                            Qbits,
-                            dataString);
+			    m_nevt,
+			    eIsoRank[crate],
+			    eIsoCardId[crate],
+			    eIsoRegionId[crate],
+			    eNonIsoRank[crate],
+			    eNonIsoCardId[crate],
+			    eNonIsoRegionId[crate],
+			    MIPbits[crate],
+			    Qbits[crate],
+			    dataString);
 
     // Write electrons
     m_file << dataString;
 
+    // Logical Card ID = Source Card number
+    RoutingMode=1;
+    m_scRouting.RoutingModetoLogicalCardID(logicalCardID,RoutingMode,crate);
+ 
+    // Convert regions to SC format
+    m_scRouting.RC56HFtoSTRING(logicalCardID,
+                               m_nevt,
+                               RC[crate],
+                               RCof[crate],
+                               RCtau[crate],
+                               HF[crate],
+                               HFQ[crate],
+                               dataString);
+  
+    // Write regions
+    m_file << dataString;
 
-//     // Fill regions
-//     for (L1CaloRegionCollection::const_iterator irgn=rgn->begin(); irgn!=rgn->end(); irgn++){
+    // Logical Card ID = Source Card number  		
+    RoutingMode=2;
+    m_scRouting.RoutingModetoLogicalCardID(logicalCardID,RoutingMode,crate);
 
-//     }  
+    // Convert regions to SC format  
+    m_scRouting.RC012toSTRING(logicalCardID,
+                              m_nevt,
+                              RC[crate],
+                              RCof[crate],
+                              RCtau[crate],
+                              dataString);
 
-// //RC arrays are RC[receiver card number<7][region<2]
-// //HF arrays are HF[eta<4][HF region<2]
-//     void RC56HFtoSTRING(	unsigned short &logicalCardID,
-// 			unsigned short &eventNumber,
-// 			unsigned short (&RC)[7][2],
-// 			unsigned short (&RCof)[7][2],
-// 			unsigned short (&RCtau)[7][2],
-// 			unsigned short (&HF)[4][2],
-// 			unsigned short (&HFQ)[4][2],
-// 			std::string &dataString	);
+    // Write regions
+    m_file << dataString;
 
-// //RC arrays are RC[receiver card number<7][region<2]
-//     void RC012toSTRING(	unsigned short &logicalCardID,
-// 			unsigned short &eventNumber,
-// 			unsigned short (&RC)[7][2],
-// 			unsigned short (&RCof)[7][2],
-// 			unsigned short (&RCtau)[7][2],
-// 			std::string &dataString	);
-
-// //RC arrays are RC[receiver card number<7][region<2]
-//     void RC234toSTRING(	unsigned short &logicalCardID,
-// 			unsigned short &eventNumber,
-// 			unsigned short (&RC)[7][2],
-// 			unsigned short (&RCof)[7][2],
-// 			unsigned short (&RCtau)[7][2],
-// 			unsigned short (&sisterRC)[7][2],
-// 			unsigned short (&sisterRCof)[7][2],
-// 			unsigned short (&sisterRCtau)[7][2],
-// 			std::string &dataString	);
-
+    // This is to 9 only as this is the shared source card
+    if (crate<9){ 
+      // Logical Card ID = Source Card number
+      RoutingMode=3;					
+      m_scRouting.RoutingModetoLogicalCardID(logicalCardID,RoutingMode,crate);
+  
+      // Convert regions to SC format    
+      m_scRouting.RC234toSTRING(logicalCardID,
+                                m_nevt,
+                                RC[crate],
+                                RCof[crate],
+                                RCtau[crate],
+                                RC[crate+9],
+                                RCof[crate+9],
+                                RCtau[crate+9],
+                                dataString);
+    
+      // Write regions
+      m_file << dataString;
+    }
+    
   }
+  
+  // Force write to file 
+  m_file << flush;
+
   m_nevt++;
 }
-
 
