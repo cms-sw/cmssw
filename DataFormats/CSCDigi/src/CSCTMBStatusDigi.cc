@@ -1,7 +1,9 @@
-/** \file
+/** \class CSCTMBStatusDigi
  * 
- *  $Date:$
- *  $Revision:$
+ *  Digi for CSC TMB info available in DDU
+ *
+ *  $Date: 2007/03/29 16:05:12 $
+ *  $Revision: 1.1 $
  *
  */
 #include <DataFormats/CSCDigi/interface/CSCTMBStatusDigi.h>

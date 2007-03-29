@@ -3,10 +3,10 @@
 
 /** \class CSCTMBStatusDigi
  *
- * Digi for CSC TMB status.
+ *  Digi for CSC TMB info available in DDU
  *  
- *  $Date:$
- *  $Revision:$
+ *  $Date: 2007/03/29 16:04:30 $
+ *  $Revision: 1.1 $
  *
  */
 
