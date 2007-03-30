@@ -1,3 +1,4 @@
+import os
 import coral
 import IdGenerator, Node, DBImpl
 class tagTree(object):
@@ -28,8 +29,7 @@ class tagTree(object):
             for columnName in self.__tagTreeTableUniqueColumns :
                 description.setUniqueConstraint(columnName)
             description.setPrimaryKey(  self.__tagTreeTablePK )
-            #description.createForeignKey(self.__tagTreeTableFK)
-            description.createForeignKey('tagid_FK','tagid',self.__tagInventoryTableName,'tagid')
+            #description.createForeignKey('tagid_FK','tagid',self.__tagInventoryTableName,'tagid')
             self.__tagTreeTableHandle = schema.createTable( description )
             self.__tagTreeTableHandle.privilegeManager().grantToPublic( coral.privilege_Select )
             #create also the associated id table
@@ -220,25 +220,27 @@ class tagTree(object):
                 transaction=self.__session.transaction()
                 transaction.start(True)
                 schema = self.__session.nominalSchema()
-                query = schema.tableHandle(self.__tagTreeTableName).newQuery()
-                condition = 'lft>=:parentlft AND rgt<=:parentrgt'
-                query.addToOrderList( "lft" );
+                query = schema.newQuery()
+                query.addToTableList( self.__tagTreeTableName,'p1' )
+                query.addToTableList( self.__tagTreeTableName,'p2' )
+                for columnname in self.__tagTreeTableColumns.keys():
+                    query.addToOutputList( 'p1.'+columnname )
+                condition = 'p1.lft BETWEEN p2.lft AND p2.rgt AND p2.nodelabel = :nodelabel'
+                query.addToOrderList( "p1.lft" );
                 conditionData = coral.AttributeList()
-                conditionData.extend( 'parentlft','unsigned long' )
-                conditionData.extend( 'parentrgt','unsigned long' )
-                conditionData['parentlft'].setData(parentlft)
-                conditionData['parentrgt'].setData(parentrgt)
+                conditionData.extend( 'nodelabel','string' )
+                conditionData['nodelabel'].setData(label)
                 query.setCondition( condition, conditionData)
                 cursor = query.execute()
                 while ( cursor.next() ):
                     resultNode=Node.Node()
-                    resultNode.nodeid=cursor.currentRow()['nodeid'].data()
-                    resultNode.nodelabel=cursor.currentRow()['nodelabel'].data()
-                    resultNode.lft=cursor.currentRow()['lft'].data()
-                    resultNode.rgt=cursor.currentRow()['rgt'].data()
-                    resultNode.parentid=cursor.currentRow()['parentid'].data()
-                    resultNode.globalSince=cursor.currentRow()['globalSince'].data()
-                    resultNode.globalTill=cursor.currentRow()['globalTill'].data()
+                    resultNode.nodeid=cursor.currentRow()['p1.nodeid'].data()
+                    resultNode.nodelabel=cursor.currentRow()['p1.nodelabel'].data()
+                    resultNode.lft=cursor.currentRow()['p1.lft'].data()
+                    resultNode.rgt=cursor.currentRow()['p1.rgt'].data()
+                    resultNode.parentid=cursor.currentRow()['p1.parentid'].data()
+                    resultNode.globalSince=cursor.currentRow()['p1.globalSince'].data()
+                    resultNode.globalTill=cursor.currentRow()['p1.globalTill'].data()
                     result.append(resultNode)
                 transaction.commit()
                 del query
@@ -280,11 +282,69 @@ class tagTree(object):
         else:
             me=self.getNode(label)
             return int((me.rgt-me.lft)/2)
-    def deleteNode( self, label='ROOT' ):
+    def deleteSubtree( self, label='ROOT' ):
+        """Delete the subtree under the specified node(included).\n
+        Input: label of the top node
+        query: DELETE FROM treetable WHERE lft >=%me.lft AND rgt<=%me.rgt
+        __closeGap()
+        """
+        transaction=self.__session.transaction()
+        try:
+            if label=='ROOT' :
+                transaction.start(False)
+                tableHandle = self.__session.nominalSchema().tableHandle(self.__tagTreeTableName)
+                editor = tableHandle.dataEditor()
+                editor.deleteRows('',conditionData)
+                transaction.commit()
+            else :
+                me=Node.Node()
+                parentlft=me.lft
+                parentrgt=me.rgt
+                n=self.nChildren(label)
+                transaction.start(False)
+                tableHandle = self.__session.nominalSchema().tableHandle(self.__tagTreeTableName)
+                editor = tableHandle.dataEditor()
+                condition = 'lft >= :parentlft AND rgt <= :parentrgt'
+                conditionData = coral.AttributeList()
+                conditionData.extend('parentlft','unsigned long')
+                conditionData.extend('parentrgt','unsigned long')
+                conditionData['parentlft'].setData(parentlft)
+                conditionData['parentrgt'].setData(parentrgt)
+                editor.deleteRows( condition, conditionData )
+                self.__closeGap(tableHandle,parentlft,parentrgt,n)
+                transaction.commit()
+        except coral.Exception, er:
+            transaction.rollback()
+            raise Exception, str(er)
+        except Exception, er:
+            transaction.rollback()
+            raise Exception, str(er)
+    def deleteNode( self, label ):
         """
         DELETE FROM treetable WHERE nodename=label
         """
-        pass
+        assert (label !='ROOT')
+        transaction=self.__session.transaction()
+        try:
+            me=Node.Node()
+            parentlft=me.lft
+            parentrgt=me.rgt
+            transaction.start(False)
+            tableHandle = self.__session.nominalSchema().tableHandle(self.__tagTreeTableName)
+            editor = tableHandle.dataEditor()
+            condition = 'nodelabel = :nodelabel'
+            conditionData = coral.AttributeList()
+            conditionData.extend('nodelabel','string')
+            conditionData['nodelabel'].setData(nodelabel)
+            editor.deleteRows( condition, conditionData )
+            self.__closeGap(tableHandle,parentlft,parentrgt,1)
+            transaction.commit()
+        except coral.Exception, er:
+            transaction.rollback()
+            raise Exception, str(er)
+        except Exception, er:
+            transaction.rollback()
+            raise Exception, str(er)   
     def __openGap(self,tableHandle,parentrgt,n):
         """Update the parent node after inserting. Must be called inside update transaction.\n
         Input: rootrgt is the rgt of the parent node. \n
@@ -302,16 +362,28 @@ class tagTree(object):
         condition = 'rgt>=:parentrgt'
         editor.updateRows(setClause, condition, inputData)
     def __closeGap(self, tableHandle,parentlft,parentrgt,n):
-        """Update the node lft rgt values after removing. Must be called inside update transaction.\n
-        
+        """Update the node lft rgt values after removing. Must be called inside update transaction.\n        
         """
-        pass
+        assert (parentlft!=0 and parentrgt!=0 and n!=0)
+        assert (parentrgt>parentlft)
+        delta=2*n
+        editor = tableHandle.dataEditor()
+        setClause1 = 'lft=lft-'+str(delta)
+        condition1 = 'lft>'+str(parentrgt)
+        inputData =coral.AttributeList()
+        editor.updateRows(setClause1,condition1,inputData)
+        setClause2 = 'rgt=rgt-'+str(delta)
+        condition2 = 'rgt>'+str(parentrgt)
+        editor.updateRows(setClause2,condition2,inputData)
 if __name__ == "__main__":
+    os.putenv( "CORAL_AUTH_PATH", "." )
     context = coral.Context()
     context.setVerbosityLevel( 'ERROR' )
     svc = coral.ConnectionService( context )
     session = svc.connect( 'sqlite_file:testTree.db',
                            accessMode = coral.access_Update )
+    #session = svc.connect( 'oracle://devdb10/cms_xiezhen_dev',
+    #                       accessMode = coral.access_Update )
     try:
         mytree=tagTree(session)
         mytree.createTagTreeTable()
