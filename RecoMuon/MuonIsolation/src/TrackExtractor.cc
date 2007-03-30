@@ -1,8 +1,8 @@
 #include "RecoMuon/MuonIsolation/interface/TrackExtractor.h"
 
 #include "RecoMuon/MuonIsolation/interface/Range.h"
-#include "RecoMuon/MuonIsolation/interface/Direction.h"
-#include "RecoMuon/MuonIsolation/src/TrackSelector.h"
+#include "DataFormats/MuonReco/interface/Direction.h"
+#include "TrackSelector.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
@@ -14,7 +14,7 @@ using namespace reco;
 using namespace muonisolation;
 
 TrackExtractor::TrackExtractor( const ParameterSet& par ) :
-  theTrackCollectionLabel(par.getUntrackedParameter<string>("TrackCollectionLabel")),
+  theTrackCollectionTag(par.getParameter<edm::InputTag>("inputTrackCollection")),
   theDepositLabel(par.getUntrackedParameter<string>("DepositLabel")),
   theDiff_r(par.getParameter<double>("Diff_r")),
   theDiff_z(par.getParameter<double>("Diff_z")),
@@ -23,66 +23,50 @@ TrackExtractor::TrackExtractor( const ParameterSet& par ) :
 {
 }
 
-void TrackExtractor::fillVetos (const edm::Event & ev, const edm::EventSetup & evSetup, const reco::TrackCollection & muons) {
-  static std::string metname = "RecoMuon/TrackExtractor";
+reco::MuIsoDeposit::Vetos TrackExtractor::vetos(const edm::Event & ev,
+      const edm::EventSetup & evSetup, const reco::Track & track) const
+{
+  Direction dir(track.eta(),track.phi());
+  return reco::MuIsoDeposit::Vetos(1,veto(dir));
+}
 
-  theVetoCollection = &muons;
-  /*
-  for (unsigned int i=0; i<theVetoCollection->size(); i++) {
-    Track mu = theVetoCollection->at(i);
-    LogTrace(metname) << "Track to veto: pt= " << mu.pt() << ", eta= " 
-        << mu.eta() <<", phi= "<<mu.phi();
-  }
-  */
-
+reco::MuIsoDeposit::Veto TrackExtractor::veto(const reco::MuIsoDeposit::Direction & dir) const
+{
+  reco::MuIsoDeposit::Veto result;
+  result.vetoDir = dir;
+  result.dR = theDR_Veto;
+  return result;
 }
 
 MuIsoDeposit TrackExtractor::deposit(const Event & event, const EventSetup & eventSetup, const Track & muon) const
 {
-  static std::string metname = "RecoMuon/TrackExtractor";
+  static std::string metname = "MuonIsolation|TrackExtractor";
 
-  double vtx_z = muon.vz();
   Direction muonDir(muon.eta(), muon.phi());
+  MuIsoDeposit deposit(theDepositLabel, muonDir );
+  deposit.setVeto( veto(muonDir) );
+  deposit.addMuonEnergy(muon.pt());
 
   Handle<TrackCollection> tracksH;
-  event.getByLabel(theTrackCollectionLabel, tracksH);
+  event.getByLabel(theTrackCollectionTag, tracksH);
   const TrackCollection tracks = *(tracksH.product());
   LogTrace(metname)<<"***** TRACK COLLECTION SIZE: "<<tracks.size();
 
+  double vtx_z = muon.vz();
+  LogTrace(metname)<<"***** Muon vz: "<<vtx_z;
   TrackSelector selection(TrackSelector::Range(vtx_z-theDiff_z, vtx_z+theDiff_z),
        theDiff_r, muonDir, theDR_Max);
-
   TrackCollection sel_tracks = selection(tracks);
   LogTrace(metname)<<"all tracks: "<<tracks.size()<<" selected: "<<sel_tracks.size();
 
-  MuIsoDeposit dep(theDepositLabel, muonDir.eta(), muonDir.phi() );
   
-  Direction depDir(dep.eta(), dep.phi());
   TrackCollection::const_iterator tk;
   for (tk = sel_tracks.begin(); tk != sel_tracks.end(); tk++) {
     LogTrace(metname) << "This track has: pt= " << tk->pt() << ", eta= " 
         << tk->eta() <<", phi= "<<tk->phi();
-    bool veto_this_track = false;
     Direction dirTrk(tk->eta(), tk->phi());
-    LogTrace(metname) << "From direction: eta= " << dirTrk.eta() << ", phi= "<<dirTrk.phi();
-    for (unsigned int i=0; i<theVetoCollection->size(); i++) {
-            const Track tkveto = theVetoCollection->at(i);
-            Direction vetoDir(tkveto.eta(), tkveto.phi());
-            float drveto = dirTrk.deltaR(vetoDir);
-            LogTrace(metname) << "Veto track has: pt= " << tkveto.pt() << ", eta= " << tkveto.eta() <<", phi= "<<tkveto.phi();
-            LogTrace(metname) << "From direction: eta= " << vetoDir.eta() << ", phi= "<<vetoDir.phi();
-            LogTrace(metname) << "iveto= " << i <<", drveto= " << drveto;
-            if (drveto<theDR_Veto) {
-                  veto_this_track = true;
-                  break;
-            }
-    }
-    if (veto_this_track) continue;
-    LogTrace(metname) << "This track is in the deposit cone: pt= " << tk->pt();
-
-    float dr = depDir.deltaR(dirTrk);
-    dep.addDeposit(dr, tk->pt());
+    deposit.addDeposit(dirTrk, tk->pt());
   }
 
-  return dep;
+  return deposit;
 }

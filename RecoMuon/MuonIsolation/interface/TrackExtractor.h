@@ -22,22 +22,25 @@ public:
   virtual ~TrackExtractor(){}
 
   virtual void fillVetos (const edm::Event & ev,
-      const edm::EventSetup & evSetup, const reco::TrackCollection & track);
+      const edm::EventSetup & evSetup, const reco::TrackCollection & track) {}
+
+  virtual reco::MuIsoDeposit::Vetos vetos(const edm::Event & ev,
+      const edm::EventSetup & evSetup, const reco::Track & track)const;
+
   virtual reco::MuIsoDeposit deposit (const edm::Event & ev,
-      const edm::EventSetup & evSetup, const reco::Track & track) const;
+      const edm::EventSetup & evSetup, const reco::Track & muon) const;
 
 private:
+  reco::MuIsoDeposit::Veto veto( const reco::MuIsoDeposit::Direction & dir) const;
+private:
   // Parameter set
-  std::string theTrackCollectionLabel; // Track Collection Label
+  edm::InputTag theTrackCollectionTag; // Track Collection Label
   std::string theDepositLabel;         // name for deposit
   double theDiff_r;                    // transverse distance to vertex
   double theDiff_z;                    // z distance to vertex
   double theDR_Max;                    // Maximum cone angle for deposits
   double theDR_Veto;                   // Veto cone angle
 
-  // Vector of Trks to veto
-  const reco::TrackCollection* theVetoCollection;
-                                                                                
 };
 
 }

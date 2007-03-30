@@ -32,7 +32,7 @@ public:
   
 private:
   // CaloTower Collection Label
-  std::string theCaloTowerCollectionLabel;
+  edm::InputTag theCaloTowerCollectionLabel;
 
   // Label of deposit
   std::string theDepositLabel;

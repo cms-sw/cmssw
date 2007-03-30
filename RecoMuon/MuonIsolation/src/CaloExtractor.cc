@@ -20,7 +20,7 @@ using namespace reco;
 using namespace muonisolation;
 
 CaloExtractor::CaloExtractor(const ParameterSet& par) :
-  theCaloTowerCollectionLabel(par.getUntrackedParameter<string>("CaloTowerCollectionLabel")),
+  theCaloTowerCollectionLabel(par.getParameter<edm::InputTag>("CaloTowerCollectionLabel")),
   theDepositLabel(par.getUntrackedParameter<string>("DepositLabel")),
   theWeight_E(par.getParameter<double>("Weight_E")),
   theWeight_H(par.getParameter<double>("Weight_H")),
@@ -107,15 +107,16 @@ MuIsoDeposit CaloExtractor::deposit( const Event & event, const EventSetup& even
       double deltar = deltaR(muatcal,endpos);
 
       if (deltar<theDR_Veto_H) {
-            LogDebug("Muon|RecoMuon|L2MuonIsolationProducer")
-                  << " >>> Calo deltaR= " << deltar;
-            LogDebug("Muon|RecoMuon|L2MuonIsolationProducer")
-                  << " >>> Calo eta phi ethcal: " << cal->eta() << " " << cal->phi() << " " << ethcal;
-            GlobalPoint hula = caloGeom->getPosition(cal->id());
-            LogDebug("Muon|RecoMuon|L2MuonIsolationProducer")
-                  << " >>> Calo position: x " << hula.x()
-                  << " y " << hula.y()
-                  << " z " << hula.z();
+	dep.setVeto(MuIsoDeposit::Veto(Direction(muatcal.eta(), muatcal.phi()), theDR_Veto_H));
+	LogDebug("Muon|RecoMuon|L2MuonIsolationProducer")
+	  << " >>> Calo deltaR= " << deltar;
+	LogDebug("Muon|RecoMuon|L2MuonIsolationProducer")
+	  << " >>> Calo eta phi ethcal: " << cal->eta() << " " << cal->phi() << " " << ethcal;
+	GlobalPoint hula = caloGeom->getPosition(cal->id());
+	LogDebug("Muon|RecoMuon|L2MuonIsolationProducer")
+	  << " >>> Calo position: x " << hula.x()
+	  << " y " << hula.y()
+	  << " z " << hula.z();
       }
 
       if (doEcal) {
@@ -144,11 +145,11 @@ MuIsoDeposit CaloExtractor::deposit( const Event & event, const EventSetup& even
             if (deltar>theDR_Veto_E) { 
                   double calodep = theWeight_E*etecal;
                   if (doHcal) calodep += theWeight_H*ethcal;
-                  dep.addDeposit(deltar,calodep);
+                  dep.addDeposit(Direction(endpos.eta(), endpos.phi()),calodep);
             }
       } else {
             if (deltar>theDR_Veto_H) { 
-                  dep.addDeposit(deltar,theWeight_H*ethcal);
+	      dep.addDeposit(Direction(endpos.eta(), endpos.phi()),theWeight_H*ethcal);
             }
       }
   }
