@@ -43,6 +43,7 @@ class PreshowerClusterProducer : public edm::EDProducer {
 
   int preshNclust_;
   float preshClustECut;
+  double etThresh_;
 
   // association parameters:
   std::string assocSClusterCollection_;    // name of super cluster output collection
