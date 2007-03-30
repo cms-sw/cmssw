@@ -5,15 +5,15 @@
  * \class L1GtAnalyzer
  * 
  * 
- * 
- * Description: example for L1 Global Trigger analyzer
+ * Description: example for L1 Global Trigger analyzer.  
+ *
  * Implementation:
  *    <TODO: enter implementation details>
  *   
  * \author: Vasile Mihai Ghete - HEPHY Vienna
  * 
- * $Date$
- * $Revision$
+ * $Date:$
+ * $Revision:$
  *
  */
 

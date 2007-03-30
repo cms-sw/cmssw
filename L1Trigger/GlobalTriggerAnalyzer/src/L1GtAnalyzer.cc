@@ -2,15 +2,15 @@
  * \class L1GtAnalyzer
  * 
  * 
- * 
- * Description: see header file 
+ * Description: see header file.  
+ *
  * Implementation:
  *    <TODO: enter implementation details>
  *   
  * \author: Vasile Mihai Ghete - HEPHY Vienna
  * 
- * $Date$
- * $Revision$
+ * $Date:$
+ * $Revision:$
  *
  */
 
@@ -21,6 +21,7 @@
 #include <memory>
 
 // user include files
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
 
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
@@ -99,7 +100,7 @@ void L1GtAnalyzer::analyzeDecision(const edm::Event& iEvent, const edm::EventSet
 
     // get Global Trigger decision and the decision word
     bool gtDecision = gtReadoutRecord->decision();
-    L1GlobalTriggerReadoutSetup::DecisionWord gtDecisionWord = gtReadoutRecord->decisionWord();
+    DecisionWord gtDecisionWord = gtReadoutRecord->decisionWord();
 
     // print Global Trigger decision and the decision word
     edm::LogVerbatim("L1GtAnalyzer")
