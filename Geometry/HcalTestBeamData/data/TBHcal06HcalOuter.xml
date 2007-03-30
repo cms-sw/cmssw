@@ -13,7 +13,7 @@
  <Constant name="yokeDx2"       value="5.00*cm"/>
  <Constant name="yokeDz2"       value="3.27*m"/>
  <Constant name="tailDx2"       value="9.75*cm"/>
- <Constant name="layerDx2"      value="15.50*mm"/>
+ <Constant name="layerDx2"      value="25.50*mm"/>
  <Constant name="layerDy2"      value="1.08*m"/>
  <Constant name="layer0Dz2"     value="63.40*cm"/>
  <Constant name="layer2Dz2"     value="1.268*m"/>
@@ -71,6 +71,7 @@
  <Constant name="vmWallW"       value="30*cm"/>
  <Constant name="vmWallT"       value="1*cm"/>
  <Constant name="vmWallXFront"  value="3.0*m"/>
+ <Constant name="vmWallShift"   value="(2*[vmWallW]+0.6*mm)"/>
 </ConstantsSection>
 
 <SolidSection label="TBHcal06HcalOuter.xml">
@@ -528,7 +529,7 @@
   <String  name="ChildName" value="TBHcal06HcalOuter:VMWall1"/>
   <Numeric name="Eta"       value="[TBHcal:Eta]"/>
   <Numeric name="ShiftX"    value="([vmWallXFront]+[vmWallT]/2)"/>
-  <Numeric name="ShiftY"    value="2*[vmWallW]"/>
+  <Numeric name="ShiftY"    value="[vmWallShift]"/>
   <Numeric name="Zoffset"   value="[zero]"/>
   <Numeric name="Distance"  value="([vmWallXFront]+[vmWallT]/2)"/>
   <Numeric name="TiltAngle" value="10.0*deg"/>
@@ -540,7 +541,7 @@
   <String  name="ChildName" value="TBHcal06HcalOuter:VMWall2"/>
   <Numeric name="Eta"       value="[TBHcal:Eta]"/>
   <Numeric name="ShiftX"    value="([vmWallXFront]+[vmWallT]/2)"/>
-  <Numeric name="ShiftY"    value="-2*[vmWallW]"/>
+  <Numeric name="ShiftY"    value="-[vmWallShift]"/>
   <Numeric name="Zoffset"   value="[zero]"/>
   <Numeric name="Distance"  value="([vmWallXFront]+[vmWallT]/2)"/>
   <Numeric name="TiltAngle" value="-10.0*deg"/>

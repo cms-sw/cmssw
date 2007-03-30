@@ -6,8 +6,8 @@
  <Constant name="upstreamDyby2" value="100.0*cm"/>
  <Constant name="upstreamDzby2" value="400.0*cm"/>
  <Constant name="upstreamZ"     value="400.0*cm"/>
+ <Constant name="tol"           value="0.0*mm"/>
  <Constant name="chambDxby2"    value="11.0*cm"/>
- <Constant name="chambDzby2"    value="25.0*mm"/>
  <Constant name="chambAlT"      value="5.0*mm"/>
  <Constant name="chambKapW"     value="11.0*cm"/>
  <Constant name="chambKapT"     value="0.025*mm"/>
@@ -16,22 +16,21 @@
  <Constant name="chambVetGap"   value="12.0*cm"/>
  <Constant name="chambVetL"     value="0.5*([chambVetGap]+[chambVetW])"/>
  <Constant name="chambVetX"     value="0.5*[chambVetW]"/>
+ <Constant name="chambVetZ"     value="20.0*mm"/>
+ <Constant name="chambGasGap"   value="([chambVetZ]+0.5*[chambVetT]+[tol])"/>
+ <Constant name="chambGasW"     value="([chambVetW]+0.5*[chambVetGap]+[tol])"/>
+ <Constant name="chambDzby2"    value="([chambGasGap]+[chambAlT]+2*[tol])"/>
  <Constant name="chambAl1L"     value="0.5*([chambDxby2]+0.5*[chambKapW])"/>
  <Constant name="chambAl1W"     value="0.5*([chambDxby2]-0.5*[chambKapW])"/>
  <Constant name="chambAl1X"     value="([chambDxby2]-[chambAl1L])"/>
  <Constant name="chambAl1Y"     value="([chambDxby2]-[chambAl1W])"/>
- <Constant name="chambAl1Z"     value="([chambDzby2]-0.5*[chambAlT])"/>
+ <Constant name="chambAl1Z"     value="([chambGasGap]+0.5*[chambAlT]+[tol])"/>
  <Constant name="chambAl2L"     value="([chambDxby2]-0.5*[chambAlT])"/>
- <Constant name="chambAl2W"     value="([chambDzby2]-[chambAlT])"/>
  <Constant name="chambAl2X"     value="([chambDxby2]-[chambAl2L])"/>
  <Constant name="chambAl2Y"     value="([chambDxby2]-0.5*[chambAlT])"/>
  <Constant name="chamb1Z"       value="-514.0*cm"/>
  <Constant name="chamb2Z"       value="-404.0*cm"/>
  <Constant name="chamb3Z"       value="-200.0*cm"/>
- <Constant name="chambVetZ"     value="20.0*mm"/>
- <Constant name="tol"           value="0.01*mm"/>
- <Constant name="chambGasGap"   value="([chambVetZ]+0.5*[chambVetT]+[tol])"/>
- <Constant name="chambGasW"     value="([chambVetW]+0.5*[chambVetGap]+[tol])"/>
  <Constant name="s1Dxby2"       value="7.0*cm"/>
  <Constant name="s1Dzby2"       value="5.0*mm"/>
  <Constant name="s1Z"           value="-376.0*cm"/>
@@ -84,7 +83,7 @@
  <Box name="HcalTestBeamLineWChambAl1" 
       dx="[chambAl1L]"   dy="[chambAl1W]"   dz="[chambAlT]/2"/>
  <Box name="HcalTestBeamLineWChambAl2" 
-      dx="[chambAl2L]"   dy="[chambAlT]/2"  dz="[chambAl2W]"/>
+      dx="[chambAl2L]"   dy="[chambAlT]/2"  dz="[chambGasGap]"/>
  <Box name="HcalTestBeamLineS1" 
       dx="[s1Dxby2]"     dy="[s1Dxby2]"     dz="[s1Dzby2]"/>
  <Box name="HcalTestBeamLineS2"
