@@ -1321,7 +1321,7 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
   const MagneticField & magfield_ (*magfield);
   magfield2_ = &magfield_;
 
-  StripCPE stripcpe(conf_,&magfield_,tracker2);
+  //StripCPE stripcpe(conf_,&magfield_,tracker2);
 
 
   // Mangano's
