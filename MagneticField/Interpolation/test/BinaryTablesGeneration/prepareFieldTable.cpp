@@ -33,9 +33,11 @@ int main(int argc, char **argv) {
     cout << "  standard grid sructure detection failed, retrying with special grid sructure" << endl;
   } else {
     if (MFG001.isReady())  MFG001.validateAllPoints();                  // check position of every point
-    if (MFG001.isReady())  MFG001.saveGridToFile(filename2);            // write grid to disk
-    cout << " " << endl;
-    return 0;
+    if (MFG001.isReady())  {
+      MFG001.saveGridToFile(filename2);            // write grid to disk
+      cout << " " << endl;
+      return 0;
+    }
   }
 
   // MFG001 anlysis was not successful. Different processing for special cases
