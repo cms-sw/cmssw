@@ -1,3 +1,4 @@
+<!-- saved from url=(0022)http://internet.e-mail -->
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/2000/REC-xhtml1-20000126/DTD/xhtml1-strict.dtd"> 
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"> 
 <head>
@@ -10,9 +11,9 @@
 <link rel="stylesheet" type="text/css" href="css_files/folder-tree-static.css">
 <script type="text/javascript" src="WebLib.js"></script> 
 <body>
-<form name="Form1" action="javascript:void(0)">
-  <div class="bloc" id="bloc1" style="width:56%;height:100%;float:left;">
-    <fieldset style="background:#c0d8f0;">
+<form name="Form1" action="javascript:void%200">
+  <div class="bloc" id="bloc1" style="width:56%;height=100%;float:left;">
+    <fieldset style="background:#225587;">
       <legend >Drawing Canvas</legend>
       <img id="drawingcanvas"
            src="images/blank.png" 
@@ -32,66 +33,66 @@
       </button>
     </fieldset>
   </div>
-  <div class="bloc"  id="bloc2" style="width:44%; float:right; font-size:6pt;">
-    <fieldset style="background:#fae79b;">
-        <div class="bloc"  id="bloc2_1" style="background:#ede0ff;">
+  <div class="bloc"  id="bloc2" style="width:44%; float:right;">
+    <fieldset style="background:#DDEFFF;">
+        <div class="bloc"  id="bloc2_1" style="background:#C093FF;">
 	  <fieldset>
 	     <legend>Client Controls</legend>
 	       <input name="subscribe" 
                   id="subscribe_all"
                   value="Subscribe All" 
-                  style="width:23%;margin-left:2%;margin-bottom:1%;margin-top:1%;margin-right:2%;font-size:8pt;"
+                  style="width:23%;margin-left:2%;margin-bottom:1%;margin-top:1%;margin-right:2%"
                   onClick="SubscribeAll()" 
                   type="submit">
                </input>
 	       <input name="collate" 
                   id="collate_me"
                   value="Collate ME" 
-                  style="width:23%;margin-left:2%;margin-bottom:1%;margin-top:1%;margin-right:2%;font-size:8pt;"                  
+                  style="width:23%;margin-left:2%;margin-bottom:1%;margin-top:1%;margin-right:2%"                  
                   onClick="CollateME()" 
                   type="submit">
                </input>
 	       <input name="summary" 
                   id="create_summary"
                   value="Update Summary" 
-                  style="width:25%;margin-left:2%;margin-bottom:1%;margin-top:1%;margin-right:2%;font-size:8pt;"                  
+                  style="width:25%;margin-left:2%;margin-bottom:1%;margin-top:1%;margin-right:2%"                  
                   onClick="CreateSummary()" 
                   type="submit">
                </input>
 	       <input name="save" 
                   id="save_to_file"
                   value="Save All" 
-                  style="width:23%;margin-left:2%;margin-bottom:1%;margin-top:1%;margin-right:2%;font-size:8pt;"
+                  style="width:23%;margin-left:2%;margin-bottom:1%;margin-top:1%;margin-right:2%"
                   onClick="SaveToFile()" 
                   type="submit">
               </input>  
              <input name="setupQtest" 
                  id="setup_qtest"
                  value="Setup QTest" 
-                 style="width:23%;margin-left:2%;margin-bottom:1%;margin-top:1%;margin-right:2%;font-size:8pt;"
+                 style="width:23%;margin-left:2%;margin-bottom:1%;margin-top:1%;margin-right:2%"
                  onClick="SetupQualityTest()" 
                  type="submit">
              </input>  
              <input name="QtestResult" 
                  id="check_qtest_result"
                  value="QTest Result" 
-                 style="width:23%;margin-left:2%;margin-bottom:1%;margin-top:1%;margin-right:2%;font-size:8pt;"
+                 style="width:23%;margin-left:2%;margin-bottom:1%;margin-top:1%;margin-right:2%"
                  onClick="CheckQualityTestResults()" 
                  type="submit">
              </input>  
              <input name="UpdateTrackerMap" 
                  id="create_tkmap"
                  value="Create Tk Map"
-		 style="width:23%;margin-left:2%;margin-bottom:1%;margin-top:1%;margin-right:2%;font-size:8pt;"
+		 style="width:23%;margin-left:2%;margin-bottom:1%;margin-top:1%;margin-right:2%"
                  onClick="CreateTrackerMap()"
                  type="submit">                   
              </input>
           </fieldset>
         </div>  
-        <div id="dhtmlgoodies_tabView1" style="float:right; width:50%; padding:0.1%">
+        <div id="dhtmlgoodies_tabView1" style="float=right:width:50%;padding:0.1% 0%">
           <div class="dhtmlgoodies_aTab">
-	    <div class="bloc" id="bloc2_2" style="background:#ffe6a3"> 
-      	      <div class="bloc" id="bloc2_2_1" style="background:#ffe6a3">
+	    <div class="bloc" id="bloc2_2" style="background:#226684"> 
+      	      <div class="bloc" id="bloc2_2_1" style="background:#226684">
 	        <fieldset>
                   <label id="structures"
                      style="margin-left:10%">
@@ -126,37 +127,9 @@
                      Sub-Detectors:
 	          </label>
                   <select name="struc_name" 
-                       id="structure_for_module"
-                       style="width:20%;height:5%;text-align;margin-right:2%">
-                       <option value="Tracker/PixelBarrel" SELECTED="true"> BPIX </option>
-                       <option value="Tracker/PixelEndcap"> FPIX </option>
-                  </select>
-                  <input name="listmodule" 
-                        id="list_module"
-                        value="Get Tree" 
-                        style="width:30%;margin-left:2%;margin-top:2%"
-                        onClick="RequestModuleTree()" 
-                        type="submit">
-                   </input>
-	        </fieldset>
-      	      </div>
-	      </br>
-   	      <div class="bloc" id="modtree_list" style="overflow:scroll;height:300px;width:100%;background:#FFF;"> 
-      	      </div> 
-	    </div>
-          </div>
-          <div class="dhtmlgoodies_aTab">
-	    <div class="bloc" id="bloc2_4"> 
-      	      <div class="bloc" id="bloc2_4_1">
-	        <fieldset>
-                  <label id="structures"
-                     style="margin-left:10%">
-                     Sub-Detectors:
-	          </label>
-                  <select name="struc_name" 
                        id="structure_name"
-                       style="width:20%;height:5%;text-align;margin-right:2%;">
-                       <option value="Tracker/PixelBarrel" SELECTED="true"> BPIX </option>
+                       style="width:20%;height:5%;text-align;margin-right:2%">
+                       <option value="Tracker/PixelBarrel" SELECTED> BPIX </option>
                        <option value="Tracker/PixelEndcap"> FPIX </option>
                   </select>
                   <input name="listsummary" 
@@ -174,8 +147,8 @@
 	    </div>
           </div>
           <div class="dhtmlgoodies_aTab">
-	    <div class="bloc" id="bloc2_5"> 
-      	      <div class="bloc" id="bloc2_5_1">
+	    <div class="bloc" id="bloc2_4"> 
+      	      <div class="bloc" id="bloc2_4_1">
 	        <fieldset>
                   <label id="alarm_structures"
                      style="margin-left:10%">
@@ -183,14 +156,14 @@
 	          </label>
                   <select name="struc_alarm" 
                        id="structure_for_alarm"
-                       style="width:20%;height:5%;text-align;margin-right:2%;">
-                       <option value="Tracker/PixelBarrel" SELECTED="true"> BPIX </option>
+                       style="width:20%;height:5%;text-align;margin-right:2%">
+                       <option value="Tracker/PixelBarrel" SELECTED> BPIX </option>
                        <option value="Tracker/PixelEndcap"> FPIX </option>
                   </select>
                   <input name="listalarm" 
                         id="read_alarm"
                         value="Get Alarms" 
-                        style="width:30%;margin-left:2%;margin-top:2%;"
+                        style="width:30%;margin-left:2%;margin-top:2%"
                         onClick="RequestAlarmList()" 
                         type="submit">
                    </input>
@@ -208,7 +181,7 @@
   </div>
 </form>
 <script type="text/javascript">
-  initTabs('dhtmlgoodies_tabView1', Array('Single Module View','Module Tree','Summary View','Alarm View'), 0, '99.5%','100%');
+  initTabs('dhtmlgoodies_tabView1', Array('Single Module View','Summary View','Alarm View'), 0, '99.5%','100%');
 </script>
 </body>
 </html>
