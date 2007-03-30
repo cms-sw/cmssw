@@ -1,49 +1,43 @@
 #include "DQM/SiPixelMonitorDigi/interface/SiPixelDigiModule.h"
-
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-
-#include "DataFormats/Common/interface/DetSetVector.h"
-#include "DataFormats/DetId/interface/DetId.h"
-#include "DataFormats/SiPixelDigi/interface/PixelDigiCollection.h"
-#include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
-#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
-
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
-#include "Geometry/CommonTopologies/interface/PixelTopology.h"
-
-// Framework
+/// Framework
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-
 // STL
 #include <vector>
 #include <memory>
 #include <string>
 #include <iostream>
-#include <boost/cstdint.hpp>
-#include <string>
 #include <stdlib.h>
 //
 // Constructors
 //
-SiPixelDigiModule::SiPixelDigiModule() {
-
+SiPixelDigiModule::SiPixelDigiModule() : id_(0) { }
+///
+SiPixelDigiModule::SiPixelDigiModule(const uint32_t& id) : 
+  id_(id),
+  ncols_(416),
+  nrows_(160)
+{ 
 }
-
-SiPixelDigiModule::SiPixelDigiModule(uint32_t id): id_(id) { }
-
+///
+SiPixelDigiModule::SiPixelDigiModule(const uint32_t& id, const int& ncols, const int& nrows) : 
+  id_(id),
+  ncols_(ncols),
+  nrows_(nrows)
+{ 
+}
 //
 // Destructor
 //
 SiPixelDigiModule::~SiPixelDigiModule() {}
-
 //
 // Book histograms
 //
 void SiPixelDigiModule::book() {
+
   DaqMonitorBEInterface* theDMBE = edm::Service<DaqMonitorBEInterface>().operator->();
+
   char hkey[80];  
   // Number of digis
   sprintf(hkey, "ndigis_module_%i",id_);
@@ -54,18 +48,12 @@ void SiPixelDigiModule::book() {
   meADC_ = theDMBE->book1D(hkey,"Digi charge",500,0.,500.);
   meADC_->setAxisTitle("ADC counts",1);
 
-  //sprintf(hkey, "col_module_%i",id_);
-  //meCol_ = theDMBE->book1D(hkey,"Digi column",500,0.,500.);
-  //sprintf(hkey, "row_module_%i",id_);
-  //meRow_ = theDMBE->book1D(hkey,"Digi row",200,0.,200.);
-
   // 2D hit map
   sprintf(hkey, "pixdigis_module_%i",id_);
-  mePixDigis_ = theDMBE->book2D(hkey,"Digis per four pixels",208,0.,416.,80,0.,160.);
+  mePixDigis_ = theDMBE->book2D(hkey,"Digis per four pixels",208,0.,float(ncols_),80,0.,float(nrows_));
   mePixDigis_->setAxisTitle("Columns",1);
   mePixDigis_->setAxisTitle("Rows",2);
 }
-
 //
 // Fill histograms
 //
@@ -79,14 +67,6 @@ void SiPixelDigiModule::fill(const edm::DetSetVector<PixelDigi>& input) {
     
     // Look at digis now
     edm::DetSet<PixelDigi>::const_iterator  di;
-    //figure out the size of the module/plaquette:
-/*    int maxcol=0, maxrow=0;
-    for(di = isearch->data.begin(); di != isearch->data.end(); di++) {
-      int col = di->column(); // column 
-      int row = di->row();    // row
-      if(col>maxcol) maxcol=col;
-      if(row>maxrow) maxrow=row;
-    }*/
     for(di = isearch->data.begin(); di != isearch->data.end(); di++) {
       numberOfDigis++;
       int adc = di->adc();    // charge
@@ -94,15 +74,6 @@ void SiPixelDigiModule::fill(const edm::DetSetVector<PixelDigi>& input) {
       int row = di->row();    // row
       (mePixDigis_)->Fill((float)col,(float)row);
       (meADC_)->Fill((float)adc);
-      //(meCol_)->Fill((float)col);
-      //(meRow_)->Fill((float)row);
-      /*if(subid==2&&adc>0){
-	std::cout<<"Plaquette:"<<side<<" , "<<disk<<" , "<<blade<<" , "
-	<<panel<<" , "<<zindex<<" ADC="<<adc<<" , COL="<<col<<" , ROW="<<row<<std::endl;
-	}else if(subid==1&&adc>0){
-	std::cout<<"Module:"<<layer<<" , "<<ladder<<" , "<<zindex<<" ADC="
-	<<adc<<" , COL="<<col<<" , ROW="<<row<<std::endl;
-	}*/
     }
     (meNDigis_)->Fill((float)numberOfDigis);
     //std::cout<<"number of digis="<<numberOfDigis<<std::endl;

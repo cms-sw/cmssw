@@ -13,7 +13,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelDigiSource.cc,v 1.10 2007/03/09 08:35:49 chiochia Exp $
+// $Id: SiPixelDigiSource.cc,v 1.11 2007/03/28 14:42:30 chiochia Exp $
 //
 //
 #include "DQM/SiPixelMonitorDigi/interface/SiPixelDigiSource.h"
@@ -29,7 +29,9 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonTopologies/interface/PixelTopology.h"
 // DataFormats
+#include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/SiPixelDigi/interface/PixelDigiCollection.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
@@ -118,20 +120,26 @@ void SiPixelDigiSource::buildStructure(const edm::EventSetup& iSetup){
   std::cout <<" *** I have " << pDD->detTypes().size() <<" types"<<std::endl;
   
   for(TrackerGeometry::DetContainer::const_iterator it = pDD->dets().begin(); it != pDD->dets().end(); it++){
+    
     if(dynamic_cast<PixelGeomDetUnit*>((*it))!=0){
+
       DetId detId = (*it)->geographicalId();
-      
+      const GeomDetUnit      * geoUnit = pDD->idToDetUnit( detId );
+      const PixelGeomDetUnit * pixDet  = dynamic_cast<const PixelGeomDetUnit*>(geoUnit);
+      int nrows = (pixDet->specificTopology()).nrows();
+      int ncols = (pixDet->specificTopology()).ncolumns();
+
       if(detId.subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel)) {
         //cout << " ---> Adding Barrel Module " <<  detId.rawId() << endl;
 	uint32_t id = detId();
-	SiPixelDigiModule* pippo = new SiPixelDigiModule(id);
-	thePixelStructure.insert(pair<uint32_t,SiPixelDigiModule*> (id,pippo));
+	SiPixelDigiModule* theModule = new SiPixelDigiModule(id, ncols, nrows);
+	thePixelStructure.insert(pair<uint32_t,SiPixelDigiModule*> (id,theModule));
 
       }	else if(detId.subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap)) {
 	//cout << " ---> Adding Endcap Module " <<  detId.rawId() << endl;
 	uint32_t id = detId();
-	SiPixelDigiModule* pippo = new SiPixelDigiModule(id);
-	thePixelStructure.insert(pair<uint32_t,SiPixelDigiModule*> (id,pippo));
+	SiPixelDigiModule* theModule = new SiPixelDigiModule(id, ncols, nrows);
+	thePixelStructure.insert(pair<uint32_t,SiPixelDigiModule*> (id,theModule));
       }
 
     }
