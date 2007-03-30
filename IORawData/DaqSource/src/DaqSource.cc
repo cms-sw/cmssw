@@ -1,7 +1,7 @@
 /** \file 
  *
- *  $Date: 2007/03/07 08:31:19 $
- *  $Revision: 1.12 $
+ *  $Date: 2007/03/26 15:51:07 $
+ *  $Revision: 1.13 $
  *  \author N. Amapane - S. Argiro'
  */
 
@@ -37,11 +37,15 @@ DaqSource::DaqSource(const ParameterSet& pset,
 		     const InputSourceDescription& desc) 
   : RawInputSource(pset,desc)
   , reader_(0)
+  , lumiSegmentSizeInEvents_(pset.getUntrackedParameter<unsigned int>("evtsPerLS",0))
+  , lsid_(0)
+  , fakeLSid_(lumiSegmentSizeInEvents_ != 0)
 {
   produces<FEDRawDataCollection>();
   
   // Instantiate the requested data source
   string reader = pset.getParameter<string>("reader");
+  
   try{
     pset.getParameter<ParameterSet>("pset");
     reader_=
@@ -86,7 +90,11 @@ std::auto_ptr<Event> DaqSource::readOneEvent()
     if (0!=fedCollection) delete fedCollection;
     return std::auto_ptr<Event>(0);
   }
-  
+  if(fakeLSid && lsid_ != (eventId.event()/lumiSegmentSizeInEvents_ + 1))
+      {
+	lsid_ = eventId.event()/lumiSegmentSizeInEvents_ + 1;
+	setLuminosityBlockNumber_t(lsid_);
+      }
   // make a brand new event
   std::auto_ptr<Event> e=makeEvent(eventId,tstamp);
   
