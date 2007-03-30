@@ -11,8 +11,8 @@
  *      -  1 DT Muon Sorter (MS)
  *
  *
- *   $Date: 2006/06/26 16:11:11 $
- *   $Revision: 1.1 $
+ *   $Date: 2007/02/27 11:43:59 $
+ *   $Revision: 1.2 $
  *
  *   N. Neumeister            CERN EP
  *   J. Troconiz              UAM Madrid
@@ -38,6 +38,7 @@
 //------------------------------------
 
 #include <FWCore/Framework/interface/Event.h>
+#include <FWCore/ParameterSet/interface/ParameterSet.h>
 class L1MuDTTFConfig;
 class L1MuDTSecProcMap;
 class L1MuDTSecProcId;
@@ -61,7 +62,7 @@ class L1MuDTTrackFinder {
     typedef std::vector<L1MuRegionalCand>::iterator       TFtracks_iter;
 
     /// constructor
-    L1MuDTTrackFinder();
+    L1MuDTTrackFinder(const edm::ParameterSet & ps);
 
     /// destructor
     virtual ~L1MuDTTrackFinder();
@@ -70,7 +71,7 @@ class L1MuDTTrackFinder {
     void setup();
 
     /// run the barrel MTTF
-    void run(const edm::Event& e);
+    void run(const edm::Event& e, const edm::EventSetup& c);
 
     /// reset the barrel MTTF
     void reset();
@@ -107,7 +108,7 @@ class L1MuDTTrackFinder {
   private:
   
     /// run Track Finder and store candidates in cache
-    virtual void reconstruct(const edm::Event& e) { reset(); run(e); }
+    virtual void reconstruct(const edm::Event& e, const edm::EventSetup& c) { reset(); run(e,c); }
 
   private:
 
