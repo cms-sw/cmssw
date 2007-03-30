@@ -41,6 +41,8 @@ EgammaSCCorrectionMaker::EgammaSCCorrectionMaker(const edm::ParameterSet& ps)
   applyEnergyCorrection_ = ps.getParameter<bool>("applyEnergyCorrection");
   sigmaElectronicNoise_ =  ps.getParameter<double>("sigmaElectronicNoise");
 
+  etThresh_ =  ps.getParameter<double>("etThresh");
+
   // set the producer parameters
   outputCollection_ = ps.getParameter<std::string>("corectedSuperClusterCollection");
   produces<reco::SuperClusterCollection>(outputCollection_);
@@ -90,15 +92,17 @@ EgammaSCCorrectionMaker::produce(edm::Event& evt, const edm::EventSetup& es)
   reco::SuperClusterCollection::const_iterator aClus;
   for(aClus = rawClusters->begin(); aClus != rawClusters->end(); aClus++)
     {
-  	  reco::SuperCluster newClus;
+      reco::SuperCluster newClus;
       if(applyEnergyCorrection_) {
         newClus = energyCorrector_->applyCorrection(*aClus, *hitCollection, sCAlgo_);
       }
-      corrClusters->push_back(newClus);
-  }
+
+      if(newClus.energy()*sin(newClus.position().theta())>etThresh_)
+	corrClusters->push_back(newClus);
+    }
  
   // Put collection of corrected SuperClusters into the event
   evt.put(corrClusters, outputCollection_);   
-    
+  
 }
 
