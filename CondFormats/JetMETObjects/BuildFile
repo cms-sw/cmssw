@@ -1,0 +1,6 @@
+<use name=rootmath>
+<export>
+  <lib name=CondFormatsJetMETObjects>
+</export>
+
+  

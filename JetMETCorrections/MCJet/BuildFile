@@ -3,6 +3,7 @@
 <use name=Geometry/Records>
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
+<use name=CondFormats/JetMETObjects>
 <use name=DataFormats/JetReco>
 <use name=JetMETCorrections/Objects>
 <use name=DataFormats/Common>

@@ -1,6 +1,6 @@
 //
 // Original Author:  Fedor Ratnikov Dec 27, 2006
-// $Id: MCJetCorrector.h,v 1.1 2006/12/29 00:48:38 fedor Exp $
+// $Id: MCJetCorrector.h,v 1.2 2007/01/18 01:35:11 fedor Exp $
 //
 // MC Jet Corrector
 //
@@ -8,18 +8,15 @@
 #define MCJetCorrector_h
 
 #include "JetMETCorrections/Objects/interface/JetCorrector.h"
+#include "CondFormats/JetMETObjects/interface/SimpleMCJetCorrector.h"
 
-#include <map>
-#include <string>
 
 /// classes declaration
 namespace edm {
   class ParameterSet;
 }
-namespace {
-  class ParametrizationMCJet;
-}
 
+class SimpleMCJetCorrector;
 
 class MCJetCorrector : public JetCorrector {
  public:
@@ -33,9 +30,7 @@ class MCJetCorrector : public JetCorrector {
   virtual bool eventRequired () const {return false;}
 
  private:
-  void setParameters (const std::string& fType);
-  typedef std::map <double, ParametrizationMCJet*> ParametersMap;
-  ParametersMap mParametrization;
+  SimpleMCJetCorrector* mSimpleCorrector;
 };
 
 #endif
