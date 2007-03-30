@@ -687,6 +687,7 @@ namespace edm {
   EventProcessor::rewind()
   {
     changeState(mInputRewind);
+    ServiceRegistry::Operate operate(serviceToken_);
     input_->repeat();
     input_->rewind();
     return;
