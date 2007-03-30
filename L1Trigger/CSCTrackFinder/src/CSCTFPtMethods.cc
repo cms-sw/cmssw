@@ -99,8 +99,10 @@ const float CSCTFPtMethods::BkHighEta_Fit2[kME2andMB2][CSCTFPtMethods::kMaxParam
 
 const float CSCTFPtMethods::FRCorrLowEta[kME2andMB2][2] = 
   {
-    {1.13, 0.87}, //12
-    {1.14, 0.85},   //13
+//    {1.13, 0.87}, //12
+//    {1.14, 0.85},   //13
+    {1.30, 1.0}, //12
+    {1.30, 1.0},   //13
     {1.0, 1.0},   //23
     {1.0, 1.0},   //24
     {1.0, 1.0},   //34
@@ -110,8 +112,10 @@ const float CSCTFPtMethods::FRCorrLowEta[kME2andMB2][2] =
   };
 const float CSCTFPtMethods::FRCorrHighEta[kME2andMB2][2] = 
   {
-    {0.92, 1.12}, //12
-    {0.92, 1.12},   //13
+//    {0.92, 1.12}, //12
+//    {0.92, 1.12},   //13
+    {0.966, 1.176}, //12
+    {0.966, 1.176},   //13
     {1.0, 1.0},   //23
     {1.0, 1.0},   //24
     {1.0, 1.0},   //34
