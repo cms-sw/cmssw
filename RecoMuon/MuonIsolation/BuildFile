@@ -1,3 +1,4 @@
+<flags SEAL_PLUGIN_NAME="RecoMuonMuonIsolation">
 <use name=DataFormats/CaloTowers>
 <use name=DataFormats/MuonReco>
 <use name=DataFormats/TrackReco>
@@ -8,12 +9,19 @@
 <use name=Geometry/Records>
 <use name=MagneticField/Engine>
 <use name=MagneticField/Records>
+<use name=TrackingTools/TransientTrack>
+<use name=TrackingTools/TrackAssociator>
 <use name=Geometry/CaloEventSetup>
+<use name=Foundation/PluginManager>
+
 <export>
   <use name=DataFormats/MuonReco>
   <use name=DataFormats/TrackReco>
   <use name=FWCore/Framework>
   <use name=FWCore/ParameterSet>
+  <use name=TrackingTools/TransientTrack>
+  <use name=TrackingTools/TrackAssociator>
+  <use name=Foundation/PluginManager>
   <lib name=RecoMuonMuonIsolation>
 </export>
 
