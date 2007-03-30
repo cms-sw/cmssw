@@ -54,32 +54,20 @@ RecoMuonValidator::RecoMuonValidator(const ParameterSet& pset)
   tkMinPt_ = pset.getParameter<double>("tkMinPt");
   tkMinP_  = pset.getParameter<double>("tkMinP");
 
+  seedPropagatorName_ = pset.getParameter<string>("SeedPropagator");
+
   // the service parameters
   ParameterSet serviceParameters 
     = pset.getParameter<ParameterSet>("ServiceParameters");
   theMuonService_ = new MuonServiceProxy(serviceParameters);
 
-  seedPropagatorName_ = pset.getParameter<string>("SeedPropagator");
-
-  //theDQM_ = edm::Service<DaqMonitorBEInterface>().operator->();
+  theDQMService_ = 0;
+  theDQMService_ = Service<DaqMonitorBEInterface>().operator->();
 }
 
 RecoMuonValidator::~RecoMuonValidator()
 {
   delete theMuonService_;
-//  hSimEtaVsPhi_ ->Delete();
-//  hStaEtaVsPhi_ ->Delete();
-//  hGlbEtaVsPhi_ ->Delete();
-//  hSeedEtaVsPhi_->Delete();
-
-//  hEtaVsNDtSimHits_ ->Delete();
-//  hEtaVsNCSCSimHits_->Delete();
-//  hEtaVsNRPCSimHits_->Delete();
-//  hEtaVsNSimHits_   ->Delete();
-
-//  hSeedEtaVsNHits_->Delete();
-//  hStaEtaVsNHits_ ->Delete();
-//  hGlbEtaVsNHits_ ->Delete();
 
   delete hStaResol_ ;
   delete hGlbResol_ ;
@@ -90,6 +78,47 @@ RecoMuonValidator::~RecoMuonValidator()
 
 void RecoMuonValidator::beginJob(const EventSetup& eventSetup)
 {
+  if ( theDQMService_ ) {
+    theDQMService_->setCurrentFolder("RecoMuonTask");
+
+    hSimEtaVsPhi_  = theDQMService_->book2D("SimEtaVsPhi", "Sim #eta vs #phi",
+                                      nBinEta_, minEta_, maxEta_, nBinPhi_, minPhi_, maxPhi_);
+    hStaEtaVsPhi_  = theDQMService_->book2D("StaEtaVsPhi", "Sta #eta vs #phi",
+                                      nBinEta_, minEta_, maxEta_, nBinPhi_, minPhi_, maxPhi_);
+    hGlbEtaVsPhi_  = theDQMService_->book2D("GlbEtaVsPhi", "Glb #eta vs #phi",
+                                      nBinEta_, minEta_, maxEta_, nBinPhi_, minPhi_, maxPhi_);
+    hTkEtaVsPhi_   = theDQMService_->book2D("TkEtaVsPhi" , "Tk #eta vs #phi",
+                                      nBinEta_, minEta_, maxEta_, nBinPhi_, minPhi_, maxPhi_);
+    hSeedEtaVsPhi_ = theDQMService_->book2D("SeedEtaVsPhi", "Seed #eta vs #phi",
+                                      nBinEta_, minEta_, maxEta_, nBinPhi_, minPhi_, maxPhi_);
+ 
+    hEtaVsNDtSimHits_  = theDQMService_->book2D("SimEtaVsNDtHits", "Sim #eta vs number of DT SimHits",
+                                          nBinEta_, minEta_, maxEta_, nHits_, 0, static_cast<float>(nHits_));
+    hEtaVsNCSCSimHits_ = theDQMService_->book2D("SimEtaVsNCSCHits", "Sim #eta vs number of CSC SimHits",
+                                          nBinEta_, minEta_, maxEta_, nHits_, 0, static_cast<float>(nHits_));
+    hEtaVsNRPCSimHits_ = theDQMService_->book2D("SimEtaVsNRPCHits", "Sim #eta vs number of RPC SimHits",
+                                          nBinEta_, minEta_, maxEta_, nHits_, 0, static_cast<float>(nHits_));
+    hEtaVsNSimHits_    = theDQMService_->book2D("SimEtaVsNHits", "Sim #eta vs number of Hits",
+                                          nBinEta_, minEta_, maxEta_, nHits_, 0, static_cast<float>(nHits_));
+ 
+    hSeedEtaVsNHits_ = theDQMService_->book2D("SeedEtaVsNHits", "Seed #eta vs NHits",
+                                        nBinEta_, minEta_, maxEta_, nHits_, 0, static_cast<float>(nHits_));
+    hStaEtaVsNHits_  = theDQMService_->book2D("StaEtaVsNHits", "Sta #eta vs NHits",
+                                        nBinEta_, minEta_, maxEta_, nHits_, 0, static_cast<float>(nHits_));
+    hGlbEtaVsNHits_  = theDQMService_->book2D("GlbEtaVsNHits", "Glb #eta vs NHits",
+                                        nBinEta_, minEta_, maxEta_, nHits_, 0, static_cast<float>(nHits_));
+ 
+    hStaResol_  = new HResolution(theDQMService_, "Sta", 
+                                   nBinErrQPt_, widthStaErrQPt_, nBinPull_, widthPull_, 
+                                   nBinEta_, minEta_, maxEta_, nBinPhi_, minPhi_, maxPhi_);
+    hGlbResol_  = new HResolution(theDQMService_, "Glb", 
+                                   nBinErrQPt_, widthGlbErrQPt_, nBinPull_, widthPull_, 
+                                   nBinEta_, minEta_, maxEta_, nBinPhi_, minPhi_, maxPhi_);
+    hSeedResol_ = new HResolution(theDQMService_, "Seed", 
+                                   nBinErrQPt_, widthSeedErrQPt_, nBinPull_, widthPull_, 
+                                   nBinEta_, minEta_, maxEta_, nBinPhi_, minPhi_, maxPhi_);
+  }
+/*
   // Start Histogram booking
   outputFile_ = new TFile(outputFileName_.c_str(), "RECREATE");
   outputFile_->cd();
@@ -130,10 +159,13 @@ void RecoMuonValidator::beginJob(const EventSetup& eventSetup)
   hSeedResol_ = new HResolution("Seed", 
                                 nBinErrQPt_, widthSeedErrQPt_, nBinPull_, widthPull_, 
                                 nBinEta_, minEta_, maxEta_, nBinPhi_, minPhi_, maxPhi_);
+*/
 }
 
 void RecoMuonValidator::endJob()
 {
+  if ( theDQMService_ ) theDQMService_->save(outputFileName_);
+/*
   outputFile_->cd();
 
   hSimEtaVsPhi_ ->Write();
@@ -156,6 +188,7 @@ void RecoMuonValidator::endJob()
   hSeedResol_->write();
 
   outputFile_->Close();
+*/
 }
 
 void RecoMuonValidator::analyze(const Event& event, const EventSetup& eventSetup)
