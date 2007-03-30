@@ -5,7 +5,7 @@
  * *
  *  DQM Client to check the data integrity
  *
- *  $Date: 2007/03/15 18:33:33 $
+ *  $Date: 2007/03/15 16:51:55 $
  *  $Revision: 1.1 $
  *  \author S. Bolognesi - INFN TO
  *   
@@ -41,21 +41,31 @@ protected:
 
   /// Get the ME name
   std::string getMEName(std::string histoType, int FEDId);
-  /// Get the MEs
+  /// Book the MEs
   void bookHistos(std::string histoType, int dduId);
+  void bookTimeHistos(std::string histoType, int dduId, int evNumber);
 
 private:
 
   bool debug;
+
+  //Number of onUpdates
   int nevents;
+  
+  //Number of bin in time histo
+  int nTimeBin;
+  //Counter between 0 and nTimeBin
+  int counter;
 
   DaqMonitorBEInterface* dbe;
 
   edm::ParameterSet parameters;
 
   // Monitor Elements
-  // <histoType, <index , histo> >    
+  // <histoType, <DDU index , histo> >    
   std::map<std::string, std::map<int, MonitorElement*> > dduHistos;
+  // <histoType, <DDU index , vector of histos> >    
+  std::map<std::string, std::map<int, std::vector <MonitorElement*> > > dduVectorHistos;
  };
 
 #endif
