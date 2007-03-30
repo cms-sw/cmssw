@@ -24,7 +24,7 @@ SiPixelDigiValid::SiPixelDigiValid(const ParameterSet& ps):dbe_(0){
    dbe_ = Service<DaqMonitorBEInterface>().operator->();
   
  if ( dbe_ ) {
-    dbe_->setCurrentFolder("Pixel");
+    dbe_->setCurrentFolder("TrackerDigis/Pixel");
 
    meDigiMultiLayer1Ring1_ =  dbe_->book1D("digimulti_layer1ring1","Digi Multiplicity ",30, 0., 30.);
    meDigiMultiLayer1Ring2_ =  dbe_->book1D("digimulti_layer1ring2","Digi Multiplicity ",30, 0., 30.);

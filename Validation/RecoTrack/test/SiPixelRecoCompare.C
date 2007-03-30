@@ -72,10 +72,10 @@ void SiPixelRecoCompare()
   TFile* sfile = new TFile(sfilename);
   Char_t histo[200];
   
-  rfile->cd("DQMData/Histograms_all");
+  rfile->cd("DQMData/TrackingRecHits/Pixel/Histograms_all");
   //gDirectory->ls();
   
-  sfile->cd("DQMData/Histograms_all");
+  sfile->cd("DQMData/TrackingRecHits/Pixel/Histograms_all");
   //gDirectory->ls();
   
   gROOT->ProcessLine(".x HistoCompare_Pixels.C");
@@ -102,11 +102,11 @@ void SiPixelRecoCompare()
       TH1F* newmeTracksPerEvent;
       TH1F* newmePixRecHitsPerTrack;
       
-      rfile->GetObject("DQMData/Histograms_all/meTracksPerEvent", meTracksPerEvent );
-      rfile->GetObject("DQMData/Histograms_all/mePixRecHitsPerTrack", mePixRecHitsPerTrack );
+      rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meTracksPerEvent", meTracksPerEvent );
+      rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/mePixRecHitsPerTrack", mePixRecHitsPerTrack );
       
-      sfile->GetObject("DQMData/Histograms_all/meTracksPerEvent", newmeTracksPerEvent );
-      sfile->GetObject("DQMData/Histograms_all/mePixRecHitsPerTrack", newmePixRecHitsPerTrack );
+      sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meTracksPerEvent", newmeTracksPerEvent );
+      sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/mePixRecHitsPerTrack", newmePixRecHitsPerTrack );
       
       TLegend* leg1 = new TLegend(0.3, 0.7, 0.6, 0.9);
       can_meControl->cd(1);
@@ -148,17 +148,17 @@ void SiPixelRecoCompare()
       TH1F* newmeChargeZpPanel1;
       TH1F* newmeChargeZpPanel2;
       
-      rfile->GetObject("DQMData/Histograms_all/meChargeBarrel"  , meChargeBarrel  );
-      rfile->GetObject("DQMData/Histograms_all/meChargeZmPanel1", meChargeZmPanel1);
-      rfile->GetObject("DQMData/Histograms_all/meChargeZmPanel2", meChargeZmPanel2);
-      rfile->GetObject("DQMData/Histograms_all/meChargeZpPanel1", meChargeZpPanel1);
-      rfile->GetObject("DQMData/Histograms_all/meChargeZpPanel2", meChargeZpPanel2);
+      rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meChargeBarrel"  , meChargeBarrel  );
+      rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meChargeZmPanel1", meChargeZmPanel1);
+      rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meChargeZmPanel2", meChargeZmPanel2);
+      rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meChargeZpPanel1", meChargeZpPanel1);
+      rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meChargeZpPanel2", meChargeZpPanel2);
       
-      sfile->GetObject("DQMData/Histograms_all/meChargeBarrel"  , newmeChargeBarrel  ); 
-      sfile->GetObject("DQMData/Histograms_all/meChargeZmPanel1", newmeChargeZmPanel1);
-      sfile->GetObject("DQMData/Histograms_all/meChargeZmPanel2", newmeChargeZmPanel2);
-      sfile->GetObject("DQMData/Histograms_all/meChargeZpPanel1", newmeChargeZpPanel1);
-      sfile->GetObject("DQMData/Histograms_all/meChargeZpPanel2", newmeChargeZpPanel2);
+      sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meChargeBarrel"  , newmeChargeBarrel  ); 
+      sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meChargeZmPanel1", newmeChargeZmPanel1);
+      sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meChargeZmPanel2", newmeChargeZmPanel2);
+      sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meChargeZpPanel1", newmeChargeZpPanel1);
+      sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meChargeZpPanel2", newmeChargeZpPanel2);
       TLegend* leg2 = new TLegend(0.3, 0.7, 0.6, 0.9);
       can_meCharge->cd(1);
       //gPad->SetLogy();
@@ -222,17 +222,17 @@ void SiPixelRecoCompare()
       TH1F* newmeErrxZpPanel1;
       TH1F* newmeErrxZpPanel2;
       
-      rfile->GetObject("DQMData/Histograms_all/meErrxBarrel"  , meErrxBarrel  );
-      rfile->GetObject("DQMData/Histograms_all/meErrxZmPanel1", meErrxZmPanel1);
-      rfile->GetObject("DQMData/Histograms_all/meErrxZmPanel2", meErrxZmPanel2);
-      rfile->GetObject("DQMData/Histograms_all/meErrxZpPanel1", meErrxZpPanel1);
-      rfile->GetObject("DQMData/Histograms_all/meErrxZpPanel2", meErrxZpPanel2);
+      rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meErrxBarrel"  , meErrxBarrel  );
+      rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meErrxZmPanel1", meErrxZmPanel1);
+      rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meErrxZmPanel2", meErrxZmPanel2);
+      rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meErrxZpPanel1", meErrxZpPanel1);
+      rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meErrxZpPanel2", meErrxZpPanel2);
       
-      sfile->GetObject("DQMData/Histograms_all/meErrxBarrel"  , newmeErrxBarrel  ); 
-      sfile->GetObject("DQMData/Histograms_all/meErrxZmPanel1", newmeErrxZmPanel1);
-      sfile->GetObject("DQMData/Histograms_all/meErrxZmPanel2", newmeErrxZmPanel2);
-      sfile->GetObject("DQMData/Histograms_all/meErrxZpPanel1", newmeErrxZpPanel1);
-      sfile->GetObject("DQMData/Histograms_all/meErrxZpPanel2", newmeErrxZpPanel2);
+      sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meErrxBarrel"  , newmeErrxBarrel  ); 
+      sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meErrxZmPanel1", newmeErrxZmPanel1);
+      sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meErrxZmPanel2", newmeErrxZmPanel2);
+      sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meErrxZpPanel1", newmeErrxZpPanel1);
+      sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meErrxZpPanel2", newmeErrxZpPanel2);
       
       TLegend* leg3 = new TLegend(0.3, 0.7, 0.6, 0.9);
       can_Errx->cd(1);
@@ -297,17 +297,17 @@ void SiPixelRecoCompare()
       TH1F* newmeErryZpPanel1;
       TH1F* newmeErryZpPanel2;
       
-      rfile->GetObject("DQMData/Histograms_all/meErryBarrel"  , meErryBarrel  );
-      rfile->GetObject("DQMData/Histograms_all/meErryZmPanel1", meErryZmPanel1);
-      rfile->GetObject("DQMData/Histograms_all/meErryZmPanel2", meErryZmPanel2);
-      rfile->GetObject("DQMData/Histograms_all/meErryZpPanel1", meErryZpPanel1);
-      rfile->GetObject("DQMData/Histograms_all/meErryZpPanel2", meErryZpPanel2);
+      rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meErryBarrel"  , meErryBarrel  );
+      rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meErryZmPanel1", meErryZmPanel1);
+      rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meErryZmPanel2", meErryZmPanel2);
+      rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meErryZpPanel1", meErryZpPanel1);
+      rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meErryZpPanel2", meErryZpPanel2);
       
-      sfile->GetObject("DQMData/Histograms_all/meErryBarrel"  , newmeErryBarrel  ); 
-      sfile->GetObject("DQMData/Histograms_all/meErryZmPanel1", newmeErryZmPanel1);
-      sfile->GetObject("DQMData/Histograms_all/meErryZmPanel2", newmeErryZmPanel2);
-      sfile->GetObject("DQMData/Histograms_all/meErryZpPanel1", newmeErryZpPanel1);
-      sfile->GetObject("DQMData/Histograms_all/meErryZpPanel2", newmeErryZpPanel2);
+      sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meErryBarrel"  , newmeErryBarrel  ); 
+      sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meErryZmPanel1", newmeErryZmPanel1);
+      sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meErryZmPanel2", newmeErryZmPanel2);
+      sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meErryZpPanel1", newmeErryZpPanel1);
+      sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meErryZpPanel2", newmeErryZpPanel2);
       
       TLegend* leg4 = new TLegend(0.3, 0.7, 0.6, 0.9);
       can_Erry->cd(1);
@@ -372,17 +372,17 @@ void SiPixelRecoCompare()
       TH1F* newmeNpixZpPanel1;
       TH1F* newmeNpixZpPanel2;
       
-      rfile->GetObject("DQMData/Histograms_all/meNpixBarrel"  , meNpixBarrel  );
-      rfile->GetObject("DQMData/Histograms_all/meNpixZmPanel1", meNpixZmPanel1);
-      rfile->GetObject("DQMData/Histograms_all/meNpixZmPanel2", meNpixZmPanel2);
-      rfile->GetObject("DQMData/Histograms_all/meNpixZpPanel1", meNpixZpPanel1);
-      rfile->GetObject("DQMData/Histograms_all/meNpixZpPanel2", meNpixZpPanel2);
+      rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meNpixBarrel"  , meNpixBarrel  );
+      rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meNpixZmPanel1", meNpixZmPanel1);
+      rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meNpixZmPanel2", meNpixZmPanel2);
+      rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meNpixZpPanel1", meNpixZpPanel1);
+      rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meNpixZpPanel2", meNpixZpPanel2);
       
-      sfile->GetObject("DQMData/Histograms_all/meNpixBarrel"  , newmeNpixBarrel  ); 
-      sfile->GetObject("DQMData/Histograms_all/meNpixZmPanel1", newmeNpixZmPanel1);
-      sfile->GetObject("DQMData/Histograms_all/meNpixZmPanel2", newmeNpixZmPanel2);
-      sfile->GetObject("DQMData/Histograms_all/meNpixZpPanel1", newmeNpixZpPanel1);
-      sfile->GetObject("DQMData/Histograms_all/meNpixZpPanel2", newmeNpixZpPanel2);
+      sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meNpixBarrel"  , newmeNpixBarrel  ); 
+      sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meNpixZmPanel1", newmeNpixZmPanel1);
+      sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meNpixZmPanel2", newmeNpixZmPanel2);
+      sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meNpixZpPanel1", newmeNpixZpPanel1);
+      sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meNpixZpPanel2", newmeNpixZpPanel2);
       
       TLegend* leg5 = new TLegend(0.3, 0.7, 0.6, 0.9);
       can_Npix->cd(1);
@@ -447,17 +447,17 @@ void SiPixelRecoCompare()
       TH1F* newmeNxpixZpPanel1;
       TH1F* newmeNxpixZpPanel2;
       
-      rfile->GetObject("DQMData/Histograms_all/meNxpixBarrel"  , meNxpixBarrel  );
-      rfile->GetObject("DQMData/Histograms_all/meNxpixZmPanel1", meNxpixZmPanel1);
-      rfile->GetObject("DQMData/Histograms_all/meNxpixZmPanel2", meNxpixZmPanel2);
-      rfile->GetObject("DQMData/Histograms_all/meNxpixZpPanel1", meNxpixZpPanel1);
-      rfile->GetObject("DQMData/Histograms_all/meNxpixZpPanel2", meNxpixZpPanel2);
+      rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meNxpixBarrel"  , meNxpixBarrel  );
+      rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meNxpixZmPanel1", meNxpixZmPanel1);
+      rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meNxpixZmPanel2", meNxpixZmPanel2);
+      rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meNxpixZpPanel1", meNxpixZpPanel1);
+      rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meNxpixZpPanel2", meNxpixZpPanel2);
       
-      sfile->GetObject("DQMData/Histograms_all/meNxpixBarrel"  , newmeNxpixBarrel  ); 
-      sfile->GetObject("DQMData/Histograms_all/meNxpixZmPanel1", newmeNxpixZmPanel1);
-      sfile->GetObject("DQMData/Histograms_all/meNxpixZmPanel2", newmeNxpixZmPanel2);
-      sfile->GetObject("DQMData/Histograms_all/meNxpixZpPanel1", newmeNxpixZpPanel1);
-      sfile->GetObject("DQMData/Histograms_all/meNxpixZpPanel2", newmeNxpixZpPanel2);
+      sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meNxpixBarrel"  , newmeNxpixBarrel  ); 
+      sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meNxpixZmPanel1", newmeNxpixZmPanel1);
+      sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meNxpixZmPanel2", newmeNxpixZmPanel2);
+      sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meNxpixZpPanel1", newmeNxpixZpPanel1);
+      sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meNxpixZpPanel2", newmeNxpixZpPanel2);
       
       TLegend* leg6 = new TLegend(0.3, 0.7, 0.6, 0.9);
       can_Nxpix->cd(1);
@@ -522,17 +522,17 @@ void SiPixelRecoCompare()
       TH1F* newmeNypixZpPanel1;
       TH1F* newmeNypixZpPanel2;
       
-      rfile->GetObject("DQMData/Histograms_all/meNypixBarrel"  , meNypixBarrel  );
-      rfile->GetObject("DQMData/Histograms_all/meNypixZmPanel1", meNypixZmPanel1);
-      rfile->GetObject("DQMData/Histograms_all/meNypixZmPanel2", meNypixZmPanel2);
-      rfile->GetObject("DQMData/Histograms_all/meNypixZpPanel1", meNypixZpPanel1);
-      rfile->GetObject("DQMData/Histograms_all/meNypixZpPanel2", meNypixZpPanel2);
+      rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meNypixBarrel"  , meNypixBarrel  );
+      rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meNypixZmPanel1", meNypixZmPanel1);
+      rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meNypixZmPanel2", meNypixZmPanel2);
+      rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meNypixZpPanel1", meNypixZpPanel1);
+      rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meNypixZpPanel2", meNypixZpPanel2);
       
-      sfile->GetObject("DQMData/Histograms_all/meNypixBarrel"  , newmeNypixBarrel  ); 
-      sfile->GetObject("DQMData/Histograms_all/meNypixZmPanel1", newmeNypixZmPanel1);
-      sfile->GetObject("DQMData/Histograms_all/meNypixZmPanel2", newmeNypixZmPanel2);
-      sfile->GetObject("DQMData/Histograms_all/meNypixZpPanel1", newmeNypixZpPanel1);
-      sfile->GetObject("DQMData/Histograms_all/meNypixZpPanel2", newmeNypixZpPanel2);
+      sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meNypixBarrel"  , newmeNypixBarrel  ); 
+      sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meNypixZmPanel1", newmeNypixZmPanel1);
+      sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meNypixZmPanel2", newmeNypixZmPanel2);
+      sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meNypixZpPanel1", newmeNypixZpPanel1);
+      sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meNypixZpPanel2", newmeNypixZpPanel2);
       
       TLegend* leg7 = new TLegend(0.3, 0.7, 0.6, 0.9);
       can_Nypix->cd(1);
@@ -597,17 +597,17 @@ void SiPixelRecoCompare()
       TH1F* newmePosxZpPanel1;
       TH1F* newmePosxZpPanel2;
       
-      rfile->GetObject("DQMData/Histograms_all/mePosxBarrel"  , mePosxBarrel  );
-      rfile->GetObject("DQMData/Histograms_all/mePosxZmPanel1", mePosxZmPanel1);
-      rfile->GetObject("DQMData/Histograms_all/mePosxZmPanel2", mePosxZmPanel2);
-      rfile->GetObject("DQMData/Histograms_all/mePosxZpPanel1", mePosxZpPanel1);
-      rfile->GetObject("DQMData/Histograms_all/mePosxZpPanel2", mePosxZpPanel2);
+      rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/mePosxBarrel"  , mePosxBarrel  );
+      rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/mePosxZmPanel1", mePosxZmPanel1);
+      rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/mePosxZmPanel2", mePosxZmPanel2);
+      rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/mePosxZpPanel1", mePosxZpPanel1);
+      rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/mePosxZpPanel2", mePosxZpPanel2);
       
-      sfile->GetObject("DQMData/Histograms_all/mePosxBarrel"  , newmePosxBarrel  ); 
-      sfile->GetObject("DQMData/Histograms_all/mePosxZmPanel1", newmePosxZmPanel1);
-      sfile->GetObject("DQMData/Histograms_all/mePosxZmPanel2", newmePosxZmPanel2);
-      sfile->GetObject("DQMData/Histograms_all/mePosxZpPanel1", newmePosxZpPanel1);
-      sfile->GetObject("DQMData/Histograms_all/mePosxZpPanel2", newmePosxZpPanel2);
+      sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/mePosxBarrel"  , newmePosxBarrel  ); 
+      sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/mePosxZmPanel1", newmePosxZmPanel1);
+      sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/mePosxZmPanel2", newmePosxZmPanel2);
+      sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/mePosxZpPanel1", newmePosxZpPanel1);
+      sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/mePosxZpPanel2", newmePosxZpPanel2);
       
       TLegend* leg8 = new TLegend(0.3, 0.7, 0.6, 0.9);
       can_Posx->cd(1);
@@ -672,17 +672,17 @@ void SiPixelRecoCompare()
       TH1F* newmePosyZpPanel1;
       TH1F* newmePosyZpPanel2;
       
-      rfile->GetObject("DQMData/Histograms_all/mePosyBarrel"  , mePosyBarrel  );
-      rfile->GetObject("DQMData/Histograms_all/mePosyZmPanel1", mePosyZmPanel1);
-      rfile->GetObject("DQMData/Histograms_all/mePosyZmPanel2", mePosyZmPanel2);
-      rfile->GetObject("DQMData/Histograms_all/mePosyZpPanel1", mePosyZpPanel1);
-      rfile->GetObject("DQMData/Histograms_all/mePosyZpPanel2", mePosyZpPanel2);
+      rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/mePosyBarrel"  , mePosyBarrel  );
+      rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/mePosyZmPanel1", mePosyZmPanel1);
+      rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/mePosyZmPanel2", mePosyZmPanel2);
+      rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/mePosyZpPanel1", mePosyZpPanel1);
+      rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/mePosyZpPanel2", mePosyZpPanel2);
       
-      sfile->GetObject("DQMData/Histograms_all/mePosyBarrel"  , newmePosyBarrel  ); 
-      sfile->GetObject("DQMData/Histograms_all/mePosyZmPanel1", newmePosyZmPanel1);
-      sfile->GetObject("DQMData/Histograms_all/mePosyZmPanel2", newmePosyZmPanel2);
-      sfile->GetObject("DQMData/Histograms_all/mePosyZpPanel1", newmePosyZpPanel1);
-      sfile->GetObject("DQMData/Histograms_all/mePosyZpPanel2", newmePosyZpPanel2);
+      sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/mePosyBarrel"  , newmePosyBarrel  ); 
+      sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/mePosyZmPanel1", newmePosyZmPanel1);
+      sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/mePosyZmPanel2", newmePosyZmPanel2);
+      sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/mePosyZpPanel1", newmePosyZpPanel1);
+      sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/mePosyZpPanel2", newmePosyZpPanel2);
       
       TLegend* leg9 = new TLegend(0.3, 0.7, 0.6, 0.9);
       can_Posy->cd(1);
@@ -753,17 +753,17 @@ void SiPixelRecoCompare()
       TProfile* newmePullXvsAlphaZpPanel1;
       TProfile* newmePullXvsAlphaZpPanel2;
       
-      rfile->GetObject("DQMData/Histograms_all/mePullXvsAlphaBarrel"  , mePullXvsAlphaBarrel  );
-      rfile->GetObject("DQMData/Histograms_all/mePullXvsAlphaZmPanel1", mePullXvsAlphaZmPanel1);
-      rfile->GetObject("DQMData/Histograms_all/mePullXvsAlphaZmPanel2", mePullXvsAlphaZmPanel2);
-      rfile->GetObject("DQMData/Histograms_all/mePullXvsAlphaZpPanel1", mePullXvsAlphaZpPanel1);
-      rfile->GetObject("DQMData/Histograms_all/mePullXvsAlphaZpPanel2", mePullXvsAlphaZpPanel2);
+      rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/mePullXvsAlphaBarrel"  , mePullXvsAlphaBarrel  );
+      rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/mePullXvsAlphaZmPanel1", mePullXvsAlphaZmPanel1);
+      rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/mePullXvsAlphaZmPanel2", mePullXvsAlphaZmPanel2);
+      rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/mePullXvsAlphaZpPanel1", mePullXvsAlphaZpPanel1);
+      rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/mePullXvsAlphaZpPanel2", mePullXvsAlphaZpPanel2);
       
-      sfile->GetObject("DQMData/Histograms_all/mePullXvsAlphaBarrel"  , newmePullXvsAlphaBarrel  ); 
-      sfile->GetObject("DQMData/Histograms_all/mePullXvsAlphaZmPanel1", newmePullXvsAlphaZmPanel1);
-      sfile->GetObject("DQMData/Histograms_all/mePullXvsAlphaZmPanel2", newmePullXvsAlphaZmPanel2);
-      sfile->GetObject("DQMData/Histograms_all/mePullXvsAlphaZpPanel1", newmePullXvsAlphaZpPanel1);
-      sfile->GetObject("DQMData/Histograms_all/mePullXvsAlphaZpPanel2", newmePullXvsAlphaZpPanel2);
+      sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/mePullXvsAlphaBarrel"  , newmePullXvsAlphaBarrel  ); 
+      sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/mePullXvsAlphaZmPanel1", newmePullXvsAlphaZmPanel1);
+      sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/mePullXvsAlphaZmPanel2", newmePullXvsAlphaZmPanel2);
+      sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/mePullXvsAlphaZpPanel1", newmePullXvsAlphaZpPanel1);
+      sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/mePullXvsAlphaZpPanel2", newmePullXvsAlphaZpPanel2);
       
       TLegend* leg10 = new TLegend(0.3, 0.7, 0.6, 0.9);
       can_PullXvsAlpha->cd(1);
@@ -828,17 +828,17 @@ void SiPixelRecoCompare()
       TProfile* newmePullXvsBetaZpPanel1;
       TProfile* newmePullXvsBetaZpPanel2;
       
-      rfile->GetObject("DQMData/Histograms_all/mePullXvsBetaBarrel"  , mePullXvsBetaBarrel  );
-      rfile->GetObject("DQMData/Histograms_all/mePullXvsBetaZmPanel1", mePullXvsBetaZmPanel1);
-      rfile->GetObject("DQMData/Histograms_all/mePullXvsBetaZmPanel2", mePullXvsBetaZmPanel2);
-      rfile->GetObject("DQMData/Histograms_all/mePullXvsBetaZpPanel1", mePullXvsBetaZpPanel1);
-      rfile->GetObject("DQMData/Histograms_all/mePullXvsBetaZpPanel2", mePullXvsBetaZpPanel2);
+      rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/mePullXvsBetaBarrel"  , mePullXvsBetaBarrel  );
+      rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/mePullXvsBetaZmPanel1", mePullXvsBetaZmPanel1);
+      rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/mePullXvsBetaZmPanel2", mePullXvsBetaZmPanel2);
+      rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/mePullXvsBetaZpPanel1", mePullXvsBetaZpPanel1);
+      rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/mePullXvsBetaZpPanel2", mePullXvsBetaZpPanel2);
       
-      sfile->GetObject("DQMData/Histograms_all/mePullXvsBetaBarrel"  , newmePullXvsBetaBarrel  ); 
-      sfile->GetObject("DQMData/Histograms_all/mePullXvsBetaZmPanel1", newmePullXvsBetaZmPanel1);
-      sfile->GetObject("DQMData/Histograms_all/mePullXvsBetaZmPanel2", newmePullXvsBetaZmPanel2);
-      sfile->GetObject("DQMData/Histograms_all/mePullXvsBetaZpPanel1", newmePullXvsBetaZpPanel1);
-      sfile->GetObject("DQMData/Histograms_all/mePullXvsBetaZpPanel2", newmePullXvsBetaZpPanel2);
+      sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/mePullXvsBetaBarrel"  , newmePullXvsBetaBarrel  ); 
+      sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/mePullXvsBetaZmPanel1", newmePullXvsBetaZmPanel1);
+      sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/mePullXvsBetaZmPanel2", newmePullXvsBetaZmPanel2);
+      sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/mePullXvsBetaZpPanel1", newmePullXvsBetaZpPanel1);
+      sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/mePullXvsBetaZpPanel2", newmePullXvsBetaZpPanel2);
       
       TLegend* leg11 = new TLegend(0.3, 0.7, 0.6, 0.9);
       can_PullXvsBeta->cd(1);
@@ -914,19 +914,19 @@ void SiPixelRecoCompare()
       TProfile* newmeWPullXvsAlphaZpPanel1;
       TProfile* newmeWPullXvsAlphaZpPanel2;
       
-      rfile->GetObject("DQMData/Histograms_all/meWPullXvsAlphaBarrelNonFlippedLadders", meWPullXvsAlphaBarrelNFP  );
-      rfile->GetObject("DQMData/Histograms_all/meWPullXvsAlphaBarrelFlippedLadders"   , meWPullXvsAlphaBarrelFP   );
-      rfile->GetObject("DQMData/Histograms_all/meWPullXvsAlphaZmPanel1", meWPullXvsAlphaZmPanel1);
-      rfile->GetObject("DQMData/Histograms_all/meWPullXvsAlphaZmPanel2", meWPullXvsAlphaZmPanel2);
-      rfile->GetObject("DQMData/Histograms_all/meWPullXvsAlphaZpPanel1", meWPullXvsAlphaZpPanel1);
-      rfile->GetObject("DQMData/Histograms_all/meWPullXvsAlphaZpPanel2", meWPullXvsAlphaZpPanel2);
+      rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meWPullXvsAlphaBarrelNonFlippedLadders", meWPullXvsAlphaBarrelNFP  );
+      rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meWPullXvsAlphaBarrelFlippedLadders"   , meWPullXvsAlphaBarrelFP   );
+      rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meWPullXvsAlphaZmPanel1", meWPullXvsAlphaZmPanel1);
+      rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meWPullXvsAlphaZmPanel2", meWPullXvsAlphaZmPanel2);
+      rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meWPullXvsAlphaZpPanel1", meWPullXvsAlphaZpPanel1);
+      rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meWPullXvsAlphaZpPanel2", meWPullXvsAlphaZpPanel2);
       
-      sfile->GetObject("DQMData/Histograms_all/meWPullXvsAlphaBarrelNonFlippedLadders", newmeWPullXvsAlphaBarrelNFP  );
-      sfile->GetObject("DQMData/Histograms_all/meWPullXvsAlphaBarrelFlippedLadders"   , newmeWPullXvsAlphaBarrelFP   );
-      sfile->GetObject("DQMData/Histograms_all/meWPullXvsAlphaZmPanel1", newmeWPullXvsAlphaZmPanel1);
-      sfile->GetObject("DQMData/Histograms_all/meWPullXvsAlphaZmPanel2", newmeWPullXvsAlphaZmPanel2);
-      sfile->GetObject("DQMData/Histograms_all/meWPullXvsAlphaZpPanel1", newmeWPullXvsAlphaZpPanel1);
-      sfile->GetObject("DQMData/Histograms_all/meWPullXvsAlphaZpPanel2", newmeWPullXvsAlphaZpPanel2);
+      sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meWPullXvsAlphaBarrelNonFlippedLadders", newmeWPullXvsAlphaBarrelNFP  );
+      sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meWPullXvsAlphaBarrelFlippedLadders"   , newmeWPullXvsAlphaBarrelFP   );
+      sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meWPullXvsAlphaZmPanel1", newmeWPullXvsAlphaZmPanel1);
+      sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meWPullXvsAlphaZmPanel2", newmeWPullXvsAlphaZmPanel2);
+      sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meWPullXvsAlphaZpPanel1", newmeWPullXvsAlphaZpPanel1);
+      sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meWPullXvsAlphaZpPanel2", newmeWPullXvsAlphaZpPanel2);
       
       TLegend* leg10 = new TLegend(0.3, 0.7, 0.6, 0.9);
       can_WPullXvsAlpha->cd(1);
@@ -1003,17 +1003,17 @@ if (0)
     TProfile* newmePullXvsPhiZpPanel1;
     TProfile* newmePullXvsPhiZpPanel2;
 
-    rfile->GetObject("DQMData/Histograms_all/mePullXvsPhiBarrel"  , mePullXvsPhiBarrel  );
-    rfile->GetObject("DQMData/Histograms_all/mePullXvsPhiZmPanel1", mePullXvsPhiZmPanel1);
-    rfile->GetObject("DQMData/Histograms_all/mePullXvsPhiZmPanel2", mePullXvsPhiZmPanel2);
-    rfile->GetObject("DQMData/Histograms_all/mePullXvsPhiZpPanel1", mePullXvsPhiZpPanel1);
-    rfile->GetObject("DQMData/Histograms_all/mePullXvsPhiZpPanel2", mePullXvsPhiZpPanel2);
+    rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/mePullXvsPhiBarrel"  , mePullXvsPhiBarrel  );
+    rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/mePullXvsPhiZmPanel1", mePullXvsPhiZmPanel1);
+    rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/mePullXvsPhiZmPanel2", mePullXvsPhiZmPanel2);
+    rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/mePullXvsPhiZpPanel1", mePullXvsPhiZpPanel1);
+    rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/mePullXvsPhiZpPanel2", mePullXvsPhiZpPanel2);
 
-    sfile->GetObject("DQMData/Histograms_all/mePullXvsPhiBarrel"  , newmePullXvsPhiBarrel  ); 
-    sfile->GetObject("DQMData/Histograms_all/mePullXvsPhiZmPanel1", newmePullXvsPhiZmPanel1);
-    sfile->GetObject("DQMData/Histograms_all/mePullXvsPhiZmPanel2", newmePullXvsPhiZmPanel2);
-    sfile->GetObject("DQMData/Histograms_all/mePullXvsPhiZpPanel1", newmePullXvsPhiZpPanel1);
-    sfile->GetObject("DQMData/Histograms_all/mePullXvsPhiZpPanel2", newmePullXvsPhiZpPanel2);
+    sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/mePullXvsPhiBarrel"  , newmePullXvsPhiBarrel  ); 
+    sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/mePullXvsPhiZmPanel1", newmePullXvsPhiZmPanel1);
+    sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/mePullXvsPhiZmPanel2", newmePullXvsPhiZmPanel2);
+    sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/mePullXvsPhiZpPanel1", newmePullXvsPhiZpPanel1);
+    sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/mePullXvsPhiZpPanel2", newmePullXvsPhiZpPanel2);
   
     TLegend* leg13 = new TLegend(0.3, 0.7, 0.6, 0.9);
     can_PullXvsPhi->cd(1);
@@ -1078,17 +1078,17 @@ if (0)
     TProfile* newmePullYvsAlphaZpPanel1;
     TProfile* newmePullYvsAlphaZpPanel2;
 
-    rfile->GetObject("DQMData/Histograms_all/mePullYvsAlphaBarrel"  , mePullYvsAlphaBarrel  );
-    rfile->GetObject("DQMData/Histograms_all/mePullYvsAlphaZmPanel1", mePullYvsAlphaZmPanel1);
-    rfile->GetObject("DQMData/Histograms_all/mePullYvsAlphaZmPanel2", mePullYvsAlphaZmPanel2);
-    rfile->GetObject("DQMData/Histograms_all/mePullYvsAlphaZpPanel1", mePullYvsAlphaZpPanel1);
-    rfile->GetObject("DQMData/Histograms_all/mePullYvsAlphaZpPanel2", mePullYvsAlphaZpPanel2);
+    rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/mePullYvsAlphaBarrel"  , mePullYvsAlphaBarrel  );
+    rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/mePullYvsAlphaZmPanel1", mePullYvsAlphaZmPanel1);
+    rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/mePullYvsAlphaZmPanel2", mePullYvsAlphaZmPanel2);
+    rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/mePullYvsAlphaZpPanel1", mePullYvsAlphaZpPanel1);
+    rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/mePullYvsAlphaZpPanel2", mePullYvsAlphaZpPanel2);
 
-    sfile->GetObject("DQMData/Histograms_all/mePullYvsAlphaBarrel"  , newmePullYvsAlphaBarrel  ); 
-    sfile->GetObject("DQMData/Histograms_all/mePullYvsAlphaZmPanel1", newmePullYvsAlphaZmPanel1);
-    sfile->GetObject("DQMData/Histograms_all/mePullYvsAlphaZmPanel2", newmePullYvsAlphaZmPanel2);
-    sfile->GetObject("DQMData/Histograms_all/mePullYvsAlphaZpPanel1", newmePullYvsAlphaZpPanel1);
-    sfile->GetObject("DQMData/Histograms_all/mePullYvsAlphaZpPanel2", newmePullYvsAlphaZpPanel2);
+    sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/mePullYvsAlphaBarrel"  , newmePullYvsAlphaBarrel  ); 
+    sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/mePullYvsAlphaZmPanel1", newmePullYvsAlphaZmPanel1);
+    sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/mePullYvsAlphaZmPanel2", newmePullYvsAlphaZmPanel2);
+    sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/mePullYvsAlphaZpPanel1", newmePullYvsAlphaZpPanel1);
+    sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/mePullYvsAlphaZpPanel2", newmePullYvsAlphaZpPanel2);
   
     TLegend* leg14 = new TLegend(0.3, 0.7, 0.6, 0.9);
     can_PullYvsAlpha->cd(1);
@@ -1153,17 +1153,17 @@ if (   0   )
     TProfile* newmePullYvsBetaZpPanel1;
     TProfile* newmePullYvsBetaZpPanel2;
 
-    rfile->GetObject("DQMData/Histograms_all/mePullYvsBetaBarrel"  , mePullYvsBetaBarrel  );
-    rfile->GetObject("DQMData/Histograms_all/mePullYvsBetaZmPanel1", mePullYvsBetaZmPanel1);
-    rfile->GetObject("DQMData/Histograms_all/mePullYvsBetaZmPanel2", mePullYvsBetaZmPanel2);
-    rfile->GetObject("DQMData/Histograms_all/mePullYvsBetaZpPanel1", mePullYvsBetaZpPanel1);
-    rfile->GetObject("DQMData/Histograms_all/mePullYvsBetaZpPanel2", mePullYvsBetaZpPanel2);
+    rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/mePullYvsBetaBarrel"  , mePullYvsBetaBarrel  );
+    rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/mePullYvsBetaZmPanel1", mePullYvsBetaZmPanel1);
+    rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/mePullYvsBetaZmPanel2", mePullYvsBetaZmPanel2);
+    rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/mePullYvsBetaZpPanel1", mePullYvsBetaZpPanel1);
+    rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/mePullYvsBetaZpPanel2", mePullYvsBetaZpPanel2);
 
-    sfile->GetObject("DQMData/Histograms_all/mePullYvsBetaBarrel"  , newmePullYvsBetaBarrel  ); 
-    sfile->GetObject("DQMData/Histograms_all/mePullYvsBetaZmPanel1", newmePullYvsBetaZmPanel1);
-    sfile->GetObject("DQMData/Histograms_all/mePullYvsBetaZmPanel2", newmePullYvsBetaZmPanel2);
-    sfile->GetObject("DQMData/Histograms_all/mePullYvsBetaZpPanel1", newmePullYvsBetaZpPanel1);
-    sfile->GetObject("DQMData/Histograms_all/mePullYvsBetaZpPanel2", newmePullYvsBetaZpPanel2);
+    sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/mePullYvsBetaBarrel"  , newmePullYvsBetaBarrel  ); 
+    sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/mePullYvsBetaZmPanel1", newmePullYvsBetaZmPanel1);
+    sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/mePullYvsBetaZmPanel2", newmePullYvsBetaZmPanel2);
+    sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/mePullYvsBetaZpPanel1", newmePullYvsBetaZpPanel1);
+    sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/mePullYvsBetaZpPanel2", newmePullYvsBetaZpPanel2);
   
     TLegend* leg15 = new TLegend(0.3, 0.7, 0.6, 0.9);
     can_PullYvsBeta->cd(1);
@@ -1233,20 +1233,20 @@ if (   1   )
     TProfile* newmeWPullYvsBetaZpPanel1;
     TProfile* newmeWPullYvsBetaZpPanel2;
 
-    rfile->GetObject("DQMData/Histograms_all/meWPullYvsBetaBarrelNonFlippedLadders", meWPullYvsBetaBarrelNFP  );
-    rfile->GetObject("DQMData/Histograms_all/meWPullYvsBetaBarrelFlippedLadders"   , meWPullYvsBetaBarrelFP  );
-    rfile->GetObject("DQMData/Histograms_all/meWPullYvsBetaZmPanel1", meWPullYvsBetaZmPanel1);
-    rfile->GetObject("DQMData/Histograms_all/meWPullYvsBetaZmPanel2", meWPullYvsBetaZmPanel2);
-    rfile->GetObject("DQMData/Histograms_all/meWPullYvsBetaZpPanel1", meWPullYvsBetaZpPanel1);
-    rfile->GetObject("DQMData/Histograms_all/meWPullYvsBetaZpPanel2", meWPullYvsBetaZpPanel2);
+    rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meWPullYvsBetaBarrelNonFlippedLadders", meWPullYvsBetaBarrelNFP  );
+    rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meWPullYvsBetaBarrelFlippedLadders"   , meWPullYvsBetaBarrelFP  );
+    rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meWPullYvsBetaZmPanel1", meWPullYvsBetaZmPanel1);
+    rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meWPullYvsBetaZmPanel2", meWPullYvsBetaZmPanel2);
+    rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meWPullYvsBetaZpPanel1", meWPullYvsBetaZpPanel1);
+    rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meWPullYvsBetaZpPanel2", meWPullYvsBetaZpPanel2);
 
-    sfile->GetObject("DQMData/Histograms_all/meWPullYvsBetaBarrelNonFlippedLadders", newmeWPullYvsBetaBarrelNFP  );
-    sfile->GetObject("DQMData/Histograms_all/meWPullYvsBetaBarrelFlippedLadders"   , newmeWPullYvsBetaBarrelFP  );
-    sfile->GetObject("DQMData/Histograms_all/meWPullYvsBetaBarrel"  , newmeWPullYvsBetaBarrel  ); 
-    sfile->GetObject("DQMData/Histograms_all/meWPullYvsBetaZmPanel1", newmeWPullYvsBetaZmPanel1);
-    sfile->GetObject("DQMData/Histograms_all/meWPullYvsBetaZmPanel2", newmeWPullYvsBetaZmPanel2);
-    sfile->GetObject("DQMData/Histograms_all/meWPullYvsBetaZpPanel1", newmeWPullYvsBetaZpPanel1);
-    sfile->GetObject("DQMData/Histograms_all/meWPullYvsBetaZpPanel2", newmeWPullYvsBetaZpPanel2);
+    sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meWPullYvsBetaBarrelNonFlippedLadders", newmeWPullYvsBetaBarrelNFP  );
+    sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meWPullYvsBetaBarrelFlippedLadders"   , newmeWPullYvsBetaBarrelFP  );
+    sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meWPullYvsBetaBarrel"  , newmeWPullYvsBetaBarrel  ); 
+    sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meWPullYvsBetaZmPanel1", newmeWPullYvsBetaZmPanel1);
+    sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meWPullYvsBetaZmPanel2", newmeWPullYvsBetaZmPanel2);
+    sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meWPullYvsBetaZpPanel1", newmeWPullYvsBetaZpPanel1);
+    sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meWPullYvsBetaZpPanel2", newmeWPullYvsBetaZpPanel2);
   
     TLegend* leg15 = new TLegend(0.3, 0.7, 0.6, 0.9);
     can_WPullYvsBeta->cd(1);
@@ -1330,17 +1330,17 @@ if (0)
     TProfile* newmePullYvsEtaZpPanel1;
     TProfile* newmePullYvsEtaZpPanel2;
 
-    rfile->GetObject("DQMData/Histograms_all/mePullYvsEtaBarrel"  , mePullYvsEtaBarrel  );
-    rfile->GetObject("DQMData/Histograms_all/mePullYvsEtaZmPanel1", mePullYvsEtaZmPanel1);
-    rfile->GetObject("DQMData/Histograms_all/mePullYvsEtaZmPanel2", mePullYvsEtaZmPanel2);
-    rfile->GetObject("DQMData/Histograms_all/mePullYvsEtaZpPanel1", mePullYvsEtaZpPanel1);
-    rfile->GetObject("DQMData/Histograms_all/mePullYvsEtaZpPanel2", mePullYvsEtaZpPanel2);
+    rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/mePullYvsEtaBarrel"  , mePullYvsEtaBarrel  );
+    rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/mePullYvsEtaZmPanel1", mePullYvsEtaZmPanel1);
+    rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/mePullYvsEtaZmPanel2", mePullYvsEtaZmPanel2);
+    rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/mePullYvsEtaZpPanel1", mePullYvsEtaZpPanel1);
+    rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/mePullYvsEtaZpPanel2", mePullYvsEtaZpPanel2);
 
-    sfile->GetObject("DQMData/Histograms_all/mePullYvsEtaBarrel"  , newmePullYvsEtaBarrel  ); 
-    sfile->GetObject("DQMData/Histograms_all/mePullYvsEtaZmPanel1", newmePullYvsEtaZmPanel1);
-    sfile->GetObject("DQMData/Histograms_all/mePullYvsEtaZmPanel2", newmePullYvsEtaZmPanel2);
-    sfile->GetObject("DQMData/Histograms_all/mePullYvsEtaZpPanel1", newmePullYvsEtaZpPanel1);
-    sfile->GetObject("DQMData/Histograms_all/mePullYvsEtaZpPanel2", newmePullYvsEtaZpPanel2);
+    sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/mePullYvsEtaBarrel"  , newmePullYvsEtaBarrel  ); 
+    sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/mePullYvsEtaZmPanel1", newmePullYvsEtaZmPanel1);
+    sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/mePullYvsEtaZmPanel2", newmePullYvsEtaZmPanel2);
+    sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/mePullYvsEtaZpPanel1", newmePullYvsEtaZpPanel1);
+    sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/mePullYvsEtaZpPanel2", newmePullYvsEtaZpPanel2);
   
     TLegend* leg16 = new TLegend(0.3, 0.7, 0.6, 0.9);
     can_PullYvsEta->cd(1);
@@ -1405,17 +1405,17 @@ if (0)
     TProfile* newmePullYvsPhiZpPanel1;
     TProfile* newmePullYvsPhiZpPanel2;
 
-    rfile->GetObject("DQMData/Histograms_all/mePullYvsPhiBarrel"  , mePullYvsPhiBarrel  );
-    rfile->GetObject("DQMData/Histograms_all/mePullYvsPhiZmPanel1", mePullYvsPhiZmPanel1);
-    rfile->GetObject("DQMData/Histograms_all/mePullYvsPhiZmPanel2", mePullYvsPhiZmPanel2);
-    rfile->GetObject("DQMData/Histograms_all/mePullYvsPhiZpPanel1", mePullYvsPhiZpPanel1);
-    rfile->GetObject("DQMData/Histograms_all/mePullYvsPhiZpPanel2", mePullYvsPhiZpPanel2);
+    rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/mePullYvsPhiBarrel"  , mePullYvsPhiBarrel  );
+    rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/mePullYvsPhiZmPanel1", mePullYvsPhiZmPanel1);
+    rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/mePullYvsPhiZmPanel2", mePullYvsPhiZmPanel2);
+    rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/mePullYvsPhiZpPanel1", mePullYvsPhiZpPanel1);
+    rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/mePullYvsPhiZpPanel2", mePullYvsPhiZpPanel2);
 
-    sfile->GetObject("DQMData/Histograms_all/mePullYvsPhiBarrel"  , newmePullYvsPhiBarrel  ); 
-    sfile->GetObject("DQMData/Histograms_all/mePullYvsPhiZmPanel1", newmePullYvsPhiZmPanel1);
-    sfile->GetObject("DQMData/Histograms_all/mePullYvsPhiZmPanel2", newmePullYvsPhiZmPanel2);
-    sfile->GetObject("DQMData/Histograms_all/mePullYvsPhiZpPanel1", newmePullYvsPhiZpPanel1);
-    sfile->GetObject("DQMData/Histograms_all/mePullYvsPhiZpPanel2", newmePullYvsPhiZpPanel2);
+    sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/mePullYvsPhiBarrel"  , newmePullYvsPhiBarrel  ); 
+    sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/mePullYvsPhiZmPanel1", newmePullYvsPhiZmPanel1);
+    sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/mePullYvsPhiZmPanel2", newmePullYvsPhiZmPanel2);
+    sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/mePullYvsPhiZpPanel1", newmePullYvsPhiZpPanel1);
+    sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/mePullYvsPhiZpPanel2", newmePullYvsPhiZpPanel2);
   
     TLegend* leg17 = new TLegend(0.3, 0.7, 0.6, 0.9);
     can_PullYvsPhi->cd(1);
@@ -1480,17 +1480,17 @@ if (1)
     TH1F* newmePullxZpPanel1;
     TH1F* newmePullxZpPanel2;
 
-    rfile->GetObject("DQMData/Histograms_all/mePullxBarrel"  , mePullxBarrel  );
-    rfile->GetObject("DQMData/Histograms_all/mePullxZmPanel1", mePullxZmPanel1);
-    rfile->GetObject("DQMData/Histograms_all/mePullxZmPanel2", mePullxZmPanel2);
-    rfile->GetObject("DQMData/Histograms_all/mePullxZpPanel1", mePullxZpPanel1);
-    rfile->GetObject("DQMData/Histograms_all/mePullxZpPanel2", mePullxZpPanel2);
+    rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/mePullxBarrel"  , mePullxBarrel  );
+    rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/mePullxZmPanel1", mePullxZmPanel1);
+    rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/mePullxZmPanel2", mePullxZmPanel2);
+    rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/mePullxZpPanel1", mePullxZpPanel1);
+    rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/mePullxZpPanel2", mePullxZpPanel2);
 
-    sfile->GetObject("DQMData/Histograms_all/mePullxBarrel"  , newmePullxBarrel  ); 
-    sfile->GetObject("DQMData/Histograms_all/mePullxZmPanel1", newmePullxZmPanel1);
-    sfile->GetObject("DQMData/Histograms_all/mePullxZmPanel2", newmePullxZmPanel2);
-    sfile->GetObject("DQMData/Histograms_all/mePullxZpPanel1", newmePullxZpPanel1);
-    sfile->GetObject("DQMData/Histograms_all/mePullxZpPanel2", newmePullxZpPanel2);
+    sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/mePullxBarrel"  , newmePullxBarrel  ); 
+    sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/mePullxZmPanel1", newmePullxZmPanel1);
+    sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/mePullxZmPanel2", newmePullxZmPanel2);
+    sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/mePullxZpPanel1", newmePullxZpPanel1);
+    sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/mePullxZpPanel2", newmePullxZpPanel2);
   
     TLegend* leg18 = new TLegend(0.3, 0.7, 0.6, 0.9);
     can_mePullx->cd(1);
@@ -1555,17 +1555,17 @@ if (1)
     TH1F* newmePullyZpPanel1;
     TH1F* newmePullyZpPanel2;
 
-    rfile->GetObject("DQMData/Histograms_all/mePullyBarrel"  , mePullyBarrel  );
-    rfile->GetObject("DQMData/Histograms_all/mePullyZmPanel1", mePullyZmPanel1);
-    rfile->GetObject("DQMData/Histograms_all/mePullyZmPanel2", mePullyZmPanel2);
-    rfile->GetObject("DQMData/Histograms_all/mePullyZpPanel1", mePullyZpPanel1);
-    rfile->GetObject("DQMData/Histograms_all/mePullyZpPanel2", mePullyZpPanel2);
+    rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/mePullyBarrel"  , mePullyBarrel  );
+    rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/mePullyZmPanel1", mePullyZmPanel1);
+    rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/mePullyZmPanel2", mePullyZmPanel2);
+    rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/mePullyZpPanel1", mePullyZpPanel1);
+    rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/mePullyZpPanel2", mePullyZpPanel2);
 
-    sfile->GetObject("DQMData/Histograms_all/mePullyBarrel"  , newmePullyBarrel  ); 
-    sfile->GetObject("DQMData/Histograms_all/mePullyZmPanel1", newmePullyZmPanel1);
-    sfile->GetObject("DQMData/Histograms_all/mePullyZmPanel2", newmePullyZmPanel2);
-    sfile->GetObject("DQMData/Histograms_all/mePullyZpPanel1", newmePullyZpPanel1);
-    sfile->GetObject("DQMData/Histograms_all/mePullyZpPanel2", newmePullyZpPanel2);
+    sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/mePullyBarrel"  , newmePullyBarrel  ); 
+    sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/mePullyZmPanel1", newmePullyZmPanel1);
+    sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/mePullyZmPanel2", newmePullyZmPanel2);
+    sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/mePullyZpPanel1", newmePullyZpPanel1);
+    sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/mePullyZpPanel2", newmePullyZpPanel2);
   
     TLegend* leg19 = new TLegend(0.3, 0.7, 0.6, 0.9);
     can_mePully->cd(1);
@@ -1635,21 +1635,21 @@ if (1)
     TProfile* newmeResXvsAlphaZpPanel1;
     TProfile* newmeResXvsAlphaZpPanel2;
 
-    rfile->GetObject("DQMData/Histograms_all/meResXvsAlphaBarrelFlippedLadders"     , meResXvsAlphaBarrelFlippedLadders     );
-    rfile->GetObject("DQMData/Histograms_all/meResXvsAlphaBarrelNonFlippedLadders"  , meResXvsAlphaBarrelNonFlippedLadders  );
+    rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meResXvsAlphaBarrelFlippedLadders"     , meResXvsAlphaBarrelFlippedLadders     );
+    rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meResXvsAlphaBarrelNonFlippedLadders"  , meResXvsAlphaBarrelNonFlippedLadders  );
 
-    rfile->GetObject("DQMData/Histograms_all/meResXvsAlphaZmPanel1", meResXvsAlphaZmPanel1);
-    rfile->GetObject("DQMData/Histograms_all/meResXvsAlphaZmPanel2", meResXvsAlphaZmPanel2);
-    rfile->GetObject("DQMData/Histograms_all/meResXvsAlphaZpPanel1", meResXvsAlphaZpPanel1);
-    rfile->GetObject("DQMData/Histograms_all/meResXvsAlphaZpPanel2", meResXvsAlphaZpPanel2);
+    rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meResXvsAlphaZmPanel1", meResXvsAlphaZmPanel1);
+    rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meResXvsAlphaZmPanel2", meResXvsAlphaZmPanel2);
+    rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meResXvsAlphaZpPanel1", meResXvsAlphaZpPanel1);
+    rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meResXvsAlphaZpPanel2", meResXvsAlphaZpPanel2);
 
-    sfile->GetObject("DQMData/Histograms_all/meResXvsAlphaBarrelFlippedLadders"   , newmeResXvsAlphaBarrelFlippedLadders     );
-    sfile->GetObject("DQMData/Histograms_all/meResXvsAlphaBarrelNonFlippedLadders", newmeResXvsAlphaBarrelNonFlippedLadders  );
+    sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meResXvsAlphaBarrelFlippedLadders"   , newmeResXvsAlphaBarrelFlippedLadders     );
+    sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meResXvsAlphaBarrelNonFlippedLadders", newmeResXvsAlphaBarrelNonFlippedLadders  );
  
-    sfile->GetObject("DQMData/Histograms_all/meResXvsAlphaZmPanel1", newmeResXvsAlphaZmPanel1);
-    sfile->GetObject("DQMData/Histograms_all/meResXvsAlphaZmPanel2", newmeResXvsAlphaZmPanel2);
-    sfile->GetObject("DQMData/Histograms_all/meResXvsAlphaZpPanel1", newmeResXvsAlphaZpPanel1);
-    sfile->GetObject("DQMData/Histograms_all/meResXvsAlphaZpPanel2", newmeResXvsAlphaZpPanel2);
+    sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meResXvsAlphaZmPanel1", newmeResXvsAlphaZmPanel1);
+    sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meResXvsAlphaZmPanel2", newmeResXvsAlphaZmPanel2);
+    sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meResXvsAlphaZpPanel1", newmeResXvsAlphaZpPanel1);
+    sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meResXvsAlphaZpPanel2", newmeResXvsAlphaZpPanel2);
   
     TLegend* leg20 = new TLegend(0.3, 0.7, 0.6, 0.9);
     can_ResXvsAlpha->cd(1);
@@ -1738,17 +1738,17 @@ if (1)
     TProfile* newmeResXvsBetaZpPanel1;
     TProfile* newmeResXvsBetaZpPanel2;
 
-    rfile->GetObject("DQMData/Histograms_all/meResXvsBetaBarrel"  , meResXvsBetaBarrel  );
-    rfile->GetObject("DQMData/Histograms_all/meResXvsBetaZmPanel1", meResXvsBetaZmPanel1);
-    rfile->GetObject("DQMData/Histograms_all/meResXvsBetaZmPanel2", meResXvsBetaZmPanel2);
-    rfile->GetObject("DQMData/Histograms_all/meResXvsBetaZpPanel1", meResXvsBetaZpPanel1);
-    rfile->GetObject("DQMData/Histograms_all/meResXvsBetaZpPanel2", meResXvsBetaZpPanel2);
+    rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meResXvsBetaBarrel"  , meResXvsBetaBarrel  );
+    rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meResXvsBetaZmPanel1", meResXvsBetaZmPanel1);
+    rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meResXvsBetaZmPanel2", meResXvsBetaZmPanel2);
+    rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meResXvsBetaZpPanel1", meResXvsBetaZpPanel1);
+    rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meResXvsBetaZpPanel2", meResXvsBetaZpPanel2);
 
-    sfile->GetObject("DQMData/Histograms_all/meResXvsBetaBarrel"  , newmeResXvsBetaBarrel  ); 
-    sfile->GetObject("DQMData/Histograms_all/meResXvsBetaZmPanel1", newmeResXvsBetaZmPanel1);
-    sfile->GetObject("DQMData/Histograms_all/meResXvsBetaZmPanel2", newmeResXvsBetaZmPanel2);
-    sfile->GetObject("DQMData/Histograms_all/meResXvsBetaZpPanel1", newmeResXvsBetaZpPanel1);
-    sfile->GetObject("DQMData/Histograms_all/meResXvsBetaZpPanel2", newmeResXvsBetaZpPanel2);
+    sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meResXvsBetaBarrel"  , newmeResXvsBetaBarrel  ); 
+    sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meResXvsBetaZmPanel1", newmeResXvsBetaZmPanel1);
+    sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meResXvsBetaZmPanel2", newmeResXvsBetaZmPanel2);
+    sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meResXvsBetaZpPanel1", newmeResXvsBetaZpPanel1);
+    sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meResXvsBetaZpPanel2", newmeResXvsBetaZpPanel2);
   
     TLegend* leg21 = new TLegend(0.3, 0.7, 0.6, 0.9);
     can_ResXvsBeta->cd(1);
@@ -1819,17 +1819,17 @@ if (1)
     TProfile* newmeResYvsAlphaZpPanel1;
     TProfile* newmeResYvsAlphaZpPanel2;
 
-    rfile->GetObject("DQMData/Histograms_all/meResYvsAlphaBarrel"  , meResYvsAlphaBarrel  );
-    rfile->GetObject("DQMData/Histograms_all/meResYvsAlphaZmPanel1", meResYvsAlphaZmPanel1);
-    rfile->GetObject("DQMData/Histograms_all/meResYvsAlphaZmPanel2", meResYvsAlphaZmPanel2);
-    rfile->GetObject("DQMData/Histograms_all/meResYvsAlphaZpPanel1", meResYvsAlphaZpPanel1);
-    rfile->GetObject("DQMData/Histograms_all/meResYvsAlphaZpPanel2", meResYvsAlphaZpPanel2);
+    rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meResYvsAlphaBarrel"  , meResYvsAlphaBarrel  );
+    rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meResYvsAlphaZmPanel1", meResYvsAlphaZmPanel1);
+    rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meResYvsAlphaZmPanel2", meResYvsAlphaZmPanel2);
+    rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meResYvsAlphaZpPanel1", meResYvsAlphaZpPanel1);
+    rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meResYvsAlphaZpPanel2", meResYvsAlphaZpPanel2);
 
-    sfile->GetObject("DQMData/Histograms_all/meResYvsAlphaBarrel"  , newmeResYvsAlphaBarrel  ); 
-    sfile->GetObject("DQMData/Histograms_all/meResYvsAlphaZmPanel1", newmeResYvsAlphaZmPanel1);
-    sfile->GetObject("DQMData/Histograms_all/meResYvsAlphaZmPanel2", newmeResYvsAlphaZmPanel2);
-    sfile->GetObject("DQMData/Histograms_all/meResYvsAlphaZpPanel1", newmeResYvsAlphaZpPanel1);
-    sfile->GetObject("DQMData/Histograms_all/meResYvsAlphaZpPanel2", newmeResYvsAlphaZpPanel2);
+    sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meResYvsAlphaBarrel"  , newmeResYvsAlphaBarrel  ); 
+    sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meResYvsAlphaZmPanel1", newmeResYvsAlphaZmPanel1);
+    sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meResYvsAlphaZmPanel2", newmeResYvsAlphaZmPanel2);
+    sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meResYvsAlphaZpPanel1", newmeResYvsAlphaZpPanel1);
+    sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meResYvsAlphaZpPanel2", newmeResYvsAlphaZpPanel2);
   
     TLegend* leg22 = new TLegend(0.3, 0.7, 0.6, 0.9);
     can_ResYvsAlpha->cd(1);
@@ -1899,17 +1899,17 @@ if (1)
     TProfile* newmeResYvsBetaZpPanel1;
     TProfile* newmeResYvsBetaZpPanel2;
 
-    rfile->GetObject("DQMData/Histograms_all/meResYvsBetaBarrel"  , meResYvsBetaBarrel  );
-    rfile->GetObject("DQMData/Histograms_all/meResYvsBetaZmPanel1", meResYvsBetaZmPanel1);
-    rfile->GetObject("DQMData/Histograms_all/meResYvsBetaZmPanel2", meResYvsBetaZmPanel2);
-    rfile->GetObject("DQMData/Histograms_all/meResYvsBetaZpPanel1", meResYvsBetaZpPanel1);
-    rfile->GetObject("DQMData/Histograms_all/meResYvsBetaZpPanel2", meResYvsBetaZpPanel2);
+    rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meResYvsBetaBarrel"  , meResYvsBetaBarrel  );
+    rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meResYvsBetaZmPanel1", meResYvsBetaZmPanel1);
+    rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meResYvsBetaZmPanel2", meResYvsBetaZmPanel2);
+    rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meResYvsBetaZpPanel1", meResYvsBetaZpPanel1);
+    rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meResYvsBetaZpPanel2", meResYvsBetaZpPanel2);
 
-    sfile->GetObject("DQMData/Histograms_all/meResYvsBetaBarrel"  , newmeResYvsBetaBarrel  ); 
-    sfile->GetObject("DQMData/Histograms_all/meResYvsBetaZmPanel1", newmeResYvsBetaZmPanel1);
-    sfile->GetObject("DQMData/Histograms_all/meResYvsBetaZmPanel2", newmeResYvsBetaZmPanel2);
-    sfile->GetObject("DQMData/Histograms_all/meResYvsBetaZpPanel1", newmeResYvsBetaZpPanel1);
-    sfile->GetObject("DQMData/Histograms_all/meResYvsBetaZpPanel2", newmeResYvsBetaZpPanel2);
+    sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meResYvsBetaBarrel"  , newmeResYvsBetaBarrel  ); 
+    sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meResYvsBetaZmPanel1", newmeResYvsBetaZmPanel1);
+    sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meResYvsBetaZmPanel2", newmeResYvsBetaZmPanel2);
+    sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meResYvsBetaZpPanel1", newmeResYvsBetaZpPanel1);
+    sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meResYvsBetaZpPanel2", newmeResYvsBetaZpPanel2);
   
     TLegend* leg23 = new TLegend(0.3, 0.7, 0.6, 0.9);
     can_ResYvsBeta->cd(1);
@@ -1975,17 +1975,17 @@ if (1)
     TH1F* newmeResxZpPanel1;
     TH1F* newmeResxZpPanel2;
 
-    rfile->GetObject("DQMData/Histograms_all/meResxBarrel"  , meResxBarrel  );
-    rfile->GetObject("DQMData/Histograms_all/meResxZmPanel1", meResxZmPanel1);
-    rfile->GetObject("DQMData/Histograms_all/meResxZmPanel2", meResxZmPanel2);
-    rfile->GetObject("DQMData/Histograms_all/meResxZpPanel1", meResxZpPanel1);
-    rfile->GetObject("DQMData/Histograms_all/meResxZpPanel2", meResxZpPanel2);
+    rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meResxBarrel"  , meResxBarrel  );
+    rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meResxZmPanel1", meResxZmPanel1);
+    rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meResxZmPanel2", meResxZmPanel2);
+    rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meResxZpPanel1", meResxZpPanel1);
+    rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meResxZpPanel2", meResxZpPanel2);
 
-    sfile->GetObject("DQMData/Histograms_all/meResxBarrel"  , newmeResxBarrel  ); 
-    sfile->GetObject("DQMData/Histograms_all/meResxZmPanel1", newmeResxZmPanel1);
-    sfile->GetObject("DQMData/Histograms_all/meResxZmPanel2", newmeResxZmPanel2);
-    sfile->GetObject("DQMData/Histograms_all/meResxZpPanel1", newmeResxZpPanel1);
-    sfile->GetObject("DQMData/Histograms_all/meResxZpPanel2", newmeResxZpPanel2);
+    sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meResxBarrel"  , newmeResxBarrel  ); 
+    sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meResxZmPanel1", newmeResxZmPanel1);
+    sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meResxZmPanel2", newmeResxZmPanel2);
+    sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meResxZpPanel1", newmeResxZpPanel1);
+    sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meResxZpPanel2", newmeResxZpPanel2);
   
     TLegend* leg24 = new TLegend(0.3, 0.7, 0.6, 0.9);
     can_meResx->cd(1);
@@ -2050,17 +2050,17 @@ if (1)
     TH1F* newmeResyZpPanel1;
     TH1F* newmeResyZpPanel2;
 
-    rfile->GetObject("DQMData/Histograms_all/meResyBarrel"  , meResyBarrel  );
-    rfile->GetObject("DQMData/Histograms_all/meResyZmPanel1", meResyZmPanel1);
-    rfile->GetObject("DQMData/Histograms_all/meResyZmPanel2", meResyZmPanel2);
-    rfile->GetObject("DQMData/Histograms_all/meResyZpPanel1", meResyZpPanel1);
-    rfile->GetObject("DQMData/Histograms_all/meResyZpPanel2", meResyZpPanel2);
+    rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meResyBarrel"  , meResyBarrel  );
+    rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meResyZmPanel1", meResyZmPanel1);
+    rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meResyZmPanel2", meResyZmPanel2);
+    rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meResyZpPanel1", meResyZpPanel1);
+    rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meResyZpPanel2", meResyZpPanel2);
 
-    sfile->GetObject("DQMData/Histograms_all/meResyBarrel"  , newmeResyBarrel  ); 
-    sfile->GetObject("DQMData/Histograms_all/meResyZmPanel1", newmeResyZmPanel1);
-    sfile->GetObject("DQMData/Histograms_all/meResyZmPanel2", newmeResyZmPanel2);
-    sfile->GetObject("DQMData/Histograms_all/meResyZpPanel1", newmeResyZpPanel1);
-    sfile->GetObject("DQMData/Histograms_all/meResyZpPanel2", newmeResyZpPanel2);
+    sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meResyBarrel"  , newmeResyBarrel  ); 
+    sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meResyZmPanel1", newmeResyZmPanel1);
+    sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meResyZmPanel2", newmeResyZmPanel2);
+    sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meResyZpPanel1", newmeResyZpPanel1);
+    sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meResyZpPanel2", newmeResyZpPanel2);
   
     TLegend* leg25 = new TLegend(0.3, 0.7, 0.6, 0.9);
     can_meResy->cd(1);
@@ -2110,8 +2110,8 @@ if (1)
 
  // Look at the charge distribution on each module 
 
- rfile->cd("DQMData/Histograms_per_ring-layer_or_disk-plaquette");
- sfile->cd("DQMData/Histograms_per_ring-layer_or_disk-plaquette");
+ rfile->cd("DQMData/TrackingRecHits/Pixel/Histograms_per_ring-layer_or_disk-plaquette");
+ sfile->cd("DQMData/TrackingRecHits/Pixel/Histograms_per_ring-layer_or_disk-plaquette");
  
  Char_t histo[200];
 
@@ -2124,7 +2124,7 @@ if (1)
  for (Int_t i=0; i<3; i++) // loop ovel layers
    for (Int_t j=0; j<8; j++) // loop ovel rings
      {
-       sprintf(histo, "DQMData/Histograms_per_ring-layer_or_disk-plaquette/meChargeBarrelLayerModule_%d_%d", i+1, j+1);
+       sprintf(histo, "DQMData/TrackingRecHits/Pixel/Histograms_per_ring-layer_or_disk-plaquette/meChargeBarrelLayerModule_%d_%d", i+1, j+1);
        rfile->GetObject(histo, meChargeLayerModule[i][j]);
        sfile->GetObject(histo, newmeChargeLayerModule[i][j]); 
        SetUpHistograms(meChargeLayerModule[i][j], newmeChargeLayerModule[i][j], "barrel, charge (elec)" );
@@ -2155,7 +2155,7 @@ if (1)
  for (Int_t i=0; i<2; i++) // loop ovel disks
    for (Int_t j=0; j<4; j++) // loop ovel plaguetes
      {
-       sprintf(histo, "DQMData/Histograms_per_ring-layer_or_disk-plaquette/meChargeZmPanel1DiskPlaq_%d_%d", i+1, j+1);
+       sprintf(histo, "DQMData/TrackingRecHits/Pixel/Histograms_per_ring-layer_or_disk-plaquette/meChargeZmPanel1DiskPlaq_%d_%d", i+1, j+1);
        rfile->GetObject(histo, meChargeZmPanel1DiskPlaq[i][j]);
        sfile->GetObject(histo, newmeChargeZmPanel1DiskPlaq[i][j]); 
        
@@ -2186,7 +2186,7 @@ if (1)
  for (Int_t i=0; i<2; i++) // loop ovel disks
    for (Int_t j=0; j<3; j++) // loop ovel plaguetes
      {
-       sprintf(histo, "DQMData/Histograms_per_ring-layer_or_disk-plaquette/meChargeZmPanel2DiskPlaq_%d_%d", i+1, j+1);
+       sprintf(histo, "DQMData/TrackingRecHits/Pixel/Histograms_per_ring-layer_or_disk-plaquette/meChargeZmPanel2DiskPlaq_%d_%d", i+1, j+1);
        rfile->GetObject(histo, meChargeZmPanel2DiskPlaq[i][j]);
        sfile->GetObject(histo, newmeChargeZmPanel2DiskPlaq[i][j]); 
        
@@ -2217,7 +2217,7 @@ if (1)
  for (Int_t i=0; i<2; i++) // loop ovel disks
    for (Int_t j=0; j<4; j++) // loop ovel plaguetes
      {
-       sprintf(histo, "DQMData/Histograms_per_ring-layer_or_disk-plaquette/meChargeZpPanel1DiskPlaq_%d_%d", i+1, j+1);
+       sprintf(histo, "DQMData/TrackingRecHits/Pixel/Histograms_per_ring-layer_or_disk-plaquette/meChargeZpPanel1DiskPlaq_%d_%d", i+1, j+1);
        rfile->GetObject(histo, meChargeZpPanel1DiskPlaq[i][j]);
        sfile->GetObject(histo, newmeChargeZpPanel1DiskPlaq[i][j]); 
        
@@ -2248,7 +2248,7 @@ if (1)
  for (Int_t i=0; i<2; i++) // loop ovel disks
    for (Int_t j=0; j<3; j++) // loop ovel plaguetes
      {
-       sprintf(histo, "DQMData/Histograms_per_ring-layer_or_disk-plaquette/meChargeZpPanel2DiskPlaq_%d_%d", i+1, j+1);
+       sprintf(histo, "DQMData/TrackingRecHits/Pixel/Histograms_per_ring-layer_or_disk-plaquette/meChargeZpPanel2DiskPlaq_%d_%d", i+1, j+1);
        rfile->GetObject(histo, meChargeZpPanel2DiskPlaq[i][j]);
        sfile->GetObject(histo, newmeChargeZpPanel2DiskPlaq[i][j]); 
        
@@ -2280,7 +2280,7 @@ if (1)
 
  for (Int_t i=0; i<3; i++) // loop layers
    {
-     sprintf(histo, "DQMData/Histograms_per_ring-layer_or_disk-plaquette/meResxBarrelLayer_%d", i+1);
+     sprintf(histo, "DQMData/TrackingRecHits/Pixel/Histograms_per_ring-layer_or_disk-plaquette/meResxBarrelLayer_%d", i+1);
      rfile->GetObject(histo, meResxBarrelLayer[i]);
      sfile->GetObject(histo, newmeResxBarrelLayer[i]); 
      
@@ -2304,7 +2304,7 @@ if (1)
   
  for (Int_t i=0; i<3; i++) // loop layers
    {
-     sprintf(histo, "DQMData/Histograms_per_ring-layer_or_disk-plaquette/meResyBarrelLayer_%d", i+1);
+     sprintf(histo, "DQMData/TrackingRecHits/Pixel/Histograms_per_ring-layer_or_disk-plaquette/meResyBarrelLayer_%d", i+1);
      rfile->GetObject(histo, meResyBarrelLayer[i]);
      sfile->GetObject(histo, newmeResyBarrelLayer[i]); 
        
@@ -2333,7 +2333,7 @@ if (1)
 
  for (Int_t i=0; i<3; i++) // loop layers
    {
-     sprintf(histo, "DQMData/Histograms_per_ring-layer_or_disk-plaquette/mePullxBarrelLayer_%d", i+1);
+     sprintf(histo, "DQMData/TrackingRecHits/Pixel/Histograms_per_ring-layer_or_disk-plaquette/mePullxBarrelLayer_%d", i+1);
      rfile->GetObject(histo, mePullxBarrelLayer[i]);
      sfile->GetObject(histo, newmePullxBarrelLayer[i]); 
      
@@ -2357,7 +2357,7 @@ if (1)
   
  for (Int_t i=0; i<3; i++) // loop layers
    {
-     sprintf(histo, "DQMData/Histograms_per_ring-layer_or_disk-plaquette/mePullyBarrelLayer_%d", i+1);
+     sprintf(histo, "DQMData/TrackingRecHits/Pixel/Histograms_per_ring-layer_or_disk-plaquette/mePullyBarrelLayer_%d", i+1);
      rfile->GetObject(histo, mePullyBarrelLayer[i]);
      sfile->GetObject(histo, newmePullyBarrelLayer[i]); 
        

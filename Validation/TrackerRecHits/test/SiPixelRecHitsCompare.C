@@ -15,8 +15,8 @@ void SiPixelRecHitsCompare()
    TFile * rfile = new TFile(rfilename);
    TFile * sfile = new TFile(sfilename);
 
-   rfile->cd("DQMData");
-   sfile->cd("DQMData");
+   rfile->cd("DQMData/TrackerRecHits/Strip");
+   sfile->cd("DQMData/TrackerRecHits/Strip");
 
    gROOT->ProcessLine(".x HistoCompare.C");    
    HistoCompare * myPV = new HistoCompare();
@@ -80,7 +80,7 @@ void SiPixelRecHitsCompare()
        
        for (Int_t i=0; i<8; i++) 
 	 {
-	   sprintf(histo, "DQMData/clustBPIX/Clust_y_size_Module%d", i+1);
+	   sprintf(histo, "DQMData/TrackerRecHits/Pixel/clustBPIX/Clust_y_size_Module%d", i+1);
 	   rfile->GetObject(histo, clustYSizeModule_[i]);
 	   sfile->GetObject(histo, newclustYSizeModule_[i]);
 	   Pixel0->cd(i+1);
@@ -113,7 +113,7 @@ void SiPixelRecHitsCompare()
        
        for (Int_t i=0; i<3; i++) 
 	 {
-	   sprintf(histo, "DQMData/clustBPIX/Clust_x_size_Layer%d", i+1);
+	   sprintf(histo, "DQMData/TrackerRecHits/Pixel/clustBPIX/Clust_x_size_Layer%d", i+1);
 	   rfile->GetObject(histo, clustXSizeLayer_[i]);
 	   sfile->GetObject(histo, newclustXSizeLayer_[i]);
 	   Pixel1->cd(i+1);
@@ -146,7 +146,7 @@ void SiPixelRecHitsCompare()
        
        for (Int_t i=0; i<8; i++) 
 	 {
-	   sprintf(histo, "DQMData/clustBPIX/Clust_charge_Layer1_Module%d", i+1);
+	   sprintf(histo, "DQMData/TrackerRecHits/Pixel/clustBPIX/Clust_charge_Layer1_Module%d", i+1);
 	   rfile->GetObject(histo, clustChargeLayer1Modules_[i]);
 	   sfile->GetObject(histo, newclustChargeLayer1Modules_[i]);
 	   Pixel2->cd(i+1);
@@ -179,7 +179,7 @@ void SiPixelRecHitsCompare()
        
        for (Int_t i=0; i<8; i++) 
 	 {
-	   sprintf(histo, "DQMData/clustBPIX/Clust_charge_Layer2_Module%d", i+1);
+	   sprintf(histo, "DQMData/TrackerRecHits/Pixel/clustBPIX/Clust_charge_Layer2_Module%d", i+1);
 	   rfile->GetObject(histo, clustChargeLayer2Modules_[i]);
 	   sfile->GetObject(histo, newclustChargeLayer2Modules_[i]);
 	   Pixel3->cd(i+1);
@@ -212,7 +212,7 @@ void SiPixelRecHitsCompare()
        
        for (Int_t i=0; i<8; i++) 
 	 {
-	   sprintf(histo, "DQMData/clustBPIX/Clust_charge_Layer3_Module%d", i+1);
+	   sprintf(histo, "DQMData/TrackerRecHits/Pixel/clustBPIX/Clust_charge_Layer3_Module%d", i+1);
 	   rfile->GetObject(histo, clustChargeLayer3Modules_[i]);
 	   sfile->GetObject(histo, newclustChargeLayer3Modules_[i]);
 	   Pixel4->cd(i+1);
@@ -249,7 +249,7 @@ void SiPixelRecHitsCompare()
        
        for (Int_t i=0; i<7; i++) 
 	 {
-	   sprintf(histo, "DQMData/clustFPIX/Clust_x_size_Disk1_Plaquette%d", i+1);
+	   sprintf(histo, "DQMData/TrackerRecHits/Pixel/clustFPIX/Clust_x_size_Disk1_Plaquette%d", i+1);
 	   rfile->GetObject(histo, clustXSizeDisk1Plaquettes_[i]);
 	   sfile->GetObject(histo, newclustXSizeDisk1Plaquettes_[i]);
 	   Pixel5->cd(i+1);
@@ -282,7 +282,7 @@ void SiPixelRecHitsCompare()
        
        for (Int_t i=0; i<7; i++) 
 	 {
-	   sprintf(histo, "DQMData/clustFPIX/Clust_x_size_Disk2_Plaquette%d", i+1);
+	   sprintf(histo, "DQMData/TrackerRecHits/Pixel/clustFPIX/Clust_x_size_Disk2_Plaquette%d", i+1);
 	   rfile->GetObject(histo, clustXSizeDisk2Plaquettes_[i]);
 	   sfile->GetObject(histo, newclustXSizeDisk2Plaquettes_[i]);
 	   Pixel6->cd(i+1);
@@ -316,7 +316,7 @@ void SiPixelRecHitsCompare()
        
        for (Int_t i=0; i<7; i++) 
 	 {
-	   sprintf(histo, "DQMData/clustFPIX/Clust_y_size_Disk1_Plaquette%d", i+1);
+	   sprintf(histo, "DQMData/TrackerRecHits/Pixel/clustFPIX/Clust_y_size_Disk1_Plaquette%d", i+1);
 	   rfile->GetObject(histo, clustYSizeDisk1Plaquettes_[i]);
 	   sfile->GetObject(histo, newclustYSizeDisk1Plaquettes_[i]);
 	   Pixel7->cd(i+1);
@@ -349,7 +349,7 @@ void SiPixelRecHitsCompare()
        
        for (Int_t i=0; i<7; i++) 
 	 {
-	   sprintf(histo, "DQMData/clustFPIX/Clust_y_size_Disk2_Plaquette%d", i+1);
+	   sprintf(histo, "DQMData/TrackerRecHits/Pixel/clustFPIX/Clust_y_size_Disk2_Plaquette%d", i+1);
 	   rfile->GetObject(histo, clustYSizeDisk2Plaquettes_[i]);
 	   sfile->GetObject(histo, newclustYSizeDisk2Plaquettes_[i]);
 	   Pixel8->cd(i+1);
@@ -383,7 +383,7 @@ void SiPixelRecHitsCompare()
        
        for (Int_t i=0; i<7; i++) 
 	 {
-	   sprintf(histo, "DQMData/clustFPIX/Clust_charge_Disk1_Plaquette%d", i+1);
+	   sprintf(histo, "DQMData/TrackerRecHits/Pixel/clustFPIX/Clust_charge_Disk1_Plaquette%d", i+1);
 	   rfile->GetObject(histo, clustChargeDisk1Plaquettes_[i]);
 	   sfile->GetObject(histo, newclustChargeDisk1Plaquettes_[i]);
 	   Pixel9->cd(i+1);
@@ -416,7 +416,7 @@ void SiPixelRecHitsCompare()
        
        for (Int_t i=0; i<7; i++) 
 	 {
-	   sprintf(histo, "DQMData/clustFPIX/Clust_charge_Disk2_Plaquette%d", i+1);
+	   sprintf(histo, "DQMData/TrackerRecHits/Pixel/clustFPIX/Clust_charge_Disk2_Plaquette%d", i+1);
 	   rfile->GetObject(histo, clustChargeDisk2Plaquettes_[i]);
 	   sfile->GetObject(histo, newclustChargeDisk2Plaquettes_[i]);
 	   Pixel10->cd(i+1);
@@ -450,7 +450,7 @@ void SiPixelRecHitsCompare()
        TH1* recHitXFullModules_;
        TH1* newrecHitXFullModules_;
        
-       sprintf (histo, "DQMData/recHitBPIX/RecHit_x_FullModules");
+       sprintf (histo, "DQMData/TrackerRecHits/Pixel/recHitBPIX/RecHit_x_FullModules");
        rfile->GetObject(histo, recHitXFullModules_);
        sfile->GetObject(histo, newrecHitXFullModules_);
        
@@ -476,7 +476,7 @@ void SiPixelRecHitsCompare()
        TH1* recHitXHalfModules_;
        TH1* newrecHitXHalfModules_;
        
-       sprintf (histo, "DQMData/recHitBPIX/RecHit_x_HalfModules");
+       sprintf (histo, "DQMData/TrackerRecHits/Pixel/recHitBPIX/RecHit_x_HalfModules");
        rfile->GetObject(histo, recHitXHalfModules_);
        sfile->GetObject(histo, newrecHitXHalfModules_);
        
@@ -502,7 +502,7 @@ void SiPixelRecHitsCompare()
        TH1* recHitYAllModules_;
        TH1* newrecHitYAllModules_;
        
-       sprintf (histo, "DQMData/recHitBPIX/RecHit_y_AllModules");
+       sprintf (histo, "DQMData/TrackerRecHits/Pixel/recHitBPIX/RecHit_y_AllModules");
        rfile->GetObject(histo, recHitYAllModules_);
        sfile->GetObject(histo, newrecHitYAllModules_);
        
@@ -534,7 +534,7 @@ void SiPixelRecHitsCompare()
 	 {
 	   //RecHit XRes Flipped ladders by layer
 	   
-	   sprintf(histo, "DQMData/recHitBPIX/RecHit_XRes_FlippedLadder_Layer%d", i+1);
+	   sprintf(histo, "DQMData/TrackerRecHits/Pixel/recHitBPIX/RecHit_XRes_FlippedLadder_Layer%d", i+1);
 	   rfile->GetObject(histo, recHitXResFlippedLadderLayers_[i]);
 	   sfile->GetObject(histo, newrecHitXResFlippedLadderLayers_[i]);
 	   
@@ -568,7 +568,7 @@ void SiPixelRecHitsCompare()
 	 {
 	   //RecHit XRes unflipped ladders by layer
 	   
-	   sprintf(histo, "DQMData/recHitBPIX/RecHit_XRes_UnFlippedLadder_Layer%d", i+1);
+	   sprintf(histo, "DQMData/TrackerRecHits/Pixel/recHitBPIX/RecHit_XRes_UnFlippedLadder_Layer%d", i+1);
 	   rfile->GetObject(histo, recHitXResUnFlippedLadderLayers_[i]);
 	   sfile->GetObject(histo, newrecHitXResUnFlippedLadderLayers_[i]);
 	   
@@ -602,7 +602,7 @@ void SiPixelRecHitsCompare()
 	 {
 	   //RecHit Y resolution by module for layer 1
 	   
-	   sprintf(histo, "DQMData/recHitBPIX/RecHit_YRes_Layer1_Module%d", i+1);
+	   sprintf(histo, "DQMData/TrackerRecHits/Pixel/recHitBPIX/RecHit_YRes_Layer1_Module%d", i+1);
 	   rfile->GetObject(histo, recHitYResLayer1Modules_[i]);
 	   sfile->GetObject(histo, newrecHitYResLayer1Modules_[i]);
 
@@ -636,7 +636,7 @@ void SiPixelRecHitsCompare()
 	 {
 	   //RecHit Y resolution by module for layer 2
 	   
-	   sprintf(histo, "DQMData/recHitBPIX/RecHit_YRes_Layer2_Module%d", i+1);
+	   sprintf(histo, "DQMData/TrackerRecHits/Pixel/recHitBPIX/RecHit_YRes_Layer2_Module%d", i+1);
 	   rfile->GetObject(histo, recHitYResLayer2Modules_[i]);
 	   sfile->GetObject(histo, newrecHitYResLayer2Modules_[i]);
 
@@ -670,7 +670,7 @@ void SiPixelRecHitsCompare()
 	 {
 	   //RecHit Y resolution by module for layer 3
 	   
-	   sprintf(histo, "DQMData/recHitBPIX/RecHit_YRes_Layer3_Module%d", i+1);
+	   sprintf(histo, "DQMData/TrackerRecHits/Pixel/recHitBPIX/RecHit_YRes_Layer3_Module%d", i+1);
 	   rfile->GetObject(histo, recHitYResLayer3Modules_[i]);
 	   sfile->GetObject(histo, newrecHitYResLayer3Modules_[i]);
 
@@ -706,7 +706,7 @@ void SiPixelRecHitsCompare()
        TH1* recHitXPlaquetteXSize1_;
        TH1* newrecHitXPlaquetteXSize1_;
        
-       sprintf(histo, "DQMData/recHitFPIX/RecHit_x_Plaquette_xsize1");
+       sprintf(histo, "DQMData/TrackerRecHits/Pixel/recHitFPIX/RecHit_x_Plaquette_xsize1");
        rfile->GetObject(histo, recHitXPlaquetteXSize1_);
        sfile->GetObject(histo, newrecHitXPlaquetteXSize1_);
        
@@ -733,7 +733,7 @@ void SiPixelRecHitsCompare()
        TH1* recHitXPlaquetteXSize2_;
        TH1* newrecHitXPlaquetteXSize2_;
        
-       sprintf(histo, "DQMData/recHitFPIX/RecHit_x_Plaquette_xsize2");
+       sprintf(histo, "DQMData/TrackerRecHits/Pixel/recHitFPIX/RecHit_x_Plaquette_xsize2");
        rfile->GetObject(histo, recHitXPlaquetteXSize2_);
        sfile->GetObject(histo, newrecHitXPlaquetteXSize2_);
        
@@ -760,7 +760,7 @@ void SiPixelRecHitsCompare()
        TH1* recHitYPlaquetteYSize2_;
        TH1* newrecHitYPlaquetteYSize2_;
        
-       sprintf(histo, "DQMData/recHitFPIX/RecHit_y_Plaquette_ysize2");
+       sprintf(histo, "DQMData/TrackerRecHits/Pixel/recHitFPIX/RecHit_y_Plaquette_ysize2");
        rfile->GetObject(histo, recHitYPlaquetteYSize2_);
        sfile->GetObject(histo, newrecHitYPlaquetteYSize2_);
        
@@ -787,7 +787,7 @@ void SiPixelRecHitsCompare()
        TH1* recHitYPlaquetteYSize3_;
        TH1* newrecHitYPlaquetteYSize3_;
        
-       sprintf(histo, "DQMData/recHitFPIX/RecHit_y_Plaquette_ysize3");
+       sprintf(histo, "DQMData/TrackerRecHits/Pixel/recHitFPIX/RecHit_y_Plaquette_ysize3");
        rfile->GetObject(histo, recHitYPlaquetteYSize3_);
        sfile->GetObject(histo, newrecHitYPlaquetteYSize3_);
        
@@ -814,7 +814,7 @@ void SiPixelRecHitsCompare()
        TH1* recHitYPlaquetteYSize4_;
        TH1* newrecHitYPlaquetteYSize4_;
        
-       sprintf(histo, "DQMData/recHitFPIX/RecHit_y_Plaquette_ysize4");
+       sprintf(histo, "DQMData/TrackerRecHits/Pixel/recHitFPIX/RecHit_y_Plaquette_ysize4");
        rfile->GetObject(histo, recHitYPlaquetteYSize4_);
        sfile->GetObject(histo, newrecHitYPlaquetteYSize4_);
        
@@ -841,7 +841,7 @@ void SiPixelRecHitsCompare()
        TH1* recHitYPlaquetteYSize5_;
        TH1* newrecHitYPlaquetteYSize5_;
        
-       sprintf(histo, "DQMData/recHitFPIX/RecHit_y_Plaquette_ysize5");
+       sprintf(histo, "DQMData/TrackerRecHits/Pixel/recHitFPIX/RecHit_y_Plaquette_ysize5");
        rfile->GetObject(histo, recHitYPlaquetteYSize5_);
        sfile->GetObject(histo, newrecHitYPlaquetteYSize5_);
        
@@ -873,7 +873,7 @@ void SiPixelRecHitsCompare()
 	 {
 	   //RecHit X resolution by plaquette for Disk1
 	   
-	   sprintf(histo, "DQMData/recHitFPIX/RecHit_XRes_Disk1_Plaquette%d", i+1);
+	   sprintf(histo, "DQMData/TrackerRecHits/Pixel/recHitFPIX/RecHit_XRes_Disk1_Plaquette%d", i+1);
 	   rfile->GetObject(histo, recHitXResDisk1Plaquettes_[i]);
 	   sfile->GetObject(histo, newrecHitXResDisk1Plaquettes_[i]);
 
@@ -907,7 +907,7 @@ void SiPixelRecHitsCompare()
 	 {
 	   //RecHit X resolution by plaquette for Disk2
 	   
-	   sprintf(histo, "DQMData/recHitFPIX/RecHit_XRes_Disk2_Plaquette%d", i+1);
+	   sprintf(histo, "DQMData/TrackerRecHits/Pixel/recHitFPIX/RecHit_XRes_Disk2_Plaquette%d", i+1);
 	   rfile->GetObject(histo, recHitXResDisk2Plaquettes_[i]);
 	   sfile->GetObject(histo, newrecHitXResDisk2Plaquettes_[i]);
 
@@ -941,7 +941,7 @@ void SiPixelRecHitsCompare()
 	 {
 	   //RecHit Y resolution by plaquette for Disk1
 	   
-	   sprintf(histo, "DQMData/recHitFPIX/RecHit_YRes_Disk1_Plaquette%d", i+1);
+	   sprintf(histo, "DQMData/TrackerRecHits/Pixel/recHitFPIX/RecHit_YRes_Disk1_Plaquette%d", i+1);
 	   rfile->GetObject(histo, recHitYResDisk1Plaquettes_[i]);
 	   sfile->GetObject(histo, newrecHitYResDisk1Plaquettes_[i]);
 
@@ -975,7 +975,7 @@ void SiPixelRecHitsCompare()
 	 {
 	   //RecHit X resolution by plaquette for Disk2
 	   
-	   sprintf(histo, "DQMData/recHitFPIX/RecHit_YRes_Disk2_Plaquette%d", i+1);
+	   sprintf(histo, "DQMData/TrackerRecHits/Pixel/recHitFPIX/RecHit_YRes_Disk2_Plaquette%d", i+1);
 	   rfile->GetObject(histo, recHitYResDisk2Plaquettes_[i]);
 	   sfile->GetObject(histo, newrecHitYResDisk2Plaquettes_[i]);
 
@@ -1014,7 +1014,7 @@ void SiPixelRecHitsCompare()
 	 {
 	   //RecHit XPull Flipped ladders by layer
 	   
-	   sprintf(histo, "DQMData/recHitPullsBPIX/RecHit_XPull_FlippedLadder_Layer%d", i+1);
+	   sprintf(histo, "DQMData/TrackerRecHits/Pixel/recHitPullsBPIX/RecHit_XPull_FlippedLadder_Layer%d", i+1);
 	   rfile->GetObject(histo, recHitXPullFlippedLadderLayers_[i]);
 	   sfile->GetObject(histo, newrecHitXPullFlippedLadderLayers_[i]);
 
@@ -1048,7 +1048,7 @@ void SiPixelRecHitsCompare()
 	 {
 	   //RecHit XPull unflipped ladders by layer
 	   
-	   sprintf(histo, "DQMData/recHitPullsBPIX/RecHit_XPull_UnFlippedLadder_Layer%d", i+1);
+	   sprintf(histo, "DQMData/TrackerRecHits/Pixel/recHitPullsBPIX/RecHit_XPull_UnFlippedLadder_Layer%d", i+1);
 	   rfile->GetObject(histo, recHitXPullUnFlippedLadderLayers_[i]);
 	   sfile->GetObject(histo, newrecHitXPullUnFlippedLadderLayers_[i]);
 
@@ -1082,7 +1082,7 @@ void SiPixelRecHitsCompare()
 	 {
 	   //RecHit Y pullolution by module for layer 1
 	   
-	   sprintf(histo, "DQMData/recHitPullsBPIX/RecHit_YPull_Layer1_Module%d", i+1);
+	   sprintf(histo, "DQMData/TrackerRecHits/Pixel/recHitPullsBPIX/RecHit_YPull_Layer1_Module%d", i+1);
 	   rfile->GetObject(histo, recHitPullYPullLayer1Modules_[i]);
 	   sfile->GetObject(histo, newrecHitPullYPullLayer1Modules_[i]);
 
@@ -1116,7 +1116,7 @@ void SiPixelRecHitsCompare()
 	 {
 	   //RecHit Y pullolution by module for layer 2
 	   
-	   sprintf(histo, "DQMData/recHitPullsBPIX/RecHit_YPull_Layer2_Module%d", i+1);
+	   sprintf(histo, "DQMData/TrackerRecHits/Pixel/recHitPullsBPIX/RecHit_YPull_Layer2_Module%d", i+1);
 	   rfile->GetObject(histo, recHitPullYPullLayer2Modules_[i]);
 	   sfile->GetObject(histo, newrecHitPullYPullLayer2Modules_[i]);
 	   
@@ -1150,7 +1150,7 @@ void SiPixelRecHitsCompare()
 	 {
 	   //RecHit Y pullolution by module for layer 3
 	   
-	   sprintf(histo, "DQMData/recHitPullsBPIX/RecHit_YPull_Layer3_Module%d", i+1);
+	   sprintf(histo, "DQMData/TrackerRecHits/Pixel/recHitPullsBPIX/RecHit_YPull_Layer3_Module%d", i+1);
 	   rfile->GetObject(histo, recHitPullYPullLayer3Modules_[i]);
 	   sfile->GetObject(histo, newrecHitPullYPullLayer3Modules_[i]);
 
@@ -1189,7 +1189,7 @@ void SiPixelRecHitsCompare()
 	 {
 	   //RecHit X pullolution by plaquette for Disk1
 	   
-	   sprintf(histo, "DQMData/recHitPullsFPIX/RecHit_XPull_Disk1_Plaquette%d", i+1);
+	   sprintf(histo, "DQMData/TrackerRecHits/Pixel/recHitPullsFPIX/RecHit_XPull_Disk1_Plaquette%d", i+1);
 	   rfile->GetObject(histo, recHitXPullDisk1Plaquettes_[i]);
 	   sfile->GetObject(histo, newrecHitXPullDisk1Plaquettes_[i]);
 
@@ -1223,7 +1223,7 @@ void SiPixelRecHitsCompare()
 	 {
 	   //RecHit X pullolution by plaquette for Disk2
 	   
-	   sprintf(histo, "DQMData/recHitPullsFPIX/RecHit_XPull_Disk2_Plaquette%d", i+1);
+	   sprintf(histo, "DQMData/TrackerRecHits/Pixel/recHitPullsFPIX/RecHit_XPull_Disk2_Plaquette%d", i+1);
 	   rfile->GetObject(histo, recHitXPullDisk2Plaquettes_[i]);
 	   sfile->GetObject(histo, newrecHitXPullDisk2Plaquettes_[i]);
 
@@ -1257,7 +1257,7 @@ void SiPixelRecHitsCompare()
 	 {
 	   //RecHit Y pullolution by plaquette for Disk1
 	   
-	   sprintf(histo, "DQMData/recHitPullsFPIX/RecHit_YPull_Disk1_Plaquette%d", i+1);
+	   sprintf(histo, "DQMData/TrackerRecHits/Pixel/recHitPullsFPIX/RecHit_YPull_Disk1_Plaquette%d", i+1);
 	   rfile->GetObject(histo, recHitPullYPullDisk1Plaquettes_[i]);
 	   sfile->GetObject(histo, newrecHitPullYPullDisk1Plaquettes_[i]);
 	   
@@ -1291,7 +1291,7 @@ void SiPixelRecHitsCompare()
 	 {
 	   //RecHit X pullolution by plaquette for Disk2
 	   
-	   sprintf(histo, "DQMData/recHitPullsFPIX/RecHit_YPull_Disk2_Plaquette%d", i+1);
+	   sprintf(histo, "DQMData/TrackerRecHits/Pixel/recHitPullsFPIX/RecHit_YPull_Disk2_Plaquette%d", i+1);
 	   rfile->GetObject(histo, recHitPullYPullDisk2Plaquettes_[i]);
 	   sfile->GetObject(histo, newrecHitPullYPullDisk2Plaquettes_[i]);
 

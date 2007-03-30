@@ -41,7 +41,7 @@ SiPixelRecHitsValid::SiPixelRecHitsValid(const ParameterSet& ps):
   outputFile_ = ps.getUntrackedParameter<string>("outputFile", "pixelrechitshisto.root");
   dbe_ = Service<DaqMonitorBEInterface>().operator->();
   dbe_->showDirStructure();
-  dbe_->setCurrentFolder("clustBPIX");
+  dbe_->setCurrentFolder("TrackerRecHits/Pixel/clustBPIX");
   
   Char_t histo[200];
   
@@ -78,7 +78,7 @@ SiPixelRecHitsValid::SiPixelRecHitsValid(const ParameterSet& ps):
     clustChargeLayer3Modules[i] = dbe_->book1D(histo, "Cluster charge Layer 3 by Module",50, 0., 200000.);	
   } // end for
   
-  dbe_->setCurrentFolder("clustFPIX");
+  dbe_->setCurrentFolder("TrackerRecHits/Pixel/clustFPIX");
   //Cluster x-size, y-size, and charge by plaquette for Disks in Forward
   for (int i=0; i<7; i++) {
     //Cluster x-size for Disk1 by Plaquette
@@ -108,7 +108,7 @@ SiPixelRecHitsValid::SiPixelRecHitsValid(const ParameterSet& ps):
   
 
 
-  dbe_->setCurrentFolder("recHitBPIX");
+  dbe_->setCurrentFolder("TrackerRecHits/Pixel/recHitBPIX");
   //RecHit X Resolution all barrel hits
   recHitXResAllB = dbe_->book1D("RecHit_xres_b_All","RecHit X Res All Modules in Barrel", 100, -200., 200.);
   
@@ -150,7 +150,7 @@ SiPixelRecHitsValid::SiPixelRecHitsValid(const ParameterSet& ps):
     recHitYResLayer3Modules[i] = dbe_->book1D(histo, "RecHit YRes Layer3 by module", 100, -200., 200.); 
   } // end for
   
-  dbe_->setCurrentFolder("recHitFPIX");
+  dbe_->setCurrentFolder("TrackerRecHits/Pixel/recHitFPIX");
   //RecHit X resolution all plaquettes
   recHitXResAllF = dbe_->book1D("RecHit_xres_f_All", "RecHit X Res All in Forward", 100, -200., 200.);
   
@@ -194,7 +194,7 @@ SiPixelRecHitsValid::SiPixelRecHitsValid(const ParameterSet& ps):
   }
 
 
-  dbe_->setCurrentFolder("recHitPullsBPIX");
+  dbe_->setCurrentFolder("TrackerRecHits/Pixel/recHitPullsBPIX");
   recHitXPullAllB        = dbe_->book1D("RecHit_xres_b_All"       , "RecHit X Pull All Modules in Barrel"        , 100, -10.0, 10.0);
   recHitYPullAllB        = dbe_->book1D("RecHit_yres_b_All"       , "RecHit Y Pull All Modules in Barrel"        , 100, -10.0, 10.0);
 
@@ -219,7 +219,7 @@ SiPixelRecHitsValid::SiPixelRecHitsValid(const ParameterSet& ps):
       recHitYPullLayer3Modules[i] = dbe_->book1D(histo, "RecHit YPull Layer3 by module", 100, -10.0, 10.0); 
     }
   
-  dbe_->setCurrentFolder("recHitPullsFPIX");
+  dbe_->setCurrentFolder("TrackerRecHits/Pixel/recHitPullsFPIX");
   recHitXPullAllF = dbe_->book1D("RecHit_XPull_f_All", "RecHit X Pull All in Forward", 100, -10.0, 10.0);
   
   recHitYPullAllF = dbe_->book1D("RecHit_YPull_f_All", "RecHit Y Pull All in Forward", 100, -10.0, 10.0);

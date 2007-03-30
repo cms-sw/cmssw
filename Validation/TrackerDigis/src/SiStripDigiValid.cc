@@ -25,7 +25,7 @@ SiStripDigiValid::SiStripDigiValid(const ParameterSet& ps):dbe_(0){
    dbe_ = Service<DaqMonitorBEInterface>().operator->();
 
 if ( dbe_ ) {
-    dbe_->setCurrentFolder("Strip");
+    dbe_->setCurrentFolder("TrackerDigis/Strip");
 
    for(int i = 0 ;i<3 ; i++) {
      Char_t histo[200];

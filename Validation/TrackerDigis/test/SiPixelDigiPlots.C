@@ -10,7 +10,7 @@ void SiPixelDigiPlots()
  TFile * rfile = new TFile(rfilename);
  Char_t histo[200];
 
- rfile->cd("DQMData");
+ rfile->cd("DQMData/TrackerDigis/Pixel");
  gDirectory->ls();
 
 ////////////////////////////////////
@@ -25,7 +25,7 @@ if (1) {
    TH1* meAdcLadder_[8];
 
    for (Int_t i=0; i<8; i++){
-      sprintf(histo,"DQMData/adc_layer1ring%d;1",i+1);
+      sprintf(histo,"DQMData/TrackerDigis/Pixel/adc_layer1ring%d;1",i+1);
       rfile->GetObject(histo ,meAdcLadder_[i]);
       meAdcLadder_[i];
       Pixel->cd(i+1);
@@ -42,7 +42,7 @@ if (1) {
    TH1* meAdcLadder_[8];
 
    for (Int_t i=0; i<8; i++){
-      sprintf(histo,"DQMData/row_layer1ring%d;1",i+1);
+      sprintf(histo,"DQMData/TrackerDigis/Pixel/row_layer1ring%d;1",i+1);
       rfile->GetObject(histo ,meAdcLadder_[i]);
       meAdcLadder_[i];
       Pixel->cd(i+1);
@@ -59,7 +59,7 @@ if (1) {
    TH1* meAdcLadder_[8];
 
    for (Int_t i=0; i<8; i++){
-      sprintf(histo,"DQMData/col_layer1ring%d;1",i+1);
+      sprintf(histo,"DQMData/TrackerDigis/Pixel/col_layer1ring%d;1",i+1);
       rfile->GetObject(histo ,meAdcLadder_[i]);
       meAdcLadder_[i];
       Pixel->cd(i+1);
@@ -78,7 +78,7 @@ if (1) {
    TH1* meAdcLadder_[8];
 
    for (Int_t i=0; i<8; i++){
-      sprintf(histo,"DQMData/adc_layer2ring%d;1",i+1);
+      sprintf(histo,"DQMData/TrackerDigis/Pixel/adc_layer2ring%d;1",i+1);
       rfile->GetObject(histo ,meAdcLadder_[i]);
       meAdcLadder_[i];
       Pixel->cd(i+1);
@@ -95,7 +95,7 @@ if (1) {
    TH1* meAdcLadder_[8];
 
    for (Int_t i=0; i<8; i++){
-      sprintf(histo,"DQMData/row_layer2ring%d;1",i+1);
+      sprintf(histo,"DQMData/TrackerDigis/Pixel/row_layer2ring%d;1",i+1);
       rfile->GetObject(histo ,meAdcLadder_[i]);
       meAdcLadder_[i];
       Pixel->cd(i+1);
@@ -112,7 +112,7 @@ if (1) {
    TH1* meAdcLadder_[8];
 
    for (Int_t i=0; i<8; i++){
-      sprintf(histo,"DQMData/col_layer2ring%d;1",i+1);
+      sprintf(histo,"DQMData/TrackerDigis/Pixel/col_layer2ring%d;1",i+1);
       rfile->GetObject(histo ,meAdcLadder_[i]);
       meAdcLadder_[i];
       Pixel->cd(i+1);
@@ -130,7 +130,7 @@ if (1) {
    TH1* meAdcLadder_[8];
 
    for (Int_t i=0; i<8; i++){
-      sprintf(histo,"DQMData/adc_layer3ring%d;1",i+1);
+      sprintf(histo,"DQMData/TrackerDigis/Pixel/adc_layer3ring%d;1",i+1);
       rfile->GetObject(histo ,meAdcLadder_[i]);
       meAdcLadder_[i];
       Pixel->cd(i+1);
@@ -146,7 +146,7 @@ if (1) {
    TH1* meAdcLadder_[8];
 
    for (Int_t i=0; i<8; i++){
-      sprintf(histo,"DQMData/row_layer3ring%d;1",i+1);
+      sprintf(histo,"DQMData/TrackerDigis/Pixel/row_layer3ring%d;1",i+1);
       rfile->GetObject(histo ,meAdcLadder_[i]);
       meAdcLadder_[i];
       Pixel->cd(i+1);
@@ -163,7 +163,7 @@ if (1) {
    TH1* meAdcLadder_[8];
 
    for (Int_t i=0; i<8; i++){
-      sprintf(histo,"DQMData/col_layer3ring%d;1",i+1);
+      sprintf(histo,"DQMData/TrackerDigis/Pixel/col_layer3ring%d;1",i+1);
       rfile->GetObject(histo ,meAdcLadder_[i]);
       meAdcLadder_[i];
       Pixel->cd(i+1);
@@ -182,7 +182,7 @@ if (1) {
    Pixel->Divide(1,3);
 
    for (Int_t i=0; i<3; i++){
-      sprintf(histo,"DQMData/digi_multi_layer%d;1",i+1);
+      sprintf(histo,"DQMData/TrackerDigis/Pixel/digi_multi_layer%d;1",i+1);
       rfile->GetObject(histo ,meMultiLadder_[i]);
       meMultiLadder_[i];
       Pixel->cd(i+1);
@@ -204,7 +204,7 @@ if (1) {
    TH1* meAdc_[4];
 
    for (Int_t i=0; i<4; i++){
-      sprintf(histo,"DQMData/adc_zm_disk1_panel1_plaq%d;1",i+1);
+      sprintf(histo,"DQMData/TrackerDigis/Pixel/adc_zm_disk1_panel1_plaq%d;1",i+1);
       rfile->GetObject(histo ,meAdc_[i]);
       meAdc_[i];
       Pixel->cd(i+1);
@@ -220,7 +220,7 @@ if (1) {
    TH1* meAdc_[4];
 
    for (Int_t i=0; i<4; i++){
-      sprintf(histo,"DQMData/row_zm_disk1_panel1_plaq%d;1",i+1);
+      sprintf(histo,"DQMData/TrackerDigis/Pixel/row_zm_disk1_panel1_plaq%d;1",i+1);
       rfile->GetObject(histo ,meAdc_[i]);
       meAdc_[i];
       Pixel->cd(i+1);
@@ -237,7 +237,7 @@ if (1) {
    TH1* meAdc_[4];
 
    for (Int_t i=0; i<4; i++){
-      sprintf(histo,"DQMData/col_zm_disk1_panel1_plaq%d;1",i+1);
+      sprintf(histo,"DQMData/TrackerDigis/Pixel/col_zm_disk1_panel1_plaq%d;1",i+1);
       rfile->GetObject(histo ,meAdc_[i]);
       meAdc_[i];
       Pixel->cd(i+1);
@@ -254,7 +254,7 @@ if (1) {
    TH1* meAdc_[3];
 
    for (Int_t i=0; i<3; i++){
-      sprintf(histo,"DQMData/adc_zm_disk1_panel2_plaq%d;1",i+1);
+      sprintf(histo,"DQMData/TrackerDigis/Pixel/adc_zm_disk1_panel2_plaq%d;1",i+1);
       rfile->GetObject(histo ,meAdc_[i]);
       meAdc_[i];
       Pixel->cd(i+1);
@@ -271,7 +271,7 @@ if (1) {
    TH1* meAdc_[3];
 
    for (Int_t i=0; i<3; i++){
-      sprintf(histo,"DQMData/row_zm_disk1_panel2_plaq%d;1",i+1);
+      sprintf(histo,"DQMData/TrackerDigis/Pixel/row_zm_disk1_panel2_plaq%d;1",i+1);
       rfile->GetObject(histo ,meAdc_[i]);
       meAdc_[i];
       Pixel->cd(i+1);
@@ -287,7 +287,7 @@ if (1) {
    TH1* meAdc_[3];
 
    for (Int_t i=0; i<3; i++){
-      sprintf(histo,"DQMData/col_zm_disk1_panel2_plaq%d;1",i+1);
+      sprintf(histo,"DQMData/TrackerDigis/Pixel/col_zm_disk1_panel2_plaq%d;1",i+1);
       rfile->GetObject(histo ,meAdc_[i]);
       meAdc_[i];
       Pixel->cd(i+1);
@@ -305,7 +305,7 @@ if (1) {
    TH1* meAdc_[4];
 
    for (Int_t i=0; i<4; i++){
-      sprintf(histo,"DQMData/adc_zm_disk2_panel1_plaq%d;1",i+1);
+      sprintf(histo,"DQMData/TrackerDigis/Pixel/adc_zm_disk2_panel1_plaq%d;1",i+1);
       rfile->GetObject(histo ,meAdc_[i]);
       meAdc_[i];
       Pixel->cd(i+1);
@@ -321,7 +321,7 @@ if (1) {
    TH1* meAdc_[4];
 
    for (Int_t i=0; i<4; i++){
-      sprintf(histo,"DQMData/row_zm_disk2_panel1_plaq%d;1",i+1);
+      sprintf(histo,"DQMData/TrackerDigis/Pixel/row_zm_disk2_panel1_plaq%d;1",i+1);
       rfile->GetObject(histo ,meAdc_[i]);
       meAdc_[i];
       Pixel->cd(i+1);
@@ -337,7 +337,7 @@ if (1) {
    TH1* meAdc_[4];
 
    for (Int_t i=0; i<4; i++){
-      sprintf(histo,"DQMData/col_zm_disk2_panel1_plaq%d;1",i+1);
+      sprintf(histo,"DQMData/TrackerDigis/Pixel/col_zm_disk2_panel1_plaq%d;1",i+1);
       rfile->GetObject(histo ,meAdc_[i]);
       meAdc_[i];
       Pixel->cd(i+1);
@@ -354,7 +354,7 @@ if (1) {
    TH1* meAdc_[3];
 
    for (Int_t i=0; i<3; i++){
-      sprintf(histo,"DQMData/adc_zm_disk2_panel2_plaq%d;1",i+1);
+      sprintf(histo,"DQMData/TrackerDigis/Pixel/adc_zm_disk2_panel2_plaq%d;1",i+1);
       rfile->GetObject(histo ,meAdc_[i]);
       meAdc_[i];
       Pixel->cd(i+1);
@@ -370,7 +370,7 @@ if (1) {
    TH1* meAdc_[3];
 
    for (Int_t i=0; i<3; i++){
-      sprintf(histo,"DQMData/row_zm_disk2_panel2_plaq%d;1",i+1);
+      sprintf(histo,"DQMData/TrackerDigis/Pixel/row_zm_disk2_panel2_plaq%d;1",i+1);
       rfile->GetObject(histo ,meAdc_[i]);
       meAdc_[i];
       Pixel->cd(i+1);
@@ -386,7 +386,7 @@ if (1) {
    TH1* meAdc_[3];
 
    for (Int_t i=0; i<3; i++){
-      sprintf(histo,"DQMData/col_zm_disk2_panel2_plaq%d;1",i+1);
+      sprintf(histo,"DQMData/TrackerDigis/Pixel/col_zm_disk2_panel2_plaq%d;1",i+1);
       rfile->GetObject(histo ,meAdc_[i]);
       meAdc_[i];
       Pixel->cd(i+1);
@@ -404,7 +404,7 @@ if (1) {
    TH1* meAdc_[4];
 
    for (Int_t i=0; i<4; i++){
-      sprintf(histo,"DQMData/adc_zp_disk1_panel1_plaq%d;1",i+1);
+      sprintf(histo,"DQMData/TrackerDigis/Pixel/adc_zp_disk1_panel1_plaq%d;1",i+1);
       rfile->GetObject(histo ,meAdc_[i]);
       meAdc_[i];
       Pixel->cd(i+1);
@@ -421,7 +421,7 @@ if (1) {
    TH1* meAdc_[4];
 
    for (Int_t i=0; i<4; i++){
-      sprintf(histo,"DQMData/row_zp_disk1_panel1_plaq%d;1",i+1);
+      sprintf(histo,"DQMData/TrackerDigis/Pixel/row_zp_disk1_panel1_plaq%d;1",i+1);
       rfile->GetObject(histo ,meAdc_[i]);
       meAdc_[i];
       Pixel->cd(i+1);
@@ -437,7 +437,7 @@ if (1) {
    TH1* meAdc_[4];
 
    for (Int_t i=0; i<4; i++){
-      sprintf(histo,"DQMData/col_zp_disk1_panel1_plaq%d;1",i+1);
+      sprintf(histo,"DQMData/TrackerDigis/Pixel/col_zp_disk1_panel1_plaq%d;1",i+1);
       rfile->GetObject(histo ,meAdc_[i]);
       meAdc_[i];
       Pixel->cd(i+1);
@@ -454,7 +454,7 @@ if (1) {
    TH1* meAdc_[3];
 
    for (Int_t i=0; i<3; i++){
-      sprintf(histo,"DQMData/adc_zp_disk1_panel2_plaq%d;1",i+1);
+      sprintf(histo,"DQMData/TrackerDigis/Pixel/adc_zp_disk1_panel2_plaq%d;1",i+1);
       rfile->GetObject(histo ,meAdc_[i]);
       meAdc_[i];
       Pixel->cd(i+1);
@@ -470,7 +470,7 @@ if (1) {
    TH1* meAdc_[3];
 
    for (Int_t i=0; i<3; i++){
-      sprintf(histo,"DQMData/row_zp_disk1_panel2_plaq%d;1",i+1);
+      sprintf(histo,"DQMData/TrackerDigis/Pixel/row_zp_disk1_panel2_plaq%d;1",i+1);
       rfile->GetObject(histo ,meAdc_[i]);
       meAdc_[i];
       Pixel->cd(i+1);
@@ -486,7 +486,7 @@ if (1) {
    TH1* meAdc_[3];
 
    for (Int_t i=0; i<3; i++){
-      sprintf(histo,"DQMData/col_zp_disk1_panel2_plaq%d;1",i+1);
+      sprintf(histo,"DQMData/TrackerDigis/Pixel/col_zp_disk1_panel2_plaq%d;1",i+1);
       rfile->GetObject(histo ,meAdc_[i]);
       meAdc_[i];
       Pixel->cd(i+1);
@@ -504,7 +504,7 @@ if (1) {
    TH1* meAdc_[4];
 
    for (Int_t i=0; i<4; i++){
-      sprintf(histo,"DQMData/adc_zp_disk2_panel1_plaq%d;1",i+1);
+      sprintf(histo,"DQMData/TrackerDigis/Pixel/adc_zp_disk2_panel1_plaq%d;1",i+1);
       rfile->GetObject(histo ,meAdc_[i]);
       meAdc_[i];
       Pixel->cd(i+1);
@@ -520,7 +520,7 @@ if (1) {
    TH1* meAdc_[4];
 
    for (Int_t i=0; i<4; i++){
-      sprintf(histo,"DQMData/row_zp_disk2_panel1_plaq%d;1",i+1);
+      sprintf(histo,"DQMData/TrackerDigis/Pixel/row_zp_disk2_panel1_plaq%d;1",i+1);
       rfile->GetObject(histo ,meAdc_[i]);
       meAdc_[i];
       Pixel->cd(i+1);
@@ -536,7 +536,7 @@ if (1) {
    TH1* meAdc_[4];
 
    for (Int_t i=0; i<4; i++){
-      sprintf(histo,"DQMData/col_zp_disk2_panel1_plaq%d;1",i+1);
+      sprintf(histo,"DQMData/TrackerDigis/Pixel/col_zp_disk2_panel1_plaq%d;1",i+1);
       rfile->GetObject(histo ,meAdc_[i]);
       meAdc_[i];
       Pixel->cd(i+1);
@@ -554,7 +554,7 @@ if (1) {
    TH1* meAdc_[3];
 
    for (Int_t i=0; i<3; i++){
-      sprintf(histo,"DQMData/adc_zp_disk2_panel2_plaq%d;1",i+1);
+      sprintf(histo,"DQMData/TrackerDigis/Pixel/adc_zp_disk2_panel2_plaq%d;1",i+1);
       rfile->GetObject(histo ,meAdc_[i]);
       meAdc_[i];
       Pixel->cd(i+1);
@@ -571,7 +571,7 @@ if (1) {
    TH1* meAdc_[3];
 
    for (Int_t i=0; i<3; i++){
-      sprintf(histo,"DQMData/row_zp_disk2_panel2_plaq%d;1",i+1);
+      sprintf(histo,"DQMData/TrackerDigis/Pixel/row_zp_disk2_panel2_plaq%d;1",i+1);
       rfile->GetObject(histo ,meAdc_[i]);
       meAdc_[i];
       Pixel->cd(i+1);
@@ -587,7 +587,7 @@ if (1) {
    TH1* meAdc_[3];
 
    for (Int_t i=0; i<3; i++){
-      sprintf(histo,"DQMData/col_zp_disk2_panel2_plaq%d;1",i+1);
+      sprintf(histo,"DQMData/TrackerDigis/Pixel/col_zp_disk2_panel2_plaq%d;1",i+1);
       rfile->GetObject(histo ,meAdc_[i]);
       meAdc_[i];
       Pixel->cd(i+1);
@@ -604,21 +604,21 @@ if (1) {
    TH2* meMulti_[8];
    TProfile*  pro_[8];
 
-      rfile->GetObject("DQMData/digi_zp_disk1_panel1;1" ,meMulti_[0]);
+      rfile->GetObject("DQMData/TrackerDigis/Pixel/digi_zp_disk1_panel1;1" ,meMulti_[0]);
       meMulti_[0];
-      rfile->GetObject("DQMData/digi_zp_disk1_panel2;1" ,meMulti_[1]);
+      rfile->GetObject("DQMData/TrackerDigis/Pixel/digi_zp_disk1_panel2;1" ,meMulti_[1]);
       meMulti_[1];
-      rfile->GetObject("DQMData/digi_zp_disk2_panel1;1" ,meMulti_[2]);
+      rfile->GetObject("DQMData/TrackerDigis/Pixel/digi_zp_disk2_panel1;1" ,meMulti_[2]);
       meMulti_[2];
-      rfile->GetObject("DQMData/digi_zp_disk2_panel2;1" ,meMulti_[3]);
+      rfile->GetObject("DQMData/TrackerDigis/Pixel/digi_zp_disk2_panel2;1" ,meMulti_[3]);
       meMulti_[3];
-      rfile->GetObject("DQMData/digi_zm_disk1_panel1;1" ,meMulti_[4]);
+      rfile->GetObject("DQMData/TrackerDigis/Pixel/digi_zm_disk1_panel1;1" ,meMulti_[4]);
       meMulti_[4];
-      rfile->GetObject("DQMData/digi_zm_disk1_panel2;1" ,meMulti_[5]);
+      rfile->GetObject("DQMData/TrackerDigis/Pixel/digi_zm_disk1_panel2;1" ,meMulti_[5]);
       meMulti_[5];
-      rfile->GetObject("DQMData/digi_zm_disk2_panel1;1" ,meMulti_[6]);
+      rfile->GetObject("DQMData/TrackerDigis/Pixel/digi_zm_disk2_panel1;1" ,meMulti_[6]);
       meMulti_[6];
-      rfile->GetObject("DQMData/digi_zm_disk2_panel2;1" ,meMulti_[7]);
+      rfile->GetObject("DQMData/TrackerDigis/Pixel/digi_zm_disk2_panel2;1" ,meMulti_[7]);
       meMulti_[7];
 
    for(int i = 0; i< 8; i ++) {

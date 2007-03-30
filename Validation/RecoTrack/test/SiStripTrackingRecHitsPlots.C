@@ -19,7 +19,7 @@ void SiStripTrackingRecHitsPlots()
 //            TIB                 //
 ////////////////////////////////////
 
- rfile->cd("DQMData/TIB");
+ rfile->cd("DQMData/TrackingRecHits/Strip/TIB");
 
  TCanvas * SiStrip = new TCanvas("SiStrip","SiStrip");
  SiStrip->Divide(2,3);
@@ -190,7 +190,7 @@ void SiStripTrackingRecHitsPlots()
 ////////////////////////////////////
 
 
- rfile->cd("DQMData/TOB");
+ rfile->cd("DQMData/TrackingRecHits/Strip/TOB");
 
  TCanvas * SiStrip = new TCanvas("SiStrip","SiStrip");
  SiStrip->Divide(3,3);
@@ -392,7 +392,7 @@ void SiStripTrackingRecHitsPlots()
 //            TID                 //
 ////////////////////////////////////
 
- rfile->cd("DQMData/TID");
+ rfile->cd("DQMData/TrackingRecHits/Strip/TID");
 
  TCanvas * SiStrip = new TCanvas("SiStrip","SiStrip");
  SiStrip->Divide(3,2);
@@ -547,7 +547,7 @@ void SiStripTrackingRecHitsPlots()
 ////////////////////////////////////
 
 
- rfile->cd("DQMData/TEC");
+ rfile->cd("DQMData/TrackingRecHits/Strip/TEC");
 
  TCanvas * SiStrip = new TCanvas("SiStrip","SiStrip");
  SiStrip->Divide(3,4);

@@ -32,7 +32,7 @@ void MultiTrackValidator::beginJob( const EventSetup & setup) {
 
       dbe_->cd();
       InputTag algo = label[www];
-      string dirName="";
+      string dirName="Tracks/";
       if (algo.process()!="")
 	dirName+=algo.process()+"_";
       if(algo.label()!="")
@@ -65,6 +65,7 @@ void MultiTrackValidator::beginJob( const EventSetup & setup) {
 	totASS2veta.push_back(0);
 	totRECveta.push_back(0);
       }
+
       etaintervals.push_back(etaintervalsv);
       totSIMeta.push_back(totSIMveta);
       totASSeta.push_back(totASSveta);

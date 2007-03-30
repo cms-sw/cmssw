@@ -210,7 +210,7 @@ SiPixelTrackingRecHitsValid::SiPixelTrackingRecHitsValid(const ParameterSet& ps)
   float forward_chargel = 0.0;
   float forward_chargeh = 100000.0;
 
-  dbe_->setCurrentFolder("Histograms_per_ring-layer_or_disk-plaquette");
+  dbe_->setCurrentFolder("TrackingRecHits/Pixel/Histograms_per_ring-layer_or_disk-plaquette");
 
   // Pixel barrel has 3 layers and 8 rings; book a histogram for each module given by the (layer, ring) pair 
   for (int i=0; i<3 ; i++) // loop over layers
@@ -576,7 +576,7 @@ SiPixelTrackingRecHitsValid::SiPixelTrackingRecHitsValid(const ParameterSet& ps)
       
       } // for (int j=0; j<4; j++) // loop over plaquettes
 
-  dbe_->setCurrentFolder("Histograms_all");
+  dbe_->setCurrentFolder("TrackingRecHits/Pixel/Histograms_all");
 
   Char_t chisto[100];
   sprintf(chisto, "mePosxBarrel");
