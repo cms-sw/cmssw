@@ -87,8 +87,13 @@ public Observer<const EndOfEvent*>
   void updateHit(G4Step *);
   void saveHit();
   
-  Local3DPoint InitialStepPositionVsParent(G4Step * currentStep);
-  Local3DPoint FinalStepPositionVsParent(G4Step * currentStep);
+  /**
+   * Transform from local coordinates of a volume to local coordinates of a parent volume
+   * one or more levels up the volume hierarchy: e.g. levelsUp = 1 for immediate parent. <BR>
+   * This is done by moving from local_1 -> global -> local_2.
+   */
+  Local3DPoint InitialStepPositionVsParent(G4Step * currentStep, G4int levelsUp);
+  Local3DPoint FinalStepPositionVsParent(G4Step * currentStep, G4int levelsUp);
 
   G4VPhysicalVolume * thePV;
   UpdatablePSimHit* theHit;
