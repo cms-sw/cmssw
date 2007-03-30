@@ -23,7 +23,7 @@
 #include "RecoLocalTracker/SiStripRecHitConverter/interface/SiStripRecHitConverter.h"
 #include "RecoLocalTracker/SiStripRecHitConverter/interface/SiStripRecHitMatcher.h"
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/StripClusterParameterEstimator.h"
-#include "RecoLocalTracker/Records/interface/TrackerCPERecord.h"
+#include "RecoLocalTracker/Records/interface/TkStripCPERecord.h"
 
 
 
@@ -58,13 +58,13 @@ namespace cms
     //get Cluster Parameter Estimator
     std::string cpe = conf_.getParameter<std::string>("StripCPE");
     edm::ESHandle<StripClusterParameterEstimator> parameterestimator;
-    es.get<TrackerCPERecord>().get(cpe, parameterestimator); 
+    es.get<TkStripCPERecord>().get(cpe, parameterestimator); 
     const StripClusterParameterEstimator &stripcpe(*parameterestimator);
     
     //get matcher
     std::string matcher = conf_.getParameter<std::string>("Matcher");
     edm::ESHandle<SiStripRecHitMatcher> rechitmatcher;
-    es.get<TrackerCPERecord>().get(matcher, rechitmatcher); 
+    es.get<TkStripCPERecord>().get(matcher, rechitmatcher); 
     const SiStripRecHitMatcher &rhmatcher(*rechitmatcher);
 
     // Step A: Get Inputs 

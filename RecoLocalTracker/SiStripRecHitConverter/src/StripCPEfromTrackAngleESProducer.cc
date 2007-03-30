@@ -27,7 +27,7 @@ StripCPEfromTrackAngleESProducer::StripCPEfromTrackAngleESProducer(const edm::Pa
 StripCPEfromTrackAngleESProducer::~StripCPEfromTrackAngleESProducer() {}
 
 boost::shared_ptr<StripClusterParameterEstimator> 
-StripCPEfromTrackAngleESProducer::produce(const TrackerCPERecord & iRecord){ 
+StripCPEfromTrackAngleESProducer::produce(const TkStripCPERecord & iRecord){ 
 //   if (_propagator){
 //     delete _propagator;
 //     _propagator = 0;

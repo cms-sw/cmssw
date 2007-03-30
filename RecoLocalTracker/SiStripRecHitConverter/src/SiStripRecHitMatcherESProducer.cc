@@ -23,7 +23,7 @@ SiStripRecHitMatcherESProducer::SiStripRecHitMatcherESProducer(const edm::Parame
 SiStripRecHitMatcherESProducer::~SiStripRecHitMatcherESProducer() {}
 
 boost::shared_ptr<SiStripRecHitMatcher> 
-SiStripRecHitMatcherESProducer::produce(const TrackerCPERecord & iRecord){ 
+SiStripRecHitMatcherESProducer::produce(const TkStripCPERecord & iRecord){ 
 
   _matcher  = boost::shared_ptr<SiStripRecHitMatcher>(new SiStripRecHitMatcher(pset_));
   return _matcher;

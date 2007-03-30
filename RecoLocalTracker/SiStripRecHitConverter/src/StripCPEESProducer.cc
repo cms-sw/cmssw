@@ -29,7 +29,7 @@ StripCPEESProducer::StripCPEESProducer(const edm::ParameterSet & p)
 StripCPEESProducer::~StripCPEESProducer() {}
 
 boost::shared_ptr<StripClusterParameterEstimator> 
-StripCPEESProducer::produce(const TrackerCPERecord & iRecord){ 
+StripCPEESProducer::produce(const TkStripCPERecord & iRecord){ 
   //   if (_propagator){
   //     delete _propagator;
   //     _propagator = 0;
