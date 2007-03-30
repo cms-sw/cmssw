@@ -31,6 +31,9 @@ namespace edmtest_thing
     int inst_count_;
     std::vector<std::string> names_;
     int start_count_;
+
+    bool apply_bit_mask_;
+    unsigned int bit_mask_;
   };
 }
 #endif
