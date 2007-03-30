@@ -2,17 +2,16 @@
  * \class L1GlobalTriggerPSB
  * 
  * 
- * 
- * Description: Pipelined Synchronising Buffer, see header file for details 
+ * Description: Pipelined Synchronising Buffer, see header file for details.  
+ *
  * Implementation:
  *    <TODO: enter implementation details>
- *    <TODO: this class has to be changed to follow the hardware>
  *   
  * \author: M. Fierro            - HEPHY Vienna - ORCA version 
  * \author: Vasile Mihai Ghete   - HEPHY Vienna - CMSSW version 
  * 
- * $Date$
- * $Revision$
+ * $Date:$
+ * $Revision:$
  *
  */
 
@@ -23,6 +22,7 @@
 #include <bitset>
 
 // user include files
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
 
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctCand.h"
@@ -122,7 +122,7 @@ void L1GlobalTriggerPSB::receiveData(edm::Event& iEvent, int iBxInEvent) {
             // empty electrons
             for ( unsigned int i = 0; i < L1GlobalTriggerReadoutSetup::NumberL1Electrons; i++ ) {
         
-                L1GlobalTriggerPSB::CaloDataWord dataword = 0; 
+                CaloDataWord dataword = 0; 
                 
                 bool isolation = false;
                 (*glt_electronList)[i] = new L1GctEmCand( dataword, isolation );
@@ -132,7 +132,7 @@ void L1GlobalTriggerPSB::receiveData(edm::Event& iEvent, int iBxInEvent) {
             // empty isolated electrons
             for ( unsigned int i = 0; i < L1GlobalTriggerReadoutSetup::NumberL1IsolatedElectrons; i++ ) {
         
-                L1GlobalTriggerPSB::CaloDataWord dataword = 0; 
+                CaloDataWord dataword = 0; 
                 
                 bool isolation = true;
                 (*glt_isolatedElectronList)[i] = new L1GctEmCand( dataword, isolation );
@@ -142,7 +142,7 @@ void L1GlobalTriggerPSB::receiveData(edm::Event& iEvent, int iBxInEvent) {
             // empty central jets 
             for ( unsigned int i = 0; i < L1GlobalTriggerReadoutSetup::NumberL1CentralJets; i++ ) {
         
-                L1GlobalTriggerPSB::CaloDataWord dataword = 0; 
+                CaloDataWord dataword = 0; 
                 
                 bool isTau = false;
                 bool isFor = false;
@@ -153,7 +153,7 @@ void L1GlobalTriggerPSB::receiveData(edm::Event& iEvent, int iBxInEvent) {
             // empty forward jets 
             for ( unsigned int i = 0; i < L1GlobalTriggerReadoutSetup::NumberL1ForwardJets; i++ ) {
         
-                L1GlobalTriggerPSB::CaloDataWord dataword = 0; 
+                CaloDataWord dataword = 0; 
                 
                 bool isTau = false;
                 bool isFor = true;
@@ -164,7 +164,7 @@ void L1GlobalTriggerPSB::receiveData(edm::Event& iEvent, int iBxInEvent) {
             // empty tau jets 
             for ( unsigned int i = 0; i < L1GlobalTriggerReadoutSetup::NumberL1TauJets; i++ ) {
         
-                L1GlobalTriggerPSB::CaloDataWord dataword = 0; 
+                CaloDataWord dataword = 0; 
                 
                 bool isTau = true;
                 bool isFor = false;
@@ -223,7 +223,7 @@ void L1GlobalTriggerPSB::receiveData(edm::Event& iEvent, int iBxInEvent) {
     // electrons
     for ( unsigned int i = 0; i < L1GlobalTriggerReadoutSetup::NumberL1Electrons; i++ ) {
 
-        L1GlobalTriggerPSB::CaloDataWord dataword = 0; 
+        CaloDataWord dataword = 0; 
         unsigned int nElec = 0;
 
         for (L1GctEmCandCollection::const_iterator it = emCands->begin(); 
@@ -247,7 +247,7 @@ void L1GlobalTriggerPSB::receiveData(edm::Event& iEvent, int iBxInEvent) {
     // isolated electrons
     for ( unsigned int i = 0; i < L1GlobalTriggerReadoutSetup::NumberL1IsolatedElectrons; i++ ) {
 
-        L1GlobalTriggerPSB::CaloDataWord dataword = 0; 
+        CaloDataWord dataword = 0; 
         unsigned int nElec = 0;
 
         for (L1GctEmCandCollection::const_iterator it = isoEmCands->begin(); 
@@ -271,7 +271,7 @@ void L1GlobalTriggerPSB::receiveData(edm::Event& iEvent, int iBxInEvent) {
     // central jets 
     for ( unsigned int i = 0; i < L1GlobalTriggerReadoutSetup::NumberL1CentralJets; i++ ) {
 
-        L1GlobalTriggerPSB::CaloDataWord dataword = 0; 
+        CaloDataWord dataword = 0; 
         unsigned int nJet = 0;
 
         for (L1GctJetCandCollection::const_iterator it = cenJets->begin(); 
@@ -296,7 +296,7 @@ void L1GlobalTriggerPSB::receiveData(edm::Event& iEvent, int iBxInEvent) {
     // forward jets 
     for ( unsigned int i = 0; i < L1GlobalTriggerReadoutSetup::NumberL1ForwardJets; i++ ) {
 
-        L1GlobalTriggerPSB::CaloDataWord dataword = 0; 
+        CaloDataWord dataword = 0; 
         unsigned int nJet = 0;
 
         for (L1GctJetCandCollection::const_iterator it = forJets->begin(); 
@@ -321,7 +321,7 @@ void L1GlobalTriggerPSB::receiveData(edm::Event& iEvent, int iBxInEvent) {
     // tau jets 
     for ( unsigned int i = 0; i < L1GlobalTriggerReadoutSetup::NumberL1TauJets; i++ ) {
 
-        L1GlobalTriggerPSB::CaloDataWord dataword = 0; 
+        CaloDataWord dataword = 0; 
         unsigned int nJet = 0;
 
         for (L1GctJetCandCollection::const_iterator it = tauJets->begin(); 

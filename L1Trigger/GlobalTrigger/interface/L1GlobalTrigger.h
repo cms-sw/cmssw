@@ -5,15 +5,15 @@
  * \class L1GlobalTrigger
  * 
  * 
- * 
- * Description: L1 Global Trigger 
+ * Description: L1 Global Trigger producer.
+ *  
  * Implementation:
  *    <TODO: enter implementation details>
  *   
  * \author: Vasile Mihai Ghete - HEPHY Vienna
  * 
- * $Date$
- * $Revision$
+ * $Date:$
+ * $Revision:$
  *
  * The CMSSW implementation of the L1 Global Trigger emulator
  * uses concepts and code from the ORCA L1 Global Trigger simulation,

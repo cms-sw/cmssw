@@ -1,17 +1,18 @@
 /**
- * \class L1GlobalTrigger 
+ * \class L1GlobalTrigger
  * 
  * 
- * 
- * Description: L1 Global Trigger
- * Implementation: see L1GlobalTrigger.h
- *    
+ * Description: see header file.  
+ *
+ * Implementation:
+ *    <TODO: enter implementation details>
+ *   
  * \author: Vasile Mihai Ghete - HEPHY Vienna
  * 
- * $Date$
- * $Revision$
+ * $Date:$
+ * $Revision:$
+ *
  */
-
 
 // this class header
 #include "L1Trigger/GlobalTrigger/interface/L1GlobalTrigger.h"
@@ -22,6 +23,7 @@
 #include <bitset>
 
 // user include files
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerEvmReadoutRecord.h"

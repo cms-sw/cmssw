@@ -2,16 +2,16 @@
  * \class L1GlobalTriggerConfig
  * 
  * 
- * 
- * Description: see header file 
+ * Description: see header file.
+ *  
  * Implementation:
  *    <TODO: enter implementation details>
  *   
  * \author  M. Eder      - HEPHY Vienna - ORCA version
  * \author  Vasile Ghete - HEPHY Vienna - CMSSW version
  * 
- * $Date$
- * $Revision$
+ * $Date:$
+ * $Revision:$
  *
  */
 

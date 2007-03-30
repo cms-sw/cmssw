@@ -4,17 +4,17 @@
 /**
  * \class L1GlobalTriggerLogicParser
  * 
- * 
- * 
- * Description: class for parsing logic expressions 
+ *  
+ * Description: class for parsing logic expressions.
+ *  
  * Implementation:
  *    <TODO: enter implementation details>
  *   
  * \author: M.Eder               - HEPHY Vienna - ORCA version 
  * \author: Vasile Mihai Ghete   - HEPHY Vienna - CMSSW version 
  * 
- * $Date$
- * $Revision$
+ * $Date:$
+ * $Revision:$
  *
  */
 

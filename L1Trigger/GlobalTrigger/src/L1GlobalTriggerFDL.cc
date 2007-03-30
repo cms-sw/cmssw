@@ -2,16 +2,16 @@
  * \class L1GlobalTriggerFDL
  * 
  * 
- * 
- * Description: Final Decision Logic board 
+ * Description: Final Decision Logic board.  
+ *
  * Implementation:
  *    <TODO: enter implementation details>
  *   
  * \author: M. Fierro            - HEPHY Vienna - ORCA version 
  * \author: Vasile Mihai Ghete   - HEPHY Vienna - CMSSW version 
  * 
- * $Date$
- * $Revision$
+ * $Date:$
+ * $Revision:$
  *
  */
 
@@ -22,8 +22,9 @@
 #include <iostream>
 
 // user include files
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GtFdlWord.h"
 
 #include "L1Trigger/GlobalTrigger/interface/L1GlobalTrigger.h"
@@ -78,7 +79,7 @@ void L1GlobalTriggerFDL::run(int iBxInEvent) {
         //       TODO remove this block when changing DecisionWord to std::bitset    
 
     
-    L1GlobalTriggerReadoutSetup::DecisionWord fdlDecisionWordVec(numberTriggerBits);    
+    DecisionWord fdlDecisionWordVec(numberTriggerBits);    
 
     for (unsigned int iBit = 0; iBit < numberTriggerBits; ++iBit) {
         
