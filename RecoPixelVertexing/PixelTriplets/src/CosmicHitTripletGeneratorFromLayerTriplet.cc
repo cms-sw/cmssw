@@ -6,6 +6,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include <cmath>
 
 typedef ctfseeding::SeedingHit TkHitPairsCachedHit;
 
@@ -35,7 +36,7 @@ void CosmicHitTripletGeneratorFromLayerTriplet::hitTriplets(
   float radius1 =dynamic_cast<const BarrelDetLayer*>(theInnerLayer->layer())->specificSurface().radius();
   float radius2 =dynamic_cast<const BarrelDetLayer*>(theMiddleLayer->layer())->specificSurface().radius();
   float radius3 =dynamic_cast<const BarrelDetLayer*>(theOuterLayer->layer())->specificSurface().radius();
-  bool seedfromoverlaps=((abs(radius1-radius2)<0.1)|| (abs(radius3-radius2)<0.1))? true : false;
+  bool seedfromoverlaps=((std::abs(radius1-radius2)<0.1)|| (std::abs(radius3-radius2)<0.1))? true : false;
   std::vector<const TrackingRecHit*>::const_iterator ohh;
   std::vector<const TrackingRecHit*>::const_iterator mhh;
   std::vector<const TrackingRecHit*>::const_iterator ihh;
@@ -50,16 +51,16 @@ void CosmicHitTripletGeneratorFromLayerTriplet::hitTriplets(
 	float outy=oh->r()*sin(oh->phi());
 	float midx=mh->r()*cos(mh->phi());
 	float outx=oh->r()*cos(oh->phi());
-	float dxdy=abs((outx-midx)/(outy-midy));
-	if((abs(z_diff)<30) && (outy*midy>0) &&(dxdy<2))	  
+	float dxdy=std::abs((outx-midx)/(outy-midy));
+	if((std::abs(z_diff)<30) && (outy*midy>0) &&(dxdy<2))	  
 	  {
 	    for(ihh=theInnerLayer->recHits().begin();ihh!=theInnerLayer->recHits().end();ihh++){
 	      const TkHitPairsCachedHit * ih=new TkHitPairsCachedHit(*ihh,iSetup);
 	      float z_diff =mh->z()-ih->z();
 	      float inny=ih->r()*sin(ih->phi());
 	      float innx=ih->r()*cos(ih->phi());
-	      float dxdy=abs((innx-midx)/(inny-midy));
-	      if ((abs(z_diff)<30) && (inny*midy>0) &&(dxdy<2)&&(!seedfromoverlaps))
+	      float dxdy=std::abs((innx-midx)/(inny-midy));
+	      if ((std::abs(z_diff)<30) && (inny*midy>0) &&(dxdy<2)&&(!seedfromoverlaps))
 		{
 		  result.push_back( OrderedHitTriplet(*ih,*mh, *oh) );
 		}
@@ -80,16 +81,16 @@ void CosmicHitTripletGeneratorFromLayerTriplet::hitTriplets(
 	float outy=oh->r()*sin(oh->phi());
 	float midx=mh->r()*cos(mh->phi());
 	float outx=oh->r()*cos(oh->phi());
-	float dxdy=abs((outx-midx)/(outy-midy));
+	float dxdy=std::abs((outx-midx)/(outy-midy));
 	float DeltaR=oh->r()-mh->r();
-	if((abs(z_diff)<18) && (abs(oh->phi()-mh->phi())<0.05) &&(DeltaR<0)&&(dxdy<2)){
+	if((std::abs(z_diff)<18) && (std::abs(oh->phi()-mh->phi())<0.05) &&(DeltaR<0)&&(dxdy<2)){
 	  for(ihh=theInnerLayer->recHits().begin();ihh!=theInnerLayer->recHits().end();ihh++){
 	    const TkHitPairsCachedHit * ih=new TkHitPairsCachedHit(*ihh,iSetup);
 	    float z_diff =mh->z()-ih->z();
 	    float inny=ih->r()*sin(ih->phi());
 	    float innx=ih->r()*cos(ih->phi());
-	    float dxdy=abs((innx-midx)/(inny-midy));
-	    if ((abs(z_diff)<30) && (inny*midy>0) &&(dxdy<2))
+	    float dxdy=std::abs((innx-midx)/(inny-midy));
+	    if ((std::abs(z_diff)<30) && (inny*midy>0) &&(dxdy<2))
 	      {
 		result.push_back( OrderedHitTriplet(*ih,*mh,*oh));
 	      }
