@@ -30,13 +30,6 @@ public:
   void moveAlignableTIBTIDs( int rawId, std::vector<float> globalDisplacements,  RotationType rotation, std::vector<double> APEvector );
   
   void saveToDB();
-  int rawid;
-  
-  std::vector<float> local_displacements;
-  std::vector<float> globalDisplacements;
-  std::vector<double> APEvector;
-  std::vector<float> local_rotations;
-  RotationType rotation;	
   
 private:  
   AlignableTracker* theAlignableTracker;
