@@ -39,7 +39,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Services/interface/Timing.h"
 
-#include "DataFormats/Provenance/interface/ModuleDescription.h"
+#include "DataFormats/Common/interface/ModuleDescription.h"
 
 #include "DataFormats/Common/interface/TriggerResults.h"
 

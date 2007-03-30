@@ -7,13 +7,13 @@
 // 
 //
 // Original Author:  David Lange
-// $Id: PathTimerService.h,v 1.1 2006/12/15 06:07:55 dlange Exp $
+// $Id: PathTimerService.h,v 1.2 2007/03/10 10:31:26 dlange Exp $
 //
 #include "sigc++/signal.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
-#include "DataFormats/Provenance/interface/EventID.h"
+#include "DataFormats/Common/interface/EventID.h"
 //#include "DataFormats/HLTReco/interface/PathTiming.h"
 #include "DataFormats/HLTReco/interface/HLTPerformanceInfo.h"
 
@@ -59,7 +59,8 @@ namespace edm {
       std::map<int, std::string> _pathMapping;
       std::map<std::string, unsigned int> _lastModuleToRun;
       std::auto_ptr<HLTPerformanceInfo> _perfInfo;
-
+      std::vector< std::vector<unsigned int> > _newPathIndex ; 
+        
     };
   }
 }

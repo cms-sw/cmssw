@@ -6,7 +6,7 @@
 // Implementation:
 //
 // Original Author:  Jim Kowalkowski
-// $Id: PathTimerService.cc,v 1.5 2007/03/27 00:57:46 bdahmes Exp $
+// $Id: PathTimerService.cc,v 1.6 2007/03/27 22:38:57 bdahmes Exp $
 //
 
 #include "DQM/HLTEvF/interface/PathTimerService.h"
@@ -71,7 +71,9 @@ namespace edm {
       for ( unsigned int i=0; i<trigPaths.size(); i++) {
 	_pathMapping[i]=trigPaths[i];
 	HLTPerformanceInfo::Path hltPath(trigPaths[i]);
+        std::vector<unsigned int> loc ; 
 	const std::vector<std::string> modules=tns->getTrigPathModules(trigPaths[i]);
+        unsigned int mIdx = 0 ; 
 	for ( unsigned int j=0; j<modules.size(); j++) {
 	  _moduleTime[modules[j]]=0.;
 	  HLTPerformanceInfo::Modules::const_iterator iMod=_perfInfo->findModule(modules[j].c_str());
@@ -83,12 +85,18 @@ namespace edm {
           //--- Check the module frequency in the path ---//
           bool duplicateModule = false ; 
           for (unsigned int k=0; k<j; k++) {
-              if (modules[k] == modules[j]) duplicateModule = true ; 
+              if (modules[k] == modules[j]) {
+                  if (!duplicateModule) loc.push_back(k) ; 
+                  duplicateModule = true ;
+              }
           }
-          if (!duplicateModule)
+          if (!duplicateModule) {
               _perfInfo->addModuleToPath(modules[j].c_str(),&hltPath);
-	}
+              loc.push_back(mIdx++) ; 
+          }
+        }
 	_perfInfo->addPath(hltPath);
+        _newPathIndex.push_back(loc) ;
       }
       curr_job_ = getTime();
 
@@ -145,10 +153,12 @@ namespace edm {
 					      const HLTPathStatus &status) {
 
       HLTPerformanceInfo::PathList::const_iterator iPath=_perfInfo->beginPaths();
+      int ctr = 0 ; 
       while ( iPath != _perfInfo->endPaths() ) {
 	HLTPerformanceInfo::Path *path=const_cast<HLTPerformanceInfo::Path*>(&(*iPath));
 	if ( iPath->name() == name) { 
-            path->setStatus(status);
+            unsigned int pIndex = _newPathIndex.at(ctr).at(status.index()) ;
+            path->setStatus(HLTPathStatus(status.state(),pIndex)) ; 
             for (HLTPerformanceInfo::Path::const_iterator iMod=iPath->begin();
                  iMod!=iPath->end(); iMod++) {
                 HLTPerformanceInfo::Module *module = const_cast<HLTPerformanceInfo::Module*>(&(*iMod));
@@ -157,6 +167,7 @@ namespace edm {
         }
 
 	iPath++;
+        ctr++; 
       }
     }
 
