@@ -21,9 +21,9 @@
   <Constant name="me_station" value="2*[level]"/>
   <Constant name="me_subring" value="3*[level]"/>
   <Constant name="me_sector" value="4*[level]"/>
-  <Constant name="me_layer" value="5*[level]"/>
-  <Constant name="me_ring" value="6*[level]"/>
-  
+  <Constant name="me_ring" value="5*[level]"/>
+  <Constant name="me_layer" value="6*[level]"/>
+
   <Constant name="mr_region" value="[mb_region]"/>
   <Constant name="mr_bwheel" value="[mb_wheel]"/>
   <Constant name="mr_bstation" value="[mb_station]"/>
@@ -58,8 +58,8 @@
    <Parameter name="me_station" value="2*[level]"/>
    <Parameter name="me_subring" value="3*[level]"/>
    <Parameter name="me_sector" value="4*[level]"/>
-   <Parameter name="me_layer" value="5*[level]"/>
-   <Parameter name="me_ring" value="6*[level]"/>
+   <Parameter name="me_ring" value="5*[level]"/>
+   <Parameter name="me_layer" value="6*[level]"/>
   
    <Parameter name="mr_region" value="[mb_region]"/>
    <Parameter name="mr_bwheel" value="[mb_wheel]"/>
@@ -461,29 +461,24 @@
  </SpecPar>  
 
  <SpecPar name="MuonEndcapRing1">
-   <PartSelector path="//ME11_ActiveGasVol"/>
-   <PartSelector path="//ME21_ActiveGasVol"/>
-   <PartSelector path="//ME31_ActiveGasVol"/>
-   <PartSelector path="//ME41_ActiveGasVol"/>
+   <PartSelector path="//ME11AlumFrame"/>
+   <PartSelector path="//ME21AlumFrame"/>
+   <PartSelector path="//ME31AlumFrame"/>
+   <PartSelector path="//ME41AlumFrame"/>
    <Parameter name="CopyNoTag" value="[me_ring]"/>
    <Parameter name="CopyNoOffset" value="1*[super]"/>
  </SpecPar>  
  <SpecPar name="MuonEndcapRing2">
-   <PartSelector path="//ME12_ActiveGasVol"/>
-   <PartSelector path="//ME22_ActiveGasVol"/>
-   <PartSelector path="//ME32_ActiveGasVol"/>
+   <PartSelector path="//ME12AlumFrame"/>
+   <PartSelector path="//ME22AlumFrame"/>
+   <PartSelector path="//ME32AlumFrame"/>
    <Parameter name="CopyNoTag" value="[me_ring]"/>
    <Parameter name="CopyNoOffset" value="2*[super]"/>
  </SpecPar>  
  <SpecPar name="MuonEndcapRing3">
-   <PartSelector path="//ME13_ActiveGasVol"/>
+   <PartSelector path="//ME13AlumFrame"/>
    <Parameter name="CopyNoTag" value="[me_ring]"/>
    <Parameter name="CopyNoOffset" value="3*[super]"/>
- </SpecPar>  
- <SpecPar name="MuonEndcapRingA">
-   <PartSelector path="//ME1A_ActiveGasVol"/>
-   <Parameter name="CopyNoTag" value="[me_ring]"/>
-   <Parameter name="CopyNoOffset" value="4*[super]"/>
  </SpecPar>  
 
 </SpecParSection> 
