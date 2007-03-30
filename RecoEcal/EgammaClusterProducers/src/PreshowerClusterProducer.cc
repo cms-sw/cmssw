@@ -57,6 +57,8 @@ PreshowerClusterProducer::PreshowerClusterProducer(const edm::ParameterSet& ps) 
   preshClusterCollectionY_ = ps.getParameter<std::string>("preshClusterCollectionY");
   preshNclust_             = ps.getParameter<int>("preshNclust");
 
+  etThresh_ =  ps.getParameter<double>("etThresh");
+
   // calibration parameters:
   calib_planeX_ = ps.getParameter<double>("preshCalibPlaneX");
   calib_planeY_ = ps.getParameter<double>("preshCalibPlaneY");
@@ -217,7 +219,9 @@ void PreshowerClusterProducer::produce(edm::Event& evt, const edm::EventSetup& e
        
        if ( debugL == PreshowerClusterAlgo::pDEBUG ) std::cout << " Creating corrected SC " << std::endl;
        reco::SuperCluster sc( E, it_super->position(), it_super->seed(), new_BC, deltaE);
-       new_SC.push_back(sc);
+ 
+      if(sc.energy()*sin(sc.position().theta())>etThresh_)
+	 new_SC.push_back(sc);
        if ( debugL <= PreshowerClusterAlgo::pINFO ) std::cout << " SuperClusters energies: new E = " << sc.energy() 
                                         << " vs. old E =" << it_super->energy() << std::endl;
 
