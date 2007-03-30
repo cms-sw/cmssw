@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/03/27 16:11:37 $
- *  $Revision: 1.5 $
+ *  $Date: 2007/03/29 10:06:54 $
+ *  $Revision: 1.1 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -13,7 +13,7 @@
 
 // Framework
 #include <FWCore/Framework/interface/Event.h>
-#include <FWCore/Framework/interface/Handle.h>
+#include "DataFormats/Common/interface/Handle.h"
 #include <FWCore/Framework/interface/ESHandle.h>
 #include <FWCore/Framework/interface/MakerMacros.h>
 #include <FWCore/Framework/interface/EventSetup.h>

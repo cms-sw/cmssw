@@ -6,8 +6,8 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2007/03/27 18:00:00 $
- *  $Revision: 1.0 $
+ *  $Date: 2007/03/27 16:11:45 $
+ *  $Revision: 1.2 $
  *  \author  G. Mila - INFN Torino
  *   
  */
@@ -15,7 +15,7 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include <FWCore/Framework/interface/EDAnalyzer.h>
-#include <FWCore/Framework/interface/Handle.h>
+#include "DataFormats/Common/interface/Handle.h"
 #include <FWCore/Framework/interface/ESHandle.h>
 #include <FWCore/Framework/interface/Event.h>
 #include <FWCore/Framework/interface/MakerMacros.h>

@@ -1,8 +1,8 @@
 /*
  * \file DTtTrigCalibrationTest.cc
  * 
- * $Date: 2007/02/15 18:33:46 $
- * $Revision: 1.1 $
+ * $Date: 2007/03/23 17:04:05 $
+ * $Revision: 1.2 $
  * \author M. Zanetti - CERN
  *
  */
@@ -12,7 +12,7 @@
 
 // Framework
 #include <FWCore/Framework/interface/Event.h>
-#include <FWCore/Framework/interface/Handle.h>
+#include "DataFormats/Common/interface/Handle.h"
 #include <FWCore/Framework/interface/ESHandle.h>
 #include <FWCore/Framework/interface/MakerMacros.h>
 #include <FWCore/Framework/interface/EventSetup.h>

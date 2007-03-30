@@ -5,8 +5,8 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2006/06/30 15:31:05 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/02/15 18:33:33 $
+ *  $Revision: 1.1 $
  *  \author  M. Zanetti CERN
  *   
  */
@@ -14,7 +14,7 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include <FWCore/Framework/interface/EDAnalyzer.h>
-#include <FWCore/Framework/interface/Handle.h>
+#include "DataFormats/Common/interface/Handle.h"
 #include <FWCore/Framework/interface/ESHandle.h>
 #include <FWCore/Framework/interface/Event.h>
 #include <FWCore/Framework/interface/MakerMacros.h>
