@@ -2,8 +2,8 @@
 /**
  *  CosmicMuonSeedGenerator
  *
- *  $Date: 2007/03/07 13:20:55 $
- *  $Revision: 1.18 $
+ *  $Date: 2007/03/10 20:36:05 $
+ *  $Revision: 1.19 $
  *
  *  \author Chang Liu - Purdue University 
  *
@@ -253,7 +253,7 @@ MuonRecHitContainer CosmicMuonSeedGenerator::selectSegments(const MuonRecHitCont
         GlobalPoint pos2 = (*hit2)->globalPosition();
         if ( !areCorrelated((*hit),(*hit2)) ) continue;
 
-        if ((*hit)->chi2() > (*hit2)->chi2() ) { 
+        if ( !leftIsBetter((*hit),(*hit2)) ) { 
           good = false;
         } else (*hit2) = 0;
     }
@@ -392,3 +392,15 @@ float CosmicMuonSeedGenerator::deltaEtaPhi(const GlobalVector& lhs, const Global
     return deltaR;
 
 }
+
+bool CosmicMuonSeedGenerator::leftIsBetter(const MuonTransientTrackingRecHit::MuonRecHitPointer& lhs,
+                    const MuonTransientTrackingRecHit::MuonRecHitPointer& rhs) const{
+
+     if ( (lhs->degreesOfFreedom() > rhs->degreesOfFreedom() )  ||
+          ( (lhs->degreesOfFreedom() == rhs->degreesOfFreedom() ) &&
+            (lhs)->chi2() < (rhs)->chi2() ) )  return true;
+     else return false;
+
+}
+
+

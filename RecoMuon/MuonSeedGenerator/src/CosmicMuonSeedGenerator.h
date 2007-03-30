@@ -4,8 +4,8 @@
 /** \class CosmicMuonSeedGenerator
  *  SeedGenerator for Cosmic Muon
  *
- *  $Date: 2006/12/11 21:56:46 $
- *  $Revision: 1.8 $
+ *  $Date: 2007/03/10 20:36:01 $
+ *  $Revision: 1.9 $
  *  \author Chang Liu - Purdue University 
  */
 
@@ -58,6 +58,11 @@ class CosmicMuonSeedGenerator: public edm::EDProducer {
   /// check if two rechits are correlated
   bool areCorrelated(const MuonTransientTrackingRecHit::MuonRecHitPointer&,
                      const MuonTransientTrackingRecHit::MuonRecHitPointer&) const;
+
+  ///  compare quality of two rechits
+  bool leftIsBetter(const MuonTransientTrackingRecHit::MuonRecHitPointer&,
+                    const MuonTransientTrackingRecHit::MuonRecHitPointer&) const;
+
 
   struct DecreasingGlobalY{
     bool operator()(const MuonTransientTrackingRecHit::ConstMuonRecHitPointer &lhs,
