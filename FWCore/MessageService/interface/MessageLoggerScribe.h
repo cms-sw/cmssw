@@ -20,7 +20,7 @@ namespace service {
 
 // ----------------------------------------------------------------------
 //
-// MessageLoggerScribe.cc
+// MessageLoggerScribe.h
 //
 // Changes:
 //
@@ -30,7 +30,20 @@ namespace service {
 //	getErrorLog_ptr(), and a corresponding routine to remember the pointer
 //	as setStaticErrorLog_ptr().  Needed if we decide to send an explicit 
 //      message from the scribe.
-//	
+//
+//   2 - ?/?/? before 3/1/07 jm
+//	 Modify parameter getting template so as not to catch tracked ones
+//	 (that is, to crash if user mistakenly does not say untracked)
+//
+//   3 - 3/13/07 mf
+//	 Added configure_ordinary_destinations, configure_fwkJobReports,
+//	 and configure_statistics to allow these to be broken out of 
+//	 configure_errorlog. 	
+//
+//   4 - 3/26/07 mf
+//	 Added configure_default_fwkJobReport, which implements the config
+//	 originally placed in the .cfi file.
+//
 // -----------------------------------------------------------------------
 
 class MessageLoggerScribe
@@ -60,9 +73,13 @@ private:
 
   // --- handle details of configuring via a ParameterSet:
   void  configure_errorlog( );
-  void  configure_dest( ELdestControl & dest_ctrl
+  void  configure_fwkJobReports( );				// Change Log 3
+  void  configure_ordinary_destinations( );			// Change Log 3
+  void  configure_statistics( );				// Change Log 3
+  void  configure_dest( ELdestControl & dest_ctrl		
                       , String const &  filename
 		      );
+  void  configure_default_fwkJobReport( ELdestControl & dest_ctrl); //ChangeLog 4
   void  configure_external_dests( );
 
 #ifdef OLDSTYLE
@@ -89,7 +106,7 @@ private:
     T t;
     t = p->template getUntrackedParameter<T>(id, def);
     return t;
-  }
+  }								// changelog 2
 #endif
 
   // --- other helpers
@@ -105,8 +122,10 @@ private:
   PSet *                          job_pset_p;
   std::vector<NamedDestination *> extern_dests;
   std::map<String,std::ostream *> stream_ps;
+  std::vector<String> 	  	  ordinary_destination_filenames;
   std::vector<ELdestControl>      statisticsDestControls;
   std::vector<bool>               statisticsResets;
+  std::string	  		  jobReportOption;
   static ErrorLog		* static_errorlog_p;
 };  // MessageLoggerScribe
 

@@ -88,8 +88,33 @@
 //      .log without needing to place a dot in the Pset name.  Also accept
 //	an explicit filename.
 //
-//  15 - 2/11/06 mf - at bottom
+//  15 - 2/11/07 mf - at bottom
 //	Declared static_errorlog_p
+//
+//  16 - 3/13/07 mf - in configure_errorlog() and addition of 3 functions
+//	 Break out the configuring of each type of destination, for sanity.
+//
+//  17 - 3/13/07 mf - in run(), at CONFIGURE case
+//	 Use the handshake to make this synchronous, and pass any throw
+//	 across to the other thread.
+//
+//  18 - 3/14/07 mf - in configure_ordinary_destinations() and 2 others
+//	 Use actual filename in a master ostream_ps list, and behave correctly
+//	 when duplicates are found (duplicate names both used leads to grim
+//	 file behavior when one file is opened as two streams).
+//
+//  19 - 3/15/07 mf - in configure_fwkJobReports()
+//	 "Deturdification" - default is to not produce a job reports; a
+//	 command-line option lets you produce them.
+//
+//  20 - 3/15/07 mf - in configure_statistics() and configure_fwkJobReports()
+//	 Handle the placeholder case 
+//
+//  21 - 3/15/07 mf - run()
+//	 Improve the behavior of catches of exceptions in non-synchronous 
+//       command cases:  Unless the ConfigurationHandshake is used, re-throw
+//	 is not an option, but exit is also not very good.
+//
 //
 // ----------------------------------------------------------------------
 
@@ -105,8 +130,10 @@
 #include "FWCore/MessageLogger/interface/ErrorObj.h"
 #include "FWCore/MessageLogger/interface/MessageLoggerQ.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/MessageLogger/interface/ConfigurationHandshake.h"
 
 #include "FWCore/Utilities/interface/UnixSignalHandlers.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 
 #include <algorithm>
 #include <cassert>
@@ -129,6 +156,7 @@ MessageLoggerScribe::MessageLoggerScribe()
 , file_ps   ( )
 , job_pset_p( 0 )
 , extern_dests( )
+, jobReportOption( )
 {
   admin_p->setContextSupplier(msg_context);
 }
@@ -178,10 +206,10 @@ void
 		 << " cms::Exceptions, text = \n"
 		 << e.what() << "\n";
 	    
-	    if(count > 5)
+	    if(count > 25)
 	      {
 		cerr << "MessageLogger will no longer be processing "
-		     << "messages due to errors. (entering purge mode)\n";
+		     << "messages due to errors (entering purge mode).\n";
 		purge_mode = true;
 	      }
 	  }
@@ -195,26 +223,31 @@ void
         delete errorobj_p;  // dispose of the message text
         break;
       }
-      case MessageLoggerQ::CONFIGURE:  {
+      case MessageLoggerQ::CONFIGURE:  {			// changelog 17
+	ConfigurationHandshake * h_p = 
+	  	static_cast<ConfigurationHandshake *>(operand);
+	job_pset_p = h_p->p;
+        boost::mutex::scoped_lock sl(h_p->m);   // get lock
 	try {
-	  job_pset_p = static_cast<PSet *>(operand);
 	  configure_errorlog();
 	}
-	catch(cms::Exception& e)
+	catch(edm::Exception& e)
 	  {
-	    cerr << "MessageLoggerScribe caught exception "
-		 << "during configuration:\n"
-		 << e.what() << "\n"
-		 << "Aborting the job with return code -5.\n";
-	    exit(-5);
+	    Place_for_passing_exception_ptr epp = h_p->epp;
+	    if ( *epp != 0 ) { 
+	      *epp = new edm::Exception(e);
+	    } else {
+	      Pointer_to_new_exception_on_heap ep = *epp;
+	      (*ep) << "\n and another exception: \n" << e.what();
+	    }
 	  }
-	catch(...)
-	  {
-	    cerr << "MessageLoggerScribe caught unkonwn exception type\n"
-		 << "during configuration. "
-		 << "Aborting the job with return code -5.\n";
-	    exit(-5);
-	  }
+	// Note - since the configuring code has not made a new copy of the 
+	// job parameter set, we must not delete job_pset_p (in contrast to
+	// the case for errorobj_p).  On the other hand, if we instantiate
+	// a new edm::Exception pointed to by *epp, it is the responsibility
+	// of the MessageLoggerQ to delete it.
+	h_p->c.notify_all();  // Signal to MessageLoggerQ that we are done
+	// finally, release the scoped lock by letting it go out of scope 
         break;
       }
       case MessageLoggerQ::EXTERN_DEST: {
@@ -222,20 +255,22 @@ void
 	  extern_dests.push_back( static_cast<NamedDestination *>(operand) );
 	  configure_external_dests();
 	}
-	catch(cms::Exception& e)
+	catch(cms::Exception& e)				// change log 21
 	  {
-	    cerr << "MessageLoggerScribe caught exception "
+	    cerr << "MessageLoggerScribe caught a cms::Exception "
 		 << "during extern dest configuration:\n"
 		 << e.what() << "\n"
-		 << "Aborting the job with return code -5.\n";
-	    exit(-5);
+		 << "This is a serious problem, and the extern dest " 
+		 << "will not be produced.\n"
+		 << "However, the rest of the logger continues to run.\n";
 	  }
-	catch(...)
+	catch(...)						// change log 21
 	  {
 	    cerr << "MessageLoggerScribe caught unkonwn exception type\n"
 		 << "during extern dest configuration. "
-		 << "Aborting the job with return code -5.\n";
-	    exit(-5);
+		 << "This is a serious problem, and the extern dest " 
+		 << "will not be produced.\n"
+		 << "The rest of the logger wil attempt to continue to run.\n";
 	  }
         break;
       }
@@ -255,6 +290,30 @@ void
 	    cerr << "MessageLoggerScribe caught unkonwn exception type "
 		 << "during summarize. (Ignored)\n";
 	  }
+        break;
+      }
+      case MessageLoggerQ::JOBREPORT:  {			// change log 19
+        std::string* jobReportOption_p =
+		static_cast<std::string*>(operand);
+	try {
+	  jobReportOption = *jobReportOption_p;
+	}
+	catch(cms::Exception& e)
+	  {
+	    cerr << "MessageLoggerScribe caught a cms::Exception "
+		 << "during processing of --jobReport option:\n"
+		 << e.what() << "\n"
+		 << "This likely will affect or prevent the job reoport.\n"
+		 << "However, the rest of the logger continues to run.\n";
+	  }
+	catch(...)
+	  {
+	    cerr << "MessageLoggerScribe caught unkonwn exception type\n"
+		 << "during processing of --jobReport option.\n"
+		 << "This likely will affect or prevent the job reoport.\n"
+		 << "However, the rest of the logger continues to run.\n";
+	  }
+        delete jobReportOption_p;  // dispose of the message text
         break;
       }
     }  // switch
@@ -303,198 +362,9 @@ void
     delete errorobj_p;  // dispose of the message text
   }
 
-  // We will need a map of   
-  // grab list of destinations:
-  vString  destinations
-     = getAparameter<vString>(job_pset_p, "destinations", empty_vString);
-
-  // dial down the early destination if other dest's are supplied:
-  if( ! destinations.empty() )
-    early_dest.setThreshold(ELhighestSeverity);
-
-  // establish each destination:
-  for( vString::const_iterator it = destinations.begin()
-     ; it != destinations.end()
-     ; ++it
-     )
-  {
-    String filename = *it;
-    String psetname = filename;
-    
-    // check that this destination is not just a placeholder // change log 11
-    PSet  dest_pset = getAparameter<PSet>(job_pset_p,psetname,empty_PSet);
-    bool is_placeholder 
-	= getAparameter<bool>(&dest_pset,"placeholder", false);
-    if (is_placeholder) continue;
-
-    // Modify the file name if extension or name is explicitly specified
-    // change log 14 
-    String explicit_filename 
-        = getAparameter<String>(&dest_pset,"filename",empty_String);
-    if (explicit_filename != empty_String) filename = explicit_filename;
-    String explicit_extension 
-        = getAparameter<String>(&dest_pset,"extension",empty_String);
-    if (explicit_extension != empty_String) {
-      if (explicit_extension[0] == '.') {
-	filename += explicit_extension;             
-      } else {
-	filename = filename + "." + explicit_extension;   
-      }
-    }
-
-    // attach the current destination, keeping a control handle to it:
-    ELdestControl dest_ctrl;
-    if( filename == "cout" )  {
-      dest_ctrl = admin_p->attach( ELoutput(std::cout) );
-      stream_ps["cout"] = &std::cout;
-    }
-    else if( filename == "cerr" )  {
-      early_dest.setThreshold(ELzeroSeverity); 
-      dest_ctrl = early_dest;
-      stream_ps["cerr"] = &std::cerr;
-    }
-    else  {
-      std::string actual_filename = filename;			// change log 4
-      const std::string::size_type npos = std::string::npos;
-      if ( filename.find('.') == npos ) {
-        actual_filename += ".log";
-      }  
-      std::ofstream * os_p = new std::ofstream(actual_filename.c_str());
-      file_ps.push_back(os_p);
-      dest_ctrl = admin_p->attach( ELoutput(*os_p) );
-      stream_ps[filename] = os_p;
-    }
-    //(*errorlog_p)( ELinfo, "added_dest") << filename << endmsg;
-
-    // now configure this destination:
-    configure_dest(dest_ctrl, psetname);
-
-  }  // for [it = destinations.begin() to end()]
-
-  // grab list of fwkJobReports:
-  vString  fwkJobReports
-     = getAparameter<vString>(job_pset_p, "fwkJobReports", empty_vString);
-
-  // dial down the early destination if other dest's are supplied:
-  // if( ! fwkJobReports.empty() ) // change log 8
-  //   early_dest.setThreshold(ELhighestSeverity);
-
-  // establish each fwkJobReports destination:
-  for( vString::const_iterator it = fwkJobReports.begin()
-     ; it != fwkJobReports.end()
-     ; ++it
-     )
-  {
-    // attach the current destination, keeping a control handle to it:
-    ELdestControl dest_ctrl;
-    String filename = *it;
-    String psetname = filename;
-
-    // Modify the file name if extension or name is explicitly specified
-    // change log 14 
-    PSet  fjr_pset = getAparameter<PSet>(job_pset_p,psetname,empty_PSet);
-    String explicit_filename 
-        = getAparameter<String>(&fjr_pset,"filename",empty_String);
-    if (explicit_filename != empty_String) filename = explicit_filename;
-    String explicit_extension 
-        = getAparameter<String>(&fjr_pset,"extension",empty_String);
-    if (explicit_extension != empty_String) {
-      if (explicit_extension[0] == '.') {
-	filename += explicit_extension;             
-      } else {
-	filename = filename + "." + explicit_extension;   
-      }
-    }
-
-    std::string actual_filename = filename;			// change log 4
-    const std::string::size_type npos = std::string::npos;
-    if ( filename.find('.') == npos ) {
-      actual_filename += ".xml";
-    }  
-    std::ofstream * os_p = new std::ofstream(actual_filename.c_str());
-    file_ps.push_back(os_p);
-    dest_ctrl = admin_p->attach( ELfwkJobReport(*os_p) );
-    stream_ps[filename] = os_p;
-
-    // now configure this destination:
-    configure_dest(dest_ctrl, psetname);	
-
-  }  // for [it = fwkJobReports.begin() to end()]
-
-  // grab list of statistics destinations:
-  vString  statistics 
-     = getAparameter<vString>(job_pset_p,"statistics", empty_vString);
-
-   // establish each statistics destination:
-  for( vString::const_iterator it = statistics.begin()
-     ; it != statistics.end()
-     ; ++it
-     )
-  {
-    // determine the filename to be used:
-    // either the statistics name or if a Pset by that name has 
-    // file = somename, then that specified name.
-    String statname = *it;
-    String psetname = statname;
-    PSet  stat_pset 
-    	= getAparameter<PSet>(job_pset_p,psetname,empty_PSet);
-    String filename 
-        = getAparameter<String>(&stat_pset,"output",statname);
-    
-    // Modify the file name if extension or name is explicitly specified
-    // change log 14 -- probably suspenders and a belt, because ouput option
-    // is present, but uniformity is nice.
-    String explicit_filename 
-        = getAparameter<String>(&stat_pset,"filename",empty_String);
-    if (explicit_filename != empty_String) filename = explicit_filename;
-    String explicit_extension 
-        = getAparameter<String>(&stat_pset,"extension",empty_String);
-    if (explicit_extension != empty_String) {
-      if (explicit_extension[0] == '.') {
-	filename += explicit_extension;             
-      } else {
-	filename = filename + "." + explicit_extension;   
-      }
-    }
-
-    // create (if statistics file does not match any destination file name)
-    // or note (if statistics file matches a destination file name) the ostream
-    std::ostream * os_p;
-    if ( stream_ps.find(filename) == stream_ps.end() ) {
-      if ( filename == "cout" ) {
-        os_p = &std::cout;
-      } else if ( filename == "cerr" ) {
-        os_p = &std::cerr;
-      } else {
-        std::string actual_filename = filename;			// change log 4
-        const std::string::size_type npos = std::string::npos;
-        if ( filename.find('.') == npos ) {
-          actual_filename += ".log";
-        }  
-        std::ofstream * osf_p = new std::ofstream(actual_filename.c_str());
-        os_p = osf_p;
-	file_ps.push_back(osf_p);
-      }
-      stream_ps[filename] = os_p;
-    } else { 
-      os_p = stream_ps[filename];
-    }
-       
-    // attach the statistics destination, keeping a control handle to it:
-    ELdestControl dest_ctrl;
-    dest_ctrl = admin_p->attach( ELstatistics(*os_p) );
-    statisticsDestControls.push_back(dest_ctrl);
-    bool reset = getAparameter<bool>(&stat_pset,"reset",false);
-    statisticsResets.push_back(reset);
-
-    // now configure this destination:
-    configure_dest(dest_ctrl, psetname);
-
-    // and suppress the desire to do an extra termination summary just because
-    // of end-of-job info messages
-    dest_ctrl.noTerminationSummary();
- 
-  }  // for [it = statistics.begin() to end()]
+  configure_fwkJobReports();					// Change Log 16
+  configure_ordinary_destinations();				// Change Log 16
+  configure_statistics();					// Change Log 16
 
   configure_external_dests();
 
@@ -506,15 +376,15 @@ void
                                      , String const &  filename
 				     )
 {
-  static const int NO_VALUE_SET = -45654;		// change log 2
+  static const int NO_VALUE_SET = -45654;			// change log 2
   vString  empty_vString;
   PSet     empty_PSet;
   String   empty_String;
 
-  // Defaults:						// change log 3a
+  // Defaults:							// change log 3a
   const std::string COMMON_DEFAULT_THRESHOLD = "INFO";
   const         int COMMON_DEFAULT_LIMIT     = NO_VALUE_SET; 
-  const         int COMMON_DEFAULT_INTERVAL  = NO_VALUE_SET; // change log 6
+  const         int COMMON_DEFAULT_INTERVAL  = NO_VALUE_SET; 	// change log 6
   const         int COMMON_DEFAULT_TIMESPAN  = NO_VALUE_SET; 
 
   char *  severity_array[] = {"WARNING", "INFO", "ERROR", "DEBUG"};
@@ -689,6 +559,328 @@ void
 
 }  // MessageLoggerScribe::configure_dest()
 
+void
+  MessageLoggerScribe::configure_default_fwkJobReport 
+  				( ELdestControl & dest_ctrl ) 
+{
+ 
+  dest_ctrl.setLimit("*", 0 );
+  String  msgID = "FwkJob";
+  int FwkJob_limit = 10000000;
+  dest_ctrl.setLimit(msgID, FwkJob_limit);
+  dest_ctrl.setLineLength(32000);
+  dest_ctrl.suppressTime();
+ 
+}  // MessageLoggerScribe::configure_default_fwkJobReport()
+
+
+void
+  MessageLoggerScribe::configure_fwkJobReports()		// Changelog 16
+{
+  vString  empty_vString;
+  String   empty_String;
+  PSet     empty_PSet;
+  
+  // decide whether to configure any job reports at all		// Changelog 19
+  bool jobReportExists  = false;
+  bool enableJobReports = false;
+  #define DEFINE_THIS_TO_MAKE_REPORTS_THE_DEFAULT
+  #ifdef DEFINE_THIS_TO_MAKE_REPORTS_THE_DEFAULT
+  enableJobReports = true;
+  #endif
+  if (jobReportOption != empty_String) enableJobReports = true;
+  if (jobReportOption == "~") enableJobReports = false; //  --nojobReport
+  if (!enableJobReports) return;
+   
+  if ((jobReportOption != "*") && (jobReportOption != empty_String)) {
+    const std::string::size_type npos = std::string::npos;
+    if ( jobReportOption.find('.') == npos ) {
+      jobReportOption += ".xml";
+    }  
+  }
+
+  // grab list of fwkJobReports:
+  vString  fwkJobReports
+     = getAparameter<vString>(job_pset_p, "fwkJobReports", empty_vString);
+
+  // establish each fwkJobReports destination:
+  for( vString::const_iterator it = fwkJobReports.begin()
+     ; it != fwkJobReports.end()
+     ; ++it
+     )
+  {
+    String filename = *it;
+    String psetname = filename;
+
+    // check that this destination is not just a placeholder // change log 20
+    PSet  fjr_pset = getAparameter<PSet>(job_pset_p,psetname,empty_PSet);
+    bool is_placeholder 
+	= getAparameter<bool>(&fjr_pset,"placeholder", false);
+    if (is_placeholder) continue;
+
+    // Modify the file name if extension or name is explicitly specified
+    // change log 14 
+    String explicit_filename 
+        = getAparameter<String>(&fjr_pset,"filename",empty_String);
+    if (explicit_filename != empty_String) filename = explicit_filename;
+    String explicit_extension 
+        = getAparameter<String>(&fjr_pset,"extension",empty_String);
+    if (explicit_extension != empty_String) {
+      if (explicit_extension[0] == '.') {
+	filename += explicit_extension;             
+      } else {
+	filename = filename + "." + explicit_extension;   
+      }
+    }
+
+    // Attach a default extension of .xml if there is no extension on a file
+    std::string actual_filename = filename;			// change log 4
+    const std::string::size_type npos = std::string::npos;
+    if ( filename.find('.') == npos ) {
+      actual_filename += ".xml";
+    }  
+
+    // Check that this is not a duplicate name			// change log 18
+    if ( stream_ps.find(actual_filename)!=stream_ps.end() ) {        
+      throw edm::Exception ( edm::errors::Configuration ) 
+      << "Duplicate name for a MessageLogger Framework Job Report Destination: " 
+      << actual_filename
+      << "\n";
+    } 
+    
+    jobReportExists = true;					// Changelog 19
+    if ( actual_filename == jobReportOption ) jobReportOption = empty_String;   
+    
+    std::ofstream * os_p = new std::ofstream(actual_filename.c_str());
+    file_ps.push_back(os_p);
+    ELdestControl dest_ctrl;
+    dest_ctrl = admin_p->attach( ELfwkJobReport(*os_p) );
+    stream_ps[actual_filename] = os_p;
+
+    // now configure this destination:
+    configure_dest(dest_ctrl, psetname);	
+
+  }  // for [it = fwkJobReports.begin() to end()]
+
+  // Now possibly add the file specified by --jobReport 	// Changelog 19
+  if (jobReportOption==empty_String) return;
+  if (jobReportExists && ( jobReportOption=="*" )) return;
+  if (jobReportOption=="*") jobReportOption = "FrameworkJobReport.xml";
+  // Check that this report is not already on order -- here the duplicate
+  // name would not be a configuration error, but we shouldn't do it twice			
+  std::string actual_filename = jobReportOption;
+  if ( stream_ps.find(actual_filename)!=stream_ps.end() ) return;
+
+  std::ofstream * os_p = new std::ofstream(actual_filename.c_str());
+  file_ps.push_back(os_p);
+  ELdestControl dest_ctrl;
+  dest_ctrl = admin_p->attach( ELfwkJobReport(*os_p) );
+  stream_ps[actual_filename] = os_p;
+
+  // now configure this destination, in the jobreport default manner:
+  configure_default_fwkJobReport (dest_ctrl);	
+
+}
+
+void
+  MessageLoggerScribe::configure_ordinary_destinations()	// Changelog 16
+{
+  vString  empty_vString;
+  String   empty_String;
+  PSet     empty_PSet;
+
+  // grab list of destinations:
+  vString  destinations
+     = getAparameter<vString>(job_pset_p, "destinations", empty_vString);
+
+  // dial down the early destination if other dest's are supplied:
+  if( ! destinations.empty() )
+    early_dest.setThreshold(ELhighestSeverity);
+
+  // establish each destination:
+  for( vString::const_iterator it = destinations.begin()
+     ; it != destinations.end()
+     ; ++it
+     )
+  {
+    String filename = *it;
+    String psetname = filename;
+    
+    // check that this destination is not just a placeholder // change log 11
+    PSet  dest_pset = getAparameter<PSet>(job_pset_p,psetname,empty_PSet);
+    bool is_placeholder 
+	= getAparameter<bool>(&dest_pset,"placeholder", false);
+    if (is_placeholder) continue;
+
+    // Modify the file name if extension or name is explicitly specified
+    // change log 14 
+    String explicit_filename 
+        = getAparameter<String>(&dest_pset,"filename",empty_String);
+    if (explicit_filename != empty_String) filename = explicit_filename;
+    String explicit_extension 
+        = getAparameter<String>(&dest_pset,"extension",empty_String);
+    if (explicit_extension != empty_String) {
+      if (explicit_extension[0] == '.') {
+	filename += explicit_extension;             
+      } else {
+	filename = filename + "." + explicit_extension;   
+      }
+    }
+
+    // Attach a default extension of .log if there is no extension on a file
+    // change log 18 - this had been done in concert with attaching destination
+    
+    std::string actual_filename = filename;			// change log 4
+    if ( (filename != "cout") && (filename != "err") )  {
+      const std::string::size_type npos = std::string::npos;
+      if ( filename.find('.') == npos ) {
+        actual_filename += ".log";
+      }  
+    }
+
+    // Check that this is not a duplicate name			// change log 18
+    if ( stream_ps.find(actual_filename)!=stream_ps.end() ) {        
+      throw edm::Exception ( edm::errors::Configuration ) 
+      << "Duplicate name for a MessageLogger Destination: " 
+      << actual_filename
+      << "\n";
+    } 
+    
+    ordinary_destination_filenames.push_back(actual_filename);
+
+    // attach the current destination, keeping a control handle to it:
+    ELdestControl dest_ctrl;
+    if( actual_filename == "cout" )  {
+      dest_ctrl = admin_p->attach( ELoutput(std::cout) );
+      stream_ps["cout"] = &std::cout;
+    }
+    else if( actual_filename == "cerr" )  {
+      early_dest.setThreshold(ELzeroSeverity); 
+      dest_ctrl = early_dest;
+      stream_ps["cerr"] = &std::cerr;
+    }
+    else  {
+      std::ofstream * os_p = new std::ofstream(actual_filename.c_str());
+      file_ps.push_back(os_p);
+      dest_ctrl = admin_p->attach( ELoutput(*os_p) );
+      stream_ps[actual_filename] = os_p;
+    }
+    //(*errorlog_p)( ELinfo, "added_dest") << filename << endmsg;
+
+    // now configure this destination:
+    configure_dest(dest_ctrl, psetname);
+
+  }  // for [it = destinations.begin() to end()]
+
+} // configure_ordinary_destinations
+
+
+void
+  MessageLoggerScribe::configure_statistics()
+{
+  vString  empty_vString;
+  String   empty_String;
+  PSet     empty_PSet;
+
+  // grab list of statistics destinations:
+  vString  statistics 
+     = getAparameter<vString>(job_pset_p,"statistics", empty_vString);
+
+   // establish each statistics destination:
+  for( vString::const_iterator it = statistics.begin()
+     ; it != statistics.end()
+     ; ++it
+     )
+  {
+    String statname = *it;
+    String psetname = statname;
+
+    // check that this destination is not just a placeholder // change log 20
+    PSet  stat_pset = getAparameter<PSet>(job_pset_p,psetname,empty_PSet);
+    bool is_placeholder 
+	= getAparameter<bool>(&stat_pset,"placeholder", false);
+    if (is_placeholder) continue;
+
+    String filename 
+        = getAparameter<String>(&stat_pset,"output",statname);
+    
+    // Modify the file name if extension or name is explicitly specified
+    // change log 14 -- probably suspenders and a belt, because ouput option
+    // is present, but uniformity is nice.
+    String explicit_filename 
+        = getAparameter<String>(&stat_pset,"filename",empty_String);
+    if (explicit_filename != empty_String) filename = explicit_filename;
+    String explicit_extension 
+        = getAparameter<String>(&stat_pset,"extension",empty_String);
+    if (explicit_extension != empty_String) {
+      if (explicit_extension[0] == '.') {
+	filename += explicit_extension;             
+      } else {
+	filename = filename + "." + explicit_extension;   
+      }
+    }
+
+    // Attach a default extension of .log if there is no extension on a file
+    // change log 18 - this had been done in concert with attaching destination
+    
+    std::string actual_filename = filename;			// change log 4
+    if ( (filename != "cout") && (filename != "err") )  {
+      const std::string::size_type npos = std::string::npos;
+      if ( filename.find('.') == npos ) {
+        actual_filename += ".log";
+      }  
+    }
+
+    // Check that this is not a duplicate name - 
+    // unless it is an ordinary destination (which stats can share)
+    if ( std::find( ordinary_destination_filenames.begin()
+		  , ordinary_destination_filenames.end()
+		  , actual_filename
+		  )  == ordinary_destination_filenames.end() ) {
+      if ( stream_ps.find(actual_filename)!=stream_ps.end() ) {        
+	throw edm::Exception ( edm::errors::Configuration ) 
+	<< "Duplicate name for a MessageLogger Statistics Destination: " 
+	<< actual_filename
+	<< "\n";
+      } 
+    }
+    
+    // create (if statistics file does not match any destination file name)
+    // or note (if statistics file matches a destination file name) the ostream
+    std::ostream * os_p;
+    if ( stream_ps.find(actual_filename) == stream_ps.end() ) {
+      if ( actual_filename == "cout" ) {
+        os_p = &std::cout;
+      } else if ( actual_filename == "cerr" ) {
+        os_p = &std::cerr;
+      } else {
+        std::ofstream * osf_p = new std::ofstream(actual_filename.c_str());
+        os_p = osf_p;
+	file_ps.push_back(osf_p);
+      }
+      stream_ps[actual_filename] = os_p;
+    } else { 
+      os_p = stream_ps[actual_filename];
+    }
+       
+    // attach the statistics destination, keeping a control handle to it:
+    ELdestControl dest_ctrl;
+    dest_ctrl = admin_p->attach( ELstatistics(*os_p) );
+    statisticsDestControls.push_back(dest_ctrl);
+    bool reset = getAparameter<bool>(&stat_pset,"reset",false);
+    statisticsResets.push_back(reset);
+
+    // now configure this destination:
+    configure_dest(dest_ctrl, psetname);
+
+    // and suppress the desire to do an extra termination summary just because
+    // of end-of-job info messages
+    dest_ctrl.noTerminationSummary();
+ 
+  }  // for [it = statistics.begin() to end()]
+
+
+} // configure_statistics
 
 void
   MessageLoggerScribe::configure_external_dests()
