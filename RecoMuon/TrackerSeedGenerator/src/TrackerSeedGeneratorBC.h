@@ -1,14 +1,11 @@
-#ifndef RecoMuon_TrackerSeedGenerator_H
-#define RecoMuon_TrackerSeedGenerator_H
+#ifndef RecoMuon_TrackerSeedGeneratorBC_H
+#define RecoMuon_TrackerSeedGeneratorBC_H
 
-/** \class TrackerSeedGenerator
+/** \class TrackerSeedGeneratorBC
+ *  Generate seed from muon trajectory.
  *
- *  Generate seed from muon trajectory.  Given a standalone muon
- *  TrackCand and a RectangularEtaPhiTrackingRegion around the muon,
- *  find a vector of TrajectorSeedthat are compatible with the muon.
- *
- *  $Date: 2007/03/07 17:41:02 $
- *  $Revision: 1.13 $
+ *  $Date: 2007/02/17 19:04:11 $
+ *  $Revision: 1.12 $
  *  \author Norbert Neumeister - Purdue University
  *  \porting author Chang Liu - Purdue University
  */
@@ -26,8 +23,11 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "RecoMuon/TrackingTools/interface/RecoMuonEnumerators.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
-#include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/Framework/interface/Handle.h"
 #include "RecoTracker/TkSeedGenerator/interface/CombinatorialRegionalSeedGeneratorFromPixel.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "RecoMuon/TrackerSeedGenerator/interface/TrackerSeedGenerator.h"
+
 
 class Trajectory;
 class Propagator;
@@ -43,54 +43,48 @@ class GlobalMuonMonitorInterface;
 
 namespace edm {class ParameterSet; class Event; class EventSetup;}
 
-class TrackerSeedGenerator {
+class TrackerSeedGeneratorBC : public TrackerSeedGenerator {
 
  public:
   typedef std::vector<TrajectorySeed> BTSeedCollection;  
   typedef std::pair<const Trajectory*, reco::TrackRef> TrackCand;
   
   /// constructor
-  TrackerSeedGenerator(const edm::ParameterSet& par, const MuonServiceProxy*);
+  TrackerSeedGeneratorBC(const edm::ParameterSet& par);
+  virtual void init(const MuonServiceProxy*);
 
+  TrackerSeedGeneratorBC(const edm::ParameterSet& par, const MuonServiceProxy*);
   /// destructor
-  virtual ~TrackerSeedGenerator();
+  virtual ~TrackerSeedGeneratorBC();
 
-  /// get a collection of TrajectorySeed
-  BTSeedCollection trackerSeeds(const TrackCand&, const RectangularEtaPhiTrackingRegion&);
+  BTSeedCollection trackerSeeds(const TrackCand&, const TrackingRegion&);
     
-  /// initialize services
   void setEvent(const edm::Event&);
 
  private:
   /// create seeds from muon trajectory
   void findSeeds(const TrackCand&, const RectangularEtaPhiTrackingRegion&); 
-  
-  /// get list of compatible layers
+
   void findLayerList(const TrajectoryStateOnSurface& traj);
-  
-  /// make a PrimitiveMuonSeed
+
   void primitiveSeeds(const Trajectory&, 
 		      const TrajectoryStateOnSurface&);
 
-  /// make a seed from hits on consecutive layers
   void consecutiveHitsSeeds(const Trajectory&, 
 			    const TrajectoryStateOnSurface&, 
 			    const edm::EventSetup&,
 			    const TrackingRegion&);
 
-  /// make a seed from hits on two layers
   void createSeed(const MuonSeedDetLayer& outer,
 		  const MuonSeedDetLayer& inner,
 		  const edm::EventSetup&,
 		  const TrackingRegion& regionOfInterest);
 
-  /// make a seed from pixel pairs
   void pixelSeeds(const Trajectory&, 
 		  const TrajectoryStateOnSurface&, 
 		  const RectangularEtaPhiTrackingRegion&,
 		  float deltaEta, float deltaPhi);
 
-  /// make a seed based on the muon state at vertex
   std::vector<TrajectorySeed> rsSeeds(const reco::Track&);
 
   //Propagator* thePropagator;
@@ -116,8 +110,7 @@ class TrackerSeedGenerator {
   edm::Handle<SiPixelRecHitCollection> pixelHits;
   std::string hitProducer;
   std::string theOutPropagator;
-  std::string theRSAnyPropagator;
-  std::string theRSAlongPropagator;
+  std::string theRSPropagator;
 
   const MuonServiceProxy *theService;
   GlobalPoint theVertexPos;
@@ -128,6 +121,8 @@ class TrackerSeedGenerator {
   GlobalMuonMonitorInterface* dataMonitor;
 
   Chi2MeasurementEstimator * theRoadEstimator;
+  edm::ParameterSet theConfig;
+
 
 };
 

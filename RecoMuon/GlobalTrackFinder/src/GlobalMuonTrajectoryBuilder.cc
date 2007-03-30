@@ -12,8 +12,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2007/03/14 11:42:24 $
- *  $Revision: 1.84 $
+ *  $Date: 2007/03/20 18:45:47 $
+ *  $Revision: 1.85 $
  *
  *  Authors :
  *  N. Neumeister            Purdue University
@@ -73,7 +73,8 @@
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 #include "RecoMuon/TrackingTools/interface/MuonTrackLoader.h"
 
-#include "RecoMuon/TrackerSeedGenerator/src/TrackerSeedGenerator.h"
+#include "RecoMuon/TrackerSeedGenerator/interface/TrackerSeedGenerator.h"
+#include "RecoMuon/TrackerSeedGenerator/interface/TrackerSeedGeneratorFactory.h"
 #include "RecoTracker/Record/interface/CkfComponentsRecord.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -97,7 +98,7 @@ using namespace edm;
 
 GlobalMuonTrajectoryBuilder::GlobalMuonTrajectoryBuilder(const edm::ParameterSet& par,
 							 const MuonServiceProxy* service) : 
-  theService(service) {
+  theTkSeedGenerator(0), theService(service) {
 
   const std::string category = "Muon|RecoMuon|GlobalMuonTrajectoryBuilder|ctor";
 
@@ -135,9 +136,16 @@ GlobalMuonTrajectoryBuilder::GlobalMuonTrajectoryBuilder(const edm::ParameterSet
   
   if(theMakeTkSeedFlag) {
     theCkfBuilderName = par.getParameter<std::string>("TkTrackBuilder");
-    ParameterSet seedGeneratorPSet = par.getParameter<ParameterSet>("SeedGeneratorParameters");
-    seedGeneratorPSet.addParameter<string>("StateOnTrackerBoundOutPropagator",stateOnTrackerOutProp);
-    theTkSeedGenerator = new TrackerSeedGenerator(seedGeneratorPSet,theService);
+
+    //
+    // start seed generator;
+    //
+    ParameterSet seedGenPSet = par.getParameter<ParameterSet>("SeedGeneratorParameters");
+    seedGenPSet.addParameter<string>("StateOnTrackerBoundOutPropagator",stateOnTrackerOutProp);
+    std::string seedGenName = seedGenPSet.getParameter<std::string>("ComponentName");
+    theTkSeedGenerator = TrackerSeedGeneratorFactory::get()->create(seedGenName, seedGenPSet);
+    theTkSeedGenerator->init(theService);
+
   } else {
     theTkTrackLabel = par.getParameter<edm::InputTag>("TrackerCollectionLabel");
   }
@@ -163,6 +171,7 @@ GlobalMuonTrajectoryBuilder::~GlobalMuonTrajectoryBuilder() {
   if (theTrackMatcher) delete theTrackMatcher;
   if (theLayerMeasurements) delete theLayerMeasurements;
   if (theTrajectoryCleaner) delete theTrajectoryCleaner;
+   delete theTkSeedGenerator;
 }
 
 
