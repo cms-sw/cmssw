@@ -68,9 +68,6 @@ class L1GctSourceCard
   unsigned getQuietBits() const;
   std::vector<L1CaloRegion> getRegions() const;
       
-  /// Returns the value of the current bunch crossing number
-  long int getBxNum() const { return m_currentBX; }
-
  private:  // methods
 
   ///Sets the appropriate sizes of vector depending on type of source card 
@@ -81,10 +78,8 @@ class L1GctSourceCard
   static const int NUM_ELEC;
   static const int NUM_REG_TYPE2; ///< No. regions type 2 card takes in
   static const int NUM_REG_TYPE3; ///< No. regions type 3 card takes in
-  static const int N_MIP_BITS;  // number of MIP bits in file format
-  static const int N_QUIET_BITS;  // number of quiet bits in file format
-  static const int DATA_OFFSET_TYPE3; ///< Data offset for file reading
-  static const int DATA_OFFSET_TYPE2; ///< Data offset for file reading  
+  static const int N_MIP_BITS;  // number of MIP bits 
+  static const int N_QUIET_BITS;  // number of quiet bits 
 
   /// card ID
   unsigned m_id;
@@ -92,14 +87,11 @@ class L1GctSourceCard
   /// SourceCard type
   SourceCardType m_cardType;
 
-  /// Stores the current bunch crossing number
-  long int m_currentBX;
-
   //Data buffers
   std::vector<L1CaloEmCand> m_isoElectrons;  
   std::vector<L1CaloEmCand> m_nonIsoElectrons;
-  unsigned m_mipBits;   //IMPORTANT - the static_casts in the getCables1And2 method should
-  unsigned m_quietBits; //match the types of m_mipBits and m_quietBits.
+  unsigned m_mipBits;   
+  unsigned m_quietBits; 
   std::vector<L1CaloRegion> m_regions;
   
     
