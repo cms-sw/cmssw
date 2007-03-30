@@ -1,6 +1,11 @@
 #ifndef MuonIsolation_MuIsoExtractor_H
 #define MuonIsolation_MuIsoExtractor_H
 
+//
+//
+//
+
+
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
                                                                                 
 #include "FWCore/Framework/interface/Event.h"
@@ -18,6 +23,17 @@ public:
   virtual ~MuIsoExtractor(){};
   virtual void fillVetos(const edm::Event & ev, const edm::EventSetup & evSetup, const reco::TrackCollection & tracks) = 0;
   virtual reco::MuIsoDeposit deposit(const edm::Event & ev, const edm::EventSetup & evSetup, const reco::Track & track) const = 0;
+  virtual reco::MuIsoDeposit deposit(const edm::Event & ev, const edm::EventSetup & evSetup, const reco::TrackRef & track) const{
+    return deposit(ev, evSetup, *track);
+  }
+  virtual std::vector<reco::MuIsoDeposit> 
+    deposits(const edm::Event & ev, const edm::EventSetup & evSetup, const reco::Track & track) const{
+    return std::vector<reco::MuIsoDeposit>(1, deposit(ev, evSetup, track));
+  }
+  virtual std::vector<reco::MuIsoDeposit> 
+    deposits(const edm::Event & ev, const edm::EventSetup & evSetup, const reco::TrackRef & track) const{
+    return std::vector<reco::MuIsoDeposit>(1, deposit(ev, evSetup, track));
+  }
 };
 
 }
