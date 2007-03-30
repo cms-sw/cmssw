@@ -1,5 +1,7 @@
 
-#include "Configuration/CSA06Skimming/interface/MCParticlePairFilter.h"
+//-ap #include "Configuration/CSA06Skimming/interface/MCParticlePairFilter.h"
+
+#include "GeneratorInterface/GenFilters/interface/MCParticlePairFilter.h"
 
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include <iostream>
