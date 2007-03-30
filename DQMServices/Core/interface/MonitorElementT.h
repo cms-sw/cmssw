@@ -113,6 +113,12 @@ class MonitorElementT : public MonitorElement
   /// get max Y value (for profiles)
   virtual float getYmax(void) const 
   {return doNotUseMethod("getXmin");}
+  /// get x-, y- or z-axis title (axis=1, 2, 3 respectively)
+  virtual std::string getAxisTitle(int axis = 1) const 
+  {doNotUseMethod("getAxisTitle"); return std::string("");}
+  /// get histogram/profile title
+  virtual std::string getTitle() const 
+  {doNotUseMethod("getTitle"); return std::string("");}
 
   /// set content of bin (1-D)
   virtual void setBinContent(int binx, float content)
@@ -146,6 +152,9 @@ class MonitorElementT : public MonitorElement
   /// set (ie. change) histogram/profile title
   virtual void setTitle(std::string new_title)
   {doNotUseMethod("setTitle");}
+  /// set # of bin entries (to be used for profiles)
+  virtual void setBinEntries(int bin, float nentries) 
+  {doNotUseMethod("setBinEntries");}
 
  private:
   

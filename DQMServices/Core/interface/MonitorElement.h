@@ -118,6 +118,10 @@ class MonitorElement
   virtual float getYmin(void) const = 0;
   /// get max Y value (for profiles)
   virtual float getYmax(void) const = 0;
+  /// get x-, y- or z-axis title (axis=1, 2, 3 respectively)
+  virtual std::string getAxisTitle(int axis = 1) const = 0;
+  /// get MonitorElement title
+  virtual std::string getTitle() const = 0;
 
   /*** setter methods (wrapper around ROOT methods) ****/
   // 
@@ -143,6 +147,8 @@ class MonitorElement
   virtual void setAxisTitle(std::string axis_title, int axis = 1) = 0;
   /// set (ie. change) histogram/profile title
   virtual void setTitle(std::string new_title) = 0;
+  /// set # of bin entries (to be used for profiles)
+  virtual void setBinEntries(int bin, float nentries) = 0;
 
   LockMutex::Mutex mutex;
 
