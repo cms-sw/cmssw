@@ -5,15 +5,15 @@
  * \class L1TcsWord
  * 
  * 
- * 
- * Description: L1 Global Trigger - TCS words in the readout record 
+ * Description: L1 Global Trigger - TCS words in the readout record.  
+ *
  * Implementation:
  *    <TODO: enter implementation details>
  *   
  * \author: Vasile Mihai Ghete - HEPHY Vienna
  * 
- * $Date$
- * $Revision$
+ * $Date:$
+ * $Revision:$
  *
  */
 

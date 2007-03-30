@@ -2,17 +2,18 @@
 #define L1GlobalTrigger_L1GlobalTriggerEvmReadoutRecord_h
 
 /**
- * \class L1GlobalTriggerEvmReadoutRecord 
+ * \class L1GlobalTriggerEvmReadoutRecord
  * 
  * 
- * Description: EVM readout record for L1 Global Trigger 
+ * Description: EVM readout record for L1 Global Trigger.  
+ *
  * Implementation:
  *    <TODO: enter implementation details>
  *   
- * \author: Vasile Mihai Ghete   - HEPHY Vienna - CMSSW version 
+ * \author: Vasile Mihai Ghete - HEPHY Vienna
  * 
- * $Date$
- * $Revision$
+ * $Date:$
+ * $Revision:$
  *
  */
 
@@ -22,6 +23,7 @@
 #include <iostream>
 
 // user include files
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
 
 #include "DataFormats/L1GlobalTrigger/interface/L1GtfeWord.h"
@@ -56,20 +58,6 @@ public:
 
     /// unequal operator
     bool operator!=(const L1GlobalTriggerEvmReadoutRecord&) const;
-
-public:
-
-    /// typedefs taken from L1GlobalTriggerReadoutSetup.h         
-
-    /// algorithm bits: 128 bits
-    typedef L1GlobalTriggerReadoutSetup::DecisionWord DecisionWord;
-
-    /// extend DecisionWord with 64 bits (128 - 192)
-    /// need a new FDL chip :-)  
-    typedef L1GlobalTriggerReadoutSetup::DecisionWordExtended DecisionWordExtended;
-
-    /// technical trigger bits (64 bits)
-    typedef L1GlobalTriggerReadoutSetup::TechnicalTriggerWord TechnicalTriggerWord;
 
 public:
 

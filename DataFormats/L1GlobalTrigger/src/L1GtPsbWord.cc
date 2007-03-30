@@ -2,15 +2,15 @@
  * \class L1GtPsbWord
  * 
  * 
- * 
- * Description: see header file 
+ * Description: PSB block in the L1 GT readout record.  
+ *
  * Implementation:
  *    <TODO: enter implementation details>
  *   
  * \author: Vasile Mihai Ghete - HEPHY Vienna
  * 
- * $Date$
- * $Revision$
+ * $Date:$
+ * $Revision:$
  *
  */
 
@@ -78,6 +78,32 @@ L1GtPsbWord::L1GtPsbWord(
 L1GtPsbWord::~L1GtPsbWord() {
 }
 
+// equal operator
+bool L1GtPsbWord::operator==(const L1GtPsbWord& result) const {
+
+    if (m_boardId != result.m_boardId) {return false;}
+    if (m_bxInEvent != result.m_bxInEvent) {return false;}
+    if (m_bxNr != result.m_bxNr) {return false;}
+    if (m_eventNr != result.m_eventNr) {return false;}
+    
+    if (m_aData != result.m_aData) {return false;}
+    if (m_bData != result.m_bData) {return false;}
+    
+    if (m_localBxNr != result.m_localBxNr) {return false;}
+
+    // all members identical
+    return true;
+    
+}
+
+// unequal operator
+bool L1GtPsbWord::operator!=(const L1GtPsbWord& result) const{
+    
+    return !( result == *this);
+    
+}
+
+
 // methods
 
 // get/set A_DATA_CH_IA 
@@ -131,6 +157,27 @@ void L1GtPsbWord::setBData(uint16_t bDataVal, int iB) {
     } else {
         m_bData[iB] = bDataVal; 
     }     
+    
+}
+
+// reset the content of a L1GtPsbWord
+void L1GtPsbWord::reset()
+{
+
+    m_boardId = 0;
+    m_bxInEvent = 0;
+    m_bxNr = 0;
+    m_eventNr = 0;
+
+    for (int iA = 0; iA < NumberAData; ++iA) {
+        m_aData[iA] = 0;            
+    }
+
+    for (int iB = 0; iB < NumberBData; ++iB) {
+        m_bData[iB] = 0;            
+    }
+
+    m_localBxNr = 0;
     
 }
 

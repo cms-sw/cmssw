@@ -2,15 +2,15 @@
  * \class L1GtFdlWord
  * 
  * 
- * 
- * Description: see header file 
+ * Description: see header file.  
+ *
  * Implementation:
  *    <TODO: enter implementation details>
  *   
  * \author: Vasile Mihai Ghete - HEPHY Vienna
  * 
- * $Date$
- * $Revision$
+ * $Date:$
+ * $Revision:$
  *
  */
 
@@ -22,6 +22,7 @@
 #include <vector>
 
 // user include files
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
 
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -60,9 +61,9 @@ L1GtFdlWord::L1GtFdlWord(
     uint16_t bxInEventValue,
     uint16_t bxNrValue,
     uint32_t eventNrValue,
-    L1GlobalTriggerReadoutSetup::TechnicalTriggerWord gtTechnicalTriggerWordValue,
-    L1GlobalTriggerReadoutSetup::DecisionWord gtDecisionWordValue,
-    L1GlobalTriggerReadoutSetup::DecisionWordExtended gtDecisionWordExtendedValue,
+    TechnicalTriggerWord gtTechnicalTriggerWordValue,
+    DecisionWord gtDecisionWordValue,
+    DecisionWordExtended gtDecisionWordExtendedValue,
     uint16_t finalORValue,
     uint16_t localBxNrValue
     ) 
@@ -87,15 +88,17 @@ L1GtFdlWord::~L1GtFdlWord() {
 // equal operator
 bool L1GtFdlWord::operator==(const L1GtFdlWord& result) const {
 
-    if (m_boardId != m_boardId) return false;
-    if (m_bxInEvent != m_bxInEvent) return false;
-    if (m_bxNr != m_bxNr) return false;
-    if (m_eventNr != m_eventNr) return false;
-    if (m_gtTechnicalTriggerWord != m_gtTechnicalTriggerWord) return false;
-    if (m_gtDecisionWord != m_gtDecisionWord) return false;
-    if (m_gtDecisionWordExtended != m_gtDecisionWordExtended) return false;
-    if (m_finalOR != m_finalOR) return false;
-    if (m_localBxNr != m_localBxNr) return false;
+    if (m_boardId   != result.m_boardId) {return false;}
+    if (m_bxInEvent != result.m_bxInEvent) {return false;}
+    if (m_bxNr      != result.m_bxNr) {return false;}
+    if (m_eventNr   != result.m_eventNr) {return false;}
+    
+    if (m_gtTechnicalTriggerWord != result.m_gtTechnicalTriggerWord) {return false;}
+    if (m_gtDecisionWord         != result.m_gtDecisionWord) {return false;}
+    if (m_gtDecisionWordExtended != result.m_gtDecisionWordExtended) {return false;}
+    if (m_finalOR                != result.m_finalOR) {return false;}
+    
+    if (m_localBxNr != result.m_localBxNr) {return false;}
 
     // all members identical
     return true;
@@ -113,7 +116,7 @@ bool L1GtFdlWord::operator!=(const L1GtFdlWord& result) const{
 // methods
 
 // print GT technical trigger word in bitset style
-//    depend on the type of L1GlobalTriggerReadoutSetup::TechnicalTriggerWord
+//    depend on the type of TechnicalTriggerWord
 //    this version: <vector<bool>
 void L1GtFdlWord::printGtTechnicalTriggerWord(std::ostream& myCout) const {
     
@@ -128,7 +131,7 @@ void L1GtFdlWord::printGtTechnicalTriggerWord(std::ostream& myCout) const {
 } 
 
 // print GT decision word in bitset style
-//    depend on the type of L1GlobalTriggerReadoutSetup::DecisionWord
+//    depend on the type of DecisionWord
 //    this version: <vector<bool>
 void L1GtFdlWord::printGtDecisionWord(std::ostream& myCout) const {
     

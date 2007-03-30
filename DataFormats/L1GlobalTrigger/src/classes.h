@@ -1,16 +1,19 @@
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerEvmReadoutRecord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapRecord.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMap.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GtfeWord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1TcsWord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GtFdlWord.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GtPsbWord.h"
 
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/Common/interface/Ref.h"
 
 #include <vector>
+#include <map>
 
 namespace { namespace {
     // dictionary for L1GtfeWord
@@ -28,10 +31,24 @@ namespace { namespace {
     std::vector<L1GtFdlWord> dummy42;
     edm::Wrapper<std::vector<L1GtFdlWord> > dummy43;
 
-    // dictionary for L1 Global Trigger Readout Setup
+    // dictionary for L1GtPsbWord
+    L1GtPsbWord dummy80;
+    edm::Wrapper<L1GtPsbWord> dummy81;
+    
+    std::vector<L1GtPsbWord> dummy82;
+    edm::Wrapper<std::vector<L1GtPsbWord> > dummy83;
+
+    // dictionary for L1 Global Trigger Readout Setup    
     L1GlobalTriggerReadoutSetup dummy50;
     edm::Wrapper<L1GlobalTriggerReadoutSetup> dummy51;
 
+    L1GlobalTriggerReadoutSetup::GtBoard dummy52;
+    L1GtCaloQuad dummy53;
+    
+    std::map<int, L1GlobalTriggerReadoutSetup::GtBoard> dummy54;
+    std::map<int, L1GtCaloQuad> dummy56;
+    std::map<int, int> dummy57; 
+    
     // dictionary for L1 Global Trigger Readout Record
     L1GlobalTriggerReadoutRecord dummy10;
     edm::Wrapper<L1GlobalTriggerReadoutRecord> dummy11;

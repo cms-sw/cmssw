@@ -2,15 +2,15 @@
  * \class L1GlobalTriggerObjectMapRecord
  * 
  * 
- * 
- * Description: see header file 
+ * Description: see header file.  
+ *
  * Implementation:
  *    <TODO: enter implementation details>
  *   
  * \author: Vasile Mihai Ghete - HEPHY Vienna
  * 
- * $Date$
- * $Revision$
+ * $Date:$
+ * $Revision:$
  *
  */
 

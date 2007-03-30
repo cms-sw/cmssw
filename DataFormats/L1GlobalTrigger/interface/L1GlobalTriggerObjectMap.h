@@ -5,15 +5,15 @@
  * \class L1GlobalTriggerObjectMap
  * 
  * 
- * 
- * Description: map trigger objects to an algorithm and the conditions therein
+ * Description: map trigger objects to an algorithm and the conditions therein.  
+ *
  * Implementation:
  *    <TODO: enter implementation details>
  *   
  * \author: Vasile Mihai Ghete - HEPHY Vienna
  * 
- * $Date$
- * $Revision$
+ * $Date:$
+ * $Revision:$
  *
  */
 

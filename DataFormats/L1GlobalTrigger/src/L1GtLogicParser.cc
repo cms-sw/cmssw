@@ -2,8 +2,8 @@
  * \class L1GtLogicParser
  * 
  * 
- * 
- * Description: see header file 
+ * Description: see header file.  
+ *
  * Implementation:
  *    <TODO: enter implementation details>
  *   

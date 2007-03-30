@@ -2,15 +2,15 @@
  * \class L1GlobalTriggerEvmReadoutRecord
  * 
  * 
- * 
- * Description: see header file 
+ * Description: see header file.  
+ *
  * Implementation:
  *    <TODO: enter implementation details>
  *   
- * \author: Vasile Mihai Ghete   - HEPHY Vienna - CMSSW version 
+ * \author: Vasile Mihai Ghete - HEPHY Vienna
  * 
- * $Date$
- * $Revision$
+ * $Date:$
+ * $Revision:$
  *
  */
 
@@ -25,6 +25,7 @@
 
 
 // user include files
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
 
 #include "DataFormats/L1GlobalTrigger/interface/L1GtfeWord.h"
@@ -138,7 +139,7 @@ const bool L1GlobalTriggerEvmReadoutRecord::decision(unsigned int bxInEventValue
     return false;          
 }
 
-const L1GlobalTriggerEvmReadoutRecord::DecisionWord 
+const DecisionWord 
     L1GlobalTriggerEvmReadoutRecord::decisionWord(unsigned int bxInEventValue) const {
 
     for (std::vector<L1GtFdlWord>::const_iterator itBx = m_gtFdlWord.begin(); 
@@ -167,7 +168,7 @@ const bool L1GlobalTriggerEvmReadoutRecord::decision() const {
     return decision(bxInEventL1Accept);
 }
 
-const L1GlobalTriggerEvmReadoutRecord::DecisionWord 
+const DecisionWord 
     L1GlobalTriggerEvmReadoutRecord::decisionWord() const { 
     
     unsigned int bxInEventL1Accept = 0;
@@ -197,7 +198,7 @@ void L1GlobalTriggerEvmReadoutRecord::setDecision(bool t, unsigned int bxInEvent
 }
 
 void L1GlobalTriggerEvmReadoutRecord::setDecisionWord(
-    const L1GlobalTriggerEvmReadoutRecord::DecisionWord& decisionWordValue, 
+    const DecisionWord& decisionWordValue, 
     unsigned int bxInEventValue) {
 
     for (std::vector<L1GtFdlWord>::iterator itBx = m_gtFdlWord.begin(); 
@@ -225,7 +226,7 @@ void L1GlobalTriggerEvmReadoutRecord::setDecision(bool t) {
 }
 
 void L1GlobalTriggerEvmReadoutRecord::setDecisionWord(
-    const L1GlobalTriggerEvmReadoutRecord::DecisionWord& decisionWordValue) {
+    const DecisionWord& decisionWordValue) {
 
     unsigned int bxInEventL1Accept = 0;
     setDecisionWord(decisionWordValue, bxInEventL1Accept);

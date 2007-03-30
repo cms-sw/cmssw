@@ -5,15 +5,15 @@
  * \class L1GtPsbWord
  * 
  * 
- * 
- * Description: L1 Global Trigger - PSB composed word in the readout record 
+ * Description: PSB block in the L1 GT readout record.  
+ *
  * Implementation:
  *    <TODO: enter implementation details>
  *   
  * \author: Vasile Mihai Ghete - HEPHY Vienna
  * 
- * $Date$
- * $Revision$
+ * $Date:$
+ * $Revision:$
  *
  */
 
@@ -21,11 +21,12 @@
 #include <boost/cstdint.hpp>
 
 // user include files
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
 
 // forward declarations
 
-// class interface
-
+// class declaration
 class L1GtPsbWord
 {
 
@@ -52,6 +53,13 @@ public:
 
     /// destructor
     virtual ~L1GtPsbWord();
+
+    /// equal operator
+    bool operator==(const L1GtPsbWord&) const;
+
+    /// unequal operator
+    bool operator!=(const L1GtPsbWord&) const;
+
 
 public:
 
@@ -82,7 +90,28 @@ public:
     /// get/set local bunch cross number of the actual bx
     inline const uint16_t localBxNr() const { return m_localBxNr; }     
     void setLocalBxNr(uint16_t localBxNrValue) { m_localBxNr = localBxNrValue; }
-            
+
+    /// get the size of the PSB block in GT DAQ record (in multiple of 8 bits)
+    inline const unsigned int getSize() const
+    {
+        int unitLengthBits = L1GlobalTriggerReadoutSetup::UnitLength;
+
+        return BlockSize*unitLengthBits;
+    }
+    
+
+public:
+
+    /// reset the content of a L1GtPsbWord
+    void reset();
+
+private:
+
+    // block description in the raw GT record
+
+    // block size in 64bits words (BlockSize * 64 bits)
+    static const int BlockSize = 6;        
+                            
 private:
 
                                // first number in the comment represents number of bits

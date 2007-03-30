@@ -2,15 +2,15 @@
  * \class L1GtfeWord
  * 
  * 
- * 
- * Description: see header file 
+ * Description: L1 Global Trigger - GTFE words in the readout record.  
+ *
  * Implementation:
  *    <TODO: enter implementation details>
  *   
  * \author: Vasile Mihai Ghete - HEPHY Vienna
  * 
- * $Date$
- * $Revision$
+ * $Date:$
+ * $Revision:$
  *
  */
 
@@ -26,105 +26,246 @@
 // constructors
 
 // empty constructor, all members set to zero;
-L1GtfeWord::L1GtfeWord() {
+L1GtfeWord::L1GtfeWord()
+{
 
     m_boardId = 0;
-    m_recordLength = 0;  
-    m_bxNr = 0; 
-    m_setupVersion = 0; 
+    m_recordLength = 0;
+    m_bxNr = 0;
+    m_setupVersion = 0;
     m_activeBoards = 0;
     m_totalTriggerNr = 0;
-    
-    for (int iB = 0; iB < NumberGpsTimes; ++iB) {
-        m_gpsTime[iB] = 0;            
-    }
 
 }
 
 // constructor from unpacked values;
 L1GtfeWord::L1GtfeWord(
-    uint16_t boardIdValue,
-    uint16_t recordLengthValue,  
-    uint16_t bxNrValue, 
-    uint32_t setupVersionValue, 
-    uint16_t activeBoardsValue,
-    uint32_t totalTriggerNrValue,
-    uint16_t gpsTimeValue[NumberGpsTimes] ) 
+    boost::uint16_t boardIdValue,
+    boost::uint16_t recordLengthValue,
+    boost::uint16_t bxNrValue,
+    boost::uint32_t setupVersionValue,
+    boost::uint16_t activeBoardsValue,
+    boost::uint32_t totalTriggerNrValue)
 {
 
     m_boardId = boardIdValue;
-    m_recordLength = recordLengthValue;  
-    m_bxNr = bxNrValue; 
-    m_setupVersion = setupVersionValue; 
+    m_recordLength = recordLengthValue;
+    m_bxNr = bxNrValue;
+    m_setupVersion = setupVersionValue;
     m_activeBoards = activeBoardsValue;
     m_totalTriggerNr = totalTriggerNrValue;
-    
-    for (int iB = 0; iB < NumberGpsTimes; ++iB) {
-        m_gpsTime[iB] = gpsTimeValue[iB];                          
-    }
 
 }
 
 // destructor
-L1GtfeWord::~L1GtfeWord() {
-}
+L1GtfeWord::~L1GtfeWord()
+{}
 
 // equal operator
-bool L1GtfeWord::operator==(const L1GtfeWord& result) const {
+bool L1GtfeWord::operator==(const L1GtfeWord& result) const
+{
 
-    if(m_boardId != result.m_boardId) return false;
-    if(m_recordLength != result.m_recordLength) return false;  
-    if(m_bxNr != result.m_bxNr) return false; 
-    if(m_setupVersion != result.m_setupVersion) return false; 
-    if(m_activeBoards != result.m_activeBoards) return false;
-    if(m_totalTriggerNr != result.m_totalTriggerNr) return false;
-    
-    for (int iB = 0; iB < NumberGpsTimes; ++iB) {
-        if(m_gpsTime[iB] != result.m_gpsTime[iB]) return false;                          
+    if(m_boardId != result.m_boardId) {
+        return false;
     }
-
+    if(m_recordLength != result.m_recordLength) {
+        return false;
+    }
+    if(m_bxNr != result.m_bxNr) {
+        return false;
+    }
+    if(m_setupVersion != result.m_setupVersion) {
+        return false;
+    }
+    if(m_activeBoards != result.m_activeBoards) {
+        return false;
+    }
+    if(m_totalTriggerNr != result.m_totalTriggerNr) {
+        return false;
+    }
 
     // all members identical
     return true;
-    
+
 }
 
 // unequal operator
-bool L1GtfeWord::operator!=(const L1GtfeWord& result) const{
-    
+bool L1GtfeWord::operator!=(const L1GtfeWord& result) const
+{
+
     return !( result == *this);
-    
+
 }
 
 // methods
 
-// get/set GPS time
-const uint16_t L1GtfeWord::gpsTime(int iB) const {
+// set the BoardId value from a 64-bits word, having the index iWord
+// in the GTFE raw record
+void L1GtfeWord::setBoardId(boost::uint64_t& word64, int iWord)
+{
+    if (iWord == BoardIdWord) {
+        m_boardId = (word64 & BoardIdMask) >> BoardIdShift;
+    }
 
-    if (iB < 0 || iB > NumberGpsTimes) {
-        throw cms::Exception("GpsTimeIndexError")
-            << "\nError: index for GPS time array out of range. Allowed range: [0, "
-            << NumberGpsTimes << ") " << std::endl;
-        
-    } else {
-         return m_gpsTime[iB];         
-    }     
-     
 }
-void L1GtfeWord::setGpsTime(uint16_t gpsTimeVal, int iB) { 
 
-    if (iB < 0 || iB > NumberGpsTimes) {
-        throw cms::Exception("GpsTimeIndexError")
-            << "\nError: index for GPS time array out of range. Allowed range: [0, "
-            << NumberGpsTimes << ") " << std::endl;
-        
-    } else {
-        m_gpsTime[iB] = gpsTimeVal; 
-    }     
-    
+// set the BoardId value in a 64-bits word, having the index iWord
+// in the GTFE raw record
+void L1GtfeWord::setBoardIdWord64(boost::uint64_t& word64, int iWord)
+{
+
+    if (iWord == BoardIdWord) {
+        word64 = word64 | (static_cast<boost::uint64_t> (m_boardId) << BoardIdShift);
+    }
+
 }
+
+
+// set the RecordLength value from a 64-bits word, having the index iWord in the GTFE raw record
+void L1GtfeWord::setRecordLength(boost::uint64_t& word64, int iWord)
+{
+    if (iWord == RecordLengthWord) {
+        m_recordLength = (word64 & RecordLengthMask) >> RecordLengthShift;
+    }
+
+}
+
+// set the RecordLength value in a 64-bits word, having the index iWord
+// in the GTFE raw record
+void L1GtfeWord::setRecordLengthWord64(boost::uint64_t& word64, int iWord)
+{
+
+    if (iWord == RecordLengthWord) {
+        word64 = word64 |
+                 (static_cast<boost::uint64_t> (m_recordLength) << RecordLengthShift);
+    }
+
+}
+
+// set the BxNr value from a 64-bits word, having the index iWord in the GTFE raw record
+void L1GtfeWord::setBxNr(boost::uint64_t& word64, int iWord)
+{
+    if (iWord == BxNrWord) {
+        m_bxNr = (word64 & BxNrMask) >> BxNrShift;
+    }
+
+}
+
+// set the BxNr value in a 64-bits word, having the index iWord
+// in the GTFE raw record
+void L1GtfeWord::setBxNrWord64(boost::uint64_t& word64, int iWord)
+{
+
+    if (iWord == BxNrWord) {
+        word64 = word64 | (static_cast<boost::uint64_t> (m_bxNr) << BxNrShift);
+    }
+
+}
+
+
+// set the SetupVersion value from a 64-bits word, having the index iWord in the GTFE raw record
+void L1GtfeWord::setSetupVersion(boost::uint64_t& word64, int iWord)
+{
+    if (iWord == SetupVersionWord) {
+        m_setupVersion = (word64 & SetupVersionMask) >> SetupVersionShift;
+    }
+
+}
+
+// set the SetupVersion value in a 64-bits word, having the index iWord
+// in the GTFE raw record
+void L1GtfeWord::setSetupVersionWord64(boost::uint64_t& word64, int iWord)
+{
+
+    if (iWord == SetupVersionWord) {
+        word64 = word64 |
+                 (static_cast<boost::uint64_t> (m_setupVersion) << SetupVersionShift);
+    }
+
+}
+
+// set the ActiveBoards value from a 64-bits word, having the index iWord in the GTFE raw record
+void L1GtfeWord::setActiveBoards(boost::uint64_t& word64, int iWord)
+{
+    if (iWord == ActiveBoardsWord) {
+        m_activeBoards = (word64 & ActiveBoardsMask) >> ActiveBoardsShift;
+    }
+
+}
+
+// set the ActiveBoards value in a 64-bits word, having the index iWord
+// in the GTFE raw record
+void L1GtfeWord::setActiveBoardsWord64(boost::uint64_t& word64, int iWord)
+{
+
+    if (iWord == ActiveBoardsWord) {
+        word64 = word64 |
+                 (static_cast<boost::uint64_t> (m_activeBoards) << ActiveBoardsShift);
+    }
+
+}
+
+// set the TotalTriggerNr value from a 64-bits word, having the index iWord in the GTFE raw record
+void L1GtfeWord::setTotalTriggerNr(boost::uint64_t& word64, int iWord)
+{
+    if (iWord == TotalTriggerNrWord) {
+        m_totalTriggerNr = (word64 & TotalTriggerNrMask) >> TotalTriggerNrShift;
+    }
+
+}
+
+// set the TotalTriggerNr value in a 64-bits word, having the index iWord
+// in the GTFE raw record
+void L1GtfeWord::setTotalTriggerNrWord64(boost::uint64_t& word64, int iWord)
+{
+
+    if (iWord == TotalTriggerNrWord) {
+        word64 = word64 |
+                 (static_cast<boost::uint64_t> (m_totalTriggerNr) << TotalTriggerNrShift);
+    }
+
+}
+
+
+
+// reset the content of a L1GtfeWord
+void L1GtfeWord::reset()
+{
+
+    m_boardId = 0;
+    m_recordLength = 0;
+    m_bxNr = 0;
+    m_setupVersion = 0;
+    //
+    m_activeBoards = 0;
+    m_totalTriggerNr = 0;
+}
+
 
 // static class members
+const int L1GtfeWord::BlockSize;        // 2 x 64bits
 
-const int L1GtfeWord::NumberGpsTimes;
+const int L1GtfeWord::BoardIdWord;
+const int L1GtfeWord::RecordLengthWord;
+const int L1GtfeWord::BxNrWord;
+const int L1GtfeWord::SetupVersionWord;
 
+const boost::uint64_t L1GtfeWord::BoardIdMask;
+const boost::uint64_t L1GtfeWord::RecordLengthMask;
+const boost::uint64_t L1GtfeWord::BxNrMask;
+const boost::uint64_t L1GtfeWord::SetupVersionMask;
+
+const int L1GtfeWord::BoardIdShift;
+const int L1GtfeWord::RecordLengthShift;
+const int L1GtfeWord::BxNrShift;
+const int L1GtfeWord::SetupVersionShift;
+
+//
+const int L1GtfeWord::ActiveBoardsWord;
+const int L1GtfeWord::TotalTriggerNrWord;
+
+const boost::uint64_t L1GtfeWord::ActiveBoardsMask;
+const boost::uint64_t L1GtfeWord::TotalTriggerNrMask;
+
+const int L1GtfeWord::ActiveBoardsShift;
+const int L1GtfeWord::TotalTriggerNrShift;

@@ -2,16 +2,15 @@
  * \class L1GlobalTriggerReadoutRecord
  * 
  * 
- * 
- * Description: see header file 
+ * Description: see header file.  
+ *
  * Implementation:
  *    <TODO: enter implementation details>
  *   
- * \author: N. Neumeister        - HEPHY Vienna - ORCA version 
- * \author: Vasile Mihai Ghete   - HEPHY Vienna - CMSSW version 
+ * \author: Vasile Mihai Ghete - HEPHY Vienna
  * 
- * $Date$
- * $Revision$
+ * $Date:$
+ * $Revision:$
  *
  */
 
@@ -26,6 +25,7 @@
 
 
 // user include files
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
 
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTReadoutCollection.h"
@@ -39,6 +39,7 @@
 
 #include "DataFormats/L1GlobalTrigger/interface/L1GtfeWord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GtFdlWord.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GtPsbWord.h"
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/RefProd.h"
@@ -56,6 +57,12 @@ L1GlobalTriggerReadoutRecord::L1GlobalTriggerReadoutRecord() {
     m_gtFdlWord.assign(1, L1GtFdlWord());
 
     int iBx = 0; // not really necessary, default bxInEvent in L1GtFdlWord() is zero   
+    m_gtFdlWord[iBx].setBxInEvent(iBx);
+    
+    // reserve just one L1GtPsbWord, set bunch cross 0
+    m_gtPsbWord.reserve(1);
+    m_gtPsbWord.assign(1, L1GtPsbWord());
+
     m_gtFdlWord[iBx].setBxInEvent(iBx);
     
     // TODO FIXME RefProd m_muCollRefProd ?     
@@ -99,7 +106,14 @@ L1GlobalTriggerReadoutRecord::L1GlobalTriggerReadoutRecord(int NumberBxInEvent) 
     for (int iBx = 0; iBx < NumberBxInEvent; ++iBx) {  // TODO review here after hw discussion
         m_gtFdlWord[iBx].setBxInEvent(iBx);
     }        
-         
+
+    // PSBs
+    int numberPsb = L1GlobalTriggerReadoutSetup::NumberPsbBoards;
+    int totalNumberPsb = numberPsb*NumberBxInEvent;
+             
+    m_gtPsbWord.reserve(totalNumberPsb);
+    m_gtPsbWord.assign(totalNumberPsb, L1GtPsbWord());
+    
     // TODO FIXME RefProd m_muCollRefProd ?     
 
     for (unsigned int indexCand = 0; indexCand < L1GlobalTriggerReadoutSetup::NumberL1Electrons; ++indexCand) {
@@ -137,6 +151,7 @@ L1GlobalTriggerReadoutRecord::L1GlobalTriggerReadoutRecord(
 
     m_gtfeWord = result.m_gtfeWord;
     m_gtFdlWord = result.m_gtFdlWord;
+    m_gtPsbWord = result.m_gtPsbWord;
         
     m_muCollRefProd = result.m_muCollRefProd;
     
@@ -182,10 +197,11 @@ L1GlobalTriggerReadoutRecord& L1GlobalTriggerReadoutRecord::operator=(
 
         m_gtfeWord = result.m_gtfeWord;
         m_gtFdlWord  = result.m_gtFdlWord;
+        m_gtPsbWord  = result.m_gtPsbWord;
         
         m_muCollRefProd = result.m_muCollRefProd;
     
-        for (unsigned int indexCand = 0; indexCand < L1GlobalTriggerReadoutSetup::L1GlobalTriggerReadoutSetup::NumberL1Electrons; ++indexCand) {
+        for (unsigned int indexCand = 0; indexCand < L1GlobalTriggerReadoutSetup::NumberL1Electrons; ++indexCand) {
             m_gtElectron[indexCand] = result.m_gtElectron[indexCand];  
         }
     
@@ -223,6 +239,8 @@ bool L1GlobalTriggerReadoutRecord::operator==(
     if (m_gtfeWord != result.m_gtfeWord) return false;
     
     if (m_gtFdlWord  != result.m_gtFdlWord)  return false;
+
+    if (m_gtPsbWord  != result.m_gtPsbWord)  return false;
 
     if (m_muCollRefProd != result.m_muCollRefProd) return false;
   
@@ -285,7 +303,7 @@ const bool L1GlobalTriggerReadoutRecord::decision() const {
 
 // get Global Trigger decision word
 
-const L1GlobalTriggerReadoutRecord::DecisionWord 
+const DecisionWord 
     L1GlobalTriggerReadoutRecord::decisionWord(unsigned int bxInEventValue) const {
 
     for (std::vector<L1GtFdlWord>::const_iterator itBx = m_gtFdlWord.begin(); 
@@ -307,7 +325,7 @@ const L1GlobalTriggerReadoutRecord::DecisionWord
     return dW;          
 }
 
-const L1GlobalTriggerReadoutRecord::DecisionWord 
+const DecisionWord 
     L1GlobalTriggerReadoutRecord::decisionWord() const { 
     
     unsigned int bxInEventL1Accept = 0;
@@ -347,7 +365,7 @@ void L1GlobalTriggerReadoutRecord::setDecision(const bool& t) {
 
 // set decision word
 void L1GlobalTriggerReadoutRecord::setDecisionWord(
-    const L1GlobalTriggerReadoutRecord::DecisionWord& decisionWordValue, 
+    const DecisionWord& decisionWordValue, 
     unsigned int bxInEventValue) {
 
     for (std::vector<L1GtFdlWord>::iterator itBx = m_gtFdlWord.begin(); 
@@ -370,7 +388,7 @@ void L1GlobalTriggerReadoutRecord::setDecisionWord(
 }
 
 void L1GlobalTriggerReadoutRecord::setDecisionWord(
-    const L1GlobalTriggerReadoutRecord::DecisionWord& decisionWordValue) {
+    const DecisionWord& decisionWordValue) {
 
     unsigned int bxInEventL1Accept = 0;
     setDecisionWord(decisionWordValue, bxInEventL1Accept);
@@ -1173,6 +1191,81 @@ void L1GlobalTriggerReadoutRecord::setGtFdlWord(const L1GtFdlWord& gtFdlWordValu
     setGtFdlWord(gtFdlWordValue, bxInEventL1Accept);
     
 }
+
+
+
+
+
+
+
+
+// get / set PSB word (record) in the GT readout record
+const L1GtPsbWord L1GlobalTriggerReadoutRecord::gtPsbWord(unsigned int bxInEventValue) const {
+
+    for (std::vector<L1GtPsbWord>::const_iterator itBx = m_gtPsbWord.begin(); 
+        itBx != m_gtPsbWord.end(); ++itBx) {
+        
+        if ( (*itBx).bxInEvent() == bxInEventValue ) {
+            return (*itBx);
+        }               
+    }      
+    
+    // if bunch cross not found, throw exception (action: SkipEvent) 
+    
+    throw cms::Exception("NotFound")
+        << "\nError: requested L1GtPsbWord for bx = " << bxInEventValue << " does not exist.\n"
+        << std::endl;
+
+    // return empty record - actually does not arrive here 
+    return L1GtPsbWord();          
+    
+}
+
+const L1GtPsbWord L1GlobalTriggerReadoutRecord::gtPsbWord() const {
+
+    unsigned int bxInEventL1Accept = 0;
+    return gtPsbWord(bxInEventL1Accept);
+}
+
+void L1GlobalTriggerReadoutRecord::setGtPsbWord(
+    const L1GtPsbWord& gtPsbWordValue, unsigned int bxInEventValue) {
+
+    // if a L1GtPsbWord exists for bxInEventValue, replace it
+    for (std::vector<L1GtPsbWord>::iterator itBx = m_gtPsbWord.begin(); 
+        itBx != m_gtPsbWord.end(); ++itBx) {
+        
+        if ( (*itBx).bxInEvent() == bxInEventValue ) {
+            *itBx = gtPsbWordValue;
+            LogDebug("L1GlobalTriggerReadoutRecord") 
+                << "Replacing L1GtPsbWord for bunch bx = " << bxInEventValue << "\n" 
+                << std::endl;
+            return;
+        }               
+    }
+    
+    // if bunch cross not found, throw exception (action: SkipEvent) 
+    // all L1GtPsbWord are created in the record constructor for allowed bunch crosses
+    
+    throw cms::Exception("NotFound")
+        << "\nError: Cannot set L1GtPsbWord for bx = " << bxInEventValue 
+        << std::endl;
+
+}
+
+void L1GlobalTriggerReadoutRecord::setGtPsbWord(const L1GtPsbWord& gtPsbWordValue) {
+
+    unsigned int bxInEventL1Accept = 0;
+    setGtPsbWord(gtPsbWordValue, bxInEventL1Accept);
+    
+}
+
+
+
+
+
+
+
+
 
 
 // other methods

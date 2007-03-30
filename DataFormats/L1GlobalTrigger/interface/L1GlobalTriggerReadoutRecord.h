@@ -2,18 +2,19 @@
 #define L1GlobalTrigger_L1GlobalTriggerReadoutRecord_h
 
 /**
- * \class L1GlobalTriggerReadoutRecord 
+ * \class L1GlobalTriggerReadoutRecord
  * 
  * 
- * Description: readout record for L1 Global Trigger 
+ * Description: readout record for L1 Global Trigger.  
+ *
  * Implementation:
  *    <TODO: enter implementation details>
  *   
  * \author: N. Neumeister        - HEPHY Vienna - ORCA version 
  * \author: Vasile Mihai Ghete   - HEPHY Vienna - CMSSW version 
  * 
- * $Date$
- * $Revision$
+ * $Date:$
+ * $Revision:$
  *
  */
 
@@ -23,6 +24,7 @@
 #include <iostream>
 
 // user include files
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
 
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTReadoutCollection.h"
@@ -36,6 +38,7 @@
 
 #include "DataFormats/L1GlobalTrigger/interface/L1GtfeWord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GtFdlWord.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GtPsbWord.h"
 
 #include "DataFormats/Common/interface/RefProd.h"
 
@@ -71,33 +74,6 @@ public:
     /// unequal operator
     bool operator!=(const L1GlobalTriggerReadoutRecord&) const;
 
-public:
-
-    /// typedefs taken from L1GlobalTriggerReadoutSetup.h         
-
-    /// algorithm bits: 128 bits
-    typedef L1GlobalTriggerReadoutSetup::DecisionWord DecisionWord;
-
-    /// extend DecisionWord with 64 bits (128 - 192)
-    /// need a new FDL chip :-)  
-    typedef L1GlobalTriggerReadoutSetup::DecisionWordExtended DecisionWordExtended;
-
-    /// technical trigger bits (64 bits)
-    typedef L1GlobalTriggerReadoutSetup::TechnicalTriggerWord TechnicalTriggerWord;
-
-    /// muons are represented as 32 bits (actually 26 bits)     
-    typedef L1GlobalTriggerReadoutSetup::MuonDataWord MuonDataWord;
-
-    /// e-gamma, jet objects have 16 bits
-    typedef L1GlobalTriggerReadoutSetup::CaloDataWord CaloDataWord;
-
-    /// missing Et has 32 bits
-    typedef L1GlobalTriggerReadoutSetup::CaloMissingEtWord CaloMissingEtWord;
-
-    /// twelve jet counts, encoded in five bits per count; six jets per 32-bit word 
-    /// code jet count = 31 indicate overflow condition 
-    typedef L1GlobalTriggerReadoutSetup::CaloJetCountsWord CaloJetCountsWord;
-    
 public:
 
     /// get Global Trigger decision and the decision word
@@ -276,6 +252,13 @@ public:
     void setGtFdlWord(const L1GtFdlWord&, unsigned int bxInEvent);
     void setGtFdlWord(const L1GtFdlWord&);
 
+    /// get / set PSB word (record) in the GT readout record
+    const L1GtPsbWord gtPsbWord(unsigned int bxInEvent) const;
+    const L1GtPsbWord gtPsbWord() const;
+
+    void setGtPsbWord(const L1GtPsbWord&, unsigned int bxInEvent);
+    void setGtPsbWord(const L1GtPsbWord&);
+
     // other methods
     
     /// clear the record
@@ -290,6 +273,8 @@ private:
     L1GtfeWord m_gtfeWord;
     std::vector<L1GtFdlWord> m_gtFdlWord;
     
+    std::vector<L1GtPsbWord> m_gtPsbWord;
+
     edm::RefProd<L1MuGMTReadoutCollection> m_muCollRefProd;        
        
     CaloDataWord m_gtElectron[L1GlobalTriggerReadoutSetup::NumberL1Electrons];  
