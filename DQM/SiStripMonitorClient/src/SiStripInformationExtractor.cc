@@ -374,7 +374,7 @@ void SiStripInformationExtractor::plotHistos(multimap<string,string>& req_map,
     if (prof|| hist1 || hist2) {
       canvas.cd(idir);
       TText tTitle;
-      tTitle.SetTextSize(0.08);
+      tTitle.SetTextSizePixels(20.0);
       if (hist2) {
         if (xlow != -1.0 && xhigh != -1.0) {
           TAxis* xa = hist2->GetXaxis();

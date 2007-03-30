@@ -74,7 +74,7 @@ void SiStripWebInterface::handleCustomRequest(xgi::Input* in,xgi::Output* out)
   if (requestID == "IsReady") {
     std::string name = "ReadyState";
     std::string comment = "wait";
-    if ((*mui_p)->getNumUpdates() > 3) comment = "ready";
+    if ((*mui_p)->getNumUpdates() > 2) comment = "ready";
     returnReplyXml(out, name, comment);
     theActionFlag = NoAction;    
   }    
