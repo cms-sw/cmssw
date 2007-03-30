@@ -9,8 +9,8 @@
 // Created:         Tue Oct  3 22:14:25 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2006/08/29 14:48:15 $
-// $Revision: 1.3 $
+// $Date: 2007/02/05 19:10:04 $
+// $Revision: 1.1 $
 //
 
 #include <iostream>
@@ -208,14 +208,10 @@ const Ring* Rings::getTIBRing(unsigned int layer,
   const Ring* ring = 0;
 
   // first try stereo = 0, then stereo = 2, then fail
-  try {
-    TIBDetId id(layer+1,fw_bw,ext_int,1,detector+1,0);
-    ring = getRing(DetId(id.rawId()));
-    if ( ring == 0 ) {
-      throw std::runtime_error("Ring could not be found");
-    }
-  } catch (std::runtime_error err) {
-    TIBDetId id(layer+1,fw_bw,ext_int,1,detector+1,2);
+  TIBDetId id(layer,fw_bw,ext_int,1,detector,0);
+  ring = getRing(DetId(id.rawId()));
+  if ( ring == 0 ) {
+    TIBDetId id(layer,fw_bw,ext_int,1,detector,2);
     ring = getRing(DetId(id.rawId()));
   }
 
@@ -224,6 +220,7 @@ const Ring* Rings::getTIBRing(unsigned int layer,
 				<< " fw_bw: " << fw_bw
 				<< " ext_int: " << ext_int
 				<< " detector: " << detector 
+				<< " with rawId: " << id.rawId()
 				<< " could not be found.";
   }
 
@@ -239,14 +236,10 @@ const Ring* Rings::getTIDRing(unsigned int fw_bw,
   const Ring* int_ring = 0;
   
   // first try stereo = 0, then stereo = 2, then fail
-  try {
-    TIDDetId id(fw_bw+1,wheel+1,ring+1,0,1,0);
-    int_ring = getRing(DetId(id.rawId()));
-    if ( int_ring == 0 ) {
-      throw std::runtime_error("Ring could not be found");
-    }
-  } catch (std::runtime_error err) {
-    TIDDetId id(fw_bw+1,wheel+1,ring+1,0,1,2);
+  TIDDetId id(fw_bw,wheel,ring,1,1,0);
+  int_ring = getRing(DetId(id.rawId()));
+  if ( int_ring == 0 ) {
+    TIDDetId id(fw_bw,wheel,ring,1,1,2);
     int_ring = getRing(DetId(id.rawId()));
   }
   
@@ -254,9 +247,10 @@ const Ring* Rings::getTIDRing(unsigned int fw_bw,
     edm::LogError("RoadSearch") << "TID Ring for fw_bw: " << fw_bw
 				<< " wheel: " << wheel
 				<< " ring: " << ring
+				<< " with rawId: " << id.rawId()
 				<< " could not be found.";
   }
-
+  
   return int_ring;
 }
 
@@ -269,21 +263,17 @@ const Ring* Rings::getTECRing(unsigned int fw_bw,
   // check for combination if petal_fw_bw is valid, otherwise set to 0 is valid
   // if not, increase them to get a valid id
 
-  int petal_fw_bw = 0;
-  int petal = 0;
-  int module = 0;
+  int petal_fw_bw = 1;
+  int petal       = 1;
+  int module      = 1;
 
   const Ring* int_ring = 0;
   
   // first try stereo = 0, then stereo = 2, then fail
-  try {
-    TECDetId id(fw_bw+1,wheel+1,petal_fw_bw,petal+1,ring+1,module+1,0);
-    int_ring = getRing(DetId(id.rawId()));
-    if ( int_ring == 0 ) {
-      throw std::runtime_error("Ring could not be found");
-    }
-  } catch (std::runtime_error err) {
-    TECDetId id(fw_bw+1,wheel+1,petal_fw_bw,petal+1,ring+1,module+1,2);
+  TECDetId id(fw_bw,wheel,petal_fw_bw,petal,ring,module,0);
+  int_ring = getRing(DetId(id.rawId()));
+  if ( int_ring == 0 ) {
+    TECDetId id(fw_bw,wheel,petal_fw_bw,petal,ring,module,2);
     int_ring = getRing(DetId(id.rawId()));
   }
   
@@ -291,6 +281,7 @@ const Ring* Rings::getTECRing(unsigned int fw_bw,
     edm::LogError("RoadSearch") << "TEC Ring for fw_bw: " << fw_bw
 				<< " wheel: " << wheel
 				<< " ring: " << ring
+				<< " with rawId: " << id.rawId()
 				<< " could not be found.";
   }
 
@@ -305,14 +296,10 @@ const Ring* Rings::getTOBRing(unsigned int layer,
   const Ring* ring = 0;
   
   // first try stereo = 0, then stereo = 2, then fail
-  try {
-    TOBDetId id(layer+1,rod_fw_bw,1,detector+1,0);
-    ring = getRing(DetId(id.rawId()));
-    if ( ring == 0 ) {
-      throw std::runtime_error("Ring could not be found");
-    }
-  } catch (std::runtime_error err) {
-    TOBDetId id(layer+1,rod_fw_bw,1,detector+1,2);
+  TOBDetId id(layer,rod_fw_bw,1,detector,0);
+  ring = getRing(DetId(id.rawId()));
+  if ( ring == 0 ) {
+    TOBDetId id(layer,rod_fw_bw,1,detector,2);
     ring = getRing(DetId(id.rawId()));
   }
   
@@ -320,6 +307,7 @@ const Ring* Rings::getTOBRing(unsigned int layer,
     edm::LogError("RoadSearch") << "TOB Ring for layer: " << layer
 				<< " rod_fw_bw: " << rod_fw_bw
 				<< " detector: " << detector 
+				<< " with rawId: " << id.rawId()
 				<< " could not be found.";
   }
   
@@ -332,7 +320,7 @@ const Ring* Rings::getPXBRing(unsigned int layer,
   // construct DetID from info using else the first of all entities and return Ring
   unsigned int ladder = 0;
 
-  PXBDetId id(layer+1,ladder+1,detector+1);
+  PXBDetId id(layer,ladder,detector);
 
   return getRing(DetId(id.rawId()));
 }

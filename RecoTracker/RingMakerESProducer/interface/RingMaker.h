@@ -11,9 +11,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Tue Oct  3 23:51:34 UTC 2006
 //
-// $Author: noeding $
-// $Date: 2006/08/12 00:23:51 $
-// $Revision: 1.6 $
+// $Author: gutsche $
+// $Date: 2007/02/05 19:09:03 $
+// $Revision: 1.1 $
 //
 
 #include <vector>
@@ -129,11 +129,11 @@ class RingMaker {
 
   Rings *rings_;
   
-  int tib_[4][2][2][56][3][3];    // tib[layer][str_fw_bw][str_int_ext][str][module][stereo]
-  int tob_[6][2][74][6][3];       // tob[layer][rod_fw_bw][rod][module][stereo]
-  int tid_[2][3][3][2][20][3];    // tid[side][wheel][ring][module_fw_bw][module][stereo]
-  int tec2_[2][9][7];             // tec2[side][wheel][ring]
-  int tec_[2][9][2][8][7][20][3]; // tec[side][wheel][petal_fw_bw][petal][ring][module][stereo]
+  int tib_[5][3][3][57][4][3];    // tib[layer][str_fw_bw][str_int_ext][str][module][stereo]
+  int tob_[7][3][75][7][3];       // tob[layer][rod_fw_bw][rod][module][stereo]
+  int tid_[3][4][4][3][21][3];    // tid[side][wheel][ring][module_fw_bw][module][stereo]
+  int tec2_[3][10][8];             // tec2[side][wheel][ring]
+  int tec_[3][10][3][9][8][21][3]; // tec[side][wheel][petal_fw_bw][petal][ring][module][stereo]
   int pxb_[3][44][8];             // pxb[layer][ladder][module]
   int pxf_[2][2][24][2][4];       // pxf[side][disk][blade][panel][module]
   int pxf2_[2][2][2][4];          // pxf[side][disk][panel][module]

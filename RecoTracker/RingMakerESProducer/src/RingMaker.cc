@@ -8,9 +8,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Tue Oct  3 23:51:34 UTC 2006
 //
-// $Author: noeding $
-// $Date: 2007/02/23 00:20:30 $
-// $Revision: 1.2 $
+// $Author: gutsche $
+// $Date: 2007/03/07 21:46:48 $
+// $Revision: 1.3 $
 //
 
 #include <iostream>
@@ -98,7 +98,7 @@ void RingMaker::constructRings() {
     constructTECRings(index);
   }
   
-  edm::LogInfo("RoadSearch") << "constructed " << index << " rings"; 
+  edm::LogInfo("RoadSearch") << "Constructed " << index << " rings."; 
 
 }
 
@@ -106,10 +106,10 @@ void RingMaker::constructTIBRings(unsigned int &index) {
 
   unsigned int counter = 0;
 
-  unsigned int layer_max   = 4;
-  unsigned int fw_bw_max   = 2;
-  unsigned int ext_int_max = 2;
-  unsigned int detector_max  = 3;
+  unsigned int layer_max   = 5;
+  unsigned int fw_bw_max   = 3;
+  unsigned int ext_int_max = 3;
+  unsigned int detector_max  = 4;
 
   for ( unsigned int layer = 0; layer < layer_max; ++layer ) {
     for ( unsigned int fw_bw = 0; fw_bw < fw_bw_max; ++fw_bw ) {
@@ -143,7 +143,7 @@ Ring RingMaker::constructTIBRing(unsigned int layer,
   float zmin = 2800.;
   float zmax = -2800.;
 
-  unsigned int string_max = 56;
+  unsigned int string_max = 57;
 
   Ring ring(Ring::TIBRing);
 
@@ -195,9 +195,9 @@ void RingMaker::constructTOBRings(unsigned int &index) {
 
   unsigned int counter = 0;
  
-  unsigned int layer_max       = 6;
-  unsigned int rod_fw_bw_max   = 2;
-  unsigned int module_max      = 6; 
+  unsigned int layer_max       = 7;
+  unsigned int rod_fw_bw_max   = 3;
+  unsigned int module_max      = 7; 
 
   for ( unsigned int layer = 0; layer < layer_max; ++layer ) {
     for ( unsigned int rod_fw_bw = 0; rod_fw_bw < rod_fw_bw_max; ++rod_fw_bw ) {
@@ -229,7 +229,7 @@ Ring RingMaker::constructTOBRing(unsigned int layer,
   float zmin = 2800.;
   float zmax = -2800.;
 
-  unsigned int rod_max = 74;
+  unsigned int rod_max = 75;
   Ring ring(Ring::TOBRing);
 
   for ( unsigned int rod = 0; rod < rod_max; ++rod ) {
@@ -279,9 +279,9 @@ void RingMaker::constructTIDRings(unsigned int &index) {
 
   unsigned int counter = 0;
 
-  unsigned int fw_bw_max       = 2;
-  unsigned int wheel_max       = 3;
-  unsigned int ring_max        = 3;
+  unsigned int fw_bw_max       = 3;
+  unsigned int wheel_max       = 4;
+  unsigned int ring_max        = 4;
 
   for ( unsigned int fw_bw = 0; fw_bw < fw_bw_max; ++fw_bw ) {
     for ( unsigned int wheel = 0; wheel < wheel_max; ++wheel ) {
@@ -313,8 +313,8 @@ Ring RingMaker::constructTIDRing(unsigned int fw_bw,
   float zmin = 2800.;
   float zmax = -2800.;
 
-  unsigned int detector_fw_bw_max   = 2;
-  unsigned int detector_max = 20;
+  unsigned int detector_fw_bw_max   = 3;
+  unsigned int detector_max = 21;
   
   Ring tempring(Ring::TIDRing);
   
@@ -365,9 +365,9 @@ void RingMaker::constructTECRings(unsigned int &index) {
 
   unsigned int counter = 0;
 
-  unsigned int fw_bw_max       = 2;
-  unsigned int wheel_max       = 9;
-  unsigned int ring_max        = 7;
+  unsigned int fw_bw_max       = 3;
+  unsigned int wheel_max       = 10;
+  unsigned int ring_max        = 8;
 
   for ( unsigned int fw_bw = 0; fw_bw < fw_bw_max; ++fw_bw ) {
     for ( unsigned int wheel = 0; wheel < wheel_max; ++wheel ) {
@@ -401,9 +401,9 @@ Ring RingMaker::constructTECRing(unsigned int fw_bw,
   float zmin = 2800.;
   float zmax = -2800.;
 
-  unsigned int petal_max       = 8;
-  unsigned int petal_fw_bw_max = 2;
-  unsigned int module_max      = 20;
+  unsigned int petal_max       = 9;
+  unsigned int petal_fw_bw_max = 3;
+  unsigned int module_max      = 21;
 
   Ring tempring(Ring::TECRing);
 	
@@ -781,11 +781,11 @@ double RingMaker::determineExtensions(DetId id, float &rmin, float &rmax, float 
 void RingMaker::fillTIBGeometryArray() {
   // fill hardcoded TIB geometry array
   // tib[layer][str_fw_bw][str_int_ext][str][module][stereo]
-  for (int i = 0; i < 4; ++i) {
-    for (int j = 0; j < 2; ++j) {
-      for (int k = 0; k < 2; ++k) {
-	for (int l = 0; l < 56; ++l) {
-	  for (int m = 0; l < 3; ++l) {
+  for (int i = 0; i < 5; ++i) {
+    for (int j = 0; j < 3; ++j) {
+      for (int k = 0; k < 3; ++k) {
+	for (int l = 0; l < 57; ++l) {
+	  for (int m = 0; l < 4; ++l) {
 	    for (int n =0; m < 3; ++m) {
 	      tib_[i][j][k][l][m][n] = 0;
 	    }
@@ -827,11 +827,11 @@ void RingMaker::fillTIDGeometryArray() {
   // where stereo gives the int of the last constructor parameter
   // the content inidicates if detector with combination exists (>0) or not (==0)
 
-  for (int i = 0; i < 2; ++i ) {
-    for (int j = 0; j < 3; ++j ) {
-      for (int k = 0; k < 3; ++k ) {
-	for (int l = 0; l < 2; ++l ) {
-	  for (int m = 0; m < 20; ++m ) {
+  for (int i = 0; i < 3; ++i ) {
+    for (int j = 0; j < 4; ++j ) {
+      for (int k = 0; k < 4; ++k ) {
+	for (int l = 0; l < 3; ++l ) {
+	  for (int m = 0; m < 21; ++m ) {
 	    for (int n = 0; n < 3; ++n ) {
 	      tid_[i][j][k][l][m][n] = 0;
 	    }
@@ -870,10 +870,10 @@ void RingMaker::fillTIDGeometryArray() {
 void RingMaker::fillTOBGeometryArray() {
   // fills hardcoded TOB geometry array
   // tob[layer][rod_fw_bw][rod][module][stereo]
-  for (int i = 0; i < 6; ++i) {
-    for (int j = 0; j < 2; ++j) {
-      for (int k = 0; k < 74; ++k) {
-	for (int l = 0; l < 6; ++l) {
+  for (int i = 0; i < 7; ++i) {
+    for (int j = 0; j < 3; ++j) {
+      for (int k = 0; k < 75; ++k) {
+	for (int l = 0; l < 7; ++l) {
 	  for (int m = 0; m < 3; ++m) {
 	    tob_[i][j][k][l][m] = 0;
 	  }
@@ -916,12 +916,12 @@ void RingMaker::fillTECGeometryArray() {
 
   // fill two arrays to restrict first loop (number of rings dependent on wheel)
 
-  for (int i = 0; i < 2; ++i ) {
-    for (int j = 0; j < 9; ++j ) {
-      for (int k = 0; k < 2; ++k ) {
-	for (int l = 0; l < 8; ++l ) {
-	  for (int m = 0; m < 7; ++m ) {
-	    for (int n = 0; n < 20; ++n ) {
+  for (int i = 0; i < 3; ++i ) {
+    for (int j = 0; j < 10; ++j ) {
+      for (int k = 0; k < 3; ++k ) {
+	for (int l = 0; l < 9; ++l ) {
+	  for (int m = 0; m < 8; ++m ) {
+	    for (int n = 0; n < 21; ++n ) {
 	      for (int o = 0; o < 3; ++o ) {
 		tec_[i][j][k][l][m][n][o] = 0;
 	      }
@@ -932,9 +932,9 @@ void RingMaker::fillTECGeometryArray() {
     }
   }
 
-  for (int i = 0; i < 2; ++i ) {
-    for (int j = 0; j < 9; ++j ) {
-      for (int k = 0; k < 7; ++k ) {
+  for (int i = 0; i < 3; ++i ) {
+    for (int j = 0; j < 10; ++j ) {
+      for (int k = 0; k < 8; ++k ) {
 	tec2_[i][j][k] = 0;
       }
     }	
@@ -1064,7 +1064,9 @@ std::string RingMaker::dumpDetIds() {
   std::ostringstream output;
 
   std::vector<DetId> detIds = tracker_->detUnitIds();
-  
+
+  output << std::endl << "[RoadMaker] Total number of DETECTOR = " << detIds.size() << std::endl;
+
   for ( std::vector<DetId>::iterator detiterator = detIds.begin(); detiterator != detIds.end(); ++detiterator ) {
     DetId id = *detiterator;
 
@@ -1134,8 +1136,9 @@ std::string RingMaker::dumpDetIds() {
 	     << " blade: " << pxfid.blade()
 	     << " detector: " << pxfid.module()
 	     << std::endl; 
+    } else {
+      output << "[RoadMaker] DetUnit for unknown subdetector: " << id.rawId() << std::endl;
     }
-
 
   }
 

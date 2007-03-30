@@ -9,8 +9,8 @@
 // Created:         Tue Oct  3 23:51:34 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2007/03/01 07:43:21 $
-// $Revision: 1.2 $
+// $Date: 2007/03/15 20:16:59 $
+// $Revision: 1.3 $
 //
 
 #include "RecoTracker/RingMakerESProducer/interface/RingMakerESProducer.h"
@@ -39,9 +39,9 @@ RingMakerESProducer::RingMakerESProducer(const edm::ParameterSet& iConfig)
 
 RingMakerESProducer::~RingMakerESProducer()
 {
-  if ( rings_ != 0) {
-    delete rings_;
-  }
+//   if ( rings_ != 0) {
+//     delete rings_;
+//   }
   
 }
 
@@ -64,6 +64,9 @@ RingMakerESProducer::produce(const RingRecord& iRecord)
   rings_ = maker.getRings();
   
   ReturnType pRings(rings_) ;
+
+  std::cout << "after creation" << std::endl;
+
 
   if ( writeOut_ ) {
     rings_->dump(fileName_);

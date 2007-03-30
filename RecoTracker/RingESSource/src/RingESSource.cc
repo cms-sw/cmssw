@@ -9,8 +9,8 @@
 // Created:         Thu Oct  5 01:35:14 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2007/03/01 07:40:16 $
-// $Revision: 1.2 $
+// $Date: 2007/03/15 20:16:48 $
+// $Revision: 1.3 $
 //
 
 #include "RecoTracker/RingESSource/interface/RingESSource.h"
@@ -29,11 +29,7 @@ RingESSource::RingESSource(const edm::ParameterSet& iConfig) : fileName_((iConfi
 
 RingESSource::~RingESSource()
 {
-  
-  if ( rings_ != 0 ) {
-    delete rings_;
-  }
- 
+   
 }
 
 RingESSource::ReturnType

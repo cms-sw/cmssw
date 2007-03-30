@@ -9,8 +9,8 @@
 // Created:         Thu Jan 12 21:00:00 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2007/03/01 07:51:48 $
-// $Revision: 1.8 $
+// $Date: 2007/03/15 20:17:22 $
+// $Revision: 1.9 $
 //
 
 #include "RecoTracker/RoadMapMakerESProducer/interface/RoadMapMakerESProducer.h"
@@ -66,9 +66,6 @@ RoadMapMakerESProducer::RoadMapMakerESProducer(const edm::ParameterSet& iConfig)
 
 RoadMapMakerESProducer::~RoadMapMakerESProducer()
 {
-  if ( roads_ != 0 ) {
-    delete roads_;
-  }
 }
 
 
