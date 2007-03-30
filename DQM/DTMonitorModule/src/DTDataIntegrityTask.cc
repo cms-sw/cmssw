@@ -1,8 +1,8 @@
 /*
  * \file DTDataIntegrityTask.cc
  * 
- * $Date: 2007/03/25 14:12:51 $
- * $Revision: 1.21 $
+ * $Date: 2007/03/29 17:56:21 $
+ * $Revision: 1.22 $
  * \author M. Zanetti (INFN Padova), S. Bolognesi (INFN Torino)
  *
 */
@@ -846,46 +846,46 @@ void DTDataIntegrityTask::processFED(DTDDUData & data, const std::vector<DTROS25
   }
 
  //MONITOR TTS VS TIME 
-  pair<int,int> ev_tts= make_pair(header.lvl1ID(),trailer.ttsBits());
-  //insert the pair at the right position
-  for (list<pair<int,int> >::iterator ev_it = ttsVSTime.begin(); ; ev_it++) {
-    if(ev_it == ttsVSTime.end()){
-      ttsVSTime.push_back(ev_tts);
-      break;
-    }
-    else if(header.lvl1ID() < (*ev_it).first) {
-      ttsVSTime.insert(ev_it, ev_tts);
-      break;
-    }
-  }
-  //loop until the event number are sequential
-  if(!(header.lvl1ID() % 10)){
-    //create a copy of the list to remove elements already analyzed
-    list<pair<int,int> > ttsVSTime_copy(ttsVSTime);
-    int counter_ev=myPrevEv;
-      for (list<pair<int,int> >::iterator ev_it = ttsVSTime.begin(); ; ev_it++) {
-	counter_ev++;
+//   pair<int,int> ev_tts= make_pair(header.lvl1ID(),trailer.ttsBits());
+//   //insert the pair at the right position
+//   for (list<pair<int,int> >::iterator ev_it = ttsVSTime.begin(); ; ev_it++) {
+//     if(ev_it == ttsVSTime.end()){
+//       ttsVSTime.push_back(ev_tts);
+//       break;
+//     }
+//     else if(header.lvl1ID() < (*ev_it).first) {
+//       ttsVSTime.insert(ev_it, ev_tts);
+//       break;
+//     }
+//   }
+//   //loop until the event number are sequential
+//   if(!(header.lvl1ID() % 10)){
+//     //create a copy of the list to remove elements already analyzed
+//     list<pair<int,int> > ttsVSTime_copy(ttsVSTime);
+//     int counter_ev=myPrevEv;
+//       for (list<pair<int,int> >::iterator ev_it = ttsVSTime.begin(); ; ev_it++) {
+// 	counter_ev++;
 
-	if((*ev_it).first != counter_ev || ev_it == ttsVSTime.end())
-	  break;
+// 	if((*ev_it).first != counter_ev || ev_it == ttsVSTime.end())
+// 	  break;
 
-	if((*ev_it).first > myPrevEv){
-	  myPrevEv = (*ev_it).first;
+// 	if((*ev_it).first > myPrevEv){
+// 	  myPrevEv = (*ev_it).first;
 
-	  //add a point if the value is changed
-	  if((*ev_it).second != myPrevTtsVal){
-	    //graphTTS->addPoint
-	    myPrevTtsVal = (*ev_it).second;
-	  }
-	}
+// 	  //add a point if the value is changed
+// 	  if((*ev_it).second != myPrevTtsVal){
+// 	    //graphTTS->addPoint
+// 	    myPrevTtsVal = (*ev_it).second;
+// 	  }
+// 	}
 
-	//remove from the list the ordered events already analyzed
-	list<pair<int,int> >::iterator copy_it = ev_it;
-	ttsVSTime_copy.remove(*copy_it);
-      }
-      ttsVSTime.clear();
-      ttsVSTime.merge(ttsVSTime_copy);
-  }
+// 	//remove from the list the ordered events already analyzed
+// 	list<pair<int,int> >::iterator copy_it = ev_it;
+// 	ttsVSTime_copy.remove(*copy_it);
+//       }
+//       ttsVSTime.clear();
+//       ttsVSTime.merge(ttsVSTime_copy);
+//   }
 
   //1D HISTOS: EVENT LENGHT from trailer
   //cout<<"1D HISTOS WITH EVENT LENGHT from trailer"<<endl;
@@ -901,8 +901,7 @@ void DTDataIntegrityTask::processFED(DTDDUData & data, const std::vector<DTROS25
   if (dduHistos[histoType].find(code.getDDUID()) == dduHistos[histoType].end()) {
       bookHistos( string("DDU"), code);
   }
-  (dduHistos.find(histoType)->second).find(code.getDDUID())->second->Fill(header.triggerType());
-  
+  (dduHistos.find(histoType)->second).find(code.getDDUID())->second->Fill(header.triggerType());  
 
   //1D HISTO: NUMBER OF ROS IN THE EVENTS from 2nd status word
   int rosList = secondWord.rosList();
@@ -944,40 +943,40 @@ void DTDataIntegrityTask::processFED(DTDDUData & data, const std::vector<DTROS25
   }
 
   //MONITOR ROS LIST VS TIME 
-  pair<int,int> ev_ros= make_pair(header.lvl1ID(),rosPositions.size());
-  //insert the pair at the right position
-  for (list<pair<int,int> >::iterator ev_it = rosVSTime.begin(); ; ev_it++) {
-    if(ev_it == rosVSTime.end()){
-      rosVSTime.push_back(ev_ros);
-      break;
-    }
-    else if(header.lvl1ID() < (*ev_it).first) {
-      rosVSTime.insert(ev_it, ev_ros);
-      break;
-    }
-  }
+ //  pair<int,int> ev_ros= make_pair(header.lvl1ID(),rosPositions.size());
+//   //insert the pair at the right position
+//   for (list<pair<int,int> >::iterator ev_it = rosVSTime.begin(); ; ev_it++) {
+//     if(ev_it == rosVSTime.end()){
+//       rosVSTime.push_back(ev_ros);
+//       break;
+//     }
+//     else if(header.lvl1ID() < (*ev_it).first) {
+//       rosVSTime.insert(ev_it, ev_ros);
+//       break;
+//     }
+//   }
 
-  //loop until the last sequential event number (= myPrevEv set by loop on ttsVSTime)
-  if(!(header.lvl1ID() % 10)){
-    //create a copy of the list to remove elements already analyzed
-    list<pair<int,int> > rosVSTime_copy(rosVSTime);
-    for (list<pair<int,int> >::iterator ev_it = rosVSTime.begin(); ; ev_it++) {
+//   //loop until the last sequential event number (= myPrevEv set by loop on ttsVSTime)
+//   if(!(header.lvl1ID() % 10)){
+//     //create a copy of the list to remove elements already analyzed
+//     list<pair<int,int> > rosVSTime_copy(rosVSTime);
+//     for (list<pair<int,int> >::iterator ev_it = rosVSTime.begin(); ; ev_it++) {
       
-      if((*ev_it).first > myPrevEv || ev_it == rosVSTime.end())
-	break;
+//       if((*ev_it).first > myPrevEv || ev_it == rosVSTime.end())
+// 	break;
       
-      //add a point if the value is changed
-      if((*ev_it).second != myPrevRosVal){
-	//graphROS->addPoint
-	myPrevRosVal = (*ev_it).second;
-     }
-      //remove from the list the ordered events already analyzed
-      list<pair<int,int> >::iterator copy_it = ev_it;
-      rosVSTime_copy.remove(*copy_it);
-    }
-    rosVSTime.clear();
-    rosVSTime.merge(rosVSTime_copy);
-  }
+//       //add a point if the value is changed
+//       if((*ev_it).second != myPrevRosVal){
+// 	//graphROS->addPoint
+// 	myPrevRosVal = (*ev_it).second;
+//      }
+//       //remove from the list the ordered events already analyzed
+//       list<pair<int,int> >::iterator copy_it = ev_it;
+//       rosVSTime_copy.remove(*copy_it);
+//     }
+//     rosVSTime.clear();
+//     rosVSTime.merge(rosVSTime_copy);
+//   }
 
   //2D HISTO: FIFO STATUS from 2nd status word
   histoType = "DDUFIFOStatus";   
@@ -1037,42 +1036,46 @@ void DTDataIntegrityTask::processFED(DTDDUData & data, const std::vector<DTROS25
   }
 
   //MONITOR FIFO VS TIME 
-  pair<int,int*> ev_fifo= make_pair(header.lvl1ID(),fifoStatus);
-  //insert the pair at the right position
-  for (list<pair<int,int*> >::iterator ev_it = fifoVSTime.begin(); ; ev_it++) {
-    if(ev_it == fifoVSTime.end()){
-      fifoVSTime.push_back(ev_fifo);
-      break;
-    }
-    else if(header.lvl1ID() < (*ev_it).first) {
-      fifoVSTime.insert(ev_it, ev_fifo);
-      break;
-    }
-  }
+  // pair<int,int*> ev_fifo= make_pair(header.lvl1ID(),fifoStatus);
+//   //insert the pair at the right position
+//   for (list<pair<int,int*> >::iterator ev_it = fifoVSTime.begin(); ; ev_it++) {
+//     if(ev_it == fifoVSTime.end()){
+//       fifoVSTime.push_back(ev_fifo);
+//       break;
+//     }
+//     else if(header.lvl1ID() < (*ev_it).first) {
+//       fifoVSTime.insert(ev_it, ev_fifo);
+//       break;
+//     }
+//   }
 
-  //loop until the last sequential event number (= myPrevEv set by loop on ttsVSTime)
-  if(!(header.lvl1ID() % 10)){
-    //create a copy of the list to remove elements already analyzed
-    list<pair<int,int*> > fifoVSTime_copy(fifoVSTime);
-    for (list<pair<int,int*> >::iterator ev_it = fifoVSTime.begin(); ; ev_it++) {
-      if((*ev_it).first > myPrevEv || ev_it == fifoVSTime.end())
-	break;
+//   //loop until the last sequential event number (= myPrevEv set by loop on ttsVSTime)
+//   if(!(header.lvl1ID() % 10)){
+//     //create a copy of the list to remove elements already analyzed
+//     list<pair<int,int*> > fifoVSTime_copy(fifoVSTime);
+//     for (list<pair<int,int*> >::iterator ev_it = fifoVSTime.begin(); ; ev_it++) {
+//       if((*ev_it).first > myPrevEv || ev_it == fifoVSTime.end())
+// 	break;
       
-      //add a point if one of the values is changed
-      for(int i=0; i<7; i++){
-	if((*ev_it).second[i] != myPrevFifoVal[i]){
-	  //graphFIFO[i]->addPoint
-	  myPrevFifoVal[i] = (*ev_it).second[i];
-	}
-      }
-      //remove from the list the ordered events already analyzed
-      list<pair<int,int*> >::iterator copy_it = ev_it;
-      fifoVSTime_copy.remove(*copy_it);
-    }
-    fifoVSTime.clear();
-    fifoVSTime.merge(fifoVSTime_copy);
-  }
+//       //add a point if one of the values is changed
+//       for(int i=0; i<7; i++){
+// 	if((*ev_it).second[i] != myPrevFifoVal[i]){
+// 	  //graphFIFO[i]->addPoint
+// 	  myPrevFifoVal[i] = (*ev_it).second[i];
+// 	}
+//       }
+//       //remove from the list the ordered events already analyzed
+//       list<pair<int,int*> >::iterator copy_it = ev_it;
+//       fifoVSTime_copy.remove(*copy_it);
+//     }
+//     fifoVSTime.clear();
+//     fifoVSTime.merge(fifoVSTime_copy);
+//   }
 
+  //IF L1A_ID error identify which ROS has wrong L1A 
+ //  if(trailer.ttsBits()==2){   
+//     header.lvl1ID()
+//   }
  
 }
   
