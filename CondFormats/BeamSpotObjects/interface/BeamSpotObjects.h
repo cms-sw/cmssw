@@ -7,11 +7,13 @@
  *
  * \author Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
  *
- * \version $Id: BeamSpotObjects.h,v 1.2 2007/01/22 04:48:40 yumiceva Exp $
+ * \version $Id: BeamSpotObjects.h,v 1.2 2007/03/30 03:44:05 yumiceva Exp $
  *
  */
 
 #include <math.h>
+#include <sstream>
+
 
 class BeamSpotObjects {
 	
@@ -71,7 +73,9 @@ class BeamSpotObjects {
 	double GetdxdzError() const { return sqrt(covariance_[4][4]); }
 	/// get dydz slope, crossing angle in YZ Error
 	double GetdydzError() const { return sqrt(covariance_[5][5]); }
-	
+	/// print beam spot parameters
+	void print(std::stringstream& ss) const;
+
   private:
 
 	double position_[3];
@@ -82,4 +86,7 @@ class BeamSpotObjects {
 	double covariance_[7][7];
 	
 };
+
+std::ostream& operator<< ( std::ostream&, BeamSpotObjects beam );
+
 #endif
