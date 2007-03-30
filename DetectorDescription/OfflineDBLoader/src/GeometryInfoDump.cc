@@ -1,6 +1,5 @@
 #include <DetectorDescription/OfflineDBLoader/interface/GeometryInfoDump.h>
 
-//#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include <DetectorDescription/Core/interface/DDCompactView.h>
 #include <DetectorDescription/Core/interface/DDValue.h>
@@ -37,6 +36,16 @@ void GeometryInfoDump::dumpInfo ( bool dumpHistory, bool dumpSpecs, bool dumpPos
    try {
       DDExpandedView epv(cpv);
       std::cout << "Top Most LogicalPart =" << epv.logicalPart() << std::endl;
+   }catch ( const DDLogicalPart& iException ){  // does this make any sense?
+      throw cms::Exception("Geometry")
+	<<"GeometryInfoDump::dumpInfo caught a DDLogicalPart exception while making the ExpandedView: \""<<iException<<"\"";
+   } catch (const coral::Exception& e) {
+      throw cms::Exception("Geometry")
+	<<"GeometryInfoDump::dumpInfo caught coral::Exception while making the ExpandedView: \""<<e.what()<<"\"";
+   }
+
+   try{
+      DDExpandedView epv(cpv);
       if ( dumpHistory || dumpPosInfo) {
 	if ( dumpPosInfo ) {
 	  std::cout << "After the GeoHistory in the output file dumpGeoHistoryOnRead you will see x, y, z, r11, r12, r13, r21, r22, r23, r31, r32, r33" << std::endl;
