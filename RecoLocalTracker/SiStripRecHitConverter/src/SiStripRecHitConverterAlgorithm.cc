@@ -69,11 +69,11 @@ void SiStripRecHitConverterAlgorithm::run(edm::Handle<edm::DetSetVector<SiStripC
 	  //calculate the position and error in local coordinates
 	  StripClusterParameterEstimator::LocalValues parameters=parameterestimator.localParameters(*iter,*stripdet);
 
-          GlobalPoint gcenterofstrip=(stripdet->surface()).toGlobal(parameters.first);
-          GlobalVector gtrackdirection=gcenterofstrip-GlobalPoint(0,0,0);
-          LocalVector trackdir=(stripdet->surface()).toLocal(gtrackdirection);
-          const  LocalTrajectoryParameters trackparam=LocalTrajectoryParameters( parameters.first, trackdir,0);
-          parameters=parameterestimator.localParameters(*iter,*stripdet,trackparam);
+//           GlobalPoint gcenterofstrip=(stripdet->surface()).toGlobal(parameters.first);
+//           GlobalVector gtrackdirection=gcenterofstrip-GlobalPoint(0,0,0);
+//           LocalVector trackdir=(stripdet->surface()).toLocal(gtrackdirection);
+//           const  LocalTrajectoryParameters trackparam=LocalTrajectoryParameters( parameters.first, trackdir,0);
+//           parameters=parameterestimator.localParameters(*iter,*stripdet,trackparam);
 
 	  //store the ref to the cluster
 	  edm::Ref< edm::DetSetVector <SiStripCluster>,SiStripCluster > const & cluster=edm::makeRefTo(inputhandle,id,iter);

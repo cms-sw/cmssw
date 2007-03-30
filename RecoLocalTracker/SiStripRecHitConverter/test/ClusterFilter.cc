@@ -19,7 +19,12 @@ ClusterFilter::ClusterFilter( const ParameterSet & pset ) :
    std::string clusterProducer = conf_.getParameter<std::string>("ClusterProducer");
    edm::Handle<edm::DetSetVector<SiStripCluster> > clusters;
    e.getByLabel(clusterProducer, clusters);
-   int size=clusters.product()->size();
+   //   int size=clusters.product()->size();
+   int size = 0;
+   for (edm::DetSetVector<SiStripCluster>::const_iterator DSViter=clusters.product()->begin(); DSViter!=clusters.product()->end(); ++DSViter) {
+     size += DSViter->data.size();
+   }
+
    if(size>nMax_)return 0;
    else return 1;	
 }
