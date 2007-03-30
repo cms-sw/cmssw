@@ -6,7 +6,7 @@
 
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
- version $Id: BeamSpotAnalyzer.cc,v 1.2 2007/03/29 16:57:53 yumiceva Exp $
+ version $Id: BeamSpotAnalyzer.cc,v 1.3 2007/03/29 18:30:39 yumiceva Exp $
 
 ________________________________________________________________**/
 
@@ -87,7 +87,7 @@ BeamSpotAnalyzer::BeamSpotAnalyzer(const edm::ParameterSet& iConfig)
   ckfTrackProducerLabel_ = iConfig.getParameter<edm::ParameterSet>("BSAnalyzerParameters").getUntrackedParameter<std::string>("TrackCollection");
    
   write2DB_ = iConfig.getParameter<edm::ParameterSet>("BSAnalyzerParameters").getParameter<bool>("WriteToDB");
-
+  runallfitters_ = iConfig.getParameter<edm::ParameterSet>("BSAnalyzerParameters").getParameter<bool>("RunAllFitters");
   ftotal_tracks = 0;
   ftotalevents = 0;
   
@@ -260,7 +260,46 @@ BeamSpotAnalyzer::endJob() {
 	std::cout << " DEFAULT:" << std::endl;
 	std::cout << beam_default << std::endl;
 
+	if (write2DB_) {
+		std::cout << "\n-------------------------------------\n\n" << std::endl;
+		std::cout << " write results to DB..." << std::endl;
 
+		BeamSpotObjects *pBSObjects = new BeamSpotObjects();
+
+		//pBSObjects->Put(beam_default);
+		pBSObjects->SetPosition(beam_default.position().X(),beam_default.position().Y(),beam_default.position().Z());
+		//std::cout << " wrote: x= " << beam_default.position().X() << " y= "<< beam_default.position().Y() << " z= " << beam_default.position().Z() << std::endl;
+		pBSObjects->SetSigmaZ(beam_default.sigmaZ());
+		pBSObjects->Setdxdz(beam_default.dxdz());
+		pBSObjects->Setdydz(beam_default.dydz());
+		pBSObjects->SetBeamWidth(15.0e-4);
+		
+		for (int i = 0; i<7; ++i) {
+		  for (int j=0; j<7; ++j) {
+		    pBSObjects->SetCovariance(i,j,beam_default.covariance(i,j));
+		  }
+		}
+		edm::Service<cond::service::PoolDBOutputService> poolDbService;
+		if( poolDbService.isAvailable() ) {
+		  std::cout << "poolDBService available"<<std::endl;
+		  if ( poolDbService->isNewTagRequest( "BeamSpotObjectsRcd" ) ) {
+		    std::cout << "new tag requested" << std::endl;
+		    poolDbService->createNewIOV<BeamSpotObjects>( pBSObjects, poolDbService->endOfTime(),
+								  "BeamSpotObjectsRcd"  );
+		  }
+		  else {
+		    std::cout << "no new tag requested" << std::endl;
+		    poolDbService->appendSinceTime<BeamSpotObjects>( pBSObjects, poolDbService->currentTime(),
+								     "BeamSpotObjectsRcd" );
+		  }
+
+		
+		}
+	}
+
+	if (runallfitters_) {
+	
+	  
 	// add new branches
 	std::cout << " add new branches to output file " << std::endl;
 	beam_default = myalgo->Fit_d0phi();
@@ -329,35 +368,8 @@ BeamSpotAnalyzer::endJob() {
 
 	std::cout << "c0 = " << myalgo->GetResPar0() << " +- " << myalgo->GetResPar0Err() << std::endl;
 	std::cout << "c1 = " << myalgo->GetResPar1() << " +- " << myalgo->GetResPar1Err() << std::endl;
-	
 
-	if (write2DB_) {
-		std::cout << "\n-------------------------------------\n\n" << std::endl;
-		std::cout << " write results to DB..." << std::endl;
-
-		BeamSpotObjects *pBSObjects = new BeamSpotObjects();
-
-		//pBSObjects->Put(beam_default);
-		pBSObjects->SetPosition(beam_default.position().X(),beam_default.position().Y(),beam_default.position().Z());
-				
-		edm::Service<cond::service::PoolDBOutputService> poolDbService;
-		if( poolDbService.isAvailable() ) {
-		  std::cout << "poolDBService available"<<std::endl;
-		  if ( poolDbService->isNewTagRequest( "BeamSpotObjectsRcd" ) ) {
-		    std::cout << "new tag requested" << std::endl;
-		    poolDbService->createNewIOV<BeamSpotObjects>( pBSObjects, poolDbService->endOfTime(),
-								  "BeamSpotObjectsRcd"  );
-		  }
-		  else {
-		    std::cout << "no new tag requested" << std::endl;
-		    poolDbService->appendSinceTime<BeamSpotObjects>( pBSObjects, poolDbService->currentTime(),
-								     "BeamSpotObjectsRcd" );
-		  }
-
-		
-		}
 	}
-
 }
 
 //define this as a plug-in
