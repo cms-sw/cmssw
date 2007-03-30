@@ -4,4 +4,9 @@
   <class name="L1CaloEtScale"/>
   <class name="L1GctJetEtCalibrationFunction"/>
   <class name="L1RPCConfig"/>
+  <class name="L1MuDTExtLut"/>
+  <class name="L1MuDTPhiLut"/>
+  <class name="L1MuDTPtaLut"/>
+  <class name="L1MuDTEtaPatternLut"/>
+  <class name="L1MuDTQualPatternLut"/>
 </lcgdict>  

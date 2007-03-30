@@ -3,4 +3,8 @@
 #include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
 #include "CondFormats/L1TObjects/interface/L1GctJetEtCalibrationFunction.h"
 #include "CondFormats/L1TObjects/interface/L1RPCConfig.h"
-
+#include "CondFormats/L1TObjects/interface/L1MuDTExtLut.h"
+#include "CondFormats/L1TObjects/interface/L1MuDTPhiLut.h"
+#include "CondFormats/L1TObjects/interface/L1MuDTPtaLut.h"
+#include "CondFormats/L1TObjects/interface/L1MuDTEtaPatternLut.h"
+#include "CondFormats/L1TObjects/interface/L1MuDTQualPatternLut.h"
