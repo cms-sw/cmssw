@@ -15,7 +15,7 @@
 
 #include "RecoMuon/MuonIsolation/interface/Cuts.h"
 
-#include "RecoMuon/MuonIsolation/interface/CaloExtractor.h"
+#include "RecoMuon/MuonIsolation/interface/MuIsoExtractor.h"
 
 class L2MuonIsolationProducer : public edm::EDProducer {
 
@@ -26,13 +26,19 @@ class L2MuonIsolationProducer : public edm::EDProducer {
   
   /// destructor
   virtual ~L2MuonIsolationProducer(); 
-  
+
+  /// setup the job  
+  virtual void beginJob(const edm::EventSetup&);
+
   /// Produce isolation maps
   virtual void produce(edm::Event&, const edm::EventSetup&);
   // ex virtual void reconstruct();
 
  private:
   
+  // this producer configs
+  edm::ParameterSet theConfig;
+
   // Muon track Collection Label
   edm::InputTag theSACollectionLabel;
 
@@ -43,7 +49,7 @@ class L2MuonIsolationProducer : public edm::EDProducer {
   double optOutputIsoDeposits;
 
   // MuIsoExtractor
-  muonisolation::CaloExtractor theCalExtractor;
+  muonisolation::MuIsoExtractor* theExtractor;
 
 };
 
