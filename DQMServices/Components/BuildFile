@@ -10,7 +10,5 @@
 <use name=DQMServices/UI>
 <use name=DQMServices/ClientConfig>
 <use name=boost>
-<use name=CLHEP>
-
 
 <flags SEAL_PLUGIN_NAME="DQMServicesComponents">
