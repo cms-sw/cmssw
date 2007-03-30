@@ -330,6 +330,8 @@ void CCApatternmaker::makePattern(int rbx,const char* fname){
   bool in_hb = false;
   bool in_hf = false;
   bool in_ho = false;
+  time_t Now=time(0);
+  std::cout <<"; RBX:" <<rbx <<" "<< ctime(&Now)<<std::endl;
   if(((rbx>0)&&(rbx<19))||((rbx>90)&&(rbx<109))) {// this is valid for HB
     rm_mx=4;
     card_mx=3;in_hb=true;}
