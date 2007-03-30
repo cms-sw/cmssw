@@ -3,6 +3,18 @@
 <use name=DataFormats/HcalRecHit>
 <use name=DataFormats/EcalDetId>
 <use name=DataFormats/DetId>
+
+<use name=DataFormats/EcalDigi>
+<use name=DataFormats/EcalRecHit>
+<use name=DataFormats/EgammaReco>
+<use name=CondFormats/EcalObjects>
+<use name=RecoLocalCalo/EcalRecAlgos>
+<use name=RecoEcal/EgammaClusterAlgos>
+<use name=Geometry/EcalPreshowerAlgo>
+<use name=DataFormats/Math>
+<use name=RecoEcal/EgammaCoreTools>
+<use name=RecoEcal/EgammaClusterProducers>
+
 <use name=DataFormats/RecoCandidate>
 <use name=DataFormats/JetReco>
 <use name=Geometry/CaloTopology>
@@ -19,6 +31,19 @@
 <export>
    <lib name=CalibrationHcalAlCaRecoProducers>
    <use name=DataFormats/DetId>
+
+   <use name=DataFormats/EcalDigi>
+   <use name=DataFormats/EcalRecHit>
+   <use name=DataFormats/EgammaReco>
+   <use name=CondFormats/EcalObjects>
+   <use name=RecoLocalCalo/EcalRecAlgos>
+   <use name=RecoEcal/EgammaClusterAlgos>
+   <use name=Geometry/EcalPreshowerAlgo>
+   <use name=DataFormats/Math>
+   <use name=RecoEcal/EgammaCoreTools>
+   <use name=RecoEcal/EgammaClusterProducers>
+
+
    <use name=DataFormats/HcalDigi>
    <use name=DataFormats/HcalRecHit>
    <use name=DataFormats/EcalDetId>
