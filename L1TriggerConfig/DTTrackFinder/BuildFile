@@ -1,0 +1,12 @@
+<export>
+ <lib name=L1TriggerConfigDTTrackFinder>
+ <use name=FWCore/Framework>
+ <use name=CondFormats/L1TObjects>
+ <use name=CondFormats/DataRecord>
+</export>
+
+<use name=FWCore/Framework>
+<use name=CondFormats/L1TObjects>
+<use name=CondFormats/DataRecord>
+
+<flags SEAL_PLUGIN_NAME="L1TriggerConfigDTTrackFinder">
