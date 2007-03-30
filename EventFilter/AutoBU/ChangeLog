@@ -1,3 +1,13 @@
+2007-03-30  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-04-03
+	* improvements to scripts/initialize
+	* the script detects now for all four packages if they are checked
+	out locally or not
+	* the '-playback' command line option can (must!) now be passed an
+	argumnet, which is either a root file or an ASCII file with a list
+	of root files
+
 2007-03-29  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-04-02

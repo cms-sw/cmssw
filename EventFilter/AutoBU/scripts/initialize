@@ -22,6 +22,8 @@ my $doPB = 0;
 my $doEP = 1;
 my $doSM = 1;
 
+my $PBfile;
+
 
 # hostname, default
 my $hostname = $ENV{"HOST"};
@@ -44,11 +46,11 @@ my $RBlocalid=26;
 my $EPlocalid=27;
 my $SMlocalid=44;
 
-my $BUlibpath = $ENV{"CMSSW_BASE"} . "/lib/" . $ENV{"SCRAM_ARCH"};
-my $RBlibpath = $ENV{"CMSSW_BASE"} . "/lib/" . $ENV{"SCRAM_ARCH"};
-my $EPlibpath = $ENV{"CMSSW_BASE"} . "/lib/" . $ENV{"SCRAM_ARCH"};
-my $SMlibpath = $ENV{"CMSSW_BASE"} . "/lib/" . $ENV{"SCRAM_ARCH"};
-my $PTlibpath = $ENV{"XDAQ_ROOT"}  . "/lib";
+my $BUlibpath = getLibraryPath("EventFilter/AutoBU");
+my $RBlibpath = getLibraryPath("EventFilter/ResourceBroker");
+my $EPlibpath = getLibraryPath("EventFilter/Processor");
+my $SMlibpath = getLibraryPath("EventFilter/StorageManager");
+my $PTlibpath = $ENV{"XDAQ_ROOT"} . "/lib";
 
 my $BUlibname = "libEventFilterAutoBU.so";
 my $RBlibname = "libEventFilterResourceBroker.so";
@@ -56,7 +58,9 @@ my $EPlibname = "libEventFilterProcessor.so";
 my $SMlibname = "libEventFilterStorageManager.so";
 my $PTlibname = "libpttcp.so";
 
-my $SMperl = $ENV{"CMSSW_BASE"} . "/src/EventFilter/StorageManager/scripts/perl";
+my $SMperl = 
+    $ENV{"CMSSW_RELEASE_BASE"} .
+    "/src/EventFilter/StorageManager/scripts/perl";
 
 my $pwd = `pwd`; chomp $pwd;
 
@@ -67,7 +71,8 @@ my $pwd = `pwd`; chomp $pwd;
 foreach $param (@ARGV) {
     if    ($hostname eq "fillme")    { $hostname=$param; }
     elsif ($param    eq "-host")     { $hostname="fillme"; }
-    elsif ($param    eq "-playback") { $doPB=1; }
+    elsif ($PBfile   eq "fillme")    { $PBfile  =$param; }
+    elsif ($param    eq "-playback") { $doPB=1;$PBfile="fillme"; }
     elsif ($param    eq "-drop")     { $doEP=0;$doSM=0; }
     elsif ($param    eq "-noSM")     { $doSM=0; }
     else { die ("Unknown parameter $param!\n"); }
@@ -110,7 +115,7 @@ if ($doSM) {
 
 if ($doPB) {
     open(CFG,">./cfg/playback.cfg") or die ("Can't open file: $!\n");
-    print CFG makeCfgPlayback();
+    print CFG makeCfgPlayback($PBfile);
     close(CFG);
 }
 
@@ -354,6 +359,26 @@ if ($doSM) {
 
 
 ################################################################################
+sub getLibraryPath
+{
+    my ($pkg) = (@_);
+    
+    my $cmssw_base         = $ENV{"CMSSW_BASE"};
+    my $cmssw_release_base = $ENV{"CMSSW_RELEASE_BASE"};
+
+    my $result = "/lib/" . $ENV{"SCRAM_ARCH"};
+    
+    if (-e "$cmssw_base/src/$pkg") {
+	$result = $cmssw_base . $result;
+    }
+    else {
+	$result = $cmssw_release_base . $result;
+    }
+
+    return $result;
+}
+
+################################################################################
 sub makeSoapCommand
 {
     my ($hostname,$port,$localid,$command) = @_;
@@ -542,13 +567,32 @@ sub makeCfgSm
 ################################################################################
 sub makeCfgPlayback
 {
+    my ($file) = (@_);
+
+    my @input_files;
+
+    if ($file =~ m/\.root$/) {
+	push (@input_files, $file);
+    }
+    else {
+	open (FILELIST,$file);
+	while (<FILELIST>) {
+	    my $next_file = $_;
+	    chomp($next_file);
+	    if ($next_file =~ m/\.root$/) { push (@files, $next_file); }
+	    else { print("ERROR: $next_file does not appear to be a ROOT file.\n"); }
+	}
+    }
+    
     my $result = "";
 
     $result = $result . "process PLAYBACK = {\n\n";
     $result = $result . "  // source\n";
     $result = $result . "  source = PoolSource\n";
     $result = $result . "  {\n";
-    $result = $result . "    untracked vstring fileNames = {'file:/tmp/playback.root'}\n";
+    $result = $result . "    untracked vstring fileNames = {";
+    foreach (@files) { $result = $result . "\n      'file:" . $_ . "',"; }
+    $result =~ s/,$/\n    \}\n/;
     $result = $result . "    untracked uint32  skipEvents= 0\n";
     $result = $result . "  }\n\n";
     $result = $result . "  // path(s)\n";
