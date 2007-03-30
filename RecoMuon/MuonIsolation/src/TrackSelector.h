@@ -2,7 +2,7 @@
 #define MuonIsolation_TrackSelector_H
 
 #include "RecoMuon/MuonIsolation/interface/Range.h"
-#include "RecoMuon/MuonIsolation/interface/Direction.h"
+#include "DataFormats/MuonReco/interface/Direction.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
