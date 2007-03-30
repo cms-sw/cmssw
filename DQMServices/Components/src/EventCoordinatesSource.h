@@ -4,15 +4,14 @@
 /*
  * \file EventCoordinatesSource.h
  *
- * $Date: 2007/03/22 18:52:01 $
- * $Revision: 1.11 $
+ * $Date: 2007/03/29 14:52:55 $
+ * $Revision: 1.2 $
  * \author M. Zanetti - INFN Padova
  *
 */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include <FWCore/Framework/interface/EDAnalyzer.h>
-#include <DataFormats/Common/interface/Handle.h>
 #include <FWCore/Framework/interface/ESHandle.h>
 #include <FWCore/Framework/interface/Event.h>
 #include <FWCore/Framework/interface/MakerMacros.h>
