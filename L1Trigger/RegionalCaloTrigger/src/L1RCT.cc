@@ -495,6 +495,7 @@ L1CaloEmCollection L1RCT::getIsolatedEGObjects(int crate){
     else
       {
 	rank = energy;
+	if (rank > 0x3f) rank = 0x3f;
       }
     L1CaloEmCand isoCand(rank, rgn, crd, crate, 1);
     // L1CaloEmCand isoCand(energy, rgn, crd, crate, 1);  // uses 7-bit energy as rank here, temporarily
@@ -515,14 +516,15 @@ L1CaloEmCollection L1RCT::getNonisolatedEGObjects(int crate){
     unsigned short crd = (((nonIsoEmObjects.at(i))/2) & 7);
     unsigned short energy = ((nonIsoEmObjects.at(i))/16);
     unsigned short rank;
-    if (!patternTest_)
-      {
-	rank = gctEmScale->rank(energy);
-      }
-    else
-      {
-	rank = energy;
-      }
+    //    if (!patternTest_)
+    //      {
+    rank = gctEmScale->rank(energy);
+    //      }
+    //    else
+    //      {
+    //	rank = energy;
+    //	if (rank > 0x3f) rank = 0x3f;
+    //      }
     L1CaloEmCand nonIsoCand(rank, rgn, crd, crate, 0);
     //L1CaloEmCand nonIsoCand(energy, rgn, crd, crate, 0);  // uses 7-bit energy as rank here, temporarily
     nonIsoEmCands.push_back(nonIsoCand);

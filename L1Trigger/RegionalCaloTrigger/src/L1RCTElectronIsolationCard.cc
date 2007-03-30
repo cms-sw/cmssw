@@ -91,9 +91,39 @@ L1RCTElectronIsolationCard::calcElectronCandidates(L1RCTRegion* region){
 	
 	//bool neighborVeto = false;
 	//veto threshold
-	int quietThreshold = 3;
-	bool quietVeto = (nwEt > quietThreshold || neEt > quietThreshold || 
-			  swEt > quietThreshold || seEt > quietThreshold);
+	int quietThreshold = 0;
+	
+	bool nw = false;
+	bool ne = false;
+	bool sw = false;
+	bool se = false;
+	bool n = false;
+	bool w = false;
+	bool s = false;
+	bool e = false;
+	bool nwC;
+	bool neC;
+	bool swC;
+	bool seC;
+
+	if (nwEt > quietThreshold) nw = true;
+	if (neEt > quietThreshold) ne = true;
+	if (swEt > quietThreshold) sw = true;
+	if (seEt > quietThreshold) se = true;
+	if (northEt > quietThreshold) n = true;
+	if (southEt > quietThreshold) s = true;
+	if (westEt > quietThreshold) w = true;
+	if (eastEt > quietThreshold) e = true;
+
+	nwC = (sw || w || nw || n || ne);
+	neC = (nw || n || ne || e || se);
+	seC = (ne || e || se || s || sw);
+	swC = (se || s || sw || w || ne);
+
+	bool quietVeto = (nwC && neC && seC && swC);
+
+	//	bool quietVeto = (nwEt > quietThreshold || neEt > quietThreshold || 
+	//			  swEt > quietThreshold || seEt > quietThreshold);
 	
 	//bool quietVeto = false;
 	
