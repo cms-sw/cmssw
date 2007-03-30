@@ -111,10 +111,16 @@ CSCGeometry* CSCGeometryBuilderFromDDD::buildEndcaps( DDFilteredView* fv, const 
 	  }
 	} else if ( it->second.name() == "WireSpacing" ) {
 	  wg.wireSpacing = it->second.doubles()[0];
-	} else if ( it->second.name() == "CenterPinToFirstWire" ) {
+	} else if ( it->second.name() == "AlignmentPinToFirstWire" ) {
 	  wg.alignmentPinToFirstWire = it->second.doubles()[0]; 
 	} else if ( it->second.name() == "TotNumWireGroups" ) {
 	  wg.numberOfGroups = int(it->second.doubles()[0]);
+	} else if ( it->second.name() == "LengthOfFirstWire" ) {
+	  wg.narrowWidthOfWirePlane = it->second.doubles()[0];
+	} else if ( it->second.name() == "LengthOfLastWire" ) {
+	  wg.wideWidthOfWirePlane = it->second.doubles()[0];
+	} else if ( it->second.name() == "RadialExtentOfWirePlane" ) {
+	  wg.lengthOfWirePlane = it->second.doubles()[0];
 	}
       }
     }
@@ -122,10 +128,10 @@ CSCGeometry* CSCGeometryBuilderFromDDD::buildEndcaps( DDFilteredView* fv, const 
     std::vector<float> fpar;
     std::vector<double> dpar = fv->logicalPart().solid().parameters();
     
-    LogDebug("CSC") << ": fill fpar..." << "\n";
-    LogDebug("CSC") << ": dpars are... " << 
+    LogTrace("CSC") << myName  << ": fill fpar...";
+    LogTrace("CSC") << myName  << ": dpars are... " << 
           dpar[4]/cm << ", " << dpar[8]/cm << ", " << 
-          dpar[3]/cm << ", " << dpar[0]/cm << "\n";
+      dpar[3]/cm << ", " << dpar[0]/cm;
 
 
     fpar.push_back( static_cast<float>( dpar[4]/cm) );
@@ -133,7 +139,7 @@ CSCGeometry* CSCGeometryBuilderFromDDD::buildEndcaps( DDFilteredView* fv, const 
     fpar.push_back( static_cast<float>( dpar[3]/cm ) ); 
     fpar.push_back( static_cast<float>( dpar[0]/cm ) ); 
 
-    LogDebug("CSC") << ": fill gtran..." << "\n";
+    LogTrace("CSC") << myName  << ": fill gtran...";
 
     std::vector<float> gtran;
     DDTranslation tran = fv->translation();
@@ -141,7 +147,7 @@ CSCGeometry* CSCGeometryBuilderFromDDD::buildEndcaps( DDFilteredView* fv, const 
       gtran.push_back( (float) 1.0 *  tran[i] / cm );
     }
 
-    LogDebug("CSC") << ": fill grmat..." << "\n";
+    LogTrace("CSC") << myName  << ": fill grmat...";
 
     std::vector<float> grmat( 9 ); // set dim so can use [.] to fill
     size_t rotindex = 0;
@@ -155,53 +161,74 @@ CSCGeometry* CSCGeometryBuilderFromDDD::buildEndcaps( DDFilteredView* fv, const 
       }
     }
 
-    LogDebug("CSC") << ": fill fupar..." << "\n";
+    LogTrace("CSC") << myName  << ": fill fupar...";
 
     std::vector<float> fupar;
     for (size_t i = 0; i < uparvals.size(); i++)
-      fupar.push_back( static_cast<float>( uparvals[i] ) );
+      fupar.push_back( static_cast<float>( uparvals[i] ) ); //@ FIXME perhaps should keep as double!
 
     // MuonNumbering numbering wraps the subdetector hierarchy labelling
 
-    LogDebug("CSC") << ": create numbering scheme..." << "\n";
+    LogTrace("CSC") << myName  << ": create numbering scheme...";
 
     MuonDDDNumbering mdn(muonConstants);
     MuonBaseNumber mbn = mdn.geoHistoryToBaseNumber(fv->geoHistory());
     CSCNumberingScheme mens(muonConstants);
 
-    LogDebug("CSC") << ": find detid..." << "\n";
+    LogTrace("CSC") << myName  << ": find detid...";
 
-    int detid = mens.baseNumberToUnitNumber( mbn ); //@@ FIXME perhaps should return CSCDetId itself?
+    int id = mens.baseNumberToUnitNumber( mbn ); //@@ FIXME perhaps should return CSCDetId itself?
 
-
-      LogDebug("CSC") << ": detid for this layer is " << detid << 
-	", octal " << std::oct << detid << ", hex " << std::hex << detid << std::dec << "\n";
-      LogDebug("CSC") << ": looking for wire group info for layer " << "\n";
-      LogDebug("CSC") << "E" << CSCDetId::endcap(detid) << 
-             " S" << CSCDetId::station(detid) << 
-	     " R" << CSCDetId::ring(detid) <<
-             " C" << CSCDetId::chamber(detid) <<
-  	     " L" << CSCDetId::layer(detid) << "\n";
-	//			   << fv->geoHistory() << "\n";
+      LogTrace("CSC") << myName  << ": raw id for this detector is " << id << 
+	", octal " << std::oct << id << ", hex " << std::hex << id << std::dec;
+      LogTrace("CSC") << myName  << ": looking for wire group info for layer " <<
+              "E" << CSCDetId::endcap(id) << 
+             " S" << CSCDetId::station(id) << 
+	     " R" << CSCDetId::ring(id) <<
+             " C" << CSCDetId::chamber(id) <<
+  	     " L" << CSCDetId::layer(id);
 	    
       if ( wg.numberOfGroups != 0 ) {
-	LogDebug("CSC") << "fv->geoHistory:      = " << fv->geoHistory() << "\n";
-	LogDebug("CSC") << "TotNumWireGroups     = " << wg.numberOfGroups << "\n";
-	LogDebug("CSC") << "WireSpacing          = " << wg.wireSpacing << "\n";
-	LogDebug("CSC") << "CenterPinToFirstWire = " << wg.alignmentPinToFirstWire << "\n";
-	LogDebug("CSC") << "wg.consecutiveGroups.size() = " << wg.consecutiveGroups.size() << "\n";
-	LogDebug("CSC") << "wg.wiresInEachGroup.size() = " << wg.wiresInEachGroup.size() << "\n";
-	LogDebug("CSC") << "NumGroups\tWiresInGroup" << "\n";
+	LogTrace("CSC") << myName  << ": fv->geoHistory:      = " << fv->geoHistory() ;
+	LogTrace("CSC") << myName  << ": TotNumWireGroups     = " << wg.numberOfGroups ;
+	LogTrace("CSC") << myName  << ": WireSpacing          = " << wg.wireSpacing ;
+	LogTrace("CSC") << myName  << ": AlignmentPinToFirstWire = " << wg.alignmentPinToFirstWire ;
+	LogTrace("CSC") << myName  << ": Narrow width of wire plane = " << wg.narrowWidthOfWirePlane ;
+	LogTrace("CSC") << myName  << ": Wide width of wire plane = " << wg.wideWidthOfWirePlane ;
+	LogTrace("CSC") << myName  << ": Length in y of wire plane = " << wg.lengthOfWirePlane ;
+	LogTrace("CSC") << myName  << ": wg.consecutiveGroups.size() = " << wg.consecutiveGroups.size() ;
+	LogTrace("CSC") << myName  << ": wg.wiresInEachGroup.size() = " << wg.wiresInEachGroup.size() ;
+	LogTrace("CSC") << myName  << ": \tNumGroups\tWiresInGroup" ;
 	for (size_t i = 0; i < wg.consecutiveGroups.size(); i++) {
-	  LogDebug("CSC") << wg.consecutiveGroups[i] << "\t\t" << wg.wiresInEachGroup[i] << "\n";
+	  LogTrace("CSC") << myName  << " \t" << wg.consecutiveGroups[i] << "\t\t" << wg.wiresInEachGroup[i] ;
 	}
       } else {
-	LogDebug("CSC") << ":DDD is MISSING SpecPars for wire groups" << "\n";
+	LogTrace("CSC") << myName  << ": DDD is MISSING SpecPars for wire groups" ;
       }
-      LogDebug("CSC")<< ": end of wire group info. " << "\n";
+      LogTrace("CSC") << myName << ": end of wire group info. " ;
 
 
-    this->buildLayer (theGeometry, detid, fpar, fupar, gtran, grmat, wg );
+      CSCDetId detid = CSCDetId( id );
+      int jendcap  = detid.endcap();
+      int jstation = detid.station();
+      int jring    = detid.ring();
+      int jchamber = detid.chamber();
+      
+      if ( jstation==1 && jring==1 ) {
+	// set up params for ME1a and ME1b and call buildChamber *for each*
+	// Both get the full ME11 dimensions
+
+	// detid is for ME11 and that's what we're using for ME1b in the software
+        buildChamber (theGeometry, detid, fpar, fupar, gtran, grmat, wg ); // ME1b
+
+	std::copy( fupar.begin()+31, fupar.end(), fupar.begin() ); // copy ME1a params to beginning
+        CSCDetId detid1a = CSCDetId( jendcap, 1, 4, jchamber, 0 ); // reset to ME1A
+        buildChamber (theGeometry, detid1a, fpar, fupar, gtran, grmat, wg ); // ME1a
+
+      }
+      else {
+        buildChamber (theGeometry, detid, fpar, fupar, gtran, grmat, wg );
+      }
 
     doAll = fv->next();
   }
@@ -209,72 +236,48 @@ CSCGeometry* CSCGeometryBuilderFromDDD::buildEndcaps( DDFilteredView* fv, const 
   return theGeometry;  
 }
 
-void CSCGeometryBuilderFromDDD::buildLayer (  
+void CSCGeometryBuilderFromDDD::buildChamber (  
 	CSCGeometry* theGeometry,         // the geometry container
-	int    detid,                     // packed index from CSCDetId
-        const std::vector<float>& fpar,   // volume parameetrs
+	CSCDetId chamberId,               // the DetId for this chamber
+        const std::vector<float>& fpar,   // volume parameters hB, hT. hD, hH
 	const std::vector<float>& fupar,  // user parameters
 	const std::vector<float>& gtran,  // translation vector
-	const std::vector<float>& grmat,  // rotation matric
+	const std::vector<float>& grmat,  // rotation matrix
         const CSCWireGroupPackage& wg     // wire group info
 	) {
 
-  LogDebug("CSC") << ": entering buildLayer" << "\n";
-  int jend   = CSCDetId::endcap( detid );
-  int jstat  = CSCDetId::station( detid );
-  int jring  = CSCDetId::ring( detid );
-  int jch    = CSCDetId::chamber( detid );
-  int jlay   = CSCDetId::layer( detid );
+  LogTrace("CSC") << myName  << ": entering buildChamber" ;
 
-  CSCDetId layerId = CSCDetId( detid );
-  CSCDetId chamberId = CSCDetId( jend, jstat, jring, jch, 0 );
+  int jend   = chamberId.endcap();
+  int jstat  = chamberId.station();
+  int jring  = chamberId.ring();
+  int jch    = chamberId.chamber();
+  int jlay   = chamberId.layer();
 
-  //   Geometrical shape parameters for Endcap Muon for active gas volumes MWij
-  //   cf. the hardware nomenclature for Endcap Muon chambers is MEi/j
+  if (jlay != 0 ) edm::LogWarning("CSC") << "Error! CSCGeometryBuilderFromDDD was fed layer id = " << jlay << "\n";
 
-  //  In the Endcap Muon system, a chamber (a cathode strip chamber) is composed of 6 'layers'.
-  //  A 'layer' is a gas volume between two planes of cathode strips,
-  //  with a plane of anode wires midway between.
-
-  //@@ Magic Number... to find center of chamber from position of Layer 1
-  // Note that par[2] is the gas-volume half-thickness, not the physical unit half-thickness;
-  // It is either 0.28cm (ME11) or 0.476cm (all others), so that 'full gas gap' is 5.6mm or 9.52mm.
-  // But what we need here is the physical layer thickness which is gas volume + honeycomb...
-  // Overall, this is about an inch, or nearer 2.56 or 2.57cm. I take 2.56cm, which is also
-  // consistent with GEANT z-positions of layers (layer 1 to layer 6 is about 12.8cm)
-
-  const float layerThickness = 2.56; // (cm) effective thickness of a chamber
-  const float centreChamberToFirstLayer = layerThickness * 2.5; // (cm) distance between centre of chamber and first layer
-  
   const size_t kNpar = 4;
   if ( fpar.size() != kNpar ) 
     edm::LogError("CSC") << "Error, expected npar=" 
 	      << kNpar << ", found npar=" << fpar.size() << std::endl;
 
-  LogDebug("CSC") << ":  E" << jend << " S" << jstat << " R" << jring <<
-    " C" << jch << " L" << jlay << "\n";
-  LogDebug("CSC") << "npar=" << fpar.size() << " par[0]=" << fpar[0] 
-		  << " par[1]=" << fpar[1] << " par[2]=" << fpar[2] << " par[3]=" << fpar[3] << "\n";
-  LogDebug("CSC") << "gtran[0,1,2]=" << gtran[0] << " " << gtran[1] << " " << gtran[2] << "\n";
-  LogDebug("CSC") << "grmat[0-8]=" << grmat[0] << " " << grmat[1] << " " << grmat[2] << " "
+  LogTrace("CSC") << myName  << ":  E" << jend << " S" << jstat << " R" << jring <<
+    " C" << jch << " L" << jlay ;
+  LogTrace("CSC") << myName  << ": npar=" << fpar.size() << " hB=" << fpar[0] 
+		  << " hT=" << fpar[1] << " hD=" << fpar[2] << " hH=" << fpar[3] ;
+  LogTrace("CSC") << myName  << ": gtran[0,1,2]=" << gtran[0] << " " << gtran[1] << " " << gtran[2] ;
+  LogTrace("CSC") << myName  << ": grmat[0-8]=" << grmat[0] << " " << grmat[1] << " " << grmat[2] << " "
          << grmat[3] << " " << grmat[4] << " " << grmat[5] << " "
-		  << grmat[6] << " " << grmat[7] << " " << grmat[8] << "\n";
-  LogDebug("CSC") << "nupar=" << fupar.size() << " upar[0]=" << fupar[0] << "\n";
+		  << grmat[6] << " " << grmat[7] << " " << grmat[8] ;
+  LogTrace("CSC") << myName  << ": nupar=" << fupar.size() << " upar[0]=" << fupar[0] ;
 
-
-   // offset translates centre of Layer 1 to centre of Chamber
-   // Since Layer 1 is nearest IP in station 1,2 but Layer 6 is
-   // nearest in station 3,4, we need to make it negative sometimes...
-  float offset = centreChamberToFirstLayer;
-  if ( (jend==1 && jstat>2 ) || ( jend==2 && jstat<3 ) ) offset=-offset;
 
   CSCChamber* chamber = const_cast<CSCChamber*>(theGeometry->chamber( chamberId ));
   if ( chamber ){
   }
   else { // this chamber not yet built/stored
   
-   // Get or build ChamberSpecs for this chamber
-    LogDebug("CSC") << ": CSCChamberSpecs::build requested." << "\n";
+    LogTrace("CSC") << myName <<": CSCChamberSpecs::build requested for ME" << jstat << jring ;
     int chamberType = CSCChamberSpecs::whatChamberType( jstat, jring );
     CSCChamberSpecs* aSpecs = CSCChamberSpecs::lookUp( chamberType );
     if ( aSpecs == 0 ) aSpecs = CSCChamberSpecs::build( chamberType, fpar, fupar, wg );
@@ -286,24 +289,22 @@ void CSCGeometryBuilderFromDDD::buildLayer (
    // The corresponding transformation from global to local is
    //         (grmat)*(global - gtran)
  
-    //    BoundSurface::RotationType aRot( grmat );
     BoundSurface::RotationType aRot( grmat[0], grmat[1], grmat[2], 
                                      grmat[3], grmat[4], grmat[5],
                                      grmat[6], grmat[7], grmat[8] );
 
-      // This rotation we get from GEANT takes the detector face as the x-z plane.
-      // For consistency with the rest of CMS we would like the detector
-      // face to be the local x-y plane.
-      // On top of this the -z endcap has LH local coordinates, since it
-      // is built in CMSIM/GEANT3 as a *reflection* of +z.
-      // So we need to rotate, and in -z flip local x.
+   // This rotation from GEANT considers the detector face as the x-z plane.
+   // We want this to be the local x-y plane.
+   // Furthermore, the -z_global endcap has LH local coordinates, since it is built
+   // in GEANT as a *reflection* of the +z_global endcap.
+   // So we need to rotate, and in -z flip local x.
 
-      // aRot.rotateAxes will transform aRot so that it becomes
-      // applicable to the new local coordinates: detector face in x-y plane
-      // looking out along z, in either endcap.
+   // aRot.rotateAxes will transform aRot in place so that it becomes
+   // applicable to the new local coordinates: detector face in x-y plane
+   // looking out along z, in either endcap.
 
-      // The interface for rotateAxes specifies 'new' X,Y,Z but the
-      // implementation in fact deals with them as the 'old'. Confusing!
+   // The interface for rotateAxes specifies 'new' X,Y,Z but the
+   // implementation deals with them as the 'old'.
 
     Basic3DVector<float> oldX( 1., 0.,  0. );
     Basic3DVector<float> oldY( 0., 0., -1. );
@@ -311,78 +312,90 @@ void CSCGeometryBuilderFromDDD::buildLayer (
 
     if ( gtran[2]<0. ) oldX *= -1; 
 
-    aRot.rotateAxes(oldX, oldY, oldZ);
+    aRot.rotateAxes( oldX, oldY, oldZ );
       
-      // Find parameters of Trapezoidal Plane Bounds of a layer in the chamber
-    std::vector<float> pars = (*aSpecs->oddLayerGeometry( jend ) ).parameters();
-    float hChamberThickness = layerThickness * 3.; // 6 layers so half-thickness is 3
-      // Now create TPB for chamber 
-      // N.B. apothem is 4th in pars but 3rd in ctor (!)
-    TrapezoidalPlaneBounds* bounds = 
-      new TrapezoidalPlaneBounds( pars[0], pars[1], pars[3], hChamberThickness ); 
-      // Centre of chamber in z is 2.5 layers from centre of layer 1...
-    Surface::PositionType aVec( gtran[0], gtran[1], gtran[2]+offset ); 
-    BoundPlane * plane = new BoundPlane(aVec, aRot, bounds); 
-      // bounds has been passed to BoundPlane, which clones it, so we can delete it here
-    delete bounds;
+   // Need to know
+   // - thickness in z of chamber
+   // - z of layers w.r.t to z of centre of chamber. 
 
-    CSCChamber*  aChamber = new CSCChamber( plane, chamberId, aSpecs );
-    theGeometry->addChamber( aChamber ); 
-    chamber = aChamber;
+   // @@ FOR FIRST DEVELOPMENT USE MAGIC NUMBERS... SHOULD BE SPECIFIED IN cscSpecs.xml
+    // offset from centre of chamber to centre of 1st layer is ? 
+    // Also, strips are on copper sheet which is offset by 4.778 mm (US chambers), 2.815 mm (ME11) from centre of layer?
+    // For now skip these niceties...
+    const float layerThickness = 2.56; // (cm) effective thickness of a layer
+    const float centreChamberToFirstLayer = layerThickness * 2.5; // (cm) dist between chamber centre and 1st layer
 
-    LogDebug("CSC") << myName << ": Create chamber E" << jend << " S" << jstat 
+   // Set dimensions of trapezoidal chamber volume 
+   // N.B. apothem is 4th in fpar but 3rd in ctor 
+    TrapezoidalPlaneBounds* bounds =  new TrapezoidalPlaneBounds( fpar[0], fpar[1], fpar[3], fpar[2] ); 
+
+   // Centre of chamber in z is specified in DDD
+    Surface::PositionType aVec( gtran[0], gtran[1], gtran[2] ); 
+
+    BoundPlane* plane = new BoundPlane(aVec, aRot, bounds); 
+    delete bounds; // bounds cloned by BoundPlane, so we can delete it
+
+    CSCChamber* chamber = new CSCChamber( plane, chamberId, aSpecs );
+    theGeometry->addChamber( chamber ); 
+
+    LogTrace("CSC") << myName << ": Create chamber E" << jend << " S" << jstat 
 	            << " R" << jring << " C" << jch 
-                    << " z=" << gtran[2]+offset
-		    << " hThick=" << hChamberThickness
-		    << " adr=" << chamber << "\n";
-  }
-   
-  const CSCLayer* cLayer = dynamic_cast<const CSCLayer*> (theGeometry->idToDet( layerId ) );
-  if ( cLayer == 0 ) {
-    const CSCChamberSpecs* aSpecs = chamber->specs();
-    const CSCLayerGeometry* aGeom = 
-        (jlay%2 != 0) ? aSpecs->oddLayerGeometry( jend ) : 
-                        aSpecs->evenLayerGeometry( jend );
-
-    // Make the BoundPlane 
-
-    //@@ FIXME when chamber has a surface can retrieve rotation rather than re-creating it
-    //    BoundSurface::RotationType chamberRotation( grmat[0], grmat[1], grmat[2], 
-    //                                     grmat[3], grmat[4], grmat[5],
-    //                                     grmat[6], grmat[7], grmat[8] );
-
-    //    Basic3DVector<float> oldX( 1., 0.,  0. );
-    //    Basic3DVector<float> oldY( 0., 0., -1. );
-    //    Basic3DVector<float> oldZ( 0., 1.,  0. );
-    //    if ( gtran[2]<0. ) oldX *= -1; 
-    //    chamberRotation.rotateAxes(oldX, oldY, oldZ);
-
-    BoundSurface::RotationType chamberRotation = chamber->surface().rotation();
-
-      // Put the layer at the correct Z
-    BoundPlane::PositionType layerPosition( gtran[0], gtran[1], gtran[2] );
-    TrapezoidalPlaneBounds* bounds = new TrapezoidalPlaneBounds( *aGeom );
-    BoundPlane * aPlane = new BoundPlane(layerPosition, chamberRotation, bounds);
-    delete bounds;
-
-    CSCLayer* aLayer = new CSCLayer( aPlane, layerId, chamber, aGeom );
-
-    LogDebug("CSC") << myName << ": Create layer E" << jend << " S" << jstat 
-	            << " R" << jring << " C" << jch << " L" << jlay 
                     << " z=" << gtran[2]
 		    << " hThick=" << fpar[2]
-		    << " adr=" << aLayer << " layerGeom adr=" << aGeom << "\n";
+		    << " adr=" << chamber ;
 
-    chamber->addComponent(jlay, aLayer); 
-    theGeometry->addLayer( aLayer );
-  }
-  else {
-    edm::LogError("CSC") << ": ERROR, layer " << jlay <<
+    // Create the component layers of this chamber   
+
+    // Specify z of layer by offsetting from centre of chamber to fist layer, and then adding appropriate
+    // layer thicknesses... since layer 1 is nearest to IP in stations 1/2 but layer 6 is nearest in stations 3/4, 
+    // we need to adjust sign of offset appropriately...
+    float offset = -centreChamberToFirstLayer;
+    if ( (jend==1 && jstat>2 ) || ( jend==2 && jstat<3 ) ) offset=-offset;
+
+    for ( short j = 1; j <= 6; ++j ) {
+
+      CSCDetId layerId = CSCDetId( jend, jstat, jring, jch, j );
+
+      // extra-careful check that we haven't already built this layer
+      const CSCLayer* cLayer = dynamic_cast<const CSCLayer*> (theGeometry->idToDet( layerId ) );
+
+      if ( cLayer == 0 ) {
+
+	// build the layer - need the chamber's specs and an appropriate layer-geometry
+         const CSCChamberSpecs* aSpecs = chamber->specs();
+         const CSCLayerGeometry* geom = 
+                    (j%2 != 0) ? aSpecs->oddLayerGeometry( jend ) : 
+                                 aSpecs->evenLayerGeometry( jend );
+
+        // Build appropriate BoundPlane 
+
+        BoundSurface::RotationType chamberRotation = chamber->surface().rotation();
+	float zlayer = gtran[2] + offset + (j-1)*layerThickness; // centre of chamber is gtran[2]
+        BoundPlane::PositionType layerPosition( gtran[0], gtran[1], zlayer );
+        TrapezoidalPlaneBounds* bounds = new TrapezoidalPlaneBounds( *geom );
+        BoundPlane* plane = new BoundPlane(layerPosition, chamberRotation, bounds);
+        delete bounds; // cloned by BoundPlane ctor
+
+        CSCLayer* layer = new CSCLayer( plane, layerId, chamber, geom );
+
+        LogTrace("CSC") << myName << ": Create layer E" << jend << " S" << jstat 
+	            << " R" << jring << " C" << jch << " L" << j
+                    << " z=" << zlayer
+		    << " thick=" << layerThickness
+		    << " adr=" << layer << " layerGeom adr=" << geom ;
+
+        chamber->addComponent(j, layer); 
+        theGeometry->addLayer( layer );
+      }
+      else {
+        edm::LogError("CSC") << ": ERROR, layer " << j <<
             " for chamber = " << ( chamber->id() ) <<
             " already exists: layer address=" << cLayer <<
-      " chamber address=" << chamber << "\n";
-  }         
+            " chamber address=" << chamber << "\n";
+      }
 
+    } // layer construction within chamber
+  } // chamber construction
 }
 
 

@@ -27,18 +27,20 @@ public:
    * \param iChamberType The index 1-9 for station/ring combination.
    * \param TrapezoidalPlaneBounds describing geometry of face.
    * \param nstrips No. of strips in cathode plane of a Layer.
-   * \param stripOffset Alternate strip planes are relatively shifted by
-   * +/-0.25 strip widths.
+   * \param stripOffset Alternate strip planes are relatively shifted by +/-0.25 strip widths.
    * \param stripPhiPitch Delta-phi width of strips (they're fan-shaped) in radians
+   * \param whereStripsMeet radial distance from projected intersection of strips to centre of strip plane
+   * \param extentOfStripPlane height of strip plane (along its long symmetry axis)
+   * \param yCentreOfStripPlane local y of symmetry centre of strip plane (before any offset rotation)
    * \param wg CSCWireGroupPackage encapsulating wire group info.
    * \param wireAngleInDegrees angle of wires w.r.t local x axis.
-   * \param ctiOffset backed-out offset for the whereStripsMeet calculation
+   * \param yOfFirstWire local y coordinate of first (lowest) wire in wire plane - nearest narrow edge.
    */
   CSCLayerGeometry( int iChamberType,
              const TrapezoidalPlaneBounds& bounds,
-             int nstrips, float stripOffset, float stripPhiPitch,
-             const CSCWireGroupPackage& wg, float wireAngleInDegrees,
-  	     float ctiOffset = 0.0 );
+             int nstrips, float stripOffset, float stripPhiPitch, 
+	     float whereStripsMeet, float extentOfStripPlane, float yCentreOfStripPlane,
+             const CSCWireGroupPackage& wg, float wireAngleInDegrees, double yOfFirstWire );
 
   CSCLayerGeometry(const CSCLayerGeometry& );
 
@@ -176,6 +178,14 @@ public:
   float xOfStrip(int strip, float y=0.) const { 
     return theStripTopology->xOfStrip(strip, y); }
 
+  /** Strip in which a given LocalPoint lies. This is a float which
+   * represents the fractional strip position within the detector.<BR>
+   * Returns zero if the LocalPoint falls at the extreme low edge of the
+   * detector or BELOW, and float(nstrips) if it falls at the extreme high
+   * edge or ABOVE.
+   */
+  float strip(const LocalPoint& lp) const { return theStripTopology->strip(lp); }
+
   /**
    * Middle of wire-group.
    * This is the central wire no. for a group with an odd no. of wires.
@@ -237,23 +247,6 @@ public:
 
 private:
 
-  // METHODS
-  // =======
-
-  // 2D point of intersection of two straight lines defined by
-  // y = m1*x + c1 and y = m2*x + c2
-  // (in local coordinates x, y )
-
-  LocalPoint intersection( float m1, float c1, float m2, float c2) const;  
-
-  // Return mid-point of a wire in local coordinates, and its length
-  // across the chamber volume, in a vector as x, y, length
-
-  std::vector<float> wireValues( float wire ) const; 
-
-  // DATA
-  // ====
-
   // The wire information is encapsulated in a CSCWireTopology
   // This class is passed the pointer and takes ownership...
   // e.g. it destroys it.
@@ -266,13 +259,6 @@ private:
 
   CSCStripTopology* theStripTopology;
 
-  // The distance from the centre of the layer
-  // to the intersection of the trapezoid edges.
-  // (This might be on the beamline in an ideal world, for
-  // all chambers except for those in ME13)
-
-  float whereStripsMeet;
-
   // Cache the trapezoid dimensions even though they could
   // be accessed from the TrapezoidalPlaneBounds
 
@@ -282,6 +268,5 @@ private:
 
   const std::string myName;
   int chamberType;
-
 };
 #endif

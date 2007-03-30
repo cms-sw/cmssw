@@ -15,9 +15,9 @@ class CSCUngangedStripTopology : public CSCStripTopology
 public:
 
   CSCUngangedStripTopology( int numberOfStrips, float stripPhiPitch,
-       float detectorHeight, float radialDistance, float stripOffset):
+       float detectorHeight, float whereStripsMeet, float stripOffset, float yCentre):
     CSCStripTopology( numberOfStrips, stripPhiPitch, 
-       detectorHeight, radialDistance, stripOffset ){}
+       detectorHeight, whereStripsMeet, stripOffset, yCentre ){}
 
   ~CSCUngangedStripTopology(){}
 

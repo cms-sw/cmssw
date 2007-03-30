@@ -38,7 +38,7 @@ class CSCWireTopology : public WireTopology {
   CSCWireTopology& operator=( const CSCWireTopology& );
 
   /** 
-   * Topology interface
+   * Topology interface, but not implemented for CSCWireTopology (yet!)
    */
 
   virtual LocalPoint localPosition( const MeasurementPoint& ) const;
@@ -87,6 +87,24 @@ class CSCWireTopology : public WireTopology {
    */
   float yOfWire(float wire, float x=0.) const {
     return theWireGeometry->yOfWire(wire,x); }
+
+  /**
+   * Width of wire plane at narrow end of trapezoid
+   */
+  double narrowWidthOfPlane() const {
+    return theWireGeometry->narrowWidthOfPlane(); }
+
+  /**
+   * Width of wire plane at wide end of trapezoid
+   */
+  double wideWidthOfPlane() const {
+    return theWireGeometry->wideWidthOfPlane(); }
+
+  /**
+   * Length/height of wire plane along long axis of trapezoid (local y direction)
+   */
+  double lengthOfPlane() const {
+    return theWireGeometry->lengthOfPlane(); }
 
 
   /**
@@ -146,14 +164,27 @@ class CSCWireTopology : public WireTopology {
    */
   float yResolution( int wireGroup=1 ) const;
 
+  /** 
+   * Extent of wire plane i.e. width normal to wire direction. <BR>
+   * Note that for ME11 this distance is not along local y! <BR>
+   * cf. lengthOfPlane() which should be the same for all chambers but ME11.
+   */
+  double extentOfWirePlane() const {
+    return wireSpacing() * (numberOfWires() - 1) ; }
+
+   /** Return mid-point of a wire in local coordinates, and its length
+   *  across the chamber volume, in a vector as x, y, length
+   */
+
+  std::vector<float> wireValues( float wire ) const {
+    return theWireGeometry->wireValues( wire ); }
+
  private:
 
   CSCWireGrouping* theWireGrouping; // handles grouping of wires for read out
   CSCWireGeometry* theWireGeometry; // handles non-zero angle w.r.t x axis
 
-  //@@ Store the wire geometry alignment info from DDD
-  // since I don't know how to use it yet.
-  double theAlignmentPinToFirstWire;
+  double theAlignmentPinToFirstWire; //@@ Not sure this is actually required!
 
 };
 

@@ -27,15 +27,16 @@ class CSCStripTopology : public  OffsetRadialStripTopology {
 public:
 
   /** 
-   * Constructor from:<BR>
-   *    number of strips<BR>
-   *    angular width of a strip<BR>
-   *    detector height (2 x apothem - we love that word)<BR>
-   *    radial distance from symmetry centre of detector to the point at which 
-   *    the outer edges of the two extreme strips (projected) intersect.<BR>
-   *    offset of y symmetry axis from local y as fraction of angular strip width. <BR>
+   * Constructor from:
+   *    \param ns number of strips
+   *    \param aw angular width of a strip
+   *    \param dh detector height (extent of strip plane along long symmetry axis))
+   *    \param r radial distance from symmetry centre of strip plane to the point at which 
+   *    the outer edges of the two extreme strips (projected) intersect.
+   *    \param aoff offset of y symmetry axis from local y as fraction of angular strip width.
+   *    \param ymid local y of symmetry centre of strip plane _before_ it is offset. <BR>
    */
-  CSCStripTopology( int ns, float aw, float dh, float r, float aoff );
+  CSCStripTopology( int ns, float aw, float dh, float r, float aoff, float ymid );
 
   virtual ~CSCStripTopology();
 

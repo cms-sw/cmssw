@@ -23,24 +23,17 @@ class CSCWireGroupPackage
   CSCWireGroupPackage(): 
     numberOfGroups( 0 ),
     wireSpacing( 0. ),
-      alignmentPinToFirstWire ( 0. ) { };
-
-  CSCWireGroupPackage( Container listOfConsecutiveGroups,
-			 Container numberOfWiresInEachGroup,
-			 int totalNumberOfGroups,
-			 double theWireSpacing,
-			 double centerOfAlignmentPinToFirstWire ) :
-    consecutiveGroups( listOfConsecutiveGroups ),
-    wiresInEachGroup( numberOfWiresInEachGroup ),
-    numberOfGroups( totalNumberOfGroups ),
-    wireSpacing( theWireSpacing ),
-    alignmentPinToFirstWire ( centerOfAlignmentPinToFirstWire ) { };
+    alignmentPinToFirstWire( 0. ), 
+    narrowWidthOfWirePlane( 0. ), 
+    wideWidthOfWirePlane( 0. ) { };
 
   Container consecutiveGroups;
   Container wiresInEachGroup;
   int numberOfGroups;
   double wireSpacing;
   double alignmentPinToFirstWire;
-
+  double narrowWidthOfWirePlane;
+  double wideWidthOfWirePlane;
+  double lengthOfWirePlane;
 };
 #endif

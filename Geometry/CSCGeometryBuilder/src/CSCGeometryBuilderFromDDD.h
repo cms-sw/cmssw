@@ -34,10 +34,10 @@ private:
   /// Build endcap CSCs
   CSCGeometry* buildEndcaps( DDFilteredView* fv, const MuonDDDConstants& muonConstants );
 
-  /// Build one CSC layer and add it to the geometry
-  void buildLayer (  
+  /// Build one CSC chamber, and its component layers, and add them to the geometry
+  void buildChamber (  
 	CSCGeometry* theGeometry,        // the geometry container
-	int    detid,                    // packed index from CSCDetId
+	CSCDetId chamberId,              // the DetId of this chamber
         const std::vector<float>& fpar,  // volume parameters
         const std::vector<float>& fupar, // user parameters
         const std::vector<float>& gtran, // translation vector

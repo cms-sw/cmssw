@@ -10,41 +10,61 @@
 
 using namespace GeomDetEnumerators;
 
-CSCChamberSpecs::CSCChamberSpecs( int iChamberType,
-      const TrapezoidalPlaneBounds& bounds,
+CSCChamberSpecs::CSCChamberSpecs( 
+      int iChamberType, const TrapezoidalPlaneBounds& bounds,
       const CSCSpecsParcel& fupar,
       const CSCWireGroupPackage& wg )
   : GeomDetType( "CSC", CSC ), theChamberType( iChamberType ), theSpecsValues( fupar )
  {
-   LogDebug("CSC") << "Constructing specs for chamber " << 
-    theName[iChamberType - 1] << ", type=" << iChamberType << ", this =" << 
-     this << "\n";
+   LogTrace("CSC") << myName << ": Constructing specs for chamber " << 
+    theName[iChamberType - 1] << ", type=" << iChamberType << ", this =" << this;
 
    // Need to check settings for overall modelling, but only once
    if ( theFirstCall ) {
 
-  //@@ FIXME dependence on calling order!!
+  //@@ FIXME possible dependence on calling order?
   // Expect parameters have been passed from CSCGeometryESModule to set statics here
      whatModelling();
 
      theFirstCall = false;
-   }
+  }
 
-  // Most wire info now comes from wire group section of DDD
-  //  int nWiresPerGroup = static_cast<int>( specsValue(7) );  
-  //  float wireSpacing  = specsValue(9);
-  //  float wireAngle    = specsValue(13);
-
-  float wireAngleInDegrees = specsValue(13);
+  // Most wire info now comes from wire group section of DDD, but this doesn't...
+  float wireAngleInDegrees = specsValue(12);
   
-  int nstrips        = static_cast<int>( specsValue(5) ) * 2; 
-  float stripOffset1 = specsValue(73);
-  float stripOffset2 = specsValue(74);
+  // Strip geometry
 
-  float phiPitch = this->stripPhiPitch();
-  float ctiOffset = 0.;
-  if ( useCentreTIOffsets )
-    ctiOffset = this->ctiOffset();
+  int nstrips             = static_cast<int>(specsValue(5));
+  float stripOffset1                       = specsValue(20);
+  float stripOffset2                       = specsValue(21);
+  float globalRadialPositionOfAlignmentPin = specsValue(24);
+  float distanceFrameToAlignmentPin        = specsValue(25);
+  float lengthOfChamber                    = specsValue(26);
+  float distanceEndOfStripToAlignmentPin   = specsValue(27);
+  float extentOfStripPlane                 = specsValue(28);
+        stripDeltaPhi                      = specsValue(29);
+        centreToIntersectionOffset         = specsValue(30);
+
+  // local y of alignment pin 
+  float yAlignmentPin = -lengthOfChamber/2. + distanceFrameToAlignmentPin;
+
+  // distance from alignment pin to symmetry centre of strip plane
+  float alignmentPinToCentreOfStripPlane = distanceEndOfStripToAlignmentPin + extentOfStripPlane/2. ;
+
+  // local y of symmetry centre of strip plane
+  float yCentreOfStripPlane = yAlignmentPin  + alignmentPinToCentreOfStripPlane ;
+
+  // distance from intersection of strips to symmetry centre of strip plane
+  float whereStripsMeet = globalRadialPositionOfAlignmentPin + alignmentPinToCentreOfStripPlane ;
+
+  // Possibly 'correct' distance to strip intersection
+  if ( useCentreTIOffsets ) {
+    float ctiOffset = this->ctiOffset();
+    whereStripsMeet += ctiOffset; 
+  }
+
+  // local y value of 1st wire in wire plane
+  double yOfFirstWire = yAlignmentPin + wg.alignmentPinToFirstWire ;
 
   // Build the unique LayerGeometry objects we require for each chamber type.
   // - There are 2 endcaps
@@ -55,28 +75,30 @@ CSCChamberSpecs::CSCChamberSpecs( int iChamberType,
 
   // Thus we need 4 LGs differing in strip offset and wire angle
 
+  float phiPitch = this->stripPhiPitch();
+
   poszOddLayerGeometry = new CSCLayerGeometry( iChamberType, bounds,
-     nstrips, -stripOffset1, phiPitch, 
-     wg, wireAngleInDegrees, ctiOffset );
+     nstrips, -stripOffset1, phiPitch, whereStripsMeet, extentOfStripPlane, yCentreOfStripPlane,
+     wg, wireAngleInDegrees, yOfFirstWire );
 
   poszEvenLayerGeometry = new CSCLayerGeometry( iChamberType, bounds,
-     nstrips, -stripOffset2, phiPitch, 
-     wg, wireAngleInDegrees, ctiOffset );
+     nstrips, -stripOffset2, phiPitch, whereStripsMeet, extentOfStripPlane, yCentreOfStripPlane,
+     wg, wireAngleInDegrees, yOfFirstWire );
 
   negzOddLayerGeometry = new CSCLayerGeometry( iChamberType, bounds,
-     nstrips, -stripOffset1, phiPitch,
-     wg, -wireAngleInDegrees, ctiOffset );
+     nstrips, -stripOffset1, phiPitch, whereStripsMeet, extentOfStripPlane, yCentreOfStripPlane,
+     wg, -wireAngleInDegrees, yOfFirstWire );
 
   negzEvenLayerGeometry = new CSCLayerGeometry( iChamberType, bounds,
-     nstrips, -stripOffset2, phiPitch,
-     wg, -wireAngleInDegrees, ctiOffset );
+     nstrips, -stripOffset2, phiPitch, whereStripsMeet, extentOfStripPlane, yCentreOfStripPlane,
+     wg, -wireAngleInDegrees, yOfFirstWire );
 
 }
 
 
 CSCChamberSpecs::~CSCChamberSpecs()
 {
-  LogDebug("CSC") << "destroying this=" << this << "\n";
+  LogTrace("CSC") << myName << " destroying this=" << this;
 
   delete poszOddLayerGeometry;
   delete poszEvenLayerGeometry;
@@ -147,7 +169,8 @@ CSCChamberSpecs*  CSCChamberSpecs::lookUp( int iChamberType ) {
 
 
 CSCChamberSpecs* CSCChamberSpecs::build( int iChamberType,
-     const std::vector<float>& fpar, const std::vector<float>& fupar, 
+     const std::vector<float>& fpar,
+     const std::vector<float>& fupar, 
      const CSCWireGroupPackage& wg ) {
 
   // Note arg list order is hbot, htop, apothem, hthickness
@@ -171,7 +194,8 @@ float CSCChamberSpecs::stripNoise(float timeInterval) const {
 
 float CSCChamberSpecs::gasGain() const {
   // ME1/1 makes up for its small gap by a big electronics gain
-  return 300000.;
+  // so use one gas gain value for all chambers (=300000)
+  return 3.0e05;
 }
 
 float CSCChamberSpecs::chargePerCount() const {
@@ -186,15 +210,7 @@ void CSCChamberSpecs::whatModelling() {
   // Static function to dump user-selected overall modelling parameters
   // This will be called just _once_ in a job!
 
-  LogDebug("CSC") << "setModelling entered... " << "\n";
-
-  std::string sm = " ";
-  if ( useRadialStrips ) 
-    sm = "RADIAL";
-  else
-    sm = "TRAPEZOIDAL";
-
-  edm::LogInfo("CSC") << myName << ": strips are modelled as " << sm << "\n";
+  LogTrace("CSC") << myName << ": setModelling entered...";
 
   std::string gs = " ";
   if ( gangedstripsME1a ) 
@@ -226,20 +242,11 @@ void CSCChamberSpecs::whatModelling() {
   else
     cti = "WITHOUT";
 
-  edm::LogInfo("CSC") << myName << ": strips are placed relative to the gas volume " << cti << " offsets " << "\n";
+  edm::LogInfo("CSC") << myName << ": strip plane centre-to-intersection ideal " << cti << " corrections " << "\n";
 }
 
 // Define the specsMap 
 std::map<int, CSCChamberSpecs*, std::less<int> > CSCChamberSpecs::specsMap;
-
-// Define the phi width of strips in each chamber type
-const float CSCChamberSpecs::stripDeltaPhi[] =
-{ 2.96, 2.96, 2.33, 2.16, 4.65, 2.33, 4.65, 2.33, 4.65, 2.33 };
-
-// Define the hacked-in offsets for the whereStripsMeet calculation
-// @@ ME1/3 does not get adjusted, and no info for ME4/2 
-const float CSCChamberSpecs::centreToIntersectionOffset[] = 
-{ 16.033752, 16.033752, 8.694855, 0., -0.576782, 5.048706, -0.693268, 5.048706, 5.855377, 0. };
 
 // Define the name of each chamber type
 const std::string CSCChamberSpecs::theName[] =
@@ -253,6 +260,5 @@ const std::string CSCChamberSpecs::myName = "CSCChamberSpecs";
 bool CSCChamberSpecs::theFirstCall = true;
 bool CSCChamberSpecs::gangedstripsME1a = true;
 bool CSCChamberSpecs::onlywiresME1a = false;
-bool CSCChamberSpecs::useRadialStrips = true;
 bool CSCChamberSpecs::useRealWireGeometry = false; // pseudo wire geometry
 bool CSCChamberSpecs::useCentreTIOffsets = false;

@@ -1,7 +1,7 @@
 #include "Geometry/CSCGeometry/interface/CSCStripTopology.h"
 
-CSCStripTopology::CSCStripTopology(int ns, float aw, float dh, float r, float aoff ) :
-   OffsetRadialStripTopology( ns, aw, dh, r, aoff ) {}
+CSCStripTopology::CSCStripTopology(int ns, float aw, float dh, float r, float aoff, float ymid ) :
+   OffsetRadialStripTopology( ns, aw, dh, r, aoff, ymid ) {}
 
 CSCStripTopology::~CSCStripTopology() {}
 

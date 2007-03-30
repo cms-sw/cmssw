@@ -20,8 +20,9 @@ class CSCNonslantedWireGeometry : public CSCWireGeometry {
   /**
    * Constructor from wire spacing
    */
-  CSCNonslantedWireGeometry( double wireSpacing, double yOfFirstWire ) :
-       CSCWireGeometry( wireSpacing, yOfFirstWire ) {}
+  CSCNonslantedWireGeometry( double wireSpacing, double yOfFirstWire, 
+              double narrow, double wide, double length ) :
+       CSCWireGeometry( wireSpacing, yOfFirstWire, narrow, wide, length ) {}
 
   /**
    * The angle of the wires w.r.t local x axis (in radians)

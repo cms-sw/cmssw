@@ -19,8 +19,8 @@
  * A Chamber knows its associated Specs.
  *
  * \warning Disclaimer:
- * The mess of methods is only a temporary hack until we decide
- * how the old MuEndOrcaSpec values should be packaged. <BR>
+ * The mess of methods was supposed to be a temporary hack until it was decided
+ * how to handle such spec pars... but no decision has yet come! <BR>
  *
  */
 
@@ -47,7 +47,7 @@ public:
 
   /// Usual ctor from supplied params
   CSCChamberSpecs( int iChamberType , 
-		   const TrapezoidalPlaneBounds & mediaShape, 
+		   const TrapezoidalPlaneBounds& mediaShape,
                    const CSCSpecsParcel& fupar,
                    const CSCWireGroupPackage& wg 
 		  );
@@ -88,8 +88,6 @@ public:
   std::string chamberTypeName() const;
 
 
-
-
   // CHAMBER 'PARAMETER' FUNCTIONS
   //@@ FIXME these must all be sorted out in a world of real conditions & calibration
 
@@ -106,7 +104,7 @@ public:
   /**
    * number of strips in one chamber.
    */
-  int nStrips()               const {return int( specsValue(5)*2. );}
+  int nStrips()               const {return nstrips;}
 
   /**
    * number of strips 2*nnodes+1 around hit.
@@ -118,66 +116,61 @@ public:
   /**
    * strip pitch in phi, in radians (the strips are fan-shaped)
    */
-  float stripPhiPitch() const {return 1.E-03 * stripDeltaPhi[theChamberType-1];}
+  float stripPhiPitch() const {return 1.E-03 * stripDeltaPhi;}
 
   /**
    * offset to centreToIntersection, in cm (the backed-out corrections 
    * for positioning the strips)
    */
-  float ctiOffset() const {return centreToIntersectionOffset[theChamberType-1];}
+  float ctiOffset() const {return centreToIntersectionOffset;}
 
   /**
    * wire spacing, in cm. All layers in a chamber have the same spacing.
    */
-  // specValue is superseded by LayerGeometry value(s)...
-  //  float wireSpacing()         const {return specsValue(9);}
   float wireSpacing() const;
  
   /**
    * distance from anode to cathode, in cm.
    */
-  float anodeCathodeSpacing() const {return specsValue(10);}
+  float anodeCathodeSpacing() const {return specsValue(9);}
 
   float gasGain()             const;
 
-  float voltage()             const {return specsValue(12);}
+  float voltage()             const {return specsValue(11);}
 
-  //  float phiTilt()             const {return specsValue(13);}
+  float calibrationError()    const {return specsValue(13);}
 
-  float calibrationError()    const {return specsValue(14);}
-
-  float electronAttraction()  const {return specsValue(15);}
+  float electronAttraction()  const {return specsValue(14);}
 
   /**
   * the fraction of the charge that survives to reach the cathode.
   */
-  float fractionQS()          const {return specsValue(16);}
+  float fractionQS()          const {return specsValue(15);}
 
   /**
    * ADC calibration, in fC.
    */
-  //@@  float chargePerCount()      const {return specsValue(17);}
   float chargePerCount() const;
 
   /**
    * anode wire radius, in cm.
    */
-  float wireRadius()          const {return specsValue(18);}
+  float wireRadius()          const {return specsValue(17);}
 
   /**
    * Fast shaper peaking time (ns).
    */
-  float shaperPeakingTime()   const {return specsValue(19);}
+  float shaperPeakingTime()   const {return specsValue(18);}
   
   /**
    * the constant term in the electronics noise, in # of electrons.
    */
-  float constantNoise() const {return specsValue(85);}
+  float constantNoise() const {return specsValue(22);}
 
   /**
    * the # of noise electrons per picofarad of capacitance.
    */
-  float e_pF() const {return specsValue(86);}
+  float e_pF() const {return specsValue(23);}
 
   /**
    * the number of noise electrons.
@@ -220,12 +213,12 @@ public:
    * by a factory.
    */
   static CSCChamberSpecs* build( int iChamberType,
-          const std::vector<float>& fpar, const std::vector<float>& fupar,
-			       const CSCWireGroupPackage& wg );
+          const std::vector<float>& fpar, 
+          const std::vector<float>& fupar,
+	  const CSCWireGroupPackage& wg );
 
   static void setGangedStripsInME1a(bool gs)  { gangedstripsME1a = gs; }
   static void setOnlyWiresInME1a(bool ow)     { onlywiresME1a = ow; }
-  static void setUseRadialStrips(bool rs)     { useRadialStrips = rs; }
   static void setUseRealWireGeometry(bool wg) { useRealWireGeometry = wg; }
   static void setUseCentreTIOffsets(bool cti) { useCentreTIOffsets = cti; }
 
@@ -238,11 +231,6 @@ public:
    * Wires only in ME1a
    */
   static bool wiresOnly() { return onlywiresME1a; }
-
-  /**
-   * Strips modelled as radial rather than trapezoidal
-   */
-  static bool radialStrips() { return useRadialStrips; }
 
   /**
    * Wire geometry modelled as real hardware (complex
@@ -282,17 +270,15 @@ public:
   
   int theChamberType;
 
+  int nstrips; // no. of strips per layer
+  float stripDeltaPhi;   // Delta-phi width of strip in this chamber type (in mrad)
+  float centreToIntersectionOffset; // Possible correction to whereStripsMeet
+
   // Store for specs parameter values
   CSCSpecsParcel theSpecsValues;
 
-// Store pointers to Specs objects as we build them.
+  // Store pointers to Specs objects as we build them.
   static std::map<int, CSCChamberSpecs*, std::less<int> > specsMap;
-
-  // Delta-phi width of strip in each chamber type (in mrad)
-  static const float stripDeltaPhi[10];
-
-  // Backed-out offsets for the whereStripsMeet calculation
-  static const float centreToIntersectionOffset[10];
 
   // Names of chamber types
   static const std::string theName[10];
@@ -304,7 +290,6 @@ public:
   static bool theFirstCall;
   static bool gangedstripsME1a;
   static bool onlywiresME1a;
-  static bool useRadialStrips;
   static bool useRealWireGeometry;
   static bool useCentreTIOffsets;
 

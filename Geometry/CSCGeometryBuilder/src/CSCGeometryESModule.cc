@@ -28,11 +28,6 @@ CSCGeometryESModule::CSCGeometryESModule(const edm::ParameterSet & p){
 
   setWhatProduced(this);
 
-  // Choose Trapezoidal or Radial StripTopology
-  // Default is now to use radial strips not trapezoidal
-
-  bool useRadialStrips =       p.getParameter<bool>("useRadialStrips");
-
   // Choose wire geometry modelling
   // We now _require_ some wire geometry specification in the CSCOrcaSpec.xml file
   // in the DDD Geometry.
@@ -63,7 +58,7 @@ CSCGeometryESModule::CSCGeometryESModule(const edm::ParameterSet & p){
    applyAlignment_ = p.getUntrackedParameter<bool>("applyAlignment", false);
 
   // Feed these value to where I need them
-  CSCChamberSpecs::setUseRadialStrips( useRadialStrips );
+
   CSCChamberSpecs::setUseRealWireGeometry( useRealWireGeometry );
   CSCChamberSpecs::setOnlyWiresInME1a( useOnlyWiresInME1a );
   CSCChamberSpecs::setGangedStripsInME1a( useGangedStripsInME1a );

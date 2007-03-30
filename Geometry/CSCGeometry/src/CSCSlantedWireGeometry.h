@@ -20,6 +20,7 @@ class CSCSlantedWireGeometry : public CSCWireGeometry {
    * Constructor from wire spacing and wire angle
    */
   CSCSlantedWireGeometry( double wireSpacing, double yOfFirstWire, 
+         double narrow, double wide, double length,
          float wireAngle );
  
   /**

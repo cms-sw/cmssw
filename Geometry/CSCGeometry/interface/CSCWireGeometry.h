@@ -10,9 +10,8 @@
  *
  */
 
-//@@ Forward declaration alone didn't work in ORCA.. But now?
-//class LocalPoint;
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
+#include <vector>
 
 class CSCWireGeometry {
  public:
@@ -21,8 +20,11 @@ class CSCWireGeometry {
   /**
    * Constructor from wire spacing (in cm)
    */
-  CSCWireGeometry( double wireSpacing, double yOfFirstWire ) :
-     theWireSpacing( wireSpacing ), theYOfFirstWire( yOfFirstWire ) {}
+  CSCWireGeometry( double wireSpacing, double yOfFirstWire, 
+     double narrowWidthOfPlane, double wideWidthOfPlane, double lengthOfPlane ) :
+     theWireSpacing( wireSpacing ), theYOfFirstWire( yOfFirstWire ),
+     theNarrowWidthOfPlane( narrowWidthOfPlane ), theWideWidthOfPlane( wideWidthOfPlane ),
+     theLengthOfPlane( lengthOfPlane ) {}
 
   /**
    * The spacing between wires (cm)
@@ -35,6 +37,24 @@ class CSCWireGeometry {
    */
   double yOfFirstWire() const {
     return theYOfFirstWire; }
+
+  /** 
+   * Extent of wire plane at narrow end of trapezoid
+   */
+  double narrowWidthOfPlane() const {
+    return theNarrowWidthOfPlane; }
+
+  /** 
+   * Extent of wire plane at wide end of trapezoid
+   */
+  double wideWidthOfPlane() const {
+    return theWideWidthOfPlane; }
+
+  /** 
+   * Extent of wire plane along long axis of trapezoid
+   */
+  double lengthOfPlane() const {
+    return theLengthOfPlane; }
 
   /**
    * The angle of the wires w.r.t local x axis (in radians)
@@ -57,9 +77,25 @@ class CSCWireGeometry {
    */
   virtual CSCWireGeometry* clone() const = 0;
 
+  /** 2D point of intersection of two straight lines defined by <BR>
+   *  y = m1*x + c1 and y = m2*x + c2 <BR>
+   *  (in local coordinates x, y)
+   */
+  
+  LocalPoint intersection( float m1, float c1, float m2, float c2) const;
+  
+  /** Return mid-point of a wire in local coordinates, and its length
+   *  across the chamber volume, in a vector as x, y, length
+   */
+  
+  std::vector<float> wireValues( float wire ) const;
+
  private:
   double theWireSpacing;
   double theYOfFirstWire; // local y
+  double theNarrowWidthOfPlane;
+  double theWideWidthOfPlane;
+  double theLengthOfPlane;
 };
 
 #endif

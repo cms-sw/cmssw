@@ -6,17 +6,20 @@
 #include <cmath>
 
 CSCSlantedWireGeometry::CSCSlantedWireGeometry( double wireSpacing,
-	     double yOfFirstWire, float wireAngle ) :
-  CSCWireGeometry( wireSpacing, yOfFirstWire ), theWireAngle( wireAngle ){
+	     double yOfFirstWire, double narrow, double wide, double length, float wireAngle ) :
+  CSCWireGeometry( wireSpacing, yOfFirstWire, narrow, wide, length ), theWireAngle( wireAngle ){
     cosWireAngle = cos( wireAngle );
     sinWireAngle = sin( wireAngle );
     theWireOffset = yOfFirstWire * cosWireAngle; 
-    LogDebug("CSC") <<
+    LogTrace("CSC") <<
       "CSCSlantedWireGeometry: constructed:\n" <<
       " wireSpacing = " << wireSpacing << 
-      ", yOfFirstWire = " << yOfFirstWire << 
+      ", y1 = " << yOfFirstWire << 
+      ", narrow_width = " << narrow << 
+      ", wide_width = " << wide << 
+      ", length = " << length << 
       ", wireAngle = " << wireAngle << 
-      ", theWireOffset = " << theWireOffset << "\n";
+      ", theWireOffset = " << theWireOffset;
 }
 
 int CSCSlantedWireGeometry::nearestWire(const LocalPoint& lp) const {
