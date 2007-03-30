@@ -1,0 +1,19 @@
+<use name=DataFormats/RecoCandidate>
+<use name=PhysicsTools/Parser>
+<use name=SimDataFormats/HepMCProduct>
+<use name=SimGeneral/HepPDTRecord>
+<use name=FWCore/Framework>
+<use name=Foundation/PluginManager>
+<use name=FWCore/ParameterSet>
+<use name=HLTrigger/HLTcore>
+<use name=CLHEP>
+<use name=root>
+<flags SEAL_PLUGIN_NAME="HLTriggerspecial">
+<export>
+   <lib name=HLTriggerspecial>
+   <use name=FWCore/Framework>
+   <use name=Foundation/PluginManager>
+   <use name=FWCore/ParameterSet>
+   <use name=HLTrigger/HLTcore>
+   <use name=DataFormats/RecoCandidate>
+</export>
