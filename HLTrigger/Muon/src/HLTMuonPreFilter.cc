@@ -82,7 +82,7 @@ HLTMuonPreFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    for (cand=mucands->begin(); cand!=mucands->end(); cand++) {
       TrackRef tk = cand->get<TrackRef>();
       // eta cut
-      LogDebug("HLTMuonPreFilter") << " Muon in loop, pt= " << tk->pt() << ", eta= " << tk->eta() << ", hits= " << tk->numberOfValidHits();
+      LogDebug("HLTMuonPreFilter") << " Muon in loop, pt= " << tk->pt() << ", eta= " << tk->eta() << ", hits= " << tk->numberOfValidHits() << ", d0= " << tk->d0() << ", dz= " << tk->dz();
       if (fabs(tk->eta())>max_Eta_) continue;
 
       // cut on number of hits
