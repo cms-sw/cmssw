@@ -7,7 +7,7 @@
 using std::cout;
 using std::endl;
 
-void prepareMagneticFieldGrid::countTrueNumberOfPoints(const std::string& name){
+void prepareMagneticFieldGrid::countTrueNumberOfPoints(const std::string& name) const {
 
   int nLines = 0;
   int nPoints = 0;

@@ -2,5 +2,5 @@
 
 foreach file ( `cat tableList.txt` )
     set number=`basename $file | tr -cd "[:digit:]"`
-    echo prepareFieldInterpolation $file grid.${number}.bin
+    prepareFieldTable $file grid.${number}.bin
 end

@@ -113,7 +113,7 @@ private:
 
 public:
   /// check, if number of lines corresponds to number of points in space (double counting test)
-  void countTrueNumberOfPoints(const std::string& name);
+  void countTrueNumberOfPoints(const std::string& name) const;
   /// reads the corresponding ASCII file, detects the logic of the points, and saves them on a grid
   void fillFromFile(const std::string& name);
   /// sames as fillFromFile, but for special cases which are not covered by the standard algorithm
