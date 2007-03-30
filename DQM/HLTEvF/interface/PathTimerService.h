@@ -7,13 +7,13 @@
 // 
 //
 // Original Author:  David Lange
-// $Id: PathTimerService.h,v 1.2 2007/03/10 10:31:26 dlange Exp $
+// $Id: PathTimerService.h,v 1.3 2007/03/30 01:01:50 bdahmes Exp $
 //
 #include "sigc++/signal.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
-#include "DataFormats/Common/interface/EventID.h"
+#include "DataFormats/Provenance/interface/EventID.h"
 //#include "DataFormats/HLTReco/interface/PathTiming.h"
 #include "DataFormats/HLTReco/interface/HLTPerformanceInfo.h"
 
