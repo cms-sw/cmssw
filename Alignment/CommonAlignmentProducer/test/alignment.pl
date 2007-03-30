@@ -186,9 +186,9 @@ system("cp ${workdir}/$steering $dir/cfgfile");
 $repl="
   replace PoolSource.maxEvents  = 1
   replace PoolSource.skipEvents = 0
-  replace AlignmentProducer.CSA06AlignmentAlgorithm.collectorActive = true
-  replace AlignmentProducer.CSA06AlignmentAlgorithm.collectorNJobs = $njobs
-  replace AlignmentProducer.CSA06AlignmentAlgorithm.collectorPath = \"../\"
+  replace AlignmentProducer.HIPAlignmentAlgorithm.collectorActive = true
+  replace AlignmentProducer.HIPAlignmentAlgorithm.collectorNJobs = $njobs
+  replace AlignmentProducer.HIPAlignmentAlgorithm.collectorPath = \"../\"
 ";
 replace("$dir/cfgfile",$repl);
 
@@ -292,7 +292,7 @@ sub run_collector
     subjob
   ");
   if ($iteration gt 0) {
-    system("cp $dir/job1/CSA06AlignmentEvents.root $dir/main");
+    system("cp $dir/job1/HIPAlignmentEvents.root $dir/main");
   }
 
   return 0;
