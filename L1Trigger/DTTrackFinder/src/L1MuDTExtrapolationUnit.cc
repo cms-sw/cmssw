@@ -5,8 +5,8 @@
 //   Description: Extrapolation Unit
 //
 //
-//   $Date: 2006/06/26 16:11:13 $
-//   $Revision: 1.1 $
+//   $Date: 2007/02/27 11:44:00 $
+//   $Revision: 1.2 $
 //
 //   Author :
 //   N. Neumeister            CERN EP
@@ -32,7 +32,7 @@
 //-------------------------------
 
 #include "L1Trigger/DTTrackFinder/src/L1MuDTTFConfig.h"
-#include "L1Trigger/DTTrackFinder/src/L1MuDTExtParam.h"
+#include "CondFormats/L1TObjects/interface/L1MuDTExtParam.h"
 #include "L1Trigger/DTTrackFinder/src/L1MuDTSEU.h"
 #include "L1Trigger/DTTrackFinder/src/L1MuDTEUX.h"
 #include "L1Trigger/DTTrackFinder/src/L1MuDTERS.h"
@@ -98,7 +98,7 @@ L1MuDTExtrapolationUnit::~L1MuDTExtrapolationUnit() {
 //
 // run Extrapolation Unit
 //
-void L1MuDTExtrapolationUnit::run() {
+void L1MuDTExtrapolationUnit::run(const edm::EventSetup& c) {
 
   SEUmap::const_iterator iter;
   for ( iter = m_SEUs.begin(); iter != m_SEUs.end(); iter++ ) {
@@ -113,7 +113,7 @@ void L1MuDTExtrapolationUnit::run() {
 
     if ( ts != 0 && !ts->empty() ) {
       ((*iter).second)->load(ts);
-      ((*iter).second)->run();
+      ((*iter).second)->run(c);
     }
 
   }

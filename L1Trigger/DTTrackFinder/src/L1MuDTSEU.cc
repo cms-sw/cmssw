@@ -5,8 +5,8 @@
 //   Description: Single Extrapolation Unit
 //
 //
-//   $Date: 2006/06/26 16:11:13 $
-//   $Revision: 1.1 $
+//   $Date: 2007/02/27 11:44:00 $
+//   $Revision: 1.2 $
 //
 //   Author :
 //   N. Neumeister            CERN EP
@@ -91,7 +91,7 @@ L1MuDTSEU::~L1MuDTSEU() {
 //
 // run SEU
 //
-void L1MuDTSEU::run() {
+void L1MuDTSEU::run(const edm::EventSetup& c) {
 
   if ( L1MuDTTFConfig::Debug(3) ) cout << "Run SEU " << m_ext << " " 
                                        << m_startTS_Id << endl;
@@ -131,7 +131,7 @@ void L1MuDTSEU::run() {
     const L1MuDTTrackSegPhi* target_ts = m_sp.data()->getTSphi(target, reladr);
     if ( target_ts && !target_ts->empty() ) {
       m_EUXs[reladr]->load(m_startTS, target_ts);
-      m_EUXs[reladr]->run();
+      m_EUXs[reladr]->run(c);
       if ( m_EUXs[reladr]->result() ) m_EXtable.set(reladr);
     }
 

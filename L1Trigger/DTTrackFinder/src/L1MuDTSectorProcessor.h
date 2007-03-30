@@ -11,8 +11,8 @@
  *    - two Assignment Units (AU)
  *
  *
- *   $Date: 2006/06/26 16:11:13 $
- *   $Revision: 1.1 $
+ *   $Date: 2007/02/27 11:44:00 $
+ *   $Revision: 1.2 $
  *
  *   N. Neumeister            CERN EP
  *   J. Troconiz              UAM Madrid
@@ -62,7 +62,7 @@ class L1MuDTSectorProcessor {
     virtual ~L1MuDTSectorProcessor();
 
     /// run the Sector Processor
-    virtual void run(int bx, const edm::Event& e);
+    virtual void run(int bx, const edm::Event& e, const edm::EventSetup& c);
 
     /// reset the Sector Processor
     virtual void reset();

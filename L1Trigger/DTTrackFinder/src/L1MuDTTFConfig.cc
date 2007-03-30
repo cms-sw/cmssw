@@ -5,8 +5,8 @@
 //   Description: DTTrackFinder parameters for L1MuDTTrackFinder
 //
 //
-//   $Date: 2007/01/18 17:45:10 $
-//   $Revision: 1.3 $
+//   $Date: 2007/02/27 11:44:00 $
+//   $Revision: 1.4 $
 //
 //   Author :
 //   N. Neumeister            CERN EP
@@ -41,8 +41,9 @@ using namespace std;
 // Constructors --
 //----------------
 
-L1MuDTTFConfig::L1MuDTTFConfig() { 
+L1MuDTTFConfig::L1MuDTTFConfig(const edm::ParameterSet & ps) { 
     
+    m_ps = &ps;
     setDefaults(); 
 
 }
@@ -61,43 +62,38 @@ L1MuDTTFConfig::~L1MuDTTFConfig() {}
 void L1MuDTTFConfig::setDefaults() {
   
   m_debug = true;
-  m_dbgLevel = -1;
-  if ( m_dbgLevel == -1 ) {
-    m_dbgLevel = 0;
-  }
+  m_dbgLevel = m_ps->getUntrackedParameter<int>("Debug",0);
 
-  m_overlap = true;
+  m_overlap = m_ps->getUntrackedParameter<bool>("Overlap",true);
 
   // set min and max bunch crossing
-  //  m_BxMin = -9;
-  //  m_BxMax =  7;
-  m_BxMin = -9;
-  m_BxMax =  7;
+  m_BxMin = m_ps->getUntrackedParameter<int>("BX_min",-9);
+  m_BxMax = m_ps->getUntrackedParameter<int>("BX_max", 7);
 
   // set Filter for Extrapolator
-  m_extTSFilter = 1;
+  m_extTSFilter = m_ps->getUntrackedParameter<int>("Extrapolation_Filter",1);
 
   // set switch for EX21 usage
-  m_useEX21 = false;
+  m_useEX21 = m_ps->getUntrackedParameter<bool>("Extrapolation_21",false);
 
   // set switch for eta track finder usage
-  m_etaTF = true;
+  m_etaTF = m_ps->getUntrackedParameter<bool>("EtaTrackFinder",true);
 
   // set Filter for Out-of-time Track Segments
-  m_TSOutOfTimeFilter = false;
-  m_TSOutOfTimeWindow = 1;
+  m_TSOutOfTimeFilter = m_ps->getUntrackedParameter<bool>("OutOfTime_Filter",false);
+  m_TSOutOfTimeWindow = m_ps->getUntrackedParameter<int>("OutOfTime_Filter_Window",1);
 
   // set precision for extrapolation
-  m_NbitsExtPhi  = 8;
-  m_NbitsExtPhib = 8;
+  m_NbitsExtPhi  = m_ps->getUntrackedParameter<int>("Extrapolation_nbits_Phi", 8);
+  m_NbitsExtPhib = m_ps->getUntrackedParameter<int>("Extrapolation_nbits_PhiB",8);
 
   // set precision for pt-assignment
-  m_NbitsPtaPhi  = 12;
-  m_NbitsPtaPhib = 10;
+  m_NbitsPtaPhi  = m_ps->getUntrackedParameter<int>("PT_Assignment_nbits_Phi", 12);
+  m_NbitsPtaPhib = m_ps->getUntrackedParameter<int>("PT_Assignment_nbits_PhiB",10);
 
   // set precision for phi-assignment look-up tables
-  m_NbitsPhiPhi  = 12;
-  m_NbitsPhiPhib = 10;
+  m_NbitsPhiPhi  = m_ps->getUntrackedParameter<int>("PHI_Assignment_nbits_Phi", 12);
+  m_NbitsPhiPhib = m_ps->getUntrackedParameter<int>("PHI_Assignment_nbits_PhiB",10);
 
   if ( Debug(1) ) cout << endl;
   if ( Debug(1) ) cout << "*******************************************" << endl;  

@@ -5,8 +5,8 @@
 //   Description: Assignment Unit
 //
 //
-//   $Date: 2006/06/26 16:11:13 $
-//   $Revision: 1.1 $
+//   $Date: 2007/02/27 11:44:00 $
+//   $Revision: 1.2 $
 //
 //   Author :
 //   N. Neumeister            CERN EP
@@ -39,8 +39,10 @@
 #include "L1Trigger/DTTrackFinder/src/L1MuDTTrackSegLoc.h"
 #include "L1Trigger/DTTrackFinder/src/L1MuDTTrackAssembler.h"
 #include "L1Trigger/DTTrackFinder/src/L1MuDTTrackAssParam.h"
-#include "L1Trigger/DTTrackFinder/src/L1MuDTPhiLut.h"
-#include "L1Trigger/DTTrackFinder/src/L1MuDTPtaLut.h"
+#include "CondFormats/L1TObjects/interface/L1MuDTPhiLut.h"
+#include "CondFormats/DataRecord/interface/L1MuDTPhiLutRcd.h"
+#include "CondFormats/L1TObjects/interface/L1MuDTPtaLut.h"
+#include "CondFormats/DataRecord/interface/L1MuDTPtaLutRcd.h"
 #include "L1Trigger/DTTrackFinder/interface/L1MuDTTrack.h"
 
 using namespace std;
@@ -55,14 +57,12 @@ using namespace std;
 
 L1MuDTAssignmentUnit::L1MuDTAssignmentUnit(L1MuDTSectorProcessor& sp, int id) : 
                 m_sp(sp), m_id(id), 
-                m_addArray(), m_TSphi(), m_ptAssMethod(UNDEF) {
+                m_addArray(), m_TSphi(), m_ptAssMethod(NODEF) {
 
   m_TSphi.reserve(4);  // a track candidate can consist of max 4 TS 
   reset();
 
-  // read look-up tables for phi and pt-assignment
-  readPhiLuts();
-  readPtaLuts();
+  setPrecision();
 
 }
 
@@ -71,14 +71,7 @@ L1MuDTAssignmentUnit::L1MuDTAssignmentUnit(L1MuDTSectorProcessor& sp, int id) :
 // Destructor --
 //--------------
 
-L1MuDTAssignmentUnit::~L1MuDTAssignmentUnit() {
-
-  if ( thePhiLUTs ) delete thePhiLUTs;
-  thePhiLUTs = 0;
-  if ( thePtaLUTs ) delete thePtaLUTs;
-  thePtaLUTs = 0;
-
-}
+L1MuDTAssignmentUnit::~L1MuDTAssignmentUnit() {}
 
 
 //--------------
@@ -88,7 +81,7 @@ L1MuDTAssignmentUnit::~L1MuDTAssignmentUnit() {
 //
 // run Assignment Unit
 //
-void L1MuDTAssignmentUnit::run() {
+void L1MuDTAssignmentUnit::run(const edm::EventSetup& c) {
 
   // enable track candidate
   m_sp.track(m_id)->enable();
@@ -111,10 +104,10 @@ void L1MuDTAssignmentUnit::run() {
   m_sp.track(m_id)->setBx(bx);
 
   // assign phi
-  PhiAU();
+  PhiAU(c);
 
   // assign pt and charge
-  PtAU();
+  PtAU(c);
   
   // assign quality
   QuaAU();
@@ -135,7 +128,7 @@ void L1MuDTAssignmentUnit::reset() {
 
   m_addArray.reset();
   m_TSphi.clear();
-  m_ptAssMethod = UNDEF;
+  m_ptAssMethod = NODEF;
 
 }
 
@@ -143,9 +136,11 @@ void L1MuDTAssignmentUnit::reset() {
 //
 // assign phi with 8 bit precision
 //
-void L1MuDTAssignmentUnit::PhiAU() {
+void L1MuDTAssignmentUnit::PhiAU(const edm::EventSetup& c) {
 
   // calculate phi at station 2 using 8 bits (precision = 2.5 degrees) 
+
+  c.get< L1MuDTPhiLutRcd >().get( thePhiLUTs );
 
   int sh_phi  = 12 - thePhiLUTs->getPrecision().first;
   int sh_phib = 10 - thePhiLUTs->getPrecision().second;
@@ -162,13 +157,13 @@ void L1MuDTAssignmentUnit::PhiAU() {
     sector = second->sector();
   }
   else if ( second == 0 && first ) {
-    int bend_angle = first->phib() >> sh_phib;
-    phi2 = ( first->phi() >> sh_phi ) + thePhiLUTs->getDeltaPhi(0,bend_angle);
+    int bend_angle = (first->phib() >> sh_phib) << sh_phib;
+    phi2 = ( first->phi() >> sh_phi ) + (thePhiLUTs->getDeltaPhi(0,bend_angle) >> sh_phi);
     sector = first->sector();
   }
   else if ( second == 0 && forth ) {
-    int bend_angle = forth->phib() >> sh_phib;
-    phi2 = ( forth->phi() >> sh_phi ) + thePhiLUTs->getDeltaPhi(1,bend_angle);
+    int bend_angle = (forth->phib() >> sh_phib) << sh_phib;
+    phi2 = ( forth->phi() >> sh_phi ) + (thePhiLUTs->getDeltaPhi(1,bend_angle) >> sh_phi);
     sector = forth->sector();
   }
 
@@ -191,7 +186,9 @@ void L1MuDTAssignmentUnit::PhiAU() {
 //
 // assign pt with 5 bit precision
 //
-void L1MuDTAssignmentUnit::PtAU() {
+void L1MuDTAssignmentUnit::PtAU(const edm::EventSetup& c) {
+
+  c.get< L1MuDTPtaLutRcd >().get( thePtaLUTs );
 
   // get pt-assignment method as function of track class and TS phib values
   m_ptAssMethod = getPtMethod();
@@ -296,7 +293,7 @@ int L1MuDTAssignmentUnit::convertSector(int sector) {
 //
 // determine charge
 //
-int L1MuDTAssignmentUnit::getCharge(L1MuDTAssignmentUnit::PtAssMethod method) {
+int L1MuDTAssignmentUnit::getCharge(PtAssMethod method) {
 
   int chargesign = 0;
   switch ( method ) {
@@ -328,7 +325,7 @@ int L1MuDTAssignmentUnit::getCharge(L1MuDTAssignmentUnit::PtAssMethod method) {
     case PT15HO : { chargesign = -1; break; }
     case PT25LO : { chargesign = -1; break; }
     case PT25HO : { chargesign = -1; break; }    
-    case UNDEF  : { chargesign = 0; 
+    case NODEF  : { chargesign = 0; 
                     cerr << "AssignmentUnit::getCharge : undefined PtAssMethod!"
                          << endl;
                     break;
@@ -343,7 +340,7 @@ int L1MuDTAssignmentUnit::getCharge(L1MuDTAssignmentUnit::PtAssMethod method) {
 //
 // determine pt-assignment method
 //
-L1MuDTAssignmentUnit::PtAssMethod L1MuDTAssignmentUnit::getPtMethod() const {
+PtAssMethod L1MuDTAssignmentUnit::getPtMethod() const {
    
   // determine which pt-assignment method should be used as a function 
   // of the track class and
@@ -381,7 +378,7 @@ L1MuDTAssignmentUnit::PtAssMethod L1MuDTAssignmentUnit::getPtMethod() const {
   int phib2 = ( getTSphi(2) != 0 ) ? getTSphi(2)->phib() : 0;
   int phib4 = ( getTSphi(4) != 0 ) ? getTSphi(4)->phib() : 0;
 
-  L1MuDTAssignmentUnit::PtAssMethod pam = UNDEF;
+  PtAssMethod pam = NODEF;
   
   switch ( method ) {
     case 0 :  { pam = ( abs(phib1) <= threshold ) ? PT12H  : PT12L;  break; }
@@ -409,7 +406,7 @@ L1MuDTAssignmentUnit::PtAssMethod L1MuDTAssignmentUnit::getPtMethod() const {
 //
 // calculate bend angle
 //
-int L1MuDTAssignmentUnit::getPtAddress(L1MuDTAssignmentUnit::PtAssMethod method) const {
+int L1MuDTAssignmentUnit::getPtAddress(PtAssMethod method) const {
 
   // calculate bend angle as difference of two azimuthal positions 
 
@@ -443,7 +440,7 @@ int L1MuDTAssignmentUnit::getPtAddress(L1MuDTAssignmentUnit::PtAssMethod method)
     case PT15HO : { bendangle = phiDiff(1,3); break; }
     case PT25LO : { bendangle = phiDiff(2,3); break; }
     case PT25HO : { bendangle = phiDiff(2,3); break; }        
-    case UNDEF :  { bendangle = 0;
+    case NODEF :  { bendangle = 0;
                     cerr << "AssignmentUnit::getPtAddress : undefined PtAssMethod" << endl;
                     break;
                   }
@@ -485,75 +482,11 @@ int L1MuDTAssignmentUnit::phiDiff(int stat1, int stat2) const {
   assert( abs(sectordiff) <= 1 );
   
   int offset = (2144 >> sh_phi) * sectordiff;
-  int bendangle = (phi2 - phi1 + offset);
+  int bendangle = (phi2 - phi1 + offset) << sh_phi;
 
   return bendangle;
     
 }    
-    
-
-//
-// read phi-assignment look-up tables
-//
-void  L1MuDTAssignmentUnit::readPhiLuts() {
-
-  if ( thePhiLUTs == 0 ) thePhiLUTs = new L1MuDTPhiLut;
-
-}
-
-
-//
-// read pt-assignment look-up tables
-//
-void  L1MuDTAssignmentUnit::readPtaLuts() {
-
-  if ( thePtaLUTs == 0 ) {
-    thePtaLUTs = new L1MuDTPtaLut;
-    setPrecision();
-  }
-    
-}
-
-
-//
-// overload output stream operator for PtAssMethod
-//
-ostream& operator<<( ostream& s, L1MuDTAssignmentUnit::PtAssMethod method) {
-
-  switch (method) {
-    case L1MuDTAssignmentUnit::PT12L  : { return s << "PT12L "; break; }
-    case L1MuDTAssignmentUnit::PT12H  : { return s << "PT12H "; break; }
-    case L1MuDTAssignmentUnit::PT13L  : { return s << "PT13L "; break; }
-    case L1MuDTAssignmentUnit::PT13H  : { return s << "PT13H "; break; }
-    case L1MuDTAssignmentUnit::PT14L  : { return s << "PT14L "; break; }
-    case L1MuDTAssignmentUnit::PT14H  : { return s << "PT14H "; break; }
-    case L1MuDTAssignmentUnit::PT23L  : { return s << "PT23L "; break; }
-    case L1MuDTAssignmentUnit::PT23H  : { return s << "PT23H "; break; }
-    case L1MuDTAssignmentUnit::PT24L  : { return s << "PT24L "; break; }
-    case L1MuDTAssignmentUnit::PT24H  : { return s << "PT24H "; break; }
-    case L1MuDTAssignmentUnit::PT34L  : { return s << "PT34L "; break; }
-    case L1MuDTAssignmentUnit::PT34H  : { return s << "PT34H "; break; }
-    case L1MuDTAssignmentUnit::PT12LO : { return s << "PT12LO "; break; }
-    case L1MuDTAssignmentUnit::PT12HO : { return s << "PT12HO "; break; }    
-    case L1MuDTAssignmentUnit::PT13LO : { return s << "PT13LO "; break; }
-    case L1MuDTAssignmentUnit::PT13HO : { return s << "PT13HO "; break; }    
-    case L1MuDTAssignmentUnit::PT14LO : { return s << "PT14LO "; break; }
-    case L1MuDTAssignmentUnit::PT14HO : { return s << "PT14HO "; break; }    
-    case L1MuDTAssignmentUnit::PT23LO : { return s << "PT23LO "; break; }
-    case L1MuDTAssignmentUnit::PT23HO : { return s << "PT23HO "; break; }
-    case L1MuDTAssignmentUnit::PT24LO : { return s << "PT24LO "; break; }
-    case L1MuDTAssignmentUnit::PT24HO : { return s << "PT24HO "; break; }
-    case L1MuDTAssignmentUnit::PT34LO : { return s << "PT34LO "; break; }
-    case L1MuDTAssignmentUnit::PT34HO : { return s << "PT34HO "; break; }
-    case L1MuDTAssignmentUnit::PT15LO : { return s << "PT15LO "; break; }
-    case L1MuDTAssignmentUnit::PT15HO : { return s << "PT15HO "; break; }
-    case L1MuDTAssignmentUnit::PT25LO : { return s << "PT25LO "; break; }
-    case L1MuDTAssignmentUnit::PT25HO : { return s << "PT25HO "; break; }
-    default :
-      return s << "unknown pt-assignment method ";
-  }
-
-}
 
 
 //
@@ -570,7 +503,5 @@ void L1MuDTAssignmentUnit::setPrecision() {
 
 // static data members
 
-L1MuDTPhiLut* L1MuDTAssignmentUnit::thePhiLUTs = 0;
-L1MuDTPtaLut* L1MuDTAssignmentUnit::thePtaLUTs = 0;
 unsigned short int L1MuDTAssignmentUnit::nbit_phi  = 12;
 unsigned short int L1MuDTAssignmentUnit::nbit_phib = 10;

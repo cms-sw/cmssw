@@ -31,8 +31,6 @@
 // Collaborating Class Headers --
 //-------------------------------
 
-#include <DataFormats/Common/interface/Handle.h>
-#include <FWCore/Framework/interface/Event.h>
 #include "L1Trigger/DTTrackFinder/src/L1MuDTTFConfig.h"
 #include "L1Trigger/DTTrackFinder/src/L1MuDTSectorProcessor.h"
 #include "L1Trigger/DTTrackFinder/src/L1MuDTDataBuffer.h"
@@ -79,11 +77,11 @@ L1MuDTSectorReceiver::~L1MuDTSectorReceiver() {
 void L1MuDTSectorReceiver::run(int bx, const edm::Event& e) {
 
   // get track segments from DTBX chamber trigger
-  receiveDTBXData(bx, e);
+  receiveDTBXData(bx,e);
   
   // get track segments from CSC chamber trigger
   if ( L1MuDTTFConfig::overlap() && m_sp.ovl() ) { 
-    receiveCSCData(bx, e);
+    receiveCSCData(bx,e);
   }
 
 }

@@ -9,8 +9,8 @@
  *   to all possible target track segments (12 or 6)
  *
  *
- *   $Date: 2006/06/26 16:11:13 $
- *   $Revision: 1.1 $
+ *   $Date: 2007/02/27 11:44:00 $
+ *   $Revision: 1.2 $
  *
  *   N. Neumeister            CERN EP
  */
@@ -31,13 +31,13 @@
 // Base Class Headers --
 //----------------------
 
-#include "DataFormats/L1DTTrackFinder/interface/L1AbstractProcessor.h"
-#include "L1Trigger/DTTrackFinder/src/L1MuDTExtParam.h"
+#include "L1Trigger/DTTrackFinder/interface/L1AbstractProcessorc.h"
 
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
 
+#include "CondFormats/L1TObjects/interface/L1MuDTExtParam.h"
 class L1MuDTSectorProcessor;
 class L1MuDTTrackSegPhi;
 class L1MuDTEUX;
@@ -47,7 +47,7 @@ class L1MuDTERS;
 //              -- Class Interface --
 //              ---------------------
 
-class L1MuDTSEU : public L1AbstractProcessor {
+class L1MuDTSEU : public L1AbstractProcessorc {
 
   public:
 
@@ -58,7 +58,7 @@ class L1MuDTSEU : public L1AbstractProcessor {
     virtual ~L1MuDTSEU();
 
     /// run SEU
-    virtual void run();
+    virtual void run(const edm::EventSetup& c);
    
     /// reset SEU
     virtual void reset();

@@ -5,8 +5,8 @@
 //   Description: L1 barrel Muon Trigger Track Finder
 //
 //
-//   $Date: 2007/03/06 15:26:35 $
-//   $Revision: 1.4 $
+//   $Date: 2006/11/20 15:41:03 $
+//   $Revision: 1.2 $
 //
 //   Author :
 //   N. Neumeister            CERN EP
@@ -30,7 +30,7 @@
 // Collaborating Class Headers --
 //-------------------------------
 
-#include <DataFormats/Common/interface/Handle.h>
+#include <FWCore/Framework/interface/Handle.h>
 #include <FWCore/Framework/interface/Event.h>
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h"
 #include "L1Trigger/DTTrackFinder/src/L1MuDTTFConfig.h"
@@ -54,10 +54,10 @@ using namespace std;
 // Constructors --
 //----------------
 
-L1MuDTTrackFinder::L1MuDTTrackFinder() {
+L1MuDTTrackFinder::L1MuDTTrackFinder(const edm::ParameterSet & ps) {
 
   // set configuration parameters
-  if ( m_config == 0 ) m_config = new L1MuDTTFConfig;
+  if ( m_config == 0 ) m_config = new L1MuDTTFConfig(ps);
 
   if ( L1MuDTTFConfig::Debug(1) ) cout << endl;
   if ( L1MuDTTFConfig::Debug(1) ) cout << "**** entering L1MuDTTrackFinder ****" << endl;
@@ -149,7 +149,7 @@ void L1MuDTTrackFinder::setup() {
 //
 // run MTTF
 //
-void L1MuDTTrackFinder::run(const edm::Event& e) {
+void L1MuDTTrackFinder::run(const edm::Event& e, const edm::EventSetup& c) {
 
   // run the barrel Muon Trigger Track Finder
 
@@ -178,7 +178,7 @@ void L1MuDTTrackFinder::run(const edm::Event& e) {
     while ( it_sp != m_spmap->end() ) {
       if ( L1MuDTTFConfig::Debug(2) ) cout << "running " 
                                            << (*it_sp).second->id() << endl;
-      if ( (*it_sp).second ) (*it_sp).second->run(bx, e);
+      if ( (*it_sp).second ) (*it_sp).second->run(bx,e,c);
       if ( L1MuDTTFConfig::Debug(2) && (*it_sp).second ) (*it_sp).second->print();
       it_sp++;
     } 
@@ -188,7 +188,7 @@ void L1MuDTTrackFinder::run(const edm::Event& e) {
     while ( it_ep != m_epvec.end() ) {
       if ( L1MuDTTFConfig::Debug(2) ) cout << "running Eta Processor "
                                        << (*it_ep)->id() << endl;
-      if ( *it_ep ) (*it_ep)->run(bx, e);
+      if ( *it_ep ) (*it_ep)->run(bx,e,c);
       if ( L1MuDTTFConfig::Debug(2) && *it_ep ) (*it_ep)->print();
       it_ep++;
     }

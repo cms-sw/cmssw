@@ -5,8 +5,8 @@
 //   Description: Sector Processor
 //
 //
-//   $Date: 2006/06/26 16:11:13 $
-//   $Revision: 1.1 $
+//   $Date: 2007/02/27 11:44:00 $
+//   $Revision: 1.2 $
 //
 //   Author :
 //   N. Neumeister            CERN EP
@@ -98,7 +98,7 @@ L1MuDTSectorProcessor::~L1MuDTSectorProcessor() {
 //
 // run Sector Processor
 //
-void L1MuDTSectorProcessor::run(int bx, const edm::Event& e) {
+void L1MuDTSectorProcessor::run(int bx, const edm::Event& e, const edm::EventSetup& c) {
 
   // receive data and store them into the data buffer
   if ( m_SectorReceiver ) m_SectorReceiver->run(bx, e);
@@ -114,7 +114,7 @@ void L1MuDTSectorProcessor::run(int bx, const edm::Event& e) {
   // perform all extrapolations
   int n_ext = 0;	// number of successful extrapolations
   if ( m_EU && m_DataBuffer && m_DataBuffer->numberTSphi() > 1 ) {
-    m_EU->run();
+    m_EU->run(c);
     n_ext = m_EU->numberOfExt();
     if ( L1MuDTTFConfig::Debug(3) && n_ext > 0  ) {
       cout << "Number of successful extrapolations : " << n_ext << endl;
@@ -132,8 +132,8 @@ void L1MuDTSectorProcessor::run(int bx, const edm::Event& e) {
   }
 
   // assign pt, eta, phi and quality
-  if ( m_AUs[0] && !m_TA->isEmpty(0) ) m_AUs[0]->run();
-  if ( m_AUs[1] && !m_TA->isEmpty(1) ) m_AUs[1]->run();
+  if ( m_AUs[0] && !m_TA->isEmpty(0) ) m_AUs[0]->run(c);
+  if ( m_AUs[1] && !m_TA->isEmpty(1) ) m_AUs[1]->run(c);
 
 } 
 

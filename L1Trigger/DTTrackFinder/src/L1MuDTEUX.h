@@ -9,8 +9,8 @@
  *   actual extrapolation
  *
  *
- *   $Date: 2006/06/26 16:11:13 $
- *   $Revision: 1.1 $
+ *   $Date: 2007/02/27 11:44:00 $
+ *   $Revision: 1.2 $
  *
  *   N. Neumeister            CERN EP
  */
@@ -30,12 +30,13 @@
 // Base Class Headers --
 //----------------------
 
-#include "DataFormats/L1DTTrackFinder/interface/L1AbstractProcessor.h"
+#include "L1Trigger/DTTrackFinder/interface/L1AbstractProcessorc.h"
 
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
 
+#include <FWCore/Framework/interface/ESHandle.h>
 class L1MuDTTrackSegPhi;
 class L1MuDTSEU;
 class L1MuDTExtLut;
@@ -44,7 +45,7 @@ class L1MuDTExtLut;
 //              -- Class Interface --
 //              ---------------------
 
-class L1MuDTEUX : public L1AbstractProcessor {
+class L1MuDTEUX : public L1AbstractProcessorc {
 
   public:
 
@@ -58,7 +59,7 @@ class L1MuDTEUX : public L1AbstractProcessor {
     bool operator==(const L1MuDTEUX&) const;
     
     /// run Extrapolator
-    virtual void run();
+    virtual void run(const edm::EventSetup& c);
     
     /// reset Extrapolator
     virtual void reset();
@@ -100,9 +101,6 @@ class L1MuDTEUX : public L1AbstractProcessor {
 
   private:
 
-    /// read extrapolation look-up tables
-    void readExtLuts();
-    
     /// output sector numbers in the range -6 to +5
     int sec_mod(int) const;
 
@@ -118,10 +116,10 @@ class L1MuDTEUX : public L1AbstractProcessor {
     const L1MuDTTrackSegPhi* m_start;       // start track segment
     const L1MuDTTrackSegPhi* m_target;      // target track segment
       
-    static L1MuDTExtLut*     theExtLUTs;    // extrapolation look-up tables
-    static int               theExtFilter;  // extrapolation quality filter
-    static unsigned short    nbit_phi;      // number of bits used for phi
-    static unsigned short    nbit_phib;     // number of bits used for phib
+    edm::ESHandle< L1MuDTExtLut > theExtLUTs;  // extrapolation look-up tables
+    static int               theExtFilter;     // extrapolation quality filter
+    static unsigned short    nbit_phi;         // number of bits used for phi
+    static unsigned short    nbit_phib;        // number of bits used for phib
 
 };
 

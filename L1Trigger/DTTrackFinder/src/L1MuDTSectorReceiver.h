@@ -34,7 +34,7 @@
 // Collaborating Class Declarations --
 //------------------------------------
 
-#include <DataFormats/Common/interface/Handle.h>
+#include <FWCore/Framework/interface/Handle.h>
 #include <FWCore/Framework/interface/Event.h>
 class L1MuDTSectorProcessor;
 

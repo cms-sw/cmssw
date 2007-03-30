@@ -9,10 +9,11 @@
  *   found by the Track Assembler
  *
  *
- *   $Date: 2006/06/26 16:11:13 $
- *   $Revision: 1.1 $
+ *   $Date: 2007/02/27 11:44:00 $
+ *   $Revision: 1.2 $
  *
  *   N. Neumeister            CERN EP
+ *   J. Troconiz              UAM Madrid
  */
 //
 //--------------------------------------------------
@@ -30,12 +31,14 @@
 // Base Class Headers --
 //----------------------
 
-#include "DataFormats/L1DTTrackFinder/interface/L1AbstractProcessor.h"
+#include "L1Trigger/DTTrackFinder/interface/L1AbstractProcessorc.h"
 
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
 
+#include <FWCore/Framework/interface/ESHandle.h>
+#include "CondFormats/L1TObjects/interface/L1MuDTAssParam.h"
 #include "L1Trigger/DTTrackFinder/src/L1MuDTAddressArray.h"
 class L1MuDTPhiLut;
 class L1MuDTPtaLut;
@@ -46,19 +49,9 @@ class L1MuDTSectorProcessor;
 //              -- Class Interface --
 //              ---------------------
 
-class L1MuDTAssignmentUnit : public L1AbstractProcessor {
+class L1MuDTAssignmentUnit : public L1AbstractProcessorc {
 
   public:
-
-    /// maximal number of pt assignment methods
-    static const int MAX_PTASSMETH = 28;
-                       
-    /// pt assignment methods
-    enum PtAssMethod { PT12L,  PT12H,  PT13L,  PT13H,  PT14L,  PT14H,
-                       PT23L,  PT23H,  PT24L,  PT24H,  PT34L,  PT34H, 
-                       PT12LO, PT12HO, PT13LO, PT13HO, PT14LO, PT14HO,
-                       PT23LO, PT23HO, PT24LO, PT24HO, PT34LO, PT34HO, 
-                       PT15LO, PT15HO, PT25LO, PT25HO, UNDEF };
 
     /// constructor
     L1MuDTAssignmentUnit(L1MuDTSectorProcessor& sp, int id );
@@ -67,16 +60,16 @@ class L1MuDTAssignmentUnit : public L1AbstractProcessor {
     virtual ~L1MuDTAssignmentUnit();
 
     /// run Assignment Unit
-    virtual void run();
+    virtual void run(const edm::EventSetup& c);
     
     /// reset Assignment Unit
     virtual void reset();
     
     /// assign phi
-    void PhiAU();
+    void PhiAU(const edm::EventSetup& c);
     
     /// assign pt and charge
-    void PtAU();
+    void PtAU(const edm::EventSetup& c);
     
     /// assign quality
     void QuaAU();
@@ -107,15 +100,6 @@ class L1MuDTAssignmentUnit : public L1AbstractProcessor {
     /// build difference of two phi values
     int phiDiff(int stat1, int stat2) const;
     
-    /// read phi-assignment look-up tables
-    void readPhiLuts();
-    
-    /// read pt-assignment look-up tables
-    void readPtaLuts();
-
-    /// overload output stream operator for pt-assignment methods
-    friend std::ostream& operator<<(std::ostream& s, PtAssMethod method);
-
   private:
 
     L1MuDTSectorProcessor& m_sp;
@@ -125,10 +109,10 @@ class L1MuDTAssignmentUnit : public L1AbstractProcessor {
     std::vector<const L1MuDTTrackSegPhi*> m_TSphi;
     PtAssMethod                           m_ptAssMethod;
 
-    static L1MuDTPhiLut*       thePhiLUTs;  ///< phi-assignment look-up tables
-    static L1MuDTPtaLut*       thePtaLUTs;  ///< pt-assignment look-up tables
-    static unsigned short      nbit_phi;    ///< # of bits used for pt-assignment
-    static unsigned short      nbit_phib;   ///< # of bits used for pt-assignment
+    edm::ESHandle< L1MuDTPhiLut > thePhiLUTs;  ///< phi-assignment look-up tables
+    edm::ESHandle< L1MuDTPtaLut > thePtaLUTs;  ///< pt-assignment look-up tables
+    static unsigned short      nbit_phi;       ///< # of bits used for pt-assignment
+    static unsigned short      nbit_phib;      ///< # of bits used for pt-assignment
 
 };
 

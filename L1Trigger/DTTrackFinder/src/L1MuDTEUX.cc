@@ -5,8 +5,8 @@
 //   Description: Extrapolator
 //
 //
-//   $Date: 2006/06/26 16:11:13 $
-//   $Revision: 1.1 $
+//   $Date: 2007/02/27 11:44:00 $
+//   $Revision: 1.2 $
 //
 //   Author :
 //   N. Neumeister            CERN EP
@@ -30,10 +30,11 @@
 //-------------------------------
 
 #include "L1Trigger/DTTrackFinder/src/L1MuDTTFConfig.h"
-#include "L1Trigger/DTTrackFinder/src/L1MuDTExtParam.h"
+#include "CondFormats/L1TObjects/interface/L1MuDTExtParam.h"
 #include "L1Trigger/DTTrackFinder/src/L1MuDTSEU.h"
 #include "L1Trigger/DTTrackFinder/src/L1MuDTTrackSegPhi.h"
-#include "L1Trigger/DTTrackFinder/src/L1MuDTExtLut.h"
+#include "CondFormats/L1TObjects/interface/L1MuDTExtLut.h"
+#include "CondFormats/DataRecord/interface/L1MuDTExtLutRcd.h"
 
 using namespace std;
 
@@ -50,8 +51,7 @@ L1MuDTEUX::L1MuDTEUX(const L1MuDTSEU& seu, int id) :
     m_result(false), m_quality(0), m_address(15),
     m_start(0), m_target(0) {
 
-  // read look-up tables for extrapolation
-  readExtLuts();
+  setPrecision();
 
 }
 
@@ -60,12 +60,7 @@ L1MuDTEUX::L1MuDTEUX(const L1MuDTSEU& seu, int id) :
 // Destructor --
 //--------------
 
-L1MuDTEUX::~L1MuDTEUX() {
-
-  if ( theExtLUTs ) delete theExtLUTs;
-  theExtLUTs = 0;
-
-}
+L1MuDTEUX::~L1MuDTEUX() {}
 
 
 //--------------
@@ -89,7 +84,9 @@ bool L1MuDTEUX::operator==(const L1MuDTEUX& eux) const {
 //
 // run EUX
 //
-void L1MuDTEUX::run() {
+void L1MuDTEUX::run(const edm::EventSetup& c) {
+
+  c.get< L1MuDTExtLutRcd >().get( theExtLUTs );
 
   if ( L1MuDTTFConfig::Debug(4) ) cout << "Run EUX "  << m_id << endl;
   if ( L1MuDTTFConfig::Debug(4) ) cout << "start :  " << *m_start  << endl;
@@ -143,7 +140,7 @@ void L1MuDTEUX::run() {
 
   int phi_target = m_target->phi() >> sh_phi;
   int phi_start  = m_start->phi()  >> sh_phi;
-  int phib_start = m_start->phib() >> sh_phib;
+  int phib_start = (m_start->phib() >> sh_phib) << sh_phib;
 
   // compute difference in phi
   int diff = phi_target - phi_start;
@@ -152,8 +149,8 @@ void L1MuDTEUX::run() {
   // and add offset (30 degrees ) for extrapolation to adjacent sector 
   int offset = -2144 >> sh_phi;
   offset  *= sec_mod(sector_ta - sector_st);
-  int low  = theExtLUTs->getLow(lut_idx,phib_start )  + offset;
-  int high = theExtLUTs->getHigh(lut_idx,phib_start ) + offset;
+  int low  = (theExtLUTs->getLow(lut_idx,phib_start ) >> sh_phi) + offset;
+  int high = (theExtLUTs->getHigh(lut_idx,phib_start ) >> sh_phi) + offset;
 
   // is phi-difference within the extrapolation window?
   if ( diff >= low && diff <= high ) {
@@ -238,19 +235,6 @@ int L1MuDTEUX::sec_mod(int sector) const {
 
 
 //
-// read extrapolation look-up tables
-//
-void L1MuDTEUX::readExtLuts() {
-
-  if ( theExtLUTs == 0 ) {
-    theExtLUTs = new L1MuDTExtLut;
-    setPrecision();
-  }
-
-}
-
-
-//
 // set precision for phi and phib 
 // default is 12 bits for phi and 10 bits for phib
 //
@@ -266,7 +250,6 @@ void L1MuDTEUX::setPrecision() {
 
 // static data members
 
-L1MuDTExtLut* L1MuDTEUX::theExtLUTs = 0;
 int L1MuDTEUX::theExtFilter = 1;
 unsigned short int L1MuDTEUX::nbit_phi  = 12;
 unsigned short int L1MuDTEUX::nbit_phib = 10;

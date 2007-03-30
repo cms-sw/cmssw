@@ -5,7 +5,7 @@
  *   Configuration parameters for L1MuDTTrackFinder
  *
  *
- *   $Date: 2006/06/01 00:00:00 $
+ *   $Date: 2006/06/26 16:11:13 $
  *   $Revision: 1.1 $
  *
  *   N. Neumeister            CERN EP
@@ -29,6 +29,8 @@
 // Collaborating Class Declarations --
 //------------------------------------
 
+#include <FWCore/ParameterSet/interface/ParameterSet.h>
+
 //              ---------------------
 //              -- Class Interface --
 //              ---------------------
@@ -38,7 +40,7 @@ class L1MuDTTFConfig {
   public:
 
     /// constructor
-    L1MuDTTFConfig(); 
+    L1MuDTTFConfig(const edm::ParameterSet & ps); 
      
     /// destructor 
     virtual ~L1MuDTTFConfig();
@@ -69,6 +71,8 @@ class L1MuDTTFConfig {
     void setDefaults();
   
   private:
+
+    const edm::ParameterSet* m_ps;
 
     static bool   m_debug;             // debug flag 
     static int    m_dbgLevel;          // debug level

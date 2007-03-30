@@ -36,17 +36,17 @@
 // Collaborating Class Headers --
 //-------------------------------
 
-#include <DataFormats/Common/interface/Handle.h>
-#include <FWCore/Framework/interface/Event.h>
 #include "L1Trigger/DTTrackFinder/src/L1MuDTTFConfig.h"
 #include "L1Trigger/DTTrackFinder/src/L1MuDTTrackSegEta.h"
 #include "L1Trigger/DTTrackFinder/src/L1MuDTSecProcId.h"
 #include "L1Trigger/DTTrackFinder/src/L1MuDTSectorProcessor.h"
 #include "L1Trigger/DTTrackFinder/interface/L1MuDTTrackFinder.h"
 #include "L1Trigger/DTTrackFinder/interface/L1MuDTTrack.h"
-#include "L1Trigger/DTTrackFinder/src/L1MuDTEtaPattern.h"
-#include "L1Trigger/DTTrackFinder/src/L1MuDTEtaPatternLut.h"
-#include "L1Trigger/DTTrackFinder/src/L1MuDTQualPatternLut.h"
+#include "CondFormats/L1TObjects/interface/L1MuDTEtaPattern.h"
+#include "CondFormats/L1TObjects/interface/L1MuDTEtaPatternLut.h"
+#include "CondFormats/DataRecord/interface/L1MuDTEtaPatternLutRcd.h"
+#include "CondFormats/L1TObjects/interface/L1MuDTQualPatternLut.h"
+#include "CondFormats/DataRecord/interface/L1MuDTQualPatternLutRcd.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambThDigi.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambThContainer.h"
 
@@ -65,9 +65,6 @@ L1MuDTEtaProcessor::L1MuDTEtaProcessor(const L1MuDTTrackFinder& tf, int id) :
 
   m_tseta.reserve(15);
   
-  // read look-up tables
-  readLUTs();
-
 }
 
 
@@ -75,14 +72,7 @@ L1MuDTEtaProcessor::L1MuDTEtaProcessor(const L1MuDTTrackFinder& tf, int id) :
 // Destructor --
 //--------------
 
-L1MuDTEtaProcessor::~L1MuDTEtaProcessor() {
-
-  if ( theEtaPatternLUT ) delete theEtaPatternLUT;
-  theEtaPatternLUT = 0;
-  if ( theQualPatternLUT ) delete theQualPatternLUT;
-  theQualPatternLUT = 0;
-
-}
+L1MuDTEtaProcessor::~L1MuDTEtaProcessor() {}
 
 
 //--------------
@@ -92,15 +82,15 @@ L1MuDTEtaProcessor::~L1MuDTEtaProcessor() {
 //
 // run Eta Processor
 //
-void L1MuDTEtaProcessor::run(int bx, const edm::Event& e) {
+void L1MuDTEtaProcessor::run(int bx, const edm::Event& e, const edm::EventSetup& c) {
 
   if ( L1MuDTTFConfig::getEtaTF() ) {
-    receiveData(bx, e);
-    runEtaTrackFinder();
+    receiveData(bx,e);
+    runEtaTrackFinder(c);
   }
 
   receiveAddresses();
-  runEtaMatchingUnit();
+  runEtaMatchingUnit(c);
 
   assign();
 
@@ -291,7 +281,9 @@ void L1MuDTEtaProcessor::receiveAddresses() {
 //
 // run Eta Track Finder (ETF)
 //
-void L1MuDTEtaProcessor::runEtaTrackFinder() {
+void L1MuDTEtaProcessor::runEtaTrackFinder(const edm::EventSetup& c) {
+
+  c.get< L1MuDTEtaPatternLutRcd >().get( theEtaPatternLUT );
 
   // check if there are any data
   bool empty = true;
@@ -336,8 +328,10 @@ void L1MuDTEtaProcessor::runEtaTrackFinder() {
 //
 // run Eta Matching Unit (EMU)
 //
-void L1MuDTEtaProcessor::runEtaMatchingUnit() {
+void L1MuDTEtaProcessor::runEtaMatchingUnit(const edm::EventSetup& c) {
   
+  c.get< L1MuDTQualPatternLutRcd >().get( theQualPatternLUT );
+
   // loop over all addresses
   for ( int i = 0; i < 12; i++ ) {
   
@@ -425,21 +419,6 @@ void L1MuDTEtaProcessor::assign() {
   
 
 //
-// read look-up tables
-//
-void L1MuDTEtaProcessor::readLUTs() {
-
-  if ( theEtaPatternLUT == 0 ) {
-    theEtaPatternLUT = new L1MuDTEtaPatternLut;
-  }
-  if ( theQualPatternLUT == 0 ) {
-    theQualPatternLUT = new L1MuDTQualPatternLut;
-  }  
-
-}
-
-
-//
 // get quality:  id [0,26], stat [1,3]
 //    
 int L1MuDTEtaProcessor::quality(int id, int stat) {
@@ -463,9 +442,3 @@ int L1MuDTEtaProcessor::quality(int id, int stat) {
   return qualcode[id][stat-1];
 
 }
-
-
-// static data members
-
-L1MuDTEtaPatternLut* L1MuDTEtaProcessor::theEtaPatternLUT = 0;
-L1MuDTQualPatternLut* L1MuDTEtaProcessor::theQualPatternLUT = 0;

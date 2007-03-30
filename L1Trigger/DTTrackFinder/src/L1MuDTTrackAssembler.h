@@ -14,8 +14,8 @@
  *   model b_sts_7 version 7 )
  *
  *
- *   $Date: 2006/06/26 16:11:13 $
- *   $Revision: 1.1 $
+ *   $Date: 2007/02/27 11:44:00 $
+ *   $Revision: 1.2 $
  *
  *   N. Neumeister            CERN EP
  */
@@ -34,7 +34,7 @@
 // Base Class Headers --
 //----------------------
 
-#include "DataFormats/L1DTTrackFinder/interface/L1AbstractProcessor.h"
+#include "L1Trigger/DTTrackFinder/interface/L1AbstractProcessor.h"
 
 //------------------------------------
 // Collaborating Class Declarations --

@@ -15,7 +15,7 @@
 
 #include "L1Trigger/DTTrackFinder/interface/DTTrackFinder.h"
 
-#include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
 
 #include <DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h>
@@ -34,13 +34,10 @@ using namespace std;
 
 DTTrackFinder::DTTrackFinder(const edm::ParameterSet & pset) {
 
-  string lutdir_ = pset.getUntrackedParameter<string>("lutdir","../parameters/");
-  setenv("DTTF_DATA_PATH",lutdir_.c_str(),1);
-
   produces<L1MuDTTrackContainer>("DTTF");
   produces<vector<L1MuRegionalCand> >("DT");
 
-  setup1 = new L1MuDTTFSetup();
+  setup1 = new L1MuDTTFSetup(pset);
 
 }
 
@@ -52,16 +49,16 @@ DTTrackFinder::~DTTrackFinder() {
 
 void DTTrackFinder::produce(edm::Event& e, const edm::EventSetup& c) {
 
-  cout << endl;
-  cout << "**** L1MuonDTTFTrigger processing event  ****" << endl;
+  if ( L1MuDTTFConfig::Debug(1) ) cout << endl;
+  if ( L1MuDTTFConfig::Debug(1) ) cout << "**** L1MuonDTTFTrigger processing event  ****" << endl;
 
   L1MuDTTrackFinder* dtbx = setup1->TrackFinder();
   dtbx->clear();
-  dtbx->run(e);
+  dtbx->run(e,c);
 
   int ndt = dtbx->numberOfTracks();
-  cout << "Number of muons found by the L1 DTBX TRIGGER : "
-       << ndt << endl;
+  if ( L1MuDTTFConfig::Debug(1) ) cout << "Number of muons found by the L1 DTBX TRIGGER : "
+                                       << ndt << endl;
 
   auto_ptr<L1MuDTTrackContainer> tra_product(new L1MuDTTrackContainer);
   auto_ptr<vector<L1MuRegionalCand> >
