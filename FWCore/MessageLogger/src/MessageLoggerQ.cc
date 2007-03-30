@@ -1,6 +1,10 @@
 #include "FWCore/MessageLogger/interface/MessageLoggerQ.h"
-#include <cstring>
+#include "FWCore/MessageLogger/interface/MessageDrop.h"
+#include "FWCore/MessageLogger/interface/ConfigurationHandshake.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 
+#include <cstring>
+#include <iostream>
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -10,6 +14,10 @@
 //
 //////////////////////////////////////////////////////////////////////
 
+// Change Log
+// 
+// 1 - 3/9/07 mf
+//	Addition of JOB command, to be used by --jobreport
 
 using namespace edm;
 
@@ -65,15 +73,35 @@ void
 void
   MessageLoggerQ::CFG( ParameterSet * p )
 {
+  Place_for_passing_exception_ptr epp = new Pointer_to_new_exception_on_heap(0);
+  ConfigurationHandshake h(p,epp);
   SingleConsumerQ::ProducerBuffer b(buf);
   char * slot_p = static_cast<char *>(b.buffer());
 
   OpCode o(CONFIGURE);
-  void * v(static_cast<void *>(p));
+  void * v(static_cast<void *>(&h));
 
   std::memcpy(slot_p+0             , &o, sizeof(OpCode));
   std::memcpy(slot_p+sizeof(OpCode), &v, sizeof(void *));
-  b.commit(buf_size);
+  Pointer_to_new_exception_on_heap ep;
+  {
+    boost::mutex::scoped_lock sl(h.m);       // get lock
+    b.commit(buf_size);
+    // wait for result to appear (in epp)
+    h.c.wait(sl); // c.wait(sl) unlocks the scoped lock and sleeps till notified
+    // ... and once the MessageLoggerScribe does h.c.notify_all() ... 
+    ep = *h.epp;
+    // finally, release the scoped lock by letting it go out of scope 
+  }
+  if ( ep ) {
+    edm::Exception ex(*ep);
+    delete ep;
+    ex << "\n The preceding exception was thrown in MessageLoggerScribe\n";
+    ex << "and forwarded to the main thread from the Messages thread.";
+    std::cerr << "exception from MessageLoggerQ::CFG - exception what() is \n" 
+    		<< ex.what(); 
+    throw ex;
+  }  
 }  // MessageLoggerQ::CFG()
 
 void
@@ -103,6 +131,21 @@ void
   std::memcpy(slot_p+sizeof(OpCode), &v, sizeof(void *));
   b.commit(buf_size);
 }  // MessageLoggerQ::SUM()
+
+void
+  MessageLoggerQ::JOB( std::string * j )
+{
+  SingleConsumerQ::ProducerBuffer b(buf);
+  char * slot_p = static_cast<char *>(b.buffer());
+
+  OpCode o(JOBREPORT);
+  void * v(static_cast<void *>(j));
+
+  std::memcpy(slot_p+0             , &o, sizeof(OpCode));
+  std::memcpy(slot_p+sizeof(OpCode), &v, sizeof(void *));
+  b.commit(buf_size);
+}  // MessageLoggerQ::JOB()
+
 
 void
   MessageLoggerQ::consume( OpCode & opcode, void * & operand )

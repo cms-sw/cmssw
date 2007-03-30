@@ -8,7 +8,7 @@
 //
 // Original Author:  M. Fischler and Jim Kowalkowsi
 //         Created:  Tues Feb 14 16:38:19 CST 2006
-// $Id: MessageDrop.cc,v 1.3 2006/08/18 16:28:43 marafino Exp $
+// $Id: MessageDrop.cc,v 1.4 2006/10/02 20:31:22 marafino Exp $
 //
 
 // system include files
@@ -22,6 +22,8 @@
 using namespace edm;
 
 static boost::thread_specific_ptr<MessageDrop> drops;
+
+edm::Exception * MessageDrop::ex_p = 0;
 
 MessageDrop *
 MessageDrop::instance()

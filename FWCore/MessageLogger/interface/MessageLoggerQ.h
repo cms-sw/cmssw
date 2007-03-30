@@ -28,6 +28,7 @@ public:
   , CONFIGURE      // CFG
   , EXTERN_DEST    // EXT
   , SUMMARIZE      // SUM
+  , JOBREPORT      // JOB
   };  // OpCode
 
   // ---  birth via a surrogate:
@@ -39,6 +40,7 @@ public:
   static  void  CFG( ParameterSet * p );
   static  void  EXT( service::NamedDestination* p );
   static  void  SUM();
+  static  void  JOB( std::string * j );
 
   // ---  obtain a message from the queue:
   static  void  consume( OpCode & opcode, void * & operand );
