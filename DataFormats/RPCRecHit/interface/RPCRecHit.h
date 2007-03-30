@@ -5,16 +5,16 @@
  *
  *  RecHit for RPC 
  *
- *  $Date: 2006/06/16 08:08:21 $
- *  $Revision: 1.5 $
+ *  $Date: 2006/06/16 10:13:02 $
+ *  $Revision: 1.6 $
  *  \author M. Maggi -- INFN Bari 
  */
 
-#include "DataFormats/TrackingRecHit/interface/RecHit1D.h"
+#include "DataFormats/TrackingRecHit/interface/RecHit2DLocalPos.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 
 
-class RPCRecHit : public RecHit1D {
+class RPCRecHit : public RecHit2DLocalPos {
  public:
 
   RPCRecHit(const RPCDetId& rpcId,
