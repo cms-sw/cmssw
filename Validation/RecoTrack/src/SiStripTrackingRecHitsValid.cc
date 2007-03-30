@@ -145,7 +145,7 @@ SiStripTrackingRecHitsValid::SiStripTrackingRecHitsValid(const ParameterSet& ps)
 
   sprintf(histo,"Errx_LF");
   meErrxLF = dbe_->book1D(histo,"RecHit err(x) Local Frame coord.",100,0,0.005);  
-  const float Entries1 = meErrxLF->getEntries();
+  //  const float Entries1 = meErrxLF->getEntries();
 
   sprintf(histo,"Errx_MF");
   meErrxMF = dbe_->book1D(histo,"RecHit err(x) Meas. Frame coord.",100,0,0.5);  
@@ -1039,62 +1039,34 @@ void SiStripTrackingRecHitsValid::endJob() {
 
   //int aaa = Pullvstrackwidth_1->GetEntries();ErrxMFvsTrackwidth
 
-  TH1D *ErrxMFvsTrackwidth_1 = (TH1D*)gDirectory->Get("ErrxMFvsTrackwidth_1");
-  TH1D *ErrxMFvsTrackwidth_2 = (TH1D*)gDirectory->Get("ErrxMFvsTrackwidth_2");
- 
-  TH1D *PullvsTrackwidth_1 = (TH1D*)gDirectory->Get("PullvsTrackwidth_1");
   TH1D *PullvsTrackwidth_2 = (TH1D*)gDirectory->Get("PullvsTrackwidth_2");
-  TH1D *PullvsExpectedwidth_1 = (TH1D*)gDirectory->Get("PullvsExpectedwidth_1");
   TH1D *PullvsExpectedwidth_2 = (TH1D*)gDirectory->Get("PullvsExpectedwidth_2");
-  TH1D *PullvsClusterwidth_1 = (TH1D*)gDirectory->Get("PullvsClusterwidth_1");
   TH1D *PullvsClusterwidth_2 = (TH1D*)gDirectory->Get("PullvsClusterwidth_2");
-  TH1D *PullvsTrackangle_1 = (TH1D*)gDirectory->Get("PullvsTrackangle_1");
   TH1D *PullvsTrackangle_2 = (TH1D*)gDirectory->Get("PullvsTrackangle_2");
-  TH1D *PullvsTrackanglebeta_1 = (TH1D*)gDirectory->Get("PullvsTrackanglebeta_1");
   TH1D *PullvsTrackanglebeta_2 = (TH1D*)gDirectory->Get("PullvsTrackanglebeta_2");
 
-  TH1D *PullvsTrackwidthTIB_1 = (TH1D*)gDirectory->Get("PullvsTrackwidthTIB_1");
   TH1D *PullvsTrackwidthTIB_2 = (TH1D*)gDirectory->Get("PullvsTrackwidthTIB_2");
-  TH1D *PullvsExpectedwidthTIB_1 = (TH1D*)gDirectory->Get("PullvsExpectedwidthTIB_1");
   TH1D *PullvsExpectedwidthTIB_2 = (TH1D*)gDirectory->Get("PullvsExpectedwidthTIB_2");
-  TH1D *PullvsClusterwidthTIB_1 = (TH1D*)gDirectory->Get("PullvsClusterwidthTIB_1");
   TH1D *PullvsClusterwidthTIB_2 = (TH1D*)gDirectory->Get("PullvsClusterwidthTIB_2");
-  TH1D *PullvsTrackangleTIB_1 = (TH1D*)gDirectory->Get("PullvsTrackangleTIB_1");
   TH1D *PullvsTrackangleTIB_2 = (TH1D*)gDirectory->Get("PullvsTrackangleTIB_2");
-  TH1D *PullvsTrackanglebetaTIB_1 = (TH1D*)gDirectory->Get("PullvsTrackanglebetaTIB_1");
   TH1D *PullvsTrackanglebetaTIB_2 = (TH1D*)gDirectory->Get("PullvsTrackanglebetaTIB_2");
 
-  TH1D *PullvsTrackwidthTOB_1 = (TH1D*)gDirectory->Get("PullvsTrackwidthTOB_1");
   TH1D *PullvsTrackwidthTOB_2 = (TH1D*)gDirectory->Get("PullvsTrackwidthTOB_2");
-  TH1D *PullvsExpectedwidthTOB_1 = (TH1D*)gDirectory->Get("PullvsExpectedwidthTOB_1");
   TH1D *PullvsExpectedwidthTOB_2 = (TH1D*)gDirectory->Get("PullvsExpectedwidthTOB_2");
-  TH1D *PullvsClusterwidthTOB_1 = (TH1D*)gDirectory->Get("PullvsClusterwidthTOB_1");
   TH1D *PullvsClusterwidthTOB_2 = (TH1D*)gDirectory->Get("PullvsClusterwidthTOB_2");
-  TH1D *PullvsTrackangleTOB_1 = (TH1D*)gDirectory->Get("PullvsTrackangleTOB_1");
   TH1D *PullvsTrackangleTOB_2 = (TH1D*)gDirectory->Get("PullvsTrackangleTOB_2");
-  TH1D *PullvsTrackanglebetaTOB_1 = (TH1D*)gDirectory->Get("PullvsTrackanglebetaTOB_1");
   TH1D *PullvsTrackanglebetaTOB_2 = (TH1D*)gDirectory->Get("PullvsTrackanglebetaTOB_2");
 
-  TH1D *PullvsTrackwidthTID_1 = (TH1D*)gDirectory->Get("PullvsTrackwidthTID_1");
   TH1D *PullvsTrackwidthTID_2 = (TH1D*)gDirectory->Get("PullvsTrackwidthTID_2");
-  TH1D *PullvsExpectedwidthTID_1 = (TH1D*)gDirectory->Get("PullvsExpectedwidthTID_1");
   TH1D *PullvsExpectedwidthTID_2 = (TH1D*)gDirectory->Get("PullvsExpectedwidthTID_2");
-  TH1D *PullvsClusterwidthTID_1 = (TH1D*)gDirectory->Get("PullvsClusterwidthTID_1");
   TH1D *PullvsClusterwidthTID_2 = (TH1D*)gDirectory->Get("PullvsClusterwidthTID_2");
-  TH1D *PullvsTrackangleTID_1 = (TH1D*)gDirectory->Get("PullvsTrackangleTID_1");
   TH1D *PullvsTrackangleTID_2 = (TH1D*)gDirectory->Get("PullvsTrackangleTID_2");
-  TH1D *PullvsTrackanglebetaTID_1 = (TH1D*)gDirectory->Get("PullvsTrackanglebetaTID_1");
   TH1D *PullvsTrackanglebetaTID_2 = (TH1D*)gDirectory->Get("PullvsTrackanglebetaTID_2");
 
-  TH1D *PullvsTrackwidthTEC_1 = (TH1D*)gDirectory->Get("PullvsTrackwidthTEC_1");
   TH1D *PullvsTrackwidthTEC_2 = (TH1D*)gDirectory->Get("PullvsTrackwidthTEC_2");
-  TH1D *PullvsExpectedwidthTEC_1 = (TH1D*)gDirectory->Get("PullvsExpectedwidthTEC_1");
   TH1D *PullvsExpectedwidthTEC_2 = (TH1D*)gDirectory->Get("PullvsExpectedwidthTEC_2");
-  TH1D *PullvsClusterwidthTEC_1 = (TH1D*)gDirectory->Get("PullvsClusterwidthTEC_1");
   TH1D *PullvsClusterwidthTEC_2 = (TH1D*)gDirectory->Get("PullvsClusterwidthTEC_2");
-  TH1D *PullvsTrackangleTEC_1 = (TH1D*)gDirectory->Get("PullvsTrackangleTEC_1");
   TH1D *PullvsTrackangleTEC_2 = (TH1D*)gDirectory->Get("PullvsTrackangleTEC_2");
-  TH1D *PullvsTrackanglebetaTEC_1 = (TH1D*)gDirectory->Get("PullvsTrackanglebetaTEC_1");
   TH1D *PullvsTrackanglebetaTEC_2 = (TH1D*)gDirectory->Get("PullvsTrackanglebetaTEC_2");
 
   //cout<<"h2_1->GetEntries() = "<<PullvsTrackwidth_1->GetEntries()<<endl;
@@ -1365,8 +1337,7 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
      
     edm::LogVerbatim("TrajectoryAnalyzer") << "this traj has " << it->foundHits() << " valid hits"  << " , "
 					    << "isValid: " << it->isValid() ;
-    //cout<< "this traj has " << it->foundHits() << " valid hits"  << " , "
-					    << "isValid: " << it->isValid() ;
+
     vector<TrajectoryMeasurement> tmColl = it->measurements();
     for(vector<TrajectoryMeasurement>::const_iterator itTraj = tmColl.begin(); itTraj!=tmColl.end(); itTraj++){
       if(! itTraj->updatedState().isValid()) continue;
@@ -1568,7 +1539,7 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 	  //	  const GeomDetUnit *  det = tracker.idToDetUnit(detid);
 	  //stripdet=(const StripGeomDetUnit*)(gdet);
 	  stripdet=(const StripGeomDetUnit*)(monodet);
-	  const StripTopology &topol2=(StripTopology&)stripdet->topology();
+	  //	  const StripTopology &topol2=(StripTopology&)stripdet->topology();
 
 	  if(monotkdir.z()!=0){
 	    anglealpha = atan(monotkdir.x()/monotkdir.z())*180/TMath::Pi();
@@ -1691,7 +1662,7 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 	      isrechitsas = 1;
 	      const edm::Ref<edm::DetSetVector<SiStripCluster>, SiStripCluster, edm::refhelper::FindForDetSetVector<SiStripCluster> > cluster=stereohit->cluster();
 	    
-	      const GeomDetUnit *  det = tracker.idToDetUnit(detid2);
+	      //	      const GeomDetUnit *  det = tracker.idToDetUnit(detid2);
 	      const StripGeomDetUnit * stripdet=(const StripGeomDetUnit*)(stereodet);
 	      const StripTopology &topol=(StripTopology&)stripdet->topology();
 
@@ -1827,7 +1798,7 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 	  Merror = topol.measurementError(position,error);
 
 	  LocalVector drift= driftDirection(stripdet);
-	  LocalVector driftcpe = stripcpe.driftDirection(stripdet);
+	  //LocalVector driftcpe = stripcpe.driftDirection(stripdet);
 	  float thickness=stripdet->surface().bounds().thickness();
 	  rechitrphithickness = thickness;
 	  //cout<<"Valid:thickness = "<<thickness<<endl;
@@ -1837,7 +1808,7 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 	  //cout<<"Valid:tanalpha = "<<tanalpha<<endl;
 	  float tanalphaL = drift.x()/drift.z();
 	  //cout<<"Valid:tanalphaL = "<<tanalphaL<<endl;
-	  float tanalphaLcpe = driftcpe.x()/driftcpe.z();
+	  //	  float tanalphaLcpe = driftcpe.x()/driftcpe.z();
 	  //cout<<"Valid:tanalphaLcpe = "<<tanalphaLcpe<<endl;
 	  //cout<<"Validmono:drift.x() = "<<drift.x()<<endl;
 	  //cout<<"Valid:drift.z() = "<<drift.z()<<endl;
@@ -2826,8 +2797,8 @@ LocalVector SiStripTrackingRecHitsValid::driftDirection(const StripGeomDetUnit* 
    LocalVector lbfield=(det->surface()).toLocal(magfield2_->inTesla(det->surface().position()));
    //cout<<"SiStripTrackingRecHitsValid::driftDirection:lbfield.y() = "<<lbfield.y()<<endl;
 
-   GlobalVector vec = magfield2_->inTesla(det->surface().position());
-   float MAG = sqrt((vec.x()*vec.x()+vec.y()*vec.y()+vec.z()*vec.z()));
+   //GlobalVector vec = magfield2_->inTesla(det->surface().position());
+   //   float MAG = sqrt((vec.x()*vec.x()+vec.y()*vec.y()+vec.z()*vec.z()));
    //cout<<"MAG = "<<MAG<<endl;
    float theTanLorentzAnglePerTesla_ = 0.032;
    float dir_x = theTanLorentzAnglePerTesla_ * lbfield.y();
