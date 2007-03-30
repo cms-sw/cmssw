@@ -27,6 +27,7 @@ public:
 private:
   const DetLayer* theLayer;
   std::string theName;
+  std::string theHitProducer;
   Side theSide;
   int theIdLayer;
 };
