@@ -37,8 +37,6 @@ void PixelTripletHLTGenerator::hitTriplets(
   OrderedHitPairs::const_iterator ip;
   thePairGenerator->hitPairs(region,pairs,ev,es);
 
-  cout <<"HERE, pairs: "<<pairs.size() << endl; 
-
   if (pairs.size() ==0) return;
 
   int size = theLayers.size();

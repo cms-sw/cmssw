@@ -27,8 +27,8 @@ void CombinedHitTripletGenerator::init(const edm::ParameterSet & cfg, const edm:
     SeedingLayer second = (*it).first.second;
     vector<SeedingLayer> thirds = (*it).second;
 
-    std::string       generatorName = theConfig.getParameter<std::string>("Generator");
     edm::ParameterSet generatorPSet = theConfig.getParameter<edm::ParameterSet>("GeneratorPSet");
+    std::string       generatorName = generatorPSet.getParameter<std::string>("ComponentName");
 
     HitTripletGeneratorFromPairAndLayers * aGen =
         HitTripletGeneratorFromPairAndLayersFactory::get()->create(generatorName,generatorPSet);
