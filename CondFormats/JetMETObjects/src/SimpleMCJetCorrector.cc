@@ -1,6 +1,6 @@
 //
 // Original Author:  Fedor Ratnikov Dec 27, 2006
-// $Id: SimpleMCJetCorrector.cc,v 1.1 2007/03/30 23:47:54 fedor Exp $
+// $Id: SimpleMCJetCorrector.cc,v 1.2 2007/03/31 17:32:40 fedor Exp $
 //
 // MC Jet Corrector
 //
@@ -166,11 +166,15 @@ double SimpleMCJetCorrector::correctionXYZT (double fPx, double fPy, double fPz,
   return correctionPtEtaPhiE (p4.Pt(), p4.Eta(), p4.Phi(), p4.E());
 }
 
-
 double SimpleMCJetCorrector::correctionPtEtaPhiE (double fPt, double fEta, double fPhi, double fE) const {
-  if (mParametrization->empty()) {return 1;}
+  double costhetainv = cosh (fEta);
+  return correctionEtEtaPhiP (fE/costhetainv, fEta, fPhi, fPt*costhetainv);
+}
+
+double SimpleMCJetCorrector::correctionEtEtaPhiP (double fEt, double fEta, double fPhi, double fP) const {
+  if (!mParametrization || mParametrization->empty()) return 1;
   
-  double et=fE / cosh (fEta);
+  double et=fEt;
   double eta=fabs (fEta);
   
   

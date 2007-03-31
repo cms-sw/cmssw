@@ -1,6 +1,6 @@
 //
 // Original Author:  Fedor Ratnikov Dec 27, 2006
-// $Id: SimpleMCJetCorrector.h,v 1.1 2007/03/30 23:47:53 fedor Exp $
+// $Id: SimpleMCJetCorrector.h,v 1.2 2007/03/31 17:32:40 fedor Exp $
 //
 // MC Jet Corrector
 //
@@ -28,6 +28,7 @@ class SimpleMCJetCorrector : public StandaloneJetCorrector {
 
   virtual double correctionXYZT (double fPx, double fPy, double fPz, double fE) const;
   virtual double correctionPtEtaPhiE (double fPt, double fEta, double fPhi, double fE) const;
+  virtual double correctionEtEtaPhiP (double fEt, double fEta, double fPhi, double fP) const;
 
  private:
   ParametersMap* mParametrization;
