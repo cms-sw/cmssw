@@ -1,5 +1,5 @@
-#ifndef RECOLOCALCALO_CALOTOWERSCREATOR_CALOTOWERSCREATOR_H
-#define RECOLOCALCALO_CALOTOWERSCREATOR_CALOTOWERSCREATOR_H 1
+#ifndef RECOLOCALCALO_CALOTOWERSCREATOR_CALOTOWERSRECREATOR_H
+#define RECOLOCALCALO_CALOTOWERSCREATOR_CALOTOWERSRECREATOR_H 1
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "DataFormats/Common/interface/EDProduct.h"
@@ -13,23 +13,21 @@
 
 #include "RecoLocalCalo/CaloTowersCreator/interface/CaloTowersCreationAlgo.h"
 
-/** \class CaloTowersCreator
+/** \class CaloTowersReCreator
   *  
   * $Date: 2006/08/17 15:23:34 $
-  * $Revision: 1.6 $
-  * \author J. Mans - Minnesota
+  * $Revision: 1.0 $
   */
-class CaloTowersCreator : public edm::EDProducer {
+class CaloTowersReCreator : public edm::EDProducer {
 public:
-  explicit CaloTowersCreator(const edm::ParameterSet& ps);
-  virtual ~CaloTowersCreator() { }
+  explicit CaloTowersReCreator(const edm::ParameterSet& ps);
+  virtual ~CaloTowersReCreator() { }
   virtual void produce(edm::Event& e, const edm::EventSetup& c);
   double EBEScale, EEEScale, HBEScale, HESEScale;
   double HEDEScale, HOEScale, HF1EScale, HF2EScale;
 private:
   CaloTowersCreationAlgo algo_;
-  edm::InputTag hbheLabel_,hoLabel_,hfLabel_;
-  std::vector<edm::InputTag> ecalLabels_;
+  edm::InputTag caloLabel_;
   bool allowMissingInputs_;
 };
 

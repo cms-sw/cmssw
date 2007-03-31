@@ -5,6 +5,7 @@
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
+#include "Math/Interpolator.h"
 #include<iostream>
 
 CaloTowersCreationAlgo::CaloTowersCreationAlgo()
@@ -17,6 +18,22 @@ CaloTowersCreationAlgo::CaloTowersCreationAlgo()
    theHOthreshold(-1000.),
    theHF1threshold(-1000.),
    theHF2threshold(-1000.),
+   theEBGrid(std::vector<double>(5,10.)),
+   theEBWeights(std::vector<double>(5,1.)),
+   theEEGrid(std::vector<double>(5,10.)),
+   theEEWeights(std::vector<double>(5,1.)),
+   theHBGrid(std::vector<double>(5,10.)),
+   theHBWeights(std::vector<double>(5,1.)),
+   theHESGrid(std::vector<double>(5,10.)),
+   theHESWeights(std::vector<double>(5,1.)),
+   theHEDGrid(std::vector<double>(5,10.)),
+   theHEDWeights(std::vector<double>(5,1.)),
+   theHOGrid(std::vector<double>(5,10.)),
+   theHOWeights(std::vector<double>(5,1.)),
+   theHF1Grid(std::vector<double>(5,10.)),
+   theHF1Weights(std::vector<double>(5,1.)),
+   theHF2Grid(std::vector<double>(5,10.)),
+   theHF2Weights(std::vector<double>(5,1.)),
    theEBweight(1.),
    theEEweight(1.),
    theHBweight(1.),
@@ -34,8 +51,6 @@ CaloTowersCreationAlgo::CaloTowersCreationAlgo()
    theHOIsUsed(true)
 {
 }
-
-
 
 CaloTowersCreationAlgo::CaloTowersCreationAlgo(double EBthreshold, double EEthreshold, double HcalThreshold,
     double HBthreshold, double HESthreshold, double  HEDthreshold,
@@ -55,6 +70,79 @@ CaloTowersCreationAlgo::CaloTowersCreationAlgo(double EBthreshold, double EEthre
    theHOthreshold(HOthreshold),
    theHF1threshold(HF1threshold),
    theHF2threshold(HF2threshold),
+   theEBGrid(std::vector<double>(5,10.)),
+   theEBWeights(std::vector<double>(5,1.)),
+   theEEGrid(std::vector<double>(5,10.)),
+   theEEWeights(std::vector<double>(5,1.)),
+   theHBGrid(std::vector<double>(5,10.)),
+   theHBWeights(std::vector<double>(5,1.)),
+   theHESGrid(std::vector<double>(5,10.)),
+   theHESWeights(std::vector<double>(5,1.)),
+   theHEDGrid(std::vector<double>(5,10.)),
+   theHEDWeights(std::vector<double>(5,1.)),
+   theHOGrid(std::vector<double>(5,10.)),
+   theHOWeights(std::vector<double>(5,1.)),
+   theHF1Grid(std::vector<double>(5,10.)),
+   theHF1Weights(std::vector<double>(5,1.)),
+   theHF2Grid(std::vector<double>(5,10.)),
+   theHF2Weights(std::vector<double>(5,1.)),
+   theEBweight(EBweight),
+   theEEweight(EEweight),
+   theHBweight(HBweight),
+   theHESweight(HESweight),
+   theHEDweight(HEDweight),
+   theHOweight(HOweight),
+   theHF1weight(HF1weight),
+   theHF2weight(HF2weight),
+   theEcutTower(EcutTower),
+   theEBSumThreshold(EBSumThreshold),
+   theEESumThreshold(EESumThreshold),
+   theHOIsUsed(useHO)
+{
+}
+
+CaloTowersCreationAlgo::CaloTowersCreationAlgo(double EBthreshold, double EEthreshold, double HcalThreshold,
+    double HBthreshold, double HESthreshold, double  HEDthreshold,
+    double HOthreshold, double HF1threshold, double HF2threshold,
+    std::vector<double> EBGrid, std::vector<double> EBWeights,
+    std::vector<double> EEGrid, std::vector<double> EEWeights,
+    std::vector<double> HBGrid, std::vector<double> HBWeights,
+    std::vector<double> HESGrid, std::vector<double> HESWeights,
+    std::vector<double> HEDGrid, std::vector<double> HEDWeights,
+    std::vector<double> HOGrid, std::vector<double> HOWeights,
+    std::vector<double> HF1Grid, std::vector<double> HF1Weights,
+    std::vector<double> HF2Grid, std::vector<double> HF2Weights,
+    double EBweight, double EEweight,
+    double HBweight, double HESweight, double HEDweight,
+    double HOweight, double HF1weight, double HF2weight,
+    double EcutTower, double EBSumThreshold, double EESumThreshold,
+    bool useHO)
+
+ : theEBthreshold(EBthreshold),
+   theEEthreshold(EEthreshold),
+   theHcalThreshold(HcalThreshold),
+   theHBthreshold(HBthreshold),
+   theHESthreshold(HESthreshold),
+   theHEDthreshold(HEDthreshold),
+   theHOthreshold(HOthreshold),
+   theHF1threshold(HF1threshold),
+   theHF2threshold(HF2threshold),
+   theEBGrid(EBGrid),
+   theEBWeights(EBWeights),
+   theEEGrid(EEGrid),
+   theEEWeights(EEWeights),
+   theHBGrid(HBGrid),
+   theHBWeights(HBWeights),
+   theHESGrid(HESGrid),
+   theHESWeights(HESWeights),
+   theHEDGrid(HEDGrid),
+   theHEDWeights(HEDWeights),
+   theHOGrid(HOGrid),
+   theHOWeights(HOWeights),
+   theHF1Grid(HF1Grid),
+   theHF1Weights(HF1Weights),
+   theHF2Grid(HF2Grid),
+   theHF2Weights(HF2Weights),
    theEBweight(EBweight),
    theEEweight(EEweight),
    theHBweight(HBweight),
@@ -106,13 +194,21 @@ void CaloTowersCreationAlgo::process(const EcalRecHitCollection& ec) {
     assignHit(&(*ecItr));
 }
 
+void CaloTowersCreationAlgo::process(const CaloTowerCollection& ctc) {
+  for(CaloTowerCollection::const_iterator ctcItr = ctc.begin();
+      ctcItr != ctc.end(); ++ctcItr) { 
+    rescale(&(*ctcItr));
+    }
+}
+
 void CaloTowersCreationAlgo::finish(CaloTowerCollection& result) {
   // now copy this map into the final collection
   for(MetaTowerMap::const_iterator mapItr = theTowerMap.begin();
       mapItr != theTowerMap.end(); ++ mapItr) {
     CaloTower ct=convert(mapItr->first,mapItr->second);
-    if (ct.constituentsSize()>0 && ct.energy()>theEcutTower)
+    if (ct.constituentsSize()>0 && ct.energy()>theEcutTower) {
       result.push_back(ct);
+    }
   }
   theTowerMap.clear(); // save the memory
 }
@@ -130,7 +226,7 @@ void CaloTowersCreationAlgo::assignHit(const CaloRecHit * recHit) {
       HcalDetId(detId).ietaAbs()==28) {
 
     CaloTowerDetId towerDetId = theTowerConstituentsMap->towerOf(detId);
-    if (towerDetId.null()) return;
+    if (towerDetId.null()) return;    
     MetaTower & tower28 = find(towerDetId);    
     CaloTowerDetId towerDetId29 = CaloTowerDetId(towerDetId.ieta()+
 						 towerDetId.zside(),
@@ -197,6 +293,41 @@ void CaloTowersCreationAlgo::assignHit(const CaloRecHit * recHit) {
   }
 }
 
+void CaloTowersCreationAlgo::rescale(const CaloTower * ct) {
+  double threshold, weight;
+
+  CaloTowerDetId towerDetId = ct->id();
+//  if (towerDetId.null()) return;    
+  MetaTower & tower = find(towerDetId);
+
+  tower.E_em = 0.;
+  tower.E_had = 0.;
+  tower.E_outer = 0.;
+  for (int i=0; i<ct->constituentsSize(); i++) {
+    DetId detId = ct->constituent(i);
+    getThresholdAndWeight(detId, threshold, weight);
+    DetId::Detector det = detId.det();
+    if(det == DetId::Ecal) {
+      tower.E_em = ct->emEnergy()*weight;
+    }
+    else {
+      HcalDetId hcalDetId(detId);
+      if(hcalDetId.subdet() == HcalForward) {
+        if (hcalDetId.depth()==1) tower.E_em = ct->emEnergy()*weight;
+        if (hcalDetId.depth()==2) tower.E_had = ct->hadEnergy()*weight;
+      }
+      else if(hcalDetId.subdet() == HcalOuter) {
+        tower.E_outer = ct->outerEnergy()*weight;
+      }
+      else {
+        tower.E_had = ct->hadEnergy()*weight;
+      }
+    }
+    tower.E = tower.E_had+tower.E_em+tower.E_outer;
+    tower.constituents.push_back(detId);
+  }
+}
+
 CaloTowersCreationAlgo::MetaTower::MetaTower() : E(0),E_em(0),E_had(0),E_outer(0) {
 }
 
@@ -251,6 +382,7 @@ CaloTower CaloTowersCreationAlgo::convert(const CaloTowerDetId& id, const MetaTo
 void CaloTowersCreationAlgo::getThresholdAndWeight(const DetId & detId, double & threshold, double & weight) const {
   DetId::Detector det = detId.det();
   weight=0; // in case the hit is not identified
+
   if(det == DetId::Ecal) {
     // may or may not be EB.  We'll find out.
 
@@ -258,10 +390,18 @@ void CaloTowersCreationAlgo::getThresholdAndWeight(const DetId & detId, double &
     if(subdet == EcalBarrel) {
       threshold = theEBthreshold;
       weight = theEBweight;
+      if (weight <= 0.) {
+        ROOT::Math::Interpolator my(theEBGrid,theEBWeights,ROOT::Math::Interpolation::AKIMA);
+        weight = my.Eval(theEBEScale);
+      }
     }
     else if(subdet == EcalEndcap) {
       threshold = theEEthreshold;
       weight = theEEweight;
+      if (weight <= 0.) {
+        ROOT::Math::Interpolator my(theEEGrid,theEEWeights,ROOT::Math::Interpolation::AKIMA);
+        weight = my.Eval(theEEEScale);
+      }
     }
   }
   else if(det == DetId::Hcal) {
@@ -271,6 +411,10 @@ void CaloTowersCreationAlgo::getThresholdAndWeight(const DetId & detId, double &
     if(subdet == HcalBarrel) {
       threshold = theHBthreshold;
       weight = theHBweight;
+      if (weight <= 0.) {
+        ROOT::Math::Interpolator my(theHBGrid,theHBWeights,ROOT::Math::Interpolation::AKIMA);
+        weight = my.Eval(theHBEScale);
+      }
     }
     
     else if(subdet == HcalEndcap) {
@@ -278,26 +422,86 @@ void CaloTowersCreationAlgo::getThresholdAndWeight(const DetId & detId, double &
       if(hcalDetId.ietaAbs() < theHcalTopology->firstHEDoublePhiRing()) {
         threshold = theHESthreshold;
         weight = theHESweight;
+        if (weight <= 0.) {
+          ROOT::Math::Interpolator my(theHESGrid,theHESWeights,ROOT::Math::Interpolation::AKIMA);
+          weight = my.Eval(theHESEScale);
+        }
       }
       else {
         threshold = theHEDthreshold;
         weight = theHEDweight;
+        if (weight <= 0.) {
+          ROOT::Math::Interpolator my(theHEDGrid,theHEDWeights,ROOT::Math::Interpolation::AKIMA);
+          weight = my.Eval(theHEDEScale);
+        }
       }
     } else if(subdet == HcalOuter) {
       threshold = theHOthreshold;
       weight = theHOweight;
+      if (weight <= 0.) {
+        ROOT::Math::Interpolator my(theHOGrid,theHOWeights,ROOT::Math::Interpolation::AKIMA);
+        weight = my.Eval(theHOEScale);
+      }
     } else if(subdet == HcalForward) {
       if(hcalDetId.depth() == 1) {
         threshold = theHF1threshold;
         weight = theHF1weight;
+        if (weight <= 0.) {
+          ROOT::Math::Interpolator my(theHF1Grid,theHF1Weights,ROOT::Math::Interpolation::AKIMA);
+          weight = my.Eval(theHF1EScale);
+        }
       } else {
         threshold = theHF2threshold;
         weight = theHF2weight;
+        if (weight <= 0.) {
+          ROOT::Math::Interpolator my(theHF2Grid,theHF2Weights,ROOT::Math::Interpolation::AKIMA);
+          weight = my.Eval(theHF2EScale);
+        }
       }
     }
   }
   else {
     std::cout << "BAD CELL det " << det << std::endl;
   }
+}
+
+void CaloTowersCreationAlgo::setEBEScale(double scale){
+  if (scale>0.00001) *&theEBEScale = scale;
+  else *&theEBEScale = 50.;
+}
+
+void CaloTowersCreationAlgo::setEEEScale(double scale){
+  if (scale>0.00001) *&theEEEScale = scale;
+  else *&theEEEScale = 50.;
+}
+
+void CaloTowersCreationAlgo::setHBEScale(double scale){
+  if (scale>0.00001) *&theHBEScale = scale;
+  else *&theHBEScale = 50.;
+}
+
+void CaloTowersCreationAlgo::setHESEScale(double scale){
+  if (scale>0.00001) *&theHESEScale = scale;
+  else *&theHESEScale = 50.;
+}
+
+void CaloTowersCreationAlgo::setHEDEScale(double scale){
+  if (scale>0.00001) *&theHEDEScale = scale;
+  else *&theHEDEScale = 50.;
+}
+
+void CaloTowersCreationAlgo::setHOEScale(double scale){
+  if (scale>0.00001) *&theHOEScale = scale;
+  else *&theHOEScale = 50.;
+}
+
+void CaloTowersCreationAlgo::setHF1EScale(double scale){
+  if (scale>0.00001) *&theHF1EScale = scale;
+  else *&theHF1EScale = 50.;
+}
+
+void CaloTowersCreationAlgo::setHF2EScale(double scale){
+  if (scale>0.00001) *&theHF2EScale = scale;
+  else *&theHF2EScale = 50.;
 }
 
