@@ -28,11 +28,11 @@ MuIsoDeposit ExtractorFromDeposits::deposit(const Event & event,
 
   LogWarning(metname)<<"Call this method only if the original muon track collection is lost";
 
-  double vtx_z = muon.vz();
+  // double vtx_z = muon.vz();
   Direction muonDir(muon.eta(), muon.phi());
   MuIsoDepositAssociationMap::const_iterator depPair;
   for (depPair=depMap->begin(); depPair!=depMap->end(); ++depPair) {
-      const TrackRef& tk = depPair->key;
+    // const TrackRef& tk = depPair->key;
       const MuIsoDeposit& dep = depPair->val;
        Direction depositDir(dep.eta(), dep.phi());
       if (muonDir.deltaR(depositDir) < 1.e-6) return dep;
