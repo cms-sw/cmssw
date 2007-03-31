@@ -3,8 +3,8 @@
 /** \class TrackerSeedGeneratorBC
  *  Generate seed from muon trajectory.
  *
- *  $Date: 2007/02/17 19:04:11 $
- *  $Revision: 1.14 $
+ *  $Date: 2007/03/30 18:31:42 $
+ *  $Revision: 1.1 $
  *  \author Norbert Neumeister - Purdue University
  *  \porting author Chang Liu - Purdue University
  */
@@ -27,7 +27,7 @@
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
 #include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
-#include "Geometry/Surface/interface/BoundCylinder.h"
+#include "DataFormats/GeometrySurface/interface/BoundCylinder.h"
 #include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
 #include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
 #include "TrackingTools/GeomPropagators/interface/StateOnTrackerBound.h"
@@ -607,6 +607,11 @@ std::vector<TrajectorySeed> TrackerSeedGeneratorBC::rsSeeds(const reco::Track& m
     case StripSubdetector::TID:
       inLayer = ( z < 0 ) ? ntecc[0] : ptecc[0] ;
       break;
+    default:
+      LogWarning(category)<<"Case not contemplated in TrackerSeedGeneratorBC::rsSeeds: "
+			  <<inLayer->subDetector();
+      break;
+
     }
     compatible = inLayer->compatibleDets(inner,*theService->propagator(theRSPropagator),*theRoadEstimator);
   }
