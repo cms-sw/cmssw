@@ -40,6 +40,8 @@ public:
 
   TrajectorySeed createSeed(float ptmean, float sptmean,
 			    MuonTransientTrackingRecHit::ConstMuonRecHitPointer last) const;
+  // makes a straight-line seed.  q/p = 0, and sigma(q/p) = 1/theMinMomentum
+  TrajectorySeed createDefaultSeed(MuonTransientTrackingRecHit::ConstMuonRecHitPointer last) const;
 
   protected:
   MuonTransientTrackingRecHit::MuonRecHitContainer theRhits;
