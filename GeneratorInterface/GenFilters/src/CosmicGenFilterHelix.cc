@@ -2,7 +2,7 @@
 //
 // Original Author:  Gero FLUCKE
 //         Created:  Mon Mar  5 16:32:01 CET 2007
-// $Id: CosmicGenFilterHelix.cc,v 1.1 2007/03/31 15:18:45 flucke Exp $
+// $Id: CosmicGenFilterHelix.cc,v 1.2 2007/03/31 17:25:09 flucke Exp $
 
 #include "GeneratorInterface/GenFilters/interface/CosmicGenFilterHelix.h"
 
@@ -106,9 +106,9 @@ bool CosmicGenFilterHelix::filter(edm::Event &iEvent, const edm::EventSetup &iSe
     if (!this->charge((*iPart)->pdg_id(), charge)) continue;
 
     // Get the position and momentum
-    const HepLorentzVector hepVertex((*iPart)->creationVertex());
+    const HepMC::ThreeVector hepVertex((*iPart)->production_vertex()->point3d());
     const GlobalPoint vert(hepVertex.x()/10., hepVertex.y()/10., hepVertex.z()/10.); // to cm
-    const HepLorentzVector hepMomentum((*iPart)->momentum());
+    const HepMC::FourVector hepMomentum((*iPart)->momentum());
     const GlobalVector mom(hepMomentum.x(), hepMomentum.y(), hepMomentum.z());
 
     if (theDoMonitor) this->monitorStart(vert, mom, charge, theHistsBefore);
