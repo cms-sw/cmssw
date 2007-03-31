@@ -24,7 +24,7 @@ MuonCSCSeedFromRecHits::MuonCSCSeedFromRecHits(const edm::EventSetup & eSetup)
   fillConstants(3,5, 0.2773, -0.1017);
   fillConstants(3,6, -0.05597, 0.11840);
   fillConstants(3,8, -0.09705, 0.15916);
-  fillConstants(4,6, -0.2541, 0.2741);
+  //fillConstants(4,6, -0.2541, 0.2741);
 
 }
 
@@ -202,8 +202,8 @@ void MuonCSCSeedFromRecHits::makeDefaultSeed(TrajectorySeed & seed) const
   if(me1)
     if ( me1->isValid() )
     {
-      //good = createDefaultEndcapSeed(me1, seed); 
-      seed = createDefaultSeed(me1);
+      good = createDefaultEndcapSeed(me1, seed); 
+      //seed = createDefaultSeed(me1);
     }
   
 }
