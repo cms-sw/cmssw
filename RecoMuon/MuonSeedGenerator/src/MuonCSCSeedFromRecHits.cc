@@ -201,7 +201,10 @@ void MuonCSCSeedFromRecHits::makeDefaultSeed(TrajectorySeed & seed) const
 
   if(me1)
     if ( me1->isValid() )
-      good = createDefaultEndcapSeed(me1, seed); 
+    {
+      //good = createDefaultEndcapSeed(me1, seed); 
+      seed = createDefaultSeed(me1);
+    }
   
 }
 
