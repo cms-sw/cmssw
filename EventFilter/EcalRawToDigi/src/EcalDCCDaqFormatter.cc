@@ -1,7 +1,7 @@
 /*  
  *
- *  $Date: 2007/03/19 06:03:17 $
- *  $Revision: 1.8 $
+ *  $Date: 2007/03/25 23:20:12 $
+ *  $Revision: 1.9 $
  *  \author  N. Marinelli IASA 
  *  \author G. Della Ricca
  *  \author G. Franzoni
@@ -539,7 +539,7 @@ void EcalDCCDaqFormatter::DecodeMEM( int SMid, DCCTowerBlock *  towerblock,  Eca
 					 << " (according to DCC header channel status)";
       
       // chosing channel 1 as representative as a dummy...
-      EcalElectronicsId id(SMid, (int)_ExpectedTowers[_expTowersIndex], 1);
+      EcalElectronicsId id(SMid, (int)_ExpectedTowers[_expTowersIndex], 1, 1);
       memttidcollection.push_back(id);
       ++ _expTowersIndex;
       return; // if NOT a mem tt block - do not build any Pn digis
@@ -562,7 +562,7 @@ void EcalDCCDaqFormatter::DecodeMEM( int SMid, DCCTowerBlock *  towerblock,  Eca
 
       // reporting mem-tt block size problem
       // chosing channel 1 as representative as a dummy...
-      EcalElectronicsId id(SMid, (int)_ExpectedTowers[_expTowersIndex], 1);
+      EcalElectronicsId id(SMid, (int)_ExpectedTowers[_expTowersIndex], 1, 1);
       memblocksizecollection.push_back(id);
 
       ++ _expTowersIndex;
@@ -590,7 +590,7 @@ void EcalDCCDaqFormatter::DecodeMEM( int SMid, DCCTowerBlock *  towerblock,  Eca
 				    << "  strip " <<  strip_id << "  cry " << xtal_id;
 	
 	// report on crystal with unexpected indices
-	EcalElectronicsId id(SMid, (int)_ExpectedTowers[_expTowersIndex], wished_strip_id*5 + wished_ch_id + 1);
+	EcalElectronicsId id(SMid, (int)_ExpectedTowers[_expTowersIndex], wished_strip_id, wished_ch_id );
 	memchidcollection.push_back(id);
       }
     
@@ -661,7 +661,7 @@ void EcalDCCDaqFormatter::DecodeMEM( int SMid, DCCTowerBlock *  towerblock,  Eca
 	short sampleGain = (new_data &0x3000)/4096;
 	if (  sampleGain==2 || sampleGain==3) 
 	  {
-	    EcalElectronicsId id(SMid, (int)_ExpectedTowers[_expTowersIndex], strip*5 + channel + 1);
+	    EcalElectronicsId id(SMid, (int)_ExpectedTowers[_expTowersIndex], strip, channel );
 	    memgaincollection.push_back(id);
 	    
 	    LogWarning("EcalRawToDigiGainZero")  << "@SUB=EcalDCCDaqFormatter:decodeMem"

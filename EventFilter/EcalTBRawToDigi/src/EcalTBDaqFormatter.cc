@@ -1,7 +1,7 @@
 /*  
  *
- *  $Date: 2007/03/19 05:32:53 $
- *  $Revision: 1.41 $
+ *  $Date: 2007/03/25 22:53:31 $
+ *  $Revision: 1.42 $
  *  \author  N. Marinelli IASA 
  *  \author G. Della Ricca
  *  \author G. Franzoni
@@ -614,7 +614,7 @@ void EcalTBDaqFormatter::DecodeMEM( DCCTowerBlock *  towerblock,  EcalPnDiodeDig
 				    << " (according to DCC header channel status)";
       
       // chosing channel 1 as representative as a dummy...
-      EcalElectronicsId id(1, (int)_ExpectedTowers[_expTowersIndex], 1);
+      EcalElectronicsId id(1, (int)_ExpectedTowers[_expTowersIndex], 1, 1);
       memttidcollection.push_back(id);
       ++ _expTowersIndex;
       return; // if NOT a mem tt block - do not build any Pn digis
@@ -637,7 +637,7 @@ void EcalTBDaqFormatter::DecodeMEM( DCCTowerBlock *  towerblock,  EcalPnDiodeDig
 
       // reporting mem-tt block size problem
       // chosing channel 1 as representative as a dummy...
-      EcalElectronicsId id(1, (int)_ExpectedTowers[_expTowersIndex], 1);
+      EcalElectronicsId id(1, (int)_ExpectedTowers[_expTowersIndex], 1, 1);
       memblocksizecollection.push_back(id);
 
       ++ _expTowersIndex;
@@ -665,7 +665,7 @@ void EcalTBDaqFormatter::DecodeMEM( DCCTowerBlock *  towerblock,  EcalPnDiodeDig
 				    << "  strip " <<  strip_id << "  cry " << xtal_id;
 	
 	// report on crystal with unexpected indices
-	EcalElectronicsId id(1, (int)_ExpectedTowers[_expTowersIndex], (wished_strip_id-1)*5 + wished_ch_id);
+	EcalElectronicsId id(1, (int)_ExpectedTowers[_expTowersIndex], wished_strip_id,  wished_ch_id);
 	memchidcollection.push_back(id);
       }
     
@@ -736,7 +736,7 @@ void EcalTBDaqFormatter::DecodeMEM( DCCTowerBlock *  towerblock,  EcalPnDiodeDig
 	short sampleGain = (new_data &0x3000)/4096;
 	if (  sampleGain==2 || sampleGain==3) 
 	  {
-	    EcalElectronicsId id(1, (int)_ExpectedTowers[_expTowersIndex], strip*5 + channel + 1);
+	    EcalElectronicsId id(1, (int)_ExpectedTowers[_expTowersIndex], strip, channel);
 	    memgaincollection.push_back(id);
 	    
 	    LogWarning("EcalTBRawToDigiGainZero")  << "@SUB=EcalTBDaqFormatter:decodeMem"
