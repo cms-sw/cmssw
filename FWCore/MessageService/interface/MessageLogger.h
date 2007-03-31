@@ -19,7 +19,7 @@
 //         Created:  Fri Nov 11 16:38:19 CST 2005
 //     Major Split:  Tue Feb 14 15:00:00 CST 2006
 //			See FWCore/MessageLogger/MessageLogger.h
-// $Id: MessageLogger.h,v 1.5 2006/08/06 03:29:10 chrjones Exp $
+// $Id: MessageLogger.h,v 1.6 2007/03/04 05:48:07 wmtan Exp $
 //
 
 // system include files
@@ -73,7 +73,7 @@ public:
 
   static 
   bool  anyDebugEnabled() { return anyDebugEnabled_; }
-  
+
 private:
   // put an ErrorLog object here, and maybe more
 

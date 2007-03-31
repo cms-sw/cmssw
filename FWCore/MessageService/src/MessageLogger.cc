@@ -8,7 +8,7 @@
 //
 // Original Author:  W. Brown, M. Fischler
 //         Created:  Fri Nov 11 16:42:39 CST 2005
-// $Id: MessageLogger.cc,v 1.15 2006/08/22 13:30:08 marafino Exp $
+// $Id: MessageLogger.cc,v 1.16 2007/03/04 05:50:58 wmtan Exp $
 //
 // Change log
 //
@@ -25,6 +25,9 @@
 //			correct module name
 //
 // 4 mf   6/27/06	Between events the run/event is previous one
+//
+// 5  mf  3/30/07	Support for --jobreport option
+
 
 // system include files
 // user include files
@@ -55,7 +58,7 @@ namespace service {
 
 bool edm::service::MessageLogger::anyDebugEnabled_   = false;
 bool edm::service::MessageLogger::everyDebugEnabled_ = false;
-
+  
 //
 // constructors and destructor
 //
@@ -129,8 +132,6 @@ MessageLogger( ParameterSet const & iPS
     suppression_levels_[*it] = ELseverityLevel::ELsev_warning;
   }
   
-
-
   // set up for tracking whether current module is debug-enabled 
   // (and info-enabled and warning-enabled)
   if ( debugModules.empty()) {
@@ -149,6 +150,13 @@ MessageLogger( ParameterSet const & iPS
       } else {
         debugEnabledModules_.insert(*it); 
       }
+  }
+
+  								// change log 5
+  std::string jr_name = edm::MessageDrop::instance()->jobreport_name; 
+  if (!jr_name.empty()) {			
+    std::string * jr_name_p = new std::string(jr_name);
+    MessageLoggerQ::JOB( jr_name_p ); 
   }
   
   MessageLoggerQ::CFG( new ParameterSet(iPS) );

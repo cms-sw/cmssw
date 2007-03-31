@@ -584,7 +584,6 @@ void
   // decide whether to configure any job reports at all		// Changelog 19
   bool jobReportExists  = false;
   bool enableJobReports = false;
-  #define DEFINE_THIS_TO_MAKE_REPORTS_THE_DEFAULT
   #ifdef DEFINE_THIS_TO_MAKE_REPORTS_THE_DEFAULT
   enableJobReports = true;
   #endif
