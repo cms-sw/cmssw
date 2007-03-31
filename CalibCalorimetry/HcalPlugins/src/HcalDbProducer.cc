@@ -13,7 +13,7 @@
 //
 // Original Author:  Fedor Ratnikov
 //         Created:  Tue Aug  9 19:10:10 CDT 2005
-// $Id: HcalDbProducer.cc,v 1.12 2006/10/18 23:37:50 fedor Exp $
+// $Id: HcalDbProducer.cc,v 1.13 2006/10/26 19:26:45 wmtan Exp $
 //
 //
 
@@ -50,7 +50,7 @@
 
 HcalDbProducer::HcalDbProducer( const edm::ParameterSet& fConfig)
   : ESProducer(),
-    mService (new HcalDbService ()),
+    mService (new HcalDbService (fConfig)),
     mDumpRequest (),
     mDumpStream(0)
 {
@@ -67,6 +67,13 @@ HcalDbProducer::HcalDbProducer( const edm::ParameterSet& fConfig)
 		   );
   
   //now do what ever other initialization is needed
+  m_hbEScale = fConfig.getUntrackedParameter <double> ("hbEScale",1.);
+  m_hesEScale = fConfig.getUntrackedParameter <double> ("hesEScale",1.);
+  m_hedEScale = fConfig.getUntrackedParameter <double> ("hedEScale",1.);
+  m_hoEScale = fConfig.getUntrackedParameter <double> ("hoEScale",1.);
+  m_hf1EScale = fConfig.getUntrackedParameter <double> ("hf1EScale",1.);
+  m_hf2EScale = fConfig.getUntrackedParameter <double> ("hf2EScale",1.);
+
   mDumpRequest = fConfig.getUntrackedParameter <std::vector <std::string> > ("dump", std::vector<std::string>());
   if (!mDumpRequest.empty()) {
     std::string otputFile = fConfig.getUntrackedParameter <std::string> ("file", "");
