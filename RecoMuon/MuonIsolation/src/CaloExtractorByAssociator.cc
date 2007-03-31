@@ -19,6 +19,7 @@
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
+#include "TrackingTools/TrackAssociator/interface/TrackAssociatorParameters.h"
 #include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
 
 using namespace edm;
@@ -27,7 +28,6 @@ using namespace reco;
 using namespace muonisolation;
 
 CaloExtractorByAssociator::CaloExtractorByAssociator(const ParameterSet& par) :
-  theCaloTowerCollectionLabel(par.getParameter<edm::InputTag>("CaloTowerCollectionLabel")),
   theUseRecHitsFlag(par.getParameter<bool>("UseRecHitsFlag")),
   theDepositLabel(par.getUntrackedParameter<string>("DepositLabel")),
   theDepositInstanceLabels(par.getParameter<std::vector<std::string> >("DepositInstanceLabels")),
@@ -50,16 +50,13 @@ CaloExtractorByAssociator::CaloExtractorByAssociator(const ParameterSet& par) :
   thePropagator(0),
   thePrintTimeReport(par.getUntrackedParameter<bool>("PrintTimeReport"))
 {
+  theAssociatorParameters = new TrackAssociatorParameters(par.getParameter<edm::ParameterSet>("TrackAssociatorParameters"));
   theAssociator = new TrackDetectorAssociator();
-  theAssociator->theCaloTowerCollectionLabel = theCaloTowerCollectionLabel;
-  theAssociator->theEBRecHitCollectionLabel = par.getParameter<edm::InputTag>("EBRecHitCollectionLabel");
-  theAssociator->theEERecHitCollectionLabel = par.getParameter<edm::InputTag>("EERecHitCollectionLabel");
-  theAssociator->theHBHERecHitCollectionLabel = par.getParameter<edm::InputTag>("HBHERecHitCollectionLabel");
-  theAssociator->theHORecHitCollectionLabel = par.getParameter<edm::InputTag>("HORecHitCollectionLabel");  
 }
 
 CaloExtractorByAssociator::~CaloExtractorByAssociator(){
   if (thePrintTimeReport) TimingReport::current()->dump(std::cout);
+  if (theAssociatorParameters) delete theAssociatorParameters;
   if (theAssociator) delete theAssociator;
   if (thePropagator) delete thePropagator;
 }
@@ -112,31 +109,13 @@ std::vector<MuIsoDeposit> CaloExtractorByAssociator::deposits( const Event & eve
   MuIsoDeposit depHcal(theDepositInstanceLabels[1], muonDir);
   MuIsoDeposit depHOcal(theDepositInstanceLabels[2], muonDir);
 
-  TrackDetectorAssociator::AssociatorParameters asParams;
-  asParams.useMuon = false;
-  asParams.dREcal = theDR_Max;
-  asParams.dRHcal = theDR_Max;
-  asParams.dREcalPreselection = asParams.dREcal;
-  asParams.dRHcalPreselection = asParams.dRHcal;
-  if (theUseRecHitsFlag){
-    asParams.useCalo = false;
-    asParams.useEcal = true;
-    asParams.useHcal = true;
-    asParams.useHO = true;
-  } else {
-    asParams.useCalo = true;
-    asParams.useEcal = false;
-    asParams.useHcal = false;
-    asParams.useHO = false;
-  }
-
   edm::ESHandle<MagneticField> bField;
   eventSetup.get<IdealMagneticFieldRecord>().get(bField);
 
 
   reco::TransientTrack tMuon(muon, &*bField);
   FreeTrajectoryState iFTS = tMuon.initialFreeState();
-  TrackDetMatchInfo mInfo = theAssociator->associate(event, eventSetup, iFTS, asParams);
+  TrackDetMatchInfo mInfo = theAssociator->associate(event, eventSetup, iFTS, *theAssociatorParameters);
 
   depEcal.setVeto(Veto(Direction(mInfo.trkGlobPosAtEcal.eta(), mInfo.trkGlobPosAtEcal.phi()),
 		       theDR_Veto_E));

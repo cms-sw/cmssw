@@ -8,9 +8,9 @@
  *  All work is done by TrackDetectorAssociator. Because of the heavy
  *  weight of the tool, all extractions can (should?) be placed in a single place.
  *  
- *  $Date: 2007/02/14 10:21:11 $
+ *  $Date: 2007/03/30 08:36:40 $
  *  $Revision: 1.1 $
- *  $Id: CaloExtractorByAssociator.h,v 1.1 2007/02/14 10:21:11 slava77 Exp $
+ *  $Id: CaloExtractorByAssociator.h,v 1.1 2007/03/30 08:36:40 slava77 Exp $
  *  \author S. Krutelyov
  */
 
@@ -27,6 +27,7 @@
 
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
+class TrackAssociatorParameters;
 class TrackDetectorAssociator;
 class Propagator;
 
@@ -48,9 +49,6 @@ public:
     deposits(const edm::Event & ev, const edm::EventSetup & evSetup, const reco::Track & track) const;
 
 private:
-  // CaloTower Collection Label
-  edm::InputTag theCaloTowerCollectionLabel;
-
 
   //use towers or rec hits
   bool theUseRecHitsFlag;
@@ -83,6 +81,7 @@ private:
   // Vector of calo Ids to veto
   std::vector<DetId> theVetoCollection;
 
+  TrackAssociatorParameters* theAssociatorParameters;
   TrackDetectorAssociator* theAssociator;  
   mutable Propagator* thePropagator; 
 
