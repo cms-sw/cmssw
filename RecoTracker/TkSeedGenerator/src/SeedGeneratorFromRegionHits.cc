@@ -5,6 +5,7 @@
 
 #include "RecoTracker/TkTrackingRegions/interface/OrderedHitsGenerator.h"
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
+#include "RecoTracker/TkSeedingLayers/interface/SeedComparitor.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -15,13 +16,15 @@
 template <class T> T sqr( T t) {return t*t;}
 
 SeedGeneratorFromRegionHits::SeedGeneratorFromRegionHits(
-  OrderedHitsGenerator *ohg, const edm::ParameterSet & cfg)
-  : theHitsGenerator(ohg), theConfig(cfg)
+  OrderedHitsGenerator *ohg, const edm::ParameterSet & cfg,
+  SeedComparitor * asc)
+  : theHitsGenerator(ohg), theConfig(cfg), theComparitor(asc)
 { }
 
 SeedGeneratorFromRegionHits::~SeedGeneratorFromRegionHits()
 {
   delete theHitsGenerator;
+  delete theComparitor;
 }
 
 void SeedGeneratorFromRegionHits::run(TrajectorySeedCollection & seedCollection, 
@@ -37,7 +40,13 @@ void SeedGeneratorFromRegionHits::run(TrajectorySeedCollection & seedCollection,
 
   unsigned int nHitss =  hitss.size();
   for (unsigned int iHits = 0; iHits < nHitss; ++iHits) { 
-    SeedFromConsecutiveHits seedfromhits( hitss[iHits], region.origin(), vtxerr, es, theConfig);
-    if(seedfromhits.isValid()) seedCollection.push_back( seedfromhits.TrajSeed() );
+    const SeedingHitSet & hits =  hitss[iHits];
+    if (!theComparitor || theComparitor->compatible( hits ) ) {
+      SeedFromConsecutiveHits seedfromhits( hits, region.origin(), vtxerr, es, theConfig);
+      if(seedfromhits.isValid()) {
+        std::cout << "seed added!" << std::endl;
+        seedCollection.push_back( seedfromhits.TrajSeed() );
+      }
+    }
   }
 }

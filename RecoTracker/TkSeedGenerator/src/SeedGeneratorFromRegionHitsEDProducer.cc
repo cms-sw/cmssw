@@ -12,6 +12,9 @@
 #include "RecoTracker/TkTrackingRegions/interface/OrderedHitsGeneratorFactory.h"
 #include "RecoTracker/TkTrackingRegions/interface/OrderedHitsGenerator.h"
 
+#include "RecoTracker/TkSeedingLayers/interface/SeedComparitorFactory.h"
+#include "RecoTracker/TkSeedingLayers/interface/SeedComparitor.h"
+
 #include "RecoTracker/TkSeedGenerator/interface/SeedGeneratorFromRegionHits.h"
 
 
@@ -41,7 +44,13 @@ void SeedGeneratorFromRegionHitsEDProducer::beginJob(const edm::EventSetup& es)
   OrderedHitsGenerator*  hitsGenerator = 
         OrderedHitsGeneratorFactory::get()->create( hitsfactoryName, hitsfactoryPSet);
 
-  theGenerator = new SeedGeneratorFromRegionHits(hitsGenerator, theConfig); // config is passed temporary!!!!
+  edm::ParameterSet comparitorPSet =
+      theConfig.getParameter<edm::ParameterSet>("SeedComparitorPSet");
+  std::string comparitorName = comparitorPSet.getParameter<std::string>("ComponentName");
+  SeedComparitor * aComparitor = (comparitorName == "none") ? 
+      0 :  SeedComparitorFactory::get()->create( comparitorName, comparitorPSet);   
+
+  theGenerator = new SeedGeneratorFromRegionHits(hitsGenerator, theConfig, aComparitor); // config is passed temporary!!!!
   
 }
 
@@ -55,7 +64,7 @@ void SeedGeneratorFromRegionHitsEDProducer::produce(edm::Event& ev, const edm::E
 
   for (IR ir=regions.begin(), irEnd=regions.end(); ir < irEnd; ++ir) {
     const TrackingRegion & region = **ir;
-    std::cout << region.name() << std::endl;
+//    std::cout << region.name() << std::endl;
 
     // make job
     theGenerator->run(*result, region, ev,es);

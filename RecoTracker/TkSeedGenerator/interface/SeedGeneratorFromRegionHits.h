@@ -6,13 +6,17 @@
 
 class TrackingRegion;
 class OrderedHitsGenerator;
+class SeedComparitor;
 namespace edm { class Event; class EventSetup; }
 
 class SeedGeneratorFromRegionHits {
 public:
 
   //ctor,  ParameterSet is passed temporary!!!!
-  SeedGeneratorFromRegionHits(OrderedHitsGenerator *, const edm::ParameterSet &);
+  SeedGeneratorFromRegionHits(
+    OrderedHitsGenerator * aGenerator, 
+    const edm::ParameterSet & cfg, 
+    SeedComparitor * aComparitor = 0);
 
   //dtor
   ~SeedGeneratorFromRegionHits();
@@ -24,6 +28,7 @@ public:
 private:
   OrderedHitsGenerator * theHitsGenerator;
   edm::ParameterSet theConfig; //  temporary 
+  SeedComparitor * theComparitor;
 
 };
 #endif 
