@@ -1,0 +1,12 @@
+<use name=FWCore/Framework>
+<use name=Foundation/PluginManager>
+<use name=FWCore/ParameterSet>
+<use name=DataFormats/TrajectorySeed>
+<flags SEAL_PLUGIN_NAME="TrackingToolsRoadSearchEventFilter">
+<export>
+   <lib name=TrackingToolsRoadSearchEventFilter>
+   <use name=FWCore/Framework>
+   <use name=Foundation/PluginManager>
+   <use name=FWCore/ParameterSet>
+   <use name=DataFormats/TrajectorySeed>
+</export>
