@@ -2,7 +2,7 @@
 //
 // Original Author:  Gero FLUCKE
 //         Created:  Mon Mar  5 16:32:01 CET 2007
-// $Id$
+// $Id: CosmicGenFilterHelix.cc,v 1.1 2007/03/31 15:18:45 flucke Exp $
 
 #include "GeneratorInterface/GenFilters/interface/CosmicGenFilterHelix.h"
 
@@ -33,8 +33,11 @@
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 
+#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
+#include "PhysicsTools/UtilAlgos/interface/TFileDirectory.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+
 #include <TMath.h>
-#include <TFile.h>
 #include <TH1F.h>
 #include <TH2F.h>
 #include <TObjArray.h>
@@ -48,6 +51,7 @@
 // constructors and destructor
 //
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
 CosmicGenFilterHelix::CosmicGenFilterHelix(const edm::ParameterSet& cfg) 
   : theSrc(cfg.getParameter<edm::InputTag>("src")),
     theIds(cfg.getParameter<std::vector<int> >("pdgIds")),
@@ -55,7 +59,7 @@ CosmicGenFilterHelix::CosmicGenFilterHelix(const edm::ParameterSet& cfg)
     theIgnoreMaterial(cfg.getParameter<bool>("ignoreMaterial")),
     theMinP(cfg.getParameter<double>("minP")),
     theMinPt(cfg.getParameter<double>("minPt")),
-    theFile(0)
+    theDoMonitor(cfg.getUntrackedParameter<bool>("doMonitor"))
 {
   if (theIds.size() != theCharges.size()) {
     throw cms::Exception("BadConfig") << "CosmicGenFilterHelix: "
@@ -74,22 +78,11 @@ CosmicGenFilterHelix::CosmicGenFilterHelix(const edm::ParameterSet& cfg)
   theTargetCylinder = Cylinder::build(Surface::PositionType(0.,0.,0.), dummyRot, radius);
   theTargetPlaneMin = Plane::build(Surface::PositionType(0.,0.,minZ), dummyRot);
   theTargetPlaneMax = Plane::build(Surface::PositionType(0.,0.,maxZ), dummyRot);
-
-  // monitoring
-  // FIXME: change to using TFileService:  https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideTFileService
-  const std::string fileName(cfg.getUntrackedParameter<std::string>("monitorFile"));
-  if (!fileName.empty()) {
-    TDirectory *oldDir = gDirectory;
-    theFile = TFile::Open(fileName.c_str(), "RECREATE");
-    oldDir->cd();
-  }
 }
-
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 CosmicGenFilterHelix::~CosmicGenFilterHelix()
 {
-  delete theFile;
 }
 
 
@@ -97,7 +90,7 @@ CosmicGenFilterHelix::~CosmicGenFilterHelix()
 // member functions
 //
 
-// ------------ method called on each new Event  ------------
+///////////////////////////////////////////////////////////////////////////////////////////////////
 bool CosmicGenFilterHelix::filter(edm::Event &iEvent, const edm::EventSetup &iSetup)
 {
   edm::Handle<edm::HepMCProduct> hepMCEvt;
@@ -105,6 +98,7 @@ bool CosmicGenFilterHelix::filter(edm::Event &iEvent, const edm::EventSetup &iSe
   const HepMC::GenEvent *mCEvt = hepMCEvt->GetEvent();
   const MagneticField *bField = this->getMagneticField(iSetup); // should be fast (?)
   
+  ++theNumTotal;
   bool result = false;
   for (HepMC::GenEvent::particle_const_iterator iPart = mCEvt->particles_begin(),
 	 endPart = mCEvt->particles_end(); iPart != endPart; ++iPart) {
@@ -117,13 +111,14 @@ bool CosmicGenFilterHelix::filter(edm::Event &iEvent, const edm::EventSetup &iSe
     const HepLorentzVector hepMomentum((*iPart)->momentum());
     const GlobalVector mom(hepMomentum.x(), hepMomentum.y(), hepMomentum.z());
 
-    if (theFile) this->monitorStart(vert, mom, charge, theHistsBefore);
+    if (theDoMonitor) this->monitorStart(vert, mom, charge, theHistsBefore);
 
     if (this->propagateToCutCylinder(vert, mom, charge, bField)) {
       result = true;
     }
   }
 
+  if (result) ++theNumPass;
   return result;
 }
 
@@ -140,69 +135,38 @@ bool CosmicGenFilterHelix::propagateToCutCylinder(const GlobalPoint &vertStart,
 
   const FreeTrajectoryState fts(GlobalTrajectoryParameters(vertStart, momStart, charge, field));
 
-//   double paths[3] = {-9999.};
   bool result = true;
   TsosPath aTsosPath(propagator.propagateWithPath(fts, *theTargetCylinder));
   if (!aTsosPath.first.isValid()) {
     result = false;
   } else if (aTsosPath.first.globalPosition().z() < theTargetPlaneMin->position().z()) {
-//     paths[0] = aTsosPath.second;
-//     std::cout << "CosmicGenFilterHelix: at cylinder, z/phi "
-// 	      << aTsosPath.first.globalPosition().z() << " / " 
-// 	      << aTsosPath.first.globalPosition().phi() * TMath::RadToDeg() << "\n"
-// 	      << "    global dir. phi/theta/z "
-// 	      << aTsosPath.first.globalDirection().phi() * TMath::RadToDeg() << " / "
-// 	      << aTsosPath.first.globalDirection().theta()  * TMath::RadToDeg()  << " / "
-// 	      << aTsosPath.first.globalDirection().z() << "\n"; 
+    // If on cylinder, but outside minimum z, try minimum z-plane:
+    // (Would it be possible to miss rdius on plane, but reach cylinder afterwards in z-range?
+    //  No, at least not in B-field parallel to z-axis which is cylinder axis.)
     aTsosPath = propagator.propagateWithPath(fts, *theTargetPlaneMin);
     if (!aTsosPath.first.isValid()
 	|| aTsosPath.first.globalPosition().perp() > theTargetCylinder->radius()) {
       result = false;
     }
-//     std::cout << " at plane min";
-//     if (aTsosPath.first.isValid()) {
-//       paths[1] = aTsosPath.second;
-//       std::cout << " r = " << aTsosPath.first.globalPosition().perp() << " \n";
-//     } else {
-//       std::cout << " invalid!\n";
-//     }
   } else if (aTsosPath.first.globalPosition().z() > theTargetPlaneMax->position().z()) {
-//     paths[0] = aTsosPath.second;
-//     std::cout << "CosmicGenFilterHelix: at cylinder, z/phi "
-// 	      << aTsosPath.first.globalPosition().z() << " / " 
-// 	      << aTsosPath.first.globalPosition().phi() * TMath::RadToDeg() << "\n"
-// 	      << "  global dir. phi/theta/z "
-// 	      << aTsosPath.first.globalDirection().phi() * TMath::RadToDeg() << " / " 
-// 	      << aTsosPath.first.globalDirection().theta()  * TMath::RadToDeg() << " / " 
-// 	      << aTsosPath.first.globalDirection().z() << "\n"; 
+    // Analog for outside maximum z:
     aTsosPath = propagator.propagateWithPath(fts, *theTargetPlaneMax);
     if (!aTsosPath.first.isValid()
 	|| aTsosPath.first.globalPosition().perp() > theTargetCylinder->radius()) {
       result = false;
     }
-//     std::cout << " at plane max";
-//     if (aTsosPath.first.isValid()) {
-//       paths[2] = aTsosPath.second;
-//       std::cout << " r = " << aTsosPath.first.globalPosition().perp() << " \n";
-//     } else {
-//       std::cout << " invalid!\n";
-//     }
   }
 
-  if (result && theFile) {
+  if (result && theDoMonitor) {
     const GlobalVector momEnd(aTsosPath.first.globalMomentum());
     if (momEnd.perp2() >= theMinPt*theMinPt && momEnd.mag2() >= theMinP*theMinP) {
       const GlobalPoint vertEnd(aTsosPath.first.globalPosition());
       this->monitorStart(vertStart, momStart, charge, theHistsAfter);
-      this->monitorEnd(vertEnd, momEnd, vertStart, momStart, theHistsAfter);
+      this->monitorEnd(vertEnd, momEnd, vertStart, momStart, aTsosPath.second, theHistsAfter);
     } else {
       result = false;
     }
   }
-//   if (-9999. != paths[0]){
-//     std::cout << "CosmicGenFilterHelix: paths cyl/min/max " << paths[0] << " / " 
-// 	      << paths[1] << " / " << paths[2] << "\n" << std::endl;
-//   }
 
   return result;
 }
@@ -211,135 +175,136 @@ bool CosmicGenFilterHelix::propagateToCutCylinder(const GlobalPoint &vertStart,
 // ------------ method called once each job just before starting event loop  ------------
 void CosmicGenFilterHelix::beginJob(const edm::EventSetup&)
 {
-  if (theFile) { // FIXME: in future use TFileService
+  if (theDoMonitor) {
     this->createHistsStart("start", theHistsBefore);
     this->createHistsStart("startAfter", theHistsAfter);
-    // must be after the line above: hist indices are static in monitorStart)(...)
+    // must be after the line above: hist indices are static in monitorStart(...)
     this->createHistsEnd("end", theHistsAfter);
   }
+
+  theNumTotal = theNumPass = 0;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void CosmicGenFilterHelix::createHistsStart(const char *dirName, TObjArray &hists)
 {
-  TDirectory *oldDir = gDirectory;
-  TDirectory *dir = theFile->mkdir(dirName, dirName);
-  (dir ? dir : theFile)->cd();
-  hists.Add(new TH1F("momentumP", "|p(#mu^{+})| (start);|p| [GeV]",100, 0., 1000.));
-  hists.Add(new TH1F("momentumM", "|p(#mu^{-})| (start);|p| [GeV]",100, 0., 1000.));
-  hists.Add(new TH1F("momentum2", "|p(#mu)| (start);|p| [GeV]",100, 0., 25.));
+  edm::Service<TFileService> fs;
+  TFileDirectory fd(fs->mkdir(dirName, dirName));
+  
+  hists.Add(fd.make<TH1F>("momentumP", "|p(#mu^{+})| (start);|p| [GeV]",100, 0., 1000.));
+  hists.Add(fd.make<TH1F>("momentumM", "|p(#mu^{-})| (start);|p| [GeV]",100, 0., 1000.));
+  hists.Add(fd.make<TH1F>("momentum2", "|p(#mu)| (start);|p| [GeV]",100, 0., 25.));
   const int kNumBins = 50;
   double pBinsLog[kNumBins+1] = {0.}; // fully initialised with 0.
   this->equidistLogBins(pBinsLog, kNumBins, 1., 4000.);
-  hists.Add(new TH1F("momentumLog", "|p(#mu)| (start);|p| [GeV]", kNumBins, pBinsLog));
-  hists.Add(new TH1F("phi", "start p_{#phi(#mu)};#phi", 100, -TMath::Pi(), TMath::Pi()));
-  hists.Add(new TH1F("cosPhi", "cos(p_{#phi(#mu)}) (start);cos(#phi)", 100, -1., 1.));
-  hists.Add(new TH1F("phiXz", "start p_{#phi_{xz}(#mu)};#phi_{xz}",
-		     100, -TMath::Pi(), TMath::Pi()));
-  hists.Add(new TH1F("theta", "#theta(#mu) (start);#theta", 100, 0., TMath::Pi()));
-  hists.Add(new TH1F("thetaY", "#theta_{y}(#mu) (start);#theta_{y}", 100, 0., TMath::Pi()/2.));
+  hists.Add(fd.make<TH1F>("momentumLog", "|p(#mu)| (start);|p| [GeV]", kNumBins, pBinsLog));
+  hists.Add(fd.make<TH1F>("phi", "start p_{#phi(#mu)};#phi", 100, -TMath::Pi(), TMath::Pi()));
+  hists.Add(fd.make<TH1F>("cosPhi", "cos(p_{#phi(#mu)}) (start);cos(#phi)", 100, -1., 1.));
+  hists.Add(fd.make<TH1F>("phiXz", "start p_{#phi_{xz}(#mu)};#phi_{xz}",
+                          100, -TMath::Pi(), TMath::Pi()));
+  hists.Add(fd.make<TH1F>("theta", "#theta(#mu) (start);#theta", 100, 0., TMath::Pi()));
+  hists.Add(fd.make<TH1F>("thetaY", "#theta_{y}(#mu) (start);#theta_{y}", 100,0.,TMath::Pi()/2.));
   
-  hists.Add(new TH2F("momVsPhi", "|p(#mu)| vs #phi (start);#phi;|p| [GeV]",
-		     50, -TMath::Pi(), TMath::Pi(), 50, 1.5, 1000.));
-  hists.Add(new TH2F("momVsTheta", "|p(#mu)| vs #theta (start);#theta;|p| [GeV]",
-		     50, 0., TMath::Pi(), 50, 1.5, 1000.));
-  hists.Add(new TH2F("momVsThetaY", "|p(#mu)| vs #theta_{y} (start);#theta_{y};|p| [GeV]",
-		     50, 0., TMath::Pi()/2., 50, 1.5, 1000.));
-  hists.Add(new TH2F("momVsZ", "|p(#mu)| vs z (start);z [cm];|p| [GeV]",
-		     50, -1600., 1600., 50, 1.5, 1000.));
-  hists.Add(new TH2F("thetaVsZ", "#theta vs z (start);z [cm];#theta",
-		     50, -1600., 1600., 50, 0., TMath::Pi()));
-  hists.Add(new TH2F("yVsThetaY", "#theta_{y}(#mu) vs y (start);#theta_{y};y [cm]",
-		     50, 0., TMath::Pi()/2., 50, -1000., 1000.));
-  hists.Add(new TH2F("yVsThetaYnoR", "#theta_{y}(#mu) vs y (start, barrel);#theta_{y};y [cm]",
-		     50, 0., TMath::Pi()/2., 50, -1000., 1000.));
+  hists.Add(fd.make<TH2F>("momVsPhi", "|p(#mu)| vs #phi (start);#phi;|p| [GeV]",
+                          50, -TMath::Pi(), TMath::Pi(), 50, 1.5, 1000.));
+  hists.Add(fd.make<TH2F>("momVsTheta", "|p(#mu)| vs #theta (start);#theta;|p| [GeV]",
+                          50, 0., TMath::Pi(), 50, 1.5, 1000.));
+  hists.Add(fd.make<TH2F>("momVsThetaY", "|p(#mu)| vs #theta_{y} (start);#theta_{y};|p| [GeV]",
+                          50, 0., TMath::Pi()/2., 50, 1.5, 1000.));
+  hists.Add(fd.make<TH2F>("momVsZ", "|p(#mu)| vs z (start);z [cm];|p| [GeV]",
+                          50, -1600., 1600., 50, 1.5, 1000.));
+  hists.Add(fd.make<TH2F>("thetaVsZ", "#theta vs z (start);z [cm];#theta",
+                          50, -1600., 1600., 50, 0., TMath::Pi()));
+  hists.Add(fd.make<TH2F>("yVsThetaY", "#theta_{y}(#mu) vs y (start);#theta_{y};y [cm]",
+                          50, 0., TMath::Pi()/2., 50, -1000., 1000.));
+  hists.Add(fd.make<TH2F>("yVsThetaYnoR", "#theta_{y}(#mu) vs y (start, barrel);#theta_{y};y [cm]",
+                          50, 0., TMath::Pi()/2., 50, -1000., 1000.));
   
-  hists.Add(new TH1F("radius", "start radius;r [cm]", 100, 0., 1000.));
-  hists.Add(new TH1F("z", "start z;z [cm]", 100, -1600., 1600.));
-  hists.Add(new TH2F("xyPlane", "start xy;x [cm];y [cm]", 50, -1000., 1000.,
-		     50, -1000., 1000.));
-  hists.Add(new TH2F("rzPlane","start rz (y < 0 #Rightarrow r_{#pm} = -r);z [cm];r_{#pm} [cm]",
-		     50, -1600., 1600., 50, -1000., 1000.));
-  
-  oldDir->cd();
+  hists.Add(fd.make<TH1F>("radius", "start radius;r [cm]", 100, 0., 1000.));
+  hists.Add(fd.make<TH1F>("z", "start z;z [cm]", 100, -1600., 1600.));
+  hists.Add(fd.make<TH2F>("xyPlane", "start xy;x [cm];y [cm]", 50, -1000., 1000.,
+                          50, -1000., 1000.));
+  hists.Add(fd.make<TH2F>("rzPlane",
+                          "start rz (y < 0 #Rightarrow r_{#pm} = -r);z [cm];r_{#pm} [cm]",
+                          50, -1600., 1600., 50, -1000., 1000.));
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void CosmicGenFilterHelix::createHistsEnd(const char *dirName, TObjArray &hists)
 {
-  TDirectory *oldDir = gDirectory;
-  TDirectory *dir = theFile->mkdir(dirName, dirName);
-  (dir ? dir : theFile)->cd();
+  edm::Service<TFileService> fs;
+  TFileDirectory fd(fs->mkdir(dirName, dirName));
 
   const int kNumBins = 50;
   double pBinsLog[kNumBins+1] = {0.}; // fully initialised with 0.
   this->equidistLogBins(pBinsLog, kNumBins, 1., 4000.);
 
   // take care: hist names must differ from those in createHistsStart!
-  hists.Add(new TH1F("momEnd", "|p_{end}|;p [GeV]", 100, 0., 1000.));
-  hists.Add(new TH1F("momEndLog", "|p_{end}|;p [GeV]", kNumBins, pBinsLog));
-  hists.Add(new TH1F("ptEnd", "p_{t} (end);p_{t} [GeV]", 100, 0., 750.));
-  hists.Add(new TH1F("ptEndLog", "p_{t} (end);p_{t} [GeV]", kNumBins, pBinsLog));
-  hists.Add(new TH1F("phiXzEnd", "#phi_{xz} (end);#phi_{xz}", 100, -TMath::Pi(), TMath::Pi()));
-  hists.Add(new TH1F("thetaYEnd","#theta_{y} (end);#theta_{y}", 100, 0., TMath::Pi()));
+  hists.Add(fd.make<TH1F>("pathEnd", "path until cylinder;s [cm]", 100, 0., 2000.));
+  hists.Add(fd.make<TH1F>("momEnd", "|p_{end}|;p [GeV]", 100, 0., 1000.));
+  hists.Add(fd.make<TH1F>("momEndLog", "|p_{end}|;p [GeV]", kNumBins, pBinsLog));
+  hists.Add(fd.make<TH1F>("ptEnd", "p_{t} (end);p_{t} [GeV]", 100, 0., 750.));
+  hists.Add(fd.make<TH1F>("ptEndLog", "p_{t} (end);p_{t} [GeV]", kNumBins, pBinsLog));
+  hists.Add(fd.make<TH1F>("phiXzEnd", "#phi_{xz} (end);#phi_{xz}", 100,-TMath::Pi(),TMath::Pi()));
+  hists.Add(fd.make<TH1F>("thetaYEnd","#theta_{y} (end);#theta_{y}", 100, 0., TMath::Pi()));
   
-  hists.Add(new TH1F("momStartEnd", "|p_{start}|-|p_{end}|;#Deltap [GeV]",100,0.,15.));
-  hists.Add(new TH1F("momStartEndRel","(p_{start}-p_{end})/p_{start};#Deltap_{rel}", 100,.0,1.));
-  hists.Add(new TH1F("phiXzStartEnd", "#phi_{xz,start}-#phi_{xz,end};#Delta#phi_{xz}",
-		     100,-1.,1.));
-  hists.Add(new TH1F("thetaYStartEnd","#theta_{y,start}-#theta_{y,end};#Delta#theta_{y}",
-		     100,-1.,1.));
+  hists.Add(fd.make<TH1F>("momStartEnd", "|p_{start}|-|p_{end}|;#Deltap [GeV]",100,0.,15.));
+  hists.Add(fd.make<TH1F>("momStartEndRel", "(p_{start}-p_{end})/p_{start};#Deltap_{rel}",
+                          100,.0,1.));
+  hists.Add(fd.make<TH1F>("phiXzStartEnd", "#phi_{xz,start}-#phi_{xz,end};#Delta#phi_{xz}",
+                          100,-1.,1.));
+  hists.Add(fd.make<TH1F>("thetaYStartEnd","#theta_{y,start}-#theta_{y,end};#Delta#theta_{y}",
+                          100,-1.,1.));
   
-  hists.Add(new TH2F("phiXzStartVsEnd",
-		     "#phi_{xz} start vs end;#phi_{xz}^{end};#phi_{xz}^{start}",
-		     50, -TMath::Pi(), TMath::Pi(), 50, -TMath::Pi(), TMath::Pi()));
-  hists.Add(new TH2F("thetaYStartVsEnd",
-		     "#theta_{y} start vs end;#theta_{y}^{end};#theta_{y}^{start}",
-		     50, 0., TMath::Pi(), 50, 0., TMath::Pi()/2.));
+  hists.Add(fd.make<TH2F>("phiXzStartVsEnd",
+                          "#phi_{xz} start vs end;#phi_{xz}^{end};#phi_{xz}^{start}",
+                          50, -TMath::Pi(), TMath::Pi(), 50, -TMath::Pi(), TMath::Pi()));
+  hists.Add(fd.make<TH2F>("thetaYStartVsEnd",
+                          "#theta_{y} start vs end;#theta_{y}^{end};#theta_{y}^{start}",
+                          50, 0., TMath::Pi(), 50, 0., TMath::Pi()/2.));
   
-  
-  hists.Add(new TH2F("momStartEndRelVsZ",
-		     "(p_{start}-p_{end})/p_{start} vs z_{start};z [cm];#Deltap_{rel}",
-		     50, -1600., 1600., 50,.0,.8));
-  hists.Add(new TH2F("phiXzStartEndVsZ", 
-		     "#phi_{xz,start}-#phi_{xz,end} vs z_{start};z [cm];#Delta#phi_{xz}",
-		     50, -1600., 1600., 50,-1., 1.));
-  hists.Add(new TH2F("thetaYStartEndVsZ",
-		     "#theta_{y,start}-#theta_{y,end} vs z_{start};z [cm];#Delta#theta_{y}",
-		     50, -1600., 1600., 50,-.5,.5));
-  hists.Add(new TH2F("momStartEndRelVsP",
-		     "(p_{start}-p_{end})/p_{start} vs p_{start};p [GeV];#Deltap_{rel}",
-		     kNumBins, pBinsLog, 50, .0, .8));
-  hists.Add(new TH2F("phiXzStartEndVsP", 
-		     "#phi_{xz,start}-#phi_{xz,end} vs |p|_{start};p [GeV];#Delta#phi_{xz}",
-		     kNumBins, pBinsLog, 100,-1.5, 1.5));
-  hists.Add(new TH2F("thetaYStartEndVsP",
-		     "#theta_{y,start}-#theta_{y,end} vs |p|_{start};p [GeV];#Delta#theta_{y}",
-		     kNumBins, pBinsLog, 100,-1.,1.));
+  hists.Add(fd.make<TH2F>("momStartEndRelVsZ",
+                          "(p_{start}-p_{end})/p_{start} vs z_{start};z [cm];#Deltap_{rel}",
+                          50, -1600., 1600., 50,.0,.8));
+  hists.Add(fd.make<TH2F>("phiXzStartEndVsZ", 
+                          "#phi_{xz,start}-#phi_{xz,end} vs z_{start};z [cm];#Delta#phi_{xz}",
+                          50, -1600., 1600., 50,-1., 1.));
+  hists.Add(fd.make<TH2F>("thetaYStartEndVsZ",
+                          "#theta_{y,start}-#theta_{y,end} vs z_{start};z [cm];#Delta#theta_{y}",
+                          50, -1600., 1600., 50,-.5,.5));
+  hists.Add(fd.make<TH2F>("momStartEndRelVsP",
+                          "(p_{start}-p_{end})/p_{start} vs p_{start};p [GeV];#Deltap_{rel}",
+                          kNumBins, pBinsLog, 50, .0, .8));
+  hists.Add(fd.make<TH2F>("phiXzStartEndVsP", 
+                          "#phi_{xz,start}-#phi_{xz,end} vs |p|_{start};p [GeV];#Delta#phi_{xz}",
+                          kNumBins, pBinsLog, 100,-1.5, 1.5));
+  hists.Add(fd.make<TH2F>("thetaYStartEndVsP",
+                          "#theta_{y,start}-#theta_{y,end} vs |p|_{start};p [GeV];#Delta#theta_{y}",
+                          kNumBins, pBinsLog, 100,-1.,1.));
   
   const double maxR = theTargetCylinder->radius() * 1.1;
-  hists.Add(new TH1F("radiusEnd", "end radius;r [cm]", 100, 0., maxR));
+  hists.Add(fd.make<TH1F>("radiusEnd", "end radius;r [cm]", 100, 0., maxR));
   double minZ = theTargetPlaneMin->position().z();
   minZ -= TMath::Abs(minZ) * 0.1;
   double maxZ = theTargetPlaneMax->position().z();
   maxZ += TMath::Abs(maxZ) * 0.1;
-  hists.Add(new TH1F("zEnd", "end z;z [cm]", 100, minZ, maxZ));
-  hists.Add(new TH1F("zDiff", "z_{start}-z_{end};#Deltaz [cm]", 100, -1000., 1000.));
-  hists.Add(new TH2F("xyPlaneEnd", "end xy;x [cm];y [cm]", 100, -maxR, maxR, 100, -maxR, maxR));
+  hists.Add(fd.make<TH1F>("zEnd", "end z;z [cm]", 100, minZ, maxZ));
+  hists.Add(fd.make<TH1F>("zDiff", "z_{start}-z_{end};#Deltaz [cm]", 100, -1000., 1000.));
+  hists.Add(fd.make<TH2F>("xyPlaneEnd", "end xy;x [cm];y [cm]", 100, -maxR, maxR, 100,-maxR,maxR));
   
-  hists.Add(new TH2F("rzPlaneEnd", "end rz (y<0 #Rightarrow r_{#pm}=-r);z [cm];r_{#pm} [cm]",
-		     50, minZ, maxZ, 50, -maxR, maxR));
-  hists.Add(new TH2F("thetaVsZend", "#theta vs z (end);z [cm];#theta",
-		     50, minZ, maxZ, 50, 0., TMath::Pi()));
-  
-  
-  oldDir->cd();
+  hists.Add(fd.make<TH2F>("rzPlaneEnd", "end rz (y<0 #Rightarrow r_{#pm}=-r);z [cm];r_{#pm} [cm]",
+                          50, minZ, maxZ, 50, -maxR, maxR));
+  hists.Add(fd.make<TH2F>("thetaVsZend", "#theta vs z (end);z [cm];#theta",
+                          50, minZ, maxZ, 50, 0., TMath::Pi()));
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
 void CosmicGenFilterHelix::endJob()
 {
-  if (theFile) theFile->Write(); // writes hists, delete in destructor
+  edm::LogInfo("Filter") << "@SUB=CosmicGenFilterHelix::endJob"
+                         << theNumPass << " events out of " << theNumTotal
+                         << " reached target cylinder, i.e. "
+                         << theNumPass*100./theNumTotal << "%.";
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -371,7 +336,6 @@ const MagneticField* CosmicGenFilterHelix::getMagneticField(const edm::EventSetu
 void CosmicGenFilterHelix::monitorStart(const GlobalPoint &vert, const GlobalVector &mom,
 					int charge, TObjArray &hists)
 {
-
   const double scalarMom = mom.mag();
   const double phi = mom.phi();
   const double phiXz = TMath::ATan2(mom.z(), mom.x());
@@ -430,7 +394,7 @@ void CosmicGenFilterHelix::monitorStart(const GlobalPoint &vert, const GlobalVec
 //_________________________________________________________________________________________________
 void CosmicGenFilterHelix::monitorEnd(const GlobalPoint &endVert, const GlobalVector &endMom,
 				      const GlobalPoint &vert, const GlobalVector &mom,
-				      TObjArray &hists)
+				      double path, TObjArray &hists)
 {
   const double scalarMomStart = mom.mag();
   const double phiXzStart = TMath::ATan2(mom.z(), mom.x());
@@ -448,6 +412,8 @@ void CosmicGenFilterHelix::monitorEnd(const GlobalPoint &endVert, const GlobalVe
   const double rEnd = endVert.perp();
   const double diffZ = zEnd - vert.z();
 
+  static int iPathEnd = hists.IndexOf(hists.FindObject("pathEnd"));
+  static_cast<TH1*>(hists[iPathEnd])->Fill(path);
   static int iMomEnd = hists.IndexOf(hists.FindObject("momEnd"));
   static_cast<TH1*>(hists[iMomEnd])->Fill(scalarMomEnd);
   static int iMomEndLog = hists.IndexOf(hists.FindObject("momEndLog"));
@@ -523,8 +489,3 @@ bool CosmicGenFilterHelix::equidistLogBins(double* bins, int nBins,
 
   return true;
 }
-
-
-//_________________________________________________________________________________________________
-//define this as a plug-in
-//DEFINE_FWK_MODULE(CosmicGenFilterHelix);

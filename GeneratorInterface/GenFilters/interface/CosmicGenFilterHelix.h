@@ -13,7 +13,7 @@
 ///
 /// Original Author:  Gero FLUCKE
 ///     Created:  Mon Mar  5 16:32:01 CET 2007
-/// $Id$
+/// $Id: CosmicGenFilterHelix.h,v 1.1 2007/03/31 15:18:46 flucke Exp $
 ///
 
 
@@ -34,7 +34,6 @@
 #include <vector>
 
 class MagneticField;
-class TFile;
 
 class CosmicGenFilterHelix : public edm::EDFilter {
  public:
@@ -67,15 +66,18 @@ class CosmicGenFilterHelix : public edm::EDFilter {
   Plane::ConstPlanePointer theTargetPlaneMin; /// plane closing cylinder at 'negative' side
   Plane::ConstPlanePointer theTargetPlaneMax; /// plane closing cylinder at 'positive' side
 
+  unsigned int theNumTotal; /// for final statistics: all seen events
+  unsigned int theNumPass; /// for final statistics: events with track reaching target
+
   // for monitoring:
   void createHistsStart(const char *dirName, TObjArray &hists);
   void createHistsEnd(const char *dirName, TObjArray &hists);
-  void monitorStart(const GlobalPoint &vert, const GlobalVector &mom, int charge, TObjArray &hists);
+  void monitorStart(const GlobalPoint &vert, const GlobalVector &mom, int charge,TObjArray &hists);
   void monitorEnd(const GlobalPoint &endVert, const GlobalVector &endMom,
-		  const GlobalPoint &vert, const GlobalVector &mom, TObjArray &hists);
+		  const GlobalPoint &vert, const GlobalVector &mom, double path, TObjArray &hists);
   bool equidistLogBins(double* bins, int nBins, double first, double last) const;
-  TFile*   theFile;
-  TObjArray theHistsBefore; // hists of properties from generator
-  TObjArray theHistsAfter;  // hists after successfull propagation
+  bool      theDoMonitor;   /// whether or not to fill monitor hists (needs TFileService)
+  TObjArray theHistsBefore; /// hists of properties from generator
+  TObjArray theHistsAfter;  /// hists after successfull propagation
 
 };

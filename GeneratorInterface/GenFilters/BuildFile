@@ -16,6 +16,9 @@
 <use name=TrackingTools/TrajectoryState>
 <use name=TrackingTools/TrajectoryParametrization>
 
+<use name=PhysicsTools/UtilAlgos>
+<use name=FWCore/ServiceRegistry>
+
 <flags SEAL_PLUGIN_NAME="GeneratorInterfaceGenFilters">
 <export>
 # <use name=boost>
