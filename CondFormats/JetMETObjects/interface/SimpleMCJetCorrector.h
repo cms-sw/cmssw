@@ -1,13 +1,13 @@
 //
 // Original Author:  Fedor Ratnikov Dec 27, 2006
-// $Id: MCJetCorrector.h,v 1.2 2007/01/18 01:35:11 fedor Exp $
+// $Id: SimpleMCJetCorrector.h,v 1.1 2007/03/30 23:47:53 fedor Exp $
 //
 // MC Jet Corrector
 //
 #ifndef SimpleMCJetCorrector_h
 #define SimpleMCJetCorrector_h
 
-#include "CondFormats/JetMETObjects/interface/SimpleJetCorrector.h"
+#include "CondFormats/JetMETObjects/interface/StandaloneJetCorrector.h"
 
 #include <map>
 #include <string>
@@ -15,22 +15,22 @@
 /// classes declaration
 namespace {
   class ParametrizationMCJet;
+  typedef std::map <double, ParametrizationMCJet*> ParametersMap;
 }
 
-class SimpleMCJetCorrector : public SimpleJetCorrector {
+class SimpleMCJetCorrector : public StandaloneJetCorrector {
  public:
-  SimpleMCJetCorrector () {};
+  SimpleMCJetCorrector ();
   SimpleMCJetCorrector (const std::string& fDataFile);
   virtual ~SimpleMCJetCorrector ();
 
   void init (const std::string& fDataFile);
 
-  virtual double correctionXYZT (double fPx, double fPy, double fPz, double fE, ) const;
-  virtual double correctionPtEtaPhiE (double fPt, double fEta, double fPhi, double fE, ) const;
+  virtual double correctionXYZT (double fPx, double fPy, double fPz, double fE) const;
+  virtual double correctionPtEtaPhiE (double fPt, double fEta, double fPhi, double fE) const;
 
  private:
-  typedef std::map <double, ParametrizationMCJet*> ParametersMap;
-  ParametersMap mParametrization;
+  ParametersMap* mParametrization;
 };
 
 #endif

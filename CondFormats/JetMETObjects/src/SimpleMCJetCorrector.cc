@@ -1,6 +1,6 @@
 //
 // Original Author:  Fedor Ratnikov Dec 27, 2006
-// $Id: MCJetCorrector.cc,v 1.4 2007/02/26 20:31:26 fedor Exp $
+// $Id: SimpleMCJetCorrector.cc,v 1.1 2007/03/30 23:47:54 fedor Exp $
 //
 // MC Jet Corrector
 //
@@ -11,14 +11,18 @@
 #include <fstream>
 #include <sstream>
 
+#include "Math/PtEtaPhiE4D.h"
+#include "Math/PxPyPzE4D.h"
 #include "Math/LorentzVector.h"
 typedef ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiE4D<double> > PtEtaPhiELorentzVectorD;
 typedef ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > XYZTLorentzVectorD;
 
 using namespace std;
 
+
 namespace {
   bool debug = false;
+
   /// Parametrization itself
   class ParametrizationMCJet {
   public:
@@ -80,7 +84,7 @@ namespace {
   /// Calibration parameters
   class   JetCalibrationParameterSetMCJet{
   public:
-    JetCalibrationParameterSetMCJet(string tag);
+    JetCalibrationParameterSetMCJet(const std::string& tag);
     int neta(){return etavector.size();}
     double eta(int ieta){return etavector[ieta];}
     int type(int ieta){return typevector[ieta];}
@@ -98,7 +102,7 @@ namespace {
     std::ifstream in( fDataFile.c_str() );
     
     //  if ( f1.isLocal() ){
-    if (debug) cout << " Start to read file "<<file<<endl;
+    if (debug) cout << " Start to read file "<<fDataFile<<endl;
     string line;
     while( std::getline( in, line)){
       if(!line.size() || line[0]=='#') continue;
@@ -118,42 +122,53 @@ namespace {
   
 } // namespace
 
-MCJetCorrector::MCJetCorrector (const std::string& fDataFile) {
+SimpleMCJetCorrector::SimpleMCJetCorrector ()
+  : mParametrization (0)
+{}
+
+SimpleMCJetCorrector::SimpleMCJetCorrector (const std::string& fDataFile) 
+  : mParametrization (0)
+{
   init (fDataFile);
 }
 
-void MCJetCorrector::init (const std::string& fDataFile) {
+void SimpleMCJetCorrector::init (const std::string& fDataFile) {
   // clean up map if not empty
-  for (ParametersMap::iterator it = mParametrization.begin (); it != mParametrization.end (); it++) {
-    delete it->second;
+  if (mParametrization) {
+    for (ParametersMap::iterator it = mParametrization->begin (); it != mParametrization->end (); it++) {
+      delete it->second;
+    }
+    delete mParametrization;
   }
+  mParametrization = new ParametersMap ();
   JetCalibrationParameterSetMCJet pset (fDataFile);
   if(pset.valid()){
     for (int ieta=0; ieta < pset.neta(); ieta++) {
-      mParametrization [pset.eta(ieta)]= new ParametrizationMCJet (pset.type(ieta), pset.parameters(ieta));
+      (*mParametrization) [pset.eta(ieta)]= new ParametrizationMCJet (pset.type(ieta), pset.parameters(ieta));
     }
   }
   else {
-    std::cerr << "MCJetCorrector: calibration = " << fDataFile
+    std::cerr << "SimpleMCJetCorrector: calibration = " << fDataFile
 	      << " not found! Cannot apply any correction ..." << std::endl;
   }
 }
 
-MCJetCorrector::~MCJetCorrector () {
+SimpleMCJetCorrector::~SimpleMCJetCorrector () {
   // clean up map
-  for (ParametersMap::iterator it = mParametrization.begin (); it != mParametrization.end (); it++) {
+  for (ParametersMap::iterator it = mParametrization->begin (); it != mParametrization->end (); it++) {
     delete it->second;
   }
+  delete mParametrization;
 } 
 
-virtual double correctionXYZT (double fPx, double fPy, double fPz, double fE, ) const {
+double SimpleMCJetCorrector::correctionXYZT (double fPx, double fPy, double fPz, double fE) const {
   XYZTLorentzVectorD p4 (fPx, fPy, fPz, fE);
   return correctionPtEtaPhiE (p4.Pt(), p4.Eta(), p4.Phi(), p4.E());
 }
 
 
-double MCJetCorrector::correctionPtEtaPhiE (double fPt, double fEta, double fPhi, double fE, ) const {
-  if (mParametrization.empty()) {return 1;}
+double SimpleMCJetCorrector::correctionPtEtaPhiE (double fPt, double fEta, double fPhi, double fE) const {
+  if (mParametrization->empty()) {return 1;}
   
   double et=fE / cosh (fEta);
   double eta=fabs (fEta);
@@ -162,11 +177,11 @@ double MCJetCorrector::correctionPtEtaPhiE (double fPt, double fEta, double fPhi
   if (debug) cout<<" Et and eta of jet "<<et<<" "<<eta<<endl;
 
   double etnew;
-  ParametersMap::const_iterator ip=mParametrization.upper_bound(eta);
-  if (ip==mParametrization.begin()) { 
+  ParametersMap::const_iterator ip=mParametrization->upper_bound(eta);
+  if (ip==mParametrization->begin()) { 
     etnew=ip->second->value(et); 
   }
-  else if (ip==mParametrization.end()) {
+  else if (ip==mParametrization->end()) {
     etnew=(--ip)->second->value(et);
   }
   else {
