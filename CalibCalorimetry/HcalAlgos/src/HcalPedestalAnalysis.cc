@@ -11,7 +11,7 @@
 #include <TFile.h>
 
 //
-// Michal Szleper, Oct 30, 2006
+// Michal Szleper, Mar 30, 2007
 //
 
 using namespace std;
@@ -47,6 +47,7 @@ HcalPedestalAnalysis::HcalPedestalAnalysis(const edm::ParameterSet& ps)
   m_nevtsample = ps.getUntrackedParameter<int>("nevtsample",0);
 // for compatibility with previous versions
   if(m_nevtsample==9999999) m_nevtsample=0;
+  m_pedsinADC = ps.getUntrackedParameter<int>("pedsinADC",0);
   m_hiSaveflag = ps.getUntrackedParameter<int>("hiSaveflag",0);
   m_pedValflag = ps.getUntrackedParameter<int>("pedValflag",0);
   if(m_pedValflag<0) m_pedValflag=0;
@@ -215,7 +216,7 @@ void HcalPedestalAnalysis::per2CapsHists(int flag, int id, const HcalDetId detid
 
   static const int bins=10;
   static const int bins2=100;
-  float lo=0; float hi=0;
+  float lo=-0.5; float hi=9.5;
   map<int,PEDBUNCH> _mei;
   static map<HcalDetId, map<int,float> > QieCalibMap;
   string type = "HBHE";
@@ -239,9 +240,23 @@ void HcalPedestalAnalysis::per2CapsHists(int flag, int id, const HcalDetId detid
     map<int,float> qiecalib;
     char name[1024];
     for(int i=0; i<4; i++){
-      getLinearizedADC(*m_shape,m_coder,bins,i,lo,hi);
-      qiecalib[i]=(hi-lo)/bins;
-      qiecalib[i+4]=lo+0.5;
+// we do not want pedestals in linearized ADC
+//      getLinearizedADC(*m_shape,m_coder,bins,i,lo,hi);
+//      qiecalib[i]=(hi-lo)/bins;
+//      qiecalib[i+4]=lo+0.5;
+// to have pedestals in raw ADC counts
+      if (m_pedsinADC==1) {
+        qiecalib[i]=1.;
+        qiecalib[i+4]=0.;
+      }
+// to have pedestals in fC (for the moment using average QIE calibrations only)
+      else {
+        if (type=="HF") qiecalib[i]=0.36;
+        else qiecalib[i]=0.92;
+        qiecalib[i+4]=0.;
+      }
+      lo=(-0.5-qiecalib[i+4])/qiecalib[i];
+      hi=(9.5-qiecalib[i+4])/qiecalib[i];
       sprintf(name,"%s Pedestal, eta=%d phi=%d d=%d cap=%d",type.c_str(),detid.ieta(),detid.iphi(),detid.depth(),i);  
       insert[i].first =  new TH1F(name,name,bins,lo,hi);
       sprintf(name,"%s Product, eta=%d phi=%d d=%d caps=%d*%d",type.c_str(),detid.ieta(),detid.iphi(),detid.depth(),i,(i+1)%4);  
@@ -277,7 +292,7 @@ void HcalPedestalAnalysis::per2CapsHists(int flag, int id, const HcalDetId detid
       }
     }
 //    map<int,float> qiecalib = QieCalibMap[detid];
-//    float charge1=qie1.adc()*qiecalib[qie1.capid()]+qiecalib[qie1.capid()+4];
+//    float charge1=(qie1.adc()-qiecalib[qie1.capid()+4])/qiecalib[qie1.capid()];
     if (qie1.adc()<bins){
       _mei[qie1.capid()].first->AddBinContent(qie1.adc()+1,1);
 //      _mei[qie1.capid()].first->Fill(charge1);
@@ -290,8 +305,8 @@ void HcalPedestalAnalysis::per2CapsHists(int flag, int id, const HcalDetId detid
 // fill 2 capID histo
   if(flag>0){
     map<int,float> qiecalib = QieCalibMap[detid];
-    float charge1=qie1.adc()*qiecalib[qie1.capid()]+qiecalib[qie1.capid()+4];
-    float charge2=qie2.adc()*qiecalib[qie2.capid()]+qiecalib[qie2.capid()+4];
+    float charge1=(qie1.adc()-qiecalib[qie1.capid()+4])/qiecalib[qie1.capid()];
+    float charge2=(qie2.adc()-qiecalib[qie2.capid()+4])/qiecalib[qie2.capid()];
     if (charge1*charge2<bins2){
       _mei[qie1.capid()+4*flag].first->Fill(charge1*charge2);
     }
@@ -382,7 +397,9 @@ void HcalPedestalAnalysis::GetPedConst(map<HcalDetId, map<int,PEDBUNCH> > &toolT
 
     for (int i=0; i<4; i++) {
       if(m_hiSaveflag>0) {
-        _meot->second[i].first->GetXaxis()->SetTitle("Charge, fC");
+        if (m_pedsinADC)
+        _meot->second[i].first->GetXaxis()->SetTitle("ADC");
+        else _meot->second[i].first->GetXaxis()->SetTitle("Charge, fC");
         _meot->second[i].first->GetYaxis()->SetTitle("CapID samplings");
         _meot->second[i].first->Write();
       }
@@ -400,7 +417,9 @@ void HcalPedestalAnalysis::GetPedConst(map<HcalDetId, map<int,PEDBUNCH> > &toolT
 // special histos for Shuichi
     if(m_hiSaveflag==-100){
       for(int i=16; i<19; i++){
-        _meot->second[i].first->GetXaxis()->SetTitle("Charge, fC");
+        if (m_pedsinADC)
+        _meot->second[i].first->GetXaxis()->SetTitle("ADC");
+        else _meot->second[i].first->GetXaxis()->SetTitle("Charge, fC");
         _meot->second[i].first->GetYaxis()->SetTitle("Events");
         _meot->second[i].first->Write();
       }
@@ -439,13 +458,19 @@ void HcalPedestalAnalysis::GetPedConst(map<HcalDetId, map<int,PEDBUNCH> > &toolT
       }
 // save product histos if desired
       if(m_hiSaveflag>10) {
-        _meot->second[i+4].first->GetXaxis()->SetTitle("Charge^2, fC^2");
+        if (m_pedsinADC)
+        _meot->second[i+4].first->GetXaxis()->SetTitle("ADC^2");
+        else _meot->second[i+4].first->GetXaxis()->SetTitle("Charge^2, fC^2");
         _meot->second[i+4].first->GetYaxis()->SetTitle("2-CapID samplings");
         _meot->second[i+4].first->Write();
-        _meot->second[i+8].first->GetXaxis()->SetTitle("Charge^2, fC^2");
+        if (m_pedsinADC)
+        _meot->second[i+8].first->GetXaxis()->SetTitle("ADC^2");
+        else _meot->second[i+8].first->GetXaxis()->SetTitle("Charge^2, fC^2");
         _meot->second[i+8].first->GetYaxis()->SetTitle("2-CapID samplings");
         _meot->second[i+8].first->Write();
-        _meot->second[i+12].first->GetXaxis()->SetTitle("Charge^2, fC^2");
+        if (m_pedsinADC)
+        _meot->second[i+12].first->GetXaxis()->SetTitle("ADC^2");
+        else _meot->second[i+12].first->GetXaxis()->SetTitle("Charge^2, fC^2");
         _meot->second[i+12].first->GetYaxis()->SetTitle("2-CapID samplings");
         _meot->second[i+12].first->Write();
       }

@@ -107,6 +107,7 @@ private:
   int m_startTS;
   int m_endTS;
   int m_nevtsample;
+  int m_pedsinADC;
   int m_hiSaveflag;
   int m_pedValflag;
   int m_AllPedsOK;
