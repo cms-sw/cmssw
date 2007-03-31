@@ -14,6 +14,8 @@
 #include "CalibFormats/HcalObjects/interface/QieShape.h"
 #include "CalibFormats/HcalObjects/interface/HcalCoder.h"
 
+#include "FWCore/Framework/interface/ModuleFactory.h"
+#include "FWCore/Framework/interface/ESProducer.h"
 
 class HcalCalibrations;
 class HcalCalibrationWidths;
@@ -35,6 +37,7 @@ class HcalElectronicsMap;
 class HcalDbService {
  public:
   HcalDbService ();
+  HcalDbService (const edm::ParameterSet&);
 
   bool makeHcalCalibration (const HcalGenericDetId& fId, HcalCalibrations* fObject) const;
   bool makeHcalCalibrationWidth (const HcalGenericDetId& fId, HcalCalibrationWidths* fObject) const;
@@ -62,6 +65,12 @@ class HcalDbService {
   const HcalQIEData* mQIEData;
   const HcalChannelQuality* mChannelQuality;
   const HcalElectronicsMap* mElectronicsMap;
+  double m_hbEScale;
+  double m_hesEScale;
+  double m_hedEScale;
+  double m_hoEScale;
+  double m_hf1EScale;
+  double m_hf2EScale;
 };
 
 #endif

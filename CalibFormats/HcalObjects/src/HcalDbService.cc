@@ -1,7 +1,7 @@
 //
 // F.Ratnikov (UMd), Aug. 9, 2005
 //
-// $Id: HcalDbService.cc,v 1.10 2006/04/13 22:40:41 fedor Exp $
+// $Id: HcalDbService.cc,v 1.11 2006/09/08 23:24:37 fedor Exp $
 
 #include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
 
@@ -30,6 +30,22 @@ HcalDbService::HcalDbService ()
   mGains (0),
   mGainWidths (0)
  {}
+
+HcalDbService::HcalDbService (const edm::ParameterSet& fConfig) 
+  : 
+  mQieShapeCache (0),
+  mPedestals (0),
+  mPedestalWidths (0),
+  mGains (0),
+  mGainWidths (0)
+ {
+  m_hbEScale = fConfig.getUntrackedParameter <double> ("hbEScale",1.);
+  m_hesEScale = fConfig.getUntrackedParameter <double> ("hesEScale",1.);
+  m_hedEScale = fConfig.getUntrackedParameter <double> ("hedEScale",1.);
+  m_hoEScale = fConfig.getUntrackedParameter <double> ("hoEScale",1.);
+  m_hf1EScale = fConfig.getUntrackedParameter <double> ("hf1EScale",1.);
+  m_hf2EScale = fConfig.getUntrackedParameter <double> ("hf2EScale",1.);
+}
 
 bool HcalDbService::makeHcalCalibration (const HcalGenericDetId& fId, HcalCalibrations* fObject) const {
   if (fObject) {
@@ -73,7 +89,24 @@ const HcalPedestal* HcalDbService::getPedestal (const HcalGenericDetId& fId) con
 
 const HcalGain* HcalDbService::getGain (const HcalGenericDetId& fId) const {
   if (mGains) {
-    return mGains->getValues (fId);
+// make room to include fixed pion energy scale (read from cfi)
+    float escale=0.;
+    HcalDetId id(fId);
+    if (fId.subdet()==HcalBarrel) escale=m_hbEScale;
+    if (fId.subdet()==HcalEndcap && id.ietaAbs()<21) escale=m_hesEScale;
+    if (fId.subdet()==HcalEndcap && id.ietaAbs()>=21) escale=m_hedEScale;
+    if (fId.subdet()==HcalOuter) escale=m_hoEScale;
+    if (fId.subdet()==HcalForward && id.depth()==1) escale=m_hf1EScale;
+    if (fId.subdet()==HcalForward && id.depth()==2) escale=m_hf2EScale;
+    float v0=escale*mGains->getValue(fId,0);
+    float v1=escale*mGains->getValue(fId,1);
+    float v2=escale*mGains->getValue(fId,2);
+    float v3=escale*mGains->getValue(fId,3);
+    HcalGains* newGains = new HcalGains();
+    bool ok = newGains -> addValue(fId,v0,v1,v2,v3);
+    newGains->sort();
+    if (ok) return newGains->getValues(fId);
+    else return 0;
   }
   return 0;
 }
