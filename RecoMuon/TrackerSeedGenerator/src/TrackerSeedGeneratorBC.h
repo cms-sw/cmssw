@@ -4,8 +4,8 @@
 /** \class TrackerSeedGeneratorBC
  *  Generate seed from muon trajectory.
  *
- *  $Date: 2007/02/17 19:04:11 $
- *  $Revision: 1.12 $
+ *  $Date: 2007/03/30 18:31:42 $
+ *  $Revision: 1.1 $
  *  \author Norbert Neumeister - Purdue University
  *  \porting author Chang Liu - Purdue University
  */
@@ -23,7 +23,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "RecoMuon/TrackingTools/interface/RecoMuonEnumerators.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "RecoTracker/TkSeedGenerator/interface/CombinatorialRegionalSeedGeneratorFromPixel.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "RecoMuon/TrackerSeedGenerator/interface/TrackerSeedGenerator.h"
