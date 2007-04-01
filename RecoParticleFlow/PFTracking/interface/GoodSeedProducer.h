@@ -7,33 +7,36 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/Framework/interface/EventSetup.h"
+
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "TrackingTools/PatternTools/interface/TrajectoryFitter.h"
-#include "TrackingTools/Records/interface/TrackingComponentsRecord.h" 
-#include "TrackingTools/Records/interface/TransientRecHitRecord.h"  
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
-#include "DataFormats/TrackCandidate/interface/TrackCandidate.h"
-#include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
-#include "RecoTracker/TrackProducer/interface/TrackProducerAlgorithm.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
-#include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/ParticleFlowReco/interface/PFRecTrack.h"
-#include "DataFormats/ParticleFlowReco/interface/PFRecTrackFwd.h"
-#include "DataFormats/ParticleFlowReco/interface/PFTrajectoryPoint.h"
-#include "RecoParticleFlow/PFTracking/interface/PFTrackTransformer.h"
-#include "DataFormats/ParticleFlowReco/interface/PFResolutionMap.h"
+
+/// \brief Abstract
+/*!
+\author Michele Pioppi
+\date January 2007
+
+ GoodSeedProducer is the base class
+ for electron preidentification in PFLow FW.
+ It reads refitted tracks and PFCluster collection, 
+ and following some criteria divides electrons from hadrons.
+ Then it saves the seed of the tracks preidentified as electrons.
+ It also transform  all the tracks in the first PFRecTrack collection.
+*/
+
 namespace reco {
   class PFResolutionMap;
 }
+
+class PFTrackTransformer;
+class TrajectoryFitter;
+class TrajectorySmoother;
+class TrackerGeometry;
+class TrajectoryStateOnSurface;
+class Propagator;
+
 class GoodSeedProducer : public edm::EDProducer {
   typedef TrajectoryStateOnSurface TSOS;
    public:
@@ -44,46 +47,62 @@ class GoodSeedProducer : public edm::EDProducer {
       virtual void beginJob(const edm::EventSetup&) ;
       virtual void produce(edm::Event&, const edm::EventSetup&);
       virtual void endJob(){}
-      int findIndex(reco::TrackCollection  hj, 
-		    AlgoProduct ap);
-
+ 
+      ///Find the bin in pt and eta
       int getBin(float,float);
 
+      // ----------member data ---------------------------
+
+      ///Name of the Seed(Ckf) Collection
+      std::string preidckf_;
+
+      ///Name of the Seed(Gsf) Collection
+      std::string preidgsf_;
+
+      ///Location of PfClusters resolution map (eta)
+      std::string etaresmap_;
+
+      ///Location of PfClusters resolution map (phi)
+      std::string phiresmap_;
+
+      ///Propagator
+      edm::ESHandle<Propagator> propagator_;
+
+      ///Fitter
+      edm::ESHandle<TrajectoryFitter> fitter_;
+
+      ///Smoother
+      edm::ESHandle<TrajectorySmoother> smoother_;
+
+      ///PFTrackTransformer
+      PFTrackTransformer *pfTransformer_;
+
+      ///Number of hits in the seed;
+      int nHitsInSeed_;
+
+      ///Cut on the energy of the clusters
+      double clusThreshold_;
+
+      ///Produce the Seed for Ckf tracks?
+      bool produceCkfseed_;
+
+      ///Produce the PFtracks for Ckf tracks? 
+      bool produceCkfPFT_;
+
+      ///vector of thresholds for different bins of eta and pt
+      float thr[150];
+
+      // ----------access to event data
       edm::ParameterSet conf_;
-      std::string recTrackCandidateModuleLabel_;
-      std::string recTrackCollectionLabel_;
       edm::InputTag pfCLusTagPSLabel_;
       edm::InputTag pfCLusTagECLabel_;
+      edm::InputTag refitLabel_;
+
       std::string fitterName_;
+      std::string smootherName_;
       std::string propagatorName_;
-      std::string builderName_;
-      std::string preidckf_;
-      std::string preidgsf_;
-      edm::ESHandle<TrackerGeometry> tracker;
-      TrackProducerAlgorithm trackAlgo_;
-      const MagneticField * magField;
-      edm::ESHandle<MagneticField> theMF;
-      edm::ESHandle<TrackerGeometry> theG;
-      edm::ESHandle<Propagator> thePropagator;
-      edm::ESHandle<TransientTrackingRecHitBuilder> theBuilder;
-      edm::ESHandle<TrajectoryFitter> theFitter;
 
-
-      //      AnalyticalPropagator bkwdPropagator(magField, oppositeToMomentum);
-      
-      // ----------member data ---------------------------
-   
-  
-      TrajectorySeed Seed;
-      float pt_threshold;
-      const TransientTrackingRecHitBuilder *RHBuilder;
-      std::vector<reco::PFRecTrack> pftracks;
-      PFTrackTransformer *PFTransformer;
-      bool produceCkfseed,produceCkfPFT;
-      int index;
-      int side;
       static reco::PFResolutionMap* resMapEtaECAL_;
       static reco::PFResolutionMap* resMapPhiECAL_;
-      float thr[105];
 };
 #endif

@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// Package:    PFElecTkProducer
+// Package:    PFTracking
 // Class:      PFElecTkProducer
 // 
 // Original Author:  Michele Pioppi
@@ -12,35 +12,31 @@
 #include <memory>
 
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "RecoParticleFlow/PFTracking/interface/PFElecTkProducer.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
+#include "RecoParticleFlow/PFTracking/interface/PFTrackTransformer.h"
+
 #include "DataFormats/ParticleFlowReco/interface/PFRecTrack.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecTrackFwd.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
+
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
-#include "DataFormats/TrackCandidate/interface/TrackCandidate.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
-//#include "RecoParticleFlow/PFTracking/interface/PFTrackTransformer.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+
 using namespace std;
 using namespace edm;
-PFElecTkProducer::PFElecTkProducer(const ParameterSet& iConfig):conf_(iConfig),
-								     trackAlgo_(iConfig)
+PFElecTkProducer::PFElecTkProducer(const ParameterSet& iConfig):conf_(iConfig)
 {
   LogInfo("PFElecTkProducer")<<"PFElecTkProducer started";
   gsfTrackModule_ = iConfig.getParameter<string>
     ("GsfTrackModuleLabel");
-  gsfTrackCandidateModule_
-    = iConfig.getParameter<string>
-    ("GsfTrackCandidateModuleLabel");
+
   produces<reco::PFRecTrackCollection>();
 
   trajinev_ = iConfig.getParameter<bool>("TrajInEvents");
-  propagatorName_ = iConfig.getParameter<string>("Propagator");
-  builderName_ = iConfig.getParameter<string>("TTRHBuilder"); 
-  fitterName_ = iConfig.getParameter<string>("Fitter");
+
 }
 
 
@@ -59,31 +55,31 @@ PFElecTkProducer::~PFElecTkProducer()
 void
 PFElecTkProducer::produce(Event& iEvent, const EventSetup& iSetup)
 {
-  AlgoProductCollection algoResults;
+
   LogDebug("PFElecTkProducer")<<"START event: "<<iEvent.id().event()
 			      <<" in run "<<iEvent.id().run();
-
+  std::vector<reco::PFRecTrack> pftracks;
   pftracks.clear();
   //create the empty collections 
   auto_ptr< reco::PFRecTrackCollection > 
     gsfPFRecTrackCollection(new reco::PFRecTrackCollection);
+
   
-  //read collections
+  //read collections of tracks
   Handle<reco::GsfTrackCollection> gsfelectrons;
   iEvent.getByLabel(gsfTrackModule_,gsfelectrons);
 
-  //   Handle<TrackCandidateCollection> gsfcandidates;
-  //   iEvent.getByLabel(gsfTrackCandidateModule_,gsfcandidates);
-
+  //read collections of trajectories
   Handle<vector<Trajectory> > TrajectoryCollection;
-  iEvent.getByLabel(gsfTrackModule_,TrajectoryCollection);
+ 
   
   if (trajinev_){
+    iEvent.getByLabel(gsfTrackModule_,TrajectoryCollection); 
     reco::GsfTrackCollection gsftracks = *(gsfelectrons.product());
     vector<Trajectory> tjvec= *(TrajectoryCollection.product());
 
     for (uint igsf=0; igsf<gsftracks.size();igsf++)
-      pftracks.push_back(PFTransformer->
+      pftracks.push_back(pfTransformer_->
 			 producePFtrackKf(&(tjvec[igsf]),&(gsftracks[igsf]),
 					  reco::PFRecTrack::GSF,igsf));
     
@@ -99,14 +95,9 @@ PFElecTkProducer::produce(Event& iEvent, const EventSetup& iSetup)
 void 
 PFElecTkProducer::beginJob(const EventSetup& iSetup)
 {
- 
-    iSetup.get<IdealMagneticFieldRecord>().get(theMF);
-    magField = theMF.product();
-    iSetup.get<TrackerDigiGeometryRecord>().get(theG);
-    iSetup.get<TrackingComponentsRecord>().get(propagatorName_, thePropagator);
-    iSetup.get<TrackingComponentsRecord>().get(fitterName_, theFitter);
-    iSetup.get<TransientRecHitRecord>().get(builderName_, theBuilder);
-    PFTransformer= new PFTrackTransformer(magField);
+  edm::ESHandle<MagneticField> magField;
+  iSetup.get<IdealMagneticFieldRecord>().get(magField);
+  pfTransformer_= new PFTrackTransformer(magField.product());
 }
 
 // ------------ method called once each job just after ending the event loop  ------------

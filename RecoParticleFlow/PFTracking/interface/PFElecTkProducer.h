@@ -1,53 +1,53 @@
 #ifndef PFElecTkProducer_H
 #define PFElecTkProducer_H
+
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "RecoTracker/TrackProducer/interface/TrackProducerAlgorithm.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
-#include "TrackingTools/Records/interface/TrackingComponentsRecord.h" 
-#include "TrackingTools/Records/interface/TransientRecHitRecord.h" 
-#include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
-#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
-#include "DataFormats/ParticleFlowReco/interface/PFRecTrack.h"
-#include "DataFormats/ParticleFlowReco/interface/PFRecTrackFwd.h"
-#include "DataFormats/ParticleFlowReco/interface/PFTrajectoryPoint.h"
-#include "RecoParticleFlow/PFTracking/interface/PFTrackTransformer.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 
-typedef std::pair<Trajectory*, reco::GsfTrack*> AlGsfProduct; 
+
+class PFTrackTransformer;
+class GsfTrack;
+class PFRecTrack;
+
+/// \brief Abstract
+/*!
+\author Michele Pioppi
+\date January 2007
+
+ PFElecTkProducer reads GsfTracks collection
+ built with the seeds saved by module GoodSeedProducer
+ and transform them in PFRecTracks.
+*/
 
 class PFElecTkProducer : public edm::EDProducer {
-   public:
-      explicit PFElecTkProducer(const edm::ParameterSet&);
-      ~PFElecTkProducer();
+ public:
+  
+     ///Constructor
+     explicit PFElecTkProducer(const edm::ParameterSet&);
+
+     ///Destructor
+     ~PFElecTkProducer();
 
    private:
       virtual void beginJob(const edm::EventSetup&) ;
-      virtual void produce(edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
+
+      ///Produce the PFRecTrack collection
+      virtual void produce(edm::Event&, const edm::EventSetup&);
+
  
       // ----------member data ---------------------------
   
       edm::ParameterSet conf_;
-      TrackProducerAlgorithm trackAlgo_;
       std::string gsfTrackModule_;
-      std::string gsfTrackCandidateModule_;
-      std::string fitterName_;
-      std::string propagatorName_;
-      std::string builderName_;
-      edm::ESHandle<MagneticField> theMF;
-      edm::ESHandle<TrackerGeometry> theG;
-      edm::ESHandle<Propagator> thePropagator;
-      edm::ESHandle<TransientTrackingRecHitBuilder> theBuilder;
-      edm::ESHandle<TrajectoryFitter> theFitter;
-      const MagneticField * magField;
-      std::vector<reco::PFRecTrack> pftracks;
-      PFTrackTransformer *PFTransformer; 
+
+      ///PFTrackTransformer
+      PFTrackTransformer *pfTransformer_; 
+
+      ///Trajectory of GSfTracks in the event?
       bool trajinev_;
 };
 #endif
