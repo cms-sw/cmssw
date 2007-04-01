@@ -34,7 +34,7 @@ public:
   /// get the fiber index [1-8] (which of eight fibers carried by a spigot)
   int fiberIndex() const { return ((hcalElectronicsId_>>2)&0x7)+1; }
   /// get the HTR channel id (1-24)
-  int htrChanId() const { return (fiberChanId()+1)+(fiberIndex()*3); }
+  int htrChanId() const { return (fiberChanId()+1)+((fiberIndex()-1)*3); }
   /// get the spigot (input number on DCC)
   int spigot() const { return (hcalElectronicsId_>>5)&0xF; }
   /// get the (Hcal local) DCC id
