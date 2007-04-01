@@ -123,9 +123,7 @@ class TestIsoTracks : public edm::EDAnalyzer {
   reco::Vertex theRecVertex; 
   vector<reco::Track> theTrack; 
    TrackDetectorAssociator trackAssociator_;
-   bool useEcal_;
-   bool useHcal_;
-   bool useMuon_;
+   TrackAssociatorParameters trackAssociatorParameters_;
 };
 
 TestIsoTracks::TestIsoTracks(const edm::ParameterSet& iConfig): 
@@ -133,16 +131,6 @@ TestIsoTracks::TestIsoTracks(const edm::ParameterSet& iConfig):
 					   theRvert(iConfig.getParameter<double>("rvert"))
 {
    m_inputTrackLabel = iConfig.getUntrackedParameter<std::string>("inputTrackLabel","ctfWithMaterialTracks");
-
-   useEcal_ = iConfig.getParameter<bool>("useEcal");
-   useHcal_ = iConfig.getParameter<bool>("useHcal");
-   useMuon_ = iConfig.getParameter<bool>("useMuon");
-   
-   // Fill data labels
-   //std::vector<std::string> labels = iConfig.getParameter<std::vector<std::string> >("labels");
-   //boost::regex regExp1 ("([^\\s,]+)[\\s,]+([^\\s,]+)$");
-  // boost::regex regExp2 ("([^\\s,]+)[\\s,]+([^\\s,]+)[\\s,]+([^\\s,]+)$");
-   //boost::smatch matches;
 	
     m_Hfile=new TFile("IsoHists.root","RECREATE");
     IsoHists.eta = new TH1F("Eta","Track eta",50,-2.5,2.5);
@@ -151,27 +139,9 @@ TestIsoTracks::TestIsoTracks(const edm::ParameterSet& iConfig):
     IsoHists.pt = new TH1F("pt","Track pt",100,0.,10.);
     IsoHists.isomult = new TH1F("IsoMult","Iso Mult",10,-0.5,9.5);
 
-//   for(std::vector<std::string>::const_iterator label = labels.begin(); label != labels.end(); label++) {
-//      if (boost::regex_match(*label,matches,regExp1))
-//	trackAssociator_.addDataLabels(matches[1],matches[2]);
-//      else if (boost::regex_match(*label,matches,regExp2))
-//	trackAssociator_.addDataLabels(matches[1],matches[2],matches[3]);
-//      else
-//	edm::LogError("ConfigurationError") << "Failed to parse label:\n" << *label << "Skipped.\n";
-//   }
-   
-   // trackAssociator_.addDataLabels("EBRecHitCollection","ecalrechit","EcalRecHitsEB");
-   // trackAssociator_.addDataLabels("CaloTowerCollection","towermaker");
-   // trackAssociator_.addDataLabels("DTRecSegment4DCollection","recseg4dbuilder");
-
-   trackAssociator_.theEBRecHitCollectionLabel = iConfig.getParameter<edm::InputTag>("EBRecHitCollectionLabel");
-   trackAssociator_.theEERecHitCollectionLabel = iConfig.getParameter<edm::InputTag>("EERecHitCollectionLabel");
-   trackAssociator_.theCaloTowerCollectionLabel = iConfig.getParameter<edm::InputTag>("CaloTowerCollectionLabel");
-   trackAssociator_.theHBHERecHitCollectionLabel = iConfig.getParameter<edm::InputTag>("HBHERecHitCollectionLabel");
-   trackAssociator_.theHORecHitCollectionLabel = iConfig.getParameter<edm::InputTag>("HORecHitCollectionLabel");
-   trackAssociator_.theDTRecSegment4DCollectionLabel = iConfig.getParameter<edm::InputTag>("DTRecSegment4DCollectionLabel");
-   trackAssociator_.theCSCSegmentCollectionLabel = iConfig.getParameter<edm::InputTag>("CSCSegmentCollectionLabel");
-   
+   // Load TrackDetectorAssociator parameters
+   edm::ParameterSet parameters = iConfig.getParameter<edm::ParameterSet>("TrackAssociatorParameters");
+   trackAssociatorParameters_.loadParameters( parameters );
    trackAssociator_.useDefaultPropagator();
 }
 
@@ -244,19 +214,10 @@ void TestIsoTracks::analyze( const edm::Event& iEvent, const edm::EventSetup& iS
 //				       trackAssociator_.getFreeTrajectoryState(iSetup, *tracksCI, vertex) )
 //	  << " GeV" << std::endl;
 				       
-      // Get HCAL energy in more generic way
-      TrackDetectorAssociator::AssociatorParameters parameters;
-      parameters.useEcal = useEcal_ ;
-      parameters.useHcal = useHcal_ ;
-      parameters.useMuon = useMuon_ ;
-      parameters.dRHcal = 0.03;
-      parameters.dRHcal = 0.07;
-      parameters.dRMuon = 0.1;
-      
 //      std::cout << "Details:\n" <<std::endl;
       TrackDetMatchInfo info = trackAssociator_.associate(iEvent, iSetup,
 							  trackAssociator_.getFreeTrajectoryState(iSetup, *tracksCI),
-							  parameters);
+							  trackAssociatorParameters_);
 //      std::cout << "ECAL, if track reach ECAL:     " << info.isGoodEcal << std::endl;
 //      std::cout << "ECAL, number of crossed cells: " << info.crossedEcalRecHits.size() << std::endl;
 //      std::cout << "ECAL, energy of crossed cells: " << info.ecalEnergy() << " GeV" << std::endl;

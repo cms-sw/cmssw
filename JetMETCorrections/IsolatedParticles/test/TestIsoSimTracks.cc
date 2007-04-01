@@ -98,17 +98,11 @@ class TestIsoSimTracks : public edm::EDAnalyzer {
         TH1F* isomult;
       } IsoHists;  
    TrackDetectorAssociator trackAssociator_;
-   bool useEcal_;
-   bool useHcal_;
-   bool useMuon_;
+   TrackAssociatorParameters trackAssociatorParameters_;
 };
 
 TestIsoSimTracks::TestIsoSimTracks(const edm::ParameterSet& iConfig)
 {
-   useEcal_ = iConfig.getParameter<bool>("useEcal");
-   useHcal_ = iConfig.getParameter<bool>("useHcal");
-   useMuon_ = iConfig.getParameter<bool>("useMuon");
-   
    // Fill data labels
    //std::vector<std::string> labels = iConfig.getParameter<std::vector<std::string> >("labels");
    //boost::regex regExp1 ("([^\\s,]+)[\\s,]+([^\\s,]+)$");
@@ -135,14 +129,9 @@ TestIsoSimTracks::TestIsoSimTracks(const edm::ParameterSet& iConfig)
    // trackAssociator_.addDataLabels("CaloTowerCollection","towermaker");
    // trackAssociator_.addDataLabels("DTRecSegment4DCollection","recseg4dbuilder");
 
-   trackAssociator_.theEBRecHitCollectionLabel = iConfig.getParameter<edm::InputTag>("EBRecHitCollectionLabel");
-   trackAssociator_.theEERecHitCollectionLabel = iConfig.getParameter<edm::InputTag>("EERecHitCollectionLabel");
-   trackAssociator_.theCaloTowerCollectionLabel = iConfig.getParameter<edm::InputTag>("CaloTowerCollectionLabel");
-   trackAssociator_.theHBHERecHitCollectionLabel = iConfig.getParameter<edm::InputTag>("HBHERecHitCollectionLabel");
-   trackAssociator_.theHORecHitCollectionLabel = iConfig.getParameter<edm::InputTag>("HORecHitCollectionLabel");
-   trackAssociator_.theDTRecSegment4DCollectionLabel = iConfig.getParameter<edm::InputTag>("DTRecSegment4DCollectionLabel");
-   trackAssociator_.theCSCSegmentCollectionLabel = iConfig.getParameter<edm::InputTag>("CSCSegmentCollectionLabel");
-   
+   // Load TrackDetectorAssociator parameters
+   edm::ParameterSet parameters = iConfig.getParameter<edm::ParameterSet>("TrackAssociatorParameters");
+   trackAssociatorParameters_.loadParameters( parameters );
    trackAssociator_.useDefaultPropagator();
 }
 
@@ -198,19 +187,10 @@ void TestIsoSimTracks::analyze( const edm::Event& iEvent, const edm::EventSetup&
 //				       trackAssociator_.getFreeTrajectoryState(iSetup, *tracksCI, vertex) )
 //	  << " GeV" << std::endl;
 				       
-      // Get HCAL energy in more generic way
-      TrackDetectorAssociator::AssociatorParameters parameters;
-      parameters.useEcal = useEcal_ ;
-      parameters.useHcal = useHcal_ ;
-      parameters.useMuon = useMuon_ ;
-      parameters.dRHcal = 0.03;
-      parameters.dRHcal = 0.07;
-      parameters.dRMuon = 0.1;
-      
 //      std::cout << "Details:\n" <<std::endl;
       TrackDetMatchInfo info = trackAssociator_.associate(iEvent, iSetup,
 							  trackAssociator_.getFreeTrajectoryState(iSetup, *tracksCI, vertex),
-							  parameters);
+							  trackAssociatorParameters_);
 //      std::cout << "ECAL, if track reach ECAL:     " << info.isGoodEcal << std::endl;
 //      std::cout << "ECAL, number of crossed cells: " << info.crossedEcalRecHits.size() << std::endl;
 //      std::cout << "ECAL, energy of crossed cells: " << info.ecalEnergy() << " GeV" << std::endl;
