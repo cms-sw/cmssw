@@ -3,9 +3,9 @@
 /** \class SoftElectronProducer
  *
  *
- *  $Id: SoftElectronProducer.h,v 1.3 2007/02/15 20:09:13 fwyzard Exp $
- *  $Date: 2007/02/15 20:09:13 $
- *  $Revision: 1.3 $
+ *  $Id: SoftElectronProducer.h,v 1.4 2007/02/28 09:35:35 fwyzard Exp $
+ *  $Date: 2007/02/28 09:35:35 $
+ *  $Revision: 1.4 $
  *
  *  \author P. Demin - UCL, Louvain-la-Neuve - Belgium
  *
@@ -44,6 +44,7 @@ class SoftElectronProducer : public edm::EDProducer
   double theDiscriminatorCut;
 
   TrackDetectorAssociator *theTrackAssociator;
+  TrackAssociatorParameters theTrackAssociatorParameters;
 
   ElectronIdMLP *theElecNN;
 

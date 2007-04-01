@@ -47,12 +47,16 @@ SoftElectronProducer::SoftElectronProducer(const edm::ParameterSet &iConf) :
 
   theHOverEConeSize = theConf.getParameter<double>("HOverEConeSize");
 
+  // TrackAssociator parameters
+  edm::ParameterSet parameters = iConf.getParameter<edm::ParameterSet>("TrackAssociatorParameters");
+  theTrackAssociatorParameters.loadParameters( parameters );
+
   theTrackAssociator = new TrackDetectorAssociator();
   theTrackAssociator->useDefaultPropagator();
 
-  // fill data labels
-  theTrackAssociator->theEBRecHitCollectionLabel = theConf.getParameter<InputTag>("EBRecHitCollectionLabel");
-  theTrackAssociator->theEERecHitCollectionLabel = theConf.getParameter<InputTag>("EERecHitCollectionLabel");
+  // fill TrackAssociator data labels
+  //theTrackAssociator->theEBRecHitCollectionLabel = theConf.getParameter<InputTag>("EBRecHitCollectionLabel");
+  //theTrackAssociator->theEERecHitCollectionLabel = theConf.getParameter<InputTag>("EERecHitCollectionLabel");
 
   theDiscriminatorCut = theConf.getParameter<double>("DiscriminatorCut");
 
@@ -129,14 +133,6 @@ void SoftElectronProducer::produce(edm::Event &iEvent,
 
   FreeTrajectoryState tmpFTS;
   TrackDetMatchInfo info;
-  TrackDetectorAssociator::AssociatorParameters parameters;
-  parameters.useEcal = true ;
-  parameters.useHcal = false ;
-  parameters.useHO = false ;
-  parameters.useCalo = false ;
-  parameters.useMuon = false ;
-  parameters.dREcal = 0.03;
-
   unsigned int counterTrack;
 
   // loop over tracks
@@ -148,7 +144,7 @@ void SoftElectronProducer::produce(edm::Event &iEvent,
 
     try {
       tmpFTS = theTrackAssociator->getFreeTrajectoryState(iSetup, *track);
-      info = theTrackAssociator->associate(iEvent, iSetup, tmpFTS, parameters);
+      info = theTrackAssociator->associate(iEvent, iSetup, tmpFTS, theTrackAssociatorParameters);
     } catch (cms::Exception e) {
       // extrapolation failed, skip this track
       std::cerr << "Caught exception during track extrapolation: internal error, skipping track" << endl;
