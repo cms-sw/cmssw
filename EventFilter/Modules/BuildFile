@@ -13,6 +13,7 @@
 <use name=Foundation/PluginManager>
 <use name=IOPool/Streamer>
 <use name=xdaq>
+<use name=zlib>
 <flags SEAL_PLUGIN_NAME="EventFilterModules">
 <export>
   <use name=DQMServices/Core>
@@ -23,6 +24,7 @@
   <use name=FWCore/ServiceRegistry>
   <use name=IOPool/Streamer>
   <use name=xdaq>
+  <use name=zlib>
   <lib name=EventFilterModules>
 </export>
 
