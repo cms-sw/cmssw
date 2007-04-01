@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RootFile.cc,v 1.60 2007/03/23 17:20:53 wmtan Exp $
+$Id: RootFile.cc,v 1.61 2007/03/27 22:54:45 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "IOPool/Input/src/RootFile.h"
@@ -139,10 +139,10 @@ namespace edm {
       fileFormatVersion_.value_ = 0;
     }
     assert(eventTree().isValid());
-    if (fileFormatVersion_.value_ >= 3) {
-      assert(lumiTree().isValid());
-      assert(runTree().isValid());
-    }
+//  if (fileFormatVersion_.value_ >= 3) {
+//    assert(lumiTree().isValid());
+//    assert(runTree().isValid());
+//  }
   }
 
   void
@@ -242,7 +242,7 @@ namespace edm {
       }
       assert(runNumber == runAux.run());
     } else {
-      if (fileFormatVersion_.value_ >= 2) {
+      if (fileFormatVersion_.value_ >= 3) {
         LogInfo("RunNotFound")
           << "Run " << runNumber << " was not found in file " << file_ << "\n";
       }
@@ -282,7 +282,7 @@ namespace edm {
       assert(lumiNumber == lumiAux.luminosityBlock());
       assert(runNumber == lumiAux.run());
     } else {
-      if (fileFormatVersion_.value_ >= 2) {
+      if (fileFormatVersion_.value_ >= 3) {
         LogInfo("LumiNotFound")
           << "Lumi Block " << lumiNumber << " in Run " << runNumber << " was not found in file " << file_ << "\n";
       }
