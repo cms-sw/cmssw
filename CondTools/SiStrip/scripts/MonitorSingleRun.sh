@@ -3,8 +3,14 @@
 #//Get lastIOV from OfflineDB//
 function getLastIOV(){
     tag=$1
+    if [ "$2" == "devdb10" ]; then
+	lastIOV=`cmscond_list_iov -c oracle://devdb10/CMS_COND_STRIP -u CMS_COND_STRIP -p w3807dev -f "relationalcatalog_oracle://devdb10/CMS_COND_GENERAL" -t $1 | grep DB | awk '{print $1}' | tail -1`
+    elif [ "$2" == "orcon" ]; then
+	lastIOV=`cmscond_list_iov -c oracle://orcon/CMS_COND_STRIP -u CMS_COND_STRIP_R -p R2106xon -f "relationalcatalog_oracle://orcon/CMS_COND_GENERAL" -t $1 | grep DB | awk '{print $1}' | tail -1`
+    else
     #echo "cmscond_list_iov -c frontier://cmsfrontier.cern.ch:8000/FrontierInt/cms_cond_strip  -f file:stripcatalog.xml -t $1 "
-    lastIOV=`cmscond_list_iov -c frontier://cmsfrontier.cern.ch:8000/FrontierInt/cms_cond_strip  -f file:stripcatalog.xml -t $1 | grep DB | awk '{print $1}' | tail -1`
+	lastIOV=`cmscond_list_iov -c frontier://cmsfrontier.cern.ch:8000/FrontierInt/cms_cond_strip  -f file:stripcatalog.xml -t $1 | grep DB | awk '{print $1}' | tail -1`
+    fi
 }
 
 function getFedVersionFromRunSummaryTIF(){
@@ -55,12 +61,13 @@ Run=0
 [ "$1" != "" ] && Run=$1
 ver="v1"
 [ "$2" != "" ] && ver=$2
-
+CondDB=frontier
+[ "$3" != "" ] && CondDB=$3
 
 scriptDir=`dirname $0`
 cd $scriptDir
 
-CondDB=frontier
+
 
 export lastIOV
 export FEDVersion_LastIOV
@@ -95,6 +102,8 @@ elif  [ `echo $ConfigDbPartition | grep -c -i TOB`    == '1' ]; then
     tag=TOB
 elif  [ `echo $ConfigDbPartition | grep -c -i TEC`    == '1' ]; then
     tag=TEC
+elif  [ `echo $ConfigDbPartition | grep -c -i SliceTest`    == '1' ]; then
+    tag=TIF
 fi
 
 [ "$tag" == "" ] && continue
