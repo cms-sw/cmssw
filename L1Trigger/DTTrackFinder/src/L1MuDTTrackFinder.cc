@@ -30,7 +30,7 @@
 // Collaborating Class Headers --
 //-------------------------------
 
-#include <FWCore/Framework/interface/Handle.h>
+#include <DataFormats/Common/interface/Handle.h>
 #include <FWCore/Framework/interface/Event.h>
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h"
 #include "L1Trigger/DTTrackFinder/src/L1MuDTTFConfig.h"

@@ -15,7 +15,7 @@
 
 #include "L1Trigger/DTTrackFinder/interface/DTTrackFinder.h"
 
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
 
 #include <DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h>
