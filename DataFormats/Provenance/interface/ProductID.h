@@ -5,7 +5,7 @@
   
 ProductID: A unique identifier for each EDProduct within a process.
 
-$Id: ProductID.h,v 1.5 2007/02/21 22:27:33 paterno Exp $
+$Id: ProductID.h,v 1.1 2007/03/04 04:48:09 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -16,6 +16,7 @@ namespace edm {
     ProductID() : id_(0) {}
     explicit ProductID(unsigned int id) : id_(id) {}
     bool isValid() const { return id_ != 0U; }
+    unsigned int id() const { return id_; }
     unsigned int id_;
     bool operator<(ProductID const& rh) const {return id_ < rh.id_;}
     bool operator>(ProductID const& rh) const {return id_ > rh.id_;}
