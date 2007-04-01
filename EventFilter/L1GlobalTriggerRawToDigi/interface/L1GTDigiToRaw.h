@@ -1,15 +1,22 @@
-// 
-/**\class L1GTDigiToRaw
-
- Description: generate raw data from digis - for testing pouposes
-
-*/
-//
-//         Author:  Ivan Mikulec
-//         Created:  Fri Sep 29 17:10:49 CEST 2006
-//
 #ifndef EventFilter_L1GlobalTriggerRawToDigi_L1GTDigiToRaw_h
 #define EventFilter_L1GlobalTriggerRawToDigi_L1GTDigiToRaw_h
+
+/**
+ * \class L1GTDigiToRaw
+ * 
+ * 
+ * Description: generate raw data from digis.  
+ *
+ * Implementation:
+ *    <TODO: enter implementation details>
+ *   
+ * \author: Vasile Mihai Ghete - HEPHY Vienna -  GT 
+ * \author: Ivan Mikulec       - HEPHY Vienna - GMT
+ * 
+ * $Date:$
+ * $Revision:$
+ *
+ */
 
 // system include files
 #include <memory>
@@ -22,31 +29,82 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
 
-//
-// class decleration
-//
+// forward declarations
 class FEDRawDataCollection;
 class L1MuGMTReadoutRecord;
 class L1MuGMTReadoutCollection;
 
-using namespace std;
+class L1GtfeWord;
+class L1GtFdlWord;
+class L1GtPsbWord;
 
-class L1GTDigiToRaw : public edm::EDProducer {
-   public:
-      explicit L1GTDigiToRaw(const edm::ParameterSet&);
-      ~L1GTDigiToRaw();
+// class declaration
+class L1GTDigiToRaw : public edm::EDProducer
+{
 
-   private:
-      virtual void beginJob(const edm::EventSetup&) {}
-      virtual void produce(edm::Event&, const edm::EventSetup&);
-      virtual void endJob() {}
+public:
 
-      void pack(L1MuGMTReadoutCollection const*, auto_ptr<FEDRawDataCollection>&);
-      unsigned packGTFE(unsigned char*);
-      unsigned packGMT(L1MuGMTReadoutRecord const&, unsigned char*);
+    /// constructor(s)
+    explicit L1GTDigiToRaw(const edm::ParameterSet&);
 
-      // ----------member data ---------------------------
+    /// destructor
+    virtual ~L1GTDigiToRaw();
+
+private:
+
+    /// beginning of job stuff
+    virtual void beginJob(const edm::EventSetup&);
+
+    /// loop over events
+    virtual void produce(edm::Event&, const edm::EventSetup&);
+
+    /// block packers -------------
+
+    /// pack header
+    void packHeader(const unsigned char*);
+
+    /// pack the GTFE block
+    /// gives the number of bunch crosses in the event, as well as the active boards
+    /// records for inactive boards are not written in the GT DAQ record
+    void packGTFE(const edm::EventSetup&, unsigned char*, L1GtfeWord&);
+
+    /// pack FDL blocks for various bunch crosses
+    void packFDL(const edm::EventSetup&, unsigned char*, L1GtFdlWord&);
+
+    /// pack PSB blocks
+    /// packing is done in PSB class format
+    void packPSB(const edm::EventSetup&, unsigned char*, L1GtPsbWord&);
+
+    /// pack the GMT collection using packGMT (GMT record packing)
+    unsigned int packGmtCollection(
+        unsigned char* ptrGt,
+        L1MuGMTReadoutCollection const* digis);
+
+    /// pack a GMT record
+    unsigned int packGMT(L1MuGMTReadoutRecord const&, unsigned char*);
+
+    /// pack trailer word
+    void packTrailer(const unsigned char*);
+
+    /// end of job stuff
+    virtual void endJob();
+
+private:
+
+    // input tags for GT DAQ record
+    edm::InputTag m_daqGtInputTag;
+    
+    /// total Bx's in the event, obtained from GTFE block    
+    int m_totalBxInEvent;
+    
+    /// flag to keep or change the active boards
+    bool m_keepActiveBoardsStatus;
+    
+    // list of active boards (actually 16 bits)
+    boost::uint16_t m_activeBoardsGt;
+
 
 };
 
