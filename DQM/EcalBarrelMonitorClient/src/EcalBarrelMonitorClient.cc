@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2007/04/01 14:02:34 $
- * $Revision: 1.242 $
+ * $Date: 2007/04/01 14:16:59 $
+ * $Revision: 1.243 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -313,7 +313,7 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
   TGaxis::SetMaxDigits(4);
 
   gStyle->SetOptTitle(kTRUE);
-  gStyle->SetTitleX(0.00);
+  gStyle->SetTitleX(0.01);
   gStyle->SetTitleY(1.00);
   gStyle->SetTitleW(0.00);
   gStyle->SetTitleH(0.05);
