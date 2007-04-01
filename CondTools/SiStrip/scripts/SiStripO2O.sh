@@ -110,6 +110,8 @@ function settings (){
 	tag=TOB_${tag}
     elif [ `echo $ConfigDbPartition | grep -c -i TEC`    == '1' ]; then
 	tag=TEC_${tag}
+    elif  [ `echo $ConfigDbPartition | grep -c -i SliceTest`    == '1' ]; then
+	tag=TIF_${tag}
     fi
 
     export tagCab=SiStripCabling_${tag}
