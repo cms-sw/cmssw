@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerClient.cc
  *
- * $Date: 2007/03/26 17:35:05 $
- * $Revision: 1.30 $
+ * $Date: 2007/04/01 13:42:06 $
+ * $Revision: 1.31 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -347,8 +347,12 @@ void EBTriggerTowerClient::softReset(void){
     if ( mei01_[ism-1] ) mui_->softReset(mei01_[ism-1]);
     if ( mej01_[ism-1] ) mui_->softReset(mej01_[ism-1]);
 
-    if ( mek01_[ism-1] ) mui_->softReset(mek01_[ism-1]);
-    if ( mek02_[ism-1] ) mui_->softReset(mek02_[ism-1]);
+    for (int j = 0; j < 68 ; j++) {
+
+      if ( mek01_[ism-1][j] ) mui_->softReset(mek01_[ism-1][j]);
+      if ( mek02_[ism-1][j] ) mui_->softReset(mek02_[ism-1][j]);
+
+    }
 
   }
 
