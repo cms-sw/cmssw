@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2007/03/26 17:35:05 $
- * $Revision: 1.239 $
+ * $Date: 2007/03/27 11:22:52 $
+ * $Revision: 1.240 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1250,7 +1250,7 @@ void EcalBarrelMonitorClient::analyze(void){
 
   if ( status_ == "begin-of-run" ) {
 
-    if ( run_ > 0 && evt_ > 0 && runtype_ != -1 ) {
+    if ( run_ != -1 && evt_ != -1 && runtype_ != -1 ) {
 
       if ( ! begin_run_ ) {
 
@@ -1322,7 +1322,7 @@ void EcalBarrelMonitorClient::analyze(void){
 
   if ( status_ == "end-of-run" ) {
 
-    if ( run_ > 0 && evt_ > 0 && runtype_ != -1 ) {
+    if ( run_ != -1 && evt_ != -1 && runtype_ != -1 ) {
 
       if ( begin_run_ && ! end_run_ ) {
 
@@ -1359,7 +1359,7 @@ void EcalBarrelMonitorClient::analyze(void){
 
   if ( status_ == "running" ) {
 
-    if ( run_ > 0 && evt_ > 0 && runtype_ != -1 ) {
+    if ( run_ != -1 && evt_ != -1 && runtype_ != -1 ) {
 
       if ( ! forced_status_ ) {
 
@@ -1384,7 +1384,7 @@ void EcalBarrelMonitorClient::analyze(void){
 
   if ( status_ == "running" ) {
 
-    if ( run_ > 0 && evt_ > 0 && runtype_ != -1 ) {
+    if ( run_ != -1 && evt_ != -1 && runtype_ != -1 ) {
 
       if ( ! forced_status_ ) {
 
@@ -1413,7 +1413,7 @@ void EcalBarrelMonitorClient::analyze(void){
 
   if ( status_ == "running" ) {
 
-    if ( run_ > 0 && evt_ > 0 && runtype_ != -1 ) {
+    if ( run_ != -1 && evt_ != -1 && runtype_ != -1 ) {
 
       if ( begin_run_ && ! end_run_ ) {
 
@@ -1439,7 +1439,7 @@ void EcalBarrelMonitorClient::analyze(void){
 
   if ( status_ == "running" ) {
 
-    if ( run_ > 0 && evt_ > 0 && runtype_ != -1 ) {
+    if ( run_ != -1 && evt_ != -1 && runtype_ != -1 ) {
 
       if ( begin_run_ && ! end_run_ ) {
 
