@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2007/04/01 12:48:36 $
- * $Revision: 1.241 $
+ * $Date: 2007/04/01 14:02:34 $
+ * $Revision: 1.242 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -457,7 +457,7 @@ EcalBarrelMonitorClient::~EcalBarrelMonitorClient(){
 
   if ( ! enableStateMachine_ ) {
     mui_->disconnect();
-    delete mui_;
+    // delete mui_;
   }
 
 }
