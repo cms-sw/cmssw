@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2007/03/27 11:22:52 $
- * $Revision: 1.240 $
+ * $Date: 2007/04/01 12:48:36 $
+ * $Revision: 1.241 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -214,7 +214,7 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
 
   // enableExit switch
 
-  enableExit_ = ps.getUntrackedParameter<bool>("enableExit", true);
+  enableExit_ = ps.getUntrackedParameter<bool>("enableExit", false);
 
   if ( enableExit_ ) {
     cout << " enableExit switch is ON" << endl;
