@@ -40,6 +40,11 @@ function CheckIOV(){
 	return 1
     fi
 
+    if [ "$lastIOV" == "1" ]; then
+    #//there is only the first upload, IOV from 1 to infinity, redo upload 
+	return 2
+    fi
+
     if [ "$lastIOV" -ge "$Run" ]; then
     #//tag $tagPN found in orcon, Run inside a closed IOV, check successful//
 	return 0
@@ -133,6 +138,8 @@ for Run in `cat AddedRuns | awk '{print $1}'`
       tag=TOB
   elif  [ `echo $ConfigDbPartition | grep -c -i TEC`    == '1' ]; then
       tag=TEC
+  elif  [ `echo $ConfigDbPartition | grep -c -i SliceTest`    == '1' ]; then
+      tag=TIF
   fi
   
   [ "$tag" == "" ] && continue
@@ -150,7 +157,7 @@ for Run in `cat AddedRuns | awk '{print $1}'`
       oldtagPN=${tagPN}
       getLastIOV $tagPN $CondDB
       FEDVersion_LastIOV=""
-      [ "$lastIOV" != "" ] && getFedVersionFromRunSummaryTIF $lastIOV
+      [ "$lastIOV" != "" ] && [ "$lastIOV" != "1" ] && getFedVersionFromRunSummaryTIF $lastIOV
       echo -e "[MonitorO2O.sh] DB=$CondDB \ttag=$vTag \tlastIOV=$lastIOV \tFEDVersion_LastIOV=${FEDVersion_LastIOV}"
   fi
   
@@ -164,7 +171,7 @@ for Run in `cat AddedRuns | awk '{print $1}'`
   elif [ $status -lt 10 ]; then
       if [ "${FedVer}" != "${oldFedVer}" ] ; then
 	  oldFedVer=${FedVer}
-	  echo -e "$Run \t $status \t $CondDB \t $vTag \t ${FedVer} \t $ConfigDb" >> RunToDoO2O_${CondDB}.tmp
+	  echo -e "$Run \t $status \t $CondDB \t $ver \t $vTag \t ${FedVer} \t $ConfigDb" >> RunToDoO2O_${CondDB}.tmp
       fi
   else
       # case of error 11 and 12 in CheckIOV
