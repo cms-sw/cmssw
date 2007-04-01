@@ -24,7 +24,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Jan  7 15:40:43 EST 2006
-// $Id: GenericHandle.h,v 1.7 2006/12/06 16:18:23 paterno Exp $
+// $Id: GenericHandle.h,v 1.8 2007/01/12 21:07:58 wmtan Exp $
 //
 
 // system include files
@@ -84,7 +84,7 @@ public:
    type_(prod.TypeOf()),
    prod_(prod),
    prov_(prov),
-   id_(prov->event.productID_) { 
+   id_(prov->event().productID_) { 
       assert(prod_);
       assert(prov_);
       assert(id_ != ProductID());

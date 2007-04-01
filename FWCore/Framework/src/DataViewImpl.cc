@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: DataViewImpl.cc,v 1.11 2007/02/17 23:31:30 wmtan Exp $
+$Id: DataViewImpl.cc,v 1.12 2007/03/04 06:10:25 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <memory>
@@ -11,6 +11,7 @@ $Id: DataViewImpl.cc,v 1.11 2007/02/17 23:31:30 wmtan Exp $
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "FWCore/Framework/interface/DataBlockImpl.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "DataFormats/Provenance/interface/BranchEntryDescription.h"
 #include "FWCore/Framework/interface/Group.h"
 
 using namespace std;
@@ -53,14 +54,14 @@ namespace edm {
 	// note: ownership has been passed - so clear the pointer!
 	pit->first = 0;
 
-	auto_ptr<Provenance> pv(new Provenance(*pit->second, BranchEntryDescription::Success));
+	BranchEntryDescription event(pit->second->productID_, BranchEntryDescription::Success);
 
 	// set parts of provenance
-	pv->event.cid_ = 0; // TODO: what is this supposed to be?
-	pv->event.isPresent_ = true;
-	pv->event.parents_ = gotProductIDs_;
-	pv->event.moduleDescriptionID_ = pit->second->moduleDescriptionID_;
-
+	event.cid_ = 0; // TODO: what is this supposed to be?
+	event.isPresent_ = true;
+	event.parents_ = gotProductIDs_;
+	event.moduleDescriptionID_ = pit->second->moduleDescriptionID_;
+	auto_ptr<Provenance> pv(new Provenance(*pit->second, event));
 	dbk_.put(pr,pv);
 	++pit;
     }
