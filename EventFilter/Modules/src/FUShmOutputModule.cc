@@ -4,7 +4,7 @@
      the resource broker to send to the Storage Manager.
      See the CMS EvF Storage Manager wiki page for further notes.
 
-   $Id$
+   $Id: FUShmOutputModule.cc,v 1.1 2007/03/26 23:36:20 hcheung Exp $
 */
 
 #include "EventFilter/Utilities/interface/i2oEvfMsgs.h"
@@ -21,24 +21,6 @@
 
 #include "xcept/include/xcept/Exception.h"
 #include "toolbox/include/toolbox/fsm/exception/Exception.h"
-
-#include "toolbox/mem/MemoryPoolFactory.h"
-#include "toolbox/mem/HeapAllocator.h"
-#include "toolbox/mem/Reference.h"
-#include "toolbox/mem/Pool.h"
-
-// for performance measurements
-/*
-#include "xdata/UnsignedInteger32.h"
-#include "xdata/Double.h"
-
-#include "xcept/tools.h"
-
-#include "i2o/Method.h"
-#include "i2o/utils/include/i2o/utils/AddressMap.h"
-
-#include "xgi/Method.h"
-*/
 
 #include <string>
 #include <fstream>
