@@ -1,4 +1,4 @@
-// $Id: StorageManager.cc,v 1.11 2007/03/29 12:53:38 klute Exp $
+// $Id: StorageManager.cc,v 1.12 2007/03/29 18:45:00 klute Exp $
 
 #include <iostream>
 #include <iomanip>
@@ -1897,6 +1897,9 @@ bool StorageManager::halting(toolbox::task::WorkLoop* wl)
     LOG4CPLUS_INFO(getApplicationLogger(),"Start halting ...");
 
     // Get into the Halted (stopped and unconfigured) state from Enabled state
+/*
+  No longer valid with the shared memory output module
+
     // First check that all senders have closed connections
     int timeout = 60; // make this configurable (and advertize the value)
     std::cout << "waiting " << timeout << " sec for " <<  smfusenders_.size() 
@@ -1911,6 +1914,7 @@ bool StorageManager::halting(toolbox::task::WorkLoop* wl)
 	  break;
 	}
       }
+*/
     
     std::list<std::string> files = jc_->get_filelist();
     std::list<std::string> currfiles= jc_->get_currfiles();
