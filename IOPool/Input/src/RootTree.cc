@@ -100,7 +100,7 @@ namespace edm {
       // BEGIN These lines defer reading branches
       BranchDescription const& product = products_[pit->productID_];
       std::auto_ptr<Provenance> prov(new Provenance(product, *pit));
-      bool const isPresent = prov->event.isPresent();
+      bool const isPresent = prov->isPresent();
       std::auto_ptr<Group> g(new Group(prov, isPresent));
       // END These lines defer reading branches
       item.addGroup(g);
