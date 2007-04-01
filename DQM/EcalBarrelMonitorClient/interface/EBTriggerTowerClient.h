@@ -4,8 +4,8 @@
 /*
  * \file EBTriggerTowerClient.h
  *
- * $Date: 2007/02/20 15:42:17 $
- * $Revision: 1.9 $
+ * $Date: 2007/03/26 17:35:04 $
+ * $Revision: 1.10 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -104,21 +104,15 @@ vector<int> superModules_;
 MonitorUserInterface* mui_;
 
 CollateMonitorElement* me_h01_[36];
-
-MonitorElement* meh01_[36];
-
-TProfile2D* h01_[36];
-
 CollateMonitorElement* me_i01_[36];
-
-MonitorElement* mei01_[36];
-
-TH3F* i01_[36];
-
 CollateMonitorElement* me_j01_[36];
 
+MonitorElement* meh01_[36];
+MonitorElement* mei01_[36];
 MonitorElement* mej01_[36];
 
+TProfile2D* h01_[36];
+TH3F* i01_[36];
 TH3F* j01_[36];
 
 CollateMonitorElement* me_k01_[36][68];

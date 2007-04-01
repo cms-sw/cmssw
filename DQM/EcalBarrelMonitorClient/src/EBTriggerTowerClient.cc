@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerClient.cc
  *
- * $Date: 2007/03/11 18:58:27 $
- * $Revision: 1.29 $
+ * $Date: 2007/03/26 17:35:05 $
+ * $Revision: 1.30 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -84,25 +84,6 @@ EBTriggerTowerClient::EBTriggerTowerClient(const ParameterSet& ps){
 
   }
 
-  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-
-    int ism = superModules_[i];
-
-    meh01_[ism-1] = 0;
-
-    mei01_[ism-1] = 0;
-
-    mej01_[ism-1] = 0;
-
-    for ( int j = 0; j < 68 ; j++ ) {
-
-      mek01_[ism-1][j] = 0;
-      mek02_[ism-1][j] = 0;
-
-    }
-
-  }
-
 }
 
 EBTriggerTowerClient::~EBTriggerTowerClient(){
@@ -154,29 +135,6 @@ void EBTriggerTowerClient::endRun(void) {
 
 void EBTriggerTowerClient::setup(void) {
 
-//  Char_t histo[200];
-//
-//  mui_->setCurrentFolder( "EcalBarrel/EBTriggerTowerClient" );
-//  DaqMonitorBEInterface* bei = mui_->getBEInterface();
-//
-//  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-//
-//    int ism = superModules_[i];
-//
-//  }
-//
-//  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-//
-//    int ism = superModules_[i];
-//
-//    for ( int ie = 1; ie <= 85; ie++ ) {
-//      for ( int ip = 1; ip <= 20; ip++ ) {
-//
-//      }
-//    }
-//
-//  }
-
 }
 
 void EBTriggerTowerClient::cleanup(void) {
@@ -215,15 +173,6 @@ void EBTriggerTowerClient::cleanup(void) {
     }
 
   }
-
-//  mui_->setCurrentFolder( "EcalBarrel/EBTriggerTowerClient" );
-//  DaqMonitorBEInterface* bei = mui_->getBEInterface();
-//
-//  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-//
-//    int ism = superModules_[i];
-//
-//  }
 
 }
 
@@ -390,6 +339,19 @@ void EBTriggerTowerClient::unsubscribe(void){
 
 void EBTriggerTowerClient::softReset(void){
 
+  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
+
+    int ism = superModules_[i];
+
+    if ( meh01_[ism-1] ) mui_->softReset(meh01_[ism-1]);
+    if ( mei01_[ism-1] ) mui_->softReset(mei01_[ism-1]);
+    if ( mej01_[ism-1] ) mui_->softReset(mej01_[ism-1]);
+
+    if ( mek01_[ism-1] ) mui_->softReset(mek01_[ism-1]);
+    if ( mek02_[ism-1] ) mui_->softReset(mek02_[ism-1]);
+
+  }
+
 }
 
 void EBTriggerTowerClient::analyze(void){
@@ -540,37 +502,6 @@ void EBTriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
     htmlFile[0] << "<hr>" << std::endl;
     htmlFile[0] << "<h3><a name=""" << ism << """></a><strong>Supermodule&nbsp;&nbsp;"
 	     << ism << "</strong></h3>" << endl;
-
-////  --------> no quality plot yet...
-//     // Quality plot
-
-//     imgName = "";
-    TH2F* obj2f;
-//     obj2f = EBMUtilsClient::getHisto<TH2F*>( meg???_[ism-1] );
-//     if ( obj2f ) {
-//       meName = obj2f->GetName();
-//       for ( unsigned int i = 0; i < meName.size(); i++ ) {
-//         if ( meName.substr(i, 1) == " " )  {
-//           meName.replace(i, 1, "_");
-//         }
-//       }
-//       imgName = meName + ".png";
-//       imgFullName = htmlDir + imgName;
-//       rectangle->cd();
-//       gStyle->SetOptStat(" ");
-//       gStyle->SetPalette(6, pCol3);
-//       obj2f->GetXaxis()->SetNdivisions(17);
-//       obj2f->GetYaxis()->SetNdivisions(4);
-//       rectangle->SetGridx();
-//       rectangle->SetGridy();
-//       obj2f->SetMinimum(-0.00000001);
-//       obj2f->SetMaximum(6.0);
-//       obj2f->Draw("col");
-//       dummy.Draw("text,same");
-//       rectangle->Update();
-//       rectangle->SaveAs(imgName.c_str());
-//     }
-
 
     // ---------------------------  Et plot
 

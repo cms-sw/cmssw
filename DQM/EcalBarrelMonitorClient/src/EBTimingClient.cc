@@ -1,8 +1,8 @@
 /*
  * \file EBTimingClient.cc
  *
- * $Date: 2007/03/22 06:17:02 $
- * $Revision: 1.16 $
+ * $Date: 2007/03/26 17:35:05 $
+ * $Revision: 1.17 $
  * \author G. Della Ricca
  *
 */
@@ -369,6 +369,14 @@ void EBTimingClient::unsubscribe(void){
 }
 
 void EBTimingClient::softReset(void){
+
+  for ( unsigned int i=0; i<superModules_.size(); i++ ) {
+
+    int ism = superModules_[i];
+
+    if ( meh01_[ism-1] ) mui_->softReset(meh01_[ism-1]);
+
+  }
 
 }
 
