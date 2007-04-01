@@ -13,8 +13,8 @@
  * \author: N. Neumeister        - HEPHY Vienna - ORCA version 
  * \author: Vasile Mihai Ghete   - HEPHY Vienna - CMSSW version 
  * 
- * $Date:$
- * $Revision:$
+ * $Date$
+ * $Revision$
  *
  */
 
@@ -237,7 +237,6 @@ public:
     //**************************************************************************
     // get/set hardware-related words
     // 
-    // Board description: file GlobalTriggerBoardsMapper.dat // TODO xml file instead?
     //**************************************************************************
 
 
