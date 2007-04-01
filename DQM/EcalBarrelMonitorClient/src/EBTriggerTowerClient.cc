@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerClient.cc
  *
- * $Date: 2007/04/01 13:42:06 $
- * $Revision: 1.31 $
+ * $Date: 2007/04/01 13:46:09 $
+ * $Revision: 1.32 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -474,7 +474,6 @@ void EBTriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
   }
   htmlFile[0] << std::endl << "</table>" << std::endl;
 
-
   // Produce the plots to be shown as .png files from existing histograms
 
   const int csize = 250;
@@ -495,6 +494,8 @@ void EBTriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
   TCanvas* rectangle = new TCanvas("rectangle", "Temp", 2*csize, csize);
   TCanvas* rectsmall = new TCanvas("rectangle small", "Temp", int(1.6*csize), int(0.8*csize));
   TCanvas* square    = new TCanvas("square small", "Temp", int(0.8*csize), int(0.8*csize));
+
+  TH2F* obj2f;
 
   // Loop on barrel supermodules
 
