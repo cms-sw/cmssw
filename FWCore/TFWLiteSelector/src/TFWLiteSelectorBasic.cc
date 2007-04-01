@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jun 27 17:58:10 EDT 2006
-// $Id: TFWLiteSelectorBasic.cc,v 1.14 2007/03/04 05:30:52 wmtan Exp $
+// $Id: TFWLiteSelectorBasic.cc,v 1.15 2007/03/27 22:59:35 wmtan Exp $
 //
 
 // system include files
@@ -274,7 +274,7 @@ TFWLiteSelectorBasic::Process(Long64_t iEntry) {
 	    BranchDescription &product = m_->productMap_[pit->productID_];
 	    std::auto_ptr<Provenance> prov(new Provenance(product, *pit));
             //std::cout<< "adding group for ID "<<prov->event.productID_<<std::endl;
-	    std::auto_ptr<Group> g(new Group(prov, prov->event.isPresent()));
+	    std::auto_ptr<Group> g(new Group(prov, prov->isPresent()));
 	    ep.addGroup(g);
 	 }
 

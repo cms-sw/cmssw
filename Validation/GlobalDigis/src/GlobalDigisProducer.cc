@@ -156,15 +156,15 @@ void GlobalDigisProducer::produce(edm::Event& iEvent,
       for (unsigned int i = 0; i < AllProv.size(); ++i) {
 	eventout += "\n       ******************************";
 	eventout += "\n       Module       : ";
-	eventout += (AllProv[i]->product).moduleLabel();
+	eventout += AllProv[i]->moduleLabel();
 	eventout += "\n       ProductID    : ";
-	eventout += (AllProv[i]->product).productID_.id_;
+	eventout += AllProv[i]->productID().id();
 	eventout += "\n       ClassName    : ";
-	eventout += (AllProv[i]->product).fullClassName_;
+	eventout += AllProv[i]->className();
 	eventout += "\n       InstanceName : ";
-	eventout += (AllProv[i]->product).productInstanceName_;
+	eventout += AllProv[i]->productInstanceName();
 	eventout += "\n       BranchName   : ";
-	eventout += (AllProv[i]->product).branchName_;
+	eventout += AllProv[i]->branchName();
       }
       eventout += "\n       ******************************\n";
       edm::LogInfo(MsgLoggerCat) << eventout << "\n";

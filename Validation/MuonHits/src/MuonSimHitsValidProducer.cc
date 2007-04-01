@@ -100,15 +100,15 @@ void MuonSimHitsValidProducer::produce(edm::Event& iEvent,
       for (unsigned int i = 0; i < AllProv.size(); ++i) {
 	eventout += "\n       ******************************";
 	eventout += "\n       Module       : ";
-	eventout += (AllProv[i]->product).moduleLabel();
+	eventout += AllProv[i]->moduleLabel();
 	eventout += "\n       ProductID    : ";
-	eventout += (AllProv[i]->product).productID_.id_;
+	eventout += AllProv[i]->productID().id();
 	eventout += "\n       ClassName    : ";
-	eventout += (AllProv[i]->product).fullClassName_;
+	eventout += AllProv[i]->className();
 	eventout += "\n       InstanceName : ";
-	eventout += (AllProv[i]->product).productInstanceName_;
+	eventout += AllProv[i]->productInstanceName();
 	eventout += "\n       BranchName   : ";
-	eventout += (AllProv[i]->product).branchName_;
+	eventout += AllProv[i]->branchName();
       }
       eventout += "       ******************************\n";
       edm::LogInfo("MuonSimHitsValidProducer::produce") << eventout << "\n";
@@ -166,7 +166,7 @@ void MuonSimHitsValidProducer::fillG4MC(edm::Event& iEvent)
   /// should have the information needed
   for (unsigned int i = 0; i < AllHepMCEvt.size(); ++i) {
     HepMCEvt = AllHepMCEvt[i];
-    if ((HepMCEvt.provenance()->product).moduleLabel() == "VtxSmeared")
+    if ((HepMCEvt.provenance()->product()).moduleLabel() == "VtxSmeared")
       break;
   }
 
@@ -176,7 +176,7 @@ void MuonSimHitsValidProducer::fillG4MC(edm::Event& iEvent)
     return;
   } else {
     eventout += "\n          Using HepMCProduct: ";
-    eventout += (HepMCEvt.provenance()->product).moduleLabel();
+    eventout += (HepMCEvt.provenance()->product()).moduleLabel();
   }
   const HepMC::GenEvent* MCEvt = HepMCEvt->GetEvent();
   nRawGenPart = MCEvt->particles_size();
