@@ -19,7 +19,7 @@ Handles can have:
 
 To check validity, one can use the isValid() function.
 
-$Id: BasicHandle.h,v 1.1 2007/01/12 21:05:28 wmtan Exp $
+$Id: BasicHandle.h,v 1.2 2007/03/04 04:59:58 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -81,7 +81,7 @@ namespace edm {
       if (!prov_) 
 	throw Exception(errors::NullPointerError)
 	  << "Attempt to get ID from an invalid BasicHandle\n";
-      return prov_->event.productID_;
+      return prov_->event().productID_;
     }
 
   private:

@@ -34,8 +34,8 @@ namespace edm {
     ProdPair(const EDProduct* prod,
 	     const Provenance* prov):
       prod_(prod),
-      prov_(&prov->event),
-      desc_(&prov->product) { }
+      prov_(&prov->event()),
+      desc_(&prov->product()) { }
 
     const BranchEntryDescription* prov() const { return prov_; }
     const EDProduct* prod() const { return prod_; }
