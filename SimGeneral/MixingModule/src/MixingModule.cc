@@ -80,7 +80,7 @@ namespace edm
     e.getManyByType(resultsim);
     int ss=resultsim.size();
     for (int ii=0;ii<ss;ii++) {
-      edm::BranchDescription desc = resultsim[ii].provenance()->product;
+      edm::BranchDescription desc = resultsim[ii].provenance()->product();
       LogDebug("MixingModule") <<"For "<<desc.productInstanceName_<<" "<<resultsim[ii].product()->size()<<" Simhits added";
       simcf_->addSignalSimHits(desc.productInstanceName_,resultsim[ii].product());
     }
@@ -91,7 +91,7 @@ namespace edm
     e.getManyByType(resultcalo);
     int sc=resultcalo.size();
     for (int ii=0;ii<sc;ii++) {
-      edm::BranchDescription desc = resultcalo[ii].provenance()->product;
+      edm::BranchDescription desc = resultcalo[ii].provenance()->product();
       LogDebug("MixingModule") <<"For "<<desc.productInstanceName_<<" "<<resultcalo[ii].product()->size()<<" Calohits added";
       simcf_->addSignalCaloHits(desc.productInstanceName_,resultcalo[ii].product());
     }
@@ -102,7 +102,7 @@ namespace edm
     e.getManyByType(result_t);
     int str=result_t.size();
     for (int ii=0;ii<str;ii++) {
-      edm::BranchDescription desc =result_t[ii].provenance()->product;
+      edm::BranchDescription desc =result_t[ii].provenance()->product();
       LogDebug("MixingModule") <<result_t[ii].product()->size()<<" Simtracks added";
       if (result_t[ii].isValid()) simcf_->addSignalTracks(result_t[ii].product());
       else  LogWarning("InvalidData") <<"Invalid simtracks in signal";
@@ -112,7 +112,7 @@ namespace edm
     e.getManyByType(result_v);
    int sv=result_v.size();
     for (int ii=0;ii<sv;ii++) {
-      edm::BranchDescription desc = result_v[ii].provenance()->product;
+      edm::BranchDescription desc = result_v[ii].provenance()->product();
       LogDebug("MixingModule") <<result_v[ii].product()->size()<<" Simvertices added";
       if (result_v[ii].isValid()) simcf_->addSignalVertices(result_v[ii].product());
       else  LogWarning("InvalidData") <<"Invalid simvertices in signal";
@@ -130,7 +130,7 @@ namespace edm
     e->getManyByType(resultsim);
     int ss=resultsim.size();
     for (int ii=0;ii<ss;ii++) {
-      edm::BranchDescription desc = resultsim[ii].provenance()->product;
+      edm::BranchDescription desc = resultsim[ii].provenance()->product();
       simproducts.insert(std::map<const std::string,const std::vector<PSimHit>* >::value_type(desc.productInstanceName_, resultsim[ii].product()));
     }
 
@@ -176,7 +176,7 @@ namespace edm
     e->getManyByType(resultcalo);
     int sc=resultcalo.size();
     for (int ii=0;ii<sc;ii++) {
-      edm::BranchDescription desc = resultcalo[ii].provenance()->product;
+      edm::BranchDescription desc = resultcalo[ii].provenance()->product();
       LogDebug("MixingModule") <<"For "<<desc.productInstanceName_<<" "<<resultcalo[ii].product()->size()<<" Calohits added";
       simcf_->addPileupCaloHits(bcr,desc.productInstanceName_,resultcalo[ii].product(),eventId);
     }
@@ -187,7 +187,7 @@ namespace edm
     int str=result_t.size();
     if (str>1) LogWarning("InvalidData") <<"Too many SimTrack containers, should be only one!";
     for (int ii=0;ii<str;ii++) {
-      edm::BranchDescription desc =result_t[ii].provenance()->product;
+      edm::BranchDescription desc =result_t[ii].provenance()->product();
       LogDebug("MixingModule") <<result_t[ii].product()->size()<<" Simtracks added";
       if (result_t[ii].isValid()) simcf_->addPileupTracks(bcr,result_t[ii].product(),eventId,vertexoffset);
       else  LogWarning("InvalidData") <<"Invalid simtracks in signal";
@@ -199,7 +199,7 @@ namespace edm
     int sv=result_v.size();
     if (sv>1) LogWarning("InvalidData") <<"Too many SimVertex containers, should be only one!";
     for (int ii=0;ii<sv;ii++) {
-      edm::BranchDescription desc = result_v[ii].provenance()->product;
+      edm::BranchDescription desc = result_v[ii].provenance()->product();
       LogDebug("MixingModule") <<result_v[ii].product()->size()<<" Simvertices added";
       if (result_v[ii].isValid()) simcf_->addPileupVertices(bcr,result_v[ii].product(),eventId);
       else  LogWarning("InvalidData") <<"Invalid simvertices in signal";
