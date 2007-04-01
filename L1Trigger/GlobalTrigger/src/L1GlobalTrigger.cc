@@ -9,8 +9,8 @@
  *   
  * \author: Vasile Mihai Ghete - HEPHY Vienna
  * 
- * $Date:$
- * $Revision:$
+ * $Date$
+ * $Revision$
  *
  */
 
@@ -21,6 +21,8 @@
 #include <memory>
 #include <iostream>
 #include <bitset>
+
+#include <boost/cstdint.hpp>
 
 // user include files
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
@@ -152,6 +154,17 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     L1GtfeWord gtfeWordValue;
     gtfeWordValue.setRecordLength(m_totalBxInEvent);
+
+    // set the list of active boards
+
+    boost::uint16_t activeBoardsGt = 
+        m_gtSetup->getParameterSet()->getParameter<int>("ActiveBoards");
+    LogDebug("L1GlobalTrigger")
+    << "\nActive boards in L1 GT: "
+    << activeBoardsGt
+    << std::endl;
+
+    gtfeWordValue.setActiveBoards(activeBoardsGt);
 
     // ** fill L1GtfeWord
 
