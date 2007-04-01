@@ -27,14 +27,15 @@ JetPlusTrackCorrector::JetPlusTrackCorrector(const edm::ParameterSet& iConfig)
 			  theResponseAlgo = iConfig.getParameter<int>("respalgo");
    m_inputTrackLabel = iConfig.getUntrackedParameter<std::string>("inputTrackLabel","ctfWithMaterialTracks");
 
-   ebrechit = iConfig.getParameter<edm::InputTag>("EBRecHitCollectionLabel");
-   eerechit = iConfig.getParameter<edm::InputTag>("EERecHitCollectionLabel");
-   calotower = iConfig.getParameter<edm::InputTag>("CaloTowerCollectionLabel");
-   hbherechit = iConfig.getParameter<edm::InputTag>("HBHERecHitCollectionLabel");
-   horechit = iConfig.getParameter<edm::InputTag>("HORecHitCollectionLabel");
-   dtrecseg = iConfig.getParameter<edm::InputTag>("DTRecSegment4DCollectionLabel");
-   cscseg = iConfig.getParameter<edm::InputTag>("CSCSegmentCollectionLabel");
-
+//   ebrechit = iConfig.getParameter<edm::InputTag>("EBRecHitCollectionLabel");
+//   eerechit = iConfig.getParameter<edm::InputTag>("EERecHitCollectionLabel");
+//   calotower = iConfig.getParameter<edm::InputTag>("CaloTowerCollectionLabel");
+//   hbherechit = iConfig.getParameter<edm::InputTag>("HBHERecHitCollectionLabel");
+//   horechit = iConfig.getParameter<edm::InputTag>("HORecHitCollectionLabel");
+//   dtrecseg = iConfig.getParameter<edm::InputTag>("DTRecSegment4DCollectionLabel");
+//   cscseg = iConfig.getParameter<edm::InputTag>("CSCSegmentCollectionLabel");
+       edm::ParameterSet parameters = iConfig.getParameter<edm::ParameterSet>("TrackAssociatorParameters");
+       parameters_.loadParameters( parameters );
                           theSingle = new SingleParticleJetResponseTmp;
 			  setParameters(theRcalo,theRvert,theResponseAlgo);
 //    cout<<" JetPlusTrack constructor "<<endl;			  
@@ -69,17 +70,7 @@ double JetPlusTrackCorrector::correction(const reco::Jet& fJet,
 // New part
 //
    TrackDetectorAssociator trackAssociator_;
-
-   trackAssociator_.theEBRecHitCollectionLabel = ebrechit;
-   trackAssociator_.theEERecHitCollectionLabel = eerechit;
-   trackAssociator_.theCaloTowerCollectionLabel = calotower;
-   trackAssociator_.theHBHERecHitCollectionLabel = hbherechit;
-   trackAssociator_.theHORecHitCollectionLabel = horechit;
-   trackAssociator_.theDTRecSegment4DCollectionLabel = dtrecseg;
-   trackAssociator_.theCSCSegmentCollectionLabel = cscseg;
    trackAssociator_.useDefaultPropagator();
-
-
 
          if(fabs(fJet.eta())>2.1) return 1.;
 // Get Tracker information

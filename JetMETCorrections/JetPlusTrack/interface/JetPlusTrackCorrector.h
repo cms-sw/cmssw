@@ -40,18 +40,12 @@ private:
   int theResponseAlgo;
   double theRcalo;
   double theRvert;  
-//  TrackDetectorAssociator trackAssociator_;
+
   SingleParticleJetResponseTmp * theSingle;
   edm::InputTag mInputCaloTower;
   edm::InputTag mInputPVfCTF;
   std::string m_inputTrackLabel;
-  edm::InputTag ebrechit;
-  edm::InputTag eerechit;
-  edm::InputTag calotower;
-  edm::InputTag hbherechit;
-  edm::InputTag horechit;
-  edm::InputTag dtrecseg;
-  edm::InputTag cscseg; 
+  TrackAssociatorParameters parameters_;
 
 };
 
