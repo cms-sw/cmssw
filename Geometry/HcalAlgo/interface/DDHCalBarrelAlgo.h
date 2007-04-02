@@ -34,7 +34,8 @@ class DDHCalBarrelAlgo : public DDAlgorithm {
   double      getLayerD1(unsigned i)          const {return layerD1[i];}
   double      getLayerD2(unsigned i)          const {return layerD2[i];}
   double      getLayerAlpha(unsigned i)       const {return layerAlpha[i];}
-  double      getLayerT(unsigned i)           const {return layerT[i];}
+  double      getLayerT1(unsigned i)          const {return layerT1[i];}
+  double      getLayerT2(unsigned i)          const {return layerT2[i];}
   int         getLayerAbsorb(unsigned int i)  const {return layerAbsorb[i];}
   double      getLayerGap(unsigned int i)     const {return layerGap[i];}
 
@@ -58,15 +59,19 @@ class DDHCalBarrelAlgo : public DDAlgorithm {
   std::string getMidAbsName(unsigned int i)   const {return midName[i];}
   std::string getMidAbsMat(unsigned int i)    const {return midMat[i];}
   double      getMidAbsW(unsigned int i)      const {return midW[i];}
+  double      getMidAbsT(unsigned int i)      const {return midT[i];}
 
   std::string getDetMat()                     const {return detMat;}
   std::string getDetMatPl()                   const {return detMatPl;}
   std::string getDetMatSc()                   const {return detMatSc;}
   int         getDetType(unsigned int i)      const {return detType[i];}
   double      getDetdP1(unsigned int i)       const {return detdP1[i];}
-  double      getDetT1(unsigned int i)        const {return detT1[i];}
+  double      getDetdP2(unsigned int i)       const {return detdP2[i];}
+  double      getDetT11(unsigned int i)       const {return detT11[i];}
+  double      getDetT12(unsigned int i)       const {return detT12[i];}
   double      getDetTsc(unsigned int i)       const {return detTsc[i];}
-  double      getDetT2(unsigned int i)        const {return detT2[i];}
+  double      getDetT21(unsigned int i)       const {return detT21[i];}
+  double      getDetT22(unsigned int i)       const {return detT22[i];}
   double      getDetWidth1(unsigned int i)    const {return detWidth1[i];}
   double      getDetWidth2(unsigned int i)    const {return detWidth2[i];}
   int         getDetPosY(unsigned int i)      const {return detPosY[i];}
@@ -85,7 +90,7 @@ protected:
   void constructInsideSector(DDLogicalPart sector);
   void constructInsideLayers(DDLogicalPart laylog, std::string name, int id, 
 			     int nAbs, double rin, double d1, double alpha1, 
-			     double d2, double alpha2, double t);
+			     double d2, double alpha2, double t1, double t2);
   DDLogicalPart constructSideLayer(DDLogicalPart laylog, std::string nm,
 				   int nAbs, double rin, double alpha);
   DDLogicalPart constructMidLayer(DDLogicalPart laylog, std::string nm,
@@ -153,7 +158,8 @@ private:
   std::vector<double>      layerD1;     //d1 in front picture
   std::vector<double>      layerD2;     //d2 in front picture
   std::vector<double>      layerAlpha;  //Angular width of the middle tiles
-  std::vector<double>      layerT;      //t in front picture
+  std::vector<double>      layerT1;     //t in front picture (side)
+  std::vector<double>      layerT2;     //t in front picture (front)
   std::vector<int>         layerAbsorb; //Absorber flag
   std::vector<double>      layerGap;    //Gap at the edge
 
@@ -169,6 +175,7 @@ private:
   std::vector<std::string> midName;     //Absorber names in the front part
   std::vector<std::string> midMat;      //Absorber material
   std::vector<double>      midW;        //Half width
+  std::vector<double>      midT;        //Thickness
 
   std::vector<std::string> sideMat;     //Material for special side layers
   std::vector<double>      sideD;       //Depth from bottom surface
@@ -195,10 +202,13 @@ private:
   std::string         detMatPl;               //Plastic material
   std::string         detMatSc;               //Scintillator material
   std::vector<int>    detType;       
-  std::vector<double> detdP1;                 //Air gap
-  std::vector<double> detT1;                  //Back plastic thickness
+  std::vector<double> detdP1;                 //Air gap (side)
+  std::vector<double> detdP2;                 //Air gap (centre)
+  std::vector<double> detT11;                 //Back plastic thickness (side)
+  std::vector<double> detT12;                 //Back plastic thickness (centre)
   std::vector<double> detTsc;                 //Scintillator
-  std::vector<double> detT2;                  //Front plastic thickness
+  std::vector<double> detT21;                 //Front plastic thickness (side)
+  std::vector<double> detT22;                 //Front plastic thickness (centre)
   std::vector<double> detWidth1;              //Width of phi(1,4) megatiles
   std::vector<double> detWidth2;              //Width of phi(2,3) megatiles
   std::vector<int>    detPosY;                //Positioning of phi(1,4) tiles - 0 centre

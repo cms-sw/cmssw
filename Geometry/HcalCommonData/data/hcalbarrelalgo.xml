@@ -27,7 +27,7 @@
     <Numeric name="NSector" value="18"/>
     <Numeric name="NSectorTot" value="18"/>
     <Numeric name="NHalf" value="2"/>
-    <Numeric name="RIn" value="1777*mm"/>
+    <Numeric name="RIn" value="1775*mm"/>
     <Numeric name="ROut" value="2876.5*mm"/>
     <Numeric name="RZones" value="5"/>
     <Vector name="Theta" type="numeric" nEntries="5">
@@ -105,7 +105,7 @@
       materials:H_Brass, materials:H_Brass, materials:H_Brass,
       materials:H_Brass, materials:StainlessSteel</Vector>
     <Vector name="LayerWidth" type="numeric" nEntries="17">
-      74.5*mm, 60.0*mm, 60.0*mm, 60.0*mm, 60.0*mm, 60.0*mm,
+      76.5*mm, 60.0*mm, 60.0*mm, 60.0*mm, 60.0*mm, 60.0*mm,
       60.0*mm, 60.0*mm, 60.0*mm, 60.0*mm, 66.0*mm, 66.0*mm,
       66.0*mm, 66.0*mm, 66.0*mm, 66.0*mm, 89.0*mm
     </Vector>
@@ -119,7 +119,7 @@
       23.5*mm, 23.5*mm, 23.5*mm, 23.5*mm, 75.0*mm
     </Vector>
     <Vector name="D2" type="numeric" nEntries="17">
-      46.0*mm, 50.5*mm, 50.5*mm, 50.5*mm, 50.5*mm, 50.5*mm,
+      48.0*mm, 50.5*mm, 50.5*mm, 50.5*mm, 50.5*mm, 50.5*mm,
       50.5*mm, 50.5*mm, 50.5*mm, 50.5*mm, 56.5*mm, 56.5*mm,
       56.5*mm, 56.5*mm, 56.5*mm, 56.5*mm, 75.0*mm
     </Vector>
@@ -128,7 +128,12 @@
       5.0*deg, 5.0*deg, 5.0*deg, 5.0*deg, 5.0*deg, 5.0*deg,
       5.0*deg, 5.0*deg, 5.0*deg, 5.0*deg, 5.0*deg
     </Vector>
-    <Vector name="T" type="numeric" nEntries="17">
+    <Vector name="T1" type="numeric" nEntries="17">
+      12.0*mm,  9.5*mm,  9.5*mm,  9.5*mm,  9.5*mm,  9.5*mm,
+       9.5*mm,  9.5*mm,  9.5*mm,  9.5*mm,  9.5*mm,  9.5*mm,
+       9.5*mm,  9.5*mm,  9.5*mm,  9.5*mm, 14.0*mm
+    </Vector>
+    <Vector name="T2" type="numeric" nEntries="17">
       14.0*mm,  9.5*mm,  9.5*mm,  9.5*mm,  9.5*mm,  9.5*mm,
        9.5*mm,  9.5*mm,  9.5*mm,  9.5*mm,  9.5*mm,  9.5*mm,
        9.5*mm,  9.5*mm,  9.5*mm,  9.5*mm, 14.0*mm
@@ -138,9 +143,8 @@
       Layer6,  Layer7,  Layer8,  Layer9,  Layer10, Layer11,
       Layer12, Layer13, Layer14, Layer15, Layer16</Vector>
     <Vector name="AbsL" type="numeric" nEntries="17">
-     -2.0,  1.0,  0.0,  0.0,  0.0,  0.0,
-      0.0,  0.0,  0.0,  0.0,  0.0,  0.0,
-      0.0,  0.0,  0.0,  0.0,  0.0
+     -2,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+      0,  0,  0,  0,  0
     </Vector>
     <Vector name="Gap" type="numeric" nEntries="17">
       0.0*mm,  1.5*mm,  1.5*mm,  1.5*mm,  1.5*mm,  1.5*mm,
@@ -159,28 +163,30 @@
     <Vector name="AbsorbMat" type="string" nEntries="2">
       materials:StainlessSteel,  materials:StainlessSteel</Vector>
     <Vector name="AbsorbD" type="numeric" nEntries="2">
-      14.0*mm,  60.0*mm
+      12.0*mm,  62.0*mm
     </Vector>
     <Vector name="AbsorbT" type="numeric" nEntries="2">
-      46.0*mm,  14.5*mm
+      50.0*mm,  14.5*mm
     </Vector>
     <String  name="MiddleMat"  value="materials:Air"/>
-    <Numeric name="MiddleD"    value="32.0*mm"/>
+    <Numeric name="MiddleD"    value="36.0*mm"/>
     <Numeric name="MiddleW"    value="162.0*mm"/>
-    <Vector name="MidAbsName" type="string" nEntries="4">
-      Gap, Rail, Ledge, ExtPlate</Vector>
-    <Vector name="MidAbsMat" type="string" nEntries="4">
-      materials:Aluminium, materials:StainlessSteel, materials:Aluminium, 
-      materials:StainlessSteel</Vector>
-    <Vector name="MidAbsW" type="numeric" nEntries="4">
-      275.0*mm,  242*mm, 162*mm, 130.0*mm</Vector>
+    <Vector name="MidAbsName" type="string" nEntries="5">
+      Rail, Ledge, ExtPlate, Spacer, Gap</Vector>
+    <Vector name="MidAbsMat" type="string" nEntries="5">
+      materials:StainlessSteel, materials:Aluminium, materials:StainlessSteel,
+      materials:Aluminium, materials:Air</Vector>
+    <Vector name="MidAbsW" type="numeric" nEntries="5">
+      242.0*mm, 162.0*mm, 130.0*mm, 130.0*mm, 50.0*mm</Vector>
+    <Vector name="MidAbsT" type="numeric" nEntries="5">
+      50.0*mm, 36.0*mm, 36.0*mm, 6.0*mm, 6.0*mm</Vector>
 
     <Vector name="SideMat" type="string" nEntries="2">
       materials:StainlessSteel, materials:Air</Vector>
     <Vector name="SideD" type="numeric" nEntries="2">
        0.0*mm,   0.0*mm</Vector>
     <Vector name="SideT" type="numeric" nEntries="2">
-      30.0*mm,  14.0*mm</Vector>
+      30.0*mm,  12.0*mm</Vector>
     <Vector name="SideAbsName" type="string" nEntries="2">
       Spacer, Gap</Vector>
     <Vector name="SideAbsMat" type="string" nEntries="2">
@@ -209,26 +215,40 @@
     <String name="DetMatSc" value="materials:Scintillator"/>
 
     <Vector name="DetType" type="numeric" nEntries="17">
-      0.0*mm,  1.0*mm,  1.0*mm,  1.0*mm,  1.0*mm,  1.0*mm,
-      1.0*mm,  1.0*mm,  1.0*mm,  1.0*mm,  1.0*mm,  1.0*mm,
-      1.0*mm,  1.0*mm,  1.0*mm,  1.0*mm,  2.0*mm
+      0,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,
+      1,  1,  1,  1,  2
     </Vector>
     <Vector name="DetdP1" type="numeric" nEntries="17">
-      3.0*mm,  2.5*mm,  2.5*mm,  2.5*mm,  2.5*mm,  2.5*mm,
+      0.0*mm,  2.5*mm,  2.5*mm,  2.5*mm,  2.5*mm,  2.5*mm,
       2.5*mm,  2.5*mm,  2.5*mm,  2.5*mm,  2.5*mm,  2.5*mm,
-      2.5*mm,  2.5*mm,  2.5*mm,  2.5*mm,  1.5*mm
+      2.5*mm,  2.5*mm,  2.5*mm,  2.5*mm,  0.5*mm
     </Vector>
-    <Vector name="DetT1" type="numeric" nEntries="17">
+    <Vector name="DetdP2" type="numeric" nEntries="17">
+      2.0*mm,  2.5*mm,  2.5*mm,  2.5*mm,  2.5*mm,  2.5*mm,
+      2.5*mm,  2.5*mm,  2.5*mm,  2.5*mm,  2.5*mm,  2.5*mm,
+      2.5*mm,  2.5*mm,  2.5*mm,  2.5*mm,  0.5*mm
+    </Vector>
+    <Vector name="DetT11" type="numeric" nEntries="17">
+      2.0*mm,  2.0*mm,  2.0*mm,  2.0*mm,  2.0*mm,  2.0*mm,
+      2.0*mm,  2.0*mm,  2.0*mm,  2.0*mm,  2.0*mm,  2.0*mm,
+      2.0*mm,  2.0*mm,  2.0*mm,  2.0*mm,  2.0*mm
+    </Vector>
+    <Vector name="DetT12" type="numeric" nEntries="17">
       2.0*mm,  2.0*mm,  2.0*mm,  2.0*mm,  2.0*mm,  2.0*mm,
       2.0*mm,  2.0*mm,  2.0*mm,  2.0*mm,  2.0*mm,  2.0*mm,
       2.0*mm,  2.0*mm,  2.0*mm,  2.0*mm,  2.0*mm
     </Vector>
     <Vector name="DetTsc" type="numeric" nEntries="17">
-      8.0*mm,  4.0*mm,  4.0*mm,  4.0*mm,  4.0*mm,  4.0*mm,
-      4.0*mm,  4.0*mm,  4.0*mm,  4.0*mm,  4.0*mm,  4.0*mm,
-      4.0*mm,  4.0*mm,  4.0*mm,  4.0*mm,  8.0*mm
+      9.0*mm,  3.7*mm,  3.7*mm,  3.7*mm,  3.7*mm,  3.7*mm,
+      3.7*mm,  3.7*mm,  3.7*mm,  3.7*mm,  3.7*mm,  3.7*mm,
+      3.7*mm,  3.7*mm,  3.7*mm,  3.7*mm,  9.0*mm
     </Vector>
-    <Vector name="DetT2" type="numeric" nEntries="17">
+    <Vector name="DetT21" type="numeric" nEntries="17">
+      1.0*mm,  1.0*mm,  1.0*mm,  1.0*mm,  1.0*mm,  1.0*mm,
+      1.0*mm,  1.0*mm,  1.0*mm,  1.0*mm,  1.0*mm,  1.0*mm,
+      1.0*mm,  1.0*mm,  1.0*mm,  1.0*mm,  1.0*mm
+    </Vector>
+    <Vector name="DetT22" type="numeric" nEntries="17">
       1.0*mm,  1.0*mm,  1.0*mm,  1.0*mm,  1.0*mm,  1.0*mm,
       1.0*mm,  1.0*mm,  1.0*mm,  1.0*mm,  1.0*mm,  1.0*mm,
       1.0*mm,  1.0*mm,  1.0*mm,  1.0*mm,  1.0*mm
@@ -244,9 +264,8 @@
       224.6*mm, 230.4*mm, 236.2*mm, 242.0*mm, 242.0*mm
     </Vector>
     <Vector name="DetPosY" type="numeric" nEntries="17">
-      0.0*mm,  0.0*mm,  0.0*mm,  0.0*mm,  0.0*mm,  0.0*mm,
-      0.0*mm,  0.0*mm,  0.0*mm,  0.0*mm,  0.0*mm,  0.0*mm,
-      0.0*mm,  0.0*mm,  0.0*mm,  0.0*mm,  1.0*mm
+      0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+      0,  0,  0,  0,  1
     </Vector>
   </Algorithm>
 

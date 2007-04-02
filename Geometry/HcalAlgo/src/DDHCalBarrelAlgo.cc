@@ -23,10 +23,11 @@ namespace std{} using namespace std;
 
 DDHCalBarrelAlgo::DDHCalBarrelAlgo():
   theta(0),rmax(0),zoff(0),ttheta(0),layerId(0),layerLabel(0),layerMat(0),
-  layerWidth(0),layerD1(0),layerD2(0),layerAlpha(0),layerT(0),layerAbsorb(0),
-  layerGap(0),absorbName(0),absorbMat(0),absorbD(0),absorbT(0),midName(0),
-  midMat(0),midW(0),sideMat(0),sideD(0),sideT(0),sideAbsName(0),sideAbsMat(0),
-  sideAbsW(0),detType(0),detT1(0),detTsc(0),detT2(0),detWidth1(0),detWidth2(0),
+  layerWidth(0),layerD1(0),layerD2(0),layerAlpha(0),layerT1(0),layerT2(0),
+  layerAbsorb(0),layerGap(0),absorbName(0),absorbMat(0),absorbD(0),absorbT(0),
+  midName(0),midMat(0),midW(0),midT(0),sideMat(0),sideD(0),sideT(0),
+  sideAbsName(0),sideAbsMat(0),sideAbsW(0),detType(0),detdP1(0),detdP2(0),
+  detT11(0),detT12(0),detTsc(0),detT21(0),detT22(0),detWidth1(0),detWidth2(0),
   detPosY(0) {
   LogDebug("HCalGeom") << "DDHCalBarrelAlgo info: Creating an instance";
 }
@@ -81,15 +82,17 @@ void DDHCalBarrelAlgo::initialize(const DDNumericArguments & nArgs,
   layerD1     = vArgs["D1"];
   layerD2     = vArgs["D2"];
   layerAlpha  = vArgs["Alpha2"]; 
-  layerT      = vArgs["T"];
+  layerT1     = vArgs["T1"];
+  layerT2     = vArgs["T2"];
   layerAbsorb = dbl_to_int(vArgs["AbsL"]);
   layerGap    = vArgs["Gap"];
   for (i = 0; i < nLayers; i++) {
     LogDebug("HCalGeom") << layerLabel[i] << "\t" << layerId[i] << "\t" 
 			 << layerMat[i] << "\t" << layerWidth[i] << "\t" 
 			 << layerD1[i] << "\t" << layerD2[i]  << "\t" 
-			 << layerAlpha[i] << "\t" << layerT[i] << "\t"
-			 << layerAbsorb[i] << "\t" << layerGap[i];
+			 << layerAlpha[i] << "\t" << layerT1[i] << "\t"
+			 << layerT2[i] << "\t" << layerAbsorb[i] << "\t" 
+			 << layerGap[i];
   }
   
   ///////////////////////////////////////////////////////////////
@@ -112,10 +115,12 @@ void DDHCalBarrelAlgo::initialize(const DDNumericArguments & nArgs,
   midName     = vsArgs["MidAbsName"];
   midMat      = vsArgs["MidAbsMat"];
   midW        = vArgs["MidAbsW"];
+  midT        = vArgs["MidAbsT"];
   nMidAbs     = midName.size();
   for (i = 0; i < nMidAbs; i++) {
     LogDebug("HCalGeom") << "DDHCalBarrelAlgo debug: " << midName[i]
-			 <<" Material " <<  midMat[i] << " W " << midW[i];
+			 << " Material " <<  midMat[i] << " W " << midW[i]
+			 << " T " << midT[i];
   }
 
   //Absorber layers in the side part
@@ -152,16 +157,20 @@ void DDHCalBarrelAlgo::initialize(const DDNumericArguments & nArgs,
 
   detType   = dbl_to_int(vArgs["DetType"]);
   detdP1    = vArgs["DetdP1"];
-  detT1     = vArgs["DetT1"];
+  detdP2    = vArgs["DetdP2"];
+  detT11    = vArgs["DetT11"];
+  detT12    = vArgs["DetT12"];
   detTsc    = vArgs["DetTsc"];
-  detT2     = vArgs["DetT2"];
+  detT21    = vArgs["DetT21"];
+  detT22    = vArgs["DetT22"];
   detWidth1 = vArgs["DetWidth1"];
   detWidth2 = vArgs["DetWidth2"];
   detPosY   = dbl_to_int(vArgs["DetPosY"]);
   for (i = 0; i < nLayers; i ++) {
     LogDebug("HCalGeom") << i+1 << "\t" << detType[i] << "\t" << detdP1[i]
-			 << "\t"  << detT1[i] << "\t" << detTsc[i] << "\t"
-			 << detT2[i] << "\t" << detWidth1[i] << "\t" 
+			 << ", "  << detdP2[i] << "\t" << detT11[i] << ", " 
+			 << detT12[i] << "\t" << detTsc[i] << "\t" << detT21[i]
+			 <<", " << detT22[i] << "\t" << detWidth1[i] << "\t" 
 			 << detWidth2[i] << "\t" << detPosY[i];
   }
 
@@ -533,7 +542,8 @@ void DDHCalBarrelAlgo::constructInsideSector(DDLogicalPart sector) {
 
     constructInsideLayers(glog, getLayerLabel(i), getLayerId(i), 
 			  getLayerAbsorb(i), rin,  getLayerD1(i), alpha1, 
-			  getLayerD2(i), getLayerAlpha(i), getLayerT(i));
+			  getLayerD2(i), getLayerAlpha(i), getLayerT1(i),
+			  getLayerT2(i));
     rin = rout;
   }
   
@@ -543,7 +553,8 @@ void DDHCalBarrelAlgo::constructInsideLayers(DDLogicalPart laylog,
 					     string nm, int id, int nAbs, 
 					     double rin, double d1, 
 					     double alpha1, double d2, 
-					     double alpha2, double t) {
+					     double alpha2, double t1,
+					     double t2) {
   
   LogDebug("HCalGeom") << "DDHCalBarrelAlgo test: \t\tInside layer " << id 
 		       << "...";
@@ -568,7 +579,7 @@ void DDHCalBarrelAlgo::constructInsideLayers(DDLogicalPart laylog,
     for (i = 0; i < getRzones()-1; i++) {
       if (rsi >= getRmax(i)) in = i+1;
     }
-    dx = 0.5*t;
+    dx = 0.5*t1;
     dy = 0.5*rsi*(tan(alpha1)-tan(alpha2));
     dz = 0.5*(getZoff(in) + rsi*getTanTheta(in));
     x  = rsi + dx;
@@ -607,7 +618,7 @@ void DDHCalBarrelAlgo::constructInsideLayers(DDLogicalPart laylog,
   for (i = 0; i < getRzones()-1; i++) {
     if (rsi >= getRmax(i)) in = i+1;
   }
-  dx  = 0.5*t;
+  dx  = 0.5*t2;
   dy  = 0.5*rsi*tan(alpha2);
   dz  = 0.5*(getZoff(in) + rsi*getTanTheta(in));
   x   = rsi + dx;
@@ -687,7 +698,7 @@ DDLogicalPart DDHCalBarrelAlgo::constructSideLayer(DDLogicalPart laylog,
 
   if (nAbs < 0) {
     DDLogicalPart mother = glog;
-    double rmid  = 0.5*(pgonRmin[0]+pgonRmax[0]);
+    double rmid  = pgonRmax[0];
     for (int i = 0; i < getSideAbsorber(); i++) {
       double alpha1 = atan(getSideAbsW(i)/rmid);  
       if (alpha1 > 0) {
@@ -772,10 +783,9 @@ DDLogicalPart DDHCalBarrelAlgo::constructMidLayer(DDLogicalPart laylog,
     if (k==0) {
       double rmin   = pgonRmin[0];
       double rmax   = pgonRmax[0];
-      double rmid   = rmin + getMiddleD();
       DDLogicalPart mother = log;
-      for (int i=0; i<2; i++) {
-	double alpha1 = atan(getMidAbsW(i)/rmid);
+      for (int i=0; i<1; i++) {
+	double alpha1 = atan(getMidAbsW(i)/rmin);
 	string namek  = name + getMidAbsName(i);
 	solid = DDSolidFactory::polyhedra(DDName(namek, idNameSpace), 1, 
 					  -alpha1, 2*alpha1, pgonZ, pgonRmin, 
@@ -803,11 +813,11 @@ DDLogicalPart DDHCalBarrelAlgo::constructMidLayer(DDLogicalPart laylog,
       }
 
       // Now the layer with detectors
-      rsi = rmin + getMiddleD();
-      pgonRmin[0] = rsi;  pgonRmax[0] = rmax;
-      pgonRmin[1] = rsi;  pgonRmax[1] = rmax; pgonZ[1] = getZoff(in) + rsi*getTanTheta(in);
+      double rmid = rmin + getMiddleD();
+      pgonRmin[0] = rmid; pgonRmax[0] = rmax;
+      pgonRmin[1] = rmid; pgonRmax[1] = rmax; pgonZ[1] = getZoff(in) + rmid*getTanTheta(in);
       pgonRmin[2] = rmax; pgonRmax[2] = rmax; pgonZ[2] = getZoff(in) + rmax*getTanTheta(in);
-      double alpha1 = atan(getMiddleW()/rsi);
+      double alpha1 = atan(getMiddleW()/rmin);
       solid = DDSolidFactory::polyhedra(DDName(name, idNameSpace), 1, 
 					-alpha1, 2*alpha1, pgonZ, pgonRmin, 
 					pgonRmax);
@@ -832,12 +842,13 @@ DDLogicalPart DDHCalBarrelAlgo::constructMidLayer(DDLogicalPart laylog,
 			   << " at (0,0,0) with no rotation";
 
       // Now the remaining absorber layers
-      pgonRmin[0] = rmin; pgonRmax[0] = rsi;
-      pgonRmin[1] = rmin; pgonRmax[1] = rsi; pgonZ[1] = getZoff(in) + rmin*getTanTheta(in);
-      pgonRmin[2] = rsi;  pgonRmax[2] = rsi; pgonZ[2] = getZoff(in) + rsi*getTanTheta(in);
-      for (int i = 2; i < getMidAbsorber(); i++) {
+      for (int i = 1; i < getMidAbsorber(); i++) {
 	namek  = name + getMidAbsName(i);
-	alpha1 = atan(getMidAbsW(i)/rsi);
+	rmid   = rmin + getMidAbsT(i);
+	pgonRmin[0] = rmin; pgonRmax[0] = rmid;
+	pgonRmin[1] = rmin; pgonRmax[1] = rmid; pgonZ[1] = getZoff(in) + rmin*getTanTheta(in);
+	pgonRmin[2] = rmid; pgonRmax[2] = rmid; pgonZ[2] = getZoff(in) + rmid*getTanTheta(in);
+	alpha1 = atan(getMidAbsW(i)/rmin);
 	solid = DDSolidFactory::polyhedra(DDName(namek, idNameSpace), 1, 
 					  -alpha1, 2*alpha1, pgonZ, pgonRmin, 
 					  pgonRmax);
@@ -888,22 +899,28 @@ void DDHCalBarrelAlgo::constructInsideDetectors(DDLogicalPart detector,
   DDSolid solid;
   DDLogicalPart glog;
   double  wid, y=0;
+  double  dx1, dx2, shiftX;
 
   if (type == 1) {
     wid = 0.5*getDetWidth1(id);
     if (getDetPosY(id)>0) y =-dy+wid;
+    dx1    = 0.5*getDetT11(id);
+    dx2    = 0.5*getDetT21(id);
+    shiftX = getDetdP1(id);
   } else {
     wid = 0.5*getDetWidth2(id);
+    dx1    = 0.5*getDetT12(id);
+    dx2    = 0.5*getDetT22(id);
+    shiftX = getDetdP2(id);
   }
 
-  solid = DDSolidFactory::box(DDName(plname+"1", idNameSpace), 
-			      0.5*getDetT1(id) , wid, dz);
+  solid = DDSolidFactory::box(DDName(plname+"1", idNameSpace), dx1, wid, dz);
   LogDebug("HCalGeom") << "DDHCalBarrelAlgo test: " << solid.name() 
 		       << " Box made of " << getDetMatPl() << " of dimensions "
-		       << 0.5*getDetT1(id) <<", " << wid << ", "  << dz;
+		       << dx1 <<", " << wid << ", "  << dz;
   glog = DDLogicalPart(solid.ddname(), plmatter, solid); 
 
-  double x = getDetdP1(id) + 0.5*getDetT1(id) - dx;
+  double x = shiftX + dx1 - dx;
   DDpos(glog, detector, 1, DDTranslation(x,y,0), DDRotation());
   LogDebug("HCalGeom") << "DDHCalBarrelAlgo test: " << glog.name() 
 		       << " Number 1 positioned in " << detector.name() 
@@ -916,21 +933,20 @@ void DDHCalBarrelAlgo::constructInsideDetectors(DDLogicalPart detector,
 		       << 0.5*getDetTsc(id) << ", " << wid << ", " << dz;
   glog = DDLogicalPart(solid.ddname(), scmatter, solid);
 
-  x += 0.5*(getDetT1(id) + getDetTsc(id));
+  x += dx1 + 0.5*getDetTsc(id);
   int copyNo = id*10 + getDetType(id);
   DDpos(glog, detector, copyNo, DDTranslation(x, y, 0), DDRotation());
   LogDebug("HCalGeom") << "DDHCalBarrelAlgo test: " << glog.name() <<" Number "
 		       << copyNo << " positioned in " << detector.name() 
 		       << " at (" << x << "," << y  << ",0) with no rotation";
 
-  solid = DDSolidFactory::box(DDName(plname+"2", idNameSpace), 
-			      0.5*getDetT2(id) , wid, dz);
+  solid = DDSolidFactory::box(DDName(plname+"2", idNameSpace), dx2, wid, dz);
   LogDebug("HCalGeom") << "DDHCalBarrelAlgo test: " << solid.name() 
 		       << " Box made of " << getDetMatPl() << " of dimensions "
-		       << 0.5*getDetT2(id) <<", " << wid << ", "  << dz;
+		       << dx2 <<", " << wid << ", "  << dz;
   glog = DDLogicalPart(solid.ddname(), plmatter, solid);
 
-  x+=0.5*(getDetTsc(id) + getDetT2(id));
+  x+=0.5*getDetTsc(id) + dx2;
   DDpos (glog, detector, 1, DDTranslation(x, y, 0), DDRotation());
   LogDebug("HCalGeom") << "DDHCalBarrelAlgo test: " << glog.name() 
 		       << " Number 1 positioned in " << detector.name() 
