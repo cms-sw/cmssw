@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerClient.cc
  *
- * $Date: 2007/04/02 09:31:23 $
- * $Revision: 1.35 $
+ * $Date: 2007/04/02 09:36:19 $
+ * $Revision: 1.36 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -668,7 +668,7 @@ void EBTriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
 
       for ( int j=1; j<=2; j++ ) {
 
-        imgName = meName + char(48+j) + ".png";
+        imgName = meName + "_" + char(47+j) + ".png";
         imgMeName = htmlDir + imgName;
 
         obj3f->GetZaxis()->SetRange( j, j );
