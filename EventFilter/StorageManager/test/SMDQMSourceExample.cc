@@ -10,7 +10,7 @@
   file in DQMServices/Daemon/test, but modified to include another top level
   folder, to remove the 1 sec wait, and to do the fitting without printout.
 
-  $Id$
+  $Id: SMDQMSourceExample.cc,v 1.1 2007/04/02 19:24:34 hcheung Exp $
 
 */
 
@@ -92,7 +92,7 @@ SMDQMSourceExample::SMDQMSourceExample( const edm::ParameterSet& iConfig )
   edm::Service<MonitorDaemon> daemon;
   daemon.operator->();
 
-  const int NBINS = 50; XMIN = 0; XMAX = 50;
+  const int NBINS = 500; XMIN = 0; XMAX = 50;
 
   // book some histograms here
 
@@ -126,7 +126,8 @@ SMDQMSourceExample::SMDQMSourceExample( const edm::ParameterSet& iConfig )
   h8 = dbe->book1D("histo8", "Example 8 1D histogram.", NBINS, XMIN, XMAX);
   // create and cd into new sublevel folder
   dbe->setCurrentFolder("D1/D2");
-  h9 = dbe->book1D("histo9", "Example 9 1D histogram.", NBINS, XMIN, XMAX);
+  h9 = dbe->book2D("histo9", "Example 9 2D histogram.", NBINS, XMIN, XMAX, 
+		   NBINS, XMIN, XMAX);
 
   h2->setAxisTitle("Customized x-axis", 1);
   h2->setAxisTitle("Customized y-axis", 2);
@@ -193,7 +194,6 @@ void SMDQMSourceExample::analyze(const edm::Event& iEvent,
       h6->Fill(gRandom->Gaus(25, 15), 1.0);
       h7->Fill(gRandom->Gaus(25, 8), 1.0);
       h8->Fill(gRandom->Gaus(25, 7), 1.0);
-      h9->Fill(gRandom->Gaus(25, 6), 1.0);
     }
 
   // fit h4 to gaussian
@@ -209,6 +209,7 @@ void SMDQMSourceExample::analyze(const edm::Event& iEvent,
       float x = gRandom->Gaus(15, 7);
       float y = gRandom->Gaus(20, 5);
       h2->Fill(x,y);
+      h9->Fill(x,y);
     }
   //      (*(*i1))++;
   //usleep(1000000);
