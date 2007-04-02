@@ -163,7 +163,7 @@ double TrackDetMatchInfo::coneEnergy( double dR, EnergyType type )
 
 double TrackDetMatchInfo::nXnEnergy(const DetId& id, EnergyType type, int gridSize )
 {
-   if ( id.rawId() == 0 ) return -9999;
+   if ( id.rawId() == 0 ) return 0.;
    switch (type)  {
     case TowerTotal:
     case TowerHcal:
