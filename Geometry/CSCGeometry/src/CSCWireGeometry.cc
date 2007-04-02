@@ -1,3 +1,8 @@
+
+
+
+
+
 #include "Geometry/CSCGeometry/interface/CSCWireGeometry.h"
 
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
@@ -43,7 +48,13 @@ std::vector<float> CSCWireGeometry::wireValues( float wire ) const {
   
   // slope & intercept of line defining one non-parallel edge of wire-plane trapezoid
   float m1 = 2.*len/(ww-nw);
-  float c1 = yOfFirstWire() - nw*ww/(ww-nw) ;
+  float c1 = 0.;
+  if ( fabs(wangle) < fprec ) {
+    c1 = yOfFirstWire() - nw*len/(ww-nw) ; // non-ME11
+  }
+  else {
+    c1 = -len/2. - nw*len/(ww-nw); // ME11
+  }
 
   // slope & intercept of other non-parallel edge of wire-plane trapezoid
   float m2 = -m1;
@@ -85,8 +96,8 @@ std::vector<float> CSCWireGeometry::wireValues( float wire ) const {
   float hb = nw/2. ;
   float mt = 0.; // slope of top edge
   float mb = 0.; //slope of bottom edge
-  float cb = yOfFirstWire(); // intercept bottom edge of wire plane
-  float ct = cb + len;       // intercept top edge of wire plane
+  float cb = -len/2.; // intercept bottom edge of wire plane
+  float ct =  len/2.; // intercept top edge of wire plane
   
   LogTrace("CSC") <<  "CSCWireGeometry: slopes & intercepts " <<
     "\n  mt=" << mt << " ct=" << ct << " mb=" << mb << " cb=" << cb <<
