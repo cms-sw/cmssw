@@ -61,6 +61,7 @@ CSCDCCUnpacker::CSCDCCUnpacker(const edm::ParameterSet & pset) :
   examinerMask = pset.getUntrackedParameter<unsigned int>("ExaminerMask",0x7FB7BF6);
   instatiateDQM = pset.getUntrackedParameter<bool>("runDQM", false);
   errorMask = pset.getUntrackedParameter<unsigned int>("ErrorMask",0xDFCFEFFF);
+  unpackStatusDigis = pset.getUntrackedParameter<bool>("UnpackStatusDigis", false);
 
   if(instatiateDQM){
    monitor = edm::Service<CSCMonitorInterface>().operator->();
@@ -73,7 +74,7 @@ CSCDCCUnpacker::CSCDCCUnpacker(const edm::ParameterSet & pset) :
   produces<CSCCLCTDigiCollection>("MuonCSCCLCTDigi");
   produces<CSCRPCDigiCollection>("MuonCSCRPCDigi");
   produces<CSCCorrelatedLCTDigiCollection>("MuonCSCCorrelatedLCTDigi");
-  produces<CSCCFEBStatusDigiCollection>("MuonCSCCFEBStatusDigi");
+  if (unpackStatusDigis) produces<CSCCFEBStatusDigiCollection>("MuonCSCCFEBStatusDigi");
 
 
   CSCAnodeData::setDebug(debug);
@@ -122,9 +123,6 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 
 
   numOfEvents++;
-
-  //this line is to skip unpacking until 1309th event
-  //if (numOfEvents>1308) {
 
 
   for (int id=FEDNumbering::getCSCFEDIds().first;
@@ -287,10 +285,11 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 	    }
 
 
-	    for ( icfeb = 0; icfeb < 5; ++icfeb ) {///loop over status digis
-	      cfebStatusProduct->insertDigi(layer, cscData[iCSC].cfebData(icfeb)->statusDigi());
+	    if (unpackStatusDigis) {
+	      for ( icfeb = 0; icfeb < 5; ++icfeb ) {///loop over status digis
+		cfebStatusProduct->insertDigi(layer, cscData[iCSC].cfebData(icfeb)->statusDigi());
+	      }
 	    }
-
 	    //this loop stores wire strip and comparator digis:
 	    for (int ilayer = 1; ilayer <= 6; ilayer++) {
 
@@ -371,7 +370,7 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
   e.put(comparatorProduct,    "MuonCSCComparatorDigi");
   e.put(rpcProduct,           "MuonCSCRPCDigi");
   e.put(corrlctProduct,       "MuonCSCCorrelatedLCTDigi");
-  e.put(cfebStatusProduct,    "MuonCSCCFEBStatusDigi");
+  if (unpackStatusDigis) e.put(cfebStatusProduct,    "MuonCSCCFEBStatusDigi");
 
 }
 
