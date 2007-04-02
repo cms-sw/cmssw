@@ -13,7 +13,7 @@
 //
 // Original Author:  Tomasz Maciej Frueboes
 //         Created:  Tue Mar 20 12:30:19 CET 2007
-// $Id$
+// $Id: RPCTriggerConfig.cc,v 1.1 2007/03/26 09:13:49 fruboes Exp $
 //
 //
 
@@ -32,7 +32,7 @@
 
 
 #include "CondFormats/DataRecord/interface/L1RPCConfigRcd.h"
-#include "CondFormats/L1TObjects/interface/L1RPCConfig.h"
+#include "CondFormats/RPCObjects/interface/L1RPCConfig.h"
 #include <string>
 
 
