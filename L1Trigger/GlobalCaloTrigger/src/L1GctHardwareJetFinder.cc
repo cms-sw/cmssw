@@ -29,7 +29,7 @@ L1GctHardwareJetFinder::L1GctHardwareJetFinder(int id, vector<L1GctSourceCard*> 
 	ieta = (L1CaloRegionDetId::N_ETA/2-1+row);
 	iphi = ((L1CaloRegionDetId::N_PHI - m_id)*2 + 4)%L1CaloRegionDetId::N_PHI + (1-column);
       }
-      L1CaloRegion temp(0, ieta, iphi);
+      L1CaloRegion temp(0, ieta, iphi, 0);
       m_protoJetRegions.at(column*COL_OFFSET+row) = temp;
     }
   }
