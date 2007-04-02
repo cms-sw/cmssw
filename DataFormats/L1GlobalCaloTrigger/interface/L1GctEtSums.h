@@ -13,6 +13,9 @@
  */
 
 
+/// \class L1GctEtTotal
+/// \brief Persistable copy of total Et measured at Level-1
+
 class L1GctEtTotal {
  public:
   L1GctEtTotal();
@@ -47,6 +50,9 @@ class L1GctEtTotal {
 
 };
 
+/// \class L1GctEtHad
+/// \brief Persistable copy of total Ht measured at Level-1
+
 class L1GctEtHad {
  public:
   L1GctEtHad();
@@ -80,6 +86,9 @@ class L1GctEtHad {
   uint16_t m_data;
 
 };
+
+/// \class L1GctEtMiss
+/// \brief Persistable copy of missing Et measured at Level-1
 
 class L1GctEtMiss {
  public:
