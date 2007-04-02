@@ -4,8 +4,8 @@
 /** \class DTROS25Data
  *  The collection containing DT ROS25 status data.
  *
- *  $Date: 2007/03/16 18:01:49 $
- *  $Revision: 1.5 $
+ *  $Date: 2007/03/29 17:26:01 $
+ *  $Revision: 1.6 $
  *  \author M. Zanetti - INFN Padova
  *  \revision I. Josa - Ciemat Madrid
  */
@@ -35,6 +35,7 @@ public:
  /// Setters  ///////////////////////
  inline void setROSId(const int & ID) { theROSId = ID; }
 
+ inline void addROSHeader( const DTROSHeaderWord & word)  { theROSHeader = DTROSHeaderWord(word) ; }
  inline void addROSTrailer( const DTROSTrailerWord & word)  { theROSTrailer = DTROSTrailerWord(word) ; }
  inline void addROSError( const DTROSErrorWord & word)  { theROSErrors.push_back(word); }
  inline void addROSDebug( const DTROSDebugWord & word)  { theROSDebugs.push_back(word); }
@@ -49,6 +50,7 @@ public:
  inline int getROSID() const { return theROSId; }
 
  inline const DTROSTrailerWord & getROSTrailer() const {return theROSTrailer;}
+ inline const DTROSHeaderWord & getROSHeader() const {return theROSHeader;}
  inline const std::vector<DTROSErrorWord>& getROSErrors() const {return theROSErrors;}
  inline const std::vector<DTROSDebugWord>& getROSDebugs() const {return theROSDebugs;}
  inline const std::vector<DTROBHeader>& getROBHeaders() const {return theROBHeaders;}
@@ -59,7 +61,8 @@ public:
  inline const std::vector<DTSectorCollectorData>& getSCData() const {return theSCData;}
 
  inline void clean() {
-   theROSTrailer = 0; 
+   theROSHeader = 0; 
+   theROSTrailer = 0;
    theROSErrors.clear(); 
    theROSDebugs.clear(); 
    theROBHeaders.clear(); 
@@ -75,6 +78,7 @@ private:
 
  int theROSId;
 
+ DTROSHeaderWord theROSHeader;
  DTROSTrailerWord theROSTrailer;
  std::vector<DTROSErrorWord> theROSErrors;
  std::vector<DTROSDebugWord> theROSDebugs;

@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2007/03/16 18:02:16 $
- *  $Revision: 1.29 $
+ *  $Date: 2007/03/29 17:26:01 $
+ *  $Revision: 1.30 $
  *  \author  M. Zanetti - INFN Padova
  *  \revision FRC 060906
  */
@@ -122,6 +122,8 @@ void DTROS25Unpacker::interpretRawData(const unsigned int* index, int datasize,
 
       // container for words to be sent to DQM
       controlData.setROSId(rosID);
+      controlData.addROSHeader(rosHeaderWord);
+      
 
       // Loop on ROBs
       do {
