@@ -1,5 +1,6 @@
-// $Id: RecoCandidate.cc,v 1.10 2006/07/27 07:13:42 llista Exp $
+// $Id: RecoCandidate.cc,v 1.11 2007/01/11 14:01:59 llista Exp $
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
+#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 
 using namespace reco;
 
@@ -35,4 +36,27 @@ SuperClusterRef RecoCandidate::superCluster() const {
 
 CaloTowerRef RecoCandidate::caloTower() const {
   return CaloTowerRef();
+}
+
+const Track * RecoCandidate::bestTrack() const {
+  TrackRef muRef = combinedMuon();
+  if( muRef.isNonnull() ) 
+    return muRef.get();
+  TrackRef trkRef = track();
+  if ( trkRef.isNonnull() ) 
+    return trkRef.get();
+  GsfTrackRef gsfTrkRef = gsfTrack();
+  if ( gsfTrkRef.isNonnull() )
+    return gsfTrkRef.get();
+  return 0;
+}
+
+RecoCandidate::TrackType RecoCandidate::bestTrackType() const {
+  if( combinedMuon().isNonnull() ) 
+    return recoTrackType;
+  if ( track().isNonnull() ) 
+    return recoTrackType;
+  if ( gsfTrack().isNonnull() ) 
+    return gsfTrackType;
+  return noTrackType;
 }
