@@ -1,4 +1,4 @@
-// $Id: FragmentCollector.cc,v 1.28 2007/02/20 17:28:41 hcheung Exp $
+// $Id: FragmentCollector.cc,v 1.29 2007/03/07 15:10:23 biery Exp $
 
 #include "EventFilter/StorageManager/interface/FragmentCollector.h"
 #include "EventFilter/StorageManager/interface/ProgressMarker.h"
@@ -196,7 +196,7 @@ namespace stor
       } // end of single segment test
 
     pair<Collection::iterator,bool> rc =
-      fragment_area_.insert(make_pair(FragKey(entry->code_, 0, entry->id_, 0), Fragments()));
+      fragment_area_.insert(make_pair(FragKey(entry->code_, entry->run_, entry->id_, 0), Fragments()));
     
     rc.first->second.push_back(*entry);
     FR_DEBUG << "FragColl: added fragment" << endl;
@@ -344,7 +344,7 @@ namespace stor
     } // end of single segment test
 
     pair<Collection::iterator,bool> rc =
-      fragment_area_.insert(make_pair(FragKey(entry->code_, 0, entry->id_, 0), Fragments()));
+      fragment_area_.insert(make_pair(FragKey(entry->code_, entry->run_, entry->id_, entry->folderid_), Fragments()));
     
     rc.first->second.push_back(*entry);
     FR_DEBUG << "FragColl: added DQM fragment" << endl;
@@ -377,6 +377,48 @@ namespace stor
         (*buffer_deleter_)(&(*i));
       }
       // the reformed DQM data is now in event_area_ deal with it
+      // temporary debug output
+      DQMEventMsgView dqmEventView(&event_area_[0]);
+      std::cout << "  DQM Message data:" << std::endl; 
+      std::cout << "    protocol version = "
+                << dqmEventView.protocolVersion() << std::endl; 
+      std::cout << "    header size = "
+                << dqmEventView.headerSize() << std::endl; 
+      std::cout << "    run number = "
+                << dqmEventView.runNumber() << std::endl; 
+      std::cout << "    event number = "
+                << dqmEventView.eventNumberAtUpdate() << std::endl; 
+      std::cout << "    lumi section = "
+                << dqmEventView.lumiSection() << std::endl; 
+      std::cout << "    update number = "
+                << dqmEventView.updateNumber() << std::endl; 
+      std::cout << "    compression flag = "
+                << dqmEventView.compressionFlag() << std::endl; 
+      std::cout << "    reserved word = "
+                << dqmEventView.reserved() << std::endl; 
+      std::cout << "    release tag = "
+                << dqmEventView.releaseTag() << std::endl; 
+      std::cout << "    top folder name = "
+                << dqmEventView.topFolderName() << std::endl; 
+      std::cout << "    sub folder count = "
+                << dqmEventView.subFolderCount() << std::endl; 
+      edm::StreamDQMDeserializer deserializeWorker;
+      std::auto_ptr<DQMEvent::TObjectTable> toTablePtr =
+        deserializeWorker.deserializeDQMEvent(dqmEventView);
+      DQMEvent::TObjectTable::const_iterator toIter;
+      for (toIter = toTablePtr->begin();
+           toIter != toTablePtr->end(); toIter++) {
+        std::string subFolderName = toIter->first;
+        std::cout << "  folder = " << subFolderName << std::endl;
+        std::vector<TObject *> toList = toIter->second;
+        for (int tdx = 0; tdx < (int) toList.size(); tdx++) {
+          TObject *toPtr = toList[tdx];
+          string cls = toPtr->IsA()->GetName();
+          string nm = toPtr->GetName();
+          std::cout << "    TObject class = " << cls
+                    << ", name = " << nm << std::endl;
+        }
+      }
 
       // remove the entry from the map
       fragment_area_.erase(rc.first);
