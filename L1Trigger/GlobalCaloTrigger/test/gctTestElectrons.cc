@@ -36,7 +36,7 @@ gctTestElectrons::~gctTestElectrons()
 void gctTestElectrons::loadEvent(L1GlobalCaloTrigger* &gct, const std::string fileName)
 {
   m_fileNameUsed = fileName;
-  gct->openSourceCardFiles(fileName);
+  //  gct->openSourceCardFiles(fileName);
 }
 
 //=================================================================================================================

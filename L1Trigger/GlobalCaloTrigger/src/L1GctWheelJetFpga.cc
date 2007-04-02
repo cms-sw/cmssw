@@ -340,6 +340,6 @@ void L1GctWheelJetFpga::setupRawTauJetsVec()
 {
   // Create a jet candidate with the tau flag set to true,
   // then copy it into the tauJets vector
-  L1GctJetCand temp(0, true, false);
+  L1GctJetCand temp(0, 0, 0, true, false);
   m_rawTauJets.assign(MAX_RAW_TJETS, temp);
 }

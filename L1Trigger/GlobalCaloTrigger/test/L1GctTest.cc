@@ -50,7 +50,7 @@ L1GctTest::L1GctTest(const edm::ParameterSet& iConfig) :
       << "Specify non-blank parameter referenceFile in cmsRun configuration\n"; }
 
   // instantiate the GCT
-  m_gct = new L1GlobalCaloTrigger(false,L1GctJetLeafCard::hardwareJetFinder);
+  m_gct = new L1GlobalCaloTrigger(L1GctJetLeafCard::hardwareJetFinder);
   m_tester = new gctTestFunctions();
 
 }
