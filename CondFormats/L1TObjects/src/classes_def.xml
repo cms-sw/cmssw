@@ -3,7 +3,6 @@
   <class name="L1MuGMTScales"/>
   <class name="L1CaloEtScale"/>
   <class name="L1GctJetEtCalibrationFunction"/>
-  <class name="L1RPCConfig"/>
   <class name="L1MuDTExtLut"/>
   <class name="L1MuDTPhiLut"/>
   <class name="L1MuDTPtaLut"/>
