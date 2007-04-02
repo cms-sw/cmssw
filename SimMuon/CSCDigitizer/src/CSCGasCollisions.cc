@@ -109,26 +109,26 @@ void CSCGasCollisions::readCollisionTable() {
 
   // @@ We had better have the right sizes everywhere or all
   // hell will break loose. There's no trapping.
-  LogDebug(me) << "Reading gamma bins";
+  LogTrace(me) << "Reading gamma bins";
   int j = 0;
   for(int i = 0; i<N_GAMMA; ++i) {
     fin >> theGammaBins[i];
-    LogDebug(me) << ++j << "   " << theGammaBins[i];
+    LogTrace(me) << ++j << "   " << theGammaBins[i];
   }
 
   j = 0;
-  LogDebug(me) << "Reading energy bins \n";
+  LogTrace(me) << "Reading energy bins \n";
   for(int i = 0; i<N_ENERGY; ++i) {
      fin >> theEnergyBins[i];
-     LogDebug(me) << ++j << "   " << theEnergyBins[i];
+     LogTrace(me) << ++j << "   " << theEnergyBins[i];
   }
 
   j = 0;
-  LogDebug(me) << "Reading collisions table \n";
+  LogTrace(me) << "Reading collisions table \n";
 
   for(int i = 0; i<N_ENTRIES; ++i) {
      fin >> theCollisionTable[i];
-     LogDebug(me) << ++j << "   " << theCollisionTable[i];
+     LogTrace(me) << ++j << "   " << theCollisionTable[i];
   }
 
   fin.close();
@@ -172,7 +172,7 @@ void CSCGasCollisions::simulate( const PSimHit& simHit,
   // Test the simhit 'length' (beware of angular effects)
   //  if ( gapSize <= epsilonL || gapSize > max_gap_z ) {
   if ( gapSize <= epsilonL ) {
-    LogDebug(me) << ": WARNING! simhit entry and exit are very close: \n"
+    LogTrace(me) << ": WARNING! simhit entry and exit are very close: \n"
       << "\n entry = " << simHit.entryPoint()
       << "\n exit  = " << simHit.exitPoint()
       << "\n particle type = " << iam << ", momentum = " << mom 
@@ -190,7 +190,7 @@ void CSCGasCollisions::simulate( const PSimHit& simHit,
   double anmax = exp(collisions[0]);
   double amu   = anmax - anmin;
 
-  LogDebug(me) << "collisions extremes = " << collisions[N_ENERGY-1]
+  LogTrace(me) << "collisions extremes = " << collisions[N_ENERGY-1]
      << ", " << collisions[0] << "\n"
      << "anmin = " << anmin << ", anmax = " << anmax << "\n"
      << "amu = " << amu << "\n";
@@ -207,7 +207,7 @@ void CSCGasCollisions::simulate( const PSimHit& simHit,
   while ( sum_steps < gapSize) {
     ++n_try;
     if ( n_try > MAX_STEPS ) {
-          LogDebug(me) << ": n_try=" << n_try << " is too large. Skip simhit."
+          LogTrace(me) << ": n_try=" << n_try << " is too large. Skip simhit."
            << "\n particle type=" << iam << ", momentum= " << mom
            << "\n gapSize=" << gapSize << ", last step=" << step 
            << ", sum_steps=" << sum_steps << ", n_steps=" << n_steps;
@@ -220,7 +220,7 @@ void CSCGasCollisions::simulate( const PSimHit& simHit,
 
     // Is the eloss too large? (then GEANT should have produced hits!)
     if ( eloss > deCut ) {
-      LogDebug(me) << "eloss > " << deCut << " = " << eloss;
+      LogTrace(me) << "eloss > " << deCut << " = " << eloss;
       continue; // to generate another collision/step
     }
 
@@ -235,7 +235,7 @@ void CSCGasCollisions::simulate( const PSimHit& simHit,
              << ", sum_steps=" << sum_steps;
         break;
     }
-    LogDebug(me) << "sum_steps = " << sum_steps << ", dedx = " << dedx;
+    LogTrace(me) << "sum_steps = " << sum_steps << ", dedx = " << dedx;
     
     // Generate ionization. 
     // eion is the minimum energy at which ionization can occur in the gas
@@ -244,7 +244,7 @@ void CSCGasCollisions::simulate( const PSimHit& simHit,
       ionize( eloss, here );
     }
     else {
-      LogDebug(me) << "Energy available = " << eloss <<
+      LogTrace(me) << "Energy available = " << eloss <<
         ", too low for ionization.";
     }
 
@@ -268,7 +268,7 @@ double CSCGasCollisions::generateStep( double avCollisions ) const
 //    double da = double(rand())/double(RAND_MAX);
 //    double step = -log(1.-da)/avCollisions;
 
-    LogDebug(me)  << " step = " << step;
+    LogTrace(me)  << " step = " << step;
     // TODO CAn this possibly be right?
     //if ( debugV ) theCrossGap->addStep( step );
     return step;
@@ -290,7 +290,7 @@ float CSCGasCollisions::generateEnergyLoss( double avCollisions,
     float eloss  = exp(lnE);
     // Compensate if gamma was actually below 1.1
     if ( theCrossGap->gamma() < 1.1 ) eloss = eloss * 0.173554/theCrossGap->beta2();
-    LogDebug(me) << "eloss = " << eloss;
+    LogTrace(me) << "eloss = " << eloss;
     // TODO
 //    theCrossGap->addEloss( eloss );
     return eloss;
@@ -299,7 +299,7 @@ float CSCGasCollisions::generateEnergyLoss( double avCollisions,
 void  CSCGasCollisions::ionize( double energyAvailable, LocalPoint startHere ) const
 {
   while ( energyAvailable > eion ) {
-    LogDebug(me) << "     NEW CLUSTER " << theCrossGap->noOfClusters() + 1 <<
+    LogTrace(me) << "     NEW CLUSTER " << theCrossGap->noOfClusters() + 1 <<
 	       " AT " << startHere;
     LocalPoint newCluster( startHere );
     theCrossGap->addCluster(newCluster);
@@ -312,27 +312,27 @@ void  CSCGasCollisions::ionize( double energyAvailable, LocalPoint startHere ) c
   // but I cannot find this expression in that set of papers.)
   // Take HALF that range. //@@ Why? Why not...
     double range = 0.5 * (0.71/gasDensity)*pow( energyAvailable*1.E-6, 1.72);
-    LogDebug(me) << " range = " << range;
+    LogTrace(me) << " range = " << range;
     if ( range < clusterExtent ) {
 
       // short-range delta e
           // How many electrons can we make? Now use *average* energy for ionization (not *minimum*)
       int nelec = static_cast<int>(energyAvailable/ework);
-      LogDebug(me) << "s-r delta energy in = " << energyAvailable;
+      LogTrace(me) << "s-r delta energy in = " << energyAvailable;
       energyAvailable -= nelec*(energyAvailable/ework);
 	    // If still above eion (minimum, not average) add one more e
       if ( energyAvailable > eion ) {
         ++nelec;
         energyAvailable -= eion;
       }
-      LogDebug(me) << "s-r delta energy out = " << energyAvailable << ", nelec = " << nelec;
+      LogTrace(me) << "s-r delta energy out = " << energyAvailable << ", nelec = " << nelec;
       theCrossGap->addElectrons( nelec );
       break;
 
      }
      else {
       // long-range delta e
-         LogDebug(me) << "l-r delta \n"
+         LogTrace(me) << "l-r delta \n"
              << "no. of electrons in cluster now = " << theCrossGap->noOfElectrons();
          theCrossGap->addElectrons( 1 ); // Position is at startHere still
 
@@ -342,7 +342,7 @@ void  CSCGasCollisions::ionize( double energyAvailable, LocalPoint startHere ) c
             while ( energyAvailable > eion ) {
               double range2 = 0.5 * 0.71/gasDensity*pow( 1.E-6*energyAvailable, 1.72);
               double drange = range - range2;
-              LogDebug(me) << "  energy left = " << energyAvailable << 
+              LogTrace(me) << "  energy left = " << energyAvailable << 
                         ", range2 = " << range2 << ", drange = " << drange;
               if ( drange < clusterExtent ) {
                 theCrossGap->addElectronToBack(); // increment last element
@@ -351,7 +351,7 @@ void  CSCGasCollisions::ionize( double energyAvailable, LocalPoint startHere ) c
                 startHere += drange*theCrossGap->unitVector(); // update delta e start position
                 range = range2;                       // update range
                 new_range = true;                     // Test range again
-                LogDebug(me) << "reset range to range2 and iterate";
+                LogTrace(me) << "reset range to range2 and iterate";
               }
        	      break; // out of inner while energyAvailable>eion
 
@@ -470,7 +470,7 @@ float CSCGasCollisions::lnEnergyLoss( float lnCollisions,
     if ( it != collisions.end() ) {
       // found the value
       std::vector<float>::difference_type ihi = it - collisions.begin();
-      LogDebug(me) << ": using one energy bin " << ihi << " = " 
+      LogTrace(me) << ": using one energy bin " << ihi << " = " 
                          << theEnergyBins[ihi]
 		         << " for lnCollisions = " << lnCollisions;
       lnE = theEnergyBins[ihi];
@@ -481,14 +481,14 @@ float CSCGasCollisions::lnEnergyLoss( float lnCollisions,
         collisions.end(), bind2nd(less<float>(), lnCollisions));
       std::vector<float>::difference_type ilo = loside - collisions.begin();
       if ( ilo > 0 ) {
-        LogDebug(me) << ": using energy bin " 
+        LogTrace(me) << ": using energy bin " 
                            << ilo-1 << " and " << ilo;
         lnE = theEnergyBins[ilo-1] + (lnCollisions-collisions[ilo-1])*
           (theEnergyBins[ilo]-theEnergyBins[ilo-1]) /
              (collisions[ilo]-collisions[ilo-1]);
       }
       else {
-        LogDebug(me) << ": using one energy bin 0 = " 
+        LogTrace(me) << ": using one energy bin 0 = " 
                            << theEnergyBins[0]
 			   << " for lnCollisions = " << lnCollisions;
         lnE = theEnergyBins[0]; //@@ WHAT ELSE TO DO?
@@ -506,7 +506,7 @@ void CSCGasCollisions::fillCollisionsForThisGamma( float logGamma,
 
   if ( bigger == theGammaBins.end() ) {
     // use highest bin
-    LogDebug(me) << ": using highest gamma bin" 
+    LogTrace(me) << ": using highest gamma bin" 
 		      << " for logGamma = " << logGamma;
     for (int i=0; i<N_ENERGY; ++i)
       collisions[i] = theCollisionTable[i*N_GAMMA];
@@ -516,7 +516,7 @@ void CSCGasCollisions::fillCollisionsForThisGamma( float logGamma,
     std::vector<float>::difference_type ihi = bigger - theGammaBins.begin();
     if ( ihi > 0 ) {
       double dlg2 = *bigger--; // and decrement after deref
-      //LogDebug(me) << ": using gamma bins " 
+      //LogTrace(me) << ": using gamma bins " 
       //                   << ihi-1 << " and " << ihi;
       double dlg1 = *bigger;   // now the preceding element
       double dlg = (logGamma-dlg1)/(dlg2-dlg1);
@@ -527,7 +527,7 @@ void CSCGasCollisions::fillCollisionsForThisGamma( float logGamma,
     }
     else {
       // bigger has no lower neighbour
-       LogDebug(me) << ": using lowest gamma bin" 
+       LogTrace(me) << ": using lowest gamma bin" 
        		         << " for logGamma = " << logGamma;
 
       for (int i=0; i<N_ENERGY; ++i)

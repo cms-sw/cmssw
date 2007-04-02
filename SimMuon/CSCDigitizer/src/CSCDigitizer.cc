@@ -68,7 +68,9 @@ void CSCDigitizer::doAction(MixCollection<PSimHit> & simHits,
 
     std::vector<CSCDetectorHit> newWireHits, newStripHits;
   
-    LogDebug("CSCDigitizer") << "CSCDigitizer: found " << layerSimHits.size() <<" hit(s) in layer";
+    LogTrace("CSCDigitizer") << "CSCDigitizer: found " << layerSimHits.size() <<" hit(s) in layer"
+       << " E" << layer->id().endcap() << " S" << layer->id().station() << " R" << layer->id().ring()
+       << " C" << layer->id().chamber() << " L" << layer->id().layer();
 
     // turn the edm::PSimHits into WireHits, using the WireHitSim
     {

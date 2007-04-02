@@ -89,7 +89,7 @@ void CSCBaseElectronicsSim::fillAmpResponse() {
   ampBinValues.resize(i);
   theAmpResponse = CSCAnalogSignal(0, theSamplingTime, ampBinValues, 1., 0.);
 
-  LogDebug("CSCBaseElectronicsSim") << 
+  LogTrace("CSCBaseElectronicsSim") << 
     "CSCBaseElectronicsSim: dump of theAmpResponse follows...\n"
 	 << theAmpResponse;
 }
@@ -138,7 +138,7 @@ void CSCBaseElectronicsSim::addNoise() {
 
 CSCAnalogSignal & CSCBaseElectronicsSim::find(int element) {
   if(element <= 0 || element > nElements) {
-    LogDebug("CSCBaseElectronicsSim") << "MEBES: bad element = " << element << 
+    LogTrace("CSCBaseElectronicsSim") << "CSCBaseElectronicsSim: bad element = " << element << 
          ". There are " << nElements  << " elements.";
     edm::LogError("Error in CSCBaseElectronicsSim:  element out of bounds");
   }

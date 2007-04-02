@@ -50,7 +50,7 @@ void CSCWireElectronicsSim::fillDigis(CSCWireDigiCollection & digis) {
       mapI != theSignalMap.end(); ++mapI) {
     int wireGroup            = (*mapI).first;
     CSCAnalogSignal signal = (*mapI).second;
-    LogDebug("CSCWireElectronicsSim") << "CSCWireElectronicsSim: dump of wire signal follows... " <<  signal;
+    LogTrace("CSCWireElectronicsSim") << "CSCWireElectronicsSim: dump of wire signal follows... " <<  signal;
     // the way we handle noise in this chamber is by randomly varying
     // the threshold
     float threshold = theWireThreshold + RandGaussQ::shoot() * theWireNoise;
@@ -140,7 +140,7 @@ void CSCWireElectronicsSim::fillDigis(CSCWireDigiCollection & digis) {
  	 timeWord = (1 << nBitsToOffset ); // set appropriate bit
 
       CSCWireDigi newDigi(wireGroup, timeWord);
-      LogDebug("CSCWireElectronicsSim") << newDigi;
+      LogTrace("CSCWireElectronicsSim") << newDigi;
       digis.insertDigi(layerId(), newDigi);
 
       // we code the channels so strips start at 1, wire groups at 101
@@ -203,7 +203,7 @@ float CSCWireElectronicsSim::timeOfFlightCalibration(int wireGroup) const {
 
   float averageTOF  = averageDist * cm / c_light; // Units of c_light: mm/ns
 
-  LogDebug("CSCWireElectronicsSim") << "MEWES TofCalib:  wg = " << wireGroup << 
+  LogTrace("CSCWireElectronicsSim") << "CSCWireElectronicsSim: TofCalib  wg = " << wireGroup << 
        " mid wg = " << middleWireGroup << 
        " av dist = " << averageDist << 
       " av tof = " << averageTOF;

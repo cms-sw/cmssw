@@ -64,7 +64,7 @@ CSCWireHitSim::getIonizationClusters(const PSimHit & simHit,
   const LocalPoint & entryPoint = simHit.entryPoint();
   const LocalPoint & exitPoint  = simHit.exitPoint();
 
-  LogDebug("CSCWireHitSim") << "CSCWireHitSim:" 
+  LogTrace("CSCWireHitSim") << "CSCWireHitSim:" 
       << " type=" << simHit.particleType() 
       << " mom=" << simHit.pabs()
       << "\n Local entry " << entryPoint << " exit " << exitPoint;
@@ -89,7 +89,7 @@ CSCWireHitSim::getIonizationClusters(const PSimHit & simHit,
       }
     }
   }
-  LogDebug("CSCWireHitSim") << "MEWHS: there are " << results.size()
+  LogTrace("CSCWireHitSim") << "CSCWireHitSim: there are " << results.size()
      << " clusters identified with each electron.";
   return results;
 }

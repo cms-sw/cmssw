@@ -95,7 +95,7 @@ void CSCStripElectronicsSim::initParameters() {
   theSignalStartTime = theTimingOffset
                      - (sca_peak_bin-1) * sca_time_bin_size;
   theSignalStopTime = theSignalStartTime + nScaBins_*sca_time_bin_size;
-  theNumberOfSamples = nScaBins_*sca_time_bin_size/theSamplingTime;
+  theNumberOfSamples = nScaBins_*static_cast<int>(sca_time_bin_size/theSamplingTime);
 
 }  
 
@@ -404,7 +404,7 @@ CSCStripDigi CSCStripElectronicsSim::createDigi(int channel, float startTime)
   doSaturation(newDigi);
 
   addLinks(channelIndex(channel));
-  //LogDebug("CSCStripElectronicsSim") << newDigi;
+  LogTrace("CSCStripElectronicsSim") << newDigi;
 
   return newDigi;
 }

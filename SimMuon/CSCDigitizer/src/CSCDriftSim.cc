@@ -55,7 +55,7 @@ CSCDriftSim::getWireHit(const Local3DPoint & pos, const CSCLayer * layer,
   const CSCChamberSpecs * specs = layer->chamber()->specs();
   const CSCLayerGeometry * geom = layer->geometry();
   HepPoint3D clusterPos(pos.x(), pos.y(), pos.z());
-  LogDebug("CSCDriftSim") << "Ionization cluster at: " <<  pos; 
+  LogTrace("CSCDriftSim") << "CSCDriftSim: ionization cluster at: " <<  pos; 
   // set the coordinate system with the x-axis along the nearest wire,
   // with the origin in the center of the chamber, on that wire.
   HepTranslateY3D yShift(-1.*geom->yOfWire(nearestWire));
@@ -76,7 +76,7 @@ CSCDriftSim::getWireHit(const Local3DPoint & pos, const CSCLayer * layer,
   ycell = clusterPos.z() / specs->anodeCathodeSpacing();
   zcell = 2.*clusterPos.y() / specs->wireSpacing();
 
-  LogDebug("CSCDriftSim") << "bz " << bz <<" avgDrift " << avgDrift()
+  LogTrace("CSCDriftSim") << "CSCDriftSim: bz " << bz <<" avgDrift " << avgDrift()
        << " wireAngle " << geom->wireAngle()
        << " ycell " << ycell << " zcell " << zcell;
 
@@ -115,7 +115,7 @@ CSCDriftSim::getWireHit(const Local3DPoint & pos, const CSCLayer * layer,
   double charge = avalancheCharge() * f_att * f_collected * specs->gasGain() * e_SI * 1.e15;
 
   float t = simHit.tof() + driftTime;
-  LogDebug("CSCDriftSim") << "CSCDriftSim: tof = " << simHit.tof() << 
+  LogTrace("CSCDriftSim") << "CSCDriftSim: tof = " << simHit.tof() << 
       " driftTime = " << driftTime <<
       " MEDH = " << CSCDetectorHit(nearestWire, charge, x, t, &simHit);
   return CSCDetectorHit(nearestWire, charge, x, t, &simHit);
@@ -150,7 +150,7 @@ double CSCDriftSim::avalancheCharge() {
     double x2 = dNdEIntegral[i+1];
     returnVal = STEP_SIZE * (double(i) + (x-x1)/(x2-x1)); 
   }
-  LogDebug("CSCDriftSim") << "avalanche fluc " << returnVal << "  " << x ;
+  LogTrace("CSCDriftSim") << "CSCDriftSim: avalanche fluc " << returnVal << "  " << x ;
 
   return returnVal;  
 }

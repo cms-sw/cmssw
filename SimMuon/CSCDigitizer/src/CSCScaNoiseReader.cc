@@ -34,7 +34,7 @@ CSCScaNoiseReader::CSCScaNoiseReader(double pedestal, double pedestalWidth)
     //  ifstream fin;
   ifstream & fin = *f1();
 
-  LogDebug("CSCScaNoiseReader") << "CSCScaNoiseReader: opening file " << scaNoiseFile.c_str();
+  LogTrace("CSCScaNoiseReader") << "CSCScaNoiseReader: opening file " << scaNoiseFile.c_str();
 
   //  fin.open(scaNoiseFile.c_str(), ios::in);
 

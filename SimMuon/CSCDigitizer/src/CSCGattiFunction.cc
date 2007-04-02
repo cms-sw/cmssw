@@ -22,7 +22,7 @@ CSCGattiFunction::CSCGattiFunction()
 
 void CSCGattiFunction::initChamberSpecs(const CSCChamberSpecs & chamberSpecs) {
   if(&chamberSpecs != thePreviousSpecs) {
-    LogDebug("CSCGattiFunction") << "CSCGattiFunction::initChamberSpecs setting new values.";
+    LogTrace("CSCGattiFunction") << "CSCGattiFunction::initChamberSpecs setting new values.";
     h = chamberSpecs.anodeCathodeSpacing();
     double s = chamberSpecs.wireSpacing();
     double ra = chamberSpecs.wireRadius();
@@ -37,7 +37,7 @@ void CSCGattiFunction::initChamberSpecs(const CSCChamberSpecs & chamberSpecs) {
     thePreviousSpecs = &chamberSpecs;
   }
 
-  LogDebug("CSCGattiFunction")  << "Gatti function constants k1=" << 
+  LogTrace("CSCGattiFunction")  << "CSCGattiFunction: constants k1=" << 
       k1 << ", k2=" << k2 << ", k3=" << k3 << 
       ", h=" << h << ", norm=" << norm;
 }
