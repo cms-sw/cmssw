@@ -4,16 +4,15 @@
 /*
  * \file DTLocalTriggerTask.h
  *
- * $Date: 2006/10/18 18:05:58 $
- * $Revision: 1.2 $
+ * $Date: 2007/04/02 16:13:00 $
+ * $Revision: 1.3 $
  * \author M. Zanetti - INFN Padova
  *
 */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "FWCore/Framework/interface/Event.h"
