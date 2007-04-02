@@ -221,7 +221,8 @@ CSCGeometry* CSCGeometryBuilderFromDDD::buildEndcaps( DDFilteredView* fv, const 
 	// detid is for ME11 and that's what we're using for ME1b in the software
         buildChamber (theGeometry, detid, fpar, fupar, gtran, grmat, wg ); // ME1b
 
-	std::copy( fupar.begin()+31, fupar.end(), fupar.begin() ); // copy ME1a params to beginning
+	//@@ BEWARE - MAGIC NUMBER '32' IS NO. OF ANONYMOUS PARAMETERS PER CHAMBER TYPE
+	std::copy( fupar.begin()+32, fupar.end(), fupar.begin() ); // copy ME1a params to beginning
         CSCDetId detid1a = CSCDetId( jendcap, 1, 4, jchamber, 0 ); // reset to ME1A
         buildChamber (theGeometry, detid1a, fpar, fupar, gtran, grmat, wg ); // ME1a
 
@@ -323,7 +324,8 @@ void CSCGeometryBuilderFromDDD::buildChamber (
     // Also, strips are on copper sheet which is offset by 4.778 mm (US chambers), 2.815 mm (ME11) from centre of layer?
     // For now skip these niceties...
     const float layerThickness = 2.56; // (cm) effective thickness of a layer
-    const float centreChamberToFirstLayer = layerThickness * 2.5; // (cm) dist between chamber centre and 1st layer
+    //    const float centreChamberToFirstLayer = layerThickness * 2.5; // (cm) dist between chamber centre and 1st layer
+    float centreChamberToFirstLayer = fupar[31]; // (cm) dist between chamber centre and 1st layer FROM SPECS
 
    // Set dimensions of trapezoidal chamber volume 
    // N.B. apothem is 4th in fpar but 3rd in ctor 
