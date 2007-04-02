@@ -154,7 +154,8 @@ std::vector< std::pair< ChamberRawDataSpec, LinkBoardChannelCoding> >
                 is = strips.begin(); is != strips.end(); is++) {
               const ChamberStripSpec & strip = (*is);
               int stripPinInFeb = strip.cablePinNumber;
-              if ( strip.cmsStripNumber == stripInDU) {
+//              if ( strip.cmsStripNumber == stripInDU) {
+              if ( strip.chamberStripNumber == stripInDU) {
                 result.push_back(
                     std::make_pair( eleIndex, LinkBoardChannelCoding( fedInLB, stripPinInFeb) ) ); 
               }
@@ -225,7 +226,8 @@ RPCReadOutMapping::StripInDetUnit
     detUnit = feb->rawId();
     const ChamberStripSpec * strip = feb->strip(stripPinInFeb);
     if (strip) {
-      stripInDU = strip->cmsStripNumber;
+//      stripInDU = strip->cmsStripNumber;
+        stripInDU = strip->chamberStripNumber;
     } else {
       edm::LogError("detUnitFrame")<<"problem with stip for febInLB: "<<febInLB
                                    <<" strip pin: "<< stripPinInFeb
