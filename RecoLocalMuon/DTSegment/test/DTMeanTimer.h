@@ -18,7 +18,7 @@
 /* Collaborating Class Declarations */
 class DTSuperLayer;
 class DTTTrigBaseSync;
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 namespace edm {
   class Event;
   class EventSetup;

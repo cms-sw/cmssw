@@ -485,4 +485,4 @@ bool DTEffAnalyzer::getLCT(LCTType t) const {
   return LCT.test(t);
 }
 
-DEFINE_FWK_MODULE(DTEffAnalyzer)
+DEFINE_FWK_MODULE(DTEffAnalyzer);
