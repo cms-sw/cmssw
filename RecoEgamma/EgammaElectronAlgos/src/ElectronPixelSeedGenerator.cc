@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronPixelSeedGenerator.cc,v 1.20 2007/03/14 17:09:18 uberthon Exp $
+// $Id: ElectronPixelSeedGenerator.cc,v 1.21 2007/03/23 15:48:16 uberthon Exp $
 //
 //
 #include "RecoEgamma/EgammaElectronAlgos/interface/PixelHitMatcher.h" 
@@ -175,8 +175,10 @@ void ElectronPixelSeedGenerator::seedsFromThisCluster( edm::Ref<reco::SuperClust
     std::vector<std::pair<RecHitWithDist,ConstRecHitPointer> >::iterator v;
     for (v = posPixelHits.begin(); v != posPixelHits.end(); v++) {
       bool valid = prepareElTrackSeed((*v).first.recHit(),(*v).second,posVertex);
-      if (valid) result.push_back(reco::ElectronPixelSeed(seedCluster,*pts_,recHits_,dir));
-      delete pts_;
+      if (valid) {
+	result.push_back(reco::ElectronPixelSeed(seedCluster,*pts_,recHits_,dir));
+	delete pts_;
+      }
     }
   } 
 
