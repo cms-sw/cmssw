@@ -29,6 +29,7 @@ RPCSimAverage::RPCSimAverage(const edm::ParameterSet& config) : RPCSim(config){
   sspeed = config.getParameter<double>("signalPropagationSpeed");
   lbGate = config.getParameter<double>("linkGateWidth");
   rpcdigiprint = config.getParameter<bool>("printOutDigitizer");
+
   if (rpcdigiprint) {
     std::cout <<"Average Efficiency        = "<<aveEff<<std::endl;
     std::cout <<"Average Cluster Size      = "<<aveCls<<" strips"<<std::endl;
@@ -40,24 +41,14 @@ RPCSimAverage::RPCSimAverage(const edm::ParameterSet& config) : RPCSim(config){
     std::cout <<"Link Board Gate Width     = "<<lbGate<<" ns"<<std::endl;
   }
 
-  string ifile="ClSizeTot.dat";
-
-  MyOutput1 = new fstream("clsizeOut1.dat",ios::out);
-  MyOutput2 = new fstream("clsizeOut2.dat",ios::out);
-  MyOutput3 = new fstream("clsizeOut3.dat",ios::out);
-
-  infile = new ifstream(ifile.c_str(), ios::in);
-  if(! *infile) {
-    cerr << "error: unable to open input file: "
-	 <<  ifile  << endl;
-    //    return -1;
-  }
 
   string buffer;
   double sum = 0;
   unsigned int counter = 1;
-  int row = 1;
+  unsigned int row = 1;
   std::vector<double> sum_clsize;
+
+
 
   while ( *infile >> buffer ) {
     const char *buffer1 = buffer.c_str();
@@ -65,14 +56,7 @@ RPCSimAverage::RPCSimAverage(const edm::ParameterSet& config) : RPCSim(config){
     sum += dato;
     sum_clsize.push_back(sum);
 
-    std::cout<<dato<<std::endl;
-    
     if(counter == row*20) {
-
-      for(int i = 0; i < sum_clsize.size(); ++i){
-	std::cout<<sum_clsize[i]<<std::endl;
-      }
-
       clsMap[row] = sum_clsize;
       row++;
       sum = 0;
@@ -80,24 +64,15 @@ RPCSimAverage::RPCSimAverage(const edm::ParameterSet& config) : RPCSim(config){
     }
     counter++;
   }
-  std::cout<<"Somma = "<<(clsMap[1])[0]<<"  "<<(clsMap[2])[0]<<"  "<<(clsMap[3])[0]<<"  "<<(clsMap[4])[0]<<std::endl;
-
 }
 
 int RPCSimAverage::getClSize(float posX)
 {
 
-// //     string ifile = getenv("ORCA_DATA_PATH");
-// //     int pos = ifile.find_first_of(':');
-// //     if (pos != string::npos){
-// //       ifile.erase(pos, ifile.size() -1);
-// //       ifile=ifile + "/Param_Clust/ClSize_tot_9600.00.dat";
-// //     }
-
   int cnt = 1;
   int min = 1;
   int max = 1;
-  double func;
+  double func=0.0;
   std::vector<double> sum_clsize;
 
   double rr_cl = RandFlat::shoot();
@@ -121,20 +96,18 @@ int RPCSimAverage::getClSize(float posX)
     func = (clsMap[5])[(clsMap[5]).size()-1]*(rr_cl);
     sum_clsize = clsMap[5];
   }
-  cout<<"rr_cl = "<<rr_cl<<"  "<<"SumCl = "<<(clsMap[1])[(clsMap[1]).size()-1]<<"  "<<"func = "<<func<<endl;
-  
+
   for(vector<double>::iterator iter = sum_clsize.begin();
       iter != sum_clsize.end(); ++iter){
-      cnt++;
-      if(func > (*iter)){
-        min = cnt;
-      }
-      else if(func < (*iter)){
-        max = cnt;
-        break;
-      }
+    cnt++;
+    if(func > (*iter)){
+      min = cnt;
+    }
+    else if(func < (*iter)){
+      max = cnt;
+      break;
+    }
   }
-  //  *MyOutput<<min<<endl;
   return min;
 }
 
@@ -162,15 +135,7 @@ RPCSimAverage::simulate(const RPCRoll* roll,
       // Compute the cluster size
       double w = RandFlat::shoot();
       if (w < 1.e-10) w=1.e-10;
-      int clsize = RPCSimAverage::getClSize(posX);//static_cast<int>( -1.*aveCls*log(w)+1.);
-
-      //---------------------VERIFICA------------------------------
-
-      if(clsize == 1) *MyOutput1<<posX<<endl;
-      if(clsize == 2) *MyOutput2<<posX<<endl;
-      if(clsize == 3) *MyOutput3<<posX<<endl;
-
-      //-----------------------------------------------------------
+      int clsize = this->getClSize(posX);
 
       std::vector<int> cls;
       cls.push_back(centralStrip);
