@@ -9,9 +9,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Wed Mar 15 13:00:00 UTC 2006
 //
-// $Author: gutsche $
-// $Date: 2007/03/15 23:47:26 $
-// $Revision: 1.32 $
+// $Author: burkett $
+// $Date: 2007/03/28 18:09:58 $
+// $Revision: 1.33 $
 //
 
 #include <vector>
@@ -63,6 +63,7 @@
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 #include "RecoTracker/TkSeedGenerator/interface/FastHelix.h"
+#include "RecoTracker/TkSeedGenerator/interface/FastLine.h"
 #include "RecoTracker/RoadSearchSeedFinder/interface/RoadSearchSeedFinderAlgorithm.h"
 #include "TrackingTools/TrackFitters/interface/KFTrajectorySmoother.h"
 #include "RecoTracker/Record/interface/CkfComponentsRecord.h"
@@ -427,8 +428,9 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
           //              vtx.position());
           
           double x0=0.0,y0=0.0,z0=0.0;
+	  double phi0 = -999.0;
           if (NoFieldCosmic_){
-            double phi0=atan2(outer.y()-inner.y(),outer.x()-inner.x());
+            phi0=atan2(outer.y()-inner.y(),outer.x()-inner.x());
             double alpha=atan2(inner.y(),inner.x());
             double d1=sqrt(inner.x()*inner.x()+inner.y()*inner.y());
             double d0=-d1*sin(alpha-phi0); x0=d0*sin(phi0); y0=-d0*cos(phi0);
@@ -450,8 +452,23 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
           C[3][3] = transverseErr;
           C[4][4] = zErr;
           CurvilinearTrajectoryError initialError(C);
-          FreeTrajectoryState fts( helix.stateAtVertex().parameters(), initialError);
-          //                       RoadSearchSeedFinderAlgorithm::initialError( *outerHit, *innerHit,
+          //FreeTrajectoryState fts( helix.stateAtVertex().parameters(), initialError);
+	  FreeTrajectoryState fts;
+          if (NoFieldCosmic_) {
+	    TrackCharge q = 1;	    
+	    FastLine flfit(outer, inner);
+	    double dzdr = -flfit.n1()/flfit.n2();
+	    GlobalPoint XYZ0(x0,y0,z0);
+	    GlobalVector PXYZ(cos(phi0),sin(phi0),dzdr);
+	    GlobalTrajectoryParameters thePars(XYZ0,PXYZ,q,magField);
+	    AlgebraicSymMatrix CErr(6,1);
+	    fts = FreeTrajectoryState(thePars,
+				      CartesianTrajectoryError(CErr));
+	  }
+	  else {
+	    fts = FreeTrajectoryState( helix.stateAtVertex().parameters(), initialError);
+	  }
+	  //                       RoadSearchSeedFinderAlgorithm::initialError( *outerHit, *innerHit,
           //                                  vertexPos, vertexErr));
           std::vector<Trajectory> rawTrajectories;
           
