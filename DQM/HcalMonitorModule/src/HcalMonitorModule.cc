@@ -3,8 +3,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2006/12/12 19:06:25 $
- * $Revision: 1.26 $
+ * $Date: 2007/03/21 23:01:06 $
+ * $Revision: 1.27 $
  * \author W Fisher
  *
 */
@@ -72,7 +72,8 @@ HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps){
   m_digiMon = NULL; m_dfMon = NULL; 
   m_rhMon = NULL;   m_pedMon = NULL; 
   m_ledMon = NULL;  m_mtccMon = NULL;
-  m_hotMon = NULL; 
+  m_hotMon = NULL;  m_tempAnalysis = NULL;
+  m_commisMon = NULL;
 
   if ( ps.getUntrackedParameter<bool>("RecHitMonitor", false) ) {
     m_rhMon = new HcalRecHitMonitor();
@@ -109,6 +110,16 @@ HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps){
     m_hotMon->setup(ps, m_dbe);
   }
 
+  if ( ps.getUntrackedParameter<bool>("CommissioningMonitor", false) ) {
+    m_commisMon = new HcalCommissioningMonitor();
+    m_commisMon->setup(ps, m_dbe);
+  }
+
+  if ( ps.getUntrackedParameter<bool>("HcalAnalysis", false) ) {
+    m_tempAnalysis = new HcalTemplateAnalysis();
+    m_tempAnalysis->setup(ps);
+  }
+
   offline_ = ps.getUntrackedParameter<bool>("OffLine", false);
 
 }
@@ -125,6 +136,7 @@ HcalMonitorModule::~HcalMonitorModule(){
     if(m_pedMon!=NULL) {  m_pedMon->clearME();}
     if(m_ledMon!=NULL) {  m_ledMon->clearME();}
     if(m_hotMon!=NULL) {  m_hotMon->clearME();}
+    if(m_commisMon!=NULL) {  m_commisMon->clearME();}
     if(m_mtccMon!=NULL) {  m_mtccMon->clearME();}
     if(m_rhMon!=NULL) {  m_rhMon->clearME();}
     
@@ -137,8 +149,10 @@ HcalMonitorModule::~HcalMonitorModule(){
   if(m_pedMon!=NULL) { delete m_pedMon; m_pedMon=NULL; }
   if(m_ledMon!=NULL) { delete m_ledMon; m_ledMon=NULL; }
   if(m_hotMon!=NULL) { delete m_hotMon; m_hotMon=NULL; }
+  if(m_commisMon!=NULL) { delete m_commisMon; m_commisMon=NULL; }
   if(m_mtccMon!=NULL) { delete m_mtccMon; m_mtccMon=NULL; }
   if(m_rhMon!=NULL) { delete m_rhMon; m_rhMon=NULL; }
+  if(m_tempAnalysis!=NULL) { delete m_tempAnalysis; m_tempAnalysis=NULL; }
   delete m_evtSel;
 
   m_logFile.close();
@@ -183,7 +197,9 @@ void HcalMonitorModule::endJob(void) {
   if(m_pedMon!=NULL) m_pedMon->done();
   if(m_ledMon!=NULL) m_ledMon->done();
   if(m_hotMon!=NULL) m_hotMon->done();
+  if(m_commisMon!=NULL) m_commisMon->done();
   if(m_mtccMon!=NULL) m_mtccMon->done();
+  if(m_tempAnalysis!=NULL) m_tempAnalysis->done();
 
   char tmp[150]; bool update = true;
   for ( unsigned int i = 0; i < m_outputFile.size(); i++ ) {
@@ -208,8 +224,9 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
   // Do default setup...
   m_ievt++;
   int evtMask=DO_HCAL_DIGIMON|DO_HCAL_DFMON|DO_HCAL_RECHITMON|DO_HCAL_PED_CALIBMON;
-  int trigMask=0;
 
+  /*
+  int trigMask=0;
   if(m_mtccMon==NULL){
     m_evtSel->processEvent(e);
     evtMask = m_evtSel->getEventMask();
@@ -221,6 +238,7 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
     if(trigMask&0x08) m_meTrigger->Fill(4);
     if(trigMask&0x10) m_meTrigger->Fill(5);
   }
+  */
 
   edm::EventID id_ = e.id();
   m_runNum = (int)(id_.run());
@@ -245,9 +263,10 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
   }
   
   // Digi-dependent monitor tasks
-  if((m_digiMon!=NULL) && (evtMask&DO_HCAL_DIGIMON)) m_digiMon->processEvent(*hbhe_digi,*ho_digi,*hf_digi);
+  if((m_digiMon!=NULL) && (evtMask&DO_HCAL_DIGIMON)) m_digiMon->processEvent(*hbhe_digi,*ho_digi,*hf_digi,*m_conditions);
   if((m_pedMon!=NULL) && (evtMask&DO_HCAL_PED_CALIBMON)) m_pedMon->processEvent(*hbhe_digi,*ho_digi,*hf_digi,*m_conditions);
-  if((m_ledMon!=NULL) && (evtMask&DO_HCAL_LED_CALIBMON)) m_ledMon->processEvent(*hbhe_digi,*ho_digi,*hf_digi);
+  //  if((m_ledMon!=NULL) && (evtMask&DO_HCAL_LED_CALIBMON)) m_ledMon->processEvent(*hbhe_digi,*ho_digi,*hf_digi);
+  if(m_ledMon!=NULL) m_ledMon->processEvent(*hbhe_digi,*ho_digi,*hf_digi,*m_conditions);
   
   // Data Format monitor task
   if((m_dfMon != NULL) && (evtMask&DO_HCAL_DFMON)){
@@ -272,13 +291,23 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
     m_hotMon->processEvent(*hb_hits,*ho_hits,*hf_hits);
   }
 
+  edm::Handle<LTCDigiCollection> ltc;
+  try{ e.getByType(ltc); } catch(...){};         
   if(m_mtccMon != NULL){
-    edm::Handle<LTCDigiCollection> ltc;
-    try{
-      e.getByType(ltc);
-      m_mtccMon->processEvent(*hbhe_digi,*ho_digi, *ltc,*m_conditions);
-    } catch(...){};         
+    m_mtccMon->processEvent(*hbhe_digi,*ho_digi, *ltc,*m_conditions);
   }
+
+  if(m_commisMon != NULL) m_commisMon->processEvent(*hbhe_digi,*ho_digi, *hf_digi,
+						    *hb_hits,*ho_hits,*hf_hits,
+						    *ltc,*m_conditions);
+
+  if(m_tempAnalysis != NULL) 
+    m_tempAnalysis->processEvent(*hbhe_digi,*ho_digi, *hf_digi,
+				 *hb_hits,*ho_hits,*hf_hits,
+				 *ltc,*m_conditions);
+
+
+
   if(m_ievt%1000 == 0)
     cout << "HcalMonitorModule: analyzed " << m_ievt << " events" << endl;
 

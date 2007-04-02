@@ -23,7 +23,7 @@ void dumpHisto2(TH2F* hist, vector<string> &names,
   rmsY.push_back(hist->GetRMS(2));
   return;
 }
-string getIMG2(TH2F* hist, int size, string htmlDir, const char* xlab, const char* ylab, bool save){
+string getIMG2(TH2F* hist, int size, string htmlDir, const char* xlab, const char* ylab,bool color){
   //  timeval a,b;
   //  gettimeofday(&a,NULL);
 
@@ -50,13 +50,16 @@ string getIMG2(TH2F* hist, int size, string htmlDir, const char* xlab, const cha
   }
 
   string outName = title + ".png";
-  if(!save) return outName;
+  //  if(!save) return outName;
 
   string saveName = htmlDir + outName;
   hist->SetXTitle(xlab);
   hist->SetYTitle(ylab);
-  hist->SetDrawOption("box");
-  hist->Draw();
+  if(color) hist->Draw();
+  else{
+    hist->SetStats(false);
+    hist->Draw("COLZ");
+  }
   can->SaveAs(saveName.c_str());  
   delete can;
   /*
@@ -69,7 +72,7 @@ string getIMG2(TH2F* hist, int size, string htmlDir, const char* xlab, const cha
   return outName;
 }
 
-string getIMG(TH1F* hist, int size, string htmlDir, const char* xlab, const char* ylab, bool save){
+string getIMG(TH1F* hist, int size, string htmlDir, const char* xlab, const char* ylab){
   //  timeval a,b;
   //  gettimeofday(&a,NULL);
 
@@ -96,7 +99,7 @@ string getIMG(TH1F* hist, int size, string htmlDir, const char* xlab, const char
   }
   
   string outName = title + ".png";
-  if(!save) return outName;
+  //  if(!save) return outName;
   
   string saveName = htmlDir + outName;
   hist->SetXTitle(xlab);
@@ -218,12 +221,12 @@ void histoHTML(TH1F* hist, const char* xlab, const char* ylab, int width, ofstre
   return;
 }
 
-void histoHTML2(TH2F* hist, const char* xlab, const char* ylab, int width, ofstream& htmlFile, string htmlDir){
+void histoHTML2(TH2F* hist, const char* xlab, const char* ylab, int width, ofstream& htmlFile, string htmlDir, bool color){
   if(hist!=NULL){
     string imgNameTMB = "";
-    imgNameTMB = getIMG2(hist,1,htmlDir,xlab,ylab);  
+    imgNameTMB = getIMG2(hist,1,htmlDir,xlab,ylab,color);  
     string imgName = "";
-    imgName = getIMG2(hist,2,htmlDir,xlab,ylab);  
+    imgName = getIMG2(hist,2,htmlDir,xlab,ylab,color);  
     if (imgName.size() != 0 )
       htmlFile << "<td><a href=\"" <<  imgName << "\"><img src=\"" <<  imgNameTMB << "\"></a></td>" << endl;
     else

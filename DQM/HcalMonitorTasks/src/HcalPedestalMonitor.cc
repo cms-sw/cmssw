@@ -43,14 +43,26 @@ void HcalPedestalMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterfa
     meEVT_ = m_dbe->bookInt("Pedestal Task Event Number");
     meEVT_->Fill(ievt_);
 
+    MEAN_MAP1= m_dbe->book2D("Ped Means Depth 1","Ped Means Depth 1",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
+    RMS_MAP1= m_dbe->book2D("Ped RMSs Depth 1","Ped RMSs Depth 1",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
+    
+    MEAN_MAP2= m_dbe->book2D("Ped Means Depth 2","Ped Means Depth 2",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
+    RMS_MAP2= m_dbe->book2D("Ped RMSs Depth 2","Ped RMSs Depth 2",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
+    
+    MEAN_MAP3= m_dbe->book2D("Ped Means Depth 3","Ped Means Depth 3",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
+    RMS_MAP3= m_dbe->book2D("Ped RMSs Depth 3","Ped RMSs Depth 3",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
+    
+    MEAN_MAP4= m_dbe->book2D("Ped Means Depth 4","Ped Means Depth 4",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
+    RMS_MAP4= m_dbe->book2D("Ped RMSs Depth 4","Ped RMSs Depth 4",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
+
     m_dbe->setCurrentFolder("HcalMonitor/PedestalMonitor/HBHE");
-    hbHists.ALLPEDS =  m_dbe->book1D("HBHE All Pedestal Values","HBHE All Pedestal Values",15,0,14);
+    hbHists.ALLPEDS =  m_dbe->book1D("HBHE All Pedestal Values","HBHE All Pedestal Values",50,0,15);
     hbHists.PEDRMS  =  m_dbe->book1D("HBHE Pedestal RMS Values","HBHE Pedestal RMS Values",100,0,3);
     hbHists.PEDMEAN =  m_dbe->book1D("HBHE Pedestal Mean Values","HBHE Pedestal Mean Values",100,0,9);
     hbHists.CAPIDRMS  =  m_dbe->book1D("HBHE CapID RMS Variance","HBHE CapID RMS Variance",50,0,0.5);
     hbHists.CAPIDMEAN =  m_dbe->book1D("HBHE CapID Mean Variance","HBHE CapID Mean Variance",50,0,3);
     hbHists.QIERMS  =  m_dbe->book1D("HBHE QIE RMS Values","HBHE QIE RMS Values",50,0,3);
-    hbHists.QIEMEAN =  m_dbe->book1D("HBHE QIE Mean Values","HBHE QIE Mean Values",50,0,3);
+    hbHists.QIEMEAN =  m_dbe->book1D("HBHE QIE Mean Values","HBHE QIE Mean Values",50,0,10);
     hbHists.ERRGEO =  m_dbe->book2D("HBHE Pedestal Geo Error Map","HBHE Pedestal Geo Error Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
     hbHists.ERRELEC =  m_dbe->book2D("HBHE Pedestal Elec Error Map","HBHE Pedestal Elec Error Map",20,0,20,20,0,20);
 
@@ -61,7 +73,7 @@ void HcalPedestalMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterfa
     hfHists.CAPIDRMS  =  m_dbe->book1D("HF CapID RMS Variance","HF CapID RMS Variance",50,0,0.5);
     hfHists.CAPIDMEAN =  m_dbe->book1D("HF CapID Mean Variance","HF CapID Mean Variance",50,0,3);
     hfHists.QIERMS  =  m_dbe->book1D("HF QIE RMS Values","HF QIE RMS Values",50,0,3);
-    hfHists.QIEMEAN =  m_dbe->book1D("HF QIE Mean Values","HF QIE Mean Values",50,0,3);
+    hfHists.QIEMEAN =  m_dbe->book1D("HF QIE Mean Values","HF QIE Mean Values",50,0,10);
     hfHists.ERRGEO =  m_dbe->book2D("HF Pedestal Geo Error Map","HF Pedestal Geo Error Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
     hfHists.ERRELEC =  m_dbe->book2D("HF Pedestal Elec Error Map","HF Pedestal Elec Error Map",20,0,20,20,0,20);
 
@@ -72,7 +84,7 @@ void HcalPedestalMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterfa
     hoHists.CAPIDRMS  =  m_dbe->book1D("HO CapID RMS Variance","HO CapID RMS Variance",50,0,0.5);
     hoHists.CAPIDMEAN =  m_dbe->book1D("HO CapID Mean Variance","HO CapID Mean Variance",50,0,3);
     hoHists.QIERMS  =  m_dbe->book1D("HO QIE RMS Values","HO QIE RMS Values",50,0,3);
-    hoHists.QIEMEAN =  m_dbe->book1D("HO QIE Mean Values","HO QIE Mean Values",50,0,3);
+    hoHists.QIEMEAN =  m_dbe->book1D("HO QIE Mean Values","HO QIE Mean Values",50,0,10);
     hoHists.ERRGEO =  m_dbe->book2D("HO Pedestal Geo Error Map","HO Pedestal Geo Error Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
     hoHists.ERRELEC =  m_dbe->book2D("HO Pedestal Elec Error Map","HO Pedestal Elec Error Map",20,0,20,20,0,20);
   }
@@ -146,7 +158,6 @@ void HcalPedestalMonitor::done(){
 
 void HcalPedestalMonitor::perChanHists(int id, const HcalDetId detid, const HcalQIESample& qie, map<HcalDetId, map<int, MonitorElement*> > &tool) {
   static const int bins=10;
-  //  map<int,MonitorElement*> _mei;
   
   string type = "HBHE";
   if(m_dbe) m_dbe->setCurrentFolder("HcalMonitor/PedestalMonitor/HBHE");
@@ -160,17 +171,14 @@ void HcalPedestalMonitor::perChanHists(int id, const HcalDetId detid, const Hcal
   }  
   
   //outer iteration
-  // map<int, MonitorElement*> it = tool[detid];
   bool gotit=false;
   if(REG[detid]) gotit=true;
-  //  _meo = tool.find(detid);
-  //  if (_meo!=tool.end()){
+
   if(gotit){
     //inner iteration
     map<int, MonitorElement*> _mei = tool[detid];
-    //    _mei = _meo->second;
     if(_mei[qie.capid()]==NULL) printf("HcalPedestalAnalysis::perChanHists  This histo is NULL!!??\n");
-    else if (qie.adc()<bins) _mei[qie.capid()]->Fill(qie.adc());
+    else _mei[qie.capid()]->Fill(qie.adc());
   }
   else{
     if(m_dbe){

@@ -35,9 +35,9 @@ void HcalDataFormatMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInter
     type = "Bad Quality Digis";
     meBadQualityDigis_=  m_dbe->book1D(type,type,100,0,100);
     type = "Unmapped Digis";
-    meUnmappedDigis_=  m_dbe->book1D(type,type,100,0,100);
+    meUnmappedDigis_=  m_dbe->book1D(type,type,500,0,500);
     type = "Unmapped Trigger Primitive Digis";
-    meUnmappedTPDigis_=  m_dbe->book1D(type,type,100,0,100);
+    meUnmappedTPDigis_=  m_dbe->book1D(type,type,500,0,500);
     type = "FED Error Map";
     meFEDerrorMap_ = m_dbe->book1D(type,type,100,0,100);
 

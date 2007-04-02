@@ -3,23 +3,13 @@
 
 #include "DQM/HcalMonitorTasks/interface/HcalBaseMonitor.h"
 #include "EventFilter/HcalRawToDigi/interface/HcalUnpacker.h"
-#include "EventFilter/HcalRawToDigi/interface/HcalDataFrameFilter.h"
-#include "EventFilter/HcalRawToDigi/interface/HcalDCCHeader.h"
 #include "EventFilter/HcalRawToDigi/interface/HcalHTRData.h"
-
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
-#include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
-#include "DataFormats/HcalDigi/interface/HcalUnpackerReport.h"
-#include "DataFormats/HcalDigi/interface/HcalQIESample.h"
-
-#include "DQMServices/CoreROOT/interface/MonitorElementRootT.h"
-#include "CondFormats/HcalObjects/interface/HcalElectronicsMap.h"
-#include "TH1F.h"
 
 /** \class Hcaldataformatmonitor
   *  
-  * $Date: 2007/02/24 22:15:20 $
-  * $Revision: 1.9 $
+  * $Date: 2007/03/21 23:01:29 $
+  * $Revision: 1.10 $
   * \author W. Fisher - FNAL
   */
 class HcalDataFormatMonitor: public HcalBaseMonitor {

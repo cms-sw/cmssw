@@ -203,7 +203,7 @@ void HcalHotCellClient::report(){
   //  this->setup();  
   
   char name[256];
-  sprintf(name, "Collector/%s/HcalMonitor/HotCellMonitor/HotCell Task Event Number",process_.c_str());
+  sprintf(name, "%sHcalMonitor/HotCellMonitor/HotCell Task Event Number",process_.c_str());
   MonitorElement* me = mui_->get(name);
   if ( me ) {
     string s = me->valueString();
@@ -257,7 +257,7 @@ void HcalHotCellClient::resetME(){
   MonitorElement* me;
 
   for(int i=0; i<4; i++){
-    sprintf(name,"Collector/%s/HcalMonitor/HotCellMonitor/HotCell Layer %d Occupancy Map",process_.c_str(),i);
+    sprintf(name,"%sHcalMonitor/HotCellMonitor/HotCell Layer %d Occupancy Map",process_.c_str(),i);
     me = mui_->get(name);
     if(me) mui_->softReset(me);
   }

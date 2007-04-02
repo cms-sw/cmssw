@@ -4,8 +4,8 @@
 /*
  * \file HcalMonitorModule.h
  *
- * $Date: 2007/03/12 16:59:07 $
- * $Revision: 1.10 $
+ * $Date: 2007/03/21 23:01:06 $
+ * $Revision: 1.11 $
  * \author W. Fisher
  *
 */
@@ -34,6 +34,8 @@
 #include "DQM/HcalMonitorTasks/interface/HcalLEDMonitor.h"
 #include "DQM/HcalMonitorTasks/interface/HcalMTCCMonitor.h"
 #include "DQM/HcalMonitorTasks/interface/HcalHotCellMonitor.h"
+#include "DQM/HcalMonitorTasks/interface/HcalCommissioningMonitor.h"
+#include "DQM/HcalMonitorTasks/interface/HcalTemplateAnalysis.h"
 #include "TBDataFormats/HcalTBObjects/interface/HcalTBRunData.h"
 
 #include <memory>
@@ -89,6 +91,8 @@ private:
   HcalLEDMonitor*         m_ledMon;
   HcalMTCCMonitor*        m_mtccMon;
   HcalHotCellMonitor*     m_hotMon;
+  HcalCommissioningMonitor*     m_commisMon;
+  HcalTemplateAnalysis*   m_tempAnalysis;
   
   edm::ESHandle<HcalDbService> m_conditions;
   const HcalElectronicsMap* m_readoutMap;

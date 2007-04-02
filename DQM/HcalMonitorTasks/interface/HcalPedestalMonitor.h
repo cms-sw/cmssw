@@ -2,17 +2,11 @@
 #define DQM_HCALMONITORTASKS_HCALPEDESTALMONITOR_H
 
 #include "DQM/HcalMonitorTasks/interface/HcalBaseMonitor.h"
-#include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
-#include "CalibFormats/HcalObjects/interface/HcalCoderDb.h"
-#include "CalibFormats/HcalObjects/interface/HcalCalibrations.h"
-#include "CalibFormats/HcalObjects/interface/HcalDbService.h"
-#include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
-#include "CondFormats/HcalObjects/interface/HcalQIECoder.h"
 
 /** \class HcalPedestalMonitor
   *  
-  * $Date: 2006/08/24 23:44:59 $
-  * $Revision: 1.5 $
+  * $Date: 2006/12/12 19:10:27 $
+  * $Revision: 1.6 $
   * \author W. Fisher - FNAL
   */
 class HcalPedestalMonitor: public HcalBaseMonitor {
@@ -44,6 +38,18 @@ private:
   double etaMax_, etaMin_, phiMax_, phiMin_;
   int etaBins_, phiBins_;
   map<HcalDetId,bool> REG;
+
+  MonitorElement* MEAN_MAP1;
+  MonitorElement*  RMS_MAP1;
+
+  MonitorElement* MEAN_MAP2;
+  MonitorElement*  RMS_MAP2;
+
+  MonitorElement* MEAN_MAP3;
+  MonitorElement*  RMS_MAP3;
+
+  MonitorElement* MEAN_MAP4;
+  MonitorElement*  RMS_MAP4;
 
   struct{
     map<HcalDetId,map<int, MonitorElement*> > PEDVALS;
