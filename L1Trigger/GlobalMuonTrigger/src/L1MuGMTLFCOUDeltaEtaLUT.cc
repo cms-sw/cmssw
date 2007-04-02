@@ -3,8 +3,8 @@
 //   Class: L1MuGMTLFCOUDeltaEtaLUT
 //
 // 
-//   $Date: 2006/05/15 13:56:02 $
-//   $Revision: 1.1 $
+//   $Date: 2006/11/17 08:25:34 $
+//   $Revision: 1.2 $
 //
 //   Author :
 //   H. Sakulin            HEPHY Vienna
@@ -28,16 +28,15 @@
 //-------------------------------
 // Collaborating Class Headers --
 //-------------------------------
-#include "L1Trigger/GlobalMuonTrigger/src/L1MuGMTScales.h"
-#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuPacking.h"
-#include "SimG4Core/Notification/interface/Singleton.h"
+#include "L1Trigger/GlobalMuonTrigger/src/L1MuGMTConfig.h"
+#include "CondFormats/L1TObjects/interface/L1MuGMTScales.h"
+#include "CondFormats/L1TObjects/interface/L1MuPacking.h"
 
 //-------------------
 // InitParameters  --
 //-------------------
 
 void L1MuGMTLFCOUDeltaEtaLUT::InitParameters() {
-  m_theGMTScales = Singleton<L1MuGMTScales>::instance();
 }
 
 //---------------------------------------------------------------------------
@@ -57,6 +56,8 @@ unsigned L1MuGMTLFCOUDeltaEtaLUT::TheLookupFunction (int idx, unsigned eta1, uns
   // INPUTS:  eta1(4) eta2(4)
   // OUTPUTS: delta_eta(4) 
 
+  const L1MuGMTScales* theGMTScales = L1MuGMTConfig::getGMTScales();
+
   // check out of range in inputs
   L1MuSignedPacking<4> pack;
   unsigned delta_eta_OOR = pack.packedFromIdx (-8);
@@ -71,20 +72,20 @@ unsigned L1MuGMTLFCOUDeltaEtaLUT::TheLookupFunction (int idx, unsigned eta1, uns
     case 3: type1 = 3; type2 = 0; break; // fRPC, DT
   }
 
-  float etaValue1 = m_theGMTScales->getOvlEtaScale(type1)->getCenter(eta1);
-  float etaValue2 = m_theGMTScales->getOvlEtaScale(type2)->getCenter(eta2); 
+  float etaValue1 = theGMTScales->getOvlEtaScale(type1)->getCenter(eta1);
+  float etaValue2 = theGMTScales->getOvlEtaScale(type2)->getCenter(eta2); 
 
   float delta_eta = etaValue1 - etaValue2;
 
   unsigned delta_eta_4bit = 0;
 
   // check out of range
-  if (delta_eta < m_theGMTScales->getDeltaEtaScale(idx+2)->getScaleMin() ||
-      delta_eta > m_theGMTScales->getDeltaEtaScale(idx+2)->getScaleMax()) {
+  if (delta_eta < theGMTScales->getDeltaEtaScale(idx+2)->getScaleMin() ||
+      delta_eta > theGMTScales->getDeltaEtaScale(idx+2)->getScaleMax()) {
     delta_eta_4bit = delta_eta_OOR;
   }
   else {
-    delta_eta_4bit = m_theGMTScales->getDeltaEtaScale(idx+2)->getPacked( delta_eta );
+    delta_eta_4bit = theGMTScales->getDeltaEtaScale(idx+2)->getPacked( delta_eta );
   }
     
   return delta_eta_4bit;

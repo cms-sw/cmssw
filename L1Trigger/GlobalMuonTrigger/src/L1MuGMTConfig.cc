@@ -5,8 +5,8 @@
 //   Description: Configuration parameters for L1GlobalMuonTrigger
 //
 //
-//   $Date: 2006/08/21 14:23:13 $
-//   $Revision: 1.3 $
+//   $Date: 2007/03/23 18:51:35 $
+//   $Revision: 1.4 $
 //
 //   Author :
 //   N. Neumeister             CERN EP
@@ -61,6 +61,8 @@
 #include "L1Trigger/GlobalMuonTrigger/src/L1MuGMTMIAUPhiPro1LUT.h"
 #include "L1Trigger/GlobalMuonTrigger/src/L1MuGMTMIAUPhiPro2LUT.h"
 #include "L1Trigger/GlobalMuonTrigger/src/L1MuGMTPhiLUT.h"
+
+#include "CondFormats/L1TObjects/interface/L1MuGMTScales.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -135,7 +137,8 @@ void L1MuGMTConfig::setDefaults() {
   m_DoOvlRpcAnd = m_ps->getParameter<bool>("DoOvlRpcAnd");  
 
   if ( Debug(1) ) {
-    edm::LogVerbatim("GMT_Config_info")
+    stringstream stdss;
+    stdss
         << endl
         << "*******************************************" << endl
         << "**** L1 Global Muon Trigger settings : ****" << endl
@@ -158,6 +161,7 @@ void L1MuGMTConfig::setDefaults() {
         << "L1 Global Muon Trigger : muon isolation cell size (eta) : " << m_IsolationCellSizeEta << endl
         << "L1 Global Muon Trigger : muon isolation cell size (phi) : " << m_IsolationCellSizePhi << endl
         << "L1 Global Muon Trigger : require confirmation by RPC in overlap region : " << m_DoOvlRpcAnd << endl;
+    edm::LogVerbatim("GMT_Config_info") << stdss.str();
   }
 
   m_PropagatePhi = m_ps->getParameter<bool>("PropagatePhi");  
@@ -330,3 +334,6 @@ L1MuGMTMIAUEtaProLUT* L1MuGMTConfig::m_MIAUEtaProLUT=0;
 L1MuGMTMIAUPhiPro1LUT* L1MuGMTConfig::m_MIAUPhiPro1LUT=0;
 L1MuGMTMIAUPhiPro2LUT* L1MuGMTConfig::m_MIAUPhiPro2LUT=0;
 L1MuGMTPhiLUT* L1MuGMTConfig::m_PhiLUT=0;
+
+const L1MuGMTScales* L1MuGMTConfig::m_GMTScales=0;
+const L1MuTriggerScales* L1MuGMTConfig::m_TriggerScales=0;

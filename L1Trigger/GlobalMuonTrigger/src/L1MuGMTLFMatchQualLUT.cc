@@ -3,8 +3,8 @@
 //   Class: L1MuGMTLFMatchQualLUT
 //
 // 
-//   $Date: 2006/05/15 13:56:02 $
-//   $Revision: 1.1 $
+//   $Date: 2006/11/17 08:25:34 $
+//   $Revision: 1.2 $
 //
 //   Author :
 //   H. Sakulin            HEPHY Vienna
@@ -28,17 +28,15 @@
 //-------------------------------
 // Collaborating Class Headers --
 //-------------------------------
-#include "L1Trigger/GlobalMuonTrigger/src/L1MuGMTScales.h"
-#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuPacking.h"
-#include "SimG4Core/Notification/interface/Singleton.h"
 #include "L1Trigger/GlobalMuonTrigger/src/L1MuGMTConfig.h"
+#include "CondFormats/L1TObjects/interface/L1MuGMTScales.h"
+#include "CondFormats/L1TObjects/interface/L1MuPacking.h"
 
 //-------------------
 // InitParameters  --
 //-------------------
 
 void L1MuGMTLFMatchQualLUT::InitParameters() {
-  m_theGMTScales = Singleton<L1MuGMTScales>::instance();
 
   m_EtaWeights[0]=L1MuGMTConfig::getEtaWeightBarrel();
   m_PhiWeights[0]=L1MuGMTConfig::getPhiWeightBarrel();
@@ -64,8 +62,10 @@ unsigned L1MuGMTLFMatchQualLUT::TheLookupFunction (int idx, unsigned delta_eta, 
   // INPUTS:  delta_eta(4) delta_phi(3)
   // OUTPUTS: mq(6) 
 
-  float deta = m_theGMTScales->getDeltaEtaScale(idx)->getCenter( delta_eta );
-  float dphi = m_theGMTScales->getDeltaPhiScale()->getCenter( delta_phi );
+  const L1MuGMTScales* theGMTScales = L1MuGMTConfig::getGMTScales();
+
+  float deta = theGMTScales->getDeltaEtaScale(idx)->getCenter( delta_eta );
+  float dphi = theGMTScales->getDeltaPhiScale()->getCenter( delta_phi );
       
   // check out-of range code
   L1MuSignedPacking<4> EtaPacking;

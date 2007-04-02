@@ -7,8 +7,8 @@
  *   This candidate contains only information sent to the GT.
 */
 //
-//   $Date: 2006/10/09 08:21:58 $
-//   $Revision: 1.3 $
+//   $Date: 2007/03/23 18:52:17 $
+//   $Revision: 1.4 $
 //
 //   Author :
 //   H. Sakulin               HEPHY Vienna
@@ -173,14 +173,22 @@ class L1MuGMTCand {
     /// set bunch crossing identifier
     void setBx(int bx) { m_bx = bx; }
 
+    /// Setters for physical values
+
+    /// Set Phi Value
+    void setPhiValue(float phiVal) {m_phiValue = phiVal;}
+
+    /// Set Pt Value
+    void setPtValue(float ptVal) {m_ptValue = ptVal;}
+
+    /// Set Eta Value (need to set type, first)
+    void setEtaValue(float etaVal) {m_etaValue = etaVal;}
+
     //
     // Other
     //
 
     unsigned int linearizedPt(float lsbValue, unsigned maxScale) const { return 0; }
-
-    /// return pt-scale
-    unsigned int triggerScale(float value) const;
 
     unsigned int etaRegionIndex() const { return etaIndex(); }
 
@@ -206,11 +214,15 @@ class L1MuGMTCand {
 
     std::string       m_name;
     int          m_bx;      // in here only for technical reasons in simulation
-
-
     unsigned m_dataWord;                                // muon data word (26 bits) :
-                                                        // definition of the bit fields
 
+    float m_phiValue;
+    float m_etaValue;
+    float m_ptValue;
+    static const float m_invalidValue;
+
+
+                                                        // definition of the bit fields
     enum { PHI_START=0};     enum { PHI_LENGTH = 8};    // Bits 0:7   phi (8 bits)
     enum { PT_START=8};      enum { PT_LENGTH =  5};    // Bits 8:12  pt  (5 bits)
     enum { QUAL_START=13};   enum { QUAL_LENGTH = 3};   // Bits 13:15 quality (3 bits)

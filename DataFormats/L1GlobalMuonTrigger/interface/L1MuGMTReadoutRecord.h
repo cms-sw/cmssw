@@ -69,25 +69,29 @@ class L1MuGMTReadoutRecord {
     int getBCERR() const { return (int) m_BCERR; };
     
     /// get GMT candidates vector
-    vector<L1MuGMTExtendedCand> getGMTCands() const;
+    std::vector<L1MuGMTExtendedCand> getGMTCands() const;
+
+    /// get GMT candidates vector as stored in data (no rank info)
+    std::vector<L1MuGMTExtendedCand>& getGMTCandsData();
 
     /// get GMT barrel candidates vector
-    vector<L1MuGMTExtendedCand> getGMTBrlCands() const;
+    std::vector<L1MuGMTExtendedCand> getGMTBrlCands() const;
+    std::vector<L1MuGMTExtendedCand>& getGMTBrlCandsData() {return m_BarrelCands;};
 
     /// get GMT forward candidates vector
-    vector<L1MuGMTExtendedCand> getGMTFwdCands() const;
+    std::vector<L1MuGMTExtendedCand> getGMTFwdCands() const;
 
     /// get DT candidates vector
-    vector<L1MuRegionalCand> getDTBXCands() const;
+    std::vector<L1MuRegionalCand> getDTBXCands() const;
 
     /// get CSC candidates vector
-    vector<L1MuRegionalCand> getCSCCands() const;
+    std::vector<L1MuRegionalCand> getCSCCands() const;
 
     /// get barrel RPC candidates vector
-    vector<L1MuRegionalCand> getBrlRPCCands() const;
+    std::vector<L1MuRegionalCand> getBrlRPCCands() const;
 
     /// get forward RPC candidates vector
-    vector<L1MuRegionalCand> getFwdRPCCands() const;
+    std::vector<L1MuRegionalCand> getFwdRPCCands() const;
 
     //
     // Setters
@@ -119,7 +123,10 @@ class L1MuGMTReadoutRecord {
     void setGMTCand(int nr, unsigned data);
 
     /// set Input muon
-    void setInputCand(int nr, unsigned data) { if (nr>=0 && nr < 16) m_InputCands[nr] = data; };
+    void setInputCand(int nr, unsigned data);
+
+    /// set Input muon
+    void setInputCand(int nr, L1MuRegionalCand const& cand);
 
   private:
     unsigned getBrlRank(int i) const;
@@ -135,16 +142,11 @@ class L1MuGMTReadoutRecord {
 
     unsigned m_BCERR;
 
-    unsigned m_InputCands[16];
+    std::vector<L1MuRegionalCand> m_InputCands;
 
-    unsigned m_BarrelCands[4];
-    unsigned m_ForwardCands[4];
-
-    unsigned m_BrlSortRanks;
-    unsigned m_FwdSortRanks;
-
-    unsigned m_GMTCands[4];
-
+    std::vector<L1MuGMTExtendedCand> m_BarrelCands;
+    std::vector<L1MuGMTExtendedCand> m_ForwardCands;
+    std::vector<L1MuGMTExtendedCand> m_GMTCands;
 };
 
 #endif

@@ -4,8 +4,8 @@
  *  A regional muon trigger candidate as received by the GMT
 */
 //
-//   $Date: 2006/11/16 18:23:47 $
-//   $Revision: 1.3 $
+//   $Date: 2007/03/23 18:52:18 $
+//   $Revision: 1.4 $
 //
 //   Author :
 //   H. Sakulin                    HEPHY Vienna
@@ -30,71 +30,73 @@
 // Collaborating Class Declarations --
 //------------------------------------
 
-#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuTriggerScales.h"
-#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuPacking.h"
-#include "SimG4Core/Notification/interface/Singleton.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+using namespace std;
 
 //              ---------------------
 //              -- Class Interface --
 //              ---------------------
 
-using namespace std;
+const float L1MuRegionalCand::m_invalidValue = -10.;
 
-/// get phi-value of muon candidate in radians (low edge of bin)
+    /// constructor from data word
+L1MuRegionalCand::L1MuRegionalCand(unsigned dataword, int bx) : m_bx(bx), m_dataWord(dataword) {
+  m_phiValue = m_invalidValue; 
+  m_etaValue = m_invalidValue;
+  m_ptValue = m_invalidValue;
+}
+
+    /// constructor from packed members
+L1MuRegionalCand::L1MuRegionalCand(unsigned type_idx, 
+                     unsigned phi, unsigned eta, unsigned pt, unsigned charge,
+		     unsigned ch_valid, unsigned finehalo, unsigned quality, int bx) : 
+                     m_bx(bx), m_dataWord(0) {
+  setType(type_idx);
+  setPhiPacked(phi);
+  setEtaPacked(eta);
+  setPtPacked(pt);
+  setChargePacked(charge);
+  setChargeValidPacked(ch_valid);
+  setFineHaloPacked(finehalo);
+  setQualityPacked(quality);     
+  m_phiValue = m_invalidValue; 
+  m_etaValue = m_invalidValue;
+  m_ptValue = m_invalidValue;
+}
+
+void L1MuRegionalCand::reset() {
+
+  m_bx       = 0;
+  m_dataWord = 0;
+  m_phiValue = m_invalidValue; 
+  m_etaValue = m_invalidValue;
+  m_ptValue = m_invalidValue;
+
+}
+
 float L1MuRegionalCand::phiValue() const {
-
-  L1MuTriggerScales* theTriggerScales = Singleton<L1MuTriggerScales>::instance();
-  return theTriggerScales->getPhiScale()->getLowEdge( phi_packed() );
-  
+  if(m_phiValue == m_invalidValue) {
+    edm::LogWarning("ValueInvalid") << 
+     "L1MuRegionalCand::phiValue requested physical value is invalid";
+  }
+  return m_phiValue;
 }
-    
-/// get eta-value of muon candidate
+
 float L1MuRegionalCand::etaValue() const {
-  
-  L1MuTriggerScales* theTriggerScales = Singleton<L1MuTriggerScales>::instance();
-  return theTriggerScales->getRegionalEtaScale( type_idx() )->getCenter( eta_packed() );
-
+  if(m_etaValue == m_invalidValue) {
+    edm::LogWarning("ValueInvalid") << 
+     "L1MuRegionalCand::etaValue requested physical value is invalid";
+  }
+  return m_etaValue;
 }
-    
-/// get pt-value of muon candidate in GeV
+
 float L1MuRegionalCand::ptValue() const {
-      
-  L1MuTriggerScales* theTriggerScales = Singleton<L1MuTriggerScales>::instance();
-  return theTriggerScales->getPtScale()->getLowEdge( pt_packed() );
-  
-}
-
-
-/// Set Phi Value
-void L1MuRegionalCand::setPhiValue(float phiVal) { 
-
-  float eps = 1.e-5; // add an epsilon so that setting works with low edge value
-
-  L1MuTriggerScales* theTriggerScales = Singleton<L1MuTriggerScales>::instance();
-  unsigned phi = theTriggerScales->getPhiScale()->getPacked( phiVal + eps );
-
-  writeDataField (PHI_START, PHI_LENGTH, phi); 
-}
-
-/// Set Pt Value
-void L1MuRegionalCand::setPtValue(float ptVal) { 
-
-  float eps = 1.e-5; // add an epsilon so that setting works with low edge value
-
-  L1MuTriggerScales* theTriggerScales = Singleton<L1MuTriggerScales>::instance();
-  unsigned pt = theTriggerScales->getPtScale()->getPacked( ptVal + eps );
-
-  writeDataField (PT_START, PT_LENGTH, pt); 
-}
-
-/// Set Eta Value (need to set type, first)
-void L1MuRegionalCand::setEtaValue(float etaVal) { 
-
-  L1MuTriggerScales* theTriggerScales = Singleton<L1MuTriggerScales>::instance();
-  unsigned eta = theTriggerScales->getRegionalEtaScale(type_idx())->getPacked( etaVal );
-
-  writeDataField (ETA_START, ETA_LENGTH, eta); 
+  if(m_ptValue == m_invalidValue) {
+    edm::LogWarning("ValueInvalid") << 
+     "L1MuRegionalCand::ptValue requested physical value is invalid";
+  }
+  return m_ptValue;
 }
 
 void L1MuRegionalCand::print() const {
@@ -109,7 +111,7 @@ void L1MuRegionalCand::print() const {
 	 << "charge_valid = " << setw(1) << chargeValid() << "  "
 	 << "fine_halo = " << setw(1) << isFineHalo() << "  "
 	 << "bx = " << setw(3) << bx() << "  " 
-	 << "type_idx = " << setw(1) << type_idx() << endl;
+	 << "type_idx = " << setw(1) << type_idx();
   }
 }
 
@@ -122,9 +124,10 @@ unsigned L1MuRegionalCand::readDataField(unsigned start, unsigned count) const {
 void L1MuRegionalCand::writeDataField(unsigned start, unsigned count, unsigned value) {
   if ( value < (unsigned)0 || value >= (unsigned)( 1 << count ) ) edm::LogWarning("ValueOutOfRange") 
          << "L1MuRegionalCand::writeDataField(): value " << value  
-	 << " out of range for data field with bit width "  << count << endl << endl << endl;
+	 << " out of range for data field with bit width "  << count;
 
   unsigned mask = ( (1 << count) - 1 ) << start;
   m_dataWord &= ~mask; // clear
   m_dataWord |= (value << start) & mask ;
 }
+

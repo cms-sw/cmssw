@@ -5,8 +5,8 @@
 //   Description:   Dump GMT readout
 //                  
 //                
-//   $Date: 2006/10/27 01:35:32 $
-//   $Revision: 1.7 $
+//   $Date: 2007/03/14 08:56:33 $
+//   $Revision: 1.8 $
 //
 //   I. Mikulec            HEPHY Vienna
 //
@@ -36,6 +36,9 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
+
+using namespace std;
+
 //----------------
 // Constructors --
 //----------------

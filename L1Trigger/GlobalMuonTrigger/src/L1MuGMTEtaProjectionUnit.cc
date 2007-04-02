@@ -5,8 +5,8 @@
 //   Description: GMT Eta Projection Unit
 //
 //
-//   $Date: 2006/05/15 13:56:02 $
-//   $Revision: 1.1 $
+//   $Date: 2006/08/21 14:23:13 $
+//   $Revision: 1.2 $
 //
 //   Author :
 //   H. Sakulin                CERN EP 
@@ -38,7 +38,6 @@
 #include "L1Trigger/GlobalMuonTrigger/interface/L1MuGlobalMuonTrigger.h"
 #include "L1Trigger/GlobalMuonTrigger/src/L1MuGMTDebugBlock.h"
 #include "L1Trigger/GlobalMuonTrigger/src/L1MuGMTMIAUEtaProLUT.h"
-#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuPacking.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 

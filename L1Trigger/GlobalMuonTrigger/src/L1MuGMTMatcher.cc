@@ -5,8 +5,8 @@
 //   Description: Matcher 
 //
 //
-//   $Date: 2006/05/15 13:56:02 $
-//   $Revision: 1.1 $
+//   $Date: 2006/08/21 14:23:13 $
+//   $Revision: 1.2 $
 //
 //   Author :
 //   N. Neumeister            CERN EP 
@@ -48,8 +48,7 @@
 #include "L1Trigger/GlobalMuonTrigger/src/L1MuGMTLFOvlEtaConvLUT.h"
 #include "L1Trigger/GlobalMuonTrigger/src/L1MuGMTLFMatchQualLUT.h"
 #include "L1Trigger/GlobalMuonTrigger/src/L1MuGMTLFDisableHotLUT.h"
-#include "L1Trigger/GlobalMuonTrigger/src/L1MuGMTScales.h"
-#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuPacking.h"
+#include "CondFormats/L1TObjects/interface/L1MuPacking.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 

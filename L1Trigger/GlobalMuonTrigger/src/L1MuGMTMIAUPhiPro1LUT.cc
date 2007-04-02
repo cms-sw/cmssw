@@ -3,8 +3,8 @@
 //   Class: L1MuGMTMIAUPhiPro1LUT
 //
 // 
-//   $Date: 2006/11/17 08:25:34 $
-//   $Revision: 1.3 $
+//   $Date: 2007/03/23 18:51:35 $
+//   $Revision: 1.4 $
 //
 //   Author :
 //   H. Sakulin            HEPHY Vienna
@@ -22,14 +22,12 @@
 //---------------
 // C++ Headers --
 //---------------
-#include <iostream>
 
 //-------------------------------
 // Collaborating Class Headers --
 //-------------------------------
-#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuTriggerScales.h"
-#include "L1Trigger/GlobalMuonTrigger/src/L1MuGMTScales.h"
-#include "SimG4Core/Notification/interface/Singleton.h"
+#include "L1Trigger/GlobalMuonTrigger/src/L1MuGMTConfig.h"
+#include "CondFormats/L1TObjects/interface/L1MuTriggerScales.h"
 
 #include "L1Trigger/GlobalMuonTrigger/src/L1MuGMTPhiLUT.h"
 
@@ -42,8 +40,6 @@ using namespace std;
 //-------------------
 
 void L1MuGMTMIAUPhiPro1LUT::InitParameters() {
-  m_theTriggerScales = Singleton<L1MuTriggerScales>::instance();
-  //  m_theGMTScales = Singleton<L1MuGMTScales>::instance();
   m_calo_align = 0.; //***FIXME: read from DB or .orcarc
 }
 
@@ -89,6 +85,9 @@ unsigned L1MuGMTMIAUPhiPro1LUT::TheLookupFunction (int idx, unsigned phi_fine, u
   // idx is MIP_DT, MIP_BRPC, ISO_DT, ISO_BRPC, MIP_CSC, MIP_FRPC, ISO_CSC, ISO_FRPC
   // INPUTS:  phi_fine(3) eta(4) pt(5) charge(1)
   // OUTPUTS: cphi_fine(1) cphi_ofs(3) 
+
+  const L1MuTriggerScales* theTriggerScales = L1MuGMTConfig::getTriggerScales();
+
   int isRPC = idx % 2;
   int isFWD = idx / 4;
       
@@ -101,7 +100,7 @@ unsigned L1MuGMTMIAUPhiPro1LUT::TheLookupFunction (int idx, unsigned phi_fine, u
   if (eta>7) eta -= 8;
 
   float dphi =  L1MuGMTPhiLUT::dphi (isys, isISO, ch_idx, (int) eta, 
-				     m_theTriggerScales->getPtScale()->getLowEdge(pt) );  // use old LUT, here
+				     theTriggerScales->getPtScale()->getLowEdge(pt) );  // use old LUT, here
       
   // calculate phi in calo relative to low edge of start region
   // == use low edge of muon phi bin as dphi was calculated with this assumption
@@ -114,7 +113,7 @@ unsigned L1MuGMTMIAUPhiPro1LUT::TheLookupFunction (int idx, unsigned phi_fine, u
          << "SYS=" << ( isys==0?"DT":isys==1? "CSC" : isys== 2? "BRPC" : "FRPC" )
 	 << " ISO = " << isISO
 	 << " etabin = " << eta
-	 << " pval = " << m_theTriggerScales->getPtScale()->getLowEdge(pt)
+	 << " pval = " << theTriggerScales->getPtScale()->getLowEdge(pt)
 	 << " charge = " << ( charge==0?"pos":"neg" )
 	 << " phi_fine = " << phi_fine
 	 << " calophi(deg) = " << calophi * 180. / M_PI
@@ -126,7 +125,7 @@ unsigned L1MuGMTMIAUPhiPro1LUT::TheLookupFunction (int idx, unsigned phi_fine, u
          << "SYS=" << ( isys==0?"DT":isys==1? "CSC" : isys== 2? "BRPC" : "FRPC" )
 	 << " ISO = " << isISO
 	 << " etabin = " << eta
-	 << " pval = " << m_theTriggerScales->getPtScale()->getLowEdge(pt)
+	 << " pval = " << theTriggerScales->getPtScale()->getLowEdge(pt)
 	 << " charge = " << ( charge==0?"pos":"neg" )
 	 << " phi_fine = " << phi_fine
 	 << " calophi(deg) = " << calophi * 180. / M_PI

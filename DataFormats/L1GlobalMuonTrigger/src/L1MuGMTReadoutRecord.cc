@@ -8,8 +8,8 @@
  *  for one bunch crossing.
 */
 //
-//   $Date: 2006/10/18 16:23:20 $
-//   $Revision: 1.3 $
+//   $Date: 2006/11/16 18:23:47 $
+//   $Revision: 1.4 $
 //
 //   Author :
 //   H. Sakulin                  HEPHY Vienna
@@ -39,8 +39,8 @@
 //-------------------------------
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTExtendedCand.h"
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuRegionalCand.h"
-#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuPacking.h"
-#include "SimG4Core/Notification/interface/Singleton.h"
+
+using namespace std;
 
 //--------------------------------------
 //       class L1MuGMTReadoutRecord
@@ -50,11 +50,13 @@
 // Constructors --
 //----------------
 
-L1MuGMTReadoutRecord::L1MuGMTReadoutRecord() {
+L1MuGMTReadoutRecord::L1MuGMTReadoutRecord() : m_InputCands(16), 
+   m_BarrelCands(4), m_ForwardCands(4), m_GMTCands(4) {
   reset();
 }
  
-L1MuGMTReadoutRecord::L1MuGMTReadoutRecord(int bxie) {
+L1MuGMTReadoutRecord::L1MuGMTReadoutRecord(int bxie) : m_InputCands(16), 
+   m_BarrelCands(4), m_ForwardCands(4), m_GMTCands(4) {
   reset();
   m_BxInEvent = bxie;
 }
@@ -77,18 +79,13 @@ void L1MuGMTReadoutRecord::reset() {
   m_EvNr = 0;
   m_BCERR = 0;
 
-  for (int i=0; i<4; i++) {
-    m_BarrelCands[i]=0;
-    m_ForwardCands[i]=0;
-    m_GMTCands[i]=0;
-  }
-       
-  m_BrlSortRanks = 0;
-  m_FwdSortRanks = 0;
+  std::vector<L1MuRegionalCand>::iterator itr;
+  for(itr = m_InputCands.begin(); itr != m_InputCands.end(); itr++) (*itr).reset();
 
-  for (int i=0; i<16; i++) {
-    m_InputCands[i] = 0;
-  }
+  std::vector<L1MuGMTExtendedCand>::iterator itg;
+  for(itg = m_BarrelCands.begin(); itg != m_BarrelCands.end(); itg++) (*itg).reset();
+  for(itg = m_ForwardCands.begin(); itg != m_ForwardCands.end(); itg++) (*itg).reset();
+  for(itg = m_GMTCands.begin(); itg != m_GMTCands.end(); itg++) (*itg).reset();
 
 }
 
@@ -97,42 +94,52 @@ vector<L1MuGMTExtendedCand>  L1MuGMTReadoutRecord::getGMTCands() const {
 
   vector<L1MuGMTExtendedCand> cands;
 
-  for (int i=0; i<4; i++) 
-    if (m_BarrelCands[i] != 0)
-      cands.push_back( L1MuGMTExtendedCand(m_BarrelCands[i], getBrlRank(i), (int) m_BxInEvent ) );
-  
-  for (int i=0; i<4; i++) 
-    if (m_ForwardCands[i] != 0)
-      cands.push_back( L1MuGMTExtendedCand(m_ForwardCands[i], getFwdRank(i), (int) m_BxInEvent ) );
+  std::vector<L1MuGMTExtendedCand>::const_iterator it;
+  for(it = m_BarrelCands.begin(); it != m_BarrelCands.end(); it++) {
+    if((*it).getDataWord()!=0) cands.push_back(*it);
+  }
+  for(it = m_ForwardCands.begin(); it != m_ForwardCands.end(); it++) {
+    if((*it).getDataWord()!=0) cands.push_back(*it);
+  }
     
   // sort by rank
   stable_sort( cands.begin(), cands.end(), L1MuGMTExtendedCand::RankRef() );
 
+
   return cands;
+}
+
+/// get GMT candidates vector as stored in data (no rank info)
+vector<L1MuGMTExtendedCand>&  L1MuGMTReadoutRecord::getGMTCandsData() {
+
+  return m_GMTCands;
+
 }
 
 /// get GMT barrel candidates vector
 vector<L1MuGMTExtendedCand> L1MuGMTReadoutRecord::getGMTBrlCands() const {
-
+  
   vector<L1MuGMTExtendedCand> cands;
-  
-  for (int i=0; i<4; i++) 
-    if (m_BarrelCands[i] != 0)
-      cands.push_back( L1MuGMTExtendedCand(m_BarrelCands[i], getBrlRank(i), (int) m_BxInEvent ) );
-  
+  std::vector<L1MuGMTExtendedCand>::const_iterator it;
+  for(it = m_BarrelCands.begin(); it != m_BarrelCands.end(); it++) {
+    if((*it).getDataWord()!=0) cands.push_back(*it);
+  }
+
   return cands;
+
 }
 
 /// get GMT forward candidates vector
 vector<L1MuGMTExtendedCand> L1MuGMTReadoutRecord::getGMTFwdCands() const {
 
   vector<L1MuGMTExtendedCand> cands;
-  
-  for (int i=0; i<4; i++) 
-    if (m_ForwardCands[i] != 0)
-      cands.push_back( L1MuGMTExtendedCand(m_ForwardCands[i], getFwdRank(i), (int) m_BxInEvent ) );
+  std::vector<L1MuGMTExtendedCand>::const_iterator it;
+  for(it = m_ForwardCands.begin(); it != m_ForwardCands.end(); it++) {
+    if((*it).getDataWord()!=0) cands.push_back(*it);
+  }
 
   return cands;
+
 }
 
 /// get DT candidates vector
@@ -140,10 +147,11 @@ vector<L1MuRegionalCand> L1MuGMTReadoutRecord::getDTBXCands() const {
 
   vector<L1MuRegionalCand> cands;
   
-  for (int i=0; i<4; i++) 
-    if (m_InputCands[i] != 0)
-      cands.push_back( L1MuRegionalCand(m_InputCands[i], (int) m_BxInEvent));
+  for (int i=0; i<4; i++)
+    if(m_InputCands[i].getDataWord() != 0)
+      cands.push_back( m_InputCands[i] );
   
+
   return cands;
 }
 
@@ -154,8 +162,8 @@ vector<L1MuRegionalCand> L1MuGMTReadoutRecord::getCSCCands() const {
   vector<L1MuRegionalCand> cands;
   
   for (int i=0; i<4; i++) 
-    if (m_InputCands[i+8] != 0)
-      cands.push_back( L1MuRegionalCand(m_InputCands[i+8], (int) m_BxInEvent));
+    if(m_InputCands[i+8].getDataWord() != 0)
+      cands.push_back( m_InputCands[i+8] );
   
   return cands;
 }
@@ -166,8 +174,8 @@ vector<L1MuRegionalCand> L1MuGMTReadoutRecord::getBrlRPCCands() const {
   vector<L1MuRegionalCand> cands;
   
   for (int i=0; i<4; i++) 
-    if (m_InputCands[i+4] != 0)
-      cands.push_back( L1MuRegionalCand(m_InputCands[i+4], (int) m_BxInEvent));
+    if(m_InputCands[i+4].getDataWord() != 0)
+      cands.push_back( m_InputCands[i+4] );
   
   return cands;
 }
@@ -178,8 +186,8 @@ vector<L1MuRegionalCand> L1MuGMTReadoutRecord::getFwdRPCCands() const {
   vector<L1MuRegionalCand> cands;
   
   for (int i=0; i<4; i++) 
-    if (m_InputCands[i+12] != 0)
-      cands.push_back( L1MuRegionalCand(m_InputCands[i+12], (int) m_BxInEvent));
+    if(m_InputCands[i+12].getDataWord() != 0)
+      cands.push_back( m_InputCands[i+12] );
   
   return cands;
 }
@@ -190,49 +198,59 @@ vector<L1MuRegionalCand> L1MuGMTReadoutRecord::getFwdRPCCands() const {
 // Setters
 //
 
+/// set Regional Candidates
+void L1MuGMTReadoutRecord::setInputCand(int nr, L1MuRegionalCand const& cand) {
+  if (nr>=0 && nr < 16) {
+    m_InputCands[nr] = cand;
+  }
+}
+
+/// set Regional Candidates
+void L1MuGMTReadoutRecord::setInputCand(int nr, unsigned data) {
+  if (nr>=0 && nr < 16) {
+    m_InputCands[nr] = L1MuRegionalCand(data,m_BxInEvent); 
+  }
+}
+
 /// set GMT barrel candidate
 void L1MuGMTReadoutRecord::setGMTBrlCand(int nr, L1MuGMTExtendedCand const& cand) {
   if (nr>=0 && nr<4) {
-    m_BarrelCands[nr] = cand.getDataWord();
-    setBrlRank(nr, cand.rank());
+    m_BarrelCands[nr] = cand;
   }
 }
 
 /// set GMT barrel candidate
 void L1MuGMTReadoutRecord::setGMTBrlCand(int nr, unsigned data, unsigned rank) {
   if (nr>=0 && nr<4) {
-    m_BarrelCands[nr] = data;
-    setBrlRank(nr, rank);
+    m_BarrelCands[nr] = L1MuGMTExtendedCand(data,rank,m_BxInEvent);
   }
 }
 
 /// set GMT forward candidate
 void L1MuGMTReadoutRecord::setGMTFwdCand(int nr, L1MuGMTExtendedCand const& cand) {
   if (nr>=0 && nr<4) {
-    m_ForwardCands[nr] = cand.getDataWord();
-    setFwdRank(nr, cand.rank());
+    m_ForwardCands[nr] = cand;
   }
 }
 
 /// set GMT forward candidate
 void L1MuGMTReadoutRecord::setGMTFwdCand(int nr, unsigned data, unsigned rank) {
   if (nr>=0 && nr<4) {
-    m_ForwardCands[nr] = data;
-    setFwdRank(nr, rank);
+    m_ForwardCands[nr] = L1MuGMTExtendedCand(data,rank,m_BxInEvent);
   }
 }
 
 /// set GMT candidate
 void L1MuGMTReadoutRecord::setGMTCand(int nr, L1MuGMTExtendedCand const& cand) {
   if (nr>=0 && nr<4) {
-    m_GMTCands[nr] = cand.getDataWord();
+    m_GMTCands[nr] = cand;
   }
 }
 
 /// set GMT candidate
 void L1MuGMTReadoutRecord::setGMTCand(int nr, unsigned data) {
   if (nr>=0 && nr<4) {
-    m_GMTCands[nr] = data;
+    m_GMTCands[nr] = L1MuGMTExtendedCand(data,0,m_BxInEvent);
   }
 }
 
@@ -241,8 +259,7 @@ void L1MuGMTReadoutRecord::setGMTCand(int nr, unsigned data) {
  /// get rank of brl cand i
 unsigned L1MuGMTReadoutRecord::getBrlRank(int i) const {
 
-  unsigned mask = ( (1 << 8)-1 ) << (i*8);
-  return (m_BrlSortRanks & mask) >> (i*8);
+  return m_BarrelCands[i].rank();
 
 }
 
@@ -250,17 +267,16 @@ unsigned L1MuGMTReadoutRecord::getBrlRank(int i) const {
 /// get rank of fwd cand i
 unsigned L1MuGMTReadoutRecord::getFwdRank(int i) const {
 
-  unsigned mask = ( (1 << 8)-1 ) << (i*8);
-  return (m_FwdSortRanks & mask) >> (i*8);
+  return m_ForwardCands[i].rank();
 
 }
 
 /// set rank of brl cand i
 void L1MuGMTReadoutRecord::setBrlRank(int i, unsigned value) {
 
-  unsigned mask = ( (1 << 8)-1 ) << (i*8);
-  m_BrlSortRanks &= ~mask;
-  m_BrlSortRanks |= value << (i*8);
+  if (i>=0 && i<4) {
+    m_BarrelCands[i].setRank(value);
+  }  
 
 }
 
@@ -268,9 +284,9 @@ void L1MuGMTReadoutRecord::setBrlRank(int i, unsigned value) {
 /// set rank of fwd cand i
 void L1MuGMTReadoutRecord::setFwdRank(int i, unsigned value) {
 
-  unsigned mask = ( (1 << 8)-1 ) << (i*8);
-  m_FwdSortRanks &= ~mask;
-  m_FwdSortRanks |= value << (i*8);
+  if (i>=0 && i<4) {
+    m_ForwardCands[i].setRank(value);
+  }  
 
 }
 

@@ -4,8 +4,8 @@
  *  Configuration parameters for L1GlobalMuonTrigger.
 */
 //
-//   $Date: 2006/11/17 08:25:34 $
-//   $Revision: 1.3 $
+//   $Date: 2007/03/23 18:51:35 $
+//   $Revision: 1.4 $
 //
 //   Author :
 //   N. Neumeister             CERN EP
@@ -65,6 +65,9 @@ class L1MuGMTMIAUEtaProLUT;
 class L1MuGMTMIAUPhiPro1LUT;
 class L1MuGMTMIAUPhiPro2LUT;
 class L1MuGMTPhiLUT;
+
+class L1MuGMTScales;
+class L1MuTriggerScales;
 //              ---------------------
 //              -- Class Interface --
 //              ---------------------
@@ -152,6 +155,12 @@ class L1MuGMTConfig {
     static L1MuGMTMIAUPhiPro2LUT* getMIAUPhiPro2LUT() { return m_MIAUPhiPro2LUT; }
     static L1MuGMTPhiLUT* getPhiLUT() { return m_PhiLUT; }
 
+    void setGMTScales(const L1MuGMTScales* gmtscales) { m_GMTScales = gmtscales; }
+    static const L1MuGMTScales* getGMTScales() { return m_GMTScales; }
+
+    void setTriggerScales(const L1MuTriggerScales* trigscales) { m_TriggerScales = trigscales; }
+    static const L1MuTriggerScales* getTriggerScales() { return m_TriggerScales; }
+
 
     static const edm::ParameterSet* getParameterSet() { return m_ps; }
      
@@ -229,6 +238,10 @@ class L1MuGMTConfig {
     static L1MuGMTMIAUPhiPro1LUT* m_MIAUPhiPro1LUT;
     static L1MuGMTMIAUPhiPro2LUT* m_MIAUPhiPro2LUT;
     static L1MuGMTPhiLUT* m_PhiLUT;
+
+    // scales pointers
+    static const L1MuGMTScales* m_GMTScales;
+    static const L1MuTriggerScales* m_TriggerScales;
 };
 
 #endif

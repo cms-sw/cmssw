@@ -3,8 +3,8 @@
 //   Class: L1MuGMTLFOvlEtaConvLUT
 //
 // 
-//   $Date: 2006/05/15 13:56:02 $
-//   $Revision: 1.1 $
+//   $Date: 2006/11/17 08:25:34 $
+//   $Revision: 1.2 $
 //
 //   Author :
 //   H. Sakulin            HEPHY Vienna
@@ -28,18 +28,16 @@
 //-------------------------------
 // Collaborating Class Headers --
 //-------------------------------
-#include "L1Trigger/GlobalMuonTrigger/src/L1MuGMTScales.h"
-#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuTriggerScales.h"
-#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuPacking.h"
-#include "SimG4Core/Notification/interface/Singleton.h"
+#include "L1Trigger/GlobalMuonTrigger/src/L1MuGMTConfig.h"
+#include "CondFormats/L1TObjects/interface/L1MuGMTScales.h"
+#include "CondFormats/L1TObjects/interface/L1MuTriggerScales.h"
+#include "CondFormats/L1TObjects/interface/L1MuPacking.h"
 
 //-------------------
 // InitParameters  --
 //-------------------
 
 void L1MuGMTLFOvlEtaConvLUT::InitParameters() {
-  m_theGMTScales = Singleton<L1MuGMTScales>::instance();
-  m_theTriggerScales = Singleton<L1MuTriggerScales>::instance();
 }
 
 
@@ -64,6 +62,9 @@ unsigned L1MuGMTLFOvlEtaConvLUT::TheLookupFunction (int idx, unsigned eta6) cons
   // INPUTS:  eta6(6)
   // OUTPUTS: eta_ovl(4) 
 
+  const L1MuGMTScales* theGMTScales = L1MuGMTConfig::getGMTScales();
+  const L1MuTriggerScales* theTriggerScales = L1MuGMTConfig::getTriggerScales();
+
   int idx_drcr = 0;
 
   switch (idx) {
@@ -75,16 +76,16 @@ unsigned L1MuGMTLFOvlEtaConvLUT::TheLookupFunction (int idx, unsigned eta6) cons
   case ovlDT  : idx_drcr = 0; break;
   }
 
-  float etaValue = m_theTriggerScales->getRegionalEtaScale(idx_drcr)->getCenter( eta6 );
+  float etaValue = theTriggerScales->getRegionalEtaScale(idx_drcr)->getCenter( eta6 );
 
   unsigned eta4bit = 0;
-  if (fabs(etaValue) <  m_theGMTScales->getOvlEtaScale(idx_drcr)->getScaleMin() || 
-      fabs(etaValue) >  m_theGMTScales->getOvlEtaScale(idx_drcr)->getScaleMax() ) {
+  if (fabs(etaValue) <  theGMTScales->getOvlEtaScale(idx_drcr)->getScaleMin() || 
+      fabs(etaValue) >  theGMTScales->getOvlEtaScale(idx_drcr)->getScaleMax() ) {
     eta4bit = 7; // out of range code is max pos value
   }
 
   else {
-    eta4bit  = m_theGMTScales->getOvlEtaScale(idx_drcr)->getPacked( etaValue );
+    eta4bit  = theGMTScales->getOvlEtaScale(idx_drcr)->getPacked( etaValue );
     //    cout << "etaValue  = " << etaValue << "   eta OVERLAP= " << eta4bit << endl;
   }
 

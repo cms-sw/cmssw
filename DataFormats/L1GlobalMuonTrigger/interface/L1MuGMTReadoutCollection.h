@@ -5,8 +5,8 @@
 //   Description: 
 //
 //
-//   $Date: 2006/10/18 16:23:19 $
-//   $Revision: 1.3 $
+//   $Date: 2007/03/23 18:52:17 $
+//   $Revision: 1.4 $
 //
 //   Author :
 //   Hannes Sakulin                  HEPHY Vienna
@@ -49,11 +49,11 @@ class L1MuGMTReadoutCollection {
   void reset() { for(unsigned int i=0; i<m_Records.size(); i++) m_Records[i].reset(); };
 
   // get record vector
-  vector<L1MuGMTReadoutRecord> getRecords() const { return m_Records; };
+  std::vector<L1MuGMTReadoutRecord> getRecords() const { return m_Records; };
 
   // get record for a given bx
   L1MuGMTReadoutRecord const& getRecord(int bx=0) const {
-    vector<L1MuGMTReadoutRecord>::const_iterator iter;
+    std::vector<L1MuGMTReadoutRecord>::const_iterator iter;
     for(iter=m_Records.begin(); iter!=m_Records.end(); iter++) {
       if((*iter).getBxCounter() == bx) return (*iter);
     }
@@ -68,7 +68,7 @@ class L1MuGMTReadoutCollection {
 
  private:
 
-  vector<L1MuGMTReadoutRecord> m_Records;
+  std::vector<L1MuGMTReadoutRecord> m_Records;
 
 };
 

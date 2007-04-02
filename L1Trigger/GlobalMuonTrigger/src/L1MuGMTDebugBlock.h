@@ -9,8 +9,8 @@
  *                with the hardware model)
 */
 //
-//   $Date: 2006/08/21 14:23:13 $
-//   $Revision: 1.2 $
+//   $Date: 2007/03/23 18:51:35 $
+//   $Revision: 1.3 $
 //
 //   Author :
 //   H. Sakulin            HEPHY Vienna
@@ -90,7 +90,7 @@ class L1MuGMTDebugBlock {
     void SetMQMatrix(int idx, L1MuGMTMatrix<int> mqm) { _mqMatrices[_bx - _minbx][idx]=mqm; };
 
     /// Set cancel bits
-    void SetCancelBits (int idx, std::vector<bool> mine, vector<bool> others);
+    void SetCancelBits (int idx, std::vector<bool> mine, std::vector<bool> others);
 
     /// Set brl GMT Cands
     void SetBrlGMTCands (int idx, L1MuGMTExtendedCand const& cand) { _brlmuons[_bx - _minbx][idx]=cand; };
@@ -144,18 +144,18 @@ class L1MuGMTDebugBlock {
   private:
     const int _minbx, _maxbx;
     int _bx;
-    std::vector<vector<float> > _prophi;
-    std::vector<vector<float> > _proeta;
-    std::vector<vector<unsigned> > _phisel;
-    std::vector<vector<unsigned> > _etasel;
-    std::vector<vector<unsigned> > _isMIPISO;
+    std::vector<std::vector<float> > _prophi;
+    std::vector<std::vector<float> > _proeta;
+    std::vector<std::vector<unsigned> > _phisel;
+    std::vector<std::vector<unsigned> > _etasel;
+    std::vector<std::vector<unsigned> > _isMIPISO;
 
-    std::vector<vector<L1MuGMTMatrix<bool> > > _pairMatrices;
-    std::vector<vector<L1MuGMTMatrix<int> > > _mqMatrices;
+    std::vector<std::vector<L1MuGMTMatrix<bool> > > _pairMatrices;
+    std::vector<std::vector<L1MuGMTMatrix<int> > > _mqMatrices;
 
-    std::vector<vector<unsigned> > _cancelbits;
-    std::vector<vector<L1MuGMTExtendedCand> > _brlmuons;
-    std::vector<vector<L1MuGMTExtendedCand> > _fwdmuons;
+    std::vector<std::vector<unsigned> > _cancelbits;
+    std::vector<std::vector<L1MuGMTExtendedCand> > _brlmuons;
+    std::vector<std::vector<L1MuGMTExtendedCand> > _fwdmuons;
 };
 
 #endif

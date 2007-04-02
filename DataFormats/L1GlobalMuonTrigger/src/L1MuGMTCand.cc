@@ -5,8 +5,8 @@
 //   Description: L1 Global Muon Trigger Candidate
 //
 //
-//   $Date: 2006/08/21 14:26:08 $
-//   $Revision: 1.3 $
+//   $Date: 2007/03/23 18:52:18 $
+//   $Revision: 1.4 $
 //
 //   Author :
 //   N. Neumeister            CERN EP 
@@ -34,8 +34,6 @@
 // Collaborating Class Headers --
 //-------------------------------
 
-#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuTriggerScales.h"
-#include "SimG4Core/Notification/interface/Singleton.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //---------------------------------
@@ -44,21 +42,30 @@
 
 using namespace std;
 
+const float L1MuGMTCand::m_invalidValue = -10.;
+
 //----------------
 // Constructors --
 //----------------
 
 L1MuGMTCand::L1MuGMTCand() : m_name("L1MuGMTCand"), m_bx(0), m_dataWord(0) {
-
+  m_phiValue = m_invalidValue; 
+  m_etaValue = m_invalidValue;
+  m_ptValue = m_invalidValue;
 }
 
 
 L1MuGMTCand::L1MuGMTCand(const L1MuGMTCand& mu) :
-  m_name(mu.m_name), m_bx(mu.m_bx), m_dataWord(mu.m_dataWord){
+  m_name(mu.m_name), m_bx(mu.m_bx), m_dataWord(mu.m_dataWord),
+  m_phiValue(mu.m_phiValue), m_etaValue(mu.m_etaValue), m_ptValue(mu.m_ptValue) {
 }
 
 L1MuGMTCand::L1MuGMTCand(unsigned data, int bx) : 
-  m_name("L1MuGMTCand"), m_bx(bx) , m_dataWord(data){
+  m_name("L1MuGMTCand"), m_bx(bx) , m_dataWord(data) {
+
+  m_phiValue = m_invalidValue; 
+  m_etaValue = m_invalidValue;
+  m_ptValue = m_invalidValue;
 
 }
 
@@ -83,27 +90,36 @@ void L1MuGMTCand::reset() {
 
   m_bx       = 0;
   m_dataWord = 0;
+  m_phiValue = m_invalidValue; 
+  m_etaValue = m_invalidValue;
+  m_ptValue = m_invalidValue;
 
 }
 
 //
-// return phi of track candidate in radians (bin low edge)
+// return phi of track candidate in radians
 //
 float L1MuGMTCand::phiValue() const {
 
-  L1MuTriggerScales* theTriggerScales = Singleton<L1MuTriggerScales>::instance();
-  return theTriggerScales->getPhiScale()->getLowEdge( phiIndex() );
+  if(m_phiValue == m_invalidValue) {
+    edm::LogWarning("ValueInvalid") << 
+     "L1MuGMTCand::phiValue requested physical value is invalid";
+  }
+  return m_phiValue;
 
 }
 
 
 //
-// return eta of track candidate (bin center)
+// return eta of track candidate
 //
 float L1MuGMTCand::etaValue() const {
 
-  L1MuTriggerScales* theTriggerScales = Singleton<L1MuTriggerScales>::instance();
-  return theTriggerScales->getGMTEtaScale()->getCenter( etaIndex() );
+  if(m_etaValue == m_invalidValue) {
+    edm::LogWarning("ValueInvalid") << 
+     "L1MuGMTCand::etaValue requested physical value is invalid";
+  }
+  return m_etaValue;
 
 }
 
@@ -113,22 +129,13 @@ float L1MuGMTCand::etaValue() const {
 //
 float L1MuGMTCand::ptValue() const {
 
-  L1MuTriggerScales* theTriggerScales = Singleton<L1MuTriggerScales>::instance();
-  return theTriggerScales->getPtScale()->getLowEdge( ptIndex() );
+  if(m_ptValue == m_invalidValue) {
+    edm::LogWarning("ValueInvalid") << 
+     "L1MuRegionalCand::ptValue requested physical value is invalid";
+  }
+  return m_ptValue;
 
 }
-
-
-//
-// convert pT to trigger Scale
-//
-unsigned int L1MuGMTCand::triggerScale(float value) const {
-
-  L1MuTriggerScales* theTriggerScales = Singleton<L1MuTriggerScales>::instance();
-  return theTriggerScales->getPtScale()->getPacked( value );
-
-}
-
 
 //
 // Equal operator

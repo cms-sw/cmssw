@@ -5,8 +5,8 @@
 //   Description: Pipelined Synchronising Buffer module 
 //
 //
-//   $Date: 2007/03/07 13:01:57 $
-//   $Revision: 1.4 $
+//   $Date: 2007/03/23 18:51:35 $
+//   $Revision: 1.5 $
 //
 //   Author :
 //   N. Neumeister            CERN EP 
@@ -35,6 +35,7 @@
 //-------------------------------
 
 #include "L1Trigger/GlobalMuonTrigger/src/L1MuGMTConfig.h"
+#include "CondFormats/L1TObjects/interface/L1MuTriggerScales.h"
 
 #include "L1Trigger/GlobalMuonTrigger/interface/L1MuGlobalMuonTrigger.h"
 
@@ -90,24 +91,46 @@ void L1MuGMTPSB::receiveData(edm::Event& e, int bx) {
   std::vector<edm::Handle<std::vector<L1MuRegionalCand> > >::iterator it;
   for(it=alldata.begin(); it!=alldata.end(); it++) {
     edm::Provenance const* prov = it->provenance();
-    if(prov->product.productInstanceName() == "DT")  getDTBX(it->product(),bx);
-    if(prov->product.productInstanceName() == "dt")  getDTBX(it->product(),bx);
-    if(prov->product.productInstanceName() == "CSC")  getCSC(it->product(),bx);
-    if(prov->product.productInstanceName() == "RPCb")  getRPCb(it->product(),bx);
-    if(prov->product.productInstanceName() == "RPCf")  getRPCf(it->product(),bx);
+    if(prov->productInstanceName() == "DT")  getDTBX(it->product(),bx);
+    if(prov->productInstanceName() == "dt")  getDTBX(it->product(),bx);
+    if(prov->productInstanceName() == "CSC")  getCSC(it->product(),bx);
+    if(prov->productInstanceName() == "RPCb")  getRPCb(it->product(),bx);
+    if(prov->productInstanceName() == "RPCf")  getRPCf(it->product(),bx);
   }
 
   ////////////////////////////////////
 
+  const L1MuTriggerScales* theTriggerScales = L1MuGMTConfig::getTriggerScales();
+
   // store data in readout record
-  for (int i=0; i<4; i++)
-    m_gmt.currentReadoutRecord()->setInputCand ( i, DTBXMuon(i)->getDataWord() );
-  for (int i=0; i<4; i++)
-    m_gmt.currentReadoutRecord()->setInputCand ( i+4, RPCMuon(i)->getDataWord() );
-  for (int i=0; i<4; i++)
-    m_gmt.currentReadoutRecord()->setInputCand ( i+8, CSCMuon(i)->getDataWord() );
-  for (int i=0; i<4; i++)
-    m_gmt.currentReadoutRecord()->setInputCand ( i+12, RPCMuon(i+4)->getDataWord() );
+  for (int i=0; i<4; i++) {
+    L1MuRegionalCand* cand = &(m_DtbxMuons[i]);
+    cand->setPhiValue( theTriggerScales->getPhiScale()->getLowEdge(cand->phi_packed()) );
+    cand->setEtaValue( theTriggerScales->getRegionalEtaScale(cand->type_idx())->getCenter(cand->eta_packed()) );
+    cand->setPtValue( theTriggerScales->getPtScale()->getLowEdge(cand->pt_packed()) );
+    m_gmt.currentReadoutRecord()->setInputCand ( i, *cand );
+  }
+  for (int i=0; i<4; i++) {
+    L1MuRegionalCand* cand = &(m_RpcMuons[i]);
+    cand->setPhiValue( theTriggerScales->getPhiScale()->getLowEdge(cand->phi_packed()) );
+    cand->setEtaValue( theTriggerScales->getRegionalEtaScale(cand->type_idx())->getCenter(cand->eta_packed()) );
+    cand->setPtValue( theTriggerScales->getPtScale()->getLowEdge(cand->pt_packed()) );
+    m_gmt.currentReadoutRecord()->setInputCand ( i+4, *cand );
+  }
+  for (int i=0; i<4; i++) {
+    L1MuRegionalCand* cand = &(m_CscMuons[i]);
+    cand->setPhiValue( theTriggerScales->getPhiScale()->getLowEdge(cand->phi_packed()) );
+    cand->setEtaValue( theTriggerScales->getRegionalEtaScale(cand->type_idx())->getCenter(cand->eta_packed()) );
+    cand->setPtValue( theTriggerScales->getPtScale()->getLowEdge(cand->pt_packed()) );
+    m_gmt.currentReadoutRecord()->setInputCand ( i+8, *cand );
+  }
+  for (int i=0; i<4; i++) {
+    L1MuRegionalCand* cand = &(m_RpcMuons[i+4]);
+    cand->setPhiValue( theTriggerScales->getPhiScale()->getLowEdge(cand->phi_packed()) );
+    cand->setEtaValue( theTriggerScales->getRegionalEtaScale(cand->type_idx())->getCenter(cand->eta_packed()) );
+    cand->setPtValue( theTriggerScales->getPtScale()->getLowEdge(cand->pt_packed()) );
+    m_gmt.currentReadoutRecord()->setInputCand ( i+12, *cand );
+  }
 
 
   // if there is at least one muon start the calorimeter trigger 

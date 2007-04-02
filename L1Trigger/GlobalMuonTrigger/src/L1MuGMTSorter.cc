@@ -5,8 +5,8 @@
 //   Description: GMT Muon Sorter
 //
 //
-//   $Date: 2006/08/21 14:23:13 $
-//   $Revision: 1.2 $
+//   $Date: 2007/03/23 18:51:35 $
+//   $Revision: 1.3 $
 //
 //   Author :
 //   N. Neumeister             CERN EP
@@ -111,7 +111,7 @@ void L1MuGMTSorter::run() {
    
   std::vector<L1MuGMTExtendedCand*> my_fwd_cands;
 
-  // get muon candidates from barrel Merger 
+  // get muon candidates from forward Merger 
   const std::vector<L1MuGMTExtendedCand*>& fwd_cands = m_gmt.Merger(1)->Cands();
   iter = fwd_cands.begin();
   while ( iter != fwd_cands.end() ) {

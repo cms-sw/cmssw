@@ -3,8 +3,8 @@
 //   Class: L1MuGMTLFEtaConvLUT
 //
 // 
-//   $Date: 2006/05/15 13:56:02 $
-//   $Revision: 1.1 $
+//   $Date: 2006/11/17 08:25:34 $
+//   $Revision: 1.2 $
 //
 //   Author :
 //   H. Sakulin            HEPHY Vienna
@@ -23,21 +23,19 @@
 // C++ Headers --
 //---------------
 
-//#include <iostream>
-
 //-------------------------------
 // Collaborating Class Headers --
 //-------------------------------
-#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuTriggerScales.h"
-#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuPacking.h"
-#include "SimG4Core/Notification/interface/Singleton.h"
+#include "L1Trigger/GlobalMuonTrigger/src/L1MuGMTConfig.h"
+#include "CondFormats/L1TObjects/interface/L1MuTriggerScales.h"
+#include "CondFormats/L1TObjects/interface/L1MuPacking.h"
+
 
 //-------------------
 // InitParameters  --
 //-------------------
 
 void L1MuGMTLFEtaConvLUT::InitParameters() {
-  m_theTriggerScales = Singleton<L1MuTriggerScales>::instance();
 }
 
 //----------------------------------------------------------------
@@ -52,10 +50,12 @@ unsigned L1MuGMTLFEtaConvLUT::TheLookupFunction (int idx, unsigned eta_regional)
   // INPUTS:  eta_regional(6)
   // OUTPUTS: eta_gmt(6) 
  
+  const L1MuTriggerScales* theTriggerScales = L1MuGMTConfig::getTriggerScales();
+
   int isRPC = idx % 2;
   //  int isFWD = idx / 2;
   
-  float etaValue = m_theTriggerScales->getRegionalEtaScale(idx)->getCenter( eta_regional );
+  float etaValue = theTriggerScales->getRegionalEtaScale(idx)->getCenter( eta_regional );
 
   if ( fabs(etaValue) > 2.4 ) etaValue = 2.39 * ((etaValue)>0?1.:-1.);
 
@@ -65,7 +65,7 @@ unsigned L1MuGMTLFEtaConvLUT::TheLookupFunction (int idx, unsigned eta_regional)
     etaValue += (etaValue>0.01? -1. : 1.) * 0.001;
   }
   
-  unsigned eta_gmt = m_theTriggerScales->getGMTEtaScale()->getPacked( etaValue );
+  unsigned eta_gmt = theTriggerScales->getGMTEtaScale()->getPacked( etaValue );
 
   return eta_gmt;
 }

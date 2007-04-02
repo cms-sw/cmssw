@@ -5,8 +5,8 @@
 //   Description: L1 Global Muon Trigger
 //
 //
-//   $Date: 2006/10/20 12:53:07 $
-//   $Revision: 1.3 $
+//   $Date: 2007/03/23 18:51:35 $
+//   $Revision: 1.4 $
 //
 //   Author :
 //   Norbert Neumeister              CERN EP
@@ -46,6 +46,13 @@
 #include "L1Trigger/GlobalMuonTrigger/src/L1MuGMTDebugBlock.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "CondFormats/L1TObjects/interface/L1MuGMTScales.h"
+#include "CondFormats/DataRecord/interface/L1MuGMTScalesRcd.h"
+#include "CondFormats/L1TObjects/interface/L1MuTriggerScales.h"
+#include "CondFormats/DataRecord/interface/L1MuTriggerScalesRcd.h"
 
 //----------------
 // Constructors --
@@ -138,6 +145,14 @@ void L1MuGlobalMuonTrigger::produce(edm::Event& e, const edm::EventSetup& es) {
 
   int bx_min = L1MuGMTConfig::getBxMin();
   int bx_max = L1MuGMTConfig::getBxMax();
+
+  edm::ESHandle< L1MuGMTScales > gmtscales_h;
+  es.get< L1MuGMTScalesRcd >().get( gmtscales_h );
+  m_config->setGMTScales( gmtscales_h.product() );
+
+  edm::ESHandle< L1MuTriggerScales > trigscales_h;
+  es.get< L1MuTriggerScalesRcd >().get( trigscales_h );
+  m_config->setTriggerScales( trigscales_h.product() );
 
   m_ExtendedCands.clear();
 

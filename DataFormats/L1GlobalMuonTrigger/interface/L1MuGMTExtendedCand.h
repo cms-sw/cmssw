@@ -42,8 +42,6 @@
 // Collaborating Class Declarations --
 //------------------------------------
 
-using namespace std;
-
 //              ---------------------
 //              -- Class Interface --
 //              ---------------------
@@ -125,10 +123,10 @@ class L1MuGMTExtendedCand : public L1MuGMTCand {
     void print() const;
   
     /// output stream operator
-    friend ostream& operator<<(ostream&, const L1MuGMTExtendedCand&);
+    friend std::ostream& operator<<(std::ostream&, const L1MuGMTExtendedCand&);
 
     /// define a rank for muon candidates
-    class Rank : binary_function< const L1MuGMTExtendedCand*, const L1MuGMTExtendedCand*, bool> {
+    class Rank : std::binary_function< const L1MuGMTExtendedCand*, const L1MuGMTExtendedCand*, bool> {
       public :
         bool operator()( const L1MuGMTExtendedCand* first, const L1MuGMTExtendedCand* second ) const {
           unsigned int rank_f = (first) ? first->rank(): 0;
@@ -138,7 +136,7 @@ class L1MuGMTExtendedCand : public L1MuGMTCand {
     };
 
     /// define a rank for muon candidates
-    class RankRef : binary_function< const L1MuGMTExtendedCand&, const L1MuGMTExtendedCand&, bool> {
+    class RankRef : std::binary_function< const L1MuGMTExtendedCand&, const L1MuGMTExtendedCand&, bool> {
       public :
         bool operator()( const L1MuGMTExtendedCand& first, const L1MuGMTExtendedCand& second ) const {
           unsigned int rank_f = first.rank();

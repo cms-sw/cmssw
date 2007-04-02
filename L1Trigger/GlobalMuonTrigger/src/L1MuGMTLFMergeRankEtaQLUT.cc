@@ -3,8 +3,8 @@
 //   Class: L1MuGMTLFMergeRankEtaQLUT
 //
 // 
-//   $Date: 2006/05/15 13:56:02 $
-//   $Revision: 1.1 $
+//   $Date: 2006/11/17 08:25:34 $
+//   $Revision: 1.2 $
 //
 //   Author :
 //   H. Sakulin            HEPHY Vienna
@@ -28,15 +28,14 @@
 //-------------------------------
 // Collaborating Class Headers --
 //-------------------------------
-#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuTriggerScales.h"
-#include "SimG4Core/Notification/interface/Singleton.h"
+#include "L1Trigger/GlobalMuonTrigger/src/L1MuGMTConfig.h"
+#include "CondFormats/L1TObjects/interface/L1MuTriggerScales.h"
 
 //-------------------
 // InitParameters  --
 //-------------------
 
 void L1MuGMTLFMergeRankEtaQLUT::InitParameters() {
-  m_theTriggerScales = Singleton<L1MuTriggerScales>::instance();
 }
 
 //------------------------
@@ -48,10 +47,12 @@ unsigned L1MuGMTLFMergeRankEtaQLUT::TheLookupFunction (int idx, unsigned eta, un
   // INPUTS:  eta(6) q(3)
   // OUTPUTS: flag(1) rank_etaq(7) 
 
+  const L1MuTriggerScales* theTriggerScales = L1MuGMTConfig::getTriggerScales();
+
   //  int isRPC = idx % 2;
   //  int isFWD = idx / 2;
  
-  float etaValue = m_theTriggerScales->getRegionalEtaScale(idx)->getCenter( eta );
+  float etaValue = theTriggerScales->getRegionalEtaScale(idx)->getCenter( eta );
   
   
   unsigned flag = 0;

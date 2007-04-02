@@ -4,8 +4,8 @@
  *    A regional muon trigger candidate as received by the GMT
 */
 //
-//   $Date: 2004/10/08 08:59:33 $
-//   $Revision: 1.6 $
+//   $Date: 2006/05/15 13:51:42 $
+//   $Revision: 1.1 $
 //
 //   Author :
 //   H. Sakulin                    HEPHY Vienna
@@ -30,20 +30,11 @@ class L1MuRegionalCand {
   public:
   
     /// constructor from data word
-    L1MuRegionalCand(unsigned dataword = 0, int bx = 0) : m_bx(bx), m_dataWord(dataword) { }
+    L1MuRegionalCand(unsigned dataword = 0, int bx = 0); 
 
     /// constructor from packed members
     L1MuRegionalCand(unsigned type_idx, unsigned phi, unsigned eta, unsigned pt, unsigned charge,
-		     unsigned ch_valid, unsigned finehalo, unsigned quality, int bx) : m_bx(bx), m_dataWord(0) {
-      setType(type_idx);
-      setPhiPacked(phi);
-      setEtaPacked(eta);
-      setPtPacked(pt);
-      setChargePacked(charge);
-      setChargeValidPacked(ch_valid);
-      setFineHaloPacked(finehalo);
-      setQualityPacked(quality);     
-    };
+		     unsigned ch_valid, unsigned finehalo, unsigned quality, int bx);
 
     /// destructor
     virtual ~L1MuRegionalCand() {}
@@ -56,7 +47,7 @@ class L1MuRegionalCand {
     virtual bool empty() const { return readDataField( PT_START, PT_LENGTH) == 0; }
 
     /// get phi-value of muon candidate in radians (low edge of bin)
-    float phiValue() const;    
+    float phiValue() const;   
 
     /// get eta-value of muon candidate
     float etaValue() const;    
@@ -116,31 +107,31 @@ class L1MuRegionalCand {
     ///
 
     /// Set Type: 0 DT, 1 bRPC, 2 CSC, 3 fRPC
-    void setType(unsigned type) { writeDataField( TYPE_START, TYPE_LENGTH, type); }; 
+    void setType(unsigned type) { writeDataField( TYPE_START, TYPE_LENGTH, type); }
 
     /// Set Bunch Crossing
-    void setBx(int bx) { m_bx = bx; };
+    void setBx(int bx) { m_bx = bx; }
 
     /// Set Phi: 0..143
-    void setPhiPacked(unsigned phi) { writeDataField (PHI_START, PHI_LENGTH, phi); };
+    void setPhiPacked(unsigned phi) { writeDataField (PHI_START, PHI_LENGTH, phi); }
 
     /// Set Pt: 0..31
-    void setPtPacked(unsigned pt) { writeDataField (PT_START, PT_LENGTH, pt); };
+    void setPtPacked(unsigned pt) { writeDataField (PT_START, PT_LENGTH, pt); }
 
     /// Set Quality: 0..7
-    void setQualityPacked(unsigned qual) { writeDataField (QUAL_START, QUAL_LENGTH, qual); };
+    void setQualityPacked(unsigned qual) { writeDataField (QUAL_START, QUAL_LENGTH, qual); }
 
     /// Set Charge (0=pos, 1=neg)
-    void setChargePacked(unsigned ch) { writeDataField (CHARGE_START, CHARGE_LENGTH, ch); };
+    void setChargePacked(unsigned ch) { writeDataField (CHARGE_START, CHARGE_LENGTH, ch); }
 
     /// Set Charge Valid
-    void setChargeValidPacked(unsigned valid) { writeDataField( CHVALID_START, CHVALID_LENGTH, valid ); };
+    void setChargeValidPacked(unsigned valid) { writeDataField( CHVALID_START, CHVALID_LENGTH, valid ); }
 
     /// Set Eta: 6-bit code
-    void setEtaPacked(unsigned eta) { writeDataField (ETA_START, ETA_LENGTH, eta); };
+    void setEtaPacked(unsigned eta) { writeDataField (ETA_START, ETA_LENGTH, eta); }
 
     /// Set Fine / Halo
-    void setFineHaloPacked(unsigned fh) { writeDataField (FINEHALO_START, FINEHALO_LENGTH, fh); };
+    void setFineHaloPacked(unsigned fh) { writeDataField (FINEHALO_START, FINEHALO_LENGTH, fh); }
 
 
     ///
@@ -148,29 +139,29 @@ class L1MuRegionalCand {
     ///
 
     /// Set Phi Value
-    void setPhiValue(float phiVal);
+    void setPhiValue(float phiVal) {m_phiValue = phiVal;}
 
     /// Set Pt Value
-    void setPtValue(float ptVal);
+    void setPtValue(float ptVal) {m_ptValue = ptVal;}
 
     /// Set Eta Value (need to set type, first)
-    void setEtaValue(float etaVal);
+    void setEtaValue(float etaVal) {m_etaValue = etaVal;}
 
     /// Set Charge Value: -1, 1
-    void setChargeValue(int charge) { writeDataField (CHARGE_START, CHARGE_LENGTH, charge == 1 ? 0 : 1); };
+    void setChargeValue(int charge) { writeDataField (CHARGE_START, CHARGE_LENGTH, charge == 1 ? 0 : 1); }
 
     /// Set Charge Valid
-    void setChargeValid(bool valid) { writeDataField( CHVALID_START, CHVALID_LENGTH, valid ? 1 : 0); };
+    void setChargeValid(bool valid) { writeDataField( CHVALID_START, CHVALID_LENGTH, valid ? 1 : 0); }
 
     /// Set Fine / Halo
-    void setFineHalo(bool fh) { writeDataField (FINEHALO_START, FINEHALO_LENGTH, fh ? 1 : 0); };
+    void setFineHalo(bool fh) { writeDataField (FINEHALO_START, FINEHALO_LENGTH, fh ? 1 : 0); }
 
 
     /// reset
-    virtual void reset() { m_bx =0; m_dataWord = 0; }
+    virtual void reset();
 
     /// Set data word
-    void setDataWord(unsigned dataword) { m_dataWord = dataword;};
+    void setDataWord(unsigned dataword) { m_dataWord = dataword;}
 
     /// print candidate
     virtual void print() const;
@@ -182,9 +173,15 @@ class L1MuRegionalCand {
   private:
     int m_bx;
     unsigned m_dataWord;                                   // muon data word (25 bits) :
-                                                           // definition of the bit fields
+
+    float m_phiValue;
+    float m_etaValue;
+    float m_ptValue;
+    static const float m_invalidValue;
+
 
   public:
+                                                           // definition of the bit fields
     enum { PHI_START=0};       enum { PHI_LENGTH = 8};     // Bits 0:7   phi (8 bits)
     enum { PT_START=8};        enum { PT_LENGTH =  5};     // Bits 8:12  pt  (5 bits)
     enum { QUAL_START=13};     enum { QUAL_LENGTH = 3};    // Bits 13:15 quality (3 bits)

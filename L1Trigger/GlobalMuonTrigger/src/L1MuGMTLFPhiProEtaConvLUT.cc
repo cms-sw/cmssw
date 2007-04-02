@@ -3,8 +3,8 @@
 //   Class: L1MuGMTLFPhiProEtaConvLUT
 //
 // 
-//   $Date: 2006/11/17 08:25:34 $
-//   $Revision: 1.4 $
+//   $Date: 2007/03/23 18:51:35 $
+//   $Revision: 1.5 $
 //
 //   Author :
 //   H. Sakulin            HEPHY Vienna
@@ -28,10 +28,10 @@
 //-------------------------------
 // Collaborating Class Headers --
 //-------------------------------
-#include "L1Trigger/GlobalMuonTrigger/src/L1MuGMTScales.h"
-#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuTriggerScales.h"
-#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuPacking.h"
-#include "SimG4Core/Notification/interface/Singleton.h"
+#include "L1Trigger/GlobalMuonTrigger/src/L1MuGMTConfig.h"
+#include "CondFormats/L1TObjects/interface/L1MuGMTScales.h"
+#include "CondFormats/L1TObjects/interface/L1MuTriggerScales.h"
+#include "CondFormats/L1TObjects/interface/L1MuPacking.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -40,8 +40,6 @@
 //-------------------
 
 void L1MuGMTLFPhiProEtaConvLUT::InitParameters() {
-  m_theTriggerScales = Singleton<L1MuTriggerScales>::instance();
-  m_theGMTScales = Singleton<L1MuGMTScales>::instance();
 }
 
 //------------------------
@@ -57,19 +55,22 @@ unsigned L1MuGMTLFPhiProEtaConvLUT::TheLookupFunction (int idx, unsigned eta_in)
   // INPUTS:  eta_in(6)
   // OUTPUTS: eta_out(4) 
 
+  const L1MuGMTScales* theGMTScales = L1MuGMTConfig::getGMTScales();
+  const L1MuTriggerScales* theTriggerScales = L1MuGMTConfig::getTriggerScales();
+
   int isRPC = idx % 2;
   int isFWD = idx / 2;
   
-  float etaValue = m_theTriggerScales->getRegionalEtaScale(idx)->getCenter( eta_in );
+  float etaValue = theTriggerScales->getRegionalEtaScale(idx)->getCenter( eta_in );
 
   unsigned eta4bit = 0;
-  if ( (isRPC && isFWD && fabs(etaValue) < m_theGMTScales->getReducedEtaScale(3)->getScaleMin() ) ||
-       (isRPC && !isFWD && fabs(etaValue) > m_theGMTScales->getReducedEtaScale(1)->getScaleMax() )) {
+  if ( (isRPC && isFWD && fabs(etaValue) < theGMTScales->getReducedEtaScale(3)->getScaleMin() ) ||
+       (isRPC && !isFWD && fabs(etaValue) > theGMTScales->getReducedEtaScale(1)->getScaleMax() )) {
     if(!m_saveFlag) edm::LogWarning("LUTRangeViolation") 
      << "L1MuGMTMIAUEtaConvLUT::TheLookupFunction: RPC " << (isFWD?"fwd":"brl") << " eta value out of range: " << etaValue;
   }
   else 
-    eta4bit = m_theGMTScales->getReducedEtaScale(idx)->getPacked( etaValue );
+    eta4bit = theGMTScales->getReducedEtaScale(idx)->getPacked( etaValue );
 
   return eta4bit;
 }

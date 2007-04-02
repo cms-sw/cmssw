@@ -3,8 +3,8 @@
 //   Class: L1MuGMTLFDisableHotLUT
 //
 // 
-//   $Date: 2006/05/15 13:56:02 $
-//   $Revision: 1.1 $
+//   $Date: 2006/11/17 08:25:34 $
+//   $Revision: 1.2 $
 //
 //   Author :
 //   H. Sakulin            HEPHY Vienna
@@ -23,21 +23,15 @@
 // C++ Headers --
 //---------------
 
-//#include <iostream>
-
 //-------------------------------
 // Collaborating Class Headers --
 //-------------------------------
-//#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuTriggerScales.h"
-//#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuPacking.h"
-//#include "SimG4Core/Notification/interface/Singleton.h"
 
 //-------------------
 // InitParameters  --
 //-------------------
 
 void L1MuGMTLFDisableHotLUT::InitParameters() {
-//  m_theTriggerScales = Singleton<L1MuTriggerScales>::instance();
 }
 
 //------------------------

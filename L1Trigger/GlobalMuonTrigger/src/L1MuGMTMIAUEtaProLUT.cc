@@ -3,8 +3,8 @@
 //   Class: L1MuGMTMIAUEtaProLUT
 //
 // 
-//   $Date: 2006/11/17 08:25:34 $
-//   $Revision: 1.4 $
+//   $Date: 2007/03/23 18:51:35 $
+//   $Revision: 1.5 $
 //
 //   Author :
 //   H. Sakulin            HEPHY Vienna
@@ -28,11 +28,10 @@
 //-------------------------------
 // Collaborating Class Headers --
 //-------------------------------
-#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuTriggerScales.h"
-#include "L1Trigger/GlobalMuonTrigger/src/L1MuGMTScales.h"
-#include "SimG4Core/Notification/interface/Singleton.h"
-
 #include "L1Trigger/GlobalMuonTrigger/src/L1MuGMTConfig.h"
+#include "CondFormats/L1TObjects/interface/L1MuGMTScales.h"
+#include "CondFormats/L1TObjects/interface/L1MuTriggerScales.h"
+#include "CondFormats/L1TObjects/interface/L1MuPacking.h"
 #include "L1Trigger/GlobalMuonTrigger/src/L1MuGMTEtaLUT.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -42,8 +41,6 @@
 //-------------------
 
 void L1MuGMTMIAUEtaProLUT::InitParameters() {
-  m_theTriggerScales = Singleton<L1MuTriggerScales>::instance();
-  m_theGMTScales = Singleton<L1MuGMTScales>::instance();
   m_IsolationCellSizeEta = L1MuGMTConfig::getIsolationCellSizeEta();
 }
 
@@ -72,6 +69,9 @@ unsigned L1MuGMTMIAUEtaProLUT::TheLookupFunction (int idx, unsigned eta, unsigne
   // INPUTS:  eta(6) pt(5) charge(1)
   // OUTPUTS: eta_sel(10) 
 
+  const L1MuGMTScales* theGMTScales = L1MuGMTConfig::getGMTScales();
+  const L1MuTriggerScales* theTriggerScales = L1MuGMTConfig::getTriggerScales();
+
   int isRPC = idx % 2;
   int isFWD = idx / 4;
       
@@ -83,9 +83,9 @@ unsigned L1MuGMTMIAUEtaProLUT::TheLookupFunction (int idx, unsigned eta, unsigne
 
   int ch_idx = (charge == 0) ? 1 : 0; // positive charge is 0 (but idx 1)
 
-  float oldeta = m_theTriggerScales->getRegionalEtaScale(idx_drcr)->getCenter(eta);
+  float oldeta = theTriggerScales->getRegionalEtaScale(idx_drcr)->getCenter(eta);
 
-  if (idx_drcr==2) oldeta = m_theTriggerScales->getRegionalEtaScale(idx_drcr)->getLowEdge(eta); //FIXME use center when changed in ORCA
+  if (idx_drcr==2) oldeta = theTriggerScales->getRegionalEtaScale(idx_drcr)->getLowEdge(eta); //FIXME use center when changed in ORCA
 
   if ( (isRPC && isFWD && fabs(oldeta) < 1.04  ) ||
        (isRPC && !isFWD && fabs(oldeta) > 1.04 ) ) {
@@ -97,10 +97,10 @@ unsigned L1MuGMTMIAUEtaProLUT::TheLookupFunction (int idx, unsigned eta, unsigne
   // eta conversion depends only on isys by default
   int isys = isFWD + 2 * isRPC; // DT, CSC, BRPC, FRPC
   float neweta  =  L1MuGMTEtaLUT::eta (isys, isISO, ch_idx, oldeta, 
-				       m_theTriggerScales->getPtScale()->getLowEdge(pt) );  // use old LUT, here
+			      theTriggerScales->getPtScale()->getLowEdge(pt) );  // use old LUT, here
 
 
-  unsigned icenter = m_theGMTScales->getCaloEtaScale()->getPacked( neweta );
+  unsigned icenter = theGMTScales->getCaloEtaScale()->getPacked( neweta );
 
   unsigned eta_select_word_14 = 1 << icenter; // for the whole detector
     
@@ -111,7 +111,7 @@ unsigned L1MuGMTMIAUEtaProLUT::TheLookupFunction (int idx, unsigned eta, unsigne
 
     // for even number of isolation cells check the fine grain info
     if (m_IsolationCellSizeEta%2 == 0) {
-      float bincenter = m_theGMTScales->getCaloEtaScale()->getCenter( icenter );
+      float bincenter = theGMTScales->getCaloEtaScale()->getCenter( icenter );
       if ( neweta > bincenter ) imax++;
       else imin--;
     }

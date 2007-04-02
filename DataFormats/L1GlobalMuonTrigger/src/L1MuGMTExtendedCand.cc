@@ -5,8 +5,8 @@
 //   Description: L1 Global Muon Trigger Candidate
 //
 //
-//   $Date: 2006/05/15 13:51:42 $
-//   $Revision: 1.1 $
+//   $Date: 2006/08/21 14:26:08 $
+//   $Revision: 1.2 $
 //
 //   Author :
 //   H. Sakulin        HEPHY Vienna
@@ -35,6 +35,8 @@
 //-------------------------------
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+using namespace std;
 
 //---------------------------------
 //       class L1MuGMTExtendedCand

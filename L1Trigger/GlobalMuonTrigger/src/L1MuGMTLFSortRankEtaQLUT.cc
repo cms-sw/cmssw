@@ -3,8 +3,8 @@
 //   Class: L1MuGMTLFSortRankEtaQLUT
 //
 // 
-//   $Date: 2006/05/15 13:56:02 $
-//   $Revision: 1.1 $
+//   $Date: 2006/11/17 08:25:34 $
+//   $Revision: 1.2 $
 //
 //   Author :
 //   H. Sakulin            HEPHY Vienna
@@ -23,21 +23,18 @@
 // C++ Headers --
 //---------------
 
-//#include <iostream>
-
 //-------------------------------
 // Collaborating Class Headers --
 //-------------------------------
-#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuTriggerScales.h"
 #include "L1Trigger/GlobalMuonTrigger/src/L1MuGMTConfig.h"
-#include "SimG4Core/Notification/interface/Singleton.h"
+#include "CondFormats/L1TObjects/interface/L1MuTriggerScales.h"
+#include "CondFormats/L1TObjects/interface/L1MuPacking.h"
 
 //-------------------
 // InitParameters  --
 //-------------------
 
 void L1MuGMTLFSortRankEtaQLUT::InitParameters() {
-  m_theTriggerScales = Singleton<L1MuTriggerScales>::instance();
 }
 
 //------------------------------------------------------------------------------------
@@ -61,10 +58,13 @@ unsigned L1MuGMTLFSortRankEtaQLUT::TheLookupFunction (int idx, unsigned eta, uns
   // idx is DT, BRPC, CSC, FRPC
   // INPUTS:  eta(6) q(3)
   // OUTPUTS: vlq(2) rank_etaq(2) 
+
+  const L1MuTriggerScales* theTriggerScales = L1MuGMTConfig::getTriggerScales();
+
   int isRPC = idx % 2;
   //  int isFWD = idx / 2;
 
-  float etaValue = fabs ( m_theTriggerScales->getRegionalEtaScale(idx)->getCenter( eta ) );
+  float etaValue = fabs ( theTriggerScales->getRegionalEtaScale(idx)->getCenter( eta ) );
 
   //
   // very-low-quality flags

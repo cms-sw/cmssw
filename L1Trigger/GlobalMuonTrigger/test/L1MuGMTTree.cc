@@ -5,8 +5,8 @@
 //   Description:   Build GMT tree
 //                  
 //                
-//   $Date: 2007/03/14 08:51:51 $
-//   $Revision: 1.5 $
+//   $Date: 2007/03/21 00:23:45 $
+//   $Revision: 1.6 $
 //
 //   I. Mikulec            HEPHY Vienna
 //
@@ -42,6 +42,9 @@
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include "CLHEP/HepMC/GenEvent.h"
 #include "L1Trigger/GlobalMuonTrigger/src/L1MuGMTConfig.h"
+
+using namespace std;
+
 //----------------
 // Constructors --
 //----------------
