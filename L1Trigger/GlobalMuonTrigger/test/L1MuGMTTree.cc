@@ -5,8 +5,8 @@
 //   Description:   Build GMT tree
 //                  
 //                
-//   $Date: 2007/03/21 00:23:45 $
-//   $Revision: 1.6 $
+//   $Date: 2007/04/02 15:45:39 $
+//   $Revision: 1.7 $
 //
 //   I. Mikulec            HEPHY Vienna
 //
@@ -40,7 +40,7 @@
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
-#include "CLHEP/HepMC/GenEvent.h"
+#include "HepMC/GenEvent.h"
 #include "L1Trigger/GlobalMuonTrigger/src/L1MuGMTConfig.h"
 
 using namespace std;
@@ -125,9 +125,9 @@ void L1MuGMTTree::analyze(const edm::Event& e, const edm::EventSetup& es) {
       vygen[igen]=(*simvertices)[(*isimtr).vertIndex()].position().y();
       vzgen[igen]=(*simvertices)[(*isimtr).vertIndex()].position().z();
       pargen[igen]=-1;
-      if(genevent && (*isimtr).genpartIndex()!=-1 && genevent->particle((*isimtr).genpartIndex())->listParents().size()>0) {
-        pargen[igen] = genevent->particle((*isimtr).genpartIndex())->listParents()[0]->pdg_id();
-      }
+      //      if(genevent && (*isimtr).genpartIndex()!=-1 && genevent->particle((*isimtr).genpartIndex())->listParents().size()>0) {
+      //        pargen[igen] = genevent->particle((*isimtr).genpartIndex())->listParents()[0]->pdg_id();
+      //      }
       
       igen++;
     }
