@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <SpecParSection  xmlns="http://www.cern.ch/cms/DDL" label="Try1" eval="true">
 <!-- p o r t e d  f r o m  ORCA/Data/MuonData/EndcapData Tim Cox-->
-<!-- converted for just physical chambers - no ME1A - Tim Cox 28.03.2007-->
+<!-- converted for just physical chambers - no ME1A - Tim Cox 02.04.2007-->
 <!-- # =========================================================== -->
 <!-- # Parameters for Cathode Strip Chambers: ME11AlumFrame        -->
 <!-- # =========================================================== -->
@@ -74,9 +74,11 @@
 <!--# 29 - strip deltaPhi (mrad) -->
 <Parameter name="upar" value="2.9582"/>
 <!--# 30 - ctiOffset - possible future use -->
-<Parameter name="upar" value="16.033752"/>
+<Parameter name="upar" value="0.0"/>
+<!--# 31 - z of strip layer 1 wrt centre of chamber (cm) -->
+<Parameter name="upar" value="6.4"/>
 
-<!-- ME1a PARAMETERS FOLLOW, EACH INDEX REALLY (#+31) -->
+<!-- ME1a PARAMETERS FOLLOW, EACH INDEX REALLY (#+32) -->
 
 <Parameter name="upar" value="0.015"/>
 <!--# 0 - strip resolution-->
@@ -142,7 +144,9 @@
 <!--# 29 - strip deltaPhi (mrad) -->
 <Parameter name="upar" value="3.8785"/>
 <!--# 30 - ctiOffset - possible future use -->
-<Parameter name="upar" value="16.033752"/>
+<Parameter name="upar" value="0.0"/>
+<!--# 31 - z of strip layer 1 wrt centre of chamber (cm) -->
+<Parameter name="upar" value="6.4"/>
 
 <!-- Wire group specs. 
      The wire grouping is specified by two vectors NumGroups and NumWiresPerGrp, of the same length. 
@@ -244,7 +248,9 @@
 <!--# 29 - strip deltaPhi (mrad) -->
 <Parameter name="upar" value="2.33"/>
 <!--# 30 - ctiOffset - possible future use -->
-<Parameter name="upar" value="8.694855"/>
+<Parameter name="upar" value="0.0"/>
+<!--# 31 - z of strip layer 1 wrt centre of chamber (cm) -->
+<Parameter name="upar" value="6.4"/>
 
 <!-- Wire group specs. 
      The wire grouping is specified by two vectors NumGroups and NumWiresPerGrp, of the same length. 
@@ -359,6 +365,8 @@
 <Parameter name="upar" value="2.16"/>
 <!--# 30 - ctiOffset - possible future use -->
 <Parameter name="upar" value="0.0"/>
+<!--# 31 - z of strip layer 1 wrt centre of chamber (cm) -->
+<Parameter name="upar" value="6.4"/>
 
 <!-- Wire group specs. 
      The wire grouping is specified by two vectors NumGroups and NumWiresPerGrp, of the same length. 
@@ -468,7 +476,9 @@
 <!--# 29 - strip deltaPhi (mrad) -->
 <Parameter name="upar" value="4.65"/>
 <!--# 30 - ctiOffset - possible future use -->
-<Parameter name="upar" value="-0.576782"/>
+<Parameter name="upar" value="0.0"/>
+<!--# 31 - z of strip layer 1 wrt centre of chamber (cm) -->
+<Parameter name="upar" value="6.4"/>
 
 <!-- Wire group specs. 
      The wire grouping is specified by two vectors NumGroups and NumWiresPerGrp, of the same length. 
@@ -578,7 +588,9 @@
 <!--# 29 - strip deltaPhi (mrad) -->
 <Parameter name="upar" value="4.65"/>
 <!--# 30 - ctiOffset - possible future use -->
-<Parameter name="upar" value="-0.693268"/>
+<Parameter name="upar" value="0.0"/>
+<!--# 31 - z of strip layer 1 wrt centre of chamber (cm) -->
+<Parameter name="upar" value="6.4"/>
 
 <!-- Wire group specs. 
      The wire grouping is specified by two vectors NumGroups and NumWiresPerGrp, of the same length. 
@@ -686,7 +698,9 @@
 <!--# 29 - strip deltaPhi (mrad) -->
 <Parameter name="upar" value="4.65"/>
 <!--# 30 - ctiOffset - possible future use -->
-<Parameter name="upar" value="5.855377"/>
+<Parameter name="upar" value="0.0"/>
+<!--# 31 - z of strip layer 1 wrt centre of chamber (cm) -->
+<Parameter name="upar" value="6.4"/>
 
 <!-- Wire group specs. 
      The wire grouping is specified by two vectors NumGroups and NumWiresPerGrp, of the same length. 
@@ -793,7 +807,9 @@
 <!--# 29 - strip deltaPhi (mrad) -->
 <Parameter name="upar" value="2.33"/>
 <!--# 30 - ctiOffset - possible future use -->
-<Parameter name="upar" value="5.048706"/>
+<Parameter name="upar" value="0.0"/>
+<!--# 31 - z of strip layer 1 wrt centre of chamber (cm) -->
+<Parameter name="upar" value="6.4"/>
 
 <!-- Wire group specs. 
      The wire grouping is specified by two vectors NumGroups and NumWiresPerGrp, of the same length. 
@@ -915,7 +931,9 @@
 <!--# 29 - strip deltaPhi (mrad) -->
 <Parameter name="upar" value="2.33"/>
 <!--# 30 - ctiOffset - possible future use -->
-<Parameter name="upar" value="5.048706"/>
+<Parameter name="upar" value="0.0"/>
+<!--# 31 - z of strip layer 1 wrt centre of chamber (cm) -->
+<Parameter name="upar" value="6.4"/>
 
 <!-- Wire group specs. 
      The wire grouping is specified by two vectors NumGroups and NumWiresPerGrp, of the same length. 
