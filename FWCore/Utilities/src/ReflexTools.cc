@@ -118,25 +118,11 @@ namespace edm
       return *missingTypes_.get();
     }
 
-    bool
-    checkDictionary(Type c) {
-      while (c.IsUnqualified() == false) {
-	c = c.ToType();
-      }
-      if (c.IsFundamental()) return false;
-      if (c.IsEnum()) return false;
-      std::string name = c.Name(SCOPED);
-      if (name.empty()) return false;
-      Type t = Type::ByName(name);
-      if (!bool(t)) {
-	missingTypes().insert(name);
-	return false;
-      }
-      return true;
-    }
-
+    // Checks if there is a Reflex dictionary for the Type t.
+    // If noComponents is false, checks members and base classes recursively.
+    // If noComponents is true, checks Type t only.
     void
-    checkType(Type t) {
+    checkType(Type t, bool noComponents = false) {
 
       // The only purpose of this cache is to stop infinite recursion.
       // Reflex maintains its own internal cache.
@@ -145,19 +131,30 @@ namespace edm
 	s_types.reset(new Set);
       }
   
-      while (t.IsUnqualified() == false) {
-	t = t.ToType();
-      }
+      // ToType strips const, volatile, array, pointer, reference, etc.,
+      // and also translates typedefs.
+      // To be safe, we do this recursively until we either get a null type
+      // or the same type.
+      Type null;
+      for (Type x = t.ToType(); x != null && x != t; t = x, x = t.ToType()) {}
   
       std::string name = t.Name(SCOPED);
   
       if (s_types->end() != s_types->find(name)) {
-	// Already been processed
+	// Already been processed.  Prevents infinite loop.
 	return;
       }
       s_types->insert(name);
   
-      if (!checkDictionary(t)) return;
+      if (name.empty()) return;
+      if (t.IsFundamental()) return;
+      if (t.IsEnum()) return;
+
+      if (!bool(t)) {
+  	missingTypes().insert(name);
+	return;
+      }
+      if (noComponents) return;
   
       if (name.find("std::") == 0) {
 	if (t.IsTemplateInstance()) {
@@ -188,11 +185,7 @@ namespace edm
   } // end unnamed namespace
 
   void checkDictionaries(std::string const& name, bool transient) {
-    if (transient) {
-      checkDictionary(Type::ByName(name));
-    } else {
-      checkType(Type::ByName(name));
-    }
+    checkType(Type::ByName(name), transient);
   }
 
   void checkAllDictionaries() {
