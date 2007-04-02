@@ -14,7 +14,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: TrackDetectorAssociator.h,v 1.5 2007/03/09 14:30:28 dmytro Exp $
+// $Id: TrackDetectorAssociator.h,v 1.6 2007/03/20 06:46:32 dmytro Exp $
 //
 //
 
@@ -65,11 +65,38 @@ class TrackDetectorAssociator {
    ///     (the cone origin is at (0,0,0))
    /// Trajectory bending in eta-phi is taking into account
    /// when matching is performed
+   ///
+   /// associate using FreeTrajectoryState
    TrackDetMatchInfo            associate( const edm::Event&,
 					   const edm::EventSetup&,
 					   const FreeTrajectoryState&,
 					   const AssociatorParameters& );
-
+   /// associate using inner and outer most states of a track
+   /// in the silicon tracker. 
+   TrackDetMatchInfo            associate( const edm::Event& iEvent,
+					   const edm::EventSetup& iSetup,
+					   const AssociatorParameters& parameters,
+					   const FreeTrajectoryState* innerState,
+					   const FreeTrajectoryState* outerState=0);
+   /// associate using reco::Track
+   TrackDetMatchInfo            associate( const edm::Event&,
+					   const edm::EventSetup&,
+					   const reco::Track&,
+					   const AssociatorParameters& );
+   /// associate using a simulated track
+   TrackDetMatchInfo            associate( const edm::Event&,
+					   const edm::EventSetup&,
+					   const SimTrack&,
+					   const SimVertex&,
+					   const AssociatorParameters& );
+   /// associate using 3-momentum, vertex and charge
+   TrackDetMatchInfo            associate( const edm::Event&,
+					   const edm::EventSetup&,
+					   const GlobalVector&,
+					   const GlobalPoint&,
+					   const int,
+					   const AssociatorParameters& );
+   
    /// associate ECAL only and return RecHits
    /// negative dR means only crossed elements
    std::vector<EcalRecHit>  associateEcal( const edm::Event&,
@@ -104,11 +131,15 @@ class TrackDetectorAssociator {
    void useDefaultPropagator();
    
    /// get FreeTrajectoryState from different track representations
-   FreeTrajectoryState getFreeTrajectoryState( const edm::EventSetup&, 
-					       const reco::Track& );
-   FreeTrajectoryState getFreeTrajectoryState( const edm::EventSetup&, 
-					       const SimTrack&, 
-					       const SimVertex& );
+   static FreeTrajectoryState getFreeTrajectoryState( const edm::EventSetup&, 
+						      const reco::Track& );
+   static FreeTrajectoryState getFreeTrajectoryState( const edm::EventSetup&, 
+						      const SimTrack&, 
+						      const SimVertex& );
+   static FreeTrajectoryState getFreeTrajectoryState( const edm::EventSetup&,
+						      const GlobalVector&,
+						      const GlobalPoint&,
+						      const int);
  private:
    void fillEcal(       const edm::Event&,
 			TrackDetMatchInfo&, 
