@@ -85,8 +85,8 @@
 /** \class DTROSWordType
  *  Enumeration of DT Read Out Sector (ROS) word types.
  *
- *  $Date: 2006/08/01 17:41:22 $
- *  $Revision: 1.8 $
+ *  $Date: 2007/02/14 15:52:01 $
+ *  $Revision: 1.9 $
  * \author M. Zanetti - INFN Padova
  */
 class DTROSWordType {
@@ -201,8 +201,8 @@ private:
  *  DT ROS Header interpreter. 
  *  It interprets the TTC Event counter (24 bits).
  *
- *  $Date: 2006/08/01 17:41:22 $
- *  $Revision: 1.8 $
+ *  $Date: 2007/02/14 15:52:01 $
+ *  $Revision: 1.9 $
  * \author M. Zanetti - INFN Padova
  */
 class DTROSHeaderWord {
@@ -220,7 +220,7 @@ public:
   /// Destructor
   virtual ~DTROSHeaderWord() {}
 
-  int TTCEventCounter() { return  word_ & TTC_EVENT_COUNTER_MASK; }
+  int TTCEventCounter() const { return  word_ & TTC_EVENT_COUNTER_MASK; }
 
   static void set(uint32_t &word,
 		  int ttc_event_counter) {
@@ -249,8 +249,8 @@ private:
  *  - BCO: Bunch Counter FIFO occupancy (2 bits)
  *  - Event Word count (16 bits)
  *
- *  $Date: 2006/08/01 17:41:22 $
- *  $Revision: 1.8 $
+ *  $Date: 2007/02/14 15:52:01 $
+ *  $Revision: 1.9 $
  * \author M. Zanetti - INFN Padova
  */
 class DTROSTrailerWord {
@@ -306,8 +306,8 @@ private:
  *  DT ROS Error interpreter. 
  *  It interprets the Error type and the ROB_ID (2 bits) 
  *
- *  $Date: 2006/08/01 17:41:22 $
- *  $Revision: 1.8 $
+ *  $Date: 2007/02/14 15:52:01 $
+ *  $Revision: 1.9 $
  * \author M. Zanetti - INFN Padova
  */
 class DTROSErrorWord {
@@ -352,8 +352,8 @@ private:
  *  It interprets the Debug type (3 bits) and the debug message 
  *  (in the first 15 bits) 
  *
- *  $Date: 2006/08/01 17:41:22 $
- *  $Revision: 1.8 $
+ *  $Date: 2007/02/14 15:52:01 $
+ *  $Revision: 1.9 $
  * \author M. Zanetti - INFN Padova
  */
 class DTROSDebugWord {
@@ -396,8 +396,8 @@ private:
  *  It interprets the ROB_ID (5 bits), the Event ID (12 bits) 
  *  and the Bunch ID (12 bits).
  *
- *  $Date: 2006/08/01 17:41:22 $
- *  $Revision: 1.8 $
+ *  $Date: 2007/02/14 15:52:01 $
+ *  $Revision: 1.9 $
  * \author M. Zanetti - INFN Padova
  */
 class DTROBHeaderWord {
@@ -445,8 +445,8 @@ private:
  *  It interprets the ROB_ID (5 bits), the Event ID (12 bits) 
  *  and the Word ID (12 bits).
  *
- *  $Date: 2006/08/01 17:41:22 $
- *  $Revision: 1.8 $
+ *  $Date: 2007/02/14 15:52:01 $
+ *  $Revision: 1.9 $
  * \author M. Zanetti - INFN Padova
  */
 class DTROBTrailerWord {
@@ -494,8 +494,8 @@ private:
  *  It interprets the Parity Checks, FIFO occupancy, Lokeced channels (all 1 bit),
  *  the TDC_ID (2 bits), the Event ID (12 bits) and the Bunch ID (12 bits).
  *
- *  $Date: 2006/08/01 17:41:22 $
- *  $Revision: 1.8 $
+ *  $Date: 2007/02/14 15:52:01 $
+ *  $Revision: 1.9 $
  * \author M. Zanetti - INFN Padova
  */
 class DTTDCHeaderWord {
@@ -550,8 +550,8 @@ private:
  *  It interprets the Parity Checks, FIFO occupancy, Lokeced channels (all 1 bit),
  *  the TDC_ID (2 bits), the Event ID (12 bits) and the Word ID (12 bits).
  *
- *  $Date: 2006/08/01 17:41:22 $
- *  $Revision: 1.8 $
+ *  $Date: 2007/02/14 15:52:01 $
+ *  $Revision: 1.9 $
  * \author M. Zanetti - INFN Padova
  */
 class DTTDCTrailerWord {
@@ -605,8 +605,8 @@ private:
  *  It interprets the Parity Checks, FIFO occupancy, Lokeced channels (all 1 bit),
  *  the TDC_ID (2 bits), the TDC channel (5 bits), and the TDC time (19 bits)
  *
- *  $Date: 2006/08/01 17:41:22 $
- *  $Revision: 1.8 $
+ *  $Date: 2007/02/14 15:52:01 $
+ *  $Revision: 1.9 $
  * \author M. Zanetti - INFN Padova
  */
 class DTTDCMeasurementWord {
@@ -663,8 +663,8 @@ private:
  *  It interprets the Parity Checks, FIFO occupancy, Lokeced channels (all 1 bit),
  *  the TDC_ID (2 bits) and the TDC error flag (15 bits)
  *
- *  $Date: 2006/08/01 17:41:22 $
- *  $Revision: 1.8 $
+ *  $Date: 2007/02/14 15:52:01 $
+ *  $Revision: 1.9 $
  * \author M. Zanetti - INFN Padova
  */
 class DTTDCErrorWord {
@@ -715,8 +715,8 @@ private:
  *  DT Sector Collector header interpreter. 
  *  It interprets ROS event ID (12 bits) and the Sector Collector FIFO occupancy (8 bits)
  *
- *  $Date: 2006/08/01 17:41:22 $
- *  $Revision: 1.8 $
+ *  $Date: 2007/02/14 15:52:01 $
+ *  $Revision: 1.9 $
  * \author M. Zanetti - INFN Padova
  */
 class DTLocalTriggerHeaderWord {
@@ -759,8 +759,8 @@ private:
  *  DT Sector Collector trailer interpreter. 
  *  It interprets the word count (16 bits)
  *
- *  $Date: 2006/08/01 17:41:22 $
- *  $Revision: 1.8 $
+ *  $Date: 2007/02/14 15:52:01 $
+ *  $Revision: 1.9 $
  * \author M. Zanetti - INFN Padova
  */
 class DTLocalTriggerTrailerWord {
@@ -800,8 +800,8 @@ private:
  *  DT Sector Collector data interpreter. 
  *  It interprets the Sector Collector data (16 bits)
  *
- *  $Date: 2006/08/01 17:41:22 $
- *  $Revision: 1.8 $
+ *  $Date: 2007/02/14 15:52:01 $
+ *  $Revision: 1.9 $
  * \author M. Zanetti - INFN Padova
  */
 class DTLocalTriggerDataWord {
@@ -850,8 +850,8 @@ private:
  *  DT DDU status 1 interpreter (8 bits word). 
  *  It interprets the error messages from each DDU channel
  *
- *  $Date: 2006/08/01 17:41:22 $
- *  $Revision: 1.8 $
+ *  $Date: 2007/02/14 15:52:01 $
+ *  $Revision: 1.9 $
  * \author M. Zanetti - INFN Padova
  */
 class DTDDUFirstStatusWord {
@@ -890,8 +890,8 @@ private:
  *  It interprets the (16 bits)
  *  WARNING!! : It interprets the second part of a 64 bits word!
  *
- *  $Date: 2006/08/01 17:41:22 $
- *  $Revision: 1.8 $
+ *  $Date: 2007/02/14 15:52:01 $
+ *  $Revision: 1.9 $
  * \author M. Zanetti - INFN Padova
  */
 class DTDDUSecondStatusWord {
@@ -936,8 +936,8 @@ private:
  *  It interprets Latency measured by SC-Latency Timer Unit (still testing!)
  *  and the number of 16-bit words following this header sent by the Sector Collector
  *
- *  $Date: 2006/08/01 17:41:22 $
- *  $Revision: 1.8 $
+ *  $Date: 2007/02/14 15:52:01 $
+ *  $Revision: 1.9 $
  * \author R. Travaglini - INFN Bologna
  */
 class DTLocalTriggerSectorCollectorHeaderWord {
@@ -981,8 +981,8 @@ private:
  *  It interprets local SC bunch Counter and delay (3-bit) between trigger used to stop spying and
  *  effective bx stop
  *
- *  $Date: 2006/08/01 17:41:22 $
- *  $Revision: 1.8 $
+ *  $Date: 2007/02/14 15:52:01 $
+ *  $Revision: 1.9 $
  * \author R. Travaglini - INFN Bologna
  */
 class DTLocalTriggerSectorCollectorSubHeaderWord {
