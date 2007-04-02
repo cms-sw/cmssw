@@ -1758,8 +1758,8 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 
       // A VIRER !!!!!!!!!!!!!!!!!!!!
 
-         isrechitrphi = 0;
-      isrechitsas = 0;
+      //    isrechitrphi = 0;
+      //isrechitsas = 0;
 
       
       if(hit){
@@ -2055,7 +2055,7 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
       //cout<<"isrechitrphi,isrechitsas = "<<isrechitrphi<<","<<isrechitsas<<endl;
 
       float CutThickness=0.04;
-      //CutThickness=0.;
+      CutThickness=0.;
 
       if(isrechitrphi>0 || isrechitsas>0){
 
