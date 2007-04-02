@@ -4,6 +4,8 @@
 #include "SimMuon/RPCDigitizer/src/RPCSimFactory.h"
 #include "SimMuon/RPCDigitizer/src/RPCSimSimple.h"
 #include "SimMuon/RPCDigitizer/src/RPCSimParam.h"
+#include "SimMuon/RPCDigitizer/src/RPCSimAverage.h"
+#include "SimMuon/RPCDigitizer/src/RPCSimTriv.h"
 
 
 DEFINE_SEAL_MODULE();
