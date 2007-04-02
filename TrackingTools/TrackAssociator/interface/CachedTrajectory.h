@@ -18,7 +18,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: CachedTrajectory.h,v 1.1 2007/01/21 15:30:35 dmytro Exp $
+// $Id: CachedTrajectory.h,v 1.2 2007/03/26 05:48:27 dmytro Exp $
 //
 //
 
@@ -33,26 +33,28 @@
 class CachedTrajectory {
  public:
    CachedTrajectory();
+   enum TrajectorType { IpToEcal, IpToHcal, IpToHO, FullTrajectory };
 
    void reset_trajectory();
    
-   // fly through the whole detector
+   /// fly through the whole detector
    void propagateAll(const SteppingHelixStateInfo& initialState);
    
    void propagateForward(SteppingHelixStateInfo& state, float distance);
 
-   // get fast to a given DetId surface using cached trajectory
+   /// get fast to a given DetId surface using cached trajectory
    TrajectoryStateOnSurface propagate(const Plane* plane);
  
-   // calculate trajectory size 
-   float trajectoryDeltaEta();
-   float trajectoryDeltaPhi();
-   void setPropagator(Propagator* ptr){	propagator_ = ptr; }
+   /// calculate trajectory change (Theta,Phi)
+   /// delta = final - original
+   std::pair<float,float> trajectoryDelta( TrajectorType );
    
-   // get a set of points representing the trajectory between two cylinders
-   // of radius R1 and R2 and length L1 and L2. Parameter steps defines
-   // maximal number of steps in the detector.
-
+   void setPropagator(Propagator* ptr){	propagator_ = ptr; }
+   void setStateAtIP(const SteppingHelixStateInfo& state){ stateAtIP_ = state; }
+   
+   /// get a set of points representing the trajectory between two cylinders
+   /// of radius R1 and R2 and length L1 and L2. Parameter steps defines
+   /// maximal number of steps in the detector.
    void getTrajectory(std::vector<SteppingHelixStateInfo>&,
 		      const FiducialVolume&,
 		      int steps = 4);
@@ -81,11 +83,14 @@ class CachedTrajectory {
    
    static int sign (float number){
       if (number ==0) return 0;
-      if (number == fabs(number))
+      if (number > 0)
 	return 1;
       else
 	return -1;
    }
+   
+   std::pair<float,float> delta( const SteppingHelixStateInfo& state1,
+				 const SteppingHelixStateInfo& state2);
    
    float distance(const Plane* plane, int index) {
       if (index<0 || fullTrajectory_.empty() || uint(index) >= fullTrajectory_.size()) return 0;
@@ -96,6 +101,7 @@ class CachedTrajectory {
    std::vector<SteppingHelixStateInfo> ecalTrajectory_;
    std::vector<SteppingHelixStateInfo> hcalTrajectory_;
    std::vector<SteppingHelixStateInfo> hoTrajectory_;
+   SteppingHelixStateInfo stateAtIP_;
    
    bool fullTrajectoryFilled_;
    

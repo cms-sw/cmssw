@@ -3,7 +3,7 @@
 // Package:    TrackAssociator
 // Class:      CachedTrajectory
 // 
-// $Id: CachedTrajectory.cc,v 1.5 2007/03/08 04:19:26 dmytro Exp $
+// $Id: CachedTrajectory.cc,v 1.6 2007/03/26 05:48:27 dmytro Exp $
 //
 //
 
@@ -178,41 +178,62 @@ TrajectoryStateOnSurface CachedTrajectory::propagate(const Plane* plane)
      }
 }
 
-float CachedTrajectory::trajectoryDeltaEta()
+std::pair<float,float> CachedTrajectory::trajectoryDelta( TrajectorType trajectoryType )
 {
-   
-   // we are not interested in the inner part of the detector if for some reason 
-   // the track was not propagated through calorimeters.
-   // if(newState.position().mag() > 300) 
-
-   float minEta = 99999;
-   float maxEta = -99999;
-   for(std::vector<SteppingHelixStateInfo>::const_iterator point = fullTrajectory_.begin();
-       point != fullTrajectory_.end(); point++){
-      if (point->position().eta() > maxEta) maxEta = point->position().eta();
-      if (point->position().eta() < minEta) minEta = point->position().eta();
+   std::pair<float,float> result(0,0);
+   if ( ! stateAtIP_.isValid() ) { 
+      edm::LogWarning("TrackAssociator") << "State at IP is not known set. Cannot estimate trajectory change. " <<
+	"Trajectory change is not taken into account in matching";
+      return result;
    }
-   if (minEta>maxEta) return 0;
-   return maxEta-minEta;
+   switch (trajectoryType) {
+    case IpToEcal:
+      if ( ecalTrajectory_.empty() )
+	edm::LogWarning("TrackAssociator") << "ECAL trajector is empty. Cannot estimate trajectory change. " <<
+	"Trajectory change is not taken into account in matching";
+      else return delta( stateAtIP_, ecalTrajectory_.front() );
+      break;
+    case IpToHcal:
+      if ( hcalTrajectory_.empty() )
+	edm::LogWarning("TrackAssociator") << "HCAL trajector is empty. Cannot estimate trajectory change. " <<
+	"Trajectory change is not taken into account in matching";
+      else return delta( stateAtIP_, hcalTrajectory_.front() );
+      break;
+    case IpToHO:
+      if ( hoTrajectory_.empty() )
+	edm::LogWarning("TrackAssociator") << "HO trajector is empty. Cannot estimate trajectory change. " <<
+	"Trajectory change is not taken into account in matching";
+      else return delta( stateAtIP_, hoTrajectory_.front() );
+      break;
+    case FullTrajectory:
+      if ( fullTrajectory_.empty() )
+	edm::LogWarning("TrackAssociator") << "Full trajector is empty. Cannot estimate trajectory change. " <<
+	"Trajectory change is not taken into account in matching";
+      else return delta( stateAtIP_, fullTrajectory_.back() );
+      break;
+    default:
+      edm::LogWarning("TrackAssociator") << "Unkown or not supported trajector type. Cannot estimate trajectory change. " <<
+	"Trajectory change is not taken into account in matching";
+   }
+   return result;
 }
 
-float CachedTrajectory::trajectoryDeltaPhi()
+std::pair<float,float> CachedTrajectory::delta( const SteppingHelixStateInfo& state1, 
+						const SteppingHelixStateInfo& state2)
 {
-   float minPhi = 99999;
-   float maxPhi = -99999;
-   for(std::vector<SteppingHelixStateInfo>::const_iterator point = fullTrajectory_.begin();
-       point != fullTrajectory_.end(); point++){
-      if (point->position().phi() > maxPhi) maxPhi = point->position().phi();
-      if (point->position().phi() < minPhi) minPhi = point->position().phi();
+   // don't check validity of states, which has to be checked somewhere else.
+   std::pair<float,float> result(state2.momentum().theta() - state1.momentum().theta(),
+				 state2.momentum().phi()   - state1.momentum().phi() );
+   // this won't work for loopers, since deltaPhi cannot be larger than Pi.
+   if ( fabs(result.second) > 2*3.1416-fabs(result.second) ) {
+      if (result.second>0) 
+	result.second -= 2*3.1416;
+      else
+	result.second += 2*3.1416;
    }
-   if (minPhi>maxPhi) return 0;
-   // assuming that we are not reconstructing loopers, so dPhi should be small compared with 2Pi
-   if (minPhi+2*3.1415926-maxPhi<maxPhi-minPhi)
-     return minPhi+2*3.1415926-maxPhi;
-   else
-     return maxPhi-minPhi;
+   return result;
 }
-
+	
 void CachedTrajectory::getTrajectory(std::vector<SteppingHelixStateInfo>& trajectory,
 				     const FiducialVolume& volume,
 				     int steps)
