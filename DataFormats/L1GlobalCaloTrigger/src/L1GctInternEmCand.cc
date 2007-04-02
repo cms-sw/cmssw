@@ -13,25 +13,28 @@ using std::dec;
 L1GctInternEmCand::L1GctInternEmCand() :
   m_data(0),
   m_iso(false),
-  m_source(0)
+  m_source(0),
+  m_bx(0)
 { 
 
 }
 
 // construct from raw data (for use in unpacking)
-L1GctInternEmCand::L1GctInternEmCand(uint16_t data, bool iso, unsigned block, unsigned index) :
+L1GctInternEmCand::L1GctInternEmCand(uint16_t data, bool iso, unsigned block, unsigned index, int16_t bx) :
    m_data(data),
    m_iso(iso),
-   m_source( ((block&0x7f)<<9) + (index&0x1ff) )
+   m_source( ((block&0x7f)<<9) + (index&0x1ff) ),
+   m_bx(bx)
  {
 
  }
 
 // construct from eta/phi etc
-L1GctInternEmCand::L1GctInternEmCand(unsigned rank, unsigned eta, unsigned etaSgn, unsigned phi, bool iso, unsigned block, unsigned index) :
-   m_iso(iso),
-   m_source( ((block&0x7f)<<9) + (index&0x1ff) )
- {
+L1GctInternEmCand::L1GctInternEmCand(unsigned rank, unsigned eta, unsigned etaSgn, unsigned phi, bool iso, unsigned block, unsigned index, int16_t bx) :
+  m_iso(iso),
+  m_source( ((block&0x7f)<<9) + (index&0x1ff) ),
+  m_bx(bx)
+{
    construct(rank, eta, etaSgn, phi);
  }
 
@@ -54,7 +57,7 @@ ostream& operator<<(ostream& s, const L1GctInternEmCand& cand) {
   s << "rank=" << hex << cand.rank();
   s << ", etaSign=" << cand.etaSign() << ", ieta=" << (cand.etaIndex()&0x7) << ", iphi=" << cand.phiIndex();
   s << ", iso=" << cand.isolated();
-  s << " cap block=" << cand.capBlock() << ", index=" << cand.capIndex() << dec;
+  s << " cap block=" << cand.capBlock() << ", index=" << cand.capIndex() << ", BX=" << cand.bx() << dec;
   return s;
 }
 

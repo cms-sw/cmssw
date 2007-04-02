@@ -40,7 +40,7 @@ public:
   L1CaloRegion(unsigned et, bool overFlow, bool fineGrain, bool mip, bool quiet, unsigned ieta, unsigned iphi);
 
   /// constructor from raw data and GCT indices for unpacking
-  L1CaloRegion(uint16_t data, unsigned ieta, unsigned iphi);
+  L1CaloRegion(uint16_t data, unsigned ieta, unsigned iphi, int16_t bx);
 
   /// destructor
   ~L1CaloRegion();
@@ -108,6 +108,9 @@ public:
   /// get GCT phi index
   unsigned gctPhi() const { return m_id.iphi(); }
 
+  /// get bunch-crossing index
+  int bx() const { return m_bx; }
+
   /// print to stream
   friend std::ostream& operator << (std::ostream& os, const L1CaloRegion& reg);
 
@@ -121,6 +124,7 @@ public:
 
   /// region data : et, overflow, fine grain/tau veto, mip and quiet bits
   uint16_t m_data;
+  int16_t m_bx;
 
 };
 

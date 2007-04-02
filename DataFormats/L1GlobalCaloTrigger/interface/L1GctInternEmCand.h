@@ -26,10 +26,10 @@ public:
   L1GctInternEmCand();
 
   /// construct from raw data
-  L1GctInternEmCand(uint16_t data, bool iso, unsigned block, unsigned index);
+  L1GctInternEmCand(uint16_t data, bool iso, unsigned block, unsigned index, int16_t bx);
 
   // construct from eta, phi etc
-  L1GctInternEmCand(unsigned rank, unsigned eta, unsigned etaSgn, unsigned phi, bool iso, unsigned block, unsigned index);
+  L1GctInternEmCand(unsigned rank, unsigned eta, unsigned etaSgn, unsigned phi, bool iso, unsigned block, unsigned index, int16_t bx);
 
   /// destructor (virtual to prevent compiler warnings)
   virtual ~L1GctInternEmCand();
@@ -67,6 +67,9 @@ public:
   /// what index within capture block
   unsigned capIndex() const { return m_source&0x1ff; }
 
+  /// get bunch-crossing index
+  int bx() const { return m_bx; }
+    
   /// equality operator
   int operator==(const L1GctInternEmCand& c) const { return ((m_data==c.raw() && m_iso==c.isolated())
                                                       || (this->empty() && c.empty())); }
@@ -85,6 +88,7 @@ public:
   uint16_t m_data;
   uint16_t m_source;
   bool m_iso;
+  int16_t m_bx;
 
  };
 

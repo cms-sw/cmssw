@@ -15,36 +15,41 @@ L1CaloRegion::L1CaloRegion() : m_id(), m_data(0) { }
 
 // constructor for RCT emulator (HB/HE regions)
 L1CaloRegion::L1CaloRegion(unsigned et, bool overFlow, bool tauVeto, bool mip, bool quiet, unsigned crate, unsigned card, unsigned rgn) :
-  m_id(false, crate, card, rgn)
+  m_id(false, crate, card, rgn),
+  m_bx(0)
 {
   pack(et, overFlow, tauVeto, mip, quiet);
 }
 
 // constructor for RCT emulator (HF regions)
 L1CaloRegion::L1CaloRegion(unsigned et, bool fineGrain, unsigned crate, unsigned rgn) :
-  m_id(false, crate, 999, rgn)
+  m_id(false, crate, 999, rgn),
+  m_bx(0)
 {
   pack((et & 0xff), (et >= 0xff), fineGrain, false, false);
 }
 
 // constructor from GCT card, region numbers
 L1CaloRegion::L1CaloRegion(unsigned card, unsigned input, unsigned et, bool overFlow, bool fineGrain, bool mip, bool quiet) :
-  m_id(false, card, input) // use constructor with dummy argument here (GCT card/input # NOT eta/phi!)
+  m_id(false, card, input), // use constructor with dummy argument here (GCT card/input # NOT eta/phi!)
+  m_bx(0)
 {
   pack(et, overFlow, fineGrain, mip, quiet);
 }
 
 // construct from global eta, phi indices
 L1CaloRegion::L1CaloRegion(unsigned et, bool overFlow, bool fineGrain, bool mip, bool quiet, unsigned ieta, unsigned iphi) :
-  m_id(ieta, iphi)
+  m_id(ieta, iphi),
+  m_bx(0)
 {
   pack(et, overFlow, fineGrain, mip, quiet);
 }
 
 //constructor for unpacking
-L1CaloRegion::L1CaloRegion(uint16_t data, unsigned ieta, unsigned iphi) :
+L1CaloRegion::L1CaloRegion(uint16_t data, unsigned ieta, unsigned iphi, int16_t bx) :
   m_id(ieta, iphi),
-  m_data(data)
+  m_data(data),
+  m_bx(bx)
 {
 
 }
@@ -94,8 +99,10 @@ ostream& operator << (ostream& os, const L1CaloRegion& reg) {
   os << "             ";
   os << " GCT card=" << reg.gctCard();
   os << " GCT eta=" << reg.gctEta();
-  os << " GCT phi=" << reg.gctPhi() << dec;
+  os << " GCT phi=" << reg.gctPhi();
   os << endl;
+  os << "              BX=" << reg.m_bx << endl;
+  os << dec;
   return os;
 }
 

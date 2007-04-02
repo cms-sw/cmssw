@@ -12,15 +12,18 @@ using std::dec;
 // default constructor
 L1GctEmCand::L1GctEmCand() :
   m_data(0),
-  m_iso(false)
+  m_iso(false),
+  m_source(0)
 { 
 
 }
 
 // construct from raw data (for use in unpacking)
- L1GctEmCand::L1GctEmCand(uint16_t data, bool iso) :
+ L1GctEmCand::L1GctEmCand(uint16_t data, bool iso, uint16_t block, uint16_t index, int16_t bx) :
    m_data(data),
-   m_iso(iso)
+   m_iso(iso),
+   m_source( ((block&0x7f)<<9) + (index&0x1ff) ),
+   m_bx(bx)
  {
 
  }
@@ -28,14 +31,29 @@ L1GctEmCand::L1GctEmCand() :
 // construct from content (for use in emulator)  
 // eta = -6 to -0, +0 to +6. Sign is bit 3, 1 means -ve Z, 0 means +ve Z
 L1GctEmCand::L1GctEmCand(unsigned rank, unsigned eta, unsigned phi, bool iso) : 
-  m_iso(iso) 
+  m_iso(iso),
+  m_bx(0)
+ 
+{
+  construct(rank, eta, phi);
+  m_source=0;
+}
+
+// construct from content (for use in emulator)  
+// eta = -6 to -0, +0 to +6. Sign is bit 3, 1 means -ve Z, 0 means +ve Z
+L1GctEmCand::L1GctEmCand(unsigned rank, unsigned eta, unsigned phi, bool iso, uint16_t block, uint16_t index, int16_t bx) : 
+  m_iso(iso),
+  m_source( ((block&0x7f)<<9) + (index&0x1ff) ),
+  m_bx(bx)
 {
   construct(rank, eta, phi);
 }
 
 // construct from RCT output candidate
 L1GctEmCand::L1GctEmCand(L1CaloEmCand& c) :
-  m_iso(c.isolated())
+  m_iso(c.isolated()),
+  m_source(0),
+  m_bx(c.bx())
 {
   construct(c.rank(), c.regionId().gctEta(), c.regionId().gctPhi());
 }
@@ -59,6 +77,7 @@ ostream& operator<<(ostream& s, const L1GctEmCand& cand) {
   s << "rank=" << hex << cand.rank();
   s << ", etaSign=" << cand.etaSign() << ", ieta=" << (cand.etaIndex()&0x7) << ", iphi=" << cand.phiIndex();
   s << ", iso=" << cand.isolated() << dec;
+  s << hex << " cap block=" << cand.capBlock() << ", index=" << cand.capIndex() << ", BX=" << cand.bx() << dec;
   return s;
 }
 

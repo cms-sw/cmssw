@@ -20,11 +20,15 @@ public:
   L1GctJetCand();
 
   /// construct from raw data
-  L1GctJetCand(uint16_t data, bool isTau, bool isFor);
+  L1GctJetCand(uint16_t data, bool isTau, bool isFor, uint16_t block, uint16_t index, int16_t bx);
 
   /// construct from rank, eta, phi, isolation
   /// NB - eta = -6 to -0, +0 to +6. Sign is bit 3, 1 means -ve Z, 0 means +ve Z
   L1GctJetCand(unsigned rank, unsigned phi, unsigned eta, bool isTau, bool isFor);
+
+  /// construct from rank, eta, phi, isolation
+  /// NB - eta = -6 to -0, +0 to +6. Sign is bit 3, 1 means -ve Z, 0 means +ve Z
+  L1GctJetCand(unsigned rank, unsigned phi, unsigned eta, bool isTau, bool isFor, uint16_t block, uint16_t index, int16_t bx);
 
   /// destructor (virtual to prevent compiler warnings)
   virtual ~L1GctJetCand();
@@ -62,7 +66,16 @@ public:
   /// check if this is a forward jet
   bool isForward() const { return m_isFor; }
 
-   /// equality operator
+  /// which capture block did this come from
+  unsigned capBlock() const { return (m_source>>9) & 0x7f; }
+
+  /// what index within capture block
+  unsigned capIndex() const { return m_source&0x1ff; }
+
+  /// get bunch-crossing index
+  int bx() const { return m_bx; }
+
+  /// equality operator
   int operator==(const L1GctJetCand& c) const { return ((m_data==c.raw() && 
                                                 m_isTau==c.isTau() && m_isFor==c.isForward())
                                                  || (this->empty() && c.empty())); }
@@ -77,6 +90,8 @@ private:
   uint16_t m_data;
   bool m_isTau;
   bool m_isFor;
+  uint16_t m_source;
+  int16_t m_bx;
 
  };
 

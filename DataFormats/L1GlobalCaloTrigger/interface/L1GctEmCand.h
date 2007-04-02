@@ -25,12 +25,16 @@ public:
   /// default constructor (for vector initialisation etc.)
   L1GctEmCand();
 
-  /// construct from raw data
-  L1GctEmCand(uint16_t data, bool iso);
+  /// construct from raw data with source
+  L1GctEmCand(uint16_t data, bool iso, uint16_t block, uint16_t index, int16_t bx);
 
   /// construct from rank, eta, phi, isolation
   /// eta = -6 to -0, +0 to +6. Sign is bit 3, 1 means -ve Z, 0 means +ve Z
   L1GctEmCand(unsigned rank, unsigned phi, unsigned eta, bool iso);
+
+  /// construct from rank, eta, phi, isolation
+  /// eta = -6 to -0, +0 to +6. Sign is bit 3, 1 means -ve Z, 0 means +ve Z
+  L1GctEmCand(unsigned rank, unsigned phi, unsigned eta, bool iso, uint16_t block, uint16_t index, int16_t bx);
 
   /// construct from RCT output candidate
   L1GctEmCand(L1CaloEmCand& c);
@@ -65,6 +69,15 @@ public:
   /// which stream did this come from
   bool isolated() const { return m_iso; }
 
+  /// which capture block did this come from
+  unsigned capBlock() const { return (m_source>>9) & 0x7f; }
+
+  /// what index within capture block
+  unsigned capIndex() const { return m_source&0x1ff; }
+
+  /// get bunch-crossing index
+  int bx() const { return m_bx; }
+
   /// equality operator
   int operator==(const L1GctEmCand& c) const { return ((m_data==c.raw() && m_iso==c.isolated())
                                                       || (this->empty() && c.empty())); }
@@ -82,6 +95,8 @@ public:
 
   uint16_t m_data;
   bool m_iso;
+  uint16_t m_source;
+  int16_t m_bx;
 
  };
 

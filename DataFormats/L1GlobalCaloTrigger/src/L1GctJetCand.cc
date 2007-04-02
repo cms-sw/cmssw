@@ -12,16 +12,20 @@ using std::dec;
 L1GctJetCand::L1GctJetCand() :
   m_data(0),
   m_isTau(false),
-  m_isFor(false)
+  m_isFor(false),
+  m_source(0),
+  m_bx(0)
 {
 
 }
 
 //constructor for unpacking
-L1GctJetCand::L1GctJetCand(uint16_t data, bool isTau, bool isFor) : 
+L1GctJetCand::L1GctJetCand(uint16_t data, bool isTau, bool isFor, uint16_t block, uint16_t index, int16_t bx) : 
   m_data(data),
   m_isTau(isTau),
-  m_isFor(isFor)
+  m_isFor(isFor),
+  m_source( ((block&0x7f)<<9) + (index&0x1ff) ),
+  m_bx(bx)
 {
 }
 
@@ -29,7 +33,20 @@ L1GctJetCand::L1GctJetCand(uint16_t data, bool isTau, bool isFor) :
 // eta = -6 to -0, +0 to +6. Sign is bit 3, 1 means -ve Z, 0 means +ve Z
 L1GctJetCand::L1GctJetCand(unsigned rank, unsigned phi, unsigned eta, bool isTau, bool isFor) : 
   m_isTau(isTau),
-  m_isFor(isFor)
+  m_isFor(isFor),
+  m_source(0),
+  m_bx(0)
+{ 
+  m_data = (rank & 0x3f) + ((eta & 0xf)<<6) + ((phi & 0x1f)<<10); 
+}
+
+// constructor for use in emulator
+// eta = -6 to -0, +0 to +6. Sign is bit 3, 1 means -ve Z, 0 means +ve Z
+L1GctJetCand::L1GctJetCand(unsigned rank, unsigned phi, unsigned eta, bool isTau, bool isFor, uint16_t block, uint16_t index, int16_t bx) : 
+  m_isTau(isTau),
+  m_isFor(isFor),
+  m_source( ((block&0x7f)<<9) + (index&0x1ff) ),
+  m_bx(bx)
 { 
   m_data = (rank & 0x3f) + ((eta & 0xf)<<6) + ((phi & 0x1f)<<10); 
 }
@@ -61,6 +78,7 @@ ostream& operator<<(ostream& s, const L1GctJetCand& cand) {
     else if (cand.isForward()) { s << "forward"; }
     else { s << "central"; }
   }
+  s << hex << " cap block=" << cand.capBlock() << ", index=" << cand.capIndex() << ", BX=" << cand.bx() << dec;
   s << std::endl;
   return s;
 }

@@ -23,10 +23,14 @@ public:
   L1CaloEmCand();
 
   /// construct from raw data for unpacking
-  L1CaloEmCand(uint16_t data, unsigned crate, bool iso);
+  /// last bool argument is a hack to distinguish this constructor from the next one!
+  L1CaloEmCand(uint16_t data, unsigned crate, bool iso, uint16_t index, int16_t bx, bool dummy);
 
   /// construct from components for emulation
   L1CaloEmCand(unsigned rank, unsigned region, unsigned card, unsigned crate, bool iso);
+
+  /// construct from components for emulation (including index)
+  L1CaloEmCand(unsigned rank, unsigned region, unsigned card, unsigned crate, bool iso, uint16_t index, int16_t bx);
 
    /// destructor
  ~L1CaloEmCand();
@@ -49,8 +53,15 @@ public:
   /// which stream did this come from
   bool isolated() const { return m_iso; }
 
+  /// get index on cable
+  unsigned index() const { return m_index; }
+
+  /// get bunch-crossing index
+  int bx() const { return m_bx; }
+
   /// get DetID object
   L1CaloRegionDetId regionId() const { return L1CaloRegionDetId(false,rctCrate(),rctCard(),rctRegion()); }
+
 
  private:
 
@@ -59,8 +70,10 @@ public:
 
   // members to store geographical information (crate/cable)
   // these should probably be packed into a single uint16_t (or m_data) ???
-  unsigned m_rctCrate;
+  uint16_t m_rctCrate;
   bool m_iso;
+  uint16_t m_index;
+  int16_t m_bx;
 
  };
 
