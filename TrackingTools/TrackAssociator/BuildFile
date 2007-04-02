@@ -40,4 +40,4 @@
 </export>
    
 # add debug symbols
-# <Flags CXXFLAGS=-g>
+# <Flags CXXFLAGS="-g -O0">
