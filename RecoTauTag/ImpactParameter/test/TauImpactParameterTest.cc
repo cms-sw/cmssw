@@ -183,14 +183,14 @@ void TauImpactParameterTest::analyze(const edm::Event& iEvent, const edm::EventS
                           h_ip3d_3prong->Fill(10*tzip.value()); // 10* = conversion to mm
 			}
 		    }
-////		    if(tauTracks.size() == 1 || tauTracks.size() == 3) {
-                    if(tauTracks.size() == 1 && tip.value() < 0.03) { // ipt < 300um like in fig 12 (CMS Note 2006/028)
+		    if(tauTracks.size() == 1 || tauTracks.size() == 3) {
+//                    if(tauTracks.size() == 1 && tip.value() < 0.03) { // ipt < 300um like in fig 12 (CMS Note 2006/028)
 
 			ip2d = 10*tip.value();
 			ip3d = 10*tzip.value();
 			sip2d = tip.significance();
 			sip3d = tzip.significance();
-cout << "check tree " << ip2d << " " << sip2d << " " << ip3d << " " << sip3d << endl;
+//cout << "check tree " << ip2d << " " << sip2d << " " << ip3d << " " << sip3d << endl;
 			t_performance->Fill();
 		    }
                 }else{
