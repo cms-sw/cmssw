@@ -1,0 +1,477 @@
+/*
+ * \file EETestPulseTask.cc
+ *
+ * $Date: 2007/03/21 16:10:40 $
+ * $Revision: 1.67 $
+ * \author G. Della Ricca
+ *
+*/
+
+#include <iostream>
+#include <fstream>
+#include <vector>
+
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+
+#include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
+#include "DataFormats/EcalDetId/interface/EBDetId.h"
+#include "DataFormats/EcalDigi/interface/EBDataFrame.h"
+#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
+#include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+
+#include <DQM/EcalEndcapMonitorTasks/interface/EETestPulseTask.h>
+
+using namespace cms;
+using namespace edm;
+using namespace std;
+
+EETestPulseTask::EETestPulseTask(const ParameterSet& ps){
+
+  init_ = false;
+
+  EcalRawDataCollection_ = ps.getParameter<edm::InputTag>("EcalRawDataCollection");
+  EBDigiCollection_ = ps.getParameter<edm::InputTag>("EBDigiCollection");
+  EcalPnDiodeDigiCollection_ = ps.getParameter<edm::InputTag>("EcalPnDiodeDigiCollection");
+  EcalUncalibratedRecHitCollection_ = ps.getParameter<edm::InputTag>("EcalUncalibratedRecHitCollection");
+
+  for (int i = 0; i < 36 ; i++) {
+    meShapeMapG01_[i] = 0;
+    meAmplMapG01_[i] = 0;
+    meAmplErrorMapG01_[i] = 0;
+    meShapeMapG06_[i] = 0;
+    meAmplMapG06_[i] = 0;
+    meAmplErrorMapG06_[i] = 0;
+    meShapeMapG12_[i] = 0;
+    meAmplMapG12_[i] = 0;
+    meAmplErrorMapG12_[i] = 0;
+    mePnAmplMapG01_[i] = 0;
+    mePnPedMapG01_[i] = 0;
+    mePnAmplMapG16_[i] = 0;
+    mePnPedMapG16_[i] = 0;
+  }
+
+  // amplitudeThreshold_ = 200;
+  amplitudeThreshold_ = 0;
+
+}
+
+EETestPulseTask::~EETestPulseTask(){
+
+}
+
+void EETestPulseTask::beginJob(const EventSetup& c){
+
+  ievt_ = 0;
+
+  DaqMonitorBEInterface* dbe = 0;
+
+  // get hold of back-end interface
+  dbe = Service<DaqMonitorBEInterface>().operator->();
+
+  if ( dbe ) {
+    dbe->setCurrentFolder("EcalEndcap/EETestPulseTask");
+    dbe->rmdir("EcalEndcap/EETestPulseTask");
+  }
+
+}
+
+void EETestPulseTask::setup(void){
+
+  init_ = true;
+
+  Char_t histo[200];
+
+  DaqMonitorBEInterface* dbe = 0;
+
+  // get hold of back-end interface
+  dbe = Service<DaqMonitorBEInterface>().operator->();
+
+  if ( dbe ) {
+    dbe->setCurrentFolder("EcalEndcap/EETestPulseTask");
+
+    dbe->setCurrentFolder("EcalEndcap/EETestPulseTask/Gain01");
+    for (int i = 0; i < 36 ; i++) {
+      sprintf(histo, "EETPT shape SM%02d G01", i+1);
+      meShapeMapG01_[i] = dbe->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096., "s");
+      dbe->tag(meShapeMapG01_[i], i+1);
+      sprintf(histo, "EETPT amplitude SM%02d G01", i+1);
+      meAmplMapG01_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.*12., "s");
+      dbe->tag(meAmplMapG01_[i], i+1);
+      sprintf(histo, "EETPT amplitude error SM%02d G01", i+1);
+      meAmplErrorMapG01_[i] = dbe->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+      dbe->tag(meAmplErrorMapG01_[i], i+1);
+    }
+
+    dbe->setCurrentFolder("EcalEndcap/EETestPulseTask/Gain06");
+    for (int i = 0; i < 36 ; i++) {
+      sprintf(histo, "EETPT shape SM%02d G06", i+1);
+      meShapeMapG06_[i] = dbe->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096., "s");
+      dbe->tag(meShapeMapG06_[i], i+1);
+      sprintf(histo, "EETPT amplitude SM%02d G06", i+1);
+      meAmplMapG06_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.*12., "s");
+      dbe->tag(meAmplMapG06_[i], i+1);
+      sprintf(histo, "EETPT amplitude error SM%02d G06", i+1);
+      meAmplErrorMapG06_[i] = dbe->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+      dbe->tag(meAmplErrorMapG06_[i], i+1);
+    }
+
+    dbe->setCurrentFolder("EcalEndcap/EETestPulseTask/Gain12");
+    for (int i = 0; i < 36 ; i++) {
+      sprintf(histo, "EETPT shape SM%02d G12", i+1);
+      meShapeMapG12_[i] = dbe->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096., "s");
+      dbe->tag(meShapeMapG12_[i], i+1);
+      sprintf(histo, "EETPT amplitude SM%02d G12", i+1);
+      meAmplMapG12_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.*12., "s");
+      dbe->tag(meAmplMapG12_[i], i+1);
+      sprintf(histo, "EETPT amplitude error SM%02d G12", i+1);
+      meAmplErrorMapG12_[i] = dbe->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+      dbe->tag(meAmplErrorMapG12_[i], i+1);
+   }
+
+    dbe->setCurrentFolder("EcalEndcap/EEPnDiodeTask");
+
+    dbe->setCurrentFolder("EcalEndcap/EEPnDiodeTask/Gain01");
+    for (int i = 0; i < 36 ; i++) {
+      sprintf(histo, "EEPDT PNs amplitude SM%02d G01", i+1);
+      mePnAmplMapG01_[i] = dbe->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096., "s");
+      dbe->tag(mePnAmplMapG01_[i], i+1);
+      sprintf(histo, "EEPDT PNs pedestal SM%02d G01", i+1);
+      mePnPedMapG01_[i] =  dbe->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096., "s");
+      dbe->tag(mePnPedMapG01_[i], i+1);
+    }
+
+    dbe->setCurrentFolder("EcalEndcap/EEPnDiodeTask/Gain16");
+    for (int i = 0; i < 36 ; i++) {
+      sprintf(histo, "EEPDT PNs amplitude SM%02d G16", i+1);
+      mePnAmplMapG16_[i] = dbe->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096., "s");
+      dbe->tag(mePnAmplMapG16_[i], i+1);
+      sprintf(histo, "EEPDT PNs pedestal SM%02d G16", i+1);
+      mePnPedMapG16_[i] =  dbe->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096., "s");
+      dbe->tag(mePnPedMapG16_[i], i+1);
+    }
+
+  }
+
+}
+
+void EETestPulseTask::cleanup(void){
+
+  DaqMonitorBEInterface* dbe = 0;
+
+  // get hold of back-end interface
+  dbe = Service<DaqMonitorBEInterface>().operator->();
+
+  if ( dbe ) {
+    dbe->setCurrentFolder("EcalEndcap/EETestPulseTask");
+
+    dbe->setCurrentFolder("EcalEndcap/EETestPulseTask/Gain01");
+    for (int i = 0; i < 36 ; i++) {
+      if ( meShapeMapG01_[i] ) dbe->removeElement( meShapeMapG01_[i]->getName() );
+      meShapeMapG01_[i] = 0;
+      if ( meAmplMapG01_[i] ) dbe->removeElement( meAmplMapG01_[i]->getName() );
+      meAmplMapG01_[i] = 0;
+      if ( meAmplErrorMapG01_[i] ) dbe->removeElement( meAmplErrorMapG01_[i]->getName() );
+      meAmplErrorMapG01_[i] = 0;
+    }
+
+    dbe->setCurrentFolder("EcalEndcap/EETestPulseTask/Gain06");
+    for (int i = 0; i < 36 ; i++) {
+      if ( meShapeMapG06_[i] ) dbe->removeElement( meShapeMapG06_[i]->getName() );
+      meShapeMapG06_[i] = 0;
+      if ( meAmplMapG06_[i] ) dbe->removeElement( meAmplMapG06_[i]->getName() );
+      meAmplMapG06_[i] = 0;
+      if ( meAmplErrorMapG06_[i] ) dbe->removeElement( meAmplErrorMapG06_[i]->getName() );
+      meAmplErrorMapG06_[i] = 0;
+    }
+
+    dbe->setCurrentFolder("EcalEndcap/EETestPulseTask/Gain12");
+    for (int i = 0; i < 36 ; i++) {
+      if ( meShapeMapG12_[i] ) dbe->removeElement( meShapeMapG12_[i]->getName() );
+      meShapeMapG12_[i] = 0;
+      if ( meAmplMapG12_[i] ) dbe->removeElement( meAmplMapG12_[i]->getName() );
+      meAmplMapG12_[i] = 0;
+      if ( meAmplErrorMapG12_[i] ) dbe->removeElement( meAmplErrorMapG12_[i]->getName() );
+      meAmplErrorMapG12_[i] = 0;
+    }
+
+    dbe->setCurrentFolder("EcalEndcap/EEPnDiodeTask");
+
+    dbe->setCurrentFolder("EcalEndcap/EEPnDiodeTask/Gain01");
+    for (int i = 0; i < 36 ; i++) {
+      if ( mePnAmplMapG01_[i] ) dbe->removeElement( mePnAmplMapG01_[i]->getName() );
+      mePnAmplMapG01_[i] = 0;
+      if ( mePnPedMapG01_[i] ) dbe->removeElement( mePnPedMapG01_[i]->getName() );
+      mePnPedMapG01_[i] = 0;
+    }
+
+    dbe->setCurrentFolder("EcalEndcap/EEPnDiodeTask/Gain16");
+    for (int i = 0; i < 36 ; i++) {
+      if ( mePnAmplMapG16_[i] ) dbe->removeElement( mePnAmplMapG16_[i]->getName() );
+      mePnAmplMapG16_[i] = 0;
+      if ( mePnPedMapG16_[i] ) dbe->removeElement( mePnPedMapG16_[i]->getName() );
+      mePnPedMapG16_[i] = 0;
+    }
+
+  }
+
+  init_ = false;
+
+}
+
+void EETestPulseTask::endJob(void){
+
+  LogInfo("EETestPulseTask") << "analyzed " << ievt_ << " events";
+
+  if ( init_ ) this->cleanup();
+
+}
+
+void EETestPulseTask::analyze(const Event& e, const EventSetup& c){
+
+  bool enable = false;
+  map<int, EcalDCCHeaderBlock> dccMap;
+
+  try {
+
+    Handle<EcalRawDataCollection> dcchs;
+    e.getByLabel(EcalRawDataCollection_, dcchs);
+
+    for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
+
+      EcalDCCHeaderBlock dcch = (*dcchItr);
+
+      map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(dcch.id());
+      if ( i != dccMap.end() ) continue;
+
+      dccMap[dcch.id()] = dcch;
+
+      if ( dcch.getRunType() == EcalDCCHeaderBlock::TESTPULSE_MGPA ) enable = true;
+
+    }
+
+  } catch ( exception& ex) {
+
+    LogWarning("EETestPulseTask") << EcalRawDataCollection_ << " not available";
+
+  }
+
+  if ( ! enable ) return;
+
+  if ( ! init_ ) this->setup();
+
+  ievt_++;
+
+  try {
+
+    Handle<EBDigiCollection> digis;
+    e.getByLabel(EBDigiCollection_, digis);
+
+    int nebd = digis->size();
+    LogDebug("EETestPulseTask") << "event " << ievt_ << " digi collection size " << nebd;
+
+    for ( EBDigiCollection::const_iterator digiItr = digis->begin(); digiItr != digis->end(); ++digiItr ) {
+
+      EBDataFrame dataframe = (*digiItr);
+      EBDetId id = dataframe.id();
+
+      int ic = id.ic();
+      int ie = (ic-1)/20 + 1;
+      int ip = (ic-1)%20 + 1;
+
+      int ism = id.ism();
+
+      map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(ism);
+      if ( i == dccMap.end() ) continue;
+
+      if ( dccMap[ism].getRunType() != EcalDCCHeaderBlock::TESTPULSE_MGPA ) continue;
+
+      LogDebug("EETestPulseTask") << " det id = " << id;
+      LogDebug("EETestPulseTask") << " sm, eta, phi " << ism << " " << ie << " " << ip;
+
+      for (int i = 0; i < 10; i++) {
+
+        EcalMGPASample sample = dataframe.sample(i);
+        int adc = sample.adc();
+        float gain = 1.;
+
+        MonitorElement* meShapeMap = 0;
+
+        if ( sample.gainId() == 1 ) gain = 1./12.;
+        if ( sample.gainId() == 2 ) gain = 1./ 6.;
+        if ( sample.gainId() == 3 ) gain = 1./ 1.;
+
+        if ( dccMap[ism].getMgpaGain() == 3 ) meShapeMap = meShapeMapG01_[ism-1];
+        if ( dccMap[ism].getMgpaGain() == 2 ) meShapeMap = meShapeMapG06_[ism-1];
+        if ( dccMap[ism].getMgpaGain() == 1 ) meShapeMap = meShapeMapG12_[ism-1];
+
+//        float xval = float(adc) * gain;
+        float xval = float(adc);
+
+        if ( meShapeMap ) meShapeMap->Fill(ic - 0.5, i + 0.5, xval);
+
+      }
+
+    }
+
+  } catch ( exception& ex) {
+
+    LogWarning("EETestPulseTask") << EBDigiCollection_ << " not available";
+
+  }
+
+  try {
+
+    Handle<EcalUncalibratedRecHitCollection> hits;
+    e.getByLabel(EcalUncalibratedRecHitCollection_, hits);
+
+    int neh = hits->size();
+    LogDebug("EETestPulseTask") << "event " << ievt_ << " hits collection size " << neh;
+
+    for ( EcalUncalibratedRecHitCollection::const_iterator hitItr = hits->begin(); hitItr != hits->end(); ++hitItr ) {
+
+      EcalUncalibratedRecHit hit = (*hitItr);
+      EBDetId id = hit.id();
+
+      int ic = id.ic();
+      int ie = (ic-1)/20 + 1;
+      int ip = (ic-1)%20 + 1;
+
+      int ism = id.ism();
+
+      float xie = ie - 0.5;
+      float xip = ip - 0.5;
+
+      map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(ism);
+      if ( i == dccMap.end() ) continue;
+
+      if ( dccMap[ism].getRunType() != EcalDCCHeaderBlock::TESTPULSE_MGPA ) continue;
+
+      LogDebug("EETestPulseTask") << " det id = " << id;
+      LogDebug("EETestPulseTask") << " sm, eta, phi " << ism << " " << ie << " " << ip;
+
+      MonitorElement* meAmplMap = 0;
+
+      if ( dccMap[ism].getMgpaGain() == 3 ) meAmplMap = meAmplMapG01_[ism-1];
+      if ( dccMap[ism].getMgpaGain() == 2 ) meAmplMap = meAmplMapG06_[ism-1];
+      if ( dccMap[ism].getMgpaGain() == 1 ) meAmplMap = meAmplMapG12_[ism-1];
+
+      float xval = hit.amplitude();
+      if ( xval <= 0. ) xval = 0.0;
+
+//      if ( dccMap[ism].getMgpaGain() == 3 ) xval = xval * 1./12.;
+//      if ( dccMap[ism].getMgpaGain() == 2 ) xval = xval * 1./ 2.;
+//      if ( dccMap[ism].getMgpaGain() == 1 ) xval = xval * 1./ 1.;
+
+      LogDebug("EETestPulseTask") << " hit amplitude " << xval;
+
+      if ( meAmplMap ) meAmplMap->Fill(xie, xip, xval);
+
+      MonitorElement* meAmplErrorMap = 0;
+
+      if ( dccMap[ism].getMgpaGain() == 3 ) meAmplErrorMap = meAmplErrorMapG01_[ism-1];
+      if ( dccMap[ism].getMgpaGain() == 2 ) meAmplErrorMap = meAmplErrorMapG06_[ism-1];
+      if ( dccMap[ism].getMgpaGain() == 1 ) meAmplErrorMap = meAmplErrorMapG12_[ism-1];
+
+      LogDebug("EETestPulseTask") << "Crystal " << ie << " " << ip << " Amplitude = " << xval;
+
+      if ( xval < amplitudeThreshold_ ) {
+
+        if ( meAmplErrorMap ) meAmplErrorMap->Fill(xie, xip);
+
+      }
+
+    }
+
+  } catch ( exception& ex) {
+
+    LogWarning("EETestPulseTask") << EcalUncalibratedRecHitCollection_ << " not available";
+
+  }
+
+  try {
+
+    Handle<EcalPnDiodeDigiCollection> pns;
+    e.getByLabel(EcalPnDiodeDigiCollection_, pns);
+
+    int nep = pns->size();
+    LogDebug("EETestPulseTask") << "event " << ievt_ << " pns collection size " << nep;
+
+    for ( EcalPnDiodeDigiCollection::const_iterator pnItr = pns->begin(); pnItr != pns->end(); ++pnItr ) {
+
+      EcalPnDiodeDigi pn = (*pnItr);
+      EcalPnDiodeDetId id = pn.id();
+
+//      int ism = id.ism();
+      int ism = id.iDCCId();
+
+      int num = id.iPnId();
+
+      map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(ism);
+      if ( i == dccMap.end() ) continue;
+
+      if ( dccMap[ism].getRunType() != EcalDCCHeaderBlock::TESTPULSE_MGPA ) continue;
+
+      LogDebug("EETestPulseTask") << " det id = " << id;
+      LogDebug("EETestPulseTask") << " sm, num " << ism << " " << num;
+
+      float xvalped = 0.;
+
+      for (int i = 0; i < 4; i++) {
+
+        EcalFEMSample sample = pn.sample(i);
+        int adc = sample.adc();
+
+        MonitorElement* mePNPed = 0;
+
+        if ( sample.gainId() == 0 ) mePNPed = mePnPedMapG01_[ism-1];
+        if ( sample.gainId() == 1 ) mePNPed = mePnPedMapG16_[ism-1];
+
+        float xval = float(adc);
+
+        if ( mePNPed ) mePNPed->Fill(0.5, num - 0.5, xval);
+
+        xvalped = xvalped + xval;
+
+      }
+
+      xvalped = xvalped / 4;
+
+      float xvalmax = 0.;
+
+      MonitorElement* mePN = 0;
+
+      for (int i = 0; i < 50; i++) {
+
+        EcalFEMSample sample = pn.sample(i);
+        int adc = sample.adc();
+
+        float xval = float(adc);
+
+        if ( xval >= xvalmax ) xvalmax = xval;
+
+      }
+
+      xvalmax = xvalmax - xvalped;
+
+      if ( pn.sample(0).gainId() == 0 ) mePN = mePnAmplMapG01_[ism-1];
+      if ( pn.sample(0).gainId() == 1 ) mePN = mePnAmplMapG16_[ism-1];
+
+      if ( mePN ) mePN->Fill(0.5, num - 0.5, xvalmax);
+
+    }
+
+  } catch ( exception& ex) {
+
+    LogWarning("EETestPulseTask") << EcalPnDiodeDigiCollection_ << " not available";
+
+  }
+
+}
+

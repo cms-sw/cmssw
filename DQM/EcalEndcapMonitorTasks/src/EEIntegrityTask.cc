@@ -1,0 +1,610 @@
+/*
+ * \file EEIntegrityTask.cc
+ *
+ * $Date: 2007/03/26 17:34:07 $
+ * $Revision: 1.35 $
+ * \author G. Della Ricca
+ *
+ */
+
+#include <iostream>
+#include <fstream>
+#include <vector>
+
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+
+#include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
+#include "DataFormats/EcalDetId/interface/EcalDetIdCollections.h"
+
+#include <DQM/EcalEndcapMonitorTasks/interface/EEIntegrityTask.h>
+
+using namespace cms;
+using namespace edm;
+using namespace std;
+
+EEIntegrityTask::EEIntegrityTask(const ParameterSet& ps){
+
+  init_ = false;
+
+  EBDetIdCollection0_ =  ps.getParameter<edm::InputTag>("EBDetIdCollection0");
+  EBDetIdCollection1_ =  ps.getParameter<edm::InputTag>("EBDetIdCollection1");
+  EBDetIdCollection2_ =  ps.getParameter<edm::InputTag>("EBDetIdCollection2");
+  EBDetIdCollection3_ =  ps.getParameter<edm::InputTag>("EBDetIdCollection3");
+  EBDetIdCollection4_ =  ps.getParameter<edm::InputTag>("EBDetIdCollection4");
+  EcalTrigTowerDetIdCollection1_ = ps.getParameter<edm::InputTag>("EcalTrigTowerDetIdCollection1");
+  EcalTrigTowerDetIdCollection2_ = ps.getParameter<edm::InputTag>("EcalTrigTowerDetIdCollection2");
+  EcalElectronicsIdCollection1_ = ps.getParameter<edm::InputTag>("EcalElectronicsIdCollection1");
+  EcalElectronicsIdCollection2_ = ps.getParameter<edm::InputTag>("EcalElectronicsIdCollection2");
+  EcalElectronicsIdCollection3_ = ps.getParameter<edm::InputTag>("EcalElectronicsIdCollection3");
+  EcalElectronicsIdCollection4_ = ps.getParameter<edm::InputTag>("EcalElectronicsIdCollection4");
+
+  meIntegrityDCCSize = 0;
+  for (int i = 0; i < 36 ; i++) {
+    meIntegrityGain[i] = 0;
+    meIntegrityChId[i] = 0;
+    meIntegrityGainSwitch[i] = 0;
+    meIntegrityGainSwitchStay[i] = 0;
+    meIntegrityTTId[i] = 0;
+    meIntegrityTTBlockSize[i] = 0;
+    meIntegrityMemChId[i] = 0;
+    meIntegrityMemGain[i] = 0;
+    meIntegrityMemTTId[i] = 0;
+    meIntegrityMemTTBlockSize[i] = 0;
+  }
+
+}
+
+
+EEIntegrityTask::~EEIntegrityTask(){
+
+}
+
+void EEIntegrityTask::beginJob(const EventSetup& c){
+
+  ievt_ = 0;
+
+  DaqMonitorBEInterface* dbe = 0;
+
+  // get hold of back-end interface
+  dbe = Service<DaqMonitorBEInterface>().operator->();
+
+  if ( dbe ) {
+    dbe->setCurrentFolder("EcalEndcap/EEIntegrityTask");
+    dbe->rmdir("EcalEndcap/EEIntegrityTask");
+  }
+
+}
+
+void EEIntegrityTask::setup(void){
+
+  init_ = true;
+
+  Char_t histo[200];
+
+  DaqMonitorBEInterface* dbe = 0;
+
+  // get hold of back-end interface
+  dbe = Service<DaqMonitorBEInterface>().operator->();
+
+  if ( dbe ) {
+    dbe->setCurrentFolder("EcalEndcap/EEIntegrityTask");
+
+    // checking when number of towers in data different than expected from header
+    sprintf(histo, "EEIT DCC size error");
+    meIntegrityDCCSize = dbe->book1D(histo, histo, 36, 1, 37.);
+
+    // checking when the gain is 0
+    dbe->setCurrentFolder("EcalEndcap/EEIntegrityTask/Gain");
+    for (int i = 0; i < 36 ; i++) {
+      sprintf(histo, "EEIT gain SM%02d", i+1);
+      meIntegrityGain[i] = dbe->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+      dbe->tag(meIntegrityGain[i], i+1);
+    }
+
+    // checking when channel has unexpected or invalid ID
+    dbe->setCurrentFolder("EcalEndcap/EEIntegrityTask/ChId");
+    for (int i = 0; i < 36 ; i++) {
+      sprintf(histo, "EEIT ChId SM%02d", i+1);
+      meIntegrityChId[i] = dbe->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+      dbe->tag(meIntegrityChId[i], i+1);
+    }
+
+    // checking when channel has unexpected or invalid ID
+    dbe->setCurrentFolder("EcalEndcap/EEIntegrityTask/GainSwitch");
+    for (int i = 0; i < 36 ; i++) {
+      sprintf(histo, "EEIT gain switch SM%02d", i+1);
+      meIntegrityGainSwitch[i] = dbe->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+      dbe->tag(meIntegrityGainSwitch[i], i+1);
+    }
+
+    // checking when channel has unexpected or invalid ID
+    dbe->setCurrentFolder("EcalEndcap/EEIntegrityTask/GainSwitchStay");
+    for (int i = 0; i < 36 ; i++) {
+      sprintf(histo, "EEIT gain switch stay SM%02d", i+1);
+      meIntegrityGainSwitchStay[i] = dbe->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+      dbe->tag(meIntegrityGainSwitchStay[i], i+1);
+    }
+
+    // checking when trigger tower has unexpected or invalid ID
+    dbe->setCurrentFolder("EcalEndcap/EEIntegrityTask/TTId");
+    for (int i = 0; i < 36 ; i++) {
+      sprintf(histo, "EEIT TTId SM%02d", i+1);
+      meIntegrityTTId[i] = dbe->book2D(histo, histo, 17, 0., 17., 4, 0., 4.);
+      dbe->tag(meIntegrityTTId[i], i+1);
+    }
+
+    // checking when trigger tower has unexpected or invalid size
+    dbe->setCurrentFolder("EcalEndcap/EEIntegrityTask/TTBlockSize");
+    for (int i = 0; i < 36 ; i++) {
+      sprintf(histo, "EEIT TTBlockSize SM%02d", i+1);
+      meIntegrityTTBlockSize[i] = dbe->book2D(histo, histo, 17, 0., 17., 4, 0., 4.);
+      dbe->tag(meIntegrityTTBlockSize[i], i+1);
+    }
+
+    // checking when mem channels have unexpected ID
+    dbe->setCurrentFolder("EcalEndcap/EEIntegrityTask/MemChId");
+    for (int i = 0; i < 36 ; i++) {
+      sprintf(histo, "EEIT MemChId SM%02d", i+1);
+      meIntegrityMemChId[i] = dbe->book2D(histo, histo, 10, 0., 10., 5, 0., 5.);
+      dbe->tag(meIntegrityMemChId[i], i+1);
+    }
+
+    // checking when mem samples have second bit encoding the gain different from 0
+    // note: strictly speaking, this does not corrupt the mem sample gain value (since only first bit is considered)
+    // but indicates that data are not completely correct
+    dbe->setCurrentFolder("EcalEndcap/EEIntegrityTask/MemGain");
+    for (int i = 0; i < 36 ; i++) {
+      sprintf(histo, "EEIT MemGain SM%02d", i+1);
+      meIntegrityMemGain[i] = dbe->book2D(histo, histo, 10, 0., 10., 5, 0., 5.);
+      dbe->tag(meIntegrityMemGain[i], i+1);
+    }
+
+    // checking when mem tower block has unexpected ID
+    dbe->setCurrentFolder("EcalEndcap/EEIntegrityTask/MemTTId");
+    for (int i = 0; i < 36 ; i++) {
+      sprintf(histo, "EEIT MemTTId SM%02d", i+1);
+      meIntegrityMemTTId[i] = dbe->book2D(histo, histo, 2, 0., 2., 1, 0., 1.);
+      dbe->tag(meIntegrityMemTTId[i], i+1);
+    }
+
+    // checking when mem tower block has invalid size
+    dbe->setCurrentFolder("EcalEndcap/EEIntegrityTask/MemSize");
+    for (int i = 0; i < 36 ; i++) {
+      sprintf(histo, "EEIT MemSize SM%02d", i+1);
+      meIntegrityMemTTBlockSize[i] = dbe->book2D(histo, histo, 2, 0., 2., 1, 0., 1.);
+      dbe->tag(meIntegrityMemTTBlockSize[i], i+1);
+    }
+
+  }
+
+}
+
+void EEIntegrityTask::cleanup(void){
+
+  DaqMonitorBEInterface* dbe = 0;
+
+  // get hold of back-end interface
+  dbe = Service<DaqMonitorBEInterface>().operator->();
+
+  if ( dbe ) {
+    dbe->setCurrentFolder("EcalEndcap/EEIntegrityTask");
+
+    if ( meIntegrityDCCSize ) dbe->removeElement( meIntegrityDCCSize->getName() );
+    meIntegrityDCCSize = 0;
+
+    dbe->setCurrentFolder("EcalEndcap/EEIntegrityTask/Gain");
+    for (int i = 0; i < 36 ; i++) {
+      if ( meIntegrityGain[i] ) dbe->removeElement( meIntegrityGain[i]->getName() );
+      meIntegrityGain[i] = 0;
+    }
+
+    dbe->setCurrentFolder("EcalEndcap/EEIntegrityTask/ChId");
+    for (int i = 0; i < 36 ; i++) {
+      if ( meIntegrityChId[i] ) dbe->removeElement( meIntegrityChId[i]->getName() );
+      meIntegrityChId[i] = 0;
+    }
+
+    dbe->setCurrentFolder("EcalEndcap/EEIntegrityTask/GainSwitch");
+    for (int i = 0; i < 36 ; i++) {
+      if ( meIntegrityGainSwitch[i] ) dbe->removeElement( meIntegrityGainSwitch[i]->getName() );
+      meIntegrityGainSwitch[i] = 0;
+    }
+
+    dbe->setCurrentFolder("EcalEndcap/EEIntegrityTask/GainSwitchStay");
+    for (int i = 0; i < 36 ; i++) {
+      if ( meIntegrityGainSwitchStay[i] ) dbe->removeElement( meIntegrityGainSwitchStay[i]->getName() );
+      meIntegrityGainSwitchStay[i] = 0;
+    }
+
+    dbe->setCurrentFolder("EcalEndcap/EEIntegrityTask/TTId");
+    for (int i = 0; i < 36 ; i++) {
+      if ( meIntegrityTTId[i] ) dbe->removeElement( meIntegrityTTId[i]->getName() );
+      meIntegrityTTId[i] = 0;
+    }
+
+    dbe->setCurrentFolder("EcalEndcap/EEIntegrityTask/TTBlockSize");
+    for (int i = 0; i < 36 ; i++) {
+      if ( meIntegrityTTBlockSize[i] ) dbe->removeElement( meIntegrityTTBlockSize[i]->getName() );
+      meIntegrityTTBlockSize[i] = 0;
+    }
+
+    dbe->setCurrentFolder("EcalEndcap/EEIntegrityTask/MemChId");
+    for (int i = 0; i < 36 ; i++) {
+      if ( meIntegrityMemChId[i] ) dbe->removeElement( meIntegrityMemChId[i]->getName() );
+      meIntegrityMemChId[i] = 0;
+    }
+
+    dbe->setCurrentFolder("EcalEndcap/EEIntegrityTask/MemGain");
+    for (int i = 0; i < 36 ; i++) {
+      if ( meIntegrityMemGain[i] ) dbe->removeElement( meIntegrityMemGain[i]->getName() );
+      meIntegrityMemGain[i] = 0;
+    }
+
+    dbe->setCurrentFolder("EcalEndcap/EEIntegrityTask/MemTTId");
+    for (int i = 0; i < 36 ; i++) {
+      if ( meIntegrityMemTTId[i] ) dbe->removeElement( meIntegrityMemTTId[i]->getName() );
+      meIntegrityMemTTId[i] = 0;
+    }
+
+    dbe->setCurrentFolder("EcalEndcap/EEIntegrityTask/MemSize");
+    for (int i = 0; i < 36 ; i++) {
+      if ( meIntegrityMemTTBlockSize[i] ) dbe->removeElement( meIntegrityMemTTBlockSize[i]->getName() );
+      meIntegrityMemTTBlockSize[i] = 0;
+    }
+
+  }
+
+  init_ = false;
+
+}
+
+void EEIntegrityTask::endJob(void){
+
+  LogInfo("EEIntegrityTask") << "analyzed " << ievt_ << " events";
+
+  if ( init_ ) this->cleanup();
+
+}
+
+void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
+
+  if ( ! init_ ) this->setup();
+
+  ievt_++;
+
+  try {
+
+    Handle<EBDetIdCollection> ids0;
+    e.getByLabel(EBDetIdCollection0_, ids0);
+
+    for ( EBDetIdCollection::const_iterator idItr = ids0->begin(); idItr != ids0->end(); ++ idItr ) {
+
+      EBDetId id = (*idItr);
+
+      int ism = id.ism();
+
+      float xism = ism - 0.5;
+
+      if ( meIntegrityDCCSize ) meIntegrityDCCSize->Fill(xism);
+
+    }
+
+  } catch ( exception& ex) {
+
+    LogWarning("EEIntegrityTask") << EBDetIdCollection0_ << " not available";
+
+  }
+
+  try {
+
+    Handle<EBDetIdCollection> ids1;
+    e.getByLabel(EBDetIdCollection1_, ids1);
+
+    for ( EBDetIdCollection::const_iterator idItr = ids1->begin(); idItr != ids1->end(); ++ idItr ) {
+
+      EBDetId id = (*idItr);
+
+      int ic = id.ic();
+      int ie = (ic-1)/20 + 1;
+      int ip = (ic-1)%20 + 1;
+
+      int ism = id.ism();
+
+      float xie = ie - 0.5;
+      float xip = ip - 0.5;
+
+      if ( meIntegrityGain[ism-1] ) meIntegrityGain[ism-1]->Fill(xie, xip);
+
+    }
+
+  } catch ( exception& ex) {
+
+    LogWarning("EEIntegrityTask") << EBDetIdCollection1_ << " not available";
+
+  }
+
+  try {
+
+    Handle<EBDetIdCollection> ids2;
+    e.getByLabel(EBDetIdCollection2_, ids2);
+
+    for ( EBDetIdCollection::const_iterator idItr = ids2->begin(); idItr != ids2->end(); ++ idItr ) {
+
+      EBDetId id = (*idItr);
+
+      int ic = id.ic();
+      int ie = (ic-1)/20 + 1;
+      int ip = (ic-1)%20 + 1;
+
+      int ism = id.ism();
+
+      float xie = ie - 0.5;
+      float xip = ip - 0.5;
+
+      if ( meIntegrityChId[ism-1] ) meIntegrityChId[ism-1]->Fill(xie, xip);
+
+    }
+
+  } catch ( exception& ex) {
+
+    LogWarning("EEIntegrityTask") << EBDetIdCollection2_ << " not available";
+
+  }
+
+  try {
+
+    Handle<EBDetIdCollection> ids3;
+    e.getByLabel(EBDetIdCollection3_, ids3);
+
+    for ( EBDetIdCollection::const_iterator idItr = ids3->begin(); idItr != ids3->end(); ++ idItr ) {
+
+      EBDetId id = (*idItr);
+
+      int ic = id.ic();
+      int ie = (ic-1)/20 + 1;
+      int ip = (ic-1)%20 + 1;
+
+      int ism = id.ism();
+
+      float xie = ie - 0.5;
+      float xip = ip - 0.5;
+
+      if ( meIntegrityGainSwitch[ism-1] ) meIntegrityGainSwitch[ism-1]->Fill(xie, xip);
+
+    }
+
+  } catch ( exception& ex) {
+
+    LogWarning("EEIntegrityTask") << EBDetIdCollection3_ << " not available";
+
+  }
+
+  try {
+
+    Handle<EBDetIdCollection> ids4;
+    e.getByLabel(EBDetIdCollection4_, ids4);
+
+    for ( EBDetIdCollection::const_iterator idItr = ids4->begin(); idItr != ids4->end(); ++ idItr ) {
+
+      EBDetId id = (*idItr);
+
+      int ic = id.ic();
+      int ie = (ic-1)/20 + 1;
+      int ip = (ic-1)%20 + 1;
+
+      int ism = id.ism();
+
+      float xie = ie - 0.5;
+      float xip = ip - 0.5;
+
+      if ( meIntegrityGainSwitchStay[ism-1] ) meIntegrityGainSwitchStay[ism-1]->Fill(xie, xip);
+
+    }
+
+  } catch ( exception& ex) {
+
+    LogWarning("EEIntegrityTask") << EBDetIdCollection4_ << " not available";
+
+  }
+
+  try {
+
+    Handle<EcalTrigTowerDetIdCollection> ids5;
+    e.getByLabel(EcalTrigTowerDetIdCollection1_, ids5);
+
+    for ( EcalTrigTowerDetIdCollection::const_iterator idItr = ids5->begin(); idItr != ids5->end(); ++ idItr ) {
+
+      EcalTrigTowerDetId id = (*idItr);
+
+      int iet = id.ieta();
+      int ipt = id.iphi();
+
+      // phi_tower: change the range from global to SM-local
+      ipt     = ( (ipt-1) % 4) +1;
+
+      // phi_tower: range matters too
+      //    if ( id.zside() >0)
+      //      { ipt = 5 - ipt;      }
+
+      int ismt = id.iDCC();
+
+      float xiet = iet - 0.5;
+      float xipt = ipt - 0.5;
+
+      if ( meIntegrityTTId[ismt-1] ) meIntegrityTTId[ismt-1]->Fill(xiet, xipt);
+
+    }
+
+  } catch ( exception& ex) {
+
+    LogWarning("EEIntegrityTask") << EcalTrigTowerDetIdCollection1_ << " not available";
+
+  }
+
+  try {
+
+    Handle<EcalTrigTowerDetIdCollection> ids6;
+    e.getByLabel(EcalTrigTowerDetIdCollection2_, ids6);
+
+    for ( EcalTrigTowerDetIdCollection::const_iterator idItr = ids6->begin(); idItr != ids6->end(); ++ idItr ) {
+
+      EcalTrigTowerDetId id = (*idItr);
+
+      int iet = id.ieta();
+      int ipt = id.iphi();
+
+
+      // phi_tower: change the range from global to SM-local
+      ipt     = ( (ipt-1) % 4) +1;
+
+      // phi_tower: range matters too
+      //    if ( id.zside() >0)
+      //      { ipt = 5 - ipt;      }
+
+      int ismt = id.iDCC();
+
+      float xiet = iet - 0.5;
+      float xipt = ipt - 0.5;
+
+      if ( meIntegrityTTBlockSize[ismt-1] ) meIntegrityTTBlockSize[ismt-1]->Fill(xiet, xipt);
+
+    }
+
+  } catch ( exception& ex) {
+
+    LogWarning("EEIntegrityTask") << EcalTrigTowerDetIdCollection2_ << " not available";
+
+  }
+
+  try {
+
+    Handle<EcalElectronicsIdCollection> ids7;
+    e.getByLabel(EcalElectronicsIdCollection1_, ids7);
+
+    for ( EcalElectronicsIdCollection::const_iterator idItr = ids7->begin(); idItr != ids7->end(); ++ idItr ) {
+
+      EcalElectronicsId id = (*idItr);
+
+      int itt   = id.towerId();
+      float iTt = itt + 0.5 - 69;
+      int ism = id.dccId();
+
+      if ( meIntegrityMemTTId[ism-1] ) meIntegrityMemTTId[ism-1]->Fill(iTt,0);
+
+    }
+
+  } catch ( exception& ex) {
+
+    LogWarning("EEIntegrityTask") << EcalElectronicsIdCollection1_ << " not available";
+
+  }
+
+  try {
+
+    Handle<EcalElectronicsIdCollection> ids8;
+    e.getByLabel(EcalElectronicsIdCollection2_, ids8);
+
+    for ( EcalElectronicsIdCollection::const_iterator idItr = ids8->begin(); idItr != ids8->end(); ++ idItr ) {
+
+      EcalElectronicsId id = (*idItr);
+
+      int itt   = id.towerId();
+      float iTt = itt + 0.5 - 69;
+      int ism = id.dccId();
+
+      if ( meIntegrityMemTTBlockSize[ism-1] ) meIntegrityMemTTBlockSize[ism-1]->Fill(iTt,0);
+
+    }
+
+  } catch ( exception& ex) {
+
+    LogWarning("EEIntegrityTask") << EcalElectronicsIdCollection2_ << " not available";
+
+  }
+
+  try {
+
+    Handle<EcalElectronicsIdCollection> ids9;
+    e.getByLabel(EcalElectronicsIdCollection3_, ids9);
+
+    for ( EcalElectronicsIdCollection::const_iterator idItr = ids9->begin(); idItr != ids9->end(); ++ idItr ) {
+
+      EcalElectronicsId id = (*idItr);
+
+      int ism = id.dccId();
+
+      int chid = id.channelId();
+      int ie = EEIntegrityTask::chMemAbscissa[chid-1];
+      int ip = EEIntegrityTask::chMemOrdinate[chid-1];
+
+      int iTt = id.towerId();
+      ie += (iTt-69)*5;
+
+      float xie = ie - 0.5;
+      float xip = ip - 0.5;
+
+      if ( meIntegrityMemChId[ism-1] ) meIntegrityMemChId[ism-1]->Fill(xie,xip);
+
+    }
+
+  } catch ( exception& ex) {
+
+    LogWarning("EEIntegrityTask") << EcalElectronicsIdCollection3_ << " not available";
+
+  }
+
+  try {
+
+    Handle<EcalElectronicsIdCollection> ids10;
+    e.getByLabel(EcalElectronicsIdCollection4_, ids10);
+
+    for ( EcalElectronicsIdCollection::const_iterator idItr = ids10->begin(); idItr != ids10->end(); ++ idItr ) {
+
+      EcalElectronicsId id = (*idItr);
+
+      int ism = id.dccId();
+
+      int chid = id.channelId();
+      int ie = EEIntegrityTask::chMemAbscissa[chid-1];
+      int ip = EEIntegrityTask::chMemOrdinate[chid-1];
+
+      int iTt = id.towerId();
+      ie += (iTt-69)*5;
+
+      float xie = ie - 0.5;
+      float xip = ip - 0.5;
+
+      if ( meIntegrityMemGain[ism-1] ) meIntegrityMemGain[ism-1]->Fill(xie,xip);
+
+    }
+
+  } catch ( exception& ex) {
+
+    LogWarning("EEIntegrityTask") << EcalElectronicsIdCollection4_ << " not available";
+
+  }
+
+}//  end analyze
+
+const int  EEIntegrityTask::chMemAbscissa [25] = {
+    1, 1, 1, 1, 1,
+    2, 2, 2, 2, 2,
+    3, 3, 3, 3, 3,
+    4, 4, 4, 4, 4,
+    5, 5, 5, 5, 5
+};
+
+const int  EEIntegrityTask::chMemOrdinate [25] = {
+    1, 2, 3, 4, 5,
+    5, 4, 3, 2, 1,
+    1, 2, 3, 4, 5,
+    5, 4, 3, 2, 1,
+    1, 2, 3, 4, 5
+};
+

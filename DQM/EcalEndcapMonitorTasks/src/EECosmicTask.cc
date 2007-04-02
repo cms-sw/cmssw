@@ -1,0 +1,242 @@
+/*
+ * \file EECosmicTask.cc
+ *
+ * $Date: 2007/03/21 16:10:40 $
+ * $Revision: 1.68 $
+ * \author G. Della Ricca
+ *
+*/
+
+#include <iostream>
+#include <fstream>
+#include <vector>
+
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Daemon/interface/MonitorDaemon.h"
+
+#include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
+#include "DataFormats/EcalDetId/interface/EBDetId.h"
+#include "DataFormats/EcalDigi/interface/EBDataFrame.h"
+#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
+#include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+
+#include <DQM/EcalEndcapMonitorTasks/interface/EECosmicTask.h>
+
+using namespace cms;
+using namespace edm;
+using namespace std;
+
+EECosmicTask::EECosmicTask(const ParameterSet& ps){
+
+  init_ = false;
+
+  EcalRawDataCollection_ = ps.getParameter<edm::InputTag>("EcalRawDataCollection");
+  EcalRecHitCollection_ = ps.getParameter<edm::InputTag>("EcalRecHitCollection");
+
+  for (int i = 0; i < 36 ; i++) {
+    meCutMap_[i] = 0;
+    meSelMap_[i] = 0;
+    meSpectrumMap_[i] = 0;
+  }
+
+}
+
+EECosmicTask::~EECosmicTask(){
+
+}
+
+void EECosmicTask::beginJob(const EventSetup& c){
+
+  ievt_ = 0;
+
+  DaqMonitorBEInterface* dbe = 0;
+
+  // get hold of back-end interface
+  dbe = Service<DaqMonitorBEInterface>().operator->();
+
+  if ( dbe ) {
+    dbe->setCurrentFolder("EcalEndcap/EECosmicTask");
+    dbe->rmdir("EcalEndcap/EECosmicTask");
+  }
+
+}
+
+void EECosmicTask::setup(void){
+
+  init_ = true;
+
+  Char_t histo[200];
+
+  DaqMonitorBEInterface* dbe = 0;
+
+  // get hold of back-end interface
+  dbe = Service<DaqMonitorBEInterface>().operator->();
+
+  if ( dbe ) {
+    dbe->setCurrentFolder("EcalEndcap/EECosmicTask");
+
+    dbe->setCurrentFolder("EcalEndcap/EECosmicTask/Cut");
+    for (int i = 0; i < 36 ; i++) {
+      sprintf(histo, "EECT energy cut SM%02d", i+1);
+      meCutMap_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
+    }
+
+    dbe->setCurrentFolder("EcalEndcap/EECosmicTask/Sel");
+    for (int i = 0; i < 36 ; i++) {
+      sprintf(histo, "EECT energy sel SM%02d", i+1);
+      meSelMap_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
+    }
+
+    dbe->setCurrentFolder("EcalEndcap/EECosmicTask/Spectrum");
+    for (int i = 0; i < 36 ; i++) {
+      sprintf(histo, "EECT energy spectrum SM%02d", i+1);
+      meSpectrumMap_[i] = dbe->book1D(histo, histo, 100, 0., 1.5);
+    }
+
+  }
+
+}
+
+void EECosmicTask::cleanup(void){
+
+  DaqMonitorBEInterface* dbe = 0;
+
+  // get hold of back-end interface
+  dbe = Service<DaqMonitorBEInterface>().operator->();
+
+  if ( dbe ) {
+    dbe->setCurrentFolder("EcalEndcap/EECosmicTask");
+
+    dbe->setCurrentFolder("EcalEndcap/EECosmicTask/Cut");
+    for (int i = 0; i < 36 ; i++) {
+      if ( meCutMap_[i] ) dbe->removeElement( meCutMap_[i]->getName() );
+      meCutMap_[i] = 0;
+    }
+
+    dbe->setCurrentFolder("EcalEndcap/EECosmicTask/Sel");
+    for (int i = 0; i < 36 ; i++) {
+      if ( meSelMap_[i] ) dbe->removeElement( meSelMap_[i]->getName() );
+      meSelMap_[i] = 0;
+    }
+
+    dbe->setCurrentFolder("EcalEndcap/EECosmicTask/Spectrum");
+    for (int i = 0; i < 36 ; i++) {
+      if ( meSpectrumMap_[i] ) dbe->removeElement( meSpectrumMap_[i]->getName() );
+      meSpectrumMap_[i] = 0;
+    }
+
+  }
+
+  init_ = false;
+
+}
+
+void EECosmicTask::endJob(void){
+
+  LogInfo("EECosmicTask") << "analyzed " << ievt_ << " events";
+
+  if ( init_ ) this->cleanup();
+
+}
+
+void EECosmicTask::analyze(const Event& e, const EventSetup& c){
+
+  bool enable = false;
+  map<int, EcalDCCHeaderBlock> dccMap;
+
+  try {
+
+    Handle<EcalRawDataCollection> dcchs;
+    e.getByLabel(EcalRawDataCollection_, dcchs);
+
+    for ( EcalRawDataCollection::const_iterator dcchItr = dcchs->begin(); dcchItr != dcchs->end(); ++dcchItr ) {
+
+      EcalDCCHeaderBlock dcch = (*dcchItr);
+
+      map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(dcch.id());
+      if ( i != dccMap.end() ) continue;
+
+      dccMap[dcch.id()] = dcch;
+
+      if ( dcch.getRunType() == EcalDCCHeaderBlock::COSMIC ||
+           dcch.getRunType() == EcalDCCHeaderBlock::MTCC ) enable = true;
+
+    }
+
+  } catch ( exception& ex) {
+
+    LogWarning("EECosmicTask") << EcalRawDataCollection_ << " not available";
+
+  }
+
+  if ( ! enable ) return;
+
+  if ( ! init_ ) this->setup();
+
+  ievt_++;
+
+  try {
+
+    Handle<EcalRecHitCollection> hits;
+    e.getByLabel(EcalRecHitCollection_, hits);
+
+    int nebh = hits->size();
+    LogDebug("EECosmicTask") << "event " << ievt_ << " hits collection size " << nebh;
+
+    for ( EcalRecHitCollection::const_iterator hitItr = hits->begin(); hitItr != hits->end(); ++hitItr ) {
+
+      EcalRecHit hit = (*hitItr);
+      EBDetId id = hit.id();
+
+      int ic = id.ic();
+      int ie = (ic-1)/20 + 1;
+      int ip = (ic-1)%20 + 1;
+
+      int ism = id.ism();
+
+      float xie = ie - 0.5;
+      float xip = ip - 0.5;
+
+      map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(ism);
+      if ( i == dccMap.end() ) continue;
+
+      if ( ! ( dccMap[ism].getRunType() == EcalDCCHeaderBlock::COSMIC ||
+               dccMap[ism].getRunType() == EcalDCCHeaderBlock::MTCC ) ) continue;
+
+      LogDebug("EECosmicTask") << " det id = " << id;
+      LogDebug("EECosmicTask") << " sm, eta, phi " << ism << " " << ie << " " << ip;
+
+      float xval = hit.energy();
+      if ( xval <= 0. ) xval = 0.0;
+
+      LogDebug("EECosmicTask") << " hit energy " << xval;
+
+      const float lowThreshold  = 0.06125;
+      const float highThreshold = 0.12500;
+
+      if ( xval >= lowThreshold ) {
+        if ( meCutMap_[ism-1] ) meCutMap_[ism-1]->Fill(xie, xip, xval);
+      }
+
+      if ( xval >= highThreshold ) {
+        if ( meSelMap_[ism-1] ) meSelMap_[ism-1]->Fill(xie, xip, xval);
+      }
+
+      if ( meSpectrumMap_[ism-1] ) meSpectrumMap_[ism-1]->Fill(xval);
+
+    }
+
+  } catch ( exception& ex) {
+
+    LogWarning("EECosmicTask") << EcalRecHitCollection_ << " not available";
+
+  }
+
+}
+
