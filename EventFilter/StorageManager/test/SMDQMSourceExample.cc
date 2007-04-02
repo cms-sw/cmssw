@@ -10,7 +10,7 @@
   file in DQMServices/Daemon/test, but modified to include another top level
   folder, to remove the 1 sec wait, and to do the fitting without printout.
 
-  $Id: SMDQMSourceExample.cc,v 1.1 2007/04/02 19:24:34 hcheung Exp $
+  $Id: SMDQMSourceExample.cc,v 1.2 2007/04/02 19:51:57 hcheung Exp $
 
 */
 
@@ -92,7 +92,7 @@ SMDQMSourceExample::SMDQMSourceExample( const edm::ParameterSet& iConfig )
   edm::Service<MonitorDaemon> daemon;
   daemon.operator->();
 
-  const int NBINS = 500; XMIN = 0; XMAX = 50;
+  const int NBINS = 5000; XMIN = 0; XMAX = 50;
 
   // book some histograms here
 
