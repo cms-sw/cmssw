@@ -85,8 +85,8 @@ FUResourceBroker::FUResourceBroker(xdaq::ApplicationStub *s)
   , nbCrcErrors_(0)
   , segmentationMode_(false)
   , nbRawCells_(32)
-  , nbRecoCells_(1)
-  , nbDqmCells_(1)
+  , nbRecoCells_(8)
+  , nbDqmCells_(8)
   , rawCellSize_(0x400000)  // 4MB
   , recoCellSize_(0x800000) // 8MB
   , dqmCellSize_(0x800000)  // 8MB

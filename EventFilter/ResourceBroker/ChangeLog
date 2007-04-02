@@ -1,3 +1,8 @@
+2007-04-02  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+	
+	* tag V00-06-07
+	* set defaults of nbRecoCells and nbDqmCells to 8
+
 2007-03-29  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-06-06
