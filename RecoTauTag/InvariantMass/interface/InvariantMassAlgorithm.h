@@ -14,7 +14,7 @@
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
 #include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
-
+#include "TrackingTools/TrackAssociator/interface/TrackAssociatorParameters.h"
 #include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
 #include "RecoTracker/TrackProducer/interface/TrackProducerBase.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
@@ -22,9 +22,6 @@
 //Math
 #include "Math/GenVector/VectorUtil.h"
 #include "Math/GenVector/PxPyPzE4D.h"
-
-
-
 
 class  InvariantMassAlgorithm  {
 
@@ -37,7 +34,7 @@ public:
   // so we keep datamember as builtin types (instead of ParameterSet) 
   //InvariantMassAlgorithm (int,float,....);
    
-  ~InvariantMassAlgorithm() {}
+  ~InvariantMassAlgorithm();
 
   std::pair<reco::JetTag,reco::TauMassTagInfo> tag(edm::Event& theEvent, const edm::EventSetup& theEventSetup,const reco::IsolatedTauTagInfoRef& tauRef, const edm::Handle<reco::BasicClusterCollection>& clus_handle); 
 
@@ -54,7 +51,9 @@ private:
   double track_matching_cone;
   double inv_mass_cut;
 
-  TrackDetectorAssociator trackAssociator_;
+  TrackDetectorAssociator* trackAssociator_;
+  TrackAssociatorParameters trackAssociatorParameters_;
+
 };
 
 #endif 

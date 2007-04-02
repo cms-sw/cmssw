@@ -29,15 +29,20 @@ InvariantMassAlgorithm::InvariantMassAlgorithm(const ParameterSet & parameters)
   track_matching_cone = parameters.getParameter<double>("ClusterTrackMatchingCone");
   inv_mass_cut  = parameters.getParameter<double>("InvariantMassCutoff");
 
-   // Fill data labels
-   trackAssociator_.theEBRecHitCollectionLabel = parameters.getParameter<edm::InputTag>("EBRecHitCollectionLabel");
-   trackAssociator_.theEERecHitCollectionLabel = parameters.getParameter<edm::InputTag>("EERecHitCollectionLabel");
-   trackAssociator_.theCaloTowerCollectionLabel = parameters.getParameter<edm::InputTag>("CaloTowerCollectionLabel");
 
-   trackAssociator_.useDefaultPropagator();
+// TrackAssociator parameters
+   edm::ParameterSet tk_ass_pset = parameters.getParameter<edm::ParameterSet>("TrackAssociatorParameters");
+   trackAssociatorParameters_.loadParameters( tk_ass_pset );
 
+   trackAssociator_ = new TrackDetectorAssociator();
+   trackAssociator_->useDefaultPropagator();
 }
-
+//
+// -- Destructor
+//
+InvariantMassAlgorithm::~InvariantMassAlgorithm() {
+  if(trackAssociator_) delete trackAssociator_;
+}
 //
 // -- Tag 
 //
@@ -73,13 +78,6 @@ pair<reco::JetTag,reco::TauMassTagInfo> InvariantMassAlgorithm::tag(edm::Event& 
 //
 float InvariantMassAlgorithm::getMinimumClusterDR(edm::Event& theEvent, const edm::EventSetup& theEventSetup, const reco::IsolatedTauTagInfoRef&  tauRef,const math::XYZVector& cluster_3vec) {
 
-
-  TrackDetectorAssociator::AssociatorParameters assotiator_parameters;
-  assotiator_parameters.useEcal = true ;
-  assotiator_parameters.useHcal = false ;
-  assotiator_parameters.useMuon = false ;
-  assotiator_parameters.dREcal = 0.03;
-
   const TrackRefVector tracks = tauRef->allTracks();
   float min_dR = 999.9;
   math::XYZVector jet3Vec(tauRef->jet().px(),tauRef->jet().py(),tauRef->jet().pz());  
@@ -88,7 +86,7 @@ float InvariantMassAlgorithm::getMinimumClusterDR(edm::Event& theEvent, const ed
 
   for (edm::RefVector<reco::TrackCollection>::const_iterator it = tracks.begin();
        it != tracks.end(); it++) {    
-    TrackDetMatchInfo info = trackAssociator_.associate(theEvent, theEventSetup,trackAssociator_.getFreeTrajectoryState(theEventSetup, (*(*it))), assotiator_parameters);
+    TrackDetMatchInfo info = trackAssociator_->associate(theEvent, theEventSetup,trackAssociator_->getFreeTrajectoryState(theEventSetup, (*(*it))), trackAssociatorParameters_);
 
     math::XYZVector track3Vec(info.trkGlobPosAtEcal.x(),
                               info.trkGlobPosAtEcal.y(),
