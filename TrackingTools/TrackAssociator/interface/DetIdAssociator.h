@@ -1,25 +1,27 @@
-#ifndef MuonTest_MuonTest_DetIdAssociator_h
-#define MuonTest_MuonTest_DetIdAssociator_h 1
+#ifndef TrackingTools_TrackAssociator_DetIdAssociator_h
+#define TrackingTools_TrackAssociator_DetIdAssociator_h 1
 
 // -*- C++ -*-
 //
-// Package:    MuonTest
-// Class:      MuonTest
+// Package:    TrackingTools/TrackAssociator
+// Class:      DetIdAssociator
 // 
-/**\class MuonTest MuonTest.cc src/MuonTest/src/MuonTest.cc
+/**\
 
  Description: Abstract base class for 3D point -> std::set<DetId>
 
  Implementation:
-     It is expected that the mapping is performed using a 2D array of 
-     DetId sets, to get fast a set of possible DetIds for a given 
-     direction. Since all methods are virtual a practical 
-     implementation can use other approaches.
+     A look up map of active detector elements in eta-phi space is 
+     built to speed up access to the detector element geometry as well 
+     as associated hits. The map is uniformly binned in eta and phi 
+     dimensions. It is expected that the map is used to find a set of
+     DetIds close to a given point, but since all methods are virtual 
+     implementation may vary for various subdetectors.
 **/
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: DetIdAssociator.h,v 1.8 2007/03/08 04:19:26 dmytro Exp $
+// $Id: DetIdAssociator.h,v 1.9 2007/03/26 05:31:31 dmytro Exp $
 //
 //
 
@@ -41,24 +43,38 @@ class DetIdAssociator{
  public:
    enum PropagationTarget { Barrel, ForwardEndcap, BackwardEndcap };
 	
-   DetIdAssociator():theMap_(0),nPhi_(0),nEta_(0),etaBinSize_(0),ivProp_(0){};
-   DetIdAssociator(const int nPhi, const int nEta, const double etaBinSize)
-     :theMap_(0),nPhi_(nPhi),nEta_(nEta),etaBinSize_(etaBinSize),ivProp_(0){};
+   DetIdAssociator();
+   DetIdAssociator(const int nPhi, const int nEta, const double etaBinSize);
    
-   virtual ~DetIdAssociator(){};
+   virtual ~DetIdAssociator();
    
-   /// Preselect DetIds in a given direction using look-up maps
-   /// idR is a number of the adjacent bins to retrieve 
-   virtual std::set<DetId> getDetIdsCloseToAPoint(const GlobalPoint&, 
-						  const int idR = 0);
-   /// dR is a cone radius in eta-phi
+   /// Preselect DetIds close to a point on the inner surface of the detector. 
+   /// "iN" is a number of the adjacent bins of the map to retrieve 
+   virtual std::set<DetId> getDetIdsCloseToAPoint(const GlobalPoint&,
+						  const int iN = 0);
+   virtual std::set<DetId> getDetIdsCloseToAPoint(const GlobalPoint& direction,
+						  const unsigned int iNEtaPlus,
+						  const unsigned int iNEtaMinus,
+						  const unsigned int iNPhiPlus,
+						  const unsigned int iNPhiMinus);
+   /// Preselect DetIds close to a point on the inner surface of the detector. 
+   /// "d" defines the allowed range in theta-phi space:
+   /// - theta is in [point.theta()-d, point.theta()+d]
+   /// - phi is in [point.phi()-d, point.phi()+d]
    virtual std::set<DetId> getDetIdsCloseToAPoint(const GlobalPoint& point,
-						  const double dR = 0);
+						  const double d = 0);
+   /// - theta is in [point.theta()-dThetaMinus, point.theta()+dThetaPlus]
+   /// - phi is in [point.phi()-dPhiMinus, point.phi()+dPhiPlus]
+   virtual std::set<DetId> getDetIdsCloseToAPoint(const GlobalPoint& point,
+						  const double dThetaPlus,
+						  const double dThetaMinus,
+						  const double dPhiPlus,
+						  const double dPhiMinus);
    /// Find DetIds that satisfy given requirements
-   /// - cone radius
+   /// - inside eta-phi cone of radius dR
    virtual std::set<DetId> getDetIdsInACone(const std::set<DetId>&,
 					    const std::vector<GlobalPoint>& trajectory,
-					    const double );
+					    const double dR);
    /// - DetIds crossed by the track
    virtual std::set<DetId> getCrossedDetIds(const std::set<DetId>&,
 					    const std::vector<GlobalPoint>& trajectory);
@@ -81,7 +97,7 @@ class DetIdAssociator{
    /// make the look-up map
    virtual void buildMap();
    /// get active detector volume
-   FiducialVolume volume();
+   const FiducialVolume& volume();
    
  protected:
    virtual void check_setup()
@@ -111,10 +127,15 @@ class DetIdAssociator{
      return sqrt(pow(point.eta()-center.eta(),2)+deltaPhi*deltaPhi) < distance;
    };
    
-   std::vector<std::vector<std::set<DetId> > >* theMap_;
+   // map parameters
    const int nPhi_;
    const int nEta_;
+   std::set<DetId> **theMap_;
+   bool theMapIsValid_;
    const double etaBinSize_;
+   double maxEta_;
+   double minTheta_;
+   
    Propagator *ivProp_;
    // struct greater_energy : public binary_function<const CaloRecHit, const CaloRecHit, bool>
    //  {

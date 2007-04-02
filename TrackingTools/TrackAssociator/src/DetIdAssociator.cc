@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: DetIdAssociator.cc,v 1.13 2007/03/26 05:31:31 dmytro Exp $
+// $Id: DetIdAssociator.cc,v 1.15 2007/03/27 11:34:57 dmytro Exp $
 //
 //
 
@@ -22,19 +22,55 @@
 #include "TrackingTools/TrackAssociator/interface/DetIdInfo.h"
 #include <map>
 
+DetIdAssociator::DetIdAssociator():
+nPhi_(0),nEta_(0),theMap_(0),theMapIsValid_(false),etaBinSize_(0),ivProp_(0)
+{
+   maxEta_ = etaBinSize_*nEta_/2;
+   minTheta_ = 2*atan(exp(-maxEta_));
+}
+
+DetIdAssociator::DetIdAssociator(const int nPhi, const int nEta, const double etaBinSize)
+  :nPhi_(nPhi),nEta_(nEta),theMapIsValid_(false),etaBinSize_(etaBinSize),ivProp_(0)
+{
+   if (nEta_ <= 0 || nPhi_ <= 0) throw cms::Exception("FatalError") << "incorrect look-up map size. Cannot initialize such a map.";
+   theMap_ = new std::set<DetId>* [nEta_];
+   for (int i=0;i<nEta_;++i) theMap_[i] = new std::set<DetId> [nPhi_];
+   maxEta_ = etaBinSize_*nEta_/2;
+   minTheta_ = 2*atan(exp(-maxEta_));
+}
+   
+DetIdAssociator::~DetIdAssociator(){
+   if (! theMap_) return;
+   for(int i=nEta_-1;i>=0;--i) delete [] theMap_[i];
+   delete [] theMap_;
+}
+
 std::set<DetId> DetIdAssociator::getDetIdsCloseToAPoint(const GlobalPoint& direction,
-							const int idR)
+							const int iN)
+{
+   unsigned int n = 0;
+   if (iN>0) n = iN;
+   return getDetIdsCloseToAPoint(direction,n,n,n,n);
+}
+
+std::set<DetId> DetIdAssociator::getDetIdsCloseToAPoint(const GlobalPoint& direction,
+							const unsigned int iNEtaPlus,
+							const unsigned int iNEtaMinus,
+							const unsigned int iNPhiPlus,
+							const unsigned int iNPhiMinus)
 {
    std::set<DetId> set;
    check_setup();
-   if (! theMap_) buildMap();
+   if (! theMapIsValid_ ) buildMap();
+   LogTrace("TrackAssociator") << "(iNEtaPlus, iNEtaMinus, iNPhiPlus, iNPhiMinus): " <<
+     iNEtaPlus << ", " << iNEtaMinus << ", " << iNPhiPlus << ", " << iNPhiMinus;
    LogTrace("TrackAssociator") << "point (eta,phi): " << direction.eta() << "," << direction.phi();
    int ieta = iEta(direction);
    int iphi = iPhi(direction);
    LogTrace("TrackAssociator") << "(ieta,iphi): " << ieta << "," << iphi << "\n";
    if (ieta>=0 && ieta<nEta_ && iphi>=0 && iphi<nPhi_){
-      set = (*theMap_)[ieta][iphi];
-      /*      if (debug_>1)
+      set = theMap_[ieta][iphi];
+      /* 
 	for( std::set<DetId>::const_iterator itr=set.begin();
 	     itr!=set.end(); itr++)
 	  {
@@ -43,15 +79,21 @@ std::set<DetId> DetIdAssociator::getDetIdsCloseToAPoint(const GlobalPoint& direc
 	  }
        */
       // dumpMapContent(ieta,iphi);
-      if (idR>0){
-	  LogTrace("TrackAssociator") << "Add neighbors (ieta,iphi): " << ieta << "," << iphi;
-	 //add neighbors
-	 int maxIEta = ieta+idR;
-	 int minIEta = ieta-idR;
-	 if(maxIEta>=nEta_) maxIEta = nEta_-1;
-	 if(minIEta<0) minIEta = 0;
-	 int maxIPhi = iphi+idR;
-	 int minIPhi = iphi-idR;
+      // check if any neighbor bin is requested
+      if (iNEtaPlus + iNEtaMinus + iNPhiPlus + iNPhiMinus >0 ){
+	 LogTrace("TrackAssociator") << "Add neighbors (ieta,iphi): " << ieta << "," << iphi;
+	 // eta
+	 int maxIEta = ieta+iNEtaPlus;
+	 int minIEta = ieta-iNEtaMinus;
+	 if (maxIEta>=nEta_) maxIEta = nEta_-1;
+	 if (minIEta<0) minIEta = 0;
+	 // phi
+	 int maxIPhi = iphi+iNPhiPlus;
+	 int minIPhi = iphi-iNPhiMinus;
+	 if (maxIPhi-minIPhi>=nPhi_){ // all elements in phi
+	    minIPhi = 0;
+	    maxIPhi = nPhi_-1;
+	 }
 	 if(minIPhi<0) {
 	    minIPhi+=nPhi_;
 	    maxIPhi+=nPhi_;
@@ -61,8 +103,10 @@ std::set<DetId> DetIdAssociator::getDetIdsCloseToAPoint(const GlobalPoint& direc
 	 // dumpMapContent(minIEta,maxIEta,minIPhi,maxIPhi);
 	 for (int i=minIEta;i<=maxIEta;i++)
 	   for (int j=minIPhi;j<=maxIPhi;j++) {
+	      // edm::LogVerbatim("TrackAssociator") << "iEta,iPhi,N DetIds: " << i << ", " << j <<
+	      // ", " << theMap_[i][j%nPhi_].size();
 	      if( i==ieta && j==iphi) continue; // already in the set
-	      set.insert((*theMap_)[i][j%nPhi_].begin(),(*theMap_)[i][j%nPhi_].end());
+	      set.insert((theMap_[i][j%nPhi_]).begin(),(theMap_[i][j%nPhi_]).end());
 	   }
       }
       
@@ -71,14 +115,39 @@ std::set<DetId> DetIdAssociator::getDetIdsCloseToAPoint(const GlobalPoint& direc
 }
 
 std::set<DetId> DetIdAssociator::getDetIdsCloseToAPoint(const GlobalPoint& point,
-							const double dR)
+							const double d)
 {
-   int etaIdR = int(dR/etaBinSize_); 
-   int phiIdR = int(dR/(2*3.1416)*nPhi_);
-   if (etaIdR>phiIdR)
-     return getDetIdsCloseToAPoint(point, 1+etaIdR);
-   else
-     return getDetIdsCloseToAPoint(point, 1+phiIdR);
+   return getDetIdsCloseToAPoint(point,d,d,d,d);
+}
+
+std::set<DetId> DetIdAssociator::getDetIdsCloseToAPoint(const GlobalPoint& point,
+							const double dThetaPlus,
+							const double dThetaMinus,
+							const double dPhiPlus,
+							const double dPhiMinus)
+{
+   LogTrace("TrackAssociator") << "(dThetaPlus,dThetaMinus,dPhiPlus,dPhiMinus): " <<
+     dThetaPlus << ", " << dThetaMinus << ", " << dPhiPlus << ", " << dPhiMinus;
+   unsigned int n = 0;
+   if ( dThetaPlus<0 || dThetaMinus<0 || dPhiPlus<0 || dPhiMinus<0) 
+     return getDetIdsCloseToAPoint(point,n,n,n,n);
+   // check that region of interest overlaps with the look-up map
+   double maxTheta = point.theta()+dThetaPlus;
+   if (maxTheta > 3.1416-minTheta_) maxTheta =  3.1416-minTheta_;
+   double minTheta = point.theta()-dThetaMinus;
+   if (minTheta < minTheta_) minTheta = minTheta_;
+   if ( maxTheta < minTheta_ || minTheta > 3.1416-minTheta_) return std::set<DetId>();
+   
+   // take into account non-linear dependence of eta from
+   // theta in regions with large |eta|
+   double minEta = -log(tan(maxTheta/2));
+   double maxEta = -log(tan(minTheta/2));
+   unsigned int iNEtaPlus  = abs(int( ( maxEta-point.eta() )/etaBinSize_));
+   unsigned int iNEtaMinus = abs(int( ( point.eta() - minEta )/etaBinSize_));
+   unsigned int iNPhiMinus = abs(int( dPhiPlus/(2*3.1416)*nPhi_ ));
+   unsigned int iNPhiPlus  = abs(int( dPhiMinus/(2*3.1416)*nPhi_ ));
+   // add one more bin in each direction to guaranty that we don't miss anything
+   return getDetIdsCloseToAPoint(point, iNEtaPlus+1, iNEtaMinus+1, iNPhiPlus+1, iNPhiMinus+1);
 }
 
 
@@ -97,8 +166,12 @@ void DetIdAssociator::buildMap()
 {
    check_setup();
    LogTrace("TrackAssociator")<<"building map" << "\n";
-   if(theMap_) delete theMap_;
-   theMap_ = new std::vector<std::vector<std::set<DetId> > >(nEta_,nPhi_);
+   // clear the map
+   if (nEta_ <= 0 || nPhi_ <= 0) throw cms::Exception("FatalError") << "incorrect look-up map size. Cannot build such a map.";
+   if (! theMap_) throw cms::Exception("FatalError") << "incorrect look-up map. Cannot build such a map.";
+   for(int i=0;i<nEta_;++i)
+     for(int j=0;j<nPhi_;++j)
+       theMap_[i][j].clear();
    int numberOfDetIdsOutsideEtaRange = 0;
    int numberOfDetIdsActive = 0;
    std::set<DetId> validIds = getASetOfValidDetIds();
@@ -168,7 +241,7 @@ void DetIdAssociator::buildMap()
 	", " << etaMin << ", " << etaMax << ", " << phiMin << ", " << phiMax;
       for(int ieta = etaMin; ieta <= etaMax; ieta++)
 	for(int iphi = phiMin; iphi <= phiMax; iphi++)
-	  (*theMap_)[ieta][iphi%nPhi_].insert(*id_itr);
+	  theMap_[ieta][iphi%nPhi_].insert(*id_itr);
       numberOfDetIdsActive++;
    }
    LogTrace("TrackAssociator") << "Number of elements outside the allowed range ( |eta|>"<<
@@ -178,6 +251,7 @@ void DetIdAssociator::buildMap()
    volume_.determinInnerDimensions();
    edm::LogVerbatim("TrackAssociator") << "Volume (minR, maxR, minZ, maxZ): " << volume_.minR() << ", " << volume_.maxR() <<
      ", " << volume_.minZ() << ", " << volume_.maxZ();
+   theMapIsValid_ = true;
 }
 
 std::set<DetId> DetIdAssociator::getDetIdsInACone(const std::set<DetId>& inset, 
@@ -232,7 +306,7 @@ void DetIdAssociator::dumpMapContent(int ieta, int iphi)
 	return;
      }
 
-   std::set<DetId> set = (*theMap_)[ieta][iphi%nPhi_];
+   std::set<DetId> set = theMap_[ieta][iphi%nPhi_];
    LogTrace("TrackAssociator") << "Map content for cell (ieta,iphi): " << ieta << ", " << iphi%nPhi_;
    for(std::set<DetId>::const_iterator itr = set.begin(); itr!=set.end(); itr++)
      {
@@ -252,8 +326,8 @@ void DetIdAssociator::dumpMapContent(int ieta_min, int ieta_max, int iphi_min, i
 }
 
 
-FiducialVolume DetIdAssociator::DetIdAssociator::volume()
+const FiducialVolume& DetIdAssociator::DetIdAssociator::volume()
 {
-   if (! theMap_) buildMap(); // volume is computed during buildMap;
+   if (! theMapIsValid_) buildMap(); // volume is computed during buildMap;
    return volume_; 
 }
