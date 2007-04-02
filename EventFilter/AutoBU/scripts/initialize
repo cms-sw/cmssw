@@ -18,9 +18,10 @@ print "\ninitialize ...";
 print "\n============================================================\n";
 
 # flags to indicate setup, defaults
-my $doPB = 0;
-my $doEP = 1;
-my $doSM = 1;
+my $doPB  = 0;
+my $doEP  = 1;
+my $doSM  = 1;
+my $doDQM = 1;
 
 my $PBfile;
 
@@ -73,15 +74,16 @@ foreach $param (@ARGV) {
     elsif ($param    eq "-host")     { $hostname="fillme"; }
     elsif ($PBfile   eq "fillme")    { $PBfile  =$param; }
     elsif ($param    eq "-playback") { $doPB=1;$PBfile="fillme"; }
-    elsif ($param    eq "-drop")     { $doEP=0;$doSM=0; }
-    elsif ($param    eq "-noSM")     { $doSM=0; }
+    elsif ($param    eq "-drop")     { $doEP=0;$doSM=0;$doDQM=0;}
+    elsif ($param    eq "-noSM")     { $doSM=0;$doDQM=0; }
+    elsif ($param    eq "-noDQM")    { $doDQM=0; }
     else { die ("Unknown parameter $param!\n"); }
 }
 
 print "hostname = $hostname\n";
 
-if (!$doEP) { $doSM = 0; }
-
+if (!$doEP) { $doSM  = 0; }
+if (!$doSM) { $doDQM = 0; }
 
 
 #
@@ -104,7 +106,7 @@ print "make directories ...\n";
 print "make cfg files ...\n";
 
 open(CFG,">./cfg/fu.cfg") or die ("Can't open file: $!\n");
-print CFG makeCfgFu($doSM);
+print CFG makeCfgFu($doSM,$doDQM);
 close(CFG);
 
 if ($doSM) {
@@ -409,7 +411,7 @@ sub makeSoapCommand
 ################################################################################
 sub makeCfgFu
 {
-    my ($doSM) = (@_);
+    my ($doSM,$doDQM) = (@_);
     
     my $result="";
     
@@ -435,14 +437,19 @@ sub makeCfgFu
     $result = $result . "  // paths\n";
     $result = $result . "  path p1 = { m1, a1 }\n";
     $result = $result . "  path p2 = { m2, a2 }\n";
-    $result = $result . "  path p3 = { m3, a3 }\n\n";
-    $result = $result . "  // endpaths\n";
+    $result = $result . "  path p3 = { m3, a3 }\n";
+
+    if ($doDQM) {
+	$result = $result . "  path p4 = { dqm }\n";
+    }
+
+    $result = $result . "\n  // endpaths\n";
     
     if ($doSM) {
-	$result = $result . "  endpath ep = { out }\n\n";
+	$result = $result . "  endpath ep = { out }\n";
     }
     
-    $result = $result . "  // services\n\n";
+    $result = $result . "\n  // services\n\n";
     $result = $result . "  service = MessageLogger {\n";
     $result = $result . "    untracked vstring destinations = { \"cout\" }\n";
     $result = $result . "    untracked PSet    cout         = " .
@@ -450,6 +457,17 @@ sub makeCfgFu
     $result = $result . "    untracked PSet    log4cplus    = " .
                         "{ untracked string threshold = \"WARNING\" }\n";
     $result = $result . "  }\n\n";
+
+    if ($doDQM) {
+	$result = $result . "  service = FUShmDQMOutputService {\n";
+	$result = $result . "    untracked int32 initialMessageBufferSize=1000000\n";
+	$result = $result . "    double          lumiSectionsPerUpdate   =    1.0\n";
+	$result = $result . "    bool            useCompression          =   true\n";
+	$result = $result . "    int32           compressionLevel        =      1\n";
+	$result = $result . "    untracked int32 lumiSectionInterval     =     30\n";
+	$result = $result . "  }\n\n";
+    }
+
     $result = $result . "  // modules\n\n";
     $result = $result . "  module m1 = StreamThingProducer\n";
     $result = $result . "  {\n";
@@ -479,6 +497,10 @@ sub makeCfgFu
     $result = $result . "    string product_to_get = \"m3\"\n";
     $result = $result . "  }\n\n";
 
+    if ($doDQM) {
+	$result = $result . "  module dqm = DQMSourceExample{}\n\n";
+    }
+    
     if ($doSM) {
 	$result = $result . "  module out = ShmStreamConsumer\n";
 	$result = $result . "  {\n";

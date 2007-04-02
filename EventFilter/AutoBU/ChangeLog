@@ -1,3 +1,10 @@
+2007-04-02  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-04-04
+	* integrate dqm testing with scripts/initialize
+	* add path 'p4' running module 'dqm' to the standard configuration
+	* add option '-noDQM' to switch the dqm testing module off
+
 2007-03-30  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-04-03
