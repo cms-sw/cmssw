@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerClient.cc
  *
- * $Date: 2007/04/01 13:48:46 $
- * $Revision: 1.33 $
+ * $Date: 2007/04/01 19:05:03 $
+ * $Revision: 1.34 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -598,23 +598,23 @@ void EBTriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
 
       int counter = 0;
 
-      for ( int j=1; j<=7; j++ ) {
+      for ( int j=1; j<8; j++ ) {
 
         if ( j == 3 ) continue;   //  010 bits combination is not used
         counter++;
-        if ( j <= 6 ) {
-          imgName = meName + "_" + char(48+j) + ".png";
+        if ( j < 7 ) {
+          imgName = meName + "_" + char(47+j) + ".png";
         }
         else {
           imgName = meName + "_6-7.png";
         }
         imgMeName = htmlDir + imgName;
 
-        if ( j != 6 ) {
+        if ( j < 7 ) {
           obj3f->GetZaxis()->SetRange( j, j );
         }
         else {
-          obj3f->GetZaxis()->SetRange( j, j );
+          obj3f->GetZaxis()->SetRange( j, j+1 );
         }
 
         obj2f = (TH2F*) obj3f->Project3D( "yx" );
@@ -628,10 +628,10 @@ void EBTriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
         cMe2->SetGridy();
 
         std::stringstream title;
-        if ( j <= 6 ) {
-          title << "EBTTT Flags SM" << ism << ", bit " << binary(j-1);
+        if ( j < 7 ) {
+          title << "EBTTT Flags SM" << std::setfill('0') << std::setw(2) << ism << ", bit " << binary(j-1);
         } else {
-          title << "EBTTT Flags SM" << ism << " bits 110+111";
+          title << "EBTTT Flags SM" << std::setfill('0') << std::setw(2) << ism << " bits 110+111";
         }
         obj2f->SetTitle( title.str().c_str() );
 
@@ -689,7 +689,7 @@ void EBTriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
         cMe2->SetGridy();
 
         std::stringstream title;
-        title << "EBTTT FineGrainVeto SM" << ism << ", FineGrainVeto = " << j-1;
+        title << "EBTTT FineGrainVeto SM" << std::setfill('0') << std::setw(2) << ism << ", FineGrainVeto = " << j-1;
         obj2f->SetTitle( title.str().c_str() );
 
         obj2f->Draw("colz");
