@@ -3,6 +3,7 @@
 <use name=DQMServices/CoreROOT>
 <use name=EventFilter/DTRawToDigi>
 <use name=DataFormats/DTDigi>
+<use name=DataFormats/L1DTTrackFinder>
 <use name=CondFormats/DTObjects>
 <use name=CondFormats/DataRecord>
 <use name=Geometry/Records>
@@ -17,6 +18,7 @@
  <use name=DQMServices/CoreROOT>
  <use name=EventFilter/DTRawToDigi>
  <use name=DataFormats/DTDigi>
+ <use name=DataFormats/L1DTTrackFinder>
  <use name=CondFormats/DTObjects>
  <use name=CondFormats/DataRecord>
  <use name=Geometry/Records>
