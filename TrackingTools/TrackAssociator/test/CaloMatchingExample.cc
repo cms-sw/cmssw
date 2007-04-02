@@ -11,7 +11,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: CaloMatchingExample.cc,v 1.3 2007/03/09 14:08:16 dmytro Exp $
+// $Id: CaloMatchingExample.cc,v 1.4 2007/03/20 06:54:47 dmytro Exp $
 //
 //
 
@@ -81,6 +81,8 @@
 #include "TFile.h"
 #include "TTree.h"
 
+#include "CLHEP/Random/Random.h"
+
 class CaloMatchingExample : public edm::EDAnalyzer {
  public:
    explicit CaloMatchingExample(const edm::ParameterSet&);
@@ -106,25 +108,46 @@ class CaloMatchingExample : public edm::EDAnalyzer {
    float ecalCrossedEnergy_[1000];
    float ecal3x3Energy_[1000];
    float ecal5x5Energy_[1000];
+   float ecal3x3EnergyMax_[1000];
+   float ecal5x5EnergyMax_[1000];
    float ecalTrueEnergy_[1000];
    float trkPosAtEcal_[1000][2];
    float ecalMaxPos_[1000][2];
-   
+
+   float ecalCrossedEnergyRandom_[1000];
+   float ecal3x3EnergyRandom_[1000];
+   float ecal5x5EnergyRandom_[1000];
+   float ecal3x3EnergyMaxRandom_[1000];
+   float ecal5x5EnergyMaxRandom_[1000];
+   float trkPosAtEcalRandom_[1000][2];
+   float ecalMaxPosRandom_[1000][2];
+
    float hcalCrossedEnergy_[1000];
    float hcal3x3Energy_[1000];
    float hcal5x5Energy_[1000];
+   float hcal3x3EnergyMax_[1000];
+   float hcal5x5EnergyMax_[1000];
    float hcalTrueEnergy_[1000];
+   float hcalTrueEnergyCorrected_[1000];
    float trkPosAtHcal_[1000][2];
    float hcalMaxPos_[1000][2];
    float trackPt_[1000];
-   
+
+   float hcalCrossedEnergyRandom_[1000];
+   float hcal3x3EnergyRandom_[1000];
+   float hcal5x5EnergyRandom_[1000];
+   float hcal3x3EnergyMaxRandom_[1000];
+   float hcal5x5EnergyMaxRandom_[1000];
+   float trkPosAtHcalRandom_[1000][2];
+   float hcalMaxPosRandom_[1000][2];
+
    edm::InputTag inputRecoTrackColl_;
    TrackAssociatorParameters parameters_;
 };
 
 CaloMatchingExample::CaloMatchingExample(const edm::ParameterSet& iConfig)
 {
-   
+   HepRandom::createInstance();
    file_ = new TFile( iConfig.getParameter<std::string>("outputfile").c_str(), "recreate");
    tree_ = new TTree( "calomatch","calomatch" );
    tree_->Branch("nTracks",&nTracks_,"nTracks/I");
@@ -132,16 +155,37 @@ CaloMatchingExample::CaloMatchingExample(const edm::ParameterSet& iConfig)
    tree_->Branch("ecalCrossedEnergy", ecalCrossedEnergy_, "ecalCrossedEnergy[nTracks]/F");
    tree_->Branch("ecal3x3Energy", ecal3x3Energy_, "ecal3x3Energy[nTracks]/F");
    tree_->Branch("ecal5x5Energy", ecal5x5Energy_, "ecal5x5Energy[nTracks]/F");
+   tree_->Branch("ecal3x3EnergyMax", ecal3x3EnergyMax_, "ecal3x3EnergyMax[nTracks]/F");
+   tree_->Branch("ecal5x5EnergyMax", ecal5x5EnergyMax_, "ecal5x5EnergyMax[nTracks]/F");
    tree_->Branch("ecalTrueEnergy", ecalTrueEnergy_, "ecalTrueEnergy[nTracks]/F");
-   tree_->Branch("trkPosAtEcal", trkPosAtEcal_, "trkPosAtEcal_[nTracks][2]/F");
-   tree_->Branch("ecalMaxPos", ecalMaxPos_, "ecalMaxPos_[nTracks][2]/F");
+   tree_->Branch("trkPosAtEcal", trkPosAtEcal_, "trkPosAtEcal[nTracks][2]/F");
+   tree_->Branch("ecalMaxPos", ecalMaxPos_, "ecalMaxPos[nTracks][2]/F");
+   
+   tree_->Branch("ecalCrossedEnergyRandom", ecalCrossedEnergyRandom_, "ecalCrossedEnergyRandom[nTracks]/F");
+   tree_->Branch("ecal3x3EnergyRandom", ecal3x3EnergyRandom_, "ecal3x3EnergyRandom[nTracks]/F");
+   tree_->Branch("ecal5x5EnergyRandom", ecal5x5EnergyRandom_, "ecal5x5EnergyRandom[nTracks]/F");
+   tree_->Branch("ecal3x3EnergyMaxRandom", ecal3x3EnergyMaxRandom_, "ecal3x3EnergyMaxRandom[nTracks]/F");
+   tree_->Branch("ecal5x5EnergyMaxRandom", ecal5x5EnergyMaxRandom_, "ecal5x5EnergyMaxRandom[nTracks]/F");
+   tree_->Branch("trkPosAtEcalRandom", trkPosAtEcalRandom_, "trkPosAtEcalRandom[nTracks][2]/F");
+   tree_->Branch("ecalMaxPosRandom", ecalMaxPosRandom_, "ecalMaxPosRandom[nTracks][2]/F");
 
    tree_->Branch("hcalCrossedEnergy", hcalCrossedEnergy_, "hcalCrossedEnergy[nTracks]/F");
    tree_->Branch("hcal3x3Energy", hcal3x3Energy_, "hcal3x3Energy[nTracks]/F");
    tree_->Branch("hcal5x5Energy", hcal5x5Energy_, "hcal5x5Energy[nTracks]/F");
+   tree_->Branch("hcal3x3EnergyMax", hcal3x3EnergyMax_, "hcal3x3EnergyMax[nTracks]/F");
+   tree_->Branch("hcal5x5EnergyMax", hcal5x5EnergyMax_, "hcal5x5EnergyMax[nTracks]/F");
    tree_->Branch("hcalTrueEnergy", hcalTrueEnergy_, "hcalTrueEnergy[nTracks]/F");
-   tree_->Branch("trkPosAtHcal", trkPosAtHcal_, "trkPosAtHcal_[nTracks][2]/F");
-   tree_->Branch("hcalMaxPos", hcalMaxPos_, "hcalMaxPos_[nTracks][2]/F");
+   tree_->Branch("hcalTrueEnergyCorrected", hcalTrueEnergyCorrected_, "hcalTrueEnergyCorrected[nTracks]/F");
+   tree_->Branch("trkPosAtHcal", trkPosAtHcal_, "trkPosAtHcal[nTracks][2]/F");
+   tree_->Branch("hcalMaxPos", hcalMaxPos_, "hcalMaxPos[nTracks][2]/F");
+
+   tree_->Branch("hcalCrossedEnergyRandom", hcalCrossedEnergyRandom_, "hcalCrossedEnergyRandom[nTracks]/F");
+   tree_->Branch("hcal3x3EnergyRandom", hcal3x3EnergyRandom_, "hcal3x3EnergyRandom[nTracks]/F");
+   tree_->Branch("hcal5x5EnergyRandom", hcal5x5EnergyRandom_, "hcal5x5EnergyRandom[nTracks]/F");
+   tree_->Branch("hcal3x3EnergyMaxRandom", hcal3x3EnergyMaxRandom_, "hcal3x3EnergyMaxRandom[nTracks]/F");
+   tree_->Branch("hcal5x5EnergyMaxRandom", hcal5x5EnergyMaxRandom_, "hcal5x5EnergyMaxRandom[nTracks]/F");
+   tree_->Branch("trkPosAtHcalRandom", trkPosAtHcalRandom_, "trkPosAtHcalRandom[nTracks][2]/F");
+   tree_->Branch("hcalMaxPosRandom", hcalMaxPosRandom_, "hcalMaxPosRandom[nTracks][2]/F");
 
    tree_->Branch("trackPt", trackPt_, "trackPt_[nTracks]/F");
    
@@ -190,9 +234,13 @@ void CaloMatchingExample::analyze( const edm::Event& iEvent, const edm::EventSet
       // Get track matching info
 
       LogTrace("TrackAssociator") << "===========================================================================\nDetails:\n" ;
-      TrackDetMatchInfo info = trackAssociator_.associate(iEvent, iSetup,
-							  trackAssociator_.getFreeTrajectoryState(iSetup, *recoTrack),
-							  parameters_);
+      TrackDetMatchInfo info = trackAssociator_.associate(iEvent, iSetup, *recoTrack, parameters_);
+      // get some noise info (random direction)
+      ROOT::Math::RhoEtaPhiVector randomVector(10,(HepRandom::getTheEngine()->flat()-0.5)*6,(HepRandom::getTheEngine()->flat()-0.5)*2*3.1416);
+      TrackDetMatchInfo infoRandom = trackAssociator_.associate(iEvent, iSetup,      
+								GlobalVector(randomVector.x(),randomVector.y(),randomVector.z()),
+								GlobalPoint(0,0,0),
+								+1, parameters_);
       
       ///////////////////////////////////////////////////
       //
@@ -201,15 +249,18 @@ void CaloMatchingExample::analyze( const edm::Event& iEvent, const edm::EventSet
       ///////////////////////////////////////////////////
       
       DetId centerId;
+      DetId centerIdRandom;
       
       trackPt_[nTracks_] = recoTrack->pt();
       ecalCrossedEnergy_[nTracks_] = info.crossedEnergy(TrackDetMatchInfo::EcalRecHits);
-      centerId = info.findMaxDeposition(TrackDetMatchInfo::EcalRecHits);
-      ecal3x3Energy_[nTracks_] = info.nXnEnergy(centerId, TrackDetMatchInfo::EcalRecHits, 1);
-      ecal5x5Energy_[nTracks_] = info.nXnEnergy(centerId, TrackDetMatchInfo::EcalRecHits, 2);
-      ecalTrueEnergy_[nTracks_] = info.ecalTrueEnergy;
-      trkPosAtEcal_[nTracks_][0] = info.trkGlobPosAtEcal.eta();
-      trkPosAtEcal_[nTracks_][1] = info.trkGlobPosAtEcal.phi();
+      centerId                     = info.findMaxDeposition(TrackDetMatchInfo::EcalRecHits);
+      ecal3x3Energy_[nTracks_]     = info.nXnEnergy(TrackDetMatchInfo::EcalRecHits, 1);
+      ecal5x5Energy_[nTracks_]     = info.nXnEnergy(TrackDetMatchInfo::EcalRecHits, 2);
+      ecal3x3EnergyMax_[nTracks_]  = info.nXnEnergy(centerId, TrackDetMatchInfo::EcalRecHits, 1);
+      ecal5x5EnergyMax_[nTracks_]  = info.nXnEnergy(centerId, TrackDetMatchInfo::EcalRecHits, 2);
+      ecalTrueEnergy_[nTracks_]    = info.ecalTrueEnergy;
+      trkPosAtEcal_[nTracks_][0]   = info.trkGlobPosAtEcal.eta();
+      trkPosAtEcal_[nTracks_][1]   = info.trkGlobPosAtEcal.phi();
       if ( geometry->getSubdetectorGeometry(centerId) &&
 	   geometry->getSubdetectorGeometry(centerId)->getGeometry(centerId) ) 
 	{
@@ -222,14 +273,23 @@ void CaloMatchingExample::analyze( const edm::Event& iEvent, const edm::EventSet
 	   ecalMaxPos_[nTracks_][0] = -999;
 	   ecalMaxPos_[nTracks_][1] = -999;
 	}
+      ecalCrossedEnergyRandom_[nTracks_] = infoRandom.crossedEnergy(TrackDetMatchInfo::EcalRecHits);
+      centerIdRandom                     = infoRandom.findMaxDeposition(TrackDetMatchInfo::EcalRecHits);
+      ecal3x3EnergyRandom_[nTracks_]     = infoRandom.nXnEnergy(TrackDetMatchInfo::EcalRecHits, 1);
+      ecal5x5EnergyRandom_[nTracks_]     = infoRandom.nXnEnergy(TrackDetMatchInfo::EcalRecHits, 2);
+      ecal3x3EnergyMaxRandom_[nTracks_]  = infoRandom.nXnEnergy(centerIdRandom, TrackDetMatchInfo::EcalRecHits, 1);
+      ecal5x5EnergyMaxRandom_[nTracks_]  = infoRandom.nXnEnergy(centerIdRandom, TrackDetMatchInfo::EcalRecHits, 2);
+      trkPosAtEcalRandom_[nTracks_][0]   = infoRandom.trkGlobPosAtEcal.eta();
+      trkPosAtEcalRandom_[nTracks_][1]   = infoRandom.trkGlobPosAtEcal.phi();
 
       hcalCrossedEnergy_[nTracks_] = info.hcalEnergy();
-      centerId = info.findMaxDeposition(TrackDetMatchInfo::HcalRecHits);
-      hcal3x3Energy_[nTracks_] = info.nXnEnergy(centerId, TrackDetMatchInfo::HcalRecHits, 1);
-      hcal5x5Energy_[nTracks_] = info.nXnEnergy(centerId, TrackDetMatchInfo::HcalRecHits, 2);
-      hcalTrueEnergy_[nTracks_] = info.hcalTrueEnergy;
-      trkPosAtHcal_[nTracks_][0] = info.trkGlobPosAtHcal.eta();
-      trkPosAtHcal_[nTracks_][1] = info.trkGlobPosAtHcal.phi();
+      centerId                     = info.findMaxDeposition(TrackDetMatchInfo::HcalRecHits);
+      hcal3x3Energy_[nTracks_]     = info.nXnEnergy(centerId, TrackDetMatchInfo::HcalRecHits, 1);
+      hcal5x5Energy_[nTracks_]     = info.nXnEnergy(centerId, TrackDetMatchInfo::HcalRecHits, 2);
+      hcalTrueEnergy_[nTracks_]    = info.hcalTrueEnergy;
+      hcalTrueEnergyCorrected_[nTracks_]    = info.hcalTrueEnergyCorrected;
+      trkPosAtHcal_[nTracks_][0]   = info.trkGlobPosAtHcal.eta();
+      trkPosAtHcal_[nTracks_][1]   = info.trkGlobPosAtHcal.phi();
       if ( geometry->getSubdetectorGeometry(centerId) &&
 	   geometry->getSubdetectorGeometry(centerId)->getGeometry(centerId) ) 
 	{
@@ -242,6 +302,14 @@ void CaloMatchingExample::analyze( const edm::Event& iEvent, const edm::EventSet
 	   hcalMaxPos_[nTracks_][0] = -999;
 	   hcalMaxPos_[nTracks_][1] = -999;
 	}
+      hcalCrossedEnergyRandom_[nTracks_] = infoRandom.crossedEnergy(TrackDetMatchInfo::HcalRecHits);
+      centerIdRandom                     = infoRandom.findMaxDeposition(TrackDetMatchInfo::HcalRecHits);
+      hcal3x3EnergyRandom_[nTracks_]     = infoRandom.nXnEnergy(TrackDetMatchInfo::HcalRecHits, 1);
+      hcal5x5EnergyRandom_[nTracks_]     = infoRandom.nXnEnergy(TrackDetMatchInfo::HcalRecHits, 2);
+      hcal3x3EnergyMaxRandom_[nTracks_]  = infoRandom.nXnEnergy(centerIdRandom, TrackDetMatchInfo::HcalRecHits, 1);
+      hcal5x5EnergyMaxRandom_[nTracks_]  = infoRandom.nXnEnergy(centerIdRandom, TrackDetMatchInfo::HcalRecHits, 2);
+      trkPosAtHcalRandom_[nTracks_][0]   = infoRandom.trkGlobPosAtHcal.eta();
+      trkPosAtHcalRandom_[nTracks_][1]   = infoRandom.trkGlobPosAtHcal.phi();
       
       // Debugging information 
       
@@ -263,6 +331,7 @@ void CaloMatchingExample::analyze( const edm::Event& iEvent, const edm::EventSet
       LogTrace("TrackAssociator") << "HCAL, number of elements in the cone (hits): "   << info.hcalRecHits.size() ;
       LogTrace("TrackAssociator") << "HCAL, energy in the cone (hits): "               << info.hcalConeEnergy() << " GeV" ;
       LogTrace("TrackAssociator") << "HCAL, true energy: " << info.hcalTrueEnergy << " GeV" ;
+      LogTrace("TrackAssociator") << "HCAL, true energy corrected: " << info.hcalTrueEnergyCorrected << " GeV" ;
       LogTrace("TrackAssociator") << "HCAL, trajectory point (z,R,eta,phi): " << info.trkGlobPosAtHcal.z() << ", "
 	<< info.trkGlobPosAtHcal.R() << " , "	<< info.trkGlobPosAtHcal.eta() << " , "
 	<< info.trkGlobPosAtHcal.phi();
