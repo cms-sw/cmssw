@@ -12,8 +12,8 @@
  *
  * \file DCCEventBlock.h
  *
- * $Date: 2007/03/21 00:00:20 $
- * $Revision: 1.1.2.2 $
+ * $Date: 2007/03/28 00:43:17 $
+ * $Revision: 1.1.2.3 $
  *
  * \author N. Almeida
  * \author G. Franzoni
@@ -41,8 +41,10 @@ class DCCEventBlock {
 	
    virtual ~DCCEventBlock();  
  
-  void unpack( uint64_t * buffer, uint bufferSize, uint expFedId);
+   void unpack( uint64_t * buffer, uint bufferSize, uint expFedId);
 	
+   void enableSyncChecks();
+
    void updateCollectors();
 	
    void display(ostream & o);

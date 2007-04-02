@@ -10,8 +10,8 @@
  *
  * \file EcalRawToDigi.h
  *
- * $Date: 2007/03/20 01:28:39 $
- * $Revision: 1.1.2.1 $
+ * $Date: 2007/03/29 09:21:57 $
+ * $Revision: 1.1.2.3 $
  * \author N. Almeida
  * \author G. Franzoni
  *
@@ -28,7 +28,7 @@
 #include <DataFormats/EcalDigi/interface/EcalDigiCollections.h>
 #include <DataFormats/EcalRawData/interface/EcalRawDataCollections.h>
 
-#include <FWCore/Framework/interface/Handle.h>
+#include <DataFormats/Common/interface/Handle.h>
 #include <FWCore/Framework/interface/Event.h>
 #include <FWCore/Framework/interface/EDProducer.h>
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
@@ -74,6 +74,7 @@ class EcalRawToDigiDev : public EDProducer{
   bool tccUnpacking_;
   bool feUnpacking_;
   bool memUnpacking_;
+  bool syncCheck_;
   bool first_;
   bool put_;
 

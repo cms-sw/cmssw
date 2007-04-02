@@ -9,8 +9,8 @@
  *
  * \file DCCSRPBlock.h
  *
- * $Date: 2007/03/20 01:10:21 $
- * $Revision: 1.1.2.1 $
+ * $Date: 2007/03/28 00:43:18 $
+ * $Revision: 1.1.2.2 $
  *
  * \author N. Almeida
  *
@@ -41,7 +41,7 @@ class DCCSRPBlock : public DCCDataBlockPrototype {
     void display(ostream & o); 
 
     void unpack(uint64_t ** data, uint * dwToEnd, uint numbFlags = SRP_NUMBFLAGS);     	 
-    
+
     ushort srFlag(uint feChannel){ return srFlags_[feChannel-1]; }
     			
   protected :

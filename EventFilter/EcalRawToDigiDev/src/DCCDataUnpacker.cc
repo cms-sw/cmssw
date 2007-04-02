@@ -5,11 +5,15 @@
 #include "EventFilter/EcalRawToDigiDev/interface/EcalElectronicsMapper.h"
 
 DCCDataUnpacker::DCCDataUnpacker( 
-  EcalElectronicsMapper * mapper, bool hU, bool srpU, bool tccU, bool feU , bool memU
+  EcalElectronicsMapper * mapper, bool hU, bool srpU, bool tccU, bool feU , bool memU, bool syncCheck
 ){ 
   electronicsMapper_ = mapper;
   ebEventBlock_   = new DCCEBEventBlock(this,mapper,hU,srpU,tccU,feU,memU);
   eeEventBlock_   = new DCCEEEventBlock(this,mapper,hU,srpU,tccU,feU,memU);
+  if(syncCheck){
+    ebEventBlock_->enableSyncChecks();  
+    eeEventBlock_->enableSyncChecks();
+  }
 }
 
 

@@ -6,8 +6,8 @@
  * Prototype for ECAL data block unpacking
  * \file DCCDataBlockPrototype.h
  *
- * $Date: 2007/03/20 00:09:59 $
- * $Revision: 1.1.2.1 $
+ * $Date: 2007/03/28 00:43:16 $
+ * $Revision: 1.1.2.2 $
  * \author N. Almeida
  *
 */
@@ -46,11 +46,14 @@ class DCCDataBlockPrototype {
     virtual void updateCollectors(){};
 	
     virtual void display(ostream & o){} 
+
+    void enableSyncChecks(){sync_=true;}
     
     /**
      Updates data pointer and dw to end of event
     */
     virtual void updateEventPointers(){ 
+
      //cout<<"\n block Length "<<blockLength_;
      //cout<<"\n dwToEne...   "<<*dwToEnd_;    
 
@@ -76,6 +79,7 @@ class DCCDataBlockPrototype {
     
     uint blockLength_;
     bool unpackInternalData_;
+    bool sync_;
 
 };
 

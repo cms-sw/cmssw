@@ -35,6 +35,9 @@ EcalRawToDigiDev::EcalRawToDigiDev(edm::ParameterSet const& conf):
   
   //See if fe unpacking is enabled
   memUnpacking_(conf.getUntrackedParameter<bool>("memUnpacking",true)), 
+
+  //See if syncCheck is enabled
+  syncCheck_(conf.getUntrackedParameter<bool>("syncCheck",true)), 
   
   put_(conf.getUntrackedParameter<bool>("eventPut",false)),
 
@@ -129,7 +132,7 @@ EcalRawToDigiDev::EcalRawToDigiDev(edm::ParameterSet const& conf):
   
   // Build a new ECAL DCC data unpacker
   LogDebug("EcalRawToDigi") << "@SUB=DCCDataUnpacker"; 
-  theUnpacker_ = new DCCDataUnpacker(myMap_,headerUnpacking_,srpUnpacking_,tccUnpacking_,feUnpacking_,memUnpacking_);
+  theUnpacker_ = new DCCDataUnpacker(myMap_,headerUnpacking_,srpUnpacking_,tccUnpacking_,feUnpacking_,memUnpacking_,syncCheck_);
    
 }
 

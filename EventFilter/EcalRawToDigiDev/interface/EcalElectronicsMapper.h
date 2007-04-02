@@ -10,8 +10,8 @@
  
  * \file EcalElectronicsMapper.h
  *
- * $Date: 2007/03/23 16:26:45 $
- * $Revision: 1.2 $
+ * $Date: 2007/03/28 00:43:18 $
+ * $Revision: 1.1.2.3 $
  * \author N. Almeida
  * \author G. Franzoni
  *

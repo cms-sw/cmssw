@@ -104,15 +104,17 @@ void DCCMemBlock::unpack(uint64_t ** data, uint * dwToEnd, uint expectedTowerID)
   }
   
   // Synchronization Check 
-  uint dccBx = ( event_->l1A())&TOWER_BX_MASK;
-  uint dccL1 = ( event_->bx() )&TOWER_L1_MASK;
-  if( dccBx != bx_ || dccL1 != l1_ ){
-    ostringstream output;
-    output<<"EcalRawToDigi@SUB=DCCMemBlock::unpack"
-      <<"\nSynchronization error for Mem block in event "<<event_->l1A()<<" with bx "<<event_->bx()<<" in dcc <<"<<mapper_->getActiveDCC()
-      <<"\nMem local l1A is  "<<l1_<<" Mem local bx is "<<bx_;
-    //Note : add to error collection ?		 
-    throw ECALUnpackerException(output.str());
+  if(sync_){
+    uint dccBx = ( event_->l1A())&TOWER_BX_MASK;
+    uint dccL1 = ( event_->bx() )&TOWER_L1_MASK;
+    if( dccBx != bx_ || dccL1 != l1_ ){
+      ostringstream output;
+      output<<"EcalRawToDigi@SUB=DCCMemBlock::unpack"
+        <<"\nSynchronization error for Mem block in event "<<event_->l1A()<<" with bx "<<event_->bx()<<" in dcc <<"<<mapper_->getActiveDCC()
+        <<"\nMem local l1A is  "<<l1_<<" Mem local bx is "<<bx_;
+      //Note : add to error collection ?		 
+      throw ECALUnpackerException(output.str());
+    }
   }  
     
   // Number Of Samples Check

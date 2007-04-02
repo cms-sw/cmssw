@@ -16,7 +16,7 @@ DCCFEBlock::DCCFEBlock( DCCDataUnpacker * u, EcalElectronicsMapper * m, DCCEvent
   numbDWInXtalBlock_         = (expXtalTSamples_-2)/4+1;
   unfilteredDataBlockLength_ = mapper_->getUnfilteredTowerBlockLength();
   xtalGains_                 = new short[expXtalTSamples_]; 
- 
+  
 }
 
 
@@ -81,18 +81,18 @@ void DCCFEBlock::unpack(uint64_t ** data, uint * dwToEnd, bool zs, uint expected
   }
   
   // Check synchronization
-  uint dccBx = (event_->bx())&TCC_BX_MASK;
-  uint dccL1 = (event_->l1A())&TCC_L1_MASK;
-  
- 
-  if( dccBx != bx_ || dccL1 != l1_ ){
-    ostringstream output;
-    output<<"EcalRawToDigi@SUB=DCCFEBlock::unpack"
-     <<"\n Synchronization error for Tower Block "<<towerId_<<" in event "<<event_->l1A()<<" with bx "<<event_->bx()<<" in dcc "<<mapper_->getActiveDCC()
-     <<"\n TCC local l1A is  "<<l1_<<" and local bx is "<<bx_
-     <<"\n => Skipping this event..."<<endl;
-    //Note : add to error collection ?		 
-    throw ECALUnpackerException(output.str());
+  if(sync_){
+    uint dccBx = (event_->bx())&TCC_BX_MASK;
+    uint dccL1 = (event_->l1A())&TCC_L1_MASK; 
+    if( dccBx != bx_ || dccL1 != l1_ ){
+      ostringstream output;
+      output<<"EcalRawToDigi@SUB=DCCFEBlock::unpack"
+       <<"\n Synchronization error for Tower Block "<<towerId_<<" in event "<<event_->l1A()<<" with bx "<<event_->bx()<<" in dcc "<<mapper_->getActiveDCC()
+       <<"\n TCC local l1A is  "<<l1_<<" and local bx is "<<bx_
+       <<"\n => Skipping this event..."<<endl;
+      //Note : add to error collection ?		 
+      throw ECALUnpackerException(output.str());
+    }
   }
 
   // check number of samples

@@ -18,7 +18,7 @@ DCCSRPBlock::DCCSRPBlock(
   blockLength_    = SRP_BLOCKLENGTH;
   // Set SR flags to zero
   for(uint i=0; i<SRP_NUMBFLAGS; i++){ srFlags_[i]=0; }
-  
+
 }
 
 
@@ -53,16 +53,17 @@ void DCCSRPBlock::unpack(uint64_t ** data, uint * dwToEnd, uint numbFlags ){
   checkSrpIdAndNumbSRFlags(); 
 	 
   // Check synchronization
-  uint dccL1 = ( event_->l1A() ) & SRP_BX_MASK;
-  uint dccBx = ( event_->bx()  ) & SRP_L1_MASK;
-
-  if( dccBx != bx_ || dccL1 != l1_ ){
-    ostringstream output;
-    output<<"EcalRawToDigi@SUB=DCCSRPBlock::unpack"
-      <<"\nSynchronization error for SRP block in event "<<event_->l1A()<<" with bx "<<event_->bx()<<" in dcc <<"<<mapper_->getActiveDCC()
-      <<"\n SRP local l1A is  "<<l1_<<" and local bx is "<<bx_;
-     //Note : add to error collection ?		 
-     throw ECALUnpackerException(output.str());
+  if(sync_){
+    uint dccL1 = ( event_->l1A() ) & SRP_BX_MASK;
+    uint dccBx = ( event_->bx()  ) & SRP_L1_MASK;
+    if( dccBx != bx_ || dccL1 != l1_ ){
+      ostringstream output;
+      output<<"EcalRawToDigi@SUB=DCCSRPBlock::unpack"
+        <<"\nSynchronization error for SRP block in event "<<event_->l1A()<<" with bx "<<event_->bx()<<" in dcc <<"<<mapper_->getActiveDCC()
+        <<"\n SRP local l1A is  "<<l1_<<" and local bx is "<<bx_;
+       //Note : add to error collection ?		 
+       throw ECALUnpackerException(output.str());
+    }
   }  
   //display(cout); 
   addSRFlagToCollection();

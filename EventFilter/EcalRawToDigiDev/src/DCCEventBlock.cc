@@ -25,6 +25,17 @@ DCCEventBlock::DCCEventBlock( DCCDataUnpacker * u , EcalElectronicsMapper * m , 
   
 }
 
+
+
+void DCCEventBlock::enableSyncChecks(){
+   towerBlock_->enableSyncChecks();
+   tccBlock_->enableSyncChecks();
+   memBlock_->enableSyncChecks();
+   srpBlock_->enableSyncChecks();
+}
+
+
+
 void DCCEventBlock::updateCollectors(){
 
   dccHeaders_  = unpacker_->dccHeadersCollection();

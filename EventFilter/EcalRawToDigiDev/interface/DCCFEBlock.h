@@ -36,8 +36,8 @@ class DCCFEBlock : public DCCDataBlockPrototype {
     
     void display(ostream & o); 
     
-    void unpack(uint64_t ** data, uint * dwToEnd, bool zs, uint expectedTowerID);     
-    
+    void unpack(uint64_t ** data, uint * dwToEnd, bool zs, uint expectedTowerID);
+
     uint getLength(){return blockLength_; }
 	 
     			

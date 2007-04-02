@@ -39,17 +39,18 @@ void DCCTCCBlock::unpack(uint64_t ** data, uint * dwToEnd){
     checkTccIdAndNumbTTs();  
   
     // Check synchronization
-    uint dccBx = (event_->bx())  & TCC_BX_MASK;
-    uint dccL1 = (event_->l1A()) & TCC_L1_MASK;
-    
-    if( dccBx != bx_ || dccL1 != l1_ ){
-      ostringstream output;
-      output<<"EcalRawToDigi@SUB=DCCTCCBlock::unpack"
-       <<"\n Synchronization error for TCC block in event "<<event_->l1A()<<" with bx "<<event_->bx()<<" in dcc <<"<<mapper_->getActiveDCC()
-       <<"\n TCC local l1A is  "<<l1_<<" and local bx is "<<bx_
-       <<"\n Skipping this event..."<<endl;
-      //Note : add to error collection ?		 
-      throw ECALUnpackerException(output.str());
+    if(sync_){
+      uint dccBx = (event_->bx())  & TCC_BX_MASK;
+      uint dccL1 = (event_->l1A()) & TCC_L1_MASK;    
+      if( dccBx != bx_ || dccL1 != l1_ ){
+        ostringstream output;
+        output<<"EcalRawToDigi@SUB=DCCTCCBlock::unpack"
+        <<"\n Synchronization error for TCC block in event "<<event_->l1A()<<" with bx "<<event_->bx()<<" in dcc <<"<<mapper_->getActiveDCC()
+        <<"\n TCC local l1A is  "<<l1_<<" and local bx is "<<bx_
+        <<"\n Skipping this event..."<<endl;
+        //Note : add to error collection ?		 
+        throw ECALUnpackerException(output.str());
+      }
     }
     
     //check numb of samples
