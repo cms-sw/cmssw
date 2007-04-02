@@ -212,8 +212,8 @@ void DCCMemBlock::unpackMemTowerData(){
 		  
         index = ipn*50 + (stripId-1)*nTSamples_+i;
 		 
-	     cout<<"EcalRawToDigi@SUB=DCCMemBlock::unpackPnData"<<"\n Strip id "<<dec<<stripId<<" Xtal id "<<xtalId
-	        <<" tsamp = "<<i<<" 16b = 0x "<<hex<<(*xData_)<<dec<<endl;
+	LogDebug("EcalRawToDigi")<<"EcalRawToDigi@SUB=DCCMemBlock::unpackPnData"<<"\n Strip id "<<dec<<stripId<<" Xtal id "<<xtalId
+	    <<" tsamp = "<<i<<" 16b = 0x "<<hex<<(*xData_)<<dec;
 	   
         uint temp = (*xData_)&TOWER_DIGI_MASK;
 		
