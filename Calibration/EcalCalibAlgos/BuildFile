@@ -7,6 +7,16 @@
 <use name=DataFormats/TrackReco>
 <use name=DataFormats/EgammaCandidates>
 <use name=Geometry/CaloEventSetup>
+<use name=CondFormats/EcalObjects>
+<use name=CondFormats/DataRecord>
+<use name=RecoLocalCalo/EcalRecAlgos>
+<use name=Geometry/CaloEventSetup>
+<use name=Geometry/CaloGeometry>
+<use name=Geometry/CaloTopology>
+<use name=RecoEcal/EgammaClusterAlgos>
+<use name=Geometry/EcalPreshowerAlgo>
+<use name=DataFormats/Math>
+<use name=RecoEcal/EgammaCoreTools>
 <use name=root>
 <use name=Calibration/Tools>
 <use name=CondFormats/DataRecord>
@@ -15,6 +25,16 @@
 <export>
    <lib name=CalibrationEcalCalibAlgos>
    <use name=Calibration/Tools>
+<use name=CondFormats/EcalObjects>
+<use name=CondFormats/DataRecord>
+<use name=RecoLocalCalo/EcalRecAlgos>
+<use name=Geometry/CaloEventSetup>
+<use name=Geometry/CaloGeometry>
+<use name=Geometry/CaloTopology>
+<use name=RecoEcal/EgammaClusterAlgos>
+<use name=Geometry/EcalPreshowerAlgo>
+<use name=DataFormats/Math>
+<use name=RecoEcal/EgammaCoreTools>
    <use name=FWCore/Framework>
    <use name=Foundation/PluginManager>
    <use name=FWCore/ParameterSet>
