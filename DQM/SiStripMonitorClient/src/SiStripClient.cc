@@ -105,7 +105,7 @@ void SiStripClient::onUpdate() const
     }
   }
   // Save to File
-  if (nUpdate > 1 && nUpdate%200 == 1) {
+  if (nUpdate > 1 && nUpdate%100 == 1) {
       webInterface_p->setActionFlag(SiStripWebInterface::SaveData);
       seal::Callback action(seal::CreateCallback(webInterface_p, 
 				 &SiStripWebInterface::performAction));
