@@ -190,7 +190,7 @@ void MaterialEffects::interact(FSimEvent& mySimEvent,
 //   Nuclear interactions
 //------------------------ 
 
-  if ( NuclearInteraction && myTrack.pid() > 22 ) { 
+  if ( NuclearInteraction && abs(myTrack.pid()) > 22 ) { 
 
     // A few fudge factors ...
     double factor = 1.;
@@ -229,7 +229,7 @@ void MaterialEffects::interact(FSimEvent& mySimEvent,
     
   }
 
-  if ( NuclearInteractionEDM && myTrack.pid() > 22 ) { 
+  if ( NuclearInteractionEDM && abs(myTrack.pid()) > 22 ) { 
     
     // A few fudge factors ...
     double factor = 1.;
