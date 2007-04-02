@@ -222,8 +222,21 @@ void PixelToLNKAssociateFromAscii::addConnections(
 //     if (pos ==  string::npos) throw cms::Exception("problem with plaquette formatting");
 //     int plaq = atoi( module.substr(3,pos-3).c_str());
 
-     PixelPannelType::PannelType pannelType = 
-         PixelPannelType::pannelType( PixelEndcapName(part,disk,blade,pannel) );
+     // pannel type
+//    string strT
+    pos = module.find("TYP:");
+    if (pos ==  string::npos) throw cms::Exception("problem with pannel type formatting");
+    string strT = module.substr(pos+5,3);
+
+    PixelPannelType::PannelType pannelType; 
+         if (strT=="P3R") pannelType=PixelPannelType::p3R;
+    else if (strT=="P3L") pannelType=PixelPannelType::p3L;
+    else if (strT=="P4R") pannelType=PixelPannelType::p4R;
+    else if (strT=="P4L") pannelType=PixelPannelType::p4L;
+    else throw cms::Exception("problem with pannel type formatting (unrecoginzed word)");
+
+//     PixelPannelType::PannelType pannelType = 
+//         PixelPannelType::pannelType( PixelEndcapName(part,disk,blade,pannel) );
   
     if (pannelType==PixelPannelType::p4R || pannelType==PixelPannelType::p4L) {
       int rocLnkId =0;
