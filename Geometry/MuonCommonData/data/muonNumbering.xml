@@ -480,6 +480,11 @@
    <Parameter name="CopyNoTag" value="[me_ring]"/>
    <Parameter name="CopyNoOffset" value="3*[super]"/>
  </SpecPar>  
+ <SpecPar name="MuonEndcapRingA">
+   <PartSelector path="//ME1A_ActiveGasVol"/>
+   <Parameter name="CopyNoTag" value="[me_ring]"/>
+   <Parameter name="CopyNoOffset" value="4*[super]"/>
+ </SpecPar>  
 
 </SpecParSection> 
 
