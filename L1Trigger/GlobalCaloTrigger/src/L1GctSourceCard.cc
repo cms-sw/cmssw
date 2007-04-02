@@ -68,7 +68,6 @@ void L1GctSourceCard::reset()
     m_regions.at(i).reset();
   }
 
-  m_currentBX = 0;
 }
 
 /// set the Regions
