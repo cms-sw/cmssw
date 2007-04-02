@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerClient.cc
  *
- * $Date: 2007/03/26 17:35:05 $
- * $Revision: 1.30 $
+ * $Date: 2007/04/02 16:15:36 $
+ * $Revision: 1.1 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -470,7 +470,7 @@ void EETriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile[0] << "<table border=1>" << std::endl;
   for ( unsigned int i=0; i<superModules_.size(); i ++ ) {
     htmlFile[0] << "<td bgcolor=white><a href=""#" << superModules_[i] << ">"
-             << setfill( '0' ) << setw(2) << superModules_[i] << "</a></td>";
+                << setfill( '0' ) << setw(2) << superModules_[i] << "</a></td>";
   }
   htmlFile[0] << std::endl << "</table>" << std::endl;
 
@@ -511,7 +511,7 @@ void EETriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
     if ( i>0 ) htmlFile[0] << "<a href=""#top"">Top</a>" << std::endl;
     htmlFile[0] << "<hr>" << std::endl;
     htmlFile[0] << "<h3><a name=""" << ism << """></a><strong>Supermodule&nbsp;&nbsp;"
-             << ism << "</strong></h3>" << endl;
+                << ism << "</strong></h3>" << endl;
 
     // ---------------------------  Et plot
 
@@ -598,24 +598,19 @@ void EETriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
 
       int counter = 0;
 
-      for ( int j=1; j<=7; j++ ) {
+      for ( int j=1; j<8; j++ ) {
 
         if ( j == 3 ) continue;   //  010 bits combination is not used
         counter++;
-        if ( j <= 6 ) {
-          imgName = meName + "_" + char(48+j) + ".png";
+        if ( j < 7 ) {
+          imgName = meName + "_" + char(47+j) + ".png";
+          obj3f->GetZaxis()->SetRange( j, j );
         }
         else {
           imgName = meName + "_6-7.png";
+          obj3f->GetZaxis()->SetRange( j, j+1 );
         }
         imgMeName = htmlDir + imgName;
-
-        if ( j != 6 ) {
-          obj3f->GetZaxis()->SetRange( j, j );
-        }
-        else {
-          obj3f->GetZaxis()->SetRange( j, j );
-        }
 
         obj2f = (TH2F*) obj3f->Project3D( "yx" );
 
@@ -628,10 +623,10 @@ void EETriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
         cMe2->SetGridy();
 
         std::stringstream title;
-        if ( j <= 6 ) {
-          title << "EETTT Flags SM" << ism << ", bit " << binary(j-1);
+        if ( j < 7 ) {
+          title << "EETTT Flags SM" << std::setfill('0') << std::setw(2) << ism << ", bit " << binary(j-1);
         } else {
-          title << "EETTT Flags SM" << ism << " bits 110+111";
+          title << "EETTT Flags SM" << std::setfill('0') << std::setw(2) << ism << " bits 110+111";
         }
         obj2f->SetTitle( title.str().c_str() );
 
@@ -673,7 +668,7 @@ void EETriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
 
       for ( int j=1; j<=2; j++ ) {
 
-        imgName = meName + char(48+j) + ".png";
+        imgName = meName + "_" + char(47+j) + ".png";
         imgMeName = htmlDir + imgName;
 
         obj3f->GetZaxis()->SetRange( j, j );
@@ -689,7 +684,7 @@ void EETriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
         cMe2->SetGridy();
 
         std::stringstream title;
-        title << "EETTT FineGrainVeto SM" << ism << ", FineGrainVeto = " << j-1;
+        title << "EETTT FineGrainVeto SM" << std::setfill('0') << std::setw(2) << ism << ", FineGrainVeto = " << j-1;
         obj2f->SetTitle( title.str().c_str() );
 
         obj2f->Draw("colz");
