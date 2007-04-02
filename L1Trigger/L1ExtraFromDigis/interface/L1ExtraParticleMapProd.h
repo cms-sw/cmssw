@@ -5,18 +5,14 @@
 // Package:     L1ExtraFromDigis
 // Class  :     L1ExtraParticleMapProd
 // 
-/**\class L1ExtraParticleMapProd L1ExtraParticleMapProd.h L1Trigger/L1ExtraFromDigis/interface/L1ExtraParticleMapProd.h
+/**\class L1ExtraParticleMapProd \file L1ExtraParticleMapProd.h L1Trigger/L1ExtraFromDigis/interface/L1ExtraParticleMapProd.h \author Werner Sun
 
- Description: <one line class summary>
-
- Usage:
-    <usage>
-
+ Description: producer of L1ParticleMap objects from GT emulator object maps.
 */
 //
 // Original Author:  
 //         Created:  Tue Oct 17 00:14:00 EDT 2006
-// $Id: L1ExtraParticleMapProd.h,v 1.1 2006/10/17 21:41:32 wsun Exp $
+// $Id: L1ExtraParticleMapProd.h,v 1.2 2007/03/21 20:16:50 wsun Exp $
 //
 
 // system include files

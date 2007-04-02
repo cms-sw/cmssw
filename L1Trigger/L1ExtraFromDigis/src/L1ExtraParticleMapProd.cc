@@ -3,17 +3,12 @@
 // Package:    L1ExtraParticleMapProd
 // Class:      L1ExtraParticleMapProd
 // 
-/**\class L1ExtraParticleMapProd L1ExtraParticleMapProd.cc L1Trigger/L1ExtraParticleMapProd/src/L1ExtraParticleMapProd.cc
-
- Description: <one line class summary>
-
- Implementation:
-     <Notes on implementation>
+/**\class L1ExtraParticleMapProd \file L1ExtraParticleMapProd.cc L1Trigger/L1ExtraParticleMapProd/src/L1ExtraParticleMapProd.cc \author Werner Sun
 */
 //
 // Original Author:  Werner Sun
 //         Created:  Mon Oct 16 23:19:38 EDT 2006
-// $Id: L1ExtraParticleMapProd.cc,v 1.5 2007/03/21 20:16:51 wsun Exp $
+// $Id: L1ExtraParticleMapProd.cc,v 1.6 2007/03/22 13:42:34 wsun Exp $
 //
 //
 

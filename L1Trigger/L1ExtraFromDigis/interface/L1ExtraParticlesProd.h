@@ -5,18 +5,15 @@
 // Package:     L1ExtraFromDigis
 // Class  :     L1ExtraParticlesProd
 // 
-/**\class L1ExtraParticlesProd L1ExtraParticlesProd.h L1Trigger/L1ExtraFromDigis/interface/L1ExtraParticlesProd.h
+/**\class L1ExtraParticlesProd \file L1ExtraParticlesProd.h L1Trigger/L1ExtraFromDigis/interface/L1ExtraParticlesProd.h \author Werner Sun
 
- Description: <one line class summary>
-
- Usage:
-    <usage>
+ Description: producer of L1Extra particle objects from Level-1 hardware objects.
 
 */
 //
 // Original Author:  
 //         Created:  Tue Oct 17 00:13:51 EDT 2006
-// $Id$
+// $Id: L1ExtraParticlesProd.h,v 1.1 2006/10/17 21:41:32 wsun Exp $
 //
 
 // system include files

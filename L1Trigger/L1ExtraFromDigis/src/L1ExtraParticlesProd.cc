@@ -3,17 +3,12 @@
 // Package:    L1ExtraParticlesProd
 // Class:      L1ExtraParticlesProd
 // 
-/**\class L1ExtraParticlesProd L1ExtraParticlesProd.cc src/L1ExtraParticlesProd/src/L1ExtraParticlesProd.cc
-
-Description: <one line class summary>
-
-Implementation:
-<Notes on implementation>
+/**\class L1ExtraParticlesProd \file L1ExtraParticlesProd.cc src/L1ExtraParticlesProd/src/L1ExtraParticlesProd.cc
 */
 //
 // Original Author:  Werner Sun
 //         Created:  Mon Oct  2 22:45:32 EDT 2006
-// $Id: L1ExtraParticlesProd.cc,v 1.5 2007/01/10 19:48:22 wsun Exp $
+// $Id: L1ExtraParticlesProd.cc,v 1.6 2007/03/07 13:33:33 wsun Exp $
 //
 //
 

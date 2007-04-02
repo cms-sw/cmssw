@@ -5,19 +5,18 @@
 // Package:     L1Trigger
 // Class  :     L1ParticleMap
 // 
-/**\class L1ParticleMap L1ParticleMap.h DataFormats/L1Trigger/interface/L1ParticleMap.h
+/**\class L1ParticleMap \file L1ParticleMap.h DataFormats/L1Trigger/interface/L1ParticleMap.h \author Werner Sun
 
- Description: <one line class summary>
-
- Usage:
-    <usage>
-
+ Description: L1Extra class for map between triggers and L1Extra particles.
 */
 //
 // Original Author:  Werner Sun
 //         Created:  Fri Jul 14 19:46:30 EDT 2006
-// $Id: L1ParticleMap.h,v 1.10 2006/08/28 03:10:40 wsun Exp $
+// $Id: L1ParticleMap.h,v 1.11 2006/08/31 10:23:32 wsun Exp $
 // $Log: L1ParticleMap.h,v $
+// Revision 1.11  2006/08/31 10:23:32  wsun
+// Added MinBias trigger.
+//
 // Revision 1.10  2006/08/28 03:10:40  wsun
 // Revamped L1ParticleMap to handle OR triggers.
 //

@@ -3,12 +3,12 @@
 // Package:     L1Trigger
 // Class  :     L1ParticleMap
 // 
-// Implementation:
-//     <Notes on implementation>
+/**\class L1ParticleMap \file L1ParticleMap.cc DataFormats/L1Trigger/src/L1ParticleMap.cc \author Werner Sun
+*/
 //
 // Original Author:  Werner Sun
 //         Created:  Wed Jul 26 14:42:56 EDT 2006
-// $Id: L1ParticleMap.cc,v 1.7 2006/08/28 03:10:06 wsun Exp $
+// $Id: L1ParticleMap.cc,v 1.8 2006/08/31 10:23:33 wsun Exp $
 //
 
 // system include files
