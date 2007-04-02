@@ -2,7 +2,7 @@
 
 Test of the EventPrincipal class.
 
-$Id: eventprincipal_t.cppunit.cc,v 1.38 2007/03/04 06:14:45 wmtan Exp $
+$Id: eventprincipal_t.cppunit.cc,v 1.39 2007/03/27 23:13:09 wmtan Exp $
 
 ----------------------------------------------------------------------*/  
 #include <map>
@@ -19,6 +19,7 @@ $Id: eventprincipal_t.cppunit.cc,v 1.38 2007/03/04 06:14:45 wmtan Exp $
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
+#include "DataFormats/Provenance/interface/Provenance.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/TestObjects/interface/ToyProducts.h"
@@ -249,27 +250,29 @@ void testeventprincipal::put_a_product(edm::ProcessConfiguration* config,
 {
   typedef edm::Wrapper<PRODUCT_TYPE> WDP;
   std::auto_ptr<edm::EDProduct>  product(new WDP(std::auto_ptr<PRODUCT_TYPE>(new PRODUCT_TYPE)));
-  std::auto_ptr<edm::Provenance> provenance(new edm::Provenance);
 
   PRODUCT_TYPE dummyProduct;
   edm::TypeID dummytype(dummyProduct);
   std::string className = dummytype.friendlyClassName();
 
-  provenance->product.fullClassName_       = dummytype.userClassName();
-  provenance->product.friendlyClassName_   = className;
-  provenance->product.moduleLabel_         = moduleLabel;
-  provenance->product.processName_         = config->processName();
-  provenance->product.productInstanceName_ = productInstanceName;
-  provenance->product.init();
+  edm::BranchDescription bd;
+  bd.fullClassName_       = dummytype.userClassName();
+  bd.friendlyClassName_   = className;
+  bd.moduleLabel_         = moduleLabel;
+  bd.processName_         = config->processName();
+  bd.productInstanceName_ = productInstanceName;
+  bd.init();
+
 
   //   pProductRegistry_->addProduct(provenance->product);
   //   pProductRegistry_->setProductIDs();
 
   edm::ProductRegistry::ProductList const& pl = pProductRegistry_->productList();
-  edm::BranchKey const bk(provenance->product);
+  edm::BranchKey const bk(bd);
   edm::ProductRegistry::ProductList::const_iterator it = pl.find(bk);
-  provenance->product.productID_ = it->second.productID_;
+  bd.productID_ = it->second.productID_;
 
+  std::auto_ptr<edm::Provenance> provenance(new edm::Provenance(bd));
   //   edm::EventID col(1L);
   //   edm::Timestamp fakeTime;
   //   edm::EventPrincipal ep(col, fakeTime, *pProductRegistry_, *pProdConfig_);
