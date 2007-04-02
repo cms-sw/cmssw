@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2007/03/29 17:26:01 $
- *  $Revision: 1.30 $
+ *  $Date: 2007/04/02 14:12:44 $
+ *  $Revision: 1.31 $
  *  \author  M. Zanetti - INFN Padova
  *  \revision FRC 060906
  */
@@ -386,6 +386,8 @@ void DTROS25Unpacker::interpretRawData(const unsigned int* index, int datasize,
       // DQM IS PERFORMED FOR EACH ROS SEPARATELY
       if (pset.getUntrackedParameter<bool>("performDataIntegrityMonitor",false)) {
 	dataMonitor->processROS25(controlData, dduID, rosID);
+	// fill the vector with ROS's control data
+	controlDataFromAllROS.push_back(controlData);
       }
 
     }
@@ -405,8 +407,6 @@ void DTROS25Unpacker::interpretRawData(const unsigned int* index, int datasize,
     // (needed if there are more than 1 ROS)
     wordCounter++; word = index[swap(wordCounter)];
 
-    // fill the vector with ROS's control data
-    controlDataFromAllROS.push_back(controlData);
   } // loop on ROS!
 
 }
