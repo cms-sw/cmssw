@@ -287,6 +287,7 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 
 	    if (unpackStatusDigis) {
 	      for ( icfeb = 0; icfeb < 5; ++icfeb ) {///loop over status digis
+		if ( cscData[iCSC].cfebData(icfeb) != NULL )
 		cfebStatusProduct->insertDigi(layer, cscData[iCSC].cfebData(icfeb)->statusDigi());
 	      }
 	    }
