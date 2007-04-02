@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerClient.cc
  *
- * $Date: 2007/04/01 19:05:03 $
- * $Revision: 1.34 $
+ * $Date: 2007/04/02 09:31:23 $
+ * $Revision: 1.35 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -604,18 +604,13 @@ void EBTriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
         counter++;
         if ( j < 7 ) {
           imgName = meName + "_" + char(47+j) + ".png";
-        }
-        else {
-          imgName = meName + "_6-7.png";
-        }
-        imgMeName = htmlDir + imgName;
-
-        if ( j < 7 ) {
           obj3f->GetZaxis()->SetRange( j, j );
         }
         else {
+          imgName = meName + "_6-7.png";
           obj3f->GetZaxis()->SetRange( j, j+1 );
         }
+        imgMeName = htmlDir + imgName;
 
         obj2f = (TH2F*) obj3f->Project3D( "yx" );
 
