@@ -257,11 +257,16 @@ private:
   // We count from 1 
   enum eMinNum{ MIN_ENDCAP=1, MIN_STATION=1, MIN_RING=1, MIN_CHAMBER=1, MIN_LAYER=1 };
 
+  // BITS_det is smallest no. of binary bits required to label 'det' but allow 0 as a wild-card character
+  //  enum eNumBitDet{ BITS_ENDCAP=2, BITS_STATION=3,  BITS_RING=3, BITS_CHAMBER=7, BITS_LAYER=3 };
   // BITS_det is no. of binary bits required to label 'det' but allow 0 as a wild-card character
-  enum eNumBitDet{ BITS_ENDCAP=2, BITS_STATION=3,  BITS_RING=3, BITS_CHAMBER=7, BITS_LAYER=3 };
+  // Keep as multiples of 3 so that number can be easily decodable from octal
+  //@@ Why did I think chamber needed 7 bits? 6 bits covers up to 63 and we only have 36 max
+  enum eNumBitDet{ BITS_ENDCAP=3, BITS_STATION=3,  BITS_RING=3, BITS_CHAMBER=6, BITS_LAYER=3 };
 
   // MASK_det is binary bits set to pick off the bits for 'det' (defined as octal)
-  enum eMaskBitDet{ MASK_ENDCAP=03, MASK_STATION=07, MASK_RING=07, MASK_CHAMBER=0177, MASK_LAYER=07 };
+  //  enum eMaskBitDet{ MASK_ENDCAP=03, MASK_STATION=07, MASK_RING=07, MASK_CHAMBER=0177, MASK_LAYER=07 };
+  enum eMaskBitDet{ MASK_ENDCAP=07, MASK_STATION=07, MASK_RING=07, MASK_CHAMBER=077, MASK_LAYER=07 };
 
   // START_det is bit position (counting from zero) at which bits for 'det' start in 'rawId' word
   enum eStartBitDet{ START_CHAMBER=BITS_LAYER, START_RING=START_CHAMBER+BITS_CHAMBER,
