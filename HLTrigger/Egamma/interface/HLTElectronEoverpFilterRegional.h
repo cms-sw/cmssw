@@ -4,7 +4,7 @@
 /** \class HLTElectronEoverpFilterRegional
  *
  *  \author Monica Vazquez Acosta (CERN)
- * $Id: HLTElectronEoverpFilterRegional.h,v 1.1 2007/01/26 10:38:13 monicava Exp $
+ * $Id: HLTElectronEoverpFilterRegional.h,v 1.1 2007/03/23 17:21:46 ghezzi Exp $
  */
 
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
@@ -22,7 +22,9 @@ class HLTElectronEoverpFilterRegional : public HLTFilter {
 
    private:
       edm::InputTag candTag_; // input tag for the RecoCandidates from the previous filter
-      edm::InputTag electronProducer_;// input tag for the producer of electrons
+      edm::InputTag electronIsolatedProducer_;// input tag for the producer of electrons
+      edm::InputTag electronNonIsolatedProducer_;// input tag for the producer of electrons
+      bool doIsolated_;
       double eoverpbarrelcut_; //  Eoverp barrel
       double eoverpendcapcut_; //  Eoverp endcap
       int    ncandcut_;        // number of electrons required

@@ -2,7 +2,7 @@
  *
  *  \author Monica Vazquez Acosta (CERN)
  *
- * $Id: HLTElectronEoverpFilterRegional.cc,v 1.4 2007/03/07 19:13:59 monicava Exp $
+ * $Id: HLTElectronEoverpFilterRegional.cc,v 1.1 2007/03/24 10:09:22 ghezzi Exp $
  *
  */
 
@@ -26,10 +26,13 @@
 HLTElectronEoverpFilterRegional::HLTElectronEoverpFilterRegional(const edm::ParameterSet& iConfig)
 {
    candTag_ = iConfig.getParameter< edm::InputTag > ("candTag");
-   electronProducer_ = iConfig.getParameter< edm::InputTag > ("electronProducer");
+   electronIsolatedProducer_ = iConfig.getParameter< edm::InputTag > ("electronIsolatedProducer");
+   electronNonIsolatedProducer_ = iConfig.getParameter< edm::InputTag > ("electronNonIsolatedProducer");
    eoverpbarrelcut_  = iConfig.getParameter<double> ("eoverpbarrelcut");
    eoverpendcapcut_  = iConfig.getParameter<double> ("eoverpendcapcut");
    ncandcut_  = iConfig.getParameter<int> ("ncandcut");
+   doIsolated_  = iConfig.getParameter<bool> ("doIsolated");
+
 
    //register your products
    produces<reco::HLTFilterObjectWithRefs>();
@@ -53,10 +56,15 @@ HLTElectronEoverpFilterRegional::filter(edm::Event& iEvent, const edm::EventSetu
   iEvent.getByLabel (candTag_,recoecalcands);
   
    // Get the HLT electrons from EgammaHLTPixelMatchElectronProducers
-  edm::Handle<reco::ElectronCollection> electronHandle;
-  iEvent.getByLabel(electronProducer_,electronHandle);
+  edm::Handle<reco::ElectronCollection> electronIsolatedHandle;
+  iEvent.getByLabel(electronIsolatedProducer_,electronIsolatedHandle);
 
-  // look at all candidates,  check cuts and add to filter object
+  edm::Handle<reco::ElectronCollection> electronNonIsolatedHandle;
+  if(!doIsolated_) {
+    iEvent.getByLabel(electronNonIsolatedProducer_,electronNonIsolatedHandle);
+  }
+
+ // look at all candidates,  check cuts and add to filter object
   int n(0);
   
     //loop over all the RecoCandidates from the previous filter, 
@@ -71,10 +79,11 @@ HLTElectronEoverpFilterRegional::filter(edm::Event& iEvent, const edm::EventSetu
     candref = recoecalcands->getParticleRef(i);
     reco::RecoEcalCandidateRef recr = candref.castTo<reco::RecoEcalCandidateRef>();
     reco::SuperClusterRef recr2 = recr->superCluster();
+
     //loop over the electrons to find the matching one
-    for(reco::ElectronCollection::const_iterator iElectron = electronHandle->begin(); iElectron != electronHandle->end(); iElectron++){
+    for(reco::ElectronCollection::const_iterator iElectron = electronIsolatedHandle->begin(); iElectron != electronIsolatedHandle->end(); iElectron++){
       
-      reco::ElectronRef electronref(reco::ElectronRef(electronHandle,iElectron - electronHandle->begin()));
+      reco::ElectronRef electronref(reco::ElectronRef(electronIsolatedHandle,iElectron - electronIsolatedHandle->begin()));
       const reco::SuperClusterRef theClus = electronref->superCluster();
       
       if(&(*recr2) ==  &(*theClus)) {
@@ -99,6 +108,37 @@ HLTElectronEoverpFilterRegional::filter(edm::Event& iEvent, const edm::EventSetu
 	}
       }//end of the if checking the matching of the SC from RecoCandidate and the one from Electrons
     }//end of loop over electrons
+
+    if(!doIsolated_) {
+    //loop over the electrons to find the matching one
+    for(reco::ElectronCollection::const_iterator iElectron = electronNonIsolatedHandle->begin(); iElectron != electronNonIsolatedHandle->end(); iElectron++){
+      
+      reco::ElectronRef electronref(reco::ElectronRef(electronNonIsolatedHandle,iElectron - electronNonIsolatedHandle->begin()));
+      const reco::SuperClusterRef theClus = electronref->superCluster();
+      
+      if(&(*recr2) ==  &(*theClus)) {
+
+	outcandref=edm::RefToBase<reco::Candidate>(electronref);
+	float elecEoverp = 0;
+	const math::XYZVector trackMom =  electronref->track()->momentum();
+	if( trackMom.R() != 0) elecEoverp = 
+				 electronref->superCluster()->energy()/ trackMom.R();
+
+	if( fabs(electronref->eta()) < 1.5 ){
+	  if ( elecEoverp < eoverpbarrelcut_) {
+	    n++;
+	    filterproduct->putParticle(outcandref);
+	  }
+	}
+	if( (fabs(electronref->eta()) > 1.5) &&  (fabs(electronref->eta()) < 2.5) ){
+	  if ( elecEoverp < eoverpendcapcut_) {
+	    n++;
+	    filterproduct->putParticle(outcandref);
+	  }
+	}
+      }//end of the if checking the matching of the SC from RecoCandidate and the one from Electrons
+    }//end of loop over electrons
+    }
   }//end of loop ober candidates
 
   // filter decision

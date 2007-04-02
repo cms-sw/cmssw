@@ -139,7 +139,7 @@ void EgammaHLTIslandClusterProducer::produce(edm::Event& evt, const edm::EventSe
 	int isforw=0;
         if(fabs((float) ((etaLow+etaHigh)/2.))>1.5) isforw=1;
 
-	std::cout<<"Island etaindex "<<etaIndex<<" low hig : "<<etaLow<<" "<<etaHigh<<" phi low hig" <<phiLow<<" " << phiHigh<<" isforw "<<emItr->gctEmCand()->regionId().isForward()<<" isforwnew" <<isforw<< std::endl;
+	//std::cout<<"Island etaindex "<<etaIndex<<" low hig : "<<etaLow<<" "<<etaHigh<<" phi low hig" <<phiLow<<" " << phiHigh<<" isforw "<<emItr->gctEmCand()->regionId().isForward()<<" isforwnew" <<isforw<< std::endl;
 	
 	etaLow -= regionEtaMargin_;
 	etaHigh += regionEtaMargin_;
@@ -182,7 +182,7 @@ void EgammaHLTIslandClusterProducer::produce(edm::Event& evt, const edm::EventSe
 	int isforw=0;
         if(fabs((float) ((etaLow+etaHigh)/2.))>1.5) isforw=1;
 
-	std::cout<<"Island etaindex "<<etaIndex<<" low hig : "<<etaLow<<" "<<etaHigh<<" phi low hig" <<phiLow<<" " << phiHigh<<" isforw "<<emItr->gctEmCand()->regionId().isForward()<<" isforwnew" <<isforw<< std::endl;
+	//std::cout<<"Island etaindex "<<etaIndex<<" low hig : "<<etaLow<<" "<<etaHigh<<" phi low hig" <<phiLow<<" " << phiHigh<<" isforw "<<emItr->gctEmCand()->regionId().isForward()<<" isforwnew" <<isforw<< std::endl;
 	
 	etaLow -= regionEtaMargin_;
 	etaHigh += regionEtaMargin_;

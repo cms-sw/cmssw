@@ -1,6 +1,6 @@
 /** \class HLTElectronTrackIsolFilterRegional
  *
- * $Id: HLTElectronTrackIsolFilterRegional.cc,v 1.3 2007/03/07 10:44:05 monicava Exp $ 
+ * $Id: HLTElectronTrackIsolFilterRegional.cc,v 1.1 2007/03/24 10:09:54 ghezzi Exp $ 
  *
  *  \author Monica Vazquez Acosta (CERN)
  *
@@ -30,8 +30,10 @@
 HLTElectronTrackIsolFilterRegional::HLTElectronTrackIsolFilterRegional(const edm::ParameterSet& iConfig){
   candTag_ = iConfig.getParameter< edm::InputTag > ("candTag");
   isoTag_ = iConfig.getParameter< edm::InputTag > ("isoTag");
+  nonIsoTag_ = iConfig.getParameter< edm::InputTag > ("nonIsoTag");
   pttrackisolcut_  = iConfig.getParameter<double> ("pttrackisolcut");
   ncandcut_  = iConfig.getParameter<int> ("ncandcut");
+  doIsolated_ = iConfig.getParameter<bool> ("doIsolated");
 
   //register your products
   produces<reco::HLTFilterObjectWithRefs>();
@@ -58,7 +60,10 @@ HLTElectronTrackIsolFilterRegional::filter(edm::Event& iEvent, const edm::EventS
   edm::Handle<reco::ElectronIsolationMap> depMap;
   iEvent.getByLabel (isoTag_,depMap);
   
-  
+  //get hold of track isolation association map
+  edm::Handle<reco::ElectronIsolationMap> depNonIsoMap;
+  if(!doIsolated_) iEvent.getByLabel (nonIsoTag_,depNonIsoMap);
+    
   // look at all electrons,  check cuts and add to filter object
   int n = 0;
 
@@ -69,6 +74,12 @@ HLTElectronTrackIsolFilterRegional::filter(edm::Event& iEvent, const edm::EventS
     reco::ElectronRef eleref = candref.castTo<reco::ElectronRef>();
     
     reco::ElectronIsolationMap::const_iterator mapi = (*depMap).find( eleref );
+
+    if(mapi==(*depMap).end()) {
+      if(!doIsolated_) mapi = (*depNonIsoMap).find( eleref ); 
+      //std::cout<<"MARCO HLTEgammaEcalIsolFilter 100 "<<std::endl;
+    }
+
     // Have to make sure that something is really found ????
     float vali = mapi->val;
     //for(reco::ElectronIsolationMap::const_iterator it = depMap->begin(); it != depMap->end(); it++){
