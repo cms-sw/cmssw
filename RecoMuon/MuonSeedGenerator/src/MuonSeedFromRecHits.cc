@@ -2,8 +2,8 @@
  *  See header file for a description of this class.
  *
  *
- *  $Date: 2006/10/05 13:11:55 $
- *  $Revision: 1.16 $
+ *  $Date: 2007/03/31 02:24:09 $
+ *  $Revision: 1.19 $
  *  \author A. Vitelli - INFN Torino, V.Palichik
  *  \author porting  R. Bellan
  *
@@ -127,13 +127,15 @@ TrajectorySeed MuonSeedFromRecHits::createDefaultSeed(ConstMuonRecHitPointer las
   AlgebraicVector t(4);
   AlgebraicSymMatrix mat(5,0) ;
 
-  // Fill the LocalTrajectoryParameters
   LocalPoint segPos=last->localPosition();
-  LocalVector segDir = last->localDirection();
 
+ //get the direction totally from the position of the segment
+  GlobalVector globalDir = last->globalPosition() - GlobalPoint();
+  LocalVector segDir = last->det()->toLocal(globalDir);
   double dxdz = segDir.x() / segDir.z();
   double dydz = segDir.y() / segDir.z();
-  double pzSign = segPos.z()>0. ? 1.:-1.;
+  double pzSign = segDir.z()>0. ? 1.:-1.;
+
 
   // make one with zero q/p
   LocalTrajectoryParameters param(0., dxdz, dydz, segPos.x(), segPos.y(), pzSign, true);
