@@ -13,7 +13,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelDigiSource.cc,v 1.11 2007/03/28 14:42:30 chiochia Exp $
+// $Id: SiPixelDigiSource.cc,v 1.12 2007/03/30 15:10:47 chiochia Exp $
 //
 //
 #include "DQM/SiPixelMonitorDigi/interface/SiPixelDigiSource.h"
@@ -22,6 +22,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 // DQM Framework
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "DQM/SiPixelCommon/interface/SiPixelFolderOrganizer.h"
@@ -33,21 +34,22 @@
 // DataFormats
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
-#include "DataFormats/SiPixelDigi/interface/PixelDigiCollection.h"
+#include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 //
 #include <boost/cstdint.hpp>
 #include <string>
 #include <stdlib.h>
+
 using namespace std;
+using namespace edm;
 
 SiPixelDigiSource::SiPixelDigiSource(const edm::ParameterSet& iConfig) :
-  conf_(iConfig)
+  conf_(iConfig),
+  src_( conf_.getParameter<edm::InputTag>( "src" ) )
 {
-
-   //now do what ever initialization is needed
    theDMBE = edm::Service<DaqMonitorBEInterface>().operator->();
-   cout<<endl<<"SiPixelDigiSource::SiPixelDigiSource: BackEnd interface"<<endl;
+   LogInfo ("PixelDQM") << "SiPixelDigiSource::SiPixelDigiSource: Got DQM BackEnd interface"<<endl;
 }
 
 
@@ -55,12 +57,13 @@ SiPixelDigiSource::~SiPixelDigiSource()
 {
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
+  LogInfo ("PixelDQM") << "SiPixelDigiSource::~SiPixelDigiSource: Destructor"<<endl;
 }
 
 
 void SiPixelDigiSource::beginJob(const edm::EventSetup& iSetup){
 
-  std::cout << " SiPixelDigiSource::beginJob - Initialisation ..... " << std::endl;
+  LogInfo ("PixelDQM") << " SiPixelDigiSource::beginJob - Initialisation ... " << std::endl;
   eventNo = 0;
   // Build map
   buildStructure(iSetup);
@@ -71,8 +74,9 @@ void SiPixelDigiSource::beginJob(const edm::EventSetup& iSetup){
 
 
 void SiPixelDigiSource::endJob(void){
-  std::cout << " SiPixelDigiSource::endJob - Saving Root File " << std::endl;
-  theDMBE->save("sourceoutputfile.root");
+  LogInfo ("PixelDQM") << " SiPixelDigiSource::endJob - Saving Root File " << std::endl;
+  std::string outputFile = conf_.getParameter<std::string>("outputFile");
+  theDMBE->save( outputFile.c_str() );
 }
 
 //------------------------------------------------------------------
@@ -82,15 +86,13 @@ void
 SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   eventNo++;
-  
-  std::cout << " Processing event: " << eventNo << std::endl;
 
   // retrieve producer name of input SiPixelDigiCollection
   std::string digiProducer = conf_.getUntrackedParameter<std::string>("DigiProducer","siPixelDigis");
 
   // get input data
   edm::Handle< edm::DetSetVector<PixelDigi> >  input;
-  iEvent.getByLabel(digiProducer, input);
+  iEvent.getByLabel( src_, input );
 
   std::map<uint32_t,SiPixelDigiModule*>::iterator struct_iter;
   for (struct_iter = thePixelStructure.begin() ; struct_iter != thePixelStructure.end() ; struct_iter++) {
@@ -99,10 +101,8 @@ SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     
   }
 
-
   // slow down...
   usleep(100000);
- 
   
 }
 
@@ -111,13 +111,13 @@ SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 //------------------------------------------------------------------
 void SiPixelDigiSource::buildStructure(const edm::EventSetup& iSetup){
 
-  std::cout <<" *** SiPixelDigiSource::buildStructure" << std::endl;
+  LogInfo ("PixelDQM") <<" SiPixelDigiSource::buildStructure" ;
   edm::ESHandle<TrackerGeometry> pDD;
   iSetup.get<TrackerDigiGeometryRecord>().get( pDD );
-                                                                                                                                                       
-  std::cout <<" *** Geometry node for TrackerGeom is  "<<&(*pDD)<<std::endl;
-  std::cout <<" *** I have " << pDD->dets().size() <<" detectors"<<std::endl;
-  std::cout <<" *** I have " << pDD->detTypes().size() <<" types"<<std::endl;
+
+  LogVerbatim ("PixelDQM") << " *** Geometry node for TrackerGeom is  "<<&(*pDD)<<std::endl;
+  LogVerbatim ("PixelDQM") << " *** I have " << pDD->dets().size() <<" detectors"<<std::endl;
+  LogVerbatim ("PixelDQM") << " *** I have " << pDD->detTypes().size() <<" types"<<std::endl;
   
   for(TrackerGeometry::DetContainer::const_iterator it = pDD->dets().begin(); it != pDD->dets().end(); it++){
     
@@ -130,13 +130,13 @@ void SiPixelDigiSource::buildStructure(const edm::EventSetup& iSetup){
       int ncols = (pixDet->specificTopology()).ncolumns();
 
       if(detId.subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel)) {
-        //cout << " ---> Adding Barrel Module " <<  detId.rawId() << endl;
+        LogDebug ("PixelDQM") << " ---> Adding Barrel Module " <<  detId.rawId() << endl;
 	uint32_t id = detId();
 	SiPixelDigiModule* theModule = new SiPixelDigiModule(id, ncols, nrows);
 	thePixelStructure.insert(pair<uint32_t,SiPixelDigiModule*> (id,theModule));
 
       }	else if(detId.subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap)) {
-	//cout << " ---> Adding Endcap Module " <<  detId.rawId() << endl;
+	LogDebug ("PixelDQM") << " ---> Adding Endcap Module " <<  detId.rawId() << endl;
 	uint32_t id = detId();
 	SiPixelDigiModule* theModule = new SiPixelDigiModule(id, ncols, nrows);
 	thePixelStructure.insert(pair<uint32_t,SiPixelDigiModule*> (id,theModule));
@@ -144,7 +144,7 @@ void SiPixelDigiSource::buildStructure(const edm::EventSetup& iSetup){
 
     }
   }
-  cout << " *** Pixel Structure Size " << thePixelStructure.size() << endl;
+  LogInfo ("PixelDQM") << " *** Pixel Structure Size " << thePixelStructure.size() << endl;
 }
 //------------------------------------------------------------------
 // Book MEs

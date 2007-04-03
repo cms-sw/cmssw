@@ -16,7 +16,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelDigiSource.h,v 1.2 2006/07/13 09:48:48 chiochia Exp $
+// $Id: SiPixelDigiSource.h,v 1.3 2007/03/09 08:35:48 chiochia Exp $
 //
 
 #include <memory>
@@ -62,6 +62,7 @@
 
     private:
        edm::ParameterSet conf_;
+       edm::InputTag src_;
        int eventNo;
        DaqMonitorBEInterface* theDMBE;
        std::map<uint32_t,SiPixelDigiModule*> thePixelStructure;
