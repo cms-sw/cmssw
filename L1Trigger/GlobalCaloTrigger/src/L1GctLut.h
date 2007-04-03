@@ -1,13 +1,12 @@
 #ifndef L1GCTLUT_H_
 #define L1GCTLUT_H_
 
-//#include "FWCore/Framework/interface/ESHandle.h"
-
 #include <boost/cstdint.hpp> //for uint16_t
 
 #include <map>
 #include <iostream>
 #include <iomanip>
+#include <sstream>
 
 /*!
  * \author Greg Heath
@@ -19,10 +18,8 @@
  * 
 */
 
-template <int NAddressBits, int NDataBits>
-class L1GctLut;
-template <int NAddressBits, int NDataBits>
-std::ostream& operator << (std::ostream& os, L1GctLut<NAddressBits, NDataBits>& lut);
+//template <int NAddressBits, int NDataBits>
+//class L1GctLut;
 
 template <int NAddressBits, int NDataBits>
 class L1GctLut
@@ -34,7 +31,24 @@ public:
   virtual ~L1GctLut();
 
   /// Overload << operator
-  friend std::ostream& operator << <> (std::ostream& os, const L1GctLut<NAddressBits, NDataBits>& lut);
+  friend std::ostream& operator << (std::ostream& os, const L1GctLut<NAddressBits, NDataBits>& lut)
+  {
+    //----------------------------------------------------------------------------------------
+    // Define the code here for the friend template function to get around
+    // compiler/linker problems when instantiating the template class.
+    // See http://www.parashift.com/c++-faq-lite/templates.html#faq-35.16
+    static const int maxAddress=L1GctLut<NAddressBits, NDataBits>::MAX_ADDRESS_BITMASK;
+    static const int width=L1GctLut<NAddressBits, NDataBits>::printWidth;
+
+    os << lut.printHeader();
+
+    for (int a=0; a<=maxAddress; a += width) {
+      os << lut.printLine(a);
+    }
+    return os;
+    // End of friend function definition
+    //----------------------------------------------------------------------------------------
+  }
 
   /// Access the look-up table contents for a given Address
   uint16_t lutValue (const uint16_t lutAddress) const;
@@ -42,12 +56,30 @@ public:
   /// Access the look-up table contents for a given Address
   uint16_t operator[] (const uint16_t lutAddress) const { return lutValue(lutAddress); } 
 
+  /// Equality check between look-up tables
+  template <int KAddressBits, int KDataBits>
+  int operator==(const L1GctLut<KAddressBits, KDataBits>& rhsLut) const { return equalityCheck(rhsLut); }
+
+  /// Inequality check between look-up tables
+  template <int KAddressBits, int KDataBits>
+  int operator!=(const L1GctLut<KAddressBits, KDataBits>& rhsLut) const { return !equalityCheck(rhsLut); }
+
 protected:
   
   L1GctLut();
 
   virtual uint16_t value (const uint16_t lutAddress) const=0;
+
+  template <int KAddressBits, int KDataBits>
+  bool equalityCheck(const L1GctLut<KAddressBits, KDataBits>& c) const;
+
   bool m_setupOk;
+
+private:
+
+  static const int printWidth;
+  std::string printHeader() const;
+  std::string printLine(const int add) const;
 
 };
 
@@ -55,6 +87,9 @@ template <int NAddressBits, int NDataBits>
 const uint16_t L1GctLut<NAddressBits, NDataBits>::MAX_ADDRESS_BITMASK = (1 << NAddressBits) - 1;
 template <int NAddressBits, int NDataBits>
 const uint16_t L1GctLut<NAddressBits, NDataBits>::MAX_DATA_BITMASK = (1 << NDataBits) - 1;
+
+template <int NAddressBits, int NDataBits>
+const int L1GctLut<NAddressBits, NDataBits>::printWidth = 16;
 
 template <int NAddressBits, int NDataBits>
 L1GctLut<NAddressBits, NDataBits>::L1GctLut() : m_setupOk(false) {}
@@ -72,40 +107,55 @@ uint16_t L1GctLut<NAddressBits, NDataBits>::lutValue(const uint16_t lutAddress) 
 }
 
 template <int NAddressBits, int NDataBits>
-std::ostream& operator << (std::ostream& os, const L1GctLut<NAddressBits, NDataBits>& lut)
+template <int KAddressBits, int KDataBits>
+bool L1GctLut<NAddressBits, NDataBits>::equalityCheck(const L1GctLut<KAddressBits, KDataBits>& rhsLut) const
 {
-  static const int maxAddress=L1GctLut<NAddressBits, NDataBits>::MAX_ADDRESS_BITMASK;
-  static const int width=16;
-  bool allZeros=true;
-  os << "      |";
-  for (int a=0; ((a<width) && (a<=maxAddress)); ++a) {
-    os << std::setw(6) << std::hex << a;
-  }
-  os << std::endl;
-  os << "------+";
-  for (int a=0; ((a<width) && (a<=maxAddress)); ++a) {
-    os << "------";
-  }
-  os << std::endl;
-  for (int a=0; a<=maxAddress; ) {
-    bool rowOfZeros=true;
-    for (int c=0; ((c<width) && ((a+c)<=maxAddress)); ++c) {
-      uint16_t address = static_cast<uint16_t>(a+c);
-      rowOfZeros &= (lut.lutValue(address)==0);
+  if (KAddressBits==NAddressBits && KDataBits==NDataBits) {
+    bool match=true;
+    for (uint16_t address=0; address<=MAX_ADDRESS_BITMASK; address++) {
+      if (value(address)!=rhsLut.lutValue(address)) { match = false; break; }
     }
-    if (!rowOfZeros) {
-      allZeros=false;
-      os << std::setw(6) << std::hex << a << "|";
-      for (int c=0; ((c<width) && (a<=maxAddress)); ++c) {
-        uint16_t address = static_cast<uint16_t>(a++);
-        os << std::setw(6) << std::hex << lut.lutValue(address);
-      }
-      os << std::endl;
-    } else { a += width; }
+    return match;
+  } else {
+    return false;
   }
-  if (allZeros)
-    { os << "      |   =====  All LUT contents are zero  ===== " << std::endl; }
-  return os;
+}
+
+template <int NAddressBits, int NDataBits>
+std::string L1GctLut<NAddressBits, NDataBits>::printHeader() const
+{
+  std::stringstream ss;
+  ss << "      |";
+  for (int a=0; ((a<printWidth) && (a<=MAX_ADDRESS_BITMASK)); ++a) {
+    ss << std::setw(6) << std::hex << a;
+  }
+  ss << std::endl;
+  ss << "------+";
+  for (int a=0; ((a<printWidth) && (a<=MAX_ADDRESS_BITMASK)); ++a) {
+    ss << "------";
+  }
+  ss << std::endl;
+
+  std::string temp;
+  ss >> temp;
+  return temp;
+}
+
+template <int NAddressBits, int NDataBits>
+std::string L1GctLut<NAddressBits, NDataBits>::printLine(const int add) const
+{
+  std::stringstream ss;
+  int a=add;
+  ss << std::setw(6) << std::hex << a << "|";
+  for (int c=0; ((c<printWidth) && (a<=MAX_ADDRESS_BITMASK)); ++c) {
+    uint16_t address = static_cast<uint16_t>(a++);
+    ss << std::setw(6) << std::hex << lutValue(address);
+  }
+  ss << std::endl;
+
+  std::string temp;
+  ss >> temp;
+  return temp;
 }
 
 #endif /*L1GCTLUT_H_*/
