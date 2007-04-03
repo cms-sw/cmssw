@@ -5,6 +5,7 @@
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
+#include "RecoLocalCalo/CaloTowersCreator/interface/HcalMaterials.h"
 #include "Math/Interpolator.h"
 #include<iostream>
 
