@@ -1,5 +1,5 @@
-#include "FWCore/Utilities/interface/Exception.h"
 #include "IOPool/Streamer/interface/StreamerInputIndexFile.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
 
 #include<fstream>
@@ -10,9 +10,7 @@ using namespace std;
 
 StreamerInputIndexFile::~StreamerInputIndexFile()
 {
-  if (startMsg_ != NULL) {
-    delete startMsg_; 
-  }
+  delete startMsg_; 
 
   for(indexRecIter it = this->begin(), itEnd = this->end(); it != itEnd; ++it) {
           delete (*it);
@@ -98,12 +96,11 @@ void StreamerInputIndexFile::readStartMessage() {
   uint32 headerSize = head.size();
   //Bring the pointer at start of Start Message (Starts after file header magic+reserved)
   ist_->seekg(sizeof(StartIndexRecordHeader), ios::beg);
+  if (headerBuf_.size() < (sizeof(StartIndexRecordHeader) + headerSize))
+    headerBuf_.resize(sizeof(StartIndexRecordHeader) + headerSize);
   ist_->read((char*)&headerBuf_[sizeof(StartIndexRecordHeader)], headerSize);
  
-  if (startMsg_ != NULL)
-  {
-     delete startMsg_;
-  }
+  delete startMsg_;
    
   startMsg_ = new StartIndexRecord();
   startMsg_->makeHeader(&headerBuf_[0]);
@@ -118,17 +115,20 @@ void StreamerInputIndexFile::readStartMessage() {
   //Bring ist_ at the end of record
   headerSize = (startMsg_->getInit())->headerSize(); 
   ist_->seekg(sizeof(StartIndexRecordHeader)+headerSize, ios::beg);
-  headerBuf_.resize(headerSize);
 
   eventHeaderSize_ = (startMsg_->getInit())->eventHeaderSize();
 }
 
 int StreamerInputIndexFile::readEventMessage()  {
-  int last_pos = ist_->tellg();
+  std::streampos last_pos = ist_->tellg();
   uint32 bufPtr = eventBufPtr_;
   //uint32 bufPtr = eventBufPtr_+1;
 
   //ist_->clear();
+  if (eventBuf_.size() < bufPtr + sizeof(HeaderView)) {
+    throw cms::Exception("readEventMessage","StreamerInputFile")
+      << "eventBuf array is about to overflow, just before first read.\n";
+  }
   ist_->read((char*)&eventBuf_[bufPtr], sizeof(HeaderView));
 
   if (ist_->eof() || static_cast<unsigned int>(ist_->gcount()) < sizeof(HeaderView))
@@ -136,7 +136,7 @@ int StreamerInputIndexFile::readEventMessage()  {
 	eof_ = true;
 	return 0;
   }
- 
+
   HeaderView head_(&eventBuf_[bufPtr]);
   uint32 code = head_.code();
 
@@ -148,8 +148,12 @@ int StreamerInputIndexFile::readEventMessage()  {
 
   //Bring the pointer at last position, start of event msg
   //ist_->clear();
-  ist_->seekg(last_pos, ios::beg);
+  ist_->seekg(last_pos);
   
+  if (eventBuf_.size() < bufPtr + eventHeaderSize_ + sizeof(uint64)) {
+    throw cms::Exception("readEventMessage","StreamerInputFile")
+      << "eventBuf array is about to overflow, just before second read.\n";
+  }
   ist_->read((char*)&eventBuf_[bufPtr], eventHeaderSize_+sizeof(uint64));
   if (ist_->eof()) {
      eof_= true;
@@ -167,13 +171,13 @@ int StreamerInputIndexFile::readEventMessage()  {
   indexes_.push_back(currentEvMsg);
 
   //This Brings the pointer to end of this Event Msg.
-  uint32 new_len = eventHeaderSize_ + sizeof(uint64); 
+  std::streamoff new_len = eventHeaderSize_ + sizeof(uint64); 
 
   //How many bytes have read so far
   eventBufPtr_ +=  eventHeaderSize_ + sizeof(uint64);
 
   //This should be the proper position of the file pointer
-  ist_->seekg(last_pos+new_len, ios::beg);
+  ist_->seekg(last_pos + new_len);
   return 1;
 }
 
@@ -201,5 +205,3 @@ indexRecIter StreamerInputIndexFile::sort() {
   std::sort(this->begin(), this->end(), header_event_sorter);
   return this->begin();
 }
-
-

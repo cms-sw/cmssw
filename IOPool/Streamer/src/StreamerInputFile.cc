@@ -1,5 +1,5 @@
-#include "FWCore/Utilities/interface/Exception.h"
 #include "IOPool/Streamer/interface/StreamerInputFile.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #include "IOPool/Streamer/interface/StreamerInputIndexFile.h"
 #include "IOPool/Streamer/interface/StreamerFileIO.h"
 #include "DataFormats/Common/interface/Wrapper.h"
@@ -16,14 +16,8 @@ StreamerInputFile::~StreamerInputFile()
     delete ist_;
   }
   
-  if (startMsg_ != NULL) {
-    delete startMsg_;
-  }
-  
-  if (currentEvMsg_ != NULL) {
-    delete  currentEvMsg_;
-  }
-  
+  delete startMsg_;
+  delete  currentEvMsg_;
 }
 
 StreamerInputFile::StreamerInputFile(const std::string& name):
@@ -145,18 +139,17 @@ void StreamerInputFile::readStartMessage()
   uint32 headerSize = head.size();
   //Bring the pointer at start of Start Message/start of file
   ist_->seekg(0, ios::beg);
+  if (headerBuf_.size() < headerSize) headerBuf_.resize(headerSize);
   ist_->read(&headerBuf_[0], headerSize);
  
-  if (startMsg_ != NULL) 
-  {
-     delete startMsg_;
-  }
+  delete startMsg_;
   startMsg_ = new InitMsgView(&headerBuf_[0]) ;
 }
 
 bool StreamerInputFile::next()  
 {
   if (useIndex_) {
+
      /** Read the offset of next event from Event Index */
 
      if (indexIter_b != indexIter_e) {
@@ -241,8 +234,8 @@ bool StreamerInputFile::compareHeader() {
 
 
 int StreamerInputFile::readEventMessage()  
-{  
-  int last_pos = ist_->tellg();
+{
+  std::streampos last_pos = ist_->tellg();
   ist_->read(&eventBuf_[0], sizeof(HeaderView));
   if (ist_->eof() || (unsigned int)ist_->gcount() < sizeof(HeaderView))
         return 0;
@@ -252,24 +245,21 @@ int StreamerInputFile::readEventMessage()
   if (code != Header::EVENT) /** Not an event message should return ******/
     return 0;
 
-  uint32 eventSize =  head.size();
+  uint32 eventSize = head.size();
   //Bring the pointer to end of previous Message
-  
-  ist_->seekg(last_pos, ios::beg);
+
+  ist_->seekg(last_pos);
+  if (eventBuf_.size() < eventSize) eventBuf_.resize(eventSize);
   ist_->read(&eventBuf_[0], eventSize);
-  if (ist_->eof() || (unsigned int)ist_->gcount() < sizeof(eventSize)) //Probably an unfinished file
+  if (ist_->eof() || (unsigned int)ist_->gcount() < eventSize) //Probably an unfinished file
      return 0;
 
-  if (currentEvMsg_ != NULL) {
-      delete currentEvMsg_;
-  }
-  
+  delete currentEvMsg_;
   currentEvMsg_ = new EventMsgView((void*)&eventBuf_[0]);
   
   //This Brings the pointer to end of this Event Msg.
-  ist_->seekg(last_pos+currentEvMsg_->size());
-
+  std::streamoff evSize = currentEvMsg_->size();
+  ist_->seekg(last_pos + evSize);
+ 
   return 1;
 }
-
-
