@@ -3,8 +3,8 @@
  * Test suit for CSCDigi.
  * Based on testDTDigis.cpp
  *
- * $Date: 2006/12/14 22:35:09 $
- * $Revision: 1.15 $
+ * $Date: 2007/03/29 16:05:46 $
+ * $Revision: 1.16 $
  *
  * \author N. Terentiev, CMU (for CSCWireDigi, CSCRPCDigi, 
  *                                CSCALCTDigi, CSCCLCTDigi)
@@ -12,7 +12,7 @@
  * \author A. Tumanov, Rice U.
  */
 
-static const char CVSId[] = "$Id: testCSCDigis.cpp,v 1.15 2006/12/14 22:35:09 tumanov Exp $";
+static const char CVSId[] = "$Id: testCSCDigis.cpp,v 1.16 2007/03/29 16:05:46 teren Exp $";
 
 #include <cppunit/extensions/HelperMacros.h>
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
@@ -105,8 +105,16 @@ void testCSCDigis::fillCSCWireDigi(CSCWireDigiCollection & collection){
        std::vector<CSCWireDigi> digivec;
        for (int i=10; i<11; ++i){
            int wire=i;
-           int tbin=104; // Time bins 3,5,6 - Bits 3,5,6 ON i.e. 64+32+8 = 1101000 in binary
-           CSCWireDigi digi(wire,tbin);
+//           int tbin=104; // Time bins 3,5,6 - Bits 3,5,6 ON i.e. 
+                                  // 64+32+8 = 1101000 in binary
+           unsigned int tbinb=0, tbit=1;
+           for(int j=0;j<32;j++) {
+              if(j==0 || j==3 || j==5 || j==6 || j==31) tbinb=tbinb+tbit;
+              tbit=tbit<<1;
+                          // Time bins 0,3,5,6,31 - Bits 0,3,5,6,31 ON i.e
+                          // in binary - 0b10000000000000000000000001101001
+           } 
+           CSCWireDigi digi(wire,tbinb);
            digivec.push_back(digi);
         }
   
@@ -411,14 +419,16 @@ void testCSCDigis::readCSCWireDigi(CSCWireDigiCollection & collection){
   
             count++;
             CPPUNIT_ASSERT((*digiIt).getWireGroup()==10);
-            CPPUNIT_ASSERT((*digiIt).getTimeBin()==3);
+            CPPUNIT_ASSERT((*digiIt).getTimeBin()==0);
             printf("CSC Wire - endcap station ring csc layer wire tbin: %3d %3d %3d %3d %3d %3d  %3d\n",
                id.endcap(),id.station(),id.ring(),id.chamber(),id.layer(),
                (*digiIt).getWireGroup(),(*digiIt).getTimeBin());
-            std::cout << " CSC Time Bins On ";
+            std::cout << " CSC Wire Time Bins On ";
             std::vector<int> tbins=(*digiIt).getTimeBinsOn();
             for(unsigned int i=0; i<tbins.size();++i) std::cout<<tbins[i]<<" ";
             std::cout<<std::endl; 
+            std::cout << " CSC Wire Word with Time Bins Bits On "
+                      <<(*digiIt).getTimeBinWord()<<std::endl;
           }// for digis in layer
         }// end of for (detUnitIt=...
 
