@@ -12,8 +12,8 @@
  *   
  * \author: Vasile Mihai Ghete - HEPHY Vienna
  * 
- * $Date:$
- * $Revision:$
+ * $Date$
+ * $Revision$
  *
  */
 
@@ -108,9 +108,13 @@ public:
     ///    for the GT DAQ readout record
     std::map<GtBoard, int> GtDaqActiveBoardsMap;
 
-    // TODO FIXME
-    // bunch cross in event: order and number as written by hardware
-    //    static const std::vector<int> BxInEventNumber = {0xE, 0xF, 0x0, 0x1, 0x2};
+    /// L1 GT board - slot map
+    ///    gives the slot of each GT board (part of Board_Id)
+    std::map<GtBoard, int> GtBoardSlotMap;
+
+    /// L1 GT board name in hw record map
+    ///    gives the bits written for each GT board in the Board_Id
+    std::map<GtBoardType, int> GtBoardHexNameMap;
 
 public:
 

@@ -9,8 +9,8 @@
  *   
  * \author: Vasile Mihai Ghete - HEPHY Vienna
  * 
- * $Date:$
- * $Revision:$
+ * $Date$
+ * $Revision$
  *
  */
 
@@ -92,6 +92,63 @@ L1GlobalTriggerReadoutSetup::L1GlobalTriggerReadoutSetup()
     GtDaqActiveBoardsMap[timBoard] = iBit;
     iBit++;
 
+
+    // L1 GT board - slot map
+    //    gives the slot of each GT board (part of Board_Id)
+    std::map<GtBoard, int> GtBoardSlotMap;
+
+    int iSlot = 10;
+    GtBoardSlotMap[fdlBoard] = iSlot;
+
+    psbBoard.boardIndex = 0;
+    iSlot = 9;
+    GtBoardSlotMap[psbBoard] = iSlot;
+
+    psbBoard.boardIndex = 1;
+    iSlot = 13;
+    GtBoardSlotMap[psbBoard] = iSlot;
+    psbBoard.boardIndex = 2;
+    iSlot = 14;
+    GtBoardSlotMap[psbBoard] = iSlot;
+    psbBoard.boardIndex = 3;
+    iSlot = 15;
+    GtBoardSlotMap[psbBoard] = iSlot;
+
+    psbBoard.boardIndex = 4;
+    iSlot = 19;
+    GtBoardSlotMap[psbBoard] = iSlot;
+    psbBoard.boardIndex = 5;
+    iSlot = 20;
+    GtBoardSlotMap[psbBoard] = iSlot;
+    psbBoard.boardIndex = 6;
+    iSlot = 21;
+    GtBoardSlotMap[psbBoard] = iSlot;
+
+    gmtBoard.boardIndex = 0;
+    iSlot = 18;
+    GtBoardSlotMap[gmtBoard] = iSlot;
+
+//    gmtBoard.boardIndex = 1;
+//    iSlot = ?;
+//    GtBoardSlotMap[gmtBoard] = iSlot;
+
+    iSlot = 7;
+    GtBoardSlotMap[tcsBoard] = iSlot;
+
+    iSlot = 16;
+    GtBoardSlotMap[timBoard] = iSlot;
+
+
+    // L1 GT board name in hw record map
+    //    gives the bits written for each GT board in the Board_Id
+    std::map<GtBoardType, int> GtBoardHexNameMap;
+
+    GtBoardHexNameMap[GTFE] = 0xfe;
+    GtBoardHexNameMap[FDL]  = 0xfd;
+    GtBoardHexNameMap[PSB]  = 0xbb;
+    GtBoardHexNameMap[GMT]  = 0xdd;
+    GtBoardHexNameMap[TCS]  = 0xcc;
+    GtBoardHexNameMap[TIM]  = 0xff;
 
     // L1 GT calo input map
     //    gives the mapping of calorimeter objects to GT calorimeter input

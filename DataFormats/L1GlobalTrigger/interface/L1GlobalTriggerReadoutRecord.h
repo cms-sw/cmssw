@@ -270,26 +270,13 @@ public:
 private:
 
     L1GtfeWord m_gtfeWord;
+    
     std::vector<L1GtFdlWord> m_gtFdlWord;
     
     std::vector<L1GtPsbWord> m_gtPsbWord;
 
     edm::RefProd<L1MuGMTReadoutCollection> m_muCollRefProd;        
        
-    CaloDataWord m_gtElectron[L1GlobalTriggerReadoutSetup::NumberL1Electrons];  
-    CaloDataWord m_gtIsoElectron[L1GlobalTriggerReadoutSetup::NumberL1IsolatedElectrons];
-  
-    CaloDataWord m_gtCJet[L1GlobalTriggerReadoutSetup::NumberL1CentralJets];  
-    CaloDataWord m_gtFJet[L1GlobalTriggerReadoutSetup::NumberL1ForwardJets];  
-    CaloDataWord m_gtTJet[L1GlobalTriggerReadoutSetup::NumberL1TauJets];
-  
-    CaloMissingEtWord m_gtMissingEt;
-    
-    CaloDataWord m_gtTotalEt;    
-    CaloDataWord m_gtTotalHt;
-  
-    CaloJetCountsWord m_gtJetNr;
-      
 };
 
 

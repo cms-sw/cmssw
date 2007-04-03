@@ -12,8 +12,8 @@
  *   
  * \author: Vasile Mihai Ghete - HEPHY Vienna
  * 
- * $Date:$
- * $Revision:$
+ * $Date$
+ * $Revision$
  *
  */
 
@@ -43,10 +43,10 @@ typedef std::vector<bool> TechnicalTriggerWord;
 typedef unsigned MuonDataWord;
 
 // e-gamma, jet objects
-typedef uint16_t CaloDataWord;
+typedef boost::uint16_t CaloDataWord;
 
 // missing Et
-typedef uint32_t CaloMissingEtWord;
+typedef boost::uint32_t CaloMissingEtWord;
 
 // twelve jet counts, encoded in five bits per count; six jets per 32-bit word
 // code jet count = 31 indicate overflow condition
