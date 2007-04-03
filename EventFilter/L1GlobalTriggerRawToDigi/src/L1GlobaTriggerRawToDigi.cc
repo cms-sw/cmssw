@@ -346,8 +346,11 @@ void L1GlobalTriggerRawToDigi::unpackGMT(
 
     const unsigned* p = (const unsigned*) chp;
 
-    // for the moment assume 3 bx's FIXME use m_totalBxInEvent
-    for(int ib=-1; ib<=1; ib++) {
+    // loop range: int m_totalBxInEvent is normally even (L1A-1, L1A, L1A+1, with L1A = 0)
+    int bxMin = (m_totalBxInEvent + 1)/2 - m_totalBxInEvent; 
+    int bxMax = (m_totalBxInEvent + 1)/2; 
+    
+    for(int ib = bxMin; ib < bxMax; ib++) {
 
         L1MuGMTReadoutRecord gmtrr(ib);
 

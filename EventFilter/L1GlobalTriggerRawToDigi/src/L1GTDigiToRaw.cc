@@ -19,6 +19,8 @@
 #include "EventFilter/L1GlobalTriggerRawToDigi/interface/L1GTDigiToRaw.h"
 
 // system include files
+#include <vector>
+
 #include <boost/cstdint.hpp>
 
 // user include files
@@ -327,9 +329,11 @@ unsigned int L1GTDigiToRaw::packGmtCollection(
 
     unsigned gmtsize = 0;
 
-    // FIXME number of Bx according to record length
-
-    for(int ibx = -1; ibx <= 1; ibx++) {
+    // loop range: int m_totalBxInEvent is normally even (L1A-1, L1A, L1A+1, with L1A = 0)
+    int bxMin = (m_totalBxInEvent + 1)/2 - m_totalBxInEvent; 
+    int bxMax = (m_totalBxInEvent + 1)/2; 
+    
+    for(int ibx = bxMin; ibx < bxMax; ibx++) {
         L1MuGMTReadoutRecord const& gmtrr = digis->getRecord(ibx);
         gmtsize = packGMT(gmtrr, ptrGt);
         ptrGt += gmtsize;
@@ -353,8 +357,8 @@ unsigned L1GTDigiToRaw::packGMT(L1MuGMTReadoutRecord const& gmtrr, unsigned char
     // bx number, bx in event, length(?), board-id(?)
     *p++ = (gmtrr.getBxNr()&0xfff) | ((gmtrr.getBxInEvent()&0xf)<<12);
 
-    vector<L1MuRegionalCand> vrc;
-    vector<L1MuRegionalCand>::const_iterator irc;
+    std::vector<L1MuRegionalCand> vrc;
+    std::vector<L1MuRegionalCand>::const_iterator irc;
     unsigned* pp = p;
 
     vrc = gmtrr.getDTBXCands();
@@ -385,8 +389,8 @@ unsigned L1GTDigiToRaw::packGMT(L1MuGMTReadoutRecord const& gmtrr, unsigned char
     }
     p+=4;
 
-    vector<L1MuGMTExtendedCand> vgc;
-    vector<L1MuGMTExtendedCand>::const_iterator igc;
+    std::vector<L1MuGMTExtendedCand> vgc;
+    std::vector<L1MuGMTExtendedCand>::const_iterator igc;
 
     vgc = gmtrr.getGMTBrlCands();
     pp = p;
