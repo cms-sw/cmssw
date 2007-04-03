@@ -24,7 +24,7 @@ MuonCSCSeedFromRecHits::MuonCSCSeedFromRecHits(const edm::EventSetup & eSetup)
   fillConstants(3,5, 0.2773, -0.1017);
   fillConstants(3,6, -0.05597, 0.11840);
   fillConstants(3,8, -0.09705, 0.15916);
-  fillConstants(4,6, -0.2541, 0.2741);
+  //fillConstants(4,6, -0.2541, 0.2741);
 
 }
 
@@ -114,7 +114,10 @@ bool MuonCSCSeedFromRecHits::makeSeed(const MuonRecHitContainer & hits1, const M
           // FIXME
         float sigmapt = 25;
 
-        seed = createSeed(pt, sigmapt, *itr1);
+        // get the position and direction from the higher-quality segment
+        ConstMuonRecHitPointer bestSeg = bestSegment();
+        seed = createSeed(pt, sigmapt, bestSeg);
+
         //std::cout << "FITTED PT " << pt << " dphi " << dphi << " eta " << eta << std::endl;
         return true;
       }
@@ -127,21 +130,36 @@ bool MuonCSCSeedFromRecHits::makeSeed(const MuonRecHitContainer & hits1, const M
 }
 
 
-
-//typedef MuonTransientTrackingRecHit::MuonRecHitPointer MuonRecHitPointer;
-//typedef MuonTransientTrackingRecHit::ConstMuonRecHitPointer ConstMuonRecHitPointer;
 //typedef MuonTransientTrackingRecHit::MuonRecHitContainer MuonRecHitContainer;
-
-
-void MuonCSCSeedFromRecHits::makeDefaultSeed(TrajectorySeed & seed) const
+int MuonCSCSeedFromRecHits::segmentQuality(ConstMuonRecHitPointer  segment) const
 {
-  //Search ME1  ...
+  int Nchi2 = 0;
+  int quality = 0;
+  int nhits = segment->recHits().size();
+  if ( segment->chi2()/(nhits*2.-4.) > 3. ) Nchi2 = 1;
+  if ( segment->chi2()/(nhits*2.-4.) > 9. ) Nchi2 = 2;
+
+  if ( nhits >  4 ) quality = 1 + Nchi2;
+  if ( nhits == 4 ) quality = 3 + Nchi2;
+  if ( nhits == 3 ) quality = 5 + Nchi2;
+
+  float dPhiGloDir = fabs ( segment->globalPosition().phi() - segment->globalDirection().phi() );
+  if ( dPhiGloDir > M_PI   )  dPhiGloDir = 2.*M_PI - dPhiGloDir;
+
+  if ( dPhiGloDir > .2 ) ++quality;
+  return quality;
+}
+
+
+
+MuonCSCSeedFromRecHits::ConstMuonRecHitPointer
+MuonCSCSeedFromRecHits::bestSegment() const
+{
   MuonRecHitPointer me1=0, meit=0;
   float dPhiGloDir = .0;                            //  +v
   float bestdPhiGloDir = M_PI;                      //  +v
   int quality1 = 0, quality = 0;        //  +v  I= 5,6-p. / II= 4p.  / III= 3p.
-  
-//std::cout << "DEFAULT SEED " << std::endl; 
+
   for ( MuonRecHitContainer::const_iterator iter = theRhits.begin(); iter!= theRhits.end(); iter++ ){
     if ( !(*iter)->isCSC() ) continue;
 
@@ -149,67 +167,68 @@ void MuonCSCSeedFromRecHits::makeDefaultSeed(TrajectorySeed & seed) const
 
     meit = *iter;
 
-    int Nchi2 = 0;
-    if ( meit->chi2()/(meit->recHits().size()*2.-4.) > 3. ) Nchi2 = 1;
-    if ( meit->chi2()/(meit->recHits().size()*2.-4.) > 9. ) Nchi2 = 2;
+    quality = segmentQuality(meit);
 
-    if ( meit->recHits().size() >  4 ) quality = 1 + Nchi2;
-    if ( meit->recHits().size() == 4 ) quality = 3 + Nchi2;
-    if ( meit->recHits().size() == 3 ) quality = 5 + Nchi2;
+    dPhiGloDir = fabs ( meit->globalPosition().phi() - meit->globalDirection().phi() );
+    if ( dPhiGloDir > M_PI   )  dPhiGloDir = 2.*M_PI - dPhiGloDir;
 
-    dPhiGloDir = fabs ( meit->globalPosition().phi() 
-                      - meit->globalDirection().phi() );
-    if ( dPhiGloDir > M_PI   )  dPhiGloDir = 2.*M_PI - dPhiGloDir;  
-
-    if ( dPhiGloDir > .2 ) quality = quality +1;  
 
     if(!me1){
       me1 = meit;
-      quality1 = quality; 
+      quality1 = quality;
       bestdPhiGloDir = dPhiGloDir;
     }
-    
+
     if(me1) {
-      
+
       if ( !me1->isValid() ) {
-	me1 = meit;
-	quality1 = quality; 
-	bestdPhiGloDir = dPhiGloDir;
+        me1 = meit;
+        quality1 = quality;
+        bestdPhiGloDir = dPhiGloDir;
       }
-      
+
       if ( me1->isValid() && quality < quality1 ) {
         me1 = meit;
-        quality1 = quality; 
+        quality1 = quality;
         bestdPhiGloDir = dPhiGloDir;
-      }    
-      
+      }
+
       if ( me1->isValid() && bestdPhiGloDir > .03 ) {
-	if ( dPhiGloDir < bestdPhiGloDir - .01 && quality == quality1 ) {
-	  me1 = meit;
-	  quality1 = quality; 
-	  bestdPhiGloDir = dPhiGloDir;
-	}
-      }    
+        if ( dPhiGloDir < bestdPhiGloDir - .01 && quality == quality1 ) {
+          me1 = meit;
+          quality1 = quality;
+          bestdPhiGloDir = dPhiGloDir;
+        }
+      }
     }
-    
-  }   //  iter 
-  
 
-  if ( quality1 == 0 ) quality1 = 1;  
+  }   //  iter
 
+  return me1;
+}
+
+
+void MuonCSCSeedFromRecHits::makeDefaultSeed(TrajectorySeed & seed) const
+{
+  //Search ME1  ...
+  ConstMuonRecHitPointer me1= bestSegment();
   bool good=false;
 
   if(me1)
     if ( me1->isValid() )
     {
-      good = createDefaultEndcapSeed(me1, seed); 
-      //seed = createDefaultSeed(me1);
+      //good = createDefaultEndcapSeed(me1, seed); 
+      seed = createDefaultSeed(me1);
     }
-  
+
 }
 
+
+
+
+
 bool 
-MuonCSCSeedFromRecHits::createDefaultEndcapSeed(MuonRecHitPointer last, 
+MuonCSCSeedFromRecHits::createDefaultEndcapSeed(ConstMuonRecHitPointer last, 
 				 TrajectorySeed & seed) const {
   const std::string metname = "Muon|RecoMuon|MuonSeedFinder";
   
@@ -265,7 +284,7 @@ float MuonCSCSeedFromRecHits::computeDefaultPt(ConstMuonRecHitPointer muon) cons
   GlobalPoint gp = muon->globalPosition();
   GlobalVector gv = muon->globalDirection();
 
-  double dphi = gp.phi() - gv.phi();
+  //double dphi = gp.phi() - gv.phi();
   //std::cout << "SEGDPHI," << gp.eta() << "," << dphi << " " << std::endl;
   float getx0 = gp.x();
   float getay = gv.y()/gv.z();

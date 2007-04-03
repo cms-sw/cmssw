@@ -27,8 +27,11 @@ private:
   // when all else fails
   void makeDefaultSeed(TrajectorySeed & seed) const;
 
-  bool createDefaultEndcapSeed(MuonRecHitPointer last,TrajectorySeed & seed) const;
+  bool createDefaultEndcapSeed(ConstMuonRecHitPointer last,TrajectorySeed & seed) const;
   float computeDefaultPt(ConstMuonRecHitPointer muon) const;
+  int segmentQuality(ConstMuonRecHitPointer muon) const;
+  ConstMuonRecHitPointer  bestSegment() const;
+
   void analyze() const;
 
   typedef std::map< std::pair<int, int>, std::pair<double, double> > ConstantsMap;
