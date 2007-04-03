@@ -1,7 +1,7 @@
 /*  
  *
- *  $Date: 2007/03/25 23:20:12 $
- *  $Revision: 1.9 $
+ *  $Date: 2007/03/31 16:21:33 $
+ *  $Revision: 1.10 $
  *  \author  N. Marinelli IASA 
  *  \author G. Della Ricca
  *  \author G. Franzoni
@@ -95,8 +95,8 @@ void EcalDCCDaqFormatter::interpretRawData(const FEDRawData & fedData ,
     LogDebug("EcalRawToDigi") << " BX number " << (*itEventBlock)->getDataField("BX");
     LogDebug("EcalRawToDigi") << " RUN NUMBER  " <<  (*itEventBlock)->getDataField("RUN NUMBER");
 
-    int DCCid=(*itEventBlock)->getDataField("FED/DCC ID");      
-    int SMid=theMapper_->getSMId(DCCid);      
+    int fedId=(*itEventBlock)->getDataField("FED/DCC ID");      // fed id as found in raw data (0... 35 at tb, 610... 645 for EB at CMS )
+    int SMid=theMapper_->getSMId(fedId);                        // global unpacker: numbers ranging from 1 to 36 as EB slots
     
     bool _displayParserMessages = false;
     if( (*itEventBlock)->eventHasErrors() && _displayParserMessages)
@@ -107,11 +107,12 @@ void EcalDCCDaqFormatter::interpretRawData(const FEDRawData & fedData ,
         LogWarning("EcalRawToDigi") << "@SUB=EcalDCCDaqFormatter::interpretRawData"
 				    << "... errors from parser notified";
       }
+
     // getting the fields of the DCC header
     EcalDCCHeaderBlock theDCCheader;
-    theDCCheader.setId(DCCid);            // at the moment used as fed id
-    //    theDCCheader.setSlot(SMid);    //  Slot is geometrical slot in CMS ECAL barrael (1.. 36) and endcap (37.. 54)
-   
+    theDCCheader.setId( SMid );          // geometrical slot in CMS ECAL barrael (EB in pre-commissioning conventions: 1... 36)
+    theDCCheader.setFedId( fedId );      // fed id as found in raw data (0... 35 at tb, 610... 645 for EB in CMS  )
+
     theDCCheader.setRunNumber((*itEventBlock)->getDataField("RUN NUMBER"));
     short trigger_type = (*itEventBlock)->getDataField("TRIGGER TYPE");
     if(trigger_type >0 && trigger_type <5){theDCCheader.setBasicTriggerType(trigger_type);}
@@ -179,9 +180,6 @@ void EcalDCCDaqFormatter::interpretRawData(const FEDRawData & fedData ,
     // resetting counter of expected towers
     _expTowersIndex=0;
       
-   
-    //     // FIXME: dccID hard coded, for now
-    //     unsigned dccID = 1-1;// at the moment SM is 1 by default (in DetID)
 
     // if number of dccEventBlocks NOT same as expected stop
     if (!      (dccTowerBlocks.size() == _numExpectedTowers)      )
@@ -471,7 +469,7 @@ void EcalDCCDaqFormatter::interpretRawData(const FEDRawData & fedData ,
 	      pnAllocated = true;
 	    }
 
-	  // using SMid=slot-in-CMS, not DCCid=fed
+	  // using SMid=slot-in-CMS, not fed
 	  DecodeMEM( SMid , (*itTowerBlock),  pndigicollection ,
 		     memttidcollection,  memblocksizecollection,
 		     memgaincollection,  memchidcollection);
@@ -718,7 +716,7 @@ void EcalDCCDaqFormatter::DecodeMEM( int SMid, DCCTowerBlock *  towerblock,  Eca
     // if present Pn has any of its 5 channels with problems, do not produce digi for it
     if (! pnIsOkInBlock [pnId-1] ) continue;
 
-    // second argumenti is DCCId, to be determined
+    // second argumenti is SMid, namely geometrical slot in CMS ECAL barrel (1.. 36)
     EcalPnDiodeDetId PnId(EcalBarrel, SMid, pnId +  kPnPerTowerBlock*mem_id);
     EcalPnDiodeDigi thePnDigi(PnId );
 
