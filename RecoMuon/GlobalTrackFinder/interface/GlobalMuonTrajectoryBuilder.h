@@ -4,8 +4,8 @@
 /** \class GlobalMuonTrajectoryBuilder
  *  class to build muon trajectory
  *
- *  $Date: 2007/03/20 18:45:46 $
- *  $Revision: 1.52 $
+ *  $Date: 2007/03/21 17:51:04 $
+ *  $Revision: 1.53 $
  *
  *  \author N. Neumeister 	 Purdue University
  *  \author C. Liu 		 Purdue University
@@ -42,6 +42,8 @@ class TrajectoryCleaner;
 class GlobalMuonMonitorInterface;
 
 class TrackTransformer;
+
+class GlobalMuonRSTrajectoryBuilder;
 
 //class CkfTrajectoryBuilder;
 
@@ -154,8 +156,11 @@ class GlobalMuonTrajectoryBuilder : public MuonTrajectoryBuilder {
 
     bool theTkTrajsAvailableFlag;
     bool theMakeTkSeedFlag;
+    bool theRSFlag;
     bool theFirstEvent;
     bool theMIMFlag;
+
+    GlobalMuonRSTrajectoryBuilder * theRSBuilder;
 
     edm::ESHandle<TrackerTrajectoryBuilder> theCkfBuilder;
     edm::Handle<reco::TrackCollection> allTrackerTracks;

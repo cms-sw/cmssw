@@ -59,12 +59,12 @@ void TSGForRoadSearch::setEvent(const edm::Event &event){
   // if (!_field.isValid())/*abort*/{edm::LogError("::setEvent()")<<"magnetic field not found";}
   
   //get the propagator
-  theProxyService->eventSetup().get<TrackingComponentsRecord>().get(_propagatorName,_prop);
-  if (!_prop.isValid())/*abort*/{edm::LogError("::setEvent()")<<"propagator ("<<_propagatorName<<"_ not found";}
+  // theProxyService->eventSetup().get<TrackingComponentsRecord>().get(_propagatorName,_prop);
+  // if (!_prop.isValid())/*abort*/{edm::LogError("::setEvent()")<<"propagator ("<<_propagatorName<<"_ not found";}
 
   //get another propagator
-  theProxyService->eventSetup().get<TrackingComponentsRecord>().get(_propagatorCompatibleName,_propCompatible);
-  if (!_propCompatible.isValid())/*abort*/{edm::LogError("::setEvent()")<<"propagator ("<<_propagatorCompatibleName<<"_ not found";}
+  // theProxyService->eventSetup().get<TrackingComponentsRecord>().get(_propagatorCompatibleName,_propCompatible);
+  // if (!_propCompatible.isValid())/*abort*/{edm::LogError("::setEvent()")<<"propagator ("<<_propagatorCompatibleName<<"_ not found";}
 }
 
 
@@ -100,14 +100,14 @@ void TSGForRoadSearch::makeSeeds_2(const reco::Track & muon, std::vector<Traject
 
 
   //what are the first layers uncountered
-  StartingLayerFinder _finder(_prop.product(),_measurementTracker.product());
+  StartingLayerFinder _finder(theProxyService->propagator(_propagatorName),_measurementTracker.product());
   std::vector<StartingLayerFinder::LayerWithState> layers = _finder.startingOuterStripLayerWithStates(cIPFTS);
   LogDebug(_category)<<"("<<layers.size()<<") starting layers found";
 
   std::vector< DetLayer::DetWithState > compatible;
   //loop over them to find the first compatible detector
   for (std::vector<StartingLayerFinder::LayerWithState>::iterator itLWS=layers.begin(); itLWS!=layers.end();++itLWS){
-    compatible=itLWS->first->compatibleDets(itLWS->second,*_propCompatible,*_chi2Estimator);
+    compatible=itLWS->first->compatibleDets(itLWS->second,*theProxyService->propagator(_propagatorCompatibleName),*_chi2Estimator);
     if (!compatible.empty()) break;}
   if (compatible.empty()) {LogDebug(_category)<<"no compatible hits."; return;}
   LogDebug(_category)<<"("<<compatible.size()<<") compatible dets found";
@@ -144,14 +144,14 @@ void TSGForRoadSearch::makeSeeds_1(const reco::Track & muon, std::vector<Traject
   if (cIPFTS.position().mag()==0) { edm::LogError(_category)<<"initial point of muon is (0,0,0)."; return;}
 
   //what are the first layers uncountered
-  StartingLayerFinder _finder(_prop.product(),_measurementTracker.product());
+  StartingLayerFinder _finder(theProxyService->propagator(_propagatorName),_measurementTracker.product());
   std::vector<StartingLayerFinder::LayerWithState> layers = _finder.startingStripLayerWithStates(cIPFTS);
   LogDebug(_category)<<"("<<layers.size()<<") starting layers found";
 
   std::vector< DetLayer::DetWithState > compatible;
   //loop over them to find the first compatible detector
   for (std::vector<StartingLayerFinder::LayerWithState>::iterator itLWS=layers.begin(); itLWS!=layers.end();++itLWS){
-    compatible=itLWS->first->compatibleDets(itLWS->second,*_propCompatible,*_chi2Estimator);
+    compatible=itLWS->first->compatibleDets(itLWS->second,*theProxyService->propagator(_propagatorCompatibleName),*_chi2Estimator);
     if (!compatible.empty()) break;}
   if (compatible.empty()) {LogDebug(_category)<<"no compatible hits."; return;}
   LogDebug(_category)<<"("<<compatible.size()<<") compatible dets found";
@@ -185,7 +185,7 @@ void TSGForRoadSearch::makeSeeds_0(const reco::Track & muon, std::vector<Traject
 
   //take state at inner surface and check the first part reached
   std::vector<BarrelDetLayer*> blc = _measurementTracker->geometricSearchTracker()->tibLayers();
-  TrajectoryStateOnSurface inner = _prop->propagate(cIPFTS,blc.front()->surface());
+  TrajectoryStateOnSurface inner = theProxyService->propagator(_propagatorName)->propagate(cIPFTS,blc.front()->surface());
   if ( !inner.isValid() ) {LogDebug(_category) <<"inner state is not valid"; return;}
 
   double z = inner.globalPosition().z();
@@ -205,7 +205,7 @@ void TSGForRoadSearch::makeSeeds_0(const reco::Track & muon, std::vector<Traject
   }
 
   //find out at least one compatible detector reached
-  std::vector< DetLayer::DetWithState > compatible = inLayer->compatibleDets(inner,*_propCompatible,*_chi2Estimator);
+  std::vector< DetLayer::DetWithState > compatible = inLayer->compatibleDets(inner,*theProxyService->propagator(_propagatorCompatibleName),*_chi2Estimator);
 
   //loop the parts until at least a compatible is found
   while (compatible.size()==0) {
@@ -223,7 +223,7 @@ void TSGForRoadSearch::makeSeeds_0(const reco::Track & muon, std::vector<Traject
       inLayer = ( z < 0 ) ? ntecc.front() : ptecc.front() ;
       break;
     }
-    compatible = inLayer->compatibleDets(inner,*_propCompatible,*_chi2Estimator);
+    compatible = inLayer->compatibleDets(inner,*theProxyService->propagator(_propagatorCompatibleName),*_chi2Estimator);
   }
 
   //transform it into a PTrajectoryStateOnDet
@@ -254,7 +254,7 @@ void TSGForRoadSearch::makeSeeds_3(const reco::Track & muon, std::vector<Traject
 
   //take state at inner surface and check the first part reached
   std::vector<BarrelDetLayer*> blc = _measurementTracker->geometricSearchTracker()->tobLayers();
-  TrajectoryStateOnSurface outer = _prop->propagate(cIPFTS,blc.back()->surface());
+  TrajectoryStateOnSurface outer = theProxyService->propagator(_propagatorName)->propagate(cIPFTS,blc.back()->surface());
   if ( !outer.isValid() ) {LogDebug(_category) <<"outer state is not valid"; return;}
 
   double z = outer.globalPosition().z();
@@ -277,7 +277,7 @@ void TSGForRoadSearch::makeSeeds_3(const reco::Track & muon, std::vector<Traject
   }
 
   //find out at least one compatible detector reached
-  std::vector< DetLayer::DetWithState > compatible = inLayer->compatibleDets(outer,*_propCompatible,*_chi2Estimator);
+  std::vector< DetLayer::DetWithState > compatible = inLayer->compatibleDets(outer,*theProxyService->propagator(_propagatorCompatibleName),*_chi2Estimator);
 
   //loop the parts until at least a compatible is found
   while (compatible.size()==0) {
@@ -292,7 +292,7 @@ void TSGForRoadSearch::makeSeeds_3(const reco::Track & muon, std::vector<Traject
       inLayer = blc.back();
       break;
     }
-    compatible = inLayer->compatibleDets(outer,*_propCompatible,*_chi2Estimator);
+    compatible = inLayer->compatibleDets(outer,*theProxyService->propagator(_propagatorCompatibleName),*_chi2Estimator);
   }
 
   //transform it into a PTrajectoryStateOnDet

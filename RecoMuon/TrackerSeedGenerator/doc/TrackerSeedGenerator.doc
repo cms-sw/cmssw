@@ -1,0 +1,127 @@
+
+/*!
+
+\page RecoMuon_TrackerSeedGenerator Package RecoMuon/TrackerSeedGenerator
+
+<center>
+<small>
+
+<!-- @CVS_TAG@ will be substituted at build time, no need to touch -->
+<a href=http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/RecoMuon/TrackerSeedGenerator/?cvsroot=CMSSW&only_with_tag=@CVS_TAG@>Source code (CVS tag: @CVS_TAG@)</a> - 
+<a href=http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/RecoMuon/TrackerSeedGenerator/.admin/developers?rev=HEAD&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup>Administrative privileges</a>
+</small>
+</center>
+
+\section desc Description
+<!-- Short description of what this package is supposed to provide -->
+This package provides a class to produce a collection of TrajectorySeed
+inspired by a StandAloneMuon.  
+
+\subsection interface Public interface
+<!-- List the classes that are provided for use in other packages (if any) -->
+
+- MuonSeedFromConsecutiveHits
+- PrimitiveMuonSeed
+- TrackerSeedGeneratorFactory
+- TrackerSeedGenerator
+
+\subsection modules Modules
+<!-- Describe modules implemented in this package and their parameter set -->
+
+- TrackerSeedGeneratorFactory : The seal::PluginFactory for producing
+TrajectorySeed using different algorithms.  To use the TrackerSeedGeneratorFactory, add the following to your code: (see RecoMuon/TrackingTools for more information about MuonServiceProxy )
+Add the following to your code:
+\htmlonly
+<pre>
+  // service parameters
+  ParameterSet serviceParameters = parameterSet.getParameter<ParameterSet>("ServiceParameters");
+  
+  // the services
+  theService = new MuonServiceProxy(serviceParameters);
+
+  //
+  // start seed generator;
+  //
+  ParameterSet seedGenPSet = par.getParameter<ParameterSet>("SeedGeneratorParameters");
+  std::string seedGenName = seedGenPSet.getParameter<std::string>("ComponentName");
+  theTkSeedGenerator = TrackerSeedGeneratorFactory::get()->create(seedGenName, seedGenPSet);
+  theTkSeedGenerator->init(theService);
+</pre>
+\endhtmlonly
+
+Once per event, you must update the services:
+\htmlonly
+<pre>
+ theTkSeedGenerator->setEvent(event);
+</pre>
+\endhtmlonly
+
+\subsection algorithms Available Algorithms
+Choose one of the available algorithms to generate the StandAloneMuon inspired trajectory seeds.
+
+- TSGFromPixelPairs
+In your <b>.cfg</b> file, include
+\htmlonly
+<pre>
+include "RecoMuon/TrackerSeedGenerator/data/TSGFromPixelPairs.cfi"
+</pre>
+\endhtmlonly
+Which is
+<pre>
+\htmlinclude TSGFromPixelPairs.cfi
+</pre>
+
+- TSGFromPixelTriplets
+In your <b>.cfg</b> file, include
+\htmlonly
+<pre>
+include "RecoMuon/TrackerSeedGenerator/data/TSGFromPixelTriplets.cfi"
+</pre>
+\endhtmlonly
+Which is
+<pre>
+\htmlinclude TSGFromPixelTriplets.cfi
+</pre>
+
+
+- TSGForRoadSearch
+In your <b>.cfg</b> file, include
+\htmlonly
+<pre>
+include "RecoMuon/TrackerSeedGenerator/data/TSGForRoadSearch.cfi"
+</pre>
+\endhtmlonly
+Which is
+<pre>
+\htmlinclude TSGForRoadSearch.cfi
+</pre>
+
+- TrackerSeedGeneratorBC
+In your <b>.cfg</b> file, include
+\htmlonly
+<pre>
+include "RecoMuon/TrackerSeedGenerator/data/TrackerSeedGeneratorBC.cfi"
+</pre>
+\endhtmlonly
+Which is
+<pre>
+\htmlinclude TrackerSeedGeneratorBC.cfi
+</pre>
+
+\subsection tests Unit tests and examples
+<!-- Describe cppunit tests and example configuration files -->
+Unknown
+
+\section status Status and planned development 
+<!-- e.g. completed, stable, missing features --> 
+Recent development in RecoTracker/TkSeedGenerator has spurred
+reorganization and development of RecoMuon/TrackerSeedGenerator.  Soon,
+RecoMuon/TrackerSeedGenerator will use standard RecoTracker classes.
+Until then, TrackerSeedGeneratorBC is currently the default algorithm,
+but it will soon be removed.
+
+<hr>
+Last updated:
+@DATE@  Author: computer-generated.
+*/
+
