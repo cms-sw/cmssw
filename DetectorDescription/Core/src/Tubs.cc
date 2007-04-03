@@ -3,6 +3,11 @@
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "CLHEP/Units/PhysicalConstants.h"
 
+#include <cmath>
+
+using std::fabs;
+
+
 DDI::Tubs::Tubs(double zhalf,
     	        double rIn, double rOut,	      	      
 	        double startPhi, 
