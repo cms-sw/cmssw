@@ -7,7 +7,9 @@ DEFINE_SEAL_MODULE();
 
 #include "TrackerSeedGeneratorBC.h"
 #include "TSGFromOrderedHits.h"
+#include "TSGForRoadSearch.h"
 
 DEFINE_SEAL_PLUGIN(TrackerSeedGeneratorFactory, TrackerSeedGeneratorBC, "TrackerSeedGeneratorBC");
 DEFINE_SEAL_PLUGIN(TrackerSeedGeneratorFactory, TSGFromOrderedHits, "TSGFromOrderedHits");
+DEFINE_SEAL_PLUGIN(TrackerSeedGeneratorFactory, TSGForRoadSearch, "TSGForRoadSearch");
 
