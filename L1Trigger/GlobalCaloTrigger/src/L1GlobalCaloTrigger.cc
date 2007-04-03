@@ -13,11 +13,8 @@
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include <iostream>
-#include <sstream>
 
 using std::cout;
-using std::string;
-using std::stringstream;
 using std::endl;
 using std::vector;
 

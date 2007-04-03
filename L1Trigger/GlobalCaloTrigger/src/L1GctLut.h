@@ -18,9 +18,6 @@
  * 
 */
 
-//template <int NAddressBits, int NDataBits>
-//class L1GctLut;
-
 template <int NAddressBits, int NDataBits>
 class L1GctLut
 {
