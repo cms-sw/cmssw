@@ -1,8 +1,8 @@
 /*
  * \file EventCoordinatesSource.cc
  * 
- * $Date: 2006/10/31 00:16:28 $
- * $Revision: 1.15 $
+ * $Date: 2007/03/29 14:52:55 $
+ * $Revision: 1.2 $
  * \author M. Zanetti - CERN PH
  *
  */
@@ -32,8 +32,13 @@ EventCoordinatesSource::EventCoordinatesSource(const ParameterSet& ps){
   
   dbe = edm::Service<DaqMonitorBEInterface>().operator->();
 
-  edm::Service<MonitorDaemon> daemon; 	 
-  daemon.operator->();
+  if ( parameters.getUntrackedParameter<bool>("enableMonitorDaemon", true) ) {
+    Service<MonitorDaemon> daemon;
+    daemon.operator->();
+  } 
+  else {
+    cout<<"[EventCoordinatesSource]: Warning, MonitorDaemon service not enabled"<<endl;
+  }
 
   dbe->setVerbose(1);
   dbe->setCurrentFolder(parameters.getUntrackedParameter<string>("eventInfoFolder", "EventInfo/")) ;

@@ -9,8 +9,8 @@
  *  in the FF.
  *  The method mui->doMonitoring() is called to excute the clients
  *  analysis during the "onUpdate" status. 
- *  $Date: 2006/01/20 11:45:10 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/03/26 14:36:44 $
+ *  $Revision: 1.2 $
  *  \author S. Bolognesi - M. Zanetti
  */
 
@@ -50,6 +50,7 @@ class DQMEventSource : public edm::RawInputSource {
   QTestHandle * qtHandler;
 
   bool getQualityTestsFromFile;
+  bool getMESubscriptionListFromFile;
   unsigned int skipUpdates;
   std::string iRunMEName, iEventMEName, timeStampMEName;
   unsigned int updatesCounter;

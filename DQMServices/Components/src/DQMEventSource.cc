@@ -1,13 +1,11 @@
 /** \file 
  *
- *  $Date: 2007/03/28 16:08:52 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/03/31 11:07:53 $
+ *  $Revision: 1.5 $
  *  \author S. Bolognesi - M. Zanetti
  */
 
 #include "DQMServices/Components/interface/DQMEventSource.h"
-//#include <DataFormats/Common/interface/EventID.h>
-//#include <DataFormats/Common/interface/Timestamp.h>
 #include <FWCore/Framework/interface/Event.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 
@@ -38,11 +36,12 @@ DQMEventSource::DQMEventSource(const ParameterSet& pset,
   subscriber=new SubscriptionHandle;
   qtHandler=new QTestHandle;
 
-
+  getMESubscriptionListFromFile = pset.getUntrackedParameter<bool>("getMESubscriptionListFromFile", true);
   getQualityTestsFromFile = pset.getUntrackedParameter<bool>("getQualityTestsFromFile", true);
   skipUpdates = pset.getUntrackedParameter<int>("numberOfUpdatesToBeSkipped", 1);
 
   // subscribe to MEs and configure the quality tests
+  if (getMESubscriptionListFromFile)
   subscriber->getMEList(pset.getUntrackedParameter<string>("meSubscriptionList", "MESubscriptionList.xml")); 
   if (getQualityTestsFromFile)
     qtHandler->configureTests(pset.getUntrackedParameter<string>("qtList", "QualityTests.xml"),mui);
@@ -60,7 +59,7 @@ std::auto_ptr<Event> DQMEventSource::readOneEvent() {
   // the "onUpdate" call. 
   mui->doMonitoring();
 
-  subscriber->makeSubscriptions(mui);
+  if (getMESubscriptionListFromFile) subscriber->makeSubscriptions(mui);
 
   if (getQualityTestsFromFile) qtHandler->attachTests(mui);
   
