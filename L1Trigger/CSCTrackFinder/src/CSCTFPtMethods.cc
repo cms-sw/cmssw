@@ -10,7 +10,9 @@
 L1MuTriggerScales CSCTFPtMethods::trigger_scale;
 
 // Global scale factor to multiply all parameterizations by
-const float CSCTFPtMethods::kGlobalScaleFactor = 1.055;
+//const float CSCTFPtMethods::kGlobalScaleFactor = 1.055;
+// Now scale to 90% effic definition like in old ORCA
+const float CSCTFPtMethods::kGlobalScaleFactor = 1.30;
 
 // First ME1andME2, then ME1andME3, then MB1andME2
 // units are radians*GeV
