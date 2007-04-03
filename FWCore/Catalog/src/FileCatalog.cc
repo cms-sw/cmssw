@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: FileCatalog.cc,v 1.11 2007/01/19 05:25:11 wmtan Exp $
+// $Id: FileCatalog.cc,v 1.1 2007/03/04 04:43:30 wmtan Exp $
 //
 // Original Author: Luca Lista
 // Current Author: Bill Tanenbaum
@@ -14,7 +14,6 @@
 #include "FileCatalog/URIParser.h"
 #include "FileCatalog/IFCAction.h"
 #include "FileCatalog/IFCContainer.h"
-#include "StorageSvc/DbType.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Catalog/interface/SiteLocalConfig.h"
 
