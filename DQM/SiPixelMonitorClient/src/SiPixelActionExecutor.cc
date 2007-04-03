@@ -1,3 +1,4 @@
+#include "DQM/SiPixelMonitorClient/interface/ANSIColors.h"
 #include "DQM/SiPixelMonitorClient/interface/SiPixelActionExecutor.h"
 #include "DQM/SiPixelMonitorClient/interface/SiPixelUtility.h"
 #include "DQM/SiPixelMonitorClient/interface/SiPixelQualityTester.h"
@@ -65,23 +66,35 @@ bool SiPixelActionExecutor::readConfiguration(int& tkmap_freq, int& sum_barrel_f
 //
 // -- Create Tracker Map
 //
-void SiPixelActionExecutor::createTkMap(MonitorUserInterface* mui) {
+void SiPixelActionExecutor::createTkMap(MonitorUserInterface* mui, string mEName) {
   string tkmap_name;
   vector<string> me_names;
   if (!configParser_->getMENamesForTrackerMap(tkmap_name, tkMapMENames)){
-    cout << "SiPixelActionExecutor::createTkMap: Failed to read TrackerMap configuration parameters!! ";
+    cout << ACYellow << ACBold 
+         << "[SiPixelActionExecutor::createTkMap()] "
+	 << ACRed << ACBold << ACReverse
+	 << "Failed to read TrackerMap configuration parameters!! "
+	 << ACPlain
+	 << endl ;
     return;
   }
-  cout << " # of MEs in Tk Map " << tkMapMENames.size() << endl;
+  cout << ACYellow << ACBold 
+       << "[SiPixelActionExecutor::createTkMap()]"
+       << ACPlain
+       << " Selected ME: " << mEName << endl;
  
   // Create and Fill the Tracker Map
   mui->cd();
   if (collationDone) mui->cd("Collector/Collated/SiPixel");
 
-  TrackerMapCreator tkmap_creator;
-  tkmap_creator.create(mui, tkMapMENames);
+  TrackerMapCreator tkmap_creator(mEName);
+  tkmap_creator.create(mui, tkMapMENames, mEName);
   
   mui->cd();  
+  cout << ACYellow << ACBold 
+       << "[SiPixelActionExecutor::createTkMap()]"
+       << ACPlain
+       << " Tracker map created " << endl;
 }
 void SiPixelActionExecutor::createSummary(MonitorUserInterface* mui) {
 //cout<<"entering SiPixelActionExecutor::createSummary..."<<endl;

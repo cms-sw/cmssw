@@ -6,6 +6,14 @@ function RequestModuleHistoList() {
   url += queryString; 
   makeRequest(url, FillModuleHistoList);     
 }
+function RequestMEList() {
+  var queryString;
+  var url = getApplicationURL2();
+  url += "/Request?";
+  queryString = "RequestID=GetMEList";
+  url += queryString; 
+  makeRequest(url, FillMEList);     
+}
 function RequestSummaryHistoList() {
   var queryString;
   var url = getApplicationURL2();
@@ -66,6 +74,38 @@ function FillModuleHistoList() {
 
         // Histogram  select box
         var bobj = document.getElementById("histolistarea");
+        bobj.options.length = 0;
+
+        var hrows = root.getElementsByTagName('Histo');
+        for (var j = 0; j < hrows.length; j++) {
+          var name  = hrows[j].childNodes[0].nodeValue;
+          var boption = new Option(name, name);
+          try {
+            bobj.add(boption, null);
+          }
+          catch (e) {
+            bobj.add(boption, -1);
+          }
+        }
+      }
+      catch (err) {
+        alert ("Error detail: " + err.message); 
+      }
+    }
+  }
+}
+function FillMEList() {
+  if (http_request.readyState == 4) {
+    if (http_request.status == 200) {
+      try {
+
+
+        var doc = http_request.responseXML;
+        var root = doc.documentElement;
+        
+        // Module Number select box
+        // Histogram  select box
+        var bobj = document.getElementById("monitoring_element_list");
         bobj.options.length = 0;
 
         var hrows = root.getElementsByTagName('Histo');

@@ -11,8 +11,8 @@
 <link rel="stylesheet" type="text/css" href="css_files/folder-tree-static.css">
 <script type="text/javascript" src="WebLib.js"></script> 
 <body>
-<form name="Form1" action="javascript:void%200">
-  <div class="bloc" id="bloc1" style="width:56%;height=100%;float:left;">
+<form name="TheWholeForm" action="javascript:void%200">
+  <div class="bloc" id="bloc1" style="width:56%; height=100%; float:left;">
     <fieldset style="background:#225587;">
       <legend >Drawing Canvas</legend>
       <img id="drawingcanvas"
@@ -33,7 +33,7 @@
       </button>
     </fieldset>
   </div>
-  <div class="bloc"  id="bloc2" style="width:44%; float:right;">
+  <div class="bloc"  id="bloc2" style="width:44%; height=100%; float:right;">
     <fieldset style="background:#DDEFFF;">
         <div class="bloc"  id="bloc2_1" style="background:#C093FF;">
 	  <fieldset>
@@ -80,13 +80,30 @@
                  onClick="CheckQualityTestResults()" 
                  type="submit">
              </input>  
-             <input name="UpdateTrackerMap" 
-                 id="create_tkmap"
-                 value="Create Tk Map"
-		 style="width:23%;margin-left:2%;margin-bottom:1%;margin-top:1%;margin-right:2%"
-                 onClick="CreateTrackerMap()"
-                 type="submit">                   
-             </input>
+               <fieldset>
+             	  <input name="UpdateTrackerMap" 
+             	      id="create_tkmap"
+             	      value="TrackerMap"
+		      style="width:23%;margin-left:2%;margin-bottom:1%;margin-top:1%;margin-right:2%"
+             	      onClick="CreateTrackerMap()"
+             	      type="submit">		       
+             	  </input>
+                  <label id="MEList"
+                     style="margin-left:10%">
+                     ME list:
+	          </label>
+                  <select name="strucMEList" 
+                       id="monitoring_element_list"
+                       style="width:20%;height:5%;text-align;margin-right:2%;font-size 6pt">
+                  </select>
+                  <input name="listMECommand" 
+                        id="list_ME_command"
+                        value="Get ME List" 
+                        style="width:30%;margin-left:2%;margin-top:2%"
+                        onClick="RequestMEList()" 
+                        type="submit">
+                   </input>
+               </fieldset>
           </fieldset>
         </div>  
         <div id="dhtmlgoodies_tabView1" style="float=right:width:50%;padding:0.1% 0%">

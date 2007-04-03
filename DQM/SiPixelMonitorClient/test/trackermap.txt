@@ -1,14 +1,16 @@
 <?xml version="1.0"  standalone="no" ?>
 <html xmlns="http://www.w3.org/1999/xhtml"
-xmlns:svg="http://www.w3.org/2000/svg" 
-xmlns:xlink="http://www.w3.org/1999/xlink"
->
+      xmlns:svg="http://www.w3.org/2000/svg" 
+      xmlns:xlink="http://www.w3.org/1999/xlink">
 <head>
 <script type="text/ecmascript"> <![CDATA[
+
   //section to contain script code
   var myMapApp = new mapApp();
   var myMainMap;
   var myRefMapDragger;
+  
+  //------------------------------------------------------------------------------------------
   function init() {
      myMapApp.resetFactors();
      myMainMap = new map("mainMap",3000,100,1000,0.6);
@@ -17,11 +19,13 @@ xmlns:xlink="http://www.w3.org/1999/xlink"
      
      //colorRegion();
   }
+  
+  //------------------------------------------------------------------------------------------
   function showData(evt) {
         var xlinkns = "http://www.w3.org/1999/xlink"; 
-	var myPoly = evt.currentTarget;
-	var myDynamicTrackerText = document.getElementById("TrackerText");
-        var myDynamicTrackerText1 = document.getElementById("TrackerText1");
+	var myPoly  = evt.currentTarget;
+	var myDynamicTrackerText    = document.getElementById("TrackerText");
+        var myDynamicTrackerText1   = document.getElementById("TrackerText1");
         var myDynamicTrackerMessage = document.getElementById("TrackerMessage");
         var myTrackerPlot = document.getElementById("plot");
         if (evt.type == "mouseover") {
@@ -42,7 +46,7 @@ xmlns:xlink="http://www.w3.org/1999/xlink"
 	if (evt.type == "click") {
 		myDynamicTrackerText.firstChild.nodeValue="-";	
 		var moduleId = myPoly.getAttribute("detid");
-                var url_serv = "http://lxplus007.cern.ch:1972/urn:xdaq-application:lid=15/Request?";
+                var url_serv = "http://lxplus013.cern.ch:1972/urn:xdaq-application:lid=15/Request?";
                 var queryString = "RequestID=PlotTkMapHistogram";
 		queryString+= "&ModId=" + moduleId;
                 var url1 = url_serv  + queryString;
@@ -63,6 +67,8 @@ xmlns:xlink="http://www.w3.org/1999/xlink"
 	}
 
   }
+  
+  //------------------------------------------------------------------------------------------
   function colorRegion() {
 	var myGroup = document.getElementById("tracker");
 	var children = myGroup.childNodes;
@@ -87,28 +93,32 @@ xmlns:xlink="http://www.w3.org/1999/xlink"
 	 }
         }			
   }
+  
+  //------------------------------------------------------------------------------------------
   //holds data on map
   function map(mapName,origWidth,minZoom,maxZoom,zoomFact) {
 	var mapSVG = document.getElementById(mapName);
-	this.mapName = mapName;
-	this.origWidth = origWidth;
-	this.minZoom = minZoom;
-	this.maxZoom = maxZoom;
-	this.zoomFact = zoomFact;
+	this.mapName    = mapName;
+	this.origWidth  = origWidth;
+	this.minZoom    = minZoom;
+	this.maxZoom    = maxZoom;
+	this.zoomFact   = zoomFact;
 	this.pixXOffset = parseFloat(mapSVG.getAttributeNS(null,"x"));
 	this.pixYOffset = parseFloat(mapSVG.getAttributeNS(null,"y"));
-	viewBoxArray = mapSVG.getAttributeNS(null,"viewBox").split(" ");
-	this.curxOrig = parseFloat(viewBoxArray[0]);
-	this.curyOrig = parseFloat(viewBoxArray[1]);
-	this.curWidth = parseFloat(viewBoxArray[2]);
-	this.curHeight = parseFloat(viewBoxArray[3]);
-	this.pixWidth = parseFloat(mapSVG.getAttributeNS(null,"width"));
-	this.pixHeight = parseFloat(mapSVG.getAttributeNS(null,"height"));
-	this.pixXOrig = parseFloat(mapSVG.getAttributeNS(null,"x"));
-	this.pixYOrig = parseFloat(mapSVG.getAttributeNS(null,"y"));
-	this.pixSize = this.curWidth / this.pixWidth;
-	this.zoomVal = this.origWidth / this.curWidth * 100;
+	viewBoxArray    = mapSVG.getAttributeNS(null,"viewBox").split(" ");
+	this.curxOrig   = parseFloat(viewBoxArray[0]);
+	this.curyOrig   = parseFloat(viewBoxArray[1]);
+	this.curWidth   = parseFloat(viewBoxArray[2]);
+	this.curHeight  = parseFloat(viewBoxArray[3]);
+	this.pixWidth   = parseFloat(mapSVG.getAttributeNS(null,"width"));
+	this.pixHeight  = parseFloat(mapSVG.getAttributeNS(null,"height"));
+	this.pixXOrig   = parseFloat(mapSVG.getAttributeNS(null,"x"));
+	this.pixYOrig   = parseFloat(mapSVG.getAttributeNS(null,"y"));
+	this.pixSize    = this.curWidth  / this.pixWidth;
+	this.zoomVal    = this.origWidth / this.curWidth * 100;
   }
+  
+  //------------------------------------------------------------------------------------------
   map.prototype.newViewBox = function(refRectId,refMapId) {
 	var myRefRect = document.getElementById(refRectId);
 	var myRefMapSVG = document.getElementById(refMapId);
@@ -123,9 +133,13 @@ xmlns:xlink="http://www.w3.org/1999/xlink"
 	this.zoomVal = this.origWidth / this.curWidth * 100;
 	document.getElementById(this.mapName).setAttributeNS(null,"viewBox",myViewBoxString);
   }
+  
+  //------------------------------------------------------------------------------------------
   //holds data on window size
   function mapApp() {
-  }		
+  }
+  		
+  //------------------------------------------------------------------------------------------
   //calculate ratio and offset values of app window
   mapApp.prototype.resetFactors = function() {
 	var svgroot = document.documentElement;
@@ -139,11 +153,13 @@ xmlns:xlink="http://www.w3.org/1999/xlink"
 		else { //case window is more tall than myRatio
 			this.scaleFactor = viewBoxArray[2] / window.innerWidth;		
 		}
-		this.offsetX = (window.innerWidth - viewBoxArray[2] * 1 / this.scaleFactor) / 2;
+		this.offsetX = (window.innerWidth  - viewBoxArray[2] * 1 / this.scaleFactor) / 2;
 		this.offsetY = (window.innerHeight - viewBoxArray[3] * 1 / this.scaleFactor) / 2;
 		}
   }
-   mapApp.prototype.calcCoord = function(coordx,coordy) {
+  
+  //------------------------------------------------------------------------------------------
+  mapApp.prototype.calcCoord = function(coordx,coordy) {
 	var svgroot = document.documentElement;
 	var coords = new Array();
 	if (!svgroot.getScreenCTM) {
@@ -159,6 +175,7 @@ xmlns:xlink="http://www.w3.org/1999/xlink"
 	return coords;
   }		
   
+  //------------------------------------------------------------------------------------------
   //make an element draggable with constraints
   function dragObj(dragId,constrXmin,constrXmax,constrYmin,constrYmax,refPoint) {
 	this.dragId = dragId;
@@ -169,6 +186,8 @@ xmlns:xlink="http://www.w3.org/1999/xlink"
 	this.refPoint = refPoint;
 	this.status = "false";
   }
+  
+  //------------------------------------------------------------------------------------------
   dragObj.prototype.drag = function(evt) {
         //works only for rect and use-elements
         var myDragElement = evt.target;
@@ -233,6 +252,8 @@ xmlns:xlink="http://www.w3.org/1999/xlink"
 		this.status = "false";
 	}			
   }
+  
+  //------------------------------------------------------------------------------------------
   dragObj.prototype.zoom = function(inOrOut) {
 	var myDragElement = document.getElementById(this.dragId);
 	var myOldX = myDragElement.getAttributeNS(null,"x");
@@ -338,25 +359,25 @@ xmlns:xlink="http://www.w3.org/1999/xlink"
 		var myNewHeight = this.constrYmax - this.constrYmin;
 		break;
 	}
-if(inOrOut=="in" || inOrOut=="out" || inOrOut=="full"){
-	if (myNewWidth > (this.constrXmax - this.constrXmin)) {
-		myNewWidth = this.constrXmax - this.constrXmin;
-	}
-	if (myNewHeight > (this.constrYmax - this.constrYmin)) {
-		myNewHeight = this.constrYmax - this.constrYmin;
-	}
-	if (myNewX < this.constrXmin) {
-		myNewX = this.constrXmin;
-	}
-	if (myNewY < this.constrYmin) {
-		myNewY = this.constrYmin;
-	}
-	if ((myNewX + myNewWidth) > this.constrXmax) {
-		myNewX = this.constrXmax - myNewWidth;
-	}
-	if ((myNewY + myNewHeight) > this.constrYmax) {
-		myNewY = this.constrYmax - myNewHeight;
-	}
+        if(inOrOut=="in" || inOrOut=="out" || inOrOut=="full"){
+	  if (myNewWidth > (this.constrXmax - this.constrXmin)) {
+	  	 myNewWidth = this.constrXmax - this.constrXmin;
+	  }
+	  if (myNewHeight > (this.constrYmax - this.constrYmin)) {
+	  	 myNewHeight = this.constrYmax - this.constrYmin;
+	  }
+	  if (myNewX < this.constrXmin) {
+	  	 myNewX = this.constrXmin;
+	  }
+	  if (myNewY < this.constrYmin) {
+	  	 myNewY = this.constrYmin;
+	  }
+	  if ((myNewX + myNewWidth) > this.constrXmax) {
+	  	 myNewX = this.constrXmax - myNewWidth;
+	  }
+	  if ((myNewY + myNewHeight) > this.constrYmax) {
+	  	 myNewY = this.constrYmax - myNewHeight;
+	  }
 	}
 	myDragElement.setAttributeNS(null,"x",myNewX);
 	myDragElement.setAttributeNS(null,"y",myNewY);
@@ -364,6 +385,8 @@ if(inOrOut=="in" || inOrOut=="out" || inOrOut=="full"){
 	myDragElement.setAttributeNS(null,"height",myNewHeight);
 	myMainMap.newViewBox(this.dragId,"referenceMap");
   }
+  
+  //------------------------------------------------------------------------------------------
   //magnifier glass mouse-over effects
   function magnify(evt,scaleFact,inOrOut) {
 	if (inOrOut == "in") {
@@ -391,6 +414,8 @@ if(inOrOut=="in" || inOrOut=="out" || inOrOut=="full"){
 	   scaleObject(evt,scaleFact);
         }
   }
+  
+  //------------------------------------------------------------------------------------------
   //scale an object
   function scaleObject(evt,factor) {
   //reference to the currently selected object
@@ -400,6 +425,8 @@ if(inOrOut=="in" || inOrOut=="out" || inOrOut=="full"){
         var newtransform = "scale(" + factor + ") translate(" + (myX * 1 / factor - myX) + " " + (myY * 1 / factor - myY) +")";
         element.setAttributeNS(null,'transform', newtransform);
   }
+    
+  //------------------------------------------------------------------------------------------
   function zoomIt(inOrOut) {
 	if (inOrOut == "in") {
 	   if (myMainMap.zoomVal < myMainMap.maxZoom) {
@@ -422,19 +449,20 @@ if(inOrOut=="in" || inOrOut=="out" || inOrOut=="full"){
 	     else {	
 	     }		
 	}
-if(inOrOut!="in" && inOrOut!="out" && inOrOut!="full") myRefMapDragger.zoom(inOrOut);
+        if(inOrOut!="in" && inOrOut!="out" && inOrOut!="full") myRefMapDragger.zoom(inOrOut);
   }
 
-function pausecomp(millis)
-{
-  var inizio = new Date();
-  var inizioint=inizio.getTime();
-  var intervallo = 0;
-  while(intervallo<millis){
-    var fine = new Date();
-    var fineint=fine.getTime();
-     intervallo = fineint-inizioint;
-   }
+  //------------------------------------------------------------------------------------------
+  function pausecomp(millis)
+  {
+    var inizio = new Date();
+    var inizioint=inizio.getTime();
+    var intervallo = 0;
+    while(intervallo<millis){
+      var fine = new Date();
+      var fineint=fine.getTime();
+      intervallo = fineint-inizioint;
+  }
   return;
 }
 
@@ -445,66 +473,139 @@ function pausecomp(millis)
       .dragRect {fill:darkcyan;stroke:none;opacity:0.4;}
   ]]></style>
 </head>
-<body onload="init()" onresize="myMapApp.resetFactors();">
-<button onclick="zoomIt('in');">Zoom in</button>
-<button onclick="zoomIt('out');">Zoom out</button>
-<button onclick="zoomIt('full');">Home</button>
-<button onclick="zoomIt('up');">Up</button>
-<button onclick="zoomIt('down');">Down</button>
-<button onclick="zoomIt('left');">Left</button>
-<button onclick="zoomIt('right');">Right</button>
-<button onclick="zoomIt('TIB');">TIB</button>
-<button onclick="zoomIt('TOB');">TOB</button>
-<button onclick="zoomIt('TID+z');">TID+z</button>
-<button onclick="zoomIt('TID-z');">TID-z</button>
-<button onclick="zoomIt('TEC+z');">TEC+z</button>
-<button onclick="zoomIt('TEC-z');">TEC-z</button>
-<button onclick="zoomIt('PIXB');">PIXB</button>
-<button onclick="zoomIt('FPIX+z');">FPIX+z</button>
-<button onclick="zoomIt('FPIX-z');">FPIX-z</button>
-<br />
-<svg:svg width="100%" height="100%" viewBox="0 0 1400 700"  >
+
+<body bgcolor="#f7e699" 
+      onload="init()" 
+      onresize="myMapApp.resetFactors();">
+
+<fieldset style="background:#fffd5ff;">
+ <legend>Detector elements and controls</legend>
+ <center> 
+ <button onclick="zoomIt('TIB');">   TIB      </button>      
+ <button onclick="zoomIt('TOB');">   TOB      </button>      
+ <button onclick="zoomIt('TID+z');"> TID+z    </button>  
+ <button onclick="zoomIt('TID-z');"> TID-z    </button>  
+ <button onclick="zoomIt('TEC+z');"> TEC+z    </button>  
+ <button onclick="zoomIt('TEC-z');"> TEC-z    </button>  
+ <button onclick="zoomIt('PIXB');">  PIXB     </button>  
+ <button onclick="zoomIt('FPIX+z');">FPIX+z   </button> 
+ <button onclick="zoomIt('FPIX-z');">FPIX-z   </button> 
+ <hr size="2" />
+ <button onclick="zoomIt('in');">    Zoom in  </button>   
+ <button onclick="zoomIt('out');">   Zoom out </button> 
+ <button onclick="zoomIt('full');">  Home     </button>    
+ <button onclick="zoomIt('up');">    Up       </button>	    
+ <button onclick="zoomIt('down');">  Down     </button>    
+ <button onclick="zoomIt('left');">  Left     </button>
+ <button onclick="zoomIt('right');"> Right    </button>  
+ </center> 
+</fieldset>
+
+<svg:svg width="100%" 
+         height="100%" 
+	   viewBox="0 0 1024 768"  >
 <svg:defs>
-   <svg:symbol id="magnifyer" overflow="visible" style="fill:white;stroke:darkcyan;stroke-width:2;" >
+  <svg:symbol id="magnifyer" 
+              overflow="visible" 
+	      style="fill:white;stroke:darkcyan;stroke-width:2;" >
     <svg:circle r="12" />
   </svg:symbol>
-  <svg:symbol id="magnifyerZoomOut" overflow="visible" style="fill:white;stroke:darkcyan;stroke-width:2;" >
-    <svg:use xlink:href="#magnifyer"/>
-    <svg:line x1="-6" y1="0" x2="6" y2="0" style="stroke:darkcyan;stroke-width:2;"/>
+  <svg:symbol id="magnifyerZoomOut" 
+              overflow="visible" 
+	      style="fill:white;stroke:darkcyan;stroke-width:2;" >
+    <svg:use  xlink:href="#magnifyer"/>
+    <svg:line x1="-6" 
+              y1="0"  
+	      x2="6"  
+	      y2="0"  
+	      style="stroke:darkcyan;stroke-width:2;"/>
   </svg:symbol>
-  <svg:symbol id="magnifyerZoomIn" overflow="visible">
-    <svg:use xlink:href="#magnifyer"/>
-    <svg:line x1="-6" y1="0" x2="6" y2="0" style="stroke:darkcyan;stroke-width:2;"/>
-    <svg:line x1="0" y1="-6" x2="0" y2="6" style="stroke:darkcyan;stroke-width:2;"/>
+  <svg:symbol id="magnifyerZoomIn" 
+              overflow="visible">
+    <svg:use  xlink:href="#magnifyer"/>
+    <svg:line x1="-6" 
+              y1="0"  
+	      x2="6"  
+	      y2="0"  
+	      style="stroke:darkcyan;stroke-width:2;"/>
+    <svg:line x1="0"  
+              y1="-6" 
+	      x2="0"  
+	      y2="6"  
+	      style="stroke:darkcyan;stroke-width:2;"/>
   </svg:symbol>
-  <svg:symbol id="magnifyerFull" overflow="visible">
-    <svg:use xlink:href="#magnifyer"/>
-    <svg:line x1="-2" y1="0" x2="4" y2="0" style="stroke:darkcyan;stroke-width:2;"/>
-    <svg:line x1="-2" y1="-6" x2="-4" y2="6" style="stroke:darkcyan;stroke-width:2;"/>
-    <svg:line x1="-2" y1="-6" x2="5" y2="-6" style="stroke:darkcyan;stroke-width:2;"/>
+  <svg:symbol id="magnifyerFull" 
+              overflow="visible">
+    <svg:use  xlink:href="#magnifyer"/>
+    <svg:line x1="-2" 
+              y1="0"  
+	      x2="4"  
+	      y2="0"  
+	      style="stroke:darkcyan;stroke-width:2;"/>
+    <svg:line x1="-2" 
+              y1="-6" 
+	      x2="-4" 
+	      y2="6"  
+	      style="stroke:darkcyan;stroke-width:2;"/>
+    <svg:line x1="-2" 
+              y1="-6" 
+	      x2="5"  
+	      y2="-6" 
+	      style="stroke:darkcyan;stroke-width:2;"/>
   </svg:symbol>
 </svg:defs>
-<svg:svg id="referenceMap" x="0" y="510" viewBox="0 0 3000 1600" width="180"
-height="100" pointer-events="none">
-        <svg:use xlink:href="#tracker" />
+
+
+<svg:svg id="referenceMap" 
+         x="0" 
+	 y="510" 
+	 viewBox="0 0 3000 1600" 
+	 width="180" 
+	 height="100" 
+	 pointer-events="none">
+ <svg:use xlink:href="#tracker" />
 </svg:svg>
-<svg:rect id="dragRectForRefMap" class="dragRect" x="0" y="510" width="180"
-height="100" onmousedown="myRefMapDragger.drag(evt)"
-onmousemove="myRefMapDragger.drag(evt)"
-onmouseup="myRefMapDragger.drag(evt);myMainMap.newViewBox('dragRectForRefMap','referenceMap')"
-/>
-  <svg:g id="navigatorElements" class="normalText">       	  
-  <!--
-	<text x="220" y="530">Zoom</text>	
-	<svg:use  id="zoomOut" x="230" y="560" xlink:href="#magnifyerZoomOut" onclick="zoomIt('out');"  onmouseover="magnify(evt,1.2,'out');" onmouseout="magnify(evt,1,'out');" />
-	<svg:use  id="zoomIn" x="270" y="560" xlink:href="#magnifyerZoomIn" onclick="zoomIt('in');"  onmouseover="magnify(evt,1.2,'in');" onmouseout="magnify(evt,1,'in');"/>
-	<svg:use  id="zoomFull" x="310" y="560" xlink:href="#magnifyerFull" onclick="zoomIt('full');"  onmouseover="magnify(evt,1.2,'full');" onmouseout="magnify(evt,1,'full');"/>
-	-->
-        <svg:text id="TrackerText" x="350" y="530"> - </svg:text>
-        <svg:text id="TrackerText1" x="350" y="565"> - </svg:text>
-        <svg:text id="TrackerMessage" x="350" y="600"> - </svg:text>
-  </svg:g>
-<svg:image id="plot" xlink:href="plot.jpg" x="900" y="10" width="420" height="400" /> 
-<svg:svg id="mainMap" x="0" y="0" viewBox="0 0 3000 1600" width="900" height="500">
-<svg:rect fill="lightblue" stroke="none" x="0" y="0" width="3000" height="1600" /> 
-<svg:g id="tracker" transform="translate(10,1500) rotate(270)" style="fill:none;stroke:black;stroke-width:0;"> 
+
+<svg:rect id="dragRectForRefMap" 
+          class="dragRect" 
+	  x="0" 
+	  y="510" 
+	  width="180"
+	  height="100" 
+	  onmousedown="myRefMapDragger.drag(evt)"
+          onmousemove="myRefMapDragger.drag(evt)"
+          onmouseup="myRefMapDragger.drag(evt);myMainMap.newViewBox('dragRectForRefMap','referenceMap')"/>
+
+<svg:g id="navigatorElements" class="normalText">       	  
+ <text                         x="220" y="530">Zoom</text>     
+ <svg:use  id="zoomOut"        x="230" y="560" xlink:href="#magnifyerZoomOut" onclick="zoomIt('out');"   onmouseover="magnify(evt,1.2,'out');"  onmouseout="magnify(evt,1,'out');" />
+ <svg:use  id="zoomIn"         x="270" y="560" xlink:href="#magnifyerZoomIn"  onclick="zoomIt('in');"    onmouseover="magnify(evt,1.2,'in');"   onmouseout="magnify(evt,1,'in');"  />
+ <svg:use  id="zoomFull"       x="310" y="560" xlink:href="#magnifyerFull"    onclick="zoomIt('full');"  onmouseover="magnify(evt,1.2,'full');" onmouseout="magnify(evt,1,'full');"/>
+
+ <svg:text id="TrackerMessage" x="10" y="635"> - </svg:text>
+ <svg:text id="TrackerText"    x="10" y="655"> - </svg:text>
+ <svg:text id="TrackerText1"   x="10" y="675"> - </svg:text>
+ </svg:g>
+ 
+<svg:image id="plot" 
+           xlink:href="plot.jpg" 
+	   x="524" 
+	   y="0" 
+	   width="500" 
+	   height="650" /> 
+<svg:svg   id="mainMap" 
+           x="0" 
+	   y="0" 
+	   viewBox="0 0 3000 1600" 
+	   width="500" 
+	   height="300">
+<svg:rect  fill="lightblue" 
+           stroke="none" 
+	   x="0" 
+	   y="0" 
+	   width="3000" 
+	   height="1600" /> 
+<svg:g     id="tracker" 
+           transform="translate(10,1500) rotate(270)" 
+	   style="fill:none;stroke:black;stroke-width:0;"> 
+

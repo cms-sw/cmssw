@@ -23,7 +23,7 @@ class SiPixelActionExecutor {
  void setupQTests(MonitorUserInterface * mui);
  void checkQTestResults(MonitorUserInterface * mui);
  void createCollation(MonitorUserInterface * mui);
- void createTkMap(MonitorUserInterface* mui);
+ void createTkMap(MonitorUserInterface* mui, std::string mEName);
  bool readConfiguration(int& tkmap_freq, int& sum_barrel_freq, int& sum_endcap_freq);
  void readConfiguration();
  void createLayout(MonitorUserInterface * mui);

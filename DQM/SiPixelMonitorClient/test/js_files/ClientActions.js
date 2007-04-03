@@ -58,8 +58,11 @@ function CreateTrackerMap() {
   var obj = document.getElementById("create_tkmap");
 
   var url = getApplicationURL2();
-  url = url + "/Request?";
-  url = url + queryString;
+  url += "/Request?";
+  url += queryString; 
+  var obj = document.getElementById("monitoring_element_list");
+  var sname =  obj.options[obj.selectedIndex].value;
+  url += '&MEName='+sname;
    
   makeRequest(url, dummy);
  
@@ -90,7 +93,7 @@ function ReadResponseAndOpenTkMap() {
         if ( rows.length == 1) { 
           var name  = rows[0].childNodes[0].nodeValue;
           if (name == "Successful" ) {            
-             var win = window.open('embedded_svg.html');
+             var win = window.open('embedded_svg.html','trackerMapWindow');
              win.focus();            
           } else {
             alert(" Creation of Tracker Map Failed !! ");	

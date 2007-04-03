@@ -13,10 +13,10 @@ class TrackerMapCreator {
 
  public:
 
-  TrackerMapCreator();
+  TrackerMapCreator(std::string themEName);
  ~TrackerMapCreator();
 
-  void create(MonitorUserInterface* mui, std::vector<std::string>& me_names);
+  void create(MonitorUserInterface* mui, std::vector<std::string>& me_names, std::string themEName);
 
  private:
   MonitorElement* getTkMapMe(MonitorUserInterface* mui,std::string& me_name,int ndet);
@@ -24,5 +24,8 @@ class TrackerMapCreator {
   void paintTkMap(int det_id, std::map<MonitorElement*, int>& me_map);
 
   TrackerMap* trackerMap;
+  
+  std::string mEName ;
+  
 };
 #endif
