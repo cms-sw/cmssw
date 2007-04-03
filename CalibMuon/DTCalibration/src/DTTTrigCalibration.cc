@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/03/27 15:44:46 $
- *  $Revision: 1.21 $
+ *  $Date: 2007/04/03 12:27:34 $
+ *  $Revision: 1.22 $
  *  \author G. Cerminara - INFN Torino
  */
 #include "CalibMuon/DTCalibration/src/DTTTrigCalibration.h"
@@ -133,7 +133,7 @@ void DTTTrigCalibration::analyze(const edm::Event & event, const edm::EventSetup
     if(hTBox == 0) {
       // Book the histogram
       theFile->cd();
-      hTBox = new TH1F(getTBoxName(slId).c_str(), "Time box (ns)", int(32.0*maxTDCCounts/25.0), 0, maxTDCCounts);
+      hTBox = new TH1F(getTBoxName(slId).c_str(), "Time box (ns)", int(0.5*32.0*maxTDCCounts/25.0), 0, maxTDCCounts);
     
       if(debug)
 	cout << "  New Time Box: " << hTBox->GetName() << endl;
