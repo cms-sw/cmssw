@@ -37,8 +37,7 @@
 // Collaborating Class Declarations --
 //------------------------------------
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTExtendedCand.h"
-//class L1MuGMTExtendedCand;
-class L1MuRegionalCand;
+#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuRegionalCand.h"
 
 //              ---------------------
 //              -- Class Interface --
