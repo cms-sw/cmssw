@@ -20,6 +20,17 @@ L1CaloEmCand::L1CaloEmCand() :
 
 // construct from raw data (for use in unpacking)
 // last bool argument is a hack to distinguish this constructor from the next one!
+L1CaloEmCand::L1CaloEmCand(uint16_t data, unsigned crate, bool iso) :
+   m_data(data),
+   m_rctCrate(crate),
+   m_iso(iso),
+   m_index(0),
+   m_bx(0)
+ {
+ }
+
+// construct from raw data (for use in unpacking)
+// last bool argument is a hack to distinguish this constructor from the next one!
  L1CaloEmCand::L1CaloEmCand(uint16_t data, unsigned crate, bool iso, uint16_t index, int16_t bx, bool dummy) :
    m_data(data),
    m_rctCrate(crate),
