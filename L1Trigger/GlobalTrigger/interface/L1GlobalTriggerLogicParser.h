@@ -13,8 +13,8 @@
  * \author: M.Eder               - HEPHY Vienna - ORCA version 
  * \author: Vasile Mihai Ghete   - HEPHY Vienna - CMSSW version 
  * 
- * $Date:$
- * $Revision:$
+ * $Date$
+ * $Revision$
  *
  */
 
@@ -109,7 +109,7 @@ private:
         L1GlobalTriggerConditions* operand;  // a possible operand 
     } TokenRPN;
 
-    typedef vector<TokenRPN> RPNVector;
+    typedef std::vector<TokenRPN> RPNVector;
     RPNVector p_rpnvector;
 
 

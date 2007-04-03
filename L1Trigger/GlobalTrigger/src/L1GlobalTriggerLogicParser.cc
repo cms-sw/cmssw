@@ -10,8 +10,8 @@
  * \author: M.Eder               - HEPHY Vienna - ORCA version 
  * \author: Vasile Mihai Ghete   - HEPHY Vienna - CMSSW version 
  * 
- * $Date:$
- * $Revision:$
+ * $Date$
+ * $Revision$
  *
  */
 
@@ -225,7 +225,7 @@ std::string L1GlobalTriggerLogicParser::getLogicalExpression() {
     std::string tokenstr;
     TokenRPN tokenrpn;    // token for the use of getOperation
         
-    istringstream expr_iss(exprwithbs); // stringstream to separate all tokens
+    std::istringstream expr_iss(exprwithbs); // stringstream to separate all tokens
 
     while (!expr_iss.eof()) {
         
@@ -278,7 +278,7 @@ std::string L1GlobalTriggerLogicParser::getNumericExpression() {
     std::string tokenstr;
     TokenRPN tokenrpn;    // token for the use of getOperation
         
-    istringstream expr_iss(exprwithbs);	// stringstream to separate all tokens
+    std::istringstream expr_iss(exprwithbs);	// stringstream to separate all tokens
 
     while (!expr_iss.eof()) {
         
@@ -331,7 +331,7 @@ std::vector<CombinationsInCond>
     std::string tokenstr;
     TokenRPN tokenrpn;    // token for the use of getOperation
         
-    istringstream expr_iss(exprwithbs); // stringstream to separate all tokens
+    std::istringstream expr_iss(exprwithbs); // stringstream to separate all tokens
 
     while (!expr_iss.eof()) {
         
@@ -380,7 +380,7 @@ std::vector<CombinationsInCond>
 
 int L1GlobalTriggerLogicParser::buildRPNVector(const std::string& expression) {
     
-    istringstream expr_iss(expression);	// stringstream to separate all tokens
+    std::istringstream expr_iss(expression);	// stringstream to separate all tokens
 
     std::string tokenstr;           // one token
     TokenRPN tokenrpn;              // the token as TokenRPN type
@@ -395,7 +395,7 @@ int L1GlobalTriggerLogicParser::buildRPNVector(const std::string& expression) {
 
     while (!expr_iss.eof()) {
         
-        expr_iss >> skipws >> ws >> tokenstr;
+        expr_iss >> std::skipws >> std::ws >> tokenstr;
         // skip the end 
         if (tokenstr.find_first_not_of(whitespaces) == std::string::npos || 
             tokenstr.length() == 0 || expr_iss.eof()) { 
@@ -595,7 +595,7 @@ const bool L1GlobalTriggerLogicParser::blockCondition() const {
         return false;	
     }
     
-    stack<bool> resultstack;    // the stack that contains the temporary results
+    std::stack<bool> resultstack;    // the stack that contains the temporary results
     bool b1, b2;                // temporary boolean values to do an operation
 
     RPNVector::const_iterator it;       

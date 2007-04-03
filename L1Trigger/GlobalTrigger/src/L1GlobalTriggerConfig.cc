@@ -10,8 +10,8 @@
  * \author  M. Eder      - HEPHY Vienna - ORCA version
  * \author  Vasile Ghete - HEPHY Vienna - CMSSW version
  * 
- * $Date:$
- * $Revision:$
+ * $Date$
+ * $Revision$
  *
  */
 
@@ -678,7 +678,7 @@ int L1GlobalTriggerConfig::getXMLHexTextValue128(DOMNode *node,
  */
 
 
-int L1GlobalTriggerConfig::hexString2UInt128(const string& hex, 
+int L1GlobalTriggerConfig::hexString2UInt128(const std::string& hexstr, 
     u_int64_t &dstl, u_int64_t &dsth) {
 
     std::string tempstr, tempstrh, tempstrl; // temporary std::string
@@ -693,7 +693,7 @@ int L1GlobalTriggerConfig::hexString2UInt128(const string& hex,
     // string to determine end of hex value
     static const std::string valid_hex_end("0123456789ABCDEFabcdef"); 
     
-    tempstr = hex;
+    tempstr = hexstr;
 
     hexstart = tempstr.find_first_of(valid_hex_start);
     hexend = tempstr.find_first_not_of(valid_hex_end, hexstart);
@@ -2205,8 +2205,8 @@ int L1GlobalTriggerConfig::addVmeAddress(DOMNode *node, std::ofstream& ofs) {
 
     valuenode = findXMLChild(node->getFirstChild(), vmexml_value_tag);
     if (valuenode == 0) {
-        edm::LogError("L1GlobalTriggerConfig") << "Found no value node for address." << hex << address 
-            << dec << std::endl;
+        edm::LogError("L1GlobalTriggerConfig") << "Found no value node for address." << std::hex << address 
+            << std::dec << std::endl;
         return -1;
     }
 
@@ -2250,17 +2250,17 @@ void L1GlobalTriggerConfig::writeVmeLine(unsigned int clkcond,
     unsigned long int address, unsigned int value, std::ofstream& ofs) {
 
     ofs << " "; // begin with a space
-    ofs << fixed << setprecision(1) << setw(5); // 1 digit after dot for Time
-    ofs << dec << p_vmePreambleTime;
+    ofs << std::fixed << std::setprecision(1) << std::setw(5); // 1 digit after dot for Time
+    ofs << std::dec << p_vmePreambleTime;
     ofs << "> ";
-    ofs << setw(1); // width 1 for clkcond
+    ofs << std::setw(1); // width 1 for clkcond
     ofs << clkcond << " ";
-    ofs << setw(6); // width 6 for address
-    ofs << setfill('0'); // leading zeros
-    ofs << hex << uppercase << address << " ";	// switch to hexadecimal uppercase and write address
-    ofs << setw(2); // width 2 for value
-    ofs << setfill(' '); // no leading zeros for value
-    ofs << value << dec << nouppercase; 
+    ofs << std::setw(6); // width 6 for address
+    ofs << std::setfill('0'); // leading zeros
+    ofs << std::hex << std::uppercase << address << " ";	// switch to hexadecimal uppercase and write address
+    ofs << std::setw(2); // width 2 for value
+    ofs << std::setfill(' '); // no leading zeros for value
+    ofs << value << std::dec << std::nouppercase; 
     ofs << p_vmePreambleLineRest; // write the rest
     ofs << std::endl; // end of line
 
