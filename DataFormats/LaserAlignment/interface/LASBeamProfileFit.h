@@ -8,12 +8,13 @@
  *  - error of the mean
  *  - sigma (in strips)
  *  - error of sigma
+ *  - pitch of the silicon module at the position of the mean
  *  - phi position (calculated from the fitted and corrected mean)
  *  - phi postion error
  *  - name of beam and layer to identify the beam profile
  *
- *  $Date: Mon Mar 19 12:44:40 CET 2007 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/03/20 16:53:23 $
+ *  $Revision: 1.2 $
  *  \author Maarten Thomas
  */
 
@@ -24,16 +25,21 @@ class LASBeamProfileFit
  public:
 	/// default constructor
   LASBeamProfileFit() : name_(), mean_(0), meanError_(0), uncorrectedMean_(0),
-    sigma_(0), sigmaError_(0), phi_(0), phiError_(0) {}
+    sigma_(0), sigmaError_(0), pitch_(0), phi_(0), phiError_(0) {}
 	/// constructor
   LASBeamProfileFit(const char * name, double mean, double meanError, double sigma, double sigmaError) : name_(name),
-    mean_(mean), meanError_(meanError), uncorrectedMean_(mean), sigma_(sigma), sigmaError_(sigmaError), 
+    mean_(mean), meanError_(meanError), uncorrectedMean_(mean), sigma_(sigma), sigmaError_(sigmaError), pitch_(0),
     phi_(0), phiError_(0) {}
 	/// constructor
   LASBeamProfileFit(const char * name, double mean, double meanError, double uncorMean, 
 		    double sigma, double sigmaError, double phi, double phiError) : name_(name), 
     mean_(mean), meanError_(meanError), uncorrectedMean_(uncorMean), sigma_(sigma), sigmaError_(sigmaError), 
-    phi_(phi), phiError_(phiError) {}
+     pitch_(0), phi_(phi), phiError_(phiError) {}
+	/// constructor
+  LASBeamProfileFit(const char * name, double mean, double meanError, double uncorMean, 
+		    double sigma, double sigmaError, double pitch, double phi, double phiError) : name_(name), 
+    mean_(mean), meanError_(meanError), uncorrectedMean_(uncorMean), sigma_(sigma), sigmaError_(sigmaError), 
+    pitch_(pitch), phi_(phi), phiError_(phiError) {}
 
 
   // Access to the information from the fit
@@ -49,6 +55,8 @@ class LASBeamProfileFit
   double sigma() const { return sigma_; }
 	/// get error on sigma
   double sigmaError() const { return sigmaError_; }
+	/// get the pitch of the silicon module at the position of the mean
+	double pitch() const { return pitch_; };
 	/// get phi position of the beam
   double phi() const { return phi_; }
 	/// get error on phi position
@@ -61,6 +69,7 @@ class LASBeamProfileFit
   double uncorrectedMean_;
   double sigma_;
   double sigmaError_;
+	double pitch_;
   double phi_;
   double phiError_;
 };
