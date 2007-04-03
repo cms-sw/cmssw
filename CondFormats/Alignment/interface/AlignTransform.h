@@ -3,7 +3,7 @@
 #include "CLHEP/Vector/EulerAngles.h"
 #include "CLHEP/Vector/Rotation.h"
 #include "CLHEP/Vector/ThreeVector.h"
-#include "CLHEP/Matrix/SymMatrix.h"   // TEMPORARILY also include alignment error
+
 #include <boost/cstdint.hpp>
 
 
@@ -23,26 +23,27 @@ public:
 
   /// Constructor from Euler angles
   AlignTransform( const Translation & itranslation, 
-				  const EulerAngles & ieulerAngles,
+		  const EulerAngles & ieulerAngles,
                   const uint32_t & irawId ) :
-	m_translation(itranslation),
+    m_translation(itranslation),
     m_eulerAngles(ieulerAngles),
     m_rawId(irawId) {}
   
   /// Constructor from Rotation
   AlignTransform( const Translation & itranslation, 
-				  const Rotation    & irotation,
+		  const Rotation    & irotation,
                   const uint32_t & irawId ) :
-	m_translation(itranslation),
-	m_eulerAngles(irotation.eulerAngles()),
+    m_translation(itranslation),
+    m_eulerAngles(irotation.eulerAngles()),
     m_rawId(irawId) {}
 
   const Translation & translation() const { return m_translation; }
-  const EulerAngles & eulerAngles() const { return m_eulerAngles; }
+  /// Do not expose Euler angles since we may change its type later
+  //   const EulerAngles & eulerAngles() const { return m_eulerAngles; }
   const uint32_t & rawId() const { return m_rawId; }
   Rotation rotation() const { return Rotation(m_eulerAngles); }
 
-private:
+ private:
 
   Translation m_translation;
   EulerAngles m_eulerAngles;
