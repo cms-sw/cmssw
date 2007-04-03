@@ -5,7 +5,6 @@
  *
  * Digi for CSC anode wires. 
  *
- * \author N. Terentiev, CMU
  */
 
 #include <vector>
@@ -17,13 +16,13 @@ public:
 
   /// Constructors
   
-  CSCWireDigi (int wire, int tbinb);  /// wiregroup#, tbin bit word
+  CSCWireDigi (int wire, unsigned int tbinb);  /// wiregroup#, tbin bit word
   CSCWireDigi ();                     /// default
 
   /// return wiregroup number
   int getWireGroup() const {return wire_;}
   /// return the word with time bins bits
-  int getTimeBinWord() const {return tbinb_;}
+  unsigned int getTimeBinWord() const {return tbinb_;}
   /// return tbin number, (obsolete, use getTimeBin() instead)
   int getBeamCrossingTag() const;
   /// return first tbin ON number
@@ -41,7 +40,7 @@ public:
 private:
 
   uint16_t wire_;
-  uint16_t tbinb_;
+  uint32_t tbinb_;
 
 };
 

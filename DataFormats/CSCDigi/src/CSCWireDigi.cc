@@ -1,12 +1,9 @@
 /**\class CSCWireDigi
  *
  * Digi for CSC anode wires.
- * Based on modified DTDigi.
  *
- * $Date: 2006/09/04 09:20:51 $
- * $Revision: 1.5 $
- *
- * \author N. Terentiev, CMU
+ * $Date:$
+ * $Revision:$
  */
 
 #include <DataFormats/CSCDigi/interface/CSCWireDigi.h>
@@ -17,7 +14,7 @@ using namespace std;
 
   /// Constructors
 
-CSCWireDigi::CSCWireDigi (int wire, int tbinb){
+CSCWireDigi::CSCWireDigi (int wire, unsigned int tbinb){
   wire_  = wire;
   tbinb_ = tbinb;
 }
@@ -34,9 +31,9 @@ int CSCWireDigi::getBeamCrossingTag() const {
 }
   /// return first tbin ON number
 int CSCWireDigi::getTimeBin() const {
-  uint16_t tbit=1;
+  uint32_t tbit=1;
   int tbin=-1;
-  for(int i=0;i<16;i++) {
+  for(int i=0;i<32;i++) {
     if(tbit & tbinb_) tbin=i;
     if(tbin>-1) break;
     tbit=tbit<<1;
@@ -46,9 +43,9 @@ int CSCWireDigi::getTimeBin() const {
   /// return vector of time bins ON
 std::vector<int> CSCWireDigi::getTimeBinsOn() const {
   std::vector<int> tbins;
-  uint16_t tbit=tbinb_;
-  uint16_t one=1;
-  for(int i=0;i<16;i++) {
+  uint32_t tbit=tbinb_;
+  uint32_t one=1;
+  for(int i=0;i<32;i++) {
     if(tbit & one) tbins.push_back(i);
     tbit=tbit>>1;
     if(tbit==0) break;
