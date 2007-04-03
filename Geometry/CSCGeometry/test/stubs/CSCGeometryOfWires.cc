@@ -92,9 +92,9 @@ void
 
 	//	std::cout << "GeomDetUnit is of type " << detId.det() << " and raw id = " << id << std::endl;
 
-	std::cout << "\n" << "Parameters of layer# " << icount << 
-       	   " id= " << id << " = " << std::hex << id << std::dec <<
-           "   E" << CSCDetId::endcap(id) << 
+ 	std::cout << "\n" << "Parameters of layer# " << icount <<
+	     " id= " << id << " = " << std::oct << id << std::dec << " (octal) " << 
+             "   E" << CSCDetId::endcap(id) << 
              " S" << CSCDetId::station(id) << 
              " R" << CSCDetId::ring(id) << 
              " C" << CSCDetId::chamber(id) << 

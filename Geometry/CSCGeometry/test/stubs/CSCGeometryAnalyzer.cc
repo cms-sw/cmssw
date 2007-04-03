@@ -73,7 +73,7 @@ void
    std::cout << myName() << ": Begin iteration over geometry..." << std::endl;
    std::cout << "iter " << dashedLine_ << std::endl;
 
-   std::cout << "\n  #     id(hex)      id(dec)                   "
+   std::cout << "\n  #     id(dec)      id(oct)                   "
      "  g(x=0)   g(y=0)   g(z=0)  g(z=-1)  g(z=+1)  Ns "
      "  phi(0)  phi(s1)  phi(sN)    dphi    dphi'      ds     off"
      "       uR       uL       lR       lL" << std::endl;
@@ -106,7 +106,7 @@ void
 	//	std::cout << "\n" << "Parameters of layer# " << 
 	std::cout <<
            std::setw( 4 ) << icount << 
-  	   std::setw(12) << id << std::hex << std::setw(12) << id << std::dec << std::setw( iw ) <<
+  	   std::setw(12) << id << std::oct << std::setw(12) << id << std::dec << std::setw( iw ) <<
            "   E" << CSCDetId::endcap(id) << 
            " S" << CSCDetId::station(id) << 
            " R" << CSCDetId::ring(id) << 

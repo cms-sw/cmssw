@@ -72,7 +72,7 @@ void
    std::vector<CSCChamber*> vc = pDD->chambers();
    std::cout << "No. of chambers stored = " << vc.size() << std::endl;
 
-   std::cout << "\n  #     id(hex)      id(dec)    labels      length       width      thickness   "
+   std::cout << "\n  #     id(dec)      id(oct)    labels      length       width      thickness   "
      "  g(x=0)   g(y=0)   g(z=0)  g(z=-1)  g(z=+1) "
      "  phi(0)" << std::endl;
    std::cout << dashedLine_ << std::endl;
@@ -99,7 +99,7 @@ void
 	//	std::cout << "\n" << "Parameters of chamber# " << 
 	std::cout <<
            std::setw( 4 ) << icount << 
-  	   std::setw(12) << id << std::hex << std::setw(12) << id << std::dec << std::setw( iw ) <<
+  	   std::setw(12) << id << std::oct << std::setw(12) << id << std::dec << std::setw( iw ) <<
            "   E" << detId.endcap() << 
            " S" << detId.station() << 
            " R" << detId.ring() << 
