@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronPixelSeedGenerator.cc,v 1.21 2007/03/23 15:48:16 uberthon Exp $
+// $Id: ElectronPixelSeedGenerator.cc,v 1.22 2007/04/02 16:43:33 uberthon Exp $
 //
 //
 #include "RecoEgamma/EgammaElectronAlgos/interface/PixelHitMatcher.h" 
@@ -158,8 +158,9 @@ void ElectronPixelSeedGenerator::seedsFromThisCluster( edm::Ref<reco::SuperClust
       if (valid) {
         reco::ElectronPixelSeed s(seedCluster,*pts_,recHits_,dir);
         result.push_back(s);
+	delete pts_;
+	pts_=0;
       }
-      delete pts_;
     }
   }  
   aCharge=1.;  
@@ -178,6 +179,7 @@ void ElectronPixelSeedGenerator::seedsFromThisCluster( edm::Ref<reco::SuperClust
       if (valid) {
 	result.push_back(reco::ElectronPixelSeed(seedCluster,*pts_,recHits_,dir));
 	delete pts_;
+	pts_=0;
       }
     }
   } 
@@ -194,6 +196,7 @@ bool ElectronPixelSeedGenerator::prepareElTrackSeed(ConstRecHitPointer innerhit,
   LogDebug("") <<"[ElectronPixelSeedGenerator::prepareElTrackSeed] inner PixelHit   x,y,z "<<innerhit->globalPosition();
   LogDebug("") <<"[ElectronPixelSeedGenerator::prepareElTrackSeed] outer PixelHit   x,y,z "<<outerhit->globalPosition();
 
+  pts_=0;
   recHits_.clear();
     
   SiPixelRecHit *hit;
