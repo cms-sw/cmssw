@@ -19,14 +19,17 @@ public:
   /// default constructor (for vector initialisation etc.)
   L1GctJetCand();
 
-  /// construct from raw data
+  /// construct from raw data - used in GT
+  L1GctJetCand(uint16_t data, bool isTau, bool isFor);
+
+  /// construct from raw data with source - uesd in GCT unpacker
   L1GctJetCand(uint16_t data, bool isTau, bool isFor, uint16_t block, uint16_t index, int16_t bx);
 
-  /// construct from rank, eta, phi, isolation
+  /// construct from rank, eta, phi, isolation - used in GCT emulator
   /// NB - eta = -6 to -0, +0 to +6. Sign is bit 3, 1 means -ve Z, 0 means +ve Z
   L1GctJetCand(unsigned rank, unsigned phi, unsigned eta, bool isTau, bool isFor);
 
-  /// construct from rank, eta, phi, isolation
+  /// construct from rank, eta, phi, isolation - will be used in GCT emulator?
   /// NB - eta = -6 to -0, +0 to +6. Sign is bit 3, 1 means -ve Z, 0 means +ve Z
   L1GctJetCand(unsigned rank, unsigned phi, unsigned eta, bool isTau, bool isFor, uint16_t block, uint16_t index, int16_t bx);
 

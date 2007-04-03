@@ -19,7 +19,17 @@ L1GctJetCand::L1GctJetCand() :
 
 }
 
-//constructor for unpacking
+//constructor for GT
+L1GctJetCand::L1GctJetCand(uint16_t data, bool isTau, bool isFor) :
+  m_data(data),
+  m_isTau(isTau),
+  m_isFor(isFor),
+  m_source(0),
+  m_bx(0)
+{
+}
+
+//constructor for GCT unpacker
 L1GctJetCand::L1GctJetCand(uint16_t data, bool isTau, bool isFor, uint16_t block, uint16_t index, int16_t bx) : 
   m_data(data),
   m_isTau(isTau),

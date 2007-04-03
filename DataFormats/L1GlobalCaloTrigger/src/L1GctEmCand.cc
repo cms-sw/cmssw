@@ -18,7 +18,17 @@ L1GctEmCand::L1GctEmCand() :
 
 }
 
-// construct from raw data (for use in unpacking)
+// construct from raw data, no source - used in GT
+L1GctEmCand::L1GctEmCand(uint16_t data, bool iso) :
+  m_data(data),
+  m_iso(iso),
+  m_source(0),
+  m_bx(0)
+ {
+
+ }
+
+// construct from raw data with source - used in GCT unpacker
  L1GctEmCand::L1GctEmCand(uint16_t data, bool iso, uint16_t block, uint16_t index, int16_t bx) :
    m_data(data),
    m_iso(iso),
@@ -28,7 +38,7 @@ L1GctEmCand::L1GctEmCand() :
 
  }
 
-// construct from content (for use in emulator)  
+// construct from content - used in GCT emulator
 // eta = -6 to -0, +0 to +6. Sign is bit 3, 1 means -ve Z, 0 means +ve Z
 L1GctEmCand::L1GctEmCand(unsigned rank, unsigned eta, unsigned phi, bool iso) : 
   m_iso(iso),
@@ -39,7 +49,7 @@ L1GctEmCand::L1GctEmCand(unsigned rank, unsigned eta, unsigned phi, bool iso) :
   m_source=0;
 }
 
-// construct from content (for use in emulator)  
+// construct from content, with source - will be used in GCT emulator one day?
 // eta = -6 to -0, +0 to +6. Sign is bit 3, 1 means -ve Z, 0 means +ve Z
 L1GctEmCand::L1GctEmCand(unsigned rank, unsigned eta, unsigned phi, bool iso, uint16_t block, uint16_t index, int16_t bx) : 
   m_iso(iso),

@@ -25,14 +25,17 @@ public:
   /// default constructor (for vector initialisation etc.)
   L1GctEmCand();
 
-  /// construct from raw data with source
+  /// construct from raw data, no source - used in GT
+  L1GctEmCand(uint16_t data, bool iso);
+
+  /// construct from raw data with source - used in GCT unpacker
   L1GctEmCand(uint16_t data, bool iso, uint16_t block, uint16_t index, int16_t bx);
 
-  /// construct from rank, eta, phi, isolation
+  /// construct from rank, eta, phi, isolation - used in GCT emulator
   /// eta = -6 to -0, +0 to +6. Sign is bit 3, 1 means -ve Z, 0 means +ve Z
   L1GctEmCand(unsigned rank, unsigned phi, unsigned eta, bool iso);
 
-  /// construct from rank, eta, phi, isolation
+  /// construct from rank, eta, phi, isolation - could be used in GCT emulator?
   /// eta = -6 to -0, +0 to +6. Sign is bit 3, 1 means -ve Z, 0 means +ve Z
   L1GctEmCand(unsigned rank, unsigned phi, unsigned eta, bool iso, uint16_t block, uint16_t index, int16_t bx);
 
