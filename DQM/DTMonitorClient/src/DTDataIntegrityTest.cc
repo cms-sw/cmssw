@@ -1,8 +1,8 @@
 /*
  * \file DTDataIntegrityTest.cc
  * 
- * $Date: 2007/03/15 16:51:46 $
- * $Revision: 1.1 $
+ * $Date: 2007/03/30 16:10:34 $
+ * $Revision: 1.2 $
  * \author S. Bolognesi - CERN
  *
  */
@@ -174,7 +174,7 @@ void DTDataIntegrityTest::analyze(const Event& e, const EventSetup& context){
 
     string histoType;
     //1D histo: % of tts values 
-    MonitorElement * tts_histo = dbe->get(getMEName("DDUTTSValues",dduId));
+    MonitorElement * tts_histo = dbe->get(getMEName("TTSValues",dduId));
     if (tts_histo) {
         if(debug)
 	  cout<<"[DTDataIntegrityTest]:histo DDUTTSValues found"<<endl;
@@ -217,7 +217,7 @@ void DTDataIntegrityTest::analyze(const Event& e, const EventSetup& context){
          }
 
     //Check if the list of ROS is compatible with the channels enabled
-    MonitorElement * ros_histo = dbe->get(getMEName("DDUChannelStatus",dduId));
+    MonitorElement * ros_histo = dbe->get(getMEName("ROSStatus",dduId));
     if (ros_histo) {
         if(debug)
 	  cout<<"[DTDataIntegrityTest]:histo DDUChannelStatus found"<<endl;
@@ -230,7 +230,7 @@ void DTDataIntegrityTest::analyze(const Event& e, const EventSetup& context){
 	}
     }
     //Monitor the number of ROS VS time
-     MonitorElement * rosNumber_histo = dbe->get(getMEName("DDUROSList",dduId));
+     MonitorElement * rosNumber_histo = dbe->get(getMEName("ROSList",dduId));
     if (rosNumber_histo) {
       if(debug)
 	cout<<"[DTDataIntegrityTest]:histo DDUROSList found"<<endl;
@@ -246,7 +246,7 @@ void DTDataIntegrityTest::analyze(const Event& e, const EventSetup& context){
    }
 
     //Monitor the event lenght VS time
-     MonitorElement * evLenght_histo = dbe->get(getMEName("DDUEventLenght",dduId));
+     MonitorElement * evLenght_histo = dbe->get(getMEName("EventLenght",dduId));
      if (evLenght_histo) {
        if(debug)
 	 cout<<"[DTDataIntegrityTest]:histo DDUEventLenght found"<<endl;
@@ -262,7 +262,7 @@ void DTDataIntegrityTest::analyze(const Event& e, const EventSetup& context){
      }
 
      //Monitor the FIFO occupancy VS time 
-     MonitorElement * fifo_histo = dbe->get(getMEName("DDUFIFOStatus",dduId));
+     MonitorElement * fifo_histo = dbe->get(getMEName("FIFOStatus",dduId));
      if (fifo_histo) {
        if(debug)
 	 cout<<"[DTDataIntegrityTest]:histo DDUFIFOStatus found"<<endl;
