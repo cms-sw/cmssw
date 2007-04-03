@@ -34,6 +34,8 @@ namespace DDI {
     // DDSolid::Composites comp IMPLEMENTATION MISSING
     virtual void stream(std::ostream &) const;
     
+    void setParameters(std::vector<double const & p) { p_ = p;}
+
   protected:
     DDSolidShape shape_;
     std::vector<double> p_; 
