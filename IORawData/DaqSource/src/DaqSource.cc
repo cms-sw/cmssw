@@ -1,7 +1,7 @@
 /** \file 
  *
- *  $Date: 2007/03/26 15:51:07 $
- *  $Revision: 1.13 $
+ *  $Date: 2007/03/30 11:52:05 $
+ *  $Revision: 1.14 $
  *  \author N. Amapane - S. Argiro'
  */
 
@@ -10,6 +10,8 @@
 #include <DataFormats/Provenance/interface/Timestamp.h>
 #include <FWCore/Framework/interface/Event.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <DataFormats/FEDRawData/interface/FEDRawData.h>
 #include <DataFormats/FEDRawData/interface/FEDRawDataCollection.h>
@@ -47,15 +49,20 @@ DaqSource::DaqSource(const ParameterSet& pset,
   string reader = pset.getParameter<string>("reader");
   
   try{
-    pset.getParameter<ParameterSet>("pset");
     reader_=
       DaqReaderPluginFactory::get()->create(reader,
 					    pset.getParameter<ParameterSet>("pset"));
   }
   catch(edm::Exception &e){
-      reader_=
-	DaqReaderPluginFactoryU::get()->create(reader);
-  }  
+    if(e.category() == "Configuration" && reader_ == 0)
+      {
+	reader_=
+	  DaqReaderPluginFactoryU::get()->create(reader);
+	if(reader_==0) throw;
+      }  
+    else
+      throw;
+  }
 }
 
 //______________________________________________________________________________
@@ -90,7 +97,7 @@ std::auto_ptr<Event> DaqSource::readOneEvent()
     if (0!=fedCollection) delete fedCollection;
     return std::auto_ptr<Event>(0);
   }
-  if(fakeLSid && lsid_ != (eventId.event()/lumiSegmentSizeInEvents_ + 1))
+  if(fakeLSid_ && lsid_ != (eventId.event()/lumiSegmentSizeInEvents_ + 1))
       {
 	lsid_ = eventId.event()/lumiSegmentSizeInEvents_ + 1;
 	setLuminosityBlockNumber_t(lsid_);
