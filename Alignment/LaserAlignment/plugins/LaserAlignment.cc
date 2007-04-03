@@ -1,8 +1,8 @@
 /** \file LaserAlignment.cc
  *  LAS reconstruction module
  *
- *  $Date: Sun Mar 18 19:38:57 CET 2007 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/03/18 19:00:20 $
+ *  $Revision: 1.4 $
  *  \author Maarten Thomas
  */
 
@@ -252,6 +252,12 @@ void LaserAlignment::produce(edm::Event& theEvent, edm::EventSetup const& theSet
 		  LASBeamProfileFit theFit = (iBeamFit->second).at(0);
 		  theLaserPhi.push_back(theFit.phi());
 		  theLaserPhiError.push_back(thePhiErrorScalingFactor * theFit.phiError());
+		
+			// fill also the Avec2D for Bruno's algorithm
+			// use the functionality in LaserAlignment::fit() to
+			// select the right positions in the correct order??
+			double thePosition = theFit.pitch() * theFit.mean();
+			double thePositionError = theFit.pitch() * theFit.meanError();
 		}
 	      else
 		{
@@ -268,6 +274,10 @@ void LaserAlignment::produce(edm::Event& theEvent, edm::EventSetup const& theSet
 					      << thePhi << ") for alignment ";
 		  theLaserPhi.push_back(thePhi);
 		  theLaserPhiError.push_back(thePhiErrorScalingFactor * thePhiError);
+		
+			/// for Bruno's algorithm get the pitch at strip 255.5 and multiply it with 255.5 to get the position in cm at the middle of the module
+			double thePosition = 255.5 * theTrackerGeometry->idToDet((iHist->second).first)->specificTopology().localPitch(theTrackerGeometry->idToDet((iHist->second).first)->specificTopology().localPosition(255.5));
+			double thePositionError = 0.05; // set the error to half a milllimeter in this case
 		}
 	    }
 	  else 
