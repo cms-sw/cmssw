@@ -35,6 +35,9 @@ class CommissioningAnalysis {
   
   /** Extracts monitorables from TH1s for a given FED channel. */
   void analysis( const std::vector<TH1*>& );
+
+  /** Identifies if analysis is valid or not. */
+  virtual bool isValid() { return true; } //@@ should be pure virtual
   
   /** Prints monitorables */
   virtual void print( std::stringstream&, uint32_t ) = 0;

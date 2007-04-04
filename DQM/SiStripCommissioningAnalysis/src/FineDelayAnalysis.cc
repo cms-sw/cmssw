@@ -1,5 +1,6 @@
 #include "DQM/SiStripCommissioningAnalysis/interface/FineDelayAnalysis.h"
 #include "DataFormats/SiStripCommon/interface/SiStripHistoTitle.h"
+#include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/SiStripCommon/interface/SiStripPulseShape.h"
 #include "TProfile.h"
@@ -91,7 +92,9 @@ void FineDelayAnalysis::extract( const std::vector<TH1*>& histos) {
     // Check name
     SiStripHistoTitle title( (*ihis)->GetName() );
     if ( title.runType() != sistrip::FINE_DELAY ) {
-      edm::LogWarning(mlCommissioning_) << " Unexpected commissioning task!" << "(" << title.runType() << ")";
+      edm::LogWarning(mlCommissioning_) 
+	<< " Unexpected commissioning task: "
+	<< SiStripEnumsAndStrings::runType(title.runType());
       continue;
     }
     

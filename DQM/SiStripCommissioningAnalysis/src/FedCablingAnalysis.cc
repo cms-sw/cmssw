@@ -1,5 +1,6 @@
 #include "DQM/SiStripCommissioningAnalysis/interface/FedCablingAnalysis.h"
 #include "DataFormats/SiStripCommon/interface/SiStripHistoTitle.h"
+#include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TProfile.h"
 #include "TH1.h"
@@ -48,25 +49,6 @@ void FedCablingAnalysis::reset() {
 
 // ----------------------------------------------------------------------------
 // 
-void FedCablingAnalysis::print( std::stringstream& ss, uint32_t not_used ) { 
-  header( ss );
-  ss << " nCandidates           : " << candidates_.size() << std::endl
-     << " Candidates (id/ch/adc): ";
-  Candidates::const_iterator iter;
-  for ( iter = candidates_.begin(); iter != candidates_.end(); iter++ ) { 
-    SiStripFedKey path( iter->first );
-    ss << path.fedId() << "/" 
-       << path.fedChannel() << "/" 
-       << iter->second << " ";
-  }
-  ss << std::endl
-     << " Connected FED id      : " << fedId_ << std::endl 
-     << " Connected FED channel : " << fedCh_ << std::endl
-     << " Signal level [adc]    : " << adcLevel();
-}
-
-// ----------------------------------------------------------------------------
-// 
 void FedCablingAnalysis::extract( const std::vector<TH1*>& histos ) { 
 
   // Check
@@ -103,11 +85,11 @@ void FedCablingAnalysis::extract( const std::vector<TH1*>& histos ) {
     if ( title.runType() != sistrip::FED_CABLING ) {
       edm::LogWarning(mlCommissioning_)
 	<< "[" << myName() << "::" << __func__ << "]"
-	<< " Unexpected commissioning task!"
-	<< "(" << title.runType() << ")";
+	<< " Unexpected commissioning task: "
+	<< SiStripEnumsAndStrings::runType(title.runType());
       continue;
     }
-
+    
     // Extract FED id and channel histos
     if ( title.extraInfo().find(sistrip::fedId_) != std::string::npos ) {
       hFedId_.first = *ihis;
@@ -217,6 +199,39 @@ uint16_t FedCablingAnalysis::adcLevel() const {
   if ( iter != candidates_.end() ) { return iter->second; }
   else { return 0; }
 }
+
+// ----------------------------------------------------------------------------
+// 
+bool FedCablingAnalysis::isValid() {
+  return ( fedId_ < sistrip::maximum_ &&
+	   fedCh_ < sistrip::maximum_ );
+} 
+
+// ----------------------------------------------------------------------------
+// 
+void FedCablingAnalysis::print( std::stringstream& ss, uint32_t not_used ) { 
+  header( ss );
+  ss << " nCandidates           : " << candidates_.size() << std::endl
+     << " Candidates (id/ch/adc): ";
+  Candidates::const_iterator iter;
+  for ( iter = candidates_.begin(); iter != candidates_.end(); iter++ ) { 
+    SiStripFedKey path( iter->first );
+    ss << path.fedId() << "/" 
+       << path.fedChannel() << "/" 
+       << iter->second << " ";
+  }
+  ss << std::endl
+     << " Connected FED id      : " << fedId_ << std::endl 
+     << " Connected FED channel : " << fedCh_ << std::endl
+     << " Signal level [adc]    : " << adcLevel();
+}
+
+
+
+
+
+
+
 
 
 

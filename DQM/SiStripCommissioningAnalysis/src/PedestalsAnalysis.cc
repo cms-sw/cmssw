@@ -1,5 +1,6 @@
 #include "DQM/SiStripCommissioningAnalysis/interface/PedestalsAnalysis.h"
 #include "DataFormats/SiStripCommon/interface/SiStripHistoTitle.h"
+#include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TProfile.h"
 #include "TH1.h"
@@ -57,30 +58,6 @@ PedestalsAnalysis::PedestalsAnalysis()
 
 // ----------------------------------------------------------------------------
 // 
-void PedestalsAnalysis::print( std::stringstream& ss, uint32_t iapv ) { 
-  if ( iapv != 0 && iapv != 1 ) { iapv = 0; }
-  header( ss );
-  ss << " Number of pedestal values   : " << peds_[iapv].size() << "\n"
-     << " Number of noise values      : " << noise_[iapv].size() << "\n"
-     << " Dead strips  (>5s) [strip]  : (" << dead_[iapv].size() << " in total) ";
-  for ( uint16_t ii = 0; ii < dead_[iapv].size(); ii++ ) { 
-    ss << dead_[iapv][ii] << " "; }
-  
-  ss << "\n";
-  ss << " Noisy strips (<5s) [strip]  : (" << noisy_[iapv].size() << " in total) ";
-  for ( uint16_t ii = 0; ii < noisy_[iapv].size(); ii++ ) { 
-    ss << noisy_[iapv][ii] << " "; 
-  } 
-  ss << "\n";
-  ss << " Mean peds +/- spread [adc]  : " << pedsMean_[iapv] << " +/- " << pedsSpread_[iapv] << "\n" 
-     << " Max/Min pedestal [adc]      : " << pedsMax_[iapv] << " <-> " << pedsMin_[iapv] << "\n"
-     << " Mean noise +/- spread [adc] : " << noiseMean_[iapv] << " +/- " << noiseSpread_[iapv] << "\n" 
-     << " Max/Min noise [adc]         : " << noiseMax_[iapv] << " <-> " << noiseMin_[iapv] << "\n"
-     << " Normalised noise (to come!) : " << "\n";
-}
-
-// ----------------------------------------------------------------------------
-// 
 void PedestalsAnalysis::reset() {
   peds_        = VVFloats(2,VFloats(128,sistrip::invalid_)); 
   noise_       = VVFloats(2,VFloats(128,sistrip::invalid_)); 
@@ -115,8 +92,8 @@ void PedestalsAnalysis::extract( const std::vector<TH1*>& histos ) {
   }
   
   // Extract FED key from histo title
-  if ( !histos.empty() ) extractFedKey( histos.front() );
-
+  if ( !histos.empty() ) { extractFedKey( histos.front() ); }
+  
   // Extract
   std::vector<TH1*>::const_iterator ihis = histos.begin();
   for ( ; ihis != histos.end(); ihis++ ) {
@@ -129,13 +106,13 @@ void PedestalsAnalysis::extract( const std::vector<TH1*>& histos ) {
       continue;
     }
     
-    // Check name
+    // Check run type
     SiStripHistoTitle title( (*ihis)->GetName() );
-    if ( title.runType() != sistrip::pedestals_ ) {
+    if ( title.runType() != sistrip::PEDESTALS ) {
       edm::LogWarning(mlCommissioning_) 
 	<< "[" << myName() << "::" << __func__ << "]"
-	<< " Unexpected commissioning task!"
-	<< "(" << title.runType() << ")";
+	<< " Unexpected commissioning task: "
+	<< SiStripEnumsAndStrings::runType(title.runType());
       continue;
     }
     
@@ -143,11 +120,11 @@ void PedestalsAnalysis::extract( const std::vector<TH1*>& histos ) {
     if ( title.extraInfo().find(sistrip::pedsAndRawNoise_) != std::string::npos ) {
       hPeds_.first = *ihis;
       hPeds_.second = (*ihis)->GetName();
-      //LogTrace(mlCommissioning_) << "pedsAndRawNoise name: " << hPeds_.second;
     } else if ( title.extraInfo().find(sistrip::residualsAndNoise_) != std::string::npos ) {
       hNoise_.first = *ihis;
       hNoise_.second = (*ihis)->GetName();
-      //LogTrace(mlCommissioning_) << "residualsAndNoise name: " << hPeds_.second;
+    } else if ( title.extraInfo().find(sistrip::commonMode_) != std::string::npos ) {
+      //@@ something here for CM plots?
     } else { 
       edm::LogWarning(mlCommissioning_)
 	<< "[" << myName() << "::" << __func__ << "]"
@@ -176,7 +153,7 @@ void PedestalsAnalysis::analyse() {
       << " NULL pointer to 'peds and raw noise' histogram!";
     return;
   }
-
+  
   // Checks on whether noise histo exists and if binning is correct
   if ( hNoise_.first ) {
     if ( hNoise_.first->GetNbinsX() != 256 ) {
@@ -261,13 +238,15 @@ void PedestalsAnalysis::analyse() {
     }
     
     // Set max and min values for both peds and noise
-    if ( p_max > -1024. ) { pedsMax_[iapv] = p_max; }
-    if ( p_min < 1024. )  { pedsMin_[iapv] = p_min; }
-    if ( n_max > -1024. ) { noiseMax_[iapv] = n_max; }
-    if ( n_min < 1024. )  { noiseMin_[iapv] = n_min; }
-
+    if ( p_max > -1.*sistrip::maximum_ ) { pedsMax_[iapv] = p_max; }
+    if ( p_min < 1.*sistrip::maximum_ )  { pedsMin_[iapv] = p_min; }
+    if ( n_max > -1.*sistrip::maximum_ ) { noiseMax_[iapv] = n_max; }
+    if ( n_min < 1.*sistrip::maximum_ )  { noiseMin_[iapv] = n_min; }
+    
     // Set dead and noisy strips
     for ( uint16_t istr = 0; istr < 128; istr++ ) {
+      if ( noiseMin_[iapv] > sistrip::maximum_ ||
+	   noiseMax_[iapv] > sistrip::maximum_ ) { continue; }
       if ( noise_[iapv][istr] < (noiseMean_[iapv] - 5.*noiseSpread_[iapv]) ) {
 	dead_[iapv].push_back(istr); //@@ valid threshold???
       } 
@@ -275,8 +254,61 @@ void PedestalsAnalysis::analyse() {
 	noisy_[iapv].push_back(istr); //@@ valid threshold???
       }
     }
-  
+    
   } // apv loop
   
+}
+
+// ----------------------------------------------------------------------------
+// 
+bool PedestalsAnalysis::isValid() {
+  return ( pedsMean_[0] < sistrip::maximum_ &&
+	   pedsMean_[1] < sistrip::maximum_ &&
+	   pedsSpread_[0] < sistrip::maximum_ &&
+	   pedsSpread_[1] < sistrip::maximum_ &&
+	   noiseMean_[0] < sistrip::maximum_ &&
+	   noiseMean_[1] < sistrip::maximum_ &&
+	   noiseSpread_[0] < sistrip::maximum_ &&
+	   noiseSpread_[1] < sistrip::maximum_ &&
+	   pedsMax_[0] < sistrip::maximum_ &&
+	   pedsMax_[1] < sistrip::maximum_ &&
+	   pedsMin_[0] < sistrip::maximum_ &&
+	   pedsMin_[1] < sistrip::maximum_ &&
+	   noiseMax_[0] < sistrip::maximum_ &&
+	   noiseMax_[1] < sistrip::maximum_ &&
+	   noiseMin_[0] < sistrip::maximum_ &&
+	   noiseMin_[1] < sistrip::maximum_ );
+} 
+
+// ----------------------------------------------------------------------------
+// 
+void PedestalsAnalysis::print( std::stringstream& ss, uint32_t iapv ) { 
+  if ( iapv == 1 || iapv == 2 ) { iapv--; }
+  else { iapv = 0; }
+  header( ss );
+  ss << " Monitorables for APV number : " << iapv;
+  if ( iapv == 0 ) { ss << " (first of pair)"; }
+  else if ( iapv == 1 ) { ss << " (second of pair)"; } 
+  ss << std::endl;
+  ss << " Number of pedestal values   : " << peds_[iapv].size() << std::endl
+     << " Number of noise values      : " << noise_[iapv].size() << std::endl
+     << " Dead strips  (<5s) [strip]  : (" << dead_[iapv].size() << " in total) ";
+  for ( uint16_t ii = 0; ii < dead_[iapv].size(); ii++ ) { 
+    ss << dead_[iapv][ii] << " "; }
+  
+  ss << std::endl;
+  ss << " Noisy strips (>5s) [strip]  : (" << noisy_[iapv].size() << " in total) ";
+  for ( uint16_t ii = 0; ii < noisy_[iapv].size(); ii++ ) { 
+    ss << noisy_[iapv][ii] << " "; 
+  } 
+  ss << std::endl;
+  ss << " Mean peds +/- spread [adc]  : " << pedsMean_[iapv] << " +/- " << pedsSpread_[iapv] << std::endl 
+     << " Min/Max pedestal [adc]      : " << pedsMin_[iapv] << " <-> " << pedsMax_[iapv] << std::endl
+     << " Mean noise +/- spread [adc] : " << noiseMean_[iapv] << " +/- " << noiseSpread_[iapv] << std::endl 
+     << " Min/Max noise [adc]         : " << noiseMin_[iapv] << " <-> " << noiseMax_[iapv] << std::endl
+     << " Normalised noise (to come!) : " << std::endl
+     << std::boolalpha 
+     << " isValid                     : " << isValid()  << std::endl
+     << std::noboolalpha;
 }
 

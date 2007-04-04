@@ -1,5 +1,6 @@
 #include "DQM/SiStripCommissioningAnalysis/interface/DaqScopeModeAnalysis.h"
 #include "DataFormats/SiStripCommon/interface/SiStripHistoTitle.h"
+#include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TH1.h"
 #include <iostream>
@@ -89,8 +90,8 @@ void DaqScopeModeAnalysis::extract( const std::vector<TH1*>& histos ) {
     if ( title.runType() != sistrip::DAQ_SCOPE_MODE ) {
       edm::LogWarning(mlCommissioning_) 
 	<< "[" << myName() << "::" << __func__ << "]"
-	<< " Unexpected commissioning task!"
-	<< "(" << title.runType() << ")";
+	<< " Unexpected commissioning task: "
+	<< SiStripEnumsAndStrings::runType(title.runType());
       continue;
     }
     

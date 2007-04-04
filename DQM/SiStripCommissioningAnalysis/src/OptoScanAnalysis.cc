@@ -1,5 +1,6 @@
 #include "DQM/SiStripCommissioningAnalysis/interface/OptoScanAnalysis.h"
 #include "DataFormats/SiStripCommon/interface/SiStripHistoTitle.h"
+#include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DQM/SiStripCommissioningAnalysis/interface/Utilities.h"
 #include "TProfile.h"
@@ -123,8 +124,8 @@ void OptoScanAnalysis::extract( const std::vector<TH1*>& histos ) {
     if ( title.runType() != sistrip::OPTO_SCAN ) {
       edm::LogWarning(mlCommissioning_) 
 	<< "[" << myName() << "::" << __func__ << "]"
-	<< " Unexpected commissioning task!"
-	<< "(" << title.runType() << ")";
+	<< " Unexpected commissioning task: "
+	<< SiStripEnumsAndStrings::runType(title.runType());
       continue;
     }
 

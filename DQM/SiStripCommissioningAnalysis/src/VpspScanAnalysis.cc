@@ -1,5 +1,6 @@
 #include "DQM/SiStripCommissioningAnalysis/interface/VpspScanAnalysis.h"
 #include "DataFormats/SiStripCommon/interface/SiStripHistoTitle.h"
+#include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TProfile.h"
 #include "TH1.h"
@@ -79,8 +80,8 @@ void VpspScanAnalysis::extract( const std::vector<TH1*>& histos ) {
     if ( title.runType() != sistrip::VPSP_SCAN ) {
       edm::LogWarning(mlCommissioning_)
 	<< "[" << myName() << "::" << __func__ << "]"
-	<< " Unexpected commissioning task!"
-	<< "(" << title.runType() << ")";
+	<< " Unexpected commissioning task: "
+	<< SiStripEnumsAndStrings::runType(title.runType());
       continue;
     }
     

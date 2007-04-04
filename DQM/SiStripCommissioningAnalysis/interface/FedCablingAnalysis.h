@@ -34,7 +34,8 @@ class FedCablingAnalysis : public CommissioningAnalysis {
   inline const Histo& hFedId() const;
   inline const Histo& hFedCh() const;
 
-  // Debug
+  bool isValid();
+
   void print( std::stringstream&, uint32_t not_used = 0 );
   
  private:
