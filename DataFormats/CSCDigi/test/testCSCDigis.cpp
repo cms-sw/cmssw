@@ -3,8 +3,8 @@
  * Test suit for CSCDigi.
  * Based on testDTDigis.cpp
  *
- * $Date: 2007/03/29 16:05:46 $
- * $Revision: 1.16 $
+ * $Date: 2007/04/03 20:12:28 $
+ * $Revision: 1.17 $
  *
  * \author N. Terentiev, CMU (for CSCWireDigi, CSCRPCDigi, 
  *                                CSCALCTDigi, CSCCLCTDigi)
@@ -12,7 +12,7 @@
  * \author A. Tumanov, Rice U.
  */
 
-static const char CVSId[] = "$Id: testCSCDigis.cpp,v 1.16 2007/03/29 16:05:46 teren Exp $";
+static const char CVSId[] = "$Id: testCSCDigis.cpp,v 1.17 2007/04/03 20:12:28 teren Exp $";
 
 #include <cppunit/extensions/HelperMacros.h>
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
@@ -334,13 +334,13 @@ void testCSCDigis::fillCSCTMBStatusDigi(CSCTMBStatusDigiCollection & collection)
        CSCDetId detid(endcp,stn,rng,csc,0);
                                                                                 
        std::vector<CSCTMBStatusDigi> digivec;
-       int tmbdduhdtr=87;   // 01010111
+       int tmbdmbhdtr=87;   // 01010111
        int boardid=5;
        int cscid=10;
        int bxncntL1arv=512;
        int bxncntpretrig=256;
        int nmbtbinpretrig=8;
-       CSCTMBStatusDigi digi(tmbdduhdtr, boardid, cscid,  bxncntL1arv,bxncntpretrig,nmbtbinpretrig);
+       CSCTMBStatusDigi digi(tmbdmbhdtr, boardid, cscid, bxncntL1arv,bxncntpretrig,nmbtbinpretrig);
        digivec.push_back(digi);
                                                                                 
        collection.put(std::make_pair(digivec.begin(), digivec.end()),detid);
