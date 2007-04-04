@@ -109,14 +109,14 @@ CCAmap::DataMap CCAmap::DataMapMaker(std::vector<std::string>& Words){
   dM.m_depth=k_depth;
   if(k_det=="HB"){dM.m_det=1;}
   else if(k_det=="HE"){dM.m_det=2;}
-  else if(k_det=="HF"){dM.m_det=3;}
-  else if(k_det=="HO"){dM.m_det=4;}
+  else if(k_det=="HF"){dM.m_det=4;}
+  else if(k_det=="HO"){dM.m_det=3;}
 
   
   int rbxsign;  
   int z_zero;
   
-  if (dM.m_det==4){
+  if (dM.m_det==3){
     if(k_side==1){ 
       rbxsign=1;
       z_zero=0;
@@ -137,8 +137,15 @@ CCAmap::DataMap CCAmap::DataMapMaker(std::vector<std::string>& Words){
   
 }
   
+
+  int det_num;
   std::string rbxnum = k_rbx.substr(3);  
-   dM.m_rbx=(dM.m_det-1)*18+rbxsign*90+z_zero+(atoi (rbxnum.c_str()));
+  if(k_det=="HB"){det_num=1;}
+  else if(k_det=="HE"){det_num=2;}
+  else if(k_det=="HF"){det_num=3;}
+  else if(k_det=="HO"){det_num=4;}
+  
+  dM.m_rbx=(det_num-1)*18+rbxsign*90+z_zero+(atoi (rbxnum.c_str()));
    
   dM.m_rm=k_rm;
   dM.m_qie=k_qie;//RM_card
