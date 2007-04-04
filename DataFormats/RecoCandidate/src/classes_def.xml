@@ -23,6 +23,7 @@
   <class name="edm::reftobase::Holder<CaloRecHit,edm::Ref<edm::SortedCollection<HFRecHit,edm::StrictWeakOrdering<HFRecHit> >,HFRecHit,edm::refhelper::FindUsingAdvance<edm::SortedCollection<HFRecHit,edm::StrictWeakOrdering<HFRecHit> >,HFRecHit> > >" />
   <class name="edm::reftobase::Holder<CaloRecHit,edm::Ref<edm::SortedCollection<HORecHit,edm::StrictWeakOrdering<HORecHit> >,HORecHit,edm::refhelper::FindUsingAdvance<edm::SortedCollection<HORecHit,edm::StrictWeakOrdering<HORecHit> >,HORecHit> > >" />
   <class name="edm::reftobase::Holder<CaloRecHit,edm::Ref<edm::SortedCollection<HBHERecHit,edm::StrictWeakOrdering<HBHERecHit> >,HBHERecHit,edm::refhelper::FindUsingAdvance<edm::SortedCollection<HBHERecHit,edm::StrictWeakOrdering<HBHERecHit> >,HBHERecHit> > >" />
+  <class name="edm::reftobase::Holder<CaloRecHit, edm::Ref<edm::SortedCollection<EcalRecHit, edm::StrictWeakOrdering<EcalRecHit> >, EcalRecHit, edm::refhelper::FindUsingAdvance<edm::SortedCollection<EcalRecHit, edm::StrictWeakOrdering<EcalRecHit> >, EcalRecHit> > >" />
   <class name="edm::reftobase::BaseHolder<CaloRecHit>" />
 
   <class name="edm::AssociationMap<edm::OneToValue<std::vector<reco::RecoEcalCandidate>, float, unsigned int> >">

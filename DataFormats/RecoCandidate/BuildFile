@@ -4,6 +4,7 @@
 <use name=DataFormats/Common>
 <use name=DataFormats/EgammaReco>
 <use name=DataFormats/HcalRecHit>
+<use name=DataFormats/EcalRecHit>
 <use name=DataFormats/GsfTrackReco>
 <use name=DataFormats/TrackReco>
 <use name=rootrflx>

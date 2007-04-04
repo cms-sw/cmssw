@@ -5,6 +5,7 @@
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidateIsolation.h"
 #include "DataFormats/RecoCandidate/interface/CaloRecHitCandidate.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/Common/interface/RefToBase.h"
 
@@ -33,6 +34,7 @@ namespace {
     edm::reftobase::Holder<CaloRecHit, HORecHitRef > rb5;
     edm::reftobase::Holder<CaloRecHit, HFRecHitRef> rb6;
     edm::reftobase::Holder<CaloRecHit, ZDCRecHitRef> rb7;
+    edm::reftobase::Holder<CaloRecHit, EcalRecHitRef> rb8;
     edm::RefToBase<CaloRecHit> rbh3;
   }
 }
