@@ -164,7 +164,7 @@ void SiPixelGaussianSmearingRecHitConverterAlgorithm::smearHit(
   float locz = localDir.z();
 
   // alpha: angle with respect to local x axis in local (x,z) plane
-  float alpha = acos(locx/sqrt(locx*locx+locz*locz));
+  float alpha = acos(locx/std::sqrt(locx*locx+locz*locz));
   if ( isFlipped( detUnit ) ) { // &&& check for FPIX !!!
 #ifdef FAMOS_DEBUG
     std::cout << " isFlipped " << std::endl;
@@ -172,7 +172,7 @@ void SiPixelGaussianSmearingRecHitConverterAlgorithm::smearHit(
     alpha = PI - alpha ;
   }
   // beta: angle with respect to local y axis in local (y,z) plane
-  float beta = acos(locy/sqrt(locy*locy+locz*locz));
+  float beta = acos(locy/std::sqrt(locy*locy+locz*locz));
   
   // look old FAMOS: FamosGeneric/FamosTracker/src/FamosPixelErrorParametrization
   float alphaToBeUsedForRootFiles = alpha;
@@ -181,7 +181,7 @@ void SiPixelGaussianSmearingRecHitConverterAlgorithm::smearHit(
     alphaToBeUsedForRootFiles = PI/2. - alpha;
     betaToBeUsedForRootFiles  = fabs( PI/2. - beta );
   } else { // FORWARD
-    betaToBeUsedForRootFiles = PI/2. - beta;
+    betaToBeUsedForRootFiles = fabs( PI/2. - beta );
     alphaToBeUsedForRootFiles  = fabs( PI/2. - alpha );    
   }
   //
@@ -271,6 +271,7 @@ void SiPixelGaussianSmearingRecHitConverterAlgorithm::smearHit(
 	    << std::endl;	
 #endif
   
+  /*
   if(theErrorX < 0) {
     std::cout << "\t\tNAN:: PixelPart , alpha , sizex , beta , sizey , errorx, errory "
 	      << thePixelPart << " "
@@ -278,6 +279,7 @@ void SiPixelGaussianSmearingRecHitConverterAlgorithm::smearHit(
 	      << beta  << " " << betaMultiplicity  << " "
 	      << theErrorX << " " << theErrorY
 	      << std::endl;
+
     // protect the error against nan's
     if(negativeErrorProtection) {
       float reasonableError = 0.0005; // A reasonable error is 5 um for high multiplicity clusters
@@ -290,6 +292,7 @@ void SiPixelGaussianSmearingRecHitConverterAlgorithm::smearHit(
 		<< std::endl;
     }
   }
+  */
   
   // 
   // Generate position
