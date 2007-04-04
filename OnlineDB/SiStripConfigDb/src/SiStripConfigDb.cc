@@ -1,6 +1,4 @@
-// Last commit: $Id: SiStripConfigDb.cc,v 1.28 2007/01/19 15:30:14 bainbrid Exp $
-// Latest tag:  $Name:  $
-// Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripConfigDb/src/SiStripConfigDb.cc,v $
+// Last commit: $Id: $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
@@ -33,7 +31,8 @@ SiStripConfigDb::SiStripConfigDb( const edm::ParameterSet& pset,
   resetDcuDetIdMap_(true), 
   resetDcuConvs_(true),
   // Misc
-  usingStrips_(true)
+  usingStrips_(true),
+  openConnection_(false)
 {
   cntr_++;
   LogTrace(mlConfigDb_)
@@ -207,7 +206,7 @@ SiStripConfigDb::SiStripConfigDb( string input_module_xml,
 // -----------------------------------------------------------------------------
 //
 SiStripConfigDb::~SiStripConfigDb() {
-  //closeDbConnection();
+  if ( openConnection_ ) { closeDbConnection(); }
   LogTrace(mlConfigDb_)
     << "[SiStripConfigDb::" << __func__ << "]"
     << " Destructing object...";
@@ -358,6 +357,15 @@ ostream& operator<< ( ostream& os, const SiStripConfigDb::DbParams& params ) {
 // -----------------------------------------------------------------------------
 // 
 void SiStripConfigDb::openDbConnection() {
+
+  // Check
+  if ( openConnection_ ) {
+    edm::LogWarning(mlConfigDb_) 
+      << "[SiStripConfigDb::" << __func__ << "]"
+      << " Connection already open!";
+    return;
+  }
+  openConnection_ = true;
   
   // Establish database connection
   if ( dbParams_.usingDb_ ) { 
@@ -374,6 +382,16 @@ void SiStripConfigDb::openDbConnection() {
 // -----------------------------------------------------------------------------
 //
 void SiStripConfigDb::closeDbConnection() {
+
+  // Check
+  if ( !openConnection_ ) {
+    edm::LogWarning(mlConfigDb_) 
+      << "[SiStripConfigDb::" << __func__ << "]"
+      << " No connection open!";
+    return;
+  }
+  openConnection_ = true;
+
   try { 
     if ( factory_ ) { delete factory_; }
   } catch (...) { handleException( __func__, "Attempting to close database connection..." ); }

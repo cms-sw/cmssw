@@ -1,6 +1,4 @@
-// Last commit: $Id: SiStripConfigDb.h,v 1.19 2006/12/01 16:36:48 bainbrid Exp $
-// Latest tag:  $Name:  $
-// Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h,v $
+// Last commit: $Id: $
 
 #ifndef SiStripConfigDb_H
 #define SiStripConfigDb_H
@@ -369,6 +367,9 @@ class SiStripConfigDb {
   
   /** Switch to enable/disable transfer of strip information. */
   bool usingStrips_;
+
+  /** */
+  bool openConnection_;
   
   /** Static counter of instances of this class. */
   static uint32_t cntr_;
