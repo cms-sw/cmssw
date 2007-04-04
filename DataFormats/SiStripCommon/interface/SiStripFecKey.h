@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripFecKey.h,v 1.5 2007/03/21 08:22:59 bainbrid Exp $
+// Last commit: $Id: SiStripFecKey.h,v 1.6 2007/03/26 10:12:11 bainbrid Exp $
 
 #ifndef DataFormats_SiStripCommon_SiStripFecKey_H
 #define DataFormats_SiStripCommon_SiStripFecKey_H
@@ -78,6 +78,10 @@ class SiStripFecKey : public SiStripKey {
 
   /** Copy constructor using base class. */
   SiStripFecKey( const SiStripKey& );
+
+  /** Copy to level specified by granularity. */
+  SiStripFecKey( const SiStripKey&,
+		 const sistrip::Granularity& );
 
   /** Default constructor */
   SiStripFecKey();

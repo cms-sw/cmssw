@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripFedKey.cc,v 1.6 2007/03/21 08:22:59 bainbrid Exp $
+// Last commit: $Id: SiStripFedKey.cc,v 1.7 2007/03/26 10:12:43 bainbrid Exp $
 
 #include "DataFormats/SiStripCommon/interface/SiStripFedKey.h"
 #include "DataFormats/SiStripCommon/interface/ConstantsForHardwareSystems.h"
@@ -185,7 +185,9 @@ bool SiStripFedKey::isValid() const {
 //
 bool SiStripFedKey::isValid( const sistrip::Granularity& gran ) const {
   if ( gran == sistrip::FED_SYSTEM ) { return true; }
-  else if ( gran == sistrip::UNDEFINED_GRAN ) { return false; }
+  else if ( gran == sistrip::UNDEFINED_GRAN ||
+	    gran == sistrip::UNKNOWN_GRAN ) { return false; }
+
   if ( fedId_ != sistrip::invalid_ ) {
     if ( gran == sistrip::FED ) { return true; }
     if ( feUnit_ != sistrip::invalid_ ) {
@@ -211,7 +213,9 @@ bool SiStripFedKey::isInvalid() const {
 //
 bool SiStripFedKey::isInvalid( const sistrip::Granularity& gran ) const {
   if ( gran == sistrip::FED_SYSTEM ) { return false; }
-  else if ( gran == sistrip::UNDEFINED_GRAN ) { return true; }
+  else if ( gran == sistrip::UNDEFINED_GRAN ||
+	    gran == sistrip::UNKNOWN_GRAN ) { return false; }
+
   if ( fedId_ == sistrip::invalid_ ) {
     if ( gran == sistrip::FED ) { return true; }
     if ( feUnit_ == sistrip::invalid_ ) {
@@ -455,19 +459,19 @@ void SiStripFedKey::initGranularity() {
 	  granularity( sistrip::FED_APV );
 	  channel(fedApv_);
 	} else if ( fedApv_ == sistrip::invalid_ ) { 
-	  granularity( sistrip::UNDEFINED_GRAN ); 
+	  granularity( sistrip::UNKNOWN_GRAN ); 
 	  channel(sistrip::invalid_);
 	}
       } else if ( feChan_ == sistrip::invalid_ ) { 
-	granularity( sistrip::UNDEFINED_GRAN ); 
+	granularity( sistrip::UNKNOWN_GRAN ); 
 	channel(sistrip::invalid_);
       }
     } else if ( feUnit_ == sistrip::invalid_ ) { 
-      granularity( sistrip::UNDEFINED_GRAN ); 
+      granularity( sistrip::UNKNOWN_GRAN ); 
       channel(sistrip::invalid_);
     }
   } else if ( fedId_ == sistrip::invalid_ ) { 
-    granularity( sistrip::UNDEFINED_GRAN ); 
+    granularity( sistrip::UNKNOWN_GRAN ); 
     channel(sistrip::invalid_);
   }
   

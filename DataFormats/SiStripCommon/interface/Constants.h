@@ -1,4 +1,4 @@
-// Last commit: $Id: $
+// Last commit: $Id: Constants.h,v 1.2 2007/03/21 08:22:59 bainbrid Exp $
 
 #ifndef DataFormats_SiStripCommon_Constants_H
 #define DataFormats_SiStripCommon_Constants_H
@@ -18,8 +18,7 @@ namespace sistrip {
   static const uint16_t unknown_   = 0xFFFE; // 65534
   static const uint16_t maximum_   = 0x3FF;  // 1023
   static const std::string null_   = "null";
-
-}
   
-#endif // DataFormats_SiStripCommon_Constants_H
+}
 
+#endif // DataFormats_SiStripCommon_Constants_H

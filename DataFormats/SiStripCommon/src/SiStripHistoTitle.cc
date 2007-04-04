@@ -1,4 +1,4 @@
-// Last commit: $Id: $
+// Last commit: $Id: SiStripHistoTitle.cc,v 1.2 2007/03/21 08:22:59 bainbrid Exp $
 
 #include "DataFormats/SiStripCommon/interface/SiStripHistoTitle.h"
 #include "DataFormats/SiStripCommon/interface/SiStripKey.h"
@@ -163,14 +163,14 @@ void SiStripHistoTitle::extractTitle() {
 std::ostream& operator<< ( std::ostream& os, const SiStripHistoTitle& title ) {
   std::stringstream ss;
   ss << "[SiStripHistoTitle::print]" << std::endl
-     << " Title       : " << title.title() << std::endl
-     << " RunType     : " << SiStripEnumsAndStrings::runType( title.runType() ) << std::endl
-     << " KeyType     : " << SiStripEnumsAndStrings::keyType( title.keyType() ) << std::endl
-     << " KeyValue    : 0x" << std::hex << std::setfill('0') << std::setw(8) << title.keyValue() << std::dec << std::endl
-     << " Granularity : " << SiStripEnumsAndStrings::granularity( title.granularity() ) << std::endl
-     << " Channel     : " << title.channel() << std::endl
-     << " ExtraInfo   : ";
-  if ( title.extraInfo() != "" ) { ss << title.extraInfo(); }
+     << " Title          : " << title.title() << std::endl
+     << " RunType        : " << SiStripEnumsAndStrings::runType( title.runType() ) << std::endl
+     << " KeyType        : " << SiStripEnumsAndStrings::keyType( title.keyType() ) << std::endl
+     << " KeyValue (hex) : " << std::hex << std::setfill('0') << std::setw(8) << title.keyValue() << std::dec << std::endl
+     << " Granularity    : " << SiStripEnumsAndStrings::granularity( title.granularity() ) << std::endl
+     << " Channel        : " << title.channel() << std::endl
+     << " ExtraInfo      : ";
+  if ( title.extraInfo() != "" ) { ss << "\"" << title.extraInfo() << "\""; }
   else { ss << "(none)"; }
   os << ss.str();
   return os;
