@@ -17,7 +17,7 @@
 //-----------------------
 // This Class's Header --
 //-----------------------
-#include "L1Trigger/DTSectorCollector/interface/DTSectCollId.h"
+#include "L1Trigger/DTUtilities/interface/DTSectCollId.h"
 
 //-------------------------------
 // Collaborating Class Headers --
