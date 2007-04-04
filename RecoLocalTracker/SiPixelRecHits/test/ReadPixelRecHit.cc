@@ -13,7 +13,6 @@
 #include "RecoLocalTracker/SiPixelRecHits/test/ReadPixelRecHit.h"
 
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
-#include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
@@ -178,8 +177,8 @@ void ReadPixelRecHit::endJob(){
 void ReadPixelRecHit::analyze(const edm::Event& e, 
 			      const edm::EventSetup& es) {
   using namespace edm;
-  //const bool localPrint = false;
-  const bool localPrint = true;
+  const bool localPrint = false;
+  //const bool localPrint = true;
 
   // Get event setup (to get global transformation)
   edm::ESHandle<TrackerGeometry> geom;
@@ -386,9 +385,9 @@ void ReadPixelRecHit::analyze(const edm::Event& e,
       map<unsigned int, float, less<unsigned int> > chanMap;  // Channel map
       // Look at pixels in this cluster. ADC is calibrated, in electrons 
       for (int i = 0;  i < pixelsVec.size(); ++i) {
-	float pixx = pixelsVec[i].x;
+	float pixx = pixelsVec[i].x; // index as a float so = i+0.5
 	float pixy = pixelsVec[i].y;
-	float adc = ((pixelsVec[i].adc)/1000);
+	float adc = ((pixelsVec[i].adc)/1000); // in kelec.
 	int chan = PixelChannelIdentifier::pixelToChannel(int(pixx),int(pixy));
 
 	//if(RectangularPixelTopology::isItBigPixelInX(int(pixx))) bigInX=true;

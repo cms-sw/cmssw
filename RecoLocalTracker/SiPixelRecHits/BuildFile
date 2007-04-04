@@ -21,6 +21,7 @@
 <use name=MagneticField/GeomBuilder>
 <use name=boost>
 <use name=clhep>
+<use name=gsl>
 <export>
 <lib name=RecoLocalTrackerSiPixelRecHits>
 <use name=FWCore/Framework>
@@ -45,4 +46,5 @@
 <use name=MagneticField/GeomBuilder>
 <use name=boost>
 <use name=clhep>
+<use name=gsl>
 </export>

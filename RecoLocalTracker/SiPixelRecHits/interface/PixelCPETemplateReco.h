@@ -3,18 +3,14 @@
 
 #include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEBase.h"
 
-#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
-#include "Geometry/TrackerTopology/interface/RectangularPixelTopology.h"
-
-#include "Geometry/CommonDetAlgo/interface/MeasurementPoint.h"
-#include "Geometry/CommonDetAlgo/interface/MeasurementError.h"
-
-//--- For the various "Frames"
-#include "Geometry/Surface/interface/GloballyPositioned.h"
-
-//--- For the configuration:
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+// Already in the base class
+//#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
+//#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+//#include "Geometry/TrackerTopology/interface/RectangularPixelTopology.h"
+//#include "Geometry/CommonDetAlgo/interface/MeasurementPoint.h"
+//#include "Geometry/CommonDetAlgo/interface/MeasurementError.h"
+//#include "Geometry/Surface/interface/GloballyPositioned.h"
+//#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 
 #ifndef SI_PIXEL_TEMPLATE_STANDALONE
@@ -52,30 +48,29 @@ class PixelCPETemplateReco : public PixelCPEBase
   
   MeasurementPoint measurementPosition ( const SiPixelCluster&, const GeomDetUnit & det) const;
 
+  // &&& Do we need to overload measurementError() ? 
+
+ protected:
+  //--- These functions are no longer needed, yet they are declared 
+  //--- pure virtual in the base class.
+  float xpos( const SiPixelCluster& ) const { return -999000.0; }  // &&& should abort
+  float ypos( const SiPixelCluster& ) const { return -999000.0; }  // &&& should abort
 
  private:
-  //--------------------------------------------------------------------
-  //  Methods.
-  //------------------------------------------------------------------
-
-  // Position in x and y
-  float xpos( const SiPixelCluster& ) const;
-  float ypos( const SiPixelCluster& ) const;
-
-  // Quantities needed to calculate xpos() and ypos()
-  float chargeWidthX() const;
-  float chargeWidthY() const;
-  
- private:
-  // Template stuff in here &&&
-  
+  // Template storage
   mutable SiPixelTemplate templ_ ;
   
-  // The result
+  // The result of PixelTemplateReco2D
   mutable float templXrec_ ; 
   mutable float templYrec_ ;
   mutable float templSigmaX_ ;
   mutable float templSigmaY_ ;
+  // Add new information produced by SiPixelTemplateReco::PixelTempReco2D &&&
+  // These can only be accessed if we change silicon pixel data formats and add them to the rechit
+  mutable float templProbX_ ;
+  mutable float templProbY_ ;
+  mutable int templQbin_ ;
+
 };
 
 #endif

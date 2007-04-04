@@ -10,8 +10,6 @@
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
 
-
-
 #include <string>
 #include <memory>
 
@@ -27,18 +25,14 @@ PixelCPEInitialESProducer::PixelCPEInitialESProducer(const edm::ParameterSet & p
 PixelCPEInitialESProducer::~PixelCPEInitialESProducer() {}
 
 boost::shared_ptr<PixelClusterParameterEstimator> 
-PixelCPEInitialESProducer::produce(const TrackerCPERecord & iRecord){ 
-//   if (_propagator){
-//     delete _propagator;
-//     _propagator = 0;
-//   }
+PixelCPEInitialESProducer::produce(const TkPixelCPERecord & iRecord){ 
+
   ESHandle<MagneticField> magfield;
   iRecord.getRecord<IdealMagneticFieldRecord>().get(magfield );
 
   edm::ESHandle<TrackerGeometry> pDD;
   iRecord.getRecord<TrackerDigiGeometryRecord>().get( pDD );
 
-  //  cpe_  = boost::shared_ptr<PixelClusterParameterEstimator>(new PixelCPEInitial(pset_,magfield.product(), pDD.product()));
   cpe_  = boost::shared_ptr<PixelClusterParameterEstimator>(new PixelCPEInitial(pset_,magfield.product())  );
   return cpe_;
 }
