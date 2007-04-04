@@ -101,8 +101,8 @@ HLTMuonDimuonFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    for (cand1=mucands->begin(); cand1!=mucands->end(); cand1++) {
       TrackRef tk1 = cand1->get<TrackRef>();
       // eta cut
-      LogDebug("HLTMuonDimuonFilter") << " 1st muon in loop: pt= "
-            << tk1->pt() << ", eta= " << tk1->eta() << ", hits= " << tk1->numberOfValidHits();
+      LogDebug("HLTMuonDimuonFilter") << " 1st muon in loop: q*pt= "
+            << tk1->charge()*tk1->pt() << ", eta= " << tk1->eta() << ", hits= " << tk1->numberOfValidHits();
       if (fabs(tk1->eta())>max_Eta_) continue;
 
       // cut on number of hits
@@ -129,7 +129,7 @@ HLTMuonDimuonFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
             TrackRef tk2 = cand2->get<TrackRef>();
 
             // eta cut
-            LogDebug("HLTMuonDimuonFilter") << " 2nd muon in loop: pt= " << tk2->pt() << ", eta= " << tk2->eta() << ", hits= " << tk2->numberOfValidHits() << ", d0= " << tk2->d0();
+            LogDebug("HLTMuonDimuonFilter") << " 2nd muon in loop: q*pt= " << tk2->charge()*tk2->pt() << ", eta= " << tk2->eta() << ", hits= " << tk2->numberOfValidHits() << ", d0= " << tk2->d0();
             if (fabs(tk2->eta())>max_Eta_) continue;
 
             // cut on number of hits
