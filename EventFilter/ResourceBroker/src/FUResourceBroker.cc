@@ -462,7 +462,7 @@ bool FUResourceBroker::monitoring(toolbox::task::WorkLoop* wl)
   deltaInputSumOfSquares_.value_=(double)deltaInputSumOfSquares;
   nbInputLastSumOfSquares_=nbInputSumOfSquares;
 
-  deltaOutputSumOfSquares_.value_=nbOutputSumOfSquares-nbOutputLastSumOfSquares_;
+  deltaOutputSumOfSquares=nbOutputSumOfSquares-nbOutputLastSumOfSquares_;
   deltaOutputSumOfSquares_.value_=(double)deltaOutputSumOfSquares;
   nbOutputLastSumOfSquares_=nbOutputSumOfSquares;
   
