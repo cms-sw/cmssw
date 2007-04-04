@@ -48,41 +48,6 @@ class MuonServiceProxy;
 #endif
 
 
-#ifndef Df
-#define Df(var,os) os<<#var<<" "<<var<<"\n";
-#endif
-#ifndef Dfn
-#define Dfn(var,os) os<<#var<<" "<<var<<" ";
-#endif
-
-/*
-  #ifndef Dfl
-  #define Dfl(label,var,o) o<<label<<" "<<var<<"\n";
-  #endif
-  #ifndef Dfln
-  #define Dfln(label,var,o) o<<label<<" "<<var;
-  #endif*/
-
-
-#ifndef D
-#define D(var) std::cout<<#var<<" "<<var<<"\n";
-#endif
-#ifndef Dn
-#define Dn(var) std::cout<<#var<<" "<<var<<" ";
-#endif
-#ifndef Dl
-#define Dl(label,var) std::cout<<label<<" "<<var<<std::endl;
-#endif
-#ifndef Dln
-#define Dln(label,var) std::cout<<label<<" "<<var;
-#endif
-#ifndef COMMENT
-#define COMMENT(text) std::cout<<"### "<<text<<std::endl;
-#endif
-#ifndef COMMENTf
-#define COMMENTf(text,o) o<<"### "<<text<<"\n";
-#endif
-
 
 template <class A> class flippingPair : public std::pair<A,A>{
  public:
@@ -110,12 +75,6 @@ class GlobalMuonRSTrajectoryBuilder {
  private:
   
   std::string _category;
-  //  inline std::string & category(){ return _category;}
-  //to be removed maybe
-  void Show(const DetId det,std::ostream & o=std::cout);
-  void Show(const TrajectoryStateOnSurface & TSOS, char * label,std::ostream & o=std::cout);
-  void Show(const FreeTrajectoryState & FS,char * label,std::ostream & o=std::cout);
-  std::string Modulename(const DetId det);
   
  public:
   //for the hit collection only
