@@ -3,7 +3,7 @@
 <use name=FWCore/ParameterSet>
 <use name=DataFormats/L1Trigger>
 <use name=DataFormats/L1GlobalTrigger>
-<use name=L1Trigger/L1Scales>
+<use name=CondFormats/L1TObjects>
 <flags SEAL_PLUGIN_NAME="L1TriggerL1ExtraFromDigis">
 <export>
    <lib name=L1TriggerL1ExtraFromDigis>

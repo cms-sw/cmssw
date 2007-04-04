@@ -8,7 +8,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Mon Oct  2 22:45:32 EDT 2006
-// $Id: L1ExtraParticlesProd.cc,v 1.6 2007/03/07 13:33:33 wsun Exp $
+// $Id: L1ExtraParticlesProd.cc,v 1.7 2007/04/02 08:03:15 wsun Exp $
 //
 //
 
@@ -26,12 +26,16 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/Common/interface/OrphanHandle.h"
 
-#include "L1Trigger/L1Scales/interface/L1CaloEtScale.h"
-#include "L1Trigger/L1Scales/interface/L1EmEtScaleRcd.h"
-#include "L1Trigger/L1Scales/interface/L1JetEtScaleRcd.h"
+// #include "L1Trigger/L1Scales/interface/L1CaloEtScale.h"
+// #include "L1Trigger/L1Scales/interface/L1EmEtScaleRcd.h"
+// #include "L1Trigger/L1Scales/interface/L1JetEtScaleRcd.h"
+#include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
+#include "CondFormats/DataRecord/interface/L1EmEtScaleRcd.h"
+#include "CondFormats/DataRecord/interface/L1JetEtScaleRcd.h"
 
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTReadoutCollection.h"
-#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuTriggerScales.h"
+// #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuTriggerScales.h"
+#include "CondFormats/L1TObjects/interface/L1MuTriggerScales.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
