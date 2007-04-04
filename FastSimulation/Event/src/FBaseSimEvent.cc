@@ -19,16 +19,15 @@
 #include "FastSimulation/Event/interface/NoPrimaryVertexGenerator.h"
 //#include "FastSimulation/Utilities/interface/Histos.h"
 
-using namespace std;
-//using namespace edm;
 using namespace HepMC;
-//using namespace CLHEP;
 using namespace HepPDT;
 
 // system include
 #include <iostream>
 #include <iomanip>
 #include <map>
+#include <vector>
+#include <string>
 
 FBaseSimEvent::FBaseSimEvent(const edm::ParameterSet& kine) 
   : random(0)
@@ -37,10 +36,10 @@ FBaseSimEvent::FBaseSimEvent(const edm::ParameterSet& kine)
   theVertexGenerator = new NoPrimaryVertexGenerator();
 
   // Initialize the vectors of particles and vertices
-  theGenParticles = new vector<GenParticle*>(); 
-  theSimTracks = new vector<FSimTrack>;
-  theSimVertices = new vector<FSimVertex>;
-  theChargedTracks = new vector<unsigned>();
+  theGenParticles = new std::vector<GenParticle*>(); 
+  theSimTracks = new std::vector<FSimTrack>;
+  theSimVertices = new std::vector<FSimVertex>;
+  theChargedTracks = new std::vector<unsigned>();
 
   // Reserve some size to avoid mutiple copies
   theSimTracks->reserve(20000);
@@ -61,7 +60,7 @@ FBaseSimEvent::FBaseSimEvent(const edm::ParameterSet& vtx,
 
 
   // Initialize the vertex generator
-  string vtxType = vtx.getParameter<string>("type");
+  std::string vtxType = vtx.getParameter<std::string>("type");
   if ( vtxType == "Gaussian" ) 
     theVertexGenerator = new GaussianPrimaryVertexGenerator(vtx,random);
   else if ( vtxType == "Flat" ) 
@@ -70,10 +69,10 @@ FBaseSimEvent::FBaseSimEvent(const edm::ParameterSet& vtx,
     theVertexGenerator = new NoPrimaryVertexGenerator();
 
   // Initialize the vectors of particles and vertices
-  theGenParticles = new vector<GenParticle*>(); 
-  theSimTracks = new vector<FSimTrack>;
-  theSimVertices = new vector<FSimVertex>;
-  theChargedTracks = new vector<unsigned>();
+  theGenParticles = new std::vector<GenParticle*>(); 
+  theSimTracks = new std::vector<FSimTrack>;
+  theSimVertices = new std::vector<FSimVertex>;
+  theChargedTracks = new std::vector<unsigned>();
 
   // Reserve some size to avoid mutiple copies
   theSimTracks->reserve(20000);
@@ -158,13 +157,13 @@ FBaseSimEvent::fill(const std::vector<SimTrack>& simTracks,
   if ( nVtx == 0 ) return;
 
   // Two arrays for internal use.
-  vector<int> myVertices(nVtx,-1);
-  vector<int> myTracks(nTks,-1);
+  std::vector<int> myVertices(nVtx,-1);
+  std::vector<int> myTracks(nTks,-1);
 
   // create a map associating geant particle id and position in the 
   // event SimTrack vector
   
-  map<unsigned, unsigned> geantToIndex;
+  std::map<unsigned, unsigned> geantToIndex;
   for( unsigned it=0; it<simTracks.size(); ++it ) {
     geantToIndex[ simTracks[it].trackId() ] = it;
   }  
@@ -193,7 +192,7 @@ FBaseSimEvent::fill(const std::vector<SimTrack>& simTracks,
     if( !vertex.noParent() ) { // there is a parent to this vertex
       // geant id of the mother
       unsigned motherGeantId =   vertex.parentIndex(); 
-      map<unsigned, unsigned >::iterator association  
+      std::map<unsigned, unsigned >::iterator association  
 	= geantToIndex.find( motherGeantId );
       if(association != geantToIndex.end() )
 	motherId = association->second;
@@ -235,7 +234,7 @@ FBaseSimEvent::fill(const std::vector<SimTrack>& simTracks,
 
       // geant id of the mother
       unsigned motherGeantId =   vertex.parentIndex(); 
-      map<unsigned, unsigned >::iterator association  
+      std::map<unsigned, unsigned >::iterator association  
 	= geantToIndex.find( motherGeantId );
       if(association != geantToIndex.end() )
 	motherId = association->second;
@@ -312,7 +311,7 @@ void
 FBaseSimEvent::addParticles(const HepMC::GenEvent& myGenEvent) {
 
   /// Some internal array to work with.
-  map<const GenParticle*,int> myGenVertices;
+  std::map<const GenParticle*,int> myGenVertices;
 
   // If no particles, no work to be done !
   if ( myGenEvent.particles_empty() ) return;
@@ -446,7 +445,7 @@ FBaseSimEvent::addSimTrack(const RawParticle* p, int iv, int ig) {
   // Protection on the number of tracks
   int trackId = nTracks();
   if ( trackId == 20000 ) {
-    cout << "FastSimulation:FBaseSimEvent - try to store more than 20000 tracks" << endl;
+    std::cout << "FastSimulation:FBaseSimEvent - try to store more than 20000 tracks" << std::endl;
     return -1;
   }
 
@@ -484,7 +483,7 @@ FBaseSimEvent::addSimVertex(const HepLorentzVector& v,int im) {
   //  if ( im!=-1 ) decayVertex->add_particle_in(track(im).me());
   int vertexId = nVertices();
   if ( vertexId == 20000 ) {
-    cout << "FastSimulation:FBaseSimEvent - try to store more than 20000 vertices" << endl;
+    std::cout << "FastSimulation:FBaseSimEvent - try to store more than 20000 vertices" << std::endl;
     return -1;
   }
 
@@ -504,9 +503,9 @@ FBaseSimEvent::addSimVertex(const HepLorentzVector& v,int im) {
 void
 FBaseSimEvent::printMCTruth(const HepMC::GenEvent& myGenEvent) {
   
-  cout << "Id  Gen Name       eta    phi     pT     E    Vtx1   " 
-       << " x      y      z   " 
-       << "Moth  Vtx2  eta   phi     R      Z   Da1  Da2 Ecal?" << endl;
+  std::cout << "Id  Gen Name       eta    phi     pT     E    Vtx1   " 
+	    << " x      y      z   " 
+	    << "Moth  Vtx2  eta   phi     R      Z   Da1  Da2 Ecal?" << std::endl;
 
   for ( HepMC::GenEvent::particle_const_iterator 
 	  piter  = myGenEvent.particles_begin();
@@ -540,33 +539,33 @@ FBaseSimEvent::printMCTruth(const HepMC::GenEvent& myGenEvent) {
 				    p->production_vertex()->position().z()/10.);
     vertexId1 = p->production_vertex()->barcode();
     
-    cout.setf(ios::fixed, ios::floatfield);
-    cout.setf(ios::right, ios::adjustfield);
+    std::cout.setf(std::ios::fixed, std::ios::floatfield);
+    std::cout.setf(std::ios::right, std::ios::adjustfield);
     
-    cout << setw(4) << p->barcode()-1 << " " 
+    std::cout << std::setw(4) << p->barcode()-1 << " " 
 	 << name;
     
-    for(unsigned int k=0;k<11-name.length() && k<12; k++) cout << " ";  
+    for(unsigned int k=0;k<11-name.length() && k<12; k++) std::cout << " ";  
     
     double eta = momentum1.eta();
     if ( eta > +10. ) eta = +10.;
     if ( eta < -10. ) eta = -10.;
-    cout << setw(6) << setprecision(2) << eta << " " 
-	 << setw(6) << setprecision(2) << momentum1.phi() << " " 
-	 << setw(7) << setprecision(2) << momentum1.perp() << " " 
-	 << setw(7) << setprecision(2) << momentum1.e() << " " 
-	 << setw(4) << vertexId1 << " " 
-	 << setw(6) << setprecision(1) << vertex1.x() << " " 
-	 << setw(6) << setprecision(1) << vertex1.y() << " " 
-	 << setw(6) << setprecision(1) << vertex1.z() << " ";
+    std::cout << std::setw(6) << std::setprecision(2) << eta << " " 
+	      << std::setw(6) << std::setprecision(2) << momentum1.phi() << " " 
+	      << std::setw(7) << std::setprecision(2) << momentum1.perp() << " " 
+	      << std::setw(7) << std::setprecision(2) << momentum1.e() << " " 
+	      << std::setw(4) << vertexId1 << " " 
+	      << std::setw(6) << std::setprecision(1) << vertex1.x() << " " 
+	      << std::setw(6) << std::setprecision(1) << vertex1.y() << " " 
+	      << std::setw(6) << std::setprecision(1) << vertex1.z() << " ";
 
     const GenParticle* mother = 
       *(p->production_vertex()->particles_in_const_begin());
 
     if ( mother )
-      cout << setw(4) << mother->barcode()-1 << " ";
+      std::cout << std::setw(4) << mother->barcode()-1 << " ";
     else 
-      cout << "     " ;
+      std::cout << "     " ;
     
     if ( p->end_vertex() ) {  
       HepLorentzVector vertex2(p->end_vertex()->position().x()/10.,
@@ -575,7 +574,7 @@ FBaseSimEvent::printMCTruth(const HepMC::GenEvent& myGenEvent) {
 			       p->end_vertex()->position().t()/10.);
       int vertexId2 = p->end_vertex()->barcode();
 
-      vector<const GenParticle*> children;
+      std::vector<const GenParticle*> children;
       GenVertex::particles_out_const_iterator firstDaughterIt = 
         p->end_vertex()->particles_out_const_begin();
       GenVertex::particles_out_const_iterator lastDaughterIt = 
@@ -586,17 +585,17 @@ FBaseSimEvent::printMCTruth(const HepMC::GenEvent& myGenEvent) {
       //      const GenParticle* firstDaughter = children[0];
       //      const GenParticle* lastDaughter = children[children.size()-1]; 
 
-      cout << setw(4) << vertexId2 << " "
-	   << setw(6) << setprecision(2) << vertex2.eta() << " " 
-	   << setw(6) << setprecision(2) << vertex2.phi() << " " 
-	   << setw(5) << setprecision(1) << vertex2.perp() << " " 
-	   << setw(6) << setprecision(1) << vertex2.z() << " ";
+      std::cout << std::setw(4) << vertexId2 << " "
+		<< std::setw(6) << std::setprecision(2) << vertex2.eta() << " " 
+		<< std::setw(6) << std::setprecision(2) << vertex2.phi() << " " 
+		<< std::setw(5) << std::setprecision(1) << vertex2.perp() << " " 
+		<< std::setw(6) << std::setprecision(1) << vertex2.z() << " ";
       for ( unsigned id=0; id<children.size(); ++id )
-	cout << setw(4) << children[id]->barcode()-1 << " ";
-      //	   << setw(4) << firstDaughter->barcode()-1 << " " 
-      //	   << setw(4) << lastDaughter->barcode()-1 << " ";
+	std::cout << std::setw(4) << children[id]->barcode()-1 << " ";
+      //	   << std::setw(4) << firstDaughter->barcode()-1 << " " 
+      //	   << std::setw(4) << lastDaughter->barcode()-1 << " ";
     }
-    cout << endl;
+    std::cout << std::endl;
 
   }
 
@@ -605,14 +604,14 @@ FBaseSimEvent::printMCTruth(const HepMC::GenEvent& myGenEvent) {
 void
 FBaseSimEvent::print() const {
   //  for(int i=0; i<(int)genparts()->size(); ++i)
-  //    cout << i << " " << embdGenpart(i) << endl << endl;
+  //    std::cout << i << " " << embdGenpart(i) << endl << endl;
 
-  cout << "  Id  Gen Name       eta    phi     pT     E    Vtx1   " 
-       << " x      y      z   " 
-       << "Moth  Vtx2  eta   phi     R      Z   Daughters Ecal?" << endl;
+  std::cout << "  Id  Gen Name       eta    phi     pT     E    Vtx1   " 
+	    << " x      y      z   " 
+	    << "Moth  Vtx2  eta   phi     R      Z   Daughters Ecal?" << std::endl;
 
   for( int i=0; i<(int)nTracks(); i++ ) 
-    cout << track(i) << endl;
+    std::cout << track(i) << std::endl;
 }
 
 void 

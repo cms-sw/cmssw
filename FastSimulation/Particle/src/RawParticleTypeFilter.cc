@@ -1,8 +1,8 @@
 // -----------------------------------------------------------------------------
 //  Prototype for a particle class
 // -----------------------------------------------------------------------------
-//  $Date: 2006/03/10 21:23:56 $
-//  $Revision: 1.1 $
+//  $Date: 2006/08/24 10:06:25 $
+//  $Revision: 1.2 $
 // -----------------------------------------------------------------------------
 //  Author: Stephan Wynhoff - RWTH-Aachen (Email: Stephan.Wynhoff@cern.ch)
 // -----------------------------------------------------------------------------
@@ -12,17 +12,15 @@
 
 #include "FastSimulation/Particle/interface/RawParticleTypeFilter.h"
 
-using namespace std;
-
-RawParticleTypeFilter::RawParticleTypeFilter(const string& particleName) {
+RawParticleTypeFilter::RawParticleTypeFilter(const std::string& particleName) {
   HepLorentzVector one;
   RawParticle tmp(particleName,one);
 //    cout << tmp.pid() << endl;
   myAcceptIDs.push_back(tmp.pid());
 }
 
-RawParticleTypeFilter::RawParticleTypeFilter(const string& particleName1, 
-					     const string& particleName2) {
+RawParticleTypeFilter::RawParticleTypeFilter(const std::string& particleName1, 
+					     const std::string& particleName2) {
   HepLorentzVector one;
   RawParticle tmp1(particleName1,one),tmp2(particleName2,one);
 //    cout << tmp1.pid() << endl;
@@ -45,7 +43,7 @@ void RawParticleTypeFilter::addAccept(const int pid) {
   myRejectIDs.clear();
 }
 
-void RawParticleTypeFilter::addAccept(const string& name) {
+void RawParticleTypeFilter::addAccept(const std::string& name) {
   HepLorentzVector one;
   RawParticle tmp(name,one);
   this->addAccept(tmp.pid());
@@ -56,7 +54,7 @@ void RawParticleTypeFilter::addReject(const int pid) {
   myAcceptIDs.clear();
 }
 
-void RawParticleTypeFilter::addReject(const string& name) {
+void RawParticleTypeFilter::addReject(const std::string& name) {
   HepLorentzVector one;
   RawParticle tmp(name,one);
   this->addReject(tmp.pid());
@@ -78,7 +76,7 @@ bool RawParticleTypeFilter::isAcceptable(const int id) const
 {
   bool acceptThis = false;
 
-  vector<int>::const_iterator myAcceptIDsItr;
+  std::vector<int>::const_iterator myAcceptIDsItr;
   for (myAcceptIDsItr = myAcceptIDs.begin(); myAcceptIDsItr != myAcceptIDs.end();
        myAcceptIDsItr++) {
     if (id == (*myAcceptIDsItr)) {
@@ -92,7 +90,7 @@ bool RawParticleTypeFilter::isRejectable(const int id) const
 {
   bool acceptThis = false;
 
-  vector<int>::const_iterator myRejectIDsItr;
+  std::vector<int>::const_iterator myRejectIDsItr;
   for (myRejectIDsItr = myRejectIDs.begin(); myRejectIDsItr != myRejectIDs.end();
        myRejectIDsItr++) {
     if (id == (*myRejectIDsItr)) {

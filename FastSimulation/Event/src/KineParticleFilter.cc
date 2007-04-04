@@ -1,7 +1,5 @@
 #include "FastSimulation/Event/interface/KineParticleFilter.h"
 
-using namespace std;
-
 #include <iostream>
 
 KineParticleFilter::KineParticleFilter(const edm::ParameterSet& kine) 
@@ -15,15 +13,18 @@ KineParticleFilter::KineParticleFilter(const edm::ParameterSet& kine)
 
   // Change eta cuts to cos**2(theta) cuts (less CPU consuming)
   if ( etaMax > 20. ) etaMax = 20.; // Protection against paranoid people.
-  double cosMax = (exp(2.*etaMax)-1.) / (exp(2.*etaMax)+1.);
+  double cosMax = (std::exp(2.*etaMax)-1.) / (std::exp(2.*etaMax)+1.);
   cos2Max = cosMax*cosMax;
 
   double etaPreshMin = 1.479;
   double etaPreshMax = 1.594;
-  double cosPreshMin = (exp(2.*etaPreshMin)-1.) / (exp(2.*etaPreshMin)+1.);
-  double cosPreshMax = (exp(2.*etaPreshMax)-1.) / (exp(2.*etaPreshMax)+1.);
+  double cosPreshMin = (std::exp(2.*etaPreshMin)-1.) / (std::exp(2.*etaPreshMin)+1.);
+  double cosPreshMax = (std::exp(2.*etaPreshMax)-1.) / (std::exp(2.*etaPreshMax)+1.);
   cos2PreshMin = cosPreshMin*cosPreshMin;
   cos2PreshMax = cosPreshMax*cosPreshMax;
+
+  // Change pt cut to pt**2 cut (less CPU consuming)
+  pTMin *= pTMin;
 
 }
 
@@ -55,12 +56,12 @@ bool KineParticleFilter::isOKForMe(const RawParticle* p) const
     if (!eneCut) return false;
 
     // Cut on the transverse momentum of charged particles
-    bool pTCut = p->charge()==0 || p->perp()>=pTMin;
+    bool pTCut = p->charge()==0 || p->perp2()>=pTMin;
     if (!pTCut) return false;
 
     // Cut on eta if the origin vertex is close to the beam
     //    bool etaCut = (p->vertex()-mainVertex).perp()>5. || fabs(p->eta())<=etaMax;
-    bool etaCut = (p->vertex()-mainVertex).perp()>5. || p->vect().cos2Theta()<= cos2Max;
+    bool etaCut = (p->vertex()-mainVertex).perp2()>25. || p->vect().cos2Theta()<= cos2Max;
 
     /*
     if ( etaCut != etaCut2 ) 

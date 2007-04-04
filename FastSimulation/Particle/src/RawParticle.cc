@@ -1,8 +1,8 @@
 // -----------------------------------------------------------------------------
 //  Prototype for a particle class
 // -----------------------------------------------------------------------------
-//  $Date: 2006/08/24 10:06:25 $
-//  $Revision: 1.7 $
+//  $Date: 2006/10/03 09:14:48 $
+//  $Revision: 1.8 $
 // -----------------------------------------------------------------------------
 //  Author: Stephan Wynhoff - RWTH-Aachen (Email: Stephan.Wynhoff@cern.ch)
 // -----------------------------------------------------------------------------
@@ -17,7 +17,6 @@
 #include <cstdlib>
 #include <algorithm>
 
-using namespace std;
 using namespace HepPDT;
 
 RawParticle::RawParticle() {
@@ -191,34 +190,34 @@ void RawParticle::printName() const {
   if ( tab && tab->theTable()->particle(ParticleID(myId)) != 0) {
     MyParticleName = (tab->theTable()->particle(ParticleID(myId)))->name();
   }  if (MyParticleName.length() != 0) {
-    cout <<  MyParticleName;
+    std::cout <<  MyParticleName;
     for(unsigned int k=0;k<9-MyParticleName.length() && k<10; k++) 
-      cout << " " ;
+      std::cout << " " ;
   }
   else
-    cout << "unknown  ";
+    std::cout << "unknown  ";
 }
 
 void RawParticle::print() const {
   printName();
-  cout << setw(3) << status();
-  cout.setf(ios::fixed, ios::floatfield);
-  cout.setf(ios::right, ios::adjustfield);
-  cout << setw(8) << setprecision(2) << px();
-  cout << setw(8) << setprecision(2) << py();
-  cout << setw(8) << setprecision(2) << pz();
-  cout << setw(8) << setprecision(2) << e();
-  cout << setw(8) << setprecision(2) << m();
-  cout << setw(8) << setprecision(2) << mass();
-  cout << setw(8) << setprecision(2) << charge();
-  cout << setw(8) << setprecision(2) << x();
-  cout << setw(8) << setprecision(2) << y();
-  cout << setw(8) << setprecision(2) << z();
-  cout << setw(8) << setprecision(2) << t();
-  cout << setw(0) << endl;
+  std::cout << std::setw(3) << status();
+  std::cout.setf(std::ios::fixed, std::ios::floatfield);
+  std::cout.setf(std::ios::right, std::ios::adjustfield);
+  std::cout << std::setw(8) << std::setprecision(2) << px();
+  std::cout << std::setw(8) << std::setprecision(2) << py();
+  std::cout << std::setw(8) << std::setprecision(2) << pz();
+  std::cout << std::setw(8) << std::setprecision(2) << e();
+  std::cout << std::setw(8) << std::setprecision(2) << m();
+  std::cout << std::setw(8) << std::setprecision(2) << mass();
+  std::cout << std::setw(8) << std::setprecision(2) << charge();
+  std::cout << std::setw(8) << std::setprecision(2) << x();
+  std::cout << std::setw(8) << std::setprecision(2) << y();
+  std::cout << std::setw(8) << std::setprecision(2) << z();
+  std::cout << std::setw(8) << std::setprecision(2) << t();
+  std::cout << std::setw(0) << std::endl;
 }
 
-ostream& operator <<(ostream& o , const RawParticle& p) {
+std::ostream& operator <<(std::ostream& o , const RawParticle& p) {
 
   o << p.pid() << " (";
   o << p.status() << "): ";
@@ -258,7 +257,7 @@ HepDouble RawParticle::PDGcTau() const {
   }
 
   /*
-  cout << setw(20) << setprecision(18) 
+  std::cout << setw(20) << setprecision(18) 
        << "myId/ctau/width = " << myId << " " 
        << ct << " " << w << endl;  
   */
@@ -270,7 +269,7 @@ HepDouble RawParticle::PDGcTau() const {
 HepDouble RawParticle::et() const { 
   double mypp, tmpEt=-1.;
   
-  mypp = sqrt(this->px()*this->px() + this->py()*this->py() + this->pz()*this->pz());
+  mypp = std::sqrt(this->px()*this->px() + this->py()*this->py() + this->pz()*this->pz());
   if (mypp != 0) {
     tmpEt=this->e() * this->perp()/mypp;
   }

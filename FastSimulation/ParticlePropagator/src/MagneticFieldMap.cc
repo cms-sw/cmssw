@@ -5,8 +5,7 @@
 #include "TH1.h"
 #include "TAxis.h"
 #include <iostream>
-
-using namespace std;
+#include <string>
 
 MagneticFieldMap*
 MagneticFieldMap::myself=0; 
@@ -40,7 +39,7 @@ MagneticFieldMap::initialize()
   gROOT->cd();
   
   // Prepare the histograms
-  cout << "Prepare magnetic field local database for FAMOS speed-up" << endl;
+  std::cout << "Prepare magnetic field local database for FAMOS speed-up" << std::endl;
   for ( cyliter=cylitBeg; cyliter != cylitEnd; ++cyliter ) {
     int layer = cyliter->layerNumber();
     //    cout << " Fill Histogram " << hist << endl;
@@ -64,7 +63,7 @@ MagneticFieldMap::initialize()
     double step;
 
     // Disk histogram
-    string histEndcap = Form("LayerEndCap_%u",layer);
+    std::string histEndcap = Form("LayerEndCap_%u",layer);
     step = (rmax-rmin)/(bins-1);
     fieldEndcapHistos[layer] = 
       new TH1D(histEndcap.c_str(),"",bins,rmin,rmax+step);
@@ -74,7 +73,7 @@ MagneticFieldMap::initialize()
     }
 
     // Barrel Histogram
-    string histBarrel = Form("LayerBarrel_%u",layer);
+    std::string histBarrel = Form("LayerBarrel_%u",layer);
     step = (zmax-zmin)/(bins-1);
     fieldBarrelHistos[layer] = 
       new TH1D(histBarrel.c_str(),"",bins,0.,zmax+step);

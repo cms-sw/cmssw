@@ -14,9 +14,6 @@
 #include <iostream>
 
 
-
-
-
 ParticlePropagator::ParticlePropagator() : 
   BaseParticlePropagator(), random(0) {;}
 
@@ -89,7 +86,7 @@ ParticlePropagator::initProperDecayTime() {
   double properDecayTime = 
     (pid()==0||pid()==22||abs(pid())==11||abs(pid())==2112||abs(pid())==2212||
      !random) ?
-    1E99 : -PDGcTau() * log(random->flatShoot());
+    1E99 : -PDGcTau() * std::log(random->flatShoot());
 
   this->setProperDecayTime(properDecayTime);
 

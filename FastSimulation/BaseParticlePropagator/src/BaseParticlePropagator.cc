@@ -5,8 +5,6 @@
 //#include <fstream>
 //#include <iostream>
 
-using namespace std;
-
 BaseParticlePropagator::BaseParticlePropagator() :
   RawParticle(), rCyl(0.), zCyl(0.), bField(0), properDecayTime(1E99)
 {;}
@@ -75,7 +73,7 @@ BaseParticlePropagator::propagate() {
     //
     if ( ac > b2 ) return false;
 
-    double delta  = sqrt(b2*b2 - ac*ac);
+    double delta  = std::sqrt(b2*b2 - ac*ac);
     double tplus  = -( x()*px()+y()*py() ) + delta;
     double tminus = -( x()*px()+y()*py() ) - delta;
     //
@@ -160,18 +158,18 @@ BaseParticlePropagator::propagate() {
     //
     // Does the helix cross the cylinder barrel ? If not, do the first half-loop
     //
-    double rProp = min(fabs(radius)+dist-0.000001, rCyl);
+    double rProp = std::min(fabs(radius)+dist-0.000001, rCyl);
     //
     // Compute phi after propagation (two solutions, but the asin definition
     // (between -pi/2 and +pi/2) takes care of the wrong one.
     //
     phiProp = helixCentrePhi(xC,yC) + ( inside(rPos) || onSurface(rPos) ? 
-	    asin ( (rProp*rProp-radius*radius-dist*dist) / (2*dist*radius) ) :
-       M_PI-asin ( (rProp*rProp-radius*radius-dist*dist) / (2*dist*radius) ) );
+	    std::asin ( (rProp*rProp-radius*radius-dist*dist) / (2*dist*radius) ) :
+       M_PI-std::asin ( (rProp*rProp-radius*radius-dist*dist) / (2*dist*radius) ) );
     //
     // Solve the obvious two-pi ambiguities: more than one turn!
     //
-    if ( abs(phiProp - phi0) > 2.*M_PI )
+    if ( fabs(phiProp - phi0) > 2.*M_PI )
       phiProp += phiProp > phi0 ? -2.*M_PI : +2.*M_PI;
     //
     // Check that the phi difference has the right sign, according to Q*B
@@ -235,8 +233,8 @@ BaseParticlePropagator::propagate() {
     zProp = z() + (zProp-z())*factor;
     phiProp = phi0 + (zProp - z()) / radius * pT / pZ;
 
-    double sProp = sin(phiProp);
-    double cProp = cos(phiProp);
+    double sProp = std::sin(phiProp);
+    double cProp = std::cos(phiProp);
     double xProp = xC + radius * sProp;
     double yProp = yC - radius * cProp;
     double tProp = t() + (zProp-z())*e()/pz();
@@ -246,7 +244,7 @@ BaseParticlePropagator::propagate() {
     // Last check : Although propagated to the endcaps, R could still be
     // larger than rCyl because the cylinder was too short...
     //
-    if ( success == 2 && sqrt(xProp*xProp+yProp*yProp) > rCyl ) { 
+    if ( success == 2 && std::sqrt(xProp*xProp+yProp*yProp) > rCyl ) { 
       success = -1;
       return true;
     }
@@ -465,14 +463,14 @@ BaseParticlePropagator::propagateToNominalVertex(const HepLorentzVector& v)
   // Define the proper pT direction to meet the point (vx,vy) in (x,y)
   double dx = x()-v.x();
   double dy = y()-v.y();
-  double phi = atan2(dy,dx) + asin ( sqrt(dx*dx+dy*dy)/(2.*helixRadius()) );
+  double phi = std::atan2(dy,dx) + std::asin ( std::sqrt(dx*dx+dy*dy)/(2.*helixRadius()) );
 
   // The absolute pT (kept to the original value)
   double pT = perp();
 
   // Set the new pT
-  setPx(pT*cos(phi));
-  setPy(pT*sin(phi));
+  setPx(pT*std::cos(phi));
+  setPy(pT*std::sin(phi));
 
   return propagateToClosestApproach();
   
@@ -520,25 +518,25 @@ BaseParticlePropagator::helixStartPhi() const {
 double 
 BaseParticlePropagator::helixCentreX() const { 
   // The x coordinate of the helix axis
-  return x() - helixRadius() * sin ( helixStartPhi() );
+  return x() - helixRadius() * std::sin ( helixStartPhi() );
 }
 
 double 
 BaseParticlePropagator::helixCentreY() const { 
   // The y coordinate of the helix axis
-  return y() + helixRadius() * cos ( helixStartPhi() );
+  return y() + helixRadius() * std::cos ( helixStartPhi() );
 }
 
 double 
 BaseParticlePropagator::helixCentreX(double radius, double phi) const { 
   // Fast version of helixCentreX()
-  return x() - radius * sin (phi);
+  return x() - radius * std::sin (phi);
 }
 
 double 
 BaseParticlePropagator::helixCentreY(double radius, double phi) const { 
   // Fast version of helixCentreX()
-  return y() + radius * cos (phi);
+  return y() + radius * std::cos (phi);
 }
 
 double 
@@ -546,7 +544,7 @@ BaseParticlePropagator::helixCentreDistToAxis() const {
   // The distance between the cylinder and the helix axes
   double xC = helixCentreX();
   double yC = helixCentreY();
-  return sqrt( xC*xC + yC*yC );
+  return std::sqrt( xC*xC + yC*yC );
 }
 
 double 
@@ -554,7 +552,7 @@ BaseParticlePropagator::helixCentreDistToAxis(double xC, double yC) const {
   // Faster version of helixCentreDistToAxis
   //  double xC = helixCentreX();
   //  double yC = helixCentreY();
-  return sqrt( xC*xC + yC*yC );
+  return std::sqrt( xC*xC + yC*yC );
 }
 
 double 

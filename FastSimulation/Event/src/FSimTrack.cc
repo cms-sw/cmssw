@@ -10,8 +10,8 @@
 #include <fstream>
 #include <iostream>
 #include <string>
+#include <vector>
 
-using namespace std;
 using namespace HepPDT;
 
 FSimTrack:: FSimTrack() : 
@@ -59,7 +59,7 @@ FSimTrack::daughter(int i) const { return abs(type()) != 11 ?
 				     endVertex().daughter(i) : 
                                      mom_->track(daugh_[i]); }
 
-const vector<int>&
+const std::vector<int>&
 FSimTrack::daughters() const { return abs(type()) != 11 ? 
 				 endVertex().daughters() : 
                                  daugh_; }
@@ -228,43 +228,43 @@ FSimTrack::simHit(unsigned layer) const {
 }
 */
 
-ostream& operator <<(ostream& o , const FSimTrack& t) {
+std::ostream& operator <<(std::ostream& o , const FSimTrack& t) {
 
-  string name = t.particleInfo() ? t.particleInfo()->name() : "Unknown";
+  std::string name = t.particleInfo() ? t.particleInfo()->name() : "Unknown";
   HepLorentzVector momentum1 = t.momentum();
   Hep3Vector vertex1 = t.vertex().position().vect();
   int vertexId1 = t.vertex().id();
 
-  o.setf(ios::fixed, ios::floatfield);
-  o.setf(ios::right, ios::adjustfield);
+  o.setf(std::ios::fixed, std::ios::floatfield);
+  o.setf(std::ios::right, std::ios::adjustfield);
 
-  o << setw(4) << t.id() << " " 
-    << setw(4) << t.genpartIndex() << " " 
+  o << std::setw(4) << t.id() << " " 
+    << std::setw(4) << t.genpartIndex() << " " 
     << name;
 
   for(unsigned int k=0;k<11-name.length() && k<12; k++) o << " ";  
 
-  o << setw(6) << setprecision(2) << momentum1.eta() << " " 
-    << setw(6) << setprecision(2) << momentum1.phi() << " " 
-    << setw(6) << setprecision(2) << momentum1.perp() << " " 
-    << setw(6) << setprecision(2) << momentum1.e() << " " 
-    << setw(4) << vertexId1 << " " 
-    << setw(6) << setprecision(1) << vertex1.x() << " " 
-    << setw(6) << setprecision(1) << vertex1.y() << " " 
-    << setw(6) << setprecision(1) << vertex1.z() << " "
-    << setw(4) << t.mother().id() << " ";
+  o << std::setw(6) << std::setprecision(2) << momentum1.eta() << " " 
+    << std::setw(6) << std::setprecision(2) << momentum1.phi() << " " 
+    << std::setw(6) << std::setprecision(2) << momentum1.perp() << " " 
+    << std::setw(6) << std::setprecision(2) << momentum1.e() << " " 
+    << std::setw(4) << vertexId1 << " " 
+    << std::setw(6) << std::setprecision(1) << vertex1.x() << " " 
+    << std::setw(6) << std::setprecision(1) << vertex1.y() << " " 
+    << std::setw(6) << std::setprecision(1) << vertex1.z() << " "
+    << std::setw(4) << t.mother().id() << " ";
   
   if ( !t.noEndVertex() ) {
     HepLorentzVector vertex2 = t.endVertex().position();
     int vertexId2 = t.endVertex().id();
     
-    o << setw(4) << vertexId2 << " "
-      << setw(6) << setprecision(2) << vertex2.eta() << " " 
-      << setw(6) << setprecision(2) << vertex2.phi() << " " 
-      << setw(5) << setprecision(1) << vertex2.perp() << " " 
-      << setw(6) << setprecision(1) << vertex2.z() << " ";
+    o << std::setw(4) << vertexId2 << " "
+      << std::setw(6) << std::setprecision(2) << vertex2.eta() << " " 
+      << std::setw(6) << std::setprecision(2) << vertex2.phi() << " " 
+      << std::setw(5) << std::setprecision(1) << vertex2.perp() << " " 
+      << std::setw(6) << std::setprecision(1) << vertex2.z() << " ";
     for (int i=0; i<t.nDaughters(); ++i)
-      o << setw(4) << t.daughter(i).id() << " ";
+      o << std::setw(4) << t.daughter(i).id() << " ";
 
   } else {
 
@@ -272,25 +272,25 @@ ostream& operator <<(ostream& o , const FSimTrack& t) {
 
       HepLorentzVector vertex2 = t.layer1Entrance().vertex();
       
-      o << setw(4) << -t.onLayer1() << " " 
-	<< setw(6) << setprecision(2) << vertex2.eta() << " " 
-	<< setw(6) << setprecision(2) << vertex2.phi() << " " 
-	<< setw(5) << setprecision(1) << vertex2.perp() << " " 
-	<< setw(6) << setprecision(1) << vertex2.z() << " "
-	<< setw(6) << setprecision(2) << t.layer1Entrance().perp() << " " 
-	<< setw(6) << setprecision(2) << t.layer1Entrance().e() << " ";
+      o << std::setw(4) << -t.onLayer1() << " " 
+	<< std::setw(6) << std::setprecision(2) << vertex2.eta() << " " 
+	<< std::setw(6) << std::setprecision(2) << vertex2.phi() << " " 
+	<< std::setw(5) << std::setprecision(1) << vertex2.perp() << " " 
+	<< std::setw(6) << std::setprecision(1) << vertex2.z() << " "
+	<< std::setw(6) << std::setprecision(2) << t.layer1Entrance().perp() << " " 
+	<< std::setw(6) << std::setprecision(2) << t.layer1Entrance().e() << " ";
       
     } else if ( t.onEcal() ) { 
 
       HepLorentzVector vertex2 = t.ecalEntrance().vertex();
       
-      o << setw(4) << -t.onEcal() << " " 
-	<< setw(6) << setprecision(2) << vertex2.eta() << " " 
-	<< setw(6) << setprecision(2) << vertex2.phi() << " " 
-	<< setw(5) << setprecision(1) << vertex2.perp() << " " 
-	<< setw(6) << setprecision(1) << vertex2.z() << " "
-	<< setw(6) << setprecision(2) << t.ecalEntrance().perp() << " " 
-	<< setw(6) << setprecision(2) << t.ecalEntrance().e() << " ";
+      o << std::setw(4) << -t.onEcal() << " " 
+	<< std::setw(6) << std::setprecision(2) << vertex2.eta() << " " 
+	<< std::setw(6) << std::setprecision(2) << vertex2.phi() << " " 
+	<< std::setw(5) << std::setprecision(1) << vertex2.perp() << " " 
+	<< std::setw(6) << std::setprecision(1) << vertex2.z() << " "
+	<< std::setw(6) << std::setprecision(2) << t.ecalEntrance().perp() << " " 
+	<< std::setw(6) << std::setprecision(2) << t.ecalEntrance().e() << " ";
     }
   }
   return o;
