@@ -5,8 +5,8 @@
  *
  *  Digi for CSC TMB info available in DDU
  *  
- *  $Date: 2007/03/29 16:04:30 $
- *  $Revision: 1.1 $
+ *  $Date:$
+ *  $Revision:$
  *
  */
 
@@ -18,11 +18,11 @@ class CSCTMBStatusDigi{
 public:
 
             /// Constructor for all variables 
-  CSCTMBStatusDigi (int tmbdduhdtr, int boardid, int cscid,
+  CSCTMBStatusDigi (int tmbdmbhdtr, int boardid, int cscid,
                     int bxncntL1arv,int bxncntpretrig, 
                     int  nmbtbinpretrig) {
 
-                    tmbdduhdtr_     = tmbdduhdtr;
+                    tmbdmbhdtr_     = tmbdmbhdtr;
                     boardid_        = boardid;
                     cscid_          = cscid;
 		    bxncntL1arv_    =  bxncntL1arv;
@@ -74,7 +74,7 @@ public:
 
 private:
 
-  uint16_t tmbdduhdtr_;
+  uint16_t tmbdmbhdtr_;
   uint16_t boardid_;
   uint16_t cscid_;
   uint16_t bxncntL1arv_;
