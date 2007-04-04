@@ -5,7 +5,6 @@
 #include "CalibFormats/HcalObjects/interface/HcalNominalCoder.h"
 #include <vector>
 
-
 /** \class HcaluLUTTPGCoder
   *  
   * The nominal coder uses a user-supplied table to linearize the ADC values.
@@ -31,25 +30,18 @@ public:
   virtual ~HcaluLUTTPGCoder() {}
   virtual void adc2Linear(const HBHEDataFrame& df, IntegerCaloSamples& ics) const ;
   virtual void adc2Linear(const HFDataFrame& df, IntegerCaloSamples& ics) const;
-  virtual void compress(const IntegerCaloSamples& ics, const std::vector<bool>& featureBits, HcalTriggerPrimitiveDigi& tp) const;
-  virtual void getConditions(const edm::EventSetup& es) const;
-  virtual void releaseConditions() const {}
-
+  virtual void compress(const IntegerCaloSamples& ics, const std::vector<bool>& featureBits, HcalTriggerPrimitiveDigi& tp) const;  
   bool getadc2fCLUT();
   bool getped();
   bool getgain();
 private:
   void loadILUTs(const char* filename);
   void loadOLUTs(const char* filename);
-  void LUTmemory();
-  //void LUTwrite(const int i, const int j, const int k);
-
   //void generateILUTs(const char *filename);
   void generateILUTs();
   typedef std::vector<int> LUTType;
   std::vector<LUTType> inputluts_;
   const LUTType* ietaILutMap_[54];
- 
   std::vector<LUTType> outputluts_;
   const LUTType* ietaOLutMap_[32];
   float adc2fCLUT_[128];
@@ -57,10 +49,6 @@ private:
   float ped_;
   float ped_HF;
   float gain_;
-
-
-
-
 };
 
 #endif
