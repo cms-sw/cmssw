@@ -1,13 +1,25 @@
 <use name=root>
 <use name=Alignment/CommonAlignment>
 <use name=Alignment/CommonAlignmentAlgorithm>
+<use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
 <use name=FWCore/PluginManager>
 <use name=FWCore/Utilities>
+<use name=CondFormats/OptAlignObjects>
+<use name=CondFormats/Alignment>
+<use name=clhep>
+<use name=Geometry/DTGeometry>
+<use name=Geometry/DTGeometryBuilder>
+<use name=Geometry/CSCGeometry>
+<use name=Geometry/CSCGeometryBuilder>
+<use name=Alignment/TrackerAlignment>
 <export>
    <lib name=AlignmentSurveyAnalysis>
    <use name=root>
    <use name=Alignment/CommonAlignment>
    <use name=Alignment/CommonAlignmentAlgorithm>
+   <use name=FWCore/ParameterSet>
+   <use name=FWCore/PluginManager>
+   <use name=FWCore/Framework>
 </export>
 <flags SEAL_PLUGIN_NAME="AlignmentSurveyAnalysis">
