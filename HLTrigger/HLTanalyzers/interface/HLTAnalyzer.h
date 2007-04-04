@@ -10,11 +10,11 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
+#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/L1Trigger/interface/L1ParticleMap.h"
 
 /** \class HLTAnalyzer
