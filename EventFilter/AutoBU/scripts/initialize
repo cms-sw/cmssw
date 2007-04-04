@@ -498,7 +498,7 @@ sub makeCfgFu
     $result = $result . "  }\n\n";
 
     if ($doDQM) {
-	$result = $result . "  module dqm = DQMSourceExample{}\n\n";
+	$result = $result . "  module dqm = SMDQMSourceExample{}\n\n";
     }
     
     if ($doSM) {
@@ -817,8 +817,8 @@ sub makeCtlDestroy
     $result = $result . "print \"remove files and dirs ...\n\";\n\n";
     $result = $result . "`rm -rf cfg/ soap/ xml/ log/ /tmp/sm " .
 	"configure enable halt stop gennums.txt summaryCatalog.txt`;\n\n";
-    $result = $result . "print \"FUShmCleanup_t ...\\n\";\n\n";
-    $result = $result . "`FUShmCleanup_t`;\n\n";
+    $result = $result . "print \"FUShmCleanUp_t ...\\n\";\n\n";
+    $result = $result . "`FUShmCleanUp_t`;\n\n";
     $result = $result . "print \"XDAQ session destroyed!\\n\";\n\n";
     $result = $result . "`rm destroy`;\n";
     

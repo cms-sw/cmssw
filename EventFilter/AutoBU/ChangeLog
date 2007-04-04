@@ -1,3 +1,9 @@
+2007-04-04  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-04-05
+	* replace DQMExampleSource with SMDQMExampleSource
+	* fix 'destroy' script to properly clean up shared memory
+
 2007-04-02  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-04-04
