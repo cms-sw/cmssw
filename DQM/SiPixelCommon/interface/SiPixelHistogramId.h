@@ -7,7 +7,7 @@
 // 
 /**\class SiPixelHistogramId SiPixelHistogramId.h DQM/SiPixelCommon/interface/SiPixelHistogramId.h
 
- Description: Returns histogram Id
+ Description: Creates and returns DQM Histogram Id's
 
  Usage:
     <usage>
@@ -24,6 +24,7 @@
 
 class SiPixelHistogramId
 {
+
  public:
 
   /// Constructor
@@ -32,23 +33,18 @@ class SiPixelHistogramId
   SiPixelHistogramId(std::string dataCollection);
   /// Destructor
   virtual ~SiPixelHistogramId();
-  /// Create Histogram Id
-  std::string createHistoId( std::string variable,  uint32_t& rawId );
+  /// Set Histogram Id
+  std::string setHistoId( std::string variable,  uint32_t& rawId );
+  /// Get data Collection
+  std::string getDataCollection( std::string histogramId );
+  /// Get Detector Raw Id
+  uint32_t getRawId( std::string histogramId );
 
-  // extract the component_id and the id_type from a histogram id
-  //uint32_t    getComponentId(std::string histoid);
-  //std::string getComponentType(std::string histoid);
  private:
-
+  std::string returnIdPart(std::string histoid, uint32_t whichpart);
   std::string dataCollection_;
   std::string separator_;
 
-  //SiPixelHistoId(const SiPixelHistoId&); // stop default
-  //const SiPixelHistoId& operator=(const SiPixelHistoId&); // stop default
-  //std::string returnIdPart(std::string histoid, uint32_t whichpart);
-  // ---------- member data --------------------------------
-  //std::string separator1;
-  //std::string separator2;
 };
 
 #endif
