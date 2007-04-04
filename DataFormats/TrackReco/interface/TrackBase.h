@@ -4,28 +4,46 @@
  *
  * Common base class to all track types, including Muon fits.
  * Internally, the following information is stored: <BR>
- *   <DT> Reference position on track: (vx,vy,vz) </DT>
- *   <DT> Momentum at the reference point on track: (px,py,pz) </DT>
+ *   <DT> Reference position on the track: (vx,vy,vz) </DT>
+ *   <DT> Momentum at the given reference point on track: (px,py,pz) </DT>
  *   <DT> 5D curvilinear covariance matrix from the track fit </DT>
  *   <DT> Charge </DT>
  *   <DT> Chi-square and number of degrees of freedom </DT>
  *   <DT> Summary information of the hit pattern </DT>
  *
  * Parameters associated to the 5D curvilinear covariance matrix: <BR>
- * <B> (qoverp, lambda, phi, d_xy, d_sz) </B><BR>
+ * <B> (qoverp, lambda, phi, dxy, dsz) </B><BR>
  * defined as:  <BR>
- *   <DT> qoverp = q / abs(p) = signed inverse of momentum </DT> 
+ *   <DT> qoverp = q / abs(p) = signed inverse of momentum [1/GeV] </DT> 
  *   <DT> lambda = pi/2 - polar angle at the given point </DT>
  *   <DT> phi = azimuth angle at the given point </DT>
- *   <DT> d_xy = transverse distance to beam spot (from "straight line" extrapolation if (x,y,z) is not at dca) =  - x * sin(phi) + y * cos(phi) </DT>
- *   <DT> d_sz = distance in SZ plane to beam spot (from "straight line" extrapolation if (x,y,z) is not at dca)  = z * cos(lambda) </DT>
+ *   <DT> dxy = -vx*sin(phi) + vy*cos(phi) [cm] </DT>
+ *   <DT> dsz = vz*cos(lambda) - (vx*cos(phi)+vy*sin(phi))*sin(lambda) [cm] </DT>
  *
- * according to the definitions given in the following document: <BR>
+ * Geometrically, dxy is the signed distance in the XY plane between the
+ * the straight line passing through (vx,vy) with azimuthal angle phi and 
+ * the point (0,0).<BR>
+ * The dsz parameter is the signed distance in the SZ plane between the
+ * the straight line passing through (vx,vy,vz) with angles (phi, lambda) and 
+ * the point (s=0,z=0). The S axis is defined by the projection of the 
+ * straight line onto the XY plane. The convention is to assign the S 
+ * coordinate for (vx,vy) as the value vx*cos(phi)+vy*sin(phi). This value is 
+ * zero when (vx,vy) is the point of minimum transverse distance to (0,0).
+ *
+ * Note that dxy and dsz provide sensible estimates of the distance from 
+ * the true particle trajectory to (0,0,0) ONLY in two cases:<BR>
+ *   <DT> When (vx,vy,z) already corresponds to the point of minimum transverse 
+ *   distance to the beam spot or is close to it (so that the differences 
+ *   between considering the exact trajectory or a straight line in this range 
+ *   are negligible) </DT>
+ *   <DT> When the track has infinite or extremely high momentum </DT>
+ *
+ * More details about this parametrization are provided in the following document: <BR>
  * <a href="http://cms.cern.ch/iCMS/jsp/openfile.jsp?type=NOTE&year=2006&files=NOTE2006_001.pdf">A. Strandlie, W. Wittek, "Propagation of Covariance Matrices...", CMS Note 2006/001</a> <BR>
  * 
  * \author Thomas Speer, Luca Lista, Pascal Vanlaer, Juan Alcaraz
  *
- * \version $Id: TrackBase.h,v 1.51 2007/02/01 20:51:25 jalcaraz Exp $
+ * \version $Id: TrackBase.h,v 1.52 2007/03/20 14:19:53 namapane Exp $
  *
  */
 
@@ -81,14 +99,14 @@ namespace reco {
     double theta() const { return momentum_.theta(); }
     /// Lambda angle
     double lambda() const { return M_PI/2 - momentum_.theta(); }
-    /// track impact parameter (distance of closest approach to beamline)
+    /// dxy parameter (THIS IS NOT the transverse impact parameter to (0,0,0) if refPoint is far from (0,0,0): see parametrization definition above for details)
     double dxy() const { return ( - vx() * py() + vy() * px() ) / pt(); }
-    /// track impact parameter in perigee convention (d0 = - dxy)
+    /// dxy parameter in perigee convention (d0 = - dxy)
     double d0() const { return - dxy(); }
-    /// Transverse distance to beamline in the plane formed by the direction tangent to the track and the Z axis
-    double dsz() const { return vz() * pt() / p(); }
-    /// z distance to beamline
-    double dz() const { return vz(); }
+    /// dsz parameter (THIS IS NOT the SZ impact parameter to (0,0,0) if refPoint is far from (0,0,0): see parametrization definition above for details)
+    double dsz() const { return vz()*pt()/p() - (vx()*px()+vy()*py())/pt() * pz()/p(); }
+    /// dz parameter (= dsz/cos(lambda))
+    double dz() const { return vz() - (vx()*px()+vy()*py())/pt() * (pz()/pt()); }
     /// momentum vector magnitude
     double p() const { return momentum_.R(); }
     /// track transverse momentum
@@ -103,36 +121,36 @@ namespace reco {
     double phi() const { return momentum_.Phi(); }
     /// pseudorapidity of momentum vector
     double eta() const { return momentum_.Eta(); }
-    /// x coordinate of the reference point
+    /// x coordinate of the reference point on track
     double vx() const { return vertex_.x(); }
-    /// y coordinate of the reference point
+    /// y coordinate of the reference point on track
     double vy() const { return vertex_.y(); }
-    /// z coordinate of the reference point
+    /// z coordinate of the reference point on track
     double vz() const { return vertex_.z(); }
 
     /// track momentum vector
     const Vector & momentum() const { return momentum_; }
 
-    /// reference point for the track
+    /// Reference point on the track
     const Point & referencePoint() const { return vertex_; }
 
-    /// reference point for the track. This method is DEPRECATED, please use referencePoint() instead
+    /// reference point on the track. This method is DEPRECATED, please use referencePoint() instead
     const Point & vertex() const { return vertex_; }
 
-    /// dxy with respect to a user-given beamSpot. Use with caution: new beamSpot must be close to (0,0,0), since the extrapolation is linear
+    /// dxy parameter with respect to a user-given beamSpot (WARNING: this quantity can only be interpreted as a minimum transverse distance if beamSpot is reasonably close to refPoint and (0,0,0), since linear approximations are involved)
     double dxy(const Point& myBeamSpot) const { 
       return ( - (vx()-myBeamSpot.x()) * py() + (vy()-myBeamSpot.y()) * px() ) / pt(); 
     }
-    /// dsz with respect to a user-given beamSpot. Use with caution: new beamSpot must be close to (0,0,0), since the extrapolation is linear
+    /// dsz parameter with respect to a user-given beamSpot (WARNING: this quantity can only be interpreted as a minimum transverse distance if beamSpot is reasonably close to refPoint and (0,0,0), since linear approximations are involved)
     double dsz(const Point& myBeamSpot) const { 
-      return ( (vz()-myBeamSpot.z())*pt() - ((vx()-myBeamSpot.x())*px()+(vy()-myBeamSpot.y())*py())/pt()*pz() ) / p(); 
+      return (vz()-myBeamSpot.z())*pt()/p() - ((vx()-myBeamSpot.x())*px()+(vy()-myBeamSpot.y())*py())/pt() *pz()/p(); 
     }
-    /// dz with respect to a user-given beamSpot. Use with caution: new beamSpot must be close to (0,0,0), since the extrapolation is linear
+    /// dsz parameter with respect to a user-given beamSpot (WARNING: this quantity can only be interpreted as a minimum distance if beamSpot is reasonably close to refPoint and (0,0,0), since linear approximations are involved)
     double dz(const Point& myBeamSpot) const { 
-      return (vz()-myBeamSpot.z()) - ((vx()-myBeamSpot.x())*px()+(vy()-myBeamSpot.y())*py())/pt() * (pz()/pt()); 
+      return (vz()-myBeamSpot.z()) - ((vx()-myBeamSpot.x())*px()+(vy()-myBeamSpot.y())*py())/pt() * pz()/pt(); 
     }
 
-    /// Parameters with one-to-one corerspondence to the covariance matrix
+    /// Parameters with one-to-one correspondence to the covariance matrix
     ParameterVector parameters() const { 
       return ParameterVector(qoverp(),lambda(),phi(),dxy(),dsz());
     }
@@ -148,6 +166,13 @@ namespace reco {
 
     /// error on signed transverse curvature
     double qoverpError() const { return error( i_qoverp ); }
+    /// error on Pt (set to 1000 TeV if charge==0 for safety)
+    double ptError() const { 
+      return (charge()!=0) ?  sqrt( 
+            pt()*pt()*p()*p()/charge()/charge() * covariance(i_qoverp,i_qoverp)
+          + 2*pt()*p()/charge()*pz() * covariance(i_qoverp,i_lambda)
+          + pz()*pz() * covariance(i_lambda,i_lambda) ) : 1.e6;
+    }
     /// error on theta
     double thetaError() const { return error( i_lambda ); }
     /// error on lambda
@@ -190,7 +215,7 @@ namespace reco {
     Double32_t chi2_;
     /// number of degrees of freedom
     Double32_t ndof_;
-     /// innermost (reference) point
+     /// innermost (reference) point on track
     Point vertex_;
     /// momentum vector at innermost point
     Vector momentum_;
