@@ -1,17 +1,11 @@
-//
-//  SiPixelTemplateReco.cc (Version 2.42)
-//
-//  Add goodness-of-fit to algorithm, include single pixel clusters in chi2 calculation
-//  Try "decapitation" of large single pixels
-//  Add correction for (Q_F-Q_L)/(Q_F+Q_L) bias
-//  Add cot(beta) reflection to reduce y-entries and more sophisticated x-interpolation
-//  Fix small double pixel bug with decapitation (2.41 5-Mar-2007).
-//  Fix pseudopixel bug causing possible memory overwrite (2.42 12-Mar-2007)
-//
-//  Created by Morris Swartz on 10/27/06.
-//  Copyright 2006 __TheJohnsHopkinsUniversity__. All rights reserved.
-//
-//
+/*
+ *  SiPixelTemplateReco.cc
+ *  
+ *
+ *  Created by Morris Swartz on 10/27/06.
+ *  Copyright 2006 __MyCompanyName__. All rights reserved.
+ *
+ */
 
 #ifndef SI_PIXEL_TEMPLATE_STANDALONE
 #include "RecoLocalTracker/SiPixelRecHits/interface/SiPixelTemplateReco.h"
@@ -19,17 +13,11 @@
 #include "SiPixelTemplateReco.h"
 #endif
 
-static int theVerboseLevel = {2};
-#define LogDebug(x) std::cout << x << ": "
-
 #include <math.h>
 #include <algorithm>
 #include <vector>
 #include <iostream>
-// ROOT::Math has a c++ function that does the probability calc, but only in v5.12 and later
-//#include "Math/DistFunc.h"
-// Use current version of gsl instead of ROOT::Math
-#include <gsl/gsl_cdf.h>
+
 
 using namespace SiPixelTemplateReco;
 
@@ -47,39 +35,28 @@ using namespace SiPixelTemplateReco;
 //! \param      templ - (input) the template used in the reconstruction
 //! \param       yrec - (output) best estimate of y-coordinate of hit in microns
 //! \param     sigmay - (output) best estimate of uncertainty on yrec in microns
-//! \param      proby - (output) probability describing goodness-of-fit for y-reco
 //! \param       xrec - (output) best estimate of x-coordinate of hit in microns
 //! \param     sigmax - (output) best estimate of uncertainty on xrec in microns
-//! \param      probx - (output) probability describing goodness-of-fit for x-reco
-//! \param       qbin - (output) index (0-4) describing the charge of the cluster
-//!                     [0: 1.5<Q/Qavg, 1: 1<Q/Qavg<1.5, 2: 0.85<Q/Qavg<1, 3: Q/Qavg<0.85]
 // ******************************************************************************************
 int SiPixelTemplateReco::PixelTempReco2D(int id, bool fpix, float cotalpha, float cotbeta, array_2d cluster, 
 		    std::vector<bool> ydouble, std::vector<bool> xdouble, 
 		    SiPixelTemplate& templ, 
-		    float& yrec, float& sigmay, float& proby, float& xrec, float& sigmax, float& probx, int& qbin)
-			
+		    float& yrec, float& sigmay, float& xrec, float& sigmax)
 {
     // Local variables 
 	int i, j, k, minbin, binl, binh, binq, midpix;
 	unsigned int nclusx, nclusy;
-	float sythr, sxthr, rnorm, delta, sigma, sigavg, pseudopix;
-	float ss2, ssa, sa2, ssba, saba, sba2, rat, fq;
-	float originx, originy, qfy, qly, qfx, qlx, bias, err, maxpix;
-	double chi2x, meanx, chi2y, meany, chi2ymin, chi2xmin, chi2;
+	std::vector<float> ysig2(25), xsig2(11);
+	float sythr, sxthr, rnorm, delta, sigma, sigavg;
+	float chimin, ss2, ssa, sa2, ssba, saba, sba2, rat, chi2, sigi, sigi2, sigi3, sigi4, fq;
+	float originx, originy;
 	const float ysize={150.}, xsize={100.};
-	
-// The minimum chi2 for a valid one pixel cluster = pseudopixel contribution only
 
-	const double mean1pix={0.100}, chi21min={0.160};
-		      
+
+	      
 // First, interpolate the template needed to analyze this cluster     
    
     templ.interpolate(id, fpix, cotalpha, cotbeta);
-	
-// Define size of pseudopixel
-
-    pseudopix = 0.2*templ.s50();
 	
 // Next, copy the y- and x-templates to matrix containers     
    
@@ -110,26 +87,17 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, bool fpix, float cotalpha, floa
 	if(nclusx > 7) {nclusx = 7;}
 	if(nclusy > 21) {nclusy = 21;}
 	
-// First, sum the total charge and "decapitate" big pixels         
-
-	float qtotal = 0.;
-    for(i=0; i<nclusy; ++i) {
-	   maxpix = templ.symax();
-	   if(ydouble[i]) {maxpix *=2.;}
-	   for(j=0; j<nclusx; ++j) {
-		  qtotal += cluster[j][i];
-		  if(cluster[j][i] > maxpix) {cluster[j][i] = maxpix;}
-	   }
-	}
 	
 // Next, make y-projection of the cluster and copy the double pixel flags into a 25 element container         
 
+	float qtotal = 0.;
 	std::vector<float> ysum(25, 0.);
 	std::vector<bool> yd(25, false);
 	k=0;
     for(i=0; i<nclusy; ++i) {
 	   for(j=0; j<nclusx; ++j) {
 		  ysum[k] += cluster[j][i];
+		  qtotal += cluster[j][i];
 	   }
     
 // If this is a double pixel, put 1/2 of the charge in 2 consective single pixels  
@@ -190,41 +158,8 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, bool fpix, float cotalpha, floa
 		  lypix = i;
 		}
 	}
-	
-// Make sure cluster is continuous
-
-	if((lypix-fypix+1) != nypix) { 
-	   if (theVerboseLevel > 1) {
-          LogDebug("SiPixelTemplateReco") <<
-           "ysum[0-9] = " << ysum[0] << ", " << ysum[1] << ", " << ysum[2] << ", " << ysum[3] << ", " << ysum[4] << ", "
-		                  << ysum[5] << ", " << ysum[6] << ", " << ysum[7] << ", " << ysum[8] << ", " << ysum[9] << std::endl;
-          LogDebug("SiPixelTemplateReco") <<
-           "ysum[10-19] = " << ysum[10] << ", " << ysum[11] << ", " << ysum[12] << ", " << ysum[13] << ", " << ysum[14] << ", "
-		                  << ysum[15] << ", " << ysum[16] << ", " << ysum[17] << ", " << ysum[18] << ", " << ysum[19] << std::endl;
-          LogDebug("SiPixelTemplateReco") <<
-           "ysum[20-24] = " << ysum[20] << ", " << ysum[21] << ", " << ysum[22] << ", " << ysum[23] << ", " << ysum[24] << std::endl;
-       }
-	
-	   return 1; 
-	}
-	
-// If cluster is longer than max template size, technique fails
-
-	if(nypix > 21) { 
-	   if (theVerboseLevel > 1) {
-          LogDebug("SiPixelTemplateReco") <<
-           "ysum[0-9] = " << ysum[0] << ", " << ysum[1] << ", " << ysum[2] << ", " << ysum[3] << ", " << ysum[4] << ", "
-		                  << ysum[5] << ", " << ysum[6] << ", " << ysum[7] << ", " << ysum[8] << ", " << ysum[9] << std::endl;
-          LogDebug("SiPixelTemplateReco") <<
-           "ysum[10-19] = " << ysum[10] << ", " << ysum[11] << ", " << ysum[12] << ", " << ysum[13] << ", " << ysum[14] << ", "
-		                  << ysum[15] << ", " << ysum[16] << ", " << ysum[17] << ", " << ysum[18] << ", " << ysum[19] << std::endl;
-          LogDebug("SiPixelTemplateReco") <<
-           "ysum[20-24] = " << ysum[20] << ", " << ysum[21] << ", " << ysum[22] << ", " << ysum[23] << ", " << ysum[24] << std::endl;
-       }
-	
-	   return 6; 
-	}
-	
+	if((lypix-fypix+1) != nypix) { return 1; }
+        
 // next, center the cluster on pixel 12 if necessary   
 
 	midpix = (fypix+lypix)/2;
@@ -247,16 +182,12 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, bool fpix, float cotalpha, floa
 	lypix +=shifty;
 	fypix +=shifty;
 	
-// If the cluster boundaries are OK, add pesudopixels, otherwise quit
+// Add pseudo-pixels   
 	
-	if(fypix > 1 && fypix < 23) {
-	   ysum[fypix-1] = pseudopix;
-	   ysum[fypix-2] = pseudopix;
-	} else {return 8;}
-	if(lypix > 1 && lypix < 23) {
-	   ysum[lypix+1] = pseudopix;	
-	   ysum[lypix+2] = pseudopix;
-	} else {return 8;}
+	ysum[fypix-1] = 0.2*templ.s50();
+	ysum[lypix+1] = ysum[fypix-1];	
+	ysum[fypix-2] = ysum[fypix-1];
+	ysum[lypix+2] = ysum[fypix-1];
         
 // finally, determine if pixel[0] is a double pixel and make an origin correction if it is   
 
@@ -284,32 +215,7 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, bool fpix, float cotalpha, floa
 		  lxpix = i;
 		}
 	}
-	
-// Make sure cluster is continuous
-
-	if((lxpix-fxpix+1) != nxpix) { 
-	
-	   if (theVerboseLevel > 1) {
-          LogDebug("SiPixelTemplateReco") <<
-           "xsum[0-10] = " << xsum[0] << ", " << xsum[1] << ", " << xsum[2] << ", " << xsum[3] << ", " << xsum[4] << ", "
-		                  << xsum[5] << ", " << xsum[6] << ", " << xsum[7] << ", " << xsum[8] << ", " << xsum[9] << ", " << xsum[10] << std::endl;
-       }
-
-	   return 2; 
-	}
-
-// If cluster is longer than max template size, technique fails
-
-	if(nxpix > 7) { 
-	
-	   if (theVerboseLevel > 1) {
-          LogDebug("SiPixelTemplateReco") <<
-           "xsum[0-10] = " << xsum[0] << ", " << xsum[1] << ", " << xsum[2] << ", " << xsum[3] << ", " << xsum[4] << ", "
-		                  << xsum[5] << ", " << xsum[6] << ", " << xsum[7] << ", " << xsum[8] << ", " << xsum[9] << ", " << xsum[10] << std::endl;
-       }
-
-	   return 7; 
-	}
+	if((lxpix-fxpix+1) != nxpix) { return 2; }
         
 // next, center the cluster on pixel 5 if necessary   
 
@@ -333,17 +239,14 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, bool fpix, float cotalpha, floa
 	lxpix +=shiftx;
 	fxpix +=shiftx;
 	
-// If the cluster boundaries are OK, add pesudopixels, otherwise quit
+// Add pseudo-pixels   
 	
-	if(fxpix > 1 && fxpix < 9) {
-	   xsum[fxpix-1] = pseudopix;
-	   xsum[fxpix-2] = pseudopix;
-	} else {return 9;}
-	if(lxpix > 1 && lxpix < 9) {
-	   xsum[lxpix+1] = pseudopix;
-	   xsum[lxpix+2] = pseudopix;
-	} else {return 9;}
-		        
+	xsum[fxpix-1] = 0.2*templ.s50();
+	xsum[lxpix+1] = xsum[fxpix-1];
+	xsum[fxpix-2] = xsum[fxpix-1];
+	xsum[lxpix+2] = xsum[fxpix-1];
+		
+        
 // finally, determine if pixel[0] is a double pixel and make an origin correction if it is   
 
     if(xdouble[0]) {
@@ -368,83 +271,10 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, bool fpix, float cotalpha, floa
 		  }
 	   }
 	}
-	qbin = binq;
-	
-	if (theVerboseLevel > 9) {
-       LogDebug("SiPixelTemplateReco") <<
-        "ID = " << id << " FPix = " << fpix << 
-         " cot(alpha) = " << cotalpha << " cot(beta) = " << cotbeta << 
-         " nclusx = " << nclusx << " nclusy = " << nclusy << std::endl;
-       LogDebug("SiPixelTemplateReco") <<
-        "ID = " << id << " FPix = " << fpix << 
-         " cot(alpha) = " << cotalpha << " cot(beta) = " << cotbeta << 
-         " nclusx = " << nclusx << " nclusy = " << nclusy << std::endl;
-    }
 		
 // Do the y-reconstruction first 
-			  		
-// Apply the first-pass template algorithm to all clusters
-			  
-// Modify the template if double pixels are present   
 	
-	if(nypix > logypx) {
-		i=fypix;
-		while(i < lypix) {
-		   if(yd[i] && !yd[i+1]) {
-			  for(j=0; j<41; ++j) {
-		
-// Sum the adjacent cells and put the average signal in both   
-
-				 sigavg = (ytemp[j][i] +  ytemp[j][i+1])/2.;
-				 ytemp[j][i] = sigavg;
-				 ytemp[j][i+1] = sigavg;
-			   }
-			   i += 2;
-			} else {
-			   ++i;
-			}
-		 }
-	}	
-	     
-// Define the maximum signal to allow before de-weighting a pixel 
-
-	sythr = 1.1*(templ.symax());
-			  
-// Make sure that there will be at least two pixels that are not de-weighted 
-
-	std::sort(ysort.begin(), ysort.end());
-	if(logypx == 1) {sythr = 1.01*ysort[0];} else {
-	   if (ysort[1] > sythr) { sythr = 1.01*ysort[1]; }
-	}
-	
-// Evaluate pixel-by-pixel uncertainties (weights) for the templ analysis 
-
-	std::vector<float> ysig2(25, 0.); 
-	templ.ysigma2(fypix, lypix, ysum, ysig2);
-			  
-// Find the template bin that minimizes the Chi^2 
-
-	chi2ymin = 1.e15;
-	minbin = -1;
-	for(j=0; j<41; ++j) {
-		ss2 = 0.;
-		ssa = 0.;
-		sa2 = 0.;
-		for(i=fypix-2; i<=lypix+2; ++i) {
-			ss2 += ysum[i]*ysum[i]/ysig2[i];
-			ssa += ysum[i]*ytemp[j][i]/ysig2[i];
-			sa2 += ytemp[j][i]*ytemp[j][i]/ysig2[i];
-		}
-		rat=ssa/ss2;
-		if(rat <= 0.) {std::cout << "illegal chi2ymin normalization = " << rat << std::endl; rat = 1.;}
-		chi2=ss2-2.*ssa/rat+sa2/(rat*rat);
-		if(chi2 < chi2ymin) {
-			chi2ymin = chi2;
-			minbin = j;
-		}
-	}
-	
-// Do not apply final template pass to 1-pixel clusters (use calibrated offset) 
+// Do not apply templates to 1-pixel clusters (use calibrated offset) 
 	
 	if(logypx == 1) {
 	
@@ -464,15 +294,91 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, bool fpix, float cotalpha, floa
           sigmay = sigma;
 	   }
 	   
-// Do probability calculation for one-pixel clusters
-
-       chi2ymin -=chi21min;
-	   if(chi2ymin < 0.) {chi2ymin = 0.;}
-	   proby = gsl_cdf_chisq_Q(chi2ymin, mean1pix);
-	   
 	} else {
+			  		
+// Apply the template algorithm 
+			  
+// Modify the template if double pixels are present   
+	
+	   if(nypix > logypx) {
+	      i=fypix;
+	      while(i < lypix) {
+	         if(yd[i] && !yd[i+1]) {
+		        for(j=0; j<41; ++j) {
+		
+// Sum the adjacent cells and put the average signal in both   
+
+			       sigavg = (ytemp[j][i] +  ytemp[j][i+1])/2.;
+				   ytemp[j][i] = sigavg;
+				   ytemp[j][i+1] = sigavg;
+			    }
+			    i += 2;
+		     } else {
+		        ++i;
+		     }
+	      }
+  	   }	
+	     
+// Define the maximum signal to allow before de-weighting a pixel 
+
+       sythr = 1.1*(templ.symax());
+			  
+// Make sure that there will be at least two pixels that are not de-weighted 
+
+       std::sort(ysort.begin(), ysort.end());
+	   if (ysort[1] > sythr) { sythr = 1.01*ysort[1]; }
 	   
-// For cluster > 1 pix, make the second, interpolating pass with the templates 
+// Evaluate pixel-by-pixel uncertainties (weights) for the templ analysis 
+
+	   for(i=fypix-2; i<=lypix+2; ++i) {
+		  if(i < fypix || i > lypix) {
+			 ysig2[i] = (templ.s50())*(templ.s50());
+		  } else {
+			 if(ysum[i] < templ.symax()) {
+				sigi = ysum[i];
+			 } else {
+				sigi = templ.symax();
+			 }
+			 sigi2 = sigi*sigi; sigi3 = sigi2*sigi; sigi4 = sigi3*sigi;
+			 if(i <= 12) {
+				ysig2[i] = (1.-(templ.yratio()))*
+				(templ.yparl(0,0)+templ.yparl(0,1)*sigi+templ.yparl(0,2)*sigi2+templ.yparl(0,3)*sigi3+templ.yparl(0,4)*sigi4)
+				+ (templ.yratio())*
+				(templ.yparh(0,0)+templ.yparh(0,1)*sigi+templ.yparh(0,2)*sigi2+templ.yparh(0,3)*sigi3+templ.yparh(0,4)*sigi4);
+			 } else {
+				ysig2[i] = (1.-(templ.yratio()))*
+				(templ.yparl(1,0)+templ.yparl(1,1)*sigi+templ.yparl(1,2)*sigi2+templ.yparl(1,3)*sigi3+templ.yparl(1,4)*sigi4)
+				+ (templ.yratio())*
+			    (templ.yparh(1,0)+templ.yparh(1,1)*sigi+templ.yparh(1,2)*sigi2+templ.yparh(1,3)*sigi3+templ.yparh(1,4)*sigi4);
+			 }
+		     if(ysum[i] > sythr) {ysig2[i] = 1.e8;}
+//		     if(yd[i] != 0) {ysig2[i] = 1.e8;} 
+	      }
+	   }
+
+			  
+// Find the template bin that minimizes the Chi^2 
+
+       chimin = 1.e15;
+	   minbin = -1;
+	   for(j=0; j<41; ++j) {
+	      ss2 = 0.;
+	      ssa = 0.;
+	      sa2 = 0.;
+	      for(i=fypix-2; i<=lypix+2; ++i) {
+			 ss2 += ysum[i]*ysum[i]/ysig2[i];
+			 ssa += ysum[i]*ytemp[j][i]/ysig2[i];
+			 sa2 += ytemp[j][i]*ytemp[j][i]/ysig2[i];
+		  }
+		  rat=ssa/ss2;
+		  chi2=rat*rat*ss2-2.*rat*ssa+sa2;
+          if(chi2 < chimin) {
+		     chimin = chi2;
+			 minbin = j;
+		  }
+	   }
+	   
+// Now make the second, interpolating pass with the templates 
 
        binl = minbin - 1;
 	   binh = binl + 2;
@@ -480,14 +386,12 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, bool fpix, float cotalpha, floa
 	   if(binh > 40) { binh = 40;}	  
 	   ss2 = 0.;
 	   ssa = 0.;
-	   sa2 = 0.;
 	   ssba = 0.;
 	   saba = 0.;
 	   sba2 = 0.;
 	   for(i=fypix-2; i<=lypix+2; ++i) {
 		  ss2 += ysum[i]*ysum[i]/ysig2[i];
 		  ssa += ysum[i]*ytemp[binl][i]/ysig2[i];
-		  sa2 += ytemp[binl][i]*ytemp[binl][i]/ysig2[i];
 		  ssba += ysum[i]*(ytemp[binh][i] - ytemp[binl][i])/ysig2[i];
 		  saba += ytemp[binl][i]*(ytemp[binh][i] - ytemp[binl][i])/ysig2[i];
 		  sba2 += (ytemp[binh][i] - ytemp[binl][i])*(ytemp[binh][i] - ytemp[binl][i])/ysig2[i];
@@ -499,104 +403,16 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, bool fpix, float cotalpha, floa
 	   if(rat < 0.) {rat=0.;}
 	   if(rat > 1.) {rat=1.0;}
 	   rnorm = (ssa+rat*ssba)/ss2;
-	
-// Calculate the charges in the first and last pixels
-
-       qfy = ysum[fypix];
-       if(yd[fypix]) {qfy+=ysum[fypix+1];}
-       if(logypx > 1) {
-           qly=ysum[lypix];
-	       if(yd[lypix-1]) {qly+=ysum[lypix-1];}
-	    } else {
-	       qly = qfy;
-	    }
-		
-//  Now calculate the mean bias correction and uncertainties
-
-        float qyfrac = (qfy-qly)/(qfy+qly);
-		bias = templ.yflcorr(binq,qyfrac)+templ.yavg(binq);
-		   	   
+	   
 // uncertainty and final correction depend upon charge bin 	   
 	   
-	   yrec = (0.125*binl+9.5+rat*(binh-binl)*0.125-(float)shifty+originy)*ysize - bias;
+	   yrec = (0.125*binl+9.5+rat*(binh-binl)*0.125-(float)shifty+originy)*ysize - templ.yavg(binq);
 	   sigmay = templ.yrms(binq);
-	   
-// Do goodness of fit test in y  
-	   
-	   if(rnorm <= 0.) {std::cout << "illegal chi2y normalization = " << rnorm << std::endl; rnorm = 1.;}
-	   chi2y=ss2-2./rnorm*ssa-2./rnorm*rat*ssba+(sa2+2.*rat*saba+rat*rat*sba2)/(rnorm*rnorm)-templ.chi2ymin(binq);
-	   if(chi2y < 0.0) {chi2y = 0.0;}
-	   meany = templ.chi2yavg(binq);
-	   if(meany < 0.01) {meany = 0.01;}
-// gsl function that calculates the chi^2 tail prob for non-integral dof
-	   proby = gsl_cdf_chisq_Q(chi2y, meany);
-//	   proby = ROOT::Math::chisquared_cdf_c(chi2y, meany);
 	}
 	
 // Do the x-reconstruction next 
-			  
-// Apply the first-pass template algorithm to all clusters
 
-// Modify the template if double pixels are present 
-
-	if(nxpix > logxpx) {
-		i=fxpix;
-		while(i < lxpix) {
-		   if(xd[i] && !xd[i+1]) {
-			  for(j=0; j<41; ++j) {
-		
-// Sum the adjacent cells and put the average signal in both   
-
-			       sigavg = (xtemp[j][i] +  xtemp[j][i+1])/2.;
-				   xtemp[j][i] = sigavg;
-				   xtemp[j][i+1] = sigavg;
-			   }
-			   i += 2;
-			} else {
-			   ++i;
-			}
-		}
-	}	  
-				  
-// Define the maximum signal to allow before de-weighting a pixel 
-
-	sxthr = 1.1*templ.sxmax();
-			  
-// Make sure that there will be at least two pixels that are not de-weighted 
-
-	std::sort(xsort.begin(), xsort.end());
-	if(logxpx == 1) {sxthr = 1.01*xsort[0];} else {
-	   if (xsort[1] > sxthr) { sxthr = 1.01*xsort[1]; }
-	}
-	   
-// Evaluate pixel-by-pixel uncertainties (weights) for the templ analysis 
-
-	std::vector<float> xsig2(11, 0.); 
-	templ.xsigma2(fxpix, lxpix, xsum, xsig2);
-			  
-// Find the template bin that minimizes the Chi^2 
-
-	chi2xmin = 1.e15;
-	minbin = -1;
-	for(j=0; j<41; ++j) {
-		ss2 = 0.;
-		ssa = 0.;
-		sa2 = 0.;
-		for(i=fxpix-2; i<=lxpix+2; ++i) {
-			ss2 += xsum[i]*xsum[i]/xsig2[i];
-			ssa += xsum[i]*xtemp[j][i]/xsig2[i];
-			sa2 += xtemp[j][i]*xtemp[j][i]/xsig2[i];
-		}
-		rat=ssa/ss2;
-		if(rat <= 0.) {std::cout << "illegal chi2xmin normalization = " << rat << std::endl; rat = 1.;}
-		chi2=ss2-2.*ssa/rat+sa2/(rat*rat);
-		if(chi2 < chi2xmin) {
-			chi2xmin = chi2;
-			minbin = j;
-		}
-	}
-
-// Do not apply final template pass to 1-pixel clusters (use calibrated offset)
+// Do not apply templates to 1-pixel clusters (use calibrated offset) 
 	
 	if(logxpx == 1) {
 	
@@ -614,13 +430,89 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, bool fpix, float cotalpha, floa
           sigmax = sigma;
 	   }
 	   
-// Do probability calculation for one-pixel clusters
-
-       chi2xmin -=chi21min;
-	   if(chi2xmin < 0.) {chi2xmin = 0.;}
-	   probx = gsl_cdf_chisq_Q(chi2xmin, mean1pix);
-	   
 	} else {
+			  
+// Apply the template algorithm 
+
+// Modify the template if double pixels are present 
+
+	   if(nxpix > logxpx) {
+	      i=fxpix;
+	      while(i < lxpix) {
+	         if(xd[i] && !xd[i+1]) {
+		        for(j=0; j<41; ++j) {
+		
+// Sum the adjacent cells and put the average signal in both   
+
+			       sigavg = (xtemp[j][i] +  xtemp[j][i+1])/2.;
+				   xtemp[j][i] = sigavg;
+				   xtemp[j][i+1] = sigavg;
+			    }
+			    i += 2;
+		     } else {
+		        ++i;
+		     }
+	      }
+	   }	  
+				  
+// Define the maximum signal to allow before de-weighting a pixel 
+
+       sxthr = 1.1*templ.sxmax();
+			  
+// Make sure that there will be at least two pixels that are not de-weighted 
+
+       std::sort(xsort.begin(), xsort.end());
+	   if (xsort[1] > sxthr) { sxthr = 1.01*xsort[1]; }
+	   
+// Evaluate pixel-by-pixel uncertainties (weights) for the templ analysis 
+
+	   for(i=fxpix-2; i<=lxpix+2; ++i) {
+		  if(i < fxpix || i > lxpix) {
+			 xsig2[i] = templ.s50()*templ.s50();
+		  } else {
+			 if(xsum[i] < templ.sxparmax()) {
+				sigi = xsum[i];
+			 } else {
+				sigi = templ.sxparmax();
+			 }
+			 sigi2 = sigi*sigi; sigi3 = sigi2*sigi; sigi4 = sigi3*sigi;
+			 if(i <= 5) {
+				xsig2[i] = (1.-(templ.xratio()))*
+				(templ.xparl(0,0)+templ.xparl(0,1)*sigi+templ.xparl(0,2)*sigi2+templ.xparl(0,3)*sigi3+templ.xparl(0,4)*sigi4)
+				+ (templ.xratio())*
+				(templ.xparh(0,0)+templ.xparh(0,1)*sigi+templ.xparh(0,2)*sigi2+templ.xparh(0,3)*sigi3+templ.xparh(0,4)*sigi4);
+			 } else {
+				xsig2[i] = (1.-(templ.xratio()))*
+				(templ.xparl(1,0)+templ.xparl(1,1)*sigi+templ.xparl(1,2)*sigi2+templ.xparl(1,3)*sigi3+templ.xparl(1,4)*sigi4)
+				+ (templ.xratio())*
+			    (templ.xparh(1,0)+templ.xparh(1,1)*sigi+templ.xparh(1,2)*sigi2+templ.xparh(1,3)*sigi3+templ.xparh(1,4)*sigi4);
+			 }
+		     if(xsum[i] > sxthr) {xsig2[i] = 1.e8;}
+//		     if(xd[i] != 0) {xsig2[i] = 1.e8;} 
+	      }
+	   }
+
+			  
+// Find the template bin that minimizes the Chi^2 
+
+       chimin = 1.e15;
+	   minbin = -1;
+	   for(j=0; j<41; ++j) {
+	      ss2 = 0.;
+	      ssa = 0.;
+	      sa2 = 0.;
+	      for(i=fxpix-2; i<=lxpix+2; ++i) {
+			 ss2 += xsum[i]*xsum[i]/xsig2[i];
+			 ssa += xsum[i]*xtemp[j][i]/xsig2[i];
+			 sa2 += xtemp[j][i]*xtemp[j][i]/xsig2[i];
+		  }
+		  rat=ssa/ss2;
+		  chi2=rat*rat*ss2-2.*rat*ssa+sa2;
+          if(chi2 < chimin) {
+		     chimin = chi2;
+			 minbin = j;
+		  }
+	   }
 	   
 // Now make the second, interpolating pass with the templates 
 
@@ -630,14 +522,12 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, bool fpix, float cotalpha, floa
 	   if(binh > 40) { binh = 40;}	  
 	   ss2 = 0.;
 	   ssa = 0.;
-	   sa2 = 0.;
 	   ssba = 0.;
 	   saba = 0.;
 	   sba2 = 0.;
 	   for(i=fxpix-2; i<=lxpix+2; ++i) {
 		  ss2 += xsum[i]*xsum[i]/xsig2[i];
 		  ssa += xsum[i]*xtemp[binl][i]/xsig2[i];
-		  sa2 += xtemp[binl][i]*xtemp[binl][i]/xsig2[i];
 		  ssba += xsum[i]*(xtemp[binh][i] - xtemp[binl][i])/xsig2[i];
 		  saba += xtemp[binl][i]*(xtemp[binh][i] - xtemp[binl][i])/xsig2[i];
 		  sba2 += (xtemp[binh][i] - xtemp[binl][i])*(xtemp[binh][i] - xtemp[binl][i])/xsig2[i];
@@ -649,39 +539,12 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, bool fpix, float cotalpha, floa
 	   if(rat < 0.) {rat=0.;}
 	   if(rat > 1.) {rat=1.0;}
 	   rnorm = (ssa+rat*ssba)/ss2;
-	
-// Calculate the charges in the first and last pixels
-
-       qfx = xsum[fxpix];
-       if(xd[fxpix]) {qfx+=xsum[fxpix+1];}
-       if(logxpx > 1) {
-           qlx=xsum[lxpix];
-	       if(xd[lxpix-1]) {qlx+=xsum[lxpix-1];}
-	    } else {
-	       qlx = qfx;
-	    }
-		
-//  Now calculate the mean bias correction and uncertainties
-
-        float qxfrac = (qfx-qlx)/(qfx+qlx);
-		bias = templ.xflcorr(binq,qxfrac)+templ.xavg(binq);
 	   
 // uncertainty and final correction depend upon charge bin 	   
 	   
-	   xrec = (0.125*binl+2.5+rat*(binh-binl)*0.125-(float)shiftx+originx)*xsize - bias;
+	   xrec = (0.125*binl+2.5+rat*(binh-binl)*0.125-(float)shiftx+originx)*xsize - templ.xavg(binq);
 	   sigmax = templ.xrms(binq);
-	   
-// Do goodness of fit test in x  
-	   
-	   if(rnorm <= 0.) {std::cout << "illegal chi2x normalization = " << rnorm << std::endl; rnorm = 1.;}
-	   chi2x=ss2-2./rnorm*ssa-2./rnorm*rat*ssba+(sa2+2.*rat*saba+rat*rat*sba2)/(rnorm*rnorm)-templ.chi2xmin(binq);
-	   if(chi2x < 0.0) {chi2x = 0.0;}
-	   meanx = templ.chi2xavg(binq);
-	   if(meanx < 0.01) {meanx = 0.01;}
-// gsl function that calculates the chi^2 tail prob for non-integral dof
-	   probx = gsl_cdf_chisq_Q(chi2x, meanx);
-//	   probx = ROOT::Math::chisquared_cdf_c(chi2x, meanx, trx0);
 	}
-	
+
     return 0;
 } // TempRecon2D 

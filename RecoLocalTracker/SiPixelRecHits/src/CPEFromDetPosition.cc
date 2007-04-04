@@ -157,6 +157,12 @@ CPEFromDetPosition::localError( const SiPixelCluster& cluster,
   int sizey = cluster.sizeY();
 
   // Find edge clusters
+  //bool edgex = (cluster.edgeHitX()) || (cluster.maxPixelRow()> theNumOfRow);//wrong 
+  //bool edgey = (cluster.edgeHitY()) || (cluster.maxPixelCol() > theNumOfCol);  //bool edgex = (cluster.minPixelRow()==0) ||  // use min and max pixels
+  //(cluster.maxPixelRow()==(theNumOfRow-1));
+  //bool edgey = (cluster.minPixelCol()==0) ||
+  //(cluster.maxPixelCol()==(theNumOfCol-1));
+
   // Use edge methods from the Toplogy class
   int maxPixelCol = cluster.maxPixelCol();
   int maxPixelRow = cluster.maxPixelRow();
@@ -195,36 +201,43 @@ CPEFromDetPosition::measurementPosition( const SiPixelCluster& cluster,
 
   // Fix to take into account the large pixels
 #ifdef CORRECT_FOR_BIG_PIXELS
-
-  cout<<"CPEFromDetPosition::measurementPosition: Not implemented "
-      <<"I hope it is not needed?"<<endl;
-  return MeasurementPoint(0,0);
-
-#else
-
   // correct the measurement for Lorentz shift
   if ( alpha2Order) {
-    float xPos = xpos(cluster); // x position in the measurement frame
-    float yPos = ypos(cluster);
-    float lxshift = theLShiftX; // nominal lorentz shift
-    float lyshift = theLShiftY;
-    if(RectangularPixelTopology::isItBigPixelInX(int(xPos))) // if big
-      lxshift = theLShiftX/2.;  // reduce the shift
-    if (thePart == GeomDetEnumerators::PixelBarrel) {
-      lyshift =0.0;
-    } else { //forward
-      if(RectangularPixelTopology::isItBigPixelInY(int(yPos))) // if big
-	lyshift = theLShiftY/2.;  // reduce the shift 
-    }
-    return MeasurementPoint( xpos(cluster)-lxshift,ypos(cluster)-lyshift);
-  } else {
-    float xPos = xpos(cluster); // x position in the measurement frame
-    float lshift = theLShiftX; // nominal lorentz shift
-    if(RectangularPixelTopology::isItBigPixelInX(int(xPos))) // if big 
-      lshift = theLShiftX/2.;  // reduce the shift
-    return MeasurementPoint( xpos(cluster)-lshift,ypos(cluster));
+     float xPos = xpos(cluster); // x position in the measurement frame
+     float yPos = ypos(cluster);
+     float lxshift = theLShiftX; // nominal lorentz shift
+     float lyshift = theLShiftY;
+     if(RectangularPixelTopology::isItBigPixelInX(int(xPos))) // if big
+       lxshift = theLShiftX/2.;  // reduce the shift
+     if (thePart == GeomDetEnumerators::PixelBarrel) {
+         lyshift =0.0;
+     } else { //forward
+        if(RectangularPixelTopology::isItBigPixelInY(int(yPos))) // if big
+           lyshift = theLShiftY/2.;  // reduce the shift 
+     }
+     return MeasurementPoint( xpos(cluster)-lxshift,ypos(cluster)-lyshift);
+   }else {
+     float xPos = xpos(cluster); // x position in the measurement frame
+     float lshift = theLShiftX; // nominal lorentz shift
+     if(RectangularPixelTopology::isItBigPixelInX(int(xPos))) // if big 
+       lshift = theLShiftX/2.;  // reduce the shift
+     return MeasurementPoint( xpos(cluster)-lshift,ypos(cluster));
   } 
-  
+#else
+  if ( alpha2Order) {
+     if (thePart == GeomDetEnumerators::PixelBarrel) {
+          return MeasurementPoint( xpos(cluster)-theLShiftX, ypos(cluster));
+     } else { //forward
+           return MeasurementPoint( xpos(cluster)-theLShiftX, ypos(cluster)-theLShiftY); 
+     }
+  }else {
+     return MeasurementPoint( xpos(cluster)-theLShiftX,
+                              ypos(cluster) );
+  }
+
+  // skip the correction, do it only for the local position
+  // in this mode the measurements are NOT corrected for the Lorentz shift 
+  //return MeasurementPoint( xpos(cluster),ypos(cluster));
 #endif
 
 }
@@ -237,49 +250,31 @@ CPEFromDetPosition::localPosition(const SiPixelCluster& cluster,
   setTheDet( det );  // Initlize the det
 
 #ifdef CORRECT_FOR_BIG_PIXELS
-
-  float lpx = xpos(cluster);
-  float lpy = ypos(cluster);
+  MeasurementPoint ssss( xpos(cluster),ypos(cluster));
+  LocalPoint lp = theTopol->localPosition(ssss);
   if ( alpha2Order) {
-    float lxshift = theLShiftX * thePitchX;  // shift in cm
-    float lyshift = theLShiftY * thePitchY;
-    if (thePart == GeomDetEnumerators::PixelBarrel) {
-      LocalPoint cdfsfs(lpx-lxshift, lpy);
-      return cdfsfs;
-    } else { //forward
-      LocalPoint cdfsfs(lpx-lxshift, lpy-lyshift);
-      return cdfsfs;
-    }
-    
-  } else {
-
      float lxshift = theLShiftX * thePitchX;  // shift in cm
-     LocalPoint cdfsfs(lpx-lxshift, lpy );
+     float lyshift = theLShiftY*thePitchY;
+     if (thePart == GeomDetEnumerators::PixelBarrel) {
+             LocalPoint cdfsfs(lp.x()-lxshift, lp.y());
+             return cdfsfs;
+     } else { //forward
+             LocalPoint cdfsfs(lp.x()-lxshift, lp.y()-lyshift);
+             return cdfsfs;
+     }
+  }else {
+     float lxshift = theLShiftX * thePitchX;  // shift in cm
+     LocalPoint cdfsfs(lp.x()-lxshift, lp.y() );
      return cdfsfs;
   }
 
 #else
-
-  MeasurementPoint ssss( xpos(cluster),ypos(cluster));
-  LocalPoint lp = theTopol->localPosition(ssss);
-  if ( alpha2Order) {
-    float lxshift = theLShiftX * thePitchX;  // shift in cm
-    float lyshift = theLShiftY*thePitchY;
-     if (thePart == GeomDetEnumerators::PixelBarrel) {
-       LocalPoint cdfsfs(lp.x()-lxshift, lp.y());
-       return cdfsfs;
-     } else { //forward
-       LocalPoint cdfsfs(lp.x()-lxshift, lp.y()-lyshift);
-       return cdfsfs;
-     }
-  } else {
-    float lxshift = theLShiftX * thePitchX;  // shift in cm
-    LocalPoint cdfsfs(lp.x()-lxshift, lp.y() );
-    return cdfsfs;
-  }
-  
+  MeasurementPoint ssss = measurementPosition(cluster, det);
+  LocalPoint cdfsfs = theTopol->localPosition(ssss);
+  return cdfsfs;
 #endif
 
+//  return cdfsfs;
 }
 //-----------------------------------------------------------------------------
 // Position error estimate in X (square returned).
@@ -370,105 +365,6 @@ CPEFromDetPosition::err2Y(bool& edgey, int& sizey) const
   }
   return yerr*yerr;
 }
-//---------------------------------------------------------
-// Main position routines
-// xpos() and ypos() are split for old and new methods
-#ifdef CORRECT_FOR_BIG_PIXELS
-
-//-----------------------------------------------------------------------------
-// Position estimate in X-direction, in local coordinates (cm)
-//-----------------------------------------------------------------------------
-float CPEFromDetPosition::xpos(const SiPixelCluster& cluster) const {
-  int size = cluster.sizeX();
-
-  if (size == 1) {
-    float baryc = cluster.x();
-    // the middle of only one pixel is equivalent to the baryc.
-    // transform baryc to local 
-    return theTopol->localX(baryc);
-  }
-
-  //calculate center
-  int imin = cluster.minPixelRow();
-  int imax = cluster.maxPixelRow();
-  float min = float(imin) + 0.5; // center of the edge
-  float max = float(imax) + 0.5; // center of the edge
-  float minEdge = theTopol->localX(float(imin+1)); // left inner edge 
-  float maxEdge = theTopol->localX(float(imax));   // right inner edge
-  float center = (minEdge + maxEdge)/2.; // center of inner part
-  float wInner = maxEdge-minEdge; // width of the inner part
-  
-  // get the charge in the edge pixels
-  const vector<SiPixelCluster::Pixel>& pixelsVec = cluster.pixels();
-  vector<float> chargeVec = xCharge(pixelsVec, min, max); 
-  float q1 = chargeVec[0];
-  float q2 = chargeVec[1];
-  
-  // Estimate the charge width. main contribution + 2nd order geom corr.
-  float tmp = (max+min)/2.;
-  float width = (chargeWidthX() + geomCorrectionX(tmp)) * thePitchX;
-  
-  // Check the valid chargewidth (WHY IS THERE THE FABS??)
-  float effWidth = fabs(width) - wInner;
-  
-  // For X (no angles) use the MSI formula.
-  // position msI  
-  float pos = center + (q2-q1)/(2.*(q1+q2)) * effWidth; 
-
-  return pos;
-}  // end xPos
-//
-float CPEFromDetPosition::ypos(const SiPixelCluster& cluster) const {
-  int size = cluster.sizeY();
-
-  if (size == 1) {
-    float baryc = cluster.y();
-    // the middle of only one pixel is equivalent to the baryc.
-    // transform baryc to local 
-    return theTopol->localY(baryc);
-  }
-
-  //calculate center
-  int imin = cluster.minPixelCol();
-  int imax = cluster.maxPixelCol();
-  float min = float(imin) + 0.5; // center of the edge
-  float max = float(imax) + 0.5; // center of the edge
-  float minEdge = theTopol->localY(float(imin+1)); // left inner edge 
-  float maxEdge = theTopol->localY(float(imax));   // right inner edge
-  float center = (minEdge + maxEdge)/2.; // center of inner part in LC
-  //float wInner = maxEdge-minEdge; // width of the inner part in LC
-  
-  // get the charge in the edge pixels
-  const vector<SiPixelCluster::Pixel>& pixelsVec = cluster.pixels();
-  vector<float> chargeVec = yCharge(pixelsVec, min, max); 
-  float q1 = chargeVec[0];
-  float q2 = chargeVec[1];
-  
-  // Estimate the charge width. main contribution + 2nd order geom corr.
-  //float tmp = (max+min)/2.;
-  //float width = (chargeWidthY() + geomCorrectionY(tmp)) * thePitchY;
-  //float width = (chargeWidthY()) * thePitchY;  
-  // Check the valid chargewidth (WHY IS THERE THE FABS??)
-  //if(width<0.) cout<<" width Y < 0"<<width<<endl;
-  //float effWidth = fabs(width) - wInner;
-
-  //float pos = center + (q2*arm2-q1*arm1)/(q1+q2); // position dk  
-  // position msI  
-  //float pos = center + (q2-q1)/(2.*(q1+q2)) * effWidth; 
-
-  float pitch1 = thePitchY;
-  float pitch2 = thePitchY;
-  if(RectangularPixelTopology::isItBigPixelInY(imin) ) 
-    pitch1= 2.*thePitchY;
-  if(RectangularPixelTopology::isItBigPixelInY(imax) ) 
-    pitch2= 2.*thePitchY;
-  
-  // position msII
-  float pos = center + (q2-q1)/(2.*(q1+q2)) * (pitch1+pitch2)/2.; 
-  return pos;
-}
-
-#else // CORRECT_FOR_BIG_PIXELS
 
 //-----------------------------------------------------------------------------
 // Position estimate in X-direction
@@ -520,7 +416,6 @@ float CPEFromDetPosition::xpos(const SiPixelCluster& cluster) const {
   }    
   return xcluster;
 }
-
 
 //-----------------------------------------------------------------------------
 // Position estimate in the local y-direction
@@ -579,8 +474,6 @@ float CPEFromDetPosition::ypos(const SiPixelCluster& cluster) const {
   }
   return ycluster;
 }
-
-#endif  // CORRECT_FOR_BIG_PIXELS
 
 //-----------------------------------------------------------------------------
 // The isFlipped() is a silly way to determine which detectors are inverted.

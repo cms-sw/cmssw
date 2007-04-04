@@ -2,22 +2,33 @@
 // comment out etaCorrection. d.k. 06/06
 
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+//#include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "Geometry/TrackerTopology/interface/RectangularPixelTopology.h"
 
+//#include "CommonDet/BasicDet/interface/Topology.h"
+//#include "CommonDet/BasicDet/interface/Det.h"
+//#include "CommonDet/BasicDet/interface/DetUnit.h"
+//#include "CommonDet/BasicDet/interface/DetType.h"
+//#include "Tracker/SiPixelDet/interface/PixelDetType.h"
+//#include "Tracker/SiPixelDet/interface/PixelDigi.h"
+//#include "Tracker/SiPixelDet/interface/PixelTopology.h"
+//  #include "CommonDet/DetGeometry/interface/ActiveMediaShape.h"
 #include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEInitial.h"
+
+//#define DEBUG
 
 // MessageLogger
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 // Magnetic field
 #include "MagneticField/Engine/interface/MagneticField.h"
 
 #include <iostream>
-
-//#define TDEBUG
 using namespace std;
 
 const float PI = 3.141593;
 const float degsPerRad = 57.29578;
+
 
 //-----------------------------------------------------------------------------
 //  A fairly boring constructor.  All quantities are DetUnit-dependent, and
@@ -33,6 +44,19 @@ PixelCPEInitial::PixelCPEInitial(edm::ParameterSet const & conf, const MagneticF
 //  Public methods mandated by the base class.
 //------------------------------------------------------------------
 
+
+//------------------------------------------------------------------
+//  localPosition() calls measurementPosition() and then converts it
+//  to the LocalPoint. USE THE ONE FROM THE BASE CLASS
+//------------------------------------------------------------------
+// LocalPoint
+// PixelCPEInitial::localPosition(const SiPixelCluster& cluster, 
+// 			       const GeomDetUnit & det) const {
+//   setTheDet( det );
+//   MeasurementPoint ssss = measurementPosition(cluster, det);
+//   LocalPoint cdfsfs = theTopol->localPosition(ssss);
+//   return cdfsfs;
+// }
 //------------------------------------------------------------------
 //  localError() calls measurementError() after computing size and 
 //  edge (flag) along x and y.
@@ -45,6 +69,13 @@ PixelCPEInitial::localError( const SiPixelCluster& cluster, const GeomDetUnit & 
   int sizey = cluster.sizeY();
 
   // Find edge clusters
+  //bool edgex = (cluster.edgeHitX()) || (cluster.maxPixelRow() > theNumOfRow);//wrong
+  //bool edgey = (cluster.edgeHitY()) || (cluster.maxPixelCol() > theNumOfCol); 
+//   bool edgex = (cluster.minPixelRow()==0) ||  // use min and max pixels
+//     (cluster.maxPixelRow()==(theNumOfRow-1));
+//   bool edgey = (cluster.minPixelCol()==0) ||
+//     (cluster.maxPixelCol()==(theNumOfCol-1));
+
   // Use edge methods from the Toplogy class
   int maxPixelCol = cluster.maxPixelCol();
   int maxPixelRow = cluster.maxPixelRow();
@@ -69,9 +100,14 @@ PixelCPEInitial::localError( const SiPixelCluster& cluster, const GeomDetUnit & 
   return LocalError( err2X(edgex, sizex), 0, err2Y(edgey, sizey) );
 }
 
+
+
 //------------------------------------------------------------------
 //  Helper methods (protected)
 //------------------------------------------------------------------
+
+
+
 
 //-----------------------------------------------------------------------------
 //  Error along X, squared, as parameterized by Vincenzo.
@@ -121,6 +157,9 @@ PixelCPEInitial::err2X(bool& edgex, int& sizex) const
   return xerr*xerr;
 }
 
+
+
+
 //-----------------------------------------------------------------------------
 //  Error along Y, squared, as parameterized by Vincenzo.
 //-----------------------------------------------------------------------------
@@ -164,97 +203,110 @@ PixelCPEInitial::err2Y(bool& edgey, int& sizey) const
 
 //-----------------------------------------------------------------------------
 // Position estimate in X-direction
-// Copy the code from CPEFromDetPosition
 //-----------------------------------------------------------------------------
 float 
-PixelCPEInitial::xpos(const SiPixelCluster& cluster) const {
-
+PixelCPEInitial::xpos(const SiPixelCluster& cluster) const
+{
+  float xcluster = 0;
   int size = cluster.sizeX();
-                                                                                
-  if (size == 1) {
-    float baryc = cluster.x();
-    // the middle of only one pixel is equivalent to the baryc.
-    // transform baryc to local
-    return theTopol->localX(baryc);
-  }
- 
-  //calculate center
-  int imin = cluster.minPixelRow();
-  int imax = cluster.maxPixelRow();
-  float min = float(imin) + 0.5; // center of the edge
-  float max = float(imax) + 0.5; // center of the edge
-  float minEdge = theTopol->localX(float(imin+1)); // left inner edge
-  float maxEdge = theTopol->localX(float(imax));   // right inner edge
-  float center = (minEdge + maxEdge)/2.; // center of inner part
-  float wInner = maxEdge-minEdge; // width of the inner part
-   
-  // get the charge in the edge pixels
   const vector<SiPixelCluster::Pixel>& pixelsVec = cluster.pixels();
-  vector<float> chargeVec = xCharge(pixelsVec, imin, imax);
-  float q1 = chargeVec[0];
-  float q2 = chargeVec[1];
-   
-  // Estimate the charge width. main contribution + 2nd order geom corr.
-  float tmp = (max+min)/2.;
-  float width = (chargeWidthX() + geomCorrectionX(tmp)) * thePitchX;
-  
-  // Check the valid chargewidth (WHY IS THERE THE FABS??)
-  float effWidth = fabs(width) - wInner;
-   
-  // Check the residual width
-  if( (effWidth>(2*thePitchX)) || (effWidth<0.) ) { // for illiegal wifth
-    effWidth=thePitchX; // make it equal to pitch
-  } 
+  float baryc = cluster.x();
 
-    // For X (no angles) use the MSI formula.
-  // position msI
-  float pos = center + (q2-q1)/(2.*(q1+q2)) * effWidth;
- 
-  return pos;
+  if (size == 1) {
+    // the middle of only one pixel is equivalent to the baryc.
+    xcluster = baryc;
 
+  } else {
+
+    //calculate center
+    float xmin = float(cluster.minPixelRow()) + 0.5;
+    float xmax = float(cluster.maxPixelRow()) + 0.5;
+    float xcenter = ( xmin + xmax ) / 2;
+
+    vector<float> xChargeVec = xCharge(pixelsVec, xmin, xmax); 
+    float q1 = xChargeVec[0];
+    float q2 = xChargeVec[1];
+
+   // Estimate the charge width. main contribution + 2nd order geom corr.
+    float chargeWX = chargeWidthX() + geomCorrectionX(xcenter);
+
+    // Check the valid chargewidth
+    float effchargeWX = fabs(chargeWX) - (float(size)-2);
+    // truncated charge width only if it greather than the cluster size
+    if ( (effchargeWX< 0.) || (effchargeWX>2.) ) effchargeWX = 1.;
+
+    xcluster = xcenter + (q2-q1) * effchargeWX / (q1+q2) / 2.;
+
+    // Parametrized Eta-correction.
+    // Skip it, it does not bring anything and makes forward hits worse. d.k. 6/06
+    //float alpha = estimatedAlphaForBarrel(xcenter); // done by base class now
+//     if (alpha_ < 1.53) {
+//       float etashift=0;
+//       float charatio = q1/(q1+q2);
+//       etashift = theEtaFunc.xEtaShift(size, thePitchX, 
+// 				      charatio, alpha_);
+//       xcluster = xcluster - etashift;
+//     }
+
+  }    
+  return xcluster;
 }
+
 //-----------------------------------------------------------------------------
 // Position estimate in the local y-direction
 //-----------------------------------------------------------------------------
 float 
-PixelCPEInitial::ypos(const SiPixelCluster& cluster) const {
-
-  int size = cluster.sizeY();
- 
-  if (size == 1) {
-    float baryc = cluster.y();
-    // the middle of only one pixel is equivalent to the baryc.
-    // transform baryc to local
-    return theTopol->localY(baryc);
-  }
- 
-  //calculate center
-  int imin = cluster.minPixelCol();
-  int imax = cluster.maxPixelCol();
-  //float min = float(imin) + 0.5; // center of the edge
-  //float max = float(imax) + 0.5; // center of the edge
-  float minEdge = theTopol->localY(float(imin+1)); // left inner edge
-  float maxEdge = theTopol->localY(float(imax));   // right inner edge
-  float center = (minEdge + maxEdge)/2.; // center of inner part in LC
-  //float wInner = maxEdge-minEdge; // width of the inner part in LC
-   
-  // get the charge in the edge pixels
+PixelCPEInitial::ypos(const SiPixelCluster& cluster) const
+{
+  float ycluster = 0;
   const vector<SiPixelCluster::Pixel>& pixelsVec = cluster.pixels();
-  vector<float> chargeVec = yCharge(pixelsVec, imin, imax);
-  float q1 = chargeVec[0];
-  float q2 = chargeVec[1];
-    
-  float pitch1 = thePitchY;
-  float pitch2 = thePitchY;
-  if(RectangularPixelTopology::isItBigPixelInY(imin) )
-    pitch1= 2.*thePitchY;
-  if(RectangularPixelTopology::isItBigPixelInY(imax) )
-    pitch2= 2.*thePitchY;
-   
-  // position msII
-  float pos = center + (q2-q1)/(2.*(q1+q2)) * (pitch1+pitch2)/2.;
-  return pos;
+  int size = cluster.sizeY();
+  float baryc = cluster.y();
 
+  if (size == 1) {
+    ycluster = baryc;
+
+  } else if (size < 4) {
+
+    // Calculate center
+    float ymin = float(cluster.minPixelCol()) + 0.5;
+    float ymax = float(cluster.maxPixelCol()) + 0.5;
+    float ycenter = ( ymin + ymax ) / 2;
+
+    //calculate charge width with/without the 2nd order geom-correction
+    //float chargeWY = chargeWidthY() + geomCorrectionY(ycenter); //+correction
+    float chargeWY = chargeWidthY();  // no 2nd order correction
+    float effchargeWY = fabs(chargeWY) - (float(size)-2);
+
+    // truncate charge width when it is > 2
+    if ( (effchargeWY < 0) || (effchargeWY > 1.) ) effchargeWY = 1;
+
+    //calculate charge of first, last and inner pixels of cluster
+    vector<float> yChargeVec = yCharge(pixelsVec, ymin, ymax);
+    float q1 = yChargeVec[0];
+    float q2 = yChargeVec[1];
+    // float qm = yChargeVec[2];
+    // float charatio = q1/(q1+q2);
+
+    ycluster = ycenter + (q2-q1) * effchargeWY / (q1+q2) / 2.;
+
+  } else {    //  Use always the edge method
+    // Calculate center
+    float ymin = float(cluster.minPixelCol()) + 0.5;
+    float ymax = float(cluster.maxPixelCol()) + 0.5;
+    float ycenter = ( ymin + ymax ) / 2;
+    
+    //calculate charge of first, last and inner pixels of cluster
+    vector<float> yChargeVec = yCharge(pixelsVec, ymin, ymax);
+    float q1 = yChargeVec[0];
+    float q2 = yChargeVec[1];
+    
+    float shift = (q2 - q1) / (q2 + q1) / 2.; // Single edge 
+
+    ycluster = ycenter + shift;
+
+  }
+  return ycluster;
 }
 
 //-----------------------------------------------------------------------------

@@ -8,16 +8,11 @@
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/TrackerTopology/interface/RectangularPixelTopology.h"
 
-//#define TP_OLD
-#ifdef TP_OLD
 #include "Geometry/CommonDetAlgo/interface/MeasurementPoint.h"
 #include "Geometry/CommonDetAlgo/interface/MeasurementError.h"
+
+//--- For the various "Frames"
 #include "Geometry/Surface/interface/GloballyPositioned.h"
-#else  // new location
-#include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementPoint.h"
-#include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementError.h"
-#include "DataFormats/GeometrySurface/interface/GloballyPositioned.h"
-#endif
 
 //--- For the configuration:
 #include "FWCore/ParameterSet/interface/ParameterSet.h"

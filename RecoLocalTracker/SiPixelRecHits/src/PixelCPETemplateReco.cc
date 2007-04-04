@@ -38,15 +38,15 @@ PixelCPETemplateReco::PixelCPETemplateReco(edm::ParameterSet const & conf,
   // &&& initialize the templates, etc.
   
   // Initialize template store, CMSSW simulation as thePixelTemp[0]
-  //templ_.pushfile(201);
-
+  templ_.pushfile(201);
+  
   // Initialize template store, Pixelav 125V simulation as
   // thePixelTemp[1]
-  templ_.pushfile(2);
-  
+  templ_.pushfile(1);
+	 
   // Initialize template store, CMSSW simulation w/ reduced difusion
   // as thePixelTemp[2]
-  //templ_.pushfile(401);
+  templ_.pushfile(401);
 }
 
 //-----------------------------------------------------------------------------
@@ -57,22 +57,13 @@ PixelCPETemplateReco::~PixelCPETemplateReco()
   // &&& delete template store?
 }
 
-
-MeasurementPoint 
-PixelCPETemplateReco::measurementPosition(const SiPixelCluster& cluster, 
-					  const GeomDetUnit & det) const
-{
-  LocalPoint lp = localPosition(cluster,det);
-  return theTopol->measurementPosition(lp);
-}
-
-
 //------------------------------------------------------------------
 //  Public methods mandated by the base class.
 //------------------------------------------------------------------
 
 //------------------------------------------------------------------
-//  The main call to the template code.
+//  localPosition() calls measurementPosition() and then converts it
+//  to the LocalPoint. USE THE ONE FROM THE BASE CLASS
 //------------------------------------------------------------------
 LocalPoint
 PixelCPETemplateReco::localPosition(const SiPixelCluster& cluster, const GeomDetUnit & det) const 
@@ -121,7 +112,6 @@ PixelCPETemplateReco::localPosition(const SiPixelCluster& cluster, const GeomDet
     pixIter = pixVec.begin(), pixEnd = pixVec.end();
   
   // Visualize large clusters ---------------------------------------------------------
-  // From Petar: maybe this should be moved into a method in the base class?
   /*
     char cluster_matrix[100][100];
     for (int i=0; i<100; i++)
@@ -189,14 +179,13 @@ PixelCPETemplateReco::localPosition(const SiPixelCluster& cluster, const GeomDet
   
   // ******************************************************************
   // Do it!
-  ierr =
-    PixelTempReco2D(ID, fpix, cotalpha, cotbeta,
-                    clust_array_2d, ydouble, xdouble,
-                    templ_,
-                    templYrec_, templSigmaY_, templProbY_,
-                    templXrec_, templSigmaX_, templProbX_, templQbin_);
+  ierr = 
+    PixelTempReco2D( ID, fpix, cotalpha, cotbeta, 
+		     clust_array_2d, ydouble, xdouble, 
+		     templ_, 
+		     templYrec_, templSigmaY_,
+		     templXrec_, templSigmaX_ );
   // ******************************************************************
-
   
   // &&& need a class const
   const float micronsToCm = 1.0e-4;
@@ -227,7 +216,8 @@ PixelCPETemplateReco::localPosition(const SiPixelCluster& cluster, const GeomDet
 }
 
 //------------------------------------------------------------------
-//  localError() relies on localPosition() being called FIRST!!!
+//  localError() calls measurementError() after computing size and 
+//  edge (flag) along x and y.
 //------------------------------------------------------------------
 LocalError  
 PixelCPETemplateReco::localError( const SiPixelCluster& cluster, 
@@ -253,7 +243,6 @@ PixelCPETemplateReco::localError( const SiPixelCluster& cluster,
     {
       //--- Both axes on the edge, no point in calling PixelErrorParameterization,
       //--- just return the max errors on both.
-      // &&& Do we ever see this message in the log files?
       cout << "PixelCPETemplateReco::localError: edge hit, returning sqrt(12)." 
 	   << endl;
    
@@ -281,3 +270,193 @@ PixelCPETemplateReco::localError( const SiPixelCluster& cluster,
   return LocalError(xerr*xerr, 0, yerr*yerr);
 }
 
+// don't really need this function
+/*
+  MeasurementPoint PixelCPETemplateReco::measurementPosition( const SiPixelCluster& cluster, 
+  const GeomDetUnit & det) const 
+  {
+  MeasurementPoint dummy_mp(999.9, 999.9);
+  return dummy_mp; 
+  }
+*/
+
+//------------------------------------------------------------------
+//  Helper methods (protected)
+//------------------------------------------------------------------
+
+//-----------------------------------------------------------------------------
+//  Calculates the *corrected* position of the cluster.
+//  &&& Probably generic enough for the base class.
+//-----------------------------------------------------------------------------
+float 
+PixelCPETemplateReco::xpos(const SiPixelCluster& cluster) const
+{
+  float xcluster = 0;
+  int size = cluster.sizeX();
+  const vector<SiPixelCluster::Pixel>& pixelsVec = cluster.pixels();
+  float baryc = cluster.x();
+
+  if ( size == 1 )
+    {
+      // the middle of only one pixel is equivalent to the baryc.
+      xcluster = baryc;
+    } 
+  else 
+    {
+      //calculate center
+      float xmin = float( cluster.minPixelRow() ) + 0.5;
+      float xmax = float( cluster.maxPixelRow() ) + 0.5;
+      float xcenter = ( xmin + xmax ) / 2;
+      
+      vector<float> xChargeVec = xCharge(pixelsVec, xmin, xmax); 
+      float q1 = xChargeVec[0];
+      float q2 = xChargeVec[1];
+      // &&& The following line from CPEFromDetPosition:
+      // float chargeWX = chargeWidthX() + theSign * geomCorrection() * xcenter;
+      float chargeWX = chargeWidthX();
+      float effchargeWX = fabs(chargeWX) - (float(size)-2.0);
+      
+      // truncated charge width only if it greather than the cluster size
+      if ( fabs(effchargeWX) > 2.0 ) effchargeWX = 1.0;
+      
+      xcluster = xcenter + (q2-q1) * effchargeWX / (q1+q2) / 2.0;
+
+      // &&& should go away there too:  float alpha = estimatedAlphaForBarrel(xcenter);
+      if (alpha_ < 1.53) 
+	{
+	  float etashift=0;
+	  float charatio = q1/(q1+q2);
+	  etashift = theEtaFunc.xEtaShift(size, thePitchX, 
+					  charatio, alpha_);
+	  xcluster = xcluster - etashift;
+	}
+    }    
+  return xcluster;
+}
+
+//-----------------------------------------------------------------------------
+//  Calculates the *corrected* position of the cluster.
+//  &&& Probably generic enough for the base class.
+//-----------------------------------------------------------------------------
+float 
+PixelCPETemplateReco::ypos(const SiPixelCluster& cluster) const
+{
+  float ycluster = 0;
+  const vector<SiPixelCluster::Pixel>& pixelsVec = cluster.pixels();
+  int size = cluster.sizeY();
+  float baryc = cluster.y();
+  
+  if ( size == 1 ) 
+    {
+      ycluster = baryc;
+    } 
+  // &&& The size == 2,3 exists in FromDetPosition but not in FromTrackAngles:
+  //   else if (size < 4) {
+  
+  //     // Calculate center
+  //     float ymin = float(cluster.minPixelCol()) + 0.5;
+  //     float ymax = float(cluster.maxPixelCol()) + 0.5;
+  //     float ycenter = ( ymin + ymax ) / 2;
+  
+  //     //calculate charge width
+  //     float chargeWY = chargeWidthY() + geomCorrection() * ycenter;
+  //     float effchargeWY = fabs(chargeWY) - (float(size)-2);
+  
+  //     // truncate charge width when it is > 2
+  //     if ( (effchargeWY < 0) || (effchargeWY > 1.) ) effchargeWY = 1;
+  
+  //     //calculate charge of first, last and inner pixels of cluster
+  //     vector<float> yChargeVec = yCharge(pixelsVec, ymin, ymax);
+  //     float q1 = yChargeVec[0];
+  //     float q2 = yChargeVec[1];
+  //     // float qm = yChargeVec[2];
+  //     // float charatio = q1/(q1+q2);
+  
+  //     ycluster = ycenter + (q2-q1) * effchargeWY / (q1+q2) / 2.;
+  
+  //   } 
+  else 
+    {    //  Use always the edge method
+      float chargeWY = chargeWidthY();
+      float effchargeWY = fabs(chargeWY) - (float(size)-2.0);
+      // truncate charge width when it is > 2
+      if ( (effchargeWY < 0.0) || (effchargeWY > 2.0) ) effchargeWY = 1.0;
+      
+      // Calculate center
+      float ymin = float(cluster.minPixelCol()) + 0.5;
+      float ymax = float(cluster.maxPixelCol()) + 0.5;
+      float ycenter = ( ymin + ymax ) / 2.0;
+      
+      //calculate charge of first, last and inner pixels of cluster
+      vector<float> yChargeVec = yCharge(pixelsVec, ymin, ymax);
+      float q1 = yChargeVec[0];
+      float q2 = yChargeVec[1];
+      // float qm = yChargeVec[2];
+      float charatio = q1/(q1+q2);
+      
+      // &&& FromDetPosition does not apply etashfit in y:
+      // eta function for shallow tracks
+      float etashift = theEtaFunc.yEtaShift(size, thePitchY, 
+					    charatio, beta_);
+      ycluster = ycenter + (q2-q1) * effchargeWY / (q1+q2) / 2.0 - etashift;
+    } 
+  
+  return ycluster;
+}
+
+//-----------------------------------------------------------------------------
+//
+//-----------------------------------------------------------------------------
+float 
+PixelCPETemplateReco::chargeWidthX() const
+{ 
+  // &&& Commented out: the version from FromDetPosition:
+  //   float chargeW = 0;
+  //   float lorentzWidth = 2 * theLShift;
+  //   if (thePart == GeomDetEnumerators::PixelBarrel) {
+  //     // Redefine the charge width to include the offset
+  //     chargeW = lorentzWidth - theSign * geomCorrection() * theOffsetX;
+  //   } else { // forward
+  //     chargeW = fabs(lorentzWidth) + 
+  //       theThickness * fabs(theDetR/theDetZ) / thePitchX;
+  //   }
+  //   return chargeW;
+  
+  float geomWidthX = theThickness * tan(PI/2 - alpha_)/thePitchX;
+  if ( thePart == GeomDetEnumerators::PixelBarrel )
+    {
+      return (geomWidthX) + (2.0 * theLShiftX);
+    } 
+  else 
+    {
+      return fabs(geomWidthX) + (2.0 * fabs(theLShiftX)); 
+    }
+}
+
+//-----------------------------------------------------------------------------
+//
+//-----------------------------------------------------------------------------
+float 
+PixelCPETemplateReco::chargeWidthY() const
+{
+  // &&& Commented out: the version from FromDetPosition:
+  //   float chargeW = 0;  
+  //   if (thePart == GeomDetEnumerators::PixelBarrel) {
+  //     chargeW = theThickness * fabs(theDetZ/theDetR) / thePitchY;
+  //     chargeW -= (geomCorrection() * theOffsetY);
+  //   } else { //forward
+  //     // Width comes from geometry only, fixed by the tilt angle
+  //    chargeW = theThickness * tan(20./degsPerRad) / thePitchY; 
+  //   }
+  //   return chargeW;
+  
+  float geomWidthY = theThickness * tan(PI/2.0 - beta_)/thePitchY;
+  if ( thePart == GeomDetEnumerators::PixelBarrel ) 
+    {
+      return geomWidthY;
+    } 
+  else 
+    {
+      return fabs(geomWidthY);
+    }
+}

@@ -9,9 +9,6 @@
 // Move geomCorrection to the concrete class. d.k. 06/06.
 //-----------------------------------------------------------------------------
 
-#include <utility>
-#include <vector>
-
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/PixelClusterParameterEstimator.h"
 #include "RecoLocalTracker/SiPixelRecHits/interface/EtaCorrection.h"
 
@@ -19,22 +16,28 @@
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/TrackerTopology/interface/RectangularPixelTopology.h"
 
+#include "Geometry/CommonDetAlgo/interface/MeasurementPoint.h"
+#include "Geometry/CommonDetAlgo/interface/MeasurementError.h"
+
+//--- For the various "Frames"
+#include "Geometry/Surface/interface/GloballyPositioned.h"
+
 //--- For the configuration:
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-//#define TP_OLD
-#ifdef TP_OLD
-#include "Geometry/CommonDetAlgo/interface/MeasurementPoint.h"
-#include "Geometry/CommonDetAlgo/interface/MeasurementError.h"
-#include "Geometry/Surface/interface/GloballyPositioned.h"
-#else  // new location
-#include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementPoint.h"
-#include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementError.h"
-#include "DataFormats/GeometrySurface/interface/GloballyPositioned.h"
-#endif
+//#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+//#include "Geometry/Surface/interface/GloballyPositioned.h"
+//#include "Geometry/Surface/interface/Surface.h"
+
+#include <utility>
+#include <vector>
+
+// &&& Now explicitly included...  //class MeasurementError;
+// class GeomDetUnit;
 
 class MagneticField;
-class PixelCPEBase : public PixelClusterParameterEstimator {
+class PixelCPEBase : public PixelClusterParameterEstimator 
+{
  public:
   // PixelCPEBase( const DetUnit& det );
   PixelCPEBase(edm::ParameterSet const& conf, const MagneticField*);
@@ -46,7 +49,6 @@ class PixelCPEBase : public PixelClusterParameterEstimator {
   inline LocalValues localParameters( const SiPixelCluster & cl, 
 				      const GeomDetUnit    & det ) const 
   {
-    nRecHitsTotal_++ ;
     setTheDet( det );
     computeAnglesFromDetPosition(cl, det);
     return std::make_pair( localPosition(cl,det), localError(cl,det) );
@@ -59,7 +61,6 @@ class PixelCPEBase : public PixelClusterParameterEstimator {
 				      const GeomDetUnit    & det, 
 				      const LocalTrajectoryParameters & ltp) const 
   {
-    nRecHitsTotal_++ ;
     setTheDet( det );
     computeAnglesFromTrajectory(cl, det, ltp);
     return std::make_pair( localPosition(cl,det), localError(cl,det) );
@@ -72,11 +73,8 @@ class PixelCPEBase : public PixelClusterParameterEstimator {
 				      const GeomDetUnit    & det, 
 				      float alpha, float beta) const 
   {
-    nRecHitsTotal_++ ;
     alpha_ = alpha;
     beta_  = beta;
-    cotalpha_ = 1.0/tan(alpha_);
-    cotbeta_  = 1.0/tan(beta_ );
     setTheDet( det );
     return std::make_pair( localPosition(cl,det), localError(cl,det) );
   } 
@@ -124,20 +122,6 @@ class PixelCPEBase : public PixelClusterParameterEstimator {
   mutable float cotbeta_;
   //---------------------------
 
-  // Petar, 2/23/07 -- since the sign of the Lorentz shift appears to
-  // be computed *incorrectly* (i.e. there's a bug) we add new variables
-  // so that we can study the effect of the bug.
-  mutable LocalVector driftDirection_;  // drift direction cached // &&&
-  mutable double lorentzShiftX_;   // a FULL shift, not 1/2 like theLShiftX!
-  mutable double lorentzShiftY_;   // a FULL shift, not 1/2 like theLShiftY!
-  mutable double lorentzShiftInCmX_;   // a FULL shift, in cm
-  mutable double lorentzShiftInCmY_;   // a FULL shift, in cm
-
-  //--- Counters
-  mutable int    nRecHitsTotal_ ;
-  mutable int    nRecHitsUsedEdge_ ;
-
-
   //--- Global quantities
   mutable float theTanLorentzAnglePerTesla;   // tan(Lorentz angle)/Tesla
   int     theVerboseLevel;                    // algorithm's verbosity
@@ -168,9 +152,7 @@ class PixelCPEBase : public PixelClusterParameterEstimator {
   void computeAnglesFromTrajectory (const SiPixelCluster & cl,
 				    const GeomDetUnit    & det, 
 				    const LocalTrajectoryParameters & ltp) const;
-  LocalVector driftDirection       ( GlobalVector bfield ) const ; //wrong sign
-  LocalVector driftDirectionCorrect( GlobalVector bfield ) const ;
-  void computeLorentzShifts() const ;
+  LocalVector driftDirection( GlobalVector bfield ) const ;
 
   bool isFlipped() const;              // is the det flipped or not?
 
@@ -186,23 +168,10 @@ class PixelCPEBase : public PixelClusterParameterEstimator {
   //--- Charge on the first, last  and  inner pixels on x and y 
   std::vector<float> 
     xCharge(const std::vector<SiPixelCluster::Pixel>&, 
-	    const int&, const int&) const; 
+	    const float&, const float&) const; 
   std::vector<float> 
     yCharge(const std::vector<SiPixelCluster::Pixel>&, 
-	    const int&, const int&) const; 
-
-  // Temporary fix for older classes
-  std::vector<float> 
-    xCharge(const std::vector<SiPixelCluster::Pixel>& pixelsVec, 
-	    const float& xmin, const float& xmax) const {
-    return xCharge(pixelsVec, int(xmin), int(xmax)); 
-  }
-  std::vector<float> 
-    yCharge(const std::vector<SiPixelCluster::Pixel>& pixelsVec, 
-	    const float& xmin, const float& xmax) const {
-    return yCharge(pixelsVec, int(xmin), int(xmax)); 
-  }
-
+	    const float&, const float&) const; 
 
 
   //---------------------------------------------------------------------------
