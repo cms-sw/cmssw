@@ -1,9 +1,8 @@
 // File: SiStripRecHitMatcher.cc
 // Description:  Matches into rechits
 // Author:  C.Genta
-#include "Geometry/Vector/interface/GlobalPoint.h" 
 #include "RecoLocalTracker/SiStripRecHitConverter/interface/SiStripRecHitMatcher.h"
-//#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 
