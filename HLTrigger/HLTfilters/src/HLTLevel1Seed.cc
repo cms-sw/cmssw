@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2007/03/26 11:31:42 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/03/26 11:39:20 $
+ *  $Revision: 1.2 $
  *
  *  \author Martin Grunewald
  *
@@ -19,6 +19,7 @@
 #include "DataFormats/HLTReco/interface/HLTFilterObject.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include <string>
 #include <cassert>
 
 //
@@ -31,7 +32,7 @@ HLTLevel1Seed::HLTLevel1Seed(const edm::ParameterSet& iConfig) :
   andOr_   (iConfig.getParameter<bool> ("andOr" )),
   byName_  (iConfig.getParameter<bool> ("byName"))
 {
-  const string invalid("@@invalid@@");
+  const std::string invalid("@@invalid@@");
  
   unsigned int n(0);
 
