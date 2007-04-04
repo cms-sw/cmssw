@@ -1,4 +1,4 @@
-// Last commit: $Id: $
+// Last commit: $Id: CommissioningHistosUsingDb.cc,v 1.2 2007/03/21 16:55:07 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/CommissioningHistosUsingDb.h"
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
@@ -11,11 +11,12 @@ using namespace sistrip;
 // -----------------------------------------------------------------------------
 /** */
 CommissioningHistosUsingDb::CommissioningHistosUsingDb( const DbParams& params )
-  : db_(0)
+  : db_(0),
+    test_(false)
 {
-  cout << endl // LogTrace(mlDqmClient_) 
-       << "[CommissioningHistosUsingDb::" << __func__ << "]"
-       << " Constructing object..." << endl;
+  LogTrace(mlDqmClient_) 
+    << "[CommissioningHistosUsingDb::" << __func__ << "]"
+    << " Constructing object..." << endl;
   
   if ( params.usingDb_ ) {
 
@@ -42,49 +43,57 @@ CommissioningHistosUsingDb::CommissioningHistosUsingDb( const DbParams& params )
 				 params.minor_ );
       db_->openDbConnection();
     } else {
-      cerr << endl // edm::LogWarning(mlDqmClient_) 
-	   << "[CommissioningHistosUsingDb::" << __func__ << "]"
-	   << " Unexpected value for database connection parameters!"
-	   << " confdb=" << params.confdb_
-	   << " login/passwd@path=" << login << "/" << passwd << "@" << path
-	   << " partition=" << params.partition_;
+      edm::LogWarning(mlDqmClient_) 
+	<< "[CommissioningHistosUsingDb::" << __func__ << "]"
+	<< " Unexpected value for database connection parameters!"
+	<< " confdb=" << params.confdb_
+	<< " login/passwd@path=" << login << "/" << passwd << "@" << path
+	<< " partition=" << params.partition_;
     }
     
-    cout << endl // edm::LogWarning(mlDqmClient_) 
-	 << "[CommissioningHistosUsingDb::" << __func__ << "]"
-	 << " Using a database account!"
-	 << " SiStripConfigDB ptr: " << db_
-	 << " confdb: " << params.confdb_
-	 << " login: " << login
-	 << " passwd: " << passwd
-	 << " path: " << path
-	 << " partition: " << params.partition_
-	 << " major: " << params.major_
-	 << " minor: " << params.minor_;
+    edm::LogWarning(mlDqmClient_) 
+      << "[CommissioningHistosUsingDb::" << __func__ << "]"
+      << " Using a database account!"
+      << " SiStripConfigDB ptr: " << db_
+      << " confdb: " << params.confdb_
+      << " login: " << login
+      << " passwd: " << passwd
+      << " path: " << path
+      << " partition: " << params.partition_
+      << " major: " << params.major_
+      << " minor: " << params.minor_;
     
   } else {
     
     db_ = new SiStripConfigDb( "", "", "", "" );
     
-    cout << endl // edm::LogWarning(mlDqmClient_) 
-	 << "[CommissioningHistosUsingDb::" << __func__ << "]"
-	 << " Using XML files!"
-	 << " SiStripConfigDB ptr: " << db_;
-
+    edm::LogWarning(mlDqmClient_) 
+      << "[CommissioningHistosUsingDb::" << __func__ << "]"
+      << " Using XML files!"
+      << " SiStripConfigDB ptr: " << db_;
+    
   }
+  
+}
 
+// -----------------------------------------------------------------------------
+/** */
+CommissioningHistosUsingDb::CommissioningHistosUsingDb( SiStripConfigDb* const db )
+  : db_(db),
+    test_(false)
+{
+  LogTrace(mlDqmClient_) 
+    << "[CommissioningHistosUsingDb::" << __func__ << "]"
+    << " Constructing object...";
 }
 
 // -----------------------------------------------------------------------------
 /** */
 CommissioningHistosUsingDb::~CommissioningHistosUsingDb() {
-  if ( db_ ) {
-    db_->closeDbConnection();
-    delete db_;
-  }
-  cout << endl // LogTrace(mlDqmClient_) 
-       << "[CommissioningHistosUsingDb::" << __func__ << "]"
-       << " Destructing object...";
+  if ( db_ ) { delete db_; }
+  LogTrace(mlDqmClient_) 
+    << "[CommissioningHistosUsingDb::" << __func__ << "]"
+    << " Destructing object...";
 }
 
 // -----------------------------------------------------------------------------

@@ -1,4 +1,4 @@
-// Last commit: $Id: $
+// Last commit: $Id: PedestalsHistosUsingDb.cc,v 1.2 2007/03/21 16:55:07 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/PedestalsHistosUsingDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
@@ -6,7 +6,7 @@
 #include "DataFormats/SiStripCommon/interface/SiStripFedKey.h"
 #include <iostream>
 
-using namespace std;
+using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 /** */
@@ -15,17 +15,29 @@ PedestalsHistosUsingDb::PedestalsHistosUsingDb( MonitorUserInterface* mui,
   : PedestalsHistograms( mui ),
     CommissioningHistosUsingDb( params )
 {
-  cout << endl // LogTrace(mlDqmClient_) 
-       << "[PedestalsHistosUsingDb::" << __func__ << "]"
-       << " Constructing object..." << endl;
+  LogTrace(mlDqmClient_) 
+    << "[PedestalsHistosUsingDb::" << __func__ << "]"
+    << " Constructing object...";
+}
+
+// -----------------------------------------------------------------------------
+/** */
+PedestalsHistosUsingDb::PedestalsHistosUsingDb( DaqMonitorBEInterface* bei,
+						SiStripConfigDb* const db ) 
+  : PedestalsHistograms( bei ),
+    CommissioningHistosUsingDb( db )
+{
+  LogTrace(mlDqmClient_) 
+    << "[PedestalsHistosUsingDb::" << __func__ << "]"
+    << " Constructing object...";
 }
 
 // -----------------------------------------------------------------------------
 /** */
 PedestalsHistosUsingDb::~PedestalsHistosUsingDb() {
-  cout << endl // LogTrace(mlDqmClient_) 
-       << "[PedestalsHistosUsingDb::" << __func__ << "]"
-       << " Destructing object..." << endl;
+  LogTrace(mlDqmClient_) 
+    << "[PedestalsHistosUsingDb::" << __func__ << "]"
+    << " Destructing object...";
 }
 
 // -----------------------------------------------------------------------------
@@ -33,18 +45,22 @@ PedestalsHistosUsingDb::~PedestalsHistosUsingDb() {
 void PedestalsHistosUsingDb::uploadToConfigDb() {
 
   if ( !db_ ) {
-    cerr << " NULL pointer to SiStripConfigDb interface! Aborting upload..."
-	 << endl;
+    edm::LogWarning(mlDqmClient_) 
+      << "[PedestalsHistosUsingDb::" << __func__ << "]"
+      << " NULL pointer to SiStripConfigDb interface!"
+      << " Aborting upload...";
     return;
   }
-
+  
   // Update FED descriptions with new peds/noise values
   db_->resetFedDescriptions();
   const SiStripConfigDb::FedDescriptions& devices = db_->getFedDescriptions(); 
   update( const_cast<SiStripConfigDb::FedDescriptions&>(devices) );
-  db_->uploadFedDescriptions(false);
-  cout << "Upload of peds/noise constants to DB finished!" << endl;
-
+  if ( !test_ ) { db_->uploadFedDescriptions(false); }
+  LogTrace(mlDqmClient_) 
+    << "[PedestalsHistosUsingDb::" << __func__ << "]"
+    << "Upload of peds/noise constants to DB finished!";
+  
 }
 
 // -----------------------------------------------------------------------------
@@ -65,9 +81,10 @@ void PedestalsHistosUsingDb::update( SiStripConfigDb::FedDescriptions& feds ) {
       FedToFecMap::const_iterator ifec = mapping().find(fed_key);
       if ( ifec != mapping().end() ) { fec_key = ifec->second; }
       else {
-	cerr << "[" << __PRETTY_FUNCTION__ << "]"
-	     << " Unable to find FEC key for FED id/ch: "
-	     << (*ifed)->getFedId() << "/" << ichan << endl;
+	edm::LogWarning(mlDqmClient_)
+	  << "[PedestalsHistosUsingDb::" << __func__ << "]"
+	  << " Unable to find FEC key for FED id/ch: "
+	  << (*ifed)->getFedId() << "/" << ichan;
 	continue; //@@ write defaults here?... 
       }
       
@@ -94,18 +111,18 @@ void PedestalsHistosUsingDb::update( SiStripConfigDb::FedDescriptions& feds ) {
       
       } else {
 	SiStripFecKey path( fec_key );
-	cerr << "[" << __PRETTY_FUNCTION__ << "]"
-	     << " Unable to find ticker thresholds for FED id/ch: " 
-	     << (*ifed)->getFedId() << "/"
-	     << ichan << "/"
-	     << " and device with at FEC/slot/ring/CCU/LLD channel: " 
-	     << path.fecCrate_ << "/"
+	edm::LogWarning(mlDqmClient_)
+	  << "[PedestalsHistosUsingDb::" << __func__ << "]"
+	  << " Unable to find ticker thresholds for FED id/ch: " 
+	  << (*ifed)->getFedId() << "/"
+	  << ichan << "/"
+	  << " and device with at FEC/slot/ring/CCU/LLD channel: " 
+	  << path.fecCrate_ << "/"
 	     << path.fecSlot_ << "/"
-	     << path.fecRing_ << "/"
-	     << path.ccuAddr_ << "/"
-	     << path.ccuChan_ << "/"
-	     << path.channel()
-	     << endl;
+	  << path.fecRing_ << "/"
+	  << path.ccuAddr_ << "/"
+	  << path.ccuChan_ << "/"
+	  << path.channel();
       }
     }
   }
