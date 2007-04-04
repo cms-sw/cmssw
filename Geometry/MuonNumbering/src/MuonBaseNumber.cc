@@ -12,7 +12,7 @@ void MuonBaseNumber::addBase(LevelBaseNumber num){
 
   while (cur!=end) {
     if (num.level()==(*cur).level()) {
-      edm::LogWarning("MuonBaseNumber") << "MuonBaseNumber::addBase was asked to add "
+      edm::LogInfo("MuonBaseNumber") << "MuonBaseNumber::addBase was asked to add "
 	   <<num.level()<<" "
 	   <<num.super()<<" "
 	   <<num.base()
