@@ -3,7 +3,7 @@
 /**   \Class DTSectCollThCand.h
  *    A Trigger Server Theta Candidate
  *
- *   $Date: 2007/02/09 11:24:33 $
+ *   $Date: 2007/03/09 15:17:40 $
  *  
  *
  *   \Author C. Battilana
@@ -16,7 +16,7 @@
 //----------------------
 // Base Class Headers --
 //----------------------
-#include "L1Trigger/DTSectorCollector/interface/DTConfigSectColl.h"
+#include "L1TriggerConfig/DTTPGConfig/interface/DTConfigSectColl.h"
 #include "L1Trigger/DTSectorCollector/interface/DTSC.h"
 #include "L1Trigger/DTTriggerServerTheta/interface/DTChambThSegm.h"
 

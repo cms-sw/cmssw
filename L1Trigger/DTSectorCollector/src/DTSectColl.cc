@@ -11,6 +11,7 @@
 //   11/11/06 C. Battilana : CoarseSync and Theta included 
 //   11/12/06 C. Battilana : New Sector Collector Definition
 //   09/01/07 C. Battilana : moved to local conf
+//   mar07 - S. Vanini : parameters from DTConfigManager 
 //
 //
 //--------------------------------------------------
@@ -24,7 +25,7 @@
 //-------------------------------
 // Collaborating Class Headers --
 //-------------------------------
-#include "L1Trigger/DTSectorCollector/interface/DTConfigSectColl.h"
+#include "L1TriggerConfig/DTTPGConfig/interface/DTConfigSectColl.h"
 #include "L1Trigger/DTSectorCollector/interface/DTSC.h"
 #include "L1Trigger/DTSectorCollector/interface/DTSectCollThCand.h"
 #include "L1Trigger/DTSectorCollector/interface/DTSectCollPhCand.h"
@@ -44,9 +45,10 @@
 // Constructors --
 //----------------
 
-DTSectColl::DTSectColl(edm::ParameterSet& sc_pset) {
+DTSectColl::DTSectColl(const DTConfigManager * _conf_manager, DTSectCollId id) : _sectcollid(id){
 
-  _config = new DTConfigSectColl(sc_pset);
+
+  _config = _conf_manager->getDTConfigSectColl(_sectcollid);
   
   // create SC Chips
   for(int istat=0;istat<4;istat++){
@@ -70,7 +72,7 @@ DTSectColl::~DTSectColl(){
     }
   }
 
-  delete _config;
+  //delete _config;
 
 }
 

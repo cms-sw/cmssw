@@ -4,8 +4,8 @@
  *     Steering routine for L1 trigger simulation in a muon barrel station
  *
  *
- *   $Date: 2007/02/09 11:26:18 $
- *   $Revision: 1.3 $
+ *   $Date: 2007/03/09 15:17:42 $
+ *   $Revision: 1.4 $
  *
  *   \author C.Grandi
  */
@@ -28,7 +28,7 @@
 #include "DataFormats/MuonDetId/interface/DTLayerId.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 #include "DataFormats/DTDigi/interface/DTDigiCollection.h"
-#include "L1Trigger//DTSectorCollector/interface/DTSectCollId.h"
+#include "L1Trigger//DTUtilities/interface/DTSectCollId.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
@@ -40,6 +40,8 @@
 #include "L1Trigger/DTTriggerServerPhi/interface/DTChambPhSegm.h"
 #include "L1Trigger/DTTriggerServerTheta/interface/DTChambThSegm.h"
 #include "L1Trigger/DTSectorCollector/interface/DTSectColl.h"
+#include "L1TriggerConfig/DTTPGConfig/interface/DTConfigManager.h"
+
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 //              ---------------------
@@ -53,7 +55,7 @@ class DTTrig {
     typedef std::map< DTChamberId,DTSCTrigUnit*,std::less<DTChamberId> > TUcontainer;
     typedef TUcontainer::iterator TU_iterator;
     typedef TUcontainer::const_iterator TU_const_iterator;
-   typedef std::map< DTSectCollId,DTSectColl*,std::less<DTSectCollId> > SCcontainer;
+    typedef std::map< DTSectCollId,DTSectColl*,std::less<DTSectCollId> > SCcontainer;
     typedef SCcontainer::iterator SC_iterator;
     typedef SCcontainer::const_iterator SC_const_iterator;
     typedef std::pair<TU_iterator,TU_iterator> Range;
@@ -67,8 +69,9 @@ class DTTrig {
     //! Constructors
     /*  DTTrig(); */
     
-    DTTrig(const edm::ParameterSet& pset);
-    
+    //DTTrig(const edm::ParameterSet& pset);
+    DTTrig(const DTConfigManager * conf);
+
     //! Destructor
     ~DTTrig();
     
@@ -233,10 +236,11 @@ class DTTrig {
  
   private:
 
-    TUcontainer _cache;       // Trigger units
-    SCcontainer _cache1;      // Sector Collector units
-    edm::ParameterSet _conf_pset;    // Configuration Pset
-    bool _debug;                     // Debug flag
+    TUcontainer _cache;       		// Trigger units
+    SCcontainer _cache1;      		// Sector Collector units
+    //edm::ParameterSet _conf_pset;    	// Configuration Pset
+    const DTConfigManager * _conf_manager;    // Configuration Manager class pointer 
+    bool _debug;                     	// Debug flag
 };
 
 #endif

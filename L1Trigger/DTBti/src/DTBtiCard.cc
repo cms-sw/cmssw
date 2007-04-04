@@ -12,7 +12,8 @@
 //   22/VI/04 SV: last trigger code update - digi offset subtracted from digi time
 //   III/05 SV  : NEWGEO : trigger in new geometry ! 
 //   05/II/07 SV : new DTConfig update 
-//--------------------------------------------------
+//   30/III/07 SV : config with DTConfigManager every single chip
+//----------------------------------------------------------------
 
 //-----------------------
 // This Class's Header --
@@ -56,11 +57,17 @@ using namespace edm;
 // Constructors --
 //----------------
 
-DTBtiCard::DTBtiCard(DTTrigGeom* geom,edm::ParameterSet& bti_pset) : DTGeomSupplier(geom) {
+DTBtiCard::DTBtiCard(DTTrigGeom* geom, const DTConfigManager * _conf_manager) : DTGeomSupplier(geom) {
 
-        _configBti = new DTConfigBti(bti_pset);
+        //_configBti = new DTConfigBti(bti_pset);
 	//_configBti->print();
 
+	DTChamberId sid = ChamberId();
+	_conf_bti_map = _conf_manager->getDTConfigBtiMap(sid);	
+	_debug = _conf_manager->getDTTPGDebug();
+
+	_finedelay   = _conf_manager->getDTConfigTrigUnit(sid)->MCSetupTime();
+  	_MCdelay     = _conf_manager->getDTConfigTrigUnit(sid)->MCDigiOffset();
 }
 
 //--------------
@@ -69,8 +76,8 @@ DTBtiCard::DTBtiCard(DTTrigGeom* geom,edm::ParameterSet& bti_pset) : DTGeomSuppl
 
 DTBtiCard::~DTBtiCard(){
 
-  delete _configBti;
-
+  //delete _conf_Bti;
+  
 }
 
 //--------------
@@ -119,7 +126,7 @@ DTBtiCard::localClear(){
 
 //   if(ndigis){
 
-//     if(config()->debug()>0){
+//     if(debug()){
 //       std::cout << "====================================================" << std::endl;
 //       std::cout <<  ndigis << " DIGIS in  wheel " << wheel() << 
 //               " station " << station() <<
@@ -170,7 +177,7 @@ DTBtiCard::localClear(){
 //       DTDigi* pdigi = new DTDigi(idwire,tdrift);
 //       _digis.push_back(const_cast<DTDigi*>(pdigi));
 
-//       if(config()->debug()>0)
+//       if(debug())
 //         pdigi->print();
 
 //       int sln = pdigi->slayer();
@@ -183,7 +190,7 @@ DTBtiCard::localClear(){
 //       // assign ch numbers to btis: depends on layer staggering!
 //       int nbti = nch + geom()->layerFEStaggering(sln,layn);
 
-//       if(config()->debug()==3){
+//       if(debug()){
 //         std::cout << "FE ch " << nch;
 //         std::cout << " of bti " << nbti;
 //         std::cout << " staggering " <<  geom()->layerFEStaggering(sln,layn);
@@ -212,7 +219,7 @@ DTBtiCard::localClear(){
 //       }
 //     }//end loop on digi
 
-//     if(config()->debug()>0)
+//     if(debug())
 //       std::cout << "====================================================" << std::endl;
 
 //   }//end if(ndigis)
@@ -222,13 +229,8 @@ void
 DTBtiCard::loadBTI(const DTDigiCollection dtDigis) {
   
   localClear();
-  //double ftdelay = config()->FTStep()*config()->FTStepW();
-  //double delay   = config()->SyncDelay();
-  double finedelay   = config()->MCSetupTime();
-  double MCdelay   = config()->MCDigiOffset();
 
-
-  if(config()->debug()>2){
+  if(debug()){
     std::cout << "DTBtiCard::loadBTI called for wheel=" << wheel() ;
     std::cout <<                                ", station=" << station();
     std::cout <<                                ", sector="  << sector() << std::endl;
@@ -243,7 +245,7 @@ DTBtiCard::loadBTI(const DTDigiCollection dtDigis) {
     const DTDigiCollection::Range& range = (*detUnitIt).second;
     
     // DTLayerId print-out
-    if(config()->debug()>0){
+    if(debug()){
       std::cout<<"--------------"<<std::endl;
       std::cout<<"id: "<<id;
     }
@@ -253,34 +255,43 @@ DTBtiCard::loadBTI(const DTDigiCollection dtDigis) {
 	 digiIt!=range.second;
 	 ++digiIt){
       if((*digiIt).time()<1000 &&(*digiIt).time()>0){
-	if(config()->debug()>0) (*digiIt).print();
-	float tdrift = (*digiIt).time() - MCdelay + finedelay; //-1.0*theSync->emulatorOffset(&idwire); // CB Up to now the offset is read from .cfg file 07/09/06
+	if(debug()) 
+		(*digiIt).print();
 
-//      std::cout<<"tdrift "<< tdrift << " (*digiIt).wire() " << (*digiIt).wire() << std::endl;
-
-	DTDigi* pdigi = new DTDigi((*digiIt).wire(),tdrift);
-	_digis.push_back(const_cast<DTDigi*>(pdigi) );
-	
+	// get bti number for access to the configuration for this bti chip : SV
+        // FIX: for the moment take first bti configuration!!!!! ok fixed
 	DTSuperLayerId slnum = id.superlayerId();
-	//					  DTChamberId dtcham =id.chamberId();
+	//DTChamberId dtcham =id.chamberId();
 	int sln = slnum.superlayer();
 	int layn = id.layer();
-	int tube = pdigi->wire();
-// map in FE channel number: SL theta tubes are numbered inversely w.r.t. hardware setup in new geometry 19/06/06
-// assign ch numbers to btis: in new geometry does not depend on layer staggering anymore! Same staggering anywhere.
+	int tube = (*digiIt).wire();
+
+        // map in FE channel number: SL theta tubes are numbered inversely w.r.t. hardware setup in new geometry 19/06/06
+        // assign ch numbers to btis: in new geometry does not depend on layer staggering anymore! Same staggering anywhere.
 	//int nch = geom()->mapTubeInFEch(sln,layn,tube);
 	//	int nbti = nch + geom()->layerFEStaggering(sln,layn);
 	
 	int nch = geom()->mapTubeInFEch(sln,layn,tube);
 	int nbti = nch ; 
-	
-	if(config()->debug()>2){
+
+	if(debug()){
 	  std::cout << "FE ch " << nch;
 	  std::cout << " of bti " << nbti;
 //	  std::cout << " staggering " <<  geom()->layerFEStaggering(sln,layn);
-	  std::cout << " now nbti is " << nch;
+	  std::cout << " now nbti is " << nch <<  std::endl;
 //	  std::cout << " SL phi offset " << geom()->phiSLOffset() << std::endl; 
 	}
+        
+  	// FIXED get configuration for the nbti chip Identifier, and from it MCdelay + finedelay
+  	//DTChamberId sid = geom()->statId();
+  	//DTBtiId _id = DTBtiId(sid, sln, nbti);
+ 
+	float tdrift = (*digiIt).time() - _MCdelay + _finedelay; 
+//      std::cout<<"tdrift "<< tdrift << " (*digiIt).wire() " << (*digiIt).wire() << std::endl;
+
+	DTDigi* pdigi = new DTDigi((*digiIt).wire(),tdrift);
+	_digis.push_back(const_cast<DTDigi*>(pdigi) );
+	
 	
 	switch(layn) {
 	case 1:
@@ -313,7 +324,7 @@ DTBtiCard::runBTI() {
 
   int nbtisig = _btimap[0].size()+_btimap[1].size()+_btimap[2].size();
 
-  if(config()->debug()==3){
+  if(debug()){
     std::cout << "DTBtiCard::runBTI called for wheel=" << wheel() ;
     std::cout <<                               ", station=" << station();
     std::cout <<                               ", sector="  << sector();
@@ -323,7 +334,7 @@ DTBtiCard::runBTI() {
 
   if( nbtisig){
 
-    if(config()->debug()>0){
+    if(debug()){
       std::cout << "====================================================" << std::endl;
       std::cout << "              BTI triggers                          " << std::endl; 
     }
@@ -348,7 +359,7 @@ DTBtiCard::runBTI() {
       }
     }
 
-    if(config()->debug()>0)
+    if(debug())
       std::cout << "====================================================" << std::endl;
   }//end if(nbtisig)
 }
@@ -356,25 +367,10 @@ DTBtiCard::runBTI() {
 DTBtiChip* 
 DTBtiCard::activeGetBTI(int sl, int n){
 
-  if(config()->debug()==3){
-    std::cout << "DTBtiCard::activeGetBTI :";
-    std::cout << " bti number: " << n << std::endl;
-  }
-
   DTBtiChip* bti=0;
-  if( sl<1 || sl>3){
-    if(config()->debug()>1){
-      std::cout << "DTBtiCard::activeGetBTI :";
-      std::cout << " invalid superlayer number: " << sl;
-      std::cout << " dummy BTI returned!" << std::endl;
-    }
-    sl = 1;
-    n = 999;
-    return bti; 
-  }
-
+  //check if BTi is out of range before all
   if( n<1 || n>geom()->nCell(sl) ){
-    if(config()->debug()>1){
+    if(debug()){
       std::cout << "DTBtiCard::activeGetBTI :";
       std::cout << " invalid bti number: " << n;
       std::cout << " not in range [1," << geom()->nCell(sl) << "]";
@@ -385,11 +381,34 @@ DTBtiCard::activeGetBTI(int sl, int n){
     return bti;
   }
 
+  // get configuration for this chip Identifier
+  DTChamberId sid = geom()->statId();
+  DTBtiId _id = DTBtiId(sid, sl, n); 
+
+  //debug this chip
+  int _debug_bti = config_bti(_id)->debug();
+
+  if(_debug_bti==3){
+    std::cout << "DTBtiCard::activeGetBTI :";
+    std::cout << " bti number: " << n << std::endl;
+  }
+
+  if( sl<1 || sl>3){
+    if(_debug_bti>1){
+      std::cout << "DTBtiCard::activeGetBTI :";
+      std::cout << " invalid superlayer number: " << sl;
+      std::cout << " dummy BTI returned!" << std::endl;
+    }
+    sl = 1;
+    n = 999;
+    return bti; 
+  }
+
   BTI_iter pbti = _btimap[sl-1].find(n);
   if( pbti!=_btimap[sl-1].end() ) {
     bti = (*pbti).second;
   } else {
-    bti = new DTBtiChip(geom(),sl,n, _configBti);
+    bti = new DTBtiChip(geom(),sl,n, config_bti(_id));
     _btimap[sl-1][n]=bti;
   }
   return bti;
@@ -512,7 +531,9 @@ DTBtiCard::localPosition(const DTTrigData* tr) const {
   //trigger position in the BTI frame
   float xt = 0;
   float yt = 0;
-  float xtrig = (float)trig->X() * geom()->cellPitch() / (config()->ST());
+
+  DTBtiId _btiid = trig->parentId();
+  float xtrig = (float)trig->X() * geom()->cellPitch() / (config_bti(_btiid)->ST());
   if(trig->btiSL()==2) 
     yt = - xtrig;
   else
@@ -524,7 +545,9 @@ DTBtiCard::localPosition(const DTTrigData* tr) const {
 //       yt = - yt;
 //   }
 
-  if(config()->debug()==3){
+
+
+  if(debug()){
     std::cout << "DTBtiCard::localPosition of BTI in ("<<x<<","<<y<<","<<z<<")"<<std::endl;
     std::cout << " called for trig "; 
     trig->print(); 
@@ -549,8 +572,9 @@ DTBtiCard::localDirection(const DTTrigData* tr) const {
   //int FE = geom()->posFE(trig->parentId().superlayer());
 
   // psi in BTI frame
-  float psi = atan((float)(trig->K()-config()->ST())*geom()->cellPitch()
-                   /(2*geom()->cellH()*config()->ST()));
+  DTBtiId _btiid = trig->parentId();
+  float psi = atan((float)(trig->K() - config_bti(_btiid)->ST())*geom()->cellPitch()
+                   /(2*geom()->cellH() * config_bti(_btiid)->ST()));
   // (xd,yd,zd) in chamber frame
   float xd=0;
   float yd=0;
@@ -566,7 +590,7 @@ DTBtiCard::localDirection(const DTTrigData* tr) const {
 //       yd = - yd;
 //  }
 
-  if(config()->debug()==3){
+  if(debug()){
     //BTI position in chamber frame
     float xb = geom()->localPosition(trig->parentId()).x();
     float yb = geom()->localPosition(trig->parentId()).y();
@@ -609,3 +633,22 @@ DTBtiCard::localDirection(const DTTrigData* tr) const {
   return LocalVector(x,y,z);
 }
 */
+
+DTConfigBti* 
+DTBtiCard::config_bti(DTBtiId& btiid) const 
+{
+  //loop on map to find bti
+  ConfBtiMap::const_iterator biter = _conf_bti_map.find(btiid);
+  if (biter == _conf_bti_map.end()){
+    std::cout << "DTBtiCard::config_bti : BTI (" << btiid.wheel()
+	      << "," << btiid.sector()
+	      << "," << btiid.station()
+	      << "," << btiid.superlayer()
+	      << "," << btiid.bti()
+	      << ") not found, return 0" << std::endl;
+    return 0;
+  }
+
+  return (*biter).second;
+
+}

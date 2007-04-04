@@ -13,6 +13,7 @@
 //           param: tsmgetcarryflag - value: 1 (default)
 //   feb04 - Implementation of sector collector related stuff(S. Marcellini)
 //   jan07 - C. Battilana local conf update
+//   mar07 - S. Vanini : parameters from DTConfigManager 
 //
 //--------------------------------------------------
 
@@ -40,10 +41,12 @@
 //----------------
 // Constructors --
 //----------------
-DTTSPhi::DTTSPhi(DTTrigGeom* geom, DTTracoCard* tracocard, edm::ParameterSet& tsp_pset) : 
+DTTSPhi::DTTSPhi(DTTrigGeom* geom, DTTracoCard* tracocard, const DTConfigManager * _conf_manager) : 
                                DTGeomSupplier(geom), _tracocard(tracocard){
 
-  _config = new DTConfigTSPhi(tsp_pset);
+
+  DTChamberId sid = ChamberId();
+  _config = _conf_manager->getDTConfigTSPhi(sid);
 
   // reserve the appropriate amount of space for vectors
   int i=0;
@@ -93,7 +96,7 @@ DTTSPhi::~DTTSPhi(){
   
   localClear();
   
-  delete _config;
+  //delete _config;
 
 }
 

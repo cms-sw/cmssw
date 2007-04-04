@@ -1,4 +1,4 @@
-//-------------------------------------------------
+//-------------------------------------------------------------
 //
 //   Class: DTTracoChip
 //
@@ -11,8 +11,9 @@
 //   Modifications: 
 //   22/VI/04 SV : last trigger code update
 //   16/I/07  SV : new DTConfig update
+//   3/IV/07  SV : setTracoAcceptance moved from card to chip
 //
-//--------------------------------------------------
+//------------------------------------------------------------
 
 //-----------------------
 // This Class's Header --
@@ -28,7 +29,7 @@
 #include "L1Trigger/DTTraco/interface/DTTracoTrigData.h"
 #include "L1Trigger/DTTriggerServerTheta/interface/DTTSTheta.h"
 #include "L1Trigger/DTTraco/interface/DTTracoCand.h"
-#include "L1Trigger/DTUtilities/interface/DTConfig.h"
+//#include "L1TriggerConfig/DTTPGConfig/interface/DTConfig.h" CB rimuovere se nn serve!!!!!
 #include "L1Trigger/DTUtilities/interface/BitArray.h"
 
 //---------------
@@ -51,6 +52,9 @@ DTTracoChip::DTTracoChip(DTTracoCard* card, int n, DTConfigTraco* conf) :
   if(config()->debug()==4){
     std::cout << "DTTracoChip constructor called for TRACO number " << n << std::endl;
   }
+
+  // set acceptances for this traco
+  setTracoAcceptances();
 
   // reserve the appropriate amount of space for vectors
   int i=0;
@@ -320,16 +324,17 @@ DTTracoChip::run() {
       // SV 24/IX/03 : AND suppression of LTRIG close to H in adiacent Traco
       // SV 31/III/03 : test : only if htprf is off--> NO, it's worse
       // if( config()->prefHtrig(0) && config()->prefHtrig(1) ){
-        if(inner) 
+        if(inner){
           DoAdjBtiLts( inner, _innerCand[is-DTConfigTraco::NSTEPF] );
-        if(outer) 
+        }
+        if(outer){
           DoAdjBtiLts( outer, _outerCand[is-DTConfigTraco::NSTEPF] );
+        }
       //}
 
       // set candidates unusable by further steps
       if(inner)inner->setUsed(); 
       if(outer)outer->setUsed(); 
-
       // Create a new TRACO trigger with preview for TS
       DTTracoTrig* tct = setPV(itk,inner,outer);
 
@@ -782,6 +787,7 @@ DTTracoChip::storeUncorr(DTTracoTrig* tctrig, DTTracoCand* inner, DTTracoCand* o
     if(outer)outer->print();
     std::cout << "--------------------------------------------------" << std::endl;
   }
+
   // End debugging
   // priority selector 
   // select which of the inner/outer segments should be used
@@ -857,7 +863,6 @@ DTTracoChip::storeUncorr(DTTracoTrig* tctrig, DTTracoCand* inner, DTTracoCand* o
       }//end theta
 
     } //end else
-
     //REUSE : mark candidates reusable HERE! SV BUG FIX 6IV04
     if(candidate==inner && config()->TcReuse(1) && outer)
       outer->setUnused();
@@ -989,11 +994,11 @@ DTTracoChip::add_btiT(int step, int pos, const DTBtiTrigData* btitrig) {
 
 
   // check K inside acceptance
-  if(btitrig->K()<_card->psimin(pos) || btitrig->K()>_card->psimax(pos) ) {
+  if(btitrig->K()<_PSIMIN[pos-1] || btitrig->K()>_PSIMAX[pos-1] ) {
     if(config()->debug()>1){
       std::cout << "In TRACO num. " << number() << " BTI trig. in pos " << pos << " outside K acceptance (";
-      std::cout << _card->psimin(pos) << "-->";
-      std::cout << _card->psimax(pos) << ") - Not added" << std::endl;
+      std::cout << _PSIMIN[pos-1] << "-->";
+      std::cout << _PSIMAX[pos-1] << ") - Not added" << std::endl;
     }
     return;
   }
@@ -1307,5 +1312,55 @@ DTTracoChip::insideAngWindow(DTTracoTrig* tctrig) const {
 }
 
  
+void 
+DTTracoChip::setTracoAcceptances()
+{  
+  // Set K acceptances of DTTracoChip MT ports: Ktraco = Xinner - Xouter 
+  float h = _geom->cellH();
+  float pitch = _geom->cellPitch();
+  float distsl = _geom->distSL();
+  float K0 = config()->BTIC();
+  float shiftSL = _geom->phiSLOffset() / pitch * K0;
+
+  // mt  ports from orca geometry: this is always the case with new DTConfig
+  //if(config_traco(tracoid)->trigSetupGeom() != 1){
+  {
+    // Master Plane
+    int i = 0;
+    for(i=0;i<DTConfig::NBTITC;i++){
+      float Xin_min     =  (i + DTConfig::NBTITC) * K0 + shiftSL;
+      float Xin_max     =  Xin_min + K0;
+      float Xout_min    =  0;
+      float Xout_max    =  3 * DTConfig::NBTITC * K0;
+      _PSIMAX[i]  =  int( 2.*h/distsl * (Xin_max - Xout_min) + K0 + 1.01 );
+      _PSIMIN[i]  =  int( 2.*h/distsl * (Xin_min - Xout_max) + K0 );
+    }
+
+    // Slave Plane
+    for(i=0;i<3*DTConfig::NBTITC;i++){
+      float Xin_min     =  (DTConfig::NBTITC) * K0 + shiftSL;
+      float Xin_max     =  2. * DTConfig::NBTITC * K0 + shiftSL;
+      float Xout_min    =  i * K0;
+      float Xout_max    =  Xout_min + K0;
+      _PSIMAX[DTConfig::NBTITC+i]  =  int( 2.*h/distsl * (Xin_max - Xout_min) + K0 + 1.01 );
+      _PSIMIN[DTConfig::NBTITC+i]  =  int( 2.*h/distsl * (Xin_min - Xout_max) + K0 );
+    }
+  }
+
+
+  // debugging
+  if(config()->debug()==4){
+    //if(wheel()==2&&station()==3&&sector()==1){ // only 1 chamber
+      std::cout << "Acceptance of mt ports for offset (cell unit) " 
+           << _geom->phiSLOffset() / pitch << std::endl;
+      for(int i=0;i<4*DTConfig::NBTITC;i++){
+        std::cout << "Port " << i+1 << " : ";
+        std::cout << _PSIMIN[i] << " --> " << _PSIMAX[i] << std::endl;
+      }
+    //}
+  }// end debugging
+
+}
+
 
 

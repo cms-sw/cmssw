@@ -10,6 +10,7 @@
 //   Modifications: 
 //   III/2005 : Sara Vanini NEWGEO update
 //   I/2007 : Carlo Battilana Config class update
+//   mar07 - S. Vanini : parameters from DTConfigManager 
 //
 //--------------------------------------------------
 
@@ -33,10 +34,11 @@
 //----------------
 // Constructors --
 //----------------
-DTTSTheta::DTTSTheta(DTTrigGeom* geom, DTBtiCard* bticard, edm::ParameterSet& tst_pset) : 
+DTTSTheta::DTTSTheta(DTTrigGeom* geom, DTBtiCard* bticard, const DTConfigManager * _conf_manager) : 
                                  DTGeomSupplier(geom),  _bticard(bticard) {
 
-  _config = new DTConfigTSTheta(tst_pset);
+  DTChamberId sid = ChamberId();
+  _config = _conf_manager->getDTConfigTSTheta(sid);
 
   for(int i=0;i<DTConfigTSTheta::NSTEPL-DTConfigTSTheta::NSTEPF+1;i++){
     _trig[i].zero();
@@ -52,7 +54,7 @@ DTTSTheta::DTTSTheta(DTTrigGeom* geom, DTBtiCard* bticard, edm::ParameterSet& ts
 // Destructor --
 //--------------
 DTTSTheta::~DTTSTheta(){
-  delete _config;
+  //delete _config;
 }
 
 

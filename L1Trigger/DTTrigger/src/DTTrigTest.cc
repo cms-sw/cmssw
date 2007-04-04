@@ -7,8 +7,8 @@
  *   studies
  *
  *
- *   $Date: 2006/10/13 10:56:14 $
- *   $Revision: 1.2 $
+ *   $Date: 2007/02/09 11:26:19 $
+ *   $Revision: 1.3 $
  *
  *   \author C. Battilana
  */
@@ -18,6 +18,12 @@
 // This class's header
 #include "L1Trigger/DTTrigger/interface/DTTrigTest.h"
 
+// Framework related classes
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+
+#include "L1TriggerConfig/DTTPGConfig/interface/DTConfigManager.h"
+#include "L1TriggerConfig/DTTPGConfig/interface/DTConfigManagerRcd.h"
 
 // Trigger and DataFormats headers
 #include "L1Trigger/DTSectorCollector/interface/DTSectCollPhSegm.h"
@@ -46,13 +52,14 @@ const double DTTrigTest::my_TtoTDC = 32./25.;
 
 DTTrigTest::DTTrigTest(const ParameterSet& pset){ 
 
-  my_debug= pset.getUntrackedParameter<bool>("debug");
+  //SV obsolete, now configuration is read from EventSetup
+  //my_debug= pset.getUntrackedParameter<bool>("debug");
   string outputfile = pset.getUntrackedParameter<string>("outputFileName");
-  if (my_debug) 
-    cout << "[DTTrigTest] Creating rootfile " <<  outputfile <<endl;
+  //if (my_debug) 
+  //  cout << "[DTTrigTest] Creating rootfile " <<  outputfile <<endl;
   my_rootfile = new TFile(outputfile.c_str(),"RECREATE");
   my_tree = new TTree("h1","GMT",0);
-  my_trig = new DTTrig(pset.getParameter<ParameterSet>("DTTPGParameters"));
+  //my_trig = new DTTrig(pset.getParameter<ParameterSet>("DTTPGParameters"));
 
 //   bool globaldelay = pset.getUntrackedParameter<bool>("globalSync");
 //   double syncdelay = pset.getUntrackedParameter<double>("syncDelay");
@@ -100,6 +107,18 @@ void DTTrigTest::endJob(){
 
 void DTTrigTest::beginJob(const EventSetup & iEventSetup){   
     
+  //get DTConfigManager
+  ESHandle< DTConfigManager > confManager ;
+  iEventSetup.get< DTConfigManagerRcd >().get( confManager ) ;
+
+  //for testing purpose....
+  //DTBtiId btiid(1,1,1,1,1);
+  //confManager->getDTConfigBti(btiid)->print();
+
+  my_debug= confManager->getDTTPGDebug();
+
+  my_trig = new DTTrig(confManager.product());
+
   my_trig->createTUs(iEventSetup);
   if (my_debug ) 
     cout << "[DTTrigTest] TU's Created" << endl;

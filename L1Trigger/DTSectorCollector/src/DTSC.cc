@@ -24,7 +24,7 @@
 //-------------------------------
 // Collaborating Class Headers --
 //-------------------------------
-#include "L1Trigger/DTSectorCollector/interface/DTConfigSectColl.h"
+#include "L1TriggerConfig/DTTPGConfig/interface/DTConfigSectColl.h"
 #include "L1Trigger/DTSectorCollector/interface/DTSectColl.h"
 #include "L1Trigger/DTSectorCollector/interface/DTSectCollPhCand.h"
 #include "L1Trigger/DTSectorCollector/interface/DTSectCollThCand.h"

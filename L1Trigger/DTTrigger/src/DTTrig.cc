@@ -11,12 +11,15 @@
 //   Modifications: 
 //   S Vanini, S. Marcellini, D. Bonacorsi,  C.Battilana
 //
-//--------------------------------------------------
+//   07/03/30 : configuration now through DTConfigManager SV
+//-------------------------------------------------------
 
 //-----------------------
 // This Class's Header --
 //-----------------------
 #include "L1Trigger/DTTrigger/interface/DTTrig.h"
+#include "L1TriggerConfig/DTTPGConfig/interface/DTConfigManager.h"
+
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -44,12 +47,12 @@
 // DTTrig::DTTrig()
 
 
-DTTrig::DTTrig(const edm::ParameterSet& pset) :
-_conf_pset(pset) {
+DTTrig::DTTrig(const DTConfigManager * conf) :
+_conf_manager(conf) {
 
 
   // Set configuration parameters
-  _debug = pset.getUntrackedParameter<bool>("Debug");
+  _debug = _conf_manager->getDTTPGDebug();
 
   if(_debug){
     std::cout << std::endl;
@@ -86,9 +89,11 @@ DTTrig::createTUs(const edm::EventSetup& iSetup ){
       }    
       // add a sector collector to the map
 //       SCConf_iterator scit = _scconf.find(scid);
-      edm::ParameterSet sc_pset = _conf_pset.getParameter<edm::ParameterSet>("SectCollParameters");
+      //edm::ParameterSet sc_pset = _conf_pset.getParameter<edm::ParameterSet>("SectCollParameters");
       DTSectColl* sc;
-      sc = new DTSectColl(sc_pset);
+      //sc = new DTSectColl(sc_pset);
+      sc = new DTSectColl(_conf_manager,scid);
+
       //  if ( scit != _scconf.end()){
       // 	sc = new DTSectColl( (*scit).second);
       //       }
@@ -126,8 +131,9 @@ DTTrig::createTUs(const edm::EventSetup& iSetup ){
     //       }
 
     // add a trigger unit to the map with a link to the station
-    edm::ParameterSet tu_pset = _conf_pset.getParameter<edm::ParameterSet>("TUParameters");
-    DTSCTrigUnit* tru = new DTSCTrigUnit(chamb,tu_pset);
+    //edm::ParameterSet tu_pset = _conf_pset.getParameter<edm::ParameterSet>("TUParameters");
+    //DTSCTrigUnit* tru = new DTSCTrigUnit(chamb,tu_pset);
+    DTSCTrigUnit* tru = new DTSCTrigUnit(chamb,_conf_manager);
     _cache[chid] = tru;
     
     //----------- add TU to corresponding SC
@@ -157,29 +163,6 @@ DTTrig::createTUs(const edm::EventSetup& iSetup ){
     }
     
   }
-  /*
-  //SV for TestBeam 2003: Chambers from DTBXSetp ddd geometry
-  // loop over chambers, superlayers and layers
-  if(_debug)
-    std::cout << "DTTrig::createTUs" << std::endl;
-  DTBXSetUp* setup = Singleton<DTBXSetUp>::instance();
-  DTDetectorMap* detMap = setup->chamberMap();
-  std::vector<DTChamber*> chambers = detMap->chambers();
-  DTDetectorMap::ChamIter stat;
-  for(stat = chambers.begin(); stat != chambers.end(); stat++){
-    DTChamberId idc = (*stat)->id();
-    TU_iterator it = _cache.find(idc);
-    if ( it != _cache.end()) {
-      std::cout << "DTTrig::init: Trigger unit already exists";
-      continue;
-    }
-    // add a trigger unit to the map with a link to the station
-    if(_debug)
-      std::cout << "Creating Trigger Unit and adding to the cache" << std::endl;
-    DTSCTrigUnit* tru = new DTSCTrigUnit((*stat), config());
-    _cache[idc] = tru;
-  }//end loop on chambers
-*/
 
 }
 

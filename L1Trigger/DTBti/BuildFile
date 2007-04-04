@@ -4,6 +4,7 @@
 <use name=FWCore/ParameterSet>
 <use name=DataFormats/DTDigi>
 <use name=Geometry/DTGeometry>
+<use name=L1TriggerConfig/DTTPGConfig>
 <use name=L1Trigger/DTUtilities>
 
 <use name=CLHEP>
@@ -14,8 +15,9 @@
    <lib name=L1TriggerDTBti>
 
    <use name=FWCore/Framework>
-   <use name=L1Trigger/DTUtilities>
    <use name=FWCore/PluginManager>
+   <use name=L1TriggerConfig/DTTPGConfig>
+   <use name=L1Trigger/DTUtilities>
    <use name=FWCore/ParameterSet>
    <use name=DataFormats/DTDigi>
    <use name=Geometry/DTGeometry>

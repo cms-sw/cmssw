@@ -4,8 +4,8 @@
  *     Main EDProducer for the DTTPG
  *
  *
- *   $Date: 2006/10/13 10:55:31 $
- *   $Revision: 1.3 $
+ *   $Date: 2007/02/09 11:26:19 $
+ *   $Revision: 1.4 $
  *
  *   \author C. Battilana
  *
@@ -17,8 +17,11 @@
 #include "L1Trigger/DTTrigger/interface/DTTrigProd.h"
 
 // Framework related classes
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
+#include "L1TriggerConfig/DTTPGConfig/interface/DTConfigManager.h"
+#include "L1TriggerConfig/DTTPGConfig/interface/DTConfigManagerRcd.h"
 
 // Data Formats classes
 #include "L1Trigger/DTSectorCollector/interface/DTSectCollPhSegm.h"
@@ -41,22 +44,53 @@ DTTrigProd::DTTrigProd(const ParameterSet& pset){
   
   produces<L1MuDTChambPhContainer>();
   produces<L1MuDTChambThContainer>();
+
+  //SV obsolete, now configuration is read from EventSetup
   my_debug = pset.getUntrackedParameter<bool>("debug");
   my_DTTFnum = pset.getParameter<bool>("DTTFSectorNumbering");
-  my_BXoffset = pset.getParameter<int>("BXOffset");
+  //my_BXoffset = pset.getParameter<int>("BXOffset");
   if (my_DTTFnum) 
     cout << "[DTTrigProd] Using DTTF Sector Numbering" << endl;
-  my_trig = new DTTrig(pset.getParameter<ParameterSet>("DTTPGParameters"));
+  //my_trig = new DTTrig(pset.getParameter<ParameterSet>("DTTPGParameters"));
 
 }
 
 DTTrigProd::~DTTrigProd(){
 
+  if (my_debug)
+    cout <<" [DTTrigProd] Deleting DTTPG class instance" <<endl;
   delete my_trig;
 
 }
 
 void DTTrigProd::beginJob(const EventSetup & iEventSetup){
+
+
+  //get DTConfigManager
+  ESHandle< DTConfigManager > confManager ;
+  iEventSetup.get< DTConfigManagerRcd >().get( confManager ) ;
+   
+//   //for testing purpose....
+//   cout << "*** DTTrigProd::begiJob : testing configuration ---> BEGIN" << endl;
+//   DTBtiId btiid(-1,1,1,1,10);
+//   //DTTracoId tracoid(-1,6,1,13);
+//   DTTracoId tracoid(1,1,1,1);
+//   DTChamberId chid(-1,3,3);
+//   DTSectCollId scid(1,1);
+//   cout <<"BtiMap & TracoMap Size for chamber (1,1,1):" << confManager->getDTConfigBtiMap(chid).size() << " " << confManager->getDTConfigTracoMap(chid).size() << endl;
+
+//   confManager->getDTConfigBti(btiid)->print();
+//   confManager->getDTConfigTraco(tracoid)->print();
+//   confManager->getDTConfigTSTheta(chid)->print();
+//   confManager->getDTConfigTSPhi(chid)->print();
+//   confManager->getDTConfigSectColl(scid)->print();
+
+//   cout << "*** DTTrigProd::beginJob : testing configuration ---> END" << endl;
+
+  //my_debug = confManager->getDTTPGDebug();
+  my_BXoffset = confManager->getBXOffset();
+
+  my_trig = new DTTrig(confManager.product());
 
   my_trig->createTUs(iEventSetup);
   if (my_debug)

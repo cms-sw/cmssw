@@ -24,7 +24,7 @@
 //-------------------------------
 // Collaborating Class Headers --
 //-------------------------------
-#include "L1Trigger/DTTraco/interface/DTConfigTraco.h"
+#include "L1TriggerConfig/DTTPGConfig/interface/DTConfigTraco.h"
 #include "L1Trigger/DTTraco/interface/DTTracoChip.h"
 #include "L1Trigger/DTBti/interface/DTBtiTrigData.h"
 

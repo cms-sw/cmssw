@@ -9,7 +9,7 @@
 //   C. Grandi
 //   Modifications:
 //   09/01/07 C. Battilana : moved to local conf
-//
+//   30/03/07 SV : configuration through DTConfigManager
 //
 //--------------------------------------------------
 
@@ -32,29 +32,31 @@
 //----------------
 // Constructors --
 //----------------
-DTSCTrigUnit::DTSCTrigUnit(DTChamber* stat, edm::ParameterSet& tu_pset) {
+DTSCTrigUnit::DTSCTrigUnit(DTChamber* stat, const DTConfigManager * _conf_manager) {
 
-  bool geom_debug = tu_pset.getUntrackedParameter<bool>("Debug");
-  edm::ParameterSet bti_conf     = tu_pset.getParameter<edm::ParameterSet>("BtiParameters");
-  edm::ParameterSet traco_conf   = tu_pset.getParameter<edm::ParameterSet>("TracoParameters");
-  edm::ParameterSet tstheta_conf = tu_pset.getParameter<edm::ParameterSet>("TSThetaParameters");
-  edm::ParameterSet tsphi_conf   = tu_pset.getParameter<edm::ParameterSet>("TSPhiParameters");
+  //bool geom_debug = tu_pset.getUntrackedParameter<bool>("Debug");
+  //edm::ParameterSet bti_conf     = tu_pset.getParameter<edm::ParameterSet>("BtiParameters");
+  //edm::ParameterSet traco_conf   = tu_pset.getParameter<edm::ParameterSet>("TracoParameters");
+  //edm::ParameterSet tstheta_conf = tu_pset.getParameter<edm::ParameterSet>("TSThetaParameters");
+  //edm::ParameterSet tsphi_conf   = tu_pset.getParameter<edm::ParameterSet>("TSPhiParameters");
+
+  DTChamberId chambid = stat->id();
+  bool geom_debug = _conf_manager->getDTConfigTrigUnit(chambid)->debug();
 
   // create the geometry from the station
   _geom = new DTTrigGeom(stat, geom_debug);
 
   // create BTI
-  _theBTIs = new DTBtiCard(_geom, bti_conf);
+  _theBTIs = new DTBtiCard(_geom, _conf_manager);
 
   // create TSTheta
-  _theTSTheta = new DTTSTheta(_geom,_theBTIs,tstheta_conf);
+  _theTSTheta = new DTTSTheta(_geom,_theBTIs, _conf_manager);
 
   // create TRACO
-  _theTRACOs = new DTTracoCard(_geom,_theBTIs,_theTSTheta, traco_conf);
+  _theTRACOs = new DTTracoCard(_geom,_theBTIs,_theTSTheta, _conf_manager);
 
   // create TSPhi
-  _theTSPhi = new DTTSPhi(_geom,_theTRACOs,tsphi_conf);
-
+  _theTSPhi = new DTTSPhi(_geom,_theTRACOs, _conf_manager);
 
 }
 

@@ -4,13 +4,14 @@
  *     Contains active L1MuDTBtiChips
  *
  *
- *   $Date: 2007/02/09 11:20:06 $
- *   $Revision: 1.2 $
+ *   $Date: 2007/03/09 15:17:39 $
+ *   $Revision: 1.3 $
  *
  *   \author C. Grandi, S. Vanini
  *
  *   Modifications:
  *   V/05 S.Vanini : modified to run with new geometry
+ *   III/07 : SV configuration with DTConfigManager 
  */
 //
 //--------------------------------------------------
@@ -32,7 +33,8 @@ class DTTrigGeom;
 #include "L1Trigger/DTUtilities/interface/DTBtiId.h"
 #include "L1Trigger/DTBti/interface/DTBtiTrigData.h"
 #include "L1Trigger/DTUtilities/interface/DTCache.h"
-#include "L1Trigger/DTBti/interface/DTConfigBti.h"
+#include "L1TriggerConfig/DTTPGConfig/interface/DTConfigBti.h"
+#include "L1TriggerConfig/DTTPGConfig/interface/DTConfigManager.h"
 
 
 //---------------
@@ -51,6 +53,8 @@ typedef std::map< int,DTBtiChip*,std::less<int> >  BTIContainer;
 typedef BTIContainer::const_iterator BTI_const_iter;
 typedef BTIContainer::iterator BTI_iter;
 
+typedef std::map<DTBtiId,DTConfigBti*> ConfBtiMap;
+
 typedef DTCache<DTBtiTrigData,std::vector<DTBtiTrigData> > BTICache;
 
 class DTBtiCard : public BTICache, public DTGeomSupplier {
@@ -58,13 +62,14 @@ class DTBtiCard : public BTICache, public DTGeomSupplier {
   public:
 
     /// Constructor
-    DTBtiCard(DTTrigGeom*,edm::ParameterSet&);
+    //DTBtiCard(DTTrigGeom*,edm::ParameterSet&);
+    DTBtiCard(DTTrigGeom *, const DTConfigManager *);
 
     /// Destructor 
     ~DTBtiCard();
 
-    /// Returns configuration
-    inline DTConfigBti* config() const { return _configBti; }
+    /// Return TU debug flag
+    inline bool debug() const {return _debug;}
 
     /// Returns the required BTI. Return 0 if it doesn't exist
     DTBtiChip* getBTI(int sl, int n) const; 
@@ -110,12 +115,20 @@ class DTBtiCard : public BTICache, public DTGeomSupplier {
     /// clear the BTI maps
     void localClear();
 
+    /// Return bti chip configuration
+    DTConfigBti* config_bti(DTBtiId& btiid) const;
+
+
   private:
 
     BTIContainer _btimap[3];
-    std::vector<DTDigi*> _digis; 
-    DTConfigBti * _configBti; 
+    ConfBtiMap _conf_bti_map;	//bti configuration map for this chamber
 
+    std::vector<DTDigi*> _digis; 
+
+    bool _debug;
+    int  _finedelay;
+    int  _MCdelay;
 };
 
 #endif

@@ -6,8 +6,8 @@
  *   Internally uses DTTracoCand to store BTI triggers
  * 
  * 
- *   $Date: 2007/02/09 11:20:49 $
- *   $Revision: 1.2 $
+ *   $Date: 2007/03/09 15:17:41 $
+ *   $Revision: 1.3 $
  * 
  *   \author S. Vanini
  */
@@ -39,10 +39,9 @@ class DTTracoTrigData;
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "L1Trigger/DTUtilities/interface/DTTracoId.h"
 #include "L1Trigger/DTTraco/interface/DTTracoLUTs.h"
-#include "L1Trigger/DTUtilities/interface/DTConfig.h"
 #include "L1Trigger/DTUtilities/interface/DTTrigGeom.h"
 #include "L1Trigger/DTUtilities/interface/BitArray.h"
-#include "L1Trigger/DTTraco/interface/DTConfigTraco.h"
+#include "L1TriggerConfig/DTTPGConfig/interface/DTConfigTraco.h"
 
 //---------------
 // C++ Headers --
@@ -164,7 +163,7 @@ class DTTracoChip {
   private:
 
     /// Get the best inner/outer candidate
-		DTTracoCand* bestCand(int itk, std::vector<DTTracoCand> & tclist);
+    DTTracoCand* bestCand(int itk, std::vector<DTTracoCand> & tclist);
 
     /// Set the preview for a trigger
     DTTracoTrig* setPV(int itk, DTTracoCand* inner, DTTracoCand* outer);
@@ -183,6 +182,9 @@ class DTTracoChip {
 
     /// Check if a trigger is inside the angular acceptance window
     int insideAngWindow(DTTracoTrig* ) const;
+
+    /// Compute traco chip acceptances
+    void setTracoAcceptances();
 
   private:
     // identification
@@ -215,8 +217,8 @@ class DTTracoChip {
     BitArray<32> _flag[DTConfigTraco::NSTEPL-DTConfigTraco::NSTEPF+1]; 
 
     // psi acceptance of correlator MT ports
-    int _PSIMIN[4*DTConfigTraco::NBTITC];
-    int _PSIMAX[4*DTConfigTraco::NBTITC];         
+    int _PSIMIN[4*DTConfig::NBTITC];
+    int _PSIMAX[4*DTConfig::NBTITC];
 
     // LUT file class
     DTTracoLUTs* _luts;

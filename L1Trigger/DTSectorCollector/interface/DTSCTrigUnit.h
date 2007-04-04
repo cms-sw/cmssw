@@ -3,8 +3,8 @@
 /**  \class  DTSCTrigUnit
  *     Muon Barrel Sector Collector Trigger Unit (Chamber trigger)
  *
- *   $Date: 2007/02/09 11:24:32 $
- *   $Revision: 1.2 $
+ *   $Date: 2007/03/09 15:17:40 $
+ *   $Revision: 1.3 $
  *
  *   \author C.Grandi, S. Marcellini
  */
@@ -26,7 +26,7 @@
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
-#include "L1Trigger/DTUtilities/interface/DTConfig.h"
+#include "L1TriggerConfig/DTTPGConfig/interface/DTConfigManager.h"
 #include "L1Trigger/DTUtilities/interface/DTTrigGeom.h"
 #include "L1Trigger/DTUtilities/interface/DTTrigData.h"
 #include "L1Trigger/DTBti/interface/DTBtiChip.h"
@@ -57,8 +57,9 @@ class DTSCTrigUnit {
   public:
 
     /// Constructor
-    DTSCTrigUnit(DTChamber* stat, edm::ParameterSet& tu_pset) ;
-  
+    //DTSCTrigUnit(DTChamber* stat, edm::ParameterSet& tu_pset) ;
+    DTSCTrigUnit(DTChamber* stat, const DTConfigManager * conf) ;  
+
     /// Destructor 
     ~DTSCTrigUnit() ;
  
@@ -148,7 +149,7 @@ class DTSCTrigUnit {
 
   private:
 
-    DTTrigGeom* _geom;         // Pointer to the geometry
+    DTTrigGeom* _geom;         		// Pointer to the geometry
   
     // Containers for DTBtiChip, DTTracoChip and TS 
     DTBtiCard* _theBTIs;

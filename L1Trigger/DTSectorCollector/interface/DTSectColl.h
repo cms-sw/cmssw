@@ -5,7 +5,7 @@
  *
  *
  *
- *    $Date: 2007/02/09 11:24:32 $
+ *    $Date: 2007/03/09 15:17:40 $
  *
  *    \author D. Bonacorsi, S. Marcellini
  */
@@ -31,14 +31,15 @@ class DTSCTrigUnit;
 //----------------------
 // Base Class Headers --
 //----------------------
-
 #include "L1Trigger/DTUtilities/interface/DTCache.h"
 #include "L1Trigger/DTSectorCollector/interface/DTSectCollPhCand.h"
 #include "L1Trigger/DTSectorCollector/interface/DTSectCollThCand.h"
 #include "L1Trigger/DTSectorCollector/interface/DTSectCollPhSegm.h"
 #include "L1Trigger/DTSectorCollector/interface/DTSectCollThSegm.h"
-#include "L1Trigger/DTSectorCollector/interface/DTSectCollId.h"
+#include "L1Trigger/DTUtilities/interface/DTSectCollId.h"
+#include "L1TriggerConfig/DTTPGConfig/interface/DTConfigManager.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+
 //---------------
 // C++ Headers --
 //---------------
@@ -58,8 +59,9 @@ class DTSectColl : public DTSCPhCache, public DTSCThCache  {
  public:
 
   //!  Constructor
-  DTSectColl(edm::ParameterSet& sc_pset);
-
+  //DTSectColl(edm::ParameterSet& sc_pset);
+  DTSectColl(const DTConfigManager * _conf_manager, DTSectCollId id);
+  
   //!  Destructor 
   ~DTSectColl();
 
