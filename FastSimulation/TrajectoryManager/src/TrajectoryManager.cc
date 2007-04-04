@@ -40,8 +40,6 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-using namespace std;
-
 TrajectoryManager::TrajectoryManager(FSimEvent* aSimEvent, 
 				     const edm::ParameterSet& matEff,
 				     const edm::ParameterSet& simHits,
@@ -76,8 +74,8 @@ TrajectoryManager::TrajectoryManager(FSimEvent* aSimEvent,
   // Only if pT>pTmin are the hits saved
   pTmin = simHits.getUntrackedParameter<double>("pTmin",0.5);
 
-  thePSimHits = new vector<PSimHit>();
-  thePSimHits->reserve(200000);
+  //  thePSimHits = new vector<PSimHit>();
+  //  thePSimHits->reserve(200000);
 
   // Get the Famos Histos pointer
   myHistos = Histos::instance();
@@ -117,7 +115,7 @@ TrajectoryManager::~TrajectoryManager() {
   if ( _theGeometry ) delete _theGeometry;
   if ( myDecayEngine ) delete myDecayEngine;
   if ( theMaterialEffects ) delete theMaterialEffects;
-  if ( thePSimHits ) delete thePSimHits;
+  //  if ( thePSimHits ) delete thePSimHits;
   //Write the histograms
   //myHistos->put("histos.root");
   if ( myHistos ) delete myHistos;
@@ -129,7 +127,8 @@ TrajectoryManager::reconstruct()
 {
 
   // Clear the hits of the previous event
-  thePSimHits->clear();
+  //  thePSimHits->clear();
+  thePSimHits.clear();
 
   // The new event
   HepLorentzVector myBeamPipe = HepLorentzVector(0.,25., 9999999.,0.);
@@ -249,7 +248,7 @@ TrajectoryManager::reconstruct()
 	    // Return one or two (for overlap regions) PSimHits in the full 
 	    // tracker geometry
 	    if ( theGeomTracker ) 
-	      createPSimHits(*cyliter, P_before, PP, fsimi,myTrack.type());
+	      createPSimHits(*cyliter, P_before, PP, thePSimHits[fsimi], fsimi,myTrack.type());
 
 	  }
 	}
@@ -425,8 +424,9 @@ TrajectoryManager::updateWithDaughters(ParticlePropagator& PP, int fsimi) {
 
 void
 TrajectoryManager::createPSimHits(const TrackerLayer& layer,
-				  ParticlePropagator& P_before,
-				  ParticlePropagator& P_after,
+				  const ParticlePropagator& P_before,
+				  const ParticlePropagator& P_after,
+				  std::map<double,PSimHit>& theHitMap,
 				  int trackID, int partID) {
 
   //  float eloss = (P_before.momentum().e()-P_after.momentum().e());
@@ -452,10 +452,11 @@ TrajectoryManager::createPSimHits(const TrackerLayer& layer,
     = tkLayer->compatibleDets( trajState, alongProp, est);
 
   // And create the corresponding PSimHits
+  std::map<double,PSimHit> theTrackHits;
   for (std::vector<DetWithState>::const_iterator i=compat.begin(); i!=compat.end(); i++) {
-    makePSimHits( i->first, i->second, *thePSimHits, trackID, eloss, partID);
+    //    makePSimHits( i->first, i->second, *thePSimHits, trackID, eloss, partID);
+    makePSimHits( i->first, i->second, theHitMap, trackID, eloss, partID);
   }
-
 }
 
 TrajectoryStateOnSurface 
@@ -473,24 +474,31 @@ TrajectoryManager::makeTrajectoryState( const DetLayer* layer,
 void 
 TrajectoryManager::makePSimHits( const GeomDet* det, 
 				 const TrajectoryStateOnSurface& ts,
-				 std::vector<PSimHit>& result, int tkID, 
-				 float el, int pID) const
+				 std::map<double,PSimHit>& theHitMap,
+				 int tkID, float el, int pID ) 
 {
+
   std::vector< const GeomDet*> comp = det->components();
   if (!comp.empty()) {
     for (std::vector< const GeomDet*>::const_iterator i = comp.begin();
 	 i != comp.end(); i++) {
       const GeomDetUnit* du = dynamic_cast<const GeomDetUnit*>(*i);
-      if (du != 0) result.push_back( makeSinglePSimHit( *du, ts, tkID, el, pID));
+      if (du != 0)
+	// result.push_back( makeSinglePSimHit( *du, ts, tkID, el, pID));
+	theHitMap.insert(theHitMap.end(),makeSinglePSimHit( *du, ts, tkID, el, pID));    
     }
   }
   else {
     const GeomDetUnit* du = dynamic_cast<const GeomDetUnit*>(det);
-    if (du != 0) result.push_back( makeSinglePSimHit( *du, ts, tkID, el, pID));
+    if (du != 0)
+      // result.push_back( makeSinglePSimHit( *du, ts, tkID, el, pID));
+      theHitMap.insert(theHitMap.end(),makeSinglePSimHit( *du, ts, tkID, el, pID));
   }
+
+
 }
 
-PSimHit 
+std::pair<double,PSimHit> 
 TrajectoryManager::makeSinglePSimHit( const GeomDetUnit& det,
 				      const TrajectoryStateOnSurface& ts, 
 				      int tkID, float el, int pID) const
@@ -511,7 +519,7 @@ TrajectoryManager::makeSinglePSimHit( const GeomDetUnit& det,
     std::pair<bool,double> path = crossing.pathLength(det.surface());
     if (!path.first) {
       edm::LogError("FastTracker") << "TrajectoryManager ERROR: crossing with det failed, skipping PSimHit";
-      return  PSimHit();
+      return  std::pair<double,PSimHit>(0.,PSimHit());
     }
     lpos = det.toLocal( GlobalPoint( crossing.position(path.second)));
     lmom = det.toLocal( GlobalVector( crossing.direction(path.second)));
@@ -540,7 +548,9 @@ TrajectoryManager::makeSinglePSimHit( const GeomDetUnit& det,
     myHistos->fill("h301",gpos.z(),-gpos.perp());
   */
 
-  return hit;
+  double dist = det.surface().toGlobal(hit.localPosition()).mag2();
+  return std::pair<double,PSimHit>(dist,hit);
+
 }
 
 void 
@@ -659,7 +669,23 @@ TrajectoryManager::detLayer( const TrackerLayer& layer, float zpos) const
 void 
 TrajectoryManager::loadSimHits(edm::PSimHitContainer & c) const
 {
-  for(std::vector<PSimHit>::const_iterator 
-	it = thePSimHits->begin();
-        it!= thePSimHits->end();it++) c.push_back(*it);
+
+  std::map<unsigned,std::map<double,PSimHit> >::const_iterator itrack = thePSimHits.begin();
+  std::map<unsigned,std::map<double,PSimHit> >::const_iterator itrackEnd = thePSimHits.end();
+  for ( ; itrack != itrackEnd; ++itrack ) {
+    std::map<double,PSimHit>::const_iterator it = (itrack->second).begin();
+    std::map<double,PSimHit>::const_iterator itEnd = (itrack->second).end();
+    for( ; it!= itEnd; ++it) { 
+      /* 
+      DetId theDetUnitId((it->second).detUnitId());
+      const GeomDet* theDet = theGeomTracker->idToDet(theDetUnitId);
+      std::cout << "Track/z/r after : "
+		<< (it->second).trackId() << " " 
+		<< theDet->surface().toGlobal((it->second).localPosition()).z() << " " 
+		<< theDet->surface().toGlobal((it->second).localPosition()).perp() << std::endl;
+      */
+      c.push_back(it->second);
+    }
+  }
+
 }

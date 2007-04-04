@@ -35,6 +35,9 @@
  * $Date Last modification - 12-Oct-2006 
  */
 
+#include <vector>
+#include <map>
+
 class Pythia6Decays;
 class TrackerInteractionGeometry;
 class TrackerLayer;
@@ -75,8 +78,9 @@ class TrajectoryManager
 
   /// Create a vector of PSimHits 
   void createPSimHits(const TrackerLayer& layer,
-		      ParticlePropagator& P_before,
-		      ParticlePropagator& P_after,
+		      const ParticlePropagator& P_before,
+		      const ParticlePropagator& P_after,
+		      std::map<double,PSimHit>& theHitMap,
 		      int trackID, int partID);
 
 /// Propagate the particle through the calorimeters
@@ -115,11 +119,13 @@ class TrajectoryManager
 
   /// and there
   void makePSimHits( const GeomDet* det, const TrajectoryStateOnSurface& ts,
-		     std::vector<PSimHit>& result, int tkID, float el, int pID) const;
+		     std::map<double,PSimHit>& theHitMap,
+		     int tkID, float el, int pID);
 
   /// and there
-  PSimHit makeSinglePSimHit( const GeomDetUnit& det,
-			     const TrajectoryStateOnSurface& ts, int tkID, float el, int pID) const;
+  std::pair<double,PSimHit> makeSinglePSimHit( const GeomDetUnit& det,
+					       const TrajectoryStateOnSurface& ts, 
+					       int tkID, float el, int pID) const;
 
   /// Returns the DetLayer pointer corresponding to the FAMOS layer 
   const DetLayer* detLayer( const TrackerLayer& layer, float zpos) const;
@@ -136,7 +142,8 @@ class TrajectoryManager
 
   double pTmin;
   bool firstLoop;
-  std::vector<PSimHit>* thePSimHits;
+  //  std::vector<PSimHit>* thePSimHits;
+  std::map<unsigned,std::map<double,PSimHit> > thePSimHits;
 
   const TrackerGeometry*                      theGeomTracker;
   const GeometricSearchTracker*               theGeomSearchTracker;
