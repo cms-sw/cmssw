@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripRawToDigiUnpacker.cc,v 1.27 2007/03/21 17:08:58 bainbrid Exp $
+// Last commit: $Id: SiStripRawToDigiUnpacker.cc,v 1.28 2007/03/28 10:27:36 bainbrid Exp $
 
 #include "EventFilter/SiStripRawToDigi/interface/SiStripRawToDigiUnpacker.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
@@ -88,9 +88,9 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
   std::vector<uint16_t>::const_iterator ifed = cabling.feds().begin();
   for ( ; ifed != cabling.feds().end(); ifed++ ) {
 
-    LogTrace(mlRawToDigi_)
-      << "[SiStripRawToDigiUnpacker::" << __func__ << "]"
-      << " Extracting payload from FED id: " << *ifed;
+    //LogTrace(mlRawToDigi_)
+    //<< "[SiStripRawToDigiUnpacker::" << __func__ << "]"
+    //<< " Extracting payload from FED id: " << *ifed;
     
     // Retrieve FED raw data for given FED 
     const FEDRawData& input = buffers.FEDData( static_cast<int>(*ifed) );
