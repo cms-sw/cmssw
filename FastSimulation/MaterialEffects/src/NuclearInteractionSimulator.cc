@@ -15,10 +15,9 @@
 #include <iostream>
 #include <sys/stat.h>
 #include <cmath>
+#include <string>
 #include "TFile.h"
 #include "TTree.h"
-
-using namespace std;
 
 NuclearInteractionSimulator::NuclearInteractionSimulator(
   std::vector<std::string>& listOfFiles,
@@ -48,7 +47,7 @@ NuclearInteractionSimulator::NuclearInteractionSimulator(
 
   gROOT->cd();
 
-  string fullPath;
+  std::string fullPath;
 
   // Read the information from a previous run (to keep reproducibility)
   this->read(inputFile);
@@ -103,7 +102,7 @@ NuclearInteractionSimulator::NuclearInteractionSimulator(
 
     double thePionMass2 = 0.13957*0.13957;
     double thePionMomentum2 = thePionCM[file]*thePionCM[file] - thePionMass2;
-    HepLorentzVector Reference(0.,0.,sqrt(thePionMomentum2),thePionCM[file]);
+    HepLorentzVector Reference(0.,0.,std::sqrt(thePionMomentum2),thePionCM[file]);
     thePionCM[file] = (Reference+Proton).mag();
 
   }
@@ -147,7 +146,6 @@ void NuclearInteractionSimulator::compute(ParticlePropagator& Particle)
 {
 
   // Read a Nuclear Interaction in a random manner
-  using namespace edm; 
 
   double pHadron = Particle.vect().mag(); 
   //  htot->Fill(pHadron);
@@ -161,7 +159,7 @@ void NuclearInteractionSimulator::compute(ParticlePropagator& Particle)
     // The elastic interaction length
     // The baroque parameterization is a fit to Fig. 40.13 of the PDG
     double ee = pHadron > 0.6 ? 
-      exp(-sqrt((pHadron-0.6)/1.122)) : exp(sqrt((0.6-pHadron)/1.122));
+      exp(-std::sqrt((pHadron-0.6)/1.122)) : exp(std::sqrt((0.6-pHadron)/1.122));
     double theElasticLength = ( 0.8753 * ee + 0.15 )
     //    double theElasticLength = ( 0.15 + 0.195 / log(pHadron/0.4) )
     //    double theElasticLength = ( 0.15 + 0.305 / log(pHadron/0.35) )
@@ -171,7 +169,7 @@ void NuclearInteractionSimulator::compute(ParticlePropagator& Particle)
     double theTotalInteractionLength = theInelasticLength + theElasticLength;
 
     // Probability to interact is dl/L0 (maximum for 4 GeV pion)
-    double aNuclInteraction = -log(random->flatShoot());
+    double aNuclInteraction = -std::log(random->flatShoot());
     if ( aNuclInteraction < theTotalInteractionLength ) { 
 
       // The elastic part
@@ -181,10 +179,10 @@ void NuclearInteractionSimulator::compute(ParticlePropagator& Particle)
 	//       	helas->Fill(pHadron);
 	
 	// Characteristic scattering angle for the elastic part
-	double theta0 = sqrt(3.)/ pow(theA(),1./3.) * Particle.mass()/pHadron; 
+	double theta0 = std::sqrt(3.)/ std::pow(theA(),1./3.) * Particle.mass()/pHadron; 
 	
 	// Draw an angle with theta/theta0*exp[(-theta/2theta0)**2] shape 
-	double theta = theta0 * sqrt(-2.*log(random->flatShoot()));
+	double theta = theta0 * std::sqrt(-2.*std::log(random->flatShoot()));
 	double phi = 2. * 3.14159265358979323 * random->flatShoot();
 	
 	// Rotate the particle accordingly
@@ -236,7 +234,7 @@ void NuclearInteractionSimulator::compute(ParticlePropagator& Particle)
 	} 
 	
 	// The inelastic part of the cross section depends cm energy
-	double slope = (log10(ecm)-log10(ecm1)) / (log10(ecm2)-log10(ecm1));
+	double slope = (std::log10(ecm)-std::log10(ecm1)) / (std::log10(ecm2)-std::log10(ecm1));
 	double inelastic = ratio1 + (ratio2-ratio1) * slope;
 	//      std::cout << "Energy/Inelastic : " 
 	//		<< Hadron.e() << " " << inelastic << std::endl;
@@ -314,10 +312,10 @@ void NuclearInteractionSimulator::compute(ParticlePropagator& Particle)
 	    
 	    // Create a RawParticle with the proper energy in the c.m frame of 
 	    // the nuclear interaction
-	    double energy = sqrt( aParticle.px*aParticle.px
-				  + aParticle.py*aParticle.py
-				  + aParticle.pz*aParticle.pz
-				  + aParticle.mass*aParticle.mass/(ecm*ecm) );
+	    double energy = std::sqrt( aParticle.px*aParticle.px
+				     + aParticle.py*aParticle.py
+				     + aParticle.pz*aParticle.pz
+				     + aParticle.mass*aParticle.mass/(ecm*ecm) );
 	    RawParticle * myPart 
 	      = new  RawParticle (aParticle.id,
 				  HepLorentzVector(aParticle.px,aParticle.py,

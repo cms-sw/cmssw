@@ -17,9 +17,8 @@
 #include <list>
 #include <utility>
 #include <iostream>
+#include <vector>
 #include <string>
-
-using namespace std;
 
 MaterialEffects::MaterialEffects(const edm::ParameterSet& matEff,
 				 const RandomEngine* engine)
@@ -73,15 +72,15 @@ MaterialEffects::MaterialEffects(const edm::ParameterSet& matEff,
   if ( doNuclearInteraction ) { 
     std::vector<std::string> listOfFiles 
       = matEff.getUntrackedParameter<std::vector<std::string> >("fileNames");
-    vector<double> pionEnergies 
+    std::vector<double> pionEnergies 
       = matEff.getUntrackedParameter<std::vector<double> >("pionEnergies");
-    vector<double> ratioRatio 
+    std::vector<double> ratioRatio 
       = matEff.getUntrackedParameter<std::vector<double> >("ratioRatio");
     double pionEnergy 
       = matEff.getParameter<double>("pionEnergy");
     double lengthRatio 
       = matEff.getParameter<double>("lengthRatio");
-    string inputFile 
+    std::string inputFile 
       = matEff.getUntrackedParameter<std::string>("inputFile");
     // Construction
     NuclearInteraction = 
@@ -97,7 +96,7 @@ MaterialEffects::MaterialEffects(const edm::ParameterSet& matEff,
   if ( doNuclearInteractionEDM ) { 
     edm::ParameterSet listOfEDMFiles 
       = matEff.getParameter<edm::ParameterSet>("NuclearInteractionInput");
-    vector<double> pionEnergies 
+    std::vector<double> pionEnergies 
       = matEff.getUntrackedParameter<std::vector<double> >("pionEnergies");
     double pionEnergy 
       = matEff.getParameter<double>("pionEnergy");
@@ -190,7 +189,8 @@ void MaterialEffects::interact(FSimEvent& mySimEvent,
 //   Nuclear interactions
 //------------------------ 
 
-  if ( NuclearInteraction && abs(myTrack.pid()) > 22 ) { 
+  if ( NuclearInteraction && abs(myTrack.pid()) > 100 
+                          && abs(myTrack.pid()) < 1000000) { 
 
     // A few fudge factors ...
     double factor = 1.;
@@ -229,7 +229,8 @@ void MaterialEffects::interact(FSimEvent& mySimEvent,
     
   }
 
-  if ( NuclearInteractionEDM && abs(myTrack.pid()) > 22 ) { 
+  if ( NuclearInteractionEDM && abs(myTrack.pid()) > 100 
+                             && abs(myTrack.pid()) < 1000000) { 
     
     // A few fudge factors ...
     double factor = 1.;

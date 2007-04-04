@@ -10,8 +10,6 @@
 #include <iostream>
 #include <cmath>
 
-using namespace std;
-
 BremsstrahlungSimulator::BremsstrahlungSimulator(double photonEnergyCut, 
 					     double photonFractECut,
 					     const RandomEngine* engine) : 
@@ -39,7 +37,7 @@ void BremsstrahlungSimulator::compute(ParticlePropagator &Particle)
   }
 
   // Hard brem probability with a photon Energy above photonEnergy.
-  xmin = max(photonEnergy/Particle.e(),photonFractE);
+  xmin = std::max(photonEnergy/Particle.e(),photonFractE);
   if ( xmin >=1. || xmin <=0. ) return;
 
   double bremProba = radLengths * ( 4./3. * log(1./xmin)
@@ -104,10 +102,10 @@ HepLorentzVector BremsstrahlungSimulator::brem(HepLorentzVector pp) {
   const double theta = gbteth(pp.e(),emass,xp)*emass/pp.e(); 
   
   // Make momentum components
-  double stheta = sin(theta);
-  double ctheta = cos(theta);
-  double sphi   = sin(phi);
-  double cphi   = cos(phi);
+  double stheta = std::sin(theta);
+  double ctheta = std::cos(theta);
+  double sphi   = std::sin(phi);
+  double cphi   = std::cos(phi);
   
   return xp * pp.e() * HepLorentzVector(stheta*cphi,stheta*sphi,ctheta,1.);
   
@@ -136,7 +134,7 @@ unsigned int
 BremsstrahlungSimulator::poisson(double ymu) {
 
   unsigned int n = 0;
-  double prob = exp(-ymu);
+  double prob = std::exp(-ymu);
   double proba = prob;
   double x = random->flatShoot();
   

@@ -9,8 +9,6 @@
 #include <cmath>
 #include <cstring>
 
-using namespace std;
-
 EnergyLossSimulator::EnergyLossSimulator(const RandomEngine* engine) :
     MaterialEffectsSimulator(engine) 
 {
@@ -41,7 +39,7 @@ void EnergyLossSimulator::compute(ParticlePropagator &Particle)
 
   double p    = Particle.vect().mag();
   double mass = Particle.mass();
-  double e    = sqrt(p*p+mass*mass);
+  double e    = std::sqrt(p*p+mass*mass);
 
   double beta2 = p/e;
   double gama2 = e/mass;
@@ -70,8 +68,8 @@ void EnergyLossSimulator::compute(ParticlePropagator &Particle)
   */
 
   // Compute the new energy and momentum
-  double newEnergy = max(mass,e-dedx);
-  double fac   = sqrt(newEnergy*newEnergy-mass*mass)/p;
+  double newEnergy = std::max(mass,e-dedx);
+  double fac   = std::sqrt(newEnergy*newEnergy-mass*mass)/p;
   
   // Update the momentum
   Particle.setPx(Particle.px()*fac); 

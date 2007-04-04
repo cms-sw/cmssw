@@ -6,8 +6,6 @@
 #include <iostream>
 #include <cmath>
 
-using namespace std;
-
 PairProductionSimulator::PairProductionSimulator(double photonEnergyCut,
 					     const RandomEngine* engine) :
   MaterialEffectsSimulator(engine) 
@@ -32,7 +30,7 @@ void PairProductionSimulator::compute(ParticlePropagator& Particle)
     // Author : Patrick Janot - 7-Jan-2004
 
     // Probability to convert is 7/9*(dx/X0)
-    if ( -log(random->flatShoot()) <= (7./9.)*radLengths ) {
+    if ( -std::log(random->flatShoot()) <= (7./9.)*radLengths ) {
       
       double xe=0;
       double xm=eMass()/eGamma;
@@ -46,31 +44,31 @@ void PairProductionSimulator::compute(ParticlePropagator& Particle)
   
       double eElectron = xe * eGamma;
       double tElectron = eElectron-eMass();
-      double pElectron = sqrt(max((eElectron+eMass())*tElectron,0.));
+      double pElectron = std::sqrt(std::max((eElectron+eMass())*tElectron,0.));
 
       double ePositron = eGamma-eElectron;
       double tPositron = ePositron-eMass();
-      double pPositron = sqrt((ePositron+eMass())*tPositron);
+      double pPositron = std::sqrt((ePositron+eMass())*tPositron);
       
       // Generate angles
       double phi    = random->flatShoot()*2.*M_PI;
-      double sphi   = sin(phi);
-      double cphi   = cos(phi);
+      double sphi   = std::sin(phi);
+      double cphi   = std::cos(phi);
 
       double stheta1, stheta2, ctheta1, ctheta2;
 
       if ( eElectron > ePositron ) {
 	double theta1  = gbteth(eElectron,eMass(),xe)*eMass()/eElectron;
-	stheta1 = sin(theta1);
-	ctheta1 = cos(theta1);
+	stheta1 = std::sin(theta1);
+	ctheta1 = std::cos(theta1);
 	stheta2 = stheta1*pElectron/pPositron;
-	ctheta2 = sqrt(max(0.,1.0-(stheta2*stheta2)));
+	ctheta2 = std::sqrt(std::max(0.,1.0-(stheta2*stheta2)));
       } else {
 	double theta2  = gbteth(ePositron,eMass(),xe)*eMass()/ePositron;
-	stheta2 = sin(theta2);
-	ctheta2 = cos(theta2);
+	stheta2 = std::sin(theta2);
+	ctheta2 = std::cos(theta2);
 	stheta1 = stheta2*pPositron/pElectron;
-	ctheta1 = sqrt(max(0.,1.0-(stheta1*stheta1)));
+	ctheta1 = std::sqrt(std::max(0.,1.0-(stheta1*stheta1)));
       }
       
       
@@ -116,7 +114,7 @@ double PairProductionSimulator::gbteth(double ener,double partm,double efrac)
       double beta;
       if (random->flatShoot()<=w1) beta = alfa;
       else beta = 3.0*alfa;
-      u = -(log(random->flatShoot()*random->flatShoot()))/beta;
+      u = -(std::log(random->flatShoot()*random->flatShoot()))/beta;
   } while (u>=umax);
 
   return u;

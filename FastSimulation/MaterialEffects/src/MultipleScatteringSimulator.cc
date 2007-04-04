@@ -9,8 +9,6 @@
 #include <cstring>
 #include <algorithm>
 
-using namespace std;
-
 MultipleScatteringSimulator::MultipleScatteringSimulator(
   const RandomEngine* engine) :
     MaterialEffectsSimulator(engine)
@@ -23,13 +21,13 @@ void MultipleScatteringSimulator::compute(ParticlePropagator &Particle)
 
   double p    = Particle.vect().mag();
   double mass = Particle.mass();
-  double e    = sqrt(p*p+mass*mass);
+  double e    = std::sqrt(p*p+mass*mass);
 
   double beta = p/e;
 
   // Average multiple scattering angle from Moliere radius
   double theta0 = 0.0136 / (p*beta) * Particle.charge() 
-                                    * sqrt(radLengths) 
+                                    * std::sqrt(radLengths) 
                                     * (1. + 0.038*log(radLengths));
 
   // Generate multiple scattering angles in the two directions 
@@ -46,9 +44,9 @@ void MultipleScatteringSimulator::compute(ParticlePropagator &Particle)
   // Generate mutiple scattering displacements in mm (assuming the detectors
   // are silicon only to determine the thickness) in the directions orthogonal
   // to the vector normal to the surface
-  double xp = (theta1/2. + random->gaussShoot(0.,theta0)/sqrt(12.))
+  double xp = (theta1/2. + random->gaussShoot(0.,theta0)/std::sqrt(12.))
                          * radLengths * radLenIncm();		 
-  double yp = (theta2/2. + random->gaussShoot(0.,theta0)/sqrt(12.))
+  double yp = (theta2/2. + random->gaussShoot(0.,theta0)/std::sqrt(12.))
                          * radLengths * radLenIncm();
   
   Hep3Vector 
