@@ -1,4 +1,4 @@
-// $Id: HLTPerformanceInfo.cc,v 1.5 2007/02/07 23:53:12 bdahmes Exp $
+// $Id: HLTPerformanceInfo.cc,v 1.6 2007/03/27 01:05:07 bdahmes Exp $
 #include <functional>
 #include <algorithm>
 #include <numeric>
@@ -49,7 +49,7 @@ double HLTPerformanceInfo::Path::time() const
   // we only want to add those up to the last one run.
   HLTPerformanceInfo::Path::const_iterator iter ;
   for (iter=this->begin(); iter!=this->end(); iter++) 
-    t += iter->time(); 
+      if (iter->indexInPath(*this) <= int(this->status().index())) t += iter->time(); 
 
   return t;
 }
