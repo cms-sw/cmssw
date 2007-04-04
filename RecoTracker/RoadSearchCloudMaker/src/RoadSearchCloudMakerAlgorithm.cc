@@ -48,8 +48,8 @@
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
 // $Author: burkett $
-// $Date: 2007/03/27 16:28:36 $
-// $Revision: 1.38 $
+// $Date: 2007/03/29 22:14:01 $
+// $Revision: 1.39 $
 //
 
 #include <vector>
@@ -224,7 +224,8 @@ void RoadSearchCloudMakerAlgorithm::run(edm::Handle<TrajectorySeedCollection> in
         edm::LogWarning("RoadSearch") << "RoadSeed could not be resolved from TrajectorySeed hits, discard seed!";
       } else {
         
-        const Roads::type roadType = roads->getRoadType(roadSeed);
+        Roads::type roadType = roads->getRoadType(roadSeed);
+	if (NoFieldCosmic) roadType = Roads::RPhi;
         
         //       output_ << "Inner Seed Rings: ";
         //       // print inner and outer seed ring indices
