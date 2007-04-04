@@ -10,6 +10,7 @@
 #include <string.h>
 
 #include "HLTrigger/HLTanalyzers/interface/HLTMCtruth.h"
+#include "HepPDT/ParticleID.hh"
 
 HLTMCtruth::HLTMCtruth() {
 
@@ -58,8 +59,8 @@ void HLTMCtruth::analyze(const HepMC::GenEvent mctruth,
     if (&mctruth){
       for (HepMC::GenEvent::particle_const_iterator partIter = mctruth.particles_begin();
 	   partIter != mctruth.particles_end();++partIter) {
-	CLHEP::HepLorentzVector creation = (*partIter)->CreationVertex();
-	CLHEP::HepLorentzVector momentum = (*partIter)->Momentum();
+	HepMC::ThreeVector creation = (*partIter)->point3d();
+	HepMC::FourVector  momentum = (*partIter)->momentum();
 	HepPDT::ParticleID id = (*partIter)->particleID();  // electrons and positrons are 11 and -11
 	mcpid[nmc] = id.pid(); 
 	mcvx[nmc] = creation.x();  
