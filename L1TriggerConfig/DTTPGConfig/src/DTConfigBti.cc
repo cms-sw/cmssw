@@ -62,12 +62,6 @@ DTConfigBti::setDefaults() {
   // BTI angular acceptance in theta view
   m_kacctheta = m_ps->getParameter<int>("KACCTHETA");
 
-  // BTI digi offset in tdc units
-  m_digioffset = m_ps->getParameter<int>("DIGIOFFSET");
-
-  // BTI setup time : fine syncronization  
-  m_setuptime = m_ps->getParameter<int>("SINCROTIME");
-
   // Time indep. K equation suppression (XON) 
   m_xon = m_ps->getParameter<bool>("XON");
   // LTS and SET for low trigger suppression 
@@ -128,9 +122,6 @@ DTConfigBti::print() const {
   std::cout << "Debug flag : " <<  m_debug << std::endl;
   std::cout << "Max K param accepted : " << m_kcut << std::endl; 
   std::cout << "BTI angular acceptance in theta view : " << m_kacctheta << std::endl;
-  std::cout << "BTI digi offset in tdc units : " << m_digioffset << std::endl;
-  std::cout << "BTI setup time : fine syncronization : " << m_setuptime << std::endl;
-
   std::cout << "Time indep. K equation suppression (XON) : " << m_xon << std::endl;
   std::cout << "LTS for low trigger suppression : " << m_lts << std::endl;
   std::cout << "SET for low trigger suppression : " << m_set << std::endl;

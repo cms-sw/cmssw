@@ -62,12 +62,6 @@ class DTConfigBti : DTConfig {
   //! BTI angular acceptance in theta view                           
   inline int  KAccTheta() const { return m_kacctheta; }
   
-  //! Digi-to-bti-input offset 500 (tdc units) --> wait to solve with Nicola Amapane
-  inline int MCDigiOffset() const { return m_digioffset; }
-
-  //! Minicrate "fine" sincronization parameter [0,25] ns
-  inline int MCSetupTime() const { return  m_setuptime; }
-  
   //! X-patterns flag XON: activates tracks passing on the same side of 3 wires
   inline bool XON() const { return m_xon; }
   
@@ -137,8 +131,6 @@ private:
   int m_debug;
   int m_kcut;
   int m_kacctheta;
-  int m_digioffset;
-  int m_setuptime;
   bool m_xon;
   int m_lts;
   int m_set;

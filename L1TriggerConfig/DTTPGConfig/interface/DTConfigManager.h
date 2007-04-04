@@ -6,6 +6,7 @@
  *   Includes config classes for every single chip
  *
  *   \author  C. Battilana
+ *   april 07 : SV DTConfigTrigUnit added
  *
  */
 //
@@ -27,7 +28,7 @@
 #include "L1TriggerConfig/DTTPGConfig/interface/DTConfigTraco.h"
 #include "L1TriggerConfig/DTTPGConfig/interface/DTConfigTSTheta.h"
 #include "L1TriggerConfig/DTTPGConfig/interface/DTConfigTSPhi.h"
-//#include "L1TriggerConfig/DTTPGConfig/interface/DTConfigTrigUnit.h" CB togli se nn serve!!!!!
+#include "L1TriggerConfig/DTTPGConfig/interface/DTConfigTrigUnit.h" 
 #include "L1TriggerConfig/DTTPGConfig/interface/DTConfigSectColl.h"
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
 #include "L1Trigger/DTUtilities/interface/DTBtiId.h"
@@ -54,6 +55,7 @@ class DTConfigManager {
   typedef std::map<DTChamberId,innerTracoMap>       TracoMap;
   typedef std::map<DTChamberId,DTConfigTSTheta* >   TSThetaMap;
   typedef std::map<DTChamberId,DTConfigTSPhi* >     TSPhiMap;
+  typedef std::map<DTChamberId,DTConfigTrigUnit* >  TrigUnitMap;
   typedef std::map<DTSectCollId,DTConfigSectColl* > SectCollMap;
 
  public:
@@ -82,17 +84,14 @@ class DTConfigManager {
   //! Get desired Trigger Server Phi configuration
   DTConfigTSPhi* getDTConfigTSPhi(DTChamberId) const;
 
-/*   //! Get desired Trigger Unit configuration */
-/*   DTConfigTrigUnit* getDTConfigTrigUnit(DTChamberId) const; */
+  //! Get desired Trigger Unit configuration 
+  DTConfigTrigUnit* getDTConfigTrigUnit(DTChamberId) const; 
 
   //! Get desired SectorCollector configuration
   DTConfigSectColl* getDTConfigSectColl(DTSectCollId) const;
 
   //! Get global debug flag
   inline bool getDTTPGDebug() const { return my_dttpgdebug; };
-
-  //! Get global debug flag
-  inline bool getDTTrigUnitDebug() const { return my_trigunitdebug; };
 
   //! Get BX Offset
   int getBXOffset() const;
@@ -105,7 +104,7 @@ class DTConfigManager {
   TracoMap     my_tracomap;
   TSThetaMap   my_tsthetamap;
   TSPhiMap     my_tsphimap;
-  //std::map<DTChamberId,DTConfigTrigUnit*>     my_tumap; CB togliere!!!!!
+  TrigUnitMap  my_trigunitmap; 
   SectCollMap  my_sectcollmap;
 
   // pointer to the config classes to simplify construction/destruction
@@ -113,12 +112,11 @@ class DTConfigManager {
   DTConfigTraco*    my_tracoconf;
   DTConfigTSTheta*  my_tsthetaconf;
   DTConfigTSPhi*    my_tsphiconf;
+  DTConfigTrigUnit* my_trigunitconf;
   DTConfigSectColl* my_sectcollconf;
   
   int my_bxoffset;
   bool my_dttpgdebug;
-  bool my_trigunitdebug;
-
 };
 
 #endif

@@ -7,6 +7,8 @@
 //
 //   Author List:
 //   C.Battilana
+//
+//   april 07 : SV DTConfigTrigUnit added
 //-----------------------------------------------------------------------
 
 //-----------------------
@@ -35,15 +37,15 @@ DTConfigManager::DTConfigManager(edm::ParameterSet& ps, edm::ESHandle<DTGeometry
 
   //create config classes&C.
   my_dttpgdebug = ps.getUntrackedParameter<bool>("Debug");
-  //my_dttpgdebug = true;
 
   my_sectcollconf = new DTConfigSectColl(ps.getParameter<edm::ParameterSet>("SectCollParameters"));
+
   edm::ParameterSet tups = ps.getParameter<edm::ParameterSet>("TUParameters");
-  my_trigunitdebug = tups.getUntrackedParameter<bool>("Debug");
   my_bticonf = new DTConfigBti(tups.getParameter<edm::ParameterSet>("BtiParameters"));
   my_tracoconf = new DTConfigTraco(tups.getParameter<edm::ParameterSet>("TracoParameters"));
   my_tsthetaconf = new DTConfigTSTheta(tups.getParameter<edm::ParameterSet>("TSThetaParameters"));
   my_tsphiconf = new DTConfigTSPhi(tups.getParameter<edm::ParameterSet>("TSPhiParameters"));
+  my_trigunitconf = new DTConfigTrigUnit(tups);
   
   // loop to create maps
   for (std::vector<DTChamber*>::const_iterator ich=gha->chambers().begin(); ich!=gha->chambers().end();++ich){
@@ -99,6 +101,10 @@ DTConfigManager::DTConfigManager(edm::ParameterSet& ps, edm::ESHandle<DTGeometry
     // fill TS map
     my_tsthetamap[chambid] = my_tsthetaconf;
     my_tsphimap[chambid] = my_tsphiconf;
+
+    // fill TU map
+    my_trigunitmap[chambid] = my_trigunitconf;
+
   }
   
   //loop on Sector Collectors
@@ -115,6 +121,7 @@ DTConfigManager::DTConfigManager(edm::ParameterSet& ps, edm::ESHandle<DTGeometry
 DTConfigManager::~DTConfigManager(){
 
   my_sectcollmap.clear();
+  my_trigunitmap.clear();
   my_tsphimap.clear();
   my_tsthetamap.clear();
   my_tracomap.clear();
@@ -124,6 +131,7 @@ DTConfigManager::~DTConfigManager(){
   delete my_tracoconf;
   delete my_tsthetaconf;
   delete my_tsphiconf;
+  delete my_trigunitconf;
   delete my_sectcollconf;
 
 }
@@ -241,21 +249,21 @@ DTConfigTSPhi* DTConfigManager::getDTConfigTSPhi(DTChamberId chambid) const {
   return (*phiter).second;
 
 }
-
-// DTConfigTrigUnit DTConfigManager::getConfigTrigUnit(DTChamberId chambid) const {
   
-//   std::map<DTChamberId,DTConfigTrigUnit* >::iterator tuiter = my_tumap.find(chambid);
-//   if (tuiter == my_tumap.end()){
-//     std::cout << "DTCOnfigManager::getConfigTrigUnit : Chamber (" << chambid.wheel()
-// 	      << "," << chambid.sector()
-// 	      << "," << chambid.station() 
-// 	      << ") not found, return 0" std::endl;
-//     return 0;
-//   }
+DTConfigTrigUnit* DTConfigManager::getDTConfigTrigUnit(DTChamberId chambid) const {
+  
+   TrigUnitMap::const_iterator tuiter = my_trigunitmap.find(chambid);
+   if (tuiter == my_trigunitmap.end()){
+     std::cout << "DTCOnfigManager::getConfigTrigUnit : Chamber (" << chambid.wheel()
+ 	      << "," << chambid.sector()
+ 	      << "," << chambid.station() 
+ 	      << ") not found, return 0" << std::endl;
+     return 0;
+   }
 
-//   return (*tuiter).second;
+   return (*tuiter).second;
 
-// }
+}
 
 DTConfigSectColl* DTConfigManager::getDTConfigSectColl(DTSectCollId scid) const {
   
