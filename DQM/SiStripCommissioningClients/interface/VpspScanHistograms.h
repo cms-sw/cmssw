@@ -6,12 +6,14 @@
 #include "DQM/SiStripCommissioningAnalysis/interface/VpspScanAnalysis.h"
 
 class MonitorUserInterface;
+class DaqMonitorBEInterface;
 
 class VpspScanHistograms : public CommissioningHistograms {
 
  public:
   
   VpspScanHistograms( MonitorUserInterface* );
+  VpspScanHistograms( DaqMonitorBEInterface* );
   virtual ~VpspScanHistograms();
   
   typedef SummaryHistogramFactory<VpspScanAnalysis> Factory;

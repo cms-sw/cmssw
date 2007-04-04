@@ -40,58 +40,58 @@ void FedTimingHistograms::histoAnalysis( bool debug ) {
   uint32_t device_min = sistrip::invalid_;
   uint32_t device_max = sistrip::invalid_;
   
-  // Iterate through std::map containing std::vectors of profile histograms
-  CollationsMap::const_iterator iter = collations().begin();
-  for ( ; iter != collations().end(); iter++ ) {
+//   // Iterate through std::map containing std::vectors of profile histograms
+//   CollationsMap::const_iterator iter = collations().begin();
+//   for ( ; iter != collations().end(); iter++ ) {
     
-    // Check std::vector of histos is not empty (should be 2 histos)
-    if ( iter->second.empty() ) {
-      cerr << "[" << __PRETTY_FUNCTION__ << "]"
-	   << " Zero collation histograms found!" << endl;
-      continue;
-    }
+//     // Check std::vector of histos is not empty (should be 2 histos)
+//     if ( iter->second.empty() ) {
+//       cerr << "[" << __PRETTY_FUNCTION__ << "]"
+// 	   << " Zero collation histograms found!" << endl;
+//       continue;
+//     }
     
-    // Retrieve pointers to profile histos for this FED channel 
-    std::vector<TH1*> profs;
-    Collations::const_iterator ihis = iter->second.begin(); 
-    for ( ; ihis != iter->second.end(); ihis++ ) {
-      TProfile* prof = ExtractTObject<TProfile>().extract( mui()->get( ihis->first ) );
-      if ( prof ) { profs.push_back(prof); }
-    } 
+//     // Retrieve pointers to profile histos for this FED channel 
+//     std::vector<TH1*> profs;
+//     Collations::const_iterator ihis = iter->second.begin(); 
+//     for ( ; ihis != iter->second.end(); ihis++ ) {
+//       TProfile* prof = ExtractTObject<TProfile>().extract( mui()->get( ihis->first ) );
+//       if ( prof ) { profs.push_back(prof); }
+//     } 
     
-    // Perform histo analysis
-    FedTimingAnalysis anal( iter->first );
-    anal.analysis( profs );
-    data_[iter->first] = anal; 
+//     // Perform histo analysis
+//     FedTimingAnalysis anal( iter->first );
+//     anal.analysis( profs );
+//     data_[iter->first] = anal; 
     
-    // Check tick height is valid
-    if ( anal.height() < 100. ) { 
-      cerr << "[" << __PRETTY_FUNCTION__ << "]"
-	   << " Tick mark height too small: " << anal.height() << endl;
-      continue; 
-    }
+//     // Check tick height is valid
+//     if ( anal.height() < 100. ) { 
+//       cerr << "[" << __PRETTY_FUNCTION__ << "]"
+// 	   << " Tick mark height too small: " << anal.height() << endl;
+//       continue; 
+//     }
 
-    // Check time of rising edge
-    if ( anal.time() > sistrip::maximum_ ) { continue; }
+//     // Check time of rising edge
+//     if ( anal.time() > sistrip::maximum_ ) { continue; }
     
-    // Find maximum time
-    if ( anal.time() > time_max ) { 
-      time_max = anal.time(); 
-      device_max = iter->first;
-    }
+//     // Find maximum time
+//     if ( anal.time() > time_max ) { 
+//       time_max = anal.time(); 
+//       device_max = iter->first;
+//     }
     
-    // Find minimum time
-    if ( anal.time() < time_min ) { 
-      time_min = anal.time(); 
-      device_min = iter->first;
-    }
+//     // Find minimum time
+//     if ( anal.time() < time_min ) { 
+//       time_min = anal.time(); 
+//       device_min = iter->first;
+//     }
 
-  }
+//   }
 
-  cout << "[" << __PRETTY_FUNCTION__ << "]"
-       << " Analyzed histograms for " 
-       << collations().size() 
-       << " FED channels" << endl;
+//   cout << "[" << __PRETTY_FUNCTION__ << "]"
+//        << " Analyzed histograms for " 
+//        << collations().size() 
+//        << " FED channels" << endl;
 
   // Adjust maximum (and minimum) delay(s) to find optimum sampling point(s)
   if ( time_max > sistrip::maximum_ ||

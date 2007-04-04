@@ -6,12 +6,14 @@
 #include "DQM/SiStripCommissioningAnalysis/interface/PedestalsAnalysis.h"
 
 class MonitorUserInterface;
+class DaqMonitorBEInterface;
 
 class PedestalsHistograms : public CommissioningHistograms {
 
  public:
   
   PedestalsHistograms( MonitorUserInterface* );
+  PedestalsHistograms( DaqMonitorBEInterface* );
   virtual ~PedestalsHistograms();
 
   typedef SummaryHistogramFactory<PedestalsAnalysis> Factory;

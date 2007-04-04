@@ -6,12 +6,14 @@
 #include "DQM/SiStripCommissioningAnalysis/interface/FedCablingAnalysis.h"
 
 class MonitorUserInterface;
+class DaqMonitorBEInterface;
 
 class FedCablingHistograms : public CommissioningHistograms {
 
  public:
   
   FedCablingHistograms( MonitorUserInterface* );
+  FedCablingHistograms( DaqMonitorBEInterface* );
   virtual ~FedCablingHistograms();
   
   typedef SummaryHistogramFactory<FedCablingAnalysis> Factory;

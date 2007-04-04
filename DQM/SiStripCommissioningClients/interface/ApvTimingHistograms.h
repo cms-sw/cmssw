@@ -6,12 +6,14 @@
 #include "DQM/SiStripCommissioningAnalysis/interface/ApvTimingAnalysis.h"
 
 class MonitorUserInterface;
+class DaqMonitorBEInterface;
 
 class ApvTimingHistograms : public CommissioningHistograms {
 
  public:
   
   ApvTimingHistograms( MonitorUserInterface* );
+  ApvTimingHistograms( DaqMonitorBEInterface* );
   virtual ~ApvTimingHistograms();
   
   typedef SummaryPlotFactory<ApvTimingAnalysis*> Factory;

@@ -22,58 +22,79 @@ VpspScanHistograms::VpspScanHistograms( MonitorUserInterface* mui )
 
 // -----------------------------------------------------------------------------
 /** */
+VpspScanHistograms::VpspScanHistograms( DaqMonitorBEInterface* bei ) 
+  : CommissioningHistograms( bei, sistrip::VPSP_SCAN ),
+    factory_( new Factory )
+{
+  LogTrace(mlDqmClient_) 
+    << "[VpspScanHistograms::" << __func__ << "]"
+    << " Constructing object...";
+}
+
+// -----------------------------------------------------------------------------
+/** */
 VpspScanHistograms::~VpspScanHistograms() {
   LogTrace(mlDqmClient_) 
     << "[VpspScanHistograms::" << __func__ << "]"
-    << " Destructing object...";
+    << " Denstructing object...";
 }
 
 // -----------------------------------------------------------------------------	 
 /** */	 
 void VpspScanHistograms::histoAnalysis( bool debug ) {
-  
-  // Clear std::map holding analysis objects
-  data_.clear();
 
-  // Iterate through std::map containing std::vectors of profile histograms
-  CollationsMap::const_iterator iter = collations().begin();
-  for ( ; iter != collations().end(); iter++ ) {
+  uint16_t valid = 0;
+  
+  // Clear map holding analysis objects
+  data_.clear();
+  
+  // Iterate through map containing histograms
+  HistosMap::const_iterator iter = histos().begin();
+  for ( ; iter != histos().end(); iter++ ) {
     
-    // Check std::vector of histos is not empty (should be 2 histos)
+    // Check vector of histos is not empty
     if ( iter->second.empty() ) {
       edm::LogWarning(mlDqmClient_) 
 	<< "[VpspScanHistograms::" << __func__ << "]"
-	<< " Zero collation histograms found!" << endl;
+	<< " Zero histograms found!" << endl;
       continue;
     }
     
     // Retrieve pointers to profile histos for this FED channel 
     std::vector<TH1*> profs;
-    Collations::const_iterator ihis = iter->second.begin(); 
+    Histos::const_iterator ihis = iter->second.begin(); 
     for ( ; ihis != iter->second.end(); ihis++ ) {
-      TProfile* prof = ExtractTObject<TProfile>().extract( ihis->second->getMonitorElement() );
+      TProfile* prof = ExtractTObject<TProfile>().extract( (*ihis)->me_ );
       if ( prof ) { profs.push_back(prof); }
     } 
-    
+
     // Perform histo analysis
     VpspScanAnalysis anal( iter->first );
     anal.analysis( profs );
     data_[iter->first] = anal; 
     if ( debug ) {
-      static uint16_t cntr = 0;
       std::stringstream ss;
       anal.print( ss ); 
-      cout << ss.str() << endl;
-      cntr++;
+      if ( anal.isValid() ) { 
+	LogTrace(mlDqmClient_) << ss.str(); 
+	valid++;
+      } else { edm::LogWarning(mlDqmClient_) << ss.str(); }
     }
     
   }
   
-  LogTrace(mlDqmClient_) 
-    << "[VpspScanHistograms::" << __func__ << "]"
-    << " Analyzed histograms for " 
-    << collations().size() 
-    << " FED channels" << endl;
+  if ( !histos().empty() ) {
+    edm::LogVerbatim(mlDqmClient_) 
+      << "[VpspScanHistograms::" << __func__ << "]"
+      << " Analyzed histograms for " << histos().size() 
+      << " FED channels, of which " << valid 
+      << " (" << 100 * valid / histos().size()
+      << "%) are valid.";
+  } else {
+    edm::LogWarning(mlDqmClient_) 
+      << "[VpspScanHistograms::" << __func__ << "]"
+      << " No histograms to analyze!";
+  }
   
 }
 

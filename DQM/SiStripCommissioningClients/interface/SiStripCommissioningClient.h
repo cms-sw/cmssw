@@ -54,7 +54,6 @@ class SiStripCommissioningClient : public DQMBaseClient, public dqm::UpdateObser
 
   
   // -------------------- Client "actions" --------------------
-
   
   /** */
   void subscribeAll( std::string match_pattern = "" );
@@ -120,10 +119,6 @@ class SiStripCommissioningClient : public DQMBaseClient, public dqm::UpdateObser
 
   
   // ---------- Management of client histograms ----------  
-
-
-  /** Extracts run type. */
-  sistrip::RunType extractTask( const std::vector<std::string>& contents ) const;
   
   /** */
   virtual void createHistograms( const sistrip::RunType& task ) const;
@@ -145,7 +140,6 @@ class SiStripCommissioningClient : public DQMBaseClient, public dqm::UpdateObser
   
   /** Action "executor" */
   mutable CommissioningHistograms* histos_;
-  
   
   mutable sistrip::RunType runType_;
   

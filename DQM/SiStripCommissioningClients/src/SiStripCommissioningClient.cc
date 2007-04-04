@@ -150,6 +150,7 @@ void SiStripCommissioningClient::endRun() {
   LogTrace(mlDqmClient_) 
     << "[SiStripCommissioningClient::" << __func__ << "]"
     << " Halting present run...";
+  removeAll();
   unsubscribeAll(); 
   
   if ( histos_ ) { delete histos_; histos_ = 0; }
@@ -174,60 +175,26 @@ void SiStripCommissioningClient::onUpdate() const {
   LogTrace(mlDqmClient_)
     << "[SiStripCommissioningClient::" << __func__ << "]"
     << " Number of updates: " << mui_->getNumUpdates();
-  
-  // Retrieve a list of all subscribed histograms
+
+  // Retrieve list of added contents
   std::vector<std::string> contents;
-  mui_->getContents( contents ); 
-  if ( contents.empty() ) { 
-    LogTrace(mlDqmClient_)
-      << "[SiStripCommissioningClient::" << __func__ << "]"
-      << " Nothing to update...";
-    return; 
-  }
+  mui_->getAddedContents( contents ); 
   
-  // Extract commissioning task from added contents
-  if ( runType_ == sistrip::UNKNOWN_RUN_TYPE ) { runType_ = extractTask( contents ); }
+  // Extract run type from added contents
+  if ( runType_ == sistrip::UNKNOWN_RUN_TYPE ) { 
+    runType_ = CommissioningHistograms::runType( mui_->getBEInterface(),
+						 contents ); 
+  }
   
   // Create histograms for given commissioning task
   createHistograms( runType_ );
   
+  // Extract histograms based on added contents
+  if ( histos_ ) { histos_->extractHistograms( contents ); }
+  
   // Create collation histograms based on added contents
   if ( histos_ ) { histos_->createCollations( contents ); }
   
-}
-
-// -----------------------------------------------------------------------------
-/** Extract "commissioning task" std::string from "added contents". */
-sistrip::RunType SiStripCommissioningClient::extractTask( const std::vector<std::string>& contents ) const {
-  LogTrace(mlDqmClient_)
-    << "[SiStripCommissioningClient::" << __func__ << "]"
-    << " Extracting commissioning task...";
-  
-  // Iterate through added contents
-  std::vector<std::string>::const_iterator istr = contents.begin();
-  while ( istr != contents.end() ) {
-    
-    // Search for "commissioning task" std::string
-    std::string::size_type pos = istr->find( sistrip::taskId_ );
-    if ( pos != std::string::npos ) { 
-      // Extract commissioning task from std::string 
-      std::string value = istr->substr( pos+sistrip::taskId_.size()+1, std::string::npos ); 
-      if ( !value.empty() ) { 
-	edm::LogVerbatim(mlDqmClient_)
-	  << "[SiStripCommissioningClient::" << __func__ << "]"
-	  << " Found std::string \"" <<  istr->substr(pos,std::string::npos)
-	  << "\" with value " << value << "\"";
-	if ( !(mui_->get(sistrip::root_+"/"+istr->substr(pos,std::string::npos))) ) { 
-	  mui_->setCurrentFolder(sistrip::root_);
-	  mui_->getBEInterface()->bookString( istr->substr(pos,std::string::npos), value ); 
-	}
-	return SiStripEnumsAndStrings::runType( value ); 
-      }
-    }
-    istr++;
-    
-  }
-  return sistrip::UNKNOWN_RUN_TYPE;
 }
 
 // -----------------------------------------------------------------------------
@@ -549,7 +516,22 @@ void SiStripCommissioningClient::remove( std::string pattern ) {
       << "[SiStripCommissioningClient::" << __func__ << "]"
       << " Removing all histograms within structure \""
       << pattern << "\"";
-    mui_->getBEInterface()->rmdir(pattern); 
+    mui_->getBEInterface()->setVerbose(0);
+    mui_->getBEInterface()->cd(); // cd to top dir
+    mui_->getBEInterface()->removeContents(); 
+    //if( mui_->getBEInterface()->dirExists(pattern) ) {
+    //mui_->getBEInterface()->rmdir(pattern); 
+    //}
+    if( mui_->getBEInterface()->dirExists("Collector") ) {
+      mui_->getBEInterface()->rmdir("Collector");
+    }
+    if( mui_->getBEInterface()->dirExists("EvF") ) {
+      mui_->getBEInterface()->rmdir("EvF");
+    }
+    if( mui_->getBEInterface()->dirExists("SiStrip") ) {
+      mui_->getBEInterface()->rmdir("SiStrip");
+    }
+    mui_->getBEInterface()->setVerbose(1);
   } else {
     edm::LogWarning(mlDqmClient_)
       << "[SiStripCommissioningClient::" << __func__ << "]"
