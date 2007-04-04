@@ -23,6 +23,7 @@
 #include "RecoCaloTools/Selectors/interface/CaloConeSelector.h"
 #include "RecoCaloTools/MetaCollections/interface/CaloRecHitMetaCollections.h"
 
+#include "TrackingTools/TrackAssociator/interface/TrackAssociatorParameters.h"
 #include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
 
 #include "RecoBTag/SoftLepton/interface/SoftElectronProducer.h"
@@ -47,16 +48,11 @@ SoftElectronProducer::SoftElectronProducer(const edm::ParameterSet &iConf) :
 
   theHOverEConeSize = theConf.getParameter<double>("HOverEConeSize");
 
-  // TrackAssociator parameters
-  edm::ParameterSet parameters = iConf.getParameter<edm::ParameterSet>("TrackAssociatorParameters");
-  theTrackAssociatorParameters.loadParameters( parameters );
-
+  // TrackAssociator and its parameters
   theTrackAssociator = new TrackDetectorAssociator();
   theTrackAssociator->useDefaultPropagator();
-
-  // fill TrackAssociator data labels
-  //theTrackAssociator->theEBRecHitCollectionLabel = theConf.getParameter<InputTag>("EBRecHitCollectionLabel");
-  //theTrackAssociator->theEERecHitCollectionLabel = theConf.getParameter<InputTag>("EERecHitCollectionLabel");
+  edm::ParameterSet parameters = iConf.getParameter<edm::ParameterSet>("TrackAssociatorParameters");
+  theTrackAssociatorParameters = new TrackAssociatorParameters( parameters );
 
   theDiscriminatorCut = theConf.getParameter<double>("DiscriminatorCut");
 
@@ -70,8 +66,9 @@ SoftElectronProducer::SoftElectronProducer(const edm::ParameterSet &iConf) :
 
 SoftElectronProducer::~SoftElectronProducer()
 {
-  if(theElecNN) delete theElecNN;
-  if(theTrackAssociator) delete theTrackAssociator;
+  if (theElecNN)                    delete theElecNN;
+  if (theTrackAssociator)           delete theTrackAssociator;
+  if (theTrackAssociatorParameters) delete theTrackAssociatorParameters;
 }
 
 //------------------------------------------------------------------------------
@@ -144,10 +141,10 @@ void SoftElectronProducer::produce(edm::Event &iEvent,
 
     try {
       tmpFTS = theTrackAssociator->getFreeTrajectoryState(iSetup, *track);
-      info = theTrackAssociator->associate(iEvent, iSetup, tmpFTS, theTrackAssociatorParameters);
+      info = theTrackAssociator->associate(iEvent, iSetup, tmpFTS, *theTrackAssociatorParameters);
     } catch (cms::Exception e) {
       // extrapolation failed, skip this track
-      std::cerr << "Caught exception during track extrapolation: internal error, skipping track" << endl;
+      std::cerr << "Caught exception during track extrapolation: " << e.what() << ". Skipping track" << endl;
       continue;
     }
 

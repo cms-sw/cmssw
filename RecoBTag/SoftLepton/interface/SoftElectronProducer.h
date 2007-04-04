@@ -3,9 +3,9 @@
 /** \class SoftElectronProducer
  *
  *
- *  $Id: SoftElectronProducer.h,v 1.4 2007/02/28 09:35:35 fwyzard Exp $
- *  $Date: 2007/02/28 09:35:35 $
- *  $Revision: 1.4 $
+ *  $Id: SoftElectronProducer.h,v 1.5 2007/04/01 22:10:44 fwyzard Exp $
+ *  $Date: 2007/04/01 22:10:44 $
+ *  $Revision: 1.5 $
  *
  *  \author P. Demin - UCL, Louvain-la-Neuve - Belgium
  *
@@ -17,6 +17,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 class TrackDetectorAssociator;
+class TrackAssociatorParameters;
 class ElectronIdMLP;
 
 // SoftElectronProducer inherits from EDProducer, so it can be a module:
@@ -43,8 +44,8 @@ class SoftElectronProducer : public edm::EDProducer
   double theHOverEConeSize;
   double theDiscriminatorCut;
 
-  TrackDetectorAssociator *theTrackAssociator;
-  TrackAssociatorParameters theTrackAssociatorParameters;
+  TrackDetectorAssociator   *theTrackAssociator;
+  TrackAssociatorParameters *theTrackAssociatorParameters;
 
   ElectronIdMLP *theElecNN;
 
