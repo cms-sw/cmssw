@@ -1,4 +1,4 @@
-// $Id: FragmentCollector.cc,v 1.29 2007/03/07 15:10:23 biery Exp $
+// $Id: FragmentCollector.cc,v 1.30 2007/04/02 21:55:47 hcheung Exp $
 
 #include "EventFilter/StorageManager/interface/FragmentCollector.h"
 #include "EventFilter/StorageManager/interface/ProgressMarker.h"
@@ -290,8 +290,8 @@ namespace stor
       FR_DEBUG << "FragColl: DQM_Event ID " << entry->id_ << endl;
       FR_DEBUG << "FragColl: DQM_Event folderID " << entry->folderid_ << endl;
 
-      // temporary debug output
       DQMEventMsgView dqmEventView(entry->buffer_address_);
+      // temporary debug output
       std::cout << "  DQM Message data:" << std::endl; 
       std::cout << "    protocol version = "
                 << dqmEventView.protocolVersion() << std::endl; 
@@ -331,6 +331,11 @@ namespace stor
           std::cout << "    TObject class = " << cls
                     << ", name = " << nm << std::endl;
         }
+      }
+      // Manage this DQMEvent, temporarily just stick it in the DQMEventServer
+      if (DQMeventServer_.get() != NULL)
+      {
+        DQMeventServer_->processDQMEvent(dqmEventView);
       }
 
       // do the appropriate thing with this DQM_Event
@@ -377,8 +382,8 @@ namespace stor
         (*buffer_deleter_)(&(*i));
       }
       // the reformed DQM data is now in event_area_ deal with it
-      // temporary debug output
       DQMEventMsgView dqmEventView(&event_area_[0]);
+      // temporary debug output
       std::cout << "  DQM Message data:" << std::endl; 
       std::cout << "    protocol version = "
                 << dqmEventView.protocolVersion() << std::endl; 
@@ -418,6 +423,11 @@ namespace stor
           std::cout << "    TObject class = " << cls
                     << ", name = " << nm << std::endl;
         }
+      }
+      // Manage this DQMEvent, temporarily just stick it in the DQMEventServer
+      if (DQMeventServer_.get() != NULL)
+      {
+        DQMeventServer_->processDQMEvent(dqmEventView);
       }
 
       // remove the entry from the map

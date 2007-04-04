@@ -1,4 +1,4 @@
-// $Id: StorageManager.cc,v 1.12 2007/03/29 18:45:00 klute Exp $
+// $Id: StorageManager.cc,v 1.13 2007/04/01 05:22:56 hcheung Exp $
 
 #include <iostream>
 #include <iomanip>
@@ -129,6 +129,8 @@ StorageManager::StorageManager(xdaq::ApplicationStub * s)
   xgi::bind(this,&StorageManager::eventdataWebPage,     "geteventdata");
   xgi::bind(this,&StorageManager::headerdataWebPage,    "getregdata");
   xgi::bind(this,&StorageManager::consumerWebPage,      "registerConsumer");
+  xgi::bind(this,&StorageManager::DQMeventdataWebPage,     "getDQMeventdata");
+  xgi::bind(this,&StorageManager::DQMconsumerWebPage,      "registerDQMConsumer");
   receivedFrames_ = 0;
   pool_is_set_    = 0;
   pool_           = 0;
@@ -165,6 +167,14 @@ StorageManager::StorageManager(xdaq::ApplicationStub * s)
   ispace->fireItemAvailable("idleConsumerTimeout",&idleConsumerTimeout_);
   consumerQueueSize_ = 5;
   ispace->fireItemAvailable("consumerQueueSize",&consumerQueueSize_);
+  DQMmaxESEventRate_ = 1.0;  // hertz
+  ispace->fireItemAvailable("DQMmaxESEventRate",&DQMmaxESEventRate_);
+  DQMactiveConsumerTimeout_ = 300;  // seconds
+  ispace->fireItemAvailable("DQMactiveConsumerTimeout",&DQMactiveConsumerTimeout_);
+  DQMidleConsumerTimeout_ = 600;  // seconds
+  ispace->fireItemAvailable("DQMidleConsumerTimeout",&DQMidleConsumerTimeout_);
+  DQMconsumerQueueSize_ = 5;
+  ispace->fireItemAvailable("DQMconsumerQueueSize",&DQMconsumerQueueSize_);
 
   // for performance measurements
   samples_          = 100; // measurements every 25MB (about)
@@ -1624,6 +1634,170 @@ void StorageManager::consumerWebPage(xgi::Input *in, xgi::Output *out)
 
 }
 
+//////////// *** get DQMevent data web page //////////////////////////////////////////////////////////
+void StorageManager::DQMeventdataWebPage(xgi::Input *in, xgi::Output *out)
+  throw (xgi::exception::Exception)
+{
+  // default the message length to zero
+  int len=0;
+
+  // determine the consumer ID from the event request
+  // message, if it is available.
+  unsigned int consumerId = 0;
+  std::string lengthString = in->getenv("CONTENT_LENGTH");
+  unsigned int contentLength = std::atol(lengthString.c_str());
+  if (contentLength > 0) 
+    {
+      auto_ptr< vector<char> > bufPtr(new vector<char>(contentLength));
+      in->read(&(*bufPtr)[0], contentLength);
+      OtherMessageView requestMessage(&(*bufPtr)[0]);
+      // make the change below when a tag of IOPool/Streamer can be used without FW changes
+      //if (requestMessage.code() == Header::DQMEVENT_REQUEST)
+      if (requestMessage.code() == Header::EVENT_REQUEST)
+	{
+	  uint8 *bodyPtr = requestMessage.msgBody();
+	  consumerId = convert32(bodyPtr);
+	}
+    }
+  
+  // first test if StorageManager is in Enabled state and this is a valid request
+  // there must also be DQM data available
+  if(fsm_.stateName()->toString() == "Enabled" && consumerId != 0)
+  {
+    boost::shared_ptr<DQMEventServer> eventServer;
+    if (jc_.get() != NULL)
+    {
+      eventServer = jc_->getDQMEventServer();
+    }
+    if (eventServer.get() != NULL)
+    {
+      boost::shared_ptr< std::vector<char> > bufPtr =
+        eventServer->getDQMEvent(consumerId);
+      if (bufPtr.get() != NULL)
+      {
+        DQMEventMsgView msgView(&(*bufPtr)[0]);
+
+// What if mybuffer_ is not large enough!! Redo this bit using a vector<char> for mybuffer_
+// Also what if mybuffer_ is used in multiple threads? Can it happen?
+        unsigned char* pos = (unsigned char*) &mybuffer_[0];
+        unsigned char* from = msgView.startAddress();
+        int dsize = msgView.size();
+
+        copy(from,from+dsize,pos);
+        len = dsize;
+        FDEBUG(10) << "sending update at event " << msgView.eventNumberAtUpdate() << std::endl;
+      }
+    }
+    
+    // check if zero length is sent when there is no valid data
+    // i.e. on getDQMEvent, can already send zero length if request is invalid
+    out->getHTTPResponseHeader().addHeader("Content-Type", "application/octet-stream");
+    out->getHTTPResponseHeader().addHeader("Content-Transfer-Encoding", "binary");
+    out->write(mybuffer_,len);
+  } // else send end of run as reponse
+  else
+    {
+      // not an event request or not in enabled state, just send DONE message
+      OtherMessageBuilder othermsg(&mybuffer_[0],Header::DONE);
+      len = othermsg.size();
+      
+      out->getHTTPResponseHeader().addHeader("Content-Type", "application/octet-stream");
+      out->getHTTPResponseHeader().addHeader("Content-Transfer-Encoding", "binary");
+      out->write(mybuffer_,len);
+    }
+  
+}
+
+////////////////////////////// DQM consumer registration web page ////////////////////////////
+void StorageManager::DQMconsumerWebPage(xgi::Input *in, xgi::Output *out)
+  throw (xgi::exception::Exception)
+{
+  if(fsm_.stateName()->toString() == "Enabled")
+  { // We need to be in the enabled state
+
+    std::string consumerName = "None provided";
+    std::string consumerPriority = "normal";
+    std::string consumerRequest = "<>";
+
+    // read the consumer registration message from the http input stream
+    std::string lengthString = in->getenv("CONTENT_LENGTH");
+    unsigned int contentLength = std::atol(lengthString.c_str());
+    if (contentLength > 0)
+    {
+      auto_ptr< vector<char> > bufPtr(new vector<char>(contentLength));
+      in->read(&(*bufPtr)[0], contentLength);
+      ConsRegRequestView requestMessage(&(*bufPtr)[0]);
+      consumerName = requestMessage.getConsumerName();
+      consumerPriority = requestMessage.getConsumerPriority();
+      // for DQM consumers top folder name is stored in the "parameteSet"
+      std::string reqFolder = requestMessage.getRequestParameterSet();
+      if (reqFolder.size() >= 2) consumerRequest = reqFolder;
+    }
+
+    // create the buffer to hold the registration reply message
+    const int BUFFER_SIZE = 100;
+    char msgBuff[BUFFER_SIZE];
+
+    // fetch the DQMevent server
+    // (it and/or the job controller may not have been created yet
+    //  if not in the enabled state)
+    boost::shared_ptr<DQMEventServer> eventServer;
+    if (jc_.get() != NULL)
+    {
+      eventServer = jc_->getDQMEventServer();
+    }
+
+    // if no event server, tell the consumer that we're not ready
+    if (eventServer.get() == NULL)
+    {
+      // build the registration response into the message buffer
+      ConsRegResponseBuilder respMsg(msgBuff, BUFFER_SIZE,
+                                     ConsRegResponseBuilder::ES_NOT_READY, 0);
+      // debug message so that compiler thinks respMsg is used
+      FDEBUG(20) << "Registration response size =  " <<
+        respMsg.size() << std::endl;
+    }
+    else
+    {
+      // create the local consumer interface and add it to the event server
+      boost::shared_ptr<DQMConsumerPipe>
+        consPtr(new DQMConsumerPipe(consumerName, consumerPriority,
+                                 DQMactiveConsumerTimeout_.value_,
+                                 DQMidleConsumerTimeout_.value_,
+                                 consumerRequest));
+      eventServer->addConsumer(consPtr);
+
+      // initialize it straight away (should later pass in the folder name to
+      // optionally change the selection on a register?
+      consPtr->initializeSelection();
+
+      // build the registration response into the message buffer
+      ConsRegResponseBuilder respMsg(msgBuff, BUFFER_SIZE,
+                                     0, consPtr->getConsumerId());
+      // debug message so that compiler thinks respMsg is used
+      FDEBUG(20) << "Registration response size =  " <<
+        respMsg.size() << std::endl;
+    }
+
+    // send the response
+    ConsRegResponseView responseMessage(msgBuff);
+    int len = responseMessage.size();
+    for (int i=0; i<len; i++) mybuffer_[i]=msgBuff[i];
+
+    out->getHTTPResponseHeader().addHeader("Content-Type", "application/octet-stream");
+    out->getHTTPResponseHeader().addHeader("Content-Transfer-Encoding", "binary");
+    out->write(mybuffer_,len);
+
+  } else { // is this the right thing to send?
+   // In wrong state for this message - return zero length stream, should return Msg NOTREADY
+   int len = 0;
+   out->getHTTPResponseHeader().addHeader("Content-Type", "application/octet-stream");
+   out->getHTTPResponseHeader().addHeader("Content-Transfer-Encoding", "binary");
+   out->write(mybuffer_,len);
+  }
+
+}
+
 //------------------------------------------------------------------------------
 // Everything that has to do with the flash list goes here
 // 
@@ -1789,10 +1963,14 @@ bool StorageManager::configuring(toolbox::task::WorkLoop* wl)
     
     if (maxESEventRate_ < 0.0)
       maxESEventRate_ = 0.0;
+    if (DQMmaxESEventRate_ < 0.0)
+      DQMmaxESEventRate_ = 0.0;
     
     xdata::Integer cutoff(1);
     if (consumerQueueSize_ < cutoff)
       consumerQueueSize_ = cutoff;
+    if (DQMconsumerQueueSize_ < cutoff)
+      DQMconsumerQueueSize_ = cutoff;
     
     // the rethrows below need to be XDAQ exception types (JBK)
     try {
@@ -1812,6 +1990,9 @@ bool StorageManager::configuring(toolbox::task::WorkLoop* wl)
       boost::shared_ptr<EventServer>
 	eventServer(new EventServer(value_4oneinN, maxESEventRate_));
       jc_->setEventServer(eventServer);
+      boost::shared_ptr<DQMEventServer>
+	DQMeventServer(new DQMEventServer(DQMmaxESEventRate_));
+      jc_->setDQMEventServer(DQMeventServer);
     }
     catch(cms::Exception& e)
       {
