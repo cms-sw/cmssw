@@ -1,9 +1,10 @@
 #ifndef HLT_JOB_CNTLER_HPP
 #define HLT_JOB_CNTLER_HPP
-// $Id:$
+// $Id: JobController.h,v 1.14 2006/12/22 09:48:17 klute Exp $
 
 #include "EventFilter/StorageManager/interface/FragmentCollector.h"
 #include "EventFilter/StorageManager/interface/EventServer.h"
+#include "EventFilter/StorageManager/interface/DQMEventServer.h"
 
 #include "IOPool/Streamer/interface/EventBuffer.h"
 #include "IOPool/Streamer/interface/EventMessage.h"
@@ -55,6 +56,13 @@ namespace stor
     }
     boost::shared_ptr<EventServer>& getEventServer() { return eventServer_; }
 
+    void setDQMEventServer(boost::shared_ptr<DQMEventServer>& es)
+    {
+      if (collector_.get() != NULL) collector_->setDQMEventServer(es);
+      DQMeventServer_ = es;
+    }
+    boost::shared_ptr<DQMEventServer>& getDQMEventServer() { return DQMeventServer_; }
+
     void set_outoption(bool stream_only)      { collector_->set_outoption(stream_only);}
     void setNumberOfFileSystems(int disks)    { collector_->setNumberOfFileSystems(disks); }
     void setFileCatalog(std::string catalog)  { collector_->setFileCatalog(catalog); }
@@ -70,6 +78,7 @@ namespace stor
 
     boost::shared_ptr<FragmentCollector> collector_;
     boost::shared_ptr<EventServer> eventServer_;
+    boost::shared_ptr<DQMEventServer> DQMeventServer_;
 
     boost::shared_ptr<boost::thread> me_;
   };

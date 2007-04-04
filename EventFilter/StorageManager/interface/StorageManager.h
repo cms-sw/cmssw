@@ -10,7 +10,7 @@
 
      See CMS EventFilter wiki page for further notes.
 
-   $Id: StorageManager.h,v 1.9 2007/03/26 23:04:41 hcheung Exp $
+   $Id: StorageManager.h,v 1.10 2007/03/29 09:08:16 klute Exp $
 */
 
 #include <string>
@@ -107,6 +107,10 @@ namespace stor {
       (xgi::Input *in, xgi::Output *out) throw (xgi::exception::Exception);
     void consumerWebPage
       (xgi::Input *in, xgi::Output *out) throw (xgi::exception::Exception);
+    void DQMeventdataWebPage
+      (xgi::Input *in, xgi::Output *out) throw (xgi::exception::Exception);
+    void DQMconsumerWebPage
+      (xgi::Input *in, xgi::Output *out) throw (xgi::exception::Exception);
 
     void parseFileEntry(std::string in, std::string &out, unsigned int &nev, unsigned int &sz);
 	
@@ -141,11 +145,15 @@ namespace stor {
     char serialized_prods_[1000*1000*2];
     int  ser_prods_size_;
     xdata::Integer oneinN_; //place one in eveny oneinN_ into buffer
-    char mybuffer_[7000000]; //temporary buffer instead of using stack
+    char mybuffer_[7000000]; //temporary buffer instead of using stack - this should be an arbitary size vector for DQMEvents!
     xdata::Double maxESEventRate_;  // hertz
     xdata::Integer activeConsumerTimeout_;  // seconds
     xdata::Integer idleConsumerTimeout_;  // seconds
     xdata::Integer consumerQueueSize_;
+    xdata::Double DQMmaxESEventRate_;  // hertz
+    xdata::Integer DQMactiveConsumerTimeout_;  // seconds
+    xdata::Integer DQMidleConsumerTimeout_;  // seconds
+    xdata::Integer DQMconsumerQueueSize_;
 
     SMFUSenderList smfusenders_;
     xdata::UnsignedInteger32 connectedFUs_;

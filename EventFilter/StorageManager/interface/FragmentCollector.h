@@ -22,6 +22,7 @@
 
 #include "EventFilter/StorageManager/interface/EvtMsgRingBuffer.h"
 #include "EventFilter/StorageManager/interface/EventServer.h"
+#include "EventFilter/StorageManager/interface/DQMEventServer.h"
 #include "EventFilter/StorageManager/interface/ServiceManager.h"
 
 #include "boost/shared_ptr.hpp"
@@ -61,6 +62,7 @@ namespace stor
     edm::EventBuffer& getCommandQueue() { return *cmd_q_; }
     
     void setEventServer(boost::shared_ptr<EventServer>& es) { eventServer_ = es; }
+    void setDQMEventServer(boost::shared_ptr<DQMEventServer>& es) { DQMeventServer_ = es; }
 
   private:
     static void run(FragmentCollector*);
@@ -112,6 +114,7 @@ namespace stor
     int oneinN_;  // place one in every oneinN_ events into the buffer
     int count_4_oneinN_;
     boost::shared_ptr<EventServer> eventServer_;
+    boost::shared_ptr<DQMEventServer> DQMeventServer_;
   };
 }
 
