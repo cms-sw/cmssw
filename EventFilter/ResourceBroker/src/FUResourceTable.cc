@@ -239,10 +239,10 @@ bool FUResourceTable::discard(toolbox::task::WorkLoop* /* wl */)
   UInt_t buResourceId=cell->buResourceId();
 
   if (shutDown) {
-    LOG4CPLUS_WARN(log_,"nbClientsToShutDown = "<<nbClientsToShutDown_);
+    LOG4CPLUS_INFO(log_,"nbClientsToShutDown = "<<nbClientsToShutDown_);
     if (nbClientsToShutDown_>0) --nbClientsToShutDown_;
     if (nbClientsToShutDown_==0) {
-      LOG4CPLUS_WARN(log_,"Don't reschedule discard-workloop.");
+      LOG4CPLUS_INFO(log_,"Don't reschedule discard-workloop.");
       reschedule = false;
     }
   }
@@ -257,6 +257,12 @@ bool FUResourceTable::discard(toolbox::task::WorkLoop* /* wl */)
   if (!reschedule) {
     shmBuffer_->writeRecoEmptyEvent();
     shmBuffer_->writeDqmEmptyEvent();
+    
+    while (shmBuffer_->nbClients()>0) {
+      LOG4CPLUS_WARN(log_,"Wait for all clients to detach, nbClients="
+		     <<shmBuffer_->nbClients());
+      ::sleep(1);
+    }
     isReadyToShutDown_ = true;
   }
   
@@ -465,7 +471,12 @@ void FUResourceTable::resetCounters()
 UInt_t FUResourceTable::nbShmClients() const
 {
   UInt_t result(0);
-  if (0!=shmBuffer_) result=shmBuffer_->nbClients();
+  if (0!=shmBuffer_) {
+    UInt_t nbClients=shmBuffer_->nbClients();
+    if (nbClients>0&&nbClients%3)
+      cout<<"FUResourceTable::nbShmClients() WARNING: wrong estimate!"<<endl;
+    result=nbClients/3;
+  }
   return result;
 }
 
@@ -504,9 +515,14 @@ void FUResourceTable::sendInitMessage(UInt_t   fuResourceId,
 				      UChar_t *data,
 				      UInt_t   dataSize)
 {
-  UInt_t   nbBytes    =sm_->sendInitMessage(fuResourceId,data,dataSize);
-  outputSumOfSquares_+=(uint64_t)nbBytes*(uint64_t)nbBytes;
-  outputSumOfSizes_  +=nbBytes;
+  if (0==sm_) {
+    LOG4CPLUS_ERROR(log_,"No StorageManager, DROP INIT MESSAGE!");
+  }
+  else {
+    UInt_t   nbBytes    =sm_->sendInitMessage(fuResourceId,data,dataSize);
+    outputSumOfSquares_+=(uint64_t)nbBytes*(uint64_t)nbBytes;
+    outputSumOfSizes_  +=nbBytes;
+  }
 }
 
 
@@ -517,11 +533,16 @@ void FUResourceTable::sendDataEvent(UInt_t   fuResourceId,
 				    UChar_t *data,
 				    UInt_t   dataSize)
 {
-  UInt_t   nbBytes    =sm_->sendDataEvent(fuResourceId,
-					  runNumber,evtNumber,data,dataSize);
-  outputSumOfSquares_+=(uint64_t)nbBytes*(uint64_t)nbBytes;
-  outputSumOfSizes_  +=nbBytes;
-  nbSent_++;
+  if (0==sm_) {
+    LOG4CPLUS_ERROR(log_,"No StorageManager, DROP DATA EVENT!");
+  }
+  else {
+    UInt_t   nbBytes    =sm_->sendDataEvent(fuResourceId,
+					    runNumber,evtNumber,data,dataSize);
+    outputSumOfSquares_+=(uint64_t)nbBytes*(uint64_t)nbBytes;
+    outputSumOfSizes_  +=nbBytes;
+    nbSent_++;
+  }
 }
 
 
@@ -533,8 +554,13 @@ void FUResourceTable::sendDqmEvent(UInt_t   fuDqmId,
 				   UChar_t* data,
 				   UInt_t   dataSize)
 {
-  sm_->sendDqmEvent(fuDqmId,runNumber,evtAtUpdate,folderId,data,dataSize);
-  nbSentDqm_++;
+  if (0==sm_) {
+    LOG4CPLUS_WARN(log_,"No StorageManager, DROP DQM EVENT.");
+  }
+  else {
+    sm_->sendDqmEvent(fuDqmId,runNumber,evtAtUpdate,folderId,data,dataSize);
+    nbSentDqm_++;
+  }
 }
 
 

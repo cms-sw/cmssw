@@ -1,3 +1,11 @@
+2007-04-05  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-06-08
+	* fix 'nbShmClients()' calculation, which is now assuming that
+	each process attaches 3x: reader,output,dqm.
+	* If FUShmOutputModule and/or FUShmDQMOutputService are not
+	present, 'halt' will fail!
+	
 2007-04-02  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 	
 	* tag V00-06-07
