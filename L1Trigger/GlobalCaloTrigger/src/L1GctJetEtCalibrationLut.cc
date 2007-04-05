@@ -4,8 +4,8 @@
 #include "CondFormats/L1TObjects/interface/L1GctJetEtCalibrationFunction.h"
 
 //DEFINE STATICS
-const int L1GctJetEtCalibrationLut::NAddress=15;
-const int L1GctJetEtCalibrationLut::NData=16;
+const int L1GctJetEtCalibrationLut::NAddress=JET_ET_CAL_LUT_ADD_BITS;
+const int L1GctJetEtCalibrationLut::NData=JET_ET_CAL_LUT_DAT_BITS;
 const unsigned L1GctJetEtCalibrationLut::JET_ENERGY_BITWIDTH = L1GctJetEtCalibrationFunction::JET_ENERGY_BITWIDTH;
 
 L1GctJetEtCalibrationLut* L1GctJetEtCalibrationLut::setupLut(const L1GctJetEtCalibrationFunction* lutfn)
