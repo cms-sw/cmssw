@@ -81,7 +81,12 @@ void L1GctLutFromFile<NAddressBits, NDataBits>::readFromFile(const std::string f
   }
   // All values read
   if (inFile.get()=='\n') { inFile.get(); }
-  m_setupOk = (inFile.eof() && (m_lutContents.size()==a));
+  //***
+  //***The following line commented because it appears to break compilation on slc4!!
+  //***Don't understand why, m_setupOk is protected in base class L1GctLut
+  //***but the compiler seems not to recognise it
+  //***
+  //m_setupOk = (inFile.eof() && (m_lutContents.size()==a));
   inFile.close();
 }
 
