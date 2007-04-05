@@ -1,8 +1,8 @@
 /** \file LaserAlignment.cc
  *  LAS reconstruction module
  *
- *  $Date: 2007/03/18 19:00:20 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/04/03 15:08:21 $
+ *  $Revision: 1.5 $
  *  \author Maarten Thomas
  */
 
@@ -20,6 +20,7 @@
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
+#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetType.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetType.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
@@ -276,7 +277,9 @@ void LaserAlignment::produce(edm::Event& theEvent, edm::EventSetup const& theSet
 		  theLaserPhiError.push_back(thePhiErrorScalingFactor * thePhiError);
 		
 			/// for Bruno's algorithm get the pitch at strip 255.5 and multiply it with 255.5 to get the position in cm at the middle of the module
-			double thePosition = 255.5 * theTrackerGeometry->idToDet((iHist->second).first)->specificTopology().localPitch(theTrackerGeometry->idToDet((iHist->second).first)->specificTopology().localPosition(255.5));
+			const StripGeomDetUnit* const theStripDet = dynamic_cast<const StripGeomDetUnit*>(theTrackerGeometry.idToDet((iHist->second).first));
+			
+			double thePosition = 255.5 * theStripDet->specificTopology().localPitch(theStripDet->specificTopology().localPosition(255.5));
 			double thePositionError = 0.05; // set the error to half a milllimeter in this case
 		}
 	    }

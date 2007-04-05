@@ -1,7 +1,7 @@
 /** \file BeamProfileFitter.cc
 *
-	*  $Date: 2007/03/18 19:00:20 $
-	*  $Revision: 1.6 $
+	*  $Date: 2007/04/03 15:08:22 $
+	*  $Revision: 1.7 $
 	*  \author Maarten Thomas
 */
 
@@ -29,7 +29,7 @@
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 
 // function to return an angle in radian between 0 and 2 Pi
-	double BeamProfileFitter::angle(double theAngle)
+double BeamProfileFitter::angle(double theAngle)
 {
 	if ( theAngle >= 0.0 )
 		{ return theAngle; }
@@ -49,7 +49,7 @@ theClearHistoAfterFit(theConf.getUntrackedParameter<bool>("ClearHistogramAfterFi
 	theScaleHisto(theConf.getUntrackedParameter<bool>("ScaleHistogramBeforeFit",true)),
 	theMinSignalHeight(theConf.getUntrackedParameter<double>("MinimalSignalHeight",0.0)),
 	theCorrectBSkink(theConf.getUntrackedParameter<bool>("CorrectBeamSplitterKink",true)),
-	theBSAnglesSystematic(thConf.getUntrackedParameter<double>("BSAnglesSystematic",0.0007))
+	theBSAnglesSystematic(theConf.getUntrackedParameter<double>("BSAnglesSystematic",0.0007))
 {
 }
 
@@ -177,138 +177,183 @@ std::vector<LASBeamProfileFit> BeamProfileFitter::doFit(const edm::EventSetup& t
 							{
 							// correction for TEC-
 							// correct the fitted mean for the BS kink
-								theMean -= (TMath::Abs(theStripDet->position().z()) - theBSPosition) * tan(bsKinkNegTEC.at(theBeam)) 
-								}
-								else if (theSide == 2)
-								{
+								theMean -= (TMath::Abs(theStripDet->position().z()) - theBSPosition) * tan(bsKinkNegTEC.at(theBeam));
+							}
+							else if (theSide == 2)
+							{
 								// correction for TEC+
 								// correct the fitted mean for the BS kink
-									theMean -= (TMath::Abs(theStripDet->position().z()) - theBSPosition) * tan(bsKinkPosTEC.at(theBeam)) 
-									}
-								}
+								theMean -= (TMath::Abs(theStripDet->position().z()) - theBSPosition) * tan(bsKinkPosTEC.at(theBeam));
 							}
+						}
+					}
 
 			// global position of the LaserProfile
-							TVector3 GlobalPos(theStripDet->surface().toGlobal(theStripDet->specificTopology().localPosition(theMean)).x(),
-								theStripDet->surface().toGlobal(theStripDet->specificTopology().localPosition(theMean)).y(),
-								theStripDet->surface().toGlobal(theStripDet->specificTopology().localPosition(theMean)).z());
+					TVector3 GlobalPos(theStripDet->surface().toGlobal(theStripDet->specificTopology().localPosition(theMean)).x(),
+						theStripDet->surface().toGlobal(theStripDet->specificTopology().localPosition(theMean)).y(),
+						theStripDet->surface().toGlobal(theStripDet->specificTopology().localPosition(theMean)).z());
 
 			// use the error on the mean from the fit to calculate the error on phi
-							ErrorFrameTransformer theErrorTransformer;
-							GlobalError theGlobalPositionError = theErrorTransformer.transform(theStripDet->specificTopology().localError(theMean,pow(theMeanError,2)),
-								theStripDet->surface());
+					ErrorFrameTransformer theErrorTransformer;
+					GlobalError theGlobalPositionError = theErrorTransformer.transform(theStripDet->specificTopology().localError(theMean,pow(theMeanError,2)),
+						theStripDet->surface());
 
-							Float_t gerrors[9] = { theGlobalPositionError.matrix()(1,1), theGlobalPositionError.matrix()(1,2), theGlobalPositionError.matrix()(1,3),
-								theGlobalPositionError.matrix()(2,1), theGlobalPositionError.matrix()(2,2), theGlobalPositionError.matrix()(2,3),
-								theGlobalPositionError.matrix()(3,1), theGlobalPositionError.matrix()(3,2), theGlobalPositionError.matrix()(3,3) };
-							TMatrix GlobalError(3,3,gerrors,"");
+					Float_t gerrors[9] = { theGlobalPositionError.matrix()(1,1), theGlobalPositionError.matrix()(1,2), theGlobalPositionError.matrix()(1,3),
+						theGlobalPositionError.matrix()(2,1), theGlobalPositionError.matrix()(2,2), theGlobalPositionError.matrix()(2,3),
+						theGlobalPositionError.matrix()(3,1), theGlobalPositionError.matrix()(3,2), theGlobalPositionError.matrix()(3,3) };
+					TMatrix GlobalError(3,3,gerrors,"");
 
 
 			// errors of the x,y and z coordinate are given as the square root of the (i,i) element of the Covariance Matrix
-							TVector3 GlobalPosError(TMath::Sqrt(GlobalError(0,0)),TMath::Sqrt(GlobalError(1,1)),TMath::Sqrt(GlobalError(2,2)));
+					TVector3 GlobalPosError(TMath::Sqrt(GlobalError(0,0)),TMath::Sqrt(GlobalError(1,1)),TMath::Sqrt(GlobalError(2,2)));
 
 			// global phi and error of the LaserProfile
-							Double_t GlobalPhi = angle(GlobalPos.Phi());
-							Double_t GlobalPhiError = phiError(GlobalPos, GlobalError);
+					Double_t GlobalPhi = angle(GlobalPos.Phi());
+					Double_t GlobalPhiError = phiError(GlobalPos, GlobalError);
 
 			// create a new LASBeamProfileFit from the result and return it
-							theResult.push_back(LASBeamProfileFit(theHistoName, theMean, theMeanError, theUncorrectedMean, 
-								theSigma, theSigmaError, theStripDet->specificTopology().localPitch(theStripDet->specificTopology().localPosition(theMean)), GlobalPhi, GlobalPhiError));
+					theResult.push_back(LASBeamProfileFit(theHistoName, theMean, theMeanError, theUncorrectedMean, 
+						theSigma, theSigmaError, theStripDet->specificTopology().localPitch(theStripDet->specificTopology().localPosition(theMean)), GlobalPhi, GlobalPhiError));
 			// this is a good fit!?
-							isGoodResult = true;
+					isGoodResult = true;
 
 			// some final output about the result of the fit
-							LogDebug("BeamProfileFitter:doFit") << " **** Results of the Beam Profile Fit for " << theHistoName << " **** "
-								<< "\n Mean            = " << theMean << " +/- " << theMeanError
-								<< "\n Sigma           = " << theSigma << " +/- " << theSigmaError
-								<< "\n Pitch           = " << theStripDet->specificTopology().pitch()
-								<< "\n Fitted Global Position = (" << GlobalPos.X() << "," << GlobalPos.Y() << "," << GlobalPos.Z() << ")"
-								<< "\n Global Position Error  = (" << GlobalPosError.X() << "," << GlobalPosError.Y() << "," << GlobalPosError.Z() << ")"
-								<< "\n Fitted Global Phi      = " << GlobalPhi << " +/- " << GlobalPhiError
-								<< "\n ******************************************************************************* ";
-						}
-						else
-						{
-							edm::LogWarning("BeamProfileFitter::Fit ERROR") << " Error! Result of the fit is not ok! Mean is not a value between 0 and 512 ... ";
-
-			// return an empty LASBeamProfileFit and set isGoodResult to false	      
-							theResult.push_back(LASBeamProfileFit(theHistoName, 0.0, 0.0, 0.0, 0.0, 0.0));
-			// this is not a good fit
-							isGoodResult = false;
-						}
-
-					}
-					else
-					{ 
-						edm::LogWarning("BeamProfileFitter:Fit ERROR") << " Error! Result of the fit is not ok! No position information available ... "; 
-
-				// return an empty LASBeamProfileFit and set isGoodResult to false	      
-						theResult.push_back(LASBeamProfileFit(theHistoName, 0.0, 0.0, 0.0, 0.0, 0.0));
-				// this is not a good fit
-						isGoodResult = false;
-					}
+					LogDebug("BeamProfileFitter:doFit") << " **** Results of the Beam Profile Fit for " << theHistoName << " **** "
+						<< "\n Mean            = " << theMean << " +/- " << theMeanError
+						<< "\n Sigma           = " << theSigma << " +/- " << theSigmaError
+						<< "\n Pitch           = " << theStripDet->specificTopology().pitch()
+						<< "\n Fitted Global Position = (" << GlobalPos.X() << "," << GlobalPos.Y() << "," << GlobalPos.Z() << ")"
+						<< "\n Global Position Error  = (" << GlobalPosError.X() << "," << GlobalPosError.Y() << "," << GlobalPosError.Z() << ")"
+						<< "\n Fitted Global Phi      = " << GlobalPhi << " +/- " << GlobalPhiError
+						<< "\n ******************************************************************************* ";
 				}
 				else
-				{ 
-					edm::LogWarning("BeamProfileFitter:Fit ERROR") << "<BeamProfileFitter::DoFit(...)>: Histogram is empty!!! Skipping the fit :-( ... ";
-
-		// return an empty LASBeamProfileFit and set isGoodResult to false	      
-					theResult.push_back(LASBeamProfileFit(theHistogram->GetName(), 0.0, 0.0, 0.0, 0.0, 0.0));
-		// this is not a good fit
-					isGoodResult = false;
-				}
-			}
-			else 
-			{ 
-				edm::LogWarning("BeamProfileFitter:Fit ERROR") << "<BeamProfileFitter::DoFit(...)>: Histogram does not exist!???? Nothing to fit :-( ... "; 
+				{
+					edm::LogWarning("BeamProfileFitter::Fit ERROR") << " Error! Result of the fit is not ok! Mean is not a value between 0 and 512 ... ";
 
 			// return an empty LASBeamProfileFit and set isGoodResult to false	      
-				theResult.push_back(LASBeamProfileFit("no histogram found", 0.0, 0.0, 0.0, 0.0, 0.0));
+					theResult.push_back(LASBeamProfileFit(theHistoName, 0.0, 0.0, 0.0, 0.0));
 			// this is not a good fit
+					isGoodResult = false;
+				}
+
+			}
+			else
+			{ 
+				edm::LogWarning("BeamProfileFitter:Fit ERROR") << " Error! Result of the fit is not ok! No position information available ... "; 
+
+				// return an empty LASBeamProfileFit and set isGoodResult to false	      
+				theResult.push_back(LASBeamProfileFit(theHistoName, 0.0, 0.0, 0.0, 0.0));
+				// this is not a good fit
 				isGoodResult = false;
 			}
+		}
+		else
+		{ 
+			edm::LogWarning("BeamProfileFitter:Fit ERROR") << "<BeamProfileFitter::DoFit(...)>: Histogram is empty!!! Skipping the fit :-( ... ";
+
+		// return an empty LASBeamProfileFit and set isGoodResult to false	      
+			theResult.push_back(LASBeamProfileFit(theHistogram->GetName(), 0.0, 0.0, 0.0, 0.0));
+		// this is not a good fit
+			isGoodResult = false;
+		}
+	}
+	else 
+	{ 
+		edm::LogWarning("BeamProfileFitter:Fit ERROR") << "<BeamProfileFitter::DoFit(...)>: Histogram does not exist!???? Nothing to fit :-( ... "; 
+
+			// return an empty LASBeamProfileFit and set isGoodResult to false	      
+		theResult.push_back(LASBeamProfileFit("no histogram found", 0.0, 0.0, 0.0, 0.0));
+			// this is not a good fit
+		isGoodResult = false;
+	}
 
 	// clear the histogram
-			if (theClearHistoAfterFit) 
-			{
-				theHistogram->Reset("");
-			}
+	if (theClearHistoAfterFit) 
+	{
+		theHistogram->Reset("");
+	}
 
 	// return the result of the fit
-			return theResult;
-		}
+	return theResult;
+}
 
-		std::vector<double> BeamProfileFitter::findPeakGaus(TH1D * hist, int theDisc, int theRing)
+std::vector<double> BeamProfileFitter::findPeakGaus(TH1D * hist, int theDisc, int theRing)
+{
+	double position = -1.0;
+	double positionError = -1.0;
+	double sigmaError = -1.0;
+
+	TF1 *fitSignal   = new TF1("fitSignal", "gaus"  ,0.0,50000.0);
+	TF1 *fitFun;
+
+	hist->SetLineColor(kBlue);
+	int    iMax    = hist->GetMaximumBin();
+	double mu      = hist->GetBinCenter(iMax);
+	double sigma   = 200.0;
+	double sMax    = hist->GetBinContent(iMax);
+	hist->SetMaximum(1.3*sMax);
+	hist->SetMinimum(0.0);
+
+	if (sMax < theMinSignalHeight) 
+	{
+		LogDebug("BeamProfileFitter:findPeakGaus") << "R" << theRing 
+			<< ": Laser signal below threshold for Disc " 
+			<< theDisc+1;
+		std::vector<double> result;
+		for (int i = 0; i < 4; i++)
+			{ result.push_back(-2.0); }
+
+		return result; // no signal
+	}
+
+
+	fitSignal->SetParameters(sMax,mu,sigma);
+	hist->Fit("fitSignal","EQ","",mu-4*sigma,mu+4*sigma);
+	fitFun = hist->GetFunction("fitSignal");
+	sMax       = fitFun->GetParameter(0);
+	mu         = fitFun->GetParameter(1);
+	sigma      = fabs(fitFun->GetParameter(2));
+	fitSignal->SetParameters(sMax,mu,sigma);
+	hist->Fit("fitSignal","EQ","",mu-2*sigma,mu+2*sigma); //was 3*sigma
+	fitFun     = hist->GetFunction("fitSignal");
+	position = fitFun->GetParameter(1);
+
+	// only needed for Ring 6; setting sMax,mu and sigma from previous fit
+	// makes fit result worse? therefore only refitting with smaller range?
+	if ( (theDisc == 0 || theDisc == 1)  &&  (theRing == 6) )
+	{
+		fitSignal->SetParameters(sMax,mu,sigma);
+		hist->Fit("fitSignal","EQ","",mu-1*sigma,mu+1*sigma);
+		fitFun     = hist->GetFunction("fitSignal");
+		position = fitFun->GetParameter(1);
+
+	}
+
+	int iBin0 = hist->FindBin(position-6*sigma);
+	int iBin1 = hist->FindBin(position+6*sigma);
+	bool refit = false;
+	for (int i=iBin0; i<=iBin1; i++) 
+	{
+		if (hist->GetBinContent(i)<=0) 
 		{
-			double position = -1.0;
-			double positionError = -1.0;
-			double sigmaError = -1.0;
-
-			TF1 *fitSignal   = new TF1("fitSignal", "gaus"  ,0.0,50000.0);
-			TF1 *fitFun;
-
-			hist->SetLineColor(kBlue);
-			int    iMax    = hist->GetMaximumBin();
-			double mu      = hist->GetBinCenter(iMax);
-			double sigma   = 200.0;
-			double sMax    = hist->GetBinContent(iMax);
-			hist->SetMaximum(1.3*sMax);
-			hist->SetMinimum(0.0);
-
-			if (sMax < theMinSignalHeight) 
-			{
-				LogDebug("BeamProfileFitter:findPeakGaus") << "R" << theRing 
-					<< ": Laser signal below threshold for Disc " 
-					<< theDisc+1;
-				std::vector<double> result;
-				for (int i = 0; i < 4; i++)
-					{ result.push_back(-2.0); }
-
-				return result; // no signal
-			}
-
-
-			fitSignal->SetParameters(sMax,mu,sigma);
+			hist->SetBinError(i,100000.0);
+			refit = true;
+		}
+	}
+	if (refit) 
+	{
+		if (theDisc != 0 && theDisc != 1)
+		{
+			fitSignal->SetParameters(hist->GetBinContent(iMax),hist->GetBinCenter(iMax),200.0);
+			hist->Fit("fitSignal","EQ","",mu-4*sigma,mu+4*sigma);
+			fitFun = hist->GetFunction("fitSignal");
+			position = fitFun->GetParameter(1);
+		}
+		else 
+		{
+			sigma = 100.0;
+			fitSignal->SetParameters(hist->GetBinContent(iMax),hist->GetBinCenter(iMax),200.0);
 			hist->Fit("fitSignal","EQ","",mu-4*sigma,mu+4*sigma);
 			fitFun = hist->GetFunction("fitSignal");
 			sMax       = fitFun->GetParameter(0);
@@ -316,88 +361,43 @@ std::vector<LASBeamProfileFit> BeamProfileFitter::doFit(const edm::EventSetup& t
 			sigma      = fabs(fitFun->GetParameter(2));
 			fitSignal->SetParameters(sMax,mu,sigma);
 			hist->Fit("fitSignal","EQ","",mu-2*sigma,mu+2*sigma); //was 3*sigma
-			fitFun     = hist->GetFunction("fitSignal");
+			fitFun = hist->GetFunction("fitSignal");
 			position = fitFun->GetParameter(1);
-
-	// only needed for Ring 6; setting sMax,mu and sigma from previous fit
-	// makes fit result worse? therefore only refitting with smaller range?
-			if ( (theDisc == 0 || theDisc == 1)  &&  (theRing == 6) )
-			{
-				fitSignal->SetParameters(sMax,mu,sigma);
-				hist->Fit("fitSignal","EQ","",mu-1*sigma,mu+1*sigma);
-				fitFun     = hist->GetFunction("fitSignal");
-				position = fitFun->GetParameter(1);
-
-			}
-
-			int iBin0 = hist->FindBin(position-6*sigma);
-			int iBin1 = hist->FindBin(position+6*sigma);
-			bool refit = false;
-			for (int i=iBin0; i<=iBin1; i++) 
-			{
-				if (hist->GetBinContent(i)<=0) 
-				{
-					hist->SetBinError(i,100000.0);
-					refit = true;
-				}
-			}
-			if (refit) 
-			{
-				if (theDisc != 0 && theDisc != 1)
-				{
-					fitSignal->SetParameters(hist->GetBinContent(iMax),hist->GetBinCenter(iMax),200.0);
-					hist->Fit("fitSignal","EQ","",mu-4*sigma,mu+4*sigma);
-					fitFun = hist->GetFunction("fitSignal");
-					position = fitFun->GetParameter(1);
-				}
-				else 
-				{
-					sigma = 100.0;
-					fitSignal->SetParameters(hist->GetBinContent(iMax),hist->GetBinCenter(iMax),200.0);
-					hist->Fit("fitSignal","EQ","",mu-4*sigma,mu+4*sigma);
-					fitFun = hist->GetFunction("fitSignal");
-					sMax       = fitFun->GetParameter(0);
-					mu         = fitFun->GetParameter(1);
-					sigma      = fabs(fitFun->GetParameter(2));
-					fitSignal->SetParameters(sMax,mu,sigma);
-					hist->Fit("fitSignal","EQ","",mu-2*sigma,mu+2*sigma); //was 3*sigma
-					fitFun = hist->GetFunction("fitSignal");
-					position = fitFun->GetParameter(1);
-					sigma = fitFun->GetParameter(2);
-				}
-			}
-
-			position      = fitFun->GetParameter(1);
-			positionError = fitFun->GetParError(1);
-			sigma         = fitFun->GetParameter(2);
-			sigmaError    = fitFun->GetParError(2);
-
-
-			std::vector<double> result;
-			result.push_back(position);
-			result.push_back(sigma);
-			result.push_back(positionError);
-			result.push_back(sigmaError);
-
-			return result;
-		}  
-
-		Double_t BeamProfileFitter::phiError(TVector3 thePosition, TMatrix theCovarianceMatrix)
-		{
-	// function to calculate the error on phi, using the position and covariance matrix of the LaserProfile
-			Double_t aX = thePosition.X();
-			Double_t aY = thePosition.Y();
-			Double_t aVarX = theCovarianceMatrix(0,0);
-			Double_t aVarY = theCovarianceMatrix(1,1);
-			Double_t aCovXY = theCovarianceMatrix(0,1);
-
-			Double_t thePhiError = 0.0; // error to calculate
-
-			thePhiError = TMath::Sqrt( TMath::Abs( pow(aY, 2)/( pow(aX, 4) + 2 * pow(aX,2) * pow(aY,2) + pow(aY, 4) ) * aVarX          // first term in the error propagation for sigma x
-				+ pow(aX, 2)/( pow(aX, 4) + 2 * pow(aX,2) * pow(aY,2) + pow(aY, 4) ) * aVarY        // second term in the error propagation for sigma y
-				- 2.0 * aX*aY/( pow(aX, 4) + 2 * pow(aX,2) * pow(aY,2) + pow(aY, 4) ) *aCovXY       // third term in the error propagation for cov(x,y)
-				));
-
-			return thePhiError;
+			sigma = fitFun->GetParameter(2);
 		}
+	}
+
+	position      = fitFun->GetParameter(1);
+	positionError = fitFun->GetParError(1);
+	sigma         = fitFun->GetParameter(2);
+	sigmaError    = fitFun->GetParError(2);
+
+
+	std::vector<double> result;
+	result.push_back(position);
+	result.push_back(sigma);
+	result.push_back(positionError);
+	result.push_back(sigmaError);
+
+	return result;
+}  
+
+Double_t BeamProfileFitter::phiError(TVector3 thePosition, TMatrix theCovarianceMatrix)
+{
+	// function to calculate the error on phi, using the position and covariance matrix of the LaserProfile
+	Double_t aX = thePosition.X();
+	Double_t aY = thePosition.Y();
+	Double_t aVarX = theCovarianceMatrix(0,0);
+	Double_t aVarY = theCovarianceMatrix(1,1);
+	Double_t aCovXY = theCovarianceMatrix(0,1);
+
+	Double_t thePhiError = 0.0; // error to calculate
+
+	thePhiError = TMath::Sqrt( TMath::Abs( pow(aY, 2)/( pow(aX, 4) + 2 * pow(aX,2) * pow(aY,2) + pow(aY, 4) ) * aVarX          // first term in the error propagation for sigma x
+		+ pow(aX, 2)/( pow(aX, 4) + 2 * pow(aX,2) * pow(aY,2) + pow(aY, 4) ) * aVarY        // second term in the error propagation for sigma y
+		- 2.0 * aX*aY/( pow(aX, 4) + 2 * pow(aX,2) * pow(aY,2) + pow(aY, 4) ) *aCovXY       // third term in the error propagation for cov(x,y)
+		));
+
+	return thePhiError;
+}
 
