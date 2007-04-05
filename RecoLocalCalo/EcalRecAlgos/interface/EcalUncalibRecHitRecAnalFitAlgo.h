@@ -5,9 +5,9 @@
   *  Template used to compute amplitude, pedestal, time jitter, chi2 of a pulse
   *  using an analytical fit
   *
-  *  $Id: EcalUncalibRecHitRecAnalFitAlgo.h,v 1.4 2006/06/19 18:51:53 meridian Exp $
-  *  $Date: 2006/06/19 18:51:53 $
-  *  $Revision: 1.4 $
+  *  $Id: EcalUncalibRecHitRecAnalFitAlgo.h,v 1.5 2006/11/29 21:21:28 meridian Exp $
+  *  $Date: 2006/11/29 21:21:28 $
+  *  $Revision: 1.5 $
   *  \author A. Palma, Sh. Rahatlou Roma1
   */
 
@@ -51,10 +51,11 @@ template<class C> class EcalUncalibRecHitRecAnalFitAlgo : public EcalUncalibRecH
 
 
   /// Compute parameters
-  virtual EcalUncalibratedRecHit makeRecHit(const C& dataFrame, const std::vector<double>& pedestals,
-					    const std::vector<double>& gainRatios,
-                                            const std::vector<HepMatrix>& weights,
-                                            const std::vector<HepSymMatrix>& chi2Matrix) {
+  virtual EcalUncalibratedRecHit makeRecHit(const C& dataFrame, const double* pedestals,
+					    const double* gainRatios,
+					    const math::EcalWeightMatrix::type** weights, 
+					    const math::EcalChi2WeightMatrix::type** chi2Matrix)
+    { 
     double amplitude_(-1.),  pedestal_(-1.), jitter_(-1.), chi2_(-1.);
 
     // Get time samples

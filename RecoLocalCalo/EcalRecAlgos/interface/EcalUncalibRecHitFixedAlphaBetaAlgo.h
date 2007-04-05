@@ -84,10 +84,10 @@ template<class C> class EcalUncalibRecHitFixedAlphaBetaAlgo : public EcalUncalib
   };
 
   virtual ~EcalUncalibRecHitFixedAlphaBetaAlgo<C>() { };
-  virtual EcalUncalibratedRecHit makeRecHit(const C& dataFrame, const std::vector<double>& pedestals,
-                                            const std::vector<double>& gainRatios,
-					    const std::vector<HepMatrix>& weights,
-                                            const std::vector<HepSymMatrix>& chi2Matrix);
+  virtual EcalUncalibratedRecHit makeRecHit(const C& dataFrame, const double* pedestals,
+					    const double* gainRatios,
+					    const math::EcalWeightMatrix::type** weights, 
+					    const math::EcalChi2WeightMatrix::type** chi2Matrix); 
   void SetAlphaBeta( double alpha, double beta);
   
 };
@@ -95,7 +95,10 @@ template<class C> class EcalUncalibRecHitFixedAlphaBetaAlgo : public EcalUncalib
 
 
   /// Compute parameters
-template<class C> EcalUncalibratedRecHit  EcalUncalibRecHitFixedAlphaBetaAlgo<C>::makeRecHit(const C& dataFrame, const std::vector<double>& pedestals, const std::vector<double>& gainRatios, const std::vector<HepMatrix>& weights, const std::vector<HepSymMatrix>& chi2Matrix) {
+template<class C> EcalUncalibratedRecHit  EcalUncalibRecHitFixedAlphaBetaAlgo<C>::makeRecHit(const C& dataFrame, const double* pedestals,
+											     const double* gainRatios,
+											     const math::EcalWeightMatrix::type** weights, 
+											     const math::EcalChi2WeightMatrix::type** chi2Matrix){
   double chi2_(-1.);
   
   //  double Gain12Equivalent[4]={0,1,2,12};
@@ -109,7 +112,7 @@ template<class C> EcalUncalibratedRecHit  EcalUncalibRecHitFixedAlphaBetaAlgo<C>
   int imax(-1);
   bool external_pede = false;
   // Get time samples checking for Gain Switch and pedestals
-  if(pedestals.size()==3){
+  if(pedestals){
     external_pede = true;
     pedestal = pedestals[0];
       for(int iSample = 0; iSample < C::MAXSAMPLES; iSample++) {

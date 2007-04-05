@@ -5,15 +5,16 @@
   *  Template used to compute amplitude, pedestal, time jitter, chi2 of a pulse
   *  using a weights method
   *
-  *  $Id: EcalUncalibRecHitRecWeightsAlgo.h,v 1.2 2006/06/19 18:51:53 meridian Exp $
-  *  $Date: 2006/06/19 18:51:53 $
-  *  $Revision: 1.2 $
+  *  $Id: EcalUncalibRecHitRecWeightsAlgo.h,v 1.3 2006/11/29 21:21:28 meridian Exp $
+  *  $Date: 2006/11/29 21:21:28 $
+  *  $Revision: 1.3 $
   *  \author R. Bruneliere - A. Zabi
   */
 
-#include "CLHEP/Matrix/Matrix.h"
-#include "CLHEP/Matrix/SymMatrix.h"
+#include "Math/SVector.h"
+#include "Math/SMatrix.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalUncalibRecHitRecAbsAlgo.h"
+#include "CondFormats/EcalObjects/interface/EcalWeightSet.h"
 #include <vector>
 
 template<class C> class EcalUncalibRecHitRecWeightsAlgo : public EcalUncalibRecHitRecAbsAlgo<C>
@@ -23,36 +24,32 @@ template<class C> class EcalUncalibRecHitRecWeightsAlgo : public EcalUncalibRecH
   virtual ~EcalUncalibRecHitRecWeightsAlgo<C>() { };
 
   /// Compute parameters
-  virtual EcalUncalibratedRecHit makeRecHit(const C& dataFrame, const std::vector<double>& pedestals,
-					    const std::vector<double>& gainRatios,
-					    const std::vector<HepMatrix>& weights,
-					    const std::vector<HepSymMatrix>& chi2Matrix) {
+  virtual EcalUncalibratedRecHit makeRecHit(const C& dataFrame, const double* pedestals,
+					    const double* gainRatios,
+					    const math::EcalWeightMatrix::type** weights, 
+					    const math::EcalChi2WeightMatrix::type** chi2Matrix) {
     double amplitude_(-1.),  pedestal_(-1.), jitter_(-1.), chi2_(-1.);
 
     // Get time samples
-    HepMatrix frame(C::MAXSAMPLES, 1);
+    ROOT::Math::SVector<double,C::MAXSAMPLES> frame;
     int gainId0 = 1;
     int iGainSwitch = 0;
     for(int iSample = 0; iSample < C::MAXSAMPLES; iSample++) {
       int gainId = dataFrame.sample(iSample).gainId(); 
       if (gainId != gainId0) iGainSwitch = 1;
       if (!iGainSwitch)
-	frame[iSample][0] = double(dataFrame.sample(iSample).adc());
+	frame(iSample) = double(dataFrame.sample(iSample).adc());
       else
-	frame[iSample][0] = double(((double)(dataFrame.sample(iSample).adc()) - pedestals[gainId-1]) * gainRatios[gainId-1]);
+	frame(iSample) = double(((double)(dataFrame.sample(iSample).adc()) - pedestals[gainId-1]) * gainRatios[gainId-1]);
     }
 
     // Compute parameters
-    HepMatrix param = weights[iGainSwitch]*frame;
-    amplitude_ = param[EcalUncalibRecHitRecAbsAlgo<C>::iAmplitude][0];
-    pedestal_ = param[EcalUncalibRecHitRecAbsAlgo<C>::iPedestal][0];
-    if (amplitude_) jitter_ = param[EcalUncalibRecHitRecAbsAlgo<C>::iTime][0]/amplitude_;
-
+    ROOT::Math::SVector <double,3> param = (*(weights[iGainSwitch])) * frame;
+    amplitude_ = param(EcalUncalibRecHitRecAbsAlgo<C>::iAmplitude);
+    pedestal_ = param(EcalUncalibRecHitRecAbsAlgo<C>::iPedestal);
+    if (amplitude_) jitter_ = param(EcalUncalibRecHitRecAbsAlgo<C>::iTime);
     // Compute chi2 = frame^T * chi2Matrix * frame
-    HepMatrix tFrame = frame.T();
-    HepMatrix tFrameChi2 = tFrame*chi2Matrix[iGainSwitch];
-    chi2_ = (tFrameChi2*frame)[0][0];
-
+    chi2_ = ROOT::Math::Similarity((*(chi2Matrix[iGainSwitch])),frame);
     return EcalUncalibratedRecHit( dataFrame.id(), amplitude_, pedestal_, jitter_, chi2_);
   }
 };
