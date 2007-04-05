@@ -15,7 +15,7 @@ using std::endl;
 
 //#include "DataFormats/L1CaloTrigger/interface/L1CaloEmCand.h"
 
-#include "L1Trigger/L1Scales/interface/L1CaloEtScale.h"
+#include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
 #include "L1Trigger/RegionalCaloTrigger/interface/L1RCTLookupTables.h"
 
 //Main method to process a single event, hence the name.
