@@ -17,7 +17,7 @@ using namespace edm;
 // What's this? Doesn't seem to be needed. Maybe Geometry/CaloGeometry/interface/CaloCellGeometry.h?
 //#include "Calorimetry/CaloDetector/interface/CellGeometry.h"
 
-#include <math.h>
+#include <cmath>
 
 // number attempts for transverse distribution if exit on a spec. condition
 #define infinity 5000
