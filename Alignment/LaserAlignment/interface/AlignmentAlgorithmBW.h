@@ -6,7 +6,7 @@
  *
  *  The details of this algorithm are given in his <a href="http://darwin.bth.rwth-aachen.de/opus3/volltexte/2002/348/">PhD Thesis</a>
  *
- *  $Date: Wed Apr  4 16:50:14 CEST 2007 $
+ *  $Date: 2007/04/05 06:21:20 $
  *  $Revision: 1.1 $
  *  \author Maarten Thomas
  */
@@ -22,6 +22,8 @@ public:
 	AlignmentAlgorithmBW();
 	/// destructor
 	virtual ~AlignmentAlgorithmBW();
+	/// the actual algorithm
+	void run(LASvec2D & data, LASvec2D & errors, bool useBSframe, int theRing);
 
 private:
 	/* data */
@@ -32,6 +34,9 @@ private:
 	LASvec sumc(LASvec2D & input);
 	/// return sum of elements in the rows of a LASvec2D
 	LASvec sumr(LASvec2D & input);
+	
+	/// create the z positions of the discs
+	LASvec makeZPositions(bool useBSframe);
 	
 };
 

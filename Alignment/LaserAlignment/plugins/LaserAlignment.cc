@@ -1,8 +1,8 @@
 /** \file LaserAlignment.cc
  *  LAS reconstruction module
  *
- *  $Date: 2007/04/03 15:08:21 $
- *  $Revision: 1.5 $
+ *  $Date: 2007/04/05 06:21:21 $
+ *  $Revision: 1.6 $
  *  \author Maarten Thomas
  */
 
@@ -72,11 +72,23 @@ LaserAlignment::LaserAlignment(edm::ParameterSet const& theConf)
     theHistogramNames(), theHistograms(),
     theLaserPhi(),
     theLaserPhiError(),
+		thePosTECR4BeamPositions(),
+		thePosTECR6BeamPositions(),
+		theNegTECR4BeamPositions(),
+		theNegTECR6BeamPositions(),
+		theTEC2TECBeamPositions(),
+		thePosTECR4BeamPositionErrors(),
+		thePosTECR6BeamPositionErrors(),
+		theNegTECR4BeamPositionErrors(),
+		theNegTECR6BeamPositionErrors(),
+		theTEC2TECBeamPositionErrors(),
     theNumberOfIterations(0), theNumberOfAlignmentIterations(0),
     theBeamFitter(),
     theLASAlignPosTEC(),
     theLASAlignNegTEC(),
     theLASAlignTEC2TEC(),
+		theAlignmentAlgorithmBW(),
+		theUseBSFrame(theConf.getUntrackedParameter<bool>("UseBeamSplitterFrame", true))
     theDigiStore(),
     theBeamProfileFitStore(),
     theDigiVector(),
@@ -120,6 +132,9 @@ LaserAlignment::LaserAlignment(edm::ParameterSet const& theConf)
   theLASAlignNegTEC = new LaserAlignmentNegTEC;
 
   theLASAlignTEC2TEC = new LaserAlignmentTEC2TEC;
+
+	// the alignment algorithm from Bruno
+	theAlignmentAlgorithmBW = new AlignmentAlgorithmBW;
   
   // counter for the number of iterations, i.e. the number of BeamProfile fits and
   // local Millepede fits
@@ -142,6 +157,7 @@ LaserAlignment::~LaserAlignment()
   if (theLASAlignNegTEC != 0) { delete theLASAlignNegTEC; }
   if (theLASAlignTEC2TEC != 0) { delete theLASAlignTEC2TEC; }
   if (theAlignableTracker != 0) { delete theAlignableTracker; }
+	if (theAlignmentAlgorithmBW != 0) { delete theAlignmentAlgorithmBW; }
 }
 
 double LaserAlignment::angle(double theAngle)
@@ -175,6 +191,86 @@ void LaserAlignment::beginJob(const edm::EventSetup& theSetup)
   theAlignableTracker = new AlignableTracker( &(*gD),
 					      &(*theTrackerGeometry) );
 
+}
+
+std::vector<int> LaserAlignment::checkBeam(std::map<std::string, std::pair<DetId, TH1D*> >::iterator iHist)
+{
+	std::vector<int> result;
+	std::string stringDisc;
+  std::string stringRing;
+  std::string stringBeam;
+  bool isTEC2TEC = false;
+  int theDisc = 0;
+  int theRing = 0;
+  int theBeam = 0;
+  int theTECSide = 0;
+  
+  // check if we are in the Endcap
+  switch (((iHist->second).first).subdetId())
+    {
+    case StripSubdetector::TIB:
+      {
+	break;
+      }
+    case StripSubdetector::TOB:
+      {
+	break;
+      }
+    case StripSubdetector::TEC:
+      {
+	TECDetId theTECDetId(((iHist->second).first).rawId());
+
+	theTECSide = theTECDetId.side(); // 1 for TEC-, 2 for TEC+
+
+	stringBeam = (*iHistName).at(4);
+	stringRing = (*iHistName).at(9);
+	stringDisc = (*iHistName).at(14);
+	isTEC2TEC = ( (*iHistName).size() > 21 ) ? true : false;
+	break;
+      }
+    }
+
+  if ( stringRing == "4" ) { theRing = 4; }
+  else if ( stringRing == "6" ) { theRing = 6; }
+
+  if ( stringDisc == "1" ) { theDisc = 0; }
+  else if ( stringDisc == "2" ) { theDisc = 1; }
+  else if ( stringDisc == "3" ) { theDisc = 2; } 
+  else if ( stringDisc == "4" ) { theDisc = 3; } 
+  else if ( stringDisc == "5" ) { theDisc = 4; }
+  else if ( stringDisc == "6" ) { theDisc = 5; } 
+  else if ( stringDisc == "7" ) { theDisc = 6; } 
+  else if ( stringDisc == "8" ) { theDisc = 7; } 
+  else if ( stringDisc == "9" ) { theDisc = 8; } 
+
+  if ( theRing == 4 )
+    {
+      if ( stringBeam == "0" ) { theBeam = 0; } 
+      else if ( stringBeam == "1" ) { theBeam = 1; } 
+      else if ( stringBeam == "2" ) { theBeam = 2; }
+      else if ( stringBeam == "3" ) { theBeam = 3; } 
+      else if ( stringBeam == "4" ) { theBeam = 4; }
+      else if ( stringBeam == "5" ) { theBeam = 5; } 
+      else if ( stringBeam == "6" ) { theBeam = 6; } 
+      else if ( stringBeam == "7" ) { theBeam = 7; } 
+    }
+  else if ( theRing == 6 )
+    {
+      if ( stringBeam == "0" ) { theBeam = 0; } 
+      else if ( stringBeam == "1" ) { theBeam = 1; } 
+      else if ( stringBeam == "2" ) { theBeam = 2; }
+      else if ( stringBeam == "3" ) { theBeam = 3; } 
+      else if ( stringBeam == "4" ) { theBeam = 4; }
+      else if ( stringBeam == "5" ) { theBeam = 5; } 
+      else if ( stringBeam == "6" ) { theBeam = 6; } 
+      else if ( stringBeam == "7" ) { theBeam = 7; } 
+    }
+		result.push_back(theTECSide);
+		result.push_back(theRing);
+		result.push_back(theBeam);
+		result.push_back(theDisc);
+		
+		return result;
 }
 
 void LaserAlignment::produce(edm::Event& theEvent, edm::EventSetup const& theSetup) 
@@ -254,11 +350,36 @@ void LaserAlignment::produce(edm::Event& theEvent, edm::EventSetup const& theSet
 		  theLaserPhi.push_back(theFit.phi());
 		  theLaserPhiError.push_back(thePhiErrorScalingFactor * theFit.phiError());
 		
-			// fill also the Avec2D for Bruno's algorithm
-			// use the functionality in LaserAlignment::fit() to
-			// select the right positions in the correct order??
-			double thePosition = theFit.pitch() * theFit.mean();
-			double thePositionError = theFit.pitch() * theFit.meanError();
+			// fill also the LASvec2D for Bruno's algorithm
+			std::vector<int> sectorLocation = checkBeam(iHist);
+			
+			if (sectorLocation.at(0) == 1) // TEC- beams
+			{
+				if (sectorLocation.at(1) == 4) // Ring 4
+				{
+					theNegTECR4BeamPositions[sectorLocation.at(2)][sectorLocation.at(3)] = theFit.pitch() * theFit.mean();
+					theNegTECR4BeamPositionErrors[sectorLocation.at(2)][sectorLocation.at(3)] = theFit.pitch() * theFit.meanError();
+				}
+				else if (sectorLocation.at(1) == 6) // Ring 6
+				{
+					theNegTECR6BeamPositions[sectorLocation.at(2)][sectorLocation.at(3)] = theFit.pitch() * theFit.mean();
+					theNegTECR6BeamPositionErrors[sectorLocation.at(2)][sectorLocation.at(4)] = theFit.pitch() * theFit.meanError();
+				}
+			}
+			else if (sectorLocation.at(0) == 2) // TEC+ beams
+			{
+				if (sectorLocation.at(1) == 4) // Ring 4
+				{
+					thePosTECR4BeamPositions[sectorLocation.at(2)][sectorLocation.at(3)] = theFit.pitch() * theFit.mean();
+					thePosTECR6BeamPositionErrors[sectorLocation.at(2)][sectorLocation.at(3)] = theFit.pitch() * theFit.meanError();
+				}
+				else if (sectorLocation.at(1) == 6) // Ring 6
+				{
+					thePosTECR6BeamPositions[sectorLocation.at(2)][sectorLocation.at(3)] = theFit.pitch() * theFit.mean();
+					thePosTECR6BeamPositionErrors[sectorLocation.at(2)][sectorLocation.at(3)] = theFit.pitch() * theFit.meanError();
+ 				}				
+			}
+			// implementation of TEC2TEC beams has to be done!!!!!!
 		}
 	      else
 		{
@@ -281,6 +402,37 @@ void LaserAlignment::produce(edm::Event& theEvent, edm::EventSetup const& theSet
 			
 			double thePosition = 255.5 * theStripDet->specificTopology().localPitch(theStripDet->specificTopology().localPosition(255.5));
 			double thePositionError = 0.05; // set the error to half a milllimeter in this case
+
+			// fill also the LASvec2D for Bruno's algorithm
+			std::vector<int> sectorLocation = checkBeam(iHist);
+			
+			if (sectorLocation.at(0) == 1) // TEC- beams
+			{
+				if (sectorLocation.at(1) == 4) // Ring 4
+				{
+					theNegTECR4BeamPositions[sectorLocation.at(2)][sectorLocation.at(3)] = thePosition;
+					theNegTECR4BeamPositionErrors[sectorLocation.at(2)][sectorLocation.at(3)] = thePositionError;
+				}
+				else if (sectorLocation.at(1) == 6) // Ring 6
+				{
+					theNegTECR6BeamPositions[sectorLocation.at(2)][sectorLocation.at(3)] = thePosition;
+					theNegTECR6BeamPositionErrors[sectorLocation.at(2)][sectorLocation.at(4)] = thePositionError;
+				}
+			}
+			else if (sectorLocation.at(0) == 2) // TEC+ beams
+			{
+				if (sectorLocation.at(1) == 4) // Ring 4
+				{
+					thePosTECR4BeamPositions[sectorLocation.at(2)][sectorLocation.at(3)] = thePosition;
+					thePosTECR6BeamPositionErrors[sectorLocation.at(2)][sectorLocation.at(3)] = thePositionError;
+				}
+				else if (sectorLocation.at(1) == 6) // Ring 6
+				{
+					thePosTECR6BeamPositions[sectorLocation.at(2)][sectorLocation.at(3)] = thePosition;
+					thePosTECR6BeamPositionErrors[sectorLocation.at(2)][sectorLocation.at(3)] = thePositionError;
+ 				}				
+			}
+			// implementation of TEC2TEC beams has to be done!!!!!
 		}
 	    }
 	  else 
@@ -304,6 +456,16 @@ void LaserAlignment::produce(edm::Event& theEvent, edm::EventSetup const& theSet
       // do the Alignment of the Tracker (with Millepede) ...
       alignmentAlgorithm(theAlignmentAlgorithmPS, theAlignableTracker);
 
+			// do the Alignment with Bruno's algorithm
+			// which return type do we need to calculate the final correction ((corr_R4 + corr_R6)/2)??
+			// or pass the LASvec's which should contain the corrections as reference to the algo
+			theAlignmentAlgorithmBW->run(thePosTECR4BeamPositions, thePosTECR4BeamPositionErrors, theUseBSFrame, 4);
+			theAlignmentAlgorithmBW->run(thePosTECR6BeamPositions, thePosTECR6BeamPositionErrors, theUseBSFrame, 6);
+			theAlignmentAlgorithmBW->run(theNegTECR4BeamPositions, theNegTECR4BeamPositionErrors, theUseBSFrame, 4);
+			theAlignmentAlgorithmBW->run(theNegTECR6BeamPositions, theNegTECR6BeamPositionErrors, theUseBSFrame, 6);
+			// implementation of TEC2TEC has to be done!!!!!
+			// theAlignmentAlgorithmBW->run(theTEC2TECBeamPositions, theTEC2TECBeamPositionErrors);
+			
       // set the number of iterations to zero for the next alignment round
       theNumberOfIterations = 0;
 
