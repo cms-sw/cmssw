@@ -1,5 +1,5 @@
 //
-// $Id: EcalTrivialConditionRetriever.cc,v 1.13 2006/08/10 12:14:16 rahatlou Exp $
+// $Id: EcalTrivialConditionRetriever.cc,v 1.14 2006/11/17 13:45:49 meridian Exp $
 // Created: 2 Mar 2006
 //          Shahram Rahatlou, University of Rome & INFN
 //
@@ -357,14 +357,14 @@ EcalTrivialConditionRetriever::produceEcalTBWeights( const EcalTBWeightsRcd& )
     
     // make a new set of weights
     EcalWeightSet wgt;
-    //typedef std::vector< std::vector<EcalWeight> > EcalWeightSet::EcalWeightMatrix;
-    EcalWeightSet::EcalWeightMatrix& mat1 = wgt.getWeightsBeforeGainSwitch();
-    EcalWeightSet::EcalWeightMatrix& mat2 = wgt.getWeightsAfterGainSwitch();
+    //typedef std::vector< std::vector<EcalWeight> > math::EcalWeightMatrix::type;
+    math::EcalWeightMatrix::type& mat1 = wgt.getWeightsBeforeGainSwitch();
+    math::EcalWeightMatrix::type& mat2 = wgt.getWeightsAfterGainSwitch();
     
-    if(verbose_>=1) {
-      std::cout << "initial size of mat1: " << mat1.size() << std::endl;
-      std::cout << "initial size of mat2: " << mat2.size() << std::endl;
-    }
+//     if(verbose_>=1) {
+//       std::cout << "initial size of mat1: " << mat1.size() << std::endl;
+//       std::cout << "initial size of mat2: " << mat2.size() << std::endl;
+//     }
     
     // generate random numbers to use as weights
     /**
@@ -382,24 +382,27 @@ EcalTrivialConditionRetriever::produceEcalTBWeights( const EcalTBWeightsRcd& )
     **/
     
     // use values provided by user
-    mat1.push_back(amplWeights_[itdc-1]);
-    mat1.push_back(pedWeights_[itdc-1]);
-    mat1.push_back(jittWeights_[itdc-1]);
+    mat1.Place_in_row(amplWeights_[itdc-1],0,0);
+    mat1.Place_in_row(pedWeights_[itdc-1],1,0);
+    mat1.Place_in_row(jittWeights_[itdc-1],2,0);
     
     // wdights after gain switch 
-    mat2.push_back(amplWeightsAft_[itdc-1]);
-    mat2.push_back(pedWeightsAft_[itdc-1]);
-    mat2.push_back(jittWeightsAft_[itdc-1]);
+    mat2.Place_in_row(amplWeightsAft_[itdc-1],0,0);
+    mat2.Place_in_row(pedWeightsAft_[itdc-1],1,0);
+    mat2.Place_in_row(jittWeightsAft_[itdc-1],2,0);
     
     // fill the chi2 matrcies with random numbers
     //    r = (double)std::rand()/( double(RAND_MAX)+double(1) );
-    EcalWeightSet::EcalWeightMatrix& mat3 = wgt.getChi2WeightsBeforeGainSwitch();
-    EcalWeightSet::EcalWeightMatrix& mat4 = wgt.getChi2WeightsAfterGainSwitch();
-    for(size_t i=0; i<10; ++i) 
-      {
-	mat3.push_back(chi2Matrix_[itdc-1][i]);
-	mat4.push_back(chi2MatrixAft_[itdc-1][i]);
-      }
+    math::EcalChi2WeightMatrix::type& mat3 = wgt.getChi2WeightsBeforeGainSwitch();
+    math::EcalChi2WeightMatrix::type& mat4 = wgt.getChi2WeightsAfterGainSwitch();
+    mat3=chi2Matrix_[itdc-1];
+    mat4=chi2MatrixAft_[itdc-1];
+    
+    //     for(size_t i=0; i<10; ++i) 
+    //       {
+    // 	mat3.push_back(chi2Matrix_[itdc-1][i]);
+    // 	mat4.push_back(chi2MatrixAft_[itdc-1][i]);
+    //       }
     //       std::vector<EcalWeight> tv1, tv2;
     //       for(size_t j=0; j<10; ++j) {
     // 	double ww = igrp*itdc*r + i*10. + j;
@@ -410,12 +413,12 @@ EcalTrivialConditionRetriever::produceEcalTBWeights( const EcalTBWeightsRcd& )
   
     
     
-    if(verbose_>=1) {
-      std::cout << "group: " << igrp << " TDC: " << itdc 
-		<< " mat1: " << mat1.size() << " mat2: " << mat2.size()
-		<< " mat3: " << mat3.size() << " mat4: " << mat4.size()
-		<< std::endl;
-    }
+//     if(verbose_>=1) {
+//       std::cout << "group: " << igrp << " TDC: " << itdc 
+// 		<< " mat1: " << mat1.size() << " mat2: " << mat2.size()
+// 		<< " mat3: " << mat3.size() << " mat4: " << mat4.size()
+// 		<< std::endl;
+//     }
     
     // put the weight in the container
     tbwgt->setValue(std::make_pair(igrp,itdc), wgt);
@@ -474,9 +477,11 @@ void EcalTrivialConditionRetriever::getWeightsFromConfiguration(const edm::Param
   for (int i=0;i<nTDCbins_;i++)
     {
       assert(amplwgtv[i].size() == 10);
+      int j=0;
       for(std::vector<double>::const_iterator it = amplwgtv[i].begin(); it != amplwgtv[i].end(); ++it) 
 	{
-	  amplWeights_[i].push_back( EcalWeight(*it) );
+	  (amplWeights_[i])[j]=*it;
+	  j++;
 	}
     }
   
@@ -525,8 +530,10 @@ void EcalTrivialConditionRetriever::getWeightsFromConfiguration(const edm::Param
   for (int i=0;i<nTDCbins_;i++)
     {
       assert(amplwgtvAftGain[i].size() == 10);
+      int j=0;
       for(std::vector<double>::const_iterator it = amplwgtvAftGain[i].begin(); it != amplwgtvAftGain[i].end(); ++it) {
-	amplWeightsAft_[i].push_back( EcalWeight(*it) );
+	(amplWeightsAft_[i])[j]=*it;
+	j++;
       }
     }
       
@@ -576,8 +583,10 @@ void EcalTrivialConditionRetriever::getWeightsFromConfiguration(const edm::Param
   for (int i=0;i<nTDCbins_;i++)
     {
       assert(pedwgtv[i].size() == 10);
+      int j=0;
       for(std::vector<double>::const_iterator it = pedwgtv[i].begin(); it != pedwgtv[i].end(); ++it) {
-	pedWeights_[i].push_back( EcalWeight(*it) );
+	(pedWeights_[i])[j] = *it;
+	j++;
       }
     }
   
@@ -625,8 +634,10 @@ void EcalTrivialConditionRetriever::getWeightsFromConfiguration(const edm::Param
   for (int i=0;i<nTDCbins_;i++)
     {
       assert(pedwgtvaft[i].size() == 10);
+      int j=0;
       for(std::vector<double>::const_iterator it = pedwgtvaft[i].begin(); it != pedwgtvaft[i].end(); ++it) {
-	pedWeightsAft_[i].push_back( EcalWeight(*it) );
+	(pedWeightsAft_[i])[j]=*it;
+	j++;
       }
     }
   
@@ -678,8 +689,10 @@ void EcalTrivialConditionRetriever::getWeightsFromConfiguration(const edm::Param
   for (int i=0;i<nTDCbins_;i++)
     {
       assert(jittwgtv[i].size() == 10);
+      int j=0;
       for(std::vector<double>::const_iterator it = jittwgtv[i].begin(); it != jittwgtv[i].end(); ++it) {
-	jittWeights_[i].push_back( EcalWeight(*it) );
+	(jittWeights_[i])[j]= *it;
+	j++;
       }
     }
   
@@ -727,119 +740,121 @@ void EcalTrivialConditionRetriever::getWeightsFromConfiguration(const edm::Param
   for (int i=0;i<nTDCbins_;i++)
     {
       assert(jittwgtvaft[i].size() == 10);
+      int j=0;
       for(std::vector<double>::const_iterator it = jittwgtvaft[i].begin(); it != jittwgtvaft[i].end(); ++it) {
-	jittWeightsAft_[i].push_back( EcalWeight(*it) );
+	(jittWeightsAft_[i])[j]= *it;
+	j++;
       }
     }
 
    
-   std::vector< EcalWeightSet::EcalWeightMatrix > chi2Matrix(nTDCbins_);
+   std::vector<  math::EcalChi2WeightMatrix::type > chi2Matrix(nTDCbins_);
    if (!getWeightsFromFile_  && nTDCbins_ == 1 )
      {
-       chi2Matrix[0].resize(10);
-       for (int i=0;i<10;i++)
-	 chi2Matrix[0][i].resize(10);
+       //        chi2Matrix[0].resize(10);
+       //        for (int i=0;i<10;i++)
+	 //	 chi2Matrix[0][i].resize(10);
 
-       chi2Matrix[0][0][0] = 0.694371;
-       chi2Matrix[0][0][1] = -0.305629;  
-       chi2Matrix[0][0][2] = -0.305629;
-       chi2Matrix[0][0][3] = 0.;
-       chi2Matrix[0][0][4] = 0.;
-       chi2Matrix[0][0][5] = 0.;
-       chi2Matrix[0][0][6] = 0.;
-       chi2Matrix[0][0][7] = 0.;
-       chi2Matrix[0][0][8] = 0.;
-       chi2Matrix[0][0][9] = 0.;
-       chi2Matrix[0][1][0] = -0.305629;
-       chi2Matrix[0][1][1] = 0.694371;
-       chi2Matrix[0][1][2] = -0.305629;
-       chi2Matrix[0][1][3] = 0.;
-       chi2Matrix[0][1][4] = 0.;
-       chi2Matrix[0][1][5] = 0.;
-       chi2Matrix[0][1][6] = 0.;
-       chi2Matrix[0][1][7] = 0.;
-       chi2Matrix[0][1][8] = 0.;
-       chi2Matrix[0][1][9] = 0.;
-       chi2Matrix[0][2][0] = -0.305629;
-       chi2Matrix[0][2][1] = -0.305629;
-       chi2Matrix[0][2][2] = 0.694371;
-       chi2Matrix[0][2][3] = 0.;
-       chi2Matrix[0][2][4] = 0.;
-       chi2Matrix[0][2][5] = 0.;
-       chi2Matrix[0][2][6] = 0.;
-       chi2Matrix[0][2][7] = 0.;
-       chi2Matrix[0][2][8] = 0.;
-       chi2Matrix[0][2][9] = 0.;
-       chi2Matrix[0][3][0] = 0.;
-       chi2Matrix[0][3][1] = 0.;
-       chi2Matrix[0][3][2] = 0.;
-       chi2Matrix[0][3][3] = 0.;
-       chi2Matrix[0][3][4] = 0.;
-       chi2Matrix[0][3][5] = 0.;
-       chi2Matrix[0][3][6] = 0.;
-       chi2Matrix[0][3][7] = 0.;
-       chi2Matrix[0][3][8] = 0.;
-       chi2Matrix[0][3][9] = 0.; 
-       chi2Matrix[0][4][0] = 0.;
-       chi2Matrix[0][4][1] = 0.;
-       chi2Matrix[0][4][2] = 0.;
-       chi2Matrix[0][4][3] = 0.;
-       chi2Matrix[0][4][4] = 0.8027116;
-       chi2Matrix[0][4][5] = -0.2517103;
-       chi2Matrix[0][4][6] = -0.2232882;
-       chi2Matrix[0][4][7] = -0.1716192;
-       chi2Matrix[0][4][8] = -0.1239006;
-       chi2Matrix[0][4][9] = 0.; 
-       chi2Matrix[0][5][0] = 0.;
-       chi2Matrix[0][5][1] = 0.;
-       chi2Matrix[0][5][2] = 0.;
-       chi2Matrix[0][5][3] = 0.;
-       chi2Matrix[0][5][4] = -0.2517103;
-       chi2Matrix[0][5][5] = 0.6528964;
-       chi2Matrix[0][5][6] = -0.2972839;
-       chi2Matrix[0][5][7] = -0.2067162;
-       chi2Matrix[0][5][8] = -0.1230729;
-       chi2Matrix[0][5][9] = 0.;
-       chi2Matrix[0][6][0] = 0.;
-       chi2Matrix[0][6][1] = 0.;
-       chi2Matrix[0][6][2] = 0.;
-       chi2Matrix[0][6][3] = 0.;
-       chi2Matrix[0][6][4] = -0.2232882;
-       chi2Matrix[0][6][5] = -0.2972839;
-       chi2Matrix[0][6][6] = 0.7413607;
-       chi2Matrix[0][6][7] = -0.1883866;
-       chi2Matrix[0][6][8] = -0.1235052;
-       chi2Matrix[0][6][9] = 0.; 
-       chi2Matrix[0][7][0] = 0.;
-       chi2Matrix[0][7][1] = 0.;
-       chi2Matrix[0][7][2] = 0.;
-       chi2Matrix[0][7][3] = 0.;
-       chi2Matrix[0][7][4] = -0.1716192;
-       chi2Matrix[0][7][5] = -0.2067162;
-       chi2Matrix[0][7][6] = -0.1883866;
-       chi2Matrix[0][7][7] = 0.844935;
-       chi2Matrix[0][7][8] = -0.124291;
-       chi2Matrix[0][7][9] = 0.; 
-       chi2Matrix[0][8][0] = 0.;
-       chi2Matrix[0][8][1] = 0.;
-       chi2Matrix[0][8][2] = 0.;
-       chi2Matrix[0][8][3] = 0.;
-       chi2Matrix[0][8][4] = -0.1239006;
-       chi2Matrix[0][8][5] = -0.1230729;
-       chi2Matrix[0][8][6] = -0.1235052;
-       chi2Matrix[0][8][7] = -0.124291;
-       chi2Matrix[0][8][8] = 0.8749833;
-       chi2Matrix[0][8][9] = 0.;
-       chi2Matrix[0][9][0] = 0.;
-       chi2Matrix[0][9][1] = 0.;
-       chi2Matrix[0][9][2] = 0.;
-       chi2Matrix[0][9][3] = 0.;
-       chi2Matrix[0][9][4] = 0.;
-       chi2Matrix[0][9][5] = 0.;
-       chi2Matrix[0][9][6] = 0.;
-       chi2Matrix[0][9][7] = 0.;
-       chi2Matrix[0][9][8] = 0.;
-       chi2Matrix[0][9][9] = 0.; 
+       chi2Matrix[0](0,0) = 0.694371;
+       chi2Matrix[0](0,1) = -0.305629;  
+       chi2Matrix[0](0,2) = -0.305629;
+       chi2Matrix[0](0,3) = 0.;
+       chi2Matrix[0](0,4) = 0.;
+       chi2Matrix[0](0,5) = 0.;
+       chi2Matrix[0](0,6) = 0.;
+       chi2Matrix[0](0,7) = 0.;
+       chi2Matrix[0](0,8) = 0.;
+       chi2Matrix[0](0,9) = 0.;
+       chi2Matrix[0](1,0) = -0.305629;
+       chi2Matrix[0](1,1) = 0.694371;
+       chi2Matrix[0](1,2) = -0.305629;
+       chi2Matrix[0](1,3) = 0.;
+       chi2Matrix[0](1,4) = 0.;
+       chi2Matrix[0](1,5) = 0.;
+       chi2Matrix[0](1,6) = 0.;
+       chi2Matrix[0](1,7) = 0.;
+       chi2Matrix[0](1,8) = 0.;
+       chi2Matrix[0](1,9) = 0.;
+       chi2Matrix[0](2,0) = -0.305629;
+       chi2Matrix[0](2,1) = -0.305629;
+       chi2Matrix[0](2,2) = 0.694371;
+       chi2Matrix[0](2,3) = 0.;
+       chi2Matrix[0](2,4) = 0.;
+       chi2Matrix[0](2,5) = 0.;
+       chi2Matrix[0](2,6) = 0.;
+       chi2Matrix[0](2,7) = 0.;
+       chi2Matrix[0](2,8) = 0.;
+       chi2Matrix[0](2,9) = 0.;
+       chi2Matrix[0](3,0) = 0.;
+       chi2Matrix[0](3,1) = 0.;
+       chi2Matrix[0](3,2) = 0.;
+       chi2Matrix[0](3,3) = 0.;
+       chi2Matrix[0](3,4) = 0.;
+       chi2Matrix[0](3,5) = 0.;
+       chi2Matrix[0](3,6) = 0.;
+       chi2Matrix[0](3,7) = 0.;
+       chi2Matrix[0](3,8) = 0.;
+       chi2Matrix[0](3,9) = 0.; 
+       chi2Matrix[0](4,0) = 0.;
+       chi2Matrix[0](4,1) = 0.;
+       chi2Matrix[0](4,2) = 0.;
+       chi2Matrix[0](4,3) = 0.;
+       chi2Matrix[0](4,4) = 0.8027116;
+       chi2Matrix[0](4,5) = -0.2517103;
+       chi2Matrix[0](4,6) = -0.2232882;
+       chi2Matrix[0](4,7) = -0.1716192;
+       chi2Matrix[0](4,8) = -0.1239006;
+       chi2Matrix[0](4,9) = 0.; 
+       chi2Matrix[0](5,0) = 0.;
+       chi2Matrix[0](5,1) = 0.;
+       chi2Matrix[0](5,2) = 0.;
+       chi2Matrix[0](5,3) = 0.;
+       chi2Matrix[0](5,4) = -0.2517103;
+       chi2Matrix[0](5,5) = 0.6528964;
+       chi2Matrix[0](5,6) = -0.2972839;
+       chi2Matrix[0](5,7) = -0.2067162;
+       chi2Matrix[0](5,8) = -0.1230729;
+       chi2Matrix[0](5,9) = 0.;
+       chi2Matrix[0](6,0) = 0.;
+       chi2Matrix[0](6,1) = 0.;
+       chi2Matrix[0](6,2) = 0.;
+       chi2Matrix[0](6,3) = 0.;
+       chi2Matrix[0](6,4) = -0.2232882;
+       chi2Matrix[0](6,5) = -0.2972839;
+       chi2Matrix[0](6,6) = 0.7413607;
+       chi2Matrix[0](6,7) = -0.1883866;
+       chi2Matrix[0](6,8) = -0.1235052;
+       chi2Matrix[0](6,9) = 0.; 
+       chi2Matrix[0](7,0) = 0.;
+       chi2Matrix[0](7,1) = 0.;
+       chi2Matrix[0](7,2) = 0.;
+       chi2Matrix[0](7,3) = 0.;
+       chi2Matrix[0](7,4) = -0.1716192;
+       chi2Matrix[0](7,5) = -0.2067162;
+       chi2Matrix[0](7,6) = -0.1883866;
+       chi2Matrix[0](7,7) = 0.844935;
+       chi2Matrix[0](7,8) = -0.124291;
+       chi2Matrix[0](7,9) = 0.; 
+       chi2Matrix[0](8,0) = 0.;
+       chi2Matrix[0](8,1) = 0.;
+       chi2Matrix[0](8,2) = 0.;
+       chi2Matrix[0](8,3) = 0.;
+       chi2Matrix[0](8,4) = -0.1239006;
+       chi2Matrix[0](8,5) = -0.1230729;
+       chi2Matrix[0](8,6) = -0.1235052;
+       chi2Matrix[0](8,7) = -0.124291;
+       chi2Matrix[0](8,8) = 0.8749833;
+       chi2Matrix[0](8,9) = 0.;
+       chi2Matrix[0](9,0) = 0.;
+       chi2Matrix[0](9,1) = 0.;
+       chi2Matrix[0](9,2) = 0.;
+       chi2Matrix[0](9,3) = 0.;
+       chi2Matrix[0](9,4) = 0.;
+       chi2Matrix[0](9,5) = 0.;
+       chi2Matrix[0](9,6) = 0.;
+       chi2Matrix[0](9,7) = 0.;
+       chi2Matrix[0](9,8) = 0.;
+       chi2Matrix[0](9,9) = 0.; 
      }
    else if (getWeightsFromFile_)
     {
@@ -849,12 +864,12 @@ void EcalTrivialConditionRetriever::getWeightsFromConfiguration(const edm::Param
       int tdcBin=0;
       while (!chi2MatrixFile.eof() && tdcBin < nTDCbins_) 
 	{
-	  chi2Matrix[tdcBin].resize(10);
+	  //	  chi2Matrix[tdcBin].resize(10);
 	  for(int j = 0; j < 10; ++j) {
 	    for(int l = 0; l < 10; ++l) {
 	      float ww;
 	      chi2MatrixFile >> ww;
-	      chi2Matrix[tdcBin][j].push_back(ww);
+	      chi2Matrix[tdcBin](j,l)=ww;
 	    }
 	  }
 	  ++tdcBin;
@@ -868,119 +883,119 @@ void EcalTrivialConditionRetriever::getWeightsFromConfiguration(const edm::Param
       throw cms::Exception("WrongConfig");
     }
    
-   for (int i=0;i<nTDCbins_;i++)
-     {
-       assert(chi2Matrix[i].size() == 10);
-       chi2Matrix_ =  chi2Matrix;
-     }
+//    for (int i=0;i<nTDCbins_;i++)
+//      {
+       //       assert(chi2Matrix[i].size() == 10);
+   chi2Matrix_ =  chi2Matrix;
+//      }
 
-   std::vector< EcalWeightSet::EcalWeightMatrix > chi2MatrixAft(nTDCbins_);
+   std::vector< math::EcalChi2WeightMatrix::type > chi2MatrixAft(nTDCbins_);
    if (!getWeightsFromFile_  && nTDCbins_ == 1 )
      {
-       chi2MatrixAft[0].resize(10);
-       for (int i=0;i<10;i++)
-	 chi2MatrixAft[0][i].resize(10);
+       //       chi2MatrixAft[0].resize(10);
+       //       for (int i=0;i<10;i++)
+	 //	 chi2MatrixAft[0][i].resize(10);
 
-       chi2MatrixAft[0][0][0] = 0.;
-       chi2MatrixAft[0][0][1] = 0.;  
-       chi2MatrixAft[0][0][2] = 0.;
-       chi2MatrixAft[0][0][3] = 0.;
-       chi2MatrixAft[0][0][4] = 0.;
-       chi2MatrixAft[0][0][5] = 0.;
-       chi2MatrixAft[0][0][6] = 0.;
-       chi2MatrixAft[0][0][7] = 0.;
-       chi2MatrixAft[0][0][8] = 0.;
-       chi2MatrixAft[0][0][9] = 0.;
-       chi2MatrixAft[0][1][0] = 0.;
-       chi2MatrixAft[0][1][1] = 0.;
-       chi2MatrixAft[0][1][2] = 0.;
-       chi2MatrixAft[0][1][3] = 0.;
-       chi2MatrixAft[0][1][4] = 0.;
-       chi2MatrixAft[0][1][5] = 0.;
-       chi2MatrixAft[0][1][6] = 0.;
-       chi2MatrixAft[0][1][7] = 0.;
-       chi2MatrixAft[0][1][8] = 0.;
-       chi2MatrixAft[0][1][9] = 0.;
-       chi2MatrixAft[0][2][0] = 0.;
-       chi2MatrixAft[0][2][1] = 0.;
-       chi2MatrixAft[0][2][2] = 0.;
-       chi2MatrixAft[0][2][3] = 0.;
-       chi2MatrixAft[0][2][4] = 0.;
-       chi2MatrixAft[0][2][5] = 0.;
-       chi2MatrixAft[0][2][6] = 0.;
-       chi2MatrixAft[0][2][7] = 0.;
-       chi2MatrixAft[0][2][8] = 0.;
-       chi2MatrixAft[0][2][9] = 0.;
-       chi2MatrixAft[0][3][0] = 0.;
-       chi2MatrixAft[0][3][1] = 0.;
-       chi2MatrixAft[0][3][2] = 0.;
-       chi2MatrixAft[0][3][3] = 0.;
-       chi2MatrixAft[0][3][4] = 0.;
-       chi2MatrixAft[0][3][5] = 0.;
-       chi2MatrixAft[0][3][6] = 0.;
-       chi2MatrixAft[0][3][7] = 0.;
-       chi2MatrixAft[0][3][8] = 0.;
-       chi2MatrixAft[0][3][9] = 0.; 
-       chi2MatrixAft[0][4][0] = 0.;
-       chi2MatrixAft[0][4][1] = 0.;
-       chi2MatrixAft[0][4][2] = 0.;
-       chi2MatrixAft[0][4][3] = 0.;
-       chi2MatrixAft[0][4][4] = 0.8030884;
-       chi2MatrixAft[0][4][5] = -0.2543541;
-       chi2MatrixAft[0][4][6] = -0.2243544;
-       chi2MatrixAft[0][4][7] = -0.1698177;
-       chi2MatrixAft[0][4][8] = -0.1194506;
-       chi2MatrixAft[0][4][9] = 0.; 
-       chi2MatrixAft[0][5][0] = 0.;
-       chi2MatrixAft[0][5][1] = 0.;
-       chi2MatrixAft[0][5][2] = 0.;
-       chi2MatrixAft[0][5][3] = 0.;
-       chi2MatrixAft[0][5][4] = -0.2543541;
-       chi2MatrixAft[0][5][5] = 0.6714465;
-       chi2MatrixAft[0][5][6] = -0.2898025;
-       chi2MatrixAft[0][5][7] = -0.2193564;
-       chi2MatrixAft[0][5][8] = -0.1542964;
-       chi2MatrixAft[0][5][9] = 0.;
-       chi2MatrixAft[0][6][0] = 0.;
-       chi2MatrixAft[0][6][1] = 0.;
-       chi2MatrixAft[0][6][2] = 0.;
-       chi2MatrixAft[0][6][3] = 0.;
-       chi2MatrixAft[0][6][4] = -0.2243544;
-       chi2MatrixAft[0][6][5] = -0.2898025;
-       chi2MatrixAft[0][6][6] = 0.7443781;
-       chi2MatrixAft[0][6][7] = -0.1934846;
-       chi2MatrixAft[0][6][8] = -0.136098;
-       chi2MatrixAft[0][6][9] = 0.; 
-       chi2MatrixAft[0][7][0] = 0.;
-       chi2MatrixAft[0][7][1] = 0.;
-       chi2MatrixAft[0][7][2] = 0.;
-       chi2MatrixAft[0][7][3] = 0.;
-       chi2MatrixAft[0][7][4] = -0.1698177;
-       chi2MatrixAft[0][7][5] = -0.2193564;
-       chi2MatrixAft[0][7][6] = -0.1934846;
-       chi2MatrixAft[0][7][7] = 0.8535482;
-       chi2MatrixAft[0][7][8] = -0.1030149;
-       chi2MatrixAft[0][7][9] = 0.; 
-       chi2MatrixAft[0][8][0] = 0.;
-       chi2MatrixAft[0][8][1] = 0.;
-       chi2MatrixAft[0][8][2] = 0.;
-       chi2MatrixAft[0][8][3] = 0.;
-       chi2MatrixAft[0][8][4] = -0.1194506;
-       chi2MatrixAft[0][8][5] = -0.1542964;
-       chi2MatrixAft[0][8][6] = -0.136098;
-       chi2MatrixAft[0][8][7] = -0.1030149;
-       chi2MatrixAft[0][8][8] = 0.9275388;
-       chi2MatrixAft[0][8][9] = 0.;
-       chi2MatrixAft[0][9][0] = 0.;
-       chi2MatrixAft[0][9][1] = 0.;
-       chi2MatrixAft[0][9][2] = 0.;
-       chi2MatrixAft[0][9][3] = 0.;
-       chi2MatrixAft[0][9][4] = 0.;
-       chi2MatrixAft[0][9][5] = 0.;
-       chi2MatrixAft[0][9][6] = 0.;
-       chi2MatrixAft[0][9][7] = 0.;
-       chi2MatrixAft[0][9][8] = 0.;
-       chi2MatrixAft[0][9][9] = 0.; 
+       chi2MatrixAft[0](0,0) = 0.;
+       chi2MatrixAft[0](0,1) = 0.;  
+       chi2MatrixAft[0](0,2) = 0.;
+       chi2MatrixAft[0](0,3) = 0.;
+       chi2MatrixAft[0](0,4) = 0.;
+       chi2MatrixAft[0](0,5) = 0.;
+       chi2MatrixAft[0](0,6) = 0.;
+       chi2MatrixAft[0](0,7) = 0.;
+       chi2MatrixAft[0](0,8) = 0.;
+       chi2MatrixAft[0](0,9) = 0.;
+       chi2MatrixAft[0](1,0) = 0.;
+       chi2MatrixAft[0](1,1) = 0.;
+       chi2MatrixAft[0](1,2) = 0.;
+       chi2MatrixAft[0](1,3) = 0.;
+       chi2MatrixAft[0](1,4) = 0.;
+       chi2MatrixAft[0](1,5) = 0.;
+       chi2MatrixAft[0](1,6) = 0.;
+       chi2MatrixAft[0](1,7) = 0.;
+       chi2MatrixAft[0](1,8) = 0.;
+       chi2MatrixAft[0](1,9) = 0.;
+       chi2MatrixAft[0](2,0) = 0.;
+       chi2MatrixAft[0](2,1) = 0.;
+       chi2MatrixAft[0](2,2) = 0.;
+       chi2MatrixAft[0](2,3) = 0.;
+       chi2MatrixAft[0](2,4) = 0.;
+       chi2MatrixAft[0](2,5) = 0.;
+       chi2MatrixAft[0](2,6) = 0.;
+       chi2MatrixAft[0](2,7) = 0.;
+       chi2MatrixAft[0](2,8) = 0.;
+       chi2MatrixAft[0](2,9) = 0.;
+       chi2MatrixAft[0](3,0) = 0.;
+       chi2MatrixAft[0](3,1) = 0.;
+       chi2MatrixAft[0](3,2) = 0.;
+       chi2MatrixAft[0](3,3) = 0.;
+       chi2MatrixAft[0](3,4) = 0.;
+       chi2MatrixAft[0](3,5) = 0.;
+       chi2MatrixAft[0](3,6) = 0.;
+       chi2MatrixAft[0](3,7) = 0.;
+       chi2MatrixAft[0](3,8) = 0.;
+       chi2MatrixAft[0](3,9) = 0.; 
+       chi2MatrixAft[0](4,0) = 0.;
+       chi2MatrixAft[0](4,1) = 0.;
+       chi2MatrixAft[0](4,2) = 0.;
+       chi2MatrixAft[0](4,3) = 0.;
+       chi2MatrixAft[0](4,4) = 0.8030884;
+       chi2MatrixAft[0](4,5) = -0.2543541;
+       chi2MatrixAft[0](4,6) = -0.2243544;
+       chi2MatrixAft[0](4,7) = -0.1698177;
+       chi2MatrixAft[0](4,8) = -0.1194506;
+       chi2MatrixAft[0](4,9) = 0.; 
+       chi2MatrixAft[0](5,0) = 0.;
+       chi2MatrixAft[0](5,1) = 0.;
+       chi2MatrixAft[0](5,2) = 0.;
+       chi2MatrixAft[0](5,3) = 0.;
+       chi2MatrixAft[0](5,4) = -0.2543541;
+       chi2MatrixAft[0](5,5) = 0.6714465;
+       chi2MatrixAft[0](5,6) = -0.2898025;
+       chi2MatrixAft[0](5,7) = -0.2193564;
+       chi2MatrixAft[0](5,8) = -0.1542964;
+       chi2MatrixAft[0](5,9) = 0.;
+       chi2MatrixAft[0](6,0) = 0.;
+       chi2MatrixAft[0](6,1) = 0.;
+       chi2MatrixAft[0](6,2) = 0.;
+       chi2MatrixAft[0](6,3) = 0.;
+       chi2MatrixAft[0](6,4) = -0.2243544;
+       chi2MatrixAft[0](6,5) = -0.2898025;
+       chi2MatrixAft[0](6,6) = 0.7443781;
+       chi2MatrixAft[0](6,7) = -0.1934846;
+       chi2MatrixAft[0](6,8) = -0.136098;
+       chi2MatrixAft[0](6,9) = 0.; 
+       chi2MatrixAft[0](7,0) = 0.;
+       chi2MatrixAft[0](7,1) = 0.;
+       chi2MatrixAft[0](7,2) = 0.;
+       chi2MatrixAft[0](7,3) = 0.;
+       chi2MatrixAft[0](7,4) = -0.1698177;
+       chi2MatrixAft[0](7,5) = -0.2193564;
+       chi2MatrixAft[0](7,6) = -0.1934846;
+       chi2MatrixAft[0](7,7) = 0.8535482;
+       chi2MatrixAft[0](7,8) = -0.1030149;
+       chi2MatrixAft[0](7,9) = 0.; 
+       chi2MatrixAft[0](8,0) = 0.;
+       chi2MatrixAft[0](8,1) = 0.;
+       chi2MatrixAft[0](8,2) = 0.;
+       chi2MatrixAft[0](8,3) = 0.;
+       chi2MatrixAft[0](8,4) = -0.1194506;
+       chi2MatrixAft[0](8,5) = -0.1542964;
+       chi2MatrixAft[0](8,6) = -0.136098;
+       chi2MatrixAft[0](8,7) = -0.1030149;
+       chi2MatrixAft[0](8,8) = 0.9275388;
+       chi2MatrixAft[0](8,9) = 0.;
+       chi2MatrixAft[0](9,0) = 0.;
+       chi2MatrixAft[0](9,1) = 0.;
+       chi2MatrixAft[0](9,2) = 0.;
+       chi2MatrixAft[0](9,3) = 0.;
+       chi2MatrixAft[0](9,4) = 0.;
+       chi2MatrixAft[0](9,5) = 0.;
+       chi2MatrixAft[0](9,6) = 0.;
+       chi2MatrixAft[0](9,7) = 0.;
+       chi2MatrixAft[0](9,8) = 0.;
+       chi2MatrixAft[0](9,9) = 0.; 
      }
    else if (getWeightsFromFile_)
     {
@@ -990,12 +1005,12 @@ void EcalTrivialConditionRetriever::getWeightsFromConfiguration(const edm::Param
       int tdcBin=0;
       while (!chi2MatrixAftFile.eof() && tdcBin < nTDCbins_) 
 	{
-	  chi2MatrixAft[tdcBin].resize(10);
+	  //	  chi2MatrixAft[tdcBin].resize(10);
 	  for(int j = 0; j < 10; ++j) {
 	    for(int l = 0; l < 10; ++l) {
 	      float ww;
 	      chi2MatrixAftFile >> ww;
-	      chi2MatrixAft[tdcBin][j].push_back(ww);
+	      chi2MatrixAft[tdcBin](j,l)=ww;
 	    }
 	  }
 	  ++tdcBin;
@@ -1009,11 +1024,11 @@ void EcalTrivialConditionRetriever::getWeightsFromConfiguration(const edm::Param
       throw cms::Exception("WrongConfig");
     }
    
-   for (int i=0;i<nTDCbins_;i++)
-     {
-       assert(chi2MatrixAft[i].size() == 10);
-       chi2MatrixAft_ =  chi2MatrixAft;
-     }
+//    for (int i=0;i<nTDCbins_;i++)
+//      {
+       //       assert(chi2MatrixAft[i].size() == 10);
+   chi2MatrixAft_ =  chi2MatrixAft;
+   //      }
 
 }
 

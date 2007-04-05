@@ -1,5 +1,5 @@
 //
-// $Id: EcalTrivialObjectAnalyzer.cc,v 1.6 2006/06/28 18:01:21 meridian Exp $
+// $Id: EcalTrivialObjectAnalyzer.cc,v 1.7 2006/10/26 23:35:31 wmtan Exp $
 // Created: 2 Mar 2006
 //          Shahram Rahatlou, University of Rome & INFN
 //
@@ -154,19 +154,19 @@ using namespace std;
 
 
       //typedef std::vector< std::vector<EcalWeight> > EcalWeightMatrix;
-      const EcalWeightSet::EcalWeightMatrix mat1 = wit->second.getWeightsBeforeGainSwitch();
-      const EcalWeightSet::EcalWeightMatrix mat2 = wit->second.getWeightsAfterGainSwitch();
+      const math::EcalWeightMatrix::type& mat1 = wit->second.getWeightsBeforeGainSwitch();
+      const math::EcalWeightMatrix::type& mat2 = wit->second.getWeightsAfterGainSwitch();
 
-      std::cout << "WeightsBeforeGainSwitch.size: " << mat1.size()
-                << ", WeightsAfterGainSwitch.size: " << mat2.size() << std::endl;
+//       std::cout << "WeightsBeforeGainSwitch.size: " << mat1.size()
+//                 << ", WeightsAfterGainSwitch.size: " << mat2.size() << std::endl;
 
 
       HepMatrix clmat1(3,10,0);
       HepMatrix clmat2(3,10,0);
       for(int irow=0; irow<3; irow++) {
        for(int icol=0; icol<10; icol++) {
-         clmat1[irow][icol] = (mat1[irow])[icol]();
-         clmat2[irow][icol] = (mat2[irow])[icol]();
+         clmat1[irow][icol] = mat1(irow,icol);
+         clmat2[irow][icol] = mat2(irow,icol);
        }
      }
      std::cout << "weight matrix before gain switch:" << std::endl;

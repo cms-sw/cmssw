@@ -1,5 +1,5 @@
 //
-// $Id: EcalTrivialConditionRetriever.h,v 1.10 2006/11/18 10:00:28 meridian Exp $
+// $Id: EcalTrivialConditionRetriever.h,v 1.11 2007/01/19 11:22:48 meridian Exp $
 // Created: 2 Mar 2006
 //          Shahram Rahatlou, University of Rome & INFN
 //
@@ -98,17 +98,17 @@ private:
   double gainRatio12over6_;        // ratio of MGPA gain12 / gain6
   double gainRatio6over1_;         // ratio of MGPA gain6 / gain1
 
-  std::vector< std::vector<EcalWeight> > amplWeights_;  // weights to compute amplitudes after ped subtraction
-  std::vector< std::vector<EcalWeight> > amplWeightsAft_;  // weights to compute amplitudes after ped subtraction
+  std::vector< ROOT::Math::SVector<double,EcalDataFrame::MAXSAMPLES> > amplWeights_;  // weights to compute amplitudes after ped subtraction
+  std::vector< ROOT::Math::SVector<double,EcalDataFrame::MAXSAMPLES> > amplWeightsAft_;  // weights to compute amplitudes after ped subtraction
 
-  std::vector< std::vector<EcalWeight> > pedWeights_;  // weights to compute amplitudes w/o ped subtraction
-  std::vector< std::vector<EcalWeight> > pedWeightsAft_;  // weights to compute amplitudes w/o ped subtraction
+  std::vector< ROOT::Math::SVector<double,EcalDataFrame::MAXSAMPLES> > pedWeights_;  // weights to compute amplitudes w/o ped subtraction
+  std::vector< ROOT::Math::SVector<double,EcalDataFrame::MAXSAMPLES> > pedWeightsAft_;  // weights to compute amplitudes w/o ped subtraction
 
-  std::vector< std::vector<EcalWeight> > jittWeights_;  // weights to compute jitter
-  std::vector< std::vector<EcalWeight> > jittWeightsAft_;  // weights to compute jitter
+  std::vector< ROOT::Math::SVector<double,EcalDataFrame::MAXSAMPLES> > jittWeights_;  // weights to compute jitter
+  std::vector< ROOT::Math::SVector<double,EcalDataFrame::MAXSAMPLES> > jittWeightsAft_;  // weights to compute jitter
 
-  std::vector< EcalWeightSet::EcalWeightMatrix > chi2Matrix_;
-  std::vector< EcalWeightSet::EcalWeightMatrix > chi2MatrixAft_;
+  std::vector< math::EcalChi2WeightMatrix::type > chi2Matrix_;
+  std::vector< math::EcalChi2WeightMatrix::type > chi2MatrixAft_;
 
   std::string amplWeightsFile_;
   std::string amplWeightsAftFile_;
