@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorModule.cc
  *
- * $Date: 2007/03/25 07:57:49 $
- * $Revision: 1.129 $
+ * $Date: 2007/04/02 16:29:51 $
+ * $Revision: 1.1 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -71,8 +71,6 @@ EcalEndcapMonitorModule::EcalEndcapMonitorModule(const ParameterSet& ps){
   } else {
     LogInfo("EcalEndcapMonitor") << " verbose switch is OFF";
   }
-
-  dbe_ = 0;
 
   // get hold of back-end interface
   dbe_ = Service<DaqMonitorBEInterface>().operator->();

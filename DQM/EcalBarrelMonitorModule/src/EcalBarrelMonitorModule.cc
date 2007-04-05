@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  *
- * $Date: 2007/03/25 07:57:49 $
- * $Revision: 1.129 $
+ * $Date: 2007/03/30 09:52:30 $
+ * $Revision: 1.130 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -72,8 +72,6 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const ParameterSet& ps){
   } else {
     LogInfo("EcalBarrelMonitor") << " verbose switch is OFF";
   }
-
-  dbe_ = 0;
 
   // get hold of back-end interface
   dbe_ = Service<DaqMonitorBEInterface>().operator->();

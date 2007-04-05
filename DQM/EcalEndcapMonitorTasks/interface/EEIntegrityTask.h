@@ -4,8 +4,8 @@
 /*
  * \file EEIntegrityTask.h
  *
- * $Date: 2007/03/26 17:34:07 $
- * $Revision: 1.15 $
+ * $Date: 2007/04/02 16:23:12 $
+ * $Revision: 1.1 $
  * \author G. Della Ricca
  *
  */
@@ -46,6 +46,8 @@ void cleanup(void);
 private:
 
 int ievt_;
+
+DaqMonitorBEInterface* dbe_;
 
 edm::InputTag EBDetIdCollection0_;
 edm::InputTag EBDetIdCollection1_;

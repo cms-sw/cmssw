@@ -1,8 +1,8 @@
 /*
  * \file EBTimingTask.cc
  *
- * $Date: 2007/03/21 16:10:40 $
- * $Revision: 1.9 $
+ * $Date: 2007/03/26 17:34:07 $
+ * $Revision: 1.10 $
  * \author G. Della Ricca
  *
 */
@@ -42,6 +42,9 @@ EBTimingTask::EBTimingTask(const ParameterSet& ps){
     meTimeMap_[i] = 0;
   }
 
+  // get hold of back-end interface
+  dbe_ = Service<DaqMonitorBEInterface>().operator->();
+
 }
 
 EBTimingTask::~EBTimingTask(){
@@ -52,14 +55,9 @@ void EBTimingTask::beginJob(const EventSetup& c){
 
   ievt_ = 0;
 
-  DaqMonitorBEInterface* dbe = 0;
-
-  // get hold of back-end interface
-  dbe = Service<DaqMonitorBEInterface>().operator->();
-
-  if ( dbe ) {
-    dbe->setCurrentFolder("EcalBarrel/EBTimingTask");
-    dbe->rmdir("EcalBarrel/EBTimingTask");
+  if ( dbe_ ) {
+    dbe_->setCurrentFolder("EcalBarrel/EBTimingTask");
+    dbe_->rmdir("EcalBarrel/EBTimingTask");
   }
 
 }
@@ -70,18 +68,13 @@ void EBTimingTask::setup(void){
 
   Char_t histo[200];
 
-  DaqMonitorBEInterface* dbe = 0;
-
-  // get hold of back-end interface
-  dbe = Service<DaqMonitorBEInterface>().operator->();
-
-  if ( dbe ) {
-    dbe->setCurrentFolder("EcalBarrel/EBTimingTask");
+  if ( dbe_ ) {
+    dbe_->setCurrentFolder("EcalBarrel/EBTimingTask");
 
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBTMT timing SM%02d", i+1);
-      meTimeMap_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 250, 0., 10., "s");
-      dbe->tag(meTimeMap_[i], i+1);
+      meTimeMap_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 250, 0., 10., "s");
+      dbe_->tag(meTimeMap_[i], i+1);
     }
 
   }
@@ -90,16 +83,11 @@ void EBTimingTask::setup(void){
 
 void EBTimingTask::cleanup(void){
 
-  DaqMonitorBEInterface* dbe = 0;
-
-  // get hold of back-end interface
-  dbe = Service<DaqMonitorBEInterface>().operator->();
-
-  if ( dbe ) {
-    dbe->setCurrentFolder("EcalBarrel/EBTimingTask");
+  if ( dbe_ ) {
+    dbe_->setCurrentFolder("EcalBarrel/EBTimingTask");
 
     for ( int i = 0; i < 36; i++ ) {
-      if ( meTimeMap_[i] ) dbe->removeElement( meTimeMap_[i]->getName() );
+      if ( meTimeMap_[i] ) dbe_->removeElement( meTimeMap_[i]->getName() );
       meTimeMap_[i] = 0;
     }
 

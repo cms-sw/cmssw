@@ -1,8 +1,8 @@
 /*
  * \file EBOccupancyTask.cc
  *
- * $Date: 2007/03/21 08:12:10 $
- * $Revision: 1.17 $
+ * $Date: 2007/03/21 16:10:40 $
+ * $Revision: 1.18 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -45,6 +45,9 @@ EBOccupancyTask::EBOccupancyTask(const ParameterSet& ps){
     meOccupancyMem_[i] = 0;
   }
 
+  // get hold of back-end interface
+  dbe_ = Service<DaqMonitorBEInterface>().operator->();
+
 }
 
 EBOccupancyTask::~EBOccupancyTask(){
@@ -55,14 +58,9 @@ void EBOccupancyTask::beginJob(const EventSetup& c){
 
   ievt_ = 0;
 
-  DaqMonitorBEInterface* dbe = 0;
-
-  // get hold of back-end interface
-  dbe = Service<DaqMonitorBEInterface>().operator->();
-
-  if ( dbe ) {
-    dbe->setCurrentFolder("EcalBarrel/EBOccupancyTask");
-    dbe->rmdir("EcalBarrel/EBOccupancyTask");
+  if ( dbe_ ) {
+    dbe_->setCurrentFolder("EcalBarrel/EBOccupancyTask");
+    dbe_->rmdir("EcalBarrel/EBOccupancyTask");
   }
 
 }
@@ -73,23 +71,18 @@ void EBOccupancyTask::setup(void){
 
   Char_t histo[200];
 
-  DaqMonitorBEInterface* dbe = 0;
-
-  // get hold of back-end interface
-  dbe = Service<DaqMonitorBEInterface>().operator->();
-
-  if ( dbe ) {
-    dbe->setCurrentFolder("EcalBarrel/EBOccupancyTask");
+  if ( dbe_ ) {
+    dbe_->setCurrentFolder("EcalBarrel/EBOccupancyTask");
 
     for (int i = 0; i < 36; i++) {
       sprintf(histo, "EBOT occupancy SM%02d", i+1);
-      meOccupancy_[i] = dbe->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
-      dbe->tag(meOccupancy_[i], i+1);
+      meOccupancy_[i] = dbe_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+      dbe_->tag(meOccupancy_[i], i+1);
     }
     for (int i = 0; i < 36; i++) {
       sprintf(histo, "EBOT MEM occupancy SM%02d", i+1);
-      meOccupancyMem_[i] = dbe->book2D(histo, histo, 10, 0., 10., 5, 0., 5.);
-      dbe->tag(meOccupancyMem_[i], i+1);
+      meOccupancyMem_[i] = dbe_->book2D(histo, histo, 10, 0., 10., 5, 0., 5.);
+      dbe_->tag(meOccupancyMem_[i], i+1);
     }
 
   }
@@ -98,18 +91,13 @@ void EBOccupancyTask::setup(void){
 
 void EBOccupancyTask::cleanup(void){
 
-  DaqMonitorBEInterface* dbe = 0;
-
-  // get hold of back-end interface
-  dbe = Service<DaqMonitorBEInterface>().operator->();
-
-  if ( dbe ) {
-    dbe->setCurrentFolder("EcalBarrel/EBOccupancyTask");
+  if ( dbe_ ) {
+    dbe_->setCurrentFolder("EcalBarrel/EBOccupancyTask");
 
     for (int i = 0; i < 36; i++) {
-      if ( meOccupancy_[i] ) dbe->removeElement( meOccupancy_[i]->getName() );
+      if ( meOccupancy_[i] ) dbe_->removeElement( meOccupancy_[i]->getName() );
       meOccupancy_[i] = 0;
-      if ( meOccupancyMem_[i] ) dbe->removeElement( meOccupancyMem_[i]->getName() );
+      if ( meOccupancyMem_[i] ) dbe_->removeElement( meOccupancyMem_[i]->getName() );
       meOccupancyMem_[i] = 0;
     }
 

@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicTask.cc
  *
- * $Date: 2007/03/20 12:37:26 $
- * $Revision: 1.67 $
+ * $Date: 2007/03/21 16:10:40 $
+ * $Revision: 1.68 $
  * \author G. Della Ricca
  *
 */
@@ -45,6 +45,9 @@ EBCosmicTask::EBCosmicTask(const ParameterSet& ps){
     meSpectrumMap_[i] = 0;
   }
 
+  // get hold of back-end interface
+  dbe_ = Service<DaqMonitorBEInterface>().operator->();
+
 }
 
 EBCosmicTask::~EBCosmicTask(){
@@ -55,14 +58,9 @@ void EBCosmicTask::beginJob(const EventSetup& c){
 
   ievt_ = 0;
 
-  DaqMonitorBEInterface* dbe = 0;
-
-  // get hold of back-end interface
-  dbe = Service<DaqMonitorBEInterface>().operator->();
-
-  if ( dbe ) {
-    dbe->setCurrentFolder("EcalBarrel/EBCosmicTask");
-    dbe->rmdir("EcalBarrel/EBCosmicTask");
+  if ( dbe_ ) {
+    dbe_->setCurrentFolder("EcalBarrel/EBCosmicTask");
+    dbe_->rmdir("EcalBarrel/EBCosmicTask");
   }
 
 }
@@ -73,30 +71,25 @@ void EBCosmicTask::setup(void){
 
   Char_t histo[200];
 
-  DaqMonitorBEInterface* dbe = 0;
+  if ( dbe_ ) {
+    dbe_->setCurrentFolder("EcalBarrel/EBCosmicTask");
 
-  // get hold of back-end interface
-  dbe = Service<DaqMonitorBEInterface>().operator->();
-
-  if ( dbe ) {
-    dbe->setCurrentFolder("EcalBarrel/EBCosmicTask");
-
-    dbe->setCurrentFolder("EcalBarrel/EBCosmicTask/Cut");
+    dbe_->setCurrentFolder("EcalBarrel/EBCosmicTask/Cut");
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBCT energy cut SM%02d", i+1);
-      meCutMap_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
+      meCutMap_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
     }
 
-    dbe->setCurrentFolder("EcalBarrel/EBCosmicTask/Sel");
+    dbe_->setCurrentFolder("EcalBarrel/EBCosmicTask/Sel");
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBCT energy sel SM%02d", i+1);
-      meSelMap_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
+      meSelMap_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
     }
 
-    dbe->setCurrentFolder("EcalBarrel/EBCosmicTask/Spectrum");
+    dbe_->setCurrentFolder("EcalBarrel/EBCosmicTask/Spectrum");
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBCT energy spectrum SM%02d", i+1);
-      meSpectrumMap_[i] = dbe->book1D(histo, histo, 100, 0., 1.5);
+      meSpectrumMap_[i] = dbe_->book1D(histo, histo, 100, 0., 1.5);
     }
 
   }
@@ -105,29 +98,24 @@ void EBCosmicTask::setup(void){
 
 void EBCosmicTask::cleanup(void){
 
-  DaqMonitorBEInterface* dbe = 0;
+  if ( dbe_ ) {
+    dbe_->setCurrentFolder("EcalBarrel/EBCosmicTask");
 
-  // get hold of back-end interface
-  dbe = Service<DaqMonitorBEInterface>().operator->();
-
-  if ( dbe ) {
-    dbe->setCurrentFolder("EcalBarrel/EBCosmicTask");
-
-    dbe->setCurrentFolder("EcalBarrel/EBCosmicTask/Cut");
+    dbe_->setCurrentFolder("EcalBarrel/EBCosmicTask/Cut");
     for (int i = 0; i < 36 ; i++) {
-      if ( meCutMap_[i] ) dbe->removeElement( meCutMap_[i]->getName() );
+      if ( meCutMap_[i] ) dbe_->removeElement( meCutMap_[i]->getName() );
       meCutMap_[i] = 0;
     }
 
-    dbe->setCurrentFolder("EcalBarrel/EBCosmicTask/Sel");
+    dbe_->setCurrentFolder("EcalBarrel/EBCosmicTask/Sel");
     for (int i = 0; i < 36 ; i++) {
-      if ( meSelMap_[i] ) dbe->removeElement( meSelMap_[i]->getName() );
+      if ( meSelMap_[i] ) dbe_->removeElement( meSelMap_[i]->getName() );
       meSelMap_[i] = 0;
     }
 
-    dbe->setCurrentFolder("EcalBarrel/EBCosmicTask/Spectrum");
+    dbe_->setCurrentFolder("EcalBarrel/EBCosmicTask/Spectrum");
     for (int i = 0; i < 36 ; i++) {
-      if ( meSpectrumMap_[i] ) dbe->removeElement( meSpectrumMap_[i]->getName() );
+      if ( meSpectrumMap_[i] ) dbe_->removeElement( meSpectrumMap_[i]->getName() );
       meSpectrumMap_[i] = 0;
     }
 

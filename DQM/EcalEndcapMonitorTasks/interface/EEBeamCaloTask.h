@@ -4,8 +4,8 @@
 /*
  * \file EEBeamCaloTask.h
  *
- * $Date: 2007/03/26 17:34:06 $
- * $Revision: 1.20 $
+ * $Date: 2007/04/02 16:23:12 $
+ * $Revision: 1.1 $
  * \author A. Ghezzi
  *
 */
@@ -48,6 +48,8 @@ void cleanup(void);
 private:
 
 int ievt_;
+
+DaqMonitorBEInterface* dbe_;
 
 edm::InputTag EcalTBEventHeader_;
 edm::InputTag EcalRawDataCollection_;

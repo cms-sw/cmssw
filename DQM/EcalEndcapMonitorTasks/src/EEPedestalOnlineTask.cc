@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalOnlineTask.cc
  *
- * $Date: 2007/03/21 16:10:40 $
- * $Revision: 1.20 $
+ * $Date: 2007/04/02 16:23:13 $
+ * $Revision: 1.1 $
  * \author G. Della Ricca
  *
 */
@@ -42,6 +42,9 @@ EEPedestalOnlineTask::EEPedestalOnlineTask(const ParameterSet& ps){
     mePedMapG12_[i] = 0;
   }
 
+  // get hold of back-end interface
+  dbe_ = Service<DaqMonitorBEInterface>().operator->();
+
 }
 
 EEPedestalOnlineTask::~EEPedestalOnlineTask(){
@@ -52,14 +55,9 @@ void EEPedestalOnlineTask::beginJob(const EventSetup& c){
 
   ievt_ = 0;
 
-  DaqMonitorBEInterface* dbe = 0;
-
-  // get hold of back-end interface
-  dbe = Service<DaqMonitorBEInterface>().operator->();
-
-  if ( dbe ) {
-    dbe->setCurrentFolder("EcalEndcap/EEPedestalOnlineTask");
-    dbe->rmdir("EcalEndcap/EEPedestalOnlineTask");
+  if ( dbe_ ) {
+    dbe_->setCurrentFolder("EcalEndcap/EEPedestalOnlineTask");
+    dbe_->rmdir("EcalEndcap/EEPedestalOnlineTask");
   }
 
 }
@@ -70,19 +68,14 @@ void EEPedestalOnlineTask::setup(void){
 
   Char_t histo[200];
 
-  DaqMonitorBEInterface* dbe = 0;
+  if ( dbe_ ) {
+    dbe_->setCurrentFolder("EcalEndcap/EEPedestalOnlineTask");
 
-  // get hold of back-end interface
-  dbe = Service<DaqMonitorBEInterface>().operator->();
-
-  if ( dbe ) {
-    dbe->setCurrentFolder("EcalEndcap/EEPedestalOnlineTask");
-
-    dbe->setCurrentFolder("EcalEndcap/EEPedestalOnlineTask/Gain12");
+    dbe_->setCurrentFolder("EcalEndcap/EEPedestalOnlineTask/Gain12");
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EEPOT pedestal SM%02d G12", i+1);
-      mePedMapG12_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
-      dbe->tag(mePedMapG12_[i], i+1);
+      mePedMapG12_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
+      dbe_->tag(mePedMapG12_[i], i+1);
     }
 
   }
@@ -91,17 +84,12 @@ void EEPedestalOnlineTask::setup(void){
 
 void EEPedestalOnlineTask::cleanup(void){
 
-  DaqMonitorBEInterface* dbe = 0;
+  if ( dbe_ ) {
+    dbe_->setCurrentFolder("EcalEndcap/EEPedestalOnlineTask");
 
-  // get hold of back-end interface
-  dbe = Service<DaqMonitorBEInterface>().operator->();
-
-  if ( dbe ) {
-    dbe->setCurrentFolder("EcalEndcap/EEPedestalOnlineTask");
-
-    dbe->setCurrentFolder("EcalEndcap/EEPedestalOnlineTask/Gain12");
+    dbe_->setCurrentFolder("EcalEndcap/EEPedestalOnlineTask/Gain12");
     for ( int i = 0; i < 36; i++ ) {
-      if ( mePedMapG12_[i] ) dbe->removeElement( mePedMapG12_[i]->getName() );
+      if ( mePedMapG12_[i] ) dbe_->removeElement( mePedMapG12_[i]->getName() );
       mePedMapG12_[i] = 0;
     }
 

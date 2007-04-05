@@ -4,8 +4,8 @@
 /*
  * \file EEClusterTask.h
  *
- * $Date: 2007/03/26 16:17:12 $
- * $Revision: 1.8 $
+ * $Date: 2007/04/02 16:23:12 $
+ * $Revision: 1.1 $
  * \author G. Della Ricca
  *
  */
@@ -45,6 +45,8 @@ void cleanup(void);
 private:
 
 int ievt_;
+
+DaqMonitorBEInterface* dbe_;
 
 edm::InputTag islandBarrelBasicClusterCollection_;
 edm::InputTag islandBarrelSuperClusterCollection_;

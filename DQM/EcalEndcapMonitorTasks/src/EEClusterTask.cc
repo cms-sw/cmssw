@@ -1,8 +1,8 @@
 /*
  * \file EEClusterTask.cc
  *
- * $Date: 2007/03/26 19:02:28 $
- * $Revision: 1.18 $
+ * $Date: 2007/04/02 16:23:13 $
+ * $Revision: 1.1 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -75,6 +75,9 @@ EEClusterTask::EEClusterTask(const ParameterSet& ps){
   meHybS1toE_  = 0;
   meInvMass_ = 0;
 
+  // get hold of back-end interface
+  dbe_ = Service<DaqMonitorBEInterface>().operator->();
+
 }
 
 EEClusterTask::~EEClusterTask(){
@@ -85,14 +88,9 @@ void EEClusterTask::beginJob(const EventSetup& c){
 
   ievt_ = 0;
 
-  DaqMonitorBEInterface* dbe = 0;
-
-  // get hold of back-end interface
-  dbe = Service<DaqMonitorBEInterface>().operator->();
-
-  if ( dbe ) {
-    dbe->setCurrentFolder("EcalEndcap/EEClusterTask");
-    dbe->rmdir("EcalEndcap/EEClusterTask");
+  if ( dbe_ ) {
+    dbe_->setCurrentFolder("EcalEndcap/EEClusterTask");
+    dbe_->rmdir("EcalEndcap/EEClusterTask");
   }
 
 }
@@ -103,61 +101,56 @@ void EEClusterTask::setup(void){
 
   Char_t histo[200];
 
-  DaqMonitorBEInterface* dbe = 0;
-
-  // get hold of back-end interface
-  dbe = Service<DaqMonitorBEInterface>().operator->();
-
-  if ( dbe ) {
-    dbe->setCurrentFolder("EcalEndcap/EEClusterTask");
+  if ( dbe_ ) {
+    dbe_->setCurrentFolder("EcalEndcap/EEClusterTask");
 
     sprintf(histo, "EECLT island basic cluster energy");
-    meIslBEne_ = dbe->book1D(histo, histo, 100, 0., 150.);
+    meIslBEne_ = dbe_->book1D(histo, histo, 100, 0., 150.);
 
     sprintf(histo, "EECLT island basic cluster number");
-    meIslBNum_ = dbe->book1D(histo, histo, 100, 0., 100.);
+    meIslBNum_ = dbe_->book1D(histo, histo, 100, 0., 100.);
 
     sprintf(histo, "EECLT island basic cluster crystals");
-    meIslBCry_ = dbe->book1D(histo, histo, 100, 0., 100.);
+    meIslBCry_ = dbe_->book1D(histo, histo, 100, 0., 100.);
 
     sprintf(histo, "EECLT island basic cluster energy map");
-    meIslBEneMap_ = dbe->bookProfile2D(histo, histo, 34, -1.479, 1.479, 72, -M_PI, M_PI, 100, 0., 500., "s");
+    meIslBEneMap_ = dbe_->bookProfile2D(histo, histo, 34, -1.479, 1.479, 72, -M_PI, M_PI, 100, 0., 500., "s");
 
     sprintf(histo, "EECLT island basic cluster number map");
-    meIslBNumMap_ = dbe->book2D(histo, histo, 34, -1.479, 1.479, 72, -M_PI, M_PI);
+    meIslBNumMap_ = dbe_->book2D(histo, histo, 34, -1.479, 1.479, 72, -M_PI, M_PI);
 
     sprintf(histo, "EECLT island basic cluster ET map");
-    meIslBETMap_ = dbe->bookProfile2D(histo, histo, 34, -1.479, 1.479, 72, -M_PI, M_PI, 100, 0., 500., "s");
+    meIslBETMap_ = dbe_->bookProfile2D(histo, histo, 34, -1.479, 1.479, 72, -M_PI, M_PI, 100, 0., 500., "s");
 
     sprintf(histo, "EECLT island basic cluster size map");
-    meIslBCryMap_ = dbe->bookProfile2D(histo, histo, 34, -1.479, 1.479, 72, -M_PI, M_PI, 100, 0., 100., "s");
+    meIslBCryMap_ = dbe_->bookProfile2D(histo, histo, 34, -1.479, 1.479, 72, -M_PI, M_PI, 100, 0., 100., "s");
 
     sprintf(histo, "EECLT island super cluster energy");
-    meIslSEne_ = dbe->book1D(histo, histo, 100, 0., 150.);
+    meIslSEne_ = dbe_->book1D(histo, histo, 100, 0., 150.);
 
     sprintf(histo, "EECLT island super cluster number");
-    meIslSNum_ = dbe->book1D(histo, histo, 50, 0., 50.);
+    meIslSNum_ = dbe_->book1D(histo, histo, 50, 0., 50.);
 
     sprintf(histo, "EECLT island super cluster size");
-    meIslSSiz_ = dbe->book1D(histo, histo, 10, 0., 10.);
+    meIslSSiz_ = dbe_->book1D(histo, histo, 10, 0., 10.);
 
     sprintf(histo, "EECLT island super cluster energy map");
-    meIslSEneMap_ = dbe->bookProfile2D(histo, histo, 34, -1.479, 1.479, 72, -M_PI, M_PI, 100, 0., 500., "s");
+    meIslSEneMap_ = dbe_->bookProfile2D(histo, histo, 34, -1.479, 1.479, 72, -M_PI, M_PI, 100, 0., 500., "s");
 
     sprintf(histo, "EECLT island super cluster number map");
-    meIslSNumMap_ = dbe->book2D(histo, histo, 34, -1.479, 1.479, 72, -M_PI, M_PI);
+    meIslSNumMap_ = dbe_->book2D(histo, histo, 34, -1.479, 1.479, 72, -M_PI, M_PI);
 
     sprintf(histo, "EECLT island super cluster ET map");
-    meIslSETMap_ = dbe->bookProfile2D(histo, histo, 34, -1.479, 1.479, 72, -M_PI, M_PI, 100, 0., 500., "s");
+    meIslSETMap_ = dbe_->bookProfile2D(histo, histo, 34, -1.479, 1.479, 72, -M_PI, M_PI, 100, 0., 500., "s");
 
     sprintf(histo, "EECLT island super cluster size map");
-    meIslSSizMap_ = dbe->bookProfile2D(histo, histo, 34, -1.479, 1.479, 72, -M_PI, M_PI, 100, 0., 500., "s");
+    meIslSSizMap_ = dbe_->bookProfile2D(histo, histo, 34, -1.479, 1.479, 72, -M_PI, M_PI, 100, 0., 500., "s");
 
     sprintf(histo, "EECLT hybrid S1toE");
-    meHybS1toE_ = dbe->book1D(histo, histo, 50, 0., 1.);
+    meHybS1toE_ = dbe_->book1D(histo, histo, 50, 0., 1.);
 
     sprintf(histo, "EECLT dicluster invariant mass");
-    meInvMass_ = dbe->book1D(histo, histo, 50, 60., 120.);
+    meInvMass_ = dbe_->book1D(histo, histo, 50, 60., 120.);
 
   }
 
@@ -165,60 +158,55 @@ void EEClusterTask::setup(void){
 
 void EEClusterTask::cleanup(void){
 
-  DaqMonitorBEInterface* dbe = 0;
+  if ( dbe_ ) {
+    dbe_->setCurrentFolder("EcalEndcap/EEClusterTask");
 
-  // get hold of back-end interface
-  dbe = Service<DaqMonitorBEInterface>().operator->();
-
-  if ( dbe ) {
-    dbe->setCurrentFolder("EcalEndcap/EEClusterTask");
-
-    if ( meIslBEne_ ) dbe->removeElement( meIslBEne_->getName() );
+    if ( meIslBEne_ ) dbe_->removeElement( meIslBEne_->getName() );
     meIslBEne_ = 0;
 
-    if ( meIslBNum_ ) dbe->removeElement( meIslBNum_->getName() );
+    if ( meIslBNum_ ) dbe_->removeElement( meIslBNum_->getName() );
     meIslBNum_ = 0;
 
-    if ( meIslBCry_ ) dbe->removeElement( meIslBCry_->getName() );
+    if ( meIslBCry_ ) dbe_->removeElement( meIslBCry_->getName() );
     meIslBCry_ = 0;
 
-    if ( meIslBEneMap_ ) dbe->removeElement( meIslBEneMap_->getName() );
+    if ( meIslBEneMap_ ) dbe_->removeElement( meIslBEneMap_->getName() );
     meIslBEneMap_ = 0;
 
-    if ( meIslBNumMap_ ) dbe->removeElement( meIslBNumMap_->getName() );
+    if ( meIslBNumMap_ ) dbe_->removeElement( meIslBNumMap_->getName() );
     meIslBNumMap_ = 0;
 
-    if ( meIslBETMap_ ) dbe->removeElement( meIslBETMap_->getName() );
+    if ( meIslBETMap_ ) dbe_->removeElement( meIslBETMap_->getName() );
     meIslBETMap_ = 0;
 
-    if ( meIslBCryMap_ ) dbe->removeElement( meIslBCryMap_->getName() );
+    if ( meIslBCryMap_ ) dbe_->removeElement( meIslBCryMap_->getName() );
     meIslBCryMap_ = 0;
 
-    if ( meIslSEne_ ) dbe->removeElement( meIslSEne_->getName() );
+    if ( meIslSEne_ ) dbe_->removeElement( meIslSEne_->getName() );
     meIslSEne_ = 0;
 
-    if ( meIslSNum_ ) dbe->removeElement( meIslSNum_->getName() );
+    if ( meIslSNum_ ) dbe_->removeElement( meIslSNum_->getName() );
     meIslSNum_ = 0;
 
-    if ( meIslSSiz_ ) dbe->removeElement( meIslSSiz_->getName() );
+    if ( meIslSSiz_ ) dbe_->removeElement( meIslSSiz_->getName() );
     meIslSSiz_ = 0;
 
-    if ( meIslSEneMap_ ) dbe->removeElement( meIslSEneMap_->getName() );
+    if ( meIslSEneMap_ ) dbe_->removeElement( meIslSEneMap_->getName() );
     meIslSEneMap_ = 0;
 
-    if ( meIslSNumMap_ ) dbe->removeElement( meIslSNumMap_->getName() );
+    if ( meIslSNumMap_ ) dbe_->removeElement( meIslSNumMap_->getName() );
     meIslSNumMap_ = 0;
 
-    if ( meIslSETMap_ ) dbe->removeElement( meIslSETMap_->getName() );
+    if ( meIslSETMap_ ) dbe_->removeElement( meIslSETMap_->getName() );
     meIslSETMap_ = 0;
 
-    if ( meIslSSizMap_ ) dbe->removeElement( meIslSSizMap_->getName() );
+    if ( meIslSSizMap_ ) dbe_->removeElement( meIslSSizMap_->getName() );
     meIslSSizMap_ = 0;
 
-    if ( meHybS1toE_ ) dbe->removeElement( meHybS1toE_->getName() );
+    if ( meHybS1toE_ ) dbe_->removeElement( meHybS1toE_->getName() );
     meHybS1toE_ = 0;
 
-    if ( meInvMass_ ) dbe->removeElement( meInvMass_->getName() );
+    if ( meInvMass_ ) dbe_->removeElement( meInvMass_->getName() );
     meInvMass_ = 0;
 
   }

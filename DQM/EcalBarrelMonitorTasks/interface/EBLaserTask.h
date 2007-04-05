@@ -4,8 +4,8 @@
 /*
  * \file EBLaserTask.h
  *
- * $Date: 2007/03/13 10:53:16 $
- * $Revision: 1.23 $
+ * $Date: 2007/03/20 12:37:26 $
+ * $Revision: 1.24 $
  * \author G. Della Ricca
  *
 */
@@ -45,6 +45,8 @@ void cleanup(void);
 private:
 
 int ievt_;
+
+DaqMonitorBEInterface* dbe_;
 
 edm::InputTag EcalRawDataCollection_;
 edm::InputTag EBDigiCollection_;

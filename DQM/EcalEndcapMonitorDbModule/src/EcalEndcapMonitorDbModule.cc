@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorDbModule.cc
  * 
- * $Date: 2006/06/29 08:25:33 $
- * $Revision: 1.7 $
+ * $Date: 2007/04/02 16:20:48 $
+ * $Revision: 1.1 $
  * \author G. Della Ricca
  *
 */
@@ -41,8 +41,6 @@
 
 
 EcalEndcapMonitorDbModule::EcalEndcapMonitorDbModule(const edm::ParameterSet& ps){
-
-  dbe_ = 0;
 
   // get hold of back-end interface
   dbe_ = edm::Service<DaqMonitorBEInterface>().operator->();

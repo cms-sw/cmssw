@@ -4,8 +4,8 @@
 /*
  * \file EBBeamCaloTask.h
  *
- * $Date: 2007/03/20 12:37:26 $
- * $Revision: 1.19 $
+ * $Date: 2007/03/26 17:34:06 $
+ * $Revision: 1.20 $
  * \author A. Ghezzi
  *
 */
@@ -48,6 +48,8 @@ void cleanup(void);
 private:
 
 int ievt_;
+
+DaqMonitorBEInterface* dbe_;
 
 edm::InputTag EcalTBEventHeader_;
 edm::InputTag EcalRawDataCollection_;
