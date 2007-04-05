@@ -53,11 +53,11 @@ bool CosmicTIFFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	// new HepMC
 	const HepMC::GenVertex * vertex_=(*i)->production_vertex();
 
-	HepMC::FourVector vertex__ = vertex_->position();
-	CLHEP::HepLorentzVector vertex = (vertex__.x(),vertex__.y(),vertex__.z(),vertex__.t());
+	//	HepMC::FourVector vertex__ = vertex_->position();
+	CLHEP::HepLorentzVector vertex = ((vertex_->position()).x(),(vertex_->position()).y(),(vertex_->position()).z());
 
-	HepMC::FourVector momentum__=(*i)->momentum();
-	CLHEP::HepLorentzVector momentum=(momentum__.x(),momentum__.y(),momentum__.z(),momentum__.t());
+	//HepMC::FourVector momentum__=(*i)->momentum();
+	CLHEP::HepLorentzVector momentum=(((*i)->momentum()).x(),((*i)->momentum()).y(),((*i)->momentum()).z(),((*i)->momentum()).t());
 
 
 	// Define the Scintillator position

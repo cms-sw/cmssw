@@ -55,18 +55,20 @@ bool CosmicGenFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	//	  HepLorentzVector vertex=(*i)->CreationVertex();
 	
 	// new HepMC
-	//	HepLorentzVector vertex=(*i)->production_vertex();
+	//		HepLorentzVector vertex=(*i)->production_vertex();
 
+		
 	const HepMC::GenVertex * vertex_=(*i)->production_vertex();
-	HepMC::FourVector vertex__ = (vertex_->position().x(),vertex_->position().y(),vertex_->position().z());
-	CLHEP::HepLorentzVector vertex = (vertex__.x(), vertex__.y(), vertex__.z(), vertex__.t());
+	CLHEP::HepLorentzVector vertex  = (vertex_->position().x(),vertex_->position().y(),vertex_->position().z());
+
+		
 
 
 	//HepMC::FourVector vertex = vertex_->position();
 	      
 
-	HepMC::FourVector momentum__=(*i)->momentum();
-	CLHEP::HepLorentzVector momentum = (momentum__.x(), momentum__.y(), momentum__.z(), momentum__.t());
+	//	HepMC::FourVector momentum__=(*i)->momentum();
+	CLHEP::HepLorentzVector momentum = (((*i)->momentum()).x(), ((*i)->momentum()).y(), ((*i)->momentum()).z(), ((*i)->momentum()).t());
 	
 
 	  // Set-up (back) propagation -> momentum and charge are reversed
