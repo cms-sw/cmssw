@@ -13,8 +13,8 @@
  *  - phi postion error
  *  - name of beam and layer to identify the beam profile
  *
- *  $Date: 2007/03/20 16:53:23 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/04/03 15:06:51 $
+ *  $Revision: 1.3 $
  *  \author Maarten Thomas
  */
 
@@ -56,7 +56,7 @@ class LASBeamProfileFit
 	/// get error on sigma
   double sigmaError() const { return sigmaError_; }
 	/// get the pitch of the silicon module at the position of the mean
-	double pitch() const { return pitch_; };
+	double pitch() const { return pitch_; }
 	/// get phi position of the beam
   double phi() const { return phi_; }
 	/// get error on phi position

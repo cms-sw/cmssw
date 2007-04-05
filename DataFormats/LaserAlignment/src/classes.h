@@ -19,4 +19,21 @@ namespace {
   }
 }
 
+#include "DataFormats/LaserAlignment/interface/LASAlignmentParameter.h"
+#include "DataFormats/LaserAlignment/interface/LASAlignmentParameterCollection.h"
+
+namespace {
+	namespace {
+		edm::Wrapper<LASAlignmentParameter> alignmentParameter;
+	}
+}
+
+#include "DataFormats/LaserAlignment/interface/LASAlignmentParameterCollection.h"
+
+namespace {
+	namespace {
+		edm::Wrapper<LASAlignmentParameterCollection> collection2;
+	}
+}
+
 #endif
