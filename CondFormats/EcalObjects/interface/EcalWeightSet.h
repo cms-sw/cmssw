@@ -8,47 +8,46 @@
  *
  **/
 
-
-#include <vector>
 #include "CondFormats/EcalObjects/interface/EcalWeight.h"
+#include "DataFormats/EcalDigi/interface/EcalDataFrame.h"
+#include "DataFormats/Math/interface/EcalWeight.h"
 #include <iostream>
 
 class EcalWeightSet {
 
   public:
-    typedef std::vector< std::vector< EcalWeight > > EcalWeightMatrix;
-
+  
     EcalWeightSet();
     EcalWeightSet(const EcalWeightSet& aset);
     ~EcalWeightSet();
 
-    EcalWeightMatrix& getWeightsBeforeGainSwitch() { return wgtBeforeSwitch_; }
-    EcalWeightMatrix& getWeightsAfterGainSwitch()  { return wgtAfterSwitch_; }
-    EcalWeightMatrix& getChi2WeightsBeforeGainSwitch()             { return wgtChi2BeforeSwitch_; }
-    EcalWeightMatrix& getChi2WeightsAfterGainSwitch()             { return wgtChi2AfterSwitch_; }
-
-    const EcalWeightMatrix& getWeightsBeforeGainSwitch() const { return wgtBeforeSwitch_; }
-    const EcalWeightMatrix& getWeightsAfterGainSwitch()  const { return wgtAfterSwitch_; }
-    const EcalWeightMatrix& getChi2WeightsBeforeGainSwitch()             const { return wgtChi2BeforeSwitch_; }
-    const EcalWeightMatrix& getChi2WeightsAfterGainSwitch()             const { return wgtChi2AfterSwitch_; }
-
+    math::EcalWeightMatrix::type& getWeightsBeforeGainSwitch() { return wgtBeforeSwitch_; }
+    math::EcalWeightMatrix::type& getWeightsAfterGainSwitch()  { return wgtAfterSwitch_; }
+    math::EcalChi2WeightMatrix::type& getChi2WeightsBeforeGainSwitch()             { return wgtChi2BeforeSwitch_; }
+    math::EcalChi2WeightMatrix::type& getChi2WeightsAfterGainSwitch()             { return wgtChi2AfterSwitch_; }
+    
+    const math::EcalWeightMatrix::type& getWeightsBeforeGainSwitch() const { return wgtBeforeSwitch_; }
+    const math::EcalWeightMatrix::type& getWeightsAfterGainSwitch()  const { return wgtAfterSwitch_; }
+    const math::EcalChi2WeightMatrix::type& getChi2WeightsBeforeGainSwitch() const { return wgtChi2BeforeSwitch_; }
+    const math::EcalChi2WeightMatrix::type& getChi2WeightsAfterGainSwitch() const { return wgtChi2AfterSwitch_; }
+    
     EcalWeightSet& operator=(const EcalWeightSet& rhs);
-
+    
     void print(std::ostream& o) const {
-       using namespace std;
-       o << "wgtBeforeSwitch_.size: " << wgtBeforeSwitch_.size()
-            << " wgtAfterSwitch_.size: " << wgtAfterSwitch_.size()
-            << " wgtChi2BeforeSwitch_.size: " << wgtChi2BeforeSwitch_.size()
-            << " wgtChi2AfterSwitch_.size: " << wgtChi2AfterSwitch_.size()
-            << endl;
+      using namespace std;
+      o << "wgtBeforeSwitch_.: " << wgtBeforeSwitch_
+	<< " wgtAfterSwitch_.: " << wgtAfterSwitch_
+	<< " wgtChi2BeforeSwitch_.: " << wgtChi2BeforeSwitch_
+	<< " wgtChi2AfterSwitch_.: " << wgtChi2AfterSwitch_
+	<< endl;
     }
-
-
-  private:
-     std::vector< std::vector< EcalWeight > > wgtBeforeSwitch_;
-     std::vector< std::vector< EcalWeight > > wgtAfterSwitch_;
-     std::vector< std::vector< EcalWeight > > wgtChi2BeforeSwitch_;
-     std::vector< std::vector< EcalWeight > > wgtChi2AfterSwitch_;
+    
+    
+ private:
+    math::EcalWeightMatrix::type wgtBeforeSwitch_;
+    math::EcalWeightMatrix::type wgtAfterSwitch_;
+    math::EcalChi2WeightMatrix::type wgtChi2BeforeSwitch_;
+    math::EcalChi2WeightMatrix::type wgtChi2AfterSwitch_;
 };
 
 #endif
