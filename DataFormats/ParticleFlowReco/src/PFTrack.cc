@@ -1,5 +1,5 @@
 #include "DataFormats/ParticleFlowReco/interface/PFTrack.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
+// #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace reco;
 using namespace std;
@@ -48,8 +48,9 @@ void PFTrack::addPoint(const PFTrajectoryPoint& trajPt) {
 	for (unsigned iPt = trajectoryPoints_.size(); iPt < PFTrajectoryPoint::BeamPipe + 1; iPt++)
 	  trajectoryPoints_.push_back(dummyPt);
       } else if (trajectoryPoints_.size() > PFTrajectoryPoint::BeamPipe + 1) {
-	edm::LogError("PFTrack")<<"trajectoryPoints_.size() is too large = " 
-				<<trajectoryPoints_.size()<<"\n";
+	// throw an exception here
+// 	edm::LogError("PFTrack")<<"trajectoryPoints_.size() is too large = " 
+// 				<<trajectoryPoints_.size()<<"\n";
       }
       indexOutermost_ = indexInnermost_ = PFTrajectoryPoint::BeamPipe + 1;
     } else 
@@ -75,8 +76,8 @@ const reco::PFTrajectoryPoint& PFTrack::extrapolatedPoint(unsigned layerid) cons
   if( layerid >= reco::PFTrajectoryPoint::NLayers ||
       nTrajectoryMeasurements() + layerid >= trajectoryPoints_.size() ) {
 
-    cout<<(*this)<<endl;
-    cout<<"lid "<<layerid<<" "<<nTrajectoryMeasurements()<<" "<<trajectoryPoints_.size()<<endl;
+    // cout<<(*this)<<endl;
+    // cout<<"lid "<<layerid<<" "<<nTrajectoryMeasurements()<<" "<<trajectoryPoints_.size()<<endl;
     assert(0);
   }
   if (layerid < indexInnermost_)

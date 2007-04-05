@@ -39,9 +39,12 @@ namespace reco {
     friend  std::ostream& operator<<(std::ostream& out, 
 				     const PFRecTrack& track);
     int recTrackId() const {return trackId_;}
+
   private:
+
     /// type of fitting algorithm used to reconstruct the track
     AlgoType_t algoType_;
+    
     int trackId_;
   };
 

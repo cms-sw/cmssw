@@ -1,12 +1,16 @@
 <lcgdict>
+<selection>
+
   <class name="reco::PFCluster">
     <field name="posrep_" transient="true"/>
     <field name="color_" transient="true"/>
   </class>
   <class name="std::vector<reco::PFCluster>"/>
   <class name="edm::Wrapper<std::vector<reco::PFCluster> >"/>
+
   <class name="reco::PFRecHitFraction"/>
   <class name="std::vector<reco::PFRecHitFraction>"/>
+
   <class name="reco::PFRecHit">
     <field name="posrep_" transient="true"/>
     <field name="seedState_" transient="true"/>
@@ -15,21 +19,35 @@
   </class>
   <class name="std::vector<reco::PFRecHit>"/>
   <class name="edm::Wrapper<std::vector<reco::PFRecHit> >"/>
+  <class name="edm::Ref< std::vector<reco::PFRecHit>, reco::PFRecHit, edm::refhelper::FindUsingAdvance<std::vector<reco::PFRecHit>,reco::PFRecHit>  >"/>
+
   <class name="reco::PFTrack"/>
+
   <class name="reco::PFTrajectoryPoint">
     <field name="posrep_" transient="true"/>
   </class>
   <class name="std::vector<reco::PFTrajectoryPoint>"/>
   <class name="edm::Wrapper<std::vector<reco::PFTrajectoryPoint> >"/>
+
   <class name="reco::PFRecTrack">
     <field name="doPropagation_" transient="true"/>
     <field name="color_" transient="true"/>
   </class>
   <class name="std::vector<reco::PFRecTrack>"/>
   <class name="edm::Wrapper<std::vector<reco::PFRecTrack> >"/>
+
   <class name="reco::PFSimParticle"/>
   <class name="std::vector<reco::PFSimParticle>"/>
   <class name="edm::Wrapper<std::vector<reco::PFSimParticle> >"/>
-  <class name="reco::PFResolutionMap"/>
+
+  <class name="reco::PFBlockElement"/>
+  <class name="edm::OwnVector<reco::PFBlockElement, edm::ClonePolicy<reco::PFBlockElement> >"/>
+  <class name="reco::PFBlock"/>
+</selection>
+<exclusion>
+  <class name="edm::OwnVector<reco::PFBlockElement, edm::ClonePolicy<reco::PFBlockElement> >">
+    <method name="sort"/>
+  </class>
+</exclusion>
 </lcgdict>
 

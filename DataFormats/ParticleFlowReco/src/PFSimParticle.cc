@@ -1,5 +1,5 @@
 #include "DataFormats/ParticleFlowReco/interface/PFSimParticle.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
+// #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace reco;
 using namespace std;
@@ -39,20 +39,29 @@ ostream& reco::operator<<(ostream& out,
   const reco::PFTrajectoryPoint& closestApproach = 
     particle.trajectoryPoint(reco::PFTrajectoryPoint::ClosestApproach);
 
+  out<<setiosflags(ios::right);
+  out<<setiosflags(ios::fixed);
+  
   out<<"Particle #"<<particle.id()
-     <<", mother = "<<particle.motherId()
-     <<", charge = "<<particle.charge() 
-     <<", pdgcode = "<<particle.pdgCode()
-     <<", Pt = "<<closestApproach.momentum().Pt() 
-     <<", P = "<<closestApproach.momentum().P();
+     <<", mother = "<<setw(2)<<particle.motherId();
+
+  out<<setprecision(1);
+  out<<", charge = "<<setw(5)<<particle.charge();
+  out<<setprecision(3);
+
+  out<<", pdg="<<setw(6)<<particle.pdgCode()
+     <<", pT ="<<setw(7)<<closestApproach.momentum().Pt() 
+     <<", E  ="<<setw(7)<<closestApproach.momentum().E();
+
+  out<<resetiosflags(ios::right|ios::fixed);
 
   out<<"\tdaughters : ";
   for(unsigned i=0; i<particle.daughterIds_.size(); i++) 
     out<<particle.daughterIds_[i]<<" ";
   
-  out<<endl;
-  for(unsigned i=0; i<particle.trajectoryPoints_.size(); i++) 
-    out<<particle.trajectoryPoints_[i]<<endl;
+//   out<<endl;
+//   for(unsigned i=0; i<particle.trajectoryPoints_.size(); i++) 
+//     out<<particle.trajectoryPoints_[i]<<endl;
 
   return out;
 }

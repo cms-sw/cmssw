@@ -1,6 +1,6 @@
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "DataFormats/ParticleFlowReco/interface/PFLayer.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
+// #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace std;
 using namespace reco;
@@ -90,9 +90,9 @@ void PFCluster::reset() {
 }
 
 
-void PFCluster::addRecHit( unsigned rechitIndex, double fraction) {
+void PFCluster::addRecHitFraction( const reco::PFRecHitFraction& frac ) {
 
-  rechits_.push_back( reco::PFRecHitFraction(rechitIndex, fraction) );
+  rechits_.push_back( frac );
 }
 
 
@@ -500,8 +500,9 @@ double PFCluster::getDepthCorrection(double energy, bool isBelowPS,
     depth = corrA;
     break;
   default:
-    edm::LogError("PFCluster") << "unknown function for depth correction!"
-			       << std::endl;
+    assert(0);
+    //     edm::LogError("PFCluster") << "unknown function for depth correction!"
+    // 			       << std::endl;
   }
   return depth;
 }

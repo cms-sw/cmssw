@@ -10,6 +10,7 @@
 #include <vector>
 
 
+
 class PFClusterAlgo;
 
 namespace reco {
@@ -50,9 +51,9 @@ namespace reco {
 
     /// resets clusters parameters
     void reset();
-   
+    
     /// add a given fraction of the rechit
-    void addRecHit( unsigned rechitIndex, double fraction);
+    void addRecHitFraction( const reco::PFRecHitFraction& frac);
 						
     //C this function will be moved to PFClusterAlgo
     /// \brief updates cluster info from rechit
@@ -104,7 +105,7 @@ namespace reco {
     }
 
 
-    //C move to pfclusteralgo
+    /// \todo move to PFClusterTools
     static double getDepthCorrection(double energy, bool isBelowPS = false,
 				     bool isHadron = false);
 
@@ -122,6 +123,7 @@ namespace reco {
     /// counter
     static unsigned     instanceCounter_;
 
+    /// \todo move to PFClusterTools
     static void setDepthCorParameters(int mode, 
 				      double a, double b, 
 				      double ap, double bp ) {
@@ -157,10 +159,15 @@ namespace reco {
     REPPoint            posrep_;
 
 
+    /// \todo move to PFClusterTools
     static int    depthCorMode_;
+    /// \todo move to PFClusterTools
     static double depthCorA_;
+    /// \todo move to PFClusterTools
     static double depthCorB_ ;
+    /// \todo move to PFClusterTools
     static double depthCorAp_;
+    /// \todo move to PFClusterTools
     static double depthCorBp_;
 
 

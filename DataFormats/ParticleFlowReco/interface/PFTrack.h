@@ -20,14 +20,15 @@ namespace reco {
   class PFTrack
   {
   public:
-
+    
     PFTrack();
-  
+    
     PFTrack(double charge);
 
     PFTrack(const PFTrack& other);
    
     /// add a trajectory measurement
+    /// \todo throw an exception if the number of points is too large
     void addPoint(const reco::PFTrajectoryPoint& trajPt);
 
     /// set a trajectory point
@@ -57,7 +58,8 @@ namespace reco {
     const reco::PFTrajectoryPoint& trajectoryPoint(unsigned index) const 
       { return trajectoryPoints_[index]; }
 
-    /// get an extrapolated point
+    /// get an extrapolated point 
+    /// \todo throw an exception in case of invalid point.
     const reco::PFTrajectoryPoint& extrapolatedPoint(unsigned layerid) const; 
 
     /// iterator on innermost tracker measurement

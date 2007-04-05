@@ -1,9 +1,11 @@
 #ifndef DataFormats_ParticleFlowReco_PFRecHitFraction_h
 #define DataFormats_ParticleFlowReco_PFRecHitFraction_h
 
-
 #include <iostream>
 #include <vector>
+
+#include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/ParticleFlowReco/interface/PFRecHitFwd.h" 
 
 namespace reco {
   
@@ -19,19 +21,20 @@ namespace reco {
   public:
     
     /// default constructor
-    PFRecHitFraction() : recHitIndex_(0), fraction_(-1) {}
+    PFRecHitFraction() : fraction_(-1) {}
     
     /// constructor
-    PFRecHitFraction(unsigned rechitIndex, double fraction ) 
-      : recHitIndex_(rechitIndex), fraction_(fraction) {}
+    PFRecHitFraction(const PFRecHitRef& recHitRef, 
+		     double fraction ) 
+      : recHitRef_(recHitRef), fraction_(fraction) {}
     
     /// copy
-    PFRecHitFraction(const PFRecHitFraction& other) 
-      : recHitIndex_(other.recHitIndex_), fraction_(other.fraction_) {}
+    //    PFRecHitFraction(const PFRecHitFraction& other) 
+    //  : recHitRef_(other.recHitRef_), fraction_(other.fraction_) {}
     
     /// \return index to rechit
-    unsigned recHitIndex() const {return recHitIndex_;} 
-						
+    const PFRecHitRef& recHitRef() const {return recHitRef_;} 
+    
     /// \return energy fraction
     double fraction() const {return fraction_;}
     
@@ -41,11 +44,11 @@ namespace reco {
   private:
     
     /// corresponding rechit 
-    unsigned  recHitIndex_;
+    PFRecHitRef  recHitRef_;
     
     /// fraction of the rechit energy owned by the cluster
     double    fraction_;
-        
+    
   };
 }
 

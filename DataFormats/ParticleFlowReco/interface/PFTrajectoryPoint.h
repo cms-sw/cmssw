@@ -29,15 +29,21 @@ namespace reco {
 
     /// Define the different layers where the track can be propagated
     enum LayerType_t {
-      ClosestApproach = 0, /// Point of closest approach from beam axis
+       /// Point of closest approach from beam axis (initial point in the case of PFSimParticle)
+      ClosestApproach = 0,
       BeamPipe = 1,       
-      PS1 = 2,             /// Preshower layer 1
-      PS2 = 3,             /// Preshower layer 2
-      ECALEntrance = 4,
-      ECALShowerMax = 5,   /// Position of maximal shower developpment
-      // showermax is for e/gamma. 
-      // we need one for hadrons, see FamosRootEF
+      /// Preshower layer 1
+      PS1 = 2,             
+      /// Preshower layer 2
+      PS2 = 3,             
+      /// ECAL front face
+      ECALEntrance = 4,  
+      /// expected maximum of the shower in ECAL, for an e/gamma particle
+      /// \todo: add an ECALShowerMaxHadrons
+      ECALShowerMax = 5,   
+      /// HCAL front face
       HCALEntrance = 6,
+      /// HCAL exit
       HCALExit = 7,
       NLayers = 8
     };

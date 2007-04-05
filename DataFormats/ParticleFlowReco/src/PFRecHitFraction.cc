@@ -1,4 +1,5 @@
 #include "DataFormats/ParticleFlowReco/interface/PFRecHitFraction.h"
+#include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
 // #include "FWCore/Utilities/interface/Exception.h"
 
 using namespace std;
@@ -12,7 +13,7 @@ ostream& reco::operator<<(std::ostream& out,
 
 //   const reco::PFRecHit* rechit = hit.getRecHit();
 
-  out<<hit.fraction()<<"x["<<hit.recHitIndex()<<"]";
+  out<<hit.fraction()<<"x["<<*(hit.recHitRef())<<"]";
 
   return out;
 }
