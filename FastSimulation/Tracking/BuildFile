@@ -17,6 +17,7 @@
 <use name=RecoTracker/CkfPattern>
 <use name=RecoTracker/Record>
 <use name=RecoTracker/TkDetLayers>
+<use name=RecoTracker/TrackProducer>
 <use name=SimDataFormats/Track>
 <use name=SimDataFormats/Vertex>
 <use name=TrackingTools/PatternTools>
