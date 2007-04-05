@@ -1,8 +1,8 @@
 /** \file LaserAlignment.cc
  *  LAS reconstruction module
  *
- *  $Date: 2007/04/05 06:21:21 $
- *  $Revision: 1.6 $
+ *  $Date: 2007/04/05 08:32:31 $
+ *  $Revision: 1.7 $
  *  \author Maarten Thomas
  */
 
@@ -459,10 +459,10 @@ void LaserAlignment::produce(edm::Event& theEvent, edm::EventSetup const& theSet
 			// do the Alignment with Bruno's algorithm
 			// which return type do we need to calculate the final correction ((corr_R4 + corr_R6)/2)??
 			// or pass the LASvec's which should contain the corrections as reference to the algo
-			theAlignmentAlgorithmBW->run(thePosTECR4BeamPositions, thePosTECR4BeamPositionErrors, theUseBSFrame, 4);
-			theAlignmentAlgorithmBW->run(thePosTECR6BeamPositions, thePosTECR6BeamPositionErrors, theUseBSFrame, 6);
-			theAlignmentAlgorithmBW->run(theNegTECR4BeamPositions, theNegTECR4BeamPositionErrors, theUseBSFrame, 4);
-			theAlignmentAlgorithmBW->run(theNegTECR6BeamPositions, theNegTECR6BeamPositionErrors, theUseBSFrame, 6);
+			theAlignmentAlgorithmBW->run("TEC+Ring4",thePosTECR4BeamPositions, thePosTECR4BeamPositionErrors, theUseBSFrame, 4);
+			theAlignmentAlgorithmBW->run("TEC+Ring6",thePosTECR6BeamPositions, thePosTECR6BeamPositionErrors, theUseBSFrame, 6);
+			theAlignmentAlgorithmBW->run("TEC-Ring4",theNegTECR4BeamPositions, theNegTECR4BeamPositionErrors, theUseBSFrame, 4);
+			theAlignmentAlgorithmBW->run("TEC-Ring6",theNegTECR6BeamPositions, theNegTECR6BeamPositionErrors, theUseBSFrame, 6);
 			// implementation of TEC2TEC has to be done!!!!!
 			// theAlignmentAlgorithmBW->run(theTEC2TECBeamPositions, theTEC2TECBeamPositionErrors);
 			
