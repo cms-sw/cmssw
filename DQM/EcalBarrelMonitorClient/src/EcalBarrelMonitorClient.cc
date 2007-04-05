@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2007/04/01 14:16:59 $
- * $Revision: 1.243 $
+ * $Date: 2007/04/01 19:05:03 $
+ * $Revision: 1.244 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1515,11 +1515,13 @@ void EcalBarrelMonitorClient::htmlOutput(void){
     }
   }
 
-#if 0
-  htmlName = "EBSummaryClient.html";
-  summaryClient_->htmlOutput(run_, htmlDir, htmlName);
-  htmlFile << "<li><a href=\"" << htmlName << "\">Data " << "Summary" << "</a></li>" << endl;
-#endif
+  if ( superModules_.size() > 1 ) {
+
+    htmlName = "EBSummaryClient.html";
+    summaryClient_->htmlOutput(run_, htmlDir, htmlName);
+    htmlFile << "<li><a href=\"" << htmlName << "\">Data " << "Summary" << "</a></li>" << endl;
+
+  }
 
   htmlFile << "</ul>" << endl;
 

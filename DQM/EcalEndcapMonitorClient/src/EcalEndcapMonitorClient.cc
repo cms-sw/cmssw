@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2007/03/27 11:22:52 $
- * $Revision: 1.240 $
+ * $Date: 2007/04/02 16:15:36 $
+ * $Revision: 1.1 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1515,11 +1515,13 @@ void EcalEndcapMonitorClient::htmlOutput(void){
     }
   }
 
-#if 0
-  htmlName = "EESummaryClient.html";
-  summaryClient_->htmlOutput(run_, htmlDir, htmlName);
-  htmlFile << "<li><a href=\"" << htmlName << "\">Data " << "Summary" << "</a></li>" << endl;
-#endif
+  if ( superModules_.size() > 1 ) {
+
+    htmlName = "EESummaryClient.html";
+    summaryClient_->htmlOutput(run_, htmlDir, htmlName);
+    htmlFile << "<li><a href=\"" << htmlName << "\">Data " << "Summary" << "</a></li>" << endl;
+
+  }
 
   htmlFile << "</ul>" << endl;
 
