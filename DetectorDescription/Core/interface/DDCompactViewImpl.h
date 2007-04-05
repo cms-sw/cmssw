@@ -1,15 +1,13 @@
 #ifndef DDCompactViewImpl_h
 #define DDCompactViewImpl_h
 
+//  IMPORTANT: DO NOT USE THIS:  It is here temporarily only to obey the rule that 
+//  any .h that includes a .h even if it is not meant to be a public interface must
+//  remain in the interface directory.  If you fix/move/change this please delete
+//  this comment!  -- Michael Case 2007-04-05
 
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
-//#include "DetectorDescription/Core/interface/DDPosPart.h"
-//#include "DetectorDescription/Core/interface/tree.h"
-//#include "DetectorDescription/Core/interface/adjgraph.h"
-//#include "DetectorDescription/Core/interface/Ptr.h"
-//#include "DetectorDescription/Core/interface/DDPath.h"
 #include "DetectorDescription/Core/interface/DDPosData.h"
-//#include "DetectorDescription/Core/interface/graph_path.h"
 #include "DetectorDescription/Core/interface/graphwalker.h"
 
 class DDPartSelector;
