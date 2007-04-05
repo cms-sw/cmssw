@@ -1,5 +1,13 @@
 2007-04-05  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
+	* tag V00-04-07
+	* fixed 'makeXmlComm' in scripts/initialize
+	* changed scripts/initialize such that for option '-noSM', the
+	OutputModule(s) are still part of the configuration, but the EP
+	property 'outputEnabled' is set to false.
+
+2007-04-05  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
 	* tag V00-04-06
 	* wait 10 seconds after halting the BU, to give it time to flush
 	* adjust RB parameters to
