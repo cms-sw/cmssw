@@ -21,6 +21,7 @@
 #include "RecoTracker/CkfPattern/interface/TransientInitialStateEstimator.h"
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
 #include "RecoTracker/Record/interface/CkfComponentsRecord.h"
+#include "RecoTracker/TrackProducer/interface/TrackingRecHitLessFromGlobalPosition.h"
 
 #include "SimDataFormats/Track/interface/SimTrack.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
@@ -195,15 +196,16 @@ namespace cms{
 	  }
 	}
 
-	TransientTrackingRecHit::ConstRecHitContainer sortedRecHits;
-	sortedRecHits = theRecHitSorter->sortHits(recHitContainer, alongMomentum);
+	// A.S.: do not sort them with this rechit sorter
+	//	TransientTrackingRecHit::ConstRecHitContainer sortedRecHits;
+	//	sortedRecHits = theRecHitSorter->sortHits(recHitContainer, alongMomentum);
 	
-#ifdef FAMOS_DEBUG
-	std::cout << "Sorted RecHits for SimTrack = " << iSimTrack << " are " << sortedRecHits.size() << std::endl;
-#endif
+// #ifdef FAMOS_DEBUG
+// 	std::cout << "Sorted RecHits for SimTrack = " << iSimTrack << " are " << sortedRecHits.size() << std::endl;
+// #endif
 	
-	for(TransientTrackingRecHit::ConstRecHitContainer::iterator iSortedTRecHit = sortedRecHits.begin();
-	    iSortedTRecHit < sortedRecHits.end();
+	for(TransientTrackingRecHit::ConstRecHitContainer::iterator iSortedTRecHit = recHitContainer.begin();
+	    iSortedTRecHit < recHitContainer.end();
 	    iSortedTRecHit++ ) {
 
 #ifdef FAMOS_DEBUG
@@ -259,6 +261,10 @@ namespace cms{
 	}
 	nFittableTracks++;
 	
+
+	//A.S.: DEBUG: sort hits using the TrackingRecHitLessFromGlobalPosition sorter
+	recHits.sort(TrackingRecHitLessFromGlobalPosition(theGeometry.product(),alongMomentum));
+
 	//
 	// Create a starting trajectory with SimTrack + first RecHit
 
