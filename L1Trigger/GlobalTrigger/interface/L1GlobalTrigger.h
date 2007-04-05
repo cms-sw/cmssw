@@ -12,8 +12,8 @@
  *   
  * \author: Vasile Mihai Ghete - HEPHY Vienna
  * 
- * $Date:$
- * $Revision:$
+ * $Date$
+ * $Revision$
  *
  * The CMSSW implementation of the L1 Global Trigger emulator
  * uses concepts and code from the ORCA L1 Global Trigger simulation,
@@ -23,6 +23,8 @@
 
 // system include files
 #include <string>
+
+#include <boost/cstdint.hpp>
 
 // user include files
 
@@ -75,6 +77,10 @@ private:
     L1GlobalTriggerFDL* m_gtFDL;
     
     int m_totalBxInEvent;
+
+    boost::uint16_t m_activeBoards; 
+    
+    
     
 };
 

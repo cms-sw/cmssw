@@ -99,6 +99,16 @@ L1GlobalTrigger::L1GlobalTrigger(const edm::ParameterSet& iConfig)
     << m_totalBxInEvent << " bx\n"
     << std::endl;
 
+    // set the list of active boards
+
+    m_activeBoards = 
+        static_cast<boost::uint16_t>(
+        m_gtSetup->getParameterSet()->getParameter<unsigned int>("ActiveBoards"));
+    LogDebug("L1GlobalTrigger")
+    << "\nActive boards in L1 GT: "
+    << m_activeBoards
+    << std::endl;
+
 
 }
 
@@ -156,15 +166,7 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     gtfeWordValue.setRecordLength(m_totalBxInEvent);
 
     // set the list of active boards
-
-    boost::uint16_t activeBoardsGt = 
-        m_gtSetup->getParameterSet()->getParameter<int>("ActiveBoards");
-    LogDebug("L1GlobalTrigger")
-    << "\nActive boards in L1 GT: "
-    << activeBoardsGt
-    << std::endl;
-
-    gtfeWordValue.setActiveBoards(activeBoardsGt);
+    gtfeWordValue.setActiveBoards(m_activeBoards);
 
     // ** fill L1GtfeWord
 
