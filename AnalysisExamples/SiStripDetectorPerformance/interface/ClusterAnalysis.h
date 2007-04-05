@@ -120,6 +120,7 @@ namespace cms{
       std::string filename_;
       std::string psfilename_;
       int32_t psfiletype_;
+      int32_t psfilemode_;
       
       TFile* fFile;
       TObjArray* Hlist;
