@@ -5,7 +5,11 @@
  * particle candidate from particle flow
  *
  */
+
+#include <iostream>
+
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
+#include "DataFormats/ParticleFlowReco/interface/PFBlockFwd.h"
 
 namespace reco {
   /**\class PFCandidate
@@ -15,8 +19,9 @@ namespace reco {
      \date   February 2007
   */
   class PFCandidate : public LeafCandidate {
-  public:
 
+  public:
+    
     /// particle types
     enum ParticleType {
       X=0,     // undefined
@@ -28,14 +33,16 @@ namespace reco {
     };
 
     /// default constructor
-    PFCandidate() : LeafCandidate(), particleId_( X ) { }
+    PFCandidate() : particleId_( X ) { }
 
     PFCandidate(Charge q, 
 		const LorentzVector & p4, 
-		ParticleType particleId ) : 
+		ParticleType particleId, 
+		reco::PFBlockRef blockref ) : 
       LeafCandidate(q, p4), 
-      particleId_(particleId) { }
-
+      particleId_(particleId), 
+      blockRef_(blockref) {}
+    
     /// destructor
     virtual ~PFCandidate() {}
 
@@ -44,11 +51,18 @@ namespace reco {
 
     /// particle identification
     virtual int particleId() const { return particleId_;}
+    
+    friend std::ostream& operator<<( std::ostream& out, 
+				     const PFCandidate& c );
+    
 
   private:
-
+    
     /// particle identification
     ParticleType particleId_; 
+    
+    /// reference to the corresponding PFBlock
+    reco::PFBlockRef blockRef_;
   };
 
 }

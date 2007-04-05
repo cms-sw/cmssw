@@ -6,10 +6,16 @@
 #include "DataFormats/Common/interface/RefVector.h"
 
 namespace reco {
-  class reco::PFCandidate;
+  class PFCandidate;
 
   /// collection of PFCandidates
   typedef std::vector<reco::PFCandidate> PFCandidateCollection;
+
+  /// iterator 
+  typedef PFCandidateCollection::const_iterator PFCandidateConstIterator;
+
+  /// iterator 
+  typedef PFCandidateCollection::iterator PFCandidateIterator;
 
   /// persistent reference to a PFCandidate
   typedef edm::Ref<PFCandidateCollection> PFCandidateRef;
@@ -19,9 +25,7 @@ namespace reco {
 
   /// vector of reference to GenParticleCandidate in the same collection
   typedef edm::RefVector<PFCandidateCollection> PFCandidateRefVector;
-
-  /// iterator over a vector of reference to GenParticleCandidate in the same collection
-  typedef PFCandidateRefVector::iterator PFCandidate_iterator;
+  
 }
 
 #endif
