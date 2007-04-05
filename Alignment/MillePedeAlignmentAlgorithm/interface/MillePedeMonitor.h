@@ -7,12 +7,11 @@
 ///
 ///  \author    : Gero Flucke
 ///  date       : October 2006
-///  $Revision: 1.2 $
-///  $Date: 2007/01/25 10:18:01 $
+///  $Revision: 1.3 $
+///  $Date: 2007/03/05 12:19:33 $
 ///  (last update by $Author: flucke $)
 
-// #include "Geometry/CommonDetAlgo/interface/AlgebraicObjects.h" // Algebraic matrices
-#include "DataFormats/CLHEP/interface/AlgebraicObjects.h" // Algebraic matrices
+#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 
 #include "Alignment/CommonAlignmentAlgorithm/interface/ReferenceTrajectoryBase.h"
 
@@ -68,6 +67,7 @@ class MillePedeMonitor
   bool        myDeleteDir; 
 
   std::vector<TH1*> myTrackHists1D;
+  std::vector<TH2*> myTrackHists2D;
   std::vector<TH1*> myTrajectoryHists1D;
   std::vector<TH2*> myTrajectoryHists2D;
   std::vector<TH2*> myMilleHists2D;
@@ -79,8 +79,8 @@ template <class OBJECT_TYPE>
 int MillePedeMonitor::GetIndex(const std::vector<OBJECT_TYPE*> &vec, const TString &name)
 {
   int result = 0;
-  for (typename std::vector<OBJECT_TYPE*>::const_iterator iter = vec.begin();
-       iter != vec.end(); ++iter, ++result) {
+  for (typename std::vector<OBJECT_TYPE*>::const_iterator iter = vec.begin(), iterEnd = vec.end();
+       iter != iterEnd; ++iter, ++result) {
     if (*iter && (*iter)->GetName() == name) return result;
   }
   edm::LogError("Alignment") << "@SUB=MillePedeMonitor::GetIndex" << " could not find " << name;
