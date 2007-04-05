@@ -16,9 +16,6 @@ extern "C" {
   void PYTHIA6PYDECY(int *ip);
 }
 
-using namespace std;
-
-
 Pythia6Decays::Pythia6Decays()
 {
   // Initialize PYTHIA decay tables...

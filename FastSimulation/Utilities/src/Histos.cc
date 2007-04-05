@@ -6,8 +6,6 @@
 #include "TH2.h"
 #include "TProfile.h"
 
-using namespace std;
-
 Histos* Histos::myself = 0;
 
 Histos::Histos() {}
@@ -20,7 +18,7 @@ Histos* Histos::instance() {
 Histos::~Histos() {}
 
 void 
-Histos::book(const string& name, 
+Histos::book(const std::string& name, 
 	     int nx, float xmin, float xmax,
 	     int ny, float ymin, float ymax) {
   
@@ -48,9 +46,9 @@ Histos::book(const string& name,
 }
 
 void 
-Histos::book(const string& name, 
+Histos::book(const std::string& name, 
 	     int nx, float xmin, float xmax,
-	     const string& option) {
+	     const std::string& option) {
   
   if ( theHistos.find(name) != theHistos.end() ) { 
 
@@ -66,7 +64,7 @@ Histos::book(const string& name,
 }
 
 void 
-Histos::put(const string& file, string name) {
+Histos::put(const std::string& file, std::string name) {
 
   TFile * f = new TFile(file.c_str(),"recreate");
   f->cd();
@@ -105,7 +103,7 @@ Histos::put(const string& file, string name) {
 }  
 
 void
-Histos::divide(const string& h1, const string& h2, const string& h3) {
+Histos::divide(const std::string& h1, const std::string& h2, const std::string& h3) {
 
   HistoItr hh1 = theHistos.find(h1);
   HistoItr hh2 = theHistos.find(h2);
@@ -149,7 +147,7 @@ Histos::divide(const string& h1, const string& h2, const string& h3) {
 
 }
 
-void Histos::addObject(const string& name, TObject * obj)
+void Histos::addObject(const std::string& name, TObject * obj)
 {
   HistoItr hh = theObjects.find(name);
   if (hh != theObjects.end())
@@ -159,13 +157,13 @@ void Histos::addObject(const string& name, TObject * obj)
       return;
     }
   // Potential source of memory leaks if not carefully used 
-  theObjects.insert(std::pair<string,TObject*>(name,obj->Clone()));
+  theObjects.insert(std::pair<std::string,TObject*>(name,obj->Clone()));
 }
 
 
 
 void 
-Histos::fill(const string& name, float val1, float val2,float val3) {
+Histos::fill(const std::string& name, float val1, float val2,float val3) {
 
   //  std::cout << " Fill " << name << " " << val1 << " " << val2 << " " << val3 << std::endl;
   //  std::cout << &theHistos << std::endl;

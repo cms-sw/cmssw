@@ -44,7 +44,6 @@
 #include <vector>
 
 using namespace HepMC;
-using namespace std;
 
 FamosManager::FamosManager(edm::ParameterSet const & p)
     : iEvent(0),

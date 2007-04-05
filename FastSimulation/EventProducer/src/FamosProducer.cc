@@ -22,6 +22,7 @@
 
 #include <iostream>
 #include <memory>
+#include <vector>
 
 FamosProducer::FamosProducer(edm::ParameterSet const & p)      
 {    
@@ -55,14 +56,13 @@ void FamosProducer::endJob()
 void FamosProducer::produce(edm::Event & iEvent, const edm::EventSetup & es)
 {
    using namespace edm;
-   using namespace std;
 
    // Get the generated event(s) from the edm::Event
    Handle<HepMCProduct> evtSource;
    Handle<HepMCProduct> evtVtxSmeared;
    bool source = false;
    bool vtxSmeared = false;
-   vector< Handle<HepMCProduct> > evts; 
+   std::vector< Handle<HepMCProduct> > evts; 
    iEvent.getManyByType(evts);
    for ( unsigned i=0; i<evts.size(); ++i ) {
      if ( !vtxSmeared && evts[i].provenance()->moduleLabel()=="VtxSmeared" ) {

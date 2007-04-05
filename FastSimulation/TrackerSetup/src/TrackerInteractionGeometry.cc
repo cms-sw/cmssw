@@ -1,5 +1,3 @@
-using namespace std;
-
 //Framework Headers
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -590,16 +588,16 @@ TrackerInteractionGeometry::TrackerInteractionGeometry(const GeometricSearchTrac
 	<< " WARNING with cylinder number " << nCyl 
 	<< " (Active Layer Number = " <<  cyliterOut->layerNumber() 
 	<< " Forward ? " <<  cyliterOut->forward() << " ) "
-	<< " has dimensions smaller than previous cylinder : " << endl
-	<< " zout/zin = " << zout << " " << zin << endl
-	<< " rout/rin = " << rout << " " << rin << endl;
+	<< " has dimensions smaller than previous cylinder : " << std::endl
+	<< " zout/zin = " << zout << " " << zin << std::endl
+	<< " rout/rin = " << rout << " " << rin << std::endl;
     } else {
-      //      cout << " Cylinder number " << nCyl 
+      // std::cout << " Cylinder number " << nCyl 
       //      	   << " (Active Layer Number = " <<  cyliterOut->layerNumber() 
       //      	   << " Forward ? " <<  cyliterOut->forward() << " ) "
       //	   << " has dimensions of : " 
       //	   << " zout = " << zout << "; " 
-      //	   << " rout = " << rout << endl;
+      //	   << " rout = " << rout << std::endl;
     }
     // Go to the next cylinder
     cyliterOut++;

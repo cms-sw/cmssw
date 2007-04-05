@@ -20,8 +20,6 @@ struct Pythia6jets::_pythia6jets * Pythia6jets::__pythia6jets = 0;
 double Pythia6jets::dDummy = 0.0;
 int Pythia6jets::nDummy = 0;
 
-using namespace std;
-
 Pythia6jets::Pythia6jets(void)
 {
 }
