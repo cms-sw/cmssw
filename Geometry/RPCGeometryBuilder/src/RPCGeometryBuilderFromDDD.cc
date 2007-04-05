@@ -231,7 +231,6 @@ RPCGeometry* RPCGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview, con
 
     
     BoundPlane* bp = new BoundPlane(pos,rot,bounds);
-    std::cout << "RPCGeometryBuilderFromDDD make bound plane 1, bound plane is : " << bp << std::endl;
     ReferenceCountingPointer<BoundPlane> surf(bp);
     RPCRoll* r=new RPCRoll(rpcid,surf,rollspecs);
     geometry->add(r);
@@ -257,7 +256,6 @@ RPCGeometry* RPCGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview, con
     BoundPlane* bp=0;
     for(std::list<RPCRoll *>::iterator rl=rls.begin();
     rl!=rls.end(); rl++){
-      ++counterMEC;
       const BoundPlane& bps = (*rl)->surface();
       bp = const_cast<BoundPlane *>(&bps);
     }
