@@ -16,7 +16,7 @@
 //
 // Original Author:  Dongwook Jang
 //         Created:  Tue Jan  9 16:40:36 CST 2007
-// $Id$
+// $Id: TauVariables.h,v 1.1 2007/03/27 21:32:03 dwjang Exp $
 //
 //
 
@@ -45,7 +45,7 @@ class TauVariables {
 
   TauVariables() { this->init(); }
 
-  TauVariables(const reco::Tau3D* tau, const edm::Handle<reco::IsolatedTauTagInfoCollection> *tauTagInfoHandle, int algorithm=0);
+  TauVariables(const reco::Tau3D* tau, const edm::Handle<reco::IsolatedTauTagInfoCollection> *tauTagInfoHandle);
 
   ~TauVariables();
 
@@ -61,8 +61,8 @@ class TauVariables {
   // \return seed track
   reco::TrackRef seedTrack() const { return seedTrack_; }
 
-  // \return algorithm
-  int algorithm() const { return algorithm_; }
+  // \return use3DAngle
+  int use3DAngle() const { return use3DAngle_; }
 
   // \return signal cone size
   double signalConeSize() const { return signalConeSize_; }
@@ -118,10 +118,30 @@ class TauVariables {
   // initialize members
   void init();
 
-  // make tau variables (main algorithm)
+  // make tau variables (main calculation)
   void makeVariables();
 
   // setters
+
+  void setUse3DAngle(bool v) { use3DAngle_ = v; }
+
+  void setSignalConeSize(double v) { signalConeSize_ = v; }
+
+  void setIsolationConeSize(double v) { isolationConeSize_ = v; }
+
+  void setUseVariableSignalCone(bool v) { useVariableSignalCone_ = v; }
+
+  void setSignalConeFunction(double v) { signalConeFunction_ = v; }
+
+  void setUseVariableIsolationCone(bool v) { useVariableIsolationCone_ = v; }
+
+  void setIsolationConeFunction(double v) { isolationConeFunction_ = v; }
+
+  void setSeedTrackThreshold(double v) { seedTrackThreshold_ = v; }
+
+  void setShoulderTrackThreshold(double v) { shoulderTrackThreshold_ = v; }
+
+  void setPi0Threshold(double v) { pi0Threshold_ = v; }
 
   void setDZTrackAssociation(double v) { dZTrackAssociation_ = v; }
 
@@ -136,16 +156,40 @@ class TauVariables {
   // seed track ie. highest pt track
   reco::TrackRef seedTrack_;
 
-  // algorithm represents signal cone definition
-  // 0(default) : using fixed signal cone
-  // 1          : using shrinking signal cone
-  int algorithm_;
+  // flag to use 3D angle (default is dR)
+  bool use3DAngle_;
 
   // signal cone size
   double signalConeSize_;
 
   // isolation cone size
   double isolationConeSize_;
+
+  // flag to use shrinking signal cone
+  bool useVariableSignalCone_;
+
+  // variable signal cone function (This is only valid when useVariableSignalCone_ is on)
+  // This string will be used to define a function, "signalConeFunction_/x"
+  double signalConeFunction_;
+
+  // flag to use shrinking isolation cone
+  bool useVariableIsolationCone_;
+
+  // variable isolation cone function (This is only valid when useVariableIsolationCone_ is on)
+  // This string will be used to define a function, "isolationConeFunction_/x"
+  double isolationConeFunction_;
+
+  // seed track pt threshold
+  double seedTrackThreshold_;
+
+  // shoulder track pt threshold
+  double shoulderTrackThreshold_;
+
+  // pi0 et threshold
+  double pi0Threshold_;
+
+  // max distance allowed for seed track and shoulder track association
+  double dZTrackAssociation_;
 
   // number of tracks in signal cone
   int nSignalTracks_;
@@ -188,10 +232,6 @@ class TauVariables {
 
   // a reference to IsolatedTauTagInfoCollection
   const edm::Handle<reco::IsolatedTauTagInfoCollection> *tauTagInfoHandle_;
-
-  // parameters for algorithms
-
-  double dZTrackAssociation_;
 
 };
 #endif

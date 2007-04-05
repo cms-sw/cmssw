@@ -16,7 +16,7 @@
 //
 // Original Author:  Dongwook Jang
 //         Created:  Tue Jan  9 16:40:36 CST 2007
-// $Id$
+// $Id: Tau3DAlgo.h,v 1.1 2007/03/27 21:32:03 dwjang Exp $
 //
 //
 
@@ -51,6 +51,8 @@ namespace reco {
 
     const reco::Tau3DCollection &tau3DCollection() const { return tau3DCollection_; }
 
+    void setUse3DAngle(bool v) { use3DAngle_ = v; }
+
     void setTauOuterConeSize(double v) { tauOuterConeSize_ = v; }
 
     void setSeedTrackThreshold(double v) { seedTrackPtThreshold_ = v; }
@@ -63,8 +65,14 @@ namespace reco {
 
   private:
 
+    // isolation cone size of tau (default is 0.524)
     double tauOuterConeSize_;
+
+    // seed track threshold (default is 5 GeV)
     double seedTrackPtThreshold_;
+
+    // flag to use 3D angle (default is dR)
+    bool   use3DAngle_;
 
     edm::Handle<reco::TrackCollection> *trackHandle_;
 

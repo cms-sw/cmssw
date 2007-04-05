@@ -13,7 +13,7 @@
 //
 // Original Author:  Dongwook Jang
 //         Created:  Tue Jan  9 16:40:36 CST 2007
-// $Id$
+// $Id: TauVariables.cc,v 1.1 2007/03/27 21:32:04 dwjang Exp $
 //
 //
 
@@ -30,16 +30,26 @@ using namespace reco;
 // constructors and destructor
 //
 
-TauVariables::TauVariables(const reco::Tau3D *tau, const edm::Handle<reco::IsolatedTauTagInfoCollection> *tauTagInfoHandle, int algorithm)
+TauVariables::TauVariables(const reco::Tau3D *tau, const edm::Handle<reco::IsolatedTauTagInfoCollection> *tauTagInfoHandle)
 {
 
   this->init();
 
   tau3D_ = tau;
   tauTagInfoHandle_ = tauTagInfoHandle;
-  algorithm_ = algorithm;
 
-  dZTrackAssociation_ = 5.0; // can be changed by setters after calling constructors
+  use3DAngle_ = false;
+  signalConeSize_    = 0.175;
+  isolationConeSize_ = 0.524;
+  useVariableSignalCone_ = false;
+  signalConeFunction_ = 5.0;
+  useVariableIsolationCone_ = false;
+  isolationConeFunction_ = 5.0;
+
+  seedTrackThreshold_ = 5.0;
+  shoulderTrackThreshold_ = 1.0;
+  pi0Threshold_ = 1.0;
+  dZTrackAssociation_ = 2.0; // can be changed by setters after calling constructors
 
   //  this->makeVariables();
 
@@ -60,9 +70,6 @@ void TauVariables::init(){
   pi0sMomentum_ *= 0;
 
   seedTrack_ = TrackRef();
-  algorithm_ = 0;
-  signalConeSize_ = 0.0;
-  isolationConeSize_ = 0.0;
   nSignalTracks_ = 0;
   nSignalPi0s_ = 0;
   nIsolationTracks_ = 0;
@@ -95,24 +102,26 @@ void TauVariables::makeVariables(){
   for(; tauIter != endIter; tauIter++){
     const IsolatedTauTagInfoRef tauTagRef(*tauTagInfoHandle_,itau);
     itau++;
-    const TrackRef seed = tauIter->leadingSignalTrack(0.524,5.0);
+    const TrackRef seed = tauIter->leadingSignalTrack(isolationConeSize_,seedTrackThreshold_);
     if(seed.isNull()) continue;
-    double alpha = ROOT::Math::VectorUtil::Angle(seedTrack_->momentum(),seed->momentum());
-    if(alpha < minAlpha){
-      minAlpha = alpha;
+
+    double dist = use3DAngle_ ? ROOT::Math::VectorUtil::Angle(seedTrack_->momentum(),seed->momentum()) :
+      ROOT::Math::VectorUtil::DeltaR(seedTrack_->momentum(),seed->momentum());
+
+    if(dist < minAlpha){
+      minAlpha = dist;
       tauTagRef_ = tauTagRef;
     }
   }
 
 
-  signalConeSize_    = 0.175;
-  isolationConeSize_ = 0.524;
-
-  if(algorithm_ == 1){
-    signalConeSize_    = 0.175;
-    if(!tauTagRef_.isNull()) signalConeSize_ = min(0.175, max(5.0/tauTagRef_->jet().energy(), 0.05));
-    isolationConeSize_ = 0.524;
+  if(useVariableSignalCone_){
+    if(!tauTagRef_.isNull()) signalConeSize_ = std::min(0.175, std::max(signalConeFunction_/tauTagRef_->jet().energy(),0.05));
   }
+  if(useVariableIsolationCone_){
+    if(!tauTagRef_.isNull()) isolationConeSize_ = std::min(0.524, std::max(isolationConeFunction_/tauTagRef_->jet().energy(),0.05));
+  }
+
 
 
   double maxPtIso = 0.0;
@@ -129,9 +138,10 @@ void TauVariables::makeVariables(){
     math::XYZTLorentzVector trkP4(trk->momentum().X(),trk->momentum().Y(),trk->momentum().Z(),energy);
 
     double pt = trk->pt();
-    if(pt < 1.0) continue;
+    if(pt < shoulderTrackThreshold_) continue;
 
-    double angle = ROOT::Math::VectorUtil::Angle(seedTrack_->momentum(),trk->momentum());
+    double angle = use3DAngle_ ? ROOT::Math::VectorUtil::Angle(seedTrack_->momentum(),trk->momentum()) :
+      ROOT::Math::VectorUtil::DeltaR(seedTrack_->momentum(),trk->momentum());
 
     if(angle > isolationConeSize_) continue;
 
@@ -162,9 +172,10 @@ void TauVariables::makeVariables(){
     math::XYZTLorentzVector p4 = pi0.momentum(seedTrack_->vertex());
 
     double et = p4.Et();
-    if(et < 0.1) continue;
+    if(et < pi0Threshold_) continue;
 
-    double angle = ROOT::Math::VectorUtil::Angle(seedTrack_->momentum(),p4);
+    double angle = use3DAngle_ ? ROOT::Math::VectorUtil::Angle(seedTrack_->momentum(),p4) :
+      ROOT::Math::VectorUtil::DeltaR(seedTrack_->momentum(),p4);
 
     if(angle > isolationConeSize_) continue;
 

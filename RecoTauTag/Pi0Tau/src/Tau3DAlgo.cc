@@ -16,7 +16,7 @@
 //
 // Original Author:  Dongwook Jang
 //         Created:  Tue Jan  9 16:40:36 CST 2007
-// $Id$
+// $Id: Tau3DAlgo.cc,v 1.1 2007/03/27 21:32:04 dwjang Exp $
 //
 //
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -46,6 +46,9 @@ Tau3DAlgo::Tau3DAlgo(edm::Handle<reco::TrackCollection> *trackHandle) {
 
 // radian for 30 degree : 30.0/180.0 * TMath::Pi() = 0.5236
   tauOuterConeSize_     = 0.5236;
+
+  // flag to use 3D angle
+  use3DAngle_ = false;
 
 }
 
@@ -86,12 +89,19 @@ void Tau3DAlgo::fillTau3Ds(edm::Handle<reco::PFCandidateCollection> &pFCandidate
     for(std::vector<reco::TrackRef>::const_iterator tIter = trackRefs_.begin();
       tIter != trackRefs_.end(); tIter++){
       const reco::TrackRef trkRef = *tIter;
-      double angle = ROOT::Math::VectorUtil::Angle(seedTrk->momentum(),trkRef->momentum());
-      if(angle < tauOuterConeSize_) trackColl.push_back(trkRef);
+
+      double dist = use3DAngle_ ? ROOT::Math::VectorUtil::Angle(seedTrk->momentum(),trkRef->momentum()) :
+	ROOT::Math::VectorUtil::DeltaR(seedTrk->momentum(),trkRef->momentum());
+
+      if(dist < tauOuterConeSize_) trackColl.push_back(trkRef);
     }
 
     reco::Pi0Algo pi0Algo(seedTrk);
-    pi0Algo.fillPi0sUsingPF(pFCandidateHandle,tauOuterConeSize_);
+    pi0Algo.setConeSize(tauOuterConeSize_);
+    pi0Algo.setUse3DAngle(true);
+    pi0Algo.setEcalEntrance(129.0);
+    pi0Algo.setMassRes(0.03);
+    pi0Algo.fillPi0sUsingPF(pFCandidateHandle);
 
     reco::Tau3D tau3D(seedTrk,trackColl,pi0Algo.pi0Collection());
     tau3DCollection_.push_back(tau3D);
@@ -150,8 +160,11 @@ void Tau3DAlgo::findSeedTracks(){
       if(trkRef == trkRef2) continue;
       double pt2 = trkRef2->pt();
       if(pt2 < pt) continue;
-      double angle = ROOT::Math::VectorUtil::Angle(trkRef->momentum(),trkRef2->momentum());
-      if(angle > tauOuterConeSize_) continue;
+
+      double dist = use3DAngle_ ? ROOT::Math::VectorUtil::Angle(trkRef->momentum(),trkRef2->momentum()) :
+	ROOT::Math::VectorUtil::DeltaR(trkRef->momentum(),trkRef2->momentum());
+
+      if(dist > tauOuterConeSize_) continue;
       anyTrackHigherThanThisIn30 = true;
     }// for tIter2
 

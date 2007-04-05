@@ -15,7 +15,7 @@
 //
 // Original Author:  Dongwook Jang
 //         Created:  Tue Jan  9 16:40:36 CST 2007
-// $Id$
+// $Id: Pi0Algo.cc,v 1.1 2007/03/27 21:32:04 dwjang Exp $
 //
 //
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -29,8 +29,6 @@
 #include <algorithm>
 #include <cmath>
 
-const double ecalEntrance = 129.0;
-const double massRes = 0.03;
 
 using namespace reco;
 
@@ -38,7 +36,10 @@ using namespace reco;
 // constructors and destructor
 //
 Pi0Algo::Pi0Algo(reco::TrackRef seedTrack){
-  coneSize_  = 0.524; // corresponding to 30 degree
+  coneSize_  = 0.524; // corresponding to 30 degree if 3D angle used
+  use3DAngle_ = false;
+  ecalEntrance_ = 129.0;
+  massRes_ = 0.03;
   seedTrack_ = seedTrack;
   pi0Collection_.clear();
 }
@@ -50,9 +51,7 @@ Pi0Algo::~Pi0Algo()
 }
 
 
-void Pi0Algo::fillPi0sUsingPF(edm::Handle<reco::PFCandidateCollection> &pFCandidateHandle, double coneSize){
-
-  coneSize_ = coneSize;
+void Pi0Algo::fillPi0sUsingPF(edm::Handle<reco::PFCandidateCollection> &pFCandidateHandle){
 
   LogDebug("Pi0Algo") << "The validity of seedTrack is " << (seedTrack_.isNull() ? 0 : 1) << "\n";
 
@@ -81,8 +80,11 @@ void Pi0Algo::fillPi0sUsingPF(edm::Handle<reco::PFCandidateCollection> &pFCandid
     reco::PFCandidateRef candRef(pFCandidateHandle,icand);
     icand++;
     if(cand->particleId() != reco::PFCandidate::gamma) continue;
-    double angle = ROOT::Math::VectorUtil::Angle(seedTrack_->momentum(),cand->momentum());
-    if(angle > coneSize_) continue;
+
+    double dist = use3DAngle_ ? ROOT::Math::VectorUtil::Angle(seedTrack_->momentum(),cand->momentum()) :
+      ROOT::Math::VectorUtil::DeltaR(seedTrack_->momentum(),cand->momentum());
+
+    if(dist > coneSize_) continue;
     photonCands.push_back(candRef);
   }
 
@@ -146,7 +148,7 @@ void Pi0Algo::fillPi0sUsingPF(edm::Handle<reco::PFCandidateCollection> &pFCandid
       reco::Pi0 pi0(type,p4.energy(),pos,p4,pi0Cands);
       pi0Collection_.push_back(pi0);
     }
-    else if(minMass < massRes){
+    else if(minMass < massRes_){
       usedPhotons.push_back(pho2);
       pi0Cands.push_back(pho2);
       math::XYZPoint pos2 = calculatePositionAtEcal(pho2->p4());
@@ -188,7 +190,7 @@ math::XYZPoint Pi0Algo::calculatePositionAtEcal(const math::XYZTLorentzVector &m
   // This works only for barrels, but I think it should work for endcap as well because
   // this is just a reference point to recalculate momentum w.r.t a given vertex.
 
-  math::XYZPoint pos(ecalEntrance*std::cos(phi),ecalEntrance*std::sin(phi),ecalEntrance/std::tan(theta));
+  math::XYZPoint pos(ecalEntrance_*std::cos(phi),ecalEntrance_*std::sin(phi),ecalEntrance_/std::tan(theta));
 
   return pos;
 }

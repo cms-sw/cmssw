@@ -16,7 +16,7 @@
 //
 // Original Author:  Dongwook Jang
 //         Created:  Tue Jan  9 16:40:36 CST 2007
-// $Id$
+// $Id: Pi0Algo.h,v 1.1 2007/03/27 21:32:03 dwjang Exp $
 //
 //
 
@@ -49,15 +49,35 @@ namespace reco {
 
     const reco::Pi0Collection &pi0Collection() const { return pi0Collection_; }
 
-    void fillPi0sUsingPF(edm::Handle<reco::PFCandidateCollection> &pFCandidateHandle, double coneSize=0.524);
-
     math::XYZTLorentzVector calculateMomentumWRT(const math::XYZTLorentzVector &momentum, const math::XYZPoint &vertex) const;
+
     math::XYZPoint calculatePositionAtEcal(const math::XYZTLorentzVector &momentum) const;
+
+    void fillPi0sUsingPF(edm::Handle<reco::PFCandidateCollection> &pFCandidateHandle);
+
+    // setters
+    void setConeSize(double v) { coneSize_ = v; }
+
+    void setUse3DAngle(bool v) { use3DAngle_ = v; }
+
+    void setEcalEntrance(double v) { ecalEntrance_ = v; }
+
+    void setMassRes(double v) { massRes_ = v; }
 
   private:
 
     // cone size
     double coneSize_;
+
+    // use 3D angle (default is dR)
+    bool use3DAngle_;
+
+    // radius of ecal entrance ( this will be replaced by geometry constant later if I find it )
+    double ecalEntrance_;
+
+    // mass resolution of pi0 from two photons
+    // to select pi0s based on mass cut
+    double massRes_;
 
     // seedTrack will be a center of cone
     reco::TrackRef seedTrack_;

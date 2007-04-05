@@ -14,7 +14,7 @@ Implementation:
 //
 // Original Author:  Dongwook Jang
 //         Created:  Wed Oct 11 11:08:40 CDT 2006
-// $Id: TauAna.cc,v 1.1.1.1 2006/11/21 20:28:19 dwjang Exp $
+// $Id: TauAna.cc,v 1.1 2007/03/27 21:32:04 dwjang Exp $
 //
 //
 
@@ -105,6 +105,7 @@ TauAna::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 
   Tau3DAlgo tau3DAlgo(&trackHandle);
+  tau3DAlgo.setUse3DAngle(true);
   tau3DAlgo.setSeedTrackThreshold(5.0);
   tau3DAlgo.setTauOuterConeSize(0.524);
   tau3DAlgo.fillTau3Ds(pFCandidateHandle);
@@ -115,8 +116,19 @@ TauAna::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       iter != tau3DAlgo.tau3DCollection().end(); iter++){
     const Tau3D *tau3D = &*iter;
 
-    TauVariables tauVar(tau3D,&tauTagInfoHandle,0);
-    tauVar.makeVariables();
+    TauVariables tauVar(tau3D,&tauTagInfoHandle);
+    tauVar.setUse3DAngle(true);
+    tauVar.setSignalConeSize(0.175);
+    tauVar.setIsolationConeSize(0.524);
+    tauVar.setUseVariableSignalCone(false);
+    tauVar.setSignalConeFunction(5.0); // do not affect anything
+    tauVar.setUseVariableIsolationCone(false);
+    tauVar.setIsolationConeFunction(5.0); // do not affect anything
+    tauVar.setSeedTrackThreshold(5.0);
+    tauVar.setShoulderTrackThreshold(1.0);
+    tauVar.setPi0Threshold(1.0);
+    tauVar.setDZTrackAssociation(2.0);
+    tauVar.makeVariables(); // perform calculation
     tauVars.push_back(tauVar);
 
     LogDebug("TauAna") << "nSignalTracks, nSignalPi0s, nIsolationTracks, nIsolationPi0s : "
