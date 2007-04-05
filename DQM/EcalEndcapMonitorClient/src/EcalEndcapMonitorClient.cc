@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2007/04/02 16:15:36 $
- * $Revision: 1.1 $
+ * $Date: 2007/04/05 16:35:47 $
+ * $Revision: 1.2 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -543,6 +543,9 @@ void EcalEndcapMonitorClient::beginRun(void){
 
   jevt_ = 0;
 
+  current_time_ = time(NULL);
+  last_time_ = current_time_;
+
   this->setup();
 
   this->beginRunDb();
@@ -681,9 +684,6 @@ void EcalEndcapMonitorClient::cleanup(void) {
 void EcalEndcapMonitorClient::beginRunDb(void) {
 
   subrun_ = 0;
-
-  current_time_ = time(NULL);
-  last_time_ = current_time_;
 
   EcalCondDBInterface* econn;
 
@@ -825,8 +825,6 @@ void EcalEndcapMonitorClient::beginRunDb(void) {
 void EcalEndcapMonitorClient::writeDb(void) {
 
   subrun_++;
-
-  last_time_ = current_time_;
 
   EcalCondDBInterface* econn;
 
@@ -1313,6 +1311,7 @@ void EcalEndcapMonitorClient::analyze(void){
           if ( runtype_ == EcalDCCHeaderBlock::COSMIC ||
                runtype_ == EcalDCCHeaderBlock::BEAMH2 ||
                runtype_ == EcalDCCHeaderBlock::BEAMH4 ) this->writeDb();
+          last_time_ = current_time_;
         }
       }
 

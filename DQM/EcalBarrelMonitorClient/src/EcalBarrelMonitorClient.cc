@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2007/04/01 19:05:03 $
- * $Revision: 1.244 $
+ * $Date: 2007/04/05 16:35:47 $
+ * $Revision: 1.245 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -543,6 +543,9 @@ void EcalBarrelMonitorClient::beginRun(void){
 
   jevt_ = 0;
 
+  current_time_ = time(NULL);
+  last_time_ = current_time_;
+
   this->setup();
 
   this->beginRunDb();
@@ -681,9 +684,6 @@ void EcalBarrelMonitorClient::cleanup(void) {
 void EcalBarrelMonitorClient::beginRunDb(void) {
 
   subrun_ = 0;
-
-  current_time_ = time(NULL);
-  last_time_ = current_time_;
 
   EcalCondDBInterface* econn;
 
@@ -825,8 +825,6 @@ void EcalBarrelMonitorClient::beginRunDb(void) {
 void EcalBarrelMonitorClient::writeDb(void) {
 
   subrun_++;
-
-  last_time_ = current_time_;
 
   EcalCondDBInterface* econn;
 
@@ -1313,6 +1311,7 @@ void EcalBarrelMonitorClient::analyze(void){
           if ( runtype_ == EcalDCCHeaderBlock::COSMIC ||
                runtype_ == EcalDCCHeaderBlock::BEAMH2 ||
                runtype_ == EcalDCCHeaderBlock::BEAMH4 ) this->writeDb();
+          last_time_ = current_time_;
         }
       }
 
