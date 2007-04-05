@@ -16,8 +16,8 @@
 // -------------------------------------------------------------------------
 // Includes
 // -------------------------------------------------------------------------
-#include "DetectorDescription/Parser/interface/DDLRotationSequence.h"
-#include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
+#include "DDLRotationSequence.h"
+#include "DDLElementRegistry.h"
 
 // DDCore dependencies
 #include "DetectorDescription/Core/interface/DDName.h"

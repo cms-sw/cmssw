@@ -17,8 +17,8 @@
 // Includes 
 // -------------------------------------------------------------------------
 // Parser parts
-#include "DetectorDescription/Parser/interface/DDLPseudoTrap.h"
-#include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
+#include "DDLPseudoTrap.h"
+#include "DDLElementRegistry.h"
 
 // DDCore dependencies
 #include "DetectorDescription/Core/interface/DDName.h"

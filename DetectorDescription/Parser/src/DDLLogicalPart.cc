@@ -14,9 +14,9 @@
 
 
 // DDL Parser components
-#include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
-#include "DetectorDescription/Parser/interface/DDLLogicalPart.h"
-#include "DetectorDescription/Parser/interface/DDXMLElement.h"
+#include "DDLElementRegistry.h"
+#include "DDLLogicalPart.h"
+#include "DDXMLElement.h"
 
 
 // DDCore dependencies

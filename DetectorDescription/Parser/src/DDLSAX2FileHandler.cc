@@ -16,8 +16,8 @@
 // ---------------------------------------------------------------------------
 #include "DetectorDescription/Parser/interface/DDLSAX2FileHandler.h"
 #include "DetectorDescription/Parser/interface/DDLParser.h"
-#include "DetectorDescription/Parser/interface/StrX.h"
-#include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
+#include "StrX.h"
+#include "DDLElementRegistry.h"
 #include "DetectorDescription/Parser/interface/DDXMLElement.h"
 
 // DDCore dependencies
@@ -66,10 +66,10 @@ void DDLSAX2FileHandler::startElement(const XMLCh* const uri
 				      , const XMLCh* const qname
 				      , const Attributes& attrs)
 {
-  // static seal::SealTimer tdds2fhse("DDLSAX2FileHandler::startElement(..)");
-  t_.item("DDLSAX2FileHandler::startElement(...)").accumulate();
-  t_.item("DDLSAX2FileHandler::startElement(...)").chrono().start();
-  DCOUT_V('P', "DDLSAX2FileHandler::startElement started");
+  // static seal::SealTimer tdds2fhse("DetectorDescription/Parser/interface/DDLSAX2FileHandler::startElement(..)");
+  t_.item("DetectorDescription/Parser/interface/DDLSAX2FileHandler::startElement(...)").accumulate();
+  t_.item("DetectorDescription/Parser/interface/DDLSAX2FileHandler::startElement(...)").chrono().start();
+  DCOUT_V('P', "DetectorDescription/Parser/interface/DDLSAX2FileHandler::startElement started");
   
   //***  char * buf = XMLString::transcode(qname);
   StrX myName(qname);
@@ -132,13 +132,13 @@ void DDLSAX2FileHandler::startElement(const XMLCh* const uri
 
   else 
     {
-      std::string s = "DDLSAX2FileHandler::startElement ERROR No pointer returned from";
+      std::string s = "DetectorDescription/Parser/interface/DDLSAX2FileHandler::startElement ERROR No pointer returned from";
       s += " DDLElementRegistry::getElement( name ).  MAJOR PROBLEM.  ";
       s += "  This should never be seen!  Element is " + myElementName;
       throw DDException(s);
     }
-  t_.item("DDLSAX2FileHandler::startElement(...)").chrono().stop();
-  DCOUT_V('P', "DDLSAX2FileHandler::startElement completed");
+  t_.item("DetectorDescription/Parser/interface/DDLSAX2FileHandler::startElement(...)").chrono().stop();
+  DCOUT_V('P', "DetectorDescription/Parser/interface/DDLSAX2FileHandler::startElement completed");
 }
 
 void DDLSAX2FileHandler::endElement(const XMLCh* const uri
@@ -147,7 +147,7 @@ void DDLSAX2FileHandler::endElement(const XMLCh* const uri
 {
   std::string myElementName = *(names_.back());
 
-  DCOUT_V('P', "DDLSAX2FileHandler::endElement started");
+  DCOUT_V('P', "DetectorDescription/Parser/interface/DDLSAX2FileHandler::endElement started");
   DCOUT_V('P', "    " + myElementName);
 
   DDXMLElement* myElement = DDLElementRegistry::getElement(myElementName);
@@ -167,19 +167,19 @@ void DDLSAX2FileHandler::endElement(const XMLCh* const uri
     }
   else 
     {
-      std::string s = "DDLSAX2FileHandler::endElement ERROR No pointer returned from";
+      std::string s = "DetectorDescription/Parser/interface/DDLSAX2FileHandler::endElement ERROR No pointer returned from";
       s += " DDLElement::getElement( name ).  MAJOR PROBLEM.  ";
       s += "  This should never be seen!  Element is " + myElementName;
       throw DDException(s);
     }
-  DCOUT_V('P', "DDLSAX2FileHandler::endElement completed");
+  DCOUT_V('P', "DetectorDescription/Parser/interface/DDLSAX2FileHandler::endElement completed");
   names_.pop_back();
 }
 
 void DDLSAX2FileHandler::characters(  const   XMLCh* const    chars
 				    , const unsigned int    length)
 {
-  DCOUT_V('P', "DDLSAX2FileHandler::characters started");
+  DCOUT_V('P', "DetectorDescription/Parser/interface/DDLSAX2FileHandler::characters started");
 
   //DDLSAX2Handler::characters ( chars, length );
 
@@ -209,7 +209,7 @@ void DDLSAX2FileHandler::characters(  const   XMLCh* const    chars
   else
     myElement->loadText(inString);
 
-  DCOUT_V('P', "DDLSAX2FileHandler::characters completed"); 
+  DCOUT_V('P', "DetectorDescription/Parser/interface/DDLSAX2FileHandler::characters completed"); 
 }
 
 void DDLSAX2FileHandler::comment( const   XMLCh* const    chars

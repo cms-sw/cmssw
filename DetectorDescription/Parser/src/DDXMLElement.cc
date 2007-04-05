@@ -10,7 +10,7 @@
 // -------------------------------------------------------------------------
 // Includes
 // -------------------------------------------------------------------------
-#include "DetectorDescription/Parser/interface/DDXMLElement.h"
+#include "DDXMLElement.h"
 #include "DetectorDescription/Parser/interface/DDLSAX2FileHandler.h"
 #include "DetectorDescription/Parser/interface/DDLParser.h"
 

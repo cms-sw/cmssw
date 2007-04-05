@@ -3,7 +3,7 @@
 // 25.04.04 - M. Case ddd-ize G4ParameterisationBox*
 // ********************************************************************
 
-#include "DetectorDescription/Parser/interface/DDDividedBox.h"
+#include "DDDividedBox.h"
 
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDName.h"

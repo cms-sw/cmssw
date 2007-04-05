@@ -16,9 +16,9 @@
 // -------------------------------------------------------------------------
 // Includes
 // -------------------------------------------------------------------------
-#include "DetectorDescription/Parser/interface/DDLBox.h"
-#include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
-#include "DetectorDescription/Parser/interface/DDLLogicalPart.h"
+#include "DDLBox.h"
+#include "DDLElementRegistry.h"
+#include "DDLLogicalPart.h"
 
 // DDCore dependencies
 #include "DetectorDescription/Core/interface/DDName.h"

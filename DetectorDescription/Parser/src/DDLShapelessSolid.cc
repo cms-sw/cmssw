@@ -16,8 +16,8 @@
 // -------------------------------------------------------------------------
 // Includes
 // -------------------------------------------------------------------------
-#include "DetectorDescription/Parser/interface/DDLShapelessSolid.h"
-#include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
+#include "DDLShapelessSolid.h"
+#include "DDLElementRegistry.h"
 
 // DDCore dependencies
 #include "DetectorDescription/Core/interface/DDName.h"

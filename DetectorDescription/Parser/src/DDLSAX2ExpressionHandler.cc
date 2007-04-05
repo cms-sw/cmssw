@@ -16,7 +16,7 @@
 // ---------------------------------------------------------------------------
 #include "DetectorDescription/Parser/interface/DDLSAX2ExpressionHandler.h"
 #include "DetectorDescription/Parser/interface/DDLParser.h"
-#include "DetectorDescription/Parser/interface/StrX.h"
+#include "StrX.h"
 
 // DDCore dependencies
 #include "DetectorDescription/Base/interface/DDdebug.h"
@@ -59,7 +59,7 @@ void DDLSAX2ExpressionHandler::startElement(const XMLCh* const uri
                                    , const XMLCh* const qname
                                    , const Attributes& attrs)
 {
-  static seal::SealTimer tdseh("DDLSAX2ExpressionHandler::startElement(..)", false);
+  static seal::SealTimer tdseh("DetectorDescription/Parser/interface/DDLSAX2ExpressionHandler::startElement(..)", false);
   
   ++elementCount_;
   attrCount_ += attrs.getLength();
@@ -71,7 +71,7 @@ void DDLSAX2ExpressionHandler::startElement(const XMLCh* const uri
   if (pElementName == "Constant") // && pInConstantsSection)
     {
       ++elementTypeCounter_[pElementName];
-      DCOUT_V('P', std::string("DDLSAX2ExpressionHandler: start ") + pElementName);
+      DCOUT_V('P', std::string("DetectorDescription/Parser/interface/DDLSAX2ExpressionHandler: start ") + pElementName);
       unsigned int numAtts = attrs.getLength();
       std::string varName, varValue;
       for (unsigned int i = 0; i < numAtts; ++i)
@@ -80,7 +80,7 @@ void DDLSAX2ExpressionHandler::startElement(const XMLCh* const uri
 	  std::string myvalue = StrX(attrs.getValue(i)).stringForm();
 
 	  std::string myQName = StrX(attrs.getQName(i)).stringForm();
-	  DCOUT_V('P', std::string("DDLSAX2ExpressionHandler: ") + "getLocalName = " + myattname + "  getValue = " +  myvalue + "   getQName = " + myQName);
+	  DCOUT_V('P', std::string("DetectorDescription/Parser/interface/DDLSAX2ExpressionHandler: ") + "getLocalName = " + myattname + "  getValue = " +  myvalue + "   getQName = " + myQName);
 
 	  // attributes unit and quantity are not used right now.
 	  if (myattname == "name")

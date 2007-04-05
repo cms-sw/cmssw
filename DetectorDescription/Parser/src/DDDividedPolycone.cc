@@ -2,11 +2,8 @@
 // ********************************************************************
 // 25.04.04 - M. Case ddd-ize G4ParameterisationPolycone*
 //---------------------------------------------------------------------
-
-#include "CLHEP/Units/SystemOfUnits.h"
-
-#include "DetectorDescription/Parser/interface/DDDividedPolycone.h"
-#include "DetectorDescription/Parser/interface/DDXMLElement.h"
+#include "DDDividedPolycone.h"
+#include "DDXMLElement.h"
 
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDName.h"
@@ -20,6 +17,9 @@
 #include "DetectorDescription/Base/interface/DDException.h"
 #include "DetectorDescription/Base/interface/DDRotationMatrix.h"
 #include "DetectorDescription/Base/interface/DDTranslation.h"
+
+
+#include "CLHEP/Units/SystemOfUnits.h"
 
 
 //---------------------------------------------------------------------

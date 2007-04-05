@@ -9,8 +9,8 @@
 
 
 // Parser parts
-#include "DetectorDescription/Parser/interface/DDLNumeric.h"
-#include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
+#include "DDLNumeric.h"
+#include "DDLElementRegistry.h"
 
 // other DD parts
 #include "DetectorDescription/Core/interface/DDNumeric.h"

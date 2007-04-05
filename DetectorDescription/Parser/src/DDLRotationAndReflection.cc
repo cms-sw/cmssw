@@ -16,8 +16,8 @@
 // -------------------------------------------------------------------------
 // Includes
 // -------------------------------------------------------------------------
-#include "DetectorDescription/Parser/interface/DDLRotationAndReflection.h"
-#include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
+#include "DDLRotationAndReflection.h"
+#include "DDLElementRegistry.h"
 
 // DDCore dependencies
 #include "DetectorDescription/Core/interface/DDPosPart.h"

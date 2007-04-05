@@ -18,7 +18,7 @@
 #include "DetectorDescription/Parser/interface/DDLConfiguration.h"
 #include "DetectorDescription/Parser/interface/DDLParser.h"
 #include "DetectorDescription/Parser/interface/DDLSAX2ConfigHandler.h"
-#include "DetectorDescription/Parser/interface/StrX.h"
+#include "StrX.h"
 #include "DetectorDescription/Base/interface/DDdebug.h"
 #include "DetectorDescription/Base/interface/DDException.h"
 
@@ -84,7 +84,7 @@ void DDLConfiguration::dumpFileList(void) const {
 //-----------------------------------------------------------------------
 int DDLConfiguration::readConfig(const std::string& filename)
 {
-  DCOUT('P', "DDLConfiguration::ReadConfig(): started");
+  DCOUT('P', "DetectorDescription/Parser/interface/DDLConfiguration::ReadConfig(): started");
 
   //  configFileName_ = filename;
 

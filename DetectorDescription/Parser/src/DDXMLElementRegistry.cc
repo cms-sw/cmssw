@@ -16,7 +16,7 @@
 // -------------------------------------------------------------------------
 // Includes
 // -------------------------------------------------------------------------
-#include "DetectorDescription/Parser/interface/DDXMLElementRegistry.h"
+#include "DDXMLElementRegistry.h"
 
 // DDCore dependencies
 #include "DetectorDescription/Base/interface/DDdebug.h"

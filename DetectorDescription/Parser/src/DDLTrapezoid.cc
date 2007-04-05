@@ -17,8 +17,8 @@
 // Includes 
 // -------------------------------------------------------------------------
 // Parser parts
-#include "DetectorDescription/Parser/interface/DDLTrapezoid.h"
-#include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
+#include "DDLTrapezoid.h"
+#include "DDLElementRegistry.h"
 
 // DDCore dependencies
 #include "DetectorDescription/Core/interface/DDName.h"

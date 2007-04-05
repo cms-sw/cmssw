@@ -14,9 +14,9 @@
 
 
 // Parser parts
-#include "DetectorDescription/Parser/interface/DDLSpecPar.h"
-#include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
-#include "DetectorDescription/Parser/interface/DDXMLElement.h"
+#include "DDLSpecPar.h"
+#include "DDLElementRegistry.h"
+#include "DDXMLElement.h"
 
 // DDCore dependencies
 #include "DetectorDescription/Core/interface/DDName.h"

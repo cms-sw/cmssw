@@ -17,7 +17,7 @@
 //  Includes
 // ---------------------------------------------------------------------------
 #include "DetectorDescription/Parser/interface/DDLParser.h"
-#include "DetectorDescription/Parser/interface/StrX.h"
+#include "StrX.h"
 #include "DetectorDescription/Parser/interface/DDLSAX2ConfigHandler.h"
 
 // Xerces C++ dependencies.
@@ -65,7 +65,7 @@ void DDLSAX2ConfigHandler::startElement(const XMLCh* const uri
   attrCount_ += attrs.getLength();
 
   std::string myelemname = StrX(qname).stringForm();
-  DCOUT_V('P', "DDLSAX2ConfigHandler::startElement" << myelemname << " started...");
+  DCOUT_V('P', "DetectorDescription/Parser/interface/DDLSAX2ConfigHandler::startElement" << myelemname << " started...");
 
   unsigned int numAtts = attrs.getLength();
   unsigned int i = 0;
@@ -107,7 +107,7 @@ void DDLSAX2ConfigHandler::startElement(const XMLCh* const uri
       DDLogicalPart root;
       DDRootDef::instance().set(DDName(logicalPartName, fileName));
 
-      DCOUT_V('P', std::string("DDLSAX2ConfigHandler::startElement.  Setting DDRoot LogicalPart=") + logicalPartName + std::string(" in ") + fileName);  
+      DCOUT_V('P', std::string("DetectorDescription/Parser/interface/DDLSAX2ConfigHandler::startElement.  Setting DDRoot LogicalPart=") + logicalPartName + std::string(" in ") + fileName);  
 
     }
   else if (myelemname == "Schema")
@@ -123,7 +123,7 @@ void DDLSAX2ConfigHandler::startElement(const XMLCh* const uri
 	  ++i;
 	}
     }
-  DCOUT_V('P', "DDLSAX2ConfigHandler::startElement" << myelemname << " completed...");
+  DCOUT_V('P', "DetectorDescription/Parser/interface/DDLSAX2ConfigHandler::startElement" << myelemname << " completed...");
 }
 
 const std::vector<std::string>& DDLSAX2ConfigHandler::getFileNames() const

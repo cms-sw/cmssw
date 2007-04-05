@@ -15,7 +15,7 @@
 //  Includes
 // ---------------------------------------------------------------------------
 #include "DetectorDescription/Parser/interface/DDLSAX2Handler.h"
-#include "DetectorDescription/Parser/interface/StrX.h"
+#include "StrX.h"
 #include "DetectorDescription/Base/interface/DDException.h"
 
 // Xerces C++ dependencies
@@ -95,7 +95,7 @@ void DDLSAX2Handler::resetDocument()
 void DDLSAX2Handler::dumpStats(const std::string& fname)
 {
 
-  std::cout << "DDLSAX2Handler::dumpStats, file: " 
+  std::cout << "DetectorDescription/Parser/interface/DDLSAX2Handler::dumpStats, file: " 
        << fname << " ("
        << getElementCount() << " elems, "
        << getAttrCount() << " attrs, "

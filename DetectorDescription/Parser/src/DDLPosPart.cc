@@ -14,10 +14,10 @@
 
 
 // Parser parts
-#include "DetectorDescription/Parser/interface/DDLPosPart.h"
-#include "DetectorDescription/Parser/interface/DDLRotationAndReflection.h"
-#include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
-#include "DetectorDescription/Parser/interface/DDXMLElement.h"
+#include "DDLPosPart.h"
+#include "DDLRotationAndReflection.h"
+#include "DDLElementRegistry.h"
+#include "DDXMLElement.h"
 
 // DDCore dependencies
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"

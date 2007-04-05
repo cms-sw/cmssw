@@ -14,8 +14,8 @@
 
 
 // Parser parts needed by PolyGenerator.
-#include "DetectorDescription/Parser/interface/DDLPolyGenerator.h"
-#include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
+#include "DDLPolyGenerator.h"
+#include "DDLElementRegistry.h"
 
 // DDCore dependencies
 #include "DetectorDescription/Core/interface/DDName.h"

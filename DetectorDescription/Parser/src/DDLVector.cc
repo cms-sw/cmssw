@@ -8,8 +8,8 @@
 
 
 // Parser parts
-#include "DetectorDescription/Parser/interface/DDLVector.h"
-#include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
+#include "DDLVector.h"
+#include "DDLElementRegistry.h"
 
 // other DD parts
 #include "DetectorDescription/Core/interface/DDVector.h"

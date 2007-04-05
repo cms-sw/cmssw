@@ -11,8 +11,8 @@
 #include "boost/spirit/core.hpp"
 
 // Parser parts
-#include "DetectorDescription/Parser/interface/DDLMap.h"
-#include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
+#include "DDLMap.h"
+#include "DDLElementRegistry.h"
 
 // other DD parts
 #include "DetectorDescription/Core/interface/DDMap.h"

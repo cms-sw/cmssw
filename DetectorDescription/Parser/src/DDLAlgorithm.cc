@@ -14,11 +14,11 @@
 
 
 // Parser parts
-#include "DetectorDescription/Parser/interface/DDLAlgorithm.h"
-#include "DetectorDescription/Parser/interface/DDLVector.h"
-#include "DetectorDescription/Parser/interface/DDLMap.h"
-#include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
-#include "DetectorDescription/Parser/interface/DDXMLElement.h"
+#include "DDLAlgorithm.h"
+#include "DDLVector.h"
+#include "DDLMap.h"
+#include "DDLElementRegistry.h"
+#include "DDXMLElement.h"
 
 // DDCore dependencies
 #include "DetectorDescription/Core/interface/DDName.h"
@@ -101,7 +101,7 @@ void DDLAlgorithm::processElement (const std::string& name, const std::string& n
     throwError(msg);  
   }
   catch ( ... ) {
-    std::string msg("DDLParser (DDLAlgorithm) failed with unknown error.");
+    std::string msg("DetectorDescription/Parser/interface/DDLParser (DDLAlgorithm) failed with unknown error.");
     msg+= "Reference: <" + name + " name=\"" + atts.find("name")->second;
     msg+= "\" nEntries=\"" + atts.find("nEntries")->second + "\">";
     msg+= " in namespace " + nmspace + "\n";

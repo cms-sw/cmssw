@@ -4,7 +4,7 @@
 //            DDD version
 // ********************************************************************
 
-#include "DetectorDescription/Parser/interface/DDDividedGeometryObject.h"
+#include "DDDividedGeometryObject.h"
 
 #include "DetectorDescription/Base/interface/DDRotationMatrix.h"
 #include "DetectorDescription/Base/interface/DDTranslation.h"

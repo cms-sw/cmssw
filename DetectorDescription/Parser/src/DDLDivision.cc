@@ -13,9 +13,9 @@
 
 
 
-#include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
-#include "DetectorDescription/Parser/interface/DDLDivision.h"
-#include "DetectorDescription/Parser/interface/DDXMLElement.h"
+#include "DDLElementRegistry.h"
+#include "DDLDivision.h"
+#include "DDXMLElement.h"
 #include "DetectorDescription/Parser/interface/DDDividedBox.h"
 #include "DetectorDescription/Parser/interface/DDDividedTubs.h"
 #include "DetectorDescription/Parser/interface/DDDividedTrd.h"

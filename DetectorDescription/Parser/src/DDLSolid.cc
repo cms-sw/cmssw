@@ -16,9 +16,9 @@
 // -------------------------------------------------------------------------
 // Includes
 // -------------------------------------------------------------------------
-#include "DetectorDescription/Parser/interface/DDLSolid.h"
-#include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
-#include "DetectorDescription/Parser/interface/DDLLogicalPart.h"
+#include "DDLSolid.h"
+#include "DDLElementRegistry.h"
+#include "DDLLogicalPart.h"
 
 // DDCore dependencies
 #include "DetectorDescription/Core/interface/DDName.h"
