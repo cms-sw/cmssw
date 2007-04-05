@@ -5,7 +5,7 @@
  * Initial Implementation based on Kurt's EventServer
  * make a common class later when all this works
  *
- * $Id$
+ * $Id: DQMEventServer.cc,v 1.1 2007/04/04 22:14:27 hcheung Exp $
  */
 
 #include "EventFilter/StorageManager/interface/DQMEventServer.h"
@@ -175,7 +175,7 @@ void DQMEventServer::processDQMEvent(const DQMEventMsgView &eventView)
         // update the local time stamp for the latest accepted event
         lastAcceptedEventTime_ = now;
       }
-      std::cout << "Adding DQMevent to consumer pipe for update " <<
+      FDEBUG(5) << "Adding DQMevent to consumer pipe for update " <<
           eventView.eventNumberAtUpdate() << 
           " and folder " << eventView.topFolderName() <<std::endl;
 

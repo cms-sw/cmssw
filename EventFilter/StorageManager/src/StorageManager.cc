@@ -1,4 +1,4 @@
-// $Id: StorageManager.cc,v 1.13 2007/04/01 05:22:56 hcheung Exp $
+// $Id: StorageManager.cc,v 1.14 2007/04/04 22:14:27 hcheung Exp $
 
 #include <iostream>
 #include <iomanip>
@@ -1647,18 +1647,18 @@ void StorageManager::DQMeventdataWebPage(xgi::Input *in, xgi::Output *out)
   std::string lengthString = in->getenv("CONTENT_LENGTH");
   unsigned int contentLength = std::atol(lengthString.c_str());
   if (contentLength > 0) 
+  {
+    auto_ptr< vector<char> > bufPtr(new vector<char>(contentLength));
+    in->read(&(*bufPtr)[0], contentLength);
+    OtherMessageView requestMessage(&(*bufPtr)[0]);
+    // make the change below when a tag of IOPool/Streamer can be used without FW changes
+    //if (requestMessage.code() == Header::DQMEVENT_REQUEST)
+    if (requestMessage.code() == Header::EVENT_REQUEST)
     {
-      auto_ptr< vector<char> > bufPtr(new vector<char>(contentLength));
-      in->read(&(*bufPtr)[0], contentLength);
-      OtherMessageView requestMessage(&(*bufPtr)[0]);
-      // make the change below when a tag of IOPool/Streamer can be used without FW changes
-      //if (requestMessage.code() == Header::DQMEVENT_REQUEST)
-      if (requestMessage.code() == Header::EVENT_REQUEST)
-	{
-	  uint8 *bodyPtr = requestMessage.msgBody();
-	  consumerId = convert32(bodyPtr);
-	}
+      uint8 *bodyPtr = requestMessage.msgBody();
+      consumerId = convert32(bodyPtr);
     }
+  }
   
   // first test if StorageManager is in Enabled state and this is a valid request
   // there must also be DQM data available
@@ -1694,17 +1694,17 @@ void StorageManager::DQMeventdataWebPage(xgi::Input *in, xgi::Output *out)
     out->getHTTPResponseHeader().addHeader("Content-Type", "application/octet-stream");
     out->getHTTPResponseHeader().addHeader("Content-Transfer-Encoding", "binary");
     out->write(mybuffer_,len);
-  } // else send end of run as reponse
+  } // else send DONE as reponse (could be end of a run)
   else
-    {
-      // not an event request or not in enabled state, just send DONE message
-      OtherMessageBuilder othermsg(&mybuffer_[0],Header::DONE);
-      len = othermsg.size();
+  {
+    // not an event request or not in enabled state, just send DONE message
+    OtherMessageBuilder othermsg(&mybuffer_[0],Header::DONE);
+    len = othermsg.size();
       
-      out->getHTTPResponseHeader().addHeader("Content-Type", "application/octet-stream");
-      out->getHTTPResponseHeader().addHeader("Content-Transfer-Encoding", "binary");
-      out->write(mybuffer_,len);
-    }
+    out->getHTTPResponseHeader().addHeader("Content-Type", "application/octet-stream");
+    out->getHTTPResponseHeader().addHeader("Content-Transfer-Encoding", "binary");
+    out->write(mybuffer_,len);
+  }
   
 }
 

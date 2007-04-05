@@ -6,7 +6,7 @@
  * Initial Implementation based on Kurt's ConsumerPipe
  * make a common class later when all this works
  *
- * $Id$
+ * $Id: DQMConsumerPipe.cc,v 1.1 2007/04/04 22:14:27 hcheung Exp $
  */
 
 #include "EventFilter/StorageManager/interface/DQMConsumerPipe.h"
@@ -22,7 +22,7 @@ using namespace edm;
 /**
  * Initialize the static value for the root consumer id.
  */
-uint32 DQMConsumerPipe::rootId_ = 0;
+uint32 DQMConsumerPipe::rootId_ = 1;
 
 /**
  * Initialize the static lock used to control access to the root ID.
@@ -122,7 +122,9 @@ bool DQMConsumerPipe::isReadyForEvent() const
 bool DQMConsumerPipe::wantsDQMEvent(DQMEventMsgView const& eventView) const
 {
   // for now, only allow one top folder selection or "*"
-  if(topFolderName_.compare("*") == 0) return true;
+  // not sure why "*" in pset is parsed as "<>"
+  std::string meansEverything = "<>";
+  if(topFolderName_.compare(meansEverything) == 0) return true;
   else return (topFolderName_.compare(eventView.topFolderName()) == 0);
 }
 
