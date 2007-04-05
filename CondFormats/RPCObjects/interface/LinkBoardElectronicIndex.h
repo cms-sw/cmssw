@@ -1,13 +1,13 @@
-#ifndef CondFormatsRPCObjectsChamberRawDataSpec_H
-#define CondFormatsRPCObjectsChamberRawDataSpec_H
+#ifndef CondFormatsRPCObjectsLinkBoardElectronicIndex_H
+#define CondFormatsRPCObjectsLinkBoardElectronicIndex_H
 
-/* \class ChamberRawDataSpec
+/* \class LinkBoardElectronicIndex
  * chamber location describtion as given by RawData, naming follows DB
  */
 
 #include <string>
 
-struct ChamberRawDataSpec {
+struct LinkBoardElectronicIndex {
   int dccId;
   int dccInputChannelNum; 
   int tbLinkInputNum;

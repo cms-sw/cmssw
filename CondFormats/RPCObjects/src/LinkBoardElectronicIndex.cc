@@ -1,9 +1,9 @@
-#include "CondFormats/RPCObjects/interface/ChamberRawDataSpec.h"
+#include "CondFormats/RPCObjects/interface/LinkBoardElectronicIndex.h"
 #include <sstream>
 
 using namespace std;
 
-std::string ChamberRawDataSpec::print( int depth ) const
+std::string LinkBoardElectronicIndex::print( int depth ) const
 {
   ostringstream str;
   if (depth >= 0) 

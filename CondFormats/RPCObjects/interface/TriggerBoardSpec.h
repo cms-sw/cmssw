@@ -20,6 +20,10 @@ public:
   /// link attached to this TB with given input number
   const LinkConnSpec * linkConn(int tbInputNumber) const;
 
+  /// not masked links belonging to this TB
+  std::vector<const LinkConnSpec* > enabledLinkConns() const; 
+
+  /// all links kept by this TB
   const std::vector<LinkConnSpec> linkConns() const { return theLinks; }
 
   ///  attach connection to TB
