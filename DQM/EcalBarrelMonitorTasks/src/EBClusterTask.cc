@@ -1,8 +1,8 @@
 /*
  * \file EBClusterTask.cc
  *
- * $Date: 2007/03/26 19:02:28 $
- * $Revision: 1.18 $
+ * $Date: 2007/04/05 13:56:46 $
+ * $Revision: 1.19 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -44,6 +44,11 @@ EBClusterTask::EBClusterTask(const ParameterSet& ps){
 
   init_ = false;
 
+  // get hold of back-end interface
+  dbe_ = Service<DaqMonitorBEInterface>().operator->();
+
+  enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", true);
+
   // parameters...
   islandBarrelBasicClusterCollection_ = ps.getParameter<edm::InputTag>("islandBarrelBasicClusterCollection");
 
@@ -74,9 +79,6 @@ EBClusterTask::EBClusterTask(const ParameterSet& ps){
 
   meHybS1toE_  = 0;
   meInvMass_ = 0;
-
-  // get hold of back-end interface
-  dbe_ = Service<DaqMonitorBEInterface>().operator->();
 
 }
 
@@ -157,6 +159,8 @@ void EBClusterTask::setup(void){
 }
 
 void EBClusterTask::cleanup(void){
+
+  if ( ! enableCleanup_ ) return;
 
   if ( dbe_ ) {
     dbe_->setCurrentFolder("EcalBarrel/EBClusterTask");

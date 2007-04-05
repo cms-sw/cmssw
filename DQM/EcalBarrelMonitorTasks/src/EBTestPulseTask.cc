@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseTask.cc
  *
- * $Date: 2007/03/21 16:10:40 $
- * $Revision: 1.67 $
+ * $Date: 2007/04/05 13:56:47 $
+ * $Revision: 1.68 $
  * \author G. Della Ricca
  *
 */
@@ -36,6 +36,11 @@ EBTestPulseTask::EBTestPulseTask(const ParameterSet& ps){
 
   init_ = false;
 
+  // get hold of back-end interface
+  dbe_ = Service<DaqMonitorBEInterface>().operator->();
+
+  enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", true);
+
   EcalRawDataCollection_ = ps.getParameter<edm::InputTag>("EcalRawDataCollection");
   EBDigiCollection_ = ps.getParameter<edm::InputTag>("EBDigiCollection");
   EcalPnDiodeDigiCollection_ = ps.getParameter<edm::InputTag>("EcalPnDiodeDigiCollection");
@@ -56,9 +61,6 @@ EBTestPulseTask::EBTestPulseTask(const ParameterSet& ps){
     mePnAmplMapG16_[i] = 0;
     mePnPedMapG16_[i] = 0;
   }
-
-  // get hold of back-end interface
-  dbe_ = Service<DaqMonitorBEInterface>().operator->();
 
   // amplitudeThreshold_ = 200;
   amplitudeThreshold_ = 0;
@@ -155,6 +157,8 @@ void EBTestPulseTask::setup(void){
 }
 
 void EBTestPulseTask::cleanup(void){
+
+  if ( ! enableCleanup_ ) return;
 
   if ( dbe_ ) {
     dbe_->setCurrentFolder("EcalBarrel/EBTestPulseTask");

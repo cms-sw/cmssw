@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalTask.cc
  *
- * $Date: 2007/03/21 16:10:40 $
- * $Revision: 1.55 $
+ * $Date: 2007/04/05 13:56:47 $
+ * $Revision: 1.56 $
  * \author G. Della Ricca
  *
 */
@@ -36,6 +36,11 @@ EBPedestalTask::EBPedestalTask(const ParameterSet& ps){
 
   init_ = false;
 
+  // get hold of back-end interface
+  dbe_ = Service<DaqMonitorBEInterface>().operator->();
+
+  enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", true);
+
   EcalRawDataCollection_ = ps.getParameter<edm::InputTag>("EcalRawDataCollection");
   EBDigiCollection_ = ps.getParameter<edm::InputTag>("EBDigiCollection");
   EcalPnDiodeDigiCollection_ = ps.getParameter<edm::InputTag>("EcalPnDiodeDigiCollection");
@@ -53,9 +58,6 @@ EBPedestalTask::EBPedestalTask(const ParameterSet& ps){
     mePnPedMapG01_[i] = 0;
     mePnPedMapG16_[i] = 0;
   }
-
-  // get hold of back-end interface
-  dbe_ = Service<DaqMonitorBEInterface>().operator->();
 
 }
 
@@ -143,6 +145,8 @@ void EBPedestalTask::setup(void){
 }
 
 void EBPedestalTask::cleanup(void){
+
+  if ( ! enableCleanup_ ) return;
 
   if ( dbe_ ) {
     dbe_->setCurrentFolder("EcalBarrel/EBPedestalTask");

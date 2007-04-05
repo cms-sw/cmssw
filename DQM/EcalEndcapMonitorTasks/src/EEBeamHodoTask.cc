@@ -1,8 +1,8 @@
 /*
  * \file EEBeamHodoTask.cc
  *
- * $Date: 2007/04/02 16:23:13 $
- * $Revision: 1.1 $
+ * $Date: 2007/04/05 13:56:49 $
+ * $Revision: 1.2 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -40,6 +40,11 @@ using namespace std;
 EEBeamHodoTask::EEBeamHodoTask(const ParameterSet& ps){
 
   init_ = false;
+
+  // get hold of back-end interface
+  dbe_ = Service<DaqMonitorBEInterface>().operator->();
+
+  enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", true);
 
   EcalTBEventHeader_ = ps.getParameter<edm::InputTag>("EcalTBEventHeader");
   EcalRawDataCollection_ = ps.getParameter<edm::InputTag>("EcalRawDataCollection");
@@ -82,9 +87,6 @@ EEBeamHodoTask::EEBeamHodoTask(const ParameterSet& ps){
   meCaloVsHodoXPos_ =0;
   meCaloVsHodoYPos_ =0;
   meCaloVsTDCTime_    =0;
-
-  // get hold of back-end interface
-  dbe_ = Service<DaqMonitorBEInterface>().operator->();
 
 }
 
@@ -195,6 +197,8 @@ void EEBeamHodoTask::setup(void){
 }
 
 void EEBeamHodoTask::cleanup(void){
+
+  if ( ! enableCleanup_ ) return;
 
   if ( dbe_ ) {
     dbe_->setCurrentFolder("EcalEndcap/EEBeamHodoTask");

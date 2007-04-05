@@ -4,8 +4,8 @@
 /*
  * \file EBCosmicTask.h
  *
- * $Date: 2007/03/20 12:37:26 $
- * $Revision: 1.21 $
+ * $Date: 2007/04/05 13:56:46 $
+ * $Revision: 1.22 $
  * \author G. Della Ricca
  *
 */
@@ -47,6 +47,8 @@ private:
 int ievt_;
 
 DaqMonitorBEInterface* dbe_;
+
+bool enableCleanup_;
 
 edm::InputTag EcalRawDataCollection_;
 edm::InputTag EcalRecHitCollection_;

@@ -1,8 +1,8 @@
 /*
  * \file EBOccupancyTask.cc
  *
- * $Date: 2007/03/21 16:10:40 $
- * $Revision: 1.18 $
+ * $Date: 2007/04/05 13:56:47 $
+ * $Revision: 1.19 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -37,6 +37,11 @@ EBOccupancyTask::EBOccupancyTask(const ParameterSet& ps){
 
   init_ = false;
 
+  // get hold of back-end interface
+  dbe_ = Service<DaqMonitorBEInterface>().operator->();
+
+  enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", true);
+
   EBDigiCollection_ = ps.getParameter<edm::InputTag>("EBDigiCollection");
   EcalPnDiodeDigiCollection_ = ps.getParameter<edm::InputTag>("EcalPnDiodeDigiCollection");
 
@@ -44,9 +49,6 @@ EBOccupancyTask::EBOccupancyTask(const ParameterSet& ps){
     meOccupancy_[i]    = 0;
     meOccupancyMem_[i] = 0;
   }
-
-  // get hold of back-end interface
-  dbe_ = Service<DaqMonitorBEInterface>().operator->();
 
 }
 
@@ -90,6 +92,8 @@ void EBOccupancyTask::setup(void){
 }
 
 void EBOccupancyTask::cleanup(void){
+
+  if ( ! enableCleanup_ ) return;
 
   if ( dbe_ ) {
     dbe_->setCurrentFolder("EcalBarrel/EBOccupancyTask");

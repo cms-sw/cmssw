@@ -1,8 +1,8 @@
 /*
  * \file EBTimingTask.cc
  *
- * $Date: 2007/03/26 17:34:07 $
- * $Revision: 1.10 $
+ * $Date: 2007/04/05 13:56:47 $
+ * $Revision: 1.11 $
  * \author G. Della Ricca
  *
 */
@@ -36,14 +36,16 @@ EBTimingTask::EBTimingTask(const ParameterSet& ps){
 
   init_ = false;
 
+  // get hold of back-end interface
+  dbe_ = Service<DaqMonitorBEInterface>().operator->();
+
+  enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", true);
+
   EcalUncalibratedRecHitCollection_ = ps.getParameter<edm::InputTag>("EcalUncalibratedRecHitCollection");
 
   for (int i = 0; i < 36 ; i++) {
     meTimeMap_[i] = 0;
   }
-
-  // get hold of back-end interface
-  dbe_ = Service<DaqMonitorBEInterface>().operator->();
 
 }
 
@@ -82,6 +84,8 @@ void EBTimingTask::setup(void){
 }
 
 void EBTimingTask::cleanup(void){
+
+  if ( ! enableCleanup_ ) return;
 
   if ( dbe_ ) {
     dbe_->setCurrentFolder("EcalBarrel/EBTimingTask");

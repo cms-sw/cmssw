@@ -1,8 +1,8 @@
 /*
  * \file EBLaserTask.cc
  *
- * $Date: 2007/03/24 13:33:49 $
- * $Revision: 1.76 $
+ * $Date: 2007/04/05 13:56:47 $
+ * $Revision: 1.77 $
  * \author G. Della Ricca
  *
 */
@@ -35,6 +35,11 @@ using namespace std;
 EBLaserTask::EBLaserTask(const ParameterSet& ps){
 
   init_ = false;
+
+  // get hold of back-end interface
+  dbe_ = Service<DaqMonitorBEInterface>().operator->();
+
+  enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", true);
 
   EcalRawDataCollection_ = ps.getParameter<edm::InputTag>("EcalRawDataCollection");
   EBDigiCollection_ = ps.getParameter<edm::InputTag>("EBDigiCollection");
@@ -94,9 +99,6 @@ EBLaserTask::EBLaserTask(const ParameterSet& ps){
     mePnAmplMapG16L4_[i] = 0;
     mePnPedMapG16L4_[i] = 0;
   }
-
-  // get hold of back-end interface
-  dbe_ = Service<DaqMonitorBEInterface>().operator->();
 
 }
 
@@ -335,6 +337,8 @@ void EBLaserTask::setup(void){
 }
 
 void EBLaserTask::cleanup(void){
+
+  if ( ! enableCleanup_ ) return;
 
   if ( dbe_ ) {
     dbe_->setCurrentFolder("EcalBarrel/EBLaserTask");

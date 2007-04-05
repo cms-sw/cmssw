@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerTask.cc
  *
- * $Date: 2007/04/02 16:23:13 $
- * $Revision: 1.1 $
+ * $Date: 2007/04/05 13:56:49 $
+ * $Revision: 1.2 $
  * \author G. Della Ricca
  *
 */
@@ -35,6 +35,11 @@ EETriggerTowerTask::EETriggerTowerTask(const ParameterSet& ps){
 
   init_ = false;
 
+  // get hold of back-end interface
+  dbe_ = Service<DaqMonitorBEInterface>().operator->();
+
+  enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", true);
+
   EcalTrigPrimDigiCollection_ = ps.getParameter<edm::InputTag>("EcalTrigPrimDigiCollection");
   EcalUncalibratedRecHitCollection_ = ps.getParameter<edm::InputTag>("EcalUncalibratedRecHitCollection");
 
@@ -47,9 +52,6 @@ EETriggerTowerTask::EETriggerTowerTask(const ParameterSet& ps){
       meEtMapR_[i][j] = 0;
     }
   }
-
-  // get hold of back-end interface
-  dbe_ = Service<DaqMonitorBEInterface>().operator->();
 
 }
 
@@ -107,6 +109,8 @@ void EETriggerTowerTask::setup(void){
 }
 
 void EETriggerTowerTask::cleanup(void){
+
+  if ( ! enableCleanup_ ) return;
 
   if ( dbe_ ) {
     dbe_->setCurrentFolder("EcalEndcap/EETriggerTowerTask");

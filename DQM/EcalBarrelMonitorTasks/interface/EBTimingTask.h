@@ -4,8 +4,8 @@
 /*
  * \file EBTimingTask.h
  *
- * $Date: 2007/03/21 16:10:39 $
- * $Revision: 1.4 $
+ * $Date: 2007/04/05 13:56:46 $
+ * $Revision: 1.5 $
  * \author G. Della Ricca
  *
 */
@@ -47,6 +47,8 @@ private:
 int ievt_;
 
 DaqMonitorBEInterface* dbe_;
+
+bool enableCleanup_;
 
 edm::InputTag EcalUncalibratedRecHitCollection_;
 

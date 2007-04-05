@@ -4,8 +4,8 @@
 /*
  * \file EcalEndcapMonitorModule.h
  *
- * $Date: 2007/03/24 20:52:10 $
- * $Revision: 1.41 $
+ * $Date: 2007/04/02 16:29:50 $
+ * $Revision: 1.1 $
  * \author G. Della Ricca
  *
 */
@@ -68,6 +68,8 @@ bool enableMonitorDaemon_;
 bool enableEventDisplay_;
 
 DaqMonitorBEInterface* dbe_;
+
+bool enableCleanup_;
 
 MonitorElement* meStatus_;
 

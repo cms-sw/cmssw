@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalOnlineTask.cc
  *
- * $Date: 2007/04/02 16:23:13 $
- * $Revision: 1.1 $
+ * $Date: 2007/04/05 13:56:49 $
+ * $Revision: 1.2 $
  * \author G. Della Ricca
  *
 */
@@ -36,14 +36,16 @@ EEPedestalOnlineTask::EEPedestalOnlineTask(const ParameterSet& ps){
 
   init_ = false;
 
+  // get hold of back-end interface
+  dbe_ = Service<DaqMonitorBEInterface>().operator->();
+
+  enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", true);
+
   EBDigiCollection_ = ps.getParameter<edm::InputTag>("EBDigiCollection");
 
   for (int i = 0; i < 36 ; i++) {
     mePedMapG12_[i] = 0;
   }
-
-  // get hold of back-end interface
-  dbe_ = Service<DaqMonitorBEInterface>().operator->();
 
 }
 
@@ -83,6 +85,8 @@ void EEPedestalOnlineTask::setup(void){
 }
 
 void EEPedestalOnlineTask::cleanup(void){
+
+  if ( ! enableCleanup_ ) return;
 
   if ( dbe_ ) {
     dbe_->setCurrentFolder("EcalEndcap/EEPedestalOnlineTask");

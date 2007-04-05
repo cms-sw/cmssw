@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorModule.h
  *
- * $Date: 2007/03/24 12:57:51 $
- * $Revision: 1.40 $
+ * $Date: 2007/03/24 20:52:10 $
+ * $Revision: 1.41 $
  * \author G. Della Ricca
  *
 */
@@ -68,6 +68,8 @@ bool enableMonitorDaemon_;
 bool enableEventDisplay_;
 
 DaqMonitorBEInterface* dbe_;
+
+bool enableCleanup_;
 
 MonitorElement* meStatus_;
 

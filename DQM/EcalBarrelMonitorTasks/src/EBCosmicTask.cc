@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicTask.cc
  *
- * $Date: 2007/03/21 16:10:40 $
- * $Revision: 1.68 $
+ * $Date: 2007/04/05 13:56:46 $
+ * $Revision: 1.69 $
  * \author G. Della Ricca
  *
 */
@@ -36,6 +36,11 @@ EBCosmicTask::EBCosmicTask(const ParameterSet& ps){
 
   init_ = false;
 
+  // get hold of back-end interface
+  dbe_ = Service<DaqMonitorBEInterface>().operator->();
+
+  enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", true);
+
   EcalRawDataCollection_ = ps.getParameter<edm::InputTag>("EcalRawDataCollection");
   EcalRecHitCollection_ = ps.getParameter<edm::InputTag>("EcalRecHitCollection");
 
@@ -44,9 +49,6 @@ EBCosmicTask::EBCosmicTask(const ParameterSet& ps){
     meSelMap_[i] = 0;
     meSpectrumMap_[i] = 0;
   }
-
-  // get hold of back-end interface
-  dbe_ = Service<DaqMonitorBEInterface>().operator->();
 
 }
 
@@ -97,6 +99,8 @@ void EBCosmicTask::setup(void){
 }
 
 void EBCosmicTask::cleanup(void){
+
+  if ( ! enableCleanup_ ) return;
 
   if ( dbe_ ) {
     dbe_->setCurrentFolder("EcalBarrel/EBCosmicTask");
