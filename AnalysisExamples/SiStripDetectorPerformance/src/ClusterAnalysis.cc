@@ -1,11 +1,6 @@
 /*
-<<<<<<< ClusterAnalysis.cc
  * $Date: 2007/03/14 08:55:51 $
  * $Revision: 1.12 $
-=======
- * $Date: 2007/04/05 08:06:26 $
- * $Revision: 1.14 $
->>>>>>> 1.14
  *
  * \author: D. Giordano, domenico.giordano@cern.ch
  * Modified: M.De Mattia 2/3/2007 & R.Castello 5/4/2007
@@ -630,7 +625,6 @@ namespace cms{
       int recHitsSize=track->recHitsSize();
       edm::LogInfo("ClusterAnalysis") <<"\t\tNumber of RecHits "<<recHitsSize<<std::endl;
       ((TH1F*) Hlist->FindObject("nRecHits"))->Fill(recHitsSize);
-<<<<<<< ClusterAnalysis.cc
 
 
 
@@ -694,71 +688,6 @@ namespace cms{
       }
       
       //---------------------------------------------------------------------
-=======
-
-
-
-      //------------------------------RESIDUAL at the layer level ------------
-	  
-      for(_tkinfoCmbiter=trackinforefCmb->trajStateMap().begin();_tkinfoCmbiter!=trackinforefCmb->trajStateMap().end();_tkinfoCmbiter++){
-	
-	const SiStripMatchedRecHit2D* matchedhit=dynamic_cast<const SiStripMatchedRecHit2D*>(&(*(_tkinfoCmbiter->first)));
-	const SiStripRecHit2D* hit=dynamic_cast<const SiStripRecHit2D*>(&(*(_tkinfoCmbiter->first)));
-
-	if(matchedhit)  
-	  {
-	  
-	    //track angle
-	    LocalVector trackdirection=(_tkinfoCmbiter->second.parameters()).momentum();
-	    GluedGeomDet * gdet=(GluedGeomDet *)_tracker->idToDet(matchedhit->geographicalId());
-	    GlobalVector gtrkdir=gdet->toGlobal(trackdirection);
-	    float angle = atan(gtrkdir.x()/gtrkdir.z())*180/TMath::Pi();
-	    
-	    const SiStripRecHit2D *monohit = matchedhit->monoHit();
-	    //const SiStripRecHit2D *stereohit = matchedhit->stereoHit();
-	    const uint32_t& detid = monohit->geographicalId().rawId();
-	    
-	    char cApp[64];
-	    sprintf(cApp,"_Layer_%d",GetSubDetAndLayer(detid).second);
-	    TString appString=TString(GetSubDetAndLayer(detid).first)+cApp; 
-	    std::cout << "MATCHED::subdet_layer->"<<appString << std::endl;
-	    
-	    //---------------------------
-	    
-	    LocalPoint stateposition= (_tkinfoCmbiter->second.parameters()).position();	
-	    LocalPoint rechitposition= matchedhit->localPosition();
-	    fillTH1( stateposition.x() - rechitposition.x(),"res_x"+appString,0);
-	    fillTH1( stateposition.y() - rechitposition.y(),"res_y"+appString,0);
-	    ((TProfile*) Hlist->FindObject("ResidualVsAngle"))->Fill(angle,stateposition.x()- rechitposition.x(),1);
-	    
-	  }
-	//  std::cout << "detidCmb from track" <<detidCmb << "versus" <<(&(*(*_tkinfoCmbiter).first))->geographicalId().rawId()<< std::endl;
-	else if ( hit ){
-	  
-	  //track angle
-	  LocalVector trackdirection=(_tkinfoCmbiter->second.parameters()).momentum();
-	  GluedGeomDet * gdet=(GluedGeomDet *)_tracker->idToDet(hit->geographicalId());
-	  GlobalVector gtrkdir=gdet->toGlobal(trackdirection);
-	  float angle = atan(gtrkdir.x()/gtrkdir.z())*180/TMath::Pi();
-	  
-	  char cApp[64];
-	  const uint32_t& detid = hit->geographicalId().rawId();
-	  //const unsigned int detid = ((*_tkinfoCmbiter).second).detId();
-	  sprintf(cApp,"_Layer_%d",GetSubDetAndLayer(detid).second);
-	  TString appString=TString(GetSubDetAndLayer(detid).first)+cApp;
-	  std::cout << " NOT_MATCHED::subdet_layer->"<<appString << std::endl;
-	  
-	  LocalPoint  stateposition= (_tkinfoCmbiter->second.parameters()).position(); //trajectory position on the detector
-	  LocalPoint  rechitposition = (_tkinfoCmbiter->first)->localPosition();// rechit position on the detector
-	  fillTH1( stateposition.x()- rechitposition.x(),"res_x"+appString,0);
-	  fillTH1( stateposition.y()- rechitposition.y(),"res_y"+appString,0);
-	  ((TProfile*) Hlist->FindObject("ResidualVsAngle"))->Fill(angle,stateposition.x()- rechitposition.x(),1);
-	}
-	else {std::cout <<"---No RecHit found-----------"<< std::endl;}
-      }
-      
-      //---------------------------------------------------------------------
->>>>>>> 1.14
   
       //       for (trackingRecHit_iterator it = track->recHitsBegin();  it != track->recHitsEnd(); it++){
       // Loop directly on the vector
@@ -933,7 +862,6 @@ namespace cms{
     
     fillTH1(cluster->charge(),"cSignal"+appString,1,cluster->width());
 
-<<<<<<< ClusterAnalysis.cc
 
     if(flag=="_onTrack"){
       	fillTH1(cluster->charge()*cos((angle/180)* TMath::Pi()),"cSignalCorr"+appString,0);
@@ -941,15 +869,6 @@ namespace cms{
 	  ->Fill(angle,cluster->width(),1);
     }
     
-=======
-
-    if(flag=="_onTrack"){
-      	fillTH1(cluster->charge()*cos(angle),"cSignalCorr"+appString,0);
-	((TProfile*) Hlist->FindObject("ClusterWidhtVsAngle"))
-	  ->Fill(angle,cluster->width(),1);
-    }
-    
->>>>>>> 1.14
     fillTH1(cluster->noise(),"cNoise"+appString,1,cluster->width());
 
     if (cluster->noise()){
@@ -959,7 +878,6 @@ namespace cms{
     fillTH1(cluster->width(),"cWidth"+appString,0);
 
     fillTH1(cluster->position(),"cPos"+appString,1,cluster->width());
-<<<<<<< ClusterAnalysis.cc
    
      
     //---- ClusterCharge corrected by angle (Layer)-----
@@ -968,16 +886,6 @@ namespace cms{
     TString appStringL=TString(GetSubDetAndLayer(detid).first)+cAppL;
     if (flag=="_onTrack")fillTH1(cluster->charge()*cos((angle/180)* TMath::Pi()),"cSignalCorr"+appStringL,1,cluster->width());
     //---------------------------------------------------
-=======
-   
-     
-    //---- ClusterCharge corrected by angle (Layer)-----
-    char cAppL[64];
-    sprintf(cAppL,"_Layer_%d",GetSubDetAndLayer(detid).second);
-    TString appStringL=TString(GetSubDetAndLayer(detid).first)+cAppL;
-    if (flag=="_onTrack")fillTH1(cluster->charge()*cos(angle),"cSignalCorr"+appStringL,1,cluster->width());
-    //---------------------------------------------------
->>>>>>> 1.14
 
     if (cluster->rawdigiAmplitudesL().size()!=0 ||  cluster->rawdigiAmplitudesR().size()!=0){
 	
@@ -1036,11 +944,7 @@ namespace cms{
       //appString=TString(_StripGeomDetUnit->type().name()).ReplaceAll("FieldParameters:","_")+cdetid;
 
       fillTH1(cluster->charge(),"cSignal"+appString,0);
-<<<<<<< ClusterAnalysis.cc
       //fillTH1(cluster->charge()*TMath::Cos((angle/180)* TMath::Pi()),"cSignalCorr"+appString,0);
-=======
-      //fillTH1(cluster->charge()*TMath::Cos(angle),"cSignalCorr"+appString,0);
->>>>>>> 1.14
 
       fillTH1(cluster->noise(),"cNoise"+appString,0);
 
@@ -1062,11 +966,7 @@ namespace cms{
       
       fillTH1(cluster->charge(),"cSignal"+appString,0);
 
-<<<<<<< ClusterAnalysis.cc
       //fillTH1(cluster->charge()*TMath::Cos((angle/180)* TMath::Pi()),"cSignalCorr"+appString,0);
-=======
-      //fillTH1(cluster->charge()*TMath::Cos(angle),"cSignalCorr"+appString,0);
->>>>>>> 1.14
 
       fillTH1(cluster->noise(),"cNoise"+appString,0);
 
