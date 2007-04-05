@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/02/19 12:35:33 $
- *  $Revision: 1.9 $
+ *  $Date: 2007/03/27 15:45:59 $
+ *  $Revision: 1.10 $
  *  \author M. Giunta
  */
 
@@ -115,6 +115,7 @@ DTVDriftCalibration::DTVDriftCalibration(const ParameterSet& pset) {
 
 DTVDriftCalibration::~DTVDriftCalibration(){
   theFile->Close();
+  delete theFitter;
   if(debug) 
     cout << "[DTVDriftCalibration]Destructor called!" << endl;
 }
