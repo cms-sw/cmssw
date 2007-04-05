@@ -1,5 +1,5 @@
 //
-// $Id: EcalTrivialConditionRetriever.cc,v 1.14 2006/11/17 13:45:49 meridian Exp $
+// $Id: EcalTrivialConditionRetriever.cc,v 1.15 2007/04/05 13:14:52 meridian Exp $
 // Created: 2 Mar 2006
 //          Shahram Rahatlou, University of Rome & INFN
 //
@@ -357,9 +357,9 @@ EcalTrivialConditionRetriever::produceEcalTBWeights( const EcalTBWeightsRcd& )
     
     // make a new set of weights
     EcalWeightSet wgt;
-    //typedef std::vector< std::vector<EcalWeight> > math::EcalWeightMatrix::type;
-    math::EcalWeightMatrix::type& mat1 = wgt.getWeightsBeforeGainSwitch();
-    math::EcalWeightMatrix::type& mat2 = wgt.getWeightsAfterGainSwitch();
+    //typedef std::vector< std::vector<EcalWeight> > EcalWeightSet::EcalWeightMatrix;
+    EcalWeightSet::EcalWeightMatrix& mat1 = wgt.getWeightsBeforeGainSwitch();
+    EcalWeightSet::EcalWeightMatrix& mat2 = wgt.getWeightsAfterGainSwitch();
     
 //     if(verbose_>=1) {
 //       std::cout << "initial size of mat1: " << mat1.size() << std::endl;
@@ -393,8 +393,8 @@ EcalTrivialConditionRetriever::produceEcalTBWeights( const EcalTBWeightsRcd& )
     
     // fill the chi2 matrcies with random numbers
     //    r = (double)std::rand()/( double(RAND_MAX)+double(1) );
-    math::EcalChi2WeightMatrix::type& mat3 = wgt.getChi2WeightsBeforeGainSwitch();
-    math::EcalChi2WeightMatrix::type& mat4 = wgt.getChi2WeightsAfterGainSwitch();
+    EcalWeightSet::EcalChi2WeightMatrix& mat3 = wgt.getChi2WeightsBeforeGainSwitch();
+    EcalWeightSet::EcalChi2WeightMatrix& mat4 = wgt.getChi2WeightsAfterGainSwitch();
     mat3=chi2Matrix_[itdc-1];
     mat4=chi2MatrixAft_[itdc-1];
     
@@ -748,7 +748,7 @@ void EcalTrivialConditionRetriever::getWeightsFromConfiguration(const edm::Param
     }
 
    
-   std::vector<  math::EcalChi2WeightMatrix::type > chi2Matrix(nTDCbins_);
+   std::vector<  EcalWeightSet::EcalChi2WeightMatrix > chi2Matrix(nTDCbins_);
    if (!getWeightsFromFile_  && nTDCbins_ == 1 )
      {
        //        chi2Matrix[0].resize(10);
@@ -889,7 +889,7 @@ void EcalTrivialConditionRetriever::getWeightsFromConfiguration(const edm::Param
    chi2Matrix_ =  chi2Matrix;
 //      }
 
-   std::vector< math::EcalChi2WeightMatrix::type > chi2MatrixAft(nTDCbins_);
+   std::vector< EcalWeightSet::EcalChi2WeightMatrix > chi2MatrixAft(nTDCbins_);
    if (!getWeightsFromFile_  && nTDCbins_ == 1 )
      {
        //       chi2MatrixAft[0].resize(10);

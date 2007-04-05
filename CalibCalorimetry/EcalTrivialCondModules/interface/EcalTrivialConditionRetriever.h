@@ -1,5 +1,5 @@
 //
-// $Id: EcalTrivialConditionRetriever.h,v 1.11 2007/01/19 11:22:48 meridian Exp $
+// $Id: EcalTrivialConditionRetriever.h,v 1.12 2007/04/05 13:14:51 meridian Exp $
 // Created: 2 Mar 2006
 //          Shahram Rahatlou, University of Rome & INFN
 //
@@ -107,8 +107,8 @@ private:
   std::vector< ROOT::Math::SVector<double,EcalDataFrame::MAXSAMPLES> > jittWeights_;  // weights to compute jitter
   std::vector< ROOT::Math::SVector<double,EcalDataFrame::MAXSAMPLES> > jittWeightsAft_;  // weights to compute jitter
 
-  std::vector< math::EcalChi2WeightMatrix::type > chi2Matrix_;
-  std::vector< math::EcalChi2WeightMatrix::type > chi2MatrixAft_;
+  std::vector< EcalWeightSet::EcalChi2WeightMatrix > chi2Matrix_;
+  std::vector< EcalWeightSet::EcalChi2WeightMatrix > chi2MatrixAft_;
 
   std::string amplWeightsFile_;
   std::string amplWeightsAftFile_;

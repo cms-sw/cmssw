@@ -1,5 +1,5 @@
 //
-// $Id: EcalTrivialObjectAnalyzer.cc,v 1.7 2006/10/26 23:35:31 wmtan Exp $
+// $Id: EcalTrivialObjectAnalyzer.cc,v 1.8 2007/04/05 13:14:52 meridian Exp $
 // Created: 2 Mar 2006
 //          Shahram Rahatlou, University of Rome & INFN
 //
@@ -154,8 +154,8 @@ using namespace std;
 
 
       //typedef std::vector< std::vector<EcalWeight> > EcalWeightMatrix;
-      const math::EcalWeightMatrix::type& mat1 = wit->second.getWeightsBeforeGainSwitch();
-      const math::EcalWeightMatrix::type& mat2 = wit->second.getWeightsAfterGainSwitch();
+      const EcalWeightSet::EcalWeightMatrix& mat1 = wit->second.getWeightsBeforeGainSwitch();
+      const EcalWeightSet::EcalWeightMatrix& mat2 = wit->second.getWeightsAfterGainSwitch();
 
 //       std::cout << "WeightsBeforeGainSwitch.size: " << mat1.size()
 //                 << ", WeightsAfterGainSwitch.size: " << mat2.size() << std::endl;
