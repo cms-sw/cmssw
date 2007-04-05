@@ -1,7 +1,7 @@
 #ifndef StreamerOutputModule_h_
 #define StreamerOutputModule_h_
 
-// $Id: StreamerOutputModule.h,v 1.22 2007/03/01 17:46:22 jbk Exp $
+// $Id: StreamerOutputModule.h,v 1.23 2007/03/04 06:36:12 wmtan Exp $
 
 #include "FWCore/RootAutoLibraryLoader/interface/RootAutoLibraryLoader.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -321,7 +321,11 @@ std::auto_ptr<EventMsgBuilder> StreamerOutputModule<Consumer>::serializeEvent(
     //End of dummy data
 
     setHltMask(e);
-    setLumiSection();
+
+    if (lumiSectionInterval_ == 0) 
+      lumi_ = e.luminosityBlock();
+    else
+      setLumiSection();
 
     serializer_.serializeEvent(e, useCompression_, compressionLevel_);
 
