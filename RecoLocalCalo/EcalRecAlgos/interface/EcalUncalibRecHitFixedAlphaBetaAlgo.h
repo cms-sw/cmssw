@@ -86,8 +86,8 @@ template<class C> class EcalUncalibRecHitFixedAlphaBetaAlgo : public EcalUncalib
   virtual ~EcalUncalibRecHitFixedAlphaBetaAlgo<C>() { };
   virtual EcalUncalibratedRecHit makeRecHit(const C& dataFrame, const double* pedestals,
 					    const double* gainRatios,
-					    const math::EcalWeightMatrix::type** weights, 
-					    const math::EcalChi2WeightMatrix::type** chi2Matrix); 
+					    const EcalWeightSet::EcalWeightMatrix** weights, 
+					    const EcalWeightSet::EcalChi2WeightMatrix** chi2Matrix); 
   void SetAlphaBeta( double alpha, double beta);
   
 };
@@ -97,8 +97,8 @@ template<class C> class EcalUncalibRecHitFixedAlphaBetaAlgo : public EcalUncalib
   /// Compute parameters
 template<class C> EcalUncalibratedRecHit  EcalUncalibRecHitFixedAlphaBetaAlgo<C>::makeRecHit(const C& dataFrame, const double* pedestals,
 											     const double* gainRatios,
-											     const math::EcalWeightMatrix::type** weights, 
-											     const math::EcalChi2WeightMatrix::type** chi2Matrix){
+											     const EcalWeightSet::EcalWeightMatrix** weights, 
+											     const EcalWeightSet::EcalChi2WeightMatrix** chi2Matrix){
   double chi2_(-1.);
   
   //  double Gain12Equivalent[4]={0,1,2,12};

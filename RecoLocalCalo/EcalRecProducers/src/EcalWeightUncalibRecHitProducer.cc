@@ -1,9 +1,9 @@
 /** \class EcalWeightUncalibRecHitProducer
  *   produce ECAL uncalibrated rechits from dataframes
  *
-  *  $Id: EcalWeightUncalibRecHitProducer.cc,v 1.20 2007/03/09 10:15:04 meridian Exp $
-  *  $Date: 2007/03/09 10:15:04 $
-  *  $Revision: 1.20 $
+  *  $Id: EcalWeightUncalibRecHitProducer.cc,v 1.21 2007/04/05 13:33:31 meridian Exp $
+  *  $Date: 2007/04/05 13:33:31 $
+  *  $Revision: 1.21 $
   *  \author Shahram Rahatlou, University of Rome & INFN, Sept 2005
   *
   */
@@ -196,15 +196,15 @@ EcalWeightUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup&
 #ifdef DEBUG
 	 LogDebug("EcalUncalibRecHitDebug") << "accessing matrices of weights...";
 #endif
-	 const math::EcalWeightMatrix::type& mat1 = wset.getWeightsBeforeGainSwitch();
-	 const math::EcalWeightMatrix::type& mat2 = wset.getWeightsAfterGainSwitch();
-	 const math::EcalChi2WeightMatrix::type& mat3 = wset.getChi2WeightsBeforeGainSwitch();
-	 const math::EcalChi2WeightMatrix::type& mat4 = wset.getChi2WeightsAfterGainSwitch();
+	 const EcalWeightSet::EcalWeightMatrix& mat1 = wset.getWeightsBeforeGainSwitch();
+	 const EcalWeightSet::EcalWeightMatrix& mat2 = wset.getWeightsAfterGainSwitch();
+	 const EcalWeightSet::EcalChi2WeightMatrix& mat3 = wset.getChi2WeightsBeforeGainSwitch();
+	 const EcalWeightSet::EcalChi2WeightMatrix& mat4 = wset.getChi2WeightsAfterGainSwitch();
 #ifdef DEBUG
 	 LogDebug("EcalUncalibRecHitDebug") << "done." ;
 #endif
 	 // build CLHEP weight matrices
-	 const math::EcalWeightMatrix::type* weights[2];
+	 const EcalWeightSet::EcalWeightMatrix* weights[2];
 	 weights[0]=&mat1;
 	 weights[1]=&mat2;
 // 	 weights.push_back(clmat1);
@@ -214,7 +214,7 @@ EcalWeightUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup&
 
 
 	 // build CLHEP chi2  matrices
-	 const math::EcalChi2WeightMatrix::type* chi2mat[2];
+	 const EcalWeightSet::EcalChi2WeightMatrix* chi2mat[2];
 	 chi2mat[0]=&mat3;
 	 chi2mat[1]=&mat4;
 
@@ -299,15 +299,15 @@ EcalWeightUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup&
 #ifdef DEBUG
 	 LogDebug("EcalUncalibRecHitDebug") << "accessing matrices of weights...";
 #endif
-	 const math::EcalWeightMatrix::type& mat1 = wset.getWeightsBeforeGainSwitch();
-	 const math::EcalWeightMatrix::type& mat2 = wset.getWeightsAfterGainSwitch();
-	 const math::EcalChi2WeightMatrix::type& mat3 = wset.getChi2WeightsBeforeGainSwitch();
-	 const math::EcalChi2WeightMatrix::type& mat4 = wset.getChi2WeightsAfterGainSwitch();
+	 const EcalWeightSet::EcalWeightMatrix& mat1 = wset.getWeightsBeforeGainSwitch();
+	 const EcalWeightSet::EcalWeightMatrix& mat2 = wset.getWeightsAfterGainSwitch();
+	 const EcalWeightSet::EcalChi2WeightMatrix& mat3 = wset.getChi2WeightsBeforeGainSwitch();
+	 const EcalWeightSet::EcalChi2WeightMatrix& mat4 = wset.getChi2WeightsAfterGainSwitch();
 #ifdef DEBUG
 	 LogDebug("EcalUncalibRecHitDebug") << "done." ;
 #endif
 	 // build CLHEP weight matrices
-	 const math::EcalWeightMatrix::type* weights[2];
+	 const EcalWeightSet::EcalWeightMatrix* weights[2];
 	 weights[0]=&mat1;
 	 weights[1]=&mat2;
 // 	 weights.push_back(clmat1);
@@ -317,7 +317,7 @@ EcalWeightUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup&
 
 
 	 // build CLHEP chi2  matrices
-	 const math::EcalChi2WeightMatrix::type* chi2mat[2];
+	 const EcalWeightSet::EcalChi2WeightMatrix* chi2mat[2];
 	 chi2mat[0]=&mat3;
 	 chi2mat[1]=&mat4;
 

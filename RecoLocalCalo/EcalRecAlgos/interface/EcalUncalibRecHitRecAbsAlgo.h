@@ -5,9 +5,9 @@
   *  Template used to compute amplitude, pedestal, time jitter, chi2 of a pulse
   *  using a weights method
   *
-  *  $Id: EcalUncalibRecHitRecAbsAlgo.h,v 1.2 2006/06/19 18:51:53 meridian Exp $
-  *  $Date: 2006/06/19 18:51:53 $
-  *  $Revision: 1.2 $
+  *  $Id: EcalUncalibRecHitRecAbsAlgo.h,v 1.3 2007/04/05 13:34:06 meridian Exp $
+  *  $Date: 2007/04/05 13:34:06 $
+  *  $Revision: 1.3 $
   *  \author R. Bruneliere - A. Zabi
   */
 
@@ -33,8 +33,8 @@ template<class C> class EcalUncalibRecHitRecAbsAlgo
   virtual EcalUncalibratedRecHit makeRecHit(const C& dataFrame, 
 					    const double* pedestals,
 					    const double* gainRatios,
-					    const math::EcalWeightMatrix::type** weights, 
-					    const math::EcalChi2WeightMatrix::type** chi2Matrix) = 0;
+					    const EcalWeightSet::EcalWeightMatrix** weights, 
+					    const EcalWeightSet::EcalChi2WeightMatrix** chi2Matrix) = 0;
 
 };
 #endif
