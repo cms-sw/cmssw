@@ -13,6 +13,8 @@
  * \date: 25-Jan-2004
  */ 
 
+#include <cmath>
+
 class HCALBarrelProperties : public HCALProperties 
 {
 
@@ -24,7 +26,7 @@ class HCALBarrelProperties : public HCALProperties
 
   /// Thickness (in cm), according to a document of 1995. TO be checked.
   double thickness(double eta) const { 
-    double e  = exp(-eta);
+    double e  = std::exp(-eta);
     double e2 = e*e;
     //    double c  = (1.-e2)/(1.+e2);
     double s  = 2.*e/(1.+e2);
@@ -42,7 +44,7 @@ class HCALBarrelProperties : public HCALProperties
       } 
     else if ( feta < 1.370 ) 
       {
-	double e1  = exp(-1.310);
+	double e1  = std::exp(-1.310);
 	double t1  = 2.*e1 /(1.-e1*e1);
 	// 193.0 cm is the inner radius of HCAL
 	return ( (6.76 * interactionLength() + 193.0) * t/t1 - 193.0) / s;
@@ -51,7 +53,7 @@ class HCALBarrelProperties : public HCALProperties
     else if (feta < 1.450)  // F.B 12/01/05 : avoid edge effet 
                             // in ParticlePropagator, the limit is 1.44826
       {
-	double e1  = exp(-1.310);
+	double e1  = std::exp(-1.310);
 	double t1  = 2.*e1 /(1.-e1*e1);
 	// 193.0 cm is the inner radius of HCAL
 	return ( (6.76 * interactionLength() + 193.0) * t/t1 - 193.0) / (2.*s);
