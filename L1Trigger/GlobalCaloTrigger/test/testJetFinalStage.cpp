@@ -14,6 +14,8 @@
 //Custom headers needed for this test
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctJetCand.h"
 
+#include "L1Trigger/GlobalCaloTrigger/test/produceTrivialCalibrationLut.h"
+
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJet.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctSourceCard.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetLeafCard.h"
@@ -59,6 +61,10 @@ void loadTestData(JetsVector &inputCentralJets, JetsVector &inputForwardJets,
                   JetsVector &inputTauJets, JetsVector &trueCentralJets,
                   JetsVector &trueForwardJets, JetsVector &trueTauJets,
                   L1GctJetEtCalibrationLut *lut);
+/// Sanity checks on the data read from file.
+bool checkTestData(JetsVector &inputCentralJets, JetsVector &inputForwardJets,
+                   JetsVector &inputTauJets, JetsVector &trueCentralJets,
+                   JetsVector &trueForwardJets, JetsVector &trueTauJets);
 /// Function to safely open input files of any name, using a referenced return ifstream
 void safeOpenInputFile(ifstream &fin, const string name);
 /// Function to safely open output files of any name, using a referenced return ofstream
@@ -91,24 +97,12 @@ int main(int argc, char **argv)
     }
     
     //create jet calibration lookup table
-    double lsb=1.0;
-    static const unsigned nThresh=64;
-    vector<double> thresh(nThresh);
-    thresh.at(0) = 0.0;
-    for (unsigned t=1; t<nThresh; ++t) {
-      thresh.at(t) = t*16.0 - 8.0;
-    }
+    produceTrivialCalibrationLut* lutProducer=new produceTrivialCalibrationLut();
 
-    double threshold=5.0;
-    vector< vector<double> > defaultCalib;
-    L1CaloEtScale* myScale = new L1CaloEtScale(lsb, thresh);
-    L1GctJetEtCalibrationFunction* myFun = new L1GctJetEtCalibrationFunction();
-    myFun->setOutputEtScale(*myScale);
-    myFun->setParams(lsb, threshold,
-                     defaultCalib, defaultCalib);
-
-    L1GctJetEtCalibrationLut* myJetEtCalLut = L1GctJetEtCalibrationLut::setupLut(myFun);
-    
+    // Instance of the class
+    L1GctJetEtCalibrationLut* myJetEtCalLut = lutProducer->produce();
+    delete lutProducer;
+  
     //create jet counter lookup table
     vector<L1GctJetCounterLut*> myJetCounterLuts(L1GctWheelJetFpga::N_JET_COUNTERS);
     for (unsigned i=0; i<myJetCounterLuts.size(); i++) { 
@@ -143,7 +137,6 @@ int main(int argc, char **argv)
     {
       delete *it;
     }
-    delete myScale;
     delete myJetEtCalLut;     
     for(vector<L1GctJetCounterLut*>::iterator it = myJetCounterLuts.begin(); it != myJetCounterLuts.end(); ++it)
     {
@@ -189,7 +182,10 @@ void classTest(L1GctJetFinalStage *myJetFinalStage, L1GctJetEtCalibrationLut* lu
   
   // Load our test input data and known results
   loadTestData(inputCentralJets, inputForwardJets, inputTauJets,
-               trueCentralJets, trueForwardJets, trueTauJets, lut);
+                trueCentralJets,  trueForwardJets,  trueTauJets, lut);
+
+  if (checkTestData(inputCentralJets, inputForwardJets, inputTauJets,
+                     trueCentralJets,  trueForwardJets,  trueTauJets)) { testPass=false; }
   
   //Fill the L1GctJetFinalStage with input data. See me care that I'm doing this three times...
   for(int i = 0; i < numInputJets; ++i)  
@@ -305,6 +301,30 @@ void loadTestData(JetsVector &inputCentralJets, JetsVector &inputForwardJets,
   return;
 }
     
+/// Loads test input and also the known results from a file.
+bool checkTestData(JetsVector &inputCentralJets, JetsVector &inputForwardJets,
+                   JetsVector &inputTauJets, JetsVector &trueCentralJets,
+                   JetsVector &trueForwardJets, JetsVector &trueTauJets)
+{
+  bool checkOk=true;
+
+  // Check the data read from file makes sense before we try to use it for testing
+  JetsVector::const_iterator jet;
+  for (jet=inputCentralJets.begin(); jet!=inputCentralJets.end(); ++jet) { checkOk &= jet->isCentral(); 
+    if (!jet->isCentral()) {cout << "data check fail input Central rank=" << jet->rank() << endl;} } 
+  for (jet=inputForwardJets.begin(); jet!=inputForwardJets.end(); ++jet) { checkOk &= jet->isForward();
+    if (!jet->isForward()) {cout << "data check fail input Forward rank=" << jet->rank() << endl;} }
+  for (jet=inputTauJets.begin();     jet!=inputTauJets.end();     ++jet) { checkOk &= jet->isTau();
+    if (!jet->isTau()) {cout << "data check fail input Tau rank=" << jet->rank() << endl;} }
+  for (jet=trueCentralJets.begin();  jet!=trueCentralJets.end();  ++jet) { checkOk &= jet->isCentral();
+    if (!jet->isCentral()) {cout << "data check fail true Central rank=" << jet->rank() << endl;} }
+  for (jet=trueForwardJets.begin();  jet!=trueForwardJets.end();  ++jet) { checkOk &= jet->isForward();
+    if (!jet->isForward()) {cout << "data check fail true Forward rank=" << jet->rank() << endl;} }
+  for (jet=trueTauJets.begin();      jet!=trueTauJets.end();      ++jet) { checkOk &= jet->isTau();
+    if (!jet->isTau()) {cout << "data check fail true Tau rank=" << jet->rank() << endl;} }
+  return checkOk;
+}
+    
     
 // Function to safely open input files of any name, using a referenced return ifstream
 void safeOpenInputFile(ifstream &fin, const string name)
@@ -379,6 +399,8 @@ L1GctJet readSingleJet(ifstream &fin)
 // Compares JetsVectors, prints a message about the comparison, returns true if identical, else false.
 bool compareJetsVectors(JetsVector &vector1, JetsVector &vector2, const string description)
 {
+  // vector1 is output from the JetFinalStage
+  // vector2 is expected based on file input
   bool testPass = true;
   
   if(vector1.size() != vector2.size())  //First check overall size is the same
@@ -392,9 +414,15 @@ bool compareJetsVectors(JetsVector &vector1, JetsVector &vector2, const string d
       //compare the vectors
       for(ULong i = 0; i < vector1.size(); ++i)
       {
-        if(vector1[i].rank()      != vector2[i].rank())      { cout << "rank fail " << endl; testPass = false; break; }
+        if(vector1[i].rank()      != vector2[i].rank())      { cout << "rank fail " << endl;
+                                                               cout << "found "     << vector1[i].rank()
+                                                                    << " expected " << vector2[i].rank()
+                                                                                    <<endl; testPass = false; break; }
         if((vector1[i].etaIndex() != vector2[i].etaIndex()) ||
-           (vector1[i].etaSign()  != vector2[i].etaSign()))  { cout << "eta fail " << endl; testPass = false; break; }
+           (vector1[i].etaSign()  != vector2[i].etaSign()))  { cout << "eta fail " << endl;
+                                                               cout << "found "     << vector1[i].etaIndex() << " " << vector1[i].etaSign()
+                                                                    << " expected " << vector2[i].etaIndex() << " " << vector2[i].etaSign()
+                                                                                    <<endl; testPass = false; break; }
         if(vector1[i].phiIndex()  != vector2[i].phiIndex())  { cout << "phi fail " << endl; testPass = false; break; }
         if(vector1[i].isTau()     != vector2[i].isTau())     { cout << "tau fail " << endl; testPass = false; break; }
         if(vector1[i].isForward() != vector2[i].isForward()) { cout << "fwd fail " << endl; testPass = false; break; }
