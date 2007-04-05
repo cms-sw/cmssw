@@ -1,6 +1,7 @@
 <use name=boost>
 <use name=FWCore/Framework>
 <use name=SimDataFormats/HepMCProduct>
+<use name=hepmc>
 <use name=clhep> 
 <use name=root>
 <use name=pythia6_227>
@@ -11,6 +12,7 @@
  <use name=boost>
  <use name=FWCore/Framework>
  <use name=SimDataFormats/HepMCProduct>
+ <use name=hepmc>
  <use name=clhep> 
  <use name=root>
  <use name=pythia6_227>
