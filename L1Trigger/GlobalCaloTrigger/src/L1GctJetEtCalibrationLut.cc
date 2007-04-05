@@ -38,11 +38,13 @@ uint16_t L1GctJetEtCalibrationLut::value (const uint16_t lutAddress) const
 
 std::ostream& operator << (std::ostream& os, const L1GctJetEtCalibrationLut& lut)
 {
-  os << "===Level-1 Trigger: GCT Jet Et Calibration Lut===" << std::endl;
-  os << "=================================================" << std::endl;
-  os << "Parameter settings" << std::endl;
+  os << std::endl;
+  os << "==================================================" << std::endl;
+  os << "===Level-1 Trigger:  GCT Jet Et Calibration Lut===" << std::endl;
+  os << "==================================================" << std::endl;
+  os << "===Parameter settings" << std::endl;
   os << *lut.getFunction() << std::endl;
-  os << "Lookup table contents" << std::endl;
+  os << "===Lookup table contents" << std::endl;
   const L1GctLut<L1GctJetEtCalibrationLut::NAddress,L1GctJetEtCalibrationLut::NData>* temp=&lut;
   os << *temp;
   return os;
