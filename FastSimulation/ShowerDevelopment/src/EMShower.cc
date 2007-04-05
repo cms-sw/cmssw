@@ -11,11 +11,12 @@
 #include "CLHEP/Units/PhysicalConstants.h"
 #include <iostream>
 #include <iomanip>
-#include <math.h>
+#include <cmath>
 
 //#include "FastSimulation/Utilities/interface/Histos.h"
 
 using std::vector;
+
 
 EMShower::EMShower(const RandomEngine* engine,
 		   GammaFunctionGenerator* gamma,
@@ -57,7 +58,7 @@ EMShower::EMShower(const RandomEngine* engine,
     Etot.push_back(0.);
     E.push_back(((*thePart)[i])->e());
     totalEnergy+=E[i];
-    double lny = log ( E[i] / theECAL->criticalEnergy() );
+    double lny = std::log ( E[i] / theECAL->criticalEnergy() );
 
     // Average and Sigma for T and alpha
     double theMeanT        = myParam->meanT(lny);
@@ -69,8 +70,8 @@ EMShower::EMShower(const RandomEngine* engine,
 
     // The correlation matrix
     double theCorrelation = myParam->correlationAlphaT(lny);
-    double rhop = sqrt( (1.+theCorrelation)/2. );
-    double rhom = sqrt( (1.-theCorrelation)/2. );
+    double rhop = std::sqrt( (1.+theCorrelation)/2. );
+    double rhom = std::sqrt( (1.-theCorrelation)/2. );
 
     // The number of spots in ECAL / HCAL
     theNumberOfSpots.push_back(myParam->nSpots(E[i]));
@@ -90,11 +91,11 @@ EMShower::EMShower(const RandomEngine* engine,
     while ( aa <= 1. ) {
       z1 = random->gaussShoot(0.,1.);
       z2 = random->gaussShoot(0.,1.);
-      aa = exp(theMeanLnAlpha + theSigmaLnAlpha * (z1*rhop-z2*rhom));
+      aa = std::exp(theMeanLnAlpha + theSigmaLnAlpha * (z1*rhop-z2*rhom));
     }
 
     a.push_back(aa);
-    T.push_back(exp(theMeanLnT + theSigmaLnT * (z1*rhop+z2*rhom)));
+    T.push_back(std::exp(theMeanLnT + theSigmaLnT * (z1*rhop+z2*rhom)));
     b.push_back((a[i]-1.)/T[i]);
     maximumOfShower.push_back((a[i]-1.)/b[i]);
     globalMaximum += maximumOfShower[i]*E[i];
@@ -102,7 +103,7 @@ EMShower::EMShower(const RandomEngine* engine,
     //    std::cout << " Adding max " << maximumOfShower[i] << " " << E[i] << " " <<maximumOfShower[i]*E[i] << std::endl; 
     //    std::cout << std::setw(8) << std::setprecision(5) << " a /b " << a[i] << " " << b[i] << std::endl;
     Ti.push_back(
-      a[i]/b[i] * (exp(theMeanLnAlpha)-1.) / exp(theMeanLnAlpha));
+		 a[i]/b[i] * (std::exp(theMeanLnAlpha)-1.) / std::exp(theMeanLnAlpha));
   
     // The parameters for the number of energy spots
     TSpot.push_back(theParam->meanTSpot(theMeanT));
@@ -349,7 +350,7 @@ EMShower::compute() {
       //    myHistos->fill("h302",taui,proba);
       
 	 double dSpotsCore = 
-	random->gaussShoot(proba*nSpot,sqrt(proba*(1.-proba)*nSpot));
+	random->gaussShoot(proba*nSpot,std::sqrt(proba*(1.-proba)*nSpot));
       
       if(dSpotsCore<0) dSpotsCore=0;
       
@@ -396,7 +397,7 @@ EMShower::compute() {
 	       for ( unsigned  ispot=0; ispot<nradspots; ++ispot ) 
 		 {
 		   double z3=random->flatShoot(umin,umax);
-		   double ri=theR * sqrt(z3/(1.-z3)) ;
+		   double ri=theR * std::sqrt(z3/(1.-z3)) ;
 
 		   //Fig. 12
 		   /*
@@ -475,7 +476,7 @@ EMShower::compute() {
 double
 EMShower::gam(double x, double a) const {
   // A stupid gamma function
-  return pow(x,a-1.)*exp(-x);
+  return std::pow(x,a-1.)*std::exp(-x);
 }
 
 //double 

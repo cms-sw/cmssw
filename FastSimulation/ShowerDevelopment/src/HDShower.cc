@@ -21,7 +21,7 @@
 // And This???? Doesn't seem to be needed
 // #include "Calorimetry/CaloDetector/interface/CellGeometry.h"
 
-#include <math.h>
+#include <cmath>
 
 // number attempts for transverse distribution if exit on a spec. condition
 #define infinity 5000
@@ -128,10 +128,10 @@ HDShower::HDShower(const RandomEngine* engine,
   double part1 = theParam->part1();
   double part2 = theParam->part2();
 
-  aloge = log(effective);
+  aloge = std::log(effective);
  
   double edpar = (theParam->e1() + aloge * theParam->e2()) * effective;
-  double aedep = log(edpar);
+  double aedep = std::log(edpar);
 
   if(debug == 2)
     LogDebug("FastCalorimetry") << " HDShower : " << endl
@@ -223,7 +223,7 @@ HDShower::HDShower(const RandomEngine* engine,
   // if too deep - get flat random in the allowed region
   // if no HCAL material behind - force to deposit in ECAL
   double maxDepth    = depthToHCAL + depthHCAL - 1.1 * depthStep;
-  double depthStart  = log(1./random->flatShoot()); // starting point lambda unts
+  double depthStart  = std::log(1./random->flatShoot()); // starting point lambda unts
 
   if(e < emin) {
     if(debug)

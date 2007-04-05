@@ -14,7 +14,7 @@
  * \date: 25-Jan-2004
  */ 
 #include <vector>
-#include "math.h"
+#include <cmath>
 
 class EMECALShowerParametrization
 {
@@ -42,13 +42,13 @@ class EMECALShowerParametrization
     return 0.21+(0.492+2.38/theECAL->theZeff())*lny; }
 
   inline double meanLnT(double lny) const {
-    return log(lny-0.812); }
+    return std::log(lny-0.812); }
 
   inline double sigmaLnT(double lny) const {
     return 1./(-1.4+1.26*lny); }
   
   inline double meanLnAlpha(double lny) const {
-    return log(0.81+(0.458+2.26/theECAL->theZeff())*lny); }
+    return std::log(0.81+(0.458+2.26/theECAL->theZeff())*lny); }
 
   inline double sigmaLnAlpha(double lny) const {
     return 1./(-0.58+0.86*lny); }
@@ -57,7 +57,7 @@ class EMECALShowerParametrization
     return 0.705-0.023*lny; }
 
   inline double nSpots(double E) const {
-    return 93.*log(theECAL->theZeff()) * pow(E,0.876); }
+    return 93.*std::log(theECAL->theZeff()) * std::pow(E,0.876); }
 
   inline double meanAlphaSpot(double alpha) const {
     return alpha*(0.639+0.00334*theECAL->theZeff()); }
@@ -67,12 +67,12 @@ class EMECALShowerParametrization
 
   inline double p(double tau, double E) const {
     double arg = (p2()-tau)/p3(E);
-    return p1()* exp(arg-exp(arg));
+    return p1()* std::exp(arg-std::exp(arg));
   }
 
   inline double rT(double tau,double E) const {
-    return k1() * ( exp(k3()*(tau-k2()))+
-		    exp(k4(E)*(tau-k2())) );
+    return k1() * ( std::exp(k3()*(tau-k2()))+
+		    std::exp(k4(E)*(tau-k2())) );
   }
   
   inline double rC(double tau, double E) const {
@@ -111,15 +111,15 @@ class EMECALShowerParametrization
 
   double p1() const { return 2.632-0.00094*theECAL->theZeff(); }
   double p2() const { return 0.401+0.00187*theECAL->theZeff(); }
-  double p3(double E) const { return 1.313-0.0686*log(E); }
+  double p3(double E) const { return 1.313-0.0686*std::log(E); }
 
-  double z1(double E) const { return 0.0251+0.00319*log(E); }
+  double z1(double E) const { return 0.0251+0.00319*std::log(E); }
   double z2() const { return 0.1162-0.000381*theECAL->theZeff(); }
 
   double k1() const { return 0.6590-0.00309*theECAL->theZeff(); }
   double k2() const { return 0.6450; }
   double k3() const { return -2.59; }
-  double k4(double E) const { return 0.3585+0.0421*log(E); }
+  double k4(double E) const { return 0.3585+0.0421*std::log(E); }
 
 };
 

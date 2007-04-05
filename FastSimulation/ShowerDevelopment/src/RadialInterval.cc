@@ -4,7 +4,7 @@
 
 //CLHECP headers
 #include <iostream>
-#include "math.h"
+#include <cmath>
 
 #include <iomanip>
 RadialInterval::RadialInterval(double RC,unsigned nSpots,double energy,
