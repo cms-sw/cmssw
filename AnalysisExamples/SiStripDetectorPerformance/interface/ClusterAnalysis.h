@@ -108,8 +108,8 @@ namespace cms{
       edm::Handle<reco::TrackCollection> trackCollection;
       edm::Handle<LTCDigiCollection> ltcdigis;
       edm::Handle<uint16_t> filterWord;
-      edm::Handle<reco::TrackInfoTrackAssociationCollection> TItkAssociatorCollection;
-
+      edm::Handle<reco::TrackInfoTrackAssociationCollection> tkiTkAssCollectionCmb ;
+      edm::Handle<reco::TrackInfoTrackAssociationCollection> tkiTkAssCollectionUpd ;
       std::vector<const SiStripCluster*> vPSiStripCluster;
       
       std::map<std::pair<std::string,uint32_t>,bool> DetectedLayers;
@@ -140,9 +140,11 @@ namespace cms{
       bool not_the_first_event;
 
       bool tracksCollection_in_EventTree;
+      bool trackAssociatorCollection_in_EventTree;
       bool ltcdigisCollection_in_EventTree;
 
       int countOn, countOff, countAll, NClus[4][3];
+      uint32_t istart;
 
       TRandom rnd;
 
@@ -150,9 +152,11 @@ namespace cms{
       typedef std::vector<std::pair<const TrackingRecHit *, float> > HitAngleAssociation;
       typedef std::vector<std::pair<const TrackingRecHit *, LocalVector > > HitLclDirAssociation;
       typedef std::vector<std::pair<const TrackingRecHit *, GlobalVector> > HitGlbDirAssociation;
+     
       TrackLocalAngleTIF * Anglefinder;
       const TrackerGeometry * _tracker;
       reco::TrackInfo::TrajectoryInfo::const_iterator _tkinfoiter;
+      reco::TrackInfo::TrajectoryInfo::const_iterator _tkinfoCmbiter;
       HitAngleAssociation oXZHitAngle;
       HitAngleAssociation oYZHitAngle;
       HitLclDirAssociation oLocalDir;
