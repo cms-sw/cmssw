@@ -1,8 +1,6 @@
 
 // G. Giurgiu (ggiurgiu@pha.jhu.edu): 01/23/07 - replaced #ifdef DEBUG statements with LogDebug("...")
 //                                             - vector<float>& ybarrel_1D = (ybarrel_3D[i_size])[i_alpha];
-//                                    03/27/07 - fixed index bug
-//                                             - account for big pixels in barrel x errors
 
 #include "RecoLocalTracker/SiPixelRecHits/interface/PixelErrorParametrization.h"
 
@@ -47,7 +45,7 @@ PixelErrorParametrization::PixelErrorParametrization(edm::ParameterSet const& co
 
   // MAGIC NUMBERS: beta ranges depending on y cluster size
   brange_yb.resize(6);
-  brange_yb[0] = pair<float,float>(0., 0.6);   // ysize=1   // Gavril: this only defines 2 ranges 
+  brange_yb[0] = pair<float,float>(0., 0.6);   // ysize=1
   brange_yb[1] = pair<float,float>(0.1, 0.9);     // ysize = 2
   brange_yb[2] = pair<float,float>(0.6, 1.05);  // ysize = 3
   brange_yb[3] = pair<float,float>(0.9, 1.15);  // ysize = 4 
@@ -78,11 +76,11 @@ PixelErrorParametrization::PixelErrorParametrization(edm::ParameterSet const& co
   (bbins_xb[1])[0] = 0.7; 
   (bbins_xb[1])[1] = 1.; 
   (bbins_xb[1])[2] = 1.2; 
-  // xsize >= 3 same 4 beta-bins as for xsize=2 // Gavril: checked with Susanna and fixed index from "1" to "2", 03/16/07
-  (bbins_xb[2]).resize(3);
-  (bbins_xb[2])[0] = 0.7; 
-  (bbins_xb[2])[1] = 1.; 
-  (bbins_xb[2])[2] = 1.2; 
+  // xsize >= 3 same 4 beta-bins as for xsize=2
+  (bbins_xb[1]).resize(3);
+  (bbins_xb[1])[0] = 0.7; 
+  (bbins_xb[1])[1] = 1.; 
+  (bbins_xb[1])[2] = 1.2; 
 
   ///////////////////////////////////////////////////////
   // fill X-BARREL matrix with parameters to perform a 
@@ -129,12 +127,10 @@ PixelErrorParametrization::~PixelErrorParametrization(){}
 //-----------------------------------------------------------------------------
 //  
 //-----------------------------------------------------------------------------
-// Gavril: add big pixel info (at this time only bigIn X is used for barrel x errors), 03/27/07
 pair<float,float> 
 PixelErrorParametrization::getError(GeomDetType::SubDetector pixelPart, 
 				    int sizex, int sizey, 
-				    float alpha, float beta,
-				    bool bigInX, bool bigInY)
+				    float alpha, float beta)
 {
   pair<float,float> element;
 
@@ -146,14 +142,14 @@ PixelErrorParametrization::getError(GeomDetType::SubDetector pixelPart,
 
     LogError ("NANcatched") << "PixelErrorParametrization::getError: NAN catched in angles alpha or beta" ; 
  
-    element = pair<float,float>(0.010/sqrt(12), 0.015/sqrt(12));
+    element = pair<float,float>(0.010/sqrt(12.), 0.015/sqrt(12.));
     return element;
 
   }
   
   switch (pixelPart) {
   case GeomDetEnumerators::PixelBarrel:
-    element = pair<float,float>(error_XB(sizex, alpha, beta, bigInX), // Gavril: add big pixel flag here. 03/27/07
+    element = pair<float,float>(error_XB(sizex, alpha, beta), 
 				error_YB(sizey, alpha, beta));
     break;
   case GeomDetEnumerators::PixelEndcap:
@@ -179,7 +175,7 @@ PixelErrorParametrization::getError(GeomDetType::SubDetector pixelPart,
 //-----------------------------------------------------------------------------
 //  
 //-----------------------------------------------------------------------------
-float PixelErrorParametrization::error_XB(int sizex, float alpha, float beta, bool bigInX)
+float PixelErrorParametrization::error_XB(int sizex, float alpha, float beta)
 {
   LogDebug("PixelErrorParametrization::error_XB") << "I'M AT THE BEGIN IN ERROR XB METHOD";
   bool barrelPart = true;
@@ -191,25 +187,7 @@ float PixelErrorParametrization::error_XB(int sizex, float alpha, float beta, bo
 
   // if ( i_size==0 ) return linParametrize(barrelPart, i_size, i_beta, alpha);
   //else return quadParametrize(barrelPart, i_size, i_beta, alpha);
-
-  double pitch_x = 0.0100;
-
-  // Gavril: nasty patch for big pixels at the module center !!!
-  /*
-    double delta = 2.0 * ( a_max - a_min ) / 162.0;
-    double half_pi = 3.14159265 / 2.0;
-    double pitch_x = 0.0100;
-    if ( i_size == 0 && i_beta == 0 && alpha > half_pi - delta && alpha < half_pi + delta )
-    return pitch_x/sqrt(12.0);
-    //return 0.0026;
-    else
-  */
-
-  // Gavril: nicer fix for big pixels at the module center
-  if ( bigInX && sizex == 1 )
-    return pitch_x/sqrt(12.0);
-  else
-    return quadParametrize(barrelPart, i_size, i_beta, alpha);
+  return quadParametrize(barrelPart, i_size, i_beta, alpha);
 }
 
 
@@ -284,15 +262,13 @@ float PixelErrorParametrization::error_YB(int sizey, float alpha, float beta)
   
   // beta --> abs(pi/2-beta) to be symmetric w.r.t. pi/2 axis
   float beta_prime = fabs(3.14159/2.-beta);
-  double pitch_y = 0.0150;
-  if ( beta_prime <= brange_yb[i_size].first ) // Gavril: brange_yb[0].first == 0.0; when i_size==0, beta_prime is never less than 0 ?!?! 
+  if ( beta_prime <= brange_yb[i_size].first )
     { 
       return ybarrel_1D[0];
     }
   else if ( beta_prime >= brange_yb[i_size].second )
     {
       return ybarrel_1D[ybarrel_1D.size()-1];
-      //return 2.0*pitch_y / sqrt(12.0); // Gavril: we are in un-physical beta_prime range; return large error, 03/27/07 
     } 
   else 
     {
