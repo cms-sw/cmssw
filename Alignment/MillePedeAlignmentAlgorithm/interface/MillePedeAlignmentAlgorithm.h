@@ -7,8 +7,8 @@
 ///
 ///  \author    : Gero Flucke
 ///  date       : October 2006
-///  $Revision: 1.7 $
-///  $Date: 2007/02/13 12:04:58 $
+///  $Revision: 1.8 $
+///  $Date: 2007/03/16 16:58:40 $
 ///  (last update by $Author: flucke $)
 
 
@@ -61,8 +61,7 @@ class MillePedeAlignmentAlgorithm : public AlignmentAlgorithmBase
 
   ReferenceTrajectoryBase::ReferenceTrajectoryPtr
     referenceTrajectory(const TrajectoryStateOnSurface &refTsos,
-			const TransientTrackingRecHit::ConstRecHitContainer &hitVec,
-			const MagneticField *magField) const;
+			const Trajectory *traj, const MagneticField *magField) const;
   /// If hit is usable: callMille for x and (probably) y direction.
   /// If globalDerivatives fine: returns 2 if 2D-hit and 1 if 1D-hit. Returns -1 if any problem.
   /// (for params cf. globalDerivatives)

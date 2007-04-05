@@ -3,8 +3,8 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.14 $
- *  $Date: 2007/03/16 18:01:22 $
+ *  $Revision: 1.13 $
+ *  $Date: 2007/03/16 16:58:39 $
  *  (last update by $Author: flucke $)
  */
 
@@ -181,7 +181,7 @@ void MillePedeAlignmentAlgorithm::run(const edm::EventSetup &setup,
     this->orderedTsos(traj, trackTsos);
 
     ReferenceTrajectoryBase::ReferenceTrajectoryPtr refTrajPtr = 
-      this->referenceTrajectory(trackTsos.front(), traj->recHits(), magField);
+      this->referenceTrajectory(trackTsos.front(), traj, magField);
     if (!refTrajPtr->isValid()) continue; // currently e.g. if any invalid hit (FIXME for cosmic?)
     
     std::vector<AlignmentParameters*> parVec(refTrajPtr->recHits().size());//to add hits if all fine
@@ -215,11 +215,18 @@ void MillePedeAlignmentAlgorithm::run(const edm::EventSetup &setup,
 
 //____________________________________________________
 ReferenceTrajectoryBase::ReferenceTrajectoryPtr MillePedeAlignmentAlgorithm::referenceTrajectory
-(const TrajectoryStateOnSurface &refTsos, const ConstRecHitContainer &hitVec,
+(const TrajectoryStateOnSurface &refTsos, const Trajectory *traj,
  const MagneticField *magField) const
 {
-  ReferenceTrajectoryBase::ReferenceTrajectoryPtr refTrajPtr =   // hits are backward!
-    new ReferenceTrajectory(refTsos, hitVec, true, magField, ReferenceTrajectoryBase::combined);//energyLoss);
+  const PropagationDirection dir = traj->direction();
+  const bool backwardHits = (dir == oppositeToMomentum ? true : false);
+  if (backwardHits == false && dir != alongMomentum) {
+    edm::LogError("Alignment") << "$SUB=MillePedeAlignmentAlgorithm::referenceTrajectory"
+                               << "Trajectory neither along nor opposite to momentum.";
+  }
+  ReferenceTrajectoryBase::ReferenceTrajectoryPtr refTrajPtr =
+    new ReferenceTrajectory(refTsos, traj->recHits(), backwardHits,
+			    magField, ReferenceTrajectoryBase::combined);//energyLoss);
 
   if (theMonitor) theMonitor->fillRefTrajectory(refTrajPtr);
 
@@ -619,6 +626,6 @@ void MillePedeAlignmentAlgorithm::orderedTsos(const Trajectory *traj,
     }
   } else {
     edm::LogError("Alignment") << "$SUB=MillePedeAlignmentAlgorithm::orderedTsos"
-                               << "Trajectory neither along nor opposite to momentum";
+                               << "Trajectory neither along nor opposite to momentum.";
   }
 }
