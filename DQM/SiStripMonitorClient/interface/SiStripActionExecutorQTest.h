@@ -5,17 +5,17 @@
 #define DQM_SISTRIPMONITORCLIENT_SISTRIPACTIONEXECUTORQTEST_H
 
 #include <string>
+#include <ostream>
+#include <memory>
 
 #include "DQM/SiStripMonitorClient/interface/SiStripActionExecutor.h"
+#include "DQM/SiStripMonitorClient/interface/SiStripXMLTags.h"
 
-namespace edm {
-  class ParameterSet;
-}
 class MonitorUserInterface;
 
 class SiStripActionExecutorQTest: public SiStripActionExecutor {
   public:
-    SiStripActionExecutorQTest( const edm::ParameterSet &roPARAMETER_SET); 
+    SiStripActionExecutorQTest(); 
     virtual ~SiStripActionExecutorQTest() {}
 
     // @arguments
@@ -23,13 +23,26 @@ class SiStripActionExecutorQTest: public SiStripActionExecutor {
     // @return
     //   summary string
     virtual std::string 
-      getQTestSummary( const MonitorUserInterface *poMUI) const;
+      getQTestSummary( const MonitorUserInterface *poMUI);
 
     virtual std::string
-      getQTestSummaryLite( const MonitorUserInterface *poMUI) const;
+      getQTestSummaryLite( const MonitorUserInterface *poMUI);
+
+    virtual std::string
+      getQTestSummaryXML( const MonitorUserInterface *poMUI);
+
+    virtual std::string
+      getQTestSummaryXMLLite( const MonitorUserInterface *poMUI);
 
   private:
-    const std::string oQTEST_CONFIG_FILE_;
+    std::ostream &getQTestSummary_( std::ostream                &roOut,
+                                    const MonitorUserInterface  *poMUI,
+                                    const dqm::XMLTag::TAG_MODE &reMODE);
+    void createQTestSummary_( const MonitorUserInterface *poMUI);
+
+    bool                               bSummaryTagsNotRead_;
+    std::auto_ptr<dqm::XMLTagWarnings> poXMLTagWarnings_;
+    std::auto_ptr<dqm::XMLTagErrors>   poXMLTagErrors_;
 };
 
 #endif // DQM_SISTRIPMONITORCLIENT_SISTRIPACTIONEXECUTORQTEST_H
