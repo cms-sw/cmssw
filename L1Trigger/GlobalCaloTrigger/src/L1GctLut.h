@@ -110,7 +110,7 @@ bool L1GctLut<NAddressBits, NDataBits>::equalityCheck(const L1GctLut<KAddressBit
   if (KAddressBits==NAddressBits && KDataBits==NDataBits) {
     bool match=true;
     for (uint16_t address=0; address<=MAX_ADDRESS_BITMASK; address++) {
-      if (value(address)!=rhsLut.lutValue(address)) { match = false; break; }
+      if (this->lutValue(address)!=rhsLut.lutValue(address)) { match = false; break; }
     }
     return match;
   } else {

@@ -7,7 +7,7 @@ int main(int argc, char **argv)
 {
   char* filename=argv[1];
   if (filename=="") {
-    std::cout << "Please enter a non-blank filename\n";
+    std::cout << "No filename argument supplied - exiting" << std::endl;
     return -1;
   }
 

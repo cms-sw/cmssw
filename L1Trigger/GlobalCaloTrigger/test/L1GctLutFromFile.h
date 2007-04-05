@@ -80,9 +80,8 @@ void L1GctLutFromFile<NAddressBits, NDataBits>::readFromFile(const std::string f
     }
   }
   // All values read
-  assert(inFile.get()=='\n'); inFile.get();
-  assert(inFile.eof());
-  assert(a==m_lutContents.size());
+  if (inFile.get()=='\n') { inFile.get(); }
+  m_setupOk = (inFile.eof() && (m_lutContents.size()==a));
   inFile.close();
 }
 

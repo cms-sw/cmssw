@@ -18,20 +18,18 @@ int main(int argc, char **argv)
     return -1;
   }
 
-//  const int NAdd=L1GctJetEtCalibrationLut::NAddress;
-//  const int NDat=L1GctJetEtCalibrationLut::NData;
-  static const int NAdd=15;
-  static const int NDat=16;
+  static const int NAdd=JET_ET_CAL_LUT_ADD_BITS;
+  static const int NDat=JET_ET_CAL_LUT_DAT_BITS;
 
   std::string fn=filename;
-  L1GctLutFromFile<NAdd,NDat>* lut1=L1GctLutFromFile<NAdd,NDat>::setupLut(fn);
+  L1GctLutFromFile<NAdd,NDat>* lut2=L1GctLutFromFile<NAdd,NDat>::setupLut(fn);
 
   produceTrivialCalibrationLut* lutProducer=new produceTrivialCalibrationLut();
-  L1GctJetEtCalibrationLut* lut2=lutProducer->produce();
+  L1GctJetEtCalibrationLut* lut1=lutProducer->produce();
 
   if (*lut1 == *lut2) { std::cout << "Look-up table match check ok\n"; } else
                       { std::cout << "Look-up table match check failed\n"; }
-  if (*lut1 != *lut2) { std::cout << "Look-up tables are not equal\n"; } else
+  if (*lut2 != *lut1) { std::cout << "Look-up tables are not equal\n"; } else
                       { std::cout << "Look-up tables are equal\n"; }
 
   return 0;
