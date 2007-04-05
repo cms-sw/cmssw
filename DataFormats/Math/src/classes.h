@@ -4,7 +4,7 @@
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/Math/interface/Vector.h"
 #include "DataFormats/Math/interface/Error.h"
-#include "DataFormats/Math/interface/EcalWeight.h"
+#include "DataFormats/Math/interface/Matrix.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefProd.h"
@@ -241,8 +241,8 @@ namespace {
     ROOT::Math::RowOffsets<6> ro6;
 
     //Used by ECAL Weights reconstruction
-    math::EcalWeightMatrix::type mw; 
-    math::EcalChi2WeightMatrix::type mcw; 
+    math::Matrix<3,10>::type mw; 
+    math::Matrix<10,10>::type mcw; 
     ROOT::Math::MatRepStd<double, 3 ,10> smdw;
     ROOT::Math::MatRepStd<double, 10 , 10> smdcw;
    }
