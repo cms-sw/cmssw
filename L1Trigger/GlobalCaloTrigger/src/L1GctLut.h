@@ -73,6 +73,7 @@ protected:
 
 private:
 
+  // For use by the friend function to print the lut contents
   static const int printWidth;
   std::string printHeader() const;
   std::string printLine(const int add) const;
@@ -121,37 +122,35 @@ template <int NAddressBits, int NDataBits>
 std::string L1GctLut<NAddressBits, NDataBits>::printHeader() const
 {
   std::stringstream ss;
-  ss << "      |";
+  ss << std::hex << std::showbase; 
+  ss << std::setw(8) << "|";
   for (int a=0; ((a<printWidth) && (a<=MAX_ADDRESS_BITMASK)); ++a) {
-    ss << std::setw(6) << std::hex << a;
+    ss << std::setw(7) << a;
   }
   ss << std::endl;
-  ss << "------+";
+  ss << std::setfill('-') << std::setw(8) << "+";
   for (int a=0; ((a<printWidth) && (a<=MAX_ADDRESS_BITMASK)); ++a) {
-    ss << "------";
+    ss << std::setw(7) << "-";
   }
   ss << std::endl;
 
-  std::string temp;
-  ss >> temp;
-  return temp;
+  return ss.str();
 }
 
 template <int NAddressBits, int NDataBits>
 std::string L1GctLut<NAddressBits, NDataBits>::printLine(const int add) const
 {
   std::stringstream ss;
+  ss << std::hex << std::showbase; 
   int a=add;
-  ss << std::setw(6) << std::hex << a << "|";
+  ss << std::setw(7) << a << "|";
   for (int c=0; ((c<printWidth) && (a<=MAX_ADDRESS_BITMASK)); ++c) {
     uint16_t address = static_cast<uint16_t>(a++);
-    ss << std::setw(6) << std::hex << lutValue(address);
+    ss << std::setw(7) << lutValue(address);
   }
   ss << std::endl;
 
-  std::string temp;
-  ss >> temp;
-  return temp;
+  return ss.str();
 }
 
 #endif /*L1GCTLUT_H_*/
