@@ -56,8 +56,7 @@ GoodSeedProducer::GoodSeedProducer(const ParameterSet& iConfig):
   fitterName_ = iConfig.getParameter<string>("Fitter");
   smootherName_ = iConfig.getParameter<string>("Smoother");
   
-  etaresmap_=iConfig.getParameter<string>("EtaMap");
-  phiresmap_=iConfig.getParameter<string>("PhiMap");
+
 
   nHitsInSeed_=iConfig.getParameter<int>("NHitsInSeed");
 
@@ -100,7 +99,7 @@ void
 GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 {
  
-  std::vector<reco::PFRecTrack> pftracks;
+  vector<reco::PFRecTrack> pftracks;
   pftracks.clear();
   LogDebug("GoodSeedProducer")<<"START event: "<<iEvent.id().event()
 			      <<" in run "<<iEvent.id().run();
@@ -229,7 +228,6 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
     double ecalphires 
       = resMapPhiECAL_->GetBinContent(resMapPhiECAL_->FindBin(feta,EE)); 
 
-
     float chieta= toteta/ecaletares;
     float chiphi= totphi/ecalphires;
     float chichi= chieta*chieta + chiphi*chiphi;
@@ -303,7 +301,7 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
       int nHitsinSeed= min(nHitsInSeed_,Tj[i].foundHits());
 
       Trajectory seedTraj;
-      edm::OwnVector<TrackingRecHit>  rhits;
+      OwnVector<TrackingRecHit>  rhits;
 
       vector<TrajectoryMeasurement> tm=Tj[i].measurements();
 
@@ -357,7 +355,7 @@ GoodSeedProducer::beginJob(const EventSetup& es)
 {
 
   //Get Magnetic Field
-  edm::ESHandle<MagneticField> magField;
+  ESHandle<MagneticField> magField;
   es.get<IdealMagneticFieldRecord>().get(magField);
   pfTransformer_= new PFTrackTransformer(magField.product());
 
@@ -367,16 +365,14 @@ GoodSeedProducer::beginJob(const EventSetup& es)
   es.get<TrackingComponentsRecord>().get(smootherName_, smoother_);
 
   //Resolution maps
-  resMapEtaECAL_ = new reco::PFResolutionMap("ECAL_eta",etaresmap_.c_str());
-  resMapPhiECAL_ = new reco::PFResolutionMap("ECAL_phi",phiresmap_.c_str());
+  FileInPath ecalEtaMap(conf_.getParameter<string>("EtaMap"));
+  FileInPath ecalPhiMap(conf_.getParameter<string>("PhiMap"));
+  resMapEtaECAL_ = new reco::PFResolutionMap("ECAL_eta",ecalEtaMap.fullPath().c_str());
+  resMapPhiECAL_ = new reco::PFResolutionMap("ECAL_phi",ecalPhiMap.fullPath().c_str());
 
   //read threshold
-  std::string parfile = conf_.getParameter<string>
-    ("ThresholdFile");
-  std::string name = "RecoParticleFlow/PFTracking/data/";
-  name+=parfile;
-  edm::FileInPath parFile(name);
-  std::ifstream ifs(parFile.fullPath().c_str());
+  FileInPath parFile(conf_.getParameter<string>("ThresholdFile"));
+  ifstream ifs(parFile.fullPath().c_str());
   for (int iy=0;iy<150;iy++) ifs >> thr[iy];
 
 }

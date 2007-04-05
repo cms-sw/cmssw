@@ -59,12 +59,6 @@ class GoodSeedProducer : public edm::EDProducer {
       ///Name of the Seed(Gsf) Collection
       std::string preidgsf_;
 
-      ///Location of PfClusters resolution map (eta)
-      std::string etaresmap_;
-
-      ///Location of PfClusters resolution map (phi)
-      std::string phiresmap_;
-
       ///Propagator
       edm::ESHandle<Propagator> propagator_;
 
