@@ -19,6 +19,7 @@
 #include "FastSimulation/Utilities/interface/Histos.h"
 
 #include <algorithm>
+#include <cmath>
 
 EcalHitMaker::EcalHitMaker(CaloGeometryHelper * theCalo,
 			   const HepPoint3D& ecalentrance, 
@@ -121,7 +122,7 @@ bool EcalHitMaker::addHitDepth(double r,double phi,double depth)
   depth+=X0depthoffset_;
   double sp(1.);
   r*=radiusFactor_;
-  Hep2Vector point(r*cos(phi),r*sin(phi));
+  Hep2Vector point(r*std::cos(phi),r*std::sin(phi));
 
   unsigned xtal=fastInsideCell(point,sp);  
   //  if(cellid.isZero()) std::cout << " cell is Zero " << std::endl;
@@ -180,7 +181,7 @@ bool EcalHitMaker::addHit(double r,double phi,unsigned layer)
   double sp(1.);
   //  std::cout << " Trying to add " << r << " " << phi << " " << radiusFactor_ << std::endl; 
   r*=radiusFactor_;
-  Hep2Vector point(r*cos(phi),r*sin(phi));
+  Hep2Vector point(r*std::cos(phi),r*std::sin(phi));
   //  std::cout << "point " << point << std::endl;
   //  CellID cellid=insideCell(point,sp);
   unsigned xtal=fastInsideCell(point,sp);  
@@ -553,10 +554,10 @@ void EcalHitMaker::ecalCellLine(const HepPoint3D& a,const HepPoint3D& b,std::vec
   //  std::cout << " regionOfInterest_ " << truncatedGrid_ << " " << regionOfInterest_.size() << std::endl;
   // try to determine the number of crystals to test
   // First determine the incident angle
-  double angle=acos(normal_.dot(regionOfInterest_[0].getAxis().unit()));
+  double angle=std::acos(normal_.dot(regionOfInterest_[0].getAxis().unit()));
 
   //  std::cout << " Normal " << normal_<< " Axis " << regionOfInterest_[0].getAxis().unit() << std::endl;
-  double backdistance=regionOfInterest_[0].getAxis().mag()*tan(angle);
+  double backdistance=regionOfInterest_[0].getAxis().mag()*std::tan(angle);
   // 1/2.2cm = 0.45
 //   std::cout << " Angle " << angle << std::endl;
 //   std::cout << " Back distance " << backdistance << std::endl;

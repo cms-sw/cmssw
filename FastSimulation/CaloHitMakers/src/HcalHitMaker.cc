@@ -2,6 +2,7 @@
 #include "FastSimulation/CaloGeometryTools/interface/CaloGeometryHelper.h"
 
 #include <algorithm>
+#include <cmath>
 
 HcalHitMaker::HcalHitMaker(EcalHitMaker& grid,unsigned shower)
   :CaloHitMaker(grid.getCalorimeter(),DetId::Hcal,HcalHitMaker::getSubHcalDet(grid.getFSimTrack()),
@@ -25,7 +26,7 @@ bool HcalHitMaker::addHit(double r,double phi,unsigned layer)
     //  std::cout << " FamosHcalHitMaker::addHit - radiusFactor = " << radiusFactor
   //	    << std::endl;
 
-  HepPoint3D point(r*radiusFactor_*cos(phi),r*radiusFactor_*sin(phi),0.);
+  HepPoint3D point(r*radiusFactor_*std::cos(phi),r*radiusFactor_*std::sin(phi),0.);
 
   //  std::cout << " FamosHcalHitMaker::addHit - point before " << point << std::endl;
 

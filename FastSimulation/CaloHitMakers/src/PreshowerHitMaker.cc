@@ -6,6 +6,8 @@
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "Geometry/EcalPreshowerAlgo/interface/EcalPreshowerGeometry.h"
 
+#include <cmath>
+
 // LandauFluctuationGenerator PreshowerHitMaker::theGenerator=LandauFluctuationGenerator();
 
 PreshowerHitMaker::PreshowerHitMaker(
@@ -60,7 +62,7 @@ PreshowerHitMaker::PreshowerHitMaker(
 bool PreshowerHitMaker::addHit(double r,double phi,unsigned layer)
 {
   r*=moliereRadius;
-  HepPoint3D point= (layer==1) ? HepPoint3D(x1+r*invcostheta1x*cos(phi),y1+r*invcostheta1y*sin(phi),z1) : HepPoint3D(x2+r*invcostheta2x*cos(phi),y2+r*invcostheta2y*sin(phi),z2);
+  HepPoint3D point= (layer==1) ? HepPoint3D(x1+r*invcostheta1x*std::cos(phi),y1+r*invcostheta1y*std::sin(phi),z1) : HepPoint3D(x2+r*invcostheta2x*std::cos(phi),y2+r*invcostheta2y*std::sin(phi),z2);
   
   //  std::cout << " Layer " << layer << " " << point << std::endl;
   DetId strip = myCalorimeter->getEcalPreshowerGeometry()->getClosestCellInPlane(GlobalPoint(point.x(),point.y(),point.z()),layer);
