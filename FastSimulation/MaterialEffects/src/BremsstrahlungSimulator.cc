@@ -40,7 +40,7 @@ void BremsstrahlungSimulator::compute(ParticlePropagator &Particle)
   xmin = std::max(photonEnergy/Particle.e(),photonFractE);
   if ( xmin >=1. || xmin <=0. ) return;
 
-  double bremProba = radLengths * ( 4./3. * log(1./xmin)
+  double bremProba = radLengths * ( 4./3. * std::log(1./xmin)
 				  - 4./3. * (1.-xmin)
 				  + 1./2. * (1.-xmin*xmin) );
 
@@ -88,7 +88,7 @@ HepLorentzVector BremsstrahlungSimulator::brem(HepLorentzVector pp) {
   double weight = 0.;
   
   do {
-    xp = xmin * exp ( -log(xmin) * random->flatShoot() );
+    xp = xmin * std::exp ( -std::log(xmin) * random->flatShoot() );
     weight = 1. - xp + 3./4.*xp*xp;
   } while ( weight < random->flatShoot() );
   
@@ -123,7 +123,7 @@ double BremsstrahlungSimulator::gbteth(const double ener,
   
   do {
     double beta = (random->flatShoot()<=w1) ? alfa : 3.0*alfa;
-    u = -log(random->flatShoot()*random->flatShoot())/beta;
+    u = -std::log(random->flatShoot()*random->flatShoot())/beta;
   } while (u>=umax);
 
   return u;

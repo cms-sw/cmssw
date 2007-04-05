@@ -512,7 +512,7 @@ BaseParticlePropagator::helixRadius(double pT) const {
 double 
 BaseParticlePropagator::helixStartPhi() const { 
   // The azimuth of the momentum at the vertex
-  return px() == 0.0 && py() == 0.0 ? 0.0 : atan2(py(),px());
+  return px() == 0.0 && py() == 0.0 ? 0.0 : std::atan2(py(),px());
 }
 
 double 
@@ -560,7 +560,7 @@ BaseParticlePropagator::helixCentrePhi() const {
   // The azimuth if the vector joining the cylinder and the helix axes
   double xC = helixCentreX();
   double yC = helixCentreY();
-  return xC == 0.0 && yC == 0.0 ? 0.0 : atan2(yC,xC);
+  return xC == 0.0 && yC == 0.0 ? 0.0 : std::atan2(yC,xC);
 }
 
 double 
@@ -568,7 +568,7 @@ BaseParticlePropagator::helixCentrePhi(double xC, double yC) const {
   // Faster version of helixCentrePhi() 
   //  double xC = helixCentreX();
   //  double yC = helixCentreY();
-  return xC == 0.0 && yC == 0.0 ? 0.0 : atan2(yC,xC);
+  return xC == 0.0 && yC == 0.0 ? 0.0 : std::atan2(yC,xC);
 }
 
 Hep3Vector

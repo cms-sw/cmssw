@@ -164,7 +164,7 @@ void SiPixelGaussianSmearingRecHitConverterAlgorithm::smearHit(
   float locz = localDir.z();
 
   // alpha: angle with respect to local x axis in local (x,z) plane
-  float alpha = acos(locx/std::sqrt(locx*locx+locz*locz));
+  float alpha = std::acos(locx/std::sqrt(locx*locx+locz*locz));
   if ( isFlipped( detUnit ) ) { // &&& check for FPIX !!!
 #ifdef FAMOS_DEBUG
     std::cout << " isFlipped " << std::endl;
@@ -172,7 +172,7 @@ void SiPixelGaussianSmearingRecHitConverterAlgorithm::smearHit(
     alpha = PI - alpha ;
   }
   // beta: angle with respect to local y axis in local (y,z) plane
-  float beta = acos(locy/std::sqrt(locy*locy+locz*locz));
+  float beta = std::acos(locy/std::sqrt(locy*locy+locz*locz));
   
   // look old FAMOS: FamosGeneric/FamosTracker/src/FamosPixelErrorParametrization
   float alphaToBeUsedForRootFiles = alpha;

@@ -92,14 +92,14 @@ BaseNumericalRandomGenerator::generateExp() const {
   int i=(int)r;
   //  double s=r-(double)i;
   //  cout << " i,r,s = " << i << " " << r << " " << s << endl;
-  double b = -log(f[i+1]/f[i]) / (sampling[i+1]-sampling[i]);
-  double a = f[i] * exp(b*sampling[i]);
+  double b = -std::log(f[i+1]/f[i]) / (sampling[i+1]-sampling[i]);
+  double a = f[i] * std::exp(b*sampling[i]);
 
-  double umin = -a/b*exp(-b*sampling[i]);
-  double umax = -a/b*exp(-b*sampling[i+1]);
+  double umin = -a/b*std::exp(-b*sampling[i]);
+  double umax = -a/b*std::exp(-b*sampling[i+1]);
   double u= (umax-umin) * random->flatShoot() + umin;
 
-  return -log(-b/a*u) / b;
+  return -std::log(-b/a*u) / b;
 
 }
 
@@ -117,7 +117,7 @@ BaseNumericalRandomGenerator::generateLin() const {
   double umax = a*sampling[i+1]*sampling[i+1]/2. + b*sampling[i+1];
   double u= (umax-umin) * random->flatShoot() + umin;
 
-  return (-b+sqrt(b*b+2.*a*u))/a;
+  return (-b+std::sqrt(b*b+2.*a*u))/a;
 
 }
 

@@ -213,7 +213,7 @@ private:
 
 std::ostream& operator <<(std::ostream& o , const RawParticle& p); 
 
-inline HepDouble RawParticle::eta() const { return -log(tan(this->theta()/2.)); }
+inline HepDouble RawParticle::eta() const { return -std::log(std::tan(this->theta()/2.)); }
 inline HepDouble RawParticle::x() const { return myVertex.x(); }
 inline HepDouble RawParticle::y() const { return myVertex.y(); }
 inline HepDouble RawParticle::z() const { return myVertex.z(); }

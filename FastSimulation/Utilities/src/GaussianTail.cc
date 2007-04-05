@@ -1,7 +1,7 @@
 #include "FastSimulation/Utilities/interface/GaussianTail.h"
 #include "FastSimulation/Utilities/interface/RandomEngine.h"
 
-#include "math.h"
+#include <cmath>
 GaussianTail::GaussianTail(const RandomEngine* engine,
 			   double sigma,double threshold) : 
   random(engine),
@@ -38,7 +38,7 @@ double GaussianTail::shoot() const
               v = random->flatShoot();
             }
           while (v == 0.0);
-          x = sqrt (ssquare_ - 2 * log (v));
+          x = std::sqrt (ssquare_ - 2 * std::log (v));
         }
       while (x * u > s_);
       return x * sigma_;

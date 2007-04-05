@@ -39,7 +39,7 @@ class LandauFluctuationGenerator : public BaseNumericalRandomGenerator
 
   /// Ersatzt for Landau Fluctuations (very good approximation)
   double ersatzt(double x) { 
-    return  exp(-0.5 * ( x + exp(-x) )) / sqrt (2. *M_PI); 
+    return  std::exp(-0.5 * ( x + std::exp(-x) )) / std::sqrt (2. *M_PI); 
   }
 };
 #endif
