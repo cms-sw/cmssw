@@ -40,7 +40,8 @@ namespace cms{
     conf_(conf),
     filename_(conf.getParameter<std::string>("fileName")), 
     psfilename_(conf.getParameter<std::string>("psfileName")), 
-    psfiletype_(conf.getParameter<int32_t>("psfiletype")), 
+    psfiletype_(conf.getParameter<int32_t>("psfiletype")),
+    psfilemode_(conf.getUntrackedParameter<int32_t>("psfilemode",1)),
     SiStripNoiseService_(conf),
     SiStripPedestalsService_(conf),
     Filter_src_( conf.getParameter<edm::InputTag>( "Filter_src" ) ),
@@ -289,7 +290,10 @@ namespace cms{
       //       sprintf(name,"Pedestals_%s_%d",_StripGeomDetUnit->type().name().c_str(),detid);
       //       fFile->cd();fFile->cd("Pedestals");
       //       _TH1F_PedestalsProfile_m[detid] = new TH1F(name,name,nstrips,-0.5,nstrips-0.5);
-      
+ 
+      //&&&&&&&&&&&&&&
+      // Retrieve information for the module
+      //&&&&&&&&&&&&&&&&&&     
       char cdetid[128];
       sprintf(cdetid,"%d",detid);
            
@@ -300,9 +304,26 @@ namespace cms{
       sprintf(aname,"%s_%d",_StripGeomDetUnit->type().name().c_str(),detid);
       char SubStr[128];
       //      char * ptr = strchr(aname,":");
-      sprintf(SubStr,"%s",strstr(aname,":"));
+      // sprintf(SubStr,"%s",strstr(aname,":"));
       //TString appString=TString(_StripGeomDetUnit->type().name()).ReplaceAll("FieldParameters:","_")+"_"+cdetid;
       //TString appString=TString(aname);//+"_"+cdetid;
+
+      //dom
+      SiStripDetId a(detid);
+      if ( a.subdetId() == 3 ){
+	TIBDetId b(detid);
+	sprintf(SubStr,"_SingleDet_%d_TIB_%d_%d_%d_%d",detid,b.layer(),b.string()[0],b.string()[1],b.glued());
+      } else if ( a.subdetId() == 4 ) {
+	TIDDetId b(detid);
+	sprintf(SubStr,"_SingleDet_%d_TID_%d_%d_%d_%d",detid,b.wheel(),b.ring(),b.side(),b.glued());
+      } else if ( a.subdetId() == 5 ) {
+	TOBDetId b(detid);
+	sprintf(SubStr,"_SingleDet_%d_TOB_%d_%d_%d_%d",detid,b.layer(),b.rod()[0],b.rod()[1],b.glued());
+      } else if ( a.subdetId() == 6 ) {
+	TECDetId b(detid);
+	sprintf(SubStr,"_SingleDet_%d_TEC_%d_%d_%d_%d_%d",detid,b.wheel(),b.ring(),b.side(),b.glued(),b.stereo());
+      }
+      
       TString appString=TString(SubStr);//+"_"+cdetid;
       
       //Cluster Noise
@@ -408,28 +429,30 @@ namespace cms{
     
     fFile->cd();
     
-    
-    edm::LogInfo("ClusterAnalysis")  << "... And now write on ps file " << psfiletype_ << std::endl;
-    TPostScript ps(psfilename_.c_str(),psfiletype_);
-    TCanvas Canvas("c","c");//("c","c",600,300);
-    for (int ih=0; ih<Hlist->GetEntries();ih++){
-      edm::LogInfo("ClusterAnalysis") << "Histos " << ih << " name " << (*Hlist)[ih]->GetName() << " title " <<  (*Hlist)[ih]->GetTitle() << std::endl;
-      if (dynamic_cast<TH1F*>((*Hlist)[ih]) !=NULL){
-	if (dynamic_cast<TH1F*>((*Hlist)[ih])->GetEntries() != 0)
-	  (*Hlist)[ih]->Draw();
+    if (psfilemode_>0){
+      edm::LogInfo("ClusterAnalysis")  << "... And now write on ps file " << psfiletype_ << std::endl;
+      TPostScript ps(psfilename_.c_str(),psfiletype_);
+      TCanvas Canvas("c","c");//("c","c",600,300);
+      for (int ih=0; ih<Hlist->GetEntries();ih++){
+	if (psfilemode_>1 || strstr((*Hlist)[ih]->GetName(),"SingleDet_")==NULL){
+	  edm::LogInfo("ClusterAnalysis") << "Histos " << ih << " name " << (*Hlist)[ih]->GetName() << " title " <<  (*Hlist)[ih]->GetTitle() << std::endl;
+	  if (dynamic_cast<TH1F*>((*Hlist)[ih]) !=NULL){
+	    if (dynamic_cast<TH1F*>((*Hlist)[ih])->GetEntries() != 0)
+	      (*Hlist)[ih]->Draw();
+	  }
+	  else if (dynamic_cast<TProfile*>((*Hlist)[ih]) !=NULL){
+	    (*Hlist)[ih]->Draw();
+	  }   
+	  else if (dynamic_cast<TH3S*>((*Hlist)[ih]) !=NULL){
+	    (*Hlist)[ih]->Draw();
+	  }
+	  Canvas.Update();
+	  ps.NewPage();
+	}
       }
-      else if (dynamic_cast<TProfile*>((*Hlist)[ih]) !=NULL){
-	(*Hlist)[ih]->Draw();
-      }   
-      else if (dynamic_cast<TH3S*>((*Hlist)[ih]) !=NULL){
-	(*Hlist)[ih]->Draw();
-      }
-      Canvas.Update();
-      ps.NewPage();
+      ps.Close();      
+      fFile->ls();
     }
-    ps.Close();
-
-    fFile->ls();
     fFile->Write();
     fFile->Close();
 
@@ -908,7 +931,7 @@ namespace cms{
       }
       else{
 
-	std::cout << "possible error part" << std::endl;
+	//	std::cout << "possible error part" << std::endl;
 
 	int Nstrip=cluster->stripAmplitudes().size();
 	float pos=cluster->position()-0.5;
@@ -939,8 +962,23 @@ namespace cms{
       //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
       //Detector Detail Plots
       char aname[128];
-      sprintf(aname,"%s_%d",_StripGeomDetUnit->type().name().c_str(),detid);
-      TString appString=TString(strstr(aname,":"));
+      //sprintf(aname,"%s_%d",_StripGeomDetUnit->type().name().c_str(),detid);
+      SiStripDetId a(detid);
+      if ( a.subdetId() == 3 ){
+	TIBDetId b(detid);
+	sprintf(aname,"_SingleDet_%d_TIB_%d_%d_%d_%d",detid,b.layer(),b.string()[0],b.string()[1],b.glued());
+      } else if ( a.subdetId() == 4 ) {
+	TIDDetId b(detid);
+	sprintf(aname,"_SingleDet_%d_TID_%d_%d_%d_%d",detid,b.wheel(),b.ring(),b.side(),b.glued());
+      } else if ( a.subdetId() == 5 ) {
+	TOBDetId b(detid);
+	sprintf(aname,"_SingleDet_%d_TOB_%d_%d_%d_%d",detid,b.layer(),b.rod()[0],b.rod()[1],b.glued());
+      } else if ( a.subdetId() == 6 ) {
+	TECDetId b(detid);
+	sprintf(aname,"_SingleDet_%d_TEC_%d_%d_%d_%d_%d",detid,b.wheel(),b.ring(),b.side(),b.glued(),b.stereo());
+      }        
+      //TString appString=TString(strstr(aname,":"));
+      TString appString=TString(aname);
       //appString=TString(_StripGeomDetUnit->type().name()).ReplaceAll("FieldParameters:","_")+cdetid;
 
       fillTH1(cluster->charge(),"cSignal"+appString,0);
