@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2007/04/05 16:35:47 $
- * $Revision: 1.245 $
+ * $Date: 2007/04/05 19:19:36 $
+ * $Revision: 1.246 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -488,6 +488,9 @@ void EcalBarrelMonitorClient::beginJob(void){
 
   ievt_ = 0;
   jevt_ = 0;
+
+  current_time_ = time(NULL);
+  last_time_ = current_time_;
 
   // start DQM user interface instance
   // will attempt to reconnect upon connection problems (w/ a 5-sec delay)
