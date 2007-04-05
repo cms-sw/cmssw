@@ -205,6 +205,10 @@ module hcaldigi = HcalRawToDigi {
     int32 samplesToAdd = 8
     /// Indicate whether to apply energy-dependent time-slew corrections
     bool correctForTimeslew = true
+    /// Indicate whether to apply corrections for pulse containment in the summing window
+    bool correctForPhaseContainment = true
+    /// Nanosecond phase for pulse containment correction (default of 13 ns appropriate for simulation)
+    double correctionPhaseNS = 13.0
     /// Indicate which subdetector to reconstruct for.
     string Subdetector = 'HBHE'
     /// Give the label associated with the HcalRawToDigi unpacker module.
@@ -220,6 +224,10 @@ module hcaldigi = HcalRawToDigi {
     int32 samplesToAdd = 8
     /// Indicate whether to apply energy-dependent time-slew corrections
     bool correctForTimeslew = false
+    /// Indicate whether to apply corrections for pulse containment in the summing window
+    bool correctForPhaseContainment = true
+    /// Nanosecond phase for pulse containment correction (default of 13 ns appropriate for simulation)
+    double correctionPhaseNS = 13.0
     /// Indicate which subdetector to reconstruct for.
     string Subdetector = 'HO'
     /// Give the label associated with the HcalRawToDigi unpacker module.
@@ -235,6 +243,10 @@ module hcaldigi = HcalRawToDigi {
     int32 samplesToAdd = 4
     /// Indicate whether to apply energy-dependent time-slew corrections
     bool correctForTimeslew = true
+    /// Indicate whether to apply corrections for pulse containment in the summing window (not in HF or ZDC)
+    bool correctForPhaseContainment = false
+    /// Nanosecond phase for pulse containment correction (ignored if correction is not used)
+    double correctionPhaseNS = 0.0
     /// Indicate which subdetector to reconstruct for.
     string Subdetector = 'HF'
     /// Give the label associated with the HcalRawToDigi unpacker module.
@@ -254,6 +266,8 @@ module hcaldigi = HcalRawToDigi {
      {
         double pedGeVlo   = ${PED_E_GEV_LO}
         double pedGeVhi   = ${PED_E_GEV_HI}
+        double pedADClo   = ${PED_E_ADC_LO}
+        double pedADChi   = ${PED_E_ADC_HI}
         double ledGeVlo   = ${LED_E_GEV_LO}
         double ledGeVhi   = ${LED_E_GEV_HI}
         double laserGeVlo = ${LASER_E_GEV_LO}
