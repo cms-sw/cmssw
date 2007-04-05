@@ -174,8 +174,8 @@ EcalObjectAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& context)
 
 
     //typedef std::vector< std::vector<EcalWeight> > EcalWeightMatrix;
-    math::EcalWeightMatrix::type mat1 = wit->second.getWeightsBeforeGainSwitch();
-    math::EcalWeightMatrix::type mat2 = wit->second.getWeightsAfterGainSwitch();
+    EcalWeightSet::EcalWeightMatrix mat1 = wit->second.getWeightsBeforeGainSwitch();
+    EcalWeightSet::EcalWeightMatrix mat2 = wit->second.getWeightsAfterGainSwitch();
 
     //std::cout << "WeightsBeforeGainSwitch.size: " << mat1.size() << ", WeightsAfterGainSwitch.size: " << mat2.size() << std::endl;
   } else {
