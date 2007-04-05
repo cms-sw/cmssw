@@ -1,4 +1,4 @@
-#include "DetectorDescription/Core/interface/PseudoTrap.h"
+#include "DetectorDescription/Core/src/PseudoTrap.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 
 

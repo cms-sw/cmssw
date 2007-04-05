@@ -1,4 +1,4 @@
-#include "DetectorDescription/Core/interface/TruncTubs.h"
+#include "DetectorDescription/Core/src/TruncTubs.h"
 
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "CLHEP/Units/PhysicalConstants.h"

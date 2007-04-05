@@ -2,7 +2,7 @@
 #include "DetectorDescription/Base/interface/DDdebug.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
-#include "DetectorDescription/Core/interface/Material.h"
+#include "DetectorDescription/Core/src/Material.h"
 #include "DetectorDescription/Base/interface/DDException.h"
 
 

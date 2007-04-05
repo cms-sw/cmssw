@@ -1,4 +1,4 @@
-#include "DetectorDescription/Core/interface/Cons.h"
+#include "DetectorDescription/Core/src/Cons.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "CLHEP/Units/PhysicalConstants.h"
 #include <cmath>

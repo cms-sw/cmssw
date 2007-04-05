@@ -1,7 +1,7 @@
 
 #include <algorithm>
 #include <iostream>
-#include "DetectorDescription/Core/interface/LogicalPart.h"
+#include "DetectorDescription/Core/src/LogicalPart.h"
 #include "DetectorDescription/Core/interface/DDPartSelection.h"
 #include "DetectorDescription/Base/interface/DDdebug.h"
 //#include "DetectorDescription/Core/interface/DDSpecifics.h"

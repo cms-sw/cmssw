@@ -1,4 +1,4 @@
-#include "DetectorDescription/Core/interface/Polyhedra.h" 
+#include "DetectorDescription/Core/src/Polyhedra.h" 
 #include <string>
 
 #include "DetectorDescription/Base/interface/DDdebug.h"

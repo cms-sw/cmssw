@@ -1,4 +1,4 @@
-#include "DetectorDescription/Core/interface/Box.h"
+#include "DetectorDescription/Core/src/Box.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 
 

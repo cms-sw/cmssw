@@ -1,4 +1,4 @@
-#include "DetectorDescription/Core/interface/Specific.h"
+#include "DetectorDescription/Core/src/Specific.h"
 #include "DetectorDescription/Base/interface/DDException.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Core/interface/DDExpandedView.h"

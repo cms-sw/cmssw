@@ -1,4 +1,4 @@
-#include "DetectorDescription/Core/interface/Boolean.h"
+#include "DetectorDescription/Core/src/Boolean.h"
 
 DDI::BooleanSolid::BooleanSolid(const DDSolid & A, const DDSolid & B, 
                       const DDTranslation & t,

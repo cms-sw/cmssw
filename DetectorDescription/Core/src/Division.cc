@@ -1,4 +1,4 @@
-#include "DetectorDescription/Core/interface/Division.h"
+#include "DetectorDescription/Core/src/Division.h"
 
 #include "DetectorDescription/Core/interface/DDSolid.h"
 

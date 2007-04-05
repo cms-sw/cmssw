@@ -1,4 +1,4 @@
-#include "DetectorDescription/Core/interface/Trap.h"
+#include "DetectorDescription/Core/src/Trap.h"
 #include "DetectorDescription/Base/interface/DDdebug.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 #include <cmath>

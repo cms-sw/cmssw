@@ -1,6 +1,4 @@
-
-
-#include "DetectorDescription/Core/interface/Reflection.h"
+#include "DetectorDescription/Core/src/Reflection.h"
 
 DDI::Reflection::Reflection(const DDSolid & s)
  : Solid(ddreflected), s_(s)

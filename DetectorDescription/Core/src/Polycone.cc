@@ -1,4 +1,4 @@
-#include "DetectorDescription/Core/interface/Polycone.h" 
+#include "DetectorDescription/Core/src/Polycone.h" 
 
 #include <string>
 #include <assert.h>

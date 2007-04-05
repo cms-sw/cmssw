@@ -2,7 +2,7 @@
 #define DDI_Shapeless_h
 
 #include <iostream>
-#include "DetectorDescription/Core/interface/Solid.h"
+#include "DetectorDescription/Core/src/Solid.h"
 
 namespace DDI {
 
