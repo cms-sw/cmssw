@@ -1,3 +1,5 @@
+#include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "RecoTBCalo/HcalPlotter/src/HcalQLPlotHistoMgr.h"
 #include "TProfile.h"
 
@@ -25,6 +27,7 @@ std::string HcalQLPlotHistoMgr::nameForFlavor(HistType ht) {
   case(ENERGY): return "Energy"; break;
   case(TIME):  return "Time"; break;
   case(PULSE):  return "Pulse"; break;
+  case(ADC):  return "ADC"; break;
   default: return ""; break;
   }
 }
@@ -90,28 +93,53 @@ TH1* HcalQLPlotHistoMgr::GetAHistogram(const HcalDetId& id,
       switch (et) {
       case(PEDESTAL):
 	bins=PED_BINS;
-	lo=histoParams_.getParameter<double>("pedGeVlo");
-	hi=histoParams_.getParameter<double>("pedGeVhi");
+	try {
+	  lo=histoParams_.getParameter<double>("pedGeVlo");
+	  hi=histoParams_.getParameter<double>("pedGeVhi");
+        } catch (std::exception& e) { // can't find it!
+	  edm::LogError("HcalQLPlotHistoMgr::GetAHistogram") << "Parameter(s) pedGeVlo/hi not found.";
+	  throw e;
+	}
 	break;
       case(LED):
 	bins=LED_BINS;
-	lo=histoParams_.getParameter<double>("ledGeVlo");
-	hi=histoParams_.getParameter<double>("ledGeVhi");
+	try {
+	  lo=histoParams_.getParameter<double>("ledGeVlo");
+	  hi=histoParams_.getParameter<double>("ledGeVhi");
+        } catch (std::exception& e) { // can't find it!
+	  edm::LogError("HcalQLPlotHistoMgr::GetAHistogram") << "Parameter(s) ledGeVlo/hi not found.";
+	  throw e;
+	}
 	break;
       case(LASER):
 	bins=LASER_BINS;
-	lo=histoParams_.getParameter<double>("laserGeVlo");
-	hi=histoParams_.getParameter<double>("laserGeVhi");
+	try {
+	  lo=histoParams_.getParameter<double>("laserGeVlo");
+	  hi=histoParams_.getParameter<double>("laserGeVhi");
+        } catch (std::exception& e) { // can't find it!
+	  edm::LogError("HcalQLPlotHistoMgr::GetAHistogram") << "Parameter(s) pedGeVlo/hi not found.";
+	  throw e;
+	}
 	break;
       case(BEAM):
 	bins=BEAM_BINS;
-	lo=histoParams_.getParameter<double>("beamGeVlo");
-	hi=histoParams_.getParameter<double>("beamGeVhi");
+	try {
+	  lo=histoParams_.getParameter<double>("beamGeVlo");
+	  hi=histoParams_.getParameter<double>("beamGeVhi");
+        } catch (std::exception& e) { // can't find it!
+	  edm::LogError("HcalQLPlotHistoMgr::GetAHistogram") << "Parameter(s) beamGeVlo/hi not found.";
+	  throw e;
+	}
 	break;
       case(UNKNOWN):
 	bins=OTHER_BINS;
-	lo=histoParams_.getParameter<double>("otherGeVlo");
-	hi=histoParams_.getParameter<double>("otherGeVhi");
+	try {
+	  lo=histoParams_.getParameter<double>("otherGeVlo");
+	  hi=histoParams_.getParameter<double>("otherGeVhi");
+        } catch (std::exception& e) { // can't find it!
+	  edm::LogError("HcalQLPlotHistoMgr::GetAHistogram") << "Parameter(s) otherGeVlo/hi not found.";
+	  throw e;
+	}
 	break;
       default: break;
       };
@@ -119,13 +147,28 @@ TH1* HcalQLPlotHistoMgr::GetAHistogram(const HcalDetId& id,
       break;
     case(TIME):
       bins=TIME_BINS;
-      lo=histoParams_.getParameter<double>("timeNSlo");
-      hi=histoParams_.getParameter<double>("timeNShi");
+      try {
+	lo=histoParams_.getParameter<double>("timeNSlo");
+	hi=histoParams_.getParameter<double>("timeNShi");
+      } catch (std::exception& e) { // can't find it!
+	edm::LogError("HcalQLPlotHistoMgr::GetAHistogram") << "Parameter(s) timeNSlo/hi not found.";
+	throw e;
+      }
       break;
     case(PULSE):
       bins=PULSE_BINS;
       lo=-0.5;
       hi=PULSE_BINS-0.5;
+      break;
+    case(ADC):
+      bins=PED_BINS;
+      try {
+	lo=histoParams_.getParameter<double>("pedADClo");
+	hi=histoParams_.getParameter<double>("pedADChi");
+      } catch (std::exception& e) { // can't find it!
+	edm::LogError("HcalQLPlotHistoMgr::GetAHistogram") << "Parameter(s) pedADClo/hi not found.";
+	throw e;
+      }
       break;
     }
    
@@ -142,6 +185,10 @@ TH1* HcalQLPlotHistoMgr::GetAHistogram(const HcalDetId& id,
       else if (ht==ENERGY){
         retval=new TH1F(name,name,bins,lo,hi);
         retval->GetXaxis()->SetTitle("Energy(GeV)");
+      }
+      else if (ht==ADC){
+        retval=new TH1F(name,name,bins,lo,hi);
+        retval->GetXaxis()->SetTitle("ADC Counts");
       }
     } 
   }

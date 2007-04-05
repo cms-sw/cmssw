@@ -9,7 +9,7 @@
 
 class HcalQLPlotHistoMgr {
 public:
-  enum HistType { ENERGY=0, TIME=1, PULSE=2 };
+  enum HistType { ENERGY=0, TIME=1, PULSE=2, ADC=3 };
   enum EventType { UNKNOWN=0, PEDESTAL=1, LED=2, LASER=3, BEAM=4 };
   HcalQLPlotHistoMgr(TDirectory* parent, const edm::ParameterSet& histoParams);
 

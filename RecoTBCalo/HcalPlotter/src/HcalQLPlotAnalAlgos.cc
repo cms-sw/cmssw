@@ -13,7 +13,7 @@
 //
 // Original Author:  Phillip R. Dudero
 //         Created:  Tue Jan 16 21:11:37 CST 2007
-// $Id$
+// $Id: HcalQLPlotAnalAlgos.cc,v 1.1 2007/02/12 05:38:42 dudero Exp $
 //
 //
 
@@ -183,6 +183,14 @@ void HcalQLPlotAnalAlgos::processDigi(const HBHEDigiCollection& hbhedigic)
       for (int bin=0; bin<it->size(); bin++)
 	phist->Fill(bin*1.0,(*it)[bin].nominal_fC());
     }
+
+    if (triggerID_ == HcalQLPlotHistoMgr::PEDESTAL) {
+      phist=histos_->GetAHistogram(id,eid,HcalQLPlotHistoMgr::ADC,triggerID_);
+      if (phist){
+	for (int bin=0; bin<it->size(); bin++)
+	  phist->Fill((*it)[bin].adc());
+      }
+    }
   }
 }
 
@@ -201,6 +209,14 @@ void HcalQLPlotAnalAlgos::processDigi(const HODigiCollection& hodigic)
       for (int bin=0; bin<it->size(); bin++)
 	phist->Fill(bin*1.0,(*it)[bin].nominal_fC());
     }
+
+    if (triggerID_ == HcalQLPlotHistoMgr::PEDESTAL) {
+      phist=histos_->GetAHistogram(id,eid,HcalQLPlotHistoMgr::ADC,triggerID_);
+      if (phist){
+	for (int bin=0; bin<it->size(); bin++)
+	  phist->Fill((*it)[bin].adc());
+      }
+    }
   }
 }
 
@@ -218,6 +234,14 @@ void HcalQLPlotAnalAlgos::processDigi(const HFDigiCollection& hfdigic)
     if (phist){
       for (int bin=0; bin<it->size(); bin++)
 	phist->Fill(bin*1.0,(*it)[bin].nominal_fC());
+    }
+
+    if (triggerID_ == HcalQLPlotHistoMgr::PEDESTAL) {
+      phist=histos_->GetAHistogram(id,eid,HcalQLPlotHistoMgr::ADC,triggerID_);
+      if (phist){
+	for (int bin=0; bin<it->size(); bin++)
+	  phist->Fill((*it)[bin].adc());
+      }
     }
   }
 }
