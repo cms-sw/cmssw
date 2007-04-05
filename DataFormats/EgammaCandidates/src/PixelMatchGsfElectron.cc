@@ -15,8 +15,8 @@ PixelMatchGsfElectron::PixelMatchGsfElectron(const SuperClusterRef scl, const Gs
 					     const GlobalPoint vtxPos, const GlobalVector vtxMom, 
 					     const GlobalPoint outPos, const GlobalVector outMom, 
 					     const double HoE) :
-  LeafCandidate(),hadOverEm_(HoE), superCluster_(scl), track_(gsft)   
-{
+  hadOverEm_(HoE), superCluster_(scl), track_(gsft)
+ {
   //
   // electron particle quantities
   //
@@ -30,7 +30,7 @@ PixelMatchGsfElectron::PixelMatchGsfElectron(const SuperClusterRef scl, const Gs
   setCharge(track_->charge());
   setP4(momentum);
   setVertex(Point(track_->vertex()));
-
+  //  setPdgId( -11 * charge() );
   //  math::XYZPoint trackPos= track_->vertex();
   trackPositionAtVtx_=math::XYZVector(vtxPos.x(),vtxPos.y(),vtxPos.z());
   trackPositionAtCalo_=math::XYZVector(tssuperPos.x(),
@@ -105,8 +105,6 @@ PixelMatchGsfElectron::PixelMatchGsfElectron(const SuperClusterRef scl, const Gs
 static const float R_ECAL           = 136.5;
 static const float Z_Endcap         = 328.0;
 static const float etaBarrelEndcap  = 1.479; 
-
-
 
 float PixelMatchGsfElectron::ecalEta(float EtaParticle , float Zvertex, float plane_Radius)
 {
@@ -220,4 +218,17 @@ void PixelMatchGsfElectron::correctElectronFourMomentum(const math::XYZTLorentzV
 void PixelMatchGsfElectron::classifyElectron(const int myclass)
 {
   electronClass_ = myclass;
+}
+
+bool PixelMatchGsfElectron::overlap( const Candidate & c ) const {
+  const RecoCandidate * o = dynamic_cast<const RecoCandidate *>( & c );
+  return ( o != 0 && 
+	   ( checkOverlap( gsfTrack(), o->gsfTrack() ) ||
+	     checkOverlap( superCluster(), o->superCluster() ) ) 
+	   );
+  return false;
+}
+
+PixelMatchGsfElectron * PixelMatchGsfElectron::clone() const { 
+  return new PixelMatchGsfElectron( * this ); 
 }

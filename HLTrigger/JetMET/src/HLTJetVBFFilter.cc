@@ -1,6 +1,6 @@
 /** \class HLTJetVBFFilter
  *
- * $Id: $
+ * $Id: HLTJetVBFFilter.cc,v 1.1 2007/02/22 13:12:35 monicava Exp $
  *
  *  \author Monica Vazquez Acosta (CERN)
  *
@@ -8,7 +8,7 @@
 
 #include "HLTrigger/JetMET/interface/HLTJetVBFFilter.h"
 
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/HLTReco/interface/HLTFilterObject.h"

@@ -14,7 +14,6 @@
 #include "Geometry/Vector/interface/LocalPoint.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "SimMuon/CSCDigitizer/src/CSCCrossGap.h"
-#include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 #include <vector>
 #include <string>
 
@@ -23,8 +22,6 @@ public:
 
    CSCGasCollisions();
    virtual ~CSCGasCollisions();
-
-   void setParticleDataTable(const ParticleDataTable * pdt);
 
    void simulate(const PSimHit&, 
       std::vector<LocalPoint>& clusters, std::vector<int>& electrons );
@@ -63,7 +60,6 @@ private:
    std::vector<float> theCollisionTable;
 
    CSCCrossGap* theCrossGap; // Owned by CSCGasCollisions
-   const ParticleDataTable * theParticleDataTable;
    bool saveGasCollisions; // Simple Configurable to flag saving info w. debugV
 };
 

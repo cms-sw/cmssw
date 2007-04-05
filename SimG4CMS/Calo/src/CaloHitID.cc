@@ -71,7 +71,7 @@ bool CaloHitID::operator>(const CaloHitID& id) const {
   }
 }
 
-std::ostream& operator<<(std::ostream& os, const CaloHitID& id) {
+ostream& operator<<(ostream& os, const CaloHitID& id) {
   os << "UnitID 0x" << std::hex << id.unitID() << std::dec << " Time " 
      << std::setw(6) << id.timeSlice() << " TrackID " << std::setw(8)
      << id.trackID();

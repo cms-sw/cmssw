@@ -204,31 +204,4 @@ namespace edm
       return rootbuf.Length();
     }
   }
-
-  /**
-   * Serializes the specified DQM Event into the specified DQM Event message.
-   */
-  int StreamSerializer::serializeDQMEvent(DQMEvent::TObjectTable& toTable,
-                                          DQMEventMsgBuilder& dqmMsgBuilder)
-  {
-    // loop over each subfolder
-    DQMEvent::TObjectTable::const_iterator sfIter;
-    for (sfIter = toTable.begin(); sfIter != toTable.end(); sfIter++) {
-      std::string folderName = sfIter->first;
-      std::vector<TObject *> toList = sfIter->second;
-
-      // serialize the ME data
-      uint32 meCount = toList.size();
-      TBuffer meDataBuffer(TBuffer::kWrite);
-      for (int idx = 0; idx < (int) meCount; idx++) {
-        TObject *toPtr = toList[idx];
-        meDataBuffer.WriteObject(toPtr);
-      }
-
-      // add the subfolder to the DQM event message
-      dqmMsgBuilder.addMEData(folderName, meCount, meDataBuffer);
-    }
-
-    return dqmMsgBuilder.eventLength();
-  }
 }

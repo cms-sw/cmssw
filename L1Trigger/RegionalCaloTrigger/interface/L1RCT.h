@@ -41,8 +41,8 @@ class L1RCT {
   //so it should be a vector<vector<vector<unsigned short> > >
   //The second is of the HF regions which is just of type
   //vector<vector<unsigned short> >
-  void input(vector<vector<vector<unsigned short> > > barrel,
-	     vector<vector<unsigned short> > hf);
+  void input(std::vector<std::vector<std::vector<unsigned short> > > barrel,
+	     std::vector<std::vector<unsigned short> > hf);
 
   //Should send commands to all crates to send commands to all RCs to
   //process the input data and then send it on to the EICs and then
@@ -53,7 +53,7 @@ class L1RCT {
 
   void digiInput(EcalTrigPrimDigiCollection ecalCollection, HcalTrigPrimDigiCollection hcalCollection);
 
-  void saveRCTInput(vector<vector<vector<unsigned short> > > barrel);
+  void saveRCTInput(std::vector<std::vector<std::vector<unsigned short> > > barrel);
 
   void randomInput();
 
@@ -66,7 +66,7 @@ class L1RCT {
   }
   void printJSC(){
     for(int i=0;i<18;i++){
-      cout << "JSC for Crate " << i << endl;
+      std::cout << "JSC for Crate " << i << std::endl;
       crates.at(i).printJSC();
     }
   }
@@ -84,11 +84,11 @@ class L1RCT {
 
   L1CaloEmCollection getNonisolatedEGObjects(int crate);
 
-  vector<unsigned short> getJetRegions(int crate){
+  std::vector<unsigned short> getJetRegions(int crate){
     return crates.at(crate).getJetRegions();
   }
 
-  vector<L1CaloRegion> getRegions(int crate);
+  std::vector<L1CaloRegion> getRegions(int crate);
 
   // Helper methods to convert from trigger tower (iphi, ieta) to RCT (crate, card, tower)
   // Static methods that are globally accessible for now -- this should be designed better!
@@ -126,7 +126,7 @@ class L1RCT {
   //So 0->8 are eta -5 -> 0
   //While 9-17 are eta 0 -> 5
   //Crate i and crate i+9 are next to each other  
-  vector<L1RCTCrate> crates;
+  std::vector<L1RCTCrate> crates;
 
   // scale for converting electron energy to GCT rank
   const L1CaloEtScale* gctEmScale;

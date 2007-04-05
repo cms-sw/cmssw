@@ -23,7 +23,7 @@ CSCAnodeData::CSCAnodeData(const CSCALCTHeader & header)
     for(int tbin = 0; tbin < nTimeBins_; ++tbin) {
       for(int layer = 1; layer <= 6; ++layer) {
         for(int halfLayer = 0; halfLayer < 2; ++halfLayer) {
-          rawHit(afeb, tbin, layer, halfLayer)
+	  rawHit(afeb, tbin, layer, halfLayer)
             = CSCAnodeDataFrame(afeb, tbin, 0);
         }
       }
@@ -99,7 +99,7 @@ void CSCAnodeData::add(const CSCWireDigi & digi, int layer) {
   // crash if there's a bad strip number, but don't freak out
   // if a time bin is out of range 
   //  assert(alctBoard < nAFEBs_);
-  if(alctBoard > nAFEBs_) {
+  if(alctBoard >= nAFEBs_) {
     edm::LogError("CSCAnodeData") << "Bad Wire Number for this digi.";
     return;
   }

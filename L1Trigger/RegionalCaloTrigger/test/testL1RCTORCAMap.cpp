@@ -1,4 +1,6 @@
 #include "L1Trigger/RegionalCaloTrigger/interface/L1RCTORCAMap.h"
+#include <vector>
+using std::vector;
 #include <iostream>
 using std::cout;
 using std::endl;

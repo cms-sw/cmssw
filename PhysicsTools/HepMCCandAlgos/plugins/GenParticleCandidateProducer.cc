@@ -2,7 +2,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: GenParticleCandidateProducer.cc,v 1.1 2007/02/01 11:55:49 llista Exp $
+ * \version $Id: GenParticleCandidateProducer.cc,v 1.5 2007/03/07 11:29:46 llista Exp $
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -85,7 +85,7 @@ class GenParticleCandidateProducer : public edm::EDProducer {
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -373,12 +373,12 @@ void GenParticleCandidateProducer::fillOutput( const vector<const GenParticle *>
 	HepGeom::Point3D<double> vtx = v->point3d();
 	vertex.SetXYZ( vtx.x() / 10. , vtx.y() / 10. , vtx.z() / 10. );
       }
-      int pdgId = part->pdg_id(), status = part->status();
-      int q = chargeTimesThree( pdgId ) / 3;
-      GenParticleCandidate * c = new GenParticleCandidate( q, momentum, vertex, pdgId, status );
-      cand = c;
+      int pdgId = part->pdg_id();
+      cand = new GenParticleCandidate( chargeTimesThree( pdgId ) / 3, momentum, vertex, 
+				       pdgId, part->status() );
+      auto_ptr<Candidate> ptr( cand );
       index = indices.size();
-      cands.push_back( c );
+      cands.push_back( ptr );
       indices.push_back( i );
     }
     candidates[ i ] = make_pair( cand, index );

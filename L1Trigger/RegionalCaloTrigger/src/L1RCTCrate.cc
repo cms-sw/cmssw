@@ -10,18 +10,18 @@ L1RCTCrate::L1RCTCrate(int crtNo) : jetSummaryCard(crtNo),crtNo(crtNo)
     electronCards.push_back(eic);
   }
 }
-void L1RCTCrate::input(vector<vector<unsigned short> > RCInput,
-		       vector<unsigned short> HFInput,
+void L1RCTCrate::input(std::vector<std::vector<unsigned short> > RCInput,
+		       std::vector<unsigned short> HFInput,
 		       L1RCTLookupTables *lut){
-  //cout << "Crate.input() entered" << endl;
+  //std::cout << "Crate.input() entered" << std::endl;
   for(int i =0; i<7; i++){
-    //cout << "calling RC.fillInput() for RC " << i << endl;
+    //std::cout << "calling RC.fillInput() for RC " << i << std::endl;
     receiverCards.at(i).fillInput(RCInput.at(i), lut);
-    //cout << "RC " << i << " filled" << endl;
+    //std::cout << "RC " << i << " filled" << std::endl;
   }
-  //cout << "calling JSC.fillHFRegionSums()" << endl;
+  //std::cout << "calling JSC.fillHFRegionSums()" << std::endl;
   jetSummaryCard.fillHFRegionSums(HFInput, lut);
-  //cout << "JSC.fillHF called" << endl;
+  //std::cout << "JSC.fillHF called" << std::endl;
 } 
 void L1RCTCrate::processReceiverCards(){
   for(int i=0; i<7;i++){
@@ -42,12 +42,12 @@ void L1RCTCrate::processElectronIsolationCards(){
     electronCards.at(i).fillElectronCandidates();
 }
 void L1RCTCrate::fillJetSummaryCard(){
-  vector<unsigned short> barrelSums(14);
-  vector<unsigned short> isoElectrons(14);
-  vector<unsigned short> nonIsoElectrons(14);
-  vector<unsigned short> mipBits(14);
-  vector<unsigned short> overFlowBits(14);
-  vector<unsigned short> tauBits(14);
+  std::vector<unsigned short> barrelSums(14);
+  std::vector<unsigned short> isoElectrons(14);
+  std::vector<unsigned short> nonIsoElectrons(14);
+  std::vector<unsigned short> mipBits(14);
+  std::vector<unsigned short> overFlowBits(14);
+  std::vector<unsigned short> tauBits(14);
   for(int i = 0; i<7;i++){
     mipBits.at(2*i) = receiverCards.at(i).getMuonBitRegion(0);
     mipBits.at(2*i+1) = receiverCards.at(i).getMuonBitRegion(1);

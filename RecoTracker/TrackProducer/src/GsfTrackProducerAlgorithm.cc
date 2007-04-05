@@ -1,6 +1,6 @@
 #include "RecoTracker/TrackProducer/interface/GsfTrackProducerAlgorithm.h"
 
-#include "FWCore/Framework/interface/OrphanHandle.h"
+#include "DataFormats/Common/interface/OrphanHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "MagneticField/Engine/interface/MagneticField.h"

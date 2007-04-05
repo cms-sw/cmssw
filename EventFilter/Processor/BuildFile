@@ -1,11 +1,7 @@
-<include_path path=/home/daqpro/DAQKit-04-01/TriDAS/RunControl/tools/xdaq2rc/include>
-<lib name=xdaq2rc>
-
 <use name=boost>
 <use name=Foundation/PluginManager>
 <use name=Framework/SealKernel>
 <use name=FWCore/Framework>
-<use name=FWCore/Services>
 <use name=FWCore/MessageService>
 <use name=FWCore/MessageLogger>
 <use name=EventFilter/Utilities>

@@ -13,7 +13,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Tue Aug  1 15:24:02 EDT 2006
-// $Id: SiStripElectronAssociator.cc,v 1.4 2006/12/20 17:19:03 rahatlou Exp $
+// $Id: SiStripElectronAssociator.cc,v 1.5 2007/02/02 14:59:18 duboscq Exp $
 //
 //
 
@@ -31,7 +31,7 @@
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "Geometry/Vector/interface/LocalPoint.h"
+#include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/Math/interface/Point3D.h"

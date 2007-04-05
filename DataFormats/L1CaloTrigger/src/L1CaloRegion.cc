@@ -6,8 +6,6 @@
 
 using std::ostream;
 using std::endl;
-using std::hex;
-using std::dec;
 
 // default constructor
 L1CaloRegion::L1CaloRegion() : m_id(), m_data(0) { }
@@ -76,7 +74,7 @@ void L1CaloRegion::pack(unsigned et, bool overFlow, bool fineGrain, bool mip, bo
 
 // print to stream
 ostream& operator << (ostream& os, const L1CaloRegion& reg) {
-  os << "L1CaloRegion:" << hex;
+  os << "L1CaloRegion:";
   os << " Et=" << reg.et();
   os << " o/f=" << reg.overFlow();
   os << " f/g=" << reg.fineGrain();
@@ -94,7 +92,7 @@ ostream& operator << (ostream& os, const L1CaloRegion& reg) {
   os << "             ";
   os << " GCT card=" << reg.gctCard();
   os << " GCT eta=" << reg.gctEta();
-  os << " GCT phi=" << reg.gctPhi() << dec;
+  os << " GCT phi=" << reg.gctPhi();
   os << endl;
   return os;
 }

@@ -1,8 +1,8 @@
 /*
  * \file L1TGMT.cc
  *
- * $Date: 2007/02/20 21:42:10 $
- * $Revision: 1.2 $
+ * $Date: 2007/02/02 06:01:40 $
+ * $Revision: 1.00 $
  * \author J. Berryhill
  *
  */
@@ -13,8 +13,7 @@ using namespace std;
 using namespace edm;
 
 L1TGMT::L1TGMT(const ParameterSet& ps)
-  : gmtSource_( ps.getParameter< InputTag >("gmtSource") )
- {
+{
 
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
@@ -116,29 +115,38 @@ void L1TGMT::analyze(const Event& e, const EventSetup& c)
 
 
   edm::Handle<L1MuGMTReadoutCollection> pCollection;
-  e.getByLabel(gmtSource_,pCollection);
+  e.getByType(pCollection);
+  const L1MuGMTReadoutCollection* myCollection = pCollection.product();
+  vector<L1MuGMTReadoutRecord> GMTRecordsVector;
+  GMTRecordsVector = myCollection->getRecords();  
+  if (verbose_)
+  {
+   std::cout << "GMT collection size: " << GMTRecordsVector.size()
+   	    << std::endl;
+  }
+
   int ngmttrack = 0;
-  for( vector<L1MuGMTReadoutRecord>::const_iterator 
-       RRItr = pCollection->getRecords().begin() ;
-       RRItr != pCollection->getRecords().end() ;
+  for( vector<L1MuGMTReadoutRecord>::iterator 
+       RRItr = GMTRecordsVector.begin() ;
+       RRItr != GMTRecordsVector.end() ;
        ++RRItr ) 
   {
 
     if (verbose_)
     {
-    cout << "Readout Record " << RRItr->getBxInEvent()
-   	    << endl;
+    std::cout << "Readout Record " << RRItr->getBxInEvent()
+   	    << std::endl;
     }
 
     vector<L1MuGMTExtendedCand> GMTCands = RRItr->getGMTCands();
 
     if (verbose_) 
     {
-     cout << "GMTCands " << GMTCands.size()
-   	    << endl;
+     std::cout << "GMTCands " << GMTCands.size()
+   	    << std::endl;
     }
 
-    for( vector<L1MuGMTExtendedCand>::const_iterator 
+    for( vector<L1MuGMTExtendedCand>::iterator 
          ECItr = GMTCands.begin() ;
          ECItr != GMTCands.end() ;
          ++ECItr ) 
@@ -148,43 +156,43 @@ void L1TGMT::analyze(const Event& e, const EventSetup& c)
 
       if (verbose_)
 	{  
-     cout << "GMTCand name " << ECItr->name()
-   	    << endl;
+     std::cout << "GMTCand name " << ECItr->name()
+   	    << std::endl;
 	}
 
       gmtetavalue->Fill(ECItr->etaValue());
       if (verbose_)
 	{     
-     cout << "\tGMTCand eta value " << ECItr->etaValue()
-   	    << endl;
+     std::cout << "\tGMTCand eta value " << ECItr->etaValue()
+   	    << std::endl;
 	}
 
       gmtphivalue->Fill(ECItr->phiValue());
       if (verbose_)
 	{     
-     cout << "\tGMTCand phi value " << ECItr->phiValue()
-   	    << endl;
+     std::cout << "\tGMTCand phi value " << ECItr->phiValue()
+   	    << std::endl;
 	}
 
       gmtptvalue->Fill(ECItr->ptValue());
       if (verbose_)
 	{     
-     cout << "\tGMTCand pt value " << ECItr->ptValue()
-   	    << endl;
+     std::cout << "\tGMTCand pt value " << ECItr->ptValue()
+   	    << std::endl;
 	}
 
       gmtquality->Fill(ECItr->quality());
       if (verbose_)
 	{     
-     cout << "\tGMTCand quality " << ECItr->quality()
-   	    << endl;
+     std::cout << "\tGMTCand quality " << ECItr->quality()
+   	    << std::endl;
 	}
 
       gmtcharge->Fill(ECItr->charge());
       if (verbose_)
 	{     
-     cout << "\tGMTCand charge " << ECItr->charge()
-   	    << endl;
+     std::cout << "\tGMTCand charge " << ECItr->charge()
+   	    << std::endl;
 	}
 
 
@@ -195,8 +203,8 @@ void L1TGMT::analyze(const Event& e, const EventSetup& c)
       gmtntrack->Fill(ngmttrack);
       if (verbose_)
 	{     
-     cout << "\tGMTCand ntrack " << ngmttrack
-   	    << endl;
+     std::cout << "\tGMTCand ntrack " << ngmttrack
+   	    << std::endl;
 	}
 }
 

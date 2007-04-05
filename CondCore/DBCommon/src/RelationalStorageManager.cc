@@ -2,14 +2,15 @@
 #include "CondCore/DBCommon/interface/Exception.h"
 #include "CondCore/DBCommon/interface/DBSession.h"
 #include "ServiceLoader.h"
+//#include "SealKernel/Context.h"
 #include "SealKernel/ComponentLoader.h"
 #include "SealKernel/Component.h"
+//#include "RelationalAccess/IConnectionService.h"
 #include "RelationalAccess/ISessionProxy.h"
 #include "RelationalAccess/ITransaction.h"
 #include "CoralBase/Exception.h"
 #include <vector>
-cond::RelationalStorageManager::RelationalStorageManager(const std::string& con):m_con(con),m_proxy(0),m_started(false),m_sessionHandle(new cond::DBSession(false)), m_sessionShared(false){
-}
+cond::RelationalStorageManager::RelationalStorageManager(const std::string& con):m_con(con),m_proxy(0),m_started(false),m_sessionHandle(new cond::DBSession(false)),m_sessionShared(false){}
 cond::RelationalStorageManager::RelationalStorageManager(const std::string& con, cond::DBSession* session ):m_con(con),m_proxy(0),m_started(false),m_sessionHandle(session),m_sessionShared(true){}
 cond::RelationalStorageManager::~RelationalStorageManager(){
   if(!m_sessionShared) delete m_sessionHandle;

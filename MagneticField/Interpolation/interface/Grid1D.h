@@ -26,15 +26,12 @@ public:
   Scalar closestNode( Scalar a) const {
     Scalar b = (a-lower())/step();
     Scalar c = floor(b);
-    Scalar tmp = (b-c < 0.5) ? std::max(c,0.) : std::min(c+1.,static_cast<Scalar>(nodes()-1));
+    Scalar tmp = (b-c < 0.5) ? max(c,0.) : min(c+1.,static_cast<Scalar>(nodes()-1));
     return tmp*step()+lower();
   }
 
-  /// returns valid index, or -1 if the value is outside range +/- one cell.
   int index( Scalar a) const {
-    int ind = static_cast<int>((a-lower())/step());
-    if (ind < -1 || ind > cells()) return -1;
-    return std::max(0, std::min( cells()-1, ind));
+    return max(0, min( cells()-1, static_cast<int>((a-lower())/step())));
   }
 
 private:

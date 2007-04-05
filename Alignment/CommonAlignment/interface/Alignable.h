@@ -1,8 +1,12 @@
 #ifndef Alignment_CommonAlignment_Alignable_H
 #define Alignment_CommonAlignment_Alignable_H
 
-#include "DataFormats/TrackingRecHit/interface/AlignmentPositionError.h"
+#include <iostream>
+
 #include "Geometry/Surface/interface/Surface.h"
+#include "DataFormats/Math/interface/Vector3D.h"
+#include "DataFormats/TrackingRecHit/interface/AlignmentPositionError.h"
+#include "DataFormats/DetId/interface/DetId.h"
 #include "Geometry/CommonDetUnit/interface/DetPositioner.h"
 #include "CondFormats/Alignment/interface/Alignments.h"
 #include "CondFormats/Alignment/interface/AlignmentErrors.h"
@@ -21,14 +25,10 @@
  * The class derives from DetPositioner, a friend class of
  * GeomDet, which allows to move the GeomDet. 
  *
- *  $Date: 2007/02/21 04:40:45 $
- *  $Revision: 1.15 $
- *  (last update by $Author: cklae $)
+ *  $Date: 2006/10/19 13:31:17 $
+ *  $Revision: 1.12 $
+ *  (last update by $Author: flucke $)
  */
-
-class AlignmentParameters;
-class DetId;
-class SurveyDet;
 
 class Alignable : public DetPositioner
 {  
@@ -43,31 +43,24 @@ public:
   Alignable();
 
   /// Destructor
-  virtual ~Alignable();
+  virtual ~Alignable() { delete theAlignmentParameters; }
 
   /// Set the AlignmentParameters
   void setAlignmentParameters( AlignmentParameters* dap );
-
   /// Get the AlignmentParameters
   AlignmentParameters* alignmentParameters() const;
 
   /// Return vector of all direct components
   virtual std::vector<Alignable*> components() const = 0;
-
   /// Return number of direct components
   inline const int size() const { return components().size(); }
-
-  /// Get the terminals (lowest daughters that are not composites) of
-  /// Alignable. Add to existing result which is passed by reference.
-  void getTerminals( std::vector<const Alignable*>& terminals ) const;
-
-  /// Provide all components, subcomponents, subsub... etc. of Alignable
-  /// down to AlignableDetUnit, except for 'single childs' like e.g.
-  /// AlignableDetUnits of AlignableDets representing single sided SiStrip
-  /// modules. (for performance reason by adding to argument) 
+  /// Provide all components, subcomponents, subsub... etc.of Alignable down to AlignableDetUnit,
+  /// except of 'single childs' like e.g. AlignableDetUnits of AlignableDets
+  /// representing single sided SiStrip modules.
+  /// (for performance reason by adding to argument) 
   virtual void recursiveComponents(std::vector<Alignable*> &result) const = 0;
 
-  /// Steps down hierarchy until components with AlignmentParameters are found 
+  /// Steps down hierarchy until components with AlignmenParameters are found 
   /// and adds them to argument. True either if no such components are found
   /// or if all branches of components end with such components.
   virtual bool firstParamComponents(std::vector<Alignable*> &daughts) const;
@@ -85,13 +78,13 @@ public:
   virtual void rotateInGlobalFrame( const RotationType& rotation) = 0;
   
   /// Rotation intepreted in the local reference frame
-  virtual void rotateInLocalFrame( const RotationType& rotation) = 0;
+  virtual void rotateInLocalFrame( const RotationType& rotation);
   
   /// Rotation around arbitratry global axis
-  virtual void rotateAroundGlobalAxis( const GlobalVector& axis, const float radians );
+  virtual void rotateAroundGlobalAxis( const GlobalVector axis, const float radians );
 
   /// Rotation around arbitratry local axis
-  virtual void rotateAroundLocalAxis( const LocalVector& axis, const float radians );
+  virtual void rotateAroundLocalAxis( const LocalVector axis, const float radians );
 
   /// Rotation around global x-axis
   virtual void rotateAroundGlobalX( const float radians );
@@ -113,19 +106,19 @@ public:
 
 
   /// Return the global position of the object
-  virtual const GlobalPoint& globalPosition () const = 0;
+  virtual const GlobalPoint globalPosition () const = 0;
 
   /// Return the global orientation of the object
-  virtual const RotationType& globalRotation () const = 0;
+  virtual const RotationType globalRotation () const = 0;
 
   /// Return the Surface (global position and orientation) of the object
   virtual const AlignableSurface& surface () const = 0;
 
   /// Return change of the global position since the creation of the object
-  virtual const GlobalVector& displacement() const { return theDisplacement; }
+  virtual const GlobalVector displacement() const { return theDisplacement; }
 
   /// Return change of orientation since the creation of the object 
-  virtual const RotationType& rotation() const { return theRotation; }
+  virtual const RotationType rotation() const { return theRotation; }
 
   /// Set the alignment position error
   virtual void 
@@ -160,7 +153,7 @@ public:
   virtual int alignableObjectId() const = 0;
 
   /// Return the DetId of the associated GeomDet (0 by default)
-  virtual const DetId& geomDetId() const { return theDetId; }
+  virtual const DetId geomDetId() const { return theDetId; }
 
   /// Recursive printout of alignable information
   virtual void dump() const = 0;
@@ -171,33 +164,28 @@ public:
   /// Return vector of alignment errors
   virtual AlignmentErrors* alignmentErrors() const = 0;
 
-  /// Return survey info
-  const SurveyDet* survey() const { return theSurvey; }
-
-  /// Set survey info
-  void setSurvey( const SurveyDet* survey ) { theSurvey = survey; }
-
 protected:
 
   virtual void addDisplacement( const GlobalVector& displacement );
   virtual void addRotation( const RotationType& rotation );
-  virtual void setDetId( const DetId& detid ) { theDetId = detid; }
+  virtual void setDetId( DetId detid ) { theDetId = detid; }
 
 protected:
   bool theMisalignmentActive;           ///< (de)activation flag
   DetId theDetId;
 
+private:
+
   GlobalVector theDisplacement;
   RotationType theRotation;
-
-private:
 
   AlignmentParameters* theAlignmentParameters;
 
   Alignable* theMother;                ///< Pointer to container
 
-  const SurveyDet* theSurvey; ///< Pointer to survey info
-
 };
+
+
+
 
 #endif

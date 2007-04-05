@@ -18,17 +18,6 @@ function RequestSummaryHistoList() {
   url += queryString; 
   makeRequest(url, FillSummaryHistoList);     
 }
-function RequestModuleTree() {
-  var queryString;
-  var url = getApplicationURL2();
-  url += "/Request?";
-  queryString = "RequestID=ModuleHistoList";
-  var obj = document.getElementById("structure_for_module");
-  var sname =  obj.options[obj.selectedIndex].value;
-  queryString += '&StructureName='+sname;
-  url += queryString; 
-  makeRequest(url, FillModuleTree);     
-}
 function RequestAlarmList() {
   var queryString;
   var url = getApplicationURL2();
@@ -125,23 +114,6 @@ function FillSummaryHistoList() {
       try {
         var text = http_request.responseText;
         var obj = document.getElementById("tree_list");
-        if (obj != null) {
-          obj.innerHTML = text;
-          initTree();
-        }       
-      }
-      catch (err) {
-//        alert ("Error detail: " + err.message); 
-      }
-    }
-  }
-}
-function FillModuleTree() {
-  if (http_request.readyState == 4) {
-    if (http_request.status == 200) {
-      try {
-        var text = http_request.responseText;
-        var obj = document.getElementById("modtree_list");
         if (obj != null) {
           obj.innerHTML = text;
           initTree();

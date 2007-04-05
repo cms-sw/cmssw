@@ -1,5 +1,5 @@
 <use name=Framework/SealKernel>
-<use name=RelationalAccess>
+<use name=CORALRelationalAccess>
 <use name=DataSvc>
 <use name=Collection>
 <use name=ObjectRelationalAccess>

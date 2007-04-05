@@ -40,6 +40,14 @@ L1MuDTTrackContainer::L1MuDTTrackContainer() {}
 //--------------
 L1MuDTTrackContainer::~L1MuDTTrackContainer() {}
 
+//--------------
+// Operations --
+//--------------
+void L1MuDTTrackContainer::setContainer(TrackContainer inputTracks) {
+
+  dtTracks = inputTracks;
+}
+
 L1MuDTTrackContainer::TrackContainer* L1MuDTTrackContainer::getContainer() const {
 
   TrackContainer* rT=0;
@@ -49,10 +57,29 @@ L1MuDTTrackContainer::TrackContainer* L1MuDTTrackContainer::getContainer() const
   return(rT);
 }
 
-//--------------
-// Operations --
-//--------------
-void L1MuDTTrackContainer::setContainer(TrackContainer inputTracks) {
+bool L1MuDTTrackContainer::bxEmpty(int step) const {
 
-  dtTracks = inputTracks;
+  bool empty = true;
+
+  for ( Trackiterator i  = dtTracks.begin();
+                      i != dtTracks.end();
+                      i++ ) {
+    if  (step == i->bx()) empty = false;
+  }
+
+  return(empty);
+}
+
+int L1MuDTTrackContainer::bxSize(int step1, int step2) const {
+
+  int size = 0;
+
+  for ( Trackiterator i  = dtTracks.begin();
+                      i != dtTracks.end();
+                      i++ ) {
+    if  (step1 <= i->bx() && step2 >= i->bx() 
+      && i->quality_packed() != 0) size++;
+  }
+
+  return(size);
 }

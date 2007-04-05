@@ -1,5 +1,5 @@
 /*
- * $Id$
+ * $Id: EcalSimpleSource.h,v 1.1 2007/01/31 10:00:53 pgras Exp $
  */
 
 #ifndef ECALSIMPLESOURCE_H
@@ -123,6 +123,10 @@ private:
    */
   std::auto_ptr<TFormula> tpFormula_;
 
+  /** Formula defining the sim hits
+   */
+  std::auto_ptr<TFormula> simHitFormula_;
+  
   /** Verbosity switch
    */
   bool verbose_;

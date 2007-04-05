@@ -31,7 +31,6 @@ TrackerAlignment::TrackerAlignment(const edm::EventSetup& setup  ) :
 	edm::ESHandle<TrackerGeometry> trackerGeometry;
 	edm::ESHandle<GeometricDet> gD;
 	setup.get<TrackerDigiGeometryRecord>().get( trackerGeometry );
-	setup.get<IdealGeometryRecord>().get( gD );
 	
 	//Retrieve alignable units
 	theAlignableTracker = new AlignableTracker(&(*gD),  &(*trackerGeometry));

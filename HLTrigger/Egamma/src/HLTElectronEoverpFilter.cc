@@ -2,13 +2,13 @@
  *
  *  \author Monica Vazquez Acosta (CERN)
  *
- * $Id: HLTElectronEoverpFilter.cc,v 1.1 2007/01/26 10:37:17 monicava Exp $
+ * $Id: HLTElectronEoverpFilter.cc,v 1.3 2007/03/07 10:44:05 monicava Exp $
  *
  */
 
 #include "HLTrigger/Egamma/interface/HLTElectronEoverpFilter.h"
 
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/HLTReco/interface/HLTFilterObject.h"
@@ -65,13 +65,13 @@ HLTElectronEoverpFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
     if( trackMom.R() != 0) elecEoverp = 
       eleref->superCluster()->energy()/ trackMom.R();
 
-     if( eleref->eta() < 1.5){
+    if( fabs(eleref->eta()) < 1.5 ){
        if ( elecEoverp < eoverpbarrelcut_) {
 	 n++;
 	 filterproduct->putParticle(candref);
        }
      }
-     if( eleref->eta() > 1.5 &&  eleref->eta() < 2.5){
+    if( (fabs(eleref->eta()) > 1.5) &&  (fabs(eleref->eta()) < 2.5) ){
        if ( elecEoverp < eoverpendcapcut_) {
 	 n++;
 	 filterproduct->putParticle(candref);

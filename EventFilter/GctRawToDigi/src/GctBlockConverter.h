@@ -28,16 +28,16 @@ class GctBlockConverter {
   void convertBlock(const unsigned char * d, unsigned id, unsigned nSamples);
 
   // set collection pointers
-  void setRctEmCollection(L1CaloEmCollection* coll) { rctEm_ = coll; }
-  void setIsoEmCollection(L1GctEmCandCollection* coll) { gctIsoEm_ = coll; }
-  void setNonIsoEmCollection(L1GctEmCandCollection* coll) { gctNonIsoEm_ = coll; }
-  void setInternEmCollection(L1GctInternEmCandCollection* coll) { gctInternEm_ = coll; }
+  void setRctEmCollection(L1CaloEmCollection* coll) { rctEm = coll; }
+  void setIsoEmCollection(L1GctEmCandCollection* coll) { gctIsoEm = coll; }
+  void setNonIsoEmCollection(L1GctEmCandCollection* coll) { gctNonIsoEm = coll; }
+  void setInterEmCollection(L1GctEmCandCollection* coll) { gctInterEm = coll; }
 
  private:
 
   // convert functions for each type of block
   void blockToRctEmCand(const unsigned char * d, unsigned id, unsigned nSamples);
-  void blockToGctInternEmCand(const unsigned char * d, unsigned id, unsigned nSamples);
+  void blockToGctInterEmCand(const unsigned char * d, unsigned id, unsigned nSamples);
   void blockToGctEmCand(const unsigned char * d, unsigned id, unsigned nSamples);
 
 
@@ -51,12 +51,12 @@ class GctBlockConverter {
   std::map< unsigned, convFn > convertFn_;
   
   // collections of RCT objects
-  L1CaloEmCollection* rctEm_;
+  L1CaloEmCollection* rctEm;
 
   // collections of output objects
-  L1GctEmCandCollection* gctIsoEm_;
-  L1GctEmCandCollection* gctNonIsoEm_;
-  L1GctInternEmCandCollection* gctInternEm_;  
+  L1GctEmCandCollection* gctIsoEm;
+  L1GctEmCandCollection* gctNonIsoEm;
+  L1GctEmCandCollection* gctInterEm;  
 
 };
 

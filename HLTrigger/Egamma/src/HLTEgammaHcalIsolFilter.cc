@@ -1,6 +1,6 @@
 /** \class HLTEgammaHcalIsolFilter
  *
- * $Id: HLTEgammaHcalIsolFilter.cc,v 1.1 2007/01/26 10:37:17 monicava Exp $
+ * $Id: HLTEgammaHcalIsolFilter.cc,v 1.3 2007/03/07 10:44:05 monicava Exp $
  *
  *  \author Monica Vazquez Acosta (CERN)
  *
@@ -8,7 +8,7 @@
 
 #include "HLTrigger/Egamma/interface/HLTEgammaHcalIsolFilter.h"
 
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 
 #include "DataFormats/Common/interface/RefToBase.h"
@@ -69,13 +69,16 @@ HLTEgammaHcalIsolFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
     
      float vali = mapi->val;
      
-     if(recoecalcands->getParticleRef(i).get()->eta() < 1.5){
+     if(fabs(recoecalcands->getParticleRef(i).get()->eta()) < 1.5){
        if ( vali < hcalisolbarrelcut_) {
 	 n++;
 	 filterproduct->putParticle(candref);
        }
      }
-     if(recoecalcands->getParticleRef(i).get()->eta() > 1.5 && recoecalcands->getParticleRef(i).get()->eta() < 2.5){
+     if(
+	(fabs(recoecalcands->getParticleRef(i).get()->eta()) > 1.5) && 
+	(fabs(recoecalcands->getParticleRef(i).get()->eta()) < 2.5)
+	){
        if ( vali < hcalisolendcapcut_) {
 	 n++;
 	 filterproduct->putParticle(candref);
