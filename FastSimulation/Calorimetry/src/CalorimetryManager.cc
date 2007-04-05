@@ -471,20 +471,18 @@ void CalorimetryManager::reconstructHCAL(const FSimTrack& myTrack)
       e     = myHDResponse_->getHCALEnergyResponse(EGen,hit);
       sigma = myHDResponse_->getHCALEnergyResolution(EGen, hit);
       
-      double emeas = 0.;
       emeas = random->gaussShoot(e,sigma);  
     }
     
 
   if(debug_)
-    LogDebug("FastCalorimetry") << "CalorimetryManager::reconstructHCAL - on-calo " << endl  
-         << "   eta  = " << pathEta << endl
-         << "   phi  = " << pathPhi << endl 
-	 << "  Egen  = " << EGen << endl
-	 << "  Eres  = " << e << endl
-	 << " sigma  = " << sigma << endl
-	 << "  Emeas = " << emeas << endl;
-
+    LogDebug("FastCalorimetry") << "CalorimetryManager::reconstructHCAL - on-calo "   
+				<< "  eta = " << pathEta 
+				<< "  phi = " << pathPhi 
+				<< "  Egen = " << EGen 
+				<< "  Eres = " << e 
+				<< "  sigma = " << sigma 
+				<< "  Emeas = " << emeas << endl;
 
   if(emeas > 0.) {  
     DetId cell = myCalorimeter_->getClosestCell(trackPosition.vect(),false,false);

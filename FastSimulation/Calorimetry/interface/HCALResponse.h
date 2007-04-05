@@ -13,16 +13,15 @@
 
 #include <map>
 
-#define maxHDeB 12
-#define maxHDetF 7
+#define maxHDeB   12
+#define maxHDeF    7
+#define maxEMe     7
 #define maxHDetaB 30
 #define maxHDetaF 20
-#define maxMUet 4
-#define maxMUeta 6   
-#define maxMUbin 40   
-
-#define maxEMe 5
-#define maxEMeta 20
+#define maxEMeta  20
+#define maxMUe     4
+#define maxMUeta   6   
+#define maxMUbin  40   
 
 typedef std::pair<double,double> response;
 enum part{hcbarrel=0, hcendcap=1, hcforward=2};
@@ -75,20 +74,20 @@ private:
   double mean, sigma; 
 
   // Tabulated energy, et/pt and eta points
-  double eGridHDB[maxHDeB], etGridHDF[maxHDetF];    
+  double eGridHDB[maxHDeB], eGridHDF[maxHDeF];    
   double eGridEM[maxEMe];
-  double eGridMU[maxMUet];
+  double eGridMU[maxMUe];
   double etaGridMU[maxMUeta];
 
-  // Tabulated response and mean for hadrons normalized to the et(F) or e(B) 
+  // Tabulated response and mean for hadrons normalized to the energy
   double meanHDB[maxHDeB][maxHDetaB], sigmaHDB[maxHDeB][maxHDetaB];  
-  double meanHDF[maxHDetF][maxHDetaF], sigmaHDF[maxHDetF][maxHDetaF];  
-
-  // muon histos 
-  double responseMU[maxMUet][maxMUeta][maxMUbin]; 
-
+  double meanHDF[maxHDeF][maxHDetaF], sigmaHDF[maxHDeF][maxHDetaF];  
   // Tabulated response and mean for e/gamma in HF specifically (normalized) 
   double meanEM[maxEMe][maxEMeta], sigmaEM[maxEMe][maxEMeta];
+
+  // muon histos 
+  double responseMU[maxMUe][maxMUeta][maxMUbin]; 
+
 
   // Famos random engine
   const RandomEngine* random;
