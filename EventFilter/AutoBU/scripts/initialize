@@ -159,7 +159,13 @@ if ($doSM) { push (@apps,$SMappname);push (@apps,$SMlocalid); }
 my @PBproperties = ("parameterSet","string","file:$pwd/cfg/playback.cfg",
 		    "collReconnSec","integer","-1");
 
-my @RBproperties = ("buClassName","string",$BUappname);
+my @RBproperties = ("buClassName", "string",     $BUappname,
+		    "nbRawCells",  "unsignedInt","16",
+		    "nbRecoCells", "unsignedInt","3",
+		    "nbDqmCells",  "unsignedInt","3",
+		    "rawCellSize", "unsignedInt","0x300000",
+		    "recoCellSize","unsignedInt","0x300000",
+		    "dqmCellSize", "unsignedInt","0x300000");
 if (!$doEP) { push (@RPproperties,"doDropEvents","boolean","true"); }
 
 my @EPproperties = ("parameterSet", "string","file:$pwd/cfg/fu.cfg",
@@ -310,7 +316,7 @@ close (CTL);
 # halt
 open (CTL,">halt") or die ("Can't open file: $!\n");
 print CTL "#!/usr/bin/perl\n\n";
-print CTL makeCtlCommand("Halt",$BUappname,"BU",$hostname,$BUport,0);
+print CTL makeCtlCommand("Halt",$BUappname,"BU",$hostname,$BUport,10);
 print CTL makeCtlCommand("Halt",$RBappname,"RB",$hostname,$BUport,0);
 if ($doPB) {
     print CTL makeCtlCommand("Halt",$EPappname,"PB",$hostname,$PBport,1);
@@ -335,7 +341,6 @@ close (CTL);
 #
 # start processes
 #
-my $cmd;
 
 print "\nstart xdaq.exe on $hostname:$BUport\n";
 `nice -n 15 xdaq.exe -h $hostname -p $BUport -e xml/profile.xml -c xml/evf.xml >& log/$hostname.$BUport.log &`;
@@ -348,7 +353,6 @@ if ($doEP) {
 if ($doSM) {
     print "\nstart xdaq.exe on $hostname:$SMport\n";
     `nice -n 15 xdaq.exe -h $hostname -p $SMport -e xml/profile.xml -c xml/evf.xml >& log/$hostname.$SMport.log &`;
-    
 }
 
 
@@ -816,7 +820,7 @@ sub makeCtlDestroy
     $result = $result . "`$cmd`;\n\n";
     $result = $result . "print \"remove files and dirs ...\n\";\n\n";
     $result = $result . "`rm -rf cfg/ soap/ xml/ log/ /tmp/sm " .
-	"configure enable halt stop gennums.txt summaryCatalog.txt`;\n\n";
+	"configure enable halt stop gennums.txt summaryCatalog.txt test.root`;\n\n";
     $result = $result . "print \"FUShmCleanUp_t ...\\n\";\n\n";
     $result = $result . "`FUShmCleanUp_t`;\n\n";
     $result = $result . "print \"XDAQ session destroyed!\\n\";\n\n";

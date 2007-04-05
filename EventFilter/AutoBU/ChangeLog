@@ -1,3 +1,11 @@
+2007-04-05  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-04-06
+	* wait 10 seconds after halting the BU, to give it time to flush
+	* adjust RB parameters to
+	  nbCells =      32/     3/      3
+	  cellSize=0x30000/0x30000/0x30000
+	
 2007-04-04  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-04-05
