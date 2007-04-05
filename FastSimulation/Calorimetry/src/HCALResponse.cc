@@ -7,9 +7,8 @@
 #include<iostream>
 #include <math.h>
 
-#define debug 1
+#define debug 0
 
-using namespace std;
 using namespace edm;
 
 HCALResponse::HCALResponse(const edm::ParameterSet& pset,
@@ -277,7 +276,7 @@ HCALResponse::HCALResponse(const edm::ParameterSet& pset,
 	if(debug) {
 	  //cout.width(6);
 	  LogDebug("FastCalorimetry") << " responseMU " << i1 << " " << i2 << " " << i3  << " = " 
-	       << responseMU[i1][i2][i3] << endl;
+	       << responseMU[i1][i2][i3] << std::endl;
 	}
 	
       }
@@ -319,7 +318,7 @@ HCALResponse::HCALResponse(const edm::ParameterSet& pset,
 }
 
  
-pair<double,double> 
+std::pair<double,double> 
 HCALResponse::responseHCAL(double energy, double eta, int partype)
 {
 
@@ -419,14 +418,14 @@ HCALResponse::responseHCAL(double energy, double eta, int partype)
   // debugging
   if(debug) {
     //  cout.width(6);
-  LogDebug("FastCalorimetry") << endl
+  LogDebug("FastCalorimetry") << std::endl
        << " HCALResponse::responseHCAL, partype = " <<  partype 
        << " E, eta = " << energy << " " << eta  
-       << "  mean & sigma = " << mean   << " " << sigma << endl;
+       << "  mean & sigma = " << mean   << " " << sigma << std::endl;
 
   }
 
-  return pair<double,double>(mean,sigma);
+  return std::pair<double,double>(mean,sigma);
 
 }
 
@@ -457,10 +456,10 @@ void HCALResponse::interMU(double e, int ie, int ieta)
 
   if(debug) {
     //  cout.width(6);
-  LogDebug("FastCalorimetry") << endl
-       << " HCALResponse::interMU  " << endl
+  LogDebug("FastCalorimetry") << std::endl
+       << " HCALResponse::interMU  " << std::endl
        << " x, x1-x2, y1-y2 = " 
-       << e << ", " << x1 <<"-" << x2 << " " << y1 <<"-" << y2 << endl; 
+       << e << ", " << x1 <<"-" << x2 << " " << y1 <<"-" << y2 << std::endl; 
   
   }
 
@@ -470,10 +469,10 @@ void HCALResponse::interMU(double e, int ie, int ieta)
 
   if(debug) {
     //cout.width(6);
-  LogDebug("FastCalorimetry") << endl
-       << " HCALResponse::interMU " << endl
-       << " e, ie, ieta = " << e << " " << ie << " " << ieta << endl
-       << " response  = " << mean << endl; 
+  LogDebug("FastCalorimetry") << std::endl
+       << " HCALResponse::interMU " << std::endl
+       << " e, ie, ieta = " << e << " " << ie << " " << ieta << std::endl
+       << " response  = " << mean << std::endl; 
   }
 
 }
@@ -487,10 +486,10 @@ void HCALResponse::interHDB(double e, int ie, int ieta)
 
   if(debug) {
     //  cout.width(6);
-  LogDebug("FastCalorimetry") << endl
-       << " HCALResponse::interHDB mean " << endl
+  LogDebug("FastCalorimetry") << std::endl
+       << " HCALResponse::interHDB mean " << std::endl
        << " x, x1-x2, y1-y2 = " 
-       << e << ", " << x1 <<"-" << x2 << " " << y1 <<"-" << y2 << endl; 
+       << e << ", " << x1 <<"-" << x2 << " " << y1 <<"-" << y2 << std::endl; 
   
   }
   
@@ -501,10 +500,10 @@ void HCALResponse::interHDB(double e, int ie, int ieta)
   
   if(debug) {
     //  cout.width(6);
-  LogDebug("FastCalorimetry") << endl
-       << " HCALResponse::interHDB sigma" << endl
+  LogDebug("FastCalorimetry") << std::endl
+       << " HCALResponse::interHDB sigma" << std::endl
        << " x, x1-x2, y1-y2 = " 
-       << e << ", " << x1 <<"-" << x2 << " " << y1 <<"-" << y2 << endl; 
+       << e << ", " << x1 <<"-" << x2 << " " << y1 <<"-" << y2 << std::endl; 
   
   }
  
@@ -513,10 +512,10 @@ void HCALResponse::interHDB(double e, int ie, int ieta)
 
   if(debug) {
     //cout.width(6);
-  LogDebug("FastCalorimetry") << endl
-       << " HCALResponse::interHDB " << endl
-       << " e, ie, ieta = " << e << " " << ie << " " << ieta << endl
-       << " mean, sigma  = " << mean << " " << sigma << endl; 
+  LogDebug("FastCalorimetry") << std::endl
+       << " HCALResponse::interHDB " << std::endl
+       << " e, ie, ieta = " << e << " " << ie << " " << ieta << std::endl
+			      << " mean, sigma  = " << mean << " " << sigma << std::endl ;
   }
 
 }
@@ -531,10 +530,10 @@ void HCALResponse::interHDF(double e, int ie, int ieta)
 
   if(debug) {
     //  cout.width(6);
-  LogDebug("FastCalorimetry") << endl
-       << " HCALResponse::interHDF mean " << endl
+  LogDebug("FastCalorimetry") << std::endl
+       << " HCALResponse::interHDF mean " << std::endl
        << " x, x1-x2, y1-y2 = " 
-       << e << ", " << x1 <<"-" << x2 << " " << y1 <<"-" << y2 << endl; 
+       << e << ", " << x1 <<"-" << x2 << " " << y1 <<"-" << y2 << std::endl;
   
   }
   
@@ -545,10 +544,10 @@ void HCALResponse::interHDF(double e, int ie, int ieta)
   
   if(debug) {
     //  cout.width(6);
-  LogDebug("FastCalorimetry") << endl
-       << " HCALResponse::interHDF sigma" << endl
+  LogDebug("FastCalorimetry") << std::endl
+       << " HCALResponse::interHDF sigma" << std::endl
        << " x, x1-x2, y1-y2 = " 
-       << e << ", " << x1 <<"-" << x2 << " " << y1 <<"-" << y2 << endl; 
+       << e << ", " << x1 <<"-" << x2 << " " << y1 <<"-" << y2 << std::endl; 
   
   }
  
@@ -557,10 +556,10 @@ void HCALResponse::interHDF(double e, int ie, int ieta)
 
   if(debug) {
     //cout.width(6);
-  LogDebug("FastCalorimetry") << endl
-       << " HCALResponse::interHDF " << endl
-       << " et, ie, ieta = " << e << " " << ie << " " << ieta << endl
-       << " mean, sigma  = " << mean << " " << sigma << endl; 
+  LogDebug("FastCalorimetry") << std::endl
+       << " HCALResponse::interHDF " << std::endl
+       << " et, ie, ieta = " << e << " " << ie << " " << ieta << std::endl
+       << " mean, sigma  = " << mean << " " << sigma << std::endl; 
   }
 
 }
@@ -574,10 +573,10 @@ void HCALResponse::interEM(double e, int ie, int ieta)
   
   if(debug) {
     //  cout.width(6);
-  LogDebug("FastCalorimetry") << endl
-       << " HCALResponse::interEM mean " << endl
+  LogDebug("FastCalorimetry") << std::endl
+       << " HCALResponse::interEM mean " << std::endl
        << " x, x1-x2, y1-y2 = " 
-       << e << ", " << x1 <<"-" << x2 << " " << y1 <<"-" << y2 << endl; 
+       << e << ", " << x1 <<"-" << x2 << " " << y1 <<"-" << y2 << std::endl; 
   
   }
 
@@ -588,10 +587,10 @@ void HCALResponse::interEM(double e, int ie, int ieta)
   
   if(debug) {
     //  cout.width(6);
-  LogDebug("FastCalorimetry") << endl
-       << " HCALResponse::interEM sigma" << endl
+  LogDebug("FastCalorimetry") << std::endl
+       << " HCALResponse::interEM sigma" << std::endl
        << " x, x1-x2, y1-y2 = " 
-       << e << ", " << x1 <<"-" << x2 << " " << y1 <<"-" << y2 << endl; 
+       << e << ", " << x1 <<"-" << x2 << " " << y1 <<"-" << y2 << std::endl; 
   
   }
 
