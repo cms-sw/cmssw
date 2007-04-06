@@ -1,6 +1,6 @@
 #include "DetectorDescription/Core/interface/DDSpecifics.h"
 #include "DetectorDescription/Core/interface/DDNodes.h"
-#include "DetectorDescription/Core/interface/Specific.h"
+#include "Specific.h"
 #include "DetectorDescription/Base/interface/DDdebug.h"
 #include "DetectorDescription/Base/interface/DDException.h"
 

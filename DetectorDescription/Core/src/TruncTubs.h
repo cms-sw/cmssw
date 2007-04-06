@@ -2,7 +2,7 @@
 #define DDD_DDI_TRUNCTUBS_H
 
 #include <iostream>
-#include "DetectorDescription/Core/interface/Solid.h"
+#include "Solid.h"
 
 namespace DDI {
 

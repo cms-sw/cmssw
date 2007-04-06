@@ -1,6 +1,6 @@
 #include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
-#include "DetectorDescription/Core/interface/LogicalPart.h"
+#include "LogicalPart.h"
 
 #include "DetectorDescription/Base/interface/DDdebug.h"
 

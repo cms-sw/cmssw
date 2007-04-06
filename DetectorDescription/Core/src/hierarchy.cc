@@ -35,7 +35,7 @@
 //#include "DetectorDescription/Core/interface/DDNumberingScheme.h"
 
 //#include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
-//#include "DetectorDescription/Core/interface/Solid.h"
+//#include "Solid.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 
 //#include <typeinfo>

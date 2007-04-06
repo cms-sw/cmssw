@@ -2,7 +2,7 @@
 #define DDI_Tubs_h
 
 #include <iostream>
-#include "DetectorDescription/Core/interface/Solid.h"
+#include "Solid.h"
 
 namespace DDI {
 

@@ -2,7 +2,7 @@
 #define DDI_Reflection_h
 
 #include <iostream>
-#include "DetectorDescription/Core/interface/Solid.h"
+#include "Solid.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 
 namespace DDI {

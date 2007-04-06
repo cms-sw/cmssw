@@ -1,4 +1,4 @@
-#include "DetectorDescription/Core/src/DDCompactViewImpl.h"
+#include "DetectorDescription/Core/interface/DDCompactViewImpl.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDPosPart.h"

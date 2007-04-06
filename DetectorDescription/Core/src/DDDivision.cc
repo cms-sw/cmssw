@@ -2,7 +2,7 @@
 #include "DetectorDescription/Core/interface/DDAxes.h"
 #include "DetectorDescription/Core/interface/DDDivision.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
-#include "DetectorDescription/Core/interface/Division.h"
+#include "Division.h"
 
 #include "DetectorDescription/Base/interface/DDdebug.h"
 

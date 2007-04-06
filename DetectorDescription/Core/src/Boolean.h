@@ -1,7 +1,7 @@
 #ifndef DDI_Boolean_h
 #define DDI_Boolean_h
 
-#include "DetectorDescription/Core/interface/Solid.h"
+#include "Solid.h"
 
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDTransform.h"

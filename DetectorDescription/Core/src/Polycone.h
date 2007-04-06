@@ -1,7 +1,7 @@
 #ifndef DDI_Polycone_h
 #define DDI_Polycone_h
 
-#include "DetectorDescription/Core/interface/Solid.h"
+#include "Solid.h"
 
 namespace DDI {
  

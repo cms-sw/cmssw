@@ -2,7 +2,7 @@
 #define DDI_Cons_h
 
 #include <iosfwd>
-#include "DetectorDescription/Core/interface/Solid.h"
+#include "Solid.h"
 
 namespace DDI {
  
