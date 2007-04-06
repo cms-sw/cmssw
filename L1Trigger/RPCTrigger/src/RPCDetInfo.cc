@@ -1,14 +1,14 @@
 /** \file RPCDetInfo.cc
  *
- *  $Date: 2006/12/31 13:03:17 $
- *  $Revision: 1.12 $
+ *  $Date: 2007/01/30 08:12:53 $
+ *  $Revision: 1.13 $
  *  \author Tomasz Fruboes
  */
 
 #include <cmath>
 #include <algorithm>
 #include "L1Trigger/RPCTrigger/interface/RPCDetInfo.h"
-
+#include "Geometry/RPCGeometry/interface/RPCGeomServ.h"
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -124,6 +124,11 @@ int RPCDetInfo::getRingFromRollsId(){
  */
 //#############################################################################
 int RPCDetInfo::getGlobRollNo(){
+
+   RPCDetId dtId(rawId());
+   RPCGeomServ grs(&dtId);
+   return grs.eta_partition();
+/*
   int globRoll=20;
     
   if (m_region==0){ //barell
@@ -184,7 +189,8 @@ int RPCDetInfo::getGlobRollNo(){
   if ( (globRoll==20) || (globRoll==-20))
     edm::LogError("RPCTrigger") << "Problem with RPCDetInfo::getGlobRollNo function. GlobRoll=" << globRoll;
     
-  return globRoll;
+  return globRoll;*/
+
 }
 ///////////////////////////////////////////////////////////////////////////////
 /**
