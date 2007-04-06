@@ -1,8 +1,8 @@
 /*
  * \file EEClusterClient.cc
  *
- * $Date: 2007/04/02 16:15:36 $
- * $Revision: 1.1 $
+ * $Date: 2007/04/06 15:28:11 $
+ * $Revision: 1.2 $
  * \author G. Della Ricca
  * \author F. Cossutti
  * \author E. Di Marco
@@ -691,7 +691,7 @@ void EEClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
   labelGrid.SetMarkerSize(2);
   labelGrid.SetMinimum(0.1);
 
-  TGaxis axis(-M_PI, -1.479, M_PI, -1.479, -M_PI, M_PI, 40118, "N");
+  TGaxis axis(-M_PI, -1.479, M_PI, -1.479, -M_PI, M_PI, 80109, "N");
 
   string imgNameB[3], imgNameBMap[4], imgNameS[3], imgNameSMap[4];
   string imgNameBXproj[4], imgNameBYproj[4], imgNameSXproj[4], imgNameSYproj[4];
