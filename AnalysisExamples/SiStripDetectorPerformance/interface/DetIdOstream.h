@@ -14,6 +14,13 @@
 
 class DetId;
 
-std::ostream &operator<< ( std::ostream &roOut, const DetId &roDETID);
+struct DetIdOstream {
+  explicit DetIdOstream( const DetId &roDET_ID_NEW):
+    roDET_ID( roDET_ID_NEW) {}
+
+  const DetId &roDET_ID;
+};
+
+std::ostream &operator<< ( std::ostream &roOut, const DetIdOstream &roDO);
 
 #endif // TRACKER_DETID_OSTREAM_H
