@@ -6,9 +6,9 @@
 // Implementation:
 //     Cache and make prescale factors available online.
 //
-// Current revision: $Revision: 1.3 $
-// On branch: $Name:  $
-// Latest change by $Author: wmtan $ at $Date: 2007/03/04 05:55:26 $
+// Current revision: $Revision: 1.1 $
+// On branch: $Name: CMSSW_1_4_0_pre2 $
+// Latest change by $Author: wmtan $ at $Date: 2007/03/05 19:36:33 $
 //
 
 
@@ -24,8 +24,6 @@
 
 #include "boost/thread/mutex.hpp"
 
-using namespace std;
-
 #include <vector>
 #include <iostream>
 
@@ -35,8 +33,8 @@ namespace edm {
 
     // cache structure used to store prescalers
     struct element {
-      string path;
-      string module;
+      std::string path;
+      std::string module;
       unsigned int value;
     };
     typedef element element;
@@ -44,14 +42,14 @@ namespace edm {
     struct cache {
       unsigned int ls;
       unsigned int touch;
-      vector<element> modules;
+      std::vector<element> modules;
     };
     typedef cache cache;
 
     // cache class
     class Cache {
       boost::mutex mutex;
-      vector<cache> members;
+      std::vector<cache> members;
       unsigned int updcnt;
       unsigned int badcnt;
       unsigned int baddec;
@@ -70,15 +68,15 @@ namespace edm {
       }
 
       // add complete member to cache
-      // input string format = "LS# path module prescaler ... path module prescaler" 
-      void add(const string s) {
-        vector<string> tokens;
-        string delims = " ";
+      // input std::string format = "LS# path module prescaler ... path module prescaler" 
+      void add(const std::string s) {
+        std::vector<std::string> tokens;
+        std::string delims = " ";
 
         // tokenize everything
-	string::size_type last = s.find_first_not_of(delims, 0);
-	string::size_type posn = s.find_first_of(delims, last);
-        while (string::npos != posn || string::npos != last) {
+	std::string::size_type last = s.find_first_not_of(delims, 0);
+	std::string::size_type posn = s.find_first_of(delims, last);
+        while (std::string::npos != posn || std::string::npos != last) {
 	  tokens.push_back(s.substr(last, posn - last));
 	  last = s.find_first_not_of(delims, posn);
 	  posn = s.find_first_of(delims, last);
@@ -107,8 +105,8 @@ namespace edm {
       }
 
       // add single element to cache member - should not lock the mutex
-      void add(unsigned int ls, string path, string module, unsigned int value) {
-	vector<cache>::iterator p;
+      void add(unsigned int ls, std::string path, std::string module, unsigned int value) {
+	std::vector<cache>::iterator p;
 	for(p=members.begin(); p != members.end(); p++) {
 	  if (p->ls == ls) {
 	    element e;
@@ -140,13 +138,13 @@ namespace edm {
       }
 
       // get the prescale value associated with LS# and module name
-      int get(unsigned int ls, string module) {
+      int get(unsigned int ls, std::string module) {
 	boost::mutex::scoped_lock scoped_lock(mutex);
 
-	vector<cache>::iterator p;
+	std::vector<cache>::iterator p;
 	for(p=members.begin(); p != members.end(); p++) {
 	  if (ls == p->ls) {
-	    vector<element>::iterator q;
+	    std::vector<element>::iterator q;
 	    for(q=p->modules.begin(); q != p->modules.end(); q++) {
 	      if (module == q->module) return q->value;
 	    }
@@ -160,14 +158,14 @@ namespace edm {
       void show() {
 	boost::mutex::scoped_lock scoped_lock(mutex);
 
-	vector<cache>::iterator p;
+	std::vector<cache>::iterator p;
 	for(p=members.begin(); p != members.end(); p++) {
-	  cout << " member " << p->ls;
-	  vector<element>::iterator q;
+	  std::cout << " member " << p->ls;
+	  std::vector<element>::iterator q;
 	  for(q=p->modules.begin(); q != p->modules.end(); q++) {
-	    cout << " p " << q->path << " m " << q->module << " v " << q->value;
+	    std::cout << " p " << q->path << " m " << q->module << " v " << q->value;
 	  }
-	  cout << endl;
+	  std::cout << std::endl;
 	}
       }
 
@@ -185,7 +183,7 @@ namespace edm {
       Cache store;
       edm::EventProcessor *fu_;
       edm::TriggerReport tr_;
-      string trs_;
+      std::string trs_;
       int lsnr_;
 
     public:
@@ -201,11 +199,11 @@ namespace edm {
       void preModule(const ModuleDescription&);
       void postModule(const ModuleDescription&);
 
-      unsigned int getPrescale(unsigned int ls, string module);
-      int putPrescale(string s);
+      unsigned int getPrescale(unsigned int ls, std::string module);
+      int putPrescale(std::string s);
       int sizePrescale();
       void putHandle(edm::EventProcessor *proc_);
-      string getTriggerCounters();
+      std::string getTriggerCounters();
 	
     };
   }
