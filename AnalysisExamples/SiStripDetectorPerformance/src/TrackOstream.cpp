@@ -27,9 +27,9 @@ std::ostream &operator<<( std::ostream &roOut,
         << roTO.roTRACK.outerMomentum().Y() << ", "
         << roTO.roTRACK.outerMomentum().Z() << ")"
         << std::endl;
-  roOut << "\t* innerDetId: "  << DetId( roTO.roTRACK.innerDetId()) 
+  roOut << "\t* innerDetId: "  << DetIdOstream( DetId( roTO.roTRACK.innerDetId()))
         << std::endl;
-  roOut << "\t* outterDetId: " << DetId( roTO.roTRACK.outerDetId()) 
+  roOut << "\t* outterDetId: " << DetIdOstream( DetId( roTO.roTRACK.outerDetId())) 
         << std::endl;
   roOut << std::endl
         << "\t* Hits [" << roTO.roTRACK.recHitsSize() << " total]:"
@@ -42,10 +42,12 @@ std::ostream &operator<<( std::ostream &roOut,
        ++oHitIter, ++nHit) {
 
       roOut << "\t\t" << nHit << "  " 
-            << DetId( ( *oHitIter)->geographicalId())
+            << DetIdOstream( DetId( ( *oHitIter)->geographicalId()))
             << std::endl;
   } // End loop over Tracks hits
 
   roOut << "----------------------------------------------------------"
         << std::endl;
+
+  return roOut;
 }
