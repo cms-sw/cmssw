@@ -8,8 +8,8 @@
  *
  * 
  *
- *  $Date: 2006/03/30 15:13:58 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/05/03 16:23:25 $
+ *  $Revision: 1.2 $
  * \author Ilaria Segoni - CERN
  */
 
@@ -36,6 +36,7 @@ public:
 
   /// data access methods
   std::vector<int> bitsOn() const;
+  int lbData() const;
   int halfP() const;
   int eod() const;
   int partitionNumber() const;
