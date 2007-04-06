@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2007/04/02 16:15:36 $
- * $Revision: 1.1 $
+ * $Date: 2007/04/06 14:23:21 $
+ * $Revision: 1.2 $
  * \author G. Della Ricca
  *
 */
@@ -331,7 +331,7 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
   TH2C labelGrid("labelGrid","label grid for SM", 18, 0., 360., 2, -85., 85.);
   for ( short sm=0; sm<36; sm++ ) {
     int x = 1 + sm%18;
-    int y = 1 + sm/18;
+    int y = 2 + sm/18;
     labelGrid.SetBinContent(x, y, sm+1);
   }
   labelGrid.SetMarkerSize(2);
@@ -475,7 +475,7 @@ void EESummaryClient::writeMap( std::ofstream& hf, std::string mapname ) {
   int x1 = A0 + (A1-A0)*(j+1)/18;
   int y0 = B0 + (B1-B0)*i/2;
   int y1 = B0 + (B1-B0)*(i+1)/2;
-  hf << "<area shape=\"rect\" href=\"" << refhtml[mapname] << "#" << (j+1)+18*(1-i) << "\" coords=\"";
+  hf << "<area shape=\"rect\" href=\"" << refhtml[mapname] << "#" << (j+1)+18*(i) << "\" coords=\"";
   hf << x0+1 << ", " << y0+1 << ", " << x1 << ", " << y1 << "\">" << std::endl;
  }
  hf << "</map>" << std::endl;
