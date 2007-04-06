@@ -9,7 +9,7 @@ namespace reco {
     template<typename T1, typename T2>
     struct ParameterAdapter<MasslessInvariantMass<T1, T2> > {
       static MasslessInvariantMass<T1, T2> make( const edm::ParameterSet & cfg ) {
-	return MasslessInvariantMass<T, T2>();
+	return MasslessInvariantMass<T1, T2>();
       }
     };
     
