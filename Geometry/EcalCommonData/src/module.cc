@@ -4,7 +4,7 @@
 #include "Geometry/EcalCommonData/interface/DDEcalBarrelAlgo.h"
 #include "Geometry/EcalCommonData/interface/DDEcalPreshowerAlgo.h"
 #include "DetectorDescription/Algorithm/interface/DDAlgorithmFactory.h"
-#include "PluginManager/ModuleDef.h"
+#include "FWCore/PluginManager/interface/ModuleDef.h"
 
 DEFINE_SEAL_MODULE ();
 //DEFINE_SEAL_PLUGIN (DDAlgorithmFactory, DDTestAlgorithm, "DDTestAlgorithm");
