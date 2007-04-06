@@ -9,7 +9,7 @@
  * 27-Dec-2006 - KAB  - Initial Implementation
  * 31-Mar-2007 - HWKC - modification for shared memory usage
  *
- * $Id$
+ * $Id: FUShmDQMOutputService.h,v 1.1 2007/04/01 05:17:34 hcheung Exp $
  */
 
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
@@ -62,6 +62,7 @@ class FUShmDQMOutputService
   //edm::LuminosityBlockID firstLumiSectionSeen_;
   unsigned int lumiSectionOfPreviousUpdate_;
   unsigned int firstLumiSectionSeen_;
+  double timeInSecSinceUTC_;
   bool initializationIsNeeded_;
   bool useCompression_;
   int compressionLevel_;
