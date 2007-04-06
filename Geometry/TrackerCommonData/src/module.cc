@@ -22,7 +22,7 @@
 #include "Geometry/TrackerCommonData/interface/DDTrackerPhiAlgo.h"
 #include "Geometry/TrackerCommonData/interface/DDTrackerZPosAlgo.h"
 #include "DetectorDescription/Algorithm/interface/DDAlgorithmFactory.h"
-#include "PluginManager/ModuleDef.h"
+#include "FWCore/PluginManager/interface/ModuleDef.h"
 
 DEFINE_SEAL_MODULE ();
 DEFINE_SEAL_PLUGIN (DDAlgorithmFactory, DDPixBarLayerAlgo,   "track:DDPixBarLayerAlgo");
