@@ -48,6 +48,91 @@ DoPlot(char* inputFile,string outputFile){
 
   //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 
+
+  //Nb:Tn (Tc && Ts)
+  DrawTree A(tree);
+  A.setLegend(.7,.2,.1,.7);
+  A.setXmax(5);
+  int val=19;
+  for (size_t i=0;i<Tc.size() ;i++){
+    A.setMarkerColor(1);
+    val++;
+    for (size_t j=0;j<Ts.size() && Ts[j]<Tc[i];j++){    
+      A.setMarkerStyle(val);
+      sprintf(selection,"Tc==%2.1f && Ts==%2.1f",Tc[i],Ts[j]);
+      //cout << selection << endl;
+      A.add("Nb:Tn",selection,"*",selection);
+    }
+  }
+  A.setTitle("Tn","Nb");
+  A.Draw();
+  C.Print(outputFile.c_str());
+
+
+  //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+
+  //MeanWs:Tn (Tc && Ts)
+  DrawTree A(tree);
+  A.setLegend(.7,.2,.1,.7);
+  A.setXmax(5);
+  int val=19;
+  for (size_t i=0;i<Tc.size() ;i++){
+    A.setMarkerColor(1);
+    val++;
+    for (size_t j=0;j<Ts.size() && Ts[j]<Tc[i];j++){    
+      A.setMarkerStyle(val);
+      sprintf(selection,"Tc==%2.1f && Ts==%2.1f",Tc[i],Ts[j]);
+      //cout << selection << endl;
+      A.add("MeanWs:Tn",selection,"*",selection);
+    }
+  }
+  A.setTitle("Tn","MeanWs");
+  A.Draw();
+  C.Print(outputFile.c_str());
+
+  //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+
+  //MeanWb:Tn (Tc && Ts)
+  DrawTree A(tree);
+  A.setLegend(.7,.2,.1,.7);
+  A.setXmax(5);
+  int val=19;
+  for (size_t i=0;i<Tc.size() ;i++){
+    A.setMarkerColor(1);
+    val++;
+    for (size_t j=0;j<Ts.size() && Ts[j]<Tc[i];j++){    
+      A.setMarkerStyle(val);
+      sprintf(selection,"Tc==%2.1f && Ts==%2.1f",Tc[i],Ts[j]);
+      //cout << selection << endl;
+      A.add("MeanWb:Tn",selection,"*",selection);
+    }
+  }
+  A.setTitle("Tn","MeanWb");
+  A.Draw();
+  C.Print(outputFile.c_str());
+
+  //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+
+  //Nb/Ns:Tn (Tc && Ts)
+  DrawTree A(tree);
+  A.setLegend(.7,.2,.1,.7);
+  A.setXmax(5);
+  int val=19;
+  for (size_t i=0;i<Tc.size() ;i++){
+    A.setMarkerColor(1);
+    val++;
+    for (size_t j=0;j<Ts.size() && Ts[j]<Tc[i];j++){    
+      A.setMarkerStyle(val);
+      sprintf(selection,"Tc==%2.1f && Ts==%2.1f",Tc[i],Ts[j]);
+      //cout << selection << endl;
+      A.add("Nb/Ns:Tn",selection,"*",selection);
+    }
+  }
+  A.setTitle("Tn","Nb/Ns");
+  A.Draw();
+  C.Print(outputFile.c_str());
+
+  //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
   //Ns:Tn 
   DrawTree A(tree);
   A.setLegend(.75,.5,.1,.5);
