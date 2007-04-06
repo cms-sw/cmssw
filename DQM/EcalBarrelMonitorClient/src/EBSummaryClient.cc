@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2007/03/13 10:14:26 $
- * $Revision: 1.10 $
+ * $Date: 2007/03/26 17:35:05 $
+ * $Revision: 1.11 $
  * \author G. Della Ricca
  *
 */
@@ -327,9 +327,19 @@ void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   int pCol3[6] = { 301, 302, 303, 304, 305, 306 };
 
+  // dummy histogram labelling the SM's
+  TH2C labelGrid("labelGrid","label grid for SM", 18, 0., 360., 2, -85., 85.);
+  for ( short sm=0; sm<36; sm++ ) {
+    int x = 1 + sm%18;
+    int y = 1 + sm/18;
+    labelGrid.SetBinContent(x, y, sm+1);
+  }
+  labelGrid.SetMarkerSize(2);
+  labelGrid.SetMinimum(0.1);
+
   string imgNameMapI, imgNameMapPO, imgName, meName;
 
-  TCanvas* cMap = new TCanvas("cMap", "Temp", 2*csize, csize);
+  TCanvas* cMap = new TCanvas("cMap", "Temp", int(360./170.*csize), csize);
 
   float saveHeigth = gStyle->GetTitleH();
   gStyle->SetTitleH(0.07);
@@ -366,6 +376,7 @@ void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
     obj2f->SetMaximum(6.0);
     obj2f->SetTitleSize(0.5);
     obj2f->Draw("col");
+    labelGrid.Draw("text,same");
     cMap->Update();
     cMap->SaveAs(imgName.c_str());
 
@@ -398,6 +409,7 @@ void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
     obj2f->SetMinimum(-0.00000001);
     obj2f->SetMaximum(6.0);
     obj2f->Draw("col");
+    labelGrid.Draw("text,same");
     cMap->Update();
     cMap->SaveAs(imgName.c_str());
 
@@ -450,20 +462,20 @@ void EBSummaryClient::writeMap( std::ofstream& hf, std::string mapname ) {
  refhtml["Int"] = "EBIntegrityClient.html";
  refhtml["PeOnl"] = "EBPedestalOnlineClient.html";
 
- const int A0 =  78;
- const int A1 = 716;
+ const int A0 =  85;
+ const int A1 = 759;
  const int B0 =  35;
  const int B1 = 334;
 
  hf << "<map name=\"" << mapname << "\">" << std::endl;
- for( unsigned int sm=0; sm<superModules_.size(); sm ++ ) {
+ for( unsigned int sm=0; sm<superModules_.size(); sm++ ) {
   int i=(superModules_[sm]-1)/18;
   int j=(superModules_[sm]-1)%18;
   int x0 = A0 + (A1-A0)*j/18;
   int x1 = A0 + (A1-A0)*(j+1)/18;
   int y0 = B0 + (B1-B0)*i/2;
   int y1 = B0 + (B1-B0)*(i+1)/2;
-  hf << "<area shape=\"rect\" href=\"" << refhtml[mapname] << "#" << 1+j+18*i << "\" coords=\"";
+  hf << "<area shape=\"rect\" href=\"" << refhtml[mapname] << "#" << (j+1)+18*(1-i) << "\" coords=\"";
   hf << x0+1 << ", " << y0+1 << ", " << x1 << ", " << y1 << "\">" << std::endl;
  }
  hf << "</map>" << std::endl;
