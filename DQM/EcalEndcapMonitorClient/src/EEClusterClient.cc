@@ -1,8 +1,8 @@
 /*
  * \file EEClusterClient.cc
  *
- * $Date: 2007/04/06 15:28:11 $
- * $Revision: 1.2 $
+ * $Date: 2007/04/06 17:14:07 $
+ * $Revision: 1.3 $
  * \author G. Della Ricca
  * \author F. Cossutti
  * \author E. Di Marco
@@ -691,7 +691,7 @@ void EEClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
   labelGrid.SetMarkerSize(2);
   labelGrid.SetMinimum(0.1);
 
-  TGaxis axis(-M_PI, -1.479, M_PI, -1.479, -M_PI, M_PI, 80109, "N");
+  TGaxis axis(-M_PI, -1.479, M_PI, -1.479, -M_PI, M_PI, 40306, "N");
 
   string imgNameB[3], imgNameBMap[4], imgNameS[3], imgNameSMap[4];
   string imgNameBXproj[4], imgNameBYproj[4], imgNameSXproj[4], imgNameSYproj[4];
@@ -785,12 +785,13 @@ void EEClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
       objp->GetYaxis()->SetNdivisions(170102, kFALSE);
       cMap->SetGridx();
       cMap->SetGridy();
-      objp->GetXaxis()->SetLabelColor(0);
       objp->Draw("colz");
       labelGrid.Draw("text,same");
       axis.Draw();
       cMap->Update();
+      objp->GetXaxis()->SetLabelColor(0);
       cMap->SaveAs(imgName.c_str());
+      objp->GetXaxis()->SetLabelColor(1);
 
       char projXName[100];
       char projYName[100];
@@ -804,7 +805,7 @@ void EEClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
 
       cEne->cd();
       gStyle->SetOptStat("emr");
-      obj1dX->GetXaxis()->SetNdivisions(6, kFALSE);
+      obj1dX->GetXaxis()->SetNdivisions(40306, kFALSE);
       obj1dY->GetXaxis()->SetNdivisions(6, kFALSE);
 
       imgName = htmlDir + imgNameBXproj[iCanvas-1];
@@ -844,12 +845,13 @@ void EEClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
     obj2f->GetYaxis()->SetNdivisions(170102, kFALSE);
     cMap->SetGridx();
     cMap->SetGridy();
-    obj2f->GetXaxis()->SetLabelColor(0);
     obj2f->Draw("colz");
     labelGrid.Draw("text,same");
     axis.Draw();
     cMap->Update();
+    obj2f->GetXaxis()->SetLabelColor(0);
     cMap->SaveAs(imgName.c_str());
+    obj2f->GetXaxis()->SetLabelColor(1);
 
     char projXName[100];
     char projYName[100];
@@ -863,7 +865,7 @@ void EEClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
 
     cEne->cd();
     gStyle->SetOptStat("emr");
-    obj1dX->GetXaxis()->SetNdivisions(6, kFALSE);
+    obj1dX->GetXaxis()->SetNdivisions(40306, kFALSE);
     obj1dY->GetXaxis()->SetNdivisions(6, kFALSE);
 
     imgName = htmlDir + imgNameBXproj[3];
@@ -1029,12 +1031,13 @@ void EEClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
       objp->GetYaxis()->SetNdivisions(170102, kFALSE);
       cMap->SetGridx();
       cMap->SetGridy();
-      objp->GetXaxis()->SetLabelColor(0);
       objp->Draw("colz");
       labelGrid.Draw("text,same");
       axis.Draw();
       cMap->Update();
+      objp->GetXaxis()->SetLabelColor(0);
       cMap->SaveAs(imgName.c_str());
+      objp->GetXaxis()->SetLabelColor(1);
 
       char projXName[100];
       char projYName[100];
@@ -1048,7 +1051,7 @@ void EEClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
 
       cEne->cd();
       gStyle->SetOptStat("emr");
-      obj1dX->GetXaxis()->SetNdivisions(6, kFALSE);
+      obj1dX->GetXaxis()->SetNdivisions(40306, kFALSE);
       obj1dY->GetXaxis()->SetNdivisions(6, kFALSE);
 
       imgName = htmlDir + imgNameSXproj[iCanvas-1];
@@ -1088,12 +1091,13 @@ void EEClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
     obj2f->GetYaxis()->SetNdivisions(170102, kFALSE);
     cMap->SetGridx();
     cMap->SetGridy();
-    obj2f->GetXaxis()->SetLabelColor(0);
     obj2f->Draw("colz");
     labelGrid.Draw("text,same");
     axis.Draw();
     cMap->Update();
+    obj2f->GetXaxis()->SetLabelColor(0);
     cMap->SaveAs(imgName.c_str());
+    obj2f->GetXaxis()->SetLabelColor(1);
 
     char projXName[100];
     char projYName[100];
@@ -1102,12 +1106,12 @@ void EEClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
     sprintf(projYName,"%s_py",meName.c_str());
     imgNameSYproj[3] = string(projYName) + ".png";
 
-    obj1dX = obj2f->ProjectionX("_px",1,obj2f->GetNbinsY(),"e");
-    obj1dY = obj2f->ProjectionY("_py",1,obj2f->GetNbinsX(),"e");
+    obj1dX = obj2f->ProjectionX(projXName,1,obj2f->GetNbinsY(),"e");
+    obj1dY = obj2f->ProjectionY(projYName,1,obj2f->GetNbinsX(),"e");
 
     cEne->cd();
     gStyle->SetOptStat("emr");
-    obj1dX->GetXaxis()->SetNdivisions(6, kFALSE);
+    obj1dX->GetXaxis()->SetNdivisions(40306, kFALSE);
     obj1dY->GetXaxis()->SetNdivisions(6, kFALSE);
 
     imgName = htmlDir + imgNameSXproj[3];
