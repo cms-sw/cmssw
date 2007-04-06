@@ -42,5 +42,6 @@ private:
   std::vector< std::pair<DetectorRocId,CablingRocId> > theConnection;
 
   Range readRange( const std::string &) const;
+    
 };
 #endif 

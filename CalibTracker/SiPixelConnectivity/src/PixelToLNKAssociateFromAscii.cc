@@ -223,68 +223,126 @@ void PixelToLNKAssociateFromAscii::addConnections(
 //     int plaq = atoi( module.substr(3,pos-3).c_str());
 
      // pannel type
-//    string strT
-    pos = module.find("TYP:");
-    if (pos ==  string::npos) throw cms::Exception("problem with pannel type formatting");
-    string strT = module.substr(pos+5,3);
+     pos = module.find("TYP:");
+     if (pos ==  string::npos) throw cms::Exception("problem with pannel type formatting");
+     string strT = module.substr(pos+5,3);
 
-    PixelPannelType::PannelType pannelType; 
-         if (strT=="P3R") pannelType=PixelPannelType::p3R;
-    else if (strT=="P3L") pannelType=PixelPannelType::p3L;
-    else if (strT=="P4R") pannelType=PixelPannelType::p4R;
-    else if (strT=="P4L") pannelType=PixelPannelType::p4L;
-    else throw cms::Exception("problem with pannel type formatting (unrecoginzed word)");
+     PixelPannelType::PannelType pannelType; 
+          if (strT=="P3R") pannelType=PixelPannelType::p3R;
+     else if (strT=="P3L") pannelType=PixelPannelType::p3L;
+     else if (strT=="P4R") pannelType=PixelPannelType::p4R;
+     else if (strT=="P4L") pannelType=PixelPannelType::p4L;
+     else throw cms::Exception("problem with pannel type formatting (unrecoginzed word)");
 
-//     PixelPannelType::PannelType pannelType = 
-//         PixelPannelType::pannelType( PixelEndcapName(part,disk,blade,pannel) );
-  
-    if (pannelType==PixelPannelType::p4R || pannelType==PixelPannelType::p4L) {
-      int rocLnkId =0;
-      for (int plaq = 1; plaq <= 4; plaq++) {
-        Range rocs;
-        if (plaq==1) rocs = Range(0,1);
-        if (plaq==2) rocs = Range(0,5);
-        if (plaq==3) rocs = Range(0,7);
-        if (plaq==4) rocs = Range(0,4);
-        for (int rocDetId=rocs.min(); rocDetId<=rocs.max();rocDetId++) {
-          rocLnkId++;
-  
-          DetectorRocId  detectorRocId;
-          detectorRocId.module = new PixelEndcapName(part,disk,blade,pannel,plaq);
-          detectorRocId.rocDetId = rocDetId;
+     if ( pannelType==PixelPannelType::p4L) {
+//     cout <<"----------- p4L"<<endl;
+       int rocLnkId =0;
+       for (int plaq = 1; plaq <= 4; plaq++) {
+         Range rocs; int firstRoc=0; int step=0;
+         if (plaq==1) { rocs = Range(0,1); firstRoc=1; step=-1; }
+         if (plaq==2) { rocs = Range(0,5); firstRoc=0; step=+1; }
+         if (plaq==3) { rocs = Range(0,7); firstRoc=0; step=+1; }
+         if (plaq==4) { rocs = Range(0,4); firstRoc=4; step=-1; }
+         for (int iroc =rocs.min(); iroc<=rocs.max(); iroc++) {
+           rocLnkId++;
+           int rocDetId = firstRoc + step*iroc; 
 
-          CablingRocId   cablingRocId;
-          cablingRocId.fedId = fedId;
-          cablingRocId.linkId = linkId;
-          cablingRocId.rocLinkId = (pannelType==PixelPannelType::p4L)? rocLnkId : 22-rocLnkId;
+           DetectorRocId  detectorRocId;
+           detectorRocId.module = new PixelEndcapName(part,disk,blade,pannel,plaq);
+           detectorRocId.rocDetId = rocDetId;
 
-          theConnection.push_back( make_pair(detectorRocId,cablingRocId));
-        }
-      }
-    }
-    if (pannelType==PixelPannelType::p3R || pannelType==PixelPannelType::p3L) {
-      int rocLnkId =0;
-      for (int plaq = 1; plaq <= 3; plaq++) {
-        Range rocs;
-        if (plaq==1) rocs = Range(0,5);
-        if (plaq==2) rocs = Range(0,7);
-        if (plaq==3) rocs = Range(0,9);
-        for (int rocDetId=rocs.min(); rocDetId<=rocs.max();rocDetId++) {
-          rocLnkId++;
+           CablingRocId   cablingRocId;
+           cablingRocId.fedId = fedId;
+           cablingRocId.linkId = linkId;
+           cablingRocId.rocLinkId = rocLnkId;
 
-          DetectorRocId  detectorRocId;
-          detectorRocId.module = new PixelEndcapName(part,disk,blade,pannel,plaq);
-          detectorRocId.rocDetId = rocDetId;
+           theConnection.push_back( make_pair(detectorRocId,cablingRocId));
+//         cout <<"PLAQ:"<<plaq<<" rocDetId: "<<rocDetId<<" rocLnkId:"<<rocLnkId<<endl;
+         }
+       } 
+     } 
+     else if ( pannelType==PixelPannelType::p4R) {
+//     cout <<"----------- p4R"<<endl;
+       int rocLnkId =0;
+       for (int plaq = 4; plaq >= 1; plaq--) {
+         Range rocs; int firstRoc=0; int step=0;
+         if (plaq==1) { rocs = Range(0,1); firstRoc=1; step=-1; }
+         if (plaq==2) { rocs = Range(0,5); firstRoc=3; step=+1; }
+         if (plaq==3) { rocs = Range(0,7); firstRoc=4; step=+1; }
+         if (plaq==4) { rocs = Range(0,4); firstRoc=4; step=-1; }
+         for (int iroc =rocs.min(); iroc<=rocs.max(); iroc++) {
+           rocLnkId++;
+           int rocDetId = firstRoc + step*iroc;
+           if (rocDetId > rocs.max()) rocDetId = (rocDetId-1)%rocs.max();
 
-          CablingRocId   cablingRocId;
-          cablingRocId.fedId = fedId;
-          cablingRocId.linkId = linkId;
-          cablingRocId.rocLinkId = (pannelType==PixelPannelType::p3L)? rocLnkId : 25-rocLnkId;
+           DetectorRocId  detectorRocId;
+           detectorRocId.module = new PixelEndcapName(part,disk,blade,pannel,plaq);
+           detectorRocId.rocDetId = rocDetId;
 
-          theConnection.push_back( make_pair(detectorRocId,cablingRocId));
-        }
-      }
-    }
+           CablingRocId   cablingRocId;
+           cablingRocId.fedId = fedId;
+           cablingRocId.linkId = linkId;
+           cablingRocId.rocLinkId = rocLnkId;
+
+           theConnection.push_back( make_pair(detectorRocId,cablingRocId));
+//         cout <<"PLAQ:"<<plaq<<" rocDetId: "<<rocDetId<<" rocLnkId:"<<rocLnkId<<endl;
+         }
+       }
+     }
+     else if ( pannelType==PixelPannelType::p3L) {
+//     cout <<"----------- p3L"<<endl;
+       int rocLnkId =0;
+       for (int plaq = 1; plaq <= 3; plaq++) {
+         Range rocs; int firstRoc=0; int step=0;
+         if (plaq==1) { rocs = Range(0,5); firstRoc=0; step=1; }
+         if (plaq==2) { rocs = Range(0,7); firstRoc=0; step=1; }
+         if (plaq==3) { rocs = Range(0,9); firstRoc=0; step=1; }
+         for (int iroc =rocs.min(); iroc<=rocs.max(); iroc++) {
+           rocLnkId++;
+           int rocDetId = firstRoc + step*iroc; 
+
+           DetectorRocId  detectorRocId;
+           detectorRocId.module = new PixelEndcapName(part,disk,blade,pannel,plaq);
+           detectorRocId.rocDetId = rocDetId;
+
+           CablingRocId   cablingRocId;
+           cablingRocId.fedId = fedId;
+           cablingRocId.linkId = linkId;
+           cablingRocId.rocLinkId = rocLnkId;
+
+           theConnection.push_back( make_pair(detectorRocId,cablingRocId));
+//         cout <<"PLAQ:"<<plaq<<" rocDetId: "<<rocDetId<<" rocLnkId:"<<rocLnkId<<endl;
+         }
+       } 
+     } 
+     else if ( pannelType==PixelPannelType::p3R) {
+//     cout <<"----------- p3R"<<endl;
+       int rocLnkId =0;
+       for (int plaq = 3; plaq >= 1; plaq--) {
+         Range rocs; int firstRoc=0; int step=0;
+         if (plaq==1) { rocs = Range(0,5); firstRoc=3; step=1; }
+         if (plaq==2) { rocs = Range(0,7); firstRoc=4; step=1; }
+         if (plaq==3) { rocs = Range(0,9); firstRoc=5; step=1; }
+         for (int iroc =rocs.min(); iroc<=rocs.max(); iroc++) {
+           rocLnkId++;
+           int rocDetId = firstRoc + step*iroc;
+           if (rocDetId > rocs.max()) rocDetId = (rocDetId-1)%rocs.max();
+
+           DetectorRocId  detectorRocId;
+           detectorRocId.module = new PixelEndcapName(part,disk,blade,pannel,plaq);
+           detectorRocId.rocDetId = rocDetId;
+
+           CablingRocId   cablingRocId;
+           cablingRocId.fedId = fedId;
+           cablingRocId.linkId = linkId;
+           cablingRocId.rocLinkId = rocLnkId;
+
+           theConnection.push_back( make_pair(detectorRocId,cablingRocId));
+//         cout <<"PLAQ:"<<plaq<<" rocDetId: "<<rocDetId<<" rocLnkId:"<<rocLnkId<<endl;
+         }
+       }
+     }
+
   }
 }
 
