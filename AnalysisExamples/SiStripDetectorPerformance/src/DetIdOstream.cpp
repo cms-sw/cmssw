@@ -17,32 +17,32 @@ std::ostream &operator<<( std::ostream &roOut, const DetIdOstream &roDO) {
   switch( roDO.roDETID.subdetId()) {
     case StripSubdetector::TIB:
       {
-        TIBDetId oTIBDetId( rroDO.oDETID.rawId());
+        TIBDetId oTIBDetId( roDO.roDETID.rawId());
         roOut << "TIB  " << oTIBDetId.layer();
         break;
       }
     case StripSubdetector::TOB:
       {
-        TOBDetId oTOBDetId( rroDO.oDETID.rawId());
+        TOBDetId oTOBDetId( roDO.roDETID.rawId());
         roOut << "TOB  " << oTOBDetId.layer();
         break;
       }
     case StripSubdetector::TID:
       {
-        TIDDetId oTIDDetId( rroDO.oDETID.rawId());
+        TIDDetId oTIDDetId( roDO.roDETID.rawId());
         roOut << "TID  " << oTIDDetId.wheel();
         break;
       }
     case StripSubdetector::TEC:
       {
-        TECDetId oTECDetId( rroDO.oDETID.rawId());
+        TECDetId oTECDetId( roDO.roDETID.rawId());
         roOut << "TEC  " << oTECDetId.wheel();
       }
     default:
       break;
   }
 
-  roOut << "  " << rroDO.oDETID.rawId();
+  roOut << "  " << roDO.roDETID.rawId();
 
   return roOut;
 }
