@@ -31,15 +31,18 @@ XERCES_CPP_NAMESPACE_USE
 #
 #
 ############################################################################*/
-class LinkDataXMLWriter  //: public edm::EDAnalyzer
+class LinkDataXMLWriter: public edm::EDAnalyzer
 {
 
    public:
-  //explicit LinkDataXMLWriter(const edm::ParameterSet&);
-  explicit LinkDataXMLWriter();
-  ~LinkDataXMLWriter();
+  explicit LinkDataXMLWriter(const edm::ParameterSet&);
+  virtual ~LinkDataXMLWriter();
 
-  //virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+
+
+
+   private:
 
   void addLinkData(int triggerCrateNum, int triggerBoardNum, 
 		   int opticalLinkNum, int lbNumber, 
@@ -47,9 +50,9 @@ class LinkDataXMLWriter  //: public edm::EDAnalyzer
 		   int halfPart, int eod);
   
   void writeLinkData();  
-
-   private:
   
+  std::pair<int,int> getTCandTBNumbers(int dccInputChannelNum);
+
   void clear();
 	
   std::string m_xmlDir;
@@ -59,6 +62,7 @@ class LinkDataXMLWriter  //: public edm::EDAnalyzer
   std::string IntToString(int i, int opt=0);
 
   int nEvents;
+  int nTC, nTB;
   DOMWriter*  theSerializer;
   XMLFormatTarget *myFormTarget;
   DOMDocument* doc;

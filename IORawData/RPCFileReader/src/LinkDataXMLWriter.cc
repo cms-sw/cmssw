@@ -1,6 +1,20 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "IORawData/RPCFileReader/interface/LinkDataXMLWriter.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+
+#include "EventFilter/RPCRawToDigi/interface/RPCPackingModule.h"
+#include "CondFormats/RPCObjects/interface/RPCReadOutMapping.h"
+#include "CondFormats/DataRecord/interface/RPCReadOutMappingRcd.h"
+#include "EventFilter/RPCRawToDigi/interface/EventRecords.h"
+#include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
+#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
+#include "EventFilter/RPCRawToDigi/interface/RPCRecordFormatter.h"
+
+#include "IORawData/RPCFileReader/interface/LinkDataXMLWriter.h"
 
 #include <xercesc/util/PlatformUtils.hpp>
 #include <xercesc/util/XMLString.hpp>
@@ -13,6 +27,10 @@
 #include <iostream>
 
 XERCES_CPP_NAMESPACE_USE
+
+using namespace std;
+using namespace edm;
+using namespace rpcrawtodigi;
 /*############################################################################
 #
 #  Needed for xerces to work
@@ -48,10 +66,10 @@ int LinkDataXMLWriter::m_instanceCount = 0;
 # Constructor
 #
 ############################################################################*/
-//LinkDataXMLWriter::LinkDataXMLWriter(const edm::ParameterSet& iConfig){
-LinkDataXMLWriter::LinkDataXMLWriter(){
+LinkDataXMLWriter::LinkDataXMLWriter(const edm::ParameterSet& iConfig){
 
-  m_xmlDir = "/afs/cern.ch/user/a/akalinow/scratch0/MTCC_II/XMLLinkData/";
+
+   m_xmlDir = iConfig.getParameter<std::string>("xmlDir");
 
   if (m_instanceCount == 0) {
     try {
@@ -102,10 +120,10 @@ LinkDataXMLWriter::LinkDataXMLWriter(){
   
 
   //set vector sizes
-  int nTC = 1;
-  int nTB = 1;
+  nTC = 12;
+  nTB = 9;
   for(int iTC=0;iTC<nTC;iTC++){
-    std::vector< RPCPacData> rpdv(17,  RPCPacData());
+    std::vector< RPCPacData> rpdv(18,  RPCPacData());
     std::vector<std::vector< RPCPacData> > rpdvv(18,rpdv); 
     std::vector<std::vector<std::vector< RPCPacData> > > rpdvvv(nTB,rpdvv); 
     linkData.push_back(rpdvvv);
@@ -138,32 +156,67 @@ LinkDataXMLWriter::~LinkDataXMLWriter(){
 #
 #
 ############################################################################*/
-/*
-virtual void analyze(const edm::Event&, const edm::EventSetup&){
+void LinkDataXMLWriter::analyze(const edm::Event& ev, const edm::EventSetup& es){
 
   /// Get Data from all FEDs
-  Handle<FEDRawDataCollection> allFEDRawData; 
-  e.getByType(allFEDRawData); 
+  Handle< RPCDigiCollection > digiCollection;
+  ev.getByType(digiCollection);
 
-  edm::ESHandle<RPCReadOutMapping> readoutMapping;
-  c.get<RPCReadOutMappingRcd>().get(readoutMapping);
+  /////////////// Print RPC digis
+  RPCDigiCollection::DigiRangeIterator rpcDigiCI;
+  for(rpcDigiCI = digiCollection->begin();rpcDigiCI!=digiCollection->end();rpcDigiCI++){
+    cout<<(*rpcDigiCI).first<<endl;
+    RPCDetId detId=(*rpcDigiCI).first;
+    uint32_t id=detId();
 
-  std::auto_ptr<RPCDigiCollection> producedRPCDigis(new RPCDigiCollection);
-  std::pair<int,int> rpcFEDS=FEDNumbering::getRPCFEDIds();
- 
-  for (int id= rpcFEDS.first; id<=rpcFEDS.second; ++id){  
+    const RPCDigiCollection::Range& range = (*rpcDigiCI).second;
+    for (RPCDigiCollection::const_iterator digiIt = range.first;
+         digiIt!=range.second;++digiIt) cout<<"Digi: "<<*digiIt<<endl;
+  }
+  ////////////////////////////////////
 
-    const FEDRawData & fedData = allFEDRawData->FEDData(id);
-    RPCRecordFormatter interpreter(id, readoutMapping.product()) ;
-    RPCFEDData rpcRawData;
 
-    if(fedData.size()){
-    const unsigned char* index = fedData.data();
-    
+  ESHandle<RPCReadOutMapping> readoutMapping;
+  es.get<RPCReadOutMappingRcd>().get(readoutMapping);
+
+  int trigger_BX = 10;
+
+  pair<int,int> rpcFEDS=FEDNumbering::getRPCFEDIds();
+  for (int id= rpcFEDS.first; id<=rpcFEDS.second; ++id){
+
+    RPCRecordFormatter formatter(id, readoutMapping.product()) ;
+
+    std::vector<rpcrawtodigi::EventRecords> myEventRecords = RPCPackingModule::eventRecords(id,
+											    trigger_BX,  
+											    digiCollection.product(),
+											    formatter); 
+
+    std::cout<<" myEventRecords.size(): "<< myEventRecords.size()<<std::endl;
+    std::vector<rpcrawtodigi::EventRecords>::const_iterator CI =  myEventRecords.begin();
+    for(;CI!= myEventRecords.end();CI++){ 
+
+      int dccInputChannelNum =  CI->tbRecord().rmb();
+      int opticalLinkNum =   CI->tbRecord().tbLinkInputNumber();
+      int partitionData =   CI->lbRecord().lbData().lbData(); 
+      int halfP = CI->lbRecord().lbData().halfP(); 
+      int eod = CI->lbRecord().lbData().eod(); 
+      int partitionNumber = CI->lbRecord().lbData().partitionNumber();  
+      int lbNumber = CI->lbRecord().lbData().lbNumber();
+
+      std::pair<int,int> aPair = getTCandTBNumbers(dccInputChannelNum);
+      int triggerCrateNum = aPair.first;
+      int triggerBoardNum = aPair.second;
+      addLinkData(triggerCrateNum, triggerBoardNum , opticalLinkNum, 
+		  lbNumber, partitionNumber,  partitionData, halfP, eod);
+      std::cout<<"dcc: "<<dccInputChannelNum
+	       <<" TC: "<<triggerCrateNum
+	       <<" TB: "<<triggerBoardNum<<std::endl;
     }
-    }
-    }
-*/
+  }
+  
+  writeLinkData();  
+  
+}
 /*############################################################################
 #
 #
@@ -190,10 +243,10 @@ void LinkDataXMLWriter::addLinkData(int triggerCrateNum, int triggerBoardNum,
 	     <<linkData[triggerCrateNum][triggerBoardNum][delay][opticalLinkNum-1].toRaw()
 	     <<std::dec<<std::endl;
 */
-    if(!linkData[triggerCrateNum][triggerBoardNum][delay][opticalLinkNum-1].toRaw()) break;
+    if(!linkData[triggerCrateNum][triggerBoardNum][delay][opticalLinkNum].toRaw()) break;
   }
 
-  linkData[triggerCrateNum][triggerBoardNum][delay][opticalLinkNum-1] = myLinkData;
+  linkData[triggerCrateNum][triggerBoardNum][delay][opticalLinkNum] = myLinkData;
 }
 /*############################################################################
 #
@@ -210,39 +263,49 @@ void LinkDataXMLWriter::writeLinkData(){
   tblock = localtime(&timer);
 
   DOMElement* bx = doc->createElement(X("bxData"));
-  bx->setAttribute(X("num"), X( IntToString(bxNum).c_str()));
-  /*
-  std::cout<<"before relpace"<<std::endl;
-  rootElem->replaceChild(bx,oldBX);
-  std::cout<<"after relpace"<<std::endl;
-  //oldBX->release();
-  std::cout<<"before set"<<std::endl;
-  oldBX = bx;
-  std::cout<<"after set"<<std::endl;
-  */
+  bx->setAttribute(X("num"), X( IntToString(bxNum*100).c_str()));
   rootElem->appendChild(bx);
 
   DOMElement*  tc = 0;
   DOMElement*  tb = 0;
   DOMElement*  ol = 0;
 
-  int nTC = 1;
-  int nTB = 1;
-
   for(int triggerCrateNum=0;triggerCrateNum<nTC;triggerCrateNum++){
+    ////////////////////////////////////////////
+    bool nonEmpty = false;
+    for(int triggerBoardNum=0;triggerBoardNum<nTB;triggerBoardNum++){
+      for(int opticalLinkNum=0;opticalLinkNum<18;opticalLinkNum++){
+	for(int iDelay=0;iDelay<18;iDelay++){
+	  int rawData =  linkData[triggerCrateNum][triggerBoardNum][iDelay][opticalLinkNum].toRaw();
+	  if(rawData) nonEmpty = true;
+	}
+      }
+    }
+    if(!nonEmpty) continue;
+    ////////////////////////////////////////////
     tc = doc->createElement(X("tc"));
     tc->setAttribute(X("num"), X( IntToString(triggerCrateNum).c_str()));
     for(int triggerBoardNum=0;triggerBoardNum<nTB;triggerBoardNum++){
+      ////////////////////////////////////////////
+      bool nonEmpty = false;
+      for(int opticalLinkNum=0;opticalLinkNum<18;opticalLinkNum++){
+	for(int iDelay=0;iDelay<18;iDelay++){
+	  int rawData =  linkData[triggerCrateNum][triggerBoardNum][iDelay][opticalLinkNum].toRaw();
+	  if(rawData) nonEmpty = true;
+	}
+      }
+      if(!nonEmpty) continue;
+      ////////////////////////////////////////////
       tb = doc->createElement(X("tb"));
       tb->setAttribute(X("num"), X( IntToString(triggerBoardNum).c_str()));
-      for(int opticalLinkNum=0;opticalLinkNum<17;opticalLinkNum++){
+      for(int opticalLinkNum=0;opticalLinkNum<18;opticalLinkNum++){
+        if(!linkData[triggerCrateNum][triggerBoardNum][0][opticalLinkNum].toRaw()) continue;
 	ol = doc->createElement(X("ol"));
 	ol->setAttribute(X("num"), X( IntToString(opticalLinkNum).c_str()));
 	for(int iDelay=0;iDelay<18;iDelay++){
 	  int rawData =  linkData[triggerCrateNum][triggerBoardNum][iDelay][opticalLinkNum].toRaw();
 	  if(!rawData) continue;
 	  const RPCPacData & myLinkData = linkData[triggerCrateNum][triggerBoardNum][iDelay][opticalLinkNum];
-	  //std::cout<<"raw data: "<<std::hex<<rawData<<std::dec<<std::endl;
 	  DOMElement*  lmd = doc->createElement(X("lmd"));
 	  lmd->setAttribute(X("lb"), X( IntToString(myLinkData.lbNum()).c_str()));
 	  lmd->setAttribute(X("par"), X( IntToString(myLinkData.partitionNum()).c_str()));
@@ -286,5 +349,29 @@ void  LinkDataXMLWriter::clear(){
       }
     }
   }
+
+}
+
+
+std::pair<int,int>  LinkDataXMLWriter::getTCandTBNumbers(int dccInputChannelNum){
+
+  int tcNumber = 0;
+  int tbNumber = 0;
+
+  for(int i=0;i<9;i++){
+    if(dccInputChannelNum==i ||
+       dccInputChannelNum==9+i ||
+       dccInputChannelNum==18+i ||
+       dccInputChannelNum==27+i) tbNumber = i;
+  }
+  /////////////////////
+ for(int i=0;i<4;i++){
+    if(dccInputChannelNum>=i*9 &&
+       dccInputChannelNum<9+i*9) tcNumber = i+1;
+
+  }
+
+
+  return std::pair<int,int>(tcNumber,tbNumber);
 
 }
