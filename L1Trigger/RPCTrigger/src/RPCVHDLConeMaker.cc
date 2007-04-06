@@ -13,7 +13,7 @@
 //
 // Original Author:  Artur Kalinowski
 //         Created:  Tue Aug  1 13:54:56 CEST 2006
-// $Id$
+// $Id: RPCVHDLConeMaker.cc,v 1.1 2007/04/05 06:46:32 fruboes Exp $
 //
 //
 
@@ -99,7 +99,7 @@ RPCVHDLConeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
    //initRPCLinks(iSetup);
 
    //writeLogCones(0,12,0,0,iSetup);
-     writeLogCones(0,8,0,0,iSetup);
+     writeLogCones(0,0,0,0,iSetup);
 
    //writeLogConesForTB(12,iSetup);
    return;
@@ -288,7 +288,7 @@ void RPCVHDLConeMaker::writeConesDef(int iTower, int iSec, std::ofstream & out, 
 	    ////////////////////
 	    //if(aCoords.isVirtual) continue;
 	    //std::cout<<"raw id: "<<aCoords.m_detRawId<<" strip: "<<aCoords.m_stripNo<<std::endl;	
-	    std::pair<ChamberRawDataSpec, int>  
+	    std::pair<LinkBoardElectronicIndex, int>  
 	      beggining = map->getRAWSpecForCMSChamberSrip(aCoords.m_detRawId,aCoords.m_stripNo,dccInputChannel);
 	    if(beggining.second==-99) continue;	  
 	    if(beggining.second==-99){
