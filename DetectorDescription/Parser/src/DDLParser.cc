@@ -22,12 +22,13 @@
 #include "DetectorDescription/Parser/interface/DDLSAX2FileHandler.h"
 #include "DetectorDescription/Parser/interface/DDLSAX2ConfigHandler.h"
 #include "DetectorDescription/Parser/interface/DDLSAX2ExpressionHandler.h"
+
 #include "DDLElementRegistry.h"
+#include "StrX.h"
 
 // DDCore Dependencies
 #include "DetectorDescription/Base/interface/DDdebug.h"
 #include "DetectorDescription/Base/interface/DDException.h"
-#include "StrX.h"
 #include "DetectorDescription/Algorithm/src/AlgoInit.h"
 
 // Xerces dependencies
@@ -37,8 +38,9 @@
 #include <xercesc/sax2/XMLReaderFactory.hpp>
 #include <xercesc/sax/SAXException.hpp>
 
-// Message logger.
+// EDM dependencies.
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
 
 #include <string>
 #include <iostream>
@@ -158,87 +160,70 @@ bool DDLParser::isParsed(const std::string& filename)
   return false;
 }
 
-bool DDLParser::parseOneFile(const std::string& filename, const std::string& url)
+bool DDLParser::parseOneFile(const std::string& fullname) //, const std::string& url)
 {
+
+  std::string filename = expHandler_->extractFileName(fullname);
+  edm::FileInPath fp(fullname);
+  std::string absoluteFileName = fp.fullPath();
   size_t foundFile = isFound(filename);
-
-  if (!foundFile || !parsed_[foundFile])
+  if (!foundFile)
     {
-
       int fIndex = foundFile;
-      //      edm::LogInfo ("DetectorDescription/Parser/interface/DDLParser") << "fIndex= " << fIndex << std::endl;
-      if (!foundFile) //parsed_[foundFile])
-	{
-	  seal::SealTimer tddlfname("DetectorDescription/Parser/interface/DDLParser:"+filename.substr(filename.rfind('/')+1), false);
-	  pair <std::string, std::string> pss;
-	  pss.first = filename;
-	  if (url.size() && url.substr(url.size() - 1, 1) == "/")
-	    pss.second = url+filename;
-	  else
-	    pss.second = url+ "/" + filename;
-	  fIndex = nFiles_++;
-	  fileNames_[fIndex] = pss;
-	  parsed_[fIndex] = false;
-	}
-      //      edm::LogInfo ("DetectorDescription/Parser/interface/DDLParser") << "fIndex= " << fIndex << std::endl;
-      currFileName_ = fileNames_[fIndex].second;
-      try
-	{
-	  //myExpHandler = new DDLSAX2ExpressionHandler;
-	  SAX2Parser_->setContentHandler(expHandler_);
-	  //	  edm::LogInfo ("DetectorDescription/Parser/interface/DDLParser") << "Parsing: " << fileNames_[fIndex].second << std::endl;
-	  LogDebug ("DetectorDescription/Parser/interface/DDLParser") << "Parsing: " << fileNames_[fIndex].second << std::endl;
-	  parseFile ( fIndex );
+      seal::SealTimer tddlfname("DDLParser:"+filename, false);
+      pair <std::string, std::string> pss;
+      pss.first = filename;
+      pss.second = absoluteFileName; //url+filename;
+      fIndex = nFiles_;
+      fileNames_[nFiles_] = pss;
+      ++nFiles_;
+      parsed_[fIndex]=false;
 
-	  //	  delete myExpHandler;
-	}
+      currFileName_ = fileNames_[fIndex].second;
+
+      try
+        {
+          SAX2Parser_->setContentHandler(expHandler_);
+          LogDebug ("DDLParser") << "ParseOneFile() Parsing: " << fileNames_[fIndex].second << std::endl;
+          parseFile ( fIndex );
+
+        }
       catch (const XMLException& toCatch) {
-	edm::LogError ("DetectorDescription/Parser/interface/DDLParser") << "\nDDLParser::ParseOneFile, PASS1: XMLException while processing files... \n"
-	     << "Exception message is: \n"
-	     << StrX(toCatch.getMessage()) << "\n" ;
-	//	delete myExpHandler;
-	XMLPlatformUtils::Terminate();
-	throw (DDException("  See XMLException above. "));
+        edm::LogError ("DDLParser") << "\nDDLParser::ParseOneFile, PASS1: XMLException while processing files... \n"
+             << "Exception message is: \n"
+             << StrX(toCatch.getMessage()) << "\n" ;
+        XMLPlatformUtils::Terminate();
+        throw (DDException("  See XMLException above. "));
       } catch (...) {
-	edm::LogError ("DetectorDescription/Parser/interface/DDLParser") << "Some un-caught exception" << endl;
+        edm::LogError ("DDLParser") << "Some un-caught exception" << endl;
       }
-    
+
       // PASS 2:
 
-      DCOUT_V('P', "DetectorDescription/Parser/interface/DDLParser::ParseOneFile(): PASS2: Just before setting Xerces content and error handlers... ");
+      DCOUT_V('P', "DDLParser::ParseOneFile(): PASS2: Just before setting Xerces content and error handlers... ");
 
       try
-	{ 
-	  seal::SealTimer t("DetectorDescription/Parser/interface/DDLParser2:"+filename.substr(filename.rfind('/')+1), false);
+        {
+          seal::SealTimer t("DDLParser2:"+filename, false);
 
-	  //	  myFileHandler = new DDLSAX2FileHandler;
-	  SAX2Parser_->setContentHandler(fileHandler_);
+          SAX2Parser_->setContentHandler(fileHandler_);
 
-	  // No need to validate (regardless of user's doValidation
-	  // because the files have already been validated on the first pass.
-	  // This optimization suggested by Martin Liendl.
-// 	  SAX2Parser_->setFeature(StrX("http://xml.org/sax/features/validation"), false);   // optional
-// 	  SAX2Parser_->setFeature(StrX("http://xml.org/sax/features/namespaces"), false);   // optional
-// 	  SAX2Parser_->setFeature(StrX("http://apache.org/xml/features/validation/dynamic"), false);
+          parseFile ( fIndex );
+          parsed_[fIndex] = true;
 
-	  parseFile ( fIndex );
-	  parsed_[fIndex] = true;
-	  
-	  //	  delete myFileHandler;
-	}
+        }
       catch (const XMLException& toCatch) {
-	edm::LogError ("DetectorDescription/Parser/interface/DDLParser") << "\nDDLParser::ParseOneFile, PASS2: XMLException while processing files... \n"
-	     << "Exception message is: \n"
-	     << StrX(toCatch.getMessage()) << "\n" ;
-	//	 delete myFileHandler;
-	XMLPlatformUtils::Terminate();
-	throw (DDException("  See XMLException above."));
+        edm::LogError ("DDLParser") << "\nDDLParser::ParseOneFile, PASS2: XMLException while processing files... \n"
+             << "Exception message is: \n"
+             << StrX(toCatch.getMessage()) << "\n" ;
+        XMLPlatformUtils::Terminate();
+        throw (DDException("  See XMLException above."));
       }
     }
   else // was found and is parsed...
     {
-      DCOUT('P', " WARNING: DDLParser::ParseOneFile() file " + filename 
-	   + " was already parsed as " + fileNames_[foundFile].second);
+      DCOUT('P', " WARNING: DDLParser::ParseOneFile() file " + filename
+           + " was already parsed as " + fileNames_[foundFile].second);
       return true;
     }
   return false;

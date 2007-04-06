@@ -65,14 +65,15 @@ int main(int argc, char *argv[])
     // Parse the files provided by the DDLDocumentProvider above.
     std::cout << " parse all the files provided by the DDLDocumentProvider" << std::endl;
     myP->parse(cf);
+
     std::cout << "===================" << std::endl << std::endl;
     std::cout << " parse just one file THAT WAS ALREADY PARSED (materials.xml).  We should get a WARNING message." << std::endl;
-    myP->parseOneFile("materials.xml", "/afs/cern.ch/cms/Releases/Geometry/Geometry_1_0_4/src/Materials/");
+    myP->parseOneFile("DetectorDescription/Parser/test/materials.xml");
 
 
     std::cout << "===================" << std::endl << std::endl;
     std::cout << " parse just one file that has not been parsed (specpars.xml).  This should just go through." << std::endl;
-    myP->parseOneFile("specpars.xml", ".");
+    myP->parseOneFile("DetectorDescription/Parser/test/specpars.xml");
 
 
     std::cout << "===================" << std::endl << std::endl;

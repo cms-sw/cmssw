@@ -100,8 +100,11 @@ class DDLParser
    *  On the other hand, if on any run, a dumpFileList is run, then 
    *  the user will at least know what files were used from where in 
    *  a given run.
+   *
+   *  2007-04-06:  filename is now relative to src directory of checkout
+   *               (or share).  edm:FileInPath used internally.
    **/
-  bool parseOneFile(const std::string& filename, const std::string& url);
+  bool parseOneFile(const std::string& filename);
 
   /// Return list of files
   std::vector<std::string> getFileList();
