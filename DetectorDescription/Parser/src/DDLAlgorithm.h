@@ -1,7 +1,7 @@
 #ifndef DDL_ALGORITHM_H
 #define DDL_ALGORITHM_H
 
-#include "DetectorDescription/Parser/interface/DDXMLElement.h"
+#include "DDXMLElement.h"
 
 #include <string>
 

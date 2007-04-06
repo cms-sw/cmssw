@@ -4,7 +4,7 @@
 // -------------------------------------------------------------------------
 // Includes
 // -------------------------------------------------------------------------
-#include "DetectorDescription/Parser/interface/DDXMLElement.h"
+#include "DDXMLElement.h"
 
 // CLHEP dependencies
 #include "CLHEP/Geometry/Transform3D.h"

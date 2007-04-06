@@ -4,7 +4,7 @@
 // -------------------------------------------------------------------------
 // Includes
 // -------------------------------------------------------------------------
-#include "DetectorDescription/Parser/interface/DDLMaterial.h"
+#include "DDLMaterial.h"
 
 #include <string>
 

@@ -1,7 +1,7 @@
 #ifndef DDL_LogicalPart_H
 #define DDL_LogicalPart_H
 
-#include "DetectorDescription/Parser/interface/DDXMLElement.h"
+#include "DDXMLElement.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 
 #include <string>

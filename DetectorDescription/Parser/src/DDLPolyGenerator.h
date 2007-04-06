@@ -1,7 +1,7 @@
 #ifndef DDL_PolyGenerator_H
 #define DDL_PolyGenerator_H
 
-#include "DetectorDescription/Parser/interface/DDLSolid.h"
+#include "DDLSolid.h"
 
 #include <string>
 

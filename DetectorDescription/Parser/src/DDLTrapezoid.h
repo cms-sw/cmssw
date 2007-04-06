@@ -4,7 +4,7 @@
 // -------------------------------------------------------------------------
 // Includes
 // -------------------------------------------------------------------------
-#include "DetectorDescription/Parser/interface/DDLSolid.h"
+#include "DDLSolid.h"
 
 #include <string>
 #include <vector>

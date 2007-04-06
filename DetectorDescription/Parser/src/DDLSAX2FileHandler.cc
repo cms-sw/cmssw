@@ -18,7 +18,7 @@
 #include "DetectorDescription/Parser/interface/DDLParser.h"
 #include "StrX.h"
 #include "DDLElementRegistry.h"
-#include "DetectorDescription/Parser/interface/DDXMLElement.h"
+#include "DDXMLElement.h"
 
 // DDCore dependencies
 #include "DetectorDescription/Base/interface/DDdebug.h"

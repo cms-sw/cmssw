@@ -6,8 +6,8 @@
 
 #include <string>
 
-#include "DetectorDescription/Parser/interface/DDXMLElement.h"
-#include "DetectorDescription/Parser/interface/DDXMLElementRegistry.h"
+#include "DDXMLElement.h"
+#include "DDXMLElementRegistry.h"
 
 // CLHEP Dependencies
 #include "CLHEP/Evaluator/Evaluator.h"

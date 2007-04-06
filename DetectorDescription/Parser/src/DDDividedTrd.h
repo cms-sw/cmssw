@@ -4,7 +4,7 @@
 // 25.04.04 - M. Case ddd-ize G4ParameterisationTrd*
 // ********************************************************************
 
-#include "DetectorDescription/Parser/interface/DDDividedGeometryObject.h"
+#include "DDDividedGeometryObject.h"
 #include "DetectorDescription/Base/interface/DDTranslation.h"
 
 class DDLogicalPart;

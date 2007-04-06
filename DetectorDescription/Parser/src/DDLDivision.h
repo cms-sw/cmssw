@@ -1,8 +1,8 @@
 #ifndef DDL_Division_H
 #define DDL_Division_H
 
-#include "DetectorDescription/Parser/interface/DDXMLElement.h"
-#include "DetectorDescription/Parser/interface/DDDividedGeometryObject.h"
+#include "DDXMLElement.h"
+#include "DDDividedGeometryObject.h"
 #include "DetectorDescription/Core/interface/DDDivision.h"
 
 #include <string>

@@ -1,7 +1,7 @@
 #ifndef DDL_BooleanSolid_H
 #define DDL_BooleanSolid_H
 
-#include "DetectorDescription/Parser/interface/DDLSolid.h"
+#include "DDLSolid.h"
 
 #include <string>
 
