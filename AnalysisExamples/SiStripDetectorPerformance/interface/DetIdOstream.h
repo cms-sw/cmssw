@@ -16,9 +16,9 @@ class DetId;
 
 struct DetIdOstream {
   explicit DetIdOstream( const DetId &roDET_ID_NEW):
-    roDET_ID( roDET_ID_NEW) {}
+    roDETID( roDET_ID_NEW) {}
 
-  const DetId &roDET_ID;
+  const DetId &roDETID;
 };
 
 std::ostream &operator<< ( std::ostream &roOut, const DetIdOstream &roDO);
