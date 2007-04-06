@@ -21,7 +21,7 @@
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 
-#include "AnalysisExamples/SiStripDetectorPerformance/interface/TrackUpdatedTSOSDebug.h"
+#include "AnalysisExamples/SiStripDetectorPerformance/interface/TrackUpdatedTSOS.h"
 
 /** 
 * @brief 
