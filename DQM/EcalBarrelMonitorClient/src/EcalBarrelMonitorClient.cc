@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2007/04/05 19:19:36 $
- * $Revision: 1.246 $
+ * $Date: 2007/04/05 19:27:14 $
+ * $Revision: 1.247 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -143,9 +143,13 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
     cout << " Using maskFile = '" << maskFile_ << "'" << endl;
   }
 
-  // enableSubRun switch
+  // enableSubRunDb switch
 
-  enableSubRun_ = ps.getUntrackedParameter<bool>("enableSubRun", false);
+  enableSubRunDb_ = ps.getUntrackedParameter<bool>("enableSubRunDb", false);
+
+  // enableSubRunHtml switch
+
+  enableSubRunHtml_ = ps.getUntrackedParameter<bool>("enableSubRunHtml", false);
 
   // location
 
@@ -490,7 +494,8 @@ void EcalBarrelMonitorClient::beginJob(void){
   jevt_ = 0;
 
   current_time_ = time(NULL);
-  last_time_ = current_time_;
+  last_time_db_ = current_time_;
+  last_time_html_ = current_time_;
 
   // start DQM user interface instance
   // will attempt to reconnect upon connection problems (w/ a 5-sec delay)
@@ -547,7 +552,8 @@ void EcalBarrelMonitorClient::beginRun(void){
   jevt_ = 0;
 
   current_time_ = time(NULL);
-  last_time_ = current_time_;
+  last_time_db_ = current_time_;
+  last_time_html_ = current_time_;
 
   this->setup();
 
@@ -624,7 +630,7 @@ void EcalBarrelMonitorClient::endRun(void) {
   if ( baseHtmlDir_.size() != 0 ) this->htmlOutput();
 
   if ( subrun_ != -1 ) {
-    if ( enableSubRun_ ) {
+    if ( enableSubRunDb_ ) {
       this->softReset();
     }
   }
@@ -1308,13 +1314,21 @@ void EcalBarrelMonitorClient::analyze(void){
 
       }
 
-      if ( enableSubRun_ ) {
+      if ( enableSubRunHtml_ ) {
+        time_t seconds = 5 * 60;
+        if ( (current_time_ - last_time_html_) > seconds ) {
+          last_time_html_ = current_time_;
+          this->htmlOutput( true );
+        }
+      }
+
+      if ( enableSubRunDb_ ) {
         time_t seconds = 15 * 60;
-        if ( (current_time_ - last_time_) > seconds ) {
+        if ( (current_time_ - last_time_db_) > seconds ) {
           if ( runtype_ == EcalDCCHeaderBlock::COSMIC ||
                runtype_ == EcalDCCHeaderBlock::BEAMH2 ||
                runtype_ == EcalDCCHeaderBlock::BEAMH4 ) this->writeDb();
-          last_time_ = current_time_;
+          last_time_db_ = current_time_;
         }
       }
 
@@ -1467,7 +1481,9 @@ void EcalBarrelMonitorClient::analyze(void){
 
 }
 
-void EcalBarrelMonitorClient::htmlOutput(void){
+void EcalBarrelMonitorClient::htmlOutput( bool current ){
+
+  time_t start = time(NULL);
 
   cout << endl;
   cout << "Preparing EcalBarrelMonitorClient html output ..." << endl;
@@ -1476,7 +1492,13 @@ void EcalBarrelMonitorClient::htmlOutput(void){
 
   sprintf(tmp, "%09d", run_);
 
-  string htmlDir = baseHtmlDir_ + "/" + tmp + "/";
+  string htmlDir;
+  if( current ) {
+    htmlDir = baseHtmlDir_ + "/current/";
+  }
+  else {
+    htmlDir = baseHtmlDir_ + "/" + tmp + "/";
+  }
 
   system(("/bin/mkdir -p " + htmlDir).c_str());
 
@@ -1534,5 +1556,11 @@ void EcalBarrelMonitorClient::htmlOutput(void){
   htmlFile.close();
 
   cout << endl;
+
+  if( current ) {
+    time_t elapsed = time(NULL) - start;
+    std::cout << "==========> htmlOutput Elapsed Time: " << elapsed << std::endl;
+  }
+
 }
 

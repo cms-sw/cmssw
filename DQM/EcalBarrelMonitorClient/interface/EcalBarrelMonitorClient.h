@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorClient.h
  *
- * $Date: 2007/03/24 14:36:38 $
- * $Revision: 1.66 $
+ * $Date: 2007/03/27 11:31:44 $
+ * $Revision: 1.67 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -77,7 +77,7 @@ void setup(void);
 void cleanup(void);
   
 /// HtmlOutput
-void htmlOutput(void);
+void htmlOutput(bool current=false);
   
 /// BeginRunDB
 void beginRunDb(void);
@@ -140,11 +140,13 @@ string maskFile_;
 RunIOV runiov_;
 MonRunIOV moniov_;
 
-bool enableSubRun_;
+bool enableSubRunDb_;
+bool enableSubRunHtml_;
 int subrun_;
  
 time_t current_time_;
-time_t last_time_;
+time_t last_time_db_;
+time_t last_time_html_;
  
 string baseHtmlDir_;
 
