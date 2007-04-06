@@ -13,36 +13,36 @@
 
 #include "AnalysisExamples/SiStripDetectorPerformance/interface/DetIdOstream.h"
 
-std::ostream &operator<<( std::ostream &roOut, const DetId &roDETID) {
-  switch( roDETID.subdetId()) {
+std::ostream &operator<<( std::ostream &roOut, const DetIdOstream &roDO) {
+  switch( roDO.roDETID.subdetId()) {
     case StripSubdetector::TIB:
       {
-        TIBDetId oTIBDetId( roDETID.rawId());
+        TIBDetId oTIBDetId( rroDO.oDETID.rawId());
         roOut << "TIB  " << oTIBDetId.layer();
         break;
       }
     case StripSubdetector::TOB:
       {
-        TOBDetId oTOBDetId( roDETID.rawId());
+        TOBDetId oTOBDetId( rroDO.oDETID.rawId());
         roOut << "TOB  " << oTOBDetId.layer();
         break;
       }
     case StripSubdetector::TID:
       {
-        TIDDetId oTIDDetId( roDETID.rawId());
+        TIDDetId oTIDDetId( rroDO.oDETID.rawId());
         roOut << "TID  " << oTIDDetId.wheel();
         break;
       }
     case StripSubdetector::TEC:
       {
-        TECDetId oTECDetId( roDETID.rawId());
+        TECDetId oTECDetId( rroDO.oDETID.rawId());
         roOut << "TEC  " << oTECDetId.wheel();
       }
     default:
       break;
   }
 
-  roOut << "  " << roDETID.rawId();
+  roOut << "  " << rroDO.oDETID.rawId();
 
   return roOut;
 }
