@@ -32,7 +32,7 @@
 #include "DetectorDescription/Base/interface/DDdebug.h"
 #include "DetectorDescription/Core/interface/DDRoot.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
-#include "DetectorDescription/Parser/interface/StrX.h"
+#include "DetectorDescription/Parser/src/StrX.h"
 
 class DDLTestDoc : public DDLDocumentProvider {
 
