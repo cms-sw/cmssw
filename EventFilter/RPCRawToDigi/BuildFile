@@ -9,7 +9,6 @@
 <use name=CondFormats/RPCObjects>
 <use name=FWCore/MessageLogger>
 <use name=boost>
-<use name=IORawData/RPCFileReader>
 <export>
  <lib name=EventFilterRPCRawToDigi>
  <use name=FWCore/Framework>
