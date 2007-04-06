@@ -5,8 +5,11 @@
 #include <vector>
 #include <map>
 #include <memory>
+
 #include "DetectorDescription/Core/interface/DDValuePair.h"
 #include "DetectorDescription/Base/interface/Ptr.h"
+
+#include "boost/shared_ptr.hpp"
 
 class DDValue;
 class DDSpecifics;
@@ -98,7 +101,7 @@ private:
   typedef std::pair<bool, std::pair<std::vector<std::string>, std::vector<double> > >vecpair_type;
   static std::vector<std::string>& names();
   static std::map<std::string,unsigned int>& indexer();
-  static std::vector<vecpair_type*>& mem(vecpair_type*);
+  static std::vector<boost::shared_ptr<vecpair_type> >& mem(vecpair_type*);
   //DDValue(const DDValue &);
   //DDValue & operator=(const DDValue &);
   //void destroy() { delete vecPair_;} //delete valPairs_; }

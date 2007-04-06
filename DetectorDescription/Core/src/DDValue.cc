@@ -1,15 +1,15 @@
 #include "DetectorDescription/Core/interface/DDValue.h"
-//#include "DetectorDescription/Base/interface/DDdebug.h"
+
 #include "DetectorDescription/Base/interface/DDException.h"
-#include <cassert>
-#include <iostream>
-
-
-//map<std::string,unsigned int> DDValue::indexer_;
-//std::vector<std::string> DDValue::names_(1);
 
 // Message logger.
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include <cassert>
+#include <iostream>
+
+//map<std::string,unsigned int> DDValue::indexer_;
+//std::vector<std::string> DDValue::names_(1);
 
 DDValue::DDValue(const std::string & name)
  : id_(0)
@@ -149,11 +149,12 @@ DDValue::~DDValue()
 
 void DDValue::clear()
 {
-  std::vector<vecpair_type*> & v = mem(0);
-  std::vector<vecpair_type*>::iterator it = v.begin();
-  for (; it != v.end(); ++ it) {
-    delete *it;
-  }
+  std::vector<boost::shared_ptr<vecpair_type> > & v = mem(0);
+  //NOT sure about removing this... I think it is ok because of shared_ptr...
+//   std::vector<boost::shared_ptr<vecpair_type> >::iterator it = v.begin();
+//   for (; it != v.end(); ++ it) {
+//     delete *it;
+//   }
   v.clear();
   //delete vecPair_;
   //vecPair_=0;
@@ -170,10 +171,10 @@ std::vector<std::string>& DDValue::names() {
  return names_;
 } 
 
-std::vector<DDValue::vecpair_type*>& DDValue::mem(DDValue::vecpair_type * vp)
+std::vector<boost::shared_ptr<DDValue::vecpair_type> >& DDValue::mem(DDValue::vecpair_type * vp)
 {
-  static std::vector<vecpair_type*> memory_(1);
-  memory_.push_back(vp);
+  static std::vector<boost::shared_ptr<vecpair_type> > memory_;
+  memory_.push_back( boost::shared_ptr<vecpair_type>(vp) );
   return memory_;
 }
 
