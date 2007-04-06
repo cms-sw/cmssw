@@ -10,7 +10,7 @@
 
      See CMS EventFilter wiki page for further notes.
 
-   $Id: StorageManager.h,v 1.10 2007/03/29 09:08:16 klute Exp $
+   $Id: StorageManager.h,v 1.11 2007/04/04 22:12:16 hcheung Exp $
 */
 
 #include <string>
@@ -29,7 +29,7 @@
 #include "EventFilter/StorageManager/interface/SMPerformanceMeter.h"
 #include "EventFilter/StorageManager/interface/SMFUSenderList.h"
 
-#include "PluginManager/PluginManager.h"
+#include "FWCore/PluginManager/interface/PluginManager.h"
 
 #include "toolbox/mem/Reference.h"
 
