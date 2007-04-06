@@ -245,4 +245,17 @@ class SliceTestNtupleMaker: public edm::EDAnalyzer {
 
 }; // End SliceTestNtupleMaker class
 
+template<class T>
+  void SliceTestNtupleMaker::Coords::setPoint( 
+    const Point3DBase<float, T> &roPOINT) {
+
+  dX     = roPOINT.x();
+  dY     = roPOINT.y();
+  dZ     = roPOINT.z();
+  dR     = sqrt( dX * dX + dY * dY);
+  dPhi   = roPOINT.phi();
+  dMag   = roPOINT.mag();
+  dTheta = roPOINT.theta();
+}
+
 #endif // ANALYSISEXAMPLES_SISTRIPDETECTORPERFORMANCE_SLICETESTNTUPLEMAKER
