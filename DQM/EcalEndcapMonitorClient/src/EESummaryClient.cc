@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2007/04/06 14:23:21 $
- * $Revision: 1.2 $
+ * $Date: 2007/04/06 15:28:11 $
+ * $Revision: 1.3 $
  * \author G. Della Ricca
  *
 */
@@ -420,7 +420,7 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "<tr align=\"center\">" << endl;
 
   if ( imgNameMapI.size() != 0 )
-    htmlFile << "<td><img src=\"" << imgNameMapI << "\" usemap=""#Int"" border=0></td>" << endl;
+    htmlFile << "<td><img src=\"" << imgNameMapI << "\" usemap=""#Integrity"" border=0></td>" << endl;
   else
     htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
 
@@ -433,7 +433,7 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "<tr align=\"center\">" << endl;
 
   if ( imgNameMapPO.size() != 0 )
-    htmlFile << "<td><img src=\"" << imgNameMapPO << "\" usemap=""#PeOnl"" border=0></td>" << endl;
+    htmlFile << "<td><img src=\"" << imgNameMapPO << "\" usemap=""#PedestalOnline"" border=0></td>" << endl;
   else
     htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
 
@@ -443,8 +443,8 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   delete cMap;
 
-  this->writeMap( htmlFile, "Int" );
-  this->writeMap( htmlFile, "PeOnl" );
+  this->writeMap( htmlFile, "Integrity" );
+  this->writeMap( htmlFile, "PedestalOnline" );
 
   // html page footer
   htmlFile << "</body> " << endl;
@@ -454,13 +454,14 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   gStyle->SetTitleH( saveHeigth );
   gStyle->SetTitleFontSize( saveFontSize );
+
 }
 
 void EESummaryClient::writeMap( std::ofstream& hf, std::string mapname ) {
 
  std::map<std::string, std::string> refhtml;
- refhtml["Int"] = "EEIntegrityClient.html";
- refhtml["PeOnl"] = "EEPedestalOnlineClient.html";
+ refhtml["Integrity"] = "EEIntegrityClient.html";
+ refhtml["PedestalOnline"] = "EEPedestalOnlineClient.html";
 
  const int A0 =  85;
  const int A1 = 759;
@@ -479,5 +480,6 @@ void EESummaryClient::writeMap( std::ofstream& hf, std::string mapname ) {
   hf << x0+1 << ", " << y0+1 << ", " << x1 << ", " << y1 << "\">" << std::endl;
  }
  hf << "</map>" << std::endl;
+
 }
 

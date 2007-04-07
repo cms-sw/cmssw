@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2007/04/05 19:27:15 $
- * $Revision: 1.4 $
+ * $Date: 2007/04/06 11:09:14 $
+ * $Revision: 1.5 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -311,7 +311,6 @@ void EcalEndcapMonitorClient::initialize(const ParameterSet& ps){
   gStyle->SetPadColor(10);
   gStyle->SetFillColor(10);
   gStyle->SetStatColor(10);
-  gStyle->SetTitleColor(10);
   gStyle->SetTitleFillColor(10);
 
   TGaxis::SetMaxDigits(4);
