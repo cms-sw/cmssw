@@ -74,6 +74,7 @@ EBSummaryClient::EBSummaryClient(const ParameterSet& ps){
   meIntegrity_      = 0;
   meOccupancy_      = 0;
   mePedestalOnline_ = 0;
+
   meLaserL1_        = 0;
 
 }
@@ -215,15 +216,19 @@ void EBSummaryClient::analyze(void){
       meIntegrity_->setBinContent( ipx, iex, -1. );
       meOccupancy_->setBinContent( ipx, iex, -1. );
       mePedestalOnline_->setBinContent( ipx, iex, -1. );
+
       meLaserL1_->setBinContent( ipx, iex, -1. );
 
     }
   }
 
+  meLaserL1_->setEntries( 0 );
+
   for ( unsigned int i=0; i<clients_.size(); i++ ) {
 
     EBIntegrityClient* ebic = dynamic_cast<EBIntegrityClient*>(clients_[i]);
     EBPedestalOnlineClient* ebpoc = dynamic_cast<EBPedestalOnlineClient*>(clients_[i]);
+
     EBLaserClient* eblc = dynamic_cast<EBLaserClient*>(clients_[i]);
 
     MonitorElement* me;
@@ -334,7 +339,9 @@ void EBSummaryClient::analyze(void){
                 iex = iex + 85 + 1;
               }
 
-              meLaserL1_->setBinContent( ipx, iex, xval );
+              if ( me->getEntries() != 0 ) {
+                meLaserL1_->setBinContent( ipx, iex, xval );
+              }
 
             }
 
@@ -516,7 +523,7 @@ void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
   obj2f = 0;
   obj2f = EBMUtilsClient::getHisto<TH2F*>( meLaserL1_ );
 
-  if ( obj2f ) {
+  if ( obj2f && obj2f->GetEntries() != 0 ) {
 
     meName = obj2f->GetName();
 
