@@ -214,10 +214,10 @@ TestIdealGeometry2::analyze( const edm::Event& iEvent, const edm::EventSetup& iS
 		  locPos[4] == int(comparisonVect[4]) &&
 		  locPos[5] == int(comparisonVect[5]) ) {
 	      
-		HepRotation fromAngles( (*iGeomDet).eulerAngles()  );
-		Surface::RotationType rotation( fromAngles.xx(), fromAngles.xy(), fromAngles.xz(),
-						fromAngles.yx(), fromAngles.yy(), fromAngles.yz(),
-						fromAngles.zx(), fromAngles.zy(), fromAngles.zz() );
+		const CLHEP::HepRotation& rot = (*iGeomDet).rotation();
+		align::RotationType rotation( rot.xx(), rot.xy(), rot.xz(),
+					      rot.yx(), rot.yy(), rot.yz(),
+					      rot.zx(), rot.zy(), rot.zz() );
 		
 		Id_     = (*iGeomDet).rawId();
 		// cout << "DetId = " << Id_ << " " << endl;

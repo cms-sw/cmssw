@@ -226,10 +226,10 @@ TestConverter::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup 
 		  
 		  if ((*it).rawId() == (*iGeomDet).rawId()) {
 		  
-		    HepRotation fromAngles( (*iGeomDet).eulerAngles()  );
-		    Surface::RotationType rotation( fromAngles.xx(), fromAngles.xy(), fromAngles.xz(),
-						    fromAngles.yx(), fromAngles.yy(), fromAngles.yz(),
-						    fromAngles.zx(), fromAngles.zy(), fromAngles.zz() );
+		    const CLHEP::HepRotation& rot = (*iGeomDet).rotation();
+		    align::RotationType rotation( rot.xx(), rot.xy(), rot.xz(),
+						  rot.yx(), rot.yy(), rot.yz(),
+						  rot.zx(), rot.zy(), rot.zz() );
 		    
 		    Id_     = (*iGeomDet).rawId();    
 		    dx_      = (*iGeomDet).translation().x() - align_params[15]; 
