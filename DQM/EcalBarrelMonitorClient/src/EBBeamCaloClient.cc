@@ -1,8 +1,8 @@
 /*
  * \file EBBeamCaloClient.cc
  *
- * $Date: 2007/03/13 10:14:25 $
- * $Revision: 1.42 $
+ * $Date: 2007/03/26 17:35:04 $
+ * $Revision: 1.43 $
  * \author G. Della Ricca
  * \author A. Ghezzi
  *
@@ -996,7 +996,6 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
     obj2f->SetMinimum(-0.00000001);
     obj2f->SetMaximum(6.0);
     obj2f->GetXaxis()->SetTitle("step in the scan");
-    obj2f->GetXaxis()->SetTitleColor(1);
     obj2f->Draw("col");
     dummyStep.Draw("text90,same");
     can->Update();
@@ -1043,7 +1042,6 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
     gStyle->SetOptStat(1110);
     AdjustRange(obj1f);
     obj1f->GetXaxis()->SetTitle("number of read crystals");
-    obj1f->GetXaxis()->SetTitleColor(1);
     obj1f->Draw();
     can->Update();
     can->SaveAs(imgName1.c_str());
@@ -1072,7 +1070,6 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
     obj1f->SetStats(kTRUE);
     gStyle->SetOptStat("e");
     obj1f->GetXaxis()->SetTitle("step in the scan");
-    obj1f->GetXaxis()->SetTitleColor(1);
     AdjustRange(obj1f);
     obj1f->Draw();
     can->Update();
@@ -1104,7 +1101,6 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
     gStyle->SetOptStat("e");
     AdjustRange(obj1f);
     obj1f->GetXaxis()->SetTitle("rec Ene (ADC)");
-    obj1f->GetXaxis()->SetTitleColor(1);
     obj1f->Draw();
     can->Update();
     can->SaveAs(imgName1.c_str());
@@ -1134,7 +1130,6 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
     gStyle->SetOptStat("e");
     AdjustRange(obj1f);
     obj1f->GetXaxis()->SetTitle("step");
-    obj1f->GetXaxis()->SetTitleColor(1);
     obj1f->GetYaxis()->SetTitle("Desynchronized events");
     obj1f->Draw();
     can->Update();
@@ -1259,7 +1254,6 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
     gStyle->SetOptStat(1110);
     AdjustRange(obj1f);
     obj1f->GetXaxis()->SetTitle("rec ene (ADC)");
-    obj1f->GetXaxis()->SetTitleColor(1);
     obj1f->Draw();
     can->Update();
     can->SaveAs(imgName1.c_str());
@@ -1289,7 +1283,6 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
     gStyle->SetOptStat(1110);
     AdjustRange(obj1f);
     obj1f->GetXaxis()->SetTitle("rec ene (ADC)");
-    obj1f->GetXaxis()->SetTitleColor(1);
     obj1f->Draw();
     can->Update();
     can->SaveAs(imgName1.c_str());
@@ -1320,7 +1313,6 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
     obj2f->SetLineColor(kRed);
     obj2f->SetFillColor(kRed);
     obj2f->GetXaxis()->SetTitle("\\Delta \\eta");
-    obj2f->GetXaxis()->SetTitleColor(1);
     obj2f->GetYaxis()->SetTitle("\\Delta \\phi");
 
     obj2f->Draw("box");
@@ -1356,7 +1348,6 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
       objp1->SetStats(kTRUE);
       gStyle->SetOptStat("e");
       objp1->GetXaxis()->SetTitle("#sample");
-      objp1->GetXaxis()->SetTitleColor(1);
       objp1->GetYaxis()->SetTitle("ADC");
       objp1->Draw();
       can->Update();
@@ -1381,7 +1372,6 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
       obj1f->SetStats(kTRUE);
       gStyle->SetOptStat(1110);
       obj1f->GetXaxis()->SetTitle("gain");
-      obj1f->GetXaxis()->SetTitleColor(1);
       if(obj1f->GetEntries() != 0 ){gStyle->SetOptLogy(1);}
       obj1f->Draw();
       can->Update();
@@ -1465,7 +1455,6 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
     gStyle->SetOptStat("e");
     obj1f->GetXaxis()->SetTitle("crystal");
     obj1f->GetYaxis()->SetTitle("step in the scan");
-    obj1f->GetXaxis()->SetTitleColor(1);
     AdjustRange(obj1f);
     obj1f->Draw();
     can->Update();
@@ -1495,7 +1484,6 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
     obj1f->SetStats(kTRUE);
     gStyle->SetOptStat("e");
     obj1f->GetXaxis()->SetTitle("crystal");
-    obj1f->GetXaxis()->SetTitleColor(1);
     obj1f->GetYaxis()->SetTitle("number of events (prescaled)");
 
     if(obj1f->GetEntries() != 0 ){gStyle->SetOptLogy(1);}
@@ -1532,7 +1520,6 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
     can->cd();
     objp1->SetStats(kTRUE);
     objp1->GetXaxis()->SetTitle("crystal");
-    objp1->GetXaxis()->SetTitleColor(1);
     objp1->GetYaxis()->SetTitle("rec energy (ADC)");
     gStyle->SetOptStat("e");
     AdjustRange(objp1);
@@ -1564,7 +1551,6 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
     objp1->SetStats(kTRUE);
     gStyle->SetOptStat("e");
     objp1->GetXaxis()->SetTitle("crystal");
-    objp1->GetXaxis()->SetTitleColor(1);
     objp1->GetYaxis()->SetTitle("rec energy (ADC)");
     AdjustRange(objp1);
     objp1->Draw();
@@ -1613,7 +1599,6 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
     if(mbin >0) { objp1->Fill(20*mbin-1,dd);}
 
     objp1->GetXaxis()->SetTitle("event");
-    objp1->GetXaxis()->SetTitleColor(1);
     objp1->GetYaxis()->SetTitle("crystal in beam");
 
     AdjustRange(objp1);
@@ -1664,7 +1649,6 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
     obj1f->SetStats(kTRUE);
     gStyle->SetOptStat("e");
     obj1f->GetXaxis()->SetTitle("table status (0=stable, 1=moving)");
-    obj1f->GetXaxis()->SetTitleColor(1);
     obj1f->Draw();
     can->Update();
     can->SaveAs(imgName1.c_str());

@@ -1,8 +1,8 @@
 /*
  * \file EBBeamHodoClient.cc
  *
- * $Date: 2007/03/13 10:14:25 $
- * $Revision: 1.34 $
+ * $Date: 2007/03/26 17:35:04 $
+ * $Revision: 1.35 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -755,7 +755,6 @@ void EBBeamHodoClient::htmlOutput(int run, string htmlDir, string htmlName){
       obj1f->SetStats(kTRUE);
       gPad->SetLogy(0);
       obj1f->GetXaxis()->SetTitle("hits per event");
-      obj1f->GetXaxis()->SetTitleColor(1);
       obj1f->Draw();
       cP->Update();
       cP->SaveAs(imgName.c_str());
@@ -788,7 +787,6 @@ void EBBeamHodoClient::htmlOutput(int run, string htmlDir, string htmlName){
         gPad->SetLogy(0);
       }
       obj1f->GetXaxis()->SetTitle("hodo fiber number");
-      obj1f->GetXaxis()->SetTitleColor(1);
       obj1f->Draw();
       cP->Update();
       cP->SaveAs(imgName.c_str());
@@ -853,7 +851,6 @@ void EBBeamHodoClient::htmlOutput(int run, string htmlDir, string htmlName){
         gPad->SetLogy(0);
       }
       obj1f->GetXaxis()->SetTitle("reconstructed position    (mm)");
-      obj1f->GetXaxis()->SetTitleColor(1);
       obj1f->Draw();
       cP->Update();
       cP->SaveAs(imgName.c_str());
@@ -888,9 +885,7 @@ void EBBeamHodoClient::htmlOutput(int run, string htmlDir, string htmlName){
 //    gStyle->SetOptStat("euomr");
 //    obj2f->SetStats(kTRUE);
     obj2f->GetXaxis()->SetTitle("reconstructed X position    (mm)");
-    obj2f->GetXaxis()->SetTitleColor(1);
     obj2f->GetYaxis()->SetTitle("reconstructed Y position    (mm)");
-    obj2f->GetYaxis()->SetTitleColor(1);
     obj2f->Draw("");
     cP->Update();
     cP->SaveAs(imgName.c_str());
@@ -920,22 +915,18 @@ void EBBeamHodoClient::htmlOutput(int run, string htmlDir, string htmlName){
     case 0:
       obj1f = hs01_[0];
       if ( obj1f ) obj1f->GetXaxis()->SetTitle("reconstructed track slope");
-      if ( obj1f ) obj1f->GetXaxis()->SetTitleColor(1);
       break;
     case 1:
       obj1f = hs01_[1];
       if ( obj1f ) obj1f->GetXaxis()->SetTitle("reconstructed track slope");
-      if ( obj1f ) obj1f->GetXaxis()->SetTitleColor(1);
       break;
     case 2:
       obj1f = hq01_[0];
       if ( obj1f ) obj1f->GetXaxis()->SetTitle("track fit quality");
-      if ( obj1f ) obj1f->GetXaxis()->SetTitleColor(1);
       break;
     case 3:
       obj1f = hq01_[1];
       if ( obj1f ) obj1f->GetXaxis()->SetTitle("track fit quality");
-      if ( obj1f ) obj1f->GetXaxis()->SetTitleColor(1);
       break;
     default:
       break;
@@ -999,17 +990,14 @@ void EBBeamHodoClient::htmlOutput(int run, string htmlDir, string htmlName){
     case 0:
       obj1f = hc01_[0];
       if ( obj1f ) obj1f->GetYaxis()->SetTitle("PosX_{hodo} - PosX_{calo}    (mm)");
-      if ( obj1f ) obj1f->GetYaxis()->SetTitleColor(1);
       break;
     case 1:
       obj1f = hc01_[1];
       if ( obj1f ) obj1f->GetYaxis()->SetTitle("PosY_{hodo} - PosY_{calo}    (mm)");
-      if ( obj1f ) obj1f->GetYaxis()->SetTitleColor(1);
       break;
     case 2:
       obj1f = hc01_[2];
       if ( obj1f ) obj1f->GetYaxis()->SetTitle("Time_{TDC} - Time_{calo}    (sample)");
-      if ( obj1f ) obj1f->GetYaxis()->SetTitleColor(1);
       break;
     default:
       break;
@@ -1032,7 +1020,6 @@ void EBBeamHodoClient::htmlOutput(int run, string htmlDir, string htmlName){
       obj1f->SetStats(kTRUE);
       gPad->SetLogy(0);
       obj1f->GetXaxis()->SetTitle("scan step number");
-      obj1f->GetXaxis()->SetTitleColor(1);
       obj1f->Draw();
       cP->Update();
       cP->SaveAs(imgName.c_str());
@@ -1066,17 +1053,14 @@ void EBBeamHodoClient::htmlOutput(int run, string htmlDir, string htmlName){
     case 0:
       obj1f = he03_[0];
       if ( obj1f ) obj1f->GetXaxis()->SetTitle("PosX_{hodo} - PosX_{calo}     (mm)");
-      if ( obj1f ) obj1f->GetXaxis()->SetTitleColor(1);
       break;
     case 1:
       obj1f = he03_[1];
       if ( obj1f ) obj1f->GetXaxis()->SetTitle("PosY_{hodo} - PosY_{calo}     (mm)");
-      if ( obj1f ) obj1f->GetXaxis()->SetTitleColor(1);
       break;
     case 2:
       obj1f = he03_[2];
       if ( obj1f ) obj1f->GetXaxis()->SetTitle("Time_{TDC} - Time_{calo} (samples)");
-      if ( obj1f ) obj1f->GetXaxis()->SetTitleColor(1);
       break;
     default:
       break;
@@ -1142,16 +1126,12 @@ void EBBeamHodoClient::htmlOutput(int run, string htmlDir, string htmlName){
     case 0:
       objp = he01_[0];
       if ( objp ) objp->GetXaxis()->SetTitle("PosX    (mm)");
-      if ( objp ) objp->GetXaxis()->SetTitleColor(1);
       if ( objp ) objp->GetYaxis()->SetTitle("E1 (ADC)");
-      if ( objp ) objp->GetYaxis()->SetTitleColor(1);
       break;
     case 1:
       objp = he01_[1];
       if ( objp ) objp->GetXaxis()->SetTitle("PosY    (mm)");
-      if ( objp ) objp->GetXaxis()->SetTitleColor(1);
       if ( objp ) objp->GetYaxis()->SetTitle("E1 (ADC)");
-      if ( objp ) objp->GetYaxis()->SetTitleColor(1);
       break;
     default:
       break;
@@ -1187,16 +1167,12 @@ void EBBeamHodoClient::htmlOutput(int run, string htmlDir, string htmlName){
     case 0:
       obj2f = he02_[0];
       if ( obj2f ) obj2f->GetXaxis()->SetTitle("PosX    (mm)");
-      if ( obj2f ) obj2f->GetXaxis()->SetTitleColor(1);
       if ( obj2f ) obj2f->GetYaxis()->SetTitle("E1 (ADC)");
-      if ( obj2f ) obj2f->GetYaxis()->SetTitleColor(1);
     break;
     case 1:
       obj2f = he02_[1];
       if ( obj2f ) obj2f->GetXaxis()->SetTitle("PosY    (mm)");
-      if ( obj2f ) obj2f->GetXaxis()->SetTitleColor(1);
       if ( obj2f ) obj2f->GetYaxis()->SetTitle("E1 (ADC)");
-      if ( obj2f ) obj2f->GetYaxis()->SetTitleColor(1);
       break;
     default:
       break;
@@ -1268,7 +1244,6 @@ void EBBeamHodoClient::htmlOutput(int run, string htmlDir, string htmlName){
     gStyle->SetOptStat("euomr");
     obj1f->SetStats(kTRUE);
     obj1f->GetXaxis()->SetTitle("missing collection");
-    obj1f->GetXaxis()->SetTitleColor(1);
     obj1f->Draw();
     cP->Update();
     cP->SaveAs(imgName.c_str());

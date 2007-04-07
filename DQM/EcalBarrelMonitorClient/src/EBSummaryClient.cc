@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2007/04/06 14:23:21 $
- * $Revision: 1.12 $
+ * $Date: 2007/04/06 15:28:10 $
+ * $Revision: 1.13 $
  * \author G. Della Ricca
  *
 */
@@ -72,7 +72,9 @@ EBSummaryClient::EBSummaryClient(const ParameterSet& ps){
   superModules_ = ps.getUntrackedParameter<vector<int> >("superModules", superModules_);
 
   meIntegrity_      = 0;
+  meOccupancy_      = 0;
   mePedestalOnline_ = 0;
+  meLaserL1_        = 0;
 
 }
 
@@ -138,9 +140,17 @@ void EBSummaryClient::setup(void) {
   sprintf(histo, "EBIT integrity quality summary");
   meIntegrity_ = bei->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
 
+  if ( meOccupancy_ ) bei->removeElement( meOccupancy_->getName() );
+  sprintf(histo, "EBOT occupancy summary");
+  meOccupancy_ = bei->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
+
   if ( mePedestalOnline_ ) bei->removeElement( mePedestalOnline_->getName() );
   sprintf(histo, "EBPOT pedestal quality summary G12");
   mePedestalOnline_ = bei->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
+
+  if ( meLaserL1_ ) bei->removeElement( meLaserL1_->getName() );
+  sprintf(histo, "EBLT laser quality summary L1");
+  meLaserL1_ = bei->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
 
 }
 
@@ -152,8 +162,14 @@ void EBSummaryClient::cleanup(void) {
   if ( meIntegrity_ ) bei->removeElement( meIntegrity_->getName() );
   meIntegrity_ = 0;
 
+  if ( meOccupancy_ ) bei->removeElement( meOccupancy_->getName() );
+  meOccupancy_ = 0;
+
   if ( mePedestalOnline_ ) bei->removeElement( mePedestalOnline_->getName() );
   mePedestalOnline_ = 0;
+
+  if ( meLaserL1_ ) bei->removeElement( meLaserL1_->getName() );
+  meLaserL1_ = 0;
 
 }
 
@@ -197,26 +213,34 @@ void EBSummaryClient::analyze(void){
     for ( int ipx = 1; ipx <= 360; ipx++ ) {
 
       meIntegrity_->setBinContent( ipx, iex, -1. );
+      meOccupancy_->setBinContent( ipx, iex, -1. );
       mePedestalOnline_->setBinContent( ipx, iex, -1. );
+      meLaserL1_->setBinContent( ipx, iex, -1. );
 
     }
   }
 
   for ( unsigned int i=0; i<clients_.size(); i++ ) {
 
-    EBIntegrityClient* ebit = dynamic_cast<EBIntegrityClient*>(clients_[i]);
-    if ( ebit ) {
+    EBIntegrityClient* ebic = dynamic_cast<EBIntegrityClient*>(clients_[i]);
+    EBPedestalOnlineClient* ebpoc = dynamic_cast<EBPedestalOnlineClient*>(clients_[i]);
+    EBLaserClient* eblc = dynamic_cast<EBLaserClient*>(clients_[i]);
 
-      for ( unsigned int i=0; i<superModules_.size(); i++ ) {
+    MonitorElement* me;
+    TH2F* h2;
 
-        int ism = superModules_[i];
+    for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
-        MonitorElement* me = ebit->meg01_[ism-1];
+      int ism = superModules_[i];
 
-        if ( me ) {
+      for ( int ie = 1; ie <= 85; ie++ ) {
+        for ( int ip = 1; ip <= 20; ip++ ) {
 
-          for ( int ie = 1; ie <= 85; ie++ ) {
-            for ( int ip = 1; ip <= 20; ip++ ) {
+          if ( ebic ) {
+
+            me = ebic->meg01_[ism-1];
+
+            if ( me ) {
 
               float xval = me->getBinContent( ie, ip );
 
@@ -236,27 +260,37 @@ void EBSummaryClient::analyze(void){
               meIntegrity_->setBinContent( ipx, iex, xval );
 
             }
+
+            h2 = ebic->h_[ism-1];
+
+            if ( h2 ) {
+
+              float xval = h2->GetBinContent( ie, ip );
+
+              int ic = (ip-1) + 20*(ie-1) + 1;
+
+              EBDetId id(ism, ic, EBDetId::SMCRYSTALMODE);
+
+              int iex = id.ieta();
+              int ipx = id.iphi();
+
+              if ( ism <= 18 ) {
+                iex = iex + 85;
+              } else {
+                iex = iex + 85 + 1;
+              }
+
+              meOccupancy_->setBinContent( ipx, iex, xval );
+
+            }
+
           }
 
-        }
+          if ( ebpoc ) {
 
-      }
+            me = ebpoc->meg03_[ism-1];
 
-    }
-
-    EBPedestalOnlineClient* ebpo = dynamic_cast<EBPedestalOnlineClient*>(clients_[i]);
-    if ( ebpo ) {
-
-      for ( unsigned int i=0; i<superModules_.size(); i++ ) {
-
-        int ism = superModules_[i];
-
-        MonitorElement* me = ebpo->meg03_[ism-1];
-
-        if ( me ) {
-
-          for ( int ie = 1; ie <= 85; ie++ ) {
-            for ( int ip = 1; ip <= 20; ip++ ) {
+            if ( me ) {
 
               float xval = me->getBinContent( ie, ip );
 
@@ -276,10 +310,37 @@ void EBSummaryClient::analyze(void){
               mePedestalOnline_->setBinContent( ipx, iex, xval );
 
             }
+
+          }
+
+          if ( eblc ) {
+
+            me = eblc->meg01_[ism-1];
+
+            if ( me ) {
+
+              float xval = me->getBinContent( ie, ip );
+
+              int ic = (ip-1) + 20*(ie-1) + 1;
+
+              EBDetId id(ism, ic, EBDetId::SMCRYSTALMODE);
+
+              int iex = id.ieta();
+              int ipx = id.iphi();
+
+              if ( ism <= 18 ) {
+                iex = iex + 85;
+              } else {
+                iex = iex + 85 + 1;
+              }
+
+              meLaserL1_->setBinContent( ipx, iex, xval );
+
+            }
+
           }
 
         }
-
       }
 
     }
@@ -326,6 +387,8 @@ void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
 //  const double histMax = 1.e15;
 
   int pCol3[6] = { 301, 302, 303, 304, 305, 306 };
+  int pCol4[10];
+  for ( int i = 0; i < 10; i++ ) pCol4[i] = 401+i;
 
   // dummy histogram labelling the SM's
   TH2C labelGrid("labelGrid","label grid for SM", 18, 0., 360., 2, -85., 85.);
@@ -337,7 +400,7 @@ void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
   labelGrid.SetMarkerSize(2);
   labelGrid.SetMinimum(0.1);
 
-  string imgNameMapI, imgNameMapPO, imgName, meName;
+  string imgNameMapI, imgNameMapO, imgNameMapPO, imgNameMapLL1, imgName, meName;
 
   TCanvas* cMap = new TCanvas("cMap", "Temp", int(360./170.*csize), csize);
 
@@ -382,6 +445,39 @@ void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   }
 
+  imgNameMapO = "";
+
+  obj2f = 0;
+  obj2f = EBMUtilsClient::getHisto<TH2F*>( meOccupancy_ );
+
+  if ( obj2f ) {
+
+    meName = obj2f->GetName();
+
+    for ( unsigned int i = 0; i < meName.size(); i++ ) {
+      if ( meName.substr(i, 1) == " " )  {
+        meName.replace(i, 1 ,"_" );
+      }
+    }
+    imgNameMapO = meName + ".png";
+    imgName = htmlDir + imgNameMapO;
+
+    cMap->cd();
+    gStyle->SetOptStat(" ");
+    gStyle->SetPalette(10, pCol4);
+    obj2f->GetXaxis()->SetNdivisions(18, kFALSE);
+    obj2f->GetYaxis()->SetNdivisions(2);
+    cMap->SetGridx();
+    cMap->SetGridy();
+    obj2f->SetMinimum(0.0);
+    obj2f->SetTitleSize(0.5);
+    obj2f->Draw("colz");
+    labelGrid.Draw("text,same");
+    cMap->Update();
+    cMap->SaveAs(imgName.c_str());
+
+  }
+
   imgNameMapPO = "";
 
   obj2f = 0;
@@ -415,12 +511,58 @@ void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   }
 
+  imgNameMapLL1 = "";
+
+  obj2f = 0;
+  obj2f = EBMUtilsClient::getHisto<TH2F*>( meLaserL1_ );
+
+  if ( obj2f ) {
+
+    meName = obj2f->GetName();
+
+    for ( unsigned int i = 0; i < meName.size(); i++ ) {
+      if ( meName.substr(i, 1) == " " )  {
+        meName.replace(i, 1 ,"_" );
+      }
+    }
+    imgNameMapLL1 = meName + ".png";
+    imgName = htmlDir + imgNameMapLL1;
+
+    cMap->cd();
+    gStyle->SetOptStat(" ");
+    gStyle->SetPalette(6, pCol3);
+    obj2f->GetXaxis()->SetNdivisions(18, kFALSE);
+    obj2f->GetYaxis()->SetNdivisions(2);
+    cMap->SetGridx();
+    cMap->SetGridy();
+    obj2f->SetMinimum(-0.00000001);
+    obj2f->SetMaximum(6.0);
+    obj2f->Draw("col");
+    labelGrid.Draw("text,same");
+    cMap->Update();
+    cMap->SaveAs(imgName.c_str());
+
+  }
+
   htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
   htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
   htmlFile << "<tr align=\"center\">" << endl;
 
   if ( imgNameMapI.size() != 0 )
-    htmlFile << "<td><img src=\"" << imgNameMapI << "\" usemap=""#Int"" border=0></td>" << endl;
+    htmlFile << "<td><img src=\"" << imgNameMapI << "\" usemap=""#Integrity"" border=0></td>" << endl;
+  else
+    htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
+
+  htmlFile << "</tr>" << endl;
+  htmlFile << "</table>" << endl;
+  htmlFile << "<br>" << endl;
+
+  htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
+  htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
+  htmlFile << "<tr align=\"center\">" << endl;
+
+  if ( imgNameMapO.size() != 0 )
+    htmlFile << "<td><img src=\"" << imgNameMapO << "\" usemap=""#Occupancy"" border=0></td>" << endl;
   else
     htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
 
@@ -433,7 +575,7 @@ void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "<tr align=\"center\">" << endl;
 
   if ( imgNameMapPO.size() != 0 )
-    htmlFile << "<td><img src=\"" << imgNameMapPO << "\" usemap=""#PeOnl"" border=0></td>" << endl;
+    htmlFile << "<td><img src=\"" << imgNameMapPO << "\" usemap=""#PedestalOnline"" border=0></td>" << endl;
   else
     htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
 
@@ -441,10 +583,23 @@ void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "</table>" << endl;
   htmlFile << "<br>" << endl;
 
+  htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
+  htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
+  htmlFile << "<tr align=\"center\">" << endl;
+
+  if ( imgNameMapLL1.size() != 0 )
+    htmlFile << "<td><img src=\"" << imgNameMapLL1 << "\" usemap=""#LaserL1"" border=0></td>" << endl;
+
+  htmlFile << "</tr>" << endl;
+  htmlFile << "</table>" << endl;
+  htmlFile << "<br>" << endl;
+
   delete cMap;
 
-  this->writeMap( htmlFile, "Int" );
-  this->writeMap( htmlFile, "PeOnl" );
+  if ( imgNameMapI.size() != 0 ) this->writeMap( htmlFile, "Integrity" );
+  if ( imgNameMapO.size() != 0 ) this->writeMap( htmlFile, "Occupancy" );
+  if ( imgNameMapPO.size() != 0 ) this->writeMap( htmlFile, "PedestalOnline" );
+  if ( imgNameMapLL1.size() != 0 ) this->writeMap( htmlFile, "LaserL1" );
 
   // html page footer
   htmlFile << "</body> " << endl;
@@ -454,13 +609,16 @@ void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   gStyle->SetTitleH( saveHeigth );
   gStyle->SetTitleFontSize( saveFontSize );
+
 }
 
 void EBSummaryClient::writeMap( std::ofstream& hf, std::string mapname ) {
 
  std::map<std::string, std::string> refhtml;
- refhtml["Int"] = "EBIntegrityClient.html";
- refhtml["PeOnl"] = "EBPedestalOnlineClient.html";
+ refhtml["Integrity"] = "EBIntegrityClient.html";
+ refhtml["Occupancy"] = "EBIntegrityClient.html";
+ refhtml["PedestalOnline"] = "EBPedestalOnlineClient.html";
+ refhtml["LaserL1"] = "EBLaserClient.html";
 
  const int A0 =  85;
  const int A1 = 759;
@@ -479,5 +637,6 @@ void EBSummaryClient::writeMap( std::ofstream& hf, std::string mapname ) {
   hf << x0+1 << ", " << y0+1 << ", " << x1 << ", " << y1 << "\">" << std::endl;
  }
  hf << "</map>" << std::endl;
+
 }
 

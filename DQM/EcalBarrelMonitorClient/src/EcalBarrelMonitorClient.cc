@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2007/04/05 19:27:14 $
- * $Revision: 1.247 $
+ * $Date: 2007/04/06 11:09:12 $
+ * $Revision: 1.248 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -311,7 +311,6 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
   gStyle->SetPadColor(10);
   gStyle->SetFillColor(10);
   gStyle->SetStatColor(10);
-  gStyle->SetTitleColor(10);
   gStyle->SetTitleFillColor(10);
 
   TGaxis::SetMaxDigits(4);

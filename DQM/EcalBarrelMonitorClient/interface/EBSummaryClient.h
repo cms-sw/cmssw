@@ -4,8 +4,8 @@
 /*
  * \file EBSummaryClient.h
  *
- * $Date: 2007/03/13 10:14:25 $
- * $Revision: 1.4 $
+ * $Date: 2007/03/26 17:35:04 $
+ * $Revision: 1.5 $
  * \author G. Della Ricca
  *
 */
@@ -103,7 +103,9 @@ vector<EBClient*> clients_;
 MonitorUserInterface* mui_;
 
 MonitorElement* meIntegrity_;
+MonitorElement* meOccupancy_;
 MonitorElement* mePedestalOnline_;
+MonitorElement* meLaserL1_;
 
  void writeMap( std::ofstream& hf, std::string mapname );
 };
