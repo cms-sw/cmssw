@@ -1,11 +1,12 @@
 /** \file Alignable.cc
  *
- *  $Date: 2007/03/13 21:07:04 $
- *  $Revision: 1.10 $
- *  (last update by $Author: cklae $)
+ *  $Date: 2007/03/16 16:08:19 $
+ *  $Revision: 1.11 $
+ *  (last update by $Author: flucke $)
  */
 
 #include "Alignment/CommonAlignment/interface/AlignmentParameters.h"
+#include "Alignment/CommonAlignment/interface/SurveyDet.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
 #include "Alignment/CommonAlignment/interface/Alignable.h"
@@ -21,6 +22,7 @@ Alignable::Alignable() :
 Alignable::~Alignable()
 {
   delete theAlignmentParameters;
+  delete theSurvey;
 }
 
 
@@ -78,15 +80,6 @@ void Alignable::setAlignmentParameters( AlignmentParameters* dap )
 
   delete theAlignmentParameters;
   theAlignmentParameters = dap;
-
-}
-
-
-//__________________________________________________________________________________________________
-AlignmentParameters* Alignable::alignmentParameters() const
-{
-
-  return theAlignmentParameters;
 
 }
 
@@ -218,3 +211,11 @@ void Alignable::addRotation( const RotationType& rotation )
 }
 
 
+//__________________________________________________________________________________________________
+void Alignable::setSurvey( const SurveyDet* survey )
+{
+
+  delete theSurvey;
+  theSurvey = survey;
+
+}

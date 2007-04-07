@@ -20,9 +20,9 @@
  * The class derives from DetPositioner, a friend class of
  * GeomDet, which allows to move the GeomDet. 
  *
- *  $Date: 2007/03/13 21:07:03 $
- *  $Revision: 1.20 $
- *  (last update by $Author: cklae $)
+ *  $Date: 2007/03/16 16:08:18 $
+ *  $Revision: 1.21 $
+ *  (last update by $Author: flucke $)
  */
 
 class AlignmentParameters;
@@ -51,7 +51,7 @@ public:
   void setAlignmentParameters( AlignmentParameters* dap );
 
   /// Get the AlignmentParameters
-  AlignmentParameters* alignmentParameters() const;
+  AlignmentParameters* alignmentParameters() const { return theAlignmentParameters; }
 
   /// Return vector of all direct components
   virtual std::vector<Alignable*> components() const = 0;
@@ -176,7 +176,7 @@ public:
   const SurveyDet* survey() const { return theSurvey; }
 
   /// Set survey info
-  void setSurvey( const SurveyDet* survey ) { theSurvey = survey; }
+  void setSurvey( const SurveyDet* );
 
 protected:
 
@@ -197,7 +197,7 @@ private:
 
   Alignable* theMother;                ///< Pointer to container
 
-  const SurveyDet* theSurvey; ///< Pointer to survey info
+  const SurveyDet* theSurvey; ///< Pointer to survey info; owned by class
 
 };
 
