@@ -5,10 +5,13 @@
  *
  *  Alignment using only survey info (no tracks) as a proof of principle.
  *
- *  $Date: 2007/02/06 $
- *  $Revision: 1 $
+ *  $Date: 2007/03/14 18:05:35 $
+ *  $Revision: 1.1 $
  *  \author Chung Khim Lae
  */
+
+#include <string>
+#include <vector>
 
 class Alignable;
 

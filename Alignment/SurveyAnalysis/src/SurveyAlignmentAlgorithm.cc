@@ -31,9 +31,3 @@ void SurveyAlignmentAlgorithm::initialize(const edm::EventSetup&,
 
   align.iterate(theIterations, theOutfile);
 }
-
-// #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentAlgorithmPluginFactory.h"
-// #include "FWCore/PluginManager/interface/ModuleDef.h"
-
-// DEFINE_SEAL_MODULE();
-// DEFINE_SEAL_PLUGIN(AlignmentAlgorithmPluginFactory, SurveyAlignmentAlgorithm, "SurveyAlignmentAlgorithm");

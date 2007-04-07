@@ -17,17 +17,13 @@ void SurveyAlignmentSensor::findAlignPars()
   {
     Alignable* ali = theSensors[i];
 
-    SurveyResidual res1(*ali, AlignableObjectId::AlignablePetal);
-    SurveyResidual res2(*ali, AlignableObjectId::AlignableEndcapLayer);
-    SurveyResidual res3(*ali, AlignableObjectId::AlignableEndcap);
+    SurveyResidual res1(*ali, AlignableObjectId::AlignablePetal, true);
+    SurveyResidual res2(*ali, AlignableObjectId::AlignableEndcapLayer, true);
+    SurveyResidual res3(*ali, AlignableObjectId::AlignableEndcap, true);
 
-    AlgebraicSymMatrix invCov1(6, 1); // identity
-    AlgebraicSymMatrix invCov2(6, 1); // identity
-    AlgebraicSymMatrix invCov3(6, 1); // identity
-
-    invCov1 /= (1e-3 * 1e-3);
-    invCov2 /= (1e-3 * 1e-3);
-    invCov3 /= (1e-3 * 1e-3);
+    AlgebraicSymMatrix invCov1 = res1.inverseCovariance();
+    AlgebraicSymMatrix invCov2 = res2.inverseCovariance();
+    AlgebraicSymMatrix invCov3 = res3.inverseCovariance();
 
     AlgebraicVector pars = invCov1 * res1.sensorResidual();
     AlgebraicSymMatrix cov = invCov1;

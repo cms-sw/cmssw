@@ -70,7 +70,7 @@ void SurveyAlignment::iterate(unsigned int nIteration,
     }
 
     parChi2 /= static_cast<double>(nSensor);
-    std::cout << "chi2 = " << std::sqrt(parChi2) << std::endl;
+    std::cout << "chi2 = " << parChi2 << std::endl;
     if (parChi2 < tolerance) break; // converges, so exit loop
   }
 }
