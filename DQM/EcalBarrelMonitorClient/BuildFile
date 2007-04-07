@@ -9,7 +9,6 @@
 <use name=FWCore/Framework>
 <use name=FWCore/MessageLogger>
 <use name=FWCore/ParameterSet>
-<use name=Foundation/PluginManager>
 <use name=OnlineDB/EcalCondDB>
 <use name=rootcore>
 <export>
