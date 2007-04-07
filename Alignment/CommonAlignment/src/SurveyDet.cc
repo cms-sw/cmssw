@@ -1,7 +1,9 @@
 #include "Alignment/CommonAlignment/interface/SurveyDet.h"
 
-SurveyDet::SurveyDet(const AlignableSurface& surface):
-  theSurface(surface)
+SurveyDet::SurveyDet(const AlignableSurface& surface,
+		     const align::ErrorMatrix& errors):
+  theSurface(surface),
+  theErrors(errors)
 {
   const align::Scalar W3 = surface.width()  / 3.;
   const align::Scalar L3 = surface.length() / 3.;

@@ -9,7 +9,8 @@ using namespace align;
 SurveyResidual::SurveyResidual(const Alignable& ali,
 			       ObjectId type,
 			       bool bias):
-  theSurface( ali.surface() )
+  theSurface( ali.surface() ),
+  theMother(0)
 {
 // Find mother matching given type
 
@@ -17,9 +18,9 @@ SurveyResidual::SurveyResidual(const Alignable& ali,
 
   while (dau)
   {
-    const Alignable* mom = dau->mother();
+    theMother = dau->mother();
 
-    if (!mom)
+    if (!theMother)
     {
       throw cms::Exception("ConfigError")
 	<< "Alignable (id = " << ali.geomDetId().rawId()
@@ -28,9 +29,9 @@ SurveyResidual::SurveyResidual(const Alignable& ali,
 	<< std::endl;
     }
 
-    if (mom->alignableObjectId() == type) break; // found
+    if (theMother->alignableObjectId() == type) break; // found
 
-    dau = mom; // move up a level
+    dau = theMother; // move up a level
   }
 
   findSisters(dau, bias);
@@ -95,28 +96,38 @@ LocalVectors SurveyResidual::pointsResidual() const
   return residuals;
 }
 
+AlgebraicSymMatrix SurveyResidual::inverseCovariance() const
+{
+  ErrorMatrix invCov = theMother->survey()->errors();
+
+  invCov.Invert();
+
+  const unsigned int dim = ErrorMatrix::kRows;
+
+  AlgebraicSymMatrix copy(dim);
+
+  for (unsigned int i = 0; i < dim; ++i)
+    for (unsigned int j = 0; j <= i; ++j)
+      copy.fast(i + 1, j + 1) = invCov(i, j);
+
+  return copy;
+}
+
 void SurveyResidual::findSisters(const Alignable* ali,
 				 bool bias)
 {
   theSisters.clear();
   theSisters.reserve(1000);
 
-  if (bias) ali->deepComponents(theSisters);
+  const std::vector<Alignable*>& comp = theMother->components();
 
-  const Alignable* mother = ali->mother();
+  unsigned int nComp = comp.size();
 
-  if (mother)
+  for (unsigned int i = 0; i < nComp; ++i)
   {
-    const std::vector<Alignable*>& comp = mother->components();
+    const Alignable* dau = comp[i];
 
-    unsigned int nComp = comp.size();
-
-    for (unsigned int i = 0; i < nComp; ++i)
-    {
-      const Alignable* dau = comp[i];
-
-      if (dau != ali) dau->deepComponents(theSisters);
-    }
+    if (dau != ali || bias) dau->deepComponents(theSisters);
   }
 }
 

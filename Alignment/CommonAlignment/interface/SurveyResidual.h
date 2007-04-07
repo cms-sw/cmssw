@@ -8,8 +8,8 @@
  *  For more info, please refer to
  *    http://www.pha.jhu.edu/~gritsan/cms/cms-note-survey.pdf
  *
- *  $Date: 2007/03/15 14:39:37 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/03/23 14:45:36 $
+ *  $Revision: 1.1 $
  *  \author Chung Khim Lae
  */
 
@@ -43,6 +43,9 @@ class SurveyResidual
   /// (current - nominal vectors).
   align::LocalVectors pointsResidual() const;
 
+  /// Get inverse of survey covariance wrt given ObjectId in constructor.
+  AlgebraicSymMatrix inverseCovariance() const;
+
   private:
 
   /// Find the terminal sisters of an alignable.
@@ -61,11 +64,14 @@ class SurveyResidual
 
   const AlignableSurface& theSurface; // current surface
 
+  const Alignable* theMother; // mother that matches the type (ObjectId)
+                              // given in constructor
+
   std::vector<const Alignable*> theSisters; // list of final daughters for
                                             // finding mother's position
 
   align::GlobalVectors theNominalVs; // nominal points from mother's pos
-  align::GlobalVectors theCurrentVs; // current points rotated to nominal surface
+  align::GlobalVectors theCurrentVs; // current points rotated to nominal surf
 };
 
 #endif

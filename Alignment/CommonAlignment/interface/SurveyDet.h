@@ -5,8 +5,8 @@
  *
  *  Class to hold survey info.
  *
- *  $Date: 2007/02/20 17:32:33 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/03/12 03:26:00 $
+ *  $Revision: 1.3 $
  *  \author Chung Khim Lae
  */
 
@@ -16,7 +16,7 @@ class SurveyDet
 {
   public:
 
-  /// Set the surface and 9 survey points to find its position and rotation
+  /// Set the surface and 9 survey points to find its position and rotation.
   ///
   ///  -----------   ^   ----------- 
   /// | . | . | . |  |  | 4 | 3 | 2 |
@@ -28,14 +28,18 @@ class SurveyDet
   /// <---- W ---->
   ///
   /// The left sensor shows how the 9 points are chosen (W = width, L = length)
-  /// The right sensor shows how the points are indexed
+  /// The right sensor shows how the points are indexed.
+  /// Also set the survey errors.
   SurveyDet(
-	    const AlignableSurface& // set the surface
+	    const AlignableSurface&,  // set the surface
+	    const align::ErrorMatrix& // set the survey errors
 	    );
 
   inline const align::PositionType& position() const;
 
   inline const align::RotationType& rotation() const;
+
+  inline const align::ErrorMatrix& errors() const;
 
   inline const align::LocalPoints& localPoints() const;
 
@@ -51,6 +55,8 @@ class SurveyDet
 
   AlignableSurface theSurface; // surface of det from survey info
 
+  align::ErrorMatrix theErrors;
+
   std::vector<align::LocalPoint> thePoints; // survey points on the surface
 };
 
@@ -62,6 +68,11 @@ const align::PositionType& SurveyDet::position() const
 const align::RotationType& SurveyDet::rotation() const
 {
   return theSurface.rotation();
+}
+
+const align::ErrorMatrix& SurveyDet::errors() const
+{
+  return theErrors;
 }
 
 const align::LocalPoints& SurveyDet::localPoints() const
