@@ -1,9 +1,9 @@
 /// \file AlignmentProducer.cc
 ///
 ///  \author    : Frederic Ronga
-///  Revision   : $Revision: 1.27 $
-///  last update: $Date: 2007/03/13 01:50:03 $
-///  by         : $Author: cklae $
+///  Revision   : $Revision: 1.28 $
+///  last update: $Date: 2007/03/27 19:45:06 $
+///  by         : $Author: fronga $
 
 #include "Alignment/CommonAlignmentProducer/interface/AlignmentProducer.h"
 
@@ -40,6 +40,8 @@
 #include "CondFormats/DataRecord/interface/DTAlignmentErrorRcd.h"
 #include "CondFormats/DataRecord/interface/CSCAlignmentRcd.h"
 #include "CondFormats/DataRecord/interface/CSCAlignmentErrorRcd.h"
+#include "CondFormats/DataRecord/interface/TrackerSurveyRcd.h"
+#include "CondFormats/DataRecord/interface/TrackerSurveyErrorRcd.h"
 
 // Tracking 	 
 #include "TrackingTools/PatternTools/interface/Trajectory.h" 
@@ -47,9 +49,10 @@
 // Alignment
 #include "CondFormats/Alignment/interface/Alignments.h"
 #include "CondFormats/Alignment/interface/AlignmentErrors.h"
+#include "CondFormats/Alignment/interface/SurveyErrors.h"
 #include "Alignment/TrackerAlignment/interface/TrackerScenarioBuilder.h"
 #include "Alignment/MuonAlignment/interface/MuonScenarioBuilder.h"
-#include "Alignment/CommonAlignment/interface/Utilities.h"
+#include "Alignment/CommonAlignment/interface/SurveyDet.h"
 #include "Alignment/CommonAlignmentParametrization/interface/RigidBodyAlignmentParameters.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentAlgorithmPluginFactory.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterSelector.h"
@@ -171,7 +174,22 @@ void AlignmentProducer::beginOfJob( const edm::EventSetup& iSetup )
   }
 
   // Create alignable tracker and muon 
-  if (doTracker_) theAlignableTracker = new AlignableTracker( &(*theGeometricDet), &(*theTracker) );
+  if (doTracker_)
+  {
+    theAlignableTracker = new AlignableTracker( &(*theGeometricDet), &(*theTracker) );
+
+    edm::ESHandle<Alignments> surveys;
+    edm::ESHandle<SurveyErrors> surveyErrors;
+
+    iSetup.get<TrackerSurveyRcd>().get(surveys);
+    iSetup.get<TrackerSurveyErrorRcd>().get(surveyErrors);
+
+    theSurveyValues = &*surveys;
+    theSurveyErrors = &*surveyErrors;
+
+    addSurveyInfo_(theAlignableTracker);
+  }
+
   if (doMuon_) theAlignableMuon = new AlignableMuon( &(*theMuonDT), &(*theMuonCSC) );
 
   // Create alignment parameter builder
@@ -232,12 +250,11 @@ void AlignmentProducer::beginOfJob( const edm::EventSetup& iSetup )
 // Terminate algorithm
 void AlignmentProducer::endOfJob()
 {
-
+  edm::LogInfo("Alignment") << "@SUB=AlignmentProducer::endOfJob";
 
   // Save alignments to database
   if (saveToDB_) {
-    edm::LogInfo("Alignment") << "@SUB=AlignmentProducer::endOfJob" 
-                              << "Writing Alignments to DB...";
+    edm::LogInfo("Alignment") << "Writing Alignments to DB...";
     // Call service
     edm::Service<cond::service::PoolDBOutputService> poolDbService;
     if( !poolDbService.isAvailable() ) // Die if not available
@@ -483,4 +500,27 @@ void AlignmentProducer::createGeometries_( const edm::EventSetup& iSetup )
       theMuonDT = boost::shared_ptr<DTGeometry>(DTGeometryBuilder.build(&(*cpv), *mdc));
       theMuonCSC = boost::shared_ptr<CSCGeometry>(CSCGeometryBuilder.build(&(*cpv), *mdc));
    }
+}
+
+void AlignmentProducer::addSurveyInfo_(Alignable* ali)
+{
+  static unsigned int s(0); // index for survey values, errors
+
+  const std::vector<Alignable*>& comp = ali->components();
+
+  unsigned int nComp = comp.size();
+
+  for (unsigned int i = 0; i < nComp; ++i) addSurveyInfo_(comp[i]);
+
+  const CLHEP::Hep3Vector&  pos = theSurveyValues->m_align[s].translation();
+  const CLHEP::HepRotation& rot = theSurveyValues->m_align[s].rotation();
+
+  AlignableSurface surf( align::PositionType( pos.x(), pos.y(), pos.z() ),
+			 align::RotationType( rot.xx(), rot.xy(), rot.xz(),
+					      rot.yx(), rot.yy(), rot.yz(),
+					      rot.zx(), rot.zy(), rot.zz() ) );
+
+  ali->setSurvey( new SurveyDet( surf, theSurveyErrors->m_surveyErrors[s].matrix() ) );
+
+  ++s;
 }

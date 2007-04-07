@@ -7,9 +7,9 @@
 /// Description : calls alignment algorithms
 ///
 ///  \author    : Frederic Ronga
-///  Revision   : $Revision: 1.10 $
-///  last update: $Date: 2007/01/23 16:08:15 $
-///  by         : $Author: fronga $
+///  Revision   : $Revision: 1.11 $
+///  last update: $Date: 2007/03/02 18:34:07 $
+///  by         : $Author: pivarski $
 
 #include <vector>
 
@@ -26,12 +26,14 @@
 #include "RecoTracker/TrackProducer/interface/TrackProducerBase.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentAlgorithmBase.h"
 #include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
+#include "Alignment/TrackerAlignment/interface/TrackerAlignableId.h"
 #include "Alignment/MuonAlignment/interface/AlignableMuon.h"
 
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterBuilder.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterStore.h"
 #include "Alignment/CommonAlignment/interface/Alignable.h"
 
+class SurveyErrors;
 
 class AlignmentProducer : public edm::ESProducerLooper
 {
@@ -80,7 +82,15 @@ class AlignmentProducer : public edm::ESProducerLooper
   /// Create tracker and muon geometries
   void createGeometries_( const edm::EventSetup& );
 
+  /// Add survey info to an alignable
+  void addSurveyInfo_(
+		      Alignable*
+		      );
+
   // private data members
+
+  const Alignments*   theSurveyValues;
+  const SurveyErrors* theSurveyErrors;
 
   AlignmentAlgorithmBase* theAlignmentAlgo;
   AlignmentParameterBuilder* theAlignmentParameterBuilder;
