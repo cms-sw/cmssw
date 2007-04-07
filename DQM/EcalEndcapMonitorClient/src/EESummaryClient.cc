@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2007/04/06 15:28:11 $
- * $Revision: 1.3 $
+ * $Date: 2007/04/07 11:57:05 $
+ * $Revision: 1.4 $
  * \author G. Della Ricca
  *
 */
@@ -443,8 +443,8 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   delete cMap;
 
-  this->writeMap( htmlFile, "Integrity" );
-  this->writeMap( htmlFile, "PedestalOnline" );
+  if ( imgNameMapI.size() != 0 ) this->writeMap( htmlFile, "Integrity" );
+  if ( imgNameMapPO.size() != 0 ) this->writeMap( htmlFile, "PedestalOnline" );
 
   // html page footer
   htmlFile << "</body> " << endl;
