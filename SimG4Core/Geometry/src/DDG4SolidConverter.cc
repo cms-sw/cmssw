@@ -1,4 +1,3 @@
-using namespace std;
 #include<sstream>
 #include "SimG4Core/Geometry/interface/DDG4SolidConverter.h"
 #include "G4VSolid.hh"
@@ -8,6 +7,7 @@ using namespace std;
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+using namespace std;
 const vector<double> * DDG4SolidConverter::par_ = 0; 
 
 DDG4SolidConverter::DDG4SolidConverter()
