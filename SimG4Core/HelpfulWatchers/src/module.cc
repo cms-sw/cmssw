@@ -2,7 +2,7 @@
 #include "SimG4Core/HelpfulWatchers/src/SimTracer.h"
 #include "SimG4Core/HelpfulWatchers/src/BeginOfTrackCounter.h"
 
-#include "PluginManager/ModuleDef.h"
+#include "FWCore/PluginManager/interface/ModuleDef.h"
 
 using namespace simwatcher;
 DEFINE_SEAL_MODULE ();

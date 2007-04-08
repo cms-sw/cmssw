@@ -5,7 +5,7 @@
 #include "SimG4CMS/HcalTestBeam/interface/HcalTB02Analysis.h"
 #include "SimG4CMS/HcalTestBeam/interface/HcalTB04Analysis.h"
 #include "SimG4CMS/HcalTestBeam/interface/HcalTB06Analysis.h"
-#include "PluginManager/ModuleDef.h"
+#include "FWCore/PluginManager/interface/ModuleDef.h"
  
 DEFINE_SEAL_MODULE ();
 typedef HcalTB02SD HcalTB02SensitiveDetector;

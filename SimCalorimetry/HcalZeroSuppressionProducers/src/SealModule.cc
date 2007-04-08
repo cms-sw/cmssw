@@ -1,4 +1,4 @@
-#include "PluginManager/ModuleDef.h"
+#include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "SimCalorimetry/HcalZeroSuppressionProducers/src/HcalSimpleAmplitudeZS.h"
 

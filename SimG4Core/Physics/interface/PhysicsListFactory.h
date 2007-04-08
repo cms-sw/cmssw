@@ -5,7 +5,7 @@
 #include "SimG4Core/Physics/interface/PhysicsListMaker.h"
 
 #include "SealKernel/Component.h"
-#include "PluginManager/PluginFactory.h"
+#include "FWCore/PluginManager/interface/PluginFactory.h"
 
 class PhysicsListFactory 
     : public seal::PluginFactory<

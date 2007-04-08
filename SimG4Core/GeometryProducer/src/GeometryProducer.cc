@@ -1,4 +1,4 @@
-#include "PluginManager/PluginManager.h"
+#include "FWCore/PluginManager/interface/PluginManager.h"
 
 #include "SimG4Core/GeometryProducer/interface/GeometryProducer.h"
 

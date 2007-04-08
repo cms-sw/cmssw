@@ -8,7 +8,7 @@
 <use name=SimG4Core/Application>
 <use name=FWCore/ParameterSet>
 <use name=FWCore/Framework>
-<use name=Foundation/PluginManager>
+<use name=FWCore/PluginManager>
 <export>
 <lib name=SimG4CoreGeometryProducer>
 <use name=Utilities/Notification>

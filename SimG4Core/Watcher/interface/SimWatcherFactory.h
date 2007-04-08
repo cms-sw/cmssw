@@ -4,7 +4,7 @@
 #include "SimG4Core/Watcher/interface/SimWatcher.h"
 #include "SimG4Core/Watcher/interface/SimWatcherMaker.h"
 
-#include "PluginManager/PluginFactory.h"
+#include "FWCore/PluginManager/interface/PluginFactory.h"
 
 class SimWatcherFactory 
     : public seal::PluginFactory<

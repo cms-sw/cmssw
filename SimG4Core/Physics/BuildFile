@@ -6,7 +6,6 @@
 </export>
 
 <use name=SimG4Core/Geometry>
-<use name=Foundation/PluginManager>
 <use name=FWCore/ParameterSet>
 <use name=geant4>
 <use name=boost>

@@ -1,5 +1,4 @@
 <use name=FWCore/Framework>
-<use name=Foundation/PluginManager>
 <use name=FWCore/ParameterSet>
 <use name=Geometry/CaloEventSetup>
 <use name=Geometry/CaloTopology>
@@ -16,7 +15,6 @@
 <export>
    <lib name=EcalSimpleSource>
    <use name=FWCore/Framework>
-   <use name=Foundation/PluginManager>
    <use name=FWCore/ParameterSet>
    <use name=Geometry/CaloEventSetup>
    <use name=Geometry/CaloTopology>

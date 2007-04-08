@@ -12,7 +12,7 @@
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
 <use name=FWCore/MessageLogger>
-<use name=Foundation/PluginManager>
+<use name=FWCore/PluginManager>
 <use name=boost>
 
 <flags SEAL_PLUGIN_NAME="SimCalorimetryHcalTestBeam">

@@ -1,5 +1,5 @@
 #include "SimG4Core/Physics/interface/PhysicsList.h"
 
-#include "PluginManager/ModuleDef.h"
+#include "FWCore/PluginManager/interface/ModuleDef.h"
 
 DEFINE_SEAL_MODULE ();

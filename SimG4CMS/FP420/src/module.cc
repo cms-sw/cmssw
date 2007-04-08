@@ -4,7 +4,7 @@
 #include "SimG4Core/Watcher/interface/SimWatcherFactory.h"
 //nclude "SimG4Core/Watcher/interface/SimWatcher.h" //=
 //nclude "SimG4Core/Watcher/interface/SimWatcherMaker.h" //=
-#include "PluginManager/ModuleDef.h"
+#include "FWCore/PluginManager/interface/ModuleDef.h"
   
 DEFINE_SEAL_MODULE ();
 typedef FP420SD FP420SensitiveDetector;

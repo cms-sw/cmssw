@@ -1,5 +1,4 @@
 
-<use name=Foundation/PluginManager>
 <use name=FWCore/ParameterSet>
 <use name=SimG4Core/SensitiveDetector>
 <use name=SimG4Core/Notification> 

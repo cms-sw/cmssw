@@ -4,7 +4,7 @@
 #include "SimG4CMS/Calo/interface/HcalTestAnalysis.h"
 #include "SimG4Core/SensitiveDetector/interface/SensitiveDetectorPluginFactory.h"
 #include "SimG4Core/Watcher/interface/SimWatcherFactory.h"
-#include "PluginManager/ModuleDef.h"
+#include "FWCore/PluginManager/interface/ModuleDef.h"
   
 DEFINE_SEAL_MODULE ();
 typedef ECalSD EcalSensitiveDetector;

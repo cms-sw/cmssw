@@ -1,4 +1,4 @@
-#include "PluginManager/PluginManager.h"
+#include "FWCore/PluginManager/interface/PluginManager.h"
 
 #include "SimCalorimetry/HcalTestBeam/interface/HcalTBDigiProducer.h"
 #include "DataFormats/Common/interface/Handle.h"

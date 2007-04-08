@@ -6,7 +6,7 @@
 #include "SimG4CMS/Calo/interface/HcalTestHistoManager.h"
 #include "SimDataFormats/CaloTest/interface/HcalTestHistoClass.h"
 
-#include "PluginManager/PluginManager.h"
+#include "FWCore/PluginManager/interface/PluginManager.h"
 #include "POOLCore/Token.h"
 #include "FileCatalog/URIParser.h"
 #include "FileCatalog/FCSystemTools.h"

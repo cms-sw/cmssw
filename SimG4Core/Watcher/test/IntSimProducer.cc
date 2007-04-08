@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Tue Nov 29 11:33:37 EST 2005
-// $Id$
+// $Id: IntSimProducer.cc,v 1.1 2005/11/29 18:40:25 chrjones Exp $
 //
 
 // system include files
@@ -47,7 +47,7 @@ IntSimProducer::IntSimProducer(const edm::ParameterSet&)
    produces<int>();
 }
 
-#include "PluginManager/ModuleDef.h"
+#include "FWCore/PluginManager/interface/ModuleDef.h"
 
 DEFINE_SEAL_MODULE();
 DEFINE_SIMWATCHER(IntSimProducer);

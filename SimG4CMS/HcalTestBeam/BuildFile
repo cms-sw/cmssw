@@ -9,7 +9,6 @@
 <use name=FWCore/ParameterSet>
 <use name=FWCore/MessageLogger>
 <use name=DQMServices/CoreROOT>
-<use name=Foundation/PluginManager>
 <use name=geant4>
 <use name=boost>
 <use name=root>
@@ -28,7 +27,6 @@
  <use name=FWCore/ParameterSet>
  <use name=FWCore/MessageLogger>
  <use name=DQMServices/CoreROOT>
- <use name=Foundation/PluginManager>
  <use name=geant4>
  <use name=boost>
  <use name=root>

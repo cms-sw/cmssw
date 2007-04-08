@@ -1,8 +1,8 @@
 /*  
- *  $Id:$
+ *  $Id: SealModule.cc,v 1.1 2006/06/05 14:00:52 fabiocos Exp $
  */
 
-#include "PluginManager/ModuleDef.h"
+#include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "SimCalorimetry/EcalTestBeam/interface/EcalTBDigiProducer.h"

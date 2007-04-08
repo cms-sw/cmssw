@@ -1,7 +1,7 @@
 #include "SimG4CMS/EcalTestBeam/interface/EcalTBH4BeamSD.h"
 #include "SimG4CMS/EcalTestBeam/interface/EcalTBH4Trigger.h"
 #include "SimG4Core/SensitiveDetector/interface/SensitiveDetectorPluginFactory.h"
-#include "PluginManager/ModuleDef.h"
+#include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "SimG4Core/Watcher/interface/SimWatcherFactory.h"
 

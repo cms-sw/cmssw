@@ -1,5 +1,4 @@
 <use name=FWCore/Framework>
-<use name=Foundation/PluginManager>
 <use name=FWCore/ParameterSet>
 <use name=FWCore/MessageLogger>
 <use name=SimCalorimetry/EcalSimAlgos>
@@ -21,6 +20,5 @@
    <use name=CondFormats/DataRecord>
    <use name=TBDataFormats/EcalTBObjects>
    <use name=FWCore/Framework>
-   <use name=Foundation/PluginManager>
    <use name=FWCore/ParameterSet>
 </export>

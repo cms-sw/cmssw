@@ -1,9 +1,7 @@
 <export>
  <lib name=SimG4CoreSensitiveDetector>
- <use name=Foundation/PluginManager>
  <use name=sigcpp>
 </export>
-<use name=Foundation/PluginManager>
 <use name=SimG4Core/Geometry>
 <use name=boost>
 <use name=geant4>
