@@ -32,9 +32,6 @@ typedef std::vector<TCCinput> TCCInputData;
 
 const int N_SM = 36;
 
-using namespace edm;
-using namespace std;
-
 class EcalFEtoDigi : public edm::EDProducer {
 
 public:
@@ -67,7 +64,7 @@ private:
   int skipEvents_;
 
   bool debug;
-  ofstream outfile;
+  std::ofstream outfile;
 
 };
 

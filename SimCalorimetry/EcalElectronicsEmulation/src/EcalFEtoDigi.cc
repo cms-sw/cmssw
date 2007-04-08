@@ -6,7 +6,7 @@ EcalFEtoDigi::EcalFEtoDigi(const edm::ParameterSet& iConfig) {
   db_ = NULL;
   databaseFileNameEB_ = iConfig.getParameter<std::string>("DatabaseFileEB");;
   databaseFileNameEE_ = iConfig.getParameter<std::string>("DatabaseFileEE");;
-  basename_           = iConfig.getUntrackedParameter<string>("FlatBaseName");
+  basename_           = iConfig.getUntrackedParameter<std::string>("FlatBaseName");
   sm_                 = iConfig.getUntrackedParameter<int>("SuperModuleId");
   skipEvents_         = iConfig.getUntrackedParameter<int>("SkipEvents");
   doCompressEt_       = iConfig.getUntrackedParameter<bool>("doCompressEt");
@@ -32,13 +32,13 @@ EcalFEtoDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   current_bx++;
 
   if(debug)
-    cout << "[EcalFEtoDigi::produce] producing event " << current_bx+1 << endl;
+    std::cout << "[EcalFEtoDigi::produce] producing event " << current_bx+1 << std::endl;
   
   std::auto_ptr<EcalTrigPrimDigiCollection>  
     e_tpdigis (new EcalTrigPrimDigiCollection);
 
 
-  vector<TCCinput>::const_iterator it;
+  std::vector<TCCinput>::const_iterator it;
 
   for(int i=0; i<N_SM; i++) {
 
@@ -51,13 +51,13 @@ EcalFEtoDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	continue;
       else
       	if(debug && (*it).input!=0 )
-	  cout << "[EcalFEtoDigi] " 
+	  std::cout << "[EcalFEtoDigi] " 
 	       << "\tsupermodule:" << sm_ 
 	       << "\tevent: "      << current_bx 
 	       << "\tbx: "         << (*it).bunchCrossing
-	       << "\tvalue:0x"     << setfill('0') << setw(4) 
-	       << hex << (*it).input << setfill(' ') << dec 
-	       << endl;
+	       << "\tvalue:0x"     << std::setfill('0') << std::setw(4) 
+	       << std::hex << (*it).input << std::setfill(' ') << std::dec 
+	       << std::endl;
 
       
       /// create EcalTrigTowerDetId
@@ -83,25 +83,25 @@ EcalFEtoDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     
       if(debug) 
 	outfile << (*it).tower << '\t' 
-		<< (*it).bunchCrossing << '\t'<< setfill('0') << hex
-		<< "0x" << setw(4) << (*it).input << '\t'
-		<< "0"	<< dec << setfill(' ') 
-		<< endl;
+		<< (*it).bunchCrossing << '\t'<< std::setfill('0') << std::hex
+		<< "0x" << std::setw(4) << (*it).input << '\t'
+		<< "0"	<< std::dec << std::setfill(' ') 
+		<< std::endl;
 
       /// print & debug 
       if(debug && (*it).input!=0 )
-	cout << "[EcalFEtoDigi] debug id: " << e_digi->id() << "\n\t" 
-	     << dec 
+	std::cout << "[EcalFEtoDigi] debug id: " << e_digi->id() << "\n\t" 
+	     << std::dec 
 	     << "\tieta: "     << e_digi->id().ieta()
 	     << "\tiphi: "     << e_digi->id().iphi()
 	     << "\tsize: "     << e_digi->size()
 	     << "\tfg: "       <<(e_digi->fineGrain()?1:0)    
-	     << hex 	 
+	     << std::hex 	 
 	     << "\tEt: 0x"     << e_digi->compressedEt() 
 	     << " (0x"         << (*it).get_energy() << ")" 
 	     << "\tttflag: 0x" << e_digi->ttFlag()
-	     << dec
-	     << endl;
+	     << std::dec
+	     << std::endl;
 
       delete e_digi;
 
@@ -113,7 +113,7 @@ EcalFEtoDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   ///in case no info was found for the event:need to create something
   if(e_tpdigis->size()==0) {
-    cout << "[EcalFEtoDigi] creating empty collection for the event!\n";
+    std::cout << "[EcalFEtoDigi] creating empty collection for the event!\n";
     EcalTriggerPrimitiveDigi *e_digi = new EcalTriggerPrimitiveDigi();
     e_tpdigis->push_back(*e_digi);
   }
@@ -129,9 +129,9 @@ void
 EcalFEtoDigi::readInput() {
 
   if(debug)
-    cout << "\n[EcalFEtoDigi::readInput] Reading input data\n";
+    std::cout << "\n[EcalFEtoDigi::readInput] Reading input data\n";
   
-  stringstream s;
+  std::stringstream s;
   int tcc;
 
   for (int i=0; i<N_SM; i++) {
@@ -141,17 +141,17 @@ EcalFEtoDigi::readInput() {
     s.str("");
     s << basename_ << tcc << ".txt"; 
 
-    ifstream f(s.str().c_str());
+    std::ifstream f(s.str().c_str());
     
     if(debug) {
-      cout << "  opening " << s.str().c_str() << "..." << endl;
+      std::cout << "  opening " << s.str().c_str() << "..." << std::endl;
       if(!f.good())
-	cout << " skipped!"; 
-      cout << endl;       
+	std::cout << " skipped!"; 
+      std::cout << std::endl;       
     }
     //if (!f.good() || f.eof()) 
     //  throw cms::Exception("BadInputFile") 
-    //	<< "EcalFEtoDigi: cannot open file " << s.str().c_str() << endl; 
+    //	<< "EcalFEtoDigi: cannot open file " << s.str().c_str() << std::endl; 
     
     int n_bx=0;
     int tt; int bx; unsigned val; int dummy;
@@ -159,7 +159,7 @@ EcalFEtoDigi::readInput() {
     while(f.good()) {
       if(f.eof()) break;
       tt=0; bx=-1; val=0x0; dummy=0;
-      f >> tt >> bx >> hex >> val >> dec >> dummy;
+      f >> tt >> bx >> std::hex >> val >> std::dec >> dummy;
       if(bx==-1 || bx < skipEvents_ ) continue;
       if( !n_bx || (bx!=(inputdata_[i].back()).bunchCrossing) )
 	n_bx++;
@@ -178,7 +178,7 @@ EcalFEtoDigi::readInput() {
   }
 
   if(debug)
-    cout << "[EcalFEtoDigi::readInput] Done reading." << endl;
+    std::cout << "[EcalFEtoDigi::readInput] Done reading." << std::endl;
 
   return; 
 }
