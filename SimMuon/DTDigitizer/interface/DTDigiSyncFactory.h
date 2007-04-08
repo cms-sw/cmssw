@@ -8,12 +8,12 @@
  *  are accessed via ComponentFactoryByName
  *
  *
- *  $Date: 2005/02/22 16:51:16 $
- *  $Revision: 1.2 $
+ *  $Date: 2005/12/14 11:58:01 $
+ *  $Revision: 1.1 $
  *  \author R. Bellan - INFN Torino
  */
 
-#include <PluginManager/PluginFactory.h>
+#include "FWCore/PluginManager/interface/PluginFactory.h"
 #include "SimMuon/DTDigitizer/interface/DTDigiSyncBase.h"
 
 namespace edm {class ParameterSet;}

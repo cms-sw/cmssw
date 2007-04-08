@@ -1,5 +1,4 @@
 <use name=FWCore/Framework>
-<use name=Foundation/PluginManager>
 <use name=FWCore/ParameterSet>
 <use name=DataFormats/Common>
 <use name=SimGeneral/HepPDTRecord>
@@ -23,7 +22,6 @@
 <export>
    <lib name=SimTrackerSiStripDigitizer>
    <use name=FWCore/Framework>
-   <use name=Foundation/PluginManager>
    <use name=FWCore/ParameterSet>
    <use name=DataFormats/Common>
    <use name=SimGeneral/HepPDTRecord>

@@ -1,5 +1,4 @@
 <use name=FWCore/Framework>
-<use name=Foundation/PluginManager>
 <use name=FWCore/ParameterSet>
 <use name=DataFormats/Common>
 <use name=SimDataFormats/TrackingHit>
@@ -22,7 +21,6 @@
 <export>
    <lib name=SimTrackerSiPixelDigitizer>
    <use name=FWCore/Framework>
-   <use name=Foundation/PluginManager>
    <use name=FWCore/ParameterSet>
    <use name=DataFormats/Common>
    <use name=SimDataFormats/TrackingHit>

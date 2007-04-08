@@ -5,7 +5,7 @@
  * Factory of seal plugins for RPCDigitizer
  * \author M. Maggi -- INFN Bari
  */
-#include <PluginManager/PluginFactory.h>
+#include "FWCore/PluginManager/interface/PluginFactory.h"
 
 namespace edm{
   class ParameterSet;

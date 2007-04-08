@@ -1,5 +1,4 @@
 <use name=FWCore/Framework>
-<use name=Foundation/PluginManager>
 <use name=FWCore/ParameterSet>
 <use name=SimTracker/VertexAssociation>
 <use name=SimTracker/Records>
@@ -12,8 +11,6 @@
    <use name=FWCore/ParameterSet>
    <use name=FWCore/Utilities>
    <use name=FWCore/Services>
-
-   <use name=Foundation/PluginManager>
    <use name=SimTracker/VertexAssociation>
    <use name=SimTracker/Records>
    <use name=MagneticField/Records>

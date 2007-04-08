@@ -1,6 +1,5 @@
 
 <use name=FWCore/Framework>
-<use name=Foundation/PluginManager>
 <use name=FWCore/ParameterSet>
 <use name=Geometry/Records>
 <use name=Geometry/CommonDetUnit>
@@ -17,7 +16,6 @@
 <export>
   <lib name=SimMuonRPCDigitizer>
   <use name=FWCore/Framework>
-  <use name=Foundation/PluginManager>
   <use name=FWCore/ParameterSet>
   <use name=Geometry/Records>
   <use name=Geometry/CommonDetUnit>
