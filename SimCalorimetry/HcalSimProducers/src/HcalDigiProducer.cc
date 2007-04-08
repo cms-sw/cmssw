@@ -1,4 +1,3 @@
-using namespace std;
 #include "SimCalorimetry/HcalSimProducers/src/HcalDigiProducer.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -13,6 +12,7 @@ using namespace std;
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
+using namespace std;
 
 
 
