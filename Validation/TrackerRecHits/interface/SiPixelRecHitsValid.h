@@ -45,8 +45,6 @@
 
 #include <string>
 
-//using namespace std;
-//using namespace edm;
 
 class SiPixelRecHitsValid : public edm::EDAnalyzer {
 
