@@ -1,5 +1,5 @@
 <flags SEAL_PLUGIN_NAME="ValidationMixing">
-<use name=Foundation/PluginManager>
+<use name=FWCore/PluginManager>
 <use name=DQMServices/CoreROOT>
 <use name=SimGeneral/MixingModule>
 <use name=SimDataFormats/CrossingFrame>

@@ -1,4 +1,3 @@
-<use name=Foundation/PluginManager>
 <use name=FWCore/Framework>
 <use name=FWCore/MessageLogger>
 <use name=FWCore/ParameterSet>
@@ -15,7 +14,6 @@
 <flags SEAL_PLUGIN_NAME="SimGeneralTrackingAnalysis">
 <export>
    <lib name=SimGeneralTrackingAnalysis>
-   <use name=Foundation/PluginManager>
    <use name=FWCore/Framework>
    <use name=FWCore/MessageLogger>
    <use name=FWCore/ParameterSet>

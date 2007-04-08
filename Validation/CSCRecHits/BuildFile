@@ -6,7 +6,6 @@
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
 <use name=FWCore/MessageLogger>
-<use name=Foundation/PluginManager>
 <use name=DQMServices/CoreROOT>
 <use name=root>
 
@@ -21,7 +20,6 @@
     <use name=FWCore/Framework>
     <use name=FWCore/ParameterSet>
     <use name=FWCore/MessageLogger>
-    <use name=Foundation/PluginManager>
     <use name=DQMServices/CoreROOT>
     <use name=root>	 	
 </export>

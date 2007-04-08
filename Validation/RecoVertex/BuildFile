@@ -1,5 +1,4 @@
 <use name=FWCore/Framework>
-<use name=Foundation/PluginManager>
 <use name=FWCore/ParameterSet>
 <use name=DataFormats/TrackReco>
 <use name=DataFormats/VertexReco>
@@ -14,7 +13,6 @@
 <export>
    <lib name=ValidationVertexReco>
    <use name=FWCore/Framework>
-   <use name=Foundation/PluginManager>
    <use name=FWCore/ParameterSet>
    <use name=DataFormats/TrackReco>
    <use name=DataFormats/VertexReco>

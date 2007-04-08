@@ -1,4 +1,4 @@
-#include "PluginManager/ModuleDef.h"
+#include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "Validation/EcalClusters/interface/EgammaBasicClusters.h"
 #include "Validation/EcalClusters/interface/EgammaSuperClusters.h"

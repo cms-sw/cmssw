@@ -1,6 +1,5 @@
 <flags SEAL_PLUGIN_NAME="ValidationEcalTriggerPrimitives">
 <use name=FWCore/Framework>
-<use name=Foundation/PluginManager>
 <use name=FWCore/ParameterSet>
 <use name=DataFormats/EcalDigi>
 <use name=DataFormats/EcalDetId>
@@ -10,7 +9,6 @@
    <lib name=ValidationEcalTriggerPrimitives>
    <use name=root>
    <use name=FWCore/Framework>
-   <use name=Foundation/PluginManager>
    <use name=FWCore/ParameterSet>
    <use name=DataFormats/EcalDigi>   
    <use name=DataFormats/EcalDetId>

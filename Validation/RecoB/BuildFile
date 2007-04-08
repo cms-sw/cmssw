@@ -1,7 +1,6 @@
 <use name=root>
 <use name=DataFormats/BTauReco>
 <use name=DQMServices/QualityTests>
-<use name=Foundation/PluginManager>
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
 <use name=FWCore/Utilities>
@@ -14,7 +13,6 @@
    <use name=root>
    <use name=DataFormats/BTauReco>
    <use name=DQMServices/QualityTests>
-   <use name=Foundation/PluginManager>
    <use name=FWCore/Framework>
    <use name=FWCore/ParameterSet>
    <use name=FWCore/Utilities>
