@@ -18,13 +18,12 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: CachedTrajectory.h,v 1.2 2007/03/26 05:48:27 dmytro Exp $
+// $Id: CachedTrajectory.h,v 1.1 2007/01/21 15:30:35 dmytro Exp $
 //
 //
 
 #include "TrackingTools/TrackAssociator/interface/DetIdAssociator.h"
 #include "TrackingTools/TrackAssociator/interface/MuonChamberMatch.h"
-#include "TrackingTools/TrackAssociator/interface/FiducialVolume.h"
 #include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixStateInfo.h"
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
@@ -33,40 +32,37 @@
 class CachedTrajectory {
  public:
    CachedTrajectory();
-   enum TrajectorType { IpToEcal, IpToHcal, IpToHO, FullTrajectory };
 
    void reset_trajectory();
    
-   /// fly through the whole detector
-   void propagateAll(const SteppingHelixStateInfo& initialState);
+   // propagate through the whole detector, returns true if successful
+   bool propagateAll(const SteppingHelixStateInfo& initialState);
    
    void propagateForward(SteppingHelixStateInfo& state, float distance);
 
-   /// get fast to a given DetId surface using cached trajectory
+   // get fast to a given DetId surface using cached trajectory
    TrajectoryStateOnSurface propagate(const Plane* plane);
  
-   /// calculate trajectory change (Theta,Phi)
-   /// delta = final - original
-   std::pair<float,float> trajectoryDelta( TrajectorType );
-   
+   // calculate trajectory size 
+   float trajectoryDeltaEta();
+   float trajectoryDeltaPhi();
    void setPropagator(Propagator* ptr){	propagator_ = ptr; }
-   void setStateAtIP(const SteppingHelixStateInfo& state){ stateAtIP_ = state; }
    
-   /// get a set of points representing the trajectory between two cylinders
-   /// of radius R1 and R2 and length L1 and L2. Parameter steps defines
-   /// maximal number of steps in the detector.
-   void getTrajectory(std::vector<SteppingHelixStateInfo>&,
-		      const FiducialVolume&,
-		      int steps = 4);
-   
-   void findEcalTrajectory(const FiducialVolume&);
-   void findHcalTrajectory(const FiducialVolume&);
-   void findHOTrajectory(const FiducialVolume&);
+   // get a set of points representing the trajectory between two cylinders
+   // of radius R1 and R2 and length L1 and L2. Step < 0 corresonds to the 
+   // default step used during trajectory caching.
 
+   void getTrajectory(std::vector<SteppingHelixStateInfo>&,
+		      const float r1,
+		      const float r2, 
+		      const float l1, 
+		      const float l2, 
+		      const float step = -999.);
+   
    const std::vector<SteppingHelixStateInfo>& getEcalTrajectory();
    const std::vector<SteppingHelixStateInfo>& getHcalTrajectory();
    const std::vector<SteppingHelixStateInfo>& getHOTrajectory();
-
+   
    SteppingHelixStateInfo getStateAtEcal();
    SteppingHelixStateInfo getStateAtHcal();
    SteppingHelixStateInfo getStateAtHO();
@@ -83,14 +79,11 @@ class CachedTrajectory {
    
    static int sign (float number){
       if (number ==0) return 0;
-      if (number > 0)
+      if (number == fabs(number))
 	return 1;
       else
 	return -1;
    }
-   
-   std::pair<float,float> delta( const SteppingHelixStateInfo& state1,
-				 const SteppingHelixStateInfo& state2);
    
    float distance(const Plane* plane, int index) {
       if (index<0 || fullTrajectory_.empty() || uint(index) >= fullTrajectory_.size()) return 0;
@@ -101,9 +94,11 @@ class CachedTrajectory {
    std::vector<SteppingHelixStateInfo> ecalTrajectory_;
    std::vector<SteppingHelixStateInfo> hcalTrajectory_;
    std::vector<SteppingHelixStateInfo> hoTrajectory_;
-   SteppingHelixStateInfo stateAtIP_;
    
    bool fullTrajectoryFilled_;
+   bool ecalTrajectoryFilled_;
+   bool hcalTrajectoryFilled_;
+   bool hoTrajectoryFilled_;
    
    Propagator* propagator_;
    
