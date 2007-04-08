@@ -1,4 +1,15 @@
 
+'''
+The output from the profiler has names that end in 'names' and 'paths'.
+This script expects you run c++filt on the 'names' file and save
+it will the same prefix, but with 'nice_names' on the end.
+This will be improved on the release of simple profiler.
+
+The output file from this script has the same prefix as the input
+files, but ends in 'calltree'.  This file can be fed directly into
+kcachegrind.
+'''
+
 import sys
 
 if len(sys.argv) < 3:
