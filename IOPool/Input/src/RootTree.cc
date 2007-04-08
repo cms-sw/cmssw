@@ -3,6 +3,7 @@
 #include "DataFormats/Provenance/interface/Provenance.h"
 #include "DataFormats/Provenance/interface/BranchEntryDescription.h"
 #include "FWCore/Framework/interface/DataBlockImpl.h"
+#include "Reflex/Type.h"
 
 #include <iostream>
 
@@ -59,9 +60,8 @@ namespace edm {
       TBranch * branch = tree_->GetBranch(oldBranchName.c_str());
       prod.present_ = (branch != 0);
       if (prod.provenancePresent()) {
-        std::string const &name = prod.className();
-        std::string const className = wrappedClassName(name);
-        if (branch != 0) branches_->insert(std::make_pair(key, std::make_pair(className, branch)));
+        ROOT::Reflex::Type type =  ROOT::Reflex::Type::ByName(wrappedClassName(prod.className()));
+        if (branch != 0) branches_->insert(std::make_pair(key, std::make_pair(type, branch)));
         products_.insert(std::make_pair(prod.productID(), prod));
 	//we want the new branch name for the JobReport
 	branchNames_.push_back(prod.branchName());
