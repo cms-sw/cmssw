@@ -4,8 +4,8 @@
 /** \class MuonTrackResidualAnalyzer
  *  No description available.
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2007/03/13 09:39:37 $
+ *  $Revision: 1.2 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */ 
 
@@ -13,7 +13,7 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 
 
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
