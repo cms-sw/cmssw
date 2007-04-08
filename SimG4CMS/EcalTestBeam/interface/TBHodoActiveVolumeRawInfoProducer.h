@@ -3,7 +3,7 @@
 /*
  * \file TBHodoActiveVolumeRawInfoProducer.h
  *
- * $Id: TBHodoActiveVolumeRawInfoProducer.h,v 1.1 2007/03/19 17:21:49 fabiocos Exp $
+ * $Id: TBHodoActiveVolumeRawInfoProducer.h,v 1.2 2007/03/21 12:55:56 fabiocos Exp $
  *
  */
 
@@ -25,8 +25,6 @@
 #include "SimDataFormats/EcalTestBeam/interface/HodoscopeDetId.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
-
-using namespace std;
 
 class TBHodoActiveVolumeRawInfoProducer: public edm::EDProducer{
 

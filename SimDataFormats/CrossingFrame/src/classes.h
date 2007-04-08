@@ -8,8 +8,6 @@
 #include <map>
 #include <string>
 
-using namespace std;
-
 namespace {
 namespace {
  	CrossingFrame dummy1;

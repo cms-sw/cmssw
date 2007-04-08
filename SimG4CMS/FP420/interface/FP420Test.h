@@ -40,7 +40,6 @@
 #include <CLHEP/Vector/LorentzVector.h>
 #include <CLHEP/Random/Randomize.h> 
 // #include <fstream>
-//using namespace std;
 
 
 // ----------------------------------------------------------------
