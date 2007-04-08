@@ -4,8 +4,8 @@
 /** \class Histograms
  *  Collection of histograms for DT RecHit and Segment test.
  *
- *  $Date: 2006/06/06 15:58:29 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/08/04 10:36:46 $
+ *  $Revision: 1.2 $
  *  \author S. Bolognesi and G. Cerminara - INFN Torino
  */
 
@@ -17,7 +17,6 @@
 
 #include <string>
 #include <iostream>
-using namespace std;
 
 
 //---------------------------------------------------------------------------------------
@@ -593,7 +592,7 @@ public:
 // Histos of residuals for 4D rechits
 class HRes4DHit{
 public:
-  HRes4DHit(string name_){
+  HRes4DHit(std::string name_){
     TString N = name_.c_str();
     name=N;
 
@@ -820,7 +819,7 @@ public:
 /// A set of histograms for efficiency 4D RecHits
 class HEff4DHit{
 public:
-  HEff4DHit(string name_){
+  HEff4DHit(std::string name_){
     TString N = name_.c_str();
     name=N;
 
