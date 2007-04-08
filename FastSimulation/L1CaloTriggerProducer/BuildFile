@@ -1,6 +1,5 @@
 <flags SEAL_PLUGIN_NAME="FastSimulationL1CaloTriggerProducer">
 <use name=FWCore/Framework>
-<use name=Foundation/PluginManager>
 <use name=FWCore/ParameterSet>
 <use name=DataFormats/L1Trigger>
 <use name=DataFormats/CaloTowers>
@@ -14,7 +13,6 @@
 <export>
    <lib name=FastSimulationL1CaloTriggerProducer>
    <use name=FWCore/Framework>
-   <use name=Foundation/PluginManager>
    <use name=FWCore/ParameterSet>
    <use name=DataFormats/L1Trigger>
    <use name=DataFormats/CaloTowers>
