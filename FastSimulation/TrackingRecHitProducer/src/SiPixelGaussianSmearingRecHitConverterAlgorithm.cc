@@ -52,10 +52,6 @@ SiPixelGaussianSmearingRecHitConverterAlgorithm::SiPixelGaussianSmearingRecHitCo
   random(engine)
 {
   
-  //
-  negativeErrorProtection = 
-    pset.getParameter<bool>("negativeErrorProtection" );
-  //
   if( thePixelPart == GeomDetEnumerators::PixelBarrel ) {
     // Resolution Barrel    
     resAlpha_binMin   = 
@@ -270,29 +266,6 @@ void SiPixelGaussianSmearingRecHitConverterAlgorithm::smearHit(
 	    << "\tbeta(y) = "  << theErrorY
 	    << std::endl;	
 #endif
-  
-  /*
-  if(theErrorX < 0) {
-    std::cout << "\t\tNAN:: PixelPart , alpha , sizex , beta , sizey , errorx, errory "
-	      << thePixelPart << " "
-	      << alpha << " " << alphaMultiplicity << " "
-	      << beta  << " " << betaMultiplicity  << " "
-	      << theErrorX << " " << theErrorY
-	      << std::endl;
-
-    // protect the error against nan's
-    if(negativeErrorProtection) {
-      float reasonableError = 0.0005; // A reasonable error is 5 um for high multiplicity clusters
-      theErrorX = reasonableError * reasonableError;
-      std::cout << "\t\tERROR PROTECTION:: PixelPart , alpha , sizex , beta , sizey , errorx, errory "
-		<< thePixelPart << " "
-		<< alpha << " " << alphaMultiplicity << " "
-		<< beta  << " " << betaMultiplicity  << " "
-		<< theErrorX << " " << theErrorY
-		<< std::endl;
-    }
-  }
-  */
   
   // 
   // Generate position

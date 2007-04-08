@@ -8,10 +8,12 @@
 #include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
 
 #include "FastSimulation/TrackingRecHitProducer/interface/SiTrackerGaussianSmearingRecHitConverter.h"
+#include "FastSimulation/TrackingRecHitProducer/interface/TrackingRecHitTranslator.h"
 #include "FastSimulation/TrackingRecHitProducer/interface/SiPixelGaussianSmearingRecHitConverterAlgorithm.h"
 #include "FastSimulation/TrackingRecHitProducer/interface/SiStripGaussianSmearingRecHitConverterAlgorithm.h"
 
 DEFINE_SEAL_MODULE();
 
 DEFINE_ANOTHER_FWK_MODULE(SiTrackerGaussianSmearingRecHitConverter);
+DEFINE_ANOTHER_FWK_MODULE(TrackingRecHitTranslator);
 

@@ -422,7 +422,7 @@ void FamosRecHitAnalysis::analyze(const edm::Event& event, const edm::EventSetup
 #ifdef rrDEBUG
   std::cout << "Famos RecHits" << std::endl;
 #endif
-  edm::Handle<SiTrackerGSRecHit2DCollection> theRecHits;
+  edm::Handle<SiTrackerFullGSRecHit2DCollection> theRecHits;
   event.getByLabel(theRecHits_, theRecHits);
   
   // histograms to fill
@@ -445,10 +445,10 @@ void FamosRecHitAnalysis::analyze(const edm::Event& event, const edm::EventSetup
   for ( std::vector<DetId>::const_iterator iDetId = theDetIds.begin(); iDetId != theDetIds.end(); iDetId++ ) {
     unsigned int detid = (*iDetId).rawId();
     if(detid!=999999999){ // valid detector
-      SiTrackerGSRecHit2DCollection::range theRecHitRange = theRecHits->get((*iDetId));
-      SiTrackerGSRecHit2DCollection::const_iterator theRecHitRangeIteratorBegin = theRecHitRange.first;
-      SiTrackerGSRecHit2DCollection::const_iterator theRecHitRangeIteratorEnd   = theRecHitRange.second;
-      SiTrackerGSRecHit2DCollection::const_iterator iterRecHit = theRecHitRangeIteratorBegin;
+      SiTrackerFullGSRecHit2DCollection::range theRecHitRange = theRecHits->get((*iDetId));
+      SiTrackerFullGSRecHit2DCollection::const_iterator theRecHitRangeIteratorBegin = theRecHitRange.first;
+      SiTrackerFullGSRecHit2DCollection::const_iterator theRecHitRangeIteratorEnd   = theRecHitRange.second;
+      SiTrackerFullGSRecHit2DCollection::const_iterator iterRecHit = theRecHitRangeIteratorBegin;
       // loop over RecHits of the same detector
       for(iterRecHit = theRecHitRangeIteratorBegin; iterRecHit != theRecHitRangeIteratorEnd; ++iterRecHit) {
 	iRecHit++;

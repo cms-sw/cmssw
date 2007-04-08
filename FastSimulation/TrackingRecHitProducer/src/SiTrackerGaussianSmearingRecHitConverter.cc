@@ -79,27 +79,18 @@ SiTrackerGaussianSmearingRecHitConverter::SiTrackerGaussianSmearingRecHitConvert
 
   random = new RandomEngine(&(*rng));
 
-  //--- Declare to the EDM what kind of collections we will be making.
-  theRecHitsTag = conf.getParameter<std::string>( "RecHits" );
   produces<SiTrackerGSRecHit2DCollection>();
-  //    std::cout << "RecHit collection to produce: " << theRecHitsTag << std::endl;
-  //--- Algorithm's verbosity
-  //  theVerboseLevel = 
-  //    conf.getUntrackedParameter<int>("VerboseLevel",0);
+
   //--- PSimHit Containers
   trackerContainers.clear();
   trackerContainers = conf.getParameter<std::vector<std::string> >("ROUList");
   //--- delta rays p cut [GeV/c] to filter PSimHits with p>
   deltaRaysPCut = conf.getParameter<double>("DeltaRaysMomentumCut");
-#ifdef FAMOS_DEBUG
-  std::cout << "PSimHit filter delta rays cut in momentum p > " 
-	    << deltaRaysPCut << " GeV/c" << std::endl;
-#endif
+
 //--- switch to have RecHit == PSimHit
   trackingPSimHits = conf.getParameter<bool>("trackingPSimHits");
   if(trackingPSimHits) std::cout << "### trackingPSimHits chosen " << trackingPSimHits << std::endl;
-  negativeErrorProtection = conf.getParameter<bool>("negativeErrorProtection");
-  if(negativeErrorProtection) std::cout << "### negativeErrorProtection chosen " << negativeErrorProtection << std::endl;
+
   //
   // TIB
   localPositionResolution_TIB1x = conf.getParameter<double>("TIB1x");
@@ -427,9 +418,9 @@ void SiTrackerGaussianSmearingRecHitConverter::produce(edm::Event& e, const edm:
   MixCollection<PSimHit> allTrackerHits(cf.product(),trackerContainers);
 
   // Step B: create temporary RecHit collection and fill it with Gaussian smeared RecHit's
-  std::map< DetId, edm::OwnVector<SiTrackerGSRecHit2D> > temporaryRecHits;
+  std::map<unsigned, edm::OwnVector<SiTrackerGSRecHit2D> > temporaryRecHits;
   smearHits( allTrackerHits, temporaryRecHits);
-
+  
   // Step C: from the temporary RecHit collection, create the real one.
   std::auto_ptr<SiTrackerGSRecHit2DCollection> 
     recHitCollection(new SiTrackerGSRecHit2DCollection);
@@ -441,9 +432,10 @@ void SiTrackerGaussianSmearingRecHitConverter::produce(edm::Event& e, const edm:
 }
 
 
+
 void SiTrackerGaussianSmearingRecHitConverter::smearHits(
   MixCollection<PSimHit>& input,
-  std::map< DetId, edm::OwnVector<SiTrackerGSRecHit2D> >& temporaryRecHits)
+  std::map<unsigned, edm::OwnVector<SiTrackerGSRecHit2D> >& temporaryRecHits)
 {
   
   int numberOfPSimHits = 0;
@@ -460,65 +452,35 @@ void SiTrackerGaussianSmearingRecHitConverter::smearHits(
   for ( ; isim != lastSimHit; ++isim ) {
     ++simHitCounter;
     DetId det((*isim).detUnitId());
-#ifdef FAMOS_DEBUG
-    unsigned int detid = det.rawId();
-#endif
-    // filter PSimHit (delta rays momentum cut)
-    if( (*isim).pabs() > deltaRaysPCut ) {
-      //
-      ++numberOfPSimHits;	
-      // gaussian smearing
-      unsigned int alphaMult = 0;
-      unsigned int betaMult  = 0;
-      bool isCreated = gaussianSmearing(*isim, position, error, alphaMult, betaMult);
-      //
-      if(isCreated) {
-	// create RecHit
-#ifdef FAMOS_DEBUG
-	std::cout << " *** " << std::endl 
-		  << " Created a RecHit with local position " << position 
-		  << " and local error " << error << "\n"
-		  << "   from PSimHit number " << simHitCounter 
-		  << " with local position " << (*isim).localPosition()
-		  << " from track " << (*isim).trackId()
-		  << " with pixel multiplicity alpha(x) = " << alphaMult 
-		  << " beta(y) = " << betaMult
-		  << " in detector " << detid << std::endl
-		  << " ******** " << std::endl;
-#endif
-	// Fill the temporary RecHit on the current DetId collection
-	temporaryRecHits[det].push_back(
-	       new SiTrackerGSRecHit2D(position, error, det, 
-				       simHitCounter, (*isim).trackId(), 
-				       alphaMult, betaMult) );
+    unsigned trackID = (*isim).trackId();
 
-#ifdef FAMOS_DEBUG
-	std::cout << " Found one " 
-		  << " RecHits on " << detid;
-#endif
-      } else {
-#ifdef FAMOS_DEBUG
-	std::cout << " *** " << " RecHit not created due to hit finding in-efficiency " << "\n"
-		  << "   from a PSimHit with local position " << (*isim).localPosition()
-		  << " from track " << (*isim).trackId()
-		  << " in detector " << detid
-		  << std::endl;
-#endif
-      }
-    } else {
-#ifdef FAMOS_DEBUG
-      std::cout << " PSimHit skipped p = " 
-		<< (*isim).pabs() << " GeV/c on " << detid
-		<< "(momentum cut set to " << deltaRaysPCut << " GeV/c)";
-#endif
+    /* 
+    const GeomDet* theDet = geometry->idToDet(det);
+    std::cout << "Track/z/r after : "
+	      << trackID << " " 
+	      << theDet->surface().toGlobal((*isim).localPosition()).z() << " " 
+	      << theDet->surface().toGlobal((*isim).localPosition()).perp() << std::endl;
+    */
+
+    ++numberOfPSimHits;	
+    // gaussian smearing
+    unsigned int alphaMult = 0;
+    unsigned int betaMult  = 0;
+    bool isCreated = gaussianSmearing(*isim, position, error, alphaMult, betaMult);
+    //
+    if(isCreated) {
+      //      double dist = theDet->surface().toGlobal((*isim).localPosition()).mag2();
+      // create RecHit
+      // Fill the temporary RecHit on the current DetId collection
+      temporaryRecHits[trackID].push_back(
+		 new SiTrackerGSRecHit2D(position, error, det, 
+					 simHitCounter, trackID, 
+					 alphaMult, betaMult) );
+
     }
+
   }
 
-#ifdef FAMOS_DEBUG
-  std::cout << "SiTrackerGaussianSmearingRecHits converted " << numberOfPSimHits
-	    << " PSimHit's into SiTrackerGSRecHit2D" << std::endl; 
-#endif
-  
 }
 
 bool SiTrackerGaussianSmearingRecHitConverter::gaussianSmearing(const PSimHit& simHit, 
@@ -871,16 +833,16 @@ bool SiTrackerGaussianSmearingRecHitConverter::gaussianSmearing(const PSimHit& s
 
 void 
 SiTrackerGaussianSmearingRecHitConverter::loadRecHits(
-     std::map<DetId,edm::OwnVector<SiTrackerGSRecHit2D> >& theRecHits, 
+     std::map<unsigned,edm::OwnVector<SiTrackerGSRecHit2D> >& theRecHits, 
      SiTrackerGSRecHit2DCollection& theRecHitCollection) const
 {
-  std::map<DetId,edm::OwnVector<SiTrackerGSRecHit2D> >::const_iterator 
+  std::map<unsigned,edm::OwnVector<SiTrackerGSRecHit2D> >::const_iterator 
     it = theRecHits.begin();
-  std::map<DetId,edm::OwnVector<SiTrackerGSRecHit2D> >::const_iterator 
+  std::map<unsigned,edm::OwnVector<SiTrackerGSRecHit2D> >::const_iterator 
     lastRecHit = theRecHits.end();
 
   for( ; it != lastRecHit ; ++it ) { 
-    theRecHitCollection.put(it->first,it->second.begin(),it->second.end());
+    theRecHitCollection.put(it->first,(it->second).begin(),(it->second).end());
   }
 
 }

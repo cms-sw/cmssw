@@ -54,12 +54,11 @@ class SiTrackerGaussianSmearingRecHitConverter : public edm::EDProducer
   virtual void beginJob(const edm::EventSetup& c);
   
   void smearHits(MixCollection<PSimHit>& input,
-		 std::map< DetId, edm::OwnVector<SiTrackerGSRecHit2D> >& theRecHits);
+		 std::map<unsigned, edm::OwnVector<SiTrackerGSRecHit2D> >& theRecHits);
 
-  void loadRecHits(std::map<DetId,edm::OwnVector<SiTrackerGSRecHit2D> >& theRecHits, 
+  void loadRecHits(std::map<unsigned,edm::OwnVector<SiTrackerGSRecHit2D> >& theRecHits, 
 		   SiTrackerGSRecHit2DCollection& theRecHitCollection) const;
 
-  
  private:
   //
   bool gaussianSmearing(const PSimHit& simHit, 
@@ -76,11 +75,9 @@ class SiTrackerGaussianSmearingRecHitConverter : public edm::EDProducer
   //
   // parameters
   edm::ParameterSet conf_;
-  std::string theRecHitsTag;
   std::vector<std::string> trackerContainers;
   double deltaRaysPCut; // GeV/c
   bool trackingPSimHits; // in case it is true make RecHit = replica of PSimHit without errors (1 um)
-  bool negativeErrorProtection; // in case it is true protect against PixelErrorParametrization negative variance
   //
   const TrackerGeometry* geometry;
   //
