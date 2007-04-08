@@ -27,6 +27,7 @@
 <use name=TrackingTools/TrajectoryParametrization>
 <use name=TrackingTools/TrajectoryState>
 <use name=TrackingTools/TransientTrackingRecHit>
+<use name=FastSimulation/BaseParticlePropagator>
 <flags SEAL_PLUGIN_NAME="FastSimulationTracking">
 <export>
   <use name=DataFormats/Common>

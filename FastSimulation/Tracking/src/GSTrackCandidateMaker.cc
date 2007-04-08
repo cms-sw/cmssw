@@ -52,314 +52,324 @@
 #include "DataFormats/SiStripDetId/interface/TOBDetId.h" 
 #include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
 #include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
+
+#include "FastSimulation/BaseParticlePropagator/interface/BaseParticlePropagator.h"
 //
 
+//#define FAMOS_DEBUG
 
-
-using namespace edm;
-using namespace std;
-
-#define FAMOS_DEBUG
-
-namespace cms{
-  GSTrackCandidateMaker::GSTrackCandidateMaker(edm::ParameterSet const& conf) : 
-
-    conf_(conf)
-  {  
+GSTrackCandidateMaker::GSTrackCandidateMaker(edm::ParameterSet const& conf) : 
+  conf_(conf)
+{  
 #ifdef FAMOS_DEBUG
     std::cout << "GSTrackCandidateMaker created" << std::endl;
 #endif
     produces<TrackCandidateCollection>();
-    theRecHitSorter = new RecHitSorter();
-  }
 
-  
-  // Virtual destructor needed.
-  GSTrackCandidateMaker::~GSTrackCandidateMaker() {
-    // do nothing
-#ifdef FAMOS_DEBUG
-    std::cout << "GSTrackCandidateMaker destructed" << std::endl;
-#endif
-  }  
-
-  void GSTrackCandidateMaker::beginJob (EventSetup const & es)
-  {
-
-   //services
-    es.get<TrackerRecoGeometryRecord>().get(theGeomSearchTracker);
-    es.get<IdealMagneticFieldRecord>().get(theMagField);
-    es.get<TrackerDigiGeometryRecord>().get(theGeometry);
-  }
-  
-  // Functions that gets called by framework every event
-  void GSTrackCandidateMaker::produce(edm::Event& e, const edm::EventSetup& es)
-  {        
-#ifdef FAMOS_DEBUG
-    std::cout << "################################################################" << std::endl;
-    std::cout << " GSTrackCandidateMaker produce init " << std::endl;
-#endif
-
-    int nFittableTracks = 0;
-    int nCandidates = 0;
-
-    std::auto_ptr<TrackCandidateCollection> output(new TrackCandidateCollection);    
-
-    edm::Handle<SimTrackContainer> theSimTracks;
-    e.getByType<SimTrackContainer>(theSimTracks);
-
-    edm::Handle<SimVertexContainer> theSimVtx;
-    e.getByType(theSimVtx);
-    /*
-     e.getByLabel("g4SimHits",simvertices_handle);
-     edm::SimVertexContainer const* simvertices = simvertices_handle.product();
-    */
-#ifdef FAMOS_DEBUG
-    std::cout << " Step A: SimTracks found " << theSimTracks->size() << std::endl;
-#endif
     
-    edm::Handle<SiTrackerGSRecHit2DCollection> theGSRecHits;
-    std::string hitProducer = conf_.getParameter<std::string>("HitProducer");
-    e.getByLabel(hitProducer, theGSRecHits);
-    // skip event if empty RecHit collection
-    if(theGSRecHits->size() == 0) return;
-#ifdef FAMOS_DEBUG
-    std::cout << " Step B: GS RecHits found " << theGSRecHits->size() << std::endl;
-#endif
-    
-    
-#ifdef FAMOS_DEBUG
-    std::cout << " Step C: Map Rechit by SimTrack ID " << std::endl;
-#endif
-    // Step C: Fill the vectors of GSRecHits belonging to the same SimTrack
-    // map of the vector of GSRecHits belonging to the same SimTrack
-    std::map< int, std::vector< SiTrackerGSRecHit2D*>, std::less<int> > mapRecHitsToSimTrack;
-    //
-    edm::OwnVector<SiTrackerGSRecHit2D>::const_iterator theRecHitIteratorBegin = theGSRecHits->begin();
-    edm::OwnVector<SiTrackerGSRecHit2D>::const_iterator theRecHitIteratorEnd   = theGSRecHits->end();
 
-    for(edm::OwnVector<SiTrackerGSRecHit2D>::const_iterator iRecHit = theRecHitIteratorBegin;
-	iRecHit != theRecHitIteratorEnd; ++iRecHit) { // loop on GSRecHits
-      
-      int simTrackId = iRecHit->simtrackId();
-
-      //PAT ADDITION difference of one unit in the ID's (to be checked again)
-      //     simTrackId++;
-      
-      /*
-#ifdef FAMOS_DEBUG
-      std::cout << "GSRecHit from Sim Track " << simTrackId
-		<< " in det " << iRecHit->geographicalId().rawId() << std::endl;
-#endif
-      */
-
-      mapRecHitsToSimTrack[simTrackId].push_back(const_cast<SiTrackerGSRecHit2D*>(&(*iRecHit)));
-    }
-    
-#ifdef FAMOS_DEBUG
-    std::cout << " Step D Loop on SimTrack's to construct candidates" << std::endl;
-#endif
-    
-    for(SimTrackContainer::const_iterator iTrack = theSimTracks->begin(); iTrack != theSimTracks->end(); iTrack++)
-      { 
-	int iSimTrack = iTrack->trackId();	
-	std::map<int, std::vector< SiTrackerGSRecHit2D*> >::const_iterator it = mapRecHitsToSimTrack.find(iSimTrack);
-	std::vector< SiTrackerGSRecHit2D*> mappedRecHits;
-	mappedRecHits.clear();
-
-	// Create OwnVector with sorted GSRecHit's
-	OwnVector<TrackingRecHit> recHits;
-	recHits.clear();
-
-	TransientTrackingRecHit::ConstRecHitContainer recHitContainer;
-	recHitContainer.clear();
-
-	if(it != mapRecHitsToSimTrack.end()) {
-	  mappedRecHits =  it->second;
-
-#ifdef FAMOS_DEBUG
-	  std::cout << " SimTrack Id = " << iSimTrack << " contains " << mappedRecHits.size() << " GS RecHits" << std::endl; 
-#endif
-	  if(mappedRecHits.size()==0) continue;
-	  
-	  std::vector<SiTrackerGSRecHit2D*>::iterator iHitIter    = mappedRecHits.begin(); 
-	  std::vector<SiTrackerGSRecHit2D*>::iterator iHitIterEnd = mappedRecHits.end();
-	  
-	  for(; iHitIter!=iHitIterEnd; ++iHitIter){
-	    const GeomDet* geomDet( theGeometry->idToDet( (*iHitIter)->geographicalId() ) );
-
-	    /*	    
-	      #ifdef FAMOS_DEBUG
-	      std::cout << " Hit in detector " << geomDet->geographicalId().rawId() << std::endl;
-	      #endif
-	    */
-	    recHitContainer.push_back( GenericTransientTrackingRecHit::build( geomDet , (**iHitIter).clone() ) );
-	  }
-	}
-
-	// A.S.: do not sort them with this rechit sorter
-	//	TransientTrackingRecHit::ConstRecHitContainer sortedRecHits;
-	//	sortedRecHits = theRecHitSorter->sortHits(recHitContainer, alongMomentum);
-	
-// #ifdef FAMOS_DEBUG
-// 	std::cout << "Sorted RecHits for SimTrack = " << iSimTrack << " are " << sortedRecHits.size() << std::endl;
-// #endif
-	
-	for(TransientTrackingRecHit::ConstRecHitContainer::iterator iSortedTRecHit = recHitContainer.begin();
-	    iSortedTRecHit < recHitContainer.end();
-	    iSortedTRecHit++ ) {
-
-#ifdef FAMOS_DEBUG
-	  DetId detId =  (*iSortedTRecHit)->geographicalId();
-	  unsigned int subdetId = static_cast<unsigned int>(detId.subdetId()); 
-	  int layerNumber=0;
-	  if ( subdetId == StripSubdetector::TIB) 
-	    { 
-	      TIBDetId tibid(detId.rawId()); 
-	      layerNumber = tibid.layer();
-	    }
-	  else if ( subdetId ==  StripSubdetector::TOB )
-	    { 
-	      TOBDetId tobid(detId.rawId()); 
-	      layerNumber = tobid.layer();
-	    }
-	  else if ( subdetId ==  StripSubdetector::TID) 
-	    { 
-	      TIDDetId tidid(detId.rawId());
-	      layerNumber = tidid.wheel();
-	    }
-	  else if ( subdetId ==  StripSubdetector::TEC )
-	    { 
-	      TECDetId tecid(detId.rawId()); 
-	      layerNumber = tecid.wheel(); 
-	    }
-	  else if ( subdetId ==  PixelSubdetector::PixelBarrel ) 
-	    { 
-	      PXBDetId pxbid(detId.rawId()); 
-	      layerNumber = pxbid.layer();  
-	    }
-	  else if ( subdetId ==  PixelSubdetector::PixelEndcap ) 
-	    { 
-	      PXFDetId pxfid(detId.rawId()); 
-	      layerNumber = pxfid.disk();  
-	    }
-	  
-	  std::cout << "Added RecHit from detid " << detId.rawId() << " subdet = " << detId.subdetId() 
-		    << " layer = " << layerNumber << std::endl;
-
-#endif
-
-	  TrackingRecHit* aRecHit( (*iSortedTRecHit)->hit()->clone() );
-	  recHits.push_back( aRecHit );
-	}
-
-	if(recHits.size()<3) {
-
-#ifdef FAMOS_DEBUG
-	  std::cout << "******** Not enough hits to fit the track --> Skip Track " << std::endl;
-#endif
-	  continue;
-	}
-	nFittableTracks++;
-	
-
-	//A.S.: DEBUG: sort hits using the TrackingRecHitLessFromGlobalPosition sorter
-	recHits.sort(TrackingRecHitLessFromGlobalPosition(theGeometry.product(),alongMomentum));
-
-	//
-	// Create a starting trajectory with SimTrack + first RecHit
-
-	// take the SimTrack parameters
-	int vertexIndex = (*iTrack).vertIndex();
-
-#ifdef FAMOS_DEBUG
-	std::cout << " SimTrack = " << iSimTrack << "\tVERT ind = " << vertexIndex << 
-	  " (x,y,z)= (" <<  (*theSimVtx)[vertexIndex].position() << ")" << std::endl;
-#endif
-
-       	GlobalPoint  position((*theSimVtx)[vertexIndex].position().x(),
-			      (*theSimVtx)[vertexIndex].position().y(),
-			      (*theSimVtx)[vertexIndex].position().z());
-	
-
-	GlobalVector momentum( (*iTrack).momentum().x() , (*iTrack).momentum().y() , (*iTrack).momentum().z() );
-	float        charge   = (*iTrack).charge();
-	GlobalTrajectoryParameters initialParams(position,momentum,(int)charge,&*theMagField);
-	AlgebraicSymMatrix errorMatrix(5,1);
-	//why?
-	errorMatrix = errorMatrix * 10;
-
-#ifdef FAMOS_DEBUG
-	std::cout << "GSTrackCandidateMaker: SimTrack parameters " << std::endl;
-	std::cout << "\t\t pT  = " << (*iTrack).momentum().perp() << std::endl;
-	std::cout << "\t\t eta = " << (*iTrack).momentum().eta()  << std::endl;
-	std::cout << "\t\t phi = " << (*iTrack).momentum().phi()  << std::endl;
-	std::cout << "GSTrackCandidateMaker: AlgebraicSymMatrix " << errorMatrix << std::endl;
-#endif
-
-	// Construct TSOS from FTS + Surface
-	CurvilinearTrajectoryError initialError(errorMatrix);
-	FreeTrajectoryState initialFTS(initialParams, initialError);
-
-#ifdef FAMOS_DEBUG
-	std::cout << "GSTrackCandidateMaker: FTS momentum " << initialFTS.momentum() << std::endl;
-#endif
-
-	const GeomDetUnit* initialLayer = theGeometry->idToDetUnit( recHits.front().geographicalId() );
-	const TrajectoryStateOnSurface initialTSOS(initialFTS, initialLayer->surface());
-#ifdef FAMOS_DEBUG
-	std::cout << "GSTrackCandidateMaker: TSOS global momentum "    << initialTSOS.globalMomentum() << std::endl;
-	std::cout << "\t\t\tpT = "                                     << initialTSOS.globalMomentum().perp() << std::endl;
-	std::cout << "\t\t\teta = "                                    << initialTSOS.globalMomentum().eta() << std::endl;
-	std::cout << "\t\t\tphi = "                                    << initialTSOS.globalMomentum().phi() << std::endl;
-	std::cout << "GSTrackCandidateMaker: TSOS local momentum "     << initialTSOS.localMomentum()  << std::endl;
-	std::cout << "GSTrackCandidateMaker: TSOS local error "        << initialTSOS.localError().positionError() << std::endl;
-	std::cout << "GSTrackCandidateMaker: TSOS local error matrix " << initialTSOS.localError().matrix() << std::endl;
-	std::cout << "GSTrackCandidateMaker: TSOS surface side "       << initialTSOS.surfaceSide()    << std::endl;
-	std::cout << "GSTrackCandidateMaker: TSOS X0[cm] = "           << initialTSOS.surface().mediumProperties()->radLen() << std::endl;
-#endif
-	//
-	TrajectoryStateTransform transformer;
-	PTrajectoryStateOnDet* initialState( transformer.persistentState( initialTSOS, recHits.front().geographicalId().rawId() ) );
-#ifdef FAMOS_DEBUG
-	std::cout << "GSTrackCandidateMaker: detid " << recHits.front().geographicalId().rawId() << std::endl;
-	std::cout << "GSTrackCandidateMaker: PTSOS detId " << initialState->detId() << std::endl;
-	std::cout << "GSTrackCandidateMaker: PTSOS local momentum " << initialState->parameters().momentum() << std::endl;
-#endif
-	//
-
-	// Track Candidate stored
-	TrackCandidate newTrackCandidate(recHits, TrajectorySeed(*initialState, recHits, alongMomentum), *initialState );
-	// Log
-
-#ifdef FAMOS_DEBUG
-	std::cout << "\tSeed Information " << std::endl;
-	std::cout << "\tSeed Direction = " << TrajectorySeed(*initialState, recHits, alongMomentum).direction() << std::endl;
-	std::cout << "\tSeed StartingDet = " << TrajectorySeed(*initialState, recHits, alongMomentum).startingState().detId() << std::endl;
-
-	std::cout << "\tTrajectory Parameters " << std::endl;
-	std::cout << "\t\t detId  = " << newTrackCandidate.trajectoryStateOnDet().detId()                        << std::endl;
-	std::cout << "\t\t loc.px = " << newTrackCandidate.trajectoryStateOnDet().parameters().momentum().x()    << std::endl;
-	std::cout << "\t\t loc.py = " << newTrackCandidate.trajectoryStateOnDet().parameters().momentum().y()    << std::endl;
-	std::cout << "\t\t loc.pz = " << newTrackCandidate.trajectoryStateOnDet().parameters().momentum().z()    << std::endl;
-       	std::cout << "\t\t error  = ";
-	for(std::vector< float >::const_iterator iElement = newTrackCandidate.trajectoryStateOnDet().errorMatrix().begin();
-	    iElement < newTrackCandidate.trajectoryStateOnDet().errorMatrix().end();
-	    iElement++) {
-	  std::cout << "\t" << *iElement;
-	}
-	std::cout << std::endl;
-#endif
-	output->push_back(newTrackCandidate);
-	nCandidates++;
-      }
-    
-    
-    std::cout << " GSTrackCandidateMaker: \tTotal Fittable =  " << nFittableTracks << "\t Total Candidates = " << nCandidates << std::endl;
-    e.put(output);
-    
-#ifdef FAMOS_DEBUG
-    std::cout << " GSTrackCandidateMaker produce end " << std::endl;
-#endif
-  }
 }
 
+  
+// Virtual destructor needed.
+GSTrackCandidateMaker::~GSTrackCandidateMaker() {
+
+  // do nothing
+#ifdef FAMOS_DEBUG
+  std::cout << "GSTrackCandidateMaker destructed" << std::endl;
+#endif
+
+} 
+ 
+void 
+GSTrackCandidateMaker::beginJob (edm::EventSetup const & es) {
+
+  //services
+  //  es.get<TrackerRecoGeometryRecord>().get(theGeomSearchTracker);
+
+  edm::ESHandle<MagneticField>          magField;
+  edm::ESHandle<TrackerGeometry>        geometry;
+
+  es.get<IdealMagneticFieldRecord>().get(magField);
+  es.get<TrackerDigiGeometryRecord>().get(geometry);
+
+  theMagField = &(*magField);
+  theGeometry = &(*geometry);
+
+  // The smallest true pT for a track candidate
+  pTMin = conf_.getParameter<double>("pTMin");
+  pTMin *= pTMin;  // Cut is done of perp2() - CPU saver
+
+  // The smallest number of Rec Hits for a track candidate
+  minRecHits = conf_.getParameter<unsigned int>("MinRecHits");
+
+  // The smallest true impact parameters (d0 and z0) for a track candidate
+  maxD0 = conf_.getParameter<double>("MaxD0");
+  maxZ0 = conf_.getParameter<double>("MaxZ0");
+
+}
+  
+  // Functions that gets called by framework every event
+void 
+GSTrackCandidateMaker::produce(edm::Event& e, const edm::EventSetup& es) {        
+
+#ifdef FAMOS_DEBUG
+  std::cout << "################################################################" << std::endl;
+  std::cout << " GSTrackCandidateMaker produce init " << std::endl;
+#endif
+
+  unsigned nSimTracks = 0;
+  unsigned nTracksWithHits = 0;
+  unsigned nTracksWithPT = 0;
+  unsigned nTracksWithD0Z0 = 0;
+  unsigned nTrackCandidates = 0;
+  
+  std::auto_ptr<TrackCandidateCollection> output(new TrackCandidateCollection);    
+  
+  edm::Handle<edm::SimTrackContainer> theSimTracks;
+  e.getByType<edm::SimTrackContainer>(theSimTracks);
+  
+  edm::Handle<edm::SimVertexContainer> theSimVtx;
+  e.getByType(theSimVtx);
+
+#ifdef FAMOS_DEBUG
+  std::cout << " Step A: SimTracks found " << theSimTracks->size() << std::endl;
+#endif
+  
+  edm::Handle<SiTrackerGSRecHit2DCollection> theGSRecHits;
+  std::string hitProducer = conf_.getParameter<std::string>("HitProducer");
+  e.getByLabel(hitProducer, theGSRecHits);
+  
+  // No tracking attempted if no hits !
+#ifdef FAMOS_DEBUG
+  std::cout << " Step B: Full GS RecHits found " << theGSRecHits->size() << std::endl;
+#endif
+  if(theGSRecHits->size() == 0) return;
+  
+  
+#ifdef FAMOS_DEBUG
+  std::cout << " Step C: Loop over the RecHits, track by track " << std::endl;
+#endif
+
+  // The vector of simTrack Id's carrying GSRecHits
+  const std::vector<unsigned> theSimTrackIds = theGSRecHits->ids();
+
+  // loop over SimTrack Id's
+  for ( unsigned tkId=0;  tkId != theSimTrackIds.size(); ++tkId ) {
+
+    ++nSimTracks;
+    unsigned simTrackId = theSimTrackIds[tkId];
+
+    SiTrackerGSRecHit2DCollection::range theRecHitRange = theGSRecHits->get(simTrackId);
+    SiTrackerGSRecHit2DCollection::const_iterator theRecHitRangeIteratorBegin = theRecHitRange.first;
+    SiTrackerGSRecHit2DCollection::const_iterator theRecHitRangeIteratorEnd   = theRecHitRange.second;
+    SiTrackerGSRecHit2DCollection::const_iterator iterRecHit;
+
+    // Request a minimum number of RecHits
+    unsigned numberOfRecHits = 0;
+    for ( iterRecHit = theRecHitRangeIteratorBegin; 
+	  iterRecHit != theRecHitRangeIteratorEnd; 
+	  ++iterRecHit) ++numberOfRecHits;
+    if ( numberOfRecHits < minRecHits ) continue;
+    ++nTracksWithHits;
+
+    // Request a minimum pT for the sim track
+    if ( (*theSimTracks)[simTrackId].momentum().perp2() < pTMin ) continue;
+    ++nTracksWithPT;
+
+    // Check that the sim track comes from the main vertex (loose cut)
+    int vertexIndex = (*theSimTracks)[simTrackId].vertIndex();
+    BaseParticlePropagator theParticle = 
+      BaseParticlePropagator( RawParticle( (*theSimTracks)[simTrackId].momentum(),
+					   (*theSimVtx)[vertexIndex].position() ),
+			      0.,0.,4.);
+    theParticle.setCharge((*theSimTracks)[simTrackId].charge());
+    if ( theParticle.xyImpactParameter() > maxD0 ) continue;
+    if ( fabs( theParticle.zImpactParameter() ) > maxZ0 ) continue;
+    ++nTracksWithD0Z0;
+
+    // Create OwnVector with sorted GSRecHit's
+    edm::OwnVector<TrackingRecHit> recHits;
+    //    recHits.clear();
+
+    // loop over RecHits of the same detector
+    for ( iterRecHit = theRecHitRangeIteratorBegin; 
+	   iterRecHit != theRecHitRangeIteratorEnd; 
+	   ++iterRecHit) {
+	
+      //      unsigned simtrackId = iterRecHit->simtrackId();
+      DetId detId =  iterRecHit->geographicalId();
+      const GeomDet* geomDet( theGeometry->idToDet(detId) );
+      TrackingRecHit* aTrackingRecHit = 
+	GenericTransientTrackingRecHit::build(geomDet,iterRecHit->clone())->hit()->clone();
+      recHits.push_back(aTrackingRecHit);
+
+#ifdef FAMOS_DEBUG
+      unsigned int subdetId = detId.subdetId(); 
+      int layerNumber=0;
+      int ringNumber = 0;
+      int stereo = 0;
+      if ( subdetId == StripSubdetector::TIB) { 
+	  TIBDetId tibid(detId.rawId()); 
+	  layerNumber = tibid.layer();
+	  stereo = tibid.stereo();
+      } else if ( subdetId ==  StripSubdetector::TOB ) { 
+	  TOBDetId tobid(detId.rawId()); 
+	  layerNumber = tobid.layer();
+	  stereo = tobid.stereo();
+      } else if ( subdetId ==  StripSubdetector::TID) { 
+	  TIDDetId tidid(detId.rawId());
+	  layerNumber = tidid.wheel();
+	  ringNumber = tidid.ring();
+	  stereo = tidid.stereo();
+      } else if ( subdetId ==  StripSubdetector::TEC ) { 
+	  TECDetId tecid(detId.rawId()); 
+	  layerNumber = tecid.wheel(); 
+	  ringNumber = tecid.ring();
+	  stereo = tecid.stereo();
+      } else if ( subdetId ==  PixelSubdetector::PixelBarrel ) { 
+	  PXBDetId pxbid(detId.rawId()); 
+	  layerNumber = pxbid.layer();  
+	  stereo = 1;
+      } else if ( subdetId ==  PixelSubdetector::PixelEndcap ) { 
+	  PXFDetId pxfid(detId.rawId()); 
+	  layerNumber = pxfid.disk();  
+	  stereo = 1;
+      }
+
+      std::cout << "Added RecHit from detid " << detId.rawId() 
+		<< " subdet = " << subdetId 
+		<< " layer = " << layerNumber 
+		<< " ring = " << ringNumber 
+		<< " Stereo = " << stereo
+		<< std::endl;
+      
+      std::cout << "Track/z/r : "
+		<< simTrackId << " " 
+		<< geomDet->surface().toGlobal(iterRecHit->localPosition()).z() << " " 
+		<< geomDet->surface().toGlobal(iterRecHit->localPosition()).perp() << std::endl;
+#endif
+    
+    }
+
+    //
+    // Create a starting trajectory with SimTrack + first RecHit
+    
+    // take the SimTrack parameters
+
+#ifdef FAMOS_DEBUG
+    std::cout << " SimTrack = " <<  (*theSimTracks)[simTrackId]
+	      << "\tVERT ind = " << vertexIndex 
+	      << " (x,y,z)= (" <<  (*theSimVtx)[vertexIndex].position() 
+	      << ")" << std::endl;
+#endif
+    
+    GlobalPoint  position((*theSimVtx)[vertexIndex].position().x(),
+			  (*theSimVtx)[vertexIndex].position().y(),
+			  (*theSimVtx)[vertexIndex].position().z());
+    
+    
+    GlobalVector momentum( (*theSimTracks)[simTrackId].momentum().x() , 
+			   (*theSimTracks)[simTrackId].momentum().y() , 
+			   (*theSimTracks)[simTrackId].momentum().z() );
+
+    float        charge   = (*theSimTracks)[simTrackId].charge();
+
+    GlobalTrajectoryParameters initialParams(position,momentum,(int)charge,&*theMagField);
+
+    AlgebraicSymMatrix errorMatrix(5,1);
+
+    //why?
+    //    errorMatrix = errorMatrix * 10;
+    // Ben oui, pourquoi?
+    
+#ifdef FAMOS_DEBUG
+    std::cout << "GSTrackCandidateMaker: SimTrack parameters " << std::endl;
+    std::cout << "\t\t pT  = " << (*theSimTracks)[simTrackId].momentum().perp() << std::endl;
+    std::cout << "\t\t eta = " << (*theSimTracks)[simTrackId].momentum().eta()  << std::endl;
+    std::cout << "\t\t phi = " << (*theSimTracks)[simTrackId].momentum().phi()  << std::endl;
+    std::cout << "GSTrackCandidateMaker: AlgebraicSymMatrix " << errorMatrix << std::endl;
+#endif
+    
+    // Construct TSOS from FTS + Surface
+    CurvilinearTrajectoryError initialError(errorMatrix);
+    FreeTrajectoryState initialFTS(initialParams, initialError);
+    
+#ifdef FAMOS_DEBUG
+    std::cout << "GSTrackCandidateMaker: FTS momentum " << initialFTS.momentum() << std::endl;
+#endif
+    
+    const GeomDetUnit* initialLayer = theGeometry->idToDetUnit( recHits.front().geographicalId() );
+    const TrajectoryStateOnSurface initialTSOS(initialFTS, initialLayer->surface());
+#ifdef FAMOS_DEBUG
+    std::cout << "GSTrackCandidateMaker: TSOS global momentum "    << initialTSOS.globalMomentum() << std::endl;
+    std::cout << "\t\t\tpT = "                                     << initialTSOS.globalMomentum().perp() << std::endl;
+    std::cout << "\t\t\teta = "                                    << initialTSOS.globalMomentum().eta() << std::endl;
+    std::cout << "\t\t\tphi = "                                    << initialTSOS.globalMomentum().phi() << std::endl;
+    std::cout << "GSTrackCandidateMaker: TSOS local momentum "     << initialTSOS.localMomentum()  << std::endl;
+    std::cout << "GSTrackCandidateMaker: TSOS local error "        << initialTSOS.localError().positionError() << std::endl;
+    std::cout << "GSTrackCandidateMaker: TSOS local error matrix " << initialTSOS.localError().matrix() << std::endl;
+    std::cout << "GSTrackCandidateMaker: TSOS surface side "       << initialTSOS.surfaceSide()    << std::endl;
+    std::cout << "GSTrackCandidateMaker: TSOS X0[cm] = "           << initialTSOS.surface().mediumProperties()->radLen() << std::endl;
+#endif
+    //
+    TrajectoryStateTransform transformer;
+    PTrajectoryStateOnDet* initialState( 
+      transformer.persistentState(initialTSOS, 
+				  recHits.front().geographicalId().rawId() ) );
+#ifdef FAMOS_DEBUG
+    std::cout << "GSTrackCandidateMaker: detid " << recHits.front().geographicalId().rawId() << std::endl;
+    std::cout << "GSTrackCandidateMaker: PTSOS detId " << initialState->detId() << std::endl;
+    std::cout << "GSTrackCandidateMaker: PTSOS local momentum " << initialState->parameters().momentum() << std::endl;
+#endif
+    //
+    
+    // Track Candidate stored
+    TrackCandidate newTrackCandidate(recHits, TrajectorySeed(*initialState, recHits, alongMomentum), *initialState );
+    // Log
+    
+#ifdef FAMOS_DEBUG
+    std::cout << "\tSeed Information " << std::endl;
+    std::cout << "\tSeed Direction = " << TrajectorySeed(*initialState, recHits, alongMomentum).direction() << std::endl;
+    std::cout << "\tSeed StartingDet = " << TrajectorySeed(*initialState, recHits, alongMomentum).startingState().detId() << std::endl;
+    
+    std::cout << "\tTrajectory Parameters " 
+	      << std::endl;
+    std::cout << "\t\t detId  = " 
+	      << newTrackCandidate.trajectoryStateOnDet().detId() 
+	      << std::endl;
+    std::cout << "\t\t loc.px = " 
+	      << newTrackCandidate.trajectoryStateOnDet().parameters().momentum().x()    
+	      << std::endl;
+    std::cout << "\t\t loc.py = " 
+	      << newTrackCandidate.trajectoryStateOnDet().parameters().momentum().y()    
+	      << std::endl;
+    std::cout << "\t\t loc.pz = " 
+	      << newTrackCandidate.trajectoryStateOnDet().parameters().momentum().z()    
+	      << std::endl;
+    std::cout << "\t\t error  = ";
+    for(std::vector< float >::const_iterator iElement = newTrackCandidate.trajectoryStateOnDet().errorMatrix().begin();
+	iElement < newTrackCandidate.trajectoryStateOnDet().errorMatrix().end();
+	++iElement) {
+      std::cout << "\t" << *iElement;
+    }
+    std::cout << std::endl;
+#endif
+
+    output->push_back(newTrackCandidate);
+    ++nTrackCandidates;
+
+  }
+  
+#ifdef FAMOS_DEBUG
+  std::cout << " GSTrackCandidateMaker: Total SimTracks           = " << nSimTracks << std::endl 
+	    << "                        Total SimTracksWithHits   = " << nTracksWithHits  << std::endl 
+	    << "                        Total SimTracksWithPT     = " << nTracksWithPT  << std::endl 
+	    << "                        Total SimTracksWithD0Z0   = " << nTracksWithD0Z0  << std::endl 
+	    << "                        Total Track Candidates    = " << nTrackCandidates 
+	    << std::endl;
+#endif
+  
+  e.put(output);
+
+}

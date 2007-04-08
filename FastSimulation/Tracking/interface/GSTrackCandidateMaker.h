@@ -1,5 +1,5 @@
-#ifndef GSTrackCandidateMaker_h
-#define GSTrackCandidateMaker_h
+#ifndef FastSimulation_Tracking_GSTrackCandidateMaker_h
+#define FastSimulation_Tracking_GSTrackCandidateMaker_h
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -18,31 +18,31 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
 class TransientInitialStateEstimator;
-class RecHitSorter;
 
-namespace cms
+class GSTrackCandidateMaker : public edm::EDProducer
 {
-  class GSTrackCandidateMaker : public edm::EDProducer
-  {
-  public:
+ public:
+  
+  explicit GSTrackCandidateMaker(const edm::ParameterSet& conf);
+  
+  virtual ~GSTrackCandidateMaker();
+  
+  virtual void beginJob (edm::EventSetup const & es);
+  
+  virtual void produce(edm::Event& e, const edm::EventSetup& es);
+  
+ private:
 
-    explicit GSTrackCandidateMaker(const edm::ParameterSet& conf);
+  edm::ParameterSet conf_;
+  
+  const MagneticField*  theMagField;
+  const TrackerGeometry*  theGeometry;
 
-    virtual ~GSTrackCandidateMaker();
-
-    virtual void beginJob (edm::EventSetup const & es);
-
-    virtual void produce(edm::Event& e, const edm::EventSetup& es);
-
-  private:
-    edm::ParameterSet conf_;
+  double pTMin;
+  double maxD0;
+  double maxZ0;
+  unsigned minRecHits;
     
-    edm::ESHandle<MagneticField>          theMagField;
-    edm::ESHandle<GeometricSearchTracker> theGeomSearchTracker;
-    edm::ESHandle<TrackerGeometry>        theGeometry;
-    
-    RecHitSorter* theRecHitSorter;
-  };
-}
+};
 
 #endif

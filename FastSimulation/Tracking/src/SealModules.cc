@@ -10,8 +10,6 @@
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
 
-using cms::GSTrackCandidateMaker;
-
 EVENTSETUP_DATA_REG(TrackerTrajectoryBuilder);
 DEFINE_SEAL_MODULE();
 DEFINE_ANOTHER_FWK_MODULE(GSTrackCandidateMaker);
