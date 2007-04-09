@@ -1,9 +1,9 @@
 /// \file AlignmentProducer.cc
 ///
 ///  \author    : Frederic Ronga
-///  Revision   : $Revision: 1.28 $
-///  last update: $Date: 2007/03/27 19:45:06 $
-///  by         : $Author: fronga $
+///  Revision   : $Revision: 1.29 $
+///  last update: $Date: 2007/04/07 03:39:37 $
+///  by         : $Author: cklae $
 
 #include "Alignment/CommonAlignmentProducer/interface/AlignmentProducer.h"
 
@@ -519,6 +519,9 @@ void AlignmentProducer::addSurveyInfo_(Alignable* ali)
 			 align::RotationType( rot.xx(), rot.xy(), rot.xz(),
 					      rot.yx(), rot.yy(), rot.yz(),
 					      rot.zx(), rot.zy(), rot.zz() ) );
+
+  surf.setWidth( ali->surface().width() );
+  surf.setLength( ali->surface().length() );
 
   ali->setSurvey( new SurveyDet( surf, theSurveyErrors->m_surveyErrors[s].matrix() ) );
 

@@ -7,9 +7,9 @@
 /// Description : calls alignment algorithms
 ///
 ///  \author    : Frederic Ronga
-///  Revision   : $Revision: 1.11 $
-///  last update: $Date: 2007/03/02 18:34:07 $
-///  by         : $Author: pivarski $
+///  Revision   : $Revision: 1.12 $
+///  last update: $Date: 2007/04/07 03:39:36 $
+///  by         : $Author: cklae $
 
 #include <vector>
 
@@ -26,13 +26,13 @@
 #include "RecoTracker/TrackProducer/interface/TrackProducerBase.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentAlgorithmBase.h"
 #include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
-#include "Alignment/TrackerAlignment/interface/TrackerAlignableId.h"
 #include "Alignment/MuonAlignment/interface/AlignableMuon.h"
 
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterBuilder.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterStore.h"
 #include "Alignment/CommonAlignment/interface/Alignable.h"
 
+class Alignments;
 class SurveyErrors;
 
 class AlignmentProducer : public edm::ESProducerLooper
