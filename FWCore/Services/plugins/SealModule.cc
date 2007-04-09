@@ -24,8 +24,7 @@ using edm::service::InitRootHandlers;
 using edm::service::UnixSignalService;
 using edm::rootfix::LockService;
 
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_SERVICE(Tracer);
+DEFINE_FWK_SERVICE(Tracer);
 DEFINE_ANOTHER_FWK_SERVICE(Timing);
 typedef edm::serviceregistry::AllArgsMaker<edm::SiteLocalConfig,SiteLocalConfigService> SiteLocalConfigMaker;
 DEFINE_ANOTHER_FWK_SERVICE_MAKER(SiteLocalConfigService,SiteLocalConfigMaker);

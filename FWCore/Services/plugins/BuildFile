@@ -1,0 +1,5 @@
+<use name=FWCore/Services>
+<library file=SealModule.cc name=FWCoreServicesPlugins>
+<flags EDM_PLUGIN=1>
+</library>
+
