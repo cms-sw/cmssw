@@ -12,6 +12,63 @@ using namespace std;
 
 
 
+//DigitizerFP420::DigitizerFP420(const edm::ParameterSet& conf):conf_(conf),stripDigitizer_(new FP420DigiMain(conf)) 
+ChargeDividerFP420::ChargeDividerFP420(double pit, double az420, double azD2, double azD3){
+  //                           pit - is really moduleThickness here !!!
+#ifdef mydigidebug3
+cout << "ChargeDividerFP420.h: constructor" << endl;
+cout << "peakMode = " << peakMode << "fluctuateCharge=   "<< fluctuateCharge <<  "chargedivisionsPerHit = "  << chargedivisionsPerHit << "deltaCut=   "<< deltaCut << endl;
+#endif
+  // Initialization:
+  theFP420NumberingScheme = new FP420NumberingScheme();
+
+
+  // Run APV in peak instead of deconvolution mode, which degrades the time resolution
+//  peakMode=true ; //     APVpeakmode
+  peakMode=false; //     APVconvolutionmode
+  
+  // Enable interstrip Landau fluctuations within a cluster.
+  fluctuateCharge=true;   
+  
+  // Number of segments per strip into which charge is divided during simulation.
+  // If large the precision of simulation improves.
+  chargedivisionsPerHit=10; // = or =20
+ 
+  // delta cutoff in MeV, has to be same as in OSCAR (0.120425 MeV corresponding // to 100um range for electrons)
+  //SimpleConfigurable<double>  ChargeDividerFP420::deltaCut(0.120425,
+  deltaCut=0.120425;  //  DeltaProductionCut
+
+  pitchcur= pit;// pitchcur - is really moduleThickness here !!!
+
+  // but position before Stations:
+  z420 = az420;  // dist between centers of 1st and 2nd stations
+  zD2 = azD2;  // dist between centers of 1st and 2nd stations
+  zD3 = azD3;  // dist between centers of 1st and 3rd stations
+        
+
+
+  //                                                                                                                           .
+  //                                                                                                                           .
+  //  -300     -209.2             -150              -90.8                        0                                           +300
+  //                                                                                                                           .
+  //            X  | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | X                        station                                          .
+  //                   8*13.3+ 2*6 = 118.4                                    center                                           .
+  //                                                                                                                           .
+  zStationBegPos[0] = -150. - (118.4+10.)/2 + z420; // 10. -arbitrary
+  zStationBegPos[1] = zStationBegPos[0]+zD2;
+  zStationBegPos[2] = zStationBegPos[0]+zD3;
+  zStationBegPos[3] = zStationBegPos[0]+2*zD3;
+
+}
+
+// Virtual destructor needed.
+ChargeDividerFP420::~ChargeDividerFP420() { 
+//  if(verbosity>0) {
+//    std::cout << "Destroying a ChargeDividerFP420" << std::endl;
+//  }
+  delete theFP420NumberingScheme;
+  
+}  
 CDividerFP420::ionization_type 
 ChargeDividerFP420::divide(
 			      const FP420G4Hit& hit, const double& pitchcur) {
