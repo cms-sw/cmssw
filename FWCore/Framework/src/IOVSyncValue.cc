@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Aug  3 18:35:35 EDT 2005
-// $Id: IOVSyncValue.cc,v 1.3 2005/09/01 04:30:51 wmtan Exp $
+// $Id: IOVSyncValue.cc,v 1.4 2006/09/01 18:16:42 wmtan Exp $
 //
 
 // system include files
@@ -21,7 +21,6 @@
 // constants, enums and typedefs
 //
 namespace edm {
-   namespace eventsetup {
 
 //
 // static data member definitions
@@ -100,5 +99,4 @@ IOVSyncValue::beginOfTime() {
    static IOVSyncValue s_beginOfTime(EventID(1,0), Timestamp::beginOfTime());
    return s_beginOfTime;
 }
-   }
 }
