@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2007/03/16 12:23:05 $
- * $Revision: 1.148 $
+ * $Date: 2007/03/26 17:35:04 $
+ * $Revision: 1.149 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -4057,6 +4057,7 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
         cTimav->cd();
         gStyle->SetOptStat("euomr");
         obj1f->SetStats(kTRUE);
+        gPad->SetLogy(1);
         obj1f->Draw();
         cTimav->Update();
         cTimav->SaveAs(imgName.c_str());
@@ -4113,6 +4114,7 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
         cTimrms->cd();
         gStyle->SetOptStat("euomr");
         obj1f->SetStats(kTRUE);
+        gPad->SetLogy(1);
         obj1f->Draw();
         cTimrms->Update();
         cTimrms->SaveAs(imgName.c_str());
