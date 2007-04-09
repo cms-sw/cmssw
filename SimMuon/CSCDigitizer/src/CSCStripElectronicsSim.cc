@@ -159,7 +159,7 @@ CSCStripElectronicsSim::runComparator() {
     // icomp =0->1,2,  =1->3,4,  =2->5,6, ...
     const CSCAnalogSignal & signal1 = find(readoutElement(iComparator*2 + 1));
     const CSCAnalogSignal & signal2 = find(readoutElement(iComparator*2 + 2));
-    for(float time = theSignalStartTime; time < theSignalStopTime; time += theSamplingTime) {
+    for(float time = theSignalStartTime; time < theSignalStopTime-theComparatorWait; time += theSamplingTime) {
       if(comparatorReading(signal1, time) > theComparatorThreshold
       || comparatorReading(signal2, time) > theComparatorThreshold) {
 	 // wait a bit, so we can run the comparator at the signal peak
@@ -176,7 +176,8 @@ CSCStripElectronicsSim::runComparator() {
          // -x-- 101   5
          // --x- 110   6
          // ---x 111   7
-         CSCAnalogSignal mainSignal;
+         // just to prevent a copy
+         CSCAnalogSignal & mainSignal = (height1 > height2) ? signal1 : signal2;
          // pick the higher of the two strips in the pair
          if(height1 > height2) {
            float leftStrip = 0.;
@@ -205,8 +206,8 @@ CSCStripElectronicsSim::runComparator() {
            // decide how long this comparator and neighboring ones will be locked for
            float lockingTime = time + theComparatorDeadTime;
            // really should be zero, but strip signal doesn't go negative yet
-           float resetThreshold = theComparatorThreshold/2.;
-           while(lockingTime < theNumberOfSamples*theSamplingTime-theComparatorWait
+           float resetThreshold = 1;
+           while(lockingTime < theSignalStopTime
               && mainSignal.getValue(lockingTime) > resetThreshold) {
              lockingTime += theSamplingTime;
            }
