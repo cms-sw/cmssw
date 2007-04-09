@@ -81,7 +81,7 @@ void RecoMuonValidator::beginJob(const EventSetup& eventSetup)
   if ( theDQMService_ ) {
     theDQMService_->cd();
 
-    string dir = "RecoMuonTask";
+    string dir = "RecoMuonTask/";
     dir+=subDir_;
 
     theDQMService_->setCurrentFolder(dir.c_str());
