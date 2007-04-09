@@ -12,6 +12,7 @@
 #include <TRootEmbeddedCanvas.h>
 #include <RQ_OBJECT.h>
 #include "PlotAllDisplay.h"
+#include "HistoManager.h"
 
 #include <string.h>
 #include <sys/types.h>
@@ -22,8 +23,8 @@ class PlotAllMenu {
     private:
   TGMainFrame *fMain;
   TRootEmbeddedCanvas *fEcanvas;
-  TGRadioButton* fET[5];
-  TGRadioButton* fFT[3];
+  TGRadioButton* fET[HistoManager::NUMEVTTYPES];
+  TGRadioButton* fFT[HistoManager::NUMHISTTYPES];
   TGCheckButton *checkbut;
   TGTextEntry* iphiEntry, *ietaEntry, *runnoEntry;
   PlotAllDisplay* theDisplay;
@@ -86,6 +87,7 @@ PlotAllMenu::PlotAllMenu(const TGWindow *p,UInt_t w,UInt_t h,
   fFT[0]=new TGRadioButton(fbgr,"Energy");
   fFT[1]=new TGRadioButton(fbgr,"Time");
   fFT[2]=new TGRadioButton(fbgr,"Pulse Shape");
+  fFT[3]=new TGRadioButton(fbgr,"ADC");
 
   TGGroupFrame* gf=new TGGroupFrame(fMain,"Channel Selection",kVerticalFrame);
   gf->SetLayoutManager(new TGMatrixLayout(gf,0,2,10,10));
@@ -131,18 +133,18 @@ void PlotAllMenu::DoSelector() {
 
   int iev=0;
   int ifl=0;
-  for(int i=0; i<=4; i++) {
+  for(int i=0; i<=HistoManager::NUMEVTTYPES; i++) {
     if (fET[i]->IsOn()) iev=i;
-    if (i<3 && fFT[i]->IsOn()) ifl=i;  
+    if (i<HistoManager::NUMHISTTYPES && fFT[i]->IsOn()) ifl=i;  
   }
   theDisplay->displaySelector(iev,ifl);
 }
 void PlotAllMenu::DoDraw() {
   int iev=0;
   int ifl=0;
-  for (int i=0; i<=4; i++) {
+  for (int i=0; i<=HistoManager::NUMEVTTYPES; i++) {
     if (fET[i]->IsOn()) iev=i;
-    if (i<3 && fFT[i]->IsOn()) ifl=i;
+    if (i<HistoManager::NUMHISTTYPES && fFT[i]->IsOn()) ifl=i;
   }
 
   int ieta=atoi(ietaEntry->GetText());

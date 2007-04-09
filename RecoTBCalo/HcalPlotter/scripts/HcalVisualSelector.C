@@ -5,6 +5,8 @@
 #include "TRandom.h"
 #include "TStyle.h"
 
+inline double sign(double x) { return (x < 0.0) ? -1.0 : 1.0; }
+
 HcalVisualSelector::HcalVisualSelector(PlotCallback* cb,
 				       int ieta_lo, int ieta_hi, int iphi_lo, int iphi_hi)
 {
@@ -81,8 +83,8 @@ void HcalVisualSelector::onEvent(Int_t event, Int_t x, Int_t y, TObject *selecte
      return;
    }
    // convert to ieta/iphi
-   int ieta=(int)(px+0.5);
-   int iphi=(int)(py+0.5);
+   int ieta=(int)(px+(sign(px)*0.5));
+   int iphi=(int)(py+(sign(py)*0.5));
    int depth=padnum;
    //printf("ieta=%d iphi=%d depth=%d\n",ieta,iphi,depth);
    if (m_cb==0) return; // need a callback

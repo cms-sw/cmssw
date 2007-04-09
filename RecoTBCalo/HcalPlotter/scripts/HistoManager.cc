@@ -4,31 +4,32 @@
 
 HistoManager::HistoManager(TDirectory* parent)
 {
-  pedHistDir=(TDirectory*)parent->Get("PEDESTAL");
-  ledHistDir=(TDirectory*)parent->Get("LED");
-  laserHistDir=(TDirectory*)parent->Get("LASER");
-  beamHistDir=(TDirectory*)parent->Get("BEAM");
-  otherHistDir=(TDirectory*)parent->Get("OTHER");
+  pedHistDir   = (TDirectory*)parent->Get("PEDESTAL");
+  ledHistDir   = (TDirectory*)parent->Get("LED");
+  laserHistDir = (TDirectory*)parent->Get("LASER");
+  beamHistDir  = (TDirectory*)parent->Get("BEAM");
+  otherHistDir = (TDirectory*)parent->Get("OTHER");
 }
 
 std::string HistoManager::nameForFlavor(HistType ht)
 {
   switch (ht) {
-  case(ENERGY): return "Energy"; break;
-  case(TIME):  return "Time"; break;
-  case(PULSE):  return "Pulse"; break;
-  default: return ""; break;
+  case(ENERGY) : return "Energy"; break;
+  case(TIME)   : return "Time";   break;
+  case(PULSE)  : return "Pulse";  break;
+  case(ADC)    : return "ADC";    break;
+  default      : return "";       break;
   }
 }
 
 std::string HistoManager::nameForEvent(EventType et)
 {
   switch(et) {
-  case(PEDESTAL): return "Pedestal"; break;
-  case(LED): return "LED"; break;
-  case(LASER): return "Laser"; break;
-  case(BEAM): return "Beam"; break;
-  default: return "Other"; break;
+  case(PEDESTAL) : return "Pedestal"; break;
+  case(LED)      : return "LED";      break;
+  case(LASER)    : return "Laser";    break;
+  case(BEAM)     : return "Beam";     break;
+  default        : return "Other";    break;
   }	
 }
 
@@ -40,12 +41,12 @@ TH1* HistoManager::GetAHistogram(const MyHcalDetId& id,
   TDirectory* td;
 
   switch (et) {
-  case(PEDESTAL): td=pedHistDir; break;
-  case(LED): td=ledHistDir; break;
-  case(LASER): td=laserHistDir; break;
-  case(BEAM): td=beamHistDir; break;
-  case(UNKNOWN): td=otherHistDir; break;
-  default: td=0; break;
+  case(PEDESTAL) : td=pedHistDir;   break;
+  case(LED)      : td=ledHistDir;   break;
+  case(LASER)    : td=laserHistDir; break;
+  case(BEAM)     : td=beamHistDir;  break;
+  case(UNKNOWN)  : td=otherHistDir; break;
+  default        : td=0;            break;
   }
 
   if (td==0) {
@@ -57,11 +58,11 @@ TH1* HistoManager::GetAHistogram(const MyHcalDetId& id,
 
   std::string subdetStr;
   switch (id.subdet) {
-  case (HcalBarrel) : subdetStr="HB"; break;
-  case (HcalEndcap) : subdetStr="HE"; break;
-  case (HcalOuter) : subdetStr="HO"; break;
+  case (HcalBarrel)  : subdetStr="HB"; break;
+  case (HcalEndcap)  : subdetStr="HE"; break;
+  case (HcalOuter)   : subdetStr="HO"; break;
   case (HcalForward) : subdetStr="HF"; break;
-  default: subdetStr="Other"; break;
+  default            : subdetStr="Other"; break;
   }
 
   TH1* retval=0;
@@ -95,12 +96,12 @@ std::vector<MyHcalDetId> HistoManager::getDetIdsForType(HistType ht,
   std::string flavor=nameForFlavor(ht);
 
   switch (et) {
-  case(PEDESTAL): td=pedHistDir; break;
-  case(LED): td=ledHistDir; break;
-  case(LASER): td=laserHistDir; break;
-  case(BEAM): td=beamHistDir; break;
-  case(UNKNOWN): td=otherHistDir; break;
-  default: td=0; break;
+  case(PEDESTAL) : td=pedHistDir;   break;
+  case(LED)      : td=ledHistDir;   break;
+  case(LASER)    : td=laserHistDir; break;
+  case(BEAM)     : td=beamHistDir;  break;
+  case(UNKNOWN)  : td=otherHistDir; break;
+  default        : td=0;            break;
   }
 
   keyList = td->GetListOfKeys();

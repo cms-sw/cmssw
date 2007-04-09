@@ -7,8 +7,8 @@
 
 class HistoManager {
 public:
-  enum HistType { ENERGY=0, TIME=1, PULSE=2 };
-  enum EventType { UNKNOWN=0, PEDESTAL=1, LED=2, LASER=3, BEAM=4 };
+  enum HistType { ENERGY=0, TIME=1, PULSE=2, ADC=3, NUMHISTTYPES=4 };
+  enum EventType { UNKNOWN=0, PEDESTAL=1, LED=2, LASER=3, BEAM=4, NUMEVTTYPES=5 };
 
   HistoManager(TDirectory* parent);
 
