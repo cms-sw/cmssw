@@ -25,8 +25,6 @@
 #include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockFwd.h"
 
-
-
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
@@ -409,13 +407,13 @@ void PFBlockProducer::produce(Event& iEvent,
   
   if(doParticleFlow_) {
     
-    LogDebug("PFBlockProducer")<<"particle flow is starting"<<endl;
+    // LogDebug("PFBlockProducer")<<"particle flow is starting"<<endl;
   
     // get ECAL, HCAL and PS clusters
 
     Handle< reco::PFClusterCollection > clustersECAL;
     try{      
-      LogDebug("PFBlockProducer")<<"get ECAL clusters"<<endl;
+      // LogDebug("PFBlockProducer")<<"get ECAL clusters"<<endl;
       iEvent.getByLabel(pfClusterModuleLabel_, pfClusterECALInstanceName_, 
 			clustersECAL);      
     } catch (cms::Exception& err) { 
@@ -429,7 +427,7 @@ void PFBlockProducer::produce(Event& iEvent,
   
     Handle< reco::PFClusterCollection > clustersHCAL;
     try{      
-      LogDebug("PFBlockProducer")<<"get HCAL clusters"<<endl;
+      // LogDebug("PFBlockProducer")<<"get HCAL clusters"<<endl;
       iEvent.getByLabel(pfClusterModuleLabel_, pfClusterHCALInstanceName_, 
 			clustersHCAL);
       
@@ -460,7 +458,11 @@ void PFBlockProducer::produce(Event& iEvent,
 			   *clustersECAL,
 			   *clustersHCAL );
     pfBlockAlgo_.findBlocks();
-    
+      
+    ostringstream  str;
+    str<<pfBlockAlgo_<<endl;
+    LogInfo("PFBlockProducer") << str.str()<<endl;
+
     auto_ptr< reco::PFBlockCollection > 
       pOutputBlockCollection( pfBlockAlgo_.transferBlocks() ); 
 
@@ -546,7 +548,7 @@ void PFBlockProducer::produce(Event& iEvent,
 //     }
 //     LogInfo("PFBlockProducer") << str.str()<<endl;
 
-    LogDebug("PFBlockProducer")<<"particle flow done"<<endl;
+    // LogDebug("PFBlockProducer")<<"particle flow done"<<endl;
   }
    
 //   for(PFBlock::IT iele = allElements.begin(); 
@@ -558,7 +560,7 @@ void PFBlockProducer::produce(Event& iEvent,
   
 //   iEvent.put(pOutputPFRecTrackCollection);
 //   iEvent.put(pOutputPFSimParticleCollection);
-  
+
   iEvent.put(pOutputPFRecTrackCollection);
 
   LogDebug("PFBlockProducer")<<"STOP event: "<<iEvent.id().event()

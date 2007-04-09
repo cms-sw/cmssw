@@ -67,18 +67,24 @@ class PFJetAlgorithm {
   typedef map< double, PFJetAlgorithm::Jet, greater<double> >::iterator IJ;
   typedef  map<double, int, greater<double> >::const_iterator IV;
 
-  PFJetAlgorithm() : fConeAngle(0.4), fSeedEt(5),  fConeMerge(3) {}
+  PFJetAlgorithm() : fConeAngle(0.5), fSeedEt(2),  fConeMerge(0.5) {}
+
   PFJetAlgorithm(double cone, double et, double conemerge) : 
     fConeAngle(cone), 
     fSeedEt(et),
     fConeMerge(conemerge)
     {}
+
   virtual ~PFJetAlgorithm() {}
 
-  const vector< PFJetAlgorithm::Jet >& FindJets( const vector<TLorentzVector>* vecs);
+  const vector< PFJetAlgorithm::Jet >& 
+    FindJets( const vector<TLorentzVector>* vecs);
 
-  void SetCone(double cone) {fConeAngle = cone;}
+
+  void SetConeAngle(double coneAngle) {fConeAngle = coneAngle;}
   void SetSeedEt(double et) {fSeedEt = et;}
+  void SetConeMerge(double coneMerge) {fConeMerge = coneMerge;}
+
 
   static double DeltaR(double eta1, double phi1, double eta2, double phi2);
 

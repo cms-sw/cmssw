@@ -1,12 +1,20 @@
 #include "DataFormats/Math/interface/Point3D.h"
+
 #include "DataFormats/ParticleFlowReco/interface/PFLayer.h"
-// #include "DataFormats/Provenance/interface/ModuleDescriptionRegistry.h"
+
+#include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
+#include "DataFormats/ParticleFlowReco/interface/PFBlockElement.h"
+
 #include "RecoParticleFlow/PFClusterAlgo/interface/PFClusterAlgo.h"
-#include "RecoParticleFlow/PFAlgo/interface/PFBlock.h"
-#include "RecoParticleFlow/PFAlgo/interface/PFBlockElement.h"
-#include "RecoParticleFlow/PFAlgo/interface/PFGeometry.h"
+// #include "RecoParticleFlow/PFBlockAlgo/interface/PFBlockAlgo.h"
+#include "RecoParticleFlow/PFBlockAlgo/interface/PFGeometry.h"
+// #include "RecoParticleFlow/PFAlgo/interface/PFAlgo.h"
+
+
 #include "RecoParticleFlow/PFRootEvent/interface/PFRootEventManager.h"
+
 #include "RecoParticleFlow/PFRootEvent/interface/IO.h"
+
 #include "RecoParticleFlow/PFRootEvent/interface/PFJetAlgorithm.h" 
 #include "RecoParticleFlow/PFRootEvent/interface/Utils.h" 
 #include "RecoParticleFlow/PFRootEvent/interface/EventColin.h" 
@@ -35,31 +43,39 @@
 
 using namespace std;
 
-PFRootEventManager::PFRootEventManager() 
-{
-  energyCalibration_ = new PFEnergyCalibration();
-  energyResolution_ = new PFEnergyResolution();
+
+PFRootEventManager::PFRootEventManager() {
+//   energyCalibration_ = new PFEnergyCalibration();
+//   energyResolution_ = new PFEnergyResolution();
 }
 
+
+
 PFRootEventManager::PFRootEventManager(const char* file)
-  : clusters_(new vector<reco::PFCluster>),
-    clustersECAL_(new vector<reco::PFCluster>),
-    clustersHCAL_(new vector<reco::PFCluster>),
-    clustersPS_(new vector<reco::PFCluster>),
-    clusterAlgoECAL_(0), 
-    clusterAlgoHCAL_(0), 
-    clusterAlgoPS_(0)  {
+  : 
+  iEvent_(0),
+  options_(0),
+  tree_(0),
+  outTree_(0),
+  outEvent_(0),
+//   clusters_(new reco::PFClusterCollection),
+  clustersECAL_(new reco::PFClusterCollection),
+  clustersHCAL_(new reco::PFClusterCollection),
+  clustersPS_(new reco::PFClusterCollection),
+  pfBlocks_(new reco::PFBlockCollection),
+  pfCandidates_(new reco::PFCandidateCollection),
+  maxERecHitEcal_(-1),
+  maxERecHitHcal_(-1) {
   
+//   options_ = 0;
+//   tree_ = 0;
+
+//   outEvent_ = 0;
+//   outTree_ = 0;
+
+//   jetAlgo_ = 0;
   
-  options_ = 0;
-  tree_ = 0;
-
-  outEvent_ = 0;
-  outTree_ = 0;
-
-  jetAlgo_ = 0;
-
-  iEvent_=0;
+//   iEvent_=0;
   h_deltaETvisible_MCEHT_ 
     = new TH1F("h_deltaETvisible_MCEHT","Jet Et difference CaloTowers-MC"
 	       ,500,-50,50);
@@ -76,11 +92,11 @@ PFRootEventManager::PFRootEventManager(const char* file)
     displayHist_[iView] = 0;
   }
 
-  maxERecHitEcal_ = -1;
-  maxERecHitHcal_ = -1;
+//   maxERecHitEcal_ = -1;
+//   maxERecHitHcal_ = -1;
 
-  energyCalibration_ = new PFEnergyCalibration();
-  energyResolution_ = new PFEnergyResolution();
+//   energyCalibration_ = new PFEnergyCalibration();
+//   energyResolution_ = new PFEnergyResolution();
 }
 
 void PFRootEventManager::reset() { 
@@ -109,7 +125,7 @@ void PFRootEventManager::readOptions(const char* file,
   
   PFGeometry pfGeometry; // initialize geometry
   
-  cout<<"reading options "<<endl;
+  // cout<<"reading options "<<endl;
 
   try {
     if( !options_ )
@@ -130,8 +146,10 @@ void PFRootEventManager::readOptions(const char* file,
 //   clusteringMode_ = 0;
 //   options_->GetOpt("clustering", "mode", clusteringMode_);  
   
-  clusteringDebug_ = false;
-  options_->GetOpt("clustering", "debug", clusteringDebug_);
+
+  bool clusteringDebug = false;
+  options_->GetOpt("clustering", "debug", clusteringDebug );
+
 
   debug_ = false; 
   options_->GetOpt("rootevent", "debug", debug_);
@@ -158,12 +176,12 @@ void PFRootEventManager::readOptions(const char* file,
     options_->GetOpt("root","outtree", doOutTree);
     if(doOutTree) {
       outFile_->cd();
-      cout<<"do tree"<<endl;
+      // cout<<"do tree"<<endl;
       outEvent_ = new EventColin();
       outTree_ = new TTree("Eff","");
       outTree_->Branch("event","EventColin", &outEvent_,32000,2);
     }
-    cout<<"don't do tree"<<endl;
+    // cout<<"don't do tree"<<endl;
   }
 
 
@@ -225,41 +243,58 @@ void PFRootEventManager::readOptions(const char* file,
 
   // filter --------------------------------------------------------------
 
-  nParticles_ = 0;
-  options_->GetOpt("filter", "nparticles", nParticles_);
+  filterNParticles_ = 0;
+  options_->GetOpt("filter", "nparticles", filterNParticles_);
   
-
+  filterHadronicTaus_ = true;
+  options_->GetOpt("filter", "hadronic_taus", filterHadronicTaus_);
+  
   // clustering parameters -----------------------------------------------
 
-  threshEcalBarrel_ = 0.1;
-  options_->GetOpt("clustering", "thresh_Ecal_Barrel", threshEcalBarrel_);
+  double threshEcalBarrel = 0.1;
+  options_->GetOpt("clustering", "thresh_Ecal_Barrel", threshEcalBarrel);
   
-  threshSeedEcalBarrel_ = 0.3;
+  double threshSeedEcalBarrel = 0.3;
   options_->GetOpt("clustering", "thresh_Seed_Ecal_Barrel", 
-		   threshSeedEcalBarrel_);
+		   threshSeedEcalBarrel);
 
-  threshEcalEndcap_ = 0.2;
-  options_->GetOpt("clustering", "thresh_Ecal_Endcap", threshEcalEndcap_);
+  double threshEcalEndcap = 0.2;
+  options_->GetOpt("clustering", "thresh_Ecal_Endcap", threshEcalEndcap);
 
-  threshSeedEcalEndcap_ = 0.8;
+  double threshSeedEcalEndcap = 0.8;
   options_->GetOpt("clustering", "thresh_Seed_Ecal_Endcap",
-		   threshSeedEcalEndcap_);
+		   threshSeedEcalEndcap);
 
-  showerSigmaEcal_ = 3;  
+  double showerSigmaEcal = 3;  
   options_->GetOpt("clustering", "shower_Sigma_Ecal",
-		   showerSigmaEcal_);
+		   showerSigmaEcal);
 
-  nNeighboursEcal_ = 4;
-  options_->GetOpt("clustering", "neighbours_Ecal", nNeighboursEcal_);
+  int nNeighboursEcal = 4;
+  options_->GetOpt("clustering", "neighbours_Ecal", nNeighboursEcal);
   
-  posCalcNCrystalEcal_ = -1;
+  int posCalcNCrystalEcal = -1;
   options_->GetOpt("clustering", "posCalc_nCrystal_Ecal", 
-		   posCalcNCrystalEcal_);
+		   posCalcNCrystalEcal);
 
-  posCalcP1Ecal_ = -1;
+  double posCalcP1Ecal = -1;
   options_->GetOpt("clustering", "posCalc_p1_Ecal", 
-		   posCalcP1Ecal_);
+		   posCalcP1Ecal);
   
+
+  clusterAlgoECAL_.setThreshBarrel( threshEcalBarrel );
+  clusterAlgoECAL_.setThreshSeedBarrel( threshSeedEcalBarrel );
+  
+  clusterAlgoECAL_.setThreshEndcap( threshEcalEndcap );
+  clusterAlgoECAL_.setThreshSeedEndcap( threshSeedEcalEndcap );
+
+  clusterAlgoECAL_.setNNeighbours( nNeighboursEcal );
+  clusterAlgoECAL_.setShowerSigma( showerSigmaEcal );
+
+  clusterAlgoECAL_.setPosCalcNCrystal( posCalcNCrystalEcal );
+  clusterAlgoECAL_.setPosCalcP1( posCalcP1Ecal );
+
+  clusterAlgoECAL_.enableDebugging( clusteringDebug ); 
+
 
   int dcormode = 0;
   options_->GetOpt("clustering", "depthCor_Mode", dcormode);
@@ -293,49 +328,106 @@ void PFRootEventManager::readOptions(const char* file,
 
   
 
-  threshHcalBarrel_ = 0.1;
-  options_->GetOpt("clustering", "thresh_Hcal_Barrel", threshHcalBarrel_);
+  double threshHcalBarrel = 0.8;
+  options_->GetOpt("clustering", "thresh_Hcal_Barrel", threshHcalBarrel);
   
-  threshSeedHcalBarrel_ = 0.3;
+  double threshSeedHcalBarrel = 1.4;
   options_->GetOpt("clustering", "thresh_Seed_Hcal_Barrel", 
-		   threshSeedHcalBarrel_);
+		   threshSeedHcalBarrel);
 
-  threshHcalEndcap_ = 0.2;
-  options_->GetOpt("clustering", "thresh_Hcal_Endcap", threshHcalEndcap_);
+  double threshHcalEndcap = 0.8;
+  options_->GetOpt("clustering", "thresh_Hcal_Endcap", threshHcalEndcap);
 
-  threshSeedHcalEndcap_ = 0.8;
+  double threshSeedHcalEndcap = 1.4;
   options_->GetOpt("clustering", "thresh_Seed_Hcal_Endcap",
-		   threshSeedHcalEndcap_);
+		   threshSeedHcalEndcap);
 
-  nNeighboursHcal_ = 4;
-  options_->GetOpt("clustering", "neighbours_Hcal", nNeighboursHcal_);
-
-  posCalcP1Hcal_ = -1;
-  options_->GetOpt("clustering", "posCalc_p1_Hcal", 
-		   posCalcP1Hcal_);
-
-  posCalcNCrystalHcal_ = 5;
-  options_->GetOpt("clustering", "posCalc_nCrystal_Hcal",
-                   posCalcNCrystalHcal_);
-
-  showerSigmaHcal_    = 10;
+  double showerSigmaHcal    = 15;
   options_->GetOpt("clustering", "shower_Sigma_Hcal",
-                   showerSigmaHcal_);
+                   showerSigmaHcal);
+ 
+  int nNeighboursHcal = 4;
+  options_->GetOpt("clustering", "neighbours_Hcal", nNeighboursHcal);
 
-  threshPS_ = 0.00001;
-  options_->GetOpt("clustering", "thresh_PS", threshPS_);
+  int posCalcNCrystalHcal = 5;
+  options_->GetOpt("clustering", "posCalc_nCrystal_Hcal",
+                   posCalcNCrystalHcal);
+
+  double posCalcP1Hcal = 1.0;
+  options_->GetOpt("clustering", "posCalc_p1_Hcal", 
+		   posCalcP1Hcal);
+
+
+
+
+  clusterAlgoHCAL_.setThreshBarrel( threshHcalBarrel );
+  clusterAlgoHCAL_.setThreshSeedBarrel( threshSeedHcalBarrel );
   
-  threshSeedPS_ = 0.0001;
-  options_->GetOpt("clustering", "thresh_Seed_PS", 
-		   threshSeedPS_);
+  clusterAlgoHCAL_.setThreshEndcap( threshHcalEndcap );
+  clusterAlgoHCAL_.setThreshSeedEndcap( threshSeedHcalEndcap );
+
+  clusterAlgoHCAL_.setNNeighbours( nNeighboursHcal );
+  clusterAlgoHCAL_.setShowerSigma( showerSigmaHcal );
+
+  clusterAlgoHCAL_.setPosCalcNCrystal( posCalcNCrystalHcal );
+  clusterAlgoHCAL_.setPosCalcP1( posCalcP1Hcal );
+
+  clusterAlgoHCAL_.enableDebugging( clusteringDebug ); 
 
 
-  posCalcP1PS_ = -1;
+  // clustering preshower
+
+  double threshPSBarrel = 0.0001;
+  options_->GetOpt("clustering", "thresh_PS_Barrel", threshPSBarrel);
+  
+  double threshSeedPSBarrel = 0.001;
+  options_->GetOpt("clustering", "thresh_Seed_PS_Barrel", 
+		   threshSeedPSBarrel);
+
+  double threshPSEndcap = 0.0001;
+  options_->GetOpt("clustering", "thresh_PS_Endcap", threshPSEndcap);
+
+  double threshSeedPSEndcap = 0.001;
+  options_->GetOpt("clustering", "thresh_Seed_PS_Endcap",
+		   threshSeedPSEndcap);
+
+  double showerSigmaPS    = 0.1;
+  options_->GetOpt("clustering", "shower_Sigma_PS",
+                   showerSigmaPS);
+ 
+  int nNeighboursPS = 4;
+  options_->GetOpt("clustering", "neighbours_PS", nNeighboursPS);
+
+  int posCalcNCrystalPS = -1;
+  options_->GetOpt("clustering", "posCalc_nCrystal_PS",
+                   posCalcNCrystalPS);
+
+  double posCalcP1PS = 0.;
   options_->GetOpt("clustering", "posCalc_p1_PS", 
-		   posCalcP1PS_);
+		   posCalcP1PS);
+
+
+
+
+  clusterAlgoPS_.setThreshBarrel( threshPSBarrel );
+  clusterAlgoPS_.setThreshSeedBarrel( threshSeedPSBarrel );
+  
+  clusterAlgoPS_.setThreshEndcap( threshPSEndcap );
+  clusterAlgoPS_.setThreshSeedEndcap( threshSeedPSEndcap );
+
+  clusterAlgoPS_.setNNeighbours( nNeighboursPS );
+  clusterAlgoPS_.setShowerSigma( showerSigmaPS );
+
+  clusterAlgoPS_.setPosCalcNCrystal( posCalcNCrystalPS );
+  clusterAlgoPS_.setPosCalcP1( posCalcP1PS );
+
+  clusterAlgoPS_.enableDebugging( clusteringDebug ); 
+
+  
 
 
   // options for particle flow ---------------------------------------------
+
 
   string map_ECAL_eta;
   options_->GetOpt("particle_flow", "resolution_map_ECAL_eta", map_ECAL_eta);
@@ -356,58 +448,66 @@ void PFRootEventManager::readOptions(const char* file,
   getMap(map_HCAL_eta);
   getMap(map_HCAL_phi);
 
-  try{
-    PFBlock::setResMaps(map_ECAL_eta,
-			map_ECAL_phi, 
-			map_ECALec_x,
-			map_ECALec_y,
-			map_HCAL_eta,
-			map_HCAL_phi);
-  }
-  catch( const string& err ) {
-    cout<<err<<endl;
-  } 
 
-  double chi2_ECAL_HCAL=0;
-  options_->GetOpt("particle_flow", "chi2_ECAL_HCAL", chi2_ECAL_HCAL);
-  double chi2_ECAL_PS=0;
-  options_->GetOpt("particle_flow", "chi2_ECAL_PS", chi2_ECAL_PS);
-  double chi2_HCAL_PS=0;
-  options_->GetOpt("particle_flow", "chi2_HCAL_PS", chi2_HCAL_PS);
-  double chi2_ECAL_Track=100;
-  options_->GetOpt("particle_flow", "chi2_ECAL_Track", chi2_ECAL_Track);
-  double chi2_HCAL_Track=100;
-  options_->GetOpt("particle_flow", "chi2_HCAL_Track", chi2_HCAL_Track);
-  double chi2_PS_Track=0;
-  options_->GetOpt("particle_flow", "chi2_PS_Track", chi2_PS_Track);
+  double chi2TrackECAL=100;
+  options_->GetOpt("particle_flow", "chi2_ECAL_Track", chi2TrackECAL);
+  double chi2TrackHCAL=100;
+  options_->GetOpt("particle_flow", "chi2_HCAL_Track", chi2TrackHCAL);
+  double chi2ECALHCAL=100;
+  options_->GetOpt("particle_flow", "chi2_ECAL_HCAL", chi2ECALHCAL);
 
-  PFBlock::setMaxChi2(chi2_ECAL_HCAL,
-		      chi2_ECAL_PS,
-		      chi2_HCAL_PS,
-		      chi2_ECAL_Track,
-		      chi2_HCAL_Track,
-		      chi2_PS_Track );
-  double nsigma;
-  options_->GetOpt("particle_flow", "nsigma_neutral", nsigma);
-  PFBlock::setNsigmaNeutral(nsigma);
 
+  pfBlockAlgo_.setParameters( map_ECAL_eta.c_str(),
+			      map_ECAL_phi.c_str(),
+			      map_HCAL_eta.c_str(),
+			      map_HCAL_phi.c_str(),
+			      chi2TrackECAL,
+			      chi2TrackHCAL,
+			      chi2ECALHCAL );
+  
+  bool blockAlgoDebug = false;
+  options_->GetOpt("blockAlgo", "debug",  blockAlgoDebug);  
+
+  pfBlockAlgo_.setDebug( blockAlgoDebug );
+
+
+
+  double eCalibP0 = 0;
+  double eCalibP1 = 1;
   vector<double> ecalib;
   options_->GetOpt("particle_flow", "ecalib", ecalib);
   if(ecalib.size() == 2) {
-// CV: PFBlock::setEcalib(ecalib[0], ecalib[1]);
-    std::cout << "setting ECAL calibration for electrons/photons:" << std::endl;
-    std::cout << " slope = " << ecalib[1] << std::endl;
-    std::cout << " offset = " << ecalib[0] << std::endl;
-    energyCalibration_->setCalibrationParametersEm(ecalib[1], ecalib[0]); 
-  } else {
-// CV: PFBlock::setEcalib(0, 1);
-    energyCalibration_->setCalibrationParametersEm(1., 0.);
+    eCalibP0 = ecalib[0];
+    eCalibP1 = ecalib[1]; 
   }
-  PFBlock::setEnergyCalibration(energyCalibration_);
-  PFBlock::setEnergyResolution(energyResolution_);
+  else {
+    cerr<<"PFRootEventManager::readOptions : WARNING : "
+	<<"wrong calibration coefficients for ECAL"<<endl;
+  }
 
-  reconMethod_ = 3; 
-  options_->GetOpt("particle_flow", "recon_method", reconMethod_);
+//   if(ecalib.size() == 2) {
+// // CV: PFBlock::setEcalib(ecalib[0], ecalib[1]);
+// //     std::cout << "setting ECAL calibration for electrons/photons:" <<std::endl;
+// //     std::cout << " slope = " << ecalib[1] << std::endl;
+// //     std::cout << " offset = " << ecalib[0] << std::endl;
+// //     energyCalibration_->setCalibrationParametersEm(ecalib[1], ecalib[0]); 
+//   } else {
+// // CV: PFBlock::setEcalib(0, 1);
+//     energyCalibration_->setCalibrationParametersEm(1., 0.);
+// =======
+//     eCalibP0 = ecalib[0];
+//     eCalibP1 = ecalib[1]; 
+// >>>>>>> 1.50.2.2
+//   }
+  
+
+  double nSigmaECAL = 99999;
+  options_->GetOpt("particle_flow", "nsigma_ECAL", nSigmaECAL);
+  double nSigmaHCAL = 99999;
+  options_->GetOpt("particle_flow", "nsigma_HCAL", nSigmaHCAL);
+
+
+  pfAlgo_.setParameters( eCalibP0, eCalibP1, nSigmaECAL, nSigmaHCAL );
 
   displayJetColors_ = false;
   options_->GetOpt("display", "jet_colors", displayJetColors_);
@@ -421,10 +521,13 @@ void PFRootEventManager::readOptions(const char* file,
   printClusters_ = false;
   options_->GetOpt("print", "clusters", printClusters_ );
   
-  printPFBs_ = false;
-  options_->GetOpt("print", "PFBs", printPFBs_ );
+  printPFBlocks_ = true;
+  options_->GetOpt("print", "PFBlocks", printPFBlocks_ );
   
-  printTrueParticles_ = false;
+  printPFCandidates_ = true;
+  options_->GetOpt("print", "PFCandidates", printPFCandidates_ );
+  
+  printTrueParticles_ = true;
   options_->GetOpt("print", "true_particles", printTrueParticles_ );
   
   verbosity_ = VERBOSE;
@@ -435,23 +538,31 @@ void PFRootEventManager::readOptions(const char* file,
   doJets_ = false;
   options_->GetOpt("jets", "dojets", doJets_);
   
-  coneAngle_ = 0.5;
-  options_->GetOpt("jets", "cone_angle", coneAngle_);
-
-  seedEt_    = 0.4;
-  options_->GetOpt("jets", "seed_et", seedEt_);
-
-  coneMerge_ = 100.0;
-  options_->GetOpt("jets", "cone_merge", coneMerge_);
-
   jetsDebug_ = false;
-  options_->GetOpt("jets", "jets_debug", jetsDebug_);
-
+  
   if (doJets_) {
-    cout << "Jet Options : ";
-    cout << "Angle=" << coneAngle_ << " seedEt=" << seedEt_ 
-	 << " Merge=" << coneMerge_ << endl;
-    jetAlgo_ = new PFJetAlgorithm(coneAngle_, seedEt_, coneMerge_);
+    double coneAngle = 0.5;
+    options_->GetOpt("jets", "cone_angle", coneAngle);
+    
+    double seedEt    = 0.4;
+    options_->GetOpt("jets", "seed_et", seedEt);
+    
+    double coneMerge = 100.0;
+    options_->GetOpt("jets", "cone_merge", coneMerge);
+    
+    options_->GetOpt("jets", "jets_debug", jetsDebug_);
+
+    // cout<<"jets debug "<<jetsDebug_<<endl;
+    
+    if( jetsDebug_ ) {
+      cout << "Jet Options : ";
+      cout << "Angle=" << coneAngle << " seedEt=" << seedEt 
+	   << " Merge=" << coneMerge << endl;
+    }
+
+    jetAlgo_.SetConeAngle(coneAngle);
+    jetAlgo_.SetSeedEt(seedEt);
+    jetAlgo_.SetConeMerge(coneMerge);   
   }
 
 }
@@ -476,7 +587,7 @@ void PFRootEventManager::connect( const char* infilename ) {
   else 
     cout<<"rootfile "<<inFileName_
 	<<" opened"<<endl;
-  
+
   tree_ = (TTree*) file_->Get("Events");  
   if(!tree_) {
     cerr<<"PFRootEventManager::ReadOptions :";
@@ -633,25 +744,18 @@ PFRootEventManager::~PFRootEventManager() {
   }
 
   if(outEvent_) delete outEvent_;
-  if(outTree_) delete outTree_;
-
-  if(jetAlgo_) delete jetAlgo_;
+  if(outTree_)  delete outTree_;
 
   for( unsigned i=0; i<displayView_.size(); i++) {
     if(displayView_[i]) delete displayView_[i];
   }
-      
-  for(PFBlock::IT ie = allElements_.begin(); 
-      ie!=  allElements_.end(); ie++ ) {
-    delete *ie;
-  } 
- 
+
   delete options_;
   
-  delete energyCalibration_;
-  PFBlock::setEnergyCalibration(NULL);
-  delete energyResolution_;
-  PFBlock::setEnergyResolution(NULL);
+//   delete energyCalibration_;
+//   PFBlock::setEnergyCalibration(NULL);
+//   delete energyResolution_;
+//   PFBlock::setEnergyResolution(NULL);
 }
 
 
@@ -713,29 +817,6 @@ bool PFRootEventManager::processEntry(int entry) {
     }
   }
 
-  //optional ----------------------
-  //REMOVE EVENTS LEPTONIC DECAY OF THE TAUS
-  vector<reco::PFSimParticle> vectPART;
-  for ( unsigned i=0;  i < trueParticles_.size(); i++) {
-    const reco::PFSimParticle& ptc = trueParticles_[i];
-    vectPART.push_back(ptc);
-  }//loop 
-  for ( unsigned i=0;  i < trueParticles_.size(); i++) {
-    const reco::PFSimParticle& ptc = trueParticles_[i];
-    const std::vector<int>& ptcdaughters = ptc.daughterIds();
-    if (abs(ptc.pdgCode()) == 15) {
-      for ( unsigned int dapt=0; dapt < ptcdaughters.size(); ++dapt) {
-	unsigned int pdgdaugter = abs(vectPART[ptcdaughters[dapt]].pdgCode());
-	//cout << "DAUGHTER=" << pdgdaugter << endl;
-	if (pdgdaugter == 11 || pdgdaugter == 13) { 
-	  if (verbosity_ == VERBOSE) cout << "REMOVED" << endl; 
-	    return false; 
-	}//electron or muons?
-      }//loop daughter
-    }//tau
-  }//loop particles
-  //-------------------------------
-
   particleFlow();
   if (doJets_) 
     makeJets(); 
@@ -769,8 +850,12 @@ bool PFRootEventManager::readFromSimulation(int entry) {
     trueParticlesBranch_->GetEntry(entry);
     // this is a filter to select single particle events.
     // usually not active
-    if(nParticles_ && 
-       trueParticles_.size() != nParticles_ ) {
+    if(filterNParticles_ && 
+       trueParticles_.size() != filterNParticles_ ) {
+      return false;
+    }
+    if(filterHadronicTaus_ && !isHadronicTau() ) {
+      cout << "PFRootEventManager : leptonic tau discarded " << endl; 
       return false;
     }
   }
@@ -817,11 +902,39 @@ bool PFRootEventManager::readFromSimulation(int entry) {
 }
 
 
-void PFRootEventManager::PreprocessRecHits(vector<reco::PFRecHit>& rechits, 
-					   bool findNeighbours) {
+bool PFRootEventManager::isHadronicTau() const {
+
+  for ( unsigned i=0;  i < trueParticles_.size(); i++) {
+    const reco::PFSimParticle& ptc = trueParticles_[i];
+    const std::vector<int>& ptcdaughters = ptc.daughterIds();
+    if (abs(ptc.pdgCode()) == 15) {
+      for ( unsigned int dapt=0; dapt < ptcdaughters.size(); ++dapt) {
+	
+	const reco::PFSimParticle& daughter 
+	  = trueParticles_[ptcdaughters[dapt]];
+	
+	unsigned pdgdaugter = daughter.pdgCode();
+	
+	if (pdgdaugter == 11 || pdgdaugter == 13) { 
+	  return false; 
+	}//electron or muons?
+      }//loop daughter
+    }//tau
+  }//loop particles
+
+
+  return true;
+}
+
+
+
+void 
+PFRootEventManager::PreprocessRecHits(reco::PFRecHitCollection& rechits, 
+				      bool findNeighbours) {
   
  
   map<unsigned, unsigned> detId2index;
+
   for(unsigned i=0; i<rechits.size(); i++) { 
     rechits[i].calculatePositionREP();
     
@@ -876,69 +989,25 @@ void PFRootEventManager::clustering() {
   
   // ECAL clustering -------------------------------------------
 
-  if( clusterAlgoECAL_ ) { 
-    delete clusterAlgoECAL_;
-    clusterAlgoECAL_ = 0;
-  }
-  clusterAlgoECAL_ = new PFClusterAlgo( rechitsECAL_ );
-  clusterAlgoECAL_->enableDebugging( clusteringDebug_ ); 
+  clusterAlgoECAL_.doClustering( rechitsECAL_ );
+  clustersECAL_ = clusterAlgoECAL_.clusters();
 
-  clusterAlgoECAL_->setThreshBarrel( threshEcalBarrel_ );
-  clusterAlgoECAL_->setThreshSeedBarrel( threshSeedEcalBarrel_ );
-  
-  clusterAlgoECAL_->setThreshEndcap( threshEcalEndcap_ );
-  clusterAlgoECAL_->setThreshSeedEndcap( threshSeedEcalEndcap_ );
-
-  clusterAlgoECAL_->setNNeighbours( nNeighboursEcal_  );
-  clusterAlgoECAL_->setShowerSigma( showerSigmaEcal_  );
-
-  clusterAlgoECAL_->setPosCalcNCrystal( posCalcNCrystalEcal_ );
-  clusterAlgoECAL_->setPosCalcP1( posCalcP1Ecal_ );
-
-  clusterAlgoECAL_->doClustering();
-  clustersECAL_ = clusterAlgoECAL_->clusters();
+  assert(clustersECAL_.get() );
 
   fillOutEventWithClusters( *clustersECAL_ );
 
   // HCAL clustering -------------------------------------------
 
-  if( clusterAlgoHCAL_ ) { 
-    delete clusterAlgoHCAL_;
-    clusterAlgoHCAL_ = 0;
-  }
-  clusterAlgoHCAL_ = new PFClusterAlgo(rechitsHCAL_);
 
-  clusterAlgoHCAL_->setThreshBarrel( threshHcalBarrel_ );
-  clusterAlgoHCAL_->setThreshSeedBarrel( threshSeedHcalBarrel_ );
-  
-  clusterAlgoHCAL_->setThreshEndcap( threshHcalEndcap_ );
-  clusterAlgoHCAL_->setThreshSeedEndcap( threshSeedHcalEndcap_ );
-
-  clusterAlgoHCAL_->setNNeighbours( nNeighboursHcal_  );
-  clusterAlgoHCAL_->setPosCalcP1( posCalcP1Hcal_ );
-  
-  clusterAlgoHCAL_->setShowerSigma( showerSigmaHcal_  );
-  clusterAlgoHCAL_->setPosCalcNCrystal( posCalcNCrystalHcal_ );
-
-  clusterAlgoHCAL_->doClustering();
-  clustersHCAL_ = clusterAlgoHCAL_->clusters();
+  clusterAlgoHCAL_.doClustering( rechitsHCAL_ );
+  clustersHCAL_ = clusterAlgoHCAL_.clusters();
 
   fillOutEventWithClusters( *clustersHCAL_ );
 
   // PS clustering -------------------------------------------
-  
-  if( clusterAlgoPS_ ) { 
-    delete clusterAlgoPS_;
-    clusterAlgoPS_ = 0;
-  }
-  clusterAlgoPS_ = new PFClusterAlgo(rechitsPS_);
-    
-  clusterAlgoPS_->setThreshEndcap( threshPS_ );
-  clusterAlgoPS_->setThreshSeedEndcap( threshSeedPS_ );
-  clusterAlgoPS_->setPosCalcP1( posCalcP1PS_ );
-  
-  clusterAlgoPS_->doClustering();
-  clustersPS_ = clusterAlgoPS_->clusters();
+
+  clusterAlgoPS_.doClustering( rechitsPS_ );
+  clustersPS_ = clusterAlgoPS_.clusters();
 
   fillOutEventWithClusters( *clustersPS_ );
   
@@ -946,8 +1015,8 @@ void PFRootEventManager::clustering() {
 
 
 void 
-PFRootEventManager::fillOutEventWithClusters(const vector<reco::PFCluster>& 
-					    clusters) {
+PFRootEventManager::fillOutEventWithClusters(const reco::PFClusterCollection& 
+					     clusters) {
 
   if(!outEvent_) return;
   
@@ -966,73 +1035,26 @@ PFRootEventManager::fillOutEventWithClusters(const vector<reco::PFCluster>&
 
 void PFRootEventManager::particleFlow() {
   
-
-  // clear stuff from previous call
-
-  for(PFBlock::IT ie = allElements_.begin(); 
-      ie!=  allElements_.end(); ie++ ) {
-    delete *ie;
-  } 
-  allElements_.clear();
-
-  allPFBs_.clear();
-
-  // create PFBlockElements from clusters and rectracks
-
-  for(unsigned i=0; i<clustersECAL_->size(); i++) {
-    if( (*clustersECAL_)[i].type() != reco::PFCluster::TYPE_PF ) continue;
-    allElements_.insert( new PFBlockElementECAL( & (*clustersECAL_)[i] ) );
-  }
-  for(unsigned i=0; i<clustersHCAL_->size(); i++) {
-    if( (*clustersHCAL_)[i].type() != reco::PFCluster::TYPE_PF ) continue;
-    allElements_.insert( new PFBlockElementHCAL( & (*clustersHCAL_)[i] ) );
-  }
-  for(unsigned i=0; i<clustersPS_->size(); i++) {
-    if( (*clustersPS_)[i].type() != reco::PFCluster::TYPE_PF ) continue;
-    allElements_.insert( new PFBlockElementPS( & (*clustersPS_)[i] ) );
-  }
-
-  for(unsigned i=0; i<recTracks_.size(); i++) {
-    recTracks_[i].calculatePositionREP();
-    allElements_.insert( new PFBlockElementTrack( & recTracks_[i] ) );  
+  if( debug_) {
+    cout<<"PFRootEventManager::particleFlow start"<<endl;
+    cout<<"number of elements in memory: "
+	<<reco::PFBlockElement::instanceCounter()<<endl;
   }
 
 
-
-  PFBlock::setAllElements( allElements_ );
-  int efbcolor = 2;
-  for(PFBlock::IT iele = allElements_.begin(); 
-      iele != allElements_.end(); iele++) {
-
-    if( (*iele) -> block() ) continue; // already associated
-    
-    allPFBs_.push_back( PFBlock() );
-    allPFBs_.back().associate( 0, *iele );
-    
-    if( displayJetColors_ ) efbcolor = 1;
-    
-    allPFBs_.back().finalize(efbcolor, reconMethod_); 
-//     cout<<"new eflowblock----------------------"<<endl;
-//     cout<<allPFBs_.back()<<endl;
-    efbcolor++;
-  }
-
+  pfBlockAlgo_.setInput( recTracks_, *clustersECAL_, *clustersHCAL_ );
+  pfBlockAlgo_.findBlocks();
   
-  for(unsigned iefb = 0; iefb<allPFBs_.size(); iefb++) {
+  if( debug_) cout<<pfBlockAlgo_<<endl;
 
-    switch(reconMethod_) {
-    case 2:
-      allPFBs_[iefb].reconstructParticles2();
-      break;
-    case 3:
-      allPFBs_[iefb].reconstructParticles3();
-      break;
-    default:
-      break;
-    }    
-    // cout<<(allPFBs_[iefb])<<endl;
-  }
+  pfBlocks_ = pfBlockAlgo_.transferBlocks();
 
+
+  pfAlgo_.reconstructParticles( *pfBlocks_ );
+  if( debug_) cout<< pfAlgo_<<endl;
+  pfCandidates_ = pfAlgo_.transferCandidates();
+ 
+  if( debug_) cout<<"PFRootEventManager::particleFlow stop"<<endl;
 }
 
 void PFRootEventManager::makeJets() {
@@ -1040,7 +1062,7 @@ void PFRootEventManager::makeJets() {
   //    << "PF particles and caloTowers" << std::endl;
   
   //initialize Jets Reconstruction
-  jetAlgo_->Clear();
+  jetAlgo_.Clear();
 
   //MAKING TRUE PARTICLE JETS
   TLorentzVector partTOTMC;
@@ -1151,9 +1173,9 @@ void PFRootEventManager::makeJets() {
 	 << " CALOTOWER 4-VECTORS " << endl;
   
   //ECAL+HCAL tower jets computation
-  jetAlgo_->Clear();
+  jetAlgo_.Clear();
   const vector< PFJetAlgorithm::Jet >&  caloTjets 
-    = jetAlgo_->FindJets( &allcalotowers );
+    = jetAlgo_.FindJets( &allcalotowers );
   
   //cout << caloTjets.size() << " CaloTower Jets found" << endl;
   double JetEHTETmax = 0.0;
@@ -1184,41 +1206,51 @@ void PFRootEventManager::makeJets() {
   //////////////////////////////////////////////////////////////////
   //PARTICLE FLOW JETS
   vector<TLorentzVector> allrecparticles;
-  if ( jetsDebug_) {
-    cout << endl;
-    cout << " THERE ARE " << allPFBs_.size() << " EFLOW BLOCKS" << endl;
-  }//debug
+//   if ( jetsDebug_) {
+//     cout << endl;
+//     cout << " THERE ARE " << pfBlocks_.size() << " EFLOW BLOCKS" << endl;
+//   }//debug
 
-  for ( unsigned iefb = 0; iefb < allPFBs_.size(); iefb++) {
-      const std::vector< PFBlockParticle >& recparticles 
-	= allPFBs_[iefb].particles();
-      if (jetsDebug_) 
-	cout << " there are " << recparticles.size() 
-	     << " particle in this block" << endl;
-      for (unsigned ip = 0; ip < recparticles.size(); ip++) {
-	if (jetsDebug_) {
-	  cout << ip << " " << recparticles[ip] << endl;
-	  int type = recparticles[ip].type();
-	  cout << " type= " << type << " " << recparticles[ip].charge() 
-	       << endl;
-	}//debug
-	const math::XYZTLorentzVector& PFpart = recparticles[ip].momentum();
-	
-	TLorentzVector partRec;
-	partRec.SetPxPyPzE(PFpart.Px(),PFpart.Py(),PFpart.Pz(),PFpart.E());
-	
-	//loading 4-vectors of Rec particles
-	allrecparticles.push_back( partRec );
-      }//loop particles in blocks
-    }//loop eflow blocks
+//   for ( unsigned iefb = 0; iefb < pfBlocks_.size(); iefb++) {
+//       const std::vector< PFBlockParticle >& recparticles 
+// 	= pfBlocks_[iefb].particles();
+
+  
+  for(unsigned i=0; i<pfCandidates_->size(); i++) {
+  
+//       if (jetsDebug_) 
+// 	cout << " there are " << recparticles.size() 
+// 	     << " particle in this block" << endl;
+    
+    const reco::PFCandidate& candidate = (*pfCandidates_)[i];
+
+    if (jetsDebug_) {
+      cout << i << " " << candidate << endl;
+      int type = candidate.particleId();
+      cout << " type= " << type << " " << candidate.charge() 
+	   << endl;
+    }//debug
+
+    const math::XYZTLorentzVector& PFpart = candidate.p4();
+    
+    TLorentzVector partRec(PFpart.Px(), 
+			   PFpart.Py(), 
+			   PFpart.Pz(),
+			   PFpart.E());
+    
+    //loading 4-vectors of Rec particles
+    allrecparticles.push_back( partRec );
+
+  }//loop on candidates
+  
 
   if (jetsDebug_) 
     cout << " THERE ARE " << allrecparticles.size() 
 	 << " RECONSTRUCTED 4-VECTORS" << endl;
 
-  jetAlgo_->Clear();
+  jetAlgo_.Clear();
   const vector< PFJetAlgorithm::Jet >&  PFjets 
-    = jetAlgo_->FindJets( &allrecparticles );
+    = jetAlgo_.FindJets( &allrecparticles );
 
   if (jetsDebug_) 
     cout << PFjets.size() << " PF Jets found" << endl;
@@ -1254,8 +1286,9 @@ void PFRootEventManager::makeJets() {
   h_deltaETvisible_MCPF_ ->Fill(JetPFETmax - partTOTMC.Et());
 }//Makejets
 
+
+
 void PFRootEventManager::display(int ientry) {
-  
   processEntry(ientry);
   display();
 }
@@ -1316,6 +1349,7 @@ void PFRootEventManager::displayView(unsigned viewType) {
     displayView_[viewType]->SetLeftMargin(0.12);
     displayView_[viewType]->SetBottomMargin(0.12);
     displayView_[viewType]->Draw();  
+    displayView_[viewType]->ToggleToolBar();
   } else 
     displayView_[viewType]->Clear();
   displayView_[viewType]->cd();
@@ -1431,35 +1465,34 @@ void PFRootEventManager::displayView(unsigned viewType) {
 
 
 
-void PFRootEventManager::displayRecHits(unsigned viewType, double phi0) 
-{
+void PFRootEventManager::displayRecHits(unsigned viewType, double phi0) {
   double maxee = getMaxEEcal();
   double maxeh = getMaxEHcal();
   double maxe = maxee>maxeh ? maxee : maxeh;
-
+  
   int color = TColor::GetColor(220, 220, 255);
   int seedcolor = TColor::GetColor(160, 160, 255);
-
+  
   for(unsigned i=0; i<rechitsECAL_.size(); i++) { 
     int rhcolor = color;
-    if(clusterAlgoECAL_->isSeed(i) )
+    if(clusterAlgoECAL_.isSeed(i) )
       rhcolor = seedcolor;
     displayRecHit(rechitsECAL_[i], viewType, maxe, phi0, rhcolor);
   }
   for(unsigned i=0; i<rechitsHCAL_.size(); i++) { 
     int rhcolor = color;
-    if(clusterAlgoHCAL_->isSeed(i) )
+    if(clusterAlgoHCAL_.isSeed(i) )
       rhcolor = seedcolor;
     displayRecHit(rechitsHCAL_[i], viewType, maxe, phi0, rhcolor);
   }
   for(unsigned i=0; i<rechitsPS_.size(); i++) { 
     int rhcolor = color;
-    if(clusterAlgoPS_->isSeed(i) )
+    if(clusterAlgoPS_.isSeed(i) )
       rhcolor = seedcolor;
     displayRecHit(rechitsPS_[i], viewType, maxe, phi0, rhcolor);
-  }
-   
+  }   
 }
+
 
 void PFRootEventManager::displayRecHit(reco::PFRecHit& rh, 
 				       unsigned viewType,
@@ -1472,22 +1505,22 @@ void PFRootEventManager::displayRecHit(reco::PFRecHit& rh,
 
   switch(layer) {
   case PFLayer::ECAL_BARREL:
-    thresh = threshEcalBarrel_;
+    thresh = clusterAlgoECAL_.threshBarrel();
     break;     
   case PFLayer::ECAL_ENDCAP:
-    thresh = threshEcalEndcap_;
+    thresh = clusterAlgoECAL_.threshEndcap();
     break;     
   case PFLayer::HCAL_BARREL1:
   case PFLayer::HCAL_BARREL2:
-    thresh = threshHcalBarrel_;
+    thresh = clusterAlgoHCAL_.threshBarrel();
     break;           
   case PFLayer::HCAL_ENDCAP:
-    thresh = threshHcalEndcap_;
+    thresh = clusterAlgoHCAL_.threshEndcap();
     break;           
   case PFLayer::PS1:
   case PFLayer::PS2:
     me = -1;
-    thresh = threshPS_; 
+    thresh = clusterAlgoPS_.threshBarrel();
     break;
   default:
     cerr<<"PFRootEventManager::displayRecHit : manage other layers."
@@ -1511,9 +1544,11 @@ void PFRootEventManager::displayRecHit(reco::PFRecHit& rh,
 	layer == PFLayer::HCAL_ENDCAP ) ) return;
     
 
-
   double rheta = rh.positionREP().Eta();
   double rhphi = rh.positionREP().Phi();
+  //  if( !insideGCut( rheta, rhphi ) ) return;
+
+
 
 //   if( abs(rheta - 1.69) > 0.05 ||
 //       abs(rhphi + 1.61) > 0.05 || 
@@ -1522,10 +1557,6 @@ void PFRootEventManager::displayRecHit(reco::PFRecHit& rh,
   double sign = 1.;
   if (cos(phi0 - rhphi) < 0.) sign = -1.;
 
-  TCutG* cutg = (TCutG*) gROOT->FindObject("CUTG");
-  if (cutg) {
-    if( !cutg->IsInside(rheta, rhphi) ) return;
-  }
 
   double etaSize[4];
   double phiSize[4];
@@ -1747,9 +1778,16 @@ void PFRootEventManager::displayClusters(unsigned viewType, double phi0) {
 void PFRootEventManager::displayCluster(const reco::PFCluster& cluster,
 					unsigned viewType, double phi0) {
   
+
+  double eta = cluster.positionXYZ().Eta();
+  double phi = cluster.positionXYZ().Phi();
+  
+
   int type = cluster.type();
   if(algosToDisplay_.find(type) == algosToDisplay_.end() )
     return;
+
+  if( !insideGCut( eta, phi ) ) return;
 
   TMarker m;
 
@@ -1758,8 +1796,9 @@ void PFRootEventManager::displayCluster(const reco::PFCluster& cluster,
     color = cluster.type();
 
   m.SetMarkerColor(color);
-  m.SetMarkerStyle(20);
-  
+  m.SetMarkerStyle(20);  
+
+
   const math::XYZPoint& xyzPos = cluster.positionXYZ();
 
   switch(viewType) {
@@ -1769,20 +1808,20 @@ void PFRootEventManager::displayCluster(const reco::PFCluster& cluster,
   case RZ:
     {
       double sign = 1.;
-      if (cos(phi0 - cluster.positionXYZ().Phi()) < 0.)
+      if (cos(phi0 - phi) < 0.)
 	sign = -1.;
       m.DrawMarker(xyzPos.Z(), sign*xyzPos.Rho());
       break;
     }
   case EPE:
     if( cluster.layer()<0 ) {
-      m.DrawMarker(xyzPos.Eta(), xyzPos.Phi());
+      m.DrawMarker(eta, phi);
       if( displayClusterLines_ ) displayClusterLines(cluster);
     }
     break;
   case EPH:
     if( cluster.layer()>0 ) {
-      m.DrawMarker(xyzPos.Eta(), xyzPos.Phi());
+      m.DrawMarker(eta, phi);
       if( displayClusterLines_ ) displayClusterLines(cluster);
     }
     break;
@@ -1804,34 +1843,35 @@ void PFRootEventManager::displayClusterLines(const reco::PFCluster& cluster) {
   int color = cluster.type();
   l.SetLineColor( color );
   
-  PFClusterAlgo* algo=0;
-  switch( cluster.layer() ) {
-  case PFLayer::ECAL_BARREL:
-  case PFLayer::ECAL_ENDCAP:
-    algo = clusterAlgoECAL_;
-    break;       
-  case PFLayer::HCAL_BARREL1:
-  case PFLayer::HCAL_BARREL2:
-  case PFLayer::HCAL_ENDCAP:
-    algo = clusterAlgoHCAL_;
-    break;                     
-  case PFLayer::PS1:
-  case PFLayer::PS2:
-    algo = clusterAlgoPS_;
-    break;
-  default:
-    assert(0);
-    return;
-  }
+//   PFClusterAlgo* algo=0;
+//   switch( cluster.layer() ) {
+//   case PFLayer::ECAL_BARREL:
+//   case PFLayer::ECAL_ENDCAP:
+//     algo = clusterAlgoECAL_;
+//     break;       
+//   case PFLayer::HCAL_BARREL1:
+//   case PFLayer::HCAL_BARREL2:
+//   case PFLayer::HCAL_ENDCAP:
+//     algo = clusterAlgoHCAL_;
+//     break;                     
+//   case PFLayer::PS1:
+//   case PFLayer::PS2:
+//     algo = clusterAlgoPS_;
+//     break;
+//   default:
+//     assert(0);
+//     return;
+//   }
 
 
   // draw a line from the cluster to each of the rechits
   for(unsigned i=0; i<rhfracs.size(); i++) {
 
     // rechit index 
-    unsigned rhi = rhfracs[i].recHitIndex();
-   
-    const reco::PFRecHit& rh = algo->rechit(rhi);
+    // unsigned rhi = rhfracs[i].recHitIndex();
+
+    const reco::PFRecHit& rh = *(rhfracs[i].recHitRef());
+
 
     double rheta = rh.positionXYZ().Eta();
     double rhphi = rh.positionXYZ().Phi();
@@ -1936,11 +1976,27 @@ PFRootEventManager::displayTrack
   yPos.reserve( points.size() );
 
     
+  bool inside = false; 
+
   for(unsigned i=0; i<points.size(); i++) {
     
     if( !points[i].isValid() ) continue;
 	
-    const math::XYZPoint& xyzPos = points[i].positionXYZ();
+    const math::XYZPoint& xyzPos = points[i].positionXYZ();      
+
+    double eta = xyzPos.Eta();
+    double phi = xyzPos.Phi();
+    
+    if( !displayInitial && 
+	points[i].layer() == reco::PFTrajectoryPoint::ClosestApproach ) {
+      const math::XYZTLorentzVector& mom = points[i].momentum();
+      eta = mom.Eta();
+      phi = mom.Phi();
+    }
+    
+    if( insideGCut(eta, phi) ) 
+      inside = true;
+    
 
     switch(viewType) {
     case XY:
@@ -1952,22 +2008,27 @@ PFRootEventManager::displayTrack
       yPos.push_back(sign*xyzPos.Rho());
       break;
     case EPE:
-    case EPH:	 
+    case EPH:
+      xPos.push_back( eta );
+      yPos.push_back( phi );
+      
       // closest approach is meaningless in eta/phi     
-      if(!displayInitial && 
-	 points[i].layer() == reco::PFTrajectoryPoint::ClosestApproach ) {
-	const math::XYZTLorentzVector& mom = points[i].momentum();
-	xPos.push_back(mom.Eta());
-	yPos.push_back(mom.Phi());	  
-      }	  
-      else {
-	xPos.push_back(xyzPos.Eta());
-	yPos.push_back(xyzPos.Phi());
-      }
+//       if(!displayInitial && 
+// 	 points[i].layer() == reco::PFTrajectoryPoint::ClosestApproach ) {
+// 	const math::XYZTLorentzVector& mom = points[i].momentum();
+// 	xPos.push_back(mom.Eta());
+// 	yPos.push_back(mom.Phi());	  
+//       }	  
+//       else {
+// 	xPos.push_back(xyzPos.Eta());
+// 	yPos.push_back(xyzPos.Phi());
+//       }
       break;
     }
   }  
 
+  /// no point inside graphical cut.
+  if( !inside ) return;
 
   TGraph graph;
   graph.SetLineStyle(linestyle);
@@ -2010,7 +2071,7 @@ void PFRootEventManager::lookForMaxRecHit(bool ecal) {
   double maxe = -999;
   reco::PFRecHit* maxrh = 0;
 
-  vector<reco::PFRecHit>* rechits = 0;
+  reco::PFRecHitCollection* rechits = 0;
   if(ecal) rechits = &rechitsECAL_;
   else rechits = &rechitsHCAL_;
   assert(rechits);
@@ -2064,7 +2125,7 @@ double PFRootEventManager::getMaxE(int layer) const {
 
   // in which vector should we look for these rechits ?
 
-  const vector<reco::PFRecHit>* vec = 0;
+  const reco::PFRecHitCollection* vec = 0;
   switch(layer) {
   case PFLayer::ECAL_ENDCAP:
   case PFLayer::ECAL_BARREL:
@@ -2123,16 +2184,23 @@ void PFRootEventManager::getMap(string& map) {
 
   string dollar = "$";
   string slash  = "/";
+  
+  // protection necessary or segv !!
+  int dollarPos = map.find(dollar,0);
+  if( dollarPos == -1 ) return;
+
   int    lengh  = map.find(slash,0) - map.find(dollar,0) + 1;
   string env_variable =
     map.substr( ( map.find(dollar,0) + 1 ), lengh -2);
-  //cout << "var=" << env_variable << endl;
+  //  cout << "var=" << env_variable << endl;
 
   const char* name = env_variable.c_str();
   string directory;
   try{
+    // cout<<"call getenv"<<endl;
     directory = getenv(name);
     directory += "/";
+    // cout<<directory<<endl;
   }
   catch( const string& err ) {
     cout<<err<<endl;
@@ -2154,7 +2222,7 @@ void  PFRootEventManager::print() const {
     cout<<"ECAL RecHits =============================================="<<endl;
     for(unsigned i=0; i<rechitsECAL_.size(); i++) {
       string seedstatus = "    ";
-      if(clusterAlgoECAL_->isSeed(i) ) 
+      if(clusterAlgoECAL_.isSeed(i) ) 
 	seedstatus = "SEED";
       printRecHit(rechitsECAL_[i], seedstatus.c_str() );
     }
@@ -2162,7 +2230,7 @@ void  PFRootEventManager::print() const {
     cout<<"HCAL RecHits =============================================="<<endl;
     for(unsigned i=0; i<rechitsHCAL_.size(); i++) {
       string seedstatus = "    ";
-      if(clusterAlgoHCAL_->isSeed(i) ) 
+      if(clusterAlgoHCAL_.isSeed(i) ) 
 	seedstatus = "SEED";
       printRecHit(rechitsHCAL_[i]);
     }
@@ -2170,7 +2238,7 @@ void  PFRootEventManager::print() const {
     cout<<"PS RecHits ================================================"<<endl;
     for(unsigned i=0; i<rechitsPS_.size(); i++) {
       string seedstatus = "    ";
-      if(clusterAlgoPS_->isSeed(i) ) 
+      if(clusterAlgoPS_.isSeed(i) ) 
 	seedstatus = "SEED";
       printRecHit(rechitsPS_[i]);
     }
@@ -2193,17 +2261,25 @@ void  PFRootEventManager::print() const {
     }    
     cout<<endl;
   }
-  if( printPFBs_ ) {
+  if( printPFBlocks_ ) {
     cout<<"Particle Flow Blocks ======================================"<<endl;
-    for(unsigned i=0; i<allPFBs_.size(); i++) {
-      cout<<allPFBs_[i]<<endl;
+    for(unsigned i=0; i<pfBlocks_->size(); i++) {
+      cout<<(*pfBlocks_)[i]<<endl;
+    }    
+    cout<<endl;
+  }
+  if(printPFCandidates_) {
+    cout<<"Particle Flow Candidates =================================="<<endl;
+    for(unsigned i=0; i<pfCandidates_->size(); i++) {
+      cout<<(*pfCandidates_)[i]<<endl;
     }    
     cout<<endl;
   }
   if( printTrueParticles_ ) {
-    cout<<"True Particles ===== ======================================"<<endl;
+    cout<<"True Particles  ==========================================="<<endl;
     for(unsigned i=0; i<trueParticles_.size(); i++) {
-      cout<<trueParticles_[i]<<endl;
+      if( trackInsideGCut( &(trueParticles_[i]) ) )
+	cout<<"\t"<<trueParticles_[i]<<endl;
     }    
   }
   
@@ -2239,3 +2315,19 @@ bool PFRootEventManager::insideGCut( double eta, double phi ) const {
  }
  return true;
 } 
+
+
+bool PFRootEventManager::trackInsideGCut( const reco::PFTrack* track ) const {
+
+  const vector< reco::PFTrajectoryPoint >& points = track->trajectoryPoints();
+  
+  for( unsigned i=0; i<points.size(); i++) {
+    if( ! points[i].isValid() ) continue;
+    
+    const math::XYZPoint& pos = points[i].positionXYZ();
+    if( insideGCut(pos.Eta(), pos.Phi() ) ) return true;
+  }
+
+  // no point inside cut
+  return false;
+}

@@ -2,14 +2,34 @@
 #define RecoParticleFlow_PFRootEvent_PFRootEventManager_h
 
 #include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
+#include "DataFormats/ParticleFlowReco/interface/PFRecHitFwd.h"
+
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
+#include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
+
 #include "DataFormats/ParticleFlowReco/interface/PFTrajectoryPoint.h"
+
 #include "DataFormats/ParticleFlowReco/interface/PFRecTrack.h"
+#include "DataFormats/ParticleFlowReco/interface/PFRecTrackFwd.h"
+
 #include "DataFormats/ParticleFlowReco/interface/PFSimParticle.h"
+#include "DataFormats/ParticleFlowReco/interface/PFSimParticleFwd.h"
+
+#include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
+#include "DataFormats/ParticleFlowReco/interface/PFBlockFwd.h"
+
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
+
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerFwd.h"
-#include "RecoParticleFlow/PFAlgo/interface/PFBlock.h"
+
+#include "RecoParticleFlow/PFClusterAlgo/interface/PFClusterAlgo.h"
+#include "RecoParticleFlow/PFBlockAlgo/interface/PFBlockAlgo.h"
+#include "RecoParticleFlow/PFAlgo/interface/PFAlgo.h"
+
+#include "RecoParticleFlow/PFRootEvent/interface/PFJetAlgorithm.h"
 
 #include <TObject.h>
 #include "TEllipse.h"
@@ -26,12 +46,15 @@ class TBranch;
 class TFile;
 class TCanvas;
 class TH2F;
-class TGraph;
-class IO;
-class PFClusterAlgo;
-class PFBlockElement;
 class TH1F;
-class PFJetAlgorithm;
+class TGraph;
+
+
+class IO;
+
+
+class PFBlockElement;
+
 class EventColin;
 class PFEnergyCalibration;
 class PFEnergyResolution;
@@ -92,7 +115,10 @@ class PFEnergyResolution;
   \endverbatim
   
   \author Colin Bernet, Renaud Bruneliere
+
   \date July 2006
+
+  \todo test
 */
 class PFRootEventManager {
 
@@ -112,7 +138,7 @@ class PFRootEventManager {
   virtual ~PFRootEventManager();
   
   virtual void write();
-
+  
   /// reset before next event
   void reset();
 
@@ -131,9 +157,12 @@ class PFRootEventManager {
   /// read data from simulation tree
   bool readFromSimulation(int entry);
 
+  /// study the sim event to check if the tau decay is hadronic
+  bool isHadronicTau() const;
+
   /// preprocess a rechit vector from a given rechit branch
-  void PreprocessRecHits(std::vector<reco::PFRecHit>& rechits, 
-			 bool findNeighbours);
+  void PreprocessRecHits( reco::PFRecHitCollection& rechits, 
+			  bool findNeighbours);
   
   /// for a given rechit, find the indices of the rechit neighbours, 
   /// and store these indices in the rechit. The search is done in a
@@ -148,7 +177,7 @@ class PFRootEventManager {
   void clustering();
 
   /// fills OutEvent with clusters
-  void fillOutEventWithClusters(const std::vector<reco::PFCluster>& clusters);
+  void fillOutEventWithClusters(const reco::PFClusterCollection& clusters);
 
   /// performs particle flow
   void particleFlow();
@@ -156,18 +185,11 @@ class PFRootEventManager {
   //performs the jets reconstructions
   void makeJets();
 
+
+  // display functions ------------------------------------------------
+
   /// process and display one entry 
   void display(int ientry);
-
-/*   void displayXY(); */
-/*   void displayRecHitsXY(); */
-/*   void displayClustersXY(); */
-/*   void displayRecTracksXY(); */
-/*   void displayTrueParticlesXY(); */
-  
-/*   void displayRZ(); */
-/*   void displayEtaPhiE(); */
-/*   void displayEtaPhiH(); */
   
   /// display next selected entry. if init, restart from i=0
   void displayNext(bool init);
@@ -215,10 +237,11 @@ class PFRootEventManager {
   /// updates all displays
   void updateDisplay();
 
-  /// look for ecal
+  /// look for rechit with max energy in ecal or hcal.
+  /// 
+  /// \todo look for rechit with max transverse energy, look for other objects
   void lookForMaxRecHit(bool ecal);
 
-  /// look for hcal 
 
   /// finds max rechit energy in a given layer 
   double getMaxE(int layer) const;
@@ -229,21 +252,29 @@ class PFRootEventManager {
   /// max rechit energy in hcal 
   double getMaxEHcal();
 
-  // retrieve resolution maps
-  void   getMap(std::string& map);
 
   /// print information
   void   print() const;
 
+  /// get tree
+  TTree* tree() {return tree_;}
+
+ protected:
+
+  // retrieve resolution maps
+  void   getMap(std::string& map);
+
   /// print a rechit
   void   printRecHit(const reco::PFRecHit& rh, const char* seed="    ") const;
-
+  
   /// print a rechit
   void   printCluster(const reco::PFCluster& cluster) const;
-
+  
   /// is inside cut G? 
   bool   insideGCut(double eta, double phi) const;
 
+  /// is PFTrack inside cut G ? yes if at least one trajectory point is inside.
+  bool   trackInsideGCut( const reco::PFTrack* track ) const;
 
   // data members -------------------------------------------------------
 
@@ -258,8 +289,17 @@ class PFRootEventManager {
   
   /// output tree
   TTree*      outTree_;
+
+  /// event for output tree 
+  /// \todo change the name EventColin to something else
   EventColin* outEvent_;
 
+  /// output histo dET ( EHT - MC)
+  TH1F*            h_deltaETvisible_MCEHT_;
+
+  /// output histo dET ( PF - MC)  
+  TH1F*            h_deltaETvisible_MCPF_;
+ 
 
   // MC branches --------------------------
   
@@ -296,47 +336,40 @@ class PFRootEventManager {
   /// true particles branch
   TBranch*   trueParticlesBranch_;          
 
-
-  /// rechits
-  std::vector<reco::PFRecHit> rechits_;
-
   /// rechits ECAL
-  std::vector<reco::PFRecHit> rechitsECAL_;
+  reco::PFRecHitCollection rechitsECAL_;
 
   /// rechits HCAL
-  std::vector<reco::PFRecHit> rechitsHCAL_;
+  reco::PFRecHitCollection rechitsHCAL_;
 
   /// rechits PS 
-  std::vector<reco::PFRecHit> rechitsPS_;
-
-  /// clusters
-  std::auto_ptr< std::vector<reco::PFCluster> > clusters_;
+  reco::PFRecHitCollection rechitsPS_;
 
   /// clusters ECAL
-  std::auto_ptr< std::vector<reco::PFCluster> > clustersECAL_;
+  std::auto_ptr< reco::PFClusterCollection > clustersECAL_;
 
   /// clusters HCAL
-  std::auto_ptr< std::vector<reco::PFCluster> > clustersHCAL_;
+  std::auto_ptr< reco::PFClusterCollection > clustersHCAL_;
 
   /// clusters PS
-  std::auto_ptr< std::vector<reco::PFCluster> > clustersPS_;
+  std::auto_ptr< reco::PFClusterCollection > clustersPS_;
 
   /// clusters ECAL island barrel
   std::vector<reco::BasicCluster>  clustersIslandBarrel_;
   
-  CaloTowerCollection              caloTowers_;
+  CaloTowerCollection     caloTowers_;
 
   /// reconstructed tracks
-  std::vector<reco::PFRecTrack> recTracks_;
+  reco::PFRecTrackCollection    recTracks_;
   
   /// true particles
-  std::vector<reco::PFSimParticle> trueParticles_;
+  reco::PFSimParticleCollection trueParticles_;
   
-  /// all pfblock elements
-  std::set< PFBlockElement* > allElements_; 
+  /// reconstructed pfblocks  
+  std::auto_ptr< reco::PFBlockCollection >   pfBlocks_;
 
-  /// all pfblocks  
-  std::vector< PFBlock >     allPFBs_;
+  /// reconstructed pfCandidates 
+  std::auto_ptr< reco::PFCandidateCollection > pfCandidates_;
 
   /// input file
   TFile*     file_; 
@@ -350,14 +383,30 @@ class PFRootEventManager {
   /// output filename
   std::string     outFileName_;   
 
+  // algos --------------------------------------------------------
+  
   /// clustering algorithm for ECAL
-  PFClusterAlgo*   clusterAlgoECAL_;
+  /// \todo try to make all the algorithms concrete. 
+  PFClusterAlgo   clusterAlgoECAL_;
 
   /// clustering algorithm for ECAL
-  PFClusterAlgo*   clusterAlgoHCAL_;
+  PFClusterAlgo   clusterAlgoHCAL_;
 
   /// clustering algorithm for ECAL
-  PFClusterAlgo*   clusterAlgoPS_;
+  PFClusterAlgo   clusterAlgoPS_;
+
+
+  /// algorithm for building the particle flow blocks 
+  PFBlockAlgo     pfBlockAlgo_;
+
+  /// particle flow algorithm
+  PFAlgo          pfAlgo_;
+
+  /// jet algorithm 
+  /// \todo make concrete
+  PFJetAlgorithm  jetAlgo_;
+  
+  // display ------------------------------------------------------
 
   /// canvases for eta/phi display, one per algo
   /// each is split in 2 : HCAL, ECAL
@@ -395,9 +444,6 @@ class PFRootEventManager {
   /// size of view in number of cells when centering on a rechit
   double displayZoomFactor_;
 
-  /// support histogram for eta/phi display
-  // TH2F*                    displayHistEtaPhi_;
-
   /// vector of canvas for x/y or r/z display
   std::vector<TCanvas*> displayView_;
 
@@ -407,18 +453,14 @@ class PFRootEventManager {
   /// support histogram for x/y or r/z display. 
   std::vector<TH2F*>    displayHist_;
 
-  /// ECAL in XY view. COLIN: should be attribute ?
+  /// ECAL in XY view. \todo should be attribute ?
   TEllipse frontFaceECALXY_;
 
-  /// ECAL in RZ view. COLIN: should be attribute ?
+  /// ECAL in RZ view. \todo should be attribute ?
   TBox     frontFaceECALRZ_;
 
-  /// HCAL in XY view. COLIN: should be attribute ?
+  /// HCAL in XY view. \todo should be attribute ?
   TEllipse frontFaceHCALXY_;
-
-  /// vector of TGraph used to represent the track in XY or RZ view. 
-  // COLIN: should be attribute ?  
-/*   std::vector< std::vector<TGraph*> > graphTrack_; */
 
   /// max rechit energy in ecal
   double                   maxERecHitEcal_;
@@ -435,8 +477,11 @@ class PFRootEventManager {
   /// print clusters yes/no
   bool                     printClusters_;
 
-  /// print PFBs yes/no
-  bool                     printPFBs_;
+  /// print PFBlocks yes/no
+  bool                     printPFBlocks_;
+
+   /// print PFCandidates yes/no
+  bool                     printPFCandidates_; 
 
   /// print true particles yes/no
   bool                     printTrueParticles_;
@@ -446,7 +491,9 @@ class PFRootEventManager {
 
   //----------------- filter ------------------------------------
   
-  unsigned nParticles_;
+  unsigned                 filterNParticles_;
+  
+  bool                     filterHadronicTaus_;
 
   //----------------- clustering parameters ---------------------
 
@@ -457,8 +504,6 @@ class PFRootEventManager {
   /// clustering mode. 
   // int    clusteringMode_;
 
-  /// debug printouts for clustering on/off
-  bool   clusteringDebug_;
 
   /// debug printouts for this PFRootEventManager on/off
   bool   debug_;  
@@ -466,87 +511,17 @@ class PFRootEventManager {
   /// find rechit neighbours ? 
   bool   findRecHitNeighbours_;
 
-  /// ecal barrel threshold
-  double threshEcalBarrel_;
-
-  /// ecal barrel seed threshold
-  double threshSeedEcalBarrel_;
-
-  /// ecal endcap threshold
-  double threshEcalEndcap_;
-
-  /// ecal endcap seed threshold
-  double threshSeedEcalEndcap_;
-
-  /// ecal number of neighbours
-  int    nNeighboursEcal_;
-
-  /// ecal number of crystals for position calculation
-  int    posCalcNCrystalEcal_;
-
-  /// ecal p1 for position calculation
-  double posCalcP1Ecal_;
-
-  /// ecal shower sigma 
-  double showerSigmaEcal_;
-
-  
-
-  /// hcal barrel threshold
-  double threshHcalBarrel_;
-
-  /// hcal barrel seed threshold
-  double threshSeedHcalBarrel_;
-
-  /// hcal endcap threshold
-  double threshHcalEndcap_;
-
-  /// hcal endcap seed threshold
-  double threshSeedHcalEndcap_;
-
-  /// hcal number of neighbours
-  int    nNeighboursHcal_;
-
-  /// hcal p1 for position calculation
-  double posCalcP1Hcal_;
-
-  /// hcal number of crystals for position calculation
-  int    posCalcNCrystalHcal_;
-
-  /// Hcal shower sigma
-  double showerSigmaHcal_;
-
-  /// ps threshold
-  double threshPS_;
-
-  /// ps seed threshold
-  double threshSeedPS_;
-
-  /// ps p1 for position calculation
-  double posCalcP1PS_;
-
-  // particle flow ------------------------------------------
+  /// not yet used ?
   bool   displayJetColors_;
-  int    reconMethod_;
 
-  // jets parameters ----------------------------------------
+  // jets parameters             ----------------------------------------
+
+  /// jet reconstruction (for taus) on/off 
+  /// \todo make jet reconstruction more general.
   bool   doJets_;
-  double coneAngle_;
-  double seedEt_;
-  double coneMerge_;
+  
+  /// debug printouts for jet algo on/off
   bool   jetsDebug_;
-
- protected:
-  // auxiliary classes for calibration of energy deposits in ECAL and HCAL
-  //  and estimation of energy resolution for electrons/photons and hadrons
-  PFEnergyCalibration* energyCalibration_;
-  PFEnergyResolution* energyResolution_;
-
- private:
-
-  TH1F*            h_deltaETvisible_MCEHT_;
-  TH1F*            h_deltaETvisible_MCPF_;
-  PFJetAlgorithm*  jetAlgo_;
 
 };
 #endif
