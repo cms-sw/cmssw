@@ -40,8 +40,10 @@ FP420DigiMain::FP420DigiMain(const edm::ParameterSet& conf):conf_(conf){
   theElectronPerADC = m_Anal.getParameter<double>("ElectronFP420PerAdc");
   theThreshold      = m_Anal.getParameter<double>("AdcFP420Threshold");
   noNoise           = m_Anal.getParameter<bool>("NoFP420Noise");
-  
-  
+  thez420           = m_Anal.getParameter<double>("z420");
+  thezD2            = m_Anal.getParameter<double>("zD2");
+  thezD3            = m_Anal.getParameter<double>("zD3");
+
   if(verbosity>0) {
     std::cout << "FP420DigiMain theElectronPerADC=" << theElectronPerADC << " theThreshold=" << theThreshold << " noNoise=" << noNoise << std::endl;
   }
@@ -117,7 +119,7 @@ vector <HDigiFP420> FP420DigiMain::run(const std::vector<FP420G4Hit> &input,
   float noiseRMS = ENC*moduleThickness/Thick300;
   
   
-  theHitDigitizerFP420 = new HitDigitizerFP420(moduleThickness,ldrift,ldriftY,ldriftX);
+  theHitDigitizerFP420 = new HitDigitizerFP420(moduleThickness,ldrift,ldriftY,ldriftX,thez420,thezD2,thezD3);
   theGNoiseFP420 = new GaussNoiseFP420(numStrips,noiseRMS,theThreshold);
 
   
