@@ -77,10 +77,11 @@ void TrackingRecHitTranslator::produce(edm::Event& e, const edm::EventSetup& es)
   for ( ; aHit != theLastHit; ++aHit ) {
 
     DetId det = aHit->geographicalId();
+
+    /* 
     const GeomDet* theDet = geometry->idToDet(det);
     unsigned trackID = aHit->simtrackId();
 
-    /* 
     std::cout << "Track/z/r after : "
 	      << trackID << " " 
 	      << theDet->surface().toGlobal(aHit->localPosition()).z() << " " 
@@ -88,12 +89,12 @@ void TrackingRecHitTranslator::produce(edm::Event& e, const edm::EventSetup& es)
     */
 
     // create RecHit
-	// Fill the temporary RecHit on the current DetId collection
+    // Fill the temporary RecHit on the current DetId collection
     temporaryRecHits[det].push_back(aHit->clone());
 
   }
 
-    // Step C: from the temporary RecHit collection, create the real one.
+  // Step C: from the temporary RecHit collection, create the real one.
   std::auto_ptr<SiTrackerFullGSRecHit2DCollection> 
     recHitCollection(new SiTrackerFullGSRecHit2DCollection);
   loadRecHits(temporaryRecHits, *recHitCollection);
