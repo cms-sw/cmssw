@@ -25,10 +25,6 @@
 #include "DQMServices/Daemon/interface/MonitorDaemon.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-//#include <TFile.h>
-//#include <TH1F.h>
-//#include <TH2F.h>
-
 #include <utility>
 
 class HResolution
@@ -60,19 +56,7 @@ class HResolution
                               nBinEta, minEta, maxEta);
   };
   ~HResolution() { };
-/*
-  void write()
-  {
-    hEtaVsErrQPt_ ->Write();
-    hEtaVsPullPt_ ->Write();
-    hPhiVsPullPt_ ->Write();
-    hEtaVsPullEta_->Write();
-    hPhiVsPullEta_->Write();
-    hEtaVsPullPhi_->Write();
-    hPhiVsPullPhi_->Write();
-    hMisQAboutEta_->Write();
-  };
-*/
+
   void fillInfo(const SimTrack& simTrack, const TrajectoryStateOnSurface& tsos)
   {
     const TrackCharge simQ = static_cast<TrackCharge>(simTrack.charge());
@@ -114,13 +98,6 @@ class HResolution
   MonitorElement * hEtaVsPullPhi_, * hPhiVsPullPhi_;
   MonitorElement * hMisQAboutEta_;
 
-/*
-  TH2F * hEtaVsErrQPt_ ;
-  TH2F * hEtaVsPullPt_ , * hPhiVsPullPt_ ;
-  TH2F * hEtaVsPullEta_, * hPhiVsPullEta_;
-  TH2F * hEtaVsPullPhi_, * hPhiVsPullPhi_;
-  TH1F * hMisQAboutEta_;
-*/
 };
 
 class RecoMuonValidator : public edm::EDAnalyzer
@@ -163,15 +140,12 @@ class RecoMuonValidator : public edm::EDAnalyzer
   std::string outputFileName_;
   TFile* outputFile_;
 
+  std::string subDir_;
   DaqMonitorBEInterface * theDQMService_;
   MonitorElement * hSimEtaVsPhi_, * hStaEtaVsPhi_, * hGlbEtaVsPhi_, * hTkEtaVsPhi_, * hSeedEtaVsPhi_;
   MonitorElement * hEtaVsNDtSimHits_, * hEtaVsNCSCSimHits_, * hEtaVsNRPCSimHits_, * hEtaVsNSimHits_;
   MonitorElement * hSeedEtaVsNHits_, * hStaEtaVsNHits_, * hGlbEtaVsNHits_;
-/*
-  TH2F * hSimEtaVsPhi_, * hStaEtaVsPhi_, * hGlbEtaVsPhi_, * hTkEtaVsPhi_, * hSeedEtaVsPhi_;
-  TH2F * hEtaVsNDtSimHits_, * hEtaVsNCSCSimHits_, * hEtaVsNRPCSimHits_, * hEtaVsNSimHits_;
-  TH2F * hSeedEtaVsNHits_, * hStaEtaVsNHits_, * hGlbEtaVsNHits_;
-*/
+
   HResolution * hStaResol_, * hGlbResol_, * hSeedResol_;
 
   MuonServiceProxy * theMuonService_;

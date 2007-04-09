@@ -63,6 +63,8 @@ RecoMuonValidator::RecoMuonValidator(const ParameterSet& pset)
 
   theDQMService_ = 0;
   theDQMService_ = Service<DaqMonitorBEInterface>().operator->();
+
+  subDir_ = pset.getParameter<string>("subDir");
 }
 
 RecoMuonValidator::~RecoMuonValidator()
@@ -72,14 +74,17 @@ RecoMuonValidator::~RecoMuonValidator()
   delete hStaResol_ ;
   delete hGlbResol_ ;
   delete hSeedResol_;
-
-//  outputFile_->Delete();
 }
 
 void RecoMuonValidator::beginJob(const EventSetup& eventSetup)
 {
   if ( theDQMService_ ) {
-    theDQMService_->setCurrentFolder("RecoMuonTask");
+    theDQMService_->cd();
+
+    string dir = "RecoMuonTask";
+    dir+=subDir_;
+
+    theDQMService_->setCurrentFolder(dir.c_str());
 
     hSimEtaVsPhi_  = theDQMService_->book2D("SimEtaVsPhi", "Sim #eta vs #phi",
                                       nBinEta_, minEta_, maxEta_, nBinPhi_, minPhi_, maxPhi_);
@@ -118,77 +123,11 @@ void RecoMuonValidator::beginJob(const EventSetup& eventSetup)
                                    nBinErrQPt_, widthSeedErrQPt_, nBinPull_, widthPull_, 
                                    nBinEta_, minEta_, maxEta_, nBinPhi_, minPhi_, maxPhi_);
   }
-/*
-  // Start Histogram booking
-  outputFile_ = new TFile(outputFileName_.c_str(), "RECREATE");
-  outputFile_->cd();
-
-  hSimEtaVsPhi_  = new TH2F("SimEtaVsPhi", "Sim #eta vs #phi",
-                            nBinEta_, minEta_, maxEta_, nBinPhi_, minPhi_, maxPhi_);
-  hStaEtaVsPhi_  = new TH2F("StaEtaVsPhi", "Sta #eta vs #phi",
-                            nBinEta_, minEta_, maxEta_, nBinPhi_, minPhi_, maxPhi_);
-  hGlbEtaVsPhi_  = new TH2F("GlbEtaVsPhi", "Glb #eta vs #phi",
-                            nBinEta_, minEta_, maxEta_, nBinPhi_, minPhi_, maxPhi_);
-  hTkEtaVsPhi_   = new TH2F("TkEtaVsPhi" , "Tk #eta vs #phi",
-                            nBinEta_, minEta_, maxEta_, nBinPhi_, minPhi_, maxPhi_);
-  hSeedEtaVsPhi_ = new TH2F("SeedEtaVsPhi", "Seed #eta vs #phi",
-                            nBinEta_, minEta_, maxEta_, nBinPhi_, minPhi_, maxPhi_);
-
-  hEtaVsNDtSimHits_  = new TH2F("SimEtaVsNDtHits", "Sim #eta vs number of DT SimHits",
-                                nBinEta_, minEta_, maxEta_, nHits_, 0, static_cast<float>(nHits_));
-  hEtaVsNCSCSimHits_ = new TH2F("SimEtaVsNCSCHits", "Sim #eta vs number of CSC SimHits",
-                                nBinEta_, minEta_, maxEta_, nHits_, 0, static_cast<float>(nHits_));
-  hEtaVsNRPCSimHits_ = new TH2F("SimEtaVsNRPCHits", "Sim #eta vs number of RPC SimHits",
-                                nBinEta_, minEta_, maxEta_, nHits_, 0, static_cast<float>(nHits_));
-  hEtaVsNSimHits_    = new TH2F("SimEtaVsNHits", "Sim #eta vs number of Hits",
-                                nBinEta_, minEta_, maxEta_, nHits_, 0, static_cast<float>(nHits_));
-
-  hSeedEtaVsNHits_ = new TH2F("SeedEtaVsNHits", "Seed #eta vs NHits",
-                              nBinEta_, minEta_, maxEta_, nHits_, 0, static_cast<float>(nHits_));
-  hStaEtaVsNHits_  = new TH2F("StaEtaVsNHits", "Sta #eta vs NHits",
-                              nBinEta_, minEta_, maxEta_, nHits_, 0, static_cast<float>(nHits_));
-  hGlbEtaVsNHits_  = new TH2F("GlbEtaVsNHits", "Glb #eta vs NHits",
-                              nBinEta_, minEta_, maxEta_, nHits_, 0, static_cast<float>(nHits_));
-
-  hStaResol_  = new HResolution("Sta", 
-                                nBinErrQPt_, widthStaErrQPt_, nBinPull_, widthPull_, 
-                                nBinEta_, minEta_, maxEta_, nBinPhi_, minPhi_, maxPhi_);
-  hGlbResol_  = new HResolution("Glb", 
-                                nBinErrQPt_, widthGlbErrQPt_, nBinPull_, widthPull_, 
-                                nBinEta_, minEta_, maxEta_, nBinPhi_, minPhi_, maxPhi_);
-  hSeedResol_ = new HResolution("Seed", 
-                                nBinErrQPt_, widthSeedErrQPt_, nBinPull_, widthPull_, 
-                                nBinEta_, minEta_, maxEta_, nBinPhi_, minPhi_, maxPhi_);
-*/
 }
 
 void RecoMuonValidator::endJob()
 {
   if ( theDQMService_ ) theDQMService_->save(outputFileName_);
-/*
-  outputFile_->cd();
-
-  hSimEtaVsPhi_ ->Write();
-  hStaEtaVsPhi_ ->Write();
-  hGlbEtaVsPhi_ ->Write();
-  hTkEtaVsPhi_  ->Write();
-  hSeedEtaVsPhi_->Write();
-
-  hEtaVsNDtSimHits_ ->Write();
-  hEtaVsNCSCSimHits_->Write();
-  hEtaVsNRPCSimHits_->Write();
-  hEtaVsNSimHits_   ->Write();
-
-  hSeedEtaVsNHits_->Write();
-  hStaEtaVsNHits_ ->Write();
-  hGlbEtaVsNHits_ ->Write();
-
-  hStaResol_ ->write();
-  hGlbResol_ ->write();
-  hSeedResol_->write();
-
-  outputFile_->Close();
-*/
 }
 
 void RecoMuonValidator::analyze(const Event& event, const EventSetup& eventSetup)
