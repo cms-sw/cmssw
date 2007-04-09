@@ -8,7 +8,7 @@
 #include "SurveyTest.h"
 
 SurveyTest::SurveyTest(const edm::ParameterSet& cfg):
-  theBiasFlag( cfg.getUntrackedParameter<bool>("bias", true) ),
+  theBiasFlag( cfg.getUntrackedParameter<bool>("bias", false) ),
   theIterations( cfg.getParameter<unsigned int>("iterator") ),
   theAlgorithm ( cfg.getParameter<std::string>("algorith") ),
   theOutputFile( cfg.getParameter<std::string>("fileName") )
