@@ -5,12 +5,10 @@
  *
  *  Namespace for common type definitions used in alignment.
  *
- *  $Date: 2007/03/16 17:59:58 $
- *  $Revision: 1.5 $
+ *  $Date: 2007/04/03 15:59:58 $
+ *  $Revision: 1.1 $
  *  \author Chung Khim Lae
  */
-
-#include <vector>
 
 #include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 #include "DataFormats/GeometrySurface/interface/TkRotation.h"
@@ -36,11 +34,6 @@ namespace align
   typedef AlgebraicMatrix       Derivatives;
   typedef math::Vector<6>::type AlignParams;
   typedef math::Error<6>::type  ErrorMatrix;
-
-  typedef std::vector<GlobalPoint>  GlobalPoints;
-  typedef std::vector<GlobalVector> GlobalVectors;
-  typedef std::vector<LocalPoint>   LocalPoints;
-  typedef std::vector<LocalVector>  LocalVectors;
 }
 
 #endif
