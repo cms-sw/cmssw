@@ -8,19 +8,24 @@
 // 
 /**\class DataViewImpl DataViewImpl.h FWCore/Framework/interface/DataViewImpl.h
 
-Description: This is the implementation for accessing EDProducts and inserting new EDproducts.
+Description: This is the implementation for accessing EDProducts and 
+inserting new EDproducts.
 
 Usage:
 
 Getting Data
 
-The edm::DataViewImpl class provides many 'get*" methods for getting data it contains.  
+The edm::DataViewImpl class provides many 'get*" methods for getting data
+it contains.  
 
-The primary method for getting data is to use getByLabel(). The labels are the label of the module assigned
-in the configuration file and the 'product instance label' (which can be omitted in the case the 'product instance label'
-is the default value).  The C++ type of the product plus the two labels uniquely identify a product in the DataViewImpl.
+The primary method for getting data is to use getByLabel(). The labels are
+the label of the module assigned in the configuration file and the 'product
+instance label' (which can be omitted in the case the 'product instance label'
+is the default value).  The C++ type of the product plus the two labels
+uniquely identify a product in the DataViewImpl.
 
-We use an event in the examples, but a run or a luminosity block can also hold products.
+We use an event in the examples, but a run or a luminosity block can also
+hold products.
 
 \code
 edm::Handle<AppleCollection> apples;
@@ -52,9 +57,11 @@ event.put("apple", pFruits);
 \endcode
 
 
-Getting a reference to a product before that product is put into the event/lumiBlock/run.
-NOTE: The edm::RefProd returned will not work until after the edm::DataViewImpl has 
-been committed (which happens after the EDProducer::produce method has ended)
+Getting a reference to a product before that product is put into the
+event/lumiBlock/run.
+NOTE: The edm::RefProd returned will not work until after the
+edm::DataViewImpl has been committed (which happens after the
+EDProducer::produce method has ended)
 \code
 std::auto_ptr<AppleCollection> pApples( new AppleCollection);
 
@@ -98,6 +105,7 @@ $Id: DataViewImpl.h,v 1.19 2007/03/04 06:00:22 wmtan Exp $
 #include "DataFormats/Common/interface/OrphanHandle.h"
 
 #include "FWCore/Framework/interface/Group.h"
+#include "FWCore/Framework/interface/Selector.h"
 #include "FWCore/Utilities/interface/TypeID.h"
 #include "FWCore/Framework/interface/View.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
@@ -251,10 +259,16 @@ namespace edm {
     getManyByType_(TypeID const& tid, 
 		   BasicHandleVec& results) const;
 
-    BasicHandle
-    getMatchingSequence_(std::type_info const& wantedElementType,
-			 std::string const& moduleLabel,
-			 std::string const& productInstanceName) const;
+    int 
+    getMatchingSequence_(TypeID const& typeID,
+                         SelectorBase const& selector,
+                         BasicHandleVec& results,
+                         bool stopIfProcessHasMatch) const;
+
+    template <typename ELEMENT>
+    void
+    fillView_(BasicHandle & bh,
+	      Handle<View<ELEMENT> >& result) const;
 
     // Also isolates the DataViewImpl class
     // from the Principal class.
@@ -487,7 +501,7 @@ namespace edm {
       convert_handle(bh, result);  // throws on conversion error
     }
   }
-  	 
+
   template <typename PROD>
   void
   DataViewImpl::getByLabel(std::string const& label,
@@ -516,13 +530,40 @@ namespace edm {
   {
     result.clear();
 
-    std::type_info const& wantedElementType = typeid(ELEMENT);
-    BasicHandle bh = 
-      this->getMatchingSequence_(wantedElementType, 
-				 moduleLabel, 
-				 productInstanceName);
-    assert (bh.isValid());
+    TypeID typeID(typeid(ELEMENT));
 
+    edm::Selector sel(edm::ModuleLabelSelector(moduleLabel) &&
+                      edm::ProductInstanceNameSelector(productInstanceName));
+
+    BasicHandleVec bhv;
+    int nFound = getMatchingSequence_(typeID, 
+			              sel,
+                                      bhv,
+                                      true);
+    if (nFound == 0) {
+      throw edm::Exception(edm::errors::ProductNotFound)
+	<< "getByLabel: Found zero products matching all criteria\n"
+	<< "Looking for sequence of type: " << typeID << "\n"
+	<< "Looking for module label: " << moduleLabel << "\n"
+	<< "Looking for productInstanceName: " << productInstanceName << "\n";
+    }
+    if (nFound > 1) {
+      throw edm::Exception(edm::errors::ProductNotFound)
+        << "getByLabel: Found more than one product matching all criteria\n"
+	<< "Looking for sequence of type: " << typeID << "\n"
+	<< "Looking for module label: " << moduleLabel << "\n"
+	<< "Looking for productInstanceName: " << productInstanceName << "\n";
+    }
+
+    fillView_(bhv[0], result);
+    return;
+  }
+
+  template <typename ELEMENT>
+  void
+  DataViewImpl::fillView_(BasicHandle & bh,
+			  Handle<View<ELEMENT> >& result) const
+  {
     std::vector<void const*> pointersToElements;
     bh.wrapper()->fillView(pointersToElements);
 

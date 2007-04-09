@@ -120,14 +120,16 @@ namespace edm {
     dbk_.getManyByType(tid, results);
   }
 
-  BasicHandle
-  DataViewImpl::getMatchingSequence_(type_info const& wantedElementType,
-				     string const& moduleLabel,
-				     string const& productInstanceName) const
+  int 
+  DataViewImpl::getMatchingSequence_(TypeID const& typeID,
+                                     SelectorBase const& selector,
+                                     BasicHandleVec& results,
+                                     bool stopIfProcessHasMatch) const
   {
-    return dbk_.getMatchingSequence(wantedElementType,
-				    moduleLabel,
-				    productInstanceName);
+    return dbk_.getMatchingSequence(typeID,
+                                    selector,
+                                    results,
+                                    stopIfProcessHasMatch);
   }
 
   Provenance const&

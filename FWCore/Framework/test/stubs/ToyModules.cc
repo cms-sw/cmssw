@@ -215,12 +215,14 @@ namespace edmtest {
       size_(p.getParameter<int>("size")) 
     {
       produces<OVSimpleProduct>();
+      produces<OVSimpleDerivedProduct>("derived");
       assert ( size_ > 1 );
     }
 
     explicit OVSimpleProducer(int i) : size_(i) 
     {
       produces<OVSimpleProduct>();
+      produces<OVSimpleDerivedProduct>("derived");
       assert ( size_ > 1 );
     }
 
@@ -248,6 +250,22 @@ namespace edmtest {
     
     // Put the product into the Event
     e.put(p);
+
+
+    // Fill up a collection of SimpleDerived objects
+    std::auto_ptr<OVSimpleDerivedProduct> pd(new OVSimpleDerivedProduct());
+
+    for (int i = 0; i < size_; ++i)
+      {
+	std::auto_ptr<SimpleDerived> simpleDerived(new SimpleDerived()); 
+	simpleDerived->key = size_ - i;
+	simpleDerived->value = 1.5 * i + 100.0;
+        simpleDerived->dummy = 0.0;
+        pd->push_back(simpleDerived);
+      }
+    
+    // Put the product into the Event
+    e.put(pd, "derived");
   }
 
   //--------------------------------------------------------------------

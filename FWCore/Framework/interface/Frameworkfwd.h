@@ -16,7 +16,6 @@ namespace edm {
   class ConfigurableInputSource;
   class CurrentProcessingContext;
   class DelayedReader;
-  class Principal;
   class DataViewImpl;
   class EDAnalyzer;
   class EDFilter;
@@ -34,9 +33,9 @@ namespace edm {
   class InputSourceDescription;
   class LuminosityBlock;
   class LuminosityBlockPrincipal;
-  class ModuleDescriptionSelector;
   class OutputModule;
   class ParameterSet;
+  class Principal;
   class ProcessNameSelector;
   class ProductRegistryHelper;
   class RawInputSource;

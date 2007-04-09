@@ -1,12 +1,9 @@
-// NOTE: Process history is not currently being filled in. Thus any
-// testing that expects results to be returned based upon correct
-// handling of processing history will not work.
 
 /*----------------------------------------------------------------------
 
 Test program for edm::Event.
 
-$Id: Event_t.cpp,v 1.11 2007/03/04 06:14:45 wmtan Exp $
+$Id: Event_t.cpp,v 1.12 2007/03/27 23:13:09 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <Utilities/Testing/interface/CppUnit_testdriver.icpp>
 #include <cppunit/extensions/HelperMacros.h>
@@ -35,10 +32,11 @@ $Id: Event_t.cpp,v 1.11 2007/03/04 06:14:45 wmtan Exp $
 #include "FWCore/Framework/interface/Selector.h"
 #include "FWCore/Framework/interface/Selector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/GetPassID.h"
 #include "FWCore/Utilities/interface/GetReleaseVersion.h"
-
+#include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 
 using namespace edm;
 using namespace std;
@@ -65,7 +63,10 @@ class testEvent: public CppUnit::TestFixture
   CPPUNIT_TEST(getByProductID);
   CPPUNIT_TEST(transaction);
   CPPUNIT_TEST(getByInstanceName);
-  CPPUNIT_TEST(getViewBySelector);
+  CPPUNIT_TEST(getBySelector);
+  CPPUNIT_TEST(getByLabel);
+  CPPUNIT_TEST(getByType);
+  CPPUNIT_TEST(printHistory);
   CPPUNIT_TEST_SUITE_END();
 
  public:
@@ -80,7 +81,10 @@ class testEvent: public CppUnit::TestFixture
   void getByProductID();
   void transaction();
   void getByInstanceName();
-  void getViewBySelector();
+  void getBySelector();
+  void getByLabel();
+  void getByType();
+  void printHistory();
 
  private:
 
@@ -204,16 +208,18 @@ testEvent::testEvent() :
   typedef edmtest::IntProduct prod_t;
   typedef vector<edmtest::Thing> vec_t;
 
-  registerProduct<prod_t>("nolabel_tag", "modOne",   "IntProducer", "EARLY");
-  registerProduct<prod_t>("int1_tag",    "modMulti", "IntProducer", "EARLY", "int1");
-  registerProduct<prod_t>("int2_tag",    "modMulti", "IntProducer", "EARLY", "int2");
-  registerProduct<prod_t>("int3_tag",    "modMulti", "IntProducer", "EARLY", "int3");
-  registerProduct<vec_t>("thing",        "modthing", "ThingProducer", "LATE");
+  registerProduct<prod_t>("nolabel_tag",   "modOne",   "IntProducer",   "EARLY");
+  registerProduct<prod_t>("int1_tag",      "modMulti", "IntProducer",   "EARLY", "int1");
+  registerProduct<prod_t>("int1_tag_late", "modMulti", "IntProducer",   "LATE",  "int1");
+  registerProduct<prod_t>("int2_tag",      "modMulti", "IntProducer",   "EARLY", "int2");
+  registerProduct<prod_t>("int3_tag",      "modMulti", "IntProducer",   "EARLY");
+  registerProduct<vec_t>("thing",          "modthing", "ThingProducer", "LATE");
+  registerProduct<vec_t>("thing2",         "modthing", "ThingProducer", "LATE",  "inst2");
 
   // Fake up the production of a single IntProduct from an IntProducer
   // module, run in the 'CURRENT' process.
   ParameterSet moduleParams;
-  string moduleLabel("currentModule");
+  string moduleLabel("modMulti");
   string moduleClassName("IntProducer");
   moduleParams.addParameter<string>("@module_type", moduleClassName);
   moduleParams.addParameter<string>("@module_label", moduleLabel);
@@ -232,14 +238,16 @@ testEvent::testEvent() :
   TypeID product_type(typeid(prod_t));
 
   currentModuleDescription_ = new ModuleDescription();
-  currentModuleDescription_ = new ModuleDescription();
   currentModuleDescription_->parameterSetID_       = moduleParams.id();
   currentModuleDescription_->moduleName_           = moduleClassName;
   currentModuleDescription_->moduleLabel_          = moduleLabel;
   currentModuleDescription_->processConfiguration_ = process;
 
+  string productInstanceName("int1");
+
   BranchDescription branch;
   branch.moduleLabel_         = moduleLabel;
+  branch.productInstanceName_ = productInstanceName;
   branch.processName_         = processName;
   branch.fullClassName_       = product_type.userClassName();
   branch.friendlyClassName_   = product_type.friendlyClassName();
@@ -263,11 +271,79 @@ testEvent::~testEvent()
 
 void testEvent::setUp() 
 {
+
+  // First build a fake process history, that says there
+  // were previous processes named "EARLY" and "LATE".
+  // This takes several lines of code but other than
+  // the process names none of it is used or interesting.
+  ParameterSet moduleParamsEarly;
+  string moduleLabelEarly("currentModule");
+  string moduleClassNameEarly("IntProducer");
+  moduleParamsEarly.addParameter<string>("@module_type", moduleClassNameEarly);
+  moduleParamsEarly.addParameter<string>("@module_label", moduleLabelEarly);
+
+  ParameterSet processParamsEarly;
+  string processNameEarly("EARLY");
+  processParamsEarly.addParameter<string>("@process_name", processNameEarly);
+  processParamsEarly.addParameter(moduleLabelEarly, moduleParamsEarly);
+
+  ProcessConfiguration processEarly;
+  processEarly.processName_    = "EARLY";
+  processEarly.releaseVersion_ = getReleaseVersion();
+  processEarly.passID_         = getPassID();
+  processEarly.parameterSetID_ = processParamsEarly.id();
+
+  ParameterSet moduleParamsLate;
+  string moduleLabelLate("currentModule");
+  string moduleClassNameLate("IntProducer");
+  moduleParamsLate.addParameter<string>("@module_type", moduleClassNameLate);
+  moduleParamsLate.addParameter<string>("@module_label", moduleLabelLate);
+
+  ParameterSet processParamsLate;
+  string processNameLate("LATE");
+  processParamsLate.addParameter<string>("@process_name", processNameLate);
+  processParamsLate.addParameter(moduleLabelLate, moduleParamsLate);
+
+  ProcessConfiguration processLate;
+  processLate.processName_    = "LATE";
+  processLate.releaseVersion_ = getReleaseVersion();
+  processLate.passID_         = getPassID();
+  processLate.parameterSetID_ = processParamsLate.id();
+
+  ProcessHistory* processHistory = new ProcessHistory;
+  ProcessHistory& ph = *processHistory;
+  processHistory->push_back(processEarly);
+  processHistory->push_back(processLate);
+
+  ProcessHistoryRegistry::instance()->insertMapped(ph);
+
+  ProcessHistoryID processHistoryID = ph.id();
+
+  // Finally done with making a fake process history
+
+  // This is all a hack to make this test work, but here is some
+  // detail as to what is going on.  (this does not happen in real
+  // data processing).
+  // When any new product is added to the event principal at
+  // commit, the "CURRENT" process will go into the ProcessHistory
+  // even if we have faked it that the new product is associated
+  // with a previous process, because the process name comes from
+  // the currentModuleDescription stored in the principal.  On the 
+  // other hand, when addProduct is called another event is created
+  // with a fake moduleDescription containing the old process name
+  // and that is used to create the group in the principal used to
+  // look up the object.
+
   principal_  = new EventPrincipal(make_id(),
 				   make_timestamp(),
-				   *availableProducts_, 1, currentModuleDescription_->processConfiguration());
+				   *availableProducts_,
+                                   1,
+                                   currentModuleDescription_->processConfiguration(),
+                                   processHistoryID);
 
   currentEvent_ = new Event(*principal_, *currentModuleDescription_);
+
+  delete processHistory;
 }
 
 void
@@ -298,7 +374,7 @@ void testEvent::getBySelectorFromEmpty()
 void testEvent::putAnIntProduct()
 {
   auto_ptr<edmtest::IntProduct> three(new edmtest::IntProduct(3));
-  currentEvent_->put(three);
+  currentEvent_->put(three, "int1");
   CPPUNIT_ASSERT(currentEvent_->size() == 1);
   ProducerWorker::commitEvent(*currentEvent_);
   CPPUNIT_ASSERT(currentEvent_->size() == 1);
@@ -307,7 +383,7 @@ void testEvent::putAnIntProduct()
 void testEvent::putAndGetAnIntProduct()
 {
   auto_ptr<edmtest::IntProduct> four(new edmtest::IntProduct(4));
-  currentEvent_->put(four);
+  currentEvent_->put(four, "int1");
   ProducerWorker::commitEvent(*currentEvent_);
 
   ProcessNameSelector should_match("CURRENT");
@@ -367,7 +443,7 @@ void testEvent::transaction()
     typedef auto_ptr<product_t> ap_t;
 
     ap_t three(new product_t(3));
-    currentEvent_->put(three);
+    currentEvent_->put(three, "int1");
     CPPUNIT_ASSERT(principal_->size() == 0);
     CPPUNIT_ASSERT(currentEvent_->size() == 1);
     // DO NOT COMMIT!
@@ -391,7 +467,7 @@ void testEvent::getByInstanceName()
   ap_t four(new product_t(4));
   addProduct(one,   "int1_tag", "int1");
   addProduct(two,   "int2_tag", "int2");
-  addProduct(three, "int3_tag", "int3");
+  addProduct(three, "int3_tag");
   addProduct(four,  "nolabel_tag");
 
   CPPUNIT_ASSERT(currentEvent_->size() == 4);
@@ -401,6 +477,13 @@ void testEvent::getByInstanceName()
   handle_t h;
   currentEvent_->get(sel, h);
   CPPUNIT_ASSERT(h->value == 2);
+
+  string instance;
+  Selector sel1(ProductInstanceNameSelector(instance) &&
+	       ModuleLabelSelector("modMulti"));;
+
+  currentEvent_->get(sel1, h);
+  CPPUNIT_ASSERT(h->value == 3);
 
   handle_vec handles;
   currentEvent_->getMany(ModuleLabelSelector("modMulti"), handles);
@@ -413,7 +496,181 @@ void testEvent::getByInstanceName()
   CPPUNIT_ASSERT(nomatches.empty());
 }
 
-void testEvent::getViewBySelector()
+void testEvent::getBySelector()
+{
+  typedef edmtest::IntProduct product_t;
+  typedef auto_ptr<product_t> ap_t;
+  typedef Handle<product_t> handle_t;
+  typedef vector<handle_t> handle_vec;
+
+  ap_t one(new product_t(1));
+  ap_t two(new product_t(2));
+  ap_t three(new product_t(3));
+  ap_t four(new product_t(4));
+  addProduct(one,   "int1_tag", "int1");
+  addProduct(two,   "int2_tag", "int2");
+  addProduct(three, "int3_tag");
+  addProduct(four,  "nolabel_tag");
+
+  auto_ptr<vector<edmtest::Thing> > ap_vthing(new vector<edmtest::Thing>);
+  addProduct(ap_vthing, "thing", "");
+
+  ap_t oneHundred(new product_t(100));
+  addProduct(oneHundred, "int1_tag_late", "int1");
+
+  auto_ptr<edmtest::IntProduct> twoHundred(new edmtest::IntProduct(200));
+  currentEvent_->put(twoHundred, "int1");
+  ProducerWorker::commitEvent(*currentEvent_);
+
+  CPPUNIT_ASSERT(currentEvent_->size() == 7);
+
+  Selector sel(ProductInstanceNameSelector("int2") &&
+	       ModuleLabelSelector("modMulti") &&
+               ProcessNameSelector("EARLY"));;
+  handle_t h;
+  currentEvent_->get(sel, h);
+  CPPUNIT_ASSERT(h->value == 2);
+
+  Selector sel1(ProductInstanceNameSelector("nomatch") &&
+	        ModuleLabelSelector("modMulti") &&
+                ProcessNameSelector("EARLY"));;
+  CPPUNIT_ASSERT_THROW(currentEvent_->get(sel1, h), edm::Exception);
+
+  Selector sel2(ProductInstanceNameSelector("int2") &&
+	        ModuleLabelSelector("nomatch") &&
+                ProcessNameSelector("EARLY"));;
+  CPPUNIT_ASSERT_THROW(currentEvent_->get(sel2, h), edm::Exception);
+
+  Selector sel3(ProductInstanceNameSelector("int2") &&
+	        ModuleLabelSelector("modMulti") &&
+                ProcessNameSelector("nomatch"));;
+  CPPUNIT_ASSERT_THROW(currentEvent_->get(sel3, h), edm::Exception);
+
+  Selector sel4(ModuleLabelSelector("modMulti") &&
+                ProcessNameSelector("EARLY"));;
+  CPPUNIT_ASSERT_THROW(currentEvent_->get(sel4, h), edm::Exception);
+
+  Selector sel5(ModuleLabelSelector("modMulti") &&
+                ProcessNameSelector("LATE"));;
+  currentEvent_->get(sel5, h);
+  CPPUNIT_ASSERT(h->value == 100);
+
+  Selector sel6(ModuleLabelSelector("modMulti") &&
+                ProcessNameSelector("CURRENT"));;
+  currentEvent_->get(sel6, h);
+  CPPUNIT_ASSERT(h->value == 200);
+
+  Selector sel7(ModuleLabelSelector("modMulti"));;
+  currentEvent_->get(sel7, h);
+  CPPUNIT_ASSERT(h->value == 200);
+
+  handle_vec handles;
+  currentEvent_->getMany(ModuleLabelSelector("modMulti"), handles);
+  CPPUNIT_ASSERT(handles.size() == 5);
+  int sum = 0;
+  for (int k = 0; k < 5; ++k) sum += handles[k]->value;
+  CPPUNIT_ASSERT(sum == 306);
+}
+
+void testEvent::getByLabel()
+{
+  typedef edmtest::IntProduct product_t;
+  typedef auto_ptr<product_t> ap_t;
+  typedef Handle<product_t> handle_t;
+  typedef vector<handle_t> handle_vec;
+
+  ap_t one(new product_t(1));
+  ap_t two(new product_t(2));
+  ap_t three(new product_t(3));
+  ap_t four(new product_t(4));
+  addProduct(one,   "int1_tag", "int1");
+  addProduct(two,   "int2_tag", "int2");
+  addProduct(three, "int3_tag");
+  addProduct(four,  "nolabel_tag");
+
+  auto_ptr<vector<edmtest::Thing> > ap_vthing(new vector<edmtest::Thing>);
+  addProduct(ap_vthing, "thing", "");
+
+  ap_t oneHundred(new product_t(100));
+  addProduct(oneHundred, "int1_tag_late", "int1");
+
+  auto_ptr<edmtest::IntProduct> twoHundred(new edmtest::IntProduct(200));
+  currentEvent_->put(twoHundred, "int1");
+  ProducerWorker::commitEvent(*currentEvent_);
+
+  CPPUNIT_ASSERT(currentEvent_->size() == 7);
+
+  handle_t h;
+  currentEvent_->getByLabel("modMulti", h);
+  CPPUNIT_ASSERT(h->value == 3);
+
+  currentEvent_->getByLabel("modMulti", "int1", h);
+  CPPUNIT_ASSERT(h->value == 200);
+
+  CPPUNIT_ASSERT_THROW(currentEvent_->getByLabel("modMulti", "nomatch", h), edm::Exception);
+
+  InputTag inputTag("modMulti", "int1");
+  currentEvent_->getByLabel(inputTag, h);
+  CPPUNIT_ASSERT(h->value == 200);
+
+  BasicHandle bh =
+    principal_->getByLabel(TypeID(typeid(edmtest::IntProduct)), "modMulti", "int1", "LATE");
+  convert_handle(bh, h);
+  CPPUNIT_ASSERT(h->value == 100);
+  CPPUNIT_ASSERT_THROW(principal_->getByLabel(TypeID(typeid(edmtest::IntProduct)), "modMulti", "int1", "nomatch"), edm::Exception);
+}
+
+
+void testEvent::getByType()
+{
+  typedef edmtest::IntProduct product_t;
+  typedef auto_ptr<product_t> ap_t;
+  typedef Handle<product_t> handle_t;
+  typedef vector<handle_t> handle_vec;
+
+  ap_t one(new product_t(1));
+  ap_t two(new product_t(2));
+  ap_t three(new product_t(3));
+  ap_t four(new product_t(4));
+  addProduct(one,   "int1_tag", "int1");
+  addProduct(two,   "int2_tag", "int2");
+  addProduct(three, "int3_tag");
+  addProduct(four,  "nolabel_tag");
+
+  auto_ptr<vector<edmtest::Thing> > ap_vthing(new vector<edmtest::Thing>);
+  addProduct(ap_vthing, "thing", "");
+
+  auto_ptr<vector<edmtest::Thing> > ap_vthing2(new vector<edmtest::Thing>);
+  addProduct(ap_vthing2, "thing2", "inst2");
+
+  ap_t oneHundred(new product_t(100));
+  addProduct(oneHundred, "int1_tag_late", "int1");
+
+  auto_ptr<edmtest::IntProduct> twoHundred(new edmtest::IntProduct(200));
+  currentEvent_->put(twoHundred, "int1");
+  ProducerWorker::commitEvent(*currentEvent_);
+
+  CPPUNIT_ASSERT(currentEvent_->size() == 8);
+
+  handle_t h;
+  currentEvent_->getByType(h);
+  CPPUNIT_ASSERT(h->value == 200);
+
+  Handle<int> h_nomatch;
+  CPPUNIT_ASSERT_THROW(currentEvent_->getByType(h_nomatch), edm::Exception);
+
+  Handle<vector<edmtest::Thing> > hthing;
+  CPPUNIT_ASSERT_THROW(currentEvent_->getByType(hthing), edm::Exception);
+
+  handle_vec handles;
+  currentEvent_->getManyByType(handles);
+  CPPUNIT_ASSERT(handles.size() == 6);
+  int sum = 0;
+  for (int k = 0; k < 6; ++k) sum += handles[k]->value;
+  CPPUNIT_ASSERT(sum == 310);
+}
+
+void testEvent::printHistory()
 {
   ProcessHistory const& history = currentEvent_->processHistory();
   ofstream out("history.log");

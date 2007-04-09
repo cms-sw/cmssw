@@ -2,7 +2,7 @@
 
 Test of the EventPrincipal class.
 
-$Id: eventprincipal_t.cppunit.cc,v 1.39 2007/03/27 23:13:09 wmtan Exp $
+$Id: eventprincipal_t.cppunit.cc,v 1.40 2007/04/02 15:55:10 wmtan Exp $
 
 ----------------------------------------------------------------------*/  
 #include <map>
@@ -421,23 +421,6 @@ void testeventprincipal::getbySelectorTest()
   h = pEvent_->getBySelector(tid, pinsel);
   CPPUNIT_ASSERT(h.isValid());
   CPPUNIT_ASSERT(h.provenance()->productInstanceName() == instanceName);  
-
-  // Warning: we don't actually expect the following selector to match
-  // something, because I don't now have the time to form a proper
-  // ModuleDescription and to get its ID. This only makes sure that
-  // the class and its functions are instantiable.
-  try
-    {
-      edm::ModuleDescription md;
-      edm::ModuleDescriptionID mdid = md.id();
-      edm::ModuleDescriptionSelector mdsel(mdid);
-      h = pEvent_->getBySelector(tid, mdsel);
-      assert("Failed to throw required exception!" == 0);
-    }
-  catch( edm::Exception& x )
-    {
-      // This is expected
-    }
 }
 
 void testeventprincipal::processNameSelectorTest()

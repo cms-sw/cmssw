@@ -6,7 +6,7 @@
 Group: A collection of information related to a single EDProduct. This
 is the storage unit of such information.
 
-$Id: Group.h,v 1.3 2007/03/04 06:00:22 wmtan Exp $
+$Id: Group.h,v 1.4 2007/04/01 15:52:17 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -44,6 +44,10 @@ namespace edm {
 
     // provenance is currently available
     bool provenanceAvailable() const;
+
+    // True if and only if this group's product has not been produced yet
+    // and an unscheduled module in this process declared it produces it
+    bool onDemand() const { return onDemand_; }
 
     EDProduct const* product() const { return product_; }
 

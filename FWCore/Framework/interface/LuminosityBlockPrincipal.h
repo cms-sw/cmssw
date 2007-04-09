@@ -95,7 +95,6 @@ namespace edm {
 
   private:
     virtual bool unscheduledFill(Group const&) const {return false;}
-    virtual bool fillAndMatchSelector(Provenance &, SelectorBase const&) const {return false;}
 
     boost::shared_ptr<RunPrincipal> runPrincipal_;
     LuminosityBlockAuxiliary aux_;

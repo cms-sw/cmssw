@@ -3,19 +3,19 @@
 
 /*----------------------------------------------------------------------
   
-Selector: Base class for all "selector" objects, used to select
+Classes for all "selector" objects, used to select
 EDProducts based on information in the associated Provenance.
 
-Developers who make their own Selectors should inherit from SelectorBase.
+Developers who make their own Selector class should inherit
+from SelectorBase.
 
-Users can use the classes
+Users can use the classes defined below
 
-  ModuleDescriptionSelector
   ModuleLabelSelector
   ProcessNameSelector
   ProductInstanceNameSelector
 
-Users can also use the class Selector, which can be construced given a
+Users can also use the class Selector, which can be constructed given a
 logical expression formed from any other selectors, combined with &&
 (the AND operator), || (the OR operator) or ! (the NOT operator).
 
@@ -30,21 +30,18 @@ to use such a selector, it is best to initialize it directly upon
 construction of the module, rather than creating a new Selector instance
 for every event.
 
-$Id: Selector.h,v 1.15 2006/11/17 23:05:00 paterno Exp $
+$Id: Selector.h,v 1.16 2007/03/04 06:00:22 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
-#include <algorithm>
 #include <string>
-#include <vector>
 
 #include "boost/type_traits.hpp"
 #include "boost/utility/enable_if.hpp"
 
-#include "DataFormats/Provenance/interface/Provenance.h"
-#include "FWCore/Framework/interface/ProvenanceAccess.h"
-
 #include "FWCore/Framework/interface/SelectorBase.h"
+#include "FWCore/Framework/interface/SelectorProvenance.h"
+
 namespace edm 
 {
   //------------------------------------------------------------------
@@ -66,34 +63,6 @@ namespace edm
 
   //------------------------------------------------------------------
   //
-  /// Class ModuleDescriptionSelector.
-  /// Selects EDProducts based upon full description of EDProducer.
-  //
-  //------------------------------------------------------------------
-
-  class ModuleDescriptionSelector : public SelectorBase 
-  {
-  public:
-    ModuleDescriptionSelector(const ModuleDescriptionID& mdid) :
-      mdid_(mdid) 
-    { }
-    
-    virtual bool doMatch(Provenance const& p) const 
-    {
-      return p.moduleDescriptionID() == mdid_;
-    }
-
-    virtual ModuleDescriptionSelector* clone() const
-    {
-      return new ModuleDescriptionSelector(*this);
-    }
-
-  private:
-    ModuleDescriptionID mdid_;
-  };
-
-  //------------------------------------------------------------------
-  //
   /// Class ProcessNameSelector.
   /// Selects EDProducts based upon process name.
   ///
@@ -109,7 +78,7 @@ namespace edm
     pn_(pn.empty() ? std::string("*") : pn)
       { }
     
-    virtual bool doMatch(Provenance const& p) const 
+    virtual bool doMatch(SelectorProvenance const& p) const 
     {
       return (pn_=="*") || (p.processName() == pn_);
     }
@@ -142,7 +111,7 @@ namespace edm
       pin_(pin)
     { }
     
-    virtual bool doMatch(Provenance const& p) const 
+    virtual bool doMatch(SelectorProvenance const& p) const 
     {
       return p.productInstanceName() == pin_;
     }
@@ -158,7 +127,7 @@ namespace edm
   //------------------------------------------------------------------
   //
   /// Class ModuleLabelSelector.
-  /// Selects EDProducts based upon product instance name.
+  /// Selects EDProducts based upon module label.
   //
   //------------------------------------------------------------------
 
@@ -169,7 +138,7 @@ namespace edm
       label_(label)
     { }
     
-    virtual bool doMatch(Provenance const& p) const 
+    virtual bool doMatch(SelectorProvenance const& p) const 
     {
       return p.moduleLabel() == label_;
     }
@@ -180,6 +149,30 @@ namespace edm
     }
   private:
     std::string label_;
+  };
+
+  //------------------------------------------------------------------
+  //
+  /// Class MatchAllSelector.
+  /// Dummy selector whose match function always returns true.
+  //
+  //------------------------------------------------------------------
+
+  class MatchAllSelector : public SelectorBase
+  {
+  public:
+    MatchAllSelector()
+    { }
+    
+    virtual bool doMatch(SelectorProvenance const& p) const 
+    {
+      return true;
+    }
+
+    virtual MatchAllSelector* clone() const
+    {
+      return new MatchAllSelector;
+    }
   };
 
   //----------------------------------------------------------
@@ -194,8 +187,7 @@ namespace edm
   {
   public:
     AndHelper(A const& a, B const& b) : a_(a), b_(b) { }
-    bool match(ProvenanceAccess const& p) const { return a_.match(p) && b_.match(p); }  
-    bool match(Provenance const& p) const { return a_.match(p) && b_.match(p); }  
+    bool match(SelectorProvenance const& p) const { return a_.match(p) && b_.match(p); }  
   private:
     A a_;
     B b_;
@@ -227,8 +219,7 @@ namespace edm
   {
   public:
     OrHelper(A const& a, B const& b) : a_(a), b_(b) { }
-    bool match(ProvenanceAccess const& p) const { return a_.match(p) || b_.match(p); }  
-    bool match(Provenance const& p) const { return a_.match(p) || b_.match(p); }  
+    bool match(SelectorProvenance const& p) const { return a_.match(p) || b_.match(p); }  
   private:
     A a_;
     B b_;
@@ -261,8 +252,7 @@ namespace edm
   {
   public:
     explicit NotHelper(A const& a) : a_(a) { }
-    bool match(ProvenanceAccess const& p) const { return ! a_.match(p); }
-    bool match(Provenance const& p) const { return ! a_.match(p); }
+    bool match(SelectorProvenance const& p) const { return ! a_.match(p); }
   private:
     A a_;
   };
@@ -295,7 +285,7 @@ namespace edm
     typedef T wrapped_type;
     explicit ComposedSelectorWrapper(T const& t) : expression_(t) { }
     ~ComposedSelectorWrapper() {};
-    virtual bool doMatch(Provenance const& p) const { return expression_.match(p); }
+    virtual bool doMatch(SelectorProvenance const& p) const { return expression_.match(p); }
     ComposedSelectorWrapper<T>* clone() const { return new ComposedSelectorWrapper<T>(*this); }
   private:
     wrapped_type expression_;
@@ -317,7 +307,7 @@ namespace edm
     virtual ~Selector();
     virtual Selector* clone() const;
 
-    virtual bool doMatch(Provenance const& p) const;
+    virtual bool doMatch(SelectorProvenance const& p) const;
     
   private:
     SelectorBase* sel_;

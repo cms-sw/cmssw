@@ -31,6 +31,7 @@ namespace edmtest
 			edm::EventSetup const& /* unused */)
   {
     assert(e.size() > 0);
+
     testProduct<SCSimpleProduct>(e, "simple");
     testProduct<OVSimpleProduct>(e, "ovsimple");
     testProduct<AVSimpleProduct>(e, "avsimple");
@@ -40,6 +41,8 @@ namespace edmtest
     testProduct<std::set<int> >(e, "intset");
 
     testDSVProduct(e, "dsvsimple");
+
+    testProductWithBaseClass(e, "ovsimple");
 
     //testProduct<edm::RefVector<std::vector<int> > >(e, "intvecrefvec");
   }
@@ -113,6 +116,46 @@ namespace edmtest
 	value_t const& view = *i_view;
         assert(prod.detId() == view.detId());
         assert(prod.data == view.data);
+
+	++i_prod; ++i_view;
+      }
+  }
+
+  // The point of this one is to test that a one can get
+  // a View of "Simple" objects even when the sequence
+  // has elements of a different type. The different type
+  // inherits from "Simple" and is named "SimpleDerived"
+  void
+  ViewAnalyzer::testProductWithBaseClass(edm::Event const& e,
+ 			    std::string const& moduleLabel) const
+  {
+    typedef OVSimpleDerivedProduct          sequence_t;
+    typedef Simple                          value_t;
+    typedef View<value_t>                   view_t;
+    
+    Handle<sequence_t> hprod;
+    e.getByLabel(moduleLabel, "derived", hprod);
+    assert(hprod.isValid());
+    
+    Handle<view_t> hview;
+    e.getByLabel(moduleLabel, "derived", hview);
+    assert(hview.isValid());
+    
+    assert(hprod.id() == hview.id());
+    assert(*hprod.provenance() == *hview.provenance());
+    
+    assert(hprod->size() == hview->size());
+
+    sequence_t::const_iterator i_prod = hprod->begin();
+    sequence_t::const_iterator e_prod = hprod->end();
+    view_t::const_iterator     i_view = hview->begin();
+    view_t::const_iterator     e_view = hview->end();
+
+    while ( i_prod != e_prod && i_view != e_view)
+      {
+	SimpleDerived const& prod = *i_prod;
+	Simple const& view = *i_view;
+        assert(prod == view);
 
 	++i_prod; ++i_view;
       }

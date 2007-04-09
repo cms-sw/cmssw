@@ -16,7 +16,6 @@ $Id: EventPrincipal.h,v 1.50 2007/03/27 23:06:57 wmtan Exp $
 
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include "FWCore/Framework/interface/Principal.h"
-#include "FWCore/Framework/interface/EPEventProvenanceFiller.h"
 #include "FWCore/Framework/interface/UnscheduledHandler.h"
 
 #include "boost/shared_ptr.hpp"
@@ -25,6 +24,8 @@ namespace edm {
   class EventID;
   class LuminosityBlockPrincipal;
   class RunPrincipal;
+  class UnscheduledHandler;
+
   class EventPrincipal : private Principal {
     typedef Principal Base;
   public:
@@ -113,14 +114,12 @@ namespace edm {
 
     virtual bool unscheduledFill(Group const& group) const;
 
-    virtual bool fillAndMatchSelector(Provenance& prov, SelectorBase const& selector) const;
-
     EventAuxiliary aux_;
     boost::shared_ptr<LuminosityBlockPrincipal> luminosityBlockPrincipal_;
     // Handler for unscheduled modules
     boost::shared_ptr<UnscheduledHandler> unscheduledHandler_;
-    // Provenance filler for unscheduled modules
-    boost::shared_ptr<EPEventProvenanceFiller> provenanceFiller_;
+
+    mutable std::vector<std::string> moduleLabelsRunning_;
   };
 
   inline
