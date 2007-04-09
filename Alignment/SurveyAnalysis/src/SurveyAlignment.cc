@@ -38,7 +38,8 @@ void SurveyAlignment::shiftSensors()
 }
 
 void SurveyAlignment::iterate(unsigned int nIteration,
-			      const std::string& fileName)
+			      const std::string& fileName,
+			      bool bias)
 {
   static const double tolerance = 1e-4; // convergence criteria
 
@@ -47,7 +48,7 @@ void SurveyAlignment::iterate(unsigned int nIteration,
   for (unsigned int i = 0; i < nIteration; ++i)
   {
     std::cout << "***** Iteration " << i << " *****\n";
-    findAlignPars();
+    findAlignPars(bias);
     out.write(i);
     shiftSensors();
 

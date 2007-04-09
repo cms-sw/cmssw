@@ -8,8 +8,8 @@
  *  The residual (dRx, dRy, dRz, dWx, dWy, dWz) is found for each sensor.
  *  The sensor shifted by this amount during each iteration.
  *
- *  $Date: 2007/02/14 $
- *  $Revision: 1 $
+ *  $Date: 2007/03/14 18:05:35 $
+ *  $Revision: 1.1 $
  *  \author Chung Khim Lae
  */
 
@@ -28,7 +28,9 @@ class SurveyAlignmentSensor:
   protected:
 
   /// Find the alignment parameters for all sensors.
-  virtual void findAlignPars();
+  virtual void findAlignPars(
+			     bool bias = false // true for biased residuals
+			     );
 };
 
 #endif

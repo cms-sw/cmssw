@@ -10,7 +10,7 @@ SurveyAlignmentPoints::SurveyAlignmentPoints(const std::vector<Alignable*>& sens
 {
 }
 
-void SurveyAlignmentPoints::findAlignPars()
+void SurveyAlignmentPoints::findAlignPars(bool bias)
 {
   unsigned int nSensor = theSensors.size();
 
@@ -18,7 +18,7 @@ void SurveyAlignmentPoints::findAlignPars()
   {
     Alignable* ali = theSensors[i];
 
-    SurveyResidual res1(*ali, AlignableObjectId::AlignablePetal);
+    SurveyResidual res1(*ali, AlignableObjectId::AlignablePetal, bias);
 
     AlgebraicSymMatrix sumJVJT(6, 0); // 6 by 6 symmetric matrix init to 0
     AlgebraicVector    sumJVe(6, 0);  // init to 0

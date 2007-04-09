@@ -9,7 +9,7 @@ SurveyAlignmentSensor::SurveyAlignmentSensor(const std::vector<Alignable*>& sens
 {
 }
 
-void SurveyAlignmentSensor::findAlignPars()
+void SurveyAlignmentSensor::findAlignPars(bool bias)
 {
   unsigned int nSensor = theSensors.size();
 
@@ -17,9 +17,9 @@ void SurveyAlignmentSensor::findAlignPars()
   {
     Alignable* ali = theSensors[i];
 
-    SurveyResidual res1(*ali, AlignableObjectId::AlignablePetal, true);
-    SurveyResidual res2(*ali, AlignableObjectId::AlignableEndcapLayer, true);
-    SurveyResidual res3(*ali, AlignableObjectId::AlignableEndcap, true);
+    SurveyResidual res1(*ali, AlignableObjectId::AlignablePetal, bias);
+    SurveyResidual res2(*ali, AlignableObjectId::AlignableEndcapLayer, bias);
+    SurveyResidual res3(*ali, AlignableObjectId::AlignableEndcap, bias);
 
     AlgebraicSymMatrix invCov1 = res1.inverseCovariance();
     AlgebraicSymMatrix invCov2 = res2.inverseCovariance();

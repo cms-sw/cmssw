@@ -8,6 +8,7 @@
 #include "SurveyTest.h"
 
 SurveyTest::SurveyTest(const edm::ParameterSet& cfg):
+  theBiasFlag( cfg.getUntrackedParameter<bool>("bias", true) ),
   theIterations( cfg.getParameter<unsigned int>("iterator") ),
   theAlgorithm ( cfg.getParameter<std::string>("algorith") ),
   theOutputFile( cfg.getParameter<std::string>("fileName") )
@@ -27,7 +28,7 @@ void SurveyTest::beginJob(const edm::EventSetup&)
   algos["points"] = new SurveyAlignmentPoints(sensors);
   algos["sensor"] = new SurveyAlignmentSensor(sensors);
 
-  algos[theAlgorithm]->iterate(theIterations, theOutputFile);
+  algos[theAlgorithm]->iterate(theIterations, theOutputFile, theBiasFlag);
 
   for (std::map<std::string, SurveyAlignment*>::iterator i = algos.begin();
        i != algos.end(); ++i) delete i->second;

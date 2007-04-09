@@ -5,8 +5,8 @@
  *
  *  Analyser module for testing.
  *
- *  $Date: 2007/03/14 18:05:36 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/04/07 01:58:49 $
+ *  $Revision: 1.2 $
  *  \author Chung Khim Lae
  */
 
@@ -26,6 +26,8 @@ class SurveyTest:
   private:
 
   void getTerminals(std::vector<Alignable*>& terminals, Alignable* ali);
+
+  bool theBiasFlag; // true for unbiased residuals
 
   unsigned int theIterations; // number of iterations
 

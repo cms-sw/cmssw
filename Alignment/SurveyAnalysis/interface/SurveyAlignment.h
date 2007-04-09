@@ -5,8 +5,8 @@
  *
  *  Alignment using only survey info (no tracks) as a proof of principle.
  *
- *  $Date: 2007/03/14 18:05:35 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/04/07 01:58:47 $
+ *  $Revision: 1.2 $
  *  \author Chung Khim Lae
  */
 
@@ -28,14 +28,17 @@ class SurveyAlignment
 
   /// Run the iteration: find residuals, write to output, shift sensors.
   void iterate(
-	       unsigned int nIteration,    // number of iterations
-	       const std::string& fileName // name of output file
+	       unsigned int nIteration,     // number of iterations
+	       const std::string& fileName, // name of output file
+	       bool bias = false            // true for biased residuals
 	       );
 
   protected:
 
   /// Find the alignment parameters for all sensors.
-  virtual void findAlignPars() = 0;
+  virtual void findAlignPars(
+			     bool bias = false // true for biased residuals
+			     ) = 0;
 
   /// Apply the alignment parameters to all sensors.
   virtual void shiftSensors();
