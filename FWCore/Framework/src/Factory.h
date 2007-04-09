@@ -13,8 +13,9 @@
 #include "sigc++/signal.h"
 
 namespace edm {
-
-  class Factory : public seal::PluginFactory<Maker* ()>
+  typedef edmplugin::PluginFactory<Maker* ()> MakerPluginFactory;
+  
+  class Factory  
   {
   public:
     typedef std::map<std::string, Maker*> MakerMap;

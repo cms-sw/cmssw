@@ -401,7 +401,7 @@ namespace edm {
   // ---------------------------------------------------------------
   EventProcessor::DoPluginInit::DoPluginInit()
   { 
-    seal::PluginManager::get()->initialise();
+    //edmplugin::PluginManager::get()->initialise();
     // std::cerr << "Initialized plugin manager" << std::endl;
 
     // for now, install sigusr2 function.

@@ -9,13 +9,14 @@
 // Author:      Chris Jones
 // Created:     Thu May 26 11:01:19 EDT 2005
 // Changed:     Viji Sundararajan 28-Jun-2005
-// $Id: eventsetupplugin_t.cppunit.cc,v 1.6 2006/08/16 00:12:44 rpw Exp $
+// $Id: eventsetupplugin_t.cppunit.cc,v 1.7 2007/02/07 13:27:14 chrjones Exp $
 //
 
 // system include files
 #include <cppunit/extensions/HelperMacros.h>
 // user include files
 #include "FWCore/PluginManager/interface/PluginManager.h"
+#include "FWCore/PluginManager/interface/standard.h"
 #include "FWCore/Utilities/interface/GetPassID.h"
 #include "FWCore/Utilities/interface/GetReleaseVersion.h"
 #include "FWCore/Framework/interface/SourceFactory.h"
@@ -44,7 +45,9 @@ CPPUNIT_TEST_SUITE_REGISTRATION(testEventsetupplugin);
 static void doInit() {
    static bool firstTime=true;
    if(firstTime) {
-      seal::PluginManager::get()->initialise();
+      if(not edmplugin::PluginManager::isAvailable()) {
+        edmplugin::PluginManager::configure(edmplugin::standard::config());
+     }
       firstTime = false;
    }
 }

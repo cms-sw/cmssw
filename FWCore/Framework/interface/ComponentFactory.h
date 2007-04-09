@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Wed May 25 15:21:05 EDT 2005
-// $Id: ComponentFactory.h,v 1.17 2007/02/07 13:27:12 chrjones Exp $
+// $Id: ComponentFactory.h,v 1.18 2007/03/04 06:00:22 wmtan Exp $
 //
 
 // system include files
@@ -38,11 +38,11 @@ namespace edm {
       class EventSetupProvider;
       
 template<typename T>
-class ComponentFactory : public seal::PluginFactory<ComponentMakerBase<T>* ()>
+  class ComponentFactory
 {
 
    public:
-   ComponentFactory() : seal::PluginFactory<ComponentMakerBase<T>* ()>(T::name()), makers_() {}
+   ComponentFactory(): makers_() {}
    //~ComponentFactory();
 
    typedef  ComponentMakerBase<T> Maker;
@@ -61,7 +61,7 @@ class ComponentFactory : public seal::PluginFactory<ComponentMakerBase<T>* ()>
          
          if(it == makers_.end())
          {
-            boost::shared_ptr<Maker> wm(this->create(modtype));
+            boost::shared_ptr<Maker> wm(edmplugin::PluginFactory<ComponentMakerBase<T>* ()>::get()->create(modtype));
             
             if(wm.get()==0) {
 	      throw edm::Exception(errors::Configuration,"UnknownModule")<<T::name() 
@@ -110,6 +110,8 @@ class ComponentFactory : public seal::PluginFactory<ComponentMakerBase<T>* ()>
 
    }
 }
-#define COMPONENTFACTORY_GET(_type_) static edm::eventsetup::ComponentFactory<_type_> s_dummyfactory; template<> edm::eventsetup::ComponentFactory<_type_>* edm::eventsetup::ComponentFactory<_type_>::get() { return &s_dummyfactory; }
+#define COMPONENTFACTORY_GET(_type_) EDM_REGISTER_PLUGINFACTORY(edmplugin::PluginFactory<edm::eventsetup::ComponentMakerBase<_type_>* ()>,_type_::name()); \
+static edm::eventsetup::ComponentFactory<_type_> s_dummyfactory; template<> edm::eventsetup::ComponentFactory<_type_>* edm::eventsetup::ComponentFactory<_type_>::get() { return &s_dummyfactory; }
+
 
 #endif

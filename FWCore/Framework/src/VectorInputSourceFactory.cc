@@ -9,6 +9,7 @@
 #include <stdexcept>
 #include <iostream>
 
+EDM_REGISTER_PLUGINFACTORY(edm::VectorInputSourcePluginFactory,"CMS EDM Framework VectorInputSource")
 using namespace std;
 
 namespace edm {
@@ -18,8 +19,7 @@ namespace edm {
   {
   }
 
-  VectorInputSourceFactory::VectorInputSourceFactory(): 
-    seal::PluginFactory<ISVecFunc>("CMS EDM Framework VectorInputSource")
+  VectorInputSourceFactory::VectorInputSourceFactory()
   {
   }
 
@@ -41,7 +41,7 @@ namespace edm {
   {
     string modtype = conf.getParameter<string>("@module_type");
     FDEBUG(1) << "VectorInputSourceFactory: module_type = " << modtype << endl;
-    auto_ptr<VectorInputSource> wm(this->create(modtype,conf,desc));
+    auto_ptr<VectorInputSource> wm(VectorInputSourcePluginFactory::get()->create(modtype,conf,desc));
 
     if(wm.get()==0)
       {

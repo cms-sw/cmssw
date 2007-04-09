@@ -12,9 +12,9 @@
 namespace edm {
 
   typedef VectorInputSource* (ISVecFunc)(ParameterSet const&, InputSourceDescription const&);
+  typedef edmplugin::PluginFactory<ISVecFunc> VectorInputSourcePluginFactory;
 
-  class VectorInputSourceFactory :
-    public seal::PluginFactory<ISVecFunc>
+  class VectorInputSourceFactory 
   {
   public:
     ~VectorInputSourceFactory();

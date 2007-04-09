@@ -206,7 +206,7 @@ using edmtest::TestFilterModule;
 using edmtest::TestResultAnalyzer;
 using edmtest::SewerModule;
 
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(TestFilterModule);
+
+DEFINE_FWK_MODULE(TestFilterModule);
 DEFINE_ANOTHER_FWK_MODULE(TestResultAnalyzer);
 DEFINE_ANOTHER_FWK_MODULE(SewerModule);

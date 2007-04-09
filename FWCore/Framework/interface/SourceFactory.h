@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Wed May 25 18:01:38 EDT 2005
-// $Id: SourceFactory.h,v 1.16 2006/10/30 23:07:53 wmtan Exp $
+// $Id: SourceFactory.h,v 1.17 2006/12/26 03:13:41 wmtan Exp $
 //
 
 // system include files
@@ -66,14 +66,15 @@ namespace edm {
       template< class TType>
          struct SourceMaker : public ComponentMaker<edm::eventsetup::SourceMakerTraits,TType> {};
       typedef  ComponentFactory<SourceMakerTraits> SourceFactory ;
+      
+      typedef edmplugin::PluginFactory<edm::eventsetup::ComponentMakerBase<edm::eventsetup::SourceMakerTraits>* ()> SourcePluginFactory;
    }
 }
 
 #define DEFINE_FWK_EVENTSETUP_SOURCE(type) \
-DEFINE_SEAL_MODULE (); \
-DEFINE_SEAL_PLUGIN (edm::eventsetup::SourceFactory,edm::eventsetup::SourceMaker<type>,#type)
+DEFINE_EDM_PLUGIN (edm::eventsetup::SourcePluginFactory,edm::eventsetup::SourceMaker<type>,#type)
 
 #define DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE(type) \
-DEFINE_SEAL_PLUGIN (edm::eventsetup::SourceFactory,edm::eventsetup::SourceMaker<type>,#type)
+DEFINE_EDM_PLUGIN (edm::eventsetup::SourcePluginFactory,edm::eventsetup::SourceMaker<type>,#type)
 
 #endif

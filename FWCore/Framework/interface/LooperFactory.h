@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Wed May 25 18:01:38 EDT 2005
-// $Id: LooperFactory.h,v 1.4 2006/12/26 03:13:40 wmtan Exp $
+// $Id: LooperFactory.h,v 1.5 2007/02/10 19:14:12 chrjones Exp $
 //
 
 // system include files
@@ -82,14 +82,15 @@ namespace edm {
       template< class TType>
          struct LooperMaker : public ComponentMaker<edm::eventsetup::LooperMakerTraits,TType> {};
       typedef  ComponentFactory<LooperMakerTraits> LooperFactory ;
+      
+      typedef edmplugin::PluginFactory<edm::eventsetup::ComponentMakerBase<LooperMakerTraits>* ()> LooperPluginFactory;
    }
 }
 
 #define DEFINE_FWK_LOOPER(type) \
-DEFINE_SEAL_MODULE (); \
-DEFINE_SEAL_PLUGIN (edm::eventsetup::LooperFactory,edm::eventsetup::LooperMaker<type>,#type)
+DEFINE_EDM_PLUGIN (edm::eventsetup::LooperPluginFactory,edm::eventsetup::LooperMaker<type>,#type)
 
 #define DEFINE_ANOTHER_FWK_LOOPER(type) \
-DEFINE_SEAL_PLUGIN (edm::eventsetup::LooperFactory,edm::eventsetup::LooperMaker<type>,#type)
+DEFINE_EDM_PLUGIN (edm::eventsetup::LooperPluginFactory,edm::eventsetup::LooperMaker<type>,#type)
 
 #endif

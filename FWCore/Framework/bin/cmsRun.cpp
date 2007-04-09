@@ -4,7 +4,7 @@ This is a generic main that can be used with any plugin and a
 PSet script.   See notes in EventProcessor.cpp for details about
 it.
 
-$Id: cmsRun.cpp,v 1.29 2007/02/14 20:45:10 wdd Exp $
+$Id: cmsRun.cpp,v 1.30 2007/03/02 18:32:42 wmtan Exp $
 
 ----------------------------------------------------------------------*/  
 
@@ -21,7 +21,8 @@ $Id: cmsRun.cpp,v 1.29 2007/02/14 20:45:10 wdd Exp $
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventProcessor.h"
-#include "FWCore/PluginManager/interface/ProblemTracker.h"
+#include "FWCore/PluginManager/interface/PluginManager.h"
+#include "FWCore/PluginManager/interface/standard.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/Presence.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -71,15 +72,20 @@ int main(int argc, char* argv[])
   using namespace boost::program_options;
 
   // We must initialize the plug-in manager first
-  edm::AssertHandler ah;
-
+  try {
+    edmplugin::PluginManager::configure(edmplugin::standard::config());
+  } catch(cms::Exception& e) {
+    std::cerr << e.what() << std::endl;
+    return 1;
+  }
+  
   // Load the message service plug-in
   boost::shared_ptr<edm::Presence> theMessageServicePresence;
   try {
     theMessageServicePresence = boost::shared_ptr<edm::Presence>(edm::PresenceFactory::get()->
         makePresence("MessageServicePresence").release());
-  } catch(seal::Error& e) {
-    std::cerr << e.explainSelf() << std::endl;
+  } catch(cms::Exception& e) {
+    std::cerr << e.what() << std::endl;
     return 1;
   }
 

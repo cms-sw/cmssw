@@ -11,6 +11,7 @@
 
 using namespace std;
 
+EDM_REGISTER_PLUGINFACTORY(edm::InputSourcePluginFactory,"CMS EDM Framework InputSource");
 namespace edm {
 
 
@@ -18,8 +19,7 @@ namespace edm {
   {
   }
 
-  InputSourceFactory::InputSourceFactory(): 
-    seal::PluginFactory<ISFunc>("CMS EDM Framework InputSource")
+  InputSourceFactory::InputSourceFactory() 
   {
   }
 
@@ -43,7 +43,7 @@ namespace edm {
     FDEBUG(1) << "InputSourceFactory: module_type = " << modtype << endl;
     auto_ptr<InputSource> wm;
     try {
-      wm = auto_ptr<InputSource>(this->create(modtype,conf,desc));
+      wm = auto_ptr<InputSource>(InputSourcePluginFactory::get()->create(modtype,conf,desc));
     } catch( cms::Exception& iException) {
       edm::Exception toThrow(edm::errors::Configuration,"Error occured while creating source ");
       toThrow<<modtype<<"\n";

@@ -13,8 +13,9 @@ namespace edm {
 
   typedef InputSource* (ISFunc)(ParameterSet const&, InputSourceDescription const&);
 
-  class InputSourceFactory :
-    public seal::PluginFactory<ISFunc>
+  typedef edmplugin::PluginFactory<ISFunc> InputSourcePluginFactory;
+
+    class InputSourceFactory 
   {
   public:
     ~InputSourceFactory();

@@ -2,7 +2,7 @@
 
 Test of the EventProcessor class.
 
-$Id: eventprocessor_t.cppunit.cc,v 1.25 2007/03/17 02:30:49 jbk Exp $
+$Id: eventprocessor_t.cppunit.cc,v 1.26 2007/03/22 06:12:56 wmtan Exp $
 
 ----------------------------------------------------------------------*/  
 #include <exception>
@@ -125,8 +125,8 @@ void testeventprocessor::asyncTest()
   try {
     theMessageServicePresence =
       boost::shared_ptr<edm::Presence>(edm::PresenceFactory::get()->makePresence("MessageServicePresence").release());
-  } catch(seal::Error& e) {
-    std::cerr << e.explainSelf() << std::endl;
+  } catch(std::exception& e) {
+    std::cerr << e.what() << std::endl;
     return;
   }
 

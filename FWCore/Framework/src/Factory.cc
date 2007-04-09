@@ -10,6 +10,7 @@
 
 using namespace std;
 
+EDM_REGISTER_PLUGINFACTORY(edm::MakerPluginFactory,"CMS EDM Framework Module");
 namespace edm {
 
   static void cleanup(const Factory::MakerMap::value_type& v)
@@ -24,7 +25,7 @@ namespace edm {
     for_each(makers_.begin(),makers_.end(),cleanup);
   }
 
-  Factory::Factory(): seal::PluginFactory<Maker* ()>("CMS EDM Framework Module"), makers_()
+  Factory::Factory(): makers_()
 
   {
   }
@@ -44,7 +45,7 @@ namespace edm {
 
     if(it == makers_.end())
       {
-	auto_ptr<Maker> wm(this->create(modtype));
+        auto_ptr<Maker> wm(MakerPluginFactory::get()->create(modtype));
 
 	if(wm.get()==0)
 	  throw edm::Exception(errors::Configuration,"UnknownModule")
