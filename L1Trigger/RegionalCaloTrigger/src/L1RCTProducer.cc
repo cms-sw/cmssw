@@ -150,7 +150,7 @@ void L1RCTProducer::produce(edm::Event& e, const edm::EventSetup& c)
   
 }
 
-//#include "PluginManager/ModuleDef.h"
+//#include "FWCare/PluginManager/interface/ModuleDef.h"
 //#include "FWCore/Framework/interface/MakerMacros.h"
 //DEFINE_SEAL_MODULE();
 //DEFINE_ANOTHER_FWK_MODULE(L1RCTProducer);
