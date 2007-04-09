@@ -41,8 +41,14 @@
   <class name="edm::Wrapper<std::vector<reco::PFSimParticle> >"/>
 
   <class name="reco::PFBlockElement"/>
+  <class name="std::vector<reco::PFBlockElement *>" />
   <class name="edm::OwnVector<reco::PFBlockElement, edm::ClonePolicy<reco::PFBlockElement> >"/>
+  <class name="edm::Wrapper<edm::OwnVector<reco::PFBlockElement, edm::ClonePolicy<reco::PFBlockElement> > >" />
+
   <class name="reco::PFBlock"/>
+  <class name="std::vector<reco::PFBlock>"/>
+  <class name="edm::Wrapper<std::vector<reco::PFBlock> >"/>
+
 </selection>
 <exclusion>
   <class name="edm::OwnVector<reco::PFBlockElement, edm::ClonePolicy<reco::PFBlockElement> >">

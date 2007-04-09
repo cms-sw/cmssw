@@ -28,8 +28,12 @@ namespace {
     edm::Wrapper< std::vector<reco::PFSimParticle> >     dummy11;
     edm::OwnVector< reco::PFBlockElement, 
       edm::ClonePolicy<reco::PFBlockElement> >           dummy12;
-    edm::Wrapper< edm::OwnVector< reco::PFBlockElement, 
+    edm::Wrapper< edm::OwnVector< reco::PFBlockElement,
       edm::ClonePolicy< reco::PFBlockElement> >  >       dummy13;
+    std::vector<reco::PFBlock>                           dummy14;
+    edm::Wrapper< std::vector<reco::PFBlock> >           dummy15;
+    std::vector<reco::PFBlockElement*>                   dummy16;
+   
 
     // reco::PFBlock::Graph                                 dummy14(1);
   }
