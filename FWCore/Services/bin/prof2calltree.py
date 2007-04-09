@@ -11,17 +11,24 @@ kcachegrind.
 '''
 
 import sys
+import csv
 
 if len(sys.argv) < 3:
-    print "usage: ",sys.argv[0]," prefix_of_run_data tick_cutoff"
+    print "usage: ",sys.argv[0]," prefix_of_run_data tick_cutoff n|o"
     sys.exit(1)
 
 prefix = sys.argv[1]
 cutoff = int(sys.argv[2])
+newold_flag = 'o'
 
-namefile = open(prefix+"nice_names","r")
+if len(sys.argv) > 3:
+    newold_flag = sys.argv[3]
+
 outfile = open(prefix+"calltree","w")
 pathfile = open(prefix+"paths","r")
+
+names = {}
+edges = {}
 
 def tostring(l):
     x=""
@@ -55,9 +62,6 @@ class Node:
     def __str__(me):
         return "(%d,%s,%d,%d,%s)"%(me.fid,me.name,me.ticks_as_parent,me.ticks_as_child,tostring(me.children))
 
-names = {}
-edges = {}
-
 class EdgeCount:
     def __init__(me):
         me.count = 0
@@ -68,14 +72,21 @@ class EdgeCount:
     def __str__(me):
         return "%d"%me.count
 
-for entry in namefile:
-    front=entry.split(' ',2)
-    back=front[2].rsplit(' ',16)
-    name=back[0]
-    name=name.replace(' ','-')
-    #print name
-    #names[front[0]]=(front[0],name,back[1],back[2],back[3],back[4],back[5])
-    names[int(front[0])] = Node(front[0],name)
+if newold_flag == 'o':
+    namefile = open(prefix+"nice_names","r")
+    for entry in namefile:
+        front=entry.split(' ',2)
+        back=front[2].rsplit(' ',16)
+        name=back[0]
+        name=name.replace(' ','-')
+        #print name
+        #names[front[0]]=(front[0],name,back[1],back[2],back[3],back[4],back[5])
+        names[int(front[0])] = Node(front[0],name)
+else:
+    namefile = csv.reader(open(prefix+"nice_names","rb"),delimiter='\t')
+    for row in namefile:
+        names[int(row[0])] = Node(row[0],row[-1])
+    
 
 print >>outfile,"events: ticks"
 
