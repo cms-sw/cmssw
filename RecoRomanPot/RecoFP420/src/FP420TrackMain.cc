@@ -36,12 +36,15 @@ FP420TrackMain::FP420TrackMain(const edm::ParameterSet& conf):conf_(conf)  {
     sn0_ = m_Anal.getParameter<int>("NumberFP420Stations");
     pn0_ = m_Anal.getParameter<int>("NumberFP420SPlanes");
 
-  //  dXX_ = 12.7+0.05;//(BoxYshft+dYGap) + (YSi - YSiDet)/2. = 12.7+0.05
-  dXX_ = m_Anal.getParameter<double>("dXXFP420");//(BoxYshft+dYGap) + (YSi - YSiDet)/2. = 12.7
-  dYY_ = m_Anal.getParameter<double>("dYYFP420");//  XSiDet/2. = 5.0
-  chiCutX_ = m_Anal.getParameter<double>("chiCutX420");//  =3
-  chiCutY_ = m_Anal.getParameter<double>("chiCutY420");//  =3
-  
+    z420_           = m_Anal.getParameter<double>("z420");
+    zD2_            = m_Anal.getParameter<double>("zD2");
+    zD3_            = m_Anal.getParameter<double>("zD3");
+    //  dXX_ = 12.7+0.05;//(BoxYshft+dYGap) + (YSi - YSiDet)/2. = 12.7+0.05
+    dXX_ = m_Anal.getParameter<double>("dXXFP420");//(BoxYshft+dYGap) + (YSi - YSiDet)/2. = 12.7
+    dYY_ = m_Anal.getParameter<double>("dYYFP420");//  XSiDet/2. = 5.0
+    chiCutX_ = m_Anal.getParameter<double>("chiCutX420");//  =3
+    chiCutY_ = m_Anal.getParameter<double>("chiCutY420");//  =3
+    
     if (verbosity > 0) {
       std::cout << "FP420TrackMain constructor::" << std::endl;
       std::cout << "sn0=" << sn0_ << " pn0=" << pn0_ << std::endl;
@@ -50,8 +53,8 @@ FP420TrackMain::FP420TrackMain(const edm::ParameterSet& conf):conf_(conf)  {
       std::cout << "chiCutX=" << chiCutX_ << " chiCutY=" << chiCutY_ << std::endl;
     }
   ///////////////////////////////////////////////////////////////////
-  zD2_ = 1000.;  // dist between centers of 1st and 2nd stations
-  zD3_ = 8000.;  // dist between centers of 1st and 3rd stations
+      // zD2_ = 1000.;  // dist between centers of 1st and 2nd stations
+      // zD3_ = 8000.;  // dist between centers of 1st and 3rd stations
   
   UseHalfPitchShiftInX_= true;
   UseHalfPitchShiftInY_= true;
@@ -96,7 +99,7 @@ FP420TrackMain::FP420TrackMain(const edm::ParameterSet& conf):conf_(conf)  {
   //trackMode_ == "TrackProducerVar2FP420" ||
       if ( trackMode_ == "TrackProducerMaxAmplitudeFP420" ||
 	   trackMode_ == "TrackProducerSophisticatedFP420" )  {
-	finderParameters_ = new TrackProducerFP420(sn0_, pn0_, zD2_, zD3_,
+	finderParameters_ = new TrackProducerFP420(sn0_, pn0_, z420_, zD2_, zD3_,
 						   pitchX_, pitchY_,
 						   ZGapLDet_, ZSiStep_,
 						   ZSiPlane_, ZSiDetL_, ZSiDetR_,

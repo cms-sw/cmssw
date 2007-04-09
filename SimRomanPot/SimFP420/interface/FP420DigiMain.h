@@ -62,6 +62,9 @@ public:
 
   //-- make_digis 
   float theElectronPerADC;     // Gain, number of electrons per adc count.   =  3600 
+  double thez420;
+  double thezD2;
+  double thezD3;
   float ENC;                   // Equivalent noise charge   = 50
   int theAdcFullScale;         // Saturation count, 255=8bit.   = 35000
   float theNoiseInElectrons;   // Noise (RMS) in units of electrons.  = 500

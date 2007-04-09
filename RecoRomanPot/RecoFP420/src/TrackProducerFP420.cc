@@ -18,12 +18,13 @@ using namespace std;
 //#define debugsophisticated
 //#define debugsophisticated30
 
-TrackProducerFP420::TrackProducerFP420(int asn0, int apn0, double azD2, double azD3, double apitchX, double apitchY, double aZGapLDet, double aZSiStep, double aZSiPlane, double aZSiDetL, double aZSiDetR, bool aUseHalfPitchShiftInX, bool aUseHalfPitchShiftInY, double adXX, double adYY, float achiCutX, float achiCutY) {
+TrackProducerFP420::TrackProducerFP420(int asn0, int apn0, double az420, double azD2, double azD3, double apitchX, double apitchY, double aZGapLDet, double aZSiStep, double aZSiPlane, double aZSiDetL, double aZSiDetR, bool aUseHalfPitchShiftInX, bool aUseHalfPitchShiftInY, double adXX, double adYY, float achiCutX, float achiCutY) {
   //
   // Everything that depend on the det
   //
   sn0 = asn0;
   pn0 = apn0;
+  z420= az420;
   zD2 = azD2;
   zD3 = azD3;
   //zUnit= azUnit;
@@ -101,7 +102,7 @@ std::vector<TrackFP420> TrackProducerFP420::trackFinderMaxAmplitude(const Cluste
     double zdiststat = 0.;
     if(sector==2) zdiststat = zD2;
     if(sector==3) zdiststat = zD3;
-    double zcurrent = -150. +(ZSiStep-ZSiPlane)/2  + kplane*ZSiStep + zdiststat;  
+    double zcurrent = -150. + z420 + (ZSiStep-ZSiPlane)/2  + kplane*ZSiStep + zdiststat;  
     //double zcurrent = -150. +(ZSiStep-ZSiPlane)/2  + kplane*ZSiStep + (sector-1)*zUnit;  
 
 
@@ -320,7 +321,7 @@ std::vector<TrackFP420> TrackProducerFP420::trackFinderSophisticated(const Clust
     double zdiststat = 0.;
     if(sector==2) zdiststat = zD2;
     if(sector==3) zdiststat = zD3;
-    double zcurrent = -150. +(ZSiStep-ZSiPlane)/2  + kplane*ZSiStep + zdiststat;  
+    double zcurrent = -150. + z420 + (ZSiStep-ZSiPlane)/2  + kplane*ZSiStep + zdiststat;  
     //double zcurrent = -150. +(ZSiStep-ZSiPlane)/2  + kplane*ZSiStep + (sector-1)*zUnit;  
 
 	double pitch=0;

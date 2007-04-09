@@ -42,6 +42,7 @@ class FP420TrackMain
 	bool UseHalfPitchShiftInY_;
 
 	//double zUnit_; 
+	double z420_; 
 	double zD2_; 
 	double zD3_; 
 	double pitchX_;

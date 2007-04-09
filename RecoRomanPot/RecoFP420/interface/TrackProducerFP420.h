@@ -16,7 +16,7 @@ public:
   typedef std::vector<ClusterFP420>::const_iterator           ClusterFP420Iter;
 
   //TrackProducerFP420(int, int, double, double, double, double, double, double, double, double, bool, bool, double, double, float, float);
-    TrackProducerFP420(int, int, double, double, double, double, double, double, double, double, double, bool, bool, double, double, float, float);
+    TrackProducerFP420(int, int, double, double, double, double, double, double, double, double, double, double, bool, bool, double, double, float, float);
 
     std::vector<TrackFP420> trackFinderMaxAmplitude(ClusterCollectionFP420 input);
 
@@ -40,6 +40,7 @@ private:
 	bool UseHalfPitchShiftInY;
 
 	//double zUnit; 
+	double z420; 
 	double zD2; 
 	double zD3; 
 	double pitchX;

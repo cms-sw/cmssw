@@ -6,6 +6,6 @@ TheAnalysis.root will be produced
 
 execute 
 
-root -b test.C
+root -b zz1.C
 
-ggv test.ps
+ggv zz1.ps

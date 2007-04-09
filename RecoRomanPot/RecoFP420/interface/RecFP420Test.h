@@ -211,13 +211,13 @@ private:
  double pitchX, pitchY;
  int numStripsX,numStripsY;
 
- double	ZSiDetL, ZSiDetR;
+ double	ZSiDetL, ZSiDetR, z420;
  double	ZGapLDet, ZBoundDet, ZSiStep, ZSiPlane;
  // double	zBlade, gapBlade, ZKapton, ZSiElectr, ZCeramDet;
 
- int ENC, ElectronPerADC;
+ int ENC                ;
  float Thick300, dYYconst, dXXconst;
-
+ double ElectronPerADC;
 private:
 
   Float_t fp420eventarray[1];

@@ -19,7 +19,7 @@ class HitDigitizerFP420{
   
   //HitDigitizerFP420(const edm::ParameterSet& conf, const ElectrodGeomDetUnit *det);
   //HitDigitizerFP420(float in, float inp, float inpx, float inpy,float ild,float ildx,float ildy);
-  HitDigitizerFP420(float in, float ild,float ildx,float ildy);
+  HitDigitizerFP420(float in, float ild, float ildx, float ildy, float in0, float in2, float in3);
   //HitDigitizerFP420(float in, float inp, float inpx, float inpy);
   
   ~HitDigitizerFP420();
