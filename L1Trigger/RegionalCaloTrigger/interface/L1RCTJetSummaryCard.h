@@ -106,6 +106,9 @@ class L1RCTJetSummaryCard
 
   unsigned short quietThreshold;
 
+  void asicSort(std::vector<unsigned short>& electrons);
+  void asicCompare(std::vector<unsigned short>& array);
+
   // Disabled constructors and operators
 
   L1RCTJetSummaryCard();

@@ -69,8 +69,9 @@ void L1RCTProducer::produce(edm::Event& e, const edm::EventSetup& c)
     edm::Handle<EcalTrigPrimDigiCollection> ecal;
     edm::Handle<HcalTrigPrimDigiCollection> hcal;
     edm::ESHandle<L1CaloEtScale> emScale;
-    e.getByType(ecal);
+    //e.getByType(ecal);
     //e.getByType(hcal);
+    e.getByLabel("ecalTriggerPrimitiveDigis",ecal);
     e.getByLabel("hcalTriggerPrimitiveDigis",hcal);
     c.get<L1EmEtScaleRcd>().get(emScale);
 
