@@ -16,7 +16,7 @@
 #include "RecoTracker/TrackProducer/interface/TrackProducerAlgorithm.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
-#include "RecoParticleFlow/PFAlgo/interface/PFGeometry.h"
+#include "RecoParticleFlow/PFBlockAlgo/interface/PFGeometry.h"
 
 #include "DataFormats/ParticleFlowReco/interface/PFRecTrackFwd.h"
 
@@ -40,10 +40,13 @@ class FSimEvent;
 
 class PFBlockProducer : public edm::EDProducer {
  public:
+
   explicit PFBlockProducer(const edm::ParameterSet&);
+
   ~PFBlockProducer();
   
   virtual void produce(edm::Event&, const edm::EventSetup&);
+
   virtual void beginJob(const edm::EventSetup & c);
 
  private:

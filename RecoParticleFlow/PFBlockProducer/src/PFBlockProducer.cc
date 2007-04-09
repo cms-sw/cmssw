@@ -2,15 +2,14 @@
 
 #include "RecoParticleFlow/PFAlgo/interface/PFBlock.h"
 #include "RecoParticleFlow/PFAlgo/interface/PFBlockElement.h"
-// #include "RecoParticleFlow/PFAlgo/interface/PFGeometry.h"
+
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibration.h"
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyResolution.h"
 
-// #include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
 #include "DataFormats/ParticleFlowReco/interface/PFLayer.h"
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecTrack.h"
-// #include "DataFormats/ParticleFlowReco/interface/PFRecTrackFwd.h"
+
 #include "DataFormats/ParticleFlowReco/interface/PFSimParticle.h"
 #include "DataFormats/ParticleFlowReco/interface/PFSimParticleFwd.h"
 
@@ -22,7 +21,6 @@
 #include "DataFormats/TrackCandidate/interface/TrackCandidate.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
-// #include "DataFormats/Candidate/interface/LeafCandidate.h"
 
 #include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockFwd.h"
