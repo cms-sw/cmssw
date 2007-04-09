@@ -1,18 +1,17 @@
 
-#include <exception>
-#include <iostream>
 #include <algorithm>
-#include <sstream>
-#include <cstdlib>
-#include <string>
-#include <fstream>
-#include <stdexcept>
-#include <set>
-#include <vector>
-#include <deque>
-#include <map>
-#include <cstdlib>
 #include <cerrno>
+#include <cstdlib>
+#include <deque>
+#include <exception>
+#include <fstream>
+#include <iostream>
+#include <map>
+#include <set>
+#include <sstream>
+#include <stdexcept>
+#include <string>
+#include <vector>
 
 #include <dlfcn.h>
 #include <sys/time.h>
@@ -20,6 +19,9 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <unistd.h>
+
+#include "VertexTracker.h"
+#include "ProfParseTypedefs.h"
 
 #if 0
 extern "C" {
@@ -31,148 +33,8 @@ extern "C" {
 
 using namespace std;
 
-typedef vector<void*> VoidVec;
-typedef vector<unsigned int> ULVec;
-typedef map<unsigned int,int> EdgeMap;
-
-struct Sym
-{
-  explicit Sym(int id):id_(id),addr_() { }
-  Sym():id_(),addr_() { }
-
-  int id_;
-  unsigned int addr_;
-  std::string name_;
-  int size_;
-
-  static int next_id_;
-
-  bool operator<(unsigned int b) const
-    { return addr_ < b; }
-  bool operator<(const Sym& b) const
-    { return addr_ < b.addr_; }
-};
-
-inline bool operator<(unsigned int a, const Sym& b)
-{ return a < b.addr_; }
-
-std::ostream& operator<<(std::ostream& ost,const Sym& s)
-{
-  ost << s.id_ << " " << s.addr_ << " " << s.name_ << " " << s.size_;
-  return ost;
-}
-
-int Sym::next_id_ = 1000000;
-
-// ------------------- Vertex Tracker class ----------------
-struct VertexTracker
-{
-  VertexTracker():
-    name_(),addr_(),id_(),total_as_leaf_(),total_seen_(),in_path_(),size_(),
-    percent_leaf_(),percent_path_()
-  { init(); } 
-  explicit VertexTracker(unsigned int id):
-    name_(),addr_(),id_(id),total_as_leaf_(),total_seen_(),in_path_(),size_(),
-    percent_leaf_(),percent_path_()
-
-  { init(); } 
-  VertexTracker(unsigned int addr, const string& name):
-    name_(name),addr_(addr),id_(),total_as_leaf_(),total_seen_(),
-    in_path_(),size_(),percent_leaf_(),percent_path_()
-  { init(); }
-
-  explicit VertexTracker(const Sym& e);
-
-  bool operator<(const VertexTracker& a) const { return addr_<a.addr_; }
-  bool operator<(unsigned int id) const { return id_<id; }
-
-  void incLeaf() const { ++total_as_leaf_; }
-  void incTotal() const { ++total_seen_; }
-  void incPath(int by) const { in_path_+=by; }
-  void setID() const { id_=next_id_++; }
-  void fillHist(unsigned int addr_within_func) const;
-  void init();
-
-  string name_;
-  unsigned int addr_;
-  mutable unsigned int id_;
-  mutable unsigned int total_as_leaf_;
-  mutable unsigned int total_seen_;
-  mutable unsigned int in_path_;
-  mutable EdgeMap edges_;
-  static const int wheresize = 10;
-  mutable int where_[wheresize+1];
-  mutable int size_;
-  mutable float percent_leaf_;
-  mutable float percent_path_;
-
-  static unsigned int next_id_;
-
-};
-
-void VertexTracker::fillHist(unsigned int value) const
-{
-  if(value<addr_ || size_==0) return;
-
-  unsigned int offset = value - addr_;
-  unsigned int index = (offset * wheresize) / size_;
-  /*
-  cout << "index:" << index 
-       << " size:" << size_
-       << " offset:" << offset
-       << " wheresize:" << wheresize
-       << endl;
-  */
-  if(index > (unsigned int)wheresize) return;
-  where_[index]+=1;
-}
-
-VertexTracker::VertexTracker(const Sym& e):
-  name_(e.name_),addr_(e.addr_),id_(),
-  total_as_leaf_(),total_seen_(),in_path_(),size_(e.size_),
-  percent_leaf_(),percent_path_()
-{
-  init();
-}
-
-void VertexTracker::init()
-{
-  percent_leaf_=0.0;
-  percent_path_=0.0;
-  for(int i=0;i<=wheresize;++i) where_[i]=0;
-}
-
-unsigned int VertexTracker::next_id_ = 0;
-
-ostream& operator<<(ostream& ost, const VertexTracker& a)
-{
-  static int empty_count = 1;
-  string n = a.name_;
-  // this is a bad place for this code
-  if(n.empty())
-    {
-      ostringstream ostr;
-      ostr << "EmptyName-" << empty_count;
-      ++empty_count;
-      n = ostr.str();
-    }
-
-  ost << a.id_ << " "
-      << (void*)a.addr_ << " "
-      << n << " "
-      << a.total_as_leaf_ << " "
-      << a.total_seen_ << " "
-      << a.in_path_ << " "
-      << a.percent_leaf_ << " "
-      << a.percent_path_ << " ";
-
-  for(int i=0;i<a.wheresize;++i)
-    {
-      ost << a.where_[i] << " ";
-    }
-
-  return ost;
-}
+#include "ProfParseTypedefs.h"
+#include "Sym.h"
 
 // ----------------- Path tracker class ---------------------
 
@@ -217,12 +79,6 @@ void verifyFile(ostream& ost, const string& name)
     }
 }
 
-// ---------------- some definitions ------------------
-
-typedef set<VertexTracker> VertexSet;
-typedef set<PathTracker> PathSet;
-typedef vector<VertexSet::const_iterator> Viter;
-typedef vector<PathSet::const_iterator> Piter;
 
 // ------------- more utilities ----------------
 
@@ -303,6 +159,16 @@ bool Reader::nextSample(VoidVec& vv)
   return true;
 }
 
+std::string make_name(Dl_info const& info, void* where,
+		      std::string const& prefix)
+{
+  if (info.dli_saddr) return info.dli_sname;
+  ostringstream oss;
+  oss << prefix << where;
+  return oss.str();
+}
+
+
 void writeProfileData(int fd, const std::string& prefix)
 {
   string output_tree(prefix+"_paths");
@@ -325,13 +191,13 @@ void writeProfileData(int fd, const std::string& prefix)
   VoidVec v;
   int len=0;
   int total=0;
-  int unknown_count=1;
+  //  int failure_count=0;
   Sym last_none_entry;
   Sym last_good_entry;
   Reader r(fd);
   string unk("unknown_name");
 
-  while(r.nextSample(v)==true)
+  while (r.nextSample(v))
     {
       PathTracker ptrack;
       ++total;
@@ -356,28 +222,29 @@ void writeProfileData(int fd, const std::string& prefix)
 		   << "\n--------\n";      
 	    }
 #endif
-	  if(dladdr((void*)value,&look)!=0)
+	  void* addr = (void*)value;
+	  if(dladdr(addr,&look)!=0)
 	    {
-	      string nam = (look.dli_saddr ? look.dli_sname : "unknown_name");
+	      string name = make_name(look, addr, "unknown_");
 
 	      last_good_entry.id_ = 0;
-	      last_good_entry.name_ = nam;
+	      last_good_entry.name_ = name;
 	      last_good_entry.addr_ = (unsigned int)look.dli_saddr;
 	      last_good_entry.size_ = 0;
 	      entry = &last_good_entry;
 	    }
-	    
-	  if(entry==0)
+	  else // dladdr has failed
 	    {
 	      cerr << "sample " << total
-		   << ": could not find function for address " << *c
+		   << ": dladdr failed for address: " << *c
 		   << endl;
-	      ostringstream uost;
-	      uost << "unknown" << unknown_count;
-	      ++unknown_count;
+	      string name = make_name(look, addr, "lookup_failure_");
+// 	      ostringstream uost;
+// 	      uost << "dladddr_failure_" << failure_count;
+// 	      ++failure_count;
 	      entry = &last_none_entry;
 	      last_none_entry.id_ = Sym::next_id_++;
-	      last_none_entry.name_ = uost.str();
+	      last_none_entry.name_ = name;
 	      last_none_entry.addr_ = value;
 	    }
 
@@ -388,7 +255,6 @@ void writeProfileData(int fd, const std::string& prefix)
 	      //cout << "new node: " << *irc.first << endl;
 	    }
 	  irc.first->incTotal();
-	  irc.first->fillHist(value);
 	  ptrack.tree_.push_back(irc.first->id_);
 	  //cout << "added to tree: " << irc.first->id_ << endl;
 

@@ -4,16 +4,16 @@ import sys
 
 def readtable(flook):
     tab = {}
-    for x in flook.xreadlines():
-        s = x.split()
+    for line in flook.xreadlines():
+        s = line.split()
         tab[s[0]]=s
     return tab
         
 
 def runme(infile,outfile,lookupfile,use_name):
-    fin = open(infile,'r')
+    fin   = open(infile,'r')
     flook = open(lookupfile,'r')
-    fout = open(outfile,'w')
+    fout  = open(outfile,'w')
 
     table = readtable(flook)
     
@@ -29,12 +29,14 @@ def runme(infile,outfile,lookupfile,use_name):
 
     # print "blob",uni.keys
 
-    for n in uni.keys():
-        e = table[n]
+    for function_id in uni.keys():
+        function_data = table[function_id]
         # print e
-        node_label = e[0]
-        if use_name: node_label = e[2]
-        print >>fout,'%s [label="%s (%3.3f)\\nL%s:P%s:C%s"];' % (e[0],node_label,float(e[6]),e[3],e[5],e[4])
+        node_label = function_data[0]
+        if use_name: node_label = function_data[7].strip('"')
+        leaf_fraction      = float(function_data[5])
+        recursive_fraction = float(function_data[6])
+        print >>fout,'%s [label="ID: %s\\nL: %5.1f%%\\nB: %5.1f%%"];' % (node_label,node_label,leaf_fraction*100, recursive_fraction*100)
 
     fout.write('}')
 

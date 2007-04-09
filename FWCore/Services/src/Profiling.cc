@@ -6,7 +6,7 @@
 // Implementation:
 //
 // Original Author:  Jim Kowalkowski
-// $Id: Profiling.cc,v 1.1 2006/03/11 04:28:21 jbk Exp $
+// $Id: Profiling.cc,v 1.2 2007/03/04 05:55:26 wmtan Exp $
 //
 
 #include "FWCore/Services/src/Profiling.h"
@@ -61,19 +61,19 @@ namespace edm {
 	<< " columns:\n"
 	<< "\t1) function ID\n"
 	<< "\t2) function address\n"
-	<< "\t3) function name (mangled)\n"
-	<< "\t4) samples within this function only (leaf count)\n"
-	<< "\t5) samples within this function and children (with recusion)\n"
-	<< "\t6) samples within this function and children\n"
-	<< "\t7) fraction of samples within this function only\n"
-	<< "\t8) fraction of samples within this path (with recusion)\n"
-	<< "The file is sorted by column (4) so most-hit functions\n"
+	<< "\t3) samples within this function only (leaf count)\n"
+	<< "\t4) samples within this function and children (with recusion)\n"
+	<< "\t5) samples within this function and children\n"
+	<< "\t6) fraction of samples within this function only\n"
+	<< "\t7) fraction of samples within this path (with recusion)\n"
+	<< "\t8) function name (mangled)\n"
+	<< "The file is sorted by column (3) so most-hit functions\n"
 	<< "are at the top\n"
 	<< "\n"
 	<< "B) contains all the unique call paths traversed in this job\n"
 	<< "  columns:\n"
 	<< "\t1) path ID\n"
-	<< "\t2) total times this unique path was used (samples in leaf)\n"
+	<< "\t2) total times this unique path was observed (samples in leaf)\n"
 	<< "\t3) the path using function IDs (main towards the left)\n"
 	<< "\n"
 	<< "C) contains summary of the total number of samples collected\n"

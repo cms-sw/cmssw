@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 
 '''
 The output from the profiler has names that end in 'names' and 'paths'.
