@@ -15,9 +15,6 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
-
-
-
 #include "SimRomanPot/SimFP420/interface/DigitizerFP420.h"
 //#include "SimRomanPot/SimFP420/interface/FP420DigiMain.h"
 #include "SimRomanPot/SimFP420/interface/DigiCollectionFP420.h"
