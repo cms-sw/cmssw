@@ -201,7 +201,7 @@ GSTrackCandidateMaker::produce(edm::Event& e, const edm::EventSetup& es) {
       DetId detId =  iterRecHit->geographicalId();
       const GeomDet* geomDet( theGeometry->idToDet(detId) );
       TrackingRecHit* aTrackingRecHit = 
-	GenericTransientTrackingRecHit::build(geomDet,iterRecHit->clone())->hit()->clone();
+      	GenericTransientTrackingRecHit::build(geomDet,&(*iterRecHit))->hit()->clone();
       recHits.push_back(aTrackingRecHit);
 
 #ifdef FAMOS_DEBUG
@@ -275,7 +275,7 @@ GSTrackCandidateMaker::produce(edm::Event& e, const edm::EventSetup& es) {
 
     float        charge   = (*theSimTracks)[simTrackId].charge();
 
-    GlobalTrajectoryParameters initialParams(position,momentum,(int)charge,&*theMagField);
+    GlobalTrajectoryParameters initialParams(position,momentum,(int)charge,theMagField);
 
     AlgebraicSymMatrix errorMatrix(5,1);
 
@@ -301,6 +301,7 @@ GSTrackCandidateMaker::produce(edm::Event& e, const edm::EventSetup& es) {
     
     const GeomDetUnit* initialLayer = theGeometry->idToDetUnit( recHits.front().geographicalId() );
     const TrajectoryStateOnSurface initialTSOS(initialFTS, initialLayer->surface());
+
 #ifdef FAMOS_DEBUG
     std::cout << "GSTrackCandidateMaker: TSOS global momentum "    << initialTSOS.globalMomentum() << std::endl;
     std::cout << "\t\t\tpT = "                                     << initialTSOS.globalMomentum().perp() << std::endl;
@@ -317,6 +318,7 @@ GSTrackCandidateMaker::produce(edm::Event& e, const edm::EventSetup& es) {
     PTrajectoryStateOnDet* initialState( 
       transformer.persistentState(initialTSOS, 
 				  recHits.front().geographicalId().rawId() ) );
+
 #ifdef FAMOS_DEBUG
     std::cout << "GSTrackCandidateMaker: detid " << recHits.front().geographicalId().rawId() << std::endl;
     std::cout << "GSTrackCandidateMaker: PTSOS detId " << initialState->detId() << std::endl;
