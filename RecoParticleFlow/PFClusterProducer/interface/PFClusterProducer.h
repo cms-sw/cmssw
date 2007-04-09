@@ -13,7 +13,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
+// #include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
 
 #include "RecoParticleFlow/PFClusterAlgo/interface/PFClusterAlgo.h"
 
@@ -32,6 +32,9 @@ class CaloSubdetectorTopology;
 class CaloSubdetectorGeometry;
 class DetId;
 
+namespace reco {
+  class PFRecHit;
+};
 
 
 class PFClusterProducer : public edm::EDProducer {
