@@ -1,5 +1,5 @@
-nocap#ifndef skelpackage_skelname_h
-nocap#define skelpackage_skelname_h
+nocap#ifndef skelsubsys_skelpackage_skelname_h
+nocap#define skelsubsys_skelpackage_skelname_h
 nocap// -*- C++ -*-
 nocap//
 nocap// Package:     skelpackage

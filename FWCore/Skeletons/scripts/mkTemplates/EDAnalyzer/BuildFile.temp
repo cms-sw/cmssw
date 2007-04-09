@@ -1,7 +1,7 @@
 <use name=FWCore/Framework>
 <use name=FWCore/PluginManager>
 <use name=FWCore/ParameterSet>
-<flags SEAL_PLUGIN_NAME="skelsubsysanlzrname">
+<flags EDM_PLUGIN=1>
 @example_track <use name=DataFormats/TrackReco>
 <export>
    <lib name=skelsubsysanlzrname>
