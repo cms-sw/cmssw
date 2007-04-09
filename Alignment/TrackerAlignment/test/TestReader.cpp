@@ -89,10 +89,10 @@ TestReader::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
   for ( std::vector<AlignTransform>::const_iterator it = alignments->m_align.begin();
 		it != alignments->m_align.end(); it++ )
 	{
-	  HepRotation fromAngles( (*it).eulerAngles()  );
-	  Surface::RotationType rotation( fromAngles.xx(), fromAngles.xy(), fromAngles.xz(),
-									  fromAngles.yx(), fromAngles.yy(), fromAngles.yz(),
-									  fromAngles.zx(), fromAngles.zy(), fromAngles.zz() );
+	  CLHEP::HepRotation rot( (*it).rotation() );
+	  align::RotationType rotation( rot.xx(), rot.xy(), rot.xz(),
+					rot.yx(), rot.yy(), rot.yz(),
+					rot.zx(), rot.zy(), rot.zz() );
 
 	  edm::LogVerbatim("DumpAlignments") << (*it).rawId()
 				<< "  " << (*it).translation().x()
