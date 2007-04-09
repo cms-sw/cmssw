@@ -9,8 +9,11 @@
 #include "DataFormats/Common/interface/OwnVector.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSRecHit2DCollection.h"
 
+#include "MagneticField/Engine/interface/MagneticField.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/TrajectoryCleaning/interface/TrajectoryCleanerBySharedHits.h"
@@ -19,9 +22,6 @@
 
 #include "FastSimulation/Tracking/interface/GSTrackCandidateMaker.h"
 #include "RecoTracker/CkfPattern/interface/TransientInitialStateEstimator.h"
-#include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
-#include "RecoTracker/Record/interface/CkfComponentsRecord.h"
-#include "RecoTracker/TrackProducer/interface/TrackingRecHitLessFromGlobalPosition.h"
 
 #include "SimDataFormats/Track/interface/SimTrack.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
@@ -30,20 +30,13 @@
 
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/GenericTransientTrackingRecHit.h"
-#include "TrackingTools/TrackFitters/interface/RecHitSorter.h"
 #include "TrackingTools/TrajectoryParametrization/interface/CurvilinearTrajectoryError.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
-#include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
-#include "DataFormats/GeometrySurface/interface/MediumProperties.h"
-#include "DataFormats/GeometrySurface/interface/BoundSurface.h"
-#include "DataFormats/TrajectoryState/interface/PTrajectoryStateOnDet.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSRecHit2DCollection.h"
-#include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
+
 
 //for debug only 
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "DataFormats/DetId/interface/DetId.h"
-//#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/SiStripDetId/interface/TECDetId.h" 
@@ -123,6 +116,7 @@ GSTrackCandidateMaker::produce(edm::Event& e, const edm::EventSetup& es) {
   unsigned nTracksWithPT = 0;
   unsigned nTracksWithD0Z0 = 0;
   unsigned nTrackCandidates = 0;
+  PTrajectoryStateOnDet initialState;
   
   std::auto_ptr<TrackCandidateCollection> output(new TrackCandidateCollection);    
   
@@ -198,7 +192,7 @@ GSTrackCandidateMaker::produce(edm::Event& e, const edm::EventSetup& es) {
 	   ++iterRecHit) {
 	
       //      unsigned simtrackId = iterRecHit->simtrackId();
-      DetId detId =  iterRecHit->geographicalId();
+      const DetId& detId =  iterRecHit->geographicalId();
       const GeomDet* geomDet( theGeometry->idToDet(detId) );
       TrackingRecHit* aTrackingRecHit = 
       	GenericTransientTrackingRecHit::build(geomDet,&(*iterRecHit))->hit()->clone();
@@ -313,11 +307,12 @@ GSTrackCandidateMaker::produce(edm::Event& e, const edm::EventSetup& es) {
     std::cout << "GSTrackCandidateMaker: TSOS surface side "       << initialTSOS.surfaceSide()    << std::endl;
     std::cout << "GSTrackCandidateMaker: TSOS X0[cm] = "           << initialTSOS.surface().mediumProperties()->radLen() << std::endl;
 #endif
-    //
-    TrajectoryStateTransform transformer;
-    PTrajectoryStateOnDet* initialState( 
-      transformer.persistentState(initialTSOS, 
-				  recHits.front().geographicalId().rawId() ) );
+    // This new method is here to avod a memory leak that came with 
+    // TrackingTools/TrajectoryState/src/TrajectoryStateTransform.cc
+    // from the method persistentState().
+    stateOnDet(initialTSOS, 
+	       recHits.front().geographicalId().rawId(),
+	       initialState);
 
 #ifdef FAMOS_DEBUG
     std::cout << "GSTrackCandidateMaker: detid " << recHits.front().geographicalId().rawId() << std::endl;
@@ -327,13 +322,13 @@ GSTrackCandidateMaker::produce(edm::Event& e, const edm::EventSetup& es) {
     //
     
     // Track Candidate stored
-    TrackCandidate newTrackCandidate(recHits, TrajectorySeed(*initialState, recHits, alongMomentum), *initialState );
-    // Log
+    TrackCandidate newTrackCandidate(recHits, TrajectorySeed(initialState, recHits, alongMomentum), initialState );
     
 #ifdef FAMOS_DEBUG
+    // Log
     std::cout << "\tSeed Information " << std::endl;
-    std::cout << "\tSeed Direction = " << TrajectorySeed(*initialState, recHits, alongMomentum).direction() << std::endl;
-    std::cout << "\tSeed StartingDet = " << TrajectorySeed(*initialState, recHits, alongMomentum).startingState().detId() << std::endl;
+    std::cout << "\tSeed Direction = " << TrajectorySeed(initialState, recHits, alongMomentum).direction() << std::endl;
+    std::cout << "\tSeed StartingDet = " << TrajectorySeed(initialState, recHits, alongMomentum).startingState().detId() << std::endl;
     
     std::cout << "\tTrajectory Parameters " 
 	      << std::endl;
@@ -374,4 +369,34 @@ GSTrackCandidateMaker::produce(edm::Event& e, const edm::EventSetup& es) {
   
   e.put(output);
 
+}
+
+
+// This is a copy of a method in 
+// TrackingTools/TrajectoryState/src/TrajectoryStateTransform.cc
+// but it does not return a pointer (thus avoiding a memory leak)
+// In addition, it's also CPU more efficient, because 
+// ts.localError().matrix() is not copied
+void 
+GSTrackCandidateMaker::stateOnDet(const TrajectoryStateOnSurface& ts,
+				  unsigned int detid,
+				  PTrajectoryStateOnDet& pts) const
+{
+
+  const AlgebraicSymMatrix& m = ts.localError().matrix();
+  
+  int dim = 5; /// should check if corresponds to m
+
+  float localErrors[15];
+  int k = 0;
+  for (int i=0; i<dim; i++) {
+    for (int j=0; j<=i; j++) {
+      localErrors[k++] = m[i][j];
+    }
+  }
+  int surfaceSide = static_cast<int>(ts.surfaceSide());
+
+  pts = PTrajectoryStateOnDet( ts.localParameters(),
+			       localErrors, detid,
+			       surfaceSide);
 }

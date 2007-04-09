@@ -3,21 +3,16 @@
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
 #include "DataFormats/Common/interface/EDProduct.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "RecoTracker/CkfPattern/interface/TrackerTrajectoryBuilder.h"
-
-#include "TrackingTools/TrajectoryCleaning/interface/TrajectoryCleaner.h"
-
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-
 class TransientInitialStateEstimator;
+class MagneticField;
+class TrackerGeometry;
+class TrajectoryStateOnSurface;
+class PTrajectoryStateOnDet;
 
 class GSTrackCandidateMaker : public edm::EDProducer
 {
@@ -31,6 +26,12 @@ class GSTrackCandidateMaker : public edm::EDProducer
   
   virtual void produce(edm::Event& e, const edm::EventSetup& es);
   
+ private:
+
+  void stateOnDet(const TrajectoryStateOnSurface& ts,
+		  unsigned int detid,
+		  PTrajectoryStateOnDet& pts) const;
+ 
  private:
 
   edm::ParameterSet conf_;
