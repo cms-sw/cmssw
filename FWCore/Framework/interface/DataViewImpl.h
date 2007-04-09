@@ -74,7 +74,7 @@ edm::Ref<AppleCollection> ref(refApples, index);
 */
 /*----------------------------------------------------------------------
 
-$Id: DataViewImpl.h,v 1.18 2007/02/17 23:27:28 wmtan Exp $
+$Id: DataViewImpl.h,v 1.19 2007/03/04 06:00:22 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <cassert>
@@ -110,7 +110,7 @@ namespace edm {
 
   class DataViewImpl {
   public:
-    DataViewImpl(DataBlockImpl & dbk,
+    DataViewImpl(Principal & dbk,
 		 ModuleDescription const& md,
 		 BranchType const& branchType);
 
@@ -220,7 +220,7 @@ namespace edm {
     void commit_();
 
     // The following 'get' functions serve to isolate the DataViewImpl class
-    // from the DataBlockImpl class.
+    // from the Principal class.
 
     BasicHandle 
     get_(ProductID const& oid) const;
@@ -257,7 +257,7 @@ namespace edm {
 			 std::string const& productInstanceName) const;
 
     // Also isolates the DataViewImpl class
-    // from the DataBlockImpl class.
+    // from the Principal class.
     EDProductGetter const* prodGetter() const;
     //------------------------------------------------------------
     // Copying and assignment of DataViewImpls is disallowed
@@ -277,12 +277,12 @@ namespace edm {
     // gotProductIDs_ must be mutable because it records all 'gets',
     // which do not logically modify the DataViewImpl. gotProductIDs_ is
     // merely a cache reflecting what has been retreived from the
-    // DataBlockImpl class.
+    // Principal class.
     mutable ProductIDVec gotProductIDs_;
 
-    // Each DataViewImpl must have an associated DataBlockImpl, used as the
+    // Each DataViewImpl must have an associated Principal, used as the
     // source of all 'gets' and the target of 'puts'.
-    DataBlockImpl & dbk_;
+    Principal & dbk_;
 
     // Each DataViewImpl must have a description of the module executing the
     // "transaction" which the DataViewImpl represents.

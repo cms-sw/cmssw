@@ -3,7 +3,7 @@
 
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: PoolOutputModule.h,v 1.21 2007/03/14 20:15:00 wmtan Exp $
+// $Id: PoolOutputModule.h,v 1.22 2007/03/29 18:16:51 wmtan Exp $
 //
 // Class PoolOutputModule. Output module to POOL file
 //
@@ -106,7 +106,7 @@ namespace edm {
     typedef boost::array<OutputItemList, EndBranchType> OutputItemListArray;
     typedef boost::array<std::vector<std::string>, EndBranchType> BranchNamesArray;
 
-    void fillBranches(OutputItemList const& items, DataBlockImpl const& dataBlock) const;
+    void fillBranches(OutputItemList const& items, Principal const& dataBlock) const;
 
     OutputItemListArray outputItemList_;
     BranchNamesArray branchNames_;

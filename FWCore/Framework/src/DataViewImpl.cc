@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: DataViewImpl.cc,v 1.12 2007/03/04 06:10:25 wmtan Exp $
+$Id: DataViewImpl.cc,v 1.13 2007/04/01 15:52:17 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <memory>
@@ -9,7 +9,7 @@ $Id: DataViewImpl.cc,v 1.12 2007/03/04 06:10:25 wmtan Exp $
 #include "FWCore/Framework/interface/DataViewImpl.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
-#include "FWCore/Framework/interface/DataBlockImpl.h"
+#include "FWCore/Framework/interface/Principal.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/BranchEntryDescription.h"
 #include "FWCore/Framework/interface/Group.h"
@@ -18,7 +18,7 @@ using namespace std;
 
 namespace edm {
 
-  DataViewImpl::DataViewImpl(DataBlockImpl & dbk,
+  DataViewImpl::DataViewImpl(Principal & dbk,
 	ModuleDescription const& md,
 	BranchType const& branchType)  :
     put_products_(),

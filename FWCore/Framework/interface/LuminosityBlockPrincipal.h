@@ -10,20 +10,20 @@ such code sees the LuminosityBlock class, which is a proxy for LuminosityBlockPr
 The major internal component of the LuminosityBlockPrincipal
 is the DataBlock.
 
-$Id: LuminosityBlockPrincipal.h,v 1.10 2007/03/04 06:00:22 wmtan Exp $
+$Id: LuminosityBlockPrincipal.h,v 1.11 2007/03/27 23:06:57 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
 #include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
 #include "DataFormats/Provenance/interface/RunID.h"
-#include "FWCore/Framework/interface/DataBlockImpl.h"
+#include "FWCore/Framework/interface/Principal.h"
 
 #include "boost/shared_ptr.hpp"
 
 namespace edm {
   class RunPrincipal;
-  class LuminosityBlockPrincipal : private DataBlockImpl {
-  typedef DataBlockImpl Base;
+  class LuminosityBlockPrincipal : private Principal {
+  typedef Principal Base;
   public:
     LuminosityBlockPrincipal(LuminosityBlockNumber_t const& id,
 	ProductRegistry const& reg,

@@ -5,7 +5,7 @@
   
 Forward declarations of types in the EDM.
 
-$Id: Frameworkfwd.h,v 1.34 2007/01/10 05:58:01 wmtan Exp $
+$Id: Frameworkfwd.h,v 1.35 2007/03/04 06:00:22 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -16,7 +16,7 @@ namespace edm {
   class ConfigurableInputSource;
   class CurrentProcessingContext;
   class DelayedReader;
-  class DataBlockImpl;
+  class Principal;
   class DataViewImpl;
   class EDAnalyzer;
   class EDFilter;

@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-  $Id: DataBlockImpl.cc,v 1.21 2007/03/04 06:10:25 wmtan Exp $
+  $Id: Principal.cc,v 1.22 2007/03/05 20:42:51 wdd Exp $
   ----------------------------------------------------------------------*/
 
 #include <algorithm>
@@ -15,7 +15,7 @@
 
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
-#include "FWCore/Framework/interface/DataBlockImpl.h"
+#include "FWCore/Framework/interface/Principal.h"
 #include "FWCore/Utilities/interface/TypeID.h"
 #include "FWCore/Utilities/interface/ReflexTools.h"
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -27,7 +27,7 @@ using boost::lambda::_1;
 
 namespace edm {
 
-  DataBlockImpl::DataBlockImpl(ProductRegistry const& reg,
+  Principal::Principal(ProductRegistry const& reg,
 			       ProcessConfiguration const& pc,
 			       ProcessHistoryID const& hist,
 			       boost::shared_ptr<DelayedReader> rtrv) :
@@ -57,16 +57,16 @@ namespace edm {
     groups_.reserve(reg.productList().size());
   }
 
-  DataBlockImpl::~DataBlockImpl() {
+  Principal::~Principal() {
   }
 
-  DataBlockImpl::size_type
-  DataBlockImpl::numEDProducts() const {
+  Principal::size_type
+  Principal::numEDProducts() const {
     return groups_.size();
   }
    
   void 
-  DataBlockImpl::addGroup(auto_ptr<Group> group) {
+  Principal::addGroup(auto_ptr<Group> group) {
     assert (!group->productDescription().className().empty());
     assert (!group->productDescription().friendlyClassName().empty());
     assert (!group->productDescription().moduleLabel().empty());
@@ -153,13 +153,13 @@ namespace edm {
       //   throw edm::Exception(edm::errors::DictionaryNotFound)
       //     << "No REFLEX data dictionary found for the following class:\n\n"
       //     <<  g->productDescription().className()
-      //     << "Occurred in DataBlockImpl::addGroup\n";
+      //     << "Occurred in Principal::addGroup\n";
       // }
     }
   }
 
   void
-  DataBlockImpl::fillElementLookup(const ROOT::Reflex::Type & type, int slotNumber) {
+  Principal::fillElementLookup(const ROOT::Reflex::Type & type, int slotNumber) {
 
     TypeID typeID(type.TypeInfo());
     std::string friendlyClassName = typeID.friendlyClassName();
@@ -169,7 +169,7 @@ namespace edm {
   }
 
   void
-  DataBlockImpl::addToProcessHistory() const {
+  Principal::addToProcessHistory() const {
     if (processHistoryModified_) return;
     ProcessHistory& ph = *processHistoryPtr_;
     std::string const& processName = processConfiguration_.processName();
@@ -194,12 +194,12 @@ namespace edm {
   }
 
   ProcessHistory const&
-  DataBlockImpl::processHistory() const {
+  Principal::processHistory() const {
     return *processHistoryPtr_;
   }
 
   void 
-  DataBlockImpl::put(auto_ptr<EDProduct> edp,
+  Principal::put(auto_ptr<EDProduct> edp,
 		     auto_ptr<Provenance> prov) {
 
     if (! prov->productID().isValid()) {
@@ -213,8 +213,8 @@ namespace edm {
     this->addToProcessHistory();
   }
 
-  DataBlockImpl::SharedConstGroupPtr const
-  DataBlockImpl::getGroup(ProductID const& oid, bool resolve) const {
+  Principal::SharedConstGroupPtr const
+  Principal::getGroup(ProductID const& oid, bool resolve) const {
     ProductDict::const_iterator i = productDict_.find(oid);
     if (i == productDict_.end()) {
       return getInactiveGroup(oid);
@@ -229,8 +229,8 @@ namespace edm {
     return g;
   }
 
-  DataBlockImpl::SharedConstGroupPtr const
-  DataBlockImpl::getInactiveGroup(ProductID const& oid) const {
+  Principal::SharedConstGroupPtr const
+  Principal::getInactiveGroup(ProductID const& oid) const {
     ProductDict::const_iterator i = inactiveProductDict_.find(oid);
     if (i == inactiveProductDict_.end()) {
       return SharedConstGroupPtr();
@@ -243,7 +243,7 @@ namespace edm {
   }
 
   BasicHandle
-  DataBlockImpl::get(ProductID const& oid) const {
+  Principal::get(ProductID const& oid) const {
     if (oid == ProductID())
       throw edm::Exception(edm::errors::ProductNotFound,"InvalidID")
 	<< "get by product ID: invalid ProductID supplied\n";
@@ -262,7 +262,7 @@ namespace edm {
   }
 
   BasicHandle
-  DataBlockImpl::getBySelector(TypeID const& productType, 
+  Principal::getBySelector(TypeID const& productType, 
 			       SelectorBase const& sel) const {
     TypeDict::const_iterator i 
       = productLookup_.find(productType.friendlyClassName());
@@ -337,12 +337,12 @@ namespace edm {
 
     
   BasicHandle
-  DataBlockImpl::getByLabel(TypeID const& productType, 
+  Principal::getByLabel(TypeID const& productType, 
 			    string const& label,
 			    string const& productInstanceName) const {
     // The following is not the most efficient way of doing this. It
     // is the simplest implementation of the required policy, given
-    // the current organization of the DataBlockImpl. This should be
+    // the current organization of the Principal. This should be
     // reviewed.
 
     // THE FOLLOWING IS A HACK! It must be removed soon, with the
@@ -390,7 +390,7 @@ namespace edm {
   }
 
   BasicHandle
-  DataBlockImpl::getByLabel(TypeID const& productType,
+  Principal::getByLabel(TypeID const& productType,
 			    string const& label,
 			    string const& productInstanceName,
 			    string const& processName) const
@@ -419,7 +419,7 @@ namespace edm {
  
 
   void 
-  DataBlockImpl::getMany(TypeID const& productType, 
+  Principal::getMany(TypeID const& productType, 
 			 SelectorBase const& sel,
 			 BasicHandleVec& results) const {
     // We make no promise that the input 'fill_me_up' is unchanged if
@@ -455,7 +455,7 @@ namespace edm {
   }
 
   BasicHandle
-  DataBlockImpl::getByType(TypeID const& productType) const {
+  Principal::getByType(TypeID const& productType) const {
 
     TypeDict::const_iterator i = productLookup_.find(productType.friendlyClassName());
 
@@ -487,7 +487,7 @@ namespace edm {
   }
 
   void 
-  DataBlockImpl::getManyByType(TypeID const& productType, 
+  Principal::getManyByType(TypeID const& productType, 
 			       BasicHandleVec& results) const {
     // We make no promise that the input 'fill_me_up' is unchanged if
     // an exception is thrown. If such a promise is needed, then more
@@ -523,14 +523,14 @@ namespace edm {
 
   class NeitherSameNorDerivedType {
   public:
-    typedef DataBlockImpl::MatchingGroups::value_type group_ptr;
+    typedef Principal::MatchingGroups::value_type group_ptr;
 
     explicit NeitherSameNorDerivedType(type_info const& wantedElementType) :
       typeToMatch_(Type::ByTypeInfo(wantedElementType)) 
     {
       if (typeToMatch_ == Type()) {
         throw edm::Exception(errors::LogicError)
-          << "DataBlockImpl::NeitherSameNorDerivedType constructor\n"
+          << "Principal::NeitherSameNorDerivedType constructor\n"
           << "Input type is not known by ROOT::Reflex\n"
           << "The mangled name of this type is '" 
 	  << wantedElementType.name() << "'\n"
@@ -555,7 +555,7 @@ namespace edm {
   };
 
   BasicHandle
-  DataBlockImpl::getMatchingSequence(type_info const& wantedElementType,
+  Principal::getMatchingSequence(type_info const& wantedElementType,
 				     string const& moduleLabel,
 				     string const& productInstanceName) const
   {
@@ -572,7 +572,7 @@ namespace edm {
     // might match.
     if (matches.empty())
       throw edm::Exception(errors::ProductNotFound,"NoMatch")
-	<< "DataBlockImpl::getMatchingSequence could not find "
+	<< "Principal::getMatchingSequence could not find "
 	<< "any product\nwith module label '" 
 	<< moduleLabel
 	<< "'\nand product instance name '" 
@@ -597,7 +597,7 @@ namespace edm {
 	
 	// Resolve all candidates -- we can't look at the dynamic
 	// types until we have the product instances in memory.
-	for_all(candidates, bind(&DataBlockImpl::resolve_, this, *_1, true));
+	for_all(candidates, bind(&Principal::resolve_, this, *_1, true));
 		
 	NeitherSameNorDerivedType removalPredicate(wantedElementType);
 	candidates.remove_if(removalPredicate);
@@ -606,7 +606,7 @@ namespace edm {
 	  return candidates.front()->makeBasicHandle();
 	} else if (candidates.size() > 1) {
 	  throw Exception(errors::ProductNotFound, "TooManyMatches")
-	    << "DataBlockImpl::getMatchingSequence has found "
+	    << "Principal::getMatchingSequence has found "
 	    << candidates.size()
 	    << " matches for\n"
 	    << "  module label: " << moduleLabel
@@ -622,7 +622,7 @@ namespace edm {
     }
     // If we never find a match, throw an exception.
     throw edm::Exception(errors::ProductNotFound,"NoMatch")
-      << "DataBlockImpl::getMatchingSequence could not find "
+      << "Principal::getMatchingSequence could not find "
       << "any product\nwith module label '" 
       << moduleLabel
       << "'\nand product instance name '" 
@@ -635,7 +635,7 @@ namespace edm {
   }
 
   Provenance const&
-  DataBlockImpl::getProvenance(ProductID const& oid) const {
+  Principal::getProvenance(ProductID const& oid) const {
     if (oid == ProductID())
       throw edm::Exception(edm::errors::ProductNotFound,"InvalidID")
 	<< "getProvenance: invalid ProductID supplied\n";
@@ -658,15 +658,15 @@ namespace edm {
   }
 
   void
-  DataBlockImpl::getAllProvenance(vector<Provenance const*> & provenances) const {
+  Principal::getAllProvenance(vector<Provenance const*> & provenances) const {
     provenances.clear();
-    for (DataBlockImpl::const_iterator i = groups_.begin(), iEnd = groups_.end(); i != iEnd; ++i) {
+    for (Principal::const_iterator i = groups_.begin(), iEnd = groups_.end(); i != iEnd; ++i) {
       if ((*i)->provenanceAvailable()) provenances.push_back(&(*i)->provenance());
     }
   }
 
   void 
-  DataBlockImpl::getAllMatches_(string const& moduleLabel,
+  Principal::getAllMatches_(string const& moduleLabel,
 				string const& productInstanceName,
 				MatchingGroupLookup& matches) const {
     for (const_iterator i=groups_.begin(), e=groups_.end(); i != e; ++i) {
@@ -680,7 +680,7 @@ namespace edm {
   }
 
   void
-  DataBlockImpl::resolve_(Group const& g, bool unconditional) const {
+  Principal::resolve_(Group const& g, bool unconditional) const {
     if (!unconditional && !g.productAvailable())
       throw edm::Exception(errors::ProductNotFound,"InaccessibleProduct")
 	<< "resolve_: product is not accessible\n"
@@ -700,7 +700,7 @@ namespace edm {
   }
 
   EDProduct const *
-  DataBlockImpl::getIt(ProductID const& oid) const {
+  Principal::getIt(ProductID const& oid) const {
     return get(oid).wrapper();
   }
 }

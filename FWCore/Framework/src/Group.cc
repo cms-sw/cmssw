@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: Group.cc,v 1.20 2007/02/21 22:28:34 paterno Exp $
+$Id: Group.cc,v 1.21 2007/03/04 06:10:25 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <string>
 #include "FWCore/Framework/interface/Group.h"
@@ -63,7 +63,7 @@ namespace edm
     if(onDemand_) {
       // The old one is a "placeholder" group for unscheduled processing.
       // This new one is the one generated 'unscheduled'.
-      // NOTE: other API's of DataBlockImpl do NOT give out the Provenance*
+      // NOTE: other API's of Principal do NOT give out the Provenance*
       // to "onDemand" groups, so no need to preserve the old Provenance.
       this->swap(g);
       return true;

@@ -10,12 +10,12 @@ such code sees the Event class, which is a proxy for EventPrincipal.
 The major internal component of the EventPrincipal
 is the DataBlock.
 
-$Id: EventPrincipal.h,v 1.49 2007/03/04 06:00:22 wmtan Exp $
+$Id: EventPrincipal.h,v 1.50 2007/03/27 23:06:57 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
-#include "FWCore/Framework/interface/DataBlockImpl.h"
+#include "FWCore/Framework/interface/Principal.h"
 #include "FWCore/Framework/interface/EPEventProvenanceFiller.h"
 #include "FWCore/Framework/interface/UnscheduledHandler.h"
 
@@ -25,8 +25,8 @@ namespace edm {
   class EventID;
   class LuminosityBlockPrincipal;
   class RunPrincipal;
-  class EventPrincipal : private DataBlockImpl {
-    typedef DataBlockImpl Base;
+  class EventPrincipal : private Principal {
+    typedef Principal Base;
   public:
     typedef Base::const_iterator const_iterator;
     typedef Base::SharedConstGroupPtr SharedConstGroupPtr;

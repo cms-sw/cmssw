@@ -2,7 +2,7 @@
 #include "IOPool/Input/src/RootDelayedReader.h"
 #include "DataFormats/Provenance/interface/Provenance.h"
 #include "DataFormats/Provenance/interface/BranchEntryDescription.h"
-#include "FWCore/Framework/interface/DataBlockImpl.h"
+#include "FWCore/Framework/interface/Principal.h"
 #include "Reflex/Type.h"
 
 #include <iostream>
@@ -80,7 +80,7 @@ namespace edm {
   }
 
   void
-  RootTree::fillGroups(DataBlockImpl& item) {
+  RootTree::fillGroups(Principal& item) {
     if (metaTree_ == 0) return;
     fillMetaData();
     // Loop over provenance

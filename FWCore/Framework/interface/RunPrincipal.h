@@ -10,16 +10,16 @@ such code sees the Run class, which is a proxy for RunPrincipal.
 The major internal component of the RunPrincipal
 is the DataBlock.
 
-$Id: RunPrincipal.h,v 1.6 2007/01/12 18:02:55 wmtan Exp $
+$Id: RunPrincipal.h,v 1.7 2007/03/04 06:00:22 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
 #include "DataFormats/Provenance/interface/RunAuxiliary.h"
-#include "FWCore/Framework/interface/DataBlockImpl.h"
+#include "FWCore/Framework/interface/Principal.h"
 
 namespace edm {
-  class RunPrincipal : private DataBlockImpl {
-  typedef DataBlockImpl Base;
+  class RunPrincipal : private Principal {
+  typedef Principal Base;
   public:
     RunPrincipal(RunNumber_t const& id,
 	ProductRegistry const& reg,

@@ -1,4 +1,4 @@
-// $Id: PoolOutputModule.cc,v 1.69 2007/03/29 18:16:51 wmtan Exp $
+// $Id: PoolOutputModule.cc,v 1.70 2007/04/01 15:59:42 wmtan Exp $
 
 #include "IOPool/Output/src/PoolOutputModule.h"
 #include "IOPool/Common/interface/PoolDataSvc.h"
@@ -306,7 +306,7 @@ namespace edm {
     return newFileAtEndOfRun_;
   }
 
-  void PoolOutputModule::PoolFile::fillBranches(OutputItemList const& items, DataBlockImpl const& dataBlock) const {
+  void PoolOutputModule::PoolFile::fillBranches(OutputItemList const& items, Principal const& dataBlock) const {
 
     // Loop over EDProduct branches, fill the provenance, and write the branch.
     for (OutputItemList::const_iterator i = items.begin(), iEnd = items.end();
@@ -319,7 +319,7 @@ namespace edm {
       }
 
       EDProduct const* product = 0;
-      DataBlockImpl::SharedConstGroupPtr const g = dataBlock.getGroup(id, i->selected_);
+      Principal::SharedConstGroupPtr const g = dataBlock.getGroup(id, i->selected_);
       if (g.get() == 0) {
 	// No Group with this ID is in the event.
 	// Create and write the provenance.
