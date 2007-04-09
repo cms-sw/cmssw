@@ -39,7 +39,7 @@ namespace edm {
 
     private:
 
-      seal::PluginManager * thePluginManager;
+        edmplugin::PluginManager * thePluginManager;
       // maps each module to its library
       std::map<std::string, std::string> theLibraryMap;
     };

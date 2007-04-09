@@ -5,7 +5,7 @@
 #include "FWCore/PluginManager/interface/Module.h"
 #include <iostream>
 
-using namespace seal;
+using namespace edmplugin;
 using std::string;
 using std::vector;
 using std::pair;
@@ -14,29 +14,34 @@ namespace edm {
   namespace pset {
 
     IncludeFileFinder::IncludeFileFinder()
-    : thePluginManager(seal::PluginManager::get()),
+    : thePluginManager(edmplugin::PluginManager::get()),
       theLibraryMap()
     {
-      thePluginManager->initialise();
-      // map every module to its library.  Code copied from SealPluginDump
-      for (PluginManager::DirectoryIterator moduleCache = thePluginManager->beginDirectories ();
-           moduleCache != thePluginManager->endDirectories (); ++moduleCache)
-      {
-        for (ModuleCache::Iterator module = (*moduleCache)->begin (); 
-             module != (*moduleCache)->end (); ++module)
+        typedef edmplugin::PluginManager::CategoryToInfos CatToInfos;
+        const std::string kCapability("Capability"); 
+        const CatToInfos& catToInfos = thePluginManager->categoryToInfos();
+        // map every module to its library.  Code copied from SealPluginDump
+        for (CatToInfos::const_iterator it = catToInfos.begin(), itEnd=catToInfos.end();
+             it != itEnd; ++it)
         {
-          string libraryName = (*module)->libraryName().name();
-          ModuleDescriptor * moduleDescriptor=(*module)->cacheRoot();
-          for (unsigned i=0; i < moduleDescriptor->children(); ++i)
+          //NOTE: should filter so only look at the plugins used by the framework, but not looking at 
+          // the dictionaries is a good first step
+          if( kCapability == it->first) { continue; }
+          for (edmplugin::PluginManager::Infos::const_iterator itInfo = it->second.begin(), itInfoEnd = it->second.end(); 
+               itInfo != itInfoEnd; ++itInfo)
           {
-            string moduleClass = moduleDescriptor->child(i)->token(1);
-
-            theLibraryMap[moduleClass] = libraryName;
+            typedef std::map<std::string, std::string>::iterator LibMapItr;
+            
+            string moduleClass = itInfo->name_;
+            std::pair<LibMapItr,LibMapItr> range = theLibraryMap.equal_range(moduleClass);
+            if(range.first == range.second) {
+              //the first match is the one to keep
+              std::string libraryName = itInfo->loadable_.leaf();
+              theLibraryMap.insert(range.first,std::make_pair(moduleClass,libraryName));
+            }
           }
         }
-      }
     }
-
 
     edm::FileInPath IncludeFileFinder::find(const string & moduleClass, 
                                             const string & moduleLabel)

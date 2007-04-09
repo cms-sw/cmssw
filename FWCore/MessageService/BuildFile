@@ -5,7 +5,7 @@
 <use name=FWCore/ServiceRegistry>
 <use name=FWCore/Utilities>
 <use name=boost>
-<flags SEAL_PLUGIN_NAME="FWCoreMessageService">
+<flags EDM_PLUGIN=1>
 <export>
   <use name=DataFormats/Provenance>
   <use name=FWCore/MessageLogger>

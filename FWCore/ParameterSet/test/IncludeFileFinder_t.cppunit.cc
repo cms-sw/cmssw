@@ -1,5 +1,5 @@
 /*
- * $Id: ps_t.cppunit.cc,v 1.7 2006/05/29 18:50:45 rpw Exp $
+ * $Id: IncludeFileFinder_t.cppunit.cc,v 1.1 2006/06/27 23:26:30 rpw Exp $
  */
 
 #include <algorithm>
@@ -11,6 +11,9 @@
 
 #include "FWCore/ParameterSet/interface/IncludeFileFinder.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+
+#include "FWCore/PluginManager/interface/PluginManager.h"
+#include "FWCore/PluginManager/interface/standard.h"
 
 using std::string;
 using std::vector;
@@ -26,7 +29,11 @@ class IncludeFileFinderTest: public CppUnit::TestFixture
   CPPUNIT_TEST_SUITE_END();
 
 public:
-  void setUp(){}
+  void setUp(){
+    if(not edmplugin::PluginManager::isAvailable()) {
+      edmplugin::PluginManager::configure(edmplugin::standard::config());
+    }
+  }
   void tearDown(){}
 
   void strippingTest();
