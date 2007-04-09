@@ -12,7 +12,7 @@
  *     string errorTag = "TrackerSurveyErrorRcd"
  *   }
  *
- *  $Date: 2007/03/14 18:05:36 $
+ *  $Date: 2007/04/07 01:58:47 $
  *  $Revision: 1.1 $
  *  \author Chung Khim Lae
  */
@@ -52,8 +52,8 @@ class SurveyDBUploader:
 		     const Alignable*
 		     );
 
-  std::string theValueTag; // tag name of survey values record in DB
-  std::string theErrorTag; // tag name of survey errors record in DB
+  std::string theValueRcd; // tag name of survey values record in DB
+  std::string theErrorRcd; // tag name of survey errors record in DB
 
   SurveyValues* theValues; // survey values for all alignables in detector
   SurveyErrors* theErrors; // survey errors for all alignables in detector

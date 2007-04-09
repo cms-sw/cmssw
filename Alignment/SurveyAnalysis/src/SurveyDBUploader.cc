@@ -10,8 +10,8 @@
 #include "Alignment/SurveyAnalysis/interface/SurveyDBUploader.h"
 
 SurveyDBUploader::SurveyDBUploader(const edm::ParameterSet& cfg):
-  theValueTag( cfg.getParameter<std::string>("valueTag") ),
-  theErrorTag( cfg.getParameter<std::string>("errorTag") ),
+  theValueRcd( cfg.getParameter<std::string>("valueRcd") ),
+  theErrorRcd( cfg.getParameter<std::string>("errorRcd") ),
   theValues(0),
   theErrors(0)
 {
@@ -31,19 +31,19 @@ void SurveyDBUploader::endJob()
 
   if( poolDbService.isAvailable() )
   {
-    if ( poolDbService->isNewTagRequest(theValueTag) )
+    if ( poolDbService->isNewTagRequest(theValueRcd) )
       poolDbService->createNewIOV<SurveyValues>
-	(theValues, poolDbService->endOfTime(), theValueTag);
+	(theValues, poolDbService->endOfTime(), theValueRcd);
     else
       poolDbService->appendSinceTime<SurveyValues>
-	(theValues, poolDbService->currentTime(), theValueTag);
+	(theValues, poolDbService->currentTime(), theValueRcd);
 
-    if ( poolDbService->isNewTagRequest(theErrorTag) )
+    if ( poolDbService->isNewTagRequest(theErrorRcd) )
       poolDbService->createNewIOV<SurveyErrors>
-	(theErrors, poolDbService->endOfTime(), theErrorTag);
+	(theErrors, poolDbService->endOfTime(), theErrorRcd);
     else
       poolDbService->appendSinceTime<SurveyErrors>
-	(theErrors, poolDbService->currentTime(), theErrorTag);
+	(theErrors, poolDbService->currentTime(), theErrorRcd);
   }
   else
     throw cms::Exception("ConfigError")
