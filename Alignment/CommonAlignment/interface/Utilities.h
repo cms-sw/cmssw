@@ -5,8 +5,8 @@
  *
  *  Namespace for common calculations in alignment.
  *
- *  $Date: 2007/03/16 17:59:58 $
- *  $Revision: 1.5 $
+ *  $Date: 2007/04/07 03:29:04 $
+ *  $Revision: 1.6 $
  *  \author Chung Khim Lae
  */
 
@@ -14,6 +14,11 @@
 
 namespace align
 {
+  typedef std::vector<GlobalPoint>  GlobalPoints;
+  typedef std::vector<GlobalVector> GlobalVectors;
+  typedef std::vector<LocalPoint>   LocalPoints;
+  typedef std::vector<LocalVector>  LocalVectors;
+
   /// Convert rotation matrix to angles about x-, y-, z-axes (frame rotation).
   EulerAngles toAngles(
 		       const RotationType&
