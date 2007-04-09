@@ -73,8 +73,17 @@ namespace {
     edm::Wrapper< edm::RangeMap<DetId,
       edm::OwnVector<SiTrackerGSRecHit2D,
       edm::ClonePolicy<SiTrackerGSRecHit2D> >, 
-      edm::ClonePolicy<SiTrackerGSRecHit2D> > >    siStripGaussianSmearingRecHit2DLocalPosCollectionWrapper;
+      edm::ClonePolicy<SiTrackerGSRecHit2D> > >    siStripGaussianSmearingRecHit2DLocalPosFullCollectionWrapper;
     edm::RangeMap<DetId,
+      edm::OwnVector<SiTrackerGSRecHit2D,
+      edm::ClonePolicy<SiTrackerGSRecHit2D> >, 
+      edm::ClonePolicy<SiTrackerGSRecHit2D> >::id_iterator    itgsfull2d;
+    
+    edm::Wrapper< edm::RangeMap<unsigned,
+      edm::OwnVector<SiTrackerGSRecHit2D,
+      edm::ClonePolicy<SiTrackerGSRecHit2D> >, 
+      edm::ClonePolicy<SiTrackerGSRecHit2D> > >    siStripGaussianSmearingRecHit2DLocalPosCollectionWrapper;
+    edm::RangeMap<unsigned,
       edm::OwnVector<SiTrackerGSRecHit2D,
       edm::ClonePolicy<SiTrackerGSRecHit2D> >, 
       edm::ClonePolicy<SiTrackerGSRecHit2D> >::id_iterator    itgs2d;
