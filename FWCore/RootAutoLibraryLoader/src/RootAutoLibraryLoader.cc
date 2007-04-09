@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Wed Nov 30 14:55:01 EST 2005
-// $Id: RootAutoLibraryLoader.cc,v 1.4 2007/02/02 15:42:49 chrjones Exp $
+// $Id: RootAutoLibraryLoader.cc,v 1.5 2007/02/07 13:28:35 chrjones Exp $
 //
 
 // system include files
@@ -22,8 +22,7 @@
 #include "FWCore/RootAutoLibraryLoader/src/stdNamespaceAdder.h"
 
 #include "FWCore/PluginManager/interface/PluginManager.h"
-#include "FWCore/PluginManager/interface/ModuleCache.h"
-#include "FWCore/PluginManager/interface/Module.h"
+#include "FWCore/PluginManager/interface/ProblemTracker.h"
 #include "FWCore/PluginManager/interface/PluginCapabilities.h"
 
 #include "Reflex/Type.h"
@@ -56,8 +55,10 @@ bool loadLibraryForClass(const char* classname)
   //std::cout <<"asking to find "<<classname<<std::endl;
   static const std::string cPrefix("LCGReflex/");
   //std::cout <<"asking to find "<<cPrefix+classname<<std::endl;
-  seal::PluginCapabilities::get()->load(cPrefix+classname);
-  
+  try {
+    edmplugin::PluginCapabilities::get()->load(cPrefix+classname);
+  } catch(const cms::Exception& e) {
+  }
   ROOT::Reflex::Type t = ROOT::Reflex::Type::ByName(classname);
   if(ROOT::Reflex::Type() != t) {
      if(!t.IsComplete()) {
@@ -71,8 +72,12 @@ bool loadLibraryForClass(const char* classname)
   //see if adding a std namespace helps
   std::string name = root::stdNamespaceAdder(classname);
   //std::cout <<"see if std helps"<<std::endl;
-  seal::PluginCapabilities::get()->load(cPrefix+name);
-  
+  try {
+    edmplugin::PluginCapabilities::get()->load(cPrefix+name);
+  } catch(const cms::Exception&) {
+    //Would be good to add debug messages here
+    return false;
+  }
   t = ROOT::Reflex::Type::ByName(classname);
   return ROOT::Reflex::Type() != t;
 }
@@ -120,54 +125,55 @@ classNameForRoot(const std::string& iCapName)
 // before the autoloading will work
 namespace {
   struct CompareFirst {
-    bool operator()(const std::pair<std::string,const char*>&iLHS,
-               const std::pair<std::string,const char*>&iRHS) const{
+    bool operator()(const std::pair<std::string,std::string>&iLHS,
+                    const std::pair<std::string,std::string>&iRHS) const{
       return iLHS.first > iRHS.first;
     }
   };
 }
 static
 void registerTypes() {
-  seal::PluginManager                       *db =  seal::PluginManager::get();
-  seal::PluginManager::DirectoryIterator    dir;
-  seal::ModuleCache::Iterator               plugin, pluginEnd;
-  seal::ModuleDescriptor                    *cache;
-  unsigned                            i;
-  const std::string mycat("Capability");
+  edmplugin::PluginManager*db =  edmplugin::PluginManager::get();
+  
+  typedef edmplugin::PluginManager::CategoryToInfos CatToInfos;
+
+  CatToInfos::const_iterator itFound = db->categoryToInfos().find("Capability");
+
+  if(itFound == db->categoryToInfos().end()) {
+    return;
+  }
 
   //in order to determine if a name is from a class or a namespace, we will order
   // all the classes in descending order so that embedded classes will be seen before
   // their containing classes, that way we can say the containing class is a namespace
   // before finding out it is actually a class
-  typedef std::vector<std::pair<std::string,const char*> > ClassAndLibraries;
+  typedef std::vector<std::pair<std::string,std::string> > ClassAndLibraries;
   ClassAndLibraries classes;
   classes.reserve(1000);
-  
-  for (dir = db->beginDirectories(); dir != db->endDirectories(); ++dir) {
-    for (plugin = (*dir)->begin(), pluginEnd = (*dir)->end(); plugin != pluginEnd; ++plugin) {
-      for (cache=(*plugin)->cacheRoot(), i=0; i < cache->children(); ++i) {
-        //std::cout <<" "<<cache->child(i)->token(0)<<std::endl;
-        if (cache->child(i)->token(0) == mycat) {
-          const std::string cap = cache->child(i)->token(1);
-          //std::cout <<"  "<<cap<<std::endl;
-          // check that cap starts with either LCGDict or LCGReflex (not really required)
-          static const std::string cPrefix("LCGReflex/");
-          if(cPrefix == cap.substr(0,cPrefix.size())) {
-            std::string className = classNameForRoot(cap.c_str()+cPrefix.size());
-            classes.push_back(std::pair<std::string,const char*>(className, (*plugin)->libraryName().name()));
-          }
-        }
-      }
+  std::string lastClass;
+  static const std::string cPrefix("LCGReflex/");
+  for (edmplugin::PluginManager::Infos::const_iterator itInfo = itFound->second.begin(),
+       itInfoEnd = itFound->second.end(); 
+       itInfo != itInfoEnd; ++itInfo)
+  {
+    if (lastClass == itInfo->name_) {
+      continue;
+    }
+    lastClass = itInfo->name_;
+    if(cPrefix == lastClass.substr(0,cPrefix.size())) {
+      std::string className = classNameForRoot(lastClass.c_str()+cPrefix.size());
+      classes.push_back(std::pair<std::string,std::string>(className, itInfo->loadable_.native_file_string()));
     }
   }
   //std::sort(classes.begin(), classes.end(), std::greater<std::string>());
-  std::sort(classes.begin(), classes.end(), CompareFirst() );
-  for(ClassAndLibraries::iterator itClass = classes.begin(), itClassEnd = classes.end();
+  //std::sort(classes.begin(), classes.end(), CompareFirst() );
+  //the values are already sorted by less, so just need to reverse to get greater
+  for(ClassAndLibraries::reverse_iterator itClass = classes.rbegin(), itClassEnd = classes.rend();
       itClass != itClassEnd;
       ++itClass) {
     
     const std::string& className = itClass->first;
-    const char* const libraryName = itClass->second;
+    const std::string& libraryName = itClass->second;
     //need to register namespaces and figure out if we have an embedded class
     static const std::string toFind(":<");
     std::string::size_type pos=0;
@@ -179,7 +185,7 @@ void registerTypes() {
       //std::cout <<"namespace "<<className.substr(0,pos).c_str()<<std::endl;
       pos += 2;
     }
-    G__set_class_autoloading_table(const_cast<char*>(className.c_str()), const_cast<char*>(libraryName));
+    G__set_class_autoloading_table(const_cast<char*>(className.c_str()), const_cast<char*>(libraryName.c_str()));
     //std::cout <<"class "<<className.c_str()<<std::endl;
   }
 }
@@ -190,7 +196,7 @@ void registerTypes() {
 RootAutoLibraryLoader::RootAutoLibraryLoader() :
   classNameAttemptingToLoad_(0)
 {
-   seal::PluginManager::get()->initialise();
+   edm::AssertHandler h();
    gROOT->AddClassGenerator(this);
    ROOT::Cintex::Cintex::Enable();
    
@@ -255,31 +261,29 @@ RootAutoLibraryLoader::loadAll()
 {
   // std::cout <<"LoadAllDictionaries"<<std::endl;
   enable();
+
+  edmplugin::PluginManager*db =  edmplugin::PluginManager::get();
   
-  seal::PluginManager                       *db =  seal::PluginManager::get();
-  seal::PluginManager::DirectoryIterator    dir;
-  seal::ModuleCache::Iterator               plugin, pluginEnd;
-  seal::ModuleDescriptor                    *cache;
-  unsigned                            i;
+  typedef edmplugin::PluginManager::CategoryToInfos CatToInfos;
   
-  const std::string mycat("Capability");
+  CatToInfos::const_iterator itFound = db->categoryToInfos().find("Capability");
   
-  for (dir = db->beginDirectories(); dir != db->endDirectories(); ++dir) {
-    for (plugin = (*dir)->begin(), pluginEnd = (*dir)->end(); plugin != pluginEnd; ++plugin) {
-      for (cache=(*plugin)->cacheRoot(), i=0; i < cache->children(); ++i) {
-        //std::cout <<" "<<cache->child(i)->token(0)<<std::endl;
-        if (cache->child(i)->token(0) == mycat) {
-          const std::string cap = cache->child(i)->token(1);
-          //std::cout <<"  "<<cap<<std::endl;
-          // check that cap starts with either LCGDict or LCGReflex (not really required)
-          static const std::string cPrefix("LCGReflex/");
-          if(cPrefix == cap.substr(0,cPrefix.size())) {
-            seal::PluginCapabilities::get()->load(cap);
-          }
-          break;
-        }
-      }
+  if(itFound == db->categoryToInfos().end()) {
+    return;
+  }
+  std::string lastClass;
+  const std::string cPrefix("LCGReflex/");
+  for (edmplugin::PluginManager::Infos::const_iterator itInfo = itFound->second.begin(),
+       itInfoEnd = itFound->second.end(); 
+       itInfo != itInfoEnd; ++itInfo)
+  {
+    if (lastClass == itInfo->name_) {
+      continue;
     }
+    
+    lastClass = itInfo->name_;
+    edmplugin::PluginCapabilities::get()->load(lastClass);
+    //NOTE: since we have the library already, we could be more efficient if we just load it ourselves
   }
 }
 }

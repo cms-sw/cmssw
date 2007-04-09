@@ -123,7 +123,7 @@ testServicesManager::loadTest()
       bool threwConfigurationException = false;
       try {
          ServicesManager sm(pss);
-      } catch(const edm::Exception&) {
+      } catch(const cms::Exception&) {
          threwConfigurationException = true;
       }
       

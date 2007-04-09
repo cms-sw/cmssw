@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Sep 15 09:47:48 EDT 2005
-// $Id: LoadAllDictionaries.cc,v 1.5 2007/01/19 04:46:48 wmtan Exp $
+// $Id: LoadAllDictionaries.cc,v 1.6 2007/02/07 13:30:15 chrjones Exp $
 //
 
 // system include files
@@ -37,36 +37,35 @@ edm::service::LoadAllDictionaries::LoadAllDictionaries(const edm::ParameterSet& 
 {
    bool doLoad(iConfig.getUntrackedParameter("doLoad",true));
    if(doLoad) {
+     ROOT::Cintex::Cintex::Enable();
 
-    ROOT::Cintex::Cintex::Enable();
+     edmplugin::PluginManager*db =  edmplugin::PluginManager::get();
+     
+     typedef edmplugin::PluginManager::CategoryToInfos CatToInfos;
+     
+     CatToInfos::const_iterator itFound = db->categoryToInfos().find("Capability");
+     
+     if(itFound == db->categoryToInfos().end()) {
+       return;
+     }
+     std::string lastClass;
+     const std::string cPrefix("LCGReflex/");
+     const std::string mystring("edm::Wrapper");
 
-      seal::PluginManager                       *db =  seal::PluginManager::get();
-      seal::PluginManager::DirectoryIterator    dir;
-      seal::ModuleCache::Iterator               plugin, pluginEnd;
-      seal::ModuleDescriptor                    *cache;
-      unsigned                            i;
-      
-      
-      // std::cout <<"LoadAllDictionaries"<<std::endl;
-      
-      const std::string mycat("Capability");
-      const std::string mystring("edm::Wrapper");
-      
-      for (dir = db->beginDirectories(); dir != db->endDirectories(); ++dir) {
-         for (plugin = (*dir)->begin(), pluginEnd = (*dir)->end(); plugin != pluginEnd; ++plugin) {
-            for (cache=(*plugin)->cacheRoot(), i=0; i < cache->children(); ++i) {
-               //std::cout <<" "<<cache->child(i)->token(0)<<std::endl;
-               if (cache->child(i)->token(0) == mycat) {
-                  const std::string cap = cache->child(i)->token(1);
-                  //std::cout <<"  "<<cap<<std::endl;
-                  // check that cap starts with either LCGDict or LCGReflex (not really required)
-		  if (cap.find(mystring) != std::string::npos) { 
-                    seal::PluginCapabilities::get()->load(cap);
-                  }
-               }
-            }
-         }
-      }
+     for (edmplugin::PluginManager::Infos::const_iterator itInfo = itFound->second.begin(),
+          itInfoEnd = itFound->second.end(); 
+          itInfo != itInfoEnd; ++itInfo)
+     {
+       if (lastClass == itInfo->name_) {
+         continue;
+       }
+       
+       lastClass = itInfo->name_;
+       if (lastClass.find(mystring) != std::string::npos) { 
+         edmplugin::PluginCapabilities::get()->load(lastClass);
+       }
+       //NOTE: since we have the library already, we could be more efficient if we just load it ourselves
+     }
    }
 }
 

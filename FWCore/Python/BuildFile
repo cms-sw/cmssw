@@ -4,7 +4,7 @@
 <use name=python>
 <use name=FWCore/Framework>
 <lib name=PyROOT>
-<flags SEAL_PLUGIN_NAME="FWCorePython">
+<flags EDM_PLUGIN=1>
 <export>
  <lib name=FWCorePython>
  <use name=boost>

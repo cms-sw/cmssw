@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Sep  5 13:33:00 EDT 2005
-// $Id: ServicePluginFactory.h,v 1.1 2005/09/07 21:58:16 chrjones Exp $
+// $Id: ServicePluginFactory.h,v 1.2 2007/02/07 13:29:18 chrjones Exp $
 //
 
 // system include files
@@ -29,29 +29,7 @@ namespace edm {
    namespace serviceregistry {
       class ServiceMakerBase;
       
-      class ServicePluginFactory :  public seal::PluginFactory< ServiceMakerBase* ()>
-      {
-
-public:
-         ServicePluginFactory();
-         //virtual ~ServicePluginFactory();
-
-         // ---------- const member functions ---------------------
-         
-         // ---------- static member functions --------------------
-         static ServicePluginFactory* get();
-         
-         // ---------- member functions ---------------------------
-         
-private:
-         ServicePluginFactory(const ServicePluginFactory&); // stop default
-         
-         const ServicePluginFactory& operator=(const ServicePluginFactory&); // stop default
-         
-         // ---------- member data --------------------------------
-         
-};
-
+     typedef edmplugin::PluginFactory< ServiceMakerBase* ()> ServicePluginFactory;
    }
 }
 
