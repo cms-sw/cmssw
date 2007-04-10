@@ -7,7 +7,7 @@
  *  Container for ECAL specific DCC Header information
  *
  *
- *  $Id: EcalDCCHeaderBlock.h,v 1.8 2007/04/03 17:04:37 franzoni Exp $
+ *  $Id: EcalDCCHeaderBlock.h,v 1.9 2007/04/10 10:07:23 franzoni Exp $
  */
 
 #include <vector>
@@ -37,8 +37,7 @@ class EcalDCCHeaderBlock
     PEDESTAL_STD = 9,
     PEDESTAL_OFFSET_SCAN = 10,
     PEDESTAL_25NS_SCAN = 11,
-    LED_STD= 12,
-    PHYSICS= 12
+    LED_STD= 12
   };
   
   enum EcalBasicTriggerType{
