@@ -1,9 +1,11 @@
 #include <SimCalorimetry/EcalTrigPrimAlgos/interface/EcalFenixFgvbEB.h>
-#include <iostream>
-#include <SimCalorimetry/EcalTrigPrimAlgos/interface/DBInterface.h>
 
-EcalFenixFgvbEB::EcalFenixFgvbEB(DBInterface * db)
-  : db_(db)
+#include "CondFormats/L1TObjects/interface/EcalTPParameters.h"
+
+#include <iostream>
+
+EcalFenixFgvbEB::EcalFenixFgvbEB(const EcalTPParameters * ecaltpp)
+  : ecaltpp_(ecaltpp)
 {
 }
 
@@ -51,5 +53,5 @@ std::vector<int> EcalFenixFgvbEB::process( std::vector<int> add_out, std::vector
 
 void EcalFenixFgvbEB::setParameters(int SM, int towNum)
 {
-  params_ = db_->getTowerParameters(SM, towNum);
+  params_ = ecaltpp_->getTowerParameters(SM, towNum);
 }

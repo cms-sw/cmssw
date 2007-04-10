@@ -1,11 +1,15 @@
 #include <SimCalorimetry/EcalTrigPrimAlgos/interface/EcalBarrelFenixStrip.h>
+
 #include <DataFormats/EcalDigi/interface/EcalTriggerPrimitiveSample.h>
 #include <DataFormats/EcalDigi/interface/EBDataFrame.h>
+
+#include "CondFormats/L1TObjects/interface/EcalTPParameters.h"
+
 #include <TTree.h>
 
 
 using namespace std;
-EcalBarrelFenixStrip::EcalBarrelFenixStrip(const TTree *tree, DBInterface * db, bool debug) : debug_(debug)
+EcalBarrelFenixStrip::EcalBarrelFenixStrip(const TTree *tree, const EcalTPParameters * db, bool debug) : debug_(debug)
 { 
   for (int i=0;i<nCrystalsPerStrip_;i++) linearizer_[i] = new  EcalFenixLinearizer(db); 
   adder_ = new  EcalFenixEtStrip();

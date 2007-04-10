@@ -1,8 +1,12 @@
 #include <SimCalorimetry/EcalTrigPrimAlgos/interface/EcalBarrelFenixTcp.h>
 #include <SimCalorimetry/EcalTrigPrimAlgos/interface/EcalFenixTcpFormat.h>
+
+#include "CondFormats/L1TObjects/interface/EcalTPParameters.h"
+
 #include <iostream>
+
 using namespace std;
-  EcalBarrelFenixTcp::EcalBarrelFenixTcp(DBInterface * db, bool tcpFormat, bool debug) : debug_(debug)
+  EcalBarrelFenixTcp::EcalBarrelFenixTcp(const EcalTPParameters* db, bool tcpFormat, bool debug) : debug_(debug)
 { 
     for (int i=0;i<nStripsPerTower_;i++) bypasslin_[i] = new EcalFenixBypassLin();
     adder_= new EcalFenixEtTot();

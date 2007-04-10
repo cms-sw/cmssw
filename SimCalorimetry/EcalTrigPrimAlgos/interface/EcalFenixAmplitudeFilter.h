@@ -6,7 +6,7 @@
 #include <iostream>
 
 class EcalVAmplitudeFilter;
-class DBInterface ;
+class EcalTPParameters;
 
 // global type definitions for header defined by Tag entries in ArgoUML
 // Result: typedef <typedef_global_header> <tag_value>;
@@ -33,7 +33,7 @@ class EcalFenixAmplitudeFilter : public EcalVAmplitudeFilter {
 
 
  private:
-  DBInterface * db_ ;
+  const EcalTPParameters *ecaltpp_ ;
   int inputsAlreadyIn_;
   int buffer_[5];
   int weights_[5];
@@ -44,12 +44,11 @@ class EcalFenixAmplitudeFilter : public EcalVAmplitudeFilter {
 
 
  public:
-  EcalFenixAmplitudeFilter(DBInterface * db);
+  EcalFenixAmplitudeFilter(const EcalTPParameters * db);
   virtual ~EcalFenixAmplitudeFilter();
   virtual std::vector<int> process(std::vector<int>);
   void setParameters(int SM, int towerInSM, int stripInTower);
 
-  //  virtual EvalAmplitude evalAmplitude(const CaloTimeSample&) const {return EvalAmplitude();}
   
 };
 

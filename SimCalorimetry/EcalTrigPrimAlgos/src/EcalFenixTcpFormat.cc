@@ -1,9 +1,12 @@
 #include <SimCalorimetry/EcalTrigPrimAlgos/interface/EcalFenixTcpFormat.h>
-#include <SimCalorimetry/EcalTrigPrimAlgos/interface/DBInterface.h>
-using  namespace std;
+#include "CondFormats/L1TObjects/interface/EcalTPParameters.h"
+
 #include <iostream>
-EcalFenixTcpFormat::EcalFenixTcpFormat(DBInterface * db, bool tcpFormat, bool debug)
-  : db_(db),tcpFormat_(tcpFormat),debug_(debug)
+
+using  namespace std;
+
+EcalFenixTcpFormat::EcalFenixTcpFormat(const EcalTPParameters *ecaltpp, bool tcpFormat, bool debug)
+  : ecaltpp_(ecaltpp),tcpFormat_(tcpFormat),debug_(debug)
 {
 }
  
@@ -34,6 +37,6 @@ void EcalFenixTcpFormat::process(std::vector<int> &Et, std::vector<int> &fgvb,
 
 void EcalFenixTcpFormat::setParameters(int SM, int towerInSM) 
 {
-  lut_ = db_->getTowerParameters(SM, towerInSM) ;
+  lut_ = ecaltpp_->getTowerParameters(SM, towerInSM,debug_) ;
 }
 

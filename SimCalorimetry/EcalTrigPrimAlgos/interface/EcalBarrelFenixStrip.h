@@ -14,7 +14,7 @@
 class TTree;
 class EBDataFrame;
 class EcalTriggerPrimitiveSample;
-class DBInterface ;
+class EcalTPParmeters;
 
   /** 
       \class EcalBarrelFenixStrip
@@ -39,7 +39,7 @@ class DBInterface ;
   public:
 
     // constructor, destructor
-    EcalBarrelFenixStrip(const TTree *tree, DBInterface * db, bool debug);
+    EcalBarrelFenixStrip(const TTree *tree, const EcalTPParameters *ecaltpp, bool debug);
     virtual ~EcalBarrelFenixStrip() ;
 
     // main methods
