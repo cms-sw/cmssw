@@ -1,7 +1,7 @@
 //
 // F.Ratnikov (UMd), Aug. 9, 2005
 //
-// $Id: HcalDbService.cc,v 1.11 2006/09/08 23:24:37 fedor Exp $
+// $Id: HcalDbService.cc,v 1.12 2007/03/31 18:27:02 michals Exp $
 
 #include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
 
@@ -20,6 +20,7 @@
 #include "CondFormats/HcalObjects/interface/HcalQIEData.h"
 #include "CondFormats/HcalObjects/interface/HcalChannelQuality.h"
 #include "CondFormats/HcalObjects/interface/HcalElectronicsMap.h"
+#include "RecoLocalCalo/CaloTowersCreator/interface/EScales.h"
 
 
 HcalDbService::HcalDbService () 
@@ -45,6 +46,12 @@ HcalDbService::HcalDbService (const edm::ParameterSet& fConfig)
   m_hoEScale = fConfig.getUntrackedParameter <double> ("hoEScale",1.);
   m_hf1EScale = fConfig.getUntrackedParameter <double> ("hf1EScale",1.);
   m_hf2EScale = fConfig.getUntrackedParameter <double> ("hf2EScale",1.);
+  EScales.HBPiOvere = m_hbEScale;
+  EScales.HESPiOvere = m_hesEScale;
+  EScales.HEDPiOvere = m_hedEScale;
+  EScales.HOPiOvere = m_hoEScale;
+  EScales.HF1PiOvere = m_hf1EScale;
+  EScales.HF2PiOvere = m_hf2EScale;
 }
 
 bool HcalDbService::makeHcalCalibration (const HcalGenericDetId& fId, HcalCalibrations* fObject) const {
