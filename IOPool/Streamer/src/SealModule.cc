@@ -22,8 +22,7 @@ using edm::StreamerFileWriter;
 //Old way of reading and writting Streamer files
 typedef edm::EventStreamingModule<edmtest::TestConsumer> StreamTestConsumer;
 
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(StreamTestConsumer);
+DEFINE_FWK_MODULE(StreamTestConsumer);
 
 DEFINE_ANOTHER_FWK_INPUT_SOURCE(NewEventStreamFileReader);
 

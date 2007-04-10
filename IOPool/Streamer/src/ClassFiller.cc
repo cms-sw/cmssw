@@ -171,7 +171,7 @@ namespace edm {
     std::string fname("LCGReflex/");
     fname += name;
     FDEBUG(1) << "attempting to load cap for: " << fname << endl;
-    seal::PluginCapabilities::get()->load(fname);
+    edmplugin::PluginCapabilities::get()->load(fname);
 	
     try {
       ROOT::Reflex::Type cc = ROOT::Reflex::Type::ByName(name);
