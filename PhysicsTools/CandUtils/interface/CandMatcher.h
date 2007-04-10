@@ -106,10 +106,8 @@ template<typename C>
 reco::CandidateRef CandMatcherBase<C>::operator()( const reco::Candidate & c ) const {
   using namespace reco;
   using namespace std;
-  if ( c.hasMasterClone() ) {
-    reference_type m = c.masterClone().template castTo<reference_type>();
-    if ( m.isNonnull() ) return (*this)( * m );
-  }
+  if ( c.hasMasterClone() )
+    return (*this)( * c.masterClone() );
   const CandidateCollection & matched = * matched_;
   unsigned int nDau = c.numberOfDaughters();
   if ( nDau > 0 ) {
