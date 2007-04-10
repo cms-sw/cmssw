@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2007/04/07 11:57:05 $
- * $Revision: 1.6 $
+ * $Date: 2007/04/10 09:01:49 $
+ * $Revision: 1.7 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -146,6 +146,7 @@ void EcalEndcapMonitorClient::initialize(const ParameterSet& ps){
   // enableSubRunDb switch
 
   enableSubRunDb_ = ps.getUntrackedParameter<bool>("enableSubRunDb", false);
+  dbRefreshTime_  = 60 * ps.getUntrackedParameter<int>("dbRefreshTime", 15);
 
   // enableSubRunHtml switch
 
@@ -1315,15 +1316,14 @@ void EcalEndcapMonitorClient::analyze(void){
       }
 
       if ( enableSubRunHtml_ ) {
-        time_t seconds = htmlRefreshTime_ * 60;
-        if ( (current_time_ - last_time_html_) > seconds ) {
+        if ( (current_time_ - last_time_html_) > htmlRefreshTime_ ) {
           last_time_html_ = current_time_;
           this->htmlOutput( true );
         }
       }
 
       if ( enableSubRunDb_ ) {
-        if ( (current_time_ - last_time_db_) > htmlRefreshTime_ ) {
+        if ( (current_time_ - last_time_db_) > dbRefreshTime_ ) {
           if ( runtype_ == EcalDCCHeaderBlock::COSMIC ||
                runtype_ == EcalDCCHeaderBlock::BEAMH2 ||
                runtype_ == EcalDCCHeaderBlock::BEAMH4 ) this->writeDb();

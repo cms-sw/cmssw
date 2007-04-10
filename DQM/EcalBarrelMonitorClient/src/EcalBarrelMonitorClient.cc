@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2007/04/07 12:25:59 $
- * $Revision: 1.249 $
+ * $Date: 2007/04/10 09:01:47 $
+ * $Revision: 1.250 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -146,6 +146,7 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
   // enableSubRunDb switch
 
   enableSubRunDb_ = ps.getUntrackedParameter<bool>("enableSubRunDb", false);
+  dbRefreshTime_  = 60 * ps.getUntrackedParameter<int>("dbRefreshTime", 15);
 
   // enableSubRunHtml switch
 
@@ -1322,8 +1323,7 @@ void EcalBarrelMonitorClient::analyze(void){
       }
 
       if ( enableSubRunDb_ ) {
-        time_t seconds = 15 * 60;
-        if ( (current_time_ - last_time_db_) > seconds ) {
+        if ( (current_time_ - last_time_db_) > dbRefreshTime_ ) {
           if ( runtype_ == EcalDCCHeaderBlock::COSMIC ||
                runtype_ == EcalDCCHeaderBlock::BEAMH2 ||
                runtype_ == EcalDCCHeaderBlock::BEAMH4 ) this->writeDb();
