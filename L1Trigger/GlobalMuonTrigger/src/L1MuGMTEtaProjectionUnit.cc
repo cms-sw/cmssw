@@ -5,8 +5,8 @@
 //   Description: GMT Eta Projection Unit
 //
 //
-//   $Date: 2006/08/21 14:23:13 $
-//   $Revision: 1.2 $
+//   $Date: 2007/04/02 15:45:38 $
+//   $Revision: 1.3 $
 //
 //   Author :
 //   H. Sakulin                CERN EP 
@@ -134,7 +134,7 @@ void L1MuGMTEtaProjectionUnit::print() const {
   for ( int i=0; i<14; i++ ) {
     edm::LogVerbatim("GMT_EtaProjection_info") << m_eta_select[i] << "  ";
   }
-  edm::LogVerbatim("GMT_EtaProjection_info") << endl;
+  edm::LogVerbatim("GMT_EtaProjection_info");
 }
 
 
