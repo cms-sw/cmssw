@@ -63,7 +63,7 @@ void EcalTrigPrimFunctionalAlgo::init(const edm::EventSetup & setup) {
   }
   edm::ESHandle<EcalTPParameters> theEcalTPParameters_handle;
   setup.get<EcalTPParametersRcd>().get(theEcalTPParameters_handle);
-  ecaltpp_=theEcalTPParameters_handle.product();
+  ecaltpp_=const_cast <EcalTPParameters *> (theEcalTPParameters_handle.product());
 
   ebstrip_= new EcalBarrelFenixStrip(valTree_,ecaltpp_,debug_);
   ebtcp_ = new EcalBarrelFenixTcp(ecaltpp_,tcpFormat_,debug_) ;
