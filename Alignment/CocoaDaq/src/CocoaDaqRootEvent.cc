@@ -69,12 +69,12 @@ void CocoaDaqRootEvent::DumpIt()
 
 void AliDaqEventHeader::DumpIt()
 {
-  cout<<endl;
-  cout<<"------------------------------- Event Header ------------------------------"<<endl;
-  cout<<"Time stamp    = "<<fTimeStamp<<endl;
-  cout<<"Run number    = "<<fRunNum<<endl;
-  cout<<"Event number  = "<<fEvtNum<<endl;
-  cout<<endl;
+  std::cout<<std::endl;
+  std::cout<<"------------------------------- Event Header ------------------------------"<<std::endl;
+  std::cout<<"Time stamp    = "<<fTimeStamp<<std::endl;
+  std::cout<<"Run number    = "<<fRunNum<<std::endl;
+  std::cout<<"Event number  = "<<fEvtNum<<std::endl;
+  std::cout<<std::endl;
 }
 
 //-----------------------------------------------------------------------------
@@ -83,15 +83,15 @@ void AliDaqPosition2D::DumpIt(TString Name)
 {
   TString dashes = "------------------------------";
   TString line = dashes+Name+dashes;
-  cout<<endl;
-  cout<<line<<endl;
-  cout<<"Time stamp = "<<fTimeStamp<<endl;
-  cout<<"X          = "<<fX<<endl;
-  cout<<"Y          = "<<fY<<endl;
-  cout<<"X error    = "<<fX_error<<endl;
-  cout<<"Y error    = "<<fY_error<<endl;
-  cout<<"ID         = "<<fID<<endl;
-  cout<<endl;
+  std::cout<<std::endl;
+  std::cout<<line<<std::endl;
+  std::cout<<"Time stamp = "<<fTimeStamp<<std::endl;
+  std::cout<<"X          = "<<fX<<std::endl;
+  std::cout<<"Y          = "<<fY<<std::endl;
+  std::cout<<"X error    = "<<fX_error<<std::endl;
+  std::cout<<"Y error    = "<<fY_error<<std::endl;
+  std::cout<<"ID         = "<<fID<<std::endl;
+  std::cout<<std::endl;
 }
 
 //-----------------------------------------------------------------------------
@@ -100,19 +100,19 @@ void AliDaqPositionCOPS::DumpIt(TString Name)
 {
   TString dashes = "------------------------------";
   TString line = dashes+Name+dashes;
-  cout<<endl;
-  cout<<line<<endl;
-  cout<<"Time stamp        = "<<fTimeStamp<<endl;
-  cout<<"DCOPS_up          = "<<fDCOPS_up<<endl;
-  cout<<"DCOPS_down        = "<<fDCOPS_down<<endl;
-  cout<<"DCOPS_left        = "<<fDCOPS_left<<endl;
-  cout<<"DCOPS_right       = "<<fDCOPS_right<<endl;
-  cout<<"DCOPS_up_error    = "<<fDCOPS_up_error<<endl;
-  cout<<"DCOPS_down_error  = "<<fDCOPS_down_error<<endl;
-  cout<<"DCOPS_left_error  = "<<fDCOPS_left_error<<endl;
-  cout<<"DCOPS_right_error = "<<fDCOPS_right_error<<endl;
-  cout<<"ID                = "<<fID<<endl;
-  cout<<endl;
+  std::cout<<std::endl;
+  std::cout<<line<<std::endl;
+  std::cout<<"Time stamp        = "<<fTimeStamp<<std::endl;
+  std::cout<<"DCOPS_up          = "<<fDCOPS_up<<std::endl;
+  std::cout<<"DCOPS_down        = "<<fDCOPS_down<<std::endl;
+  std::cout<<"DCOPS_left        = "<<fDCOPS_left<<std::endl;
+  std::cout<<"DCOPS_right       = "<<fDCOPS_right<<std::endl;
+  std::cout<<"DCOPS_up_error    = "<<fDCOPS_up_error<<std::endl;
+  std::cout<<"DCOPS_down_error  = "<<fDCOPS_down_error<<std::endl;
+  std::cout<<"DCOPS_left_error  = "<<fDCOPS_left_error<<std::endl;
+  std::cout<<"DCOPS_right_error = "<<fDCOPS_right_error<<std::endl;
+  std::cout<<"ID                = "<<fID<<std::endl;
+  std::cout<<std::endl;
 }
 
 //-----------------------------------------------------------------------------
@@ -121,13 +121,13 @@ void AliDaqTilt::DumpIt(TString Name)
 {
   TString dashes = "------------------------------";
   TString line = dashes+Name+dashes;
-  cout<<endl;
-  cout<<line<<endl;
-  cout<<"Time stamp = "<<fTimeStamp<<endl;
-  cout<<"Tilt       = "<<fTilt<<endl;
-  cout<<"Tilt error = "<<fTilt_error<<endl;
-  cout<<"ID         = "<<fID<<endl;
-  cout<<endl;
+  std::cout<<std::endl;
+  std::cout<<line<<std::endl;
+  std::cout<<"Time stamp = "<<fTimeStamp<<std::endl;
+  std::cout<<"Tilt       = "<<fTilt<<std::endl;
+  std::cout<<"Tilt error = "<<fTilt_error<<std::endl;
+  std::cout<<"ID         = "<<fID<<std::endl;
+  std::cout<<std::endl;
 }
 
 //-----------------------------------------------------------------------------
@@ -136,13 +136,13 @@ void AliDaqDistance::DumpIt(TString Name)
 {
   TString dashes = "------------------------------";
   TString line = dashes+Name+dashes;
-  cout<<endl;
-  cout<<line<<endl;
-  cout<<"Time stamp     = "<<fTimeStamp<<endl;
-  cout<<"AliDaqDistance       = "<<fDistance<<endl;
-  cout<<"AliDaqDistance error = "<<fDistance_error<<endl;
-  cout<<"ID             = "<<fID<<endl;
-  cout<<endl;
+  std::cout<<std::endl;
+  std::cout<<line<<std::endl;
+  std::cout<<"Time stamp     = "<<fTimeStamp<<std::endl;
+  std::cout<<"AliDaqDistance       = "<<fDistance<<std::endl;
+  std::cout<<"AliDaqDistance error = "<<fDistance_error<<std::endl;
+  std::cout<<"ID             = "<<fID<<std::endl;
+  std::cout<<std::endl;
 }
 
 //-----------------------------------------------------------------------------
@@ -151,13 +151,13 @@ void AliDaqTemperature::DumpIt(TString Name)
 {
   TString dashes = "------------------------------";
   TString line = dashes+Name+dashes;
-  cout<<endl;
-  cout<<line<<endl;
-  cout<<"Time stamp        = "<<fTimeStamp<<endl;
-  cout<<"AliDaqTemperature       = "<<fTemperature<<endl;
-  cout<<"AliDaqTemperature error = "<<fTemperature_error<<endl;
-  cout<<"ID                = "<<fID<<endl;
-  cout<<endl;
+  std::cout<<std::endl;
+  std::cout<<line<<std::endl;
+  std::cout<<"Time stamp        = "<<fTimeStamp<<std::endl;
+  std::cout<<"AliDaqTemperature       = "<<fTemperature<<std::endl;
+  std::cout<<"AliDaqTemperature error = "<<fTemperature_error<<std::endl;
+  std::cout<<"ID                = "<<fID<<std::endl;
+  std::cout<<std::endl;
 }
 
 //-----------------------------------------------------------------------------
