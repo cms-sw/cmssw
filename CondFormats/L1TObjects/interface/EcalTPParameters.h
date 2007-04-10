@@ -3,7 +3,7 @@
 /**
  * Author: P.Paganini, Ursula Berthon
  * Created: 20 March 2007
- * $Id: EcalTPParameters.h,v 1.1 2007/03/01 18:18:24 uberthon Exp $
+ * $Id: EcalTPParameters.h,v 1.1 2007/04/10 09:37:02 uberthon Exp $
  **/
 
 #include <vector>
@@ -21,10 +21,10 @@ class EcalTPParameters {
   std::vector<unsigned int> getStripParameters(int SM, int towerInSM, int stripInTower, bool print = false) const ;
   std::vector<unsigned int> getXtalParameters(int SM, int towerInSM, int stripInTower, int xtalInStrip, bool print = false)  const;
 
-  double getTPGLsbEB(int compressedEt) const {return 0.469;}  // GeV   //FIXME: to be implemented
-  double getTPGLsbEE(int compressedEt) const {return 0.560;} // GeV  //FIXME: to be implemented
   double getEtSatEB() const {return EtSatEB_;}
   double getEtSatEE() const {return EtSatEE_;}
+  double getTPGinGeVEB(unsigned int compressedEt) const;
+  double getTPGinGeVEE(unsigned int compressedEt) const;
 
   // setters
   void setTowerParameters(int SM, int towerInSM, std::vector<unsigned int> params) 	    

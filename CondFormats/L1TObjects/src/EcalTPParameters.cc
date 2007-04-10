@@ -1,7 +1,7 @@
 /**
  * Author: P.Paganini, Ursula Berthon
  * Created: 20 March 2007
- * $Id: EcalTPParameters.cc,v 1.1 2006/11/16 18:18:24 uberthon Exp $
+ * $Id: EcalTPParameters.cc,v 1.1 2007/04/10 09:37:02 uberthon Exp $
  **/
 #include "CondFormats/L1TObjects/interface/EcalTPParameters.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -29,6 +29,7 @@ void EcalTPParameters::changeThresholds(double ttfLowEB, double ttfHighEB, doubl
   ttfHighEE_=ttfHighEE;
   update();
 }
+  //FIXME for the following: constants should be defined elsewhere
 
 std::vector<unsigned int> EcalTPParameters::getTowerParameters(int SM, int towerInSM, bool print) const
 {
@@ -100,4 +101,32 @@ std::vector<unsigned int> EcalTPParameters::getXtalParameters(int SM, int towerI
     if (xtalInStrip>0) i=i*NrXtalsInS+xtalInStrip;
     return i;
   }
+
+double EcalTPParameters::getTPGinGeVEB(unsigned int compressedEt) const {
+  
+  double lsb_tcp = EtSatEB_/1024 ;
+  std::vector<unsigned int> lut = this->getTowerParameters(1, 1) ; //FIXME should be sm nb and tower nb instead of 1,1
+  if (lut.size() <1024) {
+    // FIXME should throw an exception!
+    return 0. ;
+  }
+
+  unsigned int lin_TPG = 1024 ;
+  for (unsigned int i=0 ; i<1024 ; i++) {
+   if (lut[i] == compressedEt) {
+     lin_TPG = i ;
+     break ;
+   }
+  }
+  if (lin_TPG >= 1024) {
+    // FIXME should throw an exception!
+    return 0. ;
+  } 
+
+  return lin_TPG*lsb_tcp ;
+}
+
+double EcalTPParameters::getTPGinGeVEE(unsigned int compressedEt) const {
+  return compressedEt*0.560 ;
+}
 
