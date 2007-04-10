@@ -4,7 +4,7 @@
 //<<<<<< INCLUDES                                                       >>>>>>
 
 #include "DetectorDescription/Algorithm/interface/DDAlgorithm.h"
-#include "PluginManager/PluginFactory.h"
+#include "FWCore/PluginManager/interface/PluginFactory.h"
 
 //<<<<<< PUBLIC DEFINES                                                 >>>>>>
 //<<<<<< PUBLIC CONSTANTS                                               >>>>>>
@@ -13,15 +13,7 @@
 //<<<<<< PUBLIC FUNCTIONS                                               >>>>>>
 //<<<<<< CLASS DECLARATIONS                                             >>>>>>
 
-class DDAlgorithmFactory : public seal::PluginFactory<DDAlgorithm *(void)>
-{
-public:
-    static DDAlgorithmFactory *get (void);
-
-private:
-    DDAlgorithmFactory (void);
-    static DDAlgorithmFactory s_instance;
-};
+typedef edmplugin::PluginFactory<DDAlgorithm *(void)> DDAlgorithmFactory;
 
 //<<<<<< INLINE PUBLIC FUNCTIONS                                        >>>>>>
 //<<<<<< INLINE MEMBER FUNCTIONS                                        >>>>>>
