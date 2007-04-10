@@ -3,7 +3,7 @@
 
 # include "SimG4Core/SensitiveDetector/interface/SensitiveDetector.h"
 # include "SimG4Core/SensitiveDetector/interface/SensitiveDetectorMaker.h"
-# include "PluginManager/PluginFactory.h"
+# include "FWCore/PluginManager/interface/PluginFactory.h"
 
 #include <string>
 
