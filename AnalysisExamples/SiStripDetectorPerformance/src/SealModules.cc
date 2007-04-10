@@ -11,6 +11,7 @@
 #include "AnalysisExamples/SiStripDetectorPerformance/interface/TrackerMuFilter.h"
 #include "AnalysisExamples/SiStripDetectorPerformance/interface/SliceTestNtupleMaker.h"
 #include "AnalysisExamples/SiStripDetectorPerformance/interface/TrackHitsInfo.h"
+#include "AnalysisExamples/SiStripDetectorPerformance/interface/EventBasicData.h"
 // M. De Mattia 25/1/2007
 #include "AnalysisExamples/SiStripDetectorPerformance/interface/TIFNtupleMaker.h"
 using cms::ClusterAnalysis;
@@ -31,5 +32,6 @@ DEFINE_ANOTHER_FWK_MODULE(CosmicGenFilter);
 DEFINE_ANOTHER_FWK_MODULE(TrackerMuFilter);
 DEFINE_ANOTHER_FWK_MODULE(SliceTestNtupleMaker);
 DEFINE_ANOTHER_FWK_MODULE(TrackHitsInfo);
+DEFINE_ANOTHER_FWK_MODULE(EventBasicData);
 // 25/1/2007
 DEFINE_ANOTHER_FWK_MODULE(TIFNtupleMaker);
