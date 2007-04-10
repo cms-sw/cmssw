@@ -1,4 +1,4 @@
-//#include "PluginManager/ModuleDef.h"
+//#include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "L1Trigger/RegionalCaloTrigger/interface/L1RCTProducer.h"
 #include "L1Trigger/RegionalCaloTrigger/interface/L1RCTTestAnalyzer.h"
