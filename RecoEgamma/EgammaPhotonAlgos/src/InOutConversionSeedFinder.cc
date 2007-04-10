@@ -601,7 +601,9 @@ void InOutConversionSeedFinder::createSeed(const TrajectoryMeasurement & m1,  co
 	TrajectoryStateTransform tsTransform;
 	PTrajectoryStateOnDet* ptsod= tsTransform.persistentState(state2, meas2.recHit()->hit()->geographicalId().rawId()  );
 	LogDebug("InOutConversionSeedFinder") << "  InOutConversionSeedFinder::createSeed New seed parameters " << state2 << "\n";
-	theSeeds_.push_back(TrajectorySeed( *ptsod, myHits, alongMomentum )); 
+	theSeeds_.push_back(TrajectorySeed( *ptsod, myHits, alongMomentum ));
+        delete ptsod;
+       
 	LogDebug("InOutConversionSeedFinder") << "InOutConversionSeedFinder::createSeed New seed hit 1 position " << m1.recHit()->globalPosition() << "\n";
 	LogDebug("InOutConversionSeedFinder") << "InOutConversionSeedFinder::createSeed New seed hit 2 position " << m2.recHit()->globalPosition() << "\n";
 	
