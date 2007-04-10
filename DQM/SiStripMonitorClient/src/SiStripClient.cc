@@ -85,30 +85,36 @@ void SiStripClient::onUpdate() const
   // Set Up Quality Tests
   if (nUpdate == 2) webInterface_p->setupQTests();
 
+  // No action till enough updates are received 
 
-  // Creation of Summary 
-  if (updateFrequencyForSummary_ != -1 ) {
-    if (nUpdate > 0 && nUpdate%updateFrequencyForSummary_ == 0) {
+  if (nUpdate > 5) {
+    // Creation of Summary 
+    if (updateFrequencyForSummary_ != -1 && nUpdate%updateFrequencyForSummary_ == 1) {
       webInterface_p->setActionFlag(SiStripWebInterface::Summary);
       seal::Callback action(seal::CreateCallback(webInterface_p, 
-			        &SiStripWebInterface::performAction));
+						 &SiStripWebInterface::performAction));
       mui_->addCallback(action);	 
-    }
-  }	
-  // Creation of TrackerMap
-  if (updateFrequencyForTrackerMap_ != -1 && nUpdate > 30) {
-    if (nUpdate%updateFrequencyForTrackerMap_ == 1) {
+    }	
+    // Creation of TrackerMap
+    if (updateFrequencyForTrackerMap_ != -1 && nUpdate%updateFrequencyForTrackerMap_ == 1) {
       webInterface_p->setActionFlag(SiStripWebInterface::CreateTkMap);
       seal::Callback action(seal::CreateCallback(webInterface_p, 
-				 &SiStripWebInterface::performAction));
+						 &SiStripWebInterface::performAction));
       mui_->addCallback(action); 
     }
-  }
-  // Save to File
-  if (nUpdate > 1 && nUpdate%100 == 1) {
+    // Create predefined plots 
+    if (nUpdate%20  == 1) {
+      webInterface_p->setActionFlag(SiStripWebInterface::PlotHistogramFromLayout);
+      seal::Callback action(seal::CreateCallback(webInterface_p, 
+						 &SiStripWebInterface::performAction));
+      mui_->addCallback(action); 
+    }
+    // Save histograms in a file
+    if  (nUpdate%100 == 1) {
       webInterface_p->setActionFlag(SiStripWebInterface::SaveData);
       seal::Callback action(seal::CreateCallback(webInterface_p, 
-				 &SiStripWebInterface::performAction));
+						 &SiStripWebInterface::performAction));
       mui_->addCallback(action); 
+    }
   }
 }

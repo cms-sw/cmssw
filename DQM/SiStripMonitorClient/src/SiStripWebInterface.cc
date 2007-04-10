@@ -142,15 +142,18 @@ void SiStripWebInterface::handleCustomRequest(xgi::Input* in,xgi::Output* out)
   else if (requestID == "PlotHistogramFromPath") {
    theActionFlag = PlotHistogramFromPath;
   } 
-   else if (requestID == "PlotTkMapHistogram") {
-   theActionFlag = PlotTkMapHistogram;
+  else if (requestID == "PlotTkMapHistogram") {
+    theActionFlag = PlotTkMapHistogram;
+  }
+  else if (requestID == "PlotHistogramFromLayout") {
+    theActionFlag = PlotHistogramFromLayout;
   } 
- else if (requestID == "UpdatePlot") {
-   out->getHTTPResponseHeader().addHeader("Content-Type", "image/png");
-   out->getHTTPResponseHeader().addHeader("Pragma", "no-cache");   
-   out->getHTTPResponseHeader().addHeader("Cache-Control", "no-store, no-cache, must-revalidate,max-age=0");
-   out->getHTTPResponseHeader().addHeader("Expires","Mon, 26 Jul 1997 05:00:00 GMT");
-   *out << infoExtractor_->getImage().str();
+  else if (requestID == "UpdatePlot") {
+    out->getHTTPResponseHeader().addHeader("Content-Type", "image/png");
+    out->getHTTPResponseHeader().addHeader("Pragma", "no-cache");   
+    out->getHTTPResponseHeader().addHeader("Cache-Control", "no-store, no-cache, must-revalidate,max-age=0");
+    out->getHTTPResponseHeader().addHeader("Expires","Mon, 26 Jul 1997 05:00:00 GMT");
+    *out << infoExtractor_->getImage().str();
     theActionFlag = NoAction;    
   }
     
@@ -245,6 +248,11 @@ void SiStripWebInterface::performAction() {
   case SiStripWebInterface::PlotHistogramFromPath :
     {
       infoExtractor_->plotHistosFromPath((*mui_p), requestMap_);
+      break;
+    }
+  case SiStripWebInterface::PlotHistogramFromLayout :
+    {
+      infoExtractor_->plotHistosFromLayout((*mui_p));
       break;
     }
   case SiStripWebInterface::NoAction :

@@ -26,6 +26,10 @@ using namespace std;
 SiStripInformationExtractor::SiStripInformationExtractor() {
   edm::LogInfo("SiStripInformationExtractor") << 
     " Creating SiStripInformationExtractor " << "\n" ;
+  layoutParser_ = 0;
+  layoutMap.clear();
+  readConfiguration();
+  canvas_ = new TCanvas("TestCanvas", "Test Canvas");
 }
 //
 // --  Destructor
@@ -33,8 +37,19 @@ SiStripInformationExtractor::SiStripInformationExtractor() {
 SiStripInformationExtractor::~SiStripInformationExtractor() {
   edm::LogInfo("SiStripInformationExtractor") << 
     " Deleting SiStripInformationExtractor " << "\n" ;
-  //  if (theCanvas) delete theCanvas;
- //  if (theCanvas) delete theCanvas;
+  if (layoutParser_) delete layoutParser_;
+  if (canvas_) delete canvas_;
+
+}
+//
+// -- Read Configurationn File
+//
+void SiStripInformationExtractor::readConfiguration() {
+  string localPath = string("DQM/SiStripMonitorClient/test/sistrip_plot_layout.xml");
+  if (layoutParser_ == 0) {
+    layoutParser_ = new SiStripLayoutParser();
+    layoutParser_->getDocument(edm::FileInPath(localPath).fullPath());
+  }
 }
 //
 // --  Fill Histo and Module List
@@ -254,6 +269,9 @@ void SiStripInformationExtractor::plotSingleModuleHistos(MonitorUserInterface* m
   mui->cd();
 
   plotHistos(req_map,me_list,false);
+  fillImageBuffer();
+  canvas_->Clear();
+
 }
 //
 // --  Plot Selected Monitor Elements
@@ -271,6 +289,9 @@ void SiStripInformationExtractor::plotGlobalHistos(MonitorUserInterface* mui, mu
   mui->cd();
 
   plotHistos(req_map,me_list,false);
+  fillImageBuffer();
+  canvas_->Clear();
+
 }
 //
 // -- plot a Histogram
@@ -297,7 +318,44 @@ void SiStripInformationExtractor::plotHistosFromPath(MonitorUserInterface * mui,
   if (me_list.size() == 0) return; 
   if (htype == "summary") plotHistos(req_map, me_list, true);
   else plotHistos(req_map, me_list, false); 
+
+  fillImageBuffer();
+  canvas_->Clear();
+
 }
+//
+// plot Histograms from Layout
+//
+void SiStripInformationExtractor::plotHistosFromLayout(MonitorUserInterface * mui){
+
+  if (layoutParser_->getAllLayouts(layoutMap)) {
+     edm::LogInfo("SiStripInformationExtractor") << 
+    " Layouts correctly readout " << "\n" ;
+  } else  edm::LogInfo("SiStripInformationExtractor") << 
+          " Problem in reading Layout " << "\n" ;
+
+  if (layoutMap.size() == 0) return;
+  multimap<string, string> opt_map;
+  opt_map.insert(pair<string,string>("width","600"));
+  opt_map.insert(pair<string,string>("height","600"));
+
+  for (map<std::string, std::vector< std::string > >::iterator it = layoutMap.begin() ; it != layoutMap.end(); it++) {
+    string fname  = it->first + ".png";
+    vector < MonitorElement* > me_list;
+    for (vector<string>::iterator im = it->second.begin(); 
+	 im != it->second.end(); im++) {  
+      string path_name = (*im);
+      if (path_name.size() == 0) continue;
+      MonitorElement* me = mui->get(path_name);
+      if (me) me_list.push_back(me);
+    }
+    if (me_list.size() == 0) return; 
+    plotHistos(opt_map, me_list, false); 
+    canvas_->Print(fname.c_str(),"png");
+    canvas_->Clear();
+  }
+}
+
 //
 //  plot Histograms in a Canvas
 //
@@ -305,11 +363,10 @@ void SiStripInformationExtractor::plotHistos(multimap<string,string>& req_map,
   			   vector<MonitorElement*> me_list, bool sflag){
   int nhist = me_list.size();
   if (nhist == 0) return;
-  int width = 600;
-  int height = 600;
-  TCanvas canvas("TestCanvas", "Test Canvas");
-  canvas.Clear();
-  int ncol, nrow;
+  int width = 900;
+  int height = 900;
+  canvas_->Clear();
+  int ncol = 1, nrow = 1;
  
   float xlow = -1.0;
   float xhigh = -1.0;
@@ -321,8 +378,8 @@ void SiStripInformationExtractor::plotHistos(multimap<string,string>& req_map,
     if (sflag) nrow = 2;
     else nrow = 1;
   } else {
-    ncol = atoi(getItemValue(req_map, "cols").c_str());
-    nrow = atoi(getItemValue(req_map, "rows").c_str());
+    if (hasItem(req_map,"cols")) ncol = atoi(getItemValue(req_map, "cols").c_str());
+    if (hasItem(req_map,"rows")) nrow = atoi(getItemValue(req_map, "rows").c_str());
     if (ncol*nrow < nhist) {
       if (nhist == 2) {
 	ncol = 1;
@@ -333,8 +390,14 @@ void SiStripInformationExtractor::plotHistos(multimap<string,string>& req_map,
       } else if (nhist == 4) {
 	ncol = 2;
 	nrow = 2;
-      } else if (nhist > 4 && nhist <= 10) {
-        ncol = 2;
+      } else if (nhist == 5 ||nhist == 6 ) {
+	ncol = 2;
+	nrow = 3;
+      } else if (nhist == 7 ||nhist == 8 ) {
+	ncol = 2;
+	nrow = 4;
+      } else if (nhist > 8 && nhist <= 12) {
+        ncol = 3;
 	nrow = nhist/ncol+1;
       } else if (nhist > 10 && nhist <= 20) {
         ncol = 3;
@@ -346,7 +409,6 @@ void SiStripInformationExtractor::plotHistos(multimap<string,string>& req_map,
 
     }
   }
-
   if (hasItem(req_map,"width")) 
               width = atoi(getItemValue(req_map, "width").c_str());    
   if (hasItem(req_map,"height"))
@@ -355,8 +417,8 @@ void SiStripInformationExtractor::plotHistos(multimap<string,string>& req_map,
   string dopt;
   if (hasItem(req_map,"drawopt")) dopt = getItemValue(req_map, "drawopt");
 
-  canvas.SetWindowSize(width,height);
-  canvas.Divide(ncol, nrow);
+  canvas_->SetWindowSize(width,height);
+  canvas_->Divide(ncol, nrow);
   gStyle->SetOptTitle(0);
   gStyle->SetOptStat("emruo");
   gStyle->SetStatFontSize(0.05);
@@ -374,7 +436,7 @@ void SiStripInformationExtractor::plotHistos(multimap<string,string>& req_map,
     TH2F* hist2 = ExtractTObject<TH2F>().extract((*it));
   
     if (prof|| hist1 || hist2) {
-      canvas.cd(idir);
+      canvas_->cd(idir);
       TText tTitle;
       tTitle.SetTextFont(64);
       tTitle.SetTextSizePixels(20);
@@ -422,7 +484,7 @@ void SiStripInformationExtractor::plotHistos(multimap<string,string>& req_map,
 	  }
 	  if (sflag) {
 	    hist1->Draw();
-	    canvas.cd(idir+1); 	
+	    canvas_->cd(idir+1); 	
             gPad->SetLogy(1);
             thproj.DrawCopy();
 	  }
@@ -441,9 +503,8 @@ void SiStripInformationExtractor::plotHistos(multimap<string,string>& req_map,
       }
     }
   }
-  canvas.Update();
-  fillImageBuffer(canvas);
-  canvas.Clear();
+  canvas_->Update();
+  canvas_->Modified();
 }
 //
 // read the Module And HistoList
@@ -564,14 +625,14 @@ string SiStripInformationExtractor::getItemValue(multimap<string,string>& req_ma
 //
 // write the canvas in a string
 //
-void SiStripInformationExtractor::fillImageBuffer(TCanvas& c1) {
+void SiStripInformationExtractor::fillImageBuffer() {
 
-  c1.SetFixedAspectRatio(kTRUE);
-  c1.SetCanvasSize(520, 440);
+  canvas_->SetFixedAspectRatio(kTRUE);
+  //  canvas_->SetCanvasSize(520, 440);
   // Now extract the image
   // 114 - stands for "no write on Close"
   TImageDump imgdump("tmp.png", 114);
-  c1.Paint();
+  canvas_->Paint();
 
  // get an internal image which will be automatically deleted
  // in the imgdump destructor
