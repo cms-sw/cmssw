@@ -202,7 +202,7 @@ void HcalLEDClient::unsubscribe(void){
 }
 
 void HcalLEDClient::errorOutput(){
-
+  if(!mui_) return;
   dqmReportMapErr_.clear(); dqmReportMapWarn_.clear(); dqmReportMapOther_.clear();
   
   for (map<string, string>::iterator testsMap=dqmQtests_.begin(); testsMap!=dqmQtests_.end();testsMap++){
@@ -248,7 +248,7 @@ void HcalLEDClient::getErrors(map<string, vector<QReport*> > outE, map<string, v
 }
 
 void HcalLEDClient::report(){
-
+   if(!mui_) return;
   if ( verbose_ ) cout << "HcalLEDClient: report" << endl;
   this->setup();
 
@@ -266,6 +266,7 @@ void HcalLEDClient::report(){
 }
 
 void HcalLEDClient::getHistograms(){
+  if(!mui_) return;
   char name[256];
   for(int i=0; i<4; i++){
     string type = "HB";
@@ -345,7 +346,8 @@ void HcalLEDClient::getHistograms(){
 void HcalLEDClient::analyze(void){
   
   jevt_++;
-  int updates = mui_->getNumUpdates();
+  int updates = 0;
+  if(mui_) mui_->getNumUpdates();
   if ( (updates % 10) == 0 ) {
     if ( verbose_ ) cout << "HcalLEDClient: " << updates << " updates" << endl;
   }
@@ -354,10 +356,12 @@ void HcalLEDClient::analyze(void){
 }
 
 void HcalLEDClient::createTests(){
+  if(!mui_) return;
+  
   char meTitle[250], name[250];    
   vector<string> params;
 
-  printf("Creating LED tests...\n");
+  if(verbose_) printf("Creating LED tests...\n");
   
   for(int i=0; i<4; i++){
     string type = "HB";
@@ -402,7 +406,7 @@ void HcalLEDClient::createTests(){
 }
 
 void HcalLEDClient::resetME(){
-
+  if(!mui_) return;
   Char_t name[150];    
   MonitorElement* me;
   

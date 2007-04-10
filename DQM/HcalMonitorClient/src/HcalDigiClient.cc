@@ -43,9 +43,9 @@ HcalDigiClient::HcalDigiClient(const ParameterSet& ps, MonitorUserInterface* mui
 HcalDigiClient::HcalDigiClient(){
   dqmReportMapErr_.clear(); dqmReportMapWarn_.clear(); dqmReportMapOther_.clear();
   dqmQtests_.clear();
-
+  
   mui_ = 0;
-    for(int i=0; i<4; i++){
+  for(int i=0; i<4; i++){
     gl_occ_geo[i]=0;
     gl_err_geo=0;
     if(i<3) gl_occ_elec[i]=0;
@@ -234,7 +234,8 @@ void HcalDigiClient::errorOutput(){
   for (map<string, string>::iterator testsMap=dqmQtests_.begin(); testsMap!=dqmQtests_.end();testsMap++){
     string testName = testsMap->first;
     string meName = testsMap->second;
-    MonitorElement* me = mui_->get(meName);
+    MonitorElement* me = 0;
+    if(mui_) me = mui_->get(meName);
     if(me){
       if (me->hasError()){
 	vector<QReport*> report =  me->getQErrors();
@@ -280,7 +281,8 @@ void HcalDigiClient::report(){
   
   char name[256];
   sprintf(name, "%sHcalMonitor/DigiMonitor/Digi Task Event Number",process_.c_str());
-  MonitorElement* me = mui_->get(name);
+  MonitorElement* me = 0;
+  if(mui_) me = mui_->get(name);
   if ( me ) {
     string s = me->valueString();
     ievt_ = -1;
@@ -296,7 +298,8 @@ void HcalDigiClient::report(){
 void HcalDigiClient::analyze(void){
 
   jevt_++;
-  int updates = mui_->getNumUpdates();
+  int updates = 0;
+  if(mui_) mui_->getNumUpdates();
   if ( updates % 10 == 0 ) {
     if ( verbose_ ) cout << "HcalDigiClient: " << updates << " updates" << endl;
   }
@@ -305,61 +308,61 @@ void HcalDigiClient::analyze(void){
 }
 
 void HcalDigiClient::getHistograms(){
+  if(!mui_) return;
+
   char name[150];    
-
-
-    sprintf(name,"DigiMonitor/Digi Geo Error Map");
-    gl_err_geo = getHisto2(name, process_, mui_,verbose_,cloneME_);
-
-    sprintf(name,"DigiMonitor/Digi VME Error Map");
-    gl_err_elec[0] = getHisto2(name,process_, mui_,verbose_,cloneME_);
-
-    sprintf(name,"DigiMonitor/Digi FIB Error Map");
-    gl_err_elec[1] = getHisto2(name,process_, mui_,verbose_,cloneME_);
-
-    sprintf(name,"DigiMonitor/Digi Spigot Error Map");
-    gl_err_elec[2] = getHisto2(name,process_, mui_,verbose_,cloneME_);
-
-    sprintf(name,"DigiMonitor/Digi Depth 1 Occupancy Map");
-    gl_occ_geo[0] = getHisto2(name, process_, mui_,verbose_,cloneME_);
-
-    sprintf(name,"DigiMonitor/Digi Depth 2 Occupancy Map");
-    gl_occ_geo[1] = getHisto2(name, process_, mui_,verbose_,cloneME_);
-
-    sprintf(name,"DigiMonitor/Digi Depth 3 Occupancy Map");
-    gl_occ_geo[2] = getHisto2(name, process_, mui_,verbose_,cloneME_);
-
-    sprintf(name,"DigiMonitor/Digi Depth 4 Occupancy Map");
-    gl_occ_geo[3] = getHisto2(name, process_, mui_,verbose_,cloneME_);
-
-    sprintf(name,"DigiMonitor/Digi VME Occupancy Map");
-    gl_occ_elec[0] = getHisto2(name,process_, mui_,verbose_,cloneME_);
-
-    sprintf(name,"DigiMonitor/Digi Fiber Occupancy Map");
-    gl_occ_elec[1] = getHisto2(name,process_, mui_,verbose_,cloneME_);
-
-    sprintf(name,"DigiMonitor/Digi Spigot Occupancy Map");
-    gl_occ_elec[2] = getHisto2(name,process_, mui_,verbose_,cloneME_);
-    
-    sprintf(name,"DigiMonitor/Digi Eta Occupancy Map");
-    gl_occ_eta = getHisto(name,process_, mui_,verbose_,cloneME_);
-
-    sprintf(name,"DigiMonitor/Digi Phi Occupancy Map");
-    gl_occ_phi = getHisto(name,process_, mui_,verbose_,cloneME_);
-
-
+  sprintf(name,"DigiMonitor/Digi Geo Error Map");
+  gl_err_geo = getHisto2(name, process_, mui_,verbose_,cloneME_);
+  
+  sprintf(name,"DigiMonitor/Digi VME Error Map");
+  gl_err_elec[0] = getHisto2(name,process_, mui_,verbose_,cloneME_);
+  
+  sprintf(name,"DigiMonitor/Digi Fiber Error Map");
+  gl_err_elec[1] = getHisto2(name,process_, mui_,verbose_,cloneME_);
+  
+  sprintf(name,"DigiMonitor/Digi Spigot Error Map");
+  gl_err_elec[2] = getHisto2(name,process_, mui_,verbose_,cloneME_);
+  
+  sprintf(name,"DigiMonitor/Digi Depth 1 Occupancy Map");
+  gl_occ_geo[0] = getHisto2(name, process_, mui_,verbose_,cloneME_);
+  
+  sprintf(name,"DigiMonitor/Digi Depth 2 Occupancy Map");
+  gl_occ_geo[1] = getHisto2(name, process_, mui_,verbose_,cloneME_);
+  
+  sprintf(name,"DigiMonitor/Digi Depth 3 Occupancy Map");
+  gl_occ_geo[2] = getHisto2(name, process_, mui_,verbose_,cloneME_);
+  
+  sprintf(name,"DigiMonitor/Digi Depth 4 Occupancy Map");
+  gl_occ_geo[3] = getHisto2(name, process_, mui_,verbose_,cloneME_);
+  
+  sprintf(name,"DigiMonitor/Digi VME Occupancy Map");
+  gl_occ_elec[0] = getHisto2(name,process_, mui_,verbose_,cloneME_);
+  
+  sprintf(name,"DigiMonitor/Digi Fiber Occupancy Map");
+  gl_occ_elec[1] = getHisto2(name,process_, mui_,verbose_,cloneME_);
+  
+  sprintf(name,"DigiMonitor/Digi Spigot Occupancy Map");
+  gl_occ_elec[2] = getHisto2(name,process_, mui_,verbose_,cloneME_);
+  
+  sprintf(name,"DigiMonitor/Digi Eta Occupancy Map");
+  gl_occ_eta = getHisto(name,process_, mui_,verbose_,cloneME_);
+  
+  sprintf(name,"DigiMonitor/Digi Phi Occupancy Map");
+  gl_occ_phi = getHisto(name,process_, mui_,verbose_,cloneME_);
+  
+  
   for(int i=0; i<4; i++){
     string type = "HB";
     if(i==1) type = "HE";
     if(i==2) type = "HO"; 
     if(i==3) type = "HF"; 
-
+    
     sprintf(name,"DigiMonitor/%s/%s Digi Geo Error Map",type.c_str(),type.c_str());
     sub_err_geo[i] = getHisto2(name, process_, mui_,verbose_,cloneME_);
-
+    
     sprintf(name,"DigiMonitor/%s/%s Digi VME Error Map",type.c_str(),type.c_str());
     sub_err_elec[i][0] = getHisto2(name,process_, mui_,verbose_,cloneME_);
-
+    
     sprintf(name,"DigiMonitor/%s/%s Digi Fiber Error Map",type.c_str(),type.c_str());
     sub_err_elec[i][1] = getHisto2(name,process_, mui_,verbose_,cloneME_);
 
@@ -407,8 +410,10 @@ void HcalDigiClient::getHistograms(){
 
 void HcalDigiClient::resetME(){
   
+  if(!mui_) return;
+
   Char_t name[150];    
-  MonitorElement* me;
+  MonitorElement* me=0;
 
   for(int i=0; i<4; i++){
     string type = "HB";
@@ -581,10 +586,12 @@ void HcalDigiClient::htmlOutput(int run, string htmlDir, string htmlName){
 }
 
 void HcalDigiClient::createTests(){
+  if(!mui_) return;
+
   char meTitle[250], name[250];    
   vector<string> params;
   
-  printf("Creating Digi tests...\n");
+  if(verbose_) printf("Creating Digi tests...\n");
   
   for(int i=0; i<3; i++){
     string type = "HB";

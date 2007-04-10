@@ -194,7 +194,7 @@ void HcalLEDMonitor::processEvent(const HBHEDigiCollection& hbhe,
 	hfHists.shapePED->Fill(i,digi.sample(i).adc()-calibs_.pedestal(digi.sample(i).capid()));
 	vals[i] = digi.sample(i).adc()-calibs_.pedestal(digi.sample(i).capid());
       }
-      if(doPerChannel_) perChanHists(2,digi.id(),vals,hfHists.shape, hfHists.time);
+      if(doPerChannel_) perChanHists(3,digi.id(),vals,hfHists.shape, hfHists.time);
     }
   } catch (...) {
     cout << "HcalLEDMonitor::processEvent  No HF Digis." << endl;

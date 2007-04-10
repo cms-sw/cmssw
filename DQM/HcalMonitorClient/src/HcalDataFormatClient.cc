@@ -108,14 +108,13 @@ void HcalDataFormatClient::cleanup(void) {
       if ( fiberErrMap[i]) delete fiberErrMap[i];
       if ( spigotErrMap[i]) delete spigotErrMap[i];
     }
-  }
-
-  if ( spigotErrs) delete spigotErrs;
-  if ( badDigis) delete badDigis;
-  if ( unmappedDigis) delete unmappedDigis;
-  if ( unmappedTPDs) delete unmappedTPDs;
-  if ( fedErrMap) delete fedErrMap;
-
+  
+    if ( spigotErrs) delete spigotErrs;
+    if ( badDigis) delete badDigis;
+    if ( unmappedDigis) delete unmappedDigis;
+    if ( unmappedTPDs) delete unmappedTPDs;
+    if ( fedErrMap) delete fedErrMap;
+  }  
   for(int i=0; i<3; i++){
     dferr[i] = NULL;
     crateErrMap[i] =NULL;
@@ -157,6 +156,8 @@ void HcalDataFormatClient::unsubscribe(void){
 
 void HcalDataFormatClient::errorOutput(){
   
+  if(!mui_) return;
+
   dqmReportMapErr_.clear(); dqmReportMapWarn_.clear(); dqmReportMapOther_.clear();
   
   for (map<string, string>::iterator testsMap=dqmQtests_.begin(); testsMap!=dqmQtests_.end();testsMap++){
@@ -203,7 +204,8 @@ void HcalDataFormatClient::getErrors(map<string, vector<QReport*> > outE, map<st
 void HcalDataFormatClient::analyze(void){
 
   jevt_++;
-  int updates = mui_->getNumUpdates();
+  int updates = 0;
+  if(mui_) mui_->getNumUpdates();
   if ( updates % 10 == 0 ) {
     if ( verbose_ ) cout << "HcalDataFormatClient: " << updates << " updates" << endl;
   }
@@ -230,8 +232,8 @@ void HcalDataFormatClient::getHistograms(){
   
   for(int i=0; i<3; i++){
     string type = "HBHE";
-    if(i==1) type = "HF";
-    if(i==2) type = "HO";
+    if(i==1) type = "HO";
+    if(i==2) type = "HF";
     sprintf(name,"DataFormatMonitor/%s Data Format Error Words", type.c_str());
     dferr[i] = getHisto(name, process_, mui_, verbose_,cloneME_);    
     labelBits(dferr[i]);
@@ -272,7 +274,7 @@ void HcalDataFormatClient::labelBits(TH1F* hist){
 }
 
 void HcalDataFormatClient::report(){
-
+  if(!mui_) return;
   if ( verbose_ ) cout << "HcalDataFormatClient: report" << endl;
   this->setup();
   
@@ -292,6 +294,8 @@ void HcalDataFormatClient::report(){
 }
 
 void HcalDataFormatClient::resetME(){
+
+  if(!mui_) return;
   
   MonitorElement* me;
   char name[150];     
@@ -301,43 +305,43 @@ void HcalDataFormatClient::resetME(){
   if(me) mui_->softReset(me);
 
   sprintf(name,"%sHcalMonitor/HcalMonitor/DataFormatMonitor/Bad Quality Digis",process_.c_str());
-  me = mui_->get(name);
+   me = mui_->get(name);
   if(me) mui_->softReset(me);
 
   sprintf(name,"%sHcalMonitor/HcalMonitor/DataFormatMonitor/Unmapped Digis",process_.c_str());
-  me = mui_->get(name);
+   me = mui_->get(name);
   if(me) mui_->softReset(me);
 
   sprintf(name,"%sHcalMonitor/HcalMonitor/DataFormatMonitor/Unmapped Trigger Primitive Digis",process_.c_str());
-  me = mui_->get(name);
+   me = mui_->get(name);
   if(me) mui_->softReset(me);
 
   sprintf(name,"%sHcalMonitor/HcalMonitor/DataFormatMonitor/FED Error Map",process_.c_str());
-  me = mui_->get(name);
+   me = mui_->get(name);
   if(me) mui_->softReset(me);
 
   for(int i=0; i<3; i++){
     string type = "HBHE";
-    if(i==1) type = "HF";
-    if(i==2) type = "HO";
+    if(i==1) type = "HO";
+    if(i==2) type = "HF";
     sprintf(name,"%sHcalMonitor/DataFormatMonitor/%s Data Format Error Words",process_.c_str(), type.c_str());
-      me = mui_->get(name);
-  if(me) mui_->softReset(me);
+     me = mui_->get(name);
+    if(me) mui_->softReset(me);
 
     sprintf(name,"%sHcalMonitor/DataFormatMonitor/%s Data Format Crate Error Map",process_.c_str(), type.c_str());
-  me = mui_->get(name);
-  if(me) mui_->softReset(me);
+    me = mui_->get(name);
+    if(me) mui_->softReset(me);
 
     sprintf(name,"%sHcalMonitor/DataFormatMonitor/%s Data Format Fiber Error Map",process_.c_str(), type.c_str());
-  me = mui_->get(name);
-  if(me) mui_->softReset(me);
-
+    me = mui_->get(name);
+    if(me) mui_->softReset(me);
+    
     sprintf(name,"%sHcalMonitor/DataFormatMonitor/%s Data Format Spigot Error Map",process_.c_str(), type.c_str());
-  me = mui_->get(name);
-  if(me) mui_->softReset(me);
-
+    me = mui_->get(name);
+    if(me) mui_->softReset(me);
+    
   }
-
+  
   return;
 }
 
@@ -408,8 +412,8 @@ void HcalDataFormatClient::htmlOutput(int run, string htmlDir, string htmlName){
 
    for(int i=0; i<3; i++){
      string type = "HBHE";
-     if(i==1) type = "HF"; 
-     if(i==2) type = "HO"; 
+     if(i==1) type = "HO"; 
+     if(i==2) type = "HF"; 
      htmlFile << "<td>&nbsp;&nbsp;&nbsp;<a name=\""<<type<<"_Plots\"><h3>" << type << " Histograms</h3></td></tr>" << endl;
      htmlFile << "<tr align=\"left\">" << endl;  
      histoHTML(dferr[i],"Error Bit","Frequency", 92, htmlFile,htmlDir);
@@ -433,10 +437,12 @@ void HcalDataFormatClient::htmlOutput(int run, string htmlDir, string htmlName){
 
 
 void HcalDataFormatClient::createTests(){
+  if(!mui_) return;
+
   char meTitle[250], name[250];    
   vector<string> params;
   
-  printf("Creating Data Format tests...\n"); 
+  if(verbose_) printf("Creating Data Format tests...\n"); 
   
   for(int i=0; i<3; i++){
     string type = "HBHE";
@@ -490,8 +496,8 @@ void HcalDataFormatClient::loadHistograms(TFile* infile){
   
   for(int i=0; i<3; i++){
     string type = "HBHE";
-    if(i==1) type = "HF";
-    if(i==2) type = "HO";
+    if(i==1) type = "HO";
+    if(i==2) type = "HF";
     sprintf(name,"DQMData/HcalMonitor/DataFormatMonitor/%s Data Format Error Words", type.c_str());
     dferr[i] = (TH1F*)infile->Get(name);    
     labelBits(dferr[i]);

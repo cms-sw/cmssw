@@ -9,6 +9,8 @@ HcalHotCellClient::HcalHotCellClient(const ParameterSet& ps, MonitorUserInterfac
   for(int i=0; i<4; i++){
     occ_geo[i]=0;
     occ_en[i]=0;
+    gl_geo[i]=0;
+    gl_en[i]=0;
     max_en[i]=0;
     max_t[i]=0;
   }
@@ -32,6 +34,8 @@ HcalHotCellClient::HcalHotCellClient(){
   for(int i=0; i<4; i++){
     occ_geo[i]=0;
     occ_en[i]=0;
+    gl_geo[i]=0;
+    gl_en[i]=0;
     max_en[i]=0;
     max_t[i]=0;
   }
@@ -99,6 +103,8 @@ void HcalHotCellClient::cleanup(void) {
     for(int i=0; i<4; i++){
       if ( occ_geo[i]) delete occ_geo[i];  
       if ( occ_en[i]) delete occ_en[i];  
+      if ( gl_geo[i]) delete gl_geo[i];  
+      if ( gl_en[i]) delete gl_en[i];  
       if ( max_en[i]) delete max_en[i];  
       if ( max_t[i]) delete max_t[i];  
 
@@ -107,6 +113,8 @@ void HcalHotCellClient::cleanup(void) {
   for(int i=0; i<4; i++){
     occ_geo[i]=0;
     occ_en[i]=0;
+    gl_geo[i]=0;
+    gl_en[i]=0;
     max_en[i]=0;
     max_t[i]=0;
   }
@@ -126,7 +134,7 @@ void HcalHotCellClient::subscribe(void){
     mui_->subscribe("*/HcalMonitor/HotCellMonitor/HF/*");
     mui_->subscribe("*/HcalMonitor/HotCellMonitor/HO/*");
   }
-    return;
+  return;
 }
 
 void HcalHotCellClient::subscribeNew(void){
@@ -152,7 +160,7 @@ void HcalHotCellClient::unsubscribe(void){
 }
 
 void HcalHotCellClient::errorOutput(){
-  
+  if(!mui_) return;
   dqmReportMapErr_.clear(); dqmReportMapWarn_.clear(); dqmReportMapOther_.clear();
   
   for (map<string, string>::iterator testsMap=dqmQtests_.begin(); testsMap!=dqmQtests_.end();testsMap++){
@@ -204,7 +212,8 @@ void HcalHotCellClient::report(){
   
   char name[256];
   sprintf(name, "%sHcalMonitor/HotCellMonitor/HotCell Task Event Number",process_.c_str());
-  MonitorElement* me = mui_->get(name);
+  MonitorElement* me = 0;
+  if(mui_) me = mui_->get(name);
   if ( me ) {
     string s = me->valueString();
     ievt_ = -1;
@@ -220,7 +229,8 @@ void HcalHotCellClient::report(){
 void HcalHotCellClient::analyze(void){
 
   jevt_++;
-  int updates = mui_->getNumUpdates();
+  int updates = 0;
+  if(mui_) mui_->getNumUpdates();
   if ( updates % 10 == 0 ) {
     if ( verbose_ ) cout << "HcalHotCellClient: " << updates << " updates" << endl;
   }
@@ -229,22 +239,29 @@ void HcalHotCellClient::analyze(void){
 }
 
 void HcalHotCellClient::getHistograms(){
+  if(!mui_) return;
   char name[150];    
+  
   for(int i=0; i<4; i++){
     string type = "HB";
     if(i==1) type = "HE"; 
     if(i==2) type = "HO"; 
     if(i==3) type = "HF"; 
 
+    sprintf(name,"HotCellMonitor/HotCell Depth %d Occupancy Map",i+1);
+    gl_geo[i] = getHisto2(name, process_, mui_,verbose_,cloneME_);
+    
+    sprintf(name,"HotCellMonitor/HotCell Depth %d Energy Map",i+1);
+    gl_en[i] = getHisto2(name, process_, mui_,verbose_,cloneME_);
+
     sprintf(name,"HotCellMonitor/%s/%s HotCell Geo Occupancy Map",type.c_str(),type.c_str());
     occ_geo[i] = getHisto2(name, process_, mui_,verbose_,cloneME_);
-
+    
     sprintf(name,"HotCellMonitor/%s/%s HotCell Geo Energy Map",type.c_str(),type.c_str());
     occ_en[i] = getHisto2(name, process_, mui_,verbose_,cloneME_);
 
     sprintf(name,"HotCellMonitor/%s/%s HotCell Energy",type.c_str(),type.c_str());
     max_en[i] = getHisto(name, process_, mui_,verbose_,cloneME_);
-
     sprintf(name,"HotCellMonitor/%s/%s HotCell Time",type.c_str(),type.c_str());
     max_t[i] = getHisto(name, process_, mui_,verbose_,cloneME_);
   }
@@ -252,7 +269,8 @@ void HcalHotCellClient::getHistograms(){
 }
 
 void HcalHotCellClient::resetME(){
-  
+  if(!mui_) return;
+
   Char_t name[150];    
   MonitorElement* me;
 
@@ -314,7 +332,28 @@ void HcalHotCellClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
   htmlFile << "cellpadding=\"10\"> " << endl;
-  
+  htmlFile << "<td>&nbsp;&nbsp;&nbsp;<h3>Global Histograms</h3></td></tr>" << endl;
+
+  htmlFile << "<tr align=\"left\">" << endl;	
+  histoHTML2(gl_geo[0],"iEta","iPhi", 92, htmlFile,htmlDir);
+  histoHTML2(gl_en[0],"iEta","iPhi", 100, htmlFile,htmlDir);
+  htmlFile << "</tr>" << endl;
+
+  htmlFile << "<tr align=\"left\">" << endl;	
+  histoHTML2(gl_geo[1],"iEta","iPhi", 92, htmlFile,htmlDir);
+  histoHTML2(gl_en[1],"iEta","iPhi", 100, htmlFile,htmlDir);
+  htmlFile << "</tr>" << endl;
+
+  htmlFile << "<tr align=\"left\">" << endl;	
+  histoHTML2(gl_geo[2],"iEta","iPhi", 92, htmlFile,htmlDir);
+  histoHTML2(gl_en[2],"iEta","iPhi", 100, htmlFile,htmlDir);
+  htmlFile << "</tr>" << endl;
+
+  htmlFile << "<tr align=\"left\">" << endl;	
+  histoHTML2(gl_geo[3],"iEta","iPhi", 92, htmlFile,htmlDir);
+  histoHTML2(gl_en[3],"iEta","iPhi", 100, htmlFile,htmlDir);
+  htmlFile << "</tr>" << endl;
+
   for(int i=0; i<4; i++){
     htmlFile << "<tr align=\"left\">" << endl;
     
@@ -351,7 +390,7 @@ void HcalHotCellClient::createTests(){
   //  char meTitle[250], name[250];    
   //  vector<string> params;
   
-  printf("Creating Hot Cell tests...\n");
+  if(verbose_) printf("There are NO hot cell client tests....\n");
    
   return;
 }
@@ -371,7 +410,13 @@ void HcalHotCellClient::loadHistograms(TFile* infile){
     if(i==1) type = "HE"; 
     if(i==2) type = "HO"; 
     if(i==3) type = "HF"; 
-    
+
+    sprintf(name,"DQMData/HcalMonitor/HotCellMonitor/HotCell Depth %d Occupancy Map",i+1);
+    gl_geo[i] = (TH2F*)infile->Get(name);
+
+    sprintf(name,"DQMData/HcalMonitor/HotCellMonitor/HotCell Depth %d Energy Map",i+1);
+    gl_en[i] = (TH2F*)infile->Get(name);
+
     sprintf(name,"DQMData/HcalMonitor/HotCellMonitor/%s/%s HotCell Geo Occupancy Map",type.c_str(),type.c_str());
     occ_geo[i] = (TH2F*)infile->Get(name);
 

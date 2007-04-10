@@ -95,7 +95,12 @@ public:
 
 
 private:
-  
+
+  void generateBadChanList(string dir);
+  vector<int> badChan;
+  vector<double> badMean;
+  vector<double> badRMS;
+
   int ievt_;
   int jevt_;
   
@@ -118,12 +123,20 @@ private:
   TH1F* all_peds[3];
   TH1F* ped_rms[3];
   TH1F* ped_mean[3];
+
+  TH1F* sub_rms[3];
+  TH1F* sub_mean[3];
+
   TH1F* capid_mean[3];
   TH1F* capid_rms[3];
   TH1F* qie_mean[3];
   TH1F* qie_rms[3];
-  TH2F* pedMapMean[4];
-  TH2F* pedMapRMS[4];
+
+  TH2F* pedMapMean_D[4];
+  TH2F* pedMapRMS_D[4];
+
+  TH2F* pedMapMean_E[3];
+  TH2F* pedMapRMS_E[3];
 
   TH2F* err_map_geo[3];
   TH2F* err_map_elec[3];

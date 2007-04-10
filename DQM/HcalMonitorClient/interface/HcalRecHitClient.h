@@ -91,7 +91,7 @@ private:
 
   MonitorUserInterface* mui_;
 
-  TH2F* tot_occ;
+  TH2F* tot_occ[4];
   TH1F* tot_energy;
 
   TH2F* occ[4];

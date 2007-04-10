@@ -5,8 +5,8 @@
 
 /** \class HcalPedestalMonitor
   *  
-  * $Date: 2006/12/12 19:10:27 $
-  * $Revision: 1.6 $
+  * $Date: 2007/04/02 13:19:38 $
+  * $Revision: 1.7 $
   * \author W. Fisher - FNAL
   */
 class HcalPedestalMonitor: public HcalBaseMonitor {
@@ -23,7 +23,7 @@ public:
   void clearME();
 
 private: 
-  void perChanHists(int id, const HcalDetId detid, const HcalQIESample& qie, map<HcalDetId, map<int, MonitorElement*> > &tool);
+  void perChanHists(int id, const HcalDetId detid, const HcalQIESample& qie, map<HcalDetId, map<int, MonitorElement*> > &toolP, map<HcalDetId, map<int, MonitorElement*> > &toolS);
 
   bool m_doPerChannel;
   map<HcalDetId, map<int,MonitorElement*> >::iterator _meo;
@@ -31,6 +31,7 @@ private:
   string m_outputFile;
   const HcalQIEShape* m_shape;
   const HcalQIECoder* m_coder;
+  HcalCalibrations calibs_;
 
   MonitorElement* meEVT_;
   int ievt_;
@@ -39,23 +40,36 @@ private:
   int etaBins_, phiBins_;
   map<HcalDetId,bool> REG;
 
-  MonitorElement* MEAN_MAP1;
-  MonitorElement*  RMS_MAP1;
+  MonitorElement* MEAN_MAP_L1;
+  MonitorElement*  RMS_MAP_L1;
 
-  MonitorElement* MEAN_MAP2;
-  MonitorElement*  RMS_MAP2;
+  MonitorElement* MEAN_MAP_L2;
+  MonitorElement*  RMS_MAP_L2;
 
-  MonitorElement* MEAN_MAP3;
-  MonitorElement*  RMS_MAP3;
+  MonitorElement* MEAN_MAP_L3;
+  MonitorElement*  RMS_MAP_L3;
 
-  MonitorElement* MEAN_MAP4;
-  MonitorElement*  RMS_MAP4;
+  MonitorElement* MEAN_MAP_L4;
+  MonitorElement*  RMS_MAP_L4;
+
+  MonitorElement* MEAN_MAP_CR;
+  MonitorElement*  RMS_MAP_CR;
+
+  MonitorElement* MEAN_MAP_FIB;
+  MonitorElement*  RMS_MAP_FIB;
+
+  MonitorElement* MEAN_MAP_SP;
+  MonitorElement*  RMS_MAP_SP;
 
   struct{
     map<HcalDetId,map<int, MonitorElement*> > PEDVALS;
+    map<HcalDetId,map<int, MonitorElement*> > SUBVALS;
     MonitorElement* ALLPEDS;
     MonitorElement* PEDRMS;
     MonitorElement* PEDMEAN;    
+
+    MonitorElement* SUBMEAN;    
+    MonitorElement* NSIGMA;    
 
     MonitorElement* CAPIDRMS;
     MonitorElement* CAPIDMEAN;    

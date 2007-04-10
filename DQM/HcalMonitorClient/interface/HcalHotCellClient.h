@@ -92,6 +92,9 @@ private:
 
   MonitorUserInterface* mui_;
 
+  TH2F* gl_geo[4];
+  TH2F* gl_en[4];
+
   TH2F* occ_geo[4];
   TH2F* occ_en[4];
   TH1F* max_en[4];

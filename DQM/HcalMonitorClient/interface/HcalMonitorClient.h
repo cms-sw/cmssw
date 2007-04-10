@@ -102,6 +102,7 @@ private:
   void removeAll();
   
   DaqMonitorBEInterface* m_dbe;
+  MonitorUserInterface* mui_;
 
   int ievt_, jevt_;
 
@@ -112,7 +113,6 @@ private:
   bool cloneME_;
   bool offline_;
 
-  MonitorUserInterface* mui_;
   string clientName_;
   string hostName_;
   int hostPort_;
