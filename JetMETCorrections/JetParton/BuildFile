@@ -2,7 +2,7 @@
 <use name=DataFormats/Common>
 <use name=JetMETCorrections/Objects>
 <use name=FWCore/Framework>
-<use name=Foundation/PluginManager>
+<use name=FWCore/PluginManager>
 <use name=FWCore/ParameterSet>
 <use name=DataFormats/JetReco>
 <use name=DataFormats/RecoCandidate>
