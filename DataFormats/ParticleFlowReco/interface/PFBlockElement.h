@@ -41,7 +41,7 @@ namespace reco {
       type_( NONE ), 
       locked_(false), 
       index_( static_cast<unsigned>(-1) ) {
-      ++instanceCounter_;
+/*       ++instanceCounter_; */
     }
 
     /// standard constructor
@@ -50,22 +50,22 @@ namespace reco {
       type_(type), 
       locked_(false),
       index_( static_cast<unsigned>(-1) ) {
-      ++instanceCounter_;    
+/*       ++instanceCounter_;     */
     }
 
     /// copy constructor
     /// \todo remove when instanceCounter is not needed anymore
-    PFBlockElement(const PFBlockElement& other) 
-      :  
-      type_( other.type_ ), 
-      locked_( other.locked_ ),
-      index_( other.index_ )  {
-      ++instanceCounter_;
-    }
+/*     PFBlockElement(const PFBlockElement& other)  */
+/*       :   */
+/*       type_( other.type_ ),  */
+/*       locked_( other.locked_ ), */
+/*       index_( other.index_ )  { */
+/*       ++instanceCounter_; */
+/*     } */
 
     /// destructor
     virtual ~PFBlockElement() {
-      --instanceCounter_;        
+/*       --instanceCounter_;         */
     }
   
     /// print the object inside the element
@@ -73,7 +73,7 @@ namespace reco {
 		      const char* tab=" " ) const;
 
     /// necessary to have the edm::OwnVector<PFBlockElement> working
-    virtual PFBlockElement* clone() const { return new PFBlockElement(*this); }
+    virtual PFBlockElement* clone() const = 0;
       
     /// lock element
     void lock() {locked_ = true;}
@@ -93,7 +93,7 @@ namespace reco {
     /// \return index
     unsigned index() const {return index_;} 
 
-    static int instanceCounter();
+/*     static int instanceCounter(); */
  
     /// supplement dynamic_cast, but faster
     virtual const PFBlockElementCluster*   toCluster() const 
@@ -129,7 +129,7 @@ namespace reco {
     /// index in block vector 
     unsigned   index_;
 
-    static int        instanceCounter_;
+/*     static int        instanceCounter_; */
   };
 }
 #endif

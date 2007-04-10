@@ -1,14 +1,16 @@
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElement.h"
+#include "DataFormats/ParticleFlowReco/interface/PFBlockElementTrack.h"
+#include "DataFormats/ParticleFlowReco/interface/PFBlockElementCluster.h"
 
 #include <iostream>
 
 using namespace reco;
 
-int PFBlockElement::instanceCounter_ = 0;
+// int PFBlockElement::instanceCounter_ = 0;
 
-int PFBlockElement::instanceCounter() {
-  return instanceCounter_;
-}
+// int PFBlockElement::instanceCounter() {
+//   return instanceCounter_;
+// }
 
 void PFBlockElement::Dump(std::ostream& out, 
 			  const char* pad) const {
@@ -22,8 +24,35 @@ std::ostream& reco::operator<<( std::ostream& out,
   if(! out) return out;
   
   out<<"element "<<element.index()<<"- type "<<element.type_<<" ";
-  element.Dump(out);
-  
+
+  try {
+  switch(element.type_) {
+  case PFBlockElement::TRACK:
+    {
+      out<<"casting to track"<<std::endl;
+      const reco::PFBlockElementTrack& et =
+	dynamic_cast<const reco::PFBlockElementTrack &>( element );
+      et.Dump(out);
+      break;
+    }
+  case PFBlockElement::ECAL:
+  case PFBlockElement::HCAL:
+    {
+      out<<"casting to cluster"<<std::endl;
+      const reco::PFBlockElementCluster& ec =
+	dynamic_cast<const reco::PFBlockElementCluster &>( element );
+      ec.Dump(out);
+      break;
+    }
+  default:
+    out<<" unknown type"<<std::endl;
+    break;
+  }
+  }
+  catch( std::exception& err) {
+    out<<err.what()<<std::endl;
+  }
+
   return out;
 }
 
