@@ -163,10 +163,10 @@ echo "Run the Tracker ModuleNumbering analyzer to print Tracker Numbering check.
 cmsRun $CMSSW_RELEASE_BASE/src/Geometry/TrackerNumberingBuilder/test/trackerModuleNumbering.cfg
 echo "TRACKER MICROSTRIP NUMBERING... LOOK AT THE RESULTS"
 tail -7 ModuleNumbering.log
-if [ -e num.temp ]; then
-    rm -rf num.temp
+if [ -e num.log ]; then
+    rm -rf num.log
 fi
-tail -7 ModuleNumbering.log > num.temp
+tail -7 ModuleNumbering.log > num.log
 #
 
 # Compare the ModuleNumbering.dat file with the reference one
