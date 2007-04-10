@@ -1441,7 +1441,7 @@ ALIbool Model::readMeasurementsFromFile(ALIstring only1Date, ALIstring only1Time
 	exit(1);
       }
     } else {
-      std::cerr << " wrong type of measurement: " << wordlist[0] << std::endl
+      std::cerr << "Reading wrong type of measurement: " << wordlist[0] << std::endl
 	   << " Available types are SENSOR2D, TILTMETER, DISTANCEMETER, DISTANCEMETER1DIM, COPS" << std::endl;
       exit(1);
     }
