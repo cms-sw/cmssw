@@ -1,7 +1,7 @@
 /*  
  *
- *  $Date: 2007/03/31 16:21:34 $
- *  $Revision: 1.43 $
+ *  $Date: 2007/04/03 22:46:10 $
+ *  $Revision: 1.44 $
  *  \author  N. Marinelli IASA 
  *  \author G. Della Ricca
  *  \author G. Franzoni
@@ -436,6 +436,7 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData ,
 					    << " gain==0 for strip: "  << expStripInTower
 					    << "\t channel: " << expCryInStrip
 					    << "\t in TT: " << _ExpectedTowers[_expTowersIndex]
+					    << "\t ic: " << ic
 					    << "\t in event: " << (*itEventBlock)->getDataField("LV1");
 	      // report on gain==0
 	      gaincollection.push_back(id);
