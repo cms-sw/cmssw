@@ -1,8 +1,8 @@
 /*
  * \file DTDigiTask.cc
  * 
- * $Date: 2007/03/22 18:52:02 $
- * $Revision: 1.18 $
+ * $Date: 2007/03/22 18:56:43 $
+ * $Revision: 1.19 $
  * \author M. Zanetti - INFN Padova
  *
  */
@@ -144,7 +144,7 @@ void DTDigiTask::bookHistos(const DTSuperLayerId& dtSL, string folder, string hi
     string histoTitle = histoName + " (TDC Counts)";
     int timeBoxGranularity = parameters.getUntrackedParameter<int>("timeBoxGranularity",4);
 
-    if (parameters.getUntrackedParameter<bool>("preCalibrationJob", true)) {
+    if (!parameters.getUntrackedParameter<bool>("readDB", true)) {
       int maxTDCCounts = 6400 * parameters.getUntrackedParameter<int>("tdcRescale", 1);
       (digiHistos[histoTag])[dtSL.rawId()] = 
 	dbe->book1D(histoName,histoTitle, maxTDCCounts/timeBoxGranularity, 0, maxTDCCounts);
@@ -329,8 +329,8 @@ void DTDigiTask::analyze(const edm::Event& e, const edm::EventSetup& c){
       }
 
 
-      // only for pre-Calibration jobs 
-      if (parameters.getUntrackedParameter<bool>("preCalibrationJob", true)) {
+      // only when tTrig is not available 
+      if (!parameters.getUntrackedParameter<bool>("readDB", true)) {
 	
 	//Occupancies per chamber
 	histoTag = "OccupancyAllHits_perCh";
