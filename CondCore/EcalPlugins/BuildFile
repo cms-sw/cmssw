@@ -1,5 +1,5 @@
 <use name=FWCore/Framework>
-<use name=Foundation/PluginManager>
+<use name=FWCore/PluginManager>
 <use name=CondCore/PluginSystem>
 <use name=CondFormats/EcalObjects>
 <use name=CondFormats/DataRecord>
@@ -8,7 +8,7 @@
 <export>
    <lib name=CondCoreEcalPlugins>
    <use name=FWCore/Framework>
-   <use name=Foundation/PluginManager>
+   <use name=FWCore/PluginManager>
    <use name=CondCore/PluginSystem>
    <use name=CondFormats/EcalObjects>
    <use name=CondFormats/DataRecord>

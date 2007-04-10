@@ -1,4 +1,4 @@
-#include "PluginManager/ModuleDef.h"
+#include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/InputSourceMacros.h"
 #include "IORawData/DaqSource/src/DaqSource.h"
 

@@ -9,7 +9,7 @@
 
 using namespace std;
 
-/*$Date: 2007/01/18 $
+/*$Date: 2007/03/09 11:40:54 $
 version 3.1 02-13-07 
 
 author Kevin Klapoetke - Minnesota*/
@@ -236,7 +236,7 @@ void HcalCableMapper::endJob(){
 
 
 
-#include "PluginManager/ModuleDef.h"
+#include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 DEFINE_SEAL_MODULE();

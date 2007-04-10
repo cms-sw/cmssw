@@ -15,7 +15,7 @@
   <use name=clhep>
   <use name=FWCore/Framework>
   <use name=FWCore/MessageLogger>
-  <use name=Foundation/PluginManager>
+  <use name=FWCore/PluginManager>
   <use name=DataFormats/HcalDetId>
   <use name=CondFormats/HcalObjects>
   <use name=DataFormats/HcalDigi>

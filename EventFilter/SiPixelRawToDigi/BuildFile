@@ -2,7 +2,7 @@
 
 <use name=FWCore/Framework>
 <use name=DataFormats/FEDRawData>
-<use name=Foundation/PluginManager>
+<use name=FWCore/PluginManager>
 <use name=FWCore/ParameterSet>
 <use name=DataFormats/FEDRawData>
 <use name=DataFormats/SiPixelDigi>
@@ -18,7 +18,7 @@
  <lib name=EventFilterSiPixelRawToDigi>
  <use name=FWCore/Framework>
  <use name=DataFormats/FEDRawData>
- <use name=Foundation/PluginManager>
+ <use name=FWCore/PluginManager>
  <use name=FWCore/ParameterSet>
  <use name=DataFormats/FEDRawData>
  <use name=DataFormats/SiPixelDigi>

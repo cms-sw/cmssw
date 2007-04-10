@@ -4,7 +4,7 @@
 //<<<<<< INCLUDES                                                       >>>>>>
 
 # include "Utilities/StorageFactory/interface/StorageMaker.h"
-# include "PluginManager/PluginFactory.h"
+# include "FWCore/PluginManager/interface/PluginFactory.h"
 # include "SealBase/sysapi/IOTypes.h"
 # include "SealBase/IOFlags.h"
 # include <string>

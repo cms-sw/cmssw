@@ -1,6 +1,6 @@
 /*
- *  $Date: 2006/06/14 12:51:15 $
- *  $Revision: 1.13 $
+ *  $Date: 2006/10/27 01:35:31 $
+ *  $Revision: 1.14 $
  *  \author N. Amapane - S. Argiro'
  *  \author G. Franzoni
  */
@@ -94,7 +94,7 @@ bool DAQEcalTBInputService::produce(edm::Event& e)
   return true;
 }
 
-#include "PluginManager/ModuleDef.h"
+#include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/InputSourceMacros.h"
 
 DEFINE_FWK_INPUT_SOURCE(DAQEcalTBInputService);

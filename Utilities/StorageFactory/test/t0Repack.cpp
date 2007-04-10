@@ -1,6 +1,6 @@
 #include "Utilities/StorageFactory/interface/StorageFactory.h"
 #include "Utilities/StorageFactory/interface/StorageAccount.h"
-#include "PluginManager/PluginManager.h"
+#include "FWCore/PluginManager/interface/PluginManager.h"
 #include "SealBase/Storage.h"
 #include "SealIOTools/StorageStreamBuf.h"
 #include "SealBase/DebugAids.h"

@@ -19,8 +19,8 @@
 /*
  * \file HcalPedestalAnalyzer.cc
  * 
- * $Date: 2006/10/26 23:35:32 $
- * $Revision: 1.7 $
+ * $Date: 2007/01/26 16:45:15 $
+ * $Revision: 1.8 $
  * \author S Stoynev / W Fisher
  *
 */
@@ -218,7 +218,7 @@ void HcalPedestalAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& e
   return;
 }
 
-// #include "PluginManager/ModuleDef.h"
+// #include "FWCore/PluginManager/interface/ModuleDef.h"
 // #include "FWCore/Framework/interface/MakerMacros.h"
 
 // DEFINE_SEAL_MODULE();

@@ -1,4 +1,4 @@
-#include "PluginManager/ModuleDef.h"
+#include "FWCore/PluginManager/interface/ModuleDef.h"
 #include <IORawData/CSCTFCommissioning/src/CSCTFFileReader.h>
 #include <IORawData/DaqSource/interface/DaqReaderPluginFactory.h>
 DEFINE_SEAL_MODULE();

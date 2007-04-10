@@ -16,7 +16,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "IORawData/DaqSource/interface/DaqReaderPluginFactory.h"
-#include "PluginManager/ModuleDef.h"
+#include "FWCore/PluginManager/interface/ModuleDef.h"
 
 
 #include <iostream>

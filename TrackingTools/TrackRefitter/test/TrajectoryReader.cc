@@ -28,7 +28,7 @@
 using namespace std;
 using namespace edm;
 
-#include "PluginManager/ModuleDef.h"
+#include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 DEFINE_FWK_MODULE(TrajectoryReader);

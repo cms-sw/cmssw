@@ -4,7 +4,7 @@
 #include "SealKernel/Component.h"
 #include "SealKernel/Context.h"
 #include "SealKernel/ComponentLoader.h"
-#include "PluginManager/PluginFactory.h"
+#include "FWCore/PluginManager/interface/PluginFactory.h"
 
 #include <typeinfo>
 #include <memory>

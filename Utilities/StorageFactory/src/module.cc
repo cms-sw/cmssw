@@ -8,7 +8,7 @@
 #include "Utilities/StorageFactory/interface/RFIOStorageMaker.h"
 #include "Utilities/StorageFactory/interface/RedirectStorageMaker.h"
 #include "Utilities/StorageFactory/interface/StorageFactory.h"
-#include "PluginManager/ModuleDef.h"
+#include "FWCore/PluginManager/interface/ModuleDef.h"
 
 //<<<<<< PRIVATE DEFINES                                                >>>>>>
 //<<<<<< PRIVATE CONSTANTS                                              >>>>>>

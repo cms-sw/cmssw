@@ -1,4 +1,4 @@
-#include "PluginManager/ModuleDef.h"
+#include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "DTROS8FileReader.h"
 #include "DTROS25FileReader.h"
 #include "DTDDUFileReader.h"

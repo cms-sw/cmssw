@@ -8,7 +8,7 @@
 #include "RecoVertex/LinearizationPointFinders/interface/DefaultLinearizationPointFinder.h"
 // #include "RecoVertex/GaussianSumVertexFit/interface/GsfVertexMerger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-// #include "Geometry/CommonDetAlgo/interface/DeepCopyPointerByClone.h"
+// #include "DataFormats/GeometryCommonDetAlgo/interface/DeepCopyPointerByClone.h"
 #include "RecoVertex/VertexTools/interface/SequentialVertexFitter.h"
 
 /** 

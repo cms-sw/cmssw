@@ -49,9 +49,9 @@ deconstructName(const std::string& iProxyName) {
   return std::make_pair(recordName,typeName);
 }
 
-#include "PluginManager/PluginManager.h"
-#include "PluginManager/ModuleCache.h"
-#include "PluginManager/Module.h"
+#include "FWCore/PluginManager/interface/PluginManager.h"
+#include "FWCore/PluginManager/interface/ModuleCache.h"
+#include "FWCore/PluginManager/interface/Module.h"
 
 static
 void

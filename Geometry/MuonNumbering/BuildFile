@@ -2,7 +2,7 @@
 <use name=DetectorDescription/Core>
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
-<use name=Foundation/PluginManager>
+<use name=FWCore/PluginManager>
 <use name=Geometry/Records>
 
 <flags SEAL_PLUGIN_NAME="GeometryMuonNumbering">
@@ -13,6 +13,6 @@
  <use name=DetectorDescription/Core>
  <use name=FWCore/Framework>
  <use name=FWCore/ParameterSet>
- <use name=Foundation/PluginManager>
+ <use name=FWCore/PluginManager>
  <use name=Geometry/Records>
 </export>

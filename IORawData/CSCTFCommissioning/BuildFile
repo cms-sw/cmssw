@@ -2,7 +2,7 @@
 <use name=DataFormats/Provenance>
 <use name=FWCore/MessageLogger>
 <use name=FWCore/ParameterSet>
-<use name=Foundation/PluginManager>
+<use name=FWCore/PluginManager>
 <use name=IORawData/DaqSource>
 <flags SEALPLUGIN=1>
 <export>

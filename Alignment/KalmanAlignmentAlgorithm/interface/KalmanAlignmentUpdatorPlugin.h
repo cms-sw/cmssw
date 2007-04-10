@@ -1,7 +1,7 @@
 #ifndef Alignment_KalmanAlignmentAlgorithm_KalmanAlignmentUpdatorPlugin_h
 #define Alignment_KalmanAlignmentAlgorithm_KalmanAlignmentUpdatorPlugin_h
 
-#include "PluginManager/PluginFactory.h"
+#include "FWCore/PluginManager/interface/PluginFactory.h"
 #include "Alignment/KalmanAlignmentAlgorithm/interface/KalmanAlignmentUpdator.h"
 
 #include <string>

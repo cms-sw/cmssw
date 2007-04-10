@@ -10,7 +10,7 @@
 #include "Alignment/KalmanAlignmentAlgorithm/interface/DummyMetricsUpdator.h"
 #include "Alignment/KalmanAlignmentAlgorithm/interface/SimpleMetricsUpdator.h"
 
-#include "PluginManager/ModuleDef.h"
+#include "FWCore/PluginManager/interface/ModuleDef.h"
 
 DEFINE_SEAL_MODULE();
 

@@ -1,7 +1,7 @@
 <flags SEAL_PLUGIN_NAME="RecoPixelVZeroPixelVZeroFinding">
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
-<use name=Foundation/PluginManager>
+<use name=FWCore/PluginManager>
 <use name=Geometry/Records>
 <use name=Geometry/TrackerGeometryBuilder>
 <use name=TrackingTools/PatternTools>
@@ -12,7 +12,7 @@
  <lib name=RecoPixelVZeroPixelVZeroFinding>
  <use name=FWCore/Framework>
  <use name=FWCore/ParameterSet>
- <use name=Foundation/PluginManager>
+ <use name=FWCore/PluginManager>
  <use name=Geometry/Records>
  <use name=Geometry/TrackerGeometryBuilder>
  <use name=TrackingTools/PatternTools>

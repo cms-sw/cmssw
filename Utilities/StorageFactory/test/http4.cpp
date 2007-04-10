@@ -2,7 +2,7 @@
 
 #include "Utilities/StorageFactory/interface/StorageFactory.h"
 #include "Utilities/StorageFactory/interface/StorageAccount.h"
-#include "PluginManager/PluginManager.h"
+#include "FWCore/PluginManager/interface/PluginManager.h"
 #include "SealBase/Storage.h"
 #include "SealBase/TempFile.h"
 #include "SealBase/Filename.h"

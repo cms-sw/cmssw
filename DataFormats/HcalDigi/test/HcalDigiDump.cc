@@ -12,8 +12,8 @@ using namespace std;
 
 /** \class HcalDigiDump
       
-$Date: 2006/10/24 17:00:58 $
-$Revision: 1.9 $
+$Date: 2007/03/07 16:42:28 $
+$Revision: 1.10 $
 \author J. Mans - Minnesota
 */
 class HcalDigiDump : public edm::EDAnalyzer {
@@ -130,7 +130,7 @@ void HcalDigiDump::analyze(edm::Event const& e, edm::EventSetup const& c) {
   cout << endl;    
 }
 
-#include "PluginManager/ModuleDef.h"
+#include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 DEFINE_SEAL_MODULE();

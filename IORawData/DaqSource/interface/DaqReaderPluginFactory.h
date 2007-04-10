@@ -4,12 +4,12 @@
 /** \class DaqReaderPluginFactory
  *  Plugin factory for actual data sources for DaqSource.
  *
- *  $Date: 2005/10/06 18:23:47 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/03/26 15:51:06 $
+ *  $Revision: 1.3 $
  *  \author N. Amapane - CERN
  */
 
-#include <PluginManager/PluginFactory.h>
+#include "FWCore/PluginManager/interface/PluginFactory.h"
 #include <IORawData/DaqSource/interface/DaqBaseReader.h>
 
 namespace edm {class ParameterSet;}

@@ -1,6 +1,6 @@
 #include <iostream>
 #include <string>
-#include "PluginManager/PluginManager.h"
+#include "FWCore/PluginManager/interface/PluginManager.h"
 #include "DetectorDescription/Algorithm/interface/DDAlgorithm.h"
 #include "DetectorDescription/Algorithm/interface/DDAlgorithmFactory.h"
 #include "SealBase/Signal.h"

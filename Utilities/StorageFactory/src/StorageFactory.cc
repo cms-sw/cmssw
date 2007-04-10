@@ -4,7 +4,7 @@
 #include "Utilities/StorageFactory/interface/StorageAccount.h"
 #include "Utilities/StorageFactory/interface/StorageAccountProxy.h"
 #include "Utilities/StorageFactory/interface/StorageMaker.h"
-#include "PluginManager/PluginManager.h"
+#include "FWCore/PluginManager/interface/PluginManager.h"
 #include "SealBase/StringOps.h"
 #include <boost/shared_ptr.hpp>
 

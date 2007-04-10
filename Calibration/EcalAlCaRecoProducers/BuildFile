@@ -15,7 +15,7 @@
 <use name=TrackingTools/TrackAssociator>
 <use name=RecoEcal/EgammaCoreTools>
 <use name=clhep>
-<use name=Foundation/PluginManager>
+<use name=FWCore/PluginManager>
 <use name=DataFormats/EgammaCandidates>
 <flags SEAL_PLUGIN_NAME="CalibrationEcalAlCaRecoProducers">
 <export>
@@ -36,6 +36,6 @@
   <use name=RecoEcal/EgammaCoreTools>
   <use name=DataFormats/Math>
   <use name=clhep>
-   <use name=Foundation/PluginManager>
+   <use name=FWCore/PluginManager>
    <use name=DataFormats/EgammaCandidates>
 </export>

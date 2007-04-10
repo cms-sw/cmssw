@@ -1,4 +1,4 @@
-// $Id: SealModule.cc,v 1.1 2006/11/16 22:59:01 wittich Exp $
+// $Id: SealModule.cc,v 1.2 2006/12/15 06:07:56 dlange Exp $
 // 
 
 #include "DQM/HLTEvF/interface/HltAnalyzer.h"
@@ -6,7 +6,7 @@
 #include "DQM/HLTEvF/interface/PathTimerInserter.h"
 #include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
 
-#include "PluginManager/ModuleDef.h"
+#include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 using edm::service::PathTimerService;

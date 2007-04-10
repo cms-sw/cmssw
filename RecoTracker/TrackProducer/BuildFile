@@ -1,5 +1,5 @@
 <use name=FWCore/Framework>
-<use name=Foundation/PluginManager>
+<use name=FWCore/PluginManager>
 <use name=FWCore/ParameterSet>
 <use name=TrackingTools/TrackFitters>
 <use name=TrackingTools/PatternTools>
@@ -18,7 +18,7 @@
 <export>
    <lib name=RecoTrackerTrackProducer>
    <use name=FWCore/Framework>
-   <use name=Foundation/PluginManager>
+   <use name=FWCore/PluginManager>
    <use name=FWCore/ParameterSet>
    <use name=TrackingTools/TrackFitters>
    <use name=TrackingTools/PatternTools>

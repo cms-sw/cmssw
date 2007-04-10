@@ -23,7 +23,7 @@
 #include <DataFormats/EcalDetId/interface/EcalSubdetector.h>
 #include <TBDataFormats/EcalTBObjects/interface/EcalTBCollections.h>
 
-#include "PluginManager/PluginCapabilities.h"
+#include "FWCore/PluginManager/interface/PluginCapabilities.h"
 
 #include <iostream>
 #include <stdlib.h>

@@ -6,14 +6,14 @@
  *  Factory of seal plugins for DT 2D segments reconstruction algorithms.
  *  The plugins are concrete implementations of DTRecSegment2DBaseAlgo base class.
  *
- * $Date: 01/03/2006 16:44:00 CET $
- * $Revision: 1.0 $
+ * $Date: 2006/03/30 16:53:18 $
+ * $Revision: 1.1 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  *
  */
 
 /* Base Class Headers */
-#include <PluginManager/PluginFactory.h>
+#include "FWCore/PluginManager/interface/PluginFactory.h"
 #include "RecoLocalMuon/DTSegment/src/DTRecSegment2DBaseAlgo.h"
 
 /* Collaborating Class Declarations */

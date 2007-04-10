@@ -6,13 +6,13 @@
  *  Factory of seal plugins for DT 4D segments reconstruction algorithms.
  *  The plugins are concrete implementations of DTRecSegment4DBaseAlgo base class.
  *
- * $Date:  $
- * $Revision:  $
+ * $Date: 2006/04/19 14:59:33 $
+ * $Revision: 1.1 $
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  *
  */
 
-#include <PluginManager/PluginFactory.h>
+#include "FWCore/PluginManager/interface/PluginFactory.h"
 #include "RecoLocalMuon/DTSegment/src/DTRecSegment4DBaseAlgo.h"
 
 

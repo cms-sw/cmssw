@@ -4,7 +4,7 @@
 #include "CDFChunk.h"
 #include "CDFEventInfo.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
-#include "PluginManager/PluginCapabilities.h"
+#include "FWCore/PluginManager/interface/PluginCapabilities.h"
 #include <iostream>
 
 ClassImp(CDFChunk)

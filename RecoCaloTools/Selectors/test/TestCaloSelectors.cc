@@ -56,7 +56,7 @@ void TestCaloSelectors::analyze(const edm::Event& evt, const edm::EventSetup& c)
   std::cout << std::endl;
 }
 
-#include "PluginManager/ModuleDef.h"
+#include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 DEFINE_SEAL_MODULE();

@@ -1,6 +1,6 @@
 <library name="PerfToolsCallgrindOriginalAnalyzer" file=CallgrindAnalyzer.cc>
 <use name=FWCore/Framework>
-<use name=Foundation/PluginManager>
+<use name=FWCore/PluginManager>
 <use name=FWCore/ParameterSet>
 <use name=valgrind>
 </library>
@@ -13,7 +13,7 @@
 
 <library name="PerfToolsCallgrindAnalyzer" file=ProfilerAnalyzer.cc>
 <use name=FWCore/Framework>
-<use name=Foundation/PluginManager>
+<use name=FWCore/PluginManager>
 <use name=PerfTools/Callgrind>
 <use name=FWCore/ServiceRegistry>
 </library>

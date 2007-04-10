@@ -8,7 +8,7 @@
 <use name=Geometry/CommonDetUnit>
 <use name=DataFormats/TrajectorySeed>
 <use name=DataFormats/TrackerRecHit2D>
-<use name=Foundation/PluginManager>
+<use name=FWCore/PluginManager>
 <use name=Geometry/CommonTopologies>
 <use name=Geometry/Surface>
 <use name=Geometry/TrackerGeometryBuilder>
@@ -31,7 +31,7 @@
  <use name=TrackingTools/MaterialEffects>
  <use name=DataFormats/TrajectorySeed>
  <use name=DataFormats/TrackerRecHit2D>
- <use name=Foundation/PluginManager>
+ <use name=FWCore/PluginManager>
  <use name=Geometry/CommonTopologies>
  <use name=Geometry/Surface>
  <use name=Geometry/TrackerGeometryBuilder>

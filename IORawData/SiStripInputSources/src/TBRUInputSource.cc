@@ -6,7 +6,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
-//#include "PluginManager/PluginCapabilities.h"
+//#include "FWCore/PluginManager/interface/PluginCapabilities.h"
 
 #include "interface/evb/include/i2oEVBMsgs.h"
 #include "interface/shared/include/i2oXFunctionCodes.h"

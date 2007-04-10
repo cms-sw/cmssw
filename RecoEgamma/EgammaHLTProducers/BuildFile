@@ -1,5 +1,5 @@
 <use name=FWCore/Framework>
-<use name=Foundation/PluginManager>
+<use name=FWCore/PluginManager>
 <use name=FWCore/ParameterSet>
 <use name=DataFormats/EgammaCandidates>
 <use name=Geometry/CaloEventSetup>
@@ -22,7 +22,7 @@
 <export>
    <lib name=RecoEgammaEgammaHLTProducers>
    <use name=FWCore/Framework>
-   <use name=Foundation/PluginManager>
+   <use name=FWCore/PluginManager>
    <use name=FWCore/ParameterSet>
    <use name=DataFormats/EgammaCandidates>
    <use name=Geometry/CaloEventSetup>

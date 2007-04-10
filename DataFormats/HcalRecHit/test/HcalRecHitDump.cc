@@ -14,8 +14,8 @@ namespace cms {
 
   /** \class HcalRecHitDump
       
-  $Date: 2006/10/24 16:59:36 $
-  $Revision: 1.6 $
+  $Date: 2007/03/08 23:00:09 $
+  $Revision: 1.7 $
   \author J. Mans - Minnesota
   */
   class HcalRecHitDump : public edm::EDAnalyzer {
@@ -104,7 +104,7 @@ namespace cms {
   }
 }
 
-#include "PluginManager/ModuleDef.h"
+#include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 using namespace cms;

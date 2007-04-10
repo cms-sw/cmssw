@@ -16,13 +16,13 @@ Usage:
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Jul 23 19:14:06 EDT 2005
-// $Id: ProxyFactory.h,v 1.5 2007/01/16 18:35:01 xiezhen Exp $
+// $Id: ProxyFactory.h,v 1.6 2007/03/02 13:09:28 xiezhen Exp $
 //
 
 // system include files
 
 // user include files
-//#include "PluginManager/PluginFactory.h"
+//#include "FWCore/PluginManager/interface/PluginFactory.h"
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 // forward declarations
 /*namespace pool{

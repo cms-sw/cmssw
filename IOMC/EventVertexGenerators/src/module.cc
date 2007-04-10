@@ -8,7 +8,7 @@
 #include "IOMC/EventVertexGenerators/interface/BeamProfileVtxGenerator.h"
 #include "IOMC/EventVertexGenerators/interface/BetafuncEvtVtxGenerator.h"
 
-#include "PluginManager/ModuleDef.h"
+#include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 

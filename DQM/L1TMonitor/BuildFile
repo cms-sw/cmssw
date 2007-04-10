@@ -1,5 +1,5 @@
 <use name=FWCore/Framework>
-<use name=Foundation/PluginManager>
+<use name=FWCore/PluginManager>
 <use name=FWCore/ParameterSet>
 <use name=DQMServices/CoreROOT>
 <use name=DataFormats/L1Trigger>
@@ -15,7 +15,7 @@
    <lib name=DQML1TMonitor>
    <use name=FWCore/Framework>
    <use name=FWCore/ParameterSet>
-   <use name=Foundation/PluginManager>
+   <use name=FWCore/PluginManager>
    <use name=FWCore/ParameterSet>
    <use name=DataFormats/L1Trigger>
    <use name=DataFormats/LTCDigi>

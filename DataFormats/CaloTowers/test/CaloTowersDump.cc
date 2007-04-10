@@ -12,8 +12,8 @@ using namespace std;
 
   /** \class CaloTowersDump
       
-  $Date: 2006/10/24 16:58:32 $
-  $Revision: 1.2 $
+  $Date: 2007/03/07 17:01:34 $
+  $Revision: 1.3 $
   \author J. Mans - Minnesota
   */
   class CaloTowersDump : public edm::EDAnalyzer {
@@ -46,7 +46,7 @@ using namespace std;
   }
 
 
-#include "PluginManager/ModuleDef.h"
+#include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 DEFINE_SEAL_MODULE();

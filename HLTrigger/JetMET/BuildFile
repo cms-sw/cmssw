@@ -1,12 +1,12 @@
 <use name=FWCore/Framework>
-<use name=Foundation/PluginManager>
+<use name=FWCore/PluginManager>
 <use name=FWCore/ParameterSet>
 <use name=HLTrigger/HLTcore>
 <flags SEAL_PLUGIN_NAME="HLTriggerJetMET">
 <export>
    <lib name=HLTriggerJetMET>
    <use name=FWCore/Framework>
-   <use name=Foundation/PluginManager>
+   <use name=FWCore/PluginManager>
    <use name=FWCore/ParameterSet>
    <use name=HLTrigger/HLTcore>
 </export>

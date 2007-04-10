@@ -5,11 +5,11 @@
  *  Factory of seal plugins for DT 1D RecHit reconstruction algorithms.
  *  The plugins are concrete implementations of DTRecHitBaseAlgo base class.
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2006/02/15 13:54:45 $
+ *  $Revision: 1.1 $
  *  \author G. Cerminara - INFN Torino
  */
-#include <PluginManager/PluginFactory.h>
+#include "FWCore/PluginManager/interface/PluginFactory.h"
 
 #include "RecoLocalMuon/DTRecHit/interface/DTRecHitBaseAlgo.h"
 

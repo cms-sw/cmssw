@@ -16,8 +16,8 @@ namespace cms {
 
   /** \class HcalTBObjectDump
       
-  $Date: 2006/10/24 16:33:31 $
-  $Revision: 1.4 $
+  $Date: 2007/03/09 15:42:53 $
+  $Revision: 1.5 $
   \author J. Mans - Minnesota
   */
   class HcalTBObjectDump : public edm::EDAnalyzer {
@@ -86,7 +86,7 @@ namespace cms {
   }
 }
 
-#include "PluginManager/ModuleDef.h"
+#include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 using namespace cms;

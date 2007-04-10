@@ -1,4 +1,4 @@
-#include "PluginManager/ModuleDef.h"
+#include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include <EventFilter/CSCTFRawToDigi/interface/CSCTFUnpacker.h>
 #include <EventFilter/CSCTFRawToDigi/interface/CSCTFPacker.h>

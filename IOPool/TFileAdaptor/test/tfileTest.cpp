@@ -7,7 +7,7 @@
 #include <string>
 #include <iostream>
 
-#include "PluginManager/PluginManager.h"
+#include "FWCore/PluginManager/interface/PluginManager.h"
 #include "SealBase/Error.h"
 
 int main (int argc, char *argv[]) 
