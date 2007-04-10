@@ -12,8 +12,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2007/03/30 18:31:40 $
- *  $Revision: 1.86 $
+ *  $Date: 2007/04/03 21:25:51 $
+ *  $Revision: 1.87 $
  *
  *  Authors :
  *  N. Neumeister            Purdue University
@@ -149,6 +149,7 @@ GlobalMuonTrajectoryBuilder::GlobalMuonTrajectoryBuilder(const edm::ParameterSet
     // Start Tk trajectory builder
     //
     theRSFlag = false;
+    theRSBuilder = 0;
     if(seedGenName=="TSGForRoadSearch") {
       theRSFlag = true;
       ParameterSet builderPar = par.getParameter<edm::ParameterSet>("MuonRSBuilder");
