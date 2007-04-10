@@ -191,13 +191,9 @@ void HIPAlignmentAlgorithm::startNewLoop( void )
 	SurveyResidual res2(*term, AlignableObjectId::AlignableEndcapLayer);
 	SurveyResidual res3(*term, AlignableObjectId::AlignableEndcap);
 
-	AlgebraicSymMatrix invCov1(6, 1); // identity
-	AlgebraicSymMatrix invCov2(6, 1); // identity
-	AlgebraicSymMatrix invCov3(6, 1); // identity
-
-	invCov1 /= (1e-3 * 1e-3); // hard-code error for now; 10 um
-	invCov2 /= (1e-3 * 1e-3); // hard-code error for now; 10 um
-	invCov3 /= (1e-3 * 1e-3); // hard-code error for now; 10 um
+	AlgebraicSymMatrix invCov1 = res1.inverseCovariance();
+	AlgebraicSymMatrix invCov2 = res2.inverseCovariance();
+	AlgebraicSymMatrix invCov3 = res3.inverseCovariance();
 
 	uservar->jtvj += invCov1;
 	uservar->jtvj += invCov2;
