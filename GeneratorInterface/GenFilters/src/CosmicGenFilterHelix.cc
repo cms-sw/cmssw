@@ -10,7 +10,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -27,6 +27,15 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "TrackingTools/TrajectoryParametrization/interface/GlobalTrajectoryParameters.h"
+
+#include "DataFormats/GeometrySurface/interface/Plane.h"
+#include "DataFormats/GeometrySurface/interface/Cylinder.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalVector.h"
+
+#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
+#include "PhysicsTools/UtilAlgos/interface/TFileDirectory.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include <TMath.h>
 #include <TH1F.h>
@@ -97,9 +106,9 @@ bool CosmicGenFilterHelix::filter(edm::Event &iEvent, const edm::EventSetup &iSe
     if (!this->charge((*iPart)->pdg_id(), charge)) continue;
 
     // Get the position and momentum
-    const HepLorentzVector hepVertex((*iPart)->creationVertex());
+    const HepMC::ThreeVector hepVertex((*iPart)->production_vertex()->point3d());
     const GlobalPoint vert(hepVertex.x()/10., hepVertex.y()/10., hepVertex.z()/10.); // to cm
-    const HepLorentzVector hepMomentum((*iPart)->momentum());
+    const HepMC::FourVector hepMomentum((*iPart)->momentum());
     const GlobalVector mom(hepMomentum.x(), hepMomentum.y(), hepMomentum.z());
 
     if (theDoMonitor) this->monitorStart(vert, mom, charge, theHistsBefore);
@@ -167,8 +176,6 @@ bool CosmicGenFilterHelix::propagateToCutCylinder(const GlobalPoint &vertStart,
 void CosmicGenFilterHelix::beginJob(const edm::EventSetup&)
 {
   if (theDoMonitor) {
-    throw cms::Exception("BadConfig") 
-      << "CosmicGenFilterHelix: In this backported version monitoring does not work!"; 
     this->createHistsStart("start", theHistsBefore);
     this->createHistsStart("startAfter", theHistsAfter);
     // must be after the line above: hist indices are static in monitorStart(...)
@@ -181,7 +188,6 @@ void CosmicGenFilterHelix::beginJob(const edm::EventSetup&)
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void CosmicGenFilterHelix::createHistsStart(const char *dirName, TObjArray &hists)
 {
-  /*
   edm::Service<TFileService> fs;
   TFileDirectory fd(fs->mkdir(dirName, dirName));
   
@@ -221,13 +227,11 @@ void CosmicGenFilterHelix::createHistsStart(const char *dirName, TObjArray &hist
   hists.Add(fd.make<TH2F>("rzPlane",
                           "start rz (y < 0 #Rightarrow r_{#pm} = -r);z [cm];r_{#pm} [cm]",
                           50, -1600., 1600., 50, -1000., 1000.));
-  */
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void CosmicGenFilterHelix::createHistsEnd(const char *dirName, TObjArray &hists)
 {
-  /*
   edm::Service<TFileService> fs;
   TFileDirectory fd(fs->mkdir(dirName, dirName));
 
@@ -292,7 +296,6 @@ void CosmicGenFilterHelix::createHistsEnd(const char *dirName, TObjArray &hists)
                           50, minZ, maxZ, 50, -maxR, maxR));
   hists.Add(fd.make<TH2F>("thetaVsZend", "#theta vs z (end);z [cm];#theta",
                           50, minZ, maxZ, 50, 0., TMath::Pi()));
-  */
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
