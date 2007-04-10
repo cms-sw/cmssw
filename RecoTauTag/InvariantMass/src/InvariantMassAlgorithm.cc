@@ -48,6 +48,12 @@ InvariantMassAlgorithm::~InvariantMassAlgorithm() {
 //
 pair<reco::JetTag,reco::TauMassTagInfo> InvariantMassAlgorithm::tag(edm::Event& theEvent, const edm::EventSetup& theEventSetup, const reco::IsolatedTauTagInfoRef& tauRef, const Handle<BasicClusterCollection>& clus_handle) {
 
+  trackAssociatorParameters_.useEcal = true ;
+  trackAssociatorParameters_.useHcal = false ;
+  trackAssociatorParameters_.useHO = false ;
+  trackAssociatorParameters_.useMuon = false ;
+  trackAssociatorParameters_.dREcal = 0.03;
+
   TauMassTagInfo resultExtended;
   resultExtended.setIsolatedTauTag(tauRef);
   int nSel = 0;
