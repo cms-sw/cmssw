@@ -1,7 +1,7 @@
 /*  
  *
- *  $Date: 2007/03/31 16:21:33 $
- *  $Revision: 1.10 $
+ *  $Date: 2007/04/03 22:53:55 $
+ *  $Revision: 1.11 $
  *  \author  N. Marinelli IASA 
  *  \author G. Della Ricca
  *  \author G. Franzoni
@@ -354,6 +354,7 @@ void EcalDCCDaqFormatter::interpretRawData(const FEDRawData & fedData ,
 					  << " gain==0 for strip: "  << strip
 					  << "\t channel: " << ch
 					  << "\t in TT: " << _ExpectedTowers[_expTowersIndex]
+					  << "\t ic: " << ic
 					  << "\t in event: " << (*itEventBlock)->getDataField("LV1");
 	      
 	      // report on gain==0
