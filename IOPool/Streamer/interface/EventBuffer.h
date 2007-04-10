@@ -132,6 +132,9 @@ namespace edm {
     boost::condition pop_cond_;
     boost::condition push_cond_;
 
+ public:
+    bool empty() { boost::mutex::scoped_lock sl(queue_lock_); return (bpos_==fpos_); }
+
   };
 
 
