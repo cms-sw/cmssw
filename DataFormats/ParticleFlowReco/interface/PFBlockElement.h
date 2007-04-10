@@ -70,7 +70,7 @@ namespace reco {
   
     /// print the object inside the element
     virtual void Dump(std::ostream& out=std::cout, 
-		      const char* tab=" " ) const {}
+		      const char* tab=" " ) const;
 
     /// necessary to have the edm::OwnVector<PFBlockElement> working
     virtual PFBlockElement* clone() const { return new PFBlockElement(*this); }

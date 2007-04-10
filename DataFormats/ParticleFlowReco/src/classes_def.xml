@@ -48,7 +48,7 @@
   <class name="reco::PFBlock"/>
   <class name="std::vector<reco::PFBlock>"/>
   <class name="edm::Wrapper<std::vector<reco::PFBlock> >"/>
-
+  <class name="edm::Ref< std::vector<reco::PFBlock>, reco::PFBlock, edm::refhelper::FindUsingAdvance<std::vector<reco::PFBlock>,reco::PFBlock> >"/>
 </selection>
 <exclusion>
   <class name="edm::OwnVector<reco::PFBlockElement, edm::ClonePolicy<reco::PFBlockElement> >">
