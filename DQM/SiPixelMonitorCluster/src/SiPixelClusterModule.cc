@@ -1,80 +1,97 @@
 #include "DQM/SiPixelMonitorCluster/interface/SiPixelClusterModule.h"
-
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-
-#include "DataFormats/Common/interface/DetSetVector.h"
-#include "DataFormats/DetId/interface/DetId.h"
-//#include "DataFormats/SiPixelCluster/interface/PixelClusterCollection.h"
-//#include "DataFormats/SiPixelCluster/interface/PixelCluster.h"
-#include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
-#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
-
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
-#include "Geometry/CommonTopologies/interface/PixelTopology.h"
-
+#include "DQM/SiPixelCommon/interface/SiPixelHistogramId.h"
 // Framework
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-
 // STL
 #include <vector>
 #include <memory>
 #include <string>
 #include <iostream>
-#include <boost/cstdint.hpp>
-#include <string>
 #include <stdlib.h>
 //
 // Constructors
 //
-SiPixelClusterModule::SiPixelClusterModule() {
-
+SiPixelClusterModule::SiPixelClusterModule() : id_(0),
+                                    ncols_(416),
+                                    nrows_(160) { }
+///
+SiPixelClusterModule::SiPixelClusterModule(const uint32_t& id) : 
+  id_(id),
+  ncols_(416),
+  nrows_(160)
+{ 
 }
-
-SiPixelClusterModule::SiPixelClusterModule(uint32_t id): id_(id) { }
-
+///
+SiPixelClusterModule::SiPixelClusterModule(const uint32_t& id, const int& ncols, const int& nrows) : 
+  id_(id),
+  ncols_(ncols),
+  nrows_(nrows)
+{ 
+}
 //
 // Destructor
 //
 SiPixelClusterModule::~SiPixelClusterModule() {}
-
 //
 // Book histograms
 //
-void SiPixelClusterModule::book() {
-  DaqMonitorBEInterface* theDMBE = edm::Service<DaqMonitorBEInterface>().operator->();
-  char hkey[80];  
-  sprintf(hkey, "nclusters_module_%i",id_);                             
-  meNClusters_ = theDMBE->book1D(hkey,"Number of Clusters",50,0.,50.);  
-  sprintf(hkey, "y_module_%i",id_);
-  meY_ = theDMBE->book1D(hkey,"Cluster(barycenter) Y",500,0.,500.);          
-  sprintf(hkey, "x_module_%i",id_);
-  meX_ = theDMBE->book1D(hkey,"Cluster(barycenter) X",200,0.,200.);
-  sprintf(hkey, "charge_module_%i",id_);
-  meCharge_ = theDMBE->book1D(hkey,"Cluster charge",500,0.,500.);  //in MeV   
-  sprintf(hkey, "size_module_%i",id_);
-  meSize_ = theDMBE->book1D(hkey,"Cluster size (total pixels)",100,0.,100.);
-  sprintf(hkey, "sizeX_module_%i",id_);
-  meSizeX_ = theDMBE->book1D(hkey,"Cluster x size",10,0.,10.);
-  sprintf(hkey, "sizeY_module_%i",id_);
-  meSizeY_ = theDMBE->book1D(hkey,"Cluster y size",20,0,20.);
-  sprintf(hkey, "minrow_module_%i",id_);
-  meMinRow_ = theDMBE->book1D(hkey,"Lowest Cluster row",200,0.,200.);
-  sprintf(hkey, "maxrow_module_%i",id_);
-  meMaxRow_ = theDMBE->book1D(hkey,"Highest Cluster row",200,0.,200.);
-  sprintf(hkey, "mincol_module_%i",id_);
-  meMinCol_ = theDMBE->book1D(hkey,"Lowest Cluster column",500,0.,500.);
-  sprintf(hkey, "maxcol_module_%i",id_);
-  meMaxCol_ = theDMBE->book1D(hkey,"Highest Cluster column",500,0.,500.);
-  //  sprintf(hkey, "edgehitx_module_%i",id_);
-  //  meEdgeHitX_ = theDMBE->book1D(hkey,"X edge hits",500,0.,500.);
-  //  sprintf(hkey, "edgehity_module_%i",id_);
-  //  meEdgeHitY_ = theDMBE->book1D(hkey,"Y edge hits",500,0.,500.);
+void SiPixelClusterModule::book(const edm::ParameterSet& iConfig) {
 
-  //  sprintf(hkey, "pixclusters_module_%i",id_);
-  //mePixClusters_ = theDMBE->book2D(hkey,"Clusters per four pixels",208,0.,416.,80,0.,160.);
+  
+std::string hid;
+  // Get collection name and instantiate Histo Id builder
+  edm::InputTag src = iConfig.getParameter<edm::InputTag>( "src" );
+  SiPixelHistogramId* theHistogramId = new SiPixelHistogramId( src.label() );
+  // Get DQM interface
+  DaqMonitorBEInterface* theDMBE = edm::Service<DaqMonitorBEInterface>().operator->();
+  // Number of digis
+  hid = theHistogramId->setHistoId("nclusters",id_);
+  meNClusters_ = theDMBE->book1D(hid,"Number of Clusters",50,0.,50.);
+  meNClusters_->setAxisTitle("Number of Clusters",1);
+  // Total cluster charge in MeV
+  hid = theHistogramId->setHistoId("charge",id_);
+  meCharge_ = theDMBE->book1D(hid,"Cluster charge",500,0.,500.);
+  meCharge_->setAxisTitle("Charge size (MeV)",1);
+  // Cluster barycenter X position
+  hid = theHistogramId->setHistoId("x",id_);
+  meY_ = theDMBE->book1D(hid,"Cluster barycenter X",200,0.,200.);
+  meX_->setAxisTitle("Barycenter x-position",1);
+  // Cluster barycenter Y position
+  hid = theHistogramId->setHistoId("y",id_);
+  meY_ = theDMBE->book1D(hid,"Cluster barycenter Y",500,0.,500.);
+  meY_->setAxisTitle("Barycenter y-position",1);
+  // Total cluster size (in pixels)
+  hid = theHistogramId->setHistoId("size",id_);
+  meSize_ = theDMBE->book1D(hid,"Total cluster size",100,0.,100.);
+  meSize_->setAxisTitle("Cluster size (in pixels)",1);
+  // Cluster width on the x-axis
+  hid = theHistogramId->setHistoId("sizeX",id_);
+  meSizeX_ = theDMBE->book1D(hid,"Cluster x-width",10,0.,10.);
+  meSizeX_->setAxisTitle("Cluster size (x-axis)",1);
+  // Cluster width on the y-axis
+  hid = theHistogramId->setHistoId("sizeY",id_);
+  meSizeY_ = theDMBE->book1D(hid,"Cluster y-width",20,0.,20.);
+  meSizeY_->setAxisTitle("Cluster size (y-axis)",1);
+  // Lowest cluster row
+  hid = theHistogramId->setHistoId("minrow",id_);
+  meMinRow_ = theDMBE->book1D(hid,"Lowest cluster row",200,0.,200.);
+  meMinRow_->setAxisTitle("Lowest cluster row",1);
+  // Highest cluster row
+  hid = theHistogramId->setHistoId("maxrow",id_);
+  meMaxRow_ = theDMBE->book1D(hid,"Highest cluster row",200,0.,200.);
+  meMaxRow_->setAxisTitle("Highest cluster row",1);
+  // Lowest cluster column
+  hid = theHistogramId->setHistoId("mincol",id_);
+  meMinColumn_ = theDMBE->book1D(hid,"Lowest cluster column",500,0.,500.);
+  meMinColumn_->setAxisTitle("Lowest cluster column",1);
+  // Highest cluster column
+  hid = theHistogramId->setHistoId("maxcol",id_);
+  meMaxColumn_ = theDMBE->book1D(hid,"Highest cluster column",500,0.,500.);
+  meMaxColumn_->setAxisTitle("Highest cluster column",1);
+
+  delete theHistogramId;
 }
 
 //
@@ -90,19 +107,11 @@ void SiPixelClusterModule::fill(const edm::DetSetVector<SiPixelCluster>& input) 
     
     // Look at clusters now
     edm::DetSet<SiPixelCluster>::const_iterator  di;
-    //figure out the size of the module/plaquette:
-/*    int maxcol=0, maxrow=0;
-    for(di = isearch->data.begin(); di != isearch->data.end(); di++) {
-      int col = di->column(); // column 
-      int row = di->row();    // row
-      if(col>maxcol) maxcol=col;
-      if(row>maxrow) maxrow=row;
-    }*/
     for(di = isearch->data.begin(); di != isearch->data.end(); di++) {
       numberOfClusters++;
-      float y = di->y();                   // barycenter y position
-      float x = di->x();                   // barycenter x position
       float charge = 0.001*(di->charge()); // total charge of cluster
+      float x = di->x();                   // barycenter x position
+      float y = di->y();                   // barycenter y position
       int size = di->size();               // total size of cluster (in pixels)
       int sizeX = di->sizeX();             // size of cluster in x-direction
       int sizeY = di->sizeY();             // size of cluster in y-direction
@@ -113,11 +122,9 @@ void SiPixelClusterModule::fill(const edm::DetSetVector<SiPixelCluster>& input) 
       //      bool edgeHitX = di->edgeHitX();      // records if a cluster is at the x-edge of the detector
       //      bool edgeHitY = di->edgeHitY();      // records if a cluster is at the y-edge of the detector
 
-
-	//      (mePixClusters_)->Fill((float)y,(float)x);
-      (meY_)->Fill((float)y);
-      (meX_)->Fill((float)x);
       (meCharge_)->Fill((float)charge);
+      (meX_)->Fill((float)x);
+      (meY_)->Fill((float)y);
       (meSize_)->Fill((int)size);
       (meSizeX_)->Fill((int)sizeX);
       (meSizeY_)->Fill((int)sizeY);
@@ -127,14 +134,7 @@ void SiPixelClusterModule::fill(const edm::DetSetVector<SiPixelCluster>& input) 
       (meMaxCol_)->Fill((int)maxPixelCol);
       //      (meEdgeHitX_)->Fill((int)edgeHitX);
       //      (meEdgeHitY_)->Fill((int)edgeHitY);
-            
-      /*if(subid==2&&adc>0){
-	std::cout<<"Plaquette:"<<side<<" , "<<disk<<" , "<<blade<<" , "
-	<<panel<<" , "<<zindex<<" ADC="<<adc<<" , COL="<<col<<" , ROW="<<row<<std::endl;
-	}else if(subid==1&&adc>0){
-	std::cout<<"Module:"<<layer<<" , "<<ladder<<" , "<<zindex<<" ADC="
-	<<adc<<" , COL="<<col<<" , ROW="<<row<<std::endl;
-	}*/
+
     }
     (meNClusters_)->Fill((float)numberOfClusters);
     //std::cout<<"number of clusters="<<numberOfClusters<<std::endl;
