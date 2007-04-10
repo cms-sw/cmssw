@@ -1,6 +1,6 @@
 // File: BasePilupSubtractionJetProducer.cc
 // Author: F.Ratnikov UMd Aug 22, 2006
-// $Id: BasePilupSubtractionJetProducer.cc,v 1.4 2006/11/11 14:31:46 oehler Exp $
+// $Id: BasePilupSubtractionJetProducer.cc,v 1.1 2007/04/07 18:12:46 kodolova Exp $
 //--------------------------------------------
 #include <memory>
 #include "DataFormats/Common/interface/EDProduct.h"
@@ -75,6 +75,7 @@ namespace cms
     : mSrc (conf.getParameter<edm::InputTag>( "src" )),
       mJetType (conf.getUntrackedParameter<string>( "jetType", "CaloJet")),
       mVerbose (conf.getUntrackedParameter<bool>("verbose", false)),
+      mEtJetInputCut (conf.getParameter<double>("inputEtJetMin")),
       mEtInputCut (conf.getParameter<double>("inputEtMin")),
       mEInputCut (conf.getParameter<double>("inputEMin"))
   {
@@ -123,36 +124,50 @@ namespace cms
 // put the initial towers collection to the jet   
 // 
    
-    InputCollection input;    
-    for (InputCollection::const_iterator it = inputs.begin(); it != inputs.end(); it++ ) {
-         double eta1 = (**it).eta();
-	 double phi1 = (**it).phi();
-         int occupied = 0;
-     vector <ProtoJet>::iterator protojetTMP = firstoutput.begin ();
-     for (; protojetTMP != firstoutput.end (); protojetTMP++) {
-      if( (*protojetTMP).et() < mEtInputCut) continue;
-      const ProtoJet::Constituents towers = (*protojetTMP).getTowerList();
+      InputCollection jettowers;
+      vector <ProtoJet>::iterator protojetTMP = firstoutput.begin ();
 
-        ProtoJet::Constituents newtowers;    
+      for (; protojetTMP != firstoutput.end (); protojetTMP++) {
+
+        if( (*protojetTMP).et() < mEtJetInputCut) continue;
+
+        const ProtoJet::Constituents towers = (*protojetTMP).getTowerList();
+
+        ProtoJet::Constituents newtowers; 
+           
         for(ProtoJet::Constituents::const_iterator itn = towers.begin(); itn != towers.end(); itn++)
         {
+         
          double eta2 = (**itn).eta();
 	 double phi2 = (**itn).phi();
-         double dphi = fabs(phi1-phi2);
-	 double deta = eta1-eta2;
-	  if (dphi > 4.*atan(1.)) dphi = 8.*atan(1.) - dphi;
-	 double dr = sqrt(dphi*dphi+deta*deta);
-	 if( dr < 0.001) {
-	     occupied = 1;
-	     newtowers.push_back(*it); 
-	 }
+
+           for (InputCollection::const_iterator it = inputs.begin(); it != inputs.end(); it++ ) {
+              double eta1 = (**it).eta();
+              double phi1 = (**it).phi();
+
+              double dphi = fabs(phi1-phi2);
+	      double deta = eta1-eta2;
+	       if (dphi > 4.*atan(1.)) dphi = 8.*atan(1.) - dphi;
+	      double dr = sqrt(dphi*dphi+deta*deta);
+	      if( dr < 0.001) {
+	         newtowers.push_back(*it);
+                 jettowers.push_back(*it); 
+	      }
+                
+           } // initial input collection
         } // towers in jets
 	(*protojetTMP).putTowers(newtowers);  // put the reference of the towers from initial map
 	
        } // protojets
-         if(occupied == 0) input.push_back(*it); 
-     } // initial map
-      
+
+//
+// Create a new collections from the towersnot included in jets 
+//
+        InputCollection input;   
+        for(InputCollection::const_iterator it = inputs.begin(); it != inputs.end(); it++ ) {
+          InputCollection::const_iterator itjet = find(jettowers.begin(),jettowers.end(),*it);
+          if( itjet == jettowers.end() ) input.push_back(*it); 
+        }
 //
 // Recalculate pedestal
 //
@@ -161,7 +176,7 @@ namespace cms
 //    
 // Reestimate energy of jet
 //
-    vector <ProtoJet>::iterator protojetTMP = firstoutput.begin ();
+    protojetTMP = firstoutput.begin ();
     
     for (; protojetTMP != firstoutput.end (); protojetTMP++) {
     

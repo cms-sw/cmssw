@@ -7,7 +7,7 @@
  * It handles generic manipulations of input and output collections
  *
  * \author Fedor Ratnikov (UMd) Aug. 22, 2006
- * $Id: BasePilupSubtractionJetProducer.h,v 1.1 2006/08/22 22:11:40 fedor Exp $
+ * $Id: BasePilupSubtractionJetProducer.h,v 1.1 2007/04/07 18:12:45 kodolova Exp $
  *
  ************************************************************/
 
@@ -49,7 +49,7 @@ namespace cms
     bool mVerbose;
     double mEtInputCut;
     double mEInputCut;
-
+    double mEtJetInputCut;
     std::map<int,double> esigma;
     std::map<int,double> emean;
     std::map<double,int> ietamap;
