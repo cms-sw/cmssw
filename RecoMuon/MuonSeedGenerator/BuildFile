@@ -1,6 +1,6 @@
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
-<use name=Foundation/PluginManager>
+<use name=FWCore/PluginManager>
 <use name=DataFormats/Common>
 <use name=TrackingTools/TransientTrackingRecHit>
 <use name=TrackPropagation/SteppingHelixPropagator>
