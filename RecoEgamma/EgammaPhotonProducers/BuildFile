@@ -1,5 +1,6 @@
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
+<use name=FWCore/PluginManager>
 <use name=DataFormats/EgammaCandidates>
 <use name=DataFormats/TrajectorySeed>
 <use name=DataFormats/Common>
