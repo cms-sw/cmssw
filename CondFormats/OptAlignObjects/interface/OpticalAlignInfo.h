@@ -37,7 +37,7 @@ class OpticalAlignParam {
 
   std::string name() const { return name_; }
   double value() const { return value_; }
-  double sigma() const { return error_; }
+  double error() const { return error_; }
   int quality() const { return quality_; }
   std::string dimType() const { return dim_type_; }
 
@@ -78,7 +78,7 @@ class  OpticalAlignInfo {
   std::string type() { return type_; }
   std::string name() const { return name_; }
   std::string parentName() const { return parentObjectName_; }
-  unsigned int ID() const { return ID_; }
+  unsigned long ID() const { return ID_; }
   */
   OpticalAlignParam* findExtraEntry( std::string& name );
 
@@ -88,7 +88,7 @@ class  OpticalAlignInfo {
   std::string type_;
   std::string name_;
   std::string parentName_;
-  unsigned int ID_;
+  unsigned long ID_;
   void clear() {
     x_.clear();
     y_.clear();
