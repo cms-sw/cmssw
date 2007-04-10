@@ -5,8 +5,8 @@
  *  Class to load the tracks in the event, it provide some common functionalities
  *  both for all the RecoMuon producers.
  *
- *  $Date: 2007/02/05 19:07:40 $
- *  $Revision: 1.14 $
+ *  $Date: 2007/03/07 10:41:49 $
+ *  $Revision: 1.15 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -24,6 +24,7 @@ class Trajectory;
 class Propagator;
 class MuonServiceProxy;
 class MuonUpdatorAtVertex;
+class TrajectorySmoother;
 
 class MuonTrackLoader {
   public:
@@ -67,9 +68,13 @@ class MuonTrackLoader {
 
     bool theTrajectoryFlag;
 
+    bool theSmoothingStep;
+    std::string theSmootherName;
+    edm::ESHandle<TrajectorySmoother> theSmoother;
+
     /// Label for L2SeededTracks
     std::string theL2SeededTkLabel; 
-    bool thePutTkTrackFlag_;
+    bool thePutTkTrackFlag;
 
 };
 #endif
