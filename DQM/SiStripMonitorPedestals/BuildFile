@@ -1,7 +1,7 @@
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
 <use name=FWCore/MessageLogger>
-<use name=Foundation/PluginManager>
+<use name=FWCore/PluginManager>
 <use name=Utilities/Timing>
 <use name=DataFormats/Common>
 <use name=DQMServices/Core>
