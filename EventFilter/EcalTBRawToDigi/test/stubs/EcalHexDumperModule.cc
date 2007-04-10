@@ -35,21 +35,28 @@ class EcalHexDumperModule: public edm::EDAnalyzer{
   EcalHexDumperModule(const edm::ParameterSet& ps){  
     verbosity_= ps.getUntrackedParameter<int>("verbosity",1);
     
-    beg_DCC_fed_id_= ps.getUntrackedParameter<int>("beg_DCC_fed_id",600);
-    end_DCC_fed_id_= ps.getUntrackedParameter<int>("end_DCC_fed_id",670);
+    beg_fed_id_= ps.getUntrackedParameter<int>("beg_fed_id",0);
+    end_fed_id_= ps.getUntrackedParameter<int>("end_fed_id",654);
+
+
+    first_event_ = ps.getUntrackedParameter<int>("first_event",1);
+    last_event_  = ps.getUntrackedParameter<int>("last_event",9999999);
+    event_ =0;
 
     writeDcc_ =ps.getUntrackedParameter<bool>("writeDCC",false);
     filename_  =ps.getUntrackedParameter<string>("filename","dump.bin");
-    event_ =0;
+
   }
 
   
  protected:
-  int       verbosity_;
-  bool   writeDcc_;
-  int      beg_DCC_fed_id_;
-  int      end_DCC_fed_id_;
-  string filename_;
+  int      verbosity_;
+  bool     writeDcc_;
+  int      beg_fed_id_;
+  int      end_fed_id_;
+  int      first_event_;
+  int      last_event_;
+  string   filename_;
   int      event_;
 
   void analyze( const edm::Event & e, const  edm::EventSetup& c);
@@ -60,14 +67,18 @@ class EcalHexDumperModule: public edm::EDAnalyzer{
 
 void EcalHexDumperModule::analyze( const edm::Event & e, const  edm::EventSetup& c){
   
+  event_++;
+  if (event_ < first_event_ || last_event_ < event_) return;
+  
+
   edm::Handle<FEDRawDataCollection> rawdata;
   e.getByType(rawdata);  
 
   ofstream dumpFile (filename_.c_str(),ios::app );
   
-  event_++;
-  
   for (int id= 0; id<=FEDNumbering::lastFEDId(); ++id){ 
+    
+    if (id < beg_fed_id_ || end_fed_id_ < id) continue;
 
     const FEDRawData& data = rawdata->FEDData(id);
     
@@ -75,7 +86,7 @@ void EcalHexDumperModule::analyze( const edm::Event & e, const  edm::EventSetup&
       
       cout << "\n\n\n[EcalHexDumperModule] Event: " 
 	   << dec << event_ 
-	   << " fed: " << id 
+	   << " fed_id: " << id 
 	   << " size_fed: " << data.size() << "\n"<< endl;
       
       if ( ( data.size() %16 ) !=0)
@@ -98,7 +109,7 @@ void EcalHexDumperModule::analyze( const edm::Event & e, const  edm::EventSetup&
       cout << "\n";
 
 
-      if (beg_DCC_fed_id_ <= id && id <= end_DCC_fed_id_ && writeDcc_)
+      if (beg_fed_id_ <= id && id <= end_fed_id_ && writeDcc_)
 	{
 	  dumpFile.write( reinterpret_cast <const char *> (pData), length);
 	}
