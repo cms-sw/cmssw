@@ -10,7 +10,7 @@
 //---- The RecHit ED producer
 #include "RecoLocalTracker/SiPixelRecHits/interface/SiPixelRecHitConverter.h"
 //--- The header files for the Framework infrastructure (macros etc):
-#include "PluginManager/ModuleDef.h"
+//#include "PluginManager/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
