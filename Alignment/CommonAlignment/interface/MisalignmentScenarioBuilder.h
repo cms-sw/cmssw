@@ -3,10 +3,10 @@
 
 /// \class MisalignmentScenarioBuilder
 ///
-/// $Date$
-/// $Revision$
+/// $Date: 2007/01/12 09:47:39 $
+/// $Revision: 1.1 $
 ///
-/// $Author$
+/// $Author: fronga $
 /// \author Frederic Ronga - CERN-PH-CMG
 
 #include <vector>
@@ -15,7 +15,6 @@
 
 #include "Alignment/CommonAlignment/interface/Alignable.h"
 #include "Alignment/CommonAlignment/interface/AlignableModifier.h"
-#include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
 
 /// Base class to build a scenario from configuration and apply to either tracker or muon.
 
