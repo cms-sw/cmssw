@@ -13,7 +13,7 @@
 ///
 /// Original Author:  Gero FLUCKE
 ///     Created:  Mon Mar  5 16:32:01 CET 2007
-/// $Id: CosmicGenFilterHelix.h,v 1.1 2007/03/31 15:18:46 flucke Exp $
+/// $Id: CosmicGenFilterHelix.h,v 1.2 2007/03/31 17:25:08 flucke Exp $
 ///
 
 
@@ -24,10 +24,10 @@
 #include "FWCore/ParameterSet/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DataFormats/GeometrySurface/interface/Plane.h"
-#include "DataFormats/GeometrySurface/interface/Cylinder.h"
-#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
-#include "DataFormats/GeometryVector/interface/GlobalVector.h"
+#include "Geometry/Surface/interface/Plane.h"
+#include "Geometry/Surface/interface/Cylinder.h"
+#include "Geometry/Vector/interface/GlobalPoint.h"
+#include "Geometry/Vector/interface/GlobalVector.h"
 
 #include <TObjArray.h>
 
