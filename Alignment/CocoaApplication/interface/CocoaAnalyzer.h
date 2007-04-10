@@ -44,8 +44,6 @@ class OpticalObject;
 
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
-using namespace std;
-
 class CocoaAnalyzer : public edm::EDAnalyzer
 {
  public:

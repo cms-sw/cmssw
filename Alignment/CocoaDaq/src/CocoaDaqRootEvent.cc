@@ -9,7 +9,6 @@
 //
 ////////////////////////////////////////////////////////////////////////
 
-using namespace std;
 #include <iostream>
 #include "Alignment/CocoaDaq/interface/CocoaDaqRootEvent.h"
 
