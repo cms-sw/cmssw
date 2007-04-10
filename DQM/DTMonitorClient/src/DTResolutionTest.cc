@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/03/27 16:11:37 $
- *  $Revision: 1.5 $
+ *  $Date: 2007/03/30 16:10:06 $
+ *  $Revision: 1.6 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -98,30 +98,30 @@ void DTResolutionTest::bookHistos(const DTChamberId & ch) {
   string HistoName = "W" + wheel.str() + "_Sec" + sector.str(); 
 
   MeanHistos[HistoName] = dbe->book1D(MeanHistoName.c_str(),MeanHistoName.c_str(),11,0,10);
-  (MeanHistos[HistoName])->setBinLabel(1,"MB1_L1",1);
-  (MeanHistos[HistoName])->setBinLabel(2,"MB1_L2",1);
-  (MeanHistos[HistoName])->setBinLabel(3,"MB1_L3",1);
-  (MeanHistos[HistoName])->setBinLabel(4,"MB2_L1",1);
-  (MeanHistos[HistoName])->setBinLabel(5,"MB2_L2",1);
-  (MeanHistos[HistoName])->setBinLabel(6,"MB2_L3",1);
-  (MeanHistos[HistoName])->setBinLabel(7,"MB3_L1",1);
-  (MeanHistos[HistoName])->setBinLabel(8,"MB3_L2",1);
-  (MeanHistos[HistoName])->setBinLabel(9,"MB3_L3",1);
-  (MeanHistos[HistoName])->setBinLabel(10,"MB4_L1",1);
-  (MeanHistos[HistoName])->setBinLabel(11,"MB4_L3",1);
+  (MeanHistos[HistoName])->setBinLabel(1,"MB1_SL1",1);
+  (MeanHistos[HistoName])->setBinLabel(2,"MB1_SL2",1);
+  (MeanHistos[HistoName])->setBinLabel(3,"MB1_SL3",1);
+  (MeanHistos[HistoName])->setBinLabel(4,"MB2_SL1",1);
+  (MeanHistos[HistoName])->setBinLabel(5,"MB2_SL2",1);
+  (MeanHistos[HistoName])->setBinLabel(6,"MB2_SL3",1);
+  (MeanHistos[HistoName])->setBinLabel(7,"MB3_SL1",1);
+  (MeanHistos[HistoName])->setBinLabel(8,"MB3_SL2",1);
+  (MeanHistos[HistoName])->setBinLabel(9,"MB3_SL3",1);
+  (MeanHistos[HistoName])->setBinLabel(10,"MB4_SL1",1);
+  (MeanHistos[HistoName])->setBinLabel(11,"MB4_SL3",1);
 
   SigmaHistos[HistoName] = dbe->book1D(SigmaHistoName.c_str(),SigmaHistoName.c_str(),11,0,10);
-  (SigmaHistos[HistoName])->setBinLabel(1,"MB1_L1",1);  
-  (SigmaHistos[HistoName])->setBinLabel(2,"MB1_L2",1);
-  (SigmaHistos[HistoName])->setBinLabel(3,"MB1_L3",1);
-  (SigmaHistos[HistoName])->setBinLabel(4,"MB2_L1",1);
-  (SigmaHistos[HistoName])->setBinLabel(5,"MB2_L2",1);
-  (SigmaHistos[HistoName])->setBinLabel(6,"MB2_L3",1);
-  (SigmaHistos[HistoName])->setBinLabel(7,"MB3_L1",1);
-  (SigmaHistos[HistoName])->setBinLabel(8,"MB3_L2",1);
-  (SigmaHistos[HistoName])->setBinLabel(9,"MB3_L3",1);
-  (SigmaHistos[HistoName])->setBinLabel(10,"MB4_L1",1);
-  (SigmaHistos[HistoName])->setBinLabel(11,"MB4_L3",1);
+  (SigmaHistos[HistoName])->setBinLabel(1,"MB1_SL1",1);  
+  (SigmaHistos[HistoName])->setBinLabel(2,"MB1_SL2",1);
+  (SigmaHistos[HistoName])->setBinLabel(3,"MB1_SL3",1);
+  (SigmaHistos[HistoName])->setBinLabel(4,"MB2_SL1",1);
+  (SigmaHistos[HistoName])->setBinLabel(5,"MB2_SL2",1);
+  (SigmaHistos[HistoName])->setBinLabel(6,"MB2_SL3",1);
+  (SigmaHistos[HistoName])->setBinLabel(7,"MB3_SL1",1);
+  (SigmaHistos[HistoName])->setBinLabel(8,"MB3_SL2",1);
+  (SigmaHistos[HistoName])->setBinLabel(9,"MB3_SL3",1);
+  (SigmaHistos[HistoName])->setBinLabel(10,"MB4_SL1",1);
+  (SigmaHistos[HistoName])->setBinLabel(11,"MB4_SL3",1);
 }
 
 
