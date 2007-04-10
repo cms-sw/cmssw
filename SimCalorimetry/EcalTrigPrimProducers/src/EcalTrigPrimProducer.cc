@@ -20,15 +20,16 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ConstProductRegistry.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
 #include "DataFormats/Provenance/interface/Provenance.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
-
-#include  "SimCalorimetry/EcalTrigPrimProducers/interface/EcalTrigPrimProducer.h"
-#include  "SimCalorimetry/EcalTrigPrimAlgos/interface/DBInterface.h"
-#include  "SimCalorimetry/EcalTrigPrimAlgos/interface/EcalTrigPrimFunctionalAlgo.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
+
+#include "SimCalorimetry/EcalTrigPrimProducers/interface/EcalTrigPrimProducer.h"
+#include "SimCalorimetry/EcalTrigPrimAlgos/interface/EcalTrigPrimFunctionalAlgo.h"
+
 #include "TFile.h"
 #include "TTree.h"
 
@@ -38,7 +39,7 @@ EcalTrigPrimProducer::EcalTrigPrimProducer(const edm::ParameterSet&  iConfig):
   valid_(iConfig.getUntrackedParameter<bool>("Validation")),
   barrelOnly_(iConfig.getParameter<bool>("BarrelOnly")),
   tcpFormat_(iConfig.getParameter<bool>("TcpOutput")),
-  debug_(iConfig.getParameter<bool>("Debug"))
+  debug_(iConfig.getParameter<bool>("Debug")),ps_(iConfig)
 {
   //register your products
   produces <EcalTrigPrimDigiCollection >();
@@ -54,13 +55,7 @@ EcalTrigPrimProducer::EcalTrigPrimProducer(const edm::ParameterSet&  iConfig):
   label_= iConfig.getParameter<std::string>("Label");
   instanceNameEB_ = iConfig.getParameter<std::string>("InstanceEB");;
   instanceNameEE_ = iConfig.getParameter<std::string>("InstanceEE");;
-  databaseFileNameEB_ = iConfig.getParameter<std::string>("DatabaseFileEB");;
-  databaseFileNameEE_ = iConfig.getParameter<std::string>("DatabaseFileEE");;
-  //  fgvbMinEnergy_=  iConfig.getParameter<int>("FgvbMinEnergy");
-  //  ttfThreshLow_ =  iConfig.getParameter<double>("TTFLowEnergy");
-  //  ttfThreshHigh_=  iConfig.getParameter<double>("TTFHighEnergy");
   algo_=NULL;
-  db_=NULL;
   //FIXME: add configuration
                    
 }
@@ -99,9 +94,9 @@ void EcalTrigPrimProducer::beginJob(edm::EventSetup const& setup) {
     edm::LogWarning("EcalTPG")<<"Could not find product registry of EBDataFramesSorted, had to set the following parameters by Hand: ebDccAdcToGeV="<<ebDccAdcToGeV_<<", eeDccAdcToGeV_="<<eeDccAdcToGeV_<<", binOfMaximum="<<binOfMaximum_;
   }
 
-  db_ = new DBInterface(databaseFileNameEB_,databaseFileNameEE_);
   algo_ = new EcalTrigPrimFunctionalAlgo(setup,valTree_,
-          binOfMaximum_,nrSamples_,db_,tcpFormat_,barrelOnly_,debug_,ebDccAdcToGeV_,eeDccAdcToGeV_);
+					 binOfMaximum_,nrSamples_,tcpFormat_,barrelOnly_,debug_,ebDccAdcToGeV_,eeDccAdcToGeV_);
+  algo_->updateESRecord(ps_.getParameter<double>("TTFLowEnergyEB"),ps_.getParameter<double>("TTFHighEnergyEB"),ps_.getParameter<double>("TTFLowEnergyEE"),ps_.getParameter<double>("TTFHighEnergyEE"));
   edm::LogInfo("EcalTPG") <<"EcalTrigPrimProducer will write:  "<<nrSamples_<<" samples for each digi,  binOfMaximum used:  "<<binOfMaximum_;
 }
 
@@ -115,7 +110,6 @@ EcalTrigPrimProducer::~EcalTrigPrimProducer()
     histfile_->Write();
     histfile_->Close();
   }
-  delete db_ ;
 
 }
 
