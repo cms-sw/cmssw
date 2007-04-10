@@ -13,7 +13,7 @@
 //
 // Original Author:  Chi Nhan Nguyen
 //         Created:  Mon Feb 19 13:25:24 CST 2007
-// $Id: FastL1RegionMap.cc,v 1.2 2007/02/23 20:45:31 chinhan Exp $
+// $Id: FastL1RegionMap.cc,v 1.1 2007/04/02 13:49:20 beaudett Exp $
 //
 
 
@@ -39,26 +39,26 @@ FastL1RegionMap::getL1RegionMap()
 }
 
 // Region ID from DetId
-pair<int, int> 
+std::pair<int, int> 
 FastL1RegionMap::getRegionEtaPhiIndex(CaloTowerDetId tower)
 {
 
-  return FastL1RegionMap::getRegionEtaPhiIndex(pair<int, int>(tower.ieta(), tower.iphi()));
+  return FastL1RegionMap::getRegionEtaPhiIndex(std::pair<int, int>(tower.ieta(), tower.iphi()));
 }
 
 // Region-Tower ID from DetId
 int 
 FastL1RegionMap::getRegionTowerIndex(CaloTowerDetId tower)
 {
-  return FastL1RegionMap::getRegionTowerIndex(pair<int, int>(tower.ieta(), tower.iphi()));
+  return FastL1RegionMap::getRegionTowerIndex(std::pair<int, int>(tower.ieta(), tower.iphi()));
 }
 
 
 // Mapping of calotowers and regions
 // input:  calotower ieta,iphi
 // output: region ieta,iphi
-pair<int, int> 
-FastL1RegionMap::getRegionEtaPhiIndex(pair<int, int> EtaPhi)
+std::pair<int, int> 
+FastL1RegionMap::getRegionEtaPhiIndex(std::pair<int, int> EtaPhi)
 {
   //// *** TDR ***
   // barrel: 2x(17x72) [eta,phi] -> 2x1224 (etaid: +/- 1-17  phiid: 1-72)
@@ -99,14 +99,14 @@ FastL1RegionMap::getRegionEtaPhiIndex(pair<int, int> EtaPhi)
     }
   }
 
-  return pair<int, int>(ieta, iphi);
+  return std::pair<int, int>(ieta, iphi);
 }
 
 // Mapping of calotowers and regions
 // input:  calotower ieta,iphi
 // output: region isub 0-15 of 4x4 matrix
 int 
-FastL1RegionMap::getRegionTowerIndex(pair<int, int> EtaPhi)
+FastL1RegionMap::getRegionTowerIndex(std::pair<int, int> EtaPhi)
 {
   int iTwrEta = EtaPhi.first;
   int iTwrPhi = EtaPhi.second;
@@ -130,25 +130,25 @@ FastL1RegionMap::getRegionTowerIndex(pair<int, int> EtaPhi)
 int 
 FastL1RegionMap::getRegionTowerIndex(int iEta, int iPhi)
 {
-  return FastL1RegionMap::getRegionTowerIndex(pair<int, int>(iEta,iPhi));
+  return FastL1RegionMap::getRegionTowerIndex(std::pair<int, int>(iEta,iPhi));
 }
 
-pair<int, int>
+std::pair<int, int>
 FastL1RegionMap::getRegionEtaPhiIndex(int regionId)
 {
   // Right now: only barrel/encap part!!!
   int ieta = regionId%22;  
   int iphi = regionId/22;
 
-  return pair<int, int>(ieta, iphi);
+  return std::pair<int, int>(ieta, iphi);
 }
 
 int
 FastL1RegionMap::getRegionIndex(int ieta, int iphi)
 {
 
-  pair<int, int> ietaphi(ieta,iphi);
-  pair<int, int> iep = getRegionEtaPhiIndex(ietaphi);
+  std::pair<int, int> ietaphi(ieta,iphi);
+  std::pair<int, int> iep = getRegionEtaPhiIndex(ietaphi);
 
   int rgnid = iep.second*22 + iep.first;
 
@@ -172,7 +172,7 @@ FastL1RegionMap::display() {
 
   for (int iRgn=0; iRgn<396; iRgn++) {
     if (iRgn%22 == 0) std::cerr << std::endl;   
-    //pair<int, int> pep = m_Regions[iRgn].SetEtaPhiIndex();
+    //std::pair<int, int> pep = m_Regions[iRgn].SetEtaPhiIndex();
     for (int iTwr=0; iTwr<16; iTwr++) {
       
       if (iTwr%4 == 0) std::cerr << " | ";   
@@ -186,7 +186,7 @@ std::pair<double, double>
 FastL1RegionMap::getRegionCenterEtaPhi(int iRgn)
 {
 
-  pair<int, int> ep = getRegionEtaPhiIndex(iRgn);
+  std::pair<int, int> ep = getRegionEtaPhiIndex(iRgn);
 
   // this only true for barrel + endcap!
   double eta = 999.;  
@@ -230,7 +230,7 @@ FastL1RegionMap::getRegionCenterEtaPhi(int iRgn)
     eta = -4.75;
 
 
-  return pair<double, double>(eta, phi);
+  return std::pair<double, double>(eta, phi);
 }
 
 

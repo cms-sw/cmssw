@@ -15,7 +15,7 @@
 //
 // Original Author:  Chi Nhan Nguyen
 //         Created:  Mon Feb 19 13:25:24 CST 2007
-// $Id: FastL1RegionMap.h,v 1.1 2007/02/20 01:14:53 chinhan Exp $
+// $Id: FastL1RegionMap.h,v 1.1 2007/04/02 13:49:19 beaudett Exp $
 //
 
 #include <iostream>
@@ -24,7 +24,6 @@
 
 #include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
 
-using std::pair;
 
 //
 // This Class is used for the mapping Detector IDs to the region IDs
@@ -55,16 +54,16 @@ class FastL1RegionMap {
 
   static FastL1RegionMap* getL1RegionMap();
 
-  pair<int, int> getRegionEtaPhiIndex(pair<int, int> iEtaPhi);
-  pair<int, int> getRegionEtaPhiIndex(CaloTowerDetId towerId);
-  pair<int, int> getRegionEtaPhiIndex(int regionId);
+  std::pair<int, int> getRegionEtaPhiIndex(std::pair<int, int> iEtaPhi);
+  std::pair<int, int> getRegionEtaPhiIndex(CaloTowerDetId towerId);
+  std::pair<int, int> getRegionEtaPhiIndex(int regionId);
   int getRegionIndex(int ieta, int iphi);
   int getRegionIndex(CaloTowerDetId tower);
-  int getRegionTowerIndex(pair<int, int> iEtaPhi);
+  int getRegionTowerIndex(std::pair<int, int> iEtaPhi);
   int getRegionTowerIndex(int ieta, int iphi);
   int getRegionTowerIndex(CaloTowerDetId towerId);
 
-  pair<double, double> getRegionCenterEtaPhi(int iRgn);
+  std::pair<double, double> getRegionCenterEtaPhi(int iRgn);
 
   int getNTower() { return nTower; };
   int getNRegion() { return nRegion; };
@@ -76,14 +75,14 @@ class FastL1RegionMap {
 
   //CaloTowerDetId getTowerId();
 
-  pair<int, int> GetTowerNorthEtaPhi(int ieta, int iphi); 
-  pair<int, int> GetTowerSouthEtaPhi(int ieta, int iphi); 
-  pair<int, int> GetTowerWestEtaPhi(int ieta, int iphi); 
-  pair<int, int> GetTowerEastEtaPhi(int ieta, int iphi); 
-  pair<int, int> GetTowerNWEtaPhi(int ieta, int iphi); 
-  pair<int, int> GetTowerNEEtaPhi(int ieta, int iphi); 
-  pair<int, int> GetTowerSWEtaPhi(int ieta, int iphi); 
-  pair<int, int> GetTowerSEEtaPhi(int ieta, int iphi); 
+  std::pair<int, int> GetTowerNorthEtaPhi(int ieta, int iphi); 
+  std::pair<int, int> GetTowerSouthEtaPhi(int ieta, int iphi); 
+  std::pair<int, int> GetTowerWestEtaPhi(int ieta, int iphi); 
+  std::pair<int, int> GetTowerEastEtaPhi(int ieta, int iphi); 
+  std::pair<int, int> GetTowerNWEtaPhi(int ieta, int iphi); 
+  std::pair<int, int> GetTowerNEEtaPhi(int ieta, int iphi); 
+  std::pair<int, int> GetTowerSWEtaPhi(int ieta, int iphi); 
+  std::pair<int, int> GetTowerSEEtaPhi(int ieta, int iphi); 
 
  private:
   static FastL1RegionMap* theInstance;
