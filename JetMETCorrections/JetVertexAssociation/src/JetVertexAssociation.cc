@@ -13,7 +13,7 @@
 //
 // Original Author:  Natalia Ilina
 //         Created:  Tue Oct 31 10:52:41 CET 2006
-// $Id: JetVertexAssociation.cc,v 1.1 2006/11/28 14:32:21 nilina Exp $
+// $Id: JetVertexAssociation.cc,v 1.2 2007/03/09 17:01:47 kodolova Exp $
 //
 //
 
@@ -40,7 +40,7 @@
 #include "DataFormats/Common/interface/EDProduct.h"
 #include "FWCore/Framework/interface/Event.h"
 
-#include "PluginManager/ModuleDef.h"
+#include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "DataFormats/Common/interface/Handle.h"

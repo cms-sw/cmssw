@@ -9,7 +9,7 @@
 <use name=Geometry/CaloEventSetup>
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
-<use name=Foundation/PluginManager>
+<use name=FWCore/PluginManager>
 <use name=clhep>
 <use name=root>
 <flags SEAL_PLUGIN_NAME="JetMETCorrectionsMinBias">

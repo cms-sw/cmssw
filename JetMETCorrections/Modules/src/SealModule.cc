@@ -5,7 +5,7 @@ DEFINE_SEAL_MODULE();
 #include "JetMETCorrections/Objects/interface/JetCorrectionsRecord.h"
 REGISTER_PLUGIN (JetCorrectionsRecord, JetCorrector);
 
-#include "PluginManager/ModuleDef.h"
+#include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/SourceFactory.h"
 

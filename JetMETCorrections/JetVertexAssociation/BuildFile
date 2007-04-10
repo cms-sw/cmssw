@@ -1,7 +1,7 @@
 <use name=clhep>
 <use name=DataFormats/Common>
 <use name=FWCore/Framework>
-<use name=Foundation/PluginManager>
+<use name=FWCore/PluginManager>
 <use name=FWCore/ParameterSet>
 <use name=DataFormats/JetReco>
 <use name=DataFormats/TrackReco>
@@ -16,7 +16,7 @@
 <export>
    <lib name=JetMETCorrectionsJetVertexAssociation>
    <use name=FWCore/Framework>
-   <use name=Foundation/PluginManager>
+   <use name=FWCore/PluginManager>
    <use name=FWCore/ParameterSet>
    <use name=DataFormats/JetReco>
    <use name=DataFormats/TrackReco>
