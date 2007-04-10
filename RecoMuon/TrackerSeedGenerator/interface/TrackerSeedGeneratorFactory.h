@@ -4,7 +4,7 @@
 #include "RecoMuon/TrackerSeedGenerator/interface/TrackerSeedGenerator.h"
 namespace edm {class ParameterSet;}
 
-#include <PluginManager/PluginFactory.h>
+#include "FWCore/PluginManager/interface/PluginFactory.h"
 
 class TrackerSeedGeneratorFactory
    : public seal::PluginFactory< TrackerSeedGenerator * (const edm::ParameterSet&) > {
