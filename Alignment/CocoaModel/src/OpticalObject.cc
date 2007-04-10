@@ -973,7 +973,7 @@ void OpticalObject::userDefinedBehaviour( LightRay& lightray, Measurement& meas,
   std::cerr << "!!! Optical Object " << name() << " of type " << type() << " does not implement user defined behaviour = " << behav << std::endl;
   std::cerr << " Please read documentation for this object type" << std::endl;  
   exit(1);
-};
+}
 
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -1662,8 +1662,8 @@ void OpticalObject::resetOriginalOriginalCoordinates()
 
   //---------- Reset extra entry values list
   std::vector<ALIdouble>::iterator vdite;
-  std::vector<ALIdouble>::iterator vdite_o = ExtraEntryValueOriginalList().begin() ;
-  std::vector<ALIdouble>::const_iterator vdcite_oo = ExtraEntryValueOriginalOriginalList().begin() ;
+  std::vector<ALIdouble>::iterator vdite_o = theExtraEntryValueOriginalVector.begin() ;
+  std::vector<ALIdouble>::const_iterator vdcite_oo = theExtraEntryValueOriginalOriginalVector.begin() ;
   std::vector<Entry*>::const_iterator vdciteE = ExtraEntryList().begin() ;
   for (vdite = ExtraEntryValueList().begin(); 
        vdite != ExtraEntryValueList().end(); vdite++,vdite_o++,vdcite_oo++,vdciteE++) {
@@ -1772,7 +1772,6 @@ std::vector<double> OpticalObject::GetLocalRotationAngles( std::vector< Entry* >
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 std::vector<double> OpticalObject::GetRotationAnglesFromMatrix( CLHEP::HepRotation& rmLocal, std::vector< Entry* > entries )
 {
-  double pii = acos(0.)*2;
   std::vector<double> newang(3);
   double angleX = entries[3]->value()+entries[3]->valueDisplacementByFitting();
   double angleY = entries[4]->value()+entries[4]->valueDisplacementByFitting();
@@ -1867,9 +1866,8 @@ CLHEP::Hep3Vector OpticalObject::GetAxisForDisplacement( const XYZcoor coor )
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 double OpticalObject::diff2pi( double ang1, double ang2 ) 
 {
-  double pii = acos(0.)*2;
   double diff = fabs( ang1 - ang2 );
-  diff = diff - int(diff/2./pii) * 2 *pii;
+  diff = diff - int(diff/2./M_PI) * 2 *M_PI;
   return diff;
 }
 
@@ -1879,10 +1877,9 @@ bool OpticalObject::eq2ang( double ang1, double ang2 )
 {
   bool beq = true;
 
-  double pii = acos(0.)*2;
   double diff = diff2pi( ang1, ang2 );
   if( diff > 0.00001 ) {
-    if( fabs( diff - 2*pii ) > 0.00001 ) {
+    if( fabs( diff - 2*M_PI ) > 0.00001 ) {
       //-      std::cout << " diff " << diff << " " << ang1 << " " << ang2 << std::endl;
       beq = false;
     }
@@ -2156,7 +2153,7 @@ std::vector<ALIstring> OpticalObject::getCoordinateFromOptAlignParam( const Opti
   wordlist.push_back( oaParam.name() );
   gcvt( oaParam.value(), 10, chartmp );
   wordlist.push_back( chartmp );
-  gcvt( oaParam.error(), 10, chartmp );
+  gcvt( oaParam.sigma(), 10, chartmp );
   wordlist.push_back( chartmp );
   if( oaParam.quality() == 0 ) {
     wordlist.push_back("fix");

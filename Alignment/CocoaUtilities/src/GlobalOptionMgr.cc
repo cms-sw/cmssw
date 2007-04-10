@@ -38,18 +38,17 @@ void GlobalOptionMgr::setDefaultGlobalOptions()
   theGlobalOptions[ ALIstring("length_error_dimension") ] = 0;  
   theGlobalOptions[ ALIstring("angle_value_dimension") ] = 0;  
   theGlobalOptions[ ALIstring("angle_error_dimension") ] = 0;  
-  theGlobalOptions[ ALIstring("output_length_value_dimension") ] = 0;  
-  theGlobalOptions[ ALIstring("output_length_error_dimension") ] = 0;  
-  theGlobalOptions[ ALIstring("output_angle_value_dimension") ] = 0;  
-  theGlobalOptions[ ALIstring("output_angle_error_dimension") ] = 0;  
+  theGlobalOptions[ ALIstring("output_length_value_dimension") ] = 1;  
+  theGlobalOptions[ ALIstring("output_length_error_dimension") ] = 1;  
+  theGlobalOptions[ ALIstring("output_angle_value_dimension") ] = 3;  
+  theGlobalOptions[ ALIstring("output_angle_error_dimension") ] = 3;  
   theGlobalOptions[ ALIstring("check_extra_entries") ] = 0;  
   theGlobalOptions[ ALIstring("cms_link") ] = 0;  
   theGlobalOptions[ ALIstring("cms_link_halfplanes") ] = 0;  
   theGlobalOptions[ ALIstring("cms_link_method") ] = 0;  
   theGlobalOptions[ ALIstring("range_studies") ] = 0;  
   theGlobalOptions[ ALIstring("histograms") ] = 0;  
-  theGlobalOptions[ ALIstring("onlyDeriv") ] = 0; 
-  theGlobalOptions[ ALIstring("onlyFirstPropagation") ] = 0;
+  theGlobalOptions[ ALIstring("onlyDeriv") ] = 0;  
 
   theGlobalOptions[ ALIstring("VisWriteVRML") ] = 0;  
   theGlobalOptions[ ALIstring("VisWriteIguana") ] = 0;  
@@ -66,7 +65,6 @@ void GlobalOptionMgr::setDefaultGlobalOptions()
 
   theGlobalOptions[ ALIstring("MaxNoFitIterations") ] = 50;
   theGlobalOptions[ ALIstring("FitQualityCut") ] = 0.1;
-  theGlobalOptions[ ALIstring("RelativeFitQualityCut") ] = 1.E-6;
 
   //dimension factor to multiply the values in the files that give you the deviatin when traversing an ALMY. Files have numbers in microns, so it has to be 1 if 'length_value_dimension 2', 0.001 if 'length_value_dimension 1' (the same for angles)
   theGlobalOptions[ ALIstring("deviffValDimf") ] = 1.;
@@ -80,6 +78,7 @@ void GlobalOptionMgr::setDefaultGlobalOptions()
 
   theGlobalOptions[ ALIstring("stopAfter1stIteration") ] = 0;
   theGlobalOptions[ ALIstring("calParamInyfMatrix") ] = 0;
+  theGlobalOptions[ ALIstring("minDaFactor") ] = 1.E-8;
 }
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -116,14 +115,22 @@ ALIint GlobalOptionMgr::getGlobalOptionValue( const ALIstring& sstr, ALIdouble& 
   std::map< ALIstring, ALIdouble, std::less<ALIstring> >::const_iterator msdcite = GlobalOptions().find( sstr ); 
 
   //---------- Dump Global Option found
-  if( ALIUtils::debug >= 6) {
-    std::cout << "Global Option " << (*msdcite).first << " = " << (*msdcite).second << std::endl;
+  if( ALIUtils::debug >= -6) {
+    std::cout << "getGlobalOptionValue " << sstr << std::endl;
   }
+
 
   if ( msdcite == GlobalOptions().end() ) {
     //---------- return 0 if GLobal Option not found
+    std::cerr << " !!! FATAL ERROR: trying to get the value of an unknown Global Option : " << sstr << std::endl;
+    abort();
     return 0;
   } else {
+  //---------- Dump Global Option found
+  if( ALIUtils::debug >= -6) {
+    std::cout << "Global Option " << (*msdcite).first << " = " << (*msdcite).second << std::endl;
+  }
+
     //---------- return 1 if Global Option found
     //-std::cout << "SSparam" << (*msdcite).first << (*msdcite).second << "len" << OptOList().size() << std::endl;
     //----- set val to Global Option value
