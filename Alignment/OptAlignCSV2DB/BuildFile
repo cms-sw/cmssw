@@ -1,5 +1,5 @@
- <use name=CondFormats/DataRecord>
-<use name=CondTools/Utilities>
+<use name=CondFormats/DataRecord>
+<use name=CondCore/Utilities>
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
 <use name=CondFormats/OptAlignObjects>

@@ -1,7 +1,7 @@
 #ifndef OptAlignDataConverter_h
 #define OptAlignDataConverter_h
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "CondTools/Utilities/interface/CSVFieldMap.h"
+#include "CondCore/Utilities/interface/CSVFieldMap.h"
 #include <string>
 #include <vector>
 namespace edm{

@@ -2,9 +2,9 @@
 #include "CondCore/DBCommon/interface/Exception.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "CondTools/Utilities/interface/CSVDataLineParser.h"
-#include "CondTools/Utilities/interface/CSVHeaderLineParser.h"
-#include "CondTools/Utilities/interface/CSVBlankLineParser.h"
+#include "CondCore/Utilities/interface/CSVDataLineParser.h"
+#include "CondCore/Utilities/interface/CSVHeaderLineParser.h"
+#include "CondCore/Utilities/interface/CSVBlankLineParser.h"
 #include "../interface/OptAlignDataConverter.h"
 #include "CondFormats/OptAlignObjects/interface/OpticalAlignments.h"
 

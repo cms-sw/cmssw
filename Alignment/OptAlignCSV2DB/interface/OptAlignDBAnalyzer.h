@@ -13,7 +13,6 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-using namespace std;
 
 class OptAlignDBAnalyzer : public edm::EDAnalyzer
 {
