@@ -19,7 +19,6 @@
 <use name=SimCalorimetry/EcalTrigPrimAlgos>
 <use name=DataFormats/EcalDigi>
 <use name=DataFormats/EcalDetId>
-<use name=Foundation/PluginManager>
 <use name=CondFormats/L1TObjects>
 <use name=CondFormats/DataRecord>
 </export>

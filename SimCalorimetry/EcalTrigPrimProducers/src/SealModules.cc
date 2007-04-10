@@ -1,9 +1,8 @@
 
-#include "PluginManager/ModuleDef.h"
+#include "FWCore/PluginManager/interface/ModuleDef.h"
 
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/SourceFactory.h"
-#
+
 #include "SimCalorimetry/EcalTrigPrimProducers/interface/EcalTrigPrimProducer.h"
 #include "SimCalorimetry/EcalTrigPrimProducers/interface/EcalTrigPrimAnalyzer.h"
 #include "SimCalorimetry/EcalTrigPrimProducers/interface/EcalTPInputAnalyzer.h"
