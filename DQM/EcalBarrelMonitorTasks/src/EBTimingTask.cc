@@ -1,8 +1,8 @@
 /*
  * \file EBTimingTask.cc
  *
- * $Date: 2007/04/05 14:54:01 $
- * $Revision: 1.12 $
+ * $Date: 2007/04/10 05:40:52 $
+ * $Revision: 1.13 $
  * \author G. Della Ricca
  *
 */
@@ -191,6 +191,8 @@ void EBTimingTask::analyze(const Event& e, const EventSetup& c){
 
   }
 #endif
+
+  try {
 
     Handle<EcalUncalibratedRecHitCollection> hits;
     e.getByLabel(EcalUncalibratedRecHitCollection_, hits);
