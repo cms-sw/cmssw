@@ -7,8 +7,8 @@
  *   studies
  *
  *
- *   $Date: 2007/02/09 11:26:19 $
- *   $Revision: 1.3 $
+ *   $Date: 2007/04/04 10:44:35 $
+ *   $Revision: 1.4 $
  *
  *   \author C. Battilana
  */
@@ -45,8 +45,7 @@
 #include<time.h>
 
 using namespace std;
-
-
+using namespace edm;
 
 const double DTTrigTest::my_TtoTDC = 32./25.;
 

@@ -4,8 +4,8 @@
  *     Main EDProducer for the DTTPG
  *
  *
- *   $Date: 2006/10/13 10:58:54 $
- *   $Revision: 1.2 $
+ *   $Date: 2007/02/09 11:26:18 $
+ *   $Revision: 1.3 $
  *
  *   \author C. Battilana
  *
@@ -26,24 +26,20 @@
 // Trigger related classes
 #include "L1Trigger/DTTrigger/interface/DTTrig.h"
 
-
-using namespace edm;
-using namespace std;
-
-class DTTrigProd: public EDProducer{
+class DTTrigProd: public edm::EDProducer{
 public:
 
   //! Constructor
-  DTTrigProd(const ParameterSet& pset);
+  DTTrigProd(const edm::ParameterSet& pset);
 
   //! Destructor
   ~DTTrigProd();
 
   //! Create Trigger Units before starting event processing
-  void beginJob(const EventSetup & iEventSetup);
+  void beginJob(const edm::EventSetup & iEventSetup);
   
   //! Producer: process every event and generates trigger data
-  void produce(Event & iEvent, const EventSetup& iEventSetup);
+  void produce(edm::Event & iEvent, const edm::EventSetup& iEventSetup);
   
 private:
 

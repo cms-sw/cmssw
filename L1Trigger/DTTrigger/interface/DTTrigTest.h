@@ -7,8 +7,8 @@
  *   studies
  *
  *
- *   $Date: 2007/02/09 11:26:18 $
- *   $Revision: 1.3 $
+ *   $Date: 2007/03/09 15:17:43 $
+ *   $Revision: 1.4 $
  *
  *   \author C. Battilana
  */
@@ -31,13 +31,11 @@
 #include "TTree.h"
 #include "TFile.h"
 
-using namespace edm;
-
-class DTTrigTest: public EDAnalyzer{
+class DTTrigTest: public edm::EDAnalyzer{
 public:
 
   //! Constructor
-  DTTrigTest(const ParameterSet& pset);
+  DTTrigTest(const edm::ParameterSet& pset);
   
   //! Destructor
   ~DTTrigTest();
@@ -46,10 +44,10 @@ public:
   void endJob();
 
   //! Close Tree and write File
-  void beginJob(const EventSetup & iEventSetup);
+  void beginJob(const edm::EventSetup & iEventSetup);
   
   //! Analyze function executed on all the events
-  void analyze(const Event & iEvent, const EventSetup& iEventSetup);
+  void analyze(const edm::Event & iEvent, const edm::EventSetup& iEventSetup);
   
 private:
 

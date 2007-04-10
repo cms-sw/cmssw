@@ -4,8 +4,8 @@
  *     Main EDProducer for the DTTPG
  *
  *
- *   $Date: 2007/02/09 11:26:19 $
- *   $Revision: 1.4 $
+ *   $Date: 2007/04/04 10:44:35 $
+ *   $Revision: 1.5 $
  *
  *   \author C. Battilana
  *
@@ -31,14 +31,17 @@
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambThContainer.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambThDigi.h"
 
+// Collaborating classes
+#include <iostream>
+
+using namespace edm;
+using namespace std;
+
 // DataFormats interface
 typedef vector<DTSectCollPhSegm>  SectCollPhiColl;
 typedef SectCollPhiColl::const_iterator SectCollPhiColl_iterator;
 typedef vector<DTSectCollThSegm>  SectCollThetaColl;
 typedef SectCollThetaColl::const_iterator SectCollThetaColl_iterator;
-
-// Collaborating classes
-#include <iostream>
 
 DTTrigProd::DTTrigProd(const ParameterSet& pset){
   
