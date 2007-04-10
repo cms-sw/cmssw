@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2007/04/06 11:09:12 $
- * $Revision: 1.248 $
+ * $Date: 2007/04/07 12:25:59 $
+ * $Revision: 1.249 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -150,6 +150,7 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
   // enableSubRunHtml switch
 
   enableSubRunHtml_ = ps.getUntrackedParameter<bool>("enableSubRunHtml", false);
+  htmlRefreshTime_  = 60 * ps.getUntrackedParameter<int>("htmlRefreshTime", 5);
 
   // location
 
@@ -1314,8 +1315,7 @@ void EcalBarrelMonitorClient::analyze(void){
       }
 
       if ( enableSubRunHtml_ ) {
-        time_t seconds = 5 * 60;
-        if ( (current_time_ - last_time_html_) > seconds ) {
+        if ( (current_time_ - last_time_html_) > htmlRefreshTime_ ) {
           last_time_html_ = current_time_;
           this->htmlOutput( true );
         }

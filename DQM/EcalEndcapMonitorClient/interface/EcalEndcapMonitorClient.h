@@ -4,8 +4,8 @@
 /*
  * \file EcalEndcapMonitorClient.h
  *
- * $Date: 2007/04/02 16:15:35 $
- * $Revision: 1.1 $
+ * $Date: 2007/04/06 11:09:14 $
+ * $Revision: 1.2 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -148,7 +148,8 @@ int subrun_;
 time_t current_time_;
 time_t last_time_db_;
 time_t last_time_html_;
- 
+time_t htmlRefreshTime_; 
+
 string baseHtmlDir_;
 
 vector<int> superModules_;
