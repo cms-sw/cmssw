@@ -1,11 +1,13 @@
 // +-[ Requirements ]---------------------------------------------------------+
 // |  - Labels/InputTags
 // |      L    oTTRHBuilder
-// |      IT   oTrack
+// |      IT   oDigi
 // |      IT   oCluster
 // |      IT   oClusterInfo
+// |      IT   oTrack
 // |
 // |  - Event Collections
+// |      Digi
 // |      Clusters
 // |      ClusterInfos
 // |      Tracks
