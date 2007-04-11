@@ -39,7 +39,7 @@ Copying channelview tables from one DB to another
   channelview;
 
   -- Create the database link
-  SQL>  create database link ecalh4db.world connect to ecalh4db
+  SQL>  create database link ecalh4db.world connect to cond01
   identified by [password] using 'pccmsecdb.cern.ch:1521/ecalh4db';
   
   -- Make sure the database link works
