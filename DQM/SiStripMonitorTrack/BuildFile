@@ -1,46 +1,30 @@
 <use name=FWCore/Framework>
-<use name=Foundation/PluginManager>
 <use name=FWCore/ParameterSet>
-<use name=DQM/SiStripCommon>
+<use name=Foundation/PluginManager>
+<lib name=GeometryTrackerGeometryBuilder>
 <use name=DQMServices/Core>
 <use name=CalibFormats/SiStripObjects>
 <use name=CalibTracker/Records>
 <use name=CalibTracker/SiStripConnectivity>
-<use name=Geometry/CommonDetUnit>
-<use name=Geometry/CommonTopologies>
-<use name=Geometry/TrackerTopology>
-<lib name=GeometryTrackerGeometryBuilder>
 <use name=DataFormats/TrackerRecHit2D>
-<use name=TrackingTools/TransientTrackingRecHit> 
-<use name=TrackingTools/TransientTrack> 
-<use name=TrackingTools/TrackFitters>
-
-<use name=CommonTools/SiStripZeroSuppression>
 <use name=AnalysisDataFormats/SiStripClusterInfo>
 <use name=AnalysisDataFormats/TrackInfo>
-
+<use name=TrackingTools/TrackFitters>
+<use name=CommonTools/SiStripZeroSuppression>
 <flags SEAL_PLUGIN_NAME="DQMSiStripMonitorTrack">
 <export>
    <lib name=DQMTrackerMonitorTrack>
    <use name=FWCore/Framework>
-   <use name=Foundation/PluginManager>
    <use name=FWCore/ParameterSet>
-   <use name=DQM/SiStripCommon>
+   <use name=Foundation/PluginManager>
+   <lib name=GeometryTrackerGeometryBuilder>
    <use name=DQMServices/Core>
    <use name=CalibFormats/SiStripObjects>
    <use name=CalibTracker/Records>
    <use name=CalibTracker/SiStripConnectivity>
-   <use name=Geometry/CommonDetUnit>
-   <use name=Geometry/CommonTopologies>
-   <use name=Geometry/TrackerTopology>
-   <lib name=GeometryTrackerGeometryBuilder>
    <use name=DataFormats/TrackerRecHit2D>
-   <use name=TrackingTools/TransientTrackingRecHit> 
-   <use name=TrackingTools/TransientTrack> 
-   <use name=TrackingTools/TrackFitters>
-
-   <use name=CommonTools/SiStripZeroSuppression>
    <use name=AnalysisDataFormats/SiStripClusterInfo>
    <use name=AnalysisDataFormats/TrackInfo>
-
+   <use name=TrackingTools/TrackFitters>
+   <use name=CommonTools/SiStripZeroSuppression>
 </export>
