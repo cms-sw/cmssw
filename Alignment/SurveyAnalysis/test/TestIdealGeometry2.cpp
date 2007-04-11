@@ -36,7 +36,7 @@
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/Surface/interface/TkRotation.h"
+#include "DataFormats/GeometrySurface/interface/TkRotation.h"
 #include "CondFormats/Alignment/interface/Alignments.h"
 #include "CondFormats/Alignment/interface/AlignTransform.h"
 #include "CondFormats/DataRecord/interface/TrackerAlignmentRcd.h"

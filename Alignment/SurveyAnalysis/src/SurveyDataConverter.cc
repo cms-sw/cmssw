@@ -14,6 +14,7 @@
 
 // Geometry
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
+#include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "Geometry/DTGeometryBuilder/src/DTGeometryBuilderFromDDD.h"
 #include "Geometry/CSCGeometryBuilder/src/CSCGeometryBuilderFromDDD.h"
 #include "DataFormats/Math/interface/Vector3D.h"
