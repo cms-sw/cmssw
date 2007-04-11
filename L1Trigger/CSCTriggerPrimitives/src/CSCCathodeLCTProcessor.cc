@@ -22,8 +22,8 @@
 //                Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch),
 //                May 2006.
 //
-//   $Date: 2007/03/07 09:33:53 $
-//   $Revision: 1.15 $
+//   $Date: 2007/03/28 15:00:15 $
+//   $Revision: 1.16 $
 //
 //   Modifications: 
 //
@@ -400,8 +400,8 @@ CSCCathodeLCTProcessor::run(const CSCComparatorDigiCollection* compdc) {
 	}
 	else {
 	  edm::LogWarning("CSCCathodeLCTProcessor")
-	    << "Unexpected BX time of strip digi: strip = " << thisStrip
-	    << ", layer = " << i << ", bx = " << thisDigiBx << " +++ \n";
+	    << "Unexpected BX time of comparator digi: strip = " << thisStrip
+	    << ", layer = " << i << ", bx = " << thisDigiBx << " +++\n";
 	}
       }
     }
