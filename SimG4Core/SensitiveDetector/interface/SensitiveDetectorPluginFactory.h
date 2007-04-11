@@ -7,16 +7,8 @@
 
 #include <string>
 
-
-class SensitiveDetectorPluginFactory : public seal::PluginFactory<SensitiveDetectorMakerBase *()>{
- public:
-  typedef seal::PluginFactory<SensitiveDetectorMakerBase*()> Base;
-    static  SensitiveDetectorPluginFactory* get (void);
-    SensitiveDetectorPluginFactory();
- private:
-    static SensitiveDetectorPluginFactory s_instance;
-};
+typedef edmplugin::PluginFactory<SensitiveDetectorMakerBase *()> SensitiveDetectorPluginFactory;
 
 #define DEFINE_SENSITIVEDETECTOR(type) \
-  DEFINE_SEAL_PLUGIN(SensitiveDetectorPluginFactory, SensitiveDetectorMaker<type>, #type)
+  DEFINE_EDM_PLUGIN(SensitiveDetectorPluginFactory, SensitiveDetectorMaker<type>, #type)
 #endif

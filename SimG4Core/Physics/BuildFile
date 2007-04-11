@@ -1,4 +1,3 @@
-<Flags SEAL_PLUGIN_NAME="SimG4CorePhysics">
 <export>
  <lib name=SimG4CorePhysics>
  <use name=SimG4Core/Geometry>
