@@ -163,7 +163,7 @@ AlignmentMuonSelector::theBestMassPairCombinationMuons(const Muons& muons) const
   Muons sortedMuons=muons;
   Muons result;
   TLorentzVector mu1,mu2,pair;
-  double mass=0;
+  double mass=0, minDiff=999999.;
 
   // sort in pt
   std::sort(sortedMuons.begin(),sortedMuons.end(),ptComparator);
