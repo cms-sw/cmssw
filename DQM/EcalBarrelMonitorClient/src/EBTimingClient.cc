@@ -1,8 +1,8 @@
 /*
  * \file EBTimingClient.cc
  *
- * $Date: 2007/04/01 13:42:06 $
- * $Revision: 1.18 $
+ * $Date: 2007/04/11 06:50:36 $
+ * $Revision: 1.19 $
  * \author G. Della Ricca
  *
 */
@@ -30,7 +30,7 @@
 
 #include "CondTools/Ecal/interface/EcalErrorDictionary.h"
 
-#include "DQM/EcalComon/interface/EcalErrorMask.h"
+#include "DQM/EcalCommon/interface/EcalErrorMask.h"
 #include <DQM/EcalBarrelMonitorClient/interface/EBTimingClient.h>
 #include <DQM/EcalBarrelMonitorClient/interface/EBMUtilsClient.h>
 
