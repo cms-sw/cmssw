@@ -1,7 +1,7 @@
 //----------------------------------------------------------------------
 // EdmFileUtil.cpp
 //
-// $Id: EdmFileUtil.cpp,v 1.7 2007/02/07 23:16:34 wmtan Exp $
+// $Id: EdmFileUtil.cpp,v 1.8 2007/03/04 06:24:11 wmtan Exp $
 //
 // Author: Chih-hsiang Cheng, LLNL
 //         Chih-Hsiang.Cheng@cern.ch
@@ -219,13 +219,6 @@ int main(int argc, char* argv[]) {
   catch (cms::Exception& e) {
     std::cout << "cms::Exception caught in "
               <<"EdmFileUtil"
-              << '\n'
-              << e.explainSelf();
-    rc = 1;
-  }
-  catch (seal::Error& e) {
-    std::cout << "Exception caught in "
-              << "EdmFileUtil"
               << '\n'
               << e.explainSelf();
     rc = 1;
