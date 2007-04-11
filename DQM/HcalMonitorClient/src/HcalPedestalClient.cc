@@ -15,6 +15,7 @@ HcalPedestalClient::HcalPedestalClient(const ParameterSet& ps, MonitorUserInterf
   phiMin[1]=1; phiMax[1]=71;
   depMin[1]=4; depMax[1]=4;
 
+
   ///HF ieta/iphi/depths
   etaMin[2]=29; etaMax[2]=41;
   phiMin[2]=1; phiMax[2]=71;
@@ -94,6 +95,7 @@ HcalPedestalClient::HcalPedestalClient(){
   etaMin[1]=1; etaMax[1]=15;
   phiMin[1]=1; phiMax[1]=71;
   depMin[1]=4; depMax[1]=4;
+
 
   ///HF ieta/iphi/depths
   etaMin[2]=29; etaMax[2]=41;

@@ -86,6 +86,7 @@ private:
   
   int ievt_;
   int jevt_;
+  int kevt_;
   
   bool cloneME_;
   bool verbose_;

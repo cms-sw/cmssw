@@ -13,6 +13,10 @@ HcalDataFormatClient::HcalDataFormatClient(const ParameterSet& ps, MonitorUserIn
     spigotErrMap[i] = NULL;
   }
 
+  ievt_=0;
+  jevt_=0;
+  kevt_=0;
+
   spigotErrs = NULL;
   badDigis = NULL;
   unmappedDigis = NULL;
