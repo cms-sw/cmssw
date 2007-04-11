@@ -12,8 +12,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2007/04/03 21:25:51 $
- *  $Revision: 1.87 $
+ *  $Date: 2007/04/10 21:21:26 $
+ *  $Revision: 1.88 $
  *
  *  Authors :
  *  N. Neumeister            Purdue University
@@ -99,7 +99,7 @@ using namespace edm;
 
 GlobalMuonTrajectoryBuilder::GlobalMuonTrajectoryBuilder(const edm::ParameterSet& par,
 							 const MuonServiceProxy* service) : 
-  theTkSeedGenerator(0), theService(service) {
+  theTkSeedGenerator(0),theRSBuilder(0),theService(service) {
 
   const std::string category = "Muon|RecoMuon|GlobalMuonTrajectoryBuilder|ctor";
 
@@ -149,7 +149,6 @@ GlobalMuonTrajectoryBuilder::GlobalMuonTrajectoryBuilder(const edm::ParameterSet
     // Start Tk trajectory builder
     //
     theRSFlag = false;
-    theRSBuilder = 0;
     if(seedGenName=="TSGForRoadSearch") {
       theRSFlag = true;
       ParameterSet builderPar = par.getParameter<edm::ParameterSet>("MuonRSBuilder");
