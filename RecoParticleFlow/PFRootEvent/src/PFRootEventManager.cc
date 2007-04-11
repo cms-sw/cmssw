@@ -1037,8 +1037,8 @@ void PFRootEventManager::particleFlow() {
   
   if( debug_) {
     cout<<"PFRootEventManager::particleFlow start"<<endl;
-    cout<<"number of elements in memory: "
-	<<reco::PFBlockElement::instanceCounter()<<endl;
+//     cout<<"number of elements in memory: "
+// 	<<reco::PFBlockElement::instanceCounter()<<endl;
   }
 
 
