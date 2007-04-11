@@ -7,6 +7,7 @@
 
 #include "RecoParticleFlow/PFTracking/interface/GoodSeedProducer.h"
 #include "RecoParticleFlow/PFTracking/interface/PFTrackTransformer.h"
+#include "RecoParticleFlow/PFClusterTools/interface/PFResolutionMap.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
@@ -14,7 +15,6 @@
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecTrack.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecTrackFwd.h"
-#include "DataFormats/ParticleFlowReco/interface/PFResolutionMap.h"
 #include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
@@ -30,8 +30,8 @@
 
 using namespace edm;
 using namespace std;
-reco::PFResolutionMap* GoodSeedProducer::resMapEtaECAL_ = 0;                                        
-reco::PFResolutionMap* GoodSeedProducer::resMapPhiECAL_ = 0;
+PFResolutionMap* GoodSeedProducer::resMapEtaECAL_ = 0;                                        
+PFResolutionMap* GoodSeedProducer::resMapPhiECAL_ = 0;
 
 GoodSeedProducer::GoodSeedProducer(const ParameterSet& iConfig):
   conf_(iConfig)
@@ -367,8 +367,8 @@ GoodSeedProducer::beginJob(const EventSetup& es)
   //Resolution maps
   FileInPath ecalEtaMap(conf_.getParameter<string>("EtaMap"));
   FileInPath ecalPhiMap(conf_.getParameter<string>("PhiMap"));
-  resMapEtaECAL_ = new reco::PFResolutionMap("ECAL_eta",ecalEtaMap.fullPath().c_str());
-  resMapPhiECAL_ = new reco::PFResolutionMap("ECAL_phi",ecalPhiMap.fullPath().c_str());
+  resMapEtaECAL_ = new PFResolutionMap("ECAL_eta",ecalEtaMap.fullPath().c_str());
+  resMapPhiECAL_ = new PFResolutionMap("ECAL_phi",ecalPhiMap.fullPath().c_str());
 
   //read threshold
   FileInPath parFile(conf_.getParameter<string>("ThresholdFile"));

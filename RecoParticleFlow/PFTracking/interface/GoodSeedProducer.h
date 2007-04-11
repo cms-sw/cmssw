@@ -26,9 +26,9 @@
  It also transform  all the tracks in the first PFRecTrack collection.
 */
 
-namespace reco {
-  class PFResolutionMap;
-}
+//namespace reco {
+class PFResolutionMap;
+// }
 
 class PFTrackTransformer;
 class TrajectoryFitter;
@@ -96,7 +96,7 @@ class GoodSeedProducer : public edm::EDProducer {
       std::string smootherName_;
       std::string propagatorName_;
 
-      static reco::PFResolutionMap* resMapEtaECAL_;
-      static reco::PFResolutionMap* resMapPhiECAL_;
+      static PFResolutionMap* resMapEtaECAL_;
+      static PFResolutionMap* resMapPhiECAL_;
 };
 #endif
