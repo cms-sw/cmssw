@@ -36,37 +36,22 @@ namespace reco {
     
 
     /// default constructor 
-    PFBlockElement() 
-      :  
+    PFBlockElement() :  
       type_( NONE ), 
       locked_(false), 
       index_( static_cast<unsigned>(-1) ) {
-/*       ++instanceCounter_; */
     }
 
     /// standard constructor
-    PFBlockElement(Type type) 
-      :  
+    PFBlockElement(Type type) :  
       type_(type), 
       locked_(false),
       index_( static_cast<unsigned>(-1) ) {
-/*       ++instanceCounter_;     */
     }
 
-    /// copy constructor
-    /// \todo remove when instanceCounter is not needed anymore
-/*     PFBlockElement(const PFBlockElement& other)  */
-/*       :   */
-/*       type_( other.type_ ),  */
-/*       locked_( other.locked_ ), */
-/*       index_( other.index_ )  { */
-/*       ++instanceCounter_; */
-/*     } */
 
     /// destructor
-    virtual ~PFBlockElement() {
-/*       --instanceCounter_;         */
-    }
+    virtual ~PFBlockElement() {}
   
     /// print the object inside the element
     virtual void Dump(std::ostream& out=std::cout, 
@@ -93,16 +78,6 @@ namespace reco {
     /// \return index
     unsigned index() const {return index_;} 
 
-/*     static int instanceCounter(); */
- 
-    /// supplement dynamic_cast, but faster
-    virtual const PFBlockElementCluster*   toCluster() const 
-      {return (const PFBlockElementCluster*)0; }
-  
-    /// supplement dynamic_cast, but faster
-    virtual const PFBlockElementTrack*     toTrack() const 
-      {return (const PFBlockElementTrack*)0; }
-
     virtual PFRecTrackRef trackRef()  const {return PFRecTrackRef();}
     virtual PFClusterRef  clusterRef() const {return PFClusterRef();}
 
@@ -110,26 +85,18 @@ namespace reco {
     friend std::ostream& operator<<( std::ostream& out, 
 				     const PFBlockElement& element );
     
-  protected:
-    
-    /// block, not owner
-    // const PFBlock*              pfBlock_;   
-  
-    /// links,
-    /// first is a pointer to the element at the other side. 
-    /// second is the slot in the link vector of pfBlock_
-    // std::map< const PFBlockElement*, unsigned >      links_;   
+  protected:  
   
     /// type
     Type     type_;
   
-    /// locked ? can probably be transient. should be replaced by a "remaining energy"
+    /// locked ? can probably be transient. should be replaced by a 
+    // "remaining energy"
     bool       locked_;
     
     /// index in block vector 
     unsigned   index_;
 
-/*     static int        instanceCounter_; */
   };
 }
 #endif

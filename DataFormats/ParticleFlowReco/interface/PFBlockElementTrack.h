@@ -10,8 +10,7 @@ namespace reco {
   
   class PFBlockElementTrack : public PFBlockElement {
   public:
-    PFBlockElementTrack() :
-      PFBlockElement( NONE ) {} 
+    PFBlockElementTrack() {} 
 
     PFBlockElementTrack(const PFRecTrackRef& ref ) : 
       PFBlockElement( TRACK ),

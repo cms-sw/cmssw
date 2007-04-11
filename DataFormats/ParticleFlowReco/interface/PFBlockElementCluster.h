@@ -10,8 +10,7 @@ namespace reco {
   
   class PFBlockElementCluster : public PFBlockElement {
   public:
-    PFBlockElementCluster() :
-      PFBlockElement( NONE ) {} 
+    PFBlockElementCluster() {} 
     
     PFBlockElementCluster(const PFClusterRef& ref, 
 			  PFBlockElement::Type type) 
