@@ -1,14 +1,14 @@
 
 /*!
 
-\page DQM_EcalEndcapMonitorClient Package DQM/EcalEndcapMonitorClient
+\page DQM_EcalCommon Package DQM/EcalCommon
 
 <center>
 <small>
 
 <!-- @CVS_TAG@ will be substituted at build time, no need to touch -->
-<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/DQM/EcalEndcapMonitorClient/?cvsroot=CMSSW&only_with_tag=@CVS_TAG@>Source code (CVS tag: @CVS_TAG@)</a> - 
-<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/DQM/EcalEndcapMonitorClient/.admin/developers?rev=HEAD&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup>Administrative privileges</a>
+<a href=http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/DQM/EcalCommon/?cvsroot=CMSSW&only_with_tag=@CVS_TAG@>Source code (CVS tag: @CVS_TAG@)</a> - 
+<a href=http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/DQM/EcalCommon/.admin/developers?rev=HEAD&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup>Administrative privileges</a>
 </small>
 </center>
 
@@ -20,25 +20,12 @@
 \subsection interface Public interface
 <!-- List the classes that are provided for use in other packages (if any) -->
 
-- EEBeamCaloClient
-- EEBeamHodoClient
-- EEClient
-- EEClusterClient
-- EECosmicClient
-- EEIntegrityClient
-- EELaserClient
-- EEMUtilsClient
-- EEPedestalClient
-- EEPedestalOnlineClient
-- EETestPulseClient
-- EETimingClient
-- EETriggerTowerClient
-- EcalEndcapMonitorClient
+- ColorPalette
+- EcalErrorMask
 
 \subsection modules Modules
 <!-- Describe modules implemented in this package and their parameter set -->
 
-- EcalEndcapMonitorClient
 
 \subsection tests Unit tests and examples
 <!-- Describe cppunit tests and example configuration files -->
