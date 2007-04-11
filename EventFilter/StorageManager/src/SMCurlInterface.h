@@ -5,7 +5,7 @@
  *  This will eventually be an interface class for curl common
  *  functions but now is just some common utility
  *
- *  $Id$
+ *  $Id: SMCurlInterface.h,v 1.1 2007/04/04 22:14:27 hcheung Exp $
  */
 
 namespace stor
@@ -29,7 +29,7 @@ namespace stor
   {
     if(curl_easy_setopt(han,opt,par)!=0)
       {
-        cerr << "could not stor::setopt " << opt << endl;
+        std::cerr << "could not stor::setopt " << opt << std::endl;
         abort();
       }
     return 0;
