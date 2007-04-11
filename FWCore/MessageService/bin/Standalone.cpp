@@ -125,13 +125,6 @@ int main(int argc, char* argv[]) {
                                 << e.explainSelf();
     rc = 1;
   }
-  catch (seal::Error& e) {
-    std::cout << "Exception caught in "
-                                << kProgramName
-                                << "\n"
-                                << e.explainSelf();
-    rc = 1;
-  }
   catch (std::exception& e) {
     std::cout << "Standard library exception caught in "
                                 << kProgramName
