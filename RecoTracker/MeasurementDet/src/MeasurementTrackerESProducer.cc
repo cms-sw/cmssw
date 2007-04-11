@@ -62,9 +62,9 @@ MeasurementTrackerESProducer::produce(const CkfComponentsRecord& iRecord)
   edm::ESHandle<GeometricSearchTracker>         geometricSearchTracker;
 
   
-  iRecord.getRecord<TrackerCPERecord>().get(pixelCPEName,pixelCPE);
-  iRecord.getRecord<TrackerCPERecord>().get(stripCPEName,stripCPE);
-  iRecord.getRecord<TrackerCPERecord>().get(matcherName,hitMatcher);
+  iRecord.getRecord<TkPixelCPERecord>().get(pixelCPEName,pixelCPE);
+  iRecord.getRecord<TkStripCPERecord>().get(stripCPEName,stripCPE);
+  iRecord.getRecord<TkStripCPERecord>().get(matcherName,hitMatcher);
   iRecord.getRecord<TrackerDigiGeometryRecord>().get(trackerGeom);
   iRecord.getRecord<TrackerRecoGeometryRecord>().get(geometricSearchTracker);
   
