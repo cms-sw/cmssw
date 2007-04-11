@@ -177,7 +177,7 @@ CSCStripElectronicsSim::runComparator() {
          // --x- 110   6
          // ---x 111   7
          // just to prevent a copy
-         CSCAnalogSignal & mainSignal = (height1 > height2) ? signal1 : signal2;
+         const CSCAnalogSignal * mainSignal = 0;
          // pick the higher of the two strips in the pair
          if(height1 > height2) {
            float leftStrip = 0.;
@@ -188,7 +188,7 @@ CSCStripElectronicsSim::runComparator() {
            if(leftStrip < height1) {
              output = (leftStrip < height2);
              strip = iComparator*2 + 1;
-             mainSignal = signal1;
+             mainSignal = &signal1;
            }
          } else {
            float rightStrip = 0.;
@@ -198,7 +198,7 @@ CSCStripElectronicsSim::runComparator() {
            if(rightStrip < height2) {
              output = (height1 < rightStrip);
              strip = iComparator*2 + 2;
-             mainSignal = signal2;
+             mainSignal = &signal2;
            }
          }
          if(strip != 0) {
@@ -208,7 +208,7 @@ CSCStripElectronicsSim::runComparator() {
            // really should be zero, but strip signal doesn't go negative yet
            float resetThreshold = 1;
            while(lockingTime < theSignalStopTime
-              && mainSignal.getValue(lockingTime) > resetThreshold) {
+              && mainSignal->getValue(lockingTime) > resetThreshold) {
              lockingTime += theSamplingTime;
            }
            int timeBin = (int)((comparatorTime-theTimingOffset)/theBunchSpacing) + theComparatorTimeBinOffset;
