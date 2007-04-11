@@ -1,5 +1,4 @@
 #include "DQM/HcalMonitorClient/interface/HcalClientUtils.h"
-#include <sys/time.h>
 
 void dumpHisto(TH1F* hist, vector<string> &names, 
 	       vector<double> &meanX, vector<double> &meanY, 
@@ -25,8 +24,6 @@ void dumpHisto2(TH2F* hist, vector<string> &names,
 }
 
 string getIMG2(TH2F* hist, int size, string htmlDir, const char* xlab, const char* ylab,bool color){
-  //  timeval a,b;
-  //  gettimeofday(&a,NULL);
 
   if(hist==NULL) {
     printf("getIMG2:  This histo is NULL, %s, %s\n",xlab,ylab);
@@ -63,19 +60,11 @@ string getIMG2(TH2F* hist, int size, string htmlDir, const char* xlab, const cha
   }
   can->SaveAs(saveName.c_str());  
   delete can;
-  /*
-  gettimeofday(&b,NULL);
-  double t1=a.tv_sec+(a.tv_usec/1000000.0);
-  double t2=b.tv_sec+(b.tv_usec/1000000.0);
-  printf("\ngetIMG2:  %s\n",title.c_str());
-  printf("getIMG2:  %.6f seconds elapsed\n", t2-t1);
-  */
+
   return outName;
 }
 
 string getIMG(TH1F* hist, int size, string htmlDir, const char* xlab, const char* ylab){
-  //  timeval a,b;
-  //  gettimeofday(&a,NULL);
 
   if(hist==NULL) {
     printf("getIMG:  This histo is NULL, %s, %s\n",xlab,ylab);
@@ -108,13 +97,7 @@ string getIMG(TH1F* hist, int size, string htmlDir, const char* xlab, const char
   hist->Draw();
   can->SaveAs(saveName.c_str());  
   delete can;
-  /*
-  gettimeofday(&b,NULL);
-  double t1=a.tv_sec+(a.tv_usec/1000000.0);
-  double t2=b.tv_sec+(b.tv_usec/1000000.0);
-  printf("\ngetIMG:  %s\n",title.c_str());
-  printf("getIMG:  %.6f seconds elapsed\n", t2-t1);
-  */
+ 
   return outName;
 }
 
