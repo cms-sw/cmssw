@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2007/04/10 09:01:49 $
- * $Revision: 1.7 $
+ * $Date: 2007/04/10 09:26:39 $
+ * $Revision: 1.8 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -34,7 +34,7 @@
 
 #include <DQM/EcalEndcapMonitorClient/interface/EEMUtilsClient.h>
 #include <DQM/EcalEndcapMonitorClient/interface/EcalErrorMask.h>
-#include "DQM/EcalEndcapMonitorDisplayPlugins/interface/ColorPalette.h"
+#include "DQM/EcalCommon/interface/ColorPalette.h"
 
 #include "DQMServices/Core/interface/CollateMonitorElement.h"
 
