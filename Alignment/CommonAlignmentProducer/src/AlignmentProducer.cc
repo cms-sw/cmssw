@@ -1,8 +1,8 @@
 /// \file AlignmentProducer.cc
 ///
 ///  \author    : Frederic Ronga
-///  Revision   : $Revision: 1.29 $
-///  last update: $Date: 2007/04/07 03:39:37 $
+///  Revision   : $Revision: 1.30 $
+///  last update: $Date: 2007/04/09 00:22:58 $
 ///  by         : $Author: cklae $
 
 #include "Alignment/CommonAlignmentProducer/interface/AlignmentProducer.h"
@@ -409,7 +409,7 @@ void AlignmentProducer::simpleMisalignment_(const Alignables &alivec, const std:
 
   std::ostringstream output; // collecting output
 
-  if (shift>0 || rot >0) {
+  if (shift > 0. || rot > 0.) {
     output << "Adding random flat shift of max size " << shift
            << " and adding random flat rotation of max size " << rot <<" to ";
 
@@ -417,34 +417,35 @@ void AlignmentProducer::simpleMisalignment_(const Alignables &alivec, const std:
     if (selection != "-1") {
       AlignmentParameterSelector aSelector(0,0); // no alignable needed here...
       const std::vector<char> cSel(aSelector.convertParamSel(selection));
+      if (cSel.size() < RigidBodyAlignmentParameters::N_PARAM) {
+	throw cms::Exception("BadConfig") 
+	  << "[AlignmentProducer::simpleMisalignment_]\n"
+	  << "Expect selection string '" << selection << "' to be at least of length " 
+	  << RigidBodyAlignmentParameters::N_PARAM << " or to be '-1'.\n"
+	  << "(Most probably you have to adjust the parameter 'parameterSelectorSimple'.)";
+      }
       for (std::vector<char>::const_iterator cIter = cSel.begin(); cIter != cSel.end(); ++cIter) {
         commSel.push_back(*cIter == '0' ? false : true);
       }
       output << "parameters defined by (" << selection 
-             << "), representing (x,y,z,alpha,beta,gamma).";
+             << "), representing (x,y,z,alpha,beta,gamma),";
     } else {
-      output << "the active parameters of each alignable.";
+      output << "the active parameters of each alignable,";
     }
+    output << " in " << (local ? "local" : "global") << " frame.";
 
     for (std::vector<Alignable*>::const_iterator it = alivec.begin(); it != alivec.end(); ++it) {
       Alignable* ali=(*it);
       std::vector<bool> mysel(commSel.empty() ? ali->alignmentParameters()->selector() : commSel);
-
+      
       if (std::abs(shift)>0.00001) {
-
-        double s0 = mysel[RigidBodyAlignmentParameters::dx] ?
-	  shift*double(random()%1000-500)/500. : 0.;
-
-        double s1 = mysel[RigidBodyAlignmentParameters::dy] ?
-          shift*double(random()%1000-500)/500. : 0.;
-
-        double s2 = mysel[RigidBodyAlignmentParameters::dz] ?
-          shift*double(random()%1000-500)/500. : 0.;
+	double s0 = 0., s1 = 0., s2 = 0.;
+        if (mysel[RigidBodyAlignmentParameters::dx]) s0 = shift * double(random()%1000-500)/500.;
+        if (mysel[RigidBodyAlignmentParameters::dy]) s1 = shift * double(random()%1000-500)/500.;
+        if (mysel[RigidBodyAlignmentParameters::dz]) s2 = shift * double(random()%1000-500)/500.;
         
-        if (local)
-          ali->move( ali->surface().toGlobal(align::LocalVector(s0,s1,s2)) );
-	else
-          ali->move( align::GlobalVector(s0,s1,s2) );
+        if (local) ali->move( ali->surface().toGlobal(align::LocalVector(s0,s1,s2)) );
+	else       ali->move( align::GlobalVector(s0,s1,s2) );
 
       //AlignmentPositionError ape(dx,dy,dz);
       //ali->addAlignmentPositionError(ape);
@@ -452,30 +453,21 @@ void AlignmentProducer::simpleMisalignment_(const Alignables &alivec, const std:
 
       if (std::abs(rot)>0.00001) {
 	align::EulerAngles r(3);
+        if (mysel[RigidBodyAlignmentParameters::dalpha]) r(1)=rot*double(random()%1000-500)/500.;
+        if (mysel[RigidBodyAlignmentParameters::dbeta])  r(2)=rot*double(random()%1000-500)/500.;
+        if (mysel[RigidBodyAlignmentParameters::dgamma]) r(3)=rot*double(random()%1000-500)/500.;
 
-        if (mysel[RigidBodyAlignmentParameters::dalpha]) {
-          r(1)=rot*double(random()%1000-500)/500.;
-        }
-        if (mysel[RigidBodyAlignmentParameters::dbeta]) {
-          r(2)=rot*double(random()%1000-500)/500.;
-        }
-        if (mysel[RigidBodyAlignmentParameters::dgamma]) {
-          r(3)=rot*double(random()%1000-500)/500.;
-        }
-
-        align::RotationType mrot = align::toMatrix(r);
+        const align::RotationType mrot = align::toMatrix(r);
         if (local) ali->rotateInLocalFrame(mrot);
-        else ali->rotateInGlobalFrame(mrot);
+        else       ali->rotateInGlobalFrame(mrot);
         
       //ali->addAlignmentPositionErrorFromRotation(mrot);
-
       }
     } // end loop on alignables
   } else {
     output << "No simple misalignment added!";
   }
-  edm::LogWarning("Alignment")  << "@SUB=AlignmentProducer::simpleMisalignment_" << output.str();
-
+  edm::LogInfo("Alignment")  << "@SUB=AlignmentProducer::simpleMisalignment_" << output.str();
 }
 
 
