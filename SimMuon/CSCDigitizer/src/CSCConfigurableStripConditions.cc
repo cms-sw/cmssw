@@ -38,7 +38,6 @@ void CSCConfigurableStripConditions::fetchNoisifier(const CSCDetId & detId, int 
 
 void CSCConfigurableStripConditions::makeNoisifier(int chamberType, const std::vector<double> & correlations)
 {
-std::cout << "Make noisifiera " << chamberType << std::endl;
 
   // format is 33, 34, 44, 35, 45, 55
   //           46, 56, 66, 57, 67, 77
