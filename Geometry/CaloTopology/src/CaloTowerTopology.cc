@@ -54,7 +54,7 @@ std::vector<DetId> CaloTowerTopology::west(const DetId& id) const {
     ieta++;
   } else if (ieta==-QuadHF) {
     ieta++;
-    dd.push_back(CaloTowerDetId(ieta,((iphi+1)%72)+1)));    
+    dd.push_back(CaloTowerDetId(ieta,((iphi+1)%72)+1));    
   } else if (ieta+1==QuadHF) {
     if (((iphi-1)%4)==0) 
       if (iphi==1) iphi=71;
