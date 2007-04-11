@@ -22,9 +22,8 @@ class EMIsolatedTauJetsSelector: public edm::EDProducer {
   virtual void produce(edm::Event&, const edm::EventSetup&);
 
  private:
-  edm::InputTag singleTau;
-  edm::InputTag doubleTau;
-  edm::InputTag l1Code;
+  std::vector<edm::InputTag> tauSrc ;
+
 
 
 };
