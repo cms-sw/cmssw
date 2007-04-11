@@ -4,16 +4,12 @@
 <use name=geant4>
 <use name=Collection>
 <use name=ImplicitCollection>
-<use name=Framework/SealKernel>
-<use name=GeometryReaders/XMLIdealGeometryESSource>
 <use name=Geometry/Records>
 <export>
  <lib name=SimG4CoreGeometry>
  <use name=DetectorDescription/Core>
  <use name=DetectorDescription/Parser>
  <use name=FWCore/Framework>
- <use name=Framework/SealKernel>
- <use name=GeometryReaders/XMLIdealGeometryESSource>
  <use name=Geometry/Records>
 </export>
 
