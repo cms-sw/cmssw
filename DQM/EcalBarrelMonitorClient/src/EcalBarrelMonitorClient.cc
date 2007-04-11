@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2007/04/10 09:26:38 $
- * $Revision: 1.251 $
+ * $Date: 2007/04/11 05:55:50 $
+ * $Revision: 1.252 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -33,7 +33,7 @@
 
 
 #include <DQM/EcalBarrelMonitorClient/interface/EBMUtilsClient.h>
-#include <DQM/EcalBarrelMonitorClient/interface/EcalErrorMask.h>
+#include "DQM/EcalCommon/interface/EcalErrorMask.h"
 #include "DQM/EcalCommon/interface/ColorPalette.h"
 
 #include "DQMServices/Core/interface/CollateMonitorElement.h"

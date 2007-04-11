@@ -9,6 +9,7 @@
 <use name=FWCore/MessageLogger>
 <use name=FWCore/ParameterSet>
 <use name=OnlineDB/EcalCondDB>
+<use name=DQM/EcalCommon>
 <use name=rootcore>
 <export>
   <use name=DQMServices/Core>
@@ -18,5 +19,6 @@
   <use name=FWCore/ParameterSet>
   <use name=OnlineDB/EcalCondDB>
   <use name=rootcore>
+  <use name=DQM/EcalCommon>
   <lib name=DQMEcalBarrelMonitorClient>
 </export>

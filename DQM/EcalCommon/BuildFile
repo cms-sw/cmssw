@@ -1,0 +1,7 @@
+<use name=OnlineDB/EcalCondDB>
+<use name=rootcore>
+<export>
+  <use name=OnlineDB/EcalCondDB>
+  <use name=rootcore>
+  <lib name=DQMEcalCommon>
+</export>
