@@ -346,7 +346,8 @@ void DDEcalBarrelAlgo::initialize(const DDNumericArguments      & nArgs,
 
    edm::LogInfo("EcalGeom") << "DDEcalBarrelAlgo info: Initialize" ;
    m_idNameSpace = DDCurrentNamespace::ns();
-
+   // TRICK!
+   m_idNameSpace = parent().name().ns();
    // barrel parent volume
    m_BarName     = sArgs["BarName" ] ;
    m_BarMat      = sArgs["BarMat"  ] ;
@@ -377,7 +378,7 @@ void DDEcalBarrelAlgo::initialize(const DDNumericArguments      & nArgs,
    m_vecSpmHere  = vArgs["SpmHere"] ;
    m_SpmCutName  = sArgs["SpmCutName"] ;
    m_SpmCutThick = nArgs["SpmCutThick"] ;
-   m_SpmCutShow  = nArgs["SpmCutShow"] ;
+   m_SpmCutShow  = int(nArgs["SpmCutShow"]) ;
    m_vecSpmCutTM = vArgs["SpmCutTM"] ;
    m_vecSpmCutTP = vArgs["SpmCutTP"] ;
    m_SpmCutRM    = nArgs["SpmCutRM"] ;
@@ -2677,8 +2678,12 @@ DDName
 DDEcalBarrelAlgo::ddname( const std::string& s ) const
 { 
    const pair<std::string,std::string> temp ( DDSplit(s) ) ;
-   return DDName( temp.first,
-		  temp.second ) ; 
+   if ( temp.second == "" ) {
+     return DDName( temp.first,
+		    m_idNameSpace ) ;
+   } else {
+     return DDName( temp.first, temp.second );
+   } 
 }  
 
 DDSolid    
