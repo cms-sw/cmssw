@@ -44,21 +44,21 @@ TkTransientTrackingRecHitBuilderESProducer::produce(const TransientRecHitRecord 
   if (sname == "Fake") {
     sp = 0;
   }else{
-    iRecord.getRecord<TrackerCPERecord>().get( sname, se );     
+    iRecord.getRecord<TkStripCPERecord>().get( sname, se );     
     sp = se.product();
   }
   
   if (pname == "Fake") {
     pp = 0;
   }else{
-    iRecord.getRecord<TrackerCPERecord>().get( pname, pe );     
+    iRecord.getRecord<TkPixelCPERecord>().get( pname, pe );     
     pp = pe.product();
   }
   
   if (mname == "Fake") {
     mp = 0;
   }else{
-    iRecord.getRecord<TrackerCPERecord>().get( mname, me );     
+    iRecord.getRecord<TkStripCPERecord>().get( mname, me );     
     mp = me.product();
   }
   
