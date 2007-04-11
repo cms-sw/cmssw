@@ -326,7 +326,7 @@ void CSCGeometryBuilderFromDDD::buildChamber (
     float layerThickness = ( gapThickness + panelThickness )/10.; // effective layer thickness, in cm
     float chamberThickness = ( 7.*panelThickness + 6.*gapThickness + 2.*frameThickness )/10.; // chamber frame thickness, in cm
     float hChamberThickness = chamberThickness/2.;
-    float centreChamberToFirstLayer = chamberThickness/2. - (frameThickness+panelThickness)/2.; // local z wrt chamber centre
+    float centreChamberToFirstLayer = chamberThickness/2. - (frameThickness+panelThickness)/10.; // local z wrt chamber centre, in cm
    
    // Now z of strips in layer 1 = z_s1 = centreChamberToFirstLayer; // layer 1 is at most +ve local z
    //     z of strips in layer N = z_sN = z_s1 - (N-1)*layerThickness; // in cm
