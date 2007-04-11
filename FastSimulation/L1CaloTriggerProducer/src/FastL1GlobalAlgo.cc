@@ -13,7 +13,7 @@
 //
 // Original Author:  Chi Nhan Nguyen
 //         Created:  Mon Feb 19 13:25:24 CST 2007
-// $Id: FastL1GlobalAlgo.cc,v 1.2 2007/03/01 00:43:03 chinhan Exp $
+// $Id: FastL1GlobalAlgo.cc,v 1.1 2007/04/02 13:49:20 beaudett Exp $
 //
 
 #include "FastSimulation/L1CaloTriggerProducer/interface/FastL1GlobalAlgo.h"
@@ -174,7 +174,7 @@ FastL1GlobalAlgo::addJet(int iRgn, bool taubit) {
   if (taubit || et>m_L1Config.noTauVetoLevel) {
     m_TauJets.push_back(tjet);
   } else {
-    if (abs(eta)<3.0)
+    if (std::abs(eta)<3.0)
       m_CenJets.push_back(tjet);
     else
       m_ForJets.push_back(tjet);
@@ -440,7 +440,7 @@ FastL1GlobalAlgo::FillL1Regions(edm::Event const& e, const edm::EventSetup& iCon
   for (int i=0; i<396; i++) {
     m_Regions[i].SetParameters(m_L1Config);
 
-    pair<int, int> p = m_RMap->getRegionEtaPhiIndex(i);
+    std::pair<int, int> p = m_RMap->getRegionEtaPhiIndex(i);
     m_Regions[i].SetEtaPhiIndex(p.first,p.second,i);
     CaloTowerCollection c(16);
     for (int twrid=0; twrid<16; twrid++) {
@@ -466,7 +466,7 @@ FastL1GlobalAlgo::FillL1Regions(edm::Event const& e, const edm::EventSetup& iCon
   for (CaloTowerCollection::const_iterator cnd=input->begin(); cnd!=input->end(); cnd++) {
 
       CaloTowerDetId cid   = cnd->id();
-      pair<int, int> pep = m_RMap->getRegionEtaPhiIndex(cid);
+      std::pair<int, int> pep = m_RMap->getRegionEtaPhiIndex(cid);
  
       int rgnid = 999;
       int twrid = 999;
@@ -571,14 +571,14 @@ FastL1GlobalAlgo::isEMCand(CaloTowerDetId cid, l1extra::L1EmParticle* ph,const e
   if (cenHOEbit) return 0;
 
   // check neighbours
-  pair<int, int> no = m_RMap->GetTowerNorthEtaPhi(cid.ieta(),cid.iphi()); 
-  pair<int, int> so = m_RMap->GetTowerSouthEtaPhi(cid.ieta(),cid.iphi()); 
-  pair<int, int> we = m_RMap->GetTowerWestEtaPhi(cid.ieta(),cid.iphi()); 
-  pair<int, int> ea = m_RMap->GetTowerEastEtaPhi(cid.ieta(),cid.iphi()); 
-  pair<int, int> nw = m_RMap->GetTowerNWEtaPhi(cid.ieta(),cid.iphi()); 
-  pair<int, int> ne = m_RMap->GetTowerNEEtaPhi(cid.ieta(),cid.iphi()); 
-  pair<int, int> sw = m_RMap->GetTowerSWEtaPhi(cid.ieta(),cid.iphi()); 
-  pair<int, int> se = m_RMap->GetTowerSEEtaPhi(cid.ieta(),cid.iphi()); 
+  std::pair<int, int> no = m_RMap->GetTowerNorthEtaPhi(cid.ieta(),cid.iphi()); 
+  std::pair<int, int> so = m_RMap->GetTowerSouthEtaPhi(cid.ieta(),cid.iphi()); 
+  std::pair<int, int> we = m_RMap->GetTowerWestEtaPhi(cid.ieta(),cid.iphi()); 
+  std::pair<int, int> ea = m_RMap->GetTowerEastEtaPhi(cid.ieta(),cid.iphi()); 
+  std::pair<int, int> nw = m_RMap->GetTowerNWEtaPhi(cid.ieta(),cid.iphi()); 
+  std::pair<int, int> ne = m_RMap->GetTowerNEEtaPhi(cid.ieta(),cid.iphi()); 
+  std::pair<int, int> sw = m_RMap->GetTowerSWEtaPhi(cid.ieta(),cid.iphi()); 
+  std::pair<int, int> se = m_RMap->GetTowerSEEtaPhi(cid.ieta(),cid.iphi()); 
   if (no.first>28 || no.first<-28 || no.second>72 || no.second<0) return 0;
   if (so.first>28 || so.first<-28 || so.second>72 || so.second<0) return 0;
   if (we.first>28 || we.first<-28 || we.second>72 || we.second<0) return 0;
@@ -826,10 +826,10 @@ FastL1GlobalAlgo::checkMapping() {
     for (int i=-28; i<=28; i++) {
       if (i==0) continue;
       int iRgn =  m_RMap->getRegionIndex(i,j);
-      pair<double, double> RgnEtaPhi = m_RMap->getRegionCenterEtaPhi(iRgn);
+      std::pair<double, double> RgnEtaPhi = m_RMap->getRegionCenterEtaPhi(iRgn);
       //int iTwr = m_RMap->getRegionTowerIndex(i,j);
-      pair<int, int> iRgnEtaPhi = m_RMap->getRegionEtaPhiIndex(iRgn);
-      pair<int, int> iRgnEtaPhi2 = m_RMap->getRegionEtaPhiIndex(pair<int, int>(i,j));
+      std::pair<int, int> iRgnEtaPhi = m_RMap->getRegionEtaPhiIndex(iRgn);
+      std::pair<int, int> iRgnEtaPhi2 = m_RMap->getRegionEtaPhiIndex(std::pair<int, int>(i,j));
 
       std::cout<<"---------------------------------------------------------------------------"<<std::endl;
       std::cout<<"Region:   "<<iRgn<<" | "<<RgnEtaPhi.first<<", "<<RgnEtaPhi.second*180./3.141<<std::endl;
