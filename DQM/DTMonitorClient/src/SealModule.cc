@@ -13,3 +13,7 @@ DEFINE_ANOTHER_FWK_MODULE(DTEfficiencyTest);
 
 #include <DQM/DTMonitorClient/src/DTDataIntegrityTest.h>
 DEFINE_ANOTHER_FWK_MODULE(DTDataIntegrityTest);
+
+#include "DQM/DTMonitorClient/src/DTNoiseEvaluation.h"
+DEFINE_ANOTHER_FWK_MODULE(DTNoiseEvaluation);
+
