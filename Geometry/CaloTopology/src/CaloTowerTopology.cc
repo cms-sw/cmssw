@@ -25,9 +25,12 @@ std::vector<DetId> CaloTowerTopology::east(const DetId& id) const {
     ieta--;
   } else if (ieta==QuadHF) {
     ieta--;
-    dd.push_back(CaloTowerDetId(ieta,iphi+2));    
+    dd.push_back(CaloTowerDetId(ieta,((iphi+1)%72)+1));    
   } else if (ieta-1==-QuadHF) {
-    if (((iphi-1)%4)!=0) iphi-=2;
+    if (((iphi-1)%4)==0) 
+      if (iphi==1) iphi=71;
+      else iphi-=2;
+    ieta--;
   } else ieta--;
 
   if (ieta>=-41) 
@@ -51,9 +54,12 @@ std::vector<DetId> CaloTowerTopology::west(const DetId& id) const {
     ieta++;
   } else if (ieta==-QuadHF) {
     ieta++;
-    dd.push_back(CaloTowerDetId(ieta,iphi+2));    
+    dd.push_back(CaloTowerDetId(ieta,((iphi+1)%72)+1)));    
   } else if (ieta+1==QuadHF) {
-    if (((iphi-1)%4)!=0) iphi-=2;
+    if (((iphi-1)%4)==0) 
+      if (iphi==1) iphi=71;
+      else iphi-=2;
+    ieta++;
   } else ieta++;
 
   if (ieta<=41) 
@@ -70,8 +76,8 @@ std::vector<DetId> CaloTowerTopology::north(const DetId& id) const {
     iphi_n++;
     if (iphi_n>72) iphi_n-=72;
   }
-  if (tid.ietaAbs()>=QuadHF && ((iphi_n-1)%4)!=0) {
-    iphi_n+=2;
+  if (tid.ietaAbs()>=QuadHF) {
+    iphi_n+=3;
     if (iphi_n>72) iphi_n-=72;
   }
 
@@ -85,8 +91,8 @@ std::vector<DetId> CaloTowerTopology::south(const DetId& id) const {
   int iphi_s=tid.iphi()-1;
   if (iphi_s==0) iphi_s=72;
   if (tid.ietaAbs()>=DoubleHE && (iphi_s%2)==0) iphi_s--;
-  if (tid.ietaAbs()>=QuadHF && ((iphi_s-1)%4)!=0) {
-    iphi_s-=2;
+  if (tid.ietaAbs()>=QuadHF) {
+    iphi_s-=3;
     if (iphi_s<=0) iphi_s+=72;
   }
 
