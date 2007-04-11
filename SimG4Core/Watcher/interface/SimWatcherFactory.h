@@ -6,21 +6,11 @@
 
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 
-class SimWatcherFactory 
-    : public seal::PluginFactory<
-    SimWatcherMakerBase *() >
-{
-public:
-    virtual ~SimWatcherFactory();
-    static SimWatcherFactory * get(); 
-private:
-    static SimWatcherFactory s_instance;
-    SimWatcherFactory();
-};
+typedef edmplugin::PluginFactory<SimWatcherMakerBase *() > SimWatcherFactory ;
 
 //This pattern was taken from the framework factory code
 
 #define DEFINE_SIMWATCHER(type) \
-  DEFINE_SEAL_PLUGIN(SimWatcherFactory, SimWatcherMaker<type>,#type)
+  DEFINE_EDM_PLUGIN(SimWatcherFactory, SimWatcherMaker<type>,#type)
 
 #endif
