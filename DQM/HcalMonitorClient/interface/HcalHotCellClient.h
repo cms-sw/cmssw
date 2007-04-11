@@ -84,7 +84,8 @@ private:
 
   int ievt_;
   int jevt_;
-  
+  int kevt_;
+
   bool collateSources_;
   bool cloneME_;
   bool verbose_;

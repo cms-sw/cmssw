@@ -105,6 +105,7 @@ private:
   MonitorUserInterface* mui_;
 
   int ievt_, jevt_;
+  int kevt_;
 
   int timeout_;
   int timeout_thresh_;

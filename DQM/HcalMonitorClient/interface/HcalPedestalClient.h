@@ -103,7 +103,8 @@ private:
 
   int ievt_;
   int jevt_;
-  
+  int kevt_;
+
   edm::ESHandle<HcalDbService> conditions_;
 
   bool collateSources_;

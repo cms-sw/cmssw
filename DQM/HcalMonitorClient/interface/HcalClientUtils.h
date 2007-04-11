@@ -2,6 +2,7 @@
 #define DQM_HCALCLIENTUTILS_H
 
 #include "TH1F.h"
+#include "TH1.h"
 #include "TH2F.h"
 #include "TCanvas.h"
 #include <string>

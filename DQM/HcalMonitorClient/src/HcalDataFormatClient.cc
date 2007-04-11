@@ -64,6 +64,7 @@ void HcalDataFormatClient::beginJob(void){
 
   if ( verbose_ ) cout << "HcalDataFormatClient: beginJob" << endl;
   ievt_ = 0; jevt_ = 0;
+  kevt_=0;
   this->setup();
   this->subscribe();
   this->resetME();

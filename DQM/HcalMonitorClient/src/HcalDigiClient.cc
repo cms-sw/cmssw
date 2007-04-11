@@ -68,7 +68,8 @@ HcalDigiClient::HcalDigiClient(){
     qie_adc[i]=0;  num_digi[i]=0;
     qie_capid[i]=0; 
   }
-
+  ievt_ = 0;
+  jevt_ = 0;
   // verbosity switch
   verbose_ = false;
 
@@ -86,6 +87,7 @@ void HcalDigiClient::beginJob(void){
   
   ievt_ = 0;
   jevt_ = 0;
+  kevt_=0;
   this->setup();
   this->subscribe();
   this->resetME();

@@ -57,6 +57,7 @@ void HcalHotCellClient::beginJob(void){
   
   ievt_ = 0;
   jevt_ = 0;
+  kevt_=0;
   this->setup();
   this->subscribe();
   this->resetME();

@@ -203,7 +203,8 @@ void HcalMonitorClient::beginJob(const EventSetup& eventSetup){
   
   ievt_ = 0;
   jevt_ = 0;
-  
+  kevt_ = 0;
+
   this->subscribe();
 
   if( dataformat_client_ ) dataformat_client_->beginJob();
