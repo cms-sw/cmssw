@@ -2,8 +2,8 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2007/03/13 10:14:26 $
- * $Revision: 1.138 $
+ * $Date: 2007/03/26 17:35:04 $
+ * $Revision: 1.139 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -39,7 +39,7 @@
 
 #include "CondTools/Ecal/interface/EcalErrorDictionary.h"
 
-#include "DQM/EcalBarrelMonitorClient/interface/EcalErrorMask.h"
+#include "DQM/EcalCommon/interface/EcalErrorMask.h"
 #include <DQM/EcalBarrelMonitorClient/interface/EBIntegrityClient.h>
 #include <DQM/EcalBarrelMonitorClient/interface/EBMUtilsClient.h>
 

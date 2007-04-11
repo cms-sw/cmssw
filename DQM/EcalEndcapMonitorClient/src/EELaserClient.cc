@@ -1,8 +1,8 @@
 /*
  * \file EELaserClient.cc
  *
- * $Date: 2007/04/02 16:15:36 $
- * $Revision: 1.1 $
+ * $Date: 2007/04/09 11:20:05 $
+ * $Revision: 1.2 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -40,7 +40,7 @@
 
 #include "CondTools/Ecal/interface/EcalErrorDictionary.h"
 
-#include "DQM/EcalEndcapMonitorClient/interface/EcalErrorMask.h"
+#include "DQM/EcalCommon/interface/EcalErrorMask.h"
 #include <DQM/EcalEndcapMonitorClient/interface/EELaserClient.h>
 #include <DQM/EcalEndcapMonitorClient/interface/EEMUtilsClient.h>
 

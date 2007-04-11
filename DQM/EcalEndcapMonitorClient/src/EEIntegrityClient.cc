@@ -2,8 +2,8 @@
 /*
  * \file EEIntegrityClient.cc
  *
- * $Date: 2007/03/26 17:35:04 $
- * $Revision: 1.139 $
+ * $Date: 2007/04/02 16:15:36 $
+ * $Revision: 1.1 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -39,7 +39,7 @@
 
 #include "CondTools/Ecal/interface/EcalErrorDictionary.h"
 
-#include "DQM/EcalEndcapMonitorClient/interface/EcalErrorMask.h"
+#include "DQM/EcalCommon/interface/EcalErrorMask.h"
 #include <DQM/EcalEndcapMonitorClient/interface/EEIntegrityClient.h>
 #include <DQM/EcalEndcapMonitorClient/interface/EEMUtilsClient.h>
 

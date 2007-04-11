@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2007/03/26 17:35:04 $
- * $Revision: 1.149 $
+ * $Date: 2007/04/09 11:20:03 $
+ * $Revision: 1.150 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -40,7 +40,7 @@
 
 #include "CondTools/Ecal/interface/EcalErrorDictionary.h"
 
-#include "DQM/EcalBarrelMonitorClient/interface/EcalErrorMask.h"
+#include "DQM/EcalCommon/interface/EcalErrorMask.h"
 #include <DQM/EcalBarrelMonitorClient/interface/EBLaserClient.h>
 #include <DQM/EcalBarrelMonitorClient/interface/EBMUtilsClient.h>
 

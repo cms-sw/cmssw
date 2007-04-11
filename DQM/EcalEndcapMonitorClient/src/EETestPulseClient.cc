@@ -1,8 +1,8 @@
 /*
  * \file EETestPulseClient.cc
  *
- * $Date: 2007/03/26 17:35:05 $
- * $Revision: 1.131 $
+ * $Date: 2007/04/02 16:15:36 $
+ * $Revision: 1.1 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -34,9 +34,9 @@
 
 #include "CondTools/Ecal/interface/EcalErrorDictionary.h"
 
+#include "DQM/EcalCommon/interface/EcalErrorMask.h"
 #include <DQM/EcalEndcapMonitorClient/interface/EETestPulseClient.h>
 #include <DQM/EcalEndcapMonitorClient/interface/EEMUtilsClient.h>
-#include "DQM/EcalEndcapMonitorClient/interface/EcalErrorMask.h"
 
 using namespace cms;
 using namespace edm;
