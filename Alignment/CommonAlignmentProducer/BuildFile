@@ -6,6 +6,7 @@
 <use name=FWCore/PluginManager>
 <use name=FWCore/ParameterSet>
 <use name=DataFormats/TrackReco>
+<use name=DataFormats/MuonReco>
 <use name=DataFormats/Math>
 <use name=Geometry/Records>
 <use name=Geometry/TrackerGeometryBuilder>
@@ -25,6 +26,7 @@
    <use name=TrackingTools/TrackFitters>
    <use name=TrackingTools/PatternTools>
    <use name=DataFormats/TrackReco>
+   <use name=DataFormats/MuonReco>
    <use name=DataFormats/Math>
    <use name=MagneticField/Engine>
    <use name=MagneticField/Records>
