@@ -115,7 +115,7 @@ RPCGeomServ::eta_partition()
 	_t = 3*(_id->ring())+ _id->roll()-2;
       }
     }else{
-      _t = _id->region() * (4*(_id->ring()-1) + _id->roll() + 7);
+      _t = _id->region() * (3*(3-_id->ring()) + _id->roll() + 7);
     }
   }
   return _t;
