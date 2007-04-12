@@ -1,7 +1,5 @@
-// Last commit: $Id: $
-
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "PluginManager/ModuleDef.h"
+#include "FWCore/PluginManager/interface/ModuleDef.h"
 DEFINE_SEAL_MODULE();
 
 #include "OnlineDB/SiStripESSources/test/stubs/test_FedCablingBuilder.h"

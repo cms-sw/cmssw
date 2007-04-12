@@ -1,9 +1,5 @@
-// Last commit: $Id: $
-// Latest tag:  $Name:  $
-// Location:    $Source: $
-
 #include "FWCore/Framework/interface/SourceFactory.h"
-#include "PluginManager/ModuleDef.h"
+#include "FWCore/PluginManager/interface/ModuleDef.h"
 DEFINE_SEAL_MODULE();
 
 #include "OnlineDB/SiStripESSources/interface/SiStripFedCablingBuilderFromDb.h"
