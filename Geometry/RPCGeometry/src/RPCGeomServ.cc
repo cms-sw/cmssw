@@ -87,7 +87,7 @@ RPCGeomServ::name()
       
       {
 	std::stringstream os;
-	os << std::setw(2)<<std::setfill('+')<<_id->station()
+	os << std::setw(2)<<std::setfill('+')<<_id->station()*_id->region()
 	   <<std::setfill(' ')<<"/";
 	buf += os.str();    
       }
@@ -103,24 +103,24 @@ RPCGeomServ::name()
   }
   return _n;
 }
- 
+
 int 
 RPCGeomServ::eta_partition()
 {
   if (_t<-90){
     if (_id->region() == 0 ){
       if (this->inverted()) {
-	_t = 3*(_id->ring())+ (4-_id->roll())-1;
+	_t = 3*(_id->ring())+ (3-_id->roll())-1;
       }else{
-	_t = 3*(_id->ring())+ _id->roll()-1;
+	_t = 3*(_id->ring())+ _id->roll()-2;
       }
     }else{
-      _t = 4*(_id->ring());
+      _t = _id->region() * (4*(_id->ring()-1) + _id->roll() + 7);
     }
   }
   return _t;
 } 
- 
+
 
 bool
 RPCGeomServ::inverted()
