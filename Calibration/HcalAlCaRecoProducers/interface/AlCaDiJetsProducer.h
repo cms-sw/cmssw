@@ -36,6 +36,7 @@
 #include "RecoTracker/TrackProducer/interface/TrackProducerBase.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 
 //
 // class declaration
@@ -54,12 +55,21 @@ class AlCaDiJetsProducer : public edm::EDProducer {
       explicit AlCaDiJetsProducer(const edm::ParameterSet&);
       ~AlCaDiJetsProducer();
 
+      virtual void beginJob(const edm::EventSetup& ) ;
 
       virtual void produce(edm::Event &, const edm::EventSetup&);
    private:
       // ----------member data ---------------------------
-   std::string mInput;
-   std::string m_inputTrackLabel;
+     std::vector<edm::InputTag> ecalLabels_;
+     std::vector<edm::InputTag> mInputCalo;
+     bool allowMissingInputs_;
+     edm::InputTag hbheLabel_;
+     edm::InputTag hoLabel_;
+     edm::InputTag hfLabel_;
+     std::string m_inputTrackLabel;
+ // Calo geometry
+  const CaloGeometry* geo;
+
 };
 //}// end namespace cms
 #endif
