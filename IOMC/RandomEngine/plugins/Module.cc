@@ -9,10 +9,8 @@
 using edm::service::RandomNumberGeneratorService;
 using edm::RandomFilter;
 
-DEFINE_SEAL_MODULE();
-
 typedef edm::serviceregistry::AllArgsMaker<edm::RandomNumberGenerator,RandomNumberGeneratorService> RandomMaker;
-DEFINE_ANOTHER_FWK_SERVICE_MAKER(RandomNumberGeneratorService, RandomMaker);
+DEFINE_FWK_SERVICE_MAKER(RandomNumberGeneratorService, RandomMaker);
 
-DEFINE_ANOTHER_FWK_MODULE(RandomEngineStateProducer);
-DEFINE_ANOTHER_FWK_MODULE(RandomFilter);
+DEFINE_FWK_MODULE(RandomEngineStateProducer);
+DEFINE_FWK_MODULE(RandomFilter);
