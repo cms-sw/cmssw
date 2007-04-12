@@ -8,7 +8,7 @@
  *
  * \author Chiara Genta
  *
- * \version $Id: $
+ * \version $Id: TrackingRecHitInfo.h,v 1.1 2007/03/15 13:53:58 genta Exp $
  *
  */
 
@@ -20,24 +20,32 @@
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 
 namespace reco {
-   class TrackingRecHitInfo{
-
+  class TrackingRecHitInfo{
+    
   public:
-     enum RecHitType { Single=0, Matched=1, Projected=2};
-     TrackingRecHitInfo(){}
-     TrackingRecHitInfo(RecHitType type, std::pair<LocalVector, LocalVector> trackdirections,PTrajectoryStateOnDet trajstate ): 
-     type_(type),  trackdirections_(trackdirections), trajstate_(trajstate) {}
-     const RecHitType  type() const {return type_;}
-     const LocalVector localTrackMomentumOnMono() const {return trackdirections_.first;}
-     const LocalVector localTrackMomentumOnStereo()const {return trackdirections_.second;}
-     const PTrajectoryStateOnDet &stateOnDet() const {return trajstate_;};
-
+    enum StateType { Updated=0, Combined=1, FwPredicted=2, BwPredicted=3};
+    
+    enum RecHitType { Single=0, Matched=1, Projected=2};
+    
+    TrackingRecHitInfo(){}
+    TrackingRecHitInfo(StateType statetype, RecHitType type, std::pair<LocalVector, LocalVector> trackdirections ,std::pair<LocalPoint, LocalPoint> trackpositions , PTrajectoryStateOnDet &trajstate ): 
+      statetype_(statetype), type_(type),  trackdirections_(trackdirections),  trackpositions_(trackpositions), trajstate_(trajstate) {}
+      const RecHitType  type() const {return type_;}
+      const StateType  statetype() const {return statetype_;}
+      const LocalVector localTrackMomentumOnMono() const {return trackdirections_.first;}
+      const LocalVector localTrackMomentumOnStereo()const {return trackdirections_.second;}
+      const LocalPoint localTrackPositionOnMono() const {return trackpositions_.first;}
+      const LocalPoint localTrackPositionOnStereo()const {return trackpositions_.second;}
+      const PTrajectoryStateOnDet &stateOnDet() const {return trajstate_;};
+      
   private:
-     RecHitType type_;
-     std::pair<LocalVector, LocalVector> trackdirections_;
-     PTrajectoryStateOnDet trajstate_;
-
+      StateType statetype_;
+      RecHitType type_;
+      std::pair<LocalVector, LocalVector> trackdirections_;
+      std::pair<LocalPoint, LocalPoint> trackpositions_;
+      PTrajectoryStateOnDet trajstate_;
+      
   };
-
+  
 }
 #endif

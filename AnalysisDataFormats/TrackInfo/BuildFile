@@ -3,6 +3,7 @@
 <use name=DataFormats/TrackingRecHit>
 <use name=DataFormats/TrajectorySeed>
 <use name=DataFormats/TrajectoryState>
+<use name=FWCore/MessageLogger>
 <use name=rootrflx>
 <export>
   <use name=DataFormats/Common>
@@ -10,6 +11,7 @@
   <use name=DataFormats/TrackingRecHit>
   <use name=DataFormats/TrajectorySeed>
   <use name=DataFormats/TrajectoryState>
+  <use name=FWCore/MessageLogger>
   <lib name=AnalysisDataFormatsTrackInfo>
 </export>
 

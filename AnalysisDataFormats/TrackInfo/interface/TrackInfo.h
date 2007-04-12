@@ -8,7 +8,7 @@
  *
  * \author Chiara Genta
  *
- * \version $Id: TrackInfo.h,v 1.3 2007/02/28 14:38:43 genta Exp $
+ * \version $Id: TrackInfo.h,v 1.4 2007/03/15 13:53:58 genta Exp $
  *
  */
 
@@ -24,7 +24,9 @@ namespace reco {
    class TrackInfo{
   public:
     /// default constructor
-    typedef std::map<TrackingRecHitRef , reco::TrackingRecHitInfo >  TrajectoryInfo;
+    typedef std::map<TrackingRecHitRef , std::vector<reco::TrackingRecHitInfo> >  TrajectoryInfo;
+    typedef TrackingRecHitInfo::StateType StateType;
+
     TrackInfo() {}
 
     TrackInfo( const TrajectorySeed & seed_, const TrajectoryInfo & trajstate);
@@ -33,17 +35,21 @@ namespace reco {
 
     const TrajectorySeed &seed() const;
 
-    const reco::TrackingRecHitInfo::RecHitType  type(TrackingRecHitRef ) const;
+    const reco::TrackingRecHitInfo::RecHitType  type(StateType,TrackingRecHitRef ) const;
     
-    const PTrajectoryStateOnDet &stateOnDet(TrackingRecHitRef ) const;
+    const PTrajectoryStateOnDet *stateOnDet(StateType,TrackingRecHitRef ) const;
 
-    const LocalVector localTrackMomentum(TrackingRecHitRef ) const;
+    const LocalVector localTrackMomentum(StateType,TrackingRecHitRef ) const;
 
-    const LocalVector localTrackMomentumOnMono(TrackingRecHitRef ) const;
+    const LocalVector localTrackMomentumOnMono(StateType,TrackingRecHitRef ) const;
 
-    const LocalVector localTrackMomentumOnStereo(TrackingRecHitRef ) const;
+    const LocalVector localTrackMomentumOnStereo(StateType,TrackingRecHitRef ) const;
 
-    const LocalPoint localTrackPosition(TrackingRecHitRef ) const;
+    const LocalPoint localTrackPosition(StateType, TrackingRecHitRef ) const;
+
+    const LocalPoint localTrackPositionOnMono(StateType,TrackingRecHitRef ) const;
+
+    const LocalPoint localTrackPositionOnStereo(StateType,TrackingRecHitRef ) const;
 
     const TrajectoryInfo &trajStateMap() const;
 
@@ -51,7 +57,7 @@ namespace reco {
 
   private:
     TrajectorySeed  seed_ ;
-    TrajectoryInfo   trajstate_;
+    TrajectoryInfo    trajstates_;
   };
 
 }

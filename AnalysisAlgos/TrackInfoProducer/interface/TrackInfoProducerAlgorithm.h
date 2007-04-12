@@ -28,12 +28,9 @@ typedef TransientTrackingRecHit::ConstRecHitPointer ConstRecHitPointer;
   ~TrackInfoProducerAlgorithm() {}
   
   void run(std::vector<Trajectory>::const_iterator input, reco::TrackRef track, 
-	   reco::TrackInfo &outputFwd,
-	   reco::TrackInfo &outputBwd,
-	   reco::TrackInfo &outputUpdated, 
-	   reco::TrackInfo &outputCombined,
+	   reco::TrackInfo &output,
 	   const TrackerGeometry * tracker);
-    
+  LocalPoint project(const GeomDet *det,const GeomDet* projdet,LocalPoint position,LocalVector trackdirection)const;
  private:
   edm::ParameterSet conf_;
 };

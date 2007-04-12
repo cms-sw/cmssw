@@ -15,10 +15,7 @@
 
 
 void TrackInfoProducerAlgorithm::run(std::vector<Trajectory>::const_iterator  traj_iterator,reco::TrackRef track,
-				     reco::TrackInfo &outputFwd,
-				     reco::TrackInfo &outputBwd,
-				     reco::TrackInfo &outputUpdated, 
-				     reco::TrackInfo &outputCombined,        const TrackerGeometry * tracker)
+				     reco::TrackInfo &output,        const TrackerGeometry * tracker)
 {
   //  edm::LogInfo("TrackInfoProducer") << "Number of Trajectories: "<<inputcoll->size();
 
@@ -29,12 +26,11 @@ void TrackInfoProducerAlgorithm::run(std::vector<Trajectory>::const_iterator  tr
     
     std::vector<TrajectoryMeasurement>::iterator traj_mes_iterator;
     //edm::LogInfo("TrackInfoProducer") << "Number of Measurements: "<<measurements.size();
-    reco::TrackInfo::TrajectoryInfo fwdtrajinfo;
-    reco::TrackInfo::TrajectoryInfo bwdtrajinfo;
-    reco::TrackInfo::TrajectoryInfo updatedtrajinfo;
-    reco::TrackInfo::TrajectoryInfo combinedtrajinfo;
+    reco::TrackInfo::TrajectoryInfo trajinfo;
     int nhit=0;
     for(traj_mes_iterator=measurements.begin();traj_mes_iterator!=measurements.end();traj_mes_iterator++){//loop on measurements
+      std::vector<reco::TrackingRecHitInfo>  tkRecHitInfos;
+      tkRecHitInfos.reserve(4);
       TrajectoryStateOnSurface  fwdtsos=traj_mes_iterator->forwardPredictedState();
       TrajectoryStateOnSurface  bwdtsos=traj_mes_iterator->backwardPredictedState();
       TrajectoryStateOnSurface  updatedtsos=traj_mes_iterator->updatedState();
@@ -79,6 +75,11 @@ void TrackInfoProducerAlgorithm::run(std::vector<Trajectory>::const_iterator  tr
       LocalVector monobwd, stereobwd;
       LocalVector monoco, stereoco;
       LocalVector monoup, stereoup;
+
+      LocalPoint pmonofwd, pstereofwd;
+      LocalPoint pmonobwd, pstereobwd;
+      LocalPoint pmonoco, pstereoco;
+      LocalPoint pmonoup, pstereoup;
       if(matchedhit){
 	type=reco::TrackingRecHitInfo::Matched;
 	GluedGeomDet * gdet=(GluedGeomDet *)tracker->idToDet(matchedhit->geographicalId());
@@ -88,6 +89,8 @@ void TrackInfoProducerAlgorithm::run(std::vector<Trajectory>::const_iterator  tr
 	GlobalVector gtrkdirup=gdet->toGlobal(updatedptsod->parameters().momentum());
 	GlobalVector gtrkdirco=gdet->toGlobal(combinedptsod->parameters().momentum());
 	
+
+	
 	const GeomDetUnit * monodet=gdet->monoDet();
 	
 	monofwd=monodet->toLocal(gtrkdirfwd);
@@ -95,12 +98,25 @@ void TrackInfoProducerAlgorithm::run(std::vector<Trajectory>::const_iterator  tr
 	monoup=monodet->toLocal(gtrkdirup);
 	monoco=monodet->toLocal(gtrkdirco);
 
+	pmonofwd=project(gdet,monodet,fwdptsod->parameters().position(),monofwd);
+	pmonobwd=project(gdet,monodet,bwdptsod->parameters().position(),monobwd);
+	pmonoup=project(gdet,monodet,updatedptsod->parameters().position(),monoup);
+	pmonoco=project(gdet,monodet,combinedptsod->parameters().position(),monoco);
+
+
 	const GeomDetUnit * stereodet=gdet->stereoDet();
 	
 	stereofwd=stereodet->toLocal(gtrkdirfwd);
 	stereobwd=stereodet->toLocal(gtrkdirbwd);
 	stereoup=stereodet->toLocal(gtrkdirup);
 	stereoco=stereodet->toLocal(gtrkdirco);
+
+	pstereofwd=project(gdet,stereodet,fwdptsod->parameters().position(),stereofwd);
+	pstereobwd=project(gdet,stereodet,bwdptsod->parameters().position(),stereobwd);
+	pstereoup=project(gdet,stereodet,updatedptsod->parameters().position(),stereoup);
+	pstereoco=project(gdet,stereodet,combinedptsod->parameters().position(),stereoco);
+
+
       }
       else if(phit){
 	type=reco::TrackingRecHitInfo::Projected;
@@ -118,6 +134,10 @@ void TrackInfoProducerAlgorithm::run(std::vector<Trajectory>::const_iterator  tr
 	  monobwd= det->toLocal(gtrkdirbwd);
 	  monoup=  det->toLocal(gtrkdirup);
 	  monoco=  det->toLocal(gtrkdirco);
+	  pmonofwd=project(gdet,det,fwdptsod->parameters().position(),monofwd);
+	  pmonobwd=project(gdet,det,bwdptsod->parameters().position(),monobwd);
+	  pmonoup=project(gdet,det,updatedptsod->parameters().position(),monoup);
+	  pmonoco=project(gdet,det,combinedptsod->parameters().position(),monoco);
 	}
 	else{
 	  det=gdet->stereoDet();
@@ -125,28 +145,45 @@ void TrackInfoProducerAlgorithm::run(std::vector<Trajectory>::const_iterator  tr
 	  stereobwd= det->toLocal(gtrkdirbwd);
 	  stereoup=  det->toLocal(gtrkdirup);
 	  stereoco=  det->toLocal(gtrkdirco);
+	  pstereofwd=project(gdet,det,fwdptsod->parameters().position(),stereofwd);
+	  pstereobwd=project(gdet,det,bwdptsod->parameters().position(),stereobwd);
+	  pstereoup=project(gdet,det,updatedptsod->parameters().position(),stereoup);
+	  pstereoco=project(gdet,det,combinedptsod->parameters().position(),stereoco);
 	}
       }
       
-      reco::TrackingRecHitInfo tkRecHitInfofwd =reco::TrackingRecHitInfo(type, std::make_pair(monofwd,stereofwd),*fwdptsod );
-      reco::TrackingRecHitInfo tkRecHitInfobwd =reco::TrackingRecHitInfo(type, std::make_pair(monobwd,stereobwd),*bwdptsod );
-      reco::TrackingRecHitInfo tkRecHitInfoup =reco::TrackingRecHitInfo(type, std::make_pair(monoup,stereoup),*updatedptsod );
-      reco::TrackingRecHitInfo tkRecHitInfoco =reco::TrackingRecHitInfo(type, std::make_pair(monoco,stereoco),*combinedptsod );
+      tkRecHitInfos.push_back(reco::TrackingRecHitInfo(reco::TrackingRecHitInfo::FwPredicted, type, std::make_pair(monofwd,stereofwd), std::make_pair(pmonofwd,pstereofwd), *fwdptsod ));
+      tkRecHitInfos.push_back( reco::TrackingRecHitInfo(reco::TrackingRecHitInfo::BwPredicted,type, std::make_pair(monobwd,stereobwd), std::make_pair(pmonobwd,pstereobwd), *bwdptsod ));
+      tkRecHitInfos.push_back( reco::TrackingRecHitInfo(reco::TrackingRecHitInfo::Updated,type, std::make_pair(monoup,stereoup), std::make_pair(pmonoup,pstereoup), *updatedptsod ));
+      tkRecHitInfos.push_back( reco::TrackingRecHitInfo(reco::TrackingRecHitInfo::Combined,type, std::make_pair(monoco,stereoco), std::make_pair(pmonoco,pstereoco), *combinedptsod ));
+      
       
       
       
       if(j!=0){
-	fwdtrajinfo.insert(make_pair(thehitref,tkRecHitInfofwd));
-	bwdtrajinfo.insert(make_pair(thehitref,tkRecHitInfobwd));
-	updatedtrajinfo.insert(make_pair(thehitref,tkRecHitInfoup));
-	combinedtrajinfo.insert(make_pair(thehitref,tkRecHitInfoco));
+	trajinfo.insert(make_pair(thehitref,tkRecHitInfos));
       }
       //      else  edm::LogInfo("TrackInfoProducer") << "RecHit not associated ";
     }
     //edm::LogInfo("TrackInfoProducer") << "Found "<<nhit<< " hits";
     //if(fwdtrajinfo.size()!=nhit) edm::LogInfo("TrackInfoProducer") << "Number of trackinfos  "<<fwdtrajinfo.size()<< " doesn't match!";
-    outputFwd=reco::TrackInfo((traj_iterator->seed()),fwdtrajinfo);
-    outputBwd=reco::TrackInfo((traj_iterator->seed()),bwdtrajinfo);
-    outputUpdated=reco::TrackInfo((traj_iterator->seed()),updatedtrajinfo);
-    outputCombined=reco::TrackInfo((traj_iterator->seed()),combinedtrajinfo);
+    output=reco::TrackInfo((traj_iterator->seed()),trajinfo);
+    
+}
+
+LocalPoint TrackInfoProducerAlgorithm::project(const GeomDet *det,const GeomDet* projdet,LocalPoint position,LocalVector trackdirection)const
+{
+  
+  GlobalPoint globalpoint=(det->surface()).toGlobal(position);
+  
+  // position of the initial and final point of the strip in glued local coordinates
+  LocalPoint projposition=(projdet->surface()).toLocal(globalpoint);
+  
+  //correct the position with the track direction
+  
+  float scale=-projposition.z()/trackdirection.z();
+  
+  projposition+= scale*trackdirection;
+  
+  return projposition;
 }
