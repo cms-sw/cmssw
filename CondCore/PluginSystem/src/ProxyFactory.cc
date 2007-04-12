@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Jul 23 19:14:11 EDT 2005
-// $Id: ProxyFactory.cc,v 1.3.2.2 2006/12/07 15:37:22 xiezhen Exp $
+// $Id: ProxyFactory.cc,v 1.5 2007/01/16 18:35:02 xiezhen Exp $
 //
 
 // system include files
@@ -22,63 +22,12 @@
 // constants, enums and typedefs
 //
 
-//
-// static data member definitions
-//
+EDM_REGISTER_PLUGINFACTORY(cond::ProxyFactory, cond::pluginCategory());
 
-//
-// constructors and destructor
-//
-/*cond::ProxyFactory::ProxyFactory() 
-  : seal::PluginFactory< edm::eventsetup::DataProxy*( pool::IDataSvc*, std::map<std::string,std::string>::iterator& ) >(pluginCategory())
-{
-}
-*/
-ProxyFactory::ProxyFactory() 
-  : seal::PluginFactory< edm::eventsetup::DataProxy*( 
-cond::PoolStorageManager* pooldb, std::map<std::string,std::string>::iterator& ) >(pluginCategory())
-{
-  //std::cout<<"ProxyFactory::ProxyFactory"<<std::endl;
-}
-ProxyFactory::~ProxyFactory()
-{
-  //std::cout<<"ProxyFactory::~ProxyFactory"<<std::endl;
-}
-
-//
-// assignment operators
-//
-// const TestCondProxyFactory& TestCondProxyFactory::operator=( const TestCondProxyFactory& rhs )
-// {
-//   //An exception safe implementation is
-//   TestCondProxyFactory temp(rhs);
-//   swap( rhs );
-//
-//   return *this;
-// }
-
-//
-// member functions
-//
-
-//
-// const member functions
-//
-
-//
-// static member functions
-//
-static
-ProxyFactory s_factory;
-
-ProxyFactory* 
-ProxyFactory::get()
-{
-  return &s_factory;
-}
-
+namespace cond {
 const char*
-ProxyFactory::pluginCategory()
+pluginCategory()
 {
   return  "CondProxyFactory";
+}
 }

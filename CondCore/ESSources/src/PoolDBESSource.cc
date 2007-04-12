@@ -50,8 +50,6 @@ deconstructName(const std::string& iProxyName) {
 }
 
 #include "FWCore/PluginManager/interface/PluginManager.h"
-#include "FWCore/PluginManager/interface/ModuleCache.h"
-#include "FWCore/PluginManager/interface/Module.h"
 
 static
 void
@@ -59,38 +57,43 @@ fillRecordToTypeMap(std::multimap<std::string, std::string>& oToFill){
   //From the plugin manager get the list of our plugins
   // then from the plugin names, we can deduce the 'record to type' information
   //std::cout<<"Entering fillRecordToTypeMap "<<std::endl;
-  seal::PluginManager                       *db =  seal::PluginManager::get();
-  seal::PluginManager::DirectoryIterator    dir;
-  seal::ModuleCache::Iterator               plugin;
-  seal::ModuleDescriptor                    *cache;
-  unsigned                            i;
-            
-  const std::string mycat(ProxyFactory::pluginCategory());
-      
-  for (dir = db->beginDirectories(); dir != db->endDirectories(); ++dir) {
-    for (plugin = (*dir)->begin(); plugin != (*dir)->end(); ++plugin) {
-      for (cache=(*plugin)->cacheRoot(), i=0; i < cache->children(); ++i) {
-	//std::cout <<" "<<cache->child(i)->token(0)<<std::endl;
-	if (cache->child(i)->token(0) == mycat) {
-	  const std::string cap = cache->child(i)->token(1);
-	  std::pair<std::string,std::string> pairName=deconstructName(cap);
-	  if( pairName.first.empty() ) continue;
-	  if( oToFill.find(pairName.first)==oToFill.end() ){
-	    //oToFill.insert(deconstructName(cap));
-	    oToFill.insert(pairName);
-	  }else{
-	    for(std::multimap<std::string, std::string>::iterator pos=oToFill.lower_bound(pairName.first); pos != oToFill.upper_bound(pairName.first); ++pos ){
-	      if(pos->second != pairName.second){
-		oToFill.insert(pairName);
-	      }else{
-		//std::cout<<"ignore "<<pairName.first<<" "<<pairName.second<<std::endl;
-	      }
-	    }
-	  }
-	}
+   
+   
+   edmplugin::PluginManager*db =  edmplugin::PluginManager::get();
+   
+   typedef edmplugin::PluginManager::CategoryToInfos CatToInfos;
+   
+   const std::string mycat(cond::pluginCategory());
+   CatToInfos::const_iterator itFound = db->categoryToInfos().find(mycat);
+   
+   if(itFound == db->categoryToInfos().end()) {
+      return;
+   }
+   std::string lastClass;
+   for (edmplugin::PluginManager::Infos::const_iterator itInfo = itFound->second.begin(),
+	   itInfoEnd = itFound->second.end(); 
+	itInfo != itInfoEnd; ++itInfo)
+   {
+      if (lastClass == itInfo->name_) {
+         continue;
       }
-    }
-  }
+      
+      lastClass = itInfo->name_;
+      std::pair<std::string,std::string> pairName=deconstructName(lastClass);
+      if( pairName.first.empty() ) continue;
+      if( oToFill.find(pairName.first)==oToFill.end() ){
+	 //oToFill.insert(deconstructName(cap));
+	 oToFill.insert(pairName);
+      }else{
+	 for(std::multimap<std::string, std::string>::iterator pos=oToFill.lower_bound(pairName.first); pos != oToFill.upper_bound(pairName.first); ++pos ){
+	    if(pos->second != pairName.second){
+	       oToFill.insert(pairName);
+	    }else{
+	       //std::cout<<"ignore "<<pairName.first<<" "<<pairName.second<<std::endl;
+	    }
+	 }
+      }
+   }
 }
 
 //
@@ -137,7 +140,7 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
       //fill in dummy tokens now, change in setIntervalFor
       pProxyToToken pos=m_proxyToToken.find(buildName(itRec->first, itRec->second));
       //boost::shared_ptr<DataProxy> proxy(cond::ProxyFactory::get()->create( buildName(itRec->first, itRec->second),m_svc,pos));
-      boost::shared_ptr<DataProxy> proxy(ProxyFactory::get()->create( buildName(itRec->first, itRec->second),m_pooldb,pos));
+      boost::shared_ptr<DataProxy> proxy(cond::ProxyFactory::get()->create( buildName(itRec->first, itRec->second),m_pooldb,pos));
     }
     std::string tagName = toGet[0].getParameter<std::string>("tag");
     //NOTE: should delay setting what  records until all 
@@ -173,7 +176,7 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
       m_proxyToToken.insert( make_pair(proxyName,"") );
       //fill in dummy tokens now, change in setIntervalFor
       pProxyToToken pos=m_proxyToToken.find(proxyName);
-      boost::shared_ptr<DataProxy> proxy(ProxyFactory::get()->create(proxyName,m_pooldb,pos));
+      boost::shared_ptr<DataProxy> proxy(cond::ProxyFactory::get()->create(proxyName,m_pooldb,pos));
       eventsetup::EventSetupRecordKey recordKey(eventsetup::EventSetupRecordKey::TypeTag::findType( recordName ) );
       if( recordKey.type() == eventsetup::EventSetupRecordKey::TypeTag() ) {
 	//record not found
@@ -321,7 +324,7 @@ PoolDBESSource::registerProxies(const edm::eventsetup::EventSetupRecordKey& iRec
     eventsetup::TypeTag type = eventsetup::TypeTag::findType( itType->second );
     if( type != defaultType ) {
       pProxyToToken pos=m_proxyToToken.find(buildName(iRecordKey.name(), type.name()));
-      boost::shared_ptr<DataProxy> proxy(ProxyFactory::get()->create( buildName(iRecordKey.name(), type.name() ), m_pooldb, pos));
+      boost::shared_ptr<DataProxy> proxy(cond::ProxyFactory::get()->create( buildName(iRecordKey.name(), type.name() ), m_pooldb, pos));
       if(0 != proxy.get()) {
 	eventsetup::DataKey key( type, "");
 	aProxyList.push_back(KeyedProxies::value_type(key,proxy));

@@ -16,7 +16,7 @@ Usage:
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Jul 23 19:14:06 EDT 2005
-// $Id: ProxyFactory.h,v 1.6 2007/03/02 13:09:28 xiezhen Exp $
+// $Id: ProxyFactory.h,v 1.7 2007/04/10 23:02:52 wmtan Exp $
 //
 
 // system include files
@@ -35,31 +35,14 @@ namespace edm {
   }
 }
 
-namespace cond{
+namespace cond {
   class PoolStorageManager;
-}
-class ProxyFactory : public seal::PluginFactory< 
-  edm::eventsetup::DataProxy* ( cond::PoolStorageManager*, std::map<std::string,std::string>::iterator& ) >
-{
- public:
-   ProxyFactory();
-   virtual ~ProxyFactory();
-    
-   // ---------- const member functions ---------------------
-   
-   // ---------- static member functions --------------------
-   static ProxyFactory* get();
-   static const char* pluginCategory();
-    
-    // ---------- member functions ---------------------------
 
-  private:
-    ProxyFactory( const ProxyFactory& ); // stop default
-    
-    const ProxyFactory& operator=( const ProxyFactory& ); // stop default
-    
-    // ---------- member data --------------------------------
-    
-  };
+typedef edmplugin::PluginFactory< 
+   edm::eventsetup::DataProxy* ( cond::PoolStorageManager*, std::map<std::string,std::string>::iterator& ) > 
+        ProxyFactory;
+
+   const char* pluginCategory();
+}
 
 #endif /* CONDCORE_PLUGINSYSTEM_PROXYFACTORY_H */
