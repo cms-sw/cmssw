@@ -208,5 +208,5 @@ using edmtest::SewerModule;
 
 
 DEFINE_FWK_MODULE(TestFilterModule);
-DEFINE_ANOTHER_FWK_MODULE(TestResultAnalyzer);
-DEFINE_ANOTHER_FWK_MODULE(SewerModule);
+DEFINE_FWK_MODULE(TestResultAnalyzer);
+DEFINE_FWK_MODULE(SewerModule);

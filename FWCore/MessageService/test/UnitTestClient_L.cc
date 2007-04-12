@@ -39,4 +39,4 @@ void UnitTestClient_L1::analyze( edm::Event      const & e
 using edmtest::UnitTestClient_L;
 using edmtest::UnitTestClient_L1;
 DEFINE_FWK_MODULE(UnitTestClient_L);
-DEFINE_ANOTHER_FWK_MODULE(UnitTestClient_L1);
+DEFINE_FWK_MODULE(UnitTestClient_L1);

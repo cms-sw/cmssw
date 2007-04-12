@@ -6,4 +6,4 @@
 using edm::service::MessageLogger;
 using edm::service::MessageServicePresence;
 DEFINE_FWK_SERVICE(MessageLogger);
-DEFINE_ANOTHER_FWK_PRESENCE(MessageServicePresence);
+DEFINE_FWK_PRESENCE(MessageServicePresence);
