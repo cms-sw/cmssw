@@ -1,9 +1,9 @@
 /** \file AlignmentParameterSelector.cc
  *  \author Gero Flucke, Nov. 2006
  *
- *  $Date: 2007/03/02 12:16:56 $
- *  $Revision: 1.6 $
- *  (last update by $Author: fronga $)
+ *  $Date: 2007/03/02 18:31:28 $
+ *  $Revision: 1.7 $
+ *  (last update by $Author: pivarski $)
  */
 
 #include <cctype>
@@ -152,9 +152,11 @@ unsigned int AlignmentParameterSelector::addSelection(const std::string &nameInp
   else if (name == "TOBDets")      numAli += this->add(theTracker->outerBarrelGeomDets(), paramSel);
   else if (name == "TOBRods")      numAli += this->add(theTracker->outerBarrelRods(), paramSel);
   else if (name == "TOBLayers")    numAli += this->add(theTracker->outerBarrelLayers(), paramSel);
+  else if (name == "TOBHalfBarrels") numAli += this->add(theTracker->outerHalfBarrels(), paramSel);
   else if (name == "TIBDets")      numAli += this->add(theTracker->innerBarrelGeomDets(), paramSel);
   else if (name == "TIBRods")      numAli += this->add(theTracker->innerBarrelRods(), paramSel);
   else if (name == "TIBLayers")    numAli += this->add(theTracker->innerBarrelLayers(), paramSel);
+  else if (name == "TIBHalfBarrels") numAli += this->add(theTracker->innerHalfBarrels(), paramSel);
   //
   // PXBarrel
   //
