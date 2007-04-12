@@ -3,6 +3,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include <iostream>
 #include <fstream>
+#include <cmath>
 
 static const int INPUT_LUT_SIZE = 128;
 
