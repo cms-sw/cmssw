@@ -6,8 +6,8 @@
 //                a GMT ascii HW testfile into the Event
 //
 //
-//   $Date: 2006/08/21 14:23:13 $
-//   $Revision: 1.2 $
+//   $Date: 2007/03/23 18:51:35 $
+//   $Revision: 1.3 $
 //
 //   Author :
 //   Tobias Noebauer                 HEPHY Vienna
@@ -29,6 +29,7 @@
 // Collaborating Class Headers --
 //-------------------------------
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuRegionalCand.h"
+#include "DataFormats/L1CaloTrigger/interface/L1CaloCollections.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -43,6 +44,8 @@ L1MuGMTHWFileReader::L1MuGMTHWFileReader(edm::ParameterSet const& ps,
   produces<std::vector<L1MuRegionalCand> >("CSC");
   produces<std::vector<L1MuRegionalCand> >("RPCb");
   produces<std::vector<L1MuRegionalCand> >("RPCf");
+
+  produces<L1CaloRegionCollection>();
 
   if(!fileNames().size()) {
     throw std::runtime_error("L1MuGMTHWFileReader: no input file");
@@ -111,6 +114,15 @@ bool L1MuGMTHWFileReader::produce(edm::Event& e) {
     RPCfCands->push_back(*mu);
   }
   e.put(RPCfCands,"RPCf");
+
+  std::auto_ptr<L1CaloRegionCollection> rctRegions (new L1CaloRegionCollection);
+  for(int ieta = 4; ieta < 18; ieta++) {
+    for(int iphi = 0; iphi < 18; iphi++) {
+      rctRegions->push_back(L1CaloRegion(0,false,true,m_evt.getMipBit(ieta-4,iphi),m_evt.getIsoBit(ieta-4,iphi),ieta,iphi));
+    }
+  }
+
+  e.put(rctRegions);
 
   return true;
 }

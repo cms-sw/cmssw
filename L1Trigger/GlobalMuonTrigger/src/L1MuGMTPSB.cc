@@ -5,8 +5,8 @@
 //   Description: Pipelined Synchronising Buffer module 
 //
 //
-//   $Date: 2007/04/02 15:45:39 $
-//   $Revision: 1.6 $
+//   $Date: 2007/04/10 09:59:19 $
+//   $Revision: 1.7 $
 //
 //   Author :
 //   N. Neumeister            CERN EP 
@@ -38,6 +38,7 @@
 #include "CondFormats/L1TObjects/interface/L1MuTriggerScales.h"
 
 #include "L1Trigger/GlobalMuonTrigger/interface/L1MuGlobalMuonTrigger.h"
+#include "DataFormats/L1CaloTrigger/interface/L1CaloCollections.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -134,7 +135,8 @@ void L1MuGMTPSB::receiveData(edm::Event& e, int bx) {
 
 
   // if there is at least one muon start the calorimeter trigger 
-  //  if ( L1MuGMTConfig::getCaloTrigger() && !empty() ) getCalo(e);
+
+  if ( L1MuGMTConfig::getCaloTrigger() && !empty() ) getCalo(e);
 
 }
 
@@ -400,24 +402,35 @@ void L1MuGMTPSB::printCSC() const {
 //
 // get data from regional calorimeter trigger
 //
-void L1MuGMTPSB::getCalo() {
+void L1MuGMTPSB::getCalo(edm::Event& e) {
   
-  /*
-  L1CaloTriggerSetup* setup = Singleton<L1CaloTriggerSetup>::instance();
-  L1CRegions* regions = setup->Regions();
+  try {
+    edm::Handle<L1CaloRegionCollection> calocoll_h;
+    //  e.getByLabel("L1RCTRegionSumsEmCands",calocoll_h);
+    e.getByType(calocoll_h);
+    L1CaloRegionCollection const* regions = calocoll_h.product();
+    L1CaloRegionCollection::const_iterator iter;
 
-  L1CaloTriggerSetup::Regions_const_iter iter;
-  for ( iter = regions->begin(); iter != regions->end(); iter++ ) {
-    if ( (*iter).eta() < 4 || (*iter).eta() > 17 || (*iter).phi() > 17 ) continue;
-    m_Isol.set( (*iter).eta()-4, (*iter).phi(), (*iter).isItQuiet() );
-    m_Mip.set( (*iter).eta()-4, (*iter).phi(), (*iter).isItMinI() );
+    //  edm::LogVerbatim("GMT_PSB_info") << "MIP/QUIET bits rceived by the GMT :";
 
-    if ( (*iter).isItQuiet() )
-      m_gmt.currentReadoutRecord()->setQuietbit ((*iter).eta()-4, (*iter).phi());
+    for ( iter = regions->begin(); iter != regions->end(); iter++ ) {
+      if ( (*iter).id().ieta() < 4 || (*iter).id().ieta() > 17 || (*iter).id().iphi() > 17 ) continue;
+      m_Isol.set( (*iter).id().ieta()-4, (*iter).id().iphi(), (*iter).quiet() );
+      m_Mip.set( (*iter).id().ieta()-4, (*iter).id().iphi(), (*iter).mip() );
 
-    if ( (*iter).isItMinI() )
-      m_gmt.currentReadoutRecord()->setMIPbit ((*iter).eta()-4, (*iter).phi());
+      if ( (*iter).quiet() )
+        m_gmt.currentReadoutRecord()->setQuietbit ((*iter).id().ieta()-4, (*iter).id().iphi());
 
+      if ( (*iter).mip() )
+        m_gmt.currentReadoutRecord()->setMIPbit ((*iter).id().ieta()-4, (*iter).id().iphi());
+
+      //    edm::LogVerbatim("GMT_PSB_info") << (*iter).id().ieta()-4 << " "
+      //                                     << (*iter).id().iphi() << " "
+      //                                     << (*iter).quiet() << " "
+      //                                     << (*iter).mip();
+    }
+  } catch (...) {
+    edm::LogVerbatim("GMT_PSB_info") << " Calorimeter MIP/QUIET bits not found in the Event ";
   }
-  */
+  
 }

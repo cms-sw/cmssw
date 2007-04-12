@@ -6,8 +6,8 @@
 //			all the input data the GMT receives (CSC, RPC, DT, GCT)
 //
 //                
-//   $Date: 2006/05/15 13:56:02 $
-//   $Revision: 1.1 $
+//   $Date: 2007/03/23 18:51:35 $
+//   $Revision: 1.2 $
 //
 //   Author :
 //   Tobias Noebauer                 HEPHY Vienna
@@ -88,6 +88,9 @@ class L1MuGMTInputEvent {
     const L1MuGMTMatrix<bool>& getMipBits() const { return m_mip_bits; };
     
     const L1MuGMTMatrix<bool>& getIsoBits() const { return m_iso_bits; };
+
+    const bool& getMipBit(unsigned etaIndex, unsigned phiIndex) { return m_mip_bits(etaIndex, phiIndex); };
+    const bool& getIsoBit(unsigned etaIndex, unsigned phiIndex) { return m_iso_bits(etaIndex, phiIndex); };
     
 
 

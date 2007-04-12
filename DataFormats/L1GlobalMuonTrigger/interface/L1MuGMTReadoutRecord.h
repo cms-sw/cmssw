@@ -92,6 +92,13 @@ class L1MuGMTReadoutRecord {
     /// get forward RPC candidates vector
     std::vector<L1MuRegionalCand> getFwdRPCCands() const;
 
+    /// get MIP bit
+    unsigned getMIPbit(int eta, int phi) const;
+
+    /// get Quiet bit
+    unsigned getQuietbit(int eta, int phi) const;
+
+
     //
     // Setters
     //
@@ -127,6 +134,12 @@ class L1MuGMTReadoutRecord {
     /// set Input muon
     void setInputCand(int nr, L1MuRegionalCand const& cand);
 
+    /// set MIP bit
+    void setMIPbit(int eta, int phi);
+
+    /// set Quiet bit
+    void setQuietbit(int eta, int phi);
+
   private:
     unsigned getBrlRank(int i) const;
     unsigned getFwdRank(int i) const;
@@ -146,6 +159,11 @@ class L1MuGMTReadoutRecord {
     std::vector<L1MuGMTExtendedCand> m_BarrelCands;
     std::vector<L1MuGMTExtendedCand> m_ForwardCands;
     std::vector<L1MuGMTExtendedCand> m_GMTCands;
+
+    // mip/iso bits (252 EACH)
+    unsigned m_MIPbits[8];
+    unsigned m_Quietbits[8];
+
 };
 
 #endif

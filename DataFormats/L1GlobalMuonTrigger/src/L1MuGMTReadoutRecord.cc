@@ -8,8 +8,8 @@
  *  for one bunch crossing.
 */
 //
-//   $Date: 2006/11/16 18:23:47 $
-//   $Revision: 1.4 $
+//   $Date: 2007/04/02 15:44:10 $
+//   $Revision: 1.5 $
 //
 //   Author :
 //   H. Sakulin                  HEPHY Vienna
@@ -192,6 +192,37 @@ vector<L1MuRegionalCand> L1MuGMTReadoutRecord::getFwdRPCCands() const {
   return cands;
 }
 
+/// get MIP bit
+unsigned L1MuGMTReadoutRecord::getMIPbit(int eta, int phi) const {
+
+  if (phi<0 || phi > 17 || eta < 0 || eta > 13) return 0;
+
+  int idx = eta * 18 + phi;
+  int idx_word = idx / 32;
+  int idx_bit = idx % 32;
+
+  unsigned mask = 1 << (idx_bit-1);
+
+  return( m_MIPbits[idx_word] & mask) ? 1 : 0;
+
+}
+
+
+/// get Quiet bit
+unsigned L1MuGMTReadoutRecord::getQuietbit(int eta, int phi) const {
+
+  if (phi<0 || phi > 17 || eta < 0 || eta > 13) return 0;
+
+  int idx = eta * 18 + phi;
+  int idx_word = idx / 32;
+  int idx_bit = idx % 32;
+
+  unsigned mask = 1 << (idx_bit-1);
+
+  return( m_Quietbits[idx_word] & mask) ? 1 : 0;
+
+}
+
 
 
 //
@@ -290,8 +321,36 @@ void L1MuGMTReadoutRecord::setFwdRank(int i, unsigned value) {
 
 }
 
+/// set MIP bit
+void L1MuGMTReadoutRecord::setMIPbit(int eta, int phi) {
+
+  if (phi<0 || phi > 17 || eta < 0 || eta > 13) return;
+
+  int idx = eta * 18 + phi;
+  int idx_word = idx / 32;
+  int idx_bit = idx % 32;
+
+  unsigned mask = 1 << (idx_bit-1);
+
+  m_MIPbits[idx_word] |= mask;
+
+}
 
 
+/// set Quiet bit
+void L1MuGMTReadoutRecord::setQuietbit(int eta, int phi) {
+
+  if (phi<0 || phi > 17 || eta < 0 || eta > 13) return;
+
+  int idx = eta * 18 + phi;
+  int idx_word = idx / 32;
+  int idx_bit = idx % 32;
+
+  unsigned mask = 1 << (idx_bit-1);
+
+  m_Quietbits[idx_word] |= mask;
+
+}
 
 
 

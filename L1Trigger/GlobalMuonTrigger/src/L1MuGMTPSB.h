@@ -10,8 +10,8 @@
  *                regional Calorimeter Trigger
 */
 //
-//   $Date: 2006/05/15 13:56:02 $
-//   $Revision: 1.1 $
+//   $Date: 2007/03/23 18:51:35 $
+//   $Revision: 1.2 $
 //
 //   Author :
 //   N. Neumeister            CERN EP 
@@ -108,7 +108,7 @@ class L1MuGMTPSB {
     void getCSC(std::vector<L1MuRegionalCand> const* data, int bx);
 
     /// get Calorimeter Trigger data
-    void getCalo(); 
+    void getCalo(edm::Event& e); 
     
     /// print barrel RPC muons
     void printRPCbarrel() const;
