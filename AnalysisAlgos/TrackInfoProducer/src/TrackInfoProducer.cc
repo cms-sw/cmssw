@@ -151,7 +151,7 @@ void TrackInfoProducer::produce(edm::Event& theEvent, const edm::EventSetup& set
 //     if(backwardPredictedStateTag_!="") rTrackInfob =   theEvent.put(outputBwdColl,backwardPredictedStateTag_);
 //     if(updatedStateTag_!="") rTrackInfou =   theEvent.put(outputUpdatedColl,updatedStateTag_ );
 //     if(combinedStateTag_!="") rTrackInfoc =   theEvent.put(outputCombinedColl,combinedStateTag_ );
-    theEvent.put(outputColl);
+    rTrackInfo=theEvent.put(outputColl);
 
     for(unsigned int i=0; i <trackid.size();++i){
 //       if(forwardPredictedStateTag_!="") TIassociationFwdColl->insert( edm::Ref<reco::TrackCollection>(trackCollection, trackid[i]),edm::Ref<reco::TrackInfoCollection>(rTrackInfof, i));
