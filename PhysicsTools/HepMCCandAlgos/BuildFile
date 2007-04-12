@@ -1,7 +1,6 @@
 <use name=DataFormats/HepMCCandidate>
-<use name=PhysicsTools/CandUtils>
+<use name=PhysicsTools/UtilAlgos>
 <export>
-  <lib name=PhysicsToolsHepMCCandAlgos>
   <use name=DataFormats/HepMCCandidate>
-  <use name=PhysicsTools/CandUtils>
+  <use name=PhysicsTools/UtilAlgos>
 </export>

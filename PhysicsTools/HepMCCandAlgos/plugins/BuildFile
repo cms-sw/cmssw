@@ -30,20 +30,16 @@
 </library>
 
 <library file=MCTruthCompositeMatcher.cc>
-  <use name=PhysicsTools/HepMCCandAlgos>
 </library>
 
 <library file=MCTruthMuonCompositeMatcher.cc>
-  <use name=PhysicsTools/HepMCCandAlgos>
   <use name=DataFormats/MuonReco>
 </library>
 
 <library file=MCTruthPixelMatchGsfElectronCompositeMatcher.cc>
-  <use name=PhysicsTools/HepMCCandAlgos>
   <use name=DataFormats/EgammaCandidates>
 </library>
 
 <library file=MCTruthCaloJetCompositeMatcher.cc>
-  <use name=PhysicsTools/HepMCCandAlgos>
   <use name=DataFormats/JetReco>
 </library>
