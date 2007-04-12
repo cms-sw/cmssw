@@ -11,7 +11,7 @@
 
 using namespace std;
 
-EDM_REGISTER_PLUGINFACTORY(edm::InputSourcePluginFactory,"CMS EDM Framework InputSource");
+EDM_REGISTER_PLUGINFACTORY(edm::InputSourcePluginFactory,"CMS EDM Framework InputSource")
 namespace edm {
 
 

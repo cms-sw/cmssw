@@ -10,7 +10,7 @@
 
 using namespace std;
 
-EDM_REGISTER_PLUGINFACTORY(edm::MakerPluginFactory,"CMS EDM Framework Module");
+EDM_REGISTER_PLUGINFACTORY(edm::MakerPluginFactory,"CMS EDM Framework Module")
 namespace edm {
 
   static void cleanup(const Factory::MakerMap::value_type& v)
