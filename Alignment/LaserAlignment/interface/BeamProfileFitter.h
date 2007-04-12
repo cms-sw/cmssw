@@ -4,8 +4,8 @@
 /** \class BeamProfileFitter
  *  Fitting laser profiles from the beams in the Laser Alignment System
  *
- *  $Date: 2007/03/16 14:29:55 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/04/12 14:02:00 $
+ *  $Revision: 1.4 $
  *  \author Maarten Thomas
  */
 
@@ -56,7 +56,9 @@ class BeamProfileFitter {
   bool theClearHistoAfterFit;
   bool theScaleHisto;
   double theMinSignalHeight;
-
+  bool theCorrectBSkink;
+  double theBSAnglesSystematic;
+  
   /// function to calculate the error on phi
   Double_t phiError(TVector3 thePosition, TMatrix theCovarianceMatrix);
   
