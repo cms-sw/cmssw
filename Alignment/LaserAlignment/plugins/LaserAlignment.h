@@ -18,7 +18,6 @@
 #include "Alignment/LaserAlignment/interface/LaserAlignmentPosTEC.h"
 #include "Alignment/LaserAlignment/interface/LaserAlignmentNegTEC.h"
 #include "Alignment/LaserAlignment/interface/LaserAlignmentTEC2TEC.h"
-#include "Alignment/LaserAlignment/interface/AlignmentAlgorithmBW.h"
 
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
@@ -54,8 +53,6 @@ class LaserAlignment : public edm::EDProducer, public TObject
  private:
 	/// return angle in radian between 0 and 2*pi
   double angle(double theAngle);
-	/// check in which subdetector/sector/disc we currently are
-	std::vector<int> checkBeam(std::map<std::string, std::pair<DetId, TH1D*> >::iterator iHist);
 	/// write the ROOT file with histograms
   void closeRootFile();
   /// fill adc counts from the laser profiles into a histogram
@@ -118,19 +115,6 @@ class LaserAlignment : public edm::EDProducer, public TObject
   std::vector<double> theLaserPhi;
   std::vector<double> theLaserPhiError;
 
-	/// vectors to store the beam positions for usage with Bruno's alignment algorithm
-	LASvec2D thePosTECR4BeamPositions;
-	LASvec2D thePosTECR6BeamPositions;
-	LASvec2D theNegTECR4BeamPositions;
-	LASVec2D theNegTECR6BeamPositions;
-	LASVec2D theTEC2TECBeamPositions;
-
-	LASvec2D thePosTECR4BeamPositionErrors;
-	LASvec2D thePosTECR6BeamPositionErrors;
-	LASvec2D theNegTECR4BeamPositionErrors;
-	LASVec2D theNegTECR6BeamPositionErrors;
-	LASVec2D theTEC2TECBeamPositionErrors;
-	
   // counter for the iterations
   int theNumberOfIterations;
   // counter for the number of Alignment Iterations
@@ -143,11 +127,6 @@ class LaserAlignment : public edm::EDProducer, public TObject
   LaserAlignmentPosTEC * theLASAlignPosTEC;
   LaserAlignmentNegTEC * theLASAlignNegTEC;
   LaserAlignmentTEC2TEC * theLASAlignTEC2TEC;
-
-	/// Bruno's alignment algorithm
-	AlignmentAlgorithmBW * theAlignmentAlgorithmBW;
-	/// use the BS frame in the alignment algorithm (i.e. BS at z = 0)
-	bool theUseBSFrame;
 
   // the map to store digis for cluster creation
   std::map<DetId, std::vector<SiStripDigi> > theDigiStore;
