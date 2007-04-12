@@ -13,9 +13,6 @@ occur, good state information can be printed.
 
 **/
 
-#include "FWCore/PluginManager/interface/PluginManager.h"
-#include "SealBase/DebugAids.h"
-
 #include <string>
 
 namespace edm
@@ -30,13 +27,6 @@ namespace edm
     ~ProblemTracker();
     ProblemTracker(const ProblemTracker&);
 
-    static void feedback(seal::PluginManager::FeedbackData data);
-    static char failure(const char* msg);
-
-    std::string last_scope_;
-    std::string last_status_;
-    std::string last_error_;
-    static seal::DebugAids::AssertHook old_assert_hook_;
     static bool dead_;
   };
 
