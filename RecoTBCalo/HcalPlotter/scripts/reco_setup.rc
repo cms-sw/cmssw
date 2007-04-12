@@ -17,8 +17,23 @@ FEDS=20
 # First FED
 #FIRSTFED=
 
-# Mode of operation [MTCC|TB06|TESTSTAND]
-MODE=TESTSTAND
+# Mode of operation [MTCC|TB06|TESTSTAND|USC]
+# MTCC      - not available currently
+#
+# TB06      - uses PoolSource
+#	    - assumes FIRSTFED=700
+#           - unpacks trigger data
+#
+# TESTSTAND - uses HcalTBSource
+#	    - assumes FIRSTFED=20 if not set.
+#           - unpacks trigger data
+#
+# USC       - uses HcalTBSource
+#	    - ignores FIRSTFED and FED environment variables
+#	    - tries to unpack all HCAL FEDs 700-731
+#           - unpacks trigger data
+#
+MODE=USC
 
 # "Printf"-style format string for the input filename -
 #                     allows input of run number only

@@ -4,8 +4,9 @@ if (( ${#LOCALRT} < 4 ))
 then
     if (( ${#HCALDAQ_SW_LOC} < 4  || ${#HCAL_CMSSW_RELEASE} < 4 ))
     then
-	echo HCALDAQ_SW_LOC or HCAL_CMSSW_RELEASE not set, aborting!
-	exit
+	pushd ~/Cmswork/CMSSW_1_3_0_pre6/src >/dev/null
+	eval `scramv1 runtime -sh`
+	popd >/dev/null
     else
 	pushd $HCALDAQ_SW_LOC/src/$HCAL_CMSSW_RELEASE/src >/dev/null
 	eval `scramv1 runtime -sh`
@@ -37,6 +38,8 @@ else
     # Run Number mode
     FILE=`printf "${FORMAT}" ${ARG1}`
 fi
+
+echo $FILE
 
 if (( ${#EVENTLIMIT} == 0 )) 
 then
@@ -88,8 +91,7 @@ cat >> ${CFGFILE}<<EOF
                 untracked vstring fileNames = { "file:${FILE}" }
                 untracked int32 maxEvents = ${EVENTLIMIT}
                 untracked vstring streams = { ${STREAMS} }
-        }
-
+    }
     module tbunpacker = HcalTBObjectUnpacker {
            untracked int32 HcalTriggerFED  = 1
            untracked int32 HcalSlowDataFED = -1
@@ -97,7 +99,15 @@ cat >> ${CFGFILE}<<EOF
            untracked int32 HcalSourcePosFED = -1
            untracked bool IncludeUnmatchedHits = false
            untracked string ConfigurationFile='configQADCTDC.txt'
-       }
+    }
+    module hcaldigi = HcalRawToDigi {
+	int32 firstSample = 0
+	int32 lastSample = 9
+	untracked bool UnpackCalib = false
+	bool FilterDataQuality = true
+	untracked int32 HcalFirstFED = ${FIRSTFED}
+	untracked vint32 FEDs = { ${FEDS} }
+    }
 EOF
 # MTCC mode unavailable for now
 # elif [[ "$MODE" == "MTCC" ]] 
@@ -168,6 +178,51 @@ cat >> ${CFGFILE}<<EOF
                 untracked bool IncludeUnmatchedHits = false
 #               untracked string ConfigurationFile='configQADCTDC.txt'
          }
+	 module hcaldigi = HcalRawToDigi {
+	     int32 firstSample = 0
+	     int32 lastSample = 9
+	     untracked bool UnpackCalib = false
+	     bool FilterDataQuality = true
+	     untracked int32 HcalFirstFED = ${FIRSTFED}
+	     untracked vint32 FEDs = { ${FEDS} }
+	 }
+EOF
+elif [[ "$MODE" == "USC" ]] 
+    then
+    EXTRAPREPATH="tbunpacker,"
+cat >> ${CFGFILE}<<EOF
+    // Loads the events from testbeam files
+    source = HcalTBSource { 
+                untracked vstring fileNames = { "file:${FILE}" }
+                untracked int32 maxEvents = ${EVENTLIMIT}
+                untracked vstring streams = { 'HCAL_Trigger',
+		    'HCAL_DCC700','HCAL_DCC701','HCAL_DCC702','HCAL_DCC703',
+		    'HCAL_DCC704','HCAL_DCC705','HCAL_DCC706','HCAL_DCC707',
+		    'HCAL_DCC708','HCAL_DCC709','HCAL_DCC710','HCAL_DCC711',
+		    'HCAL_DCC712','HCAL_DCC713','HCAL_DCC714','HCAL_DCC715',
+		    'HCAL_DCC716','HCAL_DCC717','HCAL_DCC718','HCAL_DCC719',
+		    'HCAL_DCC720','HCAL_DCC721','HCAL_DCC722','HCAL_DCC723',
+		    'HCAL_DCC724','HCAL_DCC725','HCAL_DCC726','HCAL_DCC727',
+		    'HCAL_DCC728','HCAL_DCC729','HCAL_DCC730','HCAL_DCC731' }
+        }
+
+    module tbunpacker = HcalTBObjectUnpacker {
+           untracked int32 HcalTriggerFED  = 1
+           untracked int32 HcalSlowDataFED = -1
+           untracked int32 HcalTDCFED      = -1
+           untracked int32 HcalSourcePosFED = -1
+           untracked bool IncludeUnmatchedHits = false
+           untracked string ConfigurationFile='configQADCTDC.txt'
+       }
+
+    module hcaldigi = HcalRawToDigi {
+	int32 firstSample = 0
+	int32 lastSample = 9
+	untracked bool UnpackCalib = false
+	bool FilterDataQuality = true
+	// untracked int32 HcalFirstFED = ${FIRSTFED} # use default!
+	untracked vint32 FEDs = {}
+    }
 EOF
 else
   echo Unknown mode '$MODE'
@@ -176,27 +231,6 @@ fi
 
 #### common tail part of Config File
 cat >> ${CFGFILE}<<EOF99
-// This version is intended for unpacking files written
-// at testbeam and teststands using 20 timesamples
-module hcaldigi = HcalRawToDigi {
-   /// At most ten samples can be put into a digi, if there are more
-   /// than ten, firstSample and lastSample select which samples
-   /// will be copied to the digi
-   int32 firstSample = 0
-   int32 lastSample = 9
-   /// Flag to enable unpacking of calibration channels (default = false)
-   untracked bool UnpackCalib = false
-   /// Optional filter to remove any digi with "data valid" off, "error" on, 
-   /// or capids not rotating
-   bool FilterDataQuality = true
-   /// Number of the first HCAL FED.  If this is not specified, the
-   /// default from FEDNumbering is used.
-   untracked int32 HcalFirstFED = ${FIRSTFED}
-   /// FED numbers to unpack.  If this is not specified, all FEDs from
-   /// FEDNumbering will be unpacked.
-   untracked vint32 FEDs = { ${FEDS} }
-}
-
    module hbhereco = HcalSimpleReconstructor {
     /// Indicate which digi time sample to start with when
     /// integrating the signal
