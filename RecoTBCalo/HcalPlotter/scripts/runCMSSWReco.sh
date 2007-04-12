@@ -2,12 +2,8 @@
 
 if (( ${#LOCALRT} < 4 ))
 then
-    if (( ${#HCALDAQ_SW_LOC} < 4  || ${#HCAL_CMSSW_RELEASE} < 4 ))
+    if (( ${#HCALDAQ_SW_LOC} > 3  && ${#HCAL_CMSSW_RELEASE} > 3 ))
     then
-	pushd ~/Cmswork/CMSSW_1_3_0_pre6/src >/dev/null
-	eval `scramv1 runtime -sh`
-	popd >/dev/null
-    else
 	pushd $HCALDAQ_SW_LOC/src/$HCAL_CMSSW_RELEASE/src >/dev/null
 	eval `scramv1 runtime -sh`
 	popd >/dev/null
