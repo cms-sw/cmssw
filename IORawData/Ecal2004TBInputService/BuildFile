@@ -5,7 +5,7 @@
 <use name=DataFormats/EcalDigi>
 <use name=TBDataFormats/EcalTBObjects>
 <use name=FWCore/MessageLogger>
-<flags SEAL_PLUGIN_NAME="IORawDataEcal2004TBInputService">
+<flags EDM_PLUGIN=1>
 
 <export>
  <lib name=IORawDataEcal2004TBInputService>

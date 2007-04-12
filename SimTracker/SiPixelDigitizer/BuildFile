@@ -17,7 +17,7 @@
 <use name=MagneticField/Records>
 <use name=MagneticField/GeomBuilder>
 <use name=MagneticField/VolumeBasedEngine>
-<flags SEAL_PLUGIN_NAME="SimTrackerSiPixelDigitizer">
+<flags EDM_PLUGIN=1>
 <export>
    <lib name=SimTrackerSiPixelDigitizer>
    <use name=FWCore/Framework>

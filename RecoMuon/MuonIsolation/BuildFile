@@ -1,4 +1,4 @@
-<flags SEAL_PLUGIN_NAME="RecoMuonMuonIsolation">
+<flags EDM_PLUGIN=1>
 <use name=DataFormats/CaloTowers>
 <use name=DataFormats/MuonReco>
 <use name=DataFormats/TrackReco>

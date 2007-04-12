@@ -2,7 +2,7 @@
 <use name=FWCore/PluginManager>
 <use name=FWCore/ParameterSet>
 <use name=L1TriggerConfig/DTTPGConfig>
-<flags SEAL_PLUGIN_NAME="L1TriggerConfigDTTPGConfigProducers">
+<flags EDM_PLUGIN=1>
 
 <export>
    <lib name=L1TriggerConfigDTTPGConfigProducers>

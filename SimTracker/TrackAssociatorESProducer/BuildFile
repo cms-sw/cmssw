@@ -18,5 +18,5 @@
    <use name=MagneticField/Engine>
 </export>
 
-<flags SEAL_PLUGIN_NAME="SimTrackerTrackAssociatorESProducer">
+<flags EDM_PLUGIN=1>
 

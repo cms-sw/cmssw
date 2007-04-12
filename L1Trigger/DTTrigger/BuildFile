@@ -16,7 +16,7 @@
 <use name=root>
 <use name=rootrflx>
 
-<flags SEAL_PLUGIN_NAME="L1TriggerDTTrigger">
+<flags EDM_PLUGIN=1>
 
 <export>
    <lib name=L1TriggerDTTrigger>

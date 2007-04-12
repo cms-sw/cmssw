@@ -17,4 +17,4 @@
   <lib name=TrackingToolsProducers>
 </export>
 
-<flags SEAL_PLUGIN_NAME="TrackingToolsProducers">
+<flags EDM_PLUGIN=1>

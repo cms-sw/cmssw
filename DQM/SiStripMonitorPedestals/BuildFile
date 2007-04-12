@@ -25,7 +25,7 @@
 <use name=CondFormats/DataRecord>
 <use name=CondCore/DBOutputService>
 
-<flags SEAL_PLUGIN_NAME="DQMSiStripMonitorPedestals">
+<flags EDM_PLUGIN=1>
 
 <export>
    <lib name=DQMSiStripMonitorPedestals>

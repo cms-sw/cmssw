@@ -4,7 +4,7 @@
 <use name=DataFormats/LTCDigi>
 <use name=DataFormats/FEDRawData>
 <use name=boost>
-<flags SEAL_PLUGIN_NAME="EventFilterLTCRawToDigi">
+<flags EDM_PLUGIN=1>
 <export>
    <use name=DataFormats/LTCDigi>
    <use name=DataFormats/FEDRawData>

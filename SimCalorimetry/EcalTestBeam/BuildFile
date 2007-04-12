@@ -9,7 +9,7 @@
 <use name=CondFormats/DataRecord>
 <use name=TBDataFormats/EcalTBObjects>
 
-<flags SEAL_PLUGIN_NAME="SimCalorimetryEcalTestBeam">
+<flags EDM_PLUGIN=1>
 <export>
    <lib name=SimCalorimetryEcalTestBeam>
    <use name=SimCalorimetry/EcalSimAlgos>

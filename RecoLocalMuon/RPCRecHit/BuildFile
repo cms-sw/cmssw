@@ -7,7 +7,7 @@
 <use name=DataFormats/Common>
 <use name=Geometry/RPCGeometry>
 
-<flags SEAL_PLUGIN_NAME="RecoLocalMuonRPCRecHit">
+<flags EDM_PLUGIN=1>
 
 <export>
 <use name=root>

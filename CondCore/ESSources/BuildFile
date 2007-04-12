@@ -6,7 +6,7 @@
 <use name=CondCore/IOVService>	
 <use name=CondCore/MetaDataService>	
 <use name=DataSvc>
-<flags SEAL_PLUGIN_NAME="CondCoreESSources">
+<flags EDM_PLUGIN=1>
 <export>
    <lib name=CondCoreESSources>
 </export>

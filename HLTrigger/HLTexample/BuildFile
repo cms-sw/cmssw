@@ -24,4 +24,4 @@
   <lib name=HLTriggerHLTexample>
 </export>
 
-<flags SEAL_PLUGIN_NAME="HLTriggerHLTexample">
+<flags EDM_PLUGIN=1>

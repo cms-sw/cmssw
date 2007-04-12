@@ -32,4 +32,4 @@
    <use name=MagneticField/Records>
    <use name=rootrflx>
 </export>
-<flags SEAL_PLUGIN_NAME="AlignmentCommonAlignmentProducer">
+<flags EDM_PLUGIN=1>

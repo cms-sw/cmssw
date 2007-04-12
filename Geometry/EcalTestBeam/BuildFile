@@ -28,4 +28,4 @@
   <lib name=GeometryEcalTestBeam>
 </export>
  
-<Flags SEAL_PLUGIN_NAME="GeometryEcalTestBeam">
+<Flags EDM_PLUGIN=1>

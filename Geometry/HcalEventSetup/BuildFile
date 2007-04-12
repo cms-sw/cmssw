@@ -12,7 +12,7 @@
   <use name=Geometry/CaloEventSetup>
   <use name=DataFormats/HcalDetId>
 </export>
-<flags SEAL_PLUGIN_NAME="GeometryHcalEventSetup">
+<flags EDM_PLUGIN=1>
 
 <use name=FWCore/PluginManager>
 <use name=FWCore/ParameterSet>

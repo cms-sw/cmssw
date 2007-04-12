@@ -6,7 +6,7 @@
 <use name=MagneticField/Engine>
 <use name=CalibMuon/DTDigiSync>
 
-<flags SEAL_PLUGIN_NAME="RecoLocalMuonDTRecHit">
+<flags EDM_PLUGIN=1>
 
 <export>
  <lib name=RecoLocalMuonDTRecHit>

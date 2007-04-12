@@ -1,4 +1,4 @@
-<flags SEAL_PLUGIN_NAME="RecoLocalCaloHcalRecProducers">
+<flags EDM_PLUGIN=1>
 <use name=CalibFormats/HcalObjects>
 <use name=RecoLocalCalo/HcalRecAlgos>
 <use name=FWCore/Framework>

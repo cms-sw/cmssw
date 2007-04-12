@@ -23,4 +23,4 @@
  <lib name=SimG4CMSCalo>
 </export>
 
-<Flags SEAL_PLUGIN_NAME="SimG4CMSCalo">
+<Flags EDM_PLUGIN=1>

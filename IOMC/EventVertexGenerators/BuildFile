@@ -1,4 +1,4 @@
-<Flags SEAL_PLUGIN_NAME="IOMCEventVertexGenerators">
+<Flags EDM_PLUGIN=1>
 <export>
  <lib name=IOMCEventVertexGenerators>
  <use name=Framework/SealKernel>

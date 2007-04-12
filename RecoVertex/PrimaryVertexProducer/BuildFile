@@ -6,7 +6,7 @@
 <use name=RecoVertex/AdaptiveVertexFit>
 <use name=RecoVertex/LinearizationPointFinders>
 <use name=RecoVertex/TrimmedKalmanVertexFinder>
-<flags SEAL_PLUGIN_NAME="RecoVertexPrimaryVertexProducer">
+<flags EDM_PLUGIN=1>
 <export>
    <lib name=RecoVertexPrimaryVertexProducer>
    <use name=FWCore/Framework>

@@ -9,7 +9,7 @@
 <use name=RecoVertex/PrimaryVertexProducer>
 <use name=root>
 <use name=gsl>
-<flags SEAL_PLUGIN_NAME="ValidationRecoVertex">
+<flags EDM_PLUGIN=1>
 <export>
    <lib name=ValidationVertexReco>
    <use name=FWCore/Framework>

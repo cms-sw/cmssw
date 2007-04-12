@@ -3,7 +3,7 @@
 <use name=FWCore/ParameterSet>
 <use name=DataFormats/HLTReco>
 <use name=root>
-<flags SEAL_PLUGIN_NAME="DQMHLTEvF">
+<flags EDM_PLUGIN=1>
 <export>
    <lib name=DQMHLTEvF>
    <use name=FWCore/Framework>

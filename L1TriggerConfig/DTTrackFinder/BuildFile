@@ -9,4 +9,4 @@
 <use name=CondFormats/L1TObjects>
 <use name=CondFormats/DataRecord>
 
-<flags SEAL_PLUGIN_NAME="L1TriggerConfigDTTrackFinder">
+<flags EDM_PLUGIN=1>

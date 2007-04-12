@@ -4,7 +4,7 @@
 <use name=DataFormats/Common>
 <use name=DataFormats/JetReco>
 <use name=DataFormats/BTauReco>
-<flags SEAL_PLUGIN_NAME="RecoTauTagEcalIsolation">
+<flags EDM_PLUGIN=1>
 <export>
    <lib name=RecoTauTagEcalIsolation>
    <use name=FWCore/Framework>

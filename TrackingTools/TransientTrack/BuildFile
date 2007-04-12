@@ -33,4 +33,4 @@
   <use name=boost>
 </export>
 
-<flags SEAL_PLUGIN_NAME="TrackingToolsTransientTrack">
+<flags EDM_PLUGIN=1>

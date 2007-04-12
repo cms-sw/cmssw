@@ -21,4 +21,4 @@
 <use name=SimG4CMS/Calo>
 <use name=SimDataFormats/EcalValidation>
 
-<Flags SEAL_PLUGIN_NAME="ValidationEcalHits">
+<Flags EDM_PLUGIN=1>

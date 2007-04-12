@@ -19,7 +19,7 @@
 <use name=PhysicsTools/UtilAlgos>
 <use name=FWCore/ServiceRegistry>
 
-<flags SEAL_PLUGIN_NAME="GeneratorInterfaceGenFilters">
+<flags EDM_PLUGIN=1>
 <export>
  <use name=boost>
  <use name=FWCore/Framework>

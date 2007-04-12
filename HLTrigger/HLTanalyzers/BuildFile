@@ -22,7 +22,7 @@
 <use name=DataFormats/L1Trigger>
 <use name=DataFormats/L1GlobalTrigger>
 <use name=hepmc>
-<flags SEAL_PLUGIN_NAME="HLTriggerHLTanalyzers">
+<flags EDM_PLUGIN=1>
 <export>
   <lib name=HLTriggerHLTanalyzers>
   <use name=FWCore/Framework>

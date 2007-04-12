@@ -11,4 +11,4 @@
 <use name=DQMServices/ClientConfig>
 <use name=boost>
 
-<flags SEAL_PLUGIN_NAME="DQMServicesComponents">
+<flags EDM_PLUGIN=1>

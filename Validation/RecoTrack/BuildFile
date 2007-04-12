@@ -51,4 +51,4 @@
    <use name=SimTracker/TrackAssociation>
    <use name=SimTracker/TrackerHitAssociation>
 </export>
-<flags SEAL_PLUGIN_NAME="ValidationRecoTrack">
+<flags EDM_PLUGIN=1>

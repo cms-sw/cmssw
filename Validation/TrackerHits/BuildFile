@@ -8,7 +8,7 @@
 <use name=root>
 <use name=clhep>
 
-<flags SEAL_PLUGIN_NAME="ValidationTrackerHits">
+<flags EDM_PLUGIN=1>
 
 <export>
  <lib name=ValidationTrackerHits>

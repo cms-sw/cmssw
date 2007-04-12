@@ -1,4 +1,4 @@
-<flags SEAL_PLUGIN_NAME="EventFilterMessage2log4cplus">
+<flags EDM_PLUGIN=1>
 <export>
 <lib name=EventFilterMessage2log4cplus>
 </export>

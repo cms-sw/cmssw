@@ -13,7 +13,7 @@
 <use name=DataFormats/SiStripCommon>
 <use name=DataFormats/SiStripDigi>
 <use name=boost>
-<flags SEAL_PLUGIN_NAME="DQMSiStripCommissioningSources">
+<flags EDM_PLUGIN=1>
 
 <export>
    <lib name=DQMSiStripCommissioningSources> 

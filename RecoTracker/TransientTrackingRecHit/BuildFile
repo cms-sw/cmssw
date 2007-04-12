@@ -17,5 +17,5 @@
  <use name=FWCore/Framework>
 </export>
 
-<flags SEAL_PLUGIN_NAME="RecoTrackerTransientTrackingRecHit">
+<flags EDM_PLUGIN=1>
 

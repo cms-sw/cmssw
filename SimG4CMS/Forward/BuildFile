@@ -18,4 +18,4 @@
  <lib name=SimG4CMSForward>
 </export>
 
-<Flags SEAL_PLUGIN_NAME="SimG4CMSForward">
+<Flags EDM_PLUGIN=1>

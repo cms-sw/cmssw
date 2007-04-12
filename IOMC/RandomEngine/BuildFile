@@ -6,7 +6,7 @@
 <use name=SimDataFormats/RandomEngine>
 <use name=boost>
 <use name=clhep>
-<flags SEAL_PLUGIN_NAME="IOMCRandomEngine">
+<flags EDM_PLUGIN=1>
 <export>
   <lib name=IOMCRandomEngine>
 </export>

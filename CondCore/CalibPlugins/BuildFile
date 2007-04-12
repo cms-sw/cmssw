@@ -3,7 +3,7 @@
 <use name=CondFormats/Calibration>
 <use name=CondFormats/DataRecord>
 
-<flags SEAL_PLUGIN_NAME="CondCoreCalibPlugins">
+<flags EDM_PLUGIN=1>
 <export>
    <lib name=CondCoreCalibPlugins>
    <use name=FWCore/Framework>

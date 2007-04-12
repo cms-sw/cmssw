@@ -15,7 +15,7 @@
 <use name=CondFormats/DataRecord>
 <use name=clhep>
 
-<flags SEAL_PLUGIN_NAME="L1TriggerRegionalCaloTrigger">
+<flags EDM_PLUGIN=1>
 
 <export>
 <lib name=L1TriggerRegionalCaloTrigger>

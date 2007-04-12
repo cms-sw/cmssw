@@ -15,7 +15,7 @@
 <use name=CondFormats/RPCObjects>
 <use name=CondFormats/DataRecord>
 
-<flags SEAL_PLUGIN_NAME="L1TriggerRPCTrigger">
+<flags EDM_PLUGIN=1>
 <export>
    <lib name=L1TriggerRPCTrigger>
    <use name=FWCore/Framework>

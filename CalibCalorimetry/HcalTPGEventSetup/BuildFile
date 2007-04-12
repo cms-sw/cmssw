@@ -3,7 +3,7 @@
 <use name=FWCore/ParameterSet>
 <use name=CalibCalorimetry/HcalTPGAlgos>
 <use name=CalibFormats/HcalObjects>
-<flags SEAL_PLUGIN_NAME="CalibCalorimetryHcalTPGEventSetup">
+<flags EDM_PLUGIN=1>
 <export>
    <lib name=CalibCalorimetryHcalTPGEventSetup>
    <use name=FWCore/Framework>

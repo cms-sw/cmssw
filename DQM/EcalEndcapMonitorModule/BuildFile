@@ -1,4 +1,4 @@
-<flags SEAL_PLUGIN_NAME="DQMEcalEndcapMonitorModule">
+<flags EDM_PLUGIN=1>
 <use name=DQMServices/Core>
 <use name=DQMServices/Daemon>
 <use name=DataFormats/EcalDetId>

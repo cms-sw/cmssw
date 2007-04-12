@@ -11,12 +11,12 @@
 <use name=RecoBTag/TrackCounting>
 <use name=TrackingTools/TrackAssociator>
 
-<flags SEAL_PLUGIN_NAME="RecoTauTagInvariantMass">
+<flags EDM_PLUGIN=1>
 <export>
    <lib name=RecoTauTagInvariantMass>
    <use name=RecoTauTagConeIsolation>
    <use name=FWCore/Framework>
-   <use name=Foundation/PluginManager>
+   <use name=FWCore/PluginManager>
    <use name=FWCore/ParameterSet>
    <use name=DataFormats/VertexReco>
    <use name=DataFormats/BTauReco>

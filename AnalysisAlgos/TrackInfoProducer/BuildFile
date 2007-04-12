@@ -23,4 +23,4 @@
   <use name=TrackingTools/PatternTools>
   <lib name=AnalysisAlgosTrackInfoProducer>
 </export>
-<flags SEAL_PLUGIN_NAME="AnalysisAlgosTrackInfoProducer">
+<flags EDM_PLUGIN=1>

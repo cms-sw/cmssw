@@ -16,7 +16,7 @@
 <use name=RecoEcal/EgammaCoreTools>
 <use name=DQMServices/CoreROOT>
 <use name=clhep>
-<flags SEAL_PLUGIN_NAME="ValidationEcalClusters">
+<flags EDM_PLUGIN=1>
 <export>
   <lib name=ValidationEcalClusters>
   <use name=FWCore/Framework>

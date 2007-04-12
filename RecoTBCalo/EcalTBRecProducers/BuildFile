@@ -9,7 +9,7 @@
 <use name=FWCore/MessageLogger>
 <use name=FWCore/MessageService>
 <use name=clhep>
-<flags SEAL_PLUGIN_NAME="RecoTBCaloEcalTBRecProducers">
+<flags EDM_PLUGIN=1>
 <export>
   <lib name=RecoTBCaloEcalTBRecProducers>
   <use name=FWCore/Framework>

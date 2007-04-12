@@ -9,4 +9,4 @@
 <use name=CLHEP>
 
 
-<flags SEAL_PLUGIN_NAME="IORawDataDaqSource">
+<flags EDM_PLUGIN=1>

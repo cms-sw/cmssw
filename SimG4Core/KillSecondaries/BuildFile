@@ -1,4 +1,4 @@
-<Flags SEAL_PLUGIN_NAME="SimG4CoreKillSecondaries">
+<Flags EDM_PLUGIN=1>
 <export>
  <lib name=SimG4CoreKillSecondaries>
  <use name=SimG4Core/Notification>

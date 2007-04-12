@@ -5,7 +5,7 @@
 <use name=DQMServices/ClientConfig>
 <use name=CommonTools/TrackerMap>
 <use name=boost>
-<flags SEAL_PLUGIN_NAME="DQMSiStripMonitorClient">
+<flags EDM_PLUGIN=1>
 
 <export>
   <lib name=DQMSiStripMonitorClient>

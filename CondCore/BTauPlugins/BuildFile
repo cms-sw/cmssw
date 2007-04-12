@@ -4,7 +4,7 @@
 <use name=CondFormats/BTauObjects>
 <use name=CondFormats/DataRecord>
 
-<flags SEAL_PLUGIN_NAME="CondCoreBTauPlugins">
+<flags EDM_PLUGIN=1>
 <export>
    <lib name=CondCoreBTauPlugins>
    <use name=FWCore/Framework>

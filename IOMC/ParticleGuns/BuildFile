@@ -5,7 +5,7 @@
 <use name=clhep> 
 <use name=hepmc>
 <use name=heppdt>
-<flags SEAL_PLUGIN_NAME="IOMCParticleGuns">
+<flags EDM_PLUGIN=1>
 <export>
  <lib name=IOMCParticleGuns>
  <use name=boost>

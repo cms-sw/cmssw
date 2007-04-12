@@ -11,7 +11,7 @@
 <use name=rootrflx>
 <use name=root>
 <use name=clhep>
-<flags SEAL_PLUGIN_NAME="RecoMuonCosmicMuonProducer">
+<flags EDM_PLUGIN=1>
 <export>
    <lib name=RecoMuonCosmicMuonProducer>
    <use name=FWCore/Framework>

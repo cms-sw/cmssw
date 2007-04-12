@@ -30,4 +30,4 @@
    <use name=DataFormats/Common>
    <use name=rootrflx>
 </export>
-<flags SEAL_PLUGIN_NAME="RecoTrackerTrackProducer">
+<flags EDM_PLUGIN=1>

@@ -6,7 +6,7 @@
 <use name=DQMServices/CoreROOT>
 <use name=root>
 
-<flags SEAL_PLUGIN_NAME="ValidationPerformance">
+<flags EDM_PLUGIN=1>
 <export>
     <use name=FWCore/Framework>
     <use name=FWCore/ParameterSet>

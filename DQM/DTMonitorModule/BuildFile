@@ -1,4 +1,4 @@
-<flags SEAL_PLUGIN_NAME="DQMDTMonitorModule">
+<flags EDM_PLUGIN=1>
 <use name=FWCore/Framework>
 <use name=DQMServices/CoreROOT>
 <use name=EventFilter/DTRawToDigi>

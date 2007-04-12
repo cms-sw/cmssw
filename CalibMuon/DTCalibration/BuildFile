@@ -9,7 +9,7 @@
 <use name=CalibMuon/DTDigiSync>
 <use name=root>
 
-<flags SEAL_PLUGIN_NAME="CalibMuonDTCalibration"> 
+<flags EDM_PLUGIN=1> 
 
 <export>
  <lib name=CalibMuonDTCalibration>

@@ -11,7 +11,7 @@
 <use name=DataFormats/RPCDigi>
 <use name=DataFormats/MuonDetId>
 <use name=boost>
-<flags SEAL_PLUGIN_NAME="SimMuonRPCDigitizer">
+<flags EDM_PLUGIN=1>
 
 <export>
   <lib name=SimMuonRPCDigitizer>

@@ -1,4 +1,4 @@
-<Flags SEAL_PLUGIN_NAME="SimG4CoreCountProcesses">
+<Flags EDM_PLUGIN=1>
 <export>
  <lib name=SimG4CoreCountProcesses>
  <use name=SimG4Core/Notification>

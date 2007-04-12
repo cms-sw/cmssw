@@ -2,7 +2,7 @@
 <use name=FWCore/ParameterSet>
 <use name=RecoTracker/RingRecord>
 <use name=Geometry/Records>
-<flags SEAL_PLUGIN_NAME="RecoTrackerRingESSource">
+<flags EDM_PLUGIN=1>
 <export>
    <lib name=RecoTrackerRingESSource>
    <use name=FWCore/Framework>

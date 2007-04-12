@@ -21,7 +21,7 @@
 <use name=TrackingTools/TrajectoryState>
 <use name=TrackingTools/TransientTrackingRecHit>
 
-<flags SEAL_PLUGIN_NAME="AlignmentCommonAlignmentAlgorithm">
+<flags EDM_PLUGIN=1>
 
 <export>
   <lib name=AlignmentCommonAlignmentAlgorithm>

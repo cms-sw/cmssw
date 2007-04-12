@@ -32,7 +32,7 @@
 <use name=SimGeneral/HepPDTRecord>
 #<use name=clhep>
 <use name=hepmc>
-<flags SEAL_PLUGIN_NAME="FastSimulationEventProducer">
+<flags EDM_PLUGIN=1>
 <export>
   <use name=DataFormats/Common>
   <use name=FWCore/Framework>

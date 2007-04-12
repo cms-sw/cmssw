@@ -10,7 +10,7 @@
 <use name=root>
 <use name=RecoBTag/TrackCounting>
 
-<flags SEAL_PLUGIN_NAME="RecoTauTagImpactParameter">
+<flags EDM_PLUGIN=1>
 <export>
    <lib name=RecoTauTagImpactParameter>
    <use name=RecoTauTagConeIsolation>

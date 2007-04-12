@@ -4,7 +4,7 @@
 <use name=CondFormats/HcalObjects>
 <use name=CondFormats/DataRecord>
 
-<flags SEAL_PLUGIN_NAME="CondCoreHcalPlugins">
+<flags EDM_PLUGIN=1>
 <export>
    <lib name=CondCoreHcalPlugins>
    <use name=FWCore/Framework>

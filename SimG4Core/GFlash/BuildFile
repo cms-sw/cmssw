@@ -1,4 +1,4 @@
-<Flags SEAL_PLUGIN_NAME="SimG4CoreGFlash">
+<Flags EDM_PLUGIN=1>
 <export>
  <use name=SimG4Core/Physics>
  <use name=SimG4Core/G4gflash>

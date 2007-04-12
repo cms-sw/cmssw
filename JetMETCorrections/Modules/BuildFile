@@ -9,7 +9,7 @@
 <use name=JetMETCorrections/JetParton>
 <use name=JetMETCorrections/JetPlusTrack>
 <use name=JetMETCorrections/TauJet>
-<flags SEAL_PLUGIN_NAME="JetMETCorrectionsModules">
+<flags EDM_PLUGIN=1>
 <export>
    <lib name=JetMETCorrectionsModules>
 </export>

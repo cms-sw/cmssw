@@ -5,7 +5,7 @@
 <use name=FWCore/MessageService>
 <use name=Geometry/EcalTestBeam>
 <use name=root>
-<flags SEAL_PLUGIN_NAME="RecoTBCaloEcalTBHodoscopeReconstructor">
+<flags EDM_PLUGIN=1>
 <export>
   <lib name=RecoTBCaloEcalTBHodoscopeReconstructor>
   <use name=FWCore/Framework>

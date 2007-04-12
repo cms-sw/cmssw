@@ -16,7 +16,7 @@
 <use name=root> 
 <use name=xdaq>
 <lib name=xgi>
-<flags SEAL_PLUGIN_NAME="DQMSiStripCommissioningClients">
+<flags EDM_PLUGIN=1>
 
 <export>
   <lib name=DQMSiStripCommissioningClients>

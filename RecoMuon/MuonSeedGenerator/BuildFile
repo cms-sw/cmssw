@@ -13,7 +13,7 @@
 <use name=root>
 <use name=gsl>
 
-<flags SEAL_PLUGIN_NAME="RecoMuonMuonSeedGenerator">
+<flags EDM_PLUGIN=1>
 
 <export>
    <lib name=RecoMuonMuonSeedGenerator>

@@ -10,7 +10,7 @@
 <use name=DataFormats/L1GlobalMuonTrigger>
 <use name=DataFormats/L1GlobalTrigger>
 <use name=DataFormats/EcalDigi>
-<flags SEAL_PLUGIN_NAME="DQML1TMonitor">
+<flags EDM_PLUGIN=1>
 <export>
    <lib name=DQML1TMonitor>
    <use name=FWCore/Framework>

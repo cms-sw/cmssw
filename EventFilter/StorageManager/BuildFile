@@ -1,4 +1,4 @@
-<flags SEAL_PLUGIN_NAME="EventFilterStorageManager">
+<flags EDM_PLUGIN=1>
 <use name=xdaq>
 <use name=mimetic>
 <use name=xerces-c>

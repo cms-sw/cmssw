@@ -1,4 +1,4 @@
-<flags SEAL_PLUGIN_NAME="RecoLocalTrackerSiStripRecHitConverter">
+<flags EDM_PLUGIN=1>
 <use name=FWCore/Framework>
 <use name=DataFormats/Common>
 <use name=FWCore/ParameterSet>

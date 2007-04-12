@@ -1,4 +1,4 @@
-<flags SEAL_PLUGIN_NAME="EventFilterHcalRawToDigi">
+<flags EDM_PLUGIN=1>
 <use name=DataFormats/HcalDetId>
 <use name=DataFormats/HcalDigi>
 <use name=DataFormats/FEDRawData>

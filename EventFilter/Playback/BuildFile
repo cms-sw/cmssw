@@ -2,7 +2,7 @@
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
 <use name=FWCore/PluginManager>
-<flags SEAL_PLUGIN_NAME="EventFilterPlayback">
+<flags EDM_PLUGIN=1>
 
 <export>
   <lib name=EventFilterPlayback>

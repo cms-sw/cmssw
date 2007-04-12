@@ -16,7 +16,7 @@
 <use name=oracle>
 <use name=clhep>
 <use name=xdaq>
-<flags SEAL_PLUGIN_NAME="EventFilterSiStripRawToDigi">
+<flags EDM_PLUGIN=1>
 
 <export>
  <lib name=EventFilterSiStripRawToDigi>

@@ -4,7 +4,7 @@
 <use name=CondFormats/SiStripObjects>
 <use name=CondFormats/DataRecord>
 
-<flags SEAL_PLUGIN_NAME="CondCoreSiStripPlugins">
+<flags EDM_PLUGIN=1>
 <export>
    <lib name=CondCoreSiStripPlugins>
    <use name=FWCore/Framework>

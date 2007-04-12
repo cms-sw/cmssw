@@ -28,4 +28,4 @@
  <use name="DataFormats/GsfTrackReco">
  <use name="DataFormats/TrackReco">
 
-<flags SEAL_PLUGIN_NAME="TrackingToolsGsfTools">
+<flags EDM_PLUGIN=1>

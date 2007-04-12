@@ -2,14 +2,14 @@
 <use name=DataFormats/L1Trigger>
 <use name=DataFormats/MuonReco>
 <use name=FWCore/Framework>
-<use name=Foundation/PluginManager>
+<use name=FWCore/PluginManager>
 <use name=FWCore/ParameterSet>
 <use name=HLTrigger/HLTcore>
-<flags SEAL_PLUGIN_NAME="HLTriggerMuon">
+<flags EDM_PLUGIN=1>
 <export>
    <lib name=HLTriggerMuon>
    <use name=FWCore/Framework>
-   <use name=Foundation/PluginManager>
+   <use name=FWCore/PluginManager>
    <use name=FWCore/ParameterSet>
    <use name=HLTrigger/HLTcore>
 </export>

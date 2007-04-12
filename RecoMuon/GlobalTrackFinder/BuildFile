@@ -23,7 +23,7 @@
 <use name=CommonTools/Statistics>
 <use name=Geometry/CommonDetUnit>
 
-<flags SEAL_PLUGIN_NAME="RecoMuonGlobalTrackFinder">
+<flags EDM_PLUGIN=1>
 <export>
    <lib name=RecoMuonGlobalTrackFinder>
 </export>

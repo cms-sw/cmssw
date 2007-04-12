@@ -27,7 +27,7 @@
 <use name=root>
 <use name=TrackPropagation/SteppingHelixPropagator>
 <use name=Calibration/Tools>
-<flags SEAL_PLUGIN_NAME="CalibrationHcalAlCaRecoProducers">
+<flags EDM_PLUGIN=1>
 <export>
    <lib name=CalibrationHcalAlCaRecoProducers>
    <use name=DataFormats/DetId>

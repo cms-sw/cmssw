@@ -4,7 +4,7 @@
 <use name=FWCore/PluginManager>
 <use name=CondCore/PluginSystem>
 
-<flags SEAL_PLUGIN_NAME="CondCoreBeamSpotPlugins">
+<flags EDM_PLUGIN=1>
 <export>
    <lib name=CondCoreBeamSpotPlugins>
    <use name=CondFormats/BeamSpotObjects>

@@ -14,7 +14,7 @@
 <use name=DataFormats/Math>
 <use name=RecoEcal/EgammaCoreTools>
 <use name=clhep>
-<flags SEAL_PLUGIN_NAME="RecoEcalEgammaClusterProducers">
+<flags EDM_PLUGIN=1>
 <export>
   <lib name=RecoEcalEgammaClusterProducers>
   <use name=FWCore/Framework>

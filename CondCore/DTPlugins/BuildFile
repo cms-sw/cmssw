@@ -4,7 +4,7 @@
 <use name=CondFormats/DTObjects>
 <use name=CondFormats/DataRecord>
 
-<flags SEAL_PLUGIN_NAME="CondCoreDTPlugins">
+<flags EDM_PLUGIN=1>
 <export>
    <lib name=CondCoreDTPlugins>
    <use name=FWCore/Framework>

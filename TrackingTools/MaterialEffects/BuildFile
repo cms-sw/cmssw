@@ -11,7 +11,7 @@
 <use name=TrackingTools/Records>
 <use name=TrackingTools/TrajectoryState>
 <use name=boost>
-<flags SEAL_PLUGIN_NAME="TrackingToolsMaterialEffects">
+<flags EDM_PLUGIN=1>
 <export>
   <use name=DataFormats/TrajectorySeed>
   <use name=FWCore/Framework>

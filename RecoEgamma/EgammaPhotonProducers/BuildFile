@@ -23,7 +23,7 @@
 <use name=SimDataFormats/Track>
 <use name=SimDataFormats/Vertex>
 <use name=clhep>
-<flags SEAL_PLUGIN_NAME="RecoEgammaEgammaPhotonProducers">
+<flags EDM_PLUGIN=1>
 <export>
   <lib name=RecoEgammaEgammaPhotonProducers>
   <use name=FWCore/Framework>

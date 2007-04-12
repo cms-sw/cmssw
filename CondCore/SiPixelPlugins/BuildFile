@@ -4,7 +4,7 @@
 <use name=CondFormats/SiPixelObjects>
 <use name=CondFormats/DataRecord>
 
-<flags SEAL_PLUGIN_NAME="CondCoreSiPixelPlugins">
+<flags EDM_PLUGIN=1>
 <export>
    <lib name=CondCoreSiPixelPlugins>
    <use name=FWCore/Framework>

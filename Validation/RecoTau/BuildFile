@@ -9,7 +9,7 @@
 <use name=DataFormats/HepMCCandidate>
 <use name=SimDataFormats/HepMCProduct>
 
-<flags SEAL_PLUGIN_NAME="ValidationRecoTau">
+<flags EDM_PLUGIN=1>
 <export>
    <lib name=ValidationRecoTau>
    <use name=FWCore/Framework>

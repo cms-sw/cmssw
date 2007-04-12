@@ -17,4 +17,4 @@
   <lib name=GeometryReadersXMLIdealGeometryESSource>
 </export>
 
-<flags SEAL_PLUGIN_NAME="GeometryReadersXMLIdealGeometryESSource">
+<flags EDM_PLUGIN=1>

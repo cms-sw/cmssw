@@ -4,7 +4,7 @@
 <use name=Geometry/DTGeometry>
 <use name=root>
 
-<flags SEAL_PLUGIN_NAME="ValidationDTRecHits">
+<flags EDM_PLUGIN=1>
 
 <export>
  <lib name=ValidationDTRecHits>

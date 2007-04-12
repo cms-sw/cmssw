@@ -6,7 +6,7 @@
 <use name=Alignment/TrackerAlignment>
 <use name=rootrflx>
 
-<flags SEAL_PLUGIN_NAME="AlignmentTrackHitFilter">
+<flags EDM_PLUGIN=1>
 <export>
    <lib name=AlignmentTrackHitFilter>
    <use name=FWCore/Framework>

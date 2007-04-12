@@ -20,5 +20,5 @@
 <use name=FWCore/Utilities>
 <use name=CondCore/DBCommon>
 <use name=CondCore/DBOutputService>
-<flags SEAL_PLUGIN_NAME="AlignmentTrackerAlignment">
+<flags EDM_PLUGIN=1>
 

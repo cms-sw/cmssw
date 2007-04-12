@@ -8,7 +8,7 @@
 <use name=oracle>
 <use name=root>
 <use name=xdaq>
-<flags SEAL_PLUGIN_NAME="IORawDataSiStripInputSources">
+<flags EDM_PLUGIN=1>
 
 <export>
    <lib name=IORawDataSiStripInputSources>

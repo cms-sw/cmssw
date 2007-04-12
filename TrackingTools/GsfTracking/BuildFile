@@ -38,4 +38,4 @@
 <use name="TrackingTools/TrajectoryState">
 <use name="TrackingTools/TransientTrackingRecHit">
 
-<flags SEAL_PLUGIN_NAME="TrackingToolsGsfTracking">
+<flags EDM_PLUGIN=1>

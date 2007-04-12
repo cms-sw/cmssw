@@ -1,4 +1,4 @@
-<flags SEAL_PLUGIN_NAME="RecoTrackerTkTrackingRegions">
+<flags EDM_PLUGIN=1>
    <use name=clhep>
    <use name=boost>
    <use name=FWCore/Framework>

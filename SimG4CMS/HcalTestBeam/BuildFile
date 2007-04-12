@@ -32,4 +32,4 @@
  <use name=root>
 </export>
 
-<Flags SEAL_PLUGIN_NAME="SimG4CMSHcalTestBeam">
+<Flags EDM_PLUGIN=1>

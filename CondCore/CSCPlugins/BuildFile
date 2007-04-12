@@ -4,7 +4,7 @@
 <use name=CondFormats/CSCObjects>
 <use name=CondFormats/DataRecord>
 
-<flags SEAL_PLUGIN_NAME="CondCoreCSCPlugins">
+<flags EDM_PLUGIN=1>
 <export>
    <lib name=CondCoreCSCPlugins>
    <use name=FWCore/Framework>

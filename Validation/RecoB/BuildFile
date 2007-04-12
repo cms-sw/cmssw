@@ -6,7 +6,7 @@
 <use name=FWCore/Utilities>
 <use name=RecoBTag/Analysis>
 <use name=RecoBTag/MCTools>
-<flags SEAL_PLUGIN_NAME="ValidationRecoB">
+<flags EDM_PLUGIN=1>
 
 <export>
    <lib name=ValidationRecoB>

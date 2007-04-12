@@ -3,7 +3,7 @@
 <use name=FWCore/ParameterSet>
 <use name=DataFormats/HcalDigi>
 
-<flags SEAL_PLUGIN_NAME="CalibrationHcalConnectivity">
+<flags EDM_PLUGIN=1>
 <export>
    <lib name=CalibrationHcalConnectivity>
    <use name=DataFormats/HcalDigi>

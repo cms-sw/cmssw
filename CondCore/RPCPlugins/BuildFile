@@ -4,7 +4,7 @@
 <use name=CondFormats/RPCObjects>
 <use name=CondFormats/DataRecord>
 
-<flags SEAL_PLUGIN_NAME="CondCoreRPCPlugins">
+<flags EDM_PLUGIN=1>
 <export>
    <lib name=CondCoreRPCPlugins>
    <use name=FWCore/Framework>

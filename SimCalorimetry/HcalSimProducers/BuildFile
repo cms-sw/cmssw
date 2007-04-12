@@ -4,7 +4,7 @@
 <use name=SimDataFormats/CrossingFrame>
 <use name=Geometry/CaloEventSetup>
 <use name=Geometry/HcalTowerAlgo>
-<flags SEAL_PLUGIN_NAME="SimCalorimetryHcalSimProducers">
+<flags EDM_PLUGIN=1>
 <export>
    <lib name=SimCalorimetryHcalSimProducers>
    <use name=SimCalorimetry/HcalSimAlgos>

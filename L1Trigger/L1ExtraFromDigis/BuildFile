@@ -5,7 +5,7 @@
 <use name=DataFormats/L1GlobalTrigger>
 <use name=CondFormats/L1TObjects>
 <use name=CondFormats/DataRecord>
-<flags SEAL_PLUGIN_NAME="L1TriggerL1ExtraFromDigis">
+<flags EDM_PLUGIN=1>
 <export>
    <lib name=L1TriggerL1ExtraFromDigis>
    <use name=FWCore/Framework>

@@ -17,4 +17,4 @@
 <export>
     <lib name=IOPoolTrivialFileCatalog>
 </export>
-<Flags SEAL_PLUGIN_NAME=IOPoolTrivialFileCatalog>
+<flags EDM_PLUGIN=1>

@@ -21,4 +21,4 @@
 <use name=DataFormats/SiStripDetId>
 
 
-<flags SEAL_PLUGIN_NAME="TrackingToolsTrackFitters">
+<flags EDM_PLUGIN=1>

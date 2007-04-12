@@ -13,7 +13,7 @@
 <use name=boost>
 <use name=root>
 
-<flags SEAL_PLUGIN_NAME="ValidationEcalRecHits">
+<flags EDM_PLUGIN=1>
 <export>
    <lib name=ValidationEcalRecHits>
    <use name=FWCore/ParameterSet>	

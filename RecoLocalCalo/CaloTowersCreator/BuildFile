@@ -10,7 +10,7 @@
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
 
-<flags SEAL_PLUGIN_NAME="RecoLocalCaloCaloTowersCreator">
+<flags EDM_PLUGIN=1>
 <export>
  <lib name=RecoLocalCaloCaloTowersCreator>
  <use name=boost>

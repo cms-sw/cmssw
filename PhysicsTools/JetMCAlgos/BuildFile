@@ -1,4 +1,4 @@
-<flags SEAL_PLUGIN_NAME="PhysicsToolsJetMCAlgos">
+<flags EDM_PLUGIN=1>
 <use name=PhysicsTools/CandAlgos>
 <use name=PhysicsTools/CandUtils>
 <use name=PhysicsTools/JetMCUtils>

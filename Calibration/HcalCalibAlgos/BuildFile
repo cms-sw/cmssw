@@ -12,7 +12,7 @@
 <use name=Geometry/CaloTopology>
 <use name=CondTools/Hcal>
 <use name=xerces-c>
-<flags SEAL_PLUGIN_NAME="CalibrationHcalCalibAlgos">
+<flags EDM_PLUGIN=1>
 <export>
    <lib name=CalibrationHcalCalibAlgos>
    <use name=FWCore/Framework>

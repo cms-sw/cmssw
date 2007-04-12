@@ -8,7 +8,7 @@
 <use name=RecoLocalCalo/EcalRecAlgos>
 <use name=Geometry/CaloEventSetup>
 
-<flags SEAL_PLUGIN_NAME="SimCalorimetryEcalZeroSuppressionProducers">
+<flags EDM_PLUGIN=1>
 <export>
    <lib name=SimCalorimetryEcalZeroSuppressionProducers>
    <use name=FWCore/Framework>

@@ -15,4 +15,4 @@
   <lib name=HLTriggerHLTcore>
 </export>
 
-<flags SEAL_PLUGIN_NAME="HLTriggerHLTcore">
+<flags EDM_PLUGIN=1>

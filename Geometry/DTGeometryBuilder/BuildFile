@@ -16,4 +16,4 @@
 <use name=DataFormats/TrackingRecHit>
 
 
-<flags SEAL_PLUGIN_NAME="GeometryDTGeometryBuilder">
+<flags EDM_PLUGIN=1>

@@ -5,7 +5,7 @@
 <use name=FWCore/MessageLogger>
 <use name=FWCore/ParameterSet>
 <use name=zlib>
-<flags SEAL_PLUGIN_NAME="GeometryCaloEventSetup">
+<flags EDM_PLUGIN=1>
 
 <export>
   <lib name=GeometryCaloEventSetup>

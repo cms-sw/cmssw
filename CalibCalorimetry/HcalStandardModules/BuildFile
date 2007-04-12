@@ -1,4 +1,4 @@
-<flags SEAL_PLUGIN_NAME="CalibCalorimetryHcalStandardModules">
+<flags EDM_PLUGIN=1>
 <use name=boost>
 <use name=root>
 <use name=FWCore/Framework>

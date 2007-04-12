@@ -4,7 +4,7 @@
 <use name=Geometry/CommonDetUnit>
 <use name=TrackingTools/TransientTrackingRecHit>
 
-<flags SEAL_PLUGIN_NAME="RecoMuonTransientTrackingRecHit">
+<flags EDM_PLUGIN=1>
 
 <export>
 <lib name=RecoMuonTransientTrackingRecHit>

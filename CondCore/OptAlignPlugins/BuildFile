@@ -4,7 +4,7 @@
 <use name=CondFormats/OptAlignObjects>
 <use name=CondFormats/DataRecord>
 
-<flags SEAL_PLUGIN_NAME="CondCoreOptAlignPlugins">
+<flags EDM_PLUGIN=1>
 <export>
    <lib name=CondCoreOptAlignPlugins>
    <use name=FWCore/Framework>

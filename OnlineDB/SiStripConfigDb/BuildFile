@@ -9,7 +9,7 @@
 <use name=xerces-c>
 <use name=oracle>
 <use name=boost>
-<flags SEAL_PLUGIN_NAME="OnlineDBSiStripConfigDb">
+<flags EDM_PLUGIN=1>
 
 <export>
    <lib name=OnlineDBSiStripConfigDb>

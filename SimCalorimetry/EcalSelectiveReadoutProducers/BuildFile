@@ -7,7 +7,7 @@
 <use name=CondFormats/DataRecord>
 <use name=CondFormats/EcalObjects>
 
-<flags SEAL_PLUGIN_NAME="SimCalorimetryEcalSelectiveReadoutProducers">
+<flags EDM_PLUGIN=1>
 <export>
    <lib name=SimCalorimetryEcalSelectiveReadoutProducers>
    <use name=SimCalorimetry/EcalSelectiveReadoutAlgos>

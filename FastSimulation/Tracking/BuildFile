@@ -23,7 +23,7 @@
 <use name=TrackingTools/TrajectoryParametrization>
 <use name=TrackingTools/TrajectoryState>
 <use name=TrackingTools/TransientTrackingRecHit>
-<flags SEAL_PLUGIN_NAME="FastSimulationTracking">
+<flags EDM_PLUGIN=1>
 <export>
   <use name=DataFormats/Common>
   <use name=FWCore/Framework>

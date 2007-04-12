@@ -13,7 +13,7 @@
 
 <use name=RecoTracker/TrackProducer>
 
-<flags SEAL_PLUGIN_NAME="AlignmentKalmanAlignmentAlgorithm">
+<flags EDM_PLUGIN=1>
 
 <export>
  <lib name=AlignmentKalmanAlignmentAlgorithm>

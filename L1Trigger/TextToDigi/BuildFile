@@ -4,7 +4,7 @@
 <use name=DataFormats/FEDRawData>
 <use name=DataFormats/L1CaloTrigger>
 <use name=DataFormats/L1GlobalCaloTrigger>
-<flags SEAL_PLUGIN_NAME="L1TriggerTextToDigi">
+<flags EDM_PLUGIN=1>
 <export>
    <lib name=L1TriggerTextToDigi>
    <use name=FWCore/Framework>

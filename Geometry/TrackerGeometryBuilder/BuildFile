@@ -24,4 +24,4 @@
 <use name=clhep>
 <use name=boost>
 
-<flags SEAL_PLUGIN_NAME="GeometryTrackerGeometryBuilder">
+<flags EDM_PLUGIN=1>

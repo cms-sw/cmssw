@@ -6,7 +6,7 @@
 <use name=Geometry/CaloEventSetup>
 <use name=CondFormats/DataRecord>
 
-<flags SEAL_PLUGIN_NAME="SimCalorimetryEcalSimProducers">
+<flags EDM_PLUGIN=1>
 <export>
    <lib name=SimCalorimetryEcalSimProducers>
    <use name=SimCalorimetry/EcalSimAlgos>

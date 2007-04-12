@@ -9,4 +9,4 @@
 <use name=Geometry/DTGeometry>
 <use name=Geometry/RPCGeometry>
 
-<flags SEAL_PLUGIN_NAME="GeometryGlobalTrackingGeometryBuilder">
+<flags EDM_PLUGIN=1>

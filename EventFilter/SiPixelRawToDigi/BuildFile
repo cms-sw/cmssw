@@ -1,4 +1,4 @@
-<flags SEAL_PLUGIN_NAME="EventFilterSiPixelRawToDigi">
+<flags EDM_PLUGIN=1>
 
 <use name=FWCore/Framework>
 <use name=DataFormats/FEDRawData>

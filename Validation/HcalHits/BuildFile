@@ -30,4 +30,4 @@
 <use name=SimDataFormats/HcalValidation>
 <use name=hepmc>
 
-<Flags SEAL_PLUGIN_NAME="ValidationHcalHits">
+<Flags EDM_PLUGIN=1>

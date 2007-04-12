@@ -12,7 +12,7 @@
 <use name=FWCore/PluginManager>
 <use name=clhep>
 <use name=root>
-<flags SEAL_PLUGIN_NAME="JetMETCorrectionsMinBias">
+<flags EDM_PLUGIN=1>
 <export>
    <lib name=JetMETCorrectionsMinBias>
    <use name=DataFormats/DetId>

@@ -18,7 +18,7 @@
 <use name=MagneticField/GeomBuilder>
 <use name=MagneticField/VolumeBasedEngine>
 <use name=CommonTools/SiStripZeroSuppression>
-<flags SEAL_PLUGIN_NAME="SimTrackerSiStripDigitizer">
+<flags EDM_PLUGIN=1>
 <export>
    <lib name=SimTrackerSiStripDigitizer>
    <use name=FWCore/Framework>

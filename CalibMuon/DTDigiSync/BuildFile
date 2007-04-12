@@ -4,7 +4,7 @@
 <use name=CondFormats/DTObjects>
 <use name=CondFormats/DataRecord>
 
-#<flags SEAL_PLUGIN_NAME="CalibMuonDTDigiSync">
+#<flags EDM_PLUGIN=1>
 
 <export>
  <lib name=CalibMuonDTDigiSync>

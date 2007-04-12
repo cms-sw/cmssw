@@ -10,7 +10,7 @@
 <use name=DQM/SiStripCommon>
 
 
-<flags SEAL_PLUGIN_NAME="DQMSiStripMonitorDigi">
+<flags EDM_PLUGIN=1>
 <export>
    <lib name=DQMSiStripMonitorDigi>
    <use name=FWCore/Framework>

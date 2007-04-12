@@ -7,7 +7,7 @@
 <use name=CLHEP>
 <use name=root>
 
-<flags SEAL_PLUGIN_NAME="RecoMuonL2MuonProducer">
+<flags EDM_PLUGIN=1>
 
 <export>
    <lib name=RecoMuonL2MuonProducer>

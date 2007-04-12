@@ -1,7 +1,7 @@
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
 <use name=RecoTracker/RoadMapRecord>
-<flags SEAL_PLUGIN_NAME="RecoTrackerRoadMapESSource">
+<flags EDM_PLUGIN=1>
 <export>
    <lib name=RecoTrackerRoadMapESSource>
    <use name=FWCore/Framework>

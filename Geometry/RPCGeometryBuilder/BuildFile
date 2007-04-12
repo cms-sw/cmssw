@@ -11,4 +11,4 @@
 <use name=Geometry/RPCGeometry>
 <use name=DetectorDescription/Core>
 
-<flags SEAL_PLUGIN_NAME="GeometryRPCGeometryBuilder">
+<flags EDM_PLUGIN=1>

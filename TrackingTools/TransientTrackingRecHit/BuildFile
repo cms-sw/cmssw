@@ -19,4 +19,4 @@
   <use name=DataFormats/TrackingRecHit>
 </export>
 
-#<flags SEAL_PLUGIN_NAME="TrackingToolsTransientTrackingRecHit">
+#<flags EDM_PLUGIN=1>

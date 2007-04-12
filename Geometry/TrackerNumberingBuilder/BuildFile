@@ -9,5 +9,5 @@
 <use name=Geometry/CommonTopologies>
 <use name=Geometry/TrackerCommonData>
 <use name=DataFormats/SiPixelDigi>
-<flags SEAL_PLUGIN_NAME="GeometryTrackerNumberingBuilder">
+<flags EDM_PLUGIN=1>
 

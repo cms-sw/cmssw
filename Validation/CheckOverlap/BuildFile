@@ -1,4 +1,4 @@
-<Flags SEAL_PLUGIN_NAME="ValidationCheckOverlap">
+<Flags EDM_PLUGIN=1>
 <export>
  <lib name=ValidationCheckOverlap>
  <use name=SimG4Core/Notification>

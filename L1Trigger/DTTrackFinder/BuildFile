@@ -15,4 +15,4 @@
 <use name=DataFormats/L1GlobalMuonTrigger>
 <use name=DataFormats/L1CSCTrackFinder>
 
-<flags SEAL_PLUGIN_NAME="L1TriggerDTTrackFinder">
+<flags EDM_PLUGIN=1>

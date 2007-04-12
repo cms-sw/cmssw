@@ -6,7 +6,7 @@
 <use name=DataFormats/VertexReco>
 <use name=SimDataFormats/HepMCProduct>
 <use name=root>
-<flags SEAL_PLUGIN_NAME="RecoTauTagHLTProducers">
+<flags EDM_PLUGIN=1>
 <export>
    <lib name=RecoTauTagHLTProducers>
    <use name=FWCore/Framework>

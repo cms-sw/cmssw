@@ -21,7 +21,7 @@
 <use name=Calibration/Tools>
 <use name=CondFormats/DataRecord>
 <use name=CondFormats/EcalObjects>
-<flags SEAL_PLUGIN_NAME="CalibrationEcalCalibAlgos">
+<flags EDM_PLUGIN=1>
 <export>
    <lib name=CalibrationEcalCalibAlgos>
    <use name=Calibration/Tools>

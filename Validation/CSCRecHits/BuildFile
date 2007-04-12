@@ -9,7 +9,7 @@
 <use name=DQMServices/CoreROOT>
 <use name=root>
 
-<flags SEAL_PLUGIN_NAME="ValidationCSCRecHits">
+<flags EDM_PLUGIN=1>
 <export>
    <lib name=ValidationCSCRecHits>
     <use name=ValidationMuonCSCDigis>

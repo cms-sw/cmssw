@@ -1,5 +1,5 @@
 # -*-SH-*-
-<flags SEAL_PLUGIN_NAME="TrackingToolsTrackAssociator">
+<flags EDM_PLUGIN=1>
 <use name=clhep>
 <use name=DataFormats/Common>
 <use name=DataFormats/TrackReco>

@@ -13,5 +13,5 @@
 <use name=FWCore/PluginManager>
 <use name=boost>
 
-# This is really a SEAL plugin:
-<Flags SEAL_PLUGIN_NAME="UtilitiesStorageFactory">
+# This is really a plugin:
+<Flags EDM_PLUGIN=1>

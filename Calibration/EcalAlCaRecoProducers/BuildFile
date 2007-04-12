@@ -17,7 +17,7 @@
 <use name=clhep>
 <use name=FWCore/PluginManager>
 <use name=DataFormats/EgammaCandidates>
-<flags SEAL_PLUGIN_NAME="CalibrationEcalAlCaRecoProducers">
+<flags EDM_PLUGIN=1>
 <export>
    <lib name=CalibrationEcalAlCaRecoProducers>
   <use name=FWCore/Framework>

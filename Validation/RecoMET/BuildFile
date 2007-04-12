@@ -17,7 +17,7 @@
  <use name=DataFormats/JetReco>
 
 
-<flags SEAL_PLUGIN_NAME="ValidationRecoMET">
+<flags EDM_PLUGIN=1>
 <export>
    <lib name=ValidationRecoMET>
 

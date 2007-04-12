@@ -1,6 +1,6 @@
 <use name=FWCore/ParameterSet>
 <use name=SimGeneral/HepPDTRecord>
-<flags SEAL_PLUGIN_NAME="SimGeneralHepPDTESSource">
+<flags EDM_PLUGIN=1>
 <export>
   <lib name=SimGeneralHepPDTESSource>
   <use name=FWCore/ParameterSet>

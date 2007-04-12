@@ -27,4 +27,4 @@
    <use name=root>
    <use name=clhep>
 </export>
-<flags SEAL_PLUGIN_NAME="AlignmentMillePedeAlignmentAlgorithm">
+<flags EDM_PLUGIN=1>

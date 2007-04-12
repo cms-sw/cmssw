@@ -10,7 +10,7 @@
 <use name=L1TriggerConfig/GctConfigProducers>
 <use name=root>
 
-<flags SEAL_PLUGIN_NAME="L1TriggerGlobalCaloTrigger">
+<flags EDM_PLUGIN=1>
 <Flags CXXFLAGS="-g">
 
 <export>

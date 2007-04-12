@@ -7,4 +7,4 @@
   <lib name=MagneticFieldUniformEngine>
 </export>
 
-<flags SEAL_PLUGIN_NAME="MagneticFieldUniformEngine">
+<flags EDM_PLUGIN=1>

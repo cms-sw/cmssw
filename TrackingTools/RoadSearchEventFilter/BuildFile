@@ -2,7 +2,7 @@
 <use name=FWCore/PluginManager>
 <use name=FWCore/ParameterSet>
 <use name=DataFormats/TrajectorySeed>
-<flags SEAL_PLUGIN_NAME="TrackingToolsRoadSearchEventFilter">
+<flags EDM_PLUGIN=1>
 <export>
    <lib name=TrackingToolsRoadSearchEventFilter>
    <use name=FWCore/Framework>

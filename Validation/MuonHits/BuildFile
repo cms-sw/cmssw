@@ -13,7 +13,7 @@
 <use name=root>
 <use name=clhep>
 
-<flags SEAL_PLUGIN_NAME="ValidationMuonHits">
+<flags EDM_PLUGIN=1>
 
 <export>
  <lib name=ValidationMuonHits>

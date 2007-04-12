@@ -17,5 +17,5 @@
    <use name=MagneticField/Engine>
 </export>
 
-<flags SEAL_PLUGIN_NAME="SimTrackerVertexAssociatorESProducer">
+<flags EDM_PLUGIN=1>
 

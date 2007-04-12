@@ -6,7 +6,7 @@
 <use name=DQMServices/CoreROOT>
 <use name=root>
 
-<flags SEAL_PLUGIN_NAME="ValidationHcalDigis">
+<flags EDM_PLUGIN=1>
 <export>
    <lib name=ValidationHcalDigis>
     <use name=FWCore/Framework>

@@ -15,7 +15,7 @@
 <use name=FWCore/PluginManager>
 <use name=boost>
 
-<flags SEAL_PLUGIN_NAME="SimCalorimetryHcalTestBeam">
+<flags EDM_PLUGIN=1>
 <export>
   <lib name=SimCalorimetryHcalTestBeam>
 </export>

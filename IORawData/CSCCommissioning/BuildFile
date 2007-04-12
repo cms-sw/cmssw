@@ -9,4 +9,4 @@
 <use name=DataFormats/FEDRawData>
 <use name=IORawData/DaqSource>
 
-<flags SEAL_PLUGIN_NAME="IORawDataCSCCommissioning">
+<flags EDM_PLUGIN=1>

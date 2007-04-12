@@ -19,7 +19,7 @@
 <use name=RecoEgamma/EgammaPhotonAlgos>
 <use name=DQMServices/CoreROOT>
 <use name=clhep>
-<flags SEAL_PLUGIN_NAME="ValidationRecoEgamma">
+<flags EDM_PLUGIN=1>
 <export>
   <lib name=ValidationRecoEgamma>
   <use name=FWCore/Framework>

@@ -9,7 +9,7 @@
 <use name=FWCore/MessageService>
 <use name=Geometry/CaloEventSetup>
 <use name=clhep>
-<flags SEAL_PLUGIN_NAME="RecoLocalCaloEcalRecProducers">
+<flags EDM_PLUGIN=1>
 <export>
   <lib name=RecoLocalCaloEcalRecProducers>
   <use name=FWCore/Framework>

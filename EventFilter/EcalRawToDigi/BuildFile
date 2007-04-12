@@ -1,4 +1,4 @@
-<flags SEAL_PLUGIN_NAME="EventFilterEcalRawToDigi">
+<flags EDM_PLUGIN=1>
 <use name=FWCore/Framework>
 <use name=FWCore/MessageLogger>
 <use name=DataFormats/FEDRawData>

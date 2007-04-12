@@ -1,4 +1,4 @@
-<flags SEAL_PLUGIN_NAME="RecoPixelVertexingPixelVertexFinding">
+<flags EDM_PLUGIN=1>
 <use name=DataFormats/VertexReco>
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>

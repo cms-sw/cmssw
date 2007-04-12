@@ -49,4 +49,4 @@
 <use name=TrackingTools/TransientTrackingRecHit>
 <use name=FWCore/MessageLogger>
 
-<flags SEAL_PLUGIN_NAME="RecoTrackerMeasurementDet">
+<flags EDM_PLUGIN=1>

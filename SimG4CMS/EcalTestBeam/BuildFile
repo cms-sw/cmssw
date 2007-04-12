@@ -31,4 +31,4 @@
   <lib name=SimG4CMSEcalTestBeam>
 </export>
 
-<flags SEAL_PLUGIN_NAME=SimG4CMSEcalTestBeam> 
+<flags EDM_PLUGIN=1> 

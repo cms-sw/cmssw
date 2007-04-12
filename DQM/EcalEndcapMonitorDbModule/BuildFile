@@ -1,4 +1,4 @@
-<flags SEAL_PLUGIN_NAME="DQMEcalEndcapMonitorDbModule">
+<flags EDM_PLUGIN=1>
 <use name=CoralBase>
 <use name=DQMServices/Core>
 <use name=DQMServices/Daemon>

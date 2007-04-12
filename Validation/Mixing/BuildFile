@@ -1,4 +1,4 @@
-<flags SEAL_PLUGIN_NAME="ValidationMixing">
+<flags EDM_PLUGIN=1>
 <use name=FWCore/PluginManager>
 <use name=DQMServices/CoreROOT>
 <use name=SimGeneral/MixingModule>

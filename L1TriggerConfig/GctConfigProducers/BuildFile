@@ -3,7 +3,7 @@
 <use name=FWCore/ParameterSet>
 <use name=CondFormats/L1TObjects>
 <use name=CondFormats/DataRecord>
-<flags SEAL_PLUGIN_NAME="L1TriggerConfigGctConfigProducers">
+<flags EDM_PLUGIN=1>
 <export>
    <lib name=L1TriggerConfigGctConfigProducers>
    <use name=FWCore/Framework>

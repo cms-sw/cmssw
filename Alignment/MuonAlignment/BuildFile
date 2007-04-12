@@ -19,4 +19,4 @@
 <use name=FWCore/Framework>
 <use name=CondCore/DBCommon>
 <use name=CondCore/DBOutputService>
-<flags SEAL_PLUGIN_NAME="AlignmentMuonAlignment">
+<flags EDM_PLUGIN=1>

@@ -5,7 +5,7 @@
 <use name=DataFormats/EcalRecHit>
 <use name=DataFormats/EcalDetId>
 <use name=root>
-<flags SEAL_PLUGIN_NAME="RecoTBCaloEcalSimpleTBAnalysis">
+<flags EDM_PLUGIN=1>
 <export>
    <lib name=RecoTBCaloEcalSimpleTBAnalysis>
    <use name=FWCore/Framework>

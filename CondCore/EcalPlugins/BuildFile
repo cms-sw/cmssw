@@ -4,7 +4,7 @@
 <use name=CondFormats/EcalObjects>
 <use name=CondFormats/DataRecord>
 
-<flags SEAL_PLUGIN_NAME="CondCoreEcalPlugins">
+<flags EDM_PLUGIN=1>
 <export>
    <lib name=CondCoreEcalPlugins>
    <use name=FWCore/Framework>

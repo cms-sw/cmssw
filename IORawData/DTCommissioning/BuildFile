@@ -12,4 +12,4 @@
 <use name=IORawData/DaqSource>
 <use name=castor>
  
-<flags SEAL_PLUGIN_NAME="IORawDataDTCommissioning">
+<flags EDM_PLUGIN=1>

@@ -12,4 +12,4 @@
  <lib name=SimG4CMSTracker>
 </export>
 
-<Flags SEAL_PLUGIN_NAME="SimG4CMSTracker">
+<Flags EDM_PLUGIN=1>

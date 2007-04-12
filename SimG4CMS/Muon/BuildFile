@@ -10,4 +10,4 @@
  <lib name=SimG4CMSMuon>
 </export>
 
-<Flags SEAL_PLUGIN_NAME="SimG4CMSMuon">
+<Flags EDM_PLUGIN=1>

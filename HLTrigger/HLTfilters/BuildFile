@@ -21,4 +21,4 @@
   <lib name=HLTriggerHLTfilters>
 </export>
 
-<flags SEAL_PLUGIN_NAME="HLTriggerHLTfilters">
+<flags EDM_PLUGIN=1>

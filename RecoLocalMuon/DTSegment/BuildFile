@@ -10,7 +10,7 @@
 <use name=CLHEP>
 <use name=root>
 
-<flags SEAL_PLUGIN_NAME="RecoLocalMuonDTSegment">
+<flags EDM_PLUGIN=1>
 
 <export>
    <lib name=RecoLocalMuonDTSegment>

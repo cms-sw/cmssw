@@ -18,7 +18,7 @@
 <use name=Geometry/CommonDetUnit>
 <use name=Geometry/TrackerGeometryBuilder>
 <use name=SimDataFormats/HepMCProduct>
-<flags SEAL_PLUGIN_NAME="RecoEgammaEgammaHLTProducers">
+<flags EDM_PLUGIN=1>
 <export>
    <lib name=RecoEgammaEgammaHLTProducers>
    <use name=FWCore/Framework>

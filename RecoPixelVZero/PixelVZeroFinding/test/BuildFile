@@ -13,7 +13,7 @@
 <use name=RecoVertex/VertexTools>
 <use name=RecoPixelVZero/PixelVZeroFinding>
 
-<flags SEAL_PLUGIN_NAME="PixelVZeroTest">
+<flags EDM_PLUGIN=1>
 <library file="PixelVZeroTest.cc" name="PixelVZeroTest">
 </library>
 

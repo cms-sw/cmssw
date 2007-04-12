@@ -11,7 +11,7 @@
 <use name=SimDataFormats/TrackingHit>
 <use name=clhep>
 
-<flags SEAL_PLUGIN_NAME="SimGeneralTrackingAnalysis">
+<flags EDM_PLUGIN=1>
 <export>
    <lib name=SimGeneralTrackingAnalysis>
    <use name=FWCore/Framework>
