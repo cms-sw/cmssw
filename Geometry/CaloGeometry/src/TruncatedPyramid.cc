@@ -233,3 +233,18 @@ void TruncatedPyramid::dump(const char * prefix="") const {
   }
 }
 //----------------------------------------------------------------------
+
+std::ostream& operator<<(std::ostream& s,const TruncatedPyramid& cell) {
+  assert(cell.getCorners().size() == 8);
+  s  << "Center: " <<  cell.getPosition(0.) << std::endl;
+  float thetaaxis_= cell.getThetaAxis();
+  float phiaxis_= cell.getPhiAxis();
+  s  << "Axis: " <<  thetaaxis_ << " " << phiaxis_ << std::endl;
+  const std::vector<GlobalPoint>& corners=cell.getCorners(); 
+  //  vector<HepPoint3D> xtCorners=getCorners();
+  for ( unsigned int  ci=0; ci !=corners.size(); ci++) {
+    s  << "Corner: " << corners[ci] << std::endl;
+  }
+  return s;
+}
+  
