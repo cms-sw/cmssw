@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Wed May 25 15:21:05 EDT 2005
-// $Id: ComponentFactory.h,v 1.18 2007/03/04 06:00:22 wmtan Exp $
+// $Id: ComponentFactory.h,v 1.19 2007/04/09 23:13:18 chrjones Exp $
 //
 
 // system include files
@@ -110,7 +110,7 @@ template<typename T>
 
    }
 }
-#define COMPONENTFACTORY_GET(_type_) EDM_REGISTER_PLUGINFACTORY(edmplugin::PluginFactory<edm::eventsetup::ComponentMakerBase<_type_>* ()>,_type_::name()); \
+#define COMPONENTFACTORY_GET(_type_) EDM_REGISTER_PLUGINFACTORY(edmplugin::PluginFactory<edm::eventsetup::ComponentMakerBase<_type_>* ()>,_type_::name()) \
 static edm::eventsetup::ComponentFactory<_type_> s_dummyfactory; template<> edm::eventsetup::ComponentFactory<_type_>* edm::eventsetup::ComponentFactory<_type_>::get() { return &s_dummyfactory; }
 
 
