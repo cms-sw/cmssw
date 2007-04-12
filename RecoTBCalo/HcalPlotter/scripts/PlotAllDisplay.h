@@ -19,7 +19,9 @@ public:
   }
   void displaySummary(int ieta=0, int iphi=0, int evtType=4, int flavType=0);
   void displayOne(int ieta, int iphi, int depth, int evtType, int flavType);
-  void displaySelector(int evtType, int flavType);
+  void displayOne(const MyHcalDetId& id, int evtType, int flavType);
+  void displaySelector(int evtType, int flavType, int plotStatType);
+  MyHcalSubdetector getSubDetector(int ieta, int depth);
 private:
   struct DisplaySetupStruct {
     std::string eventTypeStr;
@@ -31,7 +33,6 @@ private:
   TH1* bookMasterHistogram(DisplaySetupStruct& ss,
 			   const std::string& basename,
 			   int lo, int hi);
-  MyHcalSubdetector getSubDetector(int ieta,int depth);
   TFile m_f;
   HistoManager histKeys;
   TCanvas* m_movie;
