@@ -1,7 +1,7 @@
 /**
  * Author: P.Paganini, Ursula Berthon
  * Created: 20 March 2007
- * $Id: EcalTPParameters.cc,v 1.1 2007/04/10 09:37:02 uberthon Exp $
+ * $Id: EcalTPParameters.cc,v 1.2 2007/04/10 11:55:33 uberthon Exp $
  **/
 #include "CondFormats/L1TObjects/interface/EcalTPParameters.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -11,10 +11,10 @@
 
 EcalTPParameters::EcalTPParameters() {
   //FIXME should be those used in TPG.txt.... could they be put in TPG.txt?
-   ttfLowEB_=0;
-   ttfHighEB_= 0;
-   ttfLowEE_= 0;
-   ttfHighEE_=0;
+   ttfLowEB_=0.;
+   ttfHighEB_= 0.;
+   ttfLowEE_= 0.;
+   ttfHighEE_=0.;
 }
 
 EcalTPParameters::~EcalTPParameters() {
@@ -102,11 +102,10 @@ std::vector<unsigned int> EcalTPParameters::getXtalParameters(int SM, int towerI
     return i;
   }
 
-double EcalTPParameters::getTPGinGeVEB(unsigned int compressedEt) const {
-  
+double EcalTPParameters::getTPGinGeVEB(unsigned int SM, unsigned int towerInSM, unsigned int compressedEt) const {
+    
   double lsb_tcp = EtSatEB_/1024 ;
-  std::vector<unsigned int> lut = this->getTowerParameters(1, 1) ; //FIXME should be sm nb and tower nb instead of 1,1
-  if (lut.size() <1024) {
+  std::vector<unsigned int> lut = this->getTowerParameters(SM,towerInSM) ;   if (lut.size() <1024) {
     // FIXME should throw an exception!
     return 0. ;
   }
@@ -126,7 +125,31 @@ double EcalTPParameters::getTPGinGeVEB(unsigned int compressedEt) const {
   return lin_TPG*lsb_tcp ;
 }
 
-double EcalTPParameters::getTPGinGeVEE(unsigned int compressedEt) const {
+double EcalTPParameters::getTPGinGeVEE(unsigned int nrSM, unsigned int nrTowerInSM, unsigned int compressedEt) const {
+  //FIXME: temporary version 
   return compressedEt*0.560 ;
 }
 
+
+void EcalTPParameters::update() {
+
+  // 1st ttf thresholds:
+  double lsb_tcp_EB = EtSatEB_/1024 ;
+  unsigned int ttfLowEB_ADC = static_cast<unsigned int>(ttfLowEB_/lsb_tcp_EB) ;
+  unsigned int ttfHighEB_ADC =  static_cast<unsigned int>(ttfHighEB_/lsb_tcp_EB );
+
+  for (int sm=1 ; sm<=36 ; sm++) {
+    for (int tower=1 ; tower<=68 ; tower++) {
+      // update LUT 
+      std::vector<unsigned int> lut = getTowerParameters(sm, tower) ;
+      for (unsigned int i=0 ; i<1024 ; i++) {
+	int ttf = 0 ;
+	if (i>=ttfHighEB_ADC) ttf = 3 ; 
+	if (i>=ttfLowEB_ADC && i<ttfHighEB_ADC) ttf = 1 ;
+	ttf = ttf<<8 ; 
+	lut[i] = (lut[i] & 0xff) + ttf ;
+      }
+      setTowerParameters(sm, tower, lut) ;
+    } 
+  }
+}

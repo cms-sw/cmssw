@@ -3,7 +3,7 @@
 /**
  * Author: P.Paganini, Ursula Berthon
  * Created: 20 March 2007
- * $Id: EcalTPParameters.h,v 1.1 2007/04/10 09:37:02 uberthon Exp $
+ * $Id: EcalTPParameters.h,v 1.2 2007/04/10 11:55:33 uberthon Exp $
  **/
 
 #include <vector>
@@ -23,8 +23,8 @@ class EcalTPParameters {
 
   double getEtSatEB() const {return EtSatEB_;}
   double getEtSatEE() const {return EtSatEE_;}
-  double getTPGinGeVEB(unsigned int compressedEt) const;
-  double getTPGinGeVEE(unsigned int compressedEt) const;
+  double getTPGinGeVEB(unsigned int nrSM, unsigned int nrTowerInSM, unsigned int compressedEt) const;
+  double getTPGinGeVEE(unsigned int nrSM, unsigned int nrTowerInSM, unsigned int compressedEt) const;
 
   // setters
   void setTowerParameters(int SM, int towerInSM, std::vector<unsigned int> params) 	    
@@ -32,18 +32,17 @@ class EcalTPParameters {
   void setStripParameters(int SM, int towerInSM, int stripInTower, std::vector<unsigned int> params)  
     {stripParam_[getIndex(SM,towerInSM,stripInTower)]=params;}
   void setXtalParameters(int SM, int towerInSM, int stripInTower, int xtalInStrip, std::vector<unsigned int> params) 
-    {xtalParam_[getIndex(SM,towerInSM,stripInTower,xtalInStrip)]=params;}		
+    {xtalParam_[getIndex(SM,towerInSM,stripInTower,xtalInStrip)]=params;}
 
-  //  void setTowerParameters(int index, std::vector<unsigned int> params) { towerParam_[index]=params;} 
-  //  void setStripParameters(int index, std::vector<unsigned int> params) { stripParam_[index]=params;} 
-  //  void setXtalParameters(int index, std::vector<unsigned int> params) { xtalParam_[index]=params;} 
+  void setPhysicsParameters(std::vector<float> params)      
+    {xtalLsbEB_ = params[0]; EtSatEB_ = params[1]; ttfLowEB_ = params[2]; ttfHighEB_ = params[3]; }         
 
   void changeThresholds(double ttfLowEB, double ttfHighEB, double ttfLowEE, double ttfHighEE);
 
  private:
   // updates Luts etc after change of parameters
   //FIXME: to be implemented, at least for changing according to  TTF thresholds
-  void update() {;}
+  void update();
 
   int getIndex(int SM, int towerInSM, int stripInTower=0, int xtalInStrip=0) const ;
 
