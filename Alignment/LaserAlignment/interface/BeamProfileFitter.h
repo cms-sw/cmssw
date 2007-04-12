@@ -4,8 +4,8 @@
 /** \class BeamProfileFitter
  *  Fitting laser profiles from the beams in the Laser Alignment System
  *
- *  $Date: 2007/04/12 14:02:00 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/04/12 14:59:29 $
+ *  $Revision: 1.5 $
  *  \author Maarten Thomas
  */
 
@@ -56,7 +56,9 @@ class BeamProfileFitter {
   bool theClearHistoAfterFit;
   bool theScaleHisto;
   double theMinSignalHeight;
+  /// correct for the BS kink?
   bool theCorrectBSkink;
+  /// systematic error on measured BS angles
   double theBSAnglesSystematic;
   
   /// function to calculate the error on phi
