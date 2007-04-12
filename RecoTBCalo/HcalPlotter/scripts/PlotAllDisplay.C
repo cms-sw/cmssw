@@ -1,18 +1,23 @@
 #include "HcalVisualSelector.h"
 #include "PlotAllDisplay.h"
 
-class PlotAllAdapter : public HcalVisualSelector::PlotCallback {
+class PlotAllAdapter : public HcalVisualSelector::Callbacks {
 public:
   PlotAllAdapter(PlotAllDisplay* disp, int evtType, int flavType) :
     m_disp(disp), m_evtType(evtType), m_flavType(flavType){
   }
   virtual void plot(const MyHcalDetId& id) {
-    m_disp->displayOne(id.ieta,id.iphi,id.depth,m_evtType,m_flavType);
+    m_disp->displayOne(id,m_evtType,m_flavType);
+  }
+  virtual MyHcalSubdetector getSubdet(int ieta, int depth) {
+    return m_disp->getSubDetector(ieta,depth);
   }
 private:
   PlotAllDisplay* m_disp;
   int m_evtType, m_flavType;
 };
+
+//===========================================================================
 
 std::vector<MyHcalDetId>
 PlotAllDisplay::spatialFilter(int ieta,
@@ -29,6 +34,7 @@ PlotAllDisplay::spatialFilter(int ieta,
   return retval;
 }
 
+//===========================================================================
 
 TH1* PlotAllDisplay::bookMasterHistogram(DisplaySetupStruct& ss,
 					 const std::string& basename, int lo,
@@ -38,12 +44,14 @@ TH1* PlotAllDisplay::bookMasterHistogram(DisplaySetupStruct& ss,
   TH1* retval=0;
   if (ss.iphi!=0) {
     sprintf(name,"%s:%s-%s IPHI=%d",
-	    ss.eventTypeStr.c_str(),ss.flavTypeStr.c_str(),basename.c_str(),ss.iphi);
+	    ss.eventTypeStr.c_str(),ss.flavTypeStr.c_str(),
+	    basename.c_str(),ss.iphi);
     retval=new TH1F(name,name, hi-lo+1, lo-0.5, hi+0.5);
     retval->GetXaxis()->SetTitle("IETA");
   } else {
     sprintf(name,"%s:%s-%s IETA=%d",
-	    ss.eventTypeStr.c_str(),ss.flavTypeStr.c_str(),basename.c_str(),ss.ieta);
+	    ss.eventTypeStr.c_str(),ss.flavTypeStr.c_str(),
+	    basename.c_str(),ss.ieta);
     retval=new TH1F(name,name, hi-lo+1, lo-0.5, hi+0.5);
     retval->GetXaxis()->SetTitle("IPHI");
   }
@@ -52,22 +60,30 @@ TH1* PlotAllDisplay::bookMasterHistogram(DisplaySetupStruct& ss,
   return retval;
 }
 
-MyHcalSubdetector PlotAllDisplay::getSubDetector(int ieta,int depth) {
+//===========================================================================
+
+MyHcalSubdetector PlotAllDisplay::getSubDetector(int ieta, int depth)
+{
   MyHcalSubdetector retval=HcalEmpty;
   int aieta = abs(ieta);
 
   if(aieta<=16 && depth<=2) retval=HcalBarrel;
   if(aieta<=15 && depth==4) retval=HcalOuter;
-  if( (aieta==16&&depth==3)||(aieta>16&&aieta<30) ) retval=HcalEndcap;
-  if(aieta>29) retval=HcalForward;
+  if( (aieta==16&&depth==3)||(aieta>16&&aieta<29) ) retval=HcalEndcap;
+  if(aieta>28) retval=HcalForward;
+
+  // NOTE: based on above, HE29 is not plottable!
 
   if(retval==HcalEmpty) printf("Bad detector coordinates!\n");
 
   return retval;
 }
 
+//===========================================================================
 
-void PlotAllDisplay::displaySummary(int ieta, int iphi, int evtType, int flavType) {
+void PlotAllDisplay::displaySummary(int ieta, int iphi,
+				    int evtType, int flavType)
+{
   HistoManager::EventType et=(HistoManager::EventType)evtType;
   HistoManager::HistType ht=(HistoManager::HistType)flavType;
   DisplaySetupStruct setup;
@@ -87,16 +103,20 @@ void PlotAllDisplay::displaySummary(int ieta, int iphi, int evtType, int flavTyp
 
   std::vector<MyHcalDetId>::const_iterator ii;
 
+  std::cout << "Summing channels" << std::flush;
+
   // Sum of all channels
   TH1* sum=0;
   for (ii=ids.begin(); ii!=ids.end(); ii++) {
+    std::cout << '.' << std::flush;
     TH1* h=histKeys.GetAHistogram(*ii,ht,et);
     if (h==0) continue;
     if (sum==0) {
       sum=(TH1*)h->Clone("All");
       sum->SetDirectory(0);
       char name[120];
-      sprintf(name,"All %s:%s",setup.eventTypeStr.c_str(),setup.flavTypeStr.c_str());
+      sprintf(name,"All %s:%s",
+	      setup.eventTypeStr.c_str(),setup.flavTypeStr.c_str());
       sum->SetTitle(name);
     } else sum->Add(h);
   }
@@ -106,6 +126,8 @@ void PlotAllDisplay::displaySummary(int ieta, int iphi, int evtType, int flavTyp
   sum->Draw();
   sum->Draw("SAMEHIST");
 
+  std::cout << "done." << std::endl;
+
   if (ht==HistoManager::PULSE) return;
 
   // profile of an ieta or iphi
@@ -113,6 +135,8 @@ void PlotAllDisplay::displaySummary(int ieta, int iphi, int evtType, int flavTyp
   if (iphi!=0 || ieta!=0) {
     TH1* meanSummary[5];
     TH1* RMSSummary[5];
+
+    std::cout << "Compiling eta/phi profiles";
 
     int range_lo=100000, range_hi=-100000;
     for(ii=ids.begin(); ii!=ids.end(); ii++) {
@@ -124,24 +148,28 @@ void PlotAllDisplay::displaySummary(int ieta, int iphi, int evtType, int flavTyp
     meanSummary[0]=bookMasterHistogram(setup,"MEAN",range_lo,range_hi);
     RMSSummary[0]=bookMasterHistogram(setup,"RMS",range_lo,range_hi);
     for (int j=1; j<5; j++) {
+      std::cout << '.' << std::flush;
       int marker=j+23;
       if (j==4) marker=30;
 
       char aname[120];
       sprintf(aname,"Mean_Depth%d",j);
-      meanSummary[j]=new TH1F(aname,aname,(range_hi-range_lo)+1,range_lo-0.5,range_hi+0.5);
+      meanSummary[j]=new TH1F(aname,aname,(range_hi-range_lo)+1,
+			      range_lo-0.5,range_hi+0.5);
       meanSummary[j]->SetDirectory(0);
       meanSummary[j]->SetMarkerStyle(marker);
       meanSummary[j]->SetMarkerColor(j);
 
       sprintf(aname,"RMS_Depth%d",j);
-      RMSSummary[j]=new TH1F(aname,aname,(range_hi-range_lo)+1,range_lo-0.5,range_hi+0.5);
+      RMSSummary[j]=new TH1F(aname,aname,(range_hi-range_lo)+1,
+			     range_lo-0.5,range_hi+0.5);
       RMSSummary[j]->SetDirectory(0);
       RMSSummary[j]->SetMarkerStyle(marker);
       RMSSummary[j]->SetMarkerColor(j);
     }
 
     for(ii=ids.begin(); ii!=ids.end(); ii++) {
+      std::cout << '.' << std::flush;
       TH1* h=histKeys.GetAHistogram(*ii,ht,et);
       if (h==0) continue;
       double bin=(iphi!=0)?(ii->ieta*1.0):(ii->iphi*1.0);
@@ -151,6 +179,7 @@ void PlotAllDisplay::displaySummary(int ieta, int iphi, int evtType, int flavTyp
 
     double ml=1e16,mh=-1e16;
     for (int j=1; j<5; j++) {
+      std::cout << '.' << std::flush;
       for (int jj=1; jj<=meanSummary[j]->GetNbinsX(); jj++)
 	if (meanSummary[j]->GetBinError(jj)==0.0)
 	  meanSummary[j]->SetBinContent(jj,-1e6);
@@ -166,6 +195,7 @@ void PlotAllDisplay::displaySummary(int ieta, int iphi, int evtType, int flavTyp
 
     ml=1e16,mh=-1e16;
     for (int j=1; j<5; j++) {
+      std::cout << '.' << std::flush;
       for (int jj=1; jj<=RMSSummary[j]->GetNbinsX(); jj++)
 	if (RMSSummary[j]->GetBinError(jj)==0.0)
 	  RMSSummary[j]->SetBinContent(jj,-1e6);
@@ -193,14 +223,19 @@ void PlotAllDisplay::displaySummary(int ieta, int iphi, int evtType, int flavTyp
     RMSSummary[0]->Draw("P");
     for (int j=1; j<5; j++)
       RMSSummary[j]->Draw("SAMEP");
+
+    std::cout << "done." << std::endl;
   }
   
   // global distributions
   
   {
+    std::cout << "Compiling global distributions" << std::flush;
+
     double mean_lo=1e160, mean_hi=-1e160;
     double RMS_lo=1e160, RMS_hi=-1e160;
     for (ii=ids.begin(); ii!=ids.end(); ii++) {
+      std::cout << '.' << std::flush;
       TH1* h=histKeys.GetAHistogram(*ii,ht,et);
       if (h==0) continue;
       double mean=h->GetMean();
@@ -224,6 +259,7 @@ void PlotAllDisplay::displaySummary(int ieta, int iphi, int evtType, int flavTyp
     RMSs->SetDirectory(0);
 
     for (ii=ids.begin(); ii!=ids.end(); ii++) {
+      std::cout << '.' << std::flush;
       TH1* h=histKeys.GetAHistogram(*ii,ht,et);
       if (h==0) continue;
       means->Fill(h->GetMean());
@@ -239,22 +275,31 @@ void PlotAllDisplay::displaySummary(int ieta, int iphi, int evtType, int flavTyp
     means->Draw();
     myplot->cd(2);
     RMSs->Draw();
+
+    std::cout << "done." << std::endl;
   }
 }
 
-void PlotAllDisplay::displayOne(int ieta, int iphi, int depth, int evtType, int FlavType)
-{
-  HistoManager::EventType et=(HistoManager::EventType)evtType;
-  HistoManager::HistType ht=(HistoManager::HistType)FlavType;
-  DisplaySetupStruct setup;
-  setup.ieta=ieta;
-  setup.iphi=iphi;
-  setup.eventTypeStr=HistoManager::nameForEvent(et);
-  setup.flavTypeStr=HistoManager::nameForFlavor(ht);
+//===========================================================================
 
+void PlotAllDisplay::displayOne(int ieta, int iphi, int depth,
+				int evtType, int flavType)
+{
   MyHcalSubdetector subDet = getSubDetector(ieta,depth);
 
-  MyHcalDetId id = {subDet,ieta,iphi,depth};
+  if (subDet != HcalEmpty) {
+    MyHcalDetId id = {subDet,ieta,iphi,depth};
+    displayOne(id,evtType,flavType);
+  }
+}
+
+//===========================================================================
+
+void PlotAllDisplay::displayOne(const MyHcalDetId& id,
+				int evtType, int flavType)
+{
+  HistoManager::EventType et=(HistoManager::EventType)evtType;
+  HistoManager::HistType ht=(HistoManager::HistType)flavType;
 
   TH1* h=histKeys.GetAHistogram(id,ht,et);
   
@@ -281,7 +326,11 @@ void PlotAllDisplay::displayOne(int ieta, int iphi, int depth, int evtType, int 
   m_movie->Paint();
 }
 
-void PlotAllDisplay::displaySelector(int evtType, int flavType) {
+//===========================================================================
+
+void PlotAllDisplay::displaySelector(int evtType, int flavType,
+				     int plotStatType)
+{
   HistoManager::EventType et=(HistoManager::EventType)evtType;
   HistoManager::HistType ht=(HistoManager::HistType)flavType;
 
@@ -292,7 +341,7 @@ void PlotAllDisplay::displaySelector(int evtType, int flavType) {
     return;
   }
 
-  int ieta_lo=10000; 
+  int ieta_lo=10000;
   int ieta_hi=-10000;
   int iphi_lo=10000;
   int iphi_hi=-10000;
@@ -307,10 +356,10 @@ void PlotAllDisplay::displaySelector(int evtType, int flavType) {
 
   //  printf("eta_lo=%d eta_hi=%d phi_lo=%d phi_hi=%d\n",
   //          ieta_lo,ieta_hi,iphi_lo,iphi_hi);
-  
+
   HcalVisualSelector* vs=
     new HcalVisualSelector(new PlotAllAdapter(this,evtType,flavType),
-			   ieta_lo,ieta_hi,iphi_lo,iphi_hi);
+                           ieta_lo,ieta_hi,iphi_lo,iphi_hi);
 
   for (std::vector<MyHcalDetId>::iterator ii=KeyIds.begin();
        ii!=KeyIds.end(); 
@@ -320,7 +369,10 @@ void PlotAllDisplay::displaySelector(int evtType, int flavType) {
       printf("ieta=%d, iphi=%d not found\n", ii->ieta, ii->iphi);
       continue;
     }
-    vs->fill(*ii,h->GetMean());
+    if (!plotStatType)
+      vs->fill(*ii,h->GetMean());
+    else
+      vs->fill(*ii,h->GetRMS());
   }
 
   vs->Update();
