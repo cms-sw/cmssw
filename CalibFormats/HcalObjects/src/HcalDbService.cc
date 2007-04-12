@@ -1,7 +1,7 @@
 //
 // F.Ratnikov (UMd), Aug. 9, 2005
 //
-// $Id: HcalDbService.cc,v 1.12 2007/03/31 18:27:02 michals Exp $
+// $Id: HcalDbService.cc,v 1.13 2007/04/10 20:56:25 michals Exp $
 
 #include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
 
@@ -40,12 +40,12 @@ HcalDbService::HcalDbService (const edm::ParameterSet& fConfig)
   mGains (0),
   mGainWidths (0)
  {
-  m_hbEScale = fConfig.getUntrackedParameter <double> ("hbEScale",1.);
-  m_hesEScale = fConfig.getUntrackedParameter <double> ("hesEScale",1.);
-  m_hedEScale = fConfig.getUntrackedParameter <double> ("hedEScale",1.);
-  m_hoEScale = fConfig.getUntrackedParameter <double> ("hoEScale",1.);
-  m_hf1EScale = fConfig.getUntrackedParameter <double> ("hf1EScale",1.);
-  m_hf2EScale = fConfig.getUntrackedParameter <double> ("hf2EScale",1.);
+  m_hbEScale = fConfig.getParameter <double> ("hbEScale");
+  m_hesEScale = fConfig.getParameter <double> ("hesEScale");
+  m_hedEScale = fConfig.getParameter <double> ("hedEScale");
+  m_hoEScale = fConfig.getParameter <double> ("hoEScale");
+  m_hf1EScale = fConfig.getParameter <double> ("hf1EScale");
+  m_hf2EScale = fConfig.getParameter <double> ("hf2EScale");
   EScales.HBPiOvere = m_hbEScale;
   EScales.HESPiOvere = m_hesEScale;
   EScales.HEDPiOvere = m_hedEScale;
