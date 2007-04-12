@@ -25,6 +25,7 @@ class PlotAllMenu {
   TRootEmbeddedCanvas *fEcanvas;
   TGRadioButton* fET[HistoManager::NUMEVTTYPES];
   TGRadioButton* fFT[HistoManager::NUMHISTTYPES];
+  TGRadioButton* fVT[2];
   TGCheckButton *checkbut;
   TGTextEntry* iphiEntry, *ietaEntry, *runnoEntry;
   PlotAllDisplay* theDisplay;
@@ -44,7 +45,10 @@ PlotAllMenu::PlotAllMenu(const TGWindow *p,UInt_t w,UInt_t h,
   // Create a main frame
   fMain = new TGMainFrame(p,w,h);
 
-  // Create a vertical frame widget for File Selection objects
+  /***************************************************************
+   * Create a vertical frame widget for File Selection objects   *
+   ***************************************************************/
+
   TGGroupFrame* fileselgf=new TGGroupFrame(fMain,"File Selection",kVerticalFrame);
   fileselgf->SetLayoutManager(new TGMatrixLayout(fileselgf,0,2,5,5));
 
@@ -73,21 +77,41 @@ PlotAllMenu::PlotAllMenu(const TGWindow *p,UInt_t w,UInt_t h,
 
   fMain->AddFrame(fileselgf, new TGLayoutHints(kLHintsCenterX,2,2,2,2));
 
+  /*************************************************************************
+   * Create a vertical frame widget for Plot parameter Selection objects   *
+   *************************************************************************/
+
+  TGGroupFrame* plotselgf=new TGGroupFrame(fMain,"Plot Selection",kVerticalFrame);
+  // plotselgf->SetLayoutManager(new TGMatrixLayout(plotselgf,0,2,5,5));
+
+  // first row:
   // Create Selection widget
   
-  TGButtonGroup* br=new TGButtonGroup(fMain,"Event Type",kVerticalFrame);
+  TGButtonGroup* ebg=new TGButtonGroup(plotselgf,"Event Type",kVerticalFrame);
   
-  fET[0]=new TGRadioButton(br,"Other");
-  fET[1]=new TGRadioButton(br,"Pedestal");
-  fET[2]=new TGRadioButton(br,"LED");
-  fET[3]=new TGRadioButton(br,"Laser");
-  fET[4]=new TGRadioButton(br,"Beam");  
+  fET[0]=new TGRadioButton(ebg,"Other");
+  fET[1]=new TGRadioButton(ebg,"Pedestal");
+  fET[2]=new TGRadioButton(ebg,"LED");
+  fET[3]=new TGRadioButton(ebg,"Laser");
+  fET[4]=new TGRadioButton(ebg,"Beam");  
 
-  TGButtonGroup* fbgr=new TGButtonGroup(fMain,"Flavor Type",kVerticalFrame);
-  fFT[0]=new TGRadioButton(fbgr,"Energy");
-  fFT[1]=new TGRadioButton(fbgr,"Time");
-  fFT[2]=new TGRadioButton(fbgr,"Pulse Shape");
-  fFT[3]=new TGRadioButton(fbgr,"ADC");
+  plotselgf->AddFrame(ebg, new TGLayoutHints(kLHintsCenterX));  // ,5,5,3,4));
+
+  TGButtonGroup* fbg=new TGButtonGroup(plotselgf,"Flavor Type",kVerticalFrame);
+  fFT[0]=new TGRadioButton(fbg,"Energy");
+  fFT[1]=new TGRadioButton(fbg,"Time");
+  fFT[2]=new TGRadioButton(fbg,"Pulse Shape");
+  fFT[3]=new TGRadioButton(fbg,"ADC");
+
+  plotselgf->AddFrame(fbg, new TGLayoutHints(kLHintsCenterX)); // ,5,5,3,4));
+
+  TGButtonGroup* vssbg=new TGButtonGroup(plotselgf,"VS Plot Stat",kHorizontalFrame);
+  fVT[0]=new TGRadioButton(vssbg,"Mean");
+  fVT[1]=new TGRadioButton(vssbg,"RMS");
+
+  plotselgf->AddFrame(vssbg, new TGLayoutHints(kLHintsCenterX)); // ,5,5,3,4));
+
+  fMain->AddFrame(plotselgf);
 
   TGGroupFrame* gf=new TGGroupFrame(fMain,"Channel Selection",kVerticalFrame);
   gf->SetLayoutManager(new TGMatrixLayout(gf,0,2,10,10));
@@ -101,8 +125,6 @@ PlotAllMenu::PlotAllMenu(const TGWindow *p,UInt_t w,UInt_t h,
   selector->Connect("Clicked()","PlotAllMenu",this,"DoSelector()");
   gf->AddFrame(selector,new TGLayoutHints(kLHintsCenterX,5,5,3,4));
   
-  fMain->AddFrame(br);
-  fMain->AddFrame(fbgr);
   fMain->AddFrame(gf);
 
   // Create a horizontal frame widget with buttons
@@ -133,16 +155,18 @@ void PlotAllMenu::DoSelector() {
 
   int iev=0;
   int ifl=0;
-  for(int i=0; i<=HistoManager::NUMEVTTYPES; i++) {
+  int ipstat=0;
+  for(int i=0; i<HistoManager::NUMEVTTYPES; i++) {
     if (fET[i]->IsOn()) iev=i;
     if (i<HistoManager::NUMHISTTYPES && fFT[i]->IsOn()) ifl=i;  
+    if (i<2 && fVT[i]->IsOn()) ipstat=i;
   }
-  theDisplay->displaySelector(iev,ifl);
+  theDisplay->displaySelector(iev,ifl,ipstat);
 }
 void PlotAllMenu::DoDraw() {
   int iev=0;
   int ifl=0;
-  for (int i=0; i<=HistoManager::NUMEVTTYPES; i++) {
+  for (int i=0; i<HistoManager::NUMEVTTYPES; i++) {
     if (fET[i]->IsOn()) iev=i;
     if (i<HistoManager::NUMHISTTYPES && fFT[i]->IsOn()) ifl=i;
   }
