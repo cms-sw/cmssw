@@ -7,8 +7,11 @@
 
 inline double sign(double x) { return (x < 0.0) ? -1.0 : 1.0; }
 
-HcalVisualSelector::HcalVisualSelector(PlotCallback* cb,
-				       int ieta_lo, int ieta_hi, int iphi_lo, int iphi_hi)
+static const float BADVAL = -1e99;
+
+HcalVisualSelector::HcalVisualSelector(Callbacks* cb,
+				       int ieta_lo, int ieta_hi,
+				       int iphi_lo, int iphi_hi)
 {
   m_cb=cb;
   m_canvas=new TCanvas("HcalSelector");
@@ -22,12 +25,19 @@ HcalVisualSelector::HcalVisualSelector(PlotCallback* cb,
   for(int i=0;i<4;i++) {
     sprintf(title,"iEta/iPhi Space Depth %d",i+1);
     sprintf(name,"Depth %d",i+1);
-    m_hist[i] = new TH2F(title,name,
-			 ieta_bins, ieta_lo-0.5, ieta_hi+0.5,
-			 iphi_bins, iphi_lo-0.5, iphi_hi+0.5);
-    m_hist[i]->GetXaxis()->SetTitle("IETA");
-    m_hist[i]->GetYaxis()->SetTitle("IPHI");
-    m_hist[i]->SetStats(0);
+    TH2F* h = new TH2F(title,name,
+		       ieta_bins, ieta_lo-0.5, ieta_hi+0.5,
+		       iphi_bins, iphi_lo-0.5, iphi_hi+0.5);
+    h->GetXaxis()->SetTitle("IETA");
+    h->GetYaxis()->SetTitle("IPHI");
+    h->SetStats(0);
+    // Set bins to a 'badval' in order to distinguish
+    // between zero-mean cells and unconnected cells
+    //
+    for (int binx=1; binx<=h->GetNbinsX(); binx++)
+      for (int biny=1; biny<=h->GetNbinsY(); biny++)
+	h->SetBinContent(binx,biny,BADVAL);
+    m_hist[i] = h;
   }
 
   TStyle* ms=new TStyle("hvs","hvs");
@@ -43,6 +53,7 @@ HcalVisualSelector::HcalVisualSelector(PlotCallback* cb,
 		    "HcalVisualSelector", this,
 		    "onEvent(Int_t,Int_t,Int_t,TObject*)");
   
+  m_canvas->cd();
 }
 
 void HcalVisualSelector::onEvent(Int_t event, Int_t x, Int_t y, TObject *selected) {
@@ -86,17 +97,11 @@ void HcalVisualSelector::onEvent(Int_t event, Int_t x, Int_t y, TObject *selecte
    int ieta=(int)(px+(sign(px)*0.5));
    int iphi=(int)(py+(sign(py)*0.5));
    int depth=padnum;
-   //printf("ieta=%d iphi=%d depth=%d\n",ieta,iphi,depth);
+   printf("ieta=%d iphi=%d depth=%d\n",ieta,iphi,depth);
    if (m_cb==0) return; // need a callback
 
    // figure out Subdetector
-   MyHcalSubdetector sd=HcalEmpty;
-   int aieta=abs(ieta);
-   
-   if(aieta<=16 && depth<=2) sd=HcalBarrel;
-   if(aieta<=15 && depth==4) sd=HcalOuter;
-   if( (aieta==16&&depth==3)||(aieta>16&&aieta<30)) sd=HcalEndcap;
-   if(aieta>29) sd=HcalForward;
+   MyHcalSubdetector sd=m_cb->getSubdet(ieta,depth);
       
    MyHcalDetId id = {sd,ieta,iphi,depth};
    m_cb->plot(id);
@@ -105,7 +110,8 @@ void HcalVisualSelector::onEvent(Int_t event, Int_t x, Int_t y, TObject *selecte
 void HcalVisualSelector::fill(const MyHcalDetId& id, double value) {
   //if (id.depth!=1) return;
   // what about depth?
-  m_hist[id.depth-1]->Fill(id.ieta*1.0, id.iphi*1.0,value);
+  TH2* h = m_hist[id.depth-1];
+  h->SetBinContent(h->FindBin(id.ieta*1.0,id.iphi*1.0,0.0),value);
 }
 
 void HcalVisualSelector::Update() {
