@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/03/27 15:45:59 $
- *  $Revision: 1.10 $
+ *  $Date: 2007/04/05 11:06:22 $
+ *  $Revision: 1.11 $
  *  \author M. Giunta
  */
 
@@ -340,6 +340,7 @@ void DTVDriftCalibration::endJob() {
 	wireCell != theWireIdAndCellMap.end(); wireCell++) {
       cellInfo* cell= theWireIdAndCellMap[(*wireCell).first];
       hTMaxCell* cellHists = cell->getHists();
+      theFile->cd();
       cellHists->Write();
       if(findVDriftAndT0) {  // if TRUE: evaluate calibration constants from TMax hists filled in this job  
 	// evaluate v_drift and sigma from the TMax histograms
