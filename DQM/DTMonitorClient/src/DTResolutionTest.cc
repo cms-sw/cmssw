@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/03/30 16:10:06 $
- *  $Revision: 1.6 $
+ *  $Date: 2007/04/10 11:07:59 $
+ *  $Revision: 1.7 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -122,6 +122,17 @@ void DTResolutionTest::bookHistos(const DTChamberId & ch) {
   (SigmaHistos[HistoName])->setBinLabel(9,"MB3_SL3",1);
   (SigmaHistos[HistoName])->setBinLabel(10,"MB4_SL1",1);
   (SigmaHistos[HistoName])->setBinLabel(11,"MB4_SL3",1);
+
+
+  string MeanHistoNameSetRange = "MeanWrong_W" + wheel.str() + "_Sec" + sector.str() + "_SetRange";
+  string SigmaHistoNameSetRange =  "SigmaWrong_W" + wheel.str() + "_Sec" + sector.str()  + "_SetRange";
+  MeanHistosSetRange[HistoName] = dbe->book1D(MeanHistoNameSetRange.c_str(),MeanHistoNameSetRange.c_str(),10,0.5,10.5);
+  SigmaHistosSetRange[HistoName] = dbe->book1D(SigmaHistoNameSetRange.c_str(),SigmaHistoNameSetRange.c_str(),10,0.5,10.5);
+  string MeanHistoNameSetRange2D = "MeanWrong_W" + wheel.str() + "_Sec" + sector.str() + "_SetRange" + "_2D";
+  string SigmaHistoNameSetRange2D =  "SigmaWrong_W" + wheel.str() + "_Sec" + sector.str()  + "_SetRange" + "_2D";
+  MeanHistosSetRange2D[HistoName] = dbe->book2D(MeanHistoNameSetRange2D.c_str(),MeanHistoNameSetRange2D.c_str(),10, 0.5, 10.5, 100, -0.05, 0.05);
+  SigmaHistosSetRange2D[HistoName] = dbe->book2D(SigmaHistoNameSetRange2D.c_str(),SigmaHistoNameSetRange2D.c_str(),10, 0.5, 10.5, 500, 0, 0.5);
+
 }
 
 
@@ -178,7 +189,7 @@ void DTResolutionTest::analyze(const edm::Event& e, const edm::EventSetup& conte
 	SigmaHistos.find(HistoName)->second->setBinContent(BinNumber, sigma);
       }
     }
-  }
+}
 
   // Mean test 
   cout<<"[DTResolutionTest]: Residuals Mean Tests results"<<endl;
@@ -192,6 +203,10 @@ void DTResolutionTest::analyze(const edm::Event& e, const edm::EventSetup& conte
       for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
 	   channel != badChannels.end(); channel++) {
 	cout<<"Bad mean channels: "<<(*channel).getBin()<<" "<<(*channel).getContents()<<endl;
+	if (MeanHistosSetRange.find((*hMean).first) == MeanHistosSetRange.end()) bookHistos((*ch_it)->id());
+	MeanHistosSetRange.find((*hMean).first)->second->Fill((*channel).getBin());
+	if (MeanHistosSetRange2D.find((*hMean).first) == MeanHistosSetRange2D.end()) bookHistos((*ch_it)->id());
+        MeanHistosSetRange2D.find((*hMean).first)->second->Fill((*channel).getBin(),(*channel).getContents());
       }
       cout<<"-------- "<<theMeanQReport->getMessage()<<" ------- "<<theMeanQReport->getStatus()<<endl;
     }
@@ -209,12 +224,16 @@ void DTResolutionTest::analyze(const edm::Event& e, const edm::EventSetup& conte
       for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
 	   channel != badChannels.end(); channel++) {
 	cout<<"Bad sigma channels: "<<(*channel).getBin()<<" "<<(*channel).getContents()<<endl;
+	if (SigmaHistosSetRange.find((*hSigma).first) == SigmaHistosSetRange.end()) bookHistos((*ch_it)->id());
+        SigmaHistosSetRange.find((*hSigma).first)->second->Fill((*channel).getBin());
+        if (SigmaHistosSetRange2D.find((*hSigma).first) == SigmaHistosSetRange2D.end()) bookHistos((*ch_it)->id());
+        SigmaHistosSetRange2D.find((*hSigma).first)->second->Fill((*channel).getBin(),(*channel).getContents());
       }
       cout<<"-------- "<<theSigmaQReport->getMessage()<<" ------- "<<theSigmaQReport->getStatus()<<endl;
     }
   }
 
-  if (nevents%parameters.getUntrackedParameter<int>("resultsSavingRate",100) == 0){
+  if (nevents%parameters.getUntrackedParameter<int>("resultsSavingRate",10) == 0){
     if ( parameters.getUntrackedParameter<bool>("writeHisto", true) ) 
       dbe->save(parameters.getUntrackedParameter<string>("outputFile", "DTResolutionTest.root"));
   }

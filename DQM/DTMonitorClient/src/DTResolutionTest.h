@@ -6,8 +6,8 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2007/03/27 16:11:45 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/03/30 16:10:06 $
+ *  $Revision: 1.3 $
  *  \author  G. Mila - INFN Torino
  *   
  */
@@ -52,9 +52,6 @@ protected:
   /// BeginJob
   void beginJob(const edm::EventSetup& c);
 
-  /// BeginRun
-  void beginRun(const edm::EventSetup& c);
-
   /// Analyze
   void analyze(const edm::Event& e, const edm::EventSetup& c);
 
@@ -81,6 +78,10 @@ private:
   // histograms: < detRawID, Histogram >
   std::map< std::string , MonitorElement* > MeanHistos;
   std::map< std::string , MonitorElement* > SigmaHistos;
+  std::map< std::string , MonitorElement* > MeanHistosSetRange;
+  std::map< std::string , MonitorElement* > SigmaHistosSetRange;
+  std::map< std::string , MonitorElement* > MeanHistosSetRange2D;
+  std::map< std::string , MonitorElement* > SigmaHistosSetRange2D;
 
 };
 
