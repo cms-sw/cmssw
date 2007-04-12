@@ -15,7 +15,7 @@ public:
 
  private:
   void plotResolution(const PSimHit & simHit, const CSCSegment & recHit,
-                      int chamberType);
+                      const CSCLayer * layer, int chamberType);
 
   bool hasSegment(int chamberId) const;
   static int whatChamberType(int detId);
@@ -37,10 +37,15 @@ public:
   MonitorElement* theNPerEventPlot;
   MonitorElement* theNRecHitsPlot;
   MonitorElement* theNPerChamberTypePlot;
-  MonitorElement* thePhiResolutionPlots[10];
-  MonitorElement* thePhiPullPlots[10];
+  MonitorElement* theRdPhiResolutionPlots[10];
+  MonitorElement* theRdPhiPullPlots[10];
   MonitorElement* theThetaResolutionPlots[10];
   MonitorElement* theThetaPullPlots[10];
+  MonitorElement* thedXdZResolutionPlots[10];
+  MonitorElement* thedXdZPullPlots[10];
+  MonitorElement* thedYdZResolutionPlots[10];
+  MonitorElement* thedYdZPullPlots[10];
+
 
 
   MonitorElement* theTypePlot4HitsNoShower;

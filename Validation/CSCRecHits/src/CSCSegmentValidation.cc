@@ -26,20 +26,32 @@ CSCSegmentValidation::CSCSegmentValidation(DaqMonitorBEInterface* dbe, const edm
   theTypePlot6HitsShowerSeg( dbe_->book1D("CSCSegments6HitsShowerSeg", "", 100, 0, 10) )
 {
    dbe_->setCurrentFolder("CSCRecHitTask");
-
+std::cout << "SEVAL CTOPR" << std::endl;
    for(int i = 0; i < 10; ++i)
   {
-    char title1[200], title2[200], title3[200], title4[200];
-    sprintf(title1, "CSCSegmentPhiResolution%d", i+1);
-    sprintf(title2, "CSCSegmentPhiPull%d", i+1);
+    char title1[200], title2[200], title3[200], title4[200],  
+         title5[200], title6[200], title7[200], title8[200];
+    sprintf(title1, "CSCSegmentRdPhiResolution%d", i+1);
+    sprintf(title2, "CSCSegmentRdPhiPull%d", i+1);
     sprintf(title3, "CSCSegmentThetaResolution%d", i+1);
     sprintf(title4, "CSCSegmentThetaPull%d", i+1);
+    sprintf(title5, "CSCSegmentdXdZResolution%d", i+1);
+    sprintf(title6, "CSCSegmentdXdZPull%d", i+1);
+    sprintf(title7, "CSCSegmentdYdZResolution%d", i+1);
+    sprintf(title8, "CSCSegmentdYdZPull%d", i+1);
 
-    thePhiResolutionPlots[i] = dbe_->book1D(title1, title1, 100, -1, 1);
-    thePhiPullPlots[i] = dbe_->book1D(title2, title2, 100, -5, 5);
+
+    theRdPhiResolutionPlots[i] = dbe_->book1D(title1, title1, 100, -0.4, 0.4);
+    theRdPhiPullPlots[i] = dbe_->book1D(title2, title2, 100, -5, 5);
     theThetaResolutionPlots[i] = dbe_->book1D(title3, title3, 100, -1, 1);
     theThetaPullPlots[i] = dbe_->book1D(title4, title4, 100, -5, 5);
+    thedXdZResolutionPlots[i] = dbe_->book1D(title5, title5, 100, -1, 1);
+    thedXdZPullPlots[i] = dbe_->book1D(title6, title6, 100, -5, 5);
+    thedYdZResolutionPlots[i] = dbe_->book1D(title7, title7, 100, -1, 1);
+    thedYdZPullPlots[i] = dbe_->book1D(title8, title8, 100, -5, 5);
+
   }
+std::cout << "end SEVAL CTOPR" << std::endl;
 }
 
 void CSCSegmentValidation::analyze(const edm::Event&e, const edm::EventSetup& eventSetup)
@@ -66,7 +78,8 @@ void CSCSegmentValidation::analyze(const edm::Event&e, const edm::EventSetup& ev
     const PSimHit * hit = keyHit(detId);
     if(hit != 0) 
     {
-      plotResolution(*hit, *segmentItr, chamberType);
+      const CSCLayer * layer = findLayer(hit->detUnitId());
+      plotResolution(*hit, *segmentItr, layer, chamberType);
     }  
   }
 
@@ -154,19 +167,34 @@ int CSCSegmentValidation::whatChamberType(int detId)
 
 
 void CSCSegmentValidation::plotResolution(const PSimHit & simHit, const CSCSegment & segment,
-                                         int chamberType)
+                                         const CSCLayer * layer, int chamberType)
 {
+  GlobalPoint simHitPos = layer->toGlobal(simHit.localPosition());
+  GlobalPoint segmentPos = layer->toGlobal(segment.localPosition());
   LocalVector simHitDir = simHit.localDirection();
   LocalVector segmentDir = segment.localDirection();
 
-  double dphi = segmentDir.phi() - simHitDir.phi();
-  if(dphi > M_PI/2.) dphi -= M_PI;
-  if(dphi < -M_PI/2.) dphi += M_PI;
-  double dtheta = segmentDir.theta() - simHitDir.theta();
-  thePhiResolutionPlots[chamberType-1]->Fill( dphi );
-  thePhiPullPlots[chamberType-1]->Fill( dphi/segment.localPositionError().xx() );
+  double dphi = segmentPos.phi() - simHitPos.phi();
+  double rdphi = segmentPos.perp() * dphi;
+  double dtheta = segmentPos.theta() - simHitPos.theta();
+
+  double sigmax = sqrt(segment.localPositionError().xx());
+  double sigmay = sqrt(segment.localPositionError().yy());
+
+  double ddxdz = segmentDir.x()/segmentDir.z() - simHitDir.x()/simHitDir.z();
+  double ddydz = segmentDir.y()/segmentDir.z() - simHitDir.y()/simHitDir.z();
+  double sigmadxdz = sqrt(segment.localDirectionError().xx());
+  double sigmadydz = sqrt(segment.localDirectionError().yy()); 
+
+  theRdPhiResolutionPlots[chamberType-1]->Fill( rdphi );
+  theRdPhiPullPlots[chamberType-1]->Fill( rdphi/sigmax );
   theThetaResolutionPlots[chamberType-1]->Fill( dtheta );
-  theThetaPullPlots[chamberType-1]->Fill( dtheta/segment.localPositionError().yy() );
+  //theThetaPullPlots[chamberType-1]->Fill( dy/sigmay );
+
+  thedXdZResolutionPlots[chamberType-1]->Fill( ddxdz );
+  thedXdZPullPlots[chamberType-1]->Fill( ddxdz/sigmadxdz );
+  thedYdZResolutionPlots[chamberType-1]->Fill( ddydz );
+  thedYdZPullPlots[chamberType-1]->Fill( ddydz/sigmadydz );
 }
 
 
