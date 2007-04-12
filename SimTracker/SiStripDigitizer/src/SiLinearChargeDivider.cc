@@ -34,7 +34,7 @@ SiLinearChargeDivider::divide(const PSimHit& hit, const StripGeomDetUnit& det) {
  
   LocalVector direction = hit.exitPoint() - hit.entryPoint();  
   int NumberOfSegmentation =  
-    (int)(1+chargedivisionsPerStrip*fabs(direction.x())/(det.specificTopology()).pitch()); 
+    (int)(1+chargedivisionsPerStrip*fabs(direction.x())/(det.specificTopology()).localPitch(hit.localPosition())); 
  
   float eLoss = hit.energyLoss();  // Eloss in GeV
  
