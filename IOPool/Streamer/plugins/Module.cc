@@ -24,12 +24,12 @@ typedef edm::EventStreamingModule<edmtest::TestConsumer> StreamTestConsumer;
 
 DEFINE_FWK_MODULE(StreamTestConsumer);
 
-DEFINE_ANOTHER_FWK_INPUT_SOURCE(NewEventStreamFileReader);
+DEFINE_FWK_INPUT_SOURCE(NewEventStreamFileReader);
 
-DEFINE_ANOTHER_FWK_MODULE(EventStreamFileWriter);
+DEFINE_FWK_MODULE(EventStreamFileWriter);
 
 using namespace edm::serviceregistry;
 using stor::HLTInfo;
 
-DEFINE_ANOTHER_FWK_SERVICE_MAKER(HLTInfo,ParameterSetMaker<HLTInfo>);
+DEFINE_FWK_SERVICE_MAKER(HLTInfo,ParameterSetMaker<HLTInfo>);
 
