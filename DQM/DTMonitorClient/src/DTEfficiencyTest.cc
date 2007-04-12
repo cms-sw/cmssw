@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/03/29 10:06:54 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/03/30 16:10:06 $
+ *  $Revision: 1.2 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -94,7 +94,9 @@ void DTEfficiencyTest::bookHistos(const DTLayerId & lId, int firstWire, int last
   string EfficiencyHistoName =  "Efficiency_" + HistoName; 
   string UnassEfficiencyHistoName =  "UnassEfficiency_" + HistoName; 
 
-  dbe->setCurrentFolder("DT/Tests/DTEfficiency");
+  dbe->setCurrentFolder("DT/Tests/DTEfficiency/Wheel" + wheel.str() +
+			   "/Station" + station.str() +
+			   "/Sector" + sector.str());
 
   EfficiencyHistos[HistoName] = dbe->book1D(EfficiencyHistoName.c_str(),EfficiencyHistoName.c_str(),lastWire-firstWire+1, firstWire-0.5, lastWire+0.5);
   UnassEfficiencyHistos[HistoName] = dbe->book1D(UnassEfficiencyHistoName.c_str(),UnassEfficiencyHistoName.c_str(),lastWire-firstWire+1, firstWire-0.5, lastWire+0.5);
@@ -160,7 +162,7 @@ void DTEfficiencyTest::analyze(const edm::Event& e, const edm::EventSetup& conte
 	      // Loop over the TH1F bin and fill the ME to be used for the Quality Test
 	      for(int bin=firstWire; bin <= lastWire; bin++) {
 		if((recSegmOccupancy_histo_root->GetBinContent(bin))!=0) {
-		  cout<<"book histos"<<endl;
+		  //cout<<"book histos"<<endl;
 		  if (EfficiencyHistos.find(HistoName) == EfficiencyHistos.end()) bookHistos(lID, firstWire, lastWire);
 		  float efficiency = occupancy_histo_root->GetBinContent(bin) / recSegmOccupancy_histo_root->GetBinContent(bin);
 		  EfficiencyHistos.find(HistoName)->second->setBinContent(bin, efficiency);
@@ -176,7 +178,7 @@ void DTEfficiencyTest::analyze(const edm::Event& e, const edm::EventSetup& conte
 	}
 
 	// Efficiency test 
-	cout<<"[DTEfficiencyTest]: Efficiency Tests results"<<endl;
+	//cout<<"[DTEfficiencyTest]: Efficiency Tests results"<<endl;
 	string EfficiencyCriterionName = parameters.getUntrackedParameter<string>("EfficiencyTestName","EfficiencyInRange"); 
 	for(map<string, MonitorElement*>::const_iterator hEff = EfficiencyHistos.begin();
 	    hEff != EfficiencyHistos.end();
@@ -193,7 +195,7 @@ void DTEfficiencyTest::analyze(const edm::Event& e, const edm::EventSetup& conte
 	}
 	
 	// UnassEfficiency test 
-	cout<<"[DTEfficiencyTest]: UnassEfficiency Tests results"<<endl;
+	//cout<<"[DTEfficiencyTest]: UnassEfficiency Tests results"<<endl;
 	string UnassEfficiencyCriterionName = parameters.getUntrackedParameter<string>("UnassEfficiencyTestName","UnassEfficiencyInRange"); 
 	for(map<string, MonitorElement*>::const_iterator hUnassEff = UnassEfficiencyHistos.begin();
 	    hUnassEff != UnassEfficiencyHistos.end();
