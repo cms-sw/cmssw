@@ -5,7 +5,7 @@
 #include "DQMServices/WebComponents/interface/WebElement.h"
 #include "DQMServices/WebComponents/interface/WebPage.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
-class SiStripActionExecutor;
+class SiStripActionExecutorQTest;
 class SiStripInformationExtractor;
 
 class SiStripWebInterface : public WebInterface
@@ -13,11 +13,10 @@ class SiStripWebInterface : public WebInterface
  public:
  
   enum SiStripActionType{NoAction=0, SubscribeAll=1, Summary=2, Collate=3,
-                         QTestResult=4, CreateTkMap=5, 
-                         SaveData=6, 
-                         PlotSingleModuleHistos=7, PlotGlobalHistos=8,
-                         PlotHistogramFromPath=9, PlotTkMapHistogram=10,
-                         PlotHistogramFromLayout=11};
+                         CreateTkMap=4, SaveData=5, 
+                         PlotSingleModuleHistos=6, PlotGlobalHistos=7,
+                         PlotHistogramFromPath=8, PlotTkMapHistogram=9,
+                         PlotHistogramFromLayout=10};
 
   SiStripWebInterface(std::string theContextURL, std::string theApplicationURL, MonitorUserInterface ** _mui_p);
  ~SiStripWebInterface();
@@ -38,7 +37,7 @@ class SiStripWebInterface : public WebInterface
   private:
 
   SiStripActionType theActionFlag;
-  SiStripActionExecutor* actionExecutor_;
+  SiStripActionExecutorQTest* actionExecutor_;
   SiStripInformationExtractor* infoExtractor_;
 
   void returnReplyXml(xgi::Output * out, const std::string& name, const std::string& comment);

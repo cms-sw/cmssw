@@ -1,5 +1,5 @@
 #include "DQM/SiStripMonitorClient/interface/SiStripWebInterface.h"
-#include "DQM/SiStripMonitorClient/interface/SiStripActionExecutor.h"
+#include "DQM/SiStripMonitorClient/interface/SiStripActionExecutorQTest.h"
 #include "DQM/SiStripMonitorClient/interface/SiStripInformationExtractor.h"
 #include "DQMServices/WebComponents/interface/Button.h"
 #include "DQMServices/WebComponents/interface/CgiWriter.h"
@@ -28,7 +28,7 @@ SiStripWebInterface::SiStripWebInterface(std::string theContextURL, std::string 
   tkMapCreated = false;
   createAll();
 
-  if (actionExecutor_ == 0) actionExecutor_ = new SiStripActionExecutor();
+  if (actionExecutor_ == 0) actionExecutor_ = new SiStripActionExecutorQTest();
   if (infoExtractor_ == 0) infoExtractor_ = new SiStripInformationExtractor();
 }
 //
@@ -72,17 +72,22 @@ void SiStripWebInterface::handleCustomRequest(xgi::Input* in,xgi::Output* out)
   // get the string that identifies the request:
   cout << " requestID " << requestID << endl;
   if (requestID == "IsReady") {
-    std::string name = "ReadyState";
-    std::string comment = "wait";
-    if ((*mui_p)->getNumUpdates() > 2) comment = "ready";
-    returnReplyXml(out, name, comment);
     theActionFlag = NoAction;    
+    if ((*mui_p)->getNumUpdates() > 2) {
+      infoExtractor_->readLayoutNames(out);
+    } else {
+      returnReplyXml(out, "ReadyState", "wait");
+    }
   }    
     else if (requestID == "SubscribeAll") {
     theActionFlag = SubscribeAll;
   } 
   else if (requestID == "CheckQTResults") {
-    theActionFlag = QTestResult;
+    out->getHTTPResponseHeader().addHeader("Content-Type", "text/plain");
+    std::string infoType = get_from_multimap(requestMap_, "InfoType");
+    if (infoType == "Lite") *out <<  actionExecutor_->getQTestSummaryLite((*mui_p)) << endl;
+    else *out <<  actionExecutor_->getQTestSummaryLite((*mui_p)) << endl;
+    theActionFlag = NoAction;
   } 
   else if (requestID == "CreateSummary") {
      theActionFlag = Summary;
@@ -210,11 +215,6 @@ void SiStripWebInterface::performAction() {
   case SiStripWebInterface::Summary :
     {
       actionExecutor_->createSummary((*mui_p));
-      break;
-    }
-  case SiStripWebInterface::QTestResult :
-    {
-      actionExecutor_->checkQTestResults((*mui_p));
       break;
     }
   case SiStripWebInterface::SaveData :

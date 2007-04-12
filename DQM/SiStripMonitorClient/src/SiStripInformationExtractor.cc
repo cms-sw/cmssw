@@ -50,6 +50,12 @@ void SiStripInformationExtractor::readConfiguration() {
     layoutParser_ = new SiStripLayoutParser();
     layoutParser_->getDocument(edm::FileInPath(localPath).fullPath());
   }
+  if (layoutParser_->getAllLayouts(layoutMap)) {
+     edm::LogInfo("SiStripInformationExtractor") << 
+    " Layouts correctly readout " << "\n" ;
+  } else  edm::LogInfo("SiStripInformationExtractor") << 
+          " Problem in reading Layout " << "\n" ;
+  if (layoutParser_) delete layoutParser_;
 }
 //
 // --  Fill Histo and Module List
@@ -327,13 +333,6 @@ void SiStripInformationExtractor::plotHistosFromPath(MonitorUserInterface * mui,
 // plot Histograms from Layout
 //
 void SiStripInformationExtractor::plotHistosFromLayout(MonitorUserInterface * mui){
-
-  if (layoutParser_->getAllLayouts(layoutMap)) {
-     edm::LogInfo("SiStripInformationExtractor") << 
-    " Layouts correctly readout " << "\n" ;
-  } else  edm::LogInfo("SiStripInformationExtractor") << 
-          " Problem in reading Layout " << "\n" ;
-
   if (layoutMap.size() == 0) return;
   multimap<string, string> opt_map;
   opt_map.insert(pair<string,string>("width","600"));
@@ -505,6 +504,21 @@ void SiStripInformationExtractor::plotHistos(multimap<string,string>& req_map,
   }
   canvas_->Update();
   canvas_->Modified();
+}
+//
+// -- Read Layout Group names
+//
+void SiStripInformationExtractor::readLayoutNames(xgi::Output * out){
+  if (layoutMap.size() > 0) {
+    out->getHTTPResponseHeader().addHeader("Content-Type", "text/xml");
+    *out << "<?xml version=\"1.0\" ?>" << std::endl;
+    *out << "<LayoutList>" << endl;
+   for (map<string, vector< string > >::iterator it = layoutMap.begin();
+	it != layoutMap.end(); it++) {
+     *out << "<LName>" << it->first << "</LName>" << endl;  
+   }
+   *out << "</LayoutList>" << endl;
+  }  
 }
 //
 // read the Module And HistoList

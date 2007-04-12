@@ -41,6 +41,7 @@ class SiStripInformationExtractor {
  
   void readStatusMessage(MonitorUserInterface* mui, std::string& path,xgi::Output * out);
   void readGlobalHistoList(MonitorUserInterface* mui, xgi::Output * out, bool coll_flag);
+  void readLayoutNames(xgi::Output * out);
 
 
  private:
