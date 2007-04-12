@@ -1,8 +1,8 @@
 /** \class MuonTrackFinder
  *  Concrete Track finder for the Muon Reco
  *
- *  $Date: 2007/02/16 13:32:12 $
- *  $Revision: 1.33 $
+ *  $Date: 2007/03/06 18:21:23 $
+ *  $Revision: 1.34 $
  *  \author R. Bellan - INFN Torino
  */
 
@@ -42,9 +42,9 @@ MuonTrackFinder::MuonTrackFinder(MuonTrajectoryBuilder *ConcreteMuonTrajectoryBu
 MuonTrackFinder::~MuonTrackFinder() {
 
   LogTrace("Muon|RecoMuon|MuonTrackFinder")<<"MuonTrackFinder destructor called"<<endl;
-  delete theTrajBuilder;
-  delete theTrajCleaner;
-  delete theTrackLoader;
+  if(theTrajBuilder) delete theTrajBuilder;
+  if(theTrajCleaner) delete theTrajCleaner;
+  if(theTrackLoader) delete theTrackLoader;
 
 }
 
