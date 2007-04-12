@@ -7,7 +7,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include <cmath>
-
+#include <string>
 
 class reco::CaloJet;
 
@@ -20,18 +20,21 @@ public:
   ~JetVertexMain(){};
 
   
- std::pair <double, bool> Main (const reco::CaloJet& jet, edm::Handle<reco::TrackCollection> tracks, double SIGNAL_V_Z); 
+ std::pair <double, bool> Main (const reco::CaloJet& jet, edm::Handle<reco::TrackCollection> tracks,
+                                double SIGNAL_V_Z, double SIGNAL_V_Z_Error );
               
  private:
   double DeltaR(double eta1, double eta2, double phi1, double phi2);
   double Track_Pt(double px, double py);
 
 //algorithm parameters
-  double deltaZ;
+  double cutSigmaZ;
+  double cutDeltaZ;
   double threshold;
   double cone_size;
   int    Algo;
-
+  std::string cutType;
+  bool discriminator;
 
 };
 

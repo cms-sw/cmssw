@@ -4,20 +4,24 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <cmath>
+#include <string>
 using namespace reco;
 using namespace edm;
 
 JetVertexMain::JetVertexMain(const ParameterSet & parameters) {
 
-  deltaZ = parameters.getParameter<double>("JV_deltaZ");
+  cutSigmaZ = parameters.getParameter<double>("JV_sigmaZ");
+  cutDeltaZ = parameters.getParameter<double>("JV_deltaZ");
   threshold = parameters.getParameter<double>("JV_alpha_threshold");
   cone_size = parameters.getParameter<double>("JV_cone_size");
   Algo =  parameters.getParameter<int>("JV_type_Algo");
+  cutType = parameters.getParameter<std::string>("JV_cutType");
 
 }
 
 
-std::pair<double,bool> JetVertexMain::Main(const reco::CaloJet& jet, edm::Handle<TrackCollection> tracks, double signal_vert_Z){
+std::pair<double,bool> JetVertexMain::Main(const reco::CaloJet& jet, edm::Handle<TrackCollection> tracks,
+                                           double signal_vert_Z,  double signal_vert_z_error){
 
   std::pair<double, bool> parameter; 
  
@@ -36,25 +40,29 @@ std::pair<double,bool> JetVertexMain::Main(const reco::CaloJet& jet, edm::Handle
   if (tracks->size() > 0 )   { 
    for (; track != tracks->end (); track++) {
      double Vertex_Z = track->vz();
+     double Vertex_Z_Error = track->dzError();
      double track_eta = track->eta();
      double track_phi = track->phi();
 
      if (DeltaR(track_eta,jet_eta, track_phi, jet_phi) < cone_size) {
-		
+
+                  double DeltaZ = Vertex_Z-signal_vert_Z;
+                  double DeltaZ_Error = sqrt((Vertex_Z_Error*Vertex_Z_Error)+(signal_vert_z_error*signal_vert_z_error));
 		  Pt_jets_X_tot += track->px();
 		  Pt_jets_Y_tot += track->py();  
-		  if (fabs(Vertex_Z-signal_vert_Z) < deltaZ) {
+                  if (cutType == "sig") discriminator = (fabs(DeltaZ)/DeltaZ_Error) <= cutSigmaZ;
+                  else discriminator = fabs(DeltaZ) < cutDeltaZ;
+        
+                  if (discriminator){
 		    
 		      Pt_jets_X += track->px();
 		      Pt_jets_Y += track->py();
 		       
-		    }
-		}
-   
-
+		  }
+ 
    }
-  }
-
+ } 
+}
   double Var = -1;
   
   if (Algo == 1) Var =  Track_Pt(Pt_jets_X, Pt_jets_Y)/jet_et;
@@ -80,7 +88,7 @@ std::pair<double,bool> JetVertexMain::Main(const reco::CaloJet& jet, edm::Handle
 double JetVertexMain::DeltaR(double eta1, double eta2, double phi1, double phi2){
 
   double dphi = fabs(phi1-phi2);
-  if(dphi > 3.1415) dphi = 6.283 - dphi;  
+  if(dphi > M_PI) dphi = 2*M_PI - dphi;
   double deta = fabs(eta1-eta2);
   return sqrt(dphi*dphi + deta*deta);
 

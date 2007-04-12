@@ -12,7 +12,7 @@
 <use name=TrackingTools/TrajectoryParametrization>
 <use name=Geometry/CommonDetAlgo>
 <use name=rootrflx>
-<flags EDM_PLUGIN=1>
+<flags SEAL_PLUGIN_NAME="JetMETCorrectionsJetVertexAssociation">
 <export>
    <lib name=JetMETCorrectionsJetVertexAssociation>
    <use name=FWCore/Framework>

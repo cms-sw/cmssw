@@ -12,6 +12,8 @@
 */
 //
 // Original Author:  Natalia Ilina
+// Modified by Eduardo Luiggi
+//
 //         Created:  Tue Oct 31 10:52:41 CET 2006
 // $Id: JetVertexAssociation.cc,v 1.2 2007/03/09 17:01:47 kodolova Exp $
 //
@@ -31,7 +33,6 @@
 #include <memory>
 #include <iostream>
 #include <iomanip>
-#include <string>
 #include <cmath>
 
 
@@ -40,7 +41,7 @@
 #include "DataFormats/Common/interface/EDProduct.h"
 #include "FWCore/Framework/interface/Event.h"
 
-#include "FWCore/PluginManager/interface/ModuleDef.h"
+#include "PluginManager/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "DataFormats/Common/interface/Handle.h"
@@ -57,7 +58,12 @@ using namespace std;
 using namespace reco;
 namespace cms{
 
-  JetVertexAssociation::JetVertexAssociation(const edm::ParameterSet& iConfig): m_algo(iConfig) , jet_algo(iConfig.getParameter<int>("JET_ALGO")) {
+  JetVertexAssociation::JetVertexAssociation(const edm::ParameterSet& iConfig): m_algo(iConfig),
+                                                                                jet_algo(iConfig.getParameter<std::string>("JET_ALGO")),
+                                                                                track_algo(iConfig.getParameter<std::string>("TRACK_ALGO")),
+                                                                                vertex_algo(iConfig.getParameter<std::string>("VERTEX_ALGO")) {
+
+
 
     produces<ResultCollection1>("Var");
     produces<ResultCollection2>("JetType");
@@ -68,17 +74,16 @@ namespace cms{
   void JetVertexAssociation::produce(edm::Event& iEvent, const edm::EventSetup& iSetup){
 
    edm::Handle<CaloJetCollection> jets;  
-   if (jet_algo == 1)  iEvent.getByLabel("iterativeCone5CaloJets", jets);  
-   if (jet_algo == 2)  iEvent.getByLabel("ktCaloJets", jets); 
-   if (jet_algo == 3)  iEvent.getByLabel("midPointCone5CaloJets", jets); 
+   iEvent.getByLabel(jet_algo, jets);  
     
    edm::Handle<TrackCollection> tracks;
-   iEvent.getByLabel("ctfWithMaterialTracks", tracks);
+   iEvent.getByLabel(track_algo, tracks);
   
    edm::Handle<VertexCollection> vertexes;
-   iEvent.getByLabel("offlinePrimaryVerticesFromCTFTracks", vertexes); 
+   iEvent.getByLabel(vertex_algo, vertexes); 
  
    double SIGNAL_V_Z = 0.;
+   double SIGNAL_V_Z_ERROR = 0.;
    double ptmax = -100.;
 
    VertexCollection::const_iterator vert = vertexes->begin ();
@@ -93,6 +98,7 @@ namespace cms{
  
 	                  ptmax = pt;
 		          SIGNAL_V_Z = vert->z();
+                          SIGNAL_V_Z_ERROR = vert->zError();
     
 		}
          
@@ -107,7 +113,7 @@ namespace cms{
   
    if(jets->size() > 0 )   { 
         for (; jet != jets->end (); jet++) {
-	     result = m_algo.Main(*jet, tracks, SIGNAL_V_Z);
+	     result = m_algo.Main(*jet, tracks, SIGNAL_V_Z, SIGNAL_V_Z_ERROR);
              result1->push_back(result.first);
              result2->push_back(result.second);
        

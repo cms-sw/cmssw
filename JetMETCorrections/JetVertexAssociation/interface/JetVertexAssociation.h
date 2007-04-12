@@ -7,9 +7,9 @@
 #include "JetMETCorrections/JetVertexAssociation/interface/JetVertexMain.h"
 
 #include <memory>
+#include <string>
 #include <iostream>
 #include <iomanip>
-#include <string>
 #include <cmath>
 #include <vector>
 
@@ -37,7 +37,10 @@ namespace cms{
     typedef std::vector<bool> ResultCollection2;
 
     JetVertexMain m_algo;
-    int jet_algo;
+    std::string jet_algo;
+    std::string track_algo;
+    std::string vertex_algo;
+
   };
 }
 
