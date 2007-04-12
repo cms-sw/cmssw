@@ -6,6 +6,7 @@
 <use name=clhep>
 <use name=boost>
 
+<flags EDM_PLUGIN=1>
 <library file=LaserAlignmentSimulation.cc>
  <lib name=AlignmentLaserAlignmentSimulation>
  <use name=SimG4Core/Notification>
@@ -27,6 +28,7 @@
  <use name=DataFormats/Common>
 </library>
 
+<flags EDM_PLUGIN=1>
 <library file=LaserAlignmentSource.cc>
  <lib name=AlignmentLaserAlignmentSimulation>
  <use name=SimDataFormats/HepMCProduct>
@@ -36,6 +38,7 @@
  <use name=hepmc>
 </library>
 
+<flags EDM_PLUGIN=1>
 <library file=LaserOpticalPhysics.cc>
  <lib name=AlignmentLaserAlignmentSimulation>
  <use name=SimG4Core/Physics>

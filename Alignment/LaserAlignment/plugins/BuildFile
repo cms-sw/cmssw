@@ -3,6 +3,7 @@
 <use name=FWCore/MessageLogger>
 <use name=FWCore/ServiceRegistry>
 
+<flags EDM_PLUGIN=1>
 <library name=LaserAlignment file=LaserAlignment.cc,LaserAlignmentInitHistograms.cc,LaserAlignmentTrackerStatistics.cc,LaserAlignmentAlignmentAlgorithm.cc,LaserAlignmentFit.cc>
 	<lib name=AlignmentLaserAlignment>
 	<use name=Alignment/LaserAlignment>
@@ -23,6 +24,7 @@
 	<use name=rootcore>
 </library>
 
+<flags EDM_PLUGIN=1>
 <library file=LaserClusterizer.cc>
 	<lib name=AlignmentLaserAlignment>
 	<use name=DataFormats/Common>
@@ -32,6 +34,7 @@
 	<use name=Geometry/TrackerGeometryBuilder>
 </library>
 
+<flags EDM_PLUGIN=1>
 <library file=LaserSeedGenerator.cc>
 	<lib name=AlignmentLaserAlignment>
 	<use name=DataFormats/TrackerRecHit2D>
