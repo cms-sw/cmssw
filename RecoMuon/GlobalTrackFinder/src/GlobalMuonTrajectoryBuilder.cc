@@ -12,8 +12,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2007/04/10 21:21:26 $
- *  $Revision: 1.88 $
+ *  $Date: 2007/04/11 16:12:20 $
+ *  $Revision: 1.89 $
  *
  *  Authors :
  *  N. Neumeister            Purdue University
@@ -550,7 +550,7 @@ MuonCandidate::CandidateContainer GlobalMuonTrajectoryBuilder::build(const Track
 	rechits.insert(rechits.end(), muonRecHits1.begin(), muonRecHits1.end());
 	if(theMIMFlag) dataMonitor->fill1("build",4);//should equal 3
 	LogTrace(category) << "Number of hits: " << rechits.size();
-	refitted1 = theRefitter->trajectories((*it)->trajectory()->seed(),rechits,innerTsos);
+	refitted1 = theRefitter->trajectory((*it)->trajectory()->seed(),rechits,innerTsos);
 
 	if ( refitted1.size() == 1 ) {
 	  if(theMIMFlag) dataMonitor->fill1("build",5);
@@ -571,7 +571,7 @@ MuonCandidate::CandidateContainer GlobalMuonTrajectoryBuilder::build(const Track
 	if(theMIMFlag) dataMonitor->fill1("build",6);
 	LogTrace(category) << "Number of hits: " << rechits.size();
 	
-	refitted2 = theRefitter->trajectories((*it)->trajectory()->seed(),rechits,innerTsos);
+	refitted2 = theRefitter->trajectory((*it)->trajectory()->seed(),rechits,innerTsos);
 	if ( refitted2.size() == 1 ) {
 	  if(theMIMFlag) dataMonitor->fill1("build",7);
 	  refit[2] = &(*refitted2.begin());
@@ -593,7 +593,7 @@ MuonCandidate::CandidateContainer GlobalMuonTrajectoryBuilder::build(const Track
 	
 	LogTrace(category) << "Number of hits: " << rechits.size();
 	if(theMIMFlag) dataMonitor->fill1("build",8);
-	refitted3 = theRefitter->trajectories((*it)->trajectory()->seed(),rechits,innerTsos);
+	refitted3 = theRefitter->trajectory((*it)->trajectory()->seed(),rechits,innerTsos);
 	if ( refitted3.size() == 1 ) {
 	  if(theMIMFlag) dataMonitor->fill1("build",9);
 	  refit[3] = &(*refitted3.begin());
