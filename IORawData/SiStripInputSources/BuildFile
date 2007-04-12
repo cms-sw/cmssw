@@ -15,7 +15,6 @@
    <use name=FWCore/Framework>
    <use name=FWCore/ParameterSet>
    <use name=FWCore/MessageLogger>
-   <use name=FWCore/PluginManager>
    <use name=DataFormats/FEDRawData>
    <use name=DataFormats/SiStripCommon>
    <use name=TkOnlineSw>
