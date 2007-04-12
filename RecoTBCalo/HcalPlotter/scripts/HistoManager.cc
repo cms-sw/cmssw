@@ -49,8 +49,8 @@ TH1* HistoManager::GetAHistogram(const MyHcalDetId& id,
   default        : td=0;            break;
   }
 
-  if (td==0) {
-    printf("Unknown %d !\n", et);
+  if (!td) {
+    printf("Event type not known, et=%d\n", et);
     return 0;
   }
 
@@ -104,11 +104,17 @@ std::vector<MyHcalDetId> HistoManager::getDetIdsForType(HistType ht,
   default        : td=0;            break;
   }
 
+  if (!td) {
+    printf("Event type not known, et=%d\n", et);
+    return retvals;
+  }
+
   keyList = td->GetListOfKeys();
   
   for(int keyindex = 0; keyindex<keyList->GetEntries(); ++keyindex) {
     int converted;
     std::string keyname = keyList->At(keyindex)->GetName();
+    // cout << keyindex << " " << keyname << endl;
     while (keyname.find("_")!=std::string::npos)
       keyname.replace(keyname.find("_"),1," ");
     converted = sscanf(keyname.c_str(),"%s %s %d %d %d",
