@@ -1,5 +1,5 @@
 // Commands executed in a GLOBAL scope, e.g. created hitograms aren't erased...
-void plot_HF(TString  inputfile="simevent_HF.root",
+void plot_HF(TString  inputfile="HF_ref.root",
 	     TString outputfile="HF_histo.root",
 	     Int_t drawmode = 0,
              TString    reffile="../data/HF_ref.root")
@@ -105,7 +105,7 @@ void plot_HF(TString  inputfile="simevent_HF.root",
   // Special : timing in the cluster (7x7) enery-weighted
   h1[16] = new TH1F("h16",label1[16],60,0.,60.);  
   // Special : number of HCAL hits
-  h1[17] = new TH1F("h17",label1[17],50,0.,50.);  
+  h1[17] = new TH1F("h17",label1[17],20,0.,20.);  
   // Special : signal in long fibers
   h1[18] = new TH1F("h18",label1[18],50,0.,50.);
   // Special : signal in short fibers
