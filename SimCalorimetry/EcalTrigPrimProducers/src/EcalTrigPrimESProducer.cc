@@ -44,29 +44,46 @@ EcalTrigPrimESProducer::produce(const EcalTPParametersRcd& iRecord)
 
 void EcalTrigPrimESProducer::parseTextFile(EcalTPParameters& ecaltpp)
 {
+
   //FIXME ...or wait for DB
   // for the moment we have only barrel parameters
+  int NBphysparams  = 4 ;
   int NBxtalparams  = 9 ;
   int NBstripparams = 6 ;
   int NBtowerparams = 1029 ;
 
   std::vector<unsigned int> param ;
+  std::vector<float> paramF ;
 
   std::string filenameEB="SimCalorimetry/EcalTrigPrimProducers/data/"+dbFilenameEB_;
   edm::FileInPath fileInPath(filenameEB);
   std::ifstream infile (fileInPath.fullPath().c_str()) ;
   if (infile.is_open()) {
 
+
+    // phys structure : xtalLSB (GeV), EtSaturation (GeV), ttf_threshold_Low (GeV), ttf_threshold_High (GeV)
     // xtal structure : ped, mult, shift [gain12] , ped, mult ,shift [gain6], ... [gain1]
     // strip structure : sliding , weight1, weight2, weight3, weight4, weight5
     // tower structure : lut[0], ... , lut[1023], el, eh, tl, th, lut_fg
 
     unsigned int data ;
+    float dataF;
     std::string dataCard ;
     int smNb, towerNbInSm, stripNbInTower, xtalNbInStrip ;
 
     while (!infile.eof()) {
       infile>>dataCard ;
+ 
+      if (dataCard == "PHYSICS") {
+	paramF.clear() ;
+	for (int i=0 ; i <NBphysparams ; i++) {
+	  //	  infile>>std::dec>>data ;
+	  infile>>dataF ;
+	  paramF.push_back(dataF) ;
+	}
+	ecaltpp.setPhysicsParameters(paramF);
+      }
+
 
       if (dataCard == "CRYSTAL") {
 	infile>>std::dec>>smNb>>towerNbInSm>>stripNbInTower>>xtalNbInStrip ;
