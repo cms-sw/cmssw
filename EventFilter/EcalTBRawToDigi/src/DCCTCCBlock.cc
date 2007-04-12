@@ -41,8 +41,8 @@ DCCTCCBlock::DCCTCCBlock(
 /* check data with data fields                       */
 /*---------------------------------------------------*/
 void DCCTCCBlock::dataCheck(){
-  pair <bool,string> res;            //check result
-  string checkErrors("");            //error string
+  std::pair <bool,std::string> res;            //check result
+  std::string checkErrors("");            //error string
 
   //check BX(LOCAL) field (1st word bit 16)
   res = checkDataField("BX", BXMASK & (dccBlock_->getDataField("BX")));
@@ -69,7 +69,7 @@ void DCCTCCBlock::dataCheck(){
   if(checkErrors!=""){
   	 blockError_=true;
     errorString_ +="\n ======================================================================\n"; 
-	 errorString_ += string(" ") + name_ + string("( ID = ")+parser_->getDecString((ulong)(expectedId_))+string(" ) errors : ") ;
+	 errorString_ += std::string(" ") + name_ + std::string("( ID = ")+parser_->getDecString((ulong)(expectedId_))+std::string(" ) errors : ") ;
 	 errorString_ += checkErrors ;
 	 errorString_ += "\n ======================================================================";
   }
@@ -94,8 +94,8 @@ void  DCCTCCBlock::increment(ulong numb){
       ulong blockID = (*dataP_) >> BPOSITION_BLOCKID;
       if( blockID != BLOCKID ){
 	(errors_["TCC::BLOCKID"])++;
-	//errorString_ += string("\n") + parser_->index(nunb)+(" blockId has value ") + parser_->getDecString(blockID);
-	//errorString  += string(", while ")+parser_->getDecString(BLOCKID)+string(" is expected");
+	//errorString_ += std::string("\n") + parser_->index(nunb)+(" blockId has value ") + parser_->getDecString(blockID);
+	//errorString  += std::string(", while ")+parser_->getDecString(BLOCKID)+std::string(" is expected");
       }
     }
   }
@@ -104,13 +104,13 @@ void  DCCTCCBlock::increment(ulong numb){
 
 
 
-vector< pair<int,bool> > DCCTCCBlock::triggerSamples() {
-  vector< pair<int,bool> > data;
+std::vector< std::pair<int,bool> > DCCTCCBlock::triggerSamples() {
+  std::vector< std::pair<int,bool> > data;
 
   for(unsigned int i=1;i <= parser_->numbTTs();i++){
-    string name = string("TPG#") + parser_->getDecString(i);
+    std::string name = std::string("TPG#") + parser_->getDecString(i);
     int tpgValue = getDataField( name ) ;
-                 pair<int,bool> tpg( tpgValue&ETMASK, bool(tpgValue>>BPOSITION_FGVB));
+                 std::pair<int,bool> tpg( tpgValue&ETMASK, bool(tpgValue>>BPOSITION_FGVB));
     data.push_back (tpg);
      
   }
@@ -121,11 +121,11 @@ vector< pair<int,bool> > DCCTCCBlock::triggerSamples() {
 
 
 
-vector<int> DCCTCCBlock::triggerFlags() {
-  vector<int> data;
+std::vector<int> DCCTCCBlock::triggerFlags() {
+  std::vector<int> data;
 
-  for(unsigned int i=1;i <= parser_->numbTTs();i++){
-    string name = string("TTF#") + parser_->getDecString(i);
+  for(unsigned int i=1; i<= parser_->numbTTs();i++){
+    std::string name = std::string("TTF#") + parser_->getDecString(i);
     
     data.push_back ( getDataField( name )  );
      

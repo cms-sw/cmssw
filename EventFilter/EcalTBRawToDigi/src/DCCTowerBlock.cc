@@ -51,10 +51,10 @@ DCCTowerBlock::DCCTowerBlock(
 	ulong xtalBlockSize     =  numbDWInXtalBlock*8;
 	//ulong pIncrease         =  numbDWInXtalBlock*2;
 	
-	//cout<<"\n DEBUG::numbDWInXtal Block "<<dec<<numbDWInXtalBlock<<endl;
-	//cout<<"\n DEBUG::length             "<<length<<endl;
-	//cout<<"\n DEBUG::xtalBlockSize      "<<xtalBlockSize<<endl;
-	//cout<<"\n DEBUG::pIncreade          "<<pIncrease<<endl;
+	//std::cout<<"\n DEBUG::numbDWInXtal Block "<<dec<<numbDWInXtalBlock<<std::endl;
+	//std::cout<<"\n DEBUG::length             "<<length<<std::endl;
+	//std::cout<<"\n DEBUG::xtalBlockSize      "<<xtalBlockSize<<std::endl;
+	//std::cout<<"\n DEBUG::pIncreade          "<<pIncrease<<std::endl;
 
 	
 	
@@ -64,19 +64,19 @@ DCCTowerBlock::DCCTowerBlock(
 	   
 		(errors_["FE::BLOCK LENGTH"])++;
 		errorString_ += "\n ======================================================================\n"; 		
-		errorString_ += string(" ") + name_ + string(" ZS is not active, error in the Tower Length !") ;
-		errorString_ += "\n Tower Length is : " + (parser_->getDecString(numbBytes/8))+string(" , while it should be : ");
-		string myString = parser_->getDecString((ulong)(25*numbDWInXtalBlock+1));
-		errorString_ += "\n It was only possible to build : " + parser_->getDecString( numbOfXtalBlocks)+ string(" XTAL blocks");
+		errorString_ += std::string(" ") + name_ + std::string(" ZS is not active, error in the Tower Length !") ;
+		errorString_ += "\n Tower Length is : " + (parser_->getDecString(numbBytes/8))+std::string(" , while it should be : ");
+		std::string myString = parser_->getDecString((ulong)(25*numbDWInXtalBlock+1));
+		errorString_ += "\n It was only possible to build : " + parser_->getDecString( numbOfXtalBlocks)+ std::string(" XTAL blocks");
 		errorString_ += "\n ======================================================================";
 		blockError_ = true;
 	};
 	if( numbOfXtalBlocks > 25 ){
 		if (errors_["FE::BLOCK LENGTH"]==0)(errors_["FE::BLOCK LENGTH"])++;
 		errorString_ += "\n ======================================================================\n"; 		
-		errorString_ += string(" ") + name_ + string(" Tower Length is larger then expected...!") ;
-		errorString_ += "\n Tower Length is : " + parser_->getDecString(numbBytes/8)+string(" , while it should be at maximum : ");
-		string myString = parser_->getDecString((ulong)(25*numbDWInXtalBlock+1));
+		errorString_ += std::string(" ") + name_ + std::string(" Tower Length is larger then expected...!") ;
+		errorString_ += "\n Tower Length is : " + parser_->getDecString(numbBytes/8)+std::string(" , while it should be at maximum : ");
+		std::string myString = parser_->getDecString((ulong)(25*numbDWInXtalBlock+1));
 		errorString_ += "\n Action -> data after the xtal 25 is ignored... "; 
 		errorString_ += "\n ======================================================================";
 		blockError_ = true;
@@ -117,7 +117,7 @@ DCCTowerBlock::DCCTowerBlock(
 
 
 DCCTowerBlock::~DCCTowerBlock(){
-	vector<DCCXtalBlock *>::iterator it;
+	std::vector<DCCXtalBlock *>::iterator it;
 	for(it=xtalBlocks_.begin();it!=xtalBlocks_.end();it++){ delete (*it);}
 	xtalBlocks_.clear();
 }
@@ -125,10 +125,10 @@ DCCTowerBlock::~DCCTowerBlock(){
 
 
 void DCCTowerBlock::dataCheck(){
-	string checkErrors("");	
+	std::string checkErrors("");	
 	
 	
-	pair <bool,string> res;
+	std::pair <bool,std::string> res;
 	
 	///////////////////////////////////////////////////////////////////////////
 	// For TB we don-t check Bx 
@@ -147,10 +147,10 @@ void DCCTowerBlock::dataCheck(){
 	}
 	
 	if( checkErrors !="" ){
-		string myTowerId;
+		std::string myTowerId;
 		
 		errorString_ +="\n ======================================================================\n"; 
-		errorString_ += string(" ") + name_ + string("( ID = ")+parser_->getDecString((ulong)(expectedTowerID_))+string(" ) errors : ") ;
+		errorString_ += std::string(" ") + name_ + std::string("( ID = ")+parser_->getDecString((ulong)(expectedTowerID_))+std::string(" ) errors : ") ;
 		errorString_ += checkErrors ;
 		errorString_ += "\n ======================================================================";
 		blockError_ = true;	
@@ -158,15 +158,15 @@ void DCCTowerBlock::dataCheck(){
 } 
 
 
-vector< DCCXtalBlock * > DCCTowerBlock::xtalBlocksById(ulong stripId, ulong xtalId){
-	vector<DCCXtalBlock *> myVector;	
-	vector<DCCXtalBlock *>::iterator it;
+std::vector< DCCXtalBlock * > DCCTowerBlock::xtalBlocksById(ulong stripId, ulong xtalId){
+	std::vector<DCCXtalBlock *> myVector;	
+	std::vector<DCCXtalBlock *>::iterator it;
 	
 	for( it = xtalBlocks_.begin(); it!= xtalBlocks_.end(); it++ ){
 		try{
 			
-			pair<bool,string> stripIdCheck   = (*it)->checkDataField("STRIP ID",stripId);
-			pair<bool,string> xtalIdCheck    = (*it)->checkDataField("XTAL ID",xtalId);
+		  std::pair<bool,std::string> stripIdCheck   = (*it)->checkDataField("STRIP ID",stripId);
+		  std::pair<bool,std::string> xtalIdCheck    = (*it)->checkDataField("XTAL ID",xtalId);
 			
 			if(xtalIdCheck.first && stripIdCheck.first ){ myVector.push_back( (*it) ); }
 			
@@ -179,7 +179,7 @@ vector< DCCXtalBlock * > DCCTowerBlock::xtalBlocksById(ulong stripId, ulong xtal
 int DCCTowerBlock::towerID() {
   int result=-1;
 
-  for(set<DCCDataField *,DCCDataFieldComparator>::iterator it = mapperFields_->begin(); it!= mapperFields_->end(); it++){
+  for(std::set<DCCDataField *,DCCDataFieldComparator>::iterator it = mapperFields_->begin(); it!= mapperFields_->end(); it++){
     if ( (*it)->name() == "TT/SC ID" ) 
       result=getDataField( (*it)->name() )  ;
     

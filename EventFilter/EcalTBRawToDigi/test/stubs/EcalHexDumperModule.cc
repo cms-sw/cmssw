@@ -24,9 +24,6 @@
 
 #include <iomanip> 
 
-using namespace cms;
-using namespace std;
-
 
 class EcalHexDumperModule: public edm::EDAnalyzer{
   
@@ -44,7 +41,7 @@ class EcalHexDumperModule: public edm::EDAnalyzer{
     event_ =0;
 
     writeDcc_ =ps.getUntrackedParameter<bool>("writeDCC",false);
-    filename_  =ps.getUntrackedParameter<string>("filename","dump.bin");
+    filename_  =ps.getUntrackedParameter<std::string>("filename","dump.bin");
 
   }
 
@@ -56,7 +53,7 @@ class EcalHexDumperModule: public edm::EDAnalyzer{
   int      end_fed_id_;
   int      first_event_;
   int      last_event_;
-  string   filename_;
+  std::string   filename_;
   int      event_;
 
   void analyze( const edm::Event & e, const  edm::EventSetup& c);
@@ -74,7 +71,7 @@ void EcalHexDumperModule::analyze( const edm::Event & e, const  edm::EventSetup&
   edm::Handle<FEDRawDataCollection> rawdata;
   e.getByType(rawdata);  
 
-  ofstream dumpFile (filename_.c_str(),ios::app );
+  std::ofstream dumpFile (filename_.c_str(),std::ios::app );
   
   for (int id= 0; id<=FEDNumbering::lastFEDId(); ++id){ 
     
@@ -84,29 +81,29 @@ void EcalHexDumperModule::analyze( const edm::Event & e, const  edm::EventSetup&
     
     if (data.size()>4){      
       
-      cout << "\n\n\n[EcalHexDumperModule] Event: " 
-	   << dec << event_ 
-	   << " fed_id: " << id 
-	   << " size_fed: " << data.size() << "\n"<< endl;
+      std::cout << "\n\n\n[EcalHexDumperModule] Event: " 
+		<< std::dec << event_ 
+		<< " fed_id: " << id 
+		<< " size_fed: " << data.size() << "\n"<< std::endl;
       
       if ( ( data.size() %16 ) !=0)
 	{
-	  cout << "***********************************************" << endl;
-	  cout<< "Fed size in bits not multiple of 64, strange." << endl;
-	  cout << "***********************************************" << endl;
+	  std::cout << "***********************************************" << std::endl;
+	  std::cout<< "Fed size in bits not multiple of 64, strange." << std::endl;
+	  std::cout << "***********************************************" << std::endl;
 	}
       
       
       int length = data.size();
       const ulong               * pData     = ( reinterpret_cast<ulong*>(const_cast<unsigned char*> ( data.data())));
-      cout << setfill('0');
+      std::cout << std::setfill('0');
       for (int words=0; words < length/4; (words+=2)  )
 	{
-	  cout << setw(8)   << hex << pData[words+1] << " ";
-	  cout << setw(8)   << hex << pData[words] << endl;
+	  std::cout << std::setw(8)   << std::hex << pData[words+1] << " ";
+	  std::cout << std::setw(8)   << std::hex << pData[words] << std::endl;
 	}
 
-      cout << "\n";
+      std::cout << "\n";
 
 
       if (beg_fed_id_ <= id && id <= end_fed_id_ && writeDcc_)
