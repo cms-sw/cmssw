@@ -1,4 +1,4 @@
-<use name=FWCore/Utilities>
+\<use name=FWCore/Utilities>
 <use name=FWCore/ServiceRegistry>
 <use name=FWCore/ParameterSet>
 <use name=FWCore/MessageLogger>
