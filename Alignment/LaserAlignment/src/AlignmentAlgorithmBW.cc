@@ -1,8 +1,8 @@
 /** \file AlignmentAlgorithmBW.cc
  *  Implementation of Bruno Wittmer's alignment algorithm for the Laser Alignment System
  *
- *  $Date: 2007/04/05 08:32:32 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/04/05 13:20:12 $
+ *  $Revision: 1.3 $
  *  \author Maarten Thomas
  */
 
@@ -20,10 +20,13 @@ AlignmentAlgorithmBW::~AlignmentAlgorithmBW()
 	
 }
 
-void AlignmentAlgorithmBW::run(const std::string theName, LASvec2D & data, LASvec2D & errors, bool useBSframe, int theRing)
+std::vector<LASAlignmentParameter> AlignmentAlgorithmBW::run(const std::string theName, LASvec2D & data, LASvec2D & errors, bool useBSframe, int theRing)
 {
-	edm::LogInfo("AlignmentAlgorithmBW") << " running the alignment algorithm for " << theName;
 	// run the actual algorithm to calculate the alignment parameters
+	edm::LogInfo("AlignmentAlgorithmBW") << " running the alignment algorithm for " << theName;
+
+	// create vector to store the alignment parameters
+	std::vector<LASAlignmentParameter> theResult;
 	
 	// transpose the data
 	LASvec2D dataTrans = trans(data);
@@ -188,7 +191,9 @@ void AlignmentAlgorithmBW::run(const std::string theName, LASvec2D & data, LASve
 		<< "      \t Dphi[8] = " << dphik[7] << "\t Dx[8] = " << dxk[7] << " \t Dy[8] = " << dyk[7] << std::endl
 		<< "      \t Dphi[9] = " << dphik[8] << "\t Dx[9] = " << dxk[8] << " \t Dy[9] = " << dyk[8] << std::endl;
 		
-		// we want to store this parameters in a separate DataFormat to study them later in more detail!?
+	// we want to store this parameters in a separate DataFormat to study them later in more detail
+	theResult.push_back(LASAlignmentParameter(theName,dphi0,dphit,dphik,dx0,dxt,dxk,dy0,dyt,dyk));
+	return theResult;
 }
 
 AlignmentAlgorithmBW::LASvec2D AlignmentAlgorithmBW::trans(LASvec2D input)

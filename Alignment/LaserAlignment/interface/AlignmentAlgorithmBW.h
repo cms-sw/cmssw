@@ -6,12 +6,15 @@
  *
  *  The details of this algorithm are given in his <a href="http://darwin.bth.rwth-aachen.de/opus3/volltexte/2002/348/">PhD Thesis</a>
  *
- *  $Date: 2007/04/05 08:32:31 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/04/05 13:20:11 $
+ *  $Revision: 1.3 $
  *  \author Maarten Thomas
  */
 
 #include <valarray>
+#include <vector>
+
+#include "DataFormats/LaserAlignment/interface/LASAlignmentParameter.h"
 
 class AlignmentAlgorithmBW
 {
@@ -26,7 +29,7 @@ public:
 	/// destructor
 	virtual ~AlignmentAlgorithmBW();
 	/// the actual algorithm
-	void run(const std::string theName, LASvec2D & data, LASvec2D & errors, bool useBSframe, int theRing);
+	std::vector<LASAlignmentParameter> run(const std::string theName, LASvec2D & data, LASvec2D & errors, bool useBSframe, int theRing);
 
 private:
 	/// return the transposed LASvec2D
