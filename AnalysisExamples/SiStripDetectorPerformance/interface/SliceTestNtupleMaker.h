@@ -212,7 +212,6 @@ class SliceTestNtupleMaker: public edm::EDAnalyzer {
       Coords oCoordsLocal;
       Coords oCoordsGlobal;
       bool   bMatched;
-      DetVal oDetVal;
     } oHitVal_;
 
     // --[ Group Cluster Variables ]-------------------------------------------
