@@ -118,7 +118,6 @@ EcalTrigPrimProducer::~EcalTrigPrimProducer()
 void
 EcalTrigPrimProducer::produce(edm::Event& e, const edm::EventSetup&  iSetup)
 {
-
   edm::Handle<EBDigiCollection> ebDigis;
   edm::Handle<EEDigiCollection> eeDigis;
   bool barrel=true;

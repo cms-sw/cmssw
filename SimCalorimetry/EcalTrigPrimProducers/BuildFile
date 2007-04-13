@@ -1,5 +1,5 @@
-<flags EDM_PLUGIN=1>
-<use name=FWCore/PluginManager>
+<flags SEAL_PLUGIN_NAME="SimCalorimetryEcalTrigPrimProducers">
+<use name=Foundation/PluginManager>
 <use name=root>
 <use name=boost>
 <use name=FWCore/ParameterSet>
