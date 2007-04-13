@@ -58,6 +58,6 @@ void CSCRecHit2DValidation::plotResolution(const PSimHit & simHit, const CSCRecH
   double dphi = recHitPos.phi() - simHitPos.phi();
   double rdphi = recHitPos.perp() * dphi;
   theResolutionPlots[chamberType-1]->Fill( rdphi );
-  thePullPlots[chamberType-1]->Fill( rdphi/recHit.localPositionError().xx() );
+  thePullPlots[chamberType-1]->Fill( rdphi/ sqrt(recHit.localPositionError().xx()) );
 }
 
