@@ -1,7 +1,7 @@
 /** \file RPCRingFromRolls.cc
  *
- *  $Date: 2006/12/05 09:25:26 $
- *  $Revision: 1.6 $
+ *  $Date: 2007/01/30 08:12:54 $
+ *  $Revision: 1.7 $
  *  \author Tomasz Fruboes
  */
 #include "L1Trigger/RPCTrigger/interface/RPCRingFromRolls.h"
@@ -600,8 +600,9 @@ void RPCRingFromRolls::doVirtualStrips(){
   if ( (isRefPlane()) && (m_virtStripsInRingFromRolls+m_physStripsInRingFromRolls!=1152)){
     
     edm::LogError("RPCTrigger")<<"Trouble. Reference curl " << getRingFromRollsId() 
-        << " has " << m_virtStripsInRingFromRolls+m_physStripsInRingFromRolls << " strips.";
-        
+        << " has " << m_virtStripsInRingFromRolls+m_physStripsInRingFromRolls << " strips."
+        << " (v=" << m_virtStripsInRingFromRolls 
+        << ";p=" << m_physStripsInRingFromRolls <<")";         
   }
   
   m_stripPhiMap.insert(newVirtualStrips.begin(),newVirtualStrips.end() );
