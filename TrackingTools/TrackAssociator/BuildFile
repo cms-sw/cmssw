@@ -5,6 +5,7 @@
 <use name=DataFormats/TrackReco>
 <use name=DataFormats/EgammaReco>
 <use name=DataFormats/MuonReco>
+<use name=Utilities/Timing>
 
 <use name=FWCore/Framework>
 <use name=FWCore/PluginManager>
@@ -23,7 +24,7 @@
 
 <use name=SimCalorimetry/EcalSimProducers>
 <use name=heppdt>
-# <use name=SimDataFormats/HepMCProduct>
+<use name=SimDataFormats/HepMCProduct>
 <use name=DataFormats/DetId>
 
 <use name=TrackingTools/GeomPropagators>
