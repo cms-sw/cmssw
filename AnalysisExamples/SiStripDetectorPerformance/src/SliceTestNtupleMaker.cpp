@@ -174,52 +174,6 @@ void SliceTestNtupleMaker::beginJob( const edm::EventSetup &roEVENT_SETUP) {
   poClusterTree_->Branch( "dHitGlbTheta",     
                           &oHitVal_.oCoordsGlobal.dTheta, "dHitGlbTheta/F");
 
-  poClusterTree_->Branch( "nHitDetSubDet",       
-                          &oHitVal_.oDetVal.eSubDet,     
-                          "nHitDetSubDet/I");
-  poClusterTree_->Branch( "nHitDetLayer",        
-                          &oHitVal_.oDetVal.nLayer,      
-                          "nHitDetLayer/I");
-  poClusterTree_->Branch( "nHitDetWheel",        
-                          &oHitVal_.oDetVal.nWheel,      
-                          "nHitDetWheel/I");
-  poClusterTree_->Branch( "nHitDetRing",         
-                          &oHitVal_.oDetVal.nRing,       
-                          "nHitDetRing/I");
-  poClusterTree_->Branch( "nHitDetSide",         
-                          &oHitVal_.oDetVal.nSide, 
-                          "nHitDetSide/I");
-  poClusterTree_->Branch( "nHitDetPetal",        
-                          &oHitVal_.oDetVal.nPetal, 
-                          "nHitDetPetal/I");
-  poClusterTree_->Branch( "nHitDetPetalFwBw",    
-                          &oHitVal_.oDetVal.nPetalFwBw, 
-                          "nHitDetPetalFwBw/I");
-  poClusterTree_->Branch( "nHitDetRod",          
-                          &oHitVal_.oDetVal.nRod, 
-                          "nHitDetRod/I");
-  poClusterTree_->Branch( "nHitDetRodFwBw",      
-                          &oHitVal_.oDetVal.nRodFwBw, 
-                          "nHitDetRodFwBw/I");
-  poClusterTree_->Branch( "nHitDetString",       
-                          &oHitVal_.oDetVal.nString, 
-                          "nHitDetString/I");
-  poClusterTree_->Branch( "nHitDetStringFwBw",   
-                          &oHitVal_.oDetVal.nStringFwBw, 
-                          "nHitDetStringFwBw/I");
-  poClusterTree_->Branch( "nHitDetStringIntExt", 
-                          &oHitVal_.oDetVal.nStringIntExt, 
-                          "nHitDetStringIntExt/I");
-  poClusterTree_->Branch( "bHitDetStereo",       
-                          &oHitVal_.oDetVal.bStereo, 
-                          "bHitDetStereo/O");
-  poClusterTree_->Branch( "nHitDetModule",       
-                          &oHitVal_.oDetVal.nModule,     
-                          "nHitDetModule/I");
-  poClusterTree_->Branch( "nHitDetModuleFwBw",   
-                          &oHitVal_.oDetVal.nModuleFwBw, 
-                          "nHitDetModuleFwBw/I");
-
                                         // Clusters
   poClusterTree_->Branch( "nClusterFirstStrip", 
                           &oClusterVal_.nFirstStrip, "nClusterFirstStrip/I");
@@ -741,7 +695,6 @@ void SliceTestNtupleMaker::HitVal::setHit(
   const TrackerGeometry *poTRACKER_GEOMETRY) {
 
   DetId oDetId( poHIT->geographicalId());
-  oDetVal.setDet( oDetId);
 
   LocalPoint oLclPosition = poHIT->localPosition();
   oCoordsLocal.setPoint( oLclPosition);
