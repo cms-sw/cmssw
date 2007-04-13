@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Sep 15 09:47:48 EDT 2005
-// $Id: LoadAllDictionaries.cc,v 1.6 2007/02/07 13:30:15 chrjones Exp $
+// $Id: LoadAllDictionaries.cc,v 1.7 2007/04/09 22:44:41 chrjones Exp $
 //
 
 // system include files
@@ -18,8 +18,6 @@
 #include "FWCore/Services/src/LoadAllDictionaries.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/PluginManager/interface/PluginManager.h"
-#include "FWCore/PluginManager/interface/ModuleCache.h"
-#include "FWCore/PluginManager/interface/Module.h"
 #include "FWCore/PluginManager/interface/PluginCapabilities.h"
 
 //
