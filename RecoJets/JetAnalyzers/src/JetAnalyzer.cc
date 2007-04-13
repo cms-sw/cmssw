@@ -19,6 +19,8 @@
 #include "RecoJets/JetAnalyzers/interface/CaloTowerBoundries.h"
 #include "Geometry/Vector/interface/GlobalPoint.h"
 
+#include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
+
 //#include "RecoJets/Geom/interface/TTrajectoryPoint.hh"
 //#include "RecoJets/Geom/interface/TSimpleExtrapolator.hh"
 
@@ -1495,29 +1497,26 @@ void JetAnalyzer::fillMCParticlesInsideJet(const HepMC::GenEvent genEvent,const 
 	    fillHist1D("GenJetEta"+pi.str(),GenJetEta);
          
 	  
-	  //double SumPt(0);
-	  
-
 	    int NumParticle(0);
 
   	    HepLorentzVector P4Jet(0,0,0,0);
 
-	    const std::vector<int>& barcodes = ijet->getBarcodes();
-	   
-	    int nConstituents= barcodes.size();
-	    for (int i = 0; i <nConstituents ; i++){
 
-	      HepMC::GenParticle* part = genEvent.barcode_to_particle (barcodes [i]);
+	    std::vector <const GenParticleCandidate*> jetconst = ijet->getConstituents() ;
+	    int nConstituents= jetconst.size();
+
+	    for (int i = 0; i <nConstituents ; i++){
 
 	      NumParticle++;
 
-	      CLHEP::HepLorentzVector momentum = part->Momentum();
-	      HepLorentzVector p(momentum.px(),momentum.py(),momentum.pz(),momentum.e());
+	      HepLorentzVector p (jetconst[i]->px(),jetconst[i]->py(),jetconst[i]->pz(),jetconst[i]->energy());
+
 	      P4Jet +=p;
                               
-	      Double_t Eta = momentum.eta();
-	      Double_t Phi = momentum.phi();
-	      Double_t Pt  = momentum.perp();
+	      Double_t Eta = jetconst[i]->eta();
+	      Double_t Phi = jetconst[i]->phi();
+	      Double_t Pt  = jetconst[i]->pt();
+
 	      fillHist1D("PtOfParticleinJet"+pi.str(),Pt);          
 
 	      double rr=radius(GenJetEta,GenJetPhi,Eta,Phi);
@@ -2005,22 +2004,13 @@ void JetAnalyzer::GetIntegratedEnergy(GenJetCollection::const_iterator ijet,int 
 //   double etaJet =ijet->eta();
 //   double phiJet =ijet->phi();
 
-  const std::vector<int>& barcodes = ijet->getBarcodes();
-	   
-  int nConstituents= barcodes.size();
-  for (int i = 0; i <nConstituents ; i++){
-    HepMC::GenParticle* part = genEvent.barcode_to_particle (barcodes [i]);
+    std::vector <const GenParticleCandidate*> jetconst =  ijet->getConstituents() ;
+    int nConstituents= jetconst.size();
+    for (int i = 0; i <nConstituents ; i++){
 
-    CLHEP::HepLorentzVector momentum = part->Momentum();
-    HepLorentzVector p(momentum.px(),momentum.py(),momentum.pz(),momentum.e());
-                              
-    //   Double_t eta = momentum.eta();
-    //  Double_t phi = momentum.phi();
-    Double_t Pt  = momentum.perp();
+    Double_t Pt  = jetconst[i]->pt();
+    double E= jetconst[i]->energy();
 
-    //    double RR=radius(etaJet,phiJet,eta,phi);
-
-    double E=momentum.e();
 
     if(E<Bins[nbin-1]){
       sumE+=E;
@@ -2689,22 +2679,11 @@ void JetAnalyzer::bookPtSpectrumInAJet(){
 }
 void JetAnalyzer::PtSpectrumInAJet(GenJetCollection::const_iterator ijet,const HepMC::GenEvent genEvent,const double response){
 
-
-  // double etaJet =ijet->eta();
-  // double phiJet =ijet->phi();
-
-  //  double ptJet =ijet->pt();
-
-  const std::vector<int>& barcodes = ijet->getBarcodes();
-
-  int nConstituents= barcodes.size();
-  //  cout << " Number of constrituents " << nConstituents << endl;
+  std::vector <const GenParticleCandidate*> jetconst =  ijet->getConstituents() ;
+  int nConstituents= jetconst.size();
   for (int i = 0; i <nConstituents ; i++){
-    HepMC::GenParticle* part = genEvent.barcode_to_particle (barcodes [i]);
 
-    CLHEP::HepLorentzVector momentum = part->Momentum();
-
-    Double_t energy  = momentum.e();
+    Double_t  energy = jetconst[i]->energy();
 
     TString hname="AllJetsPtSpectrum";
     fillHist1D(hname,energy);
@@ -2727,8 +2706,8 @@ void JetAnalyzer::PtSpectrumInSideAJet(const GenJetCollection& genJets,const Hep
   const double PtCut[nbins]={0.0,0.5,1.0,1.5,2.0,2.5};
   HepMC::GenEvent::particle_const_iterator it;
 
-  std::vector<HepMC::GenParticle> genPartUsedInJets;
-  std::vector<HepMC::GenParticle> genPartNotUsedInJets;
+  std::vector<const GenParticleCandidate*> genPartUsedInJets;
+  std::vector<const GenParticleCandidate*> genPartNotUsedInJets;
 
   double  SumPtJet[10][6];
 
@@ -2736,13 +2715,15 @@ void JetAnalyzer::PtSpectrumInSideAJet(const GenJetCollection& genJets,const Hep
   for (GenJetIter ijet=genJets.begin(); ijet!=genJets.end(); ijet++) {
     Double_t jetPt = ijet->pt();
     if(jetPt>10.){
-      const std::vector<int>& barcodes = ijet->getBarcodes();
-      int nConstituents= barcodes.size();
+
+      std::vector <const GenParticleCandidate*> jetconst =  ijet->getConstituents() ;
+      int nConstituents= jetconst.size();
+      genPartUsedInJets=jetconst;
+      
       for (int i = 0; i <nConstituents ; i++){
-	HepMC::GenParticle part = *genEvent.barcode_to_particle (barcodes [i]);
-	genPartUsedInJets.push_back(part);
+	
         if(njet<10){
-          double pt= part.Momentum().perp();
+          double pt= jetconst[i]->pt();
           for(int icut=0;icut<nbins;icut++){
             if(pt>PtCut[icut]){
 	      SumPtJet[njet][icut] +=pt;
@@ -2753,7 +2734,6 @@ void JetAnalyzer::PtSpectrumInSideAJet(const GenJetCollection& genJets,const Hep
       njet++;
     }
   }
-
   
 
   for(int ijet=0;ijet<10;ijet++){
@@ -2768,26 +2748,52 @@ void JetAnalyzer::PtSpectrumInSideAJet(const GenJetCollection& genJets,const Hep
 
   int NumPartUsedInJets= genPartUsedInJets.size();
 
+
   int NumStableparticles(0);
+
+
   for (it = genEvent.particles_begin(); it != genEvent.particles_end();++it){
     int status =  (*it)->status();
-    bool ParticleIsStable = status==1;      
+    bool ParticleIsStable = status==1;
     if(ParticleIsStable){
+
       NumStableparticles++;
-      HepMC::GenParticle part = **it;
+
+      HepMC::GenParticle* part = (*it);
+      const GenParticleCandidate* genpart = new GenParticleCandidate(part);
+      //std::cout <<  "genpart " << genpart->px() << " " <<  genpart->py() << " " << genpart->energy() << std::endl;
+
       bool ParticleUsed(false);
       for(int i=0;i<NumPartUsedInJets;i++){
-        if(genPartUsedInJets[i]==part){
+
+      const GenParticleCandidate* genpartused =   genPartUsedInJets[i];
+      //std::cout <<  "genpartused " << genpartused->px() << " " <<  genpartused->py() << " " << genpartused->energy() << std::endl;
+
+      if( genpartused->px() == genpart->px() &&
+	  genpartused->py() == genpart->py() &&
+	  genpartused->pz() == genpart->pz() &&
+	  genpartused->energy() == genpart->energy() &&
+	  genpartused->charge() == genpart->charge() &&
+	  genpartused->pdgId() == genpart->pdgId()  &&
+	  genpartused->status() == genpart->status()
+	  ){
+	//std::cout << "MATCHED " <<  genpart->px() << " " << genpartused->px() << std::endl;
           ParticleUsed=true; continue;
-	}
+       }
       }
-      if(!ParticleUsed) genPartNotUsedInJets.push_back(part);
+      if(!ParticleUsed) genPartNotUsedInJets.push_back(genpart);
+
+      delete genpart;
     }
   }
+
+
 
 //   cout << " Particles total " <<   NumStableparticles;
 //   cout << " in jets " <<  genPartUsedInJets.size();
 //   cout << " outside jets  " <<   genPartNotUsedInJets.size() <<endl;
+
+
 
   std::vector<double> SumPtFromAllParticles(nbins);
   std::vector<double> SumPxFromAllParticles(nbins);
@@ -2819,9 +2825,9 @@ void JetAnalyzer::PtSpectrumInSideAJet(const GenJetCollection& genJets,const Hep
   std::vector<double> GenMetFromJetParticles(nbins);
 
   for(int  i=0;i<NumPartUsedInJets;i++){
-    double pt =genPartUsedInJets[i].Momentum().perp();
-    double px =genPartUsedInJets[i].Momentum().px();
-    double py =genPartUsedInJets[i].Momentum().py();
+    double pt =genPartUsedInJets[i]->pt();
+    double px =genPartUsedInJets[i]->px();
+    double py =genPartUsedInJets[i]->py();
 
     for(int i=0;i<nbins;i++){
       if(pt>PtCut[i]){
@@ -2840,9 +2846,9 @@ void JetAnalyzer::PtSpectrumInSideAJet(const GenJetCollection& genJets,const Hep
   int NumPartNotUsedInJets= genPartNotUsedInJets.size();
   //  cout << " Num of particles not in jet " << NumPartNotUsedInJets << endl;
   for(int  i=0;i<NumPartNotUsedInJets;i++){
-    double pt=genPartNotUsedInJets[i].Momentum().perp();
-    double px=genPartNotUsedInJets[i].Momentum().px();
-    double py=genPartNotUsedInJets[i].Momentum().py();
+    double pt=genPartNotUsedInJets[i]->pt();
+    double px=genPartNotUsedInJets[i]->px();
+    double py=genPartNotUsedInJets[i]->py();
 
     for(int i=0;i<nbins;i++){
       if(pt>PtCut[i]){
