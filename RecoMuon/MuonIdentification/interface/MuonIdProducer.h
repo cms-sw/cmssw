@@ -16,7 +16,7 @@
 */
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: MuonIdProducer.h,v 1.8 2007/03/07 19:07:51 bellan Exp $
+// $Id: MuonIdProducer.h,v 1.9 2007/03/26 07:54:53 dmytro Exp $
 //
 //
 
@@ -37,7 +37,7 @@
 #include "DataFormats/MuonReco/interface/MuonWithMatchInfo.h"
 
 #include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
-#include "TrackingTools/TrackAssociator/interface/TimerStack.h"
+#include "Utilities/Timing/interface/TimerStack.h"
 
 class MuonIdProducer : public edm::EDProducer {
  public:

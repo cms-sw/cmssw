@@ -13,7 +13,7 @@
 */
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: MuonIdProducer.cc,v 1.10 2007/03/07 19:07:51 bellan Exp $
+// $Id: MuonIdProducer.cc,v 1.11 2007/03/26 07:54:53 dmytro Exp $
 //
 //
 
@@ -38,7 +38,7 @@
 #include "DataFormats/MuonReco/interface/MuonWithMatchInfo.h"
 
 #include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
-#include "TrackingTools/TrackAssociator/interface/TimerStack.h"
+#include "Utilities/Timing/interface/TimerStack.h"
 
 #include <boost/regex.hpp>
 #include "RecoMuon/MuonIdentification/interface/MuonIdProducer.h"
@@ -135,7 +135,7 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    TimerStack timers;
    timers.push("MuonIdProducer::produce::init");
    init(iEvent, iSetup);
-   timers.clean_stack();
+   timers.clear_stack();
 
    // loop over input collection
    while(reco::MuonWithMatchInfo* aMuon = getNewMuon(iEvent, iSetup))
