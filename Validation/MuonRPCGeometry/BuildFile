@@ -5,7 +5,7 @@
 <use name=Geometry/Records>
 <use name=Geometry/RPCGeometry>
 
-#<!#flags SEAL_PLUGIN_NAME="ValidationMuonRPCGeometry">
+<flags SEAL_PLUGIN_NAME="ValidationMuonRPCGeometry">
 
 <export>
  <lib name=ValidationMuonRPCGeometry>
