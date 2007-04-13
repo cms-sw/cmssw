@@ -3,8 +3,8 @@
 /** \class TrackerSeedGeneratorBC
  *  Generate seed from muon trajectory.
  *
- *  $Date: 2007/03/31 15:21:25 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/04/13 09:14:32 $
+ *  $Revision: 1.3 $
  *  \author Norbert Neumeister - Purdue University
  *  \porting author Chang Liu - Purdue University
  */
@@ -87,7 +87,7 @@ void TrackerSeedGeneratorBC::init(const MuonServiceProxy *service)
   theVertexErr = GlobalError(0.0001,0.0,0.0001,0.0,0.0,28.09);
   
   const edm::ParameterSet& par = theConfig;
-  theUpdator = new MuonUpdatorAtVertex(par.getParameter<ParameterSet>("UpdatorAtVTXParameters"),theService);
+  theUpdator = new MuonUpdatorAtVertex(par.getParameter<ParameterSet>("MuonUpdatorAtVertexParameters"),theService);
   
   theErrorRescale = par.getParameter<double>("ErrorRescaleFactor");
   theOption = par.getParameter<int>("SeedOption");
