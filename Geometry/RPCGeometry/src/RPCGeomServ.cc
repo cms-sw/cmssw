@@ -125,7 +125,8 @@ RPCGeomServ::eta_partition()
 bool
 RPCGeomServ::inverted()
 {
-  return !(this->zpositive() && this->aclockwise());
+  // return !(this->zpositive() && this->aclockwise());
+  return !(this->zpositive());
 }
 
 
