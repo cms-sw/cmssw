@@ -12,7 +12,7 @@
 //
 // Original Author:  
 //         Created:  Tue Oct 17 00:14:00 EDT 2006
-// $Id: L1ExtraParticleMapProd.h,v 1.2 2007/03/21 20:16:50 wsun Exp $
+// $Id: L1ExtraParticleMapProd.h,v 1.3 2007/04/02 08:03:14 wsun Exp $
 //
 
 // system include files
@@ -25,8 +25,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
 
-#include "DataFormats/L1Trigger/interface/L1EmParticle.h"
-#include "DataFormats/L1Trigger/interface/L1JetParticle.h"
+#include "DataFormats/L1Trigger/interface/L1EmParticleFwd.h"
+#include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
 #include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
 #include "DataFormats/L1Trigger/interface/L1ParticleMap.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
@@ -52,6 +52,8 @@ class L1ExtraParticleMapProd : public edm::EDProducer {
       void evaluateSingleObjectTrigger(
 	 const std::vector< edm::Ref< TCollection > >& inputRefs, // input
 	 const double& etThreshold,                               // input
+	 int& prescaleCounter,                                    // input
+	 const int& prescale,                                     // input
 	 bool& decision,                                          // output
 	 std::vector< edm::Ref< TCollection > >& outputRefs ) ;   // output
 
@@ -61,7 +63,9 @@ class L1ExtraParticleMapProd : public edm::EDProducer {
 	 const double& etThreshold,                               // input
 	 bool& decision,                                          // output
 	 std::vector< edm::Ref< TCollection > >& outputRefs,      // output
-	 l1extra::L1ParticleMap::L1IndexComboVector& combos ) ;   // output
+	 l1extra::L1ParticleMap::L1IndexComboVector& combos,      // output
+	 bool combinedWithGlobalObject = false ) ; // if true, add entry for
+                                             // HT or MET to particle combos
 
       template< class TCollection >
       void evaluateTripleSameObjectTrigger(
@@ -70,6 +74,17 @@ class L1ExtraParticleMapProd : public edm::EDProducer {
 	 bool& decision,                                          // output
 	 std::vector< edm::Ref< TCollection > >& outputRefs,      // output
 	 l1extra::L1ParticleMap::L1IndexComboVector& combos ) ;   // output
+
+      template< class TCollection1, class TCollection2 >
+      void evaluateDoublePlusSingleObjectTrigger(
+	 const std::vector< edm::Ref< TCollection1 > >& inputRefs1, // input
+	 const std::vector< edm::Ref< TCollection2 > >& inputRefs2, // input
+	 const double& etThreshold1,                                // input
+	 const double& etThreshold2,                                // input
+	 bool& decision,                                            // output
+	 std::vector< edm::Ref< TCollection1 > >& outputRefs1,      // output
+	 std::vector< edm::Ref< TCollection2 > >& outputRefs2,      // output
+	 l1extra::L1ParticleMap::L1IndexComboVector& combos ) ;     // output
 
       template< class TCollection >
       void evaluateQuadSameObjectTrigger(
@@ -85,81 +100,45 @@ class L1ExtraParticleMapProd : public edm::EDProducer {
 	 const std::vector< edm::Ref< TCollection2 > >& inputRefs2, // input
 	 const double& etThreshold1,                                // input
 	 const double& etThreshold2,                                // input
-	 const double& deltaPhiMin,                                 // input
-	 const double& deltaEtaMin,                                 // input
 	 bool& decision,                                            // output
 	 std::vector< edm::Ref< TCollection1 > >& outputRefs1,      // output
 	 std::vector< edm::Ref< TCollection2 > >& outputRefs2,      // output
 	 l1extra::L1ParticleMap::L1IndexComboVector& combos ) ;     // output
 
+      template< class TCollection >
+      void evaluateDoubleDifferentObjectSameTypeTrigger(
+	 const std::vector< edm::Ref< TCollection > >& inputRefs1, // input
+	 const std::vector< edm::Ref< TCollection > >& inputRefs2, // input
+	 const double& etThreshold1,                               // input
+	 const double& etThreshold2,                               // input
+	 bool& decision,                                           // output
+	 std::vector< edm::Ref< TCollection > >& outputRefs,       // output
+	 l1extra::L1ParticleMap::L1IndexComboVector& combos ) ;    // output
+
+      void evaluateDoubleDifferentCaloObjectTrigger(
+	 const l1extra::L1EmParticleVectorRef& inputRefs1,          // input
+	 const l1extra::L1JetParticleVectorRef& inputRefs2,         // input
+	 const double& etThreshold1,                                // input
+	 const double& etThreshold2,                                // input
+	 bool& decision,                                            // output
+	 l1extra::L1EmParticleVectorRef& outputRefs1,               // output
+	 l1extra::L1JetParticleVectorRef& outputRefs2,              // output
+	 l1extra::L1ParticleMap::L1IndexComboVector& combos ) ;     // output
+
       // ----------member data ---------------------------
+      edm::InputTag muonSource_ ;
       edm::InputTag isoEmSource_ ;
       edm::InputTag nonIsoEmSource_ ;
       edm::InputTag cenJetSource_ ;
       edm::InputTag forJetSource_ ;
       edm::InputTag tauJetSource_ ;
-      edm::InputTag muonSource_ ;
       edm::InputTag etMissSource_ ;
 
-      double singleIsoEmMinEt_ ;
-      double doubleIsoEmMinEt_ ;
-
-      double singleRelaxedEmMinEt_ ;
-      double doubleRelaxedEmMinEt_ ;
-
-      double singleMuonMinEt_ ;
-      double doubleMuonMinEt_ ;
-
-      double singleTauMinEt_ ;
-      double doubleTauMinEt_ ;
-
-      double singleJetMinEt_ ;
-      double doubleJetMinEt_ ;
-      double tripleJetMinEt_ ;
-      double quadJetMinEt_ ;
-
-      double htMin_ ;
-      double metMin_ ;
-
-      double htMetMinHt_ ;
-      double htMetMinMet_ ;
-
-      double jetMetMinJetEt_ ;
-      double jetMetMinMet_ ;
-
-      double tauMetMinTauEt_ ;
-      double tauMetMinMet_ ;
-
-      double muonMetMinMuonEt_ ;
-      double muonMetMinMet_ ;
-
-      double isoEmMetMinEmEt_ ;
-      double isoEmMetMinMet_ ;
-
-      double muonJetMinMuonEt_ ;
-      double muonJetMinJetEt_ ;
-
-      double isoEmJetMinEmEt_ ;
-      double isoEmJetMinJetEt_ ;
-
-      double muonTauMinMuonEt_ ;
-      double muonTauMinTauEt_ ;
-      double muonTauMinDeltaPhi_ ;
-      double muonTauMinDeltaEta_ ;
-
-      double isoEmTauMinEmEt_ ;
-      double isoEmTauMinTauEt_ ;
-      double isoEmTauMinDeltaPhi_ ;
-      double isoEmTauMinDeltaEta_ ;
-
-      double isoEmMuonMinEmEt_ ;
-      double isoEmMuonMinMuonEt_ ;
-
-      int singleJet140Prescale_ ;
-      int singleJet60Prescale_ ;
-      int singleJet20Prescale_ ;
-
-      int minBiasPrescale_ ;
+      double singleThresholds_[ l1extra::L1ParticleMap::kNumOfL1TriggerTypes ];
+      int prescales_[ l1extra::L1ParticleMap::kNumOfL1TriggerTypes ] ;
+      int prescaleCounters_[ l1extra::L1ParticleMap::kNumOfL1TriggerTypes ] ;
+      std::pair< double, double >
+         doubleThresholds_[ l1extra::L1ParticleMap::kNumOfL1TriggerTypes ] ;
 };
 
 #endif
