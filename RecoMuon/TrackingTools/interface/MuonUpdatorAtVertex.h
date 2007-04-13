@@ -10,8 +10,19 @@
  *  it is in its specific interface. Once the interface of the Propagator base class will be updated, 
  *  then propagator will become generic. 
  *
- *  $Date: 2007/02/18 16:01:47 $
- *  $Revision: 1.13 $
+ *  For what concern the beam spot, it is possible set via cff the relevant parameters:
+ *
+ *  BeamSpotPosition[0] <=> x
+ *  BeamSpotPosition[1] <=> y
+ *  BeamSpotPosition[2] <=> z
+ *
+ *  BeamSpotPositionErrors[0] = sigma(x) 
+ *  BeamSpotPositionErrors[1] = sigma(y) 
+ *  BeamSpotPositionErrors[2] = sigma(z)
+ *
+ *
+ *  $Date: 2007/03/06 14:31:27 $
+ *  $Revision: 1.14 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -26,11 +37,12 @@ class MuonServiceProxy;
 
 #include <string>
 
+namespace edm {class ParameterSet;}
 
 class MuonUpdatorAtVertex {
 public:
   /// Constructor
-  MuonUpdatorAtVertex(const std::string &propagatorName, const MuonServiceProxy *service);
+  MuonUpdatorAtVertex(const edm::ParameterSet& pset, const MuonServiceProxy *service);
 
   /// Destructor
   virtual ~MuonUpdatorAtVertex();
@@ -74,6 +86,7 @@ private:
   // is only in its specific interface. Once the interface of the Propagator base class  will be
   // updated, then thePropagator will become generic. 
   SteppingHelixPropagator *thePropagator;
+  std::string thePropagatorName;
 
   // FIXME
   // remove the flag as the Propagator base class will gains the propagate(TSOS,Position) method
@@ -86,6 +99,9 @@ private:
   TransientTrackFromFTSFactory theTransientTrackFactory;
   SingleTrackVertexConstraint theConstrictor;
   double theChi2Cut;
+
+  GlobalError thePositionErrors;
+  GlobalPoint thePosition;
 };
 #endif
 

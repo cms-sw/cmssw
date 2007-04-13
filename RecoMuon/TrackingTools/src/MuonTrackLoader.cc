@@ -3,8 +3,8 @@
  *  Class to load the product in the event
  *
 
- *  $Date: 2007/03/13 09:54:22 $
- *  $Revision: 1.43 $
+ *  $Date: 2007/04/10 13:34:11 $
+ *  $Revision: 1.44 $
 
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
@@ -39,11 +39,6 @@ using namespace std;
 MuonTrackLoader::MuonTrackLoader(ParameterSet &parameterSet, const MuonServiceProxy *service): 
   theService(service){
 
-  // the propagator name for the track loader
-
-  // FIXME: change the name inside the ""
-  string propagatorName = parameterSet.getParameter<string>("TrackLoaderPropagator");
-
   // option to do or not the smoothing step.
   // the trajectories which are passed to the track loader are supposed to be non-smoothed
   theSmoothingStep = parameterSet.getParameter<bool>("DoSmoothing");
@@ -54,14 +49,14 @@ MuonTrackLoader::MuonTrackLoader(ParameterSet &parameterSet, const MuonServicePr
   theUpdatingAtVtx = parameterSet.getParameter<bool>("VertexConstraint");
   
   // Flag to put the trajectory into the event
-  theTrajectoryFlag = parameterSet.getUntrackedParameter<bool>("PutTrajectoryIntoEvent",false);
+  theTrajectoryFlag = parameterSet.getUntrackedParameter<bool>("PutTrajectoryIntoEvent",true);
 
   theL2SeededTkLabel = parameterSet.getUntrackedParameter<string>("MuonSeededTracksInstance",string());
   
-  thePutTkTrackFlag = parameterSet.getUntrackedParameter<bool>("PutTkTrackIntoEvent",false);
+  ParameterSet updatorPar = parameterSet.getParameter<ParameterSet>("MuonUpdatorAtVertexParameters");
+  theUpdatorAtVtx = new MuonUpdatorAtVertex(updatorPar,service);
 
-  const string metname = "Muon|RecoMuon|MuonTrackLoader";
-  theUpdatorAtVtx = new MuonUpdatorAtVertex(propagatorName,service);
+  thePutTkTrackFlag = parameterSet.getUntrackedParameter<bool>("PutTkTrackIntoEvent",false);
 }
 
 
