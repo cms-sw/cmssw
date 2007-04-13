@@ -14,7 +14,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: TrackDetectorAssociator.h,v 1.6 2007/03/20 06:46:32 dmytro Exp $
+// $Id: TrackDetectorAssociator.h,v 1.7 2007/04/02 17:36:55 dmytro Exp $
 //
 //
 
@@ -141,6 +141,9 @@ class TrackDetectorAssociator {
 						      const GlobalPoint&,
 						      const int);
  private:
+   DetIdAssociator::MapRange getMapRange( const std::pair<float,float>& delta,
+					  const float dR );
+
    void fillEcal(       const edm::Event&,
 			TrackDetMatchInfo&, 
 			const AssociatorParameters&);

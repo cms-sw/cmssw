@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: TestTrackAssociator.cc,v 1.14 2007/03/26 05:48:28 dmytro Exp $
+// $Id: TestTrackAssociator.cc,v 1.15 2007/04/02 17:45:02 dmytro Exp $
 //
 //
 
@@ -78,7 +78,7 @@
 
 #include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
 #include "TrackingTools/TrackAssociator/interface/TrackAssociatorParameters.h"
-#include "TrackingTools/TrackAssociator/interface/TimerStack.h"
+#include "Utilities/Timing/interface/TimerStack.h"
 
 class TestTrackAssociator : public edm::EDAnalyzer {
  public:
