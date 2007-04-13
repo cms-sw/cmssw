@@ -9,7 +9,7 @@
 #include <stdexcept>
 #include <iostream>
 
-EDM_REGISTER_PLUGINFACTORY(edm::VectorInputSourcePluginFactory,"CMS EDM Framework VectorInputSource")
+EDM_REGISTER_PLUGINFACTORY(edm::VectorInputSourcePluginFactory,"CMS EDM Framework VectorInputSource");
 using namespace std;
 
 namespace edm {

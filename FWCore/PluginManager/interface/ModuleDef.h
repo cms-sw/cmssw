@@ -15,11 +15,11 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Apr  7 16:18:51 EDT 2007
-// $Id: ModuleDef.h,v 1.1.2.2 2007/04/09 18:46:49 chrjones Exp $
+// $Id: ModuleDef.h,v 1.2 2007/04/12 12:51:12 wmtan Exp $
 //
 
 #if !defined(DEFINE_SEAL_MODULE)
-#define DEFINE_SEAL_MODULE() enum {dummy} s_ ## __LINE__
+#define DEFINE_SEAL_MODULE() enum {dummy} define_seal_module_ ## __LINE__
 #endif
 
 #endif

@@ -8,7 +8,7 @@
 //
 // Author:      Chris Jones
 // Created:     Wed May 25 19:27:44 EDT 2005
-// $Id: ModuleFactory.cc,v 1.3 2005/07/14 22:50:53 wmtan Exp $
+// $Id: ModuleFactory.cc,v 1.4 2005/08/15 02:15:05 chrjones Exp $
 //
 
 // system include files
@@ -33,4 +33,4 @@ namespace edm {
       }
    }
 }
-COMPONENTFACTORY_GET(edm::eventsetup::ModuleMakerTraits)
+COMPONENTFACTORY_GET(edm::eventsetup::ModuleMakerTraits);

@@ -7,7 +7,7 @@
 #include <stdexcept>
 #include <iostream>
 
-EDM_REGISTER_PLUGINFACTORY(edm::PresencePluginFactory,"CMS EDM Framework Presence")
+EDM_REGISTER_PLUGINFACTORY(edm::PresencePluginFactory,"CMS EDM Framework Presence");
 
 using namespace std;
 
