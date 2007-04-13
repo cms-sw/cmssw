@@ -203,18 +203,38 @@ void FastTrackAnalyzer::beginJob( const edm::EventSetup& es){
  
   hMap["trk_Rec_phi"] = new TH1F("trk_Rec_phi", "trk_Rec_phi", 100,-3.5, 3.5);
   hMap["trk_Sim_phi"] = new TH1F("trk_Sim_phi", "trk_Sim_phi", 100,-3.5, 3.5);
-  hMap["trk_Res_phi"] = new TH1F("trk_Res_phi", "trk_Res_phi", 1000,-3.5, 3.5);
+  hMap["trk_Res_phi"] = new TH1F("trk_Res_phi", "trk_Res_phi", 1000,-0.02, 0.02);
+  hMap["trk_Pull_phi"] = new TH1F("trk_Pull_phi", "trk_Pull_phi", 100,-15, 15);
 
   hMap["trk_Rec_eta"] = new TH1F("trk_Rec_eta", "trk_Rec_eta", 100,-3, 3);
   hMap["trk_Sim_eta"] = new TH1F("trk_Sim_eta", "trk_Sim_eta", 100,-3, 3);
-  hMap["trk_Res_eta"] = new TH1F("trk_Res_eta", "trk_Res_eta", 1000,-3, 3);
+  hMap["trk_Res_eta"] = new TH1F("trk_Res_eta", "trk_Res_eta", 1000,-0.01, 0.01);
+  hMap["trk_Pull_eta"] = new TH1F("trk_Pull_eta", "trk_Pull_eta", 1000,-25, 25);
 
   hMap["trk_Rec_pt"] = new TH1F("trk_Rec_pt", "trk_Rec_pt", 100,0, 100);
   hMap["trk_Sim_pt"] = new TH1F("trk_Sim_pt", "trk_Sim_pt", 100,0, 100);
-  hMap["trk_Res_pt"] = new TH1F("trk_Res_pt", "trk_Res_pt", 100,0, 10);
+  hMap["trk_Res_pt"] = new TH1F("trk_Res_pt", "trk_Res_pt", 100,-10, 10);
+  hMap["trk_Pull_pt"] = new TH1F("trk_Pull_pt", "trk_Pull_pt", 100,-10, 10);
 
-  hMap["trk_Rec_chi2"] = new TH1F("trk_Rec_chi2", "trk_Rec_chi2", 100,0, 20);
-  hMap["trk_Rec_Normchi2"] = new TH1F("trk_Rec_Normchi2", "trk_Rec_Normchi2", 100,0, 20);
+  hMap["trk_Pull_qoverp"] = new TH1F("trk_Pull_qoverp", "trk_Pull_qoverp", 100,-25, 25);
+  hMap["trk_Rec_qoverp"] = new TH1F("trk_Rec_qoverp", "trk_Rec_qoverp", 100,-25, 25);
+
+  hMap["trk_Rec_chi2"] = new TH1F("trk_Rec_chi2", "trk_Rec_chi2", 100,0, 100);
+  hMap["trk_Rec_Normchi2"] = new TH1F("trk_Rec_Normchi2", "trk_Rec_Normchi2", 100,0, 12);
+  hMap["trk_Rec_ndof"] = new TH1F("trk_Rec_ndof", "trk_Rec_ndof", 100,0, 100);
+
+  hMap["trk_Res_d0"] = new TH1F("trk_Res_d0", "trk_Res_d0", 100,-0.1, 0.1);
+  hMap["trk_Rec_d0"] = new TH1F("trk_Rec_d0", "trk_Rec_d0", 100,-0.02, 0.02);
+  hMap["trk_Err_d0"] = new TH1F("trk_Err_d0", "trk_Err_d0", 100,0, 0.004);
+  hMap["trk_Pull_d0"] = new TH1F("trk_Pull_d0", "trk_Pull_d0", 100,-10, 10);
+
+  hMap["trk_Res_dz"] = new TH1F("trk_Res_dz", "trk_Res_dz", 100,-0.1, 0.1);
+  hMap["trk_Rec_dz"] = new TH1F("trk_Rec_dz", "trk_Rec_dz", 100,-10, 10);
+  hMap["trk_Err_dz"] = new TH1F("trk_Err_dz", "trk_Err_dz", 100,0, 0.02);
+  hMap["trk_Pull_dz"] = new TH1F("trk_Pull_dz", "trk_Pull_dz", 100,-10, 10);
+
+  hMap["trk_Rec_charge"] = new TH1F("trk_Rec_charge", "trk_Rec_charge", 100, -2,2);
+
 }
 //---------------------------------------------------------
 void FastTrackAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& setup)
@@ -477,16 +497,39 @@ void FastTrackAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& 
 	    std::cout << "\t\tSim track mom = " << simTrack->momentum() << " charge = " <<  simTrack->charge() << std::endl;
 
 	   
-	    hMap["trk_Sim_phi"]->Fill(simTrack->momentum().phi());
-	    hMap["trk_Sim_eta"]->Fill(simTrack->momentum().eta());
-	    hMap["trk_Sim_pt"]->Fill(simTrack->momentum().perp());
-	   
-	    hMap["trk_Rec_phi"]->Fill(track->phi());
-	    hMap["trk_Rec_eta"]->Fill(track->eta());
-	    hMap["trk_Rec_pt"]->Fill(track->pt());
 
 	    hMap["trk_Rec_chi2"]->Fill(track->chi2());
-	    hMap["trk_Rec_chi2"]->Fill(track->normalizedChi2());
+	    hMap["trk_Rec_Normchi2"]->Fill(track->normalizedChi2());
+	    hMap["trk_Rec_ndof"]->Fill(track->ndof());
+	    
+	    hMap["trk_Rec_phi"]     ->Fill(  track->phi() );
+	    hMap["trk_Sim_phi"] 	  ->Fill( simTrack->momentum().phi()); 
+	    hMap["trk_Res_phi"] 	  ->Fill(  track->phi() -  simTrack->momentum().phi() );
+	    hMap["trk_Pull_phi"]	  ->Fill( ( track->phi() -  simTrack->momentum().phi()) / track->phiError()   );
+	    
+	    hMap["trk_Rec_eta"] 	  ->Fill(    track->eta() );                                                      
+	    hMap["trk_Sim_eta"] 	  ->Fill(   simTrack->momentum().eta());                                          
+	    hMap["trk_Res_eta"] 	  ->Fill(    track->eta() -  simTrack->momentum().eta() );                        
+	    hMap["trk_Pull_eta"]	  ->Fill(   ( track->eta() -  simTrack->momentum().eta()) / track->etaError()   );
+	    
+	    hMap["trk_Rec_pt"] 	  ->Fill( track->pt()  );
+	    hMap["trk_Sim_pt"] 	  ->Fill( simTrack->momentum().perp()  );
+	    hMap["trk_Res_pt"] 	  ->Fill( track->pt() -  simTrack->momentum().perp() );
+	    
+	    double simQoverp =  simTrack->charge() / simTrack->momentum().vect().mag();
+	    
+	    hMap["trk_Pull_qoverp"] ->Fill( (track->qoverp() -  simQoverp) / track->qoverpError()  );
+	    std::cout<<" qoverp = " << track->qoverp() << std::endl;
+	    std::cout<<" simqoverp = "<< simQoverp << std::endl;
+	    std::cout<<" qoverpPull = "<<  (track->qoverp() -  simQoverp) / track->qoverpError() << std::endl;
+	    
+	    hMap["trk_Rec_d0"] 	  ->Fill(   track->d0() );
+	    hMap["trk_Err_d0"]	  ->Fill(  track->d0Error()  );
+	    //	    hMap["trk_Pull_d0"]	  ->Fill(   );
+	    hMap["trk_Rec_dz"] 	  ->Fill(   track->dz() );
+	    hMap["trk_Err_dz"]	  ->Fill(  track->dzError()  );
+	    
+	    hMap["trk_Rec_charge"] ->Fill( track->charge() );
 	  }
 	}
       i++;
