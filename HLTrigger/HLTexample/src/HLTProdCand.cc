@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2007/03/26 09:59:04 $
- *  $Revision: 1.32 $
+ *  $Date: 2007/02/20 13:31:21 $
+ *  $Revision: 1.30 $
  *
  *  \author Martin Grunewald
  *
@@ -29,11 +29,10 @@
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
 
+#include "CLHEP/HepMC/ReadHepMC.h"
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include "HepPDT/ParticleID.hh"
 
 //
 // constructors and destructor
@@ -131,7 +130,7 @@ HLTProdCand::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	 // particle type
 	 const int ipdg((*pitr)->pdg_id());
 	 // 4-momentum
-	 const HepMC::FourVector p((*pitr)->momentum());
+	 const HepLorentzVector p((*pitr)->momentum());
          const math::XYZTLorentzVector 
 	   p4(math::XYZTLorentzVector(p.x(),p.y(),p.z(),p.t()));
 	 // charge
