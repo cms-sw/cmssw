@@ -1,19 +1,23 @@
 <use name=DataFormats/RecoCandidate>
+<use name=DataFormats/HcalIsolatedTrackCandidate>
+<use name=DataFormats/HcalIsolatedTrack>
 <use name=PhysicsTools/Parser>
 <use name=SimDataFormats/HepMCProduct>
 <use name=SimGeneral/HepPDTRecord>
 <use name=FWCore/Framework>
-<use name=FWCore/PluginManager>
+<use name=Foundation/PluginManager>
 <use name=FWCore/ParameterSet>
 <use name=HLTrigger/HLTcore>
 <use name=CLHEP>
 <use name=root>
-<flags EDM_PLUGIN=1>
+<flags SEAL_PLUGIN_NAME="HLTriggerspecial">
 <export>
    <lib name=HLTriggerspecial>
    <use name=FWCore/Framework>
-   <use name=FWCore/PluginManager>
+   <use name=Foundation/PluginManager>
    <use name=FWCore/ParameterSet>
    <use name=HLTrigger/HLTcore>
    <use name=DataFormats/RecoCandidate>
+   <use name=DataFormats/HcalIsolatedTrackCandidate>
+   <use name=DataFormats/HcalIsolatedTrack>
 </export>
