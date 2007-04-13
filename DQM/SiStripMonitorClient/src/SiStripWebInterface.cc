@@ -86,7 +86,7 @@ void SiStripWebInterface::handleCustomRequest(xgi::Input* in,xgi::Output* out)
     out->getHTTPResponseHeader().addHeader("Content-Type", "text/plain");
     std::string infoType = get_from_multimap(requestMap_, "InfoType");
     if (infoType == "Lite") *out <<  actionExecutor_->getQTestSummaryLite((*mui_p)) << endl;
-    else *out <<  actionExecutor_->getQTestSummaryLite((*mui_p)) << endl;
+    else *out <<  actionExecutor_->getQTestSummary((*mui_p)) << endl;
     theActionFlag = NoAction;
   } 
   else if (requestID == "CreateSummary") {

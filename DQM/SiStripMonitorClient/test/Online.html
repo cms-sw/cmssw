@@ -66,7 +66,7 @@
           <div class="dhtmlgoodies_aTab">
 	    <div class="bloc" id="bloc2_2"> 
       	      <div class="bloc" id="bloc2_2_1"
-                 <br/>
+               <fieldset>
                  <label id="summ_plot"
                    style="margin-left:2%">
                    Select & Plot Summary:
@@ -134,16 +134,23 @@
                  </input>
 	         <br/>
    		 <br/>
-                 <input name="QtestResult" 
-                   id="check_qtest_result"
+                 <input name="QtestResultLite" 
+                   id="check_qtest_result_lite"
                    value="QTest Result" 
                    style="width:30%;margin-left:2%;margin-bottom:1%;margin-top:1%;margin-right:2%"
                    onClick="CheckQualityTestResultsLite()" 
                    type="submit">
                  </input>  
-
-                 <div class="block" id="summary_status_area" style="overflow:scroll;height:230px;width:100%;background:#FFF8C9"> 
-                </div>
+                 <input name="QtestResultDetail" 
+                   id="check_qtest_result_detail"
+                   value="QTest Result Detail" 
+                   style="width:30%;margin-left:2%;margin-bottom:1%;margin-top:1%;margin-right:2%"
+                   onClick="CheckQualityTestResultsDetail()" 
+                   type="submit">
+                 </input>  
+               </fieldset>
+              </div>
+              <div class="block" id="summary_status_area" style="overflow:scroll;height:230px;width:100%;background:#FFF8C9"> 
        	      </div>
             </div>
           </div>
