@@ -305,7 +305,7 @@ GSTrackCandidateMaker::produce(edm::Event& e, const edm::EventSetup& es) {
     std::cout << "GSTrackCandidateMaker: TSOS local error "        << initialTSOS.localError().positionError() << std::endl;
     std::cout << "GSTrackCandidateMaker: TSOS local error matrix " << initialTSOS.localError().matrix() << std::endl;
     std::cout << "GSTrackCandidateMaker: TSOS surface side "       << initialTSOS.surfaceSide()    << std::endl;
-    std::cout << "GSTrackCandidateMaker: TSOS X0[cm] = "           << initialTSOS.surface().mediumProperties()->radLen() << std::endl;
+    //    std::cout << "GSTrackCandidateMaker: TSOS X0[cm] = "           << initialTSOS.surface().mediumProperties()->radLen() << std::endl;
 #endif
     // This new method is here to avod a memory leak that came with 
     // TrackingTools/TrajectoryState/src/TrajectoryStateTransform.cc
@@ -316,8 +316,8 @@ GSTrackCandidateMaker::produce(edm::Event& e, const edm::EventSetup& es) {
 
 #ifdef FAMOS_DEBUG
     std::cout << "GSTrackCandidateMaker: detid " << recHits.front().geographicalId().rawId() << std::endl;
-    std::cout << "GSTrackCandidateMaker: PTSOS detId " << initialState->detId() << std::endl;
-    std::cout << "GSTrackCandidateMaker: PTSOS local momentum " << initialState->parameters().momentum() << std::endl;
+    std::cout << "GSTrackCandidateMaker: PTSOS detId " << initialState.detId() << std::endl;
+    std::cout << "GSTrackCandidateMaker: PTSOS local momentum " << initialState.parameters().momentum() << std::endl;
 #endif
     //
     
