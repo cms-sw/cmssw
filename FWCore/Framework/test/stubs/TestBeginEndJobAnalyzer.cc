@@ -13,7 +13,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Sep  2 13:54:17 EDT 2005
-// $Id: TestBeginEndJobAnalyzer.cc,v 1.3 2006/05/03 21:12:14 wmtan Exp $
+// $Id: TestBeginEndJobAnalyzer.cc,v 1.4 2006/10/21 17:18:57 wmtan Exp $
 //
 //
 
@@ -26,7 +26,6 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -94,6 +93,3 @@ void
 TestBeginEndJobAnalyzer::analyze(const edm::Event& /* iEvent */, const edm::EventSetup& /* iSetup */)
 {
 }
-
-//define this as a plug-in
-DEFINE_FWK_MODULE(TestBeginEndJobAnalyzer);
