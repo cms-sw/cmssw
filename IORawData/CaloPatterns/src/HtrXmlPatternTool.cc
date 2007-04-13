@@ -147,6 +147,7 @@ void HtrXmlPatternTool::writeXML() {
 	return;
       }
       (*of) << "<?xml version='1.0' encoding='UTF-8'?>" << std::endl;
+      (*of) << "<CFGBrickSet name='" << m_params->m_file_tag << "'>" << std::endl;
     }
 
     for (int slot=0; slot<ChannelPattern::NUM_SLOTS; slot++) {
@@ -154,12 +155,13 @@ void HtrXmlPatternTool::writeXML() {
 	HalfHtrData* hd=cd->getHalfHtrData(slot,tb);
 	if (hd==0) continue;
 	for (int fiber=1; fiber<=8; fiber++) {
-	  m_xmlWriter.writePattern(hd,fiber,*of,(singleMode)?(1):(0));
+	  m_xmlWriter.writePattern(hd,fiber,*of,1);
 	}
       }
     } //end slot loop
     
     if (!singleMode) {
+      (*of) << "</CFGBrickSet>" << std::endl;
       of->close();
       delete of;
       of=0;
