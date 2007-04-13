@@ -10,11 +10,12 @@
 <use name=FWCore/Framework>
 <use name=FWCore/MessageLogger>
 <use name=FWCore/ParameterSet>
-<use name=Foundation/PluginManager>
+<use name=FWCore/PluginManager>
 <use name=HLTrigger/HLTcore>
 <use name=PhysicsTools/Parser>
 <use name=SimDataFormats/HepMCProduct>
-<use name=clhep>
+<use name=hepmc>
+<use name=heppdt>
 <export>
   <use name=FWCore/Framework>
   <use name=FWCore/ParameterSet>
@@ -23,4 +24,4 @@
   <lib name=HLTriggerHLTexample>
 </export>
 
-<flags SEAL_PLUGIN_NAME="HLTriggerHLTexample">
+<flags EDM_PLUGIN=1>
