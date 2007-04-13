@@ -1,4 +1,4 @@
-<flags EDM_PLUGIN=1>
+<flags SEAL_PLUGIN_NAME="FastSimulationTrackingRecHitProducer">
 
 <use name=DataFormats/CLHEP>
 <use name=DataFormats/Common>

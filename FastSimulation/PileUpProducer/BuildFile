@@ -10,7 +10,7 @@
 <use name=SimDataFormats/HepMCProduct>
 <use name=boost>
 <use name=hepmc>
-<flags EDM_PLUGIN=1>
+<flags SEAL_PLUGIN_NAME="FastSimulationPileUpProducer">
 <export>
   <use name=FWCore/Framework>
   <use name=FWCore/ParameterSet>
@@ -18,4 +18,3 @@
   <use name=boost>
   <lib name=FastSimulationPileUpProducer>
 </export>
-

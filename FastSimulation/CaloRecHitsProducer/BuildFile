@@ -1,4 +1,4 @@
-<flags EDM_PLUGIN=1>
+<flags SEAL_PLUGIN_NAME="FastSimulationCaloRecHitsProducer">
 <use name=DataFormats/Common>
 <use name=DataFormats/EcalDetId>
 <use name=DataFormats/EcalRecHit>
