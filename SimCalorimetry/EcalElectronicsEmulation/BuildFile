@@ -5,8 +5,6 @@
 <use name=DataFormats/EcalDigi>
 <use name=DataFormats/EcalDetId>
 <use name=SimDataFormats/CaloHit>
-<use name=SimCalorimetry/EcalSelectiveReadoutAlgos>
-<use name=SimCalorimetry/EcalTrigPrimAlgos>
 
 <use name=root>
 
@@ -21,6 +19,4 @@
    <use name=DataFormats/EcalDigi>
    <use name=DataFormats/EcalDetId>
    <use name=SimDataFormats/CaloHit>
-   <use name=SimCalorimetry/EcalSelectiveReadoutAlgos>
-   <use name=SimCalorimetry/EcalTrigPrimAlgos>
 </export>
