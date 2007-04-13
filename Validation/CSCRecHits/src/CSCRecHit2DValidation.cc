@@ -11,11 +11,17 @@ CSCRecHit2DValidation::CSCRecHit2DValidation(DaqMonitorBEInterface* dbe, const e
 
    for(int i = 0; i < 10; ++i)
   {
-    char title1[200], title2[200];
+    char title1[200], title2[200], title3[200], title4[200];
     sprintf(title1, "CSCRecHitResolution%d", i+1);
     sprintf(title2, "CSCRecHitPull%d", i+1);
+    sprintf(title3, "CSCRecHitYResolution%d", i+1);
+    sprintf(title4, "CSCRecHitYPull%d", i+1);
+
     theResolutionPlots[i] = dbe_->book1D(title1, title1, 100, -0.2, 0.2);
     thePullPlots[i] = dbe_->book1D(title2, title2, 100, -3, 3);
+    theYResolutionPlots[i] = dbe_->book1D(title3, title3, 100, -5, 5);
+    theYPullPlots[i] = dbe_->book1D(title4, title4, 100, -3, 3);
+
   }
 
 }
@@ -59,5 +65,10 @@ void CSCRecHit2DValidation::plotResolution(const PSimHit & simHit, const CSCRecH
   double rdphi = recHitPos.perp() * dphi;
   theResolutionPlots[chamberType-1]->Fill( rdphi );
   thePullPlots[chamberType-1]->Fill( rdphi/ sqrt(recHit.localPositionError().xx()) );
+
+  double dy = recHit.localPosition().y() - simHit.localPosition().y();
+  theYResolutionPlots[chamberType-1]->Fill( dy );
+  theYPullPlots[chamberType-1]->Fill( dy/ sqrt(recHit.localPositionError().yy()) );
+
 }
 

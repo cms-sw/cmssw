@@ -20,6 +20,9 @@ public:
   MonitorElement* theNPerEventPlot;
   MonitorElement* theResolutionPlots[10];
   MonitorElement* thePullPlots[10];
+  MonitorElement* theYResolutionPlots[10];
+  MonitorElement* theYPullPlots[10];
+
 };
 
 #endif
