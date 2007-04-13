@@ -3,18 +3,19 @@
 // Package:    TrackAssociator
 // Class:      CachedTrajectory
 // 
-// $Id: CachedTrajectory.cc,v 1.4 2007/02/07 04:32:40 dmytro Exp $
+// $Id: CachedTrajectory.cc,v 1.7 2007/04/02 17:26:02 dmytro Exp $
 //
 //
 
 
 #include "TrackingTools/TrackAssociator/interface/CachedTrajectory.h"
-#include "TrackingTools/TrackAssociator/interface/TimerStack.h"
+#include "Utilities/Timing/interface/TimerStack.h"
 #include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
-#include "Geometry/Surface/interface/Plane.h"
+#include "DataFormats/GeometrySurface/interface/Plane.h"
 #include "Geometry/DTGeometry/interface/DTChamber.h"
 #include "Geometry/CSCGeometry/interface/CSCChamber.h"
 #include <deque>
+#include <algorithm>
 
 CachedTrajectory::CachedTrajectory():propagator_(0){
    reset_trajectory();
@@ -41,8 +42,6 @@ void CachedTrajectory::propagateForward(SteppingHelixStateInfo& state, float dis
    Surface::RotationType rotation(r11, r12, r13,
 				  r21, r22, r23,
 				  r31, r32, r33);
-   // Surface* target1 = Plane::build(state.position()+vector*distance, rotation).get();
-   // LogTrace("TrackAssociator") << "Surface: " << target1;
    Surface* target = new Plane(state.position()+vector*distance, rotation);
    if( SteppingHelixPropagator* shp = dynamic_cast<SteppingHelixPropagator*>(propagator_) )
      {
@@ -180,67 +179,97 @@ TrajectoryStateOnSurface CachedTrajectory::propagate(const Plane* plane)
      }
 }
 
-float CachedTrajectory::trajectoryDeltaEta()
+std::pair<float,float> CachedTrajectory::trajectoryDelta( TrajectorType trajectoryType )
 {
-   
-   // we are not interested in the inner part of the detector if for some reason 
-   // the track was not propagated through calorimeters.
-   // if(newState.position().mag() > 300) 
-
-   float minEta = 99999;
-   float maxEta = -99999;
-   for(std::vector<SteppingHelixStateInfo>::const_iterator point = fullTrajectory_.begin();
-       point != fullTrajectory_.end(); point++){
-      if (point->position().eta() > maxEta) maxEta = point->position().eta();
-      if (point->position().eta() < minEta) minEta = point->position().eta();
+   // MEaning of trajectory change depends on its usage. In most cases we measure 
+   // change in a trajectory as difference between final track position and initial 
+   // direction. In some cases such as change of trajectory in the muon detector we 
+   // might want to compare theta-phi of two points or even find local maximum and
+   // mimimum. In general it's not essential what defenition of the trajectory change
+   // is used since we use these numbers only as a rough estimate on how much wider
+   // we should make the preselection region.
+   std::pair<float,float> result(0,0);
+   if ( ! stateAtIP_.isValid() ) { 
+      edm::LogWarning("TrackAssociator") << "State at IP is not known set. Cannot estimate trajectory change. " <<
+	"Trajectory change is not taken into account in matching";
+      return result;
    }
-   if (minEta>maxEta) return 0;
-   return maxEta-minEta;
+   switch (trajectoryType) {
+    case IpToEcal:
+      if ( ecalTrajectory_.empty() )
+	edm::LogWarning("TrackAssociator") << "ECAL trajector is empty. Cannot estimate trajectory change. " <<
+	"Trajectory change is not taken into account in matching";
+      else return delta( stateAtIP_.momentum().theta(), ecalTrajectory_.front().position().theta(), 
+			 stateAtIP_.momentum().phi(), ecalTrajectory_.front().position().phi() );
+      break;
+    case IpToHcal:
+      if ( hcalTrajectory_.empty() )
+	edm::LogWarning("TrackAssociator") << "HCAL trajector is empty. Cannot estimate trajectory change. " <<
+	"Trajectory change is not taken into account in matching";
+      else return delta( stateAtIP_.momentum().theta(), hcalTrajectory_.front().position().theta(), 
+			 stateAtIP_.momentum().phi(),   hcalTrajectory_.front().position().phi() );
+      break;
+    case IpToHO:
+      if ( hoTrajectory_.empty() )
+	edm::LogWarning("TrackAssociator") << "HO trajector is empty. Cannot estimate trajectory change. " <<
+	"Trajectory change is not taken into account in matching";
+      else return delta( stateAtIP_.momentum().theta(), hoTrajectory_.front().position().theta(), 
+			 stateAtIP_.momentum().phi(),   hoTrajectory_.front().position().phi() );
+      break;
+    case FullTrajectory:
+      if ( fullTrajectory_.empty() )
+	edm::LogWarning("TrackAssociator") << "Full trajector is empty. Cannot estimate trajectory change. " <<
+	"Trajectory change is not taken into account in matching";
+      else  return delta( stateAtIP_.momentum().theta(), fullTrajectory_.back().position().theta(), 
+			  stateAtIP_.momentum().phi(),   fullTrajectory_.back().position().phi() );
+      break;
+    default:
+      edm::LogWarning("TrackAssociator") << "Unkown or not supported trajector type. Cannot estimate trajectory change. " <<
+	"Trajectory change is not taken into account in matching";
+   }
+   return result;
 }
 
-float CachedTrajectory::trajectoryDeltaPhi()
+std::pair<float,float> CachedTrajectory::delta(const double& theta1,
+					       const double& theta2,
+					       const double& phi1,
+					       const double& phi2)
 {
-   float minPhi = 99999;
-   float maxPhi = -99999;
-   for(std::vector<SteppingHelixStateInfo>::const_iterator point = fullTrajectory_.begin();
-       point != fullTrajectory_.end(); point++){
-      if (point->position().phi() > maxPhi) maxPhi = point->position().phi();
-      if (point->position().phi() < minPhi) minPhi = point->position().phi();
+   std::pair<float,float> result(theta2 - theta1, phi2 - phi1 );
+   // this won't work for loopers, since deltaPhi cannot be larger than Pi.
+   if ( fabs(result.second) > 2*3.1416-fabs(result.second) ) {
+      if (result.second>0) 
+	result.second -= 2*3.1416;
+      else
+	result.second += 2*3.1416;
    }
-   if (minPhi>maxPhi) return 0;
-   // assuming that we are not reconstructing loopers, so dPhi should be small compared with 2Pi
-   if (minPhi+2*3.1415926-maxPhi<maxPhi-minPhi)
-     return minPhi+2*3.1415926-maxPhi;
-   else
-     return maxPhi-minPhi;
+   return result;
 }
-
+	
 void CachedTrajectory::getTrajectory(std::vector<SteppingHelixStateInfo>& trajectory,
-				     const float r1, 
-				     const float r2, 
-				     const float z1, 
-				     const float z2, 
-				     const float step)
+				     const FiducialVolume& volume,
+				     int steps)
 {
    if ( ! fullTrajectoryFilled_ ) throw cms::Exception("FatalError") << "trajectory is not defined yet. Please use propagateAll first.";
    if ( fullTrajectory_.empty() ) {
       LogTrace("TrackAssociator") << "Trajectory is empty. Move on";
       return;
    }
-
-   if (r1>r2 || z1>z2) {
-      LogTrace("TrackAssociator") << "no trajectory is expected to be found since either R1>R2 or L1>L2";
+   if ( ! volume.isValid() ) {
+      LogTrace("TrackAssociator") << "no trajectory is expected to be found since the fiducial volume is not valid";
       return;
    }
+   double step = std::max(volume.maxR()-volume.minR(),volume.maxZ()-volume.minZ())/steps;
    
    int closestPointOnLeft = -1;
    
    // check whether the trajectory crossed the region
    if ( ! 
-	( ( fullTrajectory_.front().position().perp()<r2 && fabs(fullTrajectory_.front().position().z()) <z2 ) &&
-	  ( fullTrajectory_.back().position().perp()>r1  || fabs(fullTrajectory_.back().position().z())  >z1 ) ))
+	( ( fullTrajectory_.front().position().perp() < volume.maxR() && fabs(fullTrajectory_.front().position().z()) < volume.maxZ() ) &&
+	  ( fullTrajectory_.back().position().perp() > volume.minR() || fabs(fullTrajectory_.back().position().z()) > volume.minZ() ) ))
      {
-	LogTrace("TrackAssociator") << "Track didn't cross the region (R1,R2,L1,L2): " << r1 << ", " << r2 << ", " << z1 << ", " <<z2;
+	LogTrace("TrackAssociator") << "Track didn't cross the region (R1,R2,L1,L2): " << volume.minR() << ", " << volume.maxR() <<
+	  ", " << volume.minZ() << ", " << volume.maxZ();
 	return;
      }
    
@@ -254,9 +283,9 @@ void CachedTrajectory::getTrajectory(std::vector<SteppingHelixStateInfo>& trajec
    //      requested step ignoring stored trajectory points.
    for(uint i=0; i<fullTrajectory_.size(); i++) {
       // LogTrace("TrackAssociator") << "Trajectory info (i,perp,r1,r2,z,z1,z2): " << i << ", " << fullTrajectory_[i].position().perp() <<
-      //	", " << r1 << ", " << r2 << ", " << fullTrajectory_[i].position().z() << ", " << z1 << ", " << z2 <<
-      //	", " << closestPointOnLeft;
-      if ( fullTrajectory_[i].position().perp()-r1>0  || fabs(fullTrajectory_[i].position().z()) - z1 >0 )
+      //	", " << volume.minR() << ", " << volume.maxR() << ", " << fullTrajectory_[i].position().z() << ", " << volume.minZ() << ", " << 
+      //	volume.maxZ() << ", " << closestPointOnLeft;
+      if ( fullTrajectory_[i].position().perp()-volume.minR() > 0  || fabs(fullTrajectory_[i].position().z()) - volume.minZ() >0 )
 	{
 	   if (i>0) 
 	     closestPointOnLeft = i - 1;
@@ -268,15 +297,16 @@ void CachedTrajectory::getTrajectory(std::vector<SteppingHelixStateInfo>& trajec
    if (closestPointOnLeft == -1) throw cms::Exception("FatalError") << "This shouls never happen - internal logic error";
    
    SteppingHelixStateInfo currentState(fullTrajectory_[closestPointOnLeft]);
-   while (currentState.position().perp()<r2 && fabs(currentState.position().z()) <z2 )
+   while (currentState.position().perp() < volume.maxR() && fabs(currentState.position().z()) < volume.maxZ() )
      {
 	propagateForward(currentState,step);
 	if (! currentState.isValid() ) {
 	   LogTrace("TrackAssociator") << "Failed to propagate the track; moving on\n";
 	   break;
 	}
-	if ( ( currentState.position().perp()<r2 && fabs(currentState.position().z()) < z2 ) &&
-	     ( currentState.position().perp()-r1>0  || fabs(currentState.position().z()) - z1 >0 ) )
+	// LogTrace("TrackAssociator") << "New state (perp, z): " << currentState.position().perp() << ", " << currentState.position().z();
+	if ( ( currentState.position().perp() < volume.maxR() && fabs(currentState.position().z()) < volume.maxZ() ) &&
+	     ( currentState.position().perp()-volume.minR() > 0  || fabs(currentState.position().z()) - volume.minZ() >0 ) )
 	  trajectory.push_back(currentState);
      }
 }
@@ -287,42 +317,35 @@ void CachedTrajectory::reset_trajectory() {
    hcalTrajectory_.clear();
    hoTrajectory_.clear();
    fullTrajectoryFilled_ = false;
-   ecalTrajectoryFilled_ = false;
-   hcalTrajectoryFilled_ = false;
-   hoTrajectoryFilled_ = false;
 }
 
+void CachedTrajectory::findEcalTrajectory( const FiducialVolume& volume ) {
+   LogTrace("TrackAssociator") << "getting trajectory in ECAL";
+   getTrajectory(ecalTrajectory_, volume, 4 );
+   LogTrace("TrackAssociator") << "# of points in ECAL trajectory:" << ecalTrajectory_.size();
+}
 
 const std::vector<SteppingHelixStateInfo>& CachedTrajectory::getEcalTrajectory() {
-   if ( ! ecalTrajectoryFilled_ )
-     {
-	LogTrace("TrackAssociator") << "getting trajectory in ECAL";
-	getTrajectory(ecalTrajectory_, 130.,150.,315.,335,10 );
-	LogTrace("TrackAssociator") << "# of points in ECAL trajectory:" << ecalTrajectory_.size();
-	ecalTrajectoryFilled_ = true;
-     }
    return ecalTrajectory_;
 }
 
+void CachedTrajectory::findHcalTrajectory( const FiducialVolume& volume ) {
+   LogTrace("TrackAssociator") << "getting trajectory in HCAL";
+   getTrajectory(hcalTrajectory_, volume, 4 );
+   LogTrace("TrackAssociator") << "# of points in HCAL trajectory:" << hcalTrajectory_.size();
+}
+
 const std::vector<SteppingHelixStateInfo>& CachedTrajectory::getHcalTrajectory() {
-   if ( ! hcalTrajectoryFilled_ ) 
-     {
-	LogTrace("TrackAssociator") << "getting trajectory in HCAL";
-	getTrajectory(hcalTrajectory_, 190., 240., 400., 550, 50 );
-	LogTrace("TrackAssociator") << "# of points in HCAL trajectory:" << hcalTrajectory_.size();
-	hcalTrajectoryFilled_ = true;
-     }
    return hcalTrajectory_;
 }
 
+void CachedTrajectory::findHOTrajectory( const FiducialVolume& volume ) {
+   LogTrace("TrackAssociator") << "getting trajectory in HO";
+   getTrajectory(hoTrajectory_, volume, 2 );
+   LogTrace("TrackAssociator") << "# of points in HO trajectory:" << hoTrajectory_.size();
+}
+
 const std::vector<SteppingHelixStateInfo>& CachedTrajectory::getHOTrajectory() {
-   if ( ! hoTrajectoryFilled_ ) 
-     { 
-	LogTrace("TrackAssociator") << "getting trajectory in HO";
-	getTrajectory(hoTrajectory_, 380,420.,625.,625.,10 );
-	LogTrace("TrackAssociator") << "# of points in HO trajectory:" << hoTrajectory_.size();
-	hoTrajectoryFilled_ = true;
-     }
    return hoTrajectory_;
 }
    
