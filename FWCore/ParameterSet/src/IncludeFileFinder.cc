@@ -1,5 +1,6 @@
 #include "FWCore/ParameterSet/interface/IncludeFileFinder.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/PluginManager/interface/standard.h"
 #include <iostream>
 
 using namespace edmplugin;
@@ -11,9 +12,14 @@ namespace edm {
   namespace pset {
 
     IncludeFileFinder::IncludeFileFinder()
-    : thePluginManager(edmplugin::PluginManager::get()),
+    : thePluginManager(0),
       theLibraryMap()
     {
+        if(!edmplugin::PluginManager::isAvailable()) {
+          edmplugin::PluginManager::configure(edmplugin::standard::config());
+        }
+        thePluginManager = edmplugin::PluginManager::get();
+
         typedef edmplugin::PluginManager::CategoryToInfos CatToInfos;
         const std::string kCapability("Capability"); 
         const CatToInfos& catToInfos = thePluginManager->categoryToInfos();
