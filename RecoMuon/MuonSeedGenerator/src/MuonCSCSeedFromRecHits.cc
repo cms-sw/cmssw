@@ -16,8 +16,8 @@ MuonCSCSeedFromRecHits::MuonCSCSeedFromRecHits(const edm::EventSetup & eSetup)
   //FIXME make configurable
   // parameters for the fit of dphi between chambers vs. eta
   // pt = (c1 + c2 abs(eta))/ dphi
-  fillConstants(1,5, 0.6640, -0.2253);
-  fillConstants(1,7, 0.6255, -0.1955);
+  //fillConstants(1,5, 0.6640, -0.2253);
+  //fillConstants(1,7, 0.6255, -0.1955);
   fillConstants(2,5, 0.6876, -0.2379);
   fillConstants(2,7, 0.6404, -0.2009);
   //fillConstants(2,8, 0.7972, -0.3032);
