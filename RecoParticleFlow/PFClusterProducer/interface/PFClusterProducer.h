@@ -34,7 +34,7 @@ class DetId;
 
 namespace reco {
   class PFRecHit;
-};
+}
 
 
 class PFClusterProducer : public edm::EDProducer {
