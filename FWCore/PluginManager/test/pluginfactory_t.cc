@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Apr  4 13:38:29 EDT 2007
-// $Id: pluginfactory_t.cc,v 1.1.2.2 2007/04/12 09:12:25 wmtan Exp $
+// $Id: pluginfactory_t.cc,v 1.2 2007/04/12 12:51:13 wmtan Exp $
 //
 
 // system include files
@@ -42,7 +42,7 @@ namespace edmplugintest {
 }
 
 typedef edmplugin::PluginFactory<edmplugintest::DummyBase*(void)> FactoryType;
-EDM_REGISTER_PLUGINFACTORY(FactoryType,"Test Dummy")
+EDM_REGISTER_PLUGINFACTORY(FactoryType,"Test Dummy");
 
 DEFINE_EDM_PLUGIN(FactoryType,edmplugintest::Dummy,"Dummy");
 
