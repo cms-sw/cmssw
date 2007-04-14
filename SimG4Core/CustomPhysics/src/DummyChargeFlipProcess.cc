@@ -1,109 +1,114 @@
-#include "SimG4Core/CustomPhysics/interface/DummyChargeFlipProcess.h"
+#include <iostream>
 #include "G4ParticleTable.hh"
 #include "CLHEP/Random/RandFlat.h"
 
-#include <iostream>
+#include "SimG4Core/CustomPhysics/interface/DummyChargeFlipProcess.h"
 
-using namespace std;
-
-DummyChargeFlipProcess::DummyChargeFlipProcess(const std::string & processName) : 
+DummyChargeFlipProcess::
+DummyChargeFlipProcess(const G4String& processName) : 
       G4HadronicProcess(processName)
-{  AddDataSet(new G4HadronElasticDataSet); }
+{
+  AddDataSet(new G4HadronElasticDataSet);
+}
 
-DummyChargeFlipProcess::~DummyChargeFlipProcess() {}
+DummyChargeFlipProcess::~DummyChargeFlipProcess()
+{
+}
  
 
-void DummyChargeFlipProcess::BuildPhysicsTable(const G4ParticleDefinition & aParticleType)
+void DummyChargeFlipProcess::
+BuildPhysicsTable(const G4ParticleDefinition& aParticleType)
 {
-    if (!G4HadronicProcess::GetCrossSectionDataStore()) return;
-    G4HadronicProcess::GetCrossSectionDataStore()->BuildPhysicsTable(aParticleType);
-}
-
-G4double DummyChargeFlipProcess::GetMicroscopicCrossSection(const G4DynamicParticle * aParticle, 
-							    const G4Element* anElement, double aTemp)
-{
-    // gives the microscopic cross section in GEANT4 internal units
-    if (!G4HadronicProcess::GetCrossSectionDataStore()) 
-    {
-	G4Exception("DummyChargeFlipProcess", "007", FatalException,
-		    "no cross section data Store");
-	return DBL_MIN;
-    }
-    return 30*millibarn*anElement->GetN(); 
-}
-
-bool DummyChargeFlipProcess::IsApplicable(const G4ParticleDefinition& aParticleType)
-{
-    if (aParticleType.GetParticleType() == "rhadron")
-	return true;
-    else
-	return false;
-}
-
-void DummyChargeFlipProcess::DumpPhysicsTable(const G4ParticleDefinition & aParticleType)
-{
-   if (!G4HadronicProcess::GetCrossSectionDataStore()) 
-   {
-       G4Exception("DummyChargeFlipProcess", "111", JustWarning, 
-		   "DummyChargeFlipProcess: no cross section data set");
-       return;
+   if (!G4HadronicProcess::GetCrossSectionDataStore()) {
+      return;
    }
-   G4HadronicProcess::GetCrossSectionDataStore()->DumpPhysicsTable(aParticleType);
+   G4HadronicProcess::GetCrossSectionDataStore()->BuildPhysicsTable(aParticleType);
 }
 
 
-G4VParticleChange * DummyChargeFlipProcess::PostStepDoIt(const G4Track &aTrack, 
-							 const G4Step &aStep)
+G4double DummyChargeFlipProcess::
+GetMicroscopicCrossSection(
+      const G4DynamicParticle* /*aParticle*/, const G4Element* element, G4double /*aTemp*/)
 {
-    cout << "Sign flip ....!!"<< endl;
-    SetDispatch(this);
-    G4ParticleChange * pc = new G4ParticleChange();
-    pc->Initialize(aTrack);
-    const G4DynamicParticle * aParticle = aTrack.GetDynamicParticle();
-    G4ParticleDefinition * aParticleDef = aParticle->GetDefinition();
 
-    //Bug!!! Use kinetic energy
-    //  G4double   ParentEnergy  = aParticle->GetTotalEnergy();
-    double   ParentEnergy  = aParticle->GetKineticEnergy();
-    G4ThreeVector ParentDirection(aParticle->GetMomentumDirection());
+   return 30*millibarn*element->GetN(); 
+}
 
-    double energyDeposit = 0.0;
-    double finalGlobalTime = aTrack.GetGlobalTime();
 
-    int numberOfSecondaries = 1;
-    pc->SetNumberOfSecondaries(numberOfSecondaries);
-    const G4TouchableHandle thand = aTrack.GetTouchableHandle();
+G4bool
+DummyChargeFlipProcess::
+IsApplicable(const G4ParticleDefinition& aParticleType)
+{
+   if(aParticleType.GetParticleType()  == "rhadron")
+    return true;
+  else
+    return false;
+}
 
-    // get current position of the track
-    aTrack.GetPosition();
-    // create a new track object
-    G4ParticleTable * particleTable = G4ParticleTable::GetParticleTable();
-    float randomParticle = RandFlat::shoot();
-    G4ParticleDefinition * newType = aParticleDef;
-    if(randomParticle < 0.333)
+
+void 
+DummyChargeFlipProcess::
+DumpPhysicsTable(const G4ParticleDefinition& /*aParticleType*/)
+{
+
+}
+
+
+G4VParticleChange *DummyChargeFlipProcess::PostStepDoIt(
+  const G4Track &aTrack, const G4Step &/*aStep*/)
+{
+  SetDispatch(this);
+  G4ParticleChange * pc = new G4ParticleChange();
+  pc->Initialize(aTrack);
+  const G4DynamicParticle* aParticle = aTrack.GetDynamicParticle();
+  G4ParticleDefinition* aParticleDef = aParticle->GetDefinition();
+
+  G4double   ParentEnergy  = aParticle->GetTotalEnergy();
+  G4ThreeVector ParentDirection(aParticle->GetMomentumDirection());
+
+  G4double energyDeposit = 0.0;
+  G4double finalGlobalTime = aTrack.GetGlobalTime();
+
+  G4int numberOfSecondaries = 1;
+  pc->SetNumberOfSecondaries(numberOfSecondaries);
+  const G4TouchableHandle thand = aTrack.GetTouchableHandle();
+
+     // get current position of the track
+     aTrack.GetPosition();
+     // create a new track object
+      G4ParticleTable* particleTable = G4ParticleTable::GetParticleTable();
+      float randomParticle = RandFlat::shoot();
+      G4ParticleDefinition * newType = aParticleDef;
+      if(randomParticle < 0.333)
         newType=particleTable->FindParticle(1009213);
-    else if(randomParticle > 0.667)
+      else if(randomParticle > 0.667)
         newType=particleTable->FindParticle(-1009213);
-    else
-	newType=particleTable->FindParticle(1009113);
+      else
+        newType=particleTable->FindParticle(1009113);
      
-    cout << "RHADRON: New charge = " << newType->GetPDGCharge() << endl;
+      std::cout << "RHADRON: New charge = " << newType->GetPDGCharge() << std::endl;
        
-    G4DynamicParticle * newP =  new G4DynamicParticle(newType,ParentDirection,ParentEnergy);
-    G4Track* secondary = new G4Track(newP,finalGlobalTime,aTrack.GetPosition());
-    // switch on good for tracking flag
-    secondary->SetGoodForTrackingFlag();
-    secondary->SetTouchableHandle(thand);
-    // add the secondary track in the List
-    pc->AddSecondary(secondary);
+     G4DynamicParticle * newP =  new G4DynamicParticle(newType,ParentDirection,ParentEnergy);
+     G4Track* secondary = new G4Track( newP ,
+				      finalGlobalTime ,
+				       aTrack.GetPosition()
+     );
+     // switch on good for tracking flag
+     secondary->SetGoodForTrackingFlag();
+     secondary->SetTouchableHandle(thand);
+     // add the secondary track in the List
+     pc->AddSecondary(secondary);
 
-    // Kill the parent particle
-    pc->ProposeTrackStatus(fStopAndKill) ;
-    pc->ProposeLocalEnergyDeposit(energyDeposit); 
-    pc->ProposeGlobalTime(finalGlobalTime);
-    // Clear NumberOfInteractionLengthLeft
-    ClearNumberOfInteractionLengthLeft();
+  // Kill the parent particle
+  pc->ProposeTrackStatus( fStopAndKill ) ;
+  pc->ProposeLocalEnergyDeposit(energyDeposit); 
+  pc->ProposeGlobalTime( finalGlobalTime );
+  // Clear NumberOfInteractionLengthLeft
+  ClearNumberOfInteractionLengthLeft();
 
-    return pc;
+
+
+   return pc;
+
 }
 

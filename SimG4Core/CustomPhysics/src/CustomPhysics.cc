@@ -2,6 +2,8 @@
 #include "SimG4Core/CustomPhysics/interface/CustomPhysicsList.h"
 #include "SimG4Core/QGSP/src/HadronPhysicsQGSP.hh"
  
+#include "SimG4Core/DummyPhysics/interface/DummyEMPhysics.h"
+
 #ifdef G4V7
 #include "SimG4Core/Packaging/src/G4DataQuestionaire.hh"
 #include "SimG4Core/Packaging/src/GeneralPhysics.hh"
@@ -47,5 +49,7 @@ CustomPhysics::CustomPhysics(const edm::ParameterSet & p) : PhysicsList(p)
     RegisterPhysics(new G4QStoppingPhysics("stopping"));
     // Ion Physics
     RegisterPhysics(new G4IonPhysics("ion"));
+    // Custom Physics
+    RegisterPhysics(new CustomPhysicsList("custom",p));    
 #endif
 }
