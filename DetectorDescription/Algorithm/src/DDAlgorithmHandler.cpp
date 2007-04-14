@@ -31,6 +31,13 @@ void DDAlgorithmHandler::initialize(const std::string & algoName,
 {
   std::pair<std::string,std::string> algoNmNs = DDSplit(algoName);
   algoname_ = algoName;
+  try {
+    edmplugin::PluginManager::configure(edmplugin::standard::config());
+  }
+  catch(...) {
+    std::cout << "FATAL!!! Could not initialize the PluginManager!!!" << std::endl;
+  }
+
   algo_ = DDAlgorithmFactory::get()->create(algoNmNs.first);
   DCOUT ('T',"ALGO: name=" + algoNmNs.first + " algo=" + algoName);
   if (!algo_) {
