@@ -3,21 +3,40 @@
 
 #include "RecoTracker/TkSeedingLayers/interface/SeedingLayer.h"
 #include "RecoTracker/TkSeedingLayers/interface/SeedingLayerSets.h"
+
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
+
 #include <string>
 #include <vector>
 namespace edm { class EventSetup; }
-namespace edm { class ParameterSet; }
 
 namespace ctfseeding {
 class SeedingLayerSetsBuilder {
+
 public:
+
   SeedingLayerSetsBuilder(){}
   SeedingLayerSetsBuilder(const edm::ParameterSet & cfg);
+
   SeedingLayerSets layers(const edm::EventSetup& es) const; 
+
 private:
-  void init(const std::vector<std::string> & layerNames);
+  std::vector<std::vector<std::string> > layerNamesInSets(
+    const std::vector<std::string> & namesPSet) ;
+  edm::ParameterSet layerConfig(const std::string & nameLayer,const edm::ParameterSet& cfg) const;
+
 private:
-  std::vector<std::vector<std::string> > theLayersInSetNames; 
+  struct LayerSpec { 
+    std::string name; 
+    std::string pixelHitProducer; edm::InputTag matchedRecHits,rphiRecHits,stereoRecHits;  
+    bool usePixelHitProducer, useMatchedRecHits, useRPhiRecHits, useStereoRecHits;
+    std::string hitBuilder;
+    bool useErrorsFromParam; double hitErrorRPhi; double hitErrorRZ; 
+    bool useRingSelector; int minRing; int maxRing;
+    std::string print() const;
+  }; 
+  std::vector<std::vector<LayerSpec> > theLayersInSets;
 };
 }
 #endif

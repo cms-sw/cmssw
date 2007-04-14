@@ -13,30 +13,118 @@
 #include "RecoTracker/TkDetLayers/interface/TOBLayer.h"
 #include "RecoTracker/TkDetLayers/interface/TIBLayer.h"
 
+#include "HitExtractorPIX.h"
+#include "HitExtractorSTRP.h"
 
 #include <iostream>
 #include <sstream>
 #include <ostream>
 #include <fstream>
+#include <map>
 
 
 using namespace ctfseeding;
 using namespace std;
 
-typedef std::vector<std::string>::const_iterator IS;
-typedef std::vector<std::vector<std::string> >::const_iterator IT;
 
+std::string SeedingLayerSetsBuilder::LayerSpec::print() const
+{
+  std::ostringstream str;
+  str << "Layer="<<name<<", hitBldr: "<<hitBuilder<<", useErrorsFromParam: ";
+  if (useErrorsFromParam) {
+     str <<"true,"<<" errRPhi: "<<hitErrorRPhi<<", errRZ: "<<hitErrorRZ; 
+  }
+  else str<<"false";
+
+  str << ", useRingSelector: ";
+  if (useRingSelector) {
+    str <<"true,"<<" Rings: ("<<minRing<<","<<maxRing<<")"; 
+  } else  str<<"false";
+
+  return str.str();
+}
 
 SeedingLayerSetsBuilder::SeedingLayerSetsBuilder(const edm::ParameterSet & cfg)
 {
-  std::vector<std::string> names = cfg.getParameter<std::vector<std::string> >("layerList");
-  init(names);
+  std::vector<std::string> namesPset = cfg.getParameter<std::vector<std::string> >("layerList");
+  std::vector<std::vector<std::string> > layerNamesInSets = this->layerNamesInSets(namesPset);
+
+  // debug printout of layers
+  typedef std::vector<std::string>::const_iterator IS;
+  typedef std::vector<std::vector<std::string> >::const_iterator IT;
+  std::ostringstream str;
+  for (IT it = layerNamesInSets.begin(); it != layerNamesInSets.end(); it++) {
+    str << "SET: ";
+    for (IS is = it->begin(); is != it->end(); is++)  str << *is <<" ";  
+    str << std::endl;
+  }
+  std::cout << str.str() << std::endl;
+
+  map<string,LayerSpec> mapConfig; // for debug printout only!
+
+  for (IT it = layerNamesInSets.begin(); it != layerNamesInSets.end(); it++) {
+    vector<LayerSpec> layersInSet;
+    for (IS is = it->begin(); is != it->end(); is++) {
+      LayerSpec layer;
+
+      layer.name = *is;
+      edm::ParameterSet cfgLayer = layerConfig(layer.name, cfg);
+
+      layer.usePixelHitProducer = true;
+      layer.useMatchedRecHits = true; 
+      layer.useRPhiRecHits = true;
+      layer.useStereoRecHits = true;
+      try { layer.pixelHitProducer = cfgLayer.getParameter<string>("HitProducer"); } catch(...) { layer.usePixelHitProducer = false; }
+      try { layer.matchedRecHits = cfgLayer.getParameter<edm::InputTag>("matchedRecHits"); } catch(...) { layer.useMatchedRecHits = false; }
+      try { layer.rphiRecHits = cfgLayer.getParameter<edm::InputTag>("rphiRecHits"); } catch(...) { layer.useRPhiRecHits = false; }
+      try { layer.stereoRecHits= cfgLayer.getParameter<edm::InputTag>("stereoRecHits"); } catch(...) { layer.useStereoRecHits = false; }
+
+      layer.hitBuilder  = cfgLayer.getParameter<string>("TTRHBuilder");
+
+      layer.useErrorsFromParam = cfgLayer.getUntrackedParameter<bool>("useErrorsFromParam",false);
+      if(layer.useErrorsFromParam) {
+        layer.hitErrorRPhi = cfgLayer.getParameter<double>("hitErrorRPhi");
+        layer.hitErrorRZ   = cfgLayer.getParameter<double>("hitErrorRZ");
+      }
+
+      layer.useRingSelector = cfgLayer.getUntrackedParameter<bool>("useRingSlector",false);
+      if (layer.useRingSelector) {
+        layer.minRing = cfgLayer.getParameter<int>("minRing");
+        layer.maxRing = cfgLayer.getParameter<int>("maxRing");
+      }
+
+      layersInSet.push_back(layer);
+      mapConfig[layer.name]=layer;
+    }
+    theLayersInSets.push_back(layersInSet);
+  }
+
+  // debug printout
+  for (map<string,LayerSpec>::const_iterator im = mapConfig.begin(); im != mapConfig.end(); im++) {
+    std::cout << (*im).second.print() << std::endl; 
+  }
 }
 
-
-void SeedingLayerSetsBuilder::init( const std::vector<std::string> & layerNames)
+edm::ParameterSet SeedingLayerSetsBuilder::layerConfig(const std::string & nameLayer,const edm::ParameterSet& cfg) const
 {
-  for (std::vector<std::string>::const_iterator is=layerNames.begin(); is < layerNames.end(); ++is) {
+  edm::ParameterSet result;
+   
+  for (string::size_type iEnd=nameLayer.size(); iEnd > 0; --iEnd) {
+    string name = nameLayer.substr(0,iEnd);
+    try {
+       result = cfg.getParameter<edm::ParameterSet>(name);
+       return result;
+    } 
+    catch (...) { } 
+  } 
+  cout <<"configuration for layer: "<<nameLayer<<" not found, job will probably crash!"<<endl;
+  return result;
+}
+
+vector<vector<string> > SeedingLayerSetsBuilder::layerNamesInSets( const vector<string> & namesPSet)
+{
+  std::vector<std::vector<std::string> > result; 
+  for (std::vector<std::string>::const_iterator is=namesPSet.begin(); is < namesPSet.end(); ++is) {
     vector<std::string> layersInSet;
     string line = *is;
     string::size_type pos=0;
@@ -46,15 +134,9 @@ void SeedingLayerSetsBuilder::init( const std::vector<std::string> & layerNames)
       layersInSet.push_back(layer);
       line=line.substr(pos+1,string::npos); 
     }
-    theLayersInSetNames.push_back(layersInSet);
+    result.push_back(layersInSet);
   }
-  std::ostringstream str;
-  for (IT it = theLayersInSetNames.begin(); it != theLayersInSetNames.end(); it++) {
-    str << "SET: ";
-    for (IS is = it->begin(); is != it->end(); is++)  str << *is <<" ";  
-    str << std::endl;
-  }
-  std::cout << str.str() << std::endl;
+  return result;
 }
 
 SeedingLayerSets SeedingLayerSetsBuilder::layers(const edm::EventSetup& es) const
@@ -65,40 +147,117 @@ SeedingLayerSets SeedingLayerSetsBuilder::layers(const edm::EventSetup& es) cons
   edm::ESHandle<GeometricSearchTracker> tracker;
   es.get<TrackerRecoGeometryRecord>().get( tracker );
 
-  std::vector<BarrelDetLayer*>  pbl  = tracker->barrelLayers();
-  std::vector<ForwardDetLayer*> fpos=tracker->posForwardLayers();
-  std::vector<ForwardDetLayer*> fneg=tracker->negForwardLayers();
-  std::vector<BarrelDetLayer*>  tib = tracker->tibLayers();
+  std::vector<BarrelDetLayer*>  bpx  = tracker->barrelLayers();
+  std::vector<BarrelDetLayer*>  tib  = tracker->tibLayers();
+  std::vector<BarrelDetLayer*>  tob  = tracker->tobLayers();
+
+  std::vector<ForwardDetLayer*> fpx_pos = tracker->posForwardLayers();
+  std::vector<ForwardDetLayer*> tid_pos = tracker->posTidLayers();
+  std::vector<ForwardDetLayer*> tec_pos = tracker->posTecLayers();
+
+  std::vector<ForwardDetLayer*> fpx_neg = tracker->negForwardLayers();
+  std::vector<ForwardDetLayer*> tid_neg = tracker->negTidLayers();
+  std::vector<ForwardDetLayer*> tec_neg = tracker->negTecLayers();
   
-  for (IT it = theLayersInSetNames.begin(); it != theLayersInSetNames.end(); it++) {
+  typedef std::vector<std::vector<LayerSpec> >::const_iterator IT;
+  typedef std::vector<LayerSpec>::const_iterator IS;
+
+  for (IT it = theLayersInSets.begin(); it != theLayersInSets.end(); it++) {
     Set set;
     bool setOK = true;
     for (IS is = it->begin(), isEnd = it->end(); is < isEnd; ++is) {
-
-      std::string name = (*is);
+      const LayerSpec & layer = (*is);
+      std::string name = layer.name;
       const DetLayer * detLayer =0;
       SeedingLayer::Side side=SeedingLayer::Barrel;
       int idLayer = 0;
       bool nameOK = true;
-
-      if      (name=="BPix1")  { idLayer=1; side=SeedingLayer::Barrel; detLayer=pbl[idLayer-1]; }
-      else if (name=="BPix2")  { idLayer=2; side=SeedingLayer::Barrel; detLayer=pbl[idLayer-1]; }
-      else if (name=="BPix3")  { idLayer=3; side=SeedingLayer::Barrel; detLayer=pbl[idLayer-1]; }
-      else if (name=="FPix1_pos")  {idLayer=1; detLayer = fpos[idLayer-1]; side = SeedingLayer::PosEndcap; }
-      else if (name=="FPix2_pos")  {idLayer=2; detLayer = fpos[idLayer-1]; side = SeedingLayer::PosEndcap; }
-      else if (name=="FPix1_neg")  {idLayer=1; detLayer = fneg[idLayer-1]; side = SeedingLayer::NegEndcap; }
-      else if (name=="FPix2_neg")  {idLayer=2; detLayer = fneg[idLayer-1]; side = SeedingLayer::NegEndcap; }
-
-      else if (name=="TIB1")  { idLayer=1; side = SeedingLayer::Barrel;  detLayer = tib[idLayer-1]; }
-
+      HitExtractor * extractor = 0; 
+      
+      //
+      // BPIX
+      //
+      if (name.substr(0,4) == "BPix") {
+        idLayer = atoi(name.substr(4,1).c_str());
+        side=SeedingLayer::Barrel;
+        detLayer=bpx[idLayer-1]; 
+      }
+      //
+      // FPIX
+      //
+      else if (name.substr(0,4) == "FPix") {
+        idLayer = atoi(name.substr(4,1).c_str());
+        if ( name.find("pos") != string::npos ) {
+          side = SeedingLayer::PosEndcap;
+          detLayer = fpx_pos[idLayer-1];
+        } else {
+          side = SeedingLayer::NegEndcap;
+          detLayer = fpx_neg[idLayer-1];
+        }
+      }
+      //
+      // TIB
+      //
+      else if (name.substr(0,3) == "TIB") {
+        idLayer = atoi(name.substr(3,1).c_str());
+        side=SeedingLayer::Barrel;
+        detLayer=tib[idLayer-1];
+      }
+      //
+      // TID
+      //
+      else if (name.substr(0,3) == "TID") {
+        idLayer = atoi(name.substr(3,1).c_str());
+        if ( name.find("pos") != string::npos ) {
+          side = SeedingLayer::PosEndcap;
+          detLayer = tid_pos[idLayer-1];
+        } else {
+          side = SeedingLayer::NegEndcap;
+          detLayer = tid_neg[idLayer-1];
+        }
+      }
+      //
+      // TOB
+      //
+      else if (name.substr(0,3) == "TOB") {
+        idLayer = atoi(name.substr(3,1).c_str());
+        side=SeedingLayer::Barrel;
+        detLayer=tob[idLayer-1];
+      }
+      //
+      // TEC
+      //
+      else if (name.substr(0,3) == "TEC") {
+        idLayer = atoi(name.substr(3,1).c_str());
+        if ( name.find("pos") != string::npos ) {
+          side = SeedingLayer::PosEndcap;
+          detLayer = tec_pos[idLayer-1];
+        } else {
+          side = SeedingLayer::NegEndcap;
+          detLayer = tec_neg[idLayer-1];
+        }
+      }
       else {
         nameOK = false;
         setOK = false;
       }
 
-      
-
-      if(nameOK) set.push_back( SeedingLayer(detLayer, name, side,idLayer) );
+      if(nameOK) {
+        if ( detLayer->subDetector() == GeomDetEnumerators::PixelBarrel ||
+             detLayer->subDetector() == GeomDetEnumerators::PixelEndcap) {
+          extractor = layer.useErrorsFromParam ? 
+                 new HitExtractorPIX(side,idLayer,layer.pixelHitProducer,layer.hitErrorRPhi,layer.hitErrorRZ)
+              :  new HitExtractorPIX(side,idLayer,layer.pixelHitProducer);
+        } else {
+          HitExtractorSTRP extSTRP(detLayer,side,idLayer);
+          if (layer.useMatchedRecHits) extSTRP.useMatchedHits(layer.matchedRecHits);
+          if (layer.useRPhiRecHits)    extSTRP.useRPhiHits(layer.rphiRecHits);
+          if (layer.useStereoRecHits)  extSTRP.useStereoHits(layer.stereoRecHits);
+          if (layer.useRingSelector)   extSTRP.useRingSelector(layer.minRing,layer.maxRing);
+          extractor = extSTRP.clone();
+        }
+        set.push_back( SeedingLayer(detLayer, name, layer.hitBuilder, extractor));
+      }
     
     }
     if(setOK) result.push_back(set);
