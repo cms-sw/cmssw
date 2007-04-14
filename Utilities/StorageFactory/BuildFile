@@ -12,6 +12,3 @@
 <use name=Foundation/SealZip>
 <use name=FWCore/PluginManager>
 <use name=boost>
-
-# This is really a plugin:
-<Flags EDM_PLUGIN=1>

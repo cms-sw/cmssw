@@ -4,7 +4,6 @@
 //<<<<<< INCLUDES                                                       >>>>>>
 
 # include "Utilities/StorageFactory/interface/StorageMaker.h"
-# include "FWCore/PluginManager/interface/PluginFactory.h"
 # include "SealBase/sysapi/IOTypes.h"
 # include "SealBase/IOFlags.h"
 # include <string>
@@ -20,7 +19,7 @@ namespace seal { class Storage; }
 //<<<<<< PUBLIC FUNCTIONS                                               >>>>>>
 //<<<<<< CLASS DECLARATIONS                                             >>>>>>
 
-class StorageFactory : public seal::PluginFactory<StorageMaker *(void)>
+class StorageFactory 
 {
 public:
     static StorageFactory *get (void);
