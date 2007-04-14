@@ -19,7 +19,7 @@ class TrackingRecHitProjector {
     const BoundPlane& hitPlane = hit.det()->surface();
 
     // check if the planes are parallel
-    const float epsilon = 1.e-7; // corresponds to about 0.3 miliradian but cannot be reduced
+    //const float epsilon = 1.e-7; // corresponds to about 0.3 miliradian but cannot be reduced
                                  // because of float precision
 
     //if (fabs(gluedPlane.normalVector().dot( hitPlane.normalVector())) < 1-epsilon) {
