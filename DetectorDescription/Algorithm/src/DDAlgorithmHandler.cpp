@@ -1,6 +1,6 @@
 //
 //#include "Utilities/Configuration/interface/Architecture.h"
-#include "PluginManager/PluginManager.h"
+#include "FWCore/PluginManager/interface/PluginManager.h"
 #include "DetectorDescription/Algorithm/interface/DDAlgorithmHandler.h"
 #include "DetectorDescription/Algorithm/interface/DDAlgorithmFactory.h"
 #include "DetectorDescription/Core/interface/DDSplit.h"
@@ -31,12 +31,6 @@ void DDAlgorithmHandler::initialize(const std::string & algoName,
 {
   std::pair<std::string,std::string> algoNmNs = DDSplit(algoName);
   algoname_ = algoName;
-  try {
-    seal::PluginManager::get()->initialise();
-  }
-  catch(...) {
-    std::cout << "FATAL!!! Could not initialize the PluginManager!!!" << std::endl;
-  }
   algo_ = DDAlgorithmFactory::get()->create(algoNmNs.first);
   DCOUT ('T',"ALGO: name=" + algoNmNs.first + " algo=" + algoName);
   if (!algo_) {
