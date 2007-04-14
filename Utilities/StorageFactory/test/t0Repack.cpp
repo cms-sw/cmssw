@@ -1,6 +1,7 @@
 #include "Utilities/StorageFactory/interface/StorageFactory.h"
 #include "Utilities/StorageFactory/interface/StorageAccount.h"
 #include "FWCore/PluginManager/interface/PluginManager.h"
+#include "FWCore/PluginManager/interface/standard.h"
 #include "SealBase/Storage.h"
 #include "SealIOTools/StorageStreamBuf.h"
 #include "SealBase/DebugAids.h"
@@ -129,7 +130,7 @@ int main (int argc, char **argv)
 {
 
     Signal::handleFatal (argv [0]);
-    PluginManager::get ()->initialise ();
+    edmplugin::PluginManager::configure(edmplugin::standard::config());
 
     if (argc < 4)
     {

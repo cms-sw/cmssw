@@ -1,11 +1,13 @@
 //<<<<<< INCLUDES                                                       >>>>>>
 
 #include "Utilities/StorageFactory/interface/StorageFactory.h"
+#include "Utilities/StorageFactory/interface/StorageMakerFactory.h"
 #include "Utilities/StorageFactory/interface/StorageAccount.h"
 #include "Utilities/StorageFactory/interface/StorageAccountProxy.h"
 #include "Utilities/StorageFactory/interface/StorageMaker.h"
 #include "FWCore/PluginManager/interface/PluginManager.h"
-#include "SealBase/StringOps.h"
+#include "FWCore/PluginManager/interface/standard.h"
+//#include "SealBase/StringOps.h"
 #include <boost/shared_ptr.hpp>
 
 
@@ -23,8 +25,7 @@ StorageFactory StorageFactory::s_instance;
 //<<<<<< MEMBER FUNCTION DEFINITIONS                                    >>>>>>
 
 StorageFactory::StorageFactory (void)
-    : seal::PluginFactory<StorageMaker *(void)> ("CMS Storage Maker"),
-      m_accounting (false)
+    : m_accounting (false)
 {}
 
 StorageFactory::~StorageFactory (void)
@@ -36,8 +37,6 @@ StorageFactory::~StorageFactory (void)
 StorageFactory *
 StorageFactory::get (void)
 {
-    // Force plug-in manager to initialise so clients don't need to know about it
-    seal::PluginManager::get ()->initialise ();
     return &s_instance;
 }
 
@@ -53,7 +52,11 @@ StorageMaker *
 StorageFactory::getMaker (const std::string &proto)
 {
     StorageMaker *&instance = m_makers [proto];
-    if (! instance) instance = create (proto);
+    // Force plug-in manager to initialise so clients don't need to know about it
+    if( not edmplugin::PluginManager::isAvailable()) {
+       edmplugin::PluginManager::configure(edmplugin::standard::config());
+    }
+    if (! instance) instance = edm::storage::StorageMakerFactory::get()->create (proto);
     return instance;
 }
 

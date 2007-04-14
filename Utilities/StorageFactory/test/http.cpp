@@ -3,6 +3,7 @@
 #include "Utilities/StorageFactory/interface/StorageFactory.h"
 #include "Utilities/StorageFactory/interface/StorageAccount.h"
 #include "FWCore/PluginManager/interface/PluginManager.h"
+#include "FWCore/PluginManager/interface/standard.h"
 #include "SealBase/Storage.h"
 #include "SealBase/TempFile.h"
 #include "SealBase/Filename.h"
@@ -24,7 +25,7 @@ using namespace seal;
 int main (int, char **argv)
 {
     Signal::handleFatal (argv [0]);
-    PluginManager::get ()->initialise ();
+    edmplugin::PluginManager::configure(edmplugin::standard::config());
 
     // Make temporary directory for downloads
     Filename tmpdir;
