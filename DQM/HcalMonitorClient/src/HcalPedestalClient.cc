@@ -15,11 +15,10 @@ HcalPedestalClient::HcalPedestalClient(const ParameterSet& ps, MonitorUserInterf
   phiMin[1]=1; phiMax[1]=71;
   depMin[1]=4; depMax[1]=4;
 
-
   ///HF ieta/iphi/depths
   etaMin[2]=29; etaMax[2]=41;
   phiMin[2]=1; phiMax[2]=71;
-  depMin[2]=1; depMax[2]=1;
+  depMin[2]=1; depMax[2]=2;
 
   ///HE ieta/iphi/depths
   etaMin[3]=16; etaMax[3]=29;
@@ -100,7 +99,7 @@ HcalPedestalClient::HcalPedestalClient(){
   ///HF ieta/iphi/depths
   etaMin[2]=29; etaMax[2]=41;
   phiMin[2]=1; phiMax[2]=71;
-  depMin[2]=1; depMax[2]=1;
+  depMin[2]=1; depMax[2]=2;
 
   ///HE ieta/iphi/depths
   etaMin[3]=16; etaMax[3]=29;
@@ -431,7 +430,7 @@ void HcalPedestalClient::getHistograms(){
 	    MonitorElement* meS = mui_->get(name);
 
 	    if(meP!=NULL){
-	      if(meP->getEntries()>0){
+	      if(meP->getEntries()>0 || true){
 		capmeanP[capid] = meP->getMean();
 		caprmsP[capid] = meP->getRMS();
 		capmeanS[capid] = meS->getMean();
@@ -682,7 +681,7 @@ void HcalPedestalClient::createTests(){
 		  
 		  params.clear();
 		  params.push_back(meTitle); params.push_back(name);  //hist and test titles
-		  params.push_back("0.367"); params.push_back("0.135");  //warn, err prob
+		  params.push_back("0.317"); params.push_back("0.0455");  //warn, err prob
 		  //		  params.push_back("1.0"); params.push_back("0");  //warn, err prob
 		  char m[20]; sprintf(m,"%f",mean);
 		  char w[20]; sprintf(w,"%f",width);
@@ -781,17 +780,18 @@ void HcalPedestalClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << " style=\"color: rgb(0, 0, 153);\">" << ievt_ << "</span></h2>" << endl;
 
   htmlFile << "<hr>" << endl;
-  htmlFile << "<table border=1><tr>" << endl;
+  htmlFile << "<table width=100% border=1><tr>" << endl;
   if(hasErrors())htmlFile << "<td bgcolor=red><a href=\"PedestalMonitorErrors.html\">Errors in this task</a></td>" << endl;
   else htmlFile << "<td bgcolor=lime>No Errors</td>" << endl;
   if(hasWarnings()) htmlFile << "<td bgcolor=yellow><a href=\"PedestalMonitorWarnings.html\">Warnings in this task</a></td>" << endl;
   else htmlFile << "<td bgcolor=lime>No Warnings</td>" << endl;
   if(hasOther()) htmlFile << "<td bgcolor=aqua><a href=\"PedestalMonitorMessages.html\">Messages in this task</a></td>" << endl;
   else htmlFile << "<td bgcolor=lime>No Messages</td>" << endl;
+  htmlFile << "<td><a href=\"badPedestalList.html\">Pedestal Error List</a></td>" << endl;
   htmlFile << "</tr></table>" << endl;
 
   htmlFile << "<hr>" << endl;
-  
+
   htmlFile << "<h2><strong>Hcal Pedestal Histograms</strong></h2>" << endl;
   htmlFile << "<h3>" << endl;
   htmlFile << "<a href=\"#HBHE_Plots\">HB-HE Plots </a></br>" << endl;
@@ -994,7 +994,7 @@ void HcalPedestalClient::loadHistograms(TFile* infile){
 	      if(readoutMap_){
 		const HcalPedestalWidth* pedw = (*conditions_).getPedestalWidth(id);
 		if(pedw) width = pedw->getWidth(capid);
-		if(width>0) sub_rms[idx]->Fill(meS->GetRMS()/width);
+		if(width!=0) sub_rms[idx]->Fill(meS->GetRMS()/width);
 	      }
 	      sub_mean[idx]->Fill(meS->GetMean());
 	      if(meS->GetRMS()>pedrms_thresh_ || fabs(meS->GetMean())>pedmean_thresh_) {
@@ -1062,17 +1062,19 @@ void HcalPedestalClient::generateBadChanList(string htmlDir){
     outFile << "<body>  " << endl;
     outFile << "<br>  " << endl;
     outFile << "<hr>  " << endl;
-    outFile << "<h2><strong>" << endl;
-    sprintf(name,"| %8s |","SubDet");  outFile << name;
-    sprintf(name," %8s |","iEta");  outFile << name;
-    sprintf(name," %8s |","iPhi");  outFile << name;
-    sprintf(name," %8s |","Depth");  outFile << name;
-    sprintf(name," %8s |","CapID");  outFile << name;
-    sprintf(name," %8s |","Mean");  outFile << name;
-    sprintf(name," %8s |","RMS");  outFile << name;
-    outFile << endl;
-    outFile << "</strong></h2>" << endl;
-    outFile << "<hr>  " << endl;
+    outFile << "<center><h2>Pedestal Errors</h2></center>" << endl;
+    outFile << "<table WIDTH=100% border=\"10\" cellspacing=\"0\" cellpadding=\"10\"> " << endl;
+    outFile << "<h2><strong><tr>" << endl;
+    outFile << "<td> SubDet </td>" << endl;
+    outFile << "<td> iEta </td>" << endl;
+    outFile << "<td> iPhi </td>" << endl;
+    outFile << "<td> Depth </td>" << endl;
+    outFile << "<td> CapID </td>" << endl;
+    outFile << "<td> Mean </td>" << endl;
+    outFile << "<td> RMS </td>" << endl;
+    outFile << "<td> Chi2 Prob </td>" << endl;
+    outFile << " </tr></strong></h2><hr></br>" << endl;    
+
     for(int i=0; i<4; i++){
       string type = "HBHE";
       if(i==1) type = "HO"; 
@@ -1095,16 +1097,28 @@ void HcalPedestalClient::generateBadChanList(string htmlDir){
 		MonitorElement* me = mui_->get(meName);
 		if(me){
 		  if (me->hasError()){
-		    outFile << "<h3><font color=red>" << endl;
-		    sprintf(output,"| %8s | %8d | %8d | %8d | %8d | %8f | %8f |",type.c_str(),ieta,iphi,depth,capid,me->getMean(), me->getRMS()); 		    
-		   outFile << output<< endl; 
-		   outFile << "</h3></font>" << endl;
+		    outFile << "<h3><font color=red><tr>" << endl;
+		    outFile << "<td> "<< type.c_str() <<" </td>" << endl;
+		    outFile << "<td> "<< ieta <<" </td>" << endl;
+		    outFile << "<td> "<< iphi <<" </td>" << endl;
+		    outFile << "<td> "<< depth<<" </td>" << endl;
+		    outFile << "<td> "<< capid<<" </td>" << endl;
+		    outFile << "<td> "<< me->getMean() <<" </td>" << endl;
+		    outFile << "<td> "<< me->getRMS() <<"</td>" << endl;
+		    outFile << "<td> "<< 0 <<"</td>" << endl;
+		    outFile << "</tr></h3></font>" << endl;
 		  }
 		  if (me->hasWarning()){
-		    outFile << "<h3><font color=blue>" << endl;
-		    sprintf(output,"| %8s | %8d | %8d | %8d | %8d | %8f | %8f |",type.c_str(),ieta,iphi,depth,capid,me->getMean(), me->getRMS()); 		    
-		   outFile << output<< endl; 
-		   outFile << "</h3></font>" << endl;
+		    outFile << "<h3><font color=blue><tr>" << endl;
+		    outFile << "<td> "<< type.c_str() <<" </td>" << endl;
+		    outFile << "<td> "<< ieta <<" </td>" << endl;
+		    outFile << "<td> "<< iphi <<" </td>" << endl;
+		    outFile << "<td> "<< depth<<" </td>" << endl;
+		    outFile << "<td> "<< capid<<" </td>" << endl;
+		    outFile << "<td> "<< me->getMean() <<" </td>" << endl;
+		    outFile << "<td> "<< me->getRMS() <<"</td>" << endl;
+		    outFile << "<td> "<< 0 <<"</td>" << endl;
+		    outFile << "</tr></h3></font>" << endl;
 		  }
 		}
 	      }
@@ -1113,11 +1127,10 @@ void HcalPedestalClient::generateBadChanList(string htmlDir){
 	}
       }
     }
+    outFile << "</table>" << endl;
     outFile << "<hr>" << endl;
     outFile.close();
   }
-  
-
-  
+   
   return;
 }

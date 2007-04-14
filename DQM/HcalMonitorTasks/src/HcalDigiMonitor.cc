@@ -161,14 +161,14 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* 
     OCC_ETA = m_dbe->book1D("Digi Eta Occupancy Map","Digi Eta Occupancy Map",etaBins_,etaMin_,etaMax_);
     OCC_PHI = m_dbe->book1D("Digi Phi Occupancy Map","Digi Phi Occupancy Map",phiBins_,phiMin_,phiMax_);
 
-    OCC_ELEC_VME = m_dbe->book2D("Digi VME Occupancy Map","Digi VME Occupancy Map",20,0,20,20,0,20);
-    OCC_ELEC_FIB = m_dbe->book2D("Digi Fiber Occupancy Map","Digi Fiber Occupancy Map",3,0,2,9,0,8);
+    OCC_ELEC_VME = m_dbe->book2D("Digi VME Occupancy Map","Digi VME Occupancy Map",21,-0.5,20.5,21,-0.5,20.5);
+    OCC_ELEC_FIB = m_dbe->book2D("Digi Fiber Occupancy Map","Digi Fiber Occupancy Map",3,-0.5,2.5,9,-0.5,8.5);
     OCC_ELEC_DCC = m_dbe->book2D("Digi Spigot Occupancy Map","Digi Spigot Occupancy Map",
 					HcalDCCHeader::SPIGOT_COUNT,0,HcalDCCHeader::SPIGOT_COUNT-1,
 					fedUnpackList_.size(),0,fedUnpackList_.size());
     ERR_MAP_GEO = m_dbe->book2D("Digi Geo Error Map","Digi Geo Error Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
-    ERR_MAP_VME = m_dbe->book2D("Digi VME Error Map","Digi VME Error Map",20,0,20,20,0,20);
-    ERR_MAP_FIB = m_dbe->book2D("Digi Fiber Error Map","Digi Fiber Error Map",3,0,2,9,0,8);
+    ERR_MAP_VME = m_dbe->book2D("Digi VME Error Map","Digi VME Error Map",21,-0.5,20.5,21,-0.5,20.5);
+    ERR_MAP_FIB = m_dbe->book2D("Digi Fiber Error Map","Digi Fiber Error Map",3,-0.5,2.5,9,-0.5,8.5);
     ERR_MAP_DCC = m_dbe->book2D("Digi Spigot Error Map","Digi Spigot Error Map",
 					HcalDCCHeader::SPIGOT_COUNT,0,HcalDCCHeader::SPIGOT_COUNT-1,
 					fedUnpackList_.size(),0,fedUnpackList_.size());
@@ -185,8 +185,8 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* 
     hbHists.QIE_DV = m_dbe->book1D("HB QIE Data Value","HB QIE Data Value",2,-0.5,1.5);
     
     hbHists.ERR_MAP_GEO = m_dbe->book2D("HB Digi Geo Error Map","HB Digi Geo Error Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
-    hbHists.ERR_MAP_VME = m_dbe->book2D("HB Digi VME Error Map","HB Digi VME Error Map",20,0,20,20,0,20);
-    hbHists.ERR_MAP_FIB = m_dbe->book2D("HB Digi Fiber Error Map","HB Digi Fiber Error Map",3,0,2,9,0,8);
+    hbHists.ERR_MAP_VME = m_dbe->book2D("HB Digi VME Error Map","HB Digi VME Error Map",21,-0.5,20.5,21,-0.5,20.5);
+    hbHists.ERR_MAP_FIB = m_dbe->book2D("HB Digi Fiber Error Map","HB Digi Fiber Error Map",3,-0.5,2.5,9,-0.5,8.5);
     hbHists.ERR_MAP_DCC = m_dbe->book2D("HB Digi Spigot Error Map","HB Digi Spigot Error Map",
 					HcalDCCHeader::SPIGOT_COUNT,0,HcalDCCHeader::SPIGOT_COUNT-1,
 					fedUnpackList_.size(),0,fedUnpackList_.size());
@@ -198,8 +198,8 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* 
     hbHists.OCC_ETA = m_dbe->book1D("HB Digi Eta Occupancy Map","HB Digi Eta Occupancy Map",etaBins_,etaMin_,etaMax_);
     hbHists.OCC_PHI = m_dbe->book1D("HB Digi Phi Occupancy Map","HB Digi Phi Occupancy Map",phiBins_,phiMin_,phiMax_);
 
-    hbHists.OCC_MAP_VME = m_dbe->book2D("HB Digi VME Occupancy Map","HB Digi VME Occupancy Map",20,0,20,20,0,20);
-    hbHists.OCC_MAP_FIB = m_dbe->book2D("HB Digi Fiber Occupancy Map","HB Digi Fiber Occupancy Map",3,0,2,9,0,8);
+    hbHists.OCC_MAP_VME = m_dbe->book2D("HB Digi VME Occupancy Map","HB Digi VME Occupancy Map",21,-0.5,20.5,21,-0.5,20.5);
+    hbHists.OCC_MAP_FIB = m_dbe->book2D("HB Digi Fiber Occupancy Map","HB Digi Fiber Occupancy Map",3,-0.5,2.5,9,-0.5,8.5);
     hbHists.OCC_MAP_DCC = m_dbe->book2D("HB Digi Spigot Occupancy Map","HB Digi Spigot Occupancy Map",
 					HcalDCCHeader::SPIGOT_COUNT,0,HcalDCCHeader::SPIGOT_COUNT-1,
 					fedUnpackList_.size(),0,fedUnpackList_.size());
@@ -216,8 +216,8 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* 
 
     heHists.ERR_MAP_GEO = m_dbe->book2D("HE Digi Geo Error Map","HE Digi Geo Error Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
         heHists.ERR_MAP_GEO = m_dbe->book2D("HE Digi Geo Error Map","HE Digi Geo Error Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
-    heHists.ERR_MAP_VME = m_dbe->book2D("HE Digi VME Error Map","HE Digi VME Error Map",20,0,20,20,0,20);
-    heHists.ERR_MAP_FIB = m_dbe->book2D("HE Digi Fiber Error Map","HE Digi Fiber Error Map",3,0,2,9,0,8);
+    heHists.ERR_MAP_VME = m_dbe->book2D("HE Digi VME Error Map","HE Digi VME Error Map",21,-0.5,20.5,21,-0.5,20.5);
+    heHists.ERR_MAP_FIB = m_dbe->book2D("HE Digi Fiber Error Map","HE Digi Fiber Error Map",3,-0.5,2.5,9,-0.5,8.5);
     heHists.ERR_MAP_DCC = m_dbe->book2D("HE Digi Spigot Error Map","HE Digi Spigot Error Map",
 					HcalDCCHeader::SPIGOT_COUNT,0,HcalDCCHeader::SPIGOT_COUNT-1,
 					fedUnpackList_.size(),0,fedUnpackList_.size());
@@ -229,8 +229,8 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* 
     heHists.OCC_ETA = m_dbe->book1D("HE Digi Eta Occupancy Map","HE Digi Eta Occupancy Map",etaBins_,etaMin_,etaMax_);
     heHists.OCC_PHI = m_dbe->book1D("HE Digi Phi Occupancy Map","HE Digi Phi Occupancy Map",phiBins_,phiMin_,phiMax_);
 
-    heHists.OCC_MAP_VME = m_dbe->book2D("HE Digi VME Occupancy Map","HE Digi VME Occupancy Map",20,0,20,20,0,20);
-    heHists.OCC_MAP_FIB = m_dbe->book2D("HE Digi Fiber Occupancy Map","HE Digi Fiber Occupancy Map",3,0,2,9,0,8);
+    heHists.OCC_MAP_VME = m_dbe->book2D("HE Digi VME Occupancy Map","HE Digi VME Occupancy Map",21,-0.5,20.5,21,-0.5,20.5);
+    heHists.OCC_MAP_FIB = m_dbe->book2D("HE Digi Fiber Occupancy Map","HE Digi Fiber Occupancy Map",3,-0.5,2.5,9,-0.5,8.5);
     heHists.OCC_MAP_DCC = m_dbe->book2D("HE Digi Spigot Occupancy Map","HE Digi Spigot Occupancy Map",
 					HcalDCCHeader::SPIGOT_COUNT,0,HcalDCCHeader::SPIGOT_COUNT-1,
 					fedUnpackList_.size(),0,fedUnpackList_.size());
@@ -247,8 +247,8 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* 
 
     hfHists.ERR_MAP_GEO = m_dbe->book2D("HF Digi Geo Error Map","HF Digi Geo Error Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
     hfHists.ERR_MAP_GEO = m_dbe->book2D("HF Digi Geo Error Map","HF Digi Geo Error Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
-    hfHists.ERR_MAP_VME = m_dbe->book2D("HF Digi VME Error Map","HF Digi VME Error Map",20,0,20,20,0,20);
-    hfHists.ERR_MAP_FIB = m_dbe->book2D("HF Digi Fiber Error Map","HF Digi Fiber Error Map",3,0,2,9,0,8);
+    hfHists.ERR_MAP_VME = m_dbe->book2D("HF Digi VME Error Map","HF Digi VME Error Map",21,-0.5,20.5,21,-0.5,20.5);
+    hfHists.ERR_MAP_FIB = m_dbe->book2D("HF Digi Fiber Error Map","HF Digi Fiber Error Map",3,-0.5,2.5,9,-0.5,8.5);
     hfHists.ERR_MAP_DCC = m_dbe->book2D("HF Digi Spigot Error Map","HF Digi Spigot Error Map",
 					HcalDCCHeader::SPIGOT_COUNT,0,HcalDCCHeader::SPIGOT_COUNT-1,
 					fedUnpackList_.size(),0,fedUnpackList_.size());
@@ -260,8 +260,8 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* 
     hfHists.OCC_ETA = m_dbe->book1D("HF Digi Eta Occupancy Map","HF Digi Eta Occupancy Map",etaBins_,etaMin_,etaMax_);
     hfHists.OCC_PHI = m_dbe->book1D("HF Digi Phi Occupancy Map","HF Digi Phi Occupancy Map",phiBins_,phiMin_,phiMax_);
 
-    hfHists.OCC_MAP_VME = m_dbe->book2D("HF Digi VME Occupancy Map","HF Digi VME Occupancy Map",20,0,20,20,0,20);
-    hfHists.OCC_MAP_FIB = m_dbe->book2D("HF Digi Fiber Occupancy Map","HF Digi Fiber Occupancy Map",3,0,2,9,0,8);
+    hfHists.OCC_MAP_VME = m_dbe->book2D("HF Digi VME Occupancy Map","HF Digi VME Occupancy Map",21,-0.5,20.5,21,-0.5,20.5);
+    hfHists.OCC_MAP_FIB = m_dbe->book2D("HF Digi Fiber Occupancy Map","HF Digi Fiber Occupancy Map",3,-0.5,2.5,9,-0.5,8.5);
     hfHists.OCC_MAP_DCC = m_dbe->book2D("HF Digi Spigot Occupancy Map","HF Digi Spigot Occupancy Map",
 					HcalDCCHeader::SPIGOT_COUNT,0,HcalDCCHeader::SPIGOT_COUNT-1,
 					fedUnpackList_.size(),0,fedUnpackList_.size());
@@ -278,8 +278,8 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* 
 
     hoHists.ERR_MAP_GEO = m_dbe->book2D("HO Digi Geo Error Map","HO Digi Geo Error Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
     hoHists.ERR_MAP_GEO = m_dbe->book2D("HO Digi Geo Error Map","HO Digi Geo Error Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
-    hoHists.ERR_MAP_VME = m_dbe->book2D("HO Digi VME Error Map","HO Digi VME Error Map",20,0,20,20,0,20);
-    hoHists.ERR_MAP_FIB = m_dbe->book2D("HO Digi Fiber Error Map","HO Digi Fiber Error Map",3,0,2,9,0,8);
+    hoHists.ERR_MAP_VME = m_dbe->book2D("HO Digi VME Error Map","HO Digi VME Error Map",21,-0.5,20.5,21,-0.5,20.5);
+    hoHists.ERR_MAP_FIB = m_dbe->book2D("HO Digi Fiber Error Map","HO Digi Fiber Error Map",3,-0.5,2.5,9,-0.5,8.5);
     hoHists.ERR_MAP_DCC = m_dbe->book2D("HO Digi Spigot Error Map","HO Digi Spigot Error Map",
 					HcalDCCHeader::SPIGOT_COUNT,0,HcalDCCHeader::SPIGOT_COUNT-1,
 					fedUnpackList_.size(),0,fedUnpackList_.size());
@@ -291,8 +291,8 @@ void HcalDigiMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* 
     hoHists.OCC_ETA = m_dbe->book1D("HO Digi Eta Occupancy Map","HO Digi Eta Occupancy Map",etaBins_,etaMin_,etaMax_);
     hoHists.OCC_PHI = m_dbe->book1D("HO Digi Phi Occupancy Map","HO Digi Phi Occupancy Map",phiBins_,phiMin_,phiMax_);
 
-    hoHists.OCC_MAP_VME = m_dbe->book2D("HO Digi VME Occupancy Map","HO Digi VME Occupancy Map",20,0,20,20,0,20);
-    hoHists.OCC_MAP_FIB = m_dbe->book2D("HO Digi Fiber Occupancy Map","HO Digi Fiber Occupancy Map",3,0,2,9,0,8);
+    hoHists.OCC_MAP_VME = m_dbe->book2D("HO Digi VME Occupancy Map","HO Digi VME Occupancy Map",21,-0.5,20.5,21,-0.5,20.5);
+    hoHists.OCC_MAP_FIB = m_dbe->book2D("HO Digi Fiber Occupancy Map","HO Digi Fiber Occupancy Map",3,-0.5,2.5,9,-0.5,8.5);
     hoHists.OCC_MAP_DCC = m_dbe->book2D("HO Digi Spigot Occupancy Map","HO Digi Spigot Occupancy Map",
 					HcalDCCHeader::SPIGOT_COUNT,0,HcalDCCHeader::SPIGOT_COUNT-1,
 					fedUnpackList_.size(),0,fedUnpackList_.size());

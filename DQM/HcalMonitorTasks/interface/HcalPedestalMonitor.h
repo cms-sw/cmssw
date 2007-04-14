@@ -2,11 +2,13 @@
 #define DQM_HCALMONITORTASKS_HCALPEDESTALMONITOR_H
 
 #include "DQM/HcalMonitorTasks/interface/HcalBaseMonitor.h"
+#include "CondFormats/HcalObjects/interface/HcalPedestal.h"
+#include "CondFormats/HcalObjects/interface/HcalPedestalWidth.h"
 
 /** \class HcalPedestalMonitor
   *  
-  * $Date: 2007/04/02 13:19:38 $
-  * $Revision: 1.7 $
+  * $Date: 2007/04/10 18:18:59 $
+  * $Revision: 1.8 $
   * \author W. Fisher - FNAL
   */
 class HcalPedestalMonitor: public HcalBaseMonitor {
@@ -61,6 +63,9 @@ private:
   MonitorElement* MEAN_MAP_SP;
   MonitorElement*  RMS_MAP_SP;
 
+  MonitorElement* PEDESTAL_REFS;
+  MonitorElement* WIDTH_REFS;
+
   struct{
     map<HcalDetId,map<int, MonitorElement*> > PEDVALS;
     map<HcalDetId,map<int, MonitorElement*> > SUBVALS;
@@ -79,6 +84,10 @@ private:
 
     MonitorElement* ERRGEO;
     MonitorElement* ERRELEC;    
+
+    MonitorElement* PEDESTAL_REFS;
+    MonitorElement* WIDTH_REFS;
+
   } hbHists, hfHists, hoHists;
 
 };

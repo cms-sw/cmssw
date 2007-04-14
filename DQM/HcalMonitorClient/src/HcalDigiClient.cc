@@ -29,6 +29,25 @@ HcalDigiClient::HcalDigiClient(const ParameterSet& ps, MonitorUserInterface* mui
     qie_adc[i]=0;  num_digi[i]=0;
     qie_capid[i]=0; 
   }
+   ///HB ieta/iphi/depths
+  etaMin[0]=1; etaMax[0]=16;
+  phiMin[0]=1; phiMax[0]=71;
+  depMin[0]=1; depMax[0]=2;
+  
+  ///HO ieta/iphi/depths
+  etaMin[1]=1; etaMax[1]=15;
+  phiMin[1]=1; phiMax[1]=71;
+  depMin[1]=4; depMax[1]=4;
+
+  ///HF ieta/iphi/depths
+  etaMin[2]=29; etaMax[2]=41;
+  phiMin[2]=1; phiMax[2]=71;
+  depMin[2]=1; depMax[2]=2;
+
+  ///HE ieta/iphi/depths
+  etaMin[3]=16; etaMax[3]=29;
+  phiMin[3]=1; phiMax[3]=71;
+  depMin[3]=1; depMax[3]=3;
 
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
@@ -72,7 +91,26 @@ HcalDigiClient::HcalDigiClient(){
   jevt_ = 0;
   // verbosity switch
   verbose_ = false;
+  
+   ///HB ieta/iphi/depths
+  etaMin[0]=1; etaMax[0]=16;
+  phiMin[0]=1; phiMax[0]=71;
+  depMin[0]=1; depMax[0]=2;
+  
+  ///HO ieta/iphi/depths
+  etaMin[1]=1; etaMax[1]=15;
+  phiMin[1]=1; phiMax[1]=71;
+  depMin[1]=4; depMax[1]=4;
 
+  ///HF ieta/iphi/depths
+  etaMin[2]=29; etaMax[2]=41;
+  phiMin[2]=1; phiMax[2]=71;
+  depMin[2]=1; depMax[2]=2;
+
+  ///HE ieta/iphi/depths
+  etaMin[3]=16; etaMax[3]=29;
+  phiMin[3]=1; phiMax[3]=71;
+  depMin[3]=1; depMax[3]=3;
 }
 
 HcalDigiClient::~HcalDigiClient(){
@@ -469,7 +507,7 @@ void HcalDigiClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span " << endl;
   htmlFile << " style=\"color: rgb(0, 0, 153);\">" << ievt_ << "</span></h2>" << endl;
   htmlFile << "<hr>" << endl;
-  htmlFile << "<table border=1><tr>" << endl;
+  htmlFile << "<table width=100%  border=1><tr>" << endl;
   if(hasErrors())htmlFile << "<td bgcolor=red><a href=\"DigiMonitorErrors.html\">Errors in this task</a></td>" << endl;
   else htmlFile << "<td bgcolor=lime>No Errors</td>" << endl;
   if(hasWarnings()) htmlFile << "<td bgcolor=yellow><a href=\"DigiMonitorWarnings.html\">Warnings in this task</a></td>" << endl;
@@ -539,14 +577,20 @@ void HcalDigiClient::htmlOutput(int run, string htmlDir, string htmlName){
     histoHTML2(sub_err_elec[i][2],"Spigot","DCC Id", 100, htmlFile,htmlDir);
     htmlFile << "</tr>" << endl;
 
+    int count = 0;
     htmlFile << "<tr align=\"left\">" << endl;	
-    histoHTML2(sub_occ_geo[i][0],"iEta","iPhi", 92, htmlFile,htmlDir);
-    histoHTML2(sub_occ_geo[i][1],"iEta","iPhi", 100, htmlFile,htmlDir);
-    htmlFile << "</tr>" << endl;
-
-    htmlFile << "<tr align=\"left\">" << endl;	
-    histoHTML2(sub_occ_geo[i][2],"iEta","iPhi", 92, htmlFile,htmlDir);
-    histoHTML2(sub_occ_geo[i][3],"iEta","iPhi", 100, htmlFile,htmlDir);
+    if(depMin[i]==1){ histoHTML2(sub_occ_geo[i][0],"iEta","iPhi", 92, htmlFile,htmlDir); count++; }
+    if(depMin[i]<=2 && depMax[i]>=2) { histoHTML2(sub_occ_geo[i][1],"iEta","iPhi", 100, htmlFile,htmlDir); count++;}
+    if(count%2==0){
+      htmlFile << "</tr>" << endl;      
+      htmlFile << "<tr align=\"left\">" << endl;	
+    }
+    if(depMin[i]<=3 && depMax[i]>=3){histoHTML2(sub_occ_geo[i][2],"iEta","iPhi", 92, htmlFile,htmlDir); count++;}
+    if(count%2==0){
+      htmlFile << "</tr>" << endl;      
+      htmlFile << "<tr align=\"left\">" << endl;	
+    }
+    if(depMin[i]<=4 && depMax[i]>=4){ histoHTML2(sub_occ_geo[i][3],"iEta","iPhi", 100, htmlFile,htmlDir); count++;}
     htmlFile << "</tr>" << endl;
     
     htmlFile << "<tr align=\"left\">" << endl;

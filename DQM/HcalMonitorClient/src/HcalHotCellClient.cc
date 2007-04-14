@@ -313,7 +313,7 @@ void HcalHotCellClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span " << endl;
   htmlFile << " style=\"color: rgb(0, 0, 153);\">" << ievt_ << "</span></h2>" << endl;
   htmlFile << "<hr>" << endl;
-  htmlFile << "<table border=1><tr>" << endl;
+  htmlFile << "<table  width=100% border=1><tr>" << endl;
   if(hasErrors())htmlFile << "<td bgcolor=red><a href=\"HotCellMonitorErrors.html\">Errors in this task</a></td>" << endl;
   else htmlFile << "<td bgcolor=lime>No Errors</td>" << endl;
   if(hasWarnings()) htmlFile << "<td bgcolor=yellow><a href=\"HotCellMonitorWarnings.html\">Warnings in this task</a></td>" << endl;

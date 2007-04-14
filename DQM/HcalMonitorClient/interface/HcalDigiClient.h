@@ -114,6 +114,10 @@ private:
   TH1F* num_digi[4];
   TH1F* qie_capid[4];
 
+  int etaMin[4]; int etaMax[4];
+  int phiMin[4]; int phiMax[4];
+  int depMin[4]; int depMax[4];
+
   // Quality criteria for data integrity
   map<string, vector<QReport*> > dqmReportMapErr_;
   map<string, vector<QReport*> > dqmReportMapWarn_;

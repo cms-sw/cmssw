@@ -43,33 +43,33 @@ void HcalDataFormatMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInter
 
 
     type = "HBHE Data Format Error Words";
-    hbHists.DCC_ERRWD =  m_dbe->book1D(type,type,12,0,12);
+    hbHists.DCC_ERRWD =  m_dbe->book1D(type,type,12,-0.5,11.5);
     type = "HBHE Data Format Crate Error Map";
-    hbHists.ERR_MAP = m_dbe->book2D(type,type,20,0,20,20,0,20);
+    hbHists.ERR_MAP = m_dbe->book2D(type,type,21,-0.5,20.5,21,-0.5,20.5);
     type = "HBHE Data Format Fiber Error Map";
-    hbHists.FiberMap = m_dbe->book2D(type,type,3,0,2,9,0,8);
+    hbHists.FiberMap = m_dbe->book2D(type,type,3,-0.5,2.5,9,-0.5,8.5);
     type = "HBHE Data Format Spigot Error Map";
     hbHists.SpigotMap = m_dbe->book2D(type,type,
 				      HcalDCCHeader::SPIGOT_COUNT,0,HcalDCCHeader::SPIGOT_COUNT-1,
 				      fedUnpackList_.size(),0,fedUnpackList_.size());
     
     type = "HF Data Format Error Words";
-    hfHists.DCC_ERRWD =  m_dbe->book1D(type,type,12,0,12);
+    hfHists.DCC_ERRWD =  m_dbe->book1D(type,type,12,-0.5,11.5);
     type = "HF Data Format Crate Error Map";
-    hfHists.ERR_MAP = m_dbe->book2D(type,type,20,0,20,20,0,20);
+    hfHists.ERR_MAP = m_dbe->book2D(type,type,21,-0.5,20.5,21,-0.5,20.5);
     type = "HF Data Format Fiber Error Map";
-    hfHists.FiberMap = m_dbe->book2D(type,type,3,0,2,9,0,8);
+    hfHists.FiberMap = m_dbe->book2D(type,type,3,-0.5,2.5,9,-0.5,8.5);
     type = "HF Data Format Spigot Error Map";
     hfHists.SpigotMap = m_dbe->book2D(type,type,
 				      HcalDCCHeader::SPIGOT_COUNT,0,HcalDCCHeader::SPIGOT_COUNT-1,
 				      fedUnpackList_.size(),0,fedUnpackList_.size());
 
     type = "HO Data Format Error Words";
-    hoHists.DCC_ERRWD =  m_dbe->book1D(type,type,12,0,12);
+    hoHists.DCC_ERRWD =  m_dbe->book1D(type,type,12,-0.5,11.5);
     type = "HO Data Format Crate Error Map";
-    hoHists.ERR_MAP = m_dbe->book2D(type,type,20,0,20,20,0,20);
+    hoHists.ERR_MAP = m_dbe->book2D(type,type,21,-0.5,20.5,21,-0.5,20.5);
     type = "HO Data Format Fiber Error Map";
-    hoHists.FiberMap = m_dbe->book2D(type,type,3,0,2,9,0,8);
+    hoHists.FiberMap = m_dbe->book2D(type,type,3,-0.5,2.5,9,-0.5,8.5);
     type = "HO Data Format Spigot Error Map";
     hoHists.SpigotMap = m_dbe->book2D(type,type,
 				      HcalDCCHeader::SPIGOT_COUNT,0,HcalDCCHeader::SPIGOT_COUNT-1,

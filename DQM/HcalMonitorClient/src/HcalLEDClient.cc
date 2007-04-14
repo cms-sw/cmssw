@@ -20,12 +20,12 @@ HcalLEDClient::HcalLEDClient(const ParameterSet& ps, MonitorUserInterface* mui){
   ///HO ieta/iphi/depths
   etaMin[2]=1; etaMax[2]=15;
   phiMin[2]=1; phiMax[2]=71;
-  depMin[2]=1; depMax[2]=1;
+  depMin[2]=4; depMax[2]=4;
 
   ///HF ieta/iphi/depths
   etaMin[3]=29; etaMax[3]=41;
   phiMin[3]=1; phiMax[3]=71;
-  depMin[3]=1; depMax[3]=1;
+  depMin[3]=1; depMax[3]=2;
 
 
 
@@ -474,7 +474,7 @@ void HcalLEDClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << " style=\"color: rgb(0, 0, 153);\">" << ievt_ << "</span></h2>" << endl;
 
   htmlFile << "<hr>" << endl;
-  htmlFile << "<table border=1><tr>" << endl;
+  htmlFile << "<table  width=100% border=1><tr>" << endl;
   if(hasErrors())htmlFile << "<td bgcolor=red><a href=\"LEDMonitorErrors.html\">Errors in this task</a></td>" << endl;
   else htmlFile << "<td bgcolor=lime>No Errors</td>" << endl;
   if(hasWarnings()) htmlFile << "<td bgcolor=yellow><a href=\"LEDMonitorWarnings.html\">Warnings in this task</a></td>" << endl;
