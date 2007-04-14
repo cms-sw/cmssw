@@ -1,5 +1,4 @@
 <flags EDM_PLUGIN=1>
-<use name=Utilities/Notification>
 <use name=SimG4Core/Notification>
 <use name=SimG4Core/Watcher>
 <use name=SimG4Core/Geometry>
@@ -11,7 +10,6 @@
 <use name=FWCore/PluginManager>
 <export>
 <lib name=SimG4CoreGeometryProducer>
-<use name=Utilities/Notification>
 <use name=SimG4Core/Notification>
 <use name=SimG4Core/Watcher>
 <use name=SimG4Core/Geometry>

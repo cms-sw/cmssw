@@ -1,5 +1,4 @@
 <flags EDM_PLUGIN=1>
-<use name=Utilities/Notification>
 <use name=SimG4Core/Physics>
 <use name=SimG4Core/SensitiveDetector>
 <use name=SimG4Core/UtilityAction>
@@ -20,7 +19,6 @@
 <use name=FWCore/Framework>
 <export>
 <lib name=SimG4CoreApplication>
-<use name=Utilities/Notification>
 <use name=SimG4Core/Physics>
 <use name=SimG4Core/Generators>
 <use name=SimG4Core/Notification>
