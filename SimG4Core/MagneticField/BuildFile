@@ -3,7 +3,6 @@
  <use name=Framework/SealKernel>
  <use name=FWCore/ParameterSet>
  <use name=MagneticField/Records>
- <use name=MagneticField/GeomBuilder>
  <use name=MagneticField/VolumeBasedEngine>
  <use name=SimG4Core/Notification>
  <use name=boost>
@@ -12,7 +11,6 @@
 <use name=Framework/SealKernel>
 <use name=FWCore/ParameterSet>
 <use name=MagneticField/Records>
-<use name=MagneticField/GeomBuilder>
 <use name=MagneticField/VolumeBasedEngine>
 <use name=SimG4Core/Geometry>
 <use name=SimG4Core/Notification>
