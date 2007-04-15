@@ -4,6 +4,6 @@
 </export>
 
 <use name=DetectorDescription/Parser>
-
+<use name=FWCore/PluginManager>
 # Build a plugin:
 <Flags EDM_PLUGIN=1>

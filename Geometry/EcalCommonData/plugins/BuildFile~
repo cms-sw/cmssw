@@ -3,9 +3,11 @@
 <use name=DetectorDescription/Core>
 <use name=DataFormats/EcalDetId>
 <use name=Geometry/CaloGeometry>
+# Build a plugin:
 
 <export>
 <lib name=GeometryEcalCommonData>
 <use name=DataFormats/EcalDetId>
 <use name=Geometry/CaloGeometry>
 </export>
+<flags EDM_PLUGIN=1>

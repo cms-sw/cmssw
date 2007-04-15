@@ -1,0 +1,13 @@
+<export>
+<lib name=GeometryTrackerNumberingBuilder>
+<use name=DetectorDescription/Core>
+</export>
+
+<use name=DetectorDescription/Core>
+<use name=Geometry/Records>
+<use name=DataFormats/DetId>
+<use name=Geometry/CommonTopologies>
+<use name=Geometry/TrackerCommonData>
+<use name=DataFormats/SiPixelDigi>
+<flags EDM_PLUGIN=1>
+

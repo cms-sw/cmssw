@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
-// Package:    EcalTBGeometryBuilder
-// Class:      EcalTBGeometryBuilder
+// Package:    CaloGeometryBuilder
+// Class:      CaloGeometryBuilder
 // 
-/**\class EcalTBGeometryBuilder EcalTBGeometryBuilder.h tmp/EcalTBGeometryBuilder/interface/EcalTBGeometryBuilder.h
+/**\class CaloGeometryBuilder CaloGeometryBuilder.h tmp/CaloGeometryBuilder/interface/CaloGeometryBuilder.h
 
  Description: <one line class summary>
 
@@ -13,7 +13,7 @@
 //
 // Original Author:  Jeremiah Mans
 //         Created:  Mon Oct  3 11:35:27 CDT 2005
-// $Id: EcalTBGeometryBuilder.h,v 1.1 2005/12/01 16:29:24 mansj Exp $
+// $Id: CaloGeometryBuilder.h,v 1.1 2005/12/01 16:29:24 mansj Exp $
 //
 //
 
@@ -34,10 +34,10 @@
 // class decleration
 //
 
-class EcalTBGeometryBuilder : public edm::ESProducer {
+class CaloGeometryBuilder : public edm::ESProducer {
    public:
-  EcalTBGeometryBuilder(const edm::ParameterSet&);
-  ~EcalTBGeometryBuilder();
+  CaloGeometryBuilder(const edm::ParameterSet&);
+  ~CaloGeometryBuilder();
 
   typedef std::auto_ptr<CaloGeometry> ReturnType;
 

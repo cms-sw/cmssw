@@ -22,27 +22,25 @@
 #include "Geometry/TrackerCommonData/interface/DDTrackerPhiAlgo.h"
 #include "Geometry/TrackerCommonData/interface/DDTrackerZPosAlgo.h"
 #include "DetectorDescription/Algorithm/interface/DDAlgorithmFactory.h"
-#include "FWCore/PluginManager/interface/ModuleDef.h"
 
-DEFINE_SEAL_MODULE ();
-DEFINE_SEAL_PLUGIN (DDAlgorithmFactory, DDPixBarLayerAlgo,   "track:DDPixBarLayerAlgo");
-DEFINE_SEAL_PLUGIN (DDAlgorithmFactory, DDPixFwdBlades,      "track:DDPixFwdBlades");
-DEFINE_SEAL_PLUGIN (DDAlgorithmFactory, DDTECAxialCableAlgo, "track:DDTECAxialCableAlgo");
-DEFINE_SEAL_PLUGIN (DDAlgorithmFactory, DDTECCoolAlgo,       "track:DDTECCoolAlgo");
-DEFINE_SEAL_PLUGIN (DDAlgorithmFactory, DDTECModuleAlgo,     "track:DDTECModuleAlgo");
-DEFINE_SEAL_PLUGIN (DDAlgorithmFactory, DDTECOptoHybAlgo,    "track:DDTECOptoHybAlgo");
-DEFINE_SEAL_PLUGIN (DDAlgorithmFactory, DDTECPhiAltAlgo,     "track:DDTECPhiAltAlgo");
-DEFINE_SEAL_PLUGIN (DDAlgorithmFactory, DDTIBLayerAlgo,      "track:DDTIBLayerAlgo");
-DEFINE_SEAL_PLUGIN (DDAlgorithmFactory, DDTIBRadCableAlgo,   "track:DDTIBRadCableAlgo");
-DEFINE_SEAL_PLUGIN (DDAlgorithmFactory, DDTIDAxialCableAlgo, "track:DDTIDAxialCableAlgo");
-DEFINE_SEAL_PLUGIN (DDAlgorithmFactory, DDTIDModuleAlgo,     "track:DDTIDModuleAlgo");
-DEFINE_SEAL_PLUGIN (DDAlgorithmFactory, DDTIDModulePosAlgo,  "track:DDTIDModulePosAlgo");
-DEFINE_SEAL_PLUGIN (DDAlgorithmFactory, DDTIDRingAlgo,       "track:DDTIDRingAlgo");
-DEFINE_SEAL_PLUGIN (DDAlgorithmFactory, DDTOBRodAlgo,        "track:DDTOBRodAlgo");
-DEFINE_SEAL_PLUGIN (DDAlgorithmFactory, DDTOBRadCableAlgo,   "track:DDTOBRadCableAlgo");
-DEFINE_SEAL_PLUGIN (DDAlgorithmFactory, DDTrackerAngular,    "track:DDTrackerAngular");
-DEFINE_SEAL_PLUGIN (DDAlgorithmFactory, DDTrackerLinear,     "track:DDTrackerLinear");
-DEFINE_SEAL_PLUGIN (DDAlgorithmFactory, DDTrackerLinearXY,   "track:DDTrackerLinearXY");
-DEFINE_SEAL_PLUGIN (DDAlgorithmFactory, DDTrackerPhiAltAlgo, "track:DDTrackerPhiAltAlgo");
-DEFINE_SEAL_PLUGIN (DDAlgorithmFactory, DDTrackerPhiAlgo,    "track:DDTrackerPhiAlgo");
-DEFINE_SEAL_PLUGIN (DDAlgorithmFactory, DDTrackerZPosAlgo,   "track:DDTrackerZPosAlgo");
+DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDPixBarLayerAlgo,   "track:DDPixBarLayerAlgo");
+DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDPixFwdBlades,      "track:DDPixFwdBlades");
+DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDTECAxialCableAlgo, "track:DDTECAxialCableAlgo");
+DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDTECCoolAlgo,       "track:DDTECCoolAlgo");
+DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDTECModuleAlgo,     "track:DDTECModuleAlgo");
+DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDTECOptoHybAlgo,    "track:DDTECOptoHybAlgo");
+DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDTECPhiAltAlgo,     "track:DDTECPhiAltAlgo");
+DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDTIBLayerAlgo,      "track:DDTIBLayerAlgo");
+DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDTIBRadCableAlgo,   "track:DDTIBRadCableAlgo");
+DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDTIDAxialCableAlgo, "track:DDTIDAxialCableAlgo");
+DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDTIDModuleAlgo,     "track:DDTIDModuleAlgo");
+DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDTIDModulePosAlgo,  "track:DDTIDModulePosAlgo");
+DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDTIDRingAlgo,       "track:DDTIDRingAlgo");
+DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDTOBRodAlgo,        "track:DDTOBRodAlgo");
+DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDTOBRadCableAlgo,   "track:DDTOBRadCableAlgo");
+DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDTrackerAngular,    "track:DDTrackerAngular");
+DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDTrackerLinear,     "track:DDTrackerLinear");
+DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDTrackerLinearXY,   "track:DDTrackerLinearXY");
+DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDTrackerPhiAltAlgo, "track:DDTrackerPhiAltAlgo");
+DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDTrackerPhiAlgo,    "track:DDTrackerPhiAlgo");
+DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDTrackerZPosAlgo,   "track:DDTrackerZPosAlgo");

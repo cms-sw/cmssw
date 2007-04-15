@@ -13,13 +13,13 @@
 //
 // Original Author:  Jeremiah Mans
 //         Created:  Mon Oct  3 11:35:27 CDT 2005
-// $Id: CaloTowerConstituentsMapBuilder.cc,v 1.3 2006/05/18 20:49:01 mansj Exp $
+// $Id: CaloTowerConstituentsMapBuilder.cc,v 1.4 2006/07/14 18:06:24 mansj Exp $
 //
 //
 
 
 // user include files
-#include "Geometry/CaloEventSetup/src/CaloTowerConstituentsMapBuilder.h"
+#include "Geometry/CaloEventSetup/plugins/CaloTowerConstituentsMapBuilder.h"
 #include <zlib.h>
 
 //
