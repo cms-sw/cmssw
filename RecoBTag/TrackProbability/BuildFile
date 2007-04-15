@@ -13,7 +13,7 @@
 <use name=TrackingTools/Records>
 <use name=TrackingTools/TransientTrack>
 <use name=xerces-c>
-<flags SEALPLUGIN=1>
+<flags EDM_PLUGIN=1>
 <export>
   <use name=CondFormats/BTauObjects>
   <use name=DataFormats/BTauReco>

@@ -7,7 +7,7 @@
 <use name=boost>
 <use name=xdaq>
 <lib name=xgi>
-<flags SEAL_PLUGIN_NAME="DQMSiStripCommissioningDbClients">
+<flags EDM_PLUGIN=1>
 
 <export>
   <lib name=DQMSiStripCommissioningDbClients>

@@ -14,7 +14,7 @@
 <use name=Geometry/CaloGeometry>
 <use name=Geometry/Records>
 <use name=rootmath>
-<flags SEALPLUGIN=1>
+<flags EDM_PLUGIN=1>
 <export>
   <lib name=RecoBTauJetCrystalsAssociator>
 </export>

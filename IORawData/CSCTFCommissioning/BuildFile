@@ -4,7 +4,7 @@
 <use name=FWCore/ParameterSet>
 <use name=FWCore/PluginManager>
 <use name=IORawData/DaqSource>
-<flags SEALPLUGIN=1>
+<flags EDM_PLUGIN=1>
 <export>
   <lib name=IORawDataCSCTFCommissioning>
 </export>
