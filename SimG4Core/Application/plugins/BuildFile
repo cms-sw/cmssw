@@ -1,0 +1,11 @@
+<use name=SimG4Core/Application>
+<use name=FWCore/Framework>
+<use name=FWCore/ParameterSet>
+<use name=geant4>
+<use name=hepmc>
+<library file=OscarProducer.cc name=SimG4CoreApplicationPlugins>
+<use name=FWCore/Framework>
+<use name=FWCore/ParameterSet>
+<use name=SimG4Core/Application>
+<flags EDM_PLUGIN=1>
+</library>
