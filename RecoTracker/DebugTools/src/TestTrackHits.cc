@@ -772,7 +772,7 @@ void TestTrackHits::endJob() {
 }
 
 #include "RecoLocalTracker/SiStripRecHitConverter/interface/SiStripRecHitMatcher.h"
-#include "Geometry/Vector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 
 typedef SiStripRecHitMatcher::StripPosition StripPosition;
@@ -784,7 +784,7 @@ GlobalPoint TestTrackHits::matchSimHits(PSimHit& monoH, PSimHit& stereoH,const G
   const BoundPlane plane = gluedDet->surface();
 
 
-  const StripTopology& topol = stripDet->specificTopology();
+  //const StripTopology& topol = stripDet->specificTopology();
   GlobalPoint globalpos= stripDet->surface().toGlobal(hit.localPosition());
   LocalPoint localHit = plane.toLocal(globalpos);
   //track direction
@@ -799,11 +799,10 @@ GlobalPoint TestTrackHits::matchSimHits(PSimHit& monoH, PSimHit& stereoH,const G
   
   //  std::LogVerbatim("CkfDebugger") << "projectedPos " << projectedPos ;
   
-  float selfAngle = topol.stripAngle( topol.strip( hit.localPosition()));
+  //float selfAngle = topol.stripAngle( topol.strip( hit.localPosition()));
   
-  LocalVector stripDir( sin(selfAngle), cos(selfAngle), 0); // vector along strip in hit frame
-  
-  LocalVector localStripDir( plane.toLocal(stripDet->surface().toGlobal( stripDir)));
+  //LocalVector stripDir( sin(selfAngle), cos(selfAngle), 0); // vector along strip in hit frame  
+  //LocalVector localStripDir( plane.toLocal(stripDet->surface().toGlobal( stripDir)));
 
   return plane.toGlobal(projectedPos);
 #if 0
