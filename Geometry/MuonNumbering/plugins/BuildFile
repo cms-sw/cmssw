@@ -1,0 +1,4 @@
+<use name=Geometry/MuonNumbering>
+<flags EDM_PLUGIN=1>
+<library file=MuonNumberingInitialization.cc name=MuonNumberingPlugins>
+

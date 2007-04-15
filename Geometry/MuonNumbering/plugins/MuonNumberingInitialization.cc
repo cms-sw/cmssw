@@ -13,7 +13,7 @@
 //
 // Original Author:  Michael Case
 //         Created:  Thu Sep 28 16:40:29 PDT 2006
-// $Id: MuonNumberingInitialization.cc,v 1.2 2006/10/12 19:54:06 case Exp $
+// $Id: MuonNumberingInitialization.cc,v 1.3 2006/10/27 01:35:29 wmtan Exp $
 //
 //
 

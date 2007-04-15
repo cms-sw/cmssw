@@ -5,8 +5,6 @@
 <use name=FWCore/PluginManager>
 <use name=Geometry/Records>
 
-<flags EDM_PLUGIN=1>
-
 <export>
  <lib name=GeometryMuonNumbering>
  <use name=DataFormats/MuonDetId>
