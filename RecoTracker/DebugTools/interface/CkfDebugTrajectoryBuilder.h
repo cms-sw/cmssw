@@ -21,7 +21,7 @@ class CkfDebugTrajectoryBuilder: public CkfTrajectoryBuilder{
   virtual CkfDebugger * debugger() const{ return theDbg;}
 
  private:
-  CkfDebugger * theDbg;
+  mutable CkfDebugger * theDbg;
   bool analyzeMeasurementsDebugger(Trajectory& traj, std::vector<TM> meas,
 				   const MeasurementTracker* theMeasurementTracker, const Propagator* theForwardPropagator, 
 				   const Chi2MeasurementEstimatorBase* theEstimator, 

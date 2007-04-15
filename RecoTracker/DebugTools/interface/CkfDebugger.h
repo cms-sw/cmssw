@@ -1,7 +1,7 @@
 #ifndef CkfDebugger_H
 #define CkfDebugger_H
 
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -44,146 +44,7 @@ class CkfDebugger {
  public:
   CkfDebugger( edm::EventSetup const & es );
 
-  ~CkfDebugger(){
-    for (int it=0; it!=((int)(dump.size())); it++)
-      edm::LogVerbatim("CkfDebugger") << "dump " << it << " " << dump[it] ;
-
-    edm::LogVerbatim("CkfDebugger") ;
-    edm::LogVerbatim("CkfDebugger") << "seedWithDelta=" <<  ((double)seedWithDelta/totSeeds) ;
-    edm::LogVerbatim("CkfDebugger") << "problems=" << ((double)problems/totSeeds) ;
-    edm::LogVerbatim("CkfDebugger") << "no_sim_hit=" << ((double)no_sim_hit/totSeeds) ;
-    edm::LogVerbatim("CkfDebugger") << "no_layer=" << ((double)no_layer/totSeeds) ;
-    edm::LogVerbatim("CkfDebugger") << "layer_not_found=" << ((double)layer_not_found/totSeeds) ;
-    edm::LogVerbatim("CkfDebugger") << "det_not_found=" << ((double)det_not_found/totSeeds) ;
-    edm::LogVerbatim("CkfDebugger") << "chi2gt30=" << ((double)chi2gt30/totSeeds) ;
-    edm::LogVerbatim("CkfDebugger") << "chi2gt30deltaSeed=" << ((double)chi2gt30deltaSeed/totSeeds) ;
-    edm::LogVerbatim("CkfDebugger") << "chi2gt30delta=" << ((double)chi2gt30delta/totSeeds) ;
-    edm::LogVerbatim("CkfDebugger") << "chi2ls30=" << ((double)chi2ls30/totSeeds) ;
-    edm::LogVerbatim("CkfDebugger") << "simple_hit_not_found=" << ((double)simple_hit_not_found/totSeeds) ;
-    edm::LogVerbatim("CkfDebugger") << "no_component=" << ((double)no_component/totSeeds) ;
-    edm::LogVerbatim("CkfDebugger") << "only_one_component=" << ((double)only_one_component/totSeeds) ;
-    edm::LogVerbatim("CkfDebugger") << "matched_not_found=" << ((double)matched_not_found/totSeeds) ;
-    edm::LogVerbatim("CkfDebugger") << "matched_not_associated=" << ((double)matched_not_associated/totSeeds) ;
-    edm::LogVerbatim("CkfDebugger") << "partner_det_not_fuond=" << ((double)partner_det_not_fuond/totSeeds) ;
-    edm::LogVerbatim("CkfDebugger") << "glued_det_not_fuond=" << ((double)glued_det_not_fuond/totSeeds) ;
-    edm::LogVerbatim("CkfDebugger") << "propagation=" << ((double)propagation/totSeeds) ;
-    edm::LogVerbatim("CkfDebugger") << "other=" << ((double)other/totSeeds) ;
-    edm::LogVerbatim("CkfDebugger") << "totchi2gt30=" << ((double)totchi2gt30/totSeeds) ;
-    edm::LogVerbatim("CkfDebugger") << "totSeeds=" << totSeeds ;
-    edm::LogVerbatim("CkfDebugger") ;
-
-    edm::LogVerbatim("CkfDebugger") << "layer navigation problems:" ;
-    for (int i=0; i!=6; i++)
-      for (int j=0; j!=9; j++){
-	if (i==0 && j>2) break;
-	if (i==1 && j>1) break;
-	if (i==2 && j>3) break;
-	if (i==3 && j>2) break;
-	if (i==4 && j>5) break;
-	if (i==5 && j>8) break;
-	edm::LogVerbatim("CkfDebugger") << "det=" << i+1 << " lay=" << j+1 << " " << dump2[pair<int,int>(i,j)] ;
-      }
-    edm::LogVerbatim("CkfDebugger") << "\nlayer with hit having chi2>30:" ;
-    for (int i=0; i!=6; i++)
-      for (int j=0; j!=9; j++){
-	if (i==0 && j>2) break;
-	if (i==1 && j>1) break;
-	if (i==2 && j>3) break;
-	if (i==3 && j>2) break;
-	if (i==4 && j>5) break;
-	if (i==5 && j>8) break;
-	edm::LogVerbatim("CkfDebugger") << "det=" << i+1 << " lay=" << j+1 << " " << dump3[pair<int,int>(i,j)] ;
-      }
-    edm::LogVerbatim("CkfDebugger") << "\nlayer with hit having chi2>30 for delta rays:" ;
-    for (int i=0; i!=6; i++)
-      for (int j=0; j!=9; j++){
-	if (i==0 && j>2) break;
-	if (i==1 && j>1) break;
-	if (i==2 && j>3) break;
-	if (i==3 && j>2) break;
-	if (i==4 && j>5) break;
-	if (i==5 && j>8) break;
-	edm::LogVerbatim("CkfDebugger") << "det=" << i+1 << " lay=" << j+1 << " " << dump5[pair<int,int>(i,j)] ;
-      }
-    edm::LogVerbatim("CkfDebugger") << "\nlayer with det not found:" ;
-    for (int i=0; i!=6; i++)
-      for (int j=0; j!=9; j++){
-	if (i==0 && j>2) break;
-	if (i==1 && j>1) break;
-	if (i==2 && j>3) break;
-	if (i==3 && j>2) break;
-	if (i==4 && j>5) break;
-	if (i==5 && j>8) break;
-	edm::LogVerbatim("CkfDebugger") << "det=" << i+1 << " lay=" << j+1 << " " << dump4[pair<int,int>(i,j)] ;
-      }
-    hchi2seedAll->Write();
-    hchi2seedProb->Write();
-    stringstream title;
-    for (int i=0; i!=6; i++)
-      for (int j=0; j!=9; j++){
-	if (i==0 && j>2) break;
-	if (i==1 && j>1) break;
-	if (i==2 && j>3) break;
-	if (i==3 && j>2) break;
-	if (i==4 && j>5) break;
-	if (i==5 && j>8) break;
-	title.str("");
-	title << "pullX_" << i+1 << "-" << j+1 << "_sh-rh";
-	hPullX_shrh[title.str()]->Write();
-	title.str("");
-	title << "pullY_" << i+1 << "-" << j+1 << "_sh-rh";
-	hPullY_shrh[title.str()]->Write();
-	title.str("");
-	title << "pullX_" << i+1 << "-" << j+1 << "_sh-st";
-	hPullX_shst[title.str()]->Write();
-	title.str("");
-	title << "pullY_" << i+1 << "-" << j+1 << "_sh-st";
-	hPullY_shst[title.str()]->Write();
-	title.str("");
-	title << "pullX_" << i+1 << "-" << j+1 << "_st-rh";
-	hPullX_strh[title.str()]->Write();
-	title.str("");
-	title << "pullY_" << i+1 << "-" << j+1 << "_st-rh";
-	hPullY_strh[title.str()]->Write();
-	title.str("");
-	title << "PullGP_X_" << i+1 << "-" << j+1 << "_sh-st";
-	hPullGP_X_shst[title.str()]->Write();
-	title.str("");
-	title << "PullGP_Y_" << i+1 << "-" << j+1 << "_sh-st";
-	hPullGP_Y_shst[title.str()]->Write();
-	title.str("");
-	title << "PullGP_Z_" << i+1 << "-" << j+1 << "_sh-st";
-	hPullGP_Z_shst[title.str()]->Write();
-	if ( (i==2||i==4)&&(j==0||j==1) || (i==3||i==5) ){
-	  title.str("");
-	  title << "pullM_" << i+1 << "-" << j+1 << "_sh-rh";
-	  hPullM_shrh[title.str()]->Write();
-	  title.str("");
-	  title << "pullS_" << i+1 << "-" << j+1 << "_sh-rh";
-	  hPullS_shrh[title.str()]->Write();
-	  title.str("");
-	  title << "pullM_" << i+1 << "-" << j+1 << "_sh-st";
-	  hPullM_shst[title.str()]->Write();
-	  title.str("");
-	  title << "pullS_" << i+1 << "-" << j+1 << "_sh-st";
-	  hPullS_shst[title.str()]->Write();
-	  title.str("");
-	  title << "pullM_" << i+1 << "-" << j+1 << "_st-rh";
-	  hPullM_strh[title.str()]->Write();
-	  title.str("");
-	  title << "pullS_" << i+1 << "-" << j+1 << "_st-rh";
-	  hPullS_strh[title.str()]->Write();
-	}
-      }
-    hPullGPXvsGPX_shst->Write();
-    hPullGPXvsGPY_shst->Write();
-    hPullGPXvsGPZ_shst->Write();
-    hPullGPXvsGPr_shst->Write();
-    hPullGPXvsGPeta_shst->Write();
-    hPullGPXvsGPphi_shst->Write();
-    
-    file.Close();
-  } 
+  ~CkfDebugger();
   
   void printSimHits( const edm::Event& iEvent);
 
