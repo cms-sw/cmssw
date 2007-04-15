@@ -1,5 +1,5 @@
 use name=FWCore/Framework>
-<use name=Foundation/PluginManager>
+<use name=FWCore/PluginManager>
 <use name=FWCore/ParameterSet>
 <use name = hepmc> 
 <use name=clhep>
@@ -23,7 +23,7 @@ use name=FWCore/Framework>
 <export>
    <lib name=CalibrationHcalIsolatedTrackReco>
    <use name=FWCore/Framework>
-   <use name=Foundation/PluginManager>
+   <use name=FWCore/PluginManager>
    <use name=FWCore/ParameterSet>
    <use name=MagneticField/Engine>
    <use name=MagneticField/Records>
