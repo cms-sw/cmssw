@@ -20,7 +20,7 @@
 <use name=Utilities/Timing>
 <use name=boost>
 <use name=clhep>
-<flags SEALPLUGIN=1>
+<flags EDM_PLUGIN=1>
 <export>
   <lib name=SimMuonCSCDigitizer>
 </export>

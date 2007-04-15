@@ -11,7 +11,7 @@
 <use name=FWCore/Utilities>
 <use name=Geometry/CSCGeometry>
 <use name=Geometry/Records>
-<flags SEALPLUGIN=1>
+<flags EDM_PLUGIN=1>
 <export>
   <lib name=RecoLocalMuonCSCSegment>
 </export>
