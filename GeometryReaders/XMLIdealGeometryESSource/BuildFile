@@ -2,7 +2,7 @@
 <use name=DetectorDescription/Core>
 <use name=DetectorDescription/Parser>
 <use name=FWCore/Framework>
-<use name=FWCore/MessageService>
+<use name=FWCore/MessageLogger>
 <use name=FWCore/ParameterSet>
 <use name=Foundation/SealUtil>
 <use name=Geometry/Records>
