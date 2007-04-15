@@ -40,6 +40,8 @@ EcalRawToDigiDev::EcalRawToDigiDev(edm::ParameterSet const& conf):
   syncCheck_(conf.getUntrackedParameter<bool>("syncCheck",true)), 
   
   put_(conf.getUntrackedParameter<bool>("eventPut",false)),
+  
+  dataLabel_(conf.getUntrackedParameter<std::string>("InputLabel","source")),
 
   myMap_(0),
   
@@ -70,8 +72,8 @@ EcalRawToDigiDev::EcalRawToDigiDev(edm::ParameterSet const& conf):
   }
   
   //NA : testing
-  nevts_=0;
-  RUNNING_TIME_=0;
+  //nevts_=0;
+  //RUNNING_TIME_=0;
 
   //if there are FEDs to unpack fill the vector of the fedUnpackList_
   if (fedUnpackList_.empty()) 
@@ -166,8 +168,7 @@ void EcalRawToDigiDev::produce(edm::Event& e, const edm::EventSetup& es) {
   // Step A: Get Inputs    
 
   edm::Handle<FEDRawDataCollection> rawdata;  
-  e.getByType(rawdata);
-
+  e.getByLabel(dataLabel_,rawdata);
 
   // Step B: encapsulate vectors in actual collections and set unpacker pointers
 

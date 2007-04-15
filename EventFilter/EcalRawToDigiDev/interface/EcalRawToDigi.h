@@ -10,8 +10,8 @@
  *
  * \file EcalRawToDigi.h
  *
- * $Date: 2007/04/02 11:09:45 $
- * $Revision: 1.3 $
+ * $Date: 2007/04/10 17:33:48 $
+ * $Revision: 1.4 $
  * \author N. Almeida
  * \author G. Franzoni
  *
@@ -74,6 +74,8 @@ class EcalRawToDigiDev : public edm::EDProducer{
   bool syncCheck_;
   bool first_;
   bool put_;
+
+  std::string dataLabel_ ; 
 
   //an electronics mapper class 
   EcalElectronicsMapper * myMap_;
