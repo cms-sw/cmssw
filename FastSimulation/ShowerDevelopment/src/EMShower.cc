@@ -186,7 +186,9 @@ EMShower::compute() {
  
  
  double t = 0.;
- 
+
+ bool status=false; 
+
   //  double E1 = 0.;  // Energy layer 1
   //  double E2 = 0.;  // Energy layer 2
   //  double n1 = 0.;  // #mips layer 1
@@ -222,7 +224,6 @@ EMShower::compute() {
     // If it is empty (because no crystal at this depth), it is of no use 
     // (and time consuming) to generate the spots
     
-    bool status=true;
 
    // middle of the step
     double tt = t-0.5*dt; 
@@ -231,26 +232,34 @@ EMShower::compute() {
     std::vector<double> Edepo;
     double ESliceTot=0.;
     double MeanDepth=0.;
+    double realTotalEnergy=0.;
     for ( unsigned int i=0; i<nPart; ++i ) {
       Edepo.push_back(deposit(t,a[i],b[i],dt));
       ESliceTot += Edepo[i];
+      realTotalEnergy += Edepo[i]*E[i];
       //  Computes the barycenter of the energy deposit in the slice. It should be /Edepo[i] but it is also *Edepo[i]
       MeanDepth += deposit(t,a[i]+1.,b[i],dt)/b[i]*a[i];
       //      if (ecal)std::cout << " CHECK " << t-dt << " " << deposit(t,a[i]+1.,b[i],dt)/b[i]*a[i]/Edepo[i] << " " << t << " " << Edepo[i] << " " << a[i] << " " << b[i] << " " << theGrid->x0DepthOffset() << std::endl;
     }
+    // If the amount of energy is less than 1 MeV, do nothing
+
     MeanDepth/=ESliceTot;
 //    std::cout << " Step " << tt << std::endl;
 //    std::cout << "ecal " << ecal << " hcal "  << hcal <<std::endl;
-    if (ecal) status=theGrid->getPads(MeanDepth);
+
+    // If the amount of energy is greater than 1 MeV, make a new grid
+    // otherwise put in the previous one. 
+    bool usePreviousGrid=(realTotalEnergy<0.001);
+    if (ecal && !usePreviousGrid) status=theGrid->getPads(MeanDepth);
     if (hcal) 
       {
 	status=theHcalHitMaker->setDepth(tt);
       }
-    if(!status) continue;
+    if((ecal ||hcal) && !status) continue;
     
     bool detailedShowerTail=false;
     // check if a detailed treatment of the rear leakage should be applied
-    if(ecal) 
+    if(ecal && !usePreviousGrid) 
       {
 	detailedShowerTail=(t-dt > theGrid->getX0back());
       }
