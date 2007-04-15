@@ -88,7 +88,10 @@ namespace cms{
   
   // Functions that gets called by framework every event
   void CkfTrackCandidateMaker::produce(edm::Event& e, const edm::EventSetup& es)
-  {        
+  { 
+    // method for Debugging
+    printHitsDebugger(e);
+
     // Step A: set Event for the TrajectoryBuilder
     theTrajectoryBuilder->setEvent(e);        
     
@@ -112,6 +115,9 @@ namespace cms{
       vector<Trajectory> rawResult;
       if (theSeedCleaner) theSeedCleaner->init( &rawResult );
       
+      // method for debugging
+      countSeedsDebugger();
+
       for(iseed=theSeedColl.begin();iseed!=theSeedColl.end();iseed++){
 	vector<Trajectory> theTmpTrajectories;
     
@@ -207,6 +213,10 @@ namespace cms{
       edm::LogVerbatim("CkfPattern") << "=================================================";
           
     }
+    
+    // method for debugging
+    deleteAssocDebugger();
+
     // Step G: write output to file
     e.put(output);
   }

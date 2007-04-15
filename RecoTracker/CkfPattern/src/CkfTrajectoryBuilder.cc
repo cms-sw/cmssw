@@ -116,6 +116,14 @@ limitedCandidates( Trajectory& startingTraj,
     for (TrajectoryContainer::iterator traj=candidates.begin();
 	 traj!=candidates.end(); traj++) {
       std::vector<TM> meas = findCompatibleMeasurements(*traj);
+
+      // --- method for debugging
+      if(!analyzeMeasurementsDebugger(*traj,meas,
+				      theMeasurementTracker,
+				      theForwardPropagator,theEstimator,
+				      theTTRHBuilder)) return;
+      // ---
+
       if ( meas.empty()) {
 	if ( qualityFilter( *traj)) addToResult( *traj, result);
       }
@@ -212,6 +220,10 @@ CkfTrajectoryBuilder::seedMeasurements(const TrajectorySeed& seed) const
       //result.push_back(TM( invalidState, recHit, 0, hitLayer));
     }
   }
+
+  // method for debugging
+  fillSeedHistoDebugger(result[0],result[1]);
+
   return result;
 }
 

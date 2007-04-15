@@ -62,7 +62,8 @@ public:
   /// set Event for the internal MeasurementTracker data member
   virtual void setEvent(const edm::Event& event) const;
 
-private:
+
+ private:
   const TrajectoryStateUpdator*         theUpdator;
   const Propagator*                     thePropagatorAlong;
   const Propagator*                     thePropagatorOpposite;
