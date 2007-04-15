@@ -98,20 +98,25 @@ namespace edm {
 
     string IncludeFileFinder::stripHeader(const string & libraryName)
     {
-      // we expect a filename like "libMyDomainYourPackage.so"
-      // first strip off the "lib"
+      // We expect a filename like "libMyDomainYourPackage.so"
+      // or pluginMyDomainYourPackage.so
+      // first strip off the "lib" or "plugin".
       string result;
-      if(libraryName.substr(0, 3) != "lib")
-      {
-        std::cerr << "Strange library name in IncludeFileFinder: "
-             << libraryName << ", doesn't start with 'lib'";
-        // try to continue
-        result = libraryName;
-      }
-      else 
+      if(libraryName.substr(0, 3) == "lib")
       {
         // strip it off
         result = libraryName.substr(3, libraryName.size());
+      }
+      else if(libraryName.substr(0, 6) == "plugin")
+      {
+        result = libraryName.substr(6, libraryName.size());
+      }
+      else
+      {
+        std::cerr << "Strange library name in IncludeFileFinder: "
+             << libraryName << ", doesn't start with 'lib' or 'plugin'";
+        // try to continue
+        result = libraryName;
       }
       return result;
     }
