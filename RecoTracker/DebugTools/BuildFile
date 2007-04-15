@@ -5,4 +5,4 @@
 
 <use name=RecoTracker/CkfPattern>
 <use name=SimTracker/TrackerHitAssociation>
-<flags SEAL_PLUGIN_NAME="RecoTrackerDebugTools">
+<flags EDM_PLUGIN=1>
