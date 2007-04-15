@@ -50,7 +50,8 @@ bool CompatibleDetToGroupAdder::add( const GeomDet& det,
 				     const MeasurementEstimator& est,
 				     vector<DetGroup>& result) const
 {
-  TkGeomDetCompatibilityChecker theCompatibilityChecker;
+  //TkGeomDetCompatibilityChecker theCompatibilityChecker;
+  GeomDetCompatibilityChecker theCompatibilityChecker;
   pair<bool, TrajectoryStateOnSurface> compat = theCompatibilityChecker.isCompatible( &det,tsos, prop, est);
 
   if (compat.first) {
