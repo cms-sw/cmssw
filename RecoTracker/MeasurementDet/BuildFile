@@ -5,7 +5,6 @@
  <use name=RecoTracker/TransientTrackingRecHit>
  <use name=RecoTracker/TkDetLayers>
  <use name=RecoTracker/Record>
- <use name=RecoTracker/GeometryESProducer>
  <use name=DataFormats/TrackerRecHit2D>
  <use name=DataFormats/Common>
  <use name=DataFormats/SiPixelCluster>
@@ -17,7 +16,6 @@
  <use name=Geometry/Records>
  <use name=RecoLocalTracker/SiPixelRecHits>
  <use name=RecoLocalTracker/SiStripRecHitConverter>
- <use name=RecoTracker/GeometryESProducer>
  <use name=RecoLocalTracker/Records>
  <use name=RecoTracker/Record>
  <use name=TrackingTools/TransientTrackingRecHit>
@@ -29,7 +27,6 @@
 <use name=RecoTracker/TransientTrackingRecHit>
 <use name=RecoTracker/TkDetLayers>
 <use name=RecoTracker/Record>
-<use name=RecoTracker/GeometryESProducer>
 <use name=DataFormats/TrackerRecHit2D>
 <use name=DataFormats/Common>
 <use name=DataFormats/SiPixelCluster>
@@ -41,7 +38,6 @@
 <use name=Geometry/Records>
 <use name=RecoLocalTracker/SiPixelRecHits>
 <use name=RecoLocalTracker/SiStripRecHitConverter>
-<use name=RecoTracker/GeometryESProducer>
 <use name=RecoLocalTracker/Records>
 <use name=RecoTracker/Record>
 <use name=CalibFormats/SiStripObjects>
@@ -49,4 +45,3 @@
 <use name=TrackingTools/TransientTrackingRecHit>
 <use name=FWCore/MessageLogger>
 
-<flags EDM_PLUGIN=1>

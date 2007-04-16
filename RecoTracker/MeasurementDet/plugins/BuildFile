@@ -1,0 +1,4 @@
+<use name=RecoTracker/MeasurementDet>
+<library file="*.cc" name=RecoTrackerMeasurementDetPlugins>
+        <flags EDM_PLUGIN=1>
+</library>
