@@ -1,4 +1,4 @@
-#include "FWCore/PluginManager/interface/ModuleDef.h"
+#include "PluginManager/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
@@ -9,6 +9,7 @@
 #include "RecoEgamma/Examples/interface/PixelMatchElectronAnalyzer.h"
 #include "RecoEgamma/Examples/interface/PixelMatchGsfElectronAnalyzer.h"
 #include "RecoEgamma/Examples/interface/SimplePhotonAnalyzer.h"
+#include "RecoEgamma/Examples/interface/SimpleConvertedPhotonAnalyzer.h"
 
 
 DEFINE_SEAL_MODULE();
@@ -19,3 +20,4 @@ DEFINE_ANOTHER_FWK_MODULE(PixelMatchElectronAnalyzer);
 DEFINE_ANOTHER_FWK_MODULE(PixelMatchGsfElectronAnalyzer);
 DEFINE_ANOTHER_FWK_MODULE(ElectronPixelSeedAnalyzer);
 DEFINE_ANOTHER_FWK_MODULE(SimplePhotonAnalyzer);
+DEFINE_ANOTHER_FWK_MODULE(SimpleConvertedPhotonAnalyzer);
