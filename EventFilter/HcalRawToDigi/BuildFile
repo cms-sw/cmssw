@@ -1,10 +1,6 @@
-<flags EDM_PLUGIN=1>
 <use name=DataFormats/HcalDetId>
 <use name=DataFormats/HcalDigi>
 <use name=DataFormats/FEDRawData>
-<use name=CondFormats/HcalObjects>
-<use name=CalibFormats/HcalObjects>
-<use name=FWCore/Framework>
 <use name=FWCore/MessageLogger>
 <use name=boost>
 
@@ -13,9 +9,6 @@
   <use name=DataFormats/HcalDetId>
   <use name=DataFormats/HcalDigi>
   <use name=DataFormats/FEDRawData>
-  <use name=CondFormats/HcalObjects>
-  <use name=CalibFormats/HcalObjects>
-  <use name=FWCore/Framework>
   <use name=FWCore/MessageLogger>
   <use name=boost>
 </export>
