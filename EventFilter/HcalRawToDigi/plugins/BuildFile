@@ -1,4 +1,3 @@
-<flags EDM_PLUGIN=1>
 <use name=DataFormats/HcalDetId>
 <use name=DataFormats/HcalDigi>
 <use name=DataFormats/FEDRawData>
@@ -9,5 +8,6 @@
 <use name=boost>
 <use name=EventFilter/HcalRawToDigi>
 <library file="*.cc" name=EventFilterHcalRawToDigiPlugins>
-
+  <flags EDM_PLUGIN=1>
+</library>
 
