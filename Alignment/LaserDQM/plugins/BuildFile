@@ -11,7 +11,7 @@
  <use name=DataFormats/SiStripDigi>
  <use name=DataFormats/Common>
  <use name=DQMServices/Core>
- <use name=DQMServices/Daemon>
+# <use name=DQMServices/Daemon>
  <use name=Geometry/Records>
  <use name=root>
  <use name=rootcore>
