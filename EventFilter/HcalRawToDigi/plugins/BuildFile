@@ -8,7 +8,6 @@
 <use name=FWCore/MessageLogger>
 <use name=boost>
 <use name=EventFilter/HcalRawToDigi>
-<export>
-  <lib name=EventFilterHcalRawToDigiPlugins>
-</export>
+<library file="*.cc" name=EventFilterHcalRawToDigiPlugins>
+
 

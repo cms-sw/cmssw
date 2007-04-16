@@ -2,6 +2,7 @@
 <use name=DataFormats/HcalDigi>
 <use name=DataFormats/FEDRawData>
 <use name=FWCore/MessageLogger>
+<use name=CondFormats/HcalObjects>
 <use name=boost>
 
 <export>
@@ -9,6 +10,7 @@
   <use name=DataFormats/HcalDetId>
   <use name=DataFormats/HcalDigi>
   <use name=DataFormats/FEDRawData>
+  <use name=CondFormats/HcalObjects>
   <use name=FWCore/MessageLogger>
   <use name=boost>
 </export>
