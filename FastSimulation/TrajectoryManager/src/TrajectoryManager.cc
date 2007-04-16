@@ -548,7 +548,10 @@ TrajectoryManager::makeSinglePSimHit( const GeomDetUnit& det,
     myHistos->fill("h301",gpos.z(),-gpos.perp());
   */
 
-  double dist = det.surface().toGlobal(hit.localPosition()).mag2();
+  GlobalPoint IP (mySimEvent->track(tkID).vertex().position().x(),
+		  mySimEvent->track(tkID).vertex().position().y(),
+		  mySimEvent->track(tkID).vertex().position().z());	       
+  double dist = ( det.surface().toGlobal(hit.localPosition()) - IP ).mag2();
   return std::pair<double,PSimHit>(dist,hit);
 
 }
