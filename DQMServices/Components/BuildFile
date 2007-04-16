@@ -10,5 +10,3 @@
 <use name=DQMServices/UI>
 <use name=DQMServices/ClientConfig>
 <use name=boost>
-
-<flags EDM_PLUGIN=1>
