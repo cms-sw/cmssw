@@ -1,8 +1,8 @@
 /** \file LaserAlignment.cc
  *  LAS reconstruction module
  *
- *  $Date: 2007/04/05 13:20:11 $
- *  $Revision: 1.8 $
+ *  $Date: 2007/04/12 14:20:33 $
+ *  $Revision: 1.10 $
  *  \author Maarten Thomas
  */
 
@@ -25,7 +25,6 @@
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetType.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "DataFormats/GeometrySurface/interface/BoundSurface.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeomBuilderFromGeometricDet.h"
 #include "Geometry/TrackingGeometryAligner/interface/GeometryAligner.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
