@@ -1,4 +1,4 @@
-#include "TrackingTools/GsfTracking/interface/GsfTrajectorySmootherESProducer.h"
+#include "TrackingTools/GsfTracking/plugins/GsfTrajectorySmootherESProducer.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"

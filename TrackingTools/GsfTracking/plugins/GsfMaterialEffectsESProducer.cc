@@ -1,4 +1,4 @@
-#include "TrackingTools/GsfTracking/interface/GsfMaterialEffectsESProducer.h"
+#include "TrackingTools/GsfTracking/plugins/GsfMaterialEffectsESProducer.h"
 
 #include "TrackingTools/MaterialEffects/interface/MultipleScatteringUpdator.h"
 #include "TrackingTools/MaterialEffects/interface/EnergyLossUpdator.h"

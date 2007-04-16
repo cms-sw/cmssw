@@ -37,5 +37,3 @@
 <use name="TrackingTools/TrackFitters">
 <use name="TrackingTools/TrajectoryState">
 <use name="TrackingTools/TransientTrackingRecHit">
-
-<flags EDM_PLUGIN=1>

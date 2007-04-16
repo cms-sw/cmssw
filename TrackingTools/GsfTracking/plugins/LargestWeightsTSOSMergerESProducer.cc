@@ -1,4 +1,4 @@
-#include "TrackingTools/GsfTracking/interface/LargestWeightsTSOSMergerESProducer.h"
+#include "TrackingTools/GsfTracking/plugins/LargestWeightsTSOSMergerESProducer.h"
 
 #include "TrackingTools/GsfTracking/interface/LargestWeightsTSOSMerger.h"
 

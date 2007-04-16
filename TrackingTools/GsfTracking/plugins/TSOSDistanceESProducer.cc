@@ -1,4 +1,4 @@
-#include "TrackingTools/GsfTracking/interface/TSOSDistanceESProducer.h"
+#include "TrackingTools/GsfTracking/plugins/TSOSDistanceESProducer.h"
 
 #include "TrackingTools/GsfTracking/interface/TSOSKullbackLeiblerDistance.h"
 #include "TrackingTools/GsfTracking/interface/TSOSMahalanobisDistance.h"
