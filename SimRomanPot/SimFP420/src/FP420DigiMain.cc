@@ -40,6 +40,7 @@ FP420DigiMain::FP420DigiMain(const edm::ParameterSet& conf):conf_(conf){
   theElectronPerADC = m_Anal.getParameter<double>("ElectronFP420PerAdc");
   theThreshold      = m_Anal.getParameter<double>("AdcFP420Threshold");
   noNoise           = m_Anal.getParameter<bool>("NoFP420Noise");
+  addNoisyPixels    = m_Anal.getParameter<bool>("AddNoisyPixels");
   thez420           = m_Anal.getParameter<double>("z420");
   thezD2            = m_Anal.getParameter<double>("zD2");
   thezD3            = m_Anal.getParameter<double>("zD3");
@@ -47,16 +48,23 @@ FP420DigiMain::FP420DigiMain(const edm::ParameterSet& conf):conf_(conf){
   if(verbosity>0) {
     std::cout << "FP420DigiMain theElectronPerADC=" << theElectronPerADC << " theThreshold=" << theThreshold << " noNoise=" << noNoise << std::endl;
   }
-  
+  // X (or Y)define type of sensor (zside=1 or 2 used to derive it: 1-Y, 2-X)
+  // for every type there is normal pixel size=0.05 and Wide 0.400 mm
   Thick300 = 0.300;       // = 0.300 mm  normalized to 300micron Silicon
   ENC= 2160.;             //          EquivalentNoiseCharge300um = 2160. + other sources of noise
-  ldriftX = 0.050;        // in mm
-  ldriftY = 0.050;        // in mm
-  pitchY= 0.050;          // in mm
-  pitchX= 0.050;          // in mm
-  moduleThickness = 0.250; // mm
-  numStripsX = 401;        // X plate number of strips:400*0.050=20mm --> 200*0.100=20mm
-  numStripsY = 201;        // X plate number of strips:400*0.050=20mm --> 200*0.100=20mm
+  ldriftX = 0.050;        // in mm(zside=1)
+  ldriftY = 0.050;        // in mm(zside=2)
+  moduleThickness = 0.250; // mm(zside=1)(zside=2)
+
+  pitchY= 0.050;          // in mm(zside=1)
+  pitchX= 0.050;          // in mm(zside=2)
+  numStripsY = 201;        // Y plate number of strips:200*0.050=10mm (zside=1)
+  numStripsX = 401;        // X plate number of strips:400*0.050=20mm (zside=2)
+
+  pitchYW= 0.400;          // in mm(zside=1)
+  pitchXW= 0.400;          // in mm(zside=2)
+  numStripsYW = 51;        // Y plate number of W strips:50 *0.400=20mm (zside=1) - W have ortogonal projection
+  numStripsXW = 26;        // X plate number of W strips:25 *0.400=10mm (zside=2) - W have ortogonal projection
   
   if(verbosity>0) {
     std::cout << "FP420DigiMain moduleThickness=" << moduleThickness << std::endl;
@@ -108,19 +116,25 @@ vector <HDigiFP420> FP420DigiMain::run(const std::vector<FP420G4Hit> &input,
     numStrips = numStripsY;  // Y plate number of strips:200*0.050=10mm --> 100*0.100=10mm
     pitch= pitchY;
     ldrift = ldriftX; // because drift is in local coordinates which 90 degree rotated ( for correct timeNormalization & noiseRMS calculations)
+    numStripsW = numStripsYW;  // Y plate number of strips:200*0.050=10mm --> 100*0.100=10mm
+    pitchW= pitchYW;
   }
   // X:
   if (zside ==2) {
     numStrips = numStripsX;  // X plate number of strips:400*0.050=20mm --> 200*0.100=20mm
     pitch= pitchX;
     ldrift = ldriftY; // because drift is in local coordinates which 90 degree rotated ( for correct timeNormalization & noiseRMS calculations)
+    numStripsW = numStripsXW;  // X plate number of strips:400*0.050=20mm --> 200*0.100=20mm
+    pitchW= pitchXW;
   }
   
   float noiseRMS = ENC*moduleThickness/Thick300;
   
   
   theHitDigitizerFP420 = new HitDigitizerFP420(moduleThickness,ldrift,ldriftY,ldriftX,thez420,thezD2,thezD3);
-  theGNoiseFP420 = new GaussNoiseFP420(numStrips,noiseRMS,theThreshold);
+  int numPixels = numStrips*numStripsW;
+  theGNoiseFP420 = new GaussNoiseFP420(numPixels,noiseRMS,theThreshold,addNoisyPixels);
+  //  theGNoiseFP420 = new GaussNoiseFP420(numStrips,noiseRMS,theThreshold,addNoisyPixels);
 
   
   
@@ -169,7 +183,7 @@ vector <HDigiFP420> FP420DigiMain::run(const std::vector<FP420G4Hit> &input,
       
       //   zside = 1 - Y strips;   =2 - X strips;
       //	  HitDigitizerFP420::hit_map_type _temp = theHitDigitizerFP420->processHit(ihit,bfield,zside,numStrips,pitch);
-      HitDigitizerFP420::hit_map_type _temp = theHitDigitizerFP420->processHit(ihit,bfield,zside,numStrips,pitch,moduleThickness); 
+      HitDigitizerFP420::hit_map_type _temp = theHitDigitizerFP420->processHit(ihit,bfield,zside,numStrips,pitch,numStripsW,pitchW,moduleThickness); 
       
       
       
@@ -203,10 +217,10 @@ vector <HDigiFP420> FP420DigiMain::run(const std::vector<FP420G4Hit> &input,
 #ifdef mydigidebug1
   std::cout << " *******FP420DigiMain: start:afterNoise" << std::endl;
 #endif
+
+
+
   PileUpFP420::signal_map_type afterNoise;
-  
-  
-  
   
   if (noNoise) {
 #ifdef mydigidebug1
@@ -218,8 +232,11 @@ vector <HDigiFP420> FP420DigiMain::run(const std::vector<FP420G4Hit> &input,
     std::cout << " *******FP420DigiMain: start:IFnoNoiseelse    addNoise" << std::endl;
 #endif
     afterNoise = theGNoiseFP420->addNoise(theSignal);
+//    add_noise();
   }
   
+  //  if((pixelInefficiency>0) && (_signal.size()>0)) 
+  //  pixel_inefficiency(); // Kill some pixels
   
   
   
@@ -239,6 +256,10 @@ vector <HDigiFP420> FP420DigiMain::run(const std::vector<FP420G4Hit> &input,
   return digis; // to HDigiFP420
 }
 
+
+
+
+
 void FP420DigiMain::push_digis(const DigitalMapType& dm,
 			       const HitToDigisMapType& htd,
 			       const PileUpFP420::signal_map_type& afterNoise
@@ -254,6 +275,7 @@ void FP420DigiMain::push_digis(const DigitalMapType& dm,
   //   link_coll.clear();
   for ( DigitalMapType::const_iterator i=dm.begin(); i!=dm.end(); i++) {
     
+    // Load digis
     // push to digis the content of first and second words of HDigiFP420 vector for every strip pointer (*i)
     digis.push_back( HDigiFP420( (*i).first, (*i).second));
     ndigis++; 
@@ -271,26 +293,26 @@ void FP420DigiMain::push_digis(const DigitalMapType& dm,
   // reworked to access the fraction of amplitude per simhit FP420G4Hit
   //
   for ( HitToDigisMapType::const_iterator mi=htd.begin(); mi!=htd.end(); mi++) {
-  #ifdef mydigidebug1
-  std::cout << " ****push_digis:first for:  (*mi).first = " << (*mi).first << std::endl;
-  std::cout << " if condition   = " << (*((const_cast<DigitalMapType * >(&dm))))[(*mi).first] << std::endl;
-  #endif
-  //    if ((*((const_cast<DigitalMapType * >(&dm))))[(*mi).first] != 0){
-  if ((*((const_cast<DigitalMapType * >(&dm)))).find((*mi).first) != (*((const_cast<DigitalMapType * >(&dm)))).end() ){
-  //
-  // For each channel, sum up the signals from a simtrack
-  //
-  map<const FP420G4Hit *, Amplitude> totalAmplitudePerSimHit;
-  for (vector < pair < const FP420G4Hit*, Amplitude > >::const_iterator simul = 
-  (*mi).second.begin() ; simul != (*mi).second.end(); simul ++){
-  #ifdef mydigidebug1
-  std::cout << " ****push_digis:inside last for: (*simul).second= " << (*simul).second << std::endl;
-  #endif
-  totalAmplitudePerSimHit[(*simul).first] += (*simul).second;
+#ifdef mydigidebug1
+    std::cout << " ****push_digis:first for:  (*mi).first = " << (*mi).first << std::endl;
+    std::cout << " if condition   = " << (*((const_cast<DigitalMapType * >(&dm))))[(*mi).first] << std::endl;
+#endif
+    //    if ((*((const_cast<DigitalMapType * >(&dm))))[(*mi).first] != 0){
+    if ((*((const_cast<DigitalMapType * >(&dm)))).find((*mi).first) != (*((const_cast<DigitalMapType * >(&dm)))).end() ){
+      //
+      // For each channel, sum up the signals from a simtrack
+      //
+      map<const FP420G4Hit *, Amplitude> totalAmplitudePerSimHit;
+      for (vector < pair < const FP420G4Hit*, Amplitude > >::const_iterator simul = 
+	     (*mi).second.begin() ; simul != (*mi).second.end(); simul ++){
+#ifdef mydigidebug1
+	std::cout << " ****push_digis:inside last for: (*simul).second= " << (*simul).second << std::endl;
+#endif
+	totalAmplitudePerSimHit[(*simul).first] += (*simul).second;
+      } // for
+    } // if
   } // for
-  } // if
-  } // for
-
+  
 
   /////////////////////////////////////////////////////////////////////////////////////////////
   /*     

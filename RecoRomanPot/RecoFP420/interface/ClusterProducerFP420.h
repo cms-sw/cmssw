@@ -3,7 +3,7 @@
 
 #include "RecoRomanPot/RecoFP420/interface/ClusterNoiseFP420.h"
 
-#include "SimRomanPot/SimFP420/interface/ClusterFP420.h"
+#include "RecoRomanPot/RecoFP420/interface/ClusterFP420.h"
 #include "SimRomanPot/SimFP420/interface/HDigiFP420.h"
 
 #include <vector>
@@ -25,7 +25,13 @@ public:
 
   std::vector<ClusterFP420> clusterizeDetUnit(HDigiFP420Iter begin, HDigiFP420Iter end,
 						unsigned int detid, const ElectrodNoiseVector& vnoise);
+  std::vector<ClusterFP420> clusterizeDetUnitPixels(HDigiFP420Iter begin, HDigiFP420Iter end,
+						    unsigned int detid, const ElectrodNoiseVector& vnoise, unsigned int zside);
   
+  int difNarr(unsigned int zside, HDigiFP420Iter ichannel,
+				  HDigiFP420Iter jchannel);
+  int difWide(unsigned int zside, HDigiFP420Iter ichannel,
+				  HDigiFP420Iter jchannel);
 
   float channelThresholdInNoiseSigma() const { return theChannelThreshold;}
   float seedThresholdInNoiseSigma()    const { return theSeedThreshold;}

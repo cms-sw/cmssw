@@ -1,5 +1,5 @@
-#ifndef RecFP420Test_H
-#define RecFP420Test_H
+#ifndef CluFP420Test_H
+#define CluFP420Test_H
 
 // system include files
 #include<vector>
@@ -25,9 +25,6 @@
 
 #include "RecoRomanPot/RecoFP420/interface/ClusterFP420.h"
 #include "RecoRomanPot/RecoFP420/interface/ClusterCollectionFP420.h"
-
-#include "RecoRomanPot/RecoFP420/interface/TrackFP420.h"
-#include "RecoRomanPot/RecoFP420/interface/TrackCollectionFP420.h"
 
 // ----------------------------------------------------------------
 
@@ -73,11 +70,11 @@
 #include <TObjString.h>
 #include <TNamed.h>
 
-class Fp420AnalysisHistManager : public TNamed {
+class Fp420AnalysisHistManagerC: public TNamed {
         public:
 
-                Fp420AnalysisHistManager(TString managername);
-                ~Fp420AnalysisHistManager();
+                Fp420AnalysisHistManagerC(TString managername);
+                ~Fp420AnalysisHistManagerC();
 
                 TH1F* GetHisto(Int_t Number);
                 TH1F* GetHisto(const TObjString histname);
@@ -111,10 +108,6 @@ class ClusterFP420;
 class ClusterizerFP420;
 class ClusterCollectionFP420;
 
-class TrackFP420;
-class TrackerizerFP420;
-class TrackCollectionFP420;
-
 class BeginOfRun;
 class EndOfRun;
 class BeginOfEvent;
@@ -124,7 +117,7 @@ class EndOfTrack;
 class G4Step;
 
 
-class RecFP420Test : public SimWatcher,
+class CluFP420Test : public SimWatcher,
   public Observer<const BeginOfJob *>, 
   public Observer<const BeginOfRun *>,
   public Observer<const EndOfRun *>,
@@ -135,8 +128,8 @@ class RecFP420Test : public SimWatcher,
   public Observer<const EndOfEvent *>
 {
 public:
-  RecFP420Test(const edm::ParameterSet &conf);
-  virtual ~RecFP420Test();
+  CluFP420Test(const edm::ParameterSet &conf);
+  virtual ~CluFP420Test();
 private:
 
   // observer classes
@@ -161,15 +154,11 @@ private:
   ClusterizerFP420* theClusterizerFP420;
   ClusterCollectionFP420 soutput;
 
-  TrackerizerFP420* theTrackerizerFP420;
-  TrackCollectionFP420 toutput;
 
   std::vector<HDigiFP420> collector;
   std::vector<ClusterFP420> scollector;
-  std::vector<TrackFP420> tcollector;
 
   ClusterCollectionFP420* theClusterCollectionFP420;
-  TrackCollectionFP420* theTrackCollectionFP420;
 
   int iev;
   int itrk;
@@ -227,7 +216,7 @@ private:
   TFile fp420OutputFile;
   int whichevent;
 
-  Fp420AnalysisHistManager* TheHistManager;  //Histogram Manager of the analysis
+  Fp420AnalysisHistManagerC* TheHistManager;  //Histogram Manager of the analysis
   std::string fDataLabel;             // Data type label
   std::string fOutputFile;            // The output file name
   std::string fRecreateFile;          // Recreate the file flag, default="RECREATE"

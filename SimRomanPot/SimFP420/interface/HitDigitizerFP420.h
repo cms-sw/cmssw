@@ -42,7 +42,7 @@ class HitDigitizerFP420{
   //IChargeFP420* getInduceChargeOnElectrods(){return theIChargeFP420;}
   
   //  hit_map_type processHit(const FP420G4Hit&, G4ThreeVector, int, int, double);
-  hit_map_type processHit(const FP420G4Hit&, G4ThreeVector, int, int, double, double);
+  hit_map_type processHit(const FP420G4Hit&, G4ThreeVector, int, int, double, int, double, double);
   
  private:
   CDividerFP420* theCDividerFP420;

@@ -16,7 +16,7 @@
 
 #include "SimRomanPot/SimFP420/interface/DigiCollectionFP420.h"
 
-#include "SimRomanPot/SimFP420/interface/ClusterFP420.h"
+#include "RecoRomanPot/RecoFP420/interface/ClusterFP420.h"
 #include "RecoRomanPot/RecoFP420/interface/ClusterCollectionFP420.h"
 
 #include<vector>

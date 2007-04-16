@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////////
-// File: RecFP420Test
+// File: CluFP420Test
 // Date: 02.2007
-// Description: RecFP420Test for FP420
+// Description: CluFP420Test for FP420
 // Modifications: std::  added wrt OSCAR code 
 ///////////////////////////////////////////////////////////////////////////////
 // system include files
@@ -21,21 +21,18 @@
 #include "SimG4CMS/FP420/interface/FP420NumberingScheme.h"
 #include "SimG4CMS/FP420/interface/FP420G4HitCollection.h"
 #include "SimG4CMS/FP420/interface/FP420G4Hit.h"
-#include "RecoRomanPot/RecoFP420/interface/RecFP420Test.h"
+#include "RecoRomanPot/RecoFP420/interface/CluFP420Test.h"
+
+#include "RecoRomanPot/RecoFP420/interface/ClusterFP420.h"
+#include "RecoRomanPot/RecoFP420/interface/ClusterizerFP420.h"
+#include "RecoRomanPot/RecoFP420/interface/ClusterCollectionFP420.h"
 
 
 #include "SimRomanPot/SimFP420/interface/HDigiFP420.h"
 #include "SimRomanPot/SimFP420/interface/DigitizerFP420.h"
 #include "SimRomanPot/SimFP420/interface/DigiCollectionFP420.h"
 
-#include "RecoRomanPot/RecoFP420/interface/ClusterFP420.h"
-#include "RecoRomanPot/RecoFP420/interface/ClusterizerFP420.h"
-#include "RecoRomanPot/RecoFP420/interface/ClusterCollectionFP420.h"
-
-#include "RecoRomanPot/RecoFP420/interface/TrackFP420.h"
-#include "RecoRomanPot/RecoFP420/interface/TrackerizerFP420.h"
-#include "RecoRomanPot/RecoFP420/interface/TrackCollectionFP420.h"
-
+//#include "SimRomanPot/SimFP420/interface/ClusterFP420.h"
 // G4 stuff
 #include "G4SDManager.hh"
 #include "G4Step.hh"
@@ -61,8 +58,7 @@ using namespace edm;
 using namespace std;
 ///////////////////////////////////////////////////////////////////////////////
 
-//#define ddebugprim0
-//#define ddebugprim
+//#define mydigidebug10
 //================================================================
 
 
@@ -74,9 +70,9 @@ enum ntfp420_elements {
 
 
 //================================================================
-RecFP420Test::RecFP420Test(const edm::ParameterSet & conf):conf_(conf),theDigitizerFP420(new DigitizerFP420(conf)){
+CluFP420Test::CluFP420Test(const edm::ParameterSet & conf):conf_(conf),theDigitizerFP420(new DigitizerFP420(conf)){
   //constructor
-  edm::ParameterSet m_Anal = conf.getParameter<edm::ParameterSet>("RecFP420Test");
+  edm::ParameterSet m_Anal = conf.getParameter<edm::ParameterSet>("CluFP420Test");
     verbosity    = m_Anal.getParameter<int>("Verbosity");
   //verbosity    = 1;
 
@@ -94,7 +90,7 @@ RecFP420Test::RecFP420Test(const edm::ParameterSet & conf):conf_(conf),theDigiti
    
   if (verbosity > 0) {
    std::cout<<"============================================================================"<<std::endl;
-   std::cout << "RecFP420Test constructor :: Initialized as observer"<< std::endl;
+   std::cout << "CluFP420Test constructor :: Initialized as observer"<< std::endl;
   }
 	
 
@@ -118,8 +114,8 @@ RecFP420Test::RecFP420Test(const edm::ParameterSet & conf):conf_(conf),theDigiti
   //==================================
   if (verbosity > 0) {
    std::cout<<"============================================================================"<<std::endl;
-   // std::cout << "RecFP420Test constructor :: Initialized as observer zUnit=" << zUnit << std::endl;
-   std::cout << "RecFP420Test constructor :: Initialized as observer zD2=" << zD2 << std::endl;
+   // std::cout << "CluFP420Test constructor :: Initialized as observer zUnit=" << zUnit << std::endl;
+   std::cout << "CluFP420Test constructor :: Initialized as observer zD2=" << zD2 << std::endl;
    std::cout << " zD3=" << zD3 << std::endl;
    std::cout << " z1=" << z1 << " z2=" << z2 << " z3=" << z3 << " z4=" << z4 << std::endl;
   }
@@ -134,11 +130,11 @@ RecFP420Test::RecFP420Test(const edm::ParameterSet & conf):conf_(conf),theDigiti
   //       fOutputFile     = "TheAnlysis.root";
   //       fRecreateFile   = "RECREATE";
 
-        TheHistManager = new Fp420AnalysisHistManager(fDataLabel);
+        TheHistManager = new Fp420AnalysisHistManagerC(fDataLabel);
 
   //==================================
   if (verbosity > 0) {
-   std::cout << "RecFP420Test constructor :: Initialized Fp420AnalysisHistManager"<< std::endl;
+   std::cout << "CluFP420Test constructor :: Initialized Fp420AnalysisHistManagerC"<< std::endl;
   }
   //==================================
   //sn0 = 4;// related to  number of station: sn0=3 mean 2 Stations
@@ -212,21 +208,19 @@ RecFP420Test::RecFP420Test(const edm::ParameterSet & conf):conf_(conf),theDigiti
 
 	theFP420NumberingScheme = new FP420NumberingScheme();
 	theClusterizerFP420 = new ClusterizerFP420(conf_);
-	theTrackerizerFP420 = new TrackerizerFP420(conf_);
 //
 }
 
 
 
-RecFP420Test::~RecFP420Test() {
+CluFP420Test::~CluFP420Test() {
   //  delete UserNtuples;
   delete theFP420NumberingScheme;
   delete theDigitizerFP420;
   delete theClusterizerFP420;
-  delete theTrackerizerFP420;
 
   TFile fp420OutputFile("newntfp420.root","RECREATE");
-  std::cout << "RecFP420Test output root file has been created";
+  std::cout << "CluFP420Test output root file has been created";
   fp420eventntuple->Write();
   std::cout << ", written";
   fp420OutputFile.Close();
@@ -240,11 +234,11 @@ RecFP420Test::~RecFP420Test() {
         TheHistManager->WriteToFile(fOutputFile,fRecreateFile);
 
   if (verbosity > 0) {
-    std::cout << std::endl << "RecFP420Test Destructor  -------->  End of RecFP420Test : "
+    std::cout << std::endl << "CluFP420Test Destructor  -------->  End of CluFP420Test : "
       << std::cout << std::endl; 
   }
 
-  std::cout<<"RecFP420Test: End of process"<<std::endl;
+  std::cout<<"CluFP420Test: End of process"<<std::endl;
 
 }
 
@@ -254,7 +248,7 @@ RecFP420Test::~RecFP420Test() {
 // Histoes:
 //-----------------------------------------------------------------------------
 
-Fp420AnalysisHistManager::Fp420AnalysisHistManager(TString managername)
+Fp420AnalysisHistManagerC::Fp420AnalysisHistManagerC(TString managername)
 {
         // The Constructor
 
@@ -272,7 +266,7 @@ Fp420AnalysisHistManager::Fp420AnalysisHistManager(TString managername)
 }
 //-----------------------------------------------------------------------------
 
-Fp420AnalysisHistManager::~Fp420AnalysisHistManager()
+Fp420AnalysisHistManagerC::~Fp420AnalysisHistManagerC()
 {
         // The Destructor
 
@@ -288,7 +282,7 @@ Fp420AnalysisHistManager::~Fp420AnalysisHistManager()
 }
 //-----------------------------------------------------------------------------
 
-void Fp420AnalysisHistManager::BookHistos()
+void Fp420AnalysisHistManagerC::BookHistos()
 {
         // Book the histograms and add them to the array
 
@@ -397,13 +391,13 @@ void Fp420AnalysisHistManager::BookHistos()
     HistInit("2DZSimHitNumbCl","2D ZSimHit NumbCl",100, 419000.,429000.,10, 0.,10.);
     // X:
     //
-    HistInit("clnum1X", "Number Of Clusters in X 1Station",    51,   0.,   51.);
-    HistInit("clnum2X", "Number Of Clusters in X 2Station",    51,   0.,   51.);
-    HistInit("clnum3X", "Number Of Clusters in X 3Station",    51,   0.,   51.);
-    HistInit("clnum4X", "Number Of Clusters in X 4Station",    51,   0.,   51.);
-    HistInit("clnum0X", "Number Of Clusters in X all together",51,   0.,   51.);
-    HistInit("clnum1Xinside", "Number Of Clusters in X inside1",51,   0.,   51.);
-    HistInit("clnum2Xinside", "Number Of Clusters in X inside2",51,   0.,   51.);
+    HistInit("clnum1X", "Number Of Clusters in X 1Station",    11,   0.,   11.);
+    HistInit("clnum2X", "Number Of Clusters in X 2Station",    11,   0.,   11.);
+    HistInit("clnum3X", "Number Of Clusters in X 3Station",    11,   0.,   11.);
+    HistInit("clnum4X", "Number Of Clusters in X 4Station",    11,   0.,   11.);
+    HistInit("clnum0X", "Number Of Clusters in X all together",41,   0.,   41.);
+    HistInit("clnum1Xinside", "Number Of Clusters in X inside1",41,   0.,   41.);
+    HistInit("clnum2Xinside", "Number Of Clusters in X inside2",41,   0.,   41.);
     HistInit("Xstrip_deltaxx", "Xstrip Dx",                        80,   -0.2,   0.2);
     HistInit("Xstrip_deltaxx_clsize1", "Xstrip deltaxx clsize=1",  80,   -0.2,   0.2);
     HistInit("Xstrip_deltaxxW_clsize1", "Xstrip deltaxxW clsize=1",  80,   -1.6,   1.6);
@@ -435,15 +429,15 @@ void Fp420AnalysisHistManager::BookHistos()
     HistInit("Ystrip_deltayyW_clsize1", "Ystrip deltayyW clsize=1",  80,   -1.6,   1.6);
     HistInit("YWClusterCog", "YWCluster Cog",    nyw,      0.,                     ynw );
     HistInit("YYW2DCluster","YYW2DCluster",      ny,      0.,yn,        nyw,   0.,ynw );
-    HistInit("YYW2DTrue","YYW 2D True",          50,      0.,10.,       100,   0.,20. );
-    HistInit("YYW2DReco","YYW 2D Reco",          50,      0.,10.,       100,   0.,20. );
+    HistInit("YYW2DTrue","YYW 2D True",         100,      0.,20.,        50,   0.,10. );
+    HistInit("YYW2DReco","YYW 2D Reco",         100,      0.,20.,        50,   0.,10. );
     HistInit("YDeltaStripW", "YDelta StripW",   100,                      -100.,100. );
 
-    HistInit("clnum1Y", "Number Of Clusters in Y 1Station",     51,   0.,   51.);
-    HistInit("clnum2Y", "Number Of Clusters in Y 2Station",     51,   0.,   51.);
-    HistInit("clnum3Y", "Number Of Clusters in Y 3Station",     51,   0.,   51.);
-    HistInit("clnum4Y", "Number Of Clusters in Y 4Station",     51,   0.,   51.);
-    HistInit("clnum0Y", "Number Of Clusters in Y all together", 51,   0.,   51.);
+    HistInit("clnum1Y", "Number Of Clusters in Y 1Station",     11,   0.,   11.);
+    HistInit("clnum2Y", "Number Of Clusters in Y 2Station",     11,   0.,   11.);
+    HistInit("clnum3Y", "Number Of Clusters in Y 3Station",     11,   0.,   11.);
+    HistInit("clnum4Y", "Number Of Clusters in Y 4Station",     11,   0.,   11.);
+    HistInit("clnum0Y", "Number Of Clusters in Y all together", 41,   0.,   41.);
     HistInit("Ystrip_deltayy", "Ystrip Dy",                       80, -0.2, 0.2);
     HistInit("Ystrip_deltayy_clsize1", "Ystrip deltayy clsize=1", 80, -0.2, 0.2);
     HistInit("Ystrip_deltayy_clsize2", "Ystrip deltayy clsize=2", 80, -0.2, 0.2);
@@ -481,15 +475,15 @@ void Fp420AnalysisHistManager::BookHistos()
     //X1
     HistInit("d1XinVtxTrack","d1X in Vtx for RecTrack",100, -0.5,0.5);
     HistInit("nhitplanes1X","number of hit planes in 1X",11, 0.,11.);
-    HistInit("chisq1X","chisq 1X",50, 0.,5.);
+    HistInit("chisq1X","chisq 1X",30, 0.,3.);
     //X2
-    HistInit("d2XinVtxTrack","d2X in Vtx for RecTrack",100, -0.2,0.2);
+    HistInit("d2XinVtxTrack","d2X in Vtx for RecTrack",100, -0.1,0.1);
     HistInit("nhitplanes2X","number of hit planes in 2X",31, 0.,31.);
-    HistInit("chisq2X","chisq 2X",50, 0.,5.);
+    HistInit("chisq2X","chisq 2X",30, 0.,3.);
     //X3
-    HistInit("d3XinVtxTrack","d3X in Vtx for RecTrack",100, -0.2,0.2);
-    HistInit("nhitplanes3X","number of hit planes in 3X",51, 0.,51.);
-    HistInit("chisq3X","chisq 3X",50, 0.,5.);
+    HistInit("d3XinVtxTrack","d3X in Vtx for RecTrack",100, -0.1,0.1);
+    HistInit("nhitplanes3X","number of hit planes in 3X",31, 0.,31.);
+    HistInit("chisq3X","chisq 3X",30, 0.,3.);
 
     //Y
     //  HistInit("dYinVtxTrack","dY in Vtx for RecTrack",100, -0.1,0.1);
@@ -498,15 +492,15 @@ void Fp420AnalysisHistManager::BookHistos()
     //Y1
     HistInit("d1YinVtxTrack","d1Y in Vtx for RecTrack",100, -0.5,0.5);
     HistInit("nhitplanes1Y","number of hit planes in 1Y",11, 0.,11.);
-    HistInit("chisq1Y","chisq 1Y",50, 0.,5.);
+    HistInit("chisq1Y","chisq 1Y",30, 0.,3.);
     //Y2
-    HistInit("d2YinVtxTrack","d2Y in Vtx for RecTrack",100, -0.2,0.2);
+    HistInit("d2YinVtxTrack","d2Y in Vtx for RecTrack",100, -0.1,0.1);
     HistInit("nhitplanes2Y","number of hit planes in 2Y",31, 0.,31.);
-    HistInit("chisq2Y","chisq 2Y",50, 0.,5.);
+    HistInit("chisq2Y","chisq 2Y",30, 0.,3.);
     //Y3
-    HistInit("d3YinVtxTrack","d3Y in Vtx for RecTrack",100, -0.2,0.2);
-    HistInit("nhitplanes3Y","number of hit planes in 3Y",51, 0.,51.);
-    HistInit("chisq3Y","chisq 3Y",50, 0.,5.);
+    HistInit("d3YinVtxTrack","d3Y in Vtx for RecTrack",100, -0.1,0.1);
+    HistInit("nhitplanes3Y","number of hit planes in 3Y",31, 0.,31.);
+    HistInit("chisq3Y","chisq 3Y",30, 0.,3.);
 
 
     // dTheta:(mkrad)
@@ -535,10 +529,10 @@ void Fp420AnalysisHistManager::BookHistos()
     // dThetaX, dThetaY (mkrad):
    // HistInit("dthetax", "dthetax", 100, -20.,20.);
    // HistInit("dthetay", "dthetay", 100, -20.,20.);
-    HistInit("dthetax2", "dthetax2", 100, -25.,25.);
-    HistInit("dthetay2", "dthetay2", 100, -25.,25.);
-    HistInit("dthetax3", "dthetax3", 100, -25.,25.);
-    HistInit("dthetay3", "dthetay3", 100, -25.,25.);
+    HistInit("dthetax2", "dthetax2", 100, -20.,20.);
+    HistInit("dthetay2", "dthetay2", 100, -20.,20.);
+    HistInit("dthetax3", "dthetax3", 100, -20.,20.);
+    HistInit("dthetay3", "dthetay3", 100, -20.,20.);
 
     HistInit("R2DTXTXres","2D TX vs TXres",      8, 0.0,0.4, 100, -4.,4.);
     HistInit("R2DCHI2TXres","2D CHI2 vs TXres", 20, 0.6,3.0, 100, -10.,10.);
@@ -558,18 +552,18 @@ void Fp420AnalysisHistManager::BookHistos()
     // dPhi:(mkrad)
     HistInit("dphitrack","dphitrack",  100, -100.,100.);
     // dThetaX, dThetaY (mkrad):
-    HistInit("dthetax", "dthetax", 100, -25.,25.);
-    HistInit("dthetay", "dthetay", 100, -25.,25.);
+    HistInit("dthetax", "dthetax", 100, -20.,20.);
+    HistInit("dthetay", "dthetay", 100, -20.,20.);
     // dTheta:(mkrad)
-    HistInit("dthtrack", "dthtrack", 100, -25.,25.);
+    HistInit("dthtrack", "dthtrack", 100, -20.,20.);
     //X
-    HistInit("dXinVtxTrack","dX in Vtx for RecTrack",100, -0.2,0.2);
-    HistInit("nhitplanesX","number of hit planes in X",51, 0.,51.);
-    HistInit("chisqX","chisq X",50, 0.,5.);
+    HistInit("dXinVtxTrack","dX in Vtx for RecTrack",100, -0.1,0.1);
+    HistInit("nhitplanesX","number of hit planes in X",31, 0.,31.);
+    HistInit("chisqX","chisq X",30, 0.,3.);
     //Y
-    HistInit("dYinVtxTrack","dY in Vtx for RecTrack",100, -0.2,0.2);
-    HistInit("nhitplanesY","number of hit planes in Y",51, 0.,51.);
-    HistInit("chisqY","chisq Y",50, 0.,5.);
+    HistInit("dYinVtxTrack","dY in Vtx for RecTrack",100, -0.1,0.1);
+    HistInit("nhitplanesY","number of hit planes in Y",25, 0.,25.);
+    HistInit("chisqY","chisq Y",30, 0.,3.);
 
 // test with track collection
     HistInit("tocollection", "tocollection",  60, -0.2,0.2);
@@ -600,47 +594,39 @@ void Fp420AnalysisHistManager::BookHistos()
     HistInit("efftrackdref124", "efftrackdref124",  20,  0.,20.0);
     HistInit("efftrackdref12", "efftrackdref12",    20,  0.,20.0);
 
-    HistInit("effnhitplanesX4", "effnhitplanesX4", 51, 0.,51.);
-    HistInit("effnhitplanesX" , "effnhitplanesX",  51, 0.,51.);
-    HistInit("effnhitplanes2X4","effnhitplanes2X4",51, 0.,51.);
-    HistInit("effnhitplanes2X" ,"effnhitplanes2X", 51, 0.,51.);
-    HistInit("effnhitplanes3X4","effnhitplanes3X4",51, 0.,51.);
-    HistInit("effnhitplanes3X" ,"effnhitplanes3X", 51, 0.,51.);
+    HistInit("effnhitplanesX4", "effnhitplanesX4", 25, 0.,25.);
+    HistInit("effnhitplanesX" , "effnhitplanesX",  25, 0.,25.);
+    HistInit("effnhitplanes2X4","effnhitplanes2X4",25, 0.,25.);
+    HistInit("effnhitplanes2X" ,"effnhitplanes2X", 25, 0.,25.);
+    HistInit("effnhitplanes3X4","effnhitplanes3X4",25, 0.,25.);
+    HistInit("effnhitplanes3X" ,"effnhitplanes3X", 25, 0.,25.);
 
-    HistInit("clnumX2Ttacks1Sec4" ,"clnumX2Ttacks1Sec4", 18, 2.,20.);
-    HistInit("clnumX2Ttacks2Sec4" ,"clnumX2Ttacks2Sec4", 18, 2.,20.);
-    HistInit("clnumX2Ttacks3Sec4" ,"clnumX2Ttacks3Sec4", 18, 2.,20.);
-    HistInit("clnumX2Ttacks1Sec"  ,"clnumX2Ttacks1Sec",  18, 2.,20.);
-    HistInit("clnumX2Ttacks2Sec"  ,"clnumX2Ttacks2Sec",  18, 2.,20.);
-    HistInit("clnumX2Ttacks3Sec"  ,"clnumX2Ttacks3Sec",  18, 2.,20.);
+    HistInit("clnumX2Ttacks1Sec4" ,"clnumX2Ttacks1Sec4",  8, 2.,10.);
+    HistInit("clnumX2Ttacks2Sec4" ,"clnumX2Ttacks2Sec4",  8, 2.,10.);
+    HistInit("clnumX2Ttacks3Sec4" ,"clnumX2Ttacks3Sec4",  8, 2.,10.);
+    HistInit("clnumX2Ttacks1Sec"  ,"clnumX2Ttacks1Sec",   8, 2.,10.);
+    HistInit("clnumX2Ttacks2Sec"  ,"clnumX2Ttacks2Sec",   8, 2.,10.);
+    HistInit("clnumX2Ttacks3Sec"  ,"clnumX2Ttacks3Sec",   8, 2.,10.);
 
     HistInit("losthitsX2Dnhit" ,"losthitsX2Dnhit", 20, 5.,25.);
     HistInit("losthitsX2D" ,    "losthitsX2D",     20, 5.,25.);
 
-    HistInit("losthitsX3Dnhit" ,"losthitsX3Dnhit", 51, 0.,51.);
-    HistInit("losthitsX3D" ,    "losthitsX3D",     51, 0.,51.);
+    HistInit("losthitsX3Dnhit" ,"losthitsX3Dnhit", 31, 0.,31.);
+    HistInit("losthitsX3D" ,    "losthitsX3D",     31, 0.,31.);
 
-    HistInit("Txref", "Txref",    50,  0.,-50.0);
-    HistInit("Txref2", "Txref2",  50,  0.,-50.0);
-    HistInit("Tdref12", "Tdref12",    40,  0.,20.0);
-    HistInit("Tdrefy12", "Tdrefy12",  20,  0.,10.0);
-    HistInit("Tyref", "Tyref",    50,  0.,-50.0);
-    HistInit("Tyref2", "Tyref2",  50,  0.,-50.0);
-    HistInit("TthetaXmrad", "TthetaXmrad",  50,  0.,0.50);
-
-    HistInit("dref12", "dref12",    40,  0.,20.0);
+    HistInit("dref12", "dref12",  40,  0.,20.0);
     HistInit("drefy12", "drefy12",  20,  0.,10.0);
-    HistInit("xref", "xref",    50,  0.,-50.0);
+    HistInit("xref", "xref",  50,  0.,-50.0);
     HistInit("xref2", "xref2",  50,  0.,-50.0);
-    HistInit("mintheta", "mintheta",      100, -25.,25.);
-    HistInit("mintheta2", "mintheta2",    100, -25.,25.);
-    HistInit("minthetay", "minthetay",    100, -25.,25.);
-    HistInit("minthetay2", "minthetay2",  100, -25.,25.);
-    HistInit("ccchindfx", "ccchindfx",    30, 0.,3.);
+    HistInit("mintheta", "mintheta",  100, -20.,20.);
+    HistInit("mintheta2", "mintheta2",  100, -20.,20.);
+    HistInit("minthetay", "minthetay",  100, -20.,20.);
+    HistInit("minthetay2", "minthetay2",  100, -20.,20.);
+    HistInit("ccchindfx", "ccchindfx",  30, 0.,3.);
     HistInit("ccchindfx2", "ccchindfx2",  30, 0.,3.);
-    HistInit("yref", "yref",    50,  0.,-50.0);
+    HistInit("yref", "yref",  50,  0.,-50.0);
     HistInit("yref2", "yref2",  50,  0.,-50.0);
-    HistInit("thetaXmrad", "thetaXmrad",    50,  0.,0.50);
+    HistInit("thetaXmrad", "thetaXmrad",  50,  0.,0.50);
     HistInit("thetaX2mrad", "thetaX2mrad",  40,  0.,0.40);
 
     HistInit("xxxxxx", "xxxxxx",      90,  -1.,  1.0);
@@ -664,11 +650,11 @@ void Fp420AnalysisHistManager::BookHistos()
     HistInit("dthdifno", "dthdifno",    75,  0.,0.25);
 
 
-    HistInit("mindthtrack", "mindthtrack",   100,  -25.,25.);
+    HistInit("mindthtrack", "mindthtrack",  100, -20.,20.);
     HistInit("mindphitrack","mindphitrack",  100, -100.,100.);
-    HistInit("minthtrue", "minthtrue",    50,  0.,0.50);
-    HistInit("minthreal", "minthreal",    50,  0.,0.50);
-    HistInit("mindthtrack2", "mindthtrack2",   100,  -25.,25.);
+    HistInit("minthtrue", "minthtrue",  50,  0.,0.50);
+    HistInit("minthreal", "minthreal",  50,  0.,0.50);
+    HistInit("mindthtrack2", "mindthtrack2",  100, -20.,20.);
     HistInit("mindphitrack2","mindphitrack2",  100, -100.,100.);
     HistInit("minthtrue2", "minthtrue2",  50,  0.,0.50);
     HistInit("minthreal2", "minthreal2",  50,  0.,0.50);
@@ -688,12 +674,11 @@ void Fp420AnalysisHistManager::BookHistos()
     HistInit("2DXY420Tr", "2DXY420Tr",100, -25.,5.,100, -5.,5.);
 //
 //
-//
 }
 
 //-----------------------------------------------------------------------------
 
-void Fp420AnalysisHistManager::WriteToFile(TString fOutputFile,TString fRecreateFile)
+void Fp420AnalysisHistManagerC::WriteToFile(TString fOutputFile,TString fRecreateFile)
 {
 
         //Write to file = fOutputFile
@@ -709,7 +694,7 @@ void Fp420AnalysisHistManager::WriteToFile(TString fOutputFile,TString fRecreate
 }
 //-----------------------------------------------------------------------------
 
-void Fp420AnalysisHistManager::HistInit(const char* name, const char* title, Int_t nbinsx, Axis_t xlow, Axis_t xup)
+void Fp420AnalysisHistManagerC::HistInit(const char* name, const char* title, Int_t nbinsx, Axis_t xlow, Axis_t xup)
 {
         // Add histograms and histograms names to the array
 
@@ -724,7 +709,7 @@ void Fp420AnalysisHistManager::HistInit(const char* name, const char* title, Int
 }
 //-----------------------------------------------------------------------------
 
-void Fp420AnalysisHistManager::HistInit(const char* name, const char* title, Int_t nbinsx, Axis_t xlow, Axis_t xup, Int_t nbinsy, Axis_t ylow, Axis_t yup)
+void Fp420AnalysisHistManagerC::HistInit(const char* name, const char* title, Int_t nbinsx, Axis_t xlow, Axis_t xup, Int_t nbinsy, Axis_t ylow, Axis_t yup)
 {
         // Add histograms and histograms names to the array
 
@@ -739,7 +724,7 @@ void Fp420AnalysisHistManager::HistInit(const char* name, const char* title, Int
 }
 //-----------------------------------------------------------------------------
 
-TH1F* Fp420AnalysisHistManager::GetHisto(Int_t Number)
+TH1F* Fp420AnalysisHistManagerC::GetHisto(Int_t Number)
 {
         // Get a histogram from the array with index = Number
 
@@ -758,7 +743,7 @@ TH1F* Fp420AnalysisHistManager::GetHisto(Int_t Number)
 }
 //-----------------------------------------------------------------------------
 
-TH2F* Fp420AnalysisHistManager::GetHisto2(Int_t Number)
+TH2F* Fp420AnalysisHistManagerC::GetHisto2(Int_t Number)
 {
         // Get a histogram from the array with index = Number
 
@@ -777,7 +762,7 @@ TH2F* Fp420AnalysisHistManager::GetHisto2(Int_t Number)
 }
 //-----------------------------------------------------------------------------
 
-TH1F* Fp420AnalysisHistManager::GetHisto(const TObjString histname)
+TH1F* Fp420AnalysisHistManagerC::GetHisto(const TObjString histname)
 {
         // Get a histogram from the array with name = histname
 
@@ -786,7 +771,7 @@ TH1F* Fp420AnalysisHistManager::GetHisto(const TObjString histname)
 }
 //-----------------------------------------------------------------------------
 
-TH2F* Fp420AnalysisHistManager::GetHisto2(const TObjString histname)
+TH2F* Fp420AnalysisHistManagerC::GetHisto2(const TObjString histname)
 {
         // Get a histogram from the array with name = histname
 
@@ -795,7 +780,7 @@ TH2F* Fp420AnalysisHistManager::GetHisto2(const TObjString histname)
 }
 //-----------------------------------------------------------------------------
 
-void Fp420AnalysisHistManager::StoreWeights()
+void Fp420AnalysisHistManagerC::StoreWeights()
 {
         // Add structure to each histogram to store the weights
 
@@ -808,29 +793,29 @@ void Fp420AnalysisHistManager::StoreWeights()
 
 
 //==================================================================== per JOB
-void RecFP420Test::update(const BeginOfJob * job) {
+void CluFP420Test::update(const BeginOfJob * job) {
   //job
-  std::cout<<"RecFP420Test:beggining of job"<<std::endl;;
+  std::cout<<"CluFP420Test:beggining of job"<<std::endl;;
 }
 
 
 //==================================================================== per RUN
-void RecFP420Test::update(const BeginOfRun * run) {
+void CluFP420Test::update(const BeginOfRun * run) {
   //run
 
- std::cout << std::endl << "RecFP420Test:: Begining of Run"<< std::endl; 
+ std::cout << std::endl << "CluFP420Test:: Begining of Run"<< std::endl; 
 }
 
 
-void RecFP420Test::update(const EndOfRun * run) {;}
+void CluFP420Test::update(const EndOfRun * run) {;}
 
 
 
 //=================================================================== per EVENT
-void RecFP420Test::update(const BeginOfEvent * evt) {
+void CluFP420Test::update(const BeginOfEvent * evt) {
   iev = (*evt)()->GetEventID();
 #ifdef ddebugprim
-    std::cout <<"RecFP420Test:: ==============Event number = " << iev << std::endl;
+    std::cout <<"CluFP420Test:: ==============Event number = " << iev << std::endl;
 #endif
   whichevent++;
 
@@ -839,11 +824,11 @@ void RecFP420Test::update(const BeginOfEvent * evt) {
 }
 
 //=================================================================== per Track
-void RecFP420Test::update(const BeginOfTrack * trk) {
+void CluFP420Test::update(const BeginOfTrack * trk) {
   itrk = (*trk)()->GetTrackID();
   G4ThreeVector   track_mom  = (*trk)()->GetMomentum();
 #ifdef ddebugprim
-//    std::cout <<" RecFP420Test::=======BeginOfTrack number = " << itrk << std::endl;
+//    std::cout <<" CluFP420Test::=======BeginOfTrack number = " << itrk << std::endl;
 #endif
 //  if(itrk == 1) {
   if(track_mom.z() > 100000.) {
@@ -857,7 +842,7 @@ void RecFP420Test::update(const BeginOfTrack * trk) {
 
 
 //=================================================================== per EndOfTrack
-void RecFP420Test::update(const EndOfTrack * trk) {
+void CluFP420Test::update(const EndOfTrack * trk) {
   itrk = (*trk)()->GetTrackID();
   
   G4ThreeVector   track_mom  = (*trk)()->GetMomentum();
@@ -949,14 +934,14 @@ void RecFP420Test::update(const EndOfTrack * trk) {
 // =====================================================================================================
 
 //=================================================================== each STEP
-void RecFP420Test::update(const G4Step * aStep) {
+void CluFP420Test::update(const G4Step * aStep) {
 // ==========================================================================
   
   // track on aStep:                                                                                         !
   G4Track*     theTrack     = aStep->GetTrack();   
   TrackInformation* trkInfo = dynamic_cast<TrackInformation*> (theTrack->GetUserInformation());
    if (trkInfo == 0) {
-     std::cout << "RecFP420Test on aStep: No trk info !!!! abort " << std::endl;
+     std::cout << "CluFP420Test on aStep: No trk info !!!! abort " << std::endl;
    } 
   G4int         id             = theTrack->GetTrackID();
   G4String       particleType   = theTrack->GetDefinition()->GetParticleName();   //   !!!
@@ -980,7 +965,7 @@ void RecFP420Test::update(const G4Step * aStep) {
 #ifdef ddebug
      std::cout << " ====================================================================" << std::endl;
      std::cout << " ==========================================111111" << std::endl;
-     std::cout << "RecFP420Test on aStep: Entered for track ID=" << id 
+     std::cout << "CluFP420Test on aStep: Entered for track ID=" << id 
           << " ID Name= " << particleType
           << " at stepNumber= " << curstepnumber 
           << " ID onCaloSur..= " << trkInfo->getIDonCaloSurface()
@@ -1079,7 +1064,7 @@ const G4VTouchable*  pre_touch    = preStepPoint->GetTouchable();
 }
 // ==========================================================================
 // ==========================================================================
-int RecFP420Test::detLevels(const G4VTouchable* touch) const {
+int CluFP420Test::detLevels(const G4VTouchable* touch) const {
 
   //Return number of levels
   if (touch) 
@@ -1089,7 +1074,7 @@ int RecFP420Test::detLevels(const G4VTouchable* touch) const {
 }
 // ==========================================================================
 
-G4String RecFP420Test::detName(const G4VTouchable* touch, int level,
+G4String CluFP420Test::detName(const G4VTouchable* touch, int level,
                                     int currentlevel) const {
 
   //Go down to current level
@@ -1101,7 +1086,7 @@ G4String RecFP420Test::detName(const G4VTouchable* touch, int level,
   }
 }
 
-void RecFP420Test::detectorLevel(const G4VTouchable* touch, int& level,
+void CluFP420Test::detectorLevel(const G4VTouchable* touch, int& level,
                                       int* copyno, G4String* name) const {
 
   //Get name and copy numbers
@@ -1120,7 +1105,7 @@ void RecFP420Test::detectorLevel(const G4VTouchable* touch, int& level,
 // ==========================================================================
 
 //===================================================================   End Of Event
-void RecFP420Test::update(const EndOfEvent * evt) {
+void CluFP420Test::update(const EndOfEvent * evt) {
   // ==========================================================================
   
   // Fill-in ntuple
@@ -1134,15 +1119,15 @@ void RecFP420Test::update(const EndOfEvent * evt) {
   
   
 #ifdef ddebugprim
-      std::cout << " -------------------------------------------------------------" << std::endl;
-      std::cout << " -------------------------------------------------------------" << std::endl;
-      std::cout << " -------------------------------------------------------------" << std::endl;
+  std::cout << " -------------------------------------------------------------" << std::endl;
+  std::cout << " -------------------------------------------------------------" << std::endl;
+  std::cout << " -------------------------------------------------------------" << std::endl;
 #endif
   // prim.vertex:
   G4int nvertex = (*evt)()->GetNumberOfPrimaryVertex();
   
 #ifdef ddebugprim
-  if (nvertex !=1) std::cout << "RecFP420Test:NumberOfPrimaryVertex != 1 --> = " << nvertex<<std::endl;
+  if (nvertex !=1) std::cout << "CluFP420Test:NumberOfPrimaryVertex != 1 --> = " << nvertex<<std::endl;
   std::cout << "NumberOfPrimaryVertex:" << nvertex << std::endl;
 #endif
   int varia= 0,varia2= 0,varia3= 0;   // = 0 -all; =1 - MI; =2 - noMI
@@ -1158,34 +1143,30 @@ void RecFP420Test::update(const EndOfEvent * evt) {
 #ifdef ddebugprim
   std::cout << "zmilimit= :" << zmilimit << std::endl;
 #endif
-// ==========================================================================================loop over vertexies
+  // ==========================================================================================loop over vertexies
   double zref=-100., xref=-100., yref=-100., bxtrue=-100., bytrue=-100.,dref12=-100.,drefy12=-100.;
-    //ref = z1+8000.;     // info: center of 1st station at 0.
+  //ref = z1+8000.;     // info: center of 1st station at 0.
   double       xref2=-100., yref2=-100., bxtrue2=-100., bytrue2=-100.;
   double       xref3=-100., yref3=-100., bxtrue3=-100., bytrue3=-100.;
   double ZZZ420=-999999;
-  double zbegin = 420000. - ZZZ420 ;
-  double zfinis = 428000. - ZZZ420 ;
-  double  zref1 =    8000. ;     // zref1 is z of measurement base of the detector
   for (int iv = 0 ; iv<nvertex; ++iv) {
     G4PrimaryVertex* avertex = (*evt)()->GetPrimaryVertex(iv);
-    if (avertex == 0) std::cout<<"RecFP420Test:End Of Event ERR: pointer to vertex = 0"<< std::endl;
+    if (avertex == 0) std::cout<<"CluFP420Test:End Of Event ERR: pointer to vertex = 0"<< std::endl;
     G4int npart = avertex->GetNumberOfParticle();
     TheHistManager->GetHisto("ZZZall")->Fill(avertex->GetZ0());
-
-    //    if(avertex->GetZ0() < 400000.){
-    if(avertex->GetZ0() < 50000.){
+    
+    if(avertex->GetZ0() < 400000.){
       // temporary:
-     // if(npart==1) {
-//	G4ThreeVector   mom  = avertex->GetPrimary(0)->GetMomentum();
-//	if(mom.z()<-100000.){
-//	  eta0 = -log(tan(mom.theta()/2));
-//	  eta0 = -eta0;
-//	  xi0 = 1.-mom.mag()/7000000.;
-//	}
-     // }
+      // if(npart==1) {
+      //	G4ThreeVector   mom  = avertex->GetPrimary(0)->GetMomentum();
+      //	if(mom.z()<-100000.){
+      //	  eta0 = -log(tan(mom.theta()/2));
+      //	  eta0 = -eta0;
+      //	  xi0 = 1.-mom.mag()/7000000.;
+      //	}
+      // }
     }
-// =======================================================over ZZZ420 vertexies
+    // =======================================================over ZZZ420 vertexies
     else{
 #ifdef ddebugprim
       std::cout << "Vertex number :" <<iv << std::endl;
@@ -1194,237 +1175,223 @@ void RecFP420Test::update(const EndOfEvent * evt) {
       std::cout << "Vertex Y= :" <<(*evt)()->GetPrimaryVertex(iv)->GetY0() << std::endl;
       
 #endif
-    TheHistManager->GetHisto("ZZZ420")->Fill(ZZZ420);
-    XXX420 = avertex->GetX0();
-    YYY420 = avertex->GetY0();
-    ZZZ420 = avertex->GetZ0();
-    zbegin = z420 - ZZZ420;
-    zfinis = (z420+zref1) - ZZZ420;
-// info: center of 1st station is at  0.
-    zref =    zref1 + z420 - ZZZ420;     // zref is z from the vertex of Primary
-    TheHistManager->GetHisto("XXX420")->Fill(XXX420);
-    TheHistManager->GetHisto("YYY420")->Fill(YYY420);
-    TheHistManager->GetHisto2("2DXY420")->Fill(XXX420,YYY420);
-    TheHistManager->GetHisto("npart420")->Fill(float(npart));
-    if(npart !=1)std::cout << "RecFP420Test::warning: NumberOfPrimaryPart != 1--> = " <<npart<<std::endl;
+      TheHistManager->GetHisto("ZZZ420")->Fill(ZZZ420);
+      XXX420 = avertex->GetX0();
+      YYY420 = avertex->GetY0();
+      ZZZ420 = avertex->GetZ0();
+      zref =    8000. + z420 - ZZZ420;     // info: center of 1st station at 0.
+      TheHistManager->GetHisto("XXX420")->Fill(XXX420);
+      TheHistManager->GetHisto("YYY420")->Fill(YYY420);
+      TheHistManager->GetHisto2("2DXY420")->Fill(XXX420,YYY420);
+      TheHistManager->GetHisto("npart420")->Fill(float(npart));
+      if(npart !=1)std::cout << "CluFP420Test::warning: NumberOfPrimaryPart != 1--> = " <<npart<<std::endl;
 #ifdef ddebugprim
-    std::cout << "zref = " << zref << "z420 = " << z420 << "ZZZ420 = " << ZZZ420 << std::endl;
-    std::cout << "number of particles for Vertex = " << npart << std::endl;
+      std::cout << "number of particles for Vertex = " << npart << std::endl;
 #endif
-    if (npart==0)std::cout << "RecFP420Test: End Of Event ERR: no NumberOfParticle" << std::endl;
-    
-      // primary vertex:
-      //	 G4double vx=0.,vy=0.,vz=0.;
-      vx = avertex->GetX0();
-      vy = avertex->GetY0();
-      vz = avertex->GetZ0();
-      TheHistManager->GetHisto("VtxX")->Fill(vx);
-      TheHistManager->GetHisto("VtxY")->Fill(vy);
-      TheHistManager->GetHisto("VtxZ")->Fill(vz);
-  //  std::cout << "zref = " << zref << "z420 = " << z420 << "ZZZ420 = " << ZZZ420 << std::endl;
-    // =============================================================loop over particles of ZZZ420 vertex
-    for (int i = 0 ; i<npart; ++i) {
-#ifdef ddebugprim
-      std::cout << " -------------------------" << std::endl;
-#endif
-      thePrim=avertex->GetPrimary(i);
-      G4ThreeVector   mom  = thePrim->GetMomentum();
-      // =====================================
-      //  avertex->GetTotalEnergy()    mom.mag()   mom.t()    mom.vect().mag() 
-//    std::cout << "mom.mag() = " << mom.mag() << std::endl;
-////    std::cout << "mom.t() = " << mom.t() << std::endl;
-////    std::cout << "mom.vect().mag() = " << mom.vect().mag() << std::endl;
-////    std::cout << "thePrim->GetTotalEnergy() = " << thePrim->GetTotalEnergy() << std::endl;
-      // =====================================
-      if(i==0){
-	phi = mom.phi();
-	if (phi < 0.) phi += twopi;
-	phigrad = phi*180./pi;
-	th     = mom.theta();
-	eta = -log(tan(th/2));
-	xi = 1.-mom.mag()/7000000.;
-
-	bxtrue = tan(th)*cos(phi);
-	bytrue = tan(th)*sin(phi);
-
-	xref = vx + zref*bxtrue;
-	yref = vy + zref*bytrue;
-//	std::cout << " xref = " << xref << " vx = " << vx << " zref = " << zref << " (zref-vz) = " << (zref-vz) << " vz = " << vz << " bxtrue = " << bxtrue << std::endl;
-#ifdef ddebugprim
-	std::cout << "xref = " << xref << "vx = " << vx << "vz = " << vz << "bxtrue = " << bxtrue << std::endl;
-	std::cout << "============================= " << std::endl;
-	std::cout << "RecFP420Test: vx = " << XXX420 << " th=" << th << " phi=" << phi << " xref=" << xref << std::endl;
-	std::cout << " tan(th) = " << tan(th) << " cos(phi)=" << cos(phi) << " bxtrue=" << bxtrue << std::endl;
-#endif
-	//  if(  lastpo.z()< zmilimit || (lastpo.z()>zmilimit && lastpo.perp()> 100.) ) {
-#ifdef ddebugprim
-	std::cout << " lastpo.x()=" << lastpo.x() << std::endl;
-	std::cout << " lastpo.y()=" << lastpo.y() << std::endl;
-	std::cout << " lastpo.z()=" << lastpo.z() << std::endl;
-#endif
-	if(  lastpo.z()< zmilimit ) {
-	  varia = 1;
-	}
-	else{
-	  varia = 2;
-	} 
-	
-      }
-      else if(i==1){
-	phi2= mom.phi();
-	if (phi2< 0.) phi2 += twopi;
-	phigrad2 = phi2*180./pi;
-	th2     = mom.theta();
-	eta2 = -log(tan(th2/2));
-        xi2 = 1.-mom.mag()/7000000.;
-	// 2st primary track 
-	bxtrue2= tan(th2)*cos(phi2);
-	bytrue2= tan(th2)*sin(phi2);
-	xref2= vx + zref*bxtrue2;
-	yref2= vy + zref*bytrue2;
-#ifdef ddebugprim
-	std::cout << "RecFP420Test: vx = " <<  XXX420<< " th2=" << th2 << " phi2=" << phi2 << " xref2=" << xref2 << std::endl;
-	std::cout << " tan(th2) = " << tan(th2) << " cos(phi2)=" << cos(phi2) << " bxtrue2=" << bxtrue2 << std::endl;
-#endif
-	
-	//  if(  lastpo.z()< zmilimit || (lastpo.z()>zmilimit && lastpo.perp()> 100.) ) {
-	if(  lastpo.z()< zmilimit  ) {
-	  varia2= 1;
-	}
-	else{
-	  varia2= 2;
-	} 
-	
-      }
-      else if(i==2){
-	phi3 = mom.phi();
-	if (phi3 < 0.) phi3 += twopi;
-	phigrad3 = phi3*180./pi;
-	th3     = mom.theta();
-	eta3 = -log(tan(th3/2));
-        xi3 = 1.-mom.mag()/7000000.;
-	// 3rd primary track 
-	bxtrue3= tan(th3)*cos(phi3);
-	bytrue3= tan(th3)*sin(phi3);
-	xref3= vx + zref*bxtrue3;
-	yref3= vy + zref*bytrue3;
-	
-
-	if(  lastpo.z()< zmilimit || (lastpo.z()>zmilimit && lastpo.perp()> 100.) ) {
-	  varia3= 1;
-	}
-	else{
-	  varia3= 2;
-	} 
-	
-      }
-      else {
-	std::cout << "RecFP420Test:WARNING i>3" << std::endl; 
-      }// if(i
-      // =====================================
+      if (npart==0)std::cout << "CluFP420Test: End Of Event ERR: no NumberOfParticle" << std::endl;
       
+      // =============================================================loop over particles of ZZZ420 vertex
+      for (int i = 0 ; i<npart; ++i) {
+#ifdef ddebugprim
+	std::cout << " -------------------------" << std::endl;
+#endif
+	thePrim=avertex->GetPrimary(i);
+	G4ThreeVector   mom  = thePrim->GetMomentum();
+	// =====================================
+	//  avertex->GetTotalEnergy()    mom.mag()   mom.t()    mom.vect().mag() 
+	//    std::cout << "mom.mag() = " << mom.mag() << std::endl;
+	////    std::cout << "mom.t() = " << mom.t() << std::endl;
+	////    std::cout << "mom.vect().mag() = " << mom.vect().mag() << std::endl;
+	////    std::cout << "thePrim->GetTotalEnergy() = " << thePrim->GetTotalEnergy() << std::endl;
+	// =====================================
+	if(i==0){
+	  phi = mom.phi();
+	  if (phi < 0.) phi += twopi;
+	  phigrad = phi*180./pi;
+	  th     = mom.theta();
+	  eta = -log(tan(th/2));
+	  xi = 1.-mom.mag()/7000000.;
+	  
+	  bxtrue = tan(th)*cos(phi);
+	  bytrue = tan(th)*sin(phi);
+	  
+	  xref = vx + (zref-vz)*bxtrue;
+	  yref = vy + (zref-vz)*bytrue;
+#ifdef ddebugprim
+	  std::cout << "CluFP420Test: vx = " << XXX420 << " th=" << th << " phi=" << phi << " xref=" << xref << std::endl;
+	  std::cout << " tan(th) = " << tan(th) << " cos(phi)=" << cos(phi) << " bxtrue=" << bxtrue << std::endl;
+#endif
+	  //  if(  lastpo.z()< zmilimit || (lastpo.z()>zmilimit && lastpo.perp()> 100.) ) {
+#ifdef ddebugprim
+	  std::cout << " lastpo.x()=" << lastpo.x() << std::endl;
+	  std::cout << " lastpo.y()=" << lastpo.y() << std::endl;
+	  std::cout << " lastpo.z()=" << lastpo.z() << std::endl;
+#endif
+	  if(  lastpo.z()< zmilimit ) {
+	    varia = 1;
+	  }
+	  else{
+	    varia = 2;
+	  } 
+	  
+	}
+	else if(i==1){
+	  phi2= mom.phi();
+	  if (phi2< 0.) phi2 += twopi;
+	  phigrad2 = phi2*180./pi;
+	  th2     = mom.theta();
+	  eta2 = -log(tan(th2/2));
+	  xi2 = 1.-mom.mag()/7000000.;
+	  // 2st primary track 
+	  bxtrue2= tan(th2)*cos(phi2);
+	  bytrue2= tan(th2)*sin(phi2);
+	  xref2= vx + (zref-vz)*bxtrue2;
+	  yref2= vy + (zref-vz)*bytrue2;
+#ifdef ddebugprim
+	  std::cout << "CluFP420Test: vx = " <<  XXX420<< " th2=" << th2 << " phi2=" << phi2 << " xref2=" << xref2 << std::endl;
+	  std::cout << " tan(th2) = " << tan(th2) << " cos(phi2)=" << cos(phi2) << " bxtrue2=" << bxtrue2 << std::endl;
+#endif
+	  
+	  //  if(  lastpo.z()< zmilimit || (lastpo.z()>zmilimit && lastpo.perp()> 100.) ) {
+	  if(  lastpo.z()< zmilimit  ) {
+	    varia2= 1;
+	  }
+	  else{
+	    varia2= 2;
+	  } 
+	  
+	}
+	else if(i==2){
+	  phi3 = mom.phi();
+	  if (phi3 < 0.) phi3 += twopi;
+	  phigrad3 = phi3*180./pi;
+	  th3     = mom.theta();
+	  eta3 = -log(tan(th3/2));
+	  xi3 = 1.-mom.mag()/7000000.;
+	  // 3rd primary track 
+	  bxtrue3= tan(th3)*cos(phi3);
+	  bytrue3= tan(th3)*sin(phi3);
+	  xref3= vx + (zref-vz)*bxtrue3;
+	  yref3= vy + (zref-vz)*bytrue3;
+	  
+	  
+	  if(  lastpo.z()< zmilimit || (lastpo.z()>zmilimit && lastpo.perp()> 100.) ) {
+	    varia3= 1;
+	  }
+	  else{
+	    varia3= 2;
+	  } 
+	  
+	}
+	else {
+	  std::cout << "CluFP420Test:WARNING i>3" << std::endl; 
+	}// if(i
+	// =====================================
+	
 #ifdef ddebugprim0
-      std::cout << " i=" << i << "RecFP420Test: at 420m mom = " << mom 
-		<< std::endl;
+	std::cout << " i=" << i << "CluFP420Test: at 420m mom = " << mom 
+		  << std::endl;
 #endif
+	// primary vertex:
+	//	 G4double vx=0.,vy=0.,vz=0.;
+	vx = avertex->GetX0();
+	vy = avertex->GetY0();
+	vz = avertex->GetZ0();
+	TheHistManager->GetHisto("VtxX")->Fill(vx);
+	TheHistManager->GetHisto("VtxY")->Fill(vy);
+	TheHistManager->GetHisto("VtxZ")->Fill(vz);
 #ifdef ddebugprim
-      std::cout << " -------------------------------------------------------------" << std::endl;
-      std::cout << "RecFP420Test: Vertex vx = " << vx << " vy=" << vy << " vz=" << vz << std::endl;
-      std::cout << " Vertex vx = " << vx << " vy=" << vy << "vz=" << vz << std::endl;
-      std::cout << " varia = " << varia << " varia2=" << varia2 << " i=" << i << std::endl;
+	std::cout << " -------------------------------------------------------------" << std::endl;
+	std::cout << "CluFP420Test: Vertex vx = " << vx << " vy=" << vy << " vz=" << vz << std::endl;
+	std::cout << " Vertex vx = " << vx << " vy=" << vy << "vz=" << vz << std::endl;
+	std::cout << " varia = " << varia << " varia2=" << varia2 << " i=" << i << std::endl;
 #endif
-    }// loop over particles of ZZZ420 vertex  (int i
-
-
-
-    //                                                                              .
-    dref12 = abs(xref2 - xref);
-    drefy12 = abs(yref2 - yref);
+      }// loop over particles of ZZZ420 vertex  (int i
+      
+      
+      
+      //                                                                              .
+      dref12 = abs(xref2 - xref);
+      drefy12 = abs(yref2 - yref);
 #ifdef ddebugprim
-    std::cout << " dref12 = " << dref12 << std::endl;
+      std::cout << " dref12 = " << dref12 << std::endl;
 #endif
-    
-
+      
+      
     }//if(fabs(ZZZ420)
   }// prim.vertex loop end
   //                                                                              preparations:
-//temporary:
-//  eta = eta0;
-//  xi = xi0;
-    TheHistManager->GetHisto("PrimaryXi")->Fill(xi);
-    TheHistManager->GetHisto("PrimaryXiLog")->Fill(TMath::Log10(xi));
-    TheHistManager->GetHisto("PrimaryEta")->Fill(eta);
-    //                                                                              .
-    TheHistManager->GetHisto("xref")->Fill(xref);
-    TheHistManager->GetHisto("xref2")->Fill(xref2);
-    TheHistManager->GetHisto("dref12")->Fill(dref12);
-    TheHistManager->GetHisto("drefy12")->Fill(drefy12);
-    TheHistManager->GetHisto("yref")->Fill(yref);
-    TheHistManager->GetHisto("yref2")->Fill(yref2);
-    TheHistManager->GetHisto("thetaXmrad")->Fill(fabs(bxtrue)*1000.);
-    //	TheHistManager->GetHisto("thetaX2mrad")->Fill(fabs(bxtrue2)*1000.);
-    TheHistManager->GetHisto("thetaX2mrad")->Fill(fabs(bxtrue)*1000.);
-
-    TheHistManager->GetHisto("PrimaryPhigrad")->Fill(phigrad);
-    // TheHistManager->GetHisto("PrimaryTh")->Fill(th*180./pi); / dergee
-    TheHistManager->GetHisto("PrimaryTh")->Fill(th*1000.);// mlrad
+  //temporary:
+  //  eta = eta0;
+  //  xi = xi0;
+  TheHistManager->GetHisto("PrimaryXi")->Fill(xi);
+  TheHistManager->GetHisto("PrimaryXiLog")->Fill(TMath::Log10(xi));
+  TheHistManager->GetHisto("PrimaryEta")->Fill(eta);
+  //                                                                              .
+  TheHistManager->GetHisto("xref")->Fill(xref);
+  TheHistManager->GetHisto("xref2")->Fill(xref2);
+  TheHistManager->GetHisto("dref12")->Fill(dref12);
+  TheHistManager->GetHisto("drefy12")->Fill(drefy12);
+  TheHistManager->GetHisto("yref")->Fill(yref);
+  TheHistManager->GetHisto("yref2")->Fill(yref2);
+  TheHistManager->GetHisto("thetaXmrad")->Fill(fabs(bxtrue)*1000.);
+  //	TheHistManager->GetHisto("thetaX2mrad")->Fill(fabs(bxtrue2)*1000.);
+  TheHistManager->GetHisto("thetaX2mrad")->Fill(fabs(bxtrue)*1000.);
+  
+  TheHistManager->GetHisto("PrimaryPhigrad")->Fill(phigrad);
+  // TheHistManager->GetHisto("PrimaryTh")->Fill(th*180./pi); / dergee
+  TheHistManager->GetHisto("PrimaryTh")->Fill(th*1000.);// mlrad
+  
+  TheHistManager->GetHisto("PrimaryLastpoZ")->Fill(lastpo.z());
+  if(lastpo.z() <  z4  ) {
+    TheHistManager->GetHisto("PrimaryLastpoX")->Fill(lastpo.x());
+    TheHistManager->GetHisto("PrimaryLastpoY")->Fill(lastpo.y());
+  }
+  if(numofpart >  4  ) {
+    TheHistManager->GetHisto("XLastpoNumofpart")->Fill(lastpo.x());
+    TheHistManager->GetHisto("YLastpoNumofpart")->Fill(lastpo.y());
+  }
+  
+  
+  //=========================== thePrim != 0 ================================================================================
+  //    if (thePrim != 0   && vz < -20.) {
+  
+  
+  //ask 1 tracks	  	  
+  
+  if ( thePrim != 0 && ZZZ420 != -999999.) {
+    //thePrim:	  
     
-    TheHistManager->GetHisto("PrimaryLastpoZ")->Fill(lastpo.z());
-    if(lastpo.z() <  z4  ) {
-      TheHistManager->GetHisto("PrimaryLastpoX")->Fill(lastpo.x());
-      TheHistManager->GetHisto("PrimaryLastpoY")->Fill(lastpo.y());
-    }
-    if(numofpart >  4  ) {
-      TheHistManager->GetHisto("XLastpoNumofpart")->Fill(lastpo.x());
-      TheHistManager->GetHisto("YLastpoNumofpart")->Fill(lastpo.y());
-    }
-
-
-//=========================== thePrim != 0 ================================================================================
-//    if (thePrim != 0   && vz < -20.) {
-
-		  
-//ask 1 tracks	  	  
-		  
-//	    std::cout << " ZZZ420 = " << ZZZ420 << " thePrim=" << thePrim << std::endl;
-//	    std::cout << " xref = " << xref << " yref=" << yref << std::endl;
-//	  if((xref > -25. && xref < -5.) && (yref > -5. && yref < 5.)){
-//	    std::cout << " dref12 = " << dref12 << std::endl;
-//	  }
-
-
-
-//	if (ZZZ420 != -999999.
-
-
-	if ( thePrim != 0 && ZZZ420 != -999999.
-  	     && ((xref > -25. && xref < -5.) && (yref > -5. && yref < 5.))  
-			   ) {
-  	  
-
-//
-//	     &&	varia == 2  
-//	     && ((xref > -32. && xref < -12.) && (yref > -5. && yref < 5.))  
-//	     &&	varia == 2  
-//	     && ( fabs(bxtrue)*1000. > 0.1  && fabs(bxtrue)*1000.<0.4 )
-		  
-// ask 2 tracks		  
-/*
-	if ( thePrim != 0  && ZZZ420 != -999999.
-	     && ((xref  > -25. && xref  < -5.) && (yref  > -5. && yref  < 5.))  
-	     && ((xref2 > -25. && xref2 < -5.) && (yref2 > -5. && yref2 < 5.))  
-	     && dref12 > 1.0 && drefy12 > 1.0       
-	     ) {
-*/	  
-	  
-	  
-	  /////////////////////////////////////////////////////////////////
-	  //        unsigned int clnumcut=1;// ask 2 tracks
-	              unsigned int clnumcut=0;//ask 1 tracks
-	  /////////////////////////////////////////////////////////////////
-	    
-
-
+    //	     &&	varia == 2  
+    //	     && ((xref > -32. && xref < -12.) && (yref > -5. && yref < 5.))  
+    //	     &&	varia == 2  
+    //	     && ( fabs(bxtrue)*1000. > 0.1  && fabs(bxtrue)*1000.<0.4 )
+    
+    // ask 2 tracks		  
+    
+    
+    
+    /*	  
+      if ( thePrim != 0  && ZZZ420 != -999999.
+      && ((xref  > -32. && xref  < -12.) && (yref  > -5. && yref  < 5.))  
+      && ((xref2 > -32. && xref2 < -12.) && (yref2 > -5. && yref2 < 5.))  
+      && dref12 > 1.0 && drefy12 > 1.0       
+      ) {
+    */
+    
+    
+    //  &&	( varia == 2 && varia2 == 2 ) 
+    //  && dref12 > 1.       
+    //	     && (( fabs(bxtrue)*1000.>0.1)&&( fabs(bxtrue)*1000.<0.4) ) || (( fabs(bxtrue2)*1000. > 0.1)&&( fabs(bxtrue2)*1000.<0.4) )  
+    
+    
+    /////////////////////////////////////////////////////////////////
+    //      unsigned int clnumcut=1;// ask 2 tracks
+             unsigned int clnumcut=0;//ask 1 tracks
+    /////////////////////////////////////////////////////////////////
+    
+    
+    
     // ==========================================================================
     
     // hit map for FP420
@@ -1443,14 +1410,14 @@ void RecFP420Test::update(const EndOfEvent * evt) {
     G4HCofThisEvent* allHC = (*evt)()->GetHCofThisEvent();
     
     if (verbosity > 0) {
-      std::cout << "RecFP420Test:  accessed all HC" << std::endl;;
+      std::cout << "CluFP420Test:  accessed all HC" << std::endl;;
     }
     int CAFIid = G4SDManager::GetSDMpointer()->GetCollectionID("FP420SI");
     
     FP420G4HitCollection* theCAFI = (FP420G4HitCollection*) allHC->GetHC(CAFIid);
     if (verbosity > 0) {
       //std::cout << "FP420Test: theCAFI = " << theCAFI << std::endl;
-      std::cout << "RecFP420Test: theCAFI->entries = " << theCAFI->entries() << std::endl;
+      std::cout << "CluFP420Test: theCAFI->entries = " << theCAFI->entries() << std::endl;
     }
     TheHistManager->GetHisto("NHitsAll")->Fill(theCAFI->entries());
     
@@ -1531,7 +1498,7 @@ void RecFP420Test::update(const EndOfEvent * evt) {
 	double   zz=-999999.;
 	zz    = hitPoint.z();
 	if (verbosity > 2) {
-	  std::cout << "RecFP420Test:zHits = " << zz << std::endl;
+	  std::cout << "CluFP420Test:zHits = " << zz << std::endl;
 	}
 	themap[unitID] += losenergy;
 	totallosenergy += losenergy;
@@ -1548,7 +1515,7 @@ void RecFP420Test::update(const EndOfEvent * evt) {
 	
 	// zside=1,2 ; zmodule=1,10 ; sector=1,3
 	if(zside==0||sector==0||zmodule==0){
-	  std::cout << "RecFP420Test:ERROR: zside = " << zside  << " sector = " << sector  << " zmodule = " << zmodule  << " det = " << det  << std::endl;
+	  std::cout << "CluFP420Test:ERROR: zside = " << zside  << " sector = " << sector  << " zmodule = " << zmodule  << " det = " << det  << std::endl;
 	}
 	
 	double kplane = -(pn0-1)/2+(zmodule-1); 
@@ -1571,7 +1538,7 @@ void RecFP420Test::update(const EndOfEvent * evt) {
 	
 	//
 	if (verbosity > 2) {
-	  std::cout << "RecFP420Test:check " << std::endl;
+	  std::cout << "CluFP420Test:check " << std::endl;
 	  std::cout << " zside = " <<zside<< " sector = " <<sector<< " zmodule = " << zmodule<< std::endl;
 	  std::cout << " hitPoint.z()+ mid.z() = " <<  double (hitPoint.z()+ mid.z()-z420) << std::endl;
 	  std::cout << " zcurrent = " << double (zcurrent-z420) << " det = " << det << std::endl;
@@ -1669,12 +1636,12 @@ void RecFP420Test::update(const EndOfEvent * evt) {
 	theDigitizerFP420->produce(theCAFI,output);
 	
 	if (verbosity > 2) {
-	  std::cout <<" ===== RecFP420Test:: access to DigiCollectionFP420 " << std::endl;
+	  std::cout <<" ===== CluFP420Test:: access to DigiCollectionFP420 " << std::endl;
 	}
 	//    check of access to the strip collection
 	// =======================================================================================check of access to strip collection
 	if (verbosity > 2) {
-	  std::cout << "RecFP420Test:  start of access to the collector" << std::endl;
+	  std::cout << "CluFP420Test:  start of access to the collector" << std::endl;
 	}
 	for (int sector=1; sector<sn0; sector++) {
 	  for (int zmodule=1; zmodule<pn0; zmodule++) {
@@ -1688,7 +1655,7 @@ void RecFP420Test::update(const EndOfEvent * evt) {
 	      // int zScale=10;	unsigned int intindex = sScale*(sector - 1)+zScale*(zside - 1)+zmodule;
 	      
 	      if (verbosity > 2) {
-		std::cout <<" ===== RecFP420Test:: sector= " << sector  
+		std::cout <<" ===== CluFP420Test:: sector= " << sector  
 			  << "zmodule= "  << zmodule  
 			  << "zside= "  << zside  
 			  << "iu= "  << iu  
@@ -1796,7 +1763,7 @@ void RecFP420Test::update(const EndOfEvent * evt) {
 		//==================================
 #ifdef mydigidebug10
 		if(zside == 2) {
-		  std::cout << " RecFP420Test::check: HDigiFP420::  " << std::endl;
+		  std::cout << " CluFP420Test::check: HDigiFP420::  " << std::endl;
 		  // std::cout << " strip number = " << (*simHitIter).strip() << "  adc = " << (*simHitIter).adc() << std::endl; // std::cout << " strip number = " << simHitIter->strip() << "  adc = " << simHitIter->adc() << std::endl;
 		  std::cout << " strip number = " << istrip.strip() << "  adc = " << istrip.adc() << std::endl;
 		  std::cout << " channel = " << istrip.channel() << std::endl;
@@ -1856,7 +1823,7 @@ void RecFP420Test::update(const EndOfEvent * evt) {
 
 
     if (verbosity > 2) {
-   std::cout <<"CLUSTERS: RecFP420Test::" << std::endl;
+   std::cout <<"CLUSTERS: CluFP420Test::" << std::endl;
     }
 
 
@@ -1866,7 +1833,7 @@ void RecFP420Test::update(const EndOfEvent * evt) {
 #ifdef myClusterdebug10
  std::cout <<" ===" << std::endl;
  std::cout <<" ===" << std::endl;
-   std::cout <<" ===== RecFP420Test:: start of access to CLUSTERS" << std::endl;
+   std::cout <<" ===== CluFP420Test:: start of access to CLUSTERS" << std::endl;
  std::cout <<" ===" << std::endl;
  std::cout <<" ===" << std::endl;
 #endif
@@ -1881,39 +1848,39 @@ void RecFP420Test::update(const EndOfEvent * evt) {
 	int clnum4Y= 0;
 	int clnum0Y= 0;
 	// all
-	double zX[60];
-	double xX[60];
-	double wX[60];
-	double zY[60];
-	double yY[60];
-	double wY[60];
+	double zX[40];
+	double xX[40];
+	double wX[40];
+	double zY[40];
+	double yY[40];
+	double wY[40];
 	int  nhitplanesX = 0;
 	int  nhitplanesY = 0;
 	// 1
-	double z1X[20];
-	double x1X[20];
-	double w1X[20];
-	double z1Y[20];
-	double y1Y[20];
-	double w1Y[20];
+	double z1X[10];
+	double x1X[10];
+	double w1X[10];
+	double z1Y[10];
+	double y1Y[10];
+	double w1Y[10];
 	int  nhitplanes1X = 0;
 	int  nhitplanes1Y = 0;
 	// 2
-	double z2X[40];
-	double x2X[40];
-	double w2X[40];
-	double z2Y[40];
-	double y2Y[40];
-	double w2Y[40];
+	double z2X[20];
+	double x2X[20];
+	double w2X[20];
+	double z2Y[20];
+	double y2Y[20];
+	double w2Y[20];
 	int  nhitplanes2X = 0;
 	int  nhitplanes2Y = 0;
 	// 3
-	double z3X[60];
-	double x3X[60];
-	double w3X[60];
-	double z3Y[60];
-	double y3Y[60];
-	double w3Y[60];
+	double z3X[30];
+	double x3X[30];
+	double w3X[30];
+	double z3Y[30];
+	double y3Y[30];
+	double w3Y[30];
 	int  nhitplanes3X = 0;
 	int  nhitplanes3Y = 0;
 
@@ -1938,7 +1905,7 @@ void RecFP420Test::update(const EndOfEvent * evt) {
 	// int zScale=10;	unsigned int intindex = sScale*(sector - 1)+zScale*(zside - 1)+zmodule;
 
 #ifdef myClusterdebug10
-    std::cout << " RecFP420Test::3 clcoll    index = " << index  << " iu = " << iu  << std::endl;
+    std::cout << " CluFP420Test::3 clcoll    index = " << index  << " iu = " << iu  << std::endl;
 	//	if(zside == 2){
  std::cout <<" ===" << std::endl;
  std::cout <<" ===" << std::endl;
@@ -1948,7 +1915,7 @@ void RecFP420Test::update(const EndOfEvent * evt) {
    //	}
 #endif
     if (verbosity > 2) {
-   std::cout <<"CLUSTERS: RecFP420Test:: sector= " << sector  << "  zmodule= "  << zmodule  << "  zside= "  << zside  << "  iu= "  << iu  << "  index= "  << index  << "  themapxystrip= "  << themapxystrip[index] << std::endl;
+   std::cout <<"CLUSTERS: CluFP420Test:: sector= " << sector  << "  zmodule= "  << zmodule  << "  zside= "  << zside  << "  iu= "  << iu  << "  index= "  << index  << "  themapxystrip= "  << themapxystrip[index] << std::endl;
     }
 
 
@@ -2001,29 +1968,29 @@ void RecFP420Test::update(const EndOfEvent * evt) {
        float pitch=0;
        float pitchW=0;
        if(collector.size()>clnumcut){
-	 //
-	 //
+//
+//
 	 if(zside==1){
 	   pitch=pitchY;
 	   pitchW=pitchYW;
+	   clnum0Y++;
+	   if(sector==1) clnum1Y++;
+	   if(sector==2) clnum2Y++;
+	   if(sector==3) clnum3Y++;
+	   if(sector==4) clnum4Y++;
 	 }
 	 else{
 	   pitch=pitchX;
 	   pitchW=pitchXW;
+	   clnum0X++;
+	   if(sector==1) clnum1X++;
+	   if(sector==2) clnum2X++;
+	   if(sector==3) clnum3X++;
+	   if(sector==4) clnum4X++;
 	 }
-	 clnum0Y++;
-	 if(sector==1) clnum1Y++;
-	 if(sector==2) clnum2Y++;
-	 if(sector==3) clnum3Y++;
-	 if(sector==4) clnum4Y++;
-	 clnum0X++;
-	 if(sector==1) clnum1X++;
-	 if(sector==2) clnum2X++;
-	 if(sector==3) clnum3X++;
-	 if(sector==4) clnum4X++;
-	 
-       }//if(collector.size
-       
+
+       }
+
 //============================================================================================================
 
        if(themapxystrip[index] > 0){
@@ -2212,135 +2179,85 @@ void RecFP420Test::update(const EndOfEvent * evt) {
      }
      //
      //disentangle complicated pattern recognition of hits?
-       nhitplanesY++;		
-       nhitplanesX++;		
-       if(sector<2) {
-	 nhitplanes1Y++;
-	 nhitplanes1X++;		
-       }
-       if(sector<3) {
-	 nhitplanes2Y++;
-	 nhitplanes2X++;		
-       }
-       if(sector<4) {
-	 nhitplanes3Y++;
-	 nhitplanes3X++;		
-       }
      // Y:
      if(zside ==1){
+       nhitplanesY++;		
        zY[nhitplanesY-1] = themapz[index];
        yY[nhitplanesY-1] = iclustermax.barycenter()*pitch;
        TheHistManager->GetHisto2("2DZYseca")->Fill(zY[nhitplanesY-1],yY[nhitplanesY-1]);
-       zX[nhitplanesX-1] = themapz[index];
-       xX[nhitplanesX-1] = iclustermax.barycenterW()*pitchW;
-       TheHistManager->GetHisto2("2DZXseca")->Fill(zX[nhitplanesX-1],xX[nhitplanesX-1]);
        // go to global system:
        yY[nhitplanesY-1] = yY[nhitplanesY-1] - dYY; 
        wY[nhitplanesY-1] = 1./(iclustermax.barycerror()*pitch);//reciprocal of the variance for each datapoint in y
        wY[nhitplanesY-1] *= wY[nhitplanesY-1];//reciprocal of the variance for each datapoint in y
-       xX[nhitplanesX-1] =-(xX[nhitplanesX-1]+dXX); 
-       wX[nhitplanesX-1] = 1./(iclustermax.barycerrorW()*pitchW);//reciprocal of the variance for each datapoint in y
-       wX[nhitplanesX-1] *= wX[nhitplanesX-1];//reciprocal of the variance for each datapoint in y
        if(sector<2) {
+	 nhitplanes1Y++;		
 	 z1Y[nhitplanes1Y-1] = themapz[index];
 	 y1Y[nhitplanes1Y-1] = iclustermax.barycenter()*pitch;
 	 TheHistManager->GetHisto2("2DZYsec1")->Fill(z1Y[nhitplanes1Y-1],y1Y[nhitplanes1Y-1]);
-	 z1X[nhitplanes1X-1] = themapz[index];
-	 x1X[nhitplanes1X-1] = iclustermax.barycenterW()*pitchW;
-	 TheHistManager->GetHisto2("2DZXsec1")->Fill(z1X[nhitplanes1X-1],x1X[nhitplanes1X-1]);
 	 // go to global system:
 	 y1Y[nhitplanes1Y-1] = y1Y[nhitplanes1Y-1] - dYY; 
-	 w1Y[nhitplanes1Y-1] = 1./(iclustermax.barycerror()*pitch);//
+	 w1Y[nhitplanes1Y-1] = 1./(iclustermax.barycerror()*pitch);//reciprocal of the variance for each datapoint in y
 	 w1Y[nhitplanes1Y-1] *= w1Y[nhitplanes1Y-1];//reciprocal of the variance for each datapoint in y
-	 x1X[nhitplanes1X-1] =-(x1X[nhitplanes1X-1]+dXX); 
-	 w1X[nhitplanes1X-1] = 1./(iclustermax.barycerrorW()*pitchW);//
-	 w1X[nhitplanes1X-1] *= w1X[nhitplanes1X-1];//reciprocal of the variance for each datapoint in y
        }
        if(sector<3) {
+	 nhitplanes2Y++;		
 	 z2Y[nhitplanes2Y-1] = themapz[index];
 	 y2Y[nhitplanes2Y-1] = iclustermax.barycenter()*pitch;//reciprocal of the variance for each datapoint in y
-	 z2X[nhitplanes2X-1] = themapz[index];
-	 x2X[nhitplanes2X-1] = iclustermax.barycenterW()*pitchW;
 	 // go to global system:
 	 y2Y[nhitplanes2Y-1] = y2Y[nhitplanes2Y-1] - dYY; 
-	 w2Y[nhitplanes2Y-1] = 1./(iclustermax.barycerror()*pitch);//
+	 w2Y[nhitplanes2Y-1] = 1./(iclustermax.barycerror()*pitch);//reciprocal of the variance for each datapoint in y
 	 w2Y[nhitplanes2Y-1] *= w2Y[nhitplanes2Y-1];//reciprocal of the variance for each datapoint in y
-	 x2X[nhitplanes2X-1] =-(x2X[nhitplanes2X-1]+dXX); 
-	 w2X[nhitplanes2X-1] = 1./(iclustermax.barycerrorW()*pitchW);//
-	 w2X[nhitplanes2X-1] *= w2X[nhitplanes2X-1];//reciprocal of the variance for each datapoint in y
        }
        if(sector<4) {
+	 nhitplanes3Y++;		
 	 z3Y[nhitplanes3Y-1] = themapz[index];
 	 y3Y[nhitplanes3Y-1] = iclustermax.barycenter()*pitch;
-	 z3X[nhitplanes3X-1] = themapz[index];
-	 x3X[nhitplanes3X-1] = iclustermax.barycenterW()*pitchW;
 	 // go to global system:
 	 y3Y[nhitplanes3Y-1] = y3Y[nhitplanes3Y-1] - dYY; 
-	 w3Y[nhitplanes3Y-1] = 1./(iclustermax.barycerror()*pitch);//
+	 w3Y[nhitplanes3Y-1] = 1./(iclustermax.barycerror()*pitch);//reciprocal of the variance for each datapoint in y
 	 w3Y[nhitplanes3Y-1] *= w3Y[nhitplanes3Y-1];//reciprocal of the variance for each datapoint in y
-	 x3X[nhitplanes3X-1] =-(x3X[nhitplanes3X-1]+dXX); 
-	 w3X[nhitplanes3X-1] = 1./(iclustermax.barycerrorW()*pitchW);//
-	 w3X[nhitplanes3X-1] *= w3X[nhitplanes3X-1];//reciprocal of the variance for each datapoint in y
        }
      }
      // X:
      else if(zside ==2){
+       nhitplanesX++;		
        zX[nhitplanesX-1] = themapz[index];
        xX[nhitplanesX-1] = iclustermax.barycenter()*pitch;
        TheHistManager->GetHisto2("2DZXseca")->Fill(zX[nhitplanesX-1],xX[nhitplanesX-1]);
-       zY[nhitplanesY-1] = themapz[index];
-       yY[nhitplanesY-1] = iclustermax.barycenterW()*pitchW;
-       TheHistManager->GetHisto2("2DZYseca")->Fill(zY[nhitplanesY-1],yY[nhitplanesY-1]);
        // go to global system:
        xX[nhitplanesX-1] =-(xX[nhitplanesX-1]+dXX); 
        wX[nhitplanesX-1] = 1./(iclustermax.barycerror()*pitch);//reciprocal of the variance for each datapoint in y
        wX[nhitplanesX-1] *= wX[nhitplanesX-1];//reciprocal of the variance for each datapoint in y
-       yY[nhitplanesY-1] = yY[nhitplanesY-1] - dYY; 
-       wY[nhitplanesY-1] = 1./(iclustermax.barycerrorW()*pitchW);//reciprocal of the variance for each datapoint in y
-       wY[nhitplanesY-1] *= wY[nhitplanesY-1];//reciprocal of the variance for each datapoint in y
        if(sector<2) {
+	 nhitplanes1X++;		
 	 z1X[nhitplanes1X-1] = themapz[index];
 	 x1X[nhitplanes1X-1] = iclustermax.barycenter()*pitch;
 	 TheHistManager->GetHisto2("2DZXsec1")->Fill(z1X[nhitplanes1X-1],x1X[nhitplanes1X-1]);
-	 z1Y[nhitplanes1Y-1] = themapz[index];
-	 y1Y[nhitplanes1Y-1] = iclustermax.barycenterW()*pitchW;
-	 TheHistManager->GetHisto2("2DZYsec1")->Fill(z1Y[nhitplanes1Y-1],y1Y[nhitplanes1Y-1]);
 	 // go to global system:
 	 x1X[nhitplanes1X-1] =-(x1X[nhitplanes1X-1]+dXX); 
-	 w1X[nhitplanes1X-1] = 1./(iclustermax.barycerror()*pitch);//
+	 w1X[nhitplanes1X-1] = 1./(iclustermax.barycerror()*pitch);//reciprocal of the variance for each datapoint in y
 	 w1X[nhitplanes1X-1] *= w1X[nhitplanes1X-1];//reciprocal of the variance for each datapoint in y
-	 y1Y[nhitplanes1Y-1] = y1Y[nhitplanes1Y-1] - dYY; 
-	 w1Y[nhitplanes1Y-1] = 1./(iclustermax.barycerrorW()*pitchW);//
-	 w1Y[nhitplanes1Y-1] *= w1Y[nhitplanes1Y-1];//reciprocal of the variance for each datapoint in y
        }
        if(sector<3) {
+	 nhitplanes2X++;		
 	 z2X[nhitplanes2X-1] = themapz[index];
 	 x2X[nhitplanes2X-1] = iclustermax.barycenter()*pitch;
-	 z2Y[nhitplanes2Y-1] = themapz[index];
-	 y2Y[nhitplanes2Y-1] = iclustermax.barycenterW()*pitchW;//reciprocal of the variance for each datapoint in y
 	 // go to global system:
 	 x2X[nhitplanes2X-1] =-(x2X[nhitplanes2X-1]+dXX); 
-	 w2X[nhitplanes2X-1] = 1./(iclustermax.barycerror()*pitch);//
+	 w2X[nhitplanes2X-1] = 1./(iclustermax.barycerror()*pitch);//reciprocal of the variance for each datapoint in y
 	 w2X[nhitplanes2X-1] *= w2X[nhitplanes2X-1];//reciprocal of the variance for each datapoint in y
-	 y2Y[nhitplanes2Y-1] = y2Y[nhitplanes2Y-1] - dYY; 
-	 w2Y[nhitplanes2Y-1] = 1./(iclustermax.barycerrorW()*pitchW);//
-	 w2Y[nhitplanes2Y-1] *= w2Y[nhitplanes2Y-1];//reciprocal of the variance for each datapoint in y
        }
        if(sector<4) {
+	 nhitplanes3X++;		
 	 z3X[nhitplanes3X-1] = themapz[index];
 	 x3X[nhitplanes3X-1] = iclustermax.barycenter()*pitch;
-	 z3Y[nhitplanes3Y-1] = themapz[index];
-	 y3Y[nhitplanes3Y-1] = iclustermax.barycenterW()*pitchW;
 	 // go to global system:
 	 x3X[nhitplanes3X-1] =-(x3X[nhitplanes3X-1]+dXX); 
-	 w3X[nhitplanes3X-1] = 1./(iclustermax.barycerror()*pitch);//
+	 w3X[nhitplanes3X-1] = 1./(iclustermax.barycerror()*pitch);//reciprocal of the variance for each datapoint in y
 	 w3X[nhitplanes3X-1] *= w3X[nhitplanes3X-1];//reciprocal of the variance for each datapoint in y
-	 y3Y[nhitplanes3Y-1] = y3Y[nhitplanes3Y-1] - dYY; 
-	 w3Y[nhitplanes3Y-1] = 1./(iclustermax.barycerrorW()*pitchW);//
-	 w3Y[nhitplanes3Y-1] *= w3Y[nhitplanes3Y-1];//reciprocal of the variance for each datapoint in y
        }
      }
-   }// if(clampmax !=0
+   }// if(clampmax
    
    // end of fill vectors for track reconstruction
    //================================== end of for loops in continuius number iu:
@@ -2349,7 +2266,7 @@ void RecFP420Test::update(const EndOfEvent * evt) {
   }   // for
   
     if (verbosity > 2) {
-   std::cout <<"RecFP420Test:: TRACKS " << std::endl;
+   std::cout <<"CluFP420Test:: TRACKS " << std::endl;
     }
   TheHistManager->GetHisto("clnum1Y")->Fill(clnum1Y);
   TheHistManager->GetHisto("clnum2Y")->Fill(clnum2Y);
@@ -2372,470 +2289,31 @@ void RecFP420Test::update(const EndOfEvent * evt) {
 
 
 
-
-
-
-   //==================================
-//                                                                                                   TrackReconstruction:                                          .
-//                                                                               TrackReconstruction:                                                    .
-//                                                            TrackReconstruction:                                                    .
-   //==================================
- //
- if(clnum1X>2 && clnum2X>1&& clnum3X>1
-    && clnum1Y>2 && clnum2Y>1&& clnum3Y>1) {
-   // if(clnum1X>2 && clnum2X>1) {
-   //==================================
-    theTrackerizerFP420->produce(soutput,toutput);
-   //==================================
- std::vector<TrackFP420> collector;
- collector.clear();
- TrackCollectionFP420::Range outputRange;
- int StID = 1111;
- outputRange = toutput.get(StID);
- //
- // fill output in collector vector (for may be sorting? or other checks)
- //
- TrackCollectionFP420::ContainerIterator sort_begin = outputRange.first;
- TrackCollectionFP420::ContainerIterator sort_end = outputRange.second;
- //
- for ( ;sort_begin != sort_end; ++sort_begin ) {
-   collector.push_back(*sort_begin);
- } // for  sort_begin
- TheHistManager->GetHisto("ntrackscoll")->Fill(collector.size());
-
- if(collector.size()>0) {
-   //                                                                              .
-   TheHistManager->GetHisto("Txref")->Fill(xref);
-   TheHistManager->GetHisto("Txref2")->Fill(xref2);
-   TheHistManager->GetHisto("Tdref12")->Fill(dref12);
-   TheHistManager->GetHisto("Tdrefy12")->Fill(drefy12);
-   TheHistManager->GetHisto("Tyref")->Fill(yref);
-   TheHistManager->GetHisto("Tyref2")->Fill(yref2);
-   TheHistManager->GetHisto("TthetaXmrad")->Fill(fabs(bxtrue)*1000.);
- }//if
- TheHistManager->GetHisto("efftracktheta")->Fill(fabs(bxtrue*1000.));
- TheHistManager->GetHisto("effnhitplanesX")->Fill(nhitplanes2X);
- TheHistManager->GetHisto("efftrackdref12")->Fill(dref12);
- TheHistManager->GetHisto("clnumX2Ttacks1Sec")->Fill(clnum1X);
- TheHistManager->GetHisto("clnumX2Ttacks2Sec")->Fill(clnum2X);
- TheHistManager->GetHisto("clnumX2Ttacks3Sec")->Fill(clnum3X);
- //                                                                          .
- //                      loop in #tracks                      loop in #tracks                              loop in #tracks
- //
- vector<TrackFP420>::const_iterator simHitIter = collector.begin();
- vector<TrackFP420>::const_iterator simHitIterEnd = collector.end();
- //
- //           loop in #tracks            loop in #tracks          loop in #tracks
- //
- double Ay[10],Ax[10],By[10],Bx[10];
- //
- int ntracks = 0, nnnclx = nhitplanes2X, nnnclx2 = nhitplanes2X;
- double amintheta = 999999.,amintheta2 = 999999.;
- double mintheta = 999999.,mintheta2 = 999999.;
- double minthetay= 999999.,minthetay2 = 999999.;
- double ccchindfx = 100., ccchindfx2 = 100.;
- double mindphitrack = 999999.,mindthtrack = 999999.,minthtrue = 999999.,minthreal = 999999.;
- double mindphitrack2 = 999999.,mindthtrack2 = 999999.,minthtrue2 = 999999.,minthreal2 = 999999.;
- for (;simHitIter != simHitIterEnd; ++simHitIter) {
-   const TrackFP420 itrack = *simHitIter;
-   ++ntracks;
-   Ax[ntracks-1]=itrack.ax();
-   Ay[ntracks-1]=itrack.ay();
-   Bx[ntracks-1]=itrack.bx();
-   By[ntracks-1]=itrack.by();
- //
-   // tests: tocollection1 instead itrack.ay() temporary!
- //  if(collector.size() < 2){
-     TheHistManager->GetHisto("tocollection")->Fill(itrack.ay());
-     TheHistManager->GetHisto("tocollection0")->Fill(itrack.by());
-     TheHistManager->GetHisto("tocollection1")->Fill(itrack.chi2y());
-     TheHistManager->GetHisto("ntocollection")->Fill(itrack.ay());
-     TheHistManager->GetHisto("ntocollection0")->Fill(itrack.by());
-     TheHistManager->GetHisto("ntocollection1")->Fill(itrack.chi2y());
-     TheHistManager->GetHisto("stocollection")->Fill(abs(itrack.ay()));
-     TheHistManager->GetHisto("stocollection0")->Fill(abs(itrack.by()));
-     TheHistManager->GetHisto("stocollection1")->Fill(abs(itrack.chi2y()));
-     double tttt = itrack.nclustery()/1000000.;
-     TheHistManager->GetHisto("tocollection2")->Fill(tttt);
-     TheHistManager->GetHisto("ntocollection2")->Fill(tttt);
-     TheHistManager->GetHisto("stocollection2")->Fill(abs(tttt));
-//   }
-   // END of tests
-   
-   //
-//    X
-       TheHistManager->GetHisto("nhitplanesX")->Fill(itrack.nclusterx());
-       float chindfx;
-       if(itrack.nclusterx()>2) {
-	 chindfx = itrack.chi2x()/(itrack.nclusterx()-2);
-       }
-       else{
-	 chindfx = itrack.chi2x();
-       }
-	 TheHistManager->GetHisto("chisqX")->Fill(chindfx);
-//    Y
-       TheHistManager->GetHisto("nhitplanesY")->Fill(itrack.nclustery());
-       float chindfy;
-       if(itrack.nclustery()>2) {
-	 chindfy = itrack.chi2y()/(itrack.nclustery()-2);
-       }
-       else{
-	 chindfy = itrack.chi2y();
-       }
-	 TheHistManager->GetHisto("chisqY")->Fill(chindfy);
-// X & Y both
-	 // if(chindfx < 3. && chindfy < 3. ) {
-	 //	 ntracks++;
-	 //  if(chindfx < 3. ) {
-	 //float dX = (itrack.ax()+ itrack.bx()*zref1) - xref;// precision of ref point
-	   float dX = (bxtrue - itrack.bx())*zref1;// precision of DeltaX points at 8m arm
-	   //float dX = bxtrue*zref1 - (itrack.bx()*zref1 + XXX420);// 
-	 TheHistManager->GetHisto("dXinVtxTrack")->Fill(dX);
-	 //   }
-	 
-	 //   if(chindfy < 3. ) {
-	 //float dY = (itrack.ay()+ itrack.by()*zref1) - yref;// precision of ref point
-	   float dY = (bytrue - itrack.by())*zref1;// precision of DeltaY points at 8m arm
-	   //float dY = bytrue*zref1 - (itrack.by()*zref1 + YYY420);// 
-	 TheHistManager->GetHisto("dYinVtxTrack")->Fill(dY);
-	 //  }
- //
- //
-   if (verbosity > 0) {
-     std::cout <<"RecFP420Test:: track number = " <<  ntracks << std::endl;
-     std::cout <<" bx= " <<  itrack.bx() <<" by = " <<  itrack.by() << std::endl;
-     std::cout <<" ax= " <<  itrack.ax() <<" ay = " <<  itrack.ay() << std::endl;
-     std::cout <<"ZZZ420 = " << ZZZ420 <<" XXX420 = " << XXX420 <<" YYY420 = " << YYY420 << std::endl;
-     std::cout <<"======================================================= " << std::endl;
-     // double xbegin = itrack.bx()*420000. + itrack.ax() ;
-     // double ybegin = itrack.by()*420000. + itrack.ay() ;
-     // double xfinis = itrack.bx()*428000. + itrack.ax() ;
-     // double yfinis = itrack.by()*428000. + itrack.ay() ;
-     double xbegin = itrack.bx()*zbegin + XXX420;
-     double ybegin = itrack.by()*zbegin + YYY420;
-     double xfinis = itrack.bx()*zfinis + XXX420;
-     double yfinis = itrack.by()*zfinis + YYY420;
-     std::cout <<"So, for reference Zbegin = 420m and  Zfinis = 428m " << std::endl;
-     std::cout <<"xbegin = " <<  xbegin << std::endl;
-     std::cout <<"ybegin = " <<  ybegin << std::endl;
-     std::cout <<"xfinis = " <<  xfinis << std::endl;
-     std::cout <<"yfinis = " <<  yfinis << std::endl;
-     std::cout <<"Kirill, use them as input for HECTOR momentum reconstruction, " << std::endl;
-     std::cout <<"call in this track loop the HECTOR momentum reconstruction" << std::endl;
-  }
- //
-	 
-	 double phitrack; double phitrackgrad; double dphitrack; double thtrack; double dthtrack; double thtrackc;
-	 double dphitrack2, dthtrack2;
-	 //       if(chindfx < 3. && chindfy < 3. ) {
-	 //   if(chindfx < 3. && chindfy < 3. ) {
-//
-	 phitrack = 0.; thtrack = 0.;
-	 if((itrack.bx()*100000.) != 0.) phitrack = atan2(itrack.by()*100000.,itrack.bx()*100000.);
-	 if(phitrack < 0.) phitrack += twopi;
-	 phitrackgrad = phitrack*180./pi;
-	 dphitrack = phi - phitrack;
-	 dphitrack2 = phi2 - phitrack;
-//
-	 thtrackc = cos(phitrack);
-	 if(thtrackc != 0.) thtrack = atan(itrack.bx()/thtrackc);
-	 if(thtrack < 0.) thtrack += pi/2.;
-	 dthtrack = th - thtrack;
-	 dthtrack2 = th2 - thtrack;
-//
-	 TheHistManager->GetHisto("dphitrack")->Fill(dphitrack*1000.);
-	 TheHistManager->GetHisto("dthtrack")->Fill(dthtrack*1000000.);
-	 TheHistManager->GetHisto("dthetax")->Fill((bxtrue-itrack.bx())*1000000.);
-	 TheHistManager->GetHisto("dthetay")->Fill((bytrue-itrack.by())*1000000.);
-	 // }
-
-	 double dcurrtheta = (bxtrue-itrack.bx())*1000000.;
-	 double dcurrtheta2 = (bxtrue2-itrack.bx())*1000000.;
-	 if(  abs(dcurrtheta) < abs(dcurrtheta2) )   {
-	   if( abs(dcurrtheta) < amintheta) {
-	     amintheta=abs(dcurrtheta); 
-	     mintheta=dcurrtheta; 
-	     minthetay=(bytrue-itrack.by())*1000000.; 
-	     ccchindfx=chindfx;
-	     nnnclx = itrack.nclusterx();
-	     mindphitrack = dphitrack*1000.;
-	     mindthtrack = dthtrack*1000000.;
-	     minthtrue = fabs(bxtrue*1000.);
-	     minthreal = fabs(itrack.bx()*1000.);
-	   }
-	 }
-	 else {
-	   if( abs(dcurrtheta2) < amintheta2) {
-	     amintheta2=abs(dcurrtheta2);  
-	     mintheta2=dcurrtheta2;  
-	     minthetay2=(bytrue2-itrack.by())*1000000.; 
-	     ccchindfx2=chindfx;
-	     nnnclx2 = itrack.nclusterx();
-	     mindphitrack2= dphitrack2*1000.;
-	     mindthtrack2= dthtrack2*1000000.;
-	     minthtrue2 = fabs(bxtrue2*1000.);
-	     minthreal2 = fabs(itrack.bx()*1000.);
-	   }
-	 }
-	 TheHistManager->GetHisto2("2DXY420Tr")->Fill(XXX420,YYY420);
-	 TheHistManager->GetHisto("PrimaryXiTr")->Fill(xi);
-	 TheHistManager->GetHisto("PrimaryXiTrLog")->Fill(TMath::Log10(xi));
-	 TheHistManager->GetHisto("PrimaryEtaTr")->Fill(eta);
- }//   for  simHitIter
- //
- //
- //           loop in #tracks      ENDED      loop in #tracks     ENDED     loop in #tracks      ENDED
- //
- //
- if(ntracks>1) {
-   for (int trx=0; trx<ntracks; ++trx) {
-     for (int tr=0; tr<ntracks; ++tr) {
-       //--------------------------------------------------------------------	
-       double yyyvtx = 0.0, xxxvtx = -22;  //mm
-  //
-       double yyyyyy = 999999.;
-       //if(Bx[trx] != 0.) yyyyyy = Ay[tr]-Ax[trx]*By[tr]/Bx[trx]+xxxvtx*By[tr]/Bx[trx];
-       if(Bx[trx] != 0.) yyyyyy = Ay[tr]-(Ax[trx]-xxxvtx)*By[tr]/Bx[trx];
-       double xxxxxx = 999999.;
-       //if(By[tr] != 0.) xxxxxx = Ax[trx]-Ay[tr]*Bx[trx]/By[tr]+yyyvtx*Bx[trx]/By[tr];
-       if(By[tr] != 0.) xxxxxx = Ax[trx]-(Ay[tr]-yyyvtx)*Bx[trx]/By[tr];
- //
-       //double  dthdif= abs(xxxxxx-xxxvtx);
-       double  dthdif= abs(yyyyyy-yyyvtx) + abs(xxxxxx-xxxvtx);
-       double  dthdiff= yyyyyy-yyyvtx + xxxxxx-xxxvtx;
- //
-       TheHistManager->GetHisto("xxxxxx")->Fill(xxxxxx);
-       TheHistManager->GetHisto("yyyyyy")->Fill(yyyyyy);
-       TheHistManager->GetHisto("dthdif")->Fill(dthdif);
-       TheHistManager->GetHisto("dthdiff")->Fill(dthdiff);
-       TheHistManager->GetHisto("xxxxxxs")->Fill(xxxxxx);
-       TheHistManager->GetHisto("yyyyyys")->Fill(yyyyyy);
-       if(trx == tr){
-	 TheHistManager->GetHisto("xxxxxxeq")->Fill(xxxxxx);
-	 TheHistManager->GetHisto("yyyyyyeq")->Fill(yyyyyy);
-	 TheHistManager->GetHisto("dthdifeq")->Fill(dthdif);
-	 TheHistManager->GetHisto("dthdiffeq")->Fill(dthdiff);
-	 TheHistManager->GetHisto("xxxxxxeqs")->Fill(xxxxxx);
-	 TheHistManager->GetHisto("yyyyyyeqs")->Fill(yyyyyy);
-       }
-       else{
-	 TheHistManager->GetHisto("xxxxxxno")->Fill(xxxxxx);
-	 TheHistManager->GetHisto("yyyyyyno")->Fill(yyyyyy);
-	 TheHistManager->GetHisto("dthdifno")->Fill(dthdif);
-	 TheHistManager->GetHisto("dthdiffno")->Fill(dthdiff);
-	 TheHistManager->GetHisto("xxxxxxnos")->Fill(xxxxxx);
-	 TheHistManager->GetHisto("yyyyyynos")->Fill(yyyyyy);
-       }
-     }
-   }
- }
- //                                                                                   .
- TheHistManager->GetHisto("losthitsX2Dnhit")->Fill(nhitplanes2X,nhitplanes2X-nnnclx);
- TheHistManager->GetHisto("losthitsX2D")->Fill(nhitplanes2X,1.);
- TheHistManager->GetHisto("losthitsX3Dnhit")->Fill(nhitplanes3X,nhitplanes3X-nnnclx);
- TheHistManager->GetHisto("losthitsX3D")->Fill(nhitplanes3X,1.);
-
- TheHistManager->GetHisto("mintheta")->Fill(mintheta);
- TheHistManager->GetHisto("mintheta2")->Fill(mintheta2);
- TheHistManager->GetHisto("ccchindfx")->Fill(ccchindfx);
- TheHistManager->GetHisto("ccchindfx2")->Fill(ccchindfx2);
- TheHistManager->GetHisto("minthetay")->Fill(minthetay);
- TheHistManager->GetHisto("minthetay2")->Fill(minthetay2);
-
- TheHistManager->GetHisto("mindphitrack")->Fill(mindphitrack);
- TheHistManager->GetHisto("mindthtrack")->Fill(mindthtrack);
- TheHistManager->GetHisto("minthtrue")->Fill(minthtrue);
- TheHistManager->GetHisto("minthreal")->Fill(minthreal);
- TheHistManager->GetHisto("mindphitrack2")->Fill(mindphitrack2);
- TheHistManager->GetHisto("mindthtrack2")->Fill(mindthtrack2);
- TheHistManager->GetHisto("minthtrue2")->Fill(minthtrue2);
- TheHistManager->GetHisto("minthreal2")->Fill(minthreal2);
-
- // sigma=0.92, but ask in limot of 5 murad
- if(abs(mintheta)<10. && ccchindfx<3.) {
-   TheHistManager->GetHisto("efftracktheta4")->Fill(fabs(bxtrue*1000.));
-   TheHistManager->GetHisto("effnhitplanesX4")->Fill(nhitplanes2X);
- }
- // at least on track selected
-  if( (abs(mintheta)<10. || abs(mintheta2)<10.) &&
-      (ccchindfx<3. || ccchindfx2<3.)          ) {
-   TheHistManager->GetHisto("eff1trackdref124")->Fill(dref12);
-   TheHistManager->GetHisto("averdthetavsd12")->Fill(dref12,mintheta);
- }
-
- // select 2 good tracks:
- if( abs(mintheta)<10. && abs(mintheta2)<10. &&
-     ccchindfx<3. && ccchindfx2<3.          ) {
-   TheHistManager->GetHisto("efftrackdref124")->Fill(dref12);
-   TheHistManager->GetHisto("clnumX2Ttacks1Sec4")->Fill(clnum1X);
-   TheHistManager->GetHisto("clnumX2Ttacks2Sec4")->Fill(clnum2X);
-   TheHistManager->GetHisto("clnumX2Ttacks3Sec4")->Fill(clnum3X);
-   TheHistManager->GetHisto("numberOfXandYtracks")->Fill(ntracks);
- }
- //                                                                                   .
-
- }// 2 tracks preselection
-
- //
- ////                       END                                     END                                 END      access to Tracks
-
-//                                                                                                   first OLD:
-//
-       double cov00, cov01, cov11, chisq;
-//                                                                                                         .2
-//                                                                           X  Fit for      2 Stations
-       double c0X2, c1X2;
-       TheHistManager->GetHisto("nhitplanes2X")->Fill(nhitplanes2X);
-       gsl_fit_wlinear (z2X, 1, w2X, 1, x2X, 1, nhitplanes2X, 
-                        &c0X2, &c1X2, &cov00, &cov01, &cov11, 
-                        &chisq);
-       //float d2X = (-vx-12.7) - (c0X2+ c1X2*zref1);
-       // float d2X = (c0X2+ c1X2*zref1) - xref;
-       float d2X = (bxtrue - c1X2)*zref1;// precision of DeltaX points at 8m arm
-       TheHistManager->GetHisto("d2XinVtxTrack")->Fill(d2X);
-       if(nhitplanes2X>2)TheHistManager->GetHisto("chisq2X")->Fill(chisq/(nhitplanes2X-2));
-       float chi2nodf2X = chisq/(nhitplanes2X-2);
-//                                                                                                         .3
-//                                                                           X  Fit for      3 Stations
-       double c0X3, c1X3;
-       TheHistManager->GetHisto("nhitplanes3X")->Fill(nhitplanes3X);
-       gsl_fit_wlinear (z3X, 1, w3X, 1, x3X, 1, nhitplanes3X, 
-                        &c0X3, &c1X3, &cov00, &cov01, &cov11, 
-                        &chisq);
-       //       float d3X = (-vx-12.7) - (c0X3+ c1X3*zref1);
-       //float d3X = (c0X3+ c1X3*zref1) - xref;
-       float d3X = (bxtrue - c1X3)*zref1;// precision of DeltaX points at 8m arm
-       TheHistManager->GetHisto("d3XinVtxTrack")->Fill(d3X);
-       if(nhitplanes3X>2) TheHistManager->GetHisto("chisq3X")->Fill(chisq/(nhitplanes3X-2));
-//                                                                                                         .
-
-
-//                                                                                                         .2
-//                                                                           Y  Fit for      2 Stations
-       double c0Y2, c1Y2;
-       TheHistManager->GetHisto("nhitplanes2Y")->Fill(nhitplanes2Y);
-       gsl_fit_wlinear (z2Y, 1, w2Y, 1, y2Y, 1, nhitplanes2Y, 
-                        &c0Y2, &c1Y2, &cov00, &cov01, &cov11, 
-                        &chisq);
-       //float d2Y = (vy+5.) - (c0Y2+ c1Y2*zref1);
-       //float d2Y = (c0Y2+ c1Y2*zref1) - yref;
-       float d2Y = (bytrue - c1Y2)*zref1;// precision of DeltaX points at 8m arm
-       TheHistManager->GetHisto("d2YinVtxTrack")->Fill(d2Y);
-       if(nhitplanes2Y>2) TheHistManager->GetHisto("chisq2Y")->Fill(chisq/(nhitplanes2Y-2));
-//                                                                                                         .3
-//                                                                           Y  Fit for      3 Stations
-       double c0Y3, c1Y3;
-       TheHistManager->GetHisto("nhitplanes3Y")->Fill(nhitplanes3Y);
-       gsl_fit_wlinear (z3Y, 1, w3Y, 1, y3Y, 1, nhitplanes3Y, 
-                        &c0Y3, &c1Y3, &cov00, &cov01, &cov11, 
-                        &chisq);
-       //float d3Y = (vy+5.) - (c0Y3+ c1Y3*zref1);
-       //float d3Y = (c0Y3+ c1Y3*zref1) - yref;
-       float d3Y = (bytrue - c1Y3)*zref1;// precision of DeltaX points at 8m arm
-       TheHistManager->GetHisto("d3YinVtxTrack")->Fill(d3Y);
-       if(nhitplanes3Y>2) TheHistManager->GetHisto("chisq3Y")->Fill(chisq/(nhitplanes3Y-2));
-//                                                                                                         .
-
-//
-//
-//               Theta and Phi:                                                      Theta and Phi:                            Theta and Phi:
-//
-//
-//
-       double phitrack; double phitrackgrad; double dphitrack; double thtrack; double dthtrack; double thtrackc;
-//
-//                                                                              2 Stations
-//
-
-       phitrack = 0.; thtrack = 0.;
-       if((c1X2*100000.) != 0.) phitrack = atan2(c1Y2*100000.,c1X2*100000.);
-       if(phitrack < 0.) phitrack += twopi;
-       phitrackgrad = phitrack*180./pi;
-       dphitrack = phi - phitrack;
-       thtrackc = cos(phitrack);
-       if(thtrackc != 0.) thtrack = atan(c1X2/thtrackc);
-       if(thtrack < 0.) thtrack += pi/2.;
-       dthtrack = th - thtrack;
-     //  if(chi2nodf2X < 3 ) {
-	 TheHistManager->GetHisto2("R2DTXTXres")->Fill(fabs(bxtrue*1000.),(bxtrue-c1X2)*1000000.);
-	 TheHistManager->GetHisto2("R2DCHI2TXres")->Fill(chi2nodf2X,(bxtrue-c1X2)*1000000.);
-     //  } 
-       if(chi2nodf2X < 3.0 ) {
-	 TheHistManager->GetHisto("dphitrack2")->Fill(dphitrack*1000.);
-	 TheHistManager->GetHisto("dthtrack2")->Fill(dthtrack*1000000.);
-	 TheHistManager->GetHisto("dthetax2")->Fill((bxtrue-c1X2)*1000000.);
-	 TheHistManager->GetHisto("dthetay2")->Fill((bytrue-c1Y2)*1000000.);
-
-	 TheHistManager->GetHisto("eff2tracktheta")->Fill(fabs(bxtrue*1000.));
-	 TheHistManager->GetHisto("effnhitplanes2X")->Fill(nhitplanes2X);
-	 if(abs((bxtrue-c1X2)*1000000.) < 10. ) {
-	   TheHistManager->GetHisto("eff2tracktheta4")->Fill(fabs(bxtrue*1000.));
-	   TheHistManager->GetHisto("effnhitplanes2X4")->Fill(nhitplanes2X);
-	   TheHistManager->GetHisto("clnum1Xinside")->Fill(clnum1X);
-	 }
-
-
-
-	 if(abs((bxtrue-c1X2)*1000000.) < 5. ) {
-	   TheHistManager->GetHisto("clnum2Xinside")->Fill(clnum2X);
-	 }
-     if(clnum1X >=7 && clnum2X ==0 ) TheHistManager->GetHisto("d1thetax2")->Fill((bxtrue-c1X2)*1000000.);
-     if(clnum1X >=8 && clnum2X ==0 ) TheHistManager->GetHisto("d2thetax2")->Fill((bxtrue-c1X2)*1000000.);
-     if(clnum1X >=1 && clnum2X >=1 ) {
-       TheHistManager->GetHisto("d3thetax2")->Fill((bxtrue-c1X2)*1000000.);//
-     }
-     else{
-       TheHistManager->GetHisto("d8thetax2")->Fill((bxtrue-c1X2)*1000000.);
-     }
-     if(clnum1X >=1 && clnum2X >=1 ) TheHistManager->GetHisto("d4thetax2")->Fill((bxtrue-c1X2)*1000000.);
-     if(clnum1X >=1 && clnum2X >=2 ) TheHistManager->GetHisto("d5thetax2")->Fill((bxtrue-c1X2)*1000000.);
-     if(clnum1X >=1 && clnum2X >=3 ) TheHistManager->GetHisto("d6thetax2")->Fill((bxtrue-c1X2)*1000000.);
-     if(clnum1X >=1 && clnum2X >=4 ) TheHistManager->GetHisto("d7thetax2")->Fill((bxtrue-c1X2)*1000000.);
-       }
-//
-//                                                                              3 Stations
-//
-
-       phitrack = 0.; thtrack = 0.;
-       if((c1X3*100000.) != 0.) phitrack = atan2(c1Y3*100000.,c1X3*100000.);
-       if(phitrack < 0.) phitrack += twopi;
-       phitrackgrad = phitrack*180./pi;
-       dphitrack = phi - phitrack;
-       thtrackc = cos(phitrack);
-       if(thtrackc != 0.) thtrack = atan(c1X3/thtrackc);
-       if(thtrack < 0.) thtrack += pi/2.;
-       dthtrack = th - thtrack;
-       TheHistManager->GetHisto("dphitrack3")->Fill(dphitrack*1000.);
-       TheHistManager->GetHisto("dthtrack3")->Fill(dthtrack*1000000.);
-       TheHistManager->GetHisto("dthetax3")->Fill((bxtrue-c1X3)*1000000.);
-       TheHistManager->GetHisto("dthetay3")->Fill((bytrue-c1Y3)*1000000.);
-//
-//                                                .
-//                     TrackReconstruction:                                                    =END
-//                                                .
-    if (verbosity > 2) {
-   std::cout <<"RecFP420Test:: TrackReconstruction  END" << std::endl;
-    }
-
-
-  } // if(totallosenergy 
-  //====================================================================================================== number of hits
-	   }   // MI or no MI or all  - end
-	   else{
-	     //#ifdef mydebug10
-	     std::cout << "Else: varia: MI or no MI or all " << std::endl;
-	     //#endif
-	       }
-
-    }                                                // primary end
+	// =======================================================================================CLUSTERS end
+      } // if(totallosenergy  inside DIGI
+      
+      
+      
+      
+	//======================================================================================================
+    }   // var    MI or no MI or all  - end
     else{
       //#ifdef mydebug10
-      std::cout << "Else: primary  " << std::endl;
+      std::cout << "Else: varia: MI or no MI or all " << std::endl;
       //#endif
     }
-//=========================== thePrim != 0  end   ================================================================================
-
-
+    
+  }                                                // primary end
+  else{
+    //#ifdef mydebug10
+    std::cout << "Else: primary  " << std::endl;
+    //#endif
+  }
+  //=========================== thePrim != 0  end   ================================================================================
+  
+  
 }
-// ==========================================================================
+
+
+
 

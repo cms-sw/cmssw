@@ -102,7 +102,7 @@ HitDigitizerFP420::~HitDigitizerFP420(){
 
 
 //HitDigitizerFP420::hit_map_type HitDigitizerFP420::processHit(const FP420G4Hit& hit, G4ThreeVector bfield, int zside,int numStrips, double pitch){
-HitDigitizerFP420::hit_map_type HitDigitizerFP420::processHit(const FP420G4Hit& hit, G4ThreeVector bfield, int zside,int numStrips, double pitch, double moduleThickness){
+HitDigitizerFP420::hit_map_type HitDigitizerFP420::processHit(const FP420G4Hit& hit, G4ThreeVector bfield, int zside,int numStrips, double pitch, int numStripsW, double pitchW, double moduleThickness){
   
   // use chargePosition just for cross-check in "induce" method
   // hit center in 3D-detector r.f.
@@ -170,7 +170,7 @@ HitDigitizerFP420::hit_map_type HitDigitizerFP420::processHit(const FP420G4Hit& 
   //  if(driftDir.z() ==0.) {
   //    std::cout << " pxlx: drift in z is zero " << std::endl; 
   //  }  else  
-  return theIChargeFP420->induce(theCDrifterFP420->drift(ion,driftDir,zside),numStrips, pitch, chargePosition, zside);
+  return theIChargeFP420->induce(theCDrifterFP420->drift(ion,driftDir,zside), numStrips, pitch, numStripsW, pitchW, zside);
   
 }
 

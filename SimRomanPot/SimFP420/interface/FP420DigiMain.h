@@ -72,12 +72,16 @@ public:
   float theStripThresholdInE;  // Strip noise in electorns.  = 2500
   bool peakMode; //  = false;
   bool noNoise; //  = false; 
+  bool addNoisyPixels;//  = true ;
   float tofCut;             // Cut on the particle TOF   = 100 or 50
   float theThreshold;          // ADC threshold   = 2
 
   double pitchX;          // pitchX
   double pitchY;          // pitchY
   double pitch;          // pitch automatic
+  double pitchXW;          // pitchX
+  double pitchYW;          // pitchY
+  double pitchW;          // pitch automatic
 
   double ldriftX;          // ldriftX
   double ldriftY;          // ldriftY
@@ -148,6 +152,9 @@ public:
   int numStripsX;    // number of Xstrips in the module
   int numStripsY;    // number of Ystrips in the module
   int numStrips;    // number of strips in the module
+  int numStripsXW;    // number of Xstrips in the module
+  int numStripsYW;    // number of Ystrips in the module
+  int numStripsW;    // number of strips in the module
 
   //  int numStripsMax;    // max number of strips in the module
   float moduleThickness; // plate thickness 

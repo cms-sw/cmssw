@@ -9,7 +9,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "RecoRomanPot/RecoFP420/interface/FP420TrackMain.h"
-#include "SimRomanPot/SimFP420/interface/ClusterFP420.h"
+#include "RecoRomanPot/RecoFP420/interface/ClusterFP420.h"
 #include "RecoRomanPot/RecoFP420/interface/TrackFP420.h"
 #include "RecoRomanPot/RecoFP420/interface/TrackProducerFP420.h"
 
@@ -26,15 +26,18 @@ FP420TrackMain::FP420TrackMain(const edm::ParameterSet& conf):conf_(conf)  {
   verbosity    = m_Anal.getParameter<int>("Verbosity");
 
   //trackMode_         = "TrackProducerMaxAmplitudeFP420";
+  //trackMode_         = "TrackProducerMaxAmplitude2FP420";
   //trackMode_         = "TrackProducerVar1FP420";
   //trackMode_         = "TrackProducerVar2FP420";
   // trackMode_         = "TrackProducerSophisticatedFP420";
+  // trackMode_         = "TrackProducer3DFP420";
   trackMode_  =  m_Anal.getParameter<std::string>("TrackModeFP420");
   
   //  sn0_ = 4;// related to  number of station: sn0=4 mean 3 Stations
   // pn0_ = 9;// related to number of planes: pn0=5 mean 4 Planes
     sn0_ = m_Anal.getParameter<int>("NumberFP420Stations");
     pn0_ = m_Anal.getParameter<int>("NumberFP420SPlanes");
+    zn0_ = m_Anal.getParameter<int>("NumberFP420SPTypes");
 
     z420_           = m_Anal.getParameter<double>("z420");
     zD2_            = m_Anal.getParameter<double>("zD2");
@@ -47,7 +50,7 @@ FP420TrackMain::FP420TrackMain(const edm::ParameterSet& conf):conf_(conf)  {
     
     if (verbosity > 0) {
       std::cout << "FP420TrackMain constructor::" << std::endl;
-      std::cout << "sn0=" << sn0_ << " pn0=" << pn0_ << std::endl;
+      std::cout << "sn0=" << sn0_ << " pn0=" << pn0_ << " zn0=" << zn0_ << std::endl;
       std::cout << "trackMode = " << trackMode_ << std::endl;
       std::cout << "dXX=" << dXX_ << " dYY=" << dYY_ << std::endl;
       std::cout << "chiCutX=" << chiCutX_ << " chiCutY=" << chiCutY_ << std::endl;
@@ -60,7 +63,9 @@ FP420TrackMain::FP420TrackMain(const edm::ParameterSet& conf):conf_(conf)  {
   UseHalfPitchShiftInY_= true;
 
   pitchX_= 0.050;
-  pitchY_= 0.050;// was 0.040
+  pitchY_= 0.050;// 
+  pitchXW_= 0.400;
+  pitchYW_= 0.400;// 
 
 //
   double zBlade = 5.00;
@@ -84,6 +89,7 @@ FP420TrackMain::FP420TrackMain(const edm::ParameterSet& conf):conf_(conf)  {
       std::cout << " zD2=" << zD2_ << " zD3=" << zD3_ << std::endl;
       std::cout << " UseHalfPitchShiftInX=" << UseHalfPitchShiftInX_ << " UseHalfPitchShiftInY=" << UseHalfPitchShiftInY_ << std::endl;
       std::cout << " pitchX=" << pitchX_ << " pitchY=" << pitchY_ << std::endl;
+      std::cout << " pitchXW=" << pitchXW_ << " pitchYW=" << pitchYW_ << std::endl;
       std::cout << " zBlade=" << zBlade << " gapBlade=" << gapBlade << std::endl;
       std::cout << " ZKapton=" << ZKapton << " ZBoundDet=" << ZBoundDet << std::endl;
       std::cout << " ZSiElectr=" << ZSiElectr << " ZCeramDet=" << ZCeramDet << std::endl;
@@ -98,9 +104,12 @@ FP420TrackMain::FP420TrackMain(const edm::ParameterSet& conf):conf_(conf)  {
   //trackMode_ == "TrackProducerVar1FP420" ||
   //trackMode_ == "TrackProducerVar2FP420" ||
       if ( trackMode_ == "TrackProducerMaxAmplitudeFP420" ||
-	   trackMode_ == "TrackProducerSophisticatedFP420" )  {
-	finderParameters_ = new TrackProducerFP420(sn0_, pn0_, z420_, zD2_, zD3_,
+	   trackMode_ == "TrackProducerMaxAmplitude2FP420"  ||
+	   trackMode_ == "TrackProducerSophisticatedFP420"  ||
+	   trackMode_ == "TrackProducer3DFP420" )  {
+	finderParameters_ = new TrackProducerFP420(sn0_, pn0_, zn0_, z420_, zD2_, zD3_,
 						   pitchX_, pitchY_,
+						   pitchXW_, pitchYW_,
 						   ZGapLDet_, ZSiStep_,
 						   ZSiPlane_, ZSiDetL_, ZSiDetR_,
 						   UseHalfPitchShiftInX_, UseHalfPitchShiftInY_,
@@ -132,7 +141,7 @@ void FP420TrackMain::run(const ClusterCollectionFP420 &input, TrackCollectionFP4
     /*
     for (int sector=1; sector<sn0_; sector++) {
       for (int zmodule=1; zmodule<pn0_; zmodule++) {
-	for (int zside=1; zside<3; zside++) {
+	for (int zside=1; zside<zn0_; zside++) {
 	  int sScale = 2*(pn0-1);
 	  //      int index = FP420NumberingScheme::packFP420Index(det, zside, sector, zmodule);
 	  // intindex is a continues numbering of FP420
@@ -168,6 +177,9 @@ void FP420TrackMain::run(const ClusterCollectionFP420 &input, TrackCollectionFP4
 	  if ( trackMode_ == "TrackProducerMaxAmplitudeFP420") {
 		 collector = finderParameters_->trackFinderMaxAmplitude(input); //std::vector<TrackFP420> collector;
 	  }// if ( trackMode
+	  else if (trackMode_ == "TrackProducerMaxAmplitude2FP420" ) {
+		 collector = finderParameters_->trackFinderMaxAmplitude2(input); //
+	  }// if ( trackMode
 	  /*
 	  else if (trackMode_ == "TrackProducerVar1FP420" ) {
 		 collector = finderParameters_->trackFinderVar1(input); //
@@ -178,6 +190,9 @@ void FP420TrackMain::run(const ClusterCollectionFP420 &input, TrackCollectionFP4
 */
 	  else if (trackMode_ == "TrackProducerSophisticatedFP420" ) {
 		 collector = finderParameters_->trackFinderSophisticated(input); //
+	  }// if ( trackMode
+	  else if (trackMode_ == "TrackProducer3DFP420" ) {
+		 collector = finderParameters_->trackFinder3D(input); //
 	  }// if ( trackMode
 
 	  //   if (collector.size()>0){

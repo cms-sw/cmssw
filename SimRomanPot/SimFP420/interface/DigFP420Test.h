@@ -1,5 +1,5 @@
-#ifndef RecFP420Test_H
-#define RecFP420Test_H
+#ifndef DigFP420Test_H
+#define DigFP420Test_H
 
 // system include files
 #include<vector>
@@ -23,11 +23,7 @@
 #include "SimRomanPot/SimFP420/interface/HDigiFP420.h"
 #include "SimRomanPot/SimFP420/interface/DigiCollectionFP420.h"
 
-#include "RecoRomanPot/RecoFP420/interface/ClusterFP420.h"
-#include "RecoRomanPot/RecoFP420/interface/ClusterCollectionFP420.h"
-
-#include "RecoRomanPot/RecoFP420/interface/TrackFP420.h"
-#include "RecoRomanPot/RecoFP420/interface/TrackCollectionFP420.h"
+//#include "SimRomanPot/SimFP420/interface/ClusterFP420.h"
 
 // ----------------------------------------------------------------
 
@@ -107,13 +103,7 @@ class HDigiFP420;
 class DigitizerFP420;
 class DigiCollectionFP420;
 
-class ClusterFP420;
-class ClusterizerFP420;
-class ClusterCollectionFP420;
-
-class TrackFP420;
-class TrackerizerFP420;
-class TrackCollectionFP420;
+//class ClusterFP420;
 
 class BeginOfRun;
 class EndOfRun;
@@ -124,7 +114,7 @@ class EndOfTrack;
 class G4Step;
 
 
-class RecFP420Test : public SimWatcher,
+class DigFP420Test : public SimWatcher,
   public Observer<const BeginOfJob *>, 
   public Observer<const BeginOfRun *>,
   public Observer<const EndOfRun *>,
@@ -135,8 +125,8 @@ class RecFP420Test : public SimWatcher,
   public Observer<const EndOfEvent *>
 {
 public:
-  RecFP420Test(const edm::ParameterSet &conf);
-  virtual ~RecFP420Test();
+  DigFP420Test(const edm::ParameterSet &conf);
+  virtual ~DigFP420Test();
 private:
 
   // observer classes
@@ -158,18 +148,7 @@ private:
   DigitizerFP420* theDigitizerFP420;
   DigiCollectionFP420 output;
 
-  ClusterizerFP420* theClusterizerFP420;
-  ClusterCollectionFP420 soutput;
-
-  TrackerizerFP420* theTrackerizerFP420;
-  TrackCollectionFP420 toutput;
-
   std::vector<HDigiFP420> collector;
-  std::vector<ClusterFP420> scollector;
-  std::vector<TrackFP420> tcollector;
-
-  ClusterCollectionFP420* theClusterCollectionFP420;
-  TrackCollectionFP420* theTrackCollectionFP420;
 
   int iev;
   int itrk;
@@ -209,7 +188,6 @@ private:
  // detector:
  double ldriftX, ldriftY;
  double pitchX, pitchY;
- double pitchXW, pitchYW;
  int numStripsX,numStripsY;
  int numStripsXW, numStripsYW;
 

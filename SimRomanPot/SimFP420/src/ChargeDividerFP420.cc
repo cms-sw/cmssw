@@ -176,10 +176,15 @@ std::cout << "fluctuateEloss: eloss=  " << eloss << "length=  " << length << "Nu
   else dedx = eloss;
 
   //  double particleMass = 139.57; // Mass in MeV, Assume pion
-  double particleMass = 938.; // Mass in MeV, Assume proton   ----  AZ
+  double particleMass = 938.271; // Mass in MeV, Assume proton   ----  AZ
   //  if( particleTable->getParticleData(pid) ) {  // Get mass from the PDTable
   //    particleMass = 1000. * particleTable->getParticleData(pid)->mass(); //Conv. GeV to MeV
   //  }
+  pid = abs(pid);
+  if(pid==11) particleMass = 0.511;         // Mass in MeV
+  else if(pid==13) particleMass = 105.658;
+  else if(pid==211) particleMass = 139.570;
+//  else if(pid==2212) particleMass = 938.271;
 
   float segmentLength = length/NumberOfSegs;
 

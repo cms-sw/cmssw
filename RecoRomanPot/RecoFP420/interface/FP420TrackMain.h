@@ -37,6 +37,8 @@ class FP420TrackMain
  int sn0_;
  // Number of planes:
  int pn0_;
+ // Number of planes types:
+ int zn0_;
 
 	bool UseHalfPitchShiftInX_;
 	bool UseHalfPitchShiftInY_;
@@ -47,6 +49,8 @@ class FP420TrackMain
 	double zD3_; 
 	double pitchX_;
 	double pitchY_;
+	double pitchXW_;
+	double pitchYW_;
         double ZGapLDet_;
 	//	double ZBoundDet_;
 	double ZSiStep_;

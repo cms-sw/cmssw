@@ -30,7 +30,7 @@
 
 #include "SimRomanPot/SimFP420/interface/FP420DigiMain.h"
 #include "SimRomanPot/SimFP420/interface/DigiCollectionFP420.h"
-#include "SimRomanPot/SimFP420/interface/ClusterFP420.h"
+//#include "SimRomanPot/SimFP420/interface/ClusterFP420.h"
 
 #include <CLHEP/Vector/ThreeVector.h>
 #include <string>
@@ -70,7 +70,7 @@
     FP420DigiMain * theFP420DigiMain;
     int numStrips;    // number of strips in the module
 
-    std::vector<ClusterFP420> scollector;
+//    std::vector<ClusterFP420> scollector;
 
     int sn0, pn0, verbosity;
 

@@ -1,7 +1,7 @@
 #ifndef ClusterCollectionFP420_h
 #define ClusterCollectionFP420_h
 
-#include "SimRomanPot/SimFP420/interface/ClusterFP420.h"
+#include "RecoRomanPot/RecoFP420/interface/ClusterFP420.h"
 #include <vector>
 #include <map>
 #include <utility>

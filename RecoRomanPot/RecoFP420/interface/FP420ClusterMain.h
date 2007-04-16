@@ -7,7 +7,7 @@
 #include "SimRomanPot/SimFP420/interface/DigiCollectionFP420.h"
 #include "RecoRomanPot/RecoFP420/interface/ClusterCollectionFP420.h"
 #include "RecoRomanPot/RecoFP420/interface/ClusterNoiseFP420.h"
-#include "SimRomanPot/SimFP420/interface/ClusterFP420.h"
+#include "RecoRomanPot/RecoFP420/interface/ClusterFP420.h"
 #include <iostream>
 #include <vector>
 using namespace std;
@@ -64,8 +64,8 @@ class FP420ClusterMain
   float moduleThicknessX; // plate thicknessX 
   float moduleThicknessY; // plate thicknessY 
   float moduleThickness; // plate thickness 
-  int numStripsX;    // number of strips in the moduleX
-  int numStripsY;    // number of strips in the moduleY
+  int numStripsX, numStripsXW;    // number of strips in the moduleX
+  int numStripsY, numStripsYW;    // number of strips in the moduleY
   int numStrips;    // number of strips in the module
 
   float Thick300;

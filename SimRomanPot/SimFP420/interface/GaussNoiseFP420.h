@@ -6,14 +6,16 @@
 // add noise for channels only with amplitudes greater  threshold
 class GaussNoiseFP420 : public GNoiseFP420{
  public:
-  GaussNoiseFP420(int,float,float);
+  // GaussNoiseFP420(int,float,float,bool);
+  GaussNoiseFP420(int ns, float nrms, float th, bool aNpixel);
   PileUpFP420::signal_map_type addNoise(PileUpFP420::signal_map_type);
-  void setNumStrips(int in){numStrips = in;}
+  void setNumPixels(int in){numPixels = in;}
   void setThreshold(float in){threshold = in;}
 
  private:
-  int numStrips;
+  int numPixels;
   float noiseRMS;
   float threshold;
+  bool addNoisyPixels;
 };
 #endif

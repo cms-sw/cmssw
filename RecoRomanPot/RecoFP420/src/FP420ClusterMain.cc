@@ -10,7 +10,7 @@
 
 #include "RecoRomanPot/RecoFP420/interface/FP420ClusterMain.h"
 #include "SimRomanPot/SimFP420/interface/HDigiFP420.h"
-#include "SimRomanPot/SimFP420/interface/ClusterFP420.h"
+#include "RecoRomanPot/RecoFP420/interface/ClusterFP420.h"
 #include "RecoRomanPot/RecoFP420/interface/ClusterProducerFP420.h"
 #include "RecoRomanPot/RecoFP420/interface/ClusterNoiseFP420.h"
 
@@ -52,11 +52,12 @@ FP420ClusterMain::FP420ClusterMain(const edm::ParameterSet& conf, int sn, int pn
   ldriftY = 0.050;// was 0.040
   pitchY= 0.050;// was 0.040
   pitchX= 0.050;
-  numStripsY = 201;  // Y plate number of strips:(201-1)*0.050=10mm
-  //numStripsY = 251;  // Y plate number of strips:(251-1)*0.040=10mm
   moduleThicknessY = 0.250; // mm
-  numStripsX = 401;  // X plate number of strips:(401-1)*0.050=20mm
   moduleThicknessX = 0.250; // mm
+  numStripsY = 201;        // Y plate number of strips:200*0.050=10mm (zside=1)
+  numStripsX = 401;        // X plate number of strips:400*0.050=20mm (zside=2)
+  numStripsYW = 51;        // Y plate number of W strips:50 *0.400=20mm (zside=1) - W have ortogonal projection
+  numStripsXW = 26;        // X plate number of W strips:25 *0.400=10mm (zside=2) - W have ortogonal projection
   
   //  sn0 = 4;
   //  pn0 = 9;
@@ -148,14 +149,14 @@ void FP420ClusterMain::run(const DigiCollectionFP420 &input, ClusterCollectionFP
 	  
 	  // Y:
 	  if (zside ==1) {
-	    numStrips = numStripsY;  
+	    numStrips = numStripsY*numStripsYW;  
 	    moduleThickness = moduleThicknessY; 
 	    pitch= pitchY;
 	    ldrift = ldriftX;
 	  }
 	  // X:
 	  if (zside ==2) {
-	    numStrips = numStripsX;  
+	    numStrips = numStripsX*numStripsXW;  
 	    moduleThickness = moduleThicknessX; 
 	    pitch= pitchX;
 	    ldrift = ldriftY;
@@ -203,10 +204,11 @@ void FP420ClusterMain::run(const DigiCollectionFP420 &input, ClusterCollectionFP
 		vnoise.push_back(theElectrodData);// fill vector vnoise
 	      } // for
 	      
-	      //                         clusterizeDetUnit                              !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	      //clusterizeDetUnit   or    clusterizeDetUnitPixels      !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	      collector.clear();
 	      //	      std::vector<ClusterFP420> collector;
-	      collector = threeThreshold_->clusterizeDetUnit(digiRangeIteratorBegin,digiRangeIteratorEnd,detID,vnoise);
+	      //  collector = threeThreshold_->clusterizeDetUnit(digiRangeIteratorBegin,digiRangeIteratorEnd,detID,vnoise);
+	      collector = threeThreshold_->clusterizeDetUnitPixels(digiRangeIteratorBegin,digiRangeIteratorEnd,detID,vnoise,zside);
 	      
 	      
 	    } else {

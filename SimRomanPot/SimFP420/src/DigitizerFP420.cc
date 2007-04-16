@@ -21,7 +21,7 @@
 #include "SimG4CMS/FP420/interface/FP420G4HitCollection.h"
 #include "SimG4CMS/FP420/interface/FP420G4Hit.h"
 
-#include "SimRomanPot/SimFP420/interface/ClusterFP420.h"
+//#include "SimRomanPot/SimFP420/interface/ClusterFP420.h"
 
 #include <cstdlib> 
 

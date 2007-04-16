@@ -175,10 +175,9 @@ AmplitudeSegmentFP420 ChargeDrifterFP420::drift
   //  std::cout << "ChargeDrifterFP420: depV=" <<depV  << "  appV=" << appV << " startT0 =" <<startT0  << " 1.-2*depV*pathFraction/(depV+appV) =" <<1.-2*depV*pathFraction/(depV+appV)  << " log(1.-2*depV*pathFraction/(depV+appV)) =" <<log(1.-2*depV*pathFraction/(depV+appV))  << std::endl;
   double bbb = 1.-2*depV*pathFraction/(depV+appV);
   if(bbb<0.) std::cout << "ChargeDrifterFP420:ERROR: check your Voltage for log(bbb) bbb=" << bbb << std::endl;
-  double driftTime = -constTe*
-    log(bbb) + startT0;  
+  double driftTime = -constTe*log(bbb) + startT0;  
   //    log(1.-2*depV*pathFraction/(depV+appV)) + startT0;  
-  
+  // since no magnetic field the Sigma_x, Sigma_y are the same =  sigma  !!!!!!!!!!!!!!!!! 
     double sigma = sqrt(2.*constDe*driftTime*100.);  //  * 100.  - since constDe is [cm2/sec], but i want [mm2/sec]
 
   //  std::cout << "ChargeDrifterFP420: driftTime=  " << driftTime << "  pathFraction=  " << pathFraction << "  constTe=  " << constTe << "  sigma=  " << sigma << std::endl;
