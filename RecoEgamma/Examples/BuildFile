@@ -6,6 +6,7 @@
 <use name=MagneticField/Engine>
 <use name=MagneticField/Records>
 <use name=RecoEgamma/EgammaElectronProducers>
+<use name=RecoEgamma/EgammaMCTools>
 <use name=clhep>
 <use name=root>
 <flags EDM_PLUGIN=1>
