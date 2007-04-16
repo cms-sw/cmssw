@@ -8,7 +8,9 @@
 #include <iostream>
 
 #include "FWCore/PluginManager/interface/PluginManager.h"
+#include "FWCore/PluginManager/interface/standard.h"
 #include "SealBase/Error.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 int main (int argc, char *argv[]) 
 {
@@ -20,7 +22,7 @@ int main (int argc, char *argv[])
 
     */
 
-    seal::PluginManager::get ()->initialise ();
+    edmplugin::PluginManager::configure (edmplugin::standard::config());
 
     gEnv->SetValue("Root.Stacktrace", "0");
     // set our own root plugin
@@ -118,6 +120,9 @@ int main (int argc, char *argv[])
     }
     catch(seal::Error &e) {
 	std::cout<< "exception: " << e.explain() << std::endl;
+    }
+    catch(cms::Exception& e) {
+      std::cout<< "exception: " << e.what() << std::endl;
     }
     catch(...) {
 	std::cout<< "exception...." << std::endl;
