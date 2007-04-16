@@ -30,7 +30,7 @@ void TracksCompare()
  bool hit=1;
  bool chi2=1;
  bool ctf=1;
- bool rs=0;
+ bool rs=1;
 
  //////////////////////////////////////
  /////////// CTF //////////////////////
