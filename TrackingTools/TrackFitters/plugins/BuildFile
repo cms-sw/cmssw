@@ -1,0 +1,4 @@
+<use name=TrackingTools/TrackFitters>
+<library file="*.cc" name=TrackingToolsTrackFittersPlugins>
+        <flags EDM_PLUGIN=1>
+</library>

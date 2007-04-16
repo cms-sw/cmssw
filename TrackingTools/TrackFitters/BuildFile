@@ -20,5 +20,3 @@
 <use name=DataFormats/DetId>
 <use name=DataFormats/SiStripDetId>
 
-
-<flags EDM_PLUGIN=1>
