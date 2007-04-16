@@ -1,0 +1,4 @@
+<use name=TrackingTools/KalmanUpdators>
+<library file="*.cc" name=TrackingToolsKalmanUpdatorsPlugins>
+        <flags EDM_PLUGIN=1>
+</library>
