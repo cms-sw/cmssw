@@ -2,8 +2,8 @@
  * \file Mille.cc
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.1 $
- *  $Date: 2006/10/20 13:57:03 $
+ *  $Revision: 1.2 $
+ *  $Date: 2007/03/16 16:44:47 $
  *  (last update by $Author: flucke $)
  */
 
@@ -16,10 +16,12 @@
 
 Mille::Mille(const char *outFileName, bool asBinary, bool writeZero) : 
   myOutFile(outFileName, (asBinary ? (std::ios::binary | std::ios::out) : std::ios::out)),
-  myAsBinary(asBinary), myWriteZero(writeZero), myBufferPos(-1)
+  myAsBinary(asBinary), myWriteZero(writeZero), myBufferPos(-1), myHasSpecial(false)
 {
   // opens outFileName, by default as binary file
 
+  // Instead myBufferPos(-1), myHasSpecial(false) and the following two lines
+  // we could call newSet() and kill()...
   myBufferInt[0]   = 0;
   myBufferFloat[0] = 0.;
 
@@ -82,6 +84,40 @@ void Mille::mille(int NLC, const float *derLc,
 }
 
 //___________________________________________________________________________
+void Mille::special(int nSpecial, const float *floatings, const int *integers)
+{
+  if (nSpecial == 0) return;
+  if (myBufferPos == -1) this->newSet(); // start, e.g. new track
+  if (myHasSpecial) {
+    std::cerr << "Mille::special: Special values already stored for this record."
+	      << std::endl; 
+    return;
+  }
+  if (!this->checkBufferSize(nSpecial, 0)) return;
+  myHasSpecial = true; // after newSet() (Note: MILLSP sets to buffer position...)
+
+  //  myBufferFloat[.]  | myBufferInt[.]
+  // ------------------------------------
+  //      0.0           |      0
+  //  -float(nSpecial)  |      0
+  //  The above indicates special data, following are nSpecial floating and nSpecial integer data.
+
+  ++myBufferPos; // zero pair
+  myBufferFloat[myBufferPos] = 0.;
+  myBufferInt  [myBufferPos] = 0;
+
+  ++myBufferPos; // nSpecial and zero
+  myBufferFloat[myBufferPos] = -nSpecial; // automatic conversion to float
+  myBufferInt  [myBufferPos] = 0;
+
+  for (int i = 0; i < nSpecial; ++i) {
+    ++myBufferPos;
+    myBufferFloat[myBufferPos] = floatings[i];
+    myBufferInt  [myBufferPos] = integers[i];
+  }
+}
+
+//___________________________________________________________________________
 
 void Mille::kill()
 {
@@ -126,6 +162,7 @@ void Mille::newSet()
 {
   // initilise for new set of locals, e.g. new track
   myBufferPos = 0;
+  myHasSpecial = false;
   myBufferFloat[0] = 0.0;
   myBufferInt  [0] = 0;   // position 0 used as error counter
 }
