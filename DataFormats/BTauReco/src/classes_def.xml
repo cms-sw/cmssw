@@ -52,8 +52,8 @@
   <class name="reco::SoftLeptonTagInfoRefVector"/>
   <class name="edm::Wrapper<reco::SoftLeptonTagInfoCollection>"/>
 
-  <class name="reco::TaggingVariable"/>
-  <class name="std::vector<reco::TaggingVariable>"/>
+  <class name="std::pair< reco::btau::TaggingVariableName, float >"/>
+  <class name="std::vector<std::pair<reco::btau::TaggingVariableName,float> >"/>
   <class name="reco::TaggingVariableList"/>
   <class name="reco::TaggingVariableListCollection"/>
   <class name="reco::TaggingVariableListRef"/>
@@ -145,4 +145,30 @@
   <class name="reco::JetTracksIPDataAssociationRefProd"/>
   <class name="reco::JetTracksIPDataAssociationRefVector"/>
   <class name="edm::Wrapper<reco::JetTracksIPDataAssociationCollection>"/>
+
+  <class name="reco::TrackIPTagInfo"/>
+  <class name="reco::TrackIPTagInfoCollection"/>
+  <class name="reco::TrackIPTagInfoRef"/>
+  <class name="reco::TrackIPTagInfoRefProd"/>
+  <class name="reco::TrackIPTagInfoRefVector"/>
+  <class name="edm::Wrapper<reco::TrackIPTagInfoCollection>"/>
+  
+  <class name="std::vector<Measurement1D>"/>
+  	    
+
+ <!-- RefToBase stuff -->
+  <class name="edm::RefToBase<reco::BaseTagInfo>" />
+  <class name="edm::reftobase::BaseHolder<reco::BaseTagInfo>" />
+  <class name="edm::reftobase::Holder<reco::BaseTagInfo, edm::RefProd<reco::BaseTagInfo> >" />
+  <class name="edm::reftobase::Holder<reco::BaseTagInfo, edm::RefProd<reco::TrackCountingTagInfo> >" />
+  <class name="edm::reftobase::Holder<reco::BaseTagInfo, edm::RefProd<reco::TrackIPTagInfo> >" />
+  <class name="edm::reftobase::Holder<reco::BaseTagInfo, edm::RefProd < reco::CombinedSVTagInfo> > " />
+  <class name="edm::reftobase::Holder<reco::BaseTagInfo, edm::RefProd < reco::CombinedTauTagInfo> > " />
+  <class name="edm::reftobase::Holder<reco::BaseTagInfo, edm::RefProd < reco::IsolatedTauTagInfo> > " />
+  <class name="edm::reftobase::Holder<reco::BaseTagInfo, edm::RefProd < reco::SoftLeptonTagInfo> > " />
+  <class name="edm::reftobase::Holder<reco::BaseTagInfo, edm::RefProd < reco::TauMassTagInfo> > " />
+  <class name="edm::reftobase::Holder<reco::BaseTagInfo, edm::RefProd < reco::TrackProbabilityTagInfo> >" />
+
+
 </lcgdict>
+
