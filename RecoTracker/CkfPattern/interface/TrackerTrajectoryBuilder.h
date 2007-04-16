@@ -4,7 +4,6 @@
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
 #include "FWCore/Framework/interface/Event.h"
 
-class Event;
 class Trajectory;
 class TrajectorySeed;
 class CkfDebugger;

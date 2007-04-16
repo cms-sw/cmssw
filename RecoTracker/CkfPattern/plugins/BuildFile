@@ -1,0 +1,4 @@
+<use name=RecoTracker/CkfPattern>
+<library file="*.cc" name=RecoTrackerCkfPatternPlugins>
+        <flags EDM_PLUGIN=1>
+</library>
