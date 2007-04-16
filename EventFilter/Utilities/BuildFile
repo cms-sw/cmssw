@@ -4,7 +4,6 @@
 <use name=xdaq>
 </export>
 
-<flags EDM_PLUGIN=1>
 <use name=FWCore/MessageLogger>
 <use name=FWCore/ServiceRegistry>
 <use name=xdaq>

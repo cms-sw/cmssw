@@ -1,3 +1,9 @@
+2007-04-16  Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V00-13-00
+	* use new plugin manager. Moved module definitions to plugin directory
+	NOTA BENE: these changes are incompatible with the 14 series
+
 2007-03-21  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-12-01
