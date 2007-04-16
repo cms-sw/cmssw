@@ -11,25 +11,34 @@
 
 #include "DataFormats/BTauReco/interface/JetTracksAssociation.h"
 #include "DataFormats/BTauReco/interface/JetTagFwd.h"
+#include "DataFormats/BTauReco/interface/BaseTagInfo.h"
+
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
+
+#include "DataFormats/Common/interface/RefToBase.h"
 
 namespace reco {
   class JetTag {
   public:
-    JetTag() : m_discriminator(0), m_jetTracksAssociation() {}
-    JetTag(double discriminator,JetTracksAssociationRef jetTracks) : 
-      m_discriminator(discriminator), m_jetTracksAssociation(jetTracks){ }
+    JetTag() : m_discriminator(0) {}
+    JetTag(double discriminator) : 
+      m_discriminator(discriminator){ }
     virtual ~JetTag(){}
     virtual JetTag* clone() const { return new JetTag( * this ); }
     double discriminator () const { return m_discriminator; }  
-    const Jet & jet() const { return *m_jetTracksAssociation->key; }
-    const edm::RefVector<TrackCollection> & tracks() const { return m_jetTracksAssociation->val; } 
-    const JetTracksAssociationRef& jtaRef() const { return m_jetTracksAssociation; }
 
+    void setTagInfo(const edm::RefToBase<BaseTagInfo> & ref) { m_tagInfo = ref; }
+    const edm::RefToBase<BaseTagInfo> & tagInfoRef(void) const { return m_tagInfo; }
+    
+    const JetTracksAssociationRef& jtaRef() const { return m_tagInfo->jtaRef(); }
+    const Jet & jet(void)                                const { return m_tagInfo->jet(); }
+    const edm::RefVector<TrackCollection> & tracks(void) const { return m_tagInfo->tracks(); }
+
+   
   private:
     double m_discriminator;
-    JetTracksAssociationRef m_jetTracksAssociation;
+    edm::RefToBase<BaseTagInfo> m_tagInfo;
   };
   
 }

@@ -17,7 +17,7 @@ class TrackCountingTagInfo : public BaseTagInfo
    std::vector<double> significance2d,
    std::vector<double> significance3d,
    std::vector<int> trackOrder2d,
-   std::vector<int> trackOrder3d) :
+   std::vector<int> trackOrder3d,const JetTracksAssociationRef & jtaRef) : BaseTagInfo(jtaRef),
      m_significance2d(significance2d),
      m_significance3d(significance3d),
      m_trackOrder2d(trackOrder2d),
@@ -62,8 +62,6 @@ class TrackCountingTagInfo : public BaseTagInfo
     return 0;
    }
 
-  // default discriminator 
-  using BaseTagInfo::discriminator;
    
  /**
   Recompute discriminator using nth track i.p. significance.

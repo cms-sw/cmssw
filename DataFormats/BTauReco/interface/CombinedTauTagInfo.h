@@ -4,7 +4,7 @@
 /* class CombinedTauTagInfo
  *  Extended object for the Tau Combination algorithm, 
  *  created: Dec 18 2006,
- *  revised: Apr 02 2007
+ *  revised: Jan 04 2007
  *  author: Ludovic Houchu.
  */
 
@@ -55,11 +55,6 @@ namespace reco {
     }
     virtual ~CombinedTauTagInfo() {};
     
-    // float discriminator() returns 0.        if candidate did not pass tracker selection,
-    //                               1.        if candidate passed tracker selection and did not contain neutral ECAL clus.,
-    //                               0<=  <=1  if candidate passed tracker selection, contained neutral ECAL clus. and went through the likelihood ratio mechanism, 
-    //                               NaN       the values of the likelihood functions PDFs are 0 (test the result of discriminator() with bool isnan(.));  
-    
     //the reference to the IsolatedTauTagInfo
     const IsolatedTauTagInfoRef& isolatedtautaginfoRef()const{return IsolatedTauTagInfoRef_;}
     void setisolatedtautaginfoRef(const IsolatedTauTagInfoRef x) {IsolatedTauTagInfoRef_=x;}
@@ -75,23 +70,18 @@ namespace reco {
     const TrackRefVector& signalTks()const{return signal_Tks_;}
     void setsignalTks(const TrackRefVector& x) {signal_Tks_=x;}
    
-    int signalTks_qsum()const{              // NaN : (int)(signal_Tks_.size())=0;
-      int signal_Tks_qsum_=numeric_limits<int>::quiet_NaN();	
-      if((int)(signal_Tks_.size())!=0){
-	signal_Tks_qsum_=0;
-	for(TrackRefVector::const_iterator iTk=signal_Tks_.begin();iTk!=signal_Tks_.end();iTk++){
-	  signal_Tks_qsum_+=(**iTk).charge();	  
-	}
-      }
-      return signal_Tks_qsum_;
-    }
-
     virtual CombinedTauTagInfo* clone() const{return new CombinedTauTagInfo(*this );}
     
+    // returns 0.        if candidate did not pass tracker selection,
+    //         1.        if candidate passed tracker selection and did not contain neutral obj.,
+    //         0<=  <=1  if candidate passed tracker selection, contained neutral obj. and goes through the likelihood ratio mechanism, 
+    //         NaN       the values of the likelihood functions PDFs are 0 (test the result of discriminator() with bool isnan(.));  
+    // truth matched Tau candidate PDFs obtained with evts from ORCA reco. bt04_double_tau_had sample without PU,
+    // fake Tau candidate PDFs obtained with evts from ORCA reco. jm03b_qcd30_50, jm03b_qcd50_80, jm03b_qcd80_120 and jm03b_qcd120_170 samples, all without PU.   
     bool passed_trackerselection()const{return(thecandidate_passed_trackerselection);}
     void setpassed_trackerselection(bool x){thecandidate_passed_trackerselection=x;}
 
-   bool is_GoodTauCandidate()const{return(thecandidate_is_GoodTauCandidate);} // true : passed tracker sel. and no neutral ECAL activity inside jet;
+   bool is_GoodTauCandidate()const{return(thecandidate_is_GoodTauCandidate);} // true : passed tracker sel. and no neutral activity inside jet;
    void setis_GoodTauCandidate(bool x){thecandidate_is_GoodTauCandidate=x;}
 
    bool infact_GoodElectronCandidate()const{return(thecandidate_is_infact_GoodElectronCandidate);} // true : passed tracker sel., contains 1 signal tk, e-identified through (ECALEt_o_leadTkPt(),HCALEt_o_leadTkPt()) space;
@@ -100,7 +90,7 @@ namespace reco {
    bool infact_GoodMuonCandidate()const{return(thecandidate_is_infact_GoodMuonCandidate);} // true : passed tracker sel., contains 1 signal tk, mu-identified through (ECALEt_o_leadTkPt(),HCALEt_o_leadTkPt()) space;
    void setinfact_GoodMuonCandidate(bool x){thecandidate_is_infact_GoodMuonCandidate=x;}
 
-   bool needs_LikelihoodRatio_discrimination()const{return(thecandidate_needs_LikelihoodRatio_discrimination);} // true : passed tracker sel. and neutral ECAL activity inside jet;
+   bool needs_LikelihoodRatio_discrimination()const{return(thecandidate_needs_LikelihoodRatio_discrimination);} // true : passed tracker sel. and neutral activity inside jet;
    void setneeds_LikelihoodRatio_discrimination(bool x){thecandidate_needs_LikelihoodRatio_discrimination=x;}
 
    double leadTk_signedipt_significance()const{return (theleadTk_signedipt_significance);}  // NaN : failure;

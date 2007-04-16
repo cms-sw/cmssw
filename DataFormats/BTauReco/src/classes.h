@@ -9,6 +9,7 @@
 #include "DataFormats/BTauReco/interface/JetCrystalsAssociation.h"
 #include "DataFormats/BTauReco/interface/JetTag.h"
 #include "DataFormats/BTauReco/interface/BaseTagInfo.h"
+#include "DataFormats/BTauReco/interface/BaseTagInfoFwd.h"
 #include "DataFormats/BTauReco/interface/TaggingVariable.h"
 #include "DataFormats/BTauReco/interface/TrackCountingTagInfo.h"
 #include "DataFormats/BTauReco/interface/TrackProbabilityTagInfo.h"
@@ -23,6 +24,7 @@
 #include "DataFormats/BTauReco/interface/TrackTauImpactParameterAssociation.h"
 #include "DataFormats/BTauReco/interface/JetEisolAssociation.h"
 #include "DataFormats/BTauReco/interface/TrackIPData.h"
+#include "DataFormats/BTauReco/interface/TrackIPTagInfo.h"
 
 namespace reco {
     typedef TrackTauImpactParameterAssociationCollection::map_type          TrackTauImpactParameterAssociationMapType;
@@ -98,8 +100,8 @@ namespace {
     reco::SoftLeptonTagInfoRefVector                                    sl_rv;
     edm::Wrapper<reco::SoftLeptonTagInfoCollection>                     sl_wc;
 
-    reco::TaggingVariable                                               tv;
-    std::vector<reco::TaggingVariable>                                  tv_v;
+    std::pair< reco::btau::TaggingVariableName, float >                 ptt1;
+    std::vector<std::pair<reco::btau::TaggingVariableName,float> >      vptt1;
     reco::TaggingVariableList                                           tvl;
     reco::TaggingVariableListCollection                                 tvl_c;
     reco::TaggingVariableListRef                                        tvl_r;
@@ -180,5 +182,28 @@ namespace {
     reco::JetTracksIPDataAssociationRefVector                           jtip_rv;
     edm::Wrapper<reco::JetTracksIPDataAssociationCollection>            jtip_wc;
 
+    reco::TrackIPTagInfo                                          tcip;
+    reco::TrackIPTagInfoCollection                                tcip_c;
+    reco::TrackIPTagInfoRef                                       tcip_r;
+    reco::TrackIPTagInfoRefProd                                   tcip_rp;
+    reco::TrackIPTagInfoRefVector                                 tcip_rv;
+    edm::Wrapper<reco::TrackIPTagInfoCollection>                  tcip_wc;
+
+    
+    std::vector<Measurement1D>    vm1d;
+	    
+    //Ref To base holders
+    // 
+
+      edm::reftobase::Holder<reco::BaseTagInfo, edm::RefProd < reco::BaseTagInfo> >  rb0;
+      edm::reftobase::Holder<reco::BaseTagInfo, edm::RefProd < reco::TrackCountingTagInfo> > rb1;
+      edm::reftobase::Holder<reco::BaseTagInfo, edm::RefProd < reco::TrackIPTagInfo> > rb2;
+      edm::reftobase::Holder<reco::BaseTagInfo, edm::RefProd < reco::CombinedSVTagInfo> > rb3;
+      edm::reftobase::Holder<reco::BaseTagInfo, edm::RefProd < reco::CombinedTauTagInfo> > rb4;
+      edm::reftobase::Holder<reco::BaseTagInfo, edm::RefProd < reco::IsolatedTauTagInfo> > rb5;
+      edm::reftobase::Holder<reco::BaseTagInfo, edm::RefProd < reco::SoftLeptonTagInfo> > rb6;
+      edm::reftobase::Holder<reco::BaseTagInfo, edm::RefProd < reco::TauMassTagInfo> > rb7;
+      edm::reftobase::Holder<reco::BaseTagInfo, edm::RefProd < reco::TrackProbabilityTagInfo> > rb8;
+ 
   }
 }

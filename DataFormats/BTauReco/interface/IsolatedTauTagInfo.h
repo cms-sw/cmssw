@@ -64,8 +64,9 @@ class IsolatedTauTagInfo : public BaseTagInfo {
     virtual IsolatedTauTagInfo* clone() const { return new IsolatedTauTagInfo( *this ); }
   
     //default discriminator: returns the value of the discriminator of the jet tag, i.e. the one computed with the parameters taken from the cfg file
-    using BaseTagInfo::discriminator;
-
+    //   using BaseTagInfo::discriminator;
+    float  discriminator() const {return -1.; }
+     
     //methods to be used to recomputed the isolation with a new set of parameters
     float discriminator(float m_cone, float sig_cone, float iso_con, float pt_min_lt, float pt_min_tk, int nTracksIsoRing = 0) const;
     float discriminator( math::XYZVector myVector, float m_cone, float sig_cone, float iso_con, float pt_min_lt, float pt_min_tk, int nTracksIsoRing) const;

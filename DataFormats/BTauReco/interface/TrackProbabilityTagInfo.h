@@ -90,8 +90,6 @@ int factorial(int n) const
   return -log10(ProbJet)/4.;
 }
 
-  // default discriminator 
-  using BaseTagInfo::discriminator;
    
  /**
   Recompute discriminator 

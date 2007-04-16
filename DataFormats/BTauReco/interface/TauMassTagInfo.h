@@ -26,7 +26,7 @@ namespace reco {
     virtual TauMassTagInfo* clone() const { return new TauMassTagInfo( * this ); }
     
     //default discriminator: returns the discriminator of the jet tag
-    using BaseTagInfo::discriminator;
+    float discriminator() const {return -1. ;}
     
     float discriminator(const double rm_cone,const double pt_cut,const double rs_cone,
                         const double track_cone,const double m_cut) const;

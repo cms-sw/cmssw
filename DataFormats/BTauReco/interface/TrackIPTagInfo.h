@@ -1,0 +1,67 @@
+#ifndef BTauReco_TrackIpTagInfo_h
+#define BTauReco_TrackIpTagInfo_h
+
+#include "DataFormats/GeometryCommonDetAlgo/interface/Measurement1D.h"
+
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/BTauReco/interface/JetTag.h"
+#include "DataFormats/BTauReco/interface/BaseTagInfo.h"
+#include "DataFormats/BTauReco/interface/TrackIPTagInfoFwd.h"
+
+namespace reco {
+ 
+class TrackIPTagInfo : public BaseTagInfo
+ {
+  public:
+
+ TrackIPTagInfo(
+    std::vector<Measurement1D> ip2d,
+   std::vector<Measurement1D> ip3d,
+   std::vector<Measurement1D> decayLen,
+   std::vector<Measurement1D> jetDistance,
+   std::vector<float> prob2d,
+   std::vector<float> prob3d,
+   edm::RefVector<TrackCollection> selectedTracks,const JetTracksAssociationRef & jtaRef) : BaseTagInfo(jtaRef),
+     m_ip2d(ip2d),  m_ip3d(ip3d),  m_decayLen(decayLen),
+     m_jetDistance(jetDistance),  m_prob2d(prob2d),
+     m_prob3d(prob3d), m_selectedTracks(selectedTracks) {}
+
+  TrackIPTagInfo() {}
+  
+  virtual ~TrackIPTagInfo() {}
+  
+ /**
+   Check if probability information is available for all
+   impact parameters in the collection
+  */
+  virtual bool hasProbabilities() const { return  m_ip3d.size()==m_prob3d.size(); }
+  
+  /**
+   Vectors of IPs measurement1D orderd as the tracks()
+   ip = 0   means 3D
+   ip = 1   means transverse IP 
+   */
+ const std::vector<Measurement1D> & impactParameters(int ip) const {return (ip==0)?m_ip3d:m_ip2d; }
+ const std::vector<Measurement1D> &decayLen() const {return m_decayLen; }
+ const std::vector<Measurement1D> & jetDistance() const {return m_jetDistance; }
+
+  const edm::RefVector<TrackCollection> & selectedTracks() const { return m_selectedTracks; }
+ const std::vector<float> & probabilities(int ip) const {return (ip==0)?m_prob3d:m_prob2d; }
+
+   private:
+   std::vector<Measurement1D> m_ip2d;   
+   std::vector<Measurement1D> m_ip3d;   
+   std::vector<Measurement1D> m_decayLen;
+   std::vector<Measurement1D> m_jetDistance;
+   std::vector<float> m_prob2d;   
+   std::vector<float> m_prob3d;   
+   edm::RefVector<TrackCollection> m_selectedTracks;
+//   edm::Ref<VertexCollection> m_pv;
+
+};
+
+//typedef edm::ExtCollection< TrackIPTagInfo,JetTagCollection> TrackCountingExtCollection;
+//typedef edm::OneToOneAssociation<JetTagCollection, TrackIPTagInfo> TrackCountingExtCollection;
+ 
+}
+#endif
