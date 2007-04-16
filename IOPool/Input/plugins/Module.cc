@@ -1,6 +1,6 @@
 #include "FWCore/Framework/interface/InputSourceMacros.h"
 #include "FWCore/Framework/interface/VectorInputSourceMacros.h"
-#include "IOPool/Input/src/PoolSource.h"
+#include "PoolSource.h"
 
 using edm::PoolSource;
 using edm::PoolRASource;

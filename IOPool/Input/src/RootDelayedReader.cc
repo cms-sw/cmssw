@@ -1,8 +1,8 @@
 /*----------------------------------------------------------------------
-$Id: RootDelayedReader.cc,v 1.6 2007/03/04 06:29:05 wmtan Exp $
+$Id: RootDelayedReader.cc,v 1.7 2007/04/08 23:13:48 wmtan Exp $
 ----------------------------------------------------------------------*/
 
-#include "IOPool/Input/src/RootDelayedReader.h"
+#include "IOPool/Input/interface/RootDelayedReader.h"
 #include "IOPool/Common/interface/RefStreamer.h"
 #include "DataFormats/Provenance/interface/BranchKey.h"
 #include "Reflex/Type.h"

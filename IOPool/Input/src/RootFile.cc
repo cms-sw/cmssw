@@ -1,8 +1,8 @@
 /*----------------------------------------------------------------------
-$Id: RootFile.cc,v 1.61 2007/03/27 22:54:45 wmtan Exp $
+$Id: RootFile.cc,v 1.62 2007/04/01 16:00:52 wmtan Exp $
 ----------------------------------------------------------------------*/
 
-#include "IOPool/Input/src/RootFile.h"
+#include "IOPool/Input/interface/RootFile.h"
 
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/BranchType.h"

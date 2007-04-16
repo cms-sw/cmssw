@@ -1,6 +1,4 @@
-<flags EDM_PLUGIN=1>
 <use name=FWCore/Framework>
-<use name=FWCore/Catalog>
 <use name=FWCore/MessageLogger>
 <use name=FWCore/Utilities>
 <use name=FWCore/ParameterSet>
@@ -9,10 +7,19 @@
 <use name=DataFormats/Provenance>
 <use name=IOPool/Common>
 <use name=boost>
-<use name=clhep>
 <use name=rootcore>
+<use name=rootrflx>
 <use name=root>
 <export>
+ <use name=FWCore/Framework>
+ <use name=FWCore/MessageLogger>
+ <use name=FWCore/ParameterSet>
  <lib name=IOPoolInput>
+ <use name=DataFormats/Common>
+ <use name=DataFormats/Provenance>
+ <use name=boost>
+ <use name=rootcore>
+ <use name=rootrflx>
+ <use name=root>
 </export>
 
