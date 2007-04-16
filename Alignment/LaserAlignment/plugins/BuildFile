@@ -3,7 +3,7 @@
 <use name=FWCore/MessageLogger>
 <use name=FWCore/ServiceRegistry>
 
-<library name=LaserAlignment file=LaserAlignment.cc,LaserAlignmentInitHistograms.cc,LaserAlignmentTrackerStatistics.cc,LaserAlignmentAlignmentAlgorithm.cc,LaserAlignmentFit.cc>
+<library name=LaserAlignmentPlugins file=LaserAlignment.cc,LaserAlignmentInitHistograms.cc,LaserAlignmentTrackerStatistics.cc,LaserAlignmentAlignmentAlgorithm.cc,LaserAlignmentFit.cc>
 	<lib name=AlignmentLaserAlignment>
 	<use name=Alignment/LaserAlignment>
 	<use name=Alignment/TrackerAlignment>

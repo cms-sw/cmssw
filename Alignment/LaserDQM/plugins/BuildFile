@@ -1,4 +1,4 @@
-<library name=LaserDQM file=LaserDQM.cc,LaserDQMInitMonitors.cc,LaserDQMStatistics.cc>
+<library name=LaserDQMPlugins file=LaserDQM.cc,LaserDQMInitMonitors.cc,LaserDQMStatistics.cc>
  <use name=boost>
  <use name=FWCore/Framework>
  <use name=FWCore/ParameterSet>
@@ -12,6 +12,7 @@
  <use name=DataFormats/Common>
  <use name=DQMServices/Core>
  <use name=DQMServices/Daemon>
+ <use name=Geometry/Records>
  <use name=root>
  <use name=rootcore>
 <flags EDM_PLUGIN=1>

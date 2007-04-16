@@ -6,7 +6,7 @@
 <use name=clhep>
 <use name=boost>
 
-<library file=LaserAlignmentSimulation.cc>
+<library file=LaserAlignmentSimulation.cc name=LaserAlignmentSimulationPlugins>
  <lib name=AlignmentLaserAlignmentSimulation>
  <use name=SimG4Core/Notification>
  <use name=SimG4Core/Watcher>
