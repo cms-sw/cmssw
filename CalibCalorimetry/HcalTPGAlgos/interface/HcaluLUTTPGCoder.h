@@ -19,22 +19,40 @@
   * [LUT 1(127)] [LUT 2(127)] ...
   * </pre>
   *
-  * $Date: 2007/02/19 15:55:53 $
-  * $Revision: 1.4 $
+  * $Date: 2007/04/04 04:12:46 $
+  * $Revision: 1.6 $
   * \author M. Weinberger -- TAMU
+  * \author Tulika Bose and Greg Landsberg -- Brown
   */
 class HcaluLUTTPGCoder : public HcalTPGCoder {
 public:
   HcaluLUTTPGCoder(const char* filename);
   HcaluLUTTPGCoder(const char* ifilename, const char* ofilename);
-  virtual ~HcaluLUTTPGCoder() {}
-  virtual void adc2Linear(const HBHEDataFrame& df, IntegerCaloSamples& ics) const ;
+  virtual ~HcaluLUTTPGCoder();
+  virtual void adc2Linear(const HBHEDataFrame& df, IntegerCaloSamples& ics) const;
   virtual void adc2Linear(const HFDataFrame& df, IntegerCaloSamples& ics) const;
+<<<<<<< HcaluLUTTPGCoder.h
+  virtual void compress(const IntegerCaloSamples& ics, const std::vector<bool>& featureBits, HcalTriggerPrimitiveDigi& tp) const;
+  virtual void getConditions(const edm::EventSetup& es) const;
+  virtual void releaseConditions() const {}
+  
+=======
   virtual void compress(const IntegerCaloSamples& ics, const std::vector<bool>& featureBits, HcalTriggerPrimitiveDigi& tp) const;  
   bool getadc2fCLUT();
   bool getped();
   bool getgain();
+>>>>>>> 1.6
 private:
+<<<<<<< HcaluLUTTPGCoder.h
+  static const int nluts = 46005, INPUT_LUT_SIZE = 128;
+  int GetLUTID(HcalSubdetector id, int ieta, int iphi, int depth) const;
+  void AllocateLUTs();
+  void getRecHitCalib(const char* filename);
+  float Rcalib[87];
+  typedef short unsigned int LUT;
+  LUT *inputLUT[nluts];
+  static const float nominal_gain = 0.177;              // Nominal HB/HE gain in GeV/fC
+=======
   void loadILUTs(const char* filename);
   void loadOLUTs(const char* filename);
   //void generateILUTs(const char *filename);
@@ -49,6 +67,6 @@ private:
   float ped_;
   float ped_HF;
   float gain_;
+>>>>>>> 1.6
 };
-
 #endif
