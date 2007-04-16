@@ -1,0 +1,4 @@
+<use name=RecoTracker/TransientTrackingRecHit>
+<library file="*.cc" name=RecoTrackerTransientTrackingRecHitPlugins>
+        <flags EDM_PLUGIN=1>
+</library>

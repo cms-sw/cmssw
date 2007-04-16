@@ -17,5 +17,4 @@
  <use name=FWCore/Framework>
 </export>
 
-<flags EDM_PLUGIN=1>
 
