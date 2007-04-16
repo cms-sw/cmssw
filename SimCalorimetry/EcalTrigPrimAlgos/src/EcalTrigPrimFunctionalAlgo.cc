@@ -218,7 +218,11 @@ void EcalTrigPrimFunctionalAlgo::run(const EBDigiCollection* ebdcol,const EEDigi
 	// first, calculate thresholds
 	std::vector<int>  thresholds(nrFrames);
 	for (int ii=0;ii<nrFrames;++ii) {
-	  thresholds[ii]=((mapEndcap_[thisTower][ii])[0].adc()+(mapEndcap_[thisTower][ii])[1].adc()+(mapEndcap_[thisTower][ii])[2].adc())/3;
+	  thresholds[ii] = 
+	    (linADC((mapEndcap_[thisTower][ii])[0])+
+	     linADC((mapEndcap_[thisTower][ii])[1])+
+	     linADC((mapEndcap_[thisTower][ii])[2]))/3;
+	  //	  thresholds[ii]=((mapEndcap_[thisTower][ii])[0].adc()+(mapEndcap_[thisTower][ii])[1].adc()+(mapEndcap_[thisTower][ii])[2].adc())/3;
 	}
 
 	std::vector<EcalTriggerPrimitiveDigi> tptow;
@@ -250,7 +254,8 @@ void EcalTrigPrimFunctionalAlgo::run(const EBDigiCollection* ebdcol,const EEDigi
 	  float ettemp=0;
 
 	  for (int ii=0;ii<nrFrames;++ii) {
-	    int en=(mapEndcap_[thisTower][ii])[i].adc();
+	    int en= linADC((mapEndcap_[thisTower][ii])[i]);
+	    //	    int en=(mapEndcap_[thisTower][ii])[i].adc();
 	    float et0 = TMath::Max(en- thresholds[ii],0);
 	    et0=int(et0*eeDccAdcToGeV_/ebDccAdcToGeV_); 
 	    float theta=theEndcapGeometry->getGeometry(mapEndcap_[thisTower][ii].id())->getPosition().theta();
@@ -359,4 +364,14 @@ int EcalTrigPrimFunctionalAlgo::calculateTTF(const int en) {
    int basenr=(ieta-1)*nrphis +1;
    int towernr=basenr+(iphi-1)%nrphis;
    return  towernr;
+ }
+
+//----------------------------------------------------------------------
+ int EcalTrigPrimFunctionalAlgo::linADC(const EcalMGPASample & sample) 
+ {
+  int adc  = sample.adc() ;
+  int gain = sample.gainId() ;
+  if (gain == 2) adc *= 2 ;
+  if (gain == 3) adc *= 12 ;
+  return adc ;
  }

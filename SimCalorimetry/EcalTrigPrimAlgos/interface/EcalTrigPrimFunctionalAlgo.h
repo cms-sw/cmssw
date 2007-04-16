@@ -63,6 +63,8 @@ class EcalTrigPrimFunctionalAlgo
 
   void init(const edm::EventSetup & setup);
 
+  int linADC(const EcalMGPASample & sample) ; 
+
   void fillBarrel(const EcalTrigTowerDetId & coarser, const EBDataFrame & frame);
 
   void fillEndcap(const EcalTrigTowerDetId & coarser, const EEDataFrame & frame);
