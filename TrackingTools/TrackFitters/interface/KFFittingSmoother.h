@@ -17,7 +17,7 @@ public:
   /// constructor with predefined fitter and smoother and propagator
   KFFittingSmoother(const TrajectoryFitter& aFitter,
                     const TrajectorySmoother& aSmoother,
-		    double estimateCut = 0,
+		    double estimateCut = -1,
 		    int minNumberOfHits = 5) :
     theFitter(aFitter.clone()),
     theSmoother(aSmoother.clone()),

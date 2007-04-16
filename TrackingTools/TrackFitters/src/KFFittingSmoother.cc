@@ -74,7 +74,7 @@ fit(const TrajectorySeed& aSeed,
 				     << j << " with rawId=" << myHits[j]->det()->geographicalId().rawId();
 	    LogTrace("TrackFitters") << "The fit will be repeated without the outlier";
 	    myHits.erase(myHits.begin()+j);
-	    myHits.insert(myHits.begin()+j,InvalidTransientRecHit::build(outlierDet, TrackingRecHit::bad) );
+	    myHits.insert(myHits.begin()+j,InvalidTransientRecHit::build(outlierDet, TrackingRecHit::missing) );
 	  }
       }
     }
