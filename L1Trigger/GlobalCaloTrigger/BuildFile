@@ -6,12 +6,9 @@
 <use name=DataFormats/L1GlobalCaloTrigger>
 <use name=CondFormats/L1TObjects>
 <use name=CondFormats/DataRecord>
-<use name=L1TriggerConfig/L1ScalesProducers>
-<use name=L1TriggerConfig/GctConfigProducers>
 <use name=root>
 
 <flags EDM_PLUGIN=1>
-<Flags CXXFLAGS="-g">
 
 <export>
   <lib name=L1TriggerGlobalCaloTrigger>
@@ -23,9 +20,6 @@
   <use name=DataFormats/L1GlobalCaloTrigger>
   <use name=CondFormats/L1TObjects>
   <use name=CondFormats/DataRecord>
-  <use name=L1TriggerConfig/L1ScalesProducers>
-  <use name=L1TriggerConfig/GctConfigProducers>
   <use name=root>
-  <Flags CXXFLAGS="-g">
 </export>
 
