@@ -11,13 +11,13 @@
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 //
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 //
+#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
@@ -252,8 +252,8 @@ void SimpleConvertedPhotonAnalyzer::analyze( const edm::Event& e, const edm::Eve
       float deltaEta = etaClu-mcEta;
       
       
-      if ( deltaPhi > pi )  deltaPhi -= twopi;
-      if ( deltaPhi < -pi) deltaPhi += twopi;
+      if ( deltaPhi > Geom::pi()  ) deltaPhi -= Geom::twoPi();
+      if ( deltaPhi < -Geom::pi() ) deltaPhi += Geom::twoPi();
       deltaPhi=pow(deltaPhi,2);
       deltaEta=pow(deltaEta,2);
       float delta =  deltaPhi+deltaEta ; 
