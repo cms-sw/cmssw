@@ -9,7 +9,7 @@
 <use name=RecoEgamma/EgammaMCTools>
 <use name=clhep>
 <use name=root>
-<flags EDM_PLUGIN=1>
+<flags SEAL_PLUGIN_NAME="RecoEgammaExamples">
 <export>
   <use name=DataFormats/Common>
   <use name=FWCore/Framework>
