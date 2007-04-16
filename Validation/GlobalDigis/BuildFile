@@ -4,7 +4,8 @@
 <use name=FWCore/MessageLogger>
 <use name=DataFormats/EcalDigi>
 <use name=DataFormats/EcalDetId>
-<use name=CalibCalorimetry/EcalTrivialCondModules>
+<use name=CondFormats/EcalObjects>
+<use name=CondFormats/DataRecord>
 <use name=DataFormats/HcalDetId>
 <use name=DataFormats/HcalDigi>
 <use name=CalibFormats/HcalObjects>
@@ -24,7 +25,8 @@
  <use name=FWCore/MessageLogger>
  <use name=DataFormats/EcalDigi>
  <use name=DataFormats/EcalDetId>
- <use name=CalibCalorimetry/EcalTrivialCondModules>
+ <use name=CondFormats/EcalObjects>
+ <use name=CondFormats/DataRecord>
  <use name=DataFormats/HcalDetId>
  <use name=DataFormats/HcalDigi>
  <use name=CalibFormats/HcalObjects>
