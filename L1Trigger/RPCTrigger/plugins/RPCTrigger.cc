@@ -1,7 +1,7 @@
 /** \file RPCTrigger.cc
  *
- *  $Date: 2007/04/02 10:45:07 $
- *  $Revision: 1.25 $
+ *  $Date: 2007/04/05 06:46:32 $
+ *  $Revision: 1.26 $
  *  \author Tomasz Fruboes
  */
 #include "L1Trigger/RPCTrigger/interface/RPCTrigger.h"

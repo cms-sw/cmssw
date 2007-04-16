@@ -13,7 +13,7 @@
 //
 // Original Author:  Artur Kalinowski
 //         Created:  Tue Aug  1 13:54:56 CEST 2006
-// $Id: RPCVHDLConeMaker.cc,v 1.1 2007/04/05 06:46:32 fruboes Exp $
+// $Id: RPCVHDLConeMaker.cc,v 1.2 2007/04/06 09:53:56 fruboes Exp $
 //
 //
 
