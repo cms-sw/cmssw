@@ -9,7 +9,9 @@
 #include "DataFormats/ParticleFlowReco/interface/PFSimParticle.h"
 #include "DataFormats/ParticleFlowReco/interface/PFTrajectoryPoint.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElement.h"
-
+#include "DataFormats/ParticleFlowReco/interface/PFBlockElementTrack.h"
+#include "DataFormats/ParticleFlowReco/interface/PFBlockElementCluster.h"
+#
 #include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
 
 namespace { 
@@ -43,5 +45,7 @@ namespace {
       reco::PFBlock, 
       edm::refhelper::FindUsingAdvance< std::vector<reco::PFBlock>,
                                         reco::PFBlock> > dummy17;
+    edm::Ref<std::vector<reco::PFRecTrack>,reco::PFRecTrack,edm::refhelper::FindUsingAdvance<std::vector<reco::PFRecTrack>,reco::PFRecTrack> > d1;
+    edm::Ref<std::vector<reco::PFCluster>,reco::PFCluster,edm::refhelper::FindUsingAdvance<std::vector<reco::PFCluster>,reco::PFCluster> > d2;
   }
 }
