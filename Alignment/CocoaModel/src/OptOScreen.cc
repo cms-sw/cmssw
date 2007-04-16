@@ -15,6 +15,7 @@
 #include "Alignment/CocoaVisMgr/interface/ALIVRMLMgr.h"
 #include "Alignment/IgCocoaFileWriter/interface/IgCocoaFileMgr.h"
 #endif
+#include "Alignment/CocoaDDLObjects/interface/CocoaSolidShapeBox.h"
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 //@@ do nothing
@@ -47,3 +48,13 @@ void OptOScreen::fillIguana()
   IgCocoaFileMgr::getInstance().addSolid( *this, "BOX", spar, col);
 }
 #endif
+
+//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+void OptOScreen::constructSolidShape()
+{
+  ALIdouble go;
+  GlobalOptionMgr* gomgr = GlobalOptionMgr::getInstance();
+  gomgr->getGlobalOptionValue("VisScale", go );
+
+  theSolidShape = new CocoaSolidShapeBox( "Box", go*8.*cm/m, go*8.*cm/m, go*1.*cm/m ); //COCOA internal units are meters
+}

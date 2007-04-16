@@ -49,6 +49,7 @@ public:
 
  // Access DATA MEMBERS
   const ALIstring& name() const { return name_; }
+  const ALIstring longName() const;
   const ALIstring& type() const { return type_; }
   ALIdouble value() const { return value_; }
   ALIdouble valueOriginalOriginal() const { return valueOriginalOriginal_; }

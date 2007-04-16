@@ -27,6 +27,7 @@ public:
 
   //---------- Default behaviour: create a LightRay object
   virtual void defaultBehaviour( LightRay& lightray, Measurement& meas );
+  void constructSolidShape();
 
 #ifdef COCOA_VIS
   virtual void fillIguana();

@@ -15,6 +15,7 @@
 #include "Alignment/IgCocoaFileWriter/interface/IgCocoaFileMgr.h"
 #include "Alignment/CocoaVisMgr/interface/ALIColour.h"
 #endif
+#include "Alignment/CocoaDDLObjects/interface/CocoaSolidShapeBox.h"
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 //@@  Detailed simulation of deviation of the light ray 
@@ -256,3 +257,13 @@ void OptOOpticalSquare::fillIguana()
   IgCocoaFileMgr::getInstance().addSolid( *this, "OPTSQR", spar, col);
 }
 #endif
+
+//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+void OptOOpticalSquare::constructSolidShape()
+{
+  ALIdouble go;
+  GlobalOptionMgr* gomgr = GlobalOptionMgr::getInstance();
+  gomgr->getGlobalOptionValue("VisScale", go );
+
+  theSolidShape = new CocoaSolidShapeBox( "Box", go*5.*cm/m, go*5.*cm/m, go*5.*cm/m ); //COCOA internal units are meters
+}

@@ -2092,8 +2092,12 @@ void OpticalObject::constructMaterial()
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 void OpticalObject::constructSolidShape()
 {
-  theSolidShape = new CocoaSolidShapeBox( "Box", 10.*cm, 10.*cm, 10.*cm );
-}
+  ALIdouble go;
+  GlobalOptionMgr* gomgr = GlobalOptionMgr::getInstance();
+  gomgr->getGlobalOptionValue("VisScale", go );
+
+  theSolidShape = new CocoaSolidShapeBox( "Box", go*5.*cm/m, go*5.*cm/m, go*5.*cm/m ); //COCOA internal units are meters
+} 
 
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -2241,7 +2245,5 @@ void OpticalObject::createComponentOptOsFromOptAlignInfo()
     Model::OptOList().push_back( OptOcomponent ); 
   }
   
-
 }
-
 

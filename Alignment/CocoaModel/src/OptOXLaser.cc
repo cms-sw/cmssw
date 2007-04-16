@@ -12,6 +12,7 @@
 #include "Alignment/IgCocoaFileWriter/interface/IgCocoaFileMgr.h"
 #include "Alignment/CocoaVisMgr/interface/ALIColour.h"
 #endif
+#include "Alignment/CocoaDDLObjects/interface/CocoaSolidShapeTubs.h"
 
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -44,3 +45,12 @@ void OptOXLaser::fillIguana()
 }
 #endif
 
+//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+void OptOXLaser::constructSolidShape()
+{
+  ALIdouble go;
+  GlobalOptionMgr* gomgr = GlobalOptionMgr::getInstance();
+  gomgr->getGlobalOptionValue("VisScale", go );
+
+  theSolidShape = new CocoaSolidShapeTubs( "Tubs", go*0.*cm/m, go*1.*cm/m, go*5.*cm/m ); //COCOA internal units are meters
+}

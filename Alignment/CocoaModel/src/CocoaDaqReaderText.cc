@@ -55,7 +55,7 @@ bool CocoaDaqReaderText::ReadNextEvent()
   }
   ALIint ii;
   for(ii = 0; ii < nMeas; ii++) {
-    std::cout << " reading meas  " << ii << " out of " <<  nMeas << std::endl;    
+  if(ALIUtils::debug >= 4) std::cout << " reading meas  " << ii << " out of " <<  nMeas << std::endl;    
     theFilein.getWordsInLine(wordlist);  
     if( wordlist[0] == ALIstring("SENSOR2D") || wordlist[0] == ALIstring("TILTMETER") || wordlist[0] == ALIstring("DISTANCEMETER")  || wordlist[0] == ALIstring("DISTANCEMETER1DIM")  || wordlist[0] == ALIstring("COPS") ) {
       if( wordlist.size() != 2 ) {
@@ -89,7 +89,7 @@ bool CocoaDaqReaderText::ReadNextEvent()
 	  ALIbool sigmaFF = gomgr->GlobalOptions()["measurementErrorFromFile"];
 	  //---------- Read the data 
 	  for ( uint jj=0; jj < meastemp->dim(); jj++){
-	    std::cout << " reading meas dim " << jj << " out of " <<  meastemp->dim() << std::endl;
+	    if(ALIUtils::debug >= 4) std::cout << " reading meas dim " << jj << " out of " <<  meastemp->dim() << std::endl;
 	    theFilein.getWordsInLine( wordlist );
             ALIdouble sigma = 0.;
             if( !sigmaFF ) { 

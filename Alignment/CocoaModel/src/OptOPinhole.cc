@@ -16,6 +16,7 @@
 #include "Alignment/CocoaVisMgr/interface/ALIColour.h"
 #endif
 #include "CLHEP/Units/SystemOfUnits.h"
+#include "Alignment/CocoaDDLObjects/interface/CocoaSolidShapeTubs.h"
 
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -57,3 +58,13 @@ void OptOPinhole::fillIguana()
 }
 
 #endif
+
+//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+void OptOPinhole::constructSolidShape()
+{
+  ALIdouble go;
+  GlobalOptionMgr* gomgr = GlobalOptionMgr::getInstance();
+  gomgr->getGlobalOptionValue("VisScale", go );
+
+  theSolidShape = new CocoaSolidShapeTubs( "Tubs", go*0.*cm/m, go*1.*cm/m, go*1.*cm/m ); //COCOA internal units are meters
+}

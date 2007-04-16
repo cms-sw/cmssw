@@ -41,6 +41,7 @@ public:
   virtual void fillVRML();
   virtual void fillIguana();
 #endif
+  void constructSolidShape();
 
  private:
   ALIdouble getMeasFromInters( ALILine& line_xhair, ALILine& ccd, Hep3Vector& cops_line );

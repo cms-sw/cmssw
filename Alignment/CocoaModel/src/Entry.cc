@@ -364,3 +364,9 @@ std::ostream& operator << (std::ostream& os, const Entry& c)
   return os;
 
 }
+
+//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+const ALIstring Entry::longName() const
+{ 
+  return OptOCurrent_->name()+"/"+name_; 
+}

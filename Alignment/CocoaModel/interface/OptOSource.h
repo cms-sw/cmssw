@@ -33,6 +33,7 @@ public:
 
   //---------- Propagate light for measurement meas
   virtual void defaultBehaviour( LightRay& lightray, Measurement& meas );
+  void constructSolidShape();
 
 
 };

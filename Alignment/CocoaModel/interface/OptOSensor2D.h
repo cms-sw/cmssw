@@ -45,6 +45,7 @@ public:
   virtual void fillVRML();
   virtual void fillIguana();
 #endif
+  void constructSolidShape();
 
  private:
   // Deviation values read from file
