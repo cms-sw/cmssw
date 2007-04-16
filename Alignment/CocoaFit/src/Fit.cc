@@ -5,6 +5,9 @@
 //   History: v1.0 
 //   Pedro Arce
 
+#include "CLHEP/Matrix/SymMatrix.h"
+
+
 #include <tree.h>
 
 #include "Alignment/CocoaModel/interface/Model.h"
@@ -32,6 +35,7 @@
 #include <iomanip>
 #include <math.h>
 #include <time.h>
+
  
 Fit* Fit::instance = 0;
 
@@ -145,7 +149,7 @@ ALIbool Fit::fitNextEvent( ALIuint& nEvent )
   ALIbool moreDataSets = 1;
   if(CocoaDaqReader::GetDaqReader() != 0) moreDataSets = CocoaDaqReader::GetDaqReader()->ReadNextEvent();
   
-  if(ALIUtils::debug >= 2)  std::cout << CocoaDaqReader::GetDaqReader() << "$$$$$$$$$$$$$$$ moreData Sets " << moreDataSets << std::endl;
+  if(ALIUtils::debug >= 2)  std::cout << "$$$$$$$$$$$$$$$ moreData Sets " << moreDataSets << std::endl;
   
   if( moreDataSets ) {
     if( ALIUtils::debug >= 2 ) std::cout << "@@@@@@@@@@@@@@@@@@ Starting data set fit ..." << nEvent << std::endl;
@@ -682,7 +686,7 @@ void Fit::FillMatricesWithCalibratedParameters()
 	//-       	yfMatrix->AddData( lineNo, 0, (*vecite)->lastAdditionToValueDisplacementByFitting() );
 	//-	ALIFileOut& fileout = ALIFileOut::getInstance( Model::ReportFName() );
 	//	fileout << "cal to yf " << (*vecite)->OptOCurrent()->name() << " " << (*vecite)->name() << " " << (*vecite)->valueDisplacementByFitting() << endl;
-	std::cout << "call to yf " << (*vecite)->OptOCurrent()->name() << " " << (*vecite)->name() << " " << (*vecite)->valueDisplacementByFitting() << std::endl;
+	//	std::cout << "call to yf " << (*vecite)->OptOCurrent()->name() << " " << (*vecite)->name() << " " << (*vecite)->valueDisplacementByFitting() << std::endl;
 
       } else {
         yfMatrix->AddData( lineNo, 0, 0. );
@@ -762,6 +766,9 @@ void Fit::multiplyMatrices()
   //  if(ALIUtils::debug >= 5) AtWAMatrix->Dump("AtWAMatrix=0");
   *AtWAMatrix = *AtMatrix * *WMatrix * *AMatrix;   
   if(ALIUtils::debug >= 5) AtWAMatrix->Dump("AtWAMatrix");
+
+  CheckIfFitPossible();
+
   //t  AtWAMatrix->EliminateLines(0,48);
   //t AtWAMatrix->EliminateColumns(0,48);
   time_t now;
@@ -921,17 +928,17 @@ ALIdouble Fit::GetSChi2( ALIbool useDa )
     //  std::cout << "smatc " << std::endl;
     delete tmpM;
     delete tmptM;
-    if(ALIUtils::debug >= -5) SMat->Dump("SMatrix with Da");
+    if(ALIUtils::debug >= 5) SMat->Dump("SMatrix with Da");
   } else {
     ALIMatrix* yftMat = new ALIMatrix(*yfMatrix);
     yftMat->transpose();
     SMat = new ALIMatrix(*yftMat *  *WMatrix * *yfMatrix);
     delete yftMat;
-    if(ALIUtils::debug >= -5) SMat->Dump("SMatrix no Da");
+    if(ALIUtils::debug >= 5) SMat->Dump("SMatrix no Da");
   }
   ALIdouble fit_quality = (*SMat)(0,0);
   delete SMat;
-  if(ALIUtils::debug >= -5) std::cout << " GetSChi2 " << useDa << " = " << fit_quality << std::endl;
+  if(ALIUtils::debug >= 5) std::cout << " GetSChi2 " << useDa << " = " << fit_quality << std::endl;
 
   PrintChi2( fit_quality, !useDa );
 
@@ -1326,6 +1333,11 @@ void Fit::PrintChi2( ALIdouble fit_quality, ALIbool isFirst )
       chi2meas += c2*c2; 
       if( ALIUtils::debug >= 0) {
 	std::cout << c2 << " adding chi2meas "  << chi2meas << " " << (*vmcite)->name() << ": " << ii << " (mm)R: " << (*vmcite)->value(ii)*1000. << " S: " << (*vmcite)->valueSimulated(ii)*1000. << " Diff= " << ((*vmcite)->value(ii) - (*vmcite)->valueSimulated(ii))*1000. << std::endl;
+
+      }
+      if( ALIUtils::report >= 3) {
+	ALIFileOut& fileout = ALIFileOut::getInstance( Model::ReportFName() );
+	fileout << c2 << " adding chi2meas "  << chi2meas << " " << (*vmcite)->name() << ": " << ii << " (mm)R: " << (*vmcite)->value(ii)*1000. << " S: " << (*vmcite)->valueSimulated(ii)*1000. << " Diff= " << ((*vmcite)->value(ii) - (*vmcite)->valueSimulated(ii))*1000. << std::endl;
       }
     }
   }
@@ -1340,6 +1352,10 @@ void Fit::PrintChi2( ALIdouble fit_quality, ALIbool isFirst )
       //double c2 = (*veite)->value() / (*veite)->sigma();
       chi2cal += c2*c2;
       if( ALIUtils::debug >= 0) std::cout << c2 << " adding chi2cal "  << chi2cal << " " << (*veite)->OptOCurrent()->name() << " " << (*veite)->name() << std::endl;
+      if( ALIUtils::report >= 3) {
+	ALIFileOut& fileout = ALIFileOut::getInstance( Model::ReportFName() );
+	fileout << c2 << " adding chi2cal "  << chi2cal << " " << (*veite)->OptOCurrent()->name() << " " << (*veite)->name() << std::endl;
+      }
       //-	std::cout << " valueDisplacementByFitting " << (*veite)->valueDisplacementByFitting() << " sigma " << (*veite)->sigma() << std::endl;
     }
   }
@@ -1353,3 +1369,55 @@ void Fit::PrintChi2( ALIdouble fit_quality, ALIbool isFirst )
 
 }
 
+
+//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+void Fit::CheckIfFitPossible()
+{
+  /*  CLHEP::HepSymMatrix sm(AtWAMatrix->NoLines());
+  for (uint ii=0; ii<AtWAMatrix->NoLines(); ii++) {
+    for (uint jj=0; jj<AtWAMatrix->NoColumns(); jj++) {
+      sm(ii+1,jj+1) = AtWAMatrix->Mat()->me[ii][jj];
+    }
+  }
+  
+  std::cout << ( sm.determinant() < ALI_DBL_MIN)  << " AtWA determinant " << sm.determinant()  << std::endl << sm << std::endl;
+  
+  if( sm.determinant() < ALI_DBL_MIN ) {
+  */
+
+  //----- Check if there is an unknown parameter that is not affecting any measurement
+  ALIint NolinMes = 0;
+  std::vector<Measurement*>::const_iterator vmcite;
+  for ( vmcite = Model::MeasurementList().begin();
+	vmcite != Model::MeasurementList().end(); vmcite++) {
+    NolinMes += (*vmcite)->dim();
+  }
+  
+  std::vector< Entry* >::const_iterator vecite;
+  for ( vecite = Model::EntryList().begin();
+	vecite != Model::EntryList().end(); vecite++ ) {  
+    if( ALIUtils::debug >= 3 ) std::cout << "CheckFitIsPosible looping for entry " << (*vecite)->longName() << std::endl;
+    if ( (*vecite)->quality() == 2 ) {
+      ALIint nCol =  (*vecite)->fitPos();
+      //--- Check all measurements
+      ALIbool noDepend = TRUE;
+      if( ALIUtils::debug >= 3 ) std::cout << "CheckFitIsPosible looping for entry " << nCol << std::endl;
+      for( ALIint ii = 0; ii < NolinMes; ii++ ) {
+    if( ALIUtils::debug >= 4 ) std::cout << ii << "Derivative " <<  (*AMatrix)(ii,nCol)  << std::endl;
+	
+	if( fabs((*AMatrix)(ii,nCol)) > ALI_DBL_MIN ) {
+	  if( ALIUtils::debug >= 3 ) std::cout << "CheckIfFitIsPosible " << nCol << " " << ii << " = " << (*AMatrix)(ii,nCol) << std::endl;
+	  noDepend = FALSE;
+	  break;
+	}
+      }
+      if( noDepend ){
+	std::cerr << "!!!FATAL ERROR: Fit::CheckIfFitPossible() no measurement depends on unknown entry " << (*vecite)->OptOCurrent()->name() << "/" << (*vecite)->name() << std::endl
+		  << " Fit will not be possible! " << std::endl;
+	std::exception();
+	exit(0);
+      }
+    }
+  }
+  
+}

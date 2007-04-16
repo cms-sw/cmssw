@@ -132,6 +132,8 @@ public:
 
   static double getEntryValue( const Entry* entry );
 
+  static void CheckIfFitPossible();
+
  public:
   static void PrintChi2( ALIdouble fit_quality, ALIbool isFirst );
 
