@@ -6,8 +6,8 @@
  * Reads data from an ascii file and enables the direct access to the DCC id
  * from the SM id and vice-versa. Retrieves the full map on request.
  *
- * $Date: 2006/06/06 09:33:37 $
- * $Revision: 1.1 $
+ * $Date: 2006/06/19 16:08:44 $
+ * $Revision: 1.2 $
  * \author P.Silva (psilva@cern.ch)
  */
 
@@ -20,7 +20,6 @@
 #include <string>
 #include <map>
 
-using namespace std;
 
 class DCCMapper{
   
@@ -38,18 +37,18 @@ public:
   /**
    * Receives a string with a path and checks if file is accessible
    */
-  bool setDCCMapFilePath(string );
+  bool setDCCMapFilePath(std::string );
 
   /**
    * Retrieves current path do the map file
    */
-  string getDCCMapFilePath() const { return pathToMapFile_; };
+  std::string getDCCMapFilePath() const { return pathToMapFile_; };
   
   /**
    * Read map file (returns false if an error ocurred)
    */
   bool readDCCMapFile();
-  bool readDCCMapFile(string );
+  bool readDCCMapFile(std::string );
 
   /**
    * Get methods for DCCId/SMId and map
@@ -57,7 +56,7 @@ public:
 
   ulong getDCCId(ulong ) const ;
   ulong getSMId(ulong ) const ;
-  const map<ulong ,ulong>& getDCCMap() const { return myDCCMap_; };
+  const std::map<ulong ,ulong>& getDCCMap() const { return myDCCMap_; };
 
   /**
    * Print current map
@@ -69,9 +68,9 @@ public:
 
 private:
 
-  string pathToMapFile_;
+  std::string pathToMapFile_;
 
-  map<ulong ,ulong> myDCCMap_;
+  std::map<ulong ,ulong> myDCCMap_;
 
 };
 

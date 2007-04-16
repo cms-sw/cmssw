@@ -12,7 +12,7 @@ EcalDCCHeaderRuntypeDecoder::~EcalDCCHeaderRuntypeDecoder(){;}
 
 bool EcalDCCHeaderRuntypeDecoder::Decode(ulong headerWord, EcalDCCHeaderBlock* EcalDCCHeaderInfos){
   
-  ulong DCCNumberMask      = 63;//2^6-1
+  //  ulong DCCNumberMask      = 63;//2^6-1 unused 
 
   ulong WhichHalfOffSet   = 64;//2^6 
   ulong TypeOffSet        = 256;//2^8

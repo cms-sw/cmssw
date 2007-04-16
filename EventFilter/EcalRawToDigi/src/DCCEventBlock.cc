@@ -13,6 +13,8 @@
 #include <iomanip>
 #include <sstream>
 
+using namespace std;
+
 DCCEventBlock::DCCEventBlock(
 	DCCDataParser * parser, 
 	ulong * buffer, 

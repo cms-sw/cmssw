@@ -31,16 +31,16 @@ class DCCEventBlock : public DCCBlockPrototype {
 		
 		void dataCheck(); 
 		
-		vector< DCCTowerBlock * > & towerBlocks();
-		vector< DCCTCCBlock *   > & tccBlocks();
+		std::vector< DCCTowerBlock * > & towerBlocks();
+		std::vector< DCCTCCBlock *   > & tccBlocks();
 		DCCSRPBlock               * srpBlock();
 		DCCTrailerBlock           * trailerBlock();
-		vector< DCCTowerBlock * >   towerBlocksById(ulong towerId);
-		pair<bool,string> compare(DCCEventBlock * );
+		std::vector< DCCTowerBlock * >   towerBlocksById(ulong towerId);
+		std::pair<bool,std::string> compare(DCCEventBlock * );
 
 		bool eventHasErrors();
-		string eventErrorString();
-		void displayEvent(ostream & os=cout);
+		std::string eventErrorString();
+		void displayEvent(std::ostream & os=std::cout);
 	
 		
 	protected :
@@ -68,8 +68,8 @@ class DCCEventBlock : public DCCBlockPrototype {
 		
 		};		
 
-		vector< DCCTowerBlock * > towerBlocks_      ;
-		vector< DCCTCCBlock   * > tccBlocks_        ;
+		std::vector< DCCTowerBlock * > towerBlocks_      ;
+		std::vector< DCCTCCBlock   * > tccBlocks_        ;
 		DCCTrailerBlock       *   dccTrailerBlock_  ;
 		DCCSRPBlock           *   srpBlock_;
 		ulong wordBufferOffset_;
@@ -77,8 +77,8 @@ class DCCEventBlock : public DCCBlockPrototype {
 };
 
 
-inline vector< DCCTowerBlock * > & DCCEventBlock::towerBlocks()  { return towerBlocks_;     }
-inline vector< DCCTCCBlock * >   & DCCEventBlock::tccBlocks()    { return tccBlocks_;       }
+inline std::vector< DCCTowerBlock * > & DCCEventBlock::towerBlocks()  { return towerBlocks_;     }
+inline std::vector< DCCTCCBlock * >   & DCCEventBlock::tccBlocks()    { return tccBlocks_;       }
 inline DCCSRPBlock               * DCCEventBlock::srpBlock()     { return srpBlock_;        }
 inline DCCTrailerBlock           * DCCEventBlock::trailerBlock() { return dccTrailerBlock_; }
 

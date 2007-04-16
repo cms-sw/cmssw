@@ -2,8 +2,8 @@
 #define EcalDCCDaqFormatter_H
 /** \class EcalDCCDaqFormatter
  *
- *  $Date: 2006/04/27 21:56:57 $
- *  $Revision: 1.13 $
+ *  $Date: 2006/06/19 16:08:44 $
+ *  $Revision: 1.1 $
  *  \author N. Marinelli  IASA-Athens
  *  \author G. Della Ricca
  *  \author G. Franzoni
@@ -29,8 +29,6 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-using namespace edm;
-using namespace std;
 
 class FEDRawData;
 class DCCDataParser;

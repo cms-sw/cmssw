@@ -6,8 +6,8 @@
  * Reads data from an ascii file and enables the direct access to the DCC id
  * from the SM id and vice-versa. Retrieves the full map on request.
  *
- * $Date: 2006/06/06 09:33:37 $
- * $Revision: 1.1 $
+ * $Date: 2006/06/19 16:08:44 $
+ * $Revision: 1.2 $
  * \author P.Silva (psilva@cern.
  */
 
@@ -15,6 +15,8 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+using namespace std;
 
 /*----------------------------------------------------*/
 /* DCCMapper::DCCMapper()                             */

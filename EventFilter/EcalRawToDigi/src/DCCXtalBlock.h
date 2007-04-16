@@ -24,7 +24,7 @@ class DCCXtalBlock : public DCCBlockPrototype {
 		void dataCheck(); 
                 int xtalID();
                 int stripID();
-		vector<int> xtalDataSamples();
+		std::vector<int> xtalDataSamples();
 		
 		
 	protected :

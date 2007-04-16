@@ -7,7 +7,6 @@
 #include <iostream>
 #include <string>
 
-using std::string;
 
 
 class ECALParserBlockException { 
@@ -16,7 +15,7 @@ class ECALParserBlockException {
 			/**
 			 * Constructor
 			 */
-			ECALParserBlockException(string exceptionInfo){info_ = exceptionInfo; }
+			ECALParserBlockException(std::string exceptionInfo){info_ = exceptionInfo; }
 		
 		
 			/**
@@ -26,7 +25,7 @@ class ECALParserBlockException {
 			
 		protected :
 	
-			string info_;
+			std::string info_;
 
 };
 

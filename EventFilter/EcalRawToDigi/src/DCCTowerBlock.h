@@ -37,9 +37,9 @@ class DCCTowerBlock : public DCCBlockPrototype {
 		void parseXtalData();
                 int towerID();
  		
-		vector< DCCXtalBlock * > & xtalBlocks();
+		std::vector< DCCXtalBlock * > & xtalBlocks();
 		
-		vector< DCCXtalBlock * > xtalBlocksById(ulong stripId, ulong xtalId);
+		std::vector< DCCXtalBlock * > xtalBlocksById(ulong stripId, ulong xtalId);
 		
 	protected :
 		
@@ -47,13 +47,13 @@ class DCCTowerBlock : public DCCBlockPrototype {
 		
 		enum towerFields{ BXMASK = 0xFFF,L1MASK = 0xFFF };
 		
-		vector<DCCXtalBlock * > xtalBlocks_;
+		std::vector<DCCXtalBlock * > xtalBlocks_;
 		DCCEventBlock * dccBlock_;
 		ulong expectedTowerID_;
 		
 		
 };
 
-inline vector<DCCXtalBlock *> & DCCTowerBlock::xtalBlocks(){ return xtalBlocks_; }
+inline std::vector<DCCXtalBlock *> & DCCTowerBlock::xtalBlocks(){ return xtalBlocks_; }
 
 #endif

@@ -45,7 +45,7 @@ public :
   /**
     Parse data from file 
   */
-  void parseFile( string fileName, bool singleEvent = false);
+  void parseFile( std::string fileName, bool singleEvent = false);
 	
   /**
      Parse data from a buffer
@@ -61,7 +61,7 @@ public :
      Check if EVENT LENGTH is coeherent and if BOE/EOE are correctly written
      returns 3 bits code with the error found + event length
   */
-  pair<ulong,ulong> checkEventLength(ulong * pointerToEvent, ulong bytesToEnd, bool singleEvent = false);
+  std::pair<ulong,ulong> checkEventLength(ulong * pointerToEvent, ulong bytesToEnd, bool singleEvent = false);
   
   /**
      Get methods for parser parameters;
@@ -82,7 +82,7 @@ public :
   /**
      Set method for parser parameters
   */
-  void  setParameters( vector<ulong> newParameters );
+  void  setParameters( std::vector<ulong> newParameters );
 
 
   /**
@@ -99,17 +99,17 @@ public :
   /**
      Get method for DCCEventBlocks vector
    */
-  vector<DCCEventBlock *> & dccEvents();
+  std::vector<DCCEventBlock *> & dccEvents();
 
   /**
      Get method for error counters map
   */
-  map<string,ulong> & errorCounters();
+  std::map<std::string,ulong> & errorCounters();
 
   /**
    * Get method for events
    */
-  vector< pair< ulong, pair<ulong *, ulong> > > events();
+  std::vector< std::pair< ulong, std::pair<ulong *, ulong> > > events();
 
 
   /**
@@ -121,10 +121,10 @@ public :
   /**
      Methods to get data strings formatted as decimal/hexadecimal, indexes and indexed data
   */
-  string getDecString(ulong data);		
-  string getHexString(ulong data);
-  string index(ulong position);
-  string getIndexedData( ulong indexed, ulong * pointer);
+  std::string getDecString(ulong data);		
+  std::string getHexString(ulong data);
+  std::string index(ulong position);
+  std::string getIndexedData( ulong indexed, ulong * pointer);
 
   /**
    * Retrieves a pointer to the data buffer
@@ -150,18 +150,18 @@ protected :
   ulong tccBlockSize_;           //TCC block size
 
   ulong processedEvent_;
-  string eventErrors_;
+  std::string eventErrors_;
   DCCDataMapper *mapper_;
   
-  vector<DCCEventBlock *> dccEvents_;
+  std::vector<DCCEventBlock *> dccEvents_;
   
-  // pair< errorMask, pair< pointer to event, event size (number of DW)> >
-  vector< pair< ulong, pair<ulong *, ulong> > > events_;
+  // std::pair< errorMask, std::pair< pointer to event, event size (number of DW)> >
+  std::vector< std::pair< ulong, std::pair<ulong *, ulong> > > events_;
   
   bool parseInternalData_;          //parse internal data flag
   bool debug_;                      //debug flag
-  map<string,ulong> errors_;        //errors map
-  vector<ulong> parameters;         //parameters vector
+  std::map<std::string,ulong> errors_;        //errors map
+  std::vector<ulong> parameters;         //parameters vector
 
   enum DCCDataParserFields{
     EVENTLENGTHMASK = 0xFFFFFF,
@@ -179,7 +179,7 @@ protected :
 
 inline DCCDataMapper *DCCDataParser::mapper() { return mapper_;}
 
-inline vector<ulong> DCCDataParser::parserParameters() { return parameters; }
+inline std::vector<ulong> DCCDataParser::parserParameters() { return parameters; }
 inline ulong DCCDataParser::numbXtalSamples()     { return parameters[0]; }
 inline ulong DCCDataParser::numbTriggerSamples()  { return parameters[1]; }
 inline ulong DCCDataParser::numbTTs()             { return parameters[2]; }
@@ -191,15 +191,15 @@ inline ulong DCCDataParser::tcc2Id()              { return parameters[7]; }
 inline ulong DCCDataParser::tcc3Id()              { return parameters[8]; } 
 inline ulong DCCDataParser::tcc4Id()              { return parameters[9]; }
 
-inline void  DCCDataParser::setParameters( vector<ulong> newParameters ){ parameters = newParameters; computeBlockSizes();}
+inline void  DCCDataParser::setParameters( std::vector<ulong> newParameters ){ parameters = newParameters; computeBlockSizes();}
 
 inline ulong DCCDataParser::srpBlockSize()        { return srpBlockSize_; } 
 inline ulong DCCDataParser::tccBlockSize()        { return tccBlockSize_; } 
 
 inline bool DCCDataParser::debug()                          { return debug_;     }
-inline vector<DCCEventBlock *> &DCCDataParser::dccEvents()  { return dccEvents_;    }
-inline map<string,ulong> &DCCDataParser::errorCounters()    { return errors_;       }
-inline vector< pair< ulong, pair<ulong *, ulong> > > DCCDataParser::events() { return events_;   }
+inline std::vector<DCCEventBlock *> &DCCDataParser::dccEvents()  { return dccEvents_;    }
+inline std::map<std::string,ulong> &DCCDataParser::errorCounters()    { return errors_;       }
+inline std::vector< std::pair< ulong, std::pair<ulong *, ulong> > > DCCDataParser::events() { return events_;   }
 
 
 #endif

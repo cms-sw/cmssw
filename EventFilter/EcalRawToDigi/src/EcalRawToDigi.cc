@@ -135,7 +135,7 @@ void EcalRawToDigi::produce(edm::Event& e, const edm::EventSetup& es) {
 	//if data size is no null interpret data
 	if (fedData.size())
 	  {
-	      ulong smId_ = myMap_->getSMId(*i);
+	      // ulong smId_ = myMap_->getSMId(*i);
 	      
 	      //for debug purposes
 	      edm::LogInfo("EcalRawToDigi") << "Getting FED nb: " << *i << " data size is: " << fedData.size() << endl;

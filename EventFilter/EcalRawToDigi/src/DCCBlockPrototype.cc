@@ -9,6 +9,7 @@
 #include <iomanip>
 #include <sstream>
 
+using namespace std;
 
 DCCBlockPrototype::DCCBlockPrototype(DCCDataParser * parser, string name, ulong * buffer, ulong numbBytes, ulong wordsToEndOfEvent,  ulong wordEventOffset ){
 			
