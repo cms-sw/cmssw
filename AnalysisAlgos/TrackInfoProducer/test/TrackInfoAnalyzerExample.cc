@@ -80,11 +80,11 @@ class TrackInfoAnalyzerExample : public edm::EDAnalyzer {
 	edm::LogInfo("TrackInfoAnalyzerExample") <<"LocalMomentum: "<<statedirection;
 	edm::LogInfo("TrackInfoAnalyzerExample") <<"LocalPosition: "<<stateposition;
 	edm::LogInfo("TrackInfoAnalyzerExample") <<"Local x-z plane angle: "<<atan2(statedirection.x(),statedirection.z());
-	if(trackinforef->type(reco::TrackingRecHitInfo::Combined,(*iter).first)==reco::TrackingRecHitInfo::Matched){ // get the direction for the components
+	if(trackinforef->type((*iter).first)==reco::TrackingRecHitInfo::Matched){ // get the direction for the components
 	  edm::LogInfo("TrackInfoAnalyzerExample") <<"LocalMomentum (mono): "<<trackinforef->localTrackMomentumOnMono(reco::TrackingRecHitInfo::Combined,(*iter).first);
 	  edm::LogInfo("TrackInfoAnalyzerExample") <<"LocalMomentum (stereo): "<<trackinforef->localTrackMomentumOnStereo(reco::TrackingRecHitInfo::Combined,(*iter).first);
 	}
-	else if (trackinforef->type(reco::TrackingRecHitInfo::Combined,(*iter).first)==reco::TrackingRecHitInfo::Projected){//one should be 0
+	else if (trackinforef->type((*iter).first)==reco::TrackingRecHitInfo::Projected){//one should be 0
 	  edm::LogInfo("TrackInfoAnalyzerExample") <<"LocalMomentum (mono): "<<trackinforef->localTrackMomentumOnMono(reco::TrackingRecHitInfo::Combined,(*iter).first);
 	  edm::LogInfo("TrackInfoAnalyzerExample") <<"LocalMomentum (stereo): "<<trackinforef->localTrackMomentumOnStereo(reco::TrackingRecHitInfo::Combined,(*iter).first);
 	}

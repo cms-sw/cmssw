@@ -13,24 +13,20 @@
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
 
+using namespace reco;
 
-void TrackInfoProducerAlgorithm::run(std::vector<Trajectory>::const_iterator  traj_iterator,reco::TrackRef track,
-				     reco::TrackInfo &output,        const TrackerGeometry * tracker)
+void TrackInfoProducerAlgorithm::run(std::vector<Trajectory>::const_iterator  traj_iterator,TrackRef track,
+				     TrackInfo &output,        const TrackerGeometry * tracker)
 {
-  //  edm::LogInfo("TrackInfoProducer") << "Number of Trajectories: "<<inputcoll->size();
 
-  //  std::vector<Trajectory>::const_iterator traj_iterator;
-  
-  // for(traj_iterator=inputcoll->begin();traj_iterator!=inputcoll->end();traj_iterator++){//loop on trajectories
     std::vector<TrajectoryMeasurement> measurements =traj_iterator->measurements();
     
     std::vector<TrajectoryMeasurement>::iterator traj_mes_iterator;
     //edm::LogInfo("TrackInfoProducer") << "Number of Measurements: "<<measurements.size();
-    reco::TrackInfo::TrajectoryInfo trajinfo;
+    TrackInfo::TrajectoryInfo trajinfo;
     int nhit=0;
     for(traj_mes_iterator=measurements.begin();traj_mes_iterator!=measurements.end();traj_mes_iterator++){//loop on measurements
-      std::vector<reco::TrackingRecHitInfo>  tkRecHitInfos;
-      tkRecHitInfos.reserve(4);
+      
       TrajectoryStateOnSurface  fwdtsos=traj_mes_iterator->forwardPredictedState();
       TrajectoryStateOnSurface  bwdtsos=traj_mes_iterator->backwardPredictedState();
       TrajectoryStateOnSurface  updatedtsos=traj_mes_iterator->updatedState();
@@ -46,7 +42,7 @@ void TrackInfoProducerAlgorithm::run(std::vector<Trajectory>::const_iterator  tr
       trackingRecHit_iterator thehit;
       TrackingRecHitRef thehitref;
       int i=0,j=0;
-      //edm::LogInfo("TrackInfoProducer") <<"Rechit size: "<<rechits->product()->size();
+
       for (thehit=track->recHitsBegin();thehit!=track->recHitsEnd();thehit++){
 	i++;
 	LocalPoint hitpos;
@@ -55,7 +51,6 @@ void TrackInfoProducerAlgorithm::run(std::vector<Trajectory>::const_iterator  tr
 	   (hitpos - pos).mag() < 1e-4)
 	  {
 	    thehitref=(*thehit);
-	    //	  edm::LogInfo("TrackInfoProducer") << "Found a rechit ";
 	    j++;
 	    break;
 	  }
@@ -69,8 +64,8 @@ void TrackInfoProducerAlgorithm::run(std::vector<Trajectory>::const_iterator  tr
 
       const ProjectedSiStripRecHit2D* phit=dynamic_cast<const ProjectedSiStripRecHit2D*>( &*(thehitref));
       const SiStripMatchedRecHit2D* matchedhit=dynamic_cast<const SiStripMatchedRecHit2D*>( &*(thehitref));
-      //const SiStripRecHit2D* hit=dynamic_cast<const SiStripRecHit2D*>( &*(thehitref));
-      reco::TrackingRecHitInfo::RecHitType type=reco::TrackingRecHitInfo::Single;
+
+      TrackingRecHitInfo::RecHitType type=TrackingRecHitInfo::Single;
       LocalVector monofwd, stereofwd;
       LocalVector monobwd, stereobwd;
       LocalVector monoco, stereoco;
@@ -81,7 +76,7 @@ void TrackInfoProducerAlgorithm::run(std::vector<Trajectory>::const_iterator  tr
       LocalPoint pmonoco, pstereoco;
       LocalPoint pmonoup, pstereoup;
       if(matchedhit){
-	type=reco::TrackingRecHitInfo::Matched;
+	type=TrackingRecHitInfo::Matched;
 	GluedGeomDet * gdet=(GluedGeomDet *)tracker->idToDet(matchedhit->geographicalId());
 	
 	GlobalVector gtrkdirfwd=gdet->toGlobal(fwdptsod->parameters().momentum());
@@ -119,7 +114,7 @@ void TrackInfoProducerAlgorithm::run(std::vector<Trajectory>::const_iterator  tr
 
       }
       else if(phit){
-	type=reco::TrackingRecHitInfo::Projected;
+	type=TrackingRecHitInfo::Projected;
 	GluedGeomDet * gdet=(GluedGeomDet *)tracker->idToDet(phit->geographicalId());
 	
 	GlobalVector gtrkdirfwd=gdet->toGlobal(fwdptsod->parameters().momentum());
@@ -151,23 +146,24 @@ void TrackInfoProducerAlgorithm::run(std::vector<Trajectory>::const_iterator  tr
 	  pstereoco=project(gdet,det,combinedptsod->parameters().position(),stereoco);
 	}
       }
+      TrackingRecHitInfo::TrackingStates states;
+      states.insert(std::make_pair(TrackingRecHitInfo::FwPredicted, TrackingStateInfo(std::make_pair(monofwd,stereofwd), std::make_pair(pmonofwd,pstereofwd), *fwdptsod)));
+      states.insert(std::make_pair(TrackingRecHitInfo::BwPredicted, TrackingStateInfo(std::make_pair(monobwd,stereobwd), std::make_pair(pmonobwd,pstereobwd), *bwdptsod)));
+      states.insert(std::make_pair(TrackingRecHitInfo::Updated, TrackingStateInfo(std::make_pair(monoup,stereoup), std::make_pair(pmonoup,pstereoup), *updatedptsod)));
+      states.insert(std::make_pair(TrackingRecHitInfo::Combined, TrackingStateInfo(std::make_pair(monoco,stereoco), std::make_pair(pmonoco,pstereoco), *combinedptsod)));
       
-      tkRecHitInfos.push_back(reco::TrackingRecHitInfo(reco::TrackingRecHitInfo::FwPredicted, type, std::make_pair(monofwd,stereofwd), std::make_pair(pmonofwd,pstereofwd), *fwdptsod ));
-      tkRecHitInfos.push_back( reco::TrackingRecHitInfo(reco::TrackingRecHitInfo::BwPredicted,type, std::make_pair(monobwd,stereobwd), std::make_pair(pmonobwd,pstereobwd), *bwdptsod ));
-      tkRecHitInfos.push_back( reco::TrackingRecHitInfo(reco::TrackingRecHitInfo::Updated,type, std::make_pair(monoup,stereoup), std::make_pair(pmonoup,pstereoup), *updatedptsod ));
-      tkRecHitInfos.push_back( reco::TrackingRecHitInfo(reco::TrackingRecHitInfo::Combined,type, std::make_pair(monoco,stereoco), std::make_pair(pmonoco,pstereoco), *combinedptsod ));
-      
+      TrackingRecHitInfo  tkRecHitInfo(type, states);
       
       
       
       if(j!=0){
-	trajinfo.insert(make_pair(thehitref,tkRecHitInfos));
+	trajinfo.insert(std::make_pair(thehitref,tkRecHitInfo));
       }
       //      else  edm::LogInfo("TrackInfoProducer") << "RecHit not associated ";
     }
     //edm::LogInfo("TrackInfoProducer") << "Found "<<nhit<< " hits";
     //if(fwdtrajinfo.size()!=nhit) edm::LogInfo("TrackInfoProducer") << "Number of trackinfos  "<<fwdtrajinfo.size()<< " doesn't match!";
-    output=reco::TrackInfo((traj_iterator->seed()),trajinfo);
+    output=TrackInfo((traj_iterator->seed()),trajinfo);
     
 }
 

@@ -6,96 +6,77 @@ using namespace reco;
 
 TrackInfo::TrackInfo( const TrajectorySeed & seed ,const  TrajectoryInfo & trajstates): seed_(seed),trajstates_(trajstates){}
 
-//TrackRef TrackInfo::track() {return track_;}
-
 const TrajectorySeed & TrackInfo::seed() const {return seed_;}
 
 const reco::TrackInfo::TrajectoryInfo & TrackInfo::trajStateMap() const {return trajstates_;}
 
-//continuare inversione vector->map
-const reco::TrackingRecHitInfo::RecHitType  TrackInfo::type(StateType type, TrackingRecHitRef hit) const {
-  std::vector<TrackingRecHitInfo>::const_iterator  trackingrechitinfo;
-  const std::vector<TrackingRecHitInfo> * trackingrechitinfos=&trajstates_.find(hit)->second;
-  for(trackingrechitinfo=trackingrechitinfos->begin();trackingrechitinfo!=trackingrechitinfos->end(); trackingrechitinfo++ ){
-    if( trackingrechitinfo->statetype()==type)return trackingrechitinfo->type();
-  }
-  edm::LogError("TrackInfo")<<"This state does not exist";
-  return TrackingRecHitInfo::Single;
+const reco::TrackingRecHitInfo::RecHitType  TrackInfo::type(TrackingRecHitRef hit) const {
+  TrajectoryInfo::const_iterator states=trajstates_.find(hit);
+  if(states!=trajstates_.end())return states->second.type();
+  else edm::LogError("TrackInfo")<<"This rechit does not exist";
+  return TrackingRecHitInfo::Null;
 }
 
-const PTrajectoryStateOnDet * TrackInfo::stateOnDet(StateType type,TrackingRecHitRef hit)const {
-    std::vector<TrackingRecHitInfo>::const_iterator  trackingrechitinfo;
-  const std::vector<TrackingRecHitInfo> * trackingrechitinfos=&trajstates_.find(hit)->second;
-  for(trackingrechitinfo=trackingrechitinfos->begin();trackingrechitinfo!=trackingrechitinfos->end(); trackingrechitinfo++ ){
-    if( trackingrechitinfo->statetype()==type)return &(trackingrechitinfo->stateOnDet());
-  }
-  edm::LogError("TrackInfo")<<"This state does not exist";
+const PTrajectoryStateOnDet * TrackInfo::stateOnDet(StateType statetype,TrackingRecHitRef hit)const {
+  TrajectoryInfo::const_iterator states=trajstates_.find(hit);
+  if(states!=trajstates_.end())return states->second.stateOnDet(statetype);
+  else edm::LogError("TrackInfo")<<"This rechit does not exist";
   return 0;
 }
 
-const LocalVector  TrackInfo::localTrackMomentum(StateType type,TrackingRecHitRef hit)const{ 
-    std::vector<TrackingRecHitInfo>::const_iterator  trackingrechitinfo;
-  const std::vector<TrackingRecHitInfo> * trackingrechitinfos=&trajstates_.find(hit)->second;
-  for(trackingrechitinfo=trackingrechitinfos->begin();trackingrechitinfo!=trackingrechitinfos->end(); trackingrechitinfo++ ){
-    if( trackingrechitinfo->statetype()==type) return (trackingrechitinfo->stateOnDet().parameters()).momentum();
-  }
-  edm::LogError("TrackInfo")<<"This state does not exist";
+const LocalVector  TrackInfo::localTrackMomentum(StateType statetype,TrackingRecHitRef hit)const{ 
+
+  TrajectoryInfo::const_iterator states=trajstates_.find(hit);
+  if(states!=trajstates_.end())
+    {
+      const PTrajectoryStateOnDet * state=states->second.stateOnDet(statetype);
+      if(state!=0) return state->parameters().momentum();
+    }
+  else edm::LogError("TrackInfo")<<"This rechit does not exist";
   return LocalVector(0,0,0); 
 }
 
-const LocalVector  TrackInfo::localTrackMomentumOnMono(StateType type,TrackingRecHitRef hit)const{ 
+const LocalVector  TrackInfo::localTrackMomentumOnMono(StateType statetype,TrackingRecHitRef hit)const{ 
 
-   std::vector<TrackingRecHitInfo>::const_iterator  trackingrechitinfo;
-  const std::vector<TrackingRecHitInfo> * trackingrechitinfos=&trajstates_.find(hit)->second;
- for(trackingrechitinfo=trackingrechitinfos->begin();trackingrechitinfo!=trackingrechitinfos->end(); trackingrechitinfo++ ){
-    if( trackingrechitinfo->statetype()==type) return trackingrechitinfo->localTrackMomentumOnMono();
-  }
-  edm::LogError("TrackInfo")<<"This state does not exist";
+  TrajectoryInfo::const_iterator states=trajstates_.find(hit);
+  if(states!=trajstates_.end())return states->second.localTrackMomentumOnMono(statetype);
+  else edm::LogError("TrackInfo")<<"This rechit does not exist";
   return LocalVector(0,0,0); 
 }
 
-const LocalVector  TrackInfo::localTrackMomentumOnStereo(StateType type,TrackingRecHitRef hit)const{
+const LocalVector  TrackInfo::localTrackMomentumOnStereo(StateType statetype,TrackingRecHitRef hit)const{
 
-   std::vector<TrackingRecHitInfo>::const_iterator  trackingrechitinfo;
-  const std::vector<TrackingRecHitInfo> * trackingrechitinfos=&trajstates_.find(hit)->second;
-
-for(trackingrechitinfo=trackingrechitinfos->begin();trackingrechitinfo!=trackingrechitinfos->end(); trackingrechitinfo++ ){
-    if( trackingrechitinfo->statetype()==type) return trackingrechitinfo->localTrackMomentumOnStereo();
-  }
-  edm::LogError("TrackInfo")<<"This state does not exist";
+  TrajectoryInfo::const_iterator states=trajstates_.find(hit);
+  if(states!=trajstates_.end())return states->second.localTrackMomentumOnStereo(statetype);
   return LocalVector(0,0,0); 
 }
 
-const LocalPoint  TrackInfo::localTrackPosition(StateType type,TrackingRecHitRef hit)const { 
+const LocalPoint  TrackInfo::localTrackPosition(StateType statetype,TrackingRecHitRef hit)const { 
 
-    std::vector<TrackingRecHitInfo>::const_iterator  trackingrechitinfo;
-  const std::vector<TrackingRecHitInfo> * trackingrechitinfos=&trajstates_.find(hit)->second;
-  for(trackingrechitinfo=trackingrechitinfos->begin();trackingrechitinfo!=trackingrechitinfos->end(); trackingrechitinfo++ ){
-    if( trackingrechitinfo->statetype()==type) return (trackingrechitinfo->stateOnDet().parameters()).position();
-  } 
-  edm::LogError("TrackInfo")<<"This state does not exist";
+  TrajectoryInfo::const_iterator states=trajstates_.find(hit);
+  if(states!=trajstates_.end())
+    {
+      const PTrajectoryStateOnDet * state=states->second.stateOnDet(statetype);
+      if(state!=0) return state->parameters().position();
+    }
+  else edm::LogError("TrackInfo")<<"This rechit does not exist";
   return LocalPoint(0,0,0);
 }
 
 
-const LocalPoint  TrackInfo::localTrackPositionOnMono(StateType type,TrackingRecHitRef hit)const{ 
+const LocalPoint  TrackInfo::localTrackPositionOnMono(StateType statetype,TrackingRecHitRef hit)const{ 
 
-   std::vector<TrackingRecHitInfo>::const_iterator  trackingrechitinfo;
-  const std::vector<TrackingRecHitInfo> * trackingrechitinfos=&trajstates_.find(hit)->second;
-  for(trackingrechitinfo=trackingrechitinfos->begin();trackingrechitinfo!=trackingrechitinfos->end(); trackingrechitinfo++ ){
-    if( trackingrechitinfo->statetype()==type) return trackingrechitinfo->localTrackPositionOnMono();
-  }
-  edm::LogError("TrackInfo")<<"This state does not exist";
+  TrajectoryInfo::const_iterator states=trajstates_.find(hit);
+  if(states!=trajstates_.end())return states->second.localTrackPositionOnMono(statetype);
+  else edm::LogError("TrackInfo")<<"This rechit does not exist";
   return LocalPoint(0,0,0); 
 }
 
-const LocalPoint  TrackInfo::localTrackPositionOnStereo(StateType type,TrackingRecHitRef hit)const{ 
-    std::vector<TrackingRecHitInfo>::const_iterator  trackingrechitinfo;
-  const std::vector<TrackingRecHitInfo> * trackingrechitinfos=&trajstates_.find(hit)->second;
-  for(trackingrechitinfo=trackingrechitinfos->begin();trackingrechitinfo!=trackingrechitinfos->end(); trackingrechitinfo++ ){
-    if( trackingrechitinfo->statetype()==type) return trackingrechitinfo->localTrackPositionOnStereo();
-  }
-  edm::LogError("TrackInfo")<<"This state does not exist";
+const LocalPoint  TrackInfo::localTrackPositionOnStereo(StateType statetype,TrackingRecHitRef hit)const{ 
+
+  TrajectoryInfo::const_iterator states=trajstates_.find(hit);
+  if(states!=trajstates_.end())return states->second.localTrackPositionOnStereo(statetype);
+  else edm::LogError("TrackInfo")<<"This rechit does not exist";
   return LocalPoint(0,0,0); 
 }
 
