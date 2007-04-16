@@ -49,6 +49,14 @@ HcalPedestalClient::HcalPedestalClient(const ParameterSet& ps, MonitorUserInterf
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
   // per channel tests switch
   doPerChanTests_ = ps.getUntrackedParameter<bool>("DoPerChanTests", false);
+  if(doPerChanTests_) 
+    cout << "Will perform per-channel pedestal tests." << endl;
+  // plot peds in RAW or subtracted values in iEta/iPhi maps
+  plotPedRAW_ = ps.getUntrackedParameter<bool>("plotPedRAW", false);
+  if(plotPedRAW_) 
+    cout << "Plotting pedestals in RAW format." << endl;
+  else
+    cout << "Plotting pedestals in subtracted format." << endl;
   // DQM default process name
   process_ = ps.getUntrackedParameter<string>("processName", "HcalMonitor");
 
@@ -476,9 +484,12 @@ void HcalPedestalClient::getHistograms(){
 	    avg = (caprmsP[0]+caprmsP[1]+caprmsP[2]+caprmsP[3])/4.0;
 	    meQieRMS->Fill(avg);
 
-
 	    avgMean = (capmeanS[0]+capmeanS[1]+capmeanS[2]+capmeanS[3])/4.0;
 	    avgRMS = (caprmsS[0]+caprmsS[1]+caprmsS[2]+caprmsS[3])/4.0;
+	    if(plotPedRAW_){
+	      avgMean = (capmeanP[0]+capmeanP[1]+capmeanP[2]+capmeanP[3])/4.0;
+	      avgRMS = (caprmsP[0]+caprmsP[1]+caprmsP[2]+caprmsP[3])/4.0;
+	    }
 	  }
 	  if(avgMean!=100 && depth>0){
 	    if(meMeanMap_D[depth-1]!=0) meMeanMap_D[depth-1]->Fill(ieta,iphi,avgMean);
@@ -1023,9 +1034,13 @@ void HcalPedestalClient::loadHistograms(TFile* infile){
 	    if(qie_mean[idx]) qie_mean[idx]->Fill(avg);
 	    avg = (caprmsP[0]+caprmsP[1]+caprmsP[2]+caprmsP[3])/4.0;
 	    if(qie_rms[idx]) qie_rms[idx]->Fill(avg);
-
+	    
 	    avgMean = (capmeanS[0]+capmeanS[1]+capmeanS[2]+capmeanS[3])/4.0;
 	    avgRMS = (caprmsS[0]+caprmsS[1]+caprmsS[2]+caprmsS[3])/4.0;
+	    if(plotPedRAW_){
+	      avgMean = (capmeanP[0]+capmeanP[1]+capmeanP[2]+capmeanP[3])/4.0;
+	      avgRMS = (caprmsP[0]+caprmsP[1]+caprmsP[2]+caprmsP[3])/4.0;
+	    }
 	  }
 	  if(avgMean!=100 && depth>0){
 	    if(pedMapMean_D[depth-1]!=0) pedMapMean_D[depth-1]->Fill(ieta,iphi,avgMean);

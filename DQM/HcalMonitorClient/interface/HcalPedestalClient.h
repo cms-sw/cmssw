@@ -112,6 +112,7 @@ private:
   bool verbose_;
   bool offline_;
   bool doPerChanTests_;
+  bool plotPedRAW_;
   string process_;
   
   MonitorUserInterface* mui_;
