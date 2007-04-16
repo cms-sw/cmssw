@@ -41,6 +41,15 @@
 //#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 
+// silicon strip info
+#include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
+#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
+#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
+#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
+#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
+#include "DataFormats/SiStripDetId/interface/TECDetId.h"
+
 // event info
 #include "SimDataFormats/GlobalDigiValidation/interface/PGlobalDigi.h"
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
@@ -86,6 +95,8 @@ class GlobalDigisProducer : public edm::EDProducer
   void storeECal(PGlobalDigi&);
   void fillHCal(edm::Event&, const edm::EventSetup&);
   void storeHCal(PGlobalDigi&);
+  void fillTrk(edm::Event&, const edm::EventSetup&);
+  void storeTrk(PGlobalDigi&);
 
   void clear();
 
@@ -136,6 +147,25 @@ class GlobalDigisProducer : public edm::EDProducer
   FloatVector HFCalSHE;
 
   edm::InputTag HCalSrc_;
+
+  // Tracker info
+  // SiStrip
+  
+  FloatVector TIBL1ADC, TIBL2ADC, TIBL3ADC, TIBL4ADC;
+  IntVector TIBL1Strip, TIBL2Strip, TIBL3Strip, TIBL4Strip;
+
+  FloatVector TOBL1ADC, TOBL2ADC, TOBL3ADC, TOBL4ADC;
+  IntVector TOBL1Strip, TOBL2Strip, TOBL3Strip, TOBL4Strip;
+
+  FloatVector TIDW1ADC, TIDW2ADC, TIDW3ADC;
+  IntVector TIDW1Strip, TIDW2Strip, TIDW3Strip;
+
+  FloatVector TECW1ADC, TECW2ADC, TECW3ADC, TECW4ADC, TECW5ADC, TECW6ADC, 
+    TECW7ADC, TECW8ADC;
+  IntVector TECW1Strip, TECW2Strip, TECW3Strip, TECW4Strip, TECW5Strip, 
+    TECW6Strip, TECW7Strip, TECW8Strip;
+
+  edm::InputTag SiStripSrc_;
 
   // private statistics information
   unsigned int count;
