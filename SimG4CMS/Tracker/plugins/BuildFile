@@ -1,4 +1,6 @@
 
+<library file="*.cc" name=SimG4CMSTrackerPlugins>
+<use name=SimG4CMS/Tracker>
 <use name=FWCore/ParameterSet>
 <use name=SimG4Core/SensitiveDetector>
 <use name=SimG4Core/Notification> 
@@ -7,8 +9,5 @@
 <use name=geant4>
 <use name=SimDataFormats/SimHitMaker>
 <use name=SimG4Core/Application>
-
-<export>
- <lib name=SimG4CMSTracker>
-</export>
-
+<flags EDM_PLUGIN=1>
+</library>
