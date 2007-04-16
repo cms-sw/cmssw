@@ -18,6 +18,6 @@ typedef bool ALIbool;
 const ALIdouble PI = 3.1415926;
 
 const double ALI_DBL_MAX = 1.E99;
-const double ALI_DBL_MIN = -1.E99;
+const double ALI_DBL_MIN = 1.E-99;
 
 #endif

@@ -11,7 +11,7 @@
 #define _CocoaSolidShape_HH
 
 #include "Alignment/CocoaUtilities/interface/CocoaGlobals.h"
-
+#include "Alignment/CocoaUtilities/interface/GlobalOptionMgr.h"
 
 class CocoaSolidShape
 {
