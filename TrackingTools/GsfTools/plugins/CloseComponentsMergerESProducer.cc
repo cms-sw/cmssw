@@ -1,4 +1,4 @@
-#include "TrackingTools/GsfTools/interface/CloseComponentsMergerESProducer.h"
+#include "TrackingTools/GsfTools/plugins/CloseComponentsMergerESProducer.h"
 
 #include "TrackingTools/GsfTools/interface/CloseComponentsMerger.h"
 #include "TrackingTools/GsfTools/interface/DistanceBetweenComponents.h"

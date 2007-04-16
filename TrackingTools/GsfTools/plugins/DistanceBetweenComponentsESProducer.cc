@@ -1,4 +1,4 @@
-#include "TrackingTools/GsfTools/interface/DistanceBetweenComponentsESProducer.h"
+#include "TrackingTools/GsfTools/plugins/DistanceBetweenComponentsESProducer.h"
 
 #include "TrackingTools/GsfTools/interface/KullbackLeiblerDistance.h"
 #include "TrackingTools/GsfTools/interface/MahalanobisDistance.h"
