@@ -1,3 +1,21 @@
+// -*- C++ -*-
+//
+// Package:    SiPixelMonitorCluster
+// Class:      SiPixelClusterModule
+// 
+/*class 
+
+ Description:
+
+ Implementation:
+     <Notes on implementation>
+*/
+//
+// Original Author:  Vincenzo Chiochia & Andrew York
+//         Created:  
+// $Id: SiPixelMonitorCluster.cc,v 1.0 2007/04/16 chiochia Exp $
+//
+//
 #include "DQM/SiPixelMonitorCluster/interface/SiPixelClusterModule.h"
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "DQM/SiPixelCommon/interface/SiPixelHistogramId.h"
@@ -14,8 +32,8 @@
 // Constructors
 //
 SiPixelClusterModule::SiPixelClusterModule() : id_(0),
-                                    ncols_(416),
-                                    nrows_(160) { }
+					       ncols_(416),
+					       nrows_(160) { }
 ///
 SiPixelClusterModule::SiPixelClusterModule(const uint32_t& id) : 
   id_(id),
@@ -38,7 +56,6 @@ SiPixelClusterModule::~SiPixelClusterModule() {}
 // Book histograms
 //
 void SiPixelClusterModule::book(const edm::ParameterSet& iConfig) {
-
   
 std::string hid;
   // Get collection name and instantiate Histo Id builder
@@ -46,7 +63,7 @@ std::string hid;
   SiPixelHistogramId* theHistogramId = new SiPixelHistogramId( src.label() );
   // Get DQM interface
   DaqMonitorBEInterface* theDMBE = edm::Service<DaqMonitorBEInterface>().operator->();
-  // Number of digis
+  // Number of clusters
   hid = theHistogramId->setHistoId("nclusters",id_);
   meNClusters_ = theDMBE->book1D(hid,"Number of Clusters",50,0.,50.);
   meNClusters_->setAxisTitle("Number of Clusters",1);
@@ -84,13 +101,19 @@ std::string hid;
   meMaxRow_->setAxisTitle("Highest cluster row",1);
   // Lowest cluster column
   hid = theHistogramId->setHistoId("mincol",id_);
-  meMinColumn_ = theDMBE->book1D(hid,"Lowest cluster column",500,0.,500.);
-  meMinColumn_->setAxisTitle("Lowest cluster column",1);
+  meMinCol_ = theDMBE->book1D(hid,"Lowest cluster column",500,0.,500.);
+  meMinCol_->setAxisTitle("Lowest cluster column",1);
   // Highest cluster column
   hid = theHistogramId->setHistoId("maxcol",id_);
-  meMaxColumn_ = theDMBE->book1D(hid,"Highest cluster column",500,0.,500.);
-  meMaxColumn_->setAxisTitle("Highest cluster column",1);
-
+  meMaxCol_ = theDMBE->book1D(hid,"Highest cluster column",500,0.,500.);
+  meMaxCol_->setAxisTitle("Highest cluster column",1);
+  // 2D hit map
+  int nbinx = ncols_/2;
+  int nbiny = nrows_/2;
+  hid = theHistogramId->setHistoId("hitmap",id_);
+  mePixClusters_ = theDMBE->book2D(hid,"Number of Clusters (1bin=four pixels)",nbinx,0.,float(ncols_),nbiny,0.,float(nrows_));
+  mePixClusters_->setAxisTitle("Columns",1);
+  mePixClusters_->setAxisTitle("Rows",2);
   delete theHistogramId;
 }
 
@@ -132,6 +155,7 @@ void SiPixelClusterModule::fill(const edm::DetSetVector<SiPixelCluster>& input) 
       (meMaxRow_)->Fill((int)maxPixelRow);
       (meMinCol_)->Fill((int)minPixelCol);
       (meMaxCol_)->Fill((int)maxPixelCol);
+      (mePixClusters_)->Fill((float)x,(float)y);
       //      (meEdgeHitX_)->Fill((int)edgeHitX);
       //      (meEdgeHitY_)->Fill((int)edgeHitY);
 
