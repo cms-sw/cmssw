@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/01/22 11:08:05 $
- *  $Revision: 1.5 $
+ *  $Date: 2007/03/27 15:45:59 $
+ *  $Revision: 1.6 $
  *  \author M. Giunta
  */
 
@@ -66,12 +66,14 @@ DTVDriftWriter::DTVDriftWriter(const ParameterSet& pset) {
 }
 
 
-
-
 DTVDriftWriter::~DTVDriftWriter(){
   if(debug)
     cout << "[DTVDriftWriter]Destructor called!" << endl;
-}void DTVDriftWriter::analyze(const Event & event, const EventSetup& eventSetup) {
+  theFile->Close();
+  delete theFitter;
+}
+
+void DTVDriftWriter::analyze(const Event & event, const EventSetup& eventSetup) {
   if(debug)
     cout << "[DTVDriftWriter]Analyzer called!" << endl;
 
