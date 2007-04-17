@@ -16,6 +16,7 @@
 #include <Geometry/CSCGeometry/interface/CSCLayerGeometry.h>
 #include <Geometry/CSCGeometry/interface/CSCChamber.h>
 #include <DataFormats/GeometryVector/interface/GlobalPoint.h>
+#include <DataFormats/GeometrySurface/interface/BoundPlane.h>
 
 //#include <boost/shared_ptr.hpp>
 //typedef boost::shared_ptr<CSCChamber> Pointer2Chamber;
@@ -24,7 +25,7 @@ class CSCLayer : public GeomDetUnit {
 
 public:
 
-  CSCLayer( BoundPlane* sp, CSCDetId id, const CSCChamber* ch, const CSCLayerGeometry* geo ) : 
+  CSCLayer( const BoundPlane::BoundPlanePointer sp, CSCDetId id, const CSCChamber* ch, const CSCLayerGeometry* geo ) : 
   GeomDetUnit( sp ), theId( id ), theChamber( ch ), theGeometry( geo ) {}
 
   const GeomDetType& type() const { return chamber()->type(); }
