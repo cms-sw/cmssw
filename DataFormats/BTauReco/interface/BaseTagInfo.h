@@ -19,6 +19,8 @@ public:
   
   virtual BaseTagInfo* clone(void) const { return new BaseTagInfo(*this); }
 
+  void  setJTARef(const JetTracksAssociationRef & jtaRef) { m_jetTracksAssociation=jtaRef;  } 
+
   const JetTracksAssociationRef & jtaRef(void)         const { return m_jetTracksAssociation; }
   const Jet & jet() const { return *m_jetTracksAssociation->key; }
   const edm::RefVector<TrackCollection> & tracks() const { return m_jetTracksAssociation->val; }
