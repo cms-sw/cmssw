@@ -1,3 +1,13 @@
+/** \class Chi2
+ *
+ *  Chi2 calculation in survey data for drift tube chambers  
+ *
+ *  $Date: 2007/04/13 18:05:35 $
+ *  $Revision: 1.1 $
+ *  \author Pablo Martinez Ruiz del Arbol
+ */
+
+
 #ifndef Alignment_SurveyAnalysis_Chi2_H
 #define Alignment_SurveyAnalysis_Chi2_H
 

@@ -1,3 +1,14 @@
+/** \class DTSurveyChamber
+ *
+ *  Implements a chamber in the context of Drift Tube Survey Measurements  
+ *  and calculates displacements and rotations for it.
+ *
+ *  $Date: 2007/04/13 18:05:35 $
+ *  $Revision: 1.1 $
+ *  \author Pablo Martinez Ruiz del Arbol
+ */
+
+
 #ifndef Alignment_SurveyAnalysis_DTSurveyChamber_H
 #define Alignment_SurveyAnalysis_DTSurveyChamber_H
 
@@ -6,13 +17,6 @@
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
 #include "Geometry/DTGeometry/interface/DTChamber.h"
 #include "TMatrixD.h" 
-
-//This class implements a chamber in the context of Survey Measurements
-//The reference system has to be provided trough a text file called geometry.txt
-//which should provide: wheel station sector ID centerX centerY centerY Rotation(0,0) Rotation(1,0) Rotation(2,0) ... Rotation(2,2)
-//Points are read using standard codes from photogrametry
-//Results are provided in local coordinates
-
 
 
 class DTSurveyChamber {

@@ -1,3 +1,16 @@
+/** \class DTSurvey
+ *
+ *  Implements a set of measurements given by survey, tipically a wheel.  
+ *  Contains DTSurveyChambers and the displacements and rotations for each are 
+ *  calculated.
+ *
+ *  $Date: 2007/04/13 18:05:35 $
+ *  $Revision: 1.1 $
+ *  \author Pablo Martinez Ruiz del Arbol
+ */
+
+
+
 #ifndef Alignment_SurveyAnalysis_DTSurvey_H
 #define Alignment_SurveyAnalysis_DTSurvey_H
 
