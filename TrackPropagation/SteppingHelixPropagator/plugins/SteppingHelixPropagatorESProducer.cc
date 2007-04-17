@@ -1,4 +1,4 @@
-#include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagatorESProducer.h"
+#include "SteppingHelixPropagatorESProducer.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
