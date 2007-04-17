@@ -1,24 +1,25 @@
-<export>
-   <lib name=AlignmentTrackerAlignment>
-   <use name=DetectorDescription/Core>
-   <use name=FWCore/Framework>
-   <use name=CondCore/DBCommon>
-   <use name=CondCore/DBOutputService>
-</export>
-
 <use name=Alignment/CommonAlignment>
-<use name=Geometry/TrackerNumberingBuilder>
-<use name=Geometry/TrackerGeometryBuilder>
-<use name=Geometry/CommonTopologies>
-<use name=Geometry/TrackerCommonData>
-<use name=DetectorDescription/Core>
+<use name=CondCore/DBOutputService>
+<use name=CondFormats/Alignment>
 <use name=DataFormats/SiPixelDetId>
 <use name=DataFormats/SiStripDetId>
-<use name=Geometry/Records>
-<use name=DataFormats/SiPixelDigi>
 <use name=FWCore/Framework>
+<use name=FWCore/MessageLogger>
+<use name=FWCore/ParameterSet>
+<use name=FWCore/ServiceRegistry>
 <use name=FWCore/Utilities>
-<use name=CondCore/DBCommon>
-<use name=CondCore/DBOutputService>
-<flags EDM_PLUGIN=1>
+<use name=Geometry/CommonDetUnit>
+<use name=Geometry/Records>
+<use name=Geometry/TrackerGeometryBuilder>
+<use name=Geometry/TrackerNumberingBuilder>
+<export>
+  <use name=Alignment/CommonAlignment>
+  <use name=FWCore/Framework>
+  <use name=FWCore/MessageLogger>
+  <use name=FWCore/ParameterSet>
+  <use name=Geometry/CommonDetUnit>
+  <use name=Geometry/TrackerGeometryBuilder>
+  <use name=Geometry/TrackerNumberingBuilder>
+  <lib name=AlignmentTrackerAlignment>
+</export>
 

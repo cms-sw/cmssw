@@ -1,0 +1,4 @@
+<use name=Alignment/TrackerAlignment>
+<library name=AlignmentTrackerAlignmentPlugin file="*.cc"></library>
+<flags EDM_PLUGIN=1>
+
