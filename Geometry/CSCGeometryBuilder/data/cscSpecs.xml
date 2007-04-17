@@ -76,11 +76,17 @@
 <!--# 30 - ctiOffset - possible future use -->
 <Parameter name="upar" value="0.0"/>
 <!--# 31 - chamber frame thickness (mm) -->
-<Parameter name="upar" value="8.0"/>
+<!-- make things consistent with current mf.xml values by using an incorrect frame thickness -->
+<!--Parameter name="upar" value="8.0"/-->
+<Parameter name="upar" value="2.0"/>
 <!--# 32 - gas gap thickness (mm) -->
-<Parameter name="upar" value="7.0"/>
+<!-- make things consistent with current mf.xml values by using an incorrect gap thickness -->
+<!--Parameter name="upar" value="7.0"/-->
+<Parameter name="upar" value="5.6"/>
 <!--# 33 - panel thickness (mm) -->
-<Parameter name="upar" value="15.0"/>
+<!-- make things consistent with current mf.xml values by using an incorrect panel thickness -->
+<!--Parameter name="upar" value="15.0"/-->
+<Parameter name="upar" value="20.0"/>
 
 <!-- ME1a PARAMETERS FOLLOW, EACH INDEX IS REALLY (#+34) -->
 
@@ -150,11 +156,17 @@
 <!--# 30 - ctiOffset - possible future use -->
 <Parameter name="upar" value="0.0"/>
 <!--# 31 - chamber frame thickness (mm) -->
-<Parameter name="upar" value="8.0"/>
+<!-- make things consistent with current mf.xml values by using an incorrect frame thickness -->
+<!--Parameter name="upar" value="8.0"/-->
+<Parameter name="upar" value="2.0"/>
 <!--# 32 - gas gap thickness (mm) -->
-<Parameter name="upar" value="7.0"/>
+<!-- make things consistent with current mf.xml values by using an incorrect gap thickness -->
+<!--Parameter name="upar" value="7.0"/-->
+<Parameter name="upar" value="5.6"/>
 <!--# 33 - panel thickness (mm) -->
-<Parameter name="upar" value="15.0"/>
+<!-- make things consistent with current mf.xml values by using an incorrect panel thickness -->
+<!--Parameter name="upar" value="15.0"/-->
+<Parameter name="upar" value="20.0"/>
 
 <!-- Wire group specs. 
      The wire grouping is specified by two vectors NumGroups and NumWiresPerGrp, of the same length. 
@@ -258,7 +270,9 @@
 <!--# 30 - ctiOffset - possible future use -->
 <Parameter name="upar" value="0.0"/>
 <!--# 31 - chamber frame thickness (mm) -->
-<Parameter name="upar" value="6.096"/>
+<!--Parameter name="upar" value="6.096"/-->
+<!-- make things consistent with current mf.xml values by using an incorrect frame thickness -->
+<Parameter name="upar" value="2.0025"/>
 <!--# 32 - gas gap thickness (mm) -->
 <Parameter name="upar" value="9.525"/>
 <!--# 33 - panel thickness (mm) -->
@@ -378,7 +392,9 @@
 <!--# 30 - ctiOffset - possible future use -->
 <Parameter name="upar" value="0.0"/>
 <!--# 31 - chamber frame thickness (mm) -->
-<Parameter name="upar" value="6.096"/>
+<!--Parameter name="upar" value="6.096"/-->
+<!-- make things consistent with current mf.xml values by using an incorrect frame thickness -->
+<Parameter name="upar" value="2.0025"/>
 <!--# 32 - gas gap thickness (mm) -->
 <Parameter name="upar" value="9.525"/>
 <!--# 33 - panel thickness (mm) -->
@@ -494,7 +510,9 @@
 <!--# 30 - ctiOffset - possible future use -->
 <Parameter name="upar" value="0.0"/>
 <!--# 31 - chamber frame thickness (mm) -->
-<Parameter name="upar" value="6.096"/>
+<!--Parameter name="upar" value="6.096"/-->
+<!-- make things consistent with current mf.xml values by using an incorrect frame thickness -->
+<Parameter name="upar" value="2.0025"/>
 <!--# 32 - gas gap thickness (mm) -->
 <Parameter name="upar" value="9.525"/>
 <!--# 33 - panel thickness (mm) -->
@@ -610,7 +628,10 @@
 <!--# 30 - ctiOffset - possible future use -->
 <Parameter name="upar" value="0.0"/>
 <!--# 31 - chamber frame thickness (mm) -->
-<Parameter name="upar" value="6.096"/>
+<!--# 31 - chamber frame thickness (mm) -->
+<!--Parameter name="upar" value="6.096"/-->
+<!-- make things consistent with current mf.xml values by using an incorrect frame thickness -->
+<Parameter name="upar" value="2.0025"/>
 <!--# 32 - gas gap thickness (mm) -->
 <Parameter name="upar" value="9.525"/>
 <!--# 33 - panel thickness (mm) -->
@@ -724,7 +745,10 @@
 <!--# 30 - ctiOffset - possible future use -->
 <Parameter name="upar" value="0.0"/>
 <!--# 31 - chamber frame thickness (mm) -->
-<Parameter name="upar" value="6.096"/>
+<!--# 31 - chamber frame thickness (mm) -->
+<!--Parameter name="upar" value="6.096"/-->
+<!-- make things consistent with current mf.xml values by using an incorrect frame thickness -->
+<Parameter name="upar" value="2.0025"/>
 <!--# 32 - gas gap thickness (mm) -->
 <Parameter name="upar" value="9.525"/>
 <!--# 33 - panel thickness (mm) -->
@@ -837,7 +861,10 @@
 <!--# 30 - ctiOffset - possible future use -->
 <Parameter name="upar" value="0.0"/>
 <!--# 31 - chamber frame thickness (mm) -->
-<Parameter name="upar" value="6.096"/>
+<!--# 31 - chamber frame thickness (mm) -->
+<!--Parameter name="upar" value="6.096"/-->
+<!-- make things consistent with current mf.xml values by using an incorrect frame thickness -->
+<Parameter name="upar" value="2.0025"/>
 <!--# 32 - gas gap thickness (mm) -->
 <Parameter name="upar" value="9.525"/>
 <!--# 33 - panel thickness (mm) -->
@@ -965,7 +992,10 @@
 <!--# 30 - ctiOffset - possible future use -->
 <Parameter name="upar" value="0.0"/>
 <!--# 31 - chamber frame thickness (mm) -->
-<Parameter name="upar" value="6.096"/>
+<!--# 31 - chamber frame thickness (mm) -->
+<!--Parameter name="upar" value="6.096"/-->
+<!-- make things consistent with current mf.xml values by using an incorrect frame thickness -->
+<Parameter name="upar" value="2.0025"/>
 <!--# 32 - gas gap thickness (mm) -->
 <Parameter name="upar" value="9.525"/>
 <!--# 33 - panel thickness (mm) -->
