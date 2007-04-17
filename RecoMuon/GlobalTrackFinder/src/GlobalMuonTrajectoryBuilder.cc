@@ -12,8 +12,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2007/04/11 16:12:20 $
- *  $Revision: 1.89 $
+ *  $Date: 2007/04/12 00:40:03 $
+ *  $Revision: 1.90 $
  *
  *  Authors :
  *  N. Neumeister            Purdue University
@@ -187,12 +187,24 @@ GlobalMuonTrajectoryBuilder::~GlobalMuonTrajectoryBuilder() {
   delete theTkSeedGenerator;
 }
 
-
 //
 // set Event
 //
+#include "RecoTracker/TkNavigation/interface/SimpleNavigationSchool.h"
+#include "TrackingTools/DetLayers/interface/NavigationSetter.h"
+#include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
+
 void GlobalMuonTrajectoryBuilder::setEvent(const edm::Event& event) {
 
+  
+  edm::ESHandle<GeometricSearchTracker> theGeomSearchTracker;
+  theService->eventSetup().get<TrackerRecoGeometryRecord>().get( theGeomSearchTracker );
+  
+  const NavigationSchool*  theNavigationSchool = new SimpleNavigationSchool(&(*theGeomSearchTracker),&(*theService->magneticField()));
+  
+  // set the correct navigation
+  NavigationSetter setter( *theNavigationSchool);
+  
   const std::string category = "Muon|RecoMuon|GlobalMuonTrajectoryBuilder|setEvent";
 
   theEvent = &event;
@@ -231,7 +243,6 @@ void GlobalMuonTrajectoryBuilder::setEvent(const edm::Event& event) {
   theTrackTransformer->setServices(theService->eventSetup());
 
 }
-
 
 //
 // reconstruct trajectories
@@ -788,10 +799,11 @@ void GlobalMuonTrajectoryBuilder::checkMuonHits(const reco::Track& muon,
   // check order of muon measurements
   //
   LogTrace(category) << "CheckMuonHits";
-  if ((*all.begin())->globalPosition().mag() >
-      (*(all.end()-1))->globalPosition().mag() ) {
+  if ( !all.empty() &&
+       ( all.front()->globalPosition().mag() >
+	 all.back()->globalPosition().mag() ) ) {
     LogTrace(category)<< "reverse order: ";
-    sort(all.begin(),all.end(),RecHitLessByDet(alongMomentum));
+    stable_sort(all.begin(),all.end(),RecHitLessByDet(alongMomentum));
   }
   
   
@@ -1186,6 +1198,16 @@ vector<GlobalMuonTrajectoryBuilder::TrackCand> GlobalMuonTrajectoryBuilder::make
 
     times.pop();
     LogTrace(category) << "Found " << tkCandColl.size() << " tkCands from seeds";
+    for(vector<TrackCand>::const_iterator it = tkCandColl.begin();
+	it != tkCandColl.end();++it){
+      LogTrace(category)<<"Number of measuerements: "<<it->first->measurements().size();
+      Trajectory::DataContainer data = it->first->measurements();      
+      for(Trajectory::DataContainer::iterator me = data.begin(); me != data.end(); ++me)
+	if(!me->forwardPredictedState().isValid())
+	  LogTrace(category)<<"Pred is invalid!! ";
+	else
+	  LogTrace(category)<<"Pred: "<<me->forwardPredictedState();
+    }
 
     if(theMIMFlag) {
       dataMonitor->book1D("tk_sta","Trajectories per STA",101,-0.5,100.5);
