@@ -19,4 +19,3 @@
 <use name=FWCore/Framework>
 <use name=CondCore/DBCommon>
 <use name=CondCore/DBOutputService>
-<flags EDM_PLUGIN=1>

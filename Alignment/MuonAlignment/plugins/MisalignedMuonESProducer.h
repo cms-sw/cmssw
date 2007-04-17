@@ -4,8 +4,8 @@
 /** \class MisalignedMuonESProducer
  *  The misaligned muon ES producer.
  *
- *  $Date: 2007/01/22 15:29:17 $
- *  $Revision: 1.6 $
+ *  $Date: 2007/01/26 19:39:41 $
+ *  $Revision: 1.7 $
  *  \author Andre Sznajder - UERJ(Brazil)
  */
 
