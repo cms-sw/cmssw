@@ -19,8 +19,8 @@
   * [LUT 1(127)] [LUT 2(127)] ...
   * </pre>
   *
-  * $Date: 2007/04/04 04:12:46 $
-  * $Revision: 1.6 $
+  * $Date: 2007/04/16 17:31:56 $
+  * $Revision: 1.8 $
   * \author M. Weinberger -- TAMU
   * \author Tulika Bose and Greg Landsberg -- Brown
   */
@@ -43,6 +43,7 @@ private:
   float Rcalib[87];
   typedef short unsigned int LUT;
   LUT *inputLUT[nluts];
-  static const float nominal_gain = 0.177;              // Nominal HB/HE gain in GeV/fC
+  static const float nominal_gain;              // Nominal HB/HE gain in GeV/fC
 };
+  const float HcaluLUTTPGCoder::nominal_gain = 0.177; 
 #endif
