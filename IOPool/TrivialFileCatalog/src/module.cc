@@ -1,7 +1,7 @@
 #include "IOPool/TrivialFileCatalog/interface/TrivialFileCatalog.h"
 #include "FileCatalog/FCImplPluginFactory.h"
 #include "FileCatalog/FCMetaImplPluginFactory.h"
-#include "FWCore/PluginManager/interface/ModuleDef.h"
+#include "PluginManager/ModuleDef.h"
 
 namespace pool
 {
