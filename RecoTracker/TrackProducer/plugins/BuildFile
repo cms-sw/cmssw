@@ -1,0 +1,5 @@
+<use name=RecoTracker/TrackProducer>
+<library file="*.cc" name=RecoTrackerTrackProducerPlugins>
+       <flags EDM_PLUGIN=1>
+</library>
+ 

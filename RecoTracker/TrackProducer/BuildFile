@@ -30,4 +30,3 @@
    <use name=DataFormats/Common>
    <use name=rootrflx>
 </export>
-<flags EDM_PLUGIN=1>
