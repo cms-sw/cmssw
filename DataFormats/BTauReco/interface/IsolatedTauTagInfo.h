@@ -27,14 +27,6 @@ using namespace std;
 
 namespace reco { 
 
-struct SortByDescendingTrackPt
-{
-  bool operator()(const TrackRef* trStart, const TrackRef* trEnd)
-  {
-    return (*trStart)->pt() > (*trEnd)->pt();
-  }
-};
-
 
 class IsolatedTauTagInfo : public BaseTagInfo {
 
@@ -43,7 +35,7 @@ class IsolatedTauTagInfo : public BaseTagInfo {
     IsolatedTauTagInfo() {}
 
 
-    IsolatedTauTagInfo(edm::RefVector<TrackCollection> tracks) 
+    IsolatedTauTagInfo(edm::RefVector<TrackCollection> tracks,const JetTracksAssociationRef & jtaRef):BaseTagInfo(jtaRef) 
       {    
 	track_iterator it = tracks.begin();
 	for(;it!= tracks.end(); it++)
