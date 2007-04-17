@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Apr  5 12:10:23 EDT 2007
-// $Id: PluginFactory.h,v 1.2 2007/04/12 12:51:12 wmtan Exp $
+// $Id: PluginFactory.h,v 1.3 2007/04/13 10:39:42 wmtan Exp $
 //
 
 // system include files
@@ -201,11 +201,13 @@ private:
 };
 
 }
+#define CONCATENATE_HIDDEN(a,b) a ## b 
+#define CONCATENATE(a,b) CONCATENATE_HIDDEN(a,b)
 #define EDM_REGISTER_PLUGINFACTORY(_factory_,_category_) \
 namespace edmplugin {\
   template<> _factory_* _factory_::get() { static _factory_ s_instance; return &s_instance;}\
   template<> const std::string& _factory_::category() const { static std::string s_cat(_category_);  return s_cat;}\
-} enum {dummy_edm_register_pluginfactory_}
+} enum {CONCATENATE(dummy_edm_register_pluginfactory_, __LINE__)}
 
 #endif
 
