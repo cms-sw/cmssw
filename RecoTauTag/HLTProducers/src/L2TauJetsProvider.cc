@@ -6,15 +6,20 @@
 //
 using namespace reco;
 using namespace edm;
-
+using namespace l1extra;
 
 L2TauJetsProvider::L2TauJetsProvider(const edm::ParameterSet& iConfig)
 {
   jetSrc = iConfig.getParameter<vtag>("JetSrc");
   l1ParticleMap = iConfig.getParameter<InputTag>("L1ParticleMap");
   l1Particles = iConfig.getParameter<InputTag>("L1Particles");
+  singleTauTrigger = iConfig.getParameter<string>("L1SingleTauTrigger");
+  doubleTauTrigger = iConfig.getParameter<string>("L1DoubleTauTrigger");
+  electronTauTrigger = iConfig.getParameter<string>("L1IsoEMTauTrigger");
+  muonTauTrigger = iConfig.getParameter<string>("L1MuonTrigger");
+
   mEt_ExtraTau = iConfig.getParameter<double>("EtExtraTau");
-  //  mEt_ExtraTau = iConfig.getParameter<double>("EtLeptonTau");
+
   
   produces<CaloJetCollection>("SingleTau");
   produces<CaloJetCollection>("DoubleTau");
@@ -60,11 +65,15 @@ void L2TauJetsProvider::produce(edm::Event& iEvent, const edm::EventSetup& iES)
 
  Handle< L1ParticleMapCollection > mapColl ;
  iEvent.getByLabel( l1ParticleMap, mapColl );
+ unsigned int singleTauTrigger_ =L1ParticleMap::triggerType(singleTauTrigger);
+ unsigned int doubleTauTrigger_ =L1ParticleMap::triggerType(doubleTauTrigger);
+ unsigned int electronTauTrigger_ =L1ParticleMap::triggerType(electronTauTrigger);
+ unsigned int muonTauTrigger_ =L1ParticleMap::triggerType(muonTauTrigger);
 
- const L1ParticleMap& singleTauMap = ( *mapColl )[L1ParticleMap::kSingleTau ] ;
- const L1ParticleMap& doubleTauMap = ( *mapColl )[L1ParticleMap::kDoubleTau ] ;
- const L1ParticleMap& electronTauMap = ( *mapColl )[L1ParticleMap::kIsoEMTau ] ;
- const L1ParticleMap& muonTauMap = ( *mapColl )[L1ParticleMap::kMuonTau ] ;
+ const L1ParticleMap& singleTauMap = ( *mapColl )[singleTauTrigger_] ;
+ const L1ParticleMap& doubleTauMap = ( *mapColl )[doubleTauTrigger_] ;
+ const L1ParticleMap& electronTauMap = ( *mapColl )[electronTauTrigger_] ;
+ const L1ParticleMap& muonTauMap = ( *mapColl )[muonTauTrigger_] ;
 
  const L1JetParticleVectorRef& myL1SingleTaus = singleTauMap.jetParticles();
  const L1JetParticleVectorRef& myL1DoubleTaus = doubleTauMap.jetParticles();

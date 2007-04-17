@@ -26,6 +26,7 @@ class L2TauJetsProvider: public edm::EDProducer {
   vtag jetSrc;
   edm::InputTag l1ParticleMap;
   edm::InputTag l1Particles;
+  std::string singleTauTrigger,doubleTauTrigger,electronTauTrigger,muonTauTrigger;
   double mEt_ExtraTau;
   double mEt_LeptonTau;
   std::map<int, const reco::CaloJet> myL2L1JetsMap; //first is # L1Tau , second is L2 jets
