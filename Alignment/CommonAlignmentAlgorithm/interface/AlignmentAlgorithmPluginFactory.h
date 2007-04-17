@@ -10,27 +10,12 @@
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentAlgorithmBase.h"
 
+
 // Forward declaration
 namespace edm { class ParameterSet; }
 
-class AlignmentAlgorithmPluginFactory : 
-  public seal::PluginFactory<AlignmentAlgorithmBase* (const edm::ParameterSet&) >  
-{
+typedef edmplugin::PluginFactory<AlignmentAlgorithmBase* (const edm::ParameterSet&) > 
+                    AlignmentAlgorithmPluginFactory;
   
-public:
-  /// Constructor
-  AlignmentAlgorithmPluginFactory();
-  
-  /// Return the plugin factory (unique instance)
-  static AlignmentAlgorithmPluginFactory* get (void);
-  
-  /// Directly return the algorithm with given name and configuration
-  static AlignmentAlgorithmBase* getAlgorithm( std::string name, 
-											   const edm::ParameterSet& config );
-  
-private:
-  static AlignmentAlgorithmPluginFactory theInstance;
-  
-};
 #endif
 
