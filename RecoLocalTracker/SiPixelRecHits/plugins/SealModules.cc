@@ -1,7 +1,6 @@
 //
-// src/SealModules.cc
-// declarations of our Framework components to the Framework
-// Moved to EDM Plugin manager (V.Chiochia, April 2007)
+// plugins/SealModules.cc
+// Using new EDM plugin manager (V.Chiochia, April 2007)
 //
 //--- Our components which we want Framework to know about:
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/PixelClusterParameterEstimator.h"
@@ -21,4 +20,3 @@
 #include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
 #include "FWCore/Framework/interface/eventsetuprecord_registration_macro.h"
 
-EVENTSETUP_RECORD_REG(TkPixelCPERecord);

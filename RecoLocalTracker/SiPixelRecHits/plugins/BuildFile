@@ -1,0 +1,4 @@
+<use name=RecoLocalTracker/SiPixelRecHits>
+<library file="*.cc" name=RecoLocalTrackerSiPixelRecHitsPlugins>
+	<flags EDM_PLUGIN=1>
+</library>
