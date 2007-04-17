@@ -10,7 +10,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Muon.h,v 1.27 2007/03/20 12:18:23 llista Exp $
+ * \version $Id: Muon.h,v 1.28 2007/04/16 15:45:34 dmytro Exp $
  *
  */
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
@@ -44,6 +44,7 @@ namespace reco {
 
     /// energy deposition
     struct MuonEnergy {
+       MuonEnergy() { had = 0; em = 0; ho = 0; }
        float had;    // energy deposited in HCAL
        float em;     // energy deposited in ECAL
        float ho;     // energy deposited in HO
@@ -69,7 +70,12 @@ namespace reco {
     /// bits 0-1-2-3 = DT stations 1-2-3-4
     /// bits 4-5-6-7 = CSC stations 1-2-3-4
     unsigned int stationMask( ArbitrationType type = DefaultArbitration ) const;
-    unsigned int stationGapMask( ArbitrationType type = DefaultArbitration ) const;
+    /// get bit map of stations with tracks within
+    /// given distance (in cm) of chamber edges 
+    /// bit assignments are same as above
+    unsigned int stationGapMaskDistance( float distanceCut = 10. ) const;
+    /// same as above for given number of sigmas
+    unsigned int stationGapMaskPull( float sigmaCut = 3. ) const;
      
      
   private:

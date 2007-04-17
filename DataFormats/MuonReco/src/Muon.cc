@@ -1,8 +1,12 @@
 #include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
 using namespace reco;
 
-Muon::Muon(  Charge q, const LorentzVector & p4, const Point & vtx ) : 
-  RecoCandidate( q, p4, vtx, -13 * q ) { 
+Muon::Muon(  Charge q, const LorentzVector & p4, const Point & vtx ) :
+  RecoCandidate( q, p4, vtx, -13 * q ) {
+     energyValid_  = false;
+     matchesValid_ = false;
+
 }
 
 
@@ -36,13 +40,13 @@ int Muon::numberOfMatches( ArbitrationType type ) const
             segmentMatch != chamberMatch->segmentMatches.end(); segmentMatch++ )
       {
          if(type == DefaultArbitration || type == DxArbitration)
-            if(segmentMatch->isMask(MuonSegmentMatch::BestInStationByDX) &&
+            if(segmentMatch->isMask(MuonSegmentMatch::BestInChamberByDX) &&
                   segmentMatch->isMask(MuonSegmentMatch::BelongsToTrackByDX)) {
                matches++;
                break;
             }
          if(type == DrArbitration)
-            if(segmentMatch->isMask(MuonSegmentMatch::BestInStationByDR) &&
+            if(segmentMatch->isMask(MuonSegmentMatch::BestInChamberByDR) &&
                   segmentMatch->isMask(MuonSegmentMatch::BelongsToTrackByDR)) {
                matches++;
                break;
@@ -109,9 +113,72 @@ unsigned int Muon::stationMask( ArbitrationType type ) const
    return totMask;
 }
 
-unsigned int Muon::stationGapMask( ArbitrationType type ) const
+unsigned int Muon::stationGapMaskDistance( float distanceCut ) const
 {
-   return 0; // FixMe
+   unsigned int totMask(0);
+   for( int stationIndex = 1; stationIndex < 5; stationIndex++ )
+   {
+      for( int detectorIndex = 1; detectorIndex < 4; detectorIndex++ )
+      {
+         unsigned int curMask(0);
+         for( std::vector<MuonChamberMatch>::const_iterator chamberMatch = muMatches_.begin();
+               chamberMatch != muMatches_.end(); chamberMatch++ )
+         {
+            if(!(chamberMatch->station()==stationIndex && chamberMatch->detector()==detectorIndex)) continue;
+
+            float edgeX = chamberMatch->edgeX;
+            float edgeY = chamberMatch->edgeY;
+            if(edgeX<0 && fabs(edgeX)>fabs(distanceCut) &&
+                  edgeY<0 && fabs(edgeY)>fabs(distanceCut)) // inside the chamber so negates all gaps for this station
+            {
+               curMask = 0;
+               break;
+            }
+            if( ( fabs(edgeX) < fabs(distanceCut) && edgeY < fabs(distanceCut) ) ||
+		( fabs(edgeY) < fabs(distanceCut) && edgeX < fabs(distanceCut) ) ) // inside gap
+               curMask = 1<<(stationIndex-1)+4*(detectorIndex-1);
+         }
+
+         totMask += curMask; // add to total mask
+      }
+   }
+
+   return totMask;
+}
+
+unsigned int Muon::stationGapMaskPull( float sigmaCut ) const
+{
+   unsigned int totMask(0);
+   for( int stationIndex = 1; stationIndex < 5; stationIndex++ )
+   {
+      for( int detectorIndex = 1; detectorIndex < 4; detectorIndex++ )
+      {
+         unsigned int curMask(0);
+         for( std::vector<MuonChamberMatch>::const_iterator chamberMatch = muMatches_.begin();
+               chamberMatch != muMatches_.end(); chamberMatch++ )
+         {
+            if(!(chamberMatch->station()==stationIndex && chamberMatch->detector()==detectorIndex)) continue;
+
+            float edgeX = chamberMatch->edgeX;
+            float edgeY = chamberMatch->edgeY;
+            float xErr  = chamberMatch->xErr+0.000001; // protect against division by zero later
+            float yErr  = chamberMatch->yErr+0.000001; // protect against division by zero later
+            if(edgeX<0 && fabs(edgeX/xErr)>fabs(sigmaCut) &&
+                  edgeY<0 && fabs(edgeY/yErr)>fabs(sigmaCut)) // inside the chamber so negates all gaps for this station
+            {
+               curMask = 0;
+               break;
+            }
+            if( ( fabs(edgeX/xErr) < fabs(sigmaCut) && edgeY/yErr < fabs(sigmaCut) ) ||
+		( fabs(edgeY/yErr) < fabs(sigmaCut) && edgeX/xErr < fabs(sigmaCut) ) ) // inside gap
+               curMask = 1<<(stationIndex-1)+4*(detectorIndex-1);
+         }
+
+         totMask += curMask; // add to total mask
+      }
+   }
+
+   return totMask;
 }
 
 int Muon::numberOfSegments( int station, int muonSubdetId, ArbitrationType type ) const
@@ -208,6 +275,7 @@ float Muon::dX( int station, int muonSubdetId, ArbitrationType type ) const
 
 float Muon::dY( int station, int muonSubdetId, ArbitrationType type ) const
 {
+   if(station==4 && muonSubdetId==MuonSubdetId::DT) return 999999; // no y information
    std::pair<const MuonChamberMatch*,const MuonSegmentMatch*> thePair = getPair(getChambers(station,muonSubdetId),type);
    if(thePair.first==0 || thePair.second==0) return 999999;
    return fabs(thePair.first->y-thePair.second->y);
@@ -222,6 +290,7 @@ float Muon::dDxDz( int station, int muonSubdetId, ArbitrationType type ) const
 
 float Muon::dDyDz( int station, int muonSubdetId, ArbitrationType type ) const
 {
+   if(station==4 && muonSubdetId==MuonSubdetId::DT) return 999999; // no y information
    std::pair<const MuonChamberMatch*,const MuonSegmentMatch*> thePair = getPair(getChambers(station,muonSubdetId),type);
    if(thePair.first==0 || thePair.second==0) return 999999;
    return fabs(thePair.first->dYdZ-thePair.second->dYdZ);
@@ -238,6 +307,7 @@ float Muon::pullX( int station, int muonSubdetId, ArbitrationType type, bool inc
 
 float Muon::pullY( int station, int muonSubdetId, ArbitrationType type, bool includeSegmentError) const
 {
+   if(station==4 && muonSubdetId==MuonSubdetId::DT) return 999999; // no y information
    std::pair<const MuonChamberMatch*,const MuonSegmentMatch*> thePair = getPair(getChambers(station,muonSubdetId),type);
    if(thePair.first==0 || thePair.second==0) return 999999;
    if(includeSegmentError)
@@ -256,6 +326,7 @@ float Muon::pullDxDz( int station, int muonSubdetId, ArbitrationType type, bool 
 
 float Muon::pullDyDz( int station, int muonSubdetId, ArbitrationType type, bool includeSegmentError ) const
 {
+   if(station==4 && muonSubdetId==MuonSubdetId::DT) return 999999; // no y information
    std::pair<const MuonChamberMatch*,const MuonSegmentMatch*> thePair = getPair(getChambers(station,muonSubdetId),type);
    if(thePair.first==0 || thePair.second==0) return 999999;
    if(includeSegmentError)
@@ -272,6 +343,7 @@ float Muon::segmentX( int station, int muonSubdetId, ArbitrationType type ) cons
 
 float Muon::segmentY( int station, int muonSubdetId, ArbitrationType type ) const
 {
+   if(station==4 && muonSubdetId==MuonSubdetId::DT) return 999999; // no y information
    std::pair<const MuonChamberMatch*,const MuonSegmentMatch*> thePair = getPair(getChambers(station,muonSubdetId),type);
    if(thePair.first==0 || thePair.second==0) return 999999;
    return thePair.second->y;
@@ -286,6 +358,7 @@ float Muon::segmentDxDz( int station, int muonSubdetId, ArbitrationType type ) c
 
 float Muon::segmentDyDz( int station, int muonSubdetId, ArbitrationType type ) const
 {
+   if(station==4 && muonSubdetId==MuonSubdetId::DT) return 999999; // no y information
    std::pair<const MuonChamberMatch*,const MuonSegmentMatch*> thePair = getPair(getChambers(station,muonSubdetId),type);
    if(thePair.first==0 || thePair.second==0) return 999999;
    return thePair.second->dYdZ;
@@ -300,6 +373,7 @@ float Muon::segmentXErr( int station, int muonSubdetId, ArbitrationType type ) c
 
 float Muon::segmentYErr( int station, int muonSubdetId, ArbitrationType type ) const
 {
+   if(station==4 && muonSubdetId==MuonSubdetId::DT) return 999999; // no y information
    std::pair<const MuonChamberMatch*,const MuonSegmentMatch*> thePair = getPair(getChambers(station,muonSubdetId),type);
    if(thePair.first==0 || thePair.second==0) return 999999;
    return thePair.second->yErr;
@@ -314,6 +388,7 @@ float Muon::segmentDxDzErr( int station, int muonSubdetId, ArbitrationType type 
 
 float Muon::segmentDyDzErr( int station, int muonSubdetId, ArbitrationType type ) const
 {
+   if(station==4 && muonSubdetId==MuonSubdetId::DT) return 999999; // no y information
    std::pair<const MuonChamberMatch*,const MuonSegmentMatch*> thePair = getPair(getChambers(station,muonSubdetId),type);
    if(thePair.first==0 || thePair.second==0) return 999999;
    return thePair.second->dYdZErr;
