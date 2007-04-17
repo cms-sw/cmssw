@@ -129,8 +129,11 @@ GSUtilities::findMode (const double xStart) const
   double y2(pdf(xStart));
   double yd(dpdf1(xStart));
   int nLoop(0);
+  if ( (y1+y2)<10*DBL_MIN )  return xStart;
   while ( nLoop++<20 && fabs(y2-y1)/(y2+y1)>1.e-6 ) {
 //     std::cout << "dy = " << y2-y1 << std::endl;
+    double yd2 = dpdf2(x);
+    if ( fabs(yd2)<10*DBL_MIN )  return xStart;
     x -= yd/dpdf2(x);
     yd = dpdf1(x);
     y1 = y2;
