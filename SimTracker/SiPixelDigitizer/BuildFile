@@ -15,7 +15,7 @@
 <use name=boost>
 <use name=clhep>
 <use name=MagneticField/Records>
-<use name=MagneticField/GeomBuilder>
+
 <use name=MagneticField/VolumeBasedEngine>
 <flags EDM_PLUGIN=1>
 <export>
@@ -36,7 +36,7 @@
    <use name=boost>
    <use name=clhep>
     <use name=MagneticField/Records>
-   <use name=MagneticField/GeomBuilder>
+
    <use name=MagneticField/VolumeBasedEngine>
    <use name=Geometry/Surface>
 </export>
