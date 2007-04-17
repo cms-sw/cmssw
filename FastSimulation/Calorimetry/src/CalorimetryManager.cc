@@ -641,7 +641,7 @@ void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack)
       // was map<unsigned,double> but CaloHitMaker uses float
       std::map<unsigned,float>::const_iterator mapitr;
       std::map<unsigned,float>::const_iterator endmapitr;
-      if(myTrack.onVFcal() != 2) {
+      if(myTrack.onEcal() > 0) {
 	// Save ECAL hits 
 	endmapitr=myGrid.getHits().end();
 	for(mapitr=myGrid.getHits().begin(); mapitr!=endmapitr; ++mapitr) {
