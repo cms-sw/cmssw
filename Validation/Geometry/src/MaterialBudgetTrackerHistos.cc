@@ -193,261 +193,278 @@ void MaterialBudgetTrackerHistos::fillPerStep()
 
 void MaterialBudgetTrackerHistos::fillEndTrack()
 {
-  // Total X0
-  hmgr->getHisto1(11)->Fill(theData->getEta());
-  hmgr->getHisto1(21)->Fill(theData->getPhi());
-  hmgr->getHisto2(31)->Fill(theData->getEta(),theData->getPhi());
+  //
+  // fill histograms and profiles only if the material has been crossed
+  //
   
-  hmgr->getHistoProf1(10)->Fill(theData->getEta(),theData->getTotalMB());
-  hmgr->getHistoProf1(20)->Fill(theData->getPhi(),theData->getTotalMB());
-  hmgr->getHistoProf2(30)->Fill(theData->getEta(),theData->getPhi(),theData->getTotalMB());
-  
-  // rr
-  
-  // Support
-  hmgr->getHisto1(111)->Fill(theData->getEta());
-  hmgr->getHisto1(121)->Fill(theData->getPhi());
-  hmgr->getHisto2(131)->Fill(theData->getEta(),theData->getPhi());
-  
-  hmgr->getHistoProf1(110)->Fill(theData->getEta(),theData->getSupportMB());
-  hmgr->getHistoProf1(120)->Fill(theData->getPhi(),theData->getSupportMB());
-  hmgr->getHistoProf2(130)->Fill(theData->getEta(),theData->getPhi(),theData->getSupportMB());
-  
-  // Sensitive
-  hmgr->getHisto1(211)->Fill(theData->getEta());
-  hmgr->getHisto1(221)->Fill(theData->getPhi());
-  hmgr->getHisto2(231)->Fill(theData->getEta(),theData->getPhi());
-  
-  hmgr->getHistoProf1(210)->Fill(theData->getEta(),theData->getSensitiveMB());
-  hmgr->getHistoProf1(220)->Fill(theData->getPhi(),theData->getSensitiveMB());
-  hmgr->getHistoProf2(230)->Fill(theData->getEta(),theData->getPhi(),theData->getSensitiveMB());
-  
-  // Cables
-  hmgr->getHisto1(311)->Fill(theData->getEta());
-  hmgr->getHisto1(321)->Fill(theData->getPhi());
-  hmgr->getHisto2(331)->Fill(theData->getEta(),theData->getPhi());
-  
-  hmgr->getHistoProf1(310)->Fill(theData->getEta(),theData->getCablesMB());
-  hmgr->getHistoProf1(320)->Fill(theData->getPhi(),theData->getCablesMB());
-  hmgr->getHistoProf2(330)->Fill(theData->getEta(),theData->getPhi(),theData->getCablesMB());
-  
-  // Cooling
-  hmgr->getHisto1(411)->Fill(theData->getEta());
-  hmgr->getHisto1(421)->Fill(theData->getPhi());
-  hmgr->getHisto2(431)->Fill(theData->getEta(),theData->getPhi());
-  
-  hmgr->getHistoProf1(410)->Fill(theData->getEta(),theData->getCoolingMB());
-  hmgr->getHistoProf1(420)->Fill(theData->getPhi(),theData->getCoolingMB());
-  hmgr->getHistoProf2(430)->Fill(theData->getEta(),theData->getPhi(),theData->getCoolingMB());
-  
-  // Electronics
-  hmgr->getHisto1(511)->Fill(theData->getEta());
-  hmgr->getHisto1(521)->Fill(theData->getPhi());
-  hmgr->getHisto2(531)->Fill(theData->getEta(),theData->getPhi());
-  
-  hmgr->getHistoProf1(510)->Fill(theData->getEta(),theData->getElectronicsMB());
-  hmgr->getHistoProf1(520)->Fill(theData->getPhi(),theData->getElectronicsMB());
-  hmgr->getHistoProf2(530)->Fill(theData->getEta(),theData->getPhi(),theData->getElectronicsMB());
-  
-  // Other
-  hmgr->getHisto1(611)->Fill(theData->getEta());
-  hmgr->getHisto1(621)->Fill(theData->getPhi());
-  hmgr->getHisto2(631)->Fill(theData->getEta(),theData->getPhi());
-  
-  hmgr->getHistoProf1(610)->Fill(theData->getEta(),theData->getOtherMB());
-  hmgr->getHistoProf1(620)->Fill(theData->getPhi(),theData->getOtherMB());
-  hmgr->getHistoProf2(630)->Fill(theData->getEta(),theData->getPhi(),theData->getOtherMB());
-  
-  // Air
-  hmgr->getHisto1(711)->Fill(theData->getEta());
-  hmgr->getHisto1(721)->Fill(theData->getPhi());
-  hmgr->getHisto2(731)->Fill(theData->getEta(),theData->getPhi());
-  
-  hmgr->getHistoProf1(710)->Fill(theData->getEta(),theData->getAirMB());
-  hmgr->getHistoProf1(720)->Fill(theData->getPhi(),theData->getAirMB());
-  hmgr->getHistoProf2(730)->Fill(theData->getEta(),theData->getPhi(),theData->getAirMB());
-  
-  // Compute the total x/X0 crossed at each step radius for each path
-  float theTotalMB_TOT = 0.0;
-  float theTotalMB_SUP = 0.0;
-  float theTotalMB_SEN = 0.0;
-  float theTotalMB_CAB = 0.0;
-  float theTotalMB_COL = 0.0;
-  float theTotalMB_ELE = 0.0;
-  float theTotalMB_OTH = 0.0;
-  float theTotalMB_AIR = 0.0;
-  for(int iStep = 0; iStep < theData->getNumberOfSteps(); iStep++) {
-    theTotalMB_TOT += theData->getStepDmb(iStep);
-    theTotalMB_SUP += theData->getSupportDmb(iStep);
-    theTotalMB_SEN += theData->getSensitiveDmb(iStep);
-    theTotalMB_CAB += theData->getCablesDmb(iStep);
-    theTotalMB_COL += theData->getCoolingDmb(iStep);
-    theTotalMB_ELE += theData->getElectronicsDmb(iStep);
-    theTotalMB_OTH += theData->getOtherDmb(iStep);
-    theTotalMB_AIR += theData->getAirDmb(iStep);
-    float polarRadius = sqrt(
-			     ( 0.5 * ( theData->getStepInitialX(iStep)+theData->getStepFinalX(iStep) ) )
-			     * 
-			     ( 0.5 * ( theData->getStepInitialX(iStep)+theData->getStepFinalX(iStep) ) )
-			     +
-			     ( 0.5 * ( theData->getStepInitialY(iStep)+theData->getStepFinalY(iStep) ) )
-			     *
-			     ( 0.5 * ( theData->getStepInitialY(iStep)+theData->getStepFinalY(iStep) ) )
-			     );
-    // Total
-    hmgr->getHisto1(41)->Fill(polarRadius);
-    hmgr->getHistoProf1(40)->Fill(polarRadius,theTotalMB_TOT);
+  if( theData->getNumberOfSteps() != 0 ) {
+    
+    // Total X0
+    hmgr->getHisto1(11)->Fill(theData->getEta());
+    hmgr->getHisto1(21)->Fill(theData->getPhi());
+    hmgr->getHisto2(31)->Fill(theData->getEta(),theData->getPhi());
+    
+    hmgr->getHistoProf1(10)->Fill(theData->getEta(),theData->getTotalMB());
+    hmgr->getHistoProf1(20)->Fill(theData->getPhi(),theData->getTotalMB());
+    hmgr->getHistoProf2(30)->Fill(theData->getEta(),theData->getPhi(),theData->getTotalMB());
+    
+    // rr
+    
     // Support
-    hmgr->getHisto1(141)->Fill(polarRadius);
-    hmgr->getHistoProf1(140)->Fill(polarRadius,theTotalMB_SUP);
+    hmgr->getHisto1(111)->Fill(theData->getEta());
+    hmgr->getHisto1(121)->Fill(theData->getPhi());
+    hmgr->getHisto2(131)->Fill(theData->getEta(),theData->getPhi());
+    
+    hmgr->getHistoProf1(110)->Fill(theData->getEta(),theData->getSupportMB());
+    hmgr->getHistoProf1(120)->Fill(theData->getPhi(),theData->getSupportMB());
+    hmgr->getHistoProf2(130)->Fill(theData->getEta(),theData->getPhi(),theData->getSupportMB());
+    
     // Sensitive
-    hmgr->getHisto1(241)->Fill(polarRadius);
-    hmgr->getHistoProf1(240)->Fill(polarRadius,theTotalMB_SEN);
+    hmgr->getHisto1(211)->Fill(theData->getEta());
+    hmgr->getHisto1(221)->Fill(theData->getPhi());
+    hmgr->getHisto2(231)->Fill(theData->getEta(),theData->getPhi());
+    
+    hmgr->getHistoProf1(210)->Fill(theData->getEta(),theData->getSensitiveMB());
+    hmgr->getHistoProf1(220)->Fill(theData->getPhi(),theData->getSensitiveMB());
+    hmgr->getHistoProf2(230)->Fill(theData->getEta(),theData->getPhi(),theData->getSensitiveMB());
+    
     // Cables
-    hmgr->getHisto1(341)->Fill(polarRadius);
-    hmgr->getHistoProf1(340)->Fill(polarRadius,theTotalMB_CAB);
+    hmgr->getHisto1(311)->Fill(theData->getEta());
+    hmgr->getHisto1(321)->Fill(theData->getPhi());
+    hmgr->getHisto2(331)->Fill(theData->getEta(),theData->getPhi());
+    
+    hmgr->getHistoProf1(310)->Fill(theData->getEta(),theData->getCablesMB());
+    hmgr->getHistoProf1(320)->Fill(theData->getPhi(),theData->getCablesMB());
+    hmgr->getHistoProf2(330)->Fill(theData->getEta(),theData->getPhi(),theData->getCablesMB());
+    
     // Cooling
-    hmgr->getHisto1(441)->Fill(polarRadius);
-    hmgr->getHistoProf1(440)->Fill(polarRadius,theTotalMB_COL);
+    hmgr->getHisto1(411)->Fill(theData->getEta());
+    hmgr->getHisto1(421)->Fill(theData->getPhi());
+    hmgr->getHisto2(431)->Fill(theData->getEta(),theData->getPhi());
+    
+    hmgr->getHistoProf1(410)->Fill(theData->getEta(),theData->getCoolingMB());
+    hmgr->getHistoProf1(420)->Fill(theData->getPhi(),theData->getCoolingMB());
+    hmgr->getHistoProf2(430)->Fill(theData->getEta(),theData->getPhi(),theData->getCoolingMB());
+    
     // Electronics
-    hmgr->getHisto1(541)->Fill(polarRadius);
-    hmgr->getHistoProf1(540)->Fill(polarRadius,theTotalMB_ELE);
+    hmgr->getHisto1(511)->Fill(theData->getEta());
+    hmgr->getHisto1(521)->Fill(theData->getPhi());
+    hmgr->getHisto2(531)->Fill(theData->getEta(),theData->getPhi());
+    
+    hmgr->getHistoProf1(510)->Fill(theData->getEta(),theData->getElectronicsMB());
+    hmgr->getHistoProf1(520)->Fill(theData->getPhi(),theData->getElectronicsMB());
+    hmgr->getHistoProf2(530)->Fill(theData->getEta(),theData->getPhi(),theData->getElectronicsMB());
+    
     // Other
-    hmgr->getHisto1(641)->Fill(polarRadius);
-    hmgr->getHistoProf1(640)->Fill(polarRadius,theTotalMB_OTH);
+    hmgr->getHisto1(611)->Fill(theData->getEta());
+    hmgr->getHisto1(621)->Fill(theData->getPhi());
+    hmgr->getHisto2(631)->Fill(theData->getEta(),theData->getPhi());
+    
+    hmgr->getHistoProf1(610)->Fill(theData->getEta(),theData->getOtherMB());
+    hmgr->getHistoProf1(620)->Fill(theData->getPhi(),theData->getOtherMB());
+    hmgr->getHistoProf2(630)->Fill(theData->getEta(),theData->getPhi(),theData->getOtherMB());
+    
     // Air
-    hmgr->getHisto1(741)->Fill(polarRadius);
-    hmgr->getHistoProf1(740)->Fill(polarRadius,theTotalMB_AIR);
-    //
+    hmgr->getHisto1(711)->Fill(theData->getEta());
+    hmgr->getHisto1(721)->Fill(theData->getPhi());
+    hmgr->getHisto2(731)->Fill(theData->getEta(),theData->getPhi());
+    
+    hmgr->getHistoProf1(710)->Fill(theData->getEta(),theData->getAirMB());
+    hmgr->getHistoProf1(720)->Fill(theData->getPhi(),theData->getAirMB());
+    hmgr->getHistoProf2(730)->Fill(theData->getEta(),theData->getPhi(),theData->getAirMB());
+    
+    // Compute the total x/X0 crossed at each step radius for each path
+    float theTotalMB_TOT = 0.0;
+    float theTotalMB_SUP = 0.0;
+    float theTotalMB_SEN = 0.0;
+    float theTotalMB_CAB = 0.0;
+    float theTotalMB_COL = 0.0;
+    float theTotalMB_ELE = 0.0;
+    float theTotalMB_OTH = 0.0;
+    float theTotalMB_AIR = 0.0;
+    for(int iStep = 0; iStep < theData->getNumberOfSteps(); iStep++) {
+      theTotalMB_TOT += theData->getStepDmb(iStep);
+      theTotalMB_SUP += theData->getSupportDmb(iStep);
+      theTotalMB_SEN += theData->getSensitiveDmb(iStep);
+      theTotalMB_CAB += theData->getCablesDmb(iStep);
+      theTotalMB_COL += theData->getCoolingDmb(iStep);
+      theTotalMB_ELE += theData->getElectronicsDmb(iStep);
+      theTotalMB_OTH += theData->getOtherDmb(iStep);
+      theTotalMB_AIR += theData->getAirDmb(iStep);
+      float polarRadius = sqrt(
+			       ( 0.5 * ( theData->getStepInitialX(iStep)+theData->getStepFinalX(iStep) ) )
+			       * 
+			       ( 0.5 * ( theData->getStepInitialX(iStep)+theData->getStepFinalX(iStep) ) )
+			       +
+			       ( 0.5 * ( theData->getStepInitialY(iStep)+theData->getStepFinalY(iStep) ) )
+			       *
+			       ( 0.5 * ( theData->getStepInitialY(iStep)+theData->getStepFinalY(iStep) ) )
+			       );
+      // Total
+      hmgr->getHisto1(41)->Fill(polarRadius);
+      hmgr->getHistoProf1(40)->Fill(polarRadius,theTotalMB_TOT);
+      // Support
+      hmgr->getHisto1(141)->Fill(polarRadius);
+      hmgr->getHistoProf1(140)->Fill(polarRadius,theTotalMB_SUP);
+      // Sensitive
+      hmgr->getHisto1(241)->Fill(polarRadius);
+      hmgr->getHistoProf1(240)->Fill(polarRadius,theTotalMB_SEN);
+      // Cables
+      hmgr->getHisto1(341)->Fill(polarRadius);
+      hmgr->getHistoProf1(340)->Fill(polarRadius,theTotalMB_CAB);
+      // Cooling
+      hmgr->getHisto1(441)->Fill(polarRadius);
+      hmgr->getHistoProf1(440)->Fill(polarRadius,theTotalMB_COL);
+      // Electronics
+      hmgr->getHisto1(541)->Fill(polarRadius);
+      hmgr->getHistoProf1(540)->Fill(polarRadius,theTotalMB_ELE);
+      // Other
+      hmgr->getHisto1(641)->Fill(polarRadius);
+      hmgr->getHistoProf1(640)->Fill(polarRadius,theTotalMB_OTH);
+      // Air
+      hmgr->getHisto1(741)->Fill(polarRadius);
+      hmgr->getHistoProf1(740)->Fill(polarRadius,theTotalMB_AIR);
+      //
+    }
+    
+    // Total Lambda0
+    hmgr->getHisto1(1011)->Fill(theData->getEta());
+    hmgr->getHisto1(1021)->Fill(theData->getPhi());
+    hmgr->getHisto2(1031)->Fill(theData->getEta(),theData->getPhi());
+    
+    hmgr->getHistoProf1(1010)->Fill(theData->getEta(),theData->getTotalIL());
+    hmgr->getHistoProf1(1020)->Fill(theData->getPhi(),theData->getTotalIL());
+    hmgr->getHistoProf2(1030)->Fill(theData->getEta(),theData->getPhi(),theData->getTotalIL());
+    
+    // Support
+    hmgr->getHisto1(1111)->Fill(theData->getEta());
+    hmgr->getHisto1(1121)->Fill(theData->getPhi());
+    hmgr->getHisto2(1131)->Fill(theData->getEta(),theData->getPhi());
+    
+    hmgr->getHistoProf1(1110)->Fill(theData->getEta(),theData->getSupportIL());
+    hmgr->getHistoProf1(1120)->Fill(theData->getPhi(),theData->getSupportIL());
+    hmgr->getHistoProf2(1130)->Fill(theData->getEta(),theData->getPhi(),theData->getSupportIL());
+    
+    // Sensitive
+    hmgr->getHisto1(1211)->Fill(theData->getEta());
+    hmgr->getHisto1(1221)->Fill(theData->getPhi());
+    hmgr->getHisto2(1231)->Fill(theData->getEta(),theData->getPhi());
+    
+    hmgr->getHistoProf1(1210)->Fill(theData->getEta(),theData->getSensitiveIL());
+    hmgr->getHistoProf1(1220)->Fill(theData->getPhi(),theData->getSensitiveIL());
+    hmgr->getHistoProf2(1230)->Fill(theData->getEta(),theData->getPhi(),theData->getSensitiveIL());
+    
+    // Cables
+    hmgr->getHisto1(1311)->Fill(theData->getEta());
+    hmgr->getHisto1(1321)->Fill(theData->getPhi());
+    hmgr->getHisto2(1331)->Fill(theData->getEta(),theData->getPhi());
+    
+    hmgr->getHistoProf1(1310)->Fill(theData->getEta(),theData->getCablesIL());
+    hmgr->getHistoProf1(1320)->Fill(theData->getPhi(),theData->getCablesIL());
+    hmgr->getHistoProf2(1330)->Fill(theData->getEta(),theData->getPhi(),theData->getCablesIL());
+    
+    // Cooling
+    hmgr->getHisto1(1411)->Fill(theData->getEta());
+    hmgr->getHisto1(1421)->Fill(theData->getPhi());
+    hmgr->getHisto2(1431)->Fill(theData->getEta(),theData->getPhi());
+    
+    hmgr->getHistoProf1(1410)->Fill(theData->getEta(),theData->getCoolingIL());
+    hmgr->getHistoProf1(1420)->Fill(theData->getPhi(),theData->getCoolingIL());
+    hmgr->getHistoProf2(1430)->Fill(theData->getEta(),theData->getPhi(),theData->getCoolingIL());
+    
+    // Electronics
+    hmgr->getHisto1(1511)->Fill(theData->getEta());
+    hmgr->getHisto1(1521)->Fill(theData->getPhi());
+    hmgr->getHisto2(1531)->Fill(theData->getEta(),theData->getPhi());
+    
+    hmgr->getHistoProf1(1510)->Fill(theData->getEta(),theData->getElectronicsIL());
+    hmgr->getHistoProf1(1520)->Fill(theData->getPhi(),theData->getElectronicsIL());
+    hmgr->getHistoProf2(1530)->Fill(theData->getEta(),theData->getPhi(),theData->getElectronicsIL());
+    
+    // Other
+    hmgr->getHisto1(1611)->Fill(theData->getEta());
+    hmgr->getHisto1(1621)->Fill(theData->getPhi());
+    hmgr->getHisto2(1631)->Fill(theData->getEta(),theData->getPhi());
+    
+    hmgr->getHistoProf1(1610)->Fill(theData->getEta(),theData->getOtherIL());
+    hmgr->getHistoProf1(1620)->Fill(theData->getPhi(),theData->getOtherIL());
+    hmgr->getHistoProf2(1630)->Fill(theData->getEta(),theData->getPhi(),theData->getOtherIL());
+    
+    // Air
+    hmgr->getHisto1(1711)->Fill(theData->getEta());
+    hmgr->getHisto1(1721)->Fill(theData->getPhi());
+    hmgr->getHisto2(1731)->Fill(theData->getEta(),theData->getPhi());
+    
+    hmgr->getHistoProf1(1710)->Fill(theData->getEta(),theData->getAirIL());
+    hmgr->getHistoProf1(1720)->Fill(theData->getPhi(),theData->getAirIL());
+    hmgr->getHistoProf2(1730)->Fill(theData->getEta(),theData->getPhi(),theData->getAirIL());
+    
+    // Compute the total x/X0 crossed at each step radius for each path
+    float theTotalIL_TOT = 0.0;
+    float theTotalIL_SUP = 0.0;
+    float theTotalIL_SEN = 0.0;
+    float theTotalIL_CAB = 0.0;
+    float theTotalIL_COL = 0.0;
+    float theTotalIL_ELE = 0.0;
+    float theTotalIL_OTH = 0.0;
+    float theTotalIL_AIR = 0.0;
+    for(int iStep = 0; iStep < theData->getNumberOfSteps(); iStep++) {
+      theTotalIL_TOT += theData->getStepDil(iStep);
+      theTotalIL_SUP += theData->getSupportDil(iStep);
+      theTotalIL_SEN += theData->getSensitiveDil(iStep);
+      theTotalIL_CAB += theData->getCablesDil(iStep);
+      theTotalIL_COL += theData->getCoolingDil(iStep);
+      theTotalIL_ELE += theData->getElectronicsDil(iStep);
+      theTotalIL_OTH += theData->getOtherDil(iStep);
+      theTotalIL_AIR += theData->getAirDil(iStep);
+      float polarRadius = sqrt(
+			       ( 0.5 * ( theData->getStepInitialX(iStep)+theData->getStepFinalX(iStep) ) )
+			       * 
+			       ( 0.5 * ( theData->getStepInitialX(iStep)+theData->getStepFinalX(iStep) ) )
+			       +
+			       ( 0.5 * ( theData->getStepInitialY(iStep)+theData->getStepFinalY(iStep) ) )
+			       *
+			       ( 0.5 * ( theData->getStepInitialY(iStep)+theData->getStepFinalY(iStep) ) )
+			       );
+      // Total
+      hmgr->getHisto1(1041)->Fill(polarRadius);
+      hmgr->getHistoProf1(1040)->Fill(polarRadius,theTotalIL_TOT);
+      // Support
+      hmgr->getHisto1(1141)->Fill(polarRadius);
+      hmgr->getHistoProf1(1140)->Fill(polarRadius,theTotalIL_SUP);
+      // Sensitive
+      hmgr->getHisto1(1241)->Fill(polarRadius);
+      hmgr->getHistoProf1(1240)->Fill(polarRadius,theTotalIL_SEN);
+      // Cables
+      hmgr->getHisto1(1341)->Fill(polarRadius);
+      hmgr->getHistoProf1(1340)->Fill(polarRadius,theTotalIL_CAB);
+      // Cooling
+      hmgr->getHisto1(1441)->Fill(polarRadius);
+      hmgr->getHistoProf1(1440)->Fill(polarRadius,theTotalIL_COL);
+      // Electronics
+      hmgr->getHisto1(1541)->Fill(polarRadius);
+      hmgr->getHistoProf1(1540)->Fill(polarRadius,theTotalIL_ELE);
+      // Other
+      hmgr->getHisto1(1641)->Fill(polarRadius);
+      hmgr->getHistoProf1(1640)->Fill(polarRadius,theTotalIL_OTH);
+      // Air
+      hmgr->getHisto1(1741)->Fill(polarRadius);
+      hmgr->getHistoProf1(1740)->Fill(polarRadius,theTotalIL_AIR);
+      //
+    }
+    
+    // rr
+  } else {
+    std::cout << "*** WARNING This event is out of the acceptance *** " << std::endl;
+    std::cout << "eta = "      << theData->getEta()
+	      << "\t phi = "   << theData->getPhi()
+	      << "\t x/X0 = "  << theData->getTotalMB()
+	      << "\t l/l0 = "  << theData->getTotalIL()
+	      << "\t steps = " << theData->getNumberOfSteps()
+	      << std::endl;
+    std::cout << "***" << std::endl;
   }
   
-  // Total Lambda0
-  hmgr->getHisto1(1011)->Fill(theData->getEta());
-  hmgr->getHisto1(1021)->Fill(theData->getPhi());
-  hmgr->getHisto2(1031)->Fill(theData->getEta(),theData->getPhi());
-  
-  hmgr->getHistoProf1(1010)->Fill(theData->getEta(),theData->getTotalIL());
-  hmgr->getHistoProf1(1020)->Fill(theData->getPhi(),theData->getTotalIL());
-  hmgr->getHistoProf2(1030)->Fill(theData->getEta(),theData->getPhi(),theData->getTotalIL());
-  
-  // Support
-  hmgr->getHisto1(1111)->Fill(theData->getEta());
-  hmgr->getHisto1(1121)->Fill(theData->getPhi());
-  hmgr->getHisto2(1131)->Fill(theData->getEta(),theData->getPhi());
-  
-  hmgr->getHistoProf1(1110)->Fill(theData->getEta(),theData->getSupportIL());
-  hmgr->getHistoProf1(1120)->Fill(theData->getPhi(),theData->getSupportIL());
-  hmgr->getHistoProf2(1130)->Fill(theData->getEta(),theData->getPhi(),theData->getSupportIL());
-  
-  // Sensitive
-  hmgr->getHisto1(1211)->Fill(theData->getEta());
-  hmgr->getHisto1(1221)->Fill(theData->getPhi());
-  hmgr->getHisto2(1231)->Fill(theData->getEta(),theData->getPhi());
-  
-  hmgr->getHistoProf1(1210)->Fill(theData->getEta(),theData->getSensitiveIL());
-  hmgr->getHistoProf1(1220)->Fill(theData->getPhi(),theData->getSensitiveIL());
-  hmgr->getHistoProf2(1230)->Fill(theData->getEta(),theData->getPhi(),theData->getSensitiveIL());
-  
-  // Cables
-  hmgr->getHisto1(1311)->Fill(theData->getEta());
-  hmgr->getHisto1(1321)->Fill(theData->getPhi());
-  hmgr->getHisto2(1331)->Fill(theData->getEta(),theData->getPhi());
-  
-  hmgr->getHistoProf1(1310)->Fill(theData->getEta(),theData->getCablesIL());
-  hmgr->getHistoProf1(1320)->Fill(theData->getPhi(),theData->getCablesIL());
-  hmgr->getHistoProf2(1330)->Fill(theData->getEta(),theData->getPhi(),theData->getCablesIL());
-  
-  // Cooling
-  hmgr->getHisto1(1411)->Fill(theData->getEta());
-  hmgr->getHisto1(1421)->Fill(theData->getPhi());
-  hmgr->getHisto2(1431)->Fill(theData->getEta(),theData->getPhi());
-  
-  hmgr->getHistoProf1(1410)->Fill(theData->getEta(),theData->getCoolingIL());
-  hmgr->getHistoProf1(1420)->Fill(theData->getPhi(),theData->getCoolingIL());
-  hmgr->getHistoProf2(1430)->Fill(theData->getEta(),theData->getPhi(),theData->getCoolingIL());
-  
-  // Electronics
-  hmgr->getHisto1(1511)->Fill(theData->getEta());
-  hmgr->getHisto1(1521)->Fill(theData->getPhi());
-  hmgr->getHisto2(1531)->Fill(theData->getEta(),theData->getPhi());
-  
-  hmgr->getHistoProf1(1510)->Fill(theData->getEta(),theData->getElectronicsIL());
-  hmgr->getHistoProf1(1520)->Fill(theData->getPhi(),theData->getElectronicsIL());
-  hmgr->getHistoProf2(1530)->Fill(theData->getEta(),theData->getPhi(),theData->getElectronicsIL());
-  
-  // Other
-  hmgr->getHisto1(1611)->Fill(theData->getEta());
-  hmgr->getHisto1(1621)->Fill(theData->getPhi());
-  hmgr->getHisto2(1631)->Fill(theData->getEta(),theData->getPhi());
-  
-  hmgr->getHistoProf1(1610)->Fill(theData->getEta(),theData->getOtherIL());
-  hmgr->getHistoProf1(1620)->Fill(theData->getPhi(),theData->getOtherIL());
-  hmgr->getHistoProf2(1630)->Fill(theData->getEta(),theData->getPhi(),theData->getOtherIL());
-  
-  // Air
-  hmgr->getHisto1(1711)->Fill(theData->getEta());
-  hmgr->getHisto1(1721)->Fill(theData->getPhi());
-  hmgr->getHisto2(1731)->Fill(theData->getEta(),theData->getPhi());
-  
-  hmgr->getHistoProf1(1710)->Fill(theData->getEta(),theData->getAirIL());
-  hmgr->getHistoProf1(1720)->Fill(theData->getPhi(),theData->getAirIL());
-  hmgr->getHistoProf2(1730)->Fill(theData->getEta(),theData->getPhi(),theData->getAirIL());
-  
-  // Compute the total x/X0 crossed at each step radius for each path
-  float theTotalIL_TOT = 0.0;
-  float theTotalIL_SUP = 0.0;
-  float theTotalIL_SEN = 0.0;
-  float theTotalIL_CAB = 0.0;
-  float theTotalIL_COL = 0.0;
-  float theTotalIL_ELE = 0.0;
-  float theTotalIL_OTH = 0.0;
-  float theTotalIL_AIR = 0.0;
-  for(int iStep = 0; iStep < theData->getNumberOfSteps(); iStep++) {
-    theTotalIL_TOT += theData->getStepDil(iStep);
-    theTotalIL_SUP += theData->getSupportDil(iStep);
-    theTotalIL_SEN += theData->getSensitiveDil(iStep);
-    theTotalIL_CAB += theData->getCablesDil(iStep);
-    theTotalIL_COL += theData->getCoolingDil(iStep);
-    theTotalIL_ELE += theData->getElectronicsDil(iStep);
-    theTotalIL_OTH += theData->getOtherDil(iStep);
-    theTotalIL_AIR += theData->getAirDil(iStep);
-    float polarRadius = sqrt(
-			     ( 0.5 * ( theData->getStepInitialX(iStep)+theData->getStepFinalX(iStep) ) )
-			     * 
-			     ( 0.5 * ( theData->getStepInitialX(iStep)+theData->getStepFinalX(iStep) ) )
-			     +
-			     ( 0.5 * ( theData->getStepInitialY(iStep)+theData->getStepFinalY(iStep) ) )
-			     *
-			     ( 0.5 * ( theData->getStepInitialY(iStep)+theData->getStepFinalY(iStep) ) )
-			     );
-    // Total
-    hmgr->getHisto1(1041)->Fill(polarRadius);
-    hmgr->getHistoProf1(1040)->Fill(polarRadius,theTotalIL_TOT);
-    // Support
-    hmgr->getHisto1(1141)->Fill(polarRadius);
-    hmgr->getHistoProf1(1140)->Fill(polarRadius,theTotalIL_SUP);
-    // Sensitive
-    hmgr->getHisto1(1241)->Fill(polarRadius);
-    hmgr->getHistoProf1(1240)->Fill(polarRadius,theTotalIL_SEN);
-    // Cables
-    hmgr->getHisto1(1341)->Fill(polarRadius);
-    hmgr->getHistoProf1(1340)->Fill(polarRadius,theTotalIL_CAB);
-    // Cooling
-    hmgr->getHisto1(1441)->Fill(polarRadius);
-    hmgr->getHistoProf1(1440)->Fill(polarRadius,theTotalIL_COL);
-    // Electronics
-    hmgr->getHisto1(1541)->Fill(polarRadius);
-    hmgr->getHistoProf1(1540)->Fill(polarRadius,theTotalIL_ELE);
-    // Other
-    hmgr->getHisto1(1641)->Fill(polarRadius);
-    hmgr->getHistoProf1(1640)->Fill(polarRadius,theTotalIL_OTH);
-    // Air
-    hmgr->getHisto1(1741)->Fill(polarRadius);
-    hmgr->getHistoProf1(1740)->Fill(polarRadius,theTotalIL_AIR);
-    //
-  }
-  
-  // rr
 }
 
 
