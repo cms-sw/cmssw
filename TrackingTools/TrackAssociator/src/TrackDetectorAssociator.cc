@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: TrackDetectorAssociator.cc,v 1.11 2007/04/02 17:36:54 dmytro Exp $
+// $Id: TrackDetectorAssociator.cc,v 1.13 2007/04/13 02:48:50 dmytro Exp $
 //
 //
 
@@ -88,8 +88,6 @@
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
-
-#include "HepPDT/ParticleID.hh"
 
 using namespace reco;
 
@@ -509,8 +507,11 @@ FreeTrajectoryState TrackDetectorAssociator::getFreeTrajectoryState( const edm::
    GlobalVector vector( track.momentum().x(), track.momentum().y(), track.momentum().z() );
    GlobalPoint point( vertex.position().x(), vertex.position().y(), vertex.position().z() );
 
-   HepPDT::ParticleID id(track.type());
-   int charge = id.threeCharge() < 0 ? -1 : 1;
+   int charge = track.type( )> 0 ? -1 : 1; // lepton convention
+   if ( abs(track.type( )) == 211 || // pion
+	abs(track.type( )) == 321 || // kaon
+	abs(track.type( )) == 2212 )
+     charge = track.type( )< 0 ? -1 : 1;
    return getFreeTrajectoryState(iSetup, vector, point, charge);
 }
 
