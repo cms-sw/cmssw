@@ -1,5 +1,5 @@
 #include "Geometry/TrackerGeometryBuilder/plugins/TrackerDigiGeometryESModule.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeomBuilderFromGeometricDet.h"
+#include "Geometry/TrackerGeometryBuilder/plugins/TrackerGeomBuilderFromGeometricDet.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"

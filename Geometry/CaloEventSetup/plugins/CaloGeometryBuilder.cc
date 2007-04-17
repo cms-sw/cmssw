@@ -13,13 +13,13 @@
 //
 // Original Author:  Jeremiah Mans
 //         Created:  Mon Oct  3 11:35:27 CDT 2005
-// $Id: CaloGeometryBuilder.cc,v 1.8 2006/02/27 23:08:03 mansj Exp $
+// $Id: CaloGeometryBuilder.cc,v 1.1 2007/04/15 23:16:28 wmtan Exp $
 //
 //
 
 
 // user include files
-#include "Geometry/CaloEventSetup/src/CaloGeometryBuilder.h"
+#include "Geometry/CaloEventSetup/plugins/CaloGeometryBuilder.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"

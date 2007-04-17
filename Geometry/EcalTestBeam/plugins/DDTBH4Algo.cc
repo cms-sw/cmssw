@@ -16,7 +16,7 @@ namespace std{} using namespace std;
 #include "DetectorDescription/Core/interface/DDMaterial.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
 #include "DetectorDescription/Core/interface/DDSplit.h"
-#include "Geometry/EcalTestBeam/interface/DDTBH4Algo.h"
+#include "Geometry/EcalTestBeam/plugins/DDTBH4Algo.h"
 #include "Geometry/EcalTestBeam/interface/EcalTBHodoscopeGeometry.h"
 #include "CLHEP/Units/PhysicalConstants.h"
 #include "CLHEP/Units/SystemOfUnits.h"
