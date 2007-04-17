@@ -1,8 +1,8 @@
 /** \class MuonTrackFinder
  *  Concrete Track finder for the Muon Reco
  *
- *  $Date: 2006/11/06 18:42:22 $
- *  $Revision: 1.27 $
+ *  $Date: 2006/11/07 17:04:34 $
+ *  $Revision: 1.28 $
  *  \author R. Bellan - INFN Torino
  */
 
@@ -149,8 +149,7 @@ void MuonTrackFinder::reconstruct(const Handle<reco::TrackCollection>& staTracks
   }                                  
   
   // clean the cloned candidates
-  //theTrajCleaner->clean(muonCandidates);
-  theTrajCleaner->checkGhosts(muonCandidates);
+  theTrajCleaner->clean(muonCandidates);
 
   // convert the trajectories into staTracks and load them into the event
   LogDebug(metname)<<"Load Muon Candidates into the event"<<endl;

@@ -257,35 +257,29 @@ void langaus( TH1F *poHist) {
   fitsnr->Draw("lsame");
 }
 
-void langaus_new() {
-   // Fill Histogram
-   TH1F oPlot1( *( dynamic_cast<TH1F *>( gPad->GetPrimitive( "htemp"))));
-   TH1F *hSNR = &( oPlot1);
+void langausN( TH1F *poHist) {
+  // Fill Histogram
+  printf("Fitting...\n");
 
-   // Fitting SNR histo
-   printf("Fitting...\n");
+  // Setting fit range and start values
+  Double_t fr[2];
+  Double_t sv[4], pllo[4], plhi[4], fp[4], fpe[4];
+  fr[0]=0.3*poHist->GetMean();
+  fr[1]=3.0*poHist->GetMean();
 
-   // Setting fit range and start values
-   Double_t fr[2];
-   Double_t sv[4], pllo[4], plhi[4], fp[4], fpe[4];
-   fr[0]=0.3*hSNR->GetMean();
-   fr[1]=3.0*hSNR->GetMean();
+  pllo[0]=1.0; pllo[1]=4.0; pllo[2]=0.2; pllo[3]=2.0;
+  plhi[0]=30.0; plhi[1]=50.0; plhi[2]=200000.0; plhi[3]=10.0;
+  sv[0]=15.0; sv[1]=30.0; sv[2]=10000.0; sv[3]=8.0;
 
-   pllo[0]=5.0; pllo[1]=30.0; pllo[2]=1.0; pllo[3]=10.0;
-   plhi[0]=25.0; plhi[1]=200.0; plhi[2]=1000000.0; plhi[3]=50.0;
-   sv[0]=17.9; sv[1]=100.0; sv[2]=50000.0; sv[3]=42.1;
+  Double_t chisqr;
+  Int_t    ndf;
+  TF1 *fitsnr = langaufit(poHist,fr,sv,pllo,plhi,fp,fpe,&chisqr,&ndf);
 
-   Double_t chisqr;
-   Int_t    ndf;
-   TF1 *fitsnr = langaufit(hSNR,fr,sv,pllo,plhi,fp,fpe,&chisqr,&ndf);
-   
-   Double_t SNRPeak, SNRFWHM;
-   langaupro(fp,SNRPeak,SNRFWHM);
+  Double_t SNRPeak, SNRFWHM;
+  langaupro(fp,SNRPeak,SNRFWHM);
 
-   printf("Fitting done\nPlotting results...\n");
+  printf("Fitting done\nPlotting results...\n");
 
-   gStyle->SetOptStat("emr");
-   gStyle->SetOptFit();
-
-   fitsnr->Draw("lsame");
+  poHist->Draw( "pe");
+  fitsnr->Draw("lsame");
 }

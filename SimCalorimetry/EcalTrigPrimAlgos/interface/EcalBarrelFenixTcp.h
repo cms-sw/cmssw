@@ -10,6 +10,8 @@
 #include <DataFormats/EcalDigi/interface/EcalTriggerPrimitiveSample.h>
 #include <vector> 
 
+class DBInterface ;
+
   /** 
       \class EcalBarrelFenixTcp
       \brief class representing the Fenix chip, format strip, for the endcap
@@ -18,10 +20,11 @@
 
 
   public:
-    EcalBarrelFenixTcp();
+    EcalBarrelFenixTcp(DBInterface * db);
     virtual ~EcalBarrelFenixTcp() ;
 
-    void process(std::vector<std::vector<int> > & tpframetow,std::vector< EcalTriggerPrimitiveSample> & tptow);
+    void process(std::vector<std::vector<int> > & tpframetow,std::vector< EcalTriggerPrimitiveSample> & tptow,
+		 int SM, int towerInSM);
     EcalFenixBypassLin *getBypasslin(int i) const {return bypasslin_[i];}
     EcalFenixEtTot *getAdder() const { return  dynamic_cast<EcalFenixEtTot *>(adder_);}
     EcalFenixMaxof2 *getMaxOf2() const {return maxOf2_;}

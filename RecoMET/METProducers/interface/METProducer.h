@@ -40,6 +40,7 @@ namespace cms
       METAlgo alg_; 
       std::string inputLabel;
       std::string METtype;
+      std::string alias;
     };
 }
 

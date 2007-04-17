@@ -1,0 +1,65 @@
+
+/*!
+
+\page Software_StandardSequences Package Configuration/StandardSequences
+
+<center>
+<small>
+
+<!-- @CVS_TAG@ will be substituted at build time, no need to touch -->
+<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/Configuration/StandardSequences/?cvsroot=CMSSW&only_with_tag=@CVS_TAG@>Source code (CVS tag: @CVS_TAG@)</a> - 
+<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/Configuration/StandardSequences/.admin/developers?rev=HEAD&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup>Administrative privileges</a>
+</small>
+</center>
+
+
+\section desc ConfigurationStandardSequences Package which contains the Standard Simulation and Reconstruction Sequences
+
+\subsection files Configuration Fragments
+
+- \b Reconstruction.cff : Standard configuration fragment for Reconstruction
+- \b Simulation.cff : Standard configuration fragment for Simulation
+
+\subsection additional Additional Files
+
+- \b Vertex includes: in order to allow an easy configuration of the Vertex Smearing, 4 Configuration Fragments are provided. The user is supposed to include one and only one among:
+ - VtxSmearedNoSmear.cff: disables vertex smearing. Actually, it smears, but by fractions of a micron.
+ - VtxSmearedGauss.cff: vertex smearing as in ORCA. On the transverse plane, 15 um gaussian smearing. Longitudinally (z), 5.3 cm gaussian smearing. This is the \b ADVICED option
+ - VtxSmearedFlat.cff: flat vertex smearing. On the transverse plane, 15 um flat smearing. Longitudinally (z), 5.3 cm flat smearing.
+ - VtxSmearedBeamProfile.cff: vertex smearing which resembles beam profile.
+
+- \b Mixing includes: three options are given to the user, who has to choose one and only one among:
+ - MixingNoPileUp.cff: no pile up at all.
+ - MixingLowLumiPileUp.cff: piles up 5.0 events on average (Poisson statistics), in bunches from -5 to +3. 
+ - MixingHighLumiPileUp.cff: piles up 25.0 events on average (Poisson statistics), in bunches from -5 to +3. 
+
+\subsection seq Simulation Sequences
+
+(to be filled)
+
+\subsection seq Reconstruction Sequences
+
+- \b reconstruction : this is the only default for CMSSW Reconstruction. Changes with time and is defined looking at the various needs wrt algorithms, space on disk, time available for reconstruction. At the moment, the standard \b reconstruction sequence is composed of (please note that at least the distinction between global/highlevel reconstruction does not really reflect functional aspects)
+
+ \subsubsection \b  localreco =  {trackerlocalreco, muonlocalreco, calolocalreco}
+ Local reconstruction simulation-compatible (no frontier, no oracle) for all the subdetectors. It includes Tracker Strip, Tracker Pixels, Muon DT, Muon CSC, Muon RPC, ECAL Barrel and EndCap, HCAL HO, HE, HB.
+
+\subsubsection \b globalreco = {ckftracks, muonreco, ecalClusters, caloTowersRec, recoJets, recoGenJets, metreco}
+Global reconstruction is the reconstruction within only one subdetector. The standard sequence include only CKF Global Tracking, Muon Reconstruction (STA Muons and Mu+Tk Muons), ECAL Clusterization (Island+Hybrid), Calorimetric Towers, Reconstructed Jets (MidPoint+KT) and Missing ET.
+
+\subsubsection \b highlevelreco = {recopixelvertexing, vertexreco, jetTracksAssociator, btagging, coneIsolationTauJetTags}
+High Level reconstruction. With the caveat as in the previous paragraph, this sequence considers modules which need information from more than a subdetector. The current sequence includes tracking and vertexing with only pixels, vertexing with full tracking, b tagging with track counting, and tau tagging with cone isolation.
+
+- \b reconstruction_plusRS : the same as the default, with Road Search global tracking activated.
+
+- \b reconstruction_plusGSF : the same as the default, with Gaussian Sum Filter global tracking activated.
+
+- \b reconstruction_plusRS_plus_GSF : the same as the default, with Gaussian Sum Filter and Road Search global trackings activated.
+
+<hr>
+
+Last updated: @DATE@ Tommaso Boccali
+
+
+*/
+

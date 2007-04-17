@@ -5,8 +5,8 @@
  *
  * Digi for CSC DCC/DDU Format status.
  *  
- *  $Date: 2006/09/08 15:39:41 $
- *  $Revision: 1.1 $
+ *  $Date:$
+ *  $Revision:$
  *
  * \author N. Terentiev, CMU
  *
@@ -61,6 +61,7 @@ public:
   void print() const;
 
 private:
+  friend class testCSCDCCFormatStatusDigis;
   
   uint16_t dccnmb_;
   uint16_t ddunmb_;

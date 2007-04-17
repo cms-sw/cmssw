@@ -41,5 +41,5 @@ namespace DD {
 
   // the parser
   //  typedef DDLParser Parser;
-};
+}
 #endif // DD_DDD_H_GRD

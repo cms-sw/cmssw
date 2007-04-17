@@ -8,18 +8,6 @@
   <class name="edm::RangeMap<CSCDetId,edm::OwnVector<CSCRecHit2D,edm::ClonePolicy<CSCRecHit2D> >,edm::ClonePolicy<CSCRecHit2D> >"/>
   <class name="edm::Wrapper<edm::RangeMap<CSCDetId,edm::OwnVector<CSCRecHit2D,edm::ClonePolicy<CSCRecHit2D> >,edm::ClonePolicy<CSCRecHit2D> > >"/>
 
-  <class name="CSCStripHit"/>
-  <class name="std::vector<CSCStripHit*>"/>
-  <class name="edm::OwnVector<CSCStripHit,edm::ClonePolicy<CSCStripHit> >"/>
-  <class name="edm::RangeMap<CSCDetId,edm::OwnVector<CSCStripHit,edm::ClonePolicy<CSCStripHit> >,edm::ClonePolicy<CSCStripHit> >"/>
-  <class name="edm::Wrapper<edm::RangeMap<CSCDetId,edm::OwnVector<CSCStripHit,edm::ClonePolicy<CSCStripHit> >,edm::ClonePolicy<CSCStripHit> > >"/>
-
-  <class name="CSCWireHit"/>
-  <class name="std::vector<CSCWireHit*>"/>
-  <class name="edm::OwnVector<CSCWireHit,edm::ClonePolicy<CSCWireHit> >"/>
-  <class name="edm::RangeMap<CSCDetId,edm::OwnVector<CSCWireHit,edm::ClonePolicy<CSCWireHit> >,edm::ClonePolicy<CSCWireHit> >"/>
-  <class name="edm::Wrapper<edm::RangeMap<CSCDetId,edm::OwnVector<CSCWireHit,edm::ClonePolicy<CSCWireHit> >,edm::ClonePolicy<CSCWireHit> > >"/>
-
   <class name="RecSegment"/>
   <class name="std::vector<CSCSegment*>"/>
   <class name="CLHEP::HepSymMatrix"/>
@@ -34,12 +22,7 @@
   <class name="edm::OwnVector<CSCRecHit2D, edm::ClonePolicy<CSCRecHit2D> >">
     <method name="sort"/>
   </class>
-  <class name="edm::OwnVector<CSCStripHit, edm::ClonePolicy<CSCStripHit> >">
-    <method name="sort"/>
-  </class>
-  <class name="edm::OwnVector<CSCWireHit, edm::ClonePolicy<CSCWireHit> >">
-    <method name="sort"/>
-  </class>
+
   <class name="edm::OwnVector<CSCSegment, edm::ClonePolicy<CSCSegment> >">
     <method name="sort"/>
   </class>

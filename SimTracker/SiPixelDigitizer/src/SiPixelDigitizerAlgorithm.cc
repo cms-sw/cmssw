@@ -349,6 +349,7 @@ vector<PixelDigi> SiPixelDigitizerAlgorithm::digitize(PixelGeomDetUnit *det){
     if((pixelInefficiency>0) && (_signal.size()>0)) 
       pixel_inefficiency(); // Kill some pixels
 
+    delete pIndexConverter;
   }
 
   make_digis();

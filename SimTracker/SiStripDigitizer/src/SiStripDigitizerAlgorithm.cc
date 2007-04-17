@@ -102,7 +102,7 @@ edm::DetSet<SiStripDigi>::collection_type SiStripDigitizerAlgorithm::run(const s
   vector<PSimHit>::const_iterator simHitIterEnd = input.end();
   for (;simHitIter != simHitIterEnd; ++simHitIter) {
     
-    const PSimHit ihit = *simHitIter;
+    const PSimHit& ihit = *simHitIter;
     
     if ( abs(ihit.tof()) < tofCut && ihit.energyLoss()>0) {
       SiHitDigitizer::hit_map_type _temp = theSiHitDigitizer->processHit(ihit,*det,bfield);

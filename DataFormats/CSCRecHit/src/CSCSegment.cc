@@ -1,6 +1,6 @@
 /** \file CSCSegment.cc
  *
- *  $Date: 2006/07/03 15:13:02 $
+ *  $Date: 2006/09/26 09:01:51 $
  *  \author Matteo Sani
  */
 
@@ -49,12 +49,16 @@ LocalError CSCSegment::localDirectionError() const {
 
 
 AlgebraicVector CSCSegment::parameters() const {
-  // (x,y,dx/dz,dy/dz)
+  // For consistency with DT and what we require for the TrackingRecHit interface,
+  // the order of the parameters in the returned vector should be (dx/dz, dy/dz, x, z)
+  
   AlgebraicVector result(4);
-  result[2] = theOrigin.x();
-  result[3] = theOrigin.y();
+
   result[0] = theLocalDirection.x()/theLocalDirection.z();
   result[1] = theLocalDirection.y()/theLocalDirection.z();    
+  result[2] = theOrigin.x();
+  result[3] = theOrigin.y();
+
   return result;
 }
 

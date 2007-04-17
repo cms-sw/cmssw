@@ -33,8 +33,10 @@ private:
   void update(const BeginOfRun* run);
   void dumpHeader(std::ostream& out = std::cout);
   void dumpHierarchyLeaf(G4VPhysicalVolume* pv, G4LogicalVolume* lv,
-			 uint leafDepth, std::ostream& out = std::cout);
-  void printInfo(G4VPhysicalVolume* pv, G4LogicalVolume* lv, uint leafDepth, std::ostream& out = std::cout);
+			 uint leafDepth, std::ostream& weightOut);
+  void printInfo(G4VPhysicalVolume* pv, G4LogicalVolume* lv,
+		 uint leafDepth, std::ostream& weightOut);
+  void dumpElementMassFraction(std::ostream& elementOut);
   
 private:
   std::string              name;
@@ -44,7 +46,11 @@ private:
   G4NavigationHistory      fHistory;
   bool                     volumeFound;
   unsigned int             levelFound;
-  std::ofstream            outputFile;
+  std::ofstream            weightOutputFile;
+  std::ofstream            elementOutputFile;
+  std::vector<std::string> elementNames;
+  std::vector<double>      elementTotalWeight;
+  std::vector<double>      elementWeightFraction;
 };
 
 #endif

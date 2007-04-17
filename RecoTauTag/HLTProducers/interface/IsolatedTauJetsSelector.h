@@ -32,7 +32,8 @@ class IsolatedTauJetsSelector: public edm::EDProducer {
  double pt_min_leadTrack;
  double dZ_vertex;
  int n_tracks_isolation_ring;
-
+ bool useVertex;
+ edm::InputTag vertexSrc;
  
   
 

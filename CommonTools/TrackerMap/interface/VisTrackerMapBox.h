@@ -16,6 +16,7 @@ class VisTrackerMapBox : public QWidget
   void setPaintOptions(bool print_total,float minval=0.,float maxval=0.){v_tk->setPaintOptions(print_total, minval, maxval);}
   QLabel * labelinfo;
   VisTrackerMap *v_tk;	
+  int getSelectedModule() {return selectedModule; selectedModule = 0;} 
   
  signals:
   void moduleSelected(int);
@@ -25,4 +26,5 @@ class VisTrackerMapBox : public QWidget
   
  private:
   TrackerMap *trackerMap;
+  int selectedModule;
 };

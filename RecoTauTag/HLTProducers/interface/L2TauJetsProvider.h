@@ -24,6 +24,7 @@ class L2TauJetsProvider: public edm::EDProducer {
   typedef std::vector<edm::InputTag> vtag;
   vtag jetSrc;
   edm::InputTag l1ParticleMap;
+  edm::InputTag l1Particles;
   double mEt_ExtraTau;
   double mEt_LeptonTau;
   map<int, const reco::CaloJet> myL2L1JetsMap; //first is # L1Tau , second is L2 jets

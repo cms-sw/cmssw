@@ -57,6 +57,7 @@ public:
   void setConf(edm::ParameterSet conf){conf_=conf;}
   //edm::ParameterSet conf(){return conf;}
   void setSrc(std::string src){src_=src;}
+  void setProducer(std::string pro){pro_=pro;}
   void setAlias(std::string alias){
     alias.erase(alias.size()-6,alias.size());
     alias_=alias;
@@ -64,6 +65,7 @@ public:
  private:
   edm::ParameterSet conf_;
   std::string src_;
+  std::string pro_;
   bool trajectoryInEvent_;
  protected:
   std::string alias_;

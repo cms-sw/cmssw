@@ -13,7 +13,7 @@
 //
 // Original Author:  Jeremiah Mans
 //         Created:  Fri Sep 15 11:49:44 CDT 2006
-// $Id: CaloTPGTranscoderULUTs.cc,v 1.1 2006/09/18 20:31:26 mansj Exp $
+// $Id: CaloTPGTranscoderULUTs.cc,v 1.2 2006/10/27 01:35:14 wmtan Exp $
 //
 //
 
@@ -55,7 +55,8 @@ public:
   }
 private:
   // ----------member data ---------------------------
-  edm::FileInPath hfilename_;
+  edm::FileInPath hfilename1_;
+  edm::FileInPath hfilename2_;
 };
 
 //
@@ -70,7 +71,8 @@ private:
 // constructors and destructor
 //
 CaloTPGTranscoderULUTs::CaloTPGTranscoderULUTs(const edm::ParameterSet& iConfig) :
-  hfilename_(iConfig.getParameter<edm::FileInPath>("hcalLUT"))
+  hfilename1_(iConfig.getParameter<edm::FileInPath>("hcalLUT1")),
+  hfilename2_(iConfig.getParameter<edm::FileInPath>("hcalLUT2"))
 {
    //the following line is needed to tell the framework what
    // data is being produced
@@ -99,8 +101,9 @@ CaloTPGTranscoderULUTs::ReturnType
 CaloTPGTranscoderULUTs::produce(const CaloTPGRecord& iRecord)
 {
    using namespace edm::es;
-   edm::LogInfo("Level1") << "Using " << hfilename_.fullPath() << " for CaloTPGTranscoderULUTs HCAL initialization";
-   std::auto_ptr<CaloTPGTranscoder> pTCoder(new CaloTPGTranscoderULUT(hfilename_.fullPath()));
+   edm::LogInfo("Level1") << "Using " << hfilename1_.fullPath() << " & " << hfilename2_.fullPath()
+			  << " for CaloTPGTranscoderULUTs HCAL initialization";
+   std::auto_ptr<CaloTPGTranscoder> pTCoder(new CaloTPGTranscoderULUT(hfilename1_.fullPath(), hfilename2_.fullPath()));
 
    return pTCoder ;
 }

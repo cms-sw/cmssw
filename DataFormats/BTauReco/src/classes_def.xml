@@ -3,6 +3,7 @@
 <class name="std::vector<unsigned int>" />
   <class name="edm::RefProd<std::vector<reco::CaloJet> >" />
 
+
   <class name="reco::JetTag" />
   <class name="std::vector<reco::JetTag>" />
   <class name="edm::Wrapper<std::vector<reco::JetTag> >" />
@@ -23,6 +24,13 @@
   <class name="edm::Ref<std::vector<reco::IsolatedTauTagInfo>, reco::IsolatedTauTagInfo, edm::refhelper::FindUsingAdvance<std::vector<reco::IsolatedTauTagInfo>, reco::IsolatedTauTagInfo> >" />
   <class name="edm::RefProd<std::vector<reco::IsolatedTauTagInfo> >" />
   <class name="edm::RefVector<std::vector<reco::IsolatedTauTagInfo>, reco::IsolatedTauTagInfo, edm::refhelper::FindUsingAdvance<std::vector<reco::IsolatedTauTagInfo>, reco::IsolatedTauTagInfo> >" />
+
+<class name="reco::EMIsolatedTauTagInfo" />
+  <class name="std::vector<reco::EMIsolatedTauTagInfo>" />
+  <class name="edm::Wrapper<std::vector<reco::EMIsolatedTauTagInfo> >" />
+  <class name="edm::Ref<std::vector<reco::EMIsolatedTauTagInfo>, reco::EMIsolatedTauTagInfo, edm::refhelper::FindUsingAdvance<std::vector<reco::EMIsolatedTauTagInfo>, reco::EMIsolatedTauTagInfo> >" />
+  <class name="edm::RefProd<std::vector<reco::EMIsolatedTauTagInfo> >" />
+  <class name="edm::RefVector<std::vector<reco::EMIsolatedTauTagInfo>, reco::EMIsolatedTauTagInfo, edm::refhelper::FindUsingAdvance<std::vector<reco::EMIsolatedTauTagInfo>, reco::EMIsolatedTauTagInfo> >" />
  
   <class name="reco::CombinedBTagInfo" />
   <class name="reco::CombinedBTagTrack" />
@@ -63,6 +71,14 @@
   <class name="edm::RefProd<std::vector<reco::TauImpactParameterInfo> >" />
   <class name="edm::RefVector<std::vector<reco::TauImpactParameterInfo>, reco::TauImpactParameterInfo, edm::refhelper::FindUsingAdvance<std::vector<reco::TauImpactParameterInfo>, reco::TauImpactParameterInfo> >" />
 
+
+ <class name="reco::TauMassTagInfo" />
+  <class name="std::vector<reco::TauMassTagInfo>" />
+  <class name="edm::Wrapper<std::vector<reco::TauMassTagInfo> >" />
+  <class name="edm::Ref<std::vector<reco::TauMassTagInfo>, reco::TauMassTagInfo, edm::refhelper::FindUsingAdvance<std::vector<reco::TauMassTagInfo>, reco::TauMassTagInfo> > " />
+  <class name="edm::RefProd<std::vector<reco::TauMassTagInfo> > " />
+  <class name="edm::RefVector<std::vector<reco::TauMassTagInfo>, reco::TauMassTagInfo, edm::refhelper::FindUsingAdvance<std::vector<reco::TauMassTagInfo>, reco::TauMassTagInfo> >" />
+
   <class name="edm::helpers::KeyVal<edm::RefProd<std::vector<reco::CaloJet> > , edm::RefProd<std::vector<reco::Track> > >"/> 
   <class name="edm::AssociationMap<edm::OneToMany<std::vector<reco::CaloJet>, std::vector<reco::Track>, unsigned int > >">
     <field name="transientMap_" transient="true" />
@@ -85,7 +101,13 @@
   <class name="std::map<unsigned int, float>" />
 
 
+<class name="edm::helpers::KeyVal<edm::RefProd<std::vector<reco::CaloJet> > , edm::RefProd<std::vector<reco::EMLorentzVector> > >"/>
+  <class name="edm::AssociationMap<edm::OneToMany<std::vector<reco::CaloJet>, std::vector<reco::EMLorentzVector>, unsigned int > >">
+     <field name="transientMap_" transient="true" />
+  </class>
+  <class name="edm::Wrapper<edm::AssociationMap<edm::OneToMany<std::vector<reco::CaloJet>, std::vector<reco::EMLorentzVector>, unsigned int > > >"/>
 
+      
 
   <class pattern="edm::Ref<edm::AssociationMap<*>" />
   <class pattern="edm::RefProd<edm::AssociationMap<*>" />

@@ -1,7 +1,7 @@
 /** \file RPCTrigger.cc
  *
- *  $Date: 2006/08/29 13:34:51 $
- *  $Revision: 1.19 $
+ *  $Date: 2006/10/24 10:45:53 $
+ *  $Revision: 1.20 $
  *  \author Tomasz Fruboes
  */
 #include "L1Trigger/RPCTrigger/interface/RPCTrigger.h"
@@ -42,13 +42,13 @@ RPCTrigger::RPCTrigger(const edm::ParameterSet& iConfig)
   if ( triggerDebug != 1 && triggerDebug != 2)
      triggerDebug = 0;
         
-  m_pacManager.Init(patternsDirName, _12_PACS_PER_TOWER);
+  m_pacManager.init(patternsDirName, _12_PACS_PER_TOWER);
   
-  m_trigConfig = new L1RpcBasicTrigConfig(&m_pacManager);
+  m_trigConfig = new RPCBasicTrigConfig(&m_pacManager);
   
-  m_trigConfig->SetDebugLevel(triggerDebug);
+  m_trigConfig->setDebugLevel(triggerDebug);
   
-  m_pacTrigger = new L1RpcPacTrigger(m_trigConfig);
+  m_pacTrigger = new RPCPacTrigger(m_trigConfig);
 
 }
 
@@ -68,12 +68,12 @@ RPCTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   
   // Build the trigger linksystem geometry;
-  if (!theLinksystem.isGeometryBuilt()){
+  if (!m_theLinksystem.isGeometryBuilt()){
 
     edm::LogInfo("RPC") << "Building RPC links map for a RPCTrigger";
     edm::ESHandle<RPCGeometry> rpcGeom;
     iSetup.get<MuonGeometryRecord>().get( rpcGeom );     
-    theLinksystem.buildGeometry(rpcGeom);
+    m_theLinksystem.buildGeometry(rpcGeom);
     edm::LogInfo("RPC") << "RPC links map for a RPCTrigger built";
 
   } 
@@ -83,14 +83,14 @@ RPCTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 //  iEvent.getByType(rpcDigis);
   iEvent.getByLabel("muonRPCDigis",rpcDigis);
 
-  L1RpcLogConesVec ActiveCones = theLinksystem.getCones(rpcDigis);
+  L1RpcLogConesVec ActiveCones = m_theLinksystem.getCones(rpcDigis);
   
-  L1RpcTBMuonsVec2 finalMuons = m_pacTrigger->RunEvent(ActiveCones);
+  L1RpcTBMuonsVec2 finalMuons = m_pacTrigger->runEvent(ActiveCones);
 
   int maxFiredPlanes = 0;
   
   for (unsigned int i=0;i<ActiveCones.size();i++){
-      int fpCnt = ActiveCones[i].GetFiredPlanesCnt();
+      int fpCnt = ActiveCones[i].getFiredPlanesCnt();
       if (fpCnt > maxFiredPlanes)
          maxFiredPlanes = fpCnt;
   }
@@ -129,29 +129,29 @@ std::vector<L1MuRegionalCand> RPCTrigger::giveFinallCandindates(L1RpcTBMuonsVec 
   for(unsigned int iMu = 0; iMu < finalMuons.size(); iMu++)
   {
 
-    if (finalMuons[iMu].GetPtCode()==0){
+    if (finalMuons[iMu].getPtCode()==0){
       continue; 
     } 
 
     L1MuRegionalCand l1Cand;
     
     
-    l1Cand.setQualityPacked(finalMuons[iMu].GetQuality());
-    l1Cand.setPtPacked(finalMuons[iMu].GetPtCode());
+    l1Cand.setQualityPacked(finalMuons[iMu].getQuality());
+    l1Cand.setPtPacked(finalMuons[iMu].getPtCode());
     
     l1Cand.setType(type); 
     
-    int charge=finalMuons[iMu].GetSign();
+    int charge=finalMuons[iMu].getSign();
     
     if (charge == 0)  // negative
       l1Cand.setChargePacked(1);
     else  
       l1Cand.setChargePacked(0);
     
-    //L1RpcConst::L1RpcConeCrdnts cone = finalMuons[iMu].GetConeCrdnts();    
+    //RPCConst::l1RpcConeCrdnts cone = finalMuons[iMu].getConeCrdnts();    
     
     /*
-    int pac = cone.LogSector*12+cone.LogSegment;
+    int pac = cone.m_LogSector*12+cone.m_LogSegment;
     const float pi = 3.14159265;
     const float offset = 5*(2*pi/360); // redefinition! Defined also in RPCRingFromRolls::phiMapCompare
     float phi = 2*pi*pac/144-offset;
@@ -164,14 +164,14 @@ std::vector<L1MuRegionalCand> RPCTrigger::giveFinallCandindates(L1RpcTBMuonsVec 
     //Note: pac numbering begins at 5 deg and goes from 1 to 144.
     // we want phi values from 0 to 2.5 deg to be phiPacked=0 
     // max phiPacked value is 143 (see CMS IN 2004-022)
-    int phiPacked = (finalMuons[iMu].GetPhiAddr()+2)%144;
+    int phiPacked = (finalMuons[iMu].getPhiAddr()+2)%144;
     l1Cand.setPhiPacked(phiPacked);
 /*
-    float eta = L1RpcConst::etaFromTowerNum(cone.Tower);
+    float eta = RPCConst::etaFromTowerNum(cone.m_Tower);
     l1Cand.setEtaValue(eta);
 */
     //Note: etaAddr is packed in special way: see CMS IN 2004-022
-    signed short etaAddr = finalMuons[iMu].GetEtaAddr()-16; // -16..16
+    signed short etaAddr = finalMuons[iMu].getEtaAddr()-16; // -16..16
     bool etaNegative = false;
     if (etaAddr < 0){
       etaNegative = true;
@@ -183,23 +183,23 @@ std::vector<L1MuRegionalCand> RPCTrigger::giveFinallCandindates(L1RpcTBMuonsVec 
     l1Cand.setEtaPacked(etaAddr);
 
     /*    
-    std::cout<< std::endl << "RBMuon::" << finalMuons[iMu].GetEtaAddr() << " " 
-             << finalMuons[iMu].GetPhiAddr() << std::endl ;
+    std::cout<< std::endl << "RBMuon::" << finalMuons[iMu].getEtaAddr() << " " 
+             << finalMuons[iMu].getPhiAddr() << std::endl ;
     std::cout<< "cand " <<  l1Cand.eta_packed() << " " 
              << l1Cand.phi_packed() << std::endl ;
     //*/
 
     RPCCand.push_back(l1Cand);
         
-    LogDebug("RPCTrigger") << "Found muonf of pt " << finalMuons[iMu].GetPtCode()
+    LogDebug("RPCTrigger") << "Found muonf of pt " << finalMuons[iMu].getPtCode()
         << " L1Charge " << l1Cand.charge_packed()
         << " ql " << l1Cand.quality()
-        << " fp " << finalMuons[iMu].GetFiredPlanes()
+        << " fp " << finalMuons[iMu].getFiredPlanes()
         << " b/f " << l1Cand.type_idx()
         << " phi " <<  l1Cand.phi_packed()
         << " eta " << l1Cand.eta_packed()
         //<< " eta l1 " << l1Cand.etaValue() // will drop out soon 
-        << " killed " << finalMuons[iMu].WasKilled();
+        << " killed " << finalMuons[iMu].wasKilled();
         
     
   }

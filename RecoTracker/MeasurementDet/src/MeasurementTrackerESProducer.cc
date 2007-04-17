@@ -50,7 +50,8 @@ MeasurementTrackerESProducer::produce(const CkfComponentsRecord& iRecord)
   iRecord.getRecord<TrackerRecoGeometryRecord>().get(geometricSearchTracker);
   
   
-  _measurementTracker  = boost::shared_ptr<MeasurementTracker>(new MeasurementTracker(pixelCPE.product(),
+  _measurementTracker  = boost::shared_ptr<MeasurementTracker>(new MeasurementTracker(pset_,
+										      pixelCPE.product(),
 										      stripCPE.product(),
 										      hitMatcher.product(),
 										      trackerGeom.product(),

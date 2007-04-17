@@ -8,10 +8,11 @@
  * The code for the endcap is simulated in a rough way, due to missing strip geometry
  *
  *
- * \author Ursula Berthon, Stephanie Baffioni,  LLR Palaiseau
+ * \author Ursula Berthon, Stephanie Baffioni, Pascal Paganini,   LLR Palaiseau
  *
  * \version   1st Version may 2006
  * \version   2nd Version jul 2006
+ * \version   3rd Version nov 2006
 
  *
  ************************************************************/
@@ -29,6 +30,7 @@
 class TFile;
 class TTree;
 class EcalTrigPrimFunctionalAlgo;
+class DBInterface; 
  
 class EcalTrigPrimProducer : public edm::EDProducer
 {
@@ -44,15 +46,18 @@ class EcalTrigPrimProducer : public edm::EDProducer
   
  private:
   EcalTrigPrimFunctionalAlgo *algo_;
+  DBInterface * db_ ;
   TFile *histfile_;
   TTree *valTree_;
   bool valid_;
   std::string label_;
   std::string instanceNameEB_;
   std::string instanceNameEE_;
-  int fgvbMinEnergy_;
-  double ttfThreshLow_;
-  double ttfThreshHigh_;
+  std::string databaseFileNameEB_;
+  std::string databaseFileNameEE_;
+  //  int fgvbMinEnergy_;
+  //  double ttfThreshLow_;
+  //  double ttfThreshHigh_;
   int binOfMaximum_;
   //  enum {nrSamples_= 5}; //nr samples to write, should not be changed, if not problems in EcalTriggerPrimitiveDigi class
   static const int nrSamples_; //nr samples to write, should not be changed, if not problems in EcalTriggerPrimitiveDigi class

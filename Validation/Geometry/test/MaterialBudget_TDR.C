@@ -52,6 +52,30 @@ using namespace std;
 
 // Main
 MaterialBudget_TDR() {
+  // plots
+  createPlots("x_vs_eta");
+  createPlots("x_vs_phi");
+  createPlots("x_vs_R");
+  //
+}
+
+void createPlots(TString plot){
+  unsigned int plotNumber = 0;
+  TString abscissaName = "dummy";
+  if(plot.CompareTo("x_vs_eta") == 0) {
+    plotNumber = 10;
+    abscissaName = TString("#eta");
+  } else if(plot.CompareTo("x_vs_phi") == 0) {
+    plotNumber = 20;
+    abscissaName = TString("#varphi [rad]");
+  } else if(plot.CompareTo("x_vs_R") == 0) {
+    plotNumber = 40;
+    abscissaName = TString("R [cm]");
+  } else {
+    cout << " error: chosen plot name not known " << plot << endl;
+    return;
+  }
+  
   TString subDetector("empty");
   for(unsigned int i_detector=0; i_detector<=9; i_detector++) {
     switch(i_detector) {
@@ -109,16 +133,16 @@ MaterialBudget_TDR() {
     case 0: {
       // subDetector = "TIB";
       // subdetector profiles
-      prof_x0_TIB = (TProfile*)subDetectorFile->Get("10");
+      prof_x0_TIB = (TProfile*)subDetectorFile->Get(Form("%u", plotNumber));
       hist_x0_IB  = (TH1D*)prof_x0_TIB->ProjectionX();
       // category profiles
-      prof_x0_SUP   = (TProfile*)subDetectorFile->Get("110");
-      prof_x0_SEN   = (TProfile*)subDetectorFile->Get("210");
-      prof_x0_CAB   = (TProfile*)subDetectorFile->Get("310");
-      prof_x0_COL   = (TProfile*)subDetectorFile->Get("410");
-      prof_x0_ELE   = (TProfile*)subDetectorFile->Get("510");
-      prof_x0_OTH   = (TProfile*)subDetectorFile->Get("610");
-      prof_x0_AIR   = (TProfile*)subDetectorFile->Get("710");
+      prof_x0_SUP   = (TProfile*)subDetectorFile->Get(Form("%u", 100 + plotNumber));
+      prof_x0_SEN   = (TProfile*)subDetectorFile->Get(Form("%u", 200 + plotNumber));
+      prof_x0_CAB   = (TProfile*)subDetectorFile->Get(Form("%u", 300 + plotNumber));
+      prof_x0_COL   = (TProfile*)subDetectorFile->Get(Form("%u", 400 + plotNumber));
+      prof_x0_ELE   = (TProfile*)subDetectorFile->Get(Form("%u", 500 + plotNumber));
+      prof_x0_OTH   = (TProfile*)subDetectorFile->Get(Form("%u", 600 + plotNumber));
+      prof_x0_AIR   = (TProfile*)subDetectorFile->Get(Form("%u", 700 + plotNumber));
       // add to summary histogram
       hist_x0_SUP = (TH1D*)prof_x0_SUP->ProjectionX();
       hist_x0_SEN = (TH1D*)prof_x0_SEN->ProjectionX();
@@ -132,16 +156,16 @@ MaterialBudget_TDR() {
     case 1: {
       // subDetector = "TIDF";
       // subdetector profiles
-      prof_x0_TIDF = (TProfile*)subDetectorFile->Get("10");
+      prof_x0_TIDF = (TProfile*)subDetectorFile->Get(Form("%u", plotNumber));
       hist_x0_IB->Add( (TH1D*)prof_x0_TIDF->ProjectionX("B") , +1.000 );
       // category profiles
-      prof_x0_SUP   = (TProfile*)subDetectorFile->Get("110");
-      prof_x0_SEN   = (TProfile*)subDetectorFile->Get("210");
-      prof_x0_CAB   = (TProfile*)subDetectorFile->Get("310");
-      prof_x0_COL   = (TProfile*)subDetectorFile->Get("410");
-      prof_x0_ELE   = (TProfile*)subDetectorFile->Get("510");
-      prof_x0_OTH   = (TProfile*)subDetectorFile->Get("610");
-      prof_x0_AIR   = (TProfile*)subDetectorFile->Get("710");
+      prof_x0_SUP   = (TProfile*)subDetectorFile->Get(Form("%u", 100 + plotNumber));
+      prof_x0_SEN   = (TProfile*)subDetectorFile->Get(Form("%u", 200 + plotNumber));
+      prof_x0_CAB   = (TProfile*)subDetectorFile->Get(Form("%u", 300 + plotNumber));
+      prof_x0_COL   = (TProfile*)subDetectorFile->Get(Form("%u", 400 + plotNumber));
+      prof_x0_ELE   = (TProfile*)subDetectorFile->Get(Form("%u", 500 + plotNumber));
+      prof_x0_OTH   = (TProfile*)subDetectorFile->Get(Form("%u", 600 + plotNumber));
+      prof_x0_AIR   = (TProfile*)subDetectorFile->Get(Form("%u", 700 + plotNumber));
       // add to summary histogram
       hist_x0_SUP->Add(   (TH1D*)prof_x0_SUP->ProjectionX("B")  , +1.000 );
       hist_x0_SEN->Add(   (TH1D*)prof_x0_SEN->ProjectionX("B")  , +1.000 );
@@ -155,16 +179,16 @@ MaterialBudget_TDR() {
     case 2: {
       // subDetector = "TIDB";
       // subdetector profiles
-      prof_x0_IB = (TProfile*)subDetectorFile->Get("10");
+      prof_x0_IB = (TProfile*)subDetectorFile->Get(Form("%u", plotNumber));
       hist_x0_IB->Add( (TH1D*)prof_x0_IB->ProjectionX("B") , +1.000 );
       // category profiles
-      prof_x0_SUP   = (TProfile*)subDetectorFile->Get("110");
-      prof_x0_SEN   = (TProfile*)subDetectorFile->Get("210");
-      prof_x0_CAB   = (TProfile*)subDetectorFile->Get("310");
-      prof_x0_COL   = (TProfile*)subDetectorFile->Get("410");
-      prof_x0_ELE   = (TProfile*)subDetectorFile->Get("510");
-      prof_x0_OTH   = (TProfile*)subDetectorFile->Get("610");
-      prof_x0_AIR   = (TProfile*)subDetectorFile->Get("710");
+      prof_x0_SUP   = (TProfile*)subDetectorFile->Get(Form("%u", 100 + plotNumber));
+      prof_x0_SEN   = (TProfile*)subDetectorFile->Get(Form("%u", 200 + plotNumber));
+      prof_x0_CAB   = (TProfile*)subDetectorFile->Get(Form("%u", 300 + plotNumber));
+      prof_x0_COL   = (TProfile*)subDetectorFile->Get(Form("%u", 400 + plotNumber));
+      prof_x0_ELE   = (TProfile*)subDetectorFile->Get(Form("%u", 500 + plotNumber));
+      prof_x0_OTH   = (TProfile*)subDetectorFile->Get(Form("%u", 600 + plotNumber));
+      prof_x0_AIR   = (TProfile*)subDetectorFile->Get(Form("%u", 700 + plotNumber));
       // add to summary histogram
       hist_x0_SUP->Add(   (TH1D*)prof_x0_SUP->ProjectionX("B")  , +1.000 );
       hist_x0_SEN->Add(   (TH1D*)prof_x0_SEN->ProjectionX("B")  , +1.000 );
@@ -178,16 +202,16 @@ MaterialBudget_TDR() {
     case 3: {
       // subDetector = "TOB";
       // subdetector profiles
-      prof_x0_TOB = (TProfile*)subDetectorFile->Get("10");
+      prof_x0_TOB = (TProfile*)subDetectorFile->Get(Form("%u", plotNumber));
       hist_x0_TOB = (TH1D*)prof_x0_TOB->ProjectionX();
       // category profiles
-      prof_x0_SUP   = (TProfile*)subDetectorFile->Get("110");
-      prof_x0_SEN   = (TProfile*)subDetectorFile->Get("210");
-      prof_x0_CAB   = (TProfile*)subDetectorFile->Get("310");
-      prof_x0_COL   = (TProfile*)subDetectorFile->Get("410");
-      prof_x0_ELE   = (TProfile*)subDetectorFile->Get("510");
-      prof_x0_OTH   = (TProfile*)subDetectorFile->Get("610");
-      prof_x0_AIR   = (TProfile*)subDetectorFile->Get("710");
+      prof_x0_SUP   = (TProfile*)subDetectorFile->Get(Form("%u", 100 + plotNumber));
+      prof_x0_SEN   = (TProfile*)subDetectorFile->Get(Form("%u", 200 + plotNumber));
+      prof_x0_CAB   = (TProfile*)subDetectorFile->Get(Form("%u", 300 + plotNumber));
+      prof_x0_COL   = (TProfile*)subDetectorFile->Get(Form("%u", 400 + plotNumber));
+      prof_x0_ELE   = (TProfile*)subDetectorFile->Get(Form("%u", 500 + plotNumber));
+      prof_x0_OTH   = (TProfile*)subDetectorFile->Get(Form("%u", 600 + plotNumber));
+      prof_x0_AIR   = (TProfile*)subDetectorFile->Get(Form("%u", 700 + plotNumber));
       // add to summary histogram
       hist_x0_SUP->Add(   (TH1D*)prof_x0_SUP->ProjectionX("B")  , +1.000 );
       hist_x0_SEN->Add(   (TH1D*)prof_x0_SEN->ProjectionX("B")  , +1.000 );
@@ -201,16 +225,16 @@ MaterialBudget_TDR() {
     case 4: {
       // subDetector = "TEC";
       // subdetector profiles
-      prof_x0_TEC = (TProfile*)subDetectorFile->Get("10");
+      prof_x0_TEC = (TProfile*)subDetectorFile->Get(Form("%u", plotNumber));
       hist_x0_TEC =  (TH1D*)prof_x0_TEC->ProjectionX();
       // category profiles
-      prof_x0_SUP   = (TProfile*)subDetectorFile->Get("110");
-      prof_x0_SEN   = (TProfile*)subDetectorFile->Get("210");
-      prof_x0_CAB   = (TProfile*)subDetectorFile->Get("310");
-      prof_x0_COL   = (TProfile*)subDetectorFile->Get("410");
-      prof_x0_ELE   = (TProfile*)subDetectorFile->Get("510");
-      prof_x0_OTH   = (TProfile*)subDetectorFile->Get("610");
-      prof_x0_AIR   = (TProfile*)subDetectorFile->Get("710");
+      prof_x0_SUP   = (TProfile*)subDetectorFile->Get(Form("%u", 100 + plotNumber));
+      prof_x0_SEN   = (TProfile*)subDetectorFile->Get(Form("%u", 200 + plotNumber));
+      prof_x0_CAB   = (TProfile*)subDetectorFile->Get(Form("%u", 300 + plotNumber));
+      prof_x0_COL   = (TProfile*)subDetectorFile->Get(Form("%u", 400 + plotNumber));
+      prof_x0_ELE   = (TProfile*)subDetectorFile->Get(Form("%u", 500 + plotNumber));
+      prof_x0_OTH   = (TProfile*)subDetectorFile->Get(Form("%u", 600 + plotNumber));
+      prof_x0_AIR   = (TProfile*)subDetectorFile->Get(Form("%u", 700 + plotNumber));
       // add to summary histogram
       hist_x0_SUP->Add(   (TH1D*)prof_x0_SUP->ProjectionX("B")  , +1.000 );
       hist_x0_SEN->Add(   (TH1D*)prof_x0_SEN->ProjectionX("B")  , +1.000 );
@@ -224,23 +248,23 @@ MaterialBudget_TDR() {
     case 5: {
       // subDetector = "TkStrct";
       // subdetector profiles
-      prof_x0_Outside = (TProfile*)subDetectorFile->Get("10");
+      prof_x0_Outside = (TProfile*)subDetectorFile->Get(Form("%u", plotNumber));
       hist_x0_Outside = (TH1D*)prof_x0_Outside->ProjectionX();
       break;
     }
     case 6: {
       // subDetector = "PixBar";
       // subdetector profiles
-      prof_x0_PixBar = (TProfile*)subDetectorFile->Get("10");
+      prof_x0_PixBar = (TProfile*)subDetectorFile->Get(Form("%u", plotNumber));
       hist_x0_Pixel  = (TH1D*)prof_x0_PixBar->ProjectionX();
       // category profiles
-      prof_x0_SUP   = (TProfile*)subDetectorFile->Get("110");
-      prof_x0_SEN   = (TProfile*)subDetectorFile->Get("210");
-      prof_x0_CAB   = (TProfile*)subDetectorFile->Get("310");
-      prof_x0_COL   = (TProfile*)subDetectorFile->Get("410");
-      prof_x0_ELE   = (TProfile*)subDetectorFile->Get("510");
-      prof_x0_OTH   = (TProfile*)subDetectorFile->Get("610");
-      prof_x0_AIR   = (TProfile*)subDetectorFile->Get("710");
+      prof_x0_SUP   = (TProfile*)subDetectorFile->Get(Form("%u", 100 + plotNumber));
+      prof_x0_SEN   = (TProfile*)subDetectorFile->Get(Form("%u", 200 + plotNumber));
+      prof_x0_CAB   = (TProfile*)subDetectorFile->Get(Form("%u", 300 + plotNumber));
+      prof_x0_COL   = (TProfile*)subDetectorFile->Get(Form("%u", 400 + plotNumber));
+      prof_x0_ELE   = (TProfile*)subDetectorFile->Get(Form("%u", 500 + plotNumber));
+      prof_x0_OTH   = (TProfile*)subDetectorFile->Get(Form("%u", 600 + plotNumber));
+      prof_x0_AIR   = (TProfile*)subDetectorFile->Get(Form("%u", 700 + plotNumber));
       // add to summary histogram
       hist_x0_SUP->Add(   (TH1D*)prof_x0_SUP->ProjectionX("B")  , +1.000 );
       hist_x0_SEN->Add(   (TH1D*)prof_x0_SEN->ProjectionX("B")  , +1.000 );
@@ -254,16 +278,16 @@ MaterialBudget_TDR() {
     case 7: {
       // subDetector = "PixFwdPlus";
       // subdetector profiles
-      prof_x0_PixFwdPlus = (TProfile*)subDetectorFile->Get("10");
+      prof_x0_PixFwdPlus = (TProfile*)subDetectorFile->Get(Form("%u", plotNumber));
       hist_x0_Pixel->Add( (TH1D*)prof_x0_PixFwdPlus->ProjectionX("B") , +1.000 );
       // category profiles
-      prof_x0_SUP   = (TProfile*)subDetectorFile->Get("110");
-      prof_x0_SEN   = (TProfile*)subDetectorFile->Get("210");
-      prof_x0_CAB   = (TProfile*)subDetectorFile->Get("310");
-      prof_x0_COL   = (TProfile*)subDetectorFile->Get("410");
-      prof_x0_ELE   = (TProfile*)subDetectorFile->Get("510");
-      prof_x0_OTH   = (TProfile*)subDetectorFile->Get("610");
-      prof_x0_AIR   = (TProfile*)subDetectorFile->Get("710");
+      prof_x0_SUP   = (TProfile*)subDetectorFile->Get(Form("%u", 100 + plotNumber));
+      prof_x0_SEN   = (TProfile*)subDetectorFile->Get(Form("%u", 200 + plotNumber));
+      prof_x0_CAB   = (TProfile*)subDetectorFile->Get(Form("%u", 300 + plotNumber));
+      prof_x0_COL   = (TProfile*)subDetectorFile->Get(Form("%u", 400 + plotNumber));
+      prof_x0_ELE   = (TProfile*)subDetectorFile->Get(Form("%u", 500 + plotNumber));
+      prof_x0_OTH   = (TProfile*)subDetectorFile->Get(Form("%u", 600 + plotNumber));
+      prof_x0_AIR   = (TProfile*)subDetectorFile->Get(Form("%u", 700 + plotNumber));
       // add to summary histogram
       hist_x0_SUP->Add(   (TH1D*)prof_x0_SUP->ProjectionX("B")  , +1.000 );
       hist_x0_SEN->Add(   (TH1D*)prof_x0_SEN->ProjectionX("B")  , +1.000 );
@@ -277,16 +301,16 @@ MaterialBudget_TDR() {
     case 8: {
       subDetector = "PixFwdMinus";
       // subdetector profiles
-      prof_x0_PixFwdMinus = (TProfile*)subDetectorFile->Get("10");
+      prof_x0_PixFwdMinus = (TProfile*)subDetectorFile->Get(Form("%u", plotNumber));
       hist_x0_Pixel->Add( (TH1D*)prof_x0_PixFwdMinus->ProjectionX("B") , +1.000 );
       // category profiles
-      prof_x0_SUP   = (TProfile*)subDetectorFile->Get("110");
-      prof_x0_SEN   = (TProfile*)subDetectorFile->Get("210");
-      prof_x0_CAB   = (TProfile*)subDetectorFile->Get("310");
-      prof_x0_COL   = (TProfile*)subDetectorFile->Get("410");
-      prof_x0_ELE   = (TProfile*)subDetectorFile->Get("510");
-      prof_x0_OTH   = (TProfile*)subDetectorFile->Get("610");
-      prof_x0_AIR   = (TProfile*)subDetectorFile->Get("710");
+      prof_x0_SUP   = (TProfile*)subDetectorFile->Get(Form("%u", 100 + plotNumber));
+      prof_x0_SEN   = (TProfile*)subDetectorFile->Get(Form("%u", 200 + plotNumber));
+      prof_x0_CAB   = (TProfile*)subDetectorFile->Get(Form("%u", 300 + plotNumber));
+      prof_x0_COL   = (TProfile*)subDetectorFile->Get(Form("%u", 400 + plotNumber));
+      prof_x0_ELE   = (TProfile*)subDetectorFile->Get(Form("%u", 500 + plotNumber));
+      prof_x0_OTH   = (TProfile*)subDetectorFile->Get(Form("%u", 600 + plotNumber));
+      prof_x0_AIR   = (TProfile*)subDetectorFile->Get(Form("%u", 700 + plotNumber));
       // add to summary histogram
       hist_x0_SUP->Add(   (TH1D*)prof_x0_SUP->ProjectionX("B")  , +1.000 );
       hist_x0_SEN->Add(   (TH1D*)prof_x0_SEN->ProjectionX("B")  , +1.000 );
@@ -300,7 +324,7 @@ MaterialBudget_TDR() {
     case 9: {
       // subDetector = "BeamPipe";
       // subdetector profiles
-      prof_x0_BeamPipe = (TProfile*)subDetectorFile->Get("10");
+      prof_x0_BeamPipe = (TProfile*)subDetectorFile->Get(Form("%u", plotNumber));
       hist_x0_BeamPipe = (TH1D*)prof_x0_BeamPipe->ProjectionX();
       break;
     }
@@ -323,15 +347,15 @@ MaterialBudget_TDR() {
   hist_x0_ELE->SetFillColor(30); // Electronics = green
   hist_x0_OTH->SetFillColor(42); // Other+Air   = orange
   //
-  float mbmin  =  0.0;
-  float mbmax  =  1.8;
-  float etamin = -3.5;
-  float etamax =  3.5;
+  //  float mbmin  =  0.0;
+  //  float mbmax  =  1.8;
+  //  float etamin = -3.5;
+  //  float etamax =  3.5;
   //  
   
   // First Plot: BeamPipe + Pixel + TIB/TID + TOB + TEC + Outside
   // stack
-  TString stackTitle_SubDetectors = "Tracker Material Budget;#eta;x/X_{0}";
+  TString stackTitle_SubDetectors = Form( "Tracker Material Budget;%s;x/X_{0}",abscissaName.Data() );
   THStack stack_x0_SubDetectors("stack_x0",stackTitle_SubDetectors);
   stack_x0_SubDetectors.Add(hist_x0_BeamPipe);
   stack_x0_SubDetectors.Add(hist_x0_Pixel);
@@ -349,10 +373,10 @@ MaterialBudget_TDR() {
   //
   
   // Draw
-  stack_x0_SubDetectors.SetMinimum(mbmin);
-  stack_x0_SubDetectors.SetMaximum(mbmax);
+  //  stack_x0_SubDetectors.SetMinimum(mbmin);
+  //  stack_x0_SubDetectors.SetMaximum(mbmax);
   stack_x0_SubDetectors.Draw("HIST");
-  stack_x0_SubDetectors.GetXaxis()->SetLimits(etamin,etamax);
+  //  stack_x0_SubDetectors.GetXaxis()->SetLimits(etamin,etamax);
   //
   
   // Legenda
@@ -368,14 +392,14 @@ MaterialBudget_TDR() {
   
   // Store
   can_SubDetectors.Update();
-  can_SubDetectors.SaveAs( Form("%s/Tracker_SubDetectors_X0.eps",  theDirName.Data()) );
-  can_SubDetectors.SaveAs( Form("%s/Tracker_SubDetectors_X0.gif",  theDirName.Data()) );
+  can_SubDetectors.SaveAs( Form( "%s/Tracker_SubDetectors_%s.eps",  theDirName.Data(), plot.Data() ) );
+  can_SubDetectors.SaveAs( Form( "%s/Tracker_SubDetectors_%s.gif",  theDirName.Data(), plot.Data() ) );
   //
   
   
   // Second Plot: BeamPipe + SEN + ELE + CAB + COL + SUP + OTH/AIR + Outside
   // stack
-  TString stackTitle_Materials = "Tracker Material Budget;#eta;x/X_{0}";
+  TString stackTitle_Materials = Form( "Tracker Material Budget;%s;x/X_{0}",abscissaName.Data() );
   THStack stack_x0_Materials("stack_x0",stackTitle_Materials);
   stack_x0_Materials.Add(hist_x0_BeamPipe);
   stack_x0_Materials.Add(hist_x0_SEN);
@@ -395,10 +419,10 @@ MaterialBudget_TDR() {
   //
   
   // Draw
-  stack_x0_Materials.SetMinimum(mbmin);
-  stack_x0_Materials.SetMaximum(mbmax);
+  //  stack_x0_Materials.SetMinimum(mbmin);
+  //  stack_x0_Materials.SetMaximum(mbmax);
   stack_x0_Materials.Draw("HIST");
-  stack_x0_Materials.GetXaxis()->SetLimits(etamin,etamax);
+  //  stack_x0_Materials.GetXaxis()->SetLimits(etamin,etamax);
   //
   
   // Legenda
@@ -416,8 +440,8 @@ MaterialBudget_TDR() {
   
   // Store
   can_Materials.Update();
-  can_Materials.SaveAs( Form("%s/Tracker_Materials_X0.eps",  theDirName.Data()) );
-  can_Materials.SaveAs( Form("%s/Tracker_Materials_X0.gif",  theDirName.Data()) );
+  can_Materials.SaveAs( Form( "%s/Tracker_Materials_%s.eps",  theDirName.Data(), plot.Data() ) );
+  can_Materials.SaveAs( Form( "%s/Tracker_Materials_%s.gif",  theDirName.Data(), plot.Data() ) );
   //
   
 }

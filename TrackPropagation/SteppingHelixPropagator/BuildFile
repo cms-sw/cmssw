@@ -2,6 +2,8 @@
 <use name=TrackingTools/Records>
 <use name=FWCore/MessageLogger>
 <use name=MagneticField/Engine>
+<use name=MagneticField/VolumeBasedEngine>
+<use name=MagneticField/VolumeGeometry>
 <use name=MagneticField/Records>
 <use name=FWCore/Framework>
 <use name=Foundation/PluginManager>

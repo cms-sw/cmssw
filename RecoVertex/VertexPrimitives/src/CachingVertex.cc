@@ -224,6 +224,9 @@ CachingVertex::tkToTkCovariance(const RefCountedVertexTrack t1,
 
 CachingVertex::operator TransientVertex() const
 {
+  //If the vertex is invalid, return an invalid TV !
+  if (!isValid()) return TransientVertex();
+
   typedef map<reco::TransientTrack, float> TransientTrackToFloatMap;
 
 // Construct Track vector
@@ -265,40 +268,5 @@ CachingVertex::operator TransientVertex() const
   tv.weightMap(theWeightMap);
   if (theCovMapAvailable) tv.tkToTkCovariance(ttCovMap);
   return tv;
-
-//   theVertexState = cv.vertexState();
-//   GlobalPoint vertexPos = theVertexState.position();
-
-//  ... all that done...
-
-// 
-//     //Get the refitted state and make a refitted RecTrack out of it.
-//     if ((**i).refittedStateAvailable()) {
-// 
-//       //First get the impact parameter surface with respect to the fitted vertex:
-//       TrajectoryStateOnSurface vtxIPS = t1.stateAtPoint(vertexPos);
-//       if (vtxIPS.isValid()) {
-// 	theRefittedTracks.push_back( RecTrack( new RefittedRecTrack(t1, 
-//            (**i).refittedState()->trajectoryStateOnSurface(vtxIPS.surface()),
-// 	   this) ) );
-// 	withRefittedTracks = true;
-//       } else {
-// 
-//         // If this tsos is not valid, then get the impact parameter surface 
-// 	// with respect to the vertex of the original RecTrack:
-//         TrajectoryStateOnSurface IPS = t1.impactPointState();
-// 	if (IPS.isValid()) {
-// 	  theRefittedTracks.push_back( RecTrack( new RefittedRecTrack(t1, 
-//              (**i).refittedState()->trajectoryStateOnSurface(IPS.surface()),
-// 	     this) ) );
-// 	  withRefittedTracks = true;
-// 	} else {
-// 
-// 	  // So none of these TSOSs are valid, and we don't know on which
-// 	  // surface to construct the refitted TSOS !!!
-// 	  cout <<"TransientVertex: Can not produce refitted TSOS, as no valid surface is found\n";
-// 	}
-//       }
-//       
-//     }
+// Missing is the refitted track
 }

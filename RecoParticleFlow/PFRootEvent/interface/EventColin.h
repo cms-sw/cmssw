@@ -48,6 +48,13 @@ class EventColin {
     clustersIsland_.push_back(ptc);
   }
 
+  const std::vector<EventColin::Particle>& particles() 
+    {return particles_;}
+  const std::vector<EventColin::Cluster>& clusters() 
+    {return clusters_;}
+  const std::vector<EventColin::Cluster>& clustersIsland() 
+    {return clustersIsland_;}
+
  private:
 
 

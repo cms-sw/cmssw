@@ -15,6 +15,7 @@
 std::vector<reco::BasicCluster> IslandClusterAlgo::makeClusters(const EcalRecHitCollection* hits,
                                                                 const CaloSubdetectorGeometry *geometry_p,
                                                                 const CaloSubdetectorTopology *topology_p,
+								const CaloSubdetectorGeometry *geometryES_p,
                                                                 EcalPart ecalPart)
 {
   seeds.clear();
@@ -62,7 +63,7 @@ std::vector<reco::BasicCluster> IslandClusterAlgo::makeClusters(const EcalRecHit
       std::cout << "Total number of seeds found in event = " << seeds.size() << std::endl;
     }
 
-  mainSearch(hits,geometry_p,topology_p,ecalPart);
+  mainSearch(hits,geometry_p,topology_p,geometryES_p,ecalPart);
   sort(clusters_v.begin(), clusters_v.end());
 
   if (verbosity < pINFO)
@@ -77,6 +78,7 @@ std::vector<reco::BasicCluster> IslandClusterAlgo::makeClusters(const EcalRecHit
 void IslandClusterAlgo::mainSearch(const EcalRecHitCollection* hits,
                                    const CaloSubdetectorGeometry *geometry_p,
                                    const CaloSubdetectorTopology *topology_p,
+                                   const CaloSubdetectorGeometry *geometryES_p,
                                    EcalPart ecalPart)
 {
   if (verbosity < pINFO)
@@ -120,7 +122,7 @@ void IslandClusterAlgo::mainSearch(const EcalRecHitCollection* hits,
       navigator.home();
       searchEast(navigator, topology_p);
  
-      makeCluster(hits,geometry_p);
+      makeCluster(hits,geometry_p,geometryES_p);
    }
 }
 
@@ -231,13 +233,15 @@ bool IslandClusterAlgo::shouldBeAdded(EcalRecHitCollection::const_iterator candi
 }
 
 
-void IslandClusterAlgo::makeCluster(const EcalRecHitCollection* hits,const CaloSubdetectorGeometry *geometry)
+void IslandClusterAlgo::makeCluster(const EcalRecHitCollection* hits,
+				    const CaloSubdetectorGeometry *geometry,
+				    const CaloSubdetectorGeometry *geometryES)
 {
   double energy = 0;
   double chi2   = 0;
 
   Point position;
-  position = posCalculator_.Calculate_Location(current_v,hits,geometry);
+  position = posCalculator_.Calculate_Location(current_v,hits,geometry,geometryES);
   
   std::vector<DetId>::iterator it;
   for (it = current_v.begin(); it != current_v.end(); it++)

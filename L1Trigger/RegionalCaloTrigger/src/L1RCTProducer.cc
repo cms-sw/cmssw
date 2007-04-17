@@ -1,26 +1,41 @@
 #include "L1Trigger/RegionalCaloTrigger/interface/L1RCTProducer.h"
 
+#include "DataFormats/L1CaloTrigger/interface/L1CaloCollections.h"
+#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
+#include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
+
+#include "CalibFormats/CaloTPG/interface/CaloTPGTranscoder.h"
+#include "CalibFormats/CaloTPG/interface/CaloTPGRecord.h"
+#include "L1Trigger/L1Scales/interface/L1CaloEtScale.h"
+#include "L1Trigger/L1Scales/interface/L1EmEtScaleRcd.h"
+
+#include "L1Trigger/RegionalCaloTrigger/interface/L1RCT.h"
+
 L1RCTProducer::L1RCTProducer(const edm::ParameterSet& conf) : 
   src(conf.getParameter<edm::FileInPath>("src")),
   orcaFileInput(conf.getUntrackedParameter<bool>("orcaFileInput")),
   lutFile(conf.getParameter<edm::FileInPath>("lutFile"))
 {
   //produces<JSCOutput>();
-
+  
   //my try
   // need to include classes for EmCand, Region, and both collections!  done
   //produces<L1CaloEmCollection>("isoEmCollection");
   //produces<L1CaloEmCollection>("nonIsoEmCollection");
   produces<L1CaloEmCollection>();
   produces<L1CaloRegionCollection>();
-
-  rct = new L1RCT(lutFile.fullPath());
-  //std::cout << "One L1RCTProducer constructed!" << std::endl;
 }
 
-L1RCTProducer::~L1RCTProducer(){
-  delete rct;
-  //std::cout << "One L1RCTProducer deleted!" << std::endl;
+L1RCTProducer::~L1RCTProducer()
+{
+  if(rct != 0) delete rct;
+}
+
+void L1RCTProducer::beginJob(const edm::EventSetup& eventSetup)
+{
+  edm::ESHandle<CaloTPGTranscoder> transcoder;
+  eventSetup.get<CaloTPGRecord>().get(transcoder);
+  rct = new L1RCT(lutFile.fullPath(), transcoder);
 }
 
 void L1RCTProducer::produce(edm::Event& e, const edm::EventSetup& c)

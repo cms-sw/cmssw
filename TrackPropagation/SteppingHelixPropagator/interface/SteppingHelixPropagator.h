@@ -9,15 +9,15 @@
  *  Material effects (multiple scattering and energy loss) are based on tuning
  *  to MC and (eventually) data. 
  *
- *  $Date: 2006/10/05 23:48:55 $
- *  $Revision: 1.7 $
+ *  $Date: 2007/02/14 10:21:11 $
+ *  $Revision: 1.16 $
  *  \author Vyacheslav Krutelyov (slava77)
  */
 
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Fri Mar  3 16:01:24 CST 2006
-// $Id: SteppingHelixPropagator.h,v 1.7 2006/10/05 23:48:55 slava77 Exp $
+// $Id: SteppingHelixPropagator.h,v 1.16 2007/02/14 10:21:11 slava77 Exp $
 //
 //
 
@@ -35,8 +35,10 @@
 #include "CLHEP/Vector/ThreeVector.h"
 
 
+#include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixStateInfo.h"
 
 class MagneticField;
+class VolumeBasedMagneticField;
 class MagVolume;
 
 class SteppingHelixPropagator : public Propagator {
@@ -44,22 +46,15 @@ class SteppingHelixPropagator : public Propagator {
   typedef Hep3Vector Vector;
   typedef Hep3Vector  Point;
 
+  typedef SteppingHelixStateInfo StateInfo;
+  typedef SteppingHelixStateInfo::Result Result;
+
   struct Basis {
     Vector lX;
     Vector lY;
     Vector lZ;
   };
-
-  enum Result {
-    OK=0,
-    FAULT,
-    APPROX,
-    RANGEOUT,
-    INACC,
-    NOT_IMPLEMENTED,
-    UNDEFINED
-  };
-
+  
   enum Pars {
     RADIUS_P=0,
     Z_P = 0,
@@ -84,20 +79,6 @@ class SteppingHelixPropagator : public Propagator {
     POL_1_F, //1st order approximation, straight line
     POL_2_F,//2nd order
     POL_M_F //highest available
-  };
-
-  struct StateInfo {
-    int q;
-    Vector p3;
-    Point r3;
-    HepSymMatrix covLoc;
-    double path;
-    double radPath;
-    Basis rep;
-    double dir;
-    Vector bf;
-    Vector bfGradLoc;
-    const MagVolume* magVol;
   };
 
   /// Constructors
@@ -139,9 +120,26 @@ class SteppingHelixPropagator : public Propagator {
   /// Propagate to PCA to a line (given by 2 points) given a starting point 
   virtual std::pair<FreeTrajectoryState, double> 
     propagateWithPath(const FreeTrajectoryState& ftsStart, 
+		      const GlobalPoint& pDest1, const GlobalPoint& pDest2) const;
+    
+    
+  /// Propagate to Plane given a starting point
+  const SteppingHelixStateInfo& 
+    propagate(const SteppingHelixStateInfo& ftsStart, const Surface& sDest) const;
+  const SteppingHelixStateInfo& 
+    propagate(const SteppingHelixStateInfo& ftsStart, const Plane& pDest) const;
+  /// Propagate to Cylinder given a starting point (a Cylinder is assumed to be positioned at 0,0,0)
+  const SteppingHelixStateInfo& 
+    propagate(const SteppingHelixStateInfo& ftsStart, const Cylinder& cDest) const;
+  /// Propagate to PCA to point given a starting point 
+  const SteppingHelixStateInfo& 
+    propagate(const SteppingHelixStateInfo& ftsStart, const GlobalPoint& pDest) const;
+  /// Propagate to PCA to a line (given by 2 points) given a starting point 
+  const SteppingHelixStateInfo& 
+    propagate(const SteppingHelixStateInfo& ftsStart, 
 	      const GlobalPoint& pDest1, const GlobalPoint& pDest2) const;
-  
 
+  
   /// Switch debug printouts (to cout) .. very verbose
   void setDebug(bool debug){ debug_ = debug;}
 
@@ -158,11 +156,16 @@ class SteppingHelixPropagator : public Propagator {
   void applyRadX0Correction(bool applyRadX0Correction) { applyRadX0Correction_ = applyRadX0Correction;}
 
   ///Switch to using MagneticField Volumes .. as in VolumeBasedMagneticField
-    void setUseMagVolumes(bool val){ useMagVolumes_ = val;}
+  void setUseMagVolumes(bool val){ useMagVolumes_ = val;}
+
+  ///Switch to using Material Volumes .. internally defined for now
+  void setUseMatVolumes(bool val){ useMatVolumes_ = val;}
 
  protected:
+  typedef SteppingHelixStateInfo::VolumeBounds MatBounds;
   /// (Internals) Init starting point
   void setIState(const FreeTrajectoryState& ftsStart) const;
+  void setIState(const SteppingHelixStateInfo& sStart) const;
   void setIState(const SteppingHelixPropagator::Vector& p3, 
 		 const SteppingHelixPropagator::Point& r3, 
 		 int charge, const HepSymMatrix& cov, 
@@ -187,15 +190,16 @@ class SteppingHelixPropagator : public Propagator {
 
   /// (Internals) compute transients for current point (increments step counter).
   ///  Called by makeAtomStep
-    void getNextState(const SteppingHelixPropagator::StateInfo& svPrevious,
-		      SteppingHelixPropagator::StateInfo& svNext,		      
-		      double dP, 
-		      SteppingHelixPropagator::Vector tau, double dX, double dY, double dZ, 
-		      double dS, double dX0,
-		      const HepMatrix& dCov) const;
+  void getNextState(const SteppingHelixPropagator::StateInfo& svPrevious,
+		    SteppingHelixPropagator::StateInfo& svNext,		      
+		    double dP, 
+		    const SteppingHelixPropagator::Vector& tau, const SteppingHelixPropagator::Vector& drVec, 
+		    double dS, double dX0,
+		    const HepMatrix& dCov) const;
   
   /// Set/compute basis vectors for local coordinates at current step (called by incrementState)
-  void setRep(SteppingHelixPropagator::StateInfo& sv) const;
+  void setRep(SteppingHelixPropagator::Basis& rep,
+	      const SteppingHelixPropagator::Vector& tau) const;
 
   /// main stepping function: compute next state vector after a step of length dS
   bool makeAtomStep(SteppingHelixPropagator::StateInfo& svCurrent, 
@@ -205,7 +209,7 @@ class SteppingHelixPropagator : public Propagator {
 
   /// estimate average (in fact smth. close to MPV and median) energy loss per unit path length
   double getDeDx(const SteppingHelixPropagator::StateInfo& sv, 
-		 double& dEdXPrime, double& radX0) const;
+		 double& dEdXPrime, double& radX0, MatBounds& rzLims) const;
 
   /// (Internals) circular index for array of transients
   int cIndex_(int ind) const;
@@ -221,14 +225,9 @@ class SteppingHelixPropagator : public Propagator {
 			PropagationDirection dir,
 			double& dist, double& tanDist) const;
 
-  /// Compute covariance matrix rotation given change in basis vectors
-  void initCovRotation(const SteppingHelixPropagator::Vector* repI[3], 
-		       const SteppingHelixPropagator::Vector* repF[3],
-		       HepMatrix& covRot) const;
-		       
-  /// |B|-field gradient in local coordinates
-  void getLocBGrad(SteppingHelixPropagator::StateInfo& sv,
-		   double delta) const;
+  Result refToMatVolume(const SteppingHelixPropagator::StateInfo& sv,
+			PropagationDirection dir,
+			double& dist, double& tanDist) const;
 
  private:
   typedef std::pair<TrajectoryStateOnSurface, double> TsosPP;
@@ -238,16 +237,22 @@ class SteppingHelixPropagator : public Propagator {
   mutable int nPoints_;
   mutable StateInfo svBuf_[MAX_POINTS+1];
 
+  StateInfo invalidState_;
+
   mutable HepMatrix covRot_;
   mutable HepMatrix dCTransform_;
 
   const MagneticField* field_;
+  const VolumeBasedMagneticField* vbField_;
   const HepDiagMatrix unit66_;
   bool debug_;
   bool noMaterialMode_;
   bool noErrorPropagation_;
   bool applyRadX0Correction_;
   bool useMagVolumes_;
+  bool useMatVolumes_;
+
+  double defaultStep_;
 };
 
 #endif

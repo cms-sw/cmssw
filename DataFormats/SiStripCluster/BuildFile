@@ -1,7 +1,10 @@
-<use name=clhep>
 <use name=DataFormats/Common>
+<use name=DataFormats/SiStripDigi>
+<use name=boost>
+<use name=rootrflx>
 <export>
- <lib name=DataFormatsSiStripCluster>
- <use name=DataFormats/Common>
- <use name=clhep>
+  <use name=DataFormats/SiStripDigi>
+  <use name=boost>
+  <lib name=DataFormatsSiStripCluster>
 </export>
+

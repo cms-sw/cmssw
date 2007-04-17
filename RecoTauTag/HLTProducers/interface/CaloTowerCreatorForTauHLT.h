@@ -41,7 +41,7 @@ class CaloTowerCreatorForTauHLT : public edm::EDProducer {
   /// use only towers in cone mCone around L1 candidate for regional jet reco
   double mCone;
   /// label of tau trigger type analysis
-  std::string mTauTrigger;
+  edm::InputTag mTauTrigger;
   /// imitator of L1 seeds
   edm::InputTag ml1seeds;
   /// ET threshold

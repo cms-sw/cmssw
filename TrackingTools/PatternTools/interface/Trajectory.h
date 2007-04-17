@@ -49,6 +49,7 @@ public:
    */
   
   Trajectory() :  theChiSquared(0), theValid(true),
+    theNumberOfFoundHits(0), theNumberOfLostHits(0),
     theDirection(alongMomentum), theDirectionValidity(false),
     theSeed(TrajectorySeed())  
     {}
@@ -62,6 +63,7 @@ public:
     
   Trajectory( const TrajectorySeed& seed) : 
     theChiSquared(0), theValid(true),
+    theNumberOfFoundHits(0), theNumberOfLostHits(0),
     theDirection(alongMomentum), theDirectionValidity(false),
     theSeed(seed)
   {}
@@ -72,6 +74,7 @@ public:
    */
   Trajectory( const TrajectorySeed& seed, PropagationDirection dir) : 
     theChiSquared(0), theValid(true),
+    theNumberOfFoundHits(0), theNumberOfLostHits(0),
     theDirection(dir), theDirectionValidity(true),
     theSeed(seed)
   {}
@@ -126,14 +129,14 @@ public:
    *  stored as measurements.
    */
 
-  int foundHits() const;
+  int foundHits() const { return theNumberOfFoundHits;}
 
   /** Number of detector layers crossed without valid RecHits.
    *  Used mainly as a criteria for abandoning a trajectory candidate
    *  during trajectory building.
    */
 
-  int lostHits() const;
+  int lostHits() const { return theNumberOfLostHits;}
   
   /// True if trajectory has no measurements.
   bool empty() const { return theData.empty();}
@@ -179,6 +182,9 @@ private:
   DataContainer theData;
   double theChiSquared;
   bool theValid;
+
+  int theNumberOfFoundHits;
+  int theNumberOfLostHits;
 
   PropagationDirection theDirection;
   bool                 theDirectionValidity;

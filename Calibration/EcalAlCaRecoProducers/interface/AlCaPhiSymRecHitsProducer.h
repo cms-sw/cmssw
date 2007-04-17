@@ -1,3 +1,6 @@
+#ifndef _ALCAPHISYMRECHITSPRODUCER_H
+#define _ALCAPHISYMRECHITSPRODUCER_H
+
 // -*- C++ -*-
 //
 // Package:    AlCaPhiSymRecHitsProducer
@@ -12,8 +15,8 @@
 */
 //
 // Original Author:  David Futyan
-//         Created:  $Date$
-// $Id$
+//         Created:  $Date: 2006/08/28 14:42:06 $
+// $Id: AlCaPhiSymRecHitsProducer.h,v 1.1 2006/08/28 14:42:06 futyand Exp $
 //
 //
 
@@ -52,3 +55,5 @@ class AlCaPhiSymRecHitsProducer : public edm::EDProducer {
  double eCut_barl_;
  double eCut_endc_;  
 };
+
+#endif

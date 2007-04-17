@@ -14,8 +14,8 @@
 #include "EventFilter/CSCRawToDigi/interface/CSCTMBTrailer.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCRPCData.h"
 #include <bitset>
-#include <boost/dynamic_bitset.hpp>
 
+class BitVector;
 
 class CSCTMBData {
 
@@ -43,7 +43,7 @@ class CSCTMBData {
   CSCRPCData & rpcData()       {return theRPCData;}
 
   /// not const because it sets size int TMBTrailer
-  boost::dynamic_bitset<> pack();
+  BitVector pack();
   std::bitset<22> calCRC22(const std::vector< std::bitset<16> >& datain);
   std::bitset<22> nextCRC22_D16(const std::bitset<16>& D, const std::bitset<22>& C);
   int TMBCRCcalc();

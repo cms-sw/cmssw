@@ -15,6 +15,12 @@ namespace cms
     produces <uint16_t>();
   }
 
+  void ClusterAnalysisFilter::beginJob(edm::EventSetup const& es) {
+    //get geom    
+    es.get<TrackerDigiGeometryRecord>().get( tkgeom );
+    edm::LogInfo("ClusterAnalysis") << "[ClusterAnalysis::beginJob] There are "<<tkgeom->detUnits().size() <<" detectors instantiated in the geometry" << std::endl;  
+  }
+
   bool ClusterAnalysisFilter::filter(edm::Event & e, edm::EventSetup const& c) {
 
     //Get input 
@@ -50,7 +56,7 @@ namespace cms
       ( ! conf_.getParameter<edm::ParameterSet>("ClusterInModuleSelector").getParameter<bool>("On") || ClusterInModuleSelector_Decision_ )
       //&& SomeThingElse
       ;
-    
+
     uint16_t decisionWord = 
       ( TrackNumberSelector_Decision_ & 0x1)
       |
@@ -134,19 +140,63 @@ namespace cms
   bool ClusterAnalysisFilter::ClusterInModuleSelector (){
 
     const edm::ParameterSet ps = conf_.getParameter<edm::ParameterSet>("ClusterInModuleSelector");
+    const edm::ParameterSet pps = ps.getParameter<edm::ParameterSet>("ClusterConditions");
     
-    std::vector<uint32_t> ModulesToBeExcluded_=ps.getParameter< std::vector<uint32_t> >("ModulesToBeExcluded");
+    std::vector<uint32_t> ModulesToLookIn_=ps.getParameter< std::vector<uint32_t> >("ModulesToLookIn");
+    std::vector<uint32_t> SubDetToLookIn_=ps.getParameter< std::vector<uint32_t> >("SubDetToLookIn");
+    std::vector<uint32_t> SkipModules_=ps.getParameter< std::vector<uint32_t> >("SkipModules");
+
     
-    bool word=true;
-    for (std::vector<uint32_t>::const_iterator iter=ModulesToBeExcluded_.begin(); iter!=ModulesToBeExcluded_.end();iter++)
-      {
-	edm::DetSetVector<SiStripCluster>::const_iterator DSViter = dsv_SiStripCluster->find(*iter);
-	if ( DSViter != dsv_SiStripCluster->end() && DSViter->data.size() != 0){
-	  word=false;
-	  break;
-	}	
-      }  
-    return word;
+    for (std::vector<uint32_t>::const_iterator iter=ModulesToLookIn_.begin(); iter!=ModulesToLookIn_.end();iter++){
+      edm::DetSetVector<SiStripClusterInfo>::const_iterator DSViter = dsv_SiStripClusterInfo->find(*iter);
+      if ( DSViter != dsv_SiStripClusterInfo->end() ){	
+	for(edm::DetSet<SiStripClusterInfo>::const_iterator ClusIter = DSViter->data.begin(); ClusIter!=DSViter->data.end(); ClusIter++) 
+	  if (
+	      ClusIter->charge()/ClusIter->noise() > pps.getParameter<double>("minStoN") 
+	      &&
+	      ClusIter->charge()/ClusIter->noise() < pps.getParameter<double>("maxStoN") 
+	      &&
+	      ClusIter->width() > pps.getParameter<double>("minWidth") 
+	      &&
+	      ClusIter->width() < pps.getParameter<double>("maxWidth") 
+	      ){
+	    return ps.getParameter<bool>("Accept");
+	  }
+      }	      
+    }
+
+    for (edm::DetSetVector<SiStripClusterInfo>::const_iterator DSViter = dsv_SiStripClusterInfo->begin(); DSViter != dsv_SiStripClusterInfo->end(); DSViter++ ){	
+      uint32_t detid=DSViter->id;
+      if (find(SkipModules_.begin(),SkipModules_.end(),detid)!=SkipModules_.end())
+	continue;
+      const StripGeomDetUnit* _StripGeomDetUnit = dynamic_cast<const StripGeomDetUnit*>(tkgeom->idToDetUnit(DetId(detid)));
+      for (std::vector<uint32_t>::const_iterator iter=SubDetToLookIn_.begin(); iter!=SubDetToLookIn_.end();iter++){	
+	if ((uint) _StripGeomDetUnit->specificType().subDetector() == *iter){
+	  for(edm::DetSet<SiStripClusterInfo>::const_iterator ClusIter = DSViter->data.begin(); ClusIter!=DSViter->data.end(); ClusIter++) 
+	    if (
+		ClusIter->charge()/ClusIter->noise() > pps.getParameter<double>("minStoN") 
+		&&
+		ClusIter->charge()/ClusIter->noise() < pps.getParameter<double>("maxStoN") 
+		&&
+		ClusIter->width() > pps.getParameter<double>("minWidth") 
+		&&
+		ClusIter->width() < pps.getParameter<double>("maxWidth") 
+		){
+	//       std::cout
+// 		<< "\n\t\tcluster detid "       << ClusIter->geographicalId()  
+// 		<< "\n\t\tcluster first strip " << ClusIter->firstStrip()
+// 		<< "\n\t\tcluster charge "      << ClusIter->charge()    
+// 		<< "\n\t\tcluster noise "       << ClusIter->noise()     
+// 		<< "\n\t\tcluster position "    << ClusIter->position()  
+// 		<< "\n\t\tcluster width "       << ClusIter->width()  
+// 		<< std::endl;
+	      return ps.getParameter<bool>("Accept");
+	    }
+	}	      
+      }
+    }
+    
+    return !ps.getParameter<bool>("Accept");
   }
   
 }

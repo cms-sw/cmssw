@@ -184,7 +184,6 @@ void SiStripInformationExtractor::plotSingleModuleHistos(MonitorUserInterface* m
   if (mod_id.size() < 9) return;
   item_list.clear();     
   getItemList(req_map,"histo", item_list);
-
   vector<MonitorElement*> me_list;
 
   mui->cd();
@@ -214,8 +213,10 @@ void SiStripInformationExtractor::plotSingleHistogram(MonitorUserInterface * mui
 //  plot Histograms in a Canvas
 //
 void SiStripInformationExtractor::plotHistos(multimap<string,string>& req_map, 
-			   vector<MonitorElement*> me_list){
-  if (me_list.size() == 0) return;
+ 
+  			   vector<MonitorElement*> me_list){
+  int nhist = me_list.size();
+  if (nhist == 0) return;
   int width = 600;
   int height = 600;
   TCanvas canvas("TestCanvas", "Test Canvas");
@@ -225,7 +226,7 @@ void SiStripInformationExtractor::plotHistos(multimap<string,string>& req_map,
   float xlow = -1.0;
   float xhigh = -1.0;
   
-  if (me_list.size() == 1) {
+  if (nhist == 1) {
     if (hasItem(req_map,"xmin")) xlow = atof(getItemValue(req_map,"xmin").c_str());
     if (hasItem(req_map,"xmax")) xhigh = atof(getItemValue(req_map,"xmax").c_str()); 
     ncol = 1;
@@ -233,6 +234,28 @@ void SiStripInformationExtractor::plotHistos(multimap<string,string>& req_map,
   } else {
     ncol = atoi(getItemValue(req_map, "cols").c_str());
     nrow = atoi(getItemValue(req_map, "rows").c_str());
+    if (ncol*nrow < nhist) {
+      if (nhist == 2) {
+	ncol = 1;
+	nrow = 2;
+      } else if (nhist == 3) {
+	ncol = 1;
+	nrow = 3;
+      } else if (nhist == 4) {
+	ncol = 2;
+	nrow = 3;
+      } else if (nhist > 4 && nhist <= 10) {
+        ncol = 2;
+	nrow = nhist/ncol+1;
+      } else if (nhist > 10 && nhist <= 20) {
+        ncol = 3;
+	nrow = nhist/ncol+1;
+      } else if (nhist > 20 && nhist <= 40) {
+         ncol = 4;
+	 nrow = nhist/ncol+1;
+      } 		
+
+    }
   }
 
   if (hasItem(req_map,"width")) 
@@ -246,6 +269,11 @@ void SiStripInformationExtractor::plotHistos(multimap<string,string>& req_map,
   for (vector<MonitorElement*>::const_iterator it = me_list.begin();
        it != me_list.end(); it++) {
     i++;
+    int istat =  SiStripUtility::getStatus((*it));
+    string tag;
+    int icol;
+    SiStripUtility::getStatusColor(istat, icol, tag);
+  
     MonitorElementT<TNamed>* ob = 
       dynamic_cast<MonitorElementT<TNamed>*>((*it));
     if (ob) {
@@ -253,6 +281,12 @@ void SiStripInformationExtractor::plotHistos(multimap<string,string>& req_map,
       //      TAxis* xa = ob->operator->()->GetXaxis();
       //      xa->SetRangeUser(xlow, xhigh);
       ob->operator->()->Draw();
+      if (icol != 1) {
+	TText tt;
+	tt.SetTextSize(0.12);
+	tt.SetTextColor(icol);
+	tt.DrawTextNDC(0.5, 0.5, tag.c_str());
+      }
       if (hasItem(req_map,"logy")) {
 	  gPad->SetLogy(1);
       }

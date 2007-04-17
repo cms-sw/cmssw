@@ -8,7 +8,7 @@
      \\\author: Shahram Rahatlou, May 2006
 */
 //
-// $Id: PreshowerAnalyzer.h,v 1.1 2006/07/20 18:31:22 dbanduri Exp $
+// $Id: PreshowerAnalyzer.h,v 1.2 2006/07/21 00:15:59 dbanduri Exp $
 //
 
 
@@ -59,7 +59,8 @@ public:
 
   double calib_planeX_;
   double calib_planeY_;
-  double miptogev_;
+  double mip_;
+  double gamma_;
 
   // association parameters:
   std::string islandEndcapSuperClusterCollection1_;

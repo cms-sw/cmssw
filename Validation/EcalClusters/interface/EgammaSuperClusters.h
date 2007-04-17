@@ -9,7 +9,7 @@
      \\\author: Michael A. Balazs, Nov 2006
 */
 //
-// $Id: EgammaSuperClusters.h,v 1.2 2006/11/15 18:50:02 mabalazs Exp $
+// $Id: EgammaSuperClusters.h,v 1.4 2006/11/20 18:58:30 mabalazs Exp $
 //
 #include <string>
 
@@ -43,7 +43,10 @@ class EgammaSuperClusters : public edm::EDAnalyzer
       	edm::InputTag hybridBarrelSuperClusterCollection_;
       	edm::InputTag islandBarrelSuperClusterCollection_;
       	edm::InputTag islandEndcapSuperClusterCollection_;
- 
+      	edm::InputTag hybridBarrelClusterShapeAssociation_;
+      	edm::InputTag islandBarrelClusterShapeAssociation_;
+      	edm::InputTag islandEndcapClusterShapeAssociation_;
+
       	MonitorElement* hist_HybridEB_SC_Size_;
       	MonitorElement* hist_IslandEB_SC_Size_;
       	MonitorElement* hist_IslandEE_SC_Size_;
@@ -115,5 +118,7 @@ class EgammaSuperClusters : public edm::EDAnalyzer
       	double hist_min_deltaEta_;
       	double hist_max_deltaEta_;
       	int    hist_bins_deltaEta_;
+
+      	float ecalEta(float EtaParticle , float Zvertex, float plane_Radius);
 };
 #endif

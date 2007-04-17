@@ -1,7 +1,7 @@
 //----------------------------------------------------------------------
 // EdmFileUtil.cpp
 //
-// $Id: EdmFileUtil.cpp,v 1.6 2006/11/02 11:57:11 dlange Exp $
+// $Id: EdmFileUtil.cpp,v 1.2 2006/11/22 06:10:22 dlange Exp $
 //
 // Author: Chih-hsiang Cheng, LLNL
 //         Chih-Hsiang.Cheng@cern.ch
@@ -43,9 +43,14 @@ int main(int argc, char* argv[]) {
     ("print,P", "Print all")
     ("uuid,u", "Print uuid")
     ("verbose,v","Verbose printout")
+    ("decodeLFN,d", "Convert LFN to PFN")
+    ("printBranchDetails,b","Call Print()sc for all branches")
     ("allowRecovery","Allow root to auto-recover corrupted files") 
     ("events,e",boost::program_options::value<std::string>(), 
-     "Show event ids for events within a range or set of ranges , e.g., 5-13,30,60-90 ");
+     "Show event ids for events within a range or set of ranges , e.g., 5-13,30,60-90 ")
+//     ("entries,i",boost::program_options::value<std::string>(), 
+//      "Show entries per branch for each event within a range or set of ranges , e.g., 5-13,30,60-90 ")   
+    ;
 
   // What trees do we require for this to be a valid collection?
   std::vector<std::string> expectedTrees;
@@ -113,141 +118,105 @@ int main(int argc, char* argv[]) {
     std::vector<std::string> in = vm["file"].as<std::vector<std::string> >();
     std::string catalogIn = (vm.count("catalog") ? vm["catalog"].as<std::string>() : std::string());
     
-    std::cout << in[0] << "\n"; 
     pset.addUntrackedParameter<std::vector<std::string> >("fileNames", in);
     pset.addUntrackedParameter<std::string>("catalog", catalogIn);
     
     edm::InputFileCatalog catalog(pset);
     std::vector<std::string> const& filesIn = catalog.fileNames();
-    
-    // open a data file
-    std::string datafile=filesIn[0];
-    TFile *tfile= edm::openFileHdl(datafile);
-    
-    
-    
-    if ( tfile == 0 ) return 1;
-    if ( verbose ) std::cout << "ECU:: Opened " << datafile << std::endl;
-    
-    // First check that this file is not auto-recovered
-    // Stop the job unless specified to do otherwise
-    
-    bool isRecovered = tfile->TestBit(TFile::kRecovered);
-    if ( isRecovered ) {
-      std::cout << datafile << " appears not to have been closed correctly and has been autorecovered \n";
-      if ( vm.count("allowRecovery") ) {
-	std::cout << "Proceeding anyway\n";
+
+    // Allow user to input multiple files
+    for(unsigned int j = 0;j < in.size();j++) {
+      
+      // We _only_ want the LFN->PFN conversion. No need to open the file, 
+      // just check the catalog and move on
+      if ( vm.count("decodeLFN") ) {
+	std::cout << filesIn[j] << std::endl;
+	continue;
+      }
+
+      // open a data file
+      std::cout << in[j] << "\n"; 
+      std::string datafile=filesIn[j];
+      TFile *tfile= edm::openFileHdl(datafile);
+      
+      if ( tfile == 0 ) return 1;
+      if ( verbose ) std::cout << "ECU:: Opened " << datafile << std::endl;
+      
+      // First check that this file is not auto-recovered
+      // Stop the job unless specified to do otherwise
+      
+      bool isRecovered = tfile->TestBit(TFile::kRecovered);
+      if ( isRecovered ) {
+	std::cout << datafile << " appears not to have been closed correctly and has been autorecovered \n";
+	if ( vm.count("allowRecovery") ) {
+	  std::cout << "Proceeding anyway\n";
+	}
+	else{
+	  std::cout << "Stopping. Use --allowRecovery to try ignoring this\n";
+	  return 1;
+	}
       }
       else{
-	std::cout << "Stopping. Use --allowRecovery to try ignoring this\n";
-	return 1;
+	if ( verbose ) std::cout << "ECU:: Collection not autorecovered. Continuing\n";
       }
-    }
-    else{
-      if ( verbose ) std::cout << "ECU:: Collection not autorecovered. Continuing\n";
-    }
-    
-    // Ok. Do we have the expected trees?
-    for ( unsigned int i=0; i<expectedTrees.size(); i++) {
-      TTree *t= (TTree*) tfile->Get(expectedTrees[i].c_str());
-      if ( t==0 ) {
-	std::cout << "Tree " << expectedTrees[i] << " appears to be missing. Not a valid collection\n";
-	std::cout << "Exiting\n";
-	return 1;
-      }
-      else{
+      
+      // Ok. Do we have the expected trees?
+      for ( unsigned int i=0; i<expectedTrees.size(); i++) {
+	TTree *t= (TTree*) tfile->Get(expectedTrees[i].c_str());
+	if ( t==0 ) {
+	  std::cout << "Tree " << expectedTrees[i] << " appears to be missing. Not a valid collection\n";
+	  std::cout << "Exiting\n";
+	  return 1;
+	}
+	else{
 	if ( verbose ) std::cout << "ECU:: Found Tree " << expectedTrees[i] << std::endl;
-      }
-    }
-    
-    if ( verbose ) std::cout << "ECU:: Found all expected trees\n"; 
-    
-    // Ok. How many events?
-    long int nevts= edm::numEntries(tfile,"Events");
-    std::cout << tfile->GetName() << " ( " << nevts << " events, " 
-	      << tfile->GetSize() << " bytes )" << std::endl;
-    
-    // Look at the collection contents
-    if ( vm.count("ls")) {
-      if ( tfile != 0 ) tfile->ls();
-    }
-    
-    // Print out each tree
-    if ( vm.count("print") ) {
-      TTree *eventsTree=(TTree*)tfile->Get("Events");
-      edm::printBranchNames(eventsTree);
-    }
-
-    if ( vm.count("uuid") ) {
-      TTree *paramsTree=(TTree*)tfile->Get("##Params");
-
-      char uuidCA[1024];
-      paramsTree->SetBranchAddress("db_string",uuidCA);
-      paramsTree->GetEntry(0);
-
-      // Then pick out relevent piece of this string
-      // 9A440868-8058-DB11-85E3-00304885AB94 from
-      // [NAME=FID][VALUE=9A440868-8058-DB11-85E3-00304885AB94]
-
-      std::string uuidStr(uuidCA);
-      std::string::size_type start=uuidStr.find("VALUE=");
-      if ( start == std::string::npos ) {
-	std::cout << "Seemingly invalid db_string entry in ##Params tree?\n";
-	std::cout << uuidStr << std::endl;
-      }
-      else{
-	std::string::size_type stop=uuidStr.find("]",start);
-	if ( stop == std::string::npos ) {
-	  std::cout << "Seemingly invalid db_string entry in ##Params tree?\n";
-	  std::cout << uuidStr << std::endl;
-	}
-	else{
-	  //Everything is Ok - just proceed...
-	  std::string result=uuidStr.substr(start+6,stop-start-6);
-	  std::cout << "UUID: " << result << std::endl;
 	}
       }
-    }
-    
-    // Print out event lists 
-    if ( vm.count("events") ) {
-      bool keepgoing=true;  
-      std::string remainingStr=vm["events"].as<std::string>();
-      while ( keepgoing ) {
-	long int iLow(-1),iHigh(-2);
-	// split by commas
-	std::string::size_type pos= remainingStr.find_first_of(",");
-	std::string evtstr=remainingStr;
-	
-	if ( pos == std::string::npos ) {
-	  keepgoing=false;
-	}
-	else{
-	  evtstr=remainingStr.substr(0,pos);
-	  remainingStr=remainingStr.substr(pos+1);
-	}
-	
-	pos= evtstr.find_first_of("-");
-	if ( pos == std::string::npos ) {
-	  iLow= (int)atof(evtstr.c_str());
-	  iHigh= iLow;
-	} else {
-	  iLow= (int)atof(evtstr.substr(0,pos).c_str());
-	  iHigh= (int)atof(evtstr.substr(pos+1).c_str());
-	}
-	
-	//    edm::showEvents(tfile,"Events",vm["events"].as<std::string>());
-	if ( iLow < 1 ) iLow=1;
-	if ( iHigh > nevts ) iHigh=nevts;
-	
-	// shift by one.. C++ starts at 0
-	iLow--;
-	iHigh--;
-	edm::showEvents(tfile,"Events",iLow,iHigh);
+      
+      if ( verbose ) std::cout << "ECU:: Found all expected trees\n"; 
+      
+      // Ok. How many events?
+      long int nevts= edm::numEntries(tfile,"Events");
+      std::cout << tfile->GetName() << " ( " << nevts << " events, " 
+		<< tfile->GetSize() << " bytes )" << std::endl;
+      
+      // Look at the collection contents
+      if ( vm.count("ls")) {
+	if ( tfile != 0 ) tfile->ls();
       }
-    }
+      
+      // Print out each tree
+      if ( vm.count("print") ) {
+	TTree *eventsTree=(TTree*)tfile->Get("Events");
+	edm::printBranchNames(eventsTree);
+      }
+      
+      if ( vm.count("printBranchDetails") ) {
+	TTree *printTree=(TTree*)tfile->Get("Events");
+	edm::longBranchPrint(printTree);
+      }
+      
+      if ( vm.count("uuid") ) {
+	TTree *paramsTree=(TTree*)tfile->Get("##Params");
+	edm::printUuids(paramsTree);
+      }
+      
+      // Print out event lists 
+      if ( vm.count("events") ) {
+	bool listentries=false;  
+	std::string remainingStr=vm["events"].as<std::string>();
+	edm::printEventLists(remainingStr, nevts, tfile, listentries);
+      }
+      
+//     if ( vm.count("entries") ) {
+//       bool listentries=true;  
+//       std::string remainingStr=vm["entries"].as<std::string>();
+//       edm::printEventLists(remainingStr, nevts, tfile, listentries);   
+//     }
     
+    }
   }
+  
   catch (cms::Exception& e) {
     std::cout << "cms::Exception caught in "
               <<"EdmFileUtil"

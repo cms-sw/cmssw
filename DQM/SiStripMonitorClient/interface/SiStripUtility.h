@@ -5,8 +5,8 @@
  * *
  *  Class that handles the SiStrip Quality Tests
  * 
- *  $Date: 2006/05/29 17:12:23 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/08/01 18:14:27 $
+ *  $Revision: 1.3 $
  *  \author Suchandra Dutta
   */
 
@@ -14,6 +14,8 @@
 #include <fstream>
 #include <string>
 #include <map>
+#include "DQMServices/Core/interface/MonitorElement.h"
+
 
 class SiStripUtility
 {
@@ -25,6 +27,9 @@ class SiStripUtility
 
  static void split(const std::string& str, std::vector<std::string>& tokens, 
              const std::string& delimiters=" ");
+ static void getStatusColor(int status, int& rval, int&gval, int& bval);
+ static void getStatusColor(int status, int& icol, std::string& tag);
+ static int getStatus(MonitorElement* me);
 };
 
 #endif

@@ -1,6 +1,6 @@
 #include "RecoVZero/VZeroFinding/interface/VZeroFinder.h"
 
-#include "Geometry/Vector/interface/GlobalVector.h"
+#include "DataFormats/Math/interface/Vector3D.h"
 
 /*****************************************************************************/
 VZeroFinder::VZeroFinder

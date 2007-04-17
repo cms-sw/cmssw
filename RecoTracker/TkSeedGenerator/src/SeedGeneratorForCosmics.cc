@@ -2,14 +2,12 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "RecoTracker/TkHitPairs/interface/CosmicLayerPairs.h"
-#include "RecoPixelVertexing/PixelTriplets/interface/CosmicLayerTriplets.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/CommonDetAlgo/interface/GlobalError.h"
 #include "RecoTracker/TkSeedGenerator/interface/SeedFromConsecutiveHits.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h" 
-#include "RecoTracker/TkSeedGenerator/interface/FastHelix.h"
 void 
 SeedGeneratorForCosmics::init(const SiStripRecHit2DCollection &collstereo,
 			      const SiStripRecHit2DCollection &collrphi ,
@@ -29,24 +27,12 @@ SeedGeneratorForCosmics::init(const SiStripRecHit2DCollection &collstereo,
 
   iSetup.get<TransientRecHitRecord>().get(builderName,theBuilder);
   TTTRHBuilder = theBuilder.product();
-  LogDebug("CosmicSeedFinder")<<" Hits built with  "<<hitsforseeds<<" hits";
- 
-    CosmicLayerPairs cosmiclayers;
 
-    cosmiclayers.init(collstereo,collrphi,collmatched,geometry,iSetup);
-    thePairGenerator=new CosmicHitPairGenerator(cosmiclayers,iSetup);
-    HitPairs.clear();
-    if ((hitsforseeds=="pairs")||(hitsforseeds=="pairsandtriplets")){
-      thePairGenerator->hitPairs(region,HitPairs,iSetup);
-  }
-
-    CosmicLayerTriplets cosmiclayers2;
-    cosmiclayers2.init(collstereo,collrphi,collmatched,geometry,iSetup);
-    theTripletGenerator=new CosmicHitTripletGenerator(cosmiclayers2,iSetup);
-    HitTriplets.clear();
-    if ((hitsforseeds=="triplets")||(hitsforseeds=="pairsandtriplets")){
-      theTripletGenerator->hitTriplets(region,HitTriplets,iSetup);
-    }
+  CosmicLayerPairs cosmiclayers;
+  cosmiclayers.init(collstereo,collrphi,collmatched,geometry,iSetup);
+  thePairGenerator=new CosmicHitPairGenerator(cosmiclayers,iSetup);
+  HitPairs.clear();
+  thePairGenerator->hitPairs(region,HitPairs,iSetup);
 }
 
 SeedGeneratorForCosmics::SeedGeneratorForCosmics(edm::ParameterSet const& conf): SeedGeneratorFromTrackingRegion(conf),
@@ -61,7 +47,7 @@ SeedGeneratorForCosmics::SeedGeneratorForCosmics(edm::ParameterSet const& conf):
   geometry=conf_.getUntrackedParameter<std::string>("GeometricStructure","STANDARD");
   region=GlobalTrackingRegion(ptmin,originradius,
  			      halflength,originz);
-  hitsforseeds=conf_.getUntrackedParameter<std::string>("HitsForSeeds","pairs");
+
   edm::LogInfo("SeedGeneratorForCosmics")<<" PtMin of track is "<<ptmin<< 
     " The Radius of the cylinder for seeds is "<<originradius <<"cm" ;
 
@@ -76,76 +62,16 @@ void SeedGeneratorForCosmics::run(TrajectorySeedCollection &output,const edm::Ev
 void SeedGeneratorForCosmics::seeds(TrajectorySeedCollection &output,
 				    const edm::EventSetup& iSetup,
 				    const TrackingRegion& region){
-  LogDebug("CosmicSeedFinder")<<"Number of triplets "<<HitTriplets.size();
-  LogDebug("CosmicSeedFinder")<<"Number of pairs "<<HitPairs.size();
-
-  for (uint it=0;it<HitTriplets.size();it++){
-    GlobalPoint inner = tracker->idToDet(HitTriplets[it].inner()->
-					 geographicalId())->surface().
-      toGlobal(HitTriplets[it].inner()->localPosition());
-    GlobalPoint middle = tracker->idToDet(HitTriplets[it].middle()->
-					  geographicalId())->surface().
-      toGlobal(HitTriplets[it].middle()->localPosition());
-    GlobalPoint outer = tracker->idToDet(HitTriplets[it].outer()->
-					 geographicalId())->surface().
-      toGlobal(HitTriplets[it].outer()->localPosition());   
-
-    TransientTrackingRecHit::ConstRecHitPointer outrhit=TTTRHBuilder->build(HitTriplets[it].outer());
-    edm::OwnVector<TrackingRecHit> hits;
-    hits.push_back(HitTriplets[it].outer()->clone());
-    FastHelix helix(inner, middle, outer,iSetup);
-    GlobalVector gv=helix.stateAtVertex().parameters().momentum();
-    float ch=helix.stateAtVertex().parameters().charge();
-    if (gv.y()>0){
-      gv=-1.*gv;
-      ch=-1.*ch;
-    }
-
-    GlobalTrajectoryParameters Gtp(outer,
-				   gv,int(ch), 
-				   &(*magfield));
-    FreeTrajectoryState CosmicSeed(Gtp,
-				   CurvilinearTrajectoryError(AlgebraicSymMatrix(5,1)));  
-    if((outer.y()-inner.y())>0){
-      const TSOS outerState =
-	thePropagatorAl->propagate(CosmicSeed,
-				   tracker->idToDet(HitTriplets[it].outer()->geographicalId())->surface());
-      if ( outerState.isValid()) {
-	LogDebug("CosmicSeedFinder") <<"outerState "<<outerState;
-	const TSOS outerUpdated= theUpdator->update( outerState,*outrhit);
-	if ( outerUpdated.isValid()) {
-	  LogDebug("CosmicSeedFinder") <<"outerUpdated "<<outerUpdated;
-	  
-	  PTrajectoryStateOnDet *PTraj=  
-	    transformer.persistentState(outerUpdated, HitTriplets[it].outer()->geographicalId().rawId());
-	  
-	  TrajectorySeed *trSeed=new TrajectorySeed(*PTraj,hits,alongMomentum);
-	  output.push_back(*trSeed);
-	}
-      }
-    } else {
-      const TSOS outerState =
-	thePropagatorOp->propagate(CosmicSeed,
-				   tracker->idToDet(HitTriplets[it].outer()->geographicalId())->surface());
-      if ( outerState.isValid()) {
-	LogDebug("CosmicSeedFinder") <<"outerState "<<outerState;
-	const TSOS outerUpdated= theUpdator->update( outerState,*outrhit);
-	if ( outerUpdated.isValid()) {
-	  LogDebug("CosmicSeedFinder") <<"outerUpdated "<<outerUpdated;
-	  
-	  PTrajectoryStateOnDet *PTraj=  
-	    transformer.persistentState(outerUpdated, HitTriplets[it].outer()->geographicalId().rawId());
-	  
-	  TrajectorySeed *trSeed=new TrajectorySeed(*PTraj,hits,oppositeToMomentum);
-	  output.push_back(*trSeed);
-	}
-      }
-    }
-  }
+ 
   
 
+ 
+ 
+  //  if(HitPairs.size()>0){
   for(uint is=0;is<HitPairs.size();is++){
 
+    //   stable_sort(HitPairs.begin(),HitPairs.end(),CompareHitPairsY(iSetup));
+    
     
     GlobalPoint inner = tracker->idToDet(HitPairs[is].inner()->geographicalId())->surface().toGlobal(HitPairs[is].inner()->localPosition());
     GlobalPoint outer = tracker->idToDet(HitPairs[is].outer()->geographicalId())->surface().toGlobal(HitPairs[is].outer()->localPosition());

@@ -138,7 +138,7 @@ bool Ntuple2HepMCFiller::toGenEvent( int evtnum, HepMC::GenEvent* evt ){
 	}
 	//	hepevt_particle.clear();
 	return true;
-};
+}
 
 //-------------------------------------------------------
 HepMC::GenParticle* Ntuple2HepMCFiller::createParticle( int index ) {

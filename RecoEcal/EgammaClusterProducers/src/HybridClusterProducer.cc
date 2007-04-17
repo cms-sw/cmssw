@@ -53,10 +53,10 @@ HybridClusterProducer::HybridClusterProducer(const edm::ParameterSet& ps)
 
   //Setup for core tools objects.
   std::map<std::string,double> providedParameters;  
-  providedParameters.insert(std::make_pair("LogWeighted",ps.getParameter<bool>("coretools_logweight")));
-  providedParameters.insert(std::make_pair("X0",ps.getParameter<double>("coretools_x0")));
-  providedParameters.insert(std::make_pair("T0",ps.getParameter<double>("coretools_t0")));
-  providedParameters.insert(std::make_pair("W0",ps.getParameter<double>("coretools_w0")));
+  providedParameters.insert(std::make_pair("LogWeighted",ps.getParameter<bool>("posCalc_logweight")));
+  providedParameters.insert(std::make_pair("T0_barl",ps.getParameter<double>("posCalc_t0")));
+  providedParameters.insert(std::make_pair("W0",ps.getParameter<double>("posCalc_w0")));
+  providedParameters.insert(std::make_pair("X0",ps.getParameter<double>("posCalc_x0")));
 
   posCalculator_ = PositionCalc(providedParameters);
   shapeAlgo_ = ClusterShapeAlgo(posCalculator_);

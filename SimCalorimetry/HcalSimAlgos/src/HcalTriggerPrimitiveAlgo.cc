@@ -22,7 +22,7 @@ void HcalTriggerPrimitiveAlgo::run(const HBHEDigiCollection & hbheDigis,
 				   const HFDigiCollection & hfDigis,
 				   HcalTrigPrimDigiCollection & result)
 {
-
+  cout<<"TPG analyzed"<<endl;
   incoder_=theCoderFactory->TPGcoder();
   outcoder_=theCoderFactory->compressionLUTcoder();
 
@@ -116,6 +116,8 @@ void HcalTriggerPrimitiveAlgo::addSignal(const IntegerCaloSamples & samples) {
 void HcalTriggerPrimitiveAlgo::analyze(IntegerCaloSamples & samples, 
 				       HcalTriggerPrimitiveDigi & result)
 {
+
+  //cout<<"TPG calc"
   // HcalTrigTowerDetId detId(samples.id());
   //find output samples length and new presamples
   int shrink = weights_.size()-1; //REAL LINE
@@ -124,9 +126,12 @@ void HcalTriggerPrimitiveAlgo::analyze(IntegerCaloSamples & samples,
   std::vector<bool> finegrain(outlength,false);
   IntegerCaloSamples sum(samples.id(), outlength);
 
+  
+  bool highvalue = false;
   //slide algo window
   for(int ibin = 0; ibin < int(samples.size())- shrink; ++ibin)
     {
+      if(samples[ibin+1]>10){highvalue = true;}
       int algosumvalue = 0;
       for(unsigned int i = 0; i < weights_.size(); i++) {
 	algosumvalue += int(samples[ibin+i] * weights_[i]);
@@ -136,7 +141,18 @@ void HcalTriggerPrimitiveAlgo::analyze(IntegerCaloSamples & samples,
       else sum[ibin] = algosumvalue;//assign value to sum[]
     }
 
+  if(highvalue)
+    {
+      // cout<<"ICS ";
+      for(int ibin = 0; ibin < int(samples.size())- shrink; ++ibin)
+	{
+	  //  cout<<samples[ibin+1]<<" ";
+	}
+      // cout<<endl;
+    }
   //Do peak finding if requested
+
+
   if(peakfind_)
     {
       IntegerCaloSamples output(samples.id(),outlength-2);
@@ -144,15 +160,20 @@ void HcalTriggerPrimitiveAlgo::analyze(IntegerCaloSamples & samples,
       for(int ibin2 = 1; ibin2 < (sum.size())-2; ++ibin2) 
 	{
 	  //use if peak finding true
-	  if ( sum[ibin2] > sum[ibin2-1] && 
-	       sum[ibin2] >= sum[ibin2+1] && 
-	       sum[ibin2] > theThreshold) 
+	  //Old equalities
+	  // if ( sum[ibin2] > sum[ibin2-1] && 
+	  //    sum[ibin2] >= sum[ibin2+1] && 
+	  //    sum[ibin2] > theThreshold)
+	  if ( sum[ibin2] >= sum[ibin2-1] && 
+	              sum[ibin2] > sum[ibin2+1] && 
+	       sum[ibin2] > theThreshold)
 	    {
 	      output[ibin2-1]=sum[ibin2];//if peak found
 	    }
 	  else{output[ibin2-1]=0;}//if no peak
 	}
       outcoder_->compress(output, finegrain, result);//send to transcoder
+      //      outcoder_->loadhcalUncompress();
     }
   
   else//No peak finding
@@ -169,7 +190,7 @@ void HcalTriggerPrimitiveAlgo::analyze(IntegerCaloSamples & samples,
 
 
 void HcalTriggerPrimitiveAlgo::analyzeHF(IntegerCaloSamples & samples, 
-				       HcalTriggerPrimitiveDigi & result)
+					 HcalTriggerPrimitiveDigi & result)
 {
   std::vector<bool> finegrain(samples.size(),false);
   IntegerCaloSamples sum(samples.id(), samples.size());
@@ -185,17 +206,3 @@ void HcalTriggerPrimitiveAlgo::analyzeHF(IntegerCaloSamples & samples,
   //cout<<endl;
   outcoder_->compress(output, finegrain, result);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -1,147 +1,266 @@
 // -*- C++ -*-
 //
-// Package:     EgammaElectronProducers
-// Class  :     ElectronAnalyzer
+// Package:    ElectronAnalyzer
+// Class:      ElectronAnalyzer
 // 
-// Implementation:
-//     <Notes on implementation>
+/**\class ElectronAnalyzer ElectronAnalyzer.cc 
+
+ Description: <one line class summary>
+
+ Implementation:
+     <Notes on implementation>
+*/
 //
-// Original Author:  Jim Pivarski
-//         Created:  Fri May 26 16:49:38 EDT 2006
-// $Id: ElectronAnalyzer.cc,v 1.6 2006/07/26 21:06:13 tboccali Exp $
+// Original Author:  Alessandro Palma
+//         Created:  Thu Sep 21 11:41:35 CEST 2006
+// $Id: ElectronAnalyzer.cc,v 1.11 2006/12/08 14:57:03 rahatlou Exp $
 //
+//
+
 
 // system include files
 #include <memory>
-
+#include<string>
+#include "math.h"
 
 // user include files
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/Handle.h"
+
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/Math/interface/LorentzVector.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/Exception.h"
+#include "DataFormats/HepMCCandidate/interface/HepMCCandidate.h"
+#include "DataFormats/EgammaReco/interface/BasicCluster.h"
+#include "DataFormats/EgammaReco/interface/SuperCluster.h"
+#include "DataFormats/EgammaCandidates/interface/Electron.h"
+#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
 #include "RecoEgamma/EgammaElectronProducers/interface/ElectronAnalyzer.h"
 
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "DataFormats/Math/interface/Point3D.h"
-#include "FWCore/Framework/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
-#include "DataFormats/EgammaReco/interface/SuperCluster.h"
-#include "DataFormats/EgammaCandidates/interface/SiStripElectron.h"
-
-// for Si hits
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetEnumerators.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/Vector/interface/GlobalPoint.h"
-
-//
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
+#include "TH1.h"
+#include "TFile.h"
 
 //
 // constructors and destructor
 //
-ElectronAnalyzer::ElectronAnalyzer(const edm::ParameterSet& iConfig)
+ElectronAnalyzer::ElectronAnalyzer(const edm::ParameterSet& iConfig) :
+  minElePt_(iConfig.getParameter<double>("minElePt")), REleCut_(iConfig.getParameter<double>("REleCut")), outputFile_(iConfig.getParameter<std::string>("outputFile")), electronProducer_(iConfig.getParameter<edm::InputTag>("electronProducer")), mcProducer_(iConfig.getParameter<std::string>("mcProducer")), scProducer_(iConfig.getParameter<edm::InputTag>("superClusterProducer")),islandBarrelBasicClusterCollection_(iConfig.getParameter<std::string>("islandBarrelBasicClusterCollection")),islandBarrelBasicClusterProducer_(iConfig.getParameter<std::string>("islandBarrelBasicClusterProducer")),islandBarrelBasicClusterShapes_(iConfig.getParameter<std::string>("islandBarrelBasicClusterShapes"))
+
 {
    //now do what ever initialization is needed
-   fileName_ = iConfig.getParameter<std::string>("fileName");
-
-   file_ = new TFile(fileName_.c_str(), "RECREATE");
-   numCand_ = new TH1F("numCandidates", "Number of candidates found", 10, -0.5, 9.5);
-
-   mctruthProducer_ = iConfig.getParameter<std::string>("mctruthProducer");
-   mctruthCollection_ = iConfig.getParameter<std::string>("mctruthCollection");
-
-   superClusterProducer_ = iConfig.getParameter<std::string>("superClusterProducer");
-   superClusterCollection_ = iConfig.getParameter<std::string>("superClusterCollection");
-
-   electronProducer_ = iConfig.getParameter<std::string>("electronProducer");
-   electronCollection_ = iConfig.getParameter<std::string>("electronCollection");
-
-   siHitProducer_ = iConfig.getParameter<std::string>("siHitProducer");
-   siRphiHitCollection_ = iConfig.getParameter<std::string>("siRphiHitCollection");
-   siStereoHitCollection_ = iConfig.getParameter<std::string>("siStereoHitCollection");
+  rootFile_ = TFile::Open(outputFile_.c_str(),"RECREATE"); // open output file to store histograms
 }
 
-// ElectronAnalyzer::ElectronAnalyzer(const ElectronAnalyzer& rhs)
-// {
-//    // do actual copying here;
-// }
 
 ElectronAnalyzer::~ElectronAnalyzer()
 {
  
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
-
-   file_->Write();
-   file_->Close();
+  delete rootFile_;
 }
 
-//
-// assignment operators
-//
-// const ElectronAnalyzer& ElectronAnalyzer::operator=(const ElectronAnalyzer& rhs)
-// {
-//   //An exception safe implementation is
-//   ElectronAnalyzer temp(rhs);
-//   swap(rhs);
-//
-//   return *this;
-// }
 
 //
 // member functions
 //
 
-// ------------ method called to produce the data  ------------
+// ------------ method called to for each event  ------------
 void
 ElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-   using namespace std;  // so you can say "cout" and "endl"
-   
-   // http://cmsdoc.cern.ch/swdev/lxr/CMSSW/source/clhep/CLHEP/HepMC/GenParticle.h
-   // http://cmsdoc.cern.ch/swdev/lxr/CMSSW/source/clhep/CLHEP/HepMC/GenVertex.h
-   // removed by JED - causes trouble in release post 0_9_0
-   //   edm::Handle<edm::HepMCProduct> mctruthHandle;
-   //   iEvent.getByLabel(mctruthProducer_, mctruthCollection_, mctruthHandle);
-   //   HepMC::GenEvent mctruth = mctruthHandle->getHepMCData();
-   
-   //   for (HepMC::GenEvent::particle_const_iterator partIter = mctruth.particles_begin();
-   //	partIter != mctruth.particles_end();
-   //	++partIter) {
-   // //    for (HepMC::GenEvent::vertex_const_iterator vertIter = mctruth.vertices_begin();
-   // // 	vertIter != mctruth.vertices_end();
-   // // 	++vertIter) {
-   //    CLHEP::HepLorentzVector creation = (*partIter)->CreationVertex();
-   //    CLHEP::HepLorentzVector momentum = (*partIter)->Momentum();
-   //   HepPDT::ParticleID id = (*partIter)->particleID();  // electrons and positrons are 11 and -11
-   //     edm::LogInfo("") << "MC particle id " << id.pid() << ", creationVertex " << creation << " cm, initialMomentum " << momentum << " GeV/c" << endl;
-   //  }
-   
-   // http://cmsdoc.cern.ch/swdev/lxr/CMSSW/source/self/DataFormats/EgammaReco/interface/SuperCluster.h
-   edm::Handle<reco::SuperClusterCollection> clusterHandle;
-   iEvent.getByLabel(superClusterProducer_, superClusterCollection_, clusterHandle);
-   
-   for (reco::SuperClusterCollection::const_iterator clusterIter = clusterHandle->begin();
-	clusterIter != clusterHandle->end();
-	++clusterIter) {
-      double energy = clusterIter->energy();
-      math::XYZPoint position = clusterIter->position();
+   using namespace edm;
 
-      edm::LogInfo("")  << "supercluster " << energy << " GeV, position " << position << " cm" << endl;
+   typedef reco::PixelMatchGsfElectron myElectron;
+   typedef reco::PixelMatchGsfElectronCollection myElectronCollection;
+
+
+   //CLUSTERS - BEGIN
+
+   // Get island basic clusters
+   Handle<reco::BasicClusterCollection> pIslandBarrelBasicClusters;
+   iEvent.getByLabel(islandBarrelBasicClusterProducer_, islandBarrelBasicClusterCollection_, pIslandBarrelBasicClusters);
+   const reco::BasicClusterCollection* islandBarrelBasicClusters = pIslandBarrelBasicClusters.product();
+  
+   // fetch cluster shapes of island basic clusters in barrel
+   Handle<reco::ClusterShapeCollection> pIslandEBShapes;
+   iEvent.getByLabel(islandBarrelBasicClusterProducer_, islandBarrelBasicClusterShapes_, pIslandEBShapes);
+   const reco::ClusterShapeCollection* islandEBShapes = pIslandEBShapes.product();
+  
+   /*   edm::LogInfo("Analyzer") << "# island basic clusters in barrel: " << islandBarrelBasicClusters->size()
+			    << "\t# associated cluster shapes: " << islandEBShapes->size() << "\n"
+			    << "Loop over island basic clusters in barrel" << "\n";
+   */
+
+   // loop over the Basic clusters and fill the histogram
+   int iClus=0; // counter needed to access the corresponding cluster shape object
+   for(reco::BasicClusterCollection::const_iterator aClus = islandBarrelBasicClusters->begin();
+       aClus != islandBarrelBasicClusters->end(); aClus++) {
+     // access cluster info 
+     //     h1_islandEBBCEnergy_->Fill( aClus->energy() );
+     //    h1_islandEBBCXtals_->Fill(  aClus->getHitsByDetId().size() );
+
+     // now access info in the correponding cluster shape. NB: one cluster shape for each cluster
+
+     /*
+     edm::LogInfo("Analyzer") << "energy: " << aClus->energy()
+			      << "\te5x5: " << (*islandEBShapes)[iClus].e5x5()
+			      << "\te2x2: " << (*islandEBShapes)[iClus].e2x2()
+			      << "\n";
+     */
+    
+     h1_islandEBBC_e3x3_Over_e5x5_->Fill(  (*islandEBShapes)[iClus].e3x3() / (*islandEBShapes)[iClus].e5x5()  );
+     h1_islandEBBC_e2x2_Over_e3x3_->Fill( (*islandEBShapes)[iClus].e2x2() / (*islandEBShapes)[iClus].e3x3() );
+  
+     iClus++;
    }
 
-   // DataFormats/EgammaCandidates/src/SiStripElectron.cc
+   //CLUSTERS - END
+
+
+    //SUPERCLUSTERS - BEGIN
+   
+   Handle<reco::SuperClusterCollection> mySC;
+   iEvent.getByLabel(scProducer_, mySC); 
+   
+   for(reco::SuperClusterCollection::const_iterator scIt = mySC->begin();
+       scIt != mySC->end(); scIt++){
+   }
+   //SUPERCLUSTERS - END
+
+
+   //GET GENERATOR EVENT - BEGIN
+
+   Handle< HepMCProduct > hepProd ;
+   iEvent.getByLabel( mcProducer_.c_str(), hepProd ) ;
+   const HepMC::GenEvent * myGenEvent = hepProd->GetEvent();
+
+   //GET GENERATOR EVENT - END
+
+
+   //LOOP OVER ELECTRONS - BEGIN
+   Handle<myElectronCollection> elColl;
+   iEvent.getByLabel(electronProducer_, elColl);
+
+   std::vector<myElectron> eleVec;
+   std::vector<myElectron> posVec;
+
+   h1_nEleReco_->Fill(elColl->size());
+
+   for(myElectronCollection::const_iterator eleIt = elColl->begin();
+       eleIt != elColl->end(); eleIt++){
+
+     // print ele track exp. error - begin
+     //std::cout<<eleIt->track()->chi2() / eleIt->track()->ndof()<<std::endl;
+     // print ele track exp. error - end
+
+     h1_recoEleEnergy_->Fill(eleIt->superCluster()->energy());
+     h1_recoElePt_->Fill(eleIt->track()->pt());
+     h1_recoEleEta_->Fill(eleIt->track()->eta());
+     h1_recoElePhi_->Fill(eleIt->track()->phi());
+
+     //     h1_islandEBBC_e3x3_Over_e5x5_->Fill(  eleIt->superCluster()->e3x3() / eleIt->superCluster()->e5x5()  );
+     //h1_islandEBBC_e2x2_Over_e3x3_->Fill( eleIt->superCluster()->e2x2() / eleIt->superCluster()->e3x3() );
+
+     //FILL an electron vector - begin
+     
+     if(eleIt->charge()==-1) eleVec.push_back(*eleIt);
+     if(eleIt->charge()==+1) posVec.push_back(*eleIt);
+     
+     //FILL an electron vector - end
+     
+   }
+   //LOOP OVER ELECTRONS - END
+
+   //loop over MC electrons and find the closest MC electron in (eta,phi) phace space - begin   
+   double REle(0.);
+   double REleMin(1000.);
+   myElectron nearestEleToMC;
+   HepMC::GenParticle eleMC;
+
+   if(eleVec.size()>=1){
+     for(std::vector<myElectron>::const_iterator e_it = eleVec.begin(); e_it !=eleVec.end(); e_it++){
+       for ( HepMC::GenEvent::particle_const_iterator p = myGenEvent->particles_begin();
+             p != myGenEvent->particles_end(); ++p ) {
+         //if (  (*p)->pdg_id() == 11  && (*p)->status()==1 ){
+         if( (*p)->pdg_id()!=11 || (*p)->status()!=1 ) continue;
+         eleMC=*(*p);
+
+         REle = pow(e_it->p4().eta()-eleMC.momentum().eta(),2) + pow(e_it->p4().phi()-eleMC.momentum().phi(),2);
+         REle=sqrt(REle);
+         if(REle<REleMin){
+            REleMin=REle;
+            nearestEleToMC=*e_it;
+         }
+         //} // if(electron)
+       } // loop over MC particles
+     } // loop over reco electron
+
+       //   std::cout<<"Rmin tra MCpos e reco pos: "<<REleMin<<std::endl;
+       h1_RMin_->Fill(REleMin);
+       if( REleMin<= REleCut_ ) {
+         h1_recoEleDeltaEta_->Fill( nearestEleToMC.track()->eta() - eleMC.momentum().eta());
+         h1_recoEleDeltaPhi_->Fill( nearestEleToMC.track()->phi() - eleMC.momentum().phi());
+         //h1_eleRecoTrackChi2_->Fill(nearestEleToMC.track()->chi2() / nearestEleToMC.track()->ndof());
+         if(nearestEleToMC.pt()>=minElePt_) h1_recoElePtRes_->Fill( nearestEleToMC.track()->pt() / eleMC.momentum().perp() );
+         h1_eleERecoOverEtrue_->Fill( nearestEleToMC.superCluster()->energy() / eleMC.momentum().e());
+       }
+   } // if(eleVec.size()>=1)
+   //loop over MC electrons and find the closest MC electron in (eta,phi) phace space - end
+
+
+/**
+
+   //loop over MC positrons and find the closest MC positron in (eta,phi) phace space - begin   
+   double RPos(0.);
+   double RPosMin(1000.);
+   myElectron nearestPosToMC;
+   HepMC::GenParticle posMC;
+   
+   if(posVec.size()>=1){
+     for(std::vector<myElectron>::const_iterator p_it = posVec.begin(); p_it !=posVec.end(); p_it++){
+       for ( HepMC::GenEvent::particle_const_iterator p = myGenEvent->particles_begin();
+	     p != myGenEvent->particles_end(); ++p ) {
+	 if ( (*p)->pdg_id() == -11 && (*p)->status()==1 ){
+	   posMC=*(*p);
+	   
+	   RPos = pow(p_it->p4().eta()-posMC.momentum().eta(),2) + pow(p_it->p4().phi()-posMC.momentum().phi(),2);
+	   RPos=sqrt(RPos);
+	   if(RPos<RPosMin){
+	     RPosMin=RPos;
+	     nearestPosToMC=*p_it;
+	   }
+	 }
+       }
+     } 
+       //   std::cout<<"Rmin tra MCpos e reco pos: "<<RPosMin<<std::endl;
+       h1_RMin_->Fill(RPosMin);
+       h1_recoEleDeltaEta_->Fill( nearestPosToMC.track()->eta() - posMC.momentum().eta());
+       //    std::cout<<"theta MC:"<<posMC.momentum().theta()<<" theta track: "<<nearestPosToMC.theta()<<std::endl; 
+       h1_recoEleDeltaPhi_->Fill( nearestPosToMC.phi() - posMC.momentum().phi());
+       // h1_eleRecoTrackChi2_->Fill(nearestPosToMC.track()->chi2() / nearestPosToMC.track()->ndof());    
+       if(nearestPosToMC.pt()>=minElePt_) {
+	 h1_recoElePtRes_->Fill( nearestPosToMC.pt() / posMC.momentum().perp() );
+	 //	 std::cout<<"reco pT: "<<nearestPosToMC.pt()<<" MC pT: "<< posMC.momentum().perp()<<std::endl;
+       }
+       if( RPosMin<=REleCut_ ) h1_eleERecoOverEtrue_->Fill( nearestPosToMC.superCluster()->energy() / posMC.momentum().e());
+       
+   }
+   //loop over MC positrons and find the closest MC positron in (eta,phi) phace space - end
+
+**/
+
+   /*
+   
+   //OTHER (COMMENTED) ANALYSIS - begin
+
+   // SiStrip Electrons
    edm::Handle<reco::SiStripElectronCollection> electronHandle;
    iEvent.getByLabel(electronProducer_, electronCollection_, electronHandle);
 
@@ -149,12 +268,12 @@ ElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
    for (reco::SiStripElectronCollection::const_iterator electronIter = electronHandle->begin();
 	electronIter != electronHandle->end();
 	++electronIter) {
-       edm::LogInfo("")  << "about to get stuff from electroncandidate..." << endl;
-      edm::LogInfo("")  << "supercluster energy = " << electronIter->superCluster()->energy() << endl;
-      edm::LogInfo("")  << "fit results are phi(r) = " << electronIter->phiAtOrigin() << " + " << electronIter->phiVsRSlope() << "*r" << endl;
-      edm::LogInfo("")  << "you get the idea..." << endl;
+     edm::LogInfo("")  << "about to get stuff from electroncandidate..." << endl;
+     edm::LogInfo("")  << "supercluster energy = " << electronIter->superCluster()->energy() << endl;
+     edm::LogInfo("")  << "fit results are phi(r) = " << electronIter->phiAtOrigin() << " + " << electronIter->phiVsRSlope() << "*r" << endl;
+     edm::LogInfo("")  << "you get the idea..." << endl;
 
-      numberOfElectrons++;
+     numberOfElectrons++;
    }
    numCand_->Fill(numberOfElectrons);
 
@@ -172,36 +291,121 @@ ElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
    const std::vector<DetId> ids = stereoHitsHandle->ids();
    for (std::vector<DetId>::const_iterator id = ids.begin();  id != ids.end();  ++id) {
 
-      // Get the hits on this detector id
-      SiStripRecHit2DCollection::range hits = stereoHitsHandle->get(*id);
+     // Get the hits on this detector id
+     SiStripRecHit2DCollection::range hits = stereoHitsHandle->get(*id);
 
-      // Count the number of hits on this detector id
-      unsigned int numberOfHits = 0;
-      for (SiStripRecHit2DCollection::const_iterator hit = hits.first;  hit != hits.second;  ++hit) {
-	 numberOfHits++;
-      }
-      
-      // Only take the hits if there aren't too many
-      // (Would it be better to loop only once, fill a temporary list,
-      // and copy that if numberOfHits <= maxHitsOnDetId_?)
-      if (numberOfHits <= 5) {
-	 for (SiStripRecHit2DCollection::const_iterator hit = hits.first;  hit != hits.second;  ++hit) {
-	    if (trackerHandle->idToDetUnit(hit->geographicalId())->type().subDetector() == GeomDetEnumerators::TIB  ||
-		trackerHandle->idToDetUnit(hit->geographicalId())->type().subDetector() == GeomDetEnumerators::TOB    ) {
+     // Count the number of hits on this detector id
+     unsigned int numberOfHits = 0;
+     for (SiStripRecHit2DCollection::const_iterator hit = hits.first;  hit != hits.second;  ++hit) {
+       numberOfHits++;
+     }
 
-	       GlobalPoint position = trackerHandle->idToDet(hit->geographicalId())->surface().toGlobal(hit->localPosition());
-	       edm::LogInfo("")   << "this stereo hit is at " << position.x() << ", " << position.y() << ", " << position.z() << endl;
+     // Only take the hits if there aren't too many
+     // (Would it be better to loop only once, fill a temporary list,
+     // and copy that if numberOfHits <= maxHitsOnDetId_?)
+     if (numberOfHits <= 5) {
+       for (SiStripRecHit2DCollection::const_iterator hit = hits.first;  hit != hits.second;  ++hit) {
+	 if (trackerHandle->idToDetUnit(hit->geographicalId())->type().subDetector() == GeomDetEnumerators::TIB  ||
+	     trackerHandle->idToDetUnit(hit->geographicalId())->type().subDetector() == GeomDetEnumerators::TOB    ) {
 
-	    } // end if this is the right subdetector
-	 } // end loop over hits
-      } // end if this detector id doesn't have too many hits on it
-   }
+	   GlobalPoint position = trackerHandle->idToDet(hit->geographicalId())->surface().toGlobal(hit->localPosition());
+	   edm::LogInfo("")   << "this stereo hit is at " << position.x() << ", " << position.y() << ", " << position.z() << endl;
+
+	 } // end if this is the right subdetector
+       } // end loop over hits
+     } // end if this detector id doesn't have too many hits on it
+   } // loop over stereo hits
+
+   //OTHER (COMMENTED) ANALYSIS - end
+
+   */
+  
 }
 
-//
-// const member functions
-//
 
-//
-// static member functions
-//
+// ------------ method called once each job just before starting event loop  ------------
+void 
+ElectronAnalyzer::beginJob(const edm::EventSetup&) {
+
+// go to *OUR* rootfile and book histograms
+rootFile_->cd();
+
+h1_nEleReco_ = new TH1F("nEleReco","Number of reconstructed electrons",11,-0.5,10.5);
+ h1_nEleReco_->SetXTitle("nEleReco");
+ h1_nEleReco_->SetYTitle("entries");
+
+h1_recoEleEnergy_ = new TH1F("recoEleEnergy","Electron energy from super cluster",400,0.,200.);
+ h1_recoEleEnergy_->SetXTitle("eleSCEnergy(GeV)");
+ h1_recoEleEnergy_->SetYTitle("entries/0.5 GeV");
+
+h1_recoElePt_ = new TH1F("recoElePt","p_{T} of reco electrons from track",200,0.,200.);
+ h1_recoElePt_->SetXTitle("p_{T}(GeV/c)");
+ h1_recoElePt_->SetYTitle("entries/1 GeV/c");
+
+h1_recoEleEta_ = new TH1F("recoEleEta","Eta of reco electrons from track",100,-4.,4.);
+ h1_recoEleEta_->SetXTitle("#eta");
+ h1_recoEleEta_->SetYTitle("entries/0.08");
+
+h1_recoElePhi_ = new TH1F("recoElePhi","Phi of reco electrons from track",100,-4.,4.);
+ h1_recoElePhi_->SetXTitle("#phi");
+ h1_recoElePhi_->SetYTitle("entries/0.08 rad");
+
+h1_RMin_=new TH1F("h1_RMin","Distance of MC electron from nearest RecoElectron",500,0.,10.);
+ h1_RMin_->SetXTitle("RMin");
+ h1_RMin_->SetYTitle("entries");
+
+h1_eleERecoOverEtrue_= new TH1F("eleERecoOverEtrue","E_{rec}/E_{MC} for MC matched Z electrons",250,0.,4.);
+ h1_eleERecoOverEtrue_->SetXTitle("Ereco/Etrue");
+ h1_eleERecoOverEtrue_->SetYTitle("entries");
+
+ h1_eleRecoTrackChi2_ = new TH1F("recoEle_TrackChi2","#chi^{2}/ndof for matched electrons tracks",100,0.,5.);
+ h1_eleRecoTrackChi2_->SetXTitle("#chi^{2}/ndof");
+ h1_eleRecoTrackChi2_->SetYTitle("events");
+ h1_recoEleDeltaEta_ = new TH1F("recoEle_EtaTrackThetaMC","#eta residual for matched electrons",40,-4.,4.);
+ h1_recoEleDeltaEta_->SetXTitle("#eta_{rec} - #eta_{MC}");
+ h1_recoEleDeltaEta_->SetYTitle("events");
+
+ h1_recoElePtRes_ = new TH1F("recoEle_PtTrackPtMC", "Pt resolution of matched electrons", 100, 0.8,1.2);
+ h1_recoElePtRes_->SetXTitle("pT_{TK}/pT_{MC}");
+ h1_recoElePtRes_->SetYTitle("entries");
+
+ h1_recoEleDeltaPhi_ = new TH1F("recoEle_PhiTrackPhiMC","#Phi for matched electrons",360,-3.,3.);
+ h1_recoEleDeltaPhi_->SetXTitle("#phi_{TK} - #phi_{MC}");
+ h1_recoEleDeltaPhi_->SetYTitle("entries");
+
+ h1_islandEBBC_e2x2_Over_e3x3_ = new TH1F("nIslandEBBC_e2x2_Over_e3x3","S4/S9 of ECAL Barrel Basic Cluster",100,0.5,1.2);
+ h1_islandEBBC_e2x2_Over_e3x3_->SetXTitle("S4/S9");
+ h1_islandEBBC_e2x2_Over_e3x3_->SetYTitle("events");
+
+ h1_islandEBBC_e3x3_Over_e5x5_ = new TH1F("nIslandEBBC_e3x3_Over_e5x5","S9/S25 of ECAL Barrel Basic Cluster",100,0.5,1.2);
+ h1_islandEBBC_e3x3_Over_e5x5_->SetXTitle("S9/S25");
+ h1_islandEBBC_e3x3_Over_e5x5_->SetYTitle("events");
+
+
+
+}
+
+
+// ------------ method called once each job just after ending the event loop  ------------
+void 
+ElectronAnalyzer::endJob() {
+
+  h1_nEleReco_->Write();
+  h1_recoEleEnergy_->Write();
+  h1_recoElePt_->Write();
+  h1_recoEleEta_->Write();
+  h1_recoElePhi_->Write();
+  h1_RMin_->Write();
+  h1_eleERecoOverEtrue_->Write();
+  h1_eleRecoTrackChi2_->Write();
+  h1_recoElePtRes_->Write();
+  h1_recoEleDeltaEta_->Write();
+  h1_recoEleDeltaPhi_->Write();
+
+  h1_islandEBBC_e2x2_Over_e3x3_->Write();
+  h1_islandEBBC_e3x3_Over_e5x5_->Write();
+
+  rootFile_->Close();
+
+}
+

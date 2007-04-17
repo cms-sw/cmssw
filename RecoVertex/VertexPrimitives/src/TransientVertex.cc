@@ -3,6 +3,9 @@
 // #include "CommonReco/PatternTools/interface/RefittedRecTrack.h"
 #include "RecoVertex/VertexPrimitives/interface/ConvertError.h"
 #include <algorithm>
+#include <Rtypes.h>
+#include <Math/Cartesian3D.h>
+#include <Math/Point3D.h>
 
 using namespace std;
 using namespace reco;
@@ -126,8 +129,6 @@ void TransientVertex::weightMap(const TransientTrackToFloatMap & theMap)
 {
   theWeightMap = theMap;
   theWeightMapIsAvailable = true;
-  removeTracks(); // remove trackrefs from reco::Vertex
-  addTracks( theOriginalTracks );
 }
 
 void TransientVertex::tkToTkCovariance(const TTtoTTmap covMap)
@@ -136,7 +137,7 @@ void TransientVertex::tkToTkCovariance(const TTtoTTmap covMap)
   withPrior = true;
 }
 
-float TransientVertex::trackWeight(const TransientTrack & track) const {
+float TransientVertex::trackWeight(const TransientTrack track) const {
   if (!theWeightMapIsAvailable) {
     vector<TransientTrack>::const_iterator foundTrack = find(theOriginalTracks.begin(), 
     		theOriginalTracks.end(), track);
@@ -187,7 +188,7 @@ void TransientVertex::addTracks(const vector<TransientTrack> & tracks)
        i != tracks.end(); ++i) {
     if ((*i).persistentTrackRef().isNonnull())
     {
-      add((*i).persistentTrackRef(), trackWeight ( *i ) );
+      add((*i).persistentTrackRef());
     }
   }
 }

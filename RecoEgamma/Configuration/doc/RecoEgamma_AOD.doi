@@ -1,0 +1,39 @@
+<tr class="colgroup">
+  <td class="colgroup" colspan=5>Electron/Photon collections</td>
+</tr>
+
+<tr>
+  <td><a href="classreco_1_1Electron.html">reco::Electron</a></td>
+  <td><a href="DataFormats_EgammaCandidates.html">reco::ElectronCollection</a></td>
+  <td><a href="RecoElectron_Configuration.html">pixelMatchElectrons</a></td>
+  <td class="description">Pixel-matched electrons</td>
+  <td>S.Rahatlou</td>
+</tr>
+<tr>
+  <td><a href="classreco_1_1Electron.html">reco::Electron</a></td>
+  <td><a href="DataFormats_EgammaCandidates.html">reco::ElectronCollection</a></td>
+  <td><a href="RecoElectron_Configuration.html">siStripElectronToTrackAssociator</a></td>
+  <td class="description">Strip-matched electrons</td>
+  <td>S.Rahatlou</td>
+</tr>
+<tr>
+  <td><a href="classreco_1_1Electron.html">reco::SiStripElectron</a></td>
+  <td><a href="DataFormats_EgammaCandidates.html">reco::SiStripElectronCollection</a></td>
+  <td><a href="RecoElectron_Configuration.html">siStripElectrons</a></td>
+  <td class="description">Strip-matched electrons</td>
+  <td>S.Rahatlou</td>
+</tr>
+<tr>
+  <td><a href="classreco_1_1Photon.html">reco::Photon</a></td>
+  <td><a href="DataFormats_EgammaCandidates.html">reco::PhotonCollection</a></td>
+  <td><a href="RecoElectron_Configuration.html">photons</a></td>
+  <td class="description">Uncorrected photon</td>
+  <td>S.Rahatlou</td>
+</tr>
+<tr>
+  <td><a href="classreco_1_1Photon.html">reco::Photon</a></td>
+  <td><a href="DataFormats_EgammaCandidates.html">reco::PhotonCollection</a></td>
+  <td><a href="RecoElectron_Configuration.html">correctedPhotons</a></td>
+  <td class="description">Corrected photon</td>
+  <td>S.Rahatlou</td>
+</tr>

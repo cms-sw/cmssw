@@ -1,8 +1,8 @@
 /**
  * \file CSCSegAlgoSK.cc
  *
- *  $Date: 2006/05/17 14:38:12 $
- *  $Revision: 1.8 $
+ *  $Date: 2006/09/26 09:00:12 $
+ *  $Revision: 1.9 $
  *  \author M. Sani
  */
  
@@ -170,8 +170,13 @@ std::vector<CSCSegment> CSCSegAlgoSK::buildSegments(ChamberHitContainer rechits)
             }	
             else {
               
-              // calculate error matrix
-              AlgebraicSymMatrix errors = calculateError();	
+              // calculate error matrix...
+              AlgebraicSymMatrix errors = calculateError();
+
+	      // but reorder components to match what's required by TrackingRecHit interface
+	      // i.e. slopes first, then positions
+
+              flipErrors( errors );
 
               CSCSegment temp(proto_segment, theOrigin, theDirection, errors, theChi2); 
               
@@ -806,3 +811,24 @@ AlgebraicSymMatrix CSCSegAlgoSK::calculateError() const {
   return result;
 }
 
+void CSCSegAlgoSK::flipErrors( AlgebraicSymMatrix& a ) const {
+
+  // The CSCSegment needs the error matrix re-arranged
+
+  AlgebraicSymMatrix hold( a );
+
+  // errors on slopes into upper left
+  a(1,1) = hold(3,3);
+  a(1,2) = hold(3,4);
+  a(2,1) = hold(4,3);
+  a(2,2) = hold(4,4);
+  
+  // errors on positions into lower right
+  a(3,3) = hold(1,1);
+  a(3,4) = hold(1,2);
+  a(4,3) = hold(2,1);
+  a(4,4) = hold(2,2);
+
+  // off-diagonal elements remain unchanged
+
+}

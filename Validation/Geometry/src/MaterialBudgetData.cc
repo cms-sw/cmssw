@@ -9,6 +9,7 @@
 #include "G4EventManager.hh"
 #include "G4Event.hh"
 
+//#define TREE_DEBUG
 
 MaterialBudgetData::MaterialBudgetData()
 {
@@ -20,7 +21,7 @@ MaterialBudgetData::MaterialBudgetData()
 
 void MaterialBudgetData::SetAllStepsToTree()
 {
-  allStepsToTree = 1;
+  allStepsToTree = true;
   MAXNUMBERSTEPS = 0;
   MAXNUMBERSTEPS = 5000; //!!!WARNING: this number is also hardcoded when booking the tree
   theDmb = new float[MAXNUMBERSTEPS];
@@ -184,10 +185,10 @@ void MaterialBudgetData::dataPerStep( const G4Step* aStep )
   theElectronicsFractionMB = myMaterialBudgetCategorizer->x0fraction(lv->GetMaterial()->GetName())[4];
   theOtherFractionMB       = myMaterialBudgetCategorizer->x0fraction(lv->GetMaterial()->GetName())[5];
   theAirFractionMB         = myMaterialBudgetCategorizer->x0fraction(lv->GetMaterial()->GetName())[6];
-  // if(theOtherFractionMB!=0) std::cout << " material found with no category " << lv->GetMaterial()->GetName() 
-  //				 << " in volume " << lv->GetName() << std::endl;
-  if(theOtherFractionMB!=0) LogDebug("MaterialBudgetData") << " material found with no category " << lv->GetMaterial()->GetName() 
-				 << " in volume " << lv->GetName();
+  if(theOtherFractionMB!=0) std::cout << " material found with no category " << lv->GetMaterial()->GetName() 
+				      << " in volume " << lv->GetName() << std::endl;
+  //  if(theOtherFractionMB!=0) LogDebug("MaterialBudgetData") << " material found with no category " << lv->GetMaterial()->GetName() 
+  //				 << " in volume " << lv->GetName();
   // rr  
   
   float dmb = steplen/radlen;
@@ -197,7 +198,7 @@ void MaterialBudgetData::dataPerStep( const G4Step* aStep )
   G4ThreeVector            objectTranslation = t->GetTranslation();
   const G4RotationMatrix*  objectRotation    = t->GetRotation();
   const G4VProcess*        interactionPre    = prePoint->GetProcessDefinedStep();
-  const G4VProcess*        interactionPost   = postPoint->GetProcessDefinedStep();
+  //  const G4VProcess*        interactionPost   = postPoint->GetProcessDefinedStep();
   
   G4Track* track = aStep->GetTrack();
   if(theStepN==0) std::cout << " Simulated Particle " << theID
@@ -262,6 +263,7 @@ void MaterialBudgetData::dataPerStep( const G4Step* aStep )
     theStepFinalBeta[theStepN]      = postPoint->GetBeta();
     theStepFinalGamma[theStepN]     = postPoint->GetGamma();
     theStepProcess[theStepN] = interactionPre->GetProcessType();
+#ifdef TREE_DEBUG
     std::cout << " step " << theStepN
 	      << "\tDelta MB = " << theDmb[theStepN]
 	      << std::endl
@@ -337,6 +339,7 @@ void MaterialBudgetData::dataPerStep( const G4Step* aStep )
 	      << theVolumeZaxis2[theStepN] << "," 
 	      << theVolumeZaxis3[theStepN] << ")"
 	      << std::endl;
+#endif
   }
   
   theTrkLen = aStep->GetTrack()->GetTrackLength();

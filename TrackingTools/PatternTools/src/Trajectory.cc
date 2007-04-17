@@ -4,9 +4,13 @@
 
 void Trajectory::pop() {
   if (!empty()) {
+    if (theData.back().recHit()->isValid())             theNumberOfFoundHits--;
+    //else if (!inactive(theData.back().recHit().det())) theNumberOfLostHits--; 
+    else if(theData.back().recHit()->geographicalId().rawId()) theNumberOfLostHits--;
     theData.pop_back();
   }
 }
+
 
 // bool Trajectory::inactive( const Det& det) 
 // {
@@ -43,7 +47,13 @@ void Trajectory::push( const TrajectoryMeasurement& tm) {
 void Trajectory::push( const TrajectoryMeasurement& tm, double chi2Increment)
 {
   theData.push_back(tm);
-
+  if ( tm.recHit()->isValid()) {
+    theNumberOfFoundHits++;
+   }
+  //else if (lost( tm.recHit()) && !inactive(tm.recHit().det())) theNumberOfLostHits++;
+  else if (lost( *(tm.recHit()) ) )   theNumberOfLostHits++;
+  
+ 
   theChiSquared += chi2Increment;
 
   // in case of a Trajectory constructed without direction, 
@@ -70,27 +80,6 @@ Trajectory::RecHitContainer Trajectory::recHits() const {
 }
 
 
-int Trajectory::foundHits() const {
-  //  return recHits().size();
-  int valid=0;
-  for (Trajectory::DataContainer::const_iterator itm
-	 = theData.begin(); itm != theData.end(); itm++) {
-    if ((*itm).recHit()->isValid() == true) valid++;
-  }
-
-  return valid;
-}
-
-int Trajectory::lostHits() const {
-    //  return recHits().size();
-  int invalid=0;
-  for (Trajectory::DataContainer::const_iterator itm
-	 = theData.begin(); itm != theData.end(); itm++) {
-    if ((*itm).recHit()->isValid() == false) invalid++;
-  }
-
-  return invalid;
-}
 
 PropagationDirection Trajectory::direction() const {
   if (theDirectionValidity) return theDirection;
@@ -104,18 +93,19 @@ void Trajectory::check() const {
 
 bool Trajectory::lost( const TransientTrackingRecHit& hit)
 {
-  // FIXME
   if ( hit.isValid()) return false;
-  //  else {
+  else {
   //     // A DetLayer is always inactive in this logic.
   //     // The DetLayer is the Det of an invalid RecHit only if no DetUnit 
   //     // is compatible with the predicted state, so we don't really expect
   //     // a hit in this case.
-  //     if ( dynamic_cast<const DetLayer*>( &hit.det()) != 0) return false;
-  //     else {
-  //       if (inactive(hit.det())) return false;
-  else return true;
-  //     }
-  //  }
+  
+    if(hit.geographicalId().rawId() == 0) {return false;}
+    else{
+      //       if (inactive(hit.det())) return false;
+      //       else return true;
+      return true;
+    }
+  }
 }
 

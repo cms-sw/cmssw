@@ -3,6 +3,9 @@
 #include <fstream>
 #include <string>
 
+//#include "DataFormats/L1CaloTrigger/interface/L1CaloEmCand.h"
+
+#include "L1Trigger/L1Scales/interface/L1CaloEtScale.h"
 #include "L1Trigger/RegionalCaloTrigger/interface/L1RCTLookupTables.h"
 
 //Main method to process a single event, hence the name.
@@ -30,12 +33,23 @@ void L1RCT::processEvent(){
   }
 }
 
-L1RCT::L1RCT(std::string lutFile) : empty(),neighborMap(){
-  lut = new L1RCTLookupTables(lutFile);
+void L1RCT::makeCrates()
+{
   for(int i = 0; i<18; i++){
     L1RCTCrate c(i);
     crates.push_back(c);
   }
+}
+
+L1RCT::L1RCT(std::string lutFile) : empty(),neighborMap(){
+  lut = new L1RCTLookupTables(lutFile);
+  makeCrates();
+}
+
+L1RCT::L1RCT(std::string lutFile, edm::ESHandle<CaloTPGTranscoder> transcoder) : empty(),neighborMap(){
+  transcoder_ = transcoder;
+  lut = new L1RCTLookupTables(lutFile, transcoder);
+  makeCrates();
 }
 
 void L1RCT::setGctEmScale(const L1CaloEtScale* scale){
@@ -105,16 +119,20 @@ void L1RCT::digiInput(EcalTrigPrimDigiCollection ecalCollection, HcalTrigPrimDig
 //  cout << "\t\t\t\t\tCrate\tCard\tTower\tInput" << endl;
   int nEcalDigi = ecalCollection.size();
   if (nEcalDigi>4032) {nEcalDigi=4032;}
-  int ecalSum = 0;
-  int hbSum = 0;
-  int heSum = 0;
-  int hfSum = 0;
+  float ecalSum = 0;
+  float hbSum = 0;
+  float heSum = 0;
+  float hfSum = 0;
+  float ecalMax = 0;
+  float hbMax = 0;
+  float heMax = 0;
+  float hfMax = 0;
   for (int i = 0; i < nEcalDigi; i++){
     short ieta = (short) ecalCollection[i].id().ieta(); 
     // Note absIeta counts from 1-28 (not 0-27)
     unsigned short absIeta = (unsigned short) abs(ieta);
     unsigned short cal_iphi = (unsigned short) ecalCollection[i].id().iphi(); 
-    unsigned short iphi = (72 + 20 - cal_iphi) % 72; // transform TOWERS (not regions) into local rct (intuitive) phi bins
+    unsigned short iphi = (72 + 18 - cal_iphi) % 72; // transform TOWERS (not regions) into local rct (intuitive) phi bins
 
 //     if (ecalCollection[i].compressedEt()>0) { 
 //    cout << "Energy " << ecalCollection[i].compressedEt()
@@ -134,7 +152,9 @@ void L1RCT::digiInput(EcalTrigPrimDigiCollection ecalCollection, HcalTrigPrimDig
     tower = calcTower(iphi, absIeta);
 
     unsigned short energy = ecalCollection[i].compressedEt();
-    if(energy > 5) ecalSum += energy;
+    float et = float(energy)/2.;  // Temporarily ET is hardcoded to be in 0.5 GeV steps in linear scale
+    if(et > 1) ecalSum += et;
+    if(et > ecalMax) ecalMax = et;
     unsigned short fineGrain = (unsigned short) ecalCollection[i].fineGrain();  // 0 or 1
     unsigned short ecalInput = energy*2 + fineGrain;
 
@@ -191,6 +211,7 @@ void L1RCT::digiInput(EcalTrigPrimDigiCollection ecalCollection, HcalTrigPrimDig
     unsigned short energy = hcalCollection[i].SOI_compressedEt();     // access only sample of interest
     unsigned short fineGrain = (unsigned short) hcalCollection[i].SOI_fineGrain();
     unsigned short hcalInput = energy*2 + fineGrain;
+    float et = transcoder_->hcaletValue(absIeta, energy);
 
     if (absIeta <= 28){
       // put input into correct crate/card/tower of barrel
@@ -199,8 +220,14 @@ void L1RCT::digiInput(EcalTrigPrimDigiCollection ecalCollection, HcalTrigPrimDig
       }
       else { cout << "out of range!"; }
       //      cout << "Hcal:\t" << crate << "\t" << card << "\t" << tower + 32 << "\t" << hcalInput << endl;
-      if(absIeta < 24) hbSum += energy;
-      if(absIeta > 24) heSum += energy;
+      if(absIeta < 24) {
+	hbSum += et;
+	if(et > hbMax) hbMax = et;
+      }
+      if(absIeta > 24) {
+	heSum += et;
+	if(et > heMax) heMax = et;
+      }
     }
     else if ((absIeta >= 29) && (absIeta <= 32)){
       // put input into correct crate/region of HF
@@ -209,9 +236,13 @@ void L1RCT::digiInput(EcalTrigPrimDigiCollection ecalCollection, HcalTrigPrimDig
       }
       else { cout << "out of range!"; }
       //      cout << "HF: crate " << crate << "\tregion " << tower << "\tinput " << hcalInput << endl;
-      hfSum += energy;
+      hfSum += et;
+      if(et > hfMax) hfMax = et;
     }
   }
+
+  cout << "\n ecalSum = " << ecalSum << "\thbSum = " << hbSum << "\theSum = " << heSum << "\thfSum = " << hfSum << endl;
+  cout << "\n ecalMax = " << ecalMax << "\thbMax = " << hbMax << "\theMax = " << heMax << "\thfMax = " << hfMax << endl;
 
   /*  Why do we need to write a file always -- this should be optional -- In any case we should reuse "barrel" and "hf"
 
@@ -703,8 +734,8 @@ L1CaloEmCollection L1RCT::getIsolatedEGObjects(int crate){
     unsigned short crd = (((isoEmObjects.at(i))/2) & 7);
     unsigned short energy = ((isoEmObjects.at(i))/16);
     unsigned short rank = gctEmScale->rank(energy);
-    L1CaloEmCand isoCand(energy, rgn, crd, crate, 1);  // uses 7-bit energy as rank here, temporarily
-    //L1CaloEmCand isoCand(rank, rgn, crd, crate, 1);
+    L1CaloEmCand isoCand(rank, rgn, crd, crate, 1);
+    // L1CaloEmCand isoCand(energy, rgn, crd, crate, 1);  // uses 7-bit energy as rank here, temporarily
     // cout << "card " << crd << "region " << rgn << "energy " << energy << endl;
     isoEmCands.push_back(isoCand);
   }
@@ -722,8 +753,8 @@ L1CaloEmCollection L1RCT::getNonisolatedEGObjects(int crate){
     unsigned short crd = (((nonIsoEmObjects.at(i))/2) & 7);
     unsigned short energy = ((nonIsoEmObjects.at(i))/16);
     unsigned short rank = gctEmScale->rank(energy);
-    L1CaloEmCand nonIsoCand(energy, rgn, crd, crate, 0);  // uses 7-bit energy as rank here, temporarily
-    //L1CaloEmCand nonIsoCand(rank, rgn, crd, crate, 0);
+    L1CaloEmCand nonIsoCand(rank, rgn, crd, crate, 0);
+    //L1CaloEmCand nonIsoCand(energy, rgn, crd, crate, 0);  // uses 7-bit energy as rank here, temporarily
     nonIsoEmCands.push_back(nonIsoCand);
   }
   return nonIsoEmCands;

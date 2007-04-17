@@ -1,0 +1,32 @@
+<use name=clhep>
+<use name=DataFormats/Common>
+<use name=FWCore/Framework>
+<use name=Foundation/PluginManager>
+<use name=FWCore/ParameterSet>
+<use name=DataFormats/JetReco>
+<use name=DataFormats/TrackReco>
+<use name=DataFormats/VertexReco>
+<use name=DataFormats/TrajectoryState>
+<use name=TrackingTools/TransientTrack>
+<use name=TrackingTools/TrajectoryState>
+<use name=TrackingTools/TrajectoryParametrization>
+<use name=Geometry/CommonDetAlgo>
+<use name=rootrflx>
+<flags SEAL_PLUGIN_NAME="JetMETCorrectionsJetVertexAssociation">
+<export>
+   <lib name=JetMETCorrectionsJetVertexAssociation>
+   <use name=FWCore/Framework>
+   <use name=Foundation/PluginManager>
+   <use name=FWCore/ParameterSet>
+   <use name=DataFormats/JetReco>
+   <use name=DataFormats/TrackReco>
+   <use name=DataFormats/VertexReco>
+   <use name=DataFormats/Common>
+   <use name=DataFormats/TrajectoryState>
+   <use name=TrackingTools/TransientTrack>
+   <use name=TrackingTools/TrajectoryState>
+   <use name=TrackingTools/TrajectoryParametrization>
+   <use name=Geometry/CommonDetAlgo>
+   <use name=rootrflx>
+   <use name=clhep>
+</export>

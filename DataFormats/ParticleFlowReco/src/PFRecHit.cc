@@ -107,6 +107,13 @@ void PFRecHit::setNeighbours( const vector<PFRecHit*>& neighbours ) {
   neighbours4_.clear(); 
   neighbours8_.clear(); 
   
+  neighboursIds4_.reserve( PFRecHit::nNeighbours_ ); 
+  neighboursIds8_.reserve( PFRecHit::nNeighbours_ ); 
+  neighbours4_.reserve( PFRecHit::nNeighbours_ ); 
+  neighbours8_.reserve( PFRecHit::nNeighbours_ ); 
+
+
+   
 //   neighboursIds_.reserve(nNeighbours_); 
 //   neighbours_.reserve(nNeighbours_); 
 

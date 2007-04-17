@@ -2,6 +2,7 @@
 #include "CondFormats/SiStripObjects/interface/FedChannelConnection.h"
 #include "CondFormats/SiStripObjects/interface/SiStripPedestals.h"
 #include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
+#include "CondFormats/SiStripObjects/interface/SiStripApvGain.h"
 
 namespace {
 
@@ -10,13 +11,13 @@ namespace {
   std::vector< std::vector<FedChannelConnection> >::iterator tmp2;
   std::vector< std::vector<FedChannelConnection> >::const_iterator tmp3;
 
-  //std::vector<char>::iterator tmp4;
-  //std::vector<char>::const_iterator tmp5;
+  std::vector<char>::iterator tmp4;
+  std::vector<char>::const_iterator tmp5;
   std::vector< SiStripPedestals::DetRegistry >::iterator tmp6;
   std::vector< SiStripPedestals::DetRegistry >::const_iterator tmp7;
   
-  //std::vector<short>::iterator tmp8;
-  //std::vector<short>::const_iterator tmp9;
+  std::vector<short>::iterator tmp8;
+  std::vector<short>::const_iterator tmp9;
   std::vector< SiStripNoises::DetRegistry >::iterator tmp10;
   std::vector< SiStripNoises::DetRegistry >::const_iterator tmp11;
 
@@ -48,5 +49,5 @@ template std::vector<FedChannelConnection>::iterator;
 template std::vector<FedChannelConnection>::const_iterator;
 //template std::vector<uint16_t>::iterator;
 //template std::vector<uint16_t>::const_iterator;
-
 */
+

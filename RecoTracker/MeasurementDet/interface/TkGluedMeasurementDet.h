@@ -30,6 +30,16 @@ private:
   const MeasurementDet*       theMonoDet;
   const MeasurementDet*       theStereoDet;
 
+  RecHitContainer 
+  projectOnGluedDet( const RecHitContainer& hits,
+		     const TrajectoryStateOnSurface& ts) const;
+
+  void checkProjection(const TrajectoryStateOnSurface& ts, 
+		       const RecHitContainer& monoHits, 
+		       const RecHitContainer& stereoHits) const;
+  void checkHitProjection(const TransientTrackingRecHit& hit,
+			  const TrajectoryStateOnSurface& ts, 
+			  const GeomDet& det) const;
 };
 
 #endif

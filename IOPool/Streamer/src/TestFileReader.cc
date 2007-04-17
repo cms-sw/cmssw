@@ -98,8 +98,12 @@ namespace edmtestp
        EventBuffer::ProducerBuffer b(*to_);
        const EventMsgView* eview =  stream_reader_->currentRecord();
        stor::FragEntry* msg =
-          new (b.buffer()) stor::FragEntry(eview->startAddress(),
-                                           eview->startAddress(),
+       //   new (b.buffer()) stor::FragEntry(eview->startAddress(),
+       //                                    eview->startAddress(),
+       // the first arg should be startAddress() right?
+          //new (b.buffer()) stor::FragEntry((void*)eview->eventData(),
+          new (b.buffer()) stor::FragEntry((void*)eview->startAddress(),
+                                           (void*)eview->eventData(),
                                            eview->size(),1,1,
                                            eview->code(),1);
         assert(msg);

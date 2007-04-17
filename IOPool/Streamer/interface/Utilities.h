@@ -29,6 +29,8 @@ namespace edm
   edm::ProductRegistry getRegFromFile(const std::string& filename);
   std::auto_ptr<SendJobHeader> readHeaderFromStream(std::ifstream& ist);
   bool registryIsSubset(const SendJobHeader&, const ProductRegistry& reg);
+  bool registryIsSubset(const SendJobHeader& sd, const SendJobHeader& ref);
+  //bool registryIsSame(const SendJobHeader& sd, const SendJobHeader& ref);
   void mergeWithRegistry(const SendDescs& descs, ProductRegistry& reg);
   void declareStreamers(const SendDescs& descs);
   void buildClassCache(const SendDescs& descs);

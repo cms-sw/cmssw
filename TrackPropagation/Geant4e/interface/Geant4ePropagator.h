@@ -2,16 +2,14 @@
 #define TrackPropagation_Geant4ePropagator_h
 
 
-//CMS
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 
 
 //Geant4e includes
 #include "G4eManager.hh"
 
-
-
 class Geant4eSteppingAction;
+
 
 /** Propagator based on the Geant4e package. Uses the Propagator class
  *  in the TrackingTools/GeomPropagators package to define the interface.
@@ -113,7 +111,6 @@ class Geant4ePropagator: public Propagator {
 
 
  protected:
-
   typedef std::pair<TrajectoryStateOnSurface, double> TsosPP;
 
 
@@ -127,7 +124,8 @@ class Geant4ePropagator: public Propagator {
   G4eManager* theG4eManager;
 
   //A G4 stepping action to find out the track length
-  mutable Geant4eSteppingAction* theSteppingAction;
+  Geant4eSteppingAction* theSteppingAction;
+  
 
 };
 

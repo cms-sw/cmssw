@@ -7,9 +7,9 @@
  * 
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.3 $
+ * \version $Revision: 1.4 $
  *
- * $Id: ObjectPairCollectionSelector.h,v 1.3 2006/10/27 10:03:45 llista Exp $
+ * $Id: ObjectPairCollectionSelector.h,v 1.4 2006/10/27 10:21:25 llista Exp $
  *
  */
 
@@ -22,7 +22,9 @@ template<typename C, typename S,
 	 typename SC = std::vector<const typename C::value_type *>, 
 	 typename A = typename helper::SelectionAdderTrait<SC>::type>
 class ObjectPairCollectionSelector {
+public:
   typedef C collection;
+private:
   typedef const typename C::value_type * reference;
   typedef SC container;
   typedef typename container::const_iterator const_iterator;

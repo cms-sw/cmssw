@@ -2,10 +2,14 @@
 <use name=Foundation/PluginManager>
 <use name=FWCore/ParameterSet>
 <use name=CalibFormats/CaloTPG>
+<use name=Geometry/CaloTopology> 
+<use name=Geometry/HcalTowerAlgo>
 <flags SEAL_PLUGIN_NAME="CalibCalorimetryCaloTPG">
 <export>
    <lib name=CalibCalorimetryCaloTPG>
    <use name=FWCore/Framework>
    <use name=Foundation/PluginManager>
    <use name=FWCore/ParameterSet>
+   <use name=Geometry/CaloTopology> 
+   <use name=Geometry/HcalTowerAlgo>		
 </export>
