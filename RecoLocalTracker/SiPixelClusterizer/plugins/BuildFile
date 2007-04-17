@@ -1,0 +1,5 @@
+<use name=RecoLocalTracker/SiPixelClusterizer>
+<library file="*.cc" name=RecoLocalTrackerSiPixelClusterizerPlugins>
+	<flags EDM_PLUGIN=1>
+</library>
+
