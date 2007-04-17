@@ -15,5 +15,10 @@
 
 #include "RecoLocalTracker/SiStripRecHitConverter/interface/SiStripRecHitConverter.h"
 
-EVENTSETUP_DATA_REG(SiStripRecHitMatcher);
+DEFINE_SEAL_MODULE();
+DEFINE_ANOTHER_FWK_EVENTSETUP_MODULE(StripCPEESProducer);
+DEFINE_ANOTHER_FWK_EVENTSETUP_MODULE(StripCPEfromTrackAngleESProducer);
+DEFINE_ANOTHER_FWK_EVENTSETUP_MODULE(SiStripRecHitMatcherESProducer);
+using cms::SiStripRecHitConverter;
+DEFINE_ANOTHER_FWK_MODULE(SiStripRecHitConverter);
 
