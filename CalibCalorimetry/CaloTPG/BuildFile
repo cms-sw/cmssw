@@ -4,7 +4,7 @@
 <use name=CalibFormats/CaloTPG>
 <use name=Geometry/CaloTopology> 
 <use name=Geometry/HcalTowerAlgo>
-<flags EDM_PLUGIN=1>
+<flags SEAL_PLUGIN_NAME="CalibCalorimetryCaloTPG">
 <export>
    <lib name=CalibCalorimetryCaloTPG>
    <use name=FWCore/Framework>
