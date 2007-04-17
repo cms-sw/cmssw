@@ -9,7 +9,7 @@
 #include "DetectorDescription/Parser/interface/DDLParser.h"
 #include "DetectorDescription/Base/interface/DDdebug.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/MessageService/interface/MessageLogger.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <string>
 #include <vector>
