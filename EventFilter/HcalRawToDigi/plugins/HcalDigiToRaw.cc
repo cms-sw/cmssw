@@ -13,7 +13,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "EventFilter/HcalRawToDigi/src/HcalDigiToRaw.h"
+#include "EventFilter/HcalRawToDigi/plugins/HcalDigiToRaw.h"
 
 using namespace std;
 

@@ -1,5 +1,5 @@
 using namespace std;
-#include "EventFilter/HcalRawToDigi/src/HcalHistogramRawToDigi.h"
+#include "EventFilter/HcalRawToDigi/plugins/HcalHistogramRawToDigi.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
