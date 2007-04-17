@@ -1,9 +1,9 @@
 /// \file AlignmentProducer.cc
 ///
 ///  \author    : Frederic Ronga
-///  Revision   : $Revision: 1.30 $
-///  last update: $Date: 2007/04/09 00:22:58 $
-///  by         : $Author: cklae $
+///  Revision   : $Revision: 1.31 $
+///  last update: $Date: 2007/04/11 14:50:37 $
+///  by         : $Author: flucke $
 
 #include "Alignment/CommonAlignmentProducer/interface/AlignmentProducer.h"
 
@@ -87,11 +87,12 @@ AlignmentProducer::AlignmentProducer(const edm::ParameterSet& iConfig) :
   // Create the alignment algorithm
   edm::ParameterSet algoConfig = iConfig.getParameter<edm::ParameterSet>( "algoConfig" );
   std::string algoName = algoConfig.getParameter<std::string>("algoName");
-  theAlignmentAlgo = AlignmentAlgorithmPluginFactory::getAlgorithm( algoName, algoConfig );
+  theAlignmentAlgo = AlignmentAlgorithmPluginFactory::get( )->create( algoName, algoConfig  );
 
   // Check if found
   if ( !theAlignmentAlgo )
 	throw cms::Exception("BadConfig") << "Couldn't find algorithm called " << algoName;
+
 }
 
 

@@ -4,4 +4,6 @@
 <use name=CondFormats/Alignment>
 <use name=CondFormats/DataRecord>
 <use name=clhep>
-<library file=FakeAlignmentProducer.cc></library>
+<library file=FakeAlignmentProducer.cc>
+   <flags EDM_PLUGIN=1>
+</library>
