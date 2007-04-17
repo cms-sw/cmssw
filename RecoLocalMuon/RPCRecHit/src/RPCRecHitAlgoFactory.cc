@@ -1,28 +1,14 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/04/12 10:19:45 $
+ *  $Date: 2006/04/18 16:28:31 $
  *  $Revision: 1.1 $
  *  \author M. Maggi -- INFN Bari
  */
 
 #include "RecoLocalMuon/RPCRecHit/interface/RPCRecHitAlgoFactory.h"
 
+#include "FWCore/PluginManager/interface/PluginFactory.h"
 
+EDM_REGISTER_PLUGINFACTORY(RPCRecHitAlgoFactory,"RPCRecHitAlgoFactory");
 
-RPCRecHitAlgoFactory::RPCRecHitAlgoFactory() :
-  seal::PluginFactory<RPCRecHitBaseAlgo*(const edm::ParameterSet&)>("RPCRecHitAlgoFactory"){}
-
-
-
-RPCRecHitAlgoFactory::~RPCRecHitAlgoFactory(){}
-
-
-
-RPCRecHitAlgoFactory RPCRecHitAlgoFactory::s_instance;
-
-
-
-RPCRecHitAlgoFactory* RPCRecHitAlgoFactory::get(void) {
-  return &s_instance;
-}

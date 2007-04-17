@@ -404,10 +404,6 @@ bool FUEventProcessor::enabling(toolbox::task::WorkLoop* wl)
       evtProcessor_->runAsync();
       sc = evtProcessor_->statusAsync();
     }
-    catch(seal::Error& e) {
-      fsm_.fireFailed(e.explainSelf(),this);
-      return false;
-    }
     catch(cms::Exception &e) {
       fsm_.fireFailed(e.explainSelf(),this);
       return false;
@@ -537,9 +533,6 @@ void FUEventProcessor::initEventProcessor()
     try{
       serviceToken_ = edm::ServiceRegistry::createSet(*pServiceSets);
     }
-    catch(seal::Error& e) {
-      LOG4CPLUS_ERROR(getApplicationLogger(),e.explainSelf());
-    }
     catch(cms::Exception &e) {
       LOG4CPLUS_ERROR(getApplicationLogger(),e.explainSelf());
     }    
@@ -583,9 +576,6 @@ void FUEventProcessor::initEventProcessor()
       servicesDone_ = true;
       
     } 
-    catch(seal::Error& e) {
-      LOG4CPLUS_ERROR(getApplicationLogger(),e.explainSelf());
-    }
     catch(cms::Exception &e) {
       LOG4CPLUS_ERROR(getApplicationLogger(),e.explainSelf());
     }    
@@ -661,10 +651,6 @@ void FUEventProcessor::initEventProcessor()
 		     <<"edm::service::PrescaleService");
     }
   }
-  catch(seal::Error& e) {
-    fsm_.fireFailed(e.explainSelf(),this);
-    return;
-  }
   catch(cms::Exception &e) {
     fsm_.fireFailed(e.explainSelf(),this);
     return;
@@ -692,9 +678,6 @@ edm::EventProcessor::StatusCode FUEventProcessor::stopEventProcessor()
   edm::EventProcessor::StatusCode rc = edm::EventProcessor::epSuccess;
   try  {
     rc = evtProcessor_->waitTillDoneAsync(timeoutOnStop_.value_);
-  }
-  catch(seal::Error& e) {
-    XCEPT_RAISE(evf::Exception,e.explainSelf());
   }
   catch(cms::Exception &e) {
     XCEPT_RAISE(evf::Exception,e.explainSelf());

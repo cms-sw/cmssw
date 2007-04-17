@@ -2,17 +2,11 @@
 #define PixelTrackFitting_PixelTrackFilterFactory_H
 
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackFilter.h"
-#include <PluginManager/PluginFactory.h>
+#include "FWCore/PluginManager/interface/PluginFactory.h"
 
 //class PixelTrackFilter;
 namespace edm {class ParameterSet;}
 
-class PixelTrackFilterFactory : public  
-    seal::PluginFactory< PixelTrackFilter* (const edm::ParameterSet&) > {
-public:
-  PixelTrackFilterFactory();
-  virtual ~PixelTrackFilterFactory();
-  static PixelTrackFilterFactory * get();
-};
+typedef edmplugin::PluginFactory<PixelTrackFilter *(const edm::ParameterSet &)> PixelTrackFilterFactory;
  
 #endif

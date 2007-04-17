@@ -1,7 +1,7 @@
 /** \file 
  *
- *  $Date: 2007/03/30 11:52:05 $
- *  $Revision: 1.14 $
+ *  $Date: 2007/04/03 14:00:40 $
+ *  $Revision: 1.15 $
  *  \author N. Amapane - S. Argiro'
  */
 
@@ -35,7 +35,7 @@ using namespace std;
 ////////////////////////////////////////////////////////////////////////////////
 
 //______________________________________________________________________________
-DaqSource::DaqSource(const ParameterSet& pset, 
+DaqSource::DaqSource(const edm::ParameterSet& pset, 
 		     const InputSourceDescription& desc) 
   : RawInputSource(pset,desc)
   , reader_(0)

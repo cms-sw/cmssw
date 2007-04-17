@@ -13,6 +13,6 @@ DEFINE_ANOTHER_FWK_MODULE(DTDigiReader);
 #include "SimMuon/DTDigitizer/src/DTDigiSyncTOFCorr.h"
 
 #include "SimMuon/DTDigitizer/interface/DTDigiSyncFactory.h"
-DEFINE_SEAL_PLUGIN (DTDigiSyncFactory, DTDigiSyncFromTable, "DTDigiSyncFromTable");
-DEFINE_SEAL_PLUGIN (DTDigiSyncFactory, DTDigiSyncTOFCorr, "DTDigiSyncTOFCorr");
+DEFINE_EDM_PLUGIN (DTDigiSyncFactory, DTDigiSyncFromTable, "DTDigiSyncFromTable");
+DEFINE_EDM_PLUGIN (DTDigiSyncFactory, DTDigiSyncTOFCorr, "DTDigiSyncTOFCorr");
 

@@ -6,8 +6,8 @@
  *  Factory of seal plugins for DT 2D segments reconstruction algorithms.
  *  The plugins are concrete implementations of DTRecSegment2DBaseAlgo base class.
  *
- * $Date: 2006/03/30 16:53:18 $
- * $Revision: 1.1 $
+ * $Date: 2007/04/10 23:14:36 $
+ * $Revision: 1.2 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  *
  */
@@ -24,22 +24,5 @@
 
 /* Class DTRecSegment2DAlgoFactory Interface */
 
-class DTRecSegment2DAlgoFactory : 
-public seal::PluginFactory<DTRecSegment2DBaseAlgo*(const edm::ParameterSet&)> {
-
-  public:
-
-    /// Constructor
-    DTRecSegment2DAlgoFactory() ;
-
-    /// Destructor
-    virtual ~DTRecSegment2DAlgoFactory() ;
-
-/* Operations */ 
-    static DTRecSegment2DAlgoFactory* get(void);
-
-  private:
-    static DTRecSegment2DAlgoFactory s_instance;
-
-};
+typedef edmplugin::PluginFactory<DTRecSegment2DBaseAlgo *(const edm::ParameterSet &)> DTRecSegment2DAlgoFactory;
 #endif // DTSegment_DTRecSegment2DAlgoFactory_h

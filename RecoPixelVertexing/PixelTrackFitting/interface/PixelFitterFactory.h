@@ -2,17 +2,11 @@
 #define PixelTrackFitting_PixelFitterFactory_H
 
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelFitter.h"
-#include <PluginManager/PluginFactory.h>
+#include "FWCore/PluginManager/interface/PluginFactory.h"
 
 //class PixelFitter;
 namespace edm {class ParameterSet;}
 
-class PixelFitterFactory : public  
-    seal::PluginFactory< PixelFitter* (const edm::ParameterSet&) > {
-public:
-  PixelFitterFactory();
-  virtual ~PixelFitterFactory();
-  static PixelFitterFactory * get();
-};
+typedef edmplugin::PluginFactory<PixelFitter *(const edm::ParameterSet &)> PixelFitterFactory;
  
 #endif

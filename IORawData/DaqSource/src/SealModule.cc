@@ -10,4 +10,4 @@ DEFINE_ANOTHER_FWK_INPUT_SOURCE(DaqSource);
 // DaqFakeReader as a SEAL plugin
 #include "DaqFakeReader.h"
 #include <IORawData/DaqSource/interface/DaqReaderPluginFactory.h>
-DEFINE_SEAL_PLUGIN (DaqReaderPluginFactory, DaqFakeReader, "DaqFakeReader");
+DEFINE_EDM_PLUGIN (DaqReaderPluginFactory, DaqFakeReader, "DaqFakeReader");

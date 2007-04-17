@@ -1,19 +1,6 @@
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackFilterFactory.h"
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include <iostream>
+#include "FWCore/PluginManager/interface/PluginFactory.h"
 
-PixelTrackFilterFactory::PixelTrackFilterFactory() 
-  : seal::PluginFactory<PixelTrackFilter*(const edm::ParameterSet & p)>("PixelTrackFilterFactory")
-{ }
-
-PixelTrackFilterFactory::~PixelTrackFilterFactory()
-{ }
-
-PixelTrackFilterFactory * PixelTrackFilterFactory::get() 
-{
-  static PixelTrackFilterFactory thePixelTrackFilterFactory;
-  return & thePixelTrackFilterFactory;
-}
-
+EDM_REGISTER_PLUGINFACTORY(PixelTrackFilterFactory,"PixelTrackFilterFactory");
 

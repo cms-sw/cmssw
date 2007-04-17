@@ -5,28 +5,14 @@
  *  Factory of seal plugins for 1D RecHit reconstruction algorithms.
  *  The plugins are concrete implementations of RPCRecHitBaseAlgo base class.
  *
- *  $Date: 2006/04/18 16:28:00 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/04/10 23:14:37 $
+ *  $Revision: 1.2 $
  *  \author G. Cerminara - INFN Torino
  */
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 #include "RecoLocalMuon/RPCRecHit/interface/RPCRecHitBaseAlgo.h"
 
-class RPCRecHitAlgoFactory : public seal::PluginFactory<RPCRecHitBaseAlgo*(const edm::ParameterSet&)> {
-public:
-  /// Constructor
-  RPCRecHitAlgoFactory();
-
-  /// Destructor
-  virtual ~RPCRecHitAlgoFactory();
-
-  // Operations
-  static RPCRecHitAlgoFactory* get(void);
-
-  
-private:
-  static RPCRecHitAlgoFactory s_instance;
-};
+typedef edmplugin::PluginFactory<RPCRecHitBaseAlgo *(const edm::ParameterSet &)> RPCRecHitAlgoFactory;
 #endif
 
 

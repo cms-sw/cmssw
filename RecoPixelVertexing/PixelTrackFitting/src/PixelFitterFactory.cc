@@ -1,19 +1,6 @@
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelFitterFactory.h"
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include <iostream>
+#include "FWCore/PluginManager/interface/PluginFactory.h"
 
-PixelFitterFactory::PixelFitterFactory() 
-  : seal::PluginFactory<PixelFitter*(const edm::ParameterSet & p)>("PixelFitterFactory")
-{ }
-
-PixelFitterFactory::~PixelFitterFactory()
-{ }
-
-PixelFitterFactory * PixelFitterFactory::get() 
-{
-  static PixelFitterFactory thePixelFitterFactory;
-  return & thePixelFitterFactory;
-}
-
+EDM_REGISTER_PLUGINFACTORY(PixelFitterFactory,"PixelFitterFactory");
 

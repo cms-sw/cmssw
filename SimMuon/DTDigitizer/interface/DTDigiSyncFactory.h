@@ -8,8 +8,8 @@
  *  are accessed via ComponentFactoryByName
  *
  *
- *  $Date: 2005/12/14 11:58:01 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/04/08 03:59:12 $
+ *  $Revision: 1.2 $
  *  \author R. Bellan - INFN Torino
  */
 
@@ -18,22 +18,7 @@
 
 namespace edm {class ParameterSet;}
 
-class DTDigiSyncFactory : public seal::PluginFactory<DTDigiSyncBase*(const edm::ParameterSet&)>{
- public:
-
-  /// Constructor
-  DTDigiSyncFactory();
-
-  /// Destructor
-  virtual ~DTDigiSyncFactory(){};
-
-  /// to get the pointer to the pointer to the dt synchronizer. 
-  static DTDigiSyncFactory* get (void);
-
- private:
-  static DTDigiSyncFactory theDTDigiSyncFactory;
-  std::string theSyncType;
+typedef edmplugin::PluginFactory<DTDigiSyncBase *(const edm::ParameterSet &)> DTDigiSyncFactory;
   
-};
 #endif
 

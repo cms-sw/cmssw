@@ -2,17 +2,11 @@
 #define PixelTrackFitting_PixelTrackCleanerFactory_H
 
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackCleaner.h"
-#include <PluginManager/PluginFactory.h>
+#include "FWCore/PluginManager/interface/PluginFactory.h"
 
 //class PixelTrackCleaner;
 namespace edm {class ParameterSet;}
 
-class PixelTrackCleanerFactory : public  
-    seal::PluginFactory< PixelTrackCleaner* (const edm::ParameterSet&) > {
-public:
-  PixelTrackCleanerFactory();
-  virtual ~PixelTrackCleanerFactory();
-  static PixelTrackCleanerFactory * get();
-};
+typedef edmplugin::PluginFactory<PixelTrackCleaner *(const edm::ParameterSet &)> PixelTrackCleanerFactory;
  
 #endif

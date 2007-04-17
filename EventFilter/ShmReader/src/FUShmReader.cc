@@ -116,4 +116,4 @@ bool FUShmReader::fillRawData(EventID& eID,
 ////////////////////////////////////////////////////////////////////////////////
 
 DEFINE_SEAL_MODULE();
-DEFINE_SEAL_PLUGIN(DaqReaderPluginFactoryU,FUShmReader,"FUShmReader");
+DEFINE_EDM_PLUGIN(DaqReaderPluginFactoryU,FUShmReader,"FUShmReader");

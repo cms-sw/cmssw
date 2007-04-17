@@ -1,10 +1,15 @@
 
 <export>
 <lib name=GeometryMTCCTrackerCommonData>
+<use name=DetectorDescription/Algorithm>
+<use name=DetectorDescription/Base>
 </export>
-
+<use name=clhep>
+<use name=DetectorDescription/Algorithm>
+<use name=DetectorDescription/Base>
+<use name=DetectorDescription/Core>
 <use name=DetectorDescription/Parser>
-<use name=Geometry/TrackerCommonData>
+<use name=FWCore/PluginManager>
 
 # Build a plugin:
 <Flags EDM_PLUGIN=1>

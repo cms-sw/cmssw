@@ -1,4 +1,4 @@
-// $Id: StorageManager.cc,v 1.14 2007/04/04 22:14:27 hcheung Exp $
+// $Id: StorageManager.cc,v 1.15 2007/04/05 00:12:58 hcheung Exp $
 
 #include <iostream>
 #include <iomanip>
@@ -22,6 +22,8 @@
 #include "FWCore/ServiceRegistry/interface/ServiceToken.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/RootAutoLibraryLoader/interface/RootAutoLibraryLoader.h"
+#include "FWCore/PluginManager/interface/PluginManager.h"
+#include "FWCore/PluginManager/interface/standard.h"
 
 #include "IOPool/Streamer/interface/MsgHeader.h"
 #include "IOPool/Streamer/interface/InitMessage.h"
@@ -1941,7 +1943,7 @@ bool StorageManager::configuring(toolbox::task::WorkLoop* wl)
     
     // Get into the Ready state from Halted state
     
-    seal::PluginManager::get()->initialise();
+    edmplugin::PluginManager::configure(edmplugin::standard::config());
     
     // give the JobController a configuration string and
     // get the registry data coming over the network (the first one)
@@ -1995,11 +1997,6 @@ bool StorageManager::configuring(toolbox::task::WorkLoop* wl)
       jc_->setDQMEventServer(DQMeventServer);
     }
     catch(cms::Exception& e)
-      {
-	XCEPT_RAISE (toolbox::fsm::exception::Exception, 
-		     e.explainSelf());
-      }
-    catch(seal::Error& e)
       {
 	XCEPT_RAISE (toolbox::fsm::exception::Exception, 
 		     e.explainSelf());

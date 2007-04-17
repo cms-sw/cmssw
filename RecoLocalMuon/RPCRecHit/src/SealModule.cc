@@ -9,4 +9,4 @@
 
 DEFINE_SEAL_MODULE();
 DEFINE_ANOTHER_FWK_MODULE(RPCRecHitProducer);
-DEFINE_SEAL_PLUGIN (RPCRecHitAlgoFactory, RPCRecHitStandardAlgo, "RPCRecHitStandardAlgo");
+DEFINE_EDM_PLUGIN (RPCRecHitAlgoFactory, RPCRecHitStandardAlgo, "RPCRecHitStandardAlgo");

@@ -17,10 +17,10 @@
 
 DEFINE_SEAL_MODULE();
 DEFINE_ANOTHER_FWK_MODULE(DTRecHitProducer);
-DEFINE_SEAL_PLUGIN (DTRecHitAlgoFactory, DTNoDriftAlgo, "DTNoDriftAlgo");
-DEFINE_SEAL_PLUGIN (DTRecHitAlgoFactory, DTLinearDriftAlgo, "DTLinearDriftAlgo");
-DEFINE_SEAL_PLUGIN (DTRecHitAlgoFactory, DTLinearDriftFromDBAlgo, "DTLinearDriftFromDBAlgo");
-DEFINE_SEAL_PLUGIN (DTRecHitAlgoFactory, DTParametrizedDriftAlgo, "DTParametrizedDriftAlgo");
-DEFINE_SEAL_PLUGIN (DTTTrigSyncFactory, DTTTrigSyncTOFCorr, "DTTTrigSyncTOFCorr");
-DEFINE_SEAL_PLUGIN (DTTTrigSyncFactory, DTTTrigSyncT0Only, "DTTTrigSyncT0Only");
-DEFINE_SEAL_PLUGIN (DTTTrigSyncFactory, DTTTrigSyncFromDB, "DTTTrigSyncFromDB");
+DEFINE_EDM_PLUGIN (DTRecHitAlgoFactory, DTNoDriftAlgo, "DTNoDriftAlgo");
+DEFINE_EDM_PLUGIN (DTRecHitAlgoFactory, DTLinearDriftAlgo, "DTLinearDriftAlgo");
+DEFINE_EDM_PLUGIN (DTRecHitAlgoFactory, DTLinearDriftFromDBAlgo, "DTLinearDriftFromDBAlgo");
+DEFINE_EDM_PLUGIN (DTRecHitAlgoFactory, DTParametrizedDriftAlgo, "DTParametrizedDriftAlgo");
+DEFINE_EDM_PLUGIN (DTTTrigSyncFactory, DTTTrigSyncTOFCorr, "DTTTrigSyncTOFCorr");
+DEFINE_EDM_PLUGIN (DTTTrigSyncFactory, DTTTrigSyncT0Only, "DTTTrigSyncT0Only");
+DEFINE_EDM_PLUGIN (DTTTrigSyncFactory, DTTTrigSyncFromDB, "DTTTrigSyncFromDB");

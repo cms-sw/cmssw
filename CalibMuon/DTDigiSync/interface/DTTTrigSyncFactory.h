@@ -5,30 +5,17 @@
  *  Factory of seal plugins for TTrig syncronization during RecHit reconstruction.
  *  The plugins are concrete implementations of  DTTTrigBaseSync case class.
  *
- *  $Date: 2006/02/15 13:54:45 $
+ *  $Date: 2007/02/19 11:45:22 $
  *  $Revision: 1.1 $
  *  \author G. Cerminara - INFN Torino
  */
-#include <PluginManager/PluginFactory.h>
+#include "FWCore/PluginManager/interface/PluginFactory.h"
 
 namespace edm {
   class ParameterSet;
 }
 class DTTTrigBaseSync;
 
-class DTTTrigSyncFactory : public seal::PluginFactory<DTTTrigBaseSync*(const edm::ParameterSet&)> {
-public:
-  /// Constructor
-  DTTTrigSyncFactory();
-
-  /// Destructor
-  virtual ~DTTTrigSyncFactory();
-
-  // Operations
-  static DTTTrigSyncFactory* get(void);
-
-private:
-  static DTTTrigSyncFactory s_instance;
-};
+typedef edmplugin::PluginFactory<DTTTrigBaseSync *(const edm::ParameterSet &)> DTTTrigSyncFactory;
 #endif
 

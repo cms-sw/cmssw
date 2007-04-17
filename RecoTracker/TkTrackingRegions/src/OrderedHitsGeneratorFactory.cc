@@ -1,17 +1,6 @@
 #include "RecoTracker/TkTrackingRegions/interface/OrderedHitsGeneratorFactory.h"
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include <iostream>
+#include "FWCore/PluginManager/interface/PluginFactory.h"
 
-OrderedHitsGeneratorFactory::OrderedHitsGeneratorFactory()
-  : seal::PluginFactory<OrderedHitsGenerator* (const edm::ParameterSet & p)>("OrderedHitsGeneratorFactory")
-{ }
+EDM_REGISTER_PLUGINFACTORY(OrderedHitsGeneratorFactory,"OrderedHitsGeneratorFactory");
 
-OrderedHitsGeneratorFactory::~OrderedHitsGeneratorFactory()
-{ }
-
-OrderedHitsGeneratorFactory * OrderedHitsGeneratorFactory::get()
-{
-  static OrderedHitsGeneratorFactory theOrderedHitsGeneratorFactory;
-  return & theOrderedHitsGeneratorFactory;
-}

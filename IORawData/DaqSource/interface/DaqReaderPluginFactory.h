@@ -4,8 +4,8 @@
 /** \class DaqReaderPluginFactory
  *  Plugin factory for actual data sources for DaqSource.
  *
- *  $Date: 2007/03/26 15:51:06 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/04/10 23:10:02 $
+ *  $Revision: 1.4 $
  *  \author N. Amapane - CERN
  */
 
@@ -14,19 +14,7 @@
 
 namespace edm {class ParameterSet;}
 
-class DaqReaderPluginFactory : public seal::PluginFactory<DaqBaseReader *(const edm::ParameterSet&)>{
- public:
-  DaqReaderPluginFactory();
-  static DaqReaderPluginFactory* get (void);
- private:
-  static DaqReaderPluginFactory s_instance;
-};
-class DaqReaderPluginFactoryU :public seal::PluginFactory<DaqBaseReader *()>{
- public:
-  DaqReaderPluginFactoryU();
-  static DaqReaderPluginFactoryU* get (void);
- private:
-  static DaqReaderPluginFactoryU s_instance;
-};
+typedef edmplugin::PluginFactory<DaqBaseReader *(const edm::ParameterSet &)> DaqReaderPluginFactory;
+typedef edmplugin::PluginFactory<DaqBaseReader *()> DaqReaderPluginFactoryU;
 #endif
 

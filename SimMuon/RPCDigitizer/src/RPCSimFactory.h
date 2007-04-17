@@ -11,16 +11,8 @@ namespace edm{
   class ParameterSet;
 }
 
-
 class RPCSim;
-class RPCSimFactory : public seal::PluginFactory<RPCSim*(const edm::ParameterSet&)>{
- public:
-  RPCSimFactory();
-  virtual ~RPCSimFactory();
-  static RPCSimFactory* get();
- private:
-  static RPCSimFactory factory;
 
-};
+typedef edmplugin::PluginFactory<RPCSim *(const edm::ParameterSet &)> RPCSimFactory;
 
 #endif

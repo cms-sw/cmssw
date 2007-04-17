@@ -6,12 +6,7 @@ namespace edm {class ParameterSet;}
 
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 
-class OrderedHitsGeneratorFactory 
-   : public seal::PluginFactory< OrderedHitsGenerator * (const edm::ParameterSet&) > {
-public:
-  OrderedHitsGeneratorFactory();
-  virtual ~OrderedHitsGeneratorFactory();
-  static OrderedHitsGeneratorFactory * get();
-};
+typedef edmplugin::PluginFactory<OrderedHitsGenerator *(const edm::ParameterSet &)> OrderedHitsGeneratorFactory;
+
 #endif
 

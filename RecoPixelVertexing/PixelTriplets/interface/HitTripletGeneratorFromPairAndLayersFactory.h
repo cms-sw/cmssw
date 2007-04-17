@@ -2,16 +2,11 @@
 #define PixelTriplets_HitTripletGeneratorFromPairAndLayersFactory_H
 
 #include "RecoPixelVertexing/PixelTriplets/interface/HitTripletGeneratorFromPairAndLayers.h"
-#include <PluginManager/PluginFactory.h>
+#include "FWCore/PluginManager/interface/PluginFactory.h"
 
 namespace edm {class ParameterSet;}
 
-class HitTripletGeneratorFromPairAndLayersFactory : public  
-    seal::PluginFactory< HitTripletGeneratorFromPairAndLayers* (const edm::ParameterSet&) > {
-public:
-  HitTripletGeneratorFromPairAndLayersFactory();
-  virtual ~HitTripletGeneratorFromPairAndLayersFactory();
-  static HitTripletGeneratorFromPairAndLayersFactory * get();
-};
+typedef edmplugin::PluginFactory<HitTripletGeneratorFromPairAndLayers *(const edm::ParameterSet &)>
+	HitTripletGeneratorFromPairAndLayersFactory;
  
 #endif

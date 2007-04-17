@@ -1,19 +1,6 @@
 #include "RecoPixelVertexing/PixelTriplets/interface/HitTripletGeneratorFromPairAndLayersFactory.h"
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include <iostream>
+#include "FWCore/PluginManager/interface/PluginFactory.h"
 
-HitTripletGeneratorFromPairAndLayersFactory::HitTripletGeneratorFromPairAndLayersFactory() 
-  : seal::PluginFactory<HitTripletGeneratorFromPairAndLayers * (const edm::ParameterSet & p)>("HitTripletGeneratorFromPairAndLayersFactory")
-{ }
-
-HitTripletGeneratorFromPairAndLayersFactory::~HitTripletGeneratorFromPairAndLayersFactory()
-{ }
-
-HitTripletGeneratorFromPairAndLayersFactory * HitTripletGeneratorFromPairAndLayersFactory::get() 
-{
-  static HitTripletGeneratorFromPairAndLayersFactory theHitTripletGeneratorFromPairAndLayersFactory;
-  return & theHitTripletGeneratorFromPairAndLayersFactory;
-}
-
+EDM_REGISTER_PLUGINFACTORY(HitTripletGeneratorFromPairAndLayersFactory,"HitTripletGeneratorFromPairAndLayersFactory");
 

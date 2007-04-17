@@ -1,26 +1,15 @@
 /** \file
  *
- *  $Date: 2005/10/06 18:23:47 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/03/26 15:51:07 $
+ *  $Revision: 1.3 $
  *  \author N. Amapane - CERN
  */
 
 
 #include <IORawData/DaqSource/interface/DaqReaderPluginFactory.h>
+#include "FWCore/PluginManager/interface/PluginFactory.h"
 
-DaqReaderPluginFactory DaqReaderPluginFactory::s_instance;
-DaqReaderPluginFactoryU DaqReaderPluginFactoryU::s_instance;
+EDM_REGISTER_PLUGINFACTORY(DaqReaderPluginFactory,"DaqReaderPluginFactory");
+EDM_REGISTER_PLUGINFACTORY(DaqReaderPluginFactoryU,"DaqReaderPluginFactoryU");
 
-
-DaqReaderPluginFactory::DaqReaderPluginFactory () : 
-  seal::PluginFactory<DaqBaseReader *(const edm::ParameterSet&)>("DaqReaderPluginFactory"){}
-DaqReaderPluginFactoryU::DaqReaderPluginFactoryU () : 
-seal::PluginFactory<DaqBaseReader *()>("DaqReaderPluginFactoryU"){}
-
-DaqReaderPluginFactory* DaqReaderPluginFactory::get (){
-  return &s_instance; 
-}
-DaqReaderPluginFactoryU* DaqReaderPluginFactoryU::get (){
-  return &s_instance; 
-}
 

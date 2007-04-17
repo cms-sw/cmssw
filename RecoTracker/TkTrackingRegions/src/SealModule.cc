@@ -6,5 +6,5 @@ DEFINE_SEAL_MODULE();
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducer.h"
 #include "GlobalTrackingRegionProducer.h"
 
-DEFINE_SEAL_PLUGIN(TrackingRegionProducerFactory, GlobalTrackingRegionProducer, "GlobalRegionProducer");
+DEFINE_EDM_PLUGIN(TrackingRegionProducerFactory, GlobalTrackingRegionProducer, "GlobalRegionProducer");
 

@@ -5,29 +5,15 @@
  *  Factory of seal plugins for DT 1D RecHit reconstruction algorithms.
  *  The plugins are concrete implementations of DTRecHitBaseAlgo base class.
  *
- *  $Date: 2006/02/15 13:54:45 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/04/10 23:14:35 $
+ *  $Revision: 1.2 $
  *  \author G. Cerminara - INFN Torino
  */
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 
 #include "RecoLocalMuon/DTRecHit/interface/DTRecHitBaseAlgo.h"
 
-class DTRecHitAlgoFactory : public seal::PluginFactory<DTRecHitBaseAlgo*(const edm::ParameterSet&)> {
-public:
-  /// Constructor
-  DTRecHitAlgoFactory();
-
-  /// Destructor
-  virtual ~DTRecHitAlgoFactory();
-
-  // Operations
-  static DTRecHitAlgoFactory* get(void);
-
-  
-private:
-  static DTRecHitAlgoFactory s_instance;
-};
+typedef edmplugin::PluginFactory<DTRecHitBaseAlgo *(const edm::ParameterSet &)> DTRecHitAlgoFactory;
 #endif
 
 

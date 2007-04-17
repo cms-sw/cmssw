@@ -6,12 +6,6 @@ namespace edm {class ParameterSet;}
 
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 
-class TrackingRegionProducerFactory 
-   : public seal::PluginFactory< TrackingRegionProducer * (const edm::ParameterSet&) > {
-public:
-  TrackingRegionProducerFactory();
-  virtual ~TrackingRegionProducerFactory();
-  static TrackingRegionProducerFactory * get();
-};
+typedef edmplugin::PluginFactory<TrackingRegionProducer *(const edm::ParameterSet &)> TrackingRegionProducerFactory;
 #endif
 

@@ -1,7 +1,7 @@
 /* \file testDaqSource.cc
  *
- *  $Date: 2006/03/27 09:54:56 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/03/07 08:31:19 $
+ *  $Revision: 1.2 $
  *  \author S. Argiro, N. Amapane - CERN
  */
 
@@ -66,7 +66,7 @@ int testDaqSource::runIt(const std::string& config){
   try {
     edm::EventProcessor proc(config);
     proc.run();
-  } catch (seal::Error& e){
+  } catch (cms::Exception& e){
     std::cerr << "Exception caught:  " 
 	      << e.explainSelf()
 	      << std::endl;

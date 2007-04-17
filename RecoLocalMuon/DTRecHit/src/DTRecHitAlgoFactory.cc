@@ -1,28 +1,14 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2006/02/15 13:54:45 $
+ *  $Revision: 1.1 $
  *  \author G. Cerminara - INFN Torino
  */
 
 #include "RecoLocalMuon/DTRecHit/interface/DTRecHitAlgoFactory.h"
 
+#include "FWCore/PluginManager/interface/PluginFactory.h"
 
+EDM_REGISTER_PLUGINFACTORY(DTRecHitAlgoFactory,"DTRecHitAlgoFactory");
 
-DTRecHitAlgoFactory::DTRecHitAlgoFactory() :
-  seal::PluginFactory<DTRecHitBaseAlgo*(const edm::ParameterSet&)>("DTRecHitAlgoFactory"){}
-
-
-
-DTRecHitAlgoFactory::~DTRecHitAlgoFactory(){}
-
-
-
-DTRecHitAlgoFactory DTRecHitAlgoFactory::s_instance;
-
-
-
-DTRecHitAlgoFactory* DTRecHitAlgoFactory::get(void) {
-  return &s_instance;
-}
