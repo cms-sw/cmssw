@@ -1,8 +1,8 @@
 /** \file
  * 
  * implementation of CSCMonitor::MonitorCFEB(...) method
- *  $Date: 2006/02/10 10:30:55 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/03/20 13:12:13 $
+ *  $Revision: 1.4 $
  *
  * \author Ilaria Segoni
  */
@@ -29,7 +29,7 @@ void CSCMonitor::MonitorCFEB(std::vector<CSCEventData>::iterator data, int Chamb
 
 
   int NumberOfUnpackedCFEBs = 0;
-  int N_CFEBs=5, N_Samples=16, N_Layers = 6, N_Strips = 16;
+  const int N_CFEBs=5, N_Samples=16, N_Layers = 6, N_Strips = 16;
   int ADC = 0, OutOffRange, Threshold = 30;
   bool DebugCFEB = false;
   CSCCFEBData * cfebData[5];

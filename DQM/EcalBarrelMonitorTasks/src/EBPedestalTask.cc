@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalTask.cc
  *
- * $Date: 2006/09/22 06:01:40 $
- * $Revision: 1.46 $
+ * $Date: 2006/08/11 09:55:28 $
+ * $Revision: 1.45 $
  * \author G. Della Ricca
  *
 */
@@ -119,7 +119,6 @@ void EBPedestalTask::cleanup(void){
   dbe = Service<DaqMonitorBEInterface>().operator->();
 
   if ( dbe ) {
-    dbe->setCurrentFolder("EcalBarrel/EBPedestalTask");
 
     dbe->setCurrentFolder("EcalBarrel/EBPedestalTask/Gain01");
     for ( int i = 0; i < 36; i++ ) {

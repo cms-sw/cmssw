@@ -18,8 +18,11 @@
     for(unsigned int ixtal=0;ixtal<linout.size();ixtal++){
       for (int i=0;i<SIZEMAX;i++) {
  	output[i]+=((*(linout[ixtal]))[i]).adc();
-	if(output[i]>0X3FFFF)output[i]=0X3FFFF;
       }
+    }
+    for (int i=0;i<SIZEMAX;i++) {
+      output[i]>>2 ;
+      if(output[i]>0X3FFFF)output[i]=0X3FFFF;
     }
     return output;
   }

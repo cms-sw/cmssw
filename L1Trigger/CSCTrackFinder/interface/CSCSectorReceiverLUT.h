@@ -3,7 +3,7 @@
 
 /**
  * \class CSCSectorReceiverLUT
- * \author Lindsey Gray
+ * \author Lindsey Gray, Slava Valuev, Jason Mumford
  *
  * Provides Look Up Table information for use in the SP Core.
  * Partial port from ORCA.
@@ -27,6 +27,8 @@ class CSCSectorReceiverLUT
 
   ///Geometry Lookup Tables
 
+  /// Please note, the pattern used below is the 4 bit pattern.
+  /// ex) digi->getPattern(), NOT digi->getCLCTPattern()
   lclphidat localPhi(int strip, int pattern, int quality, int lr) const;
   lclphidat localPhi(unsigned address) const;
   lclphidat localPhi(lclphiadd address) const;

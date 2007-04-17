@@ -41,7 +41,7 @@ sed -e "s/.portn/1972/g" -e "s/.host/${HOSTNAME}/g" -e "s/.pwd/${TEST_PATH}/g" -
 sed -e "s/.portn/1972/g" -e "s/.host/${HOSTNAME}/g" -e "s/.pwd/${TEST_PATH}/g" -e "s/.libpath/${MWC_LIB}/g" .startMonitorClient > startMonitorClient
 
 sed -e "s@SERVED_DIRECTORY_URL@${SERVED_DIR}@g" .WebLib.js > WebLib.js
-
+sed -e "s@.host@${HOSTNAME}@g" .trackermap.txt > trackermap.txt
 
 chmod 751 profile.xml
 chmod 751 SiStripClient.xml

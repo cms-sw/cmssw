@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2006/11/19 09:49:06 $
- * $Revision: 1.186 $
+ * $Date: 2006/11/05 10:00:45 $
+ * $Revision: 1.183 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -99,21 +99,9 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
 
   unknowns_ = 0;
 
-  // DQM ROOT input
-
-  inputFile_ = ps.getUntrackedParameter<string>("inputFile", "");
-
-  if ( inputFile_.size() != 0 ) {
-    cout << " Reading DQM from inputFile = '" << inputFile_ << "'" << endl;
-  }
-
   // DQM ROOT output
 
   outputFile_ = ps.getUntrackedParameter<string>("outputFile", "");
-
-  if ( outputFile_.size() != 0 ) {
-    cout << " Writing DQM to outputFile = '" << outputFile_ << "'" << endl;
-  }
 
   // Ecal Cond DB
 
@@ -124,28 +112,14 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
   dbPassword_ = ps.getUntrackedParameter<string>("dbPassword", "");
 
   if ( dbName_.size() != 0 ) {
-    cout << " Using Ecal Cond DB, "
+    cout << " DB output will go to"
          << " dbName = '" << dbName_ << "'"
          << " dbHostName = '" << dbHostName_ << "'"
          << " dbHostPort = '" << dbHostPort_ << "'"
          << " dbUserName = '" << dbUserName_ << "'" << endl;
   } else {
-    cout << " Ecal Cond DB is not enabled" << endl;
+    cout << " DB output is disabled" << endl;
   }
-
-  // Mask file
-
-  if ( dbName_.size() == 0 ) {
-
-    maskFile_ = ps.getUntrackedParameter<string>("maskFile", "");
-
-    if ( maskFile_.size() != 0 ) {
-      cout << " Using maskFile = '" << maskFile_ << "'" << endl;
-    }
-
-  }
-
-  // enableSubRun switch
 
   enableSubRun_ = ps.getUntrackedParameter<bool>("enableSubRun", false);
 
@@ -161,7 +135,7 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
     cout << " HTML output will go to"
          << " baseHtmlDir = '" << baseHtmlDir_ << "'" << endl;
   } else {
-    cout << " HTML output is not enabled" << endl;
+    cout << " HTML output is disabled" << endl;
   }
 
   // collateSources switch
@@ -389,12 +363,10 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
     chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH2 ));
   }
 
-#if 0
   clients_.push_back(  new EBClusterClient(ps) );
   clientNames_.push_back( "Cluster" );
   chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH4 ));
   chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH2 ));
-#endif
 
   cout << endl;
 
@@ -444,15 +416,6 @@ void EcalBarrelMonitorClient::beginJob(void){
     mui_->setVerbose(1);
   } else {
     mui_->setVerbose(0);
-  }
-
-  if ( ! enableStateMachine_ ) {
-    if ( ! enableMonitorDaemon_ ) {
-      if ( inputFile_.size() != 0 ) {
-        DaqMonitorBEInterface* dbe = mui_->getBEInterface();
-        dbe->open(inputFile_);
-      }
-    }
   }
 
   mui_->setMaxAttempts2Reconnect(99999);
@@ -1032,15 +995,6 @@ void EcalBarrelMonitorClient::analyze(void){
       if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
     }
 
-    if ( inputFile_.size() != 0 ) {
-      if ( ievt_ == 1 ) {
-        cout << endl;
-        cout << " Reading DQM from file, forcing 'begin-of-run'" << endl;
-        cout << endl;
-        status_ = "begin-of-run";
-      }
-    }
-
     sprintf(histo, (prefixME_+"EcalBarrel/EcalInfo/RUN").c_str());
     me = mui_->get(histo);
     if ( me ) {
@@ -1176,7 +1130,7 @@ void EcalBarrelMonitorClient::analyze(void){
       }
 
     }
-
+    
   }
   
   if ( status_ == "end-of-run" ) {
@@ -1191,7 +1145,7 @@ void EcalBarrelMonitorClient::analyze(void){
     
   }
 
-  // BEGIN: run-time fixes for missing state transitions
+  // BEGIN: run-time fixes for missing state trasitions
   
   if ( status_ == "unknown" ) {
     
@@ -1249,13 +1203,12 @@ void EcalBarrelMonitorClient::analyze(void){
 
   }
   
-  // END: run-time fixes for missing state transitions
+  // END: run-time fixes for missing state trasitions
 
 }
 
 void EcalBarrelMonitorClient::htmlOutput(void){
 
-  cout << endl;
   cout << "Preparing EcalBarrelMonitorClient html output ..." << endl;
 
   char tmp[10];

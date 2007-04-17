@@ -14,6 +14,7 @@
 class TTree;
 class EBDataFrame;
 class EcalTriggerPrimitiveSample;
+class DBInterface ;
 
   /** 
       \class EcalBarrelFenixStrip
@@ -23,6 +24,7 @@ class EcalTriggerPrimitiveSample;
   class EcalBarrelFenixStrip : public EcalFenixChip {
 
   private:
+    enum {numberOfCrystalsInStrip = 5};
 
     EcalFenixLinearizer *linearizer_[nCrystalsPerStrip_];
 
@@ -35,7 +37,7 @@ class EcalTriggerPrimitiveSample;
   public:
 
     // constructor, destructor
-    EcalBarrelFenixStrip(const TTree *tree);
+    EcalBarrelFenixStrip(const TTree *tree, DBInterface * db);
     virtual ~EcalBarrelFenixStrip() ;
 
     // main methods

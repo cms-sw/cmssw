@@ -6,8 +6,8 @@
  *   and a Kalman backward smoother.
  *
  *
- *   $Date: 2006/09/01 15:47:05 $
- *   $Revision: 1.6 $
+ *   $Date: 2006/11/28 14:30:31 $
+ *   $Revision: 1.10 $
  *
  *   \author   N. Neumeister            Purdue University
  *   \author   C. Liu                   Purdue University
@@ -150,26 +150,37 @@ vector<Trajectory> MuonTrackReFitter::fit(const TrajectorySeed& seed,
 
   if ( hits.front()->isValid() ) {
     // update
-    currTsos = theUpdator->update(predTsos, *hits.front());
+    TransientTrackingRecHit::RecHitPointer preciseHit = hits.front()->clone(predTsos);
+    currTsos = theUpdator->update(predTsos, *preciseHit);
     myTraj.push(TM(predTsos, currTsos, hits.front(),
                    theEstimator->estimate(predTsos, *hits.front()).second));
   } else {
     currTsos = predTsos;
     myTraj.push(TM(predTsos, hits.front()));
   }
+  //const TransientTrackingRecHit& firsthit = *hits.front();
 
   for ( ConstRecHitContainer::const_iterator ihit = hits.begin() + 1; 
         ihit != hits.end(); ++ihit ) {
 
+    if ((**ihit).isValid() == false && (**ihit).det() == 0) continue;
+    
     predTsos = thePropagator1->propagate(currTsos, (**ihit).det()->surface());
 
     if ( !predTsos.isValid() ) {
       //return vector<Trajectory>();
     } else if ( (**ihit).isValid() ) {
       // update
-      currTsos = theUpdator->update(predTsos, **ihit);
-      myTraj.push(TM(predTsos, currTsos, *ihit,
-                     theEstimator->estimate(predTsos, **ihit).second));
+      TransientTrackingRecHit::RecHitPointer preciseHit = (**ihit).clone(predTsos);
+
+      if (preciseHit->isValid() == false) {
+        currTsos = predTsos;
+        myTraj.push(TM(predTsos, *ihit));
+      } else {
+        currTsos = theUpdator->update(predTsos, *preciseHit);
+        myTraj.push(TM(predTsos, currTsos, preciseHit,
+                       theEstimator->estimate(predTsos, *preciseHit).second));
+      }
     } else {
       currTsos = predTsos;
       myTraj.push(TM(predTsos, *ihit));
@@ -200,7 +211,7 @@ vector<Trajectory> MuonTrackReFitter::smooth(const vector<Trajectory>& tc) const
 
 
 //
-//
+// smooth trajectory
 //
 vector<Trajectory> MuonTrackReFitter::smooth(const Trajectory& t) const {
 
@@ -224,20 +235,19 @@ vector<Trajectory> MuonTrackReFitter::smooth(const Trajectory& t) const {
   // first smoothed TM is last fitted
   if ( avtm.back().recHit()->isValid() ) {
     currTsos = theUpdator->update(predTsos, (*avtm.back().recHit()));
-    myTraj.push(TM(avtm.back().forwardPredictedState(), 
+    myTraj.push(TM(avtm.back().forwardPredictedState(),
 		   predTsos,
-		   avtm.back().updatedState(), 
+		   avtm.back().updatedState(),
 		   avtm.back().recHit(),
-		   avtm.back().estimate(),
-		   avtm.back().layer()), 
-		   avtm.back().estimate());
+		   avtm.back().estimate()//,
+		   /*avtm.back().layer()*/), 
+	        avtm.back().estimate());
 
   } else {
     currTsos = predTsos;
     myTraj.push(TM(avtm.back().forwardPredictedState(),
-		   avtm.back().recHit(),
-                   avtm.back().estimate(),
-		   avtm.back().layer()));
+		   avtm.back().recHit()//,
+		   /*avtm.back().layer()*/));
 
   }
 
@@ -264,8 +274,8 @@ vector<Trajectory> MuonTrackReFitter::smooth(const Trajectory& t) const {
 		     predTsos,
 		     smooTsos,
 		     (*itm).recHit(),
-		     theEstimator->estimate(combTsos, (*(*itm).recHit())).second,
-		     (*itm).layer()),
+		     theEstimator->estimate(combTsos, (*(*itm).recHit())).second//,
+		     /*(*itm).layer()*/),
 		     (*itm).estimate());
     } else {
       currTsos = predTsos;
@@ -276,9 +286,8 @@ vector<Trajectory> MuonTrackReFitter::smooth(const Trajectory& t) const {
       myTraj.push(TM((*itm).forwardPredictedState(),
 		     predTsos,
 		     combTsos,
-		     (*itm).recHit(),
-                     (*itm).estimate(),
-		     (*itm).layer()));
+		     (*itm).recHit()//,
+		     /*(*itm).layer()*/));
     }
   }
 
@@ -294,17 +303,18 @@ vector<Trajectory> MuonTrackReFitter::smooth(const Trajectory& t) const {
 		   predTsos,
 		   currTsos,
 		   avtm.front().recHit(),
-		   theEstimator->estimate(predTsos, (*avtm.front().recHit())).second,
-		   avtm.front().layer()),
-		   avtm.front().estimate());
+		   theEstimator->estimate(predTsos, (*avtm.front().recHit())).second//,
+		   /*avtm.front().layer()*/),
+	        avtm.front().estimate());
   } else {
     myTraj.push(TM(avtm.front().forwardPredictedState(),
-		   avtm.front().recHit(),
-                   avtm.front().estimate(),
-		   avtm.front().layer()));
+		   avtm.front().recHit()//,
+		   /*avtm.front().layer()*/));
   }
 
-  return vector<Trajectory>(1, myTraj);
+  if (myTraj.foundHits() > 3)
+    return vector<Trajectory>(1, myTraj);
+  else return vector<Trajectory>();
 
 }
 

@@ -17,6 +17,7 @@ class CSCTMBTrailer;
 class CSCWireDigi;
 class CSCStripDigi;
 class CSCComparatorOutput;
+class BitVector;
 #include <map>
 #include <vector>
 #include "EventFilter/CSCRawToDigi/interface/CSCDMBHeader.h"
@@ -28,8 +29,10 @@ class CSCComparatorOutput;
 #include "EventFilter/CSCRawToDigi/interface/CSCALCTTrailer.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCTMBData.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCDMBTrailer.h"
+#ifndef UNPCK_ONLY
 #include "DataFormats/CSCDigi/interface/CSCRPCDigi.h"
-#include <boost/dynamic_bitset.hpp>
+#endif
+
 
 class CSCEventData {
  public:
@@ -101,20 +104,21 @@ class CSCEventData {
   /// routines to add digis to the data
   void add(const CSCStripDigi &, int layer);
   void add(const CSCWireDigi &, int layer);
+  void add(const CSCComparatorOutput &, int layer);
   
   /// this will fill the DMB header, and change all related fields in
   /// the DMBTrailer, ALCTHeader, and TMBHeader
   void setEventInformation(int bxnum, int lvl1num);
 
   /// returns the packed event data. 
-  boost::dynamic_bitset<> pack();
+  std::pair<int, unsigned short *> pack();
+  BitVector packVector();
 
   /// adds an empty ALCTHeader, trailer, and anode data
   void addALCTStructures();
 
   /// might not be set in real data
   int chamberType() const {return theChamberType;}
-
 
   static bool debug;
 

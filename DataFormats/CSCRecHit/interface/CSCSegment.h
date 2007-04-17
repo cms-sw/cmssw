@@ -6,7 +6,7 @@
  *  This is 4-dimensional since it has an origin (x,y) and a direction (x,y)
  *  in the local coordinate system of the chamber.
  *
- *  $Date: 2006/07/03 15:13:01 $
+ *  $Date: 2006/09/26 09:01:44 $
  *  \author Matteo Sani
  *  \author Rick Wilkinson
  *  \author Tim Cox
@@ -42,10 +42,10 @@ public:
     LocalVector localDirection() const { return theLocalDirection; }
     LocalError localDirectionError() const ;
 
-    /// Parameters of the segment, for the track fit: (x,y,dx/dy,dy/dz)
+    /// Parameters of the segment, for the track fit in the order (dx/dz, dy/dz, x, y )
     AlgebraicVector parameters() const;
 
-    /// Covariance matrix fo parameters()
+    /// Covariance matrix of parameters()
     AlgebraicSymMatrix parametersError() const { return theCovMatrix; }
 
     /// The projection matrix relates the trajectory state parameters to the segment parameters().

@@ -116,8 +116,7 @@ void HcalPedestalClient::beginJob(const EventSetup& eventSetup){
   edm::ESHandle<HcalDbService> pSetup;
   eventSetup.get<HcalDbRecord>().get( pSetup );
   readoutMap_=pSetup->getHcalMapping();
-  readoutMap_->sortById();
- 
+   
   ievt_ = 0;
   jevt_ = 0;
   this->setup();

@@ -16,6 +16,7 @@ TrackProducer::TrackProducer(const edm::ParameterSet& iConfig):
 {
   setConf(iConfig);
   setSrc( iConfig.getParameter<std::string>( "src" ));
+  setProducer( iConfig.getParameter<std::string>( "producer" ));
   setAlias( iConfig.getParameter<std::string>( "@module_label" ) );
   //register your products
   produces<reco::TrackCollection>().setBranchAlias( alias_ + "Tracks" );

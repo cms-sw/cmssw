@@ -1,0 +1,4 @@
+<use name=DataFormats/Math>
+<export>
+<lib name=DataFormatsBeamSpot>
+</export>

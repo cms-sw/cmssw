@@ -5,7 +5,13 @@
 #include "RecoLocalTracker/SiStripRecHitConverter/interface/SiStripRecHitMatcher.h"
 #include "RecoTracker/MeasurementDet/interface/NonPropagatingDetMeasurements.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
+#include "TrackingTools/TransientTrackingRecHit/interface/TrackingRecHitProjector.h"
+#include "RecoTracker/TransientTrackingRecHit/interface/ProjectedRecHit2D.h"
+#include "RecoTracker/MeasurementDet/interface/RecHitPropagator.h"
+
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include <iostream>
+using namespace std;
 
 TkGluedMeasurementDet::TkGluedMeasurementDet( const GluedGeomDet* gdet, 
 					      const SiStripRecHitMatcher* matcher,
@@ -21,14 +27,18 @@ TkGluedMeasurementDet::TkGluedMeasurementDet( const GluedGeomDet* gdet,
 TkGluedMeasurementDet::RecHitContainer 
 TkGluedMeasurementDet::recHits( const TrajectoryStateOnSurface& ts) const
 {
+
   RecHitContainer result;
 
   RecHitContainer monoHits = theMonoDet->recHits( ts);
   RecHitContainer stereoHits = theStereoDet->recHits( ts);
+
+  //checkProjection(ts, monoHits, stereoHits);
+
   LocalVector tkDir = (ts.isValid() ? ts.localDirection() : surface().toLocal( position()-GlobalPoint(0,0,0)));
 
-  if (monoHits.empty()) return stereoHits;
-  else if (stereoHits.empty()) return monoHits;
+  if (monoHits.empty()) return projectOnGluedDet( stereoHits, ts);
+  else if (stereoHits.empty()) return projectOnGluedDet(monoHits, ts);
   else {    
     // convert stereo hits to type expected by matcher
     SiStripRecHitMatcher::SimpleHitCollection  vsStereoHits;
@@ -63,10 +73,13 @@ TkGluedMeasurementDet::recHits( const TrajectoryStateOnSurface& ts) const
 	  result.push_back( TSiStripMatchedRecHit::build( &geomDet(), &(*i)));
 	}
       }else{
-	LogDebug("MeasurementDet") << "in TkGluedMeasurementDet, no stereo hit matched with the mono one" ;
-	result.push_back(*monoHit);
+	//edm::LogVerbatim("Madf") << "in TkGluedMeasurementDet, no stereo hit matched with the mono one" ;
+	RecHitContainer monoUnmatchedHit;
+	monoUnmatchedHit.push_back(*monoHit);
+	RecHitContainer projectedMonoUnmatchedHit = projectOnGluedDet(monoUnmatchedHit, ts);
+	result.insert(result.end(),projectedMonoUnmatchedHit.begin(),projectedMonoUnmatchedHit.end());
       }
-    }
+    }//close loop mono
   }
   return result;
 }
@@ -81,3 +94,59 @@ TkGluedMeasurementDet::fastMeasurements( const TrajectoryStateOnSurface& stateOn
   return realOne.get( *this, stateOnThisDet, est);
 
 }
+
+TkGluedMeasurementDet::RecHitContainer 
+TkGluedMeasurementDet::projectOnGluedDet( const RecHitContainer& hits,
+					  const TrajectoryStateOnSurface& ts) const
+{
+  if (hits.empty()) return hits;
+  TrackingRecHitProjector<ProjectedRecHit2D> proj;
+  RecHitContainer result;
+  for ( RecHitContainer::const_iterator ihit = hits.begin(); ihit!=hits.end(); ihit++) {
+    result.push_back( proj.project( **ihit, geomDet(), ts));
+  }
+  return result;
+}
+
+
+void TkGluedMeasurementDet::checkProjection(const TrajectoryStateOnSurface& ts, 
+					    const RecHitContainer& monoHits, 
+					    const RecHitContainer& stereoHits) const
+{
+  for (RecHitContainer::const_iterator i=monoHits.begin(); i != monoHits.end(); ++i) {
+    checkHitProjection( **i, ts, geomDet());
+  }
+  for (RecHitContainer::const_iterator i=stereoHits.begin(); i != stereoHits.end(); ++i) {
+    checkHitProjection( **i, ts, geomDet());
+  }
+}
+
+void TkGluedMeasurementDet::checkHitProjection(const TransientTrackingRecHit& hit,
+					       const TrajectoryStateOnSurface& ts, 
+					       const GeomDet& det) const
+{
+  TrackingRecHitProjector<ProjectedRecHit2D> proj;
+  TransientTrackingRecHit::RecHitPointer projectedHit = proj.project( hit, det, ts);
+
+  RecHitPropagator prop;
+  TrajectoryStateOnSurface propState = prop.propagate( hit, det.surface(), ts);
+
+  if ((projectedHit->localPosition()-propState.localPosition()).mag() > 0.0001) {
+    cout << "PROBLEM: projected and propagated hit positions differ by " 
+	 << (projectedHit->localPosition()-propState.localPosition()).mag() << endl;
+  }
+
+  LocalError le1 = projectedHit->localPositionError();
+  LocalError le2 = propState.localError().positionError();
+  double eps = 1.e-5;
+  double cutoff = 1.e-4; // if element below cutoff, use absolute instead of relative accuracy
+  double maxdiff = std::max( std::max( fabs(le1.xx() - le2.xx())/(cutoff+le1.xx()),
+				       fabs(le1.xy() - le2.xy())/(cutoff+fabs(le1.xy()))),
+			     fabs(le1.yy() - le2.yy())/(cutoff+le1.xx()));  
+  if (maxdiff > eps) { 
+    cout << "PROBLEM: projected and propagated hit errors differ by " 
+	 << maxdiff << endl;
+  }
+  
+}
+

@@ -39,8 +39,7 @@ public:
 
   /// Construct from fully qualified identifier.
   /// Input values are required to be within legal ranges, otherwise an
-  /// exception is thrown.<br>
-  /// iendcap: 1=forward (+Z), 2=backward(-Z)
+  /// exception is thrown.
   CSCDetId( int iendcap, int istation, 
 	    int iring, int ichamber, 
 	    int ilayer );
@@ -71,7 +70,7 @@ public:
      return (  (id_>>START_CHAMBER) & MASK_CHAMBER ); }
 
   /**
-   * Return Ring label.
+   * Return %Ring label.
    *
    */
    int ring() const {
@@ -89,7 +88,7 @@ public:
      return (  (id_>>START_STATION) & MASK_STATION ); }
 
   /**
-   * Return Endcap label. 1=forward (+Z); 2=backward (-Z)
+   * Return Endcap label.
    *
    */
    int endcap() const {

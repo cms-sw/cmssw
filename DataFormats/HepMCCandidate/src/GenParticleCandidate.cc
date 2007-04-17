@@ -1,4 +1,4 @@
-// $Id: GenParticleCandidate.cc,v 1.2 2006/11/02 10:23:57 llista Exp $
+// $Id: GenParticleCandidate.cc,v 1.3 2006/11/13 12:42:57 llista Exp $
 #include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
 #include <CLHEP/HepMC/GenParticle.h>
 #include <CLHEP/HepMC/GenVertex.h>
@@ -15,7 +15,7 @@ GenParticleCandidate::GenParticleCandidate( const HepMC::GenParticle * p ) :
   const HepMC::GenVertex * v = p->production_vertex();
   if ( v != 0 ) {
     HepGeom::Point3D<double> vtx = v->point3d();
-    vertex_ = Point( vtx.x() * 10. , vtx.y() * 10. , vtx.z() * 10. );
+    vertex_ = Point( vtx.x() / 10. , vtx.y() / 10. , vtx.z() / 10. );
   } else {
     vertex_.SetXYZ( 0, 0, 0 );
   }

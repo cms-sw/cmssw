@@ -5,8 +5,8 @@
  *   information,<BR>
  *   starting from a standalone reonstructed muon.
  *
- *   $Date: 2006/11/03 17:49:53 $
- *   $Revision: 1.18 $
+ *   $Date: 2006/11/06 18:42:21 $
+ *   $Revision: 1.19 $
  *
  *   \author  R.Bellan - INFN TO
  */
@@ -47,6 +47,9 @@ GlobalMuonProducer::GlobalMuonProducer(const ParameterSet& parameterSet) {
 
   // STA Muon Collection Label
   theSTACollectionLabel = parameterSet.getParameter<InputTag>("MuonCollectionLabel");
+
+  // STA semi-persistent flag
+  theSTATrajectoryFlag = parameterSet.getParameter<bool>("MuonTrajectoryAvailable");
 
   // service parameters
   ParameterSet serviceParameters = parameterSet.getParameter<ParameterSet>("ServiceParameters");
@@ -104,13 +107,11 @@ void GlobalMuonProducer::produce(Event& event, const EventSetup& eventSetup) {
 
   Handle<vector<Trajectory> > staMuonsTraj;
 
-  try {
+  if(theSTATrajectoryFlag) {
     event.getByLabel(theSTACollectionLabel,staMuonsTraj);      
     LogDebug(metname)<<"Track Reconstruction (tracks, trajs) "<< staMuons.product()->size() << " " << staMuonsTraj.product()->size() <<endl;
-      
-  } catch (...) {
-    LogDebug(metname)<<"Track Reconstruction (staTracks)"<<endl;
-  }
+  } 
+  
 
   theTrackFinder->reconstruct(staMuons, staMuonsTraj, event);      
 

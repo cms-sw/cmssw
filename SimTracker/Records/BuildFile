@@ -2,7 +2,6 @@
 <use name=root>
 <use name=clhep>
 <use name=FWCore/Framework>
-<use name=FWCore/Utilities>
 <use name=MagneticField/Records>
 
 <export>
@@ -11,7 +10,6 @@
   <use name=root>
   <use name=clhep>
   <use name=FWCore/Framework>
-  <use name=FWCore/Utilities>
   <use name=MagneticField/Records>
 </export>
 

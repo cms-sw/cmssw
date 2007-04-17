@@ -65,7 +65,7 @@ void TrackProducerAlgorithm::runWithCandidate(const TrackingGeometry * theG,
       }
       
       
-      ndof = ndof - numberOfTrackParameters_;
+      ndof = ndof - 5;
       
       //build Track
       LogDebug("TrackProducer") << "going to buildTrack"<< "\n";
@@ -111,7 +111,7 @@ void TrackProducerAlgorithm::runWithTrack(const TrackingGeometry * theG,
 	}
 	
 	
-	ndof = ndof - numberOfTrackParameters_;
+	ndof = ndof - 5;
 
 	//SORT RECHITS ALONGMOMENTUM
 	TransientTrackingRecHit::ConstRecHitPointer firstHit;

@@ -29,7 +29,7 @@ class CSCTFSectorProcessor
 
   bool run(const CSCTriggerContainer<CSCTrackStub>&);
 
-   CSCTriggerContainer<csc::L1Track> tracks() const { return l1_tracks; }
+  CSCTriggerContainer<csc::L1Track> tracks() const { return l1_tracks; }
 
   int minBX() const { return m_minBX; }
   int maxBX() const { return m_maxBX; }
@@ -47,7 +47,7 @@ class CSCTFSectorProcessor
   unsigned m_etawin[6];
   
   CSCTriggerContainer<csc::L1Track> l1_tracks; // fully defined L1Tracks
-  
+
   static const std::string FPGAs[5];
 
   std::map<std::string, CSCSectorReceiverLUT*> srLUTs_; // indexed by FPGA

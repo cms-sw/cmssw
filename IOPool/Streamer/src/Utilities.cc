@@ -1,5 +1,6 @@
 
 #include "IOPool/Streamer/interface/Utilities.h"
+#include "IOPool/Streamer/interface/StreamTranslator.h"
 #include "IOPool/Streamer/interface/ClassFiller.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
@@ -99,6 +100,50 @@ namespace edm
 	// the branchkey.  If not found, then error in this state
 	BranchKey key(*i);
 	if(reg.productList().find(key)==reg.productList().end()) {
+	  rc = false;
+	  break;
+#if 0
+	  throw cms::Exception("InconsistentRegistry","EventStreamer")
+	    << "A new product registry was received during the "
+	    << "running state with entries that were not present "
+	    << "in the original registry.\n"
+	    << "The new type is " << i->className() << "\n";
+#endif
+	  FDEBUG(6) << "Inconsistent Registry: new type is "
+		    << i->className() << "\n";
+	}
+    }
+
+    return rc;
+  }
+
+  bool registryIsSubset(const SendJobHeader& sd,
+			const SendJobHeader& ref)
+  {
+    bool rc = true;
+    SendDescs::const_iterator i(sd.descs_.begin()),e(sd.descs_.end());
+
+    FDEBUG(6) << "registryIsSubset: Product List: " << endl;
+    for(;i!=e; ++i) {
+	// the new products must be contained in the old registry
+	// form a branchkey from the *i branchdescription,
+	// use the productlist from the product registry to locate
+	// the branchkey.  If not found, then error in this state
+	BranchKey key(*i);
+        // look for matching in ref
+	FDEBUG(9) << "Looking for " << i->className() << "\n";
+        SendDescs::const_iterator iref(ref.descs_.begin()),eref(ref.descs_.end());
+        bool found = false;
+        for(;iref!=eref; ++iref) {
+	  FDEBUG(9) << "testing against " << iref->className() << "\n";
+          BranchKey refkey(*iref);
+          if(key == refkey) {
+            found = true;
+	    FDEBUG(9) << "found!" << "\n";
+            break;
+          }
+        }
+	if(!found) {
 	  rc = false;
 	  break;
 #if 0
@@ -260,18 +305,40 @@ namespace edm
     JobHeaderDecoder decoder;
     vector<char> regdata(1000*1000);
 
-    int len;
-    ist.read((char*)&len,sizeof(int));
-    regdata.resize(len);
-    ist.read(&regdata[0],len);
+    //int len;
+    //ist.read((char*)&len,sizeof(int));
+    //regdata.resize(len);
+    //ist.read(&regdata[0],len);
+    ist.read(&regdata[0], sizeof(HeaderView));
 
-    if(!ist)
+    if (ist.eof() || (unsigned int)ist.gcount() < sizeof(HeaderView)  )
+    {
+          throw cms::Exception("ReadHeader","getRegFromFile")
+                << "No file exists or Empty file encountered:\n";
+    }
+
+    HeaderView head(&regdata[0]);
+    uint32 code = head.code();
+    if (code != Header::INIT) /** Not an init message should return ******/
+    {
       throw cms::Exception("ReadHeader","getRegFromFile")
-	<< "Could not read the registry information from the test\n"
-	<< "event stream file \n";
+                << "Expecting an init Message at start of file\n";
+    }
 
-    edm::InitMsg msg(&regdata[0],len);
-    std::auto_ptr<SendJobHeader> p = decoder.decodeJobHeader(msg);
+    uint32 headerSize = head.size();
+    //Bring the pointer at start of Start Message/start of file
+    ist.seekg(0, ios::beg);
+    ist.read(&regdata[0], headerSize);
+
+    //if(!ist)
+    //  throw cms::Exception("ReadHeader","getRegFromFile")
+    //	<< "Could not read the registry information from the test\n"
+    //	<< "event stream file \n";
+
+    //edm::InitMsg msg(&regdata[0],len);
+    //std::auto_ptr<SendJobHeader> p = decoder.decodeJobHeader(msg);
+    InitMsgView initView(&regdata[0]);
+    std::auto_ptr<SendJobHeader> p = StreamTranslator::deserializeRegistry(initView);
     return p;
   }
 

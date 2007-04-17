@@ -39,8 +39,10 @@ PFRootEventManager::PFRootEventManager(const char* file)
     clustersPS_(new vector<reco::PFCluster>) {
   
   options_ = 0;
-  readOptions(file);
+  tree_ = 0;
   iEvent_=0;
+
+  readOptions(file);
 
 
   displayView_.resize(NViews);
@@ -74,11 +76,19 @@ void PFRootEventManager::reset() {
 void PFRootEventManager::readOptions(const char* file, bool refresh) {
   PFGeometry pfGeometry; // initialize geometry
 
-  if( !options_ )
-    options_ = new IO(file);
-  else if( refresh) {
-    delete options_;
-    options_ = new IO(file);
+  cout<<"reading options "<<endl;
+
+  try {
+    if( !options_ )
+      options_ = new IO(file);
+    else if( refresh) {
+      delete options_;
+      options_ = new IO(file);
+    }
+  }
+  catch( const string& err ) {
+    cout<<err<<endl;
+    return;
   }
 
   clusteringIsOn_ = true;
@@ -116,7 +126,7 @@ void PFRootEventManager::readOptions(const char* file, bool refresh) {
 	  <<inFileName_<<endl;
     }
   }
-
+  
   // hits branches ----------------------------------------------
 
   string rechitsECALbranchname;
@@ -240,6 +250,21 @@ void PFRootEventManager::readOptions(const char* file, bool refresh) {
     trueParticlesBranch_->SetAddress(&trueParticles_);
   }    
 
+  string caloTowersBranchName;
+  caloTowersBranch_ = 0;
+  options_->GetOpt("root","caloTowers_branch", caloTowersBranchName);
+  if(!caloTowersBranchName.empty() ) {
+    caloTowersBranch_ = tree_->GetBranch(caloTowersBranchName.c_str()); 
+    if(!caloTowersBranch_) {
+      cerr<<"PFRootEventManager::ReadOptions : caloTowers_branch not found : "
+	  <<caloTowersBranchName<< endl;
+    }
+    else {
+      // cerr<<"setting address"<<endl;
+      caloTowersBranch_->SetAddress(&caloTowers_);
+    }           
+  }
+
 
   // output root file   ------------------------------------------
 
@@ -258,6 +283,11 @@ void PFRootEventManager::readOptions(const char* file, bool refresh) {
   algosToDisplay_.clear();
   for(unsigned i=0; i< algos.size(); i++) algosToDisplay_.insert( algos[i] );
 
+  displayClusterLines_ = false;
+  options_->GetOpt("display", "cluster_lines", displayClusterLines_);
+  
+  if(displayClusterLines_) 
+    cout<<"will display cluster lines "<<endl;
 
   viewSizeEtaPhi_.clear();
   options_->GetOpt("display", "viewsize_etaphi", viewSizeEtaPhi_);
@@ -410,12 +440,18 @@ void PFRootEventManager::readOptions(const char* file, bool refresh) {
   options_->GetOpt("particle_flow", "resolution_map_HCAL_eta", map_HCAL_eta);
   string map_HCAL_phi;
   options_->GetOpt("particle_flow", "resolution_map_HCAL_phi", map_HCAL_phi);
-  PFBlock::setResMaps(map_ECAL_eta,
-		      map_ECAL_phi, 
-		      map_ECALec_x,
-		      map_ECALec_y,
-		      map_HCAL_eta,
-		      map_HCAL_phi);
+
+  try{
+    PFBlock::setResMaps(map_ECAL_eta,
+			map_ECAL_phi, 
+			map_ECALec_x,
+			map_ECALec_y,
+			map_HCAL_eta,
+			map_HCAL_phi);
+  }
+  catch( const string& err ) {
+    cout<<err<<endl;
+  } 
 
   double chi2_ECAL_HCAL=0;
   options_->GetOpt("particle_flow", "chi2_ECAL_HCAL", chi2_ECAL_HCAL);
@@ -546,6 +582,9 @@ bool PFRootEventManager::processEntry(int entry) {
   particleFlow();
 
   return true;
+  //  if(trueParticles_.size() != 1 ) return false;
+
+
 }
 
 
@@ -593,6 +632,12 @@ bool PFRootEventManager::readFromSimulation(int entry) {
     if(clustersIslandBarrelBranch_) {
       clustersIslandBarrelBranch_->GetEntry(entry);
     }
+    if(caloTowersBranch_) {
+      caloTowersBranch_->GetEntry(entry);
+      cout<<"number of calotowers :"<<caloTowers_.size()<<endl;
+    }
+    
+    
     if(recTracksBranch_) recTracksBranch_->GetEntry(entry);
 
     return true;
@@ -812,6 +857,8 @@ void PFRootEventManager::clustering() {
 
   clusterAlgoECAL.SetNCrystalPosCalcEcal( nCrystalsPosCalcEcal_ );
 
+  // cout<<clusterAlgoECAL<<endl;
+
   for(unsigned i=0; i<rechitsECAL_.size(); i++) {
     rechits.insert( make_pair(rechitsECAL_[i].detId(), &rechitsECAL_[i] ) );
   }
@@ -830,11 +877,11 @@ void PFRootEventManager::clustering() {
 
   PFClusterAlgo clusterAlgoHCAL;
 
-  clusterAlgoHCAL.setThreshEcalBarrel( threshEcalBarrel_ );
-  clusterAlgoHCAL.setThreshSeedEcalBarrel( threshSeedEcalBarrel_ );
+  clusterAlgoHCAL.setThreshHcalBarrel( threshHcalBarrel_ );
+  clusterAlgoHCAL.setThreshSeedHcalBarrel( threshSeedHcalBarrel_ );
   
-  clusterAlgoHCAL.setThreshEcalEndcap( threshEcalEndcap_ );
-  clusterAlgoHCAL.setThreshSeedEcalEndcap( threshSeedEcalEndcap_ );
+  clusterAlgoHCAL.setThreshHcalEndcap( threshHcalEndcap_ );
+  clusterAlgoHCAL.setThreshSeedHcalEndcap( threshSeedHcalEndcap_ );
 
   clusterAlgoHCAL.setNNeighboursEcal( nNeighboursEcal_  );
 
@@ -953,14 +1000,34 @@ void PFRootEventManager::particleFlow() {
 void PFRootEventManager::display(int ientry) {
   
   processEntry(ientry);
+  display();
+}
+
+
+
+void PFRootEventManager::displayNext(bool init) {
+
+  static int ientry=0;
+  if( init ) ientry=0; // restarting from 0
+
+  bool ok = false;
+  while(!ok && ientry<tree_->GetEntries() ) {
+    ok = processEntry(ientry);
+    // iCurrentEntry_=ientry;
+    ientry++;
+  }
+  display();
+}
+
+
+void PFRootEventManager::display() {
   if(displayRZ_) displayView(RZ);
   if(displayXY_) displayView(XY);
   if(displayEtaPhi_) { 
     displayView(EPE);
     displayView(EPH);
-  }
+  }  
 }
-
 
 
 void PFRootEventManager::displayView(unsigned viewType) {
@@ -1131,6 +1198,7 @@ void PFRootEventManager::displayRecHit(reco::PFRecHit& rh, unsigned viewType,
 				       double maxe, double phi0) 
 {
 
+
   double me = maxe;
   double thresh = 0;
   int layer = rh.layer();
@@ -1179,6 +1247,11 @@ void PFRootEventManager::displayRecHit(reco::PFRecHit& rh, unsigned viewType,
 
   double rheta = rh.positionREP().Eta();
   double rhphi = rh.positionREP().Phi();
+
+//   if( abs(rheta - 1.69) > 0.05 ||
+//       abs(rhphi + 1.61) > 0.05 || 
+//       layer<0) return;
+
   double sign = 1.;
   if (cos(phi0 - rhphi) < 0.) sign = -1.;
 
@@ -1212,6 +1285,9 @@ void PFRootEventManager::displayRecHit(reco::PFRecHit& rh, unsigned viewType,
   if(me>0) ampl = (log(rh.energy() + 1.)/log(me + 1.));
 
   for ( unsigned jc=0; jc<4; ++jc ) { 
+
+    // cout<<"corner "<<jc<<" "<<corners[jc].Eta()<<" "<<corners[jc].Phi()<<endl;
+
     phiSize[jc] = rhphi-corners[jc].Phi();
     etaSize[jc] = rheta-corners[jc].Eta();
     if ( phiSize[jc] > 1. ) phiSize[jc] -= 2.*TMath::Pi();  // this is strange...
@@ -1225,8 +1301,8 @@ void PFRootEventManager::displayRecHit(reco::PFRecHit& rh, unsigned viewType,
     y[jc] = cornerposxyz.Y();
     z[jc] = cornerposxyz.Z();
     r[jc] = sign*cornerposxyz.Rho();
-    eta[jc] = rheta + etaSize[jc];
-    phi[jc] = rhphi + phiSize[jc];
+    eta[jc] = rheta - etaSize[jc];
+    phi[jc] = rhphi - phiSize[jc];
     
 
     // cell area is prop to log(E)
@@ -1421,7 +1497,7 @@ void PFRootEventManager::displayCluster(const reco::PFCluster& cluster,
   m.SetMarkerColor(color);
   m.SetMarkerStyle(20);
     
-  math::XYZPoint xyzPos = cluster.positionXYZ();
+  const math::XYZPoint& xyzPos = cluster.positionXYZ();
 
   switch(viewType) {
   case XY:
@@ -1436,14 +1512,42 @@ void PFRootEventManager::displayCluster(const reco::PFCluster& cluster,
       break;
     }
   case EPE:
-    if(cluster.layer()<0)
+    if( cluster.layer()<0 ) {
       m.DrawMarker(xyzPos.Eta(), xyzPos.Phi());
+      if( displayClusterLines_ ) displayClusterLines(cluster);
+    }
     break;
   case EPH:
-    if(cluster.layer()>0)
+    if( cluster.layer()>0 ) {
       m.DrawMarker(xyzPos.Eta(), xyzPos.Phi());
+      if( displayClusterLines_ ) displayClusterLines(cluster);
+    }
     break;
   }      
+}
+
+
+void PFRootEventManager::displayClusterLines(const reco::PFCluster& cluster) {
+  
+  cout<<"displayClusterLines"<<endl;
+  
+  const math::XYZPoint& xyzPos = cluster.positionXYZ();
+  double eta = xyzPos.Eta(); 
+  double phi = xyzPos.Phi(); 
+  
+  // draw a line from the cluster to each of the rechits
+  const std::vector< reco::PFRecHitFraction >& rhfracs = 
+    cluster.recHitFractions();
+
+  TLine l;
+
+  for(unsigned i=0; i<rhfracs.size(); i++) {
+    double rheta = rhfracs[i].getRecHit()->positionXYZ().Eta();
+    double rhphi = rhfracs[i].getRecHit()->positionXYZ().Phi();
+    cout<<" "<<eta<<" "<<phi<<" "<<rheta<<" "<<rhphi<<endl;
+
+    l.DrawLine(eta,phi,rheta,rhphi);
+  }
 }
 
 

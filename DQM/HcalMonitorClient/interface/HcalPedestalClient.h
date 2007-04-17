@@ -109,7 +109,7 @@ private:
   string process_;
   
   MonitorUserInterface* mui_;
-  HcalElectronicsMap* readoutMap_;
+  const HcalElectronicsMap* readoutMap_;
 
   TH1F* all_peds[3];
   TH1F* ped_rms[3];

@@ -4,8 +4,8 @@
 /** \class MuonTrajectoryCleaner
  *  No description available.
  *
- *  $Date: 2006/07/25 12:22:29 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/08/29 23:45:05 $
+ *  $Revision: 1.5 $
  *  \author R. Bellan - INFN Torino
  */
 
@@ -30,8 +30,8 @@ class MuonTrajectoryCleaner {
   /// Clean the trajectories container, erasing the (worst) clone trajectory
   void clean(TrajectoryContainer &muonTrajectories); //used by reference...
 
-  /// Check trajectories that very close to each other for ghosts, and erase
-  void checkGhosts(CandidateContainer& muonTrajectories); //used by reference...
+  /// Clean the candidates container, erasing the (worst) clone trajectory
+  void clean(CandidateContainer &muonTrajectories); //used by reference...
 
 protected:
 

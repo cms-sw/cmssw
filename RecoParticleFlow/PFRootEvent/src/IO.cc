@@ -13,6 +13,12 @@ IO::IO(const char* filepattern) :  fCurline(0) {
 
   vector<string> files = Utils::Glob(filepattern);
   
+  if( files.empty() ) {
+    string err = "IO::IO : no files verify pattern ";
+    err += filepattern;
+    throw err;
+  }
+
   for(unsigned i=0; i<files.size(); i++) {
     ParseFile(files[i].c_str());
   }

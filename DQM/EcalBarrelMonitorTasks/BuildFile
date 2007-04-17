@@ -7,8 +7,6 @@
 <use name=DataFormats/EcalDetId>
 <use name=DataFormats/EcalDigi>
 <use name=DataFormats/EcalRecHit>
-<use name=DataFormats/EgammaReco>
-<use name=RecoEcal/EgammaCoreTools>
 <use name=boost>
 <use name=root>
 
@@ -22,8 +20,6 @@
  <use name=DataFormats/EcalDetId>
  <use name=DataFormats/EcalDigi>
  <use name=DataFormats/EcalRecHit>
- <use name=DataFormats/EgammaReco>
- <use name=RecoEcal/EgammaCoreTools>
  <use name=boost>
  <use name=root>
 </export>

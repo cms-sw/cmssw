@@ -114,7 +114,8 @@ private:
   HepMatrix derivativeMatrix(void) const;
   AlgebraicSymMatrix weightMatrix(void) const;
   AlgebraicSymMatrix calculateError(void) const;
-		
+  void flipErrors(AlgebraicSymMatrix&) const;		
+
   // Member variables
   const std::string myName; 
   const CSCChamber* theChamber;

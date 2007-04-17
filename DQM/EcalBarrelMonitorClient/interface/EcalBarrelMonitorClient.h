@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorClient.h
  *
- * $Date: 2006/11/11 13:14:36 $
- * $Revision: 1.59 $
+ * $Date: 2006/09/14 10:49:22 $
+ * $Revision: 1.57 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -133,7 +133,6 @@ int    hostPort_;
 bool enableServer_;
 int  serverPort_;
  
-string inputFile_;
 string outputFile_;
  
 string dbName_;
@@ -141,8 +140,6 @@ string dbHostName_;
 int    dbHostPort_;
 string dbUserName_;
 string dbPassword_;
-
-string maskFile_;
  
 RunIOV runiov_;
 MonRunIOV moniov_;

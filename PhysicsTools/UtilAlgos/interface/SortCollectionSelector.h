@@ -6,9 +6,9 @@
  * 
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.4 $
+ * \version $Revision: 1.6 $
  *
- * $Id: SortCollectionSelector.h,v 1.4 2006/10/27 07:55:03 llista Exp $
+ * $Id: SortCollectionSelector.h,v 1.6 2006/10/27 10:21:25 llista Exp $
  *
  */
 
@@ -22,7 +22,9 @@ template<typename C, typename CMP,
 	 typename SC = std::vector<const typename C::value_type *>, 
 	 typename A = typename helper::SelectionAdderTrait<SC>::type>
 class SortCollectionSelector {
+public:
   typedef C collection;
+private:
   typedef const typename C::value_type * reference;
   typedef std::pair<reference, size_t> pair;
   typedef SC container;

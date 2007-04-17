@@ -6,9 +6,9 @@
  * 
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.3 $
+ * \version $Revision: 1.4 $
  *
- * $Id: ObjectCountFilter.h,v 1.3 2006/10/02 10:15:03 llista Exp $
+ * $Id: ObjectCountFilter.h,v 1.4 2006/10/03 09:02:10 llista Exp $
  *
  */
 
@@ -53,14 +53,15 @@ public:
   }
   
 private:
+  typedef ObjectCountFilterBase<S> base;
   /// process one event
   bool filter( edm::Event& evt, const edm::EventSetup& ) {
     edm::Handle<C> source;
-    evt.getByLabel( src_, source );
+    evt.getByLabel( base::src_, source );
     size_t n = 0;
     for( typename C::const_iterator i = source->begin(); i != source->end(); ++ i ) {
       if ( select_( * i ) ) n ++;
-      if ( n >= minNumber_ ) return true;
+      if ( n >= base::minNumber_ ) return true;
     }
     return false;
   }
@@ -79,11 +80,12 @@ public:
   }
   
 private:
+  typedef ObjectCountFilterBase<AnySelector<typename C::value_type> > base;
   /// process one event
   bool filter( edm::Event& evt, const edm::EventSetup& ) {
     edm::Handle<C> source;
-    evt.getByLabel( src_, source );
-    return source->size() >= minNumber_;
+    evt.getByLabel( base::src_, source );
+    return source->size() >= base::minNumber_;
   }
 };
 

@@ -27,13 +27,11 @@ using namespace std;
 
 const int EcalSelectiveReadoutSuppressor::nFIRTaps = 6;
 
-#include <iostream>
-EcalSelectiveReadoutSuppressor::EcalSelectiveReadoutSuppressor(const edm::ParameterSet & params)//:
-  //firstFIRSample(params.getParameter<int>("ecalDccZs1stSample")),
-  //weights(params.getParameter<vector<double> >("dccNormalizedWeights"))
+
+EcalSelectiveReadoutSuppressor::EcalSelectiveReadoutSuppressor(const edm::ParameterSet & params):
+  firstFIRSample(params.getParameter<int>("ecalDccZs1stSample")),
+  weights(params.getParameter<vector<double> >("dccNormalizedWeights"))
 {
- firstFIRSample = params.getParameter<int>("ecalDccZs1stSample");
- weights = params.getParameter<vector<double> >("dccNormalizedWeights");
   double adcToGeV = params.getParameter<double>("ebDccAdcToGeV");
   ebGeV2ADC = adcToGeV!=0?1./adcToGeV:0.;
   adcToGeV = params.getParameter<double>("eeDccAdcToGeV");
@@ -125,21 +123,22 @@ bool EcalSelectiveReadoutSuppressor::accept(const T& frame,
     throw cms::Exception("EcalSelectiveReadoutSuppressor: unexpected subdetector id in a dataframe. Only EB and EE data frame are expected.");
   }
   
-  double thr_ = threshold * eGeV2ADC * 4.;
+  double thr_ = lround(threshold * eGeV2ADC * 4.);
   //treating over- and underflows, threshold is coded on 11+1 signed bits
   //an underflow threshold is considered here as if NoRO DCC switch is on
   //an overflow threshold is considered here as if ForcedRO DCC switch in on
   //Beware that conparison must be done on a double type, because conversion
   //cast to an int of a double higher than MAX_INT is undefined.
   int thr;
-  if(thr_>=0x7FF+.5){
+  if(thr_>0x7FF){
     thr = numeric_limits<int>::max();
-  } else if(thr_<=-0x7FF-.5){
+  } else if(thr_<-0x7FF){
     thr = -numeric_limits<int>::min();
   } else{
-    thr = lround(thr_);
+    thr = (int) thr_;
   }
   
+
   //FIR filter weights:
   const vector<int>& w = getFIRWeigths();
   
@@ -180,53 +179,6 @@ bool EcalSelectiveReadoutSuppressor::accept(const T& frame,
   
   return result;
 }
-
-
-int EcalSelectiveReadoutSuppressor::accumulate(const EcalDataFrame & frame,
-                                               bool & gain12saturated)
-{
-  //FIR filter weights:
-  const vector<int>& w = getFIRWeigths();
-
-  int acc = 0;
-  gain12saturated = false;
-  const int gain12 = 0x01;
-  const int lastFIRSample = firstFIRSample + nFIRTaps - 1;
-  LogDebug("DccFir") << "DCC FIR operation: ";
-  for(int i=firstFIRSample-1; i<lastFIRSample; ++i){
-    if(i>=0 && i < frame.size()){
-      const EcalMGPASample& sample = frame[i];
-      if(sample.gainId()!=gain12) gain12saturated = true;
-      LogTrace("DccFir")  << (i>=firstFIRSample?"+":"") << sample.adc()
-        << "*(" << w[i] << ")";
-      acc+=sample.adc()*w[i];
-    } else{
-      edm::LogWarning("DccFir") << __FILE__ << ":" << __LINE__ <<
-  ": Not enough samples in data frame or 'ecalDccZs1stSample' module "
-  "parameter is not valid...";
-    }
-  }
-  return acc;
-}
-
-
-double EcalSelectiveReadoutSuppressor::energy(const EcalDataFrame & frame)
-{
-  bool gain12saturated;
-  double acc = accumulate(frame, gain12saturated);
-  double adc2GeV;
-  switch(frame.id().subdetId()){
-  case EcalBarrel:
-    adc2GeV = 1./ebGeV2ADC;
-    break;
-  case EcalEndcap:
-    adc2GeV = 1./eeGeV2ADC;
-    break;
-  }
-  acc *= (adc2GeV / (1<<10));
-  return acc;
-}
-
 
 void EcalSelectiveReadoutSuppressor::run(const edm::EventSetup& eventSetup,   
 					 const EcalTrigPrimDigiCollection & trigPrims,
@@ -392,7 +344,7 @@ void EcalSelectiveReadoutSuppressor::setTtFlags(const EcalTrigPrimDigiCollection
 //     }
 //   }
 
-vector<int> EcalSelectiveReadoutSuppressor::getFIRWeigths() {
+vector<int> EcalSelectiveReadoutSuppressor::getFIRWeigths(){
   if(firWeights.size()==0){
     firWeights = vector<int>(nFIRTaps, 0); //default weight: 0;
     const static int maxWeight = 0xEFF; //weights coded on 11+1 signed bits

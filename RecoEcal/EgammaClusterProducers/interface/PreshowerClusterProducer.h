@@ -15,8 +15,6 @@
 #include "DataFormats/EgammaReco/interface/PreshowerCluster.h"
 #include "RecoEcal/EgammaClusterAlgos/interface/PreshowerClusterAlgo.h"
 
-#include "TH1.h"
-class TFile;
 
 
 class PreshowerClusterProducer : public edm::EDProducer {
@@ -44,16 +42,20 @@ class PreshowerClusterProducer : public edm::EDProducer {
   std::string endcapSClusterProducer_;
 
   int preshNclust_;
+  float preshClustECut;
 
   // association parameters:
   std::string assocSClusterCollection_;    // name of super cluster output collection
 
   double calib_planeX_;
   double calib_planeY_;
-  double miptogev_;
+  double mip_;
+  double gamma_;
 
   PreshowerClusterAlgo * presh_algo; // algorithm doing the real work
- 
+   // The set of used DetID's
+  //std::set<DetId> used_strips;
+
   PreshowerClusterAlgo::DebugLevel debugL;  
 
 };

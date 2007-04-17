@@ -11,7 +11,6 @@
 <use name=TrackingTools/AnalyticalJacobians>
 <use name=Geometry/CommonDetAlgo>
 <use name=Geometry/Surface>
-<use name=Geometry/Vector>
 <use name=Geometry/CommonDetUnit>
 <use name=DataFormats/TrajectoryState>
 
@@ -29,7 +28,6 @@
   <use name=TrackingTools/AnalyticalJacobians>
   <use name=Geometry/CommonDetAlgo>
   <use name=Geometry/Surface>
-  <use name=Geometry/Vector>
   <use name=Geometry/CommonDetUnit>
   <use name=DataFormats/TrajectoryState>
 # added since were in upper part... ???

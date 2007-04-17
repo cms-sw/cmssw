@@ -39,10 +39,16 @@ namespace cms
   {
     inputLabel = iConfig.getParameter<std::string>("src");
     METtype    = iConfig.getParameter<std::string>("METType");
-    std::cout << "Create MET Producer of Type = " << METtype << std::endl;
-    if(      METtype == "CaloMET" ) produces<CaloMETCollection>(); 
-    else if( METtype == "GenMET" )  produces<GenMETCollection>(); 
-    else                            produces<METCollection>();
+    alias      = iConfig.getParameter<std::string>("alias");
+    std::cout << "Create MET Producer of Type = " << METtype;
+    std::cout << " with alias = " << alias << std::endl;
+
+    if(      METtype == "CaloMET" ) 
+      produces<CaloMETCollection>().setBranchAlias(alias.c_str()); 
+    else if( METtype == "GenMET" )  
+      produces<GenMETCollection>().setBranchAlias(alias.c_str());  
+    else                            
+      produces<METCollection>().setBranchAlias(alias.c_str()); 
   }
   //--------------------------------------------------------------------------
 

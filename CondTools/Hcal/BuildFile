@@ -6,7 +6,7 @@
 <use name=CalibFormats/HcalObjects>
 <use name=CondCore/IOVService>
 <use name=CondCore/DBCommon>
-<use name=CORALRelationalAccess>
+<use name=RelationalAccess>
 <use name=CondCore/MetaDataService>
 <use name=DataSvc> 
 <use name=xerces-c> 
@@ -21,7 +21,7 @@
   <use name=CondCore/IOVService>
   <use name=CondCore/DBCommon>
   <use name=CondCore/MetaDataService>
-  <use name=CORALRelationalAccess>
+  <use name=RelationalAccess>
   <use name=DataSvc> 
   <use name=xerces-c> 
 </export>

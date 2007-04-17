@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May 23 11:03:27 EDT 2006
-// $Id: BareRootProductGetter.h,v 1.2 2006/08/21 20:56:20 wmtan Exp $
+// $Id: BareRootProductGetter.h,v 1.3 2006/08/26 15:50:04 chrjones Exp $
 //
 
 // system include files
@@ -50,12 +50,13 @@ class BareRootProductGetter : public edm::EDProductGetter
       // ---------- member functions ---------------------------
 
       struct Buffer {
-        Buffer(edm::EDProduct* iProd, TBranch* iBranch) :
-        product_(iProd), branch_(iBranch) {}
-        Buffer() : product_(), branch_() {}
+        Buffer(edm::EDProduct* iProd, TBranch* iBranch, void* iAddress) :
+        product_(iProd), branch_(iBranch), address_(iAddress) {}
+        Buffer() : product_(), branch_(), address_() {}
         
         boost::shared_ptr<edm::EDProduct const> product_;
         TBranch* branch_;
+        void* address_; //the address to pass to Root since as of 5.13 they cache that info
       };
    private:
       BareRootProductGetter(const BareRootProductGetter&); // stop default

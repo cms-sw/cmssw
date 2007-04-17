@@ -14,6 +14,8 @@
   <class name="SiStripNoises::DetRegistry"/>
   <class name="std::vector<SiStripNoises::DetRegistry>"/>
 
+  <class name="SiStripApvGain"/>
+
   <class pattern="*iterator*"/>
   <class pattern="*vector*"/>
   <class pattern="*map*"/>

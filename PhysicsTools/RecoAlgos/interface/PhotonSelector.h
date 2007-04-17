@@ -7,9 +7,9 @@
  * 
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.1 $
+ * \version $Revision: 1.2 $
  *
- * $Id: PhotonSelector.h,v 1.1 2006/09/22 10:06:29 llista Exp $
+ * $Id: PhotonSelector.h,v 1.2 2006/09/22 10:46:43 llista Exp $
  *
  */
 
@@ -49,7 +49,7 @@ namespace helper {
   class PhotonSelectorBase : public edm::EDFilter {
   public:
     PhotonSelectorBase( const edm::ParameterSet & cfg ) {
-      std::string alias( cfg.template getParameter<std::string>( "@module_label" ) );
+      std::string alias( cfg.getParameter<std::string>( "@module_label" ) );
       produces<reco::PhotonCollection>().setBranchAlias( alias + "Photons" );
       produces<reco::SuperClusterCollection>().setBranchAlias( alias + "SuperClusters" );
     }

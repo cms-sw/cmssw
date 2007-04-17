@@ -1,0 +1,11 @@
+<use name=DataFormats/TrackReco>
+<use name=DataFormats/Common>
+<use name=DataFormats/Math>
+<use name=FWCore/Utilities>
+<export>
+ <lib name=DataFormatsTrackReco>
+ <use name=DataFormats/TrackReco>
+ <use name=DataFormats/Common>
+ <use name=DataFormats/Math>
+ <use name=FWCore/Utilities>
+</export>

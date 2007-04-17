@@ -243,7 +243,7 @@ namespace edmtestp
       events_read_++;
       //edm::EventMsg msg(&buf_[0],len);
       //return decoder_.decodeEvent(msg,productRegistry());
-      EventMsgView eventView(&buf_[0],hltBitCount,l1BitCount);
+      EventMsgView eventView(&buf_[0]);
       return StreamTranslator::deserializeEvent(eventView,productRegistry());
     }
   }
@@ -317,10 +317,8 @@ namespace edmtestp
     for (int i=0; i<len ; i++) regdata[i] = data.d_[i];
     //edm::InitMsg msg(&regdata[0],len);
     InitMsgView initView(&regdata[0]);
-    //hltBitCount = initView.hltTriggerCount();
-    //l1BitCount = initView.l1TriggerCount();
-    hltBitCount = initView.get_hlt_bit_cnt();
-    l1BitCount = initView.get_l1_bit_cnt();
+    //hltBitCount = initView.get_hlt_bit_cnt();
+    //l1BitCount = initView.get_l1_bit_cnt();
     // 21-Jun-2006, KAB:  catch (and re-throw) any exceptions decoding
     // the job header so that we can display the returned HTML and
     // (hopefully) give the user a hint as to the cause of the problem.

@@ -43,6 +43,11 @@ protected:
     TransientTrackingRecHit(geom) {
     trackingRecHit_ = rh.clone();
   }
+
+  /// for derived classes convenience, does not clone!
+  GenericTransientTrackingRecHit(const GeomDet * geom, TrackingRecHit* rh) :
+    TransientTrackingRecHit(geom), trackingRecHit_(rh) {}
+
   GenericTransientTrackingRecHit( const GenericTransientTrackingRecHit & other ) :
     TransientTrackingRecHit( other.det()) {
     trackingRecHit_ = other.hit()->clone();

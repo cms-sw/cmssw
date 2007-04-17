@@ -8,6 +8,7 @@
 <use name=FWCore/ParameterSet>
 <use name=Foundation/PluginManager>
 <use name=FWCore/ParameterSet>
+<use name=CommonTools/Statistics>
 <use name=boost>
 <use name=clhep>
 <use name=root>

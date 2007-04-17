@@ -34,7 +34,8 @@
 #include "PixelTrackBuilder.h"
 
 PixelFitterByHelixProjections::PixelFitterByHelixProjections(
-   const edm::ParameterSet& cfg) : theTracker(0), theField(0), theTTRecHitBuilder(0) { }
+   const edm::ParameterSet& cfg) 
+ : theConfig(cfg), theTracker(0), theField(0), theTTRecHitBuilder(0) { }
 
 reco::Track* PixelFitterByHelixProjections::run(
     const edm::EventSetup& es,
@@ -59,7 +60,10 @@ reco::Track* PixelFitterByHelixProjections::run(
     theField = fieldESH.product();
 
     edm::ESHandle<TransientTrackingRecHitBuilder> ttrhbESH;
-    es.get<TransientRecHitRecord>().get("WithoutRefit",ttrhbESH);
+//    std::string builderName = "WithoutRefit";
+//    std::string builderName = "TTRHBuilder4PixelTriplets";
+    std::string builderName = theConfig.getParameter<std::string>("TTRHBuilder");
+    es.get<TransientRecHitRecord>().get(builderName,ttrhbESH);
     theTTRecHitBuilder = ttrhbESH.product();
 
   }

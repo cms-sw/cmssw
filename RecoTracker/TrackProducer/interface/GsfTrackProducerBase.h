@@ -51,8 +51,8 @@ public:
     alias.erase(alias.size()-6,alias.size());
     alias_=alias;
   }
-private:
-  void fillStates (TrajectoryStateOnSurface tsos, std::vector<reco::GsfComponent5D>& states) const;
+ protected:
+     void fillStates (TrajectoryStateOnSurface tsos, std::vector<reco::GsfComponent5D>& states) const;
  private:
   edm::ParameterSet conf_;
   std::string src_;

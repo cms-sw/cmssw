@@ -1,4 +1,4 @@
-// $Id: PoolOutputModule.cc,v 1.52 2006/11/09 00:09:33 wmtan Exp $
+// $Id: PoolOutputModule.cc,v 1.53 2006/11/19 00:20:31 wmtan Exp $
 
 #include "IOPool/Output/src/PoolOutputModule.h"
 #include "IOPool/Common/interface/PoolDataSvc.h"
@@ -196,10 +196,12 @@ namespace edm {
 
   void PoolOutputModule::PoolFile::commitTransaction() const {
     context()->transaction().commitAndHold();
+    provenances_.clear();
   }
 
   void PoolOutputModule::PoolFile::commitAndFlushTransaction() const {
     context()->transaction().commit();
+    provenances_.clear();
   }
 
   void PoolOutputModule::PoolFile::makePlacement(std::string const& treeName_, std::string const& branchName, pool::Placement& placement) {
@@ -279,8 +281,6 @@ namespace edm {
   void
   PoolOutputModule::PoolFile::fillBranches(OutputItemList const& items, DataBlockImpl const& dataBlock) const {
 
-    std::list<BranchEntryDescription> dummyProvenances;
-
     // Loop over EDProduct branches, fill the provenance, and write the branch.
     for (OutputItemList::const_iterator i = outputItemList_[InEvent].begin();
 	 i != outputItemList_[InEvent].end(); ++i) {
@@ -304,8 +304,8 @@ namespace edm {
 	  provenance.isPresent_ = false;
 	  provenance.cid_ = 0;
 	  
-	  dummyProvenances.push_front(provenance); 
-          pool::Ref<BranchEntryDescription const> refp(context(), &*dummyProvenances.begin());
+	  provenances_.push_front(provenance); 
+          pool::Ref<BranchEntryDescription const> refp(context(), &*provenances_.begin());
           refp.markWrite(i->provenancePlacement_);
 	} else {
 	    throw edm::Exception(errors::ProductNotFound,"NoMatch")
@@ -321,9 +321,9 @@ namespace edm {
           refp.markWrite(i->provenancePlacement_);
 	} else {
 	  // We need to make a private copy of the provenance so we can set isPresent_ correctly.
-	  dummyProvenances.push_front(g->provenance().event);
-	  dummyProvenances.begin()->isPresent_ = present;
-          pool::Ref<BranchEntryDescription const> refp(context(), &*dummyProvenances.begin());
+	  provenances_.push_front(g->provenance().event);
+	  provenances_.begin()->isPresent_ = present;
+          pool::Ref<BranchEntryDescription const> refp(context(), &*provenances_.begin());
           refp.markWrite(i->provenancePlacement_);
 	}
 	product = g->product();

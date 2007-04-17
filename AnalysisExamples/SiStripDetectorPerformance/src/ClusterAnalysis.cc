@@ -1,6 +1,6 @@
 /*
-* $Date: 2006/11/13 21:13:33 $
-* $Revision: 1.3 $
+* $Date: 2006/12/18 23:44:44 $
+* $Revision: 1.8 $
 *
 * \author: D. Giordano, domenico.giordano@cern.ch
 */
@@ -14,9 +14,20 @@
 #include "DataFormats/SiStripDetId/interface/TIDDetId.h"
 #include "sstream"
 
+#include "Geometry/CommonDetAlgo/interface/MeasurementPoint.h"
+
+#include "TTree.h"
+#include "TBranch.h"
+#include "TH1F.h"
+#include "TH2F.h"
+#include "TH3S.h"
+#include "TCanvas.h"
+#include "TPostScript.h"
+
 static const uint16_t _NUM_SISTRIP_SUBDET_ = 4;
 static TString SubDet[_NUM_SISTRIP_SUBDET_]={"_TIB","_TOB","_TID","_TEC"};
 static TString flags[3] = {"_onTrack","_offTrack","_All"};
+static TString width_flags[5] = {"","_width_1","_width_2","_width_3","_width_ge_4"};
 
 namespace cms{
   ClusterAnalysis::ClusterAnalysis(edm::ParameterSet const& conf): 
@@ -31,11 +42,17 @@ namespace cms{
     ClusterInfo_src_( conf.getParameter<edm::InputTag>( "ClusterInfo_src" ) ),
     Cluster_src_( conf.getParameter<edm::InputTag>( "Cluster_src" ) ),
     ModulesToBeExcluded_(conf.getParameter< std::vector<uint32_t> >("ModulesToBeExcluded")),
+    EtaAlgo_(conf.getParameter<int32_t>("EtaAlgo")),
+    NeighStrips_(conf.getParameter<int32_t>("NeighStrips")),
     tracksCollection_in_EventTree(true),
     ltcdigisCollection_in_EventTree(true)
-  {};
+  {}
 
-  ClusterAnalysis::~ClusterAnalysis(){};
+  ClusterAnalysis::~ClusterAnalysis(){
+    std::cout << "Destructing object" << std::endl;
+    //Hlist->Delete();
+    delete Hlist;
+  }
   
   void ClusterAnalysis::beginJob( const edm::EventSetup& es ) {
 
@@ -76,6 +93,27 @@ namespace cms{
 
     //Create histograms
     Hlist = new TObjArray();
+
+    //Display 3D
+    Parameters =  conf_.getParameter<edm::ParameterSet>("TH3ClusterGlobalPos");
+    TH3S * h3=new TH3S("ClusterGlobalPos","ClusterGlobalPos",
+			Parameters.getParameter<int32_t>("Nbinz"),
+			Parameters.getParameter<double>("zmin"),
+			Parameters.getParameter<double>("zmax"),
+			Parameters.getParameter<int32_t>("Nbinx"),
+			Parameters.getParameter<double>("xmin"),
+			Parameters.getParameter<double>("xmax"),
+			Parameters.getParameter<int32_t>("Nbiny"),
+			Parameters.getParameter<double>("ymin"),
+			Parameters.getParameter<double>("ymax")
+		       );
+    h3->SetXTitle("z (cm)");
+    h3->SetYTitle("x (cm)");
+    h3->SetZTitle("y (cm)");
+    Hlist->Add(h3);
+
+    std::cout << "added TH3D " << std::endl;
+    //&&&&&&&&&&&&&&&&&&&&&&&&
 
     fFile->cd();fFile->cd("Trigger");
 
@@ -140,85 +178,90 @@ namespace cms{
       for (int i=0;i<_NUM_SISTRIP_SUBDET_;i++){
 	
 	TString appString=SubDet[i]+flags[j];
-	
-	//Cluster Noise
-	name="cNoise"+appString;
-	Parameters =  conf_.getParameter<edm::ParameterSet>("TH1ClusterNoise");
-	fFile->cd();fFile->cd("ClusterNoise");
-	Hlist->Add(new TH1F(name,name,
-			    Parameters.getParameter<int32_t>("Nbinx"),
-			    Parameters.getParameter<double>("xmin"),
-			    Parameters.getParameter<double>("xmax")
-			    )
-		   );
-
-	//Cluster Signal
-	name="cSignal"+appString;
-	Parameters =  conf_.getParameter<edm::ParameterSet>("TH1ClusterSignal");
-	fFile->cd();fFile->cd("ClusterSignal");
-	Hlist->Add(new TH1F(name,name,
-			    Parameters.getParameter<int32_t>("Nbinx"),
-			    Parameters.getParameter<double>("xmin"),
-			    Parameters.getParameter<double>("xmax")
-			    )
-		   );
-
-	//Cluster StoN
-	name="cStoN"+appString;
-	Parameters =  conf_.getParameter<edm::ParameterSet>("TH1ClusterStoN");
-	fFile->cd();fFile->cd("ClusterStoN");
-	Hlist->Add(new TH1F(name,name,
-			    Parameters.getParameter<int32_t>("Nbinx"),
-			    Parameters.getParameter<double>("xmin"),
-			    Parameters.getParameter<double>("xmax")
-			    )
-		   );
 
 	//Cluster Width
 	name="cWidth"+appString;
 	Parameters =  conf_.getParameter<edm::ParameterSet>("TH1ClusterWidth");
 	fFile->cd();fFile->cd("ClusterWidth");
-	Hlist->Add(new TH1F(name,name,
-			    Parameters.getParameter<int32_t>("Nbinx"),
-			    Parameters.getParameter<double>("xmin"),
-			    Parameters.getParameter<double>("xmax")
-			    )
-		   );
+	  Hlist->Add(new TH1F(name,name,
+			      Parameters.getParameter<int32_t>("Nbinx"),
+			      Parameters.getParameter<double>("xmin"),
+			      Parameters.getParameter<double>("xmax")
+			      )
+		     );
 
-	//Cluster Position
-	name="cPos"+appString;
-	Parameters =  conf_.getParameter<edm::ParameterSet>("TH1ClusterPos");
-	fFile->cd();fFile->cd("ClusterPos");
-	Hlist->Add(new TH1F(name,name,
-			    Parameters.getParameter<int32_t>("Nbinx"),
-			    Parameters.getParameter<double>("xmin"),
-			    Parameters.getParameter<double>("xmax")
-			    )
-		   );
+	//Loop for cluster width
+	for (int iw=0;iw<5;iw++){
+	  
+	  appString=SubDet[i]+flags[j]+width_flags[iw];
+	
+	  //Cluster Noise
+	  name="cNoise"+appString;
+	  Parameters =  conf_.getParameter<edm::ParameterSet>("TH1ClusterNoise");
+	  fFile->cd();fFile->cd("ClusterNoise");
+	  Hlist->Add(new TH1F(name,name,
+			      Parameters.getParameter<int32_t>("Nbinx"),
+			      Parameters.getParameter<double>("xmin"),
+			      Parameters.getParameter<double>("xmax")
+			      )
+		     );
 
-	//Cluster Charge Division (only for study on Raw Data Runs)
-	name="cEta"+appString;
-	Parameters =  conf_.getParameter<edm::ParameterSet>("TH1ClusterEta");
-	fFile->cd();fFile->cd("ClusterEta");
-	Hlist->Add(new TH1F(name,name,
-			    Parameters.getParameter<int32_t>("Nbinx"),
-			    Parameters.getParameter<double>("xmin"),
-			    Parameters.getParameter<double>("xmax")
-			    )
-		   );
+	  //Cluster Signal
+	  name="cSignal"+appString;
+	  Parameters =  conf_.getParameter<edm::ParameterSet>("TH1ClusterSignal");
+	  fFile->cd();fFile->cd("ClusterSignal");
+	  Hlist->Add(new TH1F(name,name,
+			      Parameters.getParameter<int32_t>("Nbinx"),
+			      Parameters.getParameter<double>("xmin"),
+			      Parameters.getParameter<double>("xmax")
+			      )
+		     );
+	  
+	  //Cluster StoN
+	  name="cStoN"+appString;
+	  Parameters =  conf_.getParameter<edm::ParameterSet>("TH1ClusterStoN");
+	  fFile->cd();fFile->cd("ClusterStoN");
+	  Hlist->Add(new TH1F(name,name,
+			      Parameters.getParameter<int32_t>("Nbinx"),
+			      Parameters.getParameter<double>("xmin"),
+			      Parameters.getParameter<double>("xmax")
+			      )
+		     );
+	  
+	  //Cluster Position
+	  name="cPos"+appString;
+	  Parameters =  conf_.getParameter<edm::ParameterSet>("TH1ClusterPos");
+	  fFile->cd();fFile->cd("ClusterPos");
+	  Hlist->Add(new TH1F(name,name,
+			      Parameters.getParameter<int32_t>("Nbinx"),
+			      Parameters.getParameter<double>("xmin"),
+			      Parameters.getParameter<double>("xmax")
+			      )
+		     );
 
-	name="cEta_scatter"+appString;
-	Parameters =  conf_.getParameter<edm::ParameterSet>("TH2ClusterEta");
-	fFile->cd();fFile->cd("ClusterEta");
-	Hlist->Add(new TH2F(name,name,
-			    Parameters.getParameter<int32_t>("Nbinx"),
-			    Parameters.getParameter<double>("xmin"),
-			    Parameters.getParameter<double>("xmax"),
-			    Parameters.getParameter<int32_t>("Nbiny"),
-			    Parameters.getParameter<double>("ymin"),
-			    Parameters.getParameter<double>("ymax")
-			    )
-		   );
+	  //Cluster Charge Division (only for study on Raw Data Runs)
+	  name="cEta"+appString;
+	  Parameters =  conf_.getParameter<edm::ParameterSet>("TH1ClusterEta");
+	  fFile->cd();fFile->cd("ClusterEta");
+	  Hlist->Add(new TH1F(name,name,
+			      Parameters.getParameter<int32_t>("Nbinx"),
+			      Parameters.getParameter<double>("xmin"),
+			      Parameters.getParameter<double>("xmax")
+			      )
+		     );
+
+	  name="cEta_scatter"+appString;
+	  Parameters =  conf_.getParameter<edm::ParameterSet>("TH2ClusterEta");
+	  fFile->cd();fFile->cd("ClusterEta");
+	  Hlist->Add(new TH2F(name,name,
+			      Parameters.getParameter<int32_t>("Nbinx"),
+			      Parameters.getParameter<double>("xmin"),
+			      Parameters.getParameter<double>("xmax"),
+			      Parameters.getParameter<int32_t>("Nbiny"),
+			      Parameters.getParameter<double>("ymin"),
+			      Parameters.getParameter<double>("ymax")
+			      )
+		     );
 
 
 
@@ -231,7 +274,7 @@ namespace cms{
 	// 					   Parameters.getParameter<double>("xmax")
 	// 					   )
 	// 				  );
-      
+	}//end loop on width 
       } //end loop on det type 
     }//end loop on onTrack,offTrack,all
 
@@ -410,9 +453,13 @@ namespace cms{
     TCanvas Canvas("c","c");//("c","c",600,300);
     for (int ih=0; ih<Hlist->GetEntries();ih++){
       edm::LogInfo("ClusterAnalysis") << "Histos " << ih << " name " << (*Hlist)[ih]->GetName() << " title " <<  (*Hlist)[ih]->GetTitle() << std::endl;
-      if (dynamic_cast<TH1F*>((*Hlist)[ih]) !=NULL)
+      if (dynamic_cast<TH1F*>((*Hlist)[ih]) !=NULL){
 	if (dynamic_cast<TH1F*>((*Hlist)[ih])->GetEntries() != 0)
+	  (*Hlist)[ih]->Draw();
+      }
+      else if (dynamic_cast<TH3S*>((*Hlist)[ih]) !=NULL){
 	(*Hlist)[ih]->Draw();
+      }
       Canvas.Update();
       ps.NewPage();
     }
@@ -609,8 +656,8 @@ namespace cms{
 	if ( clusterInfos(SiStripClusterInfo_, detid,"_All") ){
 	  countAll++;
 
-	//LogTrace("ClusterAnalysis") << "\n["<<__PRETTY_FUNCTION__<<"] ClusIter " << &*ClusIter << 
-	//  "\t " << std::find(vPSiStripCluster.begin(),vPSiStripCluster.end(),&*ClusIter)-vPSiStripCluster.begin() << std::endl;
+	LogTrace("ClusterAnalysis") << "\n["<<__PRETTY_FUNCTION__<<"] ClusIter " << &*ClusIter << 
+	  "\t " << std::find(vPSiStripCluster.begin(),vPSiStripCluster.end(),&*ClusIter)-vPSiStripCluster.begin() << std::endl;
 
 	  if (std::find(vPSiStripCluster.begin(),vPSiStripCluster.end(),&*ClusIter) == vPSiStripCluster.end()){
 	    if ( clusterInfos(SiStripClusterInfo_,detid,"_offTrack") )
@@ -635,13 +682,18 @@ namespace cms{
 	  )
 	return &(*ClusIter);
     }
+    edm::LogError("ClusterAnalysis") << "\n["<<__PRETTY_FUNCTION__<<"]\n\t" << "Matching of SiStripCluster and SiStripClusterInfo is failed for cluster on detid "<< detid << "\n\tReturning NULL pointer" <<std::endl;
     return 0;
   }
 
   //------------------------------------------------------------------------
 
   bool ClusterAnalysis::clusterInfos(const SiStripClusterInfo* cluster, const uint32_t& detid,TString flag){
-    
+    LogTrace("ClusterAnalysis") << "\n["<<__PRETTY_FUNCTION__<<"]" << std::endl;
+
+    if (cluster==0) 
+      return false;
+
     const  edm::ParameterSet ps = conf_.getParameter<edm::ParameterSet>("ClusterConditions");
     if  ( ps.getParameter<bool>("On") 
 	 &&
@@ -662,6 +714,14 @@ namespace cms{
     //GeomDetEnumerators::SubDetector SubDet_enum=_StripGeomDetUnit->specificType().subDetector();
     int SubDet_enum=_StripGeomDetUnit->specificType().subDetector() -2;
 
+    //&&&&&&&&&&&&&&&& GLOBAL POS &&&&&&&&&&&&&&&&&&&&&&&&
+    const StripTopology &topol=(StripTopology&)_StripGeomDetUnit->topology();
+    MeasurementPoint mp(cluster->position(),rnd.Uniform(-0.5,0.5));
+    LocalPoint localPos = topol.localPosition(mp);
+    GlobalPoint globalPos=(_StripGeomDetUnit->surface()).toGlobal(localPos);
+    //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+
+
     //char cdetid[128];
     //sprintf(cdetid,"_%d",detid);
     
@@ -675,58 +735,93 @@ namespace cms{
 
     NClus[SubDet_enum][iflag]++;
 
+    std::stringstream ss;
+    const_cast<SiStripClusterInfo*>(cluster)->print(ss);
     LogTrace("ClusterAnalysis") 
-      << "\n["<<__PRETTY_FUNCTION__<<"]"
-      << "\n\t\tcluster detid "       << cluster->geographicalId()  
-      << "\n\t\tcluster first strip " << cluster->firstStrip()
-      << "\n\t\tcluster charge "      << cluster->charge()    
-      << "\n\t\tcluster noise "       << cluster->noise()     
-      << "\n\t\tcluster position "    << cluster->position()  
-      << "\n\t\tcluster width "       << cluster->width()     
-      << "\n\t\tcluster maxCharge "   << cluster->maxCharge() 
-      << "\n\t\tcluster maxPos "      << cluster->maxPos()       
-      << "\n\t\tcluster chargeL "     << cluster->chargeL()      
-      << "\n\t\tcluster chargeR "     << cluster->chargeR()      
+      << "\n["<<__PRETTY_FUNCTION__<<"]\n"
+      << ss.str() 
+      << "\n\t\tcluster LocalPos "     << localPos
+      << "\n\t\tcluster GlobalPos "     << globalPos
       << std::endl;
+
+
+    //Display
+    ((TH3S*) Hlist->FindObject("ClusterGlobalPos"))
+      ->Fill(globalPos.z(),globalPos.x(),globalPos.y());
+    //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 
     //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
     //Cumulative Plots
 
     TString appString=SubDet[SubDet_enum]+flag;
 
-    ((TH1F*) Hlist->FindObject("cSignal"+appString))
-      ->Fill(cluster->charge());
-      
-    ((TH1F*) Hlist->FindObject("cNoise"+appString))
-      ->Fill(cluster->noise());
+    //((TH1F*) Hlist->FindObject("cSignal"+appString))
+    //  ->Fill(cluster->charge());
+    fillTH1(cluster->charge(),"cSignal"+appString,1,cluster->width());
+
+    //((TH1F*) Hlist->FindObject("cNoise"+appString))
+    //  ->Fill(cluster->noise());
+    fillTH1(cluster->noise(),"cNoise"+appString,1,cluster->width());
 
     if (cluster->noise()){
-      ((TH1F*) Hlist->FindObject("cStoN"+appString))
-	->Fill(cluster->charge()/cluster->noise());
+      //      ((TH1F*) Hlist->FindObject("cStoN"+appString))
+      //	->Fill(cluster->charge()/cluster->noise());
+      fillTH1(cluster->charge()/cluster->noise(),"cStoN"+appString,1,cluster->width());
     }
       
-    ((TH1F*) Hlist->FindObject("cWidth" +appString))
-      ->Fill(cluster->width());
+    //((TH1F*) Hlist->FindObject("cWidth" +appString))
+    //  ->Fill(cluster->width());
+    fillTH1(cluster->width(),"cWidth"+appString,0);
 
-    ((TH1F*) Hlist->FindObject("cPos" +appString))
-      ->Fill(cluster->position());
+    //((TH1F*) Hlist->FindObject("cPos" +appString))
+    //  ->Fill(cluster->position());
+    fillTH1(cluster->position(),"cPos"+appString,1,cluster->width());
 
-    if (cluster->rawdigiAmplitudesL().size()!=0 && cluster->rawdigiAmplitudesR().size()!=0){
+    if (cluster->rawdigiAmplitudesL().size()!=0 ||  cluster->rawdigiAmplitudesR().size()!=0){
 	
       float Ql=0;
       float Qr=0;
-	
-      for (std::vector<uint16_t>::const_iterator it=cluster->rawdigiAmplitudesL().begin(); it !=cluster->rawdigiAmplitudesL().begin(); it ++)
-	{ Ql += (*it);}
+      float Qt=0;
 
-      for (std::vector<uint16_t>::const_iterator it=cluster->rawdigiAmplitudesR().begin(); it !=cluster->rawdigiAmplitudesR().begin(); it ++)
-	{ Qr += (*it);}
+      if (EtaAlgo_==1){
+	Ql=cluster->chargeL();
+	Qr=cluster->chargeR();
+      
+	for (std::vector<int16_t>::const_iterator it=cluster->rawdigiAmplitudesL().begin(); it !=cluster->rawdigiAmplitudesL().end() && it-cluster->rawdigiAmplitudesL().begin()<NeighStrips_; it ++)
+	  { Ql += (*it);}
 	
-      ((TH1F*) Hlist->FindObject("cEta"   +appString))
-	->Fill(Ql/(Qr+cluster->maxCharge()));
+	for (std::vector<int16_t>::const_iterator it=cluster->rawdigiAmplitudesR().begin(); it !=cluster->rawdigiAmplitudesR().end() && it-cluster->rawdigiAmplitudesR().begin()<NeighStrips_; it ++)
+	  { Qr += (*it);}
 	
-      ((TH2F*) Hlist->FindObject("cEta_scatter"   +appString))
-	->Fill((Ql-Qr)/(cluster->maxCharge()+Ql+Qr),(Ql+Qr)/(cluster->maxCharge()+Ql+Qr));
+	Qt=Ql+Qr+cluster->maxCharge();
+      }
+      else{
+
+	int Nstrip=cluster->stripAmplitudes().size();
+	float pos=cluster->position()-0.5;
+	for(int is=0;is<Nstrip && cluster->firstStrip()+is<=pos;is++)
+	  Ql+=cluster->stripAmplitudes()[is];
+	
+	Qr=cluster->charge()-Ql;
+
+	for (std::vector<int16_t>::const_iterator it=cluster->rawdigiAmplitudesL().begin(); it !=cluster->rawdigiAmplitudesL().end() && it-cluster->rawdigiAmplitudesL().begin()<NeighStrips_; it ++)
+	  { Ql += (*it);}
+	
+	for (std::vector<int16_t>::const_iterator it=cluster->rawdigiAmplitudesR().begin(); it !=cluster->rawdigiAmplitudesR().end() && it-cluster->rawdigiAmplitudesR().begin()<NeighStrips_; it ++)
+	  { Qr += (*it);}
+	
+	Qt=Ql+Qr;
+      }
+      
+      LogTrace("ClusterAnalysis") << "\n["<<__PRETTY_FUNCTION__<<"] \n on detid "<< detid << " Ql=" << Ql << " Qr="<< Qr << " Qt="<<Qt<< " eta="<< Ql/Qt<< std::endl;
+      
+      //((TH1F*) Hlist->FindObject("cEta"   +appString))
+      //->Fill(Ql/(Ql+Qr+cluster->maxCharge()));
+      fillTH1(Ql/Qt,"cEta"+appString,1,cluster->width());
+    
+    //((TH2F*) Hlist->FindObject("cEta_scatter"   +appString))
+    //->Fill((Ql-Qr)/(cluster->maxCharge()+Ql+Qr),(Ql+Qr)/(cluster->maxCharge()+Ql+Qr));
+      fillTH2((Ql-Qr)/Qt,(Ql+Qr)/Qt,"cEta_scatter"+appString,1,cluster->width());
     }
 
     if(flag=="_All"){
@@ -814,7 +909,29 @@ namespace cms{
 
     return std::make_pair(cSubDet,layer);
   }
-  
+
+
+  void ClusterAnalysis::fillTH1(float value,TString name,bool widthFlag,float cwidth){
+
+    for (int iw=0;iw<5;iw++){
+      if ( iw==0 || (iw==4 && cwidth>3) || ( iw>0 && iw<4 && cwidth==iw) )     
+	((TH1F*) Hlist->FindObject(name+width_flags[iw]))
+	  ->Fill(value);
+      if (!widthFlag)
+	break;
+    }
+  }
+
+  void ClusterAnalysis::fillTH2(float xvalue,float yvalue,TString name,bool widthFlag, float cwidth){
+
+    for (int iw=0;iw<5;iw++){
+      if ( iw==0 || (iw==4 && cwidth>3) || ( iw>0 && iw<4 && cwidth==iw) )     
+	((TH2F*) Hlist->FindObject(name+width_flags[iw]))
+	  ->Fill(xvalue,yvalue);
+      if (!widthFlag)
+	break;
+    }
+  }
 }
 
 

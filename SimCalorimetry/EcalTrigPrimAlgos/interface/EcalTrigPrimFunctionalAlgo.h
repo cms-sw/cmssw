@@ -28,7 +28,8 @@ class EcalTrigTowerDetId;
 class ETPCoherenceTest;
 class EcalTriggerPrimitiveSample;
 class CaloSubdetectorGeometry;
- 
+class DBInterface;
+
 #include "Geometry/CaloTopology/interface/EcalTrigTowerConstituentsMap.h"
 #include "SimCalorimetry/EcalTrigPrimAlgos/interface/EcalBarrelFenixStrip.h"
 #include "SimCalorimetry/EcalTrigPrimAlgos/interface/EcalBarrelFenixTcp.h"
@@ -45,13 +46,13 @@ class EcalTrigPrimFunctionalAlgo
   
   //  typedef PRecDet<EcalTrigPrim> precdet;
 
-  explicit EcalTrigPrimFunctionalAlgo(const edm::EventSetup & setup,int binofmax, int nrsamples, double threshlow, double threshhigh);
-  EcalTrigPrimFunctionalAlgo(const edm::EventSetup & setup, TTree *tree, int binofmax, int nrsamples, double threshlow, double threshhigh);
+  explicit EcalTrigPrimFunctionalAlgo(const edm::EventSetup & setup,int binofmax, int nrsamples, DBInterface *db);
+  EcalTrigPrimFunctionalAlgo(const edm::EventSetup & setup, TTree *tree, int binofmax, int nrsamples,  DBInterface *db);
   virtual ~EcalTrigPrimFunctionalAlgo();
 
   /** this actually calculates the trigger primitives (from Digis) */
 
-  void run(const EBDigiCollection* ebdcol, const EEDigiCollection* eedcol, EcalTrigPrimDigiCollection & result, int fgvbMinEn);
+  void run(const EBDigiCollection* ebdcol, const EEDigiCollection* eedcol, EcalTrigPrimDigiCollection & result);
 
 
  private:
@@ -102,8 +103,7 @@ class EcalTrigPrimFunctionalAlgo
 
   //
   EcalBarrelFenixStrip * ebstrip_;
-
-  EcalBarrelFenixTcp ebtcp_;
+  EcalBarrelFenixTcp * ebtcp_;
 
 
   //  EcalEndcapFenixTcp eetcp_;
@@ -121,9 +121,14 @@ class EcalTrigPrimFunctionalAlgo
   int binOfMaximum_;
   unsigned int nrSamplesToWrite_;
 
+  std::string dbFileEB_, dbFileEE_;
+  DBInterface *db_;
+
   // thresholds for TTF calculation
-  double threshLow_;
-  double threshHigh_;
+  //  double threshLow_;
+  //  double threshHigh_;
+
+
 };
 
 #endif

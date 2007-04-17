@@ -8,7 +8,7 @@
 //
 // Original Author:  Shahram Rahatlou
 //         Created:  10 May 200
-// $Id: PreshowerAnalyzer.cc,v 1.1 2006/07/20 18:30:08 dbanduri Exp $
+// $Id: PreshowerAnalyzer.cc,v 1.2 2006/07/21 00:15:04 dbanduri Exp $
 //
 
 #include "RecoEcal/EgammaClusterProducers/interface/PreshowerAnalyzer.h"
@@ -53,7 +53,8 @@ PreshowerAnalyzer::PreshowerAnalyzer( const edm::ParameterSet& ps )
   // calibration parameters:
   calib_planeX_ = ps.getParameter<double>("preshCalibPlaneX");
   calib_planeY_ = ps.getParameter<double>("preshCalibPlaneY");
-  miptogev_     = ps.getParameter<double>("preshCalibMIPtoGeV");
+  gamma_        = ps.getParameter<double>("preshCalibGamma");
+  mip_          = ps.getParameter<double>("preshCalibMIP");
 
   nEvt_ = 0; 
 }
@@ -157,9 +158,13 @@ PreshowerAnalyzer::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
       h1_esNhits_y->Fill( esClus->nhits() );     
   }
   
-  float deltaE = 0;      
-  if(e1+e2 > 1.0e-10)
-     deltaE = miptogev_*(calib_planeX_*e1+calib_planeY_*e2);     
+  float deltaE = 0;       
+  if(e1+e2 > 1.0e-10) {
+      // GeV to #MIPs
+      e1 = e1 / mip_;
+      e2 = e2 / mip_;
+      deltaE = gamma_*(calib_planeX_*e1+calib_planeY_*e2);       
+   }
 
   h1_esDeltaE->Fill(deltaE);
 

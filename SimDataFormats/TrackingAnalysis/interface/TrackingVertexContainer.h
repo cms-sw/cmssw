@@ -10,6 +10,7 @@ typedef edm::Ref<TrackingVertexCollection>         TrackingVertexRef;
 typedef edm::RefVector<TrackingVertexCollection>   TrackingVertexContainer;
 typedef edm::RefVector<TrackingVertexCollection>   TrackingVertexRefVector;
 typedef edm::RefProd<TrackingVertexCollection>     TrackingVertexRefProd;
+typedef TrackingVertexRefVector::iterator   tv_iterator;
 
 
 #endif

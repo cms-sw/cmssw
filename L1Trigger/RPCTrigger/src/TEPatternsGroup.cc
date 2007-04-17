@@ -3,46 +3,46 @@
 /**
  *
  * Creates new patterns group. The pattern is added to the group and defined
- * its Code, Sign, RefGroup, QualityTabNumber. 
+ * its m_Code, m_Sign, m_RefGroup, m_QualityTabNumber. 
  *
  */
  
 TEPatternsGroup::TEPatternsGroup(const L1RpcPatternsVec::const_iterator& pattern) {
-  AddPattern(pattern);
-  PatternsGroupType = L1RpcConst::PAT_TYPE_E;
-  QualityTabNumber = pattern->GetQualityTabNumber(); //it is uded in PAC algorithm, so we want to have fast acces.
+  addPattern(pattern);
+  m_PatternsGroupType = RPCConst::PAT_TYPE_E;
+  m_QualityTabNumber = pattern->getQualityTabNumber(); //it is uded in m_PAC algorithm, so we want to have fast acces.
 }
 
 
-bool TEPatternsGroup::Check(const L1RpcPatternsVec::const_iterator& pattern) {
-  if(PatternsItVec[0]->GetRefGroup() == pattern->GetRefGroup() &&
-     PatternsItVec[0]->GetCode() == pattern->GetCode() &&
-     PatternsItVec[0]->GetSign() == pattern->GetSign() &&
-     PatternsItVec[0]->GetQualityTabNumber() == pattern->GetQualityTabNumber() )
+bool TEPatternsGroup::check(const L1RpcPatternsVec::const_iterator& pattern) {
+  if(m_PatternsItVec[0]->getRefGroup() == pattern->getRefGroup() &&
+     m_PatternsItVec[0]->getCode() == pattern->getCode() &&
+     m_PatternsItVec[0]->getSign() == pattern->getSign() &&
+     m_PatternsItVec[0]->getQualityTabNumber() == pattern->getQualityTabNumber() )
     return true;
   return false;
 }
 
 
 bool TEPatternsGroup::operator < (const TEPatternsGroup& ePatternsGroup) const {
-  if( this->PatternsItVec[0]->GetCode() < ePatternsGroup.PatternsItVec[0]->GetCode() )
+  if( this->m_PatternsItVec[0]->getCode() < ePatternsGroup.m_PatternsItVec[0]->getCode() )
     return true;
-  else if( this->PatternsItVec[0]->GetCode() > ePatternsGroup.PatternsItVec[0]->GetCode() )
+  else if( this->m_PatternsItVec[0]->getCode() > ePatternsGroup.m_PatternsItVec[0]->getCode() )
     return false;
   else { //==
-    if(this->PatternsItVec[0]->GetQualityTabNumber() > ePatternsGroup.PatternsItVec[0]->GetQualityTabNumber())
+    if(this->m_PatternsItVec[0]->getQualityTabNumber() > ePatternsGroup.m_PatternsItVec[0]->getQualityTabNumber())
       return true;
-    else if(this->PatternsItVec[0]->GetQualityTabNumber() < ePatternsGroup.PatternsItVec[0]->GetQualityTabNumber())
+    else if(this->m_PatternsItVec[0]->getQualityTabNumber() < ePatternsGroup.m_PatternsItVec[0]->getQualityTabNumber())
       return false;
     else { //==
-      if( this->PatternsItVec[0]->GetSign() < ePatternsGroup.PatternsItVec[0]->GetSign() )
+      if( this->m_PatternsItVec[0]->getSign() < ePatternsGroup.m_PatternsItVec[0]->getSign() )
         return true;
-      else if( this->PatternsItVec[0]->GetSign() > ePatternsGroup.PatternsItVec[0]->GetSign() )
+      else if( this->m_PatternsItVec[0]->getSign() > ePatternsGroup.m_PatternsItVec[0]->getSign() )
         return false;
       else { //==
-        if(this->PatternsItVec[0]->GetRefGroup() < ePatternsGroup.PatternsItVec[0]->GetRefGroup())
+        if(this->m_PatternsItVec[0]->getRefGroup() < ePatternsGroup.m_PatternsItVec[0]->getRefGroup())
           return true;
-        else //if(this->RefGroup < ePatternsGroup.RefGroup)
+        else //if(this->m_RefGroup < ePatternsGroup.m_RefGroup)
           return false;
       }
     }

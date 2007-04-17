@@ -161,19 +161,20 @@ TrackerInteractionGeometry::TrackerInteractionGeometry(const GeometricSearchTrac
        -(**bl).specificSurface().bounds().length()/2.,  
        +(**bl).specificSurface().bounds().length()/2.);
   // Third TIB layer: r=41.9599, l=131.628  !!!! Needs to be larger than TIB2
+  // This is so because TIB2 (and TIB1) have tilted modules.
   ++bl;
   const SimpleCylinderBounds  TIB3( 
         (**bl).specificSurface().radius()-0.0150, 
         (**bl).specificSurface().radius()+0.0150, 
-       -(**bl).specificSurface().bounds().length()/2.-0.3,  
-       +(**bl).specificSurface().bounds().length()/2.+0.3);
+       -(**bl).specificSurface().bounds().length()/2.-0.6,  
+       +(**bl).specificSurface().bounds().length()/2.+0.6);
   // Fourth TIB layer: r=49.8924, l=132.78
   ++bl;
   const SimpleCylinderBounds  TIB4( 
         (**bl).specificSurface().radius()-0.0150, 
         (**bl).specificSurface().radius()+0.0150, 
-       -(**bl).specificSurface().bounds().length()/2.,  
-       +(**bl).specificSurface().bounds().length()/2.);
+       -(**bl).specificSurface().bounds().length()/2.-0.1,  
+       +(**bl).specificSurface().bounds().length()/2.+0.1);
 
   // Inner Barrel Cylinder & Ends : Cables and walls
   const SimpleDiskBounds TIBEOut(22.5,50.4,-0.5,0.5);
@@ -199,34 +200,35 @@ TrackerInteractionGeometry::TrackerInteractionGeometry(const GeometricSearchTrac
         (**bl).specificSurface().radius()+0.0150, 
        -(**bl).specificSurface().bounds().length()/2.,  
        +(**bl).specificSurface().bounds().length()/2.);
-  // Third TOB layer: r=78.0686, l=216.576
+  // Third TOB layer: r=78.0686, l=216.576 !!! Needs to be larger than TOB2
+  // This is so because TOB2 (and TOB1) have tilted modules.
   ++bl;
   const SimpleCylinderBounds  TOB3( 
         (**bl).specificSurface().radius()-0.0150, 
         (**bl).specificSurface().radius()+0.0150, 
-       -(**bl).specificSurface().bounds().length()/2.,  
-       +(**bl).specificSurface().bounds().length()/2.);
+       -(**bl).specificSurface().bounds().length()/2.-0.5,  
+       +(**bl).specificSurface().bounds().length()/2.+0.5);
   // Fourth TOB layer: r=86.8618, l=216.576
   ++bl;
   const SimpleCylinderBounds  TOB4( 
         (**bl).specificSurface().radius()-0.0150, 
         (**bl).specificSurface().radius()+0.0150, 
-       -(**bl).specificSurface().bounds().length()/2.,  
-       +(**bl).specificSurface().bounds().length()/2.);
+       -(**bl).specificSurface().bounds().length()/2.-0.5,  
+       +(**bl).specificSurface().bounds().length()/2.+0.5);
   // Fifth TOB layer: r=96.5557, l=216.576
   ++bl;
   const SimpleCylinderBounds  TOB5( 
         (**bl).specificSurface().radius()-0.0150, 
         (**bl).specificSurface().radius()+0.0150, 
-       -(**bl).specificSurface().bounds().length()/2.,  
-       +(**bl).specificSurface().bounds().length()/2.);
+       -(**bl).specificSurface().bounds().length()/2.-0.5,  
+       +(**bl).specificSurface().bounds().length()/2.+0.5);
   // Sixth TOB layer: r=108.05, l=216.576
   ++bl;
   const SimpleCylinderBounds  TOB6( 
         (**bl).specificSurface().radius()-0.0150, 
         (**bl).specificSurface().radius()+0.0150, 
-       -(**bl).specificSurface().bounds().length()/2.,  
-       +(**bl).specificSurface().bounds().length()/2.);
+       -(**bl).specificSurface().bounds().length()/2.-0.5,  
+       +(**bl).specificSurface().bounds().length()/2.+0.5);
 
   const SimpleDiskBounds TOBEOut(55.0,109.5,-0.5,0.5);
   const Surface::PositionType PTOBEOut(0.0,0.0,110.0);

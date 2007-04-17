@@ -15,6 +15,7 @@
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
+#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetType.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 //needed for the geometry:
@@ -44,16 +45,11 @@
 
 #include "FWCore/ParameterSet/interface/InputTag.h"
 
-#include "TROOT.h"
 #include "TFile.h"
-#include "TTree.h"
-#include "TBranch.h"
-#include "TH1F.h"
-#include "TH2F.h"
 #include "TString.h"
+#include "TROOT.h"
 #include "TObjArray.h"
-#include "TCanvas.h"
-#include "TPostScript.h"
+#include "TRandom.h"
 
 #include "vector"
 #include <memory>
@@ -84,6 +80,9 @@ namespace cms{
       bool clusterInfos(const SiStripClusterInfo* cluster, const uint32_t& detid,TString flag);	
       const SiStripClusterInfo* MatchClusterInfo(const SiStripCluster* cluster, const uint32_t& detid);	
       std::pair<std::string,uint32_t> GetSubDetAndLayer(const uint32_t& detid);
+
+      void fillTH1(float,TString,bool,float=0);
+      void fillTH2(float,float,TString,bool,float=0);
 
     private:
   
@@ -118,8 +117,9 @@ namespace cms{
       edm::InputTag Track_src_;
       edm::InputTag ClusterInfo_src_;
       edm::InputTag Cluster_src_;
-
       std::vector<uint32_t> ModulesToBeExcluded_;
+      int EtaAlgo_;
+      int NeighStrips_;
  
       bool not_the_first_event;
 
@@ -127,7 +127,8 @@ namespace cms{
       bool ltcdigisCollection_in_EventTree;
 
       int countOn, countOff, countAll, NClus[4][3];
-      
+
+      TRandom rnd;      
     };
 }
 #endif

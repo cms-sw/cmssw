@@ -26,6 +26,11 @@ class TrackCountingTagInfo
   
   virtual ~TrackCountingTagInfo() {}
   
+ /* virtual const Track & track(size_t n,int ipType) const
+  {
+     
+    return *m_jetTag->tracks()[trackIndex(n,ipType)]; 
+  }*/
   virtual float significance(size_t n,int ip) const 
    {
     if(ip == 0)
@@ -41,15 +46,37 @@ class TrackCountingTagInfo
     return -10.; 
    }
 
+   virtual int trackIndex(size_t n,int ip) const
+   {
+    if(ip == 0)
+    {
+     if(n <m_significance3d.size())
+      return m_trackOrder3d[n];
+    }
+    else
+    {
+     if(n <m_significance2d.size())
+      return m_trackOrder2d[n];
+    }
+    return 0;
+   }
+
  /**
   Recompute discriminator using nth track i.p. significance.
   ipType = 0 means 3d impact parameter
   ipType = 1 means transverse impact parameter
  */
   virtual float discriminator(size_t nth,int ipType) const { return significance(nth,ipType); }
+ 
+  virtual int selectedTracks(int ipType)
+  {
+   if(ipType == 0) return m_significance3d.size();
+   else return m_significance2d.size();
+  }   
   
   virtual TrackCountingTagInfo* clone() const { return new TrackCountingTagInfo( * this ); }
-  
+ 
+ 
   void setJetTag(const JetTagRef ref) { 
         m_jetTag = ref;
    }
