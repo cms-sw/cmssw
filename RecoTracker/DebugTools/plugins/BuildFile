@@ -1,0 +1,5 @@
+<use name=RecoTracker/DebugTools>
+<library file="*.cc" name=RecoTrackerDebugToolsPlugins>
+      <flags EDM_PLUGIN=1>
+</library>
+ 
