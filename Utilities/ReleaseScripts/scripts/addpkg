@@ -3,6 +3,7 @@
 # Created by: Shahram Rahatlou
 #             University of Rome & INFN
 #             11 September 2006
+#  $Id: $
 #
 use strict;
 use Getopt::Long;
@@ -120,9 +121,12 @@ addpkg [option]
               --file|-f <file>   checkout tags in <file>. Each line must contain one tag and one package
 
   Typical use of addpkg:
-      addpkg <package>       : checkout the tag used in your test release
-      addpkg <package> <tag> : checkout the tag <tag>. Same as cvs co -r <tag>
-      addpkg -f <file>       : checkout packages provided in <file>
+      addpkg <package>       : checkout default tag of <package> in the release
+      addpkg <package> <tag> : checkout the tag <tag>. Same as cvs co -r <tag> <package>
+      addpkg -f <file>       : checkout packages provided in <file>. Supports both formats
+                               <package> <tag>
+                                 or
+                               <tag> <package>
 
 ENDHELP
 exit 0;
