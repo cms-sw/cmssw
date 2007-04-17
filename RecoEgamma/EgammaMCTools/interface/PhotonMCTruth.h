@@ -1,6 +1,7 @@
 #ifndef PhotonMCTruth_h
 #define PhotonMCTruth_h
-#include "Geometry/Vector/interface/GlobalPoint.h"
+
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "SimDataFormats/Track/interface/SimTrack.h"
 #include <CLHEP/Matrix/Vector.h>
 #include <CLHEP/Vector/LorentzVector.h>
@@ -11,8 +12,8 @@
  *  This class stores all the MC truth information needed about the
  *  conversion
  * 
- *  $Date:  $
- *  $Revision: $
+ *  $Date: 2007/04/13 12:28:01 $
+ *  $Revision: 1.1 $
  *  \author N. Marinelli  IASA-Athens
  *
  */
