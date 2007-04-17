@@ -320,22 +320,29 @@ void CSCGeometryBuilderFromDDD::buildChamber (
       
    // Need to know z of layers w.r.t to z of centre of chamber. 
 
-    float frameThickness = fupar[31]; // in mm
-    float gapThickness =   fupar[32]; // in mm
-    float panelThickness = fupar[33]; // in mm
-    float layerThickness = ( gapThickness + panelThickness )/10.; // effective layer thickness, in cm
-    float chamberThickness = ( 7.*panelThickness + 6.*gapThickness + 2.*frameThickness )/10.; // chamber frame thickness, in cm
-    float hChamberThickness = chamberThickness/2.;
-    float centreChamberToFirstLayer = hChamberThickness - (frameThickness+panelThickness)/10.; // local z wrt chamber centre, in cm
+    float frameThickness = fupar[31]/10.; // mm -> cm
+    float gapThickness =   fupar[32]/10.; // mm -> cm
+    float panelThickness = fupar[33]/10.; // mm -> cm
+
+    float layerThickness = gapThickness; // consider the layer to be the gas gap
+    float layerSeparation = gapThickness + panelThickness; // centre-to-centre of neighbouring layers
+
+    float chamberThickness = 7.*panelThickness + 6.*gapThickness + 2.*frameThickness ; // chamber frame thickness
+    float hChamberThickness = chamberThickness/2.; // @@ should match value returned from DDD directly
+
+    // @@ If there's really an offset between centre of chamber and (L1+L6)/2 then need an appropriate value
+    // @@ for centreChamberToFirstLayer in cscSpecs file and just read it directly instead of the following...
+    float centreChamberToFirstLayer = 2.5 * layerSeparation; // local z wrt chamber centre
    
-   // Now z of strips in layer 1 = z_s1 = centreChamberToFirstLayer; // layer 1 is at most +ve local z
-   //     z of strips in layer N = z_sN = z_s1 - (N-1)*layerThickness; // in cm
-   //     z of wires  in layer N = z_sN = z_sN - 0.5*gapThickness/10.; // in cm
+   // Now z of wires in layer 1 = z_s1 = centreChamberToFirstLayer;; // layer 1 is at most +ve local z
+   //     z of wires in layer N = z_sN = z_s1 - (N-1)*layerSeparation; 
+   //     z of strips  in layer N = z_sN = z_sN + gapThickness/2.; @@ BEWARE: need to check if it should be '-gapThickness/2' !
 
    // Set dimensions of trapezoidal chamber volume 
    // N.B. apothem is 4th in fpar but 3rd in ctor 
 
-    //@@ SURELY hChamberThickness AND fpar[2] SHOULD BE THE SAME??
+    // hChamberThickness and fpar[2] should be the same - but using the above value at least shows
+    // how chamber structure works
 
     //    TrapezoidalPlaneBounds* bounds =  new TrapezoidalPlaneBounds( fpar[0], fpar[1], fpar[3], fpar[2] ); 
     TrapezoidalPlaneBounds* bounds =  new TrapezoidalPlaneBounds( fpar[0], fpar[1], fpar[3], hChamberThickness ); 
@@ -343,7 +350,7 @@ void CSCGeometryBuilderFromDDD::buildChamber (
    // Centre of chamber in z is specified in DDD
     Surface::PositionType aVec( gtran[0], gtran[1], gtran[2] ); 
 
-    BoundPlane* plane = new BoundPlane(aVec, aRot, bounds); 
+    BoundPlane::BoundPlanePointer plane = BoundPlane::build(aVec, aRot, bounds); 
     delete bounds; // bounds cloned by BoundPlane, so we can delete it
 
     CSCChamber* chamber = new CSCChamber( plane, chamberId, aSpecs );
@@ -352,12 +359,11 @@ void CSCGeometryBuilderFromDDD::buildChamber (
     LogTrace(myName) << myName << ": Create chamber E" << jend << " S" << jstat 
  	             << " R" << jring << " C" << jch 
                      << " z=" << gtran[2]
-		     << " t/2=" << fpar[2] << " or " << hChamberThickness 
-		     << " adr=" << chamber ;
+		     << " t/2=" << fpar[2] << " (DDD) or " << hChamberThickness 
+		     << " (specs) adr=" << chamber ;
 
     // Create the component layers of this chamber   
-    // We're taking the z as the z of the strip plane within the layer.
-    // The wire plane is typically 0.476 cm neared the chamber centre.
+    // We're taking the z as the z of the wire plane within the layer (middle of gas gap)
 
     // Specify global z of layer by offsetting from centre of chamber: since layer 1 
     // is nearest to IP in stations 1/2 but layer 6 is nearest in stations 3/4, 
@@ -380,23 +386,27 @@ void CSCGeometryBuilderFromDDD::buildChamber (
                     (j%2 != 0) ? aSpecs->oddLayerGeometry( jend ) : 
                                  aSpecs->evenLayerGeometry( jend );
 
-        // Build appropriate BoundPlane 
+        // Build appropriate BoundPlane, based on parent chamber, with gas gap as thickness
 
 	// centre of chamber is at global z = gtran[2]
-	float zlayer = gtran[2] + localZwrtGlobalZ*( centreChamberToFirstLayer - (j-1)*layerThickness );
+	float zlayer = gtran[2] + localZwrtGlobalZ*( centreChamberToFirstLayer - (j-1)*layerSeparation );
 
         BoundSurface::RotationType chamberRotation = chamber->surface().rotation();
         BoundPlane::PositionType layerPosition( gtran[0], gtran[1], zlayer );
         TrapezoidalPlaneBounds* bounds = new TrapezoidalPlaneBounds( *geom );
-        BoundPlane* plane = new BoundPlane(layerPosition, chamberRotation, bounds);
-        delete bounds; // cloned by BoundPlane ctor
+	std::vector<float> dims = bounds->parameters(); // returns hb, ht, d, a
+        dims[2] = layerThickness/2.; // half-thickness required and note it is 3rd value in vector
+        delete bounds;        
+        bounds = new TrapezoidalPlaneBounds( dims[0], dims[1], dims[3], dims[2] );
+        BoundPlane::BoundPlanePointer plane = BoundPlane::build(layerPosition, chamberRotation, bounds);
+	delete bounds;
 
         CSCLayer* layer = new CSCLayer( plane, layerId, chamber, geom );
 
         LogTrace(myName) << myName << ": Create layer E" << jend << " S" << jstat 
 	            << " R" << jring << " C" << jch << " L" << j
                     << " z=" << zlayer
-		    << " t=" << layerThickness
+			 << " t=" << layerThickness << " or " << layer->surface().bounds().thickness()
 		    << " adr=" << layer << " layerGeom adr=" << geom ;
 
         chamber->addComponent(j, layer); 
