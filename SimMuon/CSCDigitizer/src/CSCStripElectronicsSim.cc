@@ -34,12 +34,9 @@ CSCStripElectronicsSim::CSCStripElectronicsSim(const edm::ParameterSet & p)
   doCrosstalk_(p.getParameter<bool>("doCrosstalk")),
   theStripConditions(0),
   theCrosstalkGenerator(0),
-  theScaNoiseGenerator(0),
   theComparatorClockJump(2),
   sca_time_bin_size(50.),
   theAnalogNoise(p.getParameter<double>("analogNoise")),
-  thePedestal(p.getParameter<double>("pedestal")),
-  thePedestalWidth(p.getParameter<double>("pedestalWidth")),
   sca_peak_bin(p.getParameter<int>("scaPeakBin")),
   theComparatorTimeBinOffset(p.getParameter<int>("comparatorTimeBinOffset")),
   scaNoiseMode_(p.getParameter<std::string>("scaNoiseMode"))
@@ -48,26 +45,12 @@ CSCStripElectronicsSim::CSCStripElectronicsSim(const edm::ParameterSet & p)
   if(doCrosstalk_) {
     theCrosstalkGenerator = new CSCCrosstalkGenerator();
   }
-  if(doNoise_) {
-    if(scaNoiseMode_ == "file") {
-      theScaNoiseGenerator = new CSCScaNoiseReader(thePedestal, thePedestalWidth);
-    }
-    else if(scaNoiseMode_ == "simple") {
-      theScaNoiseGenerator = new CSCScaNoiseGaussian(theAnalogNoise, thePedestal, thePedestalWidth);
-    }
-    else {
-      edm::LogError("CSCStripElectronicsSim") << "Bad value for SCA noise mode";
-    }
-  }
 
   fillAmpResponse();
 }
 
 
 CSCStripElectronicsSim::~CSCStripElectronicsSim() {
-  if(doNoise_) {
-    delete theScaNoiseGenerator;
-  }
   if(doCrosstalk_) {
     delete theCrosstalkGenerator;
   }
@@ -107,7 +90,6 @@ int CSCStripElectronicsSim::readoutElement(int strip) const {
 CSCAnalogSignal CSCStripElectronicsSim::makeNoiseSignal(int element) {
   std::vector<float> noiseBins(nScaBins_);
   CSCAnalogSignal tmpSignal(element, sca_time_bin_size, noiseBins);
-  //theScaNoiseGenerator->noisify(layerId(), tmpSignal);
   theStripConditions->noisify(layerId(), tmpSignal);
   tmpSignal *= theSpecs->chargePerCount();
   // now rebin it
@@ -392,14 +374,15 @@ CSCStripDigi CSCStripElectronicsSim::createDigi(int channel, float startTime)
   const CSCAnalogSignal & signal = find(channel);
   // fill in the sca information
   std::vector<int> scaCounts(nScaBins_);
+
+  float pedestal = theStripConditions->pedestal(layerId(), channel);
+  float gain = theStripConditions->smearedGain(layerId(), channel);
+
   for(int scaBin = 0; scaBin < nScaBins_; ++scaBin) {
     scaCounts[scaBin] = static_cast< int >
-      ( signal.getValue(startTime+scaBin*sca_time_bin_size) / theSpecs->chargePerCount() );
+      ( pedestal + signal.getValue(startTime+scaBin*sca_time_bin_size) * gain );
   }
   CSCStripDigi newDigi(channel, scaCounts);
-  if(theScaNoiseGenerator != 0) {
-    theScaNoiseGenerator->addPedestal(layerId(), newDigi);
-  }
 
   // do saturation of 12-bit ADC
   doSaturation(newDigi);
