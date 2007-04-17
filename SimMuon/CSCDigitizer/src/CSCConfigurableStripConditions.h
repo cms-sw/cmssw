@@ -11,11 +11,24 @@ public:
   CSCConfigurableStripConditions(const edm::ParameterSet & p);
   virtual ~CSCConfigurableStripConditions();
 
+  /// channels count from 1
+  virtual float gain(const CSCDetId & detId, int channel) const;
+  virtual float gainVariance(const CSCDetId & detId, int channel) const {return theGainVariance;}
+
+  /// in ADC counts
+  virtual float pedestal(const CSCDetId & detId, int channel) const {return thePedestal;}
+
 private:
   virtual void fetchNoisifier(const CSCDetId & detId, int istrip);
   void makeNoisifier(int chamberType, const std::vector<double> & correlations);
   std::vector<CorrelatedNoisifier *> theNoisifiers;
   double theAnalogNoise;
+
+  float theGain;
+  float theME11Gain;
+  float theGainVariance;
+  float thePedestal;
+
 };
 
 #endif

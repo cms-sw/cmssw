@@ -4,7 +4,11 @@
 #include "FWCore/Utilities/interface/Exception.h"
 
 CSCConfigurableStripConditions::CSCConfigurableStripConditions(const edm::ParameterSet & p)
-: theAnalogNoise(  p.getParameter<double>("analogNoise") )
+: theAnalogNoise(  p.getParameter<double>("analogNoise") ),
+  theGain( p.getParameter<double>("gain") ),
+  theME11Gain( p.getParameter<double>("me11gain") ),
+  theGainVariance( p.getParameter<double>("ampGainVariance") ),
+  thePedestal( p.getParameter<double>("pedestal") )
 {
   theNoisifiers.resize(9);
   makeNoisifier(1, p.getParameter<std::vector<double> >("me11") );
@@ -24,6 +28,19 @@ CSCConfigurableStripConditions::~CSCConfigurableStripConditions()
   for(int i = 0; i < 9; ++i)
   {
     delete theNoisifiers[i];
+  }
+}
+
+
+float CSCConfigurableStripConditions::gain(const CSCDetId & detId, int channel) const
+{
+  if(detId.station() == 1 && (detId.ring() == 1 || detId.ring() == 4) )
+  {
+    return theME11Gain;
+  }  
+  else
+  {
+    return theGain;
   }
 }
 

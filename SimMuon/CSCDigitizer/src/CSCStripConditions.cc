@@ -1,4 +1,11 @@
 #include "SimMuon/CSCDigitizer/src/CSCStripConditions.h"
+#include "CLHEP/Random/RandGaussQ.h"
+
+float CSCStripConditions::smearedGain(const CSCDetId & detId, int channel) const
+{
+  return RandGaussQ::shoot( gain(detId, channel), gainVariance(detId, channel) );
+}
+
 
 void CSCStripConditions::noisify(const CSCDetId & detId, CSCAnalogSignal & signal)
 {
