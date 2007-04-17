@@ -21,10 +21,10 @@
 #include "FWCore/Framework/interface/ConstProductRegistry.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "DataFormats/Common/interface/ProductID.h"
-#include "DataFormats/Common/interface/ParameterSetID.h"
-#include "DataFormats/Common/interface/Provenance.h"
-#include "DataFormats/Common/interface/BranchDescription.h"
+#include "DataFormats/Provenance/interface/ProductID.h"
+#include "DataFormats/Provenance/interface/ParameterSetID.h"
+#include "DataFormats/Provenance/interface/Provenance.h"
+#include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 
 #include "SimCalorimetry/EcalTrigPrimProducers/interface/EcalTrigPrimProducer.h"
