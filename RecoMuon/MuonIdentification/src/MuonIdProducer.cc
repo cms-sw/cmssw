@@ -13,7 +13,7 @@
 */
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: MuonIdProducer.cc,v 1.11 2007/03/26 07:54:53 dmytro Exp $
+// $Id: MuonIdProducer.cc,v 1.12 2007/04/13 06:13:45 dmytro Exp $
 //
 //
 
@@ -35,7 +35,6 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/MuonReco/interface/MuonWithMatchInfo.h"
 
 #include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
 #include "Utilities/Timing/interface/TimerStack.h"
@@ -43,11 +42,14 @@
 #include <boost/regex.hpp>
 #include "RecoMuon/MuonIdentification/interface/MuonIdProducer.h"
 #include "RecoMuon/MuonIdentification/interface/MuonIdTruthInfo.h"
+#include "RecoMuon/MuonIdentification/interface/MuonArbitrationMethods.h"
+
+#include <algorithm>
 
 MuonIdProducer::MuonIdProducer(const edm::ParameterSet& iConfig)
 {
    branchAlias_ = iConfig.getParameter<std::string>("branchAlias");
-   produces<reco::MuonWithMatchInfoCollection>().setBranchAlias(branchAlias_);
+   produces<reco::MuonCollection>().setBranchAlias(branchAlias_);
    
    minPt_ = iConfig.getParameter<double>("minPt");
    minP_ = iConfig.getParameter<double>("minP");
@@ -96,13 +98,13 @@ void MuonIdProducer::init(edm::Event& iEvent, const edm::EventSetup& iSetup)
    }
 }
 
-reco::MuonWithMatchInfo* MuonIdProducer::getNewMuon(edm::Event& iEvent, const edm::EventSetup& iSetup)
+reco::Muon* MuonIdProducer::getNewMuon(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    switch (mode_) {
     case TrackCollection:
       if( trackCollectionIter_ !=  trackCollectionHandle_->end())
 	{
-	   reco::MuonWithMatchInfo* aMuon = new reco::MuonWithMatchInfo;
+	   reco::Muon* aMuon = new reco::Muon;
 	   aMuon->setTrack(reco::TrackRef(trackCollectionHandle_,index_));
 	   index_++;
 	   trackCollectionIter_++;
@@ -113,7 +115,7 @@ reco::MuonWithMatchInfo* MuonIdProducer::getNewMuon(edm::Event& iEvent, const ed
     case MuonCollection:
       if( muonCollectionIter_ !=  muonCollectionHandle_->end())
 	{
-	   reco::MuonWithMatchInfo* aMuon = new reco::MuonWithMatchInfo; // here should be constructor based on reco::Muon
+	   reco::Muon* aMuon = new reco::Muon; // here should be constructor based on reco::Muon
 	   aMuon->setTrack(muonCollectionIter_->track());
 	   aMuon->setStandAlone(muonCollectionIter_->standAloneMuon());
 	   aMuon->setCombined(muonCollectionIter_->combinedMuon());
@@ -130,7 +132,7 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace edm;
    
-   std::auto_ptr<reco::MuonWithMatchInfoCollection> outputMuons(new reco::MuonWithMatchInfoCollection);
+   std::auto_ptr<reco::MuonCollection> outputMuons(new reco::MuonCollection);
 
    TimerStack timers;
    timers.push("MuonIdProducer::produce::init");
@@ -138,10 +140,10 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    timers.clear_stack();
 
    // loop over input collection
-   while(reco::MuonWithMatchInfo* aMuon = getNewMuon(iEvent, iSetup))
+   while(reco::Muon* aMuon = getNewMuon(iEvent, iSetup))
      {
 	if ( ! aMuon || ! aMuon->track().get() ) {
-	   edm::LogError("MuonIdentification") << "failed to make a valid MuonWithMatchInfo object. Skip event";
+	   edm::LogError("MuonIdentification") << "failed to make a valid Muon object. Skip event";
 	   break;
 	}
 	LogTrace("MuonIdentification") << "---------------------------------------------";
@@ -174,13 +176,13 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	// check number of matches
 	if ( goodMuonCandidate && minNumberOfMatches_>0) {
 	   int numberOfMatches = 0;
-	   const std::vector<reco::MuonWithMatchInfo::MuonChamberMatch>& chambers = aMuon->matches();
-	   for( std::vector<reco::MuonWithMatchInfo::MuonChamberMatch>::const_iterator chamber=chambers.begin(); 
+	   const std::vector<reco::MuonChamberMatch>& chambers = aMuon->getMatches();
+	   for( std::vector<reco::MuonChamberMatch>::const_iterator chamber=chambers.begin(); 
 		chamber!=chambers.end(); ++chamber )
 	     {
 		bool matchedX = false;
 		bool matchedY = false;
-		for( std::vector<reco::MuonWithMatchInfo::MuonSegmentMatch>::const_iterator segment=chamber->segmentMatches.begin(); 
+		for( std::vector<reco::MuonSegmentMatch>::const_iterator segment=chamber->segmentMatches.begin(); 
 		     segment!=chamber->segmentMatches.end(); ++segment )
 		  {
 		     if (fabs(segment->x - chamber->x) < maxAbsDx_) matchedX = true;
@@ -206,27 +208,161 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	
 	delete aMuon;
      }
+
+   //
+   // apply segment flags
+   //
+   reco::MuonCollection* pOutputMuons = outputMuons.get();
+   std::vector<std::pair<reco::MuonChamberMatch*,reco::MuonSegmentMatch*> > chamberPairs;     // for chamber segment sorting
+   std::vector<std::pair<reco::MuonChamberMatch*,reco::MuonSegmentMatch*> > stationPairs;     // for station segment sorting
+   std::vector<std::pair<reco::MuonChamberMatch*,reco::MuonSegmentMatch*> > arbitrationPairs; // for muon segment arbitration
+
+   // muonIndex1
+   for( unsigned int muonIndex1 = 0; muonIndex1 < pOutputMuons->size(); ++muonIndex1 )
+   {
+      // chamberIter1
+      for( std::vector<reco::MuonChamberMatch>::iterator chamberIter1 = pOutputMuons->at(muonIndex1).getMatches().begin();
+            chamberIter1 != pOutputMuons->at(muonIndex1).getMatches().end(); ++chamberIter1 )
+      {
+         if(chamberIter1->segmentMatches.empty()) continue;
+         chamberPairs.clear();
+
+         // segmentIter1
+         for( std::vector<reco::MuonSegmentMatch>::iterator segmentIter1 = chamberIter1->segmentMatches.begin();
+               segmentIter1 != chamberIter1->segmentMatches.end(); ++segmentIter1 )
+         {
+            chamberPairs.push_back(std::make_pair(&(*chamberIter1), &(*segmentIter1)));
+            if(!segmentIter1->isMask()) // has not yet been arbitrated
+            {
+               arbitrationPairs.clear();
+               arbitrationPairs.push_back(std::make_pair(&(*chamberIter1), &(*segmentIter1)));
+
+               // find identical segments with which to arbitrate
+               // muonIndex2
+               for( unsigned int muonIndex2 = muonIndex1+1; muonIndex2 < pOutputMuons->size(); ++muonIndex2 )
+               {
+                  // chamberIter2
+                  for( std::vector<reco::MuonChamberMatch>::iterator chamberIter2 = pOutputMuons->at(muonIndex2).getMatches().begin();
+                        chamberIter2 != pOutputMuons->at(muonIndex2).getMatches().end(); ++chamberIter2 )
+                  {
+                     // segmentIter2
+                     for( std::vector<reco::MuonSegmentMatch>::iterator segmentIter2 = chamberIter2->segmentMatches.begin();
+                           segmentIter2 != chamberIter2->segmentMatches.end(); ++segmentIter2 )
+                     {
+                        if(segmentIter2->isMask()) continue; // has already been arbitrated
+                        if(fabs(segmentIter2->x       - segmentIter1->x      ) < 1E-3 &&
+                           fabs(segmentIter2->y       - segmentIter1->y      ) < 1E-3 &&
+                           fabs(segmentIter2->dXdZ    - segmentIter1->dXdZ   ) < 1E-3 &&
+                           fabs(segmentIter2->dYdZ    - segmentIter1->dYdZ   ) < 1E-3 &&
+                           fabs(segmentIter2->xErr    - segmentIter1->xErr   ) < 1E-3 &&
+                           fabs(segmentIter2->yErr    - segmentIter1->yErr   ) < 1E-3 &&
+                           fabs(segmentIter2->dXdZErr - segmentIter1->dXdZErr) < 1E-3 &&
+                           fabs(segmentIter2->dYdZErr - segmentIter1->dYdZErr) < 1E-3)
+                           arbitrationPairs.push_back(std::make_pair(&(*chamberIter2), &(*segmentIter2)));
+                     } // segmentIter2
+                  } // chamberIter2
+               } // muonIndex2
+
+               // arbitration segment sort
+               if(arbitrationPairs.empty()) continue; // this should never happen
+               if(arbitrationPairs.size()==1) {
+                  arbitrationPairs.front().second->setMask(reco::MuonSegmentMatch::BelongsToTrackByDRSlope);
+                  arbitrationPairs.front().second->setMask(reco::MuonSegmentMatch::BelongsToTrackByDXSlope);
+                  arbitrationPairs.front().second->setMask(reco::MuonSegmentMatch::BelongsToTrackByDR);
+                  arbitrationPairs.front().second->setMask(reco::MuonSegmentMatch::BelongsToTrackByDX);
+                  arbitrationPairs.front().second->setMask(reco::MuonSegmentMatch::Arbitrated);
+               } else {
+                  sort(arbitrationPairs.begin(), arbitrationPairs.end(), SortMuonSegmentMatches(reco::MuonSegmentMatch::BelongsToTrackByDRSlope));
+                  arbitrationPairs.front().second->setMask(reco::MuonSegmentMatch::BelongsToTrackByDRSlope);
+                  sort(arbitrationPairs.begin(), arbitrationPairs.end(), SortMuonSegmentMatches(reco::MuonSegmentMatch::BelongsToTrackByDXSlope));
+                  arbitrationPairs.front().second->setMask(reco::MuonSegmentMatch::BelongsToTrackByDXSlope);
+                  sort(arbitrationPairs.begin(), arbitrationPairs.end(), SortMuonSegmentMatches(reco::MuonSegmentMatch::BelongsToTrackByDR));
+                  arbitrationPairs.front().second->setMask(reco::MuonSegmentMatch::BelongsToTrackByDR);
+                  sort(arbitrationPairs.begin(), arbitrationPairs.end(), SortMuonSegmentMatches(reco::MuonSegmentMatch::BelongsToTrackByDX));
+                  arbitrationPairs.front().second->setMask(reco::MuonSegmentMatch::BelongsToTrackByDX);
+                  for( unsigned int it = 0; it < arbitrationPairs.size(); ++it )
+                     arbitrationPairs.at(it).second->setMask(reco::MuonSegmentMatch::Arbitrated);
+               }
+            }
+         } // segmentIter1
+
+         // chamber segment sort
+         if(chamberPairs.empty()) continue; // this should never happen
+         if(chamberPairs.size()==1) {
+            chamberPairs.front().second->setMask(reco::MuonSegmentMatch::BestInChamberByDRSlope);
+            chamberPairs.front().second->setMask(reco::MuonSegmentMatch::BestInChamberByDXSlope);
+            chamberPairs.front().second->setMask(reco::MuonSegmentMatch::BestInChamberByDR);
+            chamberPairs.front().second->setMask(reco::MuonSegmentMatch::BestInChamberByDX);
+         } else {
+            sort(chamberPairs.begin(), chamberPairs.end(), SortMuonSegmentMatches(reco::MuonSegmentMatch::BestInChamberByDRSlope));
+            chamberPairs.front().second->setMask(reco::MuonSegmentMatch::BestInChamberByDRSlope);
+            sort(chamberPairs.begin(), chamberPairs.end(), SortMuonSegmentMatches(reco::MuonSegmentMatch::BestInChamberByDXSlope));
+            chamberPairs.front().second->setMask(reco::MuonSegmentMatch::BestInChamberByDXSlope);
+            sort(chamberPairs.begin(), chamberPairs.end(), SortMuonSegmentMatches(reco::MuonSegmentMatch::BestInChamberByDR));
+            chamberPairs.front().second->setMask(reco::MuonSegmentMatch::BestInChamberByDR);
+            sort(chamberPairs.begin(), chamberPairs.end(), SortMuonSegmentMatches(reco::MuonSegmentMatch::BestInChamberByDX));
+            chamberPairs.front().second->setMask(reco::MuonSegmentMatch::BestInChamberByDX);
+         }
+      } // chamberIter1
+
+      // station segment sort
+      for( int stationIndex = 1; stationIndex < 5; ++stationIndex )
+         for( int detectorIndex = 1; detectorIndex < 4; ++detectorIndex )
+         {
+            stationPairs.clear();
+
+            // chamberIter
+            for( std::vector<reco::MuonChamberMatch>::iterator chamberIter = pOutputMuons->at(muonIndex1).getMatches().begin();
+                  chamberIter != pOutputMuons->at(muonIndex1).getMatches().end(); ++chamberIter )
+            {
+               if(!(chamberIter->station()==stationIndex && chamberIter->detector()==detectorIndex)) continue;
+               if(chamberIter->segmentMatches.empty()) continue;
+
+               for( std::vector<reco::MuonSegmentMatch>::iterator segmentIter = chamberIter->segmentMatches.begin();
+                     segmentIter != chamberIter->segmentMatches.end(); ++segmentIter )
+                  stationPairs.push_back(std::make_pair(&(*chamberIter), &(*segmentIter)));
+            } // chamberIter
+
+            if(stationPairs.empty()) continue; // this may very well happen
+            if(stationPairs.size()==1) {
+               stationPairs.front().second->setMask(reco::MuonSegmentMatch::BestInStationByDRSlope);
+               stationPairs.front().second->setMask(reco::MuonSegmentMatch::BestInStationByDXSlope);
+               stationPairs.front().second->setMask(reco::MuonSegmentMatch::BestInStationByDR);
+               stationPairs.front().second->setMask(reco::MuonSegmentMatch::BestInStationByDX);
+            } else {
+               sort(stationPairs.begin(), stationPairs.end(), SortMuonSegmentMatches(reco::MuonSegmentMatch::BestInStationByDRSlope));
+               stationPairs.front().second->setMask(reco::MuonSegmentMatch::BestInStationByDRSlope);
+               sort(stationPairs.begin(), stationPairs.end(), SortMuonSegmentMatches(reco::MuonSegmentMatch::BestInStationByDXSlope));
+               stationPairs.front().second->setMask(reco::MuonSegmentMatch::BestInStationByDXSlope);
+               sort(stationPairs.begin(), stationPairs.end(), SortMuonSegmentMatches(reco::MuonSegmentMatch::BestInStationByDR));
+               stationPairs.front().second->setMask(reco::MuonSegmentMatch::BestInStationByDR);
+               sort(stationPairs.begin(), stationPairs.end(), SortMuonSegmentMatches(reco::MuonSegmentMatch::BestInStationByDX));
+               stationPairs.front().second->setMask(reco::MuonSegmentMatch::BestInStationByDX);
+            }
+         }
+
+   } // muonIndex1
    iEvent.put(outputMuons);
 }
 
 void MuonIdProducer::fillMuonId(edm::Event& iEvent, const edm::EventSetup& iSetup,
-				reco::MuonWithMatchInfo& aMuon)
+				reco::Muon& aMuon)
 {
    TrackDetMatchInfo info = trackAssociator_.associate(iEvent, iSetup, 
 						       trackAssociator_.getFreeTrajectoryState(iSetup, *(aMuon.track().get()) ),
 						       parameters_);
-   reco::MuonWithMatchInfo::MuonEnergy muonEnergy;
+   reco::Muon::MuonEnergy muonEnergy;
    muonEnergy.em  = info.crossedEnergy(TrackDetMatchInfo::EcalRecHits);
    muonEnergy.had = info.crossedEnergy(TrackDetMatchInfo::HcalRecHits);
    muonEnergy.ho  = info.crossedEnergy(TrackDetMatchInfo::HORecHits);
       
    aMuon.setCalEnergy( muonEnergy );
       
-   std::vector<reco::MuonWithMatchInfo::MuonChamberMatch> muonChamberMatches;
+   std::vector<reco::MuonChamberMatch> muonChamberMatches;
    for( std::vector<MuonChamberMatch>::const_iterator chamber=info.chambers.begin();
 	chamber!=info.chambers.end(); chamber++ )
      {
-	reco::MuonWithMatchInfo::MuonChamberMatch aMatch;
+	reco::MuonChamberMatch aMatch;
 	
 	LocalError localError = chamber->tState.localError().positionError();
 	aMatch.x = chamber->tState.localPosition().x();
@@ -250,7 +386,7 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent, const edm::EventSetup& iSetu
 	for( std::vector<MuonSegmentMatch>::const_iterator segment = chamber->segments.begin();
 	     segment != chamber->segments.end(); segment++ ) 
 	  {
-	     reco::MuonWithMatchInfo::MuonSegmentMatch aSegment;
+	     reco::MuonSegmentMatch aSegment;
 	     aSegment.x = segment->segmentLocalPosition.x();
 	     aSegment.y = segment->segmentLocalPosition.y();
 	     aSegment.dXdZ = segment->segmentLocalDirection.x()/segment->segmentLocalDirection.z();
@@ -259,12 +395,13 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent, const edm::EventSetup& iSetu
 	     aSegment.yErr = segment->segmentLocalErrorYY>0?sqrt(segment->segmentLocalErrorYY):0;
 	     aSegment.dXdZErr = segment->segmentLocalErrorDxDz>0?sqrt(segment->segmentLocalErrorDxDz):0;
 	     aSegment.dYdZErr = segment->segmentLocalErrorDyDz>0?sqrt(segment->segmentLocalErrorDyDz):0;
+	     aSegment.mask = 0;
 	     aMatch.segmentMatches.push_back(aSegment);
 	  }
 	muonChamberMatches.push_back(aMatch);
      }
    aMuon.setMatches(muonChamberMatches);
-   LogTrace("MuonIdentification") << "number of muon chambers: " << aMuon.matches().size() << "\n" 
+   LogTrace("MuonIdentification") << "number of muon chambers: " << aMuon.getMatches().size() << "\n" 
      << "number of muon matches: " << aMuon.numberOfMatches();
 }
 
