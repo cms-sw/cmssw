@@ -1,7 +1,7 @@
 #ifndef Geometry_TrackerNumberingBuilder_CmsTrackerLevelBuilder_H
 #define Geometry_TrackerNumberingBuilder_CmsTrackerLevelBuilder_H
 
-#include "Geometry/TrackerNumberingBuilder/interface/CmsTrackerAbstractConstruction.h"
+#include "Geometry/TrackerNumberingBuilder/plugins/CmsTrackerAbstractConstruction.h"
 #include "Geometry/TrackerNumberingBuilder/interface/CmsTrackerStringToEnum.h"
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 #include "FWCore/ParameterSet/interface/types.h"
