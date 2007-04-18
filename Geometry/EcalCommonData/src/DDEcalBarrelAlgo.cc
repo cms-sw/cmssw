@@ -1545,7 +1545,7 @@ void DDEcalBarrelAlgo::execute()
 		<< std::endl ;
 */
 	 // Now for placement of cry within clr
-	 const Vec3 cryToClr ( 0,0, ( rClr - fClr )/2 ) ;
+	 const Vec3 cryToClr ( 0, 0, ( rClr - fClr )/2 ) ;
 
 	 DDpos( cryLog,
 		clrLog, 
@@ -1666,6 +1666,7 @@ void DDEcalBarrelAlgo::execute()
 	    17 == cryType    ) // web plates
 	 {
 	    const unsigned int webIndex ( cryType/4 ) ;
+	    zee += 0.5*vecGapAlvEta()[cryType]/sin(theta) ;
 	    web( webIndex,
 		 trapWall.a(),
 		 trapWall.A(),
@@ -1677,8 +1678,12 @@ void DDEcalBarrelAlgo::execute()
 		 sidePrime,
 		 frontPrime,
 		 delta ) ;
+	    zee += 0.5*vecGapAlvEta()[cryType]/sin(theta) ;
 	 }
-	 if( 17 != cryType ) zee += vecGapAlvEta()[cryType]/sin(theta) ;
+	 else
+	 {
+	    if( 17 != cryType ) zee += vecGapAlvEta()[cryType]/sin(theta) ;
+	 }
       }
       // END   filling Wedge with crystal plus supports --------------------------
 
@@ -1781,7 +1786,7 @@ void DDEcalBarrelAlgo::execute()
       
       const DDTranslation backSideTra1 ( 0*mm,
 					 backPlateWidth()/2 + backSideYOff1(),
-					 0*mm ) ;
+					 1*mm ) ;
       if( 0 != backSideHere() )
       {
 	 DDpos( backSideLog,
@@ -1793,7 +1798,7 @@ void DDEcalBarrelAlgo::execute()
 	     
 	 const DDTranslation backSideTra2( 0*mm,
 					   -backPlateWidth()/2 + backSideYOff2(),
-					   0*mm ) ;
+					   1*mm ) ;
 	 DDpos( backSideLog,
 		spmName(), 
 		copyTwo, 
@@ -1816,8 +1821,10 @@ void DDEcalBarrelAlgo::execute()
 //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
+      const double manifCut ( 2*mm ) ;
+
       DDSolid mBManifSolid ( DDSolidFactory::tubs( mBManifName() ,
-						   backCoolWidth/2.,
+						   backCoolWidth/2. - manifCut,
 						   0, 
 						   mBManifOutDiam()/2,
 						   0*deg, 360*deg ) ) ;
@@ -1825,7 +1832,7 @@ void DDEcalBarrelAlgo::execute()
 
       const DDName mBManifWaName ( ddname( mBManifName().name() + "Wa" ) ) ;
       DDSolid mBManifWaSolid ( DDSolidFactory::tubs( mBManifWaName ,
-						     backCoolWidth/2.,
+						     backCoolWidth/2.-manifCut,
 						     0, 
 						     mBManifInnDiam()/2,
 						     0*deg, 360*deg ) ) ;
@@ -1851,6 +1858,8 @@ void DDEcalBarrelAlgo::execute()
 //!!!!!!!!!!!!!!     Begin Loop over Grilles & MB Cooling Manifold !!!!
 //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      const double deltaY ( -5*mm ) ;
+
       DDSolid grEdgeSlotSolid ( DDSolidFactory::box( grEdgeSlotName(), 
 						     grEdgeSlotHeight()/2.,  
 						     grEdgeSlotWidth()/2.,
@@ -1875,7 +1884,7 @@ void DDEcalBarrelAlgo::execute()
 	 
 	 const DDTranslation grilleTra ( -realBPthick/2 -
 					 vecGrilleHeight()[iGr]/2,
-					 0*mm,
+					 deltaY,
 					 vecGrilleZOff()[iGr] +
 					 grilleThick()/2 - backSideLength()/2 ) ;
 	 const DDTranslation gTra ( outtra + backPlateTra + grilleTra ) ;
@@ -1937,7 +1946,7 @@ void DDEcalBarrelAlgo::execute()
 		   spmName(),
 		   iGr,
 		   gTra - DDTranslation( -mBManifOutDiam()/2. +
-					 vecGrilleHeight()[iGr]/2.,0, 
+					 vecGrilleHeight()[iGr]/2.,manifCut, 
 					 grilleThick()/2.+3*mBManifOutDiam()/2.) ,
 		   myrot( mBManifName().name()+"R1",
 			  HepRotationX(90*deg)             ) ) ;
@@ -1945,7 +1954,7 @@ void DDEcalBarrelAlgo::execute()
 		   spmName(),
 		   iGr-1,
 		   gTra - DDTranslation( -3*mBManifOutDiam()/2. +
-					 vecGrilleHeight()[iGr]/2.,0, 
+					 vecGrilleHeight()[iGr]/2.,manifCut, 
 					 grilleThick()/2+3*mBManifOutDiam()/2.) ,
 		   myrot( mBManifName().name()+"R2",
 			  HepRotationX(90*deg)             ) ) ;
@@ -2105,9 +2114,9 @@ void DDEcalBarrelAlgo::execute()
       {
 	 const double pipeLength ( vecGrilleZOff()[2*iMod+1] -
 				   vecGrilleZOff()[2*iMod  ] -
-				   grilleThick()               ) ;
+				   grilleThick()   - 3*mm            ) ;
 
-	 const double pipeZPos ( vecGrilleZOff()[2*iMod+1] - pipeLength/2  ) ;
+	 const double pipeZPos ( vecGrilleZOff()[2*iMod+1] - pipeLength/2 - 1.5*mm  ) ;
 
 
 
@@ -2138,7 +2147,7 @@ void DDEcalBarrelAlgo::execute()
 	 const DDTranslation bCoolTra ( -realBPthick/2 +
 					backCoolHeight/2    -
 					vecGrilleHeight()[2*iMod],
-					0*mm,
+					deltaY,
 					vecGrilleZOff()[2*iMod] +
 					grilleThick() + grilleZSpace() +
 					halfZBCool - 
@@ -2494,11 +2503,11 @@ void DDEcalBarrelAlgo::execute()
 
       const DDLogicalPart patchLog ( patchPanelName(), spmMat(), patchSolid ) ;
 	 
-      const DDTranslation patchTra ( backXOff() ,
+      const DDTranslation patchTra ( backXOff() + 4*mm ,
 				     0*mm,
 				     vecGrilleZOff().back() +
 				     grilleThick() +
-				     patchParms[2] ) ;
+				     patchParms[2]  ) ;
       if( 0 != patchPanelHere() )
 	 DDpos( patchLog,
 		spmName(), 
