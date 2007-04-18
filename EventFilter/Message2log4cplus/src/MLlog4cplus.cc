@@ -5,15 +5,14 @@
 // 
 //
 // Original Author:  Jim Kowalkowski
-// $Id: MLlog4cplus.cc,v 1.3 2006/10/27 01:35:25 wmtan Exp $
+// $Id: MLlog4cplus.cc,v 1.4 2007/03/09 10:13:09 meschi Exp $
 //
 
 #include "FWCore/MessageLogger/interface/MessageLoggerQ.h"
 #include "FWCore/MessageService/interface/NamedDestination.h"
 #include "DataFormats/Provenance/interface/EventID.h"
-#include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "EventFilter/Message2log4cplus/src/ELlog4cplus.h"
+#include "EventFilter/Message2log4cplus/interface/ELlog4cplus.h"
 #include "EventFilter/Message2log4cplus/interface/MLlog4cplus.h"
 
 #include <iostream>
@@ -89,6 +88,4 @@ using namespace ML;
     if(dest_p!=0)dest_p->setAppl(app);
   }
 
-using ML::MLlog4cplus;
-DEFINE_FWK_SERVICE(MLlog4cplus);
 

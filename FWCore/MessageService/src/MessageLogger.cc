@@ -8,7 +8,7 @@
 //
 // Original Author:  W. Brown, M. Fischler
 //         Created:  Fri Nov 11 16:42:39 CST 2005
-// $Id: MessageLogger.cc,v 1.16 2007/03/04 05:50:58 wmtan Exp $
+// $Id: MessageLogger.cc,v 1.17 2007/03/31 00:16:44 fischler Exp $
 //
 // Change log
 //
@@ -41,7 +41,6 @@
 #include "FWCore/MessageLogger/interface/ELseverityLevel.h"
 
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
 

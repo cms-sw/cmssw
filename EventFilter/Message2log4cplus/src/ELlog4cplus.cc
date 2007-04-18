@@ -8,7 +8,7 @@
 // ----------------------------------------------------------------------
 
 
-#include "EventFilter/Message2log4cplus/src/ELlog4cplus.h"
+#include "EventFilter/Message2log4cplus/interface/ELlog4cplus.h"
 
 #include "FWCore/MessageLogger/interface/ErrorObj.h"
 #include "FWCore/MessageService/interface/ELadministrator.h"

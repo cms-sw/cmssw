@@ -1,7 +1,18 @@
-<flags EDM_PLUGIN=1>
-<export>
-<lib name=EventFilterMessage2log4cplus>
-</export>
-<use name=xdaq>
+<use name=DataFormats/Provenance>
+<use name=EventFilter/Utilities>
 <use name=FWCore/MessageLogger>
 <use name=FWCore/MessageService>
+<use name=FWCore/ParameterSet>
+<use name=FWCore/ServiceRegistry>
+<use name=FWCore/Utilities>
+<use name=xdaq>
+<export>
+  <use name=DataFormats/Provenance>
+  <use name=EventFilter/Utilities>
+  <use name=FWCore/MessageLogger>
+  <use name=FWCore/MessageService>
+  <use name=FWCore/ParameterSet>
+  <use name=FWCore/ServiceRegistry>
+  <lib name=EventFilterMessage2log4cplus>
+</export>
+
