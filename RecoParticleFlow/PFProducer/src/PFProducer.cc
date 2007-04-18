@@ -96,6 +96,10 @@ void PFProducer::produce(Event& iEvent,
   assert( blocks.isValid() );
  
   pfAlgo_.reconstructParticles( blocks );
+
+  ostringstream  str;
+  str<<pfAlgo_<<endl;
+  LogInfo("PFProducer") <<str.str()<<endl;
   
   auto_ptr< reco::PFCandidateCollection > 
     pOutputCandidateCollection( pfAlgo_.transferCandidates() ); 
