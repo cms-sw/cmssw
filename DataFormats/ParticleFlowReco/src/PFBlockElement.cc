@@ -29,7 +29,6 @@ std::ostream& reco::operator<<( std::ostream& out,
   switch(element.type_) {
   case PFBlockElement::TRACK:
     {
-      out<<"casting to track"<<std::endl;
       const reco::PFBlockElementTrack& et =
 	dynamic_cast<const reco::PFBlockElementTrack &>( element );
       et.Dump(out);
@@ -38,7 +37,6 @@ std::ostream& reco::operator<<( std::ostream& out,
   case PFBlockElement::ECAL:
   case PFBlockElement::HCAL:
     {
-      out<<"casting to cluster"<<std::endl;
       const reco::PFBlockElementCluster& ec =
 	dynamic_cast<const reco::PFBlockElementCluster &>( element );
       ec.Dump(out);

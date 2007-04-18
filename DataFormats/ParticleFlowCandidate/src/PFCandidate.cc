@@ -22,10 +22,10 @@ ostream& reco::operator<<(ostream& out,
   out<<setiosflags(ios::right);
   out<<setiosflags(ios::fixed);
   out<<", pT="<<setw(7)<<c.pt();
-  out<<", E ="<<setw(7)<<c.energy();
+  out<<", E ="<<setw(7)<<c.energy()<<endl;
   
   out<<resetiosflags(ios::right|ios::fixed);
-
+  
   out<< *(c.blockRef_)<<endl;
   
   return out;
