@@ -16,12 +16,15 @@
 <!-- Short description of what this package is supposed to provide -->
 
 This DataFormat stores the result from the gaussian fit of the laser beam profiles and provides some member functions to access these results. It is used by the software for the Laser Alignment System of the Tracker during reconstruction. The results of the fits are used for the clusterizer (LaserClusterizer) to build clusters out of the digis, which are originating from the laser beams in the silicon modules.
+Also the calculated alignment parameters are stored to allow the study of the behaviour of the laser alignment system into more detail.
 
 \subsection interface Public interface
 <!-- List the classes that are provided for use in other packages (if any) -->
 
-- LASBeamProfileFitCollection: collection of LASBeamProfileFits
+- LASBeamProfileFitCollection: collection of LASBeamProfileFit
 - LASBeamProfileFit: stores the result of the fit
+- LASAlignmentParameterCollection: collection of LASAlignmentParameter
+- LASAlignmentParameter: stores the calculated alignment parameters (they are calculated in AlignmentAlgorithBW)
 
 \subsection modules Modules
 <!-- Describe modules implemented in this package and their parameter set -->
