@@ -5,10 +5,11 @@
  *  An input source for DQM consumers using cmsRun that connect to
  *  the StorageManager or SMProxyServer to get DQM data.
  *
- *  $Id$
+ *  $Id: DQMHttpSource.h,v 1.1 2007/04/04 22:14:27 hcheung Exp $
  */
 #include "IOPool/Streamer/interface/EventBuffer.h"
 #include "IOPool/Streamer/interface/StreamDeserializer.h"
+#include "DQMServices/CoreROOT/interface/DaqMonitorROOTBackEnd.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
@@ -49,6 +50,9 @@ namespace edm
     double minDQMEventRequestInterval_;
     unsigned int DQMconsumerId_;
     struct timeval lastDQMRequestTime_;
+
+    protected:
+      DaqMonitorBEInterface *bei_;
 
   };
 

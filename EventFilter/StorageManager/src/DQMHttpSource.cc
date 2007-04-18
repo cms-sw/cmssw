@@ -2,7 +2,7 @@
  *  An input source for DQM consumers run in cmsRun that connect to
  *  the StorageManager or SMProxyServer to get DQM data.
  *
- *  $Id$
+ *  $Id: DQMHttpSource.cc,v 1.1 2007/04/04 22:14:27 hcheung Exp $
  */
 
 #include "EventFilter/StorageManager/src/DQMHttpSource.h"
@@ -11,6 +11,7 @@
 #include "FWCore/Utilities/interface/DebugMacros.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "IOPool/Streamer/interface/OtherMessage.h"
 #include "IOPool/Streamer/interface/ConsRegMessage.h"
@@ -81,8 +82,6 @@ namespace edm
     timeDiff -= (double) lastDQMRequestTime_.tv_sec;
     timeDiff += ((double) now.tv_usec / 1000000.0);
     timeDiff -= ((double) lastDQMRequestTime_.tv_usec / 1000000.0);
-    //cout << "timeDiff = " << timeDiff
-    //     << ", minTime = " << minEventRequestInterval_ << std::endl;
     if (timeDiff < minDQMEventRequestInterval_)
     {
       double sleepTime = minDQMEventRequestInterval_ - timeDiff;
@@ -90,7 +89,6 @@ namespace edm
       // calling gettimeofday again
       sleepTime -= 0.01;
       if (sleepTime < 0.0) {sleepTime = 0.0;}
-      //cout << "sleeping for " << sleepTime << endl;
       usleep(static_cast<int>(1000000 * sleepTime));
       gettimeofday(&lastDQMRequestTime_, &dummyTZ);
     }
@@ -98,8 +96,6 @@ namespace edm
     {
       lastDQMRequestTime_ = now;
     }
-    //cout << "lastRequestTime = " << lastRequestTime_.tv_sec
-    //     << " " << lastRequestTime_.tv_usec << endl;
 
     stor::ReadData data;
     bool alreadySaidWaiting = false;
@@ -111,7 +107,7 @@ namespace edm
         cerr << "DQMHttpSOurce: could not create handle" << endl;
         throw cms::Exception("getOneEvent","DQMHttpSource")
             << "Unable to create curl handle\n";
-        // this will end cmsRun probably
+        // this will end cmsRun
       }
 
       stor::setopt(han,CURLOPT_URL,DQMeventurl_);
@@ -120,7 +116,7 @@ namespace edm
 
       // send our consumer ID as part of the event request
       char msgBuff[100];
-      // Later make this change when tags are compatible
+      // Later make this change when Header::DQMEVENT_REQUEST is available
       //OtherMessageBuilder requestMessage(&msgBuff[0], Header::DQMEVENT_REQUEST,
       OtherMessageBuilder requestMessage(&msgBuff[0], Header::EVENT_REQUEST,
                                          sizeof(char_uint32));
@@ -149,7 +145,7 @@ namespace edm
         throw cms::Exception("getOneEvent","DQMHttpSource")
             << "curl perform failed for DQMevent, messageStatus = "
             << messageStatus << endl;
-        // this will end cmsRun probably
+        // this will end cmsRun
       }
       if(data.d_.length() == 0)
       {
@@ -186,51 +182,72 @@ namespace edm
       iRun = dqmEventView.runNumber();
       iEvent = dqmEventView.eventNumberAtUpdate();
 
-      // temporary printout
-      std::cout << "  DQM Message data:" << std::endl;
-      std::cout << "    protocol version = "
+      FDEBUG(8) << "  DQM Message data:" << std::endl;
+      FDEBUG(8) << "    protocol version = "
                 << dqmEventView.protocolVersion() << std::endl;
-      std::cout << "    header size = "
+      FDEBUG(8) << "    header size = "
                 << dqmEventView.headerSize() << std::endl;
-      std::cout << "    run number = "
+      FDEBUG(8) << "    run number = "
                 << dqmEventView.runNumber() << std::endl;
-      std::cout << "    event number = "
+      FDEBUG(8) << "    event number = "
                 << dqmEventView.eventNumberAtUpdate() << std::endl;
-      std::cout << "    lumi section = "
+      FDEBUG(8) << "    lumi section = "
                 << dqmEventView.lumiSection() << std::endl;
-      std::cout << "    update number = "
+      FDEBUG(8) << "    update number = "
                 << dqmEventView.updateNumber() << std::endl;
-      std::cout << "    compression flag = "
+      FDEBUG(8) << "    compression flag = "
                 << dqmEventView.compressionFlag() << std::endl;
-      std::cout << "    reserved word = "
+      FDEBUG(8) << "    reserved word = "
                 << dqmEventView.reserved() << std::endl;
-      std::cout << "    release tag = "
+      FDEBUG(8) << "    release tag = "
                 << dqmEventView.releaseTag() << std::endl;
-      std::cout << "    top folder name = "
+      FDEBUG(8) << "    top folder name = "
                 << dqmEventView.topFolderName() << std::endl;
-      std::cout << "    sub folder count = "
+      FDEBUG(8) << "    sub folder count = "
                 << dqmEventView.subFolderCount() << std::endl;
 
       // deserialize and stick into DQM backend
+      if (bei_ == NULL) {
+        bei_ = edm::Service<DaqMonitorBEInterface>().operator->();
+      }
+      if (bei_ == NULL) {
+        throw cms::Exception("readOneEvent", "DQMHttpSource")
+          << "Unable to lookup the DaqMonitorBEInterface service!\n";
+      }
+      unsigned int count = 0;
+
       edm::StreamDQMDeserializer deserializeWorker;
-      // temporary printout
       std::auto_ptr<DQMEvent::TObjectTable> toTablePtr =
-        deserializeWorker.deserializeDQMEvent(dqmEventView);
+          deserializeWorker.deserializeDQMEvent(dqmEventView);
       DQMEvent::TObjectTable::const_iterator toIter;
       for (toIter = toTablePtr->begin();
            toIter != toTablePtr->end(); toIter++) {
         std::string subFolderName = toIter->first;
-        std::cout << "  folder = " << subFolderName << std::endl;
+        //std::cout << "  folder = " << subFolderName << std::endl;
         std::vector<TObject *> toList = toIter->second;
+        MonitorElementRootFolder * dqmdir = bei_->makeDirectory(subFolderName);  // fetch or create
+        //const bool fromRemoteNode = true; // only put in TObjects we asked for
+        const bool fromRemoteNode = false;  // put in all TObjects
         for (int tdx = 0; tdx < (int) toList.size(); tdx++) {
           TObject *toPtr = toList[tdx];
-          string cls = toPtr->IsA()->GetName();
-          string nm = toPtr->GetName();
-          std::cout << "    TObject class = " << cls
-                    << ", name = " << nm << std::endl;
+          //string cls = toPtr->IsA()->GetName();
+          //string nm = toPtr->GetName();
+          //std::cout << "    TObject class = " << cls
+          //          << ", name = " << nm << std::endl;
+          bool success = bei_->extractObject(toPtr, dqmdir,fromRemoteNode);
+          if(success) ++count; // currently success is hardwired to be true on return!
         }
       }
-      // Stick this DQM data in the right place
+      //std::cout << "Put " << count << " MEs into the DQM backend" <<std::endl;
+
+      // clean up memory by spinning through the DQMEvent::TObjectTable map and
+      // deleting each TObject in the std::vector<TObject *> later we will
+      // change map to use std::vector< boost::shared_ptr<TObject> >
+      DQMEvent::TObjectTable::iterator ti(toTablePtr->begin()), te(toTablePtr->end());
+      for ( ; ti != te; ++ti) {
+        std::vector<TObject *>::iterator vi(ti->second.begin()), ve(ti->second.end());
+        for ( ; vi != ve; ++vi) delete *vi;
+      }
     }
 
     setRunNumber(iRun); // <<=== here is where the run is set
