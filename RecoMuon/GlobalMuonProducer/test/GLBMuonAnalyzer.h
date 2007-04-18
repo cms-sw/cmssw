@@ -4,8 +4,8 @@
 /** \class GLBMuonAnalyzer
  *  Analyzer of the Global muon tracks
  *
- *  $Date:  $
- *  $Revision: $
+ *  $Date: 2007/03/09 21:50:32 $
+ *  $Revision: 1.1 $
  *  \author R. Bellan  - INFN Torino       <riccardo.bellan@cern.ch>
  *  \author A. Everett - Purdue University <adam.everett@cern.ch>
  */
@@ -16,18 +16,9 @@
 //#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
 
-namespace edm {
-  class ParameterSet;
-  class Event;
-  class EventSetup;
-  class InputTag;
-}
-
 class TFile;
 class TH1F;
 class TH2F;
-
-using namespace edm;
 
 class GLBMuonAnalyzer: public edm::EDAnalyzer {
 public:
