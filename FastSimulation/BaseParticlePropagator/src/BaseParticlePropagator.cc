@@ -46,7 +46,7 @@ BaseParticlePropagator::propagate() {
   //
   // Check that the particle is not already on the cylinder surface
   //
-  double rPos = position().perp();
+  double rPos = vertex().vect().perp();
 
   if ( onBarrel(rPos) ) { 
     success = 1;
@@ -382,7 +382,7 @@ BaseParticlePropagator::propagateToEcalEntrance(bool first) {
   bool done = propagate();
 
   // Where are we ?
-  double eta = fabs ( position().eta() );
+  double eta = fabs ( vertex().vect().eta() );
 
   // Go to endcap cylinder in the "barrel cut corner" 
   if ( done && eta > 1.479 && success == 1 ) {
@@ -391,7 +391,7 @@ BaseParticlePropagator::propagateToEcalEntrance(bool first) {
   }
 
   // We are not in the ECAL acceptance
-  if ( fabs ( position().eta() ) > 3.0 ) success = 0;
+  if ( fabs ( vertex().vect().eta() ) > 3.0 ) success = 0;
 
   return done;
 }
@@ -411,7 +411,7 @@ BaseParticlePropagator::propagateToHcalEntrance(bool first) {
   propDir = 1;
 
   // We are not in the HCAL acceptance
-  if ( done && fabs ( position().eta() ) > 3.0 ) success = 0;
+  if ( done && fabs ( vertex().vect().eta() ) > 3.0 ) success = 0;
 
   return done;
 }
@@ -429,7 +429,7 @@ BaseParticlePropagator::propagateToVFcalEntrance(bool first) {
   propDir = 1;
 
   // We are not in the VFCAL acceptance
-  double feta = fabs ( position().eta() );
+  double feta = fabs ( vertex().vect().eta() );
   if ( done && ( feta < 3 || feta > 5.0 ) ) success = 0;
 
   return done;
@@ -571,28 +571,28 @@ BaseParticlePropagator::helixCentrePhi(double xC, double yC) const {
   return xC == 0.0 && yC == 0.0 ? 0.0 : std::atan2(yC,xC);
 }
 
-Hep3Vector
-BaseParticlePropagator::position() const { return vertex().vect(); }
+//Hep3Vector
+//BaseParticlePropagator::position() const { return vertex().vect(); }
 
-HepLorentzVector
-BaseParticlePropagator::momentum() const { 
-  return HepLorentzVector(px(),py(),pz(),e()); 
-}
+//HepLorentzVector
+//BaseParticlePropagator::momentum() const { 
+//  return HepLorentzVector(px(),py(),pz(),e()); 
+//}
 
 bool
 BaseParticlePropagator::inside() const {
-  return (position().perp()<rCyl-0.00001 && fabs(z())<zCyl-0.00001);}
+  return (vertex().vect().perp()<rCyl-0.00001 && fabs(z())<zCyl-0.00001);}
 
 bool BaseParticlePropagator::onSurface() const {
   return ( onBarrel() || onEndcap() ); 
 }
 
 bool BaseParticlePropagator::onBarrel() const {
-  return ( fabs(position().perp()-rCyl) < 0.00001 && fabs(z()) <= zCyl );
+  return ( fabs(vertex().vect().perp()-rCyl) < 0.00001 && fabs(z()) <= zCyl );
 }
 
 bool BaseParticlePropagator::onEndcap() const {
-  return ( fabs(fabs(z())-zCyl) < 0.00001 && position().perp() <= rCyl ); 
+  return ( fabs(fabs(z())-zCyl) < 0.00001 && vertex().vect().perp() <= rCyl ); 
 }
 
 // Faster versions

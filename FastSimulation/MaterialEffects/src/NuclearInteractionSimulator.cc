@@ -202,7 +202,7 @@ void NuclearInteractionSimulator::compute(ParticlePropagator& Particle)
     
 	// Find the file with the closest c.m energy
 	HepLorentzVector Proton(0.,0.,0.,0.986);
-	HepLorentzVector Hadron(Particle);
+	const HepLorentzVector& Hadron = (const HepLorentzVector&)Particle;
 	double ecm = (Proton+Hadron).mag();
 	// Get the files of interest (closest c.m. energies)
 	unsigned file1=0;

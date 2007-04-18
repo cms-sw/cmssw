@@ -174,7 +174,7 @@ TrajectoryManager::reconstruct()
     // without bothering with all the details of the propagation and 
     // material effects.
     if ( PP.vect().cos2Theta() > 0.99 && 
-	 ( cyl == 0 || PP.position().cos2Theta() > 0.99 ) ) 
+	 ( cyl == 0 || PP.vertex().vect().cos2Theta() > 0.99 ) ) 
       cyliter = _theGeometry->cylinderEnd();
 
     // Loop over the cylinders

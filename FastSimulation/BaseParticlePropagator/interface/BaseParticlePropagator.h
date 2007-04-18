@@ -128,9 +128,9 @@ public:
       const HepLorentzVector& hit2=HepLorentzVector(0.,0.,0.,0.));
 
   /// Return position (hereafter called "vertex") three-vector of particle
-  Hep3Vector position() const;
+  //  Hep3Vector position() const;
   /// Return momentum four-vector of particle
-  HepLorentzVector momentum() const;
+  //  HepLorentzVector momentum() const;
 
   /// Transverse impact parameter
   double xyImpactParameter() const;

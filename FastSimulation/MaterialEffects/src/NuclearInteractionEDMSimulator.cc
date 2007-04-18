@@ -61,7 +61,7 @@ void NuclearInteractionEDMSimulator::compute(ParticlePropagator& Particle)
   // Read a Nuclear Interaction in a random manner
   using namespace edm; 
 
-  double eHadron = Particle.momentum().vect().mag(); 
+  double eHadron = Particle.vect().mag(); 
 
   // The hadron has enough energy to create some relevant final state
   if ( eHadron > thePionEnergy ) { 
@@ -70,7 +70,7 @@ void NuclearInteractionEDMSimulator::compute(ParticlePropagator& Particle)
     if ( -log(random->flatShoot()) <= radLengths * theLengthRatio ) {
 
       HepLorentzVector Proton(0.,0.,0.,0.986);
-      HepLorentzVector Hadron(Particle.momentum());
+      const HepLorentzVector& Hadron = (const HepLorentzVector&)Particle;
       double ecm = (Proton+Hadron).mag();
       // Get the file of interest (closest c.m. energy)
       unsigned file = 0;

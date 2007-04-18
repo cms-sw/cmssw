@@ -157,7 +157,7 @@ ParticlePropagator::propagateToBoundSurface(const TrackerLayer& layer) {
        
   // There is some real material here
   fiducial = !(!disk &&  success!=1) &&
-	     !( disk && (success!=2  || position().perp()<innerradius));
+	     !( disk && (success!=2  || vertex().vect().perp()<innerradius));
 
   return done;
 }
