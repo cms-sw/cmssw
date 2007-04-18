@@ -8,6 +8,7 @@
 <use name=FWCore/ServiceRegistry>
 <use name=FWCore/Utilities>
 <use name=IOPool/Common>
+<use name=Utilities/StorageFactory>
 <use name=StorageSvc>
 <use name=boost>
 <use name=rootcore>
@@ -22,6 +23,7 @@
   <use name=FWCore/RootAutoLibraryLoader>
   <use name=FWCore/ServiceRegistry>
   <use name=FWCore/Utilities>
+  <use name=Utilities/StorageFactory>
   <use name=boost>
   <use name=rootcore>
   <lib name=IOPoolStreamer>

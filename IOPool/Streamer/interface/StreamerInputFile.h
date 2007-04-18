@@ -6,6 +6,9 @@
 #include "IOPool/Streamer/interface/MsgTools.h"
 #include "IOPool/Streamer/interface/IndexRecords.h"
 
+#include "SealBase/Storage.h"
+#include <boost/shared_ptr.hpp>
+
 #include<string>
 #include<vector>
 
@@ -45,6 +48,9 @@ class StreamerInputIndexFile;
 
   private:
 
+    void openStreamerFile(const std::string& name);
+    seal::IOSize readBytes(char *buf, seal::IOSize nBytes);
+
     void readStartMessage();
     int  readEventMessage();
 
@@ -52,8 +58,6 @@ class StreamerInputIndexFile;
     /** Compares current File header with the newly opened file header
                Returns false in case of miss match */
     bool compareHeader();
-
-    std::ifstream* ist_;
 
     bool useIndex_;
     StreamerInputIndexFile* index_;
@@ -75,9 +79,9 @@ class StreamerInputIndexFile;
 
     bool newHeader_;
 
+    boost::shared_ptr<seal::Storage> storage_;
   };
 
 
 
 #endif
-
