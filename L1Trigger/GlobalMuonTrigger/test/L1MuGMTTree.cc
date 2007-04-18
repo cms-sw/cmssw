@@ -5,8 +5,8 @@
 //   Description:   Build GMT tree
 //                  
 //                
-//   $Date: 2007/04/02 15:45:39 $
-//   $Revision: 1.7 $
+//   $Date: 2007/04/02 16:42:17 $
+//   $Revision: 1.8 $
 //
 //   I. Mikulec            HEPHY Vienna
 //
@@ -41,7 +41,6 @@
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include "HepMC/GenEvent.h"
-#include "L1Trigger/GlobalMuonTrigger/src/L1MuGMTConfig.h"
 
 using namespace std;
 
@@ -283,115 +282,6 @@ void L1MuGMTTree::analyze(const edm::Event& e, const edm::EventSetup& es) {
   ngmt = igmt;
 
   m_tree->Fill();
-
-  if ( L1MuGMTConfig::Debug(1) ) {
-
-    // Generator print
-  
-    edm::LogVerbatim("GMTDump") << "Number of muons generated: " << ngen << endl;
-    edm::LogVerbatim("GMTDump") << "Generated muons:" << endl;
-    for(int igen=0; igen<ngen; igen++) {
-      edm::LogVerbatim("GMTDump") << setiosflags(ios::showpoint | ios::fixed)
-				  << setw(2) << igen+1 << " : "
-				  << "pt = " << setw(5) << setprecision(1) << ptgen[igen] << " GeV  "
-				  << "charge = " << setw(2) << chagen[igen] << " "
-				  << "eta = " << setw(6) << setprecision(3) << etagen[igen] << "  "
-				  << "phi = " << setw(5) << setprecision(3) << phigen[igen] << " rad  "
-				  << "vx = " << setw(5) << setprecision(3) << vxgen[igen] << " cm "
-				  << "vy = " << setw(5) << setprecision(3) << vygen[igen] << " cm "
-				  << "vz = " << setw(5) << setprecision(3) << vzgen[igen] << " cm "
-				  << endl;
-    }
-
-    //
-    // DT Trigger print
-    //
-    edm::LogVerbatim("GMTDump") << "Number of muons found by the L1 DTBX TRIGGER: "
-				<< ndt << endl;
-    edm::LogVerbatim("GMTDump") << "L1 DT TRIGGER muons: " << endl;
-    for(idt=0; idt<ndt; idt++) {
-      edm::LogVerbatim("GMTDump") << setiosflags(ios::showpoint | ios::fixed)
-				  << setw(2) << idt+1 << " : "
-				  << "pt = " << setw(5) << setprecision(1) << ptd[idt] << " GeV  "
-				  << "charge = " << setw(2) << chad[idt] << " "
-				  << "eta = " << setw(6) << setprecision(3) << etad[idt] << "  "
-				  << "phi = " << setw(5) << setprecision(3) << phid[idt] << " rad  "
-				  << "quality = " << setw(1) << quald[idt] << "  "
-				  << "bx = " << setw(2) << bxd[idt] << endl;
-    }
-
-    //
-    // CSC Trigger print
-    //
-    edm::LogVerbatim("GMTDump") << "Number of muons found by the L1 CSC  TRIGGER: "
-				<< ncsc << endl;
-    edm::LogVerbatim("GMTDump") << "L1 CSC TRIGGER muons: " << endl;
-    for(icsc=0; icsc<ncsc; icsc++) {
-      edm::LogVerbatim("GMTDump") << setiosflags(ios::showpoint | ios::fixed)
-				  << setw(2) << icsc+1 << " : "
-				  << "pt = " << setw(5) << setprecision(1) << ptc[icsc] << " GeV  "
-				  << "charge = " << setw(2) << chac[icsc] << " "
-				  << "eta = " << setw(6) << setprecision(3) << etac[icsc] << "  "
-				  << "phi = " << setw(5) << setprecision(3) << phic[icsc] << " rad  "
-				  << "quality = " << setw(1) << qualc[icsc] << "  "
-				  << "bx = " << setw(2) << bxc[icsc] << endl;
-    }
-
-    //
-    // RPCb Trigger print
-    //
-    edm::LogVerbatim("GMTDump") << "Number of muons found by the L1 RPCb  TRIGGER: "
-				<< nrpcb << endl;
-    edm::LogVerbatim("GMTDump") << "L1 RPCb TRIGGER muons: " << endl;
-    for(irpcb=0; irpcb<nrpcb; irpcb++) {
-      edm::LogVerbatim("GMTDump") << setiosflags(ios::showpoint | ios::fixed)
-				  << setw(2) << irpcb+1 << " : "
-				  << "pt = " << setw(5) << setprecision(1) << ptrb[irpcb] << " GeV  "
-				  << "charge = " << setw(2) << charb[irpcb] << " "
-				  << "eta = " << setw(6) << setprecision(3) << etarb[irpcb] << "  "
-				  << "phi = " << setw(5) << setprecision(3) << phirb[irpcb] << " rad  "
-				  << "quality = " << setw(1) << qualrb[irpcb] << "  "
-				  << "bx = " << setw(2) << bxrb[irpcb] << endl;
-    }
-
-    //
-    // Rpcf Trigger print
-    //
-    edm::LogVerbatim("GMTDump") << "Number of muons found by the L1 RPCf  TRIGGER: "
-				<< nrpcf << endl;
-    edm::LogVerbatim("GMTDump") << "L1 RPCf TRIGGER muons: " << endl;
-    for(irpcf=0; irpcf<nrpcf; irpcf++) {
-      edm::LogVerbatim("GMTDump") << setiosflags(ios::showpoint | ios::fixed)
-				  << setw(2) << irpcf+1 << " : "
-				  << "pt = " << setw(5) << setprecision(1) << ptrf[irpcf] << " GeV  "
-				  << "charge = " << setw(2) << charf[irpcf] << " "
-				  << "eta = " << setw(6) << setprecision(3) << etarf[irpcf] << "  "
-				  << "phi = " << setw(5) << setprecision(3) << phirf[irpcf] << " rad  "
-				  << "quality = " << setw(1) << qualrf[irpcf] << "  "
-				  << "bx = " << setw(2) << bxrf[irpcf] << endl;
-    }
-
-    //
-    // GMT Trigger print
-    //
-    edm::LogVerbatim("GMTDump") << "Number of muons found by the L1 Global Muon TRIGGER: "
-				<< ngmt << endl;
-    edm::LogVerbatim("GMTDump") << "L1 GMT muons: " << endl;
-    for(igmt=0; igmt<ngmt; igmt++) {
-      if(igmt==4) {edm::LogVerbatim("GMTDump") << "Additional muon candidates" << endl;}
-      edm::LogVerbatim("GMTDump") << setiosflags(ios::showpoint | ios::fixed)
-				  << setw(2) << igmt+1 << " : "
-				  << "pt = " << setw(5) << setprecision(1) << ptg[igmt] << " GeV  "
-				  << "charge = " << setw(2) << chag[igmt] << " "
-				  << "eta = " << setw(6) << setprecision(3) << etag[igmt]<< "  " 
-				  << "phi = " << setw(5) << setprecision(3) << phig[igmt] << " rad  "
-				  << "quality = " << setw(1) << qualg[igmt] << "  "
-				  << "rank = " << setw(3) << rankg[igmt] << "  "
-				  << "bx = " << setw(2) << bxg[igmt] << "  "
-				  << "detectors = " << setw(2) << idxDTBX[igmt] << idxRPCb[igmt] 
-				  << idxCSC[igmt] << idxRPCf[igmt] << endl;
-    }
-  }
 
 }
 
