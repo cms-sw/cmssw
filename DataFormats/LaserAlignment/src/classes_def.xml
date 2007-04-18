@@ -14,6 +14,4 @@
   <class name="std::map<std::string, std::vector<LASAlignmentParameter> >"/>
   <class name="LASAlignmentParameterCollection"/>
   <class name="edm::Wrapper<LASAlignmentParameterCollection>"/>
-  <class name="std::valarray<double>"/>
-  <class name="edm::Wrapper<std::valarray<double> >"/>
 </lcgdict>
