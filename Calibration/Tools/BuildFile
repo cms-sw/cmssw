@@ -1,5 +1,6 @@
 # -*-SH-*-
-<flags EDM_PLUGIN=1>
+#remove plugin (lm 18042007)
+#<flags EDM_PLUGIN=1>
 <use name=clhep>
 <use name=DataFormats/Common>
 <use name=DataFormats/TrackReco>
