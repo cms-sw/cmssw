@@ -1,4 +1,3 @@
-<use name=DataFormats/CLHEP>
 <use name=DataFormats/GeometrySurface>
 <use name=DataFormats/GeometryVector>
 <use name=DetectorDescription/Base>
@@ -14,7 +13,8 @@
 <use name=MagneticField/VolumeGeometry>
 <use name=Utilities/BinningTools>
 <use name=Utilities/General>
-<use name=clhep>
+#CLHEP is required only for SystemOfUnits.h
+<use name=clhep> 
 <export>
   <lib name=MagneticFieldGeomBuilder>
 </export>
