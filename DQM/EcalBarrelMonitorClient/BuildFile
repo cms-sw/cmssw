@@ -1,4 +1,4 @@
-<flags EDM_PLUGIN=1>
+<flags SEAL_PLUGIN_NAME="DQMEcalBarrelMonitorClient">
 <use name=CondTools/Ecal>
 <use name=DQMServices/Core>
 <use name=DQMServices/Daemon>
