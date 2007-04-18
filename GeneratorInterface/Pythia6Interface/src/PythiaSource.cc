@@ -1,6 +1,6 @@
 /*
- *  $Date: 2007/03/20 10:58:25 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/03/21 15:06:43 $
+ *  $Revision: 1.3 $
  *  
  *  Filip Moorgat & Hector Naves 
  *  26/10/05
@@ -13,7 +13,9 @@
 
 #include "GeneratorInterface/Pythia6Interface/interface/PythiaSource.h"
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/HepMCProduct/interface/GenInfoProduct.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Run.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 
@@ -211,6 +213,7 @@ PythiaSource::PythiaSource( const ParameterSet & pset,
   //********                                      
   
   produces<HepMCProduct>();
+  produces<GenInfoProduct, edm::InRun>();
   cout << "PythiaSource: starting event generation ... " << endl;
 }
 
@@ -225,6 +228,14 @@ void PythiaSource::clear() {
  
 }
 
+void PythiaSource::endRun(Run & r) {
+ 
+ double cs = pypars.pari[0]; // cross section in mb
+ auto_ptr<GenInfoProduct> giprod (new GenInfoProduct());
+ giprod->set_cross_section(cs);
+ r.put(giprod);
+
+}
 
 bool PythiaSource::produce(Event & e) {
 
