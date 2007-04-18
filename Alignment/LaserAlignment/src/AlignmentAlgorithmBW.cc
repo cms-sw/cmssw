@@ -1,8 +1,8 @@
 /** \file AlignmentAlgorithmBW.cc
  *  Implementation of Bruno Wittmer's alignment algorithm for the Laser Alignment System
  *
- *  $Date: 2007/04/05 13:20:12 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/04/12 14:20:33 $
+ *  $Revision: 1.4 $
  *  \author Maarten Thomas
  */
 
@@ -192,7 +192,17 @@ std::vector<LASAlignmentParameter> AlignmentAlgorithmBW::run(const std::string t
 		<< "      \t Dphi[9] = " << dphik[8] << "\t Dx[9] = " << dxk[8] << " \t Dy[9] = " << dyk[8] << std::endl;
 		
 	// we want to store this parameters in a separate DataFormat to study them later in more detail
-	theResult.push_back(LASAlignmentParameter(theName,dphi0,dphit,dphik,dx0,dxt,dxk,dy0,dyt,dyk));
+	// unfortunately storing a std::valarray is not working due to reflex dictionary troubles. Therefore
+	// store the calculated corrections into a std::vector<double>
+  std::vector<double> dphik_, dxk_, dyk_;
+  for( unsigned int i = 0; i < 9; ++i )
+  {
+    dphik_.push_back(dphik[i]);
+    dxk_.push_back(dxk[i]);
+    dyk_.push_back(dyk[i]);
+  }
+	
+	theResult.push_back(LASAlignmentParameter(theName,dphi0,dphit,dphik_,dx0,dxt,dxk_,dy0,dyt,dyk_));
 	return theResult;
 }
 
