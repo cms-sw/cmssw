@@ -1,4 +1,3 @@
-<flags EDM_PLUGIN=1>
 <use name=CondTools/Ecal>
 <use name=DQMServices/Core>
 <use name=DQMServices/Daemon>
