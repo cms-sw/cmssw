@@ -1,30 +1,14 @@
 
 <library file="*.cc" name=GeometryTrackerGeometryBuilderPlugins>
-<use name=Geometry/TrackerGeometryBuilder>
-<use name=Geometry/CommonDetUnit>
-<use name=Geometry/CommonTopologies>
-<use name=Geometry/TrackerTopology>
-<use name=DataFormats/SiStripDetId>
-<use name=DataFormats/SiPixelDetId>
-<use name=DataFormats/TrackingRecHit>
-<use name=DetectorDescription/Core>
 <use name=CondFormats/Alignment>
-<use name=clhep>
+<use name=CondFormats/DataRecord>
+<use name=DetectorDescription/Core>
+<use name=FWCore/Framework>
+<use name=FWCore/ParameterSet>
+<use name=Geometry/Records>
+<use name=Geometry/TrackerGeometryBuilder>
+<use name=Geometry/TrackerNumberingBuilder>
+<use name=Geometry/TrackingGeometryAligner>
+<use name=boost>
 <flags EDM_PLUGIN=1>
 </library>
-
-<use name=Geometry/Records>
-<use name=FWCore/PluginManager>
-<use name=Geometry/TrackerNumberingBuilder>
-<use name=Geometry/CommonTopologies>
-<use name=Geometry/TrackerTopology>
-<use name=Geometry/CommonDetUnit>
-<use name=DetectorDescription/Core>
-<use name=DataFormats/SiStripDetId>
-<use name=DataFormats/SiPixelDetId>
-<use name=DataFormats/TrackingRecHit>
-<use name=CondFormats/Alignment>
-<use name=clhep>
-<use name=boost>
-
-
