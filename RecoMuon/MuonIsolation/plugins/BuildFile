@@ -1,5 +1,28 @@
-<use name=FWCore/PluginManager>
 <use name=RecoMuon/MuonIsolation>
+<use name=DataFormats/CaloTowers>
+<use name=DataFormats/MuonReco>
+<use name=DataFormats/TrackReco>
+<use name=FWCore/Framework>
+<use name=FWCore/MessageLogger>
+<use name=FWCore/ParameterSet>
+<use name=FWCore/PluginManager>
+<use name=Geometry/CaloGeometry>
+<use name=Geometry/Records>
+<use name=Geometry/CaloEventSetup>
+<use name=MagneticField/Engine>
+<use name=MagneticField/Records>
+<use name=TrackingTools/TransientTrack>
+<use name=TrackingTools/TrackAssociator>
+<export>
+  <use name=DataFormats/MuonReco>
+  <use name=DataFormats/TrackReco>
+  <use name=FWCore/Framework>
+  <use name=FWCore/ParameterSet>
+  <use name=TrackingTools/TransientTrack>
+  <use name=TrackingTools/TrackAssociator>
+  <use name=FWCore/PluginManager>
+  <lib name=RecoMuonMuonIsolationPlugins>
+</export>
 <library file="*.cc" name=RecoMuonMuonIsolationPlugins>
   <flags EDM_PLUGIN=1>
 </library>
