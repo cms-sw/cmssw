@@ -2,7 +2,7 @@
 #include "FWCore/Framework/interface/InputSourceMacros.h"
 #include "FWCore/Framework/interface/VectorInputSourceMacros.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FastSimulation/PileUpProducer/interface/PUSource.h"
+#include "FastSimulation/PileUpProducer/plugins/PUSource.h"
 
 using edm::PUSource;
 DEFINE_SEAL_MODULE();

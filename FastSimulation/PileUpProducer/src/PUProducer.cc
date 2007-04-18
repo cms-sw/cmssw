@@ -12,7 +12,7 @@
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 
 #include "FastSimulation/PileUpProducer/interface/PUProducer.h"
-#include "FastSimulation/PileUpProducer/interface/PUSource.h"
+//#include "FastSimulation/PileUpProducer/plugins/PUSource.h"
 #include "FastSimulation/Event/interface/FSimEvent.h"
 #include "FastSimulation/Utilities/interface/RandomEngine.h"
 

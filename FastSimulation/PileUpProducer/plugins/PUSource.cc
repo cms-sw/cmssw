@@ -1,9 +1,9 @@
 /*----------------------------------------------------------------------
-$Id: PUSource.cc,v 1.3 2007/01/18 14:58:45 pjanot Exp $
+$Id: PUSource.cc,v 1.4 2007/03/08 17:14:27 wmtan Exp $
 ----------------------------------------------------------------------*/
 
-#include "FastSimulation/PileUpProducer/interface/PUSource.h"
-#include "IOPool/Input/src/RootFile.h"
+#include "FastSimulation/PileUpProducer/plugins/PUSource.h"
+#include "IOPool/Input/interface/RootFile.h"
 #include "IOPool/Common/interface/ClassFiller.h"
 
 #include "DataFormats/Provenance/interface/BranchDescription.h"

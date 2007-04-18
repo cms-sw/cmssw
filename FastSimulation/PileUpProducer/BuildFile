@@ -2,19 +2,13 @@
 <use name=DataFormats/Provenance>
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
-<use name=FWCore/PluginManager>
 <use name=FastSimulation/Event>
+<use name=FastSimulation/PileUpProducer>
 <use name=FastSimulation/Utilities>
-<use name=IOPool/Common>
-<use name=IOPool/Input>
 <use name=SimDataFormats/HepMCProduct>
-<use name=boost>
 <use name=hepmc>
-<flags EDM_PLUGIN=1>
 <export>
   <use name=FWCore/Framework>
   <use name=FWCore/ParameterSet>
-  <use name=IOPool/Input>
-  <use name=boost>
   <lib name=FastSimulationPileUpProducer>
 </export>

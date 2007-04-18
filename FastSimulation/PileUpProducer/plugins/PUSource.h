@@ -5,7 +5,7 @@
 
 PUSource: This is an InputSource
 
-$Id: PUSource.h,v 1.1 2006/04/24 17:02:16 pjanot Exp $
+$Id: PUSource.h,v 1.2 2006/04/26 13:02:39 pjanot Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -14,7 +14,7 @@ $Id: PUSource.h,v 1.1 2006/04/24 17:02:16 pjanot Exp $
 #include <string>
 #include <map>
 
-#include "IOPool/Input/src/Inputfwd.h"
+#include "IOPool/Input/interface/Inputfwd.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/VectorInputSource.h"
