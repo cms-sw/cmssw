@@ -1,0 +1,5 @@
+<use name=RecoMuonDetLayers>
+
+<library file=*.cc name=RecoMuonDetLayersPlugins>
+	<flags EDM_PLUGIN=1>
+</library>

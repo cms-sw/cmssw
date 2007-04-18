@@ -1,11 +1,11 @@
 /** \file
  *
- *  $Date: 2006/10/19 14:42:16 $
- *  $Revision: 1.13 $
+ *  $Date: 2006/10/26 07:45:05 $
+ *  $Revision: 1.14 $
  *  \author N. Amapane - CERN
  */
 
-#include <RecoMuon/DetLayers/src/MuonDetLayerGeometryESProducer.h>
+#include <RecoMuon/DetLayers/plugins/MuonDetLayerGeometryESProducer.h>
 #include <Geometry/Records/interface/MuonGeometryRecord.h>
 
 #include <Geometry/DTGeometry/interface/DTGeometry.h>
@@ -18,7 +18,6 @@
 
 #include <FWCore/Framework/interface/EventSetup.h>
 #include <FWCore/Framework/interface/ESHandle.h>
-#include <FWCore/Framework/interface/ModuleFactory.h>
 
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 #include <FWCore/Framework/interface/NoProxyException.h>
@@ -84,5 +83,3 @@ MuonDetLayerGeometryESProducer::produce(const MuonRecoGeometryRecord & record) {
 
   return boost::shared_ptr<MuonDetLayerGeometry>(muonDetLayerGeometry);
 }
-
-DEFINE_FWK_EVENTSETUP_MODULE(MuonDetLayerGeometryESProducer);

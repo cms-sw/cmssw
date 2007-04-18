@@ -14,5 +14,3 @@
 
 #needed for patch of MuonRPCDetLayerGeometryBuilder
 <use name=Utilities/BinningTools> 
-
-<flags EDM_PLUGIN=1>

@@ -1,0 +1,5 @@
+<use name=RecoMuon/TransientTrackingRecHit>
+
+<library file=*.cc name=RecoMuonTransientTrackingRecHitPlugins>
+	<flags EDM_PLUGIN=1>
+</library>

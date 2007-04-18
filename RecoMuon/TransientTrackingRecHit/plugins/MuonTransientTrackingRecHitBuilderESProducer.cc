@@ -1,7 +1,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 
-#include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHitBuilderESProducer.h"
+#include "RecoMuon/TransientTrackingRecHit/plugins/MuonTransientTrackingRecHitBuilderESProducer.h"
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHitBuilder.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"

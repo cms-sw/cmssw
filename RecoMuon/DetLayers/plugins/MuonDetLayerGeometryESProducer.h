@@ -5,8 +5,8 @@
  *
  *  ESProducer for MuonDeLayerGeometry in MuonRecoGeometryRecord.
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2006/04/20 16:57:52 $
+ *  $Revision: 1.1 $
  *  \author N. Amapane - CERN
  */
 
