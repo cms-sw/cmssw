@@ -1,8 +1,8 @@
 /** \file LaserAlignment.cc
  *  LAS reconstruction module
  *
- *  $Date: 2007/04/12 14:20:33 $
- *  $Revision: 1.10 $
+ *  $Date: 2007/04/16 10:56:54 $
+ *  $Revision: 1.11 $
  *  \author Maarten Thomas
  */
 
@@ -366,7 +366,7 @@ void LaserAlignment::produce(edm::Event& theEvent, edm::EventSetup const& theSet
 				else if (sectorLocation.at(1) == 6) // Ring 6
 				{
 					theNegTECR6BeamPositions[sectorLocation.at(2)][sectorLocation.at(3)] = theFit.pitch() * theFit.mean();
-					theNegTECR6BeamPositionErrors[sectorLocation.at(2)][sectorLocation.at(4)] = theFit.pitch() * theFit.meanError();
+					theNegTECR6BeamPositionErrors[sectorLocation.at(2)][sectorLocation.at(3)] = theFit.pitch() * theFit.meanError();
 				}
 			}
 			else if (sectorLocation.at(0) == 2) // TEC+ beams
@@ -419,7 +419,7 @@ void LaserAlignment::produce(edm::Event& theEvent, edm::EventSetup const& theSet
 				else if (sectorLocation.at(1) == 6) // Ring 6
 				{
 					theNegTECR6BeamPositions[sectorLocation.at(2)][sectorLocation.at(3)] = thePosition;
-					theNegTECR6BeamPositionErrors[sectorLocation.at(2)][sectorLocation.at(4)] = thePositionError;
+					theNegTECR6BeamPositionErrors[sectorLocation.at(2)][sectorLocation.at(3)] = thePositionError;
 				}
 			}
 			else if (sectorLocation.at(0) == 2) // TEC+ beams
