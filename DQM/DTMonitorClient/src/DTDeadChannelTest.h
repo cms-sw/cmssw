@@ -6,8 +6,8 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2007/03/30 16:10:06 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/04/18 07:47:54 $
+ *  $Revision: 1.1 $
  *  \author  G. Mila - INFN Torino
  *   
  */
@@ -37,6 +37,7 @@ class DTGeometry;
 class DTChamberId;
 class DTSuperLayerId;
 class DTLayerId;
+class DTTtrig;
 
 class DTDeadChannelTest: public edm::EDAnalyzer{
 
@@ -75,6 +76,7 @@ private:
 
   edm::ParameterSet parameters;
   edm::ESHandle<DTGeometry> muonGeom;
+  edm::ESHandle<DTTtrig> tTrigMap;
 
   std::map< std::string , MonitorElement* > OccupancyDiffHistos;
   

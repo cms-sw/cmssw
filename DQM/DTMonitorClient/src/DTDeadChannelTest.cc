@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/04/12 07:40:04 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/04/18 07:48:02 $
+ *  $Revision: 1.1 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -25,6 +25,9 @@
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/DTGeometry/interface/DTLayer.h"
 #include "Geometry/DTGeometry/interface/DTTopology.h"
+
+#include <CondFormats/DTObjects/interface/DTTtrig.h>
+#include <CondFormats/DataRecord/interface/DTTtrigRcd.h>
 
 #include "CondFormats/DataRecord/interface/DTStatusFlagRcd.h"
 #include "CondFormats/DTObjects/interface/DTStatusFlag.h"
@@ -122,6 +125,8 @@ void DTDeadChannelTest::analyze(const edm::Event& e, const edm::EventSetup& cont
     stringstream station; station << chID.station();
     stringstream sector; sector << chID.sector();
     
+    context.get<DTTtrigRcd>().get(tTrigMap);
+
     string HistoName = "W" + wheel.str() + "_St" + station.str() + "_Sec" + sector.str(); 
 
     // Get the ME produced by DigiTask Source
@@ -144,6 +149,9 @@ void DTDeadChannelTest::analyze(const edm::Event& e, const edm::EventSetup& cont
 	    DTSuperLayerId slID = (*sl_it)->id();
 	    vector<const DTLayer*>::const_iterator l_it = (*sl_it)->layers().begin();
 	    vector<const DTLayer*>::const_iterator l_end = (*sl_it)->layers().end();
+	    
+	    float tTrig, tTrigRMS;
+	    tTrigMap->slTtrig(slID, tTrig, tTrigRMS);
       
 	    // Loop over the layers
 	    for(; l_it != l_end; ++l_it) {
@@ -167,7 +175,11 @@ void DTDeadChannelTest::analyze(const edm::Event& e, const edm::EventSetup& cont
 	      // Loop over the TH2F bin and fill the ME to be used for the Quality Test
 	      for(int bin=firstWire; bin <= lastWire; bin++) {
 		if (OccupancyDiffHistos.find(HistoNameTest) == OccupancyDiffHistos.end()) bookHistos(lID, firstWire, lastWire);
-		float difference = hitInTime_histo_root->GetBinContent(bin, YBinNumber) - noise_histo_root->GetBinContent(bin, YBinNumber);
+		// tMax default value
+		float tMax = 450.0;
+
+		float difference = (hitInTime_histo_root->GetBinContent(bin, YBinNumber) / tMax) 
+		                   - (noise_histo_root->GetBinContent(bin, YBinNumber) / tTrig);
 		OccupancyDiffHistos.find(HistoNameTest)->second->setBinContent(bin, difference);
 	      }
 	    } // loop on layers
