@@ -1,11 +1,12 @@
 #ifndef CombinedTauTagCategoryData_H
 #define CombinedTauTagCategoryData_H
 
-#include "DataFormats/BTauReco/interface/TaggingVariable.h"
-
 struct CombinedTauTagCategoryData {
-  int truthmatched1orfake0candidates,signaltks_n;
+  int truthmatched1orfake0candidates,theTagVar,signaltks_n;
   float EtMin,EtMax;
+<<<<<<< CombinedTauTagCategoryData.h
+=======
   reco::TaggingVariableName theTagVarName;
+>>>>>>> 1.2
 };
 #endif
