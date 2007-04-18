@@ -4,8 +4,8 @@
 /** \class CSCSegmentBuilderPluginFactory
  *  Plugin factory for concrete CSCSegmentBuilder algorithms
  *
- * $Date: 2006/05/08 17:45:31 $
- * $Revision: 1.3 $
+ * $Date: 2007/03/08 14:46:20 $
+ * $Revision: 1.4 $
  * \author M. Sani
  * 
  */
@@ -15,15 +15,6 @@
 
 class edm::ParameterSet;
 
-class CSCSegmentBuilderPluginFactory : public seal::PluginFactory<CSCSegmentAlgorithm *(const edm::ParameterSet&)>{
-public:
-    /// Constructor
-    CSCSegmentBuilderPluginFactory();
-    
-    static CSCSegmentBuilderPluginFactory* get (void);
+typedef edmplugin::PluginFactory<CSCSegmentAlgorithm *(const edm::ParameterSet&)> CSCSegmentBuilderPluginFactory;
 
-private:
-
-    static CSCSegmentBuilderPluginFactory s_instance;
-};
 #endif
