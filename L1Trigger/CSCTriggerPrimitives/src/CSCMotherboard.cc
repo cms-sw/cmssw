@@ -27,8 +27,8 @@
 //                Based on code by Nick Wisniewski (nw@its.caltech.edu)
 //                and a framework by Darin Acosta (acosta@phys.ufl.edu).
 //
-//   $Date: 2006/10/09 13:49:24 $
-//   $Revision: 1.6 $
+//   $Date: 2007/02/19 15:02:37 $
+//   $Revision: 1.7 $
 //
 //   Modifications: Numerous later improvements by Jason Mumford and
 //                  Slava Valuev (see cvs in ORCA).
@@ -86,6 +86,13 @@ void CSCMotherboard::clear() {
   if (clct) clct->clear();
   firstLCT.clear();
   secondLCT.clear();
+}
+
+// Set configuration parameters obtained via EventSetup mechanism.
+void CSCMotherboard::setConfigParameters(const L1CSCTPParameters* conf) {
+  alct->setConfigParameters(conf);
+  clct->setConfigParameters(conf);
+  // No config. parameters for the TMB itself yet.
 }
 
 void CSCMotherboard::run(

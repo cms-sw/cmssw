@@ -17,8 +17,8 @@
  *
  * \author Slava Valuev, UCLA.
  *
- * $Date: 2006/06/27 14:38:48 $
- * $Revision: 1.2 $
+ * $Date: 2006/06/29 10:50:30 $
+ * $Revision: 1.3 $
  *
  */
 
@@ -36,6 +36,7 @@ class CSCTriggerPrimitivesProducer : public edm::EDProducer
   explicit CSCTriggerPrimitivesProducer(const edm::ParameterSet&);
   ~CSCTriggerPrimitivesProducer();
 
+  virtual void beginJob(const edm::EventSetup& setup);
   virtual void produce(edm::Event&, const edm::EventSetup&);
 
  private:

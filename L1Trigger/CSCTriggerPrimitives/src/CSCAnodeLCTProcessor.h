@@ -13,8 +13,8 @@
  * in ORCA).
  * Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch), May 2006.
  *
- * $Date: 2006/12/21 13:25:23 $
- * $Revision: 1.7 $
+ * $Date: 2007/02/19 14:59:46 $
+ * $Revision: 1.8 $
  *
  */
 
@@ -22,6 +22,7 @@
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 #include <DataFormats/CSCDigi/interface/CSCWireDigiCollection.h>
 #include <DataFormats/CSCDigi/interface/CSCALCTDigi.h>
+#include <CondFormats/L1TObjects/interface/L1CSCTPParameters.h>
 #include <L1Trigger/CSCCommonTrigger/interface/CSCConstants.h>
 
 class CSCAnodeLCTProcessor
@@ -34,6 +35,9 @@ class CSCAnodeLCTProcessor
 
   /** Default constructor. Used for testing. */
   CSCAnodeLCTProcessor();
+
+  /** Sets configuration parameters obtained via EventSetup mechanism. */
+  void setConfigParameters(const L1CSCTPParameters* conf);
 
   /** Clears the LCT containers. */
   void clear();
@@ -97,6 +101,12 @@ class CSCAnodeLCTProcessor
   unsigned int fifo_tbins, fifo_pretrig, bx_width, drift_delay;
   unsigned int nph_thresh, nph_pattern;
   unsigned int trig_mode, alct_amode, l1a_window;
+
+  /** Set default values for configuration parameters. */
+  void setDefaultConfigParameters();
+
+  /** Make sure that the parameter values are within the allowed range. */
+  void checkConfigParameters() const;
 
   /** Clears the quality for a given wire and pattern if it is a ghost. */
   void clear(const int wire, const int pattern);

@@ -7,8 +7,8 @@
 //
 //   Author List: S. Valuev, UCLA.
 //
-//   $Date: 2007/02/19 15:02:37 $
-//   $Revision: 1.5 $
+//   $Date: 2007/03/07 10:13:44 $
+//   $Revision: 1.6 $
 //
 //   Modifications:
 //
@@ -31,6 +31,11 @@
 #include <DataFormats/CSCDigi/interface/CSCCLCTDigiCollection.h>
 #include <DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h>
 
+// Configuration via EventSetup
+#include "CondFormats/L1TObjects/interface/L1CSCTPParameters.h"
+#include "CondFormats/DataRecord/interface/L1CSCTPParametersRcd.h"
+
+
 CSCTriggerPrimitivesProducer::CSCTriggerPrimitivesProducer(const edm::ParameterSet& conf) : iev(0) {
 
   wireDigiProducer_ = conf.getParameter<edm::InputTag>("CSCWireDigiProducer");
@@ -52,6 +57,10 @@ CSCTriggerPrimitivesProducer::~CSCTriggerPrimitivesProducer() {
   //TimingReport::current()->dump(std::cout);
 }
 
+void CSCTriggerPrimitivesProducer::beginJob(const edm::EventSetup& setup) {
+  LogDebug("L1CSCTrigger") << "beginJob";
+}
+
 void CSCTriggerPrimitivesProducer::produce(edm::Event& ev,
 					   const edm::EventSetup& setup) {
   //static TimingReport::Item & lctTimer =
@@ -65,6 +74,17 @@ void CSCTriggerPrimitivesProducer::produce(edm::Event& ev,
   edm::ESHandle<CSCGeometry> h;
   setup.get<MuonGeometryRecord>().get(h);
   CSCTriggerGeometry::setGeometry(h);
+
+  // Get config. parameters using EventSetup mechanism.  Should be moved
+  // to beginJob().
+  static bool begin_job = true;
+  if (begin_job) {
+    // Do not use for now.
+    //edm::ESHandle<L1CSCTPParameters> conf;
+    //setup.get<L1CSCTPParametersRcd>().get(conf);
+    //lctBuilder_->setConfigParameters(conf.product());
+    begin_job = false;
+  }
 
   // Get the collections of comparator & wire digis from event.
   edm::Handle<CSCComparatorDigiCollection> compDigis;

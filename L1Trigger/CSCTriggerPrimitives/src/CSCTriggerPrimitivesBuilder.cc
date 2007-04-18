@@ -8,8 +8,8 @@
 //
 //   Author List: S. Valuev, UCLA.
 //
-//   $Date: 2006/12/20 22:11:26 $
-//   $Revision: 1.8 $
+//   $Date: 2006/12/21 13:34:25 $
+//   $Revision: 1.9 $
 //
 //   Modifications:
 //
@@ -109,6 +109,25 @@ CSCTriggerPrimitivesBuilder::~CSCTriggerPrimitivesBuilder() {
 //------------
 // Operations
 //------------
+// Set configuration parameters obtained via EventSetup mechanism.
+void CSCTriggerPrimitivesBuilder::setConfigParameters(const L1CSCTPParameters* conf) {
+  // Receives L1CSCTPParameters percolated down from ESProducer.
+
+  for (int endc = min_endcap; endc <= max_endcap; endc++) {
+    for (int stat = min_station; stat <= max_station; stat++) {
+      int numsubs = ((stat == 1) ? max_subsector : 1);
+      for (int sect = min_sector; sect <= max_sector; sect++) {
+	for (int subs = min_subsector; subs <= numsubs; subs++) {
+	  for (int cham = min_chamber; cham <= max_chamber; cham++) {
+	    CSCMotherboard* tmb = tmb_[endc-1][stat-1][sect-1][subs-1][cham-1];
+	    tmb->setConfigParameters(conf);
+	  }
+	}
+      }
+    }
+  }
+}
+
 // Build anode, cathode, and correlated LCTs in each chamber and fill them
 // into output collections.  Pass collections of wire and comparator digis
 // to Trigger MotherBoard (TMB) processors, which, in turn, pass them to

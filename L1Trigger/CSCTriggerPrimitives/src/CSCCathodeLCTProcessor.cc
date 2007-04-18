@@ -22,8 +22,8 @@
 //                Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch),
 //                May 2006.
 //
-//   $Date: 2007/03/28 15:00:15 $
-//   $Revision: 1.16 $
+//   $Date: 2007/04/11 10:05:17 $
+//   $Revision: 1.17 $
 //
 //   Modifications: 
 //
@@ -146,14 +146,6 @@ CSCCathodeLCTProcessor::CSCCathodeLCTProcessor(unsigned endcap,
   static bool config_dumped = false;
 
   // CLCT configuration parameters.
-  static const unsigned int max_bx_width     = 1 << 4;
-  static const unsigned int max_drift_delay  = 1 << 2;
-  static const unsigned int max_hs_thresh    = 1 << 3;
-  static const unsigned int max_ds_thresh    = 1 << 3;
-  static const unsigned int max_nph_pattern  = 1 << 3;
-  static const unsigned int max_fifo_tbins   = 1 << 5;
-  static const unsigned int max_fifo_pretrig = 1 << 5;
-
   bx_width     = conf.getParameter<unsigned int>("clctBxWidth");    // def = 6
   drift_delay  = conf.getParameter<unsigned int>("clctDriftDelay"); // def = 2
   hs_thresh    = conf.getParameter<unsigned int>("clctHsThresh");   // def = 2
@@ -167,46 +159,10 @@ CSCCathodeLCTProcessor::CSCCathodeLCTProcessor(unsigned endcap,
   fifo_pretrig = conf.getParameter<unsigned int>("clctFifoPretrig");// def = 7
 
   // Verbosity level, set to 0 (no print) by default.
-  infoV = conf.getUntrackedParameter<int>("verbosity", 0);
+  infoV        = conf.getUntrackedParameter<int>("verbosity", 0);
 
-  // Make sure that the parameter values are within the allowed range.
-  if (bx_width >= max_bx_width) {
-    throw cms::Exception("CSCCathodeLCTProcessor")
-      << "+++ Value of bx_width, " << bx_width
-      << ", exceeds max allowed, " << max_bx_width-1 << " +++\n";
-  }
-  if (drift_delay >= max_drift_delay) {
-    throw cms::Exception("CSCCathodeLCTProcessor")
-      << "+++ Value of drift_delay, " << drift_delay
-      << ", exceeds max allowed, " << max_drift_delay-1 << " +++\n";
-  }
-  if (hs_thresh >= max_hs_thresh) {
-    throw cms::Exception("CSCCathodeLCTProcessor")
-      << "+++ Value of hs_thresh, " << hs_thresh
-      << ", exceeds max allowed, " << max_hs_thresh-1 << " +++\n";
-  }
-  if (ds_thresh >= max_ds_thresh) {
-    throw cms::Exception("CSCCathodeLCTProcessor")
-      << "+++ Value of ds_thresh, " << ds_thresh
-      << ", exceeds max allowed, " << max_ds_thresh-1 << " +++\n";
-  }
-  if (nph_pattern >= max_nph_pattern) {
-    throw cms::Exception("CSCCathodeLCTProcessor")
-      << "+++ Value of nph_pattern, " << nph_pattern
-      << ", exceeds max allowed, " << max_nph_pattern-1 << " +++\n";
-  }
-  if (fifo_tbins >= max_fifo_tbins) {
-    throw cms::Exception("CSCCathodeLCTProcessor")
-      << "+++ Value of fifo_tbins, " << fifo_tbins
-      << ", exceeds max allowed, " << max_fifo_tbins-1 << " +++\n";
-  }
-  if (fifo_pretrig >= max_fifo_pretrig) {
-    throw cms::Exception("CSCCathodeLCTProcessor")
-      << "+++ Value of fifo_pretrig, " << fifo_pretrig
-      << ", exceeds max allowed, " << max_fifo_pretrig-1 << " +++\n";
-  }
-
-  // Print configuration parameters.
+  // Check and print configuration parameters.
+  checkConfigParameters();
   if (infoV > 0 && !config_dumped) {
     dumpConfigParams();
     config_dumped = true;
@@ -240,19 +196,11 @@ CSCCathodeLCTProcessor::CSCCathodeLCTProcessor() :
   static bool config_dumped = false;
 
   // CLCT configuration parameters.
-  bx_width     =  6;
-  drift_delay  =  2;
-  hs_thresh    =  2;
-  ds_thresh    =  2;
-  nph_pattern  =  4;
+  setDefaultConfigParameters();
+  infoV =  2;
 
-  fifo_tbins   = 12;
-
-  fifo_pretrig =  7;
-
-  infoV        =  2;
-
-  // Print configuration parameters.
+  // Check and print configuration parameters.
+  checkConfigParameters();
   if (!config_dumped) {
     dumpConfigParams();
     config_dumped = true;
@@ -262,6 +210,87 @@ CSCCathodeLCTProcessor::CSCCathodeLCTProcessor() :
   for (int i_layer = 0; i_layer < CSCConstants::NUM_LAYERS; i_layer++) {
     if ((i_layer+1)%2 == 0) stagger[i_layer] = 0;
     else                    stagger[i_layer] = 1;
+  }
+}
+
+void CSCCathodeLCTProcessor::setDefaultConfigParameters() {
+  // Set default values for configuration parameters.
+  fifo_tbins   = 12;
+  fifo_pretrig =  7;
+  bx_width     =  6;
+  drift_delay  =  2;
+  hs_thresh    =  2;
+  ds_thresh    =  2;
+  nph_pattern  =  4;
+}
+
+// Set configuration parameters obtained via EventSetup mechanism.
+void CSCCathodeLCTProcessor::setConfigParameters(const L1CSCTPParameters* conf) {
+  static bool config_dumped = false;
+
+  fifo_tbins   = conf->clctFifoTbins();
+  fifo_pretrig = conf->clctFifoPretrig();
+  bx_width     = conf->clctBxWidth();
+  drift_delay  = conf->clctDriftDelay();
+  nph_pattern  = conf->clctNphPattern();
+  hs_thresh    = conf->clctHsThresh();
+  ds_thresh    = conf->clctDsThresh();
+
+  // Check and print configuration parameters.
+  checkConfigParameters();
+  if (!config_dumped) {
+    dumpConfigParams();
+    config_dumped = true;
+  }
+}
+
+void CSCCathodeLCTProcessor::checkConfigParameters() const {
+  // Make sure that the parameter values are within the allowed range.
+
+  // Max expected values.
+  static const unsigned int max_fifo_tbins   = 1 << 5;
+  static const unsigned int max_fifo_pretrig = 1 << 5;
+  static const unsigned int max_bx_width     = 1 << 4;
+  static const unsigned int max_drift_delay  = 1 << 2;
+  static const unsigned int max_hs_thresh    = 1 << 3;
+  static const unsigned int max_ds_thresh    = 1 << 3;
+  static const unsigned int max_nph_pattern  = 1 << 3;
+
+  // Checks.
+  if (fifo_tbins >= max_fifo_tbins) {
+    throw cms::Exception("CSCCathodeLCTProcessor")
+      << "+++ Value of fifo_tbins, " << fifo_tbins
+      << ", exceeds max allowed, " << max_fifo_tbins-1 << " +++\n";
+  }
+  if (fifo_pretrig >= max_fifo_pretrig) {
+    throw cms::Exception("CSCCathodeLCTProcessor")
+      << "+++ Value of fifo_pretrig, " << fifo_pretrig
+      << ", exceeds max allowed, " << max_fifo_pretrig-1 << " +++\n";
+  }
+  if (bx_width >= max_bx_width) {
+    throw cms::Exception("CSCCathodeLCTProcessor")
+      << "+++ Value of bx_width, " << bx_width
+      << ", exceeds max allowed, " << max_bx_width-1 << " +++\n";
+  }
+  if (drift_delay >= max_drift_delay) {
+    throw cms::Exception("CSCCathodeLCTProcessor")
+      << "+++ Value of drift_delay, " << drift_delay
+      << ", exceeds max allowed, " << max_drift_delay-1 << " +++\n";
+  }
+  if (hs_thresh >= max_hs_thresh) {
+    throw cms::Exception("CSCCathodeLCTProcessor")
+      << "+++ Value of hs_thresh, " << hs_thresh
+      << ", exceeds max allowed, " << max_hs_thresh-1 << " +++\n";
+  }
+  if (ds_thresh >= max_ds_thresh) {
+    throw cms::Exception("CSCCathodeLCTProcessor")
+      << "+++ Value of ds_thresh, " << ds_thresh
+      << ", exceeds max allowed, " << max_ds_thresh-1 << " +++\n";
+  }
+  if (nph_pattern >= max_nph_pattern) {
+    throw cms::Exception("CSCCathodeLCTProcessor")
+      << "+++ Value of nph_pattern, " << nph_pattern
+      << ", exceeds max allowed, " << max_nph_pattern-1 << " +++\n";
   }
 }
 

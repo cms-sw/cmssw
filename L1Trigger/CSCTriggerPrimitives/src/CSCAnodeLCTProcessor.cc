@@ -20,8 +20,8 @@
 //                Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch),
 //                May 2006.
 //
-//   $Date: 2007/02/19 14:59:46 $
-//   $Revision: 1.13 $
+//   $Date: 2007/03/07 09:35:44 $
+//   $Revision: 1.14 $
 //
 //   Modifications: 
 //
@@ -140,16 +140,6 @@ CSCAnodeLCTProcessor::CSCAnodeLCTProcessor(unsigned endcap, unsigned station,
   static bool config_dumped = false;
 
   // ALCT configuration parameters.
-  static const unsigned int max_fifo_tbins   = 1 << 5;
-  static const unsigned int max_fifo_pretrig = 1 << 5;
-  static const unsigned int max_bx_width     = 1 << 5;
-  static const unsigned int max_drift_delay  = 1 << 2;
-  static const unsigned int max_nph_thresh   = 1 << 3;
-  static const unsigned int max_nph_pattern  = 1 << 3;
-  static const unsigned int max_trig_mode    = 1 << 2;
-  static const unsigned int max_alct_amode   = 1 << 2;
-  static const unsigned int max_l1a_window   = 1 << 4;
-
   fifo_tbins   = conf.getParameter<unsigned int>("alctFifoTbins");  // def = 16
   fifo_pretrig = conf.getParameter<unsigned int>("alctFifoPretrig");// def = 16
   bx_width     = conf.getParameter<unsigned int>("alctBxWidth");    // def = 6
@@ -163,7 +153,88 @@ CSCAnodeLCTProcessor::CSCAnodeLCTProcessor(unsigned endcap, unsigned station,
   // Verbosity level, set to 0 (no print) by default.
   infoV        = conf.getUntrackedParameter<int>("verbosity", 0);
 
+  // Check and print configuration parameters.
+  checkConfigParameters();
+  if (infoV > 0 && !config_dumped) {
+    dumpConfigParams();
+    config_dumped = true;
+  }
+
+  numWireGroups = 0;
+  MESelection   = (theStation < 3) ? 0 : 1;
+}
+
+CSCAnodeLCTProcessor::CSCAnodeLCTProcessor() :
+  		     theEndcap(1), theStation(1), theSector(1),
+		     theSubsector(1), theTrigChamber(1) {
+  // Used for debugging. -JM
+  static bool config_dumped = false;
+
+  // ALCT parameters.
+  setDefaultConfigParameters();
+  infoV = 2;
+
+  // Check and print configuration parameters.
+  checkConfigParameters();
+  if (!config_dumped) {
+    dumpConfigParams();
+    config_dumped = true;
+  }
+
+  numWireGroups = CSCConstants::MAX_NUM_WIRES;
+  MESelection   = (theStation < 3) ? 0 : 1;
+}
+
+void CSCAnodeLCTProcessor::setDefaultConfigParameters() {
+  // Set default values for configuration parameters.
+  fifo_tbins   = 16;
+  fifo_pretrig = 16;
+  bx_width     =  6;
+  drift_delay  =  3;
+  nph_thresh   =  2;
+  nph_pattern  =  4;
+  trig_mode    =  3;
+  alct_amode   =  1;
+  l1a_window   =  5;  
+}
+
+// Set configuration parameters obtained via EventSetup mechanism.
+void CSCAnodeLCTProcessor::setConfigParameters(const L1CSCTPParameters* conf) {
+  static bool config_dumped = false;
+
+  fifo_tbins   = conf->alctFifoTbins();
+  fifo_pretrig = conf->alctFifoPretrig();
+  bx_width     = conf->alctBxWidth();
+  drift_delay  = conf->alctDriftDelay();
+  nph_thresh   = conf->alctNphThresh();
+  nph_pattern  = conf->alctNphPattern();
+  trig_mode    = conf->alctTrigMode();
+  alct_amode   = conf->alctAlctAmode();
+  l1a_window   = conf->alctL1aWindow();
+
+  // Check and print configuration parameters.
+  checkConfigParameters();
+  if (!config_dumped) {
+    dumpConfigParams();
+    config_dumped = true;
+  }
+}
+
+void CSCAnodeLCTProcessor::checkConfigParameters() const {
   // Make sure that the parameter values are within the allowed range.
+
+  // Max expected values.
+  static const unsigned int max_fifo_tbins   = 1 << 5;
+  static const unsigned int max_fifo_pretrig = 1 << 5;
+  static const unsigned int max_bx_width     = 1 << 5;
+  static const unsigned int max_drift_delay  = 1 << 2;
+  static const unsigned int max_nph_thresh   = 1 << 3;
+  static const unsigned int max_nph_pattern  = 1 << 3;
+  static const unsigned int max_trig_mode    = 1 << 2;
+  static const unsigned int max_alct_amode   = 1 << 2;
+  static const unsigned int max_l1a_window   = 1 << 4;
+
+  // Checks.
   if (fifo_tbins >= max_fifo_tbins) {
     throw cms::Exception("CSCAnodeLCTProcessor")
       << "+++ Value of fifo_tbins, " << fifo_tbins
@@ -209,44 +280,6 @@ CSCAnodeLCTProcessor::CSCAnodeLCTProcessor(unsigned endcap, unsigned station,
       << "+++ Value of l1a_window, " << l1a_window
       << ", exceeds max allowed, " << max_l1a_window-1 << " +++\n";
   }
-
-  // Print configuration parameters.
-  if (infoV > 0 && !config_dumped) {
-    dumpConfigParams();
-    config_dumped = true;
-  }
-
-  numWireGroups = 0;
-  MESelection   = (theStation < 3) ? 0 : 1;
-}
-
-CSCAnodeLCTProcessor::CSCAnodeLCTProcessor() :
-  		     theEndcap(1), theStation(1), theSector(1),
-		     theSubsector(1), theTrigChamber(1) {
-  // Used for debugging. -JM
-  static bool config_dumped = false;
-
-  // ALCT configuration parameters.
-  fifo_tbins   = 16;
-  fifo_pretrig = 16;
-  bx_width     =  6;
-  drift_delay  =  3;
-  nph_thresh   =  2;
-  nph_pattern  =  4;
-  trig_mode    =  3;
-  alct_amode   =  1;
-  l1a_window   =  5;
-
-  infoV        =  2;
-
-  // Print configuration parameters.
-  if (!config_dumped) {
-    dumpConfigParams();
-    config_dumped = true;
-  }
-
-  numWireGroups = CSCConstants::MAX_NUM_WIRES;
-  MESelection   = (theStation < 3) ? 0 : 1;
 }
 
 void CSCAnodeLCTProcessor::clear() {

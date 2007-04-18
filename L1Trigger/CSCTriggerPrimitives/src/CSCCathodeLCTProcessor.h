@@ -23,8 +23,8 @@
  * in ORCA).
  * Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch), May 2006.
  *
- * $Date: 2006/12/21 13:29:46 $
- * $Revision: 1.10 $
+ * $Date: 2007/02/19 14:59:46 $
+ * $Revision: 1.11 $
  *
  */
 
@@ -32,6 +32,7 @@
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 #include <DataFormats/CSCDigi/interface/CSCComparatorDigiCollection.h>
 #include <DataFormats/CSCDigi/interface/CSCCLCTDigi.h>
+#include <CondFormats/L1TObjects/interface/L1CSCTPParameters.h>
 #include <L1Trigger/CSCCommonTrigger/interface/CSCConstants.h>
 
 class CSCCathodeLCTProcessor
@@ -44,6 +45,9 @@ class CSCCathodeLCTProcessor
 
   /** Default constructor. Used for testing. */
   CSCCathodeLCTProcessor();
+
+  /** Sets configuration parameters obtained via EventSetup mechanism. */
+  void setConfigParameters(const L1CSCTPParameters* conf);
 
   /** Clears the LCT containers. */
   void clear();
@@ -129,7 +133,13 @@ class CSCCathodeLCTProcessor
   unsigned int bx_width, drift_delay, hs_thresh, ds_thresh, nph_pattern;
   unsigned int fifo_tbins, fifo_pretrig; // only for test beam mode.
 
-  //----------------------- Default ORCA Fcns ---------------------------------
+  /** Set default values for configuration parameters. */
+  void setDefaultConfigParameters();
+
+  /** Make sure that the parameter values are within the allowed range. */
+  void checkConfigParameters() const;
+
+  //----------------------- Default functions ---------------------------------
   std::vector<CSCCLCTDigi> findLCTs(const int strip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS],
 				    int width, int numStrips);
   bool preTrigger(const int strip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS],

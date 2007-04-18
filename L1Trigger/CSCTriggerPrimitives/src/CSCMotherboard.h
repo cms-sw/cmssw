@@ -31,8 +31,8 @@
  * in ORCA).
  * Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch), May 2006.
  *
- * $Date: 2006/06/06 15:51:21 $
- * $Revision: 1.2 $
+ * $Date: 2006/06/14 09:27:19 $
+ * $Revision: 1.3 $
  *
  */
 
@@ -70,6 +70,9 @@ class CSCMotherboard
   /** Clears correlated LCT and passes clear signal on to cathode and anode
       LCT processors. */
   void clear();
+
+  /** Set configuration parameters obtained via EventSetup mechanism. */
+  void setConfigParameters(const L1CSCTPParameters* conf);
 
   /** Anode LCT processor. */
   CSCAnodeLCTProcessor* alct;
