@@ -1,3 +1,10 @@
+
+
+#include "FWCore/Framework/interface/OrphanHandle.h"
+// #include "DataFormats/Common/interface/OrphanHandle.h"
+#include "DataFormats/Common/interface/ProductID.h"
+// #include "DataFormats/Provenance/interface/ProductID.h"
+
 #include "DataFormats/Math/interface/Point3D.h"
 
 #include "DataFormats/ParticleFlowReco/interface/PFLayer.h"
@@ -1041,8 +1048,17 @@ void PFRootEventManager::particleFlow() {
 // 	<<reco::PFBlockElement::instanceCounter()<<endl;
   }
 
+  edm::OrphanHandle< reco::PFRecTrackCollection > trackh( &recTracks_, 
+							  edm::ProductID(1) );  
+  
+  edm::OrphanHandle< reco::PFClusterCollection > ecalh( clustersECAL_.get(), 
+							edm::ProductID(2) );  
+  
+  edm::OrphanHandle< reco::PFClusterCollection > hcalh( clustersHCAL_.get(), 
+							edm::ProductID(3) );  
+  
 
-  pfBlockAlgo_.setInput( recTracks_, *clustersECAL_, *clustersHCAL_ );
+  pfBlockAlgo_.setInput( trackh, ecalh, hcalh );
   pfBlockAlgo_.findBlocks();
   
   if( debug_) cout<<pfBlockAlgo_<<endl;
@@ -1050,7 +1066,10 @@ void PFRootEventManager::particleFlow() {
   pfBlocks_ = pfBlockAlgo_.transferBlocks();
 
 
-  pfAlgo_.reconstructParticles( *pfBlocks_ );
+  edm::OrphanHandle< reco::PFBlockCollection > blockh( pfBlocks_.get(), 
+						       edm::ProductID(4) );  
+  
+  pfAlgo_.reconstructParticles( blockh );
   if( debug_) cout<< pfAlgo_<<endl;
   pfCandidates_ = pfAlgo_.transferCandidates();
  
