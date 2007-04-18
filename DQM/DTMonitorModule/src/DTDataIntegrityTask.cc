@@ -1,8 +1,8 @@
 /*
  * \file DTDataIntegrityTask.cc
  * 
- * $Date: 2007/03/30 15:59:51 $
- * $Revision: 1.23 $
+ * $Date: 2007/04/03 13:21:13 $
+ * $Revision: 1.24 $
  * \author M. Zanetti (INFN Padova), S. Bolognesi (INFN Torino)
  *
 */
@@ -41,12 +41,12 @@ DTDataIntegrityTask::DTDataIntegrityTask(const edm::ParameterSet& ps,edm::Activi
   neventsROS25 = 0;
   
   //Counter and containers for info(tts,ros,fifo) VS time
-  myPrevEv=0;
-  myPrevTtsVal = -999;
-  myPrevRosVal = -999;
-  for (int i=0;i<7;i++){
-    myPrevFifoVal[i] = -999;
-  }
+ //  myPrevEv=0;
+//   myPrevTtsVal = -999;
+//   myPrevRosVal = -999;
+//   for (int i=0;i<7;i++){
+//     myPrevFifoVal[i] = -999;
+//   }
 
   //Root output file with histograms
   outputFile = ps.getUntrackedParameter<string>("outputFile", "ROS25Test.root");
@@ -869,11 +869,10 @@ void DTDataIntegrityTask::processFED(DTDDUData & data, const std::vector<DTROS25
     for (vector<DTDDUFirstStatusWord>::const_iterator fsw_it = data.getFirstStatusWord().begin();
 	 fsw_it != data.getFirstStatusWord().end(); fsw_it++) {
       if((*fsw_it).timeout() || (*fsw_it).eventTrailerLost() || (*fsw_it).opticalFiberSignalLost() ||
-	 (*fsw_it).opticalFiberSignalLost() || (*fsw_it).tlkPropagationError()||
-	 (*fsw_it).tlkPatternError() ||(*fsw_it).tlkSignalLost())
+	 (*fsw_it).tlkPropagationError()||(*fsw_it).tlkPatternError() ||(*fsw_it).tlkSignalLost() || (*fsw_it).errorFromROS())
 	(dduHistos.find(histoType)->second).find(code.getDDUID())->second->Fill(8+channel,1);
+      channel++;
     }
-    channel++;
   }
 
  //MONITOR TTS VS TIME 
@@ -1111,23 +1110,21 @@ void DTDataIntegrityTask::processFED(DTDDUData & data, const std::vector<DTROS25
     if (dduHistos[histoType].find(code.getDDUID()) == dduHistos[histoType].end()) {
       bookHistos( string("DDU"), code);
     } 
-    int ros=0;
     for (vector<DTROS25Data>::const_iterator ros_it = rosData.begin();
 	 ros_it != rosData.end(); ros_it++) {
       for (vector<DTROSDebugWord>::const_iterator debug_it = (*ros_it).getROSDebugs().begin();
 	   debug_it != (*ros_it).getROSDebugs().end(); debug_it++) {
 	if ((*debug_it).debugType() == 0 ) {
-	  int ROSDebug_BunchNumber = (*debug_it).debugMessage();
-	  if(ROSDebug_BunchNumber != header.bxID()){
-	    (dduHistos.find(histoType)->second).find(code.getDDUID())->second->Fill(ros);
+	  int ROSDebug_BXID = (*debug_it).debugMessage();
+	  if(ROSDebug_BXID != header.bxID()){
+	    (dduHistos.find(histoType)->second).find(code.getDDUID())->second->Fill((*ros_it).getROSID()-1);
 	    //FIXME: how to notify this error in a log file
-	    cout << "BX_ID error from ROS "<<ros<<" :"
-		 <<" ROSDebug_BunchNumber "<< ROSDebug_BunchNumber
+	    cout << "BX_ID error from ROS "<<(*ros_it).getROSID()<<" :"
+		 <<" ROSDebug_BXID "<< ROSDebug_BXID
 		 <<"   DDUHeader_BXID "<< header.bxID()<<endl;
 	  }
 	}
       }
-      ros++;
     }
 
     //If L1A_ID error identify which ROS has wrong L1A 
@@ -1135,15 +1132,16 @@ void DTDataIntegrityTask::processFED(DTDDUData & data, const std::vector<DTROS25
      if (dduHistos[histoType].find(code.getDDUID()) == dduHistos[histoType].end()) {
        bookHistos( string("DDU"), code);
      } 
-     ros =0;
      for (vector<DTROS25Data>::const_iterator ros_it = rosData.begin();
 	  ros_it != rosData.end(); ros_it++) {
-       (dduHistos.find(histoType)->second).find(code.getDDUID())->second->Fill(ros);
-       //FIXME: how to notify this error in a log file
-       cout << "L1A_ID error from ROS "<<ros<<" :"
-	    <<" ROSHeader_TTCeventcounter " << ((*ros_it).getROSHeader()).TTCEventCounter()
-	    <<"   DDUHeader_lvl1ID "<< header.lvl1ID()<<endl;
-       ros++;
+       int ROSHeader_TTCCount = ((*ros_it).getROSHeader()).TTCEventCounter();
+	 if(ROSHeader_TTCCount != header.lvl1ID()-1){
+	   (dduHistos.find(histoType)->second).find(code.getDDUID())->second->Fill((*ros_it).getROSID()-1);
+	   //FIXME: how to notify this error in a log file
+	   cout << "L1A_ID error from ROS "<<(*ros_it).getROSID()<<" :"
+	   <<" ROSHeader_TTCeventcounter " << ROSHeader_TTCCount
+	   <<"   DDUHeader_lvl1ID "<< header.lvl1ID()<<endl;
+	 }
      }
   }
 }
