@@ -2,6 +2,7 @@
 #include <cmath>
 #include <vector>
 #include <iostream>
+#include <limits>
 
 using namespace std;
 
@@ -38,7 +39,9 @@ void DeterministicAnnealing::anneal()
 
 double DeterministicAnnealing::weight ( double chi2 ) const
 {
-  return 1. / ( 1. + phi ( theCutoff * theCutoff ) / phi ( chi2 ) );
+  double mphi = phi ( chi2 );
+  if ( mphi < std::numeric_limits<double>::epsilon() ) return 0.;
+  return 1. / ( 1. + phi ( theCutoff * theCutoff ) / mphi );
 }
 
 void DeterministicAnnealing::resetAnnealing()
