@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/03/30 16:10:06 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/04/12 07:40:04 $
+ *  $Revision: 1.3 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -124,26 +124,26 @@ void DTEfficiencyTest::analyze(const edm::Event& e, const edm::EventSetup& conte
     // Loop over the SuperLayers
     for(; sl_it != sl_end; ++sl_it) {
       DTSuperLayerId slID = (*sl_it)->id();
-      vector<const DTLayer*>::const_iterator l_it = (*sl_it)->layers().begin(); 
+      vector<const DTLayer*>::const_iterator l_it = (*sl_it)->layers().begin();
       vector<const DTLayer*>::const_iterator l_end = (*sl_it)->layers().end();
       
       // Loop over the layers
-      for(; l_it != l_end; ++l_it) {	
+      for(; l_it != l_end; ++l_it) {
 	DTLayerId lID = (*l_it)->id();
-
+	 
 	stringstream wheel; wheel << chID.wheel();
 	stringstream station; station << chID.station();
 	stringstream sector; sector << chID.sector();
 	stringstream superLayer; superLayer << slID.superlayer();
 	stringstream layer; layer << lID.layer();
-
-	string HistoName = "W" + wheel.str() + "_St" + station.str() + "_Sec" + sector.str() +  "_SL" + superLayer.str() +  "_L" + layer.str(); 
-
+	
+	string HistoName = "W" + wheel.str() + "_St" + station.str() + "_Sec" + sector.str() +  "_SL" + superLayer.str() +  "_L" + layer.str();
+	
 	// Get the ME produced by EfficiencyTask Source
 	MonitorElement * occupancy_histo = dbe->get(getMEName("hEffOccupancy", lID));	
 	MonitorElement * unassOccupancy_histo = dbe->get(getMEName("hEffUnassOccupancy", lID));
 	MonitorElement * recSegmOccupancy_histo = dbe->get(getMEName("hRecSegmOccupancy", lID));
-
+	 
 	// ME -> TH1F
 	if(occupancy_histo && unassOccupancy_histo && recSegmOccupancy_histo) {	  
 	  MonitorElementT<TNamed>* occ = dynamic_cast<MonitorElementT<TNamed>*>(occupancy_histo);
@@ -176,46 +176,45 @@ void DTEfficiencyTest::analyze(const edm::Event& e, const edm::EventSetup& conte
 	    }
 	  }
 	}
-
-	// Efficiency test 
-	//cout<<"[DTEfficiencyTest]: Efficiency Tests results"<<endl;
-	string EfficiencyCriterionName = parameters.getUntrackedParameter<string>("EfficiencyTestName","EfficiencyInRange"); 
-	for(map<string, MonitorElement*>::const_iterator hEff = EfficiencyHistos.begin();
-	    hEff != EfficiencyHistos.end();
-	    hEff++) {
-	  const QReport * theEfficiencyQReport = (*hEff).second->getQReport(EfficiencyCriterionName);
-	  if(theEfficiencyQReport) {
-	    vector<dqm::me_util::Channel> badChannels = theEfficiencyQReport->getBadChannels();
-	    for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
-		 channel != badChannels.end(); channel++) {
-	      cout<<"Bad efficiency channels: "<<(*channel).getBin()<<" "<<(*channel).getContents()<<endl;
-	    }
-	    cout<<"-------- "<<theEfficiencyQReport->getMessage()<<" ------- "<<theEfficiencyQReport->getStatus()<<endl;
-	  }
-	}
-	
-	// UnassEfficiency test 
-	//cout<<"[DTEfficiencyTest]: UnassEfficiency Tests results"<<endl;
-	string UnassEfficiencyCriterionName = parameters.getUntrackedParameter<string>("UnassEfficiencyTestName","UnassEfficiencyInRange"); 
-	for(map<string, MonitorElement*>::const_iterator hUnassEff = UnassEfficiencyHistos.begin();
-	    hUnassEff != UnassEfficiencyHistos.end();
-	    hUnassEff++) {
-	  const QReport * theUnassEfficiencyQReport = (*hUnassEff).second->getQReport(UnassEfficiencyCriterionName);
-	  if(theUnassEfficiencyQReport) {
-	    vector<dqm::me_util::Channel> badChannels = theUnassEfficiencyQReport->getBadChannels();
-	    for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
-		 channel != badChannels.end(); channel++) {
-	      cout<<"Bad unassEfficiency channels: "<<(*channel).getBin()<<" "<<(*channel).getContents()<<endl;
-	    }
-	    //cout<<"-------- "<<theUnassEfficiencyQReport->getMessage()<<" ------- "<<theUnassEfficiencyQReport->getStatus()<<endl;
-	  }
-	}
-
-
+      } // loop on layers
+    } // loop on superlayers
+  } //loop on chambers
+  
+  // Efficiency test 
+  //cout<<"[DTEfficiencyTest]: Efficiency Tests results"<<endl;
+  string EfficiencyCriterionName = parameters.getUntrackedParameter<string>("EfficiencyTestName","EfficiencyInRange"); 
+  for(map<string, MonitorElement*>::const_iterator hEff = EfficiencyHistos.begin();
+      hEff != EfficiencyHistos.end();
+      hEff++) {
+    const QReport * theEfficiencyQReport = (*hEff).second->getQReport(EfficiencyCriterionName);
+    if(theEfficiencyQReport) {
+      vector<dqm::me_util::Channel> badChannels = theEfficiencyQReport->getBadChannels();
+      for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
+	   channel != badChannels.end(); channel++) {
+	cout<<"Bad efficiency channels: "<<(*channel).getBin()<<" "<<(*channel).getContents()<<endl;
       }
+      cout<<"-------- "<<theEfficiencyQReport->getMessage()<<" ------- "<<theEfficiencyQReport->getStatus()<<endl;
+    }
+  }
+	
+  // UnassEfficiency test 
+  //cout<<"[DTEfficiencyTest]: UnassEfficiency Tests results"<<endl;
+  string UnassEfficiencyCriterionName = parameters.getUntrackedParameter<string>("UnassEfficiencyTestName","UnassEfficiencyInRange"); 
+  for(map<string, MonitorElement*>::const_iterator hUnassEff = UnassEfficiencyHistos.begin();
+      hUnassEff != UnassEfficiencyHistos.end();
+      hUnassEff++) {
+    const QReport * theUnassEfficiencyQReport = (*hUnassEff).second->getQReport(UnassEfficiencyCriterionName);
+    if(theUnassEfficiencyQReport) {
+      vector<dqm::me_util::Channel> badChannels = theUnassEfficiencyQReport->getBadChannels();
+      for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
+	   channel != badChannels.end(); channel++) {
+	cout<<"Bad unassEfficiency channels: "<<(*channel).getBin()<<" "<<(*channel).getContents()<<endl;
+      }
+      //cout<<"-------- "<<theUnassEfficiencyQReport->getMessage()<<" ------- "<<theUnassEfficiencyQReport->getStatus()<<endl;
     }
   }
 
+  
   if (nevents%parameters.getUntrackedParameter<int>("resultsSavingRate",10) == 0){
     if ( parameters.getUntrackedParameter<bool>("writeHisto", true) ) 
       dbe->save(parameters.getUntrackedParameter<string>("outputFile", "DTEfficiencyTest.root"));
