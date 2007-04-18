@@ -22,11 +22,13 @@
 <use name=TrackingTools/TrajectoryCleaning>
 <use name=TrackingTools/TrajectoryParametrization>
 <use name=TrackingTools/TrajectoryState>
-<use name=TrackingTools/ TransientTrackingRecHit>
-<flags SEAL_PLUGIN_NAME="FastSimulationTracking">
+<use name=TrackingTools/TransientTrackingRecHit>
+
+<flags EDM_PLUGIN=1>
+
 <export>
-  <use name=DataFormats/Common>
-  <use name=FWCore/Framework>
-  <use name=FWCore/ParameterSet>
+#  <use name=DataFormats/Common>
+#  <use name=FWCore/Framework>
+#  <use name=FWCore/ParameterSet>
   <lib name=FastSimulationTracking>
 </export>
