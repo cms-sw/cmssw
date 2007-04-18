@@ -1,7 +1,7 @@
 #include "RecoMuon/MuonIsolation/interface/MuIsoByTrackPt.h"
 
-#include "RecoMuon/MuonIsolation/interface/TrackExtractor.h"
-#include "RecoMuon/MuonIsolation/interface/ExtractorFromDeposits.h"
+#include "RecoMuon/MuonIsolation/interface/MuIsoExtractor.h"
+#include "RecoMuon/MuonIsolation/interface/MuIsoExtractorFactory.h"
 #include "RecoMuon/MuonIsolation/interface/IsolatorByDeposit.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -23,14 +23,10 @@ MuIsoByTrackPt::MuIsoByTrackPt(const edm::ParameterSet& conf)
   : theExtractor(0), theIsolator(0)
 {
   edm::ParameterSet extractorPSet = conf.getParameter<edm::ParameterSet>("ExtractorPSet");
-  string extractor = extractorPSet.getParameter<string>("ComponentName"); 
-  if (extractor=="ExtractorFromDeposits") {
-    theExtractor = new ExtractorFromDeposits(extractorPSet);
-  } else {
-    theExtractor = new TrackExtractor(extractorPSet);
-  } 
+  string extractorName = extractorPSet.getParameter<string>("ComponentName"); 
+  theExtractor = MuIsoExtractorFactory::get()->create(extractorName, extractorPSet);
 
-           theCut = conf.getUntrackedParameter<double>("Threshold", 0.);
+  theCut = conf.getUntrackedParameter<double>("Threshold", 0.);
   float coneSize =  conf.getUntrackedParameter<double>("ConeSize", 0.);
   vector<double> weights(1,1.);
   theIsolator = new IsolatorByDeposit(coneSize, weights); 
