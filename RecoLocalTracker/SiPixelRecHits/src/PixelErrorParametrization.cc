@@ -291,8 +291,8 @@ float PixelErrorParametrization::error_YB(int sizey, float alpha, float beta)
     }
   else if ( beta_prime >= brange_yb[i_size].second )
     {
-      return ybarrel_1D[ybarrel_1D.size()-1];
-      //return 2.0*pitch_y / sqrt(12.0); // Gavril: we are in un-physical beta_prime range; return large error, 03/27/07 
+      //return ybarrel_1D[ybarrel_1D.size()-1];
+      return pitch_y / sqrt(12.0); // Gavril: we are in un-physical beta_prime range; return large error, 03/27/07 
     } 
   else 
     {
