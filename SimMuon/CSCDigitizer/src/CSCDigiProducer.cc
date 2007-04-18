@@ -78,6 +78,9 @@ void CSCDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup) 
   eventSetup.getData( pdt );
   theDigitizer.setParticleDataTable(&*pdt);
 
+
+  theStripConditions->initializeEvent(eventSetup);
+
   // run the digitizer
   theDigitizer.doAction(*hits, *pWireDigis, *pStripDigis, *pComparatorDigis);
 
