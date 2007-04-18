@@ -14,12 +14,13 @@
  *  - \f$ \Delta y_t \f$
  *  - \f$ \Delta y_k \f$
  *
- *  $Date: 2007/04/12 14:44:16 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/04/18 13:39:43 $
+ *  $Revision: 1.3 $
  *  \author Maarten Thomas
  */
 
 #include <iostream>
+#include <vector>
 
 class LASAlignmentParameter
 {
