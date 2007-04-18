@@ -71,8 +71,9 @@ pair<JetTag,TauImpactParameterInfo> ImpactParameterAlgorithm::tag(const Isolated
 
 	double discriminator = resultExtended.discriminator(ip_min,ip_max,sip_min,use_sign,use3D);
 
-	const JetTracksAssociationRef& jtaRef = tauRef->jtaRef();
-	JetTag resultBase(discriminator,jtaRef);
+//	const JetTracksAssociationRef& jtaRef = tauRef->jtaRef();
+//	JetTag resultBase(discriminator,jtaRef);
+        JetTag resultBase(discriminator);
 
 	return pair<JetTag,TauImpactParameterInfo> (resultBase,resultExtended);
 }
