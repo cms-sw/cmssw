@@ -7,7 +7,6 @@
 #include "DTTMax.h"
 #include <string>
 
-using namespace dttmaxenums;
 // A set of histograms on chamber angle and position
 class h4DSegm{
  public:
