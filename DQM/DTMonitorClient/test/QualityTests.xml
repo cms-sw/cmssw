@@ -56,6 +56,14 @@
 </QTEST>
 
 
+<QTEST name="OccupancyDiffInRange">
+	<TYPE>DeadChannel</TYPE>	
+	<PARAM name="threshold">20</PARAM>
+	<PARAM name="error">0.30</PARAM>
+	<PARAM name="warning">0.70</PARAM>
+</QTEST>
+
+
 <LINK name="*tTrigTest*">
 	<TestName activate="true">tTrigOffSet</TestName>
 </LINK>
@@ -78,6 +86,10 @@
 
 <LINK name="*Efficiency*">
 	<TestName activate="true">UnassEfficiencyInRange</TestName>
+</LINK>
+
+<LINK name="*OccupancyDiff*">
+	<TestName activate="true">OccupancyDiffInRange</TestName>
 </LINK>
 
 
