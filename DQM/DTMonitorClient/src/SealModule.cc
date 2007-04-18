@@ -17,3 +17,6 @@ DEFINE_ANOTHER_FWK_MODULE(DTDataIntegrityTest);
 #include "DQM/DTMonitorClient/src/DTNoiseEvaluation.h"
 DEFINE_ANOTHER_FWK_MODULE(DTNoiseEvaluation);
 
+#include "DQM/DTMonitorClient/src/DTDeadChannelTest.h"
+DEFINE_ANOTHER_FWK_MODULE(DTDeadChannelTest);
+
