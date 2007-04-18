@@ -391,10 +391,10 @@ void SiStripDigiValid::analyze(const Event& e, const EventSetup& c){
         if(detId.subdetId()==StripSubdetector::TIB){
              TIBDetId tibid(id);
              for ( iter = begin ; iter != end; iter++ ) { // loop digis
-               if( tibid.string()[0] == 0) {
+               if( tibid.string()[0] == 1) {
                  ++ndigilayertibzm[tibid.layer()-1];
                  if( tibid.layer() == 1 ) { 
-                    if ( tibid.string()[1] == 0 ) {
+                    if ( tibid.string()[1] == 1 ) {
                        if( tibid.module() == 1 ) { meAdcTIBLayer1Intzm_[0] -> Fill((*iter).adc()); meStripTIBLayer1Intzm_[0] ->Fill((*iter).strip()); }
                        if( tibid.module() == 2 ) { meAdcTIBLayer1Intzm_[1] -> Fill((*iter).adc()); meStripTIBLayer1Intzm_[1] ->Fill((*iter).strip()); }
                        if( tibid.module() == 3 ) { meAdcTIBLayer1Intzm_[2] -> Fill((*iter).adc()); meStripTIBLayer1Intzm_[2] ->Fill((*iter).strip()); }
@@ -405,7 +405,7 @@ void SiStripDigiValid::analyze(const Event& e, const EventSetup& c){
                    } 
                  }
                  if( tibid.layer() == 2 ) {
-                    if ( tibid.string()[1] == 0 ) {
+                    if ( tibid.string()[1] == 1 ) {
                        if( tibid.module() == 1 ) { meAdcTIBLayer2Intzm_[0] -> Fill((*iter).adc()); meStripTIBLayer2Intzm_[0] ->Fill((*iter).strip()); }
                        if( tibid.module() == 2 ) { meAdcTIBLayer2Intzm_[1] -> Fill((*iter).adc()); meStripTIBLayer2Intzm_[1] ->Fill((*iter).strip()); }
                        if( tibid.module() == 3 ) { meAdcTIBLayer2Intzm_[2] -> Fill((*iter).adc()); meStripTIBLayer2Intzm_[2] ->Fill((*iter).strip()); }
@@ -416,7 +416,7 @@ void SiStripDigiValid::analyze(const Event& e, const EventSetup& c){
                    }
                  }
                  if( tibid.layer() == 3 ) {
-                    if ( tibid.string()[1] == 0 ) {
+                    if ( tibid.string()[1] == 1 ) {
                        if( tibid.module() == 1 ) { meAdcTIBLayer3Intzm_[0] -> Fill((*iter).adc()); meStripTIBLayer3Intzm_[0] ->Fill((*iter).strip()); }
                        if( tibid.module() == 2 ) { meAdcTIBLayer3Intzm_[1] -> Fill((*iter).adc()); meStripTIBLayer3Intzm_[1] ->Fill((*iter).strip()); }
                        if( tibid.module() == 3 ) { meAdcTIBLayer3Intzm_[2] -> Fill((*iter).adc()); meStripTIBLayer3Intzm_[2] ->Fill((*iter).strip()); }
@@ -427,7 +427,7 @@ void SiStripDigiValid::analyze(const Event& e, const EventSetup& c){
                    }
                  }
                  if( tibid.layer() == 4 ) {
-                    if ( tibid.string()[1] == 0 ) {
+                    if ( tibid.string()[1] == 1 ) {
                        if( tibid.module() == 1 ) { meAdcTIBLayer4Intzm_[0] -> Fill((*iter).adc()); meStripTIBLayer4Intzm_[0] ->Fill((*iter).strip()); }
                        if( tibid.module() == 2 ) { meAdcTIBLayer4Intzm_[1] -> Fill((*iter).adc()); meStripTIBLayer4Intzm_[1] ->Fill((*iter).strip()); }
                        if( tibid.module() == 3 ) { meAdcTIBLayer4Intzm_[2] -> Fill((*iter).adc()); meStripTIBLayer4Intzm_[2] ->Fill((*iter).strip()); }
@@ -440,7 +440,7 @@ void SiStripDigiValid::analyze(const Event& e, const EventSetup& c){
                }else {
                  ++ndigilayertibzp[tibid.layer()-1];
                  if( tibid.layer() == 1 ) {
-                    if ( tibid.string()[1] == 0 ) {
+                    if ( tibid.string()[1] == 1 ) {
                        if( tibid.module() == 1 ) { meAdcTIBLayer1Intzp_[0] -> Fill((*iter).adc()); meStripTIBLayer1Intzp_[0] ->Fill((*iter).strip()); }
                        if( tibid.module() == 2 ) { meAdcTIBLayer1Intzp_[1] -> Fill((*iter).adc()); meStripTIBLayer1Intzp_[1] ->Fill((*iter).strip()); }
                        if( tibid.module() == 3 ) { meAdcTIBLayer1Intzp_[2] -> Fill((*iter).adc()); meStripTIBLayer1Intzp_[2] ->Fill((*iter).strip()); }
@@ -451,7 +451,7 @@ void SiStripDigiValid::analyze(const Event& e, const EventSetup& c){
                    } 
                  }
                  if( tibid.layer() == 2 ) {
-                    if ( tibid.string()[1] == 0 ) {
+                    if ( tibid.string()[1] == 1 ) {
                        if( tibid.module() == 1 ) { meAdcTIBLayer2Intzp_[0] -> Fill((*iter).adc()); meStripTIBLayer2Intzp_[0] ->Fill((*iter).strip()); }
                        if( tibid.module() == 2 ) { meAdcTIBLayer2Intzp_[1] -> Fill((*iter).adc()); meStripTIBLayer2Intzp_[1] ->Fill((*iter).strip()); }
                        if( tibid.module() == 3 ) { meAdcTIBLayer2Intzp_[2] -> Fill((*iter).adc()); meStripTIBLayer2Intzp_[2] ->Fill((*iter).strip()); }
@@ -462,7 +462,7 @@ void SiStripDigiValid::analyze(const Event& e, const EventSetup& c){
                    }
                  }
                  if( tibid.layer() == 3 ) {
-                    if ( tibid.string()[1] == 0 ) {
+                    if ( tibid.string()[1] == 1 ) {
                        if( tibid.module() == 1 ) { meAdcTIBLayer3Intzp_[0] -> Fill((*iter).adc()); meStripTIBLayer3Intzp_[0] ->Fill((*iter).strip()); }
                        if( tibid.module() == 2 ) { meAdcTIBLayer3Intzp_[1] -> Fill((*iter).adc()); meStripTIBLayer3Intzp_[1] ->Fill((*iter).strip()); }
                        if( tibid.module() == 3 ) { meAdcTIBLayer3Intzp_[2] -> Fill((*iter).adc()); meStripTIBLayer3Intzp_[2] ->Fill((*iter).strip()); }
@@ -473,7 +473,7 @@ void SiStripDigiValid::analyze(const Event& e, const EventSetup& c){
                    }
                  }
                  if( tibid.layer() == 4 ) {
-                    if ( tibid.string()[1] == 0 ) {
+                    if ( tibid.string()[1] == 1) {
                        if( tibid.module() == 1 ) { meAdcTIBLayer4Intzp_[0] -> Fill((*iter).adc()); meStripTIBLayer4Intzp_[0] ->Fill((*iter).strip()); }
                        if( tibid.module() == 2 ) { meAdcTIBLayer4Intzp_[1] -> Fill((*iter).adc()); meStripTIBLayer4Intzp_[1] ->Fill((*iter).strip()); }
                        if( tibid.module() == 3 ) { meAdcTIBLayer4Intzp_[2] -> Fill((*iter).adc()); meStripTIBLayer4Intzp_[2] ->Fill((*iter).strip()); }
@@ -490,7 +490,7 @@ void SiStripDigiValid::analyze(const Event& e, const EventSetup& c){
         if(detId.subdetId()==StripSubdetector::TOB){
              TOBDetId tobid(id); 
              for ( iter = begin ; iter != end; iter++ ) { // loop digis
-               if( tobid.rod()[0] == 0 ) {
+               if( tobid.rod()[0] == 1) {
                  ++ndigilayertobzm[tobid.layer()-1];  
                  if( tobid.layer() == 1 ) { 
                      if ( tobid.module() == 1 ) { meAdcTOBLayer1zm_[0] -> Fill((*iter).adc()); meStripTOBLayer1zm_[0] ->Fill((*iter).strip()); }
