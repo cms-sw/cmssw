@@ -8,7 +8,7 @@
  *
  * \author Chiara Genta
  *
- * \version $Id: TrackInfo.h,v 1.5 2007/04/12 14:06:04 genta Exp $
+ * \version $Id: TrackInfo.h,v 1.6 2007/04/16 13:25:06 genta Exp $
  *
  */
 
@@ -25,7 +25,7 @@ namespace reco {
   public:
     /// default constructor
     typedef std::map<TrackingRecHitRef , TrackingRecHitInfo >  TrajectoryInfo;
-    typedef TrackingRecHitInfo::StateType StateType;
+    typedef reco::StateType StateType;
 
     TrackInfo() {}
 
@@ -35,7 +35,7 @@ namespace reco {
 
     const TrajectorySeed &seed() const;
 
-    const reco::TrackingRecHitInfo::RecHitType  type(TrackingRecHitRef ) const;
+    const RecHitType  type(TrackingRecHitRef ) const;
     
     const PTrajectoryStateOnDet *stateOnDet(StateType,TrackingRecHitRef ) const;
 

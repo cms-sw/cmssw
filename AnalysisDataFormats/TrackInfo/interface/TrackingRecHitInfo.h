@@ -8,25 +8,25 @@
  *
  * \author Chiara Genta
  *
- * \version $Id: TrackingRecHitInfo.h,v 1.2 2007/04/12 14:06:05 genta Exp $
+ * \version $Id: TrackingRecHitInfo.h,v 1.3 2007/04/16 13:25:06 genta Exp $
  *
  */
 
 #include "AnalysisDataFormats/TrackInfo/interface/TrackingStateInfo.h"
+#include "AnalysisDataFormats/TrackInfo/interface/TrackInfoEnum.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrajectoryState/interface/PTrajectoryStateOnDet.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 
+
 namespace reco {
   class TrackingRecHitInfo{
     
   public:
-    enum StateType { Updated=0, Combined=1, FwPredicted=2, BwPredicted=3};
-    
-    enum RecHitType { Single=0, Matched=1, Projected=2, Null=3};
+    typedef reco::StateType StateType;
     typedef std::map<StateType, TrackingStateInfo > TrackingStates;
-    
+
     TrackingRecHitInfo(){}
     TrackingRecHitInfo(RecHitType type, TrackingStates & states):type_(type),states_(states){}
         const RecHitType  type() const {return type_;}

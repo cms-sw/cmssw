@@ -10,11 +10,11 @@ const TrajectorySeed & TrackInfo::seed() const {return seed_;}
 
 const reco::TrackInfo::TrajectoryInfo & TrackInfo::trajStateMap() const {return trajstates_;}
 
-const reco::TrackingRecHitInfo::RecHitType  TrackInfo::type(TrackingRecHitRef hit) const {
+const RecHitType  TrackInfo::type(TrackingRecHitRef hit) const {
   TrajectoryInfo::const_iterator states=trajstates_.find(hit);
   if(states!=trajstates_.end())return states->second.type();
   else edm::LogError("TrackInfo")<<"This rechit does not exist";
-  return TrackingRecHitInfo::Null;
+  return Null;
 }
 
 const PTrajectoryStateOnDet * TrackInfo::stateOnDet(StateType statetype,TrackingRecHitRef hit)const {

@@ -59,7 +59,7 @@ class TrackInfoAnalyzer : public edm::EDAnalyzer {
 
   virtual void analyze(const edm::Event& event, const edm::EventSetup& setup){ //analyze
 
-    using namespace std;
+    using namespace reco;
 
     //std::cout << "\nEvent ID = "<< event.id() << std::endl ;
     edm::InputTag TkTag = conf_.getParameter<edm::InputTag>("TrackInfo");
@@ -77,8 +77,8 @@ class TrackInfoAnalyzer : public edm::EDAnalyzer {
       edm::LogInfo("TrackInfoAnalyzer") <<"Starting state "<<track->seed().startingState().parameters().position();
       if(track->trajStateMap().size()>0){
       for(iter=track->trajStateMap().begin();iter!=track->trajStateMap().end();iter++){
-	edm::LogInfo("TrackInfoAnalyzer") <<"LocalMomentum: "<<(track->stateOnDet(reco::TrackingRecHitInfo::Combined,(*iter).first)->parameters()).momentum();
-	edm::LogInfo("TrackInfoAnalyzer") <<"LocalPosition: "<<(track->stateOnDet(reco::TrackingRecHitInfo::Combined,(*iter).first)->parameters()).position();
+	edm::LogInfo("TrackInfoAnalyzer") <<"LocalMomentum: "<<(track->stateOnDet(Combined,(*iter).first)->parameters()).momentum();
+	edm::LogInfo("TrackInfoAnalyzer") <<"LocalPosition: "<<(track->stateOnDet(Combined,(*iter).first)->parameters()).position();
 	edm::LogInfo("TrackInfoAnalyzer") <<"LocalPosition (rechit): "<<((*iter).first)->localPosition();
 	DetId id=((BaseSiTrackerRecHit2DLocalPos *) (&(*(*iter).first)))->geographicalId();
 	unsigned int iSubDet = StripSubdetector(id).subdetId();
@@ -87,20 +87,20 @@ class TrackInfoAnalyzer : public edm::EDAnalyzer {
 	  int layer = tibId->layer();
 	  std::vector<unsigned int> string = tibId->string();
 	  if(layer==1){
-	    if(string[1]==0)tib1int->Fill((track->stateOnDet(reco::TrackingRecHitInfo::Combined,(*iter).first)->parameters()).position().x()-((*iter).first)->localPosition().x());
-	    else if(string[1]==1)tib1ext->Fill((track->stateOnDet(reco::TrackingRecHitInfo::Combined,(*iter).first)->parameters()).position().x()-((*iter).first)->localPosition().x());
+	    if(string[1]==0)tib1int->Fill((track->stateOnDet(Combined,(*iter).first)->parameters()).position().x()-((*iter).first)->localPosition().x());
+	    else if(string[1]==1)tib1ext->Fill((track->stateOnDet(Combined,(*iter).first)->parameters()).position().x()-((*iter).first)->localPosition().x());
 	  }
 	  else if(layer==2){
-	    if(string[1]==0)tib2int->Fill((track->stateOnDet(reco::TrackingRecHitInfo::Combined,(*iter).first)->parameters()).position().x()-((*iter).first)->localPosition().x());
-	    else if(string[1]==1)tib2ext->Fill((track->stateOnDet(reco::TrackingRecHitInfo::Combined,(*iter).first)->parameters()).position().x()-((*iter).first)->localPosition().x());
+	    if(string[1]==0)tib2int->Fill((track->stateOnDet(Combined,(*iter).first)->parameters()).position().x()-((*iter).first)->localPosition().x());
+	    else if(string[1]==1)tib2ext->Fill((track->stateOnDet(Combined,(*iter).first)->parameters()).position().x()-((*iter).first)->localPosition().x());
 	  }
 	  else if(layer==3){
-	    if(string[1]==0)tib3int->Fill((track->stateOnDet(reco::TrackingRecHitInfo::Combined,(*iter).first)->parameters()).position().x()-((*iter).first)->localPosition().x());
-	    else if(string[1]==1)tib3ext->Fill((track->stateOnDet(reco::TrackingRecHitInfo::Combined,(*iter).first)->parameters()).position().x()-((*iter).first)->localPosition().x());
+	    if(string[1]==0)tib3int->Fill((track->stateOnDet(Combined,(*iter).first)->parameters()).position().x()-((*iter).first)->localPosition().x());
+	    else if(string[1]==1)tib3ext->Fill((track->stateOnDet(Combined,(*iter).first)->parameters()).position().x()-((*iter).first)->localPosition().x());
 	  }
 	  else if(layer==4){
-	    if(string[1]==0)tib4int->Fill((track->stateOnDet(reco::TrackingRecHitInfo::Combined,(*iter).first)->parameters()).position().x()-((*iter).first)->localPosition().x());
-	    else if(string[1]==1)tib4ext->Fill((track->stateOnDet(reco::TrackingRecHitInfo::Combined,(*iter).first)->parameters()).position().x()-((*iter).first)->localPosition().x());
+	    if(string[1]==0)tib4int->Fill((track->stateOnDet(Combined,(*iter).first)->parameters()).position().x()-((*iter).first)->localPosition().x());
+	    else if(string[1]==1)tib4ext->Fill((track->stateOnDet(Combined,(*iter).first)->parameters()).position().x()-((*iter).first)->localPosition().x());
 	  }
 	}
       }

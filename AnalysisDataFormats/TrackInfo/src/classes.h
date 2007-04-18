@@ -7,12 +7,23 @@
 
 namespace {
   namespace {
-    reco::TrackInfoCollection v4;
-    edm::Wrapper<reco::TrackInfoCollection> c4;
-    reco::TrackInfoRef r1;
-    reco::TrackInfoRefProd rp1;
-    reco::TrackInfoRefVector rv1;
-    edm::Wrapper<reco::TrackInfoRefVector> wv1;
+
+    reco::TrackingStateInfo                 tsi;
+    reco::TrackingRecHitInfo                tri;
+    std::pair<reco::StateType, reco::TrackingStateInfo> ptsi;
+    std::map<reco::StateType, reco::TrackingStateInfo>  mtsi;
+
+    std::pair<TrackingRecHitRef, reco::TrackingRecHitInfo>                  ptri;
+    std::map<TrackingRecHitRef, reco::TrackingRecHitInfo>                   mtri;
+    
+    
+    reco::TrackInfo                         ti;
+    reco::TrackInfoCollection               vti;
+    edm::Wrapper<reco::TrackInfoCollection> cti;
+    reco::TrackInfoRef                      rti;
+    reco::TrackInfoRefProd                  rpti;
+    reco::TrackInfoRefVector                rvti;
+    edm::Wrapper<reco::TrackInfoRefVector>  wvti;
 
     reco::TrackInfoTrackAssociationCollection v5;
     edm::Wrapper<reco::TrackInfoTrackAssociationCollection> c5;

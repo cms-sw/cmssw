@@ -65,7 +65,7 @@ void TrackInfoProducerAlgorithm::run(std::vector<Trajectory>::const_iterator  tr
       const ProjectedSiStripRecHit2D* phit=dynamic_cast<const ProjectedSiStripRecHit2D*>( &*(thehitref));
       const SiStripMatchedRecHit2D* matchedhit=dynamic_cast<const SiStripMatchedRecHit2D*>( &*(thehitref));
 
-      TrackingRecHitInfo::RecHitType type=TrackingRecHitInfo::Single;
+      RecHitType type=Single;
       LocalVector monofwd, stereofwd;
       LocalVector monobwd, stereobwd;
       LocalVector monoco, stereoco;
@@ -76,7 +76,7 @@ void TrackInfoProducerAlgorithm::run(std::vector<Trajectory>::const_iterator  tr
       LocalPoint pmonoco, pstereoco;
       LocalPoint pmonoup, pstereoup;
       if(matchedhit){
-	type=TrackingRecHitInfo::Matched;
+	type=Matched;
 	GluedGeomDet * gdet=(GluedGeomDet *)tracker->idToDet(matchedhit->geographicalId());
 	
 	GlobalVector gtrkdirfwd=gdet->toGlobal(fwdptsod->parameters().momentum());
@@ -114,7 +114,7 @@ void TrackInfoProducerAlgorithm::run(std::vector<Trajectory>::const_iterator  tr
 
       }
       else if(phit){
-	type=TrackingRecHitInfo::Projected;
+	type=Projected;
 	GluedGeomDet * gdet=(GluedGeomDet *)tracker->idToDet(phit->geographicalId());
 	
 	GlobalVector gtrkdirfwd=gdet->toGlobal(fwdptsod->parameters().momentum());
@@ -147,10 +147,10 @@ void TrackInfoProducerAlgorithm::run(std::vector<Trajectory>::const_iterator  tr
 	}
       }
       TrackingRecHitInfo::TrackingStates states;
-      states.insert(std::make_pair(TrackingRecHitInfo::FwPredicted, TrackingStateInfo(std::make_pair(monofwd,stereofwd), std::make_pair(pmonofwd,pstereofwd), *fwdptsod)));
-      states.insert(std::make_pair(TrackingRecHitInfo::BwPredicted, TrackingStateInfo(std::make_pair(monobwd,stereobwd), std::make_pair(pmonobwd,pstereobwd), *bwdptsod)));
-      states.insert(std::make_pair(TrackingRecHitInfo::Updated, TrackingStateInfo(std::make_pair(monoup,stereoup), std::make_pair(pmonoup,pstereoup), *updatedptsod)));
-      states.insert(std::make_pair(TrackingRecHitInfo::Combined, TrackingStateInfo(std::make_pair(monoco,stereoco), std::make_pair(pmonoco,pstereoco), *combinedptsod)));
+      if(forwardPredictedStateTag_!="") states.insert(std::make_pair(FwPredicted, TrackingStateInfo(std::make_pair(monofwd,stereofwd), std::make_pair(pmonofwd,pstereofwd), *fwdptsod)));
+      if(backwardPredictedStateTag_!="")states.insert(std::make_pair(BwPredicted, TrackingStateInfo(std::make_pair(monobwd,stereobwd), std::make_pair(pmonobwd,pstereobwd), *bwdptsod)));
+      if(updatedStateTag_!="")states.insert(std::make_pair(Updated, TrackingStateInfo(std::make_pair(monoup,stereoup), std::make_pair(pmonoup,pstereoup), *updatedptsod)));
+      if(combinedStateTag_!="")states.insert(std::make_pair(Combined, TrackingStateInfo(std::make_pair(monoco,stereoco), std::make_pair(pmonoco,pstereoco), *combinedptsod)));
       
       TrackingRecHitInfo  tkRecHitInfo(type, states);
       

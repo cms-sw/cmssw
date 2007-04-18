@@ -23,7 +23,11 @@ class TrackInfoProducerAlgorithm {
 typedef TransientTrackingRecHit::ConstRecHitPointer ConstRecHitPointer;
 
   TrackInfoProducerAlgorithm(const edm::ParameterSet& conf) : 
-    conf_(conf)    { }
+    conf_(conf),
+    forwardPredictedStateTag_(conf.getParameter<std::string>( "forwardPredictedState" )),
+    backwardPredictedStateTag_(conf.getParameter<std::string>( "backwardPredictedState" )),
+    updatedStateTag_(conf.getParameter<std::string>( "updatedState" )),
+    combinedStateTag_(conf.getParameter<std::string>( "combinedState" ))    { }
 
   ~TrackInfoProducerAlgorithm() {}
   
@@ -33,6 +37,7 @@ typedef TransientTrackingRecHit::ConstRecHitPointer ConstRecHitPointer;
   LocalPoint project(const GeomDet *det,const GeomDet* projdet,LocalPoint position,LocalVector trackdirection)const;
  private:
   edm::ParameterSet conf_;
+  std::string forwardPredictedStateTag_, backwardPredictedStateTag_, updatedStateTag_, combinedStateTag_;
 };
 
 #endif
