@@ -52,8 +52,6 @@
 
 #include <map>
 
-using namespace std;
-using namespace edm;
 
 Double_t linearF(Double_t *x, Double_t *par)
 {
@@ -63,13 +61,13 @@ Double_t linearF(Double_t *x, Double_t *par)
 }
   
 // Constructor
-RPCRecHitReader::RPCRecHitReader(const ParameterSet& pset):_phi(0)
+RPCRecHitReader::RPCRecHitReader(const edm::ParameterSet& pset):_phi(0)
 {
 
   // Get the various input parameters
   fOutputFileName = pset.getUntrackedParameter<std::string>("HistOutFile");
-  recHitLabel1    = pset.getUntrackedParameter<string>("recHitLabel1");
-  recHitLabel2    = pset.getUntrackedParameter<string>("recHitLabel2");
+  recHitLabel1    = pset.getUntrackedParameter<std::string>("recHitLabel1");
+  recHitLabel2    = pset.getUntrackedParameter<std::string>("recHitLabel2");
 
   region = pset.getUntrackedParameter<int>("region",0);
   wheel = pset.getUntrackedParameter<int>("wheel",1);
@@ -116,7 +114,7 @@ void RPCRecHitReader::beginJob( const edm::EventSetup& iSetup)
   _mapLayer[4] = -602.150;
   _mapLayer[5] = -704.550;
 
-  unsigned int layer;
+  unsigned int layer=0;
 
   for(unsigned int i = 0; i < _trigConfig.size(); ++i){
     if(_trigConfig[i] == false) layer = i;
@@ -178,18 +176,18 @@ void RPCRecHitReader::beginJob( const edm::EventSetup& iSetup)
 }
 
 // The Analysis  (the main)
-void RPCRecHitReader::analyze(const Event & event, const EventSetup& eventSetup)
+void RPCRecHitReader::analyze(const edm::Event & event, const edm::EventSetup& eventSetup)
 {
   
-  if (event.id().event()%100 == 0) cout << " Event analysed #Run: " << event.id().run() 
-					<< " #Event: " << event.id().event() << endl;  
+  if (event.id().event()%100 == 0) std::cout << " Event analysed #Run: " << event.id().run() 
+					<< " #Event: " << event.id().event() << std::endl;  
   
   // Get the RPC Geometry :
-  ESHandle<RPCGeometry> rpcGeom;
+  edm::ESHandle<RPCGeometry> rpcGeom;
   eventSetup.get<MuonGeometryRecord>().get(rpcGeom);
   
   // Get the RecHits collection :
-  Handle<RPCRecHitCollection> recHits; 
+  edm::Handle<RPCRecHitCollection> recHits; 
   event.getByLabel(recHitLabel1,recHitLabel2,recHits);  
   
   //----------------------------------------------------------------------
@@ -354,7 +352,7 @@ void RPCRecHitReader::analyze(const Event & event, const EventSetup& eventSetup)
 
 unsigned int RPCRecHitReader::layerRecHit(RPCRecHit rechit){
 
-  unsigned int layer;
+  unsigned int layer=0;
   RPCDetId id = (RPCDetId)(rechit).rpcId();
   
   if(id.station() == 1 && id.layer() == 1) layer = 0;

@@ -2,21 +2,25 @@
 #define RecoLocalMuon_RPCRecHitReader_H
 
 /** \class RPCRecHitReader
- *  Basic analyzer class which accesses 2D CSCRecHits
+ *  Basic analyzer class which accesses based on 2D CSCRecHits
  *  and plot resolution comparing them with muon simhits
- *
- *  Author: D. Fortin  - UC Riverside
+ *  From D. Fortin  - UC Riverside
  */
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
 #include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/MuonDetId/interface/RPCDetId.h"
+#include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
+
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
+#include "Geometry/RPCGeometry/interface/RPCGeometry.h"
+#include "Geometry/RPCGeometry/interface/RPCRoll.h" 
 
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
-
-#include "DataFormats/MuonDetId/interface/RPCDetId.h"
-
-#include "Geometry/RPCGeometry/interface/RPCGeometry.h"
-#include <Geometry/RPCGeometry/interface/RPCRoll.h>
 
 #include <vector>
 #include <map>
@@ -25,15 +29,6 @@
 #include <fstream>
 #include <stdio.h>
 
-#include <Geometry/Records/interface/MuonGeometryRecord.h>
-#include "DataFormats/MuonDetId/interface/RPCDetId.h"
-#include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
-#include <FWCore/Framework/interface/EDAnalyzer.h>
-#include <FWCore/Framework/interface/Event.h>
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "Geometry/RPCGeometry/interface/RPCGeometry.h"
-#include <FWCore/Framework/interface/ESHandle.h>
-
 class TGraph;
 class TFile;
 class TH1F;
@@ -41,16 +36,6 @@ class TH2F;
 
 class RPCRecHit;
 
-namespace edm
-{
-  class ParameterSet;
-  class Event;
-  class EventSetup;
-}
-
-//class PSimHit;
-//class RPCDetId;
-using namespace std;
 
 class RPCRecHitReader : public edm::EDAnalyzer
 {
