@@ -30,7 +30,7 @@ RPCClusterizer::doActualAction(RPCClusterContainer& initialclusters){
   RPCClusterContainer finalCluster;
   RPCCluster prev;
 
-  int j = 0;
+  unsigned int j = 0;
   for(RPCClusterContainer::const_iterator i=initialclusters.begin();
       i != initialclusters.end(); i++){
     RPCCluster cl = *i;
