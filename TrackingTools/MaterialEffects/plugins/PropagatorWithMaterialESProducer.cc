@@ -1,4 +1,4 @@
-#include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterialESProducer.h"
+#include "PropagatorWithMaterialESProducer.h"
 #include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
