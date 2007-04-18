@@ -21,7 +21,7 @@ namespace cms
 {
 class CosmicTIFFilter : public edm::EDFilter {
   public:
-  CosmicTIFFilter(const edm::ParameterSet& conf);
+  explicit CosmicTIFFilter(const edm::ParameterSet& conf);
   virtual ~CosmicTIFFilter() {}
   //   virtual bool filter(edm::Event & e, edm::EventSetup const& c);
   bool filter(edm::Event & iEvent, edm::EventSetup const& c);
@@ -29,11 +29,10 @@ class CosmicTIFFilter : public edm::EDFilter {
 
  private:
   edm::ParameterSet conf_;
-  bool inTK;
-  std::vector<double> zBounds;
-  std::vector<double> rBounds;
-  std::vector<double> bFields;
-  double bReduction;
+  std::vector<double> Sci1;
+  std::vector<double> Sci2;
+  std::vector<double> Sci3;
+
 
   };
 }

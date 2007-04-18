@@ -19,6 +19,14 @@ namespace cms
 CosmicTIFFilter::CosmicTIFFilter(const edm::ParameterSet& conf):    conf_(conf)
 {
 
+  Sci1 = conf_.getParameter< vector <double>  >("scintillator1");
+  Sci2 = conf_.getParameter< vector <double>  >("scintillator2");
+  Sci3 = conf_.getParameter< vector <double>  >("scintillator3");
+  cout << " scintillators positions: " << endl;
+  cout << " S1 x " << Sci1[0] << " y " << Sci1[1] << " z " << Sci1[2] << endl;
+  cout << " S2 x " << Sci2[0] << " y " << Sci2[1] << " z " << Sci2[2] << endl;
+  cout << " S3 x " << Sci3[0] << " y " << Sci3[1] << " z " << Sci3[2] << endl;
+
 }
 
 bool CosmicTIFFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
@@ -61,28 +69,26 @@ bool CosmicTIFFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 
 	// Define the Scintillator position
-	//	HepLorentzVector S1(0,3000.,500);
-	//	HepLorentzVector S2(0,-1500.,500);
-	//	HepLorentzVector S3(0,3000.,3500);
 
-	HepLorentzVector S1(350,1600.,500);
-        HepLorentzVector S2(350,-1600.,400);
-        HepLorentzVector S3(350,1600.,1600);
+	HepLorentzVector S1(Sci1[0],Sci1[1],Sci1[2]);
+	HepLorentzVector S2(Sci2[0],Sci2[1],Sci2[2]);
+	HepLorentzVector S3(Sci3[0],Sci3[1],Sci3[2]);
 
 	hit1=Sci_trig(vertex, momentum, S1);
 	hit2=Sci_trig(vertex, momentum, S2);
 	hit3=Sci_trig(vertex, momentum, S3);
-	
-	// trigger conditions
 
-	if(hit1)cout << "1 " << hit1 << endl;
-	if(hit2)cout << "2 " << hit2 << endl;
-	if(hit3)cout << "3 " << hit3 << endl;
+
+	// trigger conditions
 
 
 	if((hit1&&hit2) || (hit3&&hit2))
 	  {
 	    cout << " got a trig " << endl; 
+	    if(hit1)cout << "1 " << hit1 << endl;
+	    if(hit2)cout << "2 " << hit2 << endl;
+	    if(hit3)cout << "3 " << hit3 << endl;
+	    
 	    return true;
 	  }
       }
