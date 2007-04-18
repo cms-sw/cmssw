@@ -15,7 +15,7 @@
 //
 // Original Author:  Chi Nhan Nguyen
 //         Created:  Mon Feb 19 13:25:24 CST 2007
-// $Id: FastL1Region.h,v 1.1 2007/04/02 13:49:19 beaudett Exp $
+// $Id: FastL1Region.h,v 1.2 2007/04/18 13:39:33 pjanot Exp $
 //
 
 // user include files
@@ -45,6 +45,8 @@
 #include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
 
 #include "FastSimulation/L1CaloTriggerProducer/interface/FastL1RegionMap.h"
+#include "FastSimulation/L1CaloTriggerProducer/interface/FastL1BitInfo.h"
+#include "FastSimulation/L1CaloTriggerProducer/interface/FastL1BitInfoFwrd.h"
 
 struct FastL1Config {
   double JetSeedEtThreshold;
@@ -144,6 +146,10 @@ class FastL1Region {
 
   std::pair<int, int> GetTowerNorthEtaPhi(int ieta, int iphi); 
 
+  FastL1BitInfo getBitInfo() { return BitInfo; }
+
+  // public - has to bechanged!!!
+  FastL1BitInfo BitInfo;
 
  private:
   void SetTauBit(edm::Event const& e);
@@ -187,5 +193,9 @@ class FastL1Region {
 
   FastL1Config Config;
 };
+
+
+double 
+TPEnergyRound(double et, int Resol, int OffSet);
 
 #endif

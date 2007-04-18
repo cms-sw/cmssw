@@ -15,7 +15,7 @@
 //
 // Original Author:  Chi Nhan Nguyen
 //         Created:  Mon Feb 19 13:25:24 CST 2007
-// $Id: FastL1GlobalAlgo.h,v 1.1 2007/02/20 01:14:53 chinhan Exp $
+// $Id: FastL1GlobalAlgo.h,v 1.1 2007/04/02 13:49:18 beaudett Exp $
 //
 
 // system include files
@@ -72,12 +72,13 @@ class FastL1GlobalAlgo {
 
       void CaloTowersDump(edm::Event const& e);
 
-      l1extra::L1EtMissParticle getMET() const { return m_MET; };
-      l1extra::L1JetParticleCollection getTauJets() const { return m_TauJets; };
-      l1extra::L1JetParticleCollection getCenJets() const { return m_CenJets; };
-      l1extra::L1JetParticleCollection getForJets() const { return m_ForJets; };
-      l1extra::L1EmParticleCollection getEgammas() const { return m_Egammas; };
-      l1extra::L1EmParticleCollection getisoEgammas() const { return m_isoEgammas; };
+      l1extra::L1EtMissParticle getMET() const { return m_MET; }
+      l1extra::L1JetParticleCollection getTauJets() const { return m_TauJets; }
+      l1extra::L1JetParticleCollection getCenJets() const { return m_CenJets; }
+      l1extra::L1JetParticleCollection getForJets() const { return m_ForJets; }
+      l1extra::L1EmParticleCollection getEgammas() const { return m_Egammas; }
+      l1extra::L1EmParticleCollection getisoEgammas() const { return m_isoEgammas; }
+      FastL1BitInfoCollection getBitInfos() { return m_BitInfos; }
 
       void FillMET(); // old version
       void FillMET(edm::Event const& e);
@@ -102,6 +103,7 @@ class FastL1GlobalAlgo {
       l1extra::L1JetParticleCollection m_ForJets;
       l1extra::L1EmParticleCollection m_Egammas;
       l1extra::L1EmParticleCollection m_isoEgammas;
+      FastL1BitInfoCollection m_BitInfos;
 
       std::vector<FastL1Region> m_Regions;
       FastL1RegionMap* m_RMap;

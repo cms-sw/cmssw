@@ -13,7 +13,7 @@
 //
 // Original Author:  Chi Nhan Nguyen
 //         Created:  Mon Feb 19 13:25:24 CST 2007
-// $Id: FastL1CaloSim.cc,v 1.1 2007/02/20 01:14:34 chinhan Exp $
+// $Id: FastL1CaloSim.cc,v 1.1 2007/04/02 13:49:20 beaudett Exp $
 //
 //
 
@@ -32,6 +32,7 @@ FastL1CaloSim::FastL1CaloSim(const edm::ParameterSet& iConfig)
   produces<l1extra::L1JetParticleCollection>("ForJets");
   produces<l1extra::L1EmParticleCollection>("Egammas");
   produces<l1extra::L1EmParticleCollection>("isoEgammas");
+  //produces<FastL1BitInfoCollection>("FastL1BitInfos");
 
   //now do what ever other initialization is needed
   m_L1GlobalAlgo = new FastL1GlobalAlgo(iConfig);
@@ -65,6 +66,7 @@ FastL1CaloSim::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   std::auto_ptr<l1extra::L1JetParticleCollection> ForJetResult(new l1extra::L1JetParticleCollection);
   std::auto_ptr<l1extra::L1EmParticleCollection> EgammaResult(new l1extra::L1EmParticleCollection);
   std::auto_ptr<l1extra::L1EmParticleCollection> isoEgammaResult(new l1extra::L1EmParticleCollection);
+  //std::auto_ptr<FastL1BitInfoCollection> FastL1BitInfoResult(new FastL1BitInfoCollection);
 
   //
   *METResult = m_L1GlobalAlgo->getMET();
@@ -83,6 +85,10 @@ FastL1CaloSim::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   for (int i=0; i<std::min(4,(int)m_L1GlobalAlgo->getisoEgammas().size()); i++) {
     isoEgammaResult->push_back(m_L1GlobalAlgo->getisoEgammas().at(i));
   }
+
+  //for (int i=0; i<(int)m_L1GlobalAlgo->getBitInfos().size(); i++) {
+  //  FastL1BitInfoResult->push_back(m_L1GlobalAlgo->getBitInfos().at(i));
+  //}
   
   // put the collections into the event
   iEvent.put(METResult,"MET");
@@ -91,6 +97,7 @@ FastL1CaloSim::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.put(ForJetResult,"ForJets");
   iEvent.put(EgammaResult,"Egammas");
   iEvent.put(isoEgammaResult,"isoEgammas");
+  //iEvent.put(FastL1BitInfoResult,"FastL1BitInfos");
 }
 
 

@@ -13,7 +13,7 @@
 //
 // Original Author:  Chi Nhan Nguyen
 //         Created:  Mon Feb 19 13:25:24 CST 2007
-// $Id: FastL1Region.cc,v 1.5 2007/03/02 23:00:41 chinhan Exp $
+// $Id: FastL1Region.cc,v 1.1 2007/04/02 13:49:20 beaudett Exp $
 //
 
 #include "FastSimulation/L1CaloTriggerProducer/interface/FastL1Region.h"
@@ -40,6 +40,14 @@ FastL1Region::FastL1Region()
       EMCrystalEnergy[i][j] = 0. ; // 16x25 Crystals
     }
   }
+
+  BitInfo.eta = -9999.;
+  BitInfo.phi = -9999.;
+  BitInfo.TauVeto = false;
+  BitInfo.EmTauVeto = false;
+  BitInfo.HadTauVeto = false;
+  BitInfo.SumEtBelowThres = false;
+  BitInfo.IsolationVeto = false;
 
   // default values
   Config.EMSeedEnThreshold = 2.;
@@ -342,7 +350,12 @@ FastL1Region::FillEMCrystals(const edm::Event& e, const edm::EventSetup& c,FastL
 void
 FastL1Region::FillTower(const CaloTower& t, int& tid) 
 {
-  Towers[tid] = CaloTower(t);
+  //Towers[tid] = CaloTower(t);
+  Towers[tid] = CaloTower(t.id(),t.momentum(),
+			  TPEnergyRound(t.emEt(),1,0),
+			  TPEnergyRound(t.hadEt(),1,0),
+			  TPEnergyRound(t.outerEt(),1,0)
+			  ,0,0);
 }
 
 
@@ -364,7 +377,17 @@ FastL1Region::FillTower_Scaled(const CaloTower& t, int& tid)
     emScale = Config.TowerEBScale;
   }
 
-  Towers[tid] = CaloTower(t.id(),t.momentum(),emScale * t.emEt(),hadScale * t.hadEt(),t.outerEt(),0,0);
+  //Towers[tid] = CaloTower(t.id(),t.momentum(),emScale * t.emEt(),hadScale * t.hadEt(),t.outerEt(),0,0);
+
+  double emet = emScale * t.emEt();
+  double hadet = hadScale * t.hadEt();
+  Towers[tid] = CaloTower(t.id(),t.momentum(),
+			  TPEnergyRound(emet,1,0),
+			  TPEnergyRound(hadet,1,0),
+			  TPEnergyRound(t.outerEt(),1,0)
+			  ,0,0);
+
+
 }
 
 void 
@@ -612,10 +635,21 @@ FastL1Region::SetTauBit(edm::Event const& iEvent)
       i != vetoPatterns.end();  i++) {
     unsigned etaPattern = emEtaPat | hadEtaPat;
     unsigned phiPattern = emPhiPat | hadPhiPat;
+
+    //  em pattern
+    if(emEtaPat == *i || emPhiPat == *i) {
+      BitInfo.EmTauVeto = true;
+    }
+    //  had pattern
+    if(hadEtaPat == *i || hadPhiPat == *i) {
+      BitInfo.HadTauVeto = true;
+    }
+
     if(etaPattern == *i || phiPattern == *i) // combined pattern
       //if(emEtaPat == *i || emPhiPat == *i || hadEtaPat == *i || hadPhiPat == *i)
       {
 	tauBit = true;
+	BitInfo.TauVeto = true;
 
 	/*
 	std::cout<<"************************ tauveto fired!!! *****************************************"<<std::endl;
@@ -705,8 +739,8 @@ FastL1Region::CalcSumEt()
       sumet += Towers[i].emEt();
     if ( Towers[i].hadEt() >= HThres )
       sumet += Towers[i].hadEt();
-
   }
+
   return sumet;
 }
 
@@ -851,5 +885,13 @@ FastL1Region::GetSEId()
   } else {
     return 999; 
   }
+}
+
+// Rounding the Et info for simulating the regional Et resolution
+double 
+TPEnergyRound(double et, int Resol = 2, int OffSet = 0) {
+  int ret = ((int)et / Resol) * Resol + OffSet;
+
+  return (double)ret;
 }
 

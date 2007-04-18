@@ -13,7 +13,7 @@
 //
 // Original Author:  Chi Nhan Nguyen
 //         Created:  Mon Feb 19 13:25:24 CST 2007
-// $Id: FastL1GlobalAlgo.cc,v 1.1 2007/04/02 13:49:20 beaudett Exp $
+// $Id: FastL1GlobalAlgo.cc,v 1.2 2007/04/11 07:42:35 beaudett Exp $
 //
 
 #include "FastSimulation/L1CaloTriggerProducer/interface/FastL1GlobalAlgo.h"
@@ -144,7 +144,9 @@ FastL1GlobalAlgo::findJets() {
 	    addJet(i,false);    
 	  }
 	}
-      }	
+      } else {
+	m_Regions[i].BitInfo.SumEtBelowThres = true;
+     }
     }
   }
 
@@ -156,17 +158,21 @@ void
 FastL1GlobalAlgo::addJet(int iRgn, bool taubit) {
   std::pair<double, double> p = m_RMap->getRegionCenterEtaPhi(iRgn);
 
-  double e     = m_Regions.at(iRgn).GetJetE();
-  double et     = m_Regions.at(iRgn).GetJetEt();
+  //double e     = m_Regions.at(iRgn).GetJetE();
+  double et     = TPEnergyRound(m_Regions.at(iRgn).GetJetEt(),2,2);
 
   double eta   = p.first;
   double phi   = p.second;
   double theta = 2.*atan(exp(-eta));
-  //double ex = et*cos(phi);
-  //double ey = et*sin(phi);
-  double ex = e*sin(theta)*cos(phi);
-  double ey = e*sin(theta)*sin(phi);
+  double ex = et*cos(phi);
+  double ey = et*sin(phi);
+  //double ex = e*sin(theta)*cos(phi);
+  //double ey = e*sin(theta)*sin(phi);
+  double e = ex/sin(theta)/cos(phi);
   double ez = e*cos(theta);
+
+  m_Regions[iRgn].BitInfo.eta = eta;
+  m_Regions[iRgn].BitInfo.phi = phi;
 
   reco::Particle::LorentzVector rp4(ex,ey,ez,e); 
   l1extra::L1JetParticle tjet(rp4);
@@ -289,7 +295,6 @@ FastL1GlobalAlgo::FillMET(edm::Event const& e) {
       eme    *= emScale;
       hade   *= hadScale;
       
-
       if (eme>=EThres || hade>=HThres) {
 	double phi   = candidate->phi();
 	double eta = candidate->eta();
@@ -308,25 +313,27 @@ FastL1GlobalAlgo::FillMET(edm::Event const& e) {
 	if (hade>=HThres) {
  	  et    += candidate->hadEt();
 	  e    += candidate->hadEnergy();
- 	  had_et    += candidate->hadEt();
-	  had_e    += candidate->hadEnergy();
+ 	  had_et  += candidate->hadEt();
+	  had_e   += candidate->hadEnergy();
 	}
 
-	sum_e += e;
-	sum_ez += e*cos(theta);
 	sum_et += et;
-	//sum_ex += et*cos(phi);
-	//sum_ey += et*sin(phi); 
-	sum_ex += e*sin(theta)*cos(phi);
-	sum_ey += e*sin(theta)*sin(phi); 
+	sum_ex += et*cos(phi);
+	sum_ey += et*sin(phi); 
+	//sum_ex += e*sin(theta)*cos(phi);
+	//sum_ey += e*sin(theta)*sin(phi); 
+	//sum_e += e;
+	sum_e += et/sin(theta);
+	sum_ez += et*cos(theta)/sin(theta);
 
-	sum_hade += had_e;
-	sum_hadez += had_e*cos(theta);
 	sum_hadet += had_et;
-	//sum_hadex += had_et*cos(phi);
-	//sum_hadey += had_et*sin(phi); 
-	sum_hadex += had_e*sin(theta)*cos(phi);
-	sum_hadey += had_e*sin(theta)*sin(phi); 
+	sum_hadex += had_et*cos(phi);
+	sum_hadey += had_et*sin(phi); 
+	//sum_hadex += had_e*sin(theta)*cos(phi);
+	//sum_hadey += had_e*sin(theta)*sin(phi); 
+	//sum_hade += had_e;
+	sum_hade += had_et/sin(theta);
+	sum_hadez += had_et*cos(theta)/sin(theta);
       }
     }
   //}
@@ -365,6 +372,7 @@ FastL1GlobalAlgo::FillMET() {
 	double HBthres = m_L1Config.TowerHBThreshold;
 	double EEthres = m_L1Config.TowerEBThreshold;
 	double HEthres = m_L1Config.TowerEEThreshold;
+	
 	//if(std::abs(candidate->eta())<1.479) {
 	if(std::abs(candidate->eta())<2.322) {
 	  EThres = EBthres;
@@ -378,21 +386,31 @@ FastL1GlobalAlgo::FillMET() {
 	  HThres = HEthres;
 	}
 	
-
+	// rescale energies
+	double emScale = 1.0;
+	double hadScale = 1.0;
+	if (std::abs(candidate->eta()>1.3050) && std::abs(candidate->eta())<3.0) {
+	  hadScale = m_L1Config.TowerHEScale;
+	  emScale = m_L1Config.TowerEEScale;
+	}
+	if (std::abs(candidate->eta()<1.3050)) {
+	  hadScale = m_L1Config.TowerHBScale;
+	  emScale = m_L1Config.TowerEBScale;
+	}
+	eme    *= emScale;
+	hade   *= hadScale;
+	
 	if (eme>=EThres || hade>=HThres) {
 	  double phi   = candidate->phi();
 	  double eta = candidate->eta();
 	  //double et    = candidate->et();
 	  //double e     = candidate->energy();
-	  //double et    = candidate->emEt()+candidate->hadEt();
-	  //double e     = candidate->emEnergy()+candidate->hadEnergy();
 	  double theta = 2.*atan(exp(-eta));
-	  
 	  double et    = 0.;
 	  double e     = 0.;
 	  double had_et    = 0.;
 	  double had_e     = 0.;
-
+	  
 	  if (eme>=EThres) {
 	    et    += candidate->emEt();
 	    e    += candidate->emEnergy();
@@ -403,22 +421,24 @@ FastL1GlobalAlgo::FillMET() {
 	    had_et    += candidate->hadEt();
 	    had_e    += candidate->hadEnergy();
 	  }
-
-	  sum_e += e;
-	  sum_ez += e*cos(theta);
+	  
 	  sum_et += et;
-	  //sum_ex += et*cos(phi);
-	  //sum_ey += et*sin(phi); 
-	  sum_ex += e*sin(theta)*cos(phi);
-	  sum_ey += e*sin(theta)*sin(phi); 
-
-	  sum_hade += had_e;
-	  sum_hadez += had_e*cos(theta);
+	  sum_ex += et*cos(phi);
+	  sum_ey += et*sin(phi); 
+	  //sum_ex += e*sin(theta)*cos(phi);
+	  //sum_ey += e*sin(theta)*sin(phi); 
+	  //sum_e += e;
+	  sum_e += et/sin(theta);
+	  sum_ez += et*cos(theta)/sin(theta);
+	  
 	  sum_hadet += had_et;
-	  //sum_hadex += had_et*cos(phi);
-	  //sum_hadey += had_et*sin(phi); 
-	  sum_hadex += had_e*sin(theta)*cos(phi);
-	  sum_hadey += had_e*sin(theta)*sin(phi); 
+	  sum_hadex += had_et*cos(phi);
+	  sum_hadey += had_et*sin(phi); 
+	  //sum_hadex += had_e*sin(theta)*cos(phi);
+	  //sum_hadey += had_e*sin(theta)*sin(phi); 
+	  //sum_hade += had_e;
+	  sum_hade += had_et/sin(theta);
+	  sum_hadez += had_et*cos(theta)/sin(theta);
 	}
       }
     }
@@ -490,9 +510,12 @@ FastL1GlobalAlgo::FillL1Regions(edm::Event const& e, const edm::EventSetup& iCon
 
   //}
 
-  // Fill EM Crystals: 1st approach
+  // Fill EM Crystals and Bitwords
+  m_BitInfos.clear();
   for (int i=0; i<396; i++) {
     m_Regions[i].FillEMCrystals(e,iConfig,m_RMap);
+
+    m_BitInfos.push_back(m_Regions[i].getBitInfo());
   }
 
   //checkMapping();
@@ -533,11 +556,25 @@ FastL1GlobalAlgo::isTauJet(int cRgn) {
       m_Regions[eid].GetTauBit()  ||
       m_Regions[swid].GetTauBit() ||
       m_Regions[seid].GetTauBit() ||
+      m_Regions[sid].GetTauBit()
+      ) 
+    m_Regions[cRgn].BitInfo.IsolationVeto = true;
+
+  if (
+      m_Regions[nwid].GetTauBit() ||
+      m_Regions[nid].GetTauBit()  ||
+      m_Regions[neid].GetTauBit() ||
+      m_Regions[wid].GetTauBit()  ||
+      m_Regions[eid].GetTauBit()  ||
+      m_Regions[swid].GetTauBit() ||
+      m_Regions[seid].GetTauBit() ||
       m_Regions[sid].GetTauBit()  ||
       m_Regions[cRgn].GetTauBit()
       ) 
     return false;
   else return true;
+
+
 }
 
 // ------------ Check if tower is emcand ------------
@@ -555,9 +592,14 @@ FastL1GlobalAlgo::isEMCand(CaloTowerDetId cid, l1extra::L1EmParticle* ph,const e
 
   CaloTowerCollection c = m_Regions.at(crgn).GetCaloTowers();
   double cenEt = c[ctwr].emEt();
-  double cenE = c[ctwr].emEnergy();
-  double cenEta = c[ctwr].eta();
-  double cenPhi = c[ctwr].phi();
+  //double cenE = c[ctwr].emEnergy();
+  
+  // Using region position rather than tower position
+  std::pair<double, double> crpos = m_RMap->getRegionCenterEtaPhi(crgn);
+  //double cenEta = c[ctwr].eta();
+  //double cenPhi = c[ctwr].phi();
+  double cenEta = crpos.first;
+  double cenPhi = crpos.second;
 
   double cenFGbit = m_Regions.at(crgn).GetFGBit(ctwr);
   double cenHOEbit = m_Regions.at(crgn).GetHOEBit(ctwr);
@@ -609,7 +651,7 @@ FastL1GlobalAlgo::isEMCand(CaloTowerDetId cid, l1extra::L1EmParticle* ph,const e
   if (norgn>395 || norgn < 0 || notwr > 15 || notwr < 0) return 0;
   c = m_Regions[norgn].GetCaloTowers();
   double noEt = c[notwr].emEt();
-  double noE = c[notwr].emEnergy();
+  //double noE = c[notwr].emEnergy();
   // check fine grain bit
   bool noFGbit = m_Regions[norgn].GetFGBit(notwr);
   // check H/E bit
@@ -619,7 +661,7 @@ FastL1GlobalAlgo::isEMCand(CaloTowerDetId cid, l1extra::L1EmParticle* ph,const e
   if (sorgn>395 || sorgn < 0 || sotwr > 15 || sotwr < 0) return 0;
   c = m_Regions[sorgn].GetCaloTowers();
   double soEt = c[sotwr].emEt();
-  double soE = c[sotwr].emEnergy();
+  //double soE = c[sotwr].emEnergy();
   // check fine grain bit
   bool soFGbit = m_Regions[sorgn].GetFGBit(sotwr);
   // check H/E bit
@@ -629,7 +671,7 @@ FastL1GlobalAlgo::isEMCand(CaloTowerDetId cid, l1extra::L1EmParticle* ph,const e
   if (wergn>395 || wergn < 0 || wetwr > 15 || wetwr < 0) return 0;
   c = m_Regions[wergn].GetCaloTowers();
   double weEt = c[wetwr].emEt();
-  double weE = c[wetwr].emEnergy();
+  //double weE = c[wetwr].emEnergy();
   // check fine grain bit
   bool weFGbit = m_Regions[wergn].GetFGBit(wetwr);
   // check H/E bit
@@ -639,7 +681,7 @@ FastL1GlobalAlgo::isEMCand(CaloTowerDetId cid, l1extra::L1EmParticle* ph,const e
   if (eargn>395 || eargn < 0 || eatwr > 15 || eatwr < 0) return 0;
   c = m_Regions[eargn].GetCaloTowers();
   double eaEt = c[eatwr].emEt();
-  double eaE = c[eatwr].emEnergy();
+  //double eaE = c[eatwr].emEnergy();
   // check fine grain bit
   bool eaFGbit = m_Regions[eargn].GetFGBit(eatwr);
   // check H/E bit
@@ -696,9 +738,9 @@ FastL1GlobalAlgo::isEMCand(CaloTowerDetId cid, l1extra::L1EmParticle* ph,const e
 
   // find highest neighbour
   double hitEt = cenEt;
-  double hitE = cenE;
+  //double hitE = cenE;
   double maxEt = std::max(noEt,std::max(soEt,std::max(weEt,eaEt)));
-  double maxE = std::max(noE,std::max(soE,std::max(weE,eaE)));
+  //double maxE = std::max(noE,std::max(soE,std::max(weE,eaE)));
 
   // check 2 tower Et
   float emEtThres = m_L1Config.EMSeedEnThreshold;
@@ -706,14 +748,17 @@ FastL1GlobalAlgo::isEMCand(CaloTowerDetId cid, l1extra::L1EmParticle* ph,const e
   
 
   // at this point candidate is at least non-iso Egamma
-  double eme = (hitE+maxE);
+  //double eme = (hitE+maxE);
+  //double eme = (hitE+maxE);
   //double emet = (hitEt+maxEt);
+  double emet = (hitEt+maxEt);
   double emtheta = 2.*atan(exp(-cenEta));
   //double emet = eme*sin(emtheta);
-  //double emex = emet*cos(cenPhi);
-  //double emey = emet*sin(cenPhi);
-  double emex = eme*sin(emtheta)*cos(cenPhi);
-  double emey = eme*sin(emtheta)*sin(cenPhi);
+  double emex = emet*cos(cenPhi);
+  double emey = emet*sin(cenPhi);
+  //double emex = eme*sin(emtheta)*cos(cenPhi);
+  //double emey = eme*sin(emtheta)*sin(cenPhi);
+  double eme = emex/sin(emtheta)/cos(cenPhi);
   double emez = eme*cos(emtheta);
 
   reco::Particle::LorentzVector rp4(emex,emey,emez,eme);
@@ -842,5 +887,4 @@ FastL1GlobalAlgo::checkMapping() {
   }
 
 }
-
 
