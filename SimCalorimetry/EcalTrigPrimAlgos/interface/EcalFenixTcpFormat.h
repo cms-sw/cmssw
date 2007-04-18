@@ -5,7 +5,7 @@
 #include "DataFormats/EcalDigi/interface/EcalTriggerPrimitiveSample.h"
 #include <vector>
 
-class EcalTPParameters;
+class DBInterface ;
 
 
 // global type definitions for header defined by Tag entries in ArgoUML
@@ -26,17 +26,16 @@ class EcalFenixTcpFormat : public EcalVFormatter {
 
 
  public:
-  EcalFenixTcpFormat(const EcalTPParameters * ecaltpp, bool tccFormat, bool debug);
+  EcalFenixTcpFormat(DBInterface * db, bool tccFormat);
   virtual ~EcalFenixTcpFormat();
   virtual std::vector<int> process(std::vector<int>,std::vector<int>) {  std::vector<int> v;return v;}
   void process(std::vector<int> &Et, std::vector<int> &fgvb, std::vector<EcalTriggerPrimitiveSample> & out, std::vector<EcalTriggerPrimitiveSample> & outTcc) ;
   void setParameters(int SM, int towerInSM)  ;
 
  private:
-  const EcalTPParameters *ecaltpp_ ;
+  DBInterface * db_ ;
   std::vector<unsigned int> lut_ ;
   bool tcpFormat_;
-  bool debug_;
 
 };
 

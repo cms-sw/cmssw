@@ -1,5 +1,4 @@
-<flags EDM_PLUGIN=1>
-<use name=FWCore/PluginManager>
+<flags SEAL_PLUGIN_NAME="SimCalorimetryEcalTrigPrimProducers">
 <use name=root>
 <use name=boost>
 <use name=FWCore/ParameterSet>
@@ -8,8 +7,6 @@
 <use name=SimCalorimetry/EcalTrigPrimAlgos>
 <use name=DataFormats/EcalDigi>
 <use name=DataFormats/EcalDetId>
-<use name=CondFormats/L1TObjects>
-<use name=CondFormats/DataRecord>
 <export>
 <lib name=SimCalorimetryEcalTrigPrimProducers>
 <use name=root>
@@ -20,6 +17,5 @@
 <use name=SimCalorimetry/EcalTrigPrimAlgos>
 <use name=DataFormats/EcalDigi>
 <use name=DataFormats/EcalDetId>
-<use name=CondFormats/L1TObjects>
-<use name=CondFormats/DataRecord>
+<use name=Foundation/PluginManager>
 </export>

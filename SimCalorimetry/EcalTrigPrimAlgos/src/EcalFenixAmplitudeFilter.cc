@@ -1,8 +1,8 @@
 #include <SimCalorimetry/EcalTrigPrimAlgos/interface/EcalFenixAmplitudeFilter.h>
-#include "CondFormats/L1TObjects/interface/EcalTPParameters.h"
+#include <SimCalorimetry/EcalTrigPrimAlgos/interface/DBInterface.h>
 
-EcalFenixAmplitudeFilter::EcalFenixAmplitudeFilter(const EcalTPParameters * ecaltpp)
-  :ecaltpp_(ecaltpp), inputsAlreadyIn_(0), shift_(6) {
+EcalFenixAmplitudeFilter::EcalFenixAmplitudeFilter(DBInterface * db)
+  :db_(db), inputsAlreadyIn_(0), shift_(6) {
   }
 
 EcalFenixAmplitudeFilter::~EcalFenixAmplitudeFilter(){
@@ -69,7 +69,7 @@ int EcalFenixAmplitudeFilter::process()
 
 void EcalFenixAmplitudeFilter::setParameters(int SM, int towerInSM, int stripInTower)
 {
-  std::vector<unsigned int> params = ecaltpp_->getStripParameters(SM, towerInSM, stripInTower) ;
+  std::vector<unsigned int> params = db_->getStripParameters(SM, towerInSM, stripInTower) ;
   for (int i=0 ; i<5 ; i++) weights_[i] = params[i+1] ;
 }
 

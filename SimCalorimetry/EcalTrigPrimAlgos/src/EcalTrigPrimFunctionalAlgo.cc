@@ -1,7 +1,7 @@
 /** \class EcalTrigPrimFunctionalAlgo
  *
  * EcalTrigPrimFunctionalAlgo is the main algorithm class for TPG
- * It coordinates all the other algorithms
+ * It coordinates all the aother algorithms
  * Structure is very close to electronics
  *
  *
@@ -17,6 +17,7 @@
 #include <numeric>
 #include <functional>
 
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
@@ -26,28 +27,26 @@
 
 #include "SimCalorimetry/EcalTrigPrimAlgos/interface/EcalTrigPrimFunctionalAlgo.h"
 #include "SimCalorimetry/EcalTrigPrimAlgos/interface/EcalFenixLinearizer.h"
-#include "CondFormats/L1TObjects/interface/EcalTPParameters.h"
-#include "CondFormats/DataRecord/interface/EcalTPParametersRcd.h"
+#include "SimCalorimetry/EcalTrigPrimAlgos/interface/DBInterface.h"
 
 #include "DataFormats/EcalDigi/interface/EcalTriggerPrimitiveDigi.h"
 #include "DataFormats/EcalDigi/interface/EBDataFrame.h"
 #include "DataFormats/EcalDigi/interface/EEDataFrame.h"
 #include "DataFormats/EcalDetId/interface/EcalTrigTowerDetId.h"
-
 #include <TTree.h>
 #include <TMath.h>
 //----------------------------------------------------------------------
 
-EcalTrigPrimFunctionalAlgo::EcalTrigPrimFunctionalAlgo(const edm::EventSetup & setup,int binofmax,int nrsamples, bool tcpFormat, bool barrelOnly,bool debug, double ebDccAdcToGeV,double eeDccAdcToGeV):
-  valid_(false),valTree_(NULL),binOfMaximum_(binofmax),nrSamplesToWrite_(nrsamples),
-  tcpFormat_(tcpFormat), barrelOnly_(barrelOnly), debug_(debug),
+EcalTrigPrimFunctionalAlgo::EcalTrigPrimFunctionalAlgo(const edm::EventSetup & setup,int binofmax,int nrsamples, DBInterface *db, bool tcpFormat, bool barrelOnly,double ebDccAdcToGeV,double eeDccAdcToGeV):
+  valid_(false),valTree_(NULL),binOfMaximum_(binofmax),nrSamplesToWrite_(nrsamples), db_(db), 
+  tcpFormat_(tcpFormat), barrelOnly_(barrelOnly),
   ebDccAdcToGeV_(ebDccAdcToGeV),eeDccAdcToGeV_(eeDccAdcToGeV)
 {this->init(setup);}
 
 //----------------------------------------------------------------------
-EcalTrigPrimFunctionalAlgo::EcalTrigPrimFunctionalAlgo(const edm::EventSetup & setup,TTree *tree,int binofmax, int nrsamples,bool tcpFormat, bool barrelOnly, bool debug, double ebDccAdcToGeV,double eeDccAdcToGeV):
-  valid_(true),valTree_(tree),binOfMaximum_(binofmax),nrSamplesToWrite_(nrsamples),
-  tcpFormat_(tcpFormat), barrelOnly_(barrelOnly),debug_(debug),
+EcalTrigPrimFunctionalAlgo::EcalTrigPrimFunctionalAlgo(const edm::EventSetup & setup,TTree *tree,int binofmax, int nrsamples,  DBInterface *db, bool tcpFormat, bool barrelOnly,double ebDccAdcToGeV,double eeDccAdcToGeV):
+  valid_(true),valTree_(tree),binOfMaximum_(binofmax),nrSamplesToWrite_(nrsamples), db_(db), 
+  tcpFormat_(tcpFormat), barrelOnly_(barrelOnly),
   ebDccAdcToGeV_(ebDccAdcToGeV),eeDccAdcToGeV_(eeDccAdcToGeV)
 {this->init(setup);}
 
@@ -55,25 +54,19 @@ EcalTrigPrimFunctionalAlgo::EcalTrigPrimFunctionalAlgo(const edm::EventSetup & s
 void EcalTrigPrimFunctionalAlgo::init(const edm::EventSetup & setup) {
   if (!barrelOnly_) {
     edm::ESHandle<CaloGeometry> theGeometry;
+    //  edm::ESHandle<CaloSubdetectorGeometry> theBarrelGeometry;
     edm::ESHandle<CaloSubdetectorGeometry> theEndcapGeometry_handle;
     setup.get<IdealGeometryRecord>().get( theGeometry );
     setup.get<IdealGeometryRecord>().get("EcalEndcap",theEndcapGeometry_handle);
     theEndcapGeometry = &(*theEndcapGeometry_handle);
     setup.get<IdealGeometryRecord>().get(eTTmap_);
   }
-  edm::ESHandle<EcalTPParameters> theEcalTPParameters_handle;
-  setup.get<EcalTPParametersRcd>().get(theEcalTPParameters_handle);
-  ecaltpp_=const_cast <EcalTPParameters *> (theEcalTPParameters_handle.product());
 
-  ebstrip_= new EcalBarrelFenixStrip(valTree_,ecaltpp_,debug_);
-  ebtcp_ = new EcalBarrelFenixTcp(ecaltpp_,tcpFormat_,debug_) ;
+  ebstrip_= new EcalBarrelFenixStrip(valTree_, db_);
+  ebtcp_ = new EcalBarrelFenixTcp(db_,tcpFormat_) ;
 }
 //----------------------------------------------------------------------
-void EcalTrigPrimFunctionalAlgo::updateESRecord(double ttfLowEB, double ttfHighEB, double ttfLowEE, double ttfHighEE)
-{
-  ecaltpp_->changeThresholds(ttfLowEB, ttfHighEB, ttfLowEE, ttfHighEE);
-}
-//----------------------------------------------------------------------
+
 EcalTrigPrimFunctionalAlgo::~EcalTrigPrimFunctionalAlgo() 
 {
     delete ebstrip_;
@@ -218,11 +211,7 @@ void EcalTrigPrimFunctionalAlgo::run(const EBDigiCollection* ebdcol,const EEDigi
 	// first, calculate thresholds
 	std::vector<int>  thresholds(nrFrames);
 	for (int ii=0;ii<nrFrames;++ii) {
-	  thresholds[ii] = 
-	    (linADC((mapEndcap_[thisTower][ii])[0])+
-	     linADC((mapEndcap_[thisTower][ii])[1])+
-	     linADC((mapEndcap_[thisTower][ii])[2]))/3;
-	  //	  thresholds[ii]=((mapEndcap_[thisTower][ii])[0].adc()+(mapEndcap_[thisTower][ii])[1].adc()+(mapEndcap_[thisTower][ii])[2].adc())/3;
+	  thresholds[ii]=((mapEndcap_[thisTower][ii])[0].adc()+(mapEndcap_[thisTower][ii])[1].adc()+(mapEndcap_[thisTower][ii])[2].adc())/3;
 	}
 
 	std::vector<EcalTriggerPrimitiveDigi> tptow;
@@ -254,10 +243,12 @@ void EcalTrigPrimFunctionalAlgo::run(const EBDigiCollection* ebdcol,const EEDigi
 	  float ettemp=0;
 
 	  for (int ii=0;ii<nrFrames;++ii) {
-	    int en= linADC((mapEndcap_[thisTower][ii])[i]);
-	    //	    int en=(mapEndcap_[thisTower][ii])[i].adc();
-	    float et0 = TMath::Max(en- thresholds[ii],0);
-	    et0=int(et0*eeDccAdcToGeV_/ebDccAdcToGeV_); 
+	    //   int en=(mapEndcap_[thisTower][ii])[i].adc();
+	    int en0= linADC((mapEndcap_[thisTower][ii])[i], thresholds[ii]);
+	    // float et0 = TMath::Max(en- thresholds[ii],0);
+	    float et0 = TMath::Max(en0,0);
+	    //	    et0=int(et0*eeDccAdcToGeV_/ebDccAdcToGeV_); 
+	    et0=et0*eeDccAdcToGeV_/ebDccAdcToGeV_; 
 	    float theta=theEndcapGeometry->getGeometry(mapEndcap_[thisTower][ii].id())->getPosition().theta();
 	    et0 =(float) (et0*sin(theta));
 
@@ -365,13 +356,13 @@ int EcalTrigPrimFunctionalAlgo::calculateTTF(const int en) {
    int towernr=basenr+(iphi-1)%nrphis;
    return  towernr;
  }
-
 //----------------------------------------------------------------------
- int EcalTrigPrimFunctionalAlgo::linADC(const EcalMGPASample & sample) 
+ int EcalTrigPrimFunctionalAlgo::linADC(const EcalMGPASample & sample, int base) 
  {
-  int adc  = sample.adc() ;
+  int adc  = sample.adc() - base ;
   int gain = sample.gainId() ;
   if (gain == 2) adc *= 2 ;
   if (gain == 3) adc *= 12 ;
   return adc ;
+
  }

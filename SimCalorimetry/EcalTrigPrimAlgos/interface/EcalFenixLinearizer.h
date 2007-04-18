@@ -5,7 +5,7 @@
 #include <DataFormats/EcalDigi/interface/EBDataFrame.h>
 #include <vector> 
 
-class EcalTPParameters;
+class DBInterface ;
 
 // global type definitions for header defined by Tag entries in ArgoUML
 // Result: typedef <typedef_global_header> <tag_value>;
@@ -26,7 +26,7 @@ class EcalTPParameters;
     /** maximum number of samples per frame */
     //temporary, waiting for changes in EBDataFrame
     enum { SIZEMAX = 10}; 
-    const EcalTPParameters *ecaltpp_ ;
+    DBInterface * db_ ;
     bool off;
     int uncorrectedSample_;
     int gainID_;
@@ -41,8 +41,8 @@ class EcalTPParameters;
 
 
   public:
-
-    EcalFenixLinearizer(const EcalTPParameters *);
+    //    EcalFenixLinearizer(EcalBarrelTopology *);
+    EcalFenixLinearizer(DBInterface * db);
     virtual ~EcalFenixLinearizer();
 
 

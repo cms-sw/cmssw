@@ -1,7 +1,5 @@
 <use name=DataFormats/EcalDigi>
 <use name=DataFormats/EcalDetId>
-<use name=CondFormats/L1TObjects>
-<use name=CondFormats/DataRecord>
 <use name=Geometry/CaloTopology>
 <use name=Geometry/CaloGeometry>
  <use name=Geometry/CaloEventSetup>
@@ -13,8 +11,6 @@
  <lib name=SimCalorimetryEcalTrigPrimAlgos>
  <use name=DataFormats/EcalDigi>
  <use name=DataFormats/EcalDetId>
- <use name=CondFormats/L1TObjects>
- <use name=CondFormats/DataRecord>
  <use name=Geometry/CaloTopology>
  <use name=Geometry/CaloGeometry>
  <use name=Geometry/CaloEventSetup>

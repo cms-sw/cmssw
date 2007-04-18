@@ -1,10 +1,9 @@
 #include <SimCalorimetry/EcalTrigPrimAlgos/interface/EcalFenixStripFormat.h>
-#include "CondFormats/L1TObjects/interface/EcalTPParameters.h"
-
+#include <SimCalorimetry/EcalTrigPrimAlgos/interface/DBInterface.h>
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-  EcalFenixStripFormat::EcalFenixStripFormat(const EcalTPParameters *ecaltpp)
-    : ecaltpp_(ecaltpp), shift_(0)
+  EcalFenixStripFormat::EcalFenixStripFormat(DBInterface * db) 
+    : db_(db), shift_(0)
 {
 }
 
@@ -45,6 +44,6 @@ std::vector<int> EcalFenixStripFormat::process(std::vector<int> peakout, std::ve
 
 void EcalFenixStripFormat::setParameters(int SM, int towerInSM, int stripInTower)
 {
-  std::vector<unsigned int> params = ecaltpp_->getStripParameters(SM, towerInSM, stripInTower) ;
+  std::vector<unsigned int> params = db_->getStripParameters(SM, towerInSM, stripInTower) ;
   shift_ = params[0] ;
 }

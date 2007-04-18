@@ -14,33 +14,30 @@
 
  *
  ************************************************************/
-
-#include "Geometry/CaloTopology/interface/EcalTrigTowerConstituentsMap.h"
-
-#include "SimCalorimetry/EcalTrigPrimAlgos/interface/EcalBarrelFenixStrip.h"
-#include "SimCalorimetry/EcalTrigPrimAlgos/interface/EcalBarrelFenixTcp.h"
-
-//#include "DataFormats/EcalDigi/interface/EBDataFrame.h"
-//#include "DataFormats/EcalDigi/interface/EEDataFrame.h"
-#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
-
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-//#include <sys/time.h>
+#include <sys/time.h>
 
 #include <vector>
-//#include <map>
-//#include <utility>
+#include <map>
+#include <utility>
 
 class TTree;
 
 class EBDataFrame;
 class EEDataFrame;
 class EcalTrigTowerDetId;
-class EcalTPParameters;
 class ETPCoherenceTest;
 class EcalTriggerPrimitiveSample;
 class CaloSubdetectorGeometry;
+class DBInterface;
+
+#include "Geometry/CaloTopology/interface/EcalTrigTowerConstituentsMap.h"
+#include "SimCalorimetry/EcalTrigPrimAlgos/interface/EcalBarrelFenixStrip.h"
+#include "SimCalorimetry/EcalTrigPrimAlgos/interface/EcalBarrelFenixTcp.h"
+#include "DataFormats/EcalDigi/interface/EBDataFrame.h"
+#include "DataFormats/EcalDigi/interface/EEDataFrame.h"
+#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 
 /** Main Algo for Ecal trigger primitives. */
 class EcalTrigPrimFunctionalAlgo
@@ -49,11 +46,10 @@ class EcalTrigPrimFunctionalAlgo
   
   //  typedef PRecDet<EcalTrigPrim> precdet;
 
-  explicit EcalTrigPrimFunctionalAlgo(const edm::EventSetup & setup,int binofmax, int nrsamples, bool tccFormat, bool barrelOnly, bool debug, double ebDccAdcToGeV, double eeDccAdcToGeV);
-  EcalTrigPrimFunctionalAlgo(const edm::EventSetup & setup, TTree *tree, int binofmax, int nrsamples, bool tccFormat, bool barrelOnly,  bool debug, double ebDccAdcToGeV, double eeDccAdcToGeV);
+  explicit EcalTrigPrimFunctionalAlgo(const edm::EventSetup & setup,int binofmax, int nrsamples, DBInterface *db, bool tccFormat, bool barrelOnly, double ebDccAdcToGeV, double eeDccAdcToGeV);
+  EcalTrigPrimFunctionalAlgo(const edm::EventSetup & setup, TTree *tree, int binofmax, int nrsamples,  DBInterface *db, bool tccFormat, bool barrelOnly, double ebDccAdcToGeV, double eeDccAdcToGeV);
   virtual ~EcalTrigPrimFunctionalAlgo();
 
-  void updateESRecord(double ttfLowEB, double ttfHighEB, double ttfLowEE, double ttfHighEE);
   /** this actually calculates the trigger primitives (from Digis) */
 
   void run(const EBDigiCollection * ebdcol, const EEDigiCollection* eedcol, EcalTrigPrimDigiCollection & result,EcalTrigPrimDigiCollection & resultTcc);
@@ -63,8 +59,10 @@ class EcalTrigPrimFunctionalAlgo
 
   void init(const edm::EventSetup & setup);
 
-  int linADC(const EcalMGPASample & sample) ; 
+  int linADC(const EcalMGPASample & sample, int base) ; 
 
+  float threshold;
+  
   void fillBarrel(const EcalTrigTowerDetId & coarser, const EBDataFrame & frame);
 
   void fillEndcap(const EcalTrigTowerDetId & coarser, const EEDataFrame & frame);
@@ -93,16 +91,16 @@ class EcalTrigPrimFunctionalAlgo
 
   /** number of 'strips' (crystals of same eta index) per trigger
       tower in ecal barrel */
-  enum {ecal_barrel_strips_per_trigger_tower = 5};  //FIXME
+  enum {ecal_barrel_strips_per_trigger_tower = 5};
   
   /** number of crystal per such 'strip' */
-  enum {ecal_barrel_crystals_per_strip = 5};  //FIXME
+  enum {ecal_barrel_crystals_per_strip = 5};
 
   /** max number of crystals per pseudostrip in Endcap */
-  enum {ecal_endcap_maxcrystals_per_strip = 5};  //FIXME
+  enum {ecal_endcap_maxcrystals_per_strip = 5};
 
   /** max number of crystals per pseudostrip in Endcap */
-  enum {ecal_endcap_maxstrips_per_tower = 5};  //FIXME
+  enum {ecal_endcap_maxstrips_per_tower = 5};
 
   //
   EcalBarrelFenixStrip * ebstrip_;
@@ -115,7 +113,7 @@ class EcalTrigPrimFunctionalAlgo
   const CaloSubdetectorGeometry *theEndcapGeometry;
 
   // for debugging
-  ETPCoherenceTest *cTest_;  //FIXME
+  ETPCoherenceTest *cTest_;
 
   //for validation
   bool valid_;
@@ -124,14 +122,14 @@ class EcalTrigPrimFunctionalAlgo
   int binOfMaximum_;
   unsigned int nrSamplesToWrite_;
 
+  std::string dbFileEB_, dbFileEE_;
+  DBInterface *db_;
+
   bool tcpFormat_;
   bool barrelOnly_;
-  bool debug_;
 
   //parameters from EB(E)DataFrames
   double ebDccAdcToGeV_,eeDccAdcToGeV_;
-
-  EcalTPParameters *ecaltpp_;
 
 };
 

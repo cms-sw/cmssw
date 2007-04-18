@@ -10,7 +10,7 @@
 #include <DataFormats/EcalDigi/interface/EcalTriggerPrimitiveSample.h>
 #include <vector> 
 
-class EcalTPParameters;
+class DBInterface ;
 
   /** 
       \class EcalBarrelFenixTcp
@@ -20,7 +20,7 @@ class EcalTPParameters;
 
 
   public:
-    EcalBarrelFenixTcp(const EcalTPParameters *, bool tccFormat, bool debug);
+    EcalBarrelFenixTcp(DBInterface * db, bool tccFormat);
     virtual ~EcalBarrelFenixTcp() ;
 
     void process(std::vector<std::vector<int> > & tpframetow,
@@ -34,12 +34,10 @@ class EcalTPParameters;
     EcalFenixFgvbEB *getFGVB() const {return dynamic_cast<EcalFenixFgvbEB *>(fgvb_);}
 
   private:
-    enum {nStripsPerTower_ = 5};  //FIXME!!
+    enum {nStripsPerTower_ = 5};  //
 
     EcalFenixMaxof2 *maxOf2_;
     EcalFenixBypassLin *bypasslin_[nStripsPerTower_];
-
-    bool debug_;
 
   };
 

@@ -1,17 +1,13 @@
 #include <SimCalorimetry/EcalTrigPrimAlgos/interface/EcalFenixLinearizer.h>
-#include "CondFormats/L1TObjects/interface/EcalTPParameters.h"
-
+#include <SimCalorimetry/EcalTrigPrimAlgos/interface/DBInterface.h>
 #include <DataFormats/EcalDetId/interface/EBDetId.h>
 #include "RecoCaloTools/Navigation/interface/EcalBarrelNavigator.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
-
 #include <iostream>
 #include <fstream>
-
 using namespace std;
-
-EcalFenixLinearizer::EcalFenixLinearizer(const EcalTPParameters *ecaltpp)
-  : ecaltpp_(ecaltpp)
+EcalFenixLinearizer::EcalFenixLinearizer(DBInterface * db)
+  : db_(db)
 {
 }
 
@@ -68,5 +64,5 @@ if (uncorrectedSample_==2568)  std::cout<<"base= "<<base_<<" mult= "<<mult_<<" s
 
 void EcalFenixLinearizer::setParameters(int SM, int towNum, int stripNum,int XtalNumberInStrip)
 {
-  params_ = ecaltpp_->getXtalParameters(SM, towNum, stripNum, XtalNumberInStrip) ;
+  params_ = db_->getXtalParameters(SM, towNum, stripNum, XtalNumberInStrip) ;
 }
