@@ -3,7 +3,6 @@
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
 <use name=FastSimulation/Event>
-<use name=FastSimulation/PileUpProducer>
 <use name=FastSimulation/Utilities>
 <use name=SimDataFormats/HepMCProduct>
 <use name=hepmc>
