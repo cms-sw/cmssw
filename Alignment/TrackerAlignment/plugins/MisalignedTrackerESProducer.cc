@@ -23,7 +23,7 @@
 
 #include "Alignment/CommonAlignment/interface/AlignableNavigator.h"
 
-#include "Alignment/TrackerAlignment/interface/MisalignedTrackerESProducer.h"
+#include "Alignment/TrackerAlignment/plugins/MisalignedTrackerESProducer.h"
 
 ///
 /// An ESProducer that fills the TrackerDigiGeometryRcd with a misaligned tracker

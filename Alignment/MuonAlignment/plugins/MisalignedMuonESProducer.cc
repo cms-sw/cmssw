@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2007/02/20 20:17:17 $
- *  $Revision: 1.14 $
+ *  $Date: 2007/04/17 12:10:20 $
+ *  $Revision: 1.1 $
  *  \author Andre Sznajder - UERJ(Brazil)
  */
  
@@ -26,7 +26,7 @@
 #include "Alignment/MuonAlignment/interface/AlignableMuon.h"
 #include "Alignment/MuonAlignment/interface/MuonScenarioBuilder.h"
 #include "Geometry/TrackingGeometryAligner/interface/GeometryAligner.h"
-#include "Alignment/MuonAlignment/interface/MisalignedMuonESProducer.h"
+#include "Alignment/MuonAlignment/plugins/MisalignedMuonESProducer.h"
 
 ///
 /// An ESProducer that fills the MuonDigiGeometryRcd with a misaligned Muon
