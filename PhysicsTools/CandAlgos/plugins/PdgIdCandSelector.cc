@@ -1,11 +1,11 @@
 /* \class PdgIdCandSelector
  * 
- * Candidate Selector based on a minimum pt cut.
+ * Candidate Selector based on a pdgId set
  * Usage:
  * 
- * module selectedCands = PdgIdCandSelector {
+ * module leptons = PdgIdCandSelector {
  *   InputTag src = myCollection
- *   vint32 pdgId = { 15.0
+ *   vint32 pdgId = { 11, 13 }
  * };
  *
  * \author: Luca Lista, INFN
