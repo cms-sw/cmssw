@@ -14,7 +14,6 @@
 <use name=boost>
 <use name=root>
 <use name=clhep>
-<flags EDM_PLUGIN=1>
 <export>
    <lib name=RecoMuonTrackerSeedGenerator>
    <use name=FWCore/Framework>
@@ -34,5 +33,3 @@
    <use name=root>
    <use name=clhep>
 </export>
-
-
