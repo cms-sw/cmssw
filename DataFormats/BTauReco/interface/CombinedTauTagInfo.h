@@ -4,7 +4,7 @@
 /* class CombinedTauTagInfo
  *  Extended object for the Tau Combination algorithm, 
  *  created: Dec 18 2006,
- *  revised: Jan 04 2007
+ *  revised: Apr 18 2007
  *  author: Ludovic Houchu.
  */
 
@@ -27,7 +27,8 @@ using namespace std;
 namespace reco { 
   class CombinedTauTagInfo : public BaseTagInfo {
   public:
-    CombinedTauTagInfo() {
+    CombinedTauTagInfo(){}
+    CombinedTauTagInfo(const JetTracksAssociationRef& jtaRef):BaseTagInfo(jtaRef){
       thecandidate_passed_trackerselection=false;
       thecandidate_is_GoodTauCandidate=false;
       thecandidate_is_infact_GoodElectronCandidate=false;
@@ -55,6 +56,11 @@ namespace reco {
     }
     virtual ~CombinedTauTagInfo() {};
     
+    // float discriminator() returns 0.        if candidate did not pass tracker selection,   
+    //                               1.        if candidate passed tracker selection and did not contain neutral ECAL clus.,   
+    //                               0<=  <=1  if candidate passed tracker selection, contained neutral ECAL clus. and went through the likelihood ratio mechanism,   
+    //                               NaN       the values of the likelihood functions PDFs are 0 (test the result of discriminator() with bool isnan(.));   
+    
     //the reference to the IsolatedTauTagInfo
     const IsolatedTauTagInfoRef& isolatedtautaginfoRef()const{return IsolatedTauTagInfoRef_;}
     void setisolatedtautaginfoRef(const IsolatedTauTagInfoRef x) {IsolatedTauTagInfoRef_=x;}
@@ -70,14 +76,19 @@ namespace reco {
     const TrackRefVector& signalTks()const{return signal_Tks_;}
     void setsignalTks(const TrackRefVector& x) {signal_Tks_=x;}
    
+    int signalTks_qsum()const{              // NaN : (int)(signal_Tks_.size())=0;   
+      int signal_Tks_qsum_=numeric_limits<int>::quiet_NaN();   
+      if((int)(signal_Tks_.size())!=0){   
+	signal_Tks_qsum_=0;   
+	for(TrackRefVector::const_iterator iTk=signal_Tks_.begin();iTk!=signal_Tks_.end();iTk++){   
+	  signal_Tks_qsum_+=(**iTk).charge();   
+	}   
+      }   
+      return signal_Tks_qsum_;   
+    } 
+    
     virtual CombinedTauTagInfo* clone() const{return new CombinedTauTagInfo(*this );}
     
-    // returns 0.        if candidate did not pass tracker selection,
-    //         1.        if candidate passed tracker selection and did not contain neutral obj.,
-    //         0<=  <=1  if candidate passed tracker selection, contained neutral obj. and goes through the likelihood ratio mechanism, 
-    //         NaN       the values of the likelihood functions PDFs are 0 (test the result of discriminator() with bool isnan(.));  
-    // truth matched Tau candidate PDFs obtained with evts from ORCA reco. bt04_double_tau_had sample without PU,
-    // fake Tau candidate PDFs obtained with evts from ORCA reco. jm03b_qcd30_50, jm03b_qcd50_80, jm03b_qcd80_120 and jm03b_qcd120_170 samples, all without PU.   
     bool passed_trackerselection()const{return(thecandidate_passed_trackerselection);}
     void setpassed_trackerselection(bool x){thecandidate_passed_trackerselection=x;}
 
