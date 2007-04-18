@@ -17,7 +17,7 @@
  * \version   2nd Version Apr. 6, 2005  Modifications toward integration in new EDM.
  * \version   3rd Version Oct. 19, 2005 Modified to work with real CaloTowers from Jeremy Mans
  * \version   F.Ratnikov, Mar. 8, 2006. Work from Candidate
- * $Id: CMSMidpointAlgorithm.h,v 1.5 2006/12/05 18:37:43 fedor Exp $
+ * $Id: CMSMidpointAlgorithm.h,v 1.6 2007/02/08 01:46:10 fedor Exp $
  *
  ************************************************************/
 
@@ -29,33 +29,7 @@ class CMSMidpointAlgorithm
  public:
   typedef std::vector<ProtoJet*> InternalCollection;
 
-  /// Default constructor which defines the default values of the algorithm parameters
-  ///
-  /// theSeedThreshold:    minimum ET in GeV of an CaloTower that can seed a jet.
-  /// theTowerThreshold:   minimum ET in GeV of an CaloTower that is included in a jet
-  /// theConeRadius:       nominal radius of the jet in eta-phi space
-  /// theConeAreaFraction: multiplier to reduce the search cone area during the iteration phase.
-  ///                      introduced by CDF in 2002 to avoid energy loss due to proto-jet migration. 
-  ///                      Actively being discussed in 2005.
-  ///                      A value of 1.0 gives the original run II algorithm in hep-ex/0005012.
-  ///                      CDF value of 0.25 gives new search cone of 0.5 theConeRadius during iteration, 
-  ///                      but keeps the final cone at theConeRadius for the last iteration.
-  /// theMaxPairSize:      Maximum size of proto-jet pair, triplet, etc for defining midpoint.
-  ///                      Both CDF and D0 use 2.
-  /// theMaxIterations:    Maximum number of iterations before finding a stable cone.
-  /// theOverlapThreshold: When two proto-jets overlap, this is the merging threshold on the fraction of PT in the 
-  ///                      overlap region compared to the lower Pt Jet. 
-  ///                      If the overlapPt/lowerJetPt > theOverlapThreshold the 2 proto-jets will be merged into one
-  ///                      final jet.
-  ///                      if the overlapPt/lowerJetPt < theOverlapThreshold the towers in the two proto-jets will be
-  ///                      seperated into two distinct sets of towers: two final jets.
-  ///                      D0 has used 0.5, CDF has used both 0.5 and 0.75 in run 2, and 0.75 in run 1.
-  /// theDebugLevel:       integer level of diagnostic printout: 0 = no printout, 1 = minimal printout, 2 = pages per event.
-
-   // This default constructor is temporary; all configuration
-   // parameters must be passed in to the constructor so that they can
-   // be traced in the new EDM.
-  
+  /// Default constructor
   CMSMidpointAlgorithm () :
     theSeedThreshold(3.0),
     theConeRadius(0.5),
@@ -66,16 +40,37 @@ class CMSMidpointAlgorithm
     theDebugLevel(0)
   { }
 
-  /// Constructor takes as input all the values of the algorithm that the user can change, and the CaloTower Collection pointer.
-  CMSMidpointAlgorithm(double st, double cr, double caf, 
-		       int mps, int mi, double ot, int dl) : 
-    theSeedThreshold(st),
-    theConeRadius(cr),
-    theConeAreaFraction(caf),
-    theMaxPairSize(mps),
-    theMaxIterations(mi),
-    theOverlapThreshold(ot),
-    theDebugLevel(dl)
+  /** Constructor takes as input all the values of the algorithm that the user can change.
+  \param fSeedThreshold:    minimum ET in GeV of an CaloTower that can seed a jet.
+  \param fTowerThreshold:   minimum ET in GeV of an CaloTower that is included in a jet
+  \param fConeRadius:       nominal radius of the jet in eta-phi space
+  \param fConeAreaFraction: multiplier to reduce the search cone area during the iteration phase.
+                        introduced by CDF in 2002 to avoid energy loss due to proto-jet migration. 
+                           Actively being discussed in 2005.
+                           A value of 1.0 gives the original run II algorithm in hep-ex/0005012.
+                           CDF value of 0.25 gives new search cone of 0.5 theConeRadius during iteration, 
+                           but keeps the final cone at theConeRadius for the last iteration.
+  \param fMaxPairSize:      Maximum size of proto-jet pair, triplet, etc for defining midpoint.
+                           Both CDF and D0 use 2.
+  \param fMaxIterations:    Maximum number of iterations before finding a stable cone.
+  \param fOverlapThreshold: When two proto-jets overlap, this is the merging threshold on the fraction of PT in the 
+                           overlap region compared to the lower Pt Jet. 
+                           If the overlapPt/lowerJetPt > theOverlapThreshold the 2 proto-jets will be merged into one
+                           final jet.
+                           if the overlapPt/lowerJetPt < theOverlapThreshold the towers in the two proto-jets will be
+                           seperated into two distinct sets of towers: two final jets.
+                           D0 has used 0.5, CDF has used both 0.5 and 0.75 in run 2, and 0.75 in run 1.
+  \param fDebugLevel:       integer level of diagnostic printout: 0 = no printout, 1 = minimal printout, 2 = pages per event.
+   */
+  CMSMidpointAlgorithm(double fSeedThreshold, double fConeRadius, double fConeAreaFraction, 
+		       int fMaxPairSize, int fMaxIterations, double fOverlapThreshold, int fDebugLevel) : 
+    theSeedThreshold(fSeedThreshold),
+    theConeRadius(fConeRadius),
+    theConeAreaFraction(fConeAreaFraction),
+    theMaxPairSize(fMaxPairSize),
+    theMaxIterations(fMaxIterations),
+    theOverlapThreshold(fOverlapThreshold),
+    theDebugLevel(fDebugLevel)
   { }
 
   /// Runs the algorithm and returns a list of caloJets. 

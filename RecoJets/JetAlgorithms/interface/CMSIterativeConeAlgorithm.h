@@ -8,7 +8,7 @@
  * Documented in CMS NOTE-2006/036
  *
  * \author A.Ulyanov, ITEP
- * $Id: CMSIterativeConeAlgorithm.h,v 1.5 2007/02/08 01:46:09 fedor Exp $
+ * $Id: CMSIterativeConeAlgorithm.h,v 1.6 2007/03/26 20:42:26 fedor Exp $
  ************************************************************/
 
 
@@ -21,7 +21,6 @@ class CMSIterativeConeAlgorithm{
   /** Constructor
   \param seed defines the minimum ET in GeV of a tower that can seed a jet.
   \param radius defines the maximum radius of a jet in eta-phi space.
-  \param towerThreshold defines the minimum ET in GeV for a tower to be inluded in a jet 
   */
   CMSIterativeConeAlgorithm(double seed, double radius): 
     theSeedThreshold(seed),

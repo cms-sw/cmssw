@@ -1,13 +1,14 @@
 /// Algorithm to convert transient protojets into persistent jets
 /// Author: F.Ratnikov, UMd
 /// Mar. 8, 2006
-/// $Id: JetMaker.cc,v 1.18 2007/03/26 20:42:26 fedor Exp $
+/// $Id: JetMaker.cc,v 1.19 2007/03/27 18:38:03 fedor Exp $
 
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
 #include "DataFormats/RecoCandidate/interface/RecoCaloTowerCandidate.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
+#include "Geometry/CaloTopology/interface/HcalTopology.h"
 
 #include "RecoJets/JetAlgorithms/interface/JetMaker.h"
 
@@ -49,37 +50,22 @@ namespace {
 	  eInHO += tower->outerEnergy();
 	  
 	  //  figure out contributions
-	  bool hadIsDone = false;
-	  bool emIsDone = false;
-	  int icell = tower->constituentsSize(); // extract calo type from cells
-	  while (--icell >= 0 && (!hadIsDone || !emIsDone)) {
-	    DetId id = tower->constituent (icell);
-	    if (!hadIsDone && id.det () == DetId::Hcal) { // hcal cell
-	      HcalSubdetector subdet = HcalDetId (id).subdet ();
-	      if (subdet == HcalBarrel || subdet == HcalOuter) {
-		eInHB += tower->hadEnergy(); 
-		eInHO += tower->outerEnergy();
-	      }
-	      else if (subdet == HcalEndcap) {
-		eInHE += tower->hadEnergy();
-	      }
-	      else if (subdet == HcalForward) {
-		eHadInHF += tower->hadEnergy();
-		eEmInHF += tower->emEnergy();
-		emIsDone = true;
-	      }
-	      hadIsDone = true;
-	    }
-	    else if (!emIsDone && id.det () == DetId::Ecal) { // ecal cell
-	      EcalSubdetector subdet = EcalSubdetector (id.subdetId ());
-	      if (subdet == EcalBarrel) {
-		eInEB += tower->emEnergy();
-	      }
-	      else if (subdet == EcalEndcap) {
-		eInEE += tower->emEnergy();
-	      }
-	      emIsDone = true;
-	    }
+	  switch (JetMaker::hcalSubdetector (tower->id().ieta())) {
+	  case HcalBarrel:
+	    eInHB += tower->hadEnergy(); 
+	    eInHO += tower->outerEnergy();
+	    eInEB += tower->emEnergy();
+	    break;
+	  case HcalEndcap:
+	    eInHE += tower->hadEnergy();
+	    eInEE += tower->emEnergy();
+	    break;
+	  case HcalForward:
+	    eHadInHF += tower->hadEnergy();
+	    eEmInHF += tower->emEnergy();
+	    break;
+	  default:
+	    break;
 	  }
 	}
 	else {
@@ -193,3 +179,11 @@ GenericJet JetMaker::makeGenericJet (const ProtoJet& fProtojet) const {
   return  GenericJet (fProtojet.p4(), reco::Particle::Point (0, 0, 0), constituents);
 }
 
+HcalSubdetector JetMaker::hcalSubdetector (int fEta) {
+  static const HcalTopology topology;
+  int eta = abs (fEta);
+  if (eta <= topology.lastHBRing()) return HcalBarrel;
+  else if (eta <= topology.lastHERing()) return HcalEndcap;
+  else if (eta <= topology.lastHFRing()) return HcalForward;
+  return HcalEmpty;
+}
