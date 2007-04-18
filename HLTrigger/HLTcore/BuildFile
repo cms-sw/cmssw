@@ -14,5 +14,3 @@
   <use name=FWCore/ParameterSet>
   <lib name=HLTriggerHLTcore>
 </export>
-
-<flags EDM_PLUGIN=1>
