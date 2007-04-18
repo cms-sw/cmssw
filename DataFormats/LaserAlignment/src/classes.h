@@ -21,10 +21,12 @@ namespace {
 
 #include "DataFormats/LaserAlignment/interface/LASAlignmentParameter.h"
 #include "DataFormats/LaserAlignment/interface/LASAlignmentParameterCollection.h"
+#include <valarray>
 
 namespace {
 	namespace {
 		edm::Wrapper<LASAlignmentParameter> alignmentParameter;
+    edm::Wrapper<std::valarray<double> adummy0;
 	}
 }
 
