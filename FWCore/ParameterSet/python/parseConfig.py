@@ -301,6 +301,15 @@ def _makeLabeledVPSet(s,loc,toks):
         cms.untracked(p)
     return (toks[0][1],p)
 
+def _makeLabeledSecSource(s,loc,toks):
+    tracked = True
+    if len(toks[0])==4:
+        tracked = False
+        del toks[0][0]
+    ss=toks[0][2]
+    if not tracked:
+        cms.untracked(ss)
+    return (toks[0][1],ss)
 class _UsingNode(cms._ParameterTypeBase):
     """For injection purposes, pretend this is a new parameter type
        then have a post process step which strips these out
@@ -388,7 +397,8 @@ vinputTagParameter =pp.Group(untracked+pp.Keyword("VInputTag")+label+_equalTo
 #since PSet and VPSets can contain themselves, we must declare them as 'Forward'
 PSetParameter = pp.Forward()
 VPSetParameter = pp.Forward()
-parameter = simpleParameter|stringParameter|vsimpleParameter|fileInPathParameter|vstringParameter|inputTagParameter|vinputTagParameter|PSetParameter|VPSetParameter
+secsourceParameter = pp.Forward()
+parameter = simpleParameter|stringParameter|vsimpleParameter|fileInPathParameter|vstringParameter|inputTagParameter|vinputTagParameter|PSetParameter|VPSetParameter|secsourceParameter
 
 using = pp.Group(pp.Keyword("using")+letterstart).setParseAction(_makeUsing)
 include = pp.Group(pp.Keyword("include").suppress()+quotedString).setParseAction(_makeInclude)
@@ -447,6 +457,12 @@ def _replaceKeywordWithType(s,loc,toks):
     return (type,toks[0][1])
 
 typeWithParameters = pp.Group(letterstart+scopedParameters)
+
+#secsources are parameters but they behave like Plugins
+secsourceParameter << pp.Group(untracked+pp.Keyword("secsource")+label+_equalTo
+                               +typeWithParameters.copy().setParseAction(_MakePlugin(cms.SecSource))
+                          ).setParseAction(_makeLabeledSecSource)
+
 source = pp.Group(pp.Keyword("source")+_equalTo
                   +typeWithParameters.copy().setParseAction(_MakePlugin(cms.Source))
                  )
@@ -1161,6 +1177,11 @@ if __name__=="__main__":
             d=dict(iter(t))
             self.assertEqual(type(d['blah']),cms.VPSet)
             self.assertEqual(len(d['blah']),2)
+            
+            t=onlyParameters.parseString("secsource blah = Foo {int32 ick=1}")
+            d=dict(iter(t))
+            self.assertEqual(type(d['blah']),cms.SecSource)
+
         def testValidation(self):
             self.assertRaises(pp.ParseFatalException,onlyParameters.parseString,("""
 PSet blah = {
@@ -1297,6 +1318,12 @@ PSet blah = {
             self.assertEqual(type(d['foo']),cms.ESProducer)
             self.assertEqual(d['foo'].type_(),"WithLabel")
             
+            t=plugin.parseString("""module mix = MixingModule {
+            secsource input = PoolRASource {
+               vstring fileNames = {}
+               }
+            }
+            """)
             global _fileFactory
             oldFactory = _fileFactory
             try:
