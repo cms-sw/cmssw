@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Apr  4 14:28:58 EDT 2007
-// $Id: PluginManager.cc,v 1.1.2.3 2007/04/09 18:46:51 chrjones Exp $
+// $Id: PluginManager.cc,v 1.2 2007/04/12 12:51:12 wmtan Exp $
 //
 
 // system include files
@@ -154,7 +154,12 @@ PluginManager::loadableFor(const std::string& iCategory,
       " '"<<range.first->loadable_.leaf()<<"'\n '"
       <<(range.first+1)->loadable_.leaf()<<"'\n"
       "in directory '"<<range.first->loadable_.branch_path().native_file_string()<<"'.\n"
-      "The code must be changed so the plugin only appears in one library.";
+      "The code must be changed so the plugin only appears in one plugin file. "
+      "You will need to remove the macro which registers the plugin so it only appears in"
+      " one of these files.\n"
+      "  If none of these files register such a plugin, "
+      "then the problem originates in a library to which all these files link.\n"
+      "The plugin registration must be removed from that library since plugins are not allowed in regular libraries.";
     }
   }
   
