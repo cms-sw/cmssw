@@ -3,8 +3,8 @@
  *  
  *  See header file for documentation.
  *
- *  $Date: 2006/08/14 15:26:43 $
- *  $Revision: 1.14 $
+ *  $Date: 2006/10/04 14:40:05 $
+ *  $Revision: 1.15 $
  *
  *  \author Martin Grunewald
  *
