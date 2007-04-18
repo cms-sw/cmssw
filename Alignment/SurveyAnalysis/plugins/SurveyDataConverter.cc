@@ -44,7 +44,7 @@
 #include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
 
 #include "Alignment/SurveyAnalysis/interface/SurveyDataReader.h"
-#include "Alignment/SurveyAnalysis/interface/SurveyDataConverter.h"
+#include "Alignment/SurveyAnalysis/plugins/SurveyDataConverter.h"
 
 
 //__________________________________________________________________________________________________

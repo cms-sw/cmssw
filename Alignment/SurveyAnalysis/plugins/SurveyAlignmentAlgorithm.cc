@@ -2,7 +2,7 @@
 #include "Alignment/SurveyAnalysis/interface/SurveyAlignmentSensor.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "Alignment/SurveyAnalysis/interface/SurveyAlignmentAlgorithm.h"
+#include "Alignment/SurveyAnalysis/plugins/SurveyAlignmentAlgorithm.h"
 
 SurveyAlignmentAlgorithm::SurveyAlignmentAlgorithm(const edm::ParameterSet& cfg):
   AlignmentAlgorithmBase(cfg),

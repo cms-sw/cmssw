@@ -7,7 +7,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "Alignment/SurveyAnalysis/interface/SurveyDBUploader.h"
+#include "Alignment/SurveyAnalysis/plugins/SurveyDBUploader.h"
 
 SurveyDBUploader::SurveyDBUploader(const edm::ParameterSet& cfg):
   theValueRcd( cfg.getParameter<std::string>("valueRcd") ),
