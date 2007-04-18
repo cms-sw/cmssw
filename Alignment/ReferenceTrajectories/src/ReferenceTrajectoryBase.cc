@@ -1,4 +1,4 @@
-#include "Alignment/CommonAlignmentAlgorithm/interface/ReferenceTrajectoryBase.h"
+#include "Alignment/ReferenceTrajectories/interface/ReferenceTrajectoryBase.h"
 
 ReferenceTrajectoryBase::ReferenceTrajectoryBase(unsigned int nPar, unsigned int nHits)
   : theValidityFlag(false), theTsosVec(), theRecHits(),

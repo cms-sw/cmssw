@@ -1,6 +1,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "Alignment/CommonAlignmentAlgorithm/interface/TrajectoryFactoryBase.h"
+#include "Alignment/ReferenceTrajectories/interface/TrajectoryFactoryBase.h"
 
 TrajectoryFactoryBase::TrajectoryFactoryBase( const edm::ParameterSet & config )
 {

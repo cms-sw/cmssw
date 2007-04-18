@@ -1,8 +1,8 @@
-#ifndef Alignment_CommonAlignmentAlgorithm_ReferenceTrajectoryFactory_h
-#define Alignment_CommonAlignmentAlgorithm_ReferenceTrajectoryFactory_h
+#ifndef Alignment_ReferenceTrajectories_ReferenceTrajectoryFactory_h
+#define Alignment_ReferenceTrajectories_ReferenceTrajectoryFactory_h
 
-#include "Alignment/CommonAlignmentAlgorithm/interface/TrajectoryFactoryBase.h"
-#include "Alignment/CommonAlignmentAlgorithm/interface/ReferenceTrajectory.h"
+#include "Alignment/ReferenceTrajectories/interface/TrajectoryFactoryBase.h"
+#include "Alignment/ReferenceTrajectories/interface/ReferenceTrajectory.h"
 
 /// A factory that produces instances of class ReferenceTrajectory from a given TrajTrackPairCollection.
 

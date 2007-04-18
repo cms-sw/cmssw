@@ -1,11 +1,11 @@
-#ifndef REFERENCE_TRAJECTORY_H
-#define REFERENCE_TRAJECTORY_H
+#ifndef Alignment_ReferenceTrajectories_ReferenceTrajectory_H
+#define Alignment_ReferenceTrajectories_ReferenceTrajectory_H
 
 /**
  * Author     : Gero Flucke (based on code by Edmund Widl replacing ORCA's TkReferenceTrack)
  * date       : 2006/09/17
- * last update: $Date: 2006/09/27 08:23:55 $
- * by         : $Author: flucke $
+ * last update: $Date: 2006/10/10 16:32:23 $
+ * by         : $Author: ewidl $
  *
  *  Class implementing the reference trajectory of a single charged
  *  particle, i.e. a helix with 5 parameters. Given the
@@ -29,7 +29,7 @@
  *
  */
 
-#include "Alignment/CommonAlignmentAlgorithm/interface/ReferenceTrajectoryBase.h"
+#include "Alignment/ReferenceTrajectories/interface/ReferenceTrajectoryBase.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 
 class TrajectoryStateOnSurface;

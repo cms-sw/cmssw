@@ -1,8 +1,8 @@
-#ifndef Alignment_CommonAlignmentAlgorithm_TrajectoryFactoryBase_h
-#define Alignment_CommonAlignmentAlgorithm_TrajectoryFactoryBase_h
+#ifndef Alignment_ReferenceTrajectories_TrajectoryFactoryBase_h
+#define Alignment_ReferenceTrajectories_TrajectoryFactoryBase_h
 
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentAlgorithmBase.h"
-#include "Alignment/CommonAlignmentAlgorithm/interface/ReferenceTrajectoryBase.h"
+#include "Alignment/ReferenceTrajectories/interface/ReferenceTrajectoryBase.h"
 
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 
