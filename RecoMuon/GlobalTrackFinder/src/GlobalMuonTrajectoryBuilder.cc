@@ -12,8 +12,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2007/04/12 00:40:03 $
- *  $Revision: 1.90 $
+ *  $Date: 2007/04/17 13:17:52 $
+ *  $Revision: 1.91 $
  *
  *  Authors :
  *  N. Neumeister            Purdue University
@@ -80,7 +80,7 @@
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "RecoMuon/GlobalMuonProducer/src/GlobalMuonMonitorInterface.h"
-#include "TrackingTools/TrackAssociator/interface/TimerStack.h"
+#include "Utilities/Timing/interface/TimerStack.h"
 
 #include "TrackingTools/TrajectoryCleaning/interface/TrajectoryCleanerBySharedHits.h"
 
@@ -301,7 +301,7 @@ MuonCandidate::CandidateContainer GlobalMuonTrajectoryBuilder::trajectories(cons
       delete (*is).first;   
     }
   }
-  timers.clean_stack();
+  timers.clear_stack();
   return result;
   
 }
@@ -1237,7 +1237,7 @@ vector<GlobalMuonTrajectoryBuilder::TrackCand> GlobalMuonTrajectoryBuilder::make
     if(theMIMFlag && tkTrackCands.size() > 0 ) dataMonitor->fill1("cuts",4);
     tkCandColl = chooseRegionalTrackerTracks(staCand,tkTrackCands);
   }
-  times.clean_stack();
+  times.clear_stack();
   if(theMIMFlag && tkCandColl.size() > 0) dataMonitor->fill1("cuts",5);
   return tkCandColl;
 
@@ -1267,7 +1267,7 @@ void GlobalMuonTrajectoryBuilder::addTraj(TrackCand& candIn) const {
     candIn = ( !staTrajs.empty() ) ? TrackCand(new Trajectory(staTrajs.front()),candIn.second) : TrackCand(0,candIn.second);    
 
   }
-  times.clean_stack(); 
+  times.clear_stack(); 
 
 }
 
