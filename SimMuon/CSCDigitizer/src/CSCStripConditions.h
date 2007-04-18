@@ -4,6 +4,8 @@
 #include "SimGeneral/NoiseGenerators/interface/CorrelatedNoisifier.h"
 #include "SimMuon/CSCDigitizer/src/CSCAnalogSignal.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+
 
 class CSCStripConditions
 {
@@ -12,6 +14,8 @@ public:
   : theNoisifier(0) {}
 
   void noisify(const CSCDetId & detId, CSCAnalogSignal & signal);
+
+  virtual void initializeEvent(const edm::EventSetup & es) {}
 
   /// channels count from 1
   virtual float gain(const CSCDetId & detId, int channel) const = 0;

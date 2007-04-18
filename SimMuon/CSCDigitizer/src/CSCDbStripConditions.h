@@ -5,15 +5,15 @@
 #include "CondFormats/CSCObjects/interface/CSCNoiseMatrix.h"
 #include "CondFormats/CSCObjects/interface/CSCGains.h"
 #include "CondFormats/CSCObjects/interface/CSCPedestals.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 
 class CSCDbStripConditions : public CSCStripConditions
 {
 public:
   CSCDbStripConditions();
+  virtual ~CSCDbStripConditions();
 
   /// fetch the maps from the database
-  void read(const edm::EventSetup & es);
+  virtual void initializeEvent(const edm::EventSetup & es);
 
   /// channels count from 1
   virtual float gain(const CSCDetId & detId, int channel) const;

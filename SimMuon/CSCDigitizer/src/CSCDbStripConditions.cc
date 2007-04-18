@@ -16,7 +16,15 @@ CSCDbStripConditions::CSCDbStripConditions()
 }
 
 
-void CSCDbStripConditions::read(const edm::EventSetup & es)
+CSCDbStripConditions::~CSCDbStripConditions()
+{
+  delete theNoiseMatrix;
+  delete theGains;
+  delete thePedestals;
+}
+
+
+void CSCDbStripConditions::initializeEvent(const edm::EventSetup & es)
 {
     // Strip gains
     edm::ESHandle<CSCGains> hGains;
