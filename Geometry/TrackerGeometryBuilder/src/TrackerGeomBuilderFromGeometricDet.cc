@@ -5,8 +5,8 @@
 //temporary
 #include "DetectorDescription/Core/interface/DDSolid.h"
 //
-#include "Geometry/TrackerGeometryBuilder/plugins/TrackerGeomBuilderFromGeometricDet.h"
-#include "Geometry/TrackerGeometryBuilder/plugins/GeomTopologyBuilder.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeomBuilderFromGeometricDet.h"
+#include "Geometry/TrackerGeometryBuilder/interface/GeomTopologyBuilder.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PlaneBuilderFromGeometricDet.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PlaneBuilderForGluedDet.h"
