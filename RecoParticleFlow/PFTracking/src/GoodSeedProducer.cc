@@ -143,16 +143,11 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 
   for(uint i=0;i<Tk.size();i++){
 
-    float PTIN=Tj[i].firstMeasurement().updatedState().globalMomentum().perp();
-    float PTFIN=Tj[i].lastMeasurement().updatedState().globalMomentum().perp();
     float PTOB=Tj[i].lastMeasurement().updatedState().globalMomentum().mag();
     float chired=Tk[i].normalizedChi2();
     int nhitpi=Tj[i].foundHits();
     TrajectorySeed Seed=Tj[i].seed();
  
-    float pttin=(PTIN>0) ? fabs(PTFIN-PTIN)/PTIN : 0.;
-
-
 
     //CLUSTERS - TRACK matching
 
@@ -175,6 +170,18 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
       
       for(vector<reco::PFCluster>::const_iterator aClus = basClus.begin();
 	  aClus != basClus.end(); aClus++) {
+
+	ReferenceCountingPointer<Surface> showerMaxWall=
+	  pfTransformer_->showerMaxSurface(EE,true,ecalTsos,side);
+
+	if (&(*showerMaxWall)!=0){
+	  TSOS maxShTsos=propagator_.product()->propagate(ecalTsos, *showerMaxWall);
+	  if (maxShTsos.isValid()){
+	    etarec=maxShTsos.globalPosition().eta();
+	    phirec=maxShTsos.globalPosition().phi();
+	  }
+	}
+
 	float tmp_dr=sqrt(pow((aClus->positionXYZ().phi()-phirec),2)+
 			  pow((aClus->positionXYZ().eta()-etarec),2));
 	if (tmp_dr<dr) {
@@ -186,39 +193,24 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 	  feta= aClus->positionXYZ().eta();
 	}
       }
-    
-      ReferenceCountingPointer<Surface> showerMaxWall=
-	pfTransformer_->showerMaxSurface(EE,true,ecalTsos,side);
-
-      if (&(*showerMaxWall)!=0){
-	TSOS maxShTsos=propagator_.product()->propagate(ecalTsos, *showerMaxWall);
-	
-	if (maxShTsos.isValid()){
-
-	  toteta+=(etarec-maxShTsos.globalPosition().eta());
-	  totphi+=(phirec-maxShTsos.globalPosition().phi());
-	}
-      }
-
     }
- 
+  
   
     //thresholds 
-    int ibin=getBin(Tk[i].eta(),Tk[i].pt())*10;
+    int ibin=getBin(Tk[i].eta(),Tk[i].pt())*9;
 
     float chi2cut=thr[ibin+0];
     float ep_cutmin=thr[ibin+1];
     //
     int hit1max=int(thr[ibin+2]);
     float chiredmin=thr[ibin+3];
-    float pttmin=thr[ibin+4];
     //
-    float chiratiocut=thr[ibin+5]; 
-    float gschicut=thr[ibin+6]; 
-    float gsptmin=thr[ibin+7];
+    float chiratiocut=thr[ibin+4]; 
+    float gschicut=thr[ibin+5]; 
+    float gsptmin=thr[ibin+6];
     // 
-    int hit2max=int(thr[ibin+8]);
-    float finchicut=thr[ibin+9]; 
+    int hit2max=int(thr[ibin+7]);
+    float finchicut=thr[ibin+8]; 
     //
 
 
@@ -239,7 +231,7 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 
     //KF filter
     bool bb1 =
-      ((pttin>pttmin) || (chired>chiredmin) || (nhitpi<hit1max));
+      ((chired>chiredmin) || (nhitpi<hit1max));
 
     bool bb2 = false;
     bool bb3 = false;
@@ -265,7 +257,6 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 	      float pt_in=SmooTjs[0].lastMeasurement().
 		updatedState().globalMomentum().perp();
 	      float el_dpt=(pt_in>0) ? fabs(pt_out-pt_in)/pt_in : 0.;
-	      //	      float gchi=SmooTjs[0].chiSquared()/max(1,SmooTjs[0].foundHits()-5);
 	      float chiratio=SmooTjs[0].chiSquared()/Tj[i].chiSquared();
 	      float gchi=chiratio*chired;
 
@@ -373,7 +364,7 @@ GoodSeedProducer::beginJob(const EventSetup& es)
   //read threshold
   FileInPath parFile(conf_.getParameter<string>("ThresholdFile"));
   ifstream ifs(parFile.fullPath().c_str());
-  for (int iy=0;iy<150;iy++) ifs >> thr[iy];
+  for (int iy=0;iy<135;iy++) ifs >> thr[iy];
 
 }
 
@@ -387,7 +378,7 @@ int GoodSeedProducer::getBin(float eta, float pt){
   if (pt<2) ip=0;
   else {  if (pt<4) ip=1;
     else {  if (pt<6) ip=2;
-      else {  if (pt<9) ip=3;
+      else {  if (pt<15) ip=3;
 	else ip=4;
       }
     }
