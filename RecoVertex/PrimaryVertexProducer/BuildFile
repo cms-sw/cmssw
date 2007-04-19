@@ -1,12 +1,9 @@
-<use name=FWCore/Framework>
-<use name=FWCore/PluginManager>
 <use name=FWCore/ParameterSet>
 <use name=DataFormats/TrackReco>
 <use name=DataFormats/VertexReco>
 <use name=RecoVertex/AdaptiveVertexFit>
 <use name=RecoVertex/LinearizationPointFinders>
 <use name=RecoVertex/TrimmedKalmanVertexFinder>
-<flags EDM_PLUGIN=1>
 <export>
    <lib name=RecoVertexPrimaryVertexProducer>
    <use name=FWCore/Framework>
