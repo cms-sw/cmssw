@@ -1,5 +1,3 @@
-#include <DataFormats/MuonDetId/interface/CSCDetId.h>
-
 #include <DetectorDescription/Core/interface/DDFilter.h>
 #include <DetectorDescription/Core/interface/DDFilteredView.h>
 #include <DetectorDescription/Core/interface/DDSolid.h>

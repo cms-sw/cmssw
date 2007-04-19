@@ -1,4 +1,4 @@
-#include "Geometry/CSCGeometryBuilder/src/CSCGeometryESModule.h"
+#include "CSCGeometryESModule.h"
 #include "Geometry/CSCGeometryBuilder/src/CSCGeometryBuilderFromDDD.h"
 #include "Geometry/CSCGeometry/interface/CSCChamberSpecs.h"
 

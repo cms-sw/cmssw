@@ -8,6 +8,7 @@
  *  \author Tim Cox
  */
 
+#include <DataFormats/MuonDetId/interface/CSCDetId.h>
 #include <string>
 
 class DDCompactView;
