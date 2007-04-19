@@ -5,7 +5,6 @@
 <use name=FWCore/PluginManager>
 <use name=DQMServices/Core>
 <use name=DQM/SiStripCommon>
-<use name=CondCore/SiStripPlugins>
 <use name=CondFormats/DataRecord>
 <use name=CondFormats/SiStripObjects>
 <use name=CalibFormats/SiStripObjects>
@@ -23,7 +22,6 @@
    <use name=FWCore/MessageLogger>
    <use name=DQMServices/Core>
    <use name=DQM/SiStripCommon>
-   <use name=CondCore/SiStripPlugins>
    <use name=CondFormats/DataRecord>
    <use name=CondFormats/SiStripObjects>
    <use name=CalibFormats/SiStripObjects>
