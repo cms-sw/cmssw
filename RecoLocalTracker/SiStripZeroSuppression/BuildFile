@@ -13,7 +13,6 @@
 <use name=CondFormats/SiStripObjects>
 
 <use name=CondCore/DBCommon>
-<use name=CondCore/ESSources>
 <use name=CondCore/IOVService>
 <use name=CondCore/MetaDataService>
 
@@ -39,7 +38,6 @@
 <use name=CondFormats/SiStripObjects>
 
 <use name=CondCore/DBCommon>
-<use name=CondCore/ESSources>
 <use name=CondCore/IOVService>
 <use name=CondCore/MetaDataService>
 
