@@ -27,9 +27,8 @@
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 
-#include "SimCalorimetry/EcalTrigPrimProducers/interface/EcalTrigPrimProducer.h"
 #include "SimCalorimetry/EcalTrigPrimAlgos/interface/EcalTrigPrimFunctionalAlgo.h"
-
+#include "EcalTrigPrimProducer.h"
 #include "TFile.h"
 #include "TTree.h"
 

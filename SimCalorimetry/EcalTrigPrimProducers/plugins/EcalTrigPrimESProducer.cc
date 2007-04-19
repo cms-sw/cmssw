@@ -1,5 +1,5 @@
 // user include files
-#include "SimCalorimetry/EcalTrigPrimProducers/interface/EcalTrigPrimESProducer.h"
+#include "EcalTrigPrimESProducer.h"
 
 #include <iostream>
 #include <fstream>

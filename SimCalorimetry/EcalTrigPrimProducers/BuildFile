@@ -1,4 +1,3 @@
-<flags EDM_PLUGIN=1>
 <use name=FWCore/PluginManager>
 <use name=root>
 <use name=boost>
@@ -11,7 +10,6 @@
 <use name=CondFormats/L1TObjects>
 <use name=CondFormats/DataRecord>
 <export>
-<lib name=SimCalorimetryEcalTrigPrimProducers>
 <use name=root>
 <use name=boost>
 <use name=FWCore/ParameterSet>
