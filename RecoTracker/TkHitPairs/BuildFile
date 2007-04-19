@@ -1,4 +1,3 @@
-<flags EDM_PLUGIN=1>
 <use name=clhep>
 <use name=boost>
 <use name=RecoTracker/Record>
@@ -10,7 +9,7 @@
 <use name=DataFormats/SiStripDetId>
 <use name=TrackingTools/TransientTrackingRecHit>
 <use name=RecoTracker/TkMSParametrization>	 
-#<use name=RecoTracker/TkTrackingRegions>
+<use name=RecoTracker/TkTrackingRegions>
 <use name=RecoTracker/TkSeedingLayers>
 <export>
    <lib name=RecoTrackerTkHitPairs>
@@ -25,7 +24,7 @@
    <use name=DataFormats/SiStripDetId>
    <use name=TrackingTools/TransientTrackingRecHit>
    <use name=RecoTracker/TkMSParametrization>	 
-#   <use name=RecoTracker/TkTrackingRegions>
+   <use name=RecoTracker/TkTrackingRegions>
    <use name=RecoTracker/TkSeedingLayers>
  </export>
 
