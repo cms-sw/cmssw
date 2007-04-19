@@ -1,21 +1,23 @@
 <Flags EDM_PLUGIN=1>
 <export>
  <lib name=IOMCEventVertexGenerators>
- <use name=Framework/SealKernel>
  <use name=FWCore/Framework>
+ <use name=FWCore/PluginManager>
  <use name=FWCore/ParameterSet>
+ <use name=FWCore/ServiceRegistry>
+ <use name=FWCore/Utilities>
  <use name=SimDataFormats/HepMCProduct>
- <use name=Utilities/General>
  <use name=boost>
  <use name=clhep>
  <use name=hepmc>
 </export>
 
-<use name=Framework/SealKernel>
 <use name=FWCore/Framework>
+<use name=FWCore/PluginManager>
 <use name=FWCore/ParameterSet>
+<use name=FWCore/ServiceRegistry>
+<use name=FWCore/Utilities>
 <use name=SimDataFormats/HepMCProduct>
-<use name=Utilities/General>
 <use name=boost>
 <use name=clhep>
 <use name=hepmc>
