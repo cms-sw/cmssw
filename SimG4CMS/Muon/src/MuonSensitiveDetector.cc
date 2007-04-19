@@ -216,8 +216,16 @@ void MuonSensitiveDetector::createHit(G4Step * aStep){
     theEntryPoint= toOrcaUnits(toOrcaRef(InitialStepPositionVsParent(aStep,1),aStep)); // 1 level up
     theExitPoint= toOrcaUnits(toOrcaRef(FinalStepPositionVsParent(aStep,1),aStep));  
   } else if (detector->isEndcap()) {
-    theEntryPoint= toOrcaUnits(toOrcaRef(InitialStepPositionVsParent(aStep,4),aStep)); // 4 levels up
-    theExitPoint= toOrcaUnits(toOrcaRef(FinalStepPositionVsParent(aStep,4),aStep));  
+    // save local z at current level
+    theEntryPoint= toOrcaUnits(toOrcaRef(InitialStepPosition(aStep,LocalCoordinates),aStep));
+    theExitPoint= toOrcaUnits(toOrcaRef(FinalStepPosition(aStep,LocalCoordinates),aStep));
+    float zentry = theEntryPoint.z();
+    float zexit = theExitPoint.z();
+    Local3DPoint tempEntryPoint= toOrcaUnits(toOrcaRef(InitialStepPositionVsParent(aStep,4),aStep)); // 4 levels up
+    Local3DPoint tempExitPoint= toOrcaUnits(toOrcaRef(FinalStepPositionVsParent(aStep,4),aStep));
+    // reset local z from z wrt deep-parent volume to z wrt low-level volume
+    theEntryPoint = Local3DPoint( tempEntryPoint.x(), tempEntryPoint.y(), zentry );
+    theExitPoint  = Local3DPoint( tempExitPoint.x(), tempExitPoint.y(), zexit );
   } else {
     theEntryPoint= toOrcaUnits(toOrcaRef(InitialStepPosition(aStep,LocalCoordinates),aStep));
     theExitPoint= toOrcaUnits(toOrcaRef(FinalStepPosition(aStep,LocalCoordinates),aStep)); 
