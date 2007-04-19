@@ -15,6 +15,7 @@
 <use name=boost>
 <use name=clhep>
 <use name=MagneticField/Records>
+<use name=MagneticField/Engine>
 <flags EDM_PLUGIN=1>
 <export>
    <lib name=SimTrackerSiPixelDigitizer>
@@ -33,6 +34,7 @@
    <use name=gsl> 
    <use name=boost>
    <use name=clhep>
-    <use name=MagneticField/Records>
+   <use name=MagneticField/Records>
+   <use name=MagneticField/Engine>
    <use name=Geometry/Surface>
 </export>
