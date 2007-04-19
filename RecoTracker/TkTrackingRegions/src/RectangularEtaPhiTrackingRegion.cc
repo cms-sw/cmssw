@@ -23,12 +23,12 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
-//#include "RecoTracker/Record/interface/CkfComponentsRecord.h"
-//#include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
-//#include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
-//#include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
-//#include "DataFormats/GeometrySurface/interface/BoundPlane.h"
-//#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
+#include "RecoTracker/Record/interface/CkfComponentsRecord.h"
+#include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
+#include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
+#include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
+#include "DataFormats/GeometrySurface/interface/BoundPlane.h"
+#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 
 
 template <class T> T sqr( T t) {return t*t;}
@@ -276,9 +276,9 @@ std::vector<ctfseeding::SeedingHit> RectangularEtaPhiTrackingRegion::hits(
       const ctfseeding::SeedingLayer* layer) const
 {
 
-//  edm::ESHandle<MagneticField> field;
-//  es.get<IdealMagneticFieldRecord>().get(field);
-//  const MagneticField * magField = field.product();
+  edm::ESHandle<MagneticField> field;
+  es.get<IdealMagneticFieldRecord>().get(field);
+  const MagneticField * magField = field.product();
 
 
   //ESTIMATOR
@@ -293,7 +293,7 @@ std::vector<ctfseeding::SeedingHit> RectangularEtaPhiTrackingRegion::hits(
     est = estimator(&fl,es);
   }
   if (!est) return result;
-/*
+
 
   const GlobalPoint vtx = origin();
   GlobalVector dir = est->center() - vtx;
@@ -330,7 +330,7 @@ std::vector<ctfseeding::SeedingHit> RectangularEtaPhiTrackingRegion::hits(
 ;//      result.push_back( ctfseeding::SeedingHit( ptrHit->hit(),es));
     }
   }
-*/
+
 
 //
   // temporary fix

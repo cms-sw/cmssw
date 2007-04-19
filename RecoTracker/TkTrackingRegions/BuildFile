@@ -7,7 +7,7 @@
    <use name=RecoTracker/Record>
    <use name=RecoTracker/TkSeedingLayers>
    <use name=RecoTracker/TkMSParametrization>
-#   <use name=RecoTracker/MeasurementDet>
+   <use name=RecoTracker/MeasurementDet>
    <use name=TrackingTools/PatternTools>
    <use name=TrackingTools/TransientTrackingRecHit>
    <use name=TrackingTools/MeasurementDet>
@@ -22,7 +22,7 @@
    <use name=RecoTracker/Record>
    <use name=RecoTracker/TkSeedingLayers>
    <use name=RecoTracker/TkMSParametrization>
-#   <use name=RecoTracker/MeasurementDet>
+   <use name=RecoTracker/MeasurementDet>
    <use name=TrackingTools/PatternTools>
    <use name=TrackingTools/TransientTrackingRecHit>
  <use name=TrackingTools/MeasurementDet>
