@@ -10,4 +10,4 @@
  <lib name=SimG4CMSMuon>
 </export>
 
-<Flags EDM_PLUGIN=1>
+<Flags SEALPLUGIN=1>
