@@ -43,7 +43,7 @@
  * 
  * \author Thomas Speer, Luca Lista, Pascal Vanlaer, Juan Alcaraz
  *
- * \version $Id: TrackBase.h,v 1.52 2007/03/20 14:19:53 namapane Exp $
+ * \version $Id: TrackBase.h,v 1.53 2007/04/04 12:51:35 jalcaraz Exp $
  *
  */
 
@@ -72,8 +72,6 @@ namespace reco {
     typedef math::XYZPoint Point;
     /// enumerator provided indices to the five parameters
     enum { i_qoverp = 0 , i_lambda, i_phi, i_dxy, i_dsz }; 
-    /// spatial vector
-    typedef math::XYZVector Vector;
     /// point in the space
     typedef math::XYZPoint Point;
     /// index type
