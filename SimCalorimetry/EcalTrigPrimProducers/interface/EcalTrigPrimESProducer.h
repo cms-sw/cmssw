@@ -5,11 +5,11 @@
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
 
-/* #include "FWCore/Framework/interface/ESHandle.h" */
-/* #include "FWCore/ParameterSet/interface/ParameterSet.h" */
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-/* #include "CondFormats/L1TObjects/interface/EcalTPParameters.h" */
-/* #include "CondFormats/DataRecord/interface/EcalTPParametersRcd.h" */
+#include "CondFormats/L1TObjects/interface/EcalTPParameters.h"
+#include "CondFormats/DataRecord/interface/EcalTPParametersRcd.h"
 
 //
 // class declaration
@@ -17,24 +17,22 @@
 
 class EcalTrigPrimESProducer : public edm::ESProducer {
  public:
-  //head  EcalTrigPrimESProducer(const edm::ParameterSet&);
-  //131
-  EcalTrigPrimESProducer(const edm::ParameterSet&) {;}
+  EcalTrigPrimESProducer(const edm::ParameterSet&);
   ~EcalTrigPrimESProducer();
 
-/*   typedef std::auto_ptr<EcalTPParameters> ReturnType; */
+  typedef std::auto_ptr<EcalTPParameters> ReturnType;
 
-/*   ReturnType produce(const EcalTPParametersRcd&); */
+  ReturnType produce(const EcalTPParametersRcd&);
 
-/*  private: */
+ private:
 
-/*   void parseTextFile(EcalTPParameters &); */
+  void parseTextFile(EcalTPParameters &);
 
-/*   std::vector<int> getRange(int smNb, int towerNbInSm, int stripNbInTower=0, int xtalNbInStrip=0) ; */
+  std::vector<int> getRange(int smNb, int towerNbInSm, int stripNbInTower=0, int xtalNbInStrip=0) ;
 
-/*   // ----------member data --------------------------- */
-/*   std::string dbFilenameEB_; */
-/*   std::string dbFilenameEE_; */
+  // ----------member data ---------------------------
+  std::string dbFilenameEB_;
+  std::string dbFilenameEE_;
 
 };
 

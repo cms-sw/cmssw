@@ -20,9 +20,9 @@
  
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
  
+#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/EDProduct.h"
  
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -30,7 +30,6 @@
 class TFile;
 class TTree;
 class EcalTrigPrimFunctionalAlgo;
-class DBInterface; 
  
 class EcalTrigPrimProducer : public edm::EDProducer
 {
@@ -46,24 +45,21 @@ class EcalTrigPrimProducer : public edm::EDProducer
   
  private:
   EcalTrigPrimFunctionalAlgo *algo_;
-  DBInterface * db_ ;
   TFile *histfile_;
   TTree *valTree_;
   bool valid_;
   bool barrelOnly_;
   bool tcpFormat_;
+  bool debug_;
   std::string label_;
   std::string instanceNameEB_;
   std::string instanceNameEE_;
-  std::string databaseFileNameEB_;
-  std::string databaseFileNameEE_;
+
   double ebDccAdcToGeV_,eeDccAdcToGeV_;
-  //  int fgvbMinEnergy_;
-  //  double ttfThreshLow_;
-  //  double ttfThreshHigh_;
   int binOfMaximum_;
-  //  enum {nrSamples_= 5}; //nr samples to write, should not be changed, if not problems in EcalTriggerPrimitiveDigi class
+
   static const int nrSamples_; //nr samples to write, should not be changed, if not problems in EcalTriggerPrimitiveDigi class
+  const edm::ParameterSet ps_;
 };
   
 #endif

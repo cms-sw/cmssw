@@ -6,7 +6,7 @@
 #include <iostream>
 
 class EcalVFormatter;
-class DBInterface ;
+class EcalTPParameters;
 
 // global type definitions for header defined by Tag entries in ArgoUML
 // Result: typedef <typedef_global_header> <tag_value>;
@@ -23,7 +23,7 @@ class DBInterface ;
 class EcalFenixStripFormat : public EcalVFormatter {
     
  private:
-  DBInterface * db_ ;
+  const EcalTPParameters * ecaltpp_ ;
   int inputPeak_;
   int input_;
   int shift_;
@@ -34,7 +34,7 @@ class EcalFenixStripFormat : public EcalVFormatter {
 
 
  public:
-  EcalFenixStripFormat(DBInterface * db);
+  EcalFenixStripFormat(const EcalTPParameters *);
   virtual ~EcalFenixStripFormat();
   virtual std::vector<int> process(std::vector<int> , std::vector<int>) ;
   void setParameters(int SM, int towerInSM, int stripInTower);
