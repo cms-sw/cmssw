@@ -1,4 +1,4 @@
-#include "RecoTracker/GeometryESProducer/interface/TrackerRecoGeometryESProducer.h"
+#include "RecoTracker/GeometryESProducer/plugins/TrackerRecoGeometryESProducer.h"
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
