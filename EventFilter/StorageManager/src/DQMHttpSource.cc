@@ -2,7 +2,7 @@
  *  An input source for DQM consumers run in cmsRun that connect to
  *  the StorageManager or SMProxyServer to get DQM data.
  *
- *  $Id: DQMHttpSource.cc,v 1.1 2007/04/04 22:14:27 hcheung Exp $
+ *  $Id: DQMHttpSource.cc,v 1.2 2007/04/18 01:47:39 hcheung Exp $
  */
 
 #include "EventFilter/StorageManager/src/DQMHttpSource.h"
@@ -214,11 +214,12 @@ namespace edm
         throw cms::Exception("readOneEvent", "DQMHttpSource")
           << "Unable to lookup the DaqMonitorBEInterface service!\n";
       }
-      unsigned int count = 0;
+      //unsigned int count = 0;
 
       edm::StreamDQMDeserializer deserializeWorker;
       std::auto_ptr<DQMEvent::TObjectTable> toTablePtr =
           deserializeWorker.deserializeDQMEvent(dqmEventView);
+/* next code block requires DQMHttpSource to be a friend class of DaqMonitorBEInterface
       DQMEvent::TObjectTable::const_iterator toIter;
       for (toIter = toTablePtr->begin();
            toIter != toTablePtr->end(); toIter++) {
@@ -239,6 +240,7 @@ namespace edm
         }
       }
       //std::cout << "Put " << count << " MEs into the DQM backend" <<std::endl;
+*/
 
       // clean up memory by spinning through the DQMEvent::TObjectTable map and
       // deleting each TObject in the std::vector<TObject *> later we will
