@@ -10,7 +10,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Fri Sep 23 11:38:38 CEST 2005
-// $Id: TestMix.cc,v 1.16 2007/01/04 15:54:45 uberthon Exp $
+// $Id: TestMix.cc,v 1.17 2007/01/04 16:24:29 uberthon Exp $
 //
 //
 
@@ -31,8 +31,9 @@
 
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
-#include "SimGeneral/MixingModule/interface/TestMix.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
+
+#include "TestMix.h"
 
 using namespace edm;
 

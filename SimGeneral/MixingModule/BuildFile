@@ -12,7 +12,6 @@
 <use name=SimDataFormats/Track>
 <use name=SimDataFormats/TrackingHit>
 <use name=SimDataFormats/Vertex>
-<flags EDM_PLUGIN=1>
 <export>
   <use name=DataFormats/Common>
   <use name=DataFormats/Provenance>
@@ -20,6 +19,5 @@
   <use name=FWCore/ParameterSet>
   <use name=Mixing/Base>
   <use name=SimDataFormats/CrossingFrame>
-  <lib name=SimGeneralMixingModule>
 </export>
 
