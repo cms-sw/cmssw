@@ -127,6 +127,7 @@ private:
   std::vector<bool>               statisticsResets;
   std::string	  		  jobReportOption;
   static ErrorLog		* static_errorlog_p;
+  bool				  clean_slate_configuration;
 };  // MessageLoggerScribe
 
 

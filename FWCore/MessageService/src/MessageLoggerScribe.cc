@@ -115,6 +115,8 @@
 //       command cases:  Unless the ConfigurationHandshake is used, re-throw
 //	 is not an option, but exit is also not very good.
 //
+//  22 - 4/18/07 mf - in configure_error_log and its called functions
+//	 Allow for duplicate file names if configuration happens twice.
 //
 // ----------------------------------------------------------------------
 
@@ -157,6 +159,7 @@ MessageLoggerScribe::MessageLoggerScribe()
 , job_pset_p( 0 )
 , extern_dests( )
 , jobReportOption( )
+, clean_slate_configuration( true )
 {
   admin_p->setContextSupplier(msg_context);
 }
@@ -362,6 +365,11 @@ void
     delete errorobj_p;  // dispose of the message text
   }
 
+  if ( !stream_ps.empty() ) {
+    LogWarning ("multiLogConfig") 
+    	<< "The message logger has been configured multiple times"; 
+    clean_slate_configuration = false;				// Change Log 22
+  }
   configure_fwkJobReports();					// Change Log 16
   configure_ordinary_destinations();				// Change Log 16
   configure_statistics();					// Change Log 16
@@ -639,13 +647,21 @@ void
       actual_filename += ".xml";
     }  
 
-    // Check that this is not a duplicate name			// change log 18
+     // Check that this is not a duplicate name			// change log 18
     if ( stream_ps.find(actual_filename)!=stream_ps.end() ) {        
-      throw edm::Exception ( edm::errors::Configuration ) 
-      << "Duplicate name for a MessageLogger Framework Job Report Destination: " 
-      << actual_filename
-      << "\n";
-    } 
+      if (clean_slate_configuration) {				// change log 22
+       throw edm::Exception ( edm::errors::Configuration ) 
+       <<"Duplicate name for a MessageLogger Framework Job Report Destination: " 
+       << actual_filename
+       << "\n";
+      } else {
+       LogWarning("duplicateDestination")
+       <<"Duplicate name for a MessageLogger Framework Job Report Destination: " 
+       << actual_filename
+       << "\n" << "Only original configuration instructions are used";
+       continue;
+      }
+     } 
     
     jobReportExists = true;					// Changelog 19
     if ( actual_filename == jobReportOption ) jobReportOption = empty_String;   
@@ -730,19 +746,27 @@ void
     // change log 18 - this had been done in concert with attaching destination
     
     std::string actual_filename = filename;			// change log 4
-    if ( (filename != "cout") && (filename != "err") )  {
+    if ( (filename != "cout") && (filename != "cerr") )  {
       const std::string::size_type npos = std::string::npos;
       if ( filename.find('.') == npos ) {
         actual_filename += ".log";
       }  
     }
 
-    // Check that this is not a duplicate name			// change log 18
+     // Check that this is not a duplicate name			// change log 18
     if ( stream_ps.find(actual_filename)!=stream_ps.end() ) {        
-      throw edm::Exception ( edm::errors::Configuration ) 
-      << "Duplicate name for a MessageLogger Destination: " 
-      << actual_filename
-      << "\n";
+      if (clean_slate_configuration) {				// change log 22
+        throw edm::Exception ( edm::errors::Configuration ) 
+        <<"Duplicate name for a MessageLogger Destination: " 
+        << actual_filename
+        << "\n";
+      } else {
+        LogWarning("duplicateDestination")
+        <<"Duplicate name for a MessageLogger Destination: " 
+        << actual_filename
+        << "\n" << "Only original configuration instructions are used";
+        continue;
+      }
     } 
     
     ordinary_destination_filenames.push_back(actual_filename);
@@ -837,11 +861,19 @@ void
 		  , actual_filename
 		  )  == ordinary_destination_filenames.end() ) {
       if ( stream_ps.find(actual_filename)!=stream_ps.end() ) {        
-	throw edm::Exception ( edm::errors::Configuration ) 
-	<< "Duplicate name for a MessageLogger Statistics Destination: " 
-	<< actual_filename
-	<< "\n";
-      } 
+        if (clean_slate_configuration) {			// change log 22
+          throw edm::Exception ( edm::errors::Configuration ) 
+          <<"Duplicate name for a MessageLogger Statistics Destination: " 
+          << actual_filename
+          << "\n";
+        } else {
+          LogWarning("duplicateDestination")
+          <<"Duplicate name for a MessageLogger Statistics Destination: " 
+          << actual_filename
+          << "\n" << "Only original configuration instructions are used";
+          continue;
+        } 
+      }
     }
     
     // create (if statistics file does not match any destination file name)

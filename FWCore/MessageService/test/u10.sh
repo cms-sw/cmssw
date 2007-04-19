@@ -6,7 +6,7 @@ status=0
   
 rm -f u10_warnings.log u10_job_report.xml
 
-cmsRun -p $LOCAL_TEST_DIR/u10.cfg
+cmsRun -e -p $LOCAL_TEST_DIR/u10.cfg
  
 for file in u10_warnings.log u10_job_report.xml
 do
