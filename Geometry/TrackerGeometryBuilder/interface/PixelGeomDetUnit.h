@@ -20,7 +20,7 @@ public:
 
   // DetUnit interface
 
-  virtual GeomDetType& type() const;
+  virtual const GeomDetType& type() const;
 
   virtual const Topology& topology() const;
 

@@ -13,7 +13,7 @@ StripGeomDetUnit::StripGeomDetUnit( BoundPlane* sp, StripGeomDetType*& type,cons
 
 
 
-GeomDetType& StripGeomDetUnit::type() const { return *theType;}
+const GeomDetType& StripGeomDetUnit::type() const { return *theType;}
 
 
 const Topology& StripGeomDetUnit::topology() const {return specificType().topology();}
