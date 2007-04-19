@@ -1,9 +1,11 @@
 /** \file
  *
- *  $Date: 2006/11/11 12:35:32 $
- *  $Revision: 1.10 $
+ *  $Date: 2007/03/07 08:31:19 $
+ *  $Revision: 1.11 $
  *  \author N. Amapane - CERN
  */
+
+#include <IORawData/DaqSource/interface/DaqReaderPluginFactory.h>
 
 #include "DaqFakeReader.h"
 #include <DataFormats/FEDRawData/interface/FEDHeader.h>
@@ -123,3 +125,6 @@ void DaqFakeReader::fillFEDs(const pair<int,int>& fedRange,
   }  
 }
 
+// DaqFakeReader as a SEAL plugin
+
+DEFINE_EDM_PLUGIN (DaqReaderPluginFactory, DaqFakeReader, "DaqFakeReader");

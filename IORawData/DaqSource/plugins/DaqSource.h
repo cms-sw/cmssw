@@ -5,8 +5,8 @@
  *  An input service for raw data. 
  *  The actual source can be the real DAQ, a file, a random generator, etc.
  *
- *  $Date: 2006/01/20 11:45:10 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/03/30 11:52:02 $
+ *  $Revision: 1.5 $
  *  \author N. Amapane - S. Argiro'
  */
 

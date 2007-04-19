@@ -1,0 +1,7 @@
+
+<library file="*.cc" name=IORawDataDaqSourcePlugins>
+     <use name=DataFormats/FEDRawData>
+     <use name=IORawData/DaqSource>
+     <flags EDM_PLUGIN=1>
+</library>
+
