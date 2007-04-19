@@ -1,0 +1,7 @@
+<use name=L1Trigger/CSCTriggerPrimitives>
+<use name=CondFormats/L1TObjects>
+<use name=CondFormats/DataRecord>
+
+<library file="*.cc" name=CSCTriggerPrimitivesPlugins>
+   <flags EDM_PLUGIN=1>
+</library>

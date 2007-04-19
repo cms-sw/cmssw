@@ -1,5 +1,3 @@
-<flags EDM_PLUGIN=1>
-
 #<flags CXXFLAGS=-DTB>
 
 <export>
