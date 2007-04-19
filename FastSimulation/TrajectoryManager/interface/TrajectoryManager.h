@@ -142,7 +142,6 @@ class TrajectoryManager
 
   double pTmin;
   bool firstLoop;
-  //  std::vector<PSimHit>* thePSimHits;
   std::map<unsigned,std::map<double,PSimHit> > thePSimHits;
 
   const TrackerGeometry*                      theGeomTracker;
@@ -150,7 +149,7 @@ class TrajectoryManager
   std::vector<const DetLayer*>                theLayerMap;
   int                                         theNegLayerOffset;
 
-  Histos* myHistos;
+  //  Histos* myHistos;
 
   const RandomEngine* random;
 

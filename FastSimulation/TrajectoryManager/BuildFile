@@ -1,4 +1,5 @@
 <use name=DataFormats/GeometrySurface>
+<use name=DataFormats/GeometryVector>
 <use name=FWCore/MessageLogger>
 <use name=FWCore/ParameterSet>
 <use name=FastSimulation/Event>
@@ -9,7 +10,7 @@
 <use name=FastSimulation/Utilities>
 <use name=Geometry/CommonDetUnit>
 <use name=Geometry/TrackerGeometryBuilder>
-<use name=MagneticField/UniformEngine>
+<use name=MagneticField/Engine>
 <use name=RecoTracker/TkDetLayers>
 <use name=SimDataFormats/TrackingHit>
 <use name=TrackingTools/DetLayers>

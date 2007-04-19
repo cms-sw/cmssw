@@ -16,16 +16,13 @@
 #include "TrackingTools/GeomPropagators/interface/HelixArbitraryPlaneCrossing.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
-#include "MagneticField/UniformEngine/src/UniformMagneticField.h"
 
 //FAMOS Headers
 #include "FastSimulation/TrajectoryManager/interface/TrajectoryManager.h"
+#include "FastSimulation/TrajectoryManager/interface/LocalMagneticField.h"
 #include "FastSimulation/ParticlePropagator/interface/ParticlePropagator.h"
 #include "FastSimulation/TrackerSetup/interface/TrackerInteractionGeometry.h"
 #include "FastSimulation/ParticleDecay/interface/Pythia6Decays.h"
-//#include "FastSimulation/FamosTracker/interface/FamosDummyDet.h"
-//#include "FastSimulation/FamosTracker/interface/FamosBasicRecHit.h"
-
 #include "FastSimulation/Event/interface/FSimEvent.h"
 #include "FastSimulation/Event/interface/FSimTrack.h"
 #include "FastSimulation/Event/interface/FSimVertex.h"
@@ -53,7 +50,7 @@ TrajectoryManager::TrajectoryManager(FSimEvent* aSimEvent,
   theGeomSearchTracker(0),
   theLayerMap(56, static_cast<const DetLayer*>(0)), // reserve space for layers here
   theNegLayerOffset(27),
-  myHistos(0),
+  //  myHistos(0),
   random(engine)
 
 {
@@ -78,7 +75,7 @@ TrajectoryManager::TrajectoryManager(FSimEvent* aSimEvent,
   //  thePSimHits->reserve(200000);
 
   // Get the Famos Histos pointer
-  myHistos = Histos::instance();
+  //  myHistos = Histos::instance();
 
   // Initialize a few histograms
   /* 
@@ -118,7 +115,7 @@ TrajectoryManager::~TrajectoryManager() {
   //  if ( thePSimHits ) delete thePSimHits;
   //Write the histograms
   //myHistos->put("histos.root");
-  if ( myHistos ) delete myHistos;
+  //  if ( myHistos ) delete myHistos;
 
 }
 
@@ -437,7 +434,7 @@ TrajectoryManager::createPSimHits(const TrackerLayer& layer,
 
   //  const MagneticField& mf = MagneticFieldMap::instance()->magneticField();
   // This solution is actually much faster !
-  UniformMagneticField mf(P_before.getMagneticField());
+  LocalMagneticField mf(P_before.getMagneticField());
   AnalyticalPropagator alongProp(&mf, anyDirection);
   InsideBoundsMeasurementEstimator est;
 
