@@ -1,6 +1,7 @@
-/* \class EtaPtMinCandSelector
+/* \class EtaPtMinViewCandSelector
  * 
  * Candidate Selector based on a minimum pt cut and an eta range.
+ * The input is a View<Candidate>
  * Usage:
  * 
  * module selectedCands = EtaPtMinCandSelector {
@@ -22,11 +23,12 @@
 #include "DataFormats/Candidate/interface/Candidate.h"
 
 typedef SingleObjectSelector<
-          reco::CandidateCollection,
+          edm::View<reco::Candidate>,
           AndSelector<
             PtMinSelector<reco::Candidate>,
             EtaRangeSelector<reco::Candidate>
-          >
-        > EtaPtMinCandSelector;
+          >,
+          reco::CandidateCollection
+        > EtaPtMinCandViewSelector;
 
-DEFINE_FWK_MODULE( EtaPtMinCandSelector );
+DEFINE_FWK_MODULE( EtaPtMinCandViewSelector );
