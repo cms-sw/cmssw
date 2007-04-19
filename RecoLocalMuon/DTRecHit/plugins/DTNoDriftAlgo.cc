@@ -1,13 +1,13 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/10/18 13:45:19 $
- *  $Revision: 1.0 $
+ *  $Date: 2007/03/06 14:02:05 $
+ *  $Revision: 1.1 $
  *  \author Martijn Mulders - CERN (martijn.mulders@cern.ch)
  *  based on DTLinearDriftAlgo
  */
 
-#include "RecoLocalMuon/DTRecHit/src/DTNoDriftAlgo.h"
+#include "RecoLocalMuon/DTRecHit/plugins/DTNoDriftAlgo.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 #include "Geometry/DTGeometry/interface/DTLayer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"

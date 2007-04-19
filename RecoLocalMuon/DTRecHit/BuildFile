@@ -1,20 +1,18 @@
-<use name=FWCore/Framework>
-<use name=DataFormats/DTRecHit>
-<use name=Geometry/Records>
-<use name=Geometry/DTGeometry>
-<use name=MagneticField/Records>
-<use name=MagneticField/Engine>
-<use name=CalibMuon/DTDigiSync>
-
-<flags EDM_PLUGIN=1>
-
-<export>
- <lib name=RecoLocalMuonDTRecHit>
- <use name=FWCore/Framework>
+ <use name=DataFormats/GeometryVector>
+ <use name=DataFormats/GeometrySurface>
  <use name=DataFormats/DTRecHit>
- <use name=Geometry/Records>
+ <use name=DataFormats/DTDigi>
+ <use name=DataFormats/Common>
  <use name=Geometry/DTGeometry>
  <use name=MagneticField/Records>
  <use name=MagneticField/Engine>
  <use name=CalibMuon/DTDigiSync>
+
+<export>
+ <lib name=RecoLocalMuonDTRecHit>
+ <use name=DataFormats/GeometryVector>
+ <use name=DataFormats/GeometrySurface>
+ <use name=DataFormats/DTRecHit>
+ <use name=DataFormats/DTDigi>
+ <use name=DataFormats/Common>
 </export>

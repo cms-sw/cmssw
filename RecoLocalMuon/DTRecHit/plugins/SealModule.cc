@@ -3,12 +3,11 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "RecoLocalMuon/DTRecHit/src/DTRecHitProducer.h"
-
 #include "RecoLocalMuon/DTRecHit/interface/DTRecHitAlgoFactory.h"
-#include "RecoLocalMuon/DTRecHit/src/DTNoDriftAlgo.h"
-#include "RecoLocalMuon/DTRecHit/src/DTLinearDriftAlgo.h"
-#include "RecoLocalMuon/DTRecHit/src/DTLinearDriftFromDBAlgo.h"
-#include "RecoLocalMuon/DTRecHit/src/DTParametrizedDriftAlgo.h"
+#include "RecoLocalMuon/DTRecHit/plugins/DTNoDriftAlgo.h"
+#include "RecoLocalMuon/DTRecHit/plugins/DTLinearDriftAlgo.h"
+#include "RecoLocalMuon/DTRecHit/plugins/DTLinearDriftFromDBAlgo.h"
+#include "RecoLocalMuon/DTRecHit/plugins/DTParametrizedDriftAlgo.h"
 
 #include "CalibMuon/DTDigiSync/interface/DTTTrigSyncFactory.h"
 #include "CalibMuon/DTDigiSync/src/DTTTrigSyncTOFCorr.h"
@@ -17,6 +16,7 @@
 
 DEFINE_SEAL_MODULE();
 DEFINE_ANOTHER_FWK_MODULE(DTRecHitProducer);
+
 DEFINE_EDM_PLUGIN (DTRecHitAlgoFactory, DTNoDriftAlgo, "DTNoDriftAlgo");
 DEFINE_EDM_PLUGIN (DTRecHitAlgoFactory, DTLinearDriftAlgo, "DTLinearDriftAlgo");
 DEFINE_EDM_PLUGIN (DTRecHitAlgoFactory, DTLinearDriftFromDBAlgo, "DTLinearDriftFromDBAlgo");

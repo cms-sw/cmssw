@@ -6,8 +6,8 @@
  *  is specified with the parameter "recAlgo" and must be configured with the
  *  "recAlgoConfig" parameter set.
  *
- *  $Date: 2006/02/15 13:57:52 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/03/14 13:06:15 $
+ *  $Revision: 1.3 $
  *  \author G. Cerminara
  */
 

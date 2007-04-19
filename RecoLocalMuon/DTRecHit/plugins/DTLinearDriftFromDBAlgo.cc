@@ -1,12 +1,12 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/09/13 09:40:17 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/02/19 11:43:57 $
+ *  $Revision: 1.2 $
  *  \author S. Bolognesi - INFN Torino
  */
 
-#include "RecoLocalMuon/DTRecHit/src/DTLinearDriftFromDBAlgo.h"
+#include "RecoLocalMuon/DTRecHit/plugins/DTLinearDriftFromDBAlgo.h"
 #include "CalibMuon/DTDigiSync/interface/DTTTrigBaseSync.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 #include "Geometry/DTGeometry/interface/DTLayer.h"

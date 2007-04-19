@@ -1,32 +1,41 @@
-#ifndef RecoLocalMuon_DTLinearDriftAlgo_H
-#define RecoLocalMuon_DTLinearDriftAlgo_H
+#ifndef RecoLocalMuon_DTNoDriftAlgo_H
+#define RecoLocalMuon_DTNoDriftAlgo_H
 
-/** \class DTLinearDriftAlgo
+/** \class DTNoDriftAlgo
  *  Concrete implementation of DTRecHitBaseAlgo.
- *  Compute drift distance using constant drift velocity
- *  as defined in the "driftVelocity" parameter.
+ *  Create pair of RecHits at fixed distance from
+ *  the wire.
  *
- *  $Date: 2007/02/19 11:43:57 $
- *  $Revision: 1.6 $
- *  \author G. Cerminara - INFN Torino
+ *  $Date: 2007/03/06 14:02:05 $
+ *  $Revision: 1.1 $
+ *  \author Martijn Mulders - CERN (martijn.mulders@cern.ch)
+ *  based on DTLinearDriftAlgo
  */
 
 #include "RecoLocalMuon/DTRecHit/interface/DTRecHitBaseAlgo.h"
 
 
 
-class DTLinearDriftAlgo : public DTRecHitBaseAlgo {
+class DTNoDriftAlgo : public DTRecHitBaseAlgo {
  public:
   /// Constructor
-  DTLinearDriftAlgo(const edm::ParameterSet& config);
+  DTNoDriftAlgo(const edm::ParameterSet& config);
 
   /// Destructor
-  virtual ~DTLinearDriftAlgo();
+  virtual ~DTNoDriftAlgo();
 
   // Operations
 
   /// Pass the Event Setup to the algo at each event
   virtual void setES(const edm::EventSetup& setup);
+
+
+  /// MM: Override virtual function from DTRecHitBaseAlgo--> for the NoDrift
+  /// algorithm only a maximum of one hit per wire is allowed! 
+  /// Build all hits in the range associated to the layerId, at the 1st step.
+  virtual edm::OwnVector<DTRecHit1DPair> reconstruct(const DTLayer* layer,
+						     const DTLayerId& layerId,
+						     const DTDigiCollection::Range& digiRange);
 
 
   /// First step in computation of Left/Right hits from a Digi.  
@@ -83,9 +92,7 @@ class DTLinearDriftAlgo : public DTRecHitBaseAlgo {
 
 
   // The Drift Velocity (cm/ns)
-  static float vDrift;
-  // // The Drift Velocity (cm/ns) for MB1 Wheel1 (non fluxed chamber) 21-Dec-2006 SL
-  // static float vDriftMB1W1;
+  static float fixedDrift;
 
   // The resolution on the Hits (cm)
   static float hitResolution;

@@ -1,41 +1,32 @@
-#ifndef RecoLocalMuon_DTNoDriftAlgo_H
-#define RecoLocalMuon_DTNoDriftAlgo_H
+#ifndef RecoLocalMuon_DTLinearDriftAlgo_H
+#define RecoLocalMuon_DTLinearDriftAlgo_H
 
-/** \class DTNoDriftAlgo
+/** \class DTLinearDriftAlgo
  *  Concrete implementation of DTRecHitBaseAlgo.
- *  Create pair of RecHits at fixed distance from
- *  the wire.
+ *  Compute drift distance using constant drift velocity
+ *  as defined in the "driftVelocity" parameter.
  *
- *  $Date: 2006/10/18 12:40:52 $
- *  $Revision: 1.0 $
- *  \author Martijn Mulders - CERN (martijn.mulders@cern.ch)
- *  based on DTLinearDriftAlgo
+ *  $Date: 2007/03/28 13:48:46 $
+ *  $Revision: 1.7 $
+ *  \author G. Cerminara - INFN Torino
  */
 
 #include "RecoLocalMuon/DTRecHit/interface/DTRecHitBaseAlgo.h"
 
 
 
-class DTNoDriftAlgo : public DTRecHitBaseAlgo {
+class DTLinearDriftAlgo : public DTRecHitBaseAlgo {
  public:
   /// Constructor
-  DTNoDriftAlgo(const edm::ParameterSet& config);
+  DTLinearDriftAlgo(const edm::ParameterSet& config);
 
   /// Destructor
-  virtual ~DTNoDriftAlgo();
+  virtual ~DTLinearDriftAlgo();
 
   // Operations
 
   /// Pass the Event Setup to the algo at each event
   virtual void setES(const edm::EventSetup& setup);
-
-
-  /// MM: Override virtual function from DTRecHitBaseAlgo--> for the NoDrift
-  /// algorithm only a maximum of one hit per wire is allowed! 
-  /// Build all hits in the range associated to the layerId, at the 1st step.
-  virtual edm::OwnVector<DTRecHit1DPair> reconstruct(const DTLayer* layer,
-						     const DTLayerId& layerId,
-						     const DTDigiCollection::Range& digiRange);
 
 
   /// First step in computation of Left/Right hits from a Digi.  
@@ -92,7 +83,9 @@ class DTNoDriftAlgo : public DTRecHitBaseAlgo {
 
 
   // The Drift Velocity (cm/ns)
-  static float fixedDrift;
+  static float vDrift;
+  // // The Drift Velocity (cm/ns) for MB1 Wheel1 (non fluxed chamber) 21-Dec-2006 SL
+  // static float vDriftMB1W1;
 
   // The resolution on the Hits (cm)
   static float hitResolution;
