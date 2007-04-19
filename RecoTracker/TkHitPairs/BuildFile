@@ -8,10 +8,9 @@
 <use name=DataFormats/TrackerRecHit2D>
 <use name=FWCore/Framework> 
 <use name=DataFormats/SiStripDetId>
-<use name=RecoTracker/GeometryESProducer>
 <use name=TrackingTools/TransientTrackingRecHit>
 <use name=RecoTracker/TkMSParametrization>	 
-<use name=RecoTracker/TkTrackingRegions>
+#<use name=RecoTracker/TkTrackingRegions>
 <use name=RecoTracker/TkSeedingLayers>
 <export>
    <lib name=RecoTrackerTkHitPairs>
@@ -24,10 +23,9 @@
    <use name=FWCore/Framework>
    <use name=RecoTracker/TkDetLayers>
    <use name=DataFormats/SiStripDetId>
-   <use name=RecoTracker/GeometryESProducer>
    <use name=TrackingTools/TransientTrackingRecHit>
    <use name=RecoTracker/TkMSParametrization>	 
-   <use name=RecoTracker/TkTrackingRegions>
+#   <use name=RecoTracker/TkTrackingRegions>
    <use name=RecoTracker/TkSeedingLayers>
  </export>
 

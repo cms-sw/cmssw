@@ -8,11 +8,9 @@
    <use name=RecoTracker/Record>
    <use name=RecoTracker/TkSeedingLayers>
    <use name=RecoTracker/TkMSParametrization>
-   <use name=RecoTracker/MeasurementDet>
+#   <use name=RecoTracker/MeasurementDet>
    <use name=TrackingTools/PatternTools>
    <use name=TrackingTools/TransientTrackingRecHit>
-   <use name=RecoTracker/CkfPattern>
-   <use name=RecoTracker/GeometryESProducer>
    <use name=TrackingTools/MeasurementDet>
 <export>
    <lib name=RecoTrackerTkTrackingRegions>
@@ -25,11 +23,9 @@
    <use name=RecoTracker/Record>
    <use name=RecoTracker/TkSeedingLayers>
    <use name=RecoTracker/TkMSParametrization>
-   <use name=RecoTracker/MeasurementDet>
+#   <use name=RecoTracker/MeasurementDet>
    <use name=TrackingTools/PatternTools>
    <use name=TrackingTools/TransientTrackingRecHit>
-   <use name=RecoTracker/CkfPattern>
- <use name=RecoTracker/GeometryESProducer>
  <use name=TrackingTools/MeasurementDet>
 
  </export>

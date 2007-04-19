@@ -1,22 +1,19 @@
+<use name=clhep>
+<use name=boost>   
+<use name=root>
+<use name=TrackingTools/DetLayers>
+<use name=FWCore/Framework>
+<use name=RecoTracker/TkDetLayers>
+<use name=RecoTracker/Record>
+<use name=MagneticField/Records>
 <export>
-   <lib name=RecoTrackerTkMSParametrization>
-   <use name=clhep>
-   <use name=boost>
-   <use name=root>
-   <use name=TrackingTools/DetLayers>
-   <use name=FWCore/Framework>
-   <use name=RecoTracker/TkDetLayers>
-   <use name=RecoTracker/Record>
-   <use name=RecoTracker/GeometryESProducer>
-<use name=MagneticField/Records>
- </export>
-   <use name=clhep>
-   <use name=boost>   
-   <use name=TrackingTools/DetLayers>
-   <use name=root>
-   <use name=FWCore/Framework>
-   <use name=RecoTracker/TkDetLayers>
-   <use name=RecoTracker/Record>
-   <use name=RecoTracker/GeometryESProducer>
-<use name=MagneticField/Records>
-
+  <lib name=RecoTrackerTkMSParametrization>
+  <use name=clhep>
+  <use name=boost>
+  <use name=root>
+  <use name=TrackingTools/DetLayers>
+  <use name=FWCore/Framework>
+  <use name=RecoTracker/TkDetLayers>
+  <use name=RecoTracker/Record>
+  <use name=MagneticField/Records>
+</export>
