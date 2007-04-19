@@ -3,8 +3,8 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.13 $
- *  $Date: 2007/03/16 16:58:39 $
+ *  $Revision: 1.16 $
+ *  $Date: 2007/04/05 16:30:26 $
  *  (last update by $Author: flucke $)
  */
 
@@ -27,7 +27,9 @@
 #include "PedeSteerer.h" // dito
 #include "PedeReader.h" // dito
 
-#include "Alignment/CommonAlignmentAlgorithm/interface/ReferenceTrajectory.h"
+#include "Alignment/ReferenceTrajectories/interface/ReferenceTrajectoryBase.h"
+#include "Alignment/ReferenceTrajectories/interface/ReferenceTrajectory.h"
+
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentIORoot.h"
 
 #include "Alignment/CommonAlignment/interface/AlignableNavigator.h"

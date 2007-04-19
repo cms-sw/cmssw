@@ -7,8 +7,8 @@
 ///
 ///  \author    : Gero Flucke
 ///  date       : October 2006
-///  $Revision: 1.8 $
-///  $Date: 2007/03/16 16:58:40 $
+///  $Revision: 1.9 $
+///  $Date: 2007/04/05 16:30:25 $
 ///  (last update by $Author: flucke $)
 
 
@@ -19,7 +19,7 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 
-#include "Alignment/CommonAlignmentAlgorithm/interface/ReferenceTrajectoryBase.h"
+#include "Alignment/ReferenceTrajectories/interface/ReferenceTrajectoryBase.h"
 
 
 #include <vector>

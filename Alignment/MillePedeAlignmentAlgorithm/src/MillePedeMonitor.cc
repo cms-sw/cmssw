@@ -3,8 +3,8 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.4 $
- *  $Date: 2007/03/16 17:00:14 $
+ *  $Revision: 1.6 $
+ *  $Date: 2007/04/05 16:33:20 $
  *  (last update by $Author: flucke $)
  */
 
@@ -23,6 +23,7 @@
 #include "Alignment/CommonAlignment/interface/Alignable.h"
 #include "Alignment/CommonAlignment/interface/AlignableDet.h"
 #include "Alignment/CommonAlignmentParametrization/interface/FrameToFrameDerivative.h"
+#include "Alignment/ReferenceTrajectories/interface/ReferenceTrajectory.h"
 
 #include <TH1.h>
 #include <TH2.h>

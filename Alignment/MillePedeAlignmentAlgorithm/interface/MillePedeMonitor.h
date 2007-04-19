@@ -7,13 +7,13 @@
 ///
 ///  \author    : Gero Flucke
 ///  date       : October 2006
-///  $Revision: 1.3 $
-///  $Date: 2007/03/05 12:19:33 $
+///  $Revision: 1.4 $
+///  $Date: 2007/04/05 16:33:19 $
 ///  (last update by $Author: flucke $)
 
 #include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 
-#include "Alignment/CommonAlignmentAlgorithm/interface/ReferenceTrajectoryBase.h"
+#include "Alignment/ReferenceTrajectories/interface/ReferenceTrajectoryBase.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
