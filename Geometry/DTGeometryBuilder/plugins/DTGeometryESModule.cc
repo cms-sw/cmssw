@@ -1,11 +1,11 @@
 /** \file
  *
- *  $Date: 2006/10/13 00:55:06 $
- *  $Revision: 1.4 $
+ *  $Date: 2006/10/26 23:35:44 $
+ *  $Revision: 1.5 $
  *  \author N. Amapane - CERN
  */
 
-#include <Geometry/DTGeometryBuilder/src/DTGeometryESModule.h>
+#include "DTGeometryESModule.h"
 #include <Geometry/DTGeometryBuilder/src/DTGeometryBuilderFromDDD.h>
 
 #include <Geometry/Records/interface/IdealGeometryRecord.h>

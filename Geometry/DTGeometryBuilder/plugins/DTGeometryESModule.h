@@ -5,8 +5,8 @@
  * 
  *  ESProducer for DTGeometry in MuonGeometryRecord
  *
- *  $Date: 2006/02/22 10:59:28 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/08/22 15:58:37 $
+ *  $Revision: 1.2 $
  *  \author N. Amapane - CERN
  */
 

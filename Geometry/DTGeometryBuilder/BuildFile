@@ -1,19 +1,9 @@
+ <use name=DataFormats/GeometrySurface>
+ <use name=DataFormats/MuonDetId>
+ <use name=DetectorDescription/Core>
+ <use name=Geometry/DTGeometry>
+ <use name=Geometry/MuonNumbering>
+ <use name=clhep>
 <export>
  <lib name=GeometryDTGeometryBuilder>
- <use name=Geometry/MuonNumbering>
- <use name=Geometry/Records>
- <use name=Geometry/DTGeometry>
- <use name=DetectorDescription/Core>
- <use name=CondFormats/Alignment>
- <use name=DataFormats/TrackingRecHit>
 </export>
-
-<use name=CondFormats/Alignment>
-<use name=Geometry/MuonNumbering>
-<use name=Geometry/Records>
-<use name=Geometry/DTGeometry>
-<use name=DetectorDescription/Core>
-<use name=DataFormats/TrackingRecHit>
-
-
-<flags EDM_PLUGIN=1>
