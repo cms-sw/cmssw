@@ -1,5 +1,5 @@
 # -*-SH-*-
-<flags EDM_PLUGIN=1>
+
 <use name=clhep>
 <use name=DataFormats/Common>
 <use name=DataFormats/TrackReco>
@@ -11,10 +11,12 @@
 <use name=FWCore/PluginManager>
 <use name=FWCore/ParameterSet>
 
+<use name=Geometry/CaloEventSetup>
+
+
 <use name=Geometry/DTGeometry>
 # <use name=Geometry/RPCGeometry>
 <use name=Geometry/CSCGeometry>
-
 <use name=Geometry/CaloGeometry>
 <use name=Geometry/CommonDetUnit>
 <use name=Geometry/TrackerGeometryBuilder>
@@ -22,7 +24,7 @@
 
 <use name=Geometry/Records>
 
-<use name=SimCalorimetry/EcalSimProducers>
+# <use name=SimCalorimetry/EcalSimProducers>
 <use name=heppdt>
 <use name=SimDataFormats/HepMCProduct>
 <use name=DataFormats/DetId>
