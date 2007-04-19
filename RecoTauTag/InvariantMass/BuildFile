@@ -8,7 +8,6 @@
 <use name=DataFormats/Math>
 <use name=boost>
 <use name=root>
-<use name=RecoBTag/TrackCounting>
 <use name=TrackingTools/TrackAssociator>
 
 <flags EDM_PLUGIN=1>
