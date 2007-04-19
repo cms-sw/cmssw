@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Apr  4 14:28:58 EDT 2007
-// $Id: PluginManager.cc,v 1.2 2007/04/12 12:51:12 wmtan Exp $
+// $Id: PluginManager.cc,v 1.3 2007/04/18 16:18:45 chrjones Exp $
 //
 
 // system include files
@@ -62,7 +62,7 @@ PluginManager::PluginManager(const PluginManager::Config& iConfig) :
         continue;
       }
       alreadySeen.insert(*itPath);
-      boost::filesystem::path dir(*itPath);
+      boost::filesystem::path dir(*itPath,boost::filesystem::no_check);
       if( exists( dir) ) {
         if(not is_directory(dir) ) {
           throw cms::Exception("PluginManagerBadPath") <<"The path '"<<dir.native_file_string()<<"' for the PluginManager is not a directory";
