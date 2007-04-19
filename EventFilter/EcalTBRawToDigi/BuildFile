@@ -13,7 +13,6 @@
 <export>
  <lib name=EventFilterEcalTBRawToDigi>
  <use name=FWCore/Framework>
- <use name=DQM/EcalBarrelMonitorModule>
  <use name=FWCore/MessageLogger>
  <use name=DataFormats/FEDRawData>
  <use name=DataFormats/EcalRawData>	
