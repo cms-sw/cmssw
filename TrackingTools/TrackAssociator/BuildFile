@@ -3,8 +3,9 @@
 <use name=clhep>
 <use name=DataFormats/Common>
 <use name=DataFormats/TrackReco>
-<use name=DataFormats/EgammaReco>
+## <use name=DataFormats/EgammaReco>
 <use name=DataFormats/MuonReco>
+
 <use name=Utilities/Timing>
 
 <use name=FWCore/Framework>
@@ -19,7 +20,7 @@
 <use name=Geometry/CSCGeometry>
 <use name=Geometry/CaloGeometry>
 <use name=Geometry/CommonDetUnit>
-<use name=Geometry/TrackerGeometryBuilder>
+## <use name=Geometry/TrackerGeometryBuilder>
 <use name=DataFormats/GeometrySurface>
 
 <use name=Geometry/Records>
