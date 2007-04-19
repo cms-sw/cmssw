@@ -27,7 +27,6 @@ CSCBaseElectronicsSim::CSCBaseElectronicsSim(const edm::ParameterSet & p)
   theNoiseWasAdded(false),
   nElements(0),
   theShapingTime(p.getParameter<int>("shapingTime")),
-  theTailShaping(RADICAL),
   thePeakTimeVariance(p.getParameter<double>("peakTimeVariance")),
   theBunchTimingOffsets(p.getParameter<std::vector<double> >("bunchTimingOffsets")),
   theSignalStartTime(p.getParameter<double>("signalStartTime")),
