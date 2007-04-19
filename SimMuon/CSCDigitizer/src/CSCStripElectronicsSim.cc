@@ -6,8 +6,6 @@
 #include "SimMuon/CSCDigitizer/src/CSCCrosstalkGenerator.h"
 #include "SimMuon/CSCDigitizer/src/CSCStripConditions.h"
 #include "DataFormats/CSCDigi/interface/CSCComparatorDigi.h"
-#include "SimMuon/CSCDigitizer/src/CSCScaNoiseReader.h"
-#include "SimMuon/CSCDigitizer/src/CSCScaNoiseGaussian.h"
 #include "DataFormats/CSCDigi/interface/CSCStripDigi.h"
 #include "Geometry/CSCGeometry/interface/CSCLayer.h"
 #include "Geometry/CSCGeometry/interface/CSCChamber.h"
@@ -21,6 +19,7 @@
 
 CSCStripElectronicsSim::CSCStripElectronicsSim(const edm::ParameterSet & p)
 : CSCBaseElectronicsSim(p),
+  theAmpResponse(theShapingTime, CSCStripAmpResponse::RADICAL),
   theComparatorThreshold(20.),
   theComparatorNoise(0.),
   theComparatorRMSOffset(2.),
@@ -36,10 +35,8 @@ CSCStripElectronicsSim::CSCStripElectronicsSim(const edm::ParameterSet & p)
   theCrosstalkGenerator(0),
   theComparatorClockJump(2),
   sca_time_bin_size(50.),
-  theAnalogNoise(p.getParameter<double>("analogNoise")),
   sca_peak_bin(p.getParameter<int>("scaPeakBin")),
-  theComparatorTimeBinOffset(p.getParameter<int>("comparatorTimeBinOffset")),
-  scaNoiseMode_(p.getParameter<std::string>("scaNoiseMode"))
+  theComparatorTimeBinOffset(p.getParameter<int>("comparatorTimeBinOffset"))
 {
 
   if(doCrosstalk_) {
@@ -86,6 +83,13 @@ void CSCStripElectronicsSim::initParameters() {
 int CSCStripElectronicsSim::readoutElement(int strip) const {
   return theLayerGeometry->channel(strip);
 }
+
+
+float CSCStripElectronicsSim::calculateAmpResponse(float t) const
+{
+  return theAmpResponse.calculateAmpResponse(t);
+}
+
 
 CSCAnalogSignal CSCStripElectronicsSim::makeNoiseSignal(int element) {
   std::vector<float> noiseBins(nScaBins_);
