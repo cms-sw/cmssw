@@ -13,6 +13,7 @@
 #include "EventFilter/Utilities/interface/Crc.h"
 
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 
 #include "xoap/include/xoap/SOAPEnvelope.h"
 #include "xoap/include/xoap/SOAPBody.h"
