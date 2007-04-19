@@ -1,3 +1,11 @@
+2007-04-19  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V00-04-00
+	* reorganization of code for new plugin manager
+	* added parameter to generate LSid (placeholder for correct handling)
+	* corrected handling of exceptions from reader
+	* added plugin factory without pset argument
+	
 2007-03-07  Philipp Schieferdecker  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-03-03
