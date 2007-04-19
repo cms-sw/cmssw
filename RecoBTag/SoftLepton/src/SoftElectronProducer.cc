@@ -211,7 +211,7 @@ void SoftElectronProducer::produce(edm::Event &iEvent,
         v1 = eMax/e3x3;
         v2 = eMax/e2x2;
         v3 = e2x2/e5x5;
-        v4 = (e3x3 - eMax)/(e5x5 - eMax);
+        v4 = ((e5x5 - eMax) < 0.001) ? 1.0 : (e3x3 - eMax)/(e5x5 - eMax);
 
         covEtaEta = matchedShape->covEtaEta();
         covEtaPhi = matchedShape->covEtaPhi();
