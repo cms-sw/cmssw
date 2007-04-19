@@ -1,0 +1,4 @@
+<use name=PhysicsTools/JetMCAlgos>
+<library file="*.cc" name=PhysicsToolsJetMCAlgosPlugins>
+        <flags EDM_PLUGIN=1>
+</library>
