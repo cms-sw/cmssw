@@ -10,7 +10,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Thu Jul 4 11:38:38 CEST 2005
-// $Id: EcalTrigPrimAnalyzer.h,v 1.2 2006/10/23 09:33:50 uberthon Exp $
+// $Id: EcalTrigPrimAnalyzer.h,v 1.3 2007/02/13 16:42:38 uberthon Exp $
 //
 //
 

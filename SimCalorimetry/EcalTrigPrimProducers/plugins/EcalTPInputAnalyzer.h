@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Thu Jul 4 11:38:38 CEST 2005
-// $Id: EcalTPInutAnalyzer.h,v 1.3 2007/02/13 16:42:38 uberthon Exp $
+// $Id: EcalTPInputAnalyzer.h,v 1.1 2007/03/06 13:14:52 uberthon Exp $
 //
 //
 
