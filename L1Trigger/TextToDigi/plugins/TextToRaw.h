@@ -16,7 +16,7 @@
 //
 // Original Author:  Jim Brooke
 //         Created:  Wed Nov  1 11:57:10 CET 2006
-// $Id: GctVmeToRaw.h,v 1.2 2007/02/13 08:48:43 jbrooke Exp $
+// $Id: TextToRaw.h,v 1.1 2007/03/08 14:00:55 jbrooke Exp $
 //
 //
 

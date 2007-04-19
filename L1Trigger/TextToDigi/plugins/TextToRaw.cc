@@ -1,6 +1,6 @@
 
 
-#include "L1Trigger/TextToDigi/src/TextToRaw.h"
+#include "TextToRaw.h"
 
 // system
 #include <vector>

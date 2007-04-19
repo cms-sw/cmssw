@@ -14,7 +14,7 @@
 //
 // Original Author:  Alex Tapper
 //         Created:  Fri Mar  9 19:11:51 CET 2007
-// $Id: RctTextToRctDigi.h,v 1.1 2007/03/12 18:30:05 tapper Exp $
+// $Id: RctTextToRctDigi.h,v 1.1 2007/03/21 18:48:23 tapper Exp $
 //
 //
 

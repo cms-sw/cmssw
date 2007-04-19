@@ -11,7 +11,7 @@ Description: Makes RCT digis from the file format specified by Pam Klabbers
 //
 // Original Author:  Alex Tapper
 //         Created:  Fri Mar  9 19:11:51 CET 2007
-// $Id: RctTextToRctDigi.cc,v 1.3 2007/03/18 04:02:21 tapper Exp $
+// $Id: RctTextToRctDigi.cc,v 1.1 2007/03/21 18:48:23 tapper Exp $
 
 // Rct Input File Format 
 // Line 1: Crossing no as "Crossing x" (2)     
@@ -28,7 +28,7 @@ Description: Makes RCT digis from the file format specified by Pam Klabbers
 //        detailed in the fileformat above, and are not currently dealt with in any way. Set to true.
 // 
 
-#include "L1Trigger/TextToDigi/src/RctTextToRctDigi.h"
+#include "RctTextToRctDigi.h"
 #include "FWCore/ServiceRegistry/interface/Service.h" // Framework services
 #include "FWCore/MessageLogger/interface/MessageLogger.h" // Logger
 

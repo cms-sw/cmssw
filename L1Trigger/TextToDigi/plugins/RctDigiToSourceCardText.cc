@@ -11,11 +11,11 @@ Description: Input RCT digis and output GCT text file to be loaded into the sour
 //
 // Original Author:  Alex Tapper
 //         Created:  Fri Feb 16 14:52:19 CET 2007
-// $Id: RctDigiToSourceCardText.cc,v 1.1 2007/03/12 18:30:05 tapper Exp $
+// $Id: RctDigiToSourceCardText.cc,v 1.3 2007/03/29 10:11:55 tapper Exp $
 //
 //
 
-#include "L1Trigger/TextToDigi/src/RctDigiToSourceCardText.h"
+#include "RctDigiToSourceCardText.h"
 #include "FWCore/ServiceRegistry/interface/Service.h" // Framework services
 #include "FWCore/MessageLogger/interface/MessageLogger.h" // Logger
 

@@ -2,11 +2,11 @@
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "L1Trigger/TextToDigi/src/TextToRaw.h"
-#include "L1Trigger/TextToDigi/src/RctDigiToSourceCardText.h"
-#include "L1Trigger/TextToDigi/src/SourceCardTextToRctDigi.h"
-#include "L1Trigger/TextToDigi/src/RctTextToRctDigi.h"
-#include "L1Trigger/TextToDigi/src/RctDigiToRctText.h"
+#include "TextToRaw.h"
+#include "RctDigiToSourceCardText.h"
+#include "SourceCardTextToRctDigi.h"
+#include "RctTextToRctDigi.h"
+#include "RctDigiToRctText.h"
 
 DEFINE_SEAL_MODULE();
 DEFINE_ANOTHER_FWK_MODULE(TextToRaw);

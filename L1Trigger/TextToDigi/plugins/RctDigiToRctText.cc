@@ -1,5 +1,5 @@
 
-#include "L1Trigger/TextToDigi/src/RctDigiToRctText.h"
+#include "RctDigiToRctText.h"
 #include <iomanip>
 
 using std::setw;
