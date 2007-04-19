@@ -1,4 +1,4 @@
-#include "L1Trigger/GlobalCaloTrigger/interface/L1GctEmulator.h"
+#include "L1Trigger/GlobalCaloTrigger/plugins/L1GctEmulator.h"
 
 // system includes
 #include <memory>

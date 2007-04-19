@@ -1,0 +1,4 @@
+<use name=L1Trigger/GlobalCaloTrigger>
+<library file="*.cc" name=L1TriggerGlobalCaloTriggerPlugins>
+<flags EDM_PLUGIN=1>
+</library>
