@@ -1,7 +1,5 @@
 <Flags CXXFLAGS=-g>
 
-<flags EDM_PLUGIN=1>
-
 <use name=boost>
 <use name=FWCore/Framework>
 <use name=DataFormats/Common>

@@ -1,4 +1,4 @@
-#include "CondTools/Ecal/interface/StoreEcalCondition.h"
+#include "CondTools/Ecal/plugins/StoreEcalCondition.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"

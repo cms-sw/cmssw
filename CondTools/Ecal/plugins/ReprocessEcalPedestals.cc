@@ -1,4 +1,4 @@
-#include "CondTools/Ecal/interface/ReprocessEcalPedestals.h"
+#include "CondTools/Ecal/plugins/ReprocessEcalPedestals.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
