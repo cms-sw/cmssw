@@ -1,6 +1,13 @@
 <?xml version="1.0"?>
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../DDLSchema/DDLSchema.xsd">
 
+<ConstantsSection label="ChamberSpecsConstants" eval="true">
+   <!--Constant name="LayerOffsetWRTAlumFrame"           value="-1.746*cm+0.1748*cm"/-->
+   <!--Constant name="LayerOffsetWRTAlumFrame"           value="-1.746*cm+0.1748*cm+0.409*cm"/-->
+   <Constant name="LayerOffsetWRTAlumFrame"           value="-1.1622*cm"/>
+   <Constant name="LayerSpacing"                      value="2.54*cm"/>
+</ConstantsSection>
+
 <RotationSection label="mf.xml">
  <Rotation name="RotYZaroundX90" phiX="0"      thetaX="90*deg"
                                  phiY="0"      thetaY="180*deg"
@@ -1636,7 +1643,7 @@
    <rChild name="mf:ME12PolycarbPanel"/>
   <rRotation name="rotations:000D"/>
  </PosPart>
- <Division name="ME12Layer" parent="ME12PolycarbPanel" axis="y" offset="-1.746*cm" width="2.54*cm" nReplicas="6"/>
+ <Division name="ME12Layer" parent="ME12PolycarbPanel" axis="y" offset="[LayerOffsetWRTAlumFrame]" width="[LayerSpacing]" nReplicas="6"/> 
  <PosPart copyNumber="1">
    <rParent name="mf:ME12Layer"/>
    <rChild name="mf:ME_FR4Skin_1_ME12Layer"/>
@@ -1749,7 +1756,7 @@
    <rChild name="mf:ME13PolycarbPanel"/>
   <rRotation name="rotations:000D"/>
  </PosPart>
- <Division name="ME13Layer" parent="ME13PolycarbPanel" axis="y" offset="-1.746*cm" width="2.54*cm" nReplicas="6"/>
+ <Division name="ME13Layer" parent="ME13PolycarbPanel" axis="y" offset="[LayerOffsetWRTAlumFrame]" width="[LayerSpacing]" nReplicas="6"/> 
  <PosPart copyNumber="1">
    <rParent name="mf:ME13Layer"/>
    <rChild name="mf:ME_FR4Skin_1_ME13Layer"/>
@@ -2120,7 +2127,7 @@
    <rChild name="mf:ME21PolycarbPanel"/>
   <rRotation name="rotations:000D"/>
  </PosPart>
- <Division name="ME21Layer" parent="ME21PolycarbPanel" axis="y" offset="-1.746*cm" width="2.54*cm" nReplicas="6"/>
+ <Division name="ME21Layer" parent="ME21PolycarbPanel" axis="y" offset="[LayerOffsetWRTAlumFrame]" width="[LayerSpacing]" nReplicas="6"/> 
  <PosPart copyNumber="1">
    <rParent name="mf:ME21Layer"/>
    <rChild name="mf:ME_FR4Skin_1_ME21Layer"/>
@@ -3053,7 +3060,7 @@
    <rChild name="mf:ME22PolycarbPanel"/>
   <rRotation name="rotations:000D"/>
  </PosPart>
- <Division name="ME22Layer" parent="ME22PolycarbPanel" axis="y" offset="-1.746*cm" width="2.54*cm" nReplicas="6"/> 
+ <Division name="ME22Layer" parent="ME22PolycarbPanel" axis="y" offset="[LayerOffsetWRTAlumFrame]" width="[LayerSpacing]" nReplicas="6"/> 
  <PosPart copyNumber="1">
    <rParent name="mf:ME22Layer"/>
    <rChild name="mf:ME_FR4Skin_1_ME22Layer"/>
@@ -3185,7 +3192,7 @@
    <rChild name="mf:ME31PolycarbPanel"/>
   <rRotation name="rotations:000D"/>
  </PosPart>
- <Division name="ME31Layer" parent="ME31PolycarbPanel" axis="y" offset="-1.746*cm" width="2.54*cm" nReplicas="6"/>
+ <Division name="ME31Layer" parent="ME31PolycarbPanel" axis="y" offset="[LayerOffsetWRTAlumFrame]" width="[LayerSpacing]" nReplicas="6"/> 
  <PosPart copyNumber="1">
    <rParent name="mf:ME31Layer"/>
    <rChild name="mf:ME_FR4Skin_1_ME31Layer"/>
@@ -3400,7 +3407,7 @@
    <rChild name="mf:ME32PolycarbPanel"/>
   <rRotation name="rotations:000D"/>
  </PosPart>
- <Division name="ME32Layer" parent="ME32PolycarbPanel" axis="y" offset="-1.746*cm" width="2.54*cm" nReplicas="6"/>
+ <Division name="ME32Layer" parent="ME32PolycarbPanel" axis="y" offset="[LayerOffsetWRTAlumFrame]" width="[LayerSpacing]" nReplicas="6"/> 
  <PosPart copyNumber="1">
    <rParent name="mf:ME32Layer"/>
    <rChild name="mf:ME_FR4Skin_1_ME32Layer"/>
@@ -3532,7 +3539,7 @@
    <rChild name="mf:ME41PolycarbPanel"/>
   <rRotation name="rotations:000D"/>
  </PosPart>
- <Division name="ME41Layer" parent="ME41PolycarbPanel" axis="y" offset="-1.746*cm" width="2.54*cm" nReplicas="6"/>
+ <Division name="ME41Layer" parent="ME41PolycarbPanel" axis="y" offset="[LayerOffsetWRTAlumFrame]" width="[LayerSpacing]" nReplicas="6"/> 
  <PosPart copyNumber="1">
    <rParent name="mf:ME41Layer"/>
    <rChild name="mf:ME_FR4Skin_1_ME41Layer"/>
