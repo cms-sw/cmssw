@@ -5,16 +5,16 @@
 <use name=SimDataFormats/HepMCProduct>
 <use name=SimGeneral/HepPDTRecord>
 <use name=FWCore/Framework>
-<use name=Foundation/PluginManager>
+<use name=FWCore/PluginManager>
 <use name=FWCore/ParameterSet>
 <use name=HLTrigger/HLTcore>
 <use name=CLHEP>
 <use name=root>
-<flags SEAL_PLUGIN_NAME="HLTriggerspecial">
+<flags EDM_PLUGIN=1>
 <export>
    <lib name=HLTriggerspecial>
    <use name=FWCore/Framework>
-   <use name=Foundation/PluginManager>
+   <use name=FWCore/PluginManager>
    <use name=FWCore/ParameterSet>
    <use name=HLTrigger/HLTcore>
    <use name=DataFormats/RecoCandidate>
