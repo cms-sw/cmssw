@@ -207,65 +207,61 @@ void EcalTrigPrimFunctionalAlgo::run(const EBDigiCollection* ebdcol,const EEDigi
 
 	int one=0,two=0;
 
-    itow=0;
-    // loop over all trigger towers
-    for(;ite!=ee;ite++) 
-      {
-	itow++;
-	const EcalTrigTowerDetId & thisTower =(*ite).first;
-	int nrFrames=mapEndcap_[thisTower].size();
+	itow=0;
+	// loop over all trigger towers
+	for(;ite!=ee;ite++) 
+	  {
+	    itow++;
+	    const EcalTrigTowerDetId & thisTower =(*ite).first;
+	    int nrFrames=mapEndcap_[thisTower].size();
 
-	// first, calculate thresholds
-	std::vector<int>  thresholds(nrFrames);
-	for (int ii=0;ii<nrFrames;++ii) {
-	  thresholds[ii] = 
-	    (linADC((mapEndcap_[thisTower][ii])[0])+
-	     linADC((mapEndcap_[thisTower][ii])[1])+
-	     linADC((mapEndcap_[thisTower][ii])[2]))/3;
-	  //	  thresholds[ii]=((mapEndcap_[thisTower][ii])[0].adc()+(mapEndcap_[thisTower][ii])[1].adc()+(mapEndcap_[thisTower][ii])[2].adc())/3;
-	}
+	    // first, calculate thresholds
+	    std::vector<int>  thresholds(nrFrames);
+	    for (int ii=0;ii<nrFrames;++ii) {
+	      thresholds[ii] = 
+		thresholds[ii]=((mapEndcap_[thisTower][ii])[0].adc()+(mapEndcap_[thisTower][ii])[1].adc()+(mapEndcap_[thisTower][ii])[2].adc())/3;
+	    }
 
-	std::vector<EcalTriggerPrimitiveDigi> tptow;
-	// special treatment for the 2 inner rings: 2 pseudo-towers for one physical tower
-	int nrTowers;
-        if (thisTower.ietaAbs()==27 | thisTower.ietaAbs()==28 ) {
-	  //special treatment for 2 inner eta rings
-	  nrTowers=2;
-	  int phi=2*((thisTower.iphi()-1)/2);
-	  tptow.push_back(EcalTriggerPrimitiveDigi(EcalTrigTowerDetId(thisTower.zside(),thisTower.subDet(),thisTower.ietaAbs(),phi+1)));
-	  tptow.push_back(EcalTriggerPrimitiveDigi(EcalTrigTowerDetId(thisTower.zside(),thisTower.subDet(),thisTower.ietaAbs(),phi+2)));
-	  two++;
-	} else {
-	  one++;
-	  nrTowers=1;
-	  tptow.push_back(EcalTriggerPrimitiveDigi(thisTower));
-	}
+	    std::vector<EcalTriggerPrimitiveDigi> tptow;
+	    // special treatment for the 2 inner rings: 2 pseudo-towers for one physical tower
+	    int nrTowers;
+	    if (thisTower.ietaAbs()==27 | thisTower.ietaAbs()==28 ) {
+	      //special treatment for 2 inner eta rings
+	      nrTowers=2;
+	      int phi=2*((thisTower.iphi()-1)/2);
+	      tptow.push_back(EcalTriggerPrimitiveDigi(EcalTrigTowerDetId(thisTower.zside(),thisTower.subDet(),thisTower.ietaAbs(),phi+1)));
+	      tptow.push_back(EcalTriggerPrimitiveDigi(EcalTrigTowerDetId(thisTower.zside(),thisTower.subDet(),thisTower.ietaAbs(),phi+2)));
+	      two++;
+	    } else {
+	      one++;
+	      nrTowers=1;
+	      tptow.push_back(EcalTriggerPrimitiveDigi(thisTower));
+	    }
 
-        // fill TP-s for each sample
-	unsigned int nrSamples=mapEndcap_[thisTower][0].size();
-	if (nrSamples<nrSamplesToWrite_)  { //UB FIXME: exception?
-	  edm::LogWarning("Endcap") <<"Too few samples produced, nr is "<<nrSamples;
-	  break;
-	}
-	// calculate Et and rescale it to correspond to barrel values
-	// as long as we dont have correct parameters for the endcap
-	std::vector<EcalTriggerPrimitiveSample> primitives[2];
-	for (unsigned int i=0;i<nrSamples;++i) {
-	  float ettemp=0;
+	    // fill TP-s for each sample
+	    unsigned int nrSamples=mapEndcap_[thisTower][0].size();
+	    if (nrSamples<nrSamplesToWrite_)  { //UB FIXME: exception?
+	      edm::LogWarning("Endcap") <<"Too few samples produced, nr is "<<nrSamples;
+	      break;
+	    }
+	    // calculate Et and rescale it to correspond to barrel values
+	    // as long as we dont have correct parameters for the endcap
+	    std::vector<EcalTriggerPrimitiveSample> primitives[2];
+	    for (unsigned int i=0;i<nrSamples;++i) {
+	      float ettemp=0;
 
-	  for (int ii=0;ii<nrFrames;++ii) {
-	    int en= linADC((mapEndcap_[thisTower][ii])[i]);
-	    //	    int en=(mapEndcap_[thisTower][ii])[i].adc();
-	    float et0 = TMath::Max(en- thresholds[ii],0);
-	    et0=int(et0*eeDccAdcToGeV_/ebDccAdcToGeV_); 
-	    float theta=theEndcapGeometry->getGeometry(mapEndcap_[thisTower][ii].id())->getPosition().theta();
-	    et0 =(float) (et0*sin(theta));
+	      for (int ii=0;ii<nrFrames;++ii) {
+		int en0= linADC((mapEndcap_[thisTower][ii])[i], thresholds[ii]);
+		float et0 = TMath::Max(en0,0);
+		et0=et0*eeDccAdcToGeV_/ebDccAdcToGeV_; 
+		float theta=theEndcapGeometry->getGeometry(mapEndcap_[thisTower][ii].id())->getPosition().theta();
+		et0 =(float) (et0*sin(theta));
 
-	    ettemp += et0;
-	  }
-	  int et=int(ettemp);
+		ettemp += et0;
+	      }
+	      int et=int(ettemp);
 
-	  //for the moment, there is no fgvb implemented...
+	      //for the moment, there is no fgvb implemented...
 	  int fgvb=0;
 
 	  int ttf=calculateTTF(et);
@@ -367,11 +363,13 @@ int EcalTrigPrimFunctionalAlgo::calculateTTF(const int en) {
  }
 
 //----------------------------------------------------------------------
- int EcalTrigPrimFunctionalAlgo::linADC(const EcalMGPASample & sample) 
+ int EcalTrigPrimFunctionalAlgo::linADC(const EcalMGPASample & sample, int base) 
  {
-  int adc  = sample.adc() ;
+  int adc  = sample.adc() - base ;
   int gain = sample.gainId() ;
   if (gain == 2) adc *= 2 ;
   if (gain == 3) adc *= 12 ;
   return adc ;
+
  }
+
