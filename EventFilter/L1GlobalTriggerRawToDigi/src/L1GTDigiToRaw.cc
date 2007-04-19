@@ -10,8 +10,8 @@
  * \author: Vasile Mihai Ghete - HEPHY Vienna -  GT 
  * \author: Ivan Mikulec       - HEPHY Vienna - GMT
  * 
- * $Date:$
- * $Revision:$
+ * $Date$
+ * $Revision$
  *
  */
 
@@ -63,20 +63,12 @@ L1GTDigiToRaw::L1GTDigiToRaw(const edm::ParameterSet& pSet)
     << m_daqGtInputTag.label() << " \n"
     << std::endl;
 
-    // flag to keep or change the active boards
-    m_keepActiveBoardsStatus = pSet.getParameter<bool>("KeepActiveBoardsStatus");
+    // mask for active boards
+    m_activeBoardsMaskGt = pSet.getParameter<unsigned int>("ActiveBoardsMask");
 
     LogDebug("L1GTDigiToRaw")
-    << "\nKeepActiveBoardsStatus: "
-    << m_keepActiveBoardsStatus << " \n"
-    << std::endl;
-
-    // list of active boards
-    m_activeBoardsGt = pSet.getParameter<int>("ActiveBoards");
-
-    LogDebug("L1GTDigiToRaw")
-    << "\nActive boards: "
-    << m_activeBoardsGt << " \n"
+    << "\nMask for active boards (hex format): "
+    << std::hex << m_activeBoardsMaskGt << std::dec << " \n"
     << std::endl;
 
     //
@@ -86,7 +78,11 @@ L1GTDigiToRaw::L1GTDigiToRaw(const edm::ParameterSet& pSet)
 
 // destructor
 L1GTDigiToRaw::~L1GTDigiToRaw()
-{}
+{
+
+    // empty now
+
+}
 
 // member functions
 
@@ -94,7 +90,7 @@ L1GTDigiToRaw::~L1GTDigiToRaw()
 void L1GTDigiToRaw::beginJob(const edm::EventSetup& evSetup)
 {
 
-    // nothing yet
+    // empty now
 
 }
 
@@ -102,18 +98,6 @@ void L1GTDigiToRaw::beginJob(const edm::EventSetup& evSetup)
 // method called to produce the data
 void L1GTDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& evSetup)
 {
-
-    // define new FEDRawDataCollection
-    // it contains ALL FEDs in an event
-    std::auto_ptr<FEDRawDataCollection> allFedRawData(new FEDRawDataCollection);
-
-    // ptrGt: pointer to the beginning of GT record in the raw data
-
-    FEDRawData& gtRawData = allFedRawData->FEDData(FEDNumbering::getTriggerGTPFEDIds().first);
-    // no resize, GT raw data record has variable length,
-    // depending on active boards (read in GTFE)
-
-    unsigned char* ptrGt = gtRawData.data();
 
     // get L1GlobalTriggerReadoutRecord
     edm::Handle<L1GlobalTriggerReadoutRecord> gtReadoutRecord;
@@ -156,30 +140,116 @@ void L1GTDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& evSetup)
     }
 
 
-    if (m_keepActiveBoardsStatus) {
-        // get list of active blocks from the GTFE block
-        // and replace the list initialized in constructor
-        // blocks not active are not written to the record
+    // get list of active blocks from the GTFE block
+    // and mask some blocks, if required
+    // blocks not active are not written to the record
 
-        m_activeBoardsGt = gtfeBlock.activeBoards();
+    boost::uint16_t activeBoardsGt = gtfeBlock.activeBoards();
+    activeBoardsGt = activeBoardsGt & m_activeBoardsMaskGt;
+
+    LogDebug("L1GTDigiToRaw")
+    << "\nActive boards after masking(hex format): "
+    << std::hex << activeBoardsGt << std::dec << " \n"
+    << std::endl;
+
+    std::map<L1GlobalTriggerReadoutSetup::GtBoard, int> activeBoardsMap =
+        tmpGtSetup.GtDaqActiveBoardsMap;
+    typedef std::map<L1GlobalTriggerReadoutSetup::GtBoard, int>::const_iterator CItActive;
+
+
+    // get the size of the record
+
+    unsigned int gtDataSize = 0;
+
+    unsigned int headerSize = 8;
+    gtDataSize += headerSize;
+
+    for (CItRecord itRecord = recordMap.begin();
+            itRecord != recordMap.end(); ++itRecord) {
+
+        if (itRecord->first == gtfeKey) {
+            gtDataSize += gtfeBlock.getSize();
+            continue;
+        }
+
+        // size of modules other than GTFE
+
+        // skip if the board is not active
+        bool activeBoard = false;
+
+        CItActive itBoard = activeBoardsMap.find(itRecord->second);
+        if (itBoard != activeBoardsMap.end()) {
+            activeBoard = activeBoardsGt & (1 << (itBoard->second));
+        } else {
+            // board not found in the map
+            continue;
+        }
+
+        if ( !activeBoard ) {
+            continue;
+        }
+
+        // active board, add its size
+        switch (itRecord->second.boardType) {
+
+            case FDL: {
+                    L1GtFdlWord fdlBlock;
+                    gtDataSize += m_totalBxInEvent*fdlBlock.getSize();
+                }
+                break;
+            case PSB: {
+                    L1GtPsbWord psbBlock;
+                    gtDataSize += m_totalBxInEvent*psbBlock.getSize();
+                }
+                break;
+            case GMT: {
+                    // 16*64/8 TODO FIXME ask Ivan for a getSize() function for GMT record
+                    unsigned int gmtRecordSize = 128;
+                    unsigned int gmtCollSize = m_totalBxInEvent*gmtRecordSize;
+                    gtDataSize += gmtCollSize;
+                }
+                break;
+            default: {
+
+                    // do nothing, all blocks are given in GtBoardType enum
+                }
+                break;
+        }
 
     }
+
+    unsigned int trailerSize = 8;
+    gtDataSize += trailerSize;
+
+    // define new FEDRawDataCollection
+    // it contains ALL FEDs in an event
+    std::auto_ptr<FEDRawDataCollection> allFedRawData(new FEDRawDataCollection);
+
+    // ptrGt: pointer to the beginning of GT record in the raw data
+
+    FEDRawData& gtRawData = allFedRawData->FEDData(FEDNumbering::getTriggerGTPFEDIds().first);
+    // resize, GT raw data record has variable length,
+    // depending on active boards (read in GTFE)
+    gtRawData.resize(gtDataSize);
+
+
+    unsigned char* ptrGt = gtRawData.data();
+
+    LogDebug("L1GTDigiToRaw")
+    << "\n Size of raw data: " << gtRawData.size() << "\n"
+    << std::endl;
+
 
     // ------- pack boards -------
 
     // pack header // FIXME
 
     //    FEDHeader cmsHeaderGt = gtReadoutRecord.cmsHeader();
-    unsigned int headerSize = 8;
 
     //    packHeader(ptrGt, cmsHeaderGt);
     ptrGt += headerSize; // advance with header size
 
     // loop over other blocks in the raw record, if they are active
-
-    std::map<L1GlobalTriggerReadoutSetup::GtBoard, int> activeBoardsMap =
-        tmpGtSetup.GtDaqActiveBoardsMap;
-    typedef std::map<L1GlobalTriggerReadoutSetup::GtBoard, int>::const_iterator CItActive;
 
     for (CItRecord itRecord = recordMap.begin();
             itRecord != recordMap.end(); ++itRecord) {
@@ -198,7 +268,7 @@ void L1GTDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& evSetup)
 
         CItActive itBoard = activeBoardsMap.find(itRecord->second);
         if (itBoard != activeBoardsMap.end()) {
-            activeBoard = m_activeBoardsGt & (1 << (itBoard->second));
+            activeBoard = activeBoardsGt & (1 << (itBoard->second));
         } else {
             // board not found in the map
             continue;
@@ -272,6 +342,10 @@ void L1GTDigiToRaw::packGTFE(
     const edm::EventSetup& evSetup, unsigned char* ptrGt, L1GtfeWord& gtfeBlock)
 {
 
+    LogDebug("L1GTDigiToRaw")
+    << "\nPacking GTFE \n"
+    << std::endl;
+
     unsigned char* ptrGtV = ptrGt;
 
     // initialize the required number of word64
@@ -301,7 +375,6 @@ void L1GTDigiToRaw::packGTFE(
     }
 
 
-
 }
 
 
@@ -310,7 +383,12 @@ void L1GTDigiToRaw::packFDL(
     const edm::EventSetup& evSetup, unsigned char* ptrGt, L1GtFdlWord& fdlBlock)
 {
 
-    //
+    LogDebug("L1GTDigiToRaw")
+    << "\nPacking FDL \n"
+    << std::endl;
+
+    // empty now
+
 }
 
 // pack the PSB block
@@ -318,7 +396,12 @@ void L1GTDigiToRaw::packPSB(
     const edm::EventSetup& evSetup, unsigned char* ptrGt, L1GtPsbWord& psbBlock)
 {
 
-    //
+    LogDebug("L1GTDigiToRaw")
+    << "\nPacking PSB \n"
+    << std::endl;
+
+    // empty now
+
 }
 
 // pack the GMT collection using packGMT (GMT record packing)
@@ -326,13 +409,17 @@ unsigned int L1GTDigiToRaw::packGmtCollection(
     unsigned char* ptrGt,
     L1MuGMTReadoutCollection const* digis)
 {
-
+    
+    LogDebug("L1GTDigiToRaw")
+    << "\nPacking GMT collection \n"
+    << std::endl;
+    
     unsigned gmtsize = 0;
 
     // loop range: int m_totalBxInEvent is normally even (L1A-1, L1A, L1A+1, with L1A = 0)
-    int bxMin = (m_totalBxInEvent + 1)/2 - m_totalBxInEvent; 
-    int bxMax = (m_totalBxInEvent + 1)/2; 
-    
+    int bxMin = (m_totalBxInEvent + 1)/2 - m_totalBxInEvent;
+    int bxMax = (m_totalBxInEvent + 1)/2;
+
     for(int ibx = bxMin; ibx < bxMax; ibx++) {
         L1MuGMTReadoutRecord const& gmtrr = digis->getRecord(ibx);
         gmtsize = packGMT(gmtrr, ptrGt);

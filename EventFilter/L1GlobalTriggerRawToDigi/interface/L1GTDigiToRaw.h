@@ -13,8 +13,8 @@
  * \author: Vasile Mihai Ghete - HEPHY Vienna -  GT 
  * \author: Ivan Mikulec       - HEPHY Vienna - GMT
  * 
- * $Date:$
- * $Revision:$
+ * $Date$
+ * $Revision$
  *
  */
 
@@ -95,17 +95,14 @@ private:
 
 private:
 
-    // input tags for GT DAQ record
+    /// input tags for GT DAQ record
     edm::InputTag m_daqGtInputTag;
     
     /// total Bx's in the event, obtained from GTFE block    
     int m_totalBxInEvent;
     
-    /// flag to keep or change the active boards
-    bool m_keepActiveBoardsStatus;
-    
-    // list of active boards (actually 16 bits)
-    boost::uint16_t m_activeBoardsGt;
+    /// mask for active boards (actually 16 bits)
+    boost::uint16_t m_activeBoardsMaskGt;
 
 
 };
