@@ -1,0 +1,4 @@
+<use name=RecoBTag/TrackProbability>
+<library file="*.cc" name=RecoBTagTrackProbabilityPlugins>
+      <flags EDM_PLUGIN=1>
+</library>
