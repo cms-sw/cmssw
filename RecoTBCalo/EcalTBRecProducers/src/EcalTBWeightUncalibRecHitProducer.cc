@@ -1,13 +1,13 @@
 /** \class EcalTBWeightUncalibRecHitProducer
  *   produce ECAL uncalibrated rechits from dataframes
  *
-  *  $Id: EcalTBWeightUncalibRecHitProducer.cc,v 1.7 2006/11/29 21:24:15 meridian Exp $
-  *  $Date: 2006/11/29 21:24:15 $
-  *  $Revision: 1.7 $
+  *  $Id: EcalTBWeightUncalibRecHitProducer.cc,v 1.8 2007/03/09 11:48:03 meridian Exp $
+  *  $Date: 2007/03/09 11:48:03 $
+  *  $Revision: 1.8 $
   *
   *  $Alex Zabi$
-  *  $Date: 2006/11/29 21:24:15 $
-  *  $Revision: 1.7 $
+  *  $Date: 2007/03/09 11:48:03 $
+  *  $Revision: 1.8 $
   *  Modification to detect first sample to switch gain.
   *  used for amplitude recontruction at high energy
   *  Add TDC convention option (P. Meridiani)
@@ -76,7 +76,9 @@ EcalTBWeightUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetu
      //     evt.getByLabel( digiProducer_, EBdigiCollection_, pEBDigis);
      evt.getByLabel( digiProducer_, pEBDigis);
      EBdigis = pEBDigis.product(); // get a ptr to the produc
+#ifdef DEBUG
      LogDebug("EcalUncalibRecHitInfo") << "total # EBdigis: " << EBdigis->size() ;
+#endif
    } catch ( std::exception& ex ) {
      edm::LogError("EcalUncalibRecHitError") << "Error! can't get the product " << EBdigiCollection_.c_str() ;
    }
@@ -101,10 +103,12 @@ EcalTBWeightUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetu
    edm::ESHandle<EcalWeightXtalGroups> pGrp;
    es.get<EcalWeightXtalGroupsRcd>().get(pGrp);
    const EcalWeightXtalGroups* grp = pGrp.product();
-
    if (!grp)
      return;
 
+   const EcalWeightXtalGroups::EcalXtalGroupsMap& grpMap = grp->getMap();
+   
+   
    // Gain Ratios
    edm::ESHandle<EcalGainRatios> pRatio;
    es.get<EcalGainRatiosRcd>().get(pRatio);
@@ -112,7 +116,9 @@ EcalTBWeightUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetu
 
 
    // fetch TB weights
+#ifdef DEBUG
    LogDebug("EcalUncalibRecHitDebug") <<"Fetching EcalTBWeights from DB " ;
+#endif
    edm::ESHandle<EcalTBWeights> pWgts;
    es.get<EcalTBWeightsRcd>().get(pWgts);
    const EcalTBWeights* wgts = pWgts.product();
@@ -120,25 +126,31 @@ EcalTBWeightUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetu
    if (!wgts)
      return;
 
+#ifdef DEBUG
    LogDebug("EcalUncalibRecHitDebug") << "EcalTBWeightMap.size(): " << std::setprecision(3) << wgts->getMap().size() ;
-   
+#endif   
 
    // fetch the pedestals from the cond DB via EventSetup
+#ifdef DEBUG
    LogDebug("EcalUncalibRecHitDebug") << "fetching pedestals....";
+#endif
    edm::ESHandle<EcalPedestals> pedHandle;
    es.get<EcalPedestalsRcd>().get( pedHandle );
    const EcalPedestalsMap& pedMap = pedHandle.product()->m_pedestals; // map of pedestals
+#ifdef DEBUG
    LogDebug("EcalUncalibRecHitDebug") << "done." ;
-
+#endif
    // collection of reco'ed ampltudes to put in the event
 
    std::auto_ptr< EBUncalibratedRecHitCollection > EBuncalibRechits( new EBUncalibratedRecHitCollection );
 
    EcalPedestalsMapIterator pedIter; // pedestal iterator
-   EcalPedestals::Item aped; // pedestal object for a single xtal
 
    EcalGainRatios::EcalGainRatioMap::const_iterator gainIter; // gain iterator
-   EcalMGPAGainRatio aGain; // gain object for a single xtal
+
+   EcalWeightXtalGroups::EcalXtalGroupsMap::const_iterator git; // group iterator
+
+   EcalTBWeights::EcalTBWeightMap::const_iterator wit; //weights iterator 
    // loop over EB digis
      //Getting the TDC bin
    EcalTBWeights::EcalTDCId tdcid(int(nbTimeBin_/2)+1);
@@ -156,46 +168,47 @@ EcalTBWeightUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetu
      //     counter_++; // verbosity counter
      
      // find pedestals for this channel
-     LogDebug("EcalUncalibRecHitDebug") << "looking up pedestal for crystal: " << EBDetId(itdg->id()) ;
-     pedIter = pedMap.find(itdg->id().rawId());
-     if( pedIter != pedMap.end() ) {
-       aped = pedIter->second;
-     } else {
-       edm::LogError("EcalUncalibRecHitError") << "error!! could not find pedestals for channel: " << EBDetId(itdg->id()) 
-					       << "\n  no uncalib rechit will be made for this digi!"
-	 ;
-       continue;
-     }
+#ifdef DEBUG
+	 LogDebug("EcalUncalibRecHitDebug") << "looking up pedestal for crystal: " << EBDetId(itdg->id()) ;
+#endif
+	 pedIter = pedMap.find(itdg->id().rawId());
+	 if( pedIter == pedMap.end() ) {
+	   edm::LogError("EcalUncalibRecHitError") << "error!! could not find pedestals for channel: " << EBDetId(itdg->id()) 
+						   << "\n  no uncalib rechit will be made for this digi!"
+	     ;
+	   continue;
+	 }
+	 const EcalPedestals::Item& aped = pedIter->second;
+	 double pedVec[3];
+	 pedVec[0]=aped.mean_x12;pedVec[1]=aped.mean_x6;pedVec[2]=aped.mean_x1;
 
-     std::vector<double> pedVec;
-     pedVec.push_back(aped.mean_x12);pedVec.push_back(aped.mean_x6);pedVec.push_back(aped.mean_x1);
+	 // find gain ratios
+#ifdef DEBUG
+	 LogDebug("EcalUncalibRecHitDebug") << "looking up gainRatios for crystal: " << EBDetId(itdg->id()) ;
+#endif
+	 gainIter = gainMap.find(itdg->id().rawId());
+	 if( gainIter == gainMap.end() ) {
+	   edm::LogError("EcalUncalibRecHitError") << "error!! could not find gain ratios for channel: " << EBDetId(itdg->id()) 
+						   << "\n  no uncalib rechit will be made for this digi!"
+	     ;
+	   continue;
+	 }
+	 const EcalMGPAGainRatio& aGain = gainIter->second;
+	 double gainRatios[3];
+	 gainRatios[0]=1.;gainRatios[1]=aGain.gain12Over6();gainRatios[2]=aGain.gain6Over1()*aGain.gain12Over6();
+	 
+	 
+	 
+	 // lookup group ID for this channel
+	 git = grpMap.find( itdg->id().rawId() );
+	 if( git == grpMap.end() ) {
+	   edm::LogError("EcalUncalibRecHitError") << "No group id found for this crystal. something wrong with EcalWeightXtalGroups in your DB?"
+						   << "\n  no uncalib rechit will be made for digi with id: " << EBDetId(itdg->id())
+	     ;
+	   continue;
+	 }
+	 const EcalXtalGroupId& gid = git->second;	 
 
-     // lookup group ID for this channel
-     EcalWeightXtalGroups::EcalXtalGroupsMap::const_iterator git = grp->getMap().find( itdg->id().rawId() );
-     EcalXtalGroupId gid;
-     if( git != grp->getMap().end() ) {
-       gid = git->second;
-     } else {
-       edm::LogError("EcalUncalibRecHitError") << "No group id found for this crystal. something wrong with EcalWeightXtalGroups in your DB?"
-					       << "\n  no uncalib rechit will be made for digi with id: " << EBDetId(itdg->id())
-	 ;
-       continue;
-     }
-
-     // find gain ratios
-     LogDebug("EcalUncalibRecHitDebug") << "looking up gainRatios for crystal: " << EBDetId(itdg->id()) ;
-     gainIter = gainMap.find(itdg->id().rawId());
-     if( gainIter != gainMap.end() ) {
-       aGain = gainIter->second;
-     } else {
-       edm::LogError("EcalUncalibRecHitError") << "error!! could not find gain ratios for channel: " << EBDetId(itdg->id()) 
-					       << "\n  no uncalib rechit will be made for this digi!"
-	 ;
-       continue;
-     }
-     
-     std::vector<double> gainRatios;
-     gainRatios.push_back(1.);gainRatios.push_back(aGain.gain12Over6());gainRatios.push_back(aGain.gain6Over1()*aGain.gain12Over6());
 
      //GAIN SWITCHING DETECTION ///////////////////////////////////////////////////////////////////////////////////////////////////     
      double sampleGainRef = 1;
@@ -236,84 +249,78 @@ EcalTBWeightUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetu
      }//check TDC     
      
      // now lookup the correct weights in the map
-     EcalTBWeights::EcalTBWeightMap::const_iterator wit = wgts->getMap().find( std::make_pair(gid,tdcid) );
+     wit = wgts->getMap().find( std::make_pair(gid,tdcid) );
      if( wit == wgts->getMap().end() ) {  // no weights found for this group ID
        edm::LogError("EcalUncalibRecHitError") << "No weights found for EcalGroupId: " << gid.id() << " and  EcalTDCId: " << tdcid
 					       << "\n  skipping digi with id: " << EBDetId(itdg->id())
 	 ;
        continue;
      }
+     const EcalWeightSet& wset = wit->second; // this is the EcalWeightSet
 
-     EcalWeightSet  wset = wit->second; // this is the EcalWeightSet
 
      // EcalWeightMatrix is vec<vec:double>>
+
+#ifdef DEBUG
      LogDebug("EcalUncalibRecHitDebug") << "accessing matrices of weights...";
+#endif
      const EcalWeightSet::EcalWeightMatrix& mat1 = wset.getWeightsBeforeGainSwitch();
      const EcalWeightSet::EcalWeightMatrix& mat2 = wset.getWeightsAfterGainSwitch();
-     //Using dummy matrices for chi2
-     //      const EcalWeightMatrix& mat3 = wset.getChi2WeightsBeforeGainSwitch();
-     //      const EcalWeightMatrix& mat4 = wset.getChi2WeightsAfterGainSwitch();
-     LogDebug("EcalUncalibRecHitDebug") << "done." ;
-
-     // build CLHEP weight matrices
-     std::vector<HepMatrix> weights;
-     HepMatrix  clmat1 = makeMatrixFromVectors(mat1);
-     HepMatrix  clmat2 = makeMatrixFromVectors(mat2);
-     weights.push_back(clmat1);
-     weights.push_back(clmat2);
-     LogDebug("EcalUncalibRecHitDebug") << "weights before switch:\n" << clmat1 ;
-     LogDebug("EcalUncalibRecHitDebug") << "weights after switch:\n" << clmat2 ;
-
-
+     const EcalWeightSet::EcalChi2WeightMatrix& mat3 = wset.getChi2WeightsBeforeGainSwitch();
+     const EcalWeightSet::EcalChi2WeightMatrix& mat4 = wset.getChi2WeightsAfterGainSwitch();
+     const EcalWeightSet::EcalWeightMatrix* weights[2];
+     weights[0]=&mat1;
+     weights[1]=&mat2;
+     // 	 weights.push_back(clmat1);
+     // 	 weights.push_back(clmat2);
+     // 	 LogDebug("EcalUncalibRecHitDebug") << "weights before switch:\n" << clmat1 ;
+     // 	 LogDebug("EcalUncalibRecHitDebug") << "weights after switch:\n" << clmat2 ;
+     
+     
      // build CLHEP chi2  matrices
-     std::vector<HepSymMatrix> chi2mat;
-     HepSymMatrix  clmat3(10);
-     clmat3.assign(makeDummySymMatrix(10));
-     HepSymMatrix  clmat4(10);
-     clmat4.assign(makeDummySymMatrix(10));
-     chi2mat.push_back(clmat3);
-     chi2mat.push_back(clmat4);
-     //if(!counterExceeded()) LogDebug("EcalUncalibRecHitDebug") << "chi2 matrix before switch:\n" << clmat3 ;
-     //if(!counterExceeded()) LogDebug("EcalUncalibRecHitDebug") << "chi2 matrix after switch:\n" << clmat4 ;
+     const EcalWeightSet::EcalChi2WeightMatrix* chi2mat[2];
+     chi2mat[0]=&mat3;
+     chi2mat[1]=&mat4;
 
      EcalUncalibratedRecHit aHit =
        EBalgo_.makeRecHit(*itdg, pedVec, gainRatios, weights, chi2mat);
      EBuncalibRechits->push_back( aHit );
-
+#ifdef DEBUG
       if(aHit.amplitude()>0.) {
        LogDebug("EcalUncalibRecHitDebug") << "processed EBDataFrame with id: "
 					  << EBDetId(itdg->id()) << "\n"
 					  << "uncalib rechit amplitude: " << aHit.amplitude()
 	 ;
       }
+#endif
    }
    // put the collection of recunstructed hits in the event
    evt.put( EBuncalibRechits, EBhitCollection_ );
 }
 
-HepMatrix
-EcalTBWeightUncalibRecHitProducer::makeMatrixFromVectors(const std::vector< std::vector<EcalWeight> >& vecvec) {
-  int nrow = vecvec.size();
-  int ncol = (vecvec[0]).size();
-  HepMatrix clmat(nrow,ncol);
-  //LogDebug("EcalUncalibRecHitDebug") << "created HepMatrix(" << nrow << "," << ncol << ")" ;
-  for(int irow=0;irow<nrow;++irow) {
-    for(int icol=0;icol<ncol;++icol) {
-        clmat[irow][icol] = ((vecvec[irow])[icol]).value();
-    }
-  }
-  return clmat;
-}
+// HepMatrix
+// EcalTBWeightUncalibRecHitProducer::makeMatrixFromVectors(const std::vector< std::vector<EcalWeight> >& vecvec) {
+//   int nrow = vecvec.size();
+//   int ncol = (vecvec[0]).size();
+//   HepMatrix clmat(nrow,ncol);
+//   //LogDebug("EcalUncalibRecHitDebug") << "created HepMatrix(" << nrow << "," << ncol << ")" ;
+//   for(int irow=0;irow<nrow;++irow) {
+//     for(int icol=0;icol<ncol;++icol) {
+//         clmat[irow][icol] = ((vecvec[irow])[icol]).value();
+//     }
+//   }
+//   return clmat;
+// }
 
-HepMatrix 
-EcalTBWeightUncalibRecHitProducer::makeDummySymMatrix(int size)
-{
-  HepMatrix clmat(10,10);
-  //LogDebug("EcalUncalibRecHitDebug") << "created HepMatrix(" << nrow << "," << ncol << ")" ;
-  for(int irow=0; irow<size; ++irow) {
-    for(int icol=0 ; icol<size; ++icol) {
-      clmat[irow][icol] = irow+icol;
-    }
-  }
-  return clmat;
-}
+// HepMatrix 
+// EcalTBWeightUncalibRecHitProducer::makeDummySymMatrix(int size)
+// {
+//   HepMatrix clmat(10,10);
+//   //LogDebug("EcalUncalibRecHitDebug") << "created HepMatrix(" << nrow << "," << ncol << ")" ;
+//   for(int irow=0; irow<size; ++irow) {
+//     for(int icol=0 ; icol<size; ++icol) {
+//       clmat[irow][icol] = irow+icol;
+//     }
+//   }
+//   return clmat;
+// }
