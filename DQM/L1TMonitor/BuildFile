@@ -10,6 +10,15 @@
 <use name=DataFormats/L1GlobalMuonTrigger>
 <use name=DataFormats/L1GlobalTrigger>
 <use name=DataFormats/EcalDigi>
+<use name=DQMServices/Core>
+<use name=DQMServices/NodeROOT>
+<use name=DQMServices/Daemon>
+<use name=DQMServices/UI>
+<use name=DQMServices/Components>
+<use name=DQMServices/WebComponents>
+<use name=DQMServices/ClientConfig>
+<use name=mimetic>
+<use name=xdaq>
 <flags EDM_PLUGIN=1>
 <export>
    <lib name=DQML1TMonitor>
@@ -25,4 +34,14 @@
    <use name=DataFormats/L1GlobalMuonTrigger>
    <use name=DataFormats/L1GlobalTrigger>
    <use name=DataFormats/EcalDigi>
+ <use name=root>
+ <use name=boost>
+ <use name=DQMServices/Core>
+ <use name=DQMServices/NodeROOT>
+ <use name=DQMServices/Daemon>
+ <use name=DQMServices/UI>
+ <use name=DQMServices/Components>
+ <use name=DQMServices/WebComponents>
+ <use name=DQMServices/ClientConfig> 
+ <use name=xdaq>
 </export>
