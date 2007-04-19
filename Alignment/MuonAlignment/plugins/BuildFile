@@ -1,5 +1,0 @@
-<use name=Alignment/MuonAlignment>
-<library name=AlignmentMuonAlignmentPlugin file="*.cc">
-  <flags EDM_PLUGIN=1>
-</library>
-

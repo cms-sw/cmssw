@@ -1,9 +1,0 @@
-
-<lcgdict>
-  <class name="NUEvent"/>
-  <class name="NUEvent::NUParticle"/>
-  <class name="std::vector<NUEvent::NUParticle>"/>
-  <class name="NUEvent::NUInteraction"/>
-  <class name="std::vector<NUEvent::NUInteraction>"/>
-</lcgdict>
-

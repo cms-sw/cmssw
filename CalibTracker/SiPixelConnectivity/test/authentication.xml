@@ -1,8 +1,0 @@
-<?xml version="1.0" ?>
-
-<connectionlist>
-<connection name="sqlite_file:cabling.db">
-  <parameter name="user" value="" />
-  <parameter name="password" value="" />
-</connection>
-</connectionlist>

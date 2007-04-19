@@ -1,4 +1,0 @@
-<use name=Alignment/ReferenceTrajectories>
-<library file=ReferenceTrajectoryFactory.cc>
-   <flags EDM_PLUGIN=1>
-</library>

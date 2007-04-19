@@ -1,4 +1,0 @@
-<executable name="cmsRun" args="TpSrp.cfg"></executable>
-<executable name="ovalSrpValidation" args=${PWD}>Dumps the contents of the flag files for oval</executable>
-
-

@@ -1,9 +1,0 @@
-<lcgdict>
-  <class name="CLHEP::Hep3Vector"/>
-  <class name="CLHEP::HepEulerAngles"/>
-  <class name="CLHEP::HepGenMatrix"/>
-  <class name="CLHEP::HepLorentzVector"/>
-  <class name="CLHEP::HepMatrix"/>
-  <class name="CLHEP::HepSymMatrix"/>
-  <class name="std::vector<CLHEP::HepLorentzVector>"/>
-</lcgdict>

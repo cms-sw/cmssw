@@ -1,5 +1,0 @@
-<use name=rootcore>
-<export>
-<lib name=AlignmentCocoaDaq>
-<use name=rootcore>
-</export>

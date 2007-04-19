@@ -1,8 +1,0 @@
-  ##   Script to compare two .root files with histograms
- 
-  ## Define reference file (REFFILE) and current file (CURFILE)
-  setenv REFFILE ./DTDigiPlots_ref.root
-  setenv CURFILE ./DTDigiPlots.root
-
-  root -b -p -q DoCompare.C
-

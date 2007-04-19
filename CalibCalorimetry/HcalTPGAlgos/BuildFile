@@ -1,9 +1,0 @@
-<use name=DataFormats/HcalDigi>
-<use name=CalibFormats/HcalObjects>
-<use name=Geometry/HcalTowerAlgo>
-<export>
-  <lib name=CalibCalorimetryHcalTPGAlgos>
-  <use name=DataFormats/HcalDigi>
-  <use name=CalibFormats/HcalObjects>
-  <use name=Geometry/CaloGeometry>
-</export>

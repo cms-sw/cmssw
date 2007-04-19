@@ -1,7 +1,0 @@
-<use name=rootrflx>
-<use name=DataFormats/Common>
-<export>
-  <use name=DataFormats/Common>
-  <lib name=DataFormatsParticleFlowReco>
-</export>
-

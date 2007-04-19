@@ -1,9 +1,0 @@
-<?xml version="1.0" ?>
-<connectionlist>
-
-<connection name="oracle://devdb10/cms_ecal">
-  <parameter name="user" value="cms_ecal" />
-  <parameter name="password" value="*********" />
-</connection>
-
-</connectionlist>

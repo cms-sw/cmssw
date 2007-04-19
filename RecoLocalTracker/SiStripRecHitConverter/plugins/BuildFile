@@ -1,4 +1,0 @@
-<use name=RecoLocalTracker/SiStripRecHitConverter>
-<library file="*.cc" name=RecoLocalTrackerSiStripRecHitConverterPlugins>
-        <flags EDM_PLUGIN=1>
-</library>

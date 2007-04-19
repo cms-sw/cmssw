@@ -1,2 +1,0 @@
-#!/bin/sh
-java -cp ./bin/ojdbc14.jar:./bin/detidGenerator.jar:./bin/DBConnection.jar -DCONFDB="$CONFDB" Launcher $1 $2 $3 

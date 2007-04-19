@@ -1,9 +1,0 @@
-<tr class="colgroup">
-  <td class="colgroup" colspan=5>Calorimeter SimHit collections</td>
-<tr>
-  <td><a href="classPCaloHit.html">PCaloHit </a></td>
-  <td><a href="#">PCaloHitContainer</a></td>
-  <td><a href="#">g4SimHits </a></td>
-  <td class="description">Simulated hits in calorimeters </td>
-  <td>F. Cossutti, S. Banerjee</td>
-</tr>
