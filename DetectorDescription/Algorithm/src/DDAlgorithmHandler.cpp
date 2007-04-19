@@ -32,17 +32,26 @@ void DDAlgorithmHandler::initialize(const std::string & algoName,
 {
   std::pair<std::string,std::string> algoNmNs = DDSplit(algoName);
   algoname_ = algoName;
-  try {
-    edmplugin::PluginManager::configure(edmplugin::standard::config());
-  }
-  catch(...) {
-    std::cout << "FATAL!!! Could not initialize the PluginManager!!!" << std::endl;
-  }
+  //  try {
+  //  edmplugin::PluginManager::configure(edmplugin::standard::config());
+  //}
+  //catch(...) {
+  //  std::cout << "FATAL!!! Could not initialize the PluginManager!!!" << std::endl;
+  //}
 
-  algo_ = DDAlgorithmFactory::get()->create(algoNmNs.first);
+  try {
+    //try the old name
+    algo_ = DDAlgorithmFactory::get()->create(algoNmNs.first);
+  } catch(const cms::Exception& ) { }
   DCOUT ('T',"ALGO: name=" + algoNmNs.first + " algo=" + algoName);
   if (!algo_) {
-    algo_ = DDAlgorithmFactory::get()->create(algoname_);
+    try {
+      algo_ = DDAlgorithmFactory::get()->create(algoname_);
+    }catch(const cms::Exception& e) {
+      std::string message("no algorithm with name=\"" + algoName + "\" found. Becauses\n");
+      message += e.what();
+      throw DDException(message);
+    }
   }
   if (algo_) {
     try {
@@ -58,8 +67,9 @@ void DDAlgorithmHandler::initialize(const std::string & algoName,
     }
   }
   else {
-    std::string message("no algorithm with name=\"" + algoName + "\" found.");
-    throw DDException(message);
+      //should never get here
+      std::string message("no algorithm with name=\"" + algoName + "\" found.");
+      throw DDException(message);
   }
 }
 
