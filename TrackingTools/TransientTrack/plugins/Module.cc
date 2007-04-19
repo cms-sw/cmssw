@@ -4,7 +4,7 @@
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
 
-#include "TrackingTools/TransientTrack/interface/TransientTrackBuilderESProducer.h"
+#include "TrackingTools/TransientTrack/plugins/TransientTrackBuilderESProducer.h"
 
 
 DEFINE_FWK_EVENTSETUP_MODULE(TransientTrackBuilderESProducer);
