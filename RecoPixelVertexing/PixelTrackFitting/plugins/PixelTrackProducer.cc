@@ -1,4 +1,4 @@
-#include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackProducer.h"
+#include "PixelTrackProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
