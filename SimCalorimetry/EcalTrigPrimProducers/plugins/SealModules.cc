@@ -3,10 +3,10 @@
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "SimCalorimetry/EcalTrigPrimProducers/interface/EcalTrigPrimProducer.h"
-#include "SimCalorimetry/EcalTrigPrimProducers/interface/EcalTrigPrimAnalyzer.h"
-#include "SimCalorimetry/EcalTrigPrimProducers/interface/EcalTPInputAnalyzer.h"
-#include "SimCalorimetry/EcalTrigPrimProducers/interface/EcalTrigPrimESProducer.h"
+#include "EcalTrigPrimProducer.h"
+#include "EcalTrigPrimAnalyzer.h"
+#include "EcalTPInputAnalyzer.h"
+#include "EcalTrigPrimESProducer.h"
 
 
 DEFINE_SEAL_MODULE();
