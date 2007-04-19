@@ -6,6 +6,7 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 
 
+#include <cfloat>
 
 ConversionFastHelix::ConversionFastHelix(const GlobalPoint& outerHit,
 		     const GlobalPoint& middleHit,
@@ -54,6 +55,7 @@ FreeTrajectoryState ConversionFastHelix::helixStateAtVertex()  {
   
   GlobalPoint pMid(theMiddleHit);
   GlobalPoint v(theVertex);
+  FTS atVertex;
   
   double dydx = 0.;
   double pt = 0., px = 0., py = 0.;
@@ -64,13 +66,7 @@ FreeTrajectoryState ConversionFastHelix::helixStateAtVertex()  {
   //(10./(3.*MagneticField::inTesla(GlobalPoint(0., 0., 0.)).z()));
   
   double rho = theCircle.rho();
-  // pt = 0.01 * rho * (0.3*MagneticField::inTesla(GlobalPoint(0.,0.,0.)).z());
   pt = 0.01 * rho * (0.3*mField->inTesla(GlobalPoint(0,0,0)).z());
-  
-  
-  
-  
-  //  pt = 0.01 * rho * (0.3*GlobalPoint(0.,0.,0.).MagneticField().z());
   
   // (py/px)|x=v.x() = (dy/dx)|x=v.x()
   //remember:
@@ -80,72 +76,93 @@ FreeTrajectoryState ConversionFastHelix::helixStateAtVertex()  {
   //=> (dy/dx) = -(x-x0)/sqrt(Q)  if y(x) >= y0
   //   (dy/dx) =  (x-x0)/sqrt(Q)  if y(x) < y0
   //with Q = rho^2 - (x-x0)^2
-  double root = sqrt(rho*rho - (v.x()-theCircle.x0())*(v.x()-theCircle.x0()));
-  if((v.y() - theCircle.y0()) > 0.)
-    dydx = -(v.x() - theCircle.x0()) / root;
-  else
-    dydx = (v.x() - theCircle.x0()) / root;
-  
-  px = pt/sqrt(1. + dydx*dydx);
-  py = px*dydx;
-  // check sign with scalar product
-  if(px*(pMid.x() - v.x()) + py*(pMid.y() - v.y()) < 0.) {
-    px *= -1.;
-    py *= -1.;
-  } 
   
   
-  //calculate z0, pz
-  //(z, R*phi) linear relation in a helix
-  //with R, phi defined as radius and angle w.r.t. centre of circle
-  //in transverse plane
-  //pz = pT*(dz/d(R*phi)))
+  double arg=rho*rho - ( (v.x()-theCircle.x0())*(v.x()-theCircle.x0()) );
   
-  FastLine flfit(theOuterHit, theMiddleHit, theCircle.rho());
-  FTS atVertex;
-
-
-  double z_0 = 0; 
-
-  //  std::cout << " ConversionFastHelix:helixStateAtVertex  flfit.n2() " <<  flfit.n2() << " flfit.c() " << flfit.c() << " flfit.n2() " << flfit.n2() << std::endl;
-  if ( flfit.n2() !=0 && !isnan( flfit.c()) && !isnan(flfit.n2())   ) {
-    //std::cout << " Accepted " << std::endl;
-    z_0 = -flfit.c()/flfit.n2();
-    double dzdrphi = -flfit.n1()/flfit.n2();
-    double pz = pt*dzdrphi;
+  if ( arg >= 0 ) { 
     
-    //get sign of particle
-
-    GlobalVector magvtx=mField->inTesla(v);
-    TrackCharge q = 
-      ((theCircle.x0()*py - theCircle.y0()*px) / 
-       (magvtx.z()) < 0.) ? 
-      -1 : 1;
     
-    AlgebraicSymMatrix C(5,1);
-    //MP
+    //  double root = sqrt(  rho*rho - ( (v.x()-theCircle.x0())*(v.x()-theCircle.x0()) )  );
+    double root = sqrt(  arg );
     
-    atVertex = FTS(GlobalTrajectoryParameters(GlobalPoint(v.x(), v.y(), z_0),
-						  GlobalVector(px, py, pz),
-						  q,
-						  mField),
-		       CurvilinearTrajectoryError(C));
+    if((v.y() - theCircle.y0()) > 0.)
+      dydx = -(v.x() - theCircle.x0()) / root;
+    else
+      dydx = (v.x() - theCircle.x0()) / root;
     
-    //std::cout << " ConversionFastHelix:helixStateAtVertex atVertex.transverseCurvature() " << atVertex.transverseCurvature() << std::endl;
-    if( atVertex.transverseCurvature() !=0 ) {
+    px = pt/sqrt(1. + dydx*dydx);
+    py = px*dydx;
+    // check sign with scalar product
+    if(px*(pMid.x() - v.x()) + py*(pMid.y() - v.y()) < 0.) {
+      px *= -1.;
+      py *= -1.;
+    } 
+    
+    //std::cout << " ConversionFastHelix:helixStateAtVertex  rho " << rho  << " pt " << pt  << " v " <<  v << " theCircle.x0() " <<theCircle.x0() << " theCircle.y0() "  <<  theCircle.y0() << " v.x()-theCircle.x0() "  << v.x()-theCircle.x0() << " rho^2 " << rho*rho << "  v.x()-theCircle.x0()^2 " <<   (v.x()-theCircle.x0())*(v.x()-theCircle.x0()) <<  " root " << root << " arg " << arg <<  " dydx " << dydx << std::endl;
+    //calculate z0, pz
+    //(z, R*phi) linear relation in a helix
+    //with R, phi defined as radius and angle w.r.t. centre of circle
+    //in transverse plane
+    //pz = pT*(dz/d(R*phi)))
+    
+    FastLine flfit(theOuterHit, theMiddleHit, theCircle.rho());
+   
+    
+    
+    double z_0 = 0; 
+    
+    //std::cout << " ConversionFastHelix:helixStateAtVertex  flfit.n2() " <<  flfit.n2() << " flfit.c() " << flfit.c() << " flfit.n2() " << flfit.n2() << std::endl;
+    if ( flfit.n2() !=0 && !isnan( flfit.c()) && !isnan(flfit.n2())   ) {
+      std::cout << " Accepted " << std::endl;
+      z_0 = -flfit.c()/flfit.n2();
+      double dzdrphi = -flfit.n1()/flfit.n2();
+      double pz = pt*dzdrphi;
       
-      validStateAtVertex=true;    
+      //get sign of particle
       
-      //std::cout << " ConversionFastHelix:helixStateAtVertex validHelixStateAtVertex status " << validStateAtVertex << std::endl;
+      GlobalVector magvtx=mField->inTesla(v);
+      TrackCharge q = 
+	((theCircle.x0()*py - theCircle.y0()*px) / 
+	 (magvtx.z()) < 0.) ? 
+	-1 : 1;
+      
+      AlgebraicSymMatrix C(5,1);
+      //MP
+      
+      atVertex = FTS(GlobalTrajectoryParameters(GlobalPoint(v.x(), v.y(), z_0),
+						GlobalVector(px, py, pz),
+						q,
+						mField),
+		     CurvilinearTrajectoryError(C));
+      
+      //std::cout << " ConversionFastHelix:helixStateAtVertex globalPoint " << GlobalPoint(v.x(), v.y(), z_0) << " GlobalVector " << GlobalVector(px, py, pz)  << " q " << q << " MField " << mField->inTesla(v) << std::endl;
+      //std::cout << " ConversionFastHelix:helixStateAtVertex atVertex.transverseCurvature() " << atVertex.transverseCurvature() << std::endl;
+      if( atVertex.transverseCurvature() !=0 ) {
+	
+	validStateAtVertex=true;    
+	
+	//std::cout << " ConversionFastHelix:helixStateAtVertex validHelixStateAtVertex status " << validStateAtVertex << std::endl;
+	return atVertex;
+      }else
+	return atVertex;
+    } else {
+      //std::cout << " ConversionFastHelix:helixStateAtVertex not accepted  validHelixStateAtVertex status  " << validStateAtVertex << std::endl;
       return atVertex;
-    }else
-      return atVertex;
+    }
+    
+    
+    
   } else {
-    //    std::cout << " ConversionFastHelix:helixStateAtVertex not accepted  validHelixStateAtVertex status  " << validStateAtVertex << std::endl;
+    
+    //std::cout << " ConversionFastHelix:helixStateAtVertex not accepted because arg <0 validHelixStateAtVertex status  " << validStateAtVertex << std::endl;
     return atVertex;
   }
+  
 
 
+  
+  
 }
 
 FreeTrajectoryState ConversionFastHelix::straightLineStateAtVertex() {
