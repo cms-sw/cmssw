@@ -18,7 +18,8 @@
 
 <use name=Geometry/Records>
 
-<use name=SimCalorimetry/EcalSimProducers>
+# it's now an EDM plugin
+#<use name=SimCalorimetry/EcalSimProducers>
 #
 # <use name=SimDataFormats/HepMCProduct>
 <use name=DataFormats/DetId>
@@ -26,7 +27,8 @@
 <use name=TrackingTools/GeomPropagators>
 
 <use name=MagneticField/Engine>
-<use name=MagneticField/VolumeBasedEngine>
+# it's now an edm plugin
+#<use name=MagneticField/VolumeBasedEngine>
 <use name=MagneticField/Records>
 
 <use name=TrackPropagation/SteppingHelixPropagator>
