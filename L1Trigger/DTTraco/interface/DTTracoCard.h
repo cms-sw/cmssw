@@ -4,14 +4,13 @@
  *   Contains active DTTracoChips
  *
  *
- *   $Date: 2007/03/09 15:17:41 $
- *   $Revision: 1.3 $
+ *   $Date: 2007/02/09 11:20:49 $
+ *   $Revision: 1.2 $
  *
  *   \author C. Grandi, S. Vanini 
  *
  *    Modifications:
- *   III/07 : SV configuration with DTConfigManager 
-*/
+ */
 //
 //--------------------------------------------------
 #ifndef DT_TRACO_CARD_H
@@ -34,41 +33,40 @@ class DTTrigGeom;
 #include "L1Trigger/DTUtilities/interface/DTConfig.h"
 #include "L1Trigger/DTTraco/interface/DTTracoTrigData.h"
 #include "L1Trigger/DTUtilities/interface/DTCache.h"
-#include "L1TriggerConfig/DTTPGConfig/interface/DTConfigTraco.h"
-#include "L1TriggerConfig/DTTPGConfig/interface/DTConfigManager.h"
-//#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "L1Trigger/DTTraco/interface/DTConfigTraco.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 //---------------
 // C++ Headers --
 //---------------
-#include <vector>
 #include <map>
+#include <vector>
 
 //              ---------------------
 //              -- Class Interface --
 //              ---------------------
 
+typedef DTCache< DTTracoTrigData,std::vector<DTTracoTrigData> > TRACOCache;
+
 typedef std::map< int,DTTracoChip*,std::less<int> >  TRACOContainer;
 typedef TRACOContainer::const_iterator TRACO_const_iter;
 typedef TRACOContainer::iterator TRACO_iter;
-
-typedef std::map<DTTracoId,DTConfigTraco*> ConfTracoMap;
-
-typedef DTCache<DTTracoTrigData,std::vector<DTTracoTrigData> > TRACOCache;
   
 class DTTracoCard : public TRACOCache, public DTGeomSupplier {
 
   public:
 
     /// Constructor
-    //DTTracoCard(DTTrigGeom*, DTBtiCard*, DTTSTheta*,edm::ParameterSet&);
-    DTTracoCard(DTTrigGeom*, DTBtiCard*, DTTSTheta*, const DTConfigManager *);
+    DTTracoCard(DTTrigGeom*, DTBtiCard*, DTTSTheta*,edm::ParameterSet&);
 
     /// Destructor 
     ~DTTracoCard();
 
-    /// Return TU debug flag
-    inline bool debug() {return _debug;}
+    /// Clear all traco stuff (cache & map)
+    void clearCache();
+
+    /// Return config
+    inline DTConfigTraco* config() const { return _configTraco; } 
 
     /// Return TSTheta
     inline DTTSTheta* TSTh() const { return _tstheta; }
@@ -80,6 +78,12 @@ class DTTracoCard : public TRACOCache, public DTGeomSupplier {
     DTTracoChip* getTRACO(const DTTracoId& tracoid) const {
       return getTRACO(tracoid.traco());
     }
+
+    /// minimum angle accepted by the TRACO as function of the BTI position
+    inline int psimin(int pos) const { return _PSIMIN[pos-1]; }
+
+    /// maximum angle accepted by the TRACO as function of the BTI position
+    inline int psimax(int pos) const { return _PSIMAX[pos-1]; }
 
     /// Returns the active TRACO list
     std::vector<DTTracoChip*> tracoList();
@@ -118,18 +122,18 @@ class DTTracoCard : public TRACOCache, public DTGeomSupplier {
     /// clear the TRACO map
     void localClear();
 
-    /// Return single TRACO config
-    DTConfigTraco* config_traco(const DTTracoId& tracoid) const; 
-
   private:
 
     DTBtiCard* _bticard;
     DTTSTheta* _tstheta;
 
     TRACOContainer _tracomap;
-    ConfTracoMap _conf_traco_map;	//bti configuration map for this chamber
 
-    bool _debug;
+    // psi acceptance of correlator MT ports
+    int _PSIMIN[4*DTConfig::NBTITC];
+    int _PSIMAX[4*DTConfig::NBTITC];
+
+    DTConfigTraco * _configTraco;
 };
 
 #endif

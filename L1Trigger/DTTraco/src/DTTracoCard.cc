@@ -13,7 +13,6 @@
 //   13/XII/04 SV: Zotto's traco acceptance routine implemented
 //   V/05 SV: NEWGEO
 //   9/V/05 SV: mt ports ing K units, bug fixed  
-//   30/III/07 SV : config with DTConfigManager every single chip 
 //--------------------------------------------------
 
 //-----------------------
@@ -24,8 +23,8 @@
 //-------------------------------
 // Collaborating Class Headers --
 //-------------------------------
-#include "DataFormats/GeometryVector/interface/LocalPoint.h"
-#include "DataFormats/GeometryVector/interface/LocalVector.h"
+#include "Geometry/Vector/interface/LocalPoint.h"
+#include "Geometry/Vector/interface/LocalVector.h"
 #include "L1Trigger/DTTraco/interface/DTTracoChip.h"
 #include "L1Trigger/DTTraco/interface/DTTracoTrig.h"
 #include "L1Trigger/DTBti/interface/DTBtiCard.h"
@@ -46,12 +45,89 @@
 //----------------
 
 DTTracoCard::DTTracoCard(DTTrigGeom* geo, DTBtiCard* bticard,
-  DTTSTheta* tstheta, const DTConfigManager * _conf_manager) : DTGeomSupplier(geo) , 
+  DTTSTheta* tstheta, edm::ParameterSet& traco_pset) : DTGeomSupplier(geo) , 
   _bticard(bticard), _tstheta(tstheta) { 
 
-  // get traco configuration map
-  DTChamberId sid = geom()->statId();
-  _conf_traco_map = _conf_manager->getDTConfigTracoMap(sid);	
+  // get DTConfigTraco configuration
+  _configTraco = new DTConfigTraco(traco_pset);
+
+
+  // Set K acceptances of DTTracoChip MT ports: Ktraco = Xinner - Xouter 
+  float h = geom()->cellH();
+  float pitch = geom()->cellPitch();
+  float distsl = geom()->distSL();
+  float K0 = config()->BTIC();
+  float shiftSL = geom()->phiSLOffset() / pitch * K0;
+
+  // mt  ports from orca geometry: this is always the case with new DTConfig
+  //if(config()->trigSetupGeom() != 1){
+  {
+    // Master Plane
+    int i = 0;
+    for(i=0;i<DTConfig::NBTITC;i++){
+      float Xin_min     =  (i + DTConfig::NBTITC) * K0 + shiftSL;
+      float Xin_max     =  Xin_min + K0;
+      float Xout_min    =  0;
+      float Xout_max    =  3 * DTConfig::NBTITC * K0;
+      _PSIMAX[i]  =  int( 2.*h/distsl * (Xin_max - Xout_min) + K0 + 1.01 );
+      _PSIMIN[i]  =  int( 2.*h/distsl * (Xin_min - Xout_max) + K0 );
+    }
+
+    // Slave Plane
+    for(i=0;i<3*DTConfig::NBTITC;i++){
+      float Xin_min     =  (DTConfig::NBTITC) * K0 + shiftSL;
+      float Xin_max     =  2. * DTConfig::NBTITC * K0 + shiftSL;
+      float Xout_min    =  i * K0;
+      float Xout_max    =  Xout_min + K0;
+      _PSIMAX[DTConfig::NBTITC+i]  =  int( 2.*h/distsl * (Xin_max - Xout_min) + K0 + 1.01 );
+      _PSIMIN[DTConfig::NBTITC+i]  =  int( 2.*h/distsl * (Xin_min - Xout_max) + K0 );
+    }
+  }
+
+/* this is obsolete with new DTConfig
+  if(config()->trigSetupGeom()==1){
+    //SV TB2003: acceptance from LH,LL,CH,CL,RH,RL parameters...
+    //bti 1,2,3,4
+    int supl=1;
+    int cell=1+16;
+    for(int n=0;n<4;n++){
+      _PSIMIN[n]=config()->CL_bti(cell,supl);
+      _PSIMAX[n]=config()->CH_bti(cell,supl);
+      cell++;
+    }
+    supl=3;
+    cell=1+16;
+    for(int n=4;n<8;n++){
+      _PSIMIN[n]=config()->RL_bti(cell,supl);
+      _PSIMAX[n]=config()->RH_bti(cell,supl);
+      cell++;
+    }
+    cell=5+16;
+    for(int n=8;n<12;n++){
+      _PSIMIN[n]=config()->CL_bti(cell,supl);
+      _PSIMAX[n]=config()->CH_bti(cell,supl);
+      cell++;
+    }
+    cell=9+16;
+    for(int n=12;n<16;n++){
+      _PSIMIN[n]=config()->LL_bti(cell,supl);
+      _PSIMAX[n]=config()->LH_bti(cell,supl);
+      cell++;
+    }
+  }  
+*/
+
+  // debugging
+  if(config()->debug()==4){
+    //if(wheel()==2&&station()==3&&sector()==1){ // only 1 chamber
+      std::cout << "Acceptance of mt ports for offset (cell unit) " 
+           << geom()->phiSLOffset() / pitch << std::endl;
+      for(int i=0;i<4*DTConfig::NBTITC;i++){
+        std::cout << "Port " << i+1 << " : ";
+        std::cout << _PSIMIN[i] << " --> " << _PSIMAX[i] << std::endl;
+      }
+    //}
+  }// end debugging
 
 }
 
@@ -59,12 +135,24 @@ DTTracoCard::DTTracoCard(DTTrigGeom* geo, DTBtiCard* bticard,
 // Destructor --
 //--------------
 
-DTTracoCard::~DTTracoCard(){}
+DTTracoCard::~DTTracoCard(){
+
+  localClear();
+  delete _configTraco;
+
+}
 
 //--------------
 // Operations --
 //--------------
 
+void
+DTTracoCard::clearCache(){
+
+  TRACOCache::clearCache();
+  localClear();
+
+}
 
 void
 DTTracoCard::localClear(){
@@ -80,7 +168,7 @@ DTTracoCard::loadTRACO() {
  
   localClear();
 
-  if(debug()){
+  if(config()->debug()==4){
     std::cout << "DTTracoCard::loadTRACO called for wheel=" << wheel() ;
     std::cout <<                                ", station=" << station();
     std::cout <<                                ", sector="  << sector() << std::endl;
@@ -92,7 +180,7 @@ DTTracoCard::loadTRACO() {
   std::vector<DTBtiTrigData>::const_iterator p;
   std::vector<DTBtiTrigData>::const_iterator pend=_bticard->end();
   for(p=_bticard->begin();p!=pend;p++){
-    if(debug()){
+    if(config()->debug()>1){
       std::cout << "Found bti trigger: ";
       (*p).print();
     }
@@ -114,11 +202,10 @@ DTTracoCard::loadTRACO() {
 
     // Load master TRACO plane
     if( nsl==1 ) {
-      //FIX check traco maps !!!
       if( /*config()->usedTraco(ntc)==1 &&*/ ( ntc>0 && ntc<=maxtc ) )
         activeGetTRACO(ntc)->add_btiT( step, pos, &(*p) );
       else{
-        if(debug())
+        if(config()->debug()==4)
           std::cout << "ATTENTION: traco " << ntc << " is disconnected!" << std::endl;
       }  
     } 
@@ -130,7 +217,7 @@ DTTracoCard::loadTRACO() {
         if( /*config()->usedTraco(ntc+tci)==1 &&*/ ( (ntc+tci)>0 && (ntc+tci)<=maxtc ) )
           activeGetTRACO(ntc+tci)->add_btiT( step, pos+8-4*tci, &(*p) );
         else{
-          if(debug())
+          if(config()->debug()==4)
             std::cout << "ATTENTION: traco " << ntc+tci << " is disconnected!" << std::endl;
         }
       } 
@@ -142,7 +229,7 @@ DTTracoCard::loadTRACO() {
 void 
 DTTracoCard::runTRACO() {
 
-  if(debug()){
+  if(config()->debug()==4){
     std::cout << "DTTracoCard:runTRACO called for wheel=" << wheel() ;
     std::cout <<                               ", station=" << station();
     std::cout <<                               ", sector="  << sector();
@@ -152,7 +239,7 @@ DTTracoCard::runTRACO() {
   // run TRACO algorithm on all non-empty TRACO
   if(_tracomap.size()>0){
 
-    if(debug()){
+    if(config()->debug()>0){
       std::cout << "====================================================" << std::endl;
       std::cout << "              TRACO triggers                        " << std::endl; 
     }
@@ -188,7 +275,7 @@ DTTracoCard::runTRACO() {
         }
       }
     }
-    if(debug())
+    if(config()->debug()>0)
       std::cout << "====================================================" << std::endl;
   }
 }
@@ -196,16 +283,12 @@ DTTracoCard::runTRACO() {
 DTTracoChip*
 DTTracoCard::activeGetTRACO(int n) {
 
-  // the traco identifier
-  DTChamberId sid = geom()->statId();
-  DTTracoId _id = DTTracoId(sid,n);
- 
   DTTracoChip* traco=0;
   TRACO_iter ptraco = _tracomap.find(n);
   if( ptraco!=_tracomap.end() ) {
     traco=(*ptraco).second;
   } else {
-    traco = new DTTracoChip(this,n,config_traco(_id));
+    traco = new DTTracoChip(this,n,_configTraco);
     _tracomap[n]=traco;
   }
   return traco;
@@ -292,7 +375,7 @@ DTTracoCard::localPosition(const DTTrigData* tr) const {
   float y = geom()->localPosition(trig->parentId()).y();
   float z = geom()->localPosition(trig->parentId()).z();
 
-  float trig_pos = geom()->cellPitch() * ( (float)trig->X() / (float)(config_traco(trig->parentId())->BTIC()));
+  float trig_pos = geom()->cellPitch() * ( (float)trig->X() / (float)(config()->BTIC()));
 
 //  10/7/06 May be not needed anymore in new geometry 
 //   if(geom()->posFE(1)==1)
@@ -323,7 +406,7 @@ DTTracoCard::localDirection(const DTTrigData* tr) const {
   }
   float r,x,y,z;
   x = -(float)trig->K() * geom()->cellPitch() /
-                      (float)(config_traco(trig->parentId())->BTIC());
+                      (float)(config()->BTIC());
   y = 0;
   z = -geom()->distSL();
   r = sqrt(x*x+z*z);
@@ -346,9 +429,9 @@ DTTracoCard::localDirection(const DTTrigData* tr) const {
   //int FE = geom()->posFE(3);
 
   float psi = atan((float)(trig->K())*geom()->cellPitch()
-                   /( geom()->distSL() * config_traco(trig->parentId())->BTIC()) );
+                   /( geom()->distSL() * config()->BTIC()) );
 
-  if(config_traco(trig->parentId())->debug()==4)
+  if(config()->debug()==4)
     std::cout << "K " << trig->K() << " == psi " << psi << " in FE frame " << std::endl;
     
   // (xd,yd,zd) in chamber frame
@@ -362,30 +445,9 @@ DTTracoCard::localDirection(const DTTrigData* tr) const {
   //}
 
  
-  if(config_traco(trig->parentId())->debug()==4)
+  if(config()->debug()==4)
     std::cout << "Direction in chamber frame is (" << xd << "," << yd << "," << zd << ")" << std::endl;
  
   return LocalVector(xd,yd,zd);
 }
-
-DTConfigTraco* 
-DTTracoCard::config_traco(const DTTracoId& tracoid) const
-{
-
-  // the traco identifier
-  DTChamberId sid = geom()->statId();
- 
-  //loop on map to find traco
-  ConfTracoMap::const_iterator titer = _conf_traco_map.find(tracoid);
-  if (titer == _conf_traco_map.end()){
-    std::cout << "DTTracoCard::config_traco : TRACO (" << tracoid.wheel()
-	      << "," << tracoid.sector()
-	      << "," << tracoid.station()
-	      << "," << tracoid.traco()
-	      << ") not found, return 0" << std::endl;
-    return 0;
-  }
-
-  return (*titer).second;
-} 
 
