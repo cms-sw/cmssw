@@ -16,7 +16,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Fri May 26 16:11:37 EDT 2006
-// $Id: SiStripElectronProducer.h,v 1.3 2006/07/25 22:35:14 pivarski Exp $
+// $Id: SiStripElectronProducer.h,v 1.4 2007/02/02 14:43:01 duboscq Exp $
 //
 
 // system include files

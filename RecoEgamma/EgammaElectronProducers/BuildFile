@@ -17,7 +17,6 @@
 <use name=RecoEgamma/EgammaElectronAlgos>
 <use name=RecoTracker/CkfPattern>
 <use name=RecoTracker/TrackProducer>
-<flags EDM_PLUGIN=1>
 <export>
    <lib name=RecoEgammaEgammaElectronProducers>
    <use name=FWCore/Framework>
