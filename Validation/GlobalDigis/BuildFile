@@ -11,6 +11,11 @@
 <use name=CalibFormats/HcalObjects>
 <use name=DataFormats/SiStripDigi>
 <use name=DataFormats/SiStripDetId>
+<use name=DataFormats/SiPixelDigi>
+<use name=DataFormats/SiPixelDetId>
+<use name=DataFormats/DTDigi>
+<use name=DataFormats/MuonDetId>
+<use name=DataFormats/CSCDigi>
 <use name=SimDataFormats/GlobalDigiValidation>
 <use name=SimDataFormats/CrossingFrame>
 <use name=SimDataFormats/CaloHit>
@@ -34,6 +39,11 @@
  <use name=CalibFormats/HcalObjects>
  <use name=DataFormats/SiStripDigi>
  <use name=DataFormats/SiStripDetId> 
+ <use name=DataFormats/SiPixelDigi>
+ <use name=DataFormats/SiPixelDetId>
+ <use name=DataFormats/DTDigi>
+ <use name=DataFormats/MuonDetId>
+ <use name=DataFormats/CSCDigi>
  <use name=SimDataFormats/GlobalDigiValidation>
  <use name=SimDataFormats/CrossingFrame>
  <use name=SimDataFormats/CaloHit>

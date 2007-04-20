@@ -8,6 +8,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+//#include "DataFormats/Common/interface/Provenance.h"
 #include "DataFormats/Provenance/interface/Provenance.h"
 #include "FWCore/Framework/interface/MakerMacros.h" 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -49,6 +50,26 @@
 #include "DataFormats/SiStripDetId/interface/TOBDetId.h"
 #include "DataFormats/SiStripDetId/interface/TIDDetId.h"
 #include "DataFormats/SiStripDetId/interface/TECDetId.h"
+
+// silicon pixel info
+#include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
+#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
+#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
+#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
+
+// muon DT info
+#include "DataFormats/DTDigi/interface/DTDigi.h"
+#include "DataFormats/DTDigi/interface/DTDigiCollection.h"
+#include "DataFormats/MuonDetId/interface/DTWireId.h"
+#include "DataFormats/MuonDetId/interface/DTLayerId.h"
+
+// muon CSC Strip info
+#include "DataFormats/CSCDigi/interface/CSCStripDigi.h"
+#include "DataFormats/CSCDigi/interface/CSCStripDigiCollection.h"
+
+// muon CSC Wire info
+#include "DataFormats/CSCDigi/interface/CSCWireDigi.h"
+#include "DataFormats/CSCDigi/interface/CSCWireDigiCollection.h"
 
 // event info
 #include "SimDataFormats/GlobalDigiValidation/interface/PGlobalDigi.h"
@@ -97,6 +118,8 @@ class GlobalDigisProducer : public edm::EDProducer
   void storeHCal(PGlobalDigi&);
   void fillTrk(edm::Event&, const edm::EventSetup&);
   void storeTrk(PGlobalDigi&);
+  void fillMuon(edm::Event&, const edm::EventSetup&);
+  void storeMuon(PGlobalDigi&);  
 
   void clear();
 
@@ -166,6 +189,42 @@ class GlobalDigisProducer : public edm::EDProducer
     TECW6Strip, TECW7Strip, TECW8Strip;
 
   edm::InputTag SiStripSrc_;
+
+  // SiPxl
+
+  FloatVector BRL1ADC, BRL2ADC, BRL3ADC;
+  IntVector BRL1Row, BRL2Row, BRL3Row;
+  IntVector BRL1Col, BRL2Col, BRL3Col;
+
+  FloatVector FWD1pADC, FWD1nADC, FWD2pADC, FWD2nADC;
+  IntVector FWD1pRow, FWD1nRow, FWD2pRow, FWD2nRow;
+  IntVector FWD1pCol, FWD1nCol, FWD2pCol, FWD2nCol;
+
+  edm::InputTag SiPxlSrc_;
+
+  // Muon info
+  // DT
+
+  IntVector MB1SLayer, MB2SLayer, MB3SLayer, MB4SLayer;
+  FloatVector MB1Time, MB2Time, MB3Time, MB4Time;
+  IntVector MB1Layer, MB2Layer, MB3Layer, MB4Layer;
+
+  edm::InputTag MuDTSrc_;
+
+  // CSC Strip
+
+  float theCSCStripPedestalSum;
+  int theCSCStripPedestalCount;
+
+  FloatVector CSCStripADC;
+
+  edm::InputTag MuCSCStripSrc_;
+
+  // CSC Wire
+
+  FloatVector CSCWireTime;
+
+  edm::InputTag MuCSCWireSrc_;
 
   // private statistics information
   unsigned int count;
