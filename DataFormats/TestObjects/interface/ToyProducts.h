@@ -118,7 +118,7 @@ namespace edmtest
   typedef edm::SortedCollection<Simple> SCSimpleProduct;
   typedef edm::OwnVector<Simple>        OVSimpleProduct;
   typedef edm::OwnVector<SimpleDerived> OVSimpleDerivedProduct;
-  typedef edm::AssociationVector<std::vector<Simple>, std::vector<Simple> > AVSimpleProduct;
+  typedef edm::AssociationVector<edm::RefProd<std::vector<Simple> >, std::vector<Simple> > AVSimpleProduct;
   typedef edm::DetSetVector<Sortable>   DSVSimpleProduct;
   typedef edm::DetSetVector<Unsortable> DSVWeirdProduct;
 

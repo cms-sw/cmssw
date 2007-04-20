@@ -23,7 +23,6 @@ struct dictionary {
   edm::Wrapper<edmtest::AVSimpleProduct> dummyw18;
   edm::Wrapper<edmtest::DSVSimpleProduct> dummyw19;
   edm::Wrapper<edmtest::DSVWeirdProduct> dummyw20;
-
   edmtest::ThingCollection dummy1;
   edmtest::OtherThingCollection dummy2;
   edm::Wrapper<edmtest::ThingCollection> dummy3;
@@ -33,14 +32,17 @@ struct dictionary {
   edmtestprod::StreamTestTmpl<edmtestprod::Ord<edmtestprod::Simple> > dummy21;
   edm::Wrapper<edmtestprod::StreamTestTmpl<edmtestprod::Ord<edmtestprod::Simple> > > dummy22;
   std::vector<edmtestprod::Simple> dummy23;
+  std::vector<edmtest::Simple> dummy231;
+  edm::RefProd<std::vector<edmtest::Simple> > dummy232;
   edm::SortedCollection<edmtestprod::Simple,edm::StrictWeakOrdering<edmtestprod::Simple> > dummy24;
   edm::Wrapper<edm::SortedCollection<edmtestprod::Simple,edm::StrictWeakOrdering<edmtestprod::Simple> > > dummy25;
   edm::Wrapper<edmtestprod::StreamTestThing> dummy26;
   edm::Wrapper<edmtestprod::X0123456789012345678901234567890123456789012345678901234567890123456789012345678901> dummy27;
-
   edm::DetSet<edmtest::Sortable> x1;
   edm::DetSet<edmtest::Unsortable> x2;
   std::vector<edmtest::Sortable> x3;
   std::vector<edmtest::Unsortable> x4;
+
+ 
 };
 }

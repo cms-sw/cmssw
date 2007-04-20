@@ -24,12 +24,12 @@ namespace {
     reco::CandidateRefProd rp1;
     std::vector<edm::RefToBase<reco::Candidate> > vrb1;
     edm::reftobase::Holder<reco::Candidate, reco::CandidateRef> rhcr1;
-    edm::AssociationVector<reco::CandidateCollection, std::vector<double> > av1;
-    edm::Wrapper<edm::AssociationVector<reco::CandidateCollection, std::vector<double> > > wav1;
-    edm::AssociationVector<reco::CandidateCollection, std::vector<float> > av2;
-    edm::Wrapper<edm::AssociationVector<reco::CandidateCollection, std::vector<float> > > wav2;
-    edm::AssociationVector<reco::CandidateCollection, std::vector<int> > av3;
-    edm::Wrapper<edm::AssociationVector<reco::CandidateCollection, std::vector<int> > > wav3;
+    edm::AssociationVector<edm::RefProd<reco::CandidateCollection>, std::vector<double> > av1;
+    edm::Wrapper<edm::AssociationVector<edm::RefProd<reco::CandidateCollection>, std::vector<double> > > wav1;
+    edm::AssociationVector<edm::RefProd<reco::CandidateCollection>, std::vector<float> > av2;
+    edm::Wrapper<edm::AssociationVector<edm::RefProd<reco::CandidateCollection>, std::vector<float> > > wav2;
+    edm::AssociationVector<edm::RefProd<reco::CandidateCollection>, std::vector<int> > av3;
+    edm::Wrapper<edm::AssociationVector<edm::RefProd<reco::CandidateCollection>, std::vector<int> > > wav3;
     edm::helpers::KeyVal<reco::CandidateRef,reco::CandidateRef> kv1;
     reco::CandMatchMap cmm1;
     reco::CandMatchMap::const_iterator cmm1it;
