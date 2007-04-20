@@ -270,7 +270,7 @@ float Muon::dX( int station, int muonSubdetId, ArbitrationType type ) const
 {
    std::pair<const MuonChamberMatch*,const MuonSegmentMatch*> thePair = getPair(getChambers(station,muonSubdetId),type);
    if(thePair.first==0 || thePair.second==0) return 999999;
-   return fabs(thePair.first->x-thePair.second->x);
+   return thePair.first->x-thePair.second->x;
 }
 
 float Muon::dY( int station, int muonSubdetId, ArbitrationType type ) const
@@ -278,14 +278,14 @@ float Muon::dY( int station, int muonSubdetId, ArbitrationType type ) const
    if(station==4 && muonSubdetId==MuonSubdetId::DT) return 999999; // no y information
    std::pair<const MuonChamberMatch*,const MuonSegmentMatch*> thePair = getPair(getChambers(station,muonSubdetId),type);
    if(thePair.first==0 || thePair.second==0) return 999999;
-   return fabs(thePair.first->y-thePair.second->y);
+   return thePair.first->y-thePair.second->y;
 }
 
 float Muon::dDxDz( int station, int muonSubdetId, ArbitrationType type ) const
 {
    std::pair<const MuonChamberMatch*,const MuonSegmentMatch*> thePair = getPair(getChambers(station,muonSubdetId),type);
    if(thePair.first==0 || thePair.second==0) return 999999;
-   return fabs(thePair.first->dXdZ-thePair.second->dXdZ);
+   return thePair.first->dXdZ-thePair.second->dXdZ;
 }
 
 float Muon::dDyDz( int station, int muonSubdetId, ArbitrationType type ) const
@@ -293,7 +293,7 @@ float Muon::dDyDz( int station, int muonSubdetId, ArbitrationType type ) const
    if(station==4 && muonSubdetId==MuonSubdetId::DT) return 999999; // no y information
    std::pair<const MuonChamberMatch*,const MuonSegmentMatch*> thePair = getPair(getChambers(station,muonSubdetId),type);
    if(thePair.first==0 || thePair.second==0) return 999999;
-   return fabs(thePair.first->dYdZ-thePair.second->dYdZ);
+   return thePair.first->dYdZ-thePair.second->dYdZ;
 }
 
 float Muon::pullX( int station, int muonSubdetId, ArbitrationType type, bool includeSegmentError ) const
