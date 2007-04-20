@@ -4,11 +4,11 @@
 <use name=DataFormats/VertexReco>
 <use name=SimDataFormats/Track>
 <use name=SimDataFormats/HepMCProduct>
-<use name=SimGeneral/HepPDTESSource>
 <use name = hepmc>
 <use name=RecoVertex/PrimaryVertexProducer>
 <use name=root>
 <use name=gsl>
+<use name=SimGeneral/HepPDTRecord>
 <flags EDM_PLUGIN=1>
 <export>
    <lib name=ValidationVertexReco>
@@ -18,8 +18,8 @@
    <use name=DataFormats/VertexReco>
    <use name=SimDataFormats/Track>
    <use name=SimDataFormats/HepMCProduct>
-   <use name=SimGeneral/HepPDTESSource>
    <use name=RecoVertex/PrimaryVertexProducer>
+   <use name=SimGeneral/HepPDTRecord>
    <use name=root>
    <use name = hepmc>
    <use name=gsl>
