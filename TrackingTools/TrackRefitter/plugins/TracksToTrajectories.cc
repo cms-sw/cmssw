@@ -1,4 +1,4 @@
-#include "TrackingTools/TrackRefitter/src/TracksToTrajectories.h"
+#include "TrackingTools/TrackRefitter/plugins/TracksToTrajectories.h"
 
 #include "TrackingTools/TrackRefitter/interface/TrackTransformer.h"
 

@@ -7,12 +7,10 @@
 <use name=CLHEP>
 <use name=root>
 
-<flags EDM_PLUGIN=1> 
-
 <export>
    <lib name=TrackingToolsTrackRefitter>
 
    <use name=TrackingTools/TransientTrackingRecHit>
    <use name=TrackingTools/TransientTrack>
    <use name=TrackingTools/TrackFitters>
-</Export>
+</export>
