@@ -1,5 +1,5 @@
 /*
- * $Id: IncludeFileFinder_t.cppunit.cc,v 1.2 2007/04/09 22:55:40 chrjones Exp $
+ * $Id: IncludeFileFinder_t.cppunit.cc,v 1.3 2007/04/20 17:32:59 rpw Exp $
  */
 
 #include <algorithm>
@@ -49,10 +49,10 @@ CPPUNIT_TEST_SUITE_REGISTRATION(IncludeFileFinderTest);
 
 void IncludeFileFinderTest::strippingTest()
 {
-  string original = "libSimCalorimetryCaloSimAlgos.so";
+  string original = "libSimCalorimetryCaloSimAlgosPlugins.so";
 
   string result = IncludeFileFinder::stripHeader(original);
-  CPPUNIT_ASSERT (result == "SimCalorimetryCaloSimAlgos.so");
+  CPPUNIT_ASSERT (result == "SimCalorimetryCaloSimAlgosPlugins.so");
    
   string result2 =  IncludeFileFinder::stripTrailer(result);
   CPPUNIT_ASSERT (result2 == "SimCalorimetryCaloSimAlgos");
