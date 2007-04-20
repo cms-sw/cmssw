@@ -8,7 +8,7 @@
 <use name=DataFormats/Math>
 <use name=boost>
 <use name=root>
-<use name=RecoBTag/TrackCounting>
+<use name=RecoBTag/BTagTools>
 
 <flags SEAL_PLUGIN_NAME="RecoTauTagImpactParameter">
 <export>
