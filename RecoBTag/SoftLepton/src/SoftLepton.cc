@@ -13,7 +13,7 @@
 //
 // Original Author:  fwyzard
 //         Created:  Wed Oct 18 18:02:07 CEST 2006
-// $Id: SoftLepton.cc,v 1.14 2007/03/01 11:07:12 arizzi Exp $
+// $Id: SoftLepton.cc,v 1.15 2007/03/06 17:49:25 fwyzard Exp $
 //
 
 
@@ -148,10 +148,11 @@ SoftLepton::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     extCollection->push_back( result.second );
   }
 
-  edm::OrphanHandle<reco::JetTagCollection> handleJetTag = iEvent.put( baseCollection );
-  for (unsigned int i = 0; i < extCollection->size(); i++)
-    (*extCollection)[i].setJetTag( reco::JetTagRef( handleJetTag, i ) );
-  iEvent.put(extCollection);
+  // the base collection needs a link to the extended collection
+  edm::OrphanHandle<reco::SoftLeptonTagInfoCollection> extHandle = iEvent.put( extCollection );
+  for (unsigned int i = 0; i < baseCollection->size(); i++)
+    (*baseCollection)[i].setTagInfo( edm::RefToBase<BaseTagInfo>( reco::SoftLeptonTagInfoRef( extHandle, i) ) );
+  iEvent.put(baseCollection);
 }
 
 // ------------ method called once each job just before starting event loop  ------------

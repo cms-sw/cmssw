@@ -13,7 +13,7 @@
 //
 // Original Author:  fwyzard
 //         Created:  Wed Oct 18 18:02:07 CEST 2006
-// $Id: SoftLeptonAlgorithm.cc,v 1.9 2007/02/15 20:09:14 fwyzard Exp $
+// $Id: SoftLeptonAlgorithm.cc,v 1.10 2007/03/07 23:40:55 fwyzard Exp $
 //
 
 // STL
@@ -77,7 +77,7 @@ SoftLeptonAlgorithm::tag(
       cerr << "   Track " << setw(2) << (*track).index() << " pT: " << setprecision(2) << setw(6) << (**track).pt() << " eta: " << setprecision(2) << setw(5) << (**track).eta() << " phi: " << setprecision(2) << setw(5) << (**track).phi() << endl;
   } catch (edm::Exception e) {
     cerr << "->   Jet " << setw(2) << jet.index() << " pT: " << setprecision(2) << setw(6) << jet->pt() << " eta: " << setprecision(2) << setw(5) << jet->eta() << " phi: " << setprecision(2) << setw(5) << jet->phi() << " has 0 tracks" << endl;
-    reco::JetTag tag( 0.0, jetTracks );
+    reco::JetTag tag( 0.0 );
     reco::SoftLeptonTagInfo info;
     return std::pair<reco::JetTag, reco::SoftLeptonTagInfo>(tag, info);
   }
@@ -133,7 +133,7 @@ SoftLeptonAlgorithm::tag(
       discriminant = properties.tag;
   }
  
-  reco::JetTag tag( discriminant, jetTracks );
+  reco::JetTag tag( discriminant );
   return std::pair<reco::JetTag, reco::SoftLeptonTagInfo>( tag, info );
 }
 
