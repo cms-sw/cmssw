@@ -52,11 +52,11 @@ CSCAnodeData::CSCAnodeData(const CSCALCTHeader & header ,
 
 std::vector<CSCWireDigi> CSCAnodeData::wireDigis(int layer) const {
   std::vector<CSCWireDigi> digis;
-  uint16_t tbinbits=0;
+  uint32_t tbinbits=0;
   uint16_t wireGroup=0;
   for(int afeb = 0; afeb < nAFEBs_; ++afeb) {
     for(int halfLayer = 0; halfLayer <2; ++halfLayer) {
-      for (int j=0;j<8;j++) {
+      for (int j=0;j<8;++j) {
 	for(int tbin = 0; tbin < nTimeBins_; ++tbin) {
 	  const CSCAnodeDataFrame & frame = rawHit(afeb,tbin,layer, halfLayer);
 	  // see if there's anything in 1st 8 bits.  Usually zero
