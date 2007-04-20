@@ -60,11 +60,10 @@ void HLTL1MuonCorrector::produce(edm::Event& e, const edm::EventSetup& es)
   e.getByLabel(vertexSrc,vertices);
   const reco::VertexCollection vertCollection = *(vertices.product());
   reco::VertexCollection::const_iterator ci = vertCollection.begin();
-  if(vertCollection.size() == 0) return;
-  originz = ci->z();
-    
   std::auto_ptr<CandidateCollection> output(new CandidateCollection());  
-
+  
+  if(vertCollection.size() != 0){
+  originz = ci->z();
   //Get the HLTObject direction
   edm::Handle<HLTFilterObjectWithRefs> ref;
   e.getByLabel(directionSrc,ref);
@@ -93,7 +92,7 @@ void HLTL1MuonCorrector::produce(edm::Event& e, const edm::EventSetup& es)
 	  output->push_back(particle);
 	}
    }   
-	
+	}
     LogDebug("HLTL1MuonCorrector")<<" number of corrected candidates = "<< output->size();
     e.put(output);
 }
