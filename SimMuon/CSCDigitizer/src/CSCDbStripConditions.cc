@@ -147,7 +147,7 @@ void CSCDbStripConditions::crosstalk(const CSCDetId&detId, int channel,
   }
 
   const CSCcrosstalk::Item & item = crosstalkItr->second[channel-1];
-  return leftRight ? item.xtalk_intercept_right : item.xtalk_intercept_left;
+  //@@ DOESN"T DO ANYTHING YET!
 }
 
 
