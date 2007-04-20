@@ -16,7 +16,7 @@
 
 
 // system include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
+//#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
@@ -28,6 +28,8 @@
 #include <TH1I.h>
 #include <TFile.h>
 
+#include <TH2F.h>
+#include <TH1F.h>
 
 //
 // class declaration
@@ -49,9 +51,13 @@ class EcalTrigPrimAnalyzer : public edm::EDAnalyzer {
   TH1I * ecal_fgvb_[2];
   TH1I *histEndc,*histBar;
   TFile *histfile_;
-  
+  TH2F *hTPvsRechit_;
+  TH1F *hTPoverRechit_;
+
   std::string label_;
   std::string producer_;
-
+  std::string rechits_labelEB_;
+  std::string  rechits_labelEE_;
+  std::string  rechits_producer_;
 };
 
