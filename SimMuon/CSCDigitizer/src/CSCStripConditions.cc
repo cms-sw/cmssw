@@ -23,3 +23,9 @@ void CSCStripConditions::noisify(const CSCDetId & detId, CSCAnalogSignal & signa
 }
 
  
+float CSCStripConditions::analogNoise(const CSCDetId & detId, int channel) const
+{
+  return sqrt(2) * pedestalVariance(detId, channel) / gain(detId, channel);
+}
+
+

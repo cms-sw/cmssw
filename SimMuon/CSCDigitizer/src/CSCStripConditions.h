@@ -13,6 +13,8 @@ public:
   CSCStripConditions()
   : theNoisifier(0) {}
 
+  virtual ~CSCStripConditions() {delete theNoisifier;}
+
   void noisify(const CSCDetId & detId, CSCAnalogSignal & signal);
 
   virtual void initializeEvent(const edm::EventSetup & es) {}
@@ -24,6 +26,13 @@ public:
 
   /// in ADC counts
   virtual float pedestal(const CSCDetId & detId, int channel) const = 0;
+  virtual float pedestalVariance(const CSCDetId & detId, int channel) const = 0;
+
+  /// calculated from pedestalVariance & gain
+  float analogNoise(const CSCDetId & detId, int channel) const;
+
+  virtual void crosstalk(double stripLength, bool leftRight, 
+                 float & capacitive, float & resistive) const = 0;
   
 protected:
   virtual void fetchNoisifier(const CSCDetId & detId, int istrip) = 0;

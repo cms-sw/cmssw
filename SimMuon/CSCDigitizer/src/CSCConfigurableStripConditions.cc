@@ -4,11 +4,11 @@
 #include "FWCore/Utilities/interface/Exception.h"
 
 CSCConfigurableStripConditions::CSCConfigurableStripConditions(const edm::ParameterSet & p)
-: theAnalogNoise(  p.getParameter<double>("analogNoise") ),
-  theGain( p.getParameter<double>("gain") ),
+: theGain( p.getParameter<double>("gain") ),
   theME11Gain( p.getParameter<double>("me11gain") ),
   theGainVariance( p.getParameter<double>("ampGainVariance") ),
-  thePedestal( p.getParameter<double>("pedestal") )
+  thePedestal( p.getParameter<double>("pedestal") ),
+  thePedestalVariance( p.getParameter<double>("pedestalVariance") )
 {
   theNoisifiers.resize(9);
   makeNoisifier(1, p.getParameter<std::vector<double> >("me11") );
@@ -81,9 +81,9 @@ void CSCConfigurableStripConditions::makeNoisifier(int chamberType, const std::v
 
   // since I don't know how to correlate the pedestal samples,
   // take as constant
-  matrix[0][0] = theAnalogNoise * theAnalogNoise;
-  matrix[1][1] = theAnalogNoise * theAnalogNoise;
-  matrix[2][2] = theAnalogNoise * theAnalogNoise;
+  matrix[0][0] = thePedestalVariance * thePedestalVariance;
+  matrix[1][1] = thePedestalVariance * thePedestalVariance;
+  matrix[2][2] = thePedestalVariance * thePedestalVariance;
   theNoisifiers[chamberType-1] = new CorrelatedNoisifier(matrix);
 
 }
