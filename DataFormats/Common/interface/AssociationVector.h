@@ -9,7 +9,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.8 $
+ * \version $Revision: 1.9 $
  */
 
 #include "DataFormats/Common/interface/traits.h"
@@ -24,15 +24,17 @@ namespace edm {
     typename KeyRef=edm::Ref<typename KeyRefProd::product_type>,
     typename SizeType=typename KeyRefProd::product_type::size_type>
   class AssociationVector {
-  public:
     BOOST_STATIC_ASSERT( ( boost::is_same<SizeType, typename CVal::size_type>::value ) );
+    typedef AssociationVector<KeyRefProd, CVal, KeyRef, SizeType> self;
+
+  public:
     typedef typename KeyRefProd::product_type CKey;
     typedef SizeType size_type;
     typedef typename KeyRef::value_type key_type;
-    typedef typename CVal::value_type val_type;
-    typedef typename std::pair<KeyRef, const val_type &> value_type;
-    typedef typename std::pair<KeyRef, val_type> reference;
-    typedef value_type const_reference;
+    typedef typename std::pair<KeyRef, const typename CVal::value_type *> value_type;
+    typedef std::vector<value_type> transient_vector_type;
+    typedef value_type & reference;
+    typedef const value_type & const_reference;
     AssociationVector();
     AssociationVector(KeyRefProd ref);
     AssociationVector(const AssociationVector &);
@@ -40,50 +42,76 @@ namespace edm {
     
     size_type size() const;
     bool empty() const;
-    reference operator[](size_type);
-    const_reference operator[](size_type) const;
+    reference operator[](size_type n) { fixup(); return transientVector_[ n ]; }
+    const_reference operator[](size_type n) const { fixup(); return transientVector_[ n ]; }
     
-    AssociationVector<KeyRefProd, CVal, KeyRef, SizeType> & 
-      operator=(const AssociationVector<KeyRefProd, CVal, KeyRef, SizeType> &);
+    self & operator=(const self & );
     
     void clear();
-    void swap(AssociationVector<KeyRefProd, CVal, KeyRef, SizeType> & other);
+    void swap( self & other);
     const KeyRefProd & keyProduct() const { return ref_; }
     KeyRef key(size_type i) const { return KeyRef(ref_, i); }
-    const val_type & value(size_type i) const { return data_[ i ]; }  
-    val_type & value(size_type i) { return data_[ i ]; }  
+    const typename CVal::value_type & value(size_type i) const { return data_[ i ]; }
+    void setValue(size_type i, const typename CVal::value_type & val ) { data_[ i ] = val; fixup(i); }   
     void fillView(std::vector<void const*>& pointers) const;
+
+    typedef typename transient_vector_type::const_iterator const_iterator;
+
+    const_iterator begin() const { fixup(); return transientVector_.begin(); } 
+    const_iterator end() const { fixup(); return transientVector_.end(); } 
 
   private:
     CVal data_;
     KeyRefProd ref_;
+    mutable transient_vector_type transientVector_;
+    mutable bool fixed_;
+    void fixup() const { 
+      if (!fixed_) {
+	fixed_ = true;
+	transientVector_.resize( size() );
+	for( size_type i = 0; i != size(); ++ i ) {
+	  transientVector_[ i ].first = KeyRef(ref_, i);
+	  transientVector_[ i ].second = & data_[ i ];
+	}
+      }
+    }
+    void fixup(size_t i) { 
+      if (fixed_) {
+	transientVector_[ i ].first = KeyRef(ref_, i);
+	transientVector_[ i ].second = & data_[ i ];
+      }
+    }
   };
   
   template<typename KeyRefProd, typename CVal, typename KeyRef, typename SizeType>
   inline AssociationVector<KeyRefProd, CVal, KeyRef, SizeType>::AssociationVector() : 
-    data_(), ref_() { }
+    data_(), ref_(), transientVector_(), fixed_(false)  { }
   
   template<typename KeyRefProd, typename CVal, typename KeyRef, typename SizeType>
   inline AssociationVector<KeyRefProd, CVal, KeyRef, SizeType>::AssociationVector(KeyRefProd ref) : 
-    data_(ref->size()), ref_(ref) { }
+    data_(ref->size()), ref_(ref), transientVector_(ref->size()), fixed_(true) { }
   
   template<typename KeyRefProd, typename CVal, typename KeyRef, typename SizeType>
-  inline AssociationVector<KeyRefProd, CVal, KeyRef, SizeType>::AssociationVector(const AssociationVector<KeyRefProd, CVal, KeyRef, SizeType> & o) : 
-    data_(o.data_), ref_(o.ref_) { }
+  inline AssociationVector<KeyRefProd, CVal, KeyRef, SizeType>::
+    AssociationVector(const AssociationVector<KeyRefProd, CVal, KeyRef, SizeType> & o) : 
+    data_(o.data_), ref_(o.ref_), transientVector_(o.transientVector_), fixed_(o.fixed_) { }
   
   template<typename KeyRefProd, typename CVal, typename KeyRef, typename SizeType>
   inline AssociationVector<KeyRefProd, CVal, KeyRef, SizeType>::~AssociationVector() { }
   
   template<typename KeyRefProd, typename CVal, typename KeyRef, typename SizeType>
   inline AssociationVector<KeyRefProd, CVal, KeyRef, SizeType> & 
-  AssociationVector<KeyRefProd, CVal, KeyRef, SizeType>::operator=(const AssociationVector<KeyRefProd, CVal, KeyRef, SizeType> & o) {
+  AssociationVector<KeyRefProd, CVal, KeyRef, SizeType>::operator=(const self & o) {
     data_ = o.data_;
     ref_ = o.ref_;
+    transientVector_ = o.transientVector_;
+    fixed_ = o.fixed_;
     return * this;
   }
   
   template<typename KeyRefProd, typename CVal, typename KeyRef, typename SizeType>
-  inline typename AssociationVector<KeyRefProd, CVal, KeyRef, SizeType>::size_type AssociationVector<KeyRefProd, CVal, KeyRef, SizeType>::size() const {
+  inline typename AssociationVector<KeyRefProd, CVal, KeyRef, SizeType>::size_type 
+    AssociationVector<KeyRefProd, CVal, KeyRef, SizeType>::size() const {
     return data_.size();
   }
   
@@ -93,27 +121,19 @@ namespace edm {
   }
   
   template<typename KeyRefProd, typename CVal, typename KeyRef, typename SizeType>
-  inline typename AssociationVector<KeyRefProd, CVal, KeyRef, SizeType>::reference 
-    AssociationVector<KeyRefProd, CVal, KeyRef, SizeType>::operator[](size_type n) {
-    return reference( key(n), value(n) );
-  }
-  
-  template<typename KeyRefProd, typename CVal, typename KeyRef, typename SizeType>
-  inline typename AssociationVector<KeyRefProd, CVal, KeyRef, SizeType>::const_reference 
-    AssociationVector<KeyRefProd, CVal, KeyRef, SizeType>::operator[](size_type n) const {
-    return const_reference( key(n), value(n) );
-  }
-  
-  template<typename KeyRefProd, typename CVal, typename KeyRef, typename SizeType>
   inline void AssociationVector<KeyRefProd, CVal, KeyRef, SizeType>::clear() {
     data_.clear();
+    transientVector_.clear();
     ref_ = KeyRefProd();
+    fixed_ = true;
   }
 
   template<typename KeyRefProd, typename CVal, typename KeyRef, typename SizeType>
-  inline void AssociationVector<KeyRefProd, CVal, KeyRef, SizeType>::swap(AssociationVector<KeyRefProd, CVal, KeyRef, SizeType> & other) {
+  inline void AssociationVector<KeyRefProd, CVal, KeyRef, SizeType>::swap(self & other) {
     data_.swap(other.data_);
+    transientVector_.swap(other.transientVector_);
     std::swap(ref_, other.ref_);
+    std::swap(fixed_, other.fixed_);
   }
 
   template<typename KeyRefProd, typename CVal, typename KeyRef, typename SizeType>
