@@ -1,8 +1,8 @@
 /*
  * \file DTLocalTriggerTask.cc
  * 
- * $Date: 2006/10/18 18:00:14 $
- * $Revision: 1.2 $
+ * $Date: 2007/04/12 14:05:12 $
+ * $Revision: 1.4 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -311,7 +311,8 @@ void DTLocalTriggerTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 	int st = id.station();
 
 	
-	if(quality<7 && thqual==0 ) {	  // it is a phi trigger
+	//	if(quality<7 && thqual==0 ) {	  // it is a phi trigger
+	if( quality<7 ) {	  // it is a phi trigger
 
 	  if(quality>dduphcode_best[wh+3][st][sec] && quality<7) { // find best ddu trigger in phi view
 	    dduphcode_best[wh+3][st][sec]=quality; 
@@ -338,9 +339,11 @@ void DTLocalTriggerTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 	    bookHistos( id, string("LocalTriggerPhi"), histoType, trigsrc );
 	  (digiHistos.find(histoTag)->second).find(indexCh)->second->Fill(quality,flag1st);	  
 	}
-	else if(quality==7 && thqual>0) {  // it is a theta trigger
-	  	  
- 	  string histoType = "DDU_BXvsQual" ;
+
+	//	else if(quality==7 && thqual>0) {  // it is a theta trigger
+	else if( thqual>0 ) {  // it is a theta trigger
+
+ 	  string histoType = "DDU_BXvsThQual" ;
 	  histoTag = histoType + trigsrc;
  	  if ((digiHistos[histoTag].find(indexCh) == digiHistos[histoTag].end()))
  	    bookHistos( id, string("LocalTriggerTheta"), histoType, trigsrc );
@@ -556,7 +559,7 @@ void DTLocalTriggerTask::bookHistos(const DTChamberId& dtCh, string folder, stri
       (digiHistos[histoTag])[dtCh.rawId()] = 
  	dbe->book2D(histoName,histoName,101,-50.5,50.5,3,-0.5,2.5);
     }
-    if( histoType == "DDU_BXvsQual") {
+    if( histoType == "DDU_BXvsThQual") {
       (digiHistos[histoTag])[dtCh.rawId()] = 
  	dbe->book2D(histoName,histoName,8,-0.5,7.5,101,-50.5,50.5);
     }
