@@ -1,6 +1,5 @@
 # -*-SH-*-
-#remove plugin (lm 18042007)
-#<flags EDM_PLUGIN=1>
+#removed plugin (lm 18042007)
 <use name=clhep>
 <use name=DataFormats/Common>
 <use name=DataFormats/TrackReco>
@@ -18,8 +17,7 @@
 
 <use name=Geometry/Records>
 
-# it's now an EDM plugin
-#<use name=SimCalorimetry/EcalSimProducers>
+# removed Ecal Sim Producers -->it's now an EDM plugin
 #
 # <use name=SimDataFormats/HepMCProduct>
 <use name=DataFormats/DetId>
@@ -27,8 +25,7 @@
 <use name=TrackingTools/GeomPropagators>
 
 <use name=MagneticField/Engine>
-# it's now an edm plugin
-#<use name=MagneticField/VolumeBasedEngine>
+# removed Volume Based Engine it's now an edm plugin
 <use name=MagneticField/Records>
 
 <use name=TrackPropagation/SteppingHelixPropagator>
