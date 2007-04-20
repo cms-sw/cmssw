@@ -312,6 +312,8 @@ void EcalHitMaker::setTrackParameters(const HepNormal3D& normal,
   //  myHistos->debug("setTrackParameters");
   //  std::cout << " Track " << theTrack << std::endl;
   intersections_.clear();
+  // This is certainly enough
+  intersections_.resize(50);
   myTrack_=&theTrack;
   normal_=normal.unit();
   X0depthoffset_=X0depthoffset;
@@ -642,6 +644,7 @@ void EcalHitMaker::buildSegments(const std::vector<CaloPoint>& cp)
     }
   //  myHistos->debug();
   unsigned nsegments=size/2;
+  segments_.reserve(nsegments);
   if (size==0) return;
   // curv abs
   double s=0.;
@@ -844,7 +847,7 @@ void EcalHitMaker::buildGeometry()
   nx_=ncrystals_/ny_;
   std::vector<unsigned> empty;
   empty.resize(ny_,0);
-
+  myCrystalNumberArray_.reserve((unsigned)nx_);
   for(unsigned inx=0;inx<(unsigned)nx_;++inx)
     {      
       myCrystalNumberArray_.push_back(empty);
@@ -951,6 +954,7 @@ bool EcalHitMaker::getPads(double depth)
       //      std::cout << " Origin " << origin << std::endl;
 
       std::vector<HepPoint3D> corners;
+      corners.reserve(4);
       double dummyt;
       bool hasbeenpulled=false;
       bool behindback=false;
@@ -1167,6 +1171,7 @@ void EcalHitMaker::reorganizePads()
   // Some cleaning first 
   //  std::cout << " Starting reorganize " << std::endl;
   crackpadsatdepth_.clear();
+  crackpadsatdepth_.reserve(etasize_*phisize_);
   ncrackpadsatdepth_=0;
   std::vector<neighbour> gaps;
   std::vector<std::vector<neighbour> > cracks;  
@@ -1179,7 +1184,7 @@ void EcalHitMaker::reorganizePads()
       if(!validPads_[iq]) continue;
 
       gaps.clear();
-      //    std::cout << padsatdepth_[iq] << std::endl;
+      //   std::cout << padsatdepth_[iq] << std::endl;
       //check all the directions
       for(unsigned iside=0;iside<4;++iside)
 	{
@@ -1277,7 +1282,7 @@ void EcalHitMaker::gapsLifting(std::vector<neighbour>& gaps,unsigned iq)
   //  std::cout << " Entering gapsLifting "  << std::endl;
   CrystalPad & myPad = padsatdepth_[iq];
   unsigned ngaps=gaps.size();
-  bool debug=false;
+  static bool debug=false;
   if(ngaps==1)
     {
       if(debug)
@@ -1404,7 +1409,7 @@ void EcalHitMaker::gapsLifting(std::vector<neighbour>& gaps,unsigned iq)
 	      myPad.edge(SOUTHEAST)=point;	
 	    //	    std::cout << " Apres " << std::endl;
 	    //	    std::cout << myPad<< std::endl;
-	  }                        
+	  }   
 }
 
 void EcalHitMaker::cracksPads(std::vector<neighbour> & cracks, unsigned iq)
@@ -1415,6 +1420,7 @@ void EcalHitMaker::cracksPads(std::vector<neighbour> & cracks, unsigned iq)
   for(unsigned ic=0;ic<ncracks;++ic)
     {
       std::vector<Hep2Vector> mycorners;
+      mycorners.reserve(4);
       switch(cracks[ic].first)
 	{
 	case NORTH:
