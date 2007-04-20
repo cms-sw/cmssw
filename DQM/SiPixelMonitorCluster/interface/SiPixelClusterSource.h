@@ -5,7 +5,7 @@
 // Package:     SiPixelMonitorCluster
 // Class  :     SiPixelClusterSource
 // 
-/**
+/*
 
  Description: <one line class summary>
 
@@ -16,7 +16,7 @@
 //
 // Original Author:  Vincenzo Chiochia & Andrew York
 //         Created:  
-// $Id: SiPixelClusterSource.h,v 1.0 2007/04/16 chiochia Exp $
+// $Id: SiPixelClusterSource.h,v 1.3 2007/04/16 21:35:43 andrewdc Exp $
 //
 
 #include <memory>
@@ -31,6 +31,7 @@
 #include "DQM/SiPixelMonitorCluster/interface/SiPixelClusterModule.h"
 
 #include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "DataFormats/Common/interface/EDProduct.h"
 

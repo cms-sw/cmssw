@@ -1,25 +1,7 @@
-// -*- C++ -*-
-//
-// Package:    SiPixelMonitorCluster
-// Class:      SiPixelClusterModule
-// 
-/*class 
-
- Description:
-
- Implementation:
-     <Notes on implementation>
-*/
-//
-// Original Author:  Vincenzo Chiochia & Andrew York
-//         Created:  
-// $Id: SiPixelMonitorCluster.cc,v 1.0 2007/04/16 chiochia Exp $
-//
-//
 #include "DQM/SiPixelMonitorCluster/interface/SiPixelClusterModule.h"
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "DQM/SiPixelCommon/interface/SiPixelHistogramId.h"
-// Framework
+/// Framework
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 // STL
@@ -32,8 +14,8 @@
 // Constructors
 //
 SiPixelClusterModule::SiPixelClusterModule() : id_(0),
-					       ncols_(416),
-					       nrows_(160) { }
+					 ncols_(416),
+					 nrows_(160) { }
 ///
 SiPixelClusterModule::SiPixelClusterModule(const uint32_t& id) : 
   id_(id),
@@ -56,8 +38,8 @@ SiPixelClusterModule::~SiPixelClusterModule() {}
 // Book histograms
 //
 void SiPixelClusterModule::book(const edm::ParameterSet& iConfig) {
-  
-std::string hid;
+
+  std::string hid;
   // Get collection name and instantiate Histo Id builder
   edm::InputTag src = iConfig.getParameter<edm::InputTag>( "src" );
   SiPixelHistogramId* theHistogramId = new SiPixelHistogramId( src.label() );
@@ -114,19 +96,19 @@ std::string hid;
   mePixClusters_ = theDMBE->book2D(hid,"Number of Clusters (1bin=four pixels)",nbinx,0.,float(ncols_),nbiny,0.,float(nrows_));
   mePixClusters_->setAxisTitle("Columns",1);
   mePixClusters_->setAxisTitle("Rows",2);
+
   delete theHistogramId;
 }
-
 //
 // Fill histograms
 //
 void SiPixelClusterModule::fill(const edm::DetSetVector<SiPixelCluster>& input) {
-
+  
   edm::DetSetVector<SiPixelCluster>::const_iterator isearch = input.find(id_); // search  clusters of detid
   
   if( isearch != input.end() ) {  // Not at empty iterator
     
-    unsigned int numberOfClusters = 0;    
+    unsigned int numberOfClusters = 0;
     
     // Look at clusters now
     edm::DetSet<SiPixelCluster>::const_iterator  di;
@@ -162,8 +144,9 @@ void SiPixelClusterModule::fill(const edm::DetSetVector<SiPixelCluster>& input) 
     }
     (meNClusters_)->Fill((float)numberOfClusters);
     //std::cout<<"number of clusters="<<numberOfClusters<<std::endl;
-    
+      
   }
+  
   
   //std::cout<<"number of detector units="<<numberOfDetUnits<<std::endl;
   

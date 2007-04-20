@@ -5,7 +5,7 @@
 // Package:    SiPixelMonitorDigi
 // Class:      SiPixelClusterModule
 // 
-/**\class 
+/*
 
  Description: Cluster monitoring elements for a Pixel sensor
 
@@ -15,7 +15,7 @@
 //
 // Original Author:  Vincenzo Chiochia & Andrew York
 //         Created:  
-// $Id: SiPixelClusterModule.h,v 1.0 2007/04/16 chiochia Exp $
+// $Id: SiPixelClusterModule.h,v 1.3 2007/04/16 21:35:43 andrewdc Exp $
 //
 //
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -27,25 +27,25 @@
 class SiPixelClusterModule {        
 
  public:
-  
-  // Default constructor
+
+  /// Default constructor
   SiPixelClusterModule();
-  // Constructor with raw DetId
+  /// Constructor with raw DetId
   SiPixelClusterModule(const uint32_t& id);
-  // Constructor with raw DetID and sensor size
+  /// Constructor with raw DetId and sensor size
   SiPixelClusterModule(const uint32_t& id, const int& ncols, const int& nrows);
-  // Destructor
+  /// Destructor
   ~SiPixelClusterModule();
 
   typedef edm::DetSet<SiPixelCluster>::const_iterator    ClusterIterator;
 
-  // Book histograms
+  /// Book histograms
   void book(const edm::ParameterSet& iConfig);
-  // Fill histograms
+  /// Fill histograms
   void fill(const edm::DetSetVector<SiPixelCluster> & input);
   
  private:
-  
+
   uint32_t id_;
   int ncols_;
   int nrows_;
