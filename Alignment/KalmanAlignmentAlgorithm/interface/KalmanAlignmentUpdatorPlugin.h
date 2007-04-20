@@ -4,26 +4,14 @@
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 #include "Alignment/KalmanAlignmentAlgorithm/interface/KalmanAlignmentUpdator.h"
 
-#include <string>
-
 /// A PluginFactory for updators for the KalmanAlignmentAlgorithm.
 
+
+// Forward declaration
+namespace edm { class ParameterSet; }
+
+typedef edmplugin::PluginFactory<KalmanAlignmentUpdator* ( const edm::ParameterSet& ) >
+                   KalmanAlignmentUpdatorPlugin;
+
  
-class KalmanAlignmentUpdatorPlugin : public seal::PluginFactory< KalmanAlignmentUpdator *( const edm::ParameterSet & ) >
-{
-
-public:
-
-  KalmanAlignmentUpdatorPlugin( void );
-
-  static KalmanAlignmentUpdatorPlugin* get( void );
-
-  static KalmanAlignmentUpdator* getUpdator( std::string updator, const edm::ParameterSet & config );
-
-private:
-
-  static KalmanAlignmentUpdatorPlugin theInstance;
-
-};
-
 #endif

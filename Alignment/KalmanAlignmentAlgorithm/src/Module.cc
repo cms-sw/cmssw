@@ -10,17 +10,13 @@
 #include "Alignment/KalmanAlignmentAlgorithm/interface/DummyMetricsUpdator.h"
 #include "Alignment/KalmanAlignmentAlgorithm/interface/SimpleMetricsUpdator.h"
 
-#include "FWCore/PluginManager/interface/ModuleDef.h"
-
-DEFINE_SEAL_MODULE();
-
 // declare the algorithm
-DEFINE_SEAL_PLUGIN( AlignmentAlgorithmPluginFactory, KalmanAlignmentAlgorithm, "KalmanAlignmentAlgorithm");
+DEFINE_EDM_PLUGIN( AlignmentAlgorithmPluginFactory, KalmanAlignmentAlgorithm, "KalmanAlignmentAlgorithm");
 
 // declare the alignment updators
-DEFINE_SEAL_PLUGIN( KalmanAlignmentUpdatorPlugin, SingleTrajectoryUpdator, "SingleTrajectoryUpdator" );
-DEFINE_SEAL_PLUGIN( KalmanAlignmentUpdatorPlugin, DummyUpdator, "DummyUpdator" );
+DEFINE_EDM_PLUGIN( KalmanAlignmentUpdatorPlugin, SingleTrajectoryUpdator, "SingleTrajectoryUpdator" );
+DEFINE_EDM_PLUGIN( KalmanAlignmentUpdatorPlugin, DummyUpdator, "DummyUpdator" );
 
 // declare the metrics updators
-DEFINE_SEAL_PLUGIN( KalmanAlignmentMetricsUpdatorPlugin, DummyMetricsUpdator, "DummyMetricsUpdator" );
-DEFINE_SEAL_PLUGIN( KalmanAlignmentMetricsUpdatorPlugin, SimpleMetricsUpdator, "SimpleMetricsUpdator" );
+DEFINE_EDM_PLUGIN( KalmanAlignmentMetricsUpdatorPlugin, DummyMetricsUpdator, "DummyMetricsUpdator" );
+DEFINE_EDM_PLUGIN( KalmanAlignmentMetricsUpdatorPlugin, SimpleMetricsUpdator, "SimpleMetricsUpdator" );

@@ -5,7 +5,7 @@
 #include "Alignment/CommonAlignment/interface/AlignableNavigator.h"
 #include "Alignment/CommonAlignment/interface/Utilities.h"
 
-#include "Alignment/CommonAlignmentAlgorithm/interface/TrajectoryFactoryPlugin.h"
+#include "Alignment/ReferenceTrajectories/interface/TrajectoryFactoryPlugin.h"
 
 #include "Alignment/TrackerAlignment/interface/TrackerAlignableId.h"
 
@@ -60,15 +60,15 @@ void KalmanAlignmentAlgorithm::initialize( const edm::EventSetup& setup,
 
   identifier = theConfiguration.getParameter< string >( "AlignmentUpdator" );
   config = theConfiguration.getParameter< edm::ParameterSet >( identifier );
-  theAlignmentUpdator = KalmanAlignmentUpdatorPlugin::getUpdator( identifier, config );
+  theAlignmentUpdator = KalmanAlignmentUpdatorPlugin::get()->create( identifier, config );
 
   identifier = theConfiguration.getParameter< string >( "MetricsUpdator" );
   config = theConfiguration.getParameter< edm::ParameterSet >( identifier );
-  theMetricsUpdator = KalmanAlignmentMetricsUpdatorPlugin::getUpdator( identifier, config );
+  theMetricsUpdator = KalmanAlignmentMetricsUpdatorPlugin::get()->create( identifier, config );
 
   identifier = theConfiguration.getParameter< string >( "TrajectoryFactory" );
   config = theConfiguration.getParameter< edm::ParameterSet >( identifier );
-  theTrajectoryFactory = TrajectoryFactoryPlugin::getFactory( identifier, config );
+  theTrajectoryFactory = TrajectoryFactoryPlugin::get()->create( identifier, config );
 
   theRefitterDebugFlag = theConfiguration.getUntrackedParameter< bool >( "DebugRefitter", true );
 

@@ -2,7 +2,7 @@
 #define Alignment_KalmanAlignmentAlgorithm_KalmanAlignmentAlgorithm_h
 
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentAlgorithmBase.h"
-#include "Alignment/CommonAlignmentAlgorithm/interface/TrajectoryFactoryBase.h"
+#include "Alignment/ReferenceTrajectories/interface/TrajectoryFactoryBase.h"
 
 #include "Alignment/KalmanAlignmentAlgorithm/interface/KalmanAlignmentUpdator.h"
 #include "Alignment/KalmanAlignmentAlgorithm/interface/KalmanAlignmentMetricsUpdator.h"
