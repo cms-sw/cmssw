@@ -14,7 +14,9 @@ CSCChamberSpecs::CSCChamberSpecs(
       int iChamberType, const TrapezoidalPlaneBounds& bounds,
       const CSCSpecsParcel& fupar,
       const CSCWireGroupPackage& wg )
-  : GeomDetType( "CSC", CSC ), theChamberType( iChamberType ), theSpecsValues( fupar )
+  : GeomDetType( "CSC", CSC ), theChamberType( iChamberType ), theSpecsValues( fupar ),
+    nstrips( static_cast<int>(specsValue(5)) ), stripDeltaPhi( specsValue(29) ), 
+    centreToIntersectionOffset( specsValue(30) )
  {
    LogTrace("CSCChamberSpecs|CSC") << myName << ": constructing specs for chamber " << 
     theName[iChamberType - 1] << ", type=" << iChamberType << ", this =" << this;
@@ -32,9 +34,7 @@ CSCChamberSpecs::CSCChamberSpecs(
   // Most wire info now comes from wire group section of DDD, but this doesn't...
   float wireAngleInDegrees = specsValue(12);
   
-  // Strip geometry
-
-  int nstrips             = static_cast<int>(specsValue(5));
+  // Related to trip geometry...
   float stripOffset1                       = specsValue(20);
   float stripOffset2                       = specsValue(21);
   float globalRadialPositionOfAlignmentPin = specsValue(24);
@@ -42,8 +42,6 @@ CSCChamberSpecs::CSCChamberSpecs(
   float lengthOfChamber                    = specsValue(26);
   float distanceEndOfStripToAlignmentPin   = specsValue(27);
   float extentOfStripPlane                 = specsValue(28);
-        stripDeltaPhi                      = specsValue(29);
-        centreToIntersectionOffset         = specsValue(30);
 
   // local y of alignment pin 
   float yAlignmentPin = -lengthOfChamber/2. + distanceFrameToAlignmentPin;
