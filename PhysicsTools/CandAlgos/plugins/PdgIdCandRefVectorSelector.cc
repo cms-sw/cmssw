@@ -13,13 +13,14 @@
  *
  */
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "PhysicsTools/UtilAlgos/interface/SingleObjectRefVectorSelector.h"
+#include "PhysicsTools/UtilAlgos/interface/SingleObjectSelector.h"
 #include "PhysicsTools/UtilAlgos/interface/PdgIdSelector.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 
-typedef SingleObjectRefVectorSelector <
+typedef SingleObjectSelector <
             reco::CandidateCollection,
-            PdgIdSelector<reco::Candidate>
+            PdgIdSelector<reco::Candidate>,
+            edm::RefVector<reco::CandidateCollection>
         > PdgIdCandRefVectorSelector;
 
 DEFINE_FWK_MODULE( PdgIdCandRefVectorSelector );
