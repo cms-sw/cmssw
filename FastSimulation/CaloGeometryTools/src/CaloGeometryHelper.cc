@@ -406,7 +406,6 @@ void CaloGeometryHelper::buildCrystalArray()
   std::cout << " Building the array of crystals (barrel) " ;
   std::vector<DetId> vec(EcalBarrelGeometry_->getValidDetIds(DetId::Ecal,EcalBarrel));
   unsigned size=vec.size();    
-  std::cout << " Size " << size << std::endl;
   const CaloCellGeometry * geom=0;
   for(unsigned ic=0; ic<size; ++ic) 
     {
