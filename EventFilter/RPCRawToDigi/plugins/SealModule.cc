@@ -1,7 +1,7 @@
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "EventFilter/RPCRawToDigi/interface/RPCUnpackingModule.h"
+#include "RPCUnpackingModule.h"
 #include "EventFilter/RPCRawToDigi/interface/RPCPackingModule.h"
 
 DEFINE_SEAL_MODULE();

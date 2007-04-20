@@ -16,6 +16,7 @@
    <use name=FWCore/PluginManager>
    <use name=DataFormats/FEDRawData>
    <use name=DataFormats/L1GlobalMuonTrigger>
+   <use name=EventFilter/RPCRawToDigi>
    <use name=boost>	
    <use name=xerces-c>
 </export>

@@ -1,15 +1,15 @@
 /** \file
  * Implementation of class RPCUnpackingModule
  *
- *  $Date: 2007/03/20 09:18:53 $
- *  $Revision: 1.28 $
+ *  $Date: 2007/04/05 15:51:06 $
+ *  $Revision: 1.29 $
  *
  * \author Ilaria Segoni
  */
 
 
 
-#include "EventFilter/RPCRawToDigi/interface/RPCUnpackingModule.h"
+#include "RPCUnpackingModule.h"
 #include "EventFilter/RPCRawToDigi/interface/RPCRecordFormatter.h"
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
