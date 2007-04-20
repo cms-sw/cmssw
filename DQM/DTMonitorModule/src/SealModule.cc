@@ -20,6 +20,9 @@ DEFINE_ANOTHER_FWK_MODULE(DTLocalTriggerTask);
 #include <DQM/DTMonitorModule/src/DTEfficiencyTask.h>
 DEFINE_ANOTHER_FWK_MODULE(DTEfficiencyTask);
 
+#include <DQM/DTMonitorModule/src/DTChamberEfficiencyTask.h>
+DEFINE_ANOTHER_FWK_MODULE(DTChamberEfficiencyTask);
+
 #include "DQM/DTMonitorModule/interface/DTTriggerCheck.h"
 DEFINE_ANOTHER_FWK_MODULE(DTTriggerCheck);
 
