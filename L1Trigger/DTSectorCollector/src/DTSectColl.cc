@@ -11,6 +11,7 @@
 //   11/11/06 C. Battilana : CoarseSync and Theta included 
 //   11/12/06 C. Battilana : New Sector Collector Definition
 //   09/01/07 C. Battilana : moved to local conf
+//   mar07 - S. Vanini : parameters from DTConfigManager 
 //
 //
 //--------------------------------------------------
@@ -24,7 +25,7 @@
 //-------------------------------
 // Collaborating Class Headers --
 //-------------------------------
-#include "L1Trigger/DTSectorCollector/interface/DTConfigSectColl.h"
+#include "L1TriggerConfig/DTTPGConfig/interface/DTConfigSectColl.h"
 #include "L1Trigger/DTSectorCollector/interface/DTSC.h"
 #include "L1Trigger/DTSectorCollector/interface/DTSectCollThCand.h"
 #include "L1Trigger/DTSectorCollector/interface/DTSectCollPhCand.h"
@@ -44,9 +45,10 @@
 // Constructors --
 //----------------
 
-DTSectColl::DTSectColl(edm::ParameterSet& sc_pset) {
+DTSectColl::DTSectColl(const DTConfigManager * _conf_manager, DTSectCollId id) : _sectcollid(id){
 
-  _config = new DTConfigSectColl(sc_pset);
+
+  _config = _conf_manager->getDTConfigSectColl(_sectcollid);
   
   // create SC Chips
   for(int istat=0;istat<4;istat++){
@@ -70,8 +72,7 @@ DTSectColl::~DTSectColl(){
     }
   }
 
-  localClear();
-  delete _config;
+  //delete _config;
 
 }
 
@@ -89,24 +90,6 @@ DTSectColl::localClear() {
       _tsc[istep][istat]->clear();
     }
   }
-  
-  for(int iph=0;iph<2;++iph){
-    std::vector<DTSectCollPhCand*>::const_iterator phbi = _incand_ph[iph].begin();
-    std::vector<DTSectCollPhCand*>::const_iterator phei = _incand_ph[iph].end();
-    for ( std::vector<DTSectCollPhCand*>::const_iterator iphit = phbi;iphit!= phei;++iphit)
-      delete (*iphit);
-    _incand_ph[iph].clear();
-  }
-
-   _outcand_ph.clear();
-
-   std::vector<DTSectCollThCand*>::const_iterator thb = _incand_th.begin();
-   std::vector<DTSectCollThCand*>::const_iterator the = _incand_th.end();
-   for ( std::vector<DTSectCollThCand*>::const_iterator ithit = thb;ithit!= the;++ithit)
-     delete (*ithit);
-   _incand_th.clear();
-
-   _outcand_th.clear();
 
 }
 
