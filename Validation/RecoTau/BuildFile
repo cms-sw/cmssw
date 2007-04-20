@@ -5,12 +5,14 @@
 <use name=DQMServices/Core>
 <use name=DataFormats/JetReco>
 <use name=DataFormats/BTauReco>
+<use name=DataFormats/Math>
 <use name=DataFormats/HepMCCandidate>
 <use name=SimDataFormats/HepMCProduct>
 
 <flags EDM_PLUGIN=1>
 <export>
    <lib name=ValidationRecoTau>
+<use name=DataFormats/Math>
    <use name=FWCore/Framework>
    <use name=FWCore/MessageLogger>
    <use name=FWCore/ParameterSet>
