@@ -270,12 +270,15 @@ public:
   
   int theChamberType;
 
-  int nstrips; // no. of strips per layer
-  float stripDeltaPhi;   // Delta-phi width of strip in this chamber type (in mrad)
-  float centreToIntersectionOffset; // Possible correction to whereStripsMeet
+  // Careful that the following order of data members is required to ensure
+  // correct initialization in constructor initialization list!
 
   // Store for specs parameter values
   CSCSpecsParcel theSpecsValues;
+
+  int nstrips; // no. of strips per layer
+  float stripDeltaPhi;   // Delta-phi width of strip in this chamber type (in mrad)
+  float centreToIntersectionOffset; // Possible correction to whereStripsMeet
 
   // Store pointers to Specs objects as we build them.
   static std::map<int, CSCChamberSpecs*, std::less<int> > specsMap;
