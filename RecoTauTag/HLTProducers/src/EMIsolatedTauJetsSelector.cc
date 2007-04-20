@@ -25,9 +25,8 @@ void EMIsolatedTauJetsSelector::produce(edm::Event& iEvent, const edm::EventSetu
   using namespace std;
   
 typedef std::vector<edm::InputTag> vtag;
-
-  CaloJetCollection * jetIsolatedCollection = new CaloJetCollection;
-  CaloJetCollection * jetNotIsolatedCollection = new CaloJetCollection;
+ auto_ptr<reco::CaloJetCollection> isolatedTaus(new CaloJetCollection); 
+ auto_ptr<reco::CaloJetCollection> notIsolatedTaus(new CaloJetCollection);
  
   for( vtag::const_iterator s = tauSrc.begin(); s != tauSrc.end(); ++ s ) {
     edm::Handle<EMIsolatedTauTagInfoCollection> tauJets;
@@ -37,17 +36,16 @@ typedef std::vector<edm::InputTag> vtag;
       double discriminator = (*i).discriminator();
       if(discriminator > 0) {
 	const CaloJet* pippo = dynamic_cast<const CaloJet*>(&(i->jet()));
-	jetIsolatedCollection->push_back(*pippo );
+	isolatedTaus->push_back(*pippo );
       }else{
 	const CaloJet* notPippo = dynamic_cast<const CaloJet*>(&(i->jet()));
-	jetNotIsolatedCollection->push_back(*notPippo );
+	notIsolatedTaus->push_back(*notPippo );
       }
     }
   }
   
   
-  auto_ptr<reco::CaloJetCollection> isolatedTaus(jetIsolatedCollection);
-  auto_ptr<reco::CaloJetCollection> notIsolatedTaus(jetNotIsolatedCollection);
+
   iEvent.put(isolatedTaus, "Isolated");
   iEvent.put(notIsolatedTaus,"NotIsolated");
   

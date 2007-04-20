@@ -57,11 +57,12 @@ void L2TauJetsProvider::produce(edm::Event& iEvent, const edm::EventSetup& iES)
    }
    iL1Jet++;
  }
+  auto_ptr<CaloJetCollection> singleTaujets(new CaloJetCollection);
+  auto_ptr<CaloJetCollection> doubleTaujets(new CaloJetCollection);
+  auto_ptr<CaloJetCollection> leptonTaujets(new CaloJetCollection);
 
 
- CaloJetCollection* singleTauTmp = new CaloJetCollection();
- CaloJetCollection* doubleTauTmp= new CaloJetCollection();
- CaloJetCollection* leptonTauTmp= new CaloJetCollection();
+
 
  Handle< L1ParticleMapCollection > mapColl ;
  iEvent.getByLabel( l1ParticleMap, mapColl );
@@ -114,7 +115,7 @@ void L2TauJetsProvider::produce(edm::Event& iEvent, const edm::EventSetup& iES)
 	    if(deltaR < matchingR) {
 	      //Getting back from the map the L2TauJet
 	      const CaloJet myL2TauJet = myL2itr->second;
-	      singleTauTmp->push_back(myL2TauJet);
+	      singleTaujets->push_back(myL2TauJet);
 	      alreadyMatched = true;
 	      break;
 	    }
@@ -127,7 +128,7 @@ void L2TauJetsProvider::produce(edm::Event& iEvent, const edm::EventSetup& iES)
 	    deltaR = ROOT::Math::VectorUtil::DeltaR(myL1Tau[iJet].p4().Vect(), (*myTau2)->p4().Vect());
 	    if(deltaR < matchingR) {
 	      const CaloJet myL2TauJet = myL2itr->second;
-	      doubleTauTmp->push_back(myL2TauJet);
+	      doubleTaujets->push_back(myL2TauJet);
 	      alreadyMatched = true;
 	      break;
 	    }
@@ -137,7 +138,7 @@ void L2TauJetsProvider::produce(edm::Event& iEvent, const edm::EventSetup& iES)
 	double etL1Cand = myL1Tau[iJet].et(); //PAY ATTENTION THIS THRESHOLD MUST BE HIGHER THAN L1 E (OR MU)+TAU
 	if(singleTauFired && (!doubleTauFired) && etL1Cand > mEt_ExtraTau ){
 	  const CaloJet myL2TauJet = myL2itr->second;
-	  doubleTauTmp->push_back(myL2TauJet);
+	  doubleTaujets->push_back(myL2TauJet);
 	  alreadyMatched = true;
 	}
 	if(alreadyMatched) continue;
@@ -149,7 +150,7 @@ void L2TauJetsProvider::produce(edm::Event& iEvent, const edm::EventSetup& iES)
 	    deltaR = ROOT::Math::VectorUtil::DeltaR(myL1Tau[iJet].p4().Vect(), (*myElectronTau)->p4().Vect());
 	    if(deltaR < matchingR) {
 	      const CaloJet myL2TauJet = myL2itr->second;
-	      leptonTauTmp->push_back(myL2TauJet);
+	      leptonTaujets->push_back(myL2TauJet);
 	      alreadyMatched = true;
 	      break;
 	    }
@@ -162,7 +163,7 @@ void L2TauJetsProvider::produce(edm::Event& iEvent, const edm::EventSetup& iES)
 	    deltaR = ROOT::Math::VectorUtil::DeltaR(myL1Tau[iJet].p4().Vect(), (*myMuonTau)->p4().Vect());
 	    if(deltaR < matchingR) {
 	      const CaloJet myL2TauJet = myL2itr->second;
-	      leptonTauTmp->push_back(myL2TauJet);
+	      leptonTaujets->push_back(myL2TauJet);
 	      alreadyMatched = true;
 	      break;
 	    }
@@ -174,20 +175,17 @@ void L2TauJetsProvider::produce(edm::Event& iEvent, const edm::EventSetup& iES)
 
 
 
-  auto_ptr<CaloJetCollection> singleTaujets(singleTauTmp);
-  auto_ptr<CaloJetCollection> doubleTaujets(doubleTauTmp);
-  auto_ptr<CaloJetCollection> leptonTaujets(leptonTauTmp);
   /*  
-  cout <<"Size of SingleTau "<<singleTauTmp->size()<<endl;
-  cout <<"Size of DoubleTau "<<doubleTauTmp->size()<<endl;
-  cout <<"Size of LeptonTau "<<leptonTauTmp->size()<<endl;
+  cout <<"Size of SingleTau "<<singleTaujets->size()<<endl;
+  cout <<"Size of DoubleTau "<<doubleTaujets->size()<<endl;
+  cout <<"Size of LeptonTau "<<leptonTaujets->size()<<endl;
   */
 
 
 
   int l1Decision =0;
-  int singleTauSize = singleTauTmp->size();
-  int doubleTauSize = doubleTauTmp->size();
+  int singleTauSize = singleTaujets->size();
+  int doubleTauSize = doubleTaujets->size();
 
 
 
