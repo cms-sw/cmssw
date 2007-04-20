@@ -11,9 +11,7 @@
 <use name=Geometry/CaloEventSetup>
 <use name=Geometry/CaloGeometry>
 <use name=Geometry/CaloTopology>
-<use name=RecoEcal/EgammaClusterAlgos>
 <use name=RecoEcal/EgammaCoreTools>
-<use name=RecoEcal/EgammaClusterProducers>
 <use name=RecoEgamma/EgammaPhotonAlgos>
 <use name=RecoTracker/MeasurementDet>
 <use name=RecoTracker/CkfPattern>
@@ -38,9 +36,7 @@
   <use name=Geometry/CaloEventSetup>
   <use name=Geometry/CaloGeometry>
   <use name=Geometry/CaloTopology>
-  <use name=RecoEcal/EgammaClusterAlgos>
   <use name=RecoEcal/EgammaCoreTools>
-  <use name=RecoEcal/EgammaClusterProducers>
   <use name=RecoEgamma/EgammaPhotonAlgos> 
   <use name=RecoTracker/MeasurementDet>
   <use name=RecoTracker/CkfPattern>
