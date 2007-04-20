@@ -1,0 +1,4 @@
+<use name=L1Trigger/RegionalCaloTrigger>
+<library file="*.cc" name=L1TriggerRegionalCaloTriggerPlugins>
+      <flags EDM_PLUGIN=1>
+</library>
