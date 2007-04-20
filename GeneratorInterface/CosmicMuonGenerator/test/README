@@ -1,0 +1,25 @@
+Volker.Drollinger@cern.ch (04/FEB/2006)
+modified with new generator: biallass@cern.ch (11/May/2006)
+
+accuracy of parametrisation of energy/angle/charge spectrum: 
+about 5% in the energy range 10 GeV - 1000 GeV and incident angle 0 deg - 75 deg
+range is 2 GeV - 10000 GeV and 0 deg - 88 deg, no guarantee for 5% correctness everywhere! 
+
+Run in batch mode (and write events):
+======================================
+set up the environment, compile, run in the directory /GeneratorInterface/CosmicMuonGenerator/
+  eval `scramv1 runtime -csh`
+  scramv1 b
+  cd test
+  cmsRun ____.cfg  (possible are CosmicMuonsSurface.cfg or CosmicMuonsUnderground.cfg)
+
+
+Run in interactive mode (event display, can be disabled in CosmicMuonParameters.h for gain in speed):
+=========================================
+in order to run in ROOT execute following lines:
+  source root4.csh   (or eval `scramv1 runtime -csh`)
+  ln -s ../../../GeneratorInterface GeneratorInterface
+  root
+  .x ---_--   (possible are: cos_sf, cos_ug or geo_el)
+  rm GeneratorInterface   (otherwise you will get problems with scramv1)
+
