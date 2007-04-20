@@ -1,5 +1,5 @@
 
-#include "SimCalorimetry/EcalSimProducers/interface/EcalDigiProducer.h"
+#include "EcalDigiProducer.h"
 #include "DataFormats/Common/interface/EDProduct.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/Common/interface/Handle.h"
