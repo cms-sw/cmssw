@@ -7,10 +7,13 @@
 namespace reco {
 
   /**\class PFRecTrack
-     \brief reconstructed track for particle flow
-     
-     \todo   colin: the structure for trajectory points is very inefficient. 
-     \author Renaud Bruneliere
+     \brief reconstructed track used as an input to particle flow    
+
+     Additional information w/r to PFTrack: 
+     - algorithm used to reconstruct the track
+     - track ID, soon to be replaced by a RefToBase to the corresponding Track
+
+     \author Renaud Bruneliere, Michele Pioppi
      \date   July 2006
   */
   class PFRecTrack : public PFTrack {

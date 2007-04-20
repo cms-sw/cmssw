@@ -117,8 +117,7 @@ PFBlockProducer::PFBlockProducer(const edm::ParameterSet& iConfig) {
 PFBlockProducer::~PFBlockProducer() { }
 
 
-void 
-PFBlockProducer::beginJob(const edm::EventSetup & es) { }
+void PFBlockProducer::beginJob(const edm::EventSetup & es){ }
 
 
 void PFBlockProducer::produce(Event& iEvent, 

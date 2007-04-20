@@ -10,6 +10,9 @@ namespace reco {
   /**\class PFSimParticle
      \brief true particle for particle flow
      
+     Additional information w/r to PFTrack: 
+     - pdg code 
+     - information about mother and daughters
      \author Renaud Bruneliere
      \date   July 2006
   */
@@ -20,8 +23,8 @@ namespace reco {
     PFSimParticle();
   
     PFSimParticle(double charge, int pdgCode, 
-	       unsigned id, int motherId,
-	       const std::vector<int>& daughterIds);
+		  unsigned id, int motherId,
+		  const std::vector<int>& daughterIds);
 
     PFSimParticle(const PFSimParticle& other);
 

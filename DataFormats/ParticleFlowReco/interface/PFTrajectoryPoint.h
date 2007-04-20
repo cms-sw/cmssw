@@ -15,8 +15,10 @@
 namespace reco {
 
   /**\class PFTrajectoryPoint
-     \brief Trajectory point (a PFRecTrack holds several trajectory points)
+     \brief A PFTrack holds several trajectory points, which basically 
+     contain the position and momentum of a track at a given position.
      
+     \todo   detId_, layer_, isTrackerLayer_ seem to be redundant
      \todo   deal with origin and end vertices of PFSimParticles
      \todo   remove HCAL exit
      \author Renaud Bruneliere
@@ -51,9 +53,8 @@ namespace reco {
     /// default constructor. Set variables at default dummy values
     PFTrajectoryPoint();
 
-    /// constructor from values. 
+    /// \brief constructor from values. 
     /// set detId to -1 if this point is not from a tracker layer
-    /// set layer to -1 if this point is not from a tracker layer
     PFTrajectoryPoint(int detId,
 		      int layer,
 		      const math::XYZPoint& posxyz, 
@@ -104,8 +105,8 @@ namespace reco {
 
   private:
 
-    /// Is the measurement corresponding to a tracker layer or propagated to
-    /// a layer external to the tracker (preshower, ECAL, HCAL)
+    /// \brief Is the measurement corresponding to a tracker layer?
+    /// or was it obtained by propagating the track to a certain position?
     bool isTrackerLayer_;
 
     /// detid if measurement is corresponding to a tracker layer

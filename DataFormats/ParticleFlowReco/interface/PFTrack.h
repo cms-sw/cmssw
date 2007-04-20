@@ -11,9 +11,54 @@
 namespace reco {
 
   /**\class PFTrack
-     \brief reconstructed track for particle flow
+     \brief  Base class for particle flow input reconstructed tracks
+     and simulated particles.
      
-     \todo   colin: the structure for trajectory points is very inefficient. 
+     A PFTrack contains a vector of PFTrajectoryPoint objects. 
+     These points are stored in a vector to benefit from the 
+     random access. One must take care of storing the points in 
+     the right order, and it might even be necessary to insert dummy points.
+
+     For a PFRecTrack, the ordering of the points is the following:
+     
+     - point 1: Closest approach
+
+     - point 2: Beam Pipe
+
+     - point 3 to n: Trajectory measurements (from the tracker layers)
+
+     - point n+1: Preshower Layer 1, or dummy point if 
+     not in the preshower zone
+     
+     - point n+2: Preshower Layer 2, or dummy point if 
+     not in the preshower zone
+
+     - point n+3: ECAL Entrance
+
+     - point n+4: ECAL expected position of the shower maximum, 
+     assuming the track is an electron track.
+     
+     - point n+5: HCAL Entrance
+
+     For a PFSimParticle, the ordering of the points is the following.
+     
+     - If the particle decays before ECAL:
+       - point 1: start point
+       - point 2: end point 
+
+     - If the particle does not decay before ECAL:
+       - point 1: start point
+       - point 2: PS1 or dummy
+       - point 3: PS2 or dummy
+       - point 4: ECAL entrance
+       - point 5: HCAL entrance
+     
+
+     \todo Note that some points are missing, and should be added: shower max,
+     intersection with the tracker layers maybe. 
+     
+     PFRecTracks and PFSimParticles are created in the PFTrackProducer module. 
+     \todo   Make this class abstract ? 
      \author Renaud Bruneliere
      \date   July 2006
   */
@@ -37,28 +82,29 @@ namespace reco {
       { trajectoryPoints_[index] = measurement; }
 
     /// calculate posrep_ once and for all for each point
+    /// \todo where is posrep? profile and see if it's necessary.
     void calculatePositionREP();
 
-    /// get electric charge
+    /// \return electric charge
     double charge() const { return charge_; }
 
-    /// get number of trajectory points
+    /// \return number of trajectory points
     unsigned int nTrajectoryPoints() const 
       { return trajectoryPoints_.size(); }
     
-    /// get number of trajectory measurements in tracker
+    /// \return number of trajectory measurements in tracker
     unsigned int nTrajectoryMeasurements() const 
       { return (indexOutermost_ ? indexOutermost_ - indexInnermost_ + 1 : 0); }
 
-    /// vector of trajectory points
+    /// \return vector of trajectory points
     const std::vector< reco::PFTrajectoryPoint >& trajectoryPoints() const 
       { return trajectoryPoints_; }
     
-    /// get a trajectory point
+    /// \return a trajectory point
     const reco::PFTrajectoryPoint& trajectoryPoint(unsigned index) const 
       { return trajectoryPoints_[index]; }
 
-    /// get an extrapolated point 
+    /// \return an extrapolated point 
     /// \todo throw an exception in case of invalid point.
     const reco::PFTrajectoryPoint& extrapolatedPoint(unsigned layerid) const; 
 
@@ -72,6 +118,7 @@ namespace reco {
       outermostMeasurement() const
       { return trajectoryPoints_.begin() + indexOutermost_; }
     
+
     void         setColor(int color) {color_ = color;}
     
     int          color() const { return color_; }    

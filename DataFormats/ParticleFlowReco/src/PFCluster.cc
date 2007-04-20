@@ -1,6 +1,5 @@
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "DataFormats/ParticleFlowReco/interface/PFLayer.h"
-// #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace std;
 using namespace reco;
@@ -17,8 +16,6 @@ unsigned PFCluster::instanceCounter_ = 0;
 
 
 PFCluster::PFCluster() :
-  id_(0),
-  type_(0),
   layer_(0),
   energy_(0),
 //   posCalcMode_(0),
@@ -30,23 +27,9 @@ PFCluster::PFCluster() :
 }
 
 
-PFCluster::PFCluster(unsigned id, int type) : 
-  id_(id), 
-  type_(type), 
-  layer_(0),
-  energy_(0), 
-//   posCalcMode_(0),
-//   posCalcP1_(0),
-//   posCalcDepthCor_(false),
-  color_(1)
-{  
-  instanceCounter_++;
-}
   
-PFCluster::PFCluster(unsigned id, int type, int layer, double energy,
+PFCluster::PFCluster(int layer, double energy,
 		     double x, double y, double z ) : 
-  id_(id), 
-  type_(type), 
   layer_(layer),
   energy_(energy), 
   posxyz_(x,y,z),
@@ -62,8 +45,6 @@ PFCluster::PFCluster(unsigned id, int type, int layer, double energy,
 
 PFCluster::PFCluster(const PFCluster& other) :
   rechits_(other.rechits_),
-  id_(other.id_),
-  type_(other.type_),
   layer_(other.layer_), 
   energy_(other.energy_),
   posxyz_(other.posxyz_),
@@ -427,8 +408,6 @@ void PFCluster::addRecHitFraction( const reco::PFRecHitFraction& frac ) {
 PFCluster& PFCluster::operator=(const PFCluster& other) {
 
   rechits_ = other.rechits_;
-  id_ = other.id_;
-  type_ = other.type_; 
   layer_= other.layer_;
   energy_ = other.energy_;
   posxyz_ = other.posxyz_;
@@ -519,8 +498,7 @@ std::ostream& reco::operator<<(std::ostream& out,
   const std::vector< reco::PFRecHitFraction >& fracs = 
     cluster.recHitFractions();
 
-  out<<"cluster "<<cluster.id()
-     <<"\ttype: "<<cluster.type()
+  out<<"cluster "
      <<"\tlayer: "<<cluster.layer()
      <<"\tenergy: "<<cluster.energy()
      <<"\tpos: "

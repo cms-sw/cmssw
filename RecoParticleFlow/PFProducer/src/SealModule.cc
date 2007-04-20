@@ -1,4 +1,5 @@
-#include "PluginManager/ModuleDef.h"
+// #include "PluginManager/ModuleDef.h"
+#include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/InputSourceMacros.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "RecoParticleFlow/PFProducer/interface/PFProducer.h"

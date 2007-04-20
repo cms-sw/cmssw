@@ -3,12 +3,11 @@
 <use name=FWCore/Framework>
 <use name=FWCore/MessageLogger>
 <use name=FWCore/ParameterSet>
-<use name=Foundation/PluginManager>
 <use name=RecoParticleFlow/PFAlgo>
-<flags SEALPLUGIN=1>
+<flags EDM_PLUGIN=1>
 <export>
+  <lib name=RecoParticleFlowPFProducer>
   <use name=FWCore/Framework>
   <use name=FWCore/ParameterSet>
   <use name=RecoParticleFlow/PFAlgo>
-  <lib name=RecoParticleFlowPFProducer>
 </export>

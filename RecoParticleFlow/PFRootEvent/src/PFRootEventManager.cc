@@ -1,9 +1,9 @@
 
-
 #include "FWCore/Framework/interface/OrphanHandle.h"
 // #include "DataFormats/Common/interface/OrphanHandle.h"
 #include "DataFormats/Common/interface/ProductID.h"
 // #include "DataFormats/Provenance/interface/ProductID.h"
+
 
 #include "DataFormats/Math/interface/Point3D.h"
 
@@ -1033,7 +1033,7 @@ PFRootEventManager::fillOutEventWithClusters(const reco::PFClusterCollection&
     cluster.phi = clusters[i].positionXYZ().Phi();
     cluster.e = clusters[i].energy();
     cluster.layer = clusters[i].layer();
-    cluster.type = clusters[i].type();
+    cluster.type = 1;
     outEvent_->addCluster(cluster);
   }   
 
@@ -1779,10 +1779,8 @@ void PFRootEventManager::displayClusters(unsigned viewType, double phi0) {
     displayCluster( (*clustersPS_)[i], viewType, phi0);
 
   for(unsigned i=0; i<clustersIslandBarrel_.size(); i++) {
-    int id = i;
-    int type = 4;
     int layer = PFLayer::ECAL_BARREL;
-    reco::PFCluster cluster( id, type, layer, 
+    reco::PFCluster cluster( layer, 
 			     clustersIslandBarrel_[i].energy(), 
 			     clustersIslandBarrel_[i].x(),
 			     clustersIslandBarrel_[i].y(),
@@ -1802,9 +1800,9 @@ void PFRootEventManager::displayCluster(const reco::PFCluster& cluster,
   double phi = cluster.positionXYZ().Phi();
   
 
-  int type = cluster.type();
-  if(algosToDisplay_.find(type) == algosToDisplay_.end() )
-    return;
+//   int type = cluster.type();
+//   if(algosToDisplay_.find(type) == algosToDisplay_.end() )
+//     return;
 
   if( !insideGCut( eta, phi ) ) return;
 
@@ -1812,7 +1810,8 @@ void PFRootEventManager::displayCluster(const reco::PFCluster& cluster,
 
   int color = 4;
   if( displayColorClusters_ ) 
-    color = cluster.type();
+//     color = cluster.type();
+    color = 2;
 
   m.SetMarkerColor(color);
   m.SetMarkerStyle(20);  
@@ -1859,7 +1858,8 @@ void PFRootEventManager::displayClusterLines(const reco::PFCluster& cluster) {
     cluster.recHitFractions();
 
   TLine l;
-  int color = cluster.type();
+//   int color = cluster.type();
+  int color = 2;
   l.SetLineColor( color );
   
 //   PFClusterAlgo* algo=0;

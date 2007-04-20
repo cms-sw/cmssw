@@ -20,15 +20,30 @@ Persistent classes for particle flow clustering and particle flow.
 \subsection interface Public interface
 <!-- List the classes that are provided for use in other packages (if any) -->
 
-- reco::PFCluster: Particle Flow Cluster
+- reco::PFRecHit: RecHit, input to the particle flow clustering algorithm. PFRecHits are not persistent officially. However, they can be written to disk in order to be used as an input to display and clustering in the ROOT interface (please see PFRootEventManager).
+
+- reco::PFCluster: Particle Flow Cluster. Contains a vector of PFRecHitFractions.
+
+- reco::PFRecHitFraction: A fraction of a PFRecHit (rechits can be shared between several clusters)
+
 - reco::PFLayer: Detector Layer: ECAL barrel, ECAL endcap, HCAL barrel... 
-- reco::PFRecHitFraction: A fraction of a PFRecHit (rechits can be shared between clusters)
-- reco::PFRecHit: RecHit, input to the particle flow clustering algorithm
-- reco::PFRecTrack: Reconstructed Track (KF or GSF)
-- reco::PFResolutionMap: Resolution map (sigma vs E vs eta) for PFCluster.
-- reco::PFSimParticle: Simulated particle 
+
+- reco::PFRecTrack: Reconstructed Track (KF or GSF). Objects of this type are not meant to be officially persistent. As in the case of PFRecHits, they can be written to disk in order to be used as an input to display and clustering in the ROOT interface. 
+
+- reco::PFSimParticle: Simulated particle. 
+
 - reco::PFTrack: Base class for PFRecTrack and PFSimParticle
-- reco::PFTrajectoryPoint: Position and momentum of a PFTrack at a given radius or z. 
+
+- reco::PFTrajectoryPoint: Position and momentum of a PFTrack on a given detector. 
+
+- reco::PFBlock: Block of interconnected PFBlockElements
+
+- reco::PFBlockElement: Base abstract class for PFBlock elements
+
+- reco::PFBlockElementCluster: element holding a reference to a PFCluster (from ECAL, HCAL, or PS).
+
+- reco::PFBlockElementTrack: element holding a reference to a PFRecTrack.
+
 
 \subsection modules Modules
 <!-- Describe modules implemented in this package and their parameter set -->

@@ -17,18 +17,26 @@ namespace reco {
 
   /**\class PFCluster
      \brief Particle flow cluster, see clustering algorithm in PFClusterAlgo
-          
+     
+     A particle flow cluster is defined by its energy and position, which are 
+     calculated from a vector of PFRecHitFraction. This calculation is 
+     performed in PFClusterAlgo.
+
+     \todo Clean up this class to a common base (talk to Paolo Meridiani)
+     the extra internal stuff (like the vector of PFRecHitFraction's)
+     could be moved to a PFClusterExtra.
+     
+     \todo Now that PFRecHitFraction's hold a reference to the PFRecHit's, 
+     put back the calculation of energy and position to PFCluster. 
+
+
+     \todo Add an operator+=
+
      \author Colin Bernet
      \date   July 2006
   */
   class PFCluster {
   public:
-
-    /// type definition
-    enum Type {
-      TYPE_TOPOLOGICAL = 1, 
-      TYPE_PF = 2 
-    };
 
 
     typedef ROOT::Math::PositionVector3D<ROOT::Math::CylindricalEta3D<Double32_t> > REPPoint;
@@ -36,11 +44,9 @@ namespace reco {
     /// default constructor
     PFCluster();
   
-    /// constructor
-    PFCluster(unsigned id, int type);
 
     /// constructor
-    PFCluster(unsigned id, int type, int layer, double energy,
+    PFCluster(int layer, double energy,
 	      double x, double y, double z );
 
     /// copy constructor
@@ -55,37 +61,9 @@ namespace reco {
     /// add a given fraction of the rechit
     void addRecHitFraction( const reco::PFRecHitFraction& frac);
 						
-    //C this function will be moved to PFClusterAlgo
-    /// \brief updates cluster info from rechit
-    /// 
-    /// algo = POSCALC_LIN (POSCALC_LOG) for linear (logarithmic) weighting 
-    ///
-    /// if linear, the rechit position is weighted by the rechit energy E
-    ///
-    /// if logarithmic, the rechit position is weighted by log(E/p1). 
-    ///
-    /// if p1 = -1, it is determined automatically 
-    /// auto determination of p1 works only for ECAL and HCAL
-    ///
-    /// ncrystal is the number of crystals around the seed used in the 
-    /// calculation. can be -1 (all), 5, or 9. 
-/*     void calculatePosition( int algo,  */
-/* 			    double p1 = 0,  */
-/* 			    bool depcor = true,  */
-/* 			    int  ncrystals = -1); */
-
     /// vector of rechit fractions
     const std::vector< reco::PFRecHitFraction >& recHitFractions() const 
       { return rechits_; }
-
-    /// set cluster id
-    void          setId(unsigned id) {id_ = id;} 
-  
-    /// cluster id
-    unsigned      id() const {return id_;}
-  
-    /// cluster type
-    int           type() const {return type_;}
 
     /// cluster layer, see PFLayer.h in this directory
     int           layer() const {return layer_;}          
@@ -109,8 +87,10 @@ namespace reco {
     static double getDepthCorrection(double energy, bool isBelowPS = false,
 				     bool isHadron = false);
 
+    /// set cluster color (for the PFRootEventManager display)
     void         setColor(int color) {color_ = color;}
 
+    /// \return color
     int          color() const {return color_;}
   
     //C remove this
@@ -139,12 +119,6 @@ namespace reco {
   
     /// vector of rechit fractions (transient)
     std::vector< reco::PFRecHitFraction >  rechits_;
-
-    /// cluster id
-    unsigned      id_;
-
-    /// cluster type
-    int           type_;
 
     /// cluster layer, see PFClusterLayer.h
     int           layer_;          

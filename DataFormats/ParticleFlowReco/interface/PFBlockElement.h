@@ -13,9 +13,9 @@ namespace reco {
   class PFBlockElementTrack;
   
   
-  /// \brief Base element of a PFBlock (track, cluster...)
+  /// \brief Abstract base class for a PFBlock element (track, cluster...)
   /// 
-  /// this class is essentially wraps a PFRecTrackRef of a 
+  /// this class contains a PFRecTrackRef of a 
   /// PFClusterRef, depending on the type of the element
   class PFBlockElement {
   public:
@@ -56,7 +56,7 @@ namespace reco {
     /// print the object inside the element
     virtual void Dump(std::ostream& out=std::cout, 
 		      const char* tab=" " ) const;
-
+    
     /// necessary to have the edm::OwnVector<PFBlockElement> working
     virtual PFBlockElement* clone() const = 0;
       
@@ -87,11 +87,12 @@ namespace reco {
     
   protected:  
   
-    /// type
+    /// type, see PFBlockElementType
     Type     type_;
   
-    /// locked ? can probably be transient. should be replaced by a 
-    // "remaining energy"
+    /// locked flag. 
+    /// \todo can probably be transient. Could be replaced by a 
+    /// "remaining energy"
     bool       locked_;
     
     /// index in block vector 

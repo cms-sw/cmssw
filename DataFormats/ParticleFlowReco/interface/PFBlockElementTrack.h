@@ -8,6 +8,9 @@
 
 namespace reco {
   
+  /// \brief Track Element.
+  /// 
+  /// this class contains a reference to a PFRecTrack 
   class PFBlockElementTrack : public PFBlockElement {
   public:
     PFBlockElementTrack() {} 
@@ -21,11 +24,13 @@ namespace reco {
     void Dump(std::ostream& out = std::cout, 
 	      const char* tab = " " ) const;
     
+    /// \return reference to the corresponding track
     PFRecTrackRef  trackRef() const {
       return trackRef_;
     }
     
   private:
+    /// reference to the corresponding track
     PFRecTrackRef  trackRef_;
   };
 }

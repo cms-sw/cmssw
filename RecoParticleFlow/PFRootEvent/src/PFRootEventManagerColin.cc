@@ -61,7 +61,8 @@ bool PFRootEventManagerColin::processEntry(int entry) {
     cluster.phi = (*clustersECAL_)[i].positionXYZ().Phi();
     cluster.e = (*clustersECAL_)[i].energy();
     cluster.layer = (*clustersECAL_)[i].layer();
-    cluster.type = (*clustersECAL_)[i].type();
+    cluster.type = 1;
+//     cluster.type = (*clustersECAL_)[i].type();
     event_->addCluster(cluster);
   }   
 
