@@ -4,7 +4,7 @@ This is a generic main that can be used with any plugin and a
 PSet script.   See notes in EventProcessor.cpp for details about
 it.
 
-$Id: cmsRun.cpp,v 1.30 2007/03/02 18:32:42 wmtan Exp $
+$Id: cmsRun.cpp,v 1.31 2007/04/09 23:13:18 chrjones Exp $
 
 ----------------------------------------------------------------------*/  
 
@@ -26,6 +26,7 @@ $Id: cmsRun.cpp,v 1.30 2007/03/02 18:32:42 wmtan Exp $
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/Presence.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/MessageLogger/interface/MessageDrop.h"
 #include "FWCore/PluginManager/interface/PresenceFactory.h"
 #include "FWCore/MessageLogger/interface/JobReport.h"
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
@@ -33,11 +34,13 @@ $Id: cmsRun.cpp,v 1.30 2007/03/02 18:32:42 wmtan Exp $
 
 #include "FWCore/Framework/bin/pythonFileToConfigure.h"
 
-static const char* const kParameterSetOpt = "parameter-set";
-static const char* const kParameterSetCommandOpt = "parameter-set,p";
-static const char* const kHelpOpt = "help";
-static const char* const kHelpCommandOpt = "help,h";
-static const char* const kProgramName = "cmsRun";
+static char const* const kParameterSetOpt = "parameter-set";
+static char const* const kParameterSetCommandOpt = "parameter-set,p";
+static char const* const kJobreportCommandOpt = "jobreport,j";
+static char const* const kEnableJobreportCommandOpt = "enablejobreport,e";
+static char const* const kHelpOpt = "help";
+static char const* const kHelpCommandOpt = "help,h";
+static char const* const kProgramName = "cmsRun";
 
 // -----------------------------------------------
 namespace {
@@ -69,8 +72,11 @@ namespace {
 
 int main(int argc, char* argv[])
 {
-  using namespace boost::program_options;
-
+  // TODO - if any argv is -earlyDebug (and dont use the plugged in boost
+  //        parser to find this out!) send an enable debug command to MLQ.
+  //        This will allow output of debug messages concerning pre-
+  //        MessageServicePresence matters.  mf.
+  
   // We must initialize the plug-in manager first
   try {
     edmplugin::PluginManager::configure(edmplugin::standard::config());
@@ -121,21 +127,24 @@ int main(int argc, char* argv[])
   descString += " [options] [--";
   descString += kParameterSetOpt;
   descString += "] config_file \nAllowed options";
-  options_description desc(descString);
+  boost::program_options::options_description desc(descString);
   
   desc.add_options()
     (kHelpCommandOpt, "produce help message")
-    (kParameterSetCommandOpt,value<std::string>(), "configuration file")
-    ;
+    (kParameterSetCommandOpt, boost::program_options::value<std::string>(), "configuration file")
+    (kJobreportCommandOpt, boost::program_options::value<std::string>(),
+    	"file name to use for a job report file: default extension is .xml")
+    (kEnableJobreportCommandOpt, 
+    	"enable job report files (if any) specified in configuration file");
 
-  positional_options_description p;
+  boost::program_options::positional_options_description p;
   p.add(kParameterSetOpt, -1);
   
-  variables_map vm;
+  boost::program_options::variables_map vm;
   try {
-    store(command_line_parser(argc,argv).options(desc).positional(p).run(),vm);
+    store(boost::program_options::command_line_parser(argc,argv).options(desc).positional(p).run(),vm);
     notify(vm);
-  } catch(const error& iException) {
+  } catch(boost::program_options::error const& iException) {
     edm::LogError("FwkJob") << "Exception from command line processing: " << iException.what();
     edm::LogSystem("CommandLineProcessing") << "Exception from command line processing: " << iException.what() << "\n";
     return 7000;
@@ -199,14 +208,25 @@ int main(int argc, char* argv[])
     }
   }
 
+  //
+  // Decide whether to enable creation of job report xml file 
+  // 
+  if (vm.count("jobreport")) {
+    std::string jr_name = vm["jobreport"].as<std::string>();
+    edm::MessageDrop::instance()->jobreport_name = jr_name;
+  } else if (vm.count("enablejobreport")) {
+    std::string jr_name = "*";
+    edm::MessageDrop::instance()->jobreport_name = jr_name;
+  }  
+
+  // Now create and configure the services
+  //
   EventProcessorWithSentry proc;
   int rc = -1; // we should never return this value!
-  using std::auto_ptr;
-  using edm::EventProcessor;
   try {
-    auto_ptr<EventProcessor> 
+    std::auto_ptr<edm::EventProcessor> 
 	procP(new 
-	      EventProcessor(configstring, jobReportToken, 
+	      edm::EventProcessor(configstring, jobReportToken, 
 			     edm::serviceregistry::kTokenOverrides,
 			     defaultServices, forcedServices));
     EventProcessorWithSentry procTmp(procP);
