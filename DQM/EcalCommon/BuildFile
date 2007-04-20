@@ -1,4 +1,3 @@
-<use name=CondTools/Ecal>
 <use name=OnlineDB/EcalCondDB>
 <export>
   <use name=OnlineDB/EcalCondDB>
