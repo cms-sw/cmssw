@@ -1,15 +1,14 @@
 <use name=clhep>
 <use name=root>
 <use name=DetectorDescription/Core>
-<use name=GeometryReaders/XMLIdealGeometryESSource>
 <use name=CondFormats/DataRecord>
 <use name=CondFormats/OptAlignObjects>
 <use name=CondCore/DBCommon>
-<use name=CondCore/ESSources>
 <use name=CondCore/IOVService>
 <use name=CondCore/MetaDataService>
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
+<use name=Geometry/Records>
 
 <use name=CondFormats/OptAlignObjects>
 <use name=Alignment/CocoaModel>
