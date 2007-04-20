@@ -102,14 +102,10 @@ void CSCWireElectronicsSim::fillDigis(CSCWireDigiCollection & digis) {
 
       float fdTime = theSignalStartTime + theSamplingTime*bin_firing_FD
                    + RandGaussQ::shoot() * theTimingCalibrationError;
-      //int fractionalDiscriminatorTime = 
-      //   static_cast<int>(fdTime  - tofOffset);
+
       int beamCrossingTag = 
          static_cast<int>( (fdTime - tofOffset - theBunchTimingOffsets[chamberType])
                             / theBunchSpacing );
-      // no pedestal
-      //int adcCounts = 
-      //   static_cast<int>( qMax/theSpecs->chargePerCount() );
 
       // Wire digi as of Oct-2006 adapted to real data: time word has 16 bits with set bit
       // flagging appropriate bunch crossing, and bx 0 corresponding to 7th bit i.e.
