@@ -12,7 +12,9 @@ void HcalPedestalMonitor::clearME(){
   if ( m_dbe ) {
     m_dbe->setCurrentFolder("HcalMonitor/PedestalMonitor");
     m_dbe->removeContents();
-    m_dbe->setCurrentFolder("HcalMonitor/PedestalMonitor/HBHE");
+    m_dbe->setCurrentFolder("HcalMonitor/PedestalMonitor/HB");
+    m_dbe->removeContents();
+    m_dbe->setCurrentFolder("HcalMonitor/PedestalMonitor/HE");
     m_dbe->removeContents();
     m_dbe->setCurrentFolder("HcalMonitor/PedestalMonitor/HF");
     m_dbe->removeContents();
@@ -78,23 +80,39 @@ void HcalPedestalMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterfa
     type = "Pedestal RMS Reference Values";
     WIDTH_REFS = m_dbe->book1D(type,type,100,0,3);
 
-    m_dbe->setCurrentFolder("HcalMonitor/PedestalMonitor/HBHE");
-    hbHists.ALLPEDS =  m_dbe->book1D("HBHE All Pedestal Values","HBHE All Pedestal Values",50,0,50);
-    hbHists.PEDRMS  =  m_dbe->book1D("HBHE Pedestal RMS Values","HBHE Pedestal RMS Values",100,0,3);
-    hbHists.PEDMEAN =  m_dbe->book1D("HBHE Pedestal Mean Values","HBHE Pedestal Mean Values",100,0,9);
-    hbHists.NSIGMA  =  m_dbe->book1D("HBHE Normalized RMS Values","HBHE Normalized RMS Values",100,0,5);
-    hbHists.SUBMEAN =  m_dbe->book1D("HBHE Subtracted Mean Values","HBHE Subtracted Mean Values",100,-2.5,2.5);
-    hbHists.CAPIDRMS  =  m_dbe->book1D("HBHE CapID RMS Variance","HBHE CapID RMS Variance",50,0,0.5);
-    hbHists.CAPIDMEAN =  m_dbe->book1D("HBHE CapID Mean Variance","HBHE CapID Mean Variance",50,0,3);
-    hbHists.QIERMS  =  m_dbe->book1D("HBHE QIE RMS Values","HBHE QIE RMS Values",50,0,3);
-    hbHists.QIEMEAN =  m_dbe->book1D("HBHE QIE Mean Values","HBHE QIE Mean Values",50,0,10);
-    hbHists.ERRGEO =  m_dbe->book2D("HBHE Pedestal Geo Error Map","HBHE Pedestal Geo Error Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
-    hbHists.ERRELEC =  m_dbe->book2D("HBHE Pedestal Elec Error Map","HBHE Pedestal Elec Error Map",21,-0.5,20.5,21,-0.5,20.5);
-    type = "HBHE Pedestal Mean Reference Values";
+    m_dbe->setCurrentFolder("HcalMonitor/PedestalMonitor/HB");
+    hbHists.ALLPEDS =  m_dbe->book1D("HB All Pedestal Values","HB All Pedestal Values",50,0,50);
+    hbHists.PEDRMS  =  m_dbe->book1D("HB Pedestal RMS Values","HB Pedestal RMS Values",100,0,3);
+    hbHists.PEDMEAN =  m_dbe->book1D("HB Pedestal Mean Values","HB Pedestal Mean Values",100,0,9);
+    hbHists.NSIGMA  =  m_dbe->book1D("HB Normalized RMS Values","HB Normalized RMS Values",100,0,5);
+    hbHists.SUBMEAN =  m_dbe->book1D("HB Subtracted Mean Values","HB Subtracted Mean Values",100,-2.5,2.5);
+    hbHists.CAPIDRMS  =  m_dbe->book1D("HB CapID RMS Variance","HB CapID RMS Variance",50,0,0.5);
+    hbHists.CAPIDMEAN =  m_dbe->book1D("HB CapID Mean Variance","HB CapID Mean Variance",50,0,3);
+    hbHists.QIERMS  =  m_dbe->book1D("HB QIE RMS Values","HB QIE RMS Values",50,0,3);
+    hbHists.QIEMEAN =  m_dbe->book1D("HB QIE Mean Values","HB QIE Mean Values",50,0,10);
+    hbHists.ERRGEO =  m_dbe->book2D("HB Pedestal Geo Error Map","HB Pedestal Geo Error Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
+    hbHists.ERRELEC =  m_dbe->book2D("HB Pedestal Elec Error Map","HB Pedestal Elec Error Map",21,-0.5,20.5,21,-0.5,20.5);
+    type = "HB Pedestal Mean Reference Values";
     hbHists.PEDESTAL_REFS = m_dbe->book1D(type,type,100,0,20);
-    type = "HBHE Pedestal RMS Reference Values";
+    type = "HB Pedestal RMS Reference Values";
     hbHists.WIDTH_REFS = m_dbe->book1D(type,type,50,0,10);
 
+    m_dbe->setCurrentFolder("HcalMonitor/PedestalMonitor/HE");
+    heHists.ALLPEDS =  m_dbe->book1D("HE All Pedestal Values","HE All Pedestal Values",50,0,50);
+    heHists.PEDRMS  =  m_dbe->book1D("HE Pedestal RMS Values","HE Pedestal RMS Values",100,0,3);
+    heHists.PEDMEAN =  m_dbe->book1D("HE Pedestal Mean Values","HE Pedestal Mean Values",100,0,9);
+    heHists.NSIGMA  =  m_dbe->book1D("HE Normalized RMS Values","HE Normalized RMS Values",100,0,5);
+    heHists.SUBMEAN =  m_dbe->book1D("HE Subtracted Mean Values","HE Subtracted Mean Values",100,-2.5,2.5);
+    heHists.CAPIDRMS  =  m_dbe->book1D("HE CapID RMS Variance","HE CapID RMS Variance",50,0,0.5);
+    heHists.CAPIDMEAN =  m_dbe->book1D("HE CapID Mean Variance","HE CapID Mean Variance",50,0,3);
+    heHists.QIERMS  =  m_dbe->book1D("HE QIE RMS Values","HE QIE RMS Values",50,0,3);
+    heHists.QIEMEAN =  m_dbe->book1D("HE QIE Mean Values","HE QIE Mean Values",50,0,10);
+    heHists.ERRGEO =  m_dbe->book2D("HE Pedestal Geo Error Map","HE Pedestal Geo Error Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
+    heHists.ERRELEC =  m_dbe->book2D("HE Pedestal Elec Error Map","HE Pedestal Elec Error Map",21,-0.5,20.5,21,-0.5,20.5);
+    type = "HE Pedestal Mean Reference Values";
+    heHists.PEDESTAL_REFS = m_dbe->book1D(type,type,100,0,20);
+    type = "HE Pedestal RMS Reference Values";
+    heHists.WIDTH_REFS = m_dbe->book1D(type,type,50,0,10);
 
     m_dbe->setCurrentFolder("HcalMonitor/PedestalMonitor/HF");
     hfHists.ALLPEDS =  m_dbe->book1D("HF All Pedestal Values","HF All Pedestal Values",50,0,50);
@@ -148,38 +166,63 @@ void HcalPedestalMonitor::processEvent(const HBHEDigiCollection& hbhe,
   ievt_++;
   meEVT_->Fill(ievt_);
   
-  if(!m_dbe) { printf("HcalPedestalMonitor::processEvent   DaqMonitorBEInterface not instantiated!!!\n");  return; }
-
+  if(!m_dbe) { 
+    printf("HcalPedestalMonitor::processEvent   DaqMonitorBEInterface not instantiated!!!\n");  
+    return; 
+  }
+  
   try{
+    
     for (HBHEDigiCollection::const_iterator j=hbhe.begin(); j!=hbhe.end(); j++){
-      const HBHEDataFrame digi = (const HBHEDataFrame)(*j);
       
+      const HBHEDataFrame digi = (const HBHEDataFrame)(*j);
       const HcalPedestalWidth* pedw = cond.getPedestalWidth(digi.id());
-      for(int capID=0; capID<4; capID++){
-	float width=0;
-	if(pedw) width = pedw->getWidth(capID);
-	hbHists.PEDESTAL_REFS->Fill(calibs_.pedestal(capID));
-	hbHists.WIDTH_REFS->Fill(width);
-	PEDESTAL_REFS->Fill(calibs_.pedestal(capID));
-	WIDTH_REFS->Fill(width);
+      cond.makeHcalCalibration(digi.id(), &calibs_);
+      
+      if((HcalSubdetector)(digi.id().subdet())==HcalBarrel){
+	for(int capID=0; capID<4; capID++){
+	  float width=0;
+	  if(pedw) width = pedw->getWidth(capID);
+	  hbHists.PEDESTAL_REFS->Fill(calibs_.pedestal(capID));
+	  hbHists.WIDTH_REFS->Fill(width);
+	  PEDESTAL_REFS->Fill(calibs_.pedestal(capID));
+	  WIDTH_REFS->Fill(width);
+	}
+	
+	for (int i=0; i<digi.size(); i++) {
+	  hbHists.ALLPEDS->Fill(digi.sample(i).adc());
+	  if(m_doPerChannel) perChanHists(0,digi.id(),digi.sample(i),
+					  hbHists.PEDVALS,hbHists.SUBVALS);
+	}
       }
-
-      if(m_doPerChannel) cond.makeHcalCalibration(digi.id(), &calibs_);
-      for (int i=0; i<digi.size(); i++) {
-	hbHists.ALLPEDS->Fill(digi.sample(i).adc());
-	if(m_doPerChannel) perChanHists(0,digi.id(),digi.sample(i),
-					hbHists.PEDVALS,hbHists.SUBVALS);
+      
+      if((HcalSubdetector)(digi.id().subdet())==HcalEndcap){
+	for(int capID=0; capID<4; capID++){
+	  float width=0;
+	  if(pedw) width = pedw->getWidth(capID);
+	  heHists.PEDESTAL_REFS->Fill(calibs_.pedestal(capID));
+	  heHists.WIDTH_REFS->Fill(width);
+	  PEDESTAL_REFS->Fill(calibs_.pedestal(capID));
+	  WIDTH_REFS->Fill(width);
+	}
+	
+	for (int i=0; i<digi.size(); i++) {
+	  heHists.ALLPEDS->Fill(digi.sample(i).adc());
+	  if(m_doPerChannel) perChanHists(0,digi.id(),digi.sample(i),
+					  heHists.PEDVALS,heHists.SUBVALS);
+	}
       }
     }
   } catch (...) {
     printf("HcalPedestalMonitor::processEvent  No HBHE Digis.\n");
   }
-  
+
   try{
     for (HODigiCollection::const_iterator j=ho.begin(); j!=ho.end(); j++){
       const HODataFrame digi = (const HODataFrame)(*j);	
       
       const HcalPedestalWidth* pedw = cond.getPedestalWidth(digi.id());
+      cond.makeHcalCalibration(digi.id(), &calibs_);
       for(int capID=0; capID<4; capID++){
 	float width=0;
 	if(pedw) width = pedw->getWidth(capID);
@@ -189,7 +232,6 @@ void HcalPedestalMonitor::processEvent(const HBHEDigiCollection& hbhe,
 	WIDTH_REFS->Fill(width);
       }
 
-      if(m_doPerChannel) cond.makeHcalCalibration(digi.id(), &calibs_);
       for (int i=0; i<digi.size(); i++) {
 	hoHists.ALLPEDS->Fill(digi.sample(i).adc());
 	if(m_doPerChannel) perChanHists(1,digi.id(),digi.sample(i),
@@ -205,6 +247,7 @@ void HcalPedestalMonitor::processEvent(const HBHEDigiCollection& hbhe,
       const HFDataFrame digi = (const HFDataFrame)(*j);	
 
       const HcalPedestalWidth* pedw = cond.getPedestalWidth(digi.id());
+      cond.makeHcalCalibration(digi.id(), &calibs_);
       for(int capID=0; capID<4; capID++){
 	float width=0;
 	if(pedw) width = pedw->getWidth(capID);
@@ -214,7 +257,6 @@ void HcalPedestalMonitor::processEvent(const HBHEDigiCollection& hbhe,
 	WIDTH_REFS->Fill(width);
       }
 
-      if(m_doPerChannel) cond.makeHcalCalibration(digi.id(), &calibs_);
       for (int i=0; i<digi.size(); i++) {
 	hfHists.ALLPEDS->Fill(digi.sample(i).adc());
 	if(m_doPerChannel) perChanHists(2,digi.id(),digi.sample(i),
@@ -236,15 +278,20 @@ void HcalPedestalMonitor::done(){
 void HcalPedestalMonitor::perChanHists(int id, const HcalDetId detid, const HcalQIESample& qie, map<HcalDetId, map<int, MonitorElement*> > &toolP, map<HcalDetId, map<int, MonitorElement*> > &toolS) {
   static const int bins=10;
   
-  string type = "HBHE";
-  if(m_dbe) m_dbe->setCurrentFolder("HcalMonitor/PedestalMonitor/HBHE");
+  string type = "HB";
+  if(m_dbe) m_dbe->setCurrentFolder("HcalMonitor/PedestalMonitor/HB");
+
   if(id==1) { 
-    type = "HO"; 
-    if(m_dbe) m_dbe->setCurrentFolder("HcalMonitor/PedestalMonitor/HO");
+    type = "HE"; 
+    if(m_dbe) m_dbe->setCurrentFolder("HcalMonitor/PedestalMonitor/HE");
   }
   else if(id==2) { 
     type = "HF"; 
     if(m_dbe) m_dbe->setCurrentFolder("HcalMonitor/PedestalMonitor/HF");
+  }
+  else if(id==3) { 
+    type = "HO"; 
+    if(m_dbe) m_dbe->setCurrentFolder("HcalMonitor/PedestalMonitor/HO");
   }  
   
   //outer iteration

@@ -6,24 +6,19 @@ HcalDataFormatClient::HcalDataFormatClient(const ParameterSet& ps, MonitorUserIn
   dqmQtests_.clear();
 
   mui_ = mui;
-  for(int i=0; i<3; i++){
-    dferr[i] = NULL;
-    crateErrMap[i] =NULL;
-    fiberErrMap[i] =NULL;
-    spigotErrMap[i] = NULL;
+  for(int i=0; i<4; i++){
+    dferr_[i] = NULL;
+    crateErrMap_[i] =NULL;
+    spigotErrMap_[i] = NULL;
   }
+  spigotErrs_ = NULL;
+  badDigis_ = NULL;
+  unmappedDigis_ = NULL;
+  unmappedTPDs_ = NULL;
+  fedErrMap_ = NULL;
 
-  ievt_=0;
-  jevt_=0;
-  kevt_=0;
+  ievt_=0; jevt_=0;
 
-  spigotErrs = NULL;
-  badDigis = NULL;
-  unmappedDigis = NULL;
-  unmappedTPDs = NULL;
-  fedErrMap = NULL;
-
-  
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
   
@@ -32,6 +27,16 @@ HcalDataFormatClient::HcalDataFormatClient(const ParameterSet& ps, MonitorUserIn
 
   // DQM default process name
   process_ = ps.getUntrackedParameter<string>("processName", "HcalMonitor");
+
+  vector<string> subdets = ps.getUntrackedParameter<vector<string> >("subDetsOn");
+  for(int i=0; i<4; i++) subDetsOn_[i] = false;
+  
+  for(unsigned int i=0; i<subdets.size(); i++){
+    if(subdets[i]=="HB") subDetsOn_[0] = true;
+    else if(subdets[i]=="HE") subDetsOn_[1] = true;
+    else if(subdets[i]=="HF") subDetsOn_[2] = true;
+    else if(subdets[i]=="HO") subDetsOn_[3] = true;
+  }
 }
 
 HcalDataFormatClient::HcalDataFormatClient(){
@@ -39,19 +44,19 @@ HcalDataFormatClient::HcalDataFormatClient(){
   dqmQtests_.clear();
   verbose_ =false;
   mui_ = 0;
-  for(int i=0; i<3; i++){
-    dferr[i] = NULL;
-    crateErrMap[i] =NULL;
-    fiberErrMap[i] =NULL;
-    spigotErrMap[i] = NULL;
+  for(int i=0; i<4; i++){
+    dferr_[i] = NULL;
+    crateErrMap_[i] =NULL;
+    spigotErrMap_[i] = NULL;
   }
 
-  spigotErrs = NULL;
-  badDigis = NULL;
-  unmappedDigis = NULL;
-  unmappedTPDs = NULL;
-  fedErrMap = NULL;
-  
+  spigotErrs_ = NULL;
+  badDigis_ = NULL;
+  unmappedDigis_ = NULL;
+  unmappedTPDs_ = NULL;
+  fedErrMap_ = NULL;
+
+  for(int i=0; i<4; i++) subDetsOn_[i] = false;
 }
 
 HcalDataFormatClient::~HcalDataFormatClient(){
@@ -64,7 +69,6 @@ void HcalDataFormatClient::beginJob(void){
 
   if ( verbose_ ) cout << "HcalDataFormatClient: beginJob" << endl;
   ievt_ = 0; jevt_ = 0;
-  kevt_=0;
   this->setup();
   this->subscribe();
   this->resetME();
@@ -107,32 +111,29 @@ void HcalDataFormatClient::setup(void) {
 void HcalDataFormatClient::cleanup(void) {
 
   if ( cloneME_ ) {
-    for(int i=0; i<3; i++){
-      if ( dferr[i] ) delete dferr[i];
-      if ( crateErrMap[i]) delete crateErrMap[i];
-      if ( fiberErrMap[i]) delete fiberErrMap[i];
-      if ( spigotErrMap[i]) delete spigotErrMap[i];
+    for(int i=0; i<4; i++){
+      if ( dferr_[i] ) delete dferr_[i];
+      if ( crateErrMap_[i]) delete crateErrMap_[i];
+      if ( spigotErrMap_[i]) delete spigotErrMap_[i];
     }
   
-    if ( spigotErrs) delete spigotErrs;
-    if ( badDigis) delete badDigis;
-    if ( unmappedDigis) delete unmappedDigis;
-    if ( unmappedTPDs) delete unmappedTPDs;
-    if ( fedErrMap) delete fedErrMap;
+    if ( spigotErrs_) delete spigotErrs_;
+    if ( badDigis_) delete badDigis_;
+    if ( unmappedDigis_) delete unmappedDigis_;
+    if ( unmappedTPDs_) delete unmappedTPDs_;
+    if ( fedErrMap_) delete fedErrMap_;
   }  
-  for(int i=0; i<3; i++){
-    dferr[i] = NULL;
-    crateErrMap[i] =NULL;
-    fiberErrMap[i] =NULL;
-    spigotErrMap[i] = NULL;
+  for(int i=0; i<4; i++){
+    dferr_[i] = NULL;
+    crateErrMap_[i] =NULL;
+    spigotErrMap_[i] = NULL;
   }
   
-  spigotErrs = NULL;
-  badDigis = NULL;
-  unmappedDigis = NULL;
-  unmappedTPDs = NULL;
-  fedErrMap = NULL;
-
+  spigotErrs_ = NULL;
+  badDigis_ = NULL;
+  unmappedDigis_ = NULL;
+  unmappedTPDs_ = NULL;
+  fedErrMap_ = NULL;
 
   dqmReportMapErr_.clear(); dqmReportMapWarn_.clear(); dqmReportMapOther_.clear();
   dqmQtests_.clear();
@@ -221,36 +222,33 @@ void HcalDataFormatClient::analyze(void){
 void HcalDataFormatClient::getHistograms(){
   char name[150];     
   sprintf(name,"DataFormatMonitor/Spigot Format Errors");
-  spigotErrs = getHisto(name, process_, mui_, verbose_,cloneME_);
+  spigotErrs_ = getHisto(name, process_, mui_, verbose_,cloneME_);
 
   sprintf(name,"DataFormatMonitor/Bad Quality Digis");
-  badDigis = getHisto(name, process_, mui_, verbose_,cloneME_);
+  badDigis_ = getHisto(name, process_, mui_, verbose_,cloneME_);
 
   sprintf(name,"DataFormatMonitor/Unmapped Digis");
-  unmappedDigis = getHisto(name, process_, mui_, verbose_,cloneME_);
+  unmappedDigis_ = getHisto(name, process_, mui_, verbose_,cloneME_);
 
   sprintf(name,"DataFormatMonitor/Unmapped Trigger Primitive Digis");
-  unmappedTPDs = getHisto(name, process_, mui_, verbose_,cloneME_);
+  unmappedTPDs_ = getHisto(name, process_, mui_, verbose_,cloneME_);
 
   sprintf(name,"DataFormatMonitor/FED Error Map");
-  fedErrMap = getHisto(name, process_, mui_, verbose_,cloneME_);
+  fedErrMap_ = getHisto(name, process_, mui_, verbose_,cloneME_);
   
   for(int i=0; i<3; i++){
     string type = "HBHE";
     if(i==1) type = "HO";
     if(i==2) type = "HF";
     sprintf(name,"DataFormatMonitor/%s Data Format Error Words", type.c_str());
-    dferr[i] = getHisto(name, process_, mui_, verbose_,cloneME_);    
-    labelBits(dferr[i]);
+    dferr_[i] = getHisto(name, process_, mui_, verbose_,cloneME_);    
+    labelBits(dferr_[i]);
     
     sprintf(name,"DataFormatMonitor/%s Data Format Crate Error Map", type.c_str());
-    crateErrMap[i] = getHisto2(name, process_, mui_, verbose_,cloneME_);
-
-    sprintf(name,"DataFormatMonitor/%s Data Format Fiber Error Map", type.c_str());
-    fiberErrMap[i] = getHisto2(name, process_, mui_, verbose_,cloneME_);
+    crateErrMap_[i] = getHisto2(name, process_, mui_, verbose_,cloneME_);
 
     sprintf(name,"DataFormatMonitor/%s Data Format Spigot Error Map", type.c_str());
-    spigotErrMap[i] = getHisto2(name, process_, mui_, verbose_,cloneME_);
+    spigotErrMap_[i] = getHisto2(name, process_, mui_, verbose_,cloneME_);
 
   }
   return;
@@ -325,10 +323,13 @@ void HcalDataFormatClient::resetME(){
    me = mui_->get(name);
   if(me) mui_->softReset(me);
 
-  for(int i=0; i<3; i++){
-    string type = "HBHE";
-    if(i==1) type = "HO";
+  for(int i=0; i<4; i++){
+    if(!subDetsOn_[i]) continue;
+    string type = "HB";
+    if(i==1) type = "HE";
     if(i==2) type = "HF";
+    if(i==3) type = "HO";
+
     sprintf(name,"%sHcalMonitor/DataFormatMonitor/%s Data Format Error Words",process_.c_str(), type.c_str());
      me = mui_->get(name);
     if(me) mui_->softReset(me);
@@ -337,10 +338,6 @@ void HcalDataFormatClient::resetME(){
     me = mui_->get(name);
     if(me) mui_->softReset(me);
 
-    sprintf(name,"%sHcalMonitor/DataFormatMonitor/%s Data Format Fiber Error Map",process_.c_str(), type.c_str());
-    me = mui_->get(name);
-    if(me) mui_->softReset(me);
-    
     sprintf(name,"%sHcalMonitor/DataFormatMonitor/%s Data Format Spigot Error Map",process_.c_str(), type.c_str());
     me = mui_->get(name);
     if(me) mui_->softReset(me);
@@ -391,52 +388,56 @@ void HcalDataFormatClient::htmlOutput(int run, string htmlDir, string htmlName){
   
   htmlFile << "<h2><strong>Hcal DCC Error Words</strong></h2>" << endl;  
   htmlFile << "<h3>" << endl;
-  htmlFile << "<a href=\"#HBHE_Plots\">HB-HE Plots </a></br>" << endl;
-  htmlFile << "<a href=\"#HO_Plots\">HO Plots </a></br>" << endl;
-  htmlFile << "<a href=\"#HF_Plots\">HF Plots </a></br>" << endl;
+  if(subDetsOn_[0]) htmlFile << "<a href=\"#HB_Plots\">HB Plots </a></br>" << endl;
+  if(subDetsOn_[1]) htmlFile << "<a href=\"#HE_Plots\">HE Plots </a></br>" << endl;
+  if(subDetsOn_[2]) htmlFile << "<a href=\"#HF_Plots\">HF Plots </a></br>" << endl;
+  if(subDetsOn_[3]) htmlFile << "<a href=\"#HO_Plots\">HO Plots </a></br>" << endl;
   htmlFile << "</h3>" << endl;
   htmlFile << "<hr>" << endl;
-
+  
   htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
   htmlFile << "cellpadding=\"10\"> " << endl;
 
   htmlFile << "<td>&nbsp;&nbsp;&nbsp;<h3>Global Histograms</h3></td></tr>" << endl;
   htmlFile << "<tr align=\"left\">" << endl;
-  histoHTML(fedErrMap,"iEta","iPhi", 92, htmlFile,htmlDir);
+  histoHTML(fedErrMap_,"iEta","iPhi", 92, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
   
   htmlFile << "<tr align=\"left\">" << endl;
-  histoHTML(spigotErrs,"# Errs","Events", 92, htmlFile,htmlDir);
-  histoHTML(badDigis,"# Bad Digis","Events", 100, htmlFile,htmlDir);
+  histoHTML(spigotErrs_,"# Errs","Events", 92, htmlFile,htmlDir);
+  histoHTML(badDigis_,"# Bad Digis","Events", 100, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
   
   htmlFile << "<tr align=\"left\">" << endl;
-  histoHTML(unmappedDigis,"# Digis","Events", 92, htmlFile,htmlDir);
-  histoHTML(unmappedTPDs,"# TP Digis","Events", 100, htmlFile,htmlDir);
+  histoHTML(unmappedDigis_,"# Digis","Events", 92, htmlFile,htmlDir);
+  histoHTML(unmappedTPDs_,"# TP Digis","Events", 100, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
 
-   for(int i=0; i<3; i++){
-     string type = "HBHE";
-     if(i==1) type = "HO"; 
-     if(i==2) type = "HF"; 
-     htmlFile << "<td>&nbsp;&nbsp;&nbsp;<a name=\""<<type<<"_Plots\"><h3>" << type << " Histograms</h3></td></tr>" << endl;
-     htmlFile << "<tr align=\"left\">" << endl;  
-     histoHTML(dferr[i],"Error Bit","Frequency", 92, htmlFile,htmlDir);
-     histoHTML2(crateErrMap[i],"VME Crate ID","HTR Slot", 100, htmlFile,htmlDir);
-     htmlFile << "</tr>" << endl;    
-     htmlFile << "<tr align=\"left\">" << endl;  
-     histoHTML2(fiberErrMap[i],"Fiber Channel","Fiber", 92, htmlFile,htmlDir);
-     histoHTML2(spigotErrMap[i],"Spigot","DCC Id", 100, htmlFile,htmlDir);
-     htmlFile << "</tr>" << endl;
-   }
-   htmlFile << "</table>" << endl;
-   htmlFile << "<br>" << endl;   
-
-   // html page footer
-   htmlFile << "</body> " << endl;
-   htmlFile << "</html> " << endl;
-   
-   htmlFile.close();
+  for(int i=0; i<4; i++){
+    if(!subDetsOn_[i]) continue;
+    
+    string type = "HB";
+    if(i==1) type = "HE"; 
+    if(i==2) type = "HF"; 
+    if(i==3) type = "HO"; 
+    
+    htmlFile << "<td>&nbsp;&nbsp;&nbsp;<a name=\""<<type<<"_Plots\"><h3>" << type << " Histograms</h3></td></tr>" << endl;
+    htmlFile << "<tr align=\"left\">" << endl;  
+    histoHTML(dferr_[i],"Error Bit","Frequency", 92, htmlFile,htmlDir);
+    histoHTML2(crateErrMap_[i],"VME Crate ID","HTR Slot", 100, htmlFile,htmlDir);
+    htmlFile << "</tr>" << endl;    
+    htmlFile << "<tr align=\"left\">" << endl;  
+    histoHTML2(spigotErrMap_[i],"Spigot","DCC Id", 100, htmlFile,htmlDir);
+    htmlFile << "</tr>" << endl;
+  }
+  htmlFile << "</table>" << endl;
+  htmlFile << "<br>" << endl;   
+  
+  // html page footer
+  htmlFile << "</body> " << endl;
+  htmlFile << "</html> " << endl;
+  
+  htmlFile.close();
    return;
 }
 
@@ -449,10 +450,12 @@ void HcalDataFormatClient::createTests(){
   
   if(verbose_) printf("Creating Data Format tests...\n"); 
   
-  for(int i=0; i<3; i++){
-    string type = "HBHE";
-    if(i==1) type = "HO"; 
-    if(i==2) type = "HF";
+  for(int i=0; i<4; i++){
+    if(!subDetsOn_[i]) continue;
+    string type = "HB";
+    if(i==1) type = "HE"; 
+    if(i==2) type = "HF"; 
+    if(i==3) type = "HO";
     
     sprintf(meTitle,"%sHcalMonitor/DataFormatMonitor/%s Data Format Error Words",process_.c_str(),type.c_str());
     sprintf(name,"%s DataFormat",type.c_str());
@@ -485,36 +488,36 @@ void HcalDataFormatClient::loadHistograms(TFile* infile){
   char name[150]; 
 
   sprintf(name,"DQMData/HcalMonitor/DataFormatMonitor/Spigot Format Errors");
-  spigotErrs = (TH1F*)infile->Get(name);
+  spigotErrs_ = (TH1F*)infile->Get(name);
 
   sprintf(name,"DQMData/HcalMonitor/DataFormatMonitor/Bad Quality Digis");
-  badDigis = (TH1F*)infile->Get(name);
+  badDigis_ = (TH1F*)infile->Get(name);
 
   sprintf(name,"DQMData/HcalMonitor/DataFormatMonitor/Unmapped Digis");
-  unmappedDigis = (TH1F*)infile->Get(name);
+  unmappedDigis_ = (TH1F*)infile->Get(name);
 
   sprintf(name,"DQMData/HcalMonitor/DataFormatMonitor/Unmapped Trigger Primitive Digis");
-  unmappedTPDs = (TH1F*)infile->Get(name);
+  unmappedTPDs_ = (TH1F*)infile->Get(name);
 
   sprintf(name,"DQMData/HcalMonitor/DataFormatMonitor/FED Error Map");
-  fedErrMap = (TH1F*)infile->Get(name);
+  fedErrMap_ = (TH1F*)infile->Get(name);
   
-  for(int i=0; i<3; i++){
-    string type = "HBHE";
-    if(i==1) type = "HO";
+  for(int i=0; i<4; i++){
+    if(!subDetsOn_[i]) continue;
+    string type = "HB";
+    if(i==1) type = "HE";
     if(i==2) type = "HF";
+    if(i==3) type = "HO";
+
     sprintf(name,"DQMData/HcalMonitor/DataFormatMonitor/%s Data Format Error Words", type.c_str());
-    dferr[i] = (TH1F*)infile->Get(name);    
-    labelBits(dferr[i]);
+    dferr_[i] = (TH1F*)infile->Get(name);    
+    labelBits(dferr_[i]);
     
     sprintf(name,"DQMData/HcalMonitor/DataFormatMonitor/%s Data Format Crate Error Map", type.c_str());
-    crateErrMap[i] = (TH2F*)infile->Get(name);
-
-    sprintf(name,"DQMData/HcalMonitor/DataFormatMonitor/%s Data Format Fiber Error Map", type.c_str());
-    fiberErrMap[i] = (TH2F*)infile->Get(name);
+    crateErrMap_[i] = (TH2F*)infile->Get(name);
 
     sprintf(name,"DQMData/HcalMonitor/DataFormatMonitor/%s Data Format Spigot Error Map", type.c_str());
-    spigotErrMap[i] = (TH2F*)infile->Get(name);
+    spigotErrMap_[i] = (TH2F*)infile->Get(name);
 
   }
 

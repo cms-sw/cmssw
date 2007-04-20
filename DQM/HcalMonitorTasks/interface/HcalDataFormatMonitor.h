@@ -8,8 +8,8 @@
 
 /** \class Hcaldataformatmonitor
   *  
-  * $Date: 2007/03/21 23:01:29 $
-  * $Revision: 1.10 $
+  * $Date: 2007/04/02 13:19:38 $
+  * $Revision: 1.11 $
   * \author W. Fisher - FNAL
   */
 class HcalDataFormatMonitor: public HcalBaseMonitor {
@@ -40,9 +40,8 @@ private:  ///Monitoring elements
   struct{
     MonitorElement* ERR_MAP;
     MonitorElement* DCC_ERRWD;
-    MonitorElement* FiberMap;
     MonitorElement* SpigotMap;
-  } hbHists, hfHists,hoHists;
+  } hbHists, heHists, hfHists,hoHists;
 
   
 

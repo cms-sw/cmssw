@@ -7,8 +7,8 @@
 
 /** \class HcalPedestalMonitor
   *  
-  * $Date: 2007/04/10 18:18:59 $
-  * $Revision: 1.8 $
+  * $Date: 2007/04/14 20:20:25 $
+  * $Revision: 1.9 $
   * \author W. Fisher - FNAL
   */
 class HcalPedestalMonitor: public HcalBaseMonitor {
@@ -88,7 +88,7 @@ private:
     MonitorElement* PEDESTAL_REFS;
     MonitorElement* WIDTH_REFS;
 
-  } hbHists, hfHists, hoHists;
+  } hbHists, heHists, hfHists, hoHists;
 
 };
 

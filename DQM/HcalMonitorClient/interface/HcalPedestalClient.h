@@ -97,14 +97,14 @@ public:
 private:
 
   void generateBadChanList(string dir);
-  vector<int> badChan;
-  vector<double> badMean;
-  vector<double> badRMS;
+  vector<int> badChan_;
+  vector<double> badMean_;
+  vector<double> badRMS_;
 
   int ievt_;
   int jevt_;
-  int kevt_;
 
+  bool subDetsOn_[4];
   edm::ESHandle<HcalDbService> conditions_;
 
   bool collateSources_;
@@ -119,34 +119,30 @@ private:
   const HcalElectronicsMap* readoutMap_;
 
   int nCrates_;
-  TH1F* htrMean[1000];
-  TH1F* htrRMS[1000];
+  TH1F* htrMean_[1000];
+  TH1F* htrRMS_[1000];
 
-  TH1F* all_peds[3];
-  TH1F* ped_rms[3];
-  TH1F* ped_mean[3];
+  TH1F* all_peds_[4];
+  TH1F* ped_rms_[4];
+  TH1F* ped_mean_[4];
 
-  TH1F* sub_rms[3];
-  TH1F* sub_mean[3];
+  TH1F* sub_rms_[4];
+  TH1F* sub_mean_[4];
 
-  TH1F* capid_mean[3];
-  TH1F* capid_rms[3];
-  TH1F* qie_mean[3];
-  TH1F* qie_rms[3];
+  TH1F* capid_mean_[4];
+  TH1F* capid_rms_[4];
+  TH1F* qie_mean_[4];
+  TH1F* qie_rms_[4];
 
-  TH2F* pedMapMean_D[4];
-  TH2F* pedMapRMS_D[4];
+  TH2F* pedMapMeanD_[4];
+  TH2F* pedMapRMSD_[4];
 
-  TH2F* pedMapMean_E[3];
-  TH2F* pedMapRMS_E[3];
+  TH2F* pedMapMean_E[4];
+  TH2F* pedMapRMS_E[4];
 
-  TH2F* err_map_geo[3];
-  TH2F* err_map_elec[3];
-  TH2F* geoRef;
-
-  int etaMin[4]; int etaMax[4];
-  int phiMin[4]; int phiMax[4];
-  int depMin[4]; int depMax[4];
+  TH2F* err_map_geo_[4];
+  TH2F* err_map_elec_[4];
+  TH2F* geoRef_;
 
   // Quality criteria for data integrity
   float pedrms_thresh_;

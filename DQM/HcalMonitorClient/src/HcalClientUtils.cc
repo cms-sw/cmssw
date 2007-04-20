@@ -1,5 +1,43 @@
 #include "DQM/HcalMonitorClient/interface/HcalClientUtils.h"
 
+bool isValidGeom(int subdet, int iEta, int iPhi, int depth){
+  
+  if(subdet<0 || subdet>3) return false;
+  
+  int EtaMin[4]; int EtaMax[4];
+  int PhiMin[4]; int PhiMax[4];
+  int DepMin[4]; int DepMax[4];
+  
+  //HB ieta/iphi/depths
+  EtaMin[0]=1; EtaMax[0]=16;
+  PhiMin[0]=1; PhiMax[0]=71;
+  DepMin[0]=1; DepMax[0]=2;
+  
+  //HE ieta/iPhi/Depths
+  EtaMin[1]=16; EtaMax[1]=29;
+  PhiMin[1]=1; PhiMax[1]=71;
+  DepMin[1]=1; DepMax[1]=3;
+  
+  //HF ieta/iphi/depths
+  EtaMin[2]=29; EtaMax[2]=41;
+  PhiMin[2]=1; PhiMax[2]=71;
+  DepMin[2]=1; DepMax[2]=2;
+  
+  //HO ieta/iphi/depths
+  EtaMin[3]=1; EtaMax[3]=15;
+  PhiMin[3]=1; PhiMax[3]=71;
+  DepMin[3]=4; DepMax[3]=4;
+  
+  if(iEta!=0) if(abs(iEta)<EtaMin[subdet] || abs(iEta)>EtaMax[subdet]) return false;
+  if(iPhi!=0) if(abs(iPhi)<PhiMin[subdet] || abs(iPhi)>PhiMax[subdet]) return false;
+  if(depth!=0) if(abs(depth)<DepMin[subdet] || abs(depth)>DepMax[subdet]) return false;
+  
+  if(subdet==0 && abs(iEta)==16 && depth==3) return false;
+  if(subdet==1 && abs(iEta)==16 && (depth==1 || depth==2)) return false;
+
+  return true;
+}
+
 void dumpHisto(TH1F* hist, vector<string> &names, 
 	       vector<double> &meanX, vector<double> &meanY, 
 	       vector<double> &rmsX, vector<double> &rmsY){
@@ -23,6 +61,25 @@ void dumpHisto2(TH2F* hist, vector<string> &names,
   return;
 }
 
+void parseString(string& title){
+  
+  for ( unsigned int i = 0; i < title.size(); i++ ) {
+    if ( title.substr(i, 1) == " " )  {
+      title.replace(i, 1, "_");
+    }
+    if ( title.substr(i, 1) == "#" )  {
+      title.replace(i, 1, "N");
+    }
+    if ( title.substr(i, 1) == "(" 
+	 || title.substr(i, 1) == ")" 
+	 )  {
+      title.replace(i, 1, "-");
+    }
+  }
+  
+  return;
+}
+
 string getIMG2(TH2F* hist, int size, string htmlDir, const char* xlab, const char* ylab,bool color){
 
   if(hist==NULL) {
@@ -38,18 +95,8 @@ string getIMG2(TH2F* hist, int size, string htmlDir, const char* xlab, const cha
   }
   TCanvas* can = new TCanvas(title.c_str(), "tmp can2", xwid, ywid);
 
-  for ( unsigned int i = 0; i < title.size(); i++ ) {
-    if ( title.substr(i, 1) == " " )  {
-      title.replace(i, 1, "_");
-    }
-    if ( title.substr(i, 1) == "#" )  {
-      title.replace(i, 1, "N");
-    }
-  }
-
+  parseString(title);
   string outName = title + ".png";
-  //  if(!save) return outName;
-
   string saveName = htmlDir + outName;
   hist->SetXTitle(xlab);
   hist->SetYTitle(ylab);
@@ -78,19 +125,9 @@ string getIMG(TH1F* hist, int size, string htmlDir, const char* xlab, const char
     xwid = 600; ywid = 360;
   }
   TCanvas* can = new TCanvas(title.c_str(), "tmp can", xwid, ywid);
-  
-  for ( unsigned int i = 0; i < title.size(); i++ ) {
-    if ( title.substr(i, 1) == " " )  {
-      title.replace(i, 1, "_");
-    }
-    if ( title.substr(i, 1) == "#" )  {
-      title.replace(i, 1, "N");
-    }
-  }
-  
+
+  parseString(title);
   string outName = title + ".png";
-  //  if(!save) return outName;
-  
   string saveName = htmlDir + outName;
   hist->SetXTitle(xlab);
   hist->SetYTitle(ylab);

@@ -81,7 +81,7 @@ void setup(void);
 private:
   int ievt_;
   int jevt_;
-  int kevt_;
+  bool subDetsOn_[4];
 
   bool cloneME_;
   bool verbose_;
@@ -92,13 +92,13 @@ private:
 
   MonitorUserInterface* mui_;
 
-  TH2F* tot_occ[4];
-  TH1F* tot_energy;
+  TH2F* tot_occ_[4];
+  TH1F* tot_energy_;
 
-  TH2F* occ[4];
-  TH1F* energy[4];
-  TH1F* energyT[4];
-  TH1F* time[4];
+  TH2F* occ_[4];
+  TH1F* energy_[4];
+  TH1F* energyT_[4];
+  TH1F* time_[4];
 
 
   // Quality criteria for data integrity

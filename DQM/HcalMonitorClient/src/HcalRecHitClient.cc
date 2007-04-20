@@ -8,13 +8,13 @@ HcalRecHitClient::HcalRecHitClient(const ParameterSet& ps, MonitorUserInterface*
 
   mui_ = mui;
   for(int i=0; i<4; i++){
-    occ[i]=0;
-    energy[i]=0;
-    energyT[i]=0;
-    time[i]=0;
-    tot_occ[i]=0;
+    occ_[i]=0;
+    energy_[i]=0;
+    energyT_[i]=0;
+    time_[i]=0;
+    tot_occ_[i]=0;
   }
-  tot_energy=0;
+  tot_energy_=0;
 
   // cloneME switch
   cloneME_ = ps.getUntrackedParameter<bool>("cloneME", true);
@@ -31,6 +31,15 @@ HcalRecHitClient::HcalRecHitClient(const ParameterSet& ps, MonitorUserInterface*
   // DQM default process name
   process_ = ps.getUntrackedParameter<string>("processName", "HcalMonitor");
 
+  vector<string> subdets = ps.getUntrackedParameter<vector<string> >("subDetsOn");
+  for(int i=0; i<4; i++) subDetsOn_[i] = false;
+  
+  for(unsigned int i=0; i<subdets.size(); i++){
+    if(subdets[i]=="HB") subDetsOn_[0] = true;
+    else if(subdets[i]=="HE") subDetsOn_[1] = true;
+    else if(subdets[i]=="HF") subDetsOn_[2] = true;
+    else if(subdets[i]=="HO") subDetsOn_[3] = true;
+  }
 }
 
 HcalRecHitClient::HcalRecHitClient(){
@@ -40,17 +49,17 @@ HcalRecHitClient::HcalRecHitClient(){
 
   mui_ = 0;
   for(int i=0; i<4; i++){
-    occ[i]=0;
-    energy[i]=0;
-    energyT[i]=0;
-    time[i]=0;
-    tot_occ[i]=0;
+    occ_[i]=0;
+    energy_[i]=0;
+    energyT_[i]=0;
+    time_[i]=0;
+    tot_occ_[i]=0;
   }
-  tot_energy=0;
+  tot_energy_=0;
 
   // verbosity switch
   verbose_ = false;
-
+  for(int i=0; i<4; i++) subDetsOn_[i] = false;
 }
 
 HcalRecHitClient::~HcalRecHitClient(){
@@ -65,7 +74,7 @@ void HcalRecHitClient::beginJob(void){
 
   ievt_ = 0;
   jevt_ = 0;
-  kevt_=0;
+
   this->setup();
   this->subscribe();
   this->resetME();
@@ -109,22 +118,22 @@ void HcalRecHitClient::cleanup(void) {
 
   if ( cloneME_ ) {
     for(int i=0; i<4; i++){
-      if(occ[i]) delete occ[i];
-      if(energy[i]) delete energy[i];
-      if(energyT[i]) delete energyT[i];
-      if(time[i]) delete time[i];
-      if(tot_occ[i]) delete tot_occ[i];
+      if(occ_[i]) delete occ_[i];
+      if(energy_[i]) delete energy_[i];
+      if(energyT_[i]) delete energyT_[i];
+      if(time_[i]) delete time_[i];
+      if(tot_occ_[i]) delete tot_occ_[i];
     }    
 
-    if(tot_energy) delete tot_energy;
+    if(tot_energy_) delete tot_energy_;
   }
   
   for(int i=0; i<4; i++){
-    occ[i]=0; energy[i]=0;
-    energyT[i]=0; time[i]=0;
-    tot_occ[i]=0;
+    occ_[i]=0; energy_[i]=0;
+    energyT_[i]=0; time_[i]=0;
+    tot_occ_[i]=0;
   }
-  tot_energy=0;
+  tot_energy_=0;
   
   dqmReportMapErr_.clear(); dqmReportMapWarn_.clear(); dqmReportMapOther_.clear();
   dqmQtests_.clear();
@@ -137,7 +146,8 @@ void HcalRecHitClient::subscribe(void){
   if ( verbose_ ) cout << "HcalRecHitClient: subscribe" << endl;
   if(mui_){
     mui_->subscribe("*/HcalMonitor/RecHitMonitor/*");
-    mui_->subscribe("*/HcalMonitor/RecHitMonitor/HBHE/*");
+    mui_->subscribe("*/HcalMonitor/RecHitMonitor/HB/*");
+    mui_->subscribe("*/HcalMonitor/RecHitMonitor/HE/*");
     mui_->subscribe("*/HcalMonitor/RecHitMonitor/HF/*");
     mui_->subscribe("*/HcalMonitor/RecHitMonitor/HO/*");
   }
@@ -147,7 +157,8 @@ void HcalRecHitClient::subscribe(void){
 void HcalRecHitClient::subscribeNew(void){
   if(mui_){
     mui_->subscribeNew("*/HcalMonitor/RecHitMonitor/*");
-    mui_->subscribeNew("*/HcalMonitor/RecHitMonitor/HBHE/*");
+    mui_->subscribeNew("*/HcalMonitor/RecHitMonitor/HB/*");
+    mui_->subscribeNew("*/HcalMonitor/RecHitMonitor/HE/*");
     mui_->subscribeNew("*/HcalMonitor/RecHitMonitor/HF/*");
     mui_->subscribeNew("*/HcalMonitor/RecHitMonitor/HO/*");
   }
@@ -159,7 +170,8 @@ void HcalRecHitClient::unsubscribe(void){
   if ( verbose_ ) cout << "HcalRecHitClient: unsubscribe" << endl;
   if(mui_){
     mui_->unsubscribe("*/HcalMonitor/RecHitMonitor/*");
-    mui_->unsubscribe("*/HcalMonitor/RecHitMonitor/HBHE/*");
+    mui_->unsubscribe("*/HcalMonitor/RecHitMonitor/HB/*");
+    mui_->unsubscribe("*/HcalMonitor/RecHitMonitor/HE/*");
     mui_->unsubscribe("*/HcalMonitor/RecHitMonitor/HF/*");
     mui_->unsubscribe("*/HcalMonitor/RecHitMonitor/HO/*");
   }
@@ -249,30 +261,33 @@ void HcalRecHitClient::getHistograms(){
   if(!mui_) return;
   char name[150];    
   for(int i=0; i<4; i++){
+    sprintf(name,"RecHitMonitor/RecHit Depth %d Occupancy Map",i+1);
+    tot_occ_[i] = getHisto2(name, process_, mui_, verbose_,cloneME_);
+  }
+
+  for(int i=0; i<4; i++){
+    if(!subDetsOn_[i]) continue;
     string type = "HB";
     if(i==1) type = "HE"; 
-    if(i==2) type = "HO"; 
-    if(i==3) type = "HF"; 
+    if(i==2) type = "HF"; 
+    if(i==3) type = "HO"; 
     
     sprintf(name,"RecHitMonitor/%s/%s RecHit Energies",type.c_str(),type.c_str());      
-    energy[i] = getHisto(name, process_,mui_,verbose_,cloneME_);
+    energy_[i] = getHisto(name, process_,mui_,verbose_,cloneME_);
     
     sprintf(name,"RecHitMonitor/%s/%s RecHit Total Energy",type.c_str(),type.c_str());      
-    energyT[i] = getHisto(name, process_,mui_,verbose_,cloneME_);
+    energyT_[i] = getHisto(name, process_,mui_,verbose_,cloneME_);
 
     sprintf(name,"RecHitMonitor/%s/%s RecHit Times",type.c_str(),type.c_str());      
-    time[i] = getHisto(name, process_,mui_,verbose_,cloneME_);
+    time_[i] = getHisto(name, process_,mui_,verbose_,cloneME_);
 
     sprintf(name,"RecHitMonitor/%s/%s RecHit Geo Occupancy Map",type.c_str(),type.c_str());
-    occ[i] = getHisto2(name, process_,mui_,verbose_,cloneME_);
-
-    sprintf(name,"RecHitMonitor/RecHit Depth %d Occupancy Map",i+1);
-    tot_occ[i] = getHisto2(name, process_, mui_, verbose_,cloneME_);
+    occ_[i] = getHisto2(name, process_,mui_,verbose_,cloneME_);
   }
 
   
   sprintf(name,"RecHitMonitor/RecHit Total Energy");   
-  tot_energy = getHisto(name, process_,mui_, verbose_,cloneME_);
+  tot_energy_ = getHisto(name, process_,mui_, verbose_,cloneME_);
 
   return;
 }
@@ -282,10 +297,13 @@ void HcalRecHitClient::resetME(){
   Char_t name[150];    
   MonitorElement* me;
   
-  for(int i=0; i<3; i++){
-    string type = "HBHE";
-    if(i==1) type = "HO"; 
+  for(int i=0; i<4; i++){
+    if(!subDetsOn_[i]) continue;
+    string type = "HB";
+    if(i==1) type = "HE"; 
     if(i==2) type = "HF"; 
+    if(i==3) type = "HO"; 
+
 
     sprintf(name,"%sHcalMonitor/RecHitMonitor/%s/%s RecHit Geo Occupancy Map",process_.c_str(),type.c_str(),type.c_str());
     me = mui_->get(name);
@@ -355,10 +373,10 @@ void HcalRecHitClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   htmlFile << "<h2><strong>Hcal RecHit Histograms</strong></h2>" << endl;
   htmlFile << "<h3>" << endl;
-  htmlFile << "<a href=\"#HB_Plots\">HB Plots </a></br>" << endl;
-  htmlFile << "<a href=\"#HE_Plots\">HE Plots </a></br>" << endl;
-  htmlFile << "<a href=\"#HO_Plots\">HO Plots </a></br>" << endl;
-  htmlFile << "<a href=\"#HF_Plots\">HF Plots </a></br>" << endl;
+  if(subDetsOn_[0]) htmlFile << "<a href=\"#HB_Plots\">HB Plots </a></br>" << endl;
+  if(subDetsOn_[1]) htmlFile << "<a href=\"#HE_Plots\">HE Plots </a></br>" << endl;
+  if(subDetsOn_[2]) htmlFile << "<a href=\"#HF_Plots\">HF Plots </a></br>" << endl;
+  if(subDetsOn_[3]) htmlFile << "<a href=\"#HO_Plots\">HO Plots </a></br>" << endl;
   htmlFile << "</h3>" << endl;
   htmlFile << "<hr>" << endl;
 
@@ -367,37 +385,38 @@ void HcalRecHitClient::htmlOutput(int run, string htmlDir, string htmlName){
   
   htmlFile << "<td>&nbsp;&nbsp;&nbsp;<h3>Global Histograms</h3></td></tr>" << endl;
   htmlFile << "<tr align=\"left\">" << endl;
-  histoHTML2(tot_occ[0],"iEta","iPhi", 92, htmlFile,htmlDir);
-  histoHTML2(tot_occ[1],"iEta","iPhi", 100, htmlFile,htmlDir);
+  histoHTML2(tot_occ_[0],"iEta","iPhi", 92, htmlFile,htmlDir);
+  histoHTML2(tot_occ_[1],"iEta","iPhi", 100, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
 
   htmlFile << "<tr align=\"left\">" << endl;
-  histoHTML2(tot_occ[2],"iEta","iPhi", 92, htmlFile,htmlDir);
-  histoHTML2(tot_occ[3],"iEta","iPhi", 100, htmlFile,htmlDir);
+  histoHTML2(tot_occ_[2],"iEta","iPhi", 92, htmlFile,htmlDir);
+  histoHTML2(tot_occ_[3],"iEta","iPhi", 100, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
 
   htmlFile << "<tr align=\"left\">" << endl;
-  histoHTML(tot_energy,"Total Energy (GeV)","Events", 100, htmlFile,htmlDir);
+  histoHTML(tot_energy_,"Total Energy (GeV)","Events", 100, htmlFile,htmlDir);
   htmlFile << "</tr>" << endl;
 
 
   for(int i=0; i<4; i++){
-    htmlFile << "<tr align=\"left\">" << endl;
-    
+    if(!subDetsOn_[i]) continue;
     string type = "HB";
     if(i==1) type = "HE"; 
-    if(i==2) type = "HO"; 
-    if(i==3) type = "HF"; 
+    if(i==2) type = "HF"; 
+    if(i==3) type = "HO"; 
     
+    htmlFile << "<tr align=\"left\">" << endl;
+
     htmlFile << "<td>&nbsp;&nbsp;&nbsp;<a name=\""<<type<<"_Plots\"><h3>" << type << " Histograms</h3></td></tr>" << endl;
     htmlFile << "<tr align=\"left\">" << endl;
-    histoHTML2(occ[i],"iEta","iPhi", 92, htmlFile,htmlDir);
-    histoHTML(energyT[i],"Total Energy (GeV)","Events", 100, htmlFile,htmlDir);
+    histoHTML2(occ_[i],"iEta","iPhi", 92, htmlFile,htmlDir);
+    histoHTML(energyT_[i],"Total Energy (GeV)","Events", 100, htmlFile,htmlDir);
     htmlFile << "</tr>" << endl;
 
     htmlFile << "<tr align=\"left\">" << endl;
-    histoHTML(energy[i],"RecHit Energy (GeV)","Events", 92, htmlFile,htmlDir);
-    histoHTML(time[i],"RecHit Time (nS)","Events", 100, htmlFile,htmlDir);
+    histoHTML(energy_[i],"RecHit Energy (GeV)","Events", 92, htmlFile,htmlDir);
+    histoHTML(time_[i],"RecHit Time (nS)","Events", 100, htmlFile,htmlDir);
     htmlFile << "</tr>" << endl;	
   }
   htmlFile << "</table>" << endl;
@@ -436,31 +455,32 @@ void HcalRecHitClient::loadHistograms(TFile* infile){
 
   char name[150];    
   for(int i=0; i<4; i++){
+    if(!subDetsOn_[i]) continue;
     string type = "HB";
     if(i==1) type = "HE"; 
-    if(i==2) type = "HO"; 
-    if(i==3) type = "HF"; 
+    if(i==2) type = "HF"; 
+    if(i==3) type = "HO"; 
     
     sprintf(name,"DQMData/HcalMonitor/RecHitMonitor/%s/%s RecHit Energies",type.c_str(),type.c_str());      
-    energy[i] = (TH1F*)infile->Get(name);
+    energy_[i] = (TH1F*)infile->Get(name);
     
     sprintf(name,"DQMData/HcalMonitor/RecHitMonitor/%s/%s RecHit Total Energy",type.c_str(),type.c_str());      
-    energyT[i] = (TH1F*)infile->Get(name);
+    energyT_[i] = (TH1F*)infile->Get(name);
 
     sprintf(name,"DQMData/HcalMonitor/RecHitMonitor/%s/%s RecHit Times",type.c_str(),type.c_str());      
-    time[i] = (TH1F*)infile->Get(name);
+    time_[i] = (TH1F*)infile->Get(name);
 
     sprintf(name,"DQMData/HcalMonitor/RecHitMonitor/%s/%s RecHit Geo Occupancy Map",type.c_str(),type.c_str());
-    occ[i] = (TH2F*)infile->Get(name);
+    occ_[i] = (TH2F*)infile->Get(name);
 
     sprintf(name,"DQMData/HcalMonitor/RecHitMonitor/RecHit Depth %d Occupancy Map",i);
-    tot_occ[i] = (TH2F*)infile->Get(name);
+    tot_occ_[i] = (TH2F*)infile->Get(name);
   
     
   }
 
   sprintf(name,"DQMData/HcalMonitor/RecHitMonitor/RecHit Total Energy");   
-  tot_energy = (TH1F*)infile->Get(name);
+  tot_energy_ = (TH1F*)infile->Get(name);
 
   return;
 }

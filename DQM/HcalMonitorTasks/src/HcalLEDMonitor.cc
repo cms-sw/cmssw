@@ -73,7 +73,7 @@ void HcalLEDMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* d
     hbHists.rms_time =  m_dbe->book1D("HB LED Time RMS Values","HB LED Time RMS Values",100,0,5);
     hbHists.mean_time =  m_dbe->book1D("HB LED Time Mean Values","HB LED Time Mean Values",100,-1,10);
     hbHists.err_map_geo =  m_dbe->book2D("HB LED Geo Error Map","HB LED Geo Error Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
-    hbHists.err_map_elec =  m_dbe->book2D("HB LED Elec Error Map","HB LED Elec Error Map",20,0,20,20,0,20);
+    hbHists.err_map_elec =  m_dbe->book2D("HB LED Elec Error Map","HB LED Elec Error Map",21,-0.5,20.5,21,-0.5,20.5);
 
     m_dbe->setCurrentFolder("HcalMonitor/LEDMonitor/HE");
     heHists.shapePED =  m_dbe->book1D("HE Ped Subtracted Pulse Shape","HE Ped Subtracted Pulse Shape",10,-0.5,9.5);
@@ -84,7 +84,7 @@ void HcalLEDMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* d
     heHists.rms_time =  m_dbe->book1D("HE LED Time RMS Values","HE LED Time RMS Values",100,0,5);
     heHists.mean_time =  m_dbe->book1D("HE LED Time Mean Values","HE LED Time Mean Values",100,-1,10);
     heHists.err_map_geo =  m_dbe->book2D("HE LED Geo Error Map","HE LED Geo Error Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
-    heHists.err_map_elec =  m_dbe->book2D("HE LED Elec Error Map","HE LED Elec Error Map",20,0,20,20,0,20);
+    heHists.err_map_elec =  m_dbe->book2D("HE LED Elec Error Map","HE LED Elec Error Map",21,-0.5,20.5,21,-0.5,20.5);
 
     m_dbe->setCurrentFolder("HcalMonitor/LEDMonitor/HF");
     hfHists.shapePED =  m_dbe->book1D("HF Ped Subtracted Pulse Shape","HF Ped Subtracted Pulse Shape",10,-0.5,9.5);
@@ -95,7 +95,7 @@ void HcalLEDMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* d
     hfHists.rms_time =  m_dbe->book1D("HF LED Time RMS Values","HF LED Time RMS Values",100,0,5);
     hfHists.mean_time =  m_dbe->book1D("HF LED Time Mean Values","HF LED Time Mean Values",100,-1,10);
     hfHists.err_map_geo =  m_dbe->book2D("HF LED Geo Error Map","HF LED Geo Error Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
-    hfHists.err_map_elec =  m_dbe->book2D("HF LED Elec Error Map","HF LED Elec Error Map",20,0,20,20,0,20);
+    hfHists.err_map_elec =  m_dbe->book2D("HF LED Elec Error Map","HF LED Elec Error Map",21,-0.5,20.5,21,-0.5,20.5);
 
     m_dbe->setCurrentFolder("HcalMonitor/LEDMonitor/HO");
     hoHists.shapePED =  m_dbe->book1D("HO Ped Subtracted Pulse Shape","HO Ped Subtracted Pulse Shape",10,-0.5,9.5);
@@ -106,7 +106,7 @@ void HcalLEDMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* d
     hoHists.rms_time =  m_dbe->book1D("HO LED Time RMS Values","HO LED Time RMS Values",100,0,5);
     hoHists.mean_time =  m_dbe->book1D("HO LED Time Mean Values","HO LED Time Mean Values",100,-1,10);
     hoHists.err_map_geo =  m_dbe->book2D("HO LED Geo Error Map","HO LED Geo Error Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
-    hoHists.err_map_elec =  m_dbe->book2D("HO LED Elec Error Map","HO LED Elec Error Map",20,0,20,20,0,20);
+    hoHists.err_map_elec =  m_dbe->book2D("HO LED Elec Error Map","HO LED Elec Error Map",21,-0.5,20.5,21,-0.5,20.5);
   }
 
   return;

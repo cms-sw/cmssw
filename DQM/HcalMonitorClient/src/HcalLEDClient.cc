@@ -7,37 +7,15 @@ HcalLEDClient::HcalLEDClient(const ParameterSet& ps, MonitorUserInterface* mui){
 
   mui_ = mui;
 
-   ///HB ieta/iphi/depths
-  etaMin[0]=1; etaMax[0]=16;
-  phiMin[0]=1; phiMax[0]=71;
-  depMin[0]=1; depMax[0]=2;
-
-  ///HE ieta/iphi/depths
-  etaMin[1]=16; etaMax[1]=29;
-  phiMin[1]=1; phiMax[1]=71;
-  depMin[1]=1; depMax[1]=3;
-  
-  ///HO ieta/iphi/depths
-  etaMin[2]=1; etaMax[2]=15;
-  phiMin[2]=1; phiMax[2]=71;
-  depMin[2]=4; depMax[2]=4;
-
-  ///HF ieta/iphi/depths
-  etaMin[3]=29; etaMax[3]=41;
-  phiMin[3]=1; phiMax[3]=71;
-  depMin[3]=1; depMax[3]=2;
-
-
-
   for(int i=0; i<4; i++){    
-    rms_shape[i]=0;
-    mean_shape[i]=0;
-    rms_time[i]=0;
-    mean_time[i]=0;
-    err_map_geo[i]=0;
-    err_map_elec[i]=0;
-    avg_shape[i] = 0;
-    avg_time[i] = 0;
+    rms_shape_[i]=0;
+    mean_shape_[i]=0;
+    rms_time_[i]=0;
+    mean_time_[i]=0;
+    err_map_geo_[i]=0;
+    err_map_elec_[i]=0;
+    avg_shape_[i] = 0;
+    avg_time_[i] = 0;
   }
 
   // cloneME switch
@@ -53,6 +31,17 @@ HcalLEDClient::HcalLEDClient(const ParameterSet& ps, MonitorUserInterface* mui){
 
   // DQM default process name
   process_ = ps.getUntrackedParameter<string>("processName", "HcalMonitor");
+
+  vector<string> subdets = ps.getUntrackedParameter<vector<string> >("subDetsOn");
+  for(int i=0; i<4; i++) subDetsOn_[i] = false;
+  
+  for(unsigned int i=0; i<subdets.size(); i++){
+    if(subdets[i]=="HB") subDetsOn_[0] = true;
+    else if(subdets[i]=="HE") subDetsOn_[1] = true;
+    else if(subdets[i]=="HF") subDetsOn_[2] = true;
+    else if(subdets[i]=="HO") subDetsOn_[3] = true;
+  }
+
 }
 
 HcalLEDClient::HcalLEDClient(){
@@ -61,39 +50,21 @@ HcalLEDClient::HcalLEDClient(){
   dqmQtests_.clear();
 
   mui_ = 0;
-    ///HB ieta/iphi/depths
-  etaMin[0]=1; etaMax[0]=16;
-  phiMin[0]=1; phiMax[0]=71;
-  depMin[0]=1; depMax[0]=2;
-
-  ///HE ieta/iphi/depths
-  etaMin[1]=16; etaMax[1]=29;
-  phiMin[1]=1; phiMax[1]=71;
-  depMin[1]=1; depMax[1]=3;
-  
-  ///HO ieta/iphi/depths
-  etaMin[2]=1; etaMax[2]=15;
-  phiMin[2]=1; phiMax[2]=71;
-  depMin[2]=1; depMax[2]=1;
-
-  ///HF ieta/iphi/depths
-  etaMin[3]=29; etaMax[3]=41;
-  phiMin[3]=1; phiMax[3]=71;
-  depMin[3]=1; depMax[3]=1;
 
   for(int i=0; i<4; i++){    
-    rms_shape[i]=0;
-    mean_shape[i]=0;
-    rms_time[i]=0;
-    mean_time[i]=0;
-    err_map_geo[i]=0;
-    err_map_elec[i]=0;
-    avg_shape[i] = 0;
-    avg_time[i] = 0;
+    rms_shape_[i]=0;
+    mean_shape_[i]=0;
+    rms_time_[i]=0;
+    mean_time_[i]=0;
+    err_map_geo_[i]=0;
+    err_map_elec_[i]=0;
+    avg_shape_[i] = 0;
+    avg_time_[i] = 0;
   }
 
   // verbosity switch
   verbose_ = false;
+  for(int i=0; i<4; i++) subDetsOn_[i] = false;
 
 }
 
@@ -113,7 +84,6 @@ void HcalLEDClient::beginJob(const EventSetup& eventSetup){
 
   ievt_ = 0;
   jevt_ = 0;
-  kevt_=0;
   this->setup();
   this->subscribe();
   this->resetME();
@@ -157,25 +127,25 @@ void HcalLEDClient::setup(void) {
 void HcalLEDClient::cleanup(void) {
   if( cloneME_ ){
     for(int i=0; i<4; i++){
-      if(rms_shape[i]) delete rms_shape[i];
-      if(mean_shape[i]) delete mean_shape[i];
-      if(rms_time[i]) delete rms_time[i];
-      if(mean_time[i]) delete mean_time[i];
-      if(err_map_geo[i]) delete err_map_geo[i];
-      if(err_map_elec[i]) delete err_map_elec[i];
-      if(avg_shape[i]) delete avg_shape[i];
-      if(avg_time[i]) delete avg_time[i];
+      if(rms_shape_[i]) delete rms_shape_[i];
+      if(mean_shape_[i]) delete mean_shape_[i];
+      if(rms_time_[i]) delete rms_time_[i];
+      if(mean_time_[i]) delete mean_time_[i];
+      if(err_map_geo_[i]) delete err_map_geo_[i];
+      if(err_map_elec_[i]) delete err_map_elec_[i];
+      if(avg_shape_[i]) delete avg_shape_[i];
+      if(avg_time_[i]) delete avg_time_[i];
     }
   }
   for(int i=0; i<4; i++){    
-    rms_shape[i]=0;
-    mean_shape[i]=0;
-    rms_time[i]=0;
-    mean_time[i]=0;
-    err_map_geo[i]=0;
-    err_map_elec[i]=0;
-    avg_shape[i] = 0;
-    avg_time[i] = 0;
+    rms_shape_[i]=0;
+    mean_shape_[i]=0;
+    rms_time_[i]=0;
+    mean_time_[i]=0;
+    err_map_geo_[i]=0;
+    err_map_elec_[i]=0;
+    avg_shape_[i] = 0;
+    avg_time_[i] = 0;
   }
 
   dqmReportMapErr_.clear(); dqmReportMapWarn_.clear(); dqmReportMapOther_.clear();
@@ -270,15 +240,16 @@ void HcalLEDClient::getHistograms(){
   if(!mui_) return;
   char name[256];
   for(int i=0; i<4; i++){
+    if(!subDetsOn_[i]) continue;
     string type = "HB";
     if(i==1) type = "HE"; 
-    if(i==2) type = "HO";
-    if(i==3) type = "HF";
+    if(i==2) type = "HF";
+    if(i==3) type = "HO";
 
     sprintf(name,"LEDMonitor/%s/%s Average Pulse Shape",type.c_str(),type.c_str());      
-    avg_shape[i] = getHisto(name, process_,mui_,verbose_,cloneME_);
+    avg_shape_[i] = getHisto(name, process_,mui_,verbose_,cloneME_);
     sprintf(name,"LEDMonitor/%s/%s Average Pulse Time",type.c_str(),type.c_str());      
-    avg_time[i] = getHisto(name, process_,mui_,verbose_,cloneME_);
+    avg_time_[i] = getHisto(name, process_,mui_,verbose_,cloneME_);
     
     sprintf(name,"%sHcalMonitor/LEDMonitor/%s/%s LED Shape RMS Values",process_.c_str(),type.c_str(),type.c_str());
     MonitorElement* meShapeRMS  = mui_->get(name);
@@ -298,11 +269,12 @@ void HcalLEDClient::getHistograms(){
     mui_->softReset(meShapeRMS); mui_->softReset(meShapeMean);
     mui_->softReset(meTimeRMS); mui_->softReset(meTimeMean);
     mui_->softReset(meGeoErr); mui_->softReset(meElecErr);
-
-    for(int ieta=-etaMax[i]; ieta<=etaMax[i]; ieta++){
-      if(abs(ieta)<etaMin[i]) continue;
-      for(int iphi=phiMin[i]; iphi<=phiMax[i]; iphi++){
-	for(int depth=depMin[i]; depth<=depMax[i]; depth++){
+    
+    for(int ieta=-42; ieta<=42; ieta++){
+      if(ieta==0) continue;
+      for(int iphi=1; iphi<=73; iphi++){
+	for(int depth=1; depth<=4; depth++){
+	  if(!isValidGeom(i, ieta, iphi,depth)) continue;
 	  sprintf(name,"%sHcalMonitor/LEDMonitor/%s/%s LED Shape ieta=%d iphi=%d depth=%d",
 		  process_.c_str(), type.c_str(),type.c_str(),ieta,iphi,depth);  
 	  MonitorElement* me = mui_->get(name);
@@ -333,12 +305,12 @@ void HcalLEDClient::getHistograms(){
       }
     }
     
-    rms_shape[i]=getHisto(meShapeRMS,verbose_,cloneME_);
-    mean_shape[i]=getHisto(meShapeMean,verbose_,cloneME_);
-    rms_time[i]=getHisto(meTimeRMS,verbose_,cloneME_);
-    mean_time[i]=getHisto(meTimeMean,verbose_,cloneME_);
-    err_map_geo[i]=getHisto2(meGeoErr,verbose_,cloneME_);
-    err_map_elec[i]=getHisto2(meElecErr,verbose_,cloneME_);
+    rms_shape_[i]=getHisto(meShapeRMS,verbose_,cloneME_);
+    mean_shape_[i]=getHisto(meShapeMean,verbose_,cloneME_);
+    rms_time_[i]=getHisto(meTimeRMS,verbose_,cloneME_);
+    mean_time_[i]=getHisto(meTimeMean,verbose_,cloneME_);
+    err_map_geo_[i]=getHisto2(meGeoErr,verbose_,cloneME_);
+    err_map_elec_[i]=getHisto2(meElecErr,verbose_,cloneME_);
   }
 
   return;
@@ -365,10 +337,11 @@ void HcalLEDClient::createTests(){
   if(verbose_) printf("Creating LED tests...\n");
   
   for(int i=0; i<4; i++){
+    if(!subDetsOn_[i]) continue;
     string type = "HB";
     if(i==1) type = "HE"; 
-    if(i==2) type = "HO";
-    if(i==3) type = "HF";
+    if(i==2) type = "HF";
+    if(i==3) type = "HO";
 
     sprintf(meTitle,"%sHcalMonitor/LEDMonitor/%s/%s LED Shape RMS Values",process_.c_str(),type.c_str(),type.c_str());
     sprintf(name,"%s LED Shape RMS Values: X-Range",type.c_str());
@@ -412,10 +385,11 @@ void HcalLEDClient::resetME(){
   MonitorElement* me;
   
   for(int i=0; i<4; i++){
+    if(!subDetsOn_[i]) continue;
     string type = "HB";
     if(i==1) type = "HE"; 
-    if(i==2) type = "HO"; 
-    if(i==3) type = "HF"; 
+    if(i==2) type = "HF"; 
+    if(i==3) type = "HO"; 
     sprintf(name,"%sHcalMonitor/LEDMonitor/%s/%s Average Pulse Shape",process_.c_str(),type.c_str(),type.c_str());
     me = mui_->get(name);
     if(me) mui_->softReset(me);
@@ -485,11 +459,11 @@ void HcalLEDClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "<hr>" << endl;
   
   htmlFile << "<h2><strong>Hcal LED Histograms</strong></h2>" << endl;
-   htmlFile << "<h3>" << endl;
-  htmlFile << "<a href=\"#HB_Plots\">HB Plots </a></br>" << endl;
-  htmlFile << "<a href=\"#HE_Plots\">HE Plots </a></br>" << endl;
-  htmlFile << "<a href=\"#HO_Plots\">HO Plots </a></br>" << endl;
-  htmlFile << "<a href=\"#HF_Plots\">HF Plots </a></br>" << endl;
+  htmlFile << "<h3>" << endl;
+  if(subDetsOn_[0]) htmlFile << "<a href=\"#HB_Plots\">HB Plots </a></br>" << endl;
+  if(subDetsOn_[1]) htmlFile << "<a href=\"#HE_Plots\">HE Plots </a></br>" << endl;
+  if(subDetsOn_[2]) htmlFile << "<a href=\"#HF_Plots\">HF Plots </a></br>" << endl;
+  if(subDetsOn_[3]) htmlFile << "<a href=\"#HO_Plots\">HO Plots </a></br>" << endl;
   htmlFile << "</h3>" << endl;
   htmlFile << "<hr>" << endl;
 
@@ -497,32 +471,33 @@ void HcalLEDClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "cellpadding=\"10\"> " << endl;
 
    for(int i=0; i<4; i++){
+     if(!subDetsOn_[i]) continue; 
      string type = "HB";
      if(i==1) type = "HE"; 
-     if(i==2) type = "HO"; 
-     if(i==3) type = "HF"; 
+     if(i==2) type = "HF"; 
+     if(i==3) type = "HO"; 
      
      htmlFile << "<tr align=\"left\">" << endl;  
      htmlFile << "<td>&nbsp;&nbsp;&nbsp;<a name=\""<<type<<"_Plots\"><h3>" << type << " Histograms</h3></td></tr>" << endl;
      
      htmlFile << "<tr align=\"left\">" << endl;
-     histoHTML2(err_map_geo[i],"iEta","iPhi", 92, htmlFile,htmlDir);
-     histoHTML2(err_map_elec[i],"VME Crate ID","HTR Slot", 100, htmlFile,htmlDir);
+     histoHTML2(err_map_geo_[i],"iEta","iPhi", 92, htmlFile,htmlDir);
+     histoHTML2(err_map_elec_[i],"VME Crate ID","HTR Slot", 100, htmlFile,htmlDir);
      htmlFile << "</tr>" << endl;
      
      htmlFile << "<tr align=\"left\">" << endl;
-     histoHTML(avg_shape[i],"Average Pulse Shape","Events", 92, htmlFile,htmlDir);
-     histoHTML(avg_time[i],"Average Pulse Time","Events", 100, htmlFile,htmlDir);
+     histoHTML(avg_shape_[i],"Average Pulse Shape","Events", 92, htmlFile,htmlDir);
+     histoHTML(avg_time_[i],"Average Pulse Time","Events", 100, htmlFile,htmlDir);
      htmlFile << "</tr>" << endl;
 
      htmlFile << "<tr align=\"left\">" << endl;
-     histoHTML(rms_shape[i],"Shape RMS Value","Events", 92, htmlFile,htmlDir);
-     histoHTML(mean_shape[i],"Shape Mean Value","Events", 100, htmlFile,htmlDir);
+     histoHTML(rms_shape_[i],"Shape RMS Value","Events", 92, htmlFile,htmlDir);
+     histoHTML(mean_shape_[i],"Shape Mean Value","Events", 100, htmlFile,htmlDir);
      htmlFile << "</tr>" << endl;
 
      htmlFile << "<tr align=\"left\">" << endl;
-     histoHTML(rms_time[i],"Time RMS Value","Events", 92, htmlFile,htmlDir);
-     histoHTML(mean_time[i],"Time Mean Value","Events", 100, htmlFile,htmlDir);
+     histoHTML(rms_time_[i],"Time RMS Value","Events", 92, htmlFile,htmlDir);
+     histoHTML(mean_time_[i],"Time Mean Value","Events", 100, htmlFile,htmlDir);
      htmlFile << "</tr>" << endl;
    }
 
@@ -549,50 +524,52 @@ void HcalLEDClient::loadHistograms(TFile* infile){
   }
   char name[256];
   for(int i=0; i<4; i++){
+    if(!subDetsOn_[i]) continue; 
     string type = "HB";
     if(i==1) type = "HE"; 
-    if(i==2) type = "HO"; 
-    if(i==3) type = "HF";
+    if(i==2) type = "HF"; 
+    if(i==3) type = "HO";
 
 
     sprintf(name,"DQMData/HcalMonitor/LEDMonitor/%s/%s Average Pulse Shape",type.c_str(),type.c_str());      
-    avg_shape[i] = (TH1F*)infile->Get(name);
+    avg_shape_[i] = (TH1F*)infile->Get(name);
     sprintf(name,"DQMData/HcalMonitor/LEDMonitor/%s/%s Average Pulse Time",type.c_str(),type.c_str());      
-    avg_time[i] = (TH1F*)infile->Get(name);
+    avg_time_[i] = (TH1F*)infile->Get(name);
     
     sprintf(name,"DQMData/HcalMonitor/LEDMonitor/%s/%s LED Shape RMS Values",type.c_str(),type.c_str());
-    rms_shape[i]=(TH1F*)infile->Get(name);
+    rms_shape_[i]=(TH1F*)infile->Get(name);
     sprintf(name,"DQMData/HcalMonitor/LEDMonitor/%s/%s LED Shape Mean Values",type.c_str(),type.c_str());
-    mean_shape[i]=(TH1F*)infile->Get(name);
+    mean_shape_[i]=(TH1F*)infile->Get(name);
 
     sprintf(name,"DQMData/HcalMonitor/LEDMonitor/%s/%s LED Time RMS Values",type.c_str(),type.c_str());
-    rms_time[i]=(TH1F*)infile->Get(name);
+    rms_time_[i]=(TH1F*)infile->Get(name);
     sprintf(name,"DQMData/HcalMonitor/LEDMonitor/%s/%s LED Time Mean Values",type.c_str(),type.c_str());
-    mean_time[i]=(TH1F*)infile->Get(name);
+    mean_time_[i]=(TH1F*)infile->Get(name);
     sprintf(name,"DQMData/HcalMonitor/LEDMonitor/%s/%s LED Geo Error Map",type.c_str(),type.c_str());
-    err_map_geo[i]=(TH2F*)infile->Get(name);
+    err_map_geo_[i]=(TH2F*)infile->Get(name);
     sprintf(name,"DQMData/HcalMonitor/LEDMonitor/%s/%s LED Elec Error Map",type.c_str(),type.c_str());
-    err_map_elec[i]=(TH2F*)infile->Get(name);
+    err_map_elec_[i]=(TH2F*)infile->Get(name);
 
 
-    for(int ieta=-etaMax[i]; ieta<=etaMax[i]; ieta++){
-      if(abs(ieta)<etaMin[i]) continue;
-      for(int iphi=phiMin[i]; iphi<=phiMax[i]; iphi++){
-	for(int depth=depMin[i]; depth<=depMax[i]; depth++){
+    for(int ieta=-42; ieta<=42; ieta++){
+      if(ieta==0) continue;
+      for(int iphi=1; iphi<=73; iphi++){
+	for(int depth=1; depth<=4; depth++){
+	  if(!isValidGeom(i, ieta, iphi,depth)) continue;
 	  sprintf(name,"DQMData/HcalMonitor/LEDMonitor/%s/%s LED Shape ieta=%d iphi=%d depth=%d",
 		  type.c_str(),type.c_str(),ieta,iphi,depth);  
 	  TH1F* h = (TH1F*)infile->Get(name);
 	  if(h){
-	    rms_shape[i]->Fill(h->GetRMS());
-	    mean_shape[i]->Fill(h->GetMean());
+	    rms_shape_[i]->Fill(h->GetRMS());
+	    mean_shape_[i]->Fill(h->GetMean());
 	  }
 	  
 	  sprintf(name,"DQMData/HcalMonitor/LEDMonitor/%s/%s LED Time ieta=%d iphi=%d depth=%d",
 		  type.c_str(),type.c_str(),ieta,iphi,depth);  
 	  h = (TH1F*)infile->Get(name);
 	  if(h){
-	    rms_time[i]->Fill(h->GetRMS());
-	    mean_time[i]->Fill(h->GetMean());
+	    rms_time_[i]->Fill(h->GetRMS());
+	    mean_time_[i]->Fill(h->GetMean());
 	  }	  
 	}
       }

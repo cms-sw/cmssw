@@ -81,7 +81,7 @@ void HcalMonitorClient::initialize(const ParameterSet& ps){
       m_dbe = edm::Service<DaqMonitorBEInterface>().operator->();
       m_dbe->setVerbose(1);
     }
-  
+    
     if ( ps.getUntrackedParameter<bool>("MonitorDaemon", false) ) {
       edm::Service<MonitorDaemon> daemon;
       daemon.operator->();
@@ -215,17 +215,11 @@ void HcalMonitorClient::beginJob(const EventSetup& eventSetup){
   //  if( tb_client_ )         tb_client_->beginJob();
   if( hot_client_ )         hot_client_->beginJob();
 
-  if(inputFile_.size()!=0 && m_dbe!=NULL){
-    
+  if( inputFile_.size() != 0 && m_dbe!=NULL){
     m_dbe->open(inputFile_);
-    m_dbe->showDirStructure();
-
+    m_dbe->showDirStructure();     
   }
 
-  
-
-
-    
   return;
 }
 
@@ -270,13 +264,32 @@ void HcalMonitorClient::report(bool doUpdate) {
   
   if(doUpdate && status_!="unknown"){
     this->createTests();  
+    if(mui_) mui_->update();
+    if(mui_) mui_->doMonitoring();
   }
+
+  if( hot_client_ ) hot_client_->report();
+  if( led_client_ ) led_client_->report();
+  if( pedestal_client_ ) pedestal_client_->report();
+  if( digi_client_ ) digi_client_->report();
+  if( rechit_client_ ) rechit_client_->report();
+  if( dataformat_client_ ) dataformat_client_->report();
   
   if(doUpdate && mui_){
     mui_->update();
     mui_->doMonitoring();
     mui_->runQTests();
   }
+
+  map<string, vector<QReport*> > errE, errW, errO;
+  if( hot_client_ ) hot_client_->getErrors(errE,errW,errO);
+  if( led_client_ ) led_client_->getErrors(errE,errW,errO);
+  if( pedestal_client_ ) pedestal_client_->getErrors(errE,errW,errO);
+  if( digi_client_ ) digi_client_->getErrors(errE,errW,errO);
+  if( rechit_client_ ) rechit_client_->getErrors(errE,errW,errO);
+  if( dataformat_client_ ) dataformat_client_->getErrors(errE,errW,errO);
+
+
   if( outputFile_.size() != 0) {    
     for( unsigned int i = 0; i < outputFile_.size(); i++ ) {
       if( outputFile_.substr(i, 5) == ".root" )  {
@@ -286,44 +299,12 @@ void HcalMonitorClient::report(bool doUpdate) {
     char tmp[150];
     sprintf(tmp,"%09d.root", run_);
     string saver = outputFile_+tmp;
-      if(mui_) mui_->save(saver);
+    if(mui_) mui_->save(saver);
     
-    TFile* rootOut = new TFile(saver.c_str(),"UPDATE");
-    rootOut->cd();
-    map<string, vector<QReport*> > errE, errW, errO;
-
-    //    if( tb_client_ ) {      
-    //      tb_client_->report();
-    //      tb_client_->getErrors(errE,errW,errO);
-    //    }    
-
-    if( hot_client_ ) {      
-      hot_client_->report();
-      hot_client_->getErrors(errE,errW,errO);
-    }    
-    if( led_client_ ) {      
-      led_client_->report();
-      led_client_->getErrors(errE,errW,errO);
-    }
-    if( pedestal_client_ ) {      
-      pedestal_client_->report();
-      pedestal_client_->getErrors(errE,errW,errO);
-    }
-    if( digi_client_ ) {
-      digi_client_->report();
-      digi_client_->getErrors(errE,errW,errO);
-    }
-    if( rechit_client_ ) {
-      rechit_client_->report();
-      rechit_client_->getErrors(errE,errW,errO);
-    }    
-    if( dataformat_client_ ) {
-      dataformat_client_->report();
-      dataformat_client_->getErrors(errE,errW,errO);
-    }
-
-    rootOut->Write();
-    rootOut->Close();
+    //    TFile* rootOut = new TFile(saver.c_str(),"UPDATE");
+    //    rootOut->cd();    
+    //    rootOut->Write();
+    //    rootOut->Close();
   }
 
   if( baseHtmlDir_.size() != 0 ) this->htmlOutput();
@@ -745,8 +726,6 @@ void HcalMonitorClient::offlineSetup(){
 
 void HcalMonitorClient::loadHistograms(TFile* infile, const char* fname){
   
-  
-
   if(!infile){
     throw cms::Exception("Incomplete configuration") << 
       "HcalMonitorClient: this histogram file is bad! " <<endl;
