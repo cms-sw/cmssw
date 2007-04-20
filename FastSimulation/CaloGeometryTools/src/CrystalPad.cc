@@ -18,6 +18,8 @@ CrystalPad::CrystalPad(unsigned number, const std::vector<Hep2Vector>& corners):
       dummy_=false;
       // Set explicity the z to 0 !
       center_=Hep2Vector(0.,0.);
+      corners_.reserve(4);
+      dir_.reserve(4);
       for(unsigned ic=0; ic<4;++ic)
 	{
 	  corners_.push_back(corners[ic]);
@@ -84,6 +86,8 @@ CrystalPad::CrystalPad(unsigned number, const std::vector<HepPoint3D>& corners,c
   else
     {
       dummy_=false;
+      corners_.reserve(4);
+      dir_.reserve(4);
       center_=Hep2Vector(0.,0.);
       // the good one in the central
       // trans_=HepTransform3D(origin,origin+vec1,origin+vec2,HepPoint3D(0,0,0),HepPoint3D(0.,0.,-1.),HepPoint3D(0.,1.,0.));

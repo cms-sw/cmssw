@@ -3,6 +3,7 @@
 
 #include "FastSimulation/CalorimeterProperties/interface/Calorimeter.h"
 #include "Geometry/CaloTopology/interface/CaloDirection.h"
+#include "FastSimulation/CaloGeometryTools/interface/BaseCrystal.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CLHEP/Geometry/Point3D.h"
 
@@ -48,6 +49,7 @@ class CaloGeometryHelper:public Calorimeter
 
  private:
   void buildNeighbourArray();
+  void buildCrystalArray();
   bool simplemove(DetId& cell, const CaloDirection& dir) const;
   bool diagonalmove(DetId& cell, const CaloDirection& dir) const;
 
@@ -58,6 +60,10 @@ class CaloGeometryHelper:public Calorimeter
   // array of neighbours the hashed index is used for the first vector
   std::vector<std::vector<DetId> > barrelNeighbours_;
   std::vector<std::vector<DetId> > endcapNeighbours_;
+
+  std::vector<BaseCrystal> barrelCrystals_;
+  std::vector<BaseCrystal> endcapCrystals_;
+
   bool neighbourmapcalculated_;
   
   //mag field at 0,0,0

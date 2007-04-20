@@ -37,6 +37,7 @@ CaloGeometryHelper::CaloGeometryHelper(const edm::ParameterSet& fastCalo):Calori
 
 void CaloGeometryHelper::initialize()
 {
+  buildCrystalArray();
   buildNeighbourArray();
   bfield_ = MagneticFieldMap::instance()->inTesla(GlobalPoint(0.,0.,0.)).z();
   ESDetId cps1(getEcalPreshowerGeometry()->getClosestCellInPlane(GlobalPoint(80.,80.,303.),1));
@@ -121,18 +122,14 @@ void CaloGeometryHelper::getWindow(const DetId& pivot,int s1,int s2,std::vector<
 
 void CaloGeometryHelper::buildCrystal(const DetId & cell,Crystal& xtal) const
 {
-  xtal = Crystal(cell);
-  const CaloCellGeometry * geom;
-  if(xtal.getSubdetNumber()==EcalBarrel)
+  if(cell.subdetId()==EcalBarrel)
     {
-      geom = EcalBarrelGeometry_->getGeometry(xtal.getDetId());
-      xtal.setCorners(geom->getCorners(),geom->getPosition());
+      xtal=Crystal(cell,&barrelCrystals_[EBDetId(cell).hashedIndex()]);
       return;
     }
- if(xtal.getSubdetNumber()==EcalEndcap)
+  if(cell.subdetId()==EcalEndcap)
     {
-      geom = EcalEndcapGeometry_->getGeometry(xtal.getDetId());
-      xtal.setCorners(geom->getCorners(),geom->getPosition());
+      xtal=Crystal(cell,&endcapCrystals_[EEDetId(cell).hashedIndex()]);
       return;
     }     
 }
@@ -398,4 +395,46 @@ if(c1.subdetId()==EcalEndcap)
       return (EEDetId(c1).isc()!=EEDetId(c2).isc());
     }
  return false;
+}
+
+void CaloGeometryHelper::buildCrystalArray()
+{
+  const unsigned nbarrel = 62000;
+  // Barrel first. The hashed index runs from 0 to 61199
+  barrelCrystals_.resize(nbarrel,BaseCrystal());
+
+  std::cout << " Building the array of crystals (barrel) " ;
+  std::vector<DetId> vec(EcalBarrelGeometry_->getValidDetIds(DetId::Ecal,EcalBarrel));
+  unsigned size=vec.size();    
+  std::cout << " Size " << size << std::endl;
+  const CaloCellGeometry * geom=0;
+  for(unsigned ic=0; ic<size; ++ic) 
+    {
+      unsigned hashedindex=EBDetId(vec[ic]).hashedIndex();
+      geom = EcalBarrelGeometry_->getGeometry(vec[ic]);
+      BaseCrystal xtal(vec[ic]);
+      xtal.setCorners(geom->getCorners(),geom->getPosition());
+      barrelCrystals_[hashedindex]=xtal;
+    }
+  
+  std::cout << " done " << size << std::endl;
+  std::cout << " Building the array of crystals (endcap) " ;
+  
+  vec.clear();
+  vec=EcalEndcapGeometry_->getValidDetIds(DetId::Ecal,EcalEndcap);
+  size=vec.size();    
+  // There are some holes in the hashedIndex for the EE. Hence the array is bigger than the number
+  // of crystals
+  const unsigned nendcap=19960;
+
+  endcapCrystals_.resize(nendcap,BaseCrystal());
+  for(unsigned ic=0; ic<size; ++ic) 
+    {
+      unsigned hashedindex=EEDetId(vec[ic]).hashedIndex();
+      geom = EcalEndcapGeometry_->getGeometry(vec[ic]);
+      BaseCrystal xtal(vec[ic]);
+      xtal.setCorners(geom->getCorners(),geom->getPosition());
+      endcapCrystals_[hashedindex]=xtal;
+    }
+  std::cout << " done " << size << std::endl;
 }
