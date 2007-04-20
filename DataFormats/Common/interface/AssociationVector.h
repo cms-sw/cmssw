@@ -9,50 +9,49 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.7 $
+ * \version $Revision: 1.8 $
  */
 
 #include "DataFormats/Common/interface/traits.h"
 #include "DataFormats/Common/interface/RefProd.h"
 #include "DataFormats/Common/interface/Ref.h"
+#include "boost/static_assert.hpp"
+#include "boost/type_traits/is_same.hpp"
 
 namespace edm {
 
-  template<typename CKey, typename CVal>
+  template<typename KeyRefProd, typename CVal, 
+    typename KeyRef=edm::Ref<typename KeyRefProd::product_type>,
+    typename SizeType=typename KeyRefProd::product_type::size_type>
   class AssociationVector {
   public:
-    typedef edm::RefProd<CKey> KeyRefProd;
-    typedef edm::Ref<CKey> KeyRef;
-    typedef typename CVal::size_type size_type;
-    typedef typename CVal::value_type value_type;
-    typedef typename CVal::reference reference;
-    typedef typename CVal::pointer pointer;
-    typedef typename CVal::const_reference const_reference;
-    typedef typename CVal::iterator iterator;
-    typedef typename CVal::const_iterator const_iterator;
+    BOOST_STATIC_ASSERT( ( boost::is_same<SizeType, typename CVal::size_type>::value ) );
+    typedef typename KeyRefProd::product_type CKey;
+    typedef SizeType size_type;
+    typedef typename KeyRef::value_type key_type;
+    typedef typename CVal::value_type val_type;
+    typedef typename std::pair<KeyRef, const val_type &> value_type;
+    typedef typename std::pair<KeyRef, val_type> reference;
+    typedef value_type const_reference;
     AssociationVector();
     AssociationVector(KeyRefProd ref);
-    AssociationVector(KeyRefProd ref, size_type);
     AssociationVector(const AssociationVector &);
     ~AssociationVector();
     
-    iterator begin();
-    iterator end();
-    const_iterator begin() const;
-    const_iterator end() const;
     size_type size() const;
     bool empty() const;
     reference operator[](size_type);
     const_reference operator[](size_type) const;
     
-    AssociationVector<CKey, CVal> & operator=(const AssociationVector<CKey, CVal> &);
+    AssociationVector<KeyRefProd, CVal, KeyRef, SizeType> & 
+      operator=(const AssociationVector<KeyRefProd, CVal, KeyRef, SizeType> &);
     
-    void reserve(size_type);
-    void push_back(const value_type &);  
     void clear();
-    void swap(AssociationVector<CKey, CVal> & other);
+    void swap(AssociationVector<KeyRefProd, CVal, KeyRef, SizeType> & other);
     const KeyRefProd & keyProduct() const { return ref_; }
-    KeyRef key(typename CKey::size_type i) const { return KeyRef(ref_, i); }
+    KeyRef key(size_type i) const { return KeyRef(ref_, i); }
+    const val_type & value(size_type i) const { return data_[ i ]; }  
+    val_type & value(size_type i) { return data_[ i ]; }  
     void fillView(std::vector<void const*>& pointers) const;
 
   private:
@@ -60,105 +59,74 @@ namespace edm {
     KeyRefProd ref_;
   };
   
-  template<typename CKey, typename CVal>
-  inline AssociationVector<CKey, CVal>::AssociationVector() : 
+  template<typename KeyRefProd, typename CVal, typename KeyRef, typename SizeType>
+  inline AssociationVector<KeyRefProd, CVal, KeyRef, SizeType>::AssociationVector() : 
     data_(), ref_() { }
   
-  template<typename CKey, typename CVal>
-  inline AssociationVector<CKey, CVal>::AssociationVector(KeyRefProd ref) : 
-    data_(), ref_(ref) { }
+  template<typename KeyRefProd, typename CVal, typename KeyRef, typename SizeType>
+  inline AssociationVector<KeyRefProd, CVal, KeyRef, SizeType>::AssociationVector(KeyRefProd ref) : 
+    data_(ref->size()), ref_(ref) { }
   
-  template<typename CKey, typename CVal>
-  inline AssociationVector<CKey, CVal>::AssociationVector(KeyRefProd ref, size_type n) : 
-    data_(n), ref_(ref) { }
-  
-  template<typename CKey, typename CVal>
-  inline AssociationVector<CKey, CVal>::AssociationVector(const AssociationVector<CKey, CVal> & o) : 
+  template<typename KeyRefProd, typename CVal, typename KeyRef, typename SizeType>
+  inline AssociationVector<KeyRefProd, CVal, KeyRef, SizeType>::AssociationVector(const AssociationVector<KeyRefProd, CVal, KeyRef, SizeType> & o) : 
     data_(o.data_), ref_(o.ref_) { }
   
-  template<typename CKey, typename CVal>
-  inline AssociationVector<CKey, CVal>::~AssociationVector() { }
+  template<typename KeyRefProd, typename CVal, typename KeyRef, typename SizeType>
+  inline AssociationVector<KeyRefProd, CVal, KeyRef, SizeType>::~AssociationVector() { }
   
-  template<typename CKey, typename CVal>
-  inline AssociationVector<CKey, CVal> & 
-  AssociationVector<CKey, CVal>::operator=(const AssociationVector<CKey, CVal> & o) {
+  template<typename KeyRefProd, typename CVal, typename KeyRef, typename SizeType>
+  inline AssociationVector<KeyRefProd, CVal, KeyRef, SizeType> & 
+  AssociationVector<KeyRefProd, CVal, KeyRef, SizeType>::operator=(const AssociationVector<KeyRefProd, CVal, KeyRef, SizeType> & o) {
     data_ = o.data_;
     ref_ = o.ref_;
     return * this;
   }
   
-  template<typename CKey, typename CVal>
-  inline typename AssociationVector<CKey, CVal>::iterator AssociationVector<CKey, CVal>::begin() {
-    return data_.begin();
-  }
-  
-  template<typename CKey, typename CVal>
-  inline typename AssociationVector<CKey, CVal>::iterator AssociationVector<CKey, CVal>::end() {
-    return data_.end();
-  }
-  
-  template<typename CKey, typename CVal>
-  inline typename AssociationVector<CKey, CVal>::const_iterator AssociationVector<CKey, CVal>::begin() const {
-    return data_.begin();
-  }
-  
-  template<typename CKey, typename CVal>
-  inline typename AssociationVector<CKey, CVal>::const_iterator AssociationVector<CKey, CVal>::end() const {
-    return data_.end();
-  }
-  
-  template<typename CKey, typename CVal>
-  inline typename AssociationVector<CKey, CVal>::size_type AssociationVector<CKey, CVal>::size() const {
+  template<typename KeyRefProd, typename CVal, typename KeyRef, typename SizeType>
+  inline typename AssociationVector<KeyRefProd, CVal, KeyRef, SizeType>::size_type AssociationVector<KeyRefProd, CVal, KeyRef, SizeType>::size() const {
     return data_.size();
   }
   
-  template<typename CKey, typename CVal>
-  inline bool AssociationVector<CKey, CVal>::empty() const {
+  template<typename KeyRefProd, typename CVal, typename KeyRef, typename SizeType>
+  inline bool AssociationVector<KeyRefProd, CVal, KeyRef, SizeType>::empty() const {
     return data_.empty();
   }
   
-  template<typename CKey, typename CVal>
-  inline typename AssociationVector<CKey, CVal>::reference AssociationVector<CKey, CVal>::operator[](size_type n) {
-    return data_[ n ];
+  template<typename KeyRefProd, typename CVal, typename KeyRef, typename SizeType>
+  inline typename AssociationVector<KeyRefProd, CVal, KeyRef, SizeType>::reference 
+    AssociationVector<KeyRefProd, CVal, KeyRef, SizeType>::operator[](size_type n) {
+    return reference( key(n), value(n) );
   }
   
-  template<typename CKey, typename CVal>
-  inline typename AssociationVector<CKey, CVal>::const_reference AssociationVector<CKey, CVal>::operator[](size_type n) const {
-    return data_[ n ];
+  template<typename KeyRefProd, typename CVal, typename KeyRef, typename SizeType>
+  inline typename AssociationVector<KeyRefProd, CVal, KeyRef, SizeType>::const_reference 
+    AssociationVector<KeyRefProd, CVal, KeyRef, SizeType>::operator[](size_type n) const {
+    return const_reference( key(n), value(n) );
   }
   
-  template<typename CKey, typename CVal>
-  inline void AssociationVector<CKey, CVal>::reserve(size_type n) {
-    data_.reserve(n);
-  }
-  
-  template<typename CKey, typename CVal>
-  inline void AssociationVector<CKey, CVal>::push_back(const value_type & t) {
-    data_.push_back(t);
-  }
-  
-  template<typename CKey, typename CVal>
-  inline void AssociationVector<CKey, CVal>::clear() {
+  template<typename KeyRefProd, typename CVal, typename KeyRef, typename SizeType>
+  inline void AssociationVector<KeyRefProd, CVal, KeyRef, SizeType>::clear() {
     data_.clear();
     ref_ = KeyRefProd();
   }
 
-  template<typename CKey, typename CVal>
-  inline void AssociationVector<CKey, CVal>::swap(AssociationVector<CKey, CVal> & other) {
+  template<typename KeyRefProd, typename CVal, typename KeyRef, typename SizeType>
+  inline void AssociationVector<KeyRefProd, CVal, KeyRef, SizeType>::swap(AssociationVector<KeyRefProd, CVal, KeyRef, SizeType> & other) {
     data_.swap(other.data_);
     std::swap(ref_, other.ref_);
   }
 
-  template<typename CKey, typename CVal>
-  void AssociationVector<CKey, CVal>::fillView(std::vector<void const*>& pointers) const
+  template<typename KeyRefProd, typename CVal, typename KeyRef, typename SizeType>
+  void AssociationVector<KeyRefProd, CVal, KeyRef, SizeType>::fillView(std::vector<void const*>& pointers) const
   {
     pointers.reserve(this->size());
-    for(const_iterator i=begin(), e=end(); i!=e; ++i)
+    for(typename CVal::const_iterator i=data_.begin(), e=data_.end(); i!=e; ++i)
       pointers.push_back(&(*i));
   }
 
-  template<typename CKey, typename CVal>
-  inline void swap(AssociationVector<CKey, CVal> & a, AssociationVector<CKey, CVal> & b) {
+  template<typename KeyRefProd, typename CVal, typename KeyRef, typename SizeType>
+  inline void swap(AssociationVector<KeyRefProd, CVal, KeyRef, SizeType> & a, 
+		   AssociationVector<KeyRefProd, CVal, KeyRef, SizeType> & b) {
     a.swap(b);
   }
 
@@ -166,25 +134,23 @@ namespace edm {
   //
   // Free function template to support creation of Views.
 
-  template <typename CKey, typename CVal>
+  template <typename KeyRefProd, typename CVal, typename KeyRef, typename SizeType>
   inline
   void
-  fillView(AssociationVector<CKey,CVal> const& obj,
-	   std::vector<void const*>& pointers)
-  {
+  fillView(AssociationVector<KeyRefProd,CVal, KeyRef, SizeType> const& obj,
+	   std::vector<void const*>& pointers) {
     obj.fillView(pointers);
   }
 
-  template <typename CKey, typename CVal>
-  struct has_fillView<edm::AssociationVector<CKey, CVal> >
-  {
+  template <typename KeyRefProd, typename CVal, typename KeyRef, typename SizeType>
+  struct has_fillView<edm::AssociationVector<KeyRefProd, CVal, KeyRef, SizeType> > {
     static bool const value = true;
   };
 
 #if ! GCC_PREREQUISITE(3,4,4)
   // has swap function
-  template<typename CKey, typename CVal>
-  struct has_swap<edm::AssociationVector<CKey, CVal> > {
+  template<typename KeyRefProd, typename CVal, typename KeyRef, typename SizeType>
+  struct has_swap<edm::AssociationVector<KeyRefProd, CVal, KeyRef, SizeType> > {
     static bool const value = true;
   };
 #endif

@@ -5,7 +5,7 @@
   
 Ref: A template for an interproduct reference to a product.
 
-$Id: RefProd.h,v 1.7 2007/03/04 04:59:59 wmtan Exp $
+$Id: RefProd.h,v 1.8 2007/03/23 16:54:31 paterno Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -46,6 +46,7 @@ namespace edm {
   template <typename C>
   class RefProd {
   public:
+    typedef C product_type;
 
     /// Default constructor needed for reading from persistent store. Not for direct use.
     RefProd() : product_() {}
