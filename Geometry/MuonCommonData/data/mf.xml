@@ -2,9 +2,7 @@
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../DDLSchema/DDLSchema.xsd">
 
 <ConstantsSection label="ChamberSpecsConstants" eval="true">
-   <!--Constant name="LayerOffsetWRTAlumFrame"           value="-1.746*cm+0.1748*cm"/-->
-   <!--Constant name="LayerOffsetWRTAlumFrame"           value="-1.746*cm+0.1748*cm+0.409*cm"/-->
-   <Constant name="LayerOffsetWRTAlumFrame"           value="-1.1622*cm"/>
+   <Constant name="LayerOffsetWRTAlumFrame"           value="-1.7252*cm"/>
    <Constant name="LayerSpacing"                      value="2.54*cm"/>
 </ConstantsSection>
 
