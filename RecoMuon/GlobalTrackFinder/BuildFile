@@ -22,7 +22,6 @@
 <use name=CommonTools/Statistics>
 <use name=Geometry/CommonDetUnit>
 
-<flags EDM_PLUGIN=1>
 <export>
    <lib name=RecoMuonGlobalTrackFinder>
 </export>
