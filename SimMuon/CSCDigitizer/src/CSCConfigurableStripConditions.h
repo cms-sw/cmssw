@@ -19,8 +19,9 @@ public:
   virtual float pedestal(const CSCDetId & detId, int channel) const {return thePedestal;}
   virtual float pedestalVariance(const CSCDetId & detId, int channel) const {return thePedestalVariance;}
 
-  virtual void crosstalk(double stripLength, bool leftRight,
-                 float & capacitive, float & resistive) const = 0;
+  virtual void crosstalk(const CSCDetId&detId, int channel,
+                 double stripLength, bool leftRight,
+                 float & capacitive, float & resistive) const;
 
 private:
   virtual void fetchNoisifier(const CSCDetId & detId, int istrip);

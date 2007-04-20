@@ -31,7 +31,8 @@ public:
   /// calculated from pedestalVariance & gain
   float analogNoise(const CSCDetId & detId, int channel) const;
 
-  virtual void crosstalk(double stripLength, bool leftRight, 
+  virtual void crosstalk(const CSCDetId&detId, int channel,
+                 double stripLength, bool leftRight, 
                  float & capacitive, float & resistive) const = 0;
   
 protected:

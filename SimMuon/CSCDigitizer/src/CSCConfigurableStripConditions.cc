@@ -87,3 +87,12 @@ void CSCConfigurableStripConditions::makeNoisifier(int chamberType, const std::v
   theNoisifiers[chamberType-1] = new CorrelatedNoisifier(matrix);
 
 }
+
+void CSCConfigurableStripConditions::crosstalk(const CSCDetId&detId, int channel,
+                 double stripLength, bool leftRight,
+                 float & capacitive, float & resistive) const
+{
+  capacitive = theCapacitiveCrosstalk * stripLength;
+  resistive = theResistiveCrosstalk;
+}
+

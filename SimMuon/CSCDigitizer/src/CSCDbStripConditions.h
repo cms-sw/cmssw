@@ -25,6 +25,10 @@ public:
   virtual float pedestal(const CSCDetId & detId, int channel) const;
   virtual float pedestalVariance(const CSCDetId & detId, int channel) const;
 
+  virtual void crosstalk(const CSCDetId&detId, int channel,
+                 double stripLength, bool leftRight,
+                 float & capacitive, float & resistive) const;
+
   void print() const;
 
 private:

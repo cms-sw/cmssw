@@ -132,6 +132,26 @@ float CSCDbStripConditions::pedestalVariance(const CSCDetId&detId, int channel) 
 }
 
 
+void CSCDbStripConditions::crosstalk(const CSCDetId&detId, int channel,
+                 double stripLength, bool leftRight,
+                 float & capacitive, float & resistive) const
+{
+  assert(theCrosstalk != 0);
+  int index = dbIndex(detId, channel);
+  std::map< int,std::vector<CSCcrosstalk::Item> >::const_iterator crosstalkItr
+    = theCrosstalk->crosstalk.find(index);
+  if(crosstalkItr == theCrosstalk->crosstalk.end())
+  {
+    throw cms::Exception("CSCDbStripConditions")
+     << "Cannot find crosstalk for layer " << detId;
+  }
+
+  const CSCcrosstalk::Item & item = crosstalkItr->second[channel-1];
+  return leftRight ? item.xtalk_intercept_right : item.xtalk_intercept_left;
+}
+
+
+
 void CSCDbStripConditions::fetchNoisifier(const CSCDetId & detId, int istrip)
 {
   assert(theNoiseMatrix != 0);
