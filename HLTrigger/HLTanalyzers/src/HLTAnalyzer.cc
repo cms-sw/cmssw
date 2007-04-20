@@ -148,6 +148,7 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
 // "endJob" is an inherited method that you may implement to do post-EOF processing and produce final output.
 void HLTAnalyzer::endJob() {
 
+  m_file->cd(); 
   HltTree->Write();
   delete HltTree;
   HltTree = 0;
