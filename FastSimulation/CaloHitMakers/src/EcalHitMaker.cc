@@ -979,7 +979,7 @@ bool EcalHitMaker::getPads(double depth)
 	  if(dummyt>1) behindback=true;
 	  //	  std::cout << " Intersect " << il << " " << a << " " << b << " " << plan_ << " " << xx << std::endl;
 	  // check that the intersection actually exists 
-	  if(xx.mag()!=0)
+	  if(xx.mag2()!=0)
 	    {
 	      corners.push_back(xx);
 	    }	  
