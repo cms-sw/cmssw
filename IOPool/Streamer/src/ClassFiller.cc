@@ -217,9 +217,9 @@ namespace edm {
     static bool done = false;
     if(done==false) {
 	loadCap(std::string("edm::ProdPair"));
-	loadCap(std::string("edm::SendProds"));
+	loadCap(std::string("std::vector<edm::ProdPair>"));
 	loadCap(std::string("edm::SendEvent"));
-	loadCap(std::string("edm::SendDescs"));
+	loadCap(std::string("std::vector<edm::BranchDescription>"));
 	loadCap(std::string("edm::SendJobHeader"));
     }
     ClassFiller();
