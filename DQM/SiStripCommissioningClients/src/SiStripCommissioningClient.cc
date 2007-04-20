@@ -570,12 +570,12 @@ void SiStripCommissioningClient::handleException( const std::string& method,
     //throw; // rethrow caught exception to be dealt with below
   } 
 
-  catch ( seal::Error& e ) { 
-    ss << " Caught seal::Error in method "
-       << name << " with message: " << endl 
-       << e.explainSelf();
-    LOG4CPLUS_ERROR( this->getApplicationLogger(), ss.str() );
-  }
+//   catch ( seal::Error& e ) { 
+//     ss << " Caught seal::Error in method "
+//        << name << " with message: " << endl 
+//        << e.explainSelf();
+//     LOG4CPLUS_ERROR( this->getApplicationLogger(), ss.str() );
+//   }
   
   catch ( cms::Exception& e ) {
     ss << " Caught cms::Exception in method "
