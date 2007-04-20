@@ -1,8 +1,8 @@
 /*
  * \file DTDataIntegrityTask.cc
  * 
- * $Date: 2007/04/03 13:21:13 $
- * $Revision: 1.24 $
+ * $Date: 2007/04/18 10:38:09 $
+ * $Revision: 1.25 $
  * \author M. Zanetti (INFN Padova), S. Bolognesi (INFN Torino)
  *
 */
@@ -64,7 +64,7 @@ DTDataIntegrityTask::DTDataIntegrityTask(const edm::ParameterSet& ps,edm::Activi
 DTDataIntegrityTask::~DTDataIntegrityTask() {
   if(debug)
     cout<<"[DTDataIntegrityTask]: Destructor. Analyzed "<< neventsDDU <<" events"<<endl;
-  //dbe->setCurrentFolder("DT/FED770");
+  //dbe->setCurrentFolder("DT/FED730");
   //dbe->removeContents();
 }
 
@@ -82,7 +82,7 @@ void DTDataIntegrityTask::postEndJob(){
    cout<<"[DTDataIntegrityTask]: postEndJob called!"<<endl;
 
    dbe->save(parameters.getUntrackedParameter<string>("outputFile", "ROS25Test.root"));
-   dbe->rmdir("DT/FED770");
+   dbe->rmdir("DT/FED730");
 }
 
 void DTDataIntegrityTask::bookHistos(string folder, DTROChainCoding code) {
@@ -261,19 +261,19 @@ void DTDataIntegrityTask::bookHistos(string folder, DTROChainCoding code) {
 
     rosSHistos[histoType] = dbe->book2D(histoName,histoName,13,0,13,12,1,13);
 
-    rosSHistos[histoType] ->setBinLabel(1,"Link TimeOut",1);
-    rosSHistos[histoType] ->setBinLabel(2,"Ev.Id.Mis.",1);
-    rosSHistos[histoType] ->setBinLabel(3,"FIFO almost full",1);
-    rosSHistos[histoType] ->setBinLabel(4,"FIFO full",1);
-    rosSHistos[histoType] ->setBinLabel(5,"Ceros TimeOut",1);
-    rosSHistos[histoType] ->setBinLabel(6,"Max. wds",1);
-    rosSHistos[histoType] ->setBinLabel(7,"L1A FF",1);
-    rosSHistos[histoType] ->setBinLabel(8,"PC from TDC",1);
-    rosSHistos[histoType] ->setBinLabel(9,"BX ID Mis.",1);
-    rosSHistos[histoType] ->setBinLabel(10,"TXP",1);
-    rosSHistos[histoType] ->setBinLabel(11,"TDC Fatal",1);
-    rosSHistos[histoType] ->setBinLabel(12,"TDC FIFO Ov.",1);
-    rosSHistos[histoType] ->setBinLabel(13,"L1 Buffer Ov.",1);
+//     rosSHistos[histoType] ->setBinLabel(1,"Link TimeOut",1);
+//     rosSHistos[histoType] ->setBinLabel(2,"Ev.Id.Mis.",1);
+//     rosSHistos[histoType] ->setBinLabel(3,"FIFO almost full",1);
+//     rosSHistos[histoType] ->setBinLabel(4,"FIFO full",1);
+//     rosSHistos[histoType] ->setBinLabel(5,"Ceros TimeOut",1);
+//     rosSHistos[histoType] ->setBinLabel(6,"Max. wds",1);
+//     rosSHistos[histoType] ->setBinLabel(7,"L1A FF",1);
+//     rosSHistos[histoType] ->setBinLabel(8,"PC from TDC",1);
+//     rosSHistos[histoType] ->setBinLabel(9,"BX ID Mis.",1);
+//     rosSHistos[histoType] ->setBinLabel(10,"TXP",1);
+//     rosSHistos[histoType] ->setBinLabel(11,"TDC Fatal",1);
+//     rosSHistos[histoType] ->setBinLabel(12,"TDC FIFO Ov.",1);
+//     rosSHistos[histoType] ->setBinLabel(13,"L1 Buffer Ov.",1);
 
     rosSHistos[histoType] ->setBinLabel(1,"ROS1",2);
     rosSHistos[histoType] ->setBinLabel(2,"ROS2",2);
@@ -308,19 +308,19 @@ void DTDataIntegrityTask::bookHistos(string folder, DTROChainCoding code) {
     string histoTitle = histoName + " (ROBID error summary)";
     (rosHistos[histoType])[code.getROSID()] = dbe->book2D(histoName,histoTitle,13,0,13,26,0,26);
 
-    ((rosHistos[histoType])[code.getROSID()]) ->setBinLabel(1,"Link TimeOut",1);
-    ((rosHistos[histoType])[code.getROSID()]) ->setBinLabel(2,"Ev.Id.Mis.",1);
-    ((rosHistos[histoType])[code.getROSID()]) ->setBinLabel(3,"FIFO almost full",1);
-    ((rosHistos[histoType])[code.getROSID()]) ->setBinLabel(4,"FIFO full",1);
-    ((rosHistos[histoType])[code.getROSID()]) ->setBinLabel(5," ",1);
-    ((rosHistos[histoType])[code.getROSID()]) ->setBinLabel(6,"Max. wds",1);
-    ((rosHistos[histoType])[code.getROSID()]) ->setBinLabel(7,"L1A FF",1);
-    ((rosHistos[histoType])[code.getROSID()]) ->setBinLabel(8,"PC from TDC",1);
-    ((rosHistos[histoType])[code.getROSID()]) ->setBinLabel(9,"BX ID Mis.",1);
-    ((rosHistos[histoType])[code.getROSID()]) ->setBinLabel(10," ",1);
-    ((rosHistos[histoType])[code.getROSID()]) ->setBinLabel(11,"TDC Fatal",1);
-    ((rosHistos[histoType])[code.getROSID()]) ->setBinLabel(12,"TDC FIFO Ov.",1);
-    ((rosHistos[histoType])[code.getROSID()]) ->setBinLabel(13,"L1 Buffer Ov.",1);
+//     ((rosHistos[histoType])[code.getROSID()]) ->setBinLabel(1,"Link TimeOut",1);
+//     ((rosHistos[histoType])[code.getROSID()]) ->setBinLabel(2,"Ev.Id.Mis.",1);
+//     ((rosHistos[histoType])[code.getROSID()]) ->setBinLabel(3,"FIFO almost full",1);
+//     ((rosHistos[histoType])[code.getROSID()]) ->setBinLabel(4,"FIFO full",1);
+//     ((rosHistos[histoType])[code.getROSID()]) ->setBinLabel(5," ",1);
+//     ((rosHistos[histoType])[code.getROSID()]) ->setBinLabel(6,"Max. wds",1);
+//     ((rosHistos[histoType])[code.getROSID()]) ->setBinLabel(7,"L1A FF",1);
+//     ((rosHistos[histoType])[code.getROSID()]) ->setBinLabel(8,"PC from TDC",1);
+//     ((rosHistos[histoType])[code.getROSID()]) ->setBinLabel(9,"BX ID Mis.",1);
+//     ((rosHistos[histoType])[code.getROSID()]) ->setBinLabel(10," ",1);
+//     ((rosHistos[histoType])[code.getROSID()]) ->setBinLabel(11,"TDC Fatal",1);
+//     ((rosHistos[histoType])[code.getROSID()]) ->setBinLabel(12,"TDC FIFO Ov.",1);
+//     ((rosHistos[histoType])[code.getROSID()]) ->setBinLabel(13,"L1 Buffer Ov.",1);
 
     ((rosHistos[histoType])[code.getROSID()]) ->setBinLabel(1,"ROB0",2);
     ((rosHistos[histoType])[code.getROSID()]) ->setBinLabel(2,"ROB1",2);
