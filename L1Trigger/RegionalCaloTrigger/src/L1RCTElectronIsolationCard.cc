@@ -118,7 +118,7 @@ L1RCTElectronIsolationCard::calcElectronCandidates(L1RCTRegion* region){
 	nwC = (sw || w || nw || n || ne);
 	neC = (nw || n || ne || e || se);
 	seC = (ne || e || se || s || sw);
-	swC = (se || s || sw || w || ne);
+	swC = (se || s || sw || w || nw);
 
 	bool quietVeto = (nwC && neC && seC && swC);
 
