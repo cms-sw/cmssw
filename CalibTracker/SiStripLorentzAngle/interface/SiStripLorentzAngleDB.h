@@ -37,6 +37,7 @@ class SiStripLorentzAngleDB : public edm::EDAnalyzer
   double appliedVoltage_;
   double chargeMobility_;
   double temperature_;
+  double temperatureerror_;
   double rhall_;
   double holeBeta_;
   double holeSaturationVelocity_;

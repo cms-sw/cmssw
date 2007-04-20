@@ -1,4 +1,3 @@
-
 #include <memory>
 #include <string>
 #include <iostream>
@@ -10,7 +9,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-
+#include "CLHEP/Random/RandGauss.h"
 using namespace std;
 
   //Constructor
@@ -25,6 +24,7 @@ void SiStripLorentzAngleDB::beginJob(const edm::EventSetup& c){
   appliedVoltage_   = conf_.getParameter<double>("AppliedVoltage");
   chargeMobility_   = conf_.getParameter<double>("ChargeMobility");
   temperature_      = conf_.getParameter<double>("Temperature");
+  temperatureerror_      = conf_.getParameter<double>("TemperatureError");
   rhall_            = conf_.getParameter<double>("HoleRHAllParameter");
   holeBeta_         = conf_.getParameter<double>("HoleBeta");
   holeSaturationVelocity_ = conf_.getParameter<double>("HoleSaturationVelocity");
@@ -32,18 +32,19 @@ void SiStripLorentzAngleDB::beginJob(const edm::EventSetup& c){
   edm::ESHandle<TrackerGeometry> pDD;
   c.get<TrackerDigiGeometryRecord>().get( pDD );
   edm::LogInfo("SiStripLorentzAngle") <<" There are "<<pDD->detUnits().size() <<" detectors"<<std::endl;
-  float mulow = chargeMobility_*pow((temperature_/300.),-2.5);
-  float vsat = holeSaturationVelocity_*pow((temperature_/300.),0.52);
-  float beta = holeBeta_*pow((temperature_/300.),0.17);
   
   for(TrackerGeometry::DetUnitContainer::const_iterator it = pDD->detUnits().begin(); it != pDD->detUnits().end(); it++){
     
     if( dynamic_cast<StripGeomDetUnit*>((*it))!=0){
       uint32_t detid=((*it)->geographicalId()).rawId();
 
-      float thickness=(*it)->specificSurface().bounds().thickness();
-
-
+      double thickness=(*it)->specificSurface().bounds().thickness();
+      float temperaturernd;
+      if(temperatureerror_>0)temperaturernd=RandGauss::shoot(temperature_,temperatureerror_);
+      else temperaturernd=temperature_;
+      float mulow = chargeMobility_*pow((temperaturernd/300.),-2.5);
+      float vsat = holeSaturationVelocity_*pow((temperaturernd/300.),0.52);
+      float beta = holeBeta_*pow((temperaturernd/300.),0.17);
       float e = appliedVoltage_/thickness;
       float mu = ( mulow/(pow(double((1+pow((mulow*e/vsat),beta))),1./beta)));
       float hallMobility = 1.E-4*mu*rhall_;
