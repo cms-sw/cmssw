@@ -40,6 +40,7 @@ namespace edm {
             if(range.first == range.second) {
               //the first match is the one to keep
               std::string libraryName = itInfo->loadable_.leaf();
+std::cout << "INCLUDE " << moduleClass << " " << libraryName << std::endl;
               theLibraryMap.insert(range.first,std::make_pair(moduleClass,libraryName));
             }
           }
@@ -137,6 +138,13 @@ namespace edm {
       {
         // strip it off
         result = libraryName.substr(0, pos);
+      }
+
+      pos = result.length();
+      // now get rid of the word "Plugins"
+      if(result.substr(pos-7, pos) == "Plugins")
+      {
+        result = result.substr(0, pos-7);
       }
       return result;
     }
