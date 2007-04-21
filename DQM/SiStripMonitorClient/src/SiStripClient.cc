@@ -103,7 +103,7 @@ void SiStripClient::onUpdate() const
       mui_->addCallback(action); 
     }
     // Create predefined plots 
-    if (nUpdate%20  == 1) {
+    if (nUpdate%10  == 1) {
       webInterface_p->setActionFlag(SiStripWebInterface::PlotHistogramFromLayout);
       seal::Callback action(seal::CreateCallback(webInterface_p, 
 						 &SiStripWebInterface::performAction));

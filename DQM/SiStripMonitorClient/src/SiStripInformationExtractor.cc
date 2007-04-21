@@ -348,10 +348,12 @@ void SiStripInformationExtractor::plotHistosFromLayout(MonitorUserInterface * mu
       MonitorElement* me = mui->get(path_name);
       if (me) me_list.push_back(me);
     }
-    if (me_list.size() == 0) return; 
-    plotHistos(opt_map, me_list, false); 
-    canvas_->Print(fname.c_str(),"png");
-    canvas_->Clear();
+    if (me_list.size() > 0) { 
+      plotHistos(opt_map, me_list, false); 
+      canvas_->Print(fname.c_str(),"png");
+      canvas_->Clear();
+      me_list.clear();
+    }
   }
 }
 
