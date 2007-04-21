@@ -1402,7 +1402,7 @@ bool MCatNLOSource::hwgive(const std::string& ParameterString) {
 #define hwaend hwaend_
 
 extern "C" {
-  void hwaend(){/*dummy*/};
+  void hwaend(){/*dummy*/}
 }
 //-------------------------------------------------------------------------------
 
