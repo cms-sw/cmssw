@@ -43,6 +43,10 @@ private:
   const CSCPedestals * thePedestals;
 
   const CSCcrosstalk * theCrosstalk;
+
+  // nominal constant to give 100% crosstalk
+  float theCapacitiveCrosstalk;
+  float theResistiveCrosstalk;
 };
 
 #endif

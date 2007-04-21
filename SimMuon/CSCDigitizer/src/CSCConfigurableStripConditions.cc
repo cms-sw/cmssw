@@ -8,7 +8,9 @@ CSCConfigurableStripConditions::CSCConfigurableStripConditions(const edm::Parame
   theME11Gain( p.getParameter<double>("me11gain") ),
   theGainVariance( p.getParameter<double>("ampGainVariance") ),
   thePedestal( p.getParameter<double>("pedestal") ),
-  thePedestalVariance( p.getParameter<double>("pedestalVariance") )
+  thePedestalVariance( p.getParameter<double>("pedestalVariance") ),
+  theCapacitiveCrosstalk(0.0000522),
+  theResistiveCrosstalk(0.02)
 {
   theNoisifiers.resize(9);
   makeNoisifier(1, p.getParameter<std::vector<double> >("me11") );

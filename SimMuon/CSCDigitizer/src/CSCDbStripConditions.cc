@@ -13,7 +13,9 @@ CSCDbStripConditions::CSCDbStripConditions()
   theNoiseMatrix(0),
   theGains(0),
   thePedestals(0),
-  theCrosstalk(0)
+  theCrosstalk(0),
+  theCapacitiveCrosstalk(0.167),
+  theResistiveCrosstalk(0.02)
 {
 }
 
@@ -147,7 +149,10 @@ void CSCDbStripConditions::crosstalk(const CSCDetId&detId, int channel,
   }
 
   const CSCcrosstalk::Item & item = crosstalkItr->second[channel-1];
-  //@@ DOESN"T DO ANYTHING YET!
+  float fraction = leftRight ? item.xtalk_intercept_right : item.xtalk_intercept_left;
+  
+  capacitive = theCapacitiveCrosstalk * fraction;
+  resistive  = theResistiveCrosstalk;
 }
 
 
