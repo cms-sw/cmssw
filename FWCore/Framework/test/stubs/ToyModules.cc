@@ -293,6 +293,7 @@ namespace edmtest {
     virtual void produce(edm::Event& e, edm::EventSetup const& c);
     
   private:
+    edm::InputTag src_; // std::vector<edmtet::Simple> to refer to
     int size_;  // number of Simple objects to put in the collection
   };
 
@@ -300,14 +301,16 @@ namespace edmtest {
   AVSimpleProducer::produce(edm::Event& e, 
                             edm::EventSetup const& /* unused */) 
   {
+    edm::Handle<std::vector<edmtest::Simple> > vs;
+    e.getByLabel( src_, vs );
     // Fill up a collection
-    std::auto_ptr<AVSimpleProduct> p(new AVSimpleProduct());
+    std::auto_ptr<AVSimpleProduct> p(new AVSimpleProduct(edm::RefProd<std::vector<edmtest::Simple> >(vs)));
 
     for (int i = 0; i < size_; ++i)
       {
         edmtest::Simple simple;
         simple.key = 100 + i;  // just some arbitrary number for testing
-        p->push_back(simple);
+        p->setValue(i,simple);
       }
 
     // Put the product into the Event
