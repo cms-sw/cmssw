@@ -3,7 +3,7 @@
 
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 #include <L1Trigger/CSCTrackFinder/interface/CSCTrackFinderDataTypes.h>
-#include <DataFormats/L1GlobalMuonTrigger/interface/L1MuTriggerScales.h>
+#include <CondFormats/L1TObjects/interface/L1MuTriggerScales.h>
 #include <L1Trigger/CSCTrackFinder/interface/CSCTFPtMethods.h>
 #include <FWCore/ParameterSet/interface/FileInPath.h>
 

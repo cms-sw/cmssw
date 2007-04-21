@@ -1,7 +1,7 @@
 #ifndef CSCTrackFinder_CSCTFPtMethods_h
 #define CSCTrackFinder_CSCTFPtMethods_h
 
-#include <DataFormats/L1GlobalMuonTrigger/interface/L1MuTriggerScales.h>
+#include <CondFormats/L1TObjects/interface/L1MuTriggerScales.h>
 
 class CSCTFPtMethods
 {
