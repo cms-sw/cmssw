@@ -9,7 +9,7 @@ CSCConfigurableStripConditions::CSCConfigurableStripConditions(const edm::Parame
   theGainVariance( p.getParameter<double>("ampGainVariance") ),
   thePedestal( p.getParameter<double>("pedestal") ),
   thePedestalVariance( p.getParameter<double>("pedestalVariance") ),
-  theCapacitiveCrosstalk(0.0000522),
+  theCapacitiveCrosstalk(0.0167),
   theResistiveCrosstalk(0.02)
 {
   theNoisifiers.resize(9);

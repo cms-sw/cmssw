@@ -14,7 +14,7 @@ CSCDbStripConditions::CSCDbStripConditions()
   theGains(0),
   thePedestals(0),
   theCrosstalk(0),
-  theCapacitiveCrosstalk(0.167),
+  theCapacitiveCrosstalk(5.344),
   theResistiveCrosstalk(0.02)
 {
 }
