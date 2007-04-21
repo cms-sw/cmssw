@@ -1,11 +1,9 @@
 #include <DataFormats/L1CSCTrackFinder/interface/L1Track.h>
-#include <SimG4Core/Notification/interface/Singleton.h>
 
 namespace csc {
   
   L1Track::L1Track(const csc::L1TrackId& id): m_name("csc::L1Track")
   {
-    scale = Singleton<L1MuTriggerScales>::instance();
     m_endcap = id.endcap();
     m_sector = id.sector();
     m_lphi = 0;
@@ -28,7 +26,6 @@ namespace csc {
 						      rhs.quality_packed(),rhs.bx()),
 					      m_name(rhs.m_name)
   {
-    scale = Singleton<L1MuTriggerScales>::instance();
     m_empty = rhs.m_empty;
     m_lphi = rhs.m_lphi;
     m_endcap = rhs.m_endcap;
@@ -51,7 +48,6 @@ namespace csc {
   {
     if(this != &rhs)
       {
-	scale = Singleton<L1MuTriggerScales>::instance();
 	m_empty = rhs.m_empty;
 	this->setBx(rhs.bx());
 	this->setDataWord(rhs.getDataWord());
@@ -86,23 +82,23 @@ namespace csc {
 
   float L1Track::ptValueMid() const
   {
-    if(pt_packed() >= 31) return scale->getPtScale()->getLowEdge(pt_packed());
-    return scale->getPtScale()->getCenter(pt_packed());
+    if(pt_packed() >= 31) return m_scale.getPtScale()->getLowEdge(pt_packed());
+    return m_scale.getPtScale()->getCenter(pt_packed());
   }
 
   float L1Track:: etaValueLow() const
   {
-    return scale->getRegionalEtaScale(type_idx())->getLowEdge(eta_packed());
+    return m_scale.getRegionalEtaScale(type_idx())->getLowEdge(eta_packed());
   }
 
   float L1Track::phiValueMid() const
   {
-    return scale->getPhiScale()->getCenter(phi_packed());
+    return m_scale.getPhiScale()->getCenter(phi_packed());
   }
 
   float L1Track::localPhiValue() const
   {
-    return scale->getPhiScale()->getLowEdge(m_lphi);
+    return m_scale.getPhiScale()->getLowEdge(m_lphi);
   }
     
   void L1Track::setStationIds(const unsigned& me1, const unsigned& me2, 

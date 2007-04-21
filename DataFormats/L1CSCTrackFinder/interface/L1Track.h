@@ -11,7 +11,7 @@
 
 #include <DataFormats/L1GlobalMuonTrigger/interface/L1MuRegionalCand.h>
 #include <DataFormats/L1CSCTrackFinder/interface/L1TrackId.h>
-#include <DataFormats/L1GlobalMuonTrigger/interface/L1MuTriggerScales.h>
+#include <CondFormats/L1TObjects/interface/L1MuTriggerScales.h>
 
 class CSCTFSectorProcessor;
 class CSCTFUnpacker;
@@ -22,7 +22,7 @@ namespace csc{
   class L1Track : public L1MuRegionalCand
     {
     public:
-      L1Track() : L1MuRegionalCand(), scale(new L1MuTriggerScales()), m_name("csc::L1Track") { setType(2); setPtPacked(0); }
+      L1Track() : L1MuRegionalCand(), m_name("csc::L1Track") { setType(2); setPtPacked(0); }
       L1Track( const csc::L1TrackId& );
       L1Track( const csc::L1Track& );
 
@@ -84,7 +84,7 @@ namespace csc{
       void Print() const;
 
     private:
-      L1MuTriggerScales* scale;
+      L1MuTriggerScales m_scale;
       
       std::string m_name;
       //L1TrackId m_id; remove this nested class for now... POOL doesn't like it.
