@@ -58,10 +58,6 @@ void CSCStripElectronicsSim::initParameters() {
   theLayerGeometry = theLayer->geometry();
   nElements = theLayerGeometry->numberOfStrips();
   theComparatorThreshold = 20.;
-  if(doCrosstalk_) {
-    float capacativeConstant = theLayerGeometry->length()/70;
-    theCrosstalkGenerator->setParameters(capacativeConstant, 0., 0.02);
-  }
   //selfTest();
 
   //calculate the offset to the peak
@@ -356,20 +352,36 @@ void CSCStripElectronicsSim::addCrosstalk() {
   sort(realSignals.begin(), realSignals.end(), SortSignalsByTotal);
   for(std::vector<CSCAnalogSignal>::iterator realSignalItr = realSignals.begin();
       realSignalItr != realSignals.end(); ++realSignalItr) {
-    CSCAnalogSignal crosstalkSignal = theCrosstalkGenerator->getCrosstalk(*realSignalItr);
     int thisStrip = (*realSignalItr).getElement();
     // add it to each neighbor
     if(thisStrip > 1) {
-      find(readoutElement(thisStrip-1)).superimpose(crosstalkSignal);
+      int otherStrip = thisStrip - 1;
+      addCrosstalk(*realSignalItr, thisStrip, otherStrip);
     }
     if(thisStrip < nElements) {
-      find(readoutElement(thisStrip+1)).superimpose(crosstalkSignal);
+      int otherStrip = thisStrip + 1;
+      addCrosstalk(*realSignalItr, thisStrip, otherStrip);
     }
-
-    // Now subtract twice the crosstalk signal from the original signal
-    crosstalkSignal *= -2.;
-    find(readoutElement(thisStrip)).superimpose(crosstalkSignal);
   }
+}
+
+
+void CSCStripElectronicsSim::addCrosstalk(const CSCAnalogSignal & signal,
+       int thisStrip, int otherStrip)
+{
+  float capacitiveCrosstalk, resistiveCrosstalk;
+  bool leftRight = (otherStrip > thisStrip);
+  theStripConditions->crosstalk(layerId(), otherStrip, 
+                                theLayerGeometry->length(), leftRight,
+                                capacitiveCrosstalk, resistiveCrosstalk);
+  theCrosstalkGenerator->setParameters(capacitiveCrosstalk, 0., resistiveCrosstalk);
+  CSCAnalogSignal crosstalkSignal( theCrosstalkGenerator->getCrosstalk(signal) );
+  find(readoutElement(otherStrip)).superimpose(crosstalkSignal);
+
+  // Now subtract the crosstalk signal from the original signal
+  crosstalkSignal *= -1.;
+  find(readoutElement(thisStrip)).superimpose(crosstalkSignal);
+
 }
 
 

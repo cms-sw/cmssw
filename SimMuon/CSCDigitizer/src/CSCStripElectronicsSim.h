@@ -66,6 +66,9 @@ private:
   channelsToRead(const std::list<int> & keyStrips) const;
 
   void addCrosstalk();
+  void addCrosstalk(const CSCAnalogSignal & signal,
+                    int thisStrip, int otherStrip);
+
 
   void selfTest() const;
 
