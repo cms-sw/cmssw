@@ -111,13 +111,24 @@ private:
 
   TH1F* avg_shape_[4];
   TH1F* avg_time_[4];
+  TH1F* avg_energy_[4];
 
   TH1F* rms_shape_[4];
   TH1F* mean_shape_[4];
   TH1F* rms_time_[4];
   TH1F* mean_time_[4];
+  TH1F* rms_energy_[4];
+  TH1F* mean_energy_[4];
+
   TH2F* err_map_geo_[4];
   TH2F* err_map_elec_[4];
+
+  TH2F* rms_energyD_[4];
+  TH2F* mean_energyD_[4];
+  TH2F* rms_timeD_[4];
+  TH2F* mean_timeD_[4];
+  TH2F* rms_shapeD_[4];
+  TH2F* mean_shapeD_[4];
 
   // Quality criteria for data integrity
   float rms_thresh_;

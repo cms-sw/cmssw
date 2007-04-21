@@ -236,10 +236,12 @@ void HcalDataFormatClient::getHistograms(){
   sprintf(name,"DataFormatMonitor/FED Error Map");
   fedErrMap_ = getHisto(name, process_, mui_, verbose_,cloneME_);
   
-  for(int i=0; i<3; i++){
-    string type = "HBHE";
-    if(i==1) type = "HO";
-    if(i==2) type = "HF";
+  for(int i=0; i<4; i++){
+    if(!subDetsOn_[i]) continue;
+    string type = "HB";
+    if(i==1) type = "HE";
+    else if(i==2) type = "HF";
+    else if(i==3) type = "HO";
     sprintf(name,"DataFormatMonitor/%s Data Format Error Words", type.c_str());
     dferr_[i] = getHisto(name, process_, mui_, verbose_,cloneME_);    
     labelBits(dferr_[i]);
@@ -327,8 +329,8 @@ void HcalDataFormatClient::resetME(){
     if(!subDetsOn_[i]) continue;
     string type = "HB";
     if(i==1) type = "HE";
-    if(i==2) type = "HF";
-    if(i==3) type = "HO";
+    else if(i==2) type = "HF";
+    else if(i==3) type = "HO";
 
     sprintf(name,"%sHcalMonitor/DataFormatMonitor/%s Data Format Error Words",process_.c_str(), type.c_str());
      me = mui_->get(name);
@@ -418,8 +420,8 @@ void HcalDataFormatClient::htmlOutput(int run, string htmlDir, string htmlName){
     
     string type = "HB";
     if(i==1) type = "HE"; 
-    if(i==2) type = "HF"; 
-    if(i==3) type = "HO"; 
+    else if(i==2) type = "HF"; 
+    else if(i==3) type = "HO"; 
     
     htmlFile << "<td>&nbsp;&nbsp;&nbsp;<a name=\""<<type<<"_Plots\"><h3>" << type << " Histograms</h3></td></tr>" << endl;
     htmlFile << "<tr align=\"left\">" << endl;  
@@ -454,8 +456,8 @@ void HcalDataFormatClient::createTests(){
     if(!subDetsOn_[i]) continue;
     string type = "HB";
     if(i==1) type = "HE"; 
-    if(i==2) type = "HF"; 
-    if(i==3) type = "HO";
+    else if(i==2) type = "HF"; 
+    else if(i==3) type = "HO";
     
     sprintf(meTitle,"%sHcalMonitor/DataFormatMonitor/%s Data Format Error Words",process_.c_str(),type.c_str());
     sprintf(name,"%s DataFormat",type.c_str());
@@ -506,8 +508,8 @@ void HcalDataFormatClient::loadHistograms(TFile* infile){
     if(!subDetsOn_[i]) continue;
     string type = "HB";
     if(i==1) type = "HE";
-    if(i==2) type = "HF";
-    if(i==3) type = "HO";
+    else if(i==2) type = "HF";
+    else if(i==3) type = "HO";
 
     sprintf(name,"DQMData/HcalMonitor/DataFormatMonitor/%s Data Format Error Words", type.c_str());
     dferr_[i] = (TH1F*)infile->Get(name);    

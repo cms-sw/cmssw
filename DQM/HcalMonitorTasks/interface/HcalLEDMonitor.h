@@ -5,8 +5,8 @@
 
 /** \class HcalLEDMonitor
   *  
-  * $Date: 2006/09/01 15:39:27 $
-  * $Revision: 1.5 $
+  * $Date: 2007/04/02 13:19:38 $
+  * $Revision: 1.6 $
   * \author W. Fisher - FNAL
   */
 class HcalLEDMonitor: public HcalBaseMonitor {
@@ -29,7 +29,9 @@ public:
 
   void perChanHists(int type, const HcalDetId detid, float* vals, 
 		    map<HcalDetId, MonitorElement*> &tShape, 
-		    map<HcalDetId, MonitorElement*> &tTime);
+		    map<HcalDetId, MonitorElement*> &tTime, 
+		    map<HcalDetId, MonitorElement*> &tEnergy);
+
   map<HcalDetId, MonitorElement*>::iterator _meo;
 
   bool doPerChannel_;
@@ -48,34 +50,71 @@ public:
   struct{
     map<HcalDetId,MonitorElement*> shape;
     map<HcalDetId,MonitorElement*> time;
+    map<HcalDetId,MonitorElement*> energy;
 
     MonitorElement* shapePED;
     MonitorElement* shapeALL;
     MonitorElement* timeALL;
+    MonitorElement* energyALL;
 
     MonitorElement* rms_shape;
     MonitorElement* mean_shape;
+
     MonitorElement* rms_time;
     MonitorElement* mean_time;
+
+    MonitorElement* rms_energy;
+    MonitorElement* mean_energy;
+
     MonitorElement* err_map_geo;
     MonitorElement* err_map_elec;
-    /*
-    MonitorElement* mean_map_raw;
-    MonitorElement* rms_map_raw;
-    MonitorElement* mean_map_norm;
-    MonitorElement* rms_map_norm;
-    MonitorElement* adc_raw;
-    MonitorElement* adc_norm;
-    */
+
 
   } hbHists, heHists, hfHists, hoHists;
 
-  /*
-  MonitorElement* mean_map_raw;
-  MonitorElement* rms_map_raw;
-  MonitorElement* mean_map_norm;
-  MonitorElement* rms_map_norm;
+  /*  
+  MonitorElement* mean_map_ADCraw;
+  MonitorElement* rms_map_ADCraw;
+  MonitorElement* mean_map_ADCnorm;
+  MonitorElement* rms_map_ADCnorm;
   */
+
+  MonitorElement* MEAN_MAP_TIME_L1;
+  MonitorElement*  RMS_MAP_TIME_L1;
+
+  MonitorElement* MEAN_MAP_TIME_L2;
+  MonitorElement*  RMS_MAP_TIME_L2;
+
+  MonitorElement* MEAN_MAP_TIME_L3;
+  MonitorElement*  RMS_MAP_TIME_L3;
+
+  MonitorElement* MEAN_MAP_TIME_L4;
+  MonitorElement*  RMS_MAP_TIME_L4;
+
+  MonitorElement* MEAN_MAP_SHAPE_L1;
+  MonitorElement*  RMS_MAP_SHAPE_L1;
+
+  MonitorElement* MEAN_MAP_SHAPE_L2;
+  MonitorElement*  RMS_MAP_SHAPE_L2;
+
+  MonitorElement* MEAN_MAP_SHAPE_L3;
+  MonitorElement*  RMS_MAP_SHAPE_L3;
+
+  MonitorElement* MEAN_MAP_SHAPE_L4;
+  MonitorElement*  RMS_MAP_SHAPE_L4;
+
+  MonitorElement* MEAN_MAP_ENERGY_L1;
+  MonitorElement*  RMS_MAP_ENERGY_L1;
+
+  MonitorElement* MEAN_MAP_ENERGY_L2;
+  MonitorElement*  RMS_MAP_ENERGY_L2;
+
+  MonitorElement* MEAN_MAP_ENERGY_L3;
+  MonitorElement*  RMS_MAP_ENERGY_L3;
+
+  MonitorElement* MEAN_MAP_ENERGY_L4;
+  MonitorElement*  RMS_MAP_ENERGY_L4;
+
 
 };
 
