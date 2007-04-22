@@ -1,8 +1,8 @@
 /**
  * \file EBPedOffset.cc
  *
- * $Date: 2007/04/22 09:57:20 $
- * $Revision: 1.14 $
+ * $Date: 2007/04/22 10:45:42 $
+ * $Revision: 1.15 $
  * \author P. Govoni (pietro.govoni@cernNOSPAM.ch)
  * Last updated: @DATE@ @AUTHOR@
  *
@@ -220,10 +220,10 @@ void EBPedOffset::writeDb ()
   RunTypeDef rundef ;
   locdef.setLocation (m_location) ;
 
-  //runtag.setGeneralTag ("PEDESTAL-OFFSET") ;
-  //rundef.setRunType ("PEDESTAL-OFFSET") ;
-  rundef.setRunType ("TEST") ;
-  runtag.setGeneralTag ("TEST") ;
+  runtag.setGeneralTag ("PEDESTAL-OFFSET") ;
+  rundef.setRunType ("PEDESTAL-OFFSET") ;
+  //rundef.setRunType ("TEST") ;
+  //runtag.setGeneralTag ("TEST") ;
 
   runtag.setLocationDef (locdef) ;
   runtag.setRunTypeDef (rundef) ;
@@ -239,7 +239,7 @@ void EBPedOffset::writeDb ()
   montag.setMonVersionDef (monverdef) ;
   montag.setGeneralTag ("CMSSW") ;
 
-  subrun_t subrun = 8 ; //hardcoded!
+  subrun_t subrun = 1 ; //hardcoded!
   
   MonRunIOV moniov ;
 
