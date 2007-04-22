@@ -1,8 +1,8 @@
 /**
  * \file EBPedOffset.cc
  *
- * $Date: 2007/02/19 10:18:20 $
- * $Revision: 1.10 $
+ * $Date: 2007/04/22 08:30:02 $
+ * $Revision: 1.11 $
  * \author P. Govoni (pietro.govoni@cernNOSPAM.ch)
  * Last updated: @DATE@ @AUTHOR@
  *
@@ -70,12 +70,12 @@ EBPedOffset::EBPedOffset (const ParameterSet& paramSet) :
   m_run (paramSet.getParameter<int> ("run")) ,
   m_plotting (paramSet.getParameter<std::string> ("plotting"))    
 {
-  std::cout << "[EBPedOffSet][ctor] reading "
-            << "\n[EBPedOffSet][ctor] m_DACmin: " << m_DACmin
-            << "\n[EBPedOffSet][ctor] m_DACmax: " << m_DACmax
-            << "\n[EBPedOffSet][ctor] m_RMSmax: " << m_RMSmax
-            << "\n[EBPedOffSet][ctor] m_bestPed: " << m_bestPed
-            << std::endl ;
+  edm::LogInfo ("ctor") << " reading "
+                        << " m_DACmin: " << m_DACmin
+                        << " m_DACmax: " << m_DACmax
+                        << " m_RMSmax: " << m_RMSmax
+                        << " m_bestPed: " << m_bestPed
+                        << "\n" ;
 }
 
 
@@ -102,7 +102,7 @@ EBPedOffset::~EBPedOffset ()
 //! begin the job
 void EBPedOffset::beginJob (EventSetup const& eventSetup)
 {
-   std::cout << "[EBPedOffset][beginJob] " << std::endl ;
+   LogDebug ("beginJob") << "entering ...\n" ;
 }
 
 
@@ -113,8 +113,7 @@ void EBPedOffset::beginJob (EventSetup const& eventSetup)
 void EBPedOffset::analyze (Event const& event, 
                            EventSetup const& eventSetup) 
 {
-   std::cout << "[EBPedOffset][analyze] "
-    << std::endl;
+   LogDebug ("analyze") << "entering ...\n" ;
 
    // get the headers
    // (one header for each supermodule)
@@ -122,8 +121,9 @@ void EBPedOffset::analyze (Event const& event,
    try {
      event.getByLabel (m_headerProducer, DCCHeaders) ;
    } catch ( std::exception& ex ) {
-     std::cerr << "Error! can't get the product " << m_headerProducer.c_str () 
-               << std::endl ;
+     edm::LogError ("analyze") << "Error! can't get the product " 
+                               << m_headerProducer.c_str () 
+                               << "\n" ;
    }
 
    std::map <int,int> DACvalues ;
@@ -146,8 +146,9 @@ void EBPedOffset::analyze (Event const& event,
      event.getByLabel (m_digiProducer, pDigis) ;
    } catch ( std::exception& ex ) 
    {
-     std::cerr << "Error! can't get the product " << m_digiCollection.c_str () 
-               << std::endl ;
+     edm::LogError ("analyze") << "Error! can't get the product " 
+                               << m_digiCollection.c_str () 
+                               << std::endl ;
    }
    
    // loop over the digis
@@ -187,9 +188,9 @@ void EBPedOffset::endJob ()
       m_pedResult[smPeds->first] = 
         new TPedResult ((smPeds->second)->terminate (m_DACmin, m_DACmax)) ;
     } 
-  std::cout << "[EBPedOffset][endJob] results map size " 
-            << m_pedResult.size ()
-            << std::endl ;
+  edm::LogInfo ("endJob") << " results map size " 
+                          << m_pedResult.size ()
+                          << "\n" ;
   writeXMLFile (m_xmlFile) ;
 
   if (m_plotting != '0') makePlots () ;
@@ -204,7 +205,7 @@ void EBPedOffset::endJob ()
 //!FIXME divide into sub-tasks
 void EBPedOffset::writeDb () 
 {
-  std::cout << "[EBPedOffset][writeDb] entering" << std::endl ;
+  LogDebug ("writeDb") << " entering ...\n" ;
 
   // connect to the database
   EcalCondDBInterface* DBconnection ;
@@ -212,7 +213,7 @@ void EBPedOffset::writeDb ()
     DBconnection = new EcalCondDBInterface (m_dbHostName, m_dbName, 
                                             m_dbUserName, m_dbPassword, m_dbHostPort) ; 
   } catch (runtime_error &e) {
-    cerr << e.what() << endl ;
+    edm::LogError ("writeDb") << e.what() << endl ;
     return ;
   }
 
@@ -258,11 +259,11 @@ void EBPedOffset::writeDb ()
       moniov.setSubRunNumber(subrun);
       moniov.setSubRunStart(startSubRun);
       moniov.setMonRunTag(montag);
-      std::cout<<"creating a new MonRunIOV"<<std::endl;
+      LogDebug ("writeDb") <<" creating a new MonRunIOV\n" ;
     }
     else{
-      std::cout<<" no MonRunIOV existing in the DB"<<std::endl;
-      std::cout<<" the result will not be stored into the DB"<<std::endl;
+      edm::LogError ("writeDb") << " no MonRunIOV existing in the DB\n" ;
+      edm::LogError ("writeDb") << " the result will not be stored into the DB\n" ;
       if ( DBconnection ) {delete DBconnection;}
       return;
     }
@@ -296,7 +297,7 @@ void EBPedOffset::writeDb ()
                                                      result->first, xtal+1) ;
                 DBdataset[ecid] = DBtable ;
               } catch (runtime_error &e) {
-                cerr << e.what() << endl ;
+                edm::LogError ("writeDb") << e.what() << "\n" ;
               }
 	    }
         } // loop over the crystals
@@ -305,11 +306,11 @@ void EBPedOffset::writeDb ()
   // insert the map of tables in the database
   if ( DBconnection ) {
     try {
-      cout << "Inserting dataset ... " << flush;
+      LogDebug ("writeDb") << "Inserting dataset ... " << flush;
       if ( DBdataset.size() != 0 ) DBconnection->insertDataSet (&DBdataset, &moniov) ;
-      cout << "done." << endl ;
+      LogDebug ("writeDb") << "done." << endl ;
     } catch (runtime_error &e) {
-      cerr << e.what () << endl ;
+      edm::LogError ("writeDb") << e.what () << "\n" ;
     }
   }
 
@@ -388,11 +389,11 @@ void EBPedOffset::writeXMLFile (std::string fileName)
 //! create the plots of the DAC pedestal trend
 void EBPedOffset::makePlots () 
 {
-  std::cout << "[EBPedOffset][makePlots] entering" << std::endl ;
+  LogDebug ("makePlots") << " entering ...\n" ;
 
-  std::cout << "[EBPedOffset][makePlots] map size " 
-            << m_pedValues.size ()
-            << std::endl ;
+  edm::LogInfo ("makePlots") << " map size: " 
+                             << m_pedValues.size ()
+                             << "\n" ;
 
   // create the ROOT file
   TFile * rootFile = new TFile (m_plotting.c_str (),"RECREATE") ;
@@ -413,7 +414,7 @@ void EBPedOffset::makePlots ()
   rootFile->Close () ;
   delete rootFile ;
   
-  std::cout << "[EBPedOffset][makePlots] DONE" << std::endl ;
+  LogDebug ("makePlots") << " DONE\n" ;
 }
 
 
