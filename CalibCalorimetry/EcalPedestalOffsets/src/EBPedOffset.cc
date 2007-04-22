@@ -1,8 +1,8 @@
 /**
  * \file EBPedOffset.cc
  *
- * $Date: 2007/04/22 09:46:41 $
- * $Revision: 1.13 $
+ * $Date: 2007/04/22 09:57:20 $
+ * $Revision: 1.14 $
  * \author P. Govoni (pietro.govoni@cernNOSPAM.ch)
  * Last updated: @DATE@ @AUTHOR@
  *
@@ -364,9 +364,7 @@ void EBPedOffset::writeXMLFile (std::string fileName)
             xml_outfile << "    <HIGH>" << ((smRes->second)->m_DACvalue)[0][xtal] << "</HIGH>\n" ;
             xml_outfile << "    <MED>" << ((smRes->second)->m_DACvalue)[1][xtal] << "</MED>\n" ;
             xml_outfile << "    <LOW>" << ((smRes->second)->m_DACvalue)[2][xtal] << "</LOW>\n" ;
-            xml_outfile << "    <SUPERMODULE>" << "-1" << "</SUPERMODULE>\n" ;
-// FIXME the right version below, waiting for the fix in CMSSW
-//             xml_outfile << "    <SUPERMODULE>" << smRes->first << "</SUPERMODULE>\n" ;
+            xml_outfile << "    <SUPERMODULE> " << smRes->first << " </SUPERMODULE>\n" ;
             xml_outfile << "    <CRYSTAL> "<< xtal+1 << " </CRYSTAL>\n" ;
             xml_outfile << "  </PEDESTAL_OFFSET>" << std::endl ;            
          } // loop over the crystals
