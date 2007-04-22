@@ -1,5 +1,4 @@
 <use name=DataFormats/Common>
-<use name=relax>
 <use name=rootmath>
 <use name=rootrflx>
 <export>
