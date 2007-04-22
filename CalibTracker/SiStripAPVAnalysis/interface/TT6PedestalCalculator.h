@@ -38,7 +38,6 @@ private:
   void refinePedestal (ApvAnalysis::RawSignalType& in);
 
 protected:
-  std::map <unsigned short, std::vector<uint16_t> > theRawSignalEventStrip;
   ApvAnalysis::PedestalType thePedestal;
   ApvAnalysis::PedestalType theRawNoise;
   std::vector<double> thePedSum,thePedSqSum;  
