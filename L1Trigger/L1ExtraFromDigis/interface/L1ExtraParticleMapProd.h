@@ -12,7 +12,7 @@
 //
 // Original Author:  
 //         Created:  Tue Oct 17 00:14:00 EDT 2006
-// $Id: L1ExtraParticleMapProd.h,v 1.3 2007/04/02 08:03:14 wsun Exp $
+// $Id: L1ExtraParticleMapProd.h,v 1.4 2007/04/13 17:50:47 wsun Exp $
 //
 
 // system include files
@@ -52,8 +52,6 @@ class L1ExtraParticleMapProd : public edm::EDProducer {
       void evaluateSingleObjectTrigger(
 	 const std::vector< edm::Ref< TCollection > >& inputRefs, // input
 	 const double& etThreshold,                               // input
-	 int& prescaleCounter,                                    // input
-	 const int& prescale,                                     // input
 	 bool& decision,                                          // output
 	 std::vector< edm::Ref< TCollection > >& outputRefs ) ;   // output
 
@@ -136,7 +134,8 @@ class L1ExtraParticleMapProd : public edm::EDProducer {
 
       double singleThresholds_[ l1extra::L1ParticleMap::kNumOfL1TriggerTypes ];
       int prescales_[ l1extra::L1ParticleMap::kNumOfL1TriggerTypes ] ;
-      int prescaleCounters_[ l1extra::L1ParticleMap::kNumOfL1TriggerTypes ] ;
+      int prescaleCounters_[
+	 l1extra::L1ParticleMap::kNumOfL1TriggerTypes ] ;
       std::pair< double, double >
          doubleThresholds_[ l1extra::L1ParticleMap::kNumOfL1TriggerTypes ] ;
 };
