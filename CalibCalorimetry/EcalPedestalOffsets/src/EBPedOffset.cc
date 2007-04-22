@@ -1,8 +1,8 @@
 /**
  * \file EBPedOffset.cc
  *
- * $Date: 2007/02/08 17:33:55 $
- * $Revision: 1.9 $
+ * $Date: 2007/02/19 10:18:20 $
+ * $Revision: 1.10 $
  * \author P. Govoni (pietro.govoni@cernNOSPAM.ch)
  * Last updated: @DATE@ @AUTHOR@
  *
@@ -366,7 +366,7 @@ void EBPedOffset::writeXMLFile (std::string fileName)
             xml_outfile << "    <HIGH>" << ((smRes->second)->m_DACvalue)[0][xtal] << "</HIGH>\n" ;
             xml_outfile << "    <MED>" << ((smRes->second)->m_DACvalue)[1][xtal] << "</MED>\n" ;
             xml_outfile << "    <LOW>" << ((smRes->second)->m_DACvalue)[2][xtal] << "</LOW>\n" ;
-            xml_outfile << "    <SUPERMODULE> " << m_SMnum << " </SUPERMODULE>\n" ;
+            xml_outfile << "    <SUPERMODULE>" << m_SMnum << "</SUPERMODULE>\n" ;
 // FIXME the right version below, waiting for the fix in CMSSW
 //             xml_outfile << "    <SUPERMODULE> " << smRes->first << " </SUPERMODULE>\n" ;
             xml_outfile << "    <CRYSTAL> "<< xtal+1 << " </CRYSTAL>\n" ;
