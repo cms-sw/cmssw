@@ -1,4 +1,5 @@
 #include "CalibCalorimetry/EcalPedestalOffsets/interface/TPedValues.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <iostream>
 #include "TGraphErrors.h"
@@ -13,13 +14,13 @@ TPedValues::TPedValues (double RMSmax, int bestPedestal) :
   m_bestPedestal (bestPedestal) ,
   m_RMSmax (RMSmax) 
 {
-  std::cout << "[TPedValues][ctor]" << std::endl ;
+  LogDebug ("ctor") << "entering ...\n" ;
 }
 
 
 TPedValues::TPedValues (const TPedValues & orig) 
 {
-  std::cout << "[TPedValues][copyctor]" << std::endl ;
+  LogDebug ("copyctor") << "entering ...\n" ;
   m_bestPedestal = orig.m_bestPedestal ;
   m_RMSmax = orig.m_RMSmax ;
 
@@ -44,24 +45,24 @@ void TPedValues::insert (const int gainId,
 //  assert (gainId < 4) ;
   if (gainId <= 0 || gainId >= 4)
     {
-      std::cerr << "ERROR : gainId " << gainId
-                << " does not exist, entry skipped\n" ;
+      edm::LogWarning ("insert") << "WARNING : gainId " << gainId
+                                 << " does not exist, entry skipped\n" ;
       return ;    
     }
 //  assert (crystal > 0) ;
 //  assert (crystal <= 1700) ;
   if (crystal <= 0 || crystal > 1700)
     {
-      std::cerr << "ERROR : crystal " << crystal
-                << " does not exist, entry skipped\n" ;
+      edm::LogWarning ("insert") << "WARNING : crystal " << crystal
+                                 << " does not exist, entry skipped\n" ;
       return ;    
     }
 //  assert (DAC >= 0) ; 
 //  assert (DAC < 256) ;
   if (DAC < 0 || DAC >= 256)
     {
-      std::cerr << "ERROR : DAC value " << DAC
-                << " is out range, entry skipped\n" ;
+      edm::LogWarning ("insert")  << "WARNING : DAC value " << DAC
+                                  << " is out range, entry skipped\n" ;
       return ;    
     }
   m_entries[gainId-1][crystal-1][DAC].insert (pedestal) ;
