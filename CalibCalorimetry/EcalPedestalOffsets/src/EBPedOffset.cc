@@ -1,8 +1,8 @@
 /**
  * \file EBPedOffset.cc
  *
- * $Date: 2007/04/22 08:59:20 $
- * $Revision: 1.12 $
+ * $Date: 2007/04/22 09:46:41 $
+ * $Revision: 1.13 $
  * \author P. Govoni (pietro.govoni@cernNOSPAM.ch)
  * Last updated: @DATE@ @AUTHOR@
  *
@@ -349,7 +349,7 @@ void EBPedOffset::writeXMLFile (std::string fileName)
   xml_outfile<<"<offsets>"<<std::endl;
   xml_outfile << "<PEDESTAL_OFFSET_RELEASE VERSION_ID = \"SM1_VER1\"> \n" ;
   xml_outfile << "  <RELEASE_ID>RELEASE_1</RELEASE_ID>\n" ;
-  xml_outfile << "  <SUPERMODULE> " << "-1" << " </SUPERMODULE>\n" ;
+  xml_outfile << "  <SUPERMODULE>" << "-1" << "</SUPERMODULE>\n" ;
   xml_outfile << "  <TIME_STAMP> 070705 </TIME_STAMP>" << std::endl ;
 
   // loop over the super-modules
@@ -364,9 +364,9 @@ void EBPedOffset::writeXMLFile (std::string fileName)
             xml_outfile << "    <HIGH>" << ((smRes->second)->m_DACvalue)[0][xtal] << "</HIGH>\n" ;
             xml_outfile << "    <MED>" << ((smRes->second)->m_DACvalue)[1][xtal] << "</MED>\n" ;
             xml_outfile << "    <LOW>" << ((smRes->second)->m_DACvalue)[2][xtal] << "</LOW>\n" ;
-            xml_outfile << "    <SUPERMODULE>" << m_SMnum << "</SUPERMODULE>\n" ;
+            xml_outfile << "    <SUPERMODULE>" << "-1" << "</SUPERMODULE>\n" ;
 // FIXME the right version below, waiting for the fix in CMSSW
-//             xml_outfile << "    <SUPERMODULE> " << smRes->first << " </SUPERMODULE>\n" ;
+//             xml_outfile << "    <SUPERMODULE>" << smRes->first << "</SUPERMODULE>\n" ;
             xml_outfile << "    <CRYSTAL> "<< xtal+1 << " </CRYSTAL>\n" ;
             xml_outfile << "  </PEDESTAL_OFFSET>" << std::endl ;            
          } // loop over the crystals
