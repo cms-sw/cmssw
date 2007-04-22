@@ -40,7 +40,6 @@ namespace edm {
             if(range.first == range.second) {
               //the first match is the one to keep
               std::string libraryName = itInfo->loadable_.leaf();
-std::cout << "INCLUDE " << moduleClass << " " << libraryName << std::endl;
               theLibraryMap.insert(range.first,std::make_pair(moduleClass,libraryName));
             }
           }
