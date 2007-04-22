@@ -60,10 +60,6 @@
 
 //class TransientInitialStateEstimator;
 
-using namespace std;
-using namespace edm;
-using namespace reco;
-
 class EgammaHLTPixelMatchElectronAlgo {
 
 public:
@@ -75,17 +71,17 @@ public:
 
   ~EgammaHLTPixelMatchElectronAlgo();
 
-  void setupES(const EventSetup& setup, const ParameterSet& conf);
+  void setupES(const edm::EventSetup& setup, const edm::ParameterSet& conf);
   //  void run(const Event&, TrackCandidateCollection&, ElectronCollection&);
-  void run(Event&, ElectronCollection&);
+  void run(edm::Event&, reco::ElectronCollection&);
 
  private:
 
   // create electrons from tracks
-  void process(edm::Handle<TrackCollection> tracksH, const SeedSuperClusterAssociationCollection *sclAss, ElectronCollection & outEle);
+  void process(edm::Handle<reco::TrackCollection> tracksH, const reco::SeedSuperClusterAssociationCollection *sclAss, reco::ElectronCollection & outEle);
   
   // temporary to get seed corresponding to track
-  bool equal(edm::Ref<TrajectorySeedCollection> ts, const Track& t);
+  bool equal(edm::Ref<TrajectorySeedCollection> ts, const reco::Track& t);
   bool compareHits(const TrackingRecHit& rh1, const TrackingRecHit & rh2) const ;
 
   // input configuration
@@ -103,8 +99,8 @@ public:
   TrajectoryCleaner*               theTrajectoryCleaner;
   TransientInitialStateEstimator*  theInitialStateEstimator;
   
-  ESHandle<MagneticField>                theMagField;
-  ESHandle<GeometricSearchTracker>       theGeomSearchTracker;
+  edm::ESHandle<MagneticField>                theMagField;
+  edm::ESHandle<GeometricSearchTracker>       theGeomSearchTracker;
 
   const MeasurementTracker*     theMeasurementTracker;
   const NavigationSchool*       theNavigationSchool;
