@@ -14,13 +14,13 @@ TPedValues::TPedValues (double RMSmax, int bestPedestal) :
   m_bestPedestal (bestPedestal) ,
   m_RMSmax (RMSmax) 
 {
-  LogDebug ("ctor") << "entering ...\n" ;
+  LogDebug ("ctor") << "entering ..." ;
 }
 
 
 TPedValues::TPedValues (const TPedValues & orig) 
 {
-  LogDebug ("copyctor") << "entering ...\n" ;
+  LogDebug ("copyctor") << "entering ..." ;
   m_bestPedestal = orig.m_bestPedestal ;
   m_RMSmax = orig.m_RMSmax ;
 
@@ -46,7 +46,7 @@ void TPedValues::insert (const int gainId,
   if (gainId <= 0 || gainId >= 4)
     {
       edm::LogWarning ("insert") << "WARNING : gainId " << gainId
-                                 << " does not exist, entry skipped\n" ;
+                                 << " does not exist, entry skipped" ;
       return ;    
     }
 //  assert (crystal > 0) ;
@@ -54,7 +54,7 @@ void TPedValues::insert (const int gainId,
   if (crystal <= 0 || crystal > 1700)
     {
       edm::LogWarning ("insert") << "WARNING : crystal " << crystal
-                                 << " does not exist, entry skipped\n" ;
+                                 << " does not exist, entry skipped" ;
       return ;    
     }
 //  assert (DAC >= 0) ; 
@@ -62,7 +62,7 @@ void TPedValues::insert (const int gainId,
   if (DAC < 0 || DAC >= 256)
     {
       edm::LogWarning ("insert")  << "WARNING : DAC value " << DAC
-                                  << " is out range, entry skipped\n" ;
+                                  << " is out range, entry skipped" ;
       return ;    
     }
   m_entries[gainId-1][crystal-1][DAC].insert (pedestal) ;

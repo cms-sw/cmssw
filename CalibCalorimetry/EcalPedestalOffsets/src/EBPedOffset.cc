@@ -1,8 +1,8 @@
 /**
  * \file EBPedOffset.cc
  *
- * $Date: 2007/04/22 08:30:02 $
- * $Revision: 1.11 $
+ * $Date: 2007/04/22 08:59:20 $
+ * $Revision: 1.12 $
  * \author P. Govoni (pietro.govoni@cernNOSPAM.ch)
  * Last updated: @DATE@ @AUTHOR@
  *
@@ -74,8 +74,7 @@ EBPedOffset::EBPedOffset (const ParameterSet& paramSet) :
                         << " m_DACmin: " << m_DACmin
                         << " m_DACmax: " << m_DACmax
                         << " m_RMSmax: " << m_RMSmax
-                        << " m_bestPed: " << m_bestPed
-                        << "\n" ;
+                        << " m_bestPed: " << m_bestPed ;
 }
 
 
@@ -102,7 +101,7 @@ EBPedOffset::~EBPedOffset ()
 //! begin the job
 void EBPedOffset::beginJob (EventSetup const& eventSetup)
 {
-   LogDebug ("beginJob") << "entering ...\n" ;
+   LogDebug ("beginJob") << "entering ..." ;
 }
 
 
@@ -113,7 +112,7 @@ void EBPedOffset::beginJob (EventSetup const& eventSetup)
 void EBPedOffset::analyze (Event const& event, 
                            EventSetup const& eventSetup) 
 {
-   LogDebug ("analyze") << "entering ...\n" ;
+   LogDebug ("analyze") << "entering ..." ;
 
    // get the headers
    // (one header for each supermodule)
@@ -122,8 +121,7 @@ void EBPedOffset::analyze (Event const& event,
      event.getByLabel (m_headerProducer, DCCHeaders) ;
    } catch ( std::exception& ex ) {
      edm::LogError ("analyze") << "Error! can't get the product " 
-                               << m_headerProducer.c_str () 
-                               << "\n" ;
+                               << m_headerProducer.c_str () ;
    }
 
    std::map <int,int> DACvalues ;
@@ -189,8 +187,7 @@ void EBPedOffset::endJob ()
         new TPedResult ((smPeds->second)->terminate (m_DACmin, m_DACmax)) ;
     } 
   edm::LogInfo ("endJob") << " results map size " 
-                          << m_pedResult.size ()
-                          << "\n" ;
+                          << m_pedResult.size () ;
   writeXMLFile (m_xmlFile) ;
 
   if (m_plotting != '0') makePlots () ;
@@ -205,7 +202,7 @@ void EBPedOffset::endJob ()
 //!FIXME divide into sub-tasks
 void EBPedOffset::writeDb () 
 {
-  LogDebug ("writeDb") << " entering ...\n" ;
+  LogDebug ("writeDb") << " entering ..." ;
 
   // connect to the database
   EcalCondDBInterface* DBconnection ;
@@ -259,11 +256,11 @@ void EBPedOffset::writeDb ()
       moniov.setSubRunNumber(subrun);
       moniov.setSubRunStart(startSubRun);
       moniov.setMonRunTag(montag);
-      LogDebug ("writeDb") <<" creating a new MonRunIOV\n" ;
+      LogDebug ("writeDb") <<" creating a new MonRunIOV" ;
     }
     else{
-      edm::LogError ("writeDb") << " no MonRunIOV existing in the DB\n" ;
-      edm::LogError ("writeDb") << " the result will not be stored into the DB\n" ;
+      edm::LogError ("writeDb") << " no MonRunIOV existing in the DB" ;
+      edm::LogError ("writeDb") << " the result will not be stored into the DB" ;
       if ( DBconnection ) {delete DBconnection;}
       return;
     }
@@ -297,7 +294,7 @@ void EBPedOffset::writeDb ()
                                                      result->first, xtal+1) ;
                 DBdataset[ecid] = DBtable ;
               } catch (runtime_error &e) {
-                edm::LogError ("writeDb") << e.what() << "\n" ;
+                edm::LogError ("writeDb") << e.what() ;
               }
 	    }
         } // loop over the crystals
@@ -310,7 +307,7 @@ void EBPedOffset::writeDb ()
       if ( DBdataset.size() != 0 ) DBconnection->insertDataSet (&DBdataset, &moniov) ;
       LogDebug ("writeDb") << "done." << endl ;
     } catch (runtime_error &e) {
-      edm::LogError ("writeDb") << e.what () << "\n" ;
+      edm::LogError ("writeDb") << e.what () ;
     }
   }
 
@@ -389,11 +386,10 @@ void EBPedOffset::writeXMLFile (std::string fileName)
 //! create the plots of the DAC pedestal trend
 void EBPedOffset::makePlots () 
 {
-  LogDebug ("makePlots") << " entering ...\n" ;
+  LogDebug ("makePlots") << " entering ..." ;
 
   edm::LogInfo ("makePlots") << " map size: " 
-                             << m_pedValues.size ()
-                             << "\n" ;
+                             << m_pedValues.size () ;
 
   // create the ROOT file
   TFile * rootFile = new TFile (m_plotting.c_str (),"RECREATE") ;
@@ -414,7 +410,7 @@ void EBPedOffset::makePlots ()
   rootFile->Close () ;
   delete rootFile ;
   
-  LogDebug ("makePlots") << " DONE\n" ;
+  LogDebug ("makePlots") << " DONE" ;
 }
 
 
