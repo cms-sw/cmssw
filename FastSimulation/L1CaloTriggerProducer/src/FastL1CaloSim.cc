@@ -13,7 +13,7 @@
 //
 // Original Author:  Chi Nhan Nguyen
 //         Created:  Mon Feb 19 13:25:24 CST 2007
-// $Id: FastL1CaloSim.cc,v 1.1 2007/04/02 13:49:20 beaudett Exp $
+// $Id: FastL1CaloSim.cc,v 1.2 2007/04/18 18:54:51 chinhan Exp $
 //
 //
 
@@ -55,8 +55,11 @@ FastL1CaloSim::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   //edm::LogInfo("FastL1CaloSim::produce()");
 
   m_L1GlobalAlgo->FillL1Regions(iEvent, iSetup);
-  m_L1GlobalAlgo->FillMET(iEvent); // using CaloTowers
-  //m_L1GlobalAlgo->FillMET();     // using Regions
+  //m_L1GlobalAlgo->FillMET(iEvent); // using CaloTowers
+
+  //Test HF!!!
+  m_L1GlobalAlgo->FillMET();     // using Regions
+
   m_L1GlobalAlgo->FillJets(iSetup);
   m_L1GlobalAlgo->FillEgammas(iEvent);
 

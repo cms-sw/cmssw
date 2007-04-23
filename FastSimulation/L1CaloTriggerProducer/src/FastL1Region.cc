@@ -13,7 +13,7 @@
 //
 // Original Author:  Chi Nhan Nguyen
 //         Created:  Mon Feb 19 13:25:24 CST 2007
-// $Id: FastL1Region.cc,v 1.1 2007/04/02 13:49:20 beaudett Exp $
+// $Id: FastL1Region.cc,v 1.2 2007/04/18 18:54:51 chinhan Exp $
 //
 
 #include "FastSimulation/L1CaloTriggerProducer/interface/FastL1Region.h"
@@ -41,6 +41,7 @@ FastL1Region::FastL1Region()
     }
   }
 
+  /*
   BitInfo.eta = -9999.;
   BitInfo.phi = -9999.;
   BitInfo.TauVeto = false;
@@ -48,6 +49,7 @@ FastL1Region::FastL1Region()
   BitInfo.HadTauVeto = false;
   BitInfo.SumEtBelowThres = false;
   BitInfo.IsolationVeto = false;
+  */
 
   // default values
   Config.EMSeedEnThreshold = 2.;
@@ -199,10 +201,12 @@ FastL1Region::FillEMCrystals(const edm::Event& e, const edm::EventSetup& c,FastL
   // After having filled crsystal info set all veto bits
   SetTowerBits();
  
+  // EE FG bits are filled here!!!
+  //e.getByLabel(la[1].first,la[1].second,ec);
+
   if (GetiEta()==4 || GetiEta()==5 ||  GetiEta()==6 ||  
-      GetiEta()==15 || GetiEta()==16 || GetiEta()==17) {
-    // EE FG bits are filled here!!!
-    //e.getByLabel(la[1].first,la[1].second,ec);
+      GetiEta()==15 || GetiEta()==16 || GetiEta()==17 ) {
+    
     e.getByLabel(Config.EmInputs.at(1),ec);
     ethres = Config.CrystalEEThreshold;
     double towerEnergy[16];
@@ -245,6 +249,8 @@ FastL1Region::FillEMCrystals(const edm::Event& e, const edm::EventSetup& c,FastL
       CaloRecHit maxRecHit;
       CaloRecHit maxRecHit2;
       double max2En = 0.;
+ 
+      /*
       for(EcalRecHitCollection::const_iterator ecItr = ec->begin();
 	  ecItr != ec->end(); ++ecItr) {
 	CaloRecHit recHit = (CaloRecHit)(*ecItr);
@@ -264,7 +270,8 @@ FastL1Region::FillEMCrystals(const edm::Event& e, const edm::EventSetup& c,FastL
 	    maxRecHit = recHit;
 	  }	
 	}
-      }  
+      } 
+      */ 
       
       if ((int)e.id().event() == sEvent && (int)e.id().run() == sRun
 	  && Towers[i].eta() > (sEta-dEta) && Towers[i].eta() < (sEta+dEta) && 
@@ -299,11 +306,12 @@ FastL1Region::FillEMCrystals(const edm::Event& e, const edm::EventSetup& c,FastL
 	      std::cout<<"Crystal in same tower found!!!"<< std::endl;  
 	    }
 	  
-	  if ( (!westV.empty() && recHit.detid()==westV[0]) || 
-	       (!eastV.empty() && recHit.detid()==eastV[0]) || 
-	       (!northV.empty() && recHit.detid()==northV[0]) || 
-	       (!southV.empty() && recHit.detid()==southV[0]) 
-	       ) {
+	  if ( 
+	      (!westV.empty() && recHit.detid()==westV[0]) || 
+	      (!eastV.empty() && recHit.detid()==eastV[0]) || 
+	      (!northV.empty() && recHit.detid()==northV[0]) || 
+	      (!southV.empty() && recHit.detid()==southV[0]) 
+	      ) {
 	    //if (maxRecHit2.energy()<recHit.energy()) {
 	    //  maxRecHit2 = recHit;
 	    //}	
@@ -313,7 +321,7 @@ FastL1Region::FillEMCrystals(const edm::Event& e, const edm::EventSetup& c,FastL
 		Towers[i].phi() > (sPhi-dPhi) && Towers[i].phi() < (sPhi+dPhi)
 		&& printIt ) 
 	      {
-		std::cout<<"Neighbour Crystal enrgy added: "<<recHit.energy()<< std::endl;  
+		std::cout<<"Neighbour Crystal energy added: "<<recHit.energy()<< std::endl;  
 	      }
 	    
 	  }
@@ -321,8 +329,8 @@ FastL1Region::FillEMCrystals(const edm::Event& e, const edm::EventSetup& c,FastL
       }  
       
       double eeThres = Config.FGEEThreshold;
-      //double totE = maxRecHit.energy() + max2En;
-      double totE = maxRecHit.energy() + maxRecHit2.energy();
+      double totE = maxRecHit.energy() + max2En;
+      //double totE = maxRecHit.energy() + maxRecHit2.energy();
       if (towerEnergy[i]>(Config.TowerEEThreshold)) {
 	//double totE = maxRecHit.energy() + maxRecHit2.energy();
 	//if (totE/towerEnergy[i]<Config.FGEBThreshold) fgBit[i] = true;    
@@ -348,22 +356,70 @@ FastL1Region::FillEMCrystals(const edm::Event& e, const edm::EventSetup& c,FastL
 
 //
 void
-FastL1Region::FillTower(const CaloTower& t, int& tid) 
+FastL1Region::FillTowerZero(const CaloTower& t, int& tid) 
 {
-  //Towers[tid] = CaloTower(t);
-  Towers[tid] = CaloTower(t.id(),t.momentum(),
-			  TPEnergyRound(t.emEt(),1,0),
-			  TPEnergyRound(t.hadEt(),1,0),
-			  TPEnergyRound(t.outerEt(),1,0)
-			  ,0,0);
+  Towers[tid] = CaloTower(t);
 }
 
+void
+FastL1Region::FillTower(const CaloTower& t, int& tid) 
+{
+  double EThres = 0.;
+  double HThres = 0.;
+  double EBthres = Config.TowerEBThreshold;
+  double HBthres = Config.TowerHBThreshold;
+  double EEthres = Config.TowerEBThreshold;
+  double HEthres = Config.TowerEEThreshold;
+  
+  if(std::abs(t.eta())<2.322) {
+    EThres = EBthres;
+  } else {
+    EThres = EEthres;
+  }
+  if(std::abs(t.eta())<2.322) {
+    HThres = HBthres;
+  } else {
+    HThres = HEthres;
+  }
+
+
+  double emet = TPEnergyRound(emet,1.,EThres);
+  double hadet = TPEnergyRound(hadet,1.,HThres);
+  double eme = TPEnergyRound(eme,1.,EThres);
+  double hade = TPEnergyRound(hade,1.,HThres);
+ 
+  //if ( emet<EThres) emet = 0;
+  //if ( hadet<HThres) hadet = 0;
+  if ( eme<EThres) emet = 0;
+  if ( hade<HThres) hadet = 0;
+ 
+  //Towers[tid] = CaloTower(t);
+  Towers[tid] = CaloTower(t.id(),t.momentum(),emet,hadet,t.outerEt(),0,0);
+}
 
 
 //
 void
 FastL1Region::FillTower_Scaled(const CaloTower& t, int& tid) 
 {
+  double EThres = 0.;
+  double HThres = 0.;
+  double EBthres = Config.TowerEBThreshold;
+  double HBthres = Config.TowerHBThreshold;
+  double EEthres = Config.TowerEBThreshold;
+  double HEthres = Config.TowerEEThreshold;
+  
+  if(std::abs(t.eta())<2.322) {
+    EThres = EBthres;
+  } else {
+    EThres = EEthres;
+  }
+  if(std::abs(t.eta())<2.322) {
+    HThres = HBthres;
+  } else {
+    HThres = HEthres;
+  }
+
   double emScale = 1.0;
   double hadScale = 1.0;
   //double outerScale = 1.0;
@@ -377,17 +433,24 @@ FastL1Region::FillTower_Scaled(const CaloTower& t, int& tid)
     emScale = Config.TowerEBScale;
   }
 
-  //Towers[tid] = CaloTower(t.id(),t.momentum(),emScale * t.emEt(),hadScale * t.hadEt(),t.outerEt(),0,0);
-
   double emet = emScale * t.emEt();
   double hadet = hadScale * t.hadEt();
-  Towers[tid] = CaloTower(t.id(),t.momentum(),
-			  TPEnergyRound(emet,1,0),
-			  TPEnergyRound(hadet,1,0),
-			  TPEnergyRound(t.outerEt(),1,0)
-			  ,0,0);
+  double eme = emScale * t.emEnergy();
+  double hade = hadScale * t.hadEnergy();
 
-
+  emet = TPEnergyRound(emet,1.,EThres);
+  hadet = TPEnergyRound(hadet,1.,HThres);
+  eme = TPEnergyRound(eme,1.,EThres);
+  hade = TPEnergyRound(hade,1.,HThres);
+ 
+  //if ( emet<EThres) emet = 0;
+  //if ( hadet<HThres) hadet = 0;
+  if ( eme<EThres) emet = 0;
+  if ( hade<HThres) hadet = 0;
+ 
+  //Towers[tid] = CaloTower(t);
+  Towers[tid] = CaloTower(t.id(),t.momentum(),emet,hadet,t.outerEt(),0,0);
+  
 }
 
 void 
@@ -636,6 +699,7 @@ FastL1Region::SetTauBit(edm::Event const& iEvent)
     unsigned etaPattern = emEtaPat | hadEtaPat;
     unsigned phiPattern = emPhiPat | hadPhiPat;
 
+    /*
     //  em pattern
     if(emEtaPat == *i || emPhiPat == *i) {
       BitInfo.EmTauVeto = true;
@@ -644,12 +708,13 @@ FastL1Region::SetTauBit(edm::Event const& iEvent)
     if(hadEtaPat == *i || hadPhiPat == *i) {
       BitInfo.HadTauVeto = true;
     }
+    */
 
     if(etaPattern == *i || phiPattern == *i) // combined pattern
       //if(emEtaPat == *i || emPhiPat == *i || hadEtaPat == *i || hadPhiPat == *i)
       {
 	tauBit = true;
-	BitInfo.TauVeto = true;
+	//BitInfo.TauVeto = true;
 
 	/*
 	std::cout<<"************************ tauveto fired!!! *****************************************"<<std::endl;
@@ -715,7 +780,7 @@ FastL1Region::CalcSumEt()
 {
   double sumet=0;
   for (int i=0; i<16; i++) {
-
+    /*
     double EThres = 0.;
     double HThres = 0.;
     double EBthres = Config.TowerEBThreshold;
@@ -739,6 +804,10 @@ FastL1Region::CalcSumEt()
       sumet += Towers[i].emEt();
     if ( Towers[i].hadEt() >= HThres )
       sumet += Towers[i].hadEt();
+    */
+
+    sumet += Towers[i].emEt();
+    sumet += Towers[i].hadEt();
   }
 
   return sumet;
@@ -749,6 +818,7 @@ FastL1Region::CalcSumE()
 {
   double sume=0;
   for (int i=0; i<16; i++) {
+    /*
     double EThres = 0.;
     double HThres = 0.;
     double EBthres = Config.TowerEBThreshold;
@@ -772,6 +842,10 @@ FastL1Region::CalcSumE()
       sume += Towers[i].emEnergy();
     if ( Towers[i].hadEt() >= HThres )
       sume += Towers[i].hadEnergy();
+    */
+
+    sume += Towers[i].emEnergy();
+    sume += Towers[i].hadEnergy();
 
   }
   return sume;
@@ -889,9 +963,12 @@ FastL1Region::GetSEId()
 
 // Rounding the Et info for simulating the regional Et resolution
 double 
-TPEnergyRound(double et, int Resol = 2, int OffSet = 0) {
-  int ret = ((int)et / Resol) * Resol + OffSet;
+TPEnergyRound(double et, double Resol = 1., double thres = 1.) {
+  double ret = (int)(et / Resol) * Resol;
+  //if (et>=thres) ret += Resol;
 
-  return (double)ret;
+  return ret;
 }
+
+
 

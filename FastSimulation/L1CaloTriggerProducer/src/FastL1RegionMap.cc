@@ -13,7 +13,7 @@
 //
 // Original Author:  Chi Nhan Nguyen
 //         Created:  Mon Feb 19 13:25:24 CST 2007
-// $Id: FastL1RegionMap.cc,v 1.2 2007/04/10 09:17:44 beaudett Exp $
+// $Id: FastL1RegionMap.cc,v 1.3 2007/04/18 18:54:51 chinhan Exp $
 //
 
 
@@ -99,6 +99,38 @@ FastL1RegionMap::getRegionEtaPhiIndex(std::pair<int, int> EtaPhi)
     }
   }
 
+  // Test HF!!!
+  if (abs(iTwrEta)>=29 && abs(iTwrEta)<=41) {
+    iphi = ((iTwrPhi + 1) / 4) % 18;
+
+    if (iTwrEta >= 29 && iTwrEta <= 32) {
+      ieta = 18;
+    } 
+    if (iTwrEta >= 33 && iTwrEta <= 35) {
+      ieta = 19;
+    } 
+    if (iTwrEta >= 36 && iTwrEta <= 38) {
+      ieta = 20;
+    } 
+    if (iTwrEta >= 39 && iTwrEta <= 41) {
+      ieta = 21;
+    } 
+
+    if (iTwrEta <= -29 && iTwrEta >= -32) {
+      ieta = 3;
+    } 
+    if (iTwrEta <= -33 && iTwrEta >= -35) {
+      ieta = 2;
+    } 
+    if (iTwrEta <= -36 && iTwrEta >= -38) {
+      ieta = 1;
+    } 
+    if (iTwrEta <= -39 && iTwrEta >= -41) {
+      ieta = 0;
+    } 
+
+  }
+
   return std::pair<int, int>(ieta, iphi);
 }
 
@@ -116,7 +148,9 @@ FastL1RegionMap::getRegionTowerIndex(std::pair<int, int> EtaPhi)
   // Right now: only barrel/encap part!!!
   int isub = 999; // 0-15 4x4 region matrix 
 
-  if (abs(iTwrEta)<=28) {
+  //if (abs(iTwrEta)<=28) {
+  // Test HF!!!
+  if (abs(iTwrEta)<=41) {
     if (iTwrEta > 0) {
       isub = 4*(3 - (iTwrPhi + 1) %4) + ((iTwrEta  - 1)  % 4) ;
     } else {
@@ -136,7 +170,6 @@ FastL1RegionMap::getRegionTowerIndex(int iEta, int iPhi)
 std::pair<int, int>
 FastL1RegionMap::getRegionEtaPhiIndex(int regionId)
 {
-  // Right now: only barrel/encap part!!!
   int ieta = regionId%22;  
   int iphi = regionId/22;
 
