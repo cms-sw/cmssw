@@ -75,7 +75,7 @@ pair<reco::JetTag,reco::TauMassTagInfo> InvariantMassAlgorithm::tag(edm::Event& 
                                          track_matching_cone,inv_mass_cut); 
   }
   const JetTracksAssociationRef& jtaRef = tauRef->jtaRef();
-  JetTag resultBase(discriminator,jtaRef);
+  JetTag resultBase(discriminator);
 
   return pair<JetTag,TauMassTagInfo> (resultBase,resultExtended); 
 }

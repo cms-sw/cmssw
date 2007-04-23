@@ -13,7 +13,7 @@
 //
 // Original Author:  Suchandra Dutta
 //      Created:  Thu Oct 19 09:02:32 CEST 2006
-// $Id: InvariantMass.cc,v 1.3 2007/03/10 11:37:52 dutta Exp $
+// $Id: InvariantMass.cc,v 1.4 2007/04/23 14:52:35 gennai Exp $
 //
 //
 
@@ -125,7 +125,7 @@ InvariantMass::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    int ic=0;
    for (reco::JetTagCollection::iterator im = baseCollection->begin(); 
                im != baseCollection->end(); im++) {
-     im->setTagInfo(RefToBase<BaseTagInfo>(TauMassTagInfoRef(myTagInfo,cc)));
+     im->setTagInfo(RefToBase<BaseTagInfo>(TauMassTagInfoRef(myTagInfo,ic)));
      ic++;
    }
 
