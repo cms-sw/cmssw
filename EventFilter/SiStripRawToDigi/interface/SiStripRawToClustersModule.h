@@ -1,4 +1,4 @@
-// Last commit: $Id: $
+// Last commit: $Id: SiStripRawToClustersModule.h,v 1.4 2007/03/21 16:38:13 bainbrid Exp $
 
 #ifndef EventFilter_SiStripRawToDigi_interface_SiStripRawToClustersModule_H
 #define EventFilter_SiStripRawToDigi_interface_SiStripRawToClustersModule_H
@@ -55,12 +55,6 @@ class SiStripRawToClustersModule : public edm::EDProducer {
   int16_t dumpFrequency_;
   int16_t triggerFedId_;
   bool useFedKey_;
-
-  //Clusters container
-  std::vector< edm::DetSet<SiStripCluster> > clusters_;
-
-  //Fed9UEvent cache
-  std::vector< Fed9U::Fed9UEvent* > fedEvents_;
 
 };
 

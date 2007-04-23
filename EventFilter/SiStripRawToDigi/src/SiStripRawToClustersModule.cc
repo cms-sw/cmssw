@@ -1,4 +1,4 @@
-// Last commit: $Id: $
+// Last commit: $Id: SiStripRawToClustersModule.cc,v 1.7 2007/03/21 16:38:14 bainbrid Exp $
 
 #include "EventFilter/SiStripRawToDigi/interface/SiStripRawToClustersModule.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
@@ -34,9 +34,7 @@ SiStripRawToClustersModule::SiStripRawToClustersModule( const edm::ParameterSet&
   headerBytes_(conf.getUntrackedParameter<int>("AppendedBytes",0)),
   dumpFrequency_(conf.getUntrackedParameter<int>("FedBufferDumpFreq",0)),
   triggerFedId_(conf.getUntrackedParameter<int>("TriggerFedId",0)),
-  useFedKey_(conf.getUntrackedParameter<bool>("UseFedKey",false)),
-  clusters_(),
-  fedEvents_()
+  useFedKey_(conf.getUntrackedParameter<bool>("UseFedKey",false))
   
 {
 
@@ -57,7 +55,7 @@ SiStripRawToClustersModule::SiStripRawToClustersModule( const edm::ParameterSet&
   //Prepare event
 
   //produces< SiStripEventSummary >();
-  produces< edm::DetSetVector<SiStripCluster> > (); 
+  produces< std::vector< edm::DetSet<SiStripCluster> > > (); 
 }
 
 // -----------------------------------------------------------------------------
@@ -86,17 +84,11 @@ void SiStripRawToClustersModule::beginJob( const edm::EventSetup& setup) {
     << "]";
   
   //Configure clusterizer factory
-    clusterizer_->eventSetup(setup);
-
+  clusterizer_->eventSetup(setup);
+  
   //Fill cabling
   setup.get<SiStripFedCablingRcd>().get(fedCabling_);
   detCabling_ = new SiStripDetCabling(*fedCabling_.product());
-  
-  //reserve clusters container
-  clusters_.reserve(detCabling_->getDetCabling().size());
-  
-  //Prepare Fed9UEvent cache
-  fedEvents_.assign(1024,static_cast<Fed9U::Fed9UEvent*>(0));
 }
 
 // -----------------------------------------------------------------------------
@@ -119,11 +111,18 @@ void SiStripRawToClustersModule::produce( edm::Event& event,
     << event.id().run() << "/"
     << event.id().event();
   */
-
+ 
   // Retrieve FED raw data (by label, which is "source" by default)
   edm::Handle<FEDRawDataCollection> buffers;
   event.getByLabel( productLabel_, productInstance_, buffers ); 
-  
+ 
+  //Fed9UEvent cache
+  std::vector< Fed9U::Fed9UEvent* > fedEvents(1024,static_cast<Fed9U::Fed9UEvent*>(0));
+
+  //Clusters container
+  std::auto_ptr< std::vector< edm::DetSet<SiStripCluster> > > clusters(new std::vector< edm::DetSet<SiStripCluster> >());
+  clusters->reserve(detCabling_->getDetCabling().size());
+ 
   /*
   // Check if FEDs found in cabling map and event data
   if ( !fedCabling_->feds().empty() ) {
@@ -160,28 +159,28 @@ void SiStripRawToClustersModule::produce( edm::Event& event,
   //Iterate through det-ids
     std::map< uint32_t, std::vector<FedChannelConnection> >::const_iterator idet = detCabling_->getDetCabling().begin();
     for (; idet != detCabling_->getDetCabling().end(); idet++) {
-
-      //If key is null continue;
-      if ( !(idet->first) ) { continue; }
-    
+ 
+      //If key is null or invalid continue;
+      if ( !(idet->first) || (idet->first == sistrip::invalid_) ) { continue; }
+   
       //Calculate "fed-index" or "det-id" for DetSet id. ??
       uint32_t index = idet->first;//(idet->second[0].fedId() * 96) + idet->second[0].fedCh();
-
+    
       //Add new DetSet to collection 
-      edm::DetSet<SiStripCluster>& zs = *clusters_.insert(clusters_.end(),edm::DetSet<SiStripCluster>(index));
-      zs.data.reserve(768); 
-
-      //Loop over apv-std::pairs of det (ipair)
+      clusters->push_back(edm::DetSet<SiStripCluster>(index));
+      edm::DetSet<SiStripCluster>& zs = clusters->back();
+      zs.data.reserve(100); //Larger values can fill memory.
+      
+      //Loop over apv-pairs of det (ipair)
       for (uint16_t ipair = 0; ipair < idet->second.size(); ipair++) {
 	
 	//Get FedChannelConnection
 	const FedChannelConnection& conn = idet->second[ipair];
-	
 	uint16_t fedId = conn.fedId();
-	
+
 	//If Fed hasnt already been initialised, extract data and initialise
-	if (!fedEvents_[fedId]) {
-	  
+	if (!fedEvents[fedId]) {
+	
 	  // Retrieve FED raw data for given FED 
 	  const FEDRawData& input = buffers->FEDData( static_cast<int>(fedId) );
 	  /*
@@ -212,13 +211,13 @@ void SiStripRawToClustersModule::produce( edm::Event& event,
 
 	  // Construct Fed9UEvent using present FED buffer
 	  try {
-	    fedEvents_[fedId] = new Fed9U::Fed9UEvent(data_u32,0,size_u32);
+	    fedEvents[fedId] = new Fed9U::Fed9UEvent(data_u32,0,size_u32);
 	  } catch(...) { rawToDigi_->handleException( __func__, "Problem when constructing Fed9UEvent" ); }
-
+	
 	  /*
 	  //Check Fed9UEvent
 	  try {
-	  //fedEvents_[fedId]->checkEvent(); 
+	  //fedEvents[fedId]->checkEvent(); 
 	  } catch(...) { rawToDigi_->handleException( __func__, "Problem when checking Fed9UEventStreamLine" ); }
 	  */
 	  
@@ -226,7 +225,7 @@ void SiStripRawToClustersModule::produce( edm::Event& event,
 	  // Retrieve readout mode
 	  sistrip::FedReadoutMode mode = sistrip::UNDEFINED_FED_READOUT_MODE;
 	  try {
-	  mode = rawToDigi_->fedReadoutMode( static_cast<unsigned int>( fedEvents_[fedId]->getSpecialTrackerEventType() ) );
+	  mode = rawToDigi_->fedReadoutMode( static_cast<unsigned int>( fedEvents[fedId]->getSpecialTrackerEventType() ) );
 	  } catch(...) { rawToDigi_->handleException( __func__, "Problem extracting readout mode from Fed9UEvent" ); } 
 	  
 	  if ( mode != sistrip::ZERO_SUPPR ) { 
@@ -246,7 +245,7 @@ void SiStripRawToClustersModule::produce( edm::Event& event,
 	  LogTrace(mlRawToDigi_) << ss.str();
 	  }
 	  */
-	  
+
 	}
 	
 	//Calculate corresponding FED unit, channel
@@ -268,7 +267,7 @@ void SiStripRawToClustersModule::produce( edm::Event& event,
 	
 	try{ 
 	  
-	  Fed9U::Fed9UEventIterator fed_iter = const_cast<Fed9U::Fed9UEventChannel&>(fedEvents_[fedId]->channel( iunit, ichan )).getIterator();
+	  Fed9U::Fed9UEventIterator fed_iter = const_cast<Fed9U::Fed9UEventChannel&>(fedEvents[fedId]->channel( iunit, ichan )).getIterator();
 	  
 	  for (Fed9U::Fed9UEventIterator i = fed_iter+7; i.size() > 0;) {
 	    uint16_t strip = ipair*256 + *i++;
@@ -287,24 +286,15 @@ void SiStripRawToClustersModule::produce( edm::Event& event,
       }
       clusterizer_->algorithm()->endDet(zs);
     }
-  
-  std::auto_ptr< edm::DetSetVector<SiStripCluster> > dsvclusters( new edm::DetSetVector<SiStripCluster>(clusters_) );
-
-  // Write output to file
-  //event.put(summary);
-  event.put(dsvclusters);
-  
-  //reset fedEvents_ cache
-  std::vector< Fed9U::Fed9UEvent*>::iterator ifedevent = fedEvents_.begin();
-  for (; ifedevent!=fedEvents_.end(); ifedevent++) {
-    if (*ifedevent) {
-      delete (*ifedevent);
-      *ifedevent=0;
+    
+    //delete fedEvents cache
+    for (uint32_t ifedevent = 0;ifedevent<fedEvents.size();ifedevent++) {
+      if (fedEvents[ifedevent]) delete fedEvents[ifedevent];
     }
-  }
-
-  //reset clusters container
-  clusters_.clear();
+    
+    // Write output to file
+    //event.put(summary);
+    event.put(clusters);
 }
-  
+
 
