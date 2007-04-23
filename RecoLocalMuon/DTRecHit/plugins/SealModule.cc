@@ -2,7 +2,7 @@
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "RecoLocalMuon/DTRecHit/src/DTRecHitProducer.h"
+#include "RecoLocalMuon/DTRecHit/plugins/DTRecHitProducer.h"
 #include "RecoLocalMuon/DTRecHit/interface/DTRecHitAlgoFactory.h"
 #include "RecoLocalMuon/DTRecHit/plugins/DTNoDriftAlgo.h"
 #include "RecoLocalMuon/DTRecHit/plugins/DTLinearDriftAlgo.h"
