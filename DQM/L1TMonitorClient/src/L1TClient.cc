@@ -2,14 +2,14 @@
  *
  *  Implementation of  L1TClient
  *
- *  $Date: 2007/04/19 07:29:23 $
+ *  $Date: 2007/04/23 15:29:45 $
  *  $Revision: 1.1 $
  *  \author Lorenzo Agostino
  */
 
 
 
-#include "DQM/L1TMonitor/interface/L1TClient.h"
+#include "DQM/L1TMonitorClient/interface/L1TClient.h"
 
 #include "DQMServices/ClientConfig/interface/SubscriptionHandle.h"
 #include "DQMServices/ClientConfig/interface/QTestHandle.h"

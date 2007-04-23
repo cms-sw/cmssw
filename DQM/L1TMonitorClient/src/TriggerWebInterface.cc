@@ -1,4 +1,4 @@
-#include "DQM/L1TMonitor/interface/TriggerWebInterface.h"
+#include "DQM/L1TMonitorClient/interface/TriggerWebInterface.h"
 
 #include "DQMServices/WebComponents/interface/Button.h"
 #include "DQMServices/WebComponents/interface/CgiWriter.h"
@@ -9,7 +9,7 @@
 #include "DQMServices/WebComponents/interface/GifDisplay.h"
 #include "DQMServices/WebComponents/interface/HTMLLink.h"
 #include "DQMServices/WebComponents/interface/WebPage.h"
-#include "DQM/L1TMonitor/interface/DisplaySystemME.h"
+#include "DQM/L1TMonitorClient/interface/DisplaySystemME.h"
 /*
   Create your widgets in the constructor of your web interface
 */
