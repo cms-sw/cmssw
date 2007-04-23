@@ -38,6 +38,9 @@
 #include <TObject.h>
 #include <map>
 
+#include "DataFormats/Provenance/interface/Timestamp.h"
+
+
 // ------------------ dqm event message ----------------
 
 namespace DQMEvent
@@ -53,6 +56,7 @@ struct DQMEventHeader
   char_uint32 headerSize_;
   char_uint32 runNumber_;
   char_uint32 eventNumber_;
+  char_uint64 timeStamp_;
   char_uint32 lumiSection_;
   char_uint32 updateNumber_;
   char_uint32 compressionFlag_;
@@ -79,6 +83,8 @@ class DQMEventMsgView
   uint32 updateNumber() const;
   uint32 compressionFlag() const;
   uint32 reserved() const;
+
+  edm::Timestamp timeStamp() const;
 
   std::string releaseTag() const { return releaseTag_; }
   std::string topFolderName() const { return folderName_; }

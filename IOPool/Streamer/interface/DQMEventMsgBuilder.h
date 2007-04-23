@@ -36,12 +36,15 @@
 #include "IOPool/Streamer/interface/MsgHeader.h"
 #include "IOPool/Streamer/interface/DQMEventMessage.h"
 
+#include "DataFormats/Provenance/interface/Timestamp.h"
+
 // ------------------ dqm event message builder ----------------
 
 class DQMEventMsgBuilder
 {
  public:
   DQMEventMsgBuilder(void* buf, uint32 bufSize, uint32 run, uint32 event,
+		     edm::Timestamp timeStamp,
                      uint32 lumiSection, uint32 updateNumber,
                      std::string const& releaseTag,
                      std::string const& topFolderName,

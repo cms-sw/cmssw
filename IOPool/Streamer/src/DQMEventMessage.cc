@@ -243,3 +243,11 @@ uint32 DQMEventMsgView::reserved() const
   DQMEventHeader* h = (DQMEventHeader*)buf_;
   return convert32(h->reserved_);
 }
+
+//uint64 DQMEventMsgView::timeStamp() const
+edm::Timestamp DQMEventMsgView::timeStamp() const
+{
+  DQMEventHeader* h = (DQMEventHeader*)buf_;
+  return edm::Timestamp(convert64(h->timeStamp_));
+}
+
