@@ -1,7 +1,6 @@
 <use name=DataFormats/Provenance>
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
-<use name=FWCore/ServiceRegistry>
 <use name=boost>
 <use name=rootrflx>
 <flags EDM_PLUGIN=1>
