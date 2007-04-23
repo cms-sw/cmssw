@@ -1,8 +1,8 @@
 /**
  * \file testChannel.cc
  *
- * $Date: 2007/04/22 09:16:28 $
- * $Revision: 1.4 $
+ * $Date: 2007/04/22 09:46:41 $
+ * $Revision: 1.5 $
  * \author P. Govoni (pietro.govoni@cernNOSPAM.ch)
  *
 */
@@ -36,11 +36,11 @@ testChannel::testChannel (const ParameterSet& paramSet) :
   m_singlePedVSDAC_2 ("singlePedVSDAC_2","pedVSDAC (g2) for xtal "+m_xtal,100,150,250,m_DACmax-m_DACmin,m_DACmin,m_DACmax) ,
   m_singlePedVSDAC_3 ("singlePedVSDAC_3","pedVSDAC (g3) for xtal "+m_xtal,100,150,250,m_DACmax-m_DACmin,m_DACmin,m_DACmax)
 {
-  edm::LogInfo ("ctor") << " reading "
-                        << " m_DACmin: " << m_DACmin
-                        << " m_DACmax: " << m_DACmax
-                        << " m_RMSmax: " << m_RMSmax
-                        << " m_bestPed: " << m_bestPed ;
+  edm::LogInfo ("testChannel") << " reading "
+                               << " m_DACmin: " << m_DACmin
+                               << " m_DACmax: " << m_DACmax
+                               << " m_RMSmax: " << m_RMSmax
+                               << " m_bestPed: " << m_bestPed ;
 }
 
 
@@ -53,7 +53,7 @@ testChannel::~testChannel ()
 //! begin the job
 void testChannel::beginJob (EventSetup const& eventSetup)
 {
-   LogDebug ("beginJob") << "entering ..." ;
+   LogDebug ("testChannel") << "entering beginJob ..." ;
 }
 
 
@@ -61,7 +61,7 @@ void testChannel::beginJob (EventSetup const& eventSetup)
 void testChannel::analyze (Event const& event, 
                            EventSetup const& eventSetup) 
 {
-   LogDebug ("analyze") << "entering ..." ;
+   LogDebug ("testChannel") << "entering analyze ..." ;
 
    // get the headers
    // (one header for each supermodule)
@@ -69,8 +69,8 @@ void testChannel::analyze (Event const& event,
    try {
      event.getByLabel (m_headerProducer, DCCHeaders) ;
    } catch ( std::exception& ex ) {
-     edm::LogError ("analyze") << "Error! can't get the product " 
-                               << m_headerProducer.c_str () ;
+     edm::LogError ("testChannel") << "Error! can't get the product " 
+                                   << m_headerProducer.c_str () ;
    }
 
    std::map <int,int> DACvalues ;
@@ -93,8 +93,8 @@ void testChannel::analyze (Event const& event,
      event.getByLabel (m_digiProducer, pDigis) ;
    } catch ( std::exception& ex ) 
    {
-     edm::LogError ("analyze") << "Error! can't get the product " 
-                               << m_digiCollection.c_str () ;
+     edm::LogError ("testChannel") << "Error! can't get the product " 
+                                   << m_digiCollection.c_str () ;
    }
    
    // loop over the digis
@@ -106,15 +106,15 @@ void testChannel::analyze (Event const& event,
        int crystalId = EBDetId(itdigi->id ()).ic () ;
        int smId = EBDetId(itdigi->id ()).ism () ;
 
-       edm::LogInfo ("analyze") << "channel " << event.id ()  
-                                << "\tcry: " << crystalId 
-                                << "\tG: " << gainId 
-                                << "\tDAC: " << DACvalues[smId] ;
+       edm::LogInfo ("testChannel") << "channel " << event.id ()  
+                                    << "\tcry: " << crystalId 
+                                    << "\tG: " << gainId 
+                                    << "\tDAC: " << DACvalues[smId] ;
 
        // loop over the samples
        for (int iSample = 0; iSample < EBDataFrame::MAXSAMPLES ; ++iSample) 
          {
-            edm::LogInfo ("analyze") << "\t`-->" << itdigi->sample (iSample).adc () ;
+            edm::LogInfo ("testChannel") << "\t`-->" << itdigi->sample (iSample).adc () ;
             m_pedVSDAC.Fill (itdigi->sample (iSample).adc (),DACvalues[smId]) ;
             if (crystalId == m_xtal)
               { 

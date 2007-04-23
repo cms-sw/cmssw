@@ -1,8 +1,8 @@
 /**
  * \file EBPedOffset.cc
  *
- * $Date: 2007/04/22 10:45:42 $
- * $Revision: 1.15 $
+ * $Date: 2007/04/22 16:00:50 $
+ * $Revision: 1.16 $
  * \author P. Govoni (pietro.govoni@cernNOSPAM.ch)
  * Last updated: @DATE@ @AUTHOR@
  *
@@ -70,11 +70,11 @@ EBPedOffset::EBPedOffset (const ParameterSet& paramSet) :
   m_run (paramSet.getParameter<int> ("run")) ,
   m_plotting (paramSet.getParameter<std::string> ("plotting"))    
 {
-  edm::LogInfo ("ctor") << " reading "
-                        << " m_DACmin: " << m_DACmin
-                        << " m_DACmax: " << m_DACmax
-                        << " m_RMSmax: " << m_RMSmax
-                        << " m_bestPed: " << m_bestPed ;
+  edm::LogInfo ("EBPedOffset") << " reading "
+                               << " m_DACmin: " << m_DACmin
+                               << " m_DACmax: " << m_DACmax
+                               << " m_RMSmax: " << m_RMSmax
+                               << " m_bestPed: " << m_bestPed ;
 }
 
 
@@ -101,7 +101,7 @@ EBPedOffset::~EBPedOffset ()
 //! begin the job
 void EBPedOffset::beginJob (EventSetup const& eventSetup)
 {
-   LogDebug ("beginJob") << "entering ..." ;
+   LogDebug ("EBPedOffset") << "entering beginJob..." ;
 }
 
 
@@ -112,7 +112,7 @@ void EBPedOffset::beginJob (EventSetup const& eventSetup)
 void EBPedOffset::analyze (Event const& event, 
                            EventSetup const& eventSetup) 
 {
-   LogDebug ("analyze") << "entering ..." ;
+   LogDebug ("EBPedOffset") << "entering analyze ..." ;
 
    // get the headers
    // (one header for each supermodule)
@@ -120,8 +120,8 @@ void EBPedOffset::analyze (Event const& event,
    try {
      event.getByLabel (m_headerProducer, DCCHeaders) ;
    } catch ( std::exception& ex ) {
-     edm::LogError ("analyze") << "Error! can't get the product " 
-                               << m_headerProducer.c_str () ;
+     edm::LogError ("EBPedOffset") << "Error! can't get the product " 
+                                  << m_headerProducer.c_str () ;
    }
 
    std::map <int,int> DACvalues ;
@@ -144,9 +144,8 @@ void EBPedOffset::analyze (Event const& event,
      event.getByLabel (m_digiProducer, pDigis) ;
    } catch ( std::exception& ex ) 
    {
-     edm::LogError ("analyze") << "Error! can't get the product " 
-                               << m_digiCollection.c_str () 
-                               << std::endl ;
+     edm::LogError ("EBPedOffset") << "Error! can't get the product " 
+                                   << m_digiCollection.c_str () ; 
    }
    
    // loop over the digis
@@ -186,8 +185,8 @@ void EBPedOffset::endJob ()
       m_pedResult[smPeds->first] = 
         new TPedResult ((smPeds->second)->terminate (m_DACmin, m_DACmax)) ;
     } 
-  edm::LogInfo ("endJob") << " results map size " 
-                          << m_pedResult.size () ;
+  edm::LogInfo ("EBPedOffset") << " results map size " 
+                               << m_pedResult.size () ;
   writeXMLFile (m_xmlFile) ;
 
   if (m_plotting != '0') makePlots () ;
@@ -202,7 +201,7 @@ void EBPedOffset::endJob ()
 //!FIXME divide into sub-tasks
 void EBPedOffset::writeDb () 
 {
-  LogDebug ("writeDb") << " entering ..." ;
+  LogDebug ("EBPedOffset") << " entering writeDb ..." ;
 
   // connect to the database
   EcalCondDBInterface* DBconnection ;
@@ -210,7 +209,7 @@ void EBPedOffset::writeDb ()
     DBconnection = new EcalCondDBInterface (m_dbHostName, m_dbName, 
                                             m_dbUserName, m_dbPassword, m_dbHostPort) ; 
   } catch (runtime_error &e) {
-    edm::LogError ("writeDb") << e.what() << endl ;
+    edm::LogError ("EBPedOffset") << e.what() ;
     return ;
   }
 
@@ -256,11 +255,11 @@ void EBPedOffset::writeDb ()
       moniov.setSubRunNumber(subrun);
       moniov.setSubRunStart(startSubRun);
       moniov.setMonRunTag(montag);
-      LogDebug ("writeDb") <<" creating a new MonRunIOV" ;
+      LogDebug ("EBPedOffset") <<" creating a new MonRunIOV" ;
     }
     else{
-      edm::LogError ("writeDb") << " no MonRunIOV existing in the DB" ;
-      edm::LogError ("writeDb") << " the result will not be stored into the DB" ;
+      edm::LogError ("EBPedOffset") << " no MonRunIOV existing in the DB" ;
+      edm::LogError ("EBPedOffset") << " the result will not be stored into the DB" ;
       if ( DBconnection ) {delete DBconnection;}
       return;
     }
@@ -294,7 +293,7 @@ void EBPedOffset::writeDb ()
                                                      result->first, xtal+1) ;
                 DBdataset[ecid] = DBtable ;
               } catch (runtime_error &e) {
-                edm::LogError ("writeDb") << e.what() ;
+                edm::LogError ("EBPedOffset") << e.what() ;
               }
 	    }
         } // loop over the crystals
@@ -303,11 +302,11 @@ void EBPedOffset::writeDb ()
   // insert the map of tables in the database
   if ( DBconnection ) {
     try {
-      LogDebug ("writeDb") << "Inserting dataset ... " << flush;
+      LogDebug ("EBPedOffset") << "Inserting dataset ... " << flush;
       if ( DBdataset.size() != 0 ) DBconnection->insertDataSet (&DBdataset, &moniov) ;
-      LogDebug ("writeDb") << "done." << endl ;
+      LogDebug ("EBPedOffset") << "done." ;
     } catch (runtime_error &e) {
-      edm::LogError ("writeDb") << e.what () ;
+      edm::LogError ("EBPedOffset") << e.what () ;
     }
   }
 
@@ -384,10 +383,10 @@ void EBPedOffset::writeXMLFile (std::string fileName)
 //! create the plots of the DAC pedestal trend
 void EBPedOffset::makePlots () 
 {
-  LogDebug ("makePlots") << " entering ..." ;
+  LogDebug ("EBPedOffset") << " entering makePlots ..." ;
 
-  edm::LogInfo ("makePlots") << " map size: " 
-                             << m_pedValues.size () ;
+  edm::LogInfo ("EBPedOffset") << " map size: " 
+                               << m_pedValues.size () ;
 
   // create the ROOT file
   TFile * rootFile = new TFile (m_plotting.c_str (),"RECREATE") ;
@@ -407,8 +406,8 @@ void EBPedOffset::makePlots ()
 
   rootFile->Close () ;
   delete rootFile ;
-  
-  LogDebug ("makePlots") << " DONE" ;
+ 
+  LogDebug ("EBPedOffset") << " DONE" ; 
 }
 
 
