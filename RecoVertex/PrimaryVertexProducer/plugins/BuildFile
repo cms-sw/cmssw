@@ -2,7 +2,7 @@
 <use name=FWCore/PluginManager>
 <use name=FWCore/ParameterSet>
 <use name=clhep>
-<use name=RecoVertexPrimary/VertexProducer>
+<use name=RecoVertex/PrimaryVertexProducer>
 <library file="*.cc" name=RecoVertexPrimaryVertexProducerPlugins>
       <flags EDM_PLUGIN=1>
 </library>
