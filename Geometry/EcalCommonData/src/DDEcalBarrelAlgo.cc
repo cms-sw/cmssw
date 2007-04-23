@@ -1,3 +1,4 @@
+
 //////////////////////////////////////////////////////////////////////////////
 // File: DDEcalBarrelAlgo.cc
 // Description: Geometry factory class for Ecal Barrel
@@ -728,7 +729,7 @@ void DDEcalBarrelAlgo::execute()
 				   spmCutName(), 
 				   1.05*(vecSpmRMax()[indx] - vecSpmRMin()[indx])/2.,  
 				   spmCutThick()/2.,
-				   fabs( vecSpmZPts().back() - vecSpmZPts().front() )/2.) ) ;
+				   fabs( vecSpmZPts().back() - vecSpmZPts().front() )/2.+1*mm) ) ;
       const std::vector<double>& cutBoxParms ( spmCutBox.parameters() ) ;
       const DDLogicalPart spmCutLog ( spmCutName(), spmMat(), spmCutBox ) ;
 
@@ -783,7 +784,7 @@ void DDEcalBarrelAlgo::execute()
 	    RoZ3D( 1==icopy ? spmLowPhi() : spmLowPhi()+spmDelPhi() )*
 	    Tl3D( ( vecSpmRMax()[indx]+vecSpmRMin()[indx])/2.,
 		  0,
-		  vecSpmZPts().front()+cutBoxParms[2])*
+		  (vecSpmZPts().front()+ vecSpmZPts().back())/2.)*
 	    tr*ro) ;
 
 	 const DDRotation    ddrot ( myrot(spmCutName().name() + 
@@ -1472,7 +1473,7 @@ void DDEcalBarrelAlgo::execute()
 	    ( trapClr.h() + 2*sWrap - fWrap*sindelta )/2, // h2,  h/2
 	    ( trapClr.L() + fWrap + rWrap )/2., // dz,  L/2
 	    alfWrap,                       //double aAngleAD            , // alfa1
-	    aNom - ANom ,                  //double aCoord15X           , // x15
+	    aNom - ANom - (cryType>9 ? 0 : 0.020*mm) ,
 	    hNom - HNom                    //double aCoord15Y             // y15  
 	 ) ;
 
@@ -1493,7 +1494,7 @@ void DDEcalBarrelAlgo::execute()
 	    ( trapWrap.h() + 2*sWall - fWall*sindelta )/2,  // h/2
 	    ( trapWrap.L() + fWall + rWall )/2.,  // L/2
 	    alfWall,                             // alfa1
-	    aNom - ANom ,                        // x15
+	    aNom - ANom - (cryType<10? 0.150*mm : 0.100*mm ) ,       
 	    hNom - HNom                          // y15
 	 ) ;
 
@@ -1581,7 +1582,8 @@ void DDEcalBarrelAlgo::execute()
 
 
 	 // Now for placement of clr within wall
-	 const Vec3 wrapToWall ( 0, 0, ( rWall - fWall )/2 ) ;
+	 const Vec3 wrapToWall1 ( 0, 0, ( rWall - fWall )/2 ) ;
+	 const Vec3 wrapToWall ( Vec3( (cryType>9?0:0.005*mm),0,0 )+wrapToWall1 ) ;
 
 	 DDpos( wrapLog,
 		wallLog, 
@@ -1616,11 +1618,11 @@ void DDEcalBarrelAlgo::execute()
 	 for( unsigned int etaAlv ( 1 ) ; etaAlv <= nCryPerAlvEta() ; ++etaAlv )
 	 {
 	    LogDebug("EcalGeom") << "theta=" << theta/deg
-				 << ", sidePrime=" << sidePrime << ", frontPrime=" << frontPrime
-				 << ",  zeta="<<zeta<<", delta="<<delta<<",  zee=" << zee ;
+		      << ", sidePrime=" << sidePrime << ", frontPrime=" << frontPrime
+		      << ",  zeta="<<zeta<<", delta="<<delta<<",  zee=" << zee;
 
-	    zee += side*cos(zeta)/sin(theta) + 
-	       ( trapWall.h() - sidePrime )/sin(theta) ;
+	    zee += 0.075*mm +
+	       ( side*cos(zeta) + trapWall.h() - sidePrime )/sin(theta) ;
 
 	    LogDebug("EcalGeom") << "New zee="<< zee ;
 
@@ -1645,9 +1647,12 @@ void DDEcalBarrelAlgo::execute()
 						0,
 						0            ) ) ;
 
-	    const Tf3D tForm ( trap1,  trap2,  trap3,
-			       wedge1, wedge2, wedge3    ) ;
+	    const Tf3D tForm1 ( trap1,  trap2,  trap3,
+				wedge1, wedge2, wedge3    ) ;
 
+	    const double xx ( 0.050*mm ) ;
+
+	    const Tf3D tForm ( HepTranslate3D(xx,0,0)*tForm1 ) ;
 
 	    DDpos( wallLog,
 		   hawRLog, 
