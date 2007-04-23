@@ -1,6 +1,6 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "SimMuon/CSCDigitizer/src/CSCStripElectronicsSim.h"
+#include "SimMuon/CSCDigitizer/src/CSCStripAmpResponse.h"
 
 #include <iostream>
 #include <cmath>
