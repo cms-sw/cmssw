@@ -22,7 +22,7 @@
 typedef ObjectSelector<
           SortCollectionSelector<
             reco::CandidateCollection,
-            PtInverseComparator<reco::Candidate>
+            GreaterByPt<reco::Candidate>
           >
         > LargestPtCandSelector;
 

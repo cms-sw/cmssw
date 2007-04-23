@@ -8,21 +8,53 @@
  *
  * \version $Revision: 1.1 $
  *
- * $Id: PtComparator.h,v 1.1 2006/07/25 09:02:56 llista Exp $
+ * $Id: EtComparator.h,v 1.1 2006/09/27 14:14:02 llista Exp $
  *
  */
 
 template<typename T>
-struct EtComparator {
+struct LessByEt {
+  typedef T first_argument_type;
+  typedef T second_argument_type;
   bool operator()( const T & t1, const T & t2 ) const {
     return t1.et() < t2.et();
   }
 };
 
 template<typename T>
-struct EtInverseComparator {
+struct GreaterByEt {
+  typedef T first_argument_type;
+  typedef T second_argument_type;
   bool operator()( const T & t1, const T & t2 ) const {
     return t1.et() > t2.et();
+  }
+};
+
+
+#include<limits>
+#include <cmath>
+
+template <class T>
+struct NumericSafeLessByEt {
+  typedef T first_argument_type;
+  typedef T second_argument_type;
+  bool operator()(const T& a1, const T& a2) {
+    return
+      fabs (a1.et()-a2.et()) > std::numeric_limits<double>::epsilon() ? a1.et() < a2.et() :
+      fabs (a1.px()-a2.px()) > std::numeric_limits<double>::epsilon() ? a1.px() < a2.px() :
+      a1.pz() < a2.pz();
+  }
+};
+
+template <class T>
+struct NumericSafeGreaterByEt {
+  typedef T first_argument_type;
+  typedef T second_argument_type;
+  bool operator()(const T& a1, const T& a2) {
+    return
+      fabs (a1.et()-a2.et()) > std::numeric_limits<double>::epsilon() ? a1.et() > a2.et() :
+      fabs (a1.px()-a2.px()) > std::numeric_limits<double>::epsilon() ? a1.px() > a2.px() :
+      a1.pz() > a2.pz();
   }
 };
 
