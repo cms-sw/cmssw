@@ -50,7 +50,8 @@ class SiStripMonitorTrack : public edm::EDAnalyzer {
  private:
   //booking
   void book();
-  void bookModMEs(TString);
+  void bookModMEs(TString, uint32_t);
+  void bookTrendMEs(TString);
   MonitorElement * bookME1D(const char*, const char*);
   MonitorElement * bookME2D(const char*, const char*);
   MonitorElement * bookME3D(const char*, const char*);
@@ -61,10 +62,11 @@ class SiStripMonitorTrack : public edm::EDAnalyzer {
   void trackStudy();
   bool clusterInfos(const SiStripClusterInfo* cluster, const uint32_t& detid,TString flag, float angle = 0);	
   const SiStripClusterInfo* MatchClusterInfo(const SiStripCluster* cluster, const uint32_t& detid);	
-  std::pair<std::string,uint32_t> GetSubDetAndLayer(const uint32_t& detid);
+  std::pair<std::string,int32_t> GetSubDetAndLayer(const uint32_t& detid);
   std::vector<std::pair<const TrackingRecHit*,float> > SeparateHits( reco::TrackInfoRef & trackinforef );
   // fill monitorables 
-  void fillModMEs(const SiStripClusterInfo*,TString,bool);
+  void fillModMEs(const SiStripClusterInfo*,TString);
+  void fillTrendMEs(const SiStripClusterInfo*,TString);
   void fillTrend(MonitorElement* ME,float value1);
   inline void fillME(MonitorElement* ME,float value1){if (ME!=0)ME->Fill(value1);}
   inline void fillME(MonitorElement* ME,float value1,float value2){if (ME!=0)ME->Fill(value1,value2);}
@@ -128,7 +130,7 @@ class SiStripMonitorTrack : public edm::EDAnalyzer {
   edm::InputTag Cluster_src_;
   std::vector<uint32_t> ModulesToBeExcluded_;
   std::vector<const SiStripCluster*> vPSiStripCluster;
-  std::map<std::pair<std::string,uint32_t>,bool> DetectedLayers;
+  std::map<std::pair<std::string,int32_t>,bool> DetectedLayers;
 
   bool tracksCollection_in_EventTree;
   int runNb, eventNb;
