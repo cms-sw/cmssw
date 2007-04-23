@@ -18,7 +18,7 @@
  * - DQMServices/NodeROOT/src/SenderBase.cc
  * - DQMServices/NodeROOT/src/ReceiverBase.cc
  *
- * $Id: FUShmDQMOutputService.cc,v 1.1 2007/04/01 05:18:54 hcheung Exp $
+ * $Id: FUShmDQMOutputService.cc,v 1.2 2007/04/06 01:11:19 hcheung Exp $
  */
 
 #include "EventFilter/Modules/interface/FUShmDQMOutputService.h"
@@ -186,7 +186,7 @@ void FUShmDQMOutputService::postEventProcessing(const edm::Event &event,
   double updateRatio = ((double) lsDelta) / lumiSectionsPerUpdate_;
   if (updateRatio < 1.0) {return;}
 
-  // calculate the update ID and lumi ID for this update
+  // CAlculate the update ID and lumi ID for this update
   int fullLsDelta = (int) (thisLumiSection - firstLumiSectionSeen_);
   double fullUpdateRatio = ((double) fullLsDelta) / lumiSectionsPerUpdate_;
   // this is the update number starting from zero
@@ -252,6 +252,7 @@ void FUShmDQMOutputService::postEventProcessing(const edm::Event &event,
     // create the message
     DQMEventMsgBuilder dqmMsgBuilder(&messageBuffer_[0], messageBuffer_.size(),
                                      event.id().run(), event.id().event(),
+				     event.time(),
                                      lumiSectionTag, updateNumber,
                                      edm::getReleaseVersion(), dirName,
                                      toTable);
