@@ -30,6 +30,9 @@ public:
 
   CSCAnalogSignal getCrosstalk(const CSCAnalogSignal & inputSignal) const;
 
+  /// analyzes the ratio between two signals. 
+  float ratio(const CSCAnalogSignal & crosstalkSignal, const CSCAnalogSignal & signal) const;
+
 private:
   float theCrosstalk;
   float theDelay;
