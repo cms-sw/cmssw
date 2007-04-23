@@ -16,7 +16,6 @@
 <use name=clhep>
 <use name=MagneticField/Records>
 <use name=MagneticField/Engine>
-<flags EDM_PLUGIN=1>
 <export>
    <lib name=SimTrackerSiPixelDigitizer>
    <use name=FWCore/Framework>
