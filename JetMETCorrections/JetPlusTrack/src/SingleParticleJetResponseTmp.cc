@@ -1,5 +1,5 @@
 #include "JetMETCorrections/JetPlusTrack/interface/SingleParticleJetResponseTmp.h"
-
+#include <iostream>
 using namespace std;
 
 SingleParticleJetResponseTmp::SingleParticleJetResponseTmp() {}
@@ -14,6 +14,10 @@ vector<double> SingleParticleJetResponseTmp::response(double echar, double energ
   double e_thHC_hint;
   double e_thHC1_mip;
   double e_thHC2_mip;
+  
+  double e_thEC1;
+  double e_thEC2;
+  double e_thHC1;
 
   // parameters for Ecal responces with interaction in Ecal
   double PAR1_EC_hint;
@@ -34,7 +38,21 @@ vector<double> SingleParticleJetResponseTmp::response(double echar, double energ
   double PAR4_HC_mip;
   double PAR5_HC_mip;
 
-  if (algo == 0) 
+//===>  
+  // parameters for Ecal responces with (without) interaction in Ecal
+  double PAR1_EC;
+  double PAR2_EC;
+  double PAR3_EC;
+  double PAR4_EC;
+
+  // parameters for Hcal responces with (without) interaction in Ecal
+  double PAR1_HC;
+  double PAR2_HC;
+  double PAR3_HC;
+  double PAR4_HC;
+//===>
+
+  if (algo == 0) // e/pi  
     {
       if(energycluster>0.5) 
 	{
@@ -110,7 +128,7 @@ vector<double> SingleParticleJetResponseTmp::response(double echar, double energ
 	    } // hcal response, MIP
 	  
 	} // interact or not
-    }
+    } // algo = 1
   
   else if (algo == 2) // cmsim133
     {
@@ -186,7 +204,7 @@ vector<double> SingleParticleJetResponseTmp::response(double echar, double energ
 	    } // hcal response, MIP
       
 	} // interact or not
-    }
+    } // algo = 2
 
   else if (algo == 3) // OSCAR_3_6_0
     {
@@ -263,8 +281,107 @@ vector<double> SingleParticleJetResponseTmp::response(double echar, double energ
 //	  std::cout<<" Non-Interacted in ECAL Ecal resp / Hcal resp "<<recal<<" "<<rhcal<<std::endl;
 	  
 	} // interact or not
-    }
-  
+    } // algo = 3
+    
+//=> algo = 4, CMSSW_130_pre3
+
+  else if (algo == 4) // CMSSW_130_pre3 (with Ecal Zero Suppression)
+    {
+      // threshold on energy of track
+      
+      e_thHC1_mip = 35.;
+      
+      // parameters for Ecal responses with interaction in Ecal
+      PAR1_EC_hint = 22.976;
+      PAR2_EC_hint = 55.913;
+      
+      // parameters for Hcal responses with interaction in Ecal
+      PAR1_HC_hint = 0.20229E-01;
+      PAR2_HC_hint = 0.30293;
+      
+      // parameters for Hcal responses without interaction in Ecal (MIP)
+      PAR1_HC_mip  = 0.52371E-01;
+      PAR2_HC_mip  = 0.66230;
+      PAR3_HC_mip  = 0.96957;
+      
+      if(energycluster>0.7) 
+	{
+	  double fecal_hint = PAR1_EC_hint / (sqrt(echar) + PAR2_EC_hint);
+	  recal = echar*fecal_hint;
+	  
+	  double fhcal_hint = PAR1_HC_hint * sqrt(echar) + PAR2_HC_hint;
+	  rhcal=echar*fhcal_hint;
+	} // ecal, hcal responses, interact=1;
+	
+        // MIP, interact=0 
+      else 
+	{
+	  recal=energycluster;
+	  if(echar <= e_thHC1_mip) 
+	    {
+	      double fhcal_mip = PAR1_HC_mip * sqrt(echar) + PAR2_HC_mip;
+	      rhcal=echar*fhcal_mip;
+	    }  
+	  else 
+	    {
+	      rhcal=echar*PAR3_HC_mip;
+	    } // hcal response, MIP
+	  
+	} // interact or not
+    } // algo = 4
+          
+  else if (algo == 5) // CMSSW_130_pre3 (without Ecal Zero Suppression)
+                      // without MIP definition
+    {
+      // threshold on energy of track
+      
+      e_thEC1 = 3.;
+      e_thEC2 = 15.;
+      e_thHC1 = 18.;
+      
+      // parameters for Ecal responses with (without) interaction in Ecal
+      PAR1_EC = 0.12560;
+      PAR2_EC = 2.0539;
+      PAR3_EC = 5.1346;
+      PAR4_EC = 0.22829;
+      
+      // parameters for Hcal responses with (without) interaction in Ecal
+      PAR1_HC = 0.15370;
+      PAR2_HC = 0.79737;
+      PAR3_HC = 0.69524E-01;
+      PAR4_HC = 5.2839;
+
+// Ecal responses
+          if(echar <= e_thEC1) 
+	    {
+	      double fecal = PAR1_EC * echar;
+	      recal=echar*fecal;
+	    } 
+	   else if (echar > e_thEC1 && echar <= e_thEC2) 
+	    {
+	      double fecal = PAR2_EC / (sqrt(echar) + PAR3_EC);
+	      recal=echar*fecal;
+	    } 
+	   else 
+	    {
+	      recal=echar*PAR4_EC;
+	    } // ecal response
+            
+//Hcal responses
+	  if(echar <= e_thHC1) 
+	    {
+	      double fhcal = PAR1_HC * (log(echar) + PAR2_HC);
+	      rhcal=echar*fhcal;
+	    }  
+	  else 
+	    {
+	      double fhcal = PAR3_HC * (log(echar) + PAR4_HC);
+	      rhcal=echar*fhcal;
+	    } // hcal response
+	  
+
+    } // algo = 5
+  cout<<"Algo = "<<algo<<" Ecal response= "<<recal <<" Hcal response= "<<rhcal<<" Energy of track= "<<echar<<endl;            
   response.push_back(recal);
   response.push_back(rhcal);
   return response;
