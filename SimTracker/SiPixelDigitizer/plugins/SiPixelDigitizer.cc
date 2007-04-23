@@ -13,7 +13,7 @@
 //
 // Original Author:  Michele Pioppi-INFN perugia
 //         Created:  Mon Sep 26 11:08:32 CEST 2005
-// $Id: SiPixelDigitizer.cc,v 1.25 2007/03/07 16:53:06 wmtan Exp $
+// $Id: SiPixelDigitizer.cc,v 1.26 2007/03/09 08:12:40 dkotlins Exp $
 //
 //
 
