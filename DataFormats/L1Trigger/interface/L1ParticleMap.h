@@ -12,8 +12,11 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Fri Jul 14 19:46:30 EDT 2006
-// $Id: L1ParticleMap.h,v 1.14 2007/04/16 21:15:46 wsun Exp $
+// $Id: L1ParticleMap.h,v 1.15 2007/04/22 22:35:47 wsun Exp $
 // $Log: L1ParticleMap.h,v $
+// Revision 1.15  2007/04/22 22:35:47  wsun
+// Updated L1 trigger table yet again.
+//
 // Revision 1.14  2007/04/16 21:15:46  wsun
 // Tweaks to trigger table for 131HLT.
 //
@@ -96,6 +99,7 @@ namespace l1extra {
 	 enum L1TriggerType
 	 {
 	    kSingleMu3,
+	    kSingleMu7,
 	    kSingleMu10,
 	    kSingleMu14,
 	    kSingleMu20,
@@ -139,14 +143,14 @@ namespace l1extra {
 	    kDoubleJet100,
 	    kDoubleTauJet20,
 	    kDoubleTauJet30,
-	    kDoubleTauJet40,
+	    kMu3_IsoEG5,
 	    kMu3_IsoEG15,
 	    kMu3_EG20,
 	    kMu3_Jet15,
 	    kMu3_Jet100,
 	    kMu10_Jet20,
-	    kMu3_TauJet20,
-	    kMu3_TauJet30,
+	    kMu7_TauJet20,
+	    kMu7_TauJet30,
 	    kIsoEG10_EG10,
 	    kIsoEG10_Jet15,
 	    kIsoEG15_Jet20,
@@ -156,8 +160,7 @@ namespace l1extra {
 	    kEG10_Jet15,
 	    kEG20_Jet20,
 	    kEG20_Jet100,
-	    kEG10_TauJet20,
-	    kEG10_TauJet30,
+	    kEG20_TauJet40,
 	    kJet100_TauJet40,
 	    kMu3_HTT300,
 	    kIsoEG15_HTT300,

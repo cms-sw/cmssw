@@ -8,7 +8,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Wed Jul 26 14:42:56 EDT 2006
-// $Id: L1ParticleMap.cc,v 1.11 2007/04/16 21:15:47 wsun Exp $
+// $Id: L1ParticleMap.cc,v 1.12 2007/04/22 22:35:48 wsun Exp $
 //
 
 // system include files
@@ -31,6 +31,7 @@ using namespace l1extra ;
 std::string
 L1ParticleMap::triggerNames_[ kNumOfL1TriggerTypes ] = {
    "A_SingleMu3",
+   "A_SingleMu7",
    "A_SingleMu10",
    "A_SingleMu14",
    "A_SingleMu20",
@@ -74,14 +75,14 @@ L1ParticleMap::triggerNames_[ kNumOfL1TriggerTypes ] = {
    "A_DoubleJet100",
    "A_DoubleTauJet20",
    "A_DoubleTauJet30",
-   "A_DoubleTauJet40",
+   "A_Mu3_IsoEG5",
    "A_Mu3_IsoEG15",
    "A_Mu3_EG20",
    "A_Mu3_Jet15",
    "A_Mu3_Jet100",
    "A_Mu10_Jet20",
-   "A_Mu3_TauJet20",
-   "A_Mu3_TauJet30",
+   "A_Mu7_TauJet20",
+   "A_Mu7_TauJet30",
    "A_IsoEG10_EG10",
    "A_IsoEG10_Jet15",
    "A_IsoEG15_Jet20",
@@ -91,8 +92,7 @@ L1ParticleMap::triggerNames_[ kNumOfL1TriggerTypes ] = {
    "A_EG10_Jet15",
    "A_EG20_Jet20",
    "A_EG20_Jet100",
-   "A_EG10_TauJet20",
-   "A_EG10_TauJet30",
+   "A_EG20_TauJet40",
    "A_Jet100_TauJet40",
    "A_Mu3_HTT300",
    "A_IsoEG15_HTT300",
