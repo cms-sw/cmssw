@@ -12,8 +12,8 @@
 #include <DataFormats/FEDRawData/interface/FEDTrailer.h>
 #include <DataFormats/FEDRawData/interface/FEDNumbering.h>
 
-#include "DataFormats/Provenance/interface/EventID.h"
-#include <DataFormats/Provenance/interface/Timestamp.h>
+#include <DataFormats/Common/interface/EventID.h>
+#include <DataFormats/Common/interface/Timestamp.h>
 #include <DataFormats/FEDRawData/interface/FEDRawData.h>
 #include <DataFormats/FEDRawData/interface/FEDRawDataCollection.h>
 
@@ -52,7 +52,7 @@ bool DTROS25FileReader::fillRawData(EventID& eID,
   data = new FEDRawDataCollection();
 
   vector<uint32_t> eventData;
-  size_t estimatedEventDimension = 1024; // dimensione hardcoded
+  size_t estimatedEventDimension = 102400; // dimensione hardcoded
   eventData.reserve(estimatedEventDimension); 
   uint32_t word = 0;
   
@@ -86,7 +86,7 @@ bool DTROS25FileReader::fillRawData(EventID& eID,
     // next event reading will start with meaningless trailer+header from DTLocalDAQ
     // those will be skipped automatically when seeking for the ROS25 header
 
-    if (eventData.size() > estimatedEventDimension) throw 2;
+    //if (eventData.size() > estimatedEventDimension) throw 2;
     
     // Setting the Event ID
     eID = EventID( runNumber, eventNumber);
