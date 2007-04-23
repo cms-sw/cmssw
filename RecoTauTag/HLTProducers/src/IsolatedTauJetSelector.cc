@@ -59,7 +59,7 @@ void IsolatedTauJetsSelector::produce(edm::Event& iEvent, const edm::EventSetup&
       float discriminator = i->discriminator(jetDir, matching_cone, signal_cone, isolation_cone, pt_min_leadTrack, pt_min_isolation,  n_tracks_isolation_ring,dZ_vertex); 
       allExtendedCollection->push_back(*(i)); //to  be used in HLT Analyzers ...
       if(discriminator > 0) {
-	JetTag pippoTag(discriminator,jetTracks);
+	JetTag pippoTag(discriminator);
 	baseCollectionTmp->push_back(pippoTag);
 	const CaloJet* pippo = dynamic_cast<const CaloJet*>(&(i->jet()));
 	jetCollectionTmp->push_back(*pippo );
@@ -87,7 +87,7 @@ void IsolatedTauJetsSelector::produce(edm::Event& iEvent, const edm::EventSetup&
 	if(deltaZLeadTrackVertex <dZ_vertex)
 	  {
 	    JetTracksAssociationRef     jetTracks = myIsolJet->jtaRef();
-	    JetTag myTag(1.,jetTracks);
+	    JetTag myTag(1.);
 	    taggedJets++;
 	    myCollection->push_back(myTag);
 	    const CaloJet* pippo = dynamic_cast<const CaloJet*>(&(myIsolJet->jet()));
@@ -112,9 +112,21 @@ void IsolatedTauJetsSelector::produce(edm::Event& iEvent, const edm::EventSetup&
 
 
  auto_ptr<reco::CaloJetCollection> selectedTaus(jetCollection);
- auto_ptr<reco::JetTagCollection> resultBase(baseCollection);
  auto_ptr<reco::IsolatedTauTagInfoCollection> extColl(allExtendedCollection);
+  edm::OrphanHandle <reco::IsolatedTauTagInfoCollection >  myTagInfo =  iEvent.put(extColl);
+
+  int cc=0;
+  reco::JetTagCollection::iterator myInfo = baseCollection->begin();   
+   for(;myInfo!=baseCollection->end();myInfo++)
+     {
+       myInfo->setTagInfo(RefToBase<BaseTagInfo>(IsolatedTauTagInfoRef(myTagInfo,cc))); 
+       cc++;
+     }
+
+   auto_ptr<reco::JetTagCollection> resultBase(baseCollection);
+ iEvent.put(resultBase);
+
   iEvent.put(selectedTaus);
-  iEvent.put(resultBase);
-  iEvent.put(extColl);
+
+
 }

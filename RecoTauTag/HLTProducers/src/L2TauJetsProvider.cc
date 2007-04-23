@@ -5,6 +5,7 @@
 // class decleration
 //
 using namespace reco;
+using namespace std;
 using namespace edm;
 using namespace l1extra;
 
