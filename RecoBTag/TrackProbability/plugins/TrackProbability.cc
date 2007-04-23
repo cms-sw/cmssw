@@ -189,20 +189,21 @@ TrackProbability::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       extCollection->push_back(result.second);    
    
    }
-  
-    std::auto_ptr<reco::JetTagCollection> resultBase(baseCollection);
-    edm::OrphanHandle <reco::JetTagCollection > jetTagHandle =  iEvent.put(resultBase); //, outputInstanceName_ );
-    reco::TrackProbabilityTagInfoCollection::iterator it_ext =extCollection->begin();
+
+    std::auto_ptr<reco::TrackProbabilityTagInfoCollection> resultExt(extCollection);
+    edm::OrphanHandle <reco::TrackProbabilityTagInfoCollection > tagInfoHandle =  iEvent.put(resultExt);
+
+    reco::JetTagCollection::iterator it_jt =baseCollection->begin();
     int cc=0;
-    for(;it_ext!=extCollection->end();it_ext++)
+    for(;it_jt!=baseCollection->end();it_jt++)
       {
-        it_ext->setJetTag(JetTagRef(jetTagHandle,cc));
+        it_jt->setTagInfo(RefToBase<BaseTagInfo>(TrackProbabilityTagInfoRef(tagInfoHandle,cc)));
         cc++;
       }
+
+    std::auto_ptr<reco::JetTagCollection> resultBase(baseCollection);
+    iEvent.put(resultBase);
   
-   std::auto_ptr<reco::TrackProbabilityTagInfoCollection> resultExt(extCollection);
-   iEvent.put(resultExt);
-   
    if(!pvFound) delete pv; //dummy pv deleted
 }
 

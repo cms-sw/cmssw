@@ -120,8 +120,8 @@ if(jetTracks.product()->numberOfAssociations(jetTracks->key)!=0) //if there are 
      trackOrder2D.push_back((*it).second);
     }
 
-TrackProbabilityTagInfo resultExtended(probability2D,probability3D,trackOrder2D,trackOrder3D);
-JetTag resultBase(resultExtended.discriminator(m_ipType,m_cutMinProb),jetTracks);
+TrackProbabilityTagInfo resultExtended(probability2D,probability3D,trackOrder2D,trackOrder3D,jetTracks);
+JetTag resultBase(resultExtended.discriminator(m_ipType,m_cutMinProb));
 return pair<JetTag,TrackProbabilityTagInfo> (resultBase,resultExtended); 
 }
 
