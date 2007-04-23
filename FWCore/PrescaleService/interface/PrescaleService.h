@@ -1,19 +1,19 @@
 // -*- C++ -*-
 //
-// Package:     Services
-// Class  :     PrescaleServices
+// Package:     PrescaleService
+// Class  :     PrescaleService
 //
 // Implementation:
 //     Cache and make prescale factors available online.
 //
-// Current revision: $Revision: 1.3 $
-// On branch: $Name:  $
-// Latest change by $Author: youngman $ at $Date: 2007/04/18 15:18:26 $
+// Current revision: $Revision: 1.1 $
+// On branch: $Name: V00-00-00 $
+// Latest change by $Author: wmtan $ at $Date: 2007/04/23 23:45:42 $
 //
 
 
-#ifndef Services_PrescaleService_h
-#define Services_PrescaleService_h
+#ifndef FWCore_PrescaleService_PrescaleService_h
+#define FWCore_PrescaleService_PrescaleService_h
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
