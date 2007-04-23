@@ -79,7 +79,7 @@ PixelCPETemplateReco::localPosition(const SiPixelCluster& cluster, const GeomDet
 {
   setTheDet( det );
   
-  int ierr;   //!< return status
+  //int ierr;   //!< return status
   int ID = 2; //!< picks the third entry from the template store, namely 401
   bool fpix;  //!< barrel(false) or forward(true)
   if ( thePart == GeomDetEnumerators::PixelBarrel )   
@@ -207,21 +207,23 @@ PixelCPETemplateReco::localPosition(const SiPixelCluster& cluster, const GeomDet
   if (ierr != 0) 
     {
       printf("reconstruction failed with error %d \n", ierr);
-      // &&&  throw an exception?
+      
+      // Gavril: what do we do in this case ? For now, just return the cluster center of gravity in microns
+      double lorentz_drift = 60.0;
+      templXrec_ = cluster.x() / micronsToCm - lorentz_drift; // very rough Lorentz drift correction
+      templYrec_ = cluster.y() / micronsToCm;
     }
-  else 
-    {
-      // go from micrometer to centimeter      
-      templXrec_ *= micronsToCm;
-      templYrec_ *= micronsToCm;;
-
-      // go back to the module coordinate system 
-      templXrec_ += lp.x();
-      templYrec_ += lp.y();
-    
-      template_lp = LocalPoint( templXrec_, templYrec_ );      
-    }
-
+      
+  // go from micrometer to centimeter      
+  templXrec_ *= micronsToCm;
+  templYrec_ *= micronsToCm;
+  
+  // go back to the module coordinate system 
+  templXrec_ += lp.x();
+  templYrec_ += lp.y();
+  
+  template_lp = LocalPoint( templXrec_, templYrec_ );      
+  
   return template_lp;
 
 }
@@ -248,15 +250,21 @@ PixelCPETemplateReco::localError( const SiPixelCluster& cluster,
   bool edgex = ( theTopol->isItEdgePixelInX( minPixelRow ) || theTopol->isItEdgePixelInX( maxPixelRow ) );
   bool edgey = ( theTopol->isItEdgePixelInY( minPixelCol ) || theTopol->isItEdgePixelInY( maxPixelCol ) );
   
-
   if ( edgex && edgey ) 
     {
       //--- Both axes on the edge, no point in calling PixelErrorParameterization,
       //--- just return the max errors on both.
-      // &&& Do we ever see this message in the log files?
+      // &&& Do we ever see this message in the log files? Yes we do
       cout << "PixelCPETemplateReco::localError: edge hit, returning sqrt(12)." 
 	   << endl;
    
+      return LocalError(xerr*xerr, 0, yerr*yerr); // Gavril : is this error OK ? large enough ? 
+    }
+  else if ( ierr != 0 )
+    {
+      // template reconstruction failed; return 10 times thePitchX / sqrt(12.0)
+      xerr = 10.0 * xerr;
+      yerr = 10.0 * yerr;
       return LocalError(xerr*xerr, 0, yerr*yerr);
     }
   else 
