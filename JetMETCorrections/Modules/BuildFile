@@ -2,6 +2,7 @@
 <use name=FWCore/ParameterSet>
 <use name=CondCore/PluginSystem>
 <use name=DataFormats/Common>
+<use name=clhep>
 <use name=DataFormats/JetReco>
 <use name=JetMETCorrections/Objects>
 <use name=JetMETCorrections/MCJet>

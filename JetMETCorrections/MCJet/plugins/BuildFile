@@ -2,6 +2,6 @@
 <use name=FWCore/ParameterSet>
 <use name=root>
 <use name=JetMETCorrections/MCJet>
-<library file="*.cc" name=JetMETCorrectionsMCJet>
+<library file="*.cc" name=JetMETCorrectionsMCJetPlugins>
       <flags EDM_PLUGIN=1>
 </library>
