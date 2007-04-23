@@ -1,4 +1,4 @@
-// Last commit: $Id: $
+// Last commit: $Id: SiStripRawToDigiUnpacker.h,v 1.14 2007/03/21 16:38:13 bainbrid Exp $
 
 #ifndef EventFilter_SiStripRawToDigi_SiStripRawToDigiUnpacker_H
 #define EventFilter_SiStripRawToDigi_SiStripRawToDigiUnpacker_H
@@ -26,6 +26,9 @@ class SiStripFedCabling;
 */
 class SiStripRawToDigiUnpacker {
   
+  friend class SiStripRawToClustersModule;
+  friend class SiStripRawToClustersLazyUnpacker;
+
  public:
   
   /** */
@@ -53,8 +56,6 @@ class SiStripRawToDigiUnpacker {
   void triggerFed( const FEDRawDataCollection&, 
 		   SiStripEventSummary&,
 		   const uint32_t& event );
-
-  friend class SiStripRawToClustersModule;
 
  private:
   
