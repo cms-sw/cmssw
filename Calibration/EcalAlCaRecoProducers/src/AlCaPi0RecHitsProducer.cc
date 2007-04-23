@@ -384,6 +384,6 @@ AlCaPi0RecHitsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
       timerName = category + "::storePi0RecHitsCollection";
       timers.pop_and_push(timerName);
 
-      timers.clean_stack();
+      timers.clear_stack();
 
 }

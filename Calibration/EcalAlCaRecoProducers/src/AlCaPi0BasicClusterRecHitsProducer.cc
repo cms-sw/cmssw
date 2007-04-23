@@ -301,7 +301,7 @@ AlCaPi0BasicClusterRecHitsProducer::produce(edm::Event& iEvent, const edm::Event
   timerName = category + "::storePi0RecHitsCollection";
   timers.pop_and_push(timerName);
   
-  timers.clean_stack();
+  timers.clear_stack();
   
   
 }
