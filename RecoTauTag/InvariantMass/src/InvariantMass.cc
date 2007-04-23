@@ -13,7 +13,7 @@
 //
 // Original Author:  Suchandra Dutta
 //      Created:  Thu Oct 19 09:02:32 CEST 2006
-// $Id: InvariantMass.cc,v 1.2 2007/03/09 07:52:45 dutta Exp $
+// $Id: InvariantMass.cc,v 1.3 2007/03/10 11:37:52 dutta Exp $
 //
 //
 
@@ -119,18 +119,18 @@ InvariantMass::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
      theKey++;
    }
 
-   std::auto_ptr<reco::JetTagCollection> resultBase(baseCollection);
-   edm::OrphanHandle <reco::JetTagCollection >  myJetTag =  iEvent.put(resultBase);
+   std::auto_ptr<reco::TauMassTagInfoCollection> resultExt(extCollection);  
+   edm::OrphanHandle <reco::TauMassTagInfoCollection >  myTagInfo =  iEvent.put(resultExt);
    
    int ic=0;
-   for (reco::TauMassTagInfoCollection::iterator im = extCollection->begin(); 
-               im != extCollection->end(); im++) {
-     im->setJetTag(JetTagRef(myJetTag,ic)); 
+   for (reco::JetTagCollection::iterator im = baseCollection->begin(); 
+               im != baseCollection->end(); im++) {
+     im->setTagInfo(RefToBase<BaseTagInfo>(TauMassTagInfoRef(myTagInfo,cc)));
      ic++;
    }
-   
-   std::auto_ptr<reco::TauMassTagInfoCollection> resultExt(extCollection);  
-   iEvent.put(resultExt);
+
+   std::auto_ptr<reco::JetTagCollection> resultBase(baseCollection);
+   iEvent.put(resultBase);
 }
 
 
