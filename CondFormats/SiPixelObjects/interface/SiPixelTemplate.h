@@ -1,9 +1,10 @@
 //
-//  SiPixelTemplate.h (v2.40)
+//  SiPixelTemplate.h (v2.41)
 //
 //  Add goodness-of-fit info and spare entries to templates, version number in template header, more error checking
 //  Add correction for (Q_F-Q_L)/(Q_F+Q_L) bias
 //  Add cot(beta) reflection to reduce y-entries and more sophisticated x-interpolation
+//  Fix small index searching bug in interpolate method
 //
 // Created by Morris Swartz on 10/27/06.
 // Copyright 2006 __TheJohnsHopkinsUniversity__. All rights reserved.

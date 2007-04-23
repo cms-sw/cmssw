@@ -1,9 +1,10 @@
 //
-//  SiPixelTemplate.cc  Version 2.40 
+//  SiPixelTemplate.cc  Version 2.41 
 //
 //  Add goodness-of-fit info and spare entries to templates, version number in template header, more error checking
 //  Add correction for (Q_F-Q_L)/(Q_F+Q_L) bias
 //  Add cot(beta) reflection to reduce y-entries and more sophisticated x-interpolation
+//  Fix small index searching bug in interpolate method
 //
 //  Created by Morris Swartz on 10/27/06.
 //  Copyright 2006 __TheJohnsHopkinsUniversity__. All rights reserved.
@@ -26,8 +27,6 @@
 #include <iomanip>
 #include <sstream>
 #include <fstream>
-
-
 
 
 //**************************************************************** 
@@ -58,7 +57,6 @@ bool SiPixelTemplate::pushfile(int filenum)
  tempfile = tempf.c_str();
 	
 //  open the template file 
- std::cout << " -------------------------------------------------------------------- Open template file " << tempfile << std::endl;
 
  std::ifstream in_file(tempfile, std::ios::in);
  
@@ -672,7 +670,7 @@ if(id != id_current || fpix != fpix_current || cotalpha != cota_current || cotbe
 	       ilow = 0;
 		   yratio = 0.;
 
-	   } else if(abs_cotb > thePixelTemp[index_id].entfy[Ny-1].cotbeta) {
+	   } else if(abs_cotb >= thePixelTemp[index_id].entfy[Ny-1].cotbeta) {
 	
 	       ilow = Ny-2;
 		   yratio = 1.;
@@ -812,7 +810,7 @@ if(id != id_current || fpix != fpix_current || cotalpha != cota_current || cotbe
 	       iylow = 0;
 		   yxratio = 0.;
 
-	   } else if(abs_cotb > thePixelTemp[index_id].entfx[Nyx-1][0].cotbeta) {
+	   } else if(abs_cotb >= thePixelTemp[index_id].entfx[Nyx-1][0].cotbeta) {
 	
 	       iylow = Nyx-2;
 		   yxratio = 1.;
@@ -837,7 +835,7 @@ if(id != id_current || fpix != fpix_current || cotalpha != cota_current || cotbe
 	       ilow = 0;
 		   xxratio = 0.;
 
-	   } else if(cotalpha > thePixelTemp[index_id].entfx[0][Nxx-1].cotalpha) {
+	   } else if(cotalpha >= thePixelTemp[index_id].entfx[0][Nxx-1].cotalpha) {
 	
 	       ilow = Nxx-2;
 		   xxratio = 1.;
@@ -978,7 +976,7 @@ if(id != id_current || fpix != fpix_current || cotalpha != cota_current || cotbe
 	       ilow = 0;
 		   yratio = 0.;
 
-	   } else if(abs_cotb > thePixelTemp[index_id].entby[Ny-1].cotbeta) {
+	   } else if(abs_cotb >= thePixelTemp[index_id].entby[Ny-1].cotbeta) {
 	
 	       ilow = Ny-2;
 		   yratio = 1.;
@@ -1118,7 +1116,7 @@ if(id != id_current || fpix != fpix_current || cotalpha != cota_current || cotbe
 	       iylow = 0;
 		   yxratio = 0.;
 
-	   } else if(abs_cotb > thePixelTemp[index_id].entbx[Nyx-1][0].cotbeta) {
+	   } else if(abs_cotb >= thePixelTemp[index_id].entbx[Nyx-1][0].cotbeta) {
 	
 	       iylow = Nyx-2;
 		   yxratio = 1.;
@@ -1143,7 +1141,7 @@ if(id != id_current || fpix != fpix_current || cotalpha != cota_current || cotbe
 	       ilow = 0;
 		   xxratio = 0.;
 
-	   } else if(cotalpha > thePixelTemp[index_id].entbx[0][Nxx-1].cotalpha) {
+	   } else if(cotalpha >= thePixelTemp[index_id].entbx[0][Nxx-1].cotalpha) {
 	
 	       ilow = Nxx-2;
 		   xxratio = 1.;
@@ -1294,11 +1292,6 @@ if(id != id_current || fpix != fpix_current || cotalpha != cota_current || cotbe
     // Make sure that input is OK
     
 	assert(ysum.size() == 25);
-	
-	//std::cout << "fypix = " << fypix << std::endl;
-	//std::cout << "lypix = " << lypix << std::endl;
-	//std::cout << "ysig2.size() = " << int(ysig2.size()) << std::endl;
-
 	assert(fypix > 1 && fypix < 23);
 	assert(lypix >= fypix && lypix < 23);
 	assert(ysig2.size() == 25);
@@ -1368,11 +1361,6 @@ if(id != id_current || fpix != fpix_current || cotalpha != cota_current || cotbe
     // Make sure that input is OK
     
 	assert(xsum.size() == 11);
-	
-	//std::cout << "fxpix = " << fxpix << std::endl;
-	//std::cout << "lxpix = " << lxpix << std::endl;
-	//std::cout << "xsig2.size() = " << int(xsig2.size()) << std::endl;
-
 	assert(fxpix > 1 && fxpix < 9);
 	assert(lxpix >= fxpix && lxpix < 9);
 	assert(xsig2.size() == 11);
