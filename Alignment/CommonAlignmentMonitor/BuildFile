@@ -1,0 +1,27 @@
+<use name=FWCore/Framework>
+<use name=Foundation/PluginManager>
+<use name=FWCore/ParameterSet>
+<use name=root>
+<use name=Alignment/TrackerAlignment>
+<use name=Alignment/MuonAlignment>
+<use name=Alignment/CommonAlignment>
+<use name=Alignment/CommonAlignmentAlgorithm>
+<use name=Alignment/CommonAlignmentParametrization>
+<use name=DataFormats/TrackReco>
+<use name=DataFormats/TrajectoryState>
+<use name=Geometry/Surface>
+<use name=MagneticField/Engine>
+<use name=MagneticField/Records>
+<use name=RecoTracker/TransientTrackingRecHit> 
+<use name=TrackingTools/PatternTools>
+<use name=TrackingTools/TrajectoryState>
+<use name=TrackingTools/TransientTrackingRecHit>
+<use name=TrackingTools/TrackFitters>
+
+<flags SEAL_PLUGIN_NAME="AlignmentCommonAlignmentMonitor">
+<export>
+   <lib name=AlignmentCommonAlignmentMonitor>
+   <use name=FWCore/Framework>
+   <use name=Foundation/PluginManager>
+   <use name=FWCore/ParameterSet>
+</export>
