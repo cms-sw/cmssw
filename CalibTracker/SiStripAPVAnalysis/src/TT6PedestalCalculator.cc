@@ -63,6 +63,7 @@ void TT6PedestalCalculator::updatePedestal(ApvAnalysis::RawSignalType& in) {
 //
 void TT6PedestalCalculator::initializePedestal(ApvAnalysis::RawSignalType& in) {
   if (numberOfEvents == 1) {
+
     thePedSum.clear();
     thePedSqSum.clear();
     theEventPerStrip.clear();
@@ -74,12 +75,10 @@ void TT6PedestalCalculator::initializePedestal(ApvAnalysis::RawSignalType& in) {
     thePedSum.resize(in.data.size(), 0.0);
     thePedSqSum.resize(in.data.size(), 0.0);
     theEventPerStrip.resize(in.data.size(), 0);
-
   }
   if (numberOfEvents <= eventsRequiredToCalibrate) {
     edm::DetSet<SiStripRawDigi>::const_iterator i = in.data.begin();
     int ii=0;
-
     for (;i!=in.data.end() ; i++) {
       thePedSum[ii]   += (*i).adc();
       thePedSqSum[ii] += ((*i).adc())*((*i).adc());
@@ -90,23 +89,18 @@ void TT6PedestalCalculator::initializePedestal(ApvAnalysis::RawSignalType& in) {
   if (numberOfEvents == eventsRequiredToCalibrate) {
     thePedestal.clear();
     theRawNoise.clear();
-    edm::DetSet<SiStripRawDigi>::const_iterator it = in.data.begin();
-    int iii=0;
-    for (;it!=in.data.end() ; it++) {
-      if (theEventPerStrip[iii] > 10 ) {
-	double avVal   = (theEventPerStrip[iii]) 
-	  ? thePedSum[iii]/theEventPerStrip[iii]:0.0;
-	double sqAvVal = (theEventPerStrip[iii]) 
-	  ? thePedSqSum[iii]/theEventPerStrip[iii]:0.0;
-        double rmsVal   = (sqAvVal - avVal*avVal > 0.0)
-           ? sqrt(sqAvVal - avVal*avVal) : 0.0;
-
-	
-	thePedestal.push_back(avVal);
-	theRawNoise.push_back(rmsVal);
-      }
-
-      iii++;
+    edm::DetSet<SiStripRawDigi>::const_iterator i = in.data.begin();
+    int ii=0;
+    for (;i!=in.data.end() ; i++) {
+      double avVal   = (theEventPerStrip[ii]) 
+	? thePedSum[ii]/theEventPerStrip[ii]:0.0;
+      double sqAvVal = (theEventPerStrip[ii]) 
+	? thePedSqSum[ii]/theEventPerStrip[ii]:0.0;
+      double rmsVal  =  (sqAvVal - avVal*avVal > 0.0) 
+           ? sqrt(sqAvVal - avVal*avVal) : 0.0;	
+      thePedestal.push_back(static_cast<float>(avVal));
+      theRawNoise.push_back(static_cast<float>(rmsVal));
+      ii++;
     }
   }
 }
@@ -146,11 +140,14 @@ void TT6PedestalCalculator::refinePedestal(ApvAnalysis::RawSignalType& in) {
 	  ? thePedSum[iii]/theEventPerStrip[iii]:0.0;
 	double sqAvVal = (theEventPerStrip[iii]) 
 	  ? thePedSqSum[iii]/theEventPerStrip[iii]:0.0;
-        double rmsVal   = (sqAvVal - avVal*avVal > 0.0)
-           ? sqrt(sqAvVal - avVal*avVal) : 0.0;
+	double rmsVal  =  (sqAvVal - avVal*avVal > 0.0) 
+	  ? sqrt(sqAvVal - avVal*avVal) : 0.0;	
+
 	
-	thePedestal.push_back(static_cast<float>(avVal));
-	theRawNoise.push_back(static_cast<float>(rmsVal));
+	if (avVal != 0 ) {
+	  thePedestal[iii] = static_cast<float>(avVal);
+	  theRawNoise[iii] = static_cast<float>(rmsVal);
+	}
       }
     }
     thePedSum.clear();
