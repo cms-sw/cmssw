@@ -13,7 +13,8 @@
 <use name=Geometry/EcalPreshowerAlgo>
 <use name=DataFormats/Math>
 <use name=RecoEcal/EgammaCoreTools>
-<use name=RecoEcal/EgammaClusterProducers>
+# EgammaClustersProducers is a plugin now remove from here
+# <use name=RecoEcal/EgammaClusterProducers>
 
 <use name=DataFormats/RecoCandidate>
 <use name=DataFormats/JetReco>
@@ -41,7 +42,7 @@
    <use name=Geometry/EcalPreshowerAlgo>
    <use name=DataFormats/Math>
    <use name=RecoEcal/EgammaCoreTools>
-   <use name=RecoEcal/EgammaClusterProducers>
+#   <use name=RecoEcal/EgammaClusterProducers>
 
 
    <use name=DataFormats/HcalDigi>
