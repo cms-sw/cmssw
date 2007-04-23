@@ -8,22 +8,11 @@
 </center>
 
 \section desc Description
-Common utilities to manipulate and analyze particle candidates
+Common utilities to manipulate and analyze particle Candidates.
 
-\subsection interface Public interface
-- AddFourMomenta: set up a composite reco::Candidate adding its daughters four-momenta and electric charge.
-- Booster: boost a reco::Candidate by a specified boost vector. 
-- ApplyEnergyCorrection: scale particle 4-momentum by a specified correction factor.
-- NBodyCombiner: produces all possible candidate pairs specifying a configurable selection criteria, checking 
-  for overlaps, and avoiding double-counting.
-- CenterOfMassBooster: boost a reco::Candidate to its center-of-mass reference frame.
-- Thrust: utility to compute thrust value and axis of a collection of reco::Candidates.
-
-\subsection modules Modules
-None.
-
-\subsection tests Unit tests and examples
-- <b>testThrust</b>: test Thrust utility.
+For more details, refer to the 
+<a href="https://twiki.cern.ch/twiki/bin/view/CMS/SWGuidePhysicsTools">Analysis Tools</a>
+TWiki on the Software Guide. 
 
 <hr>
 Last updated: @DATE@ L. Lista

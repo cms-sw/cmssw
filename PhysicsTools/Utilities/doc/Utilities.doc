@@ -8,76 +8,11 @@
 </center>
 
 \section desc Description
-Generic Physics Tools utility classes.
+Common framework modules for physics analysis.
 
-\subsection selectors-1 Single Object Selectors
-- AnySelector<b><T></b>: <a href="http://www.sgi.com/tech/stl/UnaryFunction.html">unary function</a> 
-  that returns true on all objects. 
-  It is a trivial selector to be used mainly for tests.
-- PtMinSelector<b><T></b>: <a href="http://www.sgi.com/tech/stl/UnaryFunction.html">unary function</a> 
-  that returns true on objects that have <tt>pt()</tt> greater than a specified cut. 
-  The cut can be specified via edm::ParameterSet (<tt>ptMin</tt>) or via constructor parameter.
-- EtMinSelector<b><T></b>: <a href="http://www.sgi.com/tech/stl/UnaryFunction.html">unary function</a> 
-  that returns true on objects that have <tt>et()</tt> greater than a specified cut. 
-  The cut can be specified via edm::ParameterSet (<tt>etMin</tt>)or via constructor  parameter.
-- EtaRangeSelector<b><T></b>: <a href="http://www.sgi.com/tech/stl/UnaryFunction.html">unary function</a> 
-  that returns true on objects that have <tt>eta()</tt> within a specified range. 
-  The range can be specified via edm::ParameterSet (<tt>etaMin</tt>, <tt>etaMax</tt>) or via constructor 
-  parameter.
-- AndSelector<b><S1, S2></b>: selector make of logical AND composition of any two selectors.
-- OrSelector<b><S1, S2></b>: selector make of logical OR composition of any two selectors.
-- MinSelector<b><T, fun, prefix></b>: selector based on call of a specified member function.
-  The module's parameter name is <tt>prefix</tt> plus <tt>Min</tt>.
-- MaxSelector<b><T, fun, prefix></b>: selector based on call of a specified member function.
-  The module's parameter name is <tt>prefix</tt> plus <tt>Max</tt>.
-- RangeSelector<b><T, fun, prefix></b>: selector based on call of a specified member function.
-  The two module's parameter names are <tt>prefix</tt> plus <tt>Min</tt> and <tt>Max</tt>.
-
-\subsection selectors-2 Object Pair Selectors
-- RangeObjectPairSelector<b><C, S, prefix></b>: select a pair of objects in a collection
-  of type <b>C</b> if the value of a specified 
-  <a href="http://www.sgi.com/tech/stl/BinaryFunction.html">binary function</a> of type <b>S</b>
-  lies in a specified range. The parameters have values specified in the constant
-  <b>prefix</b> followed <tt>Min</tt> and <tt>Max</tt>. For instance, the following
-  module selects track pair with invariant mass within a specified range:
-\htmlonly
-<pre>
-    extern const std::string massParamPrefix( "mass" );
-
-    typedef ObjectSelector<
-              ObjectPairCollectionSelector<
-                reco::TrackCollection,
-                RangeObjectPairSelector<
-                  reco::Track,
-                  MasslessInvariantMass<reco::Track>,
-                  massParamPrefix
-                >
-              >
-            > MassWindowTrackSelector;
-</pre>
-\endhtmlonly
-The mass window is specified by the parameters <tt>massMin</tt>.
-and <tt>massMax</tt>.
-- MinObjectPairSelector<b><C, S, prefix></b>: similar to RangeObjectPairSelector, with only
-  a lower bound cut.
-- MaxObjectPairSelector<b><C, S, prefix></b>:similar to RangeObjectPairSelector, with only
-  an upper bound cut.
-
-\subsection comparators Comparators
-- PtComparator: <a href="http://www.sgi.com/tech/stl/StrictWeakOrdering.html">strict weak ordering</a> that sorts 
-  objects by smallest <tt>pt()</tt>.
-- PtInverseComparator: <a href="http://www.sgi.com/tech/stl/StrictWeakOrdering.html">strict weak ordering</a> that sorts 
-  objects by largest <tt>pt()</tt>.
-- EtComparator: <a href="http://www.sgi.com/tech/stl/StrictWeakOrdering.html">strict weak ordering</a> that sorts 
-  objects by smallest <tt>et()</tt>.
-- EtInverseComparator: <a href="http://www.sgi.com/tech/stl/StrictWeakOrdering.html">strict weak ordering</a> that sorts 
-  objects by largest <tt>et()</tt>.
-
-
-\subsection functions Functions
-- MasslessInvariantMass: <a href="http://www.sgi.com/tech/stl/BinaryFunction.html">binary function</a> that computes
-  invariant mass of a pair of objects assuming they are massless using the method <tt>momentum()</tt> to retrieve
-  their spatial momentum vector.
+For more details, refer to the
+<a href="https://twiki.cern.ch/twiki/bin/view/CMS/SWGuidePhysicsTools">Analysis Tools</a>
+TWiki on the Software Guide.
 
 <hr>
 Last updated: @DATE@ L. Lista

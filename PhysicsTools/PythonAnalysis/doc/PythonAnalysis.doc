@@ -86,6 +86,10 @@ c.SaveAs('tofhits.jpg')
 <!-- e.g. completed, stable, missing features -->
 Prototype.
 
+For more details, refer to the
+<a href="https://twiki.cern.ch/twiki/bin/view/CMS/SWGuidePhysicsTools">Analysis Tools</a>
+TWiki on the Software Guide.
+
 <hr>
 Last updated: 03-MAR-2007 B. Hegner
 */
