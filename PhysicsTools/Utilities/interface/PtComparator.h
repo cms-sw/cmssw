@@ -5,10 +5,11 @@
  * compare by pt
  * 
  * \author Luca Lista, INFN
+ *         numeric safe implementation by Fedor Ratnikov, FNAL
  *
- * \version $Revision: 1.2 $
+ * \version $Revision: 1.3 $
  *
- * $Id: PtComparator.h,v 1.2 2006/09/27 14:14:02 llista Exp $
+ * $Id: PtComparator.h,v 1.3 2007/04/23 20:41:01 llista Exp $
  *
  */
 
