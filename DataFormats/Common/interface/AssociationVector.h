@@ -9,7 +9,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.9 $
+ * \version $Revision: 1.10 $
  */
 
 #include "DataFormats/Common/interface/traits.h"
@@ -52,7 +52,11 @@ namespace edm {
     const KeyRefProd & keyProduct() const { return ref_; }
     KeyRef key(size_type i) const { return KeyRef(ref_, i); }
     const typename CVal::value_type & value(size_type i) const { return data_[ i ]; }
-    void setValue(size_type i, const typename CVal::value_type & val ) { data_[ i ] = val; fixup(i); }   
+    void setValue(size_type i, const typename CVal::value_type & val ) { 
+      data_[ i ] = val; 
+      transientVector_[ i ].first = KeyRef(ref_, i);
+      transientVector_[ i ].second = & data_[ i ];
+    }   
     void fillView(std::vector<void const*>& pointers) const;
 
     typedef typename transient_vector_type::const_iterator const_iterator;
@@ -73,12 +77,6 @@ namespace edm {
 	  transientVector_[ i ].first = KeyRef(ref_, i);
 	  transientVector_[ i ].second = & data_[ i ];
 	}
-      }
-    }
-    void fixup(size_t i) { 
-      if (fixed_) {
-	transientVector_[ i ].first = KeyRef(ref_, i);
-	transientVector_[ i ].second = & data_[ i ];
       }
     }
   };
