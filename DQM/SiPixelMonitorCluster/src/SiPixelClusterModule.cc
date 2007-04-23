@@ -55,7 +55,7 @@ void SiPixelClusterModule::book(const edm::ParameterSet& iConfig) {
   meCharge_->setAxisTitle("Charge size (MeV)",1);
   // Cluster barycenter X position
   hid = theHistogramId->setHistoId("x",id_);
-  meY_ = theDMBE->book1D(hid,"Cluster barycenter X",200,0.,200.);
+  meX_ = theDMBE->book1D(hid,"Cluster barycenter X",200,0.,200.);
   meX_->setAxisTitle("Barycenter x-position",1);
   // Cluster barycenter Y position
   hid = theHistogramId->setHistoId("y",id_);
