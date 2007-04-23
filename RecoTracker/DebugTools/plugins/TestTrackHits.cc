@@ -880,3 +880,7 @@ GlobalPoint TestTrackHits::matchSimHits(PSimHit& monoH, PSimHit& stereoH,const G
   return (gluedDet->surface()).toGlobal(position);
 #endif
 }
+
+#include "FWCore/Framework/interface/ModuleFactory.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_ANOTHER_FWK_MODULE(TestTrackHits);

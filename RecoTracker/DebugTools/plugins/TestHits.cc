@@ -740,4 +740,7 @@ void TestHits::endJob() {
 
   file->Close();
 }
+#include "FWCore/Framework/interface/ModuleFactory.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 
+DEFINE_FWK_MODULE(TestHits);

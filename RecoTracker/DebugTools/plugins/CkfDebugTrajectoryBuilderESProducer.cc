@@ -67,4 +67,7 @@ CkfDebugTrajectoryBuilderESProducer::produce(const CkfComponentsRecord& iRecord)
   return _trajectoryBuilder;
 }
 
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/ModuleFactory.h"
 
+DEFINE_FWK_EVENTSETUP_MODULE(CkfDebugTrajectoryBuilderESProducer);
