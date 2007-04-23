@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// $Id: HltAnalyzer.cc,v 1.5 2006/12/20 17:32:36 wittich Exp $
+// $Id: HltAnalyzer.cc,v 1.6 2007/03/10 10:31:26 dlange Exp $
 //
 /**\class HltAnalyzer HltAnalyzer.cc DQM/HLTEvF/src/HltAnalyzer.cc
 
@@ -16,7 +16,7 @@
 //
 // Original Author:  Peter Wittich
 //         Created:  Thu Nov  9 07:51:28 CST 2006
-// $Id: HltAnalyzer.cc,v 1.5 2006/12/20 17:32:36 wittich Exp $
+// $Id: HltAnalyzer.cc,v 1.6 2007/03/10 10:31:26 dlange Exp $
 //
 //
 //

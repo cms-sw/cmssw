@@ -3,7 +3,6 @@
 <use name=FWCore/ParameterSet>
 <use name=DataFormats/HLTReco>
 <use name=root>
-<flags EDM_PLUGIN=1>
 <export>
    <lib name=DQMHLTEvF>
    <use name=FWCore/Framework>
