@@ -98,7 +98,23 @@ TPedResult TPedValues::terminate (const int & DACstart, const int & DACend) cons
                   dummyBestDAC = DAC ;
                 }
             } //! loop over DAC values
+
           bestDAC.m_DACvalue[gainId-1][crystal] = dummyBestDAC ;
+	  
+	  if ( dummyBestDAC == (DACend-1) || dummyBestDAC == -1 ) {
+	    int gainHuman;
+	    if      (gainId ==1) gainHuman =12;
+	    else if (gainId ==2) gainHuman =6;
+	    else if (gainId ==3) gainHuman =1;
+	    else                 gainHuman =-1;
+	    
+	    edm::LogInfo ("TPedValues::term") << " channel: " << (crystal+1)
+					      << " gain: " << gainHuman
+					      << " has offset set to: " << dummyBestDAC << "."
+					      << " The maximum expected value is: " << DACend 
+					      << " (need be corrected by hand? Look at plots)";
+	  }
+	  
         } // loop over crystals
     } // loop over gains
   return bestDAC ;
@@ -177,7 +193,12 @@ int TPedValues::makePlots (TFile * rootFile, const std::string & dirName) const
           } // loop over DAC values          
         TGraphErrors graph (256,asseX,asseY,sigmaX,sigmaY) ;
         char name[120] ;
-        sprintf (name,"XTL%d_GAIN%d",xtl,gain) ;      
+        int gainHuman;
+        if      (gain ==0) gainHuman =12;
+        else if (gain ==1) gainHuman =6;
+        else if (gain ==2) gainHuman =1;
+        else               gainHuman =-1;
+        sprintf (name,"XTL%d_GAIN%d",(xtl+1),gainHuman) ;      
         graph.Write (name) ;
       } // loop over the gains
         // (loop over the crystals)
