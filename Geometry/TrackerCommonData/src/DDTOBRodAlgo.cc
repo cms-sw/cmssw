@@ -142,6 +142,19 @@ void DDTOBRodAlgo::initialize(const DDNumericArguments & nArgs,
   for (int i=0; i<(int)(connect.size()); i++) 
     LogDebug("TOBGeom") << "\t" << connect[i] << "\ty = " << connectY[i] 
 			<< "\tz = " << connectZ[i];
+
+  aohName   = sArgs["AOHName"]; 
+  aohCopies = vArgs["AOHCopies"];
+  aohX      = vArgs["AOHx"];     
+  aohY      = vArgs["AOHy"];     
+  aohZ      = vArgs["AOHz"];     
+  LogDebug("TOBGeom") << "DDTOBRodAlgo debug:\t" << aohName <<" AOH will be positioned on ICC's";
+  for (int i=0; i<(int)(aohCopies.size()); i++) 
+    LogDebug("TOBGeom")  << " copies " << aohCopies[i]
+			 << "\tx = " << aohX[i]
+			 << "\ty = " << aohY[i] 
+			 << "\tz = " << aohZ[i];
+  
 }
 
 void DDTOBRodAlgo::execute() {
@@ -273,5 +286,62 @@ void DDTOBRodAlgo::execute() {
 			<< r << " with no rotation";
   }
 
+  //AOH (only on ICCs)
+  int copyNumber = 0;
+  for (int i=0; i<(int)(aohCopies.size()); i++) {
+    if(aohCopies[i] != 0) {
+      // first copy with (+aohX,+aohZ) translation
+      copyNumber++;
+      DDTranslation r(aohX[i] + 0, aohY[i] + connectY[i], aohZ[i] + shift+connectZ[i]);
+      DDName child(DDSplit(aohName).first, DDSplit(aohName).second);
+      DDpos(child, centName, copyNumber, r, DDRotation());
+      LogDebug("TOBGeom") << "DDTOBRodAlgo test: " << child << " number " 
+			  << copyNumber << " positioned in " << centName << " at "
+			  << r << " with no rotation";
+      // if two copies add a copy with (-aohX,-aohZ) translation
+      if(aohCopies[i] == 2) {
+	copyNumber++;
+	DDTranslation r(-aohX[i] + 0, aohY[i] + connectY[i], -aohZ[i] + shift+connectZ[i]);
+	DDName child(DDSplit(aohName).first, DDSplit(aohName).second);
+	DDpos(child, centName, copyNumber, r, DDRotation());
+	LogDebug("TOBGeom") << "DDTOBRodAlgo test: " << child << " number " 
+			    << copyNumber << " positioned in " << centName << " at "
+			    << r << " with no rotation";
+      }
+      // if four copies add 3 copies with (-aohX,+aohZ) (-aohX,-aohZ) (+aohX,+aohZ) and translations
+      if(aohCopies[i] == 4) {
+	for (unsigned int j = 1; j<4; j++ ) {
+	  copyNumber++;
+	  switch(j) {
+	  case 1:
+	    {
+	      DDTranslation r(-aohX[i] + 0, aohY[i] + connectY[i], +aohZ[i] + shift+connectZ[i]);
+	      DDName child(DDSplit(aohName).first, DDSplit(aohName).second);
+	      DDpos(child, centName, copyNumber, r, DDRotation());
+	      break;
+	    }
+	  case 2:
+	    {
+	      DDTranslation r(-aohX[i] + 0, aohY[i] + connectY[i], -aohZ[i] + shift+connectZ[i]);
+	      DDName child(DDSplit(aohName).first, DDSplit(aohName).second);
+	      DDpos(child, centName, copyNumber, r, DDRotation());
+	      break;
+	    }
+	  case 3:
+	    {
+	      DDTranslation r(+aohX[i] + 0, aohY[i] + connectY[i], -aohZ[i] + shift+connectZ[i]);
+	      DDName child(DDSplit(aohName).first, DDSplit(aohName).second);
+	      DDpos(child, centName, copyNumber, r, DDRotation());
+	      break;
+	    }
+	  }
+	  LogDebug("TOBGeom") << "DDTOBRodAlgo test: " << child << " number " 
+			      << copyNumber << " positioned in " << centName << " at "
+			      << r << " with no rotation";
+	}
+      }
+    }
+  }
+  
   LogDebug("TOBGeom") << "<<== End of DDTOBRodAlgo construction ...";
 }
