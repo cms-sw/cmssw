@@ -1,0 +1,38 @@
+<use name=FWCore/Framework>
+<use name=Foundation/PluginManager>
+<use name=FWCore/ParameterSet>
+<use name=DataFormats/TrajectorySeed>
+<use name=DataFormats/TrackerRecHit2D>
+<use name=DataFormats/Common>
+<use name=Foundation/PluginManager>
+<use name=RecoTracker/CkfPattern>
+
+<use name=RecoTracker/TransientTrackingRecHit>
+<use name=DataFormats/TrackerRecHit2D>
+<use name=root>
+
+#for debugging :
+<use name=RecoNuclear/NuclearAnalyzer>
+<flags CXXFLAGS="-g">
+
+
+<flags SEAL_PLUGIN_NAME="RecoNuclearNuclearSeedGenerator">
+<export>
+   <lib name=RecoNuclearNuclearSeedGenerator>
+   <use name=FWCore/Framework>
+   <use name=Foundation/PluginManager>
+   <use name=FWCore/ParameterSet>
+   <use name=DataFormats/TrajectorySeed>
+   <use name=RecoTracker/CkfPattern>
+
+   <use name=DataFormats/Common>
+   <use name=Foundation/PluginManager>
+   <use name=RecoTracker/TransientTrackingRecHit>
+   <use name=DataFormats/TrackerRecHit2D>
+   <use name=root>
+
+#for debugging :
+   <use name=RecoNuclear/NuclearAnalyzer>
+
+
+</export>
