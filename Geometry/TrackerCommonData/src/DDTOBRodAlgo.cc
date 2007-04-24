@@ -16,10 +16,13 @@
 
 
 DDTOBRodAlgo::DDTOBRodAlgo():
-  sideRod(0),sideRodX(0),sideRodY(0),sideRodZ(0),endRod1Y(0),endRod1Z(0),
-  clampX(0),clampZ(0),sideCoolX(0),sideCoolZ(0),optFibreX(0),optFibreZ(0),
-  sideClampX(0),sideClamp1DZ(0),sideClamp2DZ(0), moduleRot(0),moduleY(0),
-  moduleZ(0),connect(0),connectY(0),connectZ(0) {
+  sideRod(0), sideRodX(0), sideRodY(0), sideRodZ(0), endRod1Y(0), endRod1Z(0),
+  clampX(0), clampZ(0), sideCoolX(0), sideCoolY(0), sideCoolZ(0),
+  endCoolY(0), endCoolZ(0),
+  optFibreX(0),optFibreZ(0),
+  sideClampX(0), sideClamp1DZ(0), sideClamp2DZ(0), moduleRot(0), moduleY(0),
+  moduleZ(0), connect(0), connectY(0), connectZ(0),
+  aohCopies(0), aohX(0), aohY(0), aohZ(0) {
   LogDebug("TOBGeom") << "DDTOBRodAlgo info: Creating an instance";
 }
 
@@ -84,18 +87,22 @@ void DDTOBRodAlgo::initialize(const DDNumericArguments & nArgs,
 
   sideCool     = sArgs["SideCoolName"];    
   sideCoolX    = vArgs["SideCoolX"];   
+  sideCoolY    = vArgs["SideCoolY"];   
   sideCoolZ    = vArgs["SideCoolZ"];   
   LogDebug("TOBGeom") << "DDTOBRodAlgo debug: " << sideCool << " to be "
 		      << "positioned " << sideCoolX.size() << " times at";
   for (int i=0; i<(int)(sideCoolX.size()); i++)
     LogDebug("TOBGeom") << "\t[" << i << "]\tx = " << sideCoolX[i]
+			<< "\ty = " << sideCoolY[i]
 			<< "\tz = " << sideCoolZ[i];
 
   endCool      = sArgs["EndCoolName"];     
+  endCoolY     = nArgs["EndCoolY"];    
   endCoolZ     = nArgs["EndCoolZ"];    
   endCoolRot   = sArgs["EndCoolRot"];   
   LogDebug("TOBGeom") << "DDTOBRodAlgo debug: " <<endCool <<" to be "
 		      << "positioned with " << endCoolRot << " rotation at"
+		      << " y = " << endCoolY
 		      << " z = " << endCoolZ;
 
   optFibre     = sArgs["OptFibreName"];    
@@ -187,7 +194,7 @@ void DDTOBRodAlgo::execute() {
 
   // Side Cooling tubes
   for (int i=0; i<(int)(sideCoolX.size()); i++) {
-    DDTranslation r(sideCoolX[i], 0, shift+sideCoolZ[i]);
+    DDTranslation r(sideCoolX[i], sideCoolY[i], shift+sideCoolZ[i]);
     DDName child(DDSplit(sideCool).first, DDSplit(sideCool).second);
     DDpos(child, rodName, i+1, r, DDRotation());
     LogDebug("TOBGeom") << "DDTOBRodAlgo test: " << child << " number " 
@@ -242,7 +249,7 @@ void DDTOBRodAlgo::execute() {
 		      << " with no rotation";
 
   // End cooling tubes
-  DDTranslation r2(0, 0, shift+endCoolZ);
+  DDTranslation r2(0, endCoolY, shift+endCoolZ);
   std::string rotstr = DDSplit(endCoolRot).first;
   std::string rotns  = DDSplit(endCoolRot).second;
   DDRotation rot2(DDName(rotstr,rotns));
