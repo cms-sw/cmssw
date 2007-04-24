@@ -28,6 +28,8 @@
 <use name=PhysicsTools/UtilAlgos>
 <use name=RecoTracker/TrackProducer>
 <use name=TrackingTools/PatternTools>
+<use name=RecoTracker/TransientTrackingRecHit>
+<use name=Alignment/CommonAlignmentMonitor>
 <use name=rootcore>
 <export>
   <use name=Alignment/CommonAlignment>
