@@ -183,100 +183,100 @@ void MuonSimHitsValidAnalyzer::bookHistos_RPC()
    hnam = ("Number_of_all_RPC_hits" );
    hmgr->addHisto1( 3000, new TH1F(hnam.c_str(),hnam.c_str(), 100, 1.0, 101.0) );
 
-   hnam = ("Region occupancy");
+   hnam = ("Region_occupancy");
    hmgr->addHisto1( 3001, new TH1F(hnam.c_str(),hnam.c_str(), 6, -3.0, 3.0) );
  
-   hnam = ("Ring occupancy (barrel)");
+   hnam = ("Ring_occupancy_barrel");
    hmgr->addHisto1( 3002, new TH1F(hnam.c_str(),hnam.c_str(),8, -3., 5.0) );
 
-   hnam = ("Ring occupancy (endcaps)");
+   hnam = ("Ring_occupancy_endcaps");
    hmgr->addHisto1( 3003, new TH1F(hnam.c_str(),hnam.c_str(),8, -3., 5.0) );
 
-   hnam = ("Station occupancy (barrel)");
+   hnam = ("Station_occupancy_barrel");
    hmgr->addHisto1( 3004, new TH1F(hnam.c_str(),hnam.c_str(), 8, 0., 8.) );
 
-   hnam = ("Station occupancy (endcaps)" );
+   hnam = ("Station_occupancy_endcaps" );
    hmgr->addHisto1( 3005, new TH1F(hnam.c_str(),hnam.c_str(), 8, 0., 8.) );
 
-   hnam = ("Sector occupancy (barrel)" );
+   hnam = ("Sector_occupancy_barrel" );
    hmgr->addHisto1( 3006, new TH1F(hnam.c_str(),hnam.c_str(), 16, 0., 16.) );
 
-   hnam = ("Sector occupancy (endcaps)" );
+   hnam = ("Sector_occupancy_endcaps" );
    hmgr->addHisto1( 3007, new TH1F(hnam.c_str(),hnam.c_str(), 16, 0., 16.) ); 
 
-   hnam = ("Layer occupancy (barrel)" );
+   hnam = ("Layer_occupancy_barrel" );
    hmgr->addHisto1( 3008, new TH1F(hnam.c_str(),hnam.c_str(), 4, 0., 4.) );
 
-   hnam = ("Layer occupancy (endcaps)" );
+   hnam = ("Layer_occupancy_endcaps" );
    hmgr->addHisto1( 3009, new TH1F(hnam.c_str(),hnam.c_str(), 4, 0., 4.) );
 
-   hnam = ("Subsector occupancy (barrel)" );
+   hnam = ("Subsector_occupancy_barrel" );
    hmgr->addHisto1( 3010, new TH1F(hnam.c_str(),hnam.c_str(), 10, 0., 10.) );
 
-   hnam = ("Subsector occupancy (endcaps)" );
+   hnam = ("Subsector_occupancy_endcaps" );
    hmgr->addHisto1( 3011, new TH1F(hnam.c_str(),hnam.c_str(), 10, 0., 10.) );
 
-   hnam = ("Roll occupancy (barrel)" );
+   hnam = ("Roll_occupancy_barrel" );
    hmgr->addHisto1( 3012, new TH1F(hnam.c_str(),hnam.c_str(), 6, 0., 6.) );
 
-   hnam = ("Roll occupancy (endcaps)" );
+   hnam = ("Roll_occupancy_endcaps" );
    hmgr->addHisto1( 3013, new TH1F(hnam.c_str(),hnam.c_str(), 6, 0., 6.) );
 
-   hnam = ("RPC energy_loss (barrel)" );
+   hnam = ("RPC_energy_loss_barrel" );
    hmgr->addHisto1( 3014, new TH1F(hnam.c_str(),hnam.c_str(), 50, 0.0, 10.0) );
 
-   hnam = ("RPC energy_loss (endcaps)" );
+   hnam = ("RPC_energy_loss_endcaps" );
    hmgr->addHisto1( 3015, new TH1F(hnam.c_str(),hnam.c_str(), 50, 0.0, 10.0)  );
 
-   hnam = ("path followed by muon" );
+   hnam = ("path_followed_by_muon" );
    hmgr->addHisto1( 3016, new TH1F(hnam.c_str(),hnam.c_str(), 160, 0., 160.) );
 
-   hnam = ("Momentum at RB1") ;
+   hnam = ("Momentum_at_RB1") ;
    hmgr->addHisto1( 3017, new TH1F(hnam.c_str(),hnam.c_str(), 80, 10.0, 200.0) );
 
-   hnam = ("Momentum at RB4") ;
+   hnam = ("Momentum_at_RB4") ;
    hmgr->addHisto1( 3018, new TH1F(hnam.c_str(),hnam.c_str(), 80, 10.0, 200.0) );
 
-   hnam = ("Loss of muon Momentum in Iron (barrel)" );
+   hnam = ("Loss_of_muon_Momentum_in_Iron_barrel" );
    hmgr->addHisto1( 3019, new TH1F(hnam.c_str(),hnam.c_str(), 80, 0.0, 40.0) );
 
-   hnam = ("Momentum at RE1");
+   hnam = ("Momentum_at_RE1");
    hmgr->addHisto1( 3020, new TH1F(hnam.c_str(),hnam.c_str(), 100, 10.0, 300.0) );
 
-   hnam = ("Momentum at RE4") ;
+   hnam = ("Momentum_at_RE4") ;
    hmgr->addHisto1( 3021, new TH1F(hnam.c_str(),hnam.c_str(), 100, 10.0, 300.0) );
 
-   hnam = ("Loss of muon Momentum in Iron (endcap)" );
+   hnam = ("Loss_of_muon_Momentum_in_Iron_endcap" );
    hmgr->addHisto1( 3022, new TH1F(hnam.c_str(),hnam.c_str(), 80, 0.0, 40.0) );
 
-   hnam = ("local x-coord. vs local y-coord of muon hit") ;
+   hnam = ("local_x-coord_vs_local_y-coord_of_muon_hit") ;
    hmgr->addHisto2( 3023, new TH2F(hnam.c_str(),hnam.c_str(), 100, -150., 150., 100, -100., 100. ) );
 
-   hnam = ("Global z-coord. vs global x-coord of muon hit (barrel)" );
+   hnam = ("Global_z-coord_vs_global_x-coord_of_muon_hit_barrel" );
    hmgr->addHisto2( 3024, new TH2F(hnam.c_str(),hnam.c_str(), 100, -800., 800., 100, -800., 800. ) );
 
-   hnam = ("Global x-coord. vs global y-coord of muon hit (barrel)" );
+   hnam = ("Global_x-coord_vs_global_y-coord_of_muon_hit_barrel" );
    hmgr->addHisto2( 3025, new TH2F(hnam.c_str(),hnam.c_str(), 100, -800., 800., 100, -800., 800. ) );
 
-   hnam = ("radius of hit (barrel)" );
+   hnam = ("radius_of_hit_barrel" );
    hmgr->addHisto1( 3026, new TH1F(hnam.c_str(),hnam.c_str(), 100, 0., 1200.) );
 
-   hnam = ("radius of hit (endcaps)" );
+   hnam = ("radius_of_hit_endcaps" );
    hmgr->addHisto1( 3027, new TH1F(hnam.c_str(),hnam.c_str(), 100, 0., 1300.) );
 
-   hnam = ("costheta of hit (barrel)" ) ;
+   hnam = ("costheta_of_hit_barrel" ) ;
    hmgr->addHisto1( 3028, new TH1F(hnam.c_str(),hnam.c_str(), 100, -1., 1.) );
 
-   hnam = ("costheta of hit (endcaps)" );
+   hnam = ("costheta_of_hit_endcaps" );
    hmgr->addHisto1( 3029, new TH1F(hnam.c_str(),hnam.c_str(), 100, -1., 1.) );
 
-   hnam = ("Global z-coord. vs global x-coord of muon hit (endcaps)" );
+   hnam = ("Global_z-coord_vs_global_x-coord_of_muon_hit_endcaps" );
    hmgr->addHisto2( 3030, new TH2F(hnam.c_str(),hnam.c_str(), 100, -1200., 1200., 100, -800., 800. ) );
 
-   hnam = ("Global x-coord. vs global y-coord of muon hit (endcaps)" );
+   hnam = ("Global_x-coord_vs_global_y-coord_of_muon_hit_endcaps" );
    hmgr->addHisto2( 3031, new TH2F(hnam.c_str(),hnam.c_str(), 100, -800., 800., 100, -800., 800. ) ); 
 
-   hnam = ("Number of muon RPC hits" );
+   hnam = ("Number_of_muon_RPC_hits" );
    hmgr->addHisto1( 3032, new TH1F(hnam.c_str(),hnam.c_str(), 50, 1.0, 51.0) );
   
 //   theRPCFile->ls();
@@ -311,7 +311,7 @@ void MuonSimHitsValidAnalyzer::bookHistos_CSC()
            int idhisto = idhisto_ener - 2000;
            sprintf(labelh,"ME%d", idhisto) ; 
            strcpy(histoName, labelh);
-           strcat(histoName,"_energy loss");
+           strcat(histoName,"_energy_loss");
            hnam = (histoName);
            hmgr->addHisto1(idhisto_ener, new TH1F(hnam.c_str(),hnam.c_str(),50, 0.0, 50.0) );
 

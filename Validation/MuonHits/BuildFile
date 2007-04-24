@@ -10,6 +10,7 @@
 <use name=Geometry/CSCGeometry>
 <use name=Geometry/DTGeometry>
 <use name=Geometry/RPCGeometry>
+<use name=Geometry/Records>
 <use name=root>
 <use name=clhep>
 
@@ -28,6 +29,7 @@
  <use name=Geometry/CSCGeometry>
  <use name=Geometry/DTGeometry>
  <use name=Geometry/RPCGeometry>
+ <use name=Geometry/Records>
  <use name=root>
  <use name=clhep>
 </export>
