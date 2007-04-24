@@ -27,14 +27,6 @@ The above two steps can be combined in a concrete implementation of MuIsoBaseAlg
 
 - MuIsoExtractor: abstract base class for methods that extract MuIsoDeposit(s) from an event record given a muon (reco::Track).
 - MuIsoExtractorFactory: extractor factory to be used as a source of concrete extractors.
-- ExtractorFromDeposits: finds MuIsoDeposit of the input track in the event record.
-- TrackExtractor: make MuIsoDeposit using "other" tracks within "DR_Veto" to "DR_Max", with |dZ|< "Diff_z" and |dr_xy| < "Diff_r" from the muon track.
-- CaloExtractorByAssociator: with CaloTowers or recHits on input would provide MuIsoDeposits for ecal, hcal and ho separately (3 cts) using TrackDetectorAssociator.
-The deposit values are hit/tower et; each hit/tower with energy>3*sigmaNoise and et> threshold, being within "DR_Max" and excluding "DR_Veto" gets an entry.
-- CaloExtractor: with CaloTowers on input provide a weighted sum of "Weight_E"*ecalEt+"Weight_H"*hcalEt using simple (analytical form) propagator.
-Each tower with energy>3*sigmaNoise and et> threshold, being within "DR_Max" and excluding "DR_Veto" gets an entry.
-CaloExtractor is slightly less precise in picking up the point where muon hits the calorimeter (compared to CaloExtractorByAssociator), but is considerably faster.
-
 - CutsConeSizeFunction: given track eta derives coneSize based on input set of "Cuts"
 - Cuts: class used for configuration of et (pt) thresholds and cone size in a given eta range
 
@@ -48,6 +40,16 @@ using a lookup (text) table.
 Concrete isolation algorithm: extract MuIsoDeposit using extractor and get sumPt in a cone.
 
 - Range:  helper class implementation of (min, max) range for ordered types.
+
+\subsection plugins Plugins
+- ExtractorFromDeposits: finds MuIsoDeposit of the input track in the event record.
+- TrackExtractor: make MuIsoDeposit using "other" tracks within "DR_Veto" to "DR_Max", with |dZ|< "Diff_z" and |dr_xy| < "Diff_r" from the muon track.
+- CaloExtractorByAssociator: with CaloTowers or recHits on input would provide MuIsoDeposits for ecal, hcal and ho separately (3 cts) using TrackDetectorAssociator.
+The deposit values are hit/tower et; each hit/tower with energy>3*sigmaNoise and et> threshold, being within "DR_Max" and excluding "DR_Veto" gets an entry.
+- CaloExtractor: with CaloTowers on input provide a weighted sum of "Weight_E"*ecalEt+"Weight_H"*hcalEt using simple (analytical form) propagator.
+Each tower with energy>3*sigmaNoise and et> threshold, being within "DR_Max" and excluding "DR_Veto" gets an entry.
+CaloExtractor is slightly less precise in picking up the point where muon hits the calorimeter (compared to CaloExtractorByAssociator), but is considerably faster.
+
 
 \subsection modules Modules
 <!-- Describe modules implemented in this package and their parameter set -->
