@@ -6,8 +6,8 @@
 //                 
 //                  
 //                
-//   $Date: $
-//   $Revision: $ 
+//   $Date: 2007/03/23 15:22:04 $
+//   $Revision: 1.1 $ 
 //
 //   Original Author :
 //   Hannes Sakulin      HEPHY / Vienna
@@ -34,6 +34,10 @@
 
 class L1MuScale {
  public:
+  L1MuScale() {}
+
+  virtual ~L1MuScale() {}
+
   /// get the center of bin represented by packed
   virtual float getCenter(unsigned packed) const = 0;
 
