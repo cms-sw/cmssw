@@ -1,6 +1,6 @@
 /*
- * $Date: 2007/03/14 08:55:51 $
- * $Revision: 1.12 $
+ * $Date: 2007/04/23 09:39:41 $
+ * $Revision: 1.18 $
  *
  * \author: D. Giordano, domenico.giordano@cern.ch
  * Modified: M.De Mattia 2/3/2007 & R.Castello 5/4/2007
@@ -16,9 +16,13 @@
 #include "DataFormats/SiStripDetId/interface/TECDetId.h"
 #include "DataFormats/SiStripDetId/interface/TIDDetId.h"
 #include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
+
+#include "AnalysisDataFormats/TrackInfo/src/TrackInfo.cc"
 #include "sstream"
 
-#include "Geometry/CommonDetAlgo/interface/MeasurementPoint.h"
+//#include "Geometry/CommonDetAlgo/interface/MeasurementPoint.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementPoint.h"
+
 #include "TTree.h"
 #include "TBranch.h"
 #include "TH1F.h"
@@ -39,7 +43,7 @@ namespace cms{
     conf_(conf),
     filename_(conf.getParameter<std::string>("fileName")), 
     psfilename_(conf.getParameter<std::string>("psfileName")), 
-    psfiletype_(conf.getParameter<int32_t>("psfiletype")), 
+    psfiletype_(conf.getParameter<int32_t>("psfiletype")),
     psfilemode_(conf.getUntrackedParameter<int32_t>("psfilemode",1)),
     SiStripNoiseService_(conf),
     SiStripPedestalsService_(conf),
@@ -155,8 +159,6 @@ namespace cms{
     
     //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 
-
-
     fFile->cd();fFile->cd("Trigger");
 
     Hlist->Add(new TH1F("FilterBits","FilterBits",10,-0.5,9.5));
@@ -173,8 +175,7 @@ namespace cms{
     bookHlist( "TH1nRecHits", name, "Nbinx", "xmin", "xmax" );
 
     // Loop on onTrack, offTrack, All
-    for (int j=0;j<3;j++){          
-    
+    for (int j=0;j<3;j++){      
       //Number of Cluster 
       name="nClusters"+flags[j];
       fFile->cd();fFile->cd("Tracks");
@@ -182,8 +183,6 @@ namespace cms{
 
       for (int i=0;i<_NUM_SISTRIP_SUBDET_;i++) {
    	//Number of Cluster on each det
-
-
 	name="nClusters"+SubDet[i]+flags[j];
 	bookHlist( "TH1nClusters", name, "Nbinx", "xmin", "xmax" );
       }
@@ -191,8 +190,6 @@ namespace cms{
 
     // Loop on onTrack, offTrack, All
     for (int j=0;j<3;j++){
-
-    
       //Histos for detector type
       for (int i=0;i<_NUM_SISTRIP_SUBDET_;i++){
 	
@@ -202,20 +199,21 @@ namespace cms{
     	name="cWidth"+appString;
     	fFile->cd();fFile->cd("ClusterWidth");
     	bookHlist( "TH1ClusterWidth", name, "Nbinx", "xmin", "xmax" );
+       
 
 	//Cluster Signal corrected
-	//	if(j==0 )   	   
-	//  {
-	//    name="cSignalCorr"+SubDet[i]+flags[j];
-	//    fFile->cd();fFile->cd("ClusterSignal");
-	//    bookHlist( "TH1ClusterSignalCorr", name, "Nbinx", "xmin", "xmax" );
-	//  }
+// 	if(j==0 )   	   
+// 	  {
+// 	    name="cSignalCorr"+SubDet[i]+flags[j];
+// 	    fFile->cd();fFile->cd("ClusterSignal");
+// 	    bookHlist( "TH1ClusterSignalCorr", name, "Nbinx", "xmin", "xmax" );
+// 	  }
 
     	//Loop for cluster width
     	for (int iw=0;iw<5;iw++){
-	 
+	  
     	  appString=SubDet[i]+flags[j]+width_flags[iw];
-
+	
      	  //Cluster Noise
      	  name="cNoise"+appString;
      	  fFile->cd();fFile->cd("ClusterNoise");
@@ -224,8 +222,8 @@ namespace cms{
      	  //Cluster Signal
      	  name="cSignal"+appString;
      	  fFile->cd();fFile->cd("ClusterSignal");
-     	  bookHlist( "TH1ClusterSignal", name, "Nbinx", "xmin", "xmax" );	  	 
-
+     	  bookHlist( "TH1ClusterSignal", name, "Nbinx", "xmin", "xmax" );
+	  
 	  //Cluster Signal corrected
 	  if(j==0 && iw==0 )   	   
 	    {
@@ -239,7 +237,7 @@ namespace cms{
      	  name="cStoN"+appString;
      	  fFile->cd();fFile->cd("ClusterStoN");
      	  bookHlist( "TH1ClusterStoN", name, "Nbinx", "xmin", "xmax" );
-
+	
 	  //Cluster SignaltoNoise corrected
 	  if(j==0 && iw==0 )   	   
 	    {
@@ -248,12 +246,11 @@ namespace cms{
 		fFile->cd();fFile->cd("ClusterStoN");
 	      bookHlist( "TH1ClusterStoNCorr", name, "Nbinx", "xmin", "xmax" );  
 	    }
-	  
+  
      	  //Cluster Position
      	  name="cPos"+appString;
      	  fFile->cd();fFile->cd("ClusterPos");
      	  bookHlist( "TH1ClusterPos", name, "Nbinx", "xmin", "xmax" );
-	 
 
      	  //Cluster Charge Division (only for study on Raw Data Runs)
      	  name="cEta"+appString;
@@ -273,11 +270,8 @@ namespace cms{
 	  // 					   Parameters.getParameter<double>("xmax")
 	  // 					   )
 	  // 				  );
-	
-	}//end loop on width 
-
+     	}//end loop on width 
       } //end loop on det type 
-     
     }//end loop on onTrack,offTrack,all
 
 
@@ -285,53 +279,58 @@ namespace cms{
     //Detector Detail Plots
 
     //Histos for each detector
-    for (std::vector<uint32_t>::const_iterator detid_iter=vdetId_.begin();detid_iter!=vdetId_.end();detid_iter++){
-      
+    for (std::vector<uint32_t>::const_iterator detid_iter=vdetId_.begin();detid_iter!=vdetId_.end();detid_iter++){  
       uint32_t detid = *detid_iter;
       
       if (detid < 1){
 	edm::LogError("ClusterAnalysis")<< "[" <<__PRETTY_FUNCTION__ << "] invalid detid " << detid<< std::endl;
 	continue;
-
       }
       const StripGeomDetUnit* _StripGeomDetUnit = dynamic_cast<const StripGeomDetUnit*>(tkgeom->idToDetUnit(DetId(detid)));
-      if (_StripGeomDetUnit==0){
 
+       if (_StripGeomDetUnit==0){
 	edm::LogError("SiStripCondObjDisplay")<< "[SiStripCondObjDisplay::beginJob] the detID " << detid << " doesn't seem to belong to Tracker" << std::endl; 
 	continue;
       }
       
-    
+      
       //&&&&&&&&&&&&&&&&&
       // Insert here code to instantiate histos per detector
       //eg
       
       unsigned int nstrips = _StripGeomDetUnit->specificTopology().nstrips();
-
-      //std::cout << "Confronto " << _StripGeomDetUnit->specificType().subDetector() << " " << DetId(detid).subdetId() << std::endl;
       
       edm::LogError("ClusterAnalysis") << " Detid " << detid << " SubDet " << GetSubDetAndLayer(detid).first << " Layer " << GetSubDetAndLayer(detid).second << std::endl;   
       if (DetectedLayers.find(GetSubDetAndLayer(detid)) == DetectedLayers.end()){
+
 	DetectedLayers[GetSubDetAndLayer(detid)]=true;
       }
+
       //       sprintf(name,"Pedestals_%s_%d",_StripGeomDetUnit->type().name().c_str(),detid);
       //       fFile->cd();fFile->cd("Pedestals");
       //       _TH1F_PedestalsProfile_m[detid] = new TH1F(name,name,nstrips,-0.5,nstrips-0.5);
+ 
+   
+      // &&&&&&&&&&&&&&&&&&
+      // Retrieve information for the module
+      // &&&&&&&&&&&&&&&&&&     
+    
+      //       char cdetid[128];
+      //       sprintf(cdetid,"%d",detid);        
+      //       fFile->cd();
+      //       fFile->mkdir(cdetid);    
+      //       fFile->cd(cdetid);    
+      //       char aname[128];
+      //       sprintf(aname,"%s_%d",_StripGeomDetUnit->type().name().c_str(),detid);
       
-//       char cdetid[128];
-//       sprintf(cdetid,"%d",detid);
-           
-//       fFile->cd();
-//       fFile->mkdir(cdetid);    
-//       fFile->cd(cdetid);    
-//       char aname[128];
-//       sprintf(aname,"%s_%d",_StripGeomDetUnit->type().name().c_str(),detid);
       char SubStr[128];
-      //      char * ptr = strchr(aname,":");
-      // sprintf(SubStr,"%s",strstr(aname,":"));
-      //TString appString=TString(_StripGeomDetUnit->type().name()).ReplaceAll("FieldParameters:","_")+"_"+cdetid;
-      //TString appString=TString(aname);//+"_"+cdetid;
       
+      // char * ptr = strchr(aname,":");
+      // sprintf(SubStr,"%s",strstr(aname,":"));
+      // TString appString=TString(_StripGeomDetUnit->type().name()).ReplaceAll("FieldParameters:","_")+"_"+cdetid;
+      // TString appString=TString(aname);//+"_"+cdetid;
+      
+           
       SiStripDetId a(detid);
       if ( a.subdetId() == 3 ){
 	TIBDetId b(detid);
@@ -348,11 +347,10 @@ namespace cms{
       }
       
       TString appString=TString(SubStr);//+"_"+cdetid;
-      
       fFile->cd();
       fFile->mkdir(SubStr);    
-      fFile->cd(SubStr);     
- 
+      fFile->cd(SubStr);
+      
       //Cluster Noise
       name="cNoise"+appString;
       bookHlist( "TH1ClusterNoise", name, "Nbinx", "xmin", "xmax" );
@@ -373,7 +371,6 @@ namespace cms{
       bookHlist( "TH1ClusterSignal", name, "Nbinx", "xmin", "xmax" );
 
       //Cluster Signal corrected
-      // name="cSignalCorr"+appString;
       //bookHlist( "TH1ClusterSignalCorr", name, "Nbinx", "xmin", "xmax" );
 
       //Cluster StoN
@@ -383,6 +380,7 @@ namespace cms{
       //Cluster Width
       name="cWidth"+appString;
       bookHlist( "TH1ClusterWidth", name, "Nbinx", "xmin", "xmax" );
+   
       //       Parameters =  conf_.getParameter<edm::ParameterSet>("TH1ClusterWidth");
       //       Hlist->Add(new TH1F(name,name,
       // 			  Parameters.getParameter<int32_t>("Nbinx"),
@@ -395,7 +393,6 @@ namespace cms{
       name="cPos"+appString;
       Hlist->Add(new TH1F(name,name,nstrips,-0.5,nstrips-.5));
       
-      //&&&&&&&&&&&&&&&&&
     }//end loop on detector	
 
 
@@ -403,7 +400,7 @@ namespace cms{
     //Layer Detail Plots
     
     for (std::map<std::pair<std::string,uint32_t>,bool>::const_iterator iter=DetectedLayers.begin(); iter!=DetectedLayers.end();iter++){
-
+     
       char cApp[64];
       sprintf(cApp,"_Layer_%d",iter->first.second);
       TString appString=TString(iter->first.first)+cApp;
@@ -436,9 +433,11 @@ namespace cms{
       name="cStoN"+appString;
       bookHlist( "TH1ClusterStoN", name, "Nbinx", "xmin", "xmax" );
 
+
       //Cluster SignaltoNoise corrected
       name="cStoNCorr"+appString;
       bookHlist( "TH1ClusterStoNCorr", name, "Nbinx", "xmin", "xmax" );
+
 
       //Cluster Width
       name="cWidth"+appString;
@@ -447,8 +446,7 @@ namespace cms{
       //Cluster Position
       name="cPos"+appString;
       bookHlist( "TH1ClusterPos", name, "Nbinx", "xmin", "xmax" );
-
-
+    
       //&&&&&&&&&&&&&&&&&&&&&&&&
       
       //Display TProfile
@@ -490,23 +488,24 @@ namespace cms{
       
       std::cout << "added TProfile " << std::endl;
       
-      //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&      
+      //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&  
+
     }
   }
 
   //------------------------------------------------------------------------------------------
 
   void ClusterAnalysis::endJob() {  
-    edm::LogInfo("ClusterAnalysis") << "[ClusterAnalysis::endJob] >>> saving histograms" << std::endl;
+     edm::LogInfo("ClusterAnalysis") << "[ClusterAnalysis::endJob] >>> saving histograms" << std::endl;
     
     fFile->cd();
-    
-    if (psfilemode_>0){ 
+ 
+    if (psfilemode_>0){
       edm::LogInfo("ClusterAnalysis")  << "... And now write on ps file " << psfiletype_ << std::endl;
       TPostScript ps(psfilename_.c_str(),psfiletype_);
       TCanvas Canvas("c","c");//("c","c",600,300);
       for (int ih=0; ih<Hlist->GetEntries();ih++){
-    	if (psfilemode_>1 || strstr((*Hlist)[ih]->GetName(),"SingleDet_")==NULL){  
+	if (psfilemode_>1 || strstr((*Hlist)[ih]->GetName(),"SingleDet_")==NULL){
 	  edm::LogInfo("ClusterAnalysis") << "Histos " << ih << " name " << (*Hlist)[ih]->GetName() << " title " <<  (*Hlist)[ih]->GetTitle() << std::endl;
 	  if (dynamic_cast<TH1F*>((*Hlist)[ih]) !=NULL){
 	    if (dynamic_cast<TH1F*>((*Hlist)[ih])->GetEntries() != 0)
@@ -522,20 +521,18 @@ namespace cms{
 	  ps.NewPage();
 	}
       }
-      ps.Close();     
+      ps.Close();      
       fFile->ls();
     }
-    
     fFile->Write();
     fFile->Close();
-    
+
   }
-  
+
   //------------------------------------------------------------------------------------------
 
   void ClusterAnalysis::analyze(const edm::Event& e, const edm::EventSetup& es) {
     edm::LogInfo("ClusterAnalysis") << "[ClusterAnalysis::analyse]  " << "Run " << e.id().run() << " Event " << e.id().event() << std::endl;
-
     runNb   = e.id().run();
     eventNb = e.id().event();
     edm::LogInfo("ClusterAnalysis") << "Processing run " << runNb << " event " << eventNb << std::endl;
@@ -677,6 +674,8 @@ namespace cms{
   //------------------------------------------------------------------------
   
   void ClusterAnalysis::trackStudy(){
+    
+ 
     LogTrace("ClusterAnalysis") << "\n["<<__PRETTY_FUNCTION__<<"]" << std::endl;
     const reco::TrackCollection tC = *(trackCollection.product());
    
@@ -723,19 +722,18 @@ namespace cms{
       ((TH1F*) Hlist->FindObject("nRecHits"))->Fill(recHitsSize);
 
 
-
-      //------------------------------RESIDUAL at the layer level ------------
+       //------------------------------RESIDUAL at the layer level ------------
 	  
       for(_tkinfoCmbiter=trackinforefCmb->trajStateMap().begin();_tkinfoCmbiter!=trackinforefCmb->trajStateMap().end();_tkinfoCmbiter++){
 	
 	const SiStripMatchedRecHit2D* matchedhit=dynamic_cast<const SiStripMatchedRecHit2D*>(&(*(_tkinfoCmbiter->first)));
 	const SiStripRecHit2D* hit=dynamic_cast<const SiStripRecHit2D*>(&(*(_tkinfoCmbiter->first)));
-
+	
 	if(matchedhit)  
 	  {
-	  
 	    //track angle
-	    LocalVector trackdirection=(_tkinfoCmbiter->second.parameters()).momentum();
+	    LocalVector trackdirection=((_tkinfoCmbiter->second.stateOnDet()).parameters()).momentum();
+	    //LocalVector trackdirection=trackinforefCmb->localTrackMomentumOnMono(_tkinfoCmbiter->first);
 	    GluedGeomDet * gdet=(GluedGeomDet *)_tracker->idToDet(matchedhit->geographicalId());
 	    GlobalVector gtrkdir=gdet->toGlobal(trackdirection);
 	    float angle = atan(gtrkdir.x()/gtrkdir.z())*180/TMath::Pi();
@@ -747,25 +745,23 @@ namespace cms{
 	    char cApp[64];
 	    sprintf(cApp,"_Layer_%d",GetSubDetAndLayer(detid).second);
 	    TString appString=TString(GetSubDetAndLayer(detid).first)+cApp; 
-	    //std::cout << "MATCHED::subdet_layer->"<<appString << std::endl;
+	    // std::cout << "MATCHED::subdet_layer->"<<appString << std::endl;
 	    
 	    //---------------------------
-	    
-	    // LocalPoint stateposition= (_tkinfoCmbiter->second.parameters()).position();	
-	    
-	    LocalPoint stateposition= (_tkinfoCmbiter->second.parameters()).position(); //trajectory position on the detector
+	    LocalPoint stateposition=trackinforefCmb->localTrackPosition(_tkinfoCmbiter->first);
+	    //LocalPoint stateposition= (_tkinfoCmbiter->second.parameters()).position();	
 	    LocalPoint rechitposition= matchedhit->localPosition();
 	    fillTH1( stateposition.x() - rechitposition.x(),"res_x"+appString,0);
 	    fillTH1( stateposition.y() - rechitposition.y(),"res_y"+appString,0);
 	    ((TProfile*) Hlist->FindObject("ResidualVsAngle"))->Fill(angle,stateposition.x()- rechitposition.x(),1);
-	    ((TProfile*) Hlist->FindObject("ResidualVsAngle"+appString+"_onTrack"))->Fill(angle,stateposition.x()- rechitposition.x(),1);
-	    
+	    ((TProfile*) Hlist->FindObject("ResidualVsAngle"+appString+"_onTrack"))->Fill(angle,stateposition.x()- rechitposition.x(),1);    
 	  }
 	//  std::cout << "detidCmb from track" <<detidCmb << "versus" <<(&(*(*_tkinfoCmbiter).first))->geographicalId().rawId()<< std::endl;
-	else if ( hit ){
+	else if (hit){
 	  
 	  //track angle
-	  LocalVector trackdirection=(_tkinfoCmbiter->second.parameters()).momentum();
+	  LocalVector trackdirection=((_tkinfoCmbiter->second.stateOnDet()).parameters()).momentum();
+	  // LocalVector trackdirection=(_tkinfoCmbiter->second.parameters()).momentum();
 	  GluedGeomDet * gdet=(GluedGeomDet *)_tracker->idToDet(hit->geographicalId());
 	  GlobalVector gtrkdir=gdet->toGlobal(trackdirection);
 	  float angle = atan(gtrkdir.x()/gtrkdir.z())*180/TMath::Pi();
@@ -775,9 +771,10 @@ namespace cms{
 	  //const unsigned int detid = ((*_tkinfoCmbiter).second).detId();
 	  sprintf(cApp,"_Layer_%d",GetSubDetAndLayer(detid).second);
 	  TString appString=TString(GetSubDetAndLayer(detid).first)+cApp;
-	  //std::cout << " NOT_MATCHED::subdet_layer->"<<appString << std::endl;
+	  //	  std::cout << " NOT_MATCHED::subdet_layer->"<<appString << std::endl;
 	  
-	  LocalPoint  stateposition= (_tkinfoCmbiter->second.parameters()).position(); //trajectory position on the detector
+	  LocalPoint stateposition= trackinforefCmb->localTrackPosition(_tkinfoCmbiter->first);
+	  //LocalPoint  stateposition= (_tkinfoCmbiter->second.parameters()).position(); //trajectory position on the detector
 	  LocalPoint  rechitposition = (_tkinfoCmbiter->first)->localPosition();// rechit position on the detector
 	  fillTH1( stateposition.x()- rechitposition.x(),"res_x"+appString,0);
 	  fillTH1( stateposition.y()- rechitposition.y(),"res_y"+appString,0);
@@ -786,7 +783,7 @@ namespace cms{
 	}
 	else {std::cout <<"---No RecHit found-----------"<< std::endl;}
       }
-      
+  
       //---------------------------------------------------------------------
   
       //       for (trackingRecHit_iterator it = track->recHitsBegin();  it != track->recHitsEnd(); it++){
@@ -947,8 +944,6 @@ namespace cms{
       << "\n\t\tcluster GlobalPos "     << globalPos
       << std::endl;
 
-    //std::cout<<"angle1-> "<<angle<<std::endl;
-
     //Display
     ((TH3S*) Hlist->FindObject("ClusterGlobalPos"))
       ->Fill(globalPos.z(),globalPos.x(),globalPos.y());
@@ -957,9 +952,7 @@ namespace cms{
     //Cumulative Plots
 
     TString appString=SubDet[SubDet_enum]+flag;    
-    //std::cout << "appString "<<appString << std::endl;
-
-    
+  
     fillTH1(cluster->charge(),"cSignal"+appString,1,cluster->width());
 
 
@@ -975,25 +968,22 @@ namespace cms{
       fillTH1(cluster->charge()/cluster->noise(),"cStoN"+appString,1,cluster->width());
       fillTH1((cluster->charge()/cluster->noise())*cos((angle/180)* TMath::Pi()),"cStoNCorr"+appString,0);
     }
-    
+      
     fillTH1(cluster->width(),"cWidth"+appString,0);
 
     fillTH1(cluster->position(),"cPos"+appString,1,cluster->width());
    
      
-    //---- (LAYER LEVEL)----------------
+    //---- ClusterCharge corrected by angle (Layer)-----
     char cAppL[64];
     sprintf(cAppL,"_Layer_%d",GetSubDetAndLayer(detid).second);
     TString appStringL=TString(GetSubDetAndLayer(detid).first)+cAppL;
-
-
     if (flag=="_onTrack")
       {
 	fillTH1(cluster->charge()*cos((angle/180)* TMath::Pi()),"cSignalCorr"+appStringL,1,cluster->width());
-    	((TProfile*) Hlist->FindObject("ClusterWidhtVsAngle"+appStringL+flag))->Fill(angle,cluster->width(),1);  
+	((TProfile*) Hlist->FindObject("ClusterWidhtVsAngle"+appStringL+flag))->Fill(angle,cluster->width(),1);  
       }
     if (cluster->noise() && flag=="_onTrack")fillTH1((cluster->charge()/cluster->noise())*cos((angle/180)* TMath::Pi()),"cStoNCorr"+appStringL,1,cluster->width());
-
     //---------------------------------------------------
 
     if (cluster->rawdigiAmplitudesL().size()!=0 ||  cluster->rawdigiAmplitudesR().size()!=0){
@@ -1017,8 +1007,6 @@ namespace cms{
       }
       else{
 
-	
-
 	int Nstrip=cluster->stripAmplitudes().size();
 	float pos=cluster->position()-0.5;
 	for(int is=0;is<Nstrip && cluster->firstStrip()+is<=pos;is++)
@@ -1032,7 +1020,6 @@ namespace cms{
   	for (std::vector<int16_t>::const_iterator it=cluster->rawdigiAmplitudesR().begin(); it !=cluster->rawdigiAmplitudesR().end() && it-cluster->rawdigiAmplitudesR().begin()<NeighStrips_; it ++)
   	  { Qr += (*it);}
 
-	
 	
 	Qt=Ql+Qr;
       }
@@ -1049,8 +1036,6 @@ namespace cms{
       //Detector Detail Plots
       char aname[128];
       //sprintf(aname,"%s_%d",_StripGeomDetUnit->type().name().c_str(),detid);
-      //TString appString=TString(strstr(aname,":"));
-      
       SiStripDetId a(detid);
       if ( a.subdetId() == 3 ){
 	TIBDetId b(detid);
@@ -1064,9 +1049,9 @@ namespace cms{
       } else if ( a.subdetId() == 6 ) {
 	TECDetId b(detid);
 	sprintf(aname,"_SingleDet_%d_TEC_%d_%d_%d_%d_%d",detid,b.wheel(),b.ring(),b.side(),b.glued(),b.stereo());
-      } 
-      
-      TString appString=TString(aname);    
+      }        
+      //TString appString=TString(strstr(aname,":"));
+      TString appString=TString(aname);
       //appString=TString(_StripGeomDetUnit->type().name()).ReplaceAll("FieldParameters:","_")+cdetid;
 
       fillTH1(cluster->charge(),"cSignal"+appString,0);
@@ -1220,8 +1205,8 @@ namespace cms{
       const ProjectedSiStripRecHit2D* phit=dynamic_cast<const ProjectedSiStripRecHit2D*>(&(*(_tkinfoiter->first)));
       const SiStripMatchedRecHit2D* matchedhit=dynamic_cast<const SiStripMatchedRecHit2D*>(&(*(_tkinfoiter->first)));
       const SiStripRecHit2D* hit=dynamic_cast<const SiStripRecHit2D*>(&(*(_tkinfoiter->first)));
-      LocalVector trackdirection=(_tkinfoiter->second.parameters()).momentum();
-      
+      //      LocalVector trackdirection=(_tkinfoiter->second.parameters()).momentum();
+      LocalVector trackdirection=  ((_tkinfoiter->second.stateOnDet()).parameters()).momentum();
 
       if (phit) {
  	//phit = POINTER TO THE PROJECTED RECHIT
@@ -1231,7 +1216,6 @@ namespace cms{
       if(matchedhit){//if matched hit...
 	std::cout<<"MatchedHit found"<<std::endl;
  	GluedGeomDet * gdet=(GluedGeomDet *)_tracker->idToDet(matchedhit->geographicalId());
-
  	GlobalVector gtrkdir=gdet->toGlobal(trackdirection);
  	std::cout<<"Track direction trasformed in global direction"<<std::endl;
 	
@@ -1255,9 +1239,7 @@ namespace cms{
  	  oYZHitAngle.push_back( std::make_pair( monohit, atan( monotkdir.y()/ monotkdir.z())));
  	  oLocalDir.push_back( std::make_pair( monohit, monotkdir));
  	  oGlobalDir.push_back( std::make_pair( monohit, gtrkdir));
- 	  //std::cout<<"Angle="<<atan(monotkdir.x(), monotkdir.z())*180/TMath::Pi()<<std::endl;
 	  
- 	  //cluster and trackdirection on stereo det
 	  
  	  // THIS THE POINTER TO THE STEREO HIT OF A MATCHED HIT 
  	  const SiStripRecHit2D *stereohit=matchedhit->stereoHit();
