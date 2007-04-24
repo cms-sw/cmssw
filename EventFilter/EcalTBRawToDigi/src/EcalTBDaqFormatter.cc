@@ -1,7 +1,7 @@
 /*  
  *
- *  $Date: 2007/04/10 10:41:21 $
- *  $Revision: 1.45 $
+ *  $Date: 2007/04/12 08:36:47 $
+ *  $Revision: 1.46 $
  *  \author  N. Marinelli IASA 
  *  \author G. Della Ricca
  *  \author G. Franzoni
@@ -106,14 +106,18 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData ,
 
     theDCCheader.setRunNumber((*itEventBlock)->getDataField("RUN NUMBER"));
     short trigger_type = (*itEventBlock)->getDataField("TRIGGER TYPE");
-    short zs = (*itEventBlock)->getDataField("ZS");
+    short zs  = (*itEventBlock)->getDataField("ZS");
     short tzs = (*itEventBlock)->getDataField("TZS");
-    short sr = (*itEventBlock)->getDataField("SR");
-    
+    short sr  = (*itEventBlock)->getDataField("SR");
+    bool  dataIsSuppressed;
+
+    // if zs&&tzs the suppression algo is used in DCC, the data are not suppressed and zs-bits are set
+    if ( zs && !(tzs) ) dataIsSuppressed = true;
+    else  dataIsSuppressed = false;
 
     if(trigger_type >0 && trigger_type <5){theDCCheader.setBasicTriggerType(trigger_type);}
     else{ edm::LogWarning("EcalTBRawToDigiTriggerType") << "@SUB=EcalTBDaqFormatter::interpretRawData"
-					<< "unrecognized TRIGGER TYPE: "<<trigger_type;}
+							<< "unrecognized TRIGGER TYPE: "<<trigger_type;}
     theDCCheader.setLV1((*itEventBlock)->getDataField("LV1"));
     theDCCheader.setBX((*itEventBlock)->getDataField("BX"));
     theDCCheader.setErrors((*itEventBlock)->getDataField("DCC ERRORS"));
@@ -294,7 +298,7 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData ,
 	  std::vector<DCCXtalBlock * > & xtalDataBlocks = (*itTowerBlock)->xtalBlocks();	
 	  
 	  // if there is no zero suppression, tower block must have have 25 channels in it
-	  if (  (!zs)   &&   (xtalDataBlocks.size() != kChannelsPerTower)   )
+	  if (  (!dataIsSuppressed)   &&   (xtalDataBlocks.size() != kChannelsPerTower)   )
 	    {     
 	      edm::LogWarning("EcalTBRawToDigiTowerSize") << "EcalTBDaqFormatter::interpretRawData, no zero suppression "
 					    << "wrong tower block size is: "  << xtalDataBlocks.size() 
@@ -325,32 +329,57 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData ,
 
 	    expStripInTower = expCryInTower/5 +1;
 	    expCryInStrip     =  expCryInTower%5 +1;
-	  
-
+	    
+	    
 	    // FIXME: waiting for geometry to do (TT, strip,chNum) <--> (SMChId)
 	    // short abscissa = (_ExpectedTowers[_expTowersIndex]-1)  /4;
 	    // short ordinate = (_ExpectedTowers[_expTowersIndex]-1)  %4;
 	    // temporarily choosing central crystal in trigger tower
 	    // int cryIdInSM  = 45 + ordinate*5 + abscissa * 100;
-
-
+	    
+	    
 	    // in case of 0 zuppressed data, check that cryInTower constantly grows
-	    if (zs)
+	    if (dataIsSuppressed)
 	      {
+		
+		if ( strip < 1 || 5<strip || ch <1 || 5 < ch)
+		  {
+		    int  sm = 1; // hardcoded because of test  beam
+		    for (int StripInTower_ =1;  StripInTower_ < 6; StripInTower_++){
+		      for (int  CryInStrip_ =1;  CryInStrip_ < 6; CryInStrip_++){
+			int  ic        = cryIc(tower, StripInTower_,  CryInStrip_) ;
+			EBDetId               idExp(sm, ic,1);
+			chidcollection.push_back(idExp);
+		      }
+		    }
+		    
+		    edm::LogWarning("EcalTBRawToDigiChId") << "EcalTBDaqFormatter::interpretRawData with zero suppression, "
+							   << " wrong channel id, since out of range: "
+							   << "\t strip: "  << strip  << "\t channel: " << ch
+							   << "\t in TT: " << _ExpectedTowers[_expTowersIndex]
+							   << "\t at event: " << (*itEventBlock)->getDataField("LV1");
+		    
+		    expCryInTower++;
+		    continue;
+		  }
+
+
 		// correct ordering
-		if(  cryInTower >= expCryInTower )
-		  {   expCryInTower = cryInTower +1;	  } 
+		if(  cryInTower >= expCryInTower ){
+		  expCryInTower = cryInTower +1;
+		}
+		
 		
 		// cry_id wrong because of incorrect ordering within trigger tower
 		else
 		  {
 		    edm::LogWarning("EcalTBRawToDigiChId") << "EcalTBDaqFormatter::interpretRawData with zero suppression, "
-						  << " based on ch ordering within tt, wrong channel id: "
-						  << "\t strip: "  << strip  << "\t channel: " << ch
-						  << "\t cryInTower "  << cryInTower
-						  << "\t expCryInTower: " << expCryInTower
-						  << "\t in TT: " << _ExpectedTowers[_expTowersIndex]
-						  << "\t at event: " << (*itEventBlock)->getDataField("LV1");
+							   << " based on ch ordering within tt, wrong channel id: "
+							   << "\t strip: "  << strip  << "\t channel: " << ch
+							   << "\t cryInTower "  << cryInTower
+							   << "\t expCryInTower: " << expCryInTower
+							   << "\t in TT: " << _ExpectedTowers[_expTowersIndex]
+							   << "\t at event: " << (*itEventBlock)->getDataField("LV1");
 		    
 		    int  sm = 1; // hardcoded because of test  beam
 		    for (int StripInTower_ =1;  StripInTower_ < 6; StripInTower_++){
@@ -360,18 +389,18 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData ,
 			chidcollection.push_back(idExp);
 		      }
 		    }
-		  
+		    
 		    // chennel with id which does not follow correct odering
 		    expCryInTower++;		    continue;
 		    
 		  }// end 'ch_id does not respect growing order'
 		
 	      }// end   if zero supression
-	  
-
-
+	    
+	    
+	    
 	    else {	      // if there is no zero suppression, channel has to equal the expected channel
-
+	      
 	      if(   (cryInTower != expCryInTower) )
 		{
 		  
