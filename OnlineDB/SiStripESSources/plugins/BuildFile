@@ -1,0 +1,4 @@
+<use name=OnlineDB/SiStripESSources>
+<library file=*.cc name=OnlineDBSiStripESSourcesPlugins>
+  <flags EDM_PLUGIN=1>
+</library>
