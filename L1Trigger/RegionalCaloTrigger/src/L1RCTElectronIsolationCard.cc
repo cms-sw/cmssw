@@ -37,46 +37,30 @@ L1RCTElectronIsolationCard::calcElectronCandidates(L1RCTRegion* region){
   unsigned short nonIsoElectron = 0;
   unsigned short isoElectron = 0;
   
-  unsigned short primaryEt;
-  unsigned short primaryHE_FG;
-  unsigned short nwEt;
-  unsigned short nwHE_FG;
-  unsigned short neEt;
-  unsigned short neHE_FG;
-  unsigned short swEt;
-  unsigned short swHE_FG;
-  unsigned short seEt;
-  unsigned short seHE_FG;
-  unsigned short northEt;
-  unsigned short northHE_FG;
-  unsigned short southEt;
-  unsigned short southHE_FG;
-  unsigned short eastEt;
-  unsigned short eastHE_FG;
-  unsigned short westEt;
-  unsigned short westHE_FG;
   //i is row and j is column
   for(int i = 0; i<4; i++){
     for(int j = 0; j<4; j++){
-      primaryEt = region->getEtIn7Bits(i,j);
-      primaryHE_FG = region->getHE_FGBit(i,j); 
+
+      unsigned short primaryEt = region->getEtIn7Bits(i,j);
+      unsigned short primaryHE_FG = region->getHE_FGBit(i,j); 
       
-      northEt = region->getEtIn7Bits(i-1,j);
-      northHE_FG = region->getHE_FGBit(i-1,j);
-      southEt = region->getEtIn7Bits(i+1,j);
-      southHE_FG = region->getHE_FGBit(i+1,j);
-      westEt = region->getEtIn7Bits(i,j-1);
-      westHE_FG = region->getHE_FGBit(i,j-1);
-      eastEt = region->getEtIn7Bits(i,j+1);
-      eastHE_FG = region->getHE_FGBit(i,j+1);
-      neEt = region->getEtIn7Bits(i-1,j+1);
-      neHE_FG = region->getHE_FGBit(i-1,j+1);
-      nwEt = region->getEtIn7Bits(i-1,j-1);
-      nwHE_FG = region->getHE_FGBit(i-1,j-1);
-      seEt = region->getEtIn7Bits(i+1,j+1);
-      seHE_FG = region->getHE_FGBit(i+1,j+1);
-      swEt = region->getEtIn7Bits(i+1,j-1);
-      swHE_FG = region->getHE_FGBit(i+1,j-1);
+      unsigned short northEt = region->getEtIn7Bits(i-1,  j);
+      unsigned short southEt = region->getEtIn7Bits(i+1,  j);
+      unsigned short westEt  = region->getEtIn7Bits(  i,j-1);
+      unsigned short eastEt  = region->getEtIn7Bits(  i,j+1);
+      unsigned short neEt    = region->getEtIn7Bits(i-1,j+1);
+      unsigned short nwEt    = region->getEtIn7Bits(i-1,j-1);
+      unsigned short seEt    = region->getEtIn7Bits(i+1,j+1);
+      unsigned short swEt    = region->getEtIn7Bits(i+1,j-1);
+
+      unsigned short northHE_FG = region->getHE_FGBit(i-1,  j);
+      unsigned short southHE_FG = region->getHE_FGBit(i+1,  j);
+      unsigned short westHE_FG  = region->getHE_FGBit(  i,j-1);
+      unsigned short eastHE_FG  = region->getHE_FGBit(  i,j+1);
+      unsigned short neHE_FG    = region->getHE_FGBit(i-1,j+1);
+      unsigned short nwHE_FG    = region->getHE_FGBit(i-1,j-1);
+      unsigned short seHE_FG    = region->getHE_FGBit(i+1,j+1);
+      unsigned short swHE_FG    = region->getHE_FGBit(i+1,j-1);
 
       if(primaryEt > northEt && primaryEt >= southEt && primaryEt > westEt
 	 && primaryEt >= eastEt && !primaryHE_FG){
@@ -84,14 +68,10 @@ L1RCTElectronIsolationCard::calcElectronCandidates(L1RCTRegion* region){
 	unsigned short candidateEt = calcMaxSum(primaryEt,northEt,southEt,
 						eastEt,westEt);
 
-	
-
 	bool neighborVeto = (nwHE_FG || northHE_FG || neHE_FG || westHE_FG ||
 			     eastHE_FG || swHE_FG || southHE_FG || seHE_FG); 
 	
-	//bool neighborVeto = false;
-	//veto threshold
-	int quietThreshold = 0;
+	int quietThreshold = 3;   // 3 - loose isolation 0 - very tight isolation
 	
 	bool nw = false;
 	bool ne = false;
@@ -101,10 +81,6 @@ L1RCTElectronIsolationCard::calcElectronCandidates(L1RCTRegion* region){
 	bool w = false;
 	bool s = false;
 	bool e = false;
-	bool nwC;
-	bool neC;
-	bool swC;
-	bool seC;
 
 	if (nwEt > quietThreshold) nw = true;
 	if (neEt > quietThreshold) ne = true;
@@ -115,18 +91,13 @@ L1RCTElectronIsolationCard::calcElectronCandidates(L1RCTRegion* region){
 	if (westEt > quietThreshold) w = true;
 	if (eastEt > quietThreshold) e = true;
 
-	nwC = (sw || w || nw || n || ne);
-	neC = (nw || n || ne || e || se);
-	seC = (ne || e || se || s || sw);
-	swC = (se || s || sw || w || nw);
+	bool nwC = (sw || w || nw || n || ne);
+	bool neC = (nw || n || ne || e || se);
+	bool seC = (ne || e || se || s || sw);
+	bool swC = (se || s || sw || w || nw);
 
 	bool quietVeto = (nwC && neC && seC && swC);
 
-	//	bool quietVeto = (nwEt > quietThreshold || neEt > quietThreshold || 
-	//			  swEt > quietThreshold || seEt > quietThreshold);
-	
-	//bool quietVeto = false;
-	
 	if(!(quietVeto || neighborVeto)){
 	  if(candidateEt > isoElectron)
 	    isoElectron = candidateEt;
