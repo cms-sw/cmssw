@@ -1,13 +1,11 @@
 <use name=FWCore/Framework>
 <use name=DataFormats/Math>
 <use name=boost>
-<use name=relax>
 <use name=rootmath>
 <use name=rootrflx>
 <export>
   <use name=DataFormats/Math>
   <use name=boost>
-  <use name=relax>
   <use name=rootmath>
   <use name=rootrflx>
   <lib name=CondFormatsEcalObjects>
