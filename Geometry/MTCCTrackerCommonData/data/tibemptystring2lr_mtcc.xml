@@ -7,7 +7,7 @@
 
 <SolidSection label="tibemptystring2lr_mtcc.xml">
  <Box name="TIBString2LoPls1"            dx="[tibmodpar:ModuleDx]"    
-      dy="[tibmodpar:ModuleDy]"          dz="[tibstring2c:StringLoPlsL]/2"/>
+      dy="[tibmodpar:SSModuleDy]"          dz="[tibstring2c:StringLoPlsL]/2"/>
  <Box name="TIBString2LoPls2"            dx="[tibstringpar:CoolTubeW]/2"    
       dy="[tibstringpar:CoolTubeD]/2"    dz="[tibstring2c:StringLoPlsL]/2"/>
  <Tubs name="TIBString2LoPlsCoolS"       rMin="[zero]"      
@@ -65,9 +65,9 @@
   <Numeric name="StartCopyNo" value="4"/>
   <Numeric name="IncrCopyNo"  value="1" />
   <Vector name="ZPositions" type="numeric" nEntries="3">
-  ([tibstring2lr:Det0Z]+[tibstring2lr:Shift]), 
-  ([tibstring2lr:Det1Z]+[tibstring2lr:Shift]), 
-  ([tibstring2lr:Det2Z]+[tibstring2lr:Shift]) </Vector>
+  ([tibstring2lr:Det0Z]+[tibstring2lr:ShiftCCU]), 
+  ([tibstring2lr:Det1Z]+[tibstring2lr:ShiftCCU]), 
+  ([tibstring2lr:Det2Z]+[tibstring2lr:ShiftCCU]) </Vector>
   <Vector name="Rotations" type="string" nEntries="3">
   tibstringpar:NULL, tibstringpar:NULL, tibstringpar:NULL</Vector>
 </Algorithm>
@@ -78,9 +78,9 @@
   <Numeric name="StartCopyNo" value="5"/>
   <Numeric name="IncrCopyNo"  value="1" />
   <Vector name="ZPositions" type="numeric" nEntries="3">
-  ([tibstring2lr:ICC0Z]+[tibstring2lr:Shift]), 
-  ([tibstring2lr:ICC1Z]+[tibstring2lr:Shift]), 
-  ([tibstring2lr:ICC2Z]+[tibstring2lr:Shift]) </Vector>
+  ([tibstring2lr:ICC0Z]+[tibstring2lr:ShiftCCU]), 
+  ([tibstring2lr:ICC1Z]+[tibstring2lr:ShiftCCU]), 
+  ([tibstring2lr:ICC2Z]+[tibstring2lr:ShiftCCU]) </Vector>
   <Vector name="Rotations" type="string" nEntries="3">
   tibstringpar:NULL, tibstringpar:NULL, tibstringpar:NULL</Vector>
 </Algorithm>
