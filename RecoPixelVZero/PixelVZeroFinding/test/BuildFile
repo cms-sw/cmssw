@@ -11,7 +11,7 @@
 
 <use name=DataFormats/VZero>
 <use name=RecoVertex/VertexTools>
-<use name=RecoPixelVZero/PixelVZeroFinding>
+#<use name=RecoPixelVZero/PixelVZeroFinding>
 
 <flags EDM_PLUGIN=1>
 <library file="PixelVZeroTest.cc" name="PixelVZeroTest">
