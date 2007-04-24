@@ -454,18 +454,14 @@ void GlobalRecHitsProducer::fillHCal(edm::Event& iEvent,
   if (verbosity > 0)
     eventout = "\nGathering info:";  
 
-  /*
-  // get calibration info
-  edm::ESHandle<HcalDbService> HCalconditions;
-  iSetup.get<HcalDbRecord>().get(HCalconditions);
-  if (!HCalconditions.isValid()) {
+  // get geometry
+  edm::ESHandle<CaloGeometry> geometry;
+  iSetup.get<IdealGeometryRecord>().get(geometry);
+  if (!geometry.isValid()) {
     edm::LogWarning(MsgLoggerCat)
-      << "Unable to find HCalconditions in event!";
+      << "Unable to find CaloGeometry in event!";
     return;
-  } 
-  const HcalQIEShape *shape = HCalconditions->getHcalShape();
-  HcalCalibrations calibrations;
-  CaloSamples tool;
+  }
 
   ///////////////////////
   // extract simhit info
@@ -504,153 +500,247 @@ void GlobalRecHitsProducer::fillHCal(edm::Event& iEvent,
     }    
   }
 
+  // max values to be used (HO is found in HB)
+  Double_t maxHBEnergy = 0.;
+  Double_t maxHEEnergy = 0.;
+  Double_t maxHOEnergy = 0.;
+  Double_t maxHFEnergy = 0.;
+
+  Double_t maxHBPhi = -1000.;
+  Double_t maxHEPhi = -1000.;
+  Double_t maxHOPhi = -1000.;
+  Double_t maxHFPhi = -1000.;
+
+  Double_t maxHBEta = -1000.;
+  Double_t maxHEEta = -1000.;
+  Double_t maxHOEta = -1000.;
+  Double_t maxHFEta = -1000.;
+
+  Double_t PI = 3.141592653589;
+
   ////////////////////////
   // get HBHE information
   ///////////////////////
-  edm::Handle<edm::SortedCollection<HBHEDataFrame> > hbhe;
-  iEvent.getByType(hbhe);
-  if (!hbhe.isValid()) {
+  std::vector<edm::Handle<HBHERecHitCollection> > hbhe;
+  iEvent.getManyByType(hbhe);
+  if (!hbhe[0].isValid()) {
     edm::LogWarning(MsgLoggerCat)
-      << "Unable to find HBHEDataFrame in event!";
+      << "Unable to find any HBHERecHitCollections in event!";
     return;
-  }    
-  edm::SortedCollection<HBHEDataFrame>::const_iterator ihbhe;
-  
+  } 
+  std::vector<edm::Handle<HBHERecHitCollection> >::iterator ihbhe;
+     
   int iHB = 0;
   int iHE = 0; 
-  for (ihbhe = hbhe->begin(); ihbhe != hbhe->end(); ++ihbhe) {
-    HcalDetId cell(ihbhe->id()); 
+  for (ihbhe = hbhe.begin(); ihbhe != hbhe.end(); ++ihbhe) {
 
-    if ((cell.subdet() == sdHcalBrl) || (cell.subdet() == sdHcalEC)) {
+    // find max values
+    for (HBHERecHitCollection::const_iterator jhbhe = (*ihbhe)->begin();
+	 jhbhe != (*ihbhe)->end(); ++jhbhe) {
+
+      HcalDetId cell(jhbhe->id());
       
-      HCalconditions->makeHcalCalibration(cell, &calibrations);
-      const HcalQIECoder *channelCoder = HCalconditions->getHcalCoder(cell);
-      HcalCoderDb coder(*channelCoder, *shape);
-      coder.adc2fC(*ihbhe, tool);
+      if (cell.subdet() == sdHcalBrl) {
+	
+	const CaloCellGeometry* cellGeometry =
+	  geometry->getSubdetectorGeometry (cell)->getGeometry (cell) ;
+	double fEta = cellGeometry->getPosition().eta () ;
+	double fPhi = cellGeometry->getPosition().phi () ;
+	if ( (jhbhe->energy()) > maxHBEnergy ) {
+	  maxHBEnergy = jhbhe->energy();
+	  maxHOEnergy = maxHBEnergy;
+	  maxHBPhi = fPhi;
+	  maxHOPhi = maxHBPhi;
+	  maxHBEta = fEta;
+	  maxHOEta = maxHBEta;
+	}	  
+      }
+	
+      if (cell.subdet() == sdHcalEC) {
+	
+	const CaloCellGeometry* cellGeometry =
+	  geometry->getSubdetectorGeometry (cell)->getGeometry (cell) ;
+	double fEta = cellGeometry->getPosition().eta () ;
+	double fPhi = cellGeometry->getPosition().phi () ;
+	if ( (jhbhe->energy()) > maxHEEnergy ) {
+	  maxHEEnergy = jhbhe->energy();
+	  maxHEPhi = fPhi;
+	  maxHEEta = fEta;
+	}	  
+      }
+    } // end find max values
+
+    for (HBHERecHitCollection::const_iterator jhbhe = (*ihbhe)->begin();
+	 jhbhe != (*ihbhe)->end(); ++jhbhe) {
+
+      HcalDetId cell(jhbhe->id());
       
-      // get HB info
       if (cell.subdet() == sdHcalBrl) {
 
 	++iHB;
-	float fDigiSum = 0.0;
-	for  (int ii = 0; ii < tool.size(); ++ii) {
-	  // default ped is 4.5
-	  int capid = (*ihbhe)[ii].capid();
-	  fDigiSum += (tool[ii] - calibrations.pedestal(capid));
-	}
-	
-	HBCalAEE.push_back(fDigiSum);
+
+	const CaloCellGeometry* cellGeometry =
+	  geometry->getSubdetectorGeometry (cell)->getGeometry (cell) ;
+	double fEta = cellGeometry->getPosition().eta () ;
+	double fPhi = cellGeometry->getPosition().phi () ;
+
+	float deltaphi = maxHBPhi - fPhi;
+	if (fPhi > maxHBPhi) { deltaphi = fPhi - maxHBPhi;}
+	if (deltaphi > PI) { deltaphi = 2.0 * PI - deltaphi;}
+	float deltaeta = fEta - maxHBEta;
+	Double_t r = sqrt(deltaeta * deltaeta + deltaphi * deltaphi);
+
+	HBCalREC.push_back(jhbhe->energy());
+	HBCalR.push_back(r);
 	HBCalSHE.push_back(fHBEnergySimHits[cell.rawId()]);
       }
-	
-      // get HE info
+
       if (cell.subdet() == sdHcalEC) {
-	
+
 	++iHE;
-	float fDigiSum = 0.0;
-	for  (int ii = 0; ii < tool.size(); ++ii) {
-	  int capid = (*ihbhe)[ii].capid();
-	  fDigiSum += (tool[ii]-calibrations.pedestal(capid));
-	}
-	
-	HECalAEE.push_back(fDigiSum);
+
+	const CaloCellGeometry* cellGeometry =
+	  geometry->getSubdetectorGeometry (cell)->getGeometry (cell) ;
+	double fEta = cellGeometry->getPosition().eta () ;
+	double fPhi = cellGeometry->getPosition().phi () ;
+
+	float deltaphi = maxHEPhi - fPhi;
+	if (fPhi > maxHEPhi) { deltaphi = fPhi - maxHEPhi;}
+	if (deltaphi > PI) { deltaphi = 2.0 * PI - deltaphi;}
+	float deltaeta = fEta - maxHEEta;
+	Double_t r = sqrt(deltaeta * deltaeta + deltaphi * deltaphi);
+
+	HECalREC.push_back(jhbhe->energy());
+	HECalR.push_back(r);
 	HECalSHE.push_back(fHEEnergySimHits[cell.rawId()]);
       }
     }
-  }
+  } // end loop through collection
 
+                                                                      
   if (verbosity > 1) {
-    eventout += "\n          Number of HBDigis collected:.............. ";
+    eventout += "\n          Number of HBRecHits collected:............ ";
     eventout += iHB;
   }
   
   if (verbosity > 1) {
-    eventout += "\n          Number of HEDigis collected:.............. ";
+    eventout += "\n          Number of HERecHits collected:............ ";
     eventout += iHE;
-  }
-
-  ////////////////////////
-  // get HO information
-  ///////////////////////
-  edm::Handle<edm::SortedCollection<HODataFrame> > ho;
-  iEvent.getByType(ho);
-  if (!ho.isValid()) {
-    edm::LogWarning(MsgLoggerCat)
-      << "Unable to find HODataFrame in event!";
-    return;
-  }    
-  edm::SortedCollection<HODataFrame>::const_iterator iho;
-  
-  int iHO = 0; 
-  for (iho = ho->begin(); iho != ho->end(); ++iho) {
-    HcalDetId cell(iho->id()); 
-
-    if (cell.subdet() == sdHcalOut) {
-      
-      HCalconditions->makeHcalCalibration(cell, &calibrations);
-      const HcalQIECoder *channelCoder = HCalconditions->getHcalCoder(cell);
-      HcalCoderDb coder (*channelCoder, *shape);
-      coder.adc2fC(*iho, tool);
-
-      ++iHO;
-      float fDigiSum = 0.0;
-      for  (int ii = 0; ii < tool.size(); ++ii) {
-	// default ped is 4.5
-	int capid = (*iho)[ii].capid();
-	fDigiSum += (tool[ii] - calibrations.pedestal(capid));
-      }
-	
-      HOCalAEE.push_back(fDigiSum);
-      HOCalSHE.push_back(fHOEnergySimHits[cell.rawId()]);
-    }
-  }
-
-  if (verbosity > 1) {
-    eventout += "\n          Number of HODigis collected:.............. ";
-    eventout += iHO;
   }
 
   ////////////////////////
   // get HF information
   ///////////////////////
-  edm::Handle<edm::SortedCollection<HFDataFrame> > hf;
-  iEvent.getByType(hf);
-  if (!hf.isValid()) {
+  std::vector<edm::Handle<HFRecHitCollection> > hf;
+  iEvent.getManyByType(hf);
+  if (!hf[0].isValid()) {
     edm::LogWarning(MsgLoggerCat)
-      << "Unable to find HFDataFrame in event!";
+      << "Unable to find any HFRecHitCollections in event!";
     return;
-  }    
-  edm::SortedCollection<HFDataFrame>::const_iterator ihf;
-  
+  } 
+  std::vector<edm::Handle<HFRecHitCollection> >::iterator ihf;
+     
   int iHF = 0; 
-  for (ihf = hf->begin(); ihf != hf->end(); ++ihf) {
-    HcalDetId cell(ihf->id()); 
+  for (ihf = hf.begin(); ihf != hf.end(); ++ihf) {
 
-    if (cell.subdet() == sdHcalFwd) {
+    // find max values
+    for (HFRecHitCollection::const_iterator jhf = (*ihf)->begin();
+	 jhf != (*ihf)->end(); ++jhf) {
+
+      HcalDetId cell(jhf->id());
       
-      HCalconditions->makeHcalCalibration(cell, &calibrations);
-      const HcalQIECoder *channelCoder = HCalconditions->getHcalCoder(cell);
-      HcalCoderDb coder (*channelCoder, *shape);
-      coder.adc2fC(*ihf, tool);
-
-      ++iHF;
-      float fDigiSum = 0.0;
-      for  (int ii = 0; ii < tool.size(); ++ii) {
-	// default ped is 1.73077
-	int capid = (*ihf)[ii].capid();
-	fDigiSum += (tool[ii] - calibrations.pedestal(capid));
-      }
+      if (cell.subdet() == sdHcalFwd) {
 	
-      HFCalAEE.push_back(fDigiSum);
-      HFCalSHE.push_back(fHFEnergySimHits[cell.rawId()]);
+	const CaloCellGeometry* cellGeometry =
+	  geometry->getSubdetectorGeometry (cell)->getGeometry (cell) ;
+	double fEta = cellGeometry->getPosition().eta () ;
+	double fPhi = cellGeometry->getPosition().phi () ;
+	if ( (jhf->energy()) > maxHFEnergy ) {
+	  maxHFEnergy = jhf->energy();
+	  maxHFPhi = fPhi;
+	  maxHFEta = fEta;
+	}	  
+      }
+    } // end find max values
+
+    for (HFRecHitCollection::const_iterator jhf = (*ihf)->begin();
+	 jhf != (*ihf)->end(); ++jhf) {
+
+      HcalDetId cell(jhf->id());
+      
+      if (cell.subdet() == sdHcalFwd) {
+
+	++iHF;
+
+	const CaloCellGeometry* cellGeometry =
+	  geometry->getSubdetectorGeometry (cell)->getGeometry (cell) ;
+	double fEta = cellGeometry->getPosition().eta () ;
+	double fPhi = cellGeometry->getPosition().phi () ;
+
+	float deltaphi = maxHBPhi - fPhi;
+	if (fPhi > maxHFPhi) { deltaphi = fPhi - maxHFPhi;}
+	if (deltaphi > PI) { deltaphi = 2.0 * PI - deltaphi;}
+	float deltaeta = fEta - maxHFEta;
+	Double_t r = sqrt(deltaeta * deltaeta + deltaphi * deltaphi);
+
+	HFCalREC.push_back(jhf->energy());
+	HFCalR.push_back(r);
+	HFCalSHE.push_back(fHFEnergySimHits[cell.rawId()]);
+      }
     }
-  }
+  } // end loop through collection
 
   if (verbosity > 1) {
     eventout += "\n          Number of HFDigis collected:.............. ";
     eventout += iHF;
   }
-  */
+
+  ////////////////////////
+  // get HO information
+  ///////////////////////
+  std::vector<edm::Handle<HORecHitCollection> > ho;
+  iEvent.getManyByType(ho);
+  if (!ho[0].isValid()) {
+    edm::LogWarning(MsgLoggerCat)
+      << "Unable to find any HORecHitCollections in event!";
+    return;
+  } 
+  std::vector<edm::Handle<HORecHitCollection> >::iterator iho;
+     
+  int iHO = 0; 
+  for (iho = ho.begin(); iho != ho.end(); ++iho) {
+
+    for (HORecHitCollection::const_iterator jho = (*iho)->begin();
+	 jho != (*iho)->end(); ++jho) {
+
+      HcalDetId cell(jho->id());
+      
+      if (cell.subdet() == sdHcalOut) {
+
+	++iHO;
+
+	const CaloCellGeometry* cellGeometry =
+	  geometry->getSubdetectorGeometry (cell)->getGeometry (cell) ;
+	double fEta = cellGeometry->getPosition().eta () ;
+	double fPhi = cellGeometry->getPosition().phi () ;
+
+	float deltaphi = maxHOPhi - fPhi;
+	if (fPhi > maxHOPhi) { deltaphi = fPhi - maxHOPhi;}
+	if (deltaphi > PI) { deltaphi = 2.0 * PI - deltaphi;}
+	float deltaeta = fEta - maxHOEta;
+	Double_t r = sqrt(deltaeta * deltaeta + deltaphi * deltaphi);
+
+	HOCalREC.push_back(jho->energy());
+	HOCalR.push_back(r);
+	HOCalSHE.push_back(fHOEnergySimHits[cell.rawId()]);
+      }
+    }
+  } // end loop through collection
+
+  if (verbosity > 1) {
+    eventout += "\n          Number of HODigis collected:.............. ";
+    eventout += iHO;
+  }
 
   if (verbosity > 0)
     edm::LogInfo(MsgLoggerCat) << eventout << "\n";
@@ -662,53 +752,59 @@ void GlobalRecHitsProducer::storeHCal(PGlobalRecHit& product)
 {
   std::string MsgLoggerCat = "GlobalRecHitsProducer_storeHCal";
 
-  /*
   if (verbosity > 2) {
-    TString eventout("\n         nHBDigis     = ");
-    eventout += HBCalAEE.size();
-    for (unsigned int i = 0; i < HBCalAEE.size(); ++i) {
-      eventout += "\n      (AEE, SHE) = (";
-      eventout += HBCalAEE[i];
+    TString eventout("\n         nHBRecHits     = ");
+    eventout += HBCalREC.size();
+    for (unsigned int i = 0; i < HBCalREC.size(); ++i) {
+      eventout += "\n      (REC, R, SHE) = (";
+      eventout += HBCalREC[i];
+      eventout += ", ";
+      eventout += HBCalR[i];
       eventout += ", ";
       eventout += HBCalSHE[i];
       eventout += ")";
     }
-    eventout += "\n         nHEDigis     = ";
-    eventout += HECalAEE.size();
-    for (unsigned int i = 0; i < HECalAEE.size(); ++i) {
-      eventout += "\n      (AEE, SHE) = (";
-      eventout += HECalAEE[i];
+    eventout += "\n         nHERecHits     = ";
+    eventout += HECalREC.size();
+    for (unsigned int i = 0; i < HECalREC.size(); ++i) {
+      eventout += "\n      (REC, R, SHE) = (";
+      eventout += HECalREC[i];
+      eventout += ", ";
+      eventout += HECalR[i];
       eventout += ", ";
       eventout += HECalSHE[i];
       eventout += ")";
     }
-    eventout += "\n         nHODigis     = ";
-    eventout += HOCalAEE.size();
-    for (unsigned int i = 0; i < HOCalAEE.size(); ++i) {
-      eventout += "\n      (AEE, SHE) = (";
-      eventout += HOCalAEE[i];
+    eventout += "\n         nHFRecHits     = ";
+    eventout += HFCalREC.size();
+    for (unsigned int i = 0; i < HFCalREC.size(); ++i) {
+      eventout += "\n      (REC, R, SHE) = (";
+      eventout += HFCalREC[i];
       eventout += ", ";
-      eventout += HOCalSHE[i];
-      eventout += ")";
-    }
-    eventout += "\n         nHFDigis     = ";
-    eventout += HFCalAEE.size();
-    for (unsigned int i = 0; i < HFCalAEE.size(); ++i) {
-      eventout += "\n      (AEE, SHE) = (";
-      eventout += HFCalAEE[i];
+      eventout += HFCalR[i];
       eventout += ", ";
       eventout += HFCalSHE[i];
+      eventout += ")";
+    }
+    eventout += "\n         nHORecHits     = ";
+    eventout += HOCalREC.size();
+    for (unsigned int i = 0; i < HOCalREC.size(); ++i) {
+      eventout += "\n      (REC, R, SHE) = (";
+      eventout += HOCalREC[i];
+      eventout += ", ";
+      eventout += HOCalR[i];
+      eventout += ", ";
+      eventout += HOCalSHE[i];
       eventout += ")";
     }
 
     edm::LogInfo(MsgLoggerCat) << eventout << "\n";
   }
 
-  product.putHBCalDigis(HBCalAEE,HBCalSHE);
-  product.putHECalDigis(HECalAEE,HECalSHE);
-  product.putHOCalDigis(HOCalAEE,HOCalSHE);
-  product.putHFCalDigis(HFCalAEE,HFCalSHE);
-  */
+  product.putHBCalRecHits(HBCalREC,HBCalR,HBCalSHE);
+  product.putHECalRecHits(HECalREC,HECalR,HECalSHE);
+  product.putHOCalRecHits(HOCalREC,HOCalR,HOCalSHE);
+  product.putHFCalRecHits(HFCalREC,HFCalR,HFCalSHE);
 
   return;
 }
