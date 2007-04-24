@@ -4,6 +4,8 @@
 #include <boost/bind.hpp>
 #include <boost/mem_fn.hpp>
 
+#include <boost/program_options.hpp>
+
 #include <fstream>
 #include <iostream>
 #include <utility>
@@ -20,10 +22,22 @@
 
 #include "FWCore/PluginManager/interface/PluginCapabilities.h"
 #include "FWCore/PluginManager/interface/standard.h"
+
 using namespace edmplugin;
 
-static const char s_cacheFile[] = ".edmplugincache";
-
+namespace std {
+ostream& operator<<(ostream& o, const vector<std::string>& iValue) {
+  std::string sep("");
+  std::string commaSep(",");
+  for(std::vector<std::string>::const_iterator it=iValue.begin(), itEnd=iValue.end();
+      it != itEnd;
+      ++it) {    
+    o <<sep<<*it;
+    sep = commaSep;
+  }
+  return o;
+}
+}
 namespace {
   struct Listener {
     typedef edmplugin::CacheParser::NameAndType NameAndType;
@@ -41,26 +55,74 @@ namespace {
 }
 int main (int argc, char **argv)
 {
-  using boost::filesystem::path;
-  if(argc ==1) {
-    std::cerr <<"requires at least one argument"<<std::endl;
+  using namespace boost::program_options;
+  
+  static const char* const kPathsOpt = "paths";
+  static const char* const kPathsCommandOpt = "paths,p";
+  static const char* const kAllOpt = "all";
+  static const char* const kAllCommandOpt = "all,a";
+  static const char* const kHelpOpt = "help";
+  static const char* const kHelpCommandOpt = "help,h";
+  
+  std::string descString(argv[0]);
+  descString += " [options] [[--";
+  descString += kPathsOpt;
+  descString += "] path [path]] \nAllowed options";
+  options_description desc(descString);
+  std::string defaultDir(".");
+  std::vector<std::string> defaultDirList = edmplugin::standard::config().searchPath();
+  if( not defaultDirList.empty() ) {
+    defaultDir = defaultDirList[0];
+  }
+  desc.add_options()
+    (kHelpCommandOpt, "produce help message")
+    (kPathsCommandOpt,value<std::vector<std::string> >()->default_value(
+                          std::vector<std::string>(1,defaultDir))
+     , "a directory or a list of files to scan")
+    //(kAllCommandOpt,"when no paths given, try to update caches for all known directories [default is to only scan the first directory]")
+    ;
+  
+  positional_options_description p;
+  p.add(kPathsOpt, -1);
+  
+  variables_map vm;
+  try {
+    store(command_line_parser(argc,argv).options(desc).positional(p).run(),vm);
+    notify(vm);
+  } catch(const error& iException) {
+    std::cerr <<iException.what();
     return 1;
   }
+  
+  if(vm.count(kHelpOpt)) {
+    std::cout << desc <<std::endl;
+    return 0;
+  }
+  
+  
+  using boost::filesystem::path;
+  
+  /*if(argc ==1) {
+    std::cerr <<"Requires at least one argument.  Please pass either one directory or a list of files (all in the same directory)."<<std::endl;
+    return 1;
+  } */
 
   int returnValue = EXIT_SUCCESS;
 
   try {
+    std::vector<std::string> requestedPaths(vm[kPathsOpt].as<std::vector<std::string> >());
+    
     //first find the directory and create a list of files to look at in that directory
-    path directory(argv[1]);
+    path directory(requestedPaths[0]);
     std::vector<std::string> files;
     bool removeMissingFiles = false;
     if(boost::filesystem::is_directory(directory)) {
-      if (argc >2) {
+      if (requestedPaths.size()>1) {
         std::cerr <<"if a directory is given then only one argument is allowed"<<std::endl;
         return 1;
       }
       
-      //if asked to look at who directory, then we can also remove missing files
+      //if asked to look at whole directory, then we can also remove missing files
       removeMissingFiles = true;
       
       boost::filesystem::directory_iterator       file (directory);
@@ -95,8 +157,9 @@ int main (int argc, char **argv)
     } else {
       //we have files
       directory = directory.branch_path();
-      for(int index=1; index <argc; ++index) {
-        boost::filesystem::path f(argv[index]);
+      for(std::vector<std::string>::iterator it=requestedPaths.begin(), itEnd=requestedPaths.end();
+          it != itEnd; ++it) {
+        boost::filesystem::path f(*it,boost::filesystem::no_check);
         if ( not exists(f) ) {
           std::cerr <<"the file '"<<f.native_file_string()<<"' does not exist"<<std::endl;
           return 1;
@@ -114,7 +177,7 @@ int main (int argc, char **argv)
     }
 
     path cacheFile(directory);
-    cacheFile /= path(s_cacheFile,boost::filesystem::no_check);
+    cacheFile /= edmplugin::standard::cachefileName();//path(s_cacheFile,boost::filesystem::no_check);
 
     CacheParser::LoadableToPlugins ltp;
     if(exists(cacheFile) ) {
