@@ -25,8 +25,8 @@
 using namespace edm;
 using namespace std;
 
-
-#include "HepMC/PythiaWrapper6_2.h"
+//#include "HepMC/PythiaWrapper6_2.h"
+#include "GeneratorInterface/Pythia6Interface/interface/PythiaWrapper6_2.h"
 #include "HepMC/IO_HEPEVT.h"
 
 #define PYGIVE pygive_
@@ -69,7 +69,6 @@ extern "C" {
    void SLHA_INIT();
 }
 
-
 HepMC::IO_HEPEVT conv;
 
 //used for defaults
@@ -87,9 +86,7 @@ PythiaSource::PythiaSource( const ParameterSet & pset,
 {
   
   cout << "PythiaSource: initializing Pythia. " << endl;
-  
- 
-  
+
   // PYLIST Verbosity Level
   // Valid PYLIST arguments are: 1, 2, 3, 5, 7, 11, 12, 13
   pythiaPylistVerbosity_ = pset.getUntrackedParameter<int>("pythiaPylistVerbosity",0);
@@ -103,6 +100,20 @@ PythiaSource::PythiaSource( const ParameterSet & pset,
   maxEventsToPrint_ = pset.getUntrackedParameter<int>("maxEventsToPrint",0);
   cout << "Number of events to be printed = " << maxEventsToPrint_ << endl;
 
+  useTauola_ = pset.getUntrackedParameter<bool>("UseTauola", false);
+  if ( useTauola_ ) {
+    cout << "--> use TAUOLA" << endl;
+  } else {
+    cout << "--> do not use TAUOLA" << endl; 
+  }
+  useTauolaPolarization_ = pset.getUntrackedParameter<bool>("UseTauolaPolarization", false);
+  if ( useTauolaPolarization_ ) {
+    cout << "(Polarization effects enabled)" << endl;
+    tauola_.enablePolarizationEffects();
+  } else {
+    cout << "(Polarization effects disabled)" << endl;
+    tauola_.disablePolarizationEffects();
+  }
   
   particleID = pset.getUntrackedParameter<int>("ParticleID", 0);
   if(particleID) {
@@ -115,6 +126,12 @@ PythiaSource::PythiaSource( const ParameterSet & pset,
     ptmin = pset.getUntrackedParameter<double>("Ptmin",20.);
     ptmax = pset.getUntrackedParameter<double>("Ptmax",420.);
     cout <<" ptmin = " << ptmin <<" ptmax = " << ptmax << endl;
+
+    emin = pset.getUntrackedParameter<double>("Emin",-1);
+    emax = pset.getUntrackedParameter<double>("Emax",-1);
+    if ( emin > 0 && emax > 0 ) {
+      cout <<" emin = " << emin <<" emax = " << emax << endl;
+    }
 
     etamin = pset.getUntrackedParameter<double>("Etamin",0.);
     etamax = pset.getUntrackedParameter<double>("Etamax",2.2);
@@ -177,19 +194,17 @@ PythiaSource::PythiaSource( const ParameterSet & pset,
    cout << "----------------------------------------------" << endl; 
    cout << "Reading SLHA parameters. " << endl;
    cout << "----------------------------------------------" << endl;                                                                           
-
-  
   
    // Loop over all parameters and stop in case of a mistake
-    for (vector<string>::const_iterator 
-            itPar = pars.begin(); itPar != pars.end(); ++itPar) {
-      call_slhagive(*itPar); 
+   for (vector<string>::const_iterator 
+	  itPar = pars.begin(); itPar != pars.end(); ++itPar) {
+     call_slhagive(*itPar); 
      
-         } 
+   } 
  
-    call_slha_init(); 
-  
-  }
+   call_slha_init(); 
+   
+    }
   }
   //In the future, we will get the random number seed on each event and tell 
   // pythia to use that new seed
@@ -202,13 +217,20 @@ PythiaSource::PythiaSource( const ParameterSet & pset,
   sRandomSet <<"MRPY(1)="<<seed;
   call_pygive(sRandomSet.str());
 
-  if(particleID) 
-    {
-      call_pyinit( "NONE", "p", "p", comenergy );
-    } else {
-      call_pyinit( "CMS", "p", "p", comenergy );
-    }
+  if ( particleID ) {
+    call_pyinit( "NONE", "p", "p", comenergy );
+  } else {
+    call_pyinit( "CMS", "p", "p", comenergy );
+  }
 
+  if ( useTauola_ ) {
+    cout << "----------------------------------------------" << endl;
+    cout << "Initializing Tauola" << endl;
+    tauola_.initialize();
+    //call_pretauola(-1); // initialize TAUOLA package for tau decays
+    cout << "----------------------------------------------" << endl;
+  }
+ 
   cout << endl; // Stetically add for the output
   //********                                      
   
@@ -218,23 +240,30 @@ PythiaSource::PythiaSource( const ParameterSet & pset,
 }
 
 
-PythiaSource::~PythiaSource(){
+PythiaSource::~PythiaSource()
+{
   cout << "PythiaSource: event generation done. " << endl;
   call_pystat(1);
+
+  if ( useTauola_ ) {
+    tauola_.print();
+    //call_pretauola(1); // print TAUOLA decay statistics output
+  }
+
   clear(); 
 }
 
-void PythiaSource::clear() {
- 
+void PythiaSource::clear() 
+{
+//--- nothing to be done yet... 
 }
 
-void PythiaSource::endRun(Run & r) {
- 
- double cs = pypars.pari[0]; // cross section in mb
- auto_ptr<GenInfoProduct> giprod (new GenInfoProduct());
- giprod->set_cross_section(cs);
- r.put(giprod);
-
+void PythiaSource::endRun(Run & r) 
+{
+  double cs = pypars.pari[0]; // cross section in mb
+  auto_ptr<GenInfoProduct> giprod (new GenInfoProduct());
+  giprod->set_cross_section(cs);
+  r.put(giprod);
 }
 
 bool PythiaSource::produce(Event & e) {
@@ -248,12 +277,18 @@ bool PythiaSource::produce(Event & e) {
       {
 	int ip = 1;
 	double pt  = fRandomGenerator->fire(ptmin, ptmax);
+	double e   = fRandomGenerator->fire(emin, emax);
 	double eta = fRandomGenerator->fire(etamin, etamax);
 	double the = 2.*atan(exp(-eta));
 	double phi = fRandomGenerator->fire(phimin, phimax);
 	double pmass = PYMASS(particleID);
-	double pe = pt/sin(the);
-	double ee = sqrt(pe*pe+pmass*pmass);
+	double ee = 0.;
+	if ( emin > pmass && emax > pmass ) { // generate single particle distribution flat in energy
+	  ee = e;
+	} else { // generate single particle distribution flat in pt
+	  double pe = pt/sin(the);
+	  ee = sqrt(pe*pe+pmass*pmass);
+	}
 
 	/*
 	cout <<" pt = " << pt 
@@ -269,29 +304,44 @@ bool PythiaSource::produce(Event & e) {
 
 	PY1ENT(ip, particleID, ee, the, phi);
 
-	if(doubleParticle)
-	  {
-	    ip = ip + 1;
-	    int particleID2 = -1 * particleID;
-	    the = 2.*atan(exp(eta));
-	    phi  = phi + 3.1415927;
-	    if (phi > 2.* 3.1415927) {phi = phi - 2.* 3.1415927;}         
-	    PY1ENT(ip, particleID2, ee, the, phi);
-	  }
+	if ( doubleParticle ) {
+	  ip = ip + 1;
+	  int particleID2 = -1 * particleID;
+	  the = 2.*atan(exp(eta));
+	  phi  = phi + 3.1415927;
+	  if (phi > 2.* 3.1415927) {phi = phi - 2.* 3.1415927;}         
+	  PY1ENT(ip, particleID2, ee, the, phi);
+	} else if ( useTauola_ && abs(particleID) == 15 ){
+	  // Produce tau/anti-tau neutrino
+	  // (automatically done in case Tauola is used to simulated tau decays,
+	  //  as Tauola does not decay tau leptons if they are not produced
+	  //  in association with either an anti-tau lepon or an anti-tau neutrino)
+	  ip = ip + 1;
+	  int particleID2 = ( particleID < 0 ) ? +16 : -16;
+	  the = 2.*atan(exp(eta));
+	  phi  = phi + 3.1415927;
+	  if (phi > 2.* 3.1415927) {phi = phi - 2.* 3.1415927;}
+	  PY1ENT(ip, particleID2, ee, the, phi);
+	}
+	
 	PYEXEC();
       } else {
 	call_pyevnt();      // generate one event with Pythia
       }
 
+    if ( useTauola_ ) {
+      tauola_.processEvent();
+      //call_pretauola(0); // generate tau decays with TAUOLA
+    }
+
     call_pyhepc( 1 );
-    
+
     //HepMC::GenEvent* evt = conv.getGenEventfromHEPEVT();
     HepMC::GenEvent* evt = conv.read_next_event();
     evt->set_signal_process_id(pypars.msti[0]);
     evt->set_event_scale(pypars.pari[16]);
     evt->set_event_number(numberEventsInRun() - remainingEvents() - 1);
     
-
     //******** Verbosity ********
     
     if(event() <= maxEventsToPrint_ &&
