@@ -31,6 +31,8 @@ GlobalRecHitsProducer::GlobalRecHitsProducer(const edm::ParameterSet& iPSet) :
   MuCSCSrc_ = iPSet.getParameter<edm::InputTag>("MuCSCSrc");
   MuRPCSrc_ = iPSet.getParameter<edm::InputTag>("MuRPCSrc");
 
+  conf_ = iPSet;
+
   // use value of first digit to determine default output level (inclusive)
   // 0 is none, 1 is basic, 2 is fill output, 3 is gather output
   verbosity %= 10;
@@ -818,145 +820,252 @@ void GlobalRecHitsProducer::fillTrk(edm::Event& iEvent,
   if (verbosity > 0)
     eventout = "\nGathering info:";  
 
-  /*
   // get strip information
-  edm::Handle<edm::DetSetVector<SiStripDigi> > stripDigis;  
-  iEvent.getByLabel(SiStripSrc_, stripDigis);
-  if (!stripDigis.isValid()) {
+  edm::Handle<SiStripMatchedRecHit2DCollection> rechitsmatched;
+  iEvent.getByLabel(SiStripSrc_, rechitsmatched);
+  if (!rechitsmatched.isValid()) {
     edm::LogWarning(MsgLoggerCat)
-      << "Unable to find stripDigis in event!";
+      << "Unable to find stripmatchedrechits in event!";
     return;
   }  
 
+  TrackerHitAssociator associate(iEvent,conf_);
+
+  edm::ESHandle<TrackerGeometry> pDD;
+  iSetup.get<TrackerDigiGeometryRecord>().get(pDD);
+  if (!pDD.isValid()) {
+    edm::LogWarning(MsgLoggerCat)
+      << "Unable to find TrackerDigiGeometry in event!";
+    return;
+  }
+  const TrackerGeometry &tracker(*pDD);
+
   int nStripBrl = 0, nStripFwd = 0;
-  edm::DetSetVector<SiStripDigi>::const_iterator DSViter;
-  for (DSViter = stripDigis->begin(); DSViter != stripDigis->end(); 
-       ++DSViter) {
-    unsigned int id = DSViter->id;
-    DetId detId(id);
-    edm::DetSet<SiStripDigi>::const_iterator begin = DSViter->data.begin();
-    edm::DetSet<SiStripDigi>::const_iterator end = DSViter->data.end();
-    edm::DetSet<SiStripDigi>::const_iterator iter;
+
+  // loop over det units
+  for (TrackerGeometry::DetContainer::const_iterator it = pDD->dets().begin();
+       it != pDD->dets().end(); ++it) {
     
-    // get TIB
-    if (detId.subdetId() == sdSiTIB) {
-      TIBDetId tibid(id);
-      for (iter = begin; iter != end; ++iter) {
-	++nStripBrl;
-	if (tibid.layer() == 1) {
-	  TIBL1ADC.push_back((*iter).adc());
-	  TIBL1Strip.push_back((*iter).strip());
-	}
-	if (tibid.layer() == 2) {
-	  TIBL2ADC.push_back((*iter).adc());
-	  TIBL2Strip.push_back((*iter).strip());
-	}	
-	if (tibid.layer() == 3) {
-	  TIBL3ADC.push_back((*iter).adc());
-	  TIBL3Strip.push_back((*iter).strip());
-	}
-	if (tibid.layer() == 4) {
-	  TIBL4ADC.push_back((*iter).adc());
-	  TIBL4Strip.push_back((*iter).strip());
-	}
+    uint32_t myid = ((*it)->geographicalId()).rawId();
+    DetId detid = ((*it)->geographicalId());
+
+    //loop over rechits-matched in the same subdetector
+    SiStripMatchedRecHit2DCollection::range 
+      rechitmatchedRange = rechitsmatched->get(detid);
+    SiStripMatchedRecHit2DCollection::const_iterator 
+      rechitmatchedRangeIteratorBegin = rechitmatchedRange.first;
+    SiStripMatchedRecHit2DCollection::const_iterator 
+      rechitmatchedRangeIteratorEnd   = rechitmatchedRange.second;
+    SiStripMatchedRecHit2DCollection::const_iterator 
+      itermatched = rechitmatchedRangeIteratorBegin;
+    int numrechitmatched = 
+      rechitmatchedRangeIteratorEnd - rechitmatchedRangeIteratorBegin;
+   
+    if (numrechitmatched > 0) {
+
+      for ( itermatched = rechitmatchedRangeIteratorBegin; 
+	    itermatched != rechitmatchedRangeIteratorEnd;
+	    ++itermatched) {
+
+	SiStripMatchedRecHit2D const rechit = *itermatched;
+	LocalPoint position = rechit.localPosition();
+	
+	float mindist = 999999.;
+	float distx = 999999.;
+	float disty = 999999.;
+	float dist = 999999.;
+	std::pair<LocalPoint,LocalVector> closestPair;
+	matched.clear();
+	
+	float rechitmatchedx = position.x();
+	float rechitmatchedy = position.y();
+
+	matched = associate.associateHit(rechit);
+
+	if (!matched.empty()) {
+	  //project simhit;
+	  const GluedGeomDet* gluedDet = 
+	    (const GluedGeomDet*)tracker.idToDet(rechit.geographicalId());
+	  const StripGeomDetUnit* partnerstripdet =
+	    (StripGeomDetUnit*) gluedDet->stereoDet();
+	  std::pair<LocalPoint,LocalVector> hitPair;
+	  
+	  for(std::vector<PSimHit>::const_iterator m = matched.begin(); 
+	      m != matched.end(); m++){
+	    //project simhit;
+	    hitPair = projectHit((*m),partnerstripdet,gluedDet->surface());
+	    distx = fabs(rechitmatchedx - hitPair.first.x());
+	    disty = fabs(rechitmatchedy - hitPair.first.y());
+	    dist = sqrt(distx*distx+disty*disty);
+
+	    if(dist < mindist){
+	      mindist = dist;
+	      closestPair = hitPair;
+	    }
+	  }
+	  
+	  // get TIB
+	  if (detid.subdetId() == sdSiTIB) {
+
+	    TIBDetId tibid(myid);
+	    ++nStripBrl;
+
+	    if (tibid.layer() == 1) {
+	      TIBL1RX.push_back(rechitmatchedx);
+	      TIBL1RY.push_back(rechitmatchedy);
+	      TIBL1SX.push_back(closestPair.first.x());
+	      TIBL1SY.push_back(closestPair.first.y());
+	    }
+	    if (tibid.layer() == 2) {
+	      TIBL2RX.push_back(rechitmatchedx);
+	      TIBL2RY.push_back(rechitmatchedy);
+	      TIBL2SX.push_back(closestPair.first.x());
+	      TIBL2SY.push_back(closestPair.first.y());
+	    }	
+	    if (tibid.layer() == 3) {
+	      TIBL3RX.push_back(rechitmatchedx);
+	      TIBL3RY.push_back(rechitmatchedy);
+	      TIBL3SX.push_back(closestPair.first.x());
+	      TIBL3SY.push_back(closestPair.first.y());
+	    }
+	    if (tibid.layer() == 4) {
+	      TIBL4RX.push_back(rechitmatchedx);
+	      TIBL4RY.push_back(rechitmatchedy);
+	      TIBL4SX.push_back(closestPair.first.x());
+	      TIBL4SY.push_back(closestPair.first.y());
+	    }
+	  }
+    
+	  // get TOB
+	  if (detid.subdetId() == sdSiTOB) {
+
+	    TOBDetId tobid(myid);
+	    ++nStripBrl;
+
+	    if (tobid.layer() == 1) {
+	      TOBL1RX.push_back(rechitmatchedx);
+	      TOBL1RY.push_back(rechitmatchedy);
+	      TOBL1SX.push_back(closestPair.first.x());
+	      TOBL1SY.push_back(closestPair.first.y());
+	    }
+	    if (tobid.layer() == 2) {
+	      TOBL2RX.push_back(rechitmatchedx);
+	      TOBL2RY.push_back(rechitmatchedy);
+	      TOBL2SX.push_back(closestPair.first.x());
+	      TOBL2SY.push_back(closestPair.first.y());
+	    }	
+	    if (tobid.layer() == 3) {
+	      TOBL3RX.push_back(rechitmatchedx);
+	      TOBL3RY.push_back(rechitmatchedy);
+	      TOBL3SX.push_back(closestPair.first.x());
+	      TOBL3SY.push_back(closestPair.first.y());
+	    }
+	    if (tobid.layer() == 4) {
+	      TOBL4RX.push_back(rechitmatchedx);
+	      TOBL4RY.push_back(rechitmatchedy);
+	      TOBL4SX.push_back(closestPair.first.x());
+	      TOBL4SY.push_back(closestPair.first.y());
+	    }
+	  }
+
+	  // get TID
+	  if (detid.subdetId() == sdSiTID) {
+
+	    TIDDetId tidid(myid);
+	    ++nStripFwd;
+
+	    if (tidid.wheel() == 1) {
+	      TIDW1RX.push_back(rechitmatchedx);
+	      TIDW1RY.push_back(rechitmatchedy);
+	      TIDW1SX.push_back(closestPair.first.x());
+	      TIDW1SY.push_back(closestPair.first.y());
+	    }
+	    if (tidid.wheel() == 2) {
+	      TIDW2RX.push_back(rechitmatchedx);
+	      TIDW2RY.push_back(rechitmatchedy);
+	      TIDW2SX.push_back(closestPair.first.x());
+	      TIDW2SY.push_back(closestPair.first.y());
+	    }	
+	    if (tidid.wheel() == 3) {
+	      TIDW3RX.push_back(rechitmatchedx);
+	      TIDW3RY.push_back(rechitmatchedy);
+	      TIDW3SX.push_back(closestPair.first.x());
+	      TIDW3SY.push_back(closestPair.first.y());
+	    }
+	  }
+
+	  // get TEC
+	  if (detid.subdetId() == sdSiTEC) {
+
+	    TECDetId tecid(myid);
+	    ++nStripFwd;
+
+	    if (tecid.wheel() == 1) {
+	      TECW1RX.push_back(rechitmatchedx);
+	      TECW1RY.push_back(rechitmatchedy);
+	      TECW1SX.push_back(closestPair.first.x());
+	      TECW1SY.push_back(closestPair.first.y());
+	    }
+	    if (tecid.wheel() == 2) {
+	      TECW2RX.push_back(rechitmatchedx);
+	      TECW2RY.push_back(rechitmatchedy);
+	      TECW2SX.push_back(closestPair.first.x());
+	      TECW2SY.push_back(closestPair.first.y());
+	    }	
+	    if (tecid.wheel() == 3) {
+	      TECW3RX.push_back(rechitmatchedx);
+	      TECW3RY.push_back(rechitmatchedy);
+	      TECW3SX.push_back(closestPair.first.x());
+	      TECW3SY.push_back(closestPair.first.y());
+	    }
+	    if (tecid.wheel() == 4) {
+	      TECW4RX.push_back(rechitmatchedx);
+	      TECW4RY.push_back(rechitmatchedy);
+	      TECW4SX.push_back(closestPair.first.x());
+	      TECW4SY.push_back(closestPair.first.y());
+	    }
+	    if (tecid.wheel() == 5) {
+	      TECW5RX.push_back(rechitmatchedx);
+	      TECW5RY.push_back(rechitmatchedy);
+	      TECW5SX.push_back(closestPair.first.x());
+	      TECW5SY.push_back(closestPair.first.y());
+	    }	
+	    if (tecid.wheel() == 6) {
+	      TECW6RX.push_back(rechitmatchedx);
+	      TECW6RY.push_back(rechitmatchedy);
+	      TECW6SX.push_back(closestPair.first.x());
+	      TECW6SY.push_back(closestPair.first.y());
+	    }
+	    if (tecid.wheel() == 7) {
+	      TECW7RX.push_back(rechitmatchedx);
+	      TECW7RY.push_back(rechitmatchedy);
+	      TECW7SX.push_back(closestPair.first.x());
+	      TECW7SY.push_back(closestPair.first.y());
+	    }	
+	    if (tecid.wheel() == 8) {
+	      TECW8RX.push_back(rechitmatchedx);
+	      TECW8RY.push_back(rechitmatchedy);
+	      TECW8SX.push_back(closestPair.first.x());
+	      TECW8SY.push_back(closestPair.first.y());
+	    }
+	  }
+
+	} // end if matched empty
       }
     }
-    
-    // get TOB
-    if (detId.subdetId() == sdSiTOB) {
-      TOBDetId tobid(id);
-      for (iter = begin; iter != end; ++iter) {
-	++nStripBrl;
-	if (tobid.layer() == 1) {
-	  TOBL1ADC.push_back((*iter).adc());
-	  TOBL1Strip.push_back((*iter).strip());
-	}
-	if (tobid.layer() == 2) {
-	  TOBL2ADC.push_back((*iter).adc());
-	  TOBL2Strip.push_back((*iter).strip());
-	}	
-	if (tobid.layer() == 3) {
-	  TOBL3ADC.push_back((*iter).adc());
-	  TOBL3Strip.push_back((*iter).strip());
-	}
-	if (tobid.layer() == 4) {
-	  TOBL4ADC.push_back((*iter).adc());
-	  TOBL4Strip.push_back((*iter).strip());
-	}
-      }
-    }    
-    
-    // get TID
-    if (detId.subdetId() == sdSiTID) {
-      TIDDetId tidid(id);
-      for (iter = begin; iter != end; ++iter) {
-	++nStripFwd;
-	if (tidid.wheel() == 1) {
-	  TIDW1ADC.push_back((*iter).adc());
-	  TIDW1Strip.push_back((*iter).strip());
-	}
-	if (tidid.wheel() == 2) {
-	  TIDW2ADC.push_back((*iter).adc());
-	  TIDW2Strip.push_back((*iter).strip());
-	}
-	if (tidid.wheel() == 3) {
-	  TIDW3ADC.push_back((*iter).adc());
-	  TIDW3Strip.push_back((*iter).strip());
-	}
-      }
-    }   
-
-    // get TEC
-    if (detId.subdetId() == sdSiTEC) {
-      TECDetId tecid(id);
-      for (iter = begin; iter != end; ++iter) {
-	++nStripFwd;
-	if (tecid.wheel() == 1) {
-	  TECW1ADC.push_back((*iter).adc());
-	  TECW1Strip.push_back((*iter).strip());
-	}
-	if (tecid.wheel() == 2) {
-	  TECW2ADC.push_back((*iter).adc());
-	  TECW2Strip.push_back((*iter).strip());
-	}
-	if (tecid.wheel() == 3) {
-	  TECW3ADC.push_back((*iter).adc());
-	  TECW3Strip.push_back((*iter).strip());
-	}
-	if (tecid.wheel() == 4) {
-	  TECW4ADC.push_back((*iter).adc());
-	  TECW4Strip.push_back((*iter).strip());
-	}
-	if (tecid.wheel() == 5) {
-	  TECW5ADC.push_back((*iter).adc());
-	  TECW5Strip.push_back((*iter).strip());
-	}
-	if (tecid.wheel() == 6) {
-	  TECW6ADC.push_back((*iter).adc());
-	  TECW6Strip.push_back((*iter).strip());
-	}
-	if (tecid.wheel() == 7) {
-	  TECW7ADC.push_back((*iter).adc());
-	  TECW7Strip.push_back((*iter).strip());
-	}
-	if (tecid.wheel() == 8) {
-	  TECW8ADC.push_back((*iter).adc());
-	  TECW8Strip.push_back((*iter).strip());
-	}
-      }
-    }     
-  } // end loop over DataSetVector
-
+  } // end loop over det units
+                                                                      
   if (verbosity > 1) {
-    eventout += "\n          Number of BrlStripDigis collected:........ ";
+    eventout += "\n          Number of BrlStripRecHits collected:...... ";
     eventout += nStripBrl;
   }
 
   if (verbosity > 1) {
-    eventout += "\n          Number of FrwdStripDigis collected:....... ";
+    eventout += "\n          Number of FrwdStripRecHits collected:..... ";
     eventout += nStripFwd;
   }
 
+  /*
   // get pixel information
   edm::Handle<edm::DetSetVector<PixelDigi> > pixelDigis;  
   iEvent.getByLabel(SiPxlSrc_, pixelDigis);
@@ -1053,182 +1162,258 @@ void GlobalRecHitsProducer::storeTrk(PGlobalRecHit& product)
 {
   std::string MsgLoggerCat = "GlobalRecHitsProducer_storeTrk";
 
-  /*
   if (verbosity > 2) {
-
+    
     // strip output
     TString eventout("\n         nTIBL1     = ");
-    eventout += TIBL1ADC.size();
-    for (unsigned int i = 0; i < TIBL1ADC.size(); ++i) {
-      eventout += "\n      (ADC, strip) = (";
-      eventout += TIBL1ADC[i];
+    eventout += TIBL1RX.size();
+    for (unsigned int i = 0; i < TIBL1RX.size(); ++i) {
+      eventout += "\n      (RX, RY, SX, SY) = (";
+      eventout += TIBL1RX[i];
       eventout += ", ";
-      eventout += TIBL1Strip[i];
+      eventout += TIBL1RY[i];
+      eventout += ", ";
+      eventout += TIBL1SX[i];
+      eventout += ", ";
+      eventout += TIBL1SY[i];
       eventout += ")";
     }
     eventout += "\n         nTIBL2     = ";
-    eventout += TIBL2ADC.size();
-    for (unsigned int i = 0; i < TIBL2ADC.size(); ++i) {
-      eventout += "\n      (ADC, strip) = (";
-      eventout += TIBL2ADC[i];
+    eventout += TIBL2RX.size();
+    for (unsigned int i = 0; i < TIBL2RX.size(); ++i) {
+      eventout += "\n      (RX, RY, SX, SY) = (";
+      eventout += TIBL2RX[i];
       eventout += ", ";
-      eventout += TIBL2Strip[i];
+      eventout += TIBL2RY[i];
+      eventout += ", ";
+      eventout += TIBL2SX[i];
+      eventout += ", ";
+      eventout += TIBL2SY[i];
       eventout += ")";
     }
     eventout += "\n         nTIBL3     = ";
-    eventout += TIBL3ADC.size();
-    for (unsigned int i = 0; i < TIBL3ADC.size(); ++i) {
-      eventout += "\n      (ADC, strip) = (";
-      eventout += TIBL3ADC[i];
+    eventout += TIBL3RX.size();
+    for (unsigned int i = 0; i < TIBL3RX.size(); ++i) {
+      eventout += "\n      (RX, RY, SX, SY) = (";
+      eventout += TIBL3RX[i];
       eventout += ", ";
-      eventout += TIBL3Strip[i];
+      eventout += TIBL3RY[i];
+      eventout += ", ";
+      eventout += TIBL3SX[i];
+      eventout += ", ";
+      eventout += TIBL3SY[i];
       eventout += ")";
     }
     eventout += "\n         nTIBL4     = ";
-    eventout += TIBL4ADC.size();
-    for (unsigned int i = 0; i < TIBL4ADC.size(); ++i) {
-      eventout += "\n      (ADC, strip) = (";
-      eventout += TIBL4ADC[i];
+    eventout += TIBL4RX.size();
+    for (unsigned int i = 0; i < TIBL4RX.size(); ++i) {
+      eventout += "\n      (RX, RY, SX, SY) = (";
+      eventout += TIBL4RX[i];
       eventout += ", ";
-      eventout += TIBL4Strip[i];
+      eventout += TIBL4RY[i];
+      eventout += ", ";
+      eventout += TIBL4SX[i];
+      eventout += ", ";
+      eventout += TIBL4SY[i];
       eventout += ")";
     }
     eventout += "\n         nTOBL1     = ";
-    eventout += TOBL1ADC.size();
-    for (unsigned int i = 0; i < TOBL1ADC.size(); ++i) {
-      eventout += "\n      (ADC, strip) = (";
-      eventout += TOBL1ADC[i];
+    eventout += TOBL1RX.size();
+    for (unsigned int i = 0; i < TOBL1RX.size(); ++i) {
+      eventout += "\n      (RX, RY, SX, SY) = (";
+      eventout += TOBL1RX[i];
       eventout += ", ";
-      eventout += TOBL1Strip[i];
+      eventout += TOBL1RY[i];
+      eventout += ", ";
+      eventout += TOBL1SX[i];
+      eventout += ", ";
+      eventout += TOBL1SY[i];
       eventout += ")";
     }
     eventout += "\n         nTOBL2     = ";
-    eventout += TOBL2ADC.size();
-    for (unsigned int i = 0; i < TOBL2ADC.size(); ++i) {
-      eventout += "\n      (ADC, strip) = (";
-      eventout += TOBL2ADC[i];
+    eventout += TOBL2RX.size();
+    for (unsigned int i = 0; i < TOBL2RX.size(); ++i) {
+      eventout += "\n      (RX, RY, SX, SY) = (";
+      eventout += TOBL2RX[i];
       eventout += ", ";
-      eventout += TOBL2Strip[i];
+      eventout += TOBL2RY[i];
+      eventout += ", ";
+      eventout += TOBL2SX[i];
+      eventout += ", ";
+      eventout += TOBL2SY[i];
       eventout += ")";
     }
     eventout += "\n         nTOBL3     = ";
-    eventout += TOBL3ADC.size();
-    for (unsigned int i = 0; i < TOBL3ADC.size(); ++i) {
-      eventout += "\n      (ADC, strip) = (";
-      eventout += TOBL3ADC[i];
+    eventout += TOBL3RX.size();
+    for (unsigned int i = 0; i < TOBL3RX.size(); ++i) {
+      eventout += "\n      (RX, RY, SX, SY) = (";
+      eventout += TOBL3RX[i];
       eventout += ", ";
-      eventout += TOBL3Strip[i];
+      eventout += TOBL3RY[i];
+      eventout += ", ";
+      eventout += TOBL3SX[i];
+      eventout += ", ";
+      eventout += TOBL3SY[i];
       eventout += ")";
     }
     eventout += "\n         nTOBL4     = ";
-    eventout += TOBL4ADC.size();
-    for (unsigned int i = 0; i < TOBL4ADC.size(); ++i) {
-      eventout += "\n      (ADC, strip) = (";
-      eventout += TOBL4ADC[i];
+    eventout += TOBL4RX.size();
+    for (unsigned int i = 0; i < TOBL4RX.size(); ++i) {
+      eventout += "\n      (RX, RY, SX, SY) = (";
+      eventout += TOBL4RX[i];
       eventout += ", ";
-      eventout += TOBL4Strip[i];
+      eventout += TOBL4RY[i];
+      eventout += ", ";
+      eventout += TOBL4SX[i];
+      eventout += ", ";
+      eventout += TOBL4SY[i];
       eventout += ")";
     }
     eventout += "\n         nTIDW1     = ";
-    eventout += TIDW1ADC.size();
-    for (unsigned int i = 0; i < TIDW1ADC.size(); ++i) {
-      eventout += "\n      (ADC, strip) = (";
-      eventout += TIDW1ADC[i];
+    eventout += TIDW1RX.size();
+    for (unsigned int i = 0; i < TIDW1RX.size(); ++i) {
+      eventout += "\n      (RX, RY, SX, SY) = (";
+      eventout += TIDW1RX[i];
       eventout += ", ";
-      eventout += TIDW1Strip[i];
+      eventout += TIDW1RY[i];
+      eventout += ", ";
+      eventout += TIDW1SX[i];
+      eventout += ", ";
+      eventout += TIDW1SY[i];
       eventout += ")";
     }
     eventout += "\n         nTIDW2     = ";
-    eventout += TIDW2ADC.size();
-    for (unsigned int i = 0; i < TIDW2ADC.size(); ++i) {
-      eventout += "\n      (ADC, strip) = (";
-      eventout += TIDW2ADC[i];
+    eventout += TIDW2RX.size();
+    for (unsigned int i = 0; i < TIDW2RX.size(); ++i) {
+      eventout += "\n      (RX, RY, SX, SY) = (";
+      eventout += TIDW2RX[i];
       eventout += ", ";
-      eventout += TIDW2Strip[i];
+      eventout += TIDW2RY[i];
+      eventout += ", ";
+      eventout += TIDW2SX[i];
+      eventout += ", ";
+      eventout += TIDW2SY[i];
       eventout += ")";
     }
     eventout += "\n         nTIDW3     = ";
-    eventout += TIDW3ADC.size();
-    for (unsigned int i = 0; i < TIDW3ADC.size(); ++i) {
-      eventout += "\n      (ADC, strip) = (";
-      eventout += TIDW3ADC[i];
+    eventout += TIDW3RX.size();
+    for (unsigned int i = 0; i < TIDW3RX.size(); ++i) {
+      eventout += "\n      (RX, RY, SX, SY) = (";
+      eventout += TIDW3RX[i];
       eventout += ", ";
-      eventout += TIDW3Strip[i];
+      eventout += TIDW3RY[i];
+      eventout += ", ";
+      eventout += TIDW3SX[i];
+      eventout += ", ";
+      eventout += TIDW3SY[i];
       eventout += ")";
     }
     eventout += "\n         nTECW1     = ";
-    eventout += TECW1ADC.size();
-    for (unsigned int i = 0; i < TECW1ADC.size(); ++i) {
-      eventout += "\n      (ADC, strip) = (";
-      eventout += TECW1ADC[i];
+    eventout += TECW1RX.size();
+    for (unsigned int i = 0; i < TECW1RX.size(); ++i) {
+      eventout += "\n      (RX, RY, SX, SY) = (";
+      eventout += TECW1RX[i];
       eventout += ", ";
-      eventout += TECW1Strip[i];
+      eventout += TECW1RY[i];
+      eventout += ", ";
+      eventout += TECW1SX[i];
+      eventout += ", ";
+      eventout += TECW1SY[i];
       eventout += ")";
     }
     eventout += "\n         nTECW2     = ";
-    eventout += TECW2ADC.size();
-    for (unsigned int i = 0; i < TECW2ADC.size(); ++i) {
-      eventout += "\n      (ADC, strip) = (";
-      eventout += TECW2ADC[i];
+    eventout += TECW2RX.size();
+    for (unsigned int i = 0; i < TECW2RX.size(); ++i) {
+      eventout += "\n      (RX, RY, SX, SY) = (";
+      eventout += TECW2RX[i];
       eventout += ", ";
-      eventout += TECW2Strip[i];
+      eventout += TECW2RY[i];
+      eventout += ", ";
+      eventout += TECW2SX[i];
+      eventout += ", ";
+      eventout += TECW2SY[i];
       eventout += ")";
     }
     eventout += "\n         nTECW3     = ";
-    eventout += TECW3ADC.size();
-    for (unsigned int i = 0; i < TECW3ADC.size(); ++i) {
-      eventout += "\n      (ADC, strip) = (";
-      eventout += TECW3ADC[i];
+    eventout += TECW3RX.size();
+    for (unsigned int i = 0; i < TECW3RX.size(); ++i) {
+      eventout += "\n      (RX, RY, SX, SY) = (";
+      eventout += TECW3RX[i];
       eventout += ", ";
-      eventout += TECW3Strip[i];
+      eventout += TECW3RY[i];
+      eventout += ", ";
+      eventout += TECW3SX[i];
+      eventout += ", ";
+      eventout += TECW3SY[i];
       eventout += ")";
     }
     eventout += "\n         nTECW4     = ";
-    eventout += TECW4ADC.size();
-    for (unsigned int i = 0; i < TECW4ADC.size(); ++i) {
-      eventout += "\n      (ADC, strip) = (";
-      eventout += TECW4ADC[i];
+    eventout += TECW4RX.size();
+    for (unsigned int i = 0; i < TECW4RX.size(); ++i) {
+      eventout += "\n      (RX, RY, SX, SY) = (";
+      eventout += TECW4RX[i];
       eventout += ", ";
-      eventout += TECW4Strip[i];
+      eventout += TECW4RY[i];
+      eventout += ", ";
+      eventout += TECW4SX[i];
+      eventout += ", ";
+      eventout += TECW4SY[i];
       eventout += ")";
     }
     eventout += "\n         nTECW5     = ";
-    eventout += TECW5ADC.size();
-    for (unsigned int i = 0; i < TECW5ADC.size(); ++i) {
-      eventout += "\n      (ADC, strip) = (";
-      eventout += TECW5ADC[i];
+    eventout += TECW5RX.size();
+    for (unsigned int i = 0; i < TECW5RX.size(); ++i) {
+      eventout += "\n      (RX, RY, SX, SY) = (";
+      eventout += TECW5RX[i];
       eventout += ", ";
-      eventout += TECW5Strip[i];
+      eventout += TECW5RY[i];
+      eventout += ", ";
+      eventout += TECW5SX[i];
+      eventout += ", ";
+      eventout += TECW5SY[i];
       eventout += ")";
     }
     eventout += "\n         nTECW6     = ";
-    eventout += TECW6ADC.size();
-    for (unsigned int i = 0; i < TECW6ADC.size(); ++i) {
-      eventout += "\n      (ADC, strip) = (";
-      eventout += TECW6ADC[i];
+    eventout += TECW6RX.size();
+    for (unsigned int i = 0; i < TECW6RX.size(); ++i) {
+      eventout += "\n      (RX, RY, SX, SY) = (";
+      eventout += TECW6RX[i];
       eventout += ", ";
-      eventout += TECW6Strip[i];
+      eventout += TECW6RY[i];
+      eventout += ", ";
+      eventout += TECW6SX[i];
+      eventout += ", ";
+      eventout += TECW6SY[i];
       eventout += ")";
     }
     eventout += "\n         nTECW7     = ";
-    eventout += TECW7ADC.size();
-    for (unsigned int i = 0; i < TECW7ADC.size(); ++i) {
-      eventout += "\n      (ADC, strip) = (";
-      eventout += TECW7ADC[i];
+    eventout += TECW7RX.size();
+    for (unsigned int i = 0; i < TECW7RX.size(); ++i) {
+      eventout += "\n      (RX, RY, SX, SY) = (";
+      eventout += TECW7RX[i];
       eventout += ", ";
-      eventout += TECW7Strip[i];
+      eventout += TECW7RY[i];
+      eventout += ", ";
+      eventout += TECW7SX[i];
+      eventout += ", ";
+      eventout += TECW7SY[i];
       eventout += ")";
     }
     eventout += "\n         nTECW8     = ";
-    eventout += TECW8ADC.size();
-    for (unsigned int i = 0; i < TECW8ADC.size(); ++i) {
-      eventout += "\n      (ADC, strip) = (";
-      eventout += TECW8ADC[i];
+    eventout += TECW8RX.size();
+    for (unsigned int i = 0; i < TECW8RX.size(); ++i) {
+      eventout += "\n      (RX, RY, SX, SY) = (";
+      eventout += TECW8RX[i];
       eventout += ", ";
-      eventout += TECW8Strip[i];
+      eventout += TECW8RY[i];
+      eventout += ", ";
+      eventout += TECW8SX[i];
+      eventout += ", ";
+      eventout += TECW8SY[i];
       eventout += ")";
     }
 
+    /*
     // pixel output
     eventout += "\n         nBRL1     = ";
     eventout += BRL1ADC.size();
@@ -1295,7 +1480,7 @@ void GlobalRecHitsProducer::storeTrk(PGlobalRecHit& product)
       eventout += ", ";
       eventout += FWD2pCol[i];
       eventout += ")";
-    } 
+      } 
     eventout += "\n         nFWD2p     = ";
     eventout += FWD2nADC.size();
     for (unsigned int i = 0; i < FWD2nADC.size(); ++i) {
@@ -1307,31 +1492,33 @@ void GlobalRecHitsProducer::storeTrk(PGlobalRecHit& product)
       eventout += FWD2nCol[i];
       eventout += ")";
     } 
+    */
 
     edm::LogInfo(MsgLoggerCat) << eventout << "\n";  
   }
 
   // strip output
-  product.putTIBL1Digis(TIBL1ADC,TIBL1Strip);
-  product.putTIBL2Digis(TIBL2ADC,TIBL2Strip);
-  product.putTIBL3Digis(TIBL3ADC,TIBL3Strip);
-  product.putTIBL4Digis(TIBL4ADC,TIBL4Strip);
-  product.putTOBL1Digis(TOBL1ADC,TOBL1Strip);
-  product.putTOBL2Digis(TOBL2ADC,TOBL2Strip);
-  product.putTOBL3Digis(TOBL3ADC,TOBL3Strip);
-  product.putTOBL4Digis(TOBL4ADC,TOBL4Strip);
-  product.putTIDW1Digis(TIDW1ADC,TIDW1Strip);
-  product.putTIDW2Digis(TIDW2ADC,TIDW2Strip);
-  product.putTIDW3Digis(TIDW3ADC,TIDW3Strip);
-  product.putTECW1Digis(TECW1ADC,TECW1Strip);
-  product.putTECW2Digis(TECW2ADC,TECW2Strip);
-  product.putTECW3Digis(TECW3ADC,TECW3Strip);
-  product.putTECW4Digis(TECW4ADC,TECW4Strip);
-  product.putTECW5Digis(TECW5ADC,TECW5Strip);
-  product.putTECW6Digis(TECW6ADC,TECW6Strip);  
-  product.putTECW7Digis(TECW7ADC,TECW7Strip);
-  product.putTECW8Digis(TECW8ADC,TECW8Strip);  
+  product.putTIBL1RecHits(TIBL1RX,TIBL1RY,TIBL1SX,TIBL1SY);
+  product.putTIBL2RecHits(TIBL2RX,TIBL2RY,TIBL2SX,TIBL2SY);
+  product.putTIBL3RecHits(TIBL3RX,TIBL3RY,TIBL3SX,TIBL3SY);
+  product.putTIBL4RecHits(TIBL4RX,TIBL4RY,TIBL4SX,TIBL4SY);
+  product.putTOBL1RecHits(TOBL1RX,TOBL1RY,TOBL1SX,TOBL1SY);
+  product.putTOBL2RecHits(TOBL2RX,TOBL2RY,TOBL2SX,TOBL2SY);
+  product.putTOBL3RecHits(TOBL3RX,TOBL3RY,TOBL3SX,TOBL3SY);
+  product.putTOBL4RecHits(TOBL4RX,TOBL4RY,TOBL4SX,TOBL4SY);
+  product.putTIDW1RecHits(TIDW1RX,TIDW1RY,TIDW1SX,TIDW1SY);
+  product.putTIDW2RecHits(TIDW2RX,TIDW2RY,TIDW2SX,TIDW2SY);
+  product.putTIDW3RecHits(TIDW3RX,TIDW3RY,TIDW3SX,TIDW3SY);
+  product.putTECW1RecHits(TECW1RX,TECW1RY,TECW1SX,TECW1SY);
+  product.putTECW2RecHits(TECW2RX,TECW2RY,TECW2SX,TECW2SY);
+  product.putTECW3RecHits(TECW3RX,TECW3RY,TECW3SX,TECW3SY);
+  product.putTECW4RecHits(TECW4RX,TECW4RY,TECW4SX,TECW4SY);
+  product.putTECW5RecHits(TECW5RX,TECW5RY,TECW5SX,TECW5SY);
+  product.putTECW6RecHits(TECW6RX,TECW6RY,TECW6SX,TECW6SY);  
+  product.putTECW7RecHits(TECW7RX,TECW7RY,TECW7SX,TECW7SY);
+  product.putTECW8RecHits(TECW8RX,TECW8RY,TECW8SX,TECW8SY);  
 
+  /*
   // pixel output
   product.putBRL1Digis(BRL1ADC, BRL1Row, BRL1Col);
   product.putBRL2Digis(BRL2ADC, BRL2Row, BRL2Col);
@@ -1340,7 +1527,6 @@ void GlobalRecHitsProducer::storeTrk(PGlobalRecHit& product)
   product.putFWD1nDigis(FWD1nADC, FWD1nRow, FWD1nCol);
   product.putFWD2pDigis(FWD2pADC, FWD2pRow, FWD2pCol);
   product.putFWD2nDigis(FWD2nADC, FWD2nRow, FWD2nCol);
-
   */
 
   return;
@@ -1724,6 +1910,37 @@ void GlobalRecHitsProducer::clear()
   RPCSHX.clear();
 
   return;
+}
+
+//needed by to do the residual for matched hits
+std::pair<LocalPoint,LocalVector> 
+GlobalRecHitsProducer::projectHit(const PSimHit& hit, 
+				  const StripGeomDetUnit* stripDet,
+				  const BoundPlane& plane) 
+{
+  
+  const StripTopology& topol = stripDet->specificTopology();
+  GlobalPoint globalpos= stripDet->surface().toGlobal(hit.localPosition());
+  LocalPoint localHit = plane.toLocal(globalpos);
+  //track direction
+  LocalVector locdir=hit.localDirection();
+  //rotate track in new frame
+  
+  GlobalVector globaldir= stripDet->surface().toGlobal(locdir);
+  LocalVector dir=plane.toLocal(globaldir);
+  float scale = -localHit.z() / dir.z();
+  
+  LocalPoint projectedPos = localHit + scale*dir;
+    
+  float selfAngle = topol.stripAngle( topol.strip( hit.localPosition()));
+
+  // vector along strip in hit frame 
+  LocalVector stripDir( sin(selfAngle), cos(selfAngle), 0); 
+  
+  LocalVector 
+    localStripDir(plane.toLocal(stripDet->surface().toGlobal(stripDir)));
+  
+  return std::pair<LocalPoint,LocalVector>( projectedPos, localStripDir);
 }
 
 //define this as a plug-in

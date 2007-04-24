@@ -53,6 +53,28 @@
 #include "DataFormats/SiStripDetId/interface/TIDDetId.h"
 #include "DataFormats/SiStripDetId/interface/TECDetId.h"
 
+#include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h" 
+#include "Geometry/CommonTopologies/interface/StripTopology.h"
+#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDetType.h" 
+#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h" 
+#include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
+#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetType.h"
+#include "DataFormats/GeometryVector/interface/LocalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/SiStripCluster/interface/SiStripCluster.h" 
+#include "DataFormats/SiStripCluster/interface/SiStripClusterCollection.h" 
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h" 
+#include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h" 
+#include "DataFormats/Common/interface/OwnVector.h" 
+
+
+#include "Geometry/CommonTopologies/interface/PixelTopology.h"
+#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetType.h"
+
 // silicon pixel info
 #include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
@@ -77,6 +99,7 @@
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHit.h"  
 
 // helper files
 #include <CLHEP/Vector/LorentzVector.h>
@@ -199,6 +222,13 @@ class GlobalRecHitsProducer : public edm::EDProducer
     TECW8SY;
 
   edm::InputTag SiStripSrc_;
+
+  std::vector<PSimHit> matched;
+  std::pair<LocalPoint,LocalVector> 
+    projectHit( const PSimHit& hit,
+		const StripGeomDetUnit* stripDet,
+		const BoundPlane& plane);
+  edm::ParameterSet conf_;
 
   // SiPxl
 

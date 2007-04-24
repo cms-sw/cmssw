@@ -15,6 +15,9 @@
 <use name=DataFormats/HcalRecHit>
 <use name=DataFormats/SiStripDigi>
 <use name=DataFormats/SiStripDetId>
+<use name=SimDataFormats/TrackerDigiSimLink>
+<use name=SimTracker/TrackerHitAssociation>
+<use name=Geometry/TrackerGeometryBuilder>
 <use name=DataFormats/SiPixelDigi>
 <use name=DataFormats/SiPixelDetId>
 <use name=DataFormats/DTDigi>
@@ -29,7 +32,7 @@
 <flags SEAL_PLUGIN_NAME="ValidationGlobalRecHits">
 
 <export>
- <lib name=ValidationGlobalDigis>
+ <lib name=ValidationGlobalRecHits>
  <use name=FWCore/Framework>
  <use name=DataFormats/Common>
  <use name=FWCore/ParameterSet>
@@ -46,6 +49,9 @@
  <use name=DataFormats/HcalRecHit>
  <use name=DataFormats/SiStripDigi>
  <use name=DataFormats/SiStripDetId> 
+ <use name=SimDataFormats/TrackerDigiSimLink>
+ <use name=SimTracker/TrackerHitAssociation>
+ <use name=Geometry/TrackerGeometryBuilder>
  <use name=DataFormats/SiPixelDigi>
  <use name=DataFormats/SiPixelDetId>
  <use name=DataFormats/DTDigi>
