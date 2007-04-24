@@ -10,7 +10,7 @@
 <use name=FWCore/ParameterSet>
 <use name=HLTrigger/HLTcore>
 <use name=RecoVertex/KalmanVertexFit>
-<flags SEAL_PLUGIN_NAME="HLTriggerbtau">
+<flags EDM_PLUGIN=1>
 <export>
    <lib name=HLTriggerbtau>
    <use name=FWCore/Framework>
