@@ -4,8 +4,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "DataFormats/Common/interface/Handle.h"
-//#include "FWCore/Framework/interface/Handle.h"
+#include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -121,8 +120,8 @@ namespace cms{
       std::string filename_;
       std::string psfilename_;
       int32_t psfiletype_;
-      int32_t psfilemode_;
-      
+      int32_t psfilemode_;    
+
       TFile* fFile;
       TObjArray* Hlist;
       
