@@ -3,15 +3,12 @@
 #include <map>
 #include <iostream>
 #include <math.h>
-#include <utility>
-#include <algorithm>
 
 //Framework includes
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-//#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -38,7 +35,9 @@
 #include "DataFormats/HcalDigi/interface/HcalTriggerPrimitiveDigi.h"
 #include "DataFormats/HcalDetId/interface/HcalTrigTowerDetId.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
-
+#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
+#include "DataFormats/HcalRecHit/interface/HBHERecHit.h"
+#include "DataFormats/HcalRecHit/interface/HFRecHit.h"
 
 //SimDataFormats includes
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
@@ -59,8 +58,6 @@ class CaloGeometry;
 class TPGntupler : public edm::EDAnalyzer {
  public:
   explicit TPGntupler(const edm::ParameterSet&);
-  typedef std::multimap<HcalTrigTowerDetId, PCaloHit> IdtoHit;
-  typedef std::map<HcalDetId, double> Cell_Map;
   typedef std::map<HcalTrigTowerDetId, double> IdtoEnergy;
   ~TPGntupler();
 
@@ -72,19 +69,15 @@ class TPGntupler : public edm::EDAnalyzer {
   HcalTrigTowerGeometry theTrigTowerGeometry;
   TFile file;
   TTree tree;
-  IdtoHit hit_map;
-  IdtoEnergy Hit_towers;
-  IdtoEnergy TP_towers;
-  Cell_Map Hit_cells;
+  IdtoEnergy Rec_towers;
   int run_num;
   int event_num;
   int ieta[4176];
   int iphi[4176];
   float tpg_energy[4176];
-  float hit_energy[4176];
+  float rec_energy[4176];
   float tpg_uncompressed[4176];
   int index[4176];
   edm::ESHandle<CaloTPGTranscoder> transcoder_;
-  //TClonesArray *infoarray;
 
 };

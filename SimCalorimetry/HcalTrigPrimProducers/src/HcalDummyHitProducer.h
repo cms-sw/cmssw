@@ -34,9 +34,6 @@ private:
   double energyEM;
   double energyHad;
   double step_size;
-  //  vector<DetId> hbCells;
-  //  vector<DetId> heCells;
-  //  vector<DetId> hfCells;
 };
 
 #endif
