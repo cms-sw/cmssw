@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2006/11/20 18:33:20 $
- * $Revision: 1.17 $
+ * $Date: 2007/03/10 16:14:43 $
+ * $Revision: 1.18 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  */
@@ -20,7 +20,7 @@
 
 #include "RecoLocalMuon/DTSegment/src/DTSegmentCand.h"
 #include "RecoLocalMuon/DTRecHit/interface/DTRecHitAlgoFactory.h"
-#include "RecoLocalMuon/DTSegment/interface/DTLinearFit.h"
+#include "RecoLocalMuon/DTSegment/src/DTLinearFit.h"
 
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"

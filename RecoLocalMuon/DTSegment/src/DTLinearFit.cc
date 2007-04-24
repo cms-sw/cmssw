@@ -1,12 +1,12 @@
 /** \file
  *
- * $Date:  16/03/2006 16:11:13 CET $
- * $Revision: 1.0 $
+ * $Date: 2006/03/30 16:53:18 $
+ * $Revision: 1.1 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  */
 
 /* This Class Header */
-#include "RecoLocalMuon/DTSegment/interface/DTLinearFit.h"
+#include "RecoLocalMuon/DTSegment/src/DTLinearFit.h"
 
 /* Collaborating Class Header */
 
