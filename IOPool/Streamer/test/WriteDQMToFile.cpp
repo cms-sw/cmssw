@@ -60,7 +60,7 @@ int main()
   StreamDQMOutputFile dqmFile("dqm_file.dqm");
 
 
-  dqmFile.write();
+  dqmFile.write(dqmMsgBuilder);
 
 
   DQMEventMsgView dqmMsgView(&buf[0]);
