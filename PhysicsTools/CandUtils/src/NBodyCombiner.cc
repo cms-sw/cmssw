@@ -11,19 +11,11 @@ NBodyCombinerBase::NBodyCombinerBase( bool checkCharge, const vector<int> & dauC
 NBodyCombinerBase::~NBodyCombinerBase() {
 }
 
-NBodyCombinerBase::ChargeInfo NBodyCombinerBase::chargeInfo( int q1, int q2 ) {
-  if ( q1 == q2 ) return same;
-  if ( q1 == - q2 ) return opposite;
-  return invalid;
-}
-
 bool NBodyCombinerBase::preselect( const Candidate & c1, const Candidate & c2 ) const {
   if ( checkCharge_ ) {
-    ChargeInfo ch1 = chargeInfo( c1.charge(), dauCharge_[ 0 ] );
-    if ( ch1 == invalid ) return false;
-    ChargeInfo ch2 = chargeInfo( c2.charge(), dauCharge_[ 1 ] );
-    if ( ch2 == invalid ) return false;
-    if ( ch1 != ch2 ) return false;
+    int dq1 = dauCharge_[0], dq2 = dauCharge_[1], q1 = c1.charge(), q2 = c2.charge();
+    bool matchCharge = ( q1 == dq1 && q2 == dq2 ) || ( q1 == -dq1 && q2 == -dq2 ); 
+    if (!matchCharge) return false; 
   }
   if ( overlap_( c1, c2 ) ) return false;
   return true;
@@ -74,25 +66,47 @@ NBodyCombinerBase::combine( const vector<CandidateRefProd> & src ) const {
     }
   } else {
     CandStack stack;
-    combine( 0, undetermined, stack, src.begin(), src.end(), comps );
+    ChargeStack qStack;
+    combine( 0, stack, qStack, src.begin(), src.end(), comps );
   }
 
   return comps;
 }
 
-void NBodyCombinerBase::combine( size_t collectionIndex, ChargeInfo chkCharge, CandStack & stack,
+void NBodyCombinerBase::combine( size_t collectionIndex, CandStack & stack, ChargeStack & qStack,
 				 vector<CandidateRefProd>::const_iterator collBegin,
 				 vector<CandidateRefProd>::const_iterator collEnd,
 				 auto_ptr<CandidateCollection> & comps
 				 ) const {
   if( collBegin == collEnd ) {
-    CompositeCandidate * cmp( new CompositeCandidate );
-    for( CandStack::const_iterator i = stack.begin(); i != stack.end(); ++ i ) {
-      addDaughter( cmp, i->first );
+    static const int undetermined = 0, sameDecay = 1, conjDecay = -1, wrongDecay = 2;
+    int decayType = undetermined;
+    if (checkCharge_) {
+      assert( qStack.size() == stack.size() );
+      for( size_t i = 0; i < qStack.size(); ++i ) {
+	int q = qStack[i], dq = dauCharge_[i];
+	if ( decayType == undetermined ) {
+	  if ( q != 0 && dq != 0 ) {
+	    if ( q == dq ) decayType = sameDecay;
+	    else if ( q == -dq ) decayType = conjDecay;
+	    else decayType = wrongDecay;
+	  }
+	} else if ( ( decayType == sameDecay && q != dq ) ||
+		    ( decayType == conjDecay && q != -dq ) ) {
+	  decayType = wrongDecay;
+	}
+	if ( decayType == wrongDecay ) break;
+      }
     }
-    setup( cmp );
-    if ( select( * cmp ) )
-      comps->push_back( cmp );
+    if ( decayType != wrongDecay ) { 
+      CompositeCandidate * cmp( new CompositeCandidate );
+      for( CandStack::const_iterator i = stack.begin(); i != stack.end(); ++ i ) {
+	addDaughter( cmp, i->first );
+      }
+      setup( cmp );
+      if ( select( * cmp ) )
+	comps->push_back( cmp );
+    }
   } else {
     const CandidateRefProd srcRef = * collBegin;
     const CandidateCollection & src = * srcRef;
@@ -102,12 +116,6 @@ void NBodyCombinerBase::combine( size_t collectionIndex, ChargeInfo chkCharge, C
 	candBegin = i->first.key() + 1;
     for( size_t candIndex = candBegin; candIndex != candEnd; ++ candIndex ) {
       CandidateRef cand( srcRef, candIndex );
-      if ( checkCharge_ ) {
-	int q = cand->charge();
-	ChargeInfo ch = chargeInfo( q, dauCharge_[ collectionIndex ] );
-	if( ch == invalid ) continue;
-	if ( chkCharge == undetermined && q != 0 ) chkCharge = ch;
-      }
       bool noOverlap = true;
       for( CandStack::const_iterator i = stack.begin(); i != stack.end(); ++i ) 
 	if ( overlap_( * cand, * ( i->first ) ) ) { 
@@ -116,8 +124,10 @@ void NBodyCombinerBase::combine( size_t collectionIndex, ChargeInfo chkCharge, C
 	}
       if ( noOverlap ) {
 	stack.push_back( make_pair( cand, collBegin ) );
-	combine( collectionIndex + 1, chkCharge, stack, collBegin + 1, collEnd, comps );
+	if ( checkCharge_ ) qStack.push_back( cand->charge() ); 
+	combine( collectionIndex + 1, stack, qStack, collBegin + 1, collEnd, comps );
 	stack.pop_back();
+	qStack.pop_back();
       }
     }
   }
