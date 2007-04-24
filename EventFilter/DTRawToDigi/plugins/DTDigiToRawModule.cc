@@ -1,5 +1,5 @@
-#include <EventFilter/DTRawToDigi/src/DTDigiToRawModule.h>
-#include <EventFilter/DTRawToDigi/src/DTDigiToRaw.h>
+#include <EventFilter/DTRawToDigi/plugins/DTDigiToRawModule.h>
+#include <EventFilter/DTRawToDigi/plugins/DTDigiToRaw.h>
 #include <DataFormats/FEDRawData/interface/FEDRawDataCollection.h>
 #include <DataFormats/DTDigi/interface/DTDigiCollection.h>
 #include <DataFormats/Common/interface/Handle.h>

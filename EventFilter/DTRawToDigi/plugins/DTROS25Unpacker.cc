@@ -1,12 +1,12 @@
 /** \file
  *
- *  $Date: 2007/04/02 14:12:44 $
- *  $Revision: 1.31 $
+ *  $Date: 2007/04/02 16:07:15 $
+ *  $Revision: 1.32 $
  *  \author  M. Zanetti - INFN Padova
  *  \revision FRC 060906
  */
 
-#include <EventFilter/DTRawToDigi/src/DTROS25Unpacker.h>
+#include <EventFilter/DTRawToDigi/plugins/DTROS25Unpacker.h>
 
 #include <EventFilter/DTRawToDigi/interface/DTDDUWords.h>
 #include <EventFilter/DTRawToDigi/interface/DTControlData.h>
@@ -15,8 +15,8 @@
 #include <EventFilter/DTRawToDigi/interface/DTDataMonitorInterface.h>
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include <EventFilter/DTRawToDigi/src/DTROSErrorNotifier.h>
-#include <EventFilter/DTRawToDigi/src/DTTDCErrorNotifier.h>
+#include <EventFilter/DTRawToDigi/plugins/DTROSErrorNotifier.h>
+#include <EventFilter/DTRawToDigi/plugins/DTTDCErrorNotifier.h>
 
 // Mapping
 #include <CondFormats/DTObjects/interface/DTReadOutMapping.h>

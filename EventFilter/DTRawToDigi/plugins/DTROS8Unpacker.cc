@@ -1,15 +1,15 @@
 /** \file
  *
- *  $Date: 2006/06/14 09:22:55 $
- *  $Revision: 1.14 $
+ *  $Date: 2006/09/19 14:09:11 $
+ *  $Revision: 1.15 $
  *  \author  M. Zanetti - INFN Padova 
  * FRC 140906
  */
 
-#include <EventFilter/DTRawToDigi/src/DTROS8Unpacker.h>
+#include <EventFilter/DTRawToDigi/plugins/DTROS8Unpacker.h>
 #include <EventFilter/DTRawToDigi/interface/DTDDUWords.h>
-#include <EventFilter/DTRawToDigi/src/DTROSErrorNotifier.h>
-#include <EventFilter/DTRawToDigi/src/DTTDCErrorNotifier.h>
+#include <EventFilter/DTRawToDigi/plugins/DTROSErrorNotifier.h>
+#include <EventFilter/DTRawToDigi/plugins/DTTDCErrorNotifier.h>
 #include <CondFormats/DTObjects/interface/DTReadOutMapping.h>
 #include <FWCore/Utilities/interface/Exception.h>
 #include <DataFormats/MuonDetId/interface/DTWireId.h> 

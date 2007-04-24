@@ -1,25 +1,25 @@
-#ifndef DTTDCErrorNotifier_h
-#define DTTDCErrorNotifier_h
+#ifndef DTROSErrorNotifier_h
+#define DTROSErrorNotifier_h
 
-/** \class DTTDCErrorNotifier
+/** \class DTROSErrorNotifier
  *
- *  $Date: 2005/11/21 17:38:48 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/02/21 19:15:55 $
+ *  $Revision: 1.3 $
  *  \author M. Zanetti - INFN Padova
  */
 
 #include <EventFilter/DTRawToDigi/interface/DTDDUWords.h>
-//class DTTDCErrorWord;
+//class DTROSErrorWord;
 
-class DTTDCErrorNotifier {
+class DTROSErrorNotifier {
 
 public:
   
   /// Constructor
-  DTTDCErrorNotifier(DTTDCErrorWord error ); 
+  DTROSErrorNotifier(DTROSErrorWord error ); 
 
   /// Destructor
-  virtual ~DTTDCErrorNotifier(); 
+  virtual ~DTROSErrorNotifier(); 
 
   /// Print out the error information >>> FIXME: to be implemented
   void print(); 
@@ -28,7 +28,7 @@ public:
 
 private:
 
-  DTTDCErrorWord error_;
+  DTROSErrorWord error_;
 
 };
 

@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/10/17 21:04:17 $
- *  $Revision: 1.21 $
+ *  $Date: 2007/03/12 00:44:18 $
+ *  $Revision: 1.22 $
  *  \author S. Argiro - N. Amapane - M. Zanetti 
  * FRC 060906
  */
@@ -14,7 +14,7 @@
 #include <FWCore/Framework/interface/EventSetup.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 
-#include <EventFilter/DTRawToDigi/src/DTUnpackingModule.h>
+#include <EventFilter/DTRawToDigi/plugins/DTUnpackingModule.h>
 #include <DataFormats/FEDRawData/interface/FEDRawData.h>
 #include <DataFormats/FEDRawData/interface/FEDNumbering.h>
 #include <DataFormats/FEDRawData/interface/FEDRawDataCollection.h>
@@ -25,9 +25,9 @@
 #include <CondFormats/DataRecord/interface/DTReadOutMappingRcd.h>
 
 #include <EventFilter/DTRawToDigi/interface/DTDDUWords.h>
-#include <EventFilter/DTRawToDigi/src/DTDDUUnpacker.h>
-#include <EventFilter/DTRawToDigi/src/DTROS25Unpacker.h>
-#include <EventFilter/DTRawToDigi/src/DTROS8Unpacker.h>
+#include <EventFilter/DTRawToDigi/plugins/DTDDUUnpacker.h>
+#include <EventFilter/DTRawToDigi/plugins/DTROS25Unpacker.h>
+#include <EventFilter/DTRawToDigi/plugins/DTROS8Unpacker.h>
 
 
 using namespace edm;

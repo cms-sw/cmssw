@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/11/16 13:33:20 $
- *  $Revision: 1.16 $
+ *  $Date: 2007/03/29 17:26:01 $
+ *  $Revision: 1.17 $
  *  \author  M. Zanetti - INFN Padova 
  * FRC 060906
  */
@@ -15,8 +15,8 @@
 #include <EventFilter/DTRawToDigi/interface/DTDataMonitorInterface.h>
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include <EventFilter/DTRawToDigi/src/DTDDUUnpacker.h>
-#include <EventFilter/DTRawToDigi/src/DTROS25Unpacker.h>
+#include <EventFilter/DTRawToDigi/plugins/DTDDUUnpacker.h>
+#include <EventFilter/DTRawToDigi/plugins/DTROS25Unpacker.h>
 
 #include <iostream>
 
