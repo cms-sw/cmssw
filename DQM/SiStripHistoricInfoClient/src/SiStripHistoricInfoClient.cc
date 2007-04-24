@@ -8,7 +8,7 @@
 //
 // Original Author:  dkcira
 //         Created:  Thu Jun 15 09:32:49 CEST 2006
-// $Id: SiStripHistoricInfoClient.cc,v 1.13 2007/02/16 14:22:19 dkcira Exp $
+// $Id: SiStripHistoricInfoClient.cc,v 1.14 2007/02/16 15:59:34 dkcira Exp $
 //
 
 #include "DQM/SiStripHistoricInfoClient/interface/SiStripHistoricInfoClient.h"
@@ -100,7 +100,6 @@ void SiStripHistoricInfoClient::newRun()
 //  this obligatory method is called whenever the client enters the "Halted" state:
 void SiStripHistoricInfoClient::endRun()
 {
-/*
   cout<<"SiStripHistoricInfoClient::endRun() : called"<<endl;
   cout<<"++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"<<endl;
   cout<<"SiStripHistoricInfoClient::endRun ClientPointersToModuleMEs.size()="<<ClientPointersToModuleMEs.size()<<endl;
@@ -117,10 +116,9 @@ void SiStripHistoricInfoClient::endRun()
      }
   }
   cout<<"++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"<<endl;
-*/
-//  std::string final_filename = "endRun_SiStripHistoricInfoClient.root"; // run specific filename would be better
-//  std::cout<<"Saving all histograms in "<<final_filename<<std::endl;
-//  mui_->save(final_filename);
+  std::string final_filename = "endRun_SiStripHistoricInfoClient.root"; // run specific filename would be better
+  std::cout<<"Saving all histograms in "<<final_filename<<std::endl;
+  mui_->save(final_filename);
 }
 
 
