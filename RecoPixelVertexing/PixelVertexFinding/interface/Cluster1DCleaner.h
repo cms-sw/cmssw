@@ -112,7 +112,7 @@ Cluster1DCleaner<T>::average(const std::vector<Cluster1D<T> >& clust)
       }
       err += std::sqrt( err2 );
     }  
-  return sumUp/sumDown;
+  return (sumDown>0) ? sumUp/sumDown : 0;
 }
 } // end of temp namespace
 #endif
