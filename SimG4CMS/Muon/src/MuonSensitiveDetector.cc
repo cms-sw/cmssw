@@ -297,6 +297,7 @@ void MuonSensitiveDetector::createHit(G4Step * aStep){
   std::cout << "newhit dpos  " << theGlobalPos<<std::endl;
   std::cout << "newhit drot  " << std::endl;
   //  theGlobalRot->print(std::cout);
+
 #endif
 
   //
@@ -328,7 +329,11 @@ void MuonSensitiveDetector::updateHit(G4Step * aStep){
   if (detector->isBarrel()) {
     theExitPoint= toOrcaUnits(toOrcaRef(FinalStepPositionVsParent(aStep,1),aStep));  
   } else if (detector->isEndcap()) {
-    theExitPoint= toOrcaUnits(toOrcaRef(FinalStepPositionVsParent(aStep,4),aStep));  
+    // save local z at current level
+    theExitPoint= toOrcaUnits(toOrcaRef(FinalStepPosition(aStep,LocalCoordinates),aStep));
+    float zexit = theExitPoint.z();
+    Local3DPoint tempExitPoint= toOrcaUnits(toOrcaRef(FinalStepPositionVsParent(aStep,4),aStep));
+    theExitPoint  = Local3DPoint( tempExitPoint.x(), tempExitPoint.y(), zexit );
   } else {
     theExitPoint= toOrcaUnits(toOrcaRef(FinalStepPosition(aStep,LocalCoordinates),aStep)); 
   }
