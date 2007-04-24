@@ -1,20 +1,30 @@
 <lcgdict>
 
-  <class name="SiStripCluster"/>
-  <class name="std::vector<SiStripCluster>"/>
-  <class name="std::pair<unsigned int, unsigned int>"/>
-  <class name="std::map<unsigned int, std::pair<unsigned int, unsigned int> >"/>
-  <class name="SiStripClusterCollection"/>
-  <class name="edm::Wrapper<SiStripClusterCollection>" id="C4D8A21B-7FB4-C5CC-EC4C-3DF86655814C"/>
+ <class name="SiStripCluster"/>
+ <class name="std::vector<SiStripCluster>"/>
+ <class name="std::pair<unsigned int, unsigned int>"/>
+ <class name="std::map<unsigned int, std::pair<unsigned int, unsigned int> >"/>
+ <class name="SiStripClusterCollection"/>
+ <class name="edm::Wrapper<SiStripClusterCollection>" id="C4D8A21B-7FB4-C5CC-EC4C-3DF86655814C"/>
 
-  <class name="edm::DetSet<SiStripCluster>"/>
-  <class name="edm::DetSetVector<SiStripCluster>"/>
-  <class name="std::vector<edm::DetSet<SiStripCluster> >"/>
-  <class name="edm::Wrapper< edm::DetSet<SiStripCluster> >"/>
-  <class name="edm::Wrapper< std::vector<edm::DetSet<SiStripCluster> > >"/>
-  <class name="edm::Wrapper< edm::DetSetVector<SiStripCluster> >"/>
-
-  <class name="std::map<unsigned int, std::vector<SiStripCluster> >"/>
-  <class name="edm::Wrapper<std::map<unsigned int, std::vector<SiStripCluster> > >"/>
+ <class name="edm::DetSet<SiStripCluster>"/>
+ <class name="edm::DetSetVector<SiStripCluster>"/>
+ <class name="std::vector<edm::DetSet<SiStripCluster> >"/>
+ <class name="std::vector< std::vector < edm::DetSet<SiStripCluster> > >"/>
+ <class name="edm::Wrapper< edm::DetSet<SiStripCluster> >"/>
+ <class name="edm::Wrapper< std::vector<edm::DetSet<SiStripCluster> > >"/>
+ <class name="edm::Wrapper< edm::DetSetVector<SiStripCluster> >"/>
+ <class name="edm::Wrapper< std::vector< std::vector < edm::DetSet<SiStripCluster> > > >"/>
+ 
+ <class pattern="edm::SiStripRefGetter<*>"/>
+ <class pattern="edm::SiStripLazyGetter<*>">
+   <field name="getter_" transient="true"/>
+ </class>
+ <class pattern="edm::Wrapper<*>"/>
+ 
+ <class pattern="edm::DetSet<*>"/>
+ <class pattern="std::vector<edm::Ref*>"/>
+ <class pattern="std::vector<edm::DetSet*>"/>
+ <class pattern="edm::Ref<*>"/>
 
 </lcgdict>

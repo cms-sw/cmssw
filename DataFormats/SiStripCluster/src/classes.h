@@ -20,8 +20,15 @@ namespace {
     edm::Wrapper< edm::DetSet<SiStripCluster> > dummy2;
     edm::Wrapper< std::vector<edm::DetSet<SiStripCluster> > > dummy3;
     edm::Wrapper< edm::DetSetVector<SiStripCluster> > dummy4;
-    //
-    edm::Wrapper< std::map<unsigned int, std::vector<SiStripCluster> > > dummy5;
+    edm::Wrapper< std::vector< std::vector < edm::DetSet<SiStripCluster> > > > dummy5;
+  }
+}
+
+#include "DataFormats/SiStripCommon/test/SiStripRefGetter.h"
+namespace {
+  namespace {
+    edm::Wrapper< edm::SiStripLazyGetter<SiStripCluster> > dummy6;
+    edm::Wrapper< edm::SiStripRefGetter< SiStripCluster, edm::SiStripLazyGetter<SiStripCluster> > > dummy7;
   }
 }
 
