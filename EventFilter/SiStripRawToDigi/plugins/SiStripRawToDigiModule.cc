@@ -1,25 +1,18 @@
-// Last commit: $Id: $
+// Last commit: $Id: SiStripRawToDigiModule.cc,v 1.36 2007/03/21 16:38:14 bainbrid Exp $
 
-#include "EventFilter/SiStripRawToDigi/interface/SiStripRawToDigiModule.h"
-#include "EventFilter/SiStripRawToDigi/interface/SiStripRawToDigiUnpacker.h"
-// 
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-// 
-#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+#include "EventFilter/SiStripRawToDigi/plugins/SiStripRawToDigiModule.h"
+#include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
+#include "CondFormats/DataRecord/interface/SiStripFedCablingRcd.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEventSummary.h"
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
-//
-#include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
-#include "CondFormats/DataRecord/interface/SiStripFedCablingRcd.h"
-//
+#include "EventFilter/SiStripRawToDigi/interface/SiStripRawToDigiUnpacker.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "boost/cstdint.hpp"
 #include <cstdlib>
 

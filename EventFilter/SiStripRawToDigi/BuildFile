@@ -1,43 +1,21 @@
-<use name=CalibFormats/SiStripObjects>
-<use name=CondFormats/DataRecord>
 <use name=CondFormats/SiStripObjects>
-<use name=CommonTools/SiStripClusterization>
-<use name=CommonTools/SiStripZeroSuppression>
 <use name=DataFormats/Common>
 <use name=DataFormats/FEDRawData>
 <use name=DataFormats/SiStripCommon>
-<use name=DataFormats/SiStripCluster>
 <use name=DataFormats/SiStripDigi>
 <use name=FWCore/Framework>
-<use name=FWCore/Utilities>
-<use name=FWCore/ParameterSet>
 <use name=FWCore/MessageLogger>
-<use name=FWCore/PluginManager>
+<use name=FWCore/Utilities>
+<use name=Utilities/Timing>
 <use name=TkOnlineSw>
-<use name=oracle>
-<use name=clhep>
+<use name=boost>
 <use name=xdaq>
-<flags EDM_PLUGIN=1>
 
 <export>
- <lib name=EventFilterSiStripRawToDigi>
- <use name=CalibFormats/SiStripObjects>
- <use name=CondFormats/DataRecord>
- <use name=CondFormats/SiStripObjects>
- <use name=CommonTools/SiStripClusterization>
- <use name=CommonTools/SiStripZeroSuppression>
- <use name=DataFormats/Common>
- <use name=DataFormats/FEDRawData>
- <use name=DataFormats/SiStripCommon>
- <use name=DataFormats/SiStripCluster>
- <use name=DataFormats/SiStripDigi>
- <use name=FWCore/Framework>
- <use name=FWCore/Utilities>
- <use name=FWCore/ParameterSet>
- <use name=FWCore/MessageLogger>
- <use name=TkOnlineSw>
- <use name=oracle>
- <use name=clhep>
- <use name=xdaq>
+  <lib name=EventFilterSiStripRawToDigi>
+  <use name=DataFormats/Common>
+  <use name=DataFormats/SiStripCommon>
+  <use name=FWCore/Framework> 
+  <use name=boost>
 </export>
 

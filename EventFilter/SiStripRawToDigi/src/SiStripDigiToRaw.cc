@@ -1,15 +1,12 @@
-// Last commit: $Id: $
+// Last commit: $Id: SiStripDigiToRaw.cc,v 1.15 2007/03/21 16:38:14 bainbrid Exp $
 
 #include "EventFilter/SiStripRawToDigi/interface/SiStripDigiToRaw.h"
-// timing
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "Utilities/Timing/interface/TimingReport.h"
-// data formats
+#include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
-// cabling
-#include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
-// std
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "Utilities/Timing/interface/TimingReport.h"
+#include "Fed9UUtils.hh"
 #include <iostream>
 #include <sstream>
 #include <vector>

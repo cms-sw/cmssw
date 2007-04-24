@@ -1,12 +1,11 @@
-// Last commit: $Id: $
+// Last commit: $Id: SiStripDigiToRaw.h,v 1.14 2007/03/21 16:38:13 bainbrid Exp $
 
 #ifndef EventFilter_SiStripRawToDigi_SiStripDigiToRaw_H
 #define EventFilter_SiStripRawToDigi_SiStripDigiToRaw_H
 
 #include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
-#include "Fed9UUtils.hh"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "boost/cstdint.hpp"
 #include <string>
 
