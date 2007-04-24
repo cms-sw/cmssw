@@ -1,4 +1,4 @@
-<flags EDM_PLUGIN=1>
+<flags SEAL_PLUGIN_NAME="RecoParticleFlowPFTracking">
 <use name=FWCore/Framework>
 <use name=MagneticField/Engine>
 <use name=MagneticField/Records>

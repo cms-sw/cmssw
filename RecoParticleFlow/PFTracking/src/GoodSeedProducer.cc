@@ -172,7 +172,7 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 	  aClus != basClus.end(); aClus++) {
 
 	ReferenceCountingPointer<Surface> showerMaxWall=
-	  pfTransformer_->showerMaxSurface(EE,true,ecalTsos,side);
+	  pfTransformer_->showerMaxSurface(aClus->energy(),true,ecalTsos,side);
 
 	if (&(*showerMaxWall)!=0){
 	  TSOS maxShTsos=propagator_.product()->propagate(ecalTsos, *showerMaxWall);
