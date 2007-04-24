@@ -21,7 +21,7 @@
 #include "TrackingTools/DetLayers/interface/NavigationSchool.h"
 #include "RecoTracker/TkNavigation/interface/SimpleNavigationSchool.h"
 
-#include "RecoNuclear/NuclearSeedGenerator/interface/NuclearTester.h"
+#include "RecoTracker/NuclearSeedGenerator/interface/NuclearTester.h"
 
 class NuclearInteractionFinder {
 private:

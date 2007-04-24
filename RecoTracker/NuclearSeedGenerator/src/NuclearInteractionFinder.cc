@@ -1,4 +1,4 @@
-#include "RecoNuclear/NuclearSeedGenerator/interface/NuclearInteractionFinder.h"
+#include "RecoTracker/NuclearSeedGenerator/interface/NuclearInteractionFinder.h"
 #include "TrackingTools/TrackFitters/interface/TrajectoryStateWithArbitraryError.h"
 #include "TrackingTools/PatternTools/interface/TrajMeasLessEstim.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -80,9 +80,6 @@ std::vector<std::pair<TrajectoryMeasurement, std::vector<TrajectoryMeasurement> 
             LogDebug("NuclearInteractionFinder") << "NEW TRACK with direction opposite to the momentum\n";
 
         std::vector<TrajectoryMeasurement>::const_iterator it_meas = measurements.begin();
-
-        // For debugging :
-        if(nuclInfo->isNuclear(*traj, ite)) LogDebug("NuclearInteractionFinder") << "SHOULD HAVE A NUCLEAR INTERACTION !!! \n";
 
         std::vector<double> ncompatibleHits;
         bool NIfound = false;

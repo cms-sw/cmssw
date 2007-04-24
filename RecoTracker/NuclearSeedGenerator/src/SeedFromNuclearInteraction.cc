@@ -1,4 +1,4 @@
-#include "RecoNuclear/NuclearSeedGenerator/interface/SeedFromNuclearInteraction.h"
+#include "RecoTracker/NuclearSeedGenerator/interface/SeedFromNuclearInteraction.h"
 
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 

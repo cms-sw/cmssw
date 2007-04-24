@@ -1,4 +1,4 @@
-#include "RecoNuclear/NuclearSeedGenerator/interface/NuclearTester.h"
+#include "RecoTracker/NuclearSeedGenerator/interface/NuclearTester.h"
 #include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 #include "RecoTracker/CkfPattern/src/RecHitIsInvalid.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"

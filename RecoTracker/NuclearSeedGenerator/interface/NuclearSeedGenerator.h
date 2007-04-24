@@ -5,7 +5,7 @@
 // Package:    NuclearSeedGenerator
 // Class:      NuclearSeedGenerator
 // 
-/**\class NuclearSeedGenerator NuclearSeedGenerator.h RecoNuclear/NuclearSeedGenerator/interface/NuclearSeedGenerator.h
+/**\class NuclearSeedGenerator NuclearSeedGenerator.h RecoTracker/NuclearSeedGenerator/interface/NuclearSeedGenerator.h
 
  Description: <one line class summary>
 
@@ -15,7 +15,7 @@
 //
 // Original Author:  Vincent ROBERFROID
 //         Created:  Wed Feb 28 12:05:36 CET 2007
-// $Id: NuclearSeedGenerator.h,v 1.6 2007/04/12 08:09:16 roberfro Exp $
+// $Id: NuclearSeedGenerator.h,v 1.1 2007/04/24 16:51:16 roberfro Exp $
 //
 //
 
@@ -34,8 +34,8 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "RecoNuclear/NuclearSeedGenerator/interface/NuclearInteractionFinder.h"
-#include "RecoNuclear/NuclearSeedGenerator/interface/SeedFromNuclearInteraction.h"
+#include "RecoTracker/NuclearSeedGenerator/interface/NuclearInteractionFinder.h"
+#include "RecoTracker/NuclearSeedGenerator/interface/SeedFromNuclearInteraction.h"
 
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 

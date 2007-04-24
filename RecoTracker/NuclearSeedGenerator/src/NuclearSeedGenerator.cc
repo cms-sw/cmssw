@@ -1,5 +1,5 @@
-#include "RecoNuclear/NuclearSeedGenerator/interface/NuclearSeedGenerator.h"
-#include "RecoNuclear/NuclearSeedGenerator/interface/NuclearInteractionFinder.h"
+#include "RecoTracker/NuclearSeedGenerator/interface/NuclearSeedGenerator.h"
+#include "RecoTracker/NuclearSeedGenerator/interface/NuclearInteractionFinder.h"
 
 #include "FWCore/ParameterSet/interface/InputTag.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -76,7 +76,6 @@ NuclearSeedGenerator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
                else  LogDebug("NuclearSeedGenerator") << "The initial hits for seeding are invalid" << "\n";
          }
    }
-   delete ni;
    iEvent.put(output);
 }
 
