@@ -85,6 +85,11 @@
 #include "DataFormats/DTDigi/interface/DTDigiCollection.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 #include "DataFormats/MuonDetId/interface/DTLayerId.h"
+#include "DataFormats/DTRecHit/interface/DTRecHitCollection.h"
+#include "Geometry/DTGeometry/interface/DTLayer.h"
+#include "Geometry/DTGeometry/interface/DTGeometry.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
+#include "Validation/DTRecHits/src/DTHitQualityUtils.h"
 
 // muon CSC info
 #include "DataFormats/CSCDigi/interface/CSCStripDigi.h"
@@ -256,6 +261,37 @@ class GlobalRecHitsProducer : public edm::EDProducer
   FloatVector DTSHD;
 
   edm::InputTag MuDTSrc_;
+  edm::InputTag MuDTSimSrc_;
+
+  // Return a map between DTRecHit1DPair and wireId
+  std::map<DTWireId, std::vector<DTRecHit1DPair> >
+    map1DRecHitsPerWire(const DTRecHitCollection* dt1DRecHitPairs);
+  
+  // Compute SimHit distance from wire (cm)
+  float simHitDistFromWire(const DTLayer* layer,
+			   DTWireId wireId,
+			   const PSimHit& hit);
+  
+  // Find the RecHit closest to the muon SimHit
+  template  <typename type>
+    const type* 
+    findBestRecHit(const DTLayer* layer,
+		   DTWireId wireId,
+		   const std::vector<type>& recHits,
+		   const float simHitDist);
+  
+  // Compute the distance from wire (cm) of a hits in a DTRecHit1DPair
+  float recHitDistFromWire(const DTRecHit1DPair& hitPair, 
+			   const DTLayer* layer);
+  // Compute the distance from wire (cm) of a hits in a DTRecHit1D
+  float recHitDistFromWire(const DTRecHit1D& recHit, const DTLayer* layer);
+    
+  // Does the real job
+  template  <typename type>
+    int compute(const DTGeometry *dtGeom,
+		 std::map<DTWireId, std::vector<PSimHit> > simHitsPerWire,
+		 std::map<DTWireId, std::vector<type> > recHitsPerWire,
+		 int step);
 
   // CSC
 

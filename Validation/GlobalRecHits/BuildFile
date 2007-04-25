@@ -22,10 +22,13 @@
 <use name=DataFormats/SiPixelDetId>
 <use name=DataFormats/DTDigi>
 <use name=DataFormats/MuonDetId>
+<use name=DataFormats/DTRecHit>
+<use name=Geometry/DTGeometry>
 <use name=DataFormats/CSCDigi>
 <use name=SimDataFormats/GlobalRecHitValidation>
 <use name=SimDataFormats/CrossingFrame>
 <use name=SimDataFormats/CaloHit>
+<use name=Validation/DTRecHits>
 <use name=root>
 <use name=clhep>
 
@@ -39,7 +42,7 @@
  <use name=FWCore/MessageLogger>
  <use name=DataFormats/EcalDigi>
  <use name=DataFormats/EcalDetId>
- <use name=DataFormats/EcalRecHit> 
+ <use name=DataFormats/EcalRecHit>
  <use name=DataFormats/HcalDetId>
  <use name=DataFormats/HcalDigi>
  <use name=CalibFormats/HcalObjects>
@@ -48,7 +51,7 @@
  <use name=Geometry/CaloEventSetup>
  <use name=DataFormats/HcalRecHit>
  <use name=DataFormats/SiStripDigi>
- <use name=DataFormats/SiStripDetId> 
+ <use name=DataFormats/SiStripDetId>
  <use name=SimDataFormats/TrackerDigiSimLink>
  <use name=SimTracker/TrackerHitAssociation>
  <use name=Geometry/TrackerGeometryBuilder>
@@ -56,10 +59,13 @@
  <use name=DataFormats/SiPixelDetId>
  <use name=DataFormats/DTDigi>
  <use name=DataFormats/MuonDetId>
+ <use name=DataFormats/DTRecHit>
+ <use name=Geometry/DTGeometry>
  <use name=DataFormats/CSCDigi>
  <use name=SimDataFormats/GlobalRecHitValidation>
  <use name=SimDataFormats/CrossingFrame>
  <use name=SimDataFormats/CaloHit>
+ <use name=Validation/DTRecHits>
  <use name=root>
  <use name=clhep>
 </export>

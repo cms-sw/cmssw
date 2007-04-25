@@ -28,6 +28,7 @@ GlobalRecHitsProducer::GlobalRecHitsProducer(const edm::ParameterSet& iPSet) :
   SiStripSrc_ = iPSet.getParameter<edm::InputTag>("SiStripSrc"); 
   SiPxlSrc_ = iPSet.getParameter<edm::InputTag>("SiPxlSrc");
   MuDTSrc_ = iPSet.getParameter<edm::InputTag>("MuDTSrc");
+  MuDTSimSrc_ = iPSet.getParameter<edm::InputTag>("MuDTSimSrc");
   MuCSCSrc_ = iPSet.getParameter<edm::InputTag>("MuCSCSrc");
   MuRPCSrc_ = iPSet.getParameter<edm::InputTag>("MuRPCSrc");
 
@@ -69,6 +70,8 @@ GlobalRecHitsProducer::GlobalRecHitsProducer(const edm::ParameterSet& iPSet) :
       << ":" << SiPxlSrc_.instance() << "\n"
       << "    MuDTSrc        = " << MuDTSrc_.label()
       << ":" << MuDTSrc_.instance() << "\n"
+      << "    MuDTSimSrc     = " << MuDTSimSrc_.label()
+      << ":" << MuDTSimSrc_.instance() << "\n"
       << "    MuCSCSrc       = " << MuCSCSrc_.label()
       << ":" << MuCSCSrc_.instance() << "\n"
       << "    MuRPCSrc       = " << MuRPCSrc_.label()
@@ -1623,59 +1626,46 @@ void GlobalRecHitsProducer::fillMuon(edm::Event& iEvent,
   if (verbosity > 0)
     eventout = "\nGathering info:";  
 
-  /*
   // get DT information
-  edm::Handle<DTDigiCollection> dtDigis;  
-  iEvent.getByLabel(MuDTSrc_, dtDigis);
-  if (!dtDigis.isValid()) {
+  edm::ESHandle<DTGeometry> dtGeom;
+  iSetup.get<MuonGeometryRecord>().get(dtGeom);
+  if (!dtGeom.isValid()) {
     edm::LogWarning(MsgLoggerCat)
-      << "Unable to find dtDigis in event!";
+      << "Unable to find MuonGeometryRecord in event!";
     return;
   }  
 
-  int nDt = 0;
-  DTDigiCollection::DigiRangeIterator detUnitIt;
-  for (detUnitIt = dtDigis->begin(); detUnitIt != dtDigis->end(); 
-       ++detUnitIt) {
-    
-    const DTLayerId& id = (*detUnitIt).first;
-    const DTDigiCollection::Range& range = (*detUnitIt).second;
+  edm::Handle<edm::PSimHitContainer> dtsimHits;
+  iEvent.getByLabel(MuDTSimSrc_, dtsimHits);
+  if (!dtsimHits.isValid()) {
+    edm::LogWarning(MsgLoggerCat)
+      << "Unable to find dtsimHits in event!";
+    return;
+  } 
 
-    for (DTDigiCollection::const_iterator digiIt = range.first;
-	 digiIt != range.second;
-	 ++digiIt) {
-      
-      ++nDt;
-      
-      DTWireId wireId(id,(*digiIt).wire());
-      if (wireId.station() == 1) {
-	MB1SLayer.push_back(id.superlayer());
-	MB1Time.push_back((*digiIt).time());
-	MB1Layer.push_back(id.layer());
-      }
-      if (wireId.station() == 2) {
-	MB2SLayer.push_back(id.superlayer());
-	MB2Time.push_back((*digiIt).time());
-	MB2Layer.push_back(id.layer());
-      }
-      if (wireId.station() == 3) {
-	MB3SLayer.push_back(id.superlayer());
-	MB3Time.push_back((*digiIt).time());
-	MB3Layer.push_back(id.layer());
-      }
-      if (wireId.station() == 4) {
-	MB4SLayer.push_back(id.superlayer());
-	MB4Time.push_back((*digiIt).time());
-	MB4Layer.push_back(id.layer());
-      }
-    }
-  }
-                                                                     
+  std::map<DTWireId, edm::PSimHitContainer> simHitsPerWire =
+    DTHitQualityUtils::mapSimHitsPerWire(*(dtsimHits.product()));
+
+  edm::Handle<DTRecHitCollection> dtRecHits;
+  iEvent.getByLabel(MuDTSrc_, dtRecHits);
+  if (!dtRecHits.isValid()) {
+    edm::LogWarning(MsgLoggerCat)
+      << "Unable to find dtRecHits in event!";
+    return;
+  }   
+
+  std::map<DTWireId, std::vector<DTRecHit1DPair> > recHitsPerWire =
+    map1DRecHitsPerWire(dtRecHits.product());
+
+
+  int nDt = compute(dtGeom.product(), simHitsPerWire, recHitsPerWire, 1);
+                                                                    
   if (verbosity > 1) {
-    eventout += "\n          Number of DtMuonDigis collected:.......... ";
+    eventout += "\n          Number of DtMuonRecHits collected:........ ";
     eventout += nDt;
   }
 
+  /*
   // get CSC Strip information
   edm::Handle<CSCStripDigiCollection> strips;  
   iEvent.getByLabel(MuCSCStripSrc_, strips);
@@ -1757,55 +1747,20 @@ void GlobalRecHitsProducer::storeMuon(PGlobalRecHit& product)
 {
   std::string MsgLoggerCat = "GlobalRecHitsProducer_storeMuon";
 
-  /*
   if (verbosity > 2) {
 
     // dt output
-    TString eventout("\n         nMB1     = ");
-    eventout += MB1SLayer.size();
-    for (unsigned int i = 0; i < MB1SLayer.size(); ++i) {
-      eventout += "\n      (slayer, time, layer) = (";
-      eventout += MB1SLayer[i];
+    TString eventout("\n         nDT     = ");
+    eventout += DTRHD.size();
+    for (unsigned int i = 0; i < DTRHD.size(); ++i) {
+      eventout += "\n      (RHD, SHD) = (";
+      eventout += DTRHD[i];
       eventout += ", ";
-      eventout += MB1Time[i];
-      eventout += ", ";
-      eventout += MB1Layer[i];
+      eventout += DTSHD[i];
       eventout += ")";
     }
-    eventout += "\n         nMB2     = ";
-    eventout += MB2SLayer.size();
-    for (unsigned int i = 0; i < MB2SLayer.size(); ++i) {
-      eventout += "\n      (slayer, time, layer) = (";
-      eventout += MB2SLayer[i];
-      eventout += ", ";
-      eventout += MB2Time[i];
-      eventout += ", ";
-      eventout += MB2Layer[i];
-      eventout += ")";
-    }
-    eventout += "\n         nMB3     = ";
-    eventout += MB3SLayer.size();
-    for (unsigned int i = 0; i < MB3SLayer.size(); ++i) {
-      eventout += "\n      (slayer, time, layer) = (";
-      eventout += MB3SLayer[i];
-      eventout += ", ";
-      eventout += MB3Time[i];
-      eventout += ", ";
-      eventout += MB3Layer[i];
-      eventout += ")";
-    }
-    eventout += "\n         nMB2     = ";
-    eventout += MB4SLayer.size();
-    for (unsigned int i = 0; i < MB4SLayer.size(); ++i) {
-      eventout += "\n      (slayer, time, layer) = (";
-      eventout += MB4SLayer[i];
-      eventout += ", ";
-      eventout += MB4Time[i];
-      eventout += ", ";
-      eventout += MB4Layer[i];
-      eventout += ")";
-    }    
 
+    /*
     // CSC Strip
     eventout += "\n         nCSCStrip     = ";
     eventout += CSCStripADC.size();
@@ -1823,15 +1778,14 @@ void GlobalRecHitsProducer::storeMuon(PGlobalRecHit& product)
       eventout += CSCWireTime[i];
       eventout += ")";
     }    
+    */
 
     edm::LogInfo(MsgLoggerCat) << eventout << "\n";  
   }
   
-  product.putMB1Digis(MB1SLayer,MB1Time,MB1Layer);
-  product.putMB2Digis(MB2SLayer,MB2Time,MB2Layer);
-  product.putMB3Digis(MB3SLayer,MB3Time,MB3Layer);
-  product.putMB4Digis(MB4SLayer,MB4Time,MB4Layer);  
+  product.putDTRecHits(DTRHD,DTSHD);
 
+  /*
   product.putCSCstripDigis(CSCStripADC);
 
   product.putCSCwireDigis(CSCWireTime);
@@ -1994,7 +1948,7 @@ void GlobalRecHitsProducer::clear()
   return;
 }
 
-//needed by to do the residual for matched hits
+//needed by to do the residual for matched hits in SiStrip
 std::pair<LocalPoint,LocalVector> 
 GlobalRecHitsProducer::projectHit(const PSimHit& hit, 
 				  const StripGeomDetUnit* stripDet,
@@ -2023,6 +1977,133 @@ GlobalRecHitsProducer::projectHit(const PSimHit& hit,
     localStripDir(plane.toLocal(stripDet->surface().toGlobal(stripDir)));
   
   return std::pair<LocalPoint,LocalVector>( projectedPos, localStripDir);
+}
+
+// Return a map between DTRecHit1DPair and wireId
+std::map<DTWireId, std::vector<DTRecHit1DPair> >
+GlobalRecHitsProducer::map1DRecHitsPerWire(const DTRecHitCollection* 
+					   dt1DRecHitPairs) {
+  std::map<DTWireId, std::vector<DTRecHit1DPair> > ret;
+  
+  for(DTRecHitCollection::const_iterator rechit = dt1DRecHitPairs->begin();
+      rechit != dt1DRecHitPairs->end(); rechit++) {
+    ret[(*rechit).wireId()].push_back(*rechit);
+  }
+  
+  return ret;
+}
+
+// Compute SimHit distance from wire (cm)
+float GlobalRecHitsProducer::simHitDistFromWire(const DTLayer* layer,
+						DTWireId wireId,
+						const PSimHit& hit) {
+  float xwire = layer->specificTopology().wirePosition(wireId.wire());
+  LocalPoint entryP = hit.entryPoint();
+  LocalPoint exitP = hit.exitPoint();
+  float xEntry = entryP.x()-xwire;
+  float xExit  = exitP.x()-xwire;
+
+  //FIXME: check...  
+  return fabs(xEntry - (entryP.z()*(xExit-xEntry))/(exitP.z()-entryP.z()));
+}
+
+// Find the RecHit closest to the muon SimHit
+template  <typename type>
+const type* 
+GlobalRecHitsProducer::findBestRecHit(const DTLayer* layer,
+				      DTWireId wireId,
+				      const std::vector<type>& recHits,
+				      const float simHitDist) {
+  float res = 99999;
+  const type* theBestRecHit = 0;
+  // Loop over RecHits within the cell
+  for(typename std::vector<type>::const_iterator recHit = recHits.begin();
+      recHit != recHits.end();
+      recHit++) {
+    float distTmp = recHitDistFromWire(*recHit, layer);
+    if(fabs(distTmp-simHitDist) < res) {
+      res = fabs(distTmp-simHitDist);
+      theBestRecHit = &(*recHit);
+    }
+  } // End of loop over RecHits within the cell
+  
+  return theBestRecHit;
+}
+
+// Compute the distance from wire (cm) of a hits in a DTRecHit1DPair
+float 
+GlobalRecHitsProducer::recHitDistFromWire(const DTRecHit1DPair& hitPair, 
+					  const DTLayer* layer) {
+  // Compute the rechit distance from wire
+  return fabs(hitPair.localPosition(DTEnums::Left).x() -
+	      hitPair.localPosition(DTEnums::Right).x())/2.;
+}
+
+// Compute the distance from wire (cm) of a hits in a DTRecHit1D
+float 
+GlobalRecHitsProducer::recHitDistFromWire(const DTRecHit1D& recHit, 
+					  const DTLayer* layer) {
+  return fabs(recHit.localPosition().x() - 
+	      layer->specificTopology().wirePosition(recHit.wireId().wire()));
+}
+
+template  <typename type>
+int GlobalRecHitsProducer::compute(const DTGeometry *dtGeom,
+				   std::map<DTWireId, std::vector<PSimHit> > 
+				   simHitsPerWire,
+				   std::map<DTWireId, std::vector<type> > 
+				   recHitsPerWire,
+				   int step) {
+
+  int nDt = 0;
+  // Loop over cells with a muon SimHit
+  for(std::map<DTWireId, std::vector<PSimHit> >::const_iterator wireAndSHits = 
+	simHitsPerWire.begin();
+      wireAndSHits != simHitsPerWire.end();
+      wireAndSHits++) {
+    DTWireId wireId = (*wireAndSHits).first;
+    std::vector<PSimHit> simHitsInCell = (*wireAndSHits).second;
+    
+    // Get the layer
+    const DTLayer* layer = dtGeom->layer(wireId);
+    
+    // Look for a mu hit in the cell
+    const PSimHit* muSimHit = DTHitQualityUtils::findMuSimHit(simHitsInCell);
+    if (muSimHit==0) {
+      continue; // Skip this cell
+    }
+
+    // Find the distance of the simhit from the wire
+    float simHitWireDist = simHitDistFromWire(layer, wireId, *muSimHit);
+    // Skip simhits out of the cell
+    if(simHitWireDist>2.1) {
+      continue; // Skip this cell
+    }
+    //GlobalPoint simHitGlobalPos = layer->toGlobal(muSimHit->localPosition());
+
+    // Look for RecHits in the same cell
+    if(recHitsPerWire.find(wireId) == recHitsPerWire.end()) {
+      continue; // No RecHit found in this cell
+    } else {
+
+      // vector<type> recHits = (*wireAndRecHits).second;
+      std::vector<type> recHits = recHitsPerWire[wireId];
+	 
+      // Find the best RecHit
+      const type* theBestRecHit = 
+	findBestRecHit(layer, wireId, recHits, simHitWireDist);
+ 
+      float recHitWireDist =  recHitDistFromWire(*theBestRecHit, layer);
+      
+      ++nDt;
+
+      DTRHD.push_back(recHitWireDist);
+      DTSHD.push_back(simHitWireDist);
+      
+    } // find rechits
+  } // loop over simhits
+
+  return nDt;
 }
 
 //define this as a plug-in
