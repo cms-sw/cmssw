@@ -1,6 +1,5 @@
 #include "FWCore/ParameterSet/interface/parse.h"
 #include "FWCore/ParameterSet/src/ConfigurationPreprocessor.h"
-#include "FWCore/ParameterSet/interface/ParseTree.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include <boost/tokenizer.hpp>
 #include <fstream>
