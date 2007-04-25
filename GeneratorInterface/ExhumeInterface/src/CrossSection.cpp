@@ -6,7 +6,7 @@
 #include "GeneratorInterface/ExhumeInterface/interface/CrossSection.h"
 #include "GeneratorInterface/ExhumeInterface/interface/PythiaRecord.h"
 
-#include "CLHEP/HepMC/include/PythiaWrapper6_2.h"
+#include "HepMC/PythiaWrapper6_2.h"
 //#include "CLHEP/HepMC/ConvertHEPEVT.h"
 //#include "CLHEP/HepMC/CBhepevt.h"
 

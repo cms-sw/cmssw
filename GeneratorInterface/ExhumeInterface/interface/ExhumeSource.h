@@ -14,19 +14,15 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <map>
 #include <string>
-#include "CLHEP/HepMC/GenEvent.h"
+#include "HepMC/GenEvent.h"
+#include "CLHEP/Random/JamesRandom.h"
+#include "CLHEP/Random/RandFlat.h"
 
 //ExHuME headers
 #include "GeneratorInterface/ExhumeInterface/interface/Event.h"
 #include "GeneratorInterface/ExhumeInterface/interface/QQ.h"
 #include "GeneratorInterface/ExhumeInterface/interface/GG.h"
 #include "GeneratorInterface/ExhumeInterface/interface/Higgs.h"
-
-namespace CLHEP
-{
-  class RandFlat ;
-  class HepRandomEngine;
-}
 
 namespace edm
 {
@@ -62,8 +58,8 @@ namespace edm
     
     double comenergy;
     
-    HepRandomEngine* fRandomEngine;
-    RandFlat*        fRandomGenerator;
+    CLHEP::HepRandomEngine* fRandomEngine;
+    CLHEP::RandFlat*        fRandomGenerator;
 
     Exhume::Event* ExhumeEvent;	
     //Exhume::Higgs* higgs;

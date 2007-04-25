@@ -1,10 +1,3 @@
-/*
- *  Modification fro Exhume 
- *  02/07
- * 
- */
-
-
 #include "GeneratorInterface/ExhumeInterface/interface/ExhumeSource.h"
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -22,10 +15,10 @@ using namespace std;
 
 // Generator modifications
 // ***********************
-//#include "CLHEP/HepMC/include/PythiaWrapper6_2.h"
-#include "CLHEP/HepMC/ConvertHEPEVT.h"
-#include "CLHEP/HepMC/CBhepevt.h"
-
+//#include "HepMC/include/PythiaWrapper6_2.h"
+//#include "HepMC/ConvertHEPEVT.h"
+//#include "HepMC/CBhepevt.h"
+#include "HepMC/IO_HEPEVT.h"
 
 void call_pylist(int);
 void call_pystat(int);
@@ -47,39 +40,9 @@ extern struct {
 } pypars_;
 #define pypars pypars_
 
+//HepMC::ConvertHEPEVT conv;
+HepMC::IO_HEPEVT conv;
 
-/*
-#define PYGIVE pygive_
-extern "C" {
-  void PYGIVE(const char*,int length);
-}
-
-#define PY1ENT py1ent_
-extern "C" {
-  void PY1ENT(int& ip, int& kf, double& pe, double& the, double& phi);
-}
-
-#define PYMASS pymass_
-extern "C" {
-  double PYMASS(int& kf);
-}
-
-#define PYEXEC pyexec_
-extern "C" {
-  void PYEXEC();
-}
-
-#define TXGIVE txgive_
-extern "C" {
-  void TXGIVE(const char*,int length);
-}
-
-#define TXGIVE_INIT txgive_init_
-extern "C" {
-  void TXGIVE_INIT();
-}
-*/
-HepMC::ConvertHEPEVT conv;
 // ***********************
 
 
@@ -143,65 +106,6 @@ ExhumeSource::ExhumeSource( const ParameterSet & pset,
   ExhumeEvent->SetMassRange(MassRangeLow,MassRangeHigh);
   ExhumeEvent->SetParameterSpace();
 
-  /*
-  // Set PYTHIA parameters in a single ParameterSet
-  ParameterSet pythia_params = 
-    pset.getParameter<ParameterSet>("PythiaParameters") ;
-  
-  // The parameter sets to be read (default, min bias, user ...) in the
-  // proper order.
-  vector<string> setNames = 
-    pythia_params.getParameter<vector<string> >("parameterSets");
-  
-  // Loop over the sets
-  for ( unsigned i=0; i<setNames.size(); ++i ) {
-    
-    string mySet = setNames[i];
-    
-    // Read the PYTHIA parameters for each set of parameters
-    vector<string> pars = 
-      pythia_params.getParameter<vector<string> >(mySet);
-    
-    cout << "----------------------------------------------" << endl;
-    cout << "Read PYTHIA parameter set " << mySet << endl;
-    cout << "----------------------------------------------" << endl;
-    
-    // Loop over all parameters and stop in case of mistake
-    for( vector<string>::const_iterator  
-	   itPar = pars.begin(); itPar != pars.end(); ++itPar ) {
-      static string sRandomValueSetting("MRPY(1)");
-      if( 0 == itPar->compare(0,sRandomValueSetting.size(),sRandomValueSetting) ) {
-	throw edm::Exception(edm::errors::Configuration,"PythiaError")
-	  <<" attempted to set random number using pythia command 'MRPY(1)' this is not allowed.\n  Please use the RandomNumberGeneratorService to set the random number seed.";
-      }
-      if( ! call_pygive(*itPar) ) {
-	throw edm::Exception(edm::errors::Configuration,"PythiaError") 
-	  <<" pythia did not accept the following \""<<*itPar<<"\"";
-      }
-    }
-
-   // Loop over all parameters and stop in case of a mistake
-    for (vector<string>::const_iterator 
-            itPar = pars.begin(); itPar != pars.end(); ++itPar) {
-      call_txgive(*itPar); 
-     
-         } 
-  
-  }
-  
-  //In the future, we will get the random number seed on each event and tell 
-  // pythia to use that new seed
-    cout << "----------------------------------------------" << endl;
-    cout << "Setting Pythia random number seed " << endl;
-    cout << "----------------------------------------------" << endl;
-  edm::Service<RandomNumberGenerator> rng;
-  uint32_t seed = rng->mySeed();
-  ostringstream sRandomSet;
-  sRandomSet <<"MRPY(1)="<<seed;
-  call_pygive(sRandomSet.str());
-  
-  call_pyinit( "CMS", "p", "p", comenergy );
-  */
   //my_pythia_init();
   //pydata();
 
@@ -243,9 +147,9 @@ bool ExhumeSource::produce(Event & e) {
     ExhumeEvent->Generate();
     ExhumeProcess->Hadronise();
 
-    HepMC::GenEvent* evt = conv.getGenEventfromHEPEVT();
+    //HepMC::GenEvent* evt = conv.getGenEventfromHEPEVT();
+    HepMC::GenEvent* evt = conv.read_next_event();
     //evt->set_signal_process_id(pypars.msti[0]);
-    //int signalid = 100 + HiggsDecay; 	
     evt->set_signal_process_id(sigID);	
     evt->set_event_scale(pypars.pari[16]);
     evt->set_event_number(numberEventsInRun() - remainingEvents() - 1);
@@ -280,25 +184,3 @@ bool ExhumeSource::produce(Event & e) {
     return true;
 }
 
-/*bool 
-ExhumeSource::call_pygive(const std::string& iParm ) {
-
-  int numWarn = pydat1.mstu[26]; //# warnings
-  int numErr = pydat1.mstu[22];// # errors
-  
-//call the fortran routine pygive with a fortran string
-  PYGIVE( iParm.c_str(), iParm.length() );  
-  //  PYGIVE( iParm );  
-//if an error or warning happens it is problem
-  return pydat1.mstu[26] == numWarn && pydat1.mstu[22] == numErr;   
- 
-}
-
-bool 
-ExhumeSource::call_txgive(const std::string& iParm ) {
-  
-   TXGIVE( iParm.c_str(), iParm.length() );
-   cout << "     " <<  iParm.c_str() << endl; 
-
-	return 1;  
-}*/

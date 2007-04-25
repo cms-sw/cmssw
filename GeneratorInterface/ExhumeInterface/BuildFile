@@ -1,18 +1,21 @@
 <use name=boost>
 <use name=FWCore/Framework>
 <use name=SimDataFormats/HepMCProduct>
+<use name=hepmc>
 <use name=clhep>
+#<use name=lhapdf>
 <use name=pythia6_227>
 <lib name=lhapdf>
 <lib name=lhapdf_dummy>
-
 <flags SEAL_PLUGIN_NAME="GeneratorInterfaceExhumeInterface">
 <export>
  <lib name=GeneratorInterfaceExhumeInterface>
  <use name=boost>
  <use name=FWCore/Framework>
  <use name=SimDataFormats/HepMCProduct>
- <use name=clhep> 
+ <use name=hepmc>
+ <use name=clhep>
+ #<use name=lhapdf> 
  <use name=pythia6_227>
  <lib name=lhapdf>
  <lib name=lhapdf_dummy>
