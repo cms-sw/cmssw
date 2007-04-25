@@ -34,6 +34,7 @@
 #include "FastSimulation/EventProducer/interface/FamosManager.h"
 #include "FastSimulation/TrajectoryManager/interface/TrajectoryManager.h"
 #include "FastSimulation/PileUpProducer/interface/PUProducer.h"
+#include "FastSimulation/PileUpProducer/interface/PileUpSimulator.h"
 #include "FastSimulation/Event/interface/FSimEvent.h"
 #include "FastSimulation/ParticlePropagator/interface/MagneticFieldMap.h"
 #include "FastSimulation/Particle/interface/ParticleTable.h"
@@ -49,6 +50,7 @@ FamosManager::FamosManager(edm::ParameterSet const & p)
     : iEvent(0),
       myGenEvent(0),
       myPileUpProducer(0),
+      myPileUpSimulator(0),
       myCalorimetry(0),
       m_pUseMagneticField(p.getParameter<bool>("UseMagneticField")),
       m_Tracking(p.getParameter<bool>("SimulateTracking")),
@@ -84,11 +86,18 @@ FamosManager::FamosManager(edm::ParameterSet const & p)
 			  random);
 
   // Initialize PileUp Producer (if requested)
-  if ( m_PileUp ) 
+  if ( m_PileUp ) {
+    /*
     myPileUpProducer = 
       new PUProducer(mySimEvent,
-                     p.getParameter<edm::ParameterSet>("PUProducer"),
+		     p.getParameter<edm::ParameterSet>("PUProducer"),
 		     random);
+    */
+    myPileUpSimulator = 
+      new PileUpSimulator(mySimEvent,
+			  p.getParameter<edm::ParameterSet>("PileUpSimulator"),
+			  random);
+  }
 
   // Initialize Calorimetry Fast Simulation (if requested)
   if ( m_Calorimetry) 
@@ -104,6 +113,7 @@ FamosManager::~FamosManager()
   if ( mySimEvent ) delete mySimEvent; 
   if ( myTrajectoryManager ) delete myTrajectoryManager; 
   if ( myPileUpProducer ) delete myPileUpProducer;
+  if ( myPileUpSimulator ) delete myPileUpSimulator;
   if ( myCalorimetry) delete myCalorimetry;
 }
 
@@ -174,15 +184,22 @@ FamosManager::reconstruct(const HepMC::GenEvent* evt) {
     //    std::cout << "----------------------------------------" << std::endl;
 
     // Get the pileup events and add the particles to the main event
-    if ( myPileUpProducer ) myPileUpProducer->produce();
+    //    if ( myPileUpProducer ) myPileUpProducer->produce();
+    if ( myPileUpSimulator ) { 
+      myPileUpSimulator->produce();
+      myPileUpSimulator->save();
+    }
+
     //    mySimEvent->print();
 
     // And propagate the particles through the detector
     myTrajectoryManager->reconstruct();
-    //    mySimEvent->print();
-    //    std::cout << "=========================================" 
-    //	      << std::endl
-    //	      << std::endl;
+    /*
+    mySimEvent->print();
+    std::cout << "=========================================" 
+	      << std::endl
+	      << std::endl;
+    */
 
     if ( myCalorimetry ) myCalorimetry->reconstruct();
 

@@ -14,6 +14,7 @@ namespace HepMC {
 class FSimEvent;
 class TrajectoryManager;
 class PUProducer;
+class PileUpSimulator;
 class MagneticField;
 class CalorimetryManager;
 class RandomEngine;
@@ -61,6 +62,7 @@ class FamosManager
   FSimEvent* mySimEvent;
   TrajectoryManager* myTrajectoryManager;
   PUProducer* myPileUpProducer;
+  PileUpSimulator* myPileUpSimulator;
   CalorimetryManager * myCalorimetry;
 
  private:
