@@ -96,6 +96,17 @@
 #include "DataFormats/CSCDigi/interface/CSCStripDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCWireDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCWireDigiCollection.h"
+#include "Geometry/CSCGeometry/interface/CSCGeometry.h"
+#include "DataFormats/CSCRecHit/interface/CSCRecHit2DCollection.h"
+#include "DataFormats/CSCRecHit/interface/CSCRecHit2D.h"
+#include "Geometry/CSCGeometry/interface/CSCLayer.h"
+
+// muon RPC info
+#include "Geometry/RPCGeometry/interface/RPCGeometry.h"
+#include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
+#include "DataFormats/MuonDetId/interface/RPCDetId.h"
+#include "DataFormats/RPCRecHit/interface/RPCRecHitCollection.h"
+#include "Geometry/RPCGeometry/interface/RPCRoll.h"
 
 // event info
 #include "SimDataFormats/GlobalRecHitValidation/interface/PGlobalRecHit.h"
@@ -301,12 +312,17 @@ class GlobalRecHitsProducer : public edm::EDProducer
 
   edm::InputTag MuCSCSrc_;
 
+  std::map<int, edm::PSimHitContainer> theMap;
+  void plotResolution(const PSimHit &simHit, const CSCRecHit2D &recHit,
+		      const CSCLayer *layer, int chamberType);
+
   // RPC
 
   FloatVector RPCRHX;
   FloatVector RPCSHX;
 
   edm::InputTag MuRPCSrc_;
+  edm::InputTag MuRPCSimSrc_;
 
   // private statistics information
   unsigned int count;

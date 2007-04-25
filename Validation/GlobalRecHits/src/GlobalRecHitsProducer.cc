@@ -31,6 +31,7 @@ GlobalRecHitsProducer::GlobalRecHitsProducer(const edm::ParameterSet& iPSet) :
   MuDTSimSrc_ = iPSet.getParameter<edm::InputTag>("MuDTSimSrc");
   MuCSCSrc_ = iPSet.getParameter<edm::InputTag>("MuCSCSrc");
   MuRPCSrc_ = iPSet.getParameter<edm::InputTag>("MuRPCSrc");
+  MuRPCSimSrc_ = iPSet.getParameter<edm::InputTag>("MuRPCSimSrc");
 
   conf_ = iPSet;
 
@@ -76,6 +77,8 @@ GlobalRecHitsProducer::GlobalRecHitsProducer(const edm::ParameterSet& iPSet) :
       << ":" << MuCSCSrc_.instance() << "\n"
       << "    MuRPCSrc       = " << MuRPCSrc_.label()
       << ":" << MuRPCSrc_.instance() << "\n"
+      << "    MuRPCSimSrc    = " << MuRPCSimSrc_.label()
+      << ":" << MuRPCSimSrc_.instance() << "\n"
       << "===============================\n";
   }
 }
@@ -1631,7 +1634,7 @@ void GlobalRecHitsProducer::fillMuon(edm::Event& iEvent,
   iSetup.get<MuonGeometryRecord>().get(dtGeom);
   if (!dtGeom.isValid()) {
     edm::LogWarning(MsgLoggerCat)
-      << "Unable to find MuonGeometryRecord in event!";
+      << "Unable to find DTMuonGeometryRecord in event!";
     return;
   }  
 
@@ -1665,77 +1668,165 @@ void GlobalRecHitsProducer::fillMuon(edm::Event& iEvent,
     eventout += nDt;
   }
 
-  /*
   // get CSC Strip information
-  edm::Handle<CSCStripDigiCollection> strips;  
-  iEvent.getByLabel(MuCSCStripSrc_, strips);
-  if (!strips.isValid()) {
+  // get map of sim hits
+  theMap.clear();
+  edm::Handle<CrossingFrame> cf;
+  iEvent.getByType(cf);
+  if (!cf.isValid()) {
     edm::LogWarning(MsgLoggerCat)
-      << "Unable to find muon strips in event!";
+      << "Unable to find CrossingFrame in event!";
     return;
+  }    
+  MixCollection<PSimHit> simHits(cf.product(), "MuonCSCHits");
+
+  // arrange the hits by detUnit
+  for(MixCollection<PSimHit>::MixItr hitItr = simHits.begin();
+      hitItr != simHits.end(); ++hitItr)
+  {
+    theMap[hitItr->detUnitId()].push_back(*hitItr);
   }  
 
-  int nStrips = 0;
-  for (CSCStripDigiCollection::DigiRangeIterator j = strips->begin();
-       j != strips->end();
-       ++j) {
+  // get geometry
+  edm::ESHandle<CSCGeometry> hGeom;
+  iSetup.get<MuonGeometryRecord>().get(hGeom);
+  if (!hGeom.isValid()) {
+    edm::LogWarning(MsgLoggerCat)
+      << "Unable to find CSCMuonGeometryRecord in event!";
+    return;
+  }    
+  const CSCGeometry *theCSCGeometry = &*hGeom;
 
-    std::vector<CSCStripDigi>::const_iterator digiItr = (*j).second.first;
-    std::vector<CSCStripDigi>::const_iterator last = (*j).second.second;
+  // get rechits
+  edm::Handle<CSCRecHit2DCollection> hRecHits;
+  iEvent.getByLabel(MuCSCSrc_, hRecHits);
+  if (!hRecHits.isValid()) {
+    edm::LogWarning(MsgLoggerCat)
+      << "Unable to find CSC RecHits in event!";
+    return;
+  }    
+  const CSCRecHit2DCollection *cscRecHits = hRecHits.product();
 
-    for ( ; digiItr != last; ++digiItr) {
-      ++nStrips;
+  int nCSC = 0;
+  for (CSCRecHit2DCollection::const_iterator recHitItr = cscRecHits->begin();
+       recHitItr != cscRecHits->end(); ++recHitItr) {
 
-      // average pedestals
-      std::vector<int> adcCounts = digiItr->getADCCounts();
-      theCSCStripPedestalSum += adcCounts[0];
-      theCSCStripPedestalSum += adcCounts[1];
-      theCSCStripPedestalCount += 2;
+    int detId = (*recHitItr).cscDetId().rawId();
  
-      // if there are enough pedestal statistics
-      if (theCSCStripPedestalCount > 100) {
-	float pedestal = theCSCStripPedestalSum / theCSCStripPedestalCount;
-	if (adcCounts[5] > (pedestal + 100)) 
-	  CSCStripADC.push_back(adcCounts[4] - pedestal);	  
-      }
+    edm::PSimHitContainer simHits;   
+    std::map<int, edm::PSimHitContainer>::const_iterator mapItr = 
+      theMap.find(detId);
+    if (mapItr != theMap.end()) {
+      simHits = mapItr->second;
+    }
+
+    if (simHits.size() == 1) {
+      ++nCSC;
+
+      const GeomDetUnit* detUnit = 
+	theCSCGeometry->idToDetUnit(CSCDetId(detId));
+      const CSCLayer *layer = dynamic_cast<const CSCLayer *>(detUnit); 
+
+     int chamberType = layer->chamber()->specs()->chamberType();
+      plotResolution(simHits[0], *recHitItr, layer, chamberType);
     }
   }
-                                                        
+                                                
   if (verbosity > 1) {
-    eventout += "\n          Number of CSCStripDigis collected:........ ";
-    eventout += nStrips;
+    eventout += "\n          Number of CSCRecHits collected:........... ";
+    eventout += nCSC;
   }
 
-  // get CSC Wire information
-  edm::Handle<CSCWireDigiCollection> wires;  
-  iEvent.getByLabel(MuCSCWireSrc_, wires);
-  if (!wires.isValid()) {
+  // get RPC information
+  std::map<double, int> mapsim, maprec;
+  std::map<int, double> nmapsim, nmaprec;
+
+  edm::ESHandle<RPCGeometry> rpcGeom;
+  iSetup.get<MuonGeometryRecord>().get(rpcGeom);
+  if (!rpcGeom.isValid()) {
     edm::LogWarning(MsgLoggerCat)
-      << "Unable to find muon wires in event!";
+      << "Unable to find RPCMuonGeometryRecord in event!";
     return;
   }  
 
-  int nWires = 0;
-  for (CSCWireDigiCollection::DigiRangeIterator j = wires->begin();
-       j != wires->end();
-       ++j) {
+  edm::Handle<edm::PSimHitContainer> simHit;
+  iEvent.getByLabel(MuRPCSimSrc_, simHit);
+  if (!simHit.isValid()) {
+    edm::LogWarning(MsgLoggerCat)
+      << "Unable to find RPCSimHit in event!";
+    return;
+  }    
 
-    std::vector<CSCWireDigi>::const_iterator digiItr = (*j).second.first;
-    std::vector<CSCWireDigi>::const_iterator endDigi = (*j).second.second;
+  edm::Handle<RPCRecHitCollection> recHit;
+  iEvent.getByLabel(MuRPCSrc_, recHit);
+  if (!simHit.isValid()) {
+    edm::LogWarning(MsgLoggerCat)
+      << "Unable to find RPCRecHit in event!";
+    return;
+  } 
 
-    for ( ; digiItr != endDigi; ++digiItr) {
-      ++nWires;
+  int nRPC = 0;
+  RPCRecHitCollection::const_iterator recIt;
+  int nrec = 0;
+  for (recIt = recHit->begin(); recIt != recHit->end(); ++recIt) {
+    RPCDetId Rid = (RPCDetId)(*recIt).rpcId();
+    const RPCRoll *roll = dynamic_cast<const RPCRoll*>(rpcGeom->roll(Rid));
+    if (roll->isForward()) {
 
-      CSCWireTime.push_back(digiItr->getTimeBin());	  
+      if (verbosity > 1) {
+	eventout += "\n          Number of RPCRecHits collected:........... ";
+	eventout += nRPC;
+      }
+      
+      if (verbosity > 0)
+	edm::LogInfo(MsgLoggerCat) << eventout << "\n";
+      return;
+    }
+    nrec = nrec + 1;
+    LocalPoint rhitlocal = (*recIt).localPosition();
+    double rhitlocalx = rhitlocal.x();
+    maprec[rhitlocalx] = nrec; 
+  }
+
+  int i = 0;
+  for (std::map<double,int>::iterator iter = maprec.begin();
+       iter != maprec.end(); ++iter) {
+    i = i + 1;
+    nmaprec[i] = (*iter).first;
+  }
+                  
+  edm::PSimHitContainer::const_iterator simIt;
+  int nsim = 0;
+  for (simIt = simHit->begin(); simIt != simHit->end(); simIt++) {
+    int ptype = (*simIt).particleType();
+    //RPCDetId Rsid = (RPCDetId)(*simIt).detUnitId();
+    if (ptype == 13 || ptype == -13) {
+      nsim = nsim + 1;
+      LocalPoint shitlocal = (*simIt).localPosition();
+      double shitlocalx = shitlocal.x();
+      mapsim[shitlocalx] = nsim;
     }
   }
-                                                        
-  if (verbosity > 1) {
-    eventout += "\n          Number of CSCWireDigis collected:......... ";
-    eventout += nWires;
+
+  i = 0;
+  for (std::map<double,int>::iterator iter = mapsim.begin();
+       iter != mapsim.end(); ++iter) {
+    i = i + 1;
+    nmapsim[i] = (*iter).first;
   }
 
-  */
+  if (nsim == nrec) {
+    for (int r = 0; r < nsim; r++) {
+      ++nRPC;
+      RPCRHX.push_back(nmaprec[r+1]);
+      RPCSHX.push_back(nmapsim[r+1]);
+    }
+  }
+                                                                  
+  if (verbosity > 1) {
+    eventout += "\n          Number of RPCRecHits collected:........... ";
+    eventout += nRPC;
+  }
 
   if (verbosity > 0)
     edm::LogInfo(MsgLoggerCat) << eventout << "\n";
@@ -1760,36 +1851,38 @@ void GlobalRecHitsProducer::storeMuon(PGlobalRecHit& product)
       eventout += ")";
     }
 
-    /*
     // CSC Strip
-    eventout += "\n         nCSCStrip     = ";
-    eventout += CSCStripADC.size();
-    for (unsigned int i = 0; i < CSCStripADC.size(); ++i) {
-      eventout += "\n      (adc) = (";
-      eventout += CSCStripADC[i];
+    eventout += "\n         nCSC     = ";
+    eventout += CSCRHPHI.size();
+    for (unsigned int i = 0; i < CSCRHPHI.size(); ++i) {
+      eventout += "\n      (rhphi, rhperp, shphi) = (";
+      eventout += CSCRHPHI[i];
+      eventout += ", ";
+      eventout += CSCRHPERP[i];
+      eventout += ", ";
+      eventout += CSCSHPHI[i];
       eventout += ")";
     }    
 
-    // CSC Wire
-    eventout += "\n         nCSCWire     = ";
-    eventout += CSCWireTime.size();
-    for (unsigned int i = 0; i < CSCWireTime.size(); ++i) {
-      eventout += "\n      (time) = (";
-      eventout += CSCWireTime[i];
+    // RPC
+    eventout += "\n         nRPC     = ";
+    eventout += RPCRHX.size();
+    for (unsigned int i = 0; i < RPCRHX.size(); ++i) {
+      eventout += "\n      (rhx, shx) = (";
+      eventout += RPCRHX[i];
+      eventout += ", ";
+      eventout += RPCSHX[i];
       eventout += ")";
     }    
-    */
 
     edm::LogInfo(MsgLoggerCat) << eventout << "\n";  
   }
   
   product.putDTRecHits(DTRHD,DTSHD);
 
-  /*
-  product.putCSCstripDigis(CSCStripADC);
+  product.putCSCRecHits(CSCRHPHI,CSCRHPERP,CSCSHPHI);
 
-  product.putCSCwireDigis(CSCWireTime);
-  */
+  product.putRPCRecHits(RPCRHX,RPCSHX);
 
   return;
 }
@@ -2104,6 +2197,19 @@ int GlobalRecHitsProducer::compute(const DTGeometry *dtGeom,
   } // loop over simhits
 
   return nDt;
+}
+
+void 
+GlobalRecHitsProducer::plotResolution(const PSimHit & simHit, 
+				      const CSCRecHit2D & recHit,
+				      const CSCLayer * layer, 
+				      int chamberType) {
+  GlobalPoint simHitPos = layer->toGlobal(simHit.localPosition());
+  GlobalPoint recHitPos = layer->toGlobal(recHit.localPosition());
+  
+  CSCRHPHI.push_back(recHitPos.phi());
+  CSCRHPERP.push_back(recHitPos.perp());
+  CSCSHPHI.push_back(simHitPos.phi());
 }
 
 //define this as a plug-in

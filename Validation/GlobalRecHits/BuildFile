@@ -25,6 +25,11 @@
 <use name=DataFormats/DTRecHit>
 <use name=Geometry/DTGeometry>
 <use name=DataFormats/CSCDigi>
+<use name=Geometry/CSCGeometry>
+<use name=DataFormats/CSCRecHit>
+<use name=Geometry/RPCGeometry>
+<use name=DataFormats/RPCDigi>
+<use name=DataFormats/RPCRecHit>
 <use name=SimDataFormats/GlobalRecHitValidation>
 <use name=SimDataFormats/CrossingFrame>
 <use name=SimDataFormats/CaloHit>
@@ -62,6 +67,11 @@
  <use name=DataFormats/DTRecHit>
  <use name=Geometry/DTGeometry>
  <use name=DataFormats/CSCDigi>
+ <use name=Geometry/CSCGeometry>
+ <use name=DataFormats/CSCRecHit>
+ <use name=Geometry/RPCGeometry>
+ <use name=DataFormats/RPCDigi>
+ <use name=DataFormats/RPCRecHit>
  <use name=SimDataFormats/GlobalRecHitValidation>
  <use name=SimDataFormats/CrossingFrame>
  <use name=SimDataFormats/CaloHit>
