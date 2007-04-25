@@ -11,8 +11,10 @@ PFRecTrack::PFRecTrack() :
 
 
 
-PFRecTrack::PFRecTrack(double charge, AlgoType_t algoType, 
-		       int trackId, const reco::TrackRef& trackRef ) : 
+PFRecTrack::PFRecTrack(double charge, 
+		       AlgoType_t algoType, 
+		       int trackId, 
+		       const reco::TrackRef& trackRef ) : 
   PFTrack(charge), 
   algoType_(algoType),
   trackId_(trackId), 

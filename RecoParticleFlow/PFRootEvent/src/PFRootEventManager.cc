@@ -113,6 +113,7 @@ void PFRootEventManager::reset() {
   rechitsHCAL_.clear();
   rechitsPS_.clear();
   recTracks_.clear();
+  stdTracks_.clear();
   clustersECAL_->clear();
   clustersHCAL_->clear();
   clustersPS_->clear();
@@ -166,11 +167,6 @@ void PFRootEventManager::readOptions(const char* file,
 		   findRecHitNeighbours_);
   
   
-  // input root file --------------------------------------------
-
-  if( reconnect )
-    connect( inFileName_.c_str() );
-
   // output root file   ------------------------------------------
 
   outFile_ = 0;
@@ -190,6 +186,12 @@ void PFRootEventManager::readOptions(const char* file,
     }
     // cout<<"don't do tree"<<endl;
   }
+
+
+  // input root file --------------------------------------------
+
+  if( reconnect )
+    connect( inFileName_.c_str() );
 
 
   // various parameters ------------------------------------------
@@ -613,9 +615,6 @@ void PFRootEventManager::connect( const char* infilename ) {
     cerr<<"PFRootEventManager::ReadOptions : rechits_ECAL_branch not found : "
 	<<rechitsECALbranchname<<endl;
   }
-  else {
-    rechitsECALBranch_->SetAddress(&rechitsECAL_);
-  }
 
   string rechitsHCALbranchname;
   options_->GetOpt("root","rechits_HCAL_branch", rechitsHCALbranchname);
@@ -625,9 +624,6 @@ void PFRootEventManager::connect( const char* infilename ) {
     cerr<<"PFRootEventManager::ReadOptions : rechits_HCAL_branch not found : "
 	<<rechitsHCALbranchname<<endl;
   }
-  else {
-    rechitsHCALBranch_->SetAddress(&rechitsHCAL_);
-  }
 
   string rechitsPSbranchname;
   options_->GetOpt("root","rechits_PS_branch", rechitsPSbranchname);
@@ -636,9 +632,6 @@ void PFRootEventManager::connect( const char* infilename ) {
   if(!rechitsPSBranch_) {
     cerr<<"PFRootEventManager::ReadOptions : rechits_PS_branch not found : "
 	<<rechitsPSbranchname<<endl;
-  }
-  else {
-    rechitsPSBranch_->SetAddress(&rechitsPS_);
   }
 
 
@@ -652,10 +645,6 @@ void PFRootEventManager::connect( const char* infilename ) {
     cerr <<"PFRootEventManager::ReadOptions : clusters_ECAL_branch not found:"
 	 <<clustersECALbranchname<<endl;
   }
-  else if(!clusteringIsOn_) {
-    // cout<<"clusters ECAL : SetAddress"<<endl;
-    clustersECALBranch_->SetAddress( clustersECAL_.get() );
-  }    
   
   string clustersHCALbranchname;
   options_->GetOpt("root","clusters_HCAL_branch", clustersHCALbranchname);
@@ -665,9 +654,6 @@ void PFRootEventManager::connect( const char* infilename ) {
     cerr<<"PFRootEventManager::ReadOptions : clusters_HCAL_branch not found : "
         <<clustersHCALbranchname<<endl;
   }
-  else if(!clusteringIsOn_) {
-    clustersHCALBranch_->SetAddress( clustersHCAL_.get() );
-  }    
   
   string clustersPSbranchname;
   options_->GetOpt("root","clusters_PS_branch", clustersPSbranchname);
@@ -677,9 +663,6 @@ void PFRootEventManager::connect( const char* infilename ) {
     cerr<<"PFRootEventManager::ReadOptions : clusters_PS_branch not found : "
 	<<clustersPSbranchname<<endl;
   }
-  else if(!clusteringIsOn_) {
-    clustersPSBranch_->SetAddress( clustersPS_.get() );
-  }    
   
   // other branches ----------------------------------------------
   
@@ -695,10 +678,6 @@ void PFRootEventManager::connect( const char* infilename ) {
       cerr<<"PFRootEventManager::ReadOptions : clusters_island_barrel_branch not found : "
 	  <<clustersIslandBarrelbranchname<< endl;
     }
-    else {
-      // cerr<<"setting address"<<endl;
-      clustersIslandBarrelBranch_->SetAddress(&clustersIslandBarrel_);
-    }    
   }
   else {
     cerr<<"branch not found: root/clusters_island_barrel_branch"<<endl;
@@ -712,9 +691,16 @@ void PFRootEventManager::connect( const char* infilename ) {
     cerr<<"PFRootEventManager::ReadOptions : recTracks_branch not found : "
 	<<recTracksbranchname<< endl;
   }
-  else {
-    recTracksBranch_->SetAddress(&recTracks_);
-  }    
+
+  string stdTracksbranchname;
+  options_->GetOpt("root","stdTracks_branch", stdTracksbranchname);
+
+  stdTracksBranch_ = tree_->GetBranch(stdTracksbranchname.c_str());
+  if(!stdTracksBranch_) {
+    cerr<<"PFRootEventManager::ReadOptions : stdTracks_branch not found : "
+	<<stdTracksbranchname<< endl;
+  }
+  
 
   string trueParticlesbranchname;
   options_->GetOpt("root","trueParticles_branch", trueParticlesbranchname);
@@ -743,6 +729,24 @@ void PFRootEventManager::connect( const char* infilename ) {
     }           
   }    
 } 
+
+
+
+void PFRootEventManager::setAddresses() {
+  if( rechitsECALBranch_ ) rechitsECALBranch_->SetAddress(&rechitsECAL_);
+  if( rechitsHCALBranch_ ) rechitsHCALBranch_->SetAddress(&rechitsHCAL_);
+  if( rechitsPSBranch_ ) rechitsPSBranch_->SetAddress(&rechitsPS_);
+  if( clustersECALBranch_ ) clustersECALBranch_->SetAddress( clustersECAL_.get() );
+  if( clustersHCALBranch_ ) clustersHCALBranch_->SetAddress( clustersHCAL_.get() );
+  if( clustersPSBranch_ ) clustersPSBranch_->SetAddress( clustersPS_.get() );
+  if( clustersIslandBarrelBranch_ ) 
+    clustersIslandBarrelBranch_->SetAddress(&clustersIslandBarrel_);
+  if( recTracksBranch_ ) recTracksBranch_->SetAddress(&recTracks_);
+  if( stdTracksBranch_ ) stdTracksBranch_->SetAddress(&stdTracks_);
+  if( trueParticlesBranch_ ) trueParticlesBranch_->SetAddress(&trueParticles_);
+  if( caloTowersBranch_ ) caloTowersBranch_->SetAddress(&caloTowers_);
+}
+
 
 PFRootEventManager::~PFRootEventManager() {
 
@@ -802,6 +806,7 @@ bool PFRootEventManager::processEntry(int entry) {
 
   if(verbosity_ == VERBOSE ) {
     cout<<"number of recTracks      : "<<recTracks_.size()<<endl;
+    cout<<"number of stdTracks      : "<<stdTracks_.size()<<endl;
     cout<<"number of true particles : "<<trueParticles_.size()<<endl;
     cout<<"number of ECAL rechits   : "<<rechitsECAL_.size()<<endl;
     cout<<"number of HCAL rechits   : "<<rechitsHCAL_.size()<<endl;
@@ -842,16 +847,8 @@ bool PFRootEventManager::readFromSimulation(int entry) {
 
   if(!tree_) return false;
   
-  // in versions 12X, the rechit neihgbours are stored as a vector
-  // of detIds, not as a vector of indices. 
-  // in this case, one has to 
-  // bool is12X = false;
-  //   unsigned pos = releaseVersion_.find("CMSSW_1_2");
-  //   if(pos != static_cast<unsigned>(-1) ) {
-  //     cout<<"is12X true "<<pos<<endl;
-  //     is12X = true;
-  //   }
 
+  setAddresses();
 
   if(trueParticlesBranch_ ) {
     trueParticlesBranch_->GetEntry(entry);
@@ -859,6 +856,8 @@ bool PFRootEventManager::readFromSimulation(int entry) {
     // usually not active
     if(filterNParticles_ && 
        trueParticles_.size() != filterNParticles_ ) {
+      cout << "PFRootEventManager : event discarded Nparticles="
+	   <<filterNParticles_<< endl; 
       return false;
     }
     if(filterHadronicTaus_ && !isHadronicTau() ) {
@@ -902,8 +901,12 @@ bool PFRootEventManager::readFromSimulation(int entry) {
       cout<<"number of calotowers :"<<caloTowers_.size()<<endl;
   }
     
-    
+  
   if(recTracksBranch_) recTracksBranch_->GetEntry(entry);
+  if(stdTracksBranch_) stdTracksBranch_->GetEntry(entry);
+  
+
+  tree_->GetEntry( entry );
 
   return true;
 }

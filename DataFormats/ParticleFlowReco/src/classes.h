@@ -51,11 +51,8 @@ namespace {
 
     std::vector<reco::PFBlock>                           dummy15;
     edm::Wrapper< std::vector<reco::PFBlock> >           dummy16;
-    edm::Ref< std::vector<reco::PFBlock>, 
-      reco::PFBlock, 
-      edm::refhelper::FindUsingAdvance< std::vector<reco::PFBlock>,
-                                        reco::PFBlock> > dummy17;
-    edm::Ref<std::vector<reco::PFRecTrack>,reco::PFRecTrack,edm::refhelper::FindUsingAdvance<std::vector<reco::PFRecTrack>,reco::PFRecTrack> > d1;
-    edm::Ref<std::vector<reco::PFCluster>,reco::PFCluster,edm::refhelper::FindUsingAdvance<std::vector<reco::PFCluster>,reco::PFCluster> > d2;
+    edm::Ref< std::vector<reco::PFBlock>, reco::PFBlock, edm::refhelper::FindUsingAdvance< std::vector<reco::PFBlock>, reco::PFBlock> >  dummy18;
+    edm::Ref<std::vector<reco::PFRecTrack>,reco::PFRecTrack,edm::refhelper::FindUsingAdvance<std::vector<reco::PFRecTrack>,reco::PFRecTrack> > dummy19;
+    edm::Ref<std::vector<reco::PFCluster>,reco::PFCluster,edm::refhelper::FindUsingAdvance<std::vector<reco::PFCluster>,reco::PFCluster> > dummy20;
   }
 }

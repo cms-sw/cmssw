@@ -6,6 +6,7 @@
 <use name=RecoParticleFlow/PFClusterAlgo>
 <use name=RecoParticleFlow/PFBlockAlgo>
 <use name=RecoParticleFlow/PFAlgo>
+<use name=DataFormats/TrackReco>
 <use name=root>
 <export>
   <use name=FWCore/Framework>
@@ -13,6 +14,7 @@
   <use name=DataFormats/ParticleFlowReco>
   <use name=DataFormats/EgammaReco>
   <use name=DataFormats/Math>
+  <use name=DataFormats/TrackReco>
   <use name=RecoParticleFlow/PFClusterAlgo>
   <use name=RecoParticleFlow/PFBlockAlgo> 
   <use name=RecoParticleFlow/PFAlgo>

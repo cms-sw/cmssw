@@ -52,7 +52,10 @@
   <class name="edm::OwnVector<reco::PFBlockElement, edm::ClonePolicy<reco::PFBlockElement> >"/>
   <class name="edm::Wrapper<edm::OwnVector<reco::PFBlockElement, edm::ClonePolicy<reco::PFBlockElement> > >" />
 
-  <class name="reco::PFBlockElementTrack"/> 
+  <class name="reco::PFBlockElementTrack"> 
+    <field name="trackRefPF_" transient="true"/>
+  </class>
+
   <class name="reco::PFBlockElementCluster"/> 
 
   <class name="reco::PFBlock"/>

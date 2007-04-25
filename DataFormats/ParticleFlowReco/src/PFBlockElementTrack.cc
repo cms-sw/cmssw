@@ -20,22 +20,6 @@ void PFBlockElementTrack::Dump(ostream& out,
 
   if(! out ) return;
 
-  
-//   if( !trackRefPF_.isNull() ) {
-//     double charge = trackRef_->charge();
-//     double pt = trackRef_->innermostMeasurement()->momentum().Pt();
-//     double e  = trackRef_->innermostMeasurement()->momentum().E();
-  
-    
-//     out<<setprecision(3);
-//     out<<tab<<setw(10)<<"charge="<<setw(2)<<charge;
-//     out<<setiosflags(ios::right);
-//     out<<setiosflags(ios::fixed);
-//     out<<", pT="<<setw(7)<<pt;
-//     out<<", E ="<<setw(7)<<e;
-//     out<<resetiosflags(ios::right|ios::fixed);
-//     // out<<resetiosflags(ios::fixed);
-//   }
   if( !trackRef_.isNull() ) {
     double charge = trackRef_->charge();
     double pt = trackRef_->pt();

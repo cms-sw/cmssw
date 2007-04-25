@@ -11,6 +11,8 @@
 
 #include "DataFormats/ParticleFlowReco/interface/PFRecTrack.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecTrackFwd.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 
 #include "DataFormats/ParticleFlowReco/interface/PFSimParticle.h"
 #include "DataFormats/ParticleFlowReco/interface/PFSimParticleFwd.h"
@@ -151,6 +153,9 @@ class PFRootEventManager {
   /// open the root file and connect to the tree
   void connect(const char* infilename="");
 
+  /// sets addresses for all branches
+  void setAddresses();
+  
   /// process one entry 
   virtual bool processEntry(int entry);
 
@@ -333,6 +338,9 @@ class PFRootEventManager {
   /// reconstructed tracks branch  
   TBranch*   recTracksBranch_;          
   
+  /// standard reconstructed tracks branch  
+  TBranch*   stdTracksBranch_;          
+  
   /// true particles branch
   TBranch*   trueParticlesBranch_;          
 
@@ -361,6 +369,9 @@ class PFRootEventManager {
 
   /// reconstructed tracks
   reco::PFRecTrackCollection    recTracks_;
+  
+  /// standard reconstructed tracks
+  reco::TrackCollection    stdTracks_;
   
   /// true particles
   reco::PFSimParticleCollection trueParticles_;
