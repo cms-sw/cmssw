@@ -4,7 +4,6 @@
 <use name=CondFormats/DTObjects>
 <use name=CondFormats/DataRecord>
 <use name=boost>
-<use name=EventFilter/DTRawToDigi>
 <library file="*.cc" name=EventFilterDTRawToDigiPlugins>
       <flags EDM_PLUGIN=1>
 </library>
