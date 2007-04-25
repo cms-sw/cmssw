@@ -48,10 +48,12 @@ void CSCBaseElectronicsSim::simulate(const CSCLayer * layer,
   TimeMe a("CSCBaseEl:simulate");
   {
     theSignalMap.clear();
-    //theDetectorHitMap.clear();
+    theDetectorHitMap.clear();
     // fill the specs member data
     theSpecs = layer->chamber()->specs();
     theLayer = layer;
+    // can we swap for efficiency?
+    theDigiSimLinks = DigiSimLinks(layerId().rawId());
     initParameters();
   }
   
@@ -107,7 +109,7 @@ CSCBaseElectronicsSim::amplifySignal(const CSCDetectorHit & detectorHit)  {
   thisSignal.setTimeOffset(readoutTime);
   thisSignal.setElement(element);
   // keep track of links between digis and hits
-  //theDetectorHitMap.insert( DetectorHitMap::value_type(channelIndex(element), detectorHit) );
+  theDetectorHitMap.insert( DetectorHitMap::value_type(channelIndex(element), detectorHit) );
   return thisSignal;
 } 
 
@@ -162,13 +164,14 @@ CSCAnalogSignal & CSCBaseElectronicsSim::add(const CSCAnalogSignal & signal) {
   return newSignal;
 }
  
-/*
+
 void CSCBaseElectronicsSim::addLinks(int channelIndex) {
   std::pair<DetectorHitMap::iterator, DetectorHitMap::iterator> channelHitItr 
     = theDetectorHitMap.equal_range(channelIndex);
 
   // find the fraction contribution for each SimTrack
   std::map<int,float> simTrackChargeMap;
+  std::map<int, EncodedEventId> eventIdMap;
   float totalCharge = 0;
   for( DetectorHitMap::iterator hitItr = channelHitItr.first; 
                                 hitItr != channelHitItr.second; ++hitItr){
@@ -179,7 +182,8 @@ void CSCBaseElectronicsSim::addLinks(int channelIndex) {
       float charge = hitItr->second.getCharge();
       std::map<int,float>::iterator chargeItr = simTrackChargeMap.find(simTrackId);
       if( chargeItr == simTrackChargeMap.end() ) {
-        simTrackChargeMap.insert( std::pair<int,float>(simTrackId, charge) );
+        simTrackChargeMap[simTrackId] = charge;
+        eventIdMap[simTrackId] = hit->eventId();
       } else {
         chargeItr->second += charge;
       }
@@ -189,11 +193,14 @@ void CSCBaseElectronicsSim::addLinks(int channelIndex) {
 
   for(std::map<int,float>::iterator chargeItr = simTrackChargeMap.begin(); 
                           chargeItr != simTrackChargeMap.end(); ++chargeItr) {
-    theLayer->simDet()->addLink( channelIndex, chargeItr->first, chargeItr->second/totalCharge);
+    int simTrackId = chargeItr->first;
+    theDigiSimLinks.push_back( StripDigiSimLink(channelIndex, simTrackId,  
+                                  eventIdMap[simTrackId], chargeItr->second/totalCharge ) );
+    
   }
 }
 
-*/
+
 
 CSCDetId CSCBaseElectronicsSim::layerId() const {
   return CSCDetId(theLayer->geographicalId().rawId());

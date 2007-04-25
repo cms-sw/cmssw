@@ -20,6 +20,8 @@ CSCDigiProducer::CSCDigiProducer(const edm::ParameterSet& ps)
   produces<CSCWireDigiCollection>("MuonCSCWireDigi");
   produces<CSCStripDigiCollection>("MuonCSCStripDigi");
   produces<CSCComparatorDigiCollection>("MuonCSCComparatorDigi");
+  produces<DigiSimLinks>("MuonCSCWireDigiSimLinks");
+  produces<DigiSimLinks>("MuonCSCStripDigiSimLinks");
   std::string stripConditions( ps.getParameter<std::string>("stripConditions") );
   if( stripConditions == "Configurable" )
   {
@@ -57,6 +59,8 @@ void CSCDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup) 
   std::auto_ptr<CSCWireDigiCollection> pWireDigis(new CSCWireDigiCollection());
   std::auto_ptr<CSCStripDigiCollection> pStripDigis(new CSCStripDigiCollection());
   std::auto_ptr<CSCComparatorDigiCollection> pComparatorDigis(new CSCComparatorDigiCollection());
+  std::auto_ptr<DigiSimLinks> pWireDigiSimLinks(new DigiSimLinks() );
+  std::auto_ptr<DigiSimLinks> pStripDigiSimLinks(new DigiSimLinks() );
 
   // find the geometry & conditions for this event
   edm::ESHandle<CSCGeometry> hGeom;
@@ -82,13 +86,15 @@ void CSCDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup) 
   theStripConditions->initializeEvent(eventSetup);
 
   // run the digitizer
-  theDigitizer.doAction(*hits, *pWireDigis, *pStripDigis, *pComparatorDigis);
+  theDigitizer.doAction(*hits, *pWireDigis, *pStripDigis, *pComparatorDigis,
+                        *pWireDigiSimLinks, *pStripDigiSimLinks);
 
 
   // store them in the event
   e.put(pWireDigis, "MuonCSCWireDigi");
   e.put(pStripDigis, "MuonCSCStripDigi");
   e.put(pComparatorDigis, "MuonCSCComparatorDigi");
-
+  e.put(pWireDigiSimLinks, "MuonCSCWireDigiSimLinks");
+  e.put(pStripDigiSimLinks, "MuonCSCStripDigiSimLinks");
 }
 

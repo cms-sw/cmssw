@@ -12,6 +12,7 @@
 class CSCDigiProducer : public edm::EDProducer
 {
 public:
+  typedef CSCDigitizer::DigiSimLinks DigiSimLinks;
 
   explicit CSCDigiProducer(const edm::ParameterSet& ps);
   virtual ~CSCDigiProducer() {}

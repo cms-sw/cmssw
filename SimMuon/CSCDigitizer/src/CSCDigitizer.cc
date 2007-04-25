@@ -43,7 +43,9 @@ CSCDigitizer::~CSCDigitizer() {
 void CSCDigitizer::doAction(MixCollection<PSimHit> & simHits, 
                             CSCWireDigiCollection & wireDigis, 
                             CSCStripDigiCollection & stripDigis, 
-                            CSCComparatorDigiCollection & comparators) 
+                            CSCComparatorDigiCollection & comparators,
+                            DigiSimLinks & wireDigiSimLinks,
+                            DigiSimLinks & stripDigiSimLinks) 
 {
   // arrange the hits by layer
   std::map<int, edm::PSimHitContainer> hitMap;
@@ -87,11 +89,13 @@ void CSCDigitizer::doAction(MixCollection<PSimHit> & simHits,
       TimeMe t("CSCWireElectronicsSim");
       theWireElectronicsSim->simulate(layer, newWireHits);
       theWireElectronicsSim->fillDigis(wireDigis);
+      wireDigiSimLinks.insert( theWireElectronicsSim->digiSimLinks() );
     }  
     {
       TimeMe t("CSCStripElectronicsSim");
       theStripElectronicsSim->simulate(layer, newStripHits);
       theStripElectronicsSim->fillDigis(stripDigis, comparators);
+      stripDigiSimLinks.insert( theStripElectronicsSim->digiSimLinks() );
     }
   }
 }

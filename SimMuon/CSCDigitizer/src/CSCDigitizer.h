@@ -21,6 +21,9 @@
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 #include <boost/utility.hpp>
 
+#include "DataFormats/Common/interface/DetSetVector.h"
+#include "SimDataFormats/TrackerDigiSimLink/interface/StripDigiSimLink.h"
+
 class CSCDriftSim;
 class CSCWireHitSim;
 class CSCStripHitSim;
@@ -33,6 +36,8 @@ class CSCStripConditions;
 class CSCDigitizer : public boost::noncopyable
 {
 public:
+  typedef edm::DetSetVector<StripDigiSimLink> DigiSimLinks;
+
   /// configurable parameters
   explicit CSCDigitizer(const edm::ParameterSet & p);
   
@@ -43,7 +48,9 @@ public:
   void doAction(MixCollection<PSimHit> & simHits,
                 CSCWireDigiCollection & wireDigis,
                 CSCStripDigiCollection & stripDigis,
-                CSCComparatorDigiCollection & comparators);
+                CSCComparatorDigiCollection & comparators,
+                DigiSimLinks & wireDigiSimLinks,
+                DigiSimLinks & stripDigiSimLinks);
 
   /// sets geometry
   void setGeometry(const CSCGeometry * geom) {theCSCGeometry = geom;}

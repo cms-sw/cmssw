@@ -19,6 +19,9 @@
 #include <vector>
 #include <map>
 
+#include "DataFormats/Common/interface/DetSet.h"
+#include "SimDataFormats/TrackerDigiSimLink/interface/StripDigiSimLink.h"
+
 // declarations
 class CSCLayer;
 class CSCChamberSpecs;
@@ -33,12 +36,15 @@ class CSCBaseElectronicsSim
 public:
 
   typedef std::map<int, CSCAnalogSignal, std::less<int> > CSCSignalMap;
+  typedef edm::DetSet<StripDigiSimLink> DigiSimLinks;
   
   // takes the input detector hits, turns them into DIGIs, and
   // stores them in the layer
   void simulate(const CSCLayer * layer,
                 const std::vector<CSCDetectorHit> & inputHits);
 
+  const DigiSimLinks & digiSimLinks() const {return theDigiSimLinks;}
+ 
   virtual ~CSCBaseElectronicsSim() {}
 
   /**
@@ -89,7 +95,7 @@ protected:
 
   /// creates links from Digi to SimTrack
   /// disabled for now
-  virtual void addLinks(int channelIndex) {}
+  virtual void addLinks(int channelIndex);
 
   /// lets users map channels to different indices for links
   virtual int channelIndex(int channel) const {return channel;}
@@ -144,8 +150,9 @@ protected:
   bool doNoise_;
 
   // keeps track of which hits contribute to which channels
-  //typedef std::multimap<int, CSCDetectorHit, std::less<int> >  DetectorHitMap;
-  //DetectorHitMap theDetectorHitMap;
+  typedef std::multimap<int, CSCDetectorHit, std::less<int> >  DetectorHitMap;
+  DetectorHitMap theDetectorHitMap;
+  DigiSimLinks theDigiSimLinks;
 
 };
 
