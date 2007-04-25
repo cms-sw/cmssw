@@ -5,8 +5,8 @@
  *  Class to load the tracks in the event, it provide some common functionalities
  *  both for all the RecoMuon producers.
  *
- *  $Date: 2007/03/07 10:41:49 $
- *  $Revision: 1.15 $
+ *  $Date: 2007/04/10 13:34:10 $
+ *  $Revision: 1.16 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -39,11 +39,12 @@ class MuonTrackLoader {
     virtual ~MuonTrackLoader() {}
   
     /// Convert the trajectories into tracks and load the tracks in the event
-    edm::OrphanHandle<reco::TrackCollection> loadTracks(const TrajectoryContainer&, 
-                                                        edm::Event&);
+/*     edm::OrphanHandle<reco::TrackCollection> loadTracks(const TrajectoryContainer&,  */
+/*                                                         edm::Event&); */
 
     edm::OrphanHandle<reco::TrackCollection> loadTracks(const TrajectoryContainer&, 
-                                                        edm::Event&,const std::string&);
+                                                        edm::Event&,const std::string& = "", 
+							bool = true);
 
     /// Convert the trajectories into tracks and load the tracks in the event
     edm::OrphanHandle<reco::MuonCollection> loadTracks(const CandidateContainer&,
@@ -75,6 +76,6 @@ class MuonTrackLoader {
     /// Label for L2SeededTracks
     std::string theL2SeededTkLabel; 
     bool thePutTkTrackFlag;
-
+    bool theSmoothTkTrackFlag;
 };
 #endif

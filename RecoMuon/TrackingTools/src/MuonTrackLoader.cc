@@ -3,8 +3,8 @@
  *  Class to load the product in the event
  *
 
- *  $Date: 2007/04/10 13:34:11 $
- *  $Revision: 1.44 $
+ *  $Date: 2007/04/13 09:05:34 $
+ *  $Revision: 1.45 $
 
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
@@ -57,18 +57,21 @@ MuonTrackLoader::MuonTrackLoader(ParameterSet &parameterSet, const MuonServicePr
   theUpdatorAtVtx = new MuonUpdatorAtVertex(updatorPar,service);
 
   thePutTkTrackFlag = parameterSet.getUntrackedParameter<bool>("PutTkTrackIntoEvent",false);
+  theSmoothTkTrackFlag = parameterSet.getUntrackedParameter<bool>("SmoothTkTrack",false);
 }
 
 
-OrphanHandle<reco::TrackCollection> 
-MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
-			    Event& event) {
-  return loadTracks(trajectories,event,string());
-}
+// OrphanHandle<reco::TrackCollection> 
+// MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
+// 			    Event& event) {
+//   return loadTracks(trajectories,event,string());
+// }
 
 OrphanHandle<reco::TrackCollection> 
 MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
-			    Event& event, const string& instance) {
+			    Event& event, const string& instance, bool reallyDoSmoothing) {
+
+  const bool doSmoothing = theSmoothingStep && reallyDoSmoothing;
   
   const string metname = "Muon|RecoMuon|MuonTrackLoader";
 
@@ -119,7 +122,7 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
   reco::TrackExtraRef::key_type trackExtraIndex = 0;
   TrackingRecHitRef::key_type recHitsIndex = 0;
 
-   if(theSmoothingStep)
+   if(doSmoothing)
      theService->eventSetup().get<TrackingComponentsRecord>().get(theSmootherName,theSmoother);
   
 
@@ -128,8 +131,8 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
     
     Trajectory &trajectory = **rawTrajectory;
 
-      if(theSmoothingStep){
-      vector<Trajectory> trajectoriesSM = theSmoother->trajectories(**rawTrajectory);
+      if(doSmoothing){
+	vector<Trajectory> trajectoriesSM = theSmoother->trajectories(**rawTrajectory);
       
       if(!trajectoriesSM.empty())
 	trajectory = trajectoriesSM.front();
@@ -265,7 +268,7 @@ MuonTrackLoader::loadTracks(const CandidateContainer& muonCands,
   OrphanHandle<reco::TrackCollection> combinedTracks = loadTracks(combinedTrajs, event);
 
   OrphanHandle<reco::TrackCollection> trackerTracks;
-  if(thePutTkTrackFlag) trackerTracks = loadTracks(trackerTrajs, event,theL2SeededTkLabel);
+  if(thePutTkTrackFlag) trackerTracks = loadTracks(trackerTrajs, event, theL2SeededTkLabel, theSmoothTkTrackFlag);
 
   
   reco::MuonCollection::iterator muon = muonCollection->begin();
