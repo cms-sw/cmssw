@@ -11,32 +11,36 @@ SurveyAlignmentSensor::SurveyAlignmentSensor(const std::vector<Alignable*>& sens
 
 void SurveyAlignmentSensor::findAlignPars(bool bias)
 {
+  static const AlignableObjectId::AlignableObjectIdType levels[5] =
+    {AlignableObjectId::Panel,
+     AlignableObjectId::Blade,
+     AlignableObjectId::HalfDisk,
+     AlignableObjectId::HalfCylinder,
+     AlignableObjectId::PixelEndcap};
+
   unsigned int nSensor = theSensors.size();
 
   for (unsigned int i = 0; i < nSensor; ++i)
   {
     Alignable* ali = theSensors[i];
 
-    SurveyResidual res1(*ali, AlignableObjectId::AlignablePetal, bias);
-    SurveyResidual res2(*ali, AlignableObjectId::AlignableEndcapLayer, bias);
-    SurveyResidual res3(*ali, AlignableObjectId::AlignableEndcap, bias);
+    AlgebraicVector par(6, 0);
+    AlgebraicSymMatrix cov(6, 0);
 
-    AlgebraicSymMatrix invCov1 = res1.inverseCovariance();
-    AlgebraicSymMatrix invCov2 = res2.inverseCovariance();
-    AlgebraicSymMatrix invCov3 = res3.inverseCovariance();
+    for (unsigned int l = 0; l < 5; ++l)
+    {
+      SurveyResidual res(*ali, levels[l], bias);
 
-    AlgebraicVector pars = invCov1 * res1.sensorResidual();
-    AlgebraicSymMatrix cov = invCov1;
+      AlgebraicSymMatrix invCov = res.inverseCovariance();
 
-    pars += invCov2 * res2.sensorResidual();
-    cov += invCov2;
-    pars += invCov3 * res3.sensorResidual();
-    cov += invCov3;
+      par += invCov * res.sensorResidual();
+      cov += invCov;
+    }
 
     int dummy;
     cov.invert(dummy);
-    pars = -cov * pars;
+    par = -cov * par;
 
-    ali->setAlignmentParameters( new SurveyParameters(ali, pars, cov) );
+    ali->setAlignmentParameters( new SurveyParameters(ali, par, cov) );
   }
 }
