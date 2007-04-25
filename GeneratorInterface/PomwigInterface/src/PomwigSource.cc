@@ -1,12 +1,14 @@
 /*
  *  Original Author: Fabian Stoeckli 
  *  26/09/06
- *  Modified for Pomwig interface
- *  02/2007
+ *  Modified for Pomwig
+ *  03/2007 Antonio.Vilela.Pereira@cern.ch
  */
 
 #include "GeneratorInterface/PomwigInterface/interface/PomwigSource.h"
+
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
@@ -20,11 +22,11 @@
 using namespace edm;
 using namespace std;
 
-#include "HerwigWrapper6_4.h"
-#include "IO_HERWIG.h"
-#include "HEPEVT_Wrapper.h"
+#include "HepMC/HerwigWrapper6_4.h"
+#include "HepMC/IO_HERWIG.h"
+#include "HepMC/HEPEVT_Wrapper.h"
 
-// INCLUDE JIMMY,HERWIG,LHAPDF COMMON BLOCKS AND FUNTIONS
+// INCLUDE JIMMY,HERWIG,LHAPDF,POMWIG COMMON BLOCKS AND FUNTIONS
 #include "herwig.h"
 
 
@@ -35,7 +37,14 @@ extern"C" {
   void setherwpdf_(void);
   // function to chatch 'STOP' in original HWWARN
   void cmsending_(int*);
+
+  // struct to check wheter HERWIG killed an event
+  extern struct {
+    double eventisok;
+  } eventstat_;
 }
+
+#define eventstat eventstat_
 
 #define setpdfpath setpdfpath_
 #define mysetpdfpath mysetpdfpath_
@@ -60,10 +69,15 @@ PomwigSource::PomwigSource( const ParameterSet & pset,
   herwigLhapdfVerbosity_ (pset.getUntrackedParameter<int>("herwigLhapdfVerbosity",0)),
   maxEventsToPrint_ (pset.getUntrackedParameter<int>("maxEventsToPrint",0)),
   comenergy(pset.getUntrackedParameter<double>("comEnergy",14000.)),
-  diffTopology(pset.getUntrackedParameter<int>("diffTopology",0)),
   lhapdfSetPath_(pset.getUntrackedParameter<string>("lhapdfSetPath","")),
-  printCards_(pset.getUntrackedParameter<bool>("printCards",true))
+  printCards_(pset.getUntrackedParameter<bool>("printCards",true)),
+  diffTopology(pset.getParameter<int>("diffTopology"))
 {
+  //Don't want this for Pomwig
+  useJimmy_ = false;
+  doMPInteraction_ = false;	
+  numTrials_ = 0;
+
   cout << "----------------------------------------------" << endl;
   cout << "Initializing PomwigSource" << endl;
   cout << "----------------------------------------------" << endl;
@@ -82,8 +96,6 @@ PomwigSource::PomwigSource( const ParameterSet & pset,
   cout << "   LHAPDF verbosity level         = " << herwigLhapdfVerbosity_ << endl;
   cout << "   HepMC verbosity                = " << herwigHepMCVerbosity_ << endl;
   cout << "   Number of events to be printed = " << maxEventsToPrint_ << endl;
-
-  //Doesn't make sense for POMWIG
   /*if(useJimmy_) {
     cout << "   HERWIG will be using JIMMY for UE/MI." << endl;
     if(doMPInteraction_) 
@@ -112,14 +124,14 @@ PomwigSource::PomwigSource( const ParameterSet & pset,
                 hwbmch.PART2[0]  = 'P';
                 hwbmch.PART2[1]  = ' ';
                 //hwpram.MODPDF[0] = -1;
-		//hwpram.MODPDF[1] = 20060;
+                //hwpram.MODPDF[1] = 20060;
                 break;
         case 2: //SD survive PART2
                 hwbmch.PART1[0]  = 'P';
                 hwbmch.PART1[1]  = ' ';
                 hwbmch.PART2[0]  = 'E';
                 hwbmch.PART2[1]  = '-';
-		//hwpram.MODPDF[0] = 20060;
+                //hwpram.MODPDF[0] = 20060;
                 //hwpram.MODPDF[1] = -1;
                 break;
         case 3: //Non diffractive
@@ -127,28 +139,26 @@ PomwigSource::PomwigSource( const ParameterSet & pset,
                 hwbmch.PART1[1]  = ' ';
                 hwbmch.PART2[0]  = 'P';
                 hwbmch.PART2[1]  = ' ';
-		//hwpram.MODPDF[0] = 20060;
-		//hwpram.MODPDF[1] = 20060;
+                //hwpram.MODPDF[0] = 20060;
+                //hwpram.MODPDF[1] = 20060;
                 break;
         default:
                 throw edm::Exception(edm::errors::Configuration,"HerwigError")
-          <<" Invalid Diff. Topology. Must be DPE(diffTopology = 0), SD particle 1 (diffTopology = 1), SD particle 2 (diffTop
-ology = 2) and Non diffractive (diffTopology = 3)";
+          <<" Invalid Diff. Topology. Must be DPE(diffTopology = 0), SD particle 1 (diffTopology = 1), SD particle 2 (diffTopology = 2) and Non diffractive (diffTopology = 3)";
                 break;
   }
   for(int i=2;i<8;++i){
     hwbmch.PART1[i]  = ' ';
     hwbmch.PART2[i]  = ' ';}
-
   hwproc.MAXEV = pset.getUntrackedParameter<int>("maxEvents",10);
-  hwevnt.MAXER = hwproc.MAXEV/10;
+  hwevnt.MAXER = pset.getUntrackedParameter<int>("maxErrors",hwproc.MAXEV/10);
+  //hwproc.MAXEV = pset.getUntrackedParameter<int>("maxEvents",10);
+  //hwevnt.MAXER = hwproc.MAXEV/10;
   if(hwevnt.MAXER<10) hwevnt.MAXER = 10;
-  //Not using JIMMY
   //if(useJimmy_) jmparm.MSFLAG = 1;
 
   // initialize other common blocks ...
   hwigin();
-  //Not using JIMMY
   //if(useJimmy_) jimmin();
   
   // set some 'non-herwig' defaults
@@ -219,17 +229,22 @@ ology = 2) and Non diffractive (diffTopology = 3)";
   // HERWIG preparations ...
   hwuinc();
   hwusta("PI0     ",1);
-
   // Initialize H1 pomeron structure function
-  /*int ifit = 5;
-  double xp = 0.1;
-  double Q2 = 75.0;
-  double xpq[13];
-  qcd_1994(xp,Q2,xpq,ifit);*/
-  hwabeg();
-
+  if(diffTopology != 3){
+  	int ifit = pset.getParameter<int>("h1fit");
+  	if((ifit <= 0)||(ifit >= 7)){
+  		throw edm::Exception(edm::errors::Configuration,"HerwigError")
+          	<<" Attempted to set non existant H1 fit index. Has to be 1...6";		
+  	}
+  	cout << "   IFIT = "<< ifit <<endl;	
+  	//h1init(ifit);		
+  	//hwabeg();
+  	double xp = 0.1;
+  	double Q2 = 75.0;
+  	double xpq[13];
+  	qcd_1994(xp,Q2,xpq,ifit);
+  }
   hweini();
-  //Not using JIMMY
   //if(useJimmy_) jminit();
 
   cout << endl; // Stetically add for the output
@@ -251,24 +266,45 @@ PomwigSource::~PomwigSource(){
 void PomwigSource::clear() {
   // teminate elementary process
   hwefin();
-  //Not using JIMMY
   //if(useJimmy_) jmefin();
 }
 
 
 bool PomwigSource::produce(Event & e) {
-  
-  auto_ptr<HepMCProduct> bare_product(new HepMCProduct());  
-  
+
+  /*int counter = 0;
+  double mpiok = 1.0;
+
+  while(mpiok > 0.5 && counter < numTrials_) {
+    // so far event is ok :)
+    eventstat.eventisok = 0.0;
+
+    // call herwig routines to create HEPEVT
+    hwuine();
+    hwepro();
+    hwbgen();  
+
+    // call jimmy ... only if event is not killed yet by HERWIG
+    if(useJimmy_ && doMPInteraction_ && (eventstat.eventisok < 0.5)) {
+      mpiok = hwmsct_dummy(1.1);
+    }
+    else mpiok = 0.0;
+    counter++;
+  }
+
+  // event after numTrials MP is not ok -> skip event
+  if(mpiok > 0.5) {
+    cout<<"   JIMMY could not produce MI in "<<numTrials_<<" trials."<<endl;
+    cout<<"   Event will be skipped to prevent from deadlock."<<endl;
+    return true;
+  }*/
+
+  eventstat.eventisok = 0.0;
+
+  // call herwig routines to create HEPEVT
   hwuine();
   hwepro();
-  hwbgen();   
-  //Not using JIMMY 
-  /*if(useJimmy_ && doMPInteraction_) {
-    double eventok = 0.0;
-    eventok = hwmsct_dummy(1.1);
-    if(eventok > 0.5) return true;
-  }*/
+  hwbgen();  
   
   hwdhob();
   hwcfor();
@@ -277,11 +313,18 @@ bool PomwigSource::produce(Event & e) {
   hwdhvy();
   hwmevt();
   hwufne();
+  
+  // if event was killed by HERWIG; skip 
+  if(eventstat.eventisok > 0.5) return true;
 
-  HepMC::GenEvent* evt = new HepMC::GenEvent();
+  // HEPEVT is ok, create new HepMC event
+  evt = new HepMC::GenEvent();
   bool ok = conv.fill_next_event( evt );
+  // if conversion failed; throw excpetion and stop processing
   if(!ok) throw cms::Exception("HerwigError")
     <<" Conversion problems in event nr."<<numberEventsInRun() - remainingEvents() - 1<<".";  
+
+  // set process id and event number
   evt->set_signal_process_id(hwproc.IPROC);  
   evt->set_event_number(numberEventsInRun() - remainingEvents() - 1);
   
@@ -290,8 +333,14 @@ bool PomwigSource::produce(Event & e) {
 	 << "----------------------" << endl;
     evt->print();
   }
-  if(evt)  bare_product->addHepMCData(evt );
-  e.put(bare_product);
+  
+  // dummy if: event MUST be there
+  if(evt)  {
+    auto_ptr<HepMCProduct> bare_product(new HepMCProduct());  
+    bare_product->addHepMCData(evt );
+    e.put(bare_product);
+  }
+  
   return true;
 }
 

@@ -324,17 +324,23 @@ extern"C" {
 
 //------------------------------ LHAPDF functions -------------------------------------------------
 
-
 //------------------------------ POMWIG functions -------------------------------------------------
 
 // Subroutine inside H1QCD
 #define qcd_1994 qcd_1994_
 extern "C" {
-    void qcd_1994(double&,double&,double*,int);
+    void qcd_1994(double&,double&,double*,int&);
 }
 // HWABEG to initialize H1 pomeron structure function
 #define hwabeg hwabeg_
 extern "C" {
     void hwabeg();
 }
+// H1INIT initializes H1 structure function w/ IFIT as argument
+#define h1init h1init_
+extern "C" {
+    void h1init(int&);
+}
+
+
 #endif
