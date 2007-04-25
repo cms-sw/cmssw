@@ -4,16 +4,16 @@
 /** \class EcalTrigPrimProducer
  *
  * EcalTrigPrimProducer produces a EcalTrigPrimDigiCollection
- * The barrel code does a detailed simulation
- * The code for the endcap is simulated in a rough way, due to missing strip geometry
- *
+ * Simulation as close as possible to hardware
+ * Main algorithm is EcalTrigPrimFunctionalAlgo which is now
+ * templated to take EBdataFrames/EEDataFrames as input
  *
  * \author Ursula Berthon, Stephanie Baffioni, Pascal Paganini,   LLR Palaiseau
  *
  * \version   1st Version may 2006
  * \version   2nd Version jul 2006
  * \version   3rd Version nov 2006
-
+ * \version   4th Version apr 2007   full endcap
  *
  ************************************************************/
 
@@ -58,7 +58,7 @@ class EcalTrigPrimProducer : public edm::EDProducer
   double ebDccAdcToGeV_,eeDccAdcToGeV_;
   int binOfMaximum_;
 
-  static const int nrSamples_; //nr samples to write, should not be changed, if not problems in EcalTriggerPrimitiveDigi class
+   static const int nrSamples_; //nr samples to write, should not be changed, if not problems in EcalTriggerPrimitiveDigi class
   const edm::ParameterSet ps_;
 };
   

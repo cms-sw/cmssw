@@ -1,9 +1,12 @@
 #ifndef ECAL_FENIX_ET_STRIP_H
 #define ECAL_FENIX_ET_STRIP_H
+#include <vector>
 
-#include <SimCalorimetry/EcalTrigPrimAlgos/interface/EcalVAdder.h>
+#include "SimCalorimetry/EcalTrigPrimAlgos/interface/EcalFenixChip.h"
 
-class EBDataFrame;
+//#include <SimCalorimetry/EcalTrigPrimAlgos/interface/EcalVAdder.h>
+
+//class EBDataFrame;
 
 // global type definitions for header defined by Tag entries in ArgoUML
 // Result: typedef <typedef_global_header> <tag_value>;
@@ -24,16 +27,16 @@ class EBDataFrame;
    *  ---> if overflow sum= (2^18-1)
    */
 
-class EcalFenixEtStrip : public EcalVAdder {
+//class EcalFenixEtStrip : public EcalVAdder {
+class EcalFenixEtStrip  {
  private:
-    enum { SIZEMAX = 10}; 
-
 
  public:
   EcalFenixEtStrip();
   virtual ~EcalFenixEtStrip();
   //  virtual std::vector<int> process(const std::vector<EBDataFrame *> &); 
-  virtual std::vector<int> process(const std::vector<std::vector<int> > ); 
-  };
+  //    template <class T>  std::vector<int> process(const std::vector<T *> &); 
+  std::vector<int> process(const std::vector<std::vector<int> > linout);
+};
 
 #endif

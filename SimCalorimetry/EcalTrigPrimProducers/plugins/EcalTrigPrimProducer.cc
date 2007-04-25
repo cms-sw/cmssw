@@ -27,12 +27,13 @@
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 
-#include "SimCalorimetry/EcalTrigPrimAlgos/interface/EcalTrigPrimFunctionalAlgo.h"
 #include "EcalTrigPrimProducer.h"
+#include "SimCalorimetry/EcalTrigPrimAlgos/interface/EcalTrigPrimFunctionalAlgo.h"
+
 #include "TFile.h"
 #include "TTree.h"
 
-const int EcalTrigPrimProducer::nrSamples_=5;
+const int EcalTrigPrimProducer::nrSamples_=5;  //FIXME
 
 EcalTrigPrimProducer::EcalTrigPrimProducer(const edm::ParameterSet&  iConfig):
   valid_(iConfig.getUntrackedParameter<bool>("Validation")),
@@ -55,8 +56,6 @@ EcalTrigPrimProducer::EcalTrigPrimProducer(const edm::ParameterSet&  iConfig):
   instanceNameEB_ = iConfig.getParameter<std::string>("InstanceEB");;
   instanceNameEE_ = iConfig.getParameter<std::string>("InstanceEE");;
   algo_=NULL;
-  //FIXME: add configuration
-                   
 }
 
 void EcalTrigPrimProducer::beginJob(edm::EventSetup const& setup) {
@@ -94,8 +93,12 @@ void EcalTrigPrimProducer::beginJob(edm::EventSetup const& setup) {
   }
 
   algo_ = new EcalTrigPrimFunctionalAlgo(setup,valTree_,
-					 binOfMaximum_,nrSamples_,tcpFormat_,barrelOnly_,debug_,ebDccAdcToGeV_,eeDccAdcToGeV_);
-  algo_->updateESRecord(ps_.getParameter<double>("TTFLowEnergyEB"),ps_.getParameter<double>("TTFHighEnergyEB"),ps_.getParameter<double>("TTFLowEnergyEE"),ps_.getParameter<double>("TTFHighEnergyEE"));
+					 binOfMaximum_,nrSamples_,tcpFormat_,barrelOnly_,debug_,
+                                         ebDccAdcToGeV_,eeDccAdcToGeV_);
+  algo_->updateESRecord(ps_.getParameter<double>("TTFLowEnergyEB"),
+                        ps_.getParameter<double>("TTFHighEnergyEB"),
+                        ps_.getParameter<double>("TTFLowEnergyEE"),
+                        ps_.getParameter<double>("TTFHighEnergyEE"));
   edm::LogInfo("EcalTPG") <<"EcalTrigPrimProducer will write:  "<<nrSamples_<<" samples for each digi,  binOfMaximum used:  "<<binOfMaximum_;
 }
 
@@ -117,6 +120,9 @@ EcalTrigPrimProducer::~EcalTrigPrimProducer()
 void
 EcalTrigPrimProducer::produce(edm::Event& e, const edm::EventSetup&  iSetup)
 {
+
+  // get input collections
+
   edm::Handle<EBDigiCollection> ebDigis;
   edm::Handle<EEDigiCollection> eeDigis;
   bool barrel=true;
@@ -136,7 +142,7 @@ EcalTrigPrimProducer::produce(edm::Event& e, const edm::EventSetup&  iSetup)
     }
   }
   if (!barrel && !endcap) {
-   throw cms::Exception(" ProductNotFound") <<"No EBDataFrames(EEDataFrames) with producer "<<label_<<" and label "<<instanceNameEB_<< "found in input!!\n";
+    throw cms::Exception(" ProductNotFound") <<"No EBDataFrames(EEDataFrames) with producer "<<label_<<" and label "<<instanceNameEB_<< "found in input!!\n";
   }
 
   if (!barrelOnly_)   LogDebug("EcalTPG") <<" =================> Treating event  "<<e.id()<<", Number of EBDataFrames "<<ebDigis.product()->size()<<", Number of EEDataFrames "<<eeDigis.product()->size() ;
@@ -147,13 +153,24 @@ EcalTrigPrimProducer::produce(edm::Event& e, const edm::EventSetup&  iSetup)
  
 
   // invoke algorithm 
+
   const EBDigiCollection *ebdc=NULL;
   const EEDigiCollection *eedc=NULL;
-  if (barrel) ebdc=ebDigis.product();
-  if (endcap) eedc=eeDigis.product();
-  algo_->run(ebdc,eedc,*pOut,*pOutTcp);
+  if (barrel) {
+    ebdc=ebDigis.product();
+    algo_->run(ebdc,*pOut,*pOutTcp);
+  }
+  edm::LogInfo("produce") <<"For Barrel , "<<pOut->size()<<" TP  Digis were produced";
+
+  if (endcap) {
+    eedc=eeDigis.product();
+    algo_->run(eedc,*pOut,*pOutTcp);
+  }
+
+  edm::LogInfo("produce") <<"For Barrel + Endcap, "<<pOut->size()<<" TP  Digis were produced";
 
   // debug prints if TP >0
+
   for (unsigned int i=0;i<pOut->size();++i) {
     bool print=false;
     for (int isam=0;isam<(*pOut)[i].size();++isam) {
@@ -161,10 +178,11 @@ EcalTrigPrimProducer::produce(edm::Event& e, const edm::EventSetup&  iSetup)
     }
     if (print) LogDebug("EcalTPG") <<" For tower  "<<(((*pOut)[i])).id()<<", TP is "<<(*pOut)[i];
   }
-
   if (barrelOnly_)  edm::LogInfo("EcalTPG") <<"\n =================> For Barrel , "<<pOut->size()<<" TP  Digis were produced (including zero ones)";
   else      edm::LogInfo("EcalTPG") <<"\n =================> For Barrel + Endcap, "<<pOut->size()<<" TP  Digis were produced (including zero ones)";
+
   // put result into the Event
+
   e.put(pOut);
   if (tcpFormat_) e.put(pOutTcp,"formatTCP");
 }

@@ -1,7 +1,6 @@
 #ifndef ECAL_FENIX_FGVB_EB_H
 #define ECAL_FENIX_FGVB_EB_H
 
-#include <SimCalorimetry/EcalTrigPrimAlgos/interface/EcalVFgvb.h>
 #include <vector>
 
 class EcalTPParameters;
@@ -22,7 +21,7 @@ class EcalTPParameters;
     *  
     *  makes comparisons between maxof2 and 2 fractions of Ettot and  uses this comparison to decide ---> needs to get some values from outside
     */
-class EcalFenixFgvbEB : public EcalVFgvb {
+class EcalFenixFgvbEB {
 
  private:
     const EcalTPParameters * ecaltpp_ ;
@@ -31,7 +30,7 @@ class EcalFenixFgvbEB : public EcalVFgvb {
  public:
   EcalFenixFgvbEB(const EcalTPParameters *) ;
   virtual ~EcalFenixFgvbEB();
-  int process() {return 0;} //FIXME: find better base methods
+  //  int process() {return 0;} //FIXME: find better base methods
   void setParameters(int SM, int towNum);
 
   std::vector<int> process( std::vector<int> add_out, std::vector<int> maxof2_out);

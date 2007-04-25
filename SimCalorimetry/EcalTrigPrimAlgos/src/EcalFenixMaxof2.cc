@@ -1,4 +1,5 @@
 #include <SimCalorimetry/EcalTrigPrimAlgos/interface/EcalFenixMaxof2.h>
+#include "SimCalorimetry/EcalTrigPrimAlgos/interface/EcalFenixChip.h"
 
 
 // global type definitions for class implementation in source file defined by Tag entries in ArgoUML

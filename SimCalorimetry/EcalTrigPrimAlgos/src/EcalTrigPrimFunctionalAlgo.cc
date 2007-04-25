@@ -1,7 +1,7 @@
 /** \class EcalTrigPrimFunctionalAlgo
  *
  * EcalTrigPrimFunctionalAlgo is the main algorithm class for TPG
- * It coordinates all the other algorithms
+ * It coordinates all the aother algorithms
  * Structure is very close to electronics
  *
  *
@@ -20,19 +20,23 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
+#include "Geometry/EcalMapping/interface/EcalMappingRcd.h"
 
 #include "SimCalorimetry/EcalTrigPrimAlgos/interface/EcalTrigPrimFunctionalAlgo.h"
 #include "SimCalorimetry/EcalTrigPrimAlgos/interface/EcalFenixLinearizer.h"
-#include "CondFormats/L1TObjects/interface/EcalTPParameters.h"
-#include "CondFormats/DataRecord/interface/EcalTPParametersRcd.h"
+#include "SimCalorimetry/EcalTrigPrimAlgos/interface/EcalFenixStrip.h"
+#include "SimCalorimetry/EcalTrigPrimAlgos/interface/EcalFenixTcp.h"
 
-#include "DataFormats/EcalDigi/interface/EcalTriggerPrimitiveDigi.h"
+//#include "DataFormats/EcalDigi/interface/EcalTriggerPrimitiveDigi.h"
+#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/EcalDigi/interface/EBDataFrame.h"
 #include "DataFormats/EcalDigi/interface/EEDataFrame.h"
 #include "DataFormats/EcalDetId/interface/EcalTrigTowerDetId.h"
+#include "DataFormats/EcalDetId/interface/EcalTriggerElectronicsId.h"
+
+#include "CondFormats/DataRecord/interface/EcalTPParametersRcd.h"
 
 #include <TTree.h>
 #include <TMath.h>
@@ -42,6 +46,7 @@ EcalTrigPrimFunctionalAlgo::EcalTrigPrimFunctionalAlgo(const edm::EventSetup & s
   valid_(false),valTree_(NULL),binOfMaximum_(binofmax),nrSamplesToWrite_(nrsamples),
   tcpFormat_(tcpFormat), barrelOnly_(barrelOnly), debug_(debug),
   ebDccAdcToGeV_(ebDccAdcToGeV),eeDccAdcToGeV_(eeDccAdcToGeV)
+
 {this->init(setup);}
 
 //----------------------------------------------------------------------
@@ -49,10 +54,12 @@ EcalTrigPrimFunctionalAlgo::EcalTrigPrimFunctionalAlgo(const edm::EventSetup & s
   valid_(true),valTree_(tree),binOfMaximum_(binofmax),nrSamplesToWrite_(nrsamples),
   tcpFormat_(tcpFormat), barrelOnly_(barrelOnly),debug_(debug),
   ebDccAdcToGeV_(ebDccAdcToGeV),eeDccAdcToGeV_(eeDccAdcToGeV)
+
 {this->init(setup);}
 
 //----------------------------------------------------------------------
 void EcalTrigPrimFunctionalAlgo::init(const edm::EventSetup & setup) {
+  //FIXME: check validities
   if (!barrelOnly_) {
     edm::ESHandle<CaloGeometry> theGeometry;
     edm::ESHandle<CaloSubdetectorGeometry> theEndcapGeometry_handle;
@@ -63,313 +70,217 @@ void EcalTrigPrimFunctionalAlgo::init(const edm::EventSetup & setup) {
   }
   edm::ESHandle<EcalTPParameters> theEcalTPParameters_handle;
   setup.get<EcalTPParametersRcd>().get(theEcalTPParameters_handle);
-  ecaltpp_=const_cast <EcalTPParameters *> (theEcalTPParameters_handle.product());
+  ecaltpp_=theEcalTPParameters_handle.product();
 
-  ebstrip_= new EcalBarrelFenixStrip(valTree_,ecaltpp_,debug_);
-  ebtcp_ = new EcalBarrelFenixTcp(ecaltpp_,tcpFormat_,debug_) ;
+
+  // endcap mapping
+  edm::ESHandle< EcalElectronicsMapping > ecalmapping;
+  setup.get< EcalMappingRcd >().get(ecalmapping);
+  theMapping_ = ecalmapping.product();
+
+  //create main sub algos
+  estrip_= new EcalFenixStrip(valTree_,ecaltpp_,theMapping_,debug_);
+  etcp_ = new EcalFenixTcp(ecaltpp_,tcpFormat_,debug_) ;
+}
+//----------------------------------------------------------------------
+
+EcalTrigPrimFunctionalAlgo::~EcalTrigPrimFunctionalAlgo() 
+{
+    delete estrip_;
+    delete etcp_;
 }
 //----------------------------------------------------------------------
 void EcalTrigPrimFunctionalAlgo::updateESRecord(double ttfLowEB, double ttfHighEB, double ttfLowEE, double ttfHighEE)
 {
-  ecaltpp_->changeThresholds(ttfLowEB, ttfHighEB, ttfLowEE, ttfHighEE);
+  const_cast <EcalTPParameters *> (ecaltpp_)->changeThresholds(ttfLowEB, ttfHighEB, ttfLowEE, ttfHighEE);
 }
 //----------------------------------------------------------------------
-EcalTrigPrimFunctionalAlgo::~EcalTrigPrimFunctionalAlgo() 
-{
-    delete ebstrip_;
-    delete ebtcp_;
-}
 
-//----------------------------------------------------------------------
+// void EcalTrigPrimFunctionalAlgo::fillMap(const EBDigiCollection * col,
+//                                          std::map<EcalTrigTowerDetId,std::vector<std::vector<const EBDataFrame * > >,std::less<EcalTrigTowerDetId> >  & towerMap,
+// 					 int &nhits) 
+//   // implementation for Barrel
+// {
+//   typedef std::map<EcalTrigTowerDetId,std::vector<std::vector<const EBDataFrame * > >,std::less<EcalTrigTowerDetId> > TOWMAP;
 
-void EcalTrigPrimFunctionalAlgo::run(const EBDigiCollection* ebdcol,const EEDigiCollection* eedcol, EcalTrigPrimDigiCollection & result, EcalTrigPrimDigiCollection & resultTcp) {
-  
-  sumBarrel_.clear();
- 
-  int nhitsb(0), nhitse(0);
-  
-//   static SimpleConfigurable<float> ratBL(0.8,"ECALBarrel:FGLowEnRatioTh");
-//   static SimpleConfigurable<float> ratBH(0.9,"ECALBarrel:FGHighEnRatioTh");
-//   static SimpleConfigurable<float> enBL(5.0,"ECALBarrel:FGLowEnTh");
-//   static SimpleConfigurable<float> enBH(25.0,"ECALBarrel:FGHighEnTh");
-  
-//   //SimpleConfigurable<float> ratEL(0.8,"ECALEndcap:FGLowEnRatioTh");
-//   //SimpleConfigurable<float> ratEH(0.9,"ECALEndcap:FGHighEnRatioTh");
-//   static SimpleConfigurable<float> enEL(5.0,"ECALEndcap:FGLowEnTh");
-//   static SimpleConfigurable<float> enEH(25.0,"ECALEndcap:FGHighEnTh");
-
-
-  
-// loop over dataframes and fill map for barrel
-  if (ebdcol) {
-    for(unsigned int i = 0; i < ebdcol->size() ; ++i) {
-      const EBDetId & myid=(*ebdcol)[i].id();
-      const EcalTrigTowerDetId coarser= myid.tower();
-      if(coarser.null())  
-	{
-	  LogDebug("EcalTPG")<< "Cell " << myid << " has trivial coarser granularity (probably EFRY corner, not in this tower map; hit ignored)";
-	  continue;
-	}	
+//   // loop over dataframes and fill map 
+//   if (col) {
+//     for(unsigned int i = 0; i < col->size() ; ++i) {
+//       const EBDataFrame &samples = (*col)[i];
+//       const EBDetId & myId=samples.id();
+//       const EcalTrigTowerDetId coarser= myId.tower();
+// /*    if(coarser.null())   */
+// /*      { */
+// /* 	  LogDebug("")<< "Cell " << samples << " has trivial coarser granularity (probably EFRY corner, not in this tower map; hit ignored)"; */
+// /* 	  continue; */
+// /* 	}	 */
 	
-      nhitsb++;
-      fillBarrel(coarser,(*ebdcol)[i]);
-    }// loop over all CaloDataFrames
-    LogDebug("EcalTPG")<< "[EcalTrigPrimFunctionalAlgo] (found " << nhitsb << " frames in " 
-		<< sumBarrel_.size() << " Barrel towers  ";
-  }
-
-  // loop over dataframes and fill map for endcap
-  if (!barrelOnly_) {
-    mapEndcap_.clear();
-    if (eedcol) {
-      for(unsigned int i = 0; i < eedcol->size() ; ++i) {
-	const EEDetId & myid=(*eedcol)[i].id();
-	EcalTrigTowerDetId coarser=(*eTTmap_).towerOf(myid);
-
-	nhitse++;
-	fillEndcap(coarser,(*eedcol)[i]);
-
-      }// loop over all EEDataFrames
-      LogDebug("EcalTPG") << "[EcalTrigPrimFunctionalAlgo] (found " << nhitse << " frames in " 
-		   << mapEndcap_.size() << " Endcap towers  ";
-    }
-  }
-  // prepare writing of TP-s
-
-  int firstSample = binOfMaximum_-1 -nrSamplesToWrite_/2;
-  int lastSample = binOfMaximum_-1 +nrSamplesToWrite_/2;
+//  // here we store a vector of EBDataFrames for each strip into a vector belonging to the corresponding tower
  
+//       nhits++;
+//       int n=(((samples.id()).ic()-1)%100)/20; //20 corresponds to 4 * ecal_barrel_crystals_per_strip FIXME!!
+//       int stripnr;
+//       if ((samples.id()).ieta()<0) stripnr = n+1;
+//       else stripnr =ecal_barrel_strips_per_trigger_tower - n; //FIXME: take from official place
 
-  //   Barrel treatment
+//       TOWMAP::iterator it= towerMap.find(coarser);
+//       if(it==towerMap.end()) {
+//         for (int i=0;i<ecal_barrel_strips_per_trigger_tower;i++ ) {
+//           std::vector<const EBDataFrame *>  truc;
+//           towerMap[coarser].push_back(truc);
+//         } 
+//       }
+//       const EBDataFrame * p=& samples;
+//       (towerMap[coarser])[stripnr-1].push_back(p);
+//     }
+//   }
+//   LogDebug("EcalTPG")<< "[EcalTrigPrimFunctionalAlgo] found " << nhits << " frames in " 
+//   		<< towerMap.size() << " Barrel towers  ";
 
-  SUMVB::const_iterator it = sumBarrel_.begin(); 
-  SUMVB::const_iterator e = sumBarrel_.end(); 
+// }
+//---------------------------------------------------------------------------------------------------------------   
+// void EcalTrigPrimFunctionalAlgo::fillMap(const EEDigiCollection * col,
+//                                          std::map<EcalTrigTowerDetId,std::vector<std::vector<const EEDataFrame * > >,std::less<EcalTrigTowerDetId> >  & towerMap,
+// 					 int &nhits) 
+// {
+//   // implementation for endcap
+//   // Muriel's temporary version, waiting for geometry of pseudostrips
+//   // for the moment we put into this map for each TT  :
+//   // the first pseudo strip created with the first five crystals, 
+//   // the 2nd pseudostrip created with the  next five crystals and so on ...
 
-  int itow=0;
-  // loop over all trigger towers
-  for(;it!=e;it++) 
-    {
-      itow++;
-      const EcalTrigTowerDetId & thisTower =(*it).first;
-      int townr = findTowerNrInSM ( thisTower);
-      // loop over all strips assigned to this trigger tower
-      std::vector<std::vector<int> > striptp;
-      for(unsigned int i = 0; i < TMath::Min(it->second.size(),size_t(ecal_barrel_strips_per_trigger_tower)) ; ++i) 
-	{
-	  std::vector<int> tp;
-	  std::vector<const EBDataFrame *> df=it->second[i];
-
-	  if (df.size()>0) {
-	    tp=ebstrip_->process(df,i+1,townr);
-	    striptp.push_back(tp);
-	  }
-	}
-
-
-      std::vector<EcalTriggerPrimitiveSample> towtp;
-      std::vector<EcalTriggerPrimitiveSample> towtp2;
-      ebtcp_->process(striptp,towtp, towtp2, 1, townr);  //PP 1 should be Supermodule nb
-
-      // Fill TriggerPrimitiveDigi
-      EcalTriggerPrimitiveDigi tptow(thisTower);
-      tptow.setSize(nrSamplesToWrite_);
-      if (towtp.size()<nrSamplesToWrite_)  { 
-	edm::LogWarning("Barrel") <<"Too few samples produced, nr is "<<towtp.size();
-	break;
-      }
-      int isam=0;
-      for (int i=firstSample;i<=lastSample;++i) {
-	tptow.setSample(isam++,EcalTriggerPrimitiveSample(towtp[i]));
-      }
-      //      LogDebug("EcalTPG") <<"For "<<thisTower<<" the following TP was created: "<<towtp[i];
-      result.push_back(tptow);
-      if (tcpFormat_) {
-	EcalTriggerPrimitiveDigi tptow(thisTower);
-	tptow.setSize(nrSamplesToWrite_);
-	if (towtp2.size()<nrSamplesToWrite_)  { 
-	  edm::LogWarning("Barrel") <<"Too few samples produced, nr is "<<towtp2.size();
-	  break;
-	}
-	int isam=0;
-	for (int i=firstSample;i<=lastSample;++i) {
-	  tptow.setSample(isam++,EcalTriggerPrimitiveSample(towtp2[i]));
-	}
-	resultTcp.push_back(tptow);
-      }
-    }
-
-  //   Endcap treatment
-  // completely temporary, waiting for endcap geometry !!!
-
-  if (!barrelOnly_) {
-    MAPE::const_iterator ite = mapEndcap_.begin(); 
-    MAPE::const_iterator ee = mapEndcap_.end(); 
-
-	int one=0,two=0;
-
-	itow=0;
-	// loop over all trigger towers
-	for(;ite!=ee;ite++) 
-	  {
-	    itow++;
-	    const EcalTrigTowerDetId & thisTower =(*ite).first;
-	    int nrFrames=mapEndcap_[thisTower].size();
-
-	    // first, calculate thresholds
-	    std::vector<int>  thresholds(nrFrames);
-	    for (int ii=0;ii<nrFrames;++ii) {
-	      thresholds[ii] = 
-		thresholds[ii]=((mapEndcap_[thisTower][ii])[0].adc()+(mapEndcap_[thisTower][ii])[1].adc()+(mapEndcap_[thisTower][ii])[2].adc())/3;
-	    }
-
-	    std::vector<EcalTriggerPrimitiveDigi> tptow;
-	    // special treatment for the 2 inner rings: 2 pseudo-towers for one physical tower
-	    int nrTowers;
-	    if (thisTower.ietaAbs()==27 | thisTower.ietaAbs()==28 ) {
-	      //special treatment for 2 inner eta rings
-	      nrTowers=2;
-	      int phi=2*((thisTower.iphi()-1)/2);
-	      tptow.push_back(EcalTriggerPrimitiveDigi(EcalTrigTowerDetId(thisTower.zside(),thisTower.subDet(),thisTower.ietaAbs(),phi+1)));
-	      tptow.push_back(EcalTriggerPrimitiveDigi(EcalTrigTowerDetId(thisTower.zside(),thisTower.subDet(),thisTower.ietaAbs(),phi+2)));
-	      two++;
-	    } else {
-	      one++;
-	      nrTowers=1;
-	      tptow.push_back(EcalTriggerPrimitiveDigi(thisTower));
-	    }
-
-	    // fill TP-s for each sample
-	    unsigned int nrSamples=mapEndcap_[thisTower][0].size();
-	    if (nrSamples<nrSamplesToWrite_)  { //UB FIXME: exception?
-	      edm::LogWarning("Endcap") <<"Too few samples produced, nr is "<<nrSamples;
-	      break;
-	    }
-	    // calculate Et and rescale it to correspond to barrel values
-	    // as long as we dont have correct parameters for the endcap
-	    std::vector<EcalTriggerPrimitiveSample> primitives[2];
-	    for (unsigned int i=0;i<nrSamples;++i) {
-	      float ettemp=0;
-
-	      for (int ii=0;ii<nrFrames;++ii) {
-		int en0= linADC((mapEndcap_[thisTower][ii])[i], thresholds[ii]);
-		float et0 = TMath::Max(en0,0);
-		et0=et0*eeDccAdcToGeV_/ebDccAdcToGeV_; 
-		float theta=theEndcapGeometry->getGeometry(mapEndcap_[thisTower][ii].id())->getPosition().theta();
-		et0 =(float) (et0*sin(theta));
-
-		ettemp += et0;
-	      }
-	      int et=int(ettemp);
-
-	      //for the moment, there is no fgvb implemented...
-	  int fgvb=0;
-
-	  int ttf=calculateTTF(et);
-	  et=et>>4;
-	  if (et>0xFF) et=0xFF;
-	  for (int nrt=0;nrt<nrTowers;++nrt) {
-	    if (nrTowers==2)   primitives[nrt].push_back(EcalTriggerPrimitiveSample(et/2,fgvb,ttf));
-	    //FIXME??
-	    else primitives[nrt].push_back(EcalTriggerPrimitiveSample(et,fgvb,ttf));	  
-	    
-	  }
-	}
-	// Fill TriggerPrimitiveDigi
-	for (int nrt=0;nrt<nrTowers;++nrt) {
-	  tptow[nrt].setSize(nrSamplesToWrite_);
-	  int isam=0;
-	  for (int i=firstSample;i<=lastSample;++i) {
-	    tptow[nrt].setSample(isam++,(primitives[nrt])[i]);
-	  }
-	  //	  LogDebug("EcalTPG") <<"For "<<thisTower<<" the following TP was created: "<<tptow[nrt];
-	  result.push_back(tptow[nrt]);
-	}
-      } //end of loop over it
-  }// !barrelOnly
-}
-
-//----------------------------------------------------------------------
-
-void EcalTrigPrimFunctionalAlgo::fillBarrel(const EcalTrigTowerDetId & coarser, const EBDataFrame& samples) 
-{
-  // here we store a vector of EBDataFrames for each strip into a vector belonging to the corresponding tower
- 
-  int n=(((samples.id()).ic()-1)%100)/20; //20 corresponds to 4 * ecal_barrel_crystals_per_strip
-  int stripnr;
-  if ((samples.id()).ieta()<0) stripnr = n+1;
-  else stripnr =ecal_barrel_strips_per_trigger_tower - n;
-  SUMVB::iterator it= sumBarrel_.find(coarser);
-
-  if(it==sumBarrel_.end()) 
-    {
-      for (int i=0;i<ecal_barrel_strips_per_trigger_tower;i++ ) {
- 	std::vector<const EBDataFrame *>  truc;
-	sumBarrel_[coarser].push_back(truc);
-      } 
-    }
-  const EBDataFrame * p=& samples;
-  (sumBarrel_[coarser])[stripnr-1].push_back(p);
+//   typedef std::map<EcalTrigTowerDetId,std::vector<std::vector<const EEDataFrame * > >,std::less<EcalTrigTowerDetId> > TOWMAP;
+  
+//   int nbOfPseudoStrips=0;
+//   int nbOfCrystals=0;
+  
+//   if (col) {
+//     LogDebug("EcalTPG") <<"Fill endcap mapping, EECollection size = "<<col->size();
+//     for(unsigned int i = 0; i < col->size() ; ++i) {
+//       const EEDataFrame &samples = (*col)[i];
+//       const EEDetId & myId=samples.id();
+//       EcalTrigTowerDetId coarser=(*eTTmap_).towerOf(myId);
+//       const EcalTriggerElectronicsId elId = theMapping_->getTriggerElectronicsId(myId);
+//       //      printf(" tcc, towerId, pseudostrip , channelId = %d, %d %d %d\n",elId.tccId(),elId.ttId(),elId.pseudoStripId(),elId.channelId());fflush(stdout);
+//       int stripnr=elId.pseudoStripId();
+//       nhits++;
+//       TOWMAP::iterator it= towerMap.find(coarser);
+//       if(it==towerMap.end()) {
+//         for (int i=0;i<ecal_endcap_max_strips_per_trigger_tower;i++ ) {
+//           std::vector<const EEDataFrame *>  truc;
+//           towerMap[coarser].push_back(truc);
+// 	  //	  printf (" created %d entries for this tower\n",ecal_endcap_max_strips_per_trigger_tower);
+//         } 
+//       }
+//       const EEDataFrame * p=& samples;
+//       if ((towerMap[coarser])[stripnr-1].size()<5 ) {
+//       (towerMap[coarser])[stripnr-1].push_back(p);
+//       }else {
+//       //      std::cout <<"tower "<<coarser<<" Detid "<<myId<<", strip "<<stripnr<<" size "<<(towerMap[coarser])[stripnr-1].size()<<std::endl;
+// 	std::cout <<" !!!!!!!!!!!!! Too many xtals for TT "<<coarser<<" stripnr "<<stripnr<<std::endl;
+// 	for (int kk=0;kk<(towerMap[coarser])[stripnr-1].size();kk++)
+// 	  std::cout<<"xtal "<<kk<<" detid "<<((towerMap[coarser])[stripnr-1])[kk]->id()<<std::endl;
+//       }
     
-}
+//       //ENDCAP:missing geometry  -  no EEDetId::tower()
+//       //       EcalTrigTowerDetId coarser=(*eTTmap_).towerOf(myId);
+//       // /*    if(coarser.null())   */
+//       // /*      { */
+//       // /* 	  LogDebug("")<< "Cell " << samples << " has trivial coarser granularity (probably EFRY corner, not in this tower map; hit ignored)"; */
+//       // /* 	  continue; */
+//       // /* 	}           */
+
+//       //       nhits++;
+//       //       TOWMAP::iterator it = towerMap.find(coarser);
+//       //       std::vector<const EEDataFrame *> crystalData;
+  
+//       //       if(it==towerMap.end())   //triggerTower not yet found - Icreate the TT element in the map
+//       //         towerMap[coarser].push_back(crystalData);
+    
+//       //         nbOfPseudoStrips = towerMap[coarser].size();
+//       //         nbOfCrystals = (towerMap[coarser])[nbOfPseudoStrips-1].size();
+  
+//       //       if (nbOfCrystals == ecal_endcap_maxcrystals_per_strip) {
+//       //         towerMap[coarser].push_back(crystalData);
+//       //         nbOfPseudoStrips = towerMap[coarser].size();
+//       //       }  
+//       //       const EEDataFrame *p=& samples;
+//       //       (towerMap[coarser])[nbOfPseudoStrips-1].push_back(p);
+//   }
+//     LogDebug("EcalTPG")<<"fillMap-Endcap"<<"[EcalTrigPrimFunctionalAlgo] (found " 
+// 		       << nhits << " frames in "<< towerMap.size() << " Endcap towers ";
+//   }
+//   else {
+//     LogDebug("EcalTPG")<<"FillEndcap - Fill endcap EECollection size=0";
+//   }
+      
+// }
+//-----------------------------------------------------------------------
+
+// //----------------------------------------------------------------------
+// int EcalTrigPrimFunctionalAlgo::calculateTTF(const int en) {
+//   //temporary version of TTF calculation for Endcap
+//   //  int high=83; // adc value corresponding to 5 GeV, factor 0.06
+//   //  int low=42;  // adc value corresponding to 2.5 GeV, factor 0.06
+//   // temporary for temporary Endcap version !!!
+
+//   double threshLow_ =2.5; //GeV
+//   double threshHigh_=5.;
+//   //  
+//   int high=int(threshHigh_/0.06);
+//   int low=int(threshLow_/0.06);
+//   int ttf=0;
+//   if (en>high) ttf=3;
+//   else if (ttf<high && ttf >low ) ttf=2;
+//   return ttf;
+// }
 //----------------------------------------------------------------------
-
-void EcalTrigPrimFunctionalAlgo::fillEndcap(const EcalTrigTowerDetId & coarser, const EEDataFrame & frame){
-  // temporary version, waiting for geometry of pseudostrips
-  // for the moment we put into this map for each TT:
-  // all the EEDataframes that belong to this tower
-  //   SUMVE::iterator it = sumEndcap_.find(coarser);
-  //   if(it==sumEndcap_.end()) {
-  //     std::vector<int> sums(frame.MAXSAMPLES);
-  //     it = (sumEndcap_.insert(SUMVE::value_type(coarser, sums))).first;
-  //   }
-  //   for (int i=0;i<frame.size();++i)  (*it).second[i] += frame[i].raw();
-
-  MAPE::iterator it2 = mapEndcap_.find(coarser);
-  if(it2==mapEndcap_.end()){ 
-    std::vector<EEDataFrame> vec;
-    it2 = (mapEndcap_.insert(MAPE::value_type(coarser, vec))).first;
-  }
-  (*it2).second.push_back(frame);
-
-}
-
-//----------------------------------------------------------------------
-int EcalTrigPrimFunctionalAlgo::calculateTTF(const int en) {
-  //temporary version of TTF calculation for Endcap
-  //  int high=83; // adc value corresponding to 5 GeV
-  //  int low=42;  // adc value corresponding to 2.5 GeV
-  // temporary for temporary Endcap version !!!
-
-  double threshLow_ =2.5; //GeV
-  double threshHigh_=5.;
-  //  
-  int high=int(threshHigh_/ebDccAdcToGeV_);
-  int low=int(threshLow_/ebDccAdcToGeV_);
-  int ttf=0;
-  if (en>high) ttf=3;
-  else if (ttf<high && ttf >low ) ttf=2;
-  return ttf;
-}
-//----------------------------------------------------------------------
- int EcalTrigPrimFunctionalAlgo::findTowerNrInSM(const EcalTrigTowerDetId &id) {
- // finds towr nr in supermodule in Barrel(from 1 to 68)
+int EcalTrigPrimFunctionalAlgo::findTowerNrInTcc(const EcalTrigTowerDetId &id)
+{
+  if (id.subDet()== EcalBarrel) { // finds tower nr in TCC   //FIXME: still correct?
    const int nrphis=4;
-
    int ieta=id.ietaAbs();
-   int iphi=id.iphi();
-   int basenr=(ieta-1)*nrphis +1;
-   int towernr=basenr+(iphi-1)%nrphis;
-   return  towernr;
- }
-
+    int iphi=id.iphi();
+    int basenr=(ieta-1)*nrphis +1;
+    int towernr=basenr+(iphi-1)%nrphis;
+    return  towernr;
+  } 
+  else if (id.subDet()==EcalEndcap) {
+    return theMapping_->iTT(id);
+  }
+  else {
+    LogDebug("EcalTPG")<<"Wrong EcalTrigTowerDetId ";
+    return 0;
+  }
+}
 //----------------------------------------------------------------------
- int EcalTrigPrimFunctionalAlgo::linADC(const EcalMGPASample & sample, int base) 
- {
-  int adc  = sample.adc() - base ;
-  int gain = sample.gainId() ;
-  if (gain == 2) adc *= 2 ;
-  if (gain == 3) adc *= 12 ;
-  return adc ;
-
- }
-
+int EcalTrigPrimFunctionalAlgo::findTccNr(const EcalTrigTowerDetId &id)
+{
+// finds Tcc Nr
+  if (id.subDet()== EcalBarrel) { 
+    return EcalTPParameters::nrMinTccEB_; //FIXME
+  }
+  else if (id.subDet()==EcalEndcap) {
+    return theMapping_->TCCid(id);
+  }
+  else {
+    LogDebug("EcalTPG")<<"Wrong EcalTrigTowerDetId ";
+    return 0;
+  }     
+} 
+//----------------------------------------------------------------------
+int  EcalTrigPrimFunctionalAlgo::findStripNr(const EBDetId &id){
+      int stripnr;
+      int n=((id.ic()-1)%100)/20; //20 corresponds to 4 * ecal_barrel_crystals_per_strip FIXME!!
+      if (id.ieta()<0) stripnr = n+1;
+      //      else stripnr =ecal_barrel_strips_per_trigger_tower - n; 
+      else stripnr =EcalTPParameters::nbMaxStrips_ - n; 
+      return stripnr;
+}
+//----------------------------------------------------------------------
+int  EcalTrigPrimFunctionalAlgo::findStripNr(const EEDetId &id){
+      int stripnr;
+      const EcalTriggerElectronicsId elId = theMapping_->getTriggerElectronicsId(id);
+      stripnr=elId.pseudoStripId();
+      return stripnr;
+}

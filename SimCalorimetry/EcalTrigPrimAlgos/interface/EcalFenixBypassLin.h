@@ -1,7 +1,7 @@
 #ifndef ECAL_FENIX_BYPASS_LIN_H
 #define ECAL_FENIX_BYPASS_LIN_H
 
-#include <SimCalorimetry/EcalTrigPrimAlgos/interface/EcalVLinearizer.h>
+//#include <SimCalorimetry/EcalTrigPrimAlgos/interface/EcalVLinearizer.h>
 #include <vector>
 
 // global type definitions for header defined by Tag entries in ArgoUML
@@ -16,14 +16,15 @@
    *  
    *      ----> c un output de 13 bits, le 13 eme bit est le resultat du fvgb du FenixStrip
    */
-class EcalFenixBypassLin : public EcalVLinearizer {
+//class EcalFenixBypassLin : public EcalVLinearizer {
+class EcalFenixBypassLin  {
 
 
  public:
   EcalFenixBypassLin();
   virtual ~EcalFenixBypassLin();
 
-  virtual EBDataFrame process(EBDataFrame &); //FIXME: efficiency.. 
+  //  virtual EBDataFrame process(EBDataFrame &); //FIXME: efficiency.. 
   std::vector<int> process(std::vector<int>);
   };
 

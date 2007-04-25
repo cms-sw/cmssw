@@ -1,7 +1,7 @@
 #ifndef ECAL_FENIX_PEAKFINDER_H
 #define ECAL_FENIX_PEAKFINDER_H
 
-#include <SimCalorimetry/EcalTrigPrimAlgos/interface/EcalVPeakFinder.h>
+//#include <SimCalorimetry/EcalTrigPrimAlgos/interface/EcalVPeakFinder.h>
 #include <vector>
 
 class  EcalVPeakFinder;
@@ -19,9 +19,8 @@ class  EcalVPeakFinder;
    *  --->gets the sample where the value is max. the  value is 1 for this max sample, 0 for the others .needs 3 samples to proceed.
    *  ----> do we really need caloVShape?
    */
-class EcalFenixPeakFinder : public EcalVPeakFinder
- {
-
+//class EcalFenixPeakFinder : public EcalVPeakFinder
+class EcalFenixPeakFinder {
 
  private:
   bool disabled;

@@ -24,11 +24,33 @@ class EcalTrigPrimESProducer : public edm::ESProducer {
 
   ReturnType produce(const EcalTPParametersRcd&);
 
+  // these constants are put here in order to stay independent from geometry
+  // this makes us be fast in case of barrelonly
+
+  static const int MIN_TCC_EB;
+  static const int MAX_TCC_EB;
+  static const int MIN_TCC_EE_PLUS;
+  static const int MAX_TCC_EE_PLUS;
+  static const int MIN_TCC_EE_MINUS;
+  static const int MAX_TCC_EE_MINUS;
+  static const int MIN_TT_EB;
+  static const int MAX_TT_EB;
+  static const int MIN_TT_EE; 
+  static const int MAX_TT_EE; //This is a maximum from outer (=16) and inner (=24 without 4 virtual ones)
+  static const int MIN_STRIP_EB;
+  static const int MAX_STRIP_EB;
+  static const int MIN_STRIP_EE;
+  static const int MAX_STRIP_EE;
+  static const int MIN_XTAL_EB;
+  static const int MAX_XTAL_EB;
+  static const int MIN_XTAL_EE;
+  static const int MAX_XTAL_EE;
+
  private:
 
   void parseTextFile(EcalTPParameters &);
 
-  std::vector<int> getRange(int smNb, int towerNbInSm, int stripNbInTower=0, int xtalNbInStrip=0) ;
+  std::vector<int> getRange(int subdet, int smNb, int towerNbInSm, int stripNbInTower=0, int xtalNbInStrip=0) ;
 
   // ----------member data ---------------------------
   std::string dbFilenameEB_;

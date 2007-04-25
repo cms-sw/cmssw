@@ -14,17 +14,16 @@ EcalFenixTcpFormat::~EcalFenixTcpFormat() {
 }
 
  
-void EcalFenixTcpFormat::process(std::vector<int> &Et, std::vector<int> &fgvb, 
+void EcalFenixTcpFormat::process(std::vector<int> &Et, std::vector<int> &fgvb, int eTTotShift,
 				 std::vector<EcalTriggerPrimitiveSample> & out,
 				 std::vector<EcalTriggerPrimitiveSample> & out2){
   // put TP-s in the output
   // on request also in TcpFormat    
 
   for (unsigned int i=0; i<Et.size();++i) {
-    Et[i]=Et[i]>>2;
+    Et[i]=Et[i]>>eTTotShift;
     if (Et[i]>0x3ff) Et[i]=0x3ff ;
     int lut_out = lut_[Et[i]] ;
-    if (debug_) cout<<"luout= "<<lut_out<<endl;
     int ttFlag = (lut_out & 0x700) >> 8 ;
     if (tcpFormat_)  {
       int data = ((ttFlag&0x7)<<11) | ((fgvb[i] & 0x1)<<10) |  (Et [i] & 0x3ff) ;

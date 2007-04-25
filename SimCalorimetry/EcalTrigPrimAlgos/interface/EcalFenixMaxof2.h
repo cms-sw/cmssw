@@ -30,9 +30,8 @@ public:
   std::vector<int> process(std::vector<std::vector <int> >);
 
  private:
-    enum { SIZEMAX = 10}; 
-
-  };
+ 
+};
 
 
 #endif
