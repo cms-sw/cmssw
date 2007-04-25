@@ -5,15 +5,15 @@
 //   L1 DT Track Finder EDProducer
 //
 //
-//   $Date: 2007/02/27 11:44:00 $
-//   $Revision: 1.5 $
+//   $Date: 2007/04/01 10:05:05 $
+//   $Revision: 1.8 $
 //
 //   Author :
 //   J. Troconiz              UAM Madrid
 //
 //--------------------------------------------------
 
-#include "L1Trigger/DTTrackFinder/interface/DTTrackFinder.h"
+#include "DTTrackFinder.h"
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
