@@ -62,6 +62,7 @@ CSCDCCUnpacker::CSCDCCUnpacker(const edm::ParameterSet & pset) :
   instatiateDQM = pset.getUntrackedParameter<bool>("runDQM", false);
   errorMask = pset.getUntrackedParameter<unsigned int>("ErrorMask",0xDFCFEFFF);
   unpackStatusDigis = pset.getUntrackedParameter<bool>("UnpackStatusDigis", false);
+  inputObjectsTag = pset.getParameter<edm::InputTag>("InputObjects");
 
   if(instatiateDQM){
    monitor = edm::Service<CSCMonitorInterface>().operator->();
@@ -103,11 +104,9 @@ CSCDCCUnpacker::~CSCDCCUnpacker(){
 void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 
 
-
-
   // Get a handle to the FED data collection
   edm::Handle<FEDRawDataCollection> rawdata;
-  e.getByType(rawdata);
+  e.getByLabel(inputObjectsTag, rawdata);
 
   // create the collection of CSC wire and strip Digis
   std::auto_ptr<CSCWireDigiCollection> wireProduct(new CSCWireDigiCollection);
@@ -119,10 +118,7 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
   std::auto_ptr<CSCCorrelatedLCTDigiCollection> corrlctProduct(new CSCCorrelatedLCTDigiCollection);
   std::auto_ptr<CSCCFEBStatusDigiCollection> cfebStatusProduct(new CSCCFEBStatusDigiCollection);
 
-
-
-
-  numOfEvents++;
+  ++numOfEvents;
 
 
   for (int id=FEDNumbering::getCSCFEDIds().first;
