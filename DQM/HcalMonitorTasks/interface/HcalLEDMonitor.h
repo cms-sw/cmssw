@@ -5,8 +5,8 @@
 
 /** \class HcalLEDMonitor
   *  
-  * $Date: 2007/04/02 13:19:38 $
-  * $Revision: 1.6 $
+  * $Date: 2007/04/21 19:45:08 $
+  * $Revision: 1.7 $
   * \author W. Fisher - FNAL
   */
 class HcalLEDMonitor: public HcalBaseMonitor {
@@ -39,6 +39,7 @@ public:
   int etaBins_, phiBins_;
   
   int sigS0_, sigS1_;
+  float adcThresh_;
 
   int ievt_, jevt_;
   HcalCalibrations calibs_;
