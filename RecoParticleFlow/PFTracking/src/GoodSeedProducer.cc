@@ -99,8 +99,6 @@ void
 GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 {
  
-  vector<reco::PFRecTrack> pftracks;
-  pftracks.clear();
   LogDebug("GoodSeedProducer")<<"START event: "<<iEvent.id().event()
 			      <<" in run "<<iEvent.id().run();
 
@@ -133,11 +131,11 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
        iklus++){
     if((*iklus).energy()>clusThreshold_) basClus.push_back(*iklus);
   }
-  for (iklus=thePSPfClustCollection.product()->begin();
-       iklus!=thePSPfClustCollection.product()->end();
-       iklus++){
-    if((*iklus).energy()>clusThreshold_) basClus.push_back(*iklus);
-  }
+  //   for (iklus=thePSPfClustCollection.product()->begin();
+  //        iklus!=thePSPfClustCollection.product()->end();
+  //        iklus++){
+  //     if((*iklus).energy()>clusThreshold_) basClus.push_back(*iklus);
+  //   }
   
   LogDebug("GoodSeedProducer")<<"Number of tracks to be analyzed "<<Tj.size();
 
@@ -313,11 +311,9 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
       output_preid->push_back(NewSeed);
       
       if(produceCkfPFT_){
-// 	reco::PFRecTrack pft=pfTransformer_->
-// 	  producePFtrack(&(Tj[i]),&(Tk[i]),reco::PFRecTrack::KF_ELCAND,i);
-	reco::PFRecTrack pft=pfTransformer_->
-	  producePFtrack(&(Tj[i]), trackRef, reco::PFRecTrack::KF_ELCAND,i);
-	pftracks.push_back(pft);
+	pOutputPFRecTrackCollection->
+	  push_back(pfTransformer_->
+		    producePFtrack(&(Tj[i]), trackRef, reco::PFRecTrack::KF_ELCAND,i));
 
       } 
     }else{
@@ -325,25 +321,20 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 	output_nopre->push_back(Seed);
       }
       if(produceCkfPFT_){
-// 	reco::PFRecTrack pft=pfTransformer_->
-// 	  producePFtrack(&(Tj[i]),&(Tk[i]),reco::PFRecTrack::KF,i);
-	reco::PFRecTrack pft=pfTransformer_->
-	  producePFtrack(&(Tj[i]), trackRef, reco::PFRecTrack::KF,i);
-	pftracks.push_back(pft); 
+	pOutputPFRecTrackCollection->
+	  push_back(pfTransformer_->
+		    producePFtrack(&(Tj[i]), trackRef, reco::PFRecTrack::KF,i));
       }
     }
   }
   
   if(produceCkfPFT_){
-    for(uint ipf=0; ipf<pftracks.size();ipf++)
-      pOutputPFRecTrackCollection->push_back(pftracks[ipf]);
     iEvent.put(pOutputPFRecTrackCollection);
   }
   
   iEvent.put(output_preid,preidgsf_);
   if (produceCkfseed_)
     iEvent.put(output_nopre,preidckf_);
-  
   
 }
 // ------------ method called once each job just before starting event loop  ------------
