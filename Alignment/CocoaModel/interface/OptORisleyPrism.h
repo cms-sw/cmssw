@@ -27,7 +27,6 @@ public:
 
   //---------- Propagate light for measurement meas
   virtual void participateInMeasurement( LightRay& lightray, Measurement& meas, const ALIstring& behav );
-  void constructSolidShape();
 
 
 };

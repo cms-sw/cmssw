@@ -303,6 +303,7 @@ private:
 
   void transformCylindrical2Cartesian();
   void transformSpherical2Cartesian();
+  void transformGlobal2Local();
 
 template<class T>
   void rotateItAroundGlobal( T& object, const XYZcoor coor, const double disp );
@@ -350,11 +351,11 @@ private:
   Hep3Vector axisYLocalInGlobal;
   Hep3Vector axisZLocalInGlobal;
 
-  uint32_t theCmsSwID;
- protected:
   CocoaMaterialElementary* theMaterial;
   CocoaSolidShape* theSolidShape;
 
+  uint32_t theCmsSwID;
+ protected:
   ALIint verbose;
 };
 

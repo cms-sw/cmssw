@@ -37,7 +37,6 @@ public:
 #ifdef COCOA_VIS
   virtual void fillIguana();
 #endif
-  void constructSolidShape();
 
  private:
   //---------- Calculate the centre points and normal std::vector of each of the four pentaprism faces the light ray may touch

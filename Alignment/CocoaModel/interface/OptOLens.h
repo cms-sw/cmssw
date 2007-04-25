@@ -31,7 +31,6 @@ public:
 #ifdef COCOA_VIS
   virtual void fillIguana();
 #endif
-  void constructSolidShape();
 
 };
 
