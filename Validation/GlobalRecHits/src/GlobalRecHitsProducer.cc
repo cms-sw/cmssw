@@ -1065,92 +1065,164 @@ void GlobalRecHitsProducer::fillTrk(edm::Event& iEvent,
     eventout += nStripFwd;
   }
 
-  /*
   // get pixel information
-  edm::Handle<edm::DetSetVector<PixelDigi> > pixelDigis;  
-  iEvent.getByLabel(SiPxlSrc_, pixelDigis);
-  if (!pixelDigis.isValid()) {
+  //Get RecHits
+  edm::Handle<SiPixelRecHitCollection> recHitColl;
+  iEvent.getByLabel(SiPxlSrc_, recHitColl);
+  if (!recHitColl.isValid()) {
     edm::LogWarning(MsgLoggerCat)
-      << "Unable to find pixelDigis in event!";
+      << "Unable to find SiPixelRecHitCollection in event!";
     return;
   }  
-
-  int nPxlBrl = 0, nPxlFwd = 0;
-  edm::DetSetVector<PixelDigi>::const_iterator DPViter;
-  for (DPViter = pixelDigis->begin(); DPViter != pixelDigis->end(); 
-       ++DPViter) {
-    unsigned int id = DPViter->id;
-    DetId detId(id);
-    edm::DetSet<PixelDigi>::const_iterator begin = DPViter->data.begin();
-    edm::DetSet<PixelDigi>::const_iterator end = DPViter->data.end();
-    edm::DetSet<PixelDigi>::const_iterator iter;
-
-    // get Barrel pixels
-    if (detId.subdetId() == sdPxlBrl) {
-      PXBDetId bdetid(id);
-      for (iter = begin; iter != end; ++iter) {
-	++nPxlBrl;
-	if (bdetid.layer() == 1) {
-	  BRL1ADC.push_back((*iter).adc());
-	  BRL1Row.push_back((*iter).row());
-	  BRL1Col.push_back((*iter).column());	  
-	}
-	if (bdetid.layer() == 2) {
-	  BRL2ADC.push_back((*iter).adc());
-	  BRL2Row.push_back((*iter).row());
-	  BRL2Col.push_back((*iter).column());	  
-	}
-	if (bdetid.layer() == 3) {
-	  BRL3ADC.push_back((*iter).adc());
-	  BRL3Row.push_back((*iter).row());
-	  BRL3Col.push_back((*iter).column());	  
-	}
-      }
-    }
-
-    // get Forward pixels
-    if (detId.subdetId() == sdPxlFwd) {
-      PXFDetId fdetid(id);
-      for (iter = begin; iter != end; ++iter) {
-	++nPxlFwd;
-	if (fdetid.disk() == 1) {
-	  if (fdetid.side() == 1) {
-	    FWD1nADC.push_back((*iter).adc());
-	    FWD1nRow.push_back((*iter).row());
-	    FWD1nCol.push_back((*iter).column());
-	  }
-	  if (fdetid.side() == 2) {
-	    FWD1pADC.push_back((*iter).adc());
-	    FWD1pRow.push_back((*iter).row());
-	    FWD1pCol.push_back((*iter).column());
-	  }
-	}
-	if (fdetid.disk() == 2) {
-	  if (fdetid.side() == 1) {
-	    FWD2nADC.push_back((*iter).adc());
-	    FWD2nRow.push_back((*iter).row());
-	    FWD2nCol.push_back((*iter).column());
-	  }
-	  if (fdetid.side() == 2) {
-	    FWD2pADC.push_back((*iter).adc());
-	    FWD2pRow.push_back((*iter).row());
-	    FWD2pCol.push_back((*iter).column());
-	  }
-	}
-      }
-    }
+  
+  //Get event setup
+  edm::ESHandle<TrackerGeometry> geom;
+  iSetup.get<TrackerDigiGeometryRecord>().get(geom); 
+  if (!geom.isValid()) {
+    edm::LogWarning(MsgLoggerCat)
+      << "Unable to find TrackerDigiGeometry in event!";
+    return;
   }
+  //const TrackerGeometry& theTracker(*geom);
 
+  int nPxlBrl = 0, nPxlFwd = 0;    
+  //iterate over detunits
+  for (TrackerGeometry::DetContainer::const_iterator it = geom->dets().begin();
+       it != geom->dets().end(); ++it) {
+
+    uint32_t myid = ((*it)->geographicalId()).rawId();
+    DetId detId = ((*it)->geographicalId());
+    int subid = detId.subdetId();
+    
+    if (! ((subid == sdPxlBrl) || (subid == sdPxlFwd))) continue;
+    
+    //const PixelGeomDetUnit * theGeomDet = 
+    //  dynamic_cast<const PixelGeomDetUnit*>(theTracker.idToDet(detId) );
+    
+    SiPixelRecHitCollection::range pixelrechitRange = 
+      (recHitColl.product())->get(detId);
+    SiPixelRecHitCollection::const_iterator pixelrechitRangeIteratorBegin = 
+      pixelrechitRange.first;
+    SiPixelRecHitCollection::const_iterator pixelrechitRangeIteratorEnd = 
+      pixelrechitRange.second;
+    SiPixelRecHitCollection::const_iterator pixeliter = 
+      pixelrechitRangeIteratorBegin;
+    std::vector<PSimHit> matched;
+    
+    //----Loop over rechits for this detId
+    for ( ; pixeliter != pixelrechitRangeIteratorEnd; ++pixeliter) {
+
+      matched.clear();
+      matched = associate.associateHit(*pixeliter);
+      
+      if ( !matched.empty() ) {
+
+	float closest = 9999.9;
+	//std::vector<PSimHit>::const_iterator closestit = matched.begin();
+	LocalPoint lp = pixeliter->localPosition();
+	float rechit_x = lp.x();
+	float rechit_y = lp.y();
+
+	float sim_x = 0.;
+	float sim_y = 0.;
+	
+	//loop over sim hits and fill closet
+	for (std::vector<PSimHit>::const_iterator m = matched.begin(); 
+	     m != matched.end(); ++m) {
+
+	  float sim_x1 = (*m).entryPoint().x();
+	  float sim_x2 = (*m).exitPoint().x();
+	  float sim_xpos = 0.5*(sim_x1+sim_x2);
+	  
+	  float sim_y1 = (*m).entryPoint().y();
+	  float sim_y2 = (*m).exitPoint().y();
+	  float sim_ypos = 0.5*(sim_y1+sim_y2);
+	  
+	  float x_res = fabs(sim_xpos - rechit_x);
+	  float y_res = fabs(sim_ypos - rechit_y);
+	  
+	  float dist = sqrt(x_res*x_res + y_res*y_res);
+	  
+	  if ( dist < closest ) {
+	    closest = dist;
+	    sim_x = sim_xpos;
+	    sim_y = sim_ypos;
+	  }
+	} // end sim hit loop
+	
+	// get Barrel pixels
+	if (subid == sdPxlBrl) {
+	  PXBDetId bdetid(myid);
+	  ++nPxlBrl;
+
+	  if (bdetid.layer() == 1) {
+	    BRL1RX.push_back(rechit_x);
+	    BRL1RY.push_back(rechit_y);
+	    BRL1SX.push_back(sim_x);
+	    BRL1SY.push_back(sim_y);	  
+	  }
+	  if (bdetid.layer() == 2) {
+	    BRL2RX.push_back(rechit_x);
+	    BRL2RY.push_back(rechit_y);
+	    BRL2SX.push_back(sim_x);
+	    BRL2SY.push_back(sim_y);	  	  
+	  }
+	  if (bdetid.layer() == 3) {
+	    BRL3RX.push_back(rechit_x);
+	    BRL3RY.push_back(rechit_y);
+	    BRL3SX.push_back(sim_x);
+	    BRL3SY.push_back(sim_y);	  	  
+	  }
+	}
+
+	// get Forward pixels
+	if (subid == sdPxlFwd) {
+	  PXFDetId fdetid(myid);
+	  ++nPxlFwd;
+
+	  if (fdetid.disk() == 1) {
+	    if (fdetid.side() == 1) {
+	      FWD1nRX.push_back(rechit_x);
+	      FWD1nRY.push_back(rechit_y);
+	      FWD1nSX.push_back(sim_x);
+	      FWD1nSY.push_back(sim_y);	  
+	    }
+	    if (fdetid.side() == 2) {
+	      FWD1pRX.push_back(rechit_x);
+	      FWD1pRY.push_back(rechit_y);
+	      FWD1pSX.push_back(sim_x);
+	      FWD1pSY.push_back(sim_y);
+	    }
+	  }
+	  if (fdetid.disk() == 2) {
+	    if (fdetid.side() == 1) {
+	      FWD2nRX.push_back(rechit_x);
+	      FWD2nRY.push_back(rechit_y);
+	      FWD2nSX.push_back(sim_x);
+	      FWD2nSY.push_back(sim_y);
+	    }
+	    if (fdetid.side() == 2) {
+	      FWD2pRX.push_back(rechit_x);
+	      FWD2pRY.push_back(rechit_y);
+	      FWD2pSX.push_back(sim_x);
+	      FWD2pSY.push_back(sim_y);
+	    }
+	  }
+	}      
+      } // end matched emtpy
+    } // <-----end rechit loop 
+  } // <------ end detunit loop  
+
+                     
   if (verbosity > 1) {
-    eventout += "\n          Number of BrlPixelDigis collected:........ ";
+    eventout += "\n          Number of BrlPixelRecHits collected:...... ";
     eventout += nPxlBrl;
   }
 
   if (verbosity > 1) {
-    eventout += "\n          Number of FrwdPixelDigis collected:....... ";
+    eventout += "\n          Number of FrwdPixelRecHits collected:..... ";
     eventout += nPxlFwd;
   }
-  */
 
   if (verbosity > 0)
     edm::LogInfo(MsgLoggerCat) << eventout << "\n";
@@ -1413,86 +1485,98 @@ void GlobalRecHitsProducer::storeTrk(PGlobalRecHit& product)
       eventout += ")";
     }
 
-    /*
     // pixel output
     eventout += "\n         nBRL1     = ";
-    eventout += BRL1ADC.size();
-    for (unsigned int i = 0; i < BRL1ADC.size(); ++i) {
-      eventout += "\n      (ADC, row, column) = (";
-      eventout += BRL1ADC[i];
+    eventout += BRL1RX.size();
+    for (unsigned int i = 0; i < BRL1RX.size(); ++i) {
+      eventout += "\n      (RX, RY, SX, SY) = (";
+      eventout += BRL1RX[i];
       eventout += ", ";
-      eventout += BRL1Row[i];
+      eventout += BRL1RY[i];
       eventout += ", ";
-      eventout += BRL1Col[i];
+      eventout += BRL1SX[i];
+      eventout += ", ";
+      eventout += BRL1SY[i];
       eventout += ")";
     } 
     eventout += "\n         nBRL2     = ";
-    eventout += BRL2ADC.size();
-    for (unsigned int i = 0; i < BRL2ADC.size(); ++i) {
-      eventout += "\n      (ADC, row, column) = (";
-      eventout += BRL2ADC[i];
+    eventout += BRL2RX.size();
+    for (unsigned int i = 0; i < BRL2RX.size(); ++i) {
+      eventout += "\n      (RX, RY, SX, SY) = (";
+      eventout += BRL2RX[i];
       eventout += ", ";
-      eventout += BRL2Row[i];
+      eventout += BRL2RY[i];
       eventout += ", ";
-      eventout += BRL2Col[i];
+      eventout += BRL2SX[i];
+      eventout += ", ";
+      eventout += BRL2SY[i];
       eventout += ")";
     } 
     eventout += "\n         nBRL3     = ";
-    eventout += BRL3ADC.size();
-    for (unsigned int i = 0; i < BRL3ADC.size(); ++i) {
-      eventout += "\n      (ADC, row, column) = (";
-      eventout += BRL3ADC[i];
+    eventout += BRL3RX.size();
+    for (unsigned int i = 0; i < BRL3RX.size(); ++i) {
+      eventout += "\n      (RX, RY, SX, SY) = (";
+      eventout += BRL3RX[i];
       eventout += ", ";
-      eventout += BRL3Row[i];
+      eventout += BRL3RY[i];
       eventout += ", ";
-      eventout += BRL3Col[i];
+      eventout += BRL3SX[i];
+      eventout += ", ";
+      eventout += BRL3SY[i];
       eventout += ")";
     }    
     eventout += "\n         nFWD1p     = ";
-    eventout += FWD1pADC.size();
-    for (unsigned int i = 0; i < FWD1pADC.size(); ++i) {
-      eventout += "\n      (ADC, row, column) = (";
-      eventout += FWD1pADC[i];
+    eventout += FWD1pRX.size();
+    for (unsigned int i = 0; i < FWD1pRX.size(); ++i) {
+      eventout += "\n      (RX, RY, SX, SY) = (";
+      eventout += FWD1pRX[i];
       eventout += ", ";
-      eventout += FWD1pRow[i];
+      eventout += FWD1pRY[i];
       eventout += ", ";
-      eventout += FWD1pCol[i];
+      eventout += FWD1pSX[i];
+      eventout += ", ";
+      eventout += FWD1pSY[i];
       eventout += ")";
     } 
-    eventout += "\n         nFWD1p     = ";
-    eventout += FWD1nADC.size();
-    for (unsigned int i = 0; i < FWD1nADC.size(); ++i) {
-      eventout += "\n      (ADC, row, column) = (";
-      eventout += FWD1nADC[i];
+    eventout += "\n         nFWD1n     = ";
+    eventout += FWD1nRX.size();
+    for (unsigned int i = 0; i < FWD1nRX.size(); ++i) {
+      eventout += "\n      (RX, RY, SX, SY) = (";
+      eventout += FWD1nRX[i];
       eventout += ", ";
-      eventout += FWD1nRow[i];
+      eventout += FWD1nRY[i];
       eventout += ", ";
-      eventout += FWD1nCol[i];
+      eventout += FWD1nSX[i];
+      eventout += ", ";
+      eventout += FWD1nSY[i];
       eventout += ")";
     } 
-    eventout += "\n         nFWD1p     = ";
-    eventout += FWD2pADC.size();
-    for (unsigned int i = 0; i < FWD2pADC.size(); ++i) {
-      eventout += "\n      (ADC, row, column) = (";
-      eventout += FWD2pADC[i];
-      eventout += ", ";
-      eventout += FWD2pRow[i];
-      eventout += ", ";
-      eventout += FWD2pCol[i];
-      eventout += ")";
-      } 
     eventout += "\n         nFWD2p     = ";
-    eventout += FWD2nADC.size();
-    for (unsigned int i = 0; i < FWD2nADC.size(); ++i) {
-      eventout += "\n      (ADC, row, column) = (";
-      eventout += FWD2nADC[i];
+    eventout += FWD2pRX.size();
+    for (unsigned int i = 0; i < FWD2pRX.size(); ++i) {
+      eventout += "\n      (RX, RY, SX, SY) = (";
+      eventout += FWD2pRX[i];
       eventout += ", ";
-      eventout += FWD2nRow[i];
+      eventout += FWD2pRY[i];
       eventout += ", ";
-      eventout += FWD2nCol[i];
+      eventout += FWD2pSX[i];
+      eventout += ", ";
+      eventout += FWD2pSY[i];
+      eventout += ")";
+    }
+    eventout += "\n         nFWD2p     = ";
+    eventout += FWD2nRX.size();
+    for (unsigned int i = 0; i < FWD2nRX.size(); ++i) {
+      eventout += "\n      (RX, RY, SX, SY) = (";
+      eventout += FWD2nRX[i];
+      eventout += ", ";
+      eventout += FWD2nRY[i];
+      eventout += ", ";
+      eventout += FWD2nSX[i];
+      eventout += ", ";
+      eventout += FWD2nSY[i];
       eventout += ")";
     } 
-    */
 
     edm::LogInfo(MsgLoggerCat) << eventout << "\n";  
   }
@@ -1518,16 +1602,14 @@ void GlobalRecHitsProducer::storeTrk(PGlobalRecHit& product)
   product.putTECW7RecHits(TECW7RX,TECW7RY,TECW7SX,TECW7SY);
   product.putTECW8RecHits(TECW8RX,TECW8RY,TECW8SX,TECW8SY);  
 
-  /*
   // pixel output
-  product.putBRL1Digis(BRL1ADC, BRL1Row, BRL1Col);
-  product.putBRL2Digis(BRL2ADC, BRL2Row, BRL2Col);
-  product.putBRL3Digis(BRL3ADC, BRL3Row, BRL3Col);
-  product.putFWD1pDigis(FWD1pADC, FWD1pRow, FWD1pCol);
-  product.putFWD1nDigis(FWD1nADC, FWD1nRow, FWD1nCol);
-  product.putFWD2pDigis(FWD2pADC, FWD2pRow, FWD2pCol);
-  product.putFWD2nDigis(FWD2nADC, FWD2nRow, FWD2nCol);
-  */
+  product.putBRL1RecHits(BRL1RX,BRL1RY,BRL1SX,BRL1SY);
+  product.putBRL2RecHits(BRL2RX,BRL2RY,BRL2SX,BRL2SY);
+  product.putBRL3RecHits(BRL3RX,BRL3RY,BRL3SX,BRL3SY);
+  product.putFWD1pRecHits(FWD1pRX,FWD1pRY,FWD1pSX,FWD1pSY);
+  product.putFWD1nRecHits(FWD1nRX,FWD1nRY,FWD1nSX,FWD1nSY);
+  product.putFWD2pRecHits(FWD2pRX,FWD2pRY,FWD2pSX,FWD2pSY);
+  product.putFWD2nRecHits(FWD2nRX,FWD2nRY,FWD2nSX,FWD2nSY);
 
   return;
 }
