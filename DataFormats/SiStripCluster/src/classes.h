@@ -24,7 +24,7 @@ namespace {
   }
 }
 
-#include "DataFormats/SiStripCommon/test/SiStripRefGetter.h"
+#include "DataFormats/SiStripCommon/test/stubs/SiStripRefGetter.h"
 namespace {
   namespace {
     edm::Wrapper< edm::SiStripLazyGetter<SiStripCluster> > dummy6;
