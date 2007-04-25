@@ -1,4 +1,4 @@
-\<use name=FWCore/Utilities>
+<use name=FWCore/Utilities>
 <use name=FWCore/ServiceRegistry>
 <use name=FWCore/ParameterSet>
 <use name=FWCore/MessageLogger>
@@ -16,7 +16,6 @@
 <use name=root> 
 <use name=xdaq>
 <lib name=xgi>
-<flags EDM_PLUGIN=1>
 
 <export>
   <lib name=DQMSiStripCommissioningClients>

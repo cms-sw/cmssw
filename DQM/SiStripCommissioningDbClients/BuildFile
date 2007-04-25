@@ -7,7 +7,6 @@
 <use name=boost>
 <use name=xdaq>
 <lib name=xgi>
-<flags EDM_PLUGIN=1>
 
 <export>
   <lib name=DQMSiStripCommissioningDbClients>

@@ -1,0 +1,4 @@
+<use name=DQM/SiStripCommissioningDbClients>
+<library file=*.cc name=DQMSiStripCommissioningDbClientsPlugins>
+  <flags EDM_PLUGIN=1>
+</library>
