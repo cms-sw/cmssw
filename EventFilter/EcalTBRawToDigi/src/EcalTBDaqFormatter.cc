@@ -1,7 +1,7 @@
 /*  
  *
- *  $Date: 2007/04/25 09:51:26 $
- *  $Revision: 1.48 $
+ *  $Date: 2007/04/25 10:52:29 $
+ *  $Revision: 1.49 $
  *  \author  N. Marinelli IASA 
  *  \author G. Della Ricca
  *  \author G. Franzoni
@@ -398,10 +398,13 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData ,
 	      }// end   if zero supression
 	    
 	    
-	    
-	    else {	      // if there is no zero suppression, channel has to equal the expected channel
+	    else {
+
 	      
-	      if(   (cryInTower != expCryInTower) )
+	      // checking that ch and strip are within range and cryInTower is as expected
+	      if(   cryInTower != expCryInTower   ||  
+		    strip < 1 ||   kStripsPerTower <strip  ||
+		    ch <1  ||   kChannelsPerStrip < ch    ) 
 		{
 		  
 		  int ic        = cryIc(tower, expStripInTower,  expCryInStrip) ;
