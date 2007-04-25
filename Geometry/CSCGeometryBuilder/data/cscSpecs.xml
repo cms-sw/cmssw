@@ -402,6 +402,8 @@
 <Parameter name="upar" value="9.525"/>
 <!--# 33 - panel thickness (mm) -->
 <Parameter name="upar" value="15.875"/>
+<!--# 34 - zlocal offset between AF and average AGV centre (mm) -->
+<Parameter name="upar" value="-1.75"/>
 
 <!-- Wire group specs. 
      The wire grouping is specified by two vectors NumGroups and NumWiresPerGrp, of the same length. 
