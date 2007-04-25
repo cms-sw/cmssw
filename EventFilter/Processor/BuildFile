@@ -3,6 +3,7 @@
 <use name=FWCore/ServiceRegistry>
 <use name=FWCore/ParameterSet>
 <use name=FWCore/Utilities>
+<use name=FWCore/PrescaleService>
 <use name=EventFilter/Utilities>
 <use name=EventFilter/Message2log4cplus>
 <use name=DQMServices/Daemon>

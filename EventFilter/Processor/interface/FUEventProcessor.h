@@ -7,7 +7,7 @@
 #include "EventFilter/Utilities/interface/Css.h"
 
 #include "FWCore/Framework/interface/TriggerReport.h"
-#include "FWCore/Modules/src/PrescaleService.h"
+#include "FWCore/PrescaleService/interface/PrescaleService.h"
 
 #include "xdaq/include/xdaq/Application.h"
 #include "xdaq/NamespaceURI.h"

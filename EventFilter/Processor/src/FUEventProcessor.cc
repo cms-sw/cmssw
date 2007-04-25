@@ -350,7 +350,7 @@ xoap::MessageReference FUEventProcessor::putPrescaler(xoap::MessageReference msg
       int storeSize = prescaleSvc_->putPrescale(prescalerAsString);
       LOG4CPLUS_DEBUG(getApplicationLogger(),
 		      "prescaleSvc_->putPrescale(s): " << storeSize);
-      replyPs = prescaleSvc_->getTriggerCounters();
+      //      replyPs = prescaleSvc_->getTriggerCounters();
     }
     else {
       LOG4CPLUS_DEBUG(getApplicationLogger(),"PrescaleService pointer == 0"); 
