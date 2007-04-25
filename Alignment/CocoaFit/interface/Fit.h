@@ -7,6 +7,7 @@
 // 
 //   History: v1.0 
 //   Pedro Arce
+
 #ifndef FIT_H
 #define FIT_H
 
@@ -74,16 +75,15 @@ public:
   static ALIbool fitNextEvent( ALIuint& nEvent );
 
  private:
-  static void WriteVisualisationFiles();
-
   //----- Calculate the parameters (position, angles,...) with the chi square fit 
-  //---- daFactor is the factor by which it is multiplied the matrix Da
-  static FitQuality fitParameters( const double daFactor ); 
+  static cocoaStatus fitParameters( const double daFactor );
 
   static void redoMatrices();
 
   //----- Propagate the error of every Entry to every Measurement
   static void PropagateErrors();
+
+  static void CheckIfFitPossible();
 
  public:
   //----- Calculate the simulated value of each Measurement propagating the LightRay when all the entries have their original values
@@ -115,11 +115,8 @@ public:
   //----- multiply matrices needed for fit
   static void multiplyMatrices();
 
-  //----- Get Smatrix to calculate chi2
-  static ALIdouble GetSChi2( ALIbool useDa );
-
   //----- check if the quality of the fit for this iteration is good enough
-  static FitQuality getFitQuality( const ALIbool canBeGood = TRUE );
+  static FitQuality getFitQuality( const ALIbool canBeGood );
   static void evaluateFitQuality( const FitQuality fq, const double daFactor );
 
   //----- Correct entries with fitted values  
@@ -132,10 +129,8 @@ public:
 
   static double getEntryValue( const Entry* entry );
 
-  static void CheckIfFitPossible();
-
  public:
-  static void PrintChi2( ALIdouble fit_quality, ALIbool isFirst );
+  static std::pair<double,double> calculateChi2( );
 
  // public static DATA MEMBERS 
 public:
@@ -180,14 +175,15 @@ private:
 
   //----- Minimum quality the fit has to have to be good
   static ALIdouble theFitQualityCut;
+  static ALIdouble theRelativeFitQualityCut;
+  static ALIdouble fit_quality_cut;
+  static ALIdouble fit_quality_cut_previous;
 
   //----- Number of fit iterations made up to a certain moment
   static ALIint theNoFitIterations;
   //----- Maximum number of fit iterations for the fit to reach good quality
   static ALIint MaxNoFitIterations;
 
-  //----- Minimum value of the factor to multiply Da to test if an smaller chi2 can be obtained (chapter 5.2 of LeastSquareMethods)
-  static ALIdouble theMinDaFactor;
 };
 
 
