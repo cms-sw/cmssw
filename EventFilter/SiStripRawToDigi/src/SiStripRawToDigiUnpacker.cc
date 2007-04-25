@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripRawToDigiUnpacker.cc,v 1.28 2007/03/28 10:27:36 bainbrid Exp $
+// Last commit: $Id: SiStripRawToDigiUnpacker.cc,v 1.29 2007/04/04 06:56:57 bainbrid Exp $
 
 #include "EventFilter/SiStripRawToDigi/interface/SiStripRawToDigiUnpacker.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
@@ -168,7 +168,12 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
       
       // Retrieve cabling map information and define "FED key" for Digis
       const FedChannelConnection& conn = *iconn;//cabling.connection( *ifed, chan );
-      
+
+      // Check FedId is non-zero and DetId is valid
+      if (!conn.detId() ||
+	  (conn.detId() == sistrip::invalid_) ||
+	  !conn.fedId()) { continue; }
+
       // Determine whether FED key is inferred from cabling or channel loop
       SiStripFedKey fed_path;
       uint32_t fed_key = 0;
@@ -185,10 +190,6 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
       
       // Determine whether DetId or FED key should be used to index digi containers
       uint32_t key = ( useFedKey_ || mode == sistrip::FED_SCOPE_MODE ) ? fed_key : conn.detId();
-      
-      // Check FedId or DetId is non-zero
-      bool ok = ( useFedKey_ || mode == sistrip::FED_SCOPE_MODE ) ? fed_path.fedId() : conn.detId();
-      if ( !ok ) { continue; }
       
       // Determine APV std::pair number (needed only when using DetId)
       uint16_t ipair = ( useFedKey_ || mode == sistrip::FED_SCOPE_MODE ) ? 0 : conn.apvPairNumber();
