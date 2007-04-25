@@ -124,6 +124,8 @@ public:
 
   const KineParticleFilter& filter() const { return *myFilter; } 
 
+  PrimaryVertexGenerator* thePrimaryVertexGenerator() const { return theVertexGenerator; }
+
  private:
 
   std::vector<FSimTrack>* theSimTracks;

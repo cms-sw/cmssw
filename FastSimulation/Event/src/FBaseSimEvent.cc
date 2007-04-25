@@ -42,10 +42,12 @@ FBaseSimEvent::FBaseSimEvent(const edm::ParameterSet& kine)
   theChargedTracks = new std::vector<unsigned>();
 
   // Reserve some size to avoid mutiple copies
+  /* */
   theSimTracks->reserve(20000);
   theSimVertices->reserve(20000);
   theGenParticles->reserve(20000);
   theChargedTracks->reserve(20000);
+  /* */
 
   // Initialize the Particle filter
   myFilter = new KineParticleFilter(kine);
@@ -75,10 +77,12 @@ FBaseSimEvent::FBaseSimEvent(const edm::ParameterSet& vtx,
   theChargedTracks = new std::vector<unsigned>();
 
   // Reserve some size to avoid mutiple copies
+  /* */
   theSimTracks->reserve(20000);
   theSimVertices->reserve(20000);
   theGenParticles->reserve(20000);
   theChargedTracks->reserve(20000);
+  /* */
 
   // Initialize the Particle filter
   myFilter = new KineParticleFilter(kine);
@@ -451,9 +455,15 @@ FBaseSimEvent::addSimTrack(const RawParticle* p, int iv, int ig) {
 
   // Attach the particle to the origin vertex, and to the mother
   vertex(iv).addDaughter(trackId);
-  if ( !vertex(iv).noParent() )  
+  if ( !vertex(iv).noParent() ) {
     track(vertex(iv).parent().id()).addDaughter(trackId);
 
+    if ( ig == -1 ) {
+      int motherId = track(vertex(iv).parent().id()).genpartIndex();
+      if ( motherId < -1 ) ig = motherId;
+    }
+  }
+    
   // Attach the vertex to the event (inoccuous if the vertex exists)
   // add_vertex(originVertex);
   
