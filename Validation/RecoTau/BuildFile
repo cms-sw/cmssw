@@ -8,6 +8,7 @@
 <use name=DataFormats/Math>
 <use name=DataFormats/HepMCCandidate>
 <use name=SimDataFormats/HepMCProduct>
+<use name=root>
 
 <flags EDM_PLUGIN=1>
 <export>
@@ -22,4 +23,5 @@
 <use name=DataFormats/BTauReco>
 <use name=DataFormats/HepMCCandidate>
 <use name=SimDataFormats/HepMCProduct>
+<use name=root>
 </export>
