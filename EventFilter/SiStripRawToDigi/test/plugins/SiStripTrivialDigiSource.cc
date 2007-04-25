@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripTrivialDigiSource.cc,v 1.1 2007/04/24 16:59:03 bainbrid Exp $
+// Last commit: $Id: SiStripTrivialDigiSource.cc,v 1.2 2007/04/25 17:21:20 pwing Exp $
 
 #include "EventFilter/SiStripRawToDigi/test/plugins/SiStripTrivialDigiSource.h"
 // edm 
@@ -11,6 +11,7 @@
 // data formats
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
+#include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 // cabling
 #include "CondFormats/DataRecord/interface/SiStripFedCablingRcd.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
