@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripTrivialDigiSource.cc,v 1.1 2007/03/21 16:38:16 bainbrid Exp $
+// Last commit: $Id: SiStripTrivialDigiSource.cc,v 1.1 2007/04/24 16:59:03 bainbrid Exp $
 
 #include "EventFilter/SiStripRawToDigi/test/plugins/SiStripTrivialDigiSource.h"
 // edm 
@@ -73,12 +73,9 @@ void SiStripTrivialDigiSource::produce( edm::Event& iEvent,
     //anal_.addFed();
     for ( uint16_t ichan = 0; ichan < 96; ichan++ ) {
       const FedChannelConnection& conn = cabling->connection( *ifed, ichan );
-      if ( !conn.detId() ) { // Check DetID is non-zero
-	edm::LogWarning("TrivialDigiSource") << "[SiStripTrivialDigiSource::produce]"
-					     << " Zero DetId returned for FED id " << *ifed
-					     << " and channel " << ichan;
-	continue; 
-      }
+      // Check DetID is non-zero and valid
+      if (!conn.detId() ||
+	  (conn.detId() == sistrip::invalid_)) { continue; }
       //anal_.addChan(); nchans++;
       edm::DetSet<SiStripDigi>& digis = collection->find_or_insert( conn.detId() );
       uint16_t ngroups = 1;
