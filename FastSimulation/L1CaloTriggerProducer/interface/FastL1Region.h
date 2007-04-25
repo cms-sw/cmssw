@@ -15,7 +15,7 @@
 //
 // Original Author:  Chi Nhan Nguyen
 //         Created:  Mon Feb 19 13:25:24 CST 2007
-// $Id: FastL1Region.h,v 1.3 2007/04/18 18:54:51 chinhan Exp $
+// $Id: FastL1Region.h,v 1.4 2007/04/23 15:48:29 chinhan Exp $
 //
 
 // user include files
@@ -70,6 +70,10 @@ struct FastL1Config {
   double MuonNoiseLevel; 
   double CrystalEBThreshold;
   double CrystalEEThreshold;
+
+  double TowerEMLSB;
+  double TowerHadLSB;
+  double JetLSB;
 
   double TowerEBThreshold;
   double TowerEEThreshold;

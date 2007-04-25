@@ -13,7 +13,7 @@
 //
 // Original Author:  Chi Nhan Nguyen
 //         Created:  Mon Feb 19 13:25:24 CST 2007
-// $Id: FastL1GlobalAlgo.cc,v 1.3 2007/04/18 18:54:51 chinhan Exp $
+// $Id: FastL1GlobalAlgo.cc,v 1.4 2007/04/23 15:48:30 chinhan Exp $
 //
 
 #include "FastSimulation/L1CaloTriggerProducer/interface/FastL1GlobalAlgo.h"
@@ -39,6 +39,10 @@ FastL1GlobalAlgo::FastL1GlobalAlgo(const edm::ParameterSet& iConfig)
   m_L1Config.HadNoiseLevel = iConfig.getParameter<double>("HadNoiseLevel");
   m_L1Config.QuietRegionThreshold = iConfig.getParameter<double>("QuietRegionThreshold");
   m_L1Config.JetSeedEtThreshold = iConfig.getParameter<double>("JetSeedEtThreshold");
+
+  m_L1Config.TowerEMLSB = iConfig.getParameter<double>("TowerEMLSB");
+  m_L1Config.TowerHadLSB = iConfig.getParameter<double>("TowerHadLSB");
+  m_L1Config.JetLSB = iConfig.getParameter<double>("JetLSB");
 
   m_L1Config.CrystalEBThreshold = iConfig.getParameter<double>("CrystalEBThreshold");
   m_L1Config.CrystalEEThreshold = iConfig.getParameter<double>("CrystalEEThreshold");
@@ -159,7 +163,7 @@ FastL1GlobalAlgo::addJet(int iRgn, bool taubit) {
   std::pair<double, double> p = m_RMap->getRegionCenterEtaPhi(iRgn);
 
   //double e     = m_Regions.at(iRgn).GetJetE();
-  double et     = TPEnergyRound(m_Regions.at(iRgn).GetJetEt(),2.,2.);
+  double et     = TPEnergyRound(m_Regions.at(iRgn).GetJetEt(),m_L1Config.JetLSB,m_L1Config.JetSeedEtThreshold);
 
   double eta   = p.first;
   double phi   = p.second;
@@ -345,125 +349,31 @@ FastL1GlobalAlgo::FillMET(edm::Event const& e) {
 // ------------ Fill MET 2: loop over regions ------------
 void
 FastL1GlobalAlgo::FillMET() {
-  double sum_hade = 0.0;
-  double sum_hadet = 0.0;
-  double sum_hadex = 0.0;
-  double sum_hadey = 0.0;
-  double sum_hadez = 0.0;
   double sum_e = 0.0;
   double sum_et = 0.0;
   double sum_ex = 0.0;
   double sum_ey = 0.0;
   double sum_ez = 0.0;
-  double et    = 0.;
-  double e     = 0.;
-  double had_et    = 0.;
-  double had_e     = 0.;
+
   for (int i=0; i<396; i++) { 
-    // barrel/endcap part only right now
-    // Test HF!!!
-    //if ((i%22)>3 && (i%22)<18) {
-      CaloTowerCollection c = m_Regions[i].GetCaloTowers();
-      et    = 0.;
-      e     = 0.;
-      had_et    = 0.;
-      had_e     = 0.;
-
-      for (CaloTowerCollection::const_iterator candidate=c.begin(); candidate!=c.end(); candidate++) {
-	double eme    = candidate->emEnergy();
-	double hade    = candidate->hadEnergy();
-	//double eme    = candidate->emEt();
-	//double hade    = candidate->hadEt();
-
-
-	/*
-	eme = TPEnergyRound(eme,1.);
-	hade = TPEnergyRound(hade,1.);
-	
-	double EThres = 0.;
-	double HThres = 0.;
-	double EBthres = m_L1Config.TowerEBThreshold;
-	double HBthres = m_L1Config.TowerHBThreshold;
-	double EEthres = m_L1Config.TowerEBThreshold;
-	double HEthres = m_L1Config.TowerEEThreshold;
-	
-	//if(std::abs(candidate->eta())<1.479) {
-	if(std::abs(candidate->eta())<2.322) {
-	  EThres = EBthres;
-	} else {
-	  EThres = EEthres;
-	}
-	//if(std::abs(candidate->eta())<1.305) {
-	if(std::abs(candidate->eta())<2.322) {
-	  HThres = HBthres;
-	} else {
-	  HThres = HEthres;
-	}
-	*/
-
-	// rescale energies
-	double emScale = 1.0;
-	double hadScale = 1.0;
-	if (std::abs(candidate->eta()>1.3050) && std::abs(candidate->eta())<3.0) {
-	  hadScale = m_L1Config.TowerHEScale;
-	  emScale = m_L1Config.TowerEEScale;
-	}
-	if (std::abs(candidate->eta()<1.3050)) {
-	  hadScale = m_L1Config.TowerHBScale;
-	  emScale = m_L1Config.TowerEBScale;
-	}
-	eme    *= emScale;
-	hade   *= hadScale;
-	
-	/*
-	if (eme>=EThres || hade>=HThres) {
-	  
-	  if (eme>=EThres) {
-	    et    += candidate->emEt();
-	    e    += candidate->emEnergy();
-	  }
-	  if (hade>=HThres) {
-	    et    += candidate->hadEt();
-	    e    += candidate->hadEnergy();
-	    had_et    += candidate->hadEt();
-	    had_e    += candidate->hadEnergy();
-	  }
-
-	  
-	  //}
-	}
-	*/
-
-	et    += candidate->emEt();
-	e    += candidate->emEnergy();
-      }
-
-      std::pair<double, double> etaphi = m_RMap->getRegionCenterEtaPhi(i);
-      double phi   = etaphi.second;
-      double eta = etaphi.first;
-      double theta = 2.*atan(exp(-eta));
-      
-      sum_et += et;
-      sum_ex += et*cos(phi);
-      sum_ey += et*sin(phi); 
-      //sum_ex += e*sin(theta)*cos(phi);
-      //sum_ey += e*sin(theta)*sin(phi); 
-      //sum_e += e;
-      sum_e += et/sin(theta);
-      sum_ez += et*cos(theta)/sin(theta);
-      
-      sum_hadet += had_et;
-      sum_hadex += had_et*cos(phi);
-      sum_hadey += had_et*sin(phi); 
-      //sum_hadex += had_e*sin(theta)*cos(phi);
-      //sum_hadey += had_e*sin(theta)*sin(phi); 
-      //sum_hade += had_e;
-      sum_hade += had_et/sin(theta);
-      sum_hadez += had_et*cos(theta)/sin(theta);
+    std::pair<double, double> etaphi = m_RMap->getRegionCenterEtaPhi(i);
+    double phi   = etaphi.second;
+    double eta = etaphi.first;
+    double theta = 2.*atan(exp(-eta));
+    
+    double et = m_Regions[i].SumEt();
+    sum_et += et;
+    sum_ex += et*cos(phi);
+    sum_ey += et*sin(phi); 
+    //sum_ex += e*sin(theta)*cos(phi);
+    //sum_ey += e*sin(theta)*sin(phi); 
+    //sum_e += e;
+    sum_e += et/sin(theta);
+    sum_ez += et*cos(theta)/sin(theta);
   }
   
   reco::Particle::LorentzVector rp4(-sum_ex,-sum_ey,-sum_ez,sum_e); 
-  m_MET = l1extra::L1EtMissParticle(rp4,sum_et,sum_hadet);  
+  m_MET = l1extra::L1EtMissParticle(rp4,sum_et,0.);  
   
 }
 
