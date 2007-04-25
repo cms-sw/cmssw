@@ -1,6 +1,6 @@
-// Last commit: $Id: SiStripRawToClustersModule.cc,v 1.8 2007/04/23 15:31:20 pwing Exp $
+// Last commit: $Id: SiStripRawToClustersModule.cc,v 1.1 2007/04/24 16:58:58 bainbrid Exp $
 
-#include "EventFilter/SiStripRawToDigi/interface/SiStripRawToClustersModule.h"
+#include "EventFilter/SiStripRawToDigi/plugins/SiStripRawToClustersModule.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 #include "CommonTools/SiStripClusterization/interface/SiStripClusterizerFactory.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
