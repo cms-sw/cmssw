@@ -114,31 +114,21 @@ void
            " L" << CSCDetId::layer(id);
 	// CSCDetId::layer(id)  << " are:" << std::endl;
 
-
-	// What's its surface?
-	// The surface knows how to transform local <-> global
-
-	const BoundSurface& bSurface = layer->surface();
-
-	//        std::cout << "length=" << bSurface.bounds().length() << 
-	//	             ", width=" << bSurface.bounds().width() << 
-	//                     ", thickness=" << bSurface.bounds().thickness() << std::endl;
-
 	// Check global coordinates of centre of CSCLayer, and how
 	// local z direction relates to global z direction
 
         LocalPoint  lCentre( 0., 0., 0. );
-        GlobalPoint gCentre = bSurface.toGlobal( lCentre );
+        GlobalPoint gCentre = layer->toGlobal( lCentre );
 
         LocalPoint  lCentre1( 0., 0., -1.);
-        GlobalPoint gCentre1 = bSurface.toGlobal( lCentre1 );
+        GlobalPoint gCentre1 = layer->toGlobal( lCentre1 );
 
         LocalPoint  lCentre2( 0., 0., 1.);
-        GlobalPoint gCentre2 = bSurface.toGlobal( lCentre2 );
+        GlobalPoint gCentre2 = layer->toGlobal( lCentre2 );
 
-	//	std::cout << "local(0,0,-1) = global " << gCentre1 << std::endl;
-	//	std::cout << "local(0,0)    = global " << gCentre  << std::endl;
-	//	std::cout << "local(0,0,+1) = global " << gCentre2 << std::endl;
+	//		std::cout << "\nlocal(0,0,-1) = global " << gCentre1 << std::endl;
+	//		std::cout <<   "local(0,0)    = global " << gCentre  << std::endl;
+	//		std::cout <<   "local(0,0,+1) = global " << gCentre2 << std::endl;
 
         double gx  =  gCentre.x();
         double gy  =  gCentre.y();
@@ -245,10 +235,10 @@ void
         LocalPoint lowerRightLocal(hBottomEdge, -hApothem, -hThickness);
         LocalPoint lowerLeftLocal(-hBottomEdge, -hApothem, -hThickness);
  
-        GlobalPoint upperRightGlobal = bSurface.toGlobal(upperRightLocal);
-        GlobalPoint upperLeftGlobal  = bSurface.toGlobal(upperLeftLocal);
-        GlobalPoint lowerRightGlobal = bSurface.toGlobal(lowerRightLocal);
-        GlobalPoint lowerLeftGlobal  = bSurface.toGlobal(lowerLeftLocal);
+        GlobalPoint upperRightGlobal = layer->toGlobal(upperRightLocal);
+        GlobalPoint upperLeftGlobal  = layer->toGlobal(upperLeftLocal);
+        GlobalPoint lowerRightGlobal = layer->toGlobal(lowerRightLocal);
+        GlobalPoint lowerLeftGlobal  = layer->toGlobal(lowerLeftLocal);
 
         float uRGp = upperRightGlobal.phi().degrees();
         float uLGp = upperLeftGlobal.phi().degrees();
