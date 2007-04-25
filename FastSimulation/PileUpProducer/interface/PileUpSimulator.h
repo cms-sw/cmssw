@@ -52,6 +52,7 @@ class PileUpSimulator
   const RandomEngine* random;
   std::vector<std::string> theFileNames;
   std::string inputFile;
+  unsigned theNumberOfFiles;
 
   std::vector<TFile*> theFiles;
   std::vector<TTree*> theTrees;

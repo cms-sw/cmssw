@@ -5,6 +5,7 @@
 #include "FastSimulation/PileUpProducer/interface/PileUpSimulator.h"
 #include "FastSimulation/PileUpProducer/interface/PUEvent.h"
 #include "FastSimulation/Event/interface/FSimEvent.h"
+#include "FastSimulation/Event/interface/PrimaryVertexGenerator.h"
 #include "FastSimulation/Particle/interface/RawParticle.h"
 #include "FastSimulation/Utilities/interface/RandomEngine.h"
 
@@ -25,16 +26,17 @@ PileUpSimulator::PileUpSimulator(FSimEvent* aSimEvent,
   averageNumber_(p.getParameter<double>("averageNumber")),
   mySimEvent(aSimEvent),
   random(engine),
-  theFileNames(p.getParameter<std::vector<std::string> >("fileNames")),
-  inputFile(p.getParameter<std::string>("inputFile")),
-  theFiles(theFileNames.size(),static_cast<TFile*>(0)),
-  theTrees(theFileNames.size(),static_cast<TTree*>(0)),
-  theBranches(theFileNames.size(),static_cast<TBranch*>(0)),
-  thePUEvents(theFileNames.size(),static_cast<PUEvent*>(0)),
-  theCurrentEntry(theFileNames.size(),static_cast<unsigned>(0)),
-  theCurrentMinBiasEvt(theFileNames.size(),static_cast<unsigned>(0)),
-  theNumberOfEntries(theFileNames.size(),static_cast<unsigned>(0)),
-  theNumberOfMinBiasEvts(theFileNames.size(),static_cast<unsigned>(0))
+  theFileNames(p.getUntrackedParameter<std::vector<std::string> >("fileNames")),
+  inputFile(p.getUntrackedParameter<std::string>("inputFile")),
+  theNumberOfFiles(theFileNames.size()),
+  theFiles(theNumberOfFiles,static_cast<TFile*>(0)),
+  theTrees(theNumberOfFiles,static_cast<TTree*>(0)),
+  theBranches(theNumberOfFiles,static_cast<TBranch*>(0)),
+  thePUEvents(theNumberOfFiles,static_cast<PUEvent*>(0)),
+  theCurrentEntry(theNumberOfFiles,static_cast<unsigned>(0)),
+  theCurrentMinBiasEvt(theNumberOfFiles,static_cast<unsigned>(0)),
+  theNumberOfEntries(theNumberOfFiles,static_cast<unsigned>(0)),
+  theNumberOfMinBiasEvts(theNumberOfFiles,static_cast<unsigned>(0))
   
 {
   
@@ -50,7 +52,7 @@ PileUpSimulator::PileUpSimulator(FSimEvent* aSimEvent,
   myOutputBuffer = 0;
 
   // Open the root files
-  for ( unsigned file=0; file<theFileNames.size(); ++file ) {
+  for ( unsigned file=0; file<theNumberOfFiles; ++file ) {
 
     edm::FileInPath myDataFile("FastSimulation/PileUpProducer/data/"+theFileNames[file]);
     fullPath = myDataFile.fullPath();
@@ -111,78 +113,128 @@ PileUpSimulator::~PileUpSimulator() {
 void PileUpSimulator::produce()
 {
 
-  // Draw a file in a ramdom manner 
-  unsigned file = 1;
+  //  bool debug = mySimEvent->id().event() >= 621;
+  //  if ( debug ) mySimEvent->print();
 
-  // Some rotation around the z axis, for more randomness
-  Hep3Vector theAxis(0.,0.,1.);
-  double theAngle = random->flatShoot() * 2. * 3.14159265358979323;
-  HepRotation theRotation(theAxis,theAngle);
+  // How many pile-up events?
+  int PUevts = (int) random->poissonShoot(averageNumber_);
 
-  //      std::cerr << "File chosen : " << file 
-  //		<< " Current interaction = " << theCurrentMinBiasEvt[file] 
-  //		<< " Total interactions = " << theNumberOfMinBiasEvts[file] << std::endl;
-  //      theFiles[file]->cd();
-  //      gDirectory->ls();
-  // Check we are not either at the end of an interaction bunch 
-  // or at the end of a file
-  if ( theCurrentMinBiasEvt[file] == theNumberOfMinBiasEvts[file] ) {
-    //	std::cerr << "End of interaction bunch ! ";
-    ++theCurrentEntry[file];
-    //	std::cerr << "Read the next entry " << theCurrentEntry[file] << std::endl;
-    theCurrentMinBiasEvt[file] = 0;
-    if ( theCurrentEntry[file] == theNumberOfEntries[file] ) { 
-      theCurrentEntry[file] = 0;
-      //	  std::cerr << "End of file - Rewind! " << std::endl;
+  // Get N events from random files
+  for ( int ievt=0; ievt<PUevts; ++ievt ) { 
+
+    
+    // Draw a file in a ramdom manner 
+    unsigned file = (unsigned) (theNumberOfFiles * random->flatShoot());
+    /*
+    if ( debug )  
+      std::cout << "The file chosen for event " << ievt 
+		<< " is the file number " << file << std::endl; 
+    */
+
+    // Smear the primary vertex
+    mySimEvent->thePrimaryVertexGenerator()->generate();
+    HepLorentzVector smearedVertex =  
+      HepLorentzVector(*(mySimEvent->thePrimaryVertexGenerator()));
+    int mainVertex = mySimEvent->addSimVertex(smearedVertex);
+
+    // Some rotation around the z axis, for more randomness
+    Hep3Vector theAxis(0.,0.,1.);
+    double theAngle = random->flatShoot() * 2. * 3.14159265358979323;
+    HepRotation theRotation(theAxis,theAngle);
+    
+    /*
+    if ( debug ) 
+      std::cout << "File chosen : " << file 
+		<< " Current entry in this file " << theCurrentEntry[file] 
+		<< " Current minbias in this chunk= " << theCurrentMinBiasEvt[file] 
+		<< " Total number of minbias in this chunk = " << theNumberOfMinBiasEvts[file] << std::endl;
+    */
+
+    //      theFiles[file]->cd();
+    //      gDirectory->ls();
+    // Check we are not either at the end of a minbias bunch 
+    // or at the end of a file
+    if ( theCurrentMinBiasEvt[file] == theNumberOfMinBiasEvts[file] ) {
+      //      if ( debug ) std::cout << "End of MinBias bunch ! ";
+      ++theCurrentEntry[file];
+      //      if ( debug) std::cout << "Read the next entry " << theCurrentEntry[file] << std::endl;
+      theCurrentMinBiasEvt[file] = 0;
+      if ( theCurrentEntry[file] == theNumberOfEntries[file] ) { 
+	theCurrentEntry[file] = 0;
+	//       	if ( debug ) std::cout << "End of file - Rewind! " << std::endl;
+      }
+      //      if ( debug ) std::cout << "The PUEvent is reset ... "; 
+      thePUEvents[file]->reset();
+      unsigned myEntry = theCurrentEntry[file];
+      /*
+      if ( debug ) std::cout << "The new entry " << myEntry 
+			     << " is read ... in TTree " << theTrees[file] << " "; 
+      */
+      theTrees[file]->GetEntry(myEntry);
+      /*
+      if ( debug ) 
+	std::cout << "The number of interactions in the new entry is ... "; 	
+      */
+      theNumberOfMinBiasEvts[file] = thePUEvents[file]->nMinBias();
+      //      if ( debug ) std::cout << theNumberOfMinBiasEvts[file] << std::endl;
+  }
+  
+    // Read a minbias event chunk
+    const PUEvent::PUMinBiasEvt& aMinBiasEvt 
+      = thePUEvents[file]->thePUMinBiasEvts()[theCurrentMinBiasEvt[file]];
+  
+    // Find corresponding particles
+    unsigned firstTrack = aMinBiasEvt.first; 
+    unsigned trackSize = firstTrack + aMinBiasEvt.size;
+    /*
+    if ( debug ) std::cout << "First and last+1 tracks are " 
+			   << firstTrack << " " << trackSize << std::endl;
+    */
+
+    // Loop on particles
+    for ( unsigned iTrack=firstTrack; iTrack<trackSize; ++iTrack ) {
+      
+      const PUEvent::PUParticle& aParticle 
+	= thePUEvents[file]->thePUParticles()[iTrack];
+      /*
+      if ( debug) 
+	std::cout << "Track " << iTrack 
+		  << " id/px/py/pz/mass "
+		  << aParticle.id << " " 
+		  << aParticle.px << " " 
+		  << aParticle.py << " " 
+		  << aParticle.pz << " " 
+		  << aParticle.mass << " " << std::endl; 
+      */
+      
+      // Create a RawParticle 
+      double energy = std::sqrt( aParticle.px*aParticle.px
+				 + aParticle.py*aParticle.py
+				 + aParticle.pz*aParticle.pz
+				 + aParticle.mass*aParticle.mass );
+      RawParticle * myPart 
+	= new  RawParticle (HepLorentzVector(aParticle.px,aParticle.py,
+					     aParticle.pz,energy), 
+			    smearedVertex);
+      myPart->setID(aParticle.id);
+      
+      // Rotate around the z axis
+      (*myPart) *= theRotation;
+      
+      // Add the particle to the event (with a genpartIndex 
+      // indicating the pileup event index)
+      mySimEvent->addSimTrack(myPart,mainVertex,-ievt-2);
+
     }
-    //	std::cerr << "The PUEvent is reset ... "; 
-    //	thePUEvents[file]->reset();
-    unsigned myEntry = theCurrentEntry[file];
-    //	std::cerr << "The new entry " << myEntry << " is read ... in TTree " << theTrees[file] << " "; 
-    theTrees[file]->GetEntry(myEntry);
-    //	std::cerr << "The number of interactions in the new entry is ... "; 	
-    theNumberOfMinBiasEvts[file] = thePUEvents[file]->nMinBias();
-    //	std::cerr << theNumberOfMinBiasEvts[file] << std::endl;
-  }
-  
-  // Read the interaction
-  PUEvent::PUMinBiasEvt aMinBiasEvt 
-    = thePUEvents[file]->thePUMinBiasEvts()[theCurrentMinBiasEvt[file]];
-  
-  unsigned firstTrack = aMinBiasEvt.first; 
-  unsigned lastTrack = firstTrack + aMinBiasEvt.size;
-  //      std::cerr << "First and last tracks are " << firstTrack << " " << lastTrack << std::endl;
-  
-  for ( unsigned iTrack=firstTrack; iTrack<lastTrack; ++iTrack ) {
+    // End of particle loop
     
-    PUEvent::PUParticle aParticle = thePUEvents[file]->thePUParticles()[iTrack];
-    //	std::cerr << "Track " << iTrack 
-    //		  << " id/px/py/pz/mass "
-    //		  << aParticle.id << " " 
-    //		  << aParticle.px << " " 
-    //		  << aParticle.py << " " 
-    //		  << aParticle.pz << " " 
-    //		  << aParticle.mass << " " << endl; 
-    
-    // Create a RawParticle with the proper energy in the c.m frame of 
-    // the nuclear interaction
-    double energy = std::sqrt( aParticle.px*aParticle.px
-			       + aParticle.py*aParticle.py
-			       + aParticle.pz*aParticle.pz
-			       + aParticle.mass*aParticle.mass );
-    RawParticle * myPart 
-      = new  RawParticle (aParticle.id,
-			  HepLorentzVector(aParticle.px,aParticle.py,
-					   aParticle.pz,energy));
-    
-    // Rotate around the boost axis
-    (*myPart) *= theRotation;
+    // Increment for next time
+    ++theCurrentMinBiasEvt[file];
     
   }
-  
-  // Increment for next time
-  ++theCurrentMinBiasEvt[file];
-  
+  // End of pile-up event loop
+  //  if ( debug ) mySimEvent->print();
+
 }
 
 void
@@ -233,6 +285,6 @@ PileUpSimulator::read(std::string inputFile) {
     myInputFile.read((char*)&theCurrentMinBiasEvt.front(),size2);
     myInputFile.close();
 
-  }
-  
+  } 
+
 }
