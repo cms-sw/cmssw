@@ -32,20 +32,15 @@ int main()
   uint32 updateNumber = 111;
   char topFolderName[]="TopFolder";
 
-  //  Event.h, it has a time function, Timestamp time() const {return aux_.time();}
-  //  FWCore/Framework/interface/Event.h
-
-  Timestamp fakeTime(2);
-  
-  //long long ll;
-  //cout << "Fake Timestamp:" << fakeTime.value() << endl;
-  //cout << "SIZEOF Fake Timestamp:" << sizeof(fakeTime.value()) << endl;
-  //cout << "SIZEOF 2_long:" << sizeof(ll) << endl;
-
   DQMEvent::TObjectTable toTable;
-  // create the message
-  DQMEventMsgBuilder dqmMsgBuilder(&buf[0], buf.size(),
-                                     run, event, 
+  
+  StreamDQMOutputFile dqmFile("dqm_file.dqm");
+
+  for (int i=0; i != 10; ++i) {
+	Timestamp fakeTime(i);
+        // create the message
+  	DQMEventMsgBuilder dqmMsgBuilder(&buf[0], buf.size(),
+                                     run, event++, 
 				     //fakeTime.value(),
 				     fakeTime,
                                      lumiSection, updateNumber,
@@ -53,17 +48,14 @@ int main()
                                      toTable);
 
 
-  //Serialize the msg
+  	//Serialize the msg
   
 
-  //Lets write out this msg in a file
-  StreamDQMOutputFile dqmFile("dqm_file.dqm");
+  	//Lets write out this msg in a file
 
-
-  dqmFile.write(dqmMsgBuilder);
-
-
-  DQMEventMsgView dqmMsgView(&buf[0]);
+  	dqmFile.write(dqmMsgBuilder);
+   } 
+  /***	DQMEventMsgView dqmMsgView(&buf[0]);
   cout
     << "code = " << dqmMsgView.code()<< ", "
     << "\nsize = " << dqmMsgView.size()<< ", "
@@ -73,12 +65,7 @@ int main()
     << "\nevent = " << dqmMsgView.eventNumberAtUpdate() << "\n"
     << "topFolderName = " << dqmMsgView.topFolderName() << "\n"
     << "release = " << dqmMsgView.releaseTag() << "\n";
-
-  //init.setDescLength(sizeof(test_value));
-  //std::copy(&test_value[0],&test_value[0]+sizeof(test_value),
-  //          init.dataAddress());
-
-  //Do a dumpInit here if you need to see the event.    
+   ***/
 
   return 0;
 }
