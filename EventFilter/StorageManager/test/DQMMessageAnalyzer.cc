@@ -10,7 +10,7 @@
   file in DQMServices/Daemon/test, but modified to include another top level
   folder, to remove the 1 sec wait, and to do the fitting without printout.
 
-  $Id: DQMMessageAnalyzer.cc,v 1.3 2007/04/02 21:58:35 hcheung Exp $
+  $Id: DQMMessageAnalyzer.cc,v 1.1 2007/04/23 22:06:10 afaq Exp $
 
 */
 
@@ -43,6 +43,9 @@
 #include "IOPool/Streamer/interface/StreamDQMSerializer.h"
 #include "IOPool/Streamer/interface/StreamDQMDeserializer.h"
 #include "IOPool/Streamer/interface/StreamDQMOutputFile.h"
+#include "IOPool/Streamer/interface/StreamDQMInputFile.h"
+
+#include "FWCore/Utilities/interface/Exception.h"
 
 #include <TRandom.h> // this is just the random number generator
 
@@ -180,19 +183,72 @@ DQMMessageAnalyzer::DQMMessageAnalyzer( const edm::ParameterSet& iConfig )
 
 }
 
-
 DQMMessageAnalyzer::~DQMMessageAnalyzer()
 {
    
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
    delete dqmOutputFile_; 
+
 }
 
 void DQMMessageAnalyzer::endJob(void)
 {
+
   std::cout << "DQMMessageAnalyzer::endJob" << std::endl;
   //dbe->save("test.root");  
+
+  //Let us read the freshly writen dqm event file and display dqm events from there in
+  StreamDQMInputFile dqm_file("dqm_events.bin");
+  while(dqm_file.next()) {
+
+      std::cout << "----------------DQM Event -------------" << endl;
+
+      //Lets print it
+      const DQMEventMsgView* dqmEventView = dqm_file.currentRecord();
+
+      std::cout << "  DQM Message data:" << std::endl;
+      std::cout << "    protocol version = "
+                << dqmEventView->protocolVersion() << std::endl;
+      std::cout << "    header size = "
+                << dqmEventView->headerSize() << std::endl;
+      std::cout << "    run number = "
+                << dqmEventView->runNumber() << std::endl;
+      std::cout << "    event number = "
+                << dqmEventView->eventNumberAtUpdate() << std::endl;
+      std::cout << "    lumi section = "
+                << dqmEventView->lumiSection() << std::endl;
+      std::cout << "    update number = "
+                << dqmEventView->updateNumber() << std::endl;
+      std::cout << "    compression flag = "
+                << dqmEventView->compressionFlag() << std::endl;
+      std::cout << "    reserved word = "
+                << dqmEventView->reserved() << std::endl;
+      std::cout << "    release tag = "
+                << dqmEventView->releaseTag() << std::endl;
+      std::cout << "    top folder name = "
+                << dqmEventView->topFolderName() << std::endl;
+      std::cout << "    sub folder count = "
+                << dqmEventView->subFolderCount() << std::endl;
+      std::cout << "    time stamp = "
+                << dqmEventView->timeStamp().value() << std::endl;
+      std::auto_ptr<DQMEvent::TObjectTable> toTablePtr =
+        deserializeWorker_.deserializeDQMEvent(*dqmEventView);
+      DQMEvent::TObjectTable::const_iterator toIter;
+      for (toIter = toTablePtr->begin();
+           toIter != toTablePtr->end(); toIter++) {
+        std::string subFolderName = toIter->first;
+        std::cout << "  folder = " << subFolderName << std::endl;
+        std::vector<TObject *> toList = toIter->second;
+        for (int tdx = 0; tdx < (int) toList.size(); tdx++) {
+          TObject *toPtr = toList[tdx];
+          std::string cls = toPtr->IsA()->GetName();
+          std::string nm = toPtr->GetName();
+          std::cout << "    TObject class = " << cls
+                    << ", name = " << nm << std::endl;
+        }
+      }
+    }
 }
 
 //
@@ -403,7 +459,7 @@ void DQMMessageAnalyzer::analyze(const edm::Event& iEvent,
    dqmOutputFile_->write(dqmMsgBuilder);
 
 
-
+   /****
    //Lets print it
    DQMEventMsgView dqmEventView(&buf[0]);
       std::cout << "  DQM Message data:" << std::endl;
@@ -447,7 +503,7 @@ void DQMMessageAnalyzer::analyze(const edm::Event& iEvent,
           std::cout << "    TObject class = " << cls
                     << ", name = " << nm << std::endl;
         }
-      }
+      }   ***/
 
   }//for loop
 
