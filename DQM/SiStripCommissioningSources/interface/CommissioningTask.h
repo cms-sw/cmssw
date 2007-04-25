@@ -1,11 +1,11 @@
 #ifndef DQM_SiStripCommissioningSources_CommissioningTask_H
 #define DQM_SiStripCommissioningSources_CommissioningTask_H
 
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "DataFormats/Common/interface/DetSet.h"
-#include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
-#include "DataFormats/SiStripCommon/interface/SiStripEventSummary.h"
 #include "CondFormats/SiStripObjects/interface/FedChannelConnection.h"
+#include "DataFormats/Common/interface/DetSet.h"
+#include "DataFormats/SiStripCommon/interface/SiStripEventSummary.h"
+#include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "boost/cstdint.hpp"
 #include <vector>
 #include <string>
