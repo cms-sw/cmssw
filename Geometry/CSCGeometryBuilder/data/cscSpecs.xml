@@ -7,6 +7,7 @@
 <!-- # =========================================================== -->
 <SpecPar name="ChamberSpecs_ME11">
 <PartSelector path="//ME11AlumFrame"/>
+<Parameter name="NoOfAnonParams" value="35"/>
 
 <!-- ME1b PARAMETERS FOLLOW -->
 
@@ -87,6 +88,8 @@
 <!-- make things consistent with current mf.xml values by using an incorrect panel thickness -->
 <!--Parameter name="upar" value="15.0"/-->
 <Parameter name="upar" value="20.0"/>
+<!--# 34 - zlocal offset between AF and average AGV centre (mm) -->
+<Parameter name="upar" value="0.0"/>
 
 <!-- ME1a PARAMETERS FOLLOW, EACH INDEX IS REALLY (#+34) -->
 
@@ -167,6 +170,8 @@
 <!-- make things consistent with current mf.xml values by using an incorrect panel thickness -->
 <!--Parameter name="upar" value="15.0"/-->
 <Parameter name="upar" value="20.0"/>
+<!--# 34 - zlocal offset between AF and average AGV centre (mm) -->
+<Parameter name="upar" value="0.0"/>
 
 <!-- Wire group specs. 
      The wire grouping is specified by two vectors NumGroups and NumWiresPerGrp, of the same length. 
@@ -270,13 +275,13 @@
 <!--# 30 - ctiOffset - possible future use -->
 <Parameter name="upar" value="0.0"/>
 <!--# 31 - chamber frame thickness (mm) -->
-<!--Parameter name="upar" value="6.096"/-->
-<!-- make things consistent with current mf.xml values by using an incorrect frame thickness -->
-<Parameter name="upar" value="2.0025"/>
+<Parameter name="upar" value="6.096"/>
 <!--# 32 - gas gap thickness (mm) -->
 <Parameter name="upar" value="9.525"/>
 <!--# 33 - panel thickness (mm) -->
 <Parameter name="upar" value="15.875"/>
+<!--# 34 - zlocal offset between AF and average AGV centre (mm) -->
+<Parameter name="upar" value="-1.75"/>
 
 <!-- Wire group specs. 
      The wire grouping is specified by two vectors NumGroups and NumWiresPerGrp, of the same length. 
@@ -392,9 +397,7 @@
 <!--# 30 - ctiOffset - possible future use -->
 <Parameter name="upar" value="0.0"/>
 <!--# 31 - chamber frame thickness (mm) -->
-<!--Parameter name="upar" value="6.096"/-->
-<!-- make things consistent with current mf.xml values by using an incorrect frame thickness -->
-<Parameter name="upar" value="2.0025"/>
+<Parameter name="upar" value="6.096"/>
 <!--# 32 - gas gap thickness (mm) -->
 <Parameter name="upar" value="9.525"/>
 <!--# 33 - panel thickness (mm) -->
@@ -510,13 +513,13 @@
 <!--# 30 - ctiOffset - possible future use -->
 <Parameter name="upar" value="0.0"/>
 <!--# 31 - chamber frame thickness (mm) -->
-<!--Parameter name="upar" value="6.096"/-->
-<!-- make things consistent with current mf.xml values by using an incorrect frame thickness -->
-<Parameter name="upar" value="2.0025"/>
+<Parameter name="upar" value="6.096"/>
 <!--# 32 - gas gap thickness (mm) -->
 <Parameter name="upar" value="9.525"/>
 <!--# 33 - panel thickness (mm) -->
 <Parameter name="upar" value="15.875"/>
+<!--# 34 - zlocal offset between AF and average AGV centre (mm) -->
+<Parameter name="upar" value="-1.75"/>
 
 <!-- Wire group specs. 
      The wire grouping is specified by two vectors NumGroups and NumWiresPerGrp, of the same length. 
@@ -628,14 +631,13 @@
 <!--# 30 - ctiOffset - possible future use -->
 <Parameter name="upar" value="0.0"/>
 <!--# 31 - chamber frame thickness (mm) -->
-<!--# 31 - chamber frame thickness (mm) -->
-<!--Parameter name="upar" value="6.096"/-->
-<!-- make things consistent with current mf.xml values by using an incorrect frame thickness -->
-<Parameter name="upar" value="2.0025"/>
+<Parameter name="upar" value="6.096"/>
 <!--# 32 - gas gap thickness (mm) -->
 <Parameter name="upar" value="9.525"/>
 <!--# 33 - panel thickness (mm) -->
 <Parameter name="upar" value="15.875"/>
+<!--# 34 - zlocal offset between AF and average AGV centre (mm) -->
+<Parameter name="upar" value="-1.75"/>
 
 <!-- Wire group specs. 
      The wire grouping is specified by two vectors NumGroups and NumWiresPerGrp, of the same length. 
@@ -745,14 +747,13 @@
 <!--# 30 - ctiOffset - possible future use -->
 <Parameter name="upar" value="0.0"/>
 <!--# 31 - chamber frame thickness (mm) -->
-<!--# 31 - chamber frame thickness (mm) -->
-<!--Parameter name="upar" value="6.096"/-->
-<!-- make things consistent with current mf.xml values by using an incorrect frame thickness -->
-<Parameter name="upar" value="2.0025"/>
+<Parameter name="upar" value="6.096"/>
 <!--# 32 - gas gap thickness (mm) -->
 <Parameter name="upar" value="9.525"/>
 <!--# 33 - panel thickness (mm) -->
 <Parameter name="upar" value="15.875"/>
+<!--# 34 - zlocal offset between AF and average AGV centre (mm) -->
+<Parameter name="upar" value="-1.75"/>
 
 <!-- Wire group specs. 
      The wire grouping is specified by two vectors NumGroups and NumWiresPerGrp, of the same length. 
@@ -861,14 +862,13 @@
 <!--# 30 - ctiOffset - possible future use -->
 <Parameter name="upar" value="0.0"/>
 <!--# 31 - chamber frame thickness (mm) -->
-<!--# 31 - chamber frame thickness (mm) -->
-<!--Parameter name="upar" value="6.096"/-->
-<!-- make things consistent with current mf.xml values by using an incorrect frame thickness -->
-<Parameter name="upar" value="2.0025"/>
+<Parameter name="upar" value="6.096"/>
 <!--# 32 - gas gap thickness (mm) -->
 <Parameter name="upar" value="9.525"/>
 <!--# 33 - panel thickness (mm) -->
 <Parameter name="upar" value="15.875"/>
+<!--# 34 - zlocal offset between AF and average AGV centre (mm) -->
+<Parameter name="upar" value="-1.75"/>
 
 <!-- Wire group specs. 
      The wire grouping is specified by two vectors NumGroups and NumWiresPerGrp, of the same length. 
@@ -992,14 +992,13 @@
 <!--# 30 - ctiOffset - possible future use -->
 <Parameter name="upar" value="0.0"/>
 <!--# 31 - chamber frame thickness (mm) -->
-<!--# 31 - chamber frame thickness (mm) -->
-<!--Parameter name="upar" value="6.096"/-->
-<!-- make things consistent with current mf.xml values by using an incorrect frame thickness -->
-<Parameter name="upar" value="2.0025"/>
+<Parameter name="upar" value="6.096"/>
 <!--# 32 - gas gap thickness (mm) -->
 <Parameter name="upar" value="9.525"/>
 <!--# 33 - panel thickness (mm) -->
 <Parameter name="upar" value="15.875"/>
+<!--# 34 - zlocal offset between AF and average AGV centre (mm) -->
+<Parameter name="upar" value="-1.75"/>
 
 <!-- Wire group specs. 
      The wire grouping is specified by two vectors NumGroups and NumWiresPerGrp, of the same length. 
