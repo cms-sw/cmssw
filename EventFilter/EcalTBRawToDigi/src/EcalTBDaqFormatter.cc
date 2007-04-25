@@ -1,7 +1,7 @@
 /*  
  *
- *  $Date: 2007/04/24 16:57:02 $
- *  $Revision: 1.47 $
+ *  $Date: 2007/04/25 09:51:26 $
+ *  $Revision: 1.48 $
  *  \author  N. Marinelli IASA 
  *  \author G. Della Ricca
  *  \author G. Franzoni
@@ -374,21 +374,12 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData ,
 		else
 		  {
 		    edm::LogWarning("EcalTBRawToDigiChId") << "EcalTBDaqFormatter::interpretRawData with zero suppression, "
-<<<<<<< EcalTBDaqFormatter.cc
 						  << " based on ch ordering within tt, wrong channel id: "
 						  << "\t strip: "  << strip  << "\t channel: " << ch
 						  << "\t cryInTower "  << cryInTower
 						  << "\t expCryInTower: " << expCryInTower
 						  << "\t in TT: " << _ExpectedTowers[_expTowersIndex]
 						  << "\t at LV1: " << (*itEventBlock)->getDataField("LV1");
-=======
-							   << " based on ch ordering within tt, wrong channel id: "
-							   << "\t strip: "  << strip  << "\t channel: " << ch
-							   << "\t cryInTower "  << cryInTower
-							   << "\t expCryInTower: " << expCryInTower
-							   << "\t in TT: " << _ExpectedTowers[_expTowersIndex]
-							   << "\t at event: " << (*itEventBlock)->getDataField("LV1");
->>>>>>> 1.47
 		    
 		    int  sm = 1; // hardcoded because of test  beam
 		    for (int StripInTower_ =1;  StripInTower_ < 6; StripInTower_++){
