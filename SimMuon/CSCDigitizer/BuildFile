@@ -13,6 +13,7 @@
 <use name=MagneticField/Records>
 <use name=SimDataFormats/CrossingFrame>
 <use name=SimDataFormats/TrackingHit>
+<use name=SimDataFormats/TrackerDigiSimLink>
 <use name=SimGeneral/HepPDTRecord>
 <use name=SimGeneral/NoiseGenerators>
 <use name=SimMuon/Neutron>
