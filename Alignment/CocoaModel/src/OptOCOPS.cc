@@ -15,6 +15,7 @@
 #endif
 #include "Alignment/CocoaModel/interface/ALILine.h"
 #include "Alignment/CocoaModel/interface/ALIPlane.h"
+#include "Alignment/CocoaDDLObjects/interface/CocoaSolidShapeBox.h"
 
 #include <iostream>
 #include <iomanip>
@@ -477,3 +478,14 @@ void OptOCOPS::fillIguana()
 
 }
 #endif
+
+
+//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+void OptOCOPS::constructSolidShape()
+{
+  ALIdouble go;
+  GlobalOptionMgr* gomgr = GlobalOptionMgr::getInstance();
+  gomgr->getGlobalOptionValue("VisScale", go );
+
+  theSolidShape = new CocoaSolidShapeBox( "Box", go*5.*cm/m, go*5.*cm/m, go*1.*cm/m ); //COCOA internal units are meters
+}

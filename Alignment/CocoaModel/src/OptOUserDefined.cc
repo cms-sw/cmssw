@@ -156,3 +156,4 @@ void OptOUserDefined::fillIguana()
   IgCocoaFileMgr::getInstance().addSolid( *this, "BOX", spar, col);
 }
 #endif
+

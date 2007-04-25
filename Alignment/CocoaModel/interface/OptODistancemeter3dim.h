@@ -35,6 +35,7 @@ public:
   virtual void fillVRML();
   virtual void fillIguana();
 #endif
+  void constructSolidShape();
 
 };
 
