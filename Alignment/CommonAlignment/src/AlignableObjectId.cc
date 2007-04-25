@@ -24,6 +24,13 @@ AlignableObjectId::AlignableObjectId( void )
   theMap.insert( PairEnumType( AlignableTID                  ,  "TID"                  ) );
   theMap.insert( PairEnumType( AlignablePixelHalfBarrelLayer ,  "PixelHalfBarrelLayer" ) );
   theMap.insert( PairEnumType( AlignablePixelHalfBarrel      ,  "PixelHalfBarrel"      ) );
+  // Forward pixel
+  theMap.insert( PairEnumType(Panel       , "Panel"       ) );
+  theMap.insert( PairEnumType(Blade       , "Blade"       ) );
+  theMap.insert( PairEnumType(HalfDisk    , "HalfDisk"    ) );
+  theMap.insert( PairEnumType(HalfCylinder, "HalfCylinder") );
+  theMap.insert( PairEnumType(PixelEndcap , "PixelEndcap" ) );
+
   theMap.insert( PairEnumType( AlignableTracker              ,  "Tracker"              ) );
 
   theMap.insert( PairEnumType( AlignableDTBarrel             ,  "DTBarrel"             ) );

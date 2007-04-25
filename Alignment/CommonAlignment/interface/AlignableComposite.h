@@ -27,25 +27,27 @@ class AlignableComposite : public Alignable
 
 public:
 
-  /// Default constructor: surface position = 0, rotation = identity
-  AlignableComposite();
-
   /// Constructor from GeomDet
   explicit AlignableComposite( const GeomDet* geomDet );
 
-  virtual ~AlignableComposite() {}
+  /// Constructor for a composite with given rotation.
+  /// Position is found from average of daughters' positions later.
+  /// Default arguments for backward compatibility with empty constructor.
+  AlignableComposite( const DetId& = DetId(),
+		      AlignableObjectIdType = AlignableObjectId::invalid,
+		      const RotationType& = RotationType() );
+
+  virtual ~AlignableComposite();
+
+  /// Add a component and set its mother to this alignable.
+  /// Also find average position of this alignable.
+  virtual void addComponent( Alignable* component );
+
+  /// Return vector of direct components
+  virtual Alignables components() const { return theComponents; }
 
   /// Provide all components, subcomponents etc. (cf. description in base class)
-  virtual void recursiveComponents(std::vector<Alignable*> &result) const;
-  
-  /// Return the global position of the object 
-  virtual const PositionType& globalPosition() const { return theSurface.position(); }
-  
-  /// Return the global orientation of the object 
-  virtual const RotationType& globalRotation() const { return theSurface.rotation(); }
-
-  /// Return the Surface (global position and orientation) of the object 
-  virtual const AlignableSurface& surface() const { return theSurface; }
+  virtual void recursiveComponents(Alignables &result) const;
 
   /// Move with respect to the global reference frame
   virtual void move( const GlobalVector& displacement ); 
@@ -71,11 +73,8 @@ public:
   /// Add position error to all components as resulting from given local rotation
   virtual void addAlignmentPositionErrorFromLocalRotation( const RotationType& rotation );
 
-  /// Restore original position
-  virtual void deactivateMisalignment ();
-
-  /// Restore misaligned position
-  virtual void reactivateMisalignment ();
+  /// Return the alignable type identifier
+  virtual int alignableObjectId() const { return static_cast<int>(theStructureType); }
 
   /// Recursive printout of alignable structure
   virtual void dump() const;
@@ -90,7 +89,10 @@ protected:
   void setSurface( const AlignableSurface& s) { theSurface = s; }
   
 private:
-  AlignableSurface  theSurface;   // Global position and orientation of the composite
+
+  AlignableObjectIdType theStructureType;
+
+  Alignables theComponents;
 
 };
 

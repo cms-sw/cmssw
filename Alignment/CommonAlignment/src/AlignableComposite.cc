@@ -10,32 +10,41 @@
 
 
 //__________________________________________________________________________________________________
-AlignableComposite::AlignableComposite()
-{
-}
-
-
-//__________________________________________________________________________________________________
 AlignableComposite::AlignableComposite( const GeomDet* geomDet ) : 
-  theSurface( geomDet->surface().position(), geomDet->surface().rotation() ) 
+  Alignable(geomDet)
 {
+}
 
-  // Also store width and length of geomdet surface
-  theSurface.setWidth( geomDet->surface().bounds().width() );
-  theSurface.setLength( geomDet->surface().bounds().length() );
-  
-  this->setDetId( geomDet->geographicalId() );
+AlignableComposite::AlignableComposite(const DetId& id,
+				       AlignableObjectIdType structureType,
+				       const RotationType& rot):
+  Alignable(id, rot),
+  theStructureType(structureType)
+{
+}
 
+AlignableComposite::~AlignableComposite()
+{
+  for (unsigned int i = 0; i < theComponents.size(); ++i) delete theComponents[i];
+}
+
+void AlignableComposite::addComponent(Alignable* ali)
+{
+  ali->setMother(this);
+  theComponents.push_back(ali);
+
+  theSurface.move( ( ali->globalPosition() - globalPosition() ) /
+		   static_cast<Scalar>( theComponents.size() ) );
 }
 
 //__________________________________________________________________________________________________
-void AlignableComposite::recursiveComponents(std::vector<Alignable*> &result) const
+void AlignableComposite::recursiveComponents(Alignables &result) const
 {
 
-  std::vector<Alignable*> components = this->components();
+  Alignables components = this->components();
   if (components.size() <= 1) return; // Non-glued AlignableDets contain themselves
 
-  for (std::vector<Alignable*>::const_iterator iter = components.begin();
+  for (Alignables::const_iterator iter = components.begin();
        iter != components.end(); ++iter) {
     result.push_back(*iter); // could use std::copy(..), but here we build a real hierarchy
     (*iter)->recursiveComponents(result);
@@ -47,8 +56,8 @@ void AlignableComposite::move( const GlobalVector& displacement )
 {
   
   // Move components
-  std::vector<Alignable*> comp = this->components();
-  for ( std::vector<Alignable*>::iterator i=comp.begin(); i!=comp.end(); i++ )
+  Alignables comp = this->components();
+  for ( Alignables::iterator i=comp.begin(); i!=comp.end(); i++ )
     (**i).move( displacement);
 
   // Move surface
@@ -74,7 +83,7 @@ void AlignableComposite::moveComponentLocal( const int i, const LocalVector& loc
     throw cms::Exception("LogicError")
       << "AlignableComposite index (" << i << ") out of range";
 
-  std::vector<Alignable*> comp = this->components();
+  Alignables comp = this->components();
   comp[i]->move( this->surface().toGlobal( localDisplacement ) );
 
 }
@@ -88,11 +97,11 @@ void AlignableComposite::moveComponentLocal( const int i, const LocalVector& loc
 void AlignableComposite::rotateInGlobalFrame( const RotationType& rotation )
 {
   
-  std::vector<Alignable*> comp = this->components();
+  Alignables comp = this->components();
   
   GlobalPoint  myPosition = this->globalPosition();
   
-  for ( std::vector<Alignable*>::iterator i=comp.begin(); i!=comp.end(); i++ )
+  for ( Alignables::iterator i=comp.begin(); i!=comp.end(); i++ )
     {
       
       // It is much simpler to calculate the local position given in coordinates 
@@ -139,8 +148,8 @@ void AlignableComposite::setAlignmentPositionError( const AlignmentPositionError
 
   // Since no geomDet is attached, alignable composites do not have an APE
   // The APE is, therefore, just propagated down
-  std::vector<Alignable*> comp = this->components();
-  for ( std::vector<Alignable*>::const_iterator i=comp.begin(); i!=comp.end(); i++) 
+  Alignables comp = this->components();
+  for ( Alignables::const_iterator i=comp.begin(); i!=comp.end(); i++) 
     {
       (*i)->setAlignmentPositionError(ape);
     }
@@ -153,8 +162,8 @@ void
 AlignableComposite::addAlignmentPositionError( const AlignmentPositionError& ape )
 {
 
-  std::vector<Alignable*> comp = this->components();
-  for ( std::vector<Alignable*>::const_iterator i=comp.begin(); i!=comp.end(); i++) 
+  Alignables comp = this->components();
+  for ( Alignables::const_iterator i=comp.begin(); i!=comp.end(); i++) 
     (*i)->addAlignmentPositionError(ape);
 
 }
@@ -167,11 +176,11 @@ AlignableComposite::addAlignmentPositionError( const AlignmentPositionError& ape
 void AlignableComposite::addAlignmentPositionErrorFromRotation( const RotationType& rotation )
 {
 
-  std::vector<Alignable*> comp = this->components();
+  Alignables comp = this->components();
 
   GlobalPoint  myPosition=this->globalPosition();
 
-  for ( std::vector<Alignable*>::const_iterator i=comp.begin(); i!=comp.end(); i++ )
+  for ( Alignables::const_iterator i=comp.begin(); i!=comp.end(); i++ )
     {
 
       // It is just similar to to the "movement" that results to the components
@@ -206,55 +215,13 @@ void AlignableComposite::addAlignmentPositionErrorFromLocalRotation( const Rotat
 
 }
 
-
-//__________________________________________________________________________________________________
-void AlignableComposite::deactivateMisalignment ()
-{
-
-  // Check status
-  if ( !misalignmentActive() ) 
-    {
-      edm::LogError("AlreadyDone") << "Attempt to deactivate misalignment again.";
-      return;
-    }
-  
-  // Forward to components
-  std::vector<Alignable*> components = this->components();
-  for ( std::vector<Alignable*>::iterator i=components.begin(); i!=components.end(); i++ ) 
-    (**i).deactivateMisalignment();
-  
-  theMisalignmentActive = false;
-  
-}
-
-
-
-//__________________________________________________________________________________________________
-void AlignableComposite::reactivateMisalignment ()
-{
-  
-  // Check status
-  if ( misalignmentActive() ) {
-    edm::LogError("AlreadyDone") << "Attempt to reactivate misalignment again";
-    return;
-  }
-  
-  // Forward to components
-  std::vector<Alignable*> components = this->components();
-  for ( std::vector<Alignable*>::iterator i=components.begin(); i!=components.end(); i++ )  
-    (**i).reactivateMisalignment();
-
-  theMisalignmentActive = true;
-
-}
-
 //__________________________________________________________________________________________________
 void AlignableComposite::dump( void ) const
 {
 
   // A simple printout method. Could be specialized in the implementation classes.
 
-  std::vector<Alignable*> comp = this->components();
+  Alignables comp = this->components();
 
   // Dump this
   edm::LogInfo("AlignableDump") 
@@ -264,7 +231,7 @@ void AlignableComposite::dump( void ) const
     << this->globalRotation();
 
   // Dump components
-  for ( std::vector<Alignable*>::iterator i=comp.begin(); i!=comp.end(); i++ )
+  for ( Alignables::iterator i=comp.begin(); i!=comp.end(); i++ )
     (*i)->dump();
 
 }
@@ -276,12 +243,12 @@ Alignments* AlignableComposite::alignments( void ) const
 {
 
   // Recursively call alignments, until we get to an AlignableDetUnit
-  std::vector<Alignable*> comp = this->components();
+  Alignables comp = this->components();
 
   Alignments* m_alignments = new Alignments();
 
   // Add components recursively
-  for ( std::vector<Alignable*>::iterator i=comp.begin(); i!=comp.end(); i++ )
+  for ( Alignables::iterator i=comp.begin(); i!=comp.end(); i++ )
     {
       Alignments* tmpAlignments = (*i)->alignments();
       std::copy( tmpAlignments->m_align.begin(), tmpAlignments->m_align.end(), 
@@ -300,12 +267,12 @@ AlignmentErrors* AlignableComposite::alignmentErrors( void ) const
 {
 
   // Recursively call alignmentsErrors, until we get to an AlignableDetUnit
-  std::vector<Alignable*> comp = this->components();
+  Alignables comp = this->components();
 
   AlignmentErrors* m_alignmentErrors = new AlignmentErrors();
 
   // Add components recursively
-  for ( std::vector<Alignable*>::iterator i=comp.begin(); i!=comp.end(); i++ )
+  for ( Alignables::iterator i=comp.begin(); i!=comp.end(); i++ )
     {
       AlignmentErrors* tmpAlignmentErrors = (*i)->alignmentErrors();
       std::copy( tmpAlignmentErrors->m_alignError.begin(), tmpAlignmentErrors->m_alignError.end(), 

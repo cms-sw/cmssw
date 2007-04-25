@@ -1,6 +1,15 @@
+#include "DataFormats/GeometrySurface/interface/BoundPlane.h"
+
 #include "Alignment/CommonAlignment/interface/AlignableSurface.h"
 
 using namespace align;
+
+AlignableSurface::AlignableSurface(const BoundPlane& surface):
+  GloballyPositioned<Scalar>( surface.position(), surface.rotation() ),
+  theWidth( surface.bounds().width() ),
+  theLength( surface.bounds().length() )
+{
+}
 
 AlignableSurface::AlignableSurface(const PositionType& pos,
 				   const RotationType& rot):

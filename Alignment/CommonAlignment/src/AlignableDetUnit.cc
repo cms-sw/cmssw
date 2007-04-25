@@ -1,26 +1,15 @@
 #include "CondFormats/Alignment/interface/Alignments.h"
 #include "CondFormats/Alignment/interface/AlignmentErrors.h"
 #include "DataFormats/TrackingRecHit/interface/AlignmentPositionError.h"
-#include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 
 #include "Alignment/CommonAlignment/interface/AlignableDetUnit.h"
 
 //__________________________________________________________________________________________________
-AlignableDetUnit::AlignableDetUnit( const GeomDetUnit* geomDetUnit ) :
-  theOriginalSurface( geomDetUnit->surface().position(), geomDetUnit->surface().rotation() ),
-  theSurface( geomDetUnit->surface().position(), geomDetUnit->surface().rotation() ),
-  theSavedSurface( geomDetUnit->surface().position(), geomDetUnit->surface().rotation() ),
+AlignableDetUnit::AlignableDetUnit( const GeomDet* geomDet ) :
+  Alignable(geomDet),
   theAlignmentPositionError(0)
 {
-  
-  // Also store width and length of geomdet surface
-  theSurface.setWidth( geomDetUnit->surface().bounds().width() );
-  theSurface.setLength( geomDetUnit->surface().bounds().length() );
-
-  this->setDetId( geomDetUnit->geographicalId() );
-
 }
 
 //__________________________________________________________________________________________________
@@ -29,45 +18,21 @@ AlignableDetUnit::~AlignableDetUnit() {
 }
 
 //__________________________________________________________________________________________________
-void AlignableDetUnit::recursiveComponents(std::vector<Alignable*> &result) const
-{
-  // There are no subcomponents...
-  return;
-}
-
-//__________________________________________________________________________________________________
 void AlignableDetUnit::move( const GlobalVector& displacement) 
 {
   
-  if ( misalignmentActive() ) 
-    {
-      theSurface.move( displacement );
-      this->addDisplacement( displacement );
-    }
-  else 
-    edm::LogError("NoMisalignment")
-      << "AlignableDetUnit: Misalignment currently deactivated"
-      << " - no move done";
+  theSurface.move( displacement );
+  this->addDisplacement( displacement );
 
 }
 
 
 //__________________________________________________________________________________________________
-/// Rotation intepreted such, that the orientation of the rotation
-/// axis is w.r.t. to the global coordinate system. Rotation is
-/// relative to current orientation
 void AlignableDetUnit::rotateInGlobalFrame( const RotationType& rotation) 
 {
   
-  if ( misalignmentActive() ) 
-    {
-      theSurface.rotate( rotation );
-      this->addRotation( rotation );
-    }
-  else 
-    edm::LogError("NoMisalignment") 
-      << "AlignableDetUnit: Misalignment currently deactivated"
-      << " - no rotation done";
+  theSurface.rotate( rotation );
+  this->addRotation( rotation );
   
 }
 
@@ -126,46 +91,6 @@ void AlignableDetUnit::addAlignmentPositionErrorFromLocalRotation(const Rotation
 
 
 //__________________________________________________________________________________________________
-void AlignableDetUnit::deactivateMisalignment ()
-{
-
-  // check status
-  if ( !misalignmentActive() ) 
-    {
-      edm::LogError("AlreadyDone") << "Misalignment already inactive.";
-      return;
-    }
-
-  // Set back to original surface
-  theSavedSurface = theSurface;
-  theSurface = theOriginalSurface;
-
-  theMisalignmentActive = false;
-
-}
-
-
-//__________________________________________________________________________________________________
-void AlignableDetUnit::reactivateMisalignment ()
-{
-
-  // check status
-  if ( misalignmentActive() ) 
-    {
-      edm::LogError("AlreadyDone") << "Misalignment already active";
-      return;
-    }
-
-  // Set to saved surface
-  theSurface = theSavedSurface;
-
-  theMisalignmentActive = true;
-
-
-}
-
-
-//__________________________________________________________________________________________________
 void AlignableDetUnit::dump() const
 {
 
@@ -219,6 +144,5 @@ AlignmentErrors* AlignableDetUnit::alignmentErrors() const
   m_alignmentErrors->m_alignError.push_back( transformError );
   
   return m_alignmentErrors;
-  
 
 }

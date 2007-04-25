@@ -2,6 +2,7 @@
  <lib name=AlignmentCommonAlignment>
  <use name=CondFormats/Alignment>
  <use name=DataFormats/CLHEP>
+ <use name=DataFormats/DetId>
  <use name=DataFormats/GeometrySurface>
  <use name=DataFormats/GeometryVector>
  <use name=Geometry/CommonDetUnit>  

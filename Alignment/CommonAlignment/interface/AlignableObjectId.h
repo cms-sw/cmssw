@@ -30,6 +30,14 @@ public:
 	  AlignableTID,
 	  AlignablePixelHalfBarrelLayer,
 	  AlignablePixelHalfBarrel,
+
+	  // Forward pixel
+	  Panel,
+	  Blade,           // 15
+	  HalfDisk,
+	  HalfCylinder,
+	  PixelEndcap,
+
 	  AlignableTracker,
 	  
 	  AlignableDTBarrel              = 20,

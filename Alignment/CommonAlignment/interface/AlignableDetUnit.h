@@ -9,38 +9,33 @@
 /// indirectly) this one as the ultimate component.
 /// Allows for de-/reactivation of the misalignment.
 
-class GeomDetUnit;
+class GeomDet;
 
 class AlignableDetUnit : public Alignable 
 {
 
 public:
   
-  /// Constructor from GeomDetUnits
-  AlignableDetUnit( const GeomDetUnit* geomDetUnit );
+  /// Constructor from GeomDet
+  AlignableDetUnit( const GeomDet* );
   
   /// Destructor
   virtual ~AlignableDetUnit();
 
+  /// Do nothing (no components here)
+  virtual void addComponent( Alignable* ) {}
+
   /// Returns a null vector (no components here)
-  virtual std::vector<Alignable*> components() const { return std::vector<Alignable*>(); }
+  virtual Alignables components() const { return Alignables(); }
+
   /// Do nothing (no components here, so no subcomponents either...)
-  virtual void recursiveComponents(std::vector<Alignable*> &result) const;
+  virtual void recursiveComponents(Alignables &result) const {}
 
   /// Move with respect to the global reference frame
   virtual void move( const GlobalVector& displacement );
 
   /// Rotation with respect to the global reference frame
   virtual void rotateInGlobalFrame( const RotationType& rotation );
-
-  /// Return position 
-  virtual const PositionType& globalPosition() const { return theSurface.position(); }
-
-  /// Return orientation with respect to the global reference frame
-  virtual const RotationType& globalRotation () const { return theSurface.rotation(); }
-
-  /// Return the Surface (global position and orientation) of the object
-  virtual const AlignableSurface& surface() const { return theSurface; }
 
   /// Set the AlignmentPositionError
   virtual void setAlignmentPositionError(const AlignmentPositionError& ape);
@@ -56,14 +51,8 @@ public:
   /// resulting from a rotation in the local reference frame
   virtual void addAlignmentPositionErrorFromLocalRotation(const RotationType& rot);
 
-  /// Restore original position
-  virtual void deactivateMisalignment ();
-
-  /// Restore misaligned position
-  virtual void reactivateMisalignment ();
-
   /// Return the alignable type identifier
-  virtual int alignableObjectId () const { return AlignableObjectId::AlignableDetUnit; }
+  virtual int alignableObjectId () const { return static_cast<int>(AlignableObjectId::AlignableDetUnit); }
 
   /// Printout information about GeomDet
   virtual void dump() const;
@@ -75,10 +64,6 @@ public:
   virtual AlignmentErrors* alignmentErrors() const;
 
 private:
-
-  AlignableSurface theOriginalSurface;
-  AlignableSurface theSurface;
-  AlignableSurface theSavedSurface;
 
   AlignmentPositionError* theAlignmentPositionError;
 

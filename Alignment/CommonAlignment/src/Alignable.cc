@@ -1,22 +1,35 @@
 /** \file Alignable.cc
  *
- *  $Date: 2007/03/16 16:08:19 $
- *  $Revision: 1.11 $
- *  (last update by $Author: flucke $)
+ *  $Date: 2007/04/07 03:30:30 $
+ *  $Revision: 1.12 $
+ *  (last update by $Author: cklae $)
  */
 
 #include "Alignment/CommonAlignment/interface/AlignmentParameters.h"
 #include "Alignment/CommonAlignment/interface/SurveyDet.h"
-#include "DataFormats/DetId/interface/DetId.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 
 #include "Alignment/CommonAlignment/interface/Alignable.h"
 
 //__________________________________________________________________________________________________
-Alignable::Alignable() : 
-  theMisalignmentActive(true), theDetId(0), theAlignmentParameters(0), theMother(0), theSurvey(0)
+Alignable::Alignable(const GeomDet* det):
+  theDetId( det->geographicalId() ),
+  theSurface( det->surface() ),
+  theAlignmentParameters(0),
+  theMother(0),
+  theSurvey(0)
 {
 }
 
+
+Alignable::Alignable(const DetId& id, const RotationType& rot):
+  theDetId(id),
+  theSurface(PositionType(), rot),
+  theAlignmentParameters(0),
+  theMother(0),
+  theSurvey(0)
+{
+}
 
 //__________________________________________________________________________________________________
 Alignable::~Alignable()
@@ -29,7 +42,7 @@ Alignable::~Alignable()
 //__________________________________________________________________________________________________
 void Alignable::deepComponents( std::vector<const Alignable*>& result ) const
 {
-  const std::vector<Alignable*>& comp = components();
+  const Alignables& comp = components();
 
   unsigned int nComp = comp.size();
 
@@ -44,13 +57,13 @@ void Alignable::deepComponents( std::vector<const Alignable*>& result ) const
 
 
 //__________________________________________________________________________________________________
-bool Alignable::firstCompsWithParams(std::vector<Alignable*> &paramComps) const
+bool Alignable::firstCompsWithParams(Alignables &paramComps) const
 {
   bool isConsistent = true;
   bool hasAliComp = false; // whether there are any (grand-) daughters with parameters
   bool first = true;
-  const std::vector<Alignable*> comps(this->components());
-  for (std::vector<Alignable*>::const_iterator iComp = comps.begin(), iCompEnd = comps.end();
+  const Alignables comps(this->components());
+  for (Alignables::const_iterator iComp = comps.begin(), iCompEnd = comps.end();
        iComp != iCompEnd; ++iComp) {
     if ((*iComp)->alignmentParameters()) { // component has parameters itself
       paramComps.push_back(*iComp);
@@ -191,7 +204,6 @@ void Alignable::rotateAroundLocalZ( Scalar radians)
   rotateInLocalFrame(rot);
 
 }
-
 
 
 //__________________________________________________________________________________________________
