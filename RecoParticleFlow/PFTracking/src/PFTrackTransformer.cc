@@ -85,40 +85,44 @@ PFTrackTransformer::getStateOnSurface( PFGeometry::Surface_t iSurf,
 }
 
 
-PFRecTrack 
-PFTrackTransformer::producePFtrackKf(Trajectory * traj,
-				     GsfTrack *gtrack,
-				     PFRecTrack::AlgoType_t algo,
-				     int index){
-  track_ =PFRecTrack(gtrack->charge(), 
-		    algo,index);
-  momClosest_= math::XYZTLorentzVector(gtrack->px(), gtrack->py(), 
-				      gtrack->pz(), gtrack->p());
-  posClosest_=gtrack->vertex();
-  tj_=traj;
 
+
+PFRecTrack 
+PFTrackTransformer::producePFtrack(Trajectory * traj,
+				   const reco::TrackRef& trackref,
+				   PFRecTrack::AlgoType_t algo,
+				   int index){
+  
+  track_ =PFRecTrack( trackref->charge(), 
+		      algo,index, trackref );
+  momClosest_= math::XYZTLorentzVector(trackref->px(), trackref->py(), 
+				       trackref->pz(), trackref->p());
+  posClosest_=trackref->vertex();
+  tj_=traj;
+  
   addPoints();
   LogDebug("PFTrackTransformer")<<"Track "<< index <<"of algo "<<algo<<"transformed in PFTrack"; 
   return track_;
- 
 }
 
-PFRecTrack 
-PFTrackTransformer::producePFtrackKf(Trajectory * traj,
-				     Track *ktrack,
-				     PFRecTrack::AlgoType_t algo,
-				     int index){
-  track_ =PFRecTrack(ktrack->charge(), 
-		    algo,index);
-  momClosest_= math::XYZTLorentzVector(ktrack->px(), ktrack->py(), 
-				      ktrack->pz(), ktrack->p());
-  posClosest_=ktrack->vertex();
-  tj_=traj;
 
+PFRecTrack 
+PFTrackTransformer::producePFtrack(Trajectory * traj,
+				   const reco::Track& track,
+				   PFRecTrack::AlgoType_t algo,
+				   int index){
+  TrackRef dummyRef;
+
+  track_ =PFRecTrack( track.charge(), 
+		      algo,index, dummyRef );
+  momClosest_= math::XYZTLorentzVector(track.px(), track.py(), 
+				       track.pz(), track.p());
+  posClosest_=track.vertex();
+  tj_=traj;
+  
   addPoints();
   LogDebug("PFTrackTransformer")<<"Track "<< index <<"of algo "<<algo<<"transformed in PFTrack"; 
   return track_;
- 
 }
 
 void 

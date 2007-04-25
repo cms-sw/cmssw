@@ -143,6 +143,8 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 
   for(uint i=0;i<Tk.size();i++){
 
+    reco::TrackRef trackRef(tkRefCollection, i);
+
     float PTOB=Tj[i].lastMeasurement().updatedState().globalMomentum().mag();
     float chired=Tk[i].normalizedChi2();
     int nhitpi=Tj[i].foundHits();
@@ -311,8 +313,10 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
       output_preid->push_back(NewSeed);
       
       if(produceCkfPFT_){
+// 	reco::PFRecTrack pft=pfTransformer_->
+// 	  producePFtrack(&(Tj[i]),&(Tk[i]),reco::PFRecTrack::KF_ELCAND,i);
 	reco::PFRecTrack pft=pfTransformer_->
-	  producePFtrackKf(&(Tj[i]),&(Tk[i]),reco::PFRecTrack::KF_ELCAND,i);
+	  producePFtrack(&(Tj[i]), trackRef, reco::PFRecTrack::KF_ELCAND,i);
 	pftracks.push_back(pft);
 
       } 
@@ -321,8 +325,10 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 	output_nopre->push_back(Seed);
       }
       if(produceCkfPFT_){
+// 	reco::PFRecTrack pft=pfTransformer_->
+// 	  producePFtrack(&(Tj[i]),&(Tk[i]),reco::PFRecTrack::KF,i);
 	reco::PFRecTrack pft=pfTransformer_->
-	  producePFtrackKf(&(Tj[i]),&(Tk[i]),reco::PFRecTrack::KF,i);
+	  producePFtrack(&(Tj[i]), trackRef, reco::PFRecTrack::KF,i);
 	pftracks.push_back(pft); 
       }
     }

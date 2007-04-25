@@ -2,6 +2,10 @@
 #define DataFormats_ParticleFlowReco_PFRecTrack_h
 
 #include "DataFormats/ParticleFlowReco/interface/PFTrack.h"
+#include "DataFormats/Common/interface/Ref.h"
+/* #include "DataFormats/Common/interface/RefToBase.h" */
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+
 #include <iostream>
 
 namespace reco {
@@ -30,26 +34,41 @@ namespace reco {
 
     PFRecTrack();
   
-    PFRecTrack(double charge, AlgoType_t algoType, int trackId);
+    PFRecTrack(double charge, 
+	       AlgoType_t algoType, 
+	       int trackId,
+	       const reco::TrackRef& trackref );
 
-    PFRecTrack(double charge, AlgoType_t algoType);
+    PFRecTrack(double charge,
+	       AlgoType_t algoType);
 
-    PFRecTrack(const PFRecTrack& other);
+/*     PFRecTrack(const PFRecTrack& other); */
 
-    /// get type of algorithm
+    /// \return type of algorithm
     unsigned int algoType() const { return algoType_; }
+
+    /// \return id
+    int trackId() const {return trackId_;}
+
+    /// \return reference to corresponding track
+    const reco::TrackRef& 
+      trackRef() const {return trackRef_;}
 
     friend  std::ostream& operator<<(std::ostream& out, 
 				     const PFRecTrack& track);
-    int recTrackId() const {return trackId_;}
 
   private:
 
     /// type of fitting algorithm used to reconstruct the track
     AlgoType_t algoType_;
     
+    /// track id
     int trackId_;
+
+    /// reference to corresponding track
+    reco::TrackRef        trackRef_;
   };
+
 
 }
 

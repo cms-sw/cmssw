@@ -9,6 +9,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecTrack.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -43,16 +44,21 @@ class PFTrackTransformer{
  
 
   ///Produce PfRecTrack from a pair GsfTrack-Trajectory
-  reco::PFRecTrack  producePFtrackKf(Trajectory * traj,
-				     reco::GsfTrack *gtrack,
-				     reco::PFRecTrack::AlgoType_t,
-				     int index);
+  reco::PFRecTrack  producePFtrack(Trajectory * traj,
+				   const reco::Track& track,
+				   reco::PFRecTrack::AlgoType_t,
+				   int index);
 
   ///Produce PfRecTrack from a pair Track-Trajectory
-  reco::PFRecTrack  producePFtrackKf(Trajectory * traj,
-				     reco::Track *ktrack,
-				     reco::PFRecTrack::AlgoType_t,
-				     int index);
+/*   reco::PFRecTrack  producePFtrack(Trajectory * traj, */
+/* 				   reco::Track *ktrack, */
+/* 				   reco::PFRecTrack::AlgoType_t, */
+/* 				   int index); */
+
+  reco::PFRecTrack  producePFtrack(Trajectory * traj,
+				   const reco::TrackRef& trackref,
+				   reco::PFRecTrack::AlgoType_t,
+				   int index);
 
   ///Utility for getting the TSOS in all the surface defined in PFGeometry
   TrajectoryStateOnSurface getStateOnSurface(PFGeometry::Surface_t iSurf, 

@@ -1,5 +1,6 @@
 #include "DataFormats/ParticleFlowReco/interface/PFRecTrack.h"
 // #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DataFormats/TrackReco/interface/Track.h"
 
 using namespace reco;
 
@@ -7,21 +8,23 @@ using namespace reco;
 PFRecTrack::PFRecTrack() :
   PFTrack(),
   algoType_(PFRecTrack::Unknown) {}
-PFRecTrack::PFRecTrack(double charge, AlgoType_t algoType, int trackId) : 
+
+
+
+PFRecTrack::PFRecTrack(double charge, AlgoType_t algoType, 
+		       int trackId, const reco::TrackRef& trackRef ) : 
   PFTrack(charge), 
   algoType_(algoType),
-  trackId_(trackId){}
+  trackId_(trackId), 
+  trackRef_(trackRef) {}
+
+
 
 PFRecTrack::PFRecTrack(double charge, AlgoType_t algoType) : 
   PFTrack(charge), 
   algoType_(algoType),
   trackId_(-1) {}
   
-
-PFRecTrack::PFRecTrack(const PFRecTrack& other) :
-  PFTrack(other), 
-  algoType_(other.algoType_),
-  trackId_(other.trackId_) {}
 
 
 std::ostream& reco::operator<<(std::ostream& out, 
@@ -39,6 +42,7 @@ std::ostream& reco::operator<<(std::ostream& out,
       <<" Z0 = " << closestApproach.positionXYZ().Z() << std::endl
       << "\tnumber of tracker measurements = " 
       << track.nTrajectoryMeasurements() << std::endl;
+
 
   return out;
 }

@@ -3,6 +3,7 @@
 
 #include "DataFormats/ParticleFlowReco/interface/PFRecTrackFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 
 
 #include <iostream>
@@ -78,8 +79,9 @@ namespace reco {
     /// \return index
     unsigned index() const {return index_;} 
 
-    virtual PFRecTrackRef trackRef()  const {return PFRecTrackRef();}
-    virtual PFClusterRef  clusterRef() const {return PFClusterRef();}
+    virtual reco::TrackRef trackRef()  const {return reco::TrackRef(); }
+    virtual PFRecTrackRef trackRefPF()  const {return PFRecTrackRef(); }
+    virtual PFClusterRef clusterRef() const {return PFClusterRef(); }
 
 
     friend std::ostream& operator<<( std::ostream& out, 

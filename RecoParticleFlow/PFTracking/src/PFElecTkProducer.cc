@@ -72,7 +72,7 @@ PFElecTkProducer::produce(Event& iEvent, const EventSetup& iSetup)
   //read collections of trajectories
   Handle<vector<Trajectory> > TrajectoryCollection;
  
-  
+
   if (trajinev_){
     iEvent.getByLabel(gsfTrackModule_,TrajectoryCollection); 
     reco::GsfTrackCollection gsftracks = *(gsfelectrons.product());
@@ -80,8 +80,8 @@ PFElecTkProducer::produce(Event& iEvent, const EventSetup& iSetup)
 
     for (uint igsf=0; igsf<gsftracks.size();igsf++)
       pftracks.push_back(pfTransformer_->
-			 producePFtrackKf(&(tjvec[igsf]),&(gsftracks[igsf]),
-					  reco::PFRecTrack::GSF,igsf));
+			 producePFtrack( &(tjvec[igsf]), gsftracks[igsf],
+					 reco::PFRecTrack::GSF,igsf));
     
     
     for(uint ipf=0; ipf<pftracks.size();ipf++)
