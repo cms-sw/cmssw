@@ -9,7 +9,6 @@
 #include <vector>
 #include <map>
 
-
 class EcalTPParameters {
  public:
    
@@ -28,20 +27,27 @@ class EcalTPParameters {
 
   // setters
   void setTowerParameters(int SM, int towerInSM, std::vector<unsigned int> params) 	    
-    {towerParam_[getIndex(SM,towerInSM)]=params;}         
+    {towerParam_[getIndex(SM,towerInSM)]=params;
+    }         
   void setStripParameters(int SM, int towerInSM, int stripInTower, std::vector<unsigned int> params)  
     {stripParam_[getIndex(SM,towerInSM,stripInTower)]=params;}
   void setXtalParameters(int SM, int towerInSM, int stripInTower, int xtalInStrip, std::vector<unsigned int> params) 
-    {xtalParam_[getIndex(SM,towerInSM,stripInTower,xtalInStrip)]=params;}
-
+    {xtalParam_[getIndex(SM,towerInSM,stripInTower,xtalInStrip)]=params;
+    }
   void setPhysicsParameters(std::vector<float> params)      
     {xtalLsbEB_ = params[0]; EtSatEB_ = params[1]; ttfLowEB_ = params[2]; ttfHighEB_ = params[3]; }         
-
+  void setConstants(const int nbMaxTowers, const int nbMaxStrips, const int nbMaxXtals, const int nrMinTccEB, const int nrMaxTccEB);
   void changeThresholds(double ttfLowEB, double ttfHighEB, double ttfLowEE, double ttfHighEE);
+
+  static int nbMaxTowers_;
+  static int nbMaxStrips_;
+  static int nbMaxXtals_;
+  static int nrMinTccEB_;
+  static int nrMaxTccEB_;
 
  private:
   // updates Luts etc after change of parameters
-  //FIXME: to be implemented, at least for changing according to  TTF thresholds
+  //FIXME: to be implemented for endcap also
   void update();
 
   int getIndex(int SM, int towerInSM, int stripInTower=0, int xtalInStrip=0) const ;
@@ -60,7 +66,7 @@ class EcalTPParameters {
   std::map <int, std::vector<unsigned int> > stripParam_ ;
   std::map <int, std::vector<unsigned int> > xtalParam_ ;
 
-
+ 
 };
 #endif
 
