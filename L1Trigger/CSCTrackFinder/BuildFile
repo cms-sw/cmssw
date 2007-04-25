@@ -1,5 +1,3 @@
-<flags EDM_PLUGIN=1>
-
 <export>
  <lib name=L1TriggerCSCTrackFinder>
  <use name=L1Trigger/CSCCommonTrigger>
