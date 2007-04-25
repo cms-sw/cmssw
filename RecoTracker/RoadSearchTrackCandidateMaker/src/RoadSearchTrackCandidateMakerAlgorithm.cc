@@ -10,8 +10,8 @@
 // Created:         Wed Mar 15 13:00:00 UTC 2006
 //
 // $Author: burkett $
-// $Date: 2007/03/28 18:09:58 $
-// $Revision: 1.33 $
+// $Date: 2007/04/02 17:39:30 $
+// $Revision: 1.34 $
 //
 
 #include <vector>
@@ -419,6 +419,12 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
           //GlobalPoint vertexPos(0,0,0);
           const double dr2 = 0.0015*0.0015;
           const double dz2 = 5.3*5.3;
+
+	  // linear z extrapolation of two hits have to be inside tracker ( |z| < 275 cm)
+	  FastLine linearFit(outer, inner);
+	  double z_0 = -linearFit.c()/linearFit.n2();
+	  if ( std::abs(z_0) > 275 ) continue;
+
           GlobalError vertexErr(dr2,
                                 0, dr2,
                                 0, 0, dz2);
