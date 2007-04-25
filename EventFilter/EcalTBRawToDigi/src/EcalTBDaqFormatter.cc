@@ -1,7 +1,7 @@
 /*  
  *
- *  $Date: 2007/04/12 08:36:47 $
- *  $Revision: 1.46 $
+ *  $Date: 2007/04/24 16:57:02 $
+ *  $Revision: 1.47 $
  *  \author  N. Marinelli IASA 
  *  \author G. Della Ricca
  *  \author G. Franzoni
@@ -302,7 +302,7 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData ,
 	    {     
 	      edm::LogWarning("EcalTBRawToDigiTowerSize") << "EcalTBDaqFormatter::interpretRawData, no zero suppression "
 					    << "wrong tower block size is: "  << xtalDataBlocks.size() 
-					    << " in event " << (*itEventBlock)->getDataField("LV1")
+					    << " at LV1 " << (*itEventBlock)->getDataField("LV1")
 					    << " for TT " << _ExpectedTowers[_expTowersIndex];
 	      // report on wrong tt block size
 	      blocksizecollection.push_back(idtt);
@@ -374,12 +374,21 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData ,
 		else
 		  {
 		    edm::LogWarning("EcalTBRawToDigiChId") << "EcalTBDaqFormatter::interpretRawData with zero suppression, "
+<<<<<<< EcalTBDaqFormatter.cc
+						  << " based on ch ordering within tt, wrong channel id: "
+						  << "\t strip: "  << strip  << "\t channel: " << ch
+						  << "\t cryInTower "  << cryInTower
+						  << "\t expCryInTower: " << expCryInTower
+						  << "\t in TT: " << _ExpectedTowers[_expTowersIndex]
+						  << "\t at LV1: " << (*itEventBlock)->getDataField("LV1");
+=======
 							   << " based on ch ordering within tt, wrong channel id: "
 							   << "\t strip: "  << strip  << "\t channel: " << ch
 							   << "\t cryInTower "  << cryInTower
 							   << "\t expCryInTower: " << expCryInTower
 							   << "\t in TT: " << _ExpectedTowers[_expTowersIndex]
 							   << "\t at event: " << (*itEventBlock)->getDataField("LV1");
+>>>>>>> 1.47
 		    
 		    int  sm = 1; // hardcoded because of test  beam
 		    for (int StripInTower_ =1;  StripInTower_ < 6; StripInTower_++){
@@ -412,7 +421,7 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData ,
 						    << " wrong channel id for channel: "  << expCryInStrip
 						    << "\t strip: " << expStripInTower
 						    << "\t in TT: " << _ExpectedTowers[_expTowersIndex]
-						    << "\t in event: " << (*itEventBlock)->getDataField("LV1")
+						    << "\t at LV1: " << (*itEventBlock)->getDataField("LV1")
 						    << "\t   (in the data, found channel:  " << ch
 						    << "\t strip:  " << strip << " ).";
 
@@ -464,7 +473,7 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData ,
 					    << "\t channel: " << expCryInStrip
 					    << "\t in TT: " << _ExpectedTowers[_expTowersIndex]
 					    << "\t ic: " << ic
-					    << "\t in event: " << (*itEventBlock)->getDataField("LV1");
+					    << "\t at LV1: " << (*itEventBlock)->getDataField("LV1");
 	      // report on gain==0
 	      gaincollection.push_back(id);
 	      
