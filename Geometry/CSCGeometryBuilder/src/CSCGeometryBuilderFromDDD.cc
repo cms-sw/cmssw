@@ -80,6 +80,8 @@ CSCGeometry* CSCGeometryBuilderFromDDD::buildEndcaps( DDFilteredView* fv, const 
 
   // Here we're reading the cscSpecs.xml file
 
+  int noOfAnonParams = 0;
+
   while (doAll) {
     std::string upstr = "upar";
     std::vector<const DDsvalues_type *> spec = fv->specifics();
@@ -98,6 +100,8 @@ CSCGeometry* CSCGeometryBuilderFromDDD::buildEndcaps( DDFilteredView* fv, const 
 	if (it->second.name() == upstr) {
 	  uparvals = it->second.doubles();
 	  //std::cout << "found upars " << std::endl;
+	} else if (it->second.name() == "NoOfAnonParams") {
+	  noOfAnonParams = static_cast<int>( it->second.doubles()[0] );
 	} else if (it->second.name() == "NumWiresPerGrp") {
 	  //numWiresInGroup = it->second.doubles();
 	  for ( size_t i = 0 ; i < it->second.doubles().size(); i++) {
@@ -128,6 +132,8 @@ CSCGeometry* CSCGeometryBuilderFromDDD::buildEndcaps( DDFilteredView* fv, const 
     std::vector<float> fpar;
     std::vector<double> dpar = fv->logicalPart().solid().parameters();
     
+    LogTrace(myName) << myName  << ": noOfAnonParams=" << noOfAnonParams;
+
     LogTrace(myName) << myName  << ": fill fpar...";
     LogTrace(myName) << myName  << ": dpars are... " << 
           dpar[4]/cm << ", " << dpar[8]/cm << ", " << 
@@ -207,13 +213,12 @@ CSCGeometry* CSCGeometryBuilderFromDDD::buildEndcaps( DDFilteredView* fv, const 
       }
       LogTrace(myName) << myName << ": end of wire group info. " ;
 
-
       CSCDetId detid = CSCDetId( id );
       int jendcap  = detid.endcap();
       int jstation = detid.station();
       int jring    = detid.ring();
       int jchamber = detid.chamber();
-      
+
       if ( jstation==1 && jring==1 ) {
 	// set up params for ME1a and ME1b and call buildChamber *for each*
 	// Both get the full ME11 dimensions
@@ -221,9 +226,14 @@ CSCGeometry* CSCGeometryBuilderFromDDD::buildEndcaps( DDFilteredView* fv, const 
 	// detid is for ME11 and that's what we're using for ME1b in the software
         buildChamber (theGeometry, detid, fpar, fupar, gtran, grmat, wg ); // ME1b
 
-	//@@ MAGIC NUMBER '34' IS NO. OF ANONYMOUS PARAMETERS PER CHAMBER TYPE
-        const int kNoOfAnonParams = 34;
-	std::copy( fupar.begin()+kNoOfAnonParams, fupar.end(), fupar.begin() ); // copy ME1a params to beginning
+        // No. of anonymous parameters per chamber type should be read from cscSpecs file...
+	// Only required for ME11 splitting into ME1a and ME1b values,
+        // If it isn't seen may as well try to get further but this value will depend
+        // on structure of the file so may not even match! 
+        const int kNoOfAnonParams = 35;
+        if ( noOfAnonParams == 0 ) { noOfAnonParams = kNoOfAnonParams; } // in case it wasn't seen
+
+	std::copy( fupar.begin()+noOfAnonParams, fupar.end(), fupar.begin() ); // copy ME1a params from back to the front
         CSCDetId detid1a = CSCDetId( jendcap, 1, 4, jchamber, 0 ); // reset to ME1A
         buildChamber (theGeometry, detid1a, fpar, fupar, gtran, grmat, wg ); // ME1a
 
@@ -271,7 +281,8 @@ void CSCGeometryBuilderFromDDD::buildChamber (
   LogTrace(myName) << myName  << ": grmat[0-8]=" << grmat[0] << " " << grmat[1] << " " << grmat[2] << " "
          << grmat[3] << " " << grmat[4] << " " << grmat[5] << " "
 		  << grmat[6] << " " << grmat[7] << " " << grmat[8] ;
-  LogTrace(myName) << myName  << ": nupar=" << fupar.size() << " upar[0]=" << fupar[0] ;
+  LogTrace(myName) << myName  << ": nupar=" << fupar.size() << " upar[0]=" << fupar[0]
+		   << " upar[" << fupar.size()-1 << "]=" << fupar[fupar.size()-1];
 
 
   CSCChamber* chamber = const_cast<CSCChamber*>(theGeometry->chamber( chamberId ));
@@ -318,9 +329,10 @@ void CSCGeometryBuilderFromDDD::buildChamber (
       
    // Need to know z of layers w.r.t to z of centre of chamber. 
 
-    float frameThickness = fupar[31]/10.; // mm -> cm
-    float gapThickness =   fupar[32]/10.; // mm -> cm
-    float panelThickness = fupar[33]/10.; // mm -> cm
+    float frameThickness     = fupar[31]/10.; // mm -> cm
+    float gapThickness       = fupar[32]/10.; // mm -> cm
+    float panelThickness     = fupar[33]/10.; // mm -> cm
+    float distAverageAGVtoAF = fupar[34]/10.; // mm -> cm
 
     float layerThickness = gapThickness; // consider the layer to be the gas gap
     float layerSeparation = gapThickness + panelThickness; // centre-to-centre of neighbouring layers
@@ -328,9 +340,8 @@ void CSCGeometryBuilderFromDDD::buildChamber (
     float chamberThickness = 7.*panelThickness + 6.*gapThickness + 2.*frameThickness ; // chamber frame thickness
     float hChamberThickness = chamberThickness/2.; // @@ should match value returned from DDD directly
 
-    // @@ If there's really an offset between centre of chamber and (L1+L6)/2 then need an appropriate value
-    // @@ for centreChamberToFirstLayer in cscSpecs file and just read it directly instead of the following...
-    float centreChamberToFirstLayer = 2.5 * layerSeparation; // local z wrt chamber centre
+    // distAverageAGVtoAF is offset between centre of chamber (AF) and (L1+L6)/2 (average AGVs) 
+    float centreChamberToFirstLayer = 2.5 * layerSeparation + distAverageAGVtoAF ; // local z wrt chamber centre
    
    // Now z of wires in layer 1 = z_s1 = centreChamberToFirstLayer;; // layer 1 is at most +ve local z
    //     z of wires in layer N = z_sN = z_s1 - (N-1)*layerSeparation; 
@@ -368,6 +379,11 @@ void CSCGeometryBuilderFromDDD::buildChamber (
     // we need to adjust sign of offset appropriately...
     int localZwrtGlobalZ = +1;
     if ( (jend==1 && jstat<3 ) || ( jend==2 && jstat>2 ) ) localZwrtGlobalZ = -1;
+
+    LogTrace(myName) << myName << ": layerSeparation=" << layerSeparation << ", distAverageAGVtoAF=" 
+                     << distAverageAGVtoAF << ", centreChamberToFirstLayer=" 
+		     << centreChamberToFirstLayer << ", localZwrtGlobalZ=" << localZwrtGlobalZ
+		     << ", gtran[2]=" << gtran[2] ;
 
     for ( short j = 1; j <= 6; ++j ) {
 
