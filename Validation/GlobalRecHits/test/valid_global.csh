@@ -2,21 +2,21 @@
  
 eval `scramv1 ru -csh`
 
-setenv GLBLREFDIR /afs/cern.ch/cms/data/CMSSW/Validation/GlobalDigis/data
-setenv LOCLREFDIR ${CMSSW_RELEASE_BASE}/src/Validation/GlobalDigis/data
+setenv GLBLREFDIR /afs/cern.ch/cms/data/CMSSW/Validation/GlobalRecHitss/data
+setenv LOCLREFDIR ${CMSSW_RELEASE_BASE}/src/Validation/GlobalRecHitss/data
 
-echo "============> Validating Global Digi Hits <============"
+echo "============> Validating Global RecHits <============"
 echo "......producing output file with this release"
 if ( -e MessageLogger.log ) rm MessageLogger.log
 if ( -e output.log ) rm output.log
 if ( -e FrameworkJobReport.xml ) rm FrameworkJobReport.xml
 #comment out if RefPoolSource.cfi modified to use /afs location directly
 #cp ${GLBLREFDIR}/MC_010p2_minbias.root .
-cmsRun -p DetSim+Digi+Global.cfg >& output.log
+cmsRun -p DetSim+Digi+Reco+Global.cfg >& output.log
 echo "......creating histogram file with this release"
-root -b -q MakeHistograms.C\(\"GlobalDigis.root\",\"GlobalDigisHistograms\"\)
+root -b -q MakeHistograms.C\(\"GlobalRecHits.root\",\"GlobalRecHitsHistograms\"\)
 echo "......comparing against reference file from previous release"
-cp ${LOCLREFDIR}/GlobalDigisHistograms-reference.root .
-root -b -q MakeValidation.C\(\"GlobalDigisHistograms.root\",\"GlobalDigisHistograms-reference.root\",\"GlobalDigisHistogramsCompare\"\)
-echo "......results of validation in GlobalDigisHistogramsCompare.ps"
-echo "============> Validating Global Digi Hits <============"
+cp ${LOCLREFDIR}/GlobalRecHitsHistograms-reference.root .
+root -b -q MakeValidation.C\(\"GlobalRecHitsHistograms.root\",\"GlobalRecHitsHistograms-reference.root\",\"GlobalRecHitsHistogramsCompare\"\)
+echo "......results of validation in GlobalRecHitsHistogramsCompare.ps"
+echo "============> Validating Global RecHits <============"
