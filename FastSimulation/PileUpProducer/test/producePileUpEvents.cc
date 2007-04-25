@@ -19,11 +19,8 @@
 #include "FastSimulation/Particle/interface/ParticleTable.h"
 #include "FastSimulation/PileUpProducer/interface/PUEvent.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 #include <vector>
 #include <string>
-#include "TH2.h"
 #include "TFile.h"
 #include "TTree.h"
 #include "TProcessID.h"
