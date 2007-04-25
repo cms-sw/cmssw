@@ -1,8 +1,8 @@
 /** \file
  *  A simple example of ho to access the magnetic field.
  *
- *  $Date: 2007/02/03 16:08:03 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/03/09 18:13:58 $
+ *  $Revision: 1.5 $
  *  \author N. Amapane - CERN
  */
 
@@ -108,7 +108,9 @@ void testMagneticField::validate(string filename) {
 
   int fail = 0;
   int count = 0;
-   
+  
+  float maxdelta=0.;
+  
   while (getline(file,line)) {
     if( line == "" || line[0] == '#' ) continue;
     stringstream linestr;
@@ -122,12 +124,15 @@ void testMagneticField::validate(string filename) {
     GlobalVector newB = field->inTesla(gp);
     if ((newB-oldB).mag() > reso) {
       ++fail;
-      cout << " Discrepancy at: # " << i << " " << gp << " delta : " << newB-oldB << endl;
+      float delta = (newB-oldB).mag();
+      if (delta > maxdelta) maxdelta = delta;
+      cout << " Discrepancy at: # " << i << " " << gp << " delta : " << newB-oldB << " " << delta <<  endl;
     }
     ++count;
   }
   cout << endl << " testMagneticField::validate: tested " << count
-       << " points " << fail << " failures" << endl << endl;
+       << " points " << fail << " failures; max delta = " << maxdelta
+       << endl << endl;
   
 }
 
