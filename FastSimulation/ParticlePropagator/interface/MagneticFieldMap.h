@@ -8,7 +8,7 @@
 // Famos headers
 #include "FastSimulation/TrackerSetup/interface/TrackerLayer.h"
 
-#include <map>
+#include <vector>
 #include <string>
 
 class MagneticField;
@@ -45,8 +45,13 @@ private:
   static MagneticFieldMap* myself;
   const MagneticField* pMF_;
   TrackerInteractionGeometry* geometry_;
-  std::map<int,TH1*> fieldBarrelHistos;
-  std::map<int,TH1*> fieldEndcapHistos;
+  std::vector<TH1*> fieldBarrelHistos;
+  std::vector<TH1*> fieldEndcapHistos;
+  std::vector<double> fieldBarrelBinWidth;
+  std::vector<double> fieldBarrelZMin;
+  std::vector<double> fieldEndcapBinWidth;
+  std::vector<double> fieldEndcapRMin;
+  
 
 };
 

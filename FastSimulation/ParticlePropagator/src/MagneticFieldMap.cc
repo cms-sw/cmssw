@@ -26,7 +26,15 @@ MagneticFieldMap::instance() {
 
 MagneticFieldMap::MagneticFieldMap(const MagneticField* pMF,
 				   TrackerInteractionGeometry* myGeo) : 
-  pMF_(pMF), geometry_(myGeo) {;}
+  pMF_(pMF), 
+  geometry_(myGeo), 
+  fieldBarrelHistos(200,static_cast<TH1*>(0)),
+  fieldEndcapHistos(200,static_cast<TH1*>(0)),
+  fieldBarrelBinWidth(200,static_cast<double>(0)),
+  fieldBarrelZMin(200,static_cast<double>(0)),
+  fieldEndcapBinWidth(200,static_cast<double>(0)),
+  fieldEndcapRMin(200,static_cast<double>(0))
+{;}
 
 void
 MagneticFieldMap::initialize()
@@ -62,21 +70,29 @@ MagneticFieldMap::initialize()
     int bins=101;
     double step;
 
-    // Disk histogram
+    // Disk histogram characteristics
     std::string histEndcap = Form("LayerEndCap_%u",layer);
     step = (rmax-rmin)/(bins-1);
     fieldEndcapHistos[layer] = 
       new TH1D(histEndcap.c_str(),"",bins,rmin,rmax+step);
+    fieldEndcapBinWidth[layer] = step;
+    fieldEndcapRMin[layer] = rmin;
+
+    // Fill the histo
     for ( double radius=rmin+step/2.; radius<rmax+step; radius+=step ) {
       double field = inTeslaZ(GlobalPoint(radius,0.,zmax));
       fieldEndcapHistos[layer]->Fill(radius,field);
     }
 
-    // Barrel Histogram
+    // Barrel Histogram characteritics
     std::string histBarrel = Form("LayerBarrel_%u",layer);
     step = (zmax-zmin)/(bins-1);
     fieldBarrelHistos[layer] = 
-      new TH1D(histBarrel.c_str(),"",bins,0.,zmax+step);
+      new TH1D(histBarrel.c_str(),"",bins,zmin,zmax+step);
+    fieldBarrelBinWidth[layer] = step;
+    fieldBarrelZMin[layer] = zmin;
+
+    // Fill the histo
     for ( double zed=zmin+step/2.; zed<zmax+step; zed+=step ) {
       double field = inTeslaZ(GlobalPoint(rmax,0.,zed));
       fieldBarrelHistos[layer]->Fill(zed,field);
@@ -137,36 +153,32 @@ MagneticFieldMap::inTeslaZ(const TrackerLayer& aLayer, double coord, int success
   } else {
     // Find the relevant histo
     TH1* theHisto; 
-    if ( success == 1 ) 
-      theHisto = fieldBarrelHistos.find(aLayer.layerNumber())->second;
-    else
-      theHisto = fieldEndcapHistos.find(aLayer.layerNumber())->second;
+    double theBinWidth;
+    double theXMin;
+    unsigned layer = aLayer.layerNumber();
+
+    if ( success == 1 ) { 
+      theHisto = fieldBarrelHistos[layer];
+      theBinWidth = fieldBarrelBinWidth[layer];
+      theXMin = fieldBarrelZMin[layer];
+    } else {
+      theHisto = fieldEndcapHistos[layer];
+      theBinWidth = fieldEndcapBinWidth[layer];
+      theXMin = fieldEndcapRMin[layer];
+    }
     
     // Find the relevant bin
-    TAxis* theAxis = theHisto->GetXaxis();
     double x = fabs(coord);
-    int bin = theAxis->FindBin(x);
-    double binWidth = theHisto->GetBinWidth(bin);
-    double x1 = theHisto->GetBinLowEdge(bin)+binWidth/2.;
-    double x2 = x1+binWidth;
+    unsigned bin = (unsigned) ((x-theXMin)/theBinWidth) + 1; // TH1: bin 0 == underflows 
+    double x1 = theXMin + (bin-0.5)*theBinWidth;
+    double x2 = x1+theBinWidth;      
 
     // Determine the field
     double field1 = theHisto->GetBinContent(bin);
     double field2 = theHisto->GetBinContent(bin+1);
 
-    //    if ( bin == 0 || bin == 1001 ) 
-    //      std::cout << "WARNING bin = " << bin 
-    //		<< " field " << field1 << " " << field2 
-    //		<< std::endl;
-	
-    /*
-    std::cout << "Layer " << aLayer.layerNumber() 
-	      << " coord " << coord << " x " << x 
-	      << " bin " << bin 
-	      << " x1 " << x1 << " x2 " << x2 
-	      << " field1 " << field1 << " field2 " << field2 << std::endl;
-    */
     return field1 + (field2-field1) * (x-x1)/(x2-x1);
+
   }
 
 }
