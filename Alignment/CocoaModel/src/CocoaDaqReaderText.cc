@@ -6,6 +6,7 @@
 #include "CondFormats/OptAlignObjects/interface/OpticalAlignMeasurements.h"
 
 
+using namespace std;
 #include <iostream>
 
 //----------------------------------------------------------------------
@@ -55,7 +56,6 @@ bool CocoaDaqReaderText::ReadNextEvent()
   }
   ALIint ii;
   for(ii = 0; ii < nMeas; ii++) {
-  if(ALIUtils::debug >= 4) std::cout << " reading meas  " << ii << " out of " <<  nMeas << std::endl;    
     theFilein.getWordsInLine(wordlist);  
     if( wordlist[0] == ALIstring("SENSOR2D") || wordlist[0] == ALIstring("TILTMETER") || wordlist[0] == ALIstring("DISTANCEMETER")  || wordlist[0] == ALIstring("DISTANCEMETER1DIM")  || wordlist[0] == ALIstring("COPS") ) {
       if( wordlist.size() != 2 ) {
@@ -88,24 +88,23 @@ bool CocoaDaqReaderText::ReadNextEvent()
 	  GlobalOptionMgr* gomgr = GlobalOptionMgr::getInstance();
 	  ALIbool sigmaFF = gomgr->GlobalOptions()["measurementErrorFromFile"];
 	  //---------- Read the data 
-	  for ( uint jj=0; jj < meastemp->dim(); jj++){
-	    if(ALIUtils::debug >= 4) std::cout << " reading meas dim " << jj << " out of " <<  meastemp->dim() << std::endl;
+	  for ( uint ii=0; ii < meastemp->dim(); ii++){
 	    theFilein.getWordsInLine( wordlist );
             ALIdouble sigma = 0.;
             if( !sigmaFF ) { 
 	      // keep the sigma, do not read it from file 
 	      const ALIdouble* sigmav = meastemp->sigma();
-	      sigma = sigmav[jj];
+	      sigma = sigmav[ii];
 	    }
 	    //---- Check measurement value type is OK
-	    if( meastemp->valueType(jj) != wordlist[0] ) {
+	    if( meastemp->valueType(ii) != wordlist[0] ) {
 	      theFilein.ErrorInLine();
-	      std::cerr << "!!!FATAL ERROR: Measurement value type is " << wordlist[0] << " while in setup definition was " << meastemp->valueType(jj) << std::endl;
+	      std::cerr << "!!!FATAL ERROR: Measurement value type is " << wordlist[0] << " while in setup definition was " << meastemp->valueType(ii) << std::endl;
 	      exit(1);
 	    }
-	    meastemp->fillData( jj, wordlist );
+	    meastemp->fillData( ii, wordlist );
             if( !sigmaFF ) { 
-	      meastemp->setSigma( jj, sigma );
+	      meastemp->setSigma( ii, sigma );
 	    }
 	  }
 	  meastemp->correctValueAndSigma();
