@@ -111,7 +111,12 @@ producePileUpEvents::~producePileUpEvents()
  
     outFile->cd();
     // Fill the last (incomplete) puEvent
-    puTree->Fill();
+    if ( puEvent->nMinBias() != 0 ) { 
+      puTree->Fill();
+      std::cout << "Saved " << puEvent->nMinBias() 
+		<< " MinBias Event(s) with " << puEvent->nParticles()
+		<< " Particles in total " << std::endl;
+    }
     // Conclude the writing on disk
     puTree->Write();
     // Print information
