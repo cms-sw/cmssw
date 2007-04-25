@@ -106,7 +106,7 @@ L1RCTElectronIsolationCard::calcElectronCandidates(L1RCTRegion* region){
 	  nonIsoElectron = candidateEt;
 
 	bool isolated = !(quietVeto || neighborVeto);
-	
+
       }
     }
   }
