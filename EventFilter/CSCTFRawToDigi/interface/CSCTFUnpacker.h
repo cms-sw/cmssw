@@ -4,14 +4,13 @@
 /** \class CSCTFDCCUnpacker
  *
  *
- *  $Date: 2006/06/20 17:02:26 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/06/22 14:46:04 $
+ *  $Revision: 1.3 $
  * \author Lindsey Gray
  */
 
 #include <FWCore/Framework/interface/EDProducer.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
-#include "L1Trigger/CSCTrackFinder/interface/CSCTFPtLUT.h"
 
 #include <string>
 
@@ -33,8 +32,6 @@ class CSCTFUnpacker: public edm::EDProducer {
 
 
  private:
-
-  CSCTFPtLUT ptlut;
 
   int numOfEvents;
   int TBFEDid,TBendcap,TBsector;

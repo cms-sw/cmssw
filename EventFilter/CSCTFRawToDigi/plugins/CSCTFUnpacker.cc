@@ -37,7 +37,7 @@
 #include <iostream>
 
 
-CSCTFUnpacker::CSCTFUnpacker(const edm::ParameterSet & pset):ptlut(pset)
+CSCTFUnpacker::CSCTFUnpacker(const edm::ParameterSet & pset)
 {
   LogDebug("CSCTFUnpacker|ctor") << "starting CSCTFConstructor";
 
@@ -203,14 +203,14 @@ void CSCTFUnpacker::produce(edm::Event & e, const edm::EventSetup& c)
 						track.first.m_ptAddress = iter->ptLUTaddress();
 						track.first.setStationIds(iter->ME1_id(),iter->ME2_id(),iter->ME3_id(),iter->ME4_id(),iter->MB_id());
 						track.first.setBx(iter->tbin());
-						pt_data pt = ptlut.Pt(iter->deltaPhi12(),iter->deltaPhi23(),iter->eta(),iter->mode(),iter->f_r(),iter->sign());
-						track.first.m_rank      = (iter->f_r()?pt.front_rank:pt.rear_rank);
+//						pt_data pt = ptlut.Pt(iter->deltaPhi12(),iter->deltaPhi23(),iter->eta(),iter->mode(),iter->f_r(),iter->sign());
+//						track.first.m_rank      = (iter->f_r()?pt.front_rank:pt.rear_rank);
 						//track.f_r         = iter->f_r();
 						track.first.setPhiPacked(iter->phi());
 						track.first.setEtaPacked(iter->eta());
 //						track.setPtPacked(pt);
 						track.first.setChargePacked((~iter->charge())&0x1);
-						track.first.setChargeValidPacked((iter->f_r()?pt.charge_valid_front:pt.charge_valid_rear));
+//						track.first.setChargeValidPacked((iter->f_r()?pt.charge_valid_front:pt.charge_valid_rear));
 						track.first.setFineHaloPacked(iter->halo());
 //						track.setQualityPacked( quality );
 
