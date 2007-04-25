@@ -8762,8 +8762,18 @@
       <rMaterial name="materials:Nickel"/>
     </MaterialFraction>
   </CompositeMaterial>
-</MaterialSection>
 
+  <CompositeMaterial name="Acrylate" density="1170*mg/cm3" symbol=" " method="mixture by weight">
+    <MaterialFraction fraction="0.55814">
+      <rMaterial name="materials:Carbon"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.06977">
+      <rMaterial name="materials:Hydrogen"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.37209">
+      <rMaterial name="materials:Oxygen"/>
+    </MaterialFraction>
+  </CompositeMaterial>
 
 <!-- Tracker Cooling Fluids INIT -->
 
@@ -8793,5 +8803,6 @@
 
 <!-- Tracker Cooling Fluids END -->
 
+</MaterialSection>
 
 </DDDefinition>
