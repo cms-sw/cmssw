@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2007/04/24 12:08:20 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/04/26 18:53:06 $
+ *  $Revision: 1.34 $
  *  \author  M. Zanetti - INFN Padova
  *  \revision FRC 060906
  */
@@ -60,7 +60,7 @@ void DTROS25Unpacker::interpretRawData(const unsigned int* index, int datasize,
 
 
   int dduID;
-  if (pset.getUntrackedParameter<bool>("readDDUIDfromDDU",false))
+  if (pset.getUntrackedParameter<bool>("readDDUIDfromDDU",true))
     dduID = dduIDfromDDU;
   else
     dduID = pset.getUntrackedParameter<int>("dduID",770);
