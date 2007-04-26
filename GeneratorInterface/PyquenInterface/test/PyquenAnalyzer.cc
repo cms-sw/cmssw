@@ -1,15 +1,15 @@
 #include <iostream>
 
 #include "PyquenAnalyzer.h"
+
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
-#include "DataFormats/Candidate/interface/Candidate.h"
-#include "DataFormats/HepMCCandidate/interface/HepMCCandidate.h"
-#include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
+#include "DataFormats/Common/interface/Handle.h"
 
 // essentials !!!
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "HepMC/HeavyIon.h"
+
  
 #include "TFile.h"
 #include "TH1.h"
@@ -66,7 +66,7 @@ void PyquenAnalyzer::analyze( const Event& e, const EventSetup& )
    for( HepMC::GenEvent::particle_const_iterator p = myEvt->particles_begin();
 	p != myEvt->particles_end(); p++ )
      {
-       if( !(*p)->hasChildren() && abs( (*p)->pdg_id() ) == 211)
+       if( !(*p)->end_vertex() && abs( (*p)->pdg_id() ) == 211)
 	 {
 	   part_eta = (*p)->momentum().eta();
 	   part_y   = (*p)->momentum().y();
@@ -79,6 +79,8 @@ void PyquenAnalyzer::analyze( const Event& e, const EventSetup& )
 	   phdNdPhi->Fill(part_phi);
 	 }
      }
+
+   cout << "Heavy Ion record: " << ((void*) myEvt->heavy_ion()) << endl;
    
    return ;   
 }

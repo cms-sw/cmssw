@@ -17,14 +17,14 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 
-#include "CLHEP/HepMC/include/PythiaWrapper6_2.h"
-#include "CLHEP/HepMC/ConvertHEPEVT.h"
-#include "CLHEP/HepMC/CBhepevt.h"
+#include "HepMC/PythiaWrapper.h"
+#include "HepMC/IO_HEPEVT.h"
+#include "HepMC/GenEvent.h"
 
 using namespace edm;
 using namespace std;
 
-HepMC::ConvertHEPEVT conv;
+HepMC::IO_HEPEVT hepevtio;
 
 PyquenSource :: PyquenSource(const ParameterSet & pset, 
 			     InputSourceDescription const& desc):
@@ -172,7 +172,7 @@ bool PyquenSource::produce(Event & e)
   call_pyhepc(1);
 
   // event information
-  HepMC::GenEvent* evt = conv.getGenEventfromHEPEVT();
+  HepMC::GenEvent* evt = hepevtio.read_next_event();
   evt->set_signal_process_id(pypars.msti[0]);      // type of the process
   evt->set_event_scale(pypars.pari[16]);           // Q^2
   evt->set_event_number(numberEventsInRun() - remainingEvents() - 1);
