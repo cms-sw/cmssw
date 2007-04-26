@@ -1,7 +1,7 @@
 /*  
  *
- *  $Date: 2007/04/25 10:52:29 $
- *  $Revision: 1.49 $
+ *  $Date: 2007/04/25 13:21:19 $
+ *  $Revision: 1.50 $
  *  \author  N. Marinelli IASA 
  *  \author G. Della Ricca
  *  \author G. Franzoni
@@ -357,7 +357,7 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData ,
 							   << " wrong channel id, since out of range: "
 							   << "\t strip: "  << strip  << "\t channel: " << ch
 							   << "\t in TT: " << _ExpectedTowers[_expTowersIndex]
-							   << "\t at event: " << (*itEventBlock)->getDataField("LV1");
+							   << "\t at LV1 : " << (*itEventBlock)->getDataField("LV1");
 		    
 		    expCryInTower++;
 		    continue;
@@ -893,6 +893,16 @@ std::pair<int,int>  EcalTBDaqFormatter::cellIndex(int tower_id, int strip, int c
 
 
 int  EcalTBDaqFormatter::cryIc(int tower, int strip, int ch) {
+
+  if ( strip < 1 || 5<strip || ch <1 || 5 < ch || 68<tower)
+    {
+      edm::LogWarning("EcalTBRawToDigiChId") << "EcalTBDaqFormatter::interpretRawData (cryIc) "
+					     << " wrong channel id, since out of range: "
+					     << "\t strip: "  << strip  << "\t channel: " << ch
+					     << "\t in TT: " << tower;
+      return -1;
+    }
+  
   std::pair<int,int> cellInd= EcalTBDaqFormatter::cellIndex(tower, strip, ch); 
   return cellInd.second + (cellInd.first-1)*kCrystalsInPhi;
 }
