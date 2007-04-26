@@ -1,10 +1,8 @@
 #ifndef DDException_h
 #define DDException_h
 
-/* #include <string> */
 #include<iostream>
-//#include "Utilities/GenUtil/interface/CMSexception.h"
-#include "SealBase/Error.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 //! An exception for DDD errors
 /** @class DDException DDException.h
@@ -19,34 +17,24 @@
  *
  *  Modifications:
  *  MEC:   8 June 2005 Michael Case: changed to inherit from seal::Error
+ *  MEC:   25 April 2007 Michael Case: changed to inherit from cms:Exception
  */
 
-class DDException : public seal::Error //: public Genexception
+class DDException : public cms::Exception 
 {
-public: 
+ public: 
   //! constructor takes simply an error message via a std::string
   explicit DDException(const std::string & s);
+  DDException();
   DDException(const DDException& dde);
 
-  virtual ~DDException();
-
-  //! seal::Error required implementations.			
-  virtual std::string	explainSelf() const;
-			
-  virtual void	rethrow (void);
-
-  virtual DDException* clone() const;
+  ~DDException() throw();
 
   //! other methods just for this to work with DDException legacy...
   std::string message() const;
 
-  const char* what() const;
-
  private:
-  std::string m_message;
 			
 };    
 
-//! stream the exception message
-std::ostream & operator<<(std::ostream & os, const DDException & ex);
 #endif
