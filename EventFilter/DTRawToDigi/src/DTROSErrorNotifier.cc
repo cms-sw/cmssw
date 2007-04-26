@@ -1,11 +1,11 @@
 /* file 
  *
- *  $Date: 2007/04/24 12:08:20 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/04/26 18:53:06 $
+ *  $Revision: 1.5 $
  *  \author  M. Zanetti  INFN Padova
  */
 
-#include <EventFilter/DTRawToDigi/plugins/DTROSErrorNotifier.h>
+#include <EventFilter/DTRawToDigi/src/DTROSErrorNotifier.h>
 #include <EventFilter/DTRawToDigi/interface/DTDDUWords.h>
 
 //using namespace edm;
