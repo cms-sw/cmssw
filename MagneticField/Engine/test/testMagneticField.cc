@@ -1,8 +1,8 @@
 /** \file
  *  A simple example of ho to access the magnetic field.
  *
- *  $Date: 2007/03/09 18:13:58 $
- *  $Revision: 1.5 $
+ *  $Date: 2007/04/25 14:54:39 $
+ *  $Revision: 1.6 $
  *  \author N. Amapane - CERN
  */
 
@@ -45,6 +45,17 @@ class testMagneticField : public edm::EDAnalyzer {
     //    verbose::debugOut = true;
     outputFile = pset.getUntrackedParameter<string>("outputTable", "");
     inputFile = pset.getUntrackedParameter<string>("inputTable", "");
+    //    resolution for validation of maps
+    reso = pset.getUntrackedParameter<double>("resolution", 0.01);
+    //    number of random points to try
+    numberOfPoints = 10000;
+    //    numberOfPoints = pset.getUntrackerParameter<int>
+    //    write all points to output for 3D plots?
+    doWrite3DPoints = pset.getUntrackedParameter<bool>("doWrite3DPoints", false);
+
+    cout << "Aha, resolutions is " << reso << endl;
+
+    
   }
 
   ~testMagneticField(){}
@@ -63,7 +74,7 @@ class testMagneticField : public edm::EDAnalyzer {
    go(GlobalPoint(0,0,0));
 
    if (outputFile!="") {
-     writeValidationTable(100000,outputFile);
+     writeValidationTable(numberOfPoints,outputFile);
    }
    
    if (inputFile!="") {
@@ -83,15 +94,21 @@ class testMagneticField : public edm::EDAnalyzer {
   const MagneticField* field;
   string inputFile;
   string outputFile;  
+  double reso;
+  int numberOfPoints;
+  bool doWrite3DPoints;
 };
 
 
 void testMagneticField::writeValidationTable(int npoints, string filename) {
-  GlobalPointProvider p;
+  GlobalPointProvider p(0, 120, -Geom::pi(), Geom::pi(), -300, 300);
   ofstream file(filename.c_str());
 
   for (int i = 0; i<npoints; ++i) {
     GlobalPoint gp = p.getPoint();
+    //    while(fabs(gp.z())>300 || gp.perp()>120) {
+    //  gp = p.getPoint();
+    // }
     GlobalVector f = field->inTesla(gp);
     file << setprecision (9) << i << " "
 	 << gp.x() << " " << gp.y() << " " << gp.z() << " "
@@ -101,7 +118,7 @@ void testMagneticField::writeValidationTable(int npoints, string filename) {
 
 void testMagneticField::validate(string filename) {
   
-  double reso = 0.0001; // in T
+  double reso = 0.01; // in T
   
   ifstream file(filename.c_str());
   string line;
@@ -128,6 +145,7 @@ void testMagneticField::validate(string filename) {
       if (delta > maxdelta) maxdelta = delta;
       cout << " Discrepancy at: # " << i << " " << gp << " delta : " << newB-oldB << " " << delta <<  endl;
     }
+    cout << " All points: # " << i << " " << gp << " delta : " << newB-oldB << endl; 
     ++count;
   }
   cout << endl << " testMagneticField::validate: tested " << count
