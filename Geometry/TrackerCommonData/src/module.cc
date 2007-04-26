@@ -6,6 +6,7 @@
 #include "Geometry/TrackerCommonData/interface/DDTECCoolAlgo.h"
 #include "Geometry/TrackerCommonData/interface/DDTECModuleAlgo.h"
 #include "Geometry/TrackerCommonData/interface/DDTECOptoHybAlgo.h"
+#include "Geometry/TrackerCommonData/interface/DDTECPhiAlgo.h"
 #include "Geometry/TrackerCommonData/interface/DDTECPhiAltAlgo.h"
 #include "Geometry/TrackerCommonData/interface/DDTIBLayerAlgo.h"
 #include "Geometry/TrackerCommonData/interface/DDTIBRadCableAlgo.h"
@@ -29,6 +30,7 @@ DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDTECAxialCableAlgo, "track:DDTECAxialCab
 DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDTECCoolAlgo,       "track:DDTECCoolAlgo");
 DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDTECModuleAlgo,     "track:DDTECModuleAlgo");
 DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDTECOptoHybAlgo,    "track:DDTECOptoHybAlgo");
+DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDTECPhiAlgo,        "track:DDTECPhiAlgo");
 DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDTECPhiAltAlgo,     "track:DDTECPhiAltAlgo");
 DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDTIBLayerAlgo,      "track:DDTIBLayerAlgo");
 DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDTIBRadCableAlgo,   "track:DDTIBRadCableAlgo");

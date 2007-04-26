@@ -31,10 +31,11 @@ private:
 			  double x, double y, double z, 
 			  std::string rotName);                     
   //variables:
+  double                   noOverlapShift;
   bool                     isStereo;
   bool                     isRing6;
-  //  DDLogicalPart*           motherModule;         // pointer to module mother object
-  //  int                      isStereo;       // == 0 for normal == 1 for stereo
+  double                   rPos;           //Position in R relativ to the center of the TEC ( this is the coord-sys of Tubs)
+  std::string              standardRot;    //Rotation that aligns the mother(Tub ) coordinate System with the components
   std::string              idNameSpace;    //Namespace of this and ALL parts
   std::string              genMat;         //General material name
   double                   moduleThick;    //Module thickness
@@ -103,7 +104,7 @@ private:
   //  double                   siReenforceZPos;//              Z - Position done by the side frames Z Position an t
   double                   siReenforceThick;//             Thick
   std::string              siReenforceMat;  //             Materieal
-  double                   posCorrectionR;  //  Correct Positions of the Stereo Modules radial coordinate
+  //double                   posCorrectionR;  //  Correct Positions of the Stereo Modules radial coordinate
 };
 
 #endif
