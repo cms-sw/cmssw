@@ -9,6 +9,9 @@ class produceTrivialCalibrationLut
   produceTrivialCalibrationLut();
   ~produceTrivialCalibrationLut();
 
+  void setPowerSeriesCorrectionType();
+  void setOrcaStyleCorrectionType();
+
   L1GctJetEtCalibrationLut* produce();
 
  private:
@@ -24,6 +27,13 @@ class produceTrivialCalibrationLut
 
   double m_jetEtScaleInputLsb;
   std::vector<double> m_jetEtThresholds;
+
+  L1GctJetEtCalibrationFunction::CorrectionFunctionType m_corrFunType; 
     
+  /// member functions to set up the ORCA-style calibrations (if needed)
+  /// (Copied from L1TriggerConfig/GctConfigProducers
+  void setOrcaStyleParams();
+  void setOrcaStyleParamsForBin(std::vector<double>& paramsForBin);
+
 };
 

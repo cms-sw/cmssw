@@ -25,13 +25,14 @@ int main()
 
     //create jet calibration lookup table
     produceTrivialCalibrationLut* lutProducer=new produceTrivialCalibrationLut();
+    lutProducer->setOrcaStyleCorrectionType();
 
     // Instance of the class
     L1GctJetEtCalibrationLut* lut = lutProducer->produce();
     delete lutProducer;
 
     // print it out
-    cout << (*lut);
+    //cout << (*lut);
   }
   catch (cms::Exception& e)
     {

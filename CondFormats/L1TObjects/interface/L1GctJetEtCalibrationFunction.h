@@ -49,6 +49,8 @@
 class L1GctJetEtCalibrationFunction
 {
 public:
+  enum CorrectionFunctionType { POWER_SERIES_CORRECTION, ORCA_STYLE_CORRECTION };
+
   static const unsigned JET_ENERGY_BITWIDTH;   ///< Input bitwidth of jet energy; must be 10 or more
   static const unsigned NUMBER_ETA_VALUES;     ///< Number of eta bins used in correction
   static const unsigned N_CENTRAL_ETA_VALUES;  ///< Number of eta bins for separate tau correction
@@ -64,6 +66,12 @@ public:
                  const std::vector< std::vector<double> >& jetCalibFunc,
                  const std::vector< std::vector<double> >& tauCalibFunc );
 
+  /// set the type of correction function to use
+  void setCorrectionFunctionType(const CorrectionFunctionType cft) { m_corrFunType = cft;
+                                                     // DEBUG - REMOVE FOR PRODUCTION
+                                                     if (cft==ORCA_STYLE_CORRECTION) { checkCalibrationAgainstOrca(); } 
+                                                                   }
+                                                                   
   /// Overload << operator
   friend std::ostream& operator << (std::ostream& os, const L1GctJetEtCalibrationFunction& fn);
   
@@ -76,7 +84,9 @@ private:
   /// Find the corrected Et value for this jet
   /*! Eta takes a value from 0-10, corresponding to jet regions running from eta=0.0 to eta=5.0 */
   double correctedEt(const uint16_t jetEt, const unsigned eta, const bool tauVeto) const;
-  double powerSeriesCorrect(const double Et, const std::vector<double> coeffs) const;
+  double findCorrectedEt   (const double Et, const std::vector<double>& coeffs) const;
+  double powerSeriesCorrect(const double Et, const std::vector<double>& coeffs) const;
+  double orcaStyleCorrect  (const double Et, const std::vector<double>& coeffs) const;
 
   /// Convert the corrected Et value to a non-linear jet rank for sorting
   uint16_t rank(const double Et) const;
@@ -84,9 +94,15 @@ private:
   /// Convert the corrected Et value to a linear Et for Ht summing
   uint16_t calibratedEt(const double Et) const;
 
+  void checkCalibrationAgainstOrca() const;
+  float orcaCalibFn(float et, unsigned eta) const;
+
   // PARAMETERS FOR THE CONVERSION
   /// the output scale - converts linear Et to rank
   L1CaloEtScale m_outputEtScale;
+
+  /// type of correction function to apply
+  CorrectionFunctionType m_corrFunType; 
 
   /// scale and threshold parameters
   double m_htScaleLSB;

@@ -13,7 +13,7 @@
 //
 // Original Author:  Gregory Heath
 //         Created:  Thu Mar  1 15:10:47 CET 2007
-// $Id$
+// $Id: L1GctConfigProducers.h,v 1.1 2007/03/16 13:39:10 heath Exp $
 //
 //
 
@@ -30,10 +30,10 @@
 
 #include "FWCore/Framework/interface/ESHandle.h"
 
+#include "CondFormats/L1TObjects/interface/L1GctJetEtCalibrationFunction.h"
 #include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
 
 
-class L1GctJetEtCalibrationFunction;
 class L1GctJetCalibFunRcd;
 class L1JetEtScaleRcd;
 
@@ -66,5 +66,13 @@ class L1GctConfigProducers : public edm::ESProducer {
 
   /// the jet Et scale to be used
   L1CaloEtScale m_jetScale; 
+
+  /// type of correction function to apply
+  L1GctJetEtCalibrationFunction::CorrectionFunctionType m_corrFunType; 
+
+  /// member functions to set up the ORCA-style calibrations (if needed)
+  void setOrcaStyleParams();
+  void setOrcaStyleParamsForBin(std::vector<double>& paramsForBin);
+
 };
 
