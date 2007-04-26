@@ -35,11 +35,13 @@ HLTMuonDimuonFilter::HLTMuonDimuonFilter(const edm::ParameterSet& iConfig) :
    max_InvMass_ (iConfig.getParameter<double> ("MaxInvMass")),
    min_Acop_    (iConfig.getParameter<double> ("MinAcop")),
    max_Acop_    (iConfig.getParameter<double> ("MaxAcop")),
+   min_PtBalance_ (iConfig.getParameter<double> ("MinPtBalance")),
+   max_PtBalance_ (iConfig.getParameter<double> ("MaxPtBalance")),
    nsigma_Pt_   (iConfig.getParameter<double> ("NSigmaPt")) 
 {
 
    LogDebug("HLTMuonDimuonFilter")
-      << " CandTag/MinN/MaxEta/MinNhits/MaxDr/MaxDz/MinPt1/MinPt2/MinInvMass/MaxInvMass/MinAcop/MaxAcop/NSigmaPt : " 
+      << " CandTag/MinN/MaxEta/MinNhits/MaxDr/MaxDz/MinPt1/MinPt2/MinInvMass/MaxInvMass/MinAcop/MaxAcop/MinPtBalance/MaxPtBalance/NSigmaPt : " 
       << candTag_.encode()
       << " " << fast_Accept_
       << " " << max_Eta_
@@ -50,6 +52,7 @@ HLTMuonDimuonFilter::HLTMuonDimuonFilter(const edm::ParameterSet& iConfig) :
       << " " << min_PtMax_ << " " << min_PtMin_
       << " " << min_InvMass_ << " " << max_InvMass_
       << " " << min_Acop_ << " " << max_Acop_
+      << " " << min_PtBalance_ << " " << max_PtBalance_
       << " " << nsigma_Pt_;
 
    //register your products
@@ -165,6 +168,7 @@ HLTMuonDimuonFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
                   if (tk1->charge()*tk2->charge()<0) continue;
             }
 
+            // Acoplanarity
             double acop = fabs(tk1->phi()-tk2->phi());
             if (acop>M_PI) acop = 2*M_PI - acop;
             acop = M_PI - acop;
@@ -172,6 +176,12 @@ HLTMuonDimuonFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
             if (acop<min_Acop_) continue;
             if (acop>max_Acop_) continue;
 
+            // Pt balance
+            double ptbalance = fabs(tk1->pt()-tk2->pt());
+            if (ptbalance<min_PtBalance_) continue;
+            if (ptbalance>max_PtBalance_) continue;
+
+            // Combined dimuon system
             e1 = sqrt(tk1->momentum().Mag2()+MuMass2);
             e2 = sqrt(tk2->momentum().Mag2()+MuMass2);
             p1 = Particle::LorentzVector(tk1->px(),tk1->py(),tk1->pz(),e1);

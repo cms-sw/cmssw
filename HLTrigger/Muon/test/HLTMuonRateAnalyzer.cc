@@ -173,12 +173,16 @@ void HLTMuonRateAnalyzer::analyze(const Event & event, const EventSetup& eventSe
       modules_in_this_event++;
   }
 
-  // L1 reference
+  // Fix L1 thresholds to obtain HLT plots
   unsigned int nL1FoundRef = 0;
+  double epsilon = 0.001;
   for (unsigned int k=0; k<l1cands->size(); k++) {
       RefToBase<Candidate> candref = l1cands->getParticleRef(k);
-      double pt = candref->pt();
-      if (pt>theL1ReferenceThreshold) nL1FoundRef++;
+      // L1 PTs are "quantized" due to LUTs. 
+      // Their meaning: true_pt > ptLUT more than 90% pof the times
+      double ptLUT = candref->pt();
+      // Add "epsilon" to avoid rounding errors when ptLUT==L1Threshold
+      if (ptLUT+epsilon>theL1ReferenceThreshold) nL1FoundRef++;
   }
 
   for (unsigned int j=0; j<theNbins; j++) {
