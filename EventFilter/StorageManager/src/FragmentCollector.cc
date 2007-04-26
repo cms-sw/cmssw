@@ -1,4 +1,4 @@
-// $Id: FragmentCollector.cc,v 1.30 2007/04/02 21:55:47 hcheung Exp $
+// $Id: FragmentCollector.cc,v 1.31 2007/04/04 22:14:27 hcheung Exp $
 
 #include "EventFilter/StorageManager/interface/FragmentCollector.h"
 #include "EventFilter/StorageManager/interface/ProgressMarker.h"
@@ -34,14 +34,9 @@ namespace stor
     evtbuf_q_(&(h.getEventQueue())),
     frag_q_(&(h.getFragmentQueue())),
     buffer_deleter_(d),
-    //event_area_(1000*1000*7),
-    // inserter_(*evtbuf_q_),
-    prods_(0),//prods_(&p),
+    prods_(0),
 	info_(&h), 
-    writer_(new edm::ServiceManager(config_str)),
-    evtsrv_area_(10),
-    oneinN_(10), 
-    count_4_oneinN_(0) // added for Event Server by HWKC
+    writer_(new edm::ServiceManager(config_str))
   {
     // supposed to have given parameterSet smConfigString to writer_
     // at ctor
@@ -53,14 +48,9 @@ namespace stor
     evtbuf_q_(&(info.get()->getEventQueue())),
     frag_q_(&(info.get()->getFragmentQueue())),
     buffer_deleter_(d),
-    //event_area_(1000*1000*7),
-    // inserter_(*evtbuf_q_),
     prods_(0),
 	info_(info.get()), 
-    writer_(new edm::ServiceManager(config_str)),
-    evtsrv_area_(10),
-    oneinN_(10), 
-    count_4_oneinN_(0) // added for Event Server by HWKC
+    writer_(new edm::ServiceManager(config_str))
   {
     // supposed to have given parameterSet smConfigString to writer_
     // at ctor
@@ -90,7 +80,7 @@ namespace stor
   {
     // everything comes in on the fragment queue, even
     // command-like messages.  we need to dispatch things
-    // we recogize - either execute the command, forward it
+    // we recognize - either execute the command, forward it
     // to the command queue, or process it for output to the 
     // event queue.
     bool done=false;
@@ -139,13 +129,7 @@ namespace stor
       }
     
     FR_DEBUG << "FragColl: DONE!" << endl;
-    //edm::EventBuffer::ProducerBuffer cb(*evtbuf_q_);
-    //long* vp = (long*)cb.buffer();
-    //*vp=0;
-    //cb.commit(sizeof(long));
-
-    // file is not closed until the writers inside writer_ is destroyed
-    if(streamerOnly_)  writer_->stop();
+    writer_->stop();
   }
 
   void FragmentCollector::stop()
@@ -162,38 +146,25 @@ namespace stor
   {
     ProgressMarker::instance()->processing(true);
     if(entry->totalSegs_==1)
-      {
+    {
 	FR_DEBUG << "FragColl: Got an Event with one segment" << endl;
 	FR_DEBUG << "FragColl: Event size " << entry->buffer_size_ << endl;
 	FR_DEBUG << "FragColl: Event ID " << entry->id_ << endl;
 
 	// send immediately
         EventMsgView emsg(entry->buffer_address_);
-        // See if writing Root or streamer files
-        if(!streamerOnly_)
-        {
-          // Not a valid choice anymore - maybe later we put this back in
-        } else {
-          FR_DEBUG << "FragColl: writing event size " << entry->buffer_size_ << endl;
-          writer_->manageEventMsg(emsg);
-        }
+        FR_DEBUG << "FragColl: writing event size " << entry->buffer_size_ << endl;
+        writer_->manageEventMsg(emsg);
 
-        // added for Event Server by HWKC - copy event to Event Server buffer
-        count_4_oneinN_++;
-        if(count_4_oneinN_ == oneinN_)
-        {
-          evtsrv_area_.push_back(emsg);
-          count_4_oneinN_ = 0;
-        }
         if (eventServer_.get() != NULL)
         {
           eventServer_->processEvent(emsg);
         }
 
-	// is the buffer properly released (deleted)? (JBK)
+	// make sure the buffer properly released
 	(*buffer_deleter_)(entry);
 	return;
-      } // end of single segment test
+    } // end of single segment test
 
     pair<Collection::iterator,bool> rc =
       fragment_area_.insert(make_pair(FragKey(entry->code_, entry->run_, entry->id_, 0), Fragments()));
@@ -202,7 +173,7 @@ namespace stor
     FR_DEBUG << "FragColl: added fragment" << endl;
     
     if((int)rc.first->second.size()==entry->totalSegs_)
-      {
+    {
 	FR_DEBUG << "FragColl: completed an event with "
 		 << entry->totalSegs_ << " segments" << endl;
         // we are done with this event so assemble parts
@@ -219,7 +190,7 @@ namespace stor
 	  i(rc.first->second.begin()),e(rc.first->second.end());
 
 	for(;i!=e;++i)
-	  {
+	{
 	    int dsize = i->buffer_size_;
 	    sum+=dsize;
 	    unsigned char* from=(unsigned char*)i->buffer_address_;
@@ -227,33 +198,12 @@ namespace stor
             lastpos = lastpos + dsize;
 	    // ask deleter to kill off the buffer
 	    (*buffer_deleter_)(&(*i));
-	  }
+	}
 
         EventMsgView emsg(&event_area_[0]);
-        if(!streamerOnly_)
-        { // if writing Root files - but not valid now
-          /*
-          std::auto_ptr<edm::EventPrincipal> evtp;
-          {
-            boost::mutex::scoped_lock sl(info_->getExtraLock());
-            evtp = StreamTranslator::deserializeEvent(emsg, *prods_);
-          }
-          inserter_.send(evtp);
-          */
-        } else { // writing streamer files
-          FR_DEBUG << "FragColl: writing event size " << sum << endl;
-          writer_->manageEventMsg(emsg);
-        }
+        FR_DEBUG << "FragColl: writing event size " << sum << endl;
+        writer_->manageEventMsg(emsg);
 
-        // added for Event Server by HWKC - copy event to Event Server buffer
-        // note that em does not have the correct totalsize in totalSize()
-        // the ring buffer must use msgSize() or we send always 7MB events
-        count_4_oneinN_++;
-        if(count_4_oneinN_ == oneinN_)
-        {
-          evtsrv_area_.push_back(emsg);
-          count_4_oneinN_ = 0;
-        }
         if (eventServer_.get() != NULL)
         {
           eventServer_->processEvent(emsg);
@@ -261,7 +211,7 @@ namespace stor
 
 	// remove the entry from the map
 	fragment_area_.erase(rc.first);
-      }
+    }
     ProgressMarker::instance()->processing(false);
   }
 
@@ -291,6 +241,7 @@ namespace stor
       FR_DEBUG << "FragColl: DQM_Event folderID " << entry->folderid_ << endl;
 
       DQMEventMsgView dqmEventView(entry->buffer_address_);
+      /*  do not deserialize even for debug output but keep this for now
       // temporary debug output
       std::cout << "  DQM Message data:" << std::endl; 
       std::cout << "    protocol version = "
@@ -332,6 +283,7 @@ namespace stor
                     << ", name = " << nm << std::endl;
         }
       }
+      */
       // Manage this DQMEvent, temporarily just stick it in the DQMEventServer
       if (DQMeventServer_.get() != NULL)
       {
@@ -383,6 +335,7 @@ namespace stor
       }
       // the reformed DQM data is now in event_area_ deal with it
       DQMEventMsgView dqmEventView(&event_area_[0]);
+      /* do not deserialize even for debug output but keep this for now
       // temporary debug output
       std::cout << "  DQM Message data:" << std::endl; 
       std::cout << "    protocol version = "
@@ -424,6 +377,7 @@ namespace stor
                     << ", name = " << nm << std::endl;
         }
       }
+      */
       // Manage this DQMEvent, temporarily just stick it in the DQMEventServer
       if (DQMeventServer_.get() != NULL)
       {

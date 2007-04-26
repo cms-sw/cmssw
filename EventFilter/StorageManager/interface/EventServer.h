@@ -29,7 +29,7 @@ namespace stor
   class EventServer
   {
   public:
-    EventServer(int eventPrescaleFactor, double maximumRate);
+    EventServer(double maximumRate);
     ~EventServer();
 
     void addConsumer(boost::shared_ptr<ConsumerPipe> consumer);
@@ -38,11 +38,6 @@ namespace stor
     boost::shared_ptr< std::vector<char> > getEvent(uint32 consumerId);
 
   private:
-    // data members for handling fixed prescaling of events
-    static const int MAX_REDUCTION_FACTOR;
-    int eventReductionFactor_;
-    int skippedEventCounter_;
-
     // data members for handling a maximum rate of accepted events
     static const double MAX_ACCEPT_INTERVAL;
     double minTimeBetweenEvents_;  // seconds

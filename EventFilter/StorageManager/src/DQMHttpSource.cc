@@ -7,7 +7,7 @@
 
 #include "EventFilter/StorageManager/src/DQMHttpSource.h"
 #include "EventFilter/StorageManager/interface/DQMEventServer.h"
-#include "EventFilter/StorageManager/src/SMCurlInterface.h"
+#include "EventFilter/StorageManager/interface/SMCurlInterface.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -214,12 +214,12 @@ namespace edm
         throw cms::Exception("readOneEvent", "DQMHttpSource")
           << "Unable to lookup the DaqMonitorBEInterface service!\n";
       }
-      //unsigned int count = 0;
 
       edm::StreamDQMDeserializer deserializeWorker;
       std::auto_ptr<DQMEvent::TObjectTable> toTablePtr =
           deserializeWorker.deserializeDQMEvent(dqmEventView);
-/* next code block requires DQMHttpSource to be a friend class of DaqMonitorBEInterface
+/*
+      unsigned int count = 0;
       DQMEvent::TObjectTable::const_iterator toIter;
       for (toIter = toTablePtr->begin();
            toIter != toTablePtr->end(); toIter++) {
@@ -239,8 +239,8 @@ namespace edm
           if(success) ++count; // currently success is hardwired to be true on return!
         }
       }
-      //std::cout << "Put " << count << " MEs into the DQM backend" <<std::endl;
 */
+      //std::cout << "Put " << count << " MEs into the DQM backend" <<std::endl;
 
       // clean up memory by spinning through the DQMEvent::TObjectTable map and
       // deleting each TObject in the std::vector<TObject *> later we will

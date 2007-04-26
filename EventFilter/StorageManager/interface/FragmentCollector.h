@@ -47,7 +47,6 @@ namespace stor
     typedef std::vector<FragEntry> Fragments;
     typedef std::map<stor::FragKey, Fragments> Collection;
 
-    //FragmentCollector(const HLTInfo& h, Deleter d,
     FragmentCollector(HLTInfo& h, Deleter d,
                       const std::string& config_str="");
     FragmentCollector(std::auto_ptr<HLTInfo>, Deleter d,
@@ -78,14 +77,12 @@ namespace stor
     Deleter buffer_deleter_;
     Buffer event_area_;
     Collection fragment_area_;
-    // edm::EventInserter inserter_;
     boost::shared_ptr<boost::thread> me_;
     const edm::ProductRegistry* prods_; // change to shared_ptr ? 
     stor::HLTInfo* info_;  // cannot be const when using EP_Runner?
 
   public:
 
-    void set_outoption(bool stream_only)     { streamerOnly_ = stream_only; }
     void setNumberOfFileSystems(int disks)   { disks_        = disks; }
     void setFileCatalog(std::string catalog) { catalog_      = catalog; }
     void setSourceId(std::string sourceId)   { sourceId_     = sourceId; }
@@ -93,7 +90,6 @@ namespace stor
     std::list<std::string>& get_filelist() { return writer_->get_filelist();  }
     std::list<std::string>& get_currfiles() { return writer_->get_currfiles(); }
   private:
-    bool streamerOnly_;
     uint32 runNumber_;
     uint32 disks_;
     std::string catalog_;
@@ -101,18 +97,6 @@ namespace stor
 
     std::auto_ptr<edm::ServiceManager> writer_;
 
-  public:
-    bool esbuf_isEmpty() { return evtsrv_area_.isEmpty(); }
-    bool esbuf_isFull() { return evtsrv_area_.isFull(); }
-    EventMsgView esbuf_pop_front() {return evtsrv_area_.pop_front();}
-    void esbuf_push_back(EventMsgView msg) { evtsrv_area_.push_back(msg); }
-
-    void set_esbuf_oneinN(int N) { oneinN_ = N; }
-
-  private:
-    stor::EvtMsgRingBuffer evtsrv_area_;
-    int oneinN_;  // place one in every oneinN_ events into the buffer
-    int count_4_oneinN_;
     boost::shared_ptr<EventServer> eventServer_;
     boost::shared_ptr<DQMEventServer> DQMeventServer_;
   };

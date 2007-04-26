@@ -25,7 +25,7 @@
  *
  *  Initial Implementation based on Kurt's ConsumerPipe
  *  We can think about a common class later...
- *  $Id$
+ *  $Id: DQMConsumerPipe.h,v 1.1 2007/04/04 22:12:16 hcheung Exp $
  */
 
 #include <string>
@@ -53,6 +53,7 @@ namespace stor
     bool wantsDQMEvent(DQMEventMsgView const& eventView) const;
     void putDQMEvent(boost::shared_ptr< std::vector<char> > bufPtr);
     boost::shared_ptr< std::vector<char> > getDQMEvent();
+    void setPushMode(bool mode) { pushMode_ = mode; }
 
   private:
     // characteristics of the consumer
@@ -68,6 +69,11 @@ namespace stor
 
     // track whether initialization has been completed
     bool initializationDone;
+
+    // track if this consumer is a push-mode (SMProxyServer), name = URL
+    bool pushMode_;
+    bool pushEvent();
+    unsigned int pushEventFailures_;
 
     // for consumers with normal priority, we keep only the most recent event
     boost::shared_ptr< std::vector<char> > latestEvent_;

@@ -1,6 +1,6 @@
 #ifndef HLT_JOB_CNTLER_HPP
 #define HLT_JOB_CNTLER_HPP
-// $Id: JobController.h,v 1.14 2006/12/22 09:48:17 klute Exp $
+// $Id: JobController.h,v 1.15 2007/04/04 22:12:16 hcheung Exp $
 
 #include "EventFilter/StorageManager/interface/FragmentCollector.h"
 #include "EventFilter/StorageManager/interface/EventServer.h"
@@ -42,13 +42,6 @@ namespace stor
     edm::EventBuffer& getFragmentQueue()
     { return collector_->getFragmentQueue(); }
 
-    bool isEmpty() { return collector_->esbuf_isEmpty(); }
-    bool isFull() { return collector_->esbuf_isFull(); }
-    EventMsgView pop_front() {return collector_->esbuf_pop_front();}
-    void push_back(EventMsgView msg) 
-      { collector_->esbuf_push_back(msg); }
-
-    void set_oneinN(int N) { collector_->set_esbuf_oneinN(N); }
     void setEventServer(boost::shared_ptr<EventServer>& es)
     {
       if (collector_.get() != NULL) collector_->setEventServer(es);
@@ -63,7 +56,6 @@ namespace stor
     }
     boost::shared_ptr<DQMEventServer>& getDQMEventServer() { return DQMeventServer_; }
 
-    void set_outoption(bool stream_only)      { collector_->set_outoption(stream_only);}
     void setNumberOfFileSystems(int disks)    { collector_->setNumberOfFileSystems(disks); }
     void setFileCatalog(std::string catalog)  { collector_->setFileCatalog(catalog); }
     void setSourceId(std::string sourceId)    { collector_->setSourceId(sourceId); }

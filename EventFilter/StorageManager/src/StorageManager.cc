@@ -22,8 +22,6 @@
 #include "FWCore/ServiceRegistry/interface/ServiceToken.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/RootAutoLibraryLoader/interface/RootAutoLibraryLoader.h"
-#include "FWCore/PluginManager/interface/PluginManager.h"
-#include "FWCore/PluginManager/interface/standard.h"
 
 #include "IOPool/Streamer/interface/MsgHeader.h"
 #include "IOPool/Streamer/interface/InitMessage.h"
@@ -77,7 +75,10 @@ StorageManager::StorageManager(xdaq::ApplicationStub * s)
   xdaq::Application(s),
   fsm_(this), 
   ah_(0), 
-  writeStreamerOnly_(true), 
+  pushMode_(false), 
+  serialized_prods_(1000000),
+  ser_prods_size_(0),
+  mybuffer_(7000000),
   connectedFUs_(0), 
   storedEvents_(0), 
   dqmRecords_(0), 
@@ -137,12 +138,10 @@ StorageManager::StorageManager(xdaq::ApplicationStub * s)
   pool_is_set_    = 0;
   pool_           = 0;
   nLogicalDisk_   = 0;
-  streamer_only_  = true;
+  pushmode2proxy_ = false;
 
   // Variables needed for streamer file writing
-  // should be getting these from SM config file - put them in xml for now
-  // until we do it in StreamerOutputService ctor
-  ispace->fireItemAvailable("streamerOnly", &streamer_only_);
+  ispace->fireItemAvailable("pushMode2Proxy", &pushmode2proxy_);
   ispace->fireItemAvailable("nLogicalDisk", &nLogicalDisk_);
 
   boost::shared_ptr<stor::Parameter> smParameter_ = stor::Configurator::instance()->getParameter();
@@ -159,9 +158,7 @@ StorageManager::StorageManager(xdaq::ApplicationStub * s)
   // added for Event Server
   ser_prods_size_ = 0;
   serialized_prods_[0] = '\0';
-  oneinN_ = 10;
-  ispace->fireItemAvailable("oneinN",&oneinN_);
-  maxESEventRate_ = 10.0;  // hertz
+  maxESEventRate_ = 1.0;  // hertz
   ispace->fireItemAvailable("maxESEventRate",&maxESEventRate_);
   activeConsumerTimeout_ = 300;  // seconds
   ispace->fireItemAvailable("activeConsumerTimeout",&activeConsumerTimeout_);
@@ -202,11 +199,10 @@ StorageManager::StorageManager(xdaq::ApplicationStub * s)
   sourceId_ = sourcename.str();
   smParameter_ -> setSmInstance(sourceId_);  // sourceId_ can be removed ...
 
-  // need either of the two calls below so that deserializeRegistry can run
-  // in order to compare two registries (cannot compare byte-for-byte)
+  // need the line below so that deserializeRegistry can run
+  // in order to compare two registries (cannot compare byte-for-byte) (if we keep this)
+  // need line below anyway in case we deserialize DQMEvents for collation
   edm::RootAutoLibraryLoader::enable();
-  //loadExtraClasses();
-  // Keep this! Above line needs IOPool/Streamer/interface/ClassFiller.h
 }
 
 StorageManager::~StorageManager()
@@ -277,44 +273,42 @@ void StorageManager::receiveRegistryMessage(toolbox::mem::Reference *ref)
     // Assume first received registry is correct and save it
     if(ser_prods_size_ == 0)
     {
-      copy(regPtr, regPtr+regSz, serialized_prods_);
+      if(serialized_prods_.capacity() < regSz) serialized_prods_.resize(regSz);
+      copy(regPtr, regPtr+regSz, &serialized_prods_[0]);
       ser_prods_size_ = regSz;
       FDEBUG(9) << "Saved serialized registry for Event Server, size "
                 << ser_prods_size_ << std::endl;
       // queue for output
-      if(writeStreamerOnly_) {
-        EventBuffer::ProducerBuffer b(jc_->getFragmentQueue());
-        // don't have the correct run number yet
-        new (b.buffer()) stor::FragEntry(&serialized_prods_[0], &serialized_prods_[0], ser_prods_size_,
-                                         1, 1, Header::INIT, 0, 0, 0); // use fixed 0 as ID
-        b.commit(sizeof(stor::FragEntry));
-      }
+      EventBuffer::ProducerBuffer b(jc_->getFragmentQueue());
+      // don't have the correct run number yet
+      new (b.buffer()) stor::FragEntry(&serialized_prods_[0], &serialized_prods_[0], ser_prods_size_,
+                                       1, 1, Header::INIT, 0, 0, 0); // use fixed 0 as ID
+      b.commit(sizeof(stor::FragEntry));
       // this is checked ok by default
       smfusenders_.setRegCheckedOK(&msg->hltURL[0], &msg->hltClassName[0],
                                    msg->hltLocalId, msg->hltInstance, msg->hltTid);
     } else { // this is the second or subsequent INIT message test it against first
-      if(writeStreamerOnly_)
-      { // cannot test byte for byte the serialized registry
-        InitMsgView testmsg(regPtr);
-        InitMsgView refmsg(&serialized_prods_[0]);
-        std::auto_ptr<edm::SendJobHeader> header = StreamDeserializer::deserializeRegistry(testmsg);
-        std::auto_ptr<edm::SendJobHeader> refheader = StreamDeserializer::deserializeRegistry(refmsg);
-        // should test this well to see if a try block is needed for next line
-        if(edm::registryIsSubset(*header, *refheader)) {  // using clunky method
-          FDEBUG(9) << "copyAndTestRegistry: Received registry is okay" << std::endl;
-          smfusenders_.setRegCheckedOK(&msg->hltURL[0], &msg->hltClassName[0],
-                                       msg->hltLocalId, msg->hltInstance, msg->hltTid);
-        } else {
-          // should do something with subsequent data from this FU!
-          FDEBUG(9) << "copyAndTestRegistry: Error! Received registry is not a subset!"
-                    << " for URL " << msg->hltURL << " and Tid " << msg->hltTid
-                    << std::endl;
-          LOG4CPLUS_ERROR(this->getApplicationLogger(),
-                          "copyAndTestRegistry: Error! Received registry is not a subset!"
-                          << " for URL " << msg->hltURL << " and Tid " << msg->hltTid);
-        }
-      } // end of streamer writing test - should an else with an error/warning message
-        // or decide once and for all we only write streamer files and get rid of test
+      // cannot test byte for byte the serialized registry
+      InitMsgView testmsg(regPtr);
+      InitMsgView refmsg(&serialized_prods_[0]);
+      std::auto_ptr<edm::SendJobHeader> header = StreamDeserializer::deserializeRegistry(testmsg);
+      std::auto_ptr<edm::SendJobHeader> refheader = StreamDeserializer::deserializeRegistry(refmsg);
+      // should test this well to see if a try block is needed for next line
+      if(edm::registryIsSubset(*header, *refheader)) {  // using clunky method
+        FDEBUG(9) << "copyAndTestRegistry: Received registry is okay" << std::endl;
+        smfusenders_.setRegCheckedOK(&msg->hltURL[0], &msg->hltClassName[0],
+                                     msg->hltLocalId, msg->hltInstance, msg->hltTid);
+      } else {
+        // should do something with subsequent data from this FU!
+        FDEBUG(9) << "copyAndTestRegistry: Error! Received registry is not a subset!"
+                  << " for URL " << msg->hltURL << " and Tid " << msg->hltTid
+                  << std::endl;
+        LOG4CPLUS_ERROR(this->getApplicationLogger(),
+                        "copyAndTestRegistry: Error! Received registry is not a subset!"
+                        << " for URL " << msg->hltURL << " and Tid " << msg->hltTid);
+      }
+      // end of streamer writing test - should an else with an error/warning message
+      // or decide once and for all we only write streamer files and get rid of test
     } // end of test on if registry data was saved
 
     string hltClassName(msg->hltClassName);
@@ -908,36 +902,6 @@ void StorageManager::defaultWebPage(xgi::Input *in, xgi::Output *out)
           *out << meanLatency_ << endl;
           *out << "</td>" << endl;
         *out << "  </tr>" << endl;
-// Event Server Statistics
-    *out << "  <tr>"                                                   << endl;
-    *out << "    <th colspan=2>"                                       << endl;
-    *out << "      " << "Event Server saving one in  " << oneinN_ << " events" << endl;
-    *out << "    </th>"                                                << endl;
-    *out << "  </tr>"                                                  << endl;
-// should first test if jc_ is valid
-      if(ser_prods_size_ != 0) {
-        boost::mutex::scoped_lock sl(halt_lock_);
-        if(jc_.use_count() != 0) {
-          *out << "<tr>" << endl;
-            *out << "<td >" << endl;
-            *out << "Ring Buffer is empty?" << endl;
-            *out << "</td>" << endl;
-            *out << "<td>" << endl;
-            if(jc_->isEmpty()) *out << "Y" << endl;
-            else *out << "N" << endl;
-            *out << "</td>" << endl;
-          *out << "  </tr>" << endl;
-          *out << "<tr>" << endl;
-            *out << "<td >" << endl;
-            *out << "Ring Buffer is full?" << endl;
-            *out << "</td>" << endl;
-            *out << "<td>" << endl;
-            if(jc_->isFull()) *out << "Y" << endl;
-            else *out << "N" << endl;
-            *out << "</td>" << endl;
-          *out << "  </tr>" << endl;
-        }
-      }
 
   *out << "</table>" << endl;
 
@@ -1400,56 +1364,36 @@ void StorageManager::eventdataWebPage(xgi::Input *in, xgi::Output *out)
   // this must be the case for valid data to be present
   if(fsm_.stateName()->toString() == "Enabled" && ser_prods_size_ != 0)
   {
-    if (consumerId == 0)
+    boost::shared_ptr<EventServer> eventServer;
+    if (jc_.get() != NULL)
+    {
+      eventServer = jc_->getEventServer();
+    }
+    if (eventServer.get() != NULL)
+    {
+      boost::shared_ptr< std::vector<char> > bufPtr =
+          eventServer->getEvent(consumerId);
+      if (bufPtr.get() != NULL)
       {
-	boost::mutex::scoped_lock sl(halt_lock_);
-	if (! (jc_->isEmpty()))
-	  {
-	    EventMsgView msgView = jc_->pop_front();
-	    unsigned char* pos = (unsigned char*) &mybuffer_[0];
-	    unsigned char* from = msgView.startAddress();
-	    int dsize = msgView.size();
-	    
-	    copy(from,from+dsize,pos);
-	    len = dsize;
-	    FDEBUG(10) << "sending event " << msgView.event() << std::endl;
-	  }
+        EventMsgView msgView(&(*bufPtr)[0]);
+
+        unsigned char* from = msgView.startAddress();
+        unsigned int dsize = msgView.size();
+        if(mybuffer_.capacity() < dsize) mybuffer_.resize(dsize);
+        unsigned char* pos = (unsigned char*) &mybuffer_[0];
+
+        copy(from,from+dsize,pos);
+        len = dsize;
+        FDEBUG(10) << "sending event " << msgView.event() << std::endl;
       }
-    else
-      {
-	boost::shared_ptr<EventServer> eventServer;
-	if (jc_.get() != NULL)
-	  {
-	    eventServer = jc_->getEventServer();
-	  }
-	if (eventServer.get() != NULL)
-	  {
-	    boost::shared_ptr< std::vector<char> > bufPtr =
-	      eventServer->getEvent(consumerId);
-	    if (bufPtr.get() != NULL)
-	      {
-		EventMsgView msgView(&(*bufPtr)[0]);
-		
-		unsigned char* pos = (unsigned char*) &mybuffer_[0];
-		unsigned char* from = msgView.startAddress();
-		int dsize = msgView.size();
-		
-		copy(from,from+dsize,pos);
-		len = dsize;
-		FDEBUG(10) << "sending event " << msgView.event() << std::endl;
-	      }
-	  }
-      }
+    }
     
     out->getHTTPResponseHeader().addHeader("Content-Type", "application/octet-stream");
     out->getHTTPResponseHeader().addHeader("Content-Transfer-Encoding", "binary");
-    out->write(mybuffer_,len);
+    out->write((char*) &mybuffer_[0],len);
   } // else send end of run as reponse
   else
     {
-      //edm::MsgCode msg(&mybuffer_[0], 4, edm::MsgCode::DONE);
-      //len = msg.totalSize();
-      // this is not working
       OtherMessageBuilder othermsg(&mybuffer_[0],Header::DONE);
       len = othermsg.size();
       //std::cout << "making other message code = " << othermsg.code()
@@ -1457,7 +1401,7 @@ void StorageManager::eventdataWebPage(xgi::Input *in, xgi::Output *out)
       
       out->getHTTPResponseHeader().addHeader("Content-Type", "application/octet-stream");
       out->getHTTPResponseHeader().addHeader("Content-Transfer-Encoding", "binary");
-      out->write(mybuffer_,len);
+      out->write((char*) &mybuffer_[0],len);
     }
   
   // How to block if there is no data
@@ -1492,26 +1436,22 @@ void StorageManager::headerdataWebPage(xgi::Input *in, xgi::Output *out)
   }
 
   // Need to use the saved serialzied registry
-  // should really serialize the one in jc_ JobController instance
-  // check we are in the right state
   // first test if StorageManager is in Enabled state and registry is filled
   // this must be the case for valid data to be present
   if(fsm_.stateName()->toString() == "Enabled" && ser_prods_size_ != 0)
-    // should check this as it should work in the enabled state?
-    //  if(fsm_.stateName()->toString() == "Enabled")
     {
       if(ser_prods_size_ == 0)
 	{ // not available yet - return zero length stream, should return MsgCode NOTREADY
 	  int len = 0;
 	  out->getHTTPResponseHeader().addHeader("Content-Type", "application/octet-stream");
 	  out->getHTTPResponseHeader().addHeader("Content-Transfer-Encoding", "binary");
-	  out->write(mybuffer_,len);
+	  out->write((char*) &mybuffer_[0],len);
 	} 
       else 
 	{
 	  // overlay an INIT message view on the serialized
 	  // products array so that we can initialize the consumer event selection
-	  InitMsgView initView(serialized_prods_);
+	  InitMsgView initView(&serialized_prods_[0]);
 	  if (jc_.get() != NULL)
 	    {
 	      boost::shared_ptr<EventServer> eventServer = jc_->getEventServer();
@@ -1525,12 +1465,13 @@ void StorageManager::headerdataWebPage(xgi::Input *in, xgi::Output *out)
 		    }
 		}
 	    }
-	  int len = ser_prods_size_;
-	  for (int i=0; i<len; i++) mybuffer_[i]=serialized_prods_[i];
+	  unsigned int len = ser_prods_size_;
+          if(mybuffer_.capacity() < len) mybuffer_.resize(len);
+	  for (unsigned int i=0; i<len; ++i) mybuffer_[i]=serialized_prods_[i];
 	  
 	  out->getHTTPResponseHeader().addHeader("Content-Type", "application/octet-stream");
 	  out->getHTTPResponseHeader().addHeader("Content-Transfer-Encoding", "binary");
-	  out->write(mybuffer_,len);
+	  out->write((char*) &mybuffer_[0],len);
 	}
     } 
   else 
@@ -1539,7 +1480,7 @@ void StorageManager::headerdataWebPage(xgi::Input *in, xgi::Output *out)
       int len = 0;
       out->getHTTPResponseHeader().addHeader("Content-Type", "application/octet-stream");
       out->getHTTPResponseHeader().addHeader("Content-Transfer-Encoding", "binary");
-      out->write(mybuffer_,len);
+      out->write((char*) &mybuffer_[0],len);
     }
   
   
@@ -1608,6 +1549,9 @@ void StorageManager::consumerWebPage(xgi::Input *in, xgi::Output *out)
                                idleConsumerTimeout_.value_,
                                requestParamSet));
     eventServer->addConsumer(consPtr);
+    // over-ride pushmode if not set in StorageManager
+    if((consumerPriority.compare("SMProxyServer") == 0) && !pushMode_)
+        consPtr->setPushMode(false);
 
     // build the registration response into the message buffer
     ConsRegResponseBuilder respMsg(msgBuff, BUFFER_SIZE,
@@ -1619,19 +1563,20 @@ void StorageManager::consumerWebPage(xgi::Input *in, xgi::Output *out)
 
   // send the response
   ConsRegResponseView responseMessage(msgBuff);
-  int len = responseMessage.size();
-  for (int i=0; i<len; i++) mybuffer_[i]=msgBuff[i];
+  unsigned int len = responseMessage.size();
+  if(mybuffer_.capacity() < len) mybuffer_.resize(len);
+  for (unsigned int i=0; i<len; ++i) mybuffer_[i]=msgBuff[i];
 
   out->getHTTPResponseHeader().addHeader("Content-Type", "application/octet-stream");
   out->getHTTPResponseHeader().addHeader("Content-Transfer-Encoding", "binary");
-  out->write(mybuffer_,len);
+  out->write((char*) &mybuffer_[0],len);
 
   } else { // is this the right thing to send?
    // In wrong state for this message - return zero length stream, should return Msg NOTREADY
    int len = 0;
    out->getHTTPResponseHeader().addHeader("Content-Type", "application/octet-stream");
    out->getHTTPResponseHeader().addHeader("Content-Transfer-Encoding", "binary");
-   out->write(mybuffer_,len);
+   out->write((char*) &mybuffer_[0],len);
   }
 
 }
@@ -1679,11 +1624,11 @@ void StorageManager::DQMeventdataWebPage(xgi::Input *in, xgi::Output *out)
       {
         DQMEventMsgView msgView(&(*bufPtr)[0]);
 
-// What if mybuffer_ is not large enough!! Redo this bit using a vector<char> for mybuffer_
-// Also what if mybuffer_ is used in multiple threads? Can it happen?
-        unsigned char* pos = (unsigned char*) &mybuffer_[0];
+        // what if mybuffer_ is used in multiple threads? Can it happen?
         unsigned char* from = msgView.startAddress();
-        int dsize = msgView.size();
+        unsigned int dsize = msgView.size();
+        if(mybuffer_.capacity() < dsize) mybuffer_.resize(dsize);
+        unsigned char* pos = (unsigned char*) &mybuffer_[0];
 
         copy(from,from+dsize,pos);
         len = dsize;
@@ -1695,7 +1640,7 @@ void StorageManager::DQMeventdataWebPage(xgi::Input *in, xgi::Output *out)
     // i.e. on getDQMEvent, can already send zero length if request is invalid
     out->getHTTPResponseHeader().addHeader("Content-Type", "application/octet-stream");
     out->getHTTPResponseHeader().addHeader("Content-Transfer-Encoding", "binary");
-    out->write(mybuffer_,len);
+    out->write((char*) &mybuffer_[0],len);
   } // else send DONE as reponse (could be end of a run)
   else
   {
@@ -1705,7 +1650,7 @@ void StorageManager::DQMeventdataWebPage(xgi::Input *in, xgi::Output *out)
       
     out->getHTTPResponseHeader().addHeader("Content-Type", "application/octet-stream");
     out->getHTTPResponseHeader().addHeader("Content-Transfer-Encoding", "binary");
-    out->write(mybuffer_,len);
+    out->write((char*) &mybuffer_[0],len);
   }
   
 }
@@ -1719,7 +1664,7 @@ void StorageManager::DQMconsumerWebPage(xgi::Input *in, xgi::Output *out)
 
     std::string consumerName = "None provided";
     std::string consumerPriority = "normal";
-    std::string consumerRequest = "<>";
+    std::string consumerRequest = "*";
 
     // read the consumer registration message from the http input stream
     std::string lengthString = in->getenv("CONTENT_LENGTH");
@@ -1733,7 +1678,7 @@ void StorageManager::DQMconsumerWebPage(xgi::Input *in, xgi::Output *out)
       consumerPriority = requestMessage.getConsumerPriority();
       // for DQM consumers top folder name is stored in the "parameteSet"
       std::string reqFolder = requestMessage.getRequestParameterSet();
-      if (reqFolder.size() >= 2) consumerRequest = reqFolder;
+      if (reqFolder.size() >= 1) consumerRequest = reqFolder;
     }
 
     // create the buffer to hold the registration reply message
@@ -1768,6 +1713,9 @@ void StorageManager::DQMconsumerWebPage(xgi::Input *in, xgi::Output *out)
                                  DQMidleConsumerTimeout_.value_,
                                  consumerRequest));
       eventServer->addConsumer(consPtr);
+      // over-ride pushmode if not set in StorageManager
+      if((consumerPriority.compare("SMProxyServer") == 0) && !pushMode_)
+          consPtr->setPushMode(false);
 
       // initialize it straight away (should later pass in the folder name to
       // optionally change the selection on a register?
@@ -1783,19 +1731,20 @@ void StorageManager::DQMconsumerWebPage(xgi::Input *in, xgi::Output *out)
 
     // send the response
     ConsRegResponseView responseMessage(msgBuff);
-    int len = responseMessage.size();
-    for (int i=0; i<len; i++) mybuffer_[i]=msgBuff[i];
+    unsigned int len = responseMessage.size();
+    if(mybuffer_.capacity() < len) mybuffer_.resize(len);
+    for (unsigned int i=0; i<len; ++i) mybuffer_[i]=msgBuff[i];
 
     out->getHTTPResponseHeader().addHeader("Content-Type", "application/octet-stream");
     out->getHTTPResponseHeader().addHeader("Content-Transfer-Encoding", "binary");
-    out->write(mybuffer_,len);
+    out->write((char*) &mybuffer_[0],len);
 
   } else { // is this the right thing to send?
    // In wrong state for this message - return zero length stream, should return Msg NOTREADY
    int len = 0;
    out->getHTTPResponseHeader().addHeader("Content-Type", "application/octet-stream");
    out->getHTTPResponseHeader().addHeader("Content-Transfer-Encoding", "binary");
-   out->write(mybuffer_,len);
+   out->write((char*) &mybuffer_[0],len);
   }
 
 }
@@ -1853,10 +1802,9 @@ void StorageManager::setupFlashList()
   is->fireItemAvailable("stateName",            fsm_.stateName());
   is->fireItemAvailable("progressMarker",       &progressMarker_);
   is->fireItemAvailable("connectedFUs",         &connectedFUs_);
-  is->fireItemAvailable("streamerOnly",         &streamer_only_);
+  is->fireItemAvailable("pushMode2Proxy",       &pushmode2proxy_);
   is->fireItemAvailable("nLogicalDisk",         &nLogicalDisk_);
   is->fireItemAvailable("fileCatalog",          &fileCatalog_);
-  is->fireItemAvailable("oneinN",               &oneinN_);
   is->fireItemAvailable("maxESEventRate",       &maxESEventRate_);
   is->fireItemAvailable("activeConsumerTimeout",&activeConsumerTimeout_);
   is->fireItemAvailable("idleConsumerTimeout",  &idleConsumerTimeout_);
@@ -1889,10 +1837,9 @@ void StorageManager::setupFlashList()
   is->addItemRetrieveListener("stateName",            this);
   is->addItemRetrieveListener("progressMarker",       this);
   is->addItemRetrieveListener("connectedFUs",         this);
-  is->addItemRetrieveListener("streamerOnly",         this);
+  is->addItemRetrieveListener("pushMode2Proxy",       this);
   is->addItemRetrieveListener("nLogicalDisk",         this);
   is->addItemRetrieveListener("fileCatalog",          this);
-  is->addItemRetrieveListener("oneinN",               this);
   is->addItemRetrieveListener("maxESEventRate",       this);
   is->addItemRetrieveListener("activeConsumerTimeout",this);
   is->addItemRetrieveListener("idleConsumerTimeout",  this);
@@ -1943,7 +1890,7 @@ bool StorageManager::configuring(toolbox::task::WorkLoop* wl)
     
     // Get into the Ready state from Halted state
     
-    edmplugin::PluginManager::configure(edmplugin::standard::config());
+    seal::PluginManager::get()->initialise();
     
     // give the JobController a configuration string and
     // get the registry data coming over the network (the first one)
@@ -1953,7 +1900,7 @@ bool StorageManager::configuring(toolbox::task::WorkLoop* wl)
     
     string my_config = smpset.getAsString();
     
-    writeStreamerOnly_ = (bool) streamer_only_;
+    pushMode_ = (bool) pushmode2proxy_;
     smConfigString_    = my_config;
     smFileCatalog_     = fileCatalog_.toString();
     
@@ -1978,25 +1925,25 @@ bool StorageManager::configuring(toolbox::task::WorkLoop* wl)
     try {
       jc_.reset(new stor::JobController(my_config, &deleteSMBuffer));
       
-      int value_4oneinN(oneinN_);
       int disks(nLogicalDisk_);
-      
-      if(value_4oneinN <= 0) value_4oneinN = -1;
-      jc_->set_oneinN(value_4oneinN);
-      jc_->set_outoption(writeStreamerOnly_);
       
       jc_->setNumberOfFileSystems(disks);
       jc_->setFileCatalog(smFileCatalog_);
       jc_->setSourceId(sourceId_);
       
       boost::shared_ptr<EventServer>
-	eventServer(new EventServer(value_4oneinN, maxESEventRate_));
+	eventServer(new EventServer(maxESEventRate_));
       jc_->setEventServer(eventServer);
       boost::shared_ptr<DQMEventServer>
 	DQMeventServer(new DQMEventServer(DQMmaxESEventRate_));
       jc_->setDQMEventServer(DQMeventServer);
     }
     catch(cms::Exception& e)
+      {
+	XCEPT_RAISE (toolbox::fsm::exception::Exception, 
+		     e.explainSelf());
+      }
+    catch(seal::Error& e)
       {
 	XCEPT_RAISE (toolbox::fsm::exception::Exception, 
 		     e.explainSelf());
@@ -2054,7 +2001,9 @@ bool StorageManager::enabling(toolbox::task::WorkLoop* wl)
 bool StorageManager::stopping(toolbox::task::WorkLoop* wl)
 {
   try {
-    LOG4CPLUS_INFO(getApplicationLogger(),"Start stopping :) ...");
+    LOG4CPLUS_INFO(getApplicationLogger(),"Start stopping ...");
+
+    stopAction();
 
     LOG4CPLUS_INFO(getApplicationLogger(),"Finished stopping!");
     
@@ -2074,57 +2023,7 @@ bool StorageManager::halting(toolbox::task::WorkLoop* wl)
   try {
     LOG4CPLUS_INFO(getApplicationLogger(),"Start halting ...");
 
-    // Get into the Halted (stopped and unconfigured) state from Enabled state
-/*
-  No longer valid with the shared memory output module
-
-    // First check that all senders have closed connections
-    int timeout = 60; // make this configurable (and advertize the value)
-    std::cout << "waiting " << timeout << " sec for " <<  smfusenders_.size() 
-	      << " senders to end the run " << std::endl;
-    while(smfusenders_.size() > 0)
-      {
-	::sleep(1);
-	if(timeout-- == 0) {
-	  LOG4CPLUS_WARN(this->getApplicationLogger(),
-			 "Timeout in SM waiting for end of run from "
-			 << smfusenders_.size() << "senders ");
-	  break;
-	}
-      }
-*/
-    
-    std::list<std::string> files = jc_->get_filelist();
-    std::list<std::string> currfiles= jc_->get_currfiles();
-    closedFiles_ = files.size() - currfiles.size();
-    
-    unsigned int totInFile = 0;
-    for(list<string>::const_iterator it = files.begin();
-	it != files.end(); it++)
-      {
-	string name;
-	unsigned int nev;
-	unsigned int size;
-	parseFileEntry((*it),name,nev,size);
-	fileList_.push_back(name);
-	eventsInFile_.push_back(nev);
-	totInFile += nev;
-	fileSize_.push_back(size);
-	FDEBUG(5) << name << " " << nev << " " << size << std::endl;
-      }
-    
-    jc_->stop();
-    jc_->join();
-    
-    // make sure serialized product registry is cleared also as its used
-    // to check state readiness for web transactions
-    ser_prods_size_ = 0;
-    
-    {
-      boost::mutex::scoped_lock sl(halt_lock_);
-      jc_.reset();
-    }
-    
+    haltAction();
     
     LOG4CPLUS_INFO(getApplicationLogger(),"Finished halting!");
     
@@ -2138,6 +2037,46 @@ bool StorageManager::halting(toolbox::task::WorkLoop* wl)
   return false;
 }
 
+void StorageManager::stopAction()
+{
+  std::list<std::string> files = jc_->get_filelist();
+  std::list<std::string> currfiles= jc_->get_currfiles();
+  closedFiles_ = files.size() - currfiles.size();
+
+  unsigned int totInFile = 0;
+  for(list<string>::const_iterator it = files.begin();
+      it != files.end(); it++)
+    {
+      string name;
+      unsigned int nev;
+      unsigned int size;
+      parseFileEntry((*it),name,nev,size);
+      fileList_.push_back(name);
+      eventsInFile_.push_back(nev);
+      totInFile += nev;
+      fileSize_.push_back(size);
+      FDEBUG(5) << name << " " << nev << " " << size << std::endl;
+    }
+
+  jc_->stop();
+
+  jc_->join();
+}
+
+void StorageManager::haltAction()
+{
+  stopAction();
+
+  // make sure serialized product registry is cleared also as its used
+  // to check state readiness for web transactions
+  ser_prods_size_ = 0;
+  pushMode_ = false;
+
+  {
+    boost::mutex::scoped_lock sl(halt_lock_);
+    jc_.reset();
+  }
+}
 
 
 ////////////////////////////////////////////////////////////////////////////////
