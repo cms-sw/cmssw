@@ -12,7 +12,7 @@
 // Author:      Lindsey Gray
 // Created:     13.1.2005
 //
-// $Id: CSCTFTBFrontHeader.cc,v 1.1 2006/06/22 00:34:18 lgray Exp $
+// $Id: CSCTFTBFrontHeader.cc,v 1.2 2006/06/22 14:46:05 lgray Exp $
 
 // System include files
 
@@ -26,7 +26,7 @@
 // Constants, enums and typedefs
 
 // CVS-based strings (Id and Tag with which file was checked out)
-static const char* const kIdString  = "$Id: CSCTFTBFrontHeader.cc,v 1.1 2006/06/22 00:34:18 lgray Exp $";
+static const char* const kIdString  = "$Id: CSCTFTBFrontHeader.cc,v 1.2 2006/06/22 14:46:05 lgray Exp $";
 static const char* const kTagString = "$Name:  $";
 
 // Static data member definitions

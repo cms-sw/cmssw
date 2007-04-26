@@ -61,7 +61,9 @@ public:
 	unsigned int slot    (void) const throw() { return  board_id_&0x1F;       }
 	unsigned int sector  (void) const throw() { return (board_id_&0x700)>>8;  }
 	unsigned int endcap  (void) const throw() { return (board_id_&0x800)>>11; }
-	unsigned int board_id(void) const throw() { return board_id_;             }
+	unsigned int board_id(void) const throw() { return  board_id_;             }
+
+	unsigned int crc     (void) const throw() { return crc_low|(crc_high<<11); }
 
 	bool unpack(const unsigned short *&buf) throw()  { memcpy(this, buf, 8*sizeof(short)); buf+=8; return check(); }
 

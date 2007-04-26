@@ -77,11 +77,11 @@ public:
 	std::vector<CSCSP_SPblock> tracks (void) const throw();
 	std::vector<CSCSP_MBblock> mbStubs(void) const throw();
 
-	unsigned int VPs(void) const throw() { return vp_bits; }
+	unsigned int VPs(void) const throw() { return vp_bits|(vq_a<<15)|(vq_b<<16); }
 	unsigned int SEs(void) const throw() { return se_bits; }
 	unsigned int SMs(void) const throw() { return sm_bits; }
-	unsigned int AFs(void) const throw() { return af_bits; }
-	unsigned int BXs(void) const throw() { return bx_bits; }
+	unsigned int AFs(void) const throw() { return af_bits|(af_barrel_1<<15)|(af_barrel_2<<16); }
+	unsigned int BXs(void) const throw() { return bx_bits|(bx_barrel_1<<15)|(bx_barrel_2<<16); }
 
 	unsigned int ptSpy     (void) const throw() { return (pt_high<<8)|pt_low; }
 	unsigned int ptSpyTrack(void) const throw() { return pt_spy_point;        }
