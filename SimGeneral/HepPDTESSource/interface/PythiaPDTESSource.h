@@ -17,8 +17,9 @@
 #include <memory>
 #include <fstream>
 #include "boost/shared_ptr.hpp"
-#include "HepPDT/TableBuilder.hh"
-#include "HepPDT/ParticleDataTable.hh"
+#include <CLHEP/HepPDT/DefaultConfig.hh>
+#include <CLHEP/HepPDT/TableBuilder.hh>
+#include <CLHEP/HepPDT/ParticleDataTableT.hh>
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
@@ -33,7 +34,7 @@ public:
   /// destructor
   ~PythiaPDTESSource();
   /// define the particle data table type
-  typedef HepPDT::ParticleDataTable PDT;
+  typedef DefaultConfig::ParticleDataTable PDT;
   /// define the return type
   typedef std::auto_ptr<PDT> ReturnType;
   /// return the particle table
@@ -42,6 +43,11 @@ public:
   void setIntervalFor( const edm::eventsetup::EventSetupRecordKey &,
 		       const edm::IOVSyncValue &,
 		       edm::ValidityInterval & );
+
+  // temporary solution to circumvent internal HepPDT translation
+
+  bool  cmsaddPythiaParticles( std::istream & pdfile, HepPDT::TableBuilder & tb );
+
 
 private:
   edm::FileInPath pdtFileName;
