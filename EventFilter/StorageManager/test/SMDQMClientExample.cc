@@ -7,7 +7,7 @@
 
   Description: Example DQM Client 
 
-  $Id$
+  $Id: SMDQMClientExample.cc,v 1.1 2007/04/18 01:56:30 hcheung Exp $
 
 */
 
@@ -26,7 +26,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-//#include "DQMServices/Daemon/interface/MonitorDaemon.h"
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
@@ -72,17 +71,6 @@ private:
   
 };
 
-//
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
-
-//
-// constructors and destructor
-//
 SMDQMClientExample::SMDQMClientExample( const edm::ParameterSet& iConfig )
   : counter(0)
 {
