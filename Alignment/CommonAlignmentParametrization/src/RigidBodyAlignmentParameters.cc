@@ -1,7 +1,7 @@
 /** \file RigidBodyAlignmentParameters.cc
  *
- *  $Date: 2006/12/23 15:55:48 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/03/12 21:28:48 $
+ *  $Revision: 1.5 $
  */
 
 #include "FWCore/Utilities/interface/Exception.h"
@@ -90,9 +90,9 @@ RigidBodyAlignmentParameters::derivatives( const TrajectoryStateOnSurface& tsos,
 //__________________________________________________________________________________________________
 AlgebraicMatrix 
 RigidBodyAlignmentParameters::selectedDerivatives( const TrajectoryStateOnSurface& tsos, 
-						   AlignableDet* ) const
+						   AlignableDet* alignableDet ) const
 {
-  AlgebraicMatrix dev = derivatives( tsos, 0 );
+  AlgebraicMatrix dev = derivatives( tsos, alignableDet );
 
   int ncols  = dev.num_col();
   int nrows  = dev.num_row();
