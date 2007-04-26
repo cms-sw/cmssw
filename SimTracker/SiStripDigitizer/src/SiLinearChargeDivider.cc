@@ -4,8 +4,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-SiLinearChargeDivider::SiLinearChargeDivider(const edm::ParameterSet& conf,const ParticleDataTable * pdt):conf_(conf),
-													  pdt_(pdt){
+SiLinearChargeDivider::SiLinearChargeDivider(const edm::ParameterSet& conf):conf_(conf),theParticleDataTable(0){
   // Run APV in peak instead of deconvolution mode, which degrades the time resolution.
   peakMode=conf_.getParameter<bool>("APVpeakmode");
   
@@ -81,8 +80,8 @@ void SiLinearChargeDivider::fluctuateEloss(int pid, float particleMomentum,
   if( length > 0.) dedx = eloss/length;
   else dedx = eloss;
 
-  assert(pdt_ != 0);
-  ParticleData const * particle = pdt_->particle(pid);
+  assert(theParticleDataTable != 0);
+  ParticleData const * particle = theParticleDataTable->particle( pid );
   double particleMass = 139.57;              // Mass in MeV, Assume pion
   if(particle == 0)
     {
@@ -158,3 +157,7 @@ float SiLinearChargeDivider::DeconvolutionShape(const PSimHit& hit, const StripG
   return hit.energyLoss()*exp(-0.5*readTimeNorm*readTimeNorm);
 }
 
+void SiLinearChargeDivider::setParticleDataTable(const ParticleDataTable * pdt)
+{
+  theParticleDataTable = pdt;
+}

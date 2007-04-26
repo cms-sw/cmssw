@@ -19,15 +19,15 @@ class SiLinearChargeDivider : public SiChargeDivider{
  public:
 
   SiLinearChargeDivider(){
-    //    particleTable = & HepPDT::theTable(); 
   }
-  SiLinearChargeDivider(const edm::ParameterSet& conf,const ParticleDataTable * pdt);
+  SiLinearChargeDivider(const edm::ParameterSet& conf);
 
   virtual ~SiLinearChargeDivider(){
-    //    delete particleTable;
   }
 
   SiChargeDivider::ionization_type divide(const PSimHit&, const StripGeomDetUnit& det);
+
+  void setParticleDataTable(const ParticleDataTable * pdt);
   
  private:
   edm::ParameterSet conf_;
@@ -43,7 +43,7 @@ class SiLinearChargeDivider : public SiChargeDivider{
   double deltaCut ;
   double cosmicShift;
   SiG4UniversalFluctuation fluctuate; 
-  const ParticleDataTable * pdt_;
+  const ParticleDataTable * theParticleDataTable;
 
 };
 
