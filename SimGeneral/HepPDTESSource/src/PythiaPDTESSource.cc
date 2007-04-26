@@ -39,16 +39,15 @@ void PythiaPDTESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordK
 
 using namespace HepPDT;
 
-// namespace HepPDT {
- 
-//   bool getPythiaid( int & id, const std::string & pdline );
-//   void parsePythiaLine( TempParticleData & tpd, int & anti, std::string & aname, const std::string & pdline );
-//   void parsePythiaDecayLine( TempParticleData & tpd, const std::string & pdline );
-//   TempDecayData getPythiaDecay( const std::string & pdline );
- 
-// }
+namespace HepPDT {
 
-bool  PythiaPDTESSource::cmsaddPythiaParticles( std::istream & pdfile, HepPDT::TableBuilder & tb )
+  void parsePythiaLine( TempParticleData & tpd, int & anti, std::string & aname, const std::string & pdline );
+  void parsePythiaDecayLine( TempParticleData & tpd, const std::string & pdline );
+  TempDecayData getPythiaDecay( const std::string & pdline );
+
+}
+
+bool PythiaPDTESSource::cmsaddPythiaParticles( std::istream & pdfile, HepPDT::TableBuilder & tb )
 {
   std::string pdline, aname;
   int id, kf;
@@ -59,13 +58,15 @@ bool  PythiaPDTESSource::cmsaddPythiaParticles( std::istream & pdfile, HepPDT::T
     if( getPythiaid( kf, pdline ) ) {
       if( kf != 0 ) {
           // this is a new particle definition
-          saveid = id = kf;
+          saveid = id = kf; 
           TempParticleData& tpd = tb.getParticleData( ParticleID( id ) );
           parsePythiaLine( tpd, anti, aname, pdline );
           if( anti > 0 ) {
               // code here to define antiparticles
               TempParticleData& atpd = tb.getAntiParticle( ParticleID( id ), aname );
               // use this variable (fake out the compiler)
+              atpd.tempSource = tpd.tempSource;
+              atpd.tempOriginalID = -tpd.tempOriginalID;
               atpd.tempMass = tpd.tempMass;
           }
       } else if( saveid != 0 ) {
@@ -80,6 +81,5 @@ bool  PythiaPDTESSource::cmsaddPythiaParticles( std::istream & pdfile, HepPDT::T
   std::cout << "found " << tb.size() << " particles" << std::endl;
   return true;
 }
-
 //define this as a plug-in
 //DEFINE_ANOTHER_FWK_EVENTSETUP_SOURCE( PythiaPDTESSource );
