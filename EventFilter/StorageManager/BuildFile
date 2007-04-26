@@ -1,3 +1,4 @@
+<flags SEAL_PLUGIN_NAME="EventFilterStorageManager">
 <use name=xdaq>
 <use name=mimetic>
 <use name=xerces-c>
@@ -18,8 +19,8 @@
 <use name=DataFormats/Streamer>
 <use name=IOPool/Streamer>
 <use name=EventFilter/Utilities>
-<use name=root>
 <use name=curl>
+<use name=root>
 <export>
  <lib name=EventFilterStorageManager>
  <use name=xdaq>
