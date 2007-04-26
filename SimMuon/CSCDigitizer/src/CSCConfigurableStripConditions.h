@@ -13,11 +13,11 @@ public:
 
   /// channels count from 1
   virtual float gain(const CSCDetId & detId, int channel) const;
-  virtual float gainVariance(const CSCDetId & detId, int channel) const {return theGainVariance;}
+  virtual float gainSigma(const CSCDetId & detId, int channel) const {return theGainSigma;}
 
   /// in ADC counts
   virtual float pedestal(const CSCDetId & detId, int channel) const {return thePedestal;}
-  virtual float pedestalVariance(const CSCDetId & detId, int channel) const {return thePedestalVariance;}
+  virtual float pedestalSigma(const CSCDetId & detId, int channel) const {return thePedestalSigma;}
 
   virtual void crosstalk(const CSCDetId&detId, int channel,
                  double stripLength, bool leftRight,
@@ -30,9 +30,9 @@ private:
 
   float theGain;
   float theME11Gain;
-  float theGainVariance;
+  float theGainSigma;
   float thePedestal;
-  float thePedestalVariance;
+  float thePedestalSigma;
   // proportional to slope of neighboring signal, per cm of strip length
   float theCapacitiveCrosstalk;
   // proportional to neighboring signal

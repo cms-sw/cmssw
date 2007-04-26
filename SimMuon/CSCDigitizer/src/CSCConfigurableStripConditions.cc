@@ -6,9 +6,9 @@
 CSCConfigurableStripConditions::CSCConfigurableStripConditions(const edm::ParameterSet & p)
 : theGain( p.getParameter<double>("gain") ),
   theME11Gain( p.getParameter<double>("me11gain") ),
-  theGainVariance( p.getParameter<double>("ampGainVariance") ),
+  theGainSigma( p.getParameter<double>("ampGainSigma") ),
   thePedestal( p.getParameter<double>("pedestal") ),
-  thePedestalVariance( p.getParameter<double>("pedestalVariance") ),
+  thePedestalSigma( p.getParameter<double>("pedestalSigma") ),
   theCapacitiveCrosstalk(0.0167),
   theResistiveCrosstalk(0.02)
 {
@@ -83,9 +83,9 @@ void CSCConfigurableStripConditions::makeNoisifier(int chamberType, const std::v
 
   // since I don't know how to correlate the pedestal samples,
   // take as constant
-  matrix[0][0] = thePedestalVariance * thePedestalVariance;
-  matrix[1][1] = thePedestalVariance * thePedestalVariance;
-  matrix[2][2] = thePedestalVariance * thePedestalVariance;
+  matrix[0][0] = thePedestalSigma * thePedestalSigma;
+  matrix[1][1] = thePedestalSigma * thePedestalSigma;
+  matrix[2][2] = thePedestalSigma * thePedestalSigma;
   theNoisifiers[chamberType-1] = new CorrelatedNoisifier(matrix);
 
 }

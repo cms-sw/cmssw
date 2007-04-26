@@ -19,11 +19,11 @@ public:
   /// channels count from 1
   virtual float gain(const CSCDetId & detId, int channel) const;
   /// total calibration precision
-  virtual float gainVariance(const CSCDetId & detId, int channel) const {return 0.005;}
+  virtual float gainSigma(const CSCDetId & detId, int channel) const {return 0.005;}
 
   /// in ADC counts
   virtual float pedestal(const CSCDetId & detId, int channel) const;
-  virtual float pedestalVariance(const CSCDetId & detId, int channel) const;
+  virtual float pedestalSigma(const CSCDetId & detId, int channel) const;
 
   virtual void crosstalk(const CSCDetId&detId, int channel,
                  double stripLength, bool leftRight,
@@ -33,6 +33,9 @@ public:
 
 private:
   virtual void fetchNoisifier(const CSCDetId & detId, int istrip);  
+
+  CSCPedestals::Item pedestalObject(const CSCDetId & detId, int channel) const;
+
   // might change the channel # for ME1A
   static int dbIndex(const CSCDetId & id, int & channel);
 

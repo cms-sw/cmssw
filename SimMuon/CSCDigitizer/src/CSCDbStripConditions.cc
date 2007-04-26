@@ -48,6 +48,7 @@ void CSCDbStripConditions::initializeEvent(const edm::EventSetup & es)
   edm::ESHandle<CSCNoiseMatrix> hNoiseMatrix;
   es.get<CSCNoiseMatrixRcd>().get(hNoiseMatrix);
   theNoiseMatrix = &*hNoiseMatrix.product();
+print();
 }
 
 
@@ -61,15 +62,19 @@ void CSCDbStripConditions::print() const
       lastGain = theGains->gains.end();
   for( ; layerGainsItr != lastGain; ++layerGainsItr)
   {
-    std::cout << "GAIN " << layerGainsItr->first << " " << layerGainsItr->second[0].gain_slope 
-    << " " << layerGainsItr->second[0].gain_intercept << std::endl;
+    std::cout << "GAIN " << layerGainsItr->first 
+              << " STRIPS " << layerGainsItr->second.size() << " "
+              << layerGainsItr->second[0].gain_slope 
+              << " " << layerGainsItr->second[0].gain_intercept << std::endl;
   }
 
   std::map< int,std::vector<CSCPedestals::Item> >::const_iterator pedestalItr = thePedestals->pedestals.begin(), 
                                                                   lastPedestal = thePedestals->pedestals.end();
   for( ; pedestalItr != lastPedestal; ++pedestalItr)
   {
-    std::cout << "PEDS " << pedestalItr->first << " " << pedestalItr->second[0].ped << " " 
+    std::cout << "PEDS " << pedestalItr->first << " " 
+              << " STRIPS " << pedestalItr->second.size() << " "
+              << pedestalItr->second[0].ped << " " 
               << pedestalItr->second[0].rms << std::endl;
   }
 
@@ -77,7 +82,8 @@ void CSCDbStripConditions::print() const
                                                                   lastCrosstalk = theCrosstalk->crosstalk.end();
   for( ; crosstalkItr != lastCrosstalk; ++crosstalkItr)
   {
-    std::cout << "XTALKS " << crosstalkItr->first << " " 
+    std::cout << "XTALKS " << crosstalkItr->first 
+      << " STRIPS " << crosstalkItr->second.size() << " "  
      << crosstalkItr->second[5].xtalk_slope_left << " " 
      << crosstalkItr->second[5].xtalk_slope_right << " " 
      << crosstalkItr->second[5].xtalk_intercept_left << " " 
@@ -102,7 +108,7 @@ float CSCDbStripConditions::gain(const CSCDetId & detId, int channel) const
 }
 
 
-float CSCDbStripConditions::pedestal(const CSCDetId & detId, int channel) const
+CSCPedestals::Item CSCDbStripConditions::pedestalObject(const CSCDetId & detId, int channel) const
 {
   assert(thePedestals != 0);
   int index = dbIndex(detId, channel);
@@ -111,26 +117,21 @@ float CSCDbStripConditions::pedestal(const CSCDetId & detId, int channel) const
   if(pedestalItr == thePedestals->pedestals.end())
   {
     throw cms::Exception("CSCDbStripConditions")
-     << "Cannot find noise matrix for layer " << detId;
+     << "Cannot find pedestals for layer " << detId;
   }
-
-  return pedestalItr->second[channel-1].ped;
+  return pedestalItr->second[channel-1];
 }
 
 
-float CSCDbStripConditions::pedestalVariance(const CSCDetId&detId, int channel) const
+float CSCDbStripConditions::pedestal(const CSCDetId & detId, int channel) const
 {
-  assert(thePedestals != 0);
-  int index = dbIndex(detId, channel);
-  std::map< int,std::vector<CSCPedestals::Item> >::const_iterator pedestalItr
-    = thePedestals->pedestals.find(index);
-  if(pedestalItr == thePedestals->pedestals.end())
-  {
-    throw cms::Exception("CSCDbStripConditions")
-     << "Cannot find noise matrix for layer " << detId;
-  }
+  return pedestalObject(detId, channel).ped;
+}
 
-  return pedestalItr->second[channel-1].rms;
+
+float CSCDbStripConditions::pedestalSigma(const CSCDetId&detId, int channel) const
+{
+  return pedestalObject(detId, channel).rms;
 }
 
 
@@ -169,8 +170,7 @@ void CSCDbStripConditions::fetchNoisifier(const CSCDetId & detId, int istrip)
     throw cms::Exception("CSCDbStripConditions")
      << "Cannot find noise matrix for layer " << detId;
   }
-
-  assert(matrixItr->second.size() < istrip);
+  assert(matrixItr->second.size() > istrip);
 
   const CSCNoiseMatrix::Item & item = matrixItr->second[istrip-1];
 
@@ -189,6 +189,9 @@ void CSCDbStripConditions::fetchNoisifier(const CSCDetId & detId, int istrip)
   matrix[6][7] = item.elem67;
   matrix[7][7] = item.elem77;
   
+  // the other diagonal elements can just come from the pedestal variance, I guess
+  int 
+
   if(theNoisifier != 0) delete theNoisifier;
   theNoisifier = new CorrelatedNoisifier(matrix);
 }
@@ -209,7 +212,7 @@ int CSCDbStripConditions::dbIndex(const CSCDetId & id, int & channel)
     rg = 1;
   }
 
-  return 220000000 + ec*100000 + st*10000 + rg*1000 + ch*10 + la;
+  return ec*100000 + st*10000 + rg*1000 + ch*10 + la;
 }
 
 

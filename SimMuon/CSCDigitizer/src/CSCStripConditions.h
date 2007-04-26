@@ -21,14 +21,14 @@ public:
 
   /// channels count from 1
   virtual float gain(const CSCDetId & detId, int channel) const = 0;
-  virtual float gainVariance(const CSCDetId & detId, int channel) const = 0;
+  virtual float gainSigma(const CSCDetId & detId, int channel) const = 0;
   virtual float smearedGain(const CSCDetId & detId, int channel) const;
 
   /// in ADC counts
   virtual float pedestal(const CSCDetId & detId, int channel) const = 0;
-  virtual float pedestalVariance(const CSCDetId & detId, int channel) const = 0;
+  virtual float pedestalSigma(const CSCDetId & detId, int channel) const = 0;
 
-  /// calculated from pedestalVariance & gain
+  /// calculated from pedestalSigma & gain
   float analogNoise(const CSCDetId & detId, int channel) const;
 
   virtual void crosstalk(const CSCDetId&detId, int channel,

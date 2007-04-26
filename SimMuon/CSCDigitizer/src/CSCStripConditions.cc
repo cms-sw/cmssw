@@ -3,7 +3,7 @@
 
 float CSCStripConditions::smearedGain(const CSCDetId & detId, int channel) const
 {
-  return RandGaussQ::shoot( gain(detId, channel), gainVariance(detId, channel) );
+  return RandGaussQ::shoot( gain(detId, channel), gainSigma(detId, channel) );
 }
 
 
@@ -25,7 +25,7 @@ void CSCStripConditions::noisify(const CSCDetId & detId, CSCAnalogSignal & signa
  
 float CSCStripConditions::analogNoise(const CSCDetId & detId, int channel) const
 {
-  return sqrt(2) * pedestalVariance(detId, channel) / gain(detId, channel);
+  return sqrt(2) * pedestalSigma(detId, channel) / gain(detId, channel);
 }
 
 
