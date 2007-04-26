@@ -22,14 +22,20 @@ from h4l import pythiaSource
 process.source = pythiaSource
 
 process.out = cms.OutputModule("PoolOutputModule",
-                               fileName = cms.untracked.string("genevents.root"),
-                               outputCommands= cms.untracked.vstring(
-                                 "drop *",
-                                 "keep *_genParticleCandidates_*_*"
-                               ))
+  fileName = cms.untracked.string("genevents.root"),
+  outputCommands= cms.untracked.vstring(
+    "drop *",
+    "keep *_genParticleCandidates_*_*"
+ )
+)
   
 process.printEventNumber = cms.OutputModule( "AsciiOutputModule" )
   
-process.p = cms.Path( process.genParticleCandidates )
+process.p = cms.Path( 
+  process.genParticleCandidates 
+)
 
-process.o = cms.EndPath( process.out * process.printEventNumber )
+process.o = cms.EndPath( 
+  process.out * 
+  process.printEventNumber 
+)
