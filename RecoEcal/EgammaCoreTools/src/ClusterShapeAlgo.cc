@@ -17,38 +17,26 @@ reco::ClusterShape ClusterShapeAlgo::Calculate(const reco::BasicCluster &passedC
                                                const CaloSubdetectorGeometry * geometry,
                                                const CaloSubdetectorTopology* topology)
 {
-  //std::cout << " Calculate_TopEnergy" << std::endl;
   Calculate_TopEnergy(passedCluster,hits);
-  //std::cout << " Calculate_2ndEnergy" << std::endl;
   Calculate_2ndEnergy(passedCluster,hits);
-  //std::cout << " Create_Map" << std::endl;
   Create_Map(hits,topology);
-  //std::cout << " Calculate_e2x2" << std::endl;
   Calculate_e2x2();
-  //std::cout << " Calculate_e3x2" << std::endl;
   Calculate_e3x2();
-  //std::cout << " Calculate_e3x3" << std::endl;
   Calculate_e3x3();
-  //std::cout << "Calculate_e4x4 " << std::endl;
   Calculate_e4x4();
-  //std::cout << "Calculate_e5x5 " << std::endl;
   Calculate_e5x5();
   Calculate_e2x5Right();
   Calculate_e2x5Left();
   Calculate_e2x5Top();
   Calculate_e2x5Bottom();
-  //std::cout << "Calculate_Covariances " << std::endl;
   Calculate_Covariances(passedCluster,hits,geometry);
-  //std::cout << "Calculate_BarrelBasketEnergyFraction " << std::endl;
   Calculate_BarrelBasketEnergyFraction(passedCluster,hits, Eta, geometry);
-  //std::cout << "Calculate_BarrelBasketEnergyFraction " << std::endl;
   Calculate_BarrelBasketEnergyFraction(passedCluster,hits, Phi, geometry);
 
   return reco::ClusterShape(covEtaEta_, covEtaPhi_, covPhiPhi_, eMax_, eMaxId_,
 			    e2nd_, e2ndId_, e2x2_, e3x2_, e3x3_,e4x4_, e5x5_,
 			    e2x5Right_, e2x5Left_, e2x5Top_, e2x5Bottom_,
-			    e3x2Ratio_, 
-                            energyBasketFractionEta_, energyBasketFractionPhi_);
+			    e3x2Ratio_, energyBasketFractionEta_, energyBasketFractionPhi_);
 }
 
 void ClusterShapeAlgo::Calculate_TopEnergy(const reco::BasicCluster &passedCluster,const EcalRecHitCollection *hits)
@@ -129,23 +117,6 @@ void ClusterShapeAlgo::Create_Map(const EcalRecHitCollection *hits,const CaloSub
       else
 				energyMap_[y][x] = std::make_pair(DetId(0), 0);  
     }
-  
-/*  
-  //Prints map for testing purposes, remove in final. 
-  std::cout << "\n\n\n";
-
-  for(int i = 0; i <= 4; i++)
-  {
-      std::cout << std::endl;
-    for(int j = 0; j <= 4; j++)
-    {
-      std::cout.width(10);
-      std::cout << std::left << energyMap_[i][j].second;
-    }
-  }
-
-  std::cout << "\n\n\n" << std::endl;
-*/  
 }
 
 void ClusterShapeAlgo::Calculate_e2x2()
@@ -184,43 +155,53 @@ void ClusterShapeAlgo::Calculate_e2x2()
 
 void ClusterShapeAlgo::Calculate_e3x2()
 {
-  double e3x2 = 0;
-  double e3x2Ratio=0, e3x2RatioNumerator(0.), e3x2RatioDenominator(0.);
+  double e3x2 = 0.0;
+  double e3x2Ratio = 0.0, e3x2RatioNumerator = 0.0, e3x2RatioDenominator = 0.0;
 
-  int e2ndX = 2, e2ndY=2; 
-  bool e2ndInX = false;
-
+  int e2ndX = 2, e2ndY = 2;
   int deltaY = 0, deltaX = 0;
 
-  for(deltaX = -1; deltaX <= 1 && e2ndX == 2 && e2ndY == 2; deltaX++)
-  {
-    if(deltaX == 0)
-      for(deltaY = -1; deltaY <= 1 && e2ndX == 2 && e2ndY == 2; deltaY+=2)
-				{if(e2ndId_ == energyMap_[2+deltaY][2].first) e2ndY += deltaY; e2ndInX = false;}
-    else 
-    	{if(e2ndId_ == energyMap_[2][2+deltaX].first) e2ndX += deltaX; e2ndInX = true;} 
-  }
+  double nextEnergy = -999;
+  int nextEneryDirection = -1;
 
-  switch(e2ndInX)
+  for(int cardinalDirection = 0; cardinalDirection < 4; cardinalDirection++)
   {
-    case true:  deltaY = 1; deltaX = 0; break;
-    case false: deltaY = 0; deltaX = 1; break; 
+    switch(cardinalDirection)
+    {
+      case 0: deltaX = -1; deltaY =  0; break;
+      case 1: deltaX =  1; deltaY =  0; break;
+      case 2: deltaX =  0; deltaY = -1; break;
+      case 3: deltaX =  0; deltaY =  1; break;
+    }
+   
+    if(energyMap_[2+deltaY][2+deltaX].second >= nextEnergy)
+    {
+        nextEnergy = energyMap_[2+deltaY][2+deltaX].second;
+        nextEneryDirection = cardinalDirection;
+       
+        e2ndX = 2+deltaX;
+        e2ndY = 2+deltaY;
+    }
+  }
+ 
+  switch(nextEneryDirection)
+  {
+    case 0: ;
+    case 1: deltaX = 0; deltaY = 1; break;
+    case 2: ;
+    case 3: deltaX = 1; deltaY = 0; break;
   }
 
   for(int sign = -1; sign <= 1; sign++)
-      e3x2 += (energyMap_[2+deltaY*sign][2+deltaX*sign].second 
-	    			  + std::max(0.0,energyMap_[e2ndY+deltaY*sign][e2ndX+deltaX*sign].second));
-  
-  e3x2RatioNumerator   = (std::max(0.0,energyMap_[e2ndY+deltaY][e2ndX+deltaX].second)
-			  									+ std::max(0.0,energyMap_[e2ndY-deltaY][e2ndX-deltaX].second));
-  e3x2RatioDenominator = (0.5 + energyMap_[2+deltaY][2+deltaX].second 
-			  									+ energyMap_[2-deltaY][2-deltaX].second);
-  e3x2Ratio = e3x2RatioNumerator /e3x2RatioDenominator;
+      e3x2 += (energyMap_[2+deltaY*sign][2+deltaX*sign].second + energyMap_[e2ndY+deltaY*sign][e2ndX+deltaX*sign].second);
+ 
+  e3x2RatioNumerator   = energyMap_[e2ndY+deltaY][e2ndX+deltaX].second + energyMap_[e2ndY-deltaY][e2ndX-deltaX].second;
+  e3x2RatioDenominator = 0.5 + energyMap_[2+deltaY][2+deltaX].second + energyMap_[2-deltaY][2-deltaX].second;
+  e3x2Ratio = e3x2RatioNumerator / e3x2RatioDenominator;
 
   e3x2_ = e3x2;
   e3x2Ratio_ = e3x2Ratio;
-
-} 
+}  
 
 void ClusterShapeAlgo::Calculate_e3x3()
 {
