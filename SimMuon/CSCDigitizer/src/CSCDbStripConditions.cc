@@ -48,7 +48,6 @@ void CSCDbStripConditions::initializeEvent(const edm::EventSetup & es)
   edm::ESHandle<CSCNoiseMatrix> hNoiseMatrix;
   es.get<CSCNoiseMatrixRcd>().get(hNoiseMatrix);
   theNoiseMatrix = &*hNoiseMatrix.product();
-print();
 }
 
 
@@ -170,7 +169,7 @@ void CSCDbStripConditions::fetchNoisifier(const CSCDetId & detId, int istrip)
     throw cms::Exception("CSCDbStripConditions")
      << "Cannot find noise matrix for layer " << detId;
   }
-  assert(matrixItr->second.size() > istrip);
+  assert(matrixItr->second.size() >= istrip);
 
   const CSCNoiseMatrix::Item & item = matrixItr->second[istrip-1];
 
@@ -189,8 +188,10 @@ void CSCDbStripConditions::fetchNoisifier(const CSCDetId & detId, int istrip)
   matrix[6][7] = item.elem67;
   matrix[7][7] = item.elem77;
   
-  // the other diagonal elements can just come from the pedestal variance, I guess
-  int 
+  // the other diagonal elements can just come from the pedestal sigma, I guess
+  float sigma = pedestalSigma(detId, istrip);
+  float scaVariance = 2 * sigma * sigma;
+  matrix[0][0] = matrix[1][1] = matrix[2][2] = scaVariance;
 
   if(theNoisifier != 0) delete theNoisifier;
   theNoisifier = new CorrelatedNoisifier(matrix);
