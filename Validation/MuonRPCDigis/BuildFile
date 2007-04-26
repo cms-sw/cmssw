@@ -1,10 +1,11 @@
 <use name=FWCore/Framework>
+<use name=FWCore/PluginManager>
 <use name=DataFormats/RPCDigi>
 <use name=Geometry/Records>
 <use name=Geometry/RPCGeometry>
 <use name=root>
 
-<flags SEAL_PLUGIN_NAME="ValidationMuonRPCDigis">
+<flags EDM_PLUGIN=1>
 
 <export>
  <lib name=ValidationRPCRecHits>
