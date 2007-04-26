@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2007/04/11 06:21:38 $
- * $Revision: 1.253 $
+ * $Date: 2007/04/25 15:04:24 $
+ * $Revision: 1.254 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -620,6 +620,8 @@ void EcalBarrelMonitorClient::endRun(void) {
 
   if ( verbose_ ) cout << "EcalBarrelMonitorClient: endRun, jevt = " << jevt_ << endl;
 
+  if ( baseHtmlDir_.size() != 0 ) this->htmlOutput();
+
   if ( outputFile_.size() != 0 ) mui_->save(outputFile_);
 
   if ( subrun_ != -1 ) {
@@ -628,8 +630,6 @@ void EcalBarrelMonitorClient::endRun(void) {
     this->endRunDb();
 
   }
-
-  if ( baseHtmlDir_.size() != 0 ) this->htmlOutput();
 
   if ( subrun_ != -1 ) {
     if ( enableSubRunDb_ ) {
