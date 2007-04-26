@@ -1,4 +1,5 @@
 <use name=Alignment/CommonAlignment>
+<use name=Alignment/MuonAlignment>
 <use name=Alignment/SurveyAnalysis>
 <use name=FWCore/ParameterSet>
 
@@ -31,3 +32,6 @@
  <use name=Geometry/TrackingGeometryAligner>
  <flags EDM_PLUGIN=1>
 </library>
+
+<library name="DTSurveyConvert" file="DTSurveyConvert.cpp"><flags EDM_PLUGIN=1></library>
+
