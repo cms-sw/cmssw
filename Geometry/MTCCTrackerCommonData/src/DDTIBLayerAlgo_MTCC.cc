@@ -6,9 +6,7 @@
 #include <cmath>
 #include <algorithm>
 
-namespace std{} using namespace std;
-#include "DetectorDescription/Parser/interface/DDLParser.h"
-#include "DetectorDescription/Base/interface/DDdebug.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DetectorDescription/Base/interface/DDutils.h"
 #include "DetectorDescription/Core/interface/DDPosPart.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
@@ -21,7 +19,7 @@ namespace std{} using namespace std;
 #include "CLHEP/Units/SystemOfUnits.h"
 
 DDTIBLayerAlgo_MTCC::DDTIBLayerAlgo_MTCC(): ribW(0),ribPhi(0) {
-  DCOUT('r', "DDTIBLayerAlgo_MTCC info: Creating an instance");
+  LogDebug("TIBGeom") << "DDTIBLayerAlgo_MTCC info: Creating an instance";
 }
 
 DDTIBLayerAlgo_MTCC::~DDTIBLayerAlgo_MTCC() {}
@@ -35,9 +33,9 @@ void DDTIBLayerAlgo_MTCC::initialize(const DDNumericArguments & nArgs,
   idNameSpace  = DDCurrentNamespace::ns();
   genMat       = sArgs["GeneralMaterial"];
   DDName parentName = parent().name(); 
-  DCOUT('r', "DDTIBLayerAlgo_MTCC debug: Parent " << parentName 
-	<< " NameSpace " << idNameSpace << " General Material " 
-	<< genMat);
+  LogDebug("TIBGeom") << "DDTIBLayerAlgo_MTCC debug: Parent " << parentName 
+		      << " NameSpace " << idNameSpace << " General Material " 
+		      << genMat;
   
   detectorTilt = nArgs["DetectorTilt"];
   layerL       = nArgs["LayerL"];
@@ -46,11 +44,12 @@ void DDTIBLayerAlgo_MTCC::initialize(const DDNumericArguments & nArgs,
   detectorT    = nArgs["DetectorThickness"];
   coolTubeW    = nArgs["CoolTubeWidth"];
   coolTubeT    = nArgs["CoolTubeThickness"];
-  DCOUT('r', "DDTIBLayerAlgo_MTCC debug: Tilt Angle " << detectorTilt/deg
-	<< " Layer Length/tolerance " << layerL << " " << detectorTol
-	<< " Detector layer Width/Thick " << detectorW << ", " 
-	<< detectorT << " Cooling Tube/Cable layer Width/Thick " 
-	<< coolTubeW << ", " << coolTubeT);
+  LogDebug("TIBGeom") << "DDTIBLayerAlgo_MTCC debug: Tilt Angle " 
+		      << detectorTilt/deg << " Layer Length/tolerance " 
+		      << layerL << " " << detectorTol
+		      << " Detector layer Width/Thick " << detectorW << ", " 
+		      << detectorT << " Cooling Tube/Cable layer Width/Thick " 
+		      << coolTubeW << ", " << coolTubeT;
   
   radiusLo     = nArgs["RadiusLo"];
   phioffLo     = nArgs["PhiOffsetLo"];
@@ -64,17 +63,19 @@ void DDTIBLayerAlgo_MTCC::initialize(const DDNumericArguments & nArgs,
   coolCableLo  = sArgs["StringCabLoName"];
   emptyCoolCableLo = sArgs["EmptyStringCabLoName"];
   roffCableLo  = nArgs["ROffsetCabLo"];
-  DCOUT('r', "DDTIBLayerAlgo_MTCC debug: Lower layer Radius " << radiusLo
-	<< " Phi offset " << phioffLo/deg << " min " << phiMinLo/deg << " max " << phiMaxLo/deg
-	<< " Number " << stringsLo
-	<< " String " << detectorLo << " at offset " << roffDetLo
-	<< " String " << coolCableLo << " at offset " << roffCableLo
-	<< " Strings filled: ");
+  LogDebug("TIBGeom") << "DDTIBLayerAlgo_MTCC debug: Lower layer Radius " 
+		      << radiusLo << " Phi offset " << phioffLo/deg << " min "
+		      << phiMinLo/deg << " max " << phiMaxLo/deg
+		      << " Number " << stringsLo << " String " << detectorLo 
+		      << " at offset " << roffDetLo << " String " 
+		      << coolCableLo << " at offset " << roffCableLo
+		      << " Strings filled: ";
   for(unsigned int i=0; i<stringLoList.size(); i++) {
-    DCOUT('r', (int)stringLoList[i] << ",");
+    LogDebug("TIBGeom") << "String " << i << " " << (int)stringLoList[i];
   }
-  DCOUT('r', " Empty String " << emptyDetectorLo  << " at offset " << roffDetLo
-	<< " Empty String " << emptyCoolCableLo << " at offset " << roffCableLo);
+  LogDebug("TIBGeom") << " Empty String " << emptyDetectorLo  << " at offset "
+		      << roffDetLo << " Empty String " << emptyCoolCableLo 
+		      << " at offset " << roffCableLo;
   
   radiusUp     = nArgs["RadiusUp"];
   phioffUp     = nArgs["PhiOffsetUp"];
@@ -88,17 +89,19 @@ void DDTIBLayerAlgo_MTCC::initialize(const DDNumericArguments & nArgs,
   coolCableUp  = sArgs["StringCabUpName"];
   emptyCoolCableUp = sArgs["EmptyStringCabUpName"];
   roffCableUp  = nArgs["ROffsetCabUp"];
-  DCOUT('r', "DDTIBLayerAlgo_MTCC debug: Upper layer Radius " << radiusUp
-	<< " Phi offset " << phioffUp/deg << " min " << phiMinUp/deg << " max " << phiMaxUp/deg
-	<< " Number " << stringsUp
-	<< " String " << detectorUp << " at offset " << roffDetUp
-	<< " String " << coolCableUp << " at offset " << roffCableUp
-	<< " Strings filled: ");
+  LogDebug("TIBGeom") << "DDTIBLayerAlgo_MTCC debug: Upper layer Radius " 
+		      << radiusUp << " Phi offset " << phioffUp/deg << " min "
+		      << phiMinUp/deg << " max " << phiMaxUp/deg
+		      << " Number " << stringsUp << " String " << detectorUp 
+		      << " at offset " << roffDetUp << " String " 
+		      << coolCableUp << " at offset " << roffCableUp
+		      << " Strings filled: ";
   for(unsigned int i=0; i<stringUpList.size(); i++) {
-    DCOUT('r', (int)stringUpList[i] << ",");
+    LogDebug("TIBGeom") << "String " << i << " " << (int)stringUpList[i];
   }
-  DCOUT('r', " Empty String " << emptyDetectorUp  << " at offset " << roffDetUp
-	<< " Empty String " << emptyCoolCableUp << " at offset " << roffCableUp);
+  LogDebug("TIBGeom") << " Empty String " << emptyDetectorUp  << " at offset "
+		      << roffDetUp << " Empty String " << emptyCoolCableUp 
+		      << " at offset " << roffCableUp;
   
   cylinderT    = nArgs["CylinderThickness"];
   cylinderMat  = sArgs["CylinderMaterial"];
@@ -108,13 +111,15 @@ void DDTIBLayerAlgo_MTCC::initialize(const DDNumericArguments & nArgs,
   ribMat       = sArgs["RibMaterial"];
   ribW         = vArgs["RibWidth"];
   ribPhi       = vArgs["RibPhi"];
-  DCOUT('r', "DDTIBLayerAlgo_MTCC debug: Cylinder Material/thickness " 
-	<< cylinderMat << " " << cylinderT << " Support Wall Material/"
-	<< "Width/Thickness " << supportMat << " " << supportW << " "
-	<< supportT << " Rib Material " << ribMat << " at "
-	<< ribW.size() << " positions with width/phi ");
+  LogDebug("TIBGeom") << "DDTIBLayerAlgo_MTCC debug: Cylinder Material/"
+		      << "thickness " << cylinderMat << " " << cylinderT 
+		      << " Support Wall Material/Width/Thickness " 
+		      << supportMat << " " << supportW << " " << supportT 
+		      << " Rib Material " << ribMat << " at "
+		      << ribW.size() << " positions with width/phi";
   for (unsigned int i = 0; i < ribW.size(); i++)
-    DCOUT('r', " " << i << " " <<  ribW[i] << " " << ribPhi[i]/deg);
+    LogDebug("TIBGeom") << "Rib " <<  i << " " <<  ribW[i] << " " 
+			<< ribPhi[i]/deg;
   
   dohmN               = int(nArgs["DOHMPhiNumber"]);
   dohmCarrierW        = nArgs["DOHMCarrierWidth"];
@@ -131,29 +136,31 @@ void DDTIBLayerAlgo_MTCC::initialize(const DDNumericArguments & nArgs,
   dohmAuxT            = nArgs["DOHMAUXThickness"];
   dohmAuxMaterial     = sArgs["DOHMAUXMaterial"];
   dohmList            = vArgs["DOHMList"];
-  DCOUT('r', "DDTIBLayerAlgo_MTCC debug: DOHM PRIMary " << dohmN
-	<< " Width/Length/Thickness " 
-	<< " Material " << dohmPrimMaterial
-	<< dohmPrimW << " " << dohmPrimL << " " << dohmPrimT
-	<< " at positions: ");
+  LogDebug("TIBGeom") << "DDTIBLayerAlgo_MTCC debug: DOHM PRIMary " << dohmN
+		      << " Width/Length/Thickness " << " Material " 
+		      << dohmPrimMaterial << " " << dohmPrimW << " " 
+		      << dohmPrimL << " " << dohmPrimT
+		      << " at positions:";
   for(unsigned int i=0; i<dohmList.size(); i++) {
-    if((int)dohmList[i]>0) DCOUT('r', i+1 << ",");
+    if((int)dohmList[i]>0) LogDebug("TIBGeom") <<  i+1 << ",";
   }
-  DCOUT('r', "DDTIBLayerAlgo_MTCC debug: DOHM AUXiliary "
-	<< " Material " << dohmAuxMaterial
-	<< dohmAuxW << " " << dohmAuxL << " " << dohmAuxT
-	<< " at positions: ");
+  LogDebug("TIBGeom") << "DDTIBLayerAlgo_MTCC debug: DOHM AUXiliary "
+		      << " Material " << dohmAuxMaterial << " " 
+		      << dohmAuxW << " " << dohmAuxL << " " << dohmAuxT
+		      << " at positions:";
   for(unsigned int i=0; i<dohmList.size(); i++) {
-    if((int)dohmList[i]==2) DCOUT('r', i+1 << ",");
+    if((int)dohmList[i]==2) LogDebug("TIBGeom") << i+1 << ",";
   }
-  DCOUT('r', " in Carrier Width/Thickness/Radius " 
-	<< dohmCarrierW << " " << dohmCarrierT << " " << dohmCarrierR
-	<< " Carrier Material " << dohmCarrierMaterial);
-  DCOUT('r', " with cables and connectors Material " << dohmCableMaterial);
-  DCOUT('r', "DDTIBLayerAlgo_MTCC debug: no DOHM "
-	<< " at positions: ");
+  LogDebug("TIBGeom") << " in Carrier Width/Thickness/Radius " 
+		      << dohmCarrierW << " " << dohmCarrierT << " " 
+		      << dohmCarrierR << " Carrier Material " 
+		      << dohmCarrierMaterial
+		      << "\n with cables and connectors Material " 
+		      << dohmCableMaterial << "\n"
+		      << "DDTIBLayerAlgo_MTCC debug: no DOHM "
+		      << " at positions: ";
   for(unsigned int i=0; i<dohmList.size(); i++) {
-    if((int)dohmList[i]==0) DCOUT('r', i+1 << ",");
+    if((int)dohmList[i]==0) LogDebug("TIBGeom") << i+1 << ",";
   }
   
 }
@@ -161,29 +168,29 @@ void DDTIBLayerAlgo_MTCC::initialize(const DDNumericArguments & nArgs,
 
 void DDTIBLayerAlgo_MTCC::execute() {
   
-  DCOUT('r', "==>> Constructing DDTIBLayerAlgo_MTCC...");
+  LogDebug("TIBGeom") << "==>> Constructing DDTIBLayerAlgo_MTCC...";
   
   //Parameters for the tilt of the layer
-  double rotsi  = abs(detectorTilt);
+  double rotsi  = std::abs(detectorTilt);
   double redgd1 = 0.5*(detectorW*sin(rotsi)+detectorT*cos(rotsi));
   double redgd2 = 0.5*(detectorW*cos(rotsi)-detectorT*sin(rotsi));
   double redgc1 = 0.5*(coolTubeW*sin(rotsi)+coolTubeT*cos(rotsi));
   double redgc2 = 0.5*(coolTubeW*cos(rotsi)-coolTubeT*sin(rotsi));
-  DCOUT('r', "DDTIBLayerAlgo_MTCC test DeltaR (Detector Tilt) " << redgd1 
-	<< ", " << redgd2 << " DeltaR (Cable+Cool) " << redgc1
-	<< ", " << redgc2);
+  LogDebug("TIBGeom") << "DDTIBLayerAlgo_MTCC test DeltaR (Detector Tilt) " 
+		      << redgd1 << ", " << redgd2 << " DeltaR (Cable+Cool) "
+		      << redgc1	<< ", " << redgc2;
   
   DDName parentName = parent().name(); 
-  string idName = DDSplit(parentName).first;
+  std::string idName = DDSplit(parentName).first;
   double rmin = radiusLo + roffDetLo - redgd1 - detectorTol;
   double rmax = sqrt((radiusUp+roffDetUp+redgd1)*(radiusUp+roffDetUp+redgd1)+
 		     redgd2*redgd2) + detectorTol;
   DDSolid solid = DDSolidFactory::tubs(DDName(idName, idNameSpace), 0.5*layerL,
 				       rmin, rmax, 0, twopi);
-  DCOUT('r', "DDTIBLayerAlgo_MTCC test: " << DDName(idName, idNameSpace) 
-	<< " Tubs made of " << genMat << " from 0 to " << twopi/deg 
-	<< " with Rin " << rmin << " Rout " << rmax << " ZHalf " 
-	<< 0.5*layerL);
+  LogDebug("TIBGeom") << "DDTIBLayerAlgo_MTCC test: " 
+		      << DDName(idName,idNameSpace) << " Tubs made of " 
+		      << genMat << " from 0 to " << twopi/deg << " with Rin "
+		      << rmin << " Rout " << rmax << " ZHalf " << 0.5*layerL;
   DDName matname(DDSplit(genMat).first, DDSplit(genMat).second);
   DDMaterial matter(matname);
   DDLogicalPart layer(solid.ddname(), matter, solid);
@@ -191,18 +198,18 @@ void DDTIBLayerAlgo_MTCC::execute() {
   //Lower part first
   double rin  = rmin;
   double rout = 0.5*(radiusLo+radiusUp-cylinderT);
-  string name = idName + "Down";
+  std::string name = idName + "Down";
   solid = DDSolidFactory::tubs(DDName(name, idNameSpace), 0.5*layerL,
 			       rin, rout, 0, twopi);
-  DCOUT('r', "DDTIBLayerAlgo_MTCC test: " << DDName(name, idNameSpace) 
-	<< " Tubs made of " << genMat << " from 0 to " << twopi/deg 
-	<< " with Rin " << rin << " Rout " << rout << " ZHalf " 
-	<< 0.5*layerL);
+  LogDebug("TIBGeom") << "DDTIBLayerAlgo_MTCC test: "
+		      << DDName(name, idNameSpace) << " Tubs made of " 
+		      << genMat << " from 0 to " << twopi/deg << " with Rin " 
+		      << rin << " Rout " << rout << " ZHalf " << 0.5*layerL;
   DDLogicalPart layerIn(solid.ddname(), matter, solid);
   DDpos (layerIn, layer, 1, DDTranslation(0.0, 0.0, 0.0), DDRotation());
-  DCOUT('r', "DDTIBLayerAlgo_MTCC test: " << layerIn.name() 
-	<< " number 1 positioned in " << layer.name()
-	<< " at (0,0,0) with no rotation");
+  LogDebug("TIBGeom") << "DDTIBLayerAlgo_MTCC test: " << layerIn.name() 
+		      << " number 1 positioned in " << layer.name()
+		      << " at (0,0,0) with no rotation";
   
   double rposdet = radiusLo + roffDetLo;
   double rposcab = rposdet + roffCableLo;
@@ -218,13 +225,13 @@ void DDTIBLayerAlgo_MTCC::execute() {
       if (phideg != 0) {
 	double theta  = 90*deg;
 	double phiy   = phix + 90.*deg;
-	string rotstr = idName + dbl_to_string(phideg*10.);
+	std::string rotstr = idName + dbl_to_string(phideg*10.);
 	rotation = DDRotation(DDName(rotstr, idNameSpace));
 	if (!rotation) {
-	  DCOUT('r', "DDTIBLayer_MTCC test: Creating a new rotation: " 
-		<< rotstr << "\t90., " << phix/deg << ", 90.," << phiy/deg
-		<< ", 0, 0");
-	  rotation = DDrot(DDName(rotstr, idNameSpace), theta, phix, theta, phiy,
+	  LogDebug("TIBGeom") << "DDTIBLayer_MTCC test: Creating a new "
+			      << "rotation: " << rotstr << "\t90., " 
+			      << phix/deg << ", 90.," << phiy/deg << ", 0, 0";
+	  rotation = DDrot(DDName(rotstr, idNameSpace), theta,phix, theta,phiy,
 			   0., 0.);
 	}
       }
@@ -241,29 +248,33 @@ void DDTIBLayerAlgo_MTCC::execute() {
 	  DDName emptyDetIn(DDSplit(emptyDetectorLo).first, DDSplit(emptyDetectorLo).second);
 	  DDTranslation trdet(rposdet*cos(phi), rposdet*sin(phi), 0);
 	  DDpos (emptyDetIn, layerIn, n+1, trdet, rotation);
-	  DCOUT('r', "DDTIBLayer_MTCC test " << emptyDetIn.name() << " number " << n+1
-		<< " positioned in " << layerIn.name() << " at " << trdet 
-		<< " with " << rotation);      
+	  LogDebug("TIBGeom") << "DDTIBLayer_MTCC test " << emptyDetIn.name()
+			      << " number " << n+1 << " positioned in " 
+			      << layerIn.name() << " at " << trdet 
+			      << " with " << rotation;      
 	}
 	if(emptyCoolCableLo!="nothing") {
 	  DDName emptyCabIn(DDSplit(emptyCoolCableLo).first, DDSplit(emptyCoolCableLo).second);
 	  DDTranslation trcab(rposcab*cos(phi), rposcab*sin(phi), 0);
 	  DDpos (emptyCabIn, layerIn, n+1, trcab, rotation);
-	  DCOUT('r', "DDTIBLayer_MTCC test " << emptyCabIn.name() << " number " << n+1
-		<< " positioned in " << layerIn.name() << " at " << trcab 
-		<< " with " << rotation);
+	  LogDebug("TIBGeom") << "DDTIBLayer_MTCC test " << emptyCabIn.name() 
+			      << " number " << n+1 << " positioned in " 
+			      << layerIn.name() << " at " << trcab 
+			      << " with " << rotation;
 	}
       } else {
 	DDTranslation trdet(rposdet*cos(phi), rposdet*sin(phi), 0);
 	DDpos (detIn, layerIn, n+1, trdet, rotation);
-	DCOUT('r', "DDTIBLayer_MTCC test " << detIn.name() << " number " << n+1
-	      << " positioned in " << layerIn.name() << " at " << trdet 
-	      << " with " << rotation);
+	LogDebug("TIBGeom") << "DDTIBLayer_MTCC test " << detIn.name() 
+			    << " number " << n+1 << " positioned in " 
+			    << layerIn.name() << " at " << trdet 
+			    << " with " << rotation;
 	DDTranslation trcab(rposcab*cos(phi), rposcab*sin(phi), 0);
 	DDpos (cabIn, layerIn, n+1, trcab, rotation);
-	DCOUT('r', "DDTIBLayer_MTCC test " << cabIn.name() << " number " << n+1
-	      << " positioned in " << layerIn.name() << " at " << trcab 
-	      << " with " << rotation);
+	LogDebug("TIBGeom") << "DDTIBLayer_MTCC test " << cabIn.name() 
+			    << " number " << n+1 << " positioned in " 
+			    << layerIn.name() << " at " << trcab 
+			    << " with " << rotation;
       }
       //
       
@@ -277,15 +288,15 @@ void DDTIBLayerAlgo_MTCC::execute() {
   name = idName + "Up";
   solid = DDSolidFactory::tubs(DDName(name, idNameSpace), 0.5*layerL,
 			       rin, rout, 0, twopi);
-  DCOUT('r', "DDTIBLayerAlgo_MTCC test: " << DDName(name, idNameSpace) 
-	<< " Tubs made of " << genMat << " from 0 to " << twopi/deg 
-	<< " with Rin " << rin << " Rout " << rout << " ZHalf " 
-	<< 0.5*layerL);
+  LogDebug("TIBGeom") << "DDTIBLayerAlgo_MTCC test: " 
+		      << DDName(name, idNameSpace) << " Tubs made of " 
+		      << genMat << " from 0 to " << twopi/deg << " with Rin "
+		      << rin << " Rout " << rout << " ZHalf " << 0.5*layerL;
   DDLogicalPart layerOut(solid.ddname(), matter, solid);
   DDpos (layerOut, layer, 1, DDTranslation(0.0, 0.0, 0.0), DDRotation());
-  DCOUT('r', "DDTIBLayerAlgo_MTCC test: " << layerOut.name() 
-	<< " number 1 positioned in " << layer.name()
-	<< " at (0,0,0) with no rotation");
+  LogDebug("TIBGeom") << "DDTIBLayerAlgo_MTCC test: " << layerOut.name() 
+		      << " number 1 positioned in " << layer.name()
+		      << " at (0,0,0) with no rotation";
   
   rposdet = radiusUp + roffDetUp;
   rposcab = rposdet + roffCableUp;
@@ -301,13 +312,13 @@ void DDTIBLayerAlgo_MTCC::execute() {
       if (phideg != 0) {
 	double theta  = 90*deg;
 	double phiy   = phix + 90.*deg;
-	string rotstr = idName + dbl_to_string(phideg*10.);
+	std::string rotstr = idName + dbl_to_string(phideg*10.);
 	rotation = DDRotation(DDName(rotstr, idNameSpace));
 	if (!rotation) {
-	  DCOUT('r', "DDTIBLayer_MTCC test: Creating a new rotation: " 
-		<< rotstr << "\t90., " << phix/deg << ", 90.," << phiy/deg
-		<< ", 0, 0");
-	  rotation = DDrot(DDName(rotstr, idNameSpace), theta, phix, theta, phiy,
+	  LogDebug("TIBGeom") << "DDTIBLayer_MTCC test: Creating a new "
+			      << "rotation: " << rotstr << "\t90., " 
+			      << phix/deg << ", 90.," << phiy/deg << ", 0, 0";
+	  rotation = DDrot(DDName(rotstr, idNameSpace), theta,phix, theta,phiy,
 			   0., 0.);
 	}
       }
@@ -324,30 +335,34 @@ void DDTIBLayerAlgo_MTCC::execute() {
 	  DDName emptyDetOut(DDSplit(emptyDetectorUp).first, DDSplit(emptyDetectorUp).second);
 	  DDTranslation trdet(rposdet*cos(phi), rposdet*sin(phi), 0);
 	  DDpos (emptyDetOut, layerOut, n+1, trdet, rotation);
-	  DCOUT('r', "DDTIBLayer test " << emptyDetOut.name() << " number " << n+1
-		<< " positioned in " << layerOut.name() << " at " << trdet 
-		<< " with " << rotation);
+	  LogDebug("TIBGeom") << "DDTIBLayer test " << emptyDetOut.name()
+			      << " number " << n+1 << " positioned in " 
+			      << layerOut.name() << " at " << trdet 
+			      << " with " << rotation;
 	  
 	}
 	if(emptyCoolCableUp!="nothing") {
 	  DDName emptyCabOut(DDSplit(emptyCoolCableUp).first, DDSplit(emptyCoolCableUp).second);
 	  DDTranslation trcab(rposcab*cos(phi), rposcab*sin(phi), 0);
 	  DDpos (emptyCabOut, layerOut, n+1, trcab, rotation);
-	  DCOUT('r', "DDTIBLayer_MTCC test " << emptyCabOut.name() << " number " << n+1
-		<< " positioned in " << layerOut.name() << " at " << trcab 
-		<< " with " << rotation);
+	  LogDebug("TIBGeom") << "DDTIBLayer_MTCC test " << emptyCabOut.name()
+			      << " number " << n+1 << " positioned in " 
+			      << layerOut.name() << " at " << trcab 
+			      << " with " << rotation;
 	}
       } else {
 	DDTranslation trdet(rposdet*cos(phi), rposdet*sin(phi), 0);
 	DDpos (detOut, layerOut, n+1, trdet, rotation);
-	DCOUT('r', "DDTIBLayer test " << detOut.name() << " number " << n+1
-	      << " positioned in " << layerOut.name() << " at " << trdet 
-	      << " with " << rotation);
+	LogDebug("TIBGeom") << "DDTIBLayer test " << detOut.name() 
+			    << " number " << n+1 << " positioned in " 
+			    << layerOut.name() << " at " << trdet 
+			    << " with " << rotation;
 	DDTranslation trcab(rposcab*cos(phi), rposcab*sin(phi), 0);
 	DDpos (cabOut, layerOut, n+1, trcab, rotation);
-	DCOUT('r', "DDTIBLayer_MTCC test " << cabOut.name() << " number " << n+1
-	      << " positioned in " << layerOut.name() << " at " << trcab 
-	      << " with " << rotation);
+	LogDebug("TIBGeom") << "DDTIBLayer_MTCC test " << cabOut.name() 
+			    << " number " << n+1 << " positioned in " 
+			    << layerOut.name() << " at " << trcab 
+			    << " with " << rotation;
       }
       //
       
@@ -364,45 +379,48 @@ void DDTIBLayerAlgo_MTCC::execute() {
   name = idName + "Cylinder";
   solid = DDSolidFactory::tubs(DDName(name, idNameSpace), 0.25*layerL,
 			       rin, rout, phiMin, phidiff);
-  DCOUT('r', "DDTIBLayerAlgo_MTCC test: " << DDName(name, idNameSpace) 
-	<< " Tubs made of " << cylinderMat << " from " << phiMin/deg << " to " << (phiMin+phidiff)/deg
-	<< " with Rin " << rin << " Rout " << rout << " ZHalf " 
-	<< 0.25*layerL);
+  LogDebug("TIBGeom") << "DDTIBLayerAlgo_MTCC test: " 
+		      << DDName(name, idNameSpace) << " Tubs made of " 
+		      << cylinderMat << " from " << phiMin/deg << " to "
+		      << (phiMin+phidiff)/deg << " with Rin " << rin 
+		      << " Rout " << rout << " ZHalf " << 0.25*layerL;
   matname = DDName(DDSplit(cylinderMat).first, DDSplit(cylinderMat).second);
   DDMaterial matcyl(matname);
   DDLogicalPart cylinder(solid.ddname(), matcyl, solid);
-  DDpos (cylinder, layer, 1, DDTranslation(0.0, 0.0, 0.25*layerL), DDRotation());
-  DCOUT('r', "DDTIBLayerAlgo_MTCC test: " << cylinder.name() 
-	<< " number 1 positioned in " << layer.name()
-	<< " at (0,0," << 0.25*layerL << ") with no rotation");
+  DDpos (cylinder, layer, 1, DDTranslation(0.0,0.0,0.25*layerL), DDRotation());
+  LogDebug("TIBGeom") << "DDTIBLayerAlgo_MTCC test: " << cylinder.name() 
+		      << " number 1 positioned in " << layer.name()
+		      << " at (0,0," << 0.25*layerL << ") with no rotation";
   rin  += supportT;
   rout -= supportT;
   name  = idName + "CylinderIn";
   solid = DDSolidFactory::tubs(DDName(name, idNameSpace), 0.5*layerL,
 			       rin, rout, phiMin, phidiff);
-  DCOUT('r', "DDTIBLayerAlgo_MTCC test: " << DDName(name, idNameSpace) 
-	<< " Tubs made of " << genMat << " from " << phiMin/deg << " to " << (phiMin+phidiff)/deg << phidiff/deg
-	<< " with Rin " << rin << " Rout " << rout << " ZHalf " 
-	<< 0.5*layerL);
+  LogDebug("TIBGeom") << "DDTIBLayerAlgo_MTCC test: " 
+		      << DDName(name, idNameSpace) << " Tubs made of " 
+		      << genMat << " from " << phiMin/deg << " to " 
+		      << (phiMin+phidiff)/deg << phidiff/deg << " with Rin " 
+		      << rin << " Rout " << rout << " ZHalf " << 0.5*layerL;
   DDLogicalPart cylinderIn(solid.ddname(), matter, solid);
   DDpos (cylinderIn, cylinder, 1, DDTranslation(0.0, 0.0, -0.25*layerL), DDRotation());
-  DCOUT('r', "DDTIBLayerAlgo_MTCC test: " << cylinderIn.name() 
-	<< " number 1 positioned in " << cylinder.name()
-	<< " at (0,0," << -0.25*layerL << ") with no rotation");
+  LogDebug("TIBGeom") << "DDTIBLayerAlgo_MTCC test: " << cylinderIn.name() 
+		      << " number 1 positioned in " << cylinder.name()
+		      << " at (0,0," << -0.25*layerL << ") with no rotation";
   name  = idName + "CylinderInSup";
   solid = DDSolidFactory::tubs(DDName(name, idNameSpace), 0.5*supportW,
 			       rin, rout, phiMin, phidiff);
-  DCOUT('r', "DDTIBLayerAlgo_MTCC test: " << DDName(name, idNameSpace) 
-	<< " Tubs made of " << genMat << " from " << phiMin/deg << " to " << (phiMin+phidiff)/deg
-	<< " with Rin " << rin << " Rout " << rout << " ZHalf " 
-	<< 0.5*supportW);
+  LogDebug("TIBGeom") << "DDTIBLayerAlgo_MTCC test: " 
+		      << DDName(name, idNameSpace) << " Tubs made of " 
+		      << genMat << " from " << phiMin/deg << " to " 
+		      << (phiMin+phidiff)/deg << " with Rin " << rin 
+		      << " Rout " << rout << " ZHalf " << 0.5*supportW;
   matname = DDName(DDSplit(supportMat).first, DDSplit(supportMat).second);
   DDMaterial matsup(matname);
   DDLogicalPart cylinderSup(solid.ddname(), matsup, solid);
   DDpos (cylinderSup, cylinderIn, 1, DDTranslation(0., 0., 0.), DDRotation());
-  DCOUT('r', "DDTIBLayerAlgo_MTCC test: " << cylinderSup.name() 
-	<< " number 1 positioned in " << cylinderIn.name()
-	<< " at (0,0,0) with no rotation");
+  LogDebug("TIBGeom") << "DDTIBLayerAlgo_MTCC test: " << cylinderSup.name() 
+		      << " number 1 positioned in " << cylinderIn.name()
+		      << " at (0,0,0) with no rotation";
   matname = DDName(DDSplit(ribMat).first, DDSplit(ribMat).second);
   DDMaterial matrib(matname);
   for (unsigned int i = 0; i < ribW.size(); i++) {
@@ -411,10 +429,11 @@ void DDTIBLayerAlgo_MTCC::execute() {
     double dz    = 0.25*(layerL - supportW);
     solid = DDSolidFactory::tubs(DDName(name, idNameSpace), dz, rin, rout, 
 				 -0.5*width, width);
-    DCOUT('r', "DDTIBLayerAlgo_MTCC test: " << DDName(name, idNameSpace) 
-	  << " Tubs made of " << ribMat << " from " << -0.5*width/deg
-	  << " to " << 0.5*width/deg << " with Rin " << rin << " Rout " 
-	  << rout << " ZHalf "  << dz);
+    LogDebug("TIBGeom") << "DDTIBLayerAlgo_MTCC test: " 
+			<< DDName(name, idNameSpace) << " Tubs made of " 
+			<< ribMat << " from " << -0.5*width/deg
+			<< " to " << 0.5*width/deg << " with Rin " << rin 
+			<< " Rout " << rout << " ZHalf "  << dz;
     DDLogicalPart cylinderRib(solid.ddname(), matrib, solid);
     double phix   = ribPhi[i];
     double phideg = phix/deg;
@@ -423,21 +442,21 @@ void DDTIBLayerAlgo_MTCC::execute() {
       if (phideg != 0) {
 	double theta  = 90*deg;
 	double phiy   = phix + 90.*deg;
-	string rotstr = idName + dbl_to_string(phideg*10.);
+	std::string rotstr = idName + dbl_to_string(phideg*10.);
 	rotation = DDRotation(DDName(rotstr, idNameSpace));
 	if (!rotation) {
-	  DCOUT('r', "DDTIBLayer_MTCC test: Creating a new rotation: " 
-		<< rotstr << "\t90., " << phix/deg << ", 90.," << phiy/deg
-		<< ", 0, 0");
-	  rotation = DDrot(DDName(rotstr, idNameSpace), theta, phix, theta, phiy,
+	  LogDebug("TIBGeom") << "DDTIBLayer_MTCC test: Creating a new "
+			      << "rotation: " << rotstr << "\t90., " 
+			      << phix/deg << ", 90.," << phiy/deg << ", 0, 0";
+	  rotation = DDrot(DDName(rotstr, idNameSpace), theta,phix, theta,phiy,
 			   0., 0.);
 	}
       }
       DDTranslation tran(0, 0, +0.25*(layerL+supportW));
       DDpos (cylinderRib, cylinderIn, 1, tran, rotation);
-      DCOUT('r', "DDTIBLayer_MTCC test " << cylinderRib.name() << " number 1"
-	    << " positioned in " << cylinderIn.name() << " at " << tran
-	    << " with " << rotation);
+      LogDebug("TIBGeom") << "DDTIBLayer_MTCC test " << cylinderRib.name() 
+			  << " number 1 positioned in " << cylinderIn.name() 
+			  << " at " << tran << " with " << rotation;
     } // phi range
   }
 
@@ -455,13 +474,16 @@ void DDTIBLayerAlgo_MTCC::execute() {
   solid = DDSolidFactory::tubs(DDName(name, idNameSpace), dz_dohm, 
 			       rin_lo, rout_lo, 
 			       -0.5*dphi_dohm, dphi_dohm);
-  DCOUT('r', "DDTIBLayerAlgo_MTCC test: " << DDName(name, idNameSpace) 
-	<< " Tubs made of " << dohmCarrierMaterial << " from " << -0.5*(dphi_dohm)/deg
-	<< " to " << -0.5*(dphi_dohm)/deg+dphi_dohm/deg << " with Rin " << rin_lo 
-	<< " Rout " << rout_lo << " ZHalf "  << dz_dohm);
+  LogDebug("TIBGeom") << "DDTIBLayerAlgo_MTCC test: " 
+		      << DDName(name, idNameSpace) << " Tubs made of " 
+		      << dohmCarrierMaterial << " from " 
+		      << -0.5*(dphi_dohm)/deg << " to " 
+		      << -0.5*(dphi_dohm)/deg+dphi_dohm/deg << " with Rin " 
+		      << rin_lo << " Rout " << rout_lo << " ZHalf "  
+		      << dz_dohm;
   // create different name objects for only PRIMary DOHMs and PRIMary+AUXiliary DOHM Carriers
-  string name_lo_r = name + "_PRIM_AUX" + "_lo" + "_r";
-  string name_lo_l = name + "_PRIM_AUX" + "_lo" + "_l";
+  std::string name_lo_r = name + "_PRIM_AUX" + "_lo" + "_r";
+  std::string name_lo_l = name + "_PRIM_AUX" + "_lo" + "_l";
   DDLogicalPart dohmCarrierPrimAux_lo_r(name_lo_r, DDMaterial(dohmCarrierMaterial), solid);
   DDLogicalPart dohmCarrierPrimAux_lo_l(name_lo_l, DDMaterial(dohmCarrierMaterial), solid);
   name_lo_r = name + "_PRIM" + "_lo" + "_r";
@@ -475,13 +497,16 @@ void DDTIBLayerAlgo_MTCC::execute() {
   solid = DDSolidFactory::tubs(DDName(name, idNameSpace), dz_dohm, 
 			       rin_up, rout_up, 
 			       -0.5*dphi_dohm, dphi_dohm);
-  DCOUT('r', "DDTIBLayerAlgo_MTCC test: " << DDName(name, idNameSpace) 
-	<< " Tubs made of " << dohmCarrierMaterial << " from " << -0.5*(dphi_dohm)/deg
-	<< " to " << -0.5*(dphi_dohm)/deg+dphi_dohm/deg << " with Rin " << rin_up 
-	<< " Rout " << rout_up << " ZHalf "  << dz_dohm);
+  LogDebug("TIBGeom") << "DDTIBLayerAlgo_MTCC test: " 
+		      << DDName(name, idNameSpace) << " Tubs made of " 
+		      << dohmCarrierMaterial << " from " 
+		      << -0.5*(dphi_dohm)/deg << " to " 
+		      << -0.5*(dphi_dohm)/deg+dphi_dohm/deg << " with Rin " 
+		      << rin_up << " Rout " << rout_up << " ZHalf "
+		      << dz_dohm;
   // create different name objects for only PRIMary DOHMs and PRIMary+AUXiliary DOHM Carriers
-  string name_up_r = name + "_PRIM_AUX" + "_up" + "_r";
-  string name_up_l = name + "_PRIM_AUX" + "_up" + "_l";
+  std::string name_up_r = name + "_PRIM_AUX" + "_up" + "_r";
+  std::string name_up_l = name + "_PRIM_AUX" + "_up" + "_l";
   DDLogicalPart dohmCarrierPrimAux_up_r(name_up_r, DDMaterial(dohmCarrierMaterial), solid);
   DDLogicalPart dohmCarrierPrimAux_up_l(name_up_l, DDMaterial(dohmCarrierMaterial), solid);
   name_up_r = name + "_PRIM" + "_up" + "_r";
@@ -530,27 +555,29 @@ void DDTIBLayerAlgo_MTCC::execute() {
       if (phideg != 0) {
 	double theta  = 90*deg;
 	double phiy   = phix + 90.*deg;
-	string rotstr = idName + dbl_to_string(phideg*10.);
+	std::string rotstr = idName + dbl_to_string(phideg*10.);
 	rotation = DDRotation(DDName(rotstr, idNameSpace));
 	if (!rotation) {
-	  DCOUT('r', "DDTIBLayer_MTCC test: Creating a new rotation: " 
-		<< rotstr << "\t90., " << phix/deg << ", 90.," << phiy/deg
-		<< ", 0, 0");
-	  rotation = DDrot(DDName(rotstr, idNameSpace), theta, phix, theta, phiy,
+	  LogDebug("TIBGeom") << "DDTIBLayer_MTCC test: Creating a new "
+			      << "rotation: " << rotstr << "\t90., " 
+			      << phix/deg << ", 90.," << phiy/deg << ", 0, 0";
+	  rotation = DDrot(DDName(rotstr, idNameSpace), theta,phix, theta,phiy,
 			   0., 0.);
 	}
       }
       // TIB+ DOHM Carrier - lower
       DDTranslation tran(0, 0, 0.5*layerL-dz_dohm);
       DDpos (dohmCarrier_lo_r, parent(), i+1, tran, rotation );
-      DCOUT('r', "DDTIBLayer_MTCC test " << dohmCarrier_lo_r.name() << " z+ number " << i+1
-	    << " positioned in " << parent().name() << " at " << tran
-	    << " with " << rotation);
+      LogDebug("TIBGeom") << "DDTIBLayer_MTCC test " << dohmCarrier_lo_r.name()
+			  << " z+ number " << i+1 << " positioned in " 
+			  << parent().name() << " at " << tran
+			  << " with " << rotation;
       // TIB+ DOHM Carrier - upper
       DDpos (dohmCarrier_up_r, parent(), i+1+(unsigned int)dohmN, tran, rotation );
-      DCOUT('r', "DDTIBLayer_MTCC test " << dohmCarrier_up_r.name() << " z+ number " << i+1
-	    << " positioned in " << parent().name() << " at " << tran
-	    << " with " << rotation);
+      LogDebug("TIBGeom") << "DDTIBLayer_MTCC test " << dohmCarrier_up_r.name()
+			  << " z+ number " << i+1 << " positioned in " 
+			  << parent().name() << " at " << tran
+			  << " with " << rotation;
     }
     
     //    } // phi range
@@ -564,36 +591,39 @@ void DDTIBLayerAlgo_MTCC::execute() {
   name = idName + "DOHM_PRIM";
   solid = DDSolidFactory::box(DDName(name, idNameSpace), dx, dy, dz);
   DDLogicalPart dohmPrim(solid.ddname(), DDMaterial(dohmPrimMaterial), solid);
-  DCOUT('r', "DDTIBLayerAlgo_MTCC test: " << DDName(name, idNameSpace) 
-	<< " Box made of " << dohmPrimMaterial
-	<< " of dimensions " << dx << ", " 
-	<< dy << ", " << dz);
+  LogDebug("TIBGeom") << "DDTIBLayerAlgo_MTCC test: "
+		      << DDName(name, idNameSpace) << " Box made of " 
+		      << dohmPrimMaterial << " of dimensions " << dx << ", " 
+		      << dy << ", " << dz;
   name = idName + "DOHM_PRIM_Cable";
   double dx_cable = 0.25*dohmPrimT;
   double dy_cable = 0.40*dohmPrimW;
   double dz_cable = 0.5*dohmPrimL;
   solid = DDSolidFactory::box(DDName(name, idNameSpace), dx_cable, dy_cable, dz_cable);
   DDLogicalPart dohmCablePrim(solid.ddname(), DDMaterial(dohmCableMaterial), solid);
-  DCOUT('r', "DDTIBLayerAlgo_MTCC test: " << DDName(name, idNameSpace) 
-	<< " Box made of " << dohmCableMaterial
-	<< " of dimensions " << dx_cable << ", " 
-	<< dy_cable << ", " << dz_cable);
+  LogDebug("TIBGeom") << "DDTIBLayerAlgo_MTCC test: "
+		      << DDName(name, idNameSpace) << " Box made of "
+		      << dohmCableMaterial << " of dimensions " << dx_cable
+		      << ", " << dy_cable << ", " << dz_cable;
   // TIB+ DOHM
   DDTranslation tran(rout_dohm+0.5*dohmPrimT, 0. , 0.);
   DDpos (dohmPrim, dohmCarrierPrim_lo_r, 1, tran, DDRotation() );
-  DCOUT('r', "DDTIBLayer_MTCC test " << dohmPrim.name() << " z+ number " << 1
-	<< " positioned in " << dohmCarrierPrim_lo_r.name()
-	<< " at " << tran << " with no rotation");
+  LogDebug("TIBGeom") << "DDTIBLayer_MTCC test " << dohmPrim.name() 
+		      << " z+ number " << 1 << " positioned in " 
+		      << dohmCarrierPrim_lo_r.name() << " at " << tran 
+		      << " with no rotation";
   tran = DDTranslation(rout_dohm+dx_cable, 0.5*dohmPrimW , 0.);
   DDpos (dohmCablePrim, dohmCarrierPrim_lo_r, 1, tran, DDRotation() );
-  DCOUT('r', "DDTIBLayer_MTCC test " << dohmCablePrim.name() << " copy number " << 1
-	<< " positioned in " << dohmCarrierPrim_lo_r.name()
-	<< " at " << tran << " with no rotation");
+  LogDebug("TIBGeom") << "DDTIBLayer_MTCC test " << dohmCablePrim.name() 
+		      << " copy number " << 1 << " positioned in "
+		      << dohmCarrierPrim_lo_r.name()
+		      << " at " << tran << " with no rotation";
   tran = DDTranslation(rout_dohm+dx_cable, -0.5*dohmPrimW , 0.);
   DDpos (dohmCablePrim, dohmCarrierPrim_lo_r, 2, tran, DDRotation() );
-  DCOUT('r', "DDTIBLayer_MTCC test " << dohmCablePrim.name() << " copy number " << 2
-	<< " positioned in " << dohmCarrierPrim_lo_r.name()
-	<< " at " << tran << " with no rotation");
+  LogDebug("TIBGeom") << "DDTIBLayer_MTCC test " << dohmCablePrim.name()
+		      << " copy number " << 2 << " positioned in " 
+		      << dohmCarrierPrim_lo_r.name()
+		      << " at " << tran << " with no rotation";
   
   // DOHM PRIMary + AUXiliary
   dx = 0.5*dohmPrimT;
@@ -601,10 +631,10 @@ void DDTIBLayerAlgo_MTCC::execute() {
   dz = 0.5*dohmPrimL;
   name = idName + "DOHM_PRIM";
   solid = DDSolidFactory::box(DDName(name, idNameSpace), dx, dy, dz);
-  DCOUT('r', "DDTIBLayerAlgo_MTCC test: " << DDName(name, idNameSpace) 
-	<< " Box made of " << dohmPrimMaterial
-	<< " of dimensions " << dx << ", " 
-	<< dy << ", " << dz);
+  LogDebug("TIBGeom") << "DDTIBLayerAlgo_MTCC test: " 
+		      << DDName(name, idNameSpace) << " Box made of "
+		      << dohmPrimMaterial << " of dimensions " << dx << ", " 
+		      << dy << ", " << dz;
   dohmPrim = DDLogicalPart(solid.ddname(), DDMaterial(dohmPrimMaterial), solid);
   name = idName + "DOHM_PRIM_Cable";
   dx_cable = 0.25*dohmPrimT;
@@ -612,51 +642,56 @@ void DDTIBLayerAlgo_MTCC::execute() {
   dz_cable = 0.5*dohmPrimL;
   solid = DDSolidFactory::box(DDName(name, idNameSpace), dx_cable, dy_cable, dz_cable);
   dohmCablePrim = DDLogicalPart(solid.ddname(), DDMaterial(dohmCableMaterial), solid);
-  DCOUT('r', "DDTIBLayerAlgo_MTCC test: " << DDName(name, idNameSpace) 
-	<< " Box made of " << dohmCableMaterial
-	<< " of dimensions " << dx_cable << ", " 
-	<< dy_cable << ", " << dz_cable);
+  LogDebug("TIBGeom") << "DDTIBLayerAlgo_MTCC test: "
+		      << DDName(name, idNameSpace) << " Box made of " 
+		      << dohmCableMaterial << " of dimensions " << dx_cable 
+		      << ", " << dy_cable << ", " << dz_cable;
   dx = 0.5*dohmAuxT;
   dy = 0.5*dohmAuxW;
   dz = 0.5*dohmAuxL;
   name = idName + "DOHM_AUX";
   solid = DDSolidFactory::box(DDName(name, idNameSpace), dx, dy, dz);
   DDLogicalPart dohmAux(solid.ddname(), DDMaterial(dohmAuxMaterial), solid);
-  DCOUT('r', "DDTIBLayerAlgo_MTCC test: " << DDName(name, idNameSpace) 
-	<< " Box made of " << dohmAuxMaterial
-	<< " of dimensions " << dx << ", " 
-	<< dy << ", " << dz);
+  LogDebug("TIBGeom") << "DDTIBLayerAlgo_MTCC test: " 
+		      << DDName(name, idNameSpace) << " Box made of " 
+		      << dohmAuxMaterial << " of dimensions " << dx << ", " 
+		      << dy << ", " << dz;
   name = idName + "DOHM_AUX_Cable";
   solid = DDSolidFactory::box(DDName(name, idNameSpace), dx_cable, dy_cable, dz_cable);
   DDLogicalPart dohmCableAux(solid.ddname(), DDMaterial(dohmCableMaterial), solid);
-  DCOUT('r', "DDTIBLayerAlgo_MTCC test: " << DDName(name, idNameSpace) 
-	<< " Box made of " << dohmCableMaterial
-	<< " of dimensions " << dx_cable << ", " 
-	<< dy_cable << ", " << dz_cable);
+  LogDebug("TIBGeom") << "DDTIBLayerAlgo_MTCC test: " 
+		      << DDName(name, idNameSpace) << " Box made of " 
+		      << dohmCableMaterial << " of dimensions " << dx_cable 
+		      << ", " << dy_cable << ", " << dz_cable;
   // TIB+ DOHM
   tran = DDTranslation(rout_dohm+0.5*dohmPrimT, -0.75*dohmPrimW , 0.);
   DDpos (dohmPrim, dohmCarrierPrimAux_lo_r, 1, tran, DDRotation() );
-  DCOUT('r', "DDTIBLayer_MTCC test " << dohmAux.name() << " z+ number " << 1
-	<< " positioned in " << dohmCarrierPrimAux_lo_r.name()
-	<< " at " << tran << " with no rotation");
+  LogDebug("TIBGeom") << "DDTIBLayer_MTCC test " << dohmAux.name() 
+		      << " z+ number " << 1 << " positioned in " 
+		      << dohmCarrierPrimAux_lo_r.name()	<< " at " << tran 
+		      << " with no rotation";
   tran = DDTranslation(rout_dohm+dx_cable, -0.75*dohmPrimW+0.5*dohmPrimW , 0.);
   DDpos (dohmCablePrim, dohmCarrierPrimAux_lo_r, 1, tran, DDRotation() );
-  DCOUT('r', "DDTIBLayer_MTCC test " << dohmCablePrim.name() << " copy number " << 1
-	<< " positioned in " << dohmCarrierPrimAux_lo_r.name()
-	<< " at " << tran << " with no rotation");
+  LogDebug("TIBGeom") << "DDTIBLayer_MTCC test " << dohmCablePrim.name() 
+		      << " copy number " << 1 << " positioned in " 
+		      << dohmCarrierPrimAux_lo_r.name()	<< " at " << tran 
+		      << " with no rotation";
   tran = DDTranslation(rout_dohm+dx_cable, -0.75*dohmPrimW-0.5*dohmPrimW , 0.);
   DDpos (dohmCablePrim, dohmCarrierPrimAux_lo_r, 2, tran, DDRotation() );
-  DCOUT('r', "DDTIBLayer_MTCC test " << dohmCablePrim.name() << " copy number " << 2
-	<< " positioned in " << dohmCarrierPrimAux_lo_r.name()
-	<< " at " << tran << " with no rotation");
+  LogDebug("TIBGeom") << "DDTIBLayer_MTCC test " << dohmCablePrim.name() 
+		      << " copy number " << 2 << " positioned in "
+		      << dohmCarrierPrimAux_lo_r.name()	<< " at " << tran 
+		      << " with no rotation";
   tran = DDTranslation(rout_dohm+0.5*dohmAuxT, 0.75*dohmAuxW , 0.);
   DDpos (dohmAux, dohmCarrierPrimAux_lo_r, 1, tran, DDRotation() );
-  DCOUT('r', "DDTIBLayer_MTCC test " << dohmAux.name() << " z+ number " << 1
-	<< " positioned in " << dohmCarrierPrimAux_lo_r.name()
-	<< " at (0,0,0) with no rotation");
+  LogDebug("TIBGeom") << "DDTIBLayer_MTCC test " << dohmAux.name() 
+		      << " z+ number " << 1 << " positioned in " 
+		      << dohmCarrierPrimAux_lo_r.name()
+		      << " at (0,0,0) with no rotation";
   tran = DDTranslation(rout_dohm+dx_cable, 0.75*dohmAuxW+0.5*dohmPrimW , 0.);
   DDpos (dohmCableAux, dohmCarrierPrimAux_lo_r, 1, tran, DDRotation() );
-  DCOUT('r', "DDTIBLayer_MTCC test " << dohmCableAux.name() << " copy number " << 1
-	<< " positioned in " << dohmCarrierPrimAux_lo_r.name()
-	<< " at " << tran << " with no rotation");
+  LogDebug("TIBGeom") << "DDTIBLayer_MTCC test " << dohmCableAux.name() 
+		      << " copy number " << 1 << " positioned in " 
+		      << dohmCarrierPrimAux_lo_r.name()
+		      << " at " << tran << " with no rotation";
 }
