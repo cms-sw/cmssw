@@ -204,11 +204,11 @@ void PFBlockProducer::produce(Event& iEvent,
   auto_ptr< reco::PFBlockCollection > 
     pOutputBlockCollection( pfBlockAlgo_.transferBlocks() ); 
 
-  reco::PFBlock block( (*pOutputBlockCollection)[0] );
+  //  reco::PFBlock block( (*pOutputBlockCollection)[0] );
     
 
   iEvent.put(pOutputBlockCollection);
 
   LogDebug("PFBlockProducer")<<"STOP event: "<<iEvent.id().event()
-			<<" in run "<<iEvent.id().run()<<endl;
+			     <<" in run "<<iEvent.id().run()<<endl;
 }
