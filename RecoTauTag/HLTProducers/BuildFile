@@ -8,7 +8,7 @@
 <use name=SimDataFormats/HepMCProduct>
 <use name=DataFormats/L1GlobalTrigger>
 <use name=root>
-<flags EDM_PLUGIN=1>
+<flags SEAL_PLUGIN=1>
 <export>
    <lib name=RecoTauTagHLTProducers>
 <use name=DataFormats/L1Trigger>
