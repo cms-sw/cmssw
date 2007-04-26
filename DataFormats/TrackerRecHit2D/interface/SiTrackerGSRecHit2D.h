@@ -13,6 +13,7 @@ public:
   SiTrackerGSRecHit2D(): BaseSiTrackerRecHit2DLocalPos(),
 			 simhitId_(),
 			 simtrackId_(),
+			 eeId_(),
 			 pixelMultiplicityAlpha_(), 
 			 pixelMultiplicityBeta_() {}
   
@@ -22,6 +23,7 @@ public:
 		       const DetId&,
 		       const int simhitId,
 		       const int simtrackId,
+		       const uint32_t eeId,
 		       const int pixelMultiplicityX,
 		       const int pixelMultiplicityY );  
   
@@ -29,15 +31,16 @@ public:
   
   const int& simhitId()    const { return simhitId_;}
   const int& simtrackId()  const { return simtrackId_;}
+  const uint32_t& eeId()    const { return eeId_;}
   const int& simMultX()    const { return pixelMultiplicityAlpha_;}
   const int& simMultY()    const { return pixelMultiplicityBeta_;}
   
 private:
   int const simhitId_;
   int const simtrackId_;
+  uint32_t const eeId_;
   int const pixelMultiplicityAlpha_;
   int const pixelMultiplicityBeta_;
-  
 };
 
 // Comparison operators
