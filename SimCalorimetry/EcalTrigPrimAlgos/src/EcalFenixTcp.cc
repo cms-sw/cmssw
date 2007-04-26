@@ -28,10 +28,6 @@ std::vector<int> EcalFenixTcp::process_part1(std::vector<std::vector<int> > tpfr
  //call bypasslin
     for (unsigned int istrip=0;istrip<tpframetow.size();istrip ++){
       std::vector<int> stripin= tpframetow[istrip];
-      for (unsigned int is=0;is<stripin.size();is++){
-	//	std::cout<<stripin[is]<<" ";
-      }
-      //      std::cout<<endl;
       bypasslin_out.push_back(this->getBypasslin(istrip)->process(stripin));
     }
     //this is a test
@@ -57,7 +53,6 @@ std::vector<int> EcalFenixTcp::process_part1(std::vector<std::vector<int> > tpfr
       }    
       std::cout<<std::endl;
     }
-    std::cout<<" EcalFenixTcp::process after Adder "<<std::flush<<std::endl;
     return adder_out;
     
 }
@@ -80,7 +75,6 @@ void EcalFenixTcp::process_part2_barrel(std::vector<std::vector<int> > & bypassl
     }    
     std::cout<<std::endl;
   }
-  std::cout<<" EcalFenixTcp::process_2_barrel after maxof2"<<std::flush<<std::endl;
    
   //call fgvb
   std::vector<int> fgvb_out;
@@ -95,7 +89,6 @@ void EcalFenixTcp::process_part2_barrel(std::vector<std::vector<int> > & bypassl
     }    
     std::cout<<std::endl;
   }
-  std::cout<<" EcalFenixTcp::process_2_barrel after fgvb "<<std::flush<<std::endl;
 
   // call formatter
   int eTTotShift=2;
@@ -110,7 +103,6 @@ void EcalFenixTcp::process_part2_barrel(std::vector<std::vector<int> > & bypassl
     }    
     std::cout<<std::endl;
   }
-  std::cout<<" EcalFenixTcp::process_2_barrel after formatter ";fflush(stdout);
     
   return;
 }
@@ -121,15 +113,11 @@ void EcalFenixTcp::process_part2_endcap(std::vector<std::vector<int> > & bypassl
 					std::vector< EcalTriggerPrimitiveSample> & tcp_out,
                                         std::vector< EcalTriggerPrimitiveSample> & tcp_outTcc)
 {
-  std::cout<<" EcalFenixTcp::process_2_endcap- basspasslin size:"<<bypasslin_out.size()<<std::flush<<std::endl;
-      
   //call fgvb
   std::vector<int> fgvb_out;
   this->getFGVBEE()->setParameters(SM, towerInSM);
   fgvb_out = fgvbEE_->process(bypasslin_out,bitMask);
 
-  std::cout<<" EcalFenixTcp::process_2_endcap after fgvb "<<std::flush<<std::endl;
-   
   //call formatter
   int eTTotShift=0;
   this->getFormatter()->setParameters(SM, towerInSM) ;
@@ -143,7 +131,5 @@ void EcalFenixTcp::process_part2_endcap(std::vector<std::vector<int> > & bypassl
     }    
     std::cout<<std::endl;
   }
-  std::cout<<" EcalFenixTcp::process_2_endcap after formatter ";fflush(stdout);
-    
   return;
 }

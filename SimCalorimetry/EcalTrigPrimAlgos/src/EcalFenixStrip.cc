@@ -47,7 +47,6 @@ std::vector<int>  EcalFenixStrip::process_part2_barrel(std::vector<int> &peak_ou
   //     }    
   //    cout<<endl;
 
-  std::cout<<"fin process_2   barrel ++++++"<<std::flush<<std::endl;
   return format_out;
 
 }
@@ -55,7 +54,6 @@ std::vector<int>  EcalFenixStrip::process_part2_barrel(std::vector<int> &peak_ou
 std::vector<int>  EcalFenixStrip::process_part2_endcap(std::vector<const EEDataFrame *> &lin_out,std::vector<int> &peak_out,std::vector<int> &filt_out,int smnr,int townr,int stripnr) {
   
   // call  Fgvb
-  std::cout<<"dans EcalFenixStrip::process_part2_endcap"<<std::flush<<std::endl;
   std::vector<int> fgvb_out;
   this->getFGVB()->setParameters(smnr,townr,stripnr);
   fgvb_out = this->getFGVB()->process(lin_out);
@@ -75,7 +73,6 @@ std::vector<int>  EcalFenixStrip::process_part2_endcap(std::vector<const EEDataF
      std::cout<<std::endl;
    }
 
-  std::cout<<"fin process_2   endcap ++++++"<<std::flush<<std::endl;
   return format_out;
 
 }

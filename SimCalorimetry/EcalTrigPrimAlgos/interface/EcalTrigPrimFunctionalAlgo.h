@@ -135,8 +135,6 @@ template <class T> void EcalTrigPrimFunctionalAlgo::run(const edm::SortedCollect
       int towNr=findTowerNrInTcc(thisTower);
       int sectorNr=findTccNr(thisTower);
       // loop over all strips assigned to this trigger tower
-      //      if (sectorNr!=7)   continue;  //FIXME!!
-      std::cout<<"\n\n\n>>>>Start TT "<<thisTower<<"  Tcc "<<sectorNr<<" towerinTCC "<<towNr<<std::endl;
       std::vector<std::vector<int> > striptp;
       for(unsigned int i = 0; i < it->second.size() ; ++i)  
 	{
