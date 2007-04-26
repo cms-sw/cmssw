@@ -15,7 +15,7 @@
 //
 // Original Author:  Chi Nhan Nguyen
 //         Created:  Mon Feb 19 13:25:24 CST 2007
-// $Id: FastL1Region.h,v 1.4 2007/04/23 15:48:29 chinhan Exp $
+// $Id: FastL1Region.h,v 1.5 2007/04/25 15:43:40 chinhan Exp $
 //
 
 // user include files
@@ -39,14 +39,12 @@
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 
-// for 1.4
-//#include "Geometry/CaloEventSetup/plugins/CaloTowerConstituentsMapBuilder.h"
-#include "Geometry/CaloEventSetup/src/CaloTowerConstituentsMapBuilder.h"
-
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
 #include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
+
+#include "Geometry/CaloTopology/interface/CaloTowerConstituentsMap.h"
 
 #include "FastSimulation/L1CaloTriggerProducer/interface/FastL1RegionMap.h"
 //#include "FastSimulation/L1CaloTriggerProducer/interface/FastL1BitInfo.h"
