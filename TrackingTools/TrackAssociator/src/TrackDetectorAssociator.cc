@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: TrackDetectorAssociator.cc,v 1.13 2007/04/13 02:48:50 dmytro Exp $
+// $Id: TrackDetectorAssociator.cc,v 1.14 2007/04/17 09:06:36 dmytro Exp $
 //
 //
 
@@ -467,8 +467,8 @@ void TrackDetectorAssociator::fillHO( const edm::Event& iEvent,
       // get trajectory change with respect to initial state
       DetIdAssociator::MapRange mapRange = getMapRange(cachedTrajectory_.trajectoryDelta(CachedTrajectory::IpToHO),
 						       parameters.dRHcalPreselection);
-      idsInRegion = hcalDetIdAssociator_.getDetIdsCloseToAPoint(trajectory[0], mapRange);
-   } else idsInRegion = hcalDetIdAssociator_.getDetIdsCloseToAPoint(trajectory[0], parameters.dRHcalPreselection);
+      idsInRegion = hoDetIdAssociator_.getDetIdsCloseToAPoint(trajectory[0], mapRange);
+   } else idsInRegion = hoDetIdAssociator_.getDetIdsCloseToAPoint(trajectory[0], parameters.dRHcalPreselection);
    
    LogTrace("TrackAssociator") << "idsInRegion.size(): " << idsInRegion.size();
    std::set<DetId> idsInACone = hoDetIdAssociator_.getDetIdsInACone(idsInRegion, trajectory, parameters.dRHcal);
