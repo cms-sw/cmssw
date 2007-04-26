@@ -13,7 +13,7 @@
   <Numeric name="LayerL"              value="[tibstringpar:StringL]"/>
   <Numeric name="LayerTolerance"      value="[tiblayerpar:Tolerance]"/>
   <Numeric name="DetectorWidth"       value="2*[tibmodpar:ModuleDx]"/>
-  <Numeric name="DetectorThickness"   value="2*[tibmodpar:SSModuleDy]"/>
+  <Numeric name="DetectorThickness"   value="2*[tibmodpar:DSModuleDy]"/>
   <Numeric name="CoolTubeWidth"       value="[tibstringpar:CoolTubeW]"/>
   <Numeric name="CoolTubeThickness"   value="[tibstringpar:CoolTubeD]"/>
   <Numeric name="RadiusLo"            value="[tiblayerpar:RadiusLo1]"/>
