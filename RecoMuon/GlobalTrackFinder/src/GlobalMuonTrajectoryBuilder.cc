@@ -12,8 +12,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2007/04/17 13:17:52 $
- *  $Revision: 1.91 $
+ *  $Date: 2007/04/18 14:48:56 $
+ *  $Revision: 1.92 $
  *
  *  Authors :
  *  N. Neumeister            Purdue University
@@ -77,6 +77,8 @@
 #include "RecoMuon/TrackerSeedGenerator/interface/TrackerSeedGenerator.h"
 #include "RecoMuon/TrackerSeedGenerator/interface/TrackerSeedGeneratorFactory.h"
 #include "RecoTracker/Record/interface/CkfComponentsRecord.h"
+#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
+#include "TrackingTools/PatternTools/interface/TrajectoryFitter.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "RecoMuon/GlobalMuonProducer/src/GlobalMuonMonitorInterface.h"
@@ -158,6 +160,8 @@ GlobalMuonTrajectoryBuilder::GlobalMuonTrajectoryBuilder(const edm::ParameterSet
       theCkfBuilderName = par.getParameter<std::string>("TkTrackBuilder");
     }
 
+    theKFFitterName = par.getParameter<std::string>("KFFitter");
+
   } else {
     theTkTrackLabel = par.getParameter<edm::InputTag>("TrackerCollectionLabel");
   }
@@ -231,6 +235,9 @@ void GlobalMuonTrajectoryBuilder::setEvent(const edm::Event& event) {
       LogInfo(category) << "Constructing a Tk Trajectory Builder";
       if(theRSFlag == false) theService->eventSetup().get<CkfComponentsRecord>().get(theCkfBuilderName,theCkfBuilder);
     }
+
+    theService->eventSetup().get<TrackingComponentsRecord>().get(theKFFitterName,theKFFitter);
+
     if(theRSFlag == false) {
       theCkfBuilder->setEvent(event);
     } else {
@@ -238,6 +245,7 @@ void GlobalMuonTrajectoryBuilder::setEvent(const edm::Event& event) {
     }
     
     theTkSeedGenerator->setEvent(event);
+
   }
 
   theTrackTransformer->setServices(theService->eventSetup());
@@ -567,7 +575,13 @@ MuonCandidate::CandidateContainer GlobalMuonTrajectoryBuilder::build(const Track
 	  if(theMIMFlag) dataMonitor->fill1("build",5);
 	  refit[1] = &(*refitted1.begin());
 	  if ( theMuonHitsOption == 1 ) {
-	    finalTrajectory = new MuonCandidate(new Trajectory(*refitted1.begin()), (*it)->muonTrack(), (*it)->trackerTrack(), new Trajectory(*(*it)->trackerTrajectory()));
+	    TC refittedTk;
+	    Trajectory refittedTkTraj = *(*it)->trackerTrajectory();
+	    if(theMakeTkSeedFlag) {
+	      refittedTk = refitTrajectory((*it)->trackerTrajectory());
+	      if(refittedTk.size() == 1) refittedTkTraj = refittedTk.front();
+	    }
+	    finalTrajectory = new MuonCandidate(new Trajectory(*refitted1.begin()), (*it)->muonTrack(), (*it)->trackerTrack(), new Trajectory(refittedTkTraj));
              if ( (*it)->trajectory() ) delete (*it)->trajectory();
              if ( (*it)->trackerTrajectory() ) delete (*it)->trackerTrajectory();
              if ( *it ) delete (*it);
@@ -587,7 +601,13 @@ MuonCandidate::CandidateContainer GlobalMuonTrajectoryBuilder::build(const Track
 	  if(theMIMFlag) dataMonitor->fill1("build",7);
 	  refit[2] = &(*refitted2.begin());
 	  if ( theMuonHitsOption == 2 ) {
-	    finalTrajectory = new MuonCandidate(new Trajectory(*refitted2.begin()), (*it)->muonTrack(), (*it)->trackerTrack(), new Trajectory(*(*it)->trackerTrajectory()));
+	    TC refittedTk;
+	    Trajectory refittedTkTraj = *(*it)->trackerTrajectory();
+	    if(theMakeTkSeedFlag) {
+	      refittedTk = refitTrajectory((*it)->trackerTrajectory());
+	      if(refittedTk.size() == 1) refittedTkTraj = refittedTk.front();
+	    }
+	    finalTrajectory = new MuonCandidate(new Trajectory(*refitted2.begin()), (*it)->muonTrack(), (*it)->trackerTrack(), new Trajectory(refittedTkTraj));
             if ( (*it)->trajectory() ) delete (*it)->trajectory();
 	    if ( (*it)->trackerTrajectory() ) delete (*it)->trackerTrajectory();
             if ( *it ) delete (*it);
@@ -609,7 +629,13 @@ MuonCandidate::CandidateContainer GlobalMuonTrajectoryBuilder::build(const Track
 	  if(theMIMFlag) dataMonitor->fill1("build",9);
 	  refit[3] = &(*refitted3.begin());
 	  if ( theMuonHitsOption == 3 ) {
-	    finalTrajectory = new MuonCandidate(new Trajectory(*refitted3.begin()), (*it)->muonTrack(), (*it)->trackerTrack(), new Trajectory(*(*it)->trackerTrajectory()));
+	    TC refittedTk;
+	    Trajectory refittedTkTraj = *(*it)->trackerTrajectory();
+	    if(theMakeTkSeedFlag) {
+	      refittedTk = refitTrajectory((*it)->trackerTrajectory());
+	      if(refittedTk.size() == 1) refittedTkTraj = refittedTk.front();
+	    }
+	    finalTrajectory = new MuonCandidate(new Trajectory(*refitted3.begin()), (*it)->muonTrack(), (*it)->trackerTrack(), new Trajectory(refittedTkTraj));
             if ( (*it)->trajectory() ) delete (*it)->trajectory();
 	    if ( (*it)->trackerTrajectory() ) delete (*it)->trackerTrajectory();
             if ( *it ) delete (*it);
@@ -1298,3 +1324,29 @@ GlobalMuonTrajectoryBuilder::checkRecHitsOrdering(const TransientTrackingRecHit:
     return undetermined;
   }
 }
+
+vector<Trajectory> GlobalMuonTrajectoryBuilder::refitTrajectory(const Trajectory* tkTraj) const
+{
+  // This is the only way to get a TrajectorySeed with settable propagation direction
+  PTrajectoryStateOnDet garbage1;
+  edm::OwnVector<TrackingRecHit> garbage2;
+ 
+  TrajectoryStateOnSurface innerTsos;
+  ConstRecHitContainer trackerRecHits = tkTraj->recHits();
+  
+  RefitDirection recHitDir = checkRecHitsOrdering(trackerRecHits);
+  if( recHitDir == inToOut ) reverse(trackerRecHits.begin(),trackerRecHits.end());
+  
+  PropagationDirection refitDir = (recHitDir == inToOut) ? oppositeToMomentum : alongMomentum ;
+  
+  TrajectorySeed seed(garbage1,garbage2,refitDir);
+  
+  TrajectoryMeasurement outerTM = (tkTraj->direction() == alongMomentum) ? tkTraj->lastMeasurement() : tkTraj->firstMeasurement();
+  TrajectoryStateOnSurface outerTsos = outerTM.updatedState();
+  outerTsos.rescaleError(100.);
+  
+  vector<Trajectory> refitted1 = theKFFitter->fit(seed,trackerRecHits,outerTsos);
+  
+  return refitted1;
+}
+

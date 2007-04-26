@@ -4,8 +4,8 @@
 /** \class GlobalMuonTrajectoryBuilder
  *  class to build muon trajectory
  *
- *  $Date: 2007/03/21 17:51:04 $
- *  $Revision: 1.53 $
+ *  $Date: 2007/04/03 21:25:50 $
+ *  $Revision: 1.54 $
  *
  *  \author N. Neumeister 	 Purdue University
  *  \author C. Liu 		 Purdue University
@@ -44,6 +44,7 @@ class GlobalMuonMonitorInterface;
 class TrackTransformer;
 
 class GlobalMuonRSTrajectoryBuilder;
+class TrajectoryFitter;
 
 //class CkfTrajectoryBuilder;
 
@@ -131,6 +132,8 @@ class GlobalMuonTrajectoryBuilder : public MuonTrajectoryBuilder {
 
     RefitDirection checkRecHitsOrdering(const ConstRecHitContainer&) const;
 
+    std::vector<Trajectory> refitTrajectory(const Trajectory*) const;
+
   private:
 
     GlobalPoint theVertexPos;
@@ -153,6 +156,7 @@ class GlobalMuonTrajectoryBuilder : public MuonTrajectoryBuilder {
     edm::InputTag theTkTrackLabel;
     std::string theCkfBuilderName;
     std::string trackerPropagatorName;
+    std::string theKFFitterName;
 
     bool theTkTrajsAvailableFlag;
     bool theMakeTkSeedFlag;
@@ -164,6 +168,7 @@ class GlobalMuonTrajectoryBuilder : public MuonTrajectoryBuilder {
 
     edm::ESHandle<TrackerTrajectoryBuilder> theCkfBuilder;
     edm::Handle<reco::TrackCollection> allTrackerTracks;
+    edm::ESHandle<TrajectoryFitter> theKFFitter;
 
     const std::vector<Trajectory>* allTrackerTrajs;
  
