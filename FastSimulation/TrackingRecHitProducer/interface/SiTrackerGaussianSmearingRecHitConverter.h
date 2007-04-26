@@ -40,6 +40,7 @@ class SiPixelGaussianSmearingRecHitConverterAlgorithm;
 class SiStripGaussianSmearingRecHitConverterAlgorithm;
 class RandomEngine;
 
+
 class SiTrackerGaussianSmearingRecHitConverter : public edm::EDProducer
 {
  public:

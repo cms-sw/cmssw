@@ -6,7 +6,6 @@
  * --------------------------------------------------------------
  */
 
-
 // SiTracker Gaussian Smearing
 #include "FastSimulation/TrackingRecHitProducer/interface/SiTrackerGaussianSmearingRecHitConverter.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSRecHit2DCollection.h"
@@ -43,6 +42,9 @@
 #include "DataFormats/SiStripDetId/interface/TIDDetId.h"
 #include "DataFormats/SiStripDetId/interface/TOBDetId.h"
 #include "DataFormats/SiStripDetId/interface/TECDetId.h"
+
+//For Pileup events
+#include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
 
 // Random engine
 #include "FastSimulation/Utilities/interface/RandomEngine.h"
@@ -453,6 +455,7 @@ void SiTrackerGaussianSmearingRecHitConverter::smearHits(
     ++simHitCounter;
     DetId det((*isim).detUnitId());
     unsigned trackID = (*isim).trackId();
+    uint32_t eeID = (*isim).eventId().rawId(); //get the rawId of the eeid for pileup treatment
 
     /* 
     const GeomDet* theDet = geometry->idToDet(det);
@@ -472,9 +475,11 @@ void SiTrackerGaussianSmearingRecHitConverter::smearHits(
       //      double dist = theDet->surface().toGlobal((*isim).localPosition()).mag2();
       // create RecHit
       // Fill the temporary RecHit on the current DetId collection
+      //      temporaryRecHits[trackID].push_back(
       temporaryRecHits[trackID].push_back(
 		 new SiTrackerGSRecHit2D(position, error, det, 
 					 simHitCounter, trackID, 
+					 eeID, 
 					 alphaMult, betaMult) );
 
     }
@@ -830,6 +835,7 @@ bool SiTrackerGaussianSmearingRecHitConverter::gaussianSmearing(const PSimHit& s
   } // subdetector case
     //
 }   
+
 
 void 
 SiTrackerGaussianSmearingRecHitConverter::loadRecHits(
