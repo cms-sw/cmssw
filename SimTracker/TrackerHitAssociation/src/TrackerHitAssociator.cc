@@ -146,6 +146,11 @@ std::vector<PSimHit> TrackerHitAssociator::associateHit(const TrackingRecHit & t
 	  simtrackid = associatePixelRecHit(rechit);
 	}
     }
+  //check if these are GSRecHits (from FastSim)
+  if(const SiTrackerGSRecHit2D * rechit = dynamic_cast<const SiTrackerGSRecHit2D *>(&thit))
+    {
+      simtrackid = associateGSRecHit(rechit);
+    }
   
   
   //now get the SimHit from the trackid
@@ -249,6 +254,12 @@ std::vector< SimHitIdpr > TrackerHitAssociator::associateHitId(const TrackingRec
 	  simtrackid = associatePixelRecHit(rechit);
 	}
     }
+  //check if these are GSRecHits (from FastSim)
+  if(const SiTrackerGSRecHit2D * rechit = dynamic_cast<const SiTrackerGSRecHit2D *>(&thit))
+    {
+      simtrackid = associateGSRecHit(rechit);
+    }
+
   return simtrackid;  
 }
 
@@ -447,4 +458,14 @@ std::vector<SimHitIdpr>  TrackerHitAssociator::associatePixelRecHit(const SiPixe
   return simtrackid;
 }
 
+std::vector<SimHitIdpr>  TrackerHitAssociator::associateGSRecHit(const SiTrackerGSRecHit2D * gsrechit)
+{
+  //GSRecHit is the FastSimulation RecHit that contains the TrackId already
+
+  vector<SimHitIdpr> simtrackid;
+  simtrackid.clear();
+  SimHitIdpr currentId(gsrechit->simtrackId(), EncodedEventId(gsrechit->eeId()));
+  simtrackid.push_back(currentId);
+  return simtrackid;
+}
 
