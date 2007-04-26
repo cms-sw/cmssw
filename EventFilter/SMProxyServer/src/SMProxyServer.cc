@@ -1455,11 +1455,6 @@ bool SMProxyServer::configuring(toolbox::task::WorkLoop* wl)
 	XCEPT_RAISE (toolbox::fsm::exception::Exception, 
 		     e.explainSelf());
       }
-    catch(seal::Error& e)
-      {
-	XCEPT_RAISE (toolbox::fsm::exception::Exception, 
-		     e.explainSelf());
-      }
     catch(std::exception& e)
       {
 	XCEPT_RAISE (toolbox::fsm::exception::Exception, 
