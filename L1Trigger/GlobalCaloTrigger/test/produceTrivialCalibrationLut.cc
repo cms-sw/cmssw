@@ -1,5 +1,7 @@
 #include "L1Trigger/GlobalCaloTrigger/test/produceTrivialCalibrationLut.h"
 
+#include <math.h>
+
 produceTrivialCalibrationLut::produceTrivialCalibrationLut() :
   m_htScaleLSB(1.0),
   m_threshold(5.0),

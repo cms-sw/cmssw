@@ -199,7 +199,6 @@ void L1GctJetEtCalibrationFunction::checkCalibrationAgainstOrca() const
       double E2 = (double) orcaCalibFn( (float) value*m_outputEtScale.linearLsb(), etapos);
       double E3 = (double) orcaCalibFn( (float) value*m_outputEtScale.linearLsb(), etaneg);
       double diff12 = (E1-E2);
-      double diff23 = (E2-E3);
       double diff31 = (E3-E1);
       // Check the calibrated Et value for this eta lies between
       // the two values at positive and negative eta returned by
