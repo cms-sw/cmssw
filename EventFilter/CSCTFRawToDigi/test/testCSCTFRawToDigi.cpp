@@ -1,7 +1,7 @@
 /* \file testCSCTFRawToDigi.cc
  *
- *  $Date: 2006/06/22 14:46:05 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/03/12 00:43:37 $
+ *  $Revision: 1.3 $
  *  \author L. Gray , ripped from testDaqSource
  */
 
@@ -52,7 +52,7 @@ int testCSCTFRawToDigi::runIt(const std::string& config){
   try {
     edm::EventProcessor proc(config);
     proc.run();
-  } catch (seal::Error& e){
+  } catch (cms::Exception& e){
     std::cerr << "Exception caught:  " 
 	      << e.explainSelf()
 	      << std::endl;
