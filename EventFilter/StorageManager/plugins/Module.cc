@@ -7,7 +7,6 @@
 using edm::EventStreamHttpReader;
 using edm::DQMHttpSource;
 
-DEFINE_SEAL_MODULE();
 DEFINE_ANOTHER_FWK_INPUT_SOURCE(EventStreamHttpReader);
 DEFINE_ANOTHER_FWK_INPUT_SOURCE(DQMHttpSource);
 

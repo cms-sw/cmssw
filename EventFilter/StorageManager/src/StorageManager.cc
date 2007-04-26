@@ -22,6 +22,8 @@
 #include "FWCore/ServiceRegistry/interface/ServiceToken.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/RootAutoLibraryLoader/interface/RootAutoLibraryLoader.h"
+#include "FWCore/PluginManager/interface/PluginManager.h"
+#include "FWCore/PluginManager/interface/standard.h"
 
 #include "IOPool/Streamer/interface/MsgHeader.h"
 #include "IOPool/Streamer/interface/InitMessage.h"
@@ -1890,7 +1892,14 @@ bool StorageManager::configuring(toolbox::task::WorkLoop* wl)
     
     // Get into the Ready state from Halted state
     
-    seal::PluginManager::get()->initialise();
+    try {
+      edmplugin::PluginManager::configure(edmplugin::standard::config());
+    }
+    catch(cms::Exception& e)
+    {
+	XCEPT_RAISE (toolbox::fsm::exception::Exception, 
+		     e.explainSelf());
+    }
     
     // give the JobController a configuration string and
     // get the registry data coming over the network (the first one)
@@ -1923,6 +1932,7 @@ bool StorageManager::configuring(toolbox::task::WorkLoop* wl)
     
     // the rethrows below need to be XDAQ exception types (JBK)
     try {
+
       jc_.reset(new stor::JobController(my_config, &deleteSMBuffer));
       
       int disks(nLogicalDisk_);
@@ -1939,11 +1949,6 @@ bool StorageManager::configuring(toolbox::task::WorkLoop* wl)
       jc_->setDQMEventServer(DQMeventServer);
     }
     catch(cms::Exception& e)
-      {
-	XCEPT_RAISE (toolbox::fsm::exception::Exception, 
-		     e.explainSelf());
-      }
-    catch(seal::Error& e)
       {
 	XCEPT_RAISE (toolbox::fsm::exception::Exception, 
 		     e.explainSelf());
