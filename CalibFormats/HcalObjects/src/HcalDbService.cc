@@ -1,7 +1,7 @@
 //
 // F.Ratnikov (UMd), Aug. 9, 2005
 //
-// $Id: HcalDbService.cc,v 1.13 2007/04/10 20:56:25 michals Exp $
+// $Id: HcalDbService.cc,v 1.14 2007/04/12 16:51:27 michals Exp $
 
 #include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
 
@@ -109,10 +109,10 @@ const HcalGain* HcalDbService::getGain (const HcalGenericDetId& fId) const {
     float v1=escale*mGains->getValue(fId,1);
     float v2=escale*mGains->getValue(fId,2);
     float v3=escale*mGains->getValue(fId,3);
-    HcalGains* newGains = new HcalGains();
-    bool ok = newGains -> addValue(fId,v0,v1,v2,v3);
-    newGains->sort();
-    if (ok) return newGains->getValues(fId);
+    HcalGains newGains;
+    bool ok = newGains.addValue(fId,v0,v1,v2,v3);
+    newGains.sort();
+    if (ok) return newGains.getValues(fId);
     else return 0;
   }
   return 0;
