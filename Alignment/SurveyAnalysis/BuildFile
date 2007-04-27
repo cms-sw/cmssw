@@ -1,6 +1,11 @@
 <use name=clhep>
 <use name=root>
+<use name=Alignment/CommonAlignment>
+<use name=Alignment/CommonAlignmentAlgorithm>
+<use name=Alignment/TrackerAlignment>
 <use name=CondCore/DBOutputService>
+<use name=CondFormats/Alignment>
+<use name=CondFormats/OptAlignObjects>
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
 <use name=FWCore/PluginManager>
@@ -11,9 +16,11 @@
 <use name=Geometry/CSCGeometry>
 <use name=Geometry/CSCGeometryBuilder>
 <export>
-   <lib name=AlignmentSurveyAnalysis>
-   <use name=root>
-   <use name=FWCore/ParameterSet>
-   <use name=FWCore/PluginManager>
-   <use name=FWCore/Framework>
-</export>
+  <lib name=AlignmentSurveyAnalysis>
+  <use name=root>
+  <use name=Alignment/CommonAlignment>
+  <use name=Alignment/CommonAlignmentAlgorithm>
+  <use name=FWCore/ParameterSet>
+  <use name=FWCore/PluginManager>
+  <use name=FWCore/Framework>
+</export> 
