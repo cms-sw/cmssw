@@ -73,11 +73,6 @@ PomwigSource::PomwigSource( const ParameterSet & pset,
   printCards_(pset.getUntrackedParameter<bool>("printCards",true)),
   diffTopology(pset.getParameter<int>("diffTopology"))
 {
-  //Don't want this for Pomwig
-  useJimmy_ = false;
-  doMPInteraction_ = false;	
-  numTrials_ = 0;
-
   cout << "----------------------------------------------" << endl;
   cout << "Initializing PomwigSource" << endl;
   cout << "----------------------------------------------" << endl;
@@ -96,11 +91,6 @@ PomwigSource::PomwigSource( const ParameterSet & pset,
   cout << "   LHAPDF verbosity level         = " << herwigLhapdfVerbosity_ << endl;
   cout << "   HepMC verbosity                = " << herwigHepMCVerbosity_ << endl;
   cout << "   Number of events to be printed = " << maxEventsToPrint_ << endl;
-  /*if(useJimmy_) {
-    cout << "   HERWIG will be using JIMMY for UE/MI." << endl;
-    if(doMPInteraction_) 
-      cout << "   JIMMY trying to generate multiple interactions." << endl;
-  }*/
   
   // Call hwudat to set up HERWIG block data
   hwudat();
@@ -155,11 +145,9 @@ PomwigSource::PomwigSource( const ParameterSet & pset,
   //hwproc.MAXEV = pset.getUntrackedParameter<int>("maxEvents",10);
   //hwevnt.MAXER = hwproc.MAXEV/10;
   if(hwevnt.MAXER<10) hwevnt.MAXER = 10;
-  //if(useJimmy_) jmparm.MSFLAG = 1;
 
   // initialize other common blocks ...
   hwigin();
-  //if(useJimmy_) jimmin();
   
   // set some 'non-herwig' defaults
   hwevnt.MAXPR =  maxEventsToPrint_;           // no printing out of events
@@ -237,15 +225,12 @@ PomwigSource::PomwigSource( const ParameterSet & pset,
           	<<" Attempted to set non existant H1 fit index. Has to be 1...6";		
   	}
   	cout << "   IFIT = "<< ifit <<endl;	
-  	//h1init(ifit);		
-  	//hwabeg();
   	double xp = 0.1;
   	double Q2 = 75.0;
   	double xpq[13];
   	qcd_1994(xp,Q2,xpq,ifit);
   }
   hweini();
-  //if(useJimmy_) jminit();
 
   cout << endl; // Stetically add for the output
   produces<HepMCProduct>();
@@ -266,38 +251,10 @@ PomwigSource::~PomwigSource(){
 void PomwigSource::clear() {
   // teminate elementary process
   hwefin();
-  //if(useJimmy_) jmefin();
 }
 
 
 bool PomwigSource::produce(Event & e) {
-
-  /*int counter = 0;
-  double mpiok = 1.0;
-
-  while(mpiok > 0.5 && counter < numTrials_) {
-    // so far event is ok :)
-    eventstat.eventisok = 0.0;
-
-    // call herwig routines to create HEPEVT
-    hwuine();
-    hwepro();
-    hwbgen();  
-
-    // call jimmy ... only if event is not killed yet by HERWIG
-    if(useJimmy_ && doMPInteraction_ && (eventstat.eventisok < 0.5)) {
-      mpiok = hwmsct_dummy(1.1);
-    }
-    else mpiok = 0.0;
-    counter++;
-  }
-
-  // event after numTrials MP is not ok -> skip event
-  if(mpiok > 0.5) {
-    cout<<"   JIMMY could not produce MI in "<<numTrials_<<" trials."<<endl;
-    cout<<"   Event will be skipped to prevent from deadlock."<<endl;
-    return true;
-  }*/
 
   eventstat.eventisok = 0.0;
 
@@ -1073,12 +1030,6 @@ bool PomwigSource::hwgive(const std::string& ParameterString) {
     hw6300.IOPSTP = atoi(&ParameterString[strcspn(ParameterString.c_str(),"=")+1]); 
   else if(!strncmp(ParameterString.c_str(),"IOPSH",5))
     hw6300.IOPSH = atoi(&ParameterString[strcspn(ParameterString.c_str(),"=")+1]); 
-  else if(!strncmp(ParameterString.c_str(),"JMUEO",5))
-    jmparm.JMUEO = atoi(&ParameterString[strcspn(ParameterString.c_str(),"=")+1]); 
-  else if(!strncmp(ParameterString.c_str(),"PTJIM",5))
-    jmparm.PTJIM = atof(&ParameterString[strcspn(ParameterString.c_str(),"=")+1]); 
-  else if(!strncmp(ParameterString.c_str(),"JMRAD(73)",9))
-    jmparm.JMRAD[72] = atoi(&ParameterString[strcspn(ParameterString.c_str(),"=")+1]); 
 
   else accepted = 0;
 

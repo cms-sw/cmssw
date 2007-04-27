@@ -286,6 +286,7 @@ C                                 intervals (must be even)
      &,        JMVETO(2,13), NSCAT
 */
 
+/*
 const int NPROC = 117;
 const int MAXMS = 100;
 const int NPSIMP = 16;
@@ -307,8 +308,8 @@ extern "C" {
   } jmevnt_;
 }
 #define jmevnt jmevnt_
-
-//------------------------------ JIMMY functions -------------------------------------------------
+*/
+/*//------------------------------ JIMMY functions -------------------------------------------------
 extern"C" {
   void jimmin_(void);
   void jminit_(void);
@@ -320,7 +321,7 @@ extern"C" {
 #define jminit jminit_
 #define hwmsct_dummy hwmsct_dummy_
 #define jmefin jmefin_
-
+*/
 
 //------------------------------ LHAPDF functions -------------------------------------------------
 
@@ -331,7 +332,7 @@ extern"C" {
 extern "C" {
     void qcd_1994(double&,double&,double*,int&);
 }
-// HWABEG to initialize H1 pomeron structure function
+/*// HWABEG to initialize H1 pomeron structure function
 #define hwabeg hwabeg_
 extern "C" {
     void hwabeg();
@@ -341,6 +342,6 @@ extern "C" {
 extern "C" {
     void h1init(int&);
 }
-
+*/
 
 #endif
