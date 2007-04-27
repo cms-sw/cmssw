@@ -16,7 +16,7 @@
 //
 // Original Author:  Pablo Martinez Ruiz Del Arbol
 //         Created:  Wed Mar 28 09:50:08 CEST 2007
-// $Id: DTSurveyConvert.cpp,v 1.1 2007/04/25 17:15:40 pablom Exp $
+// $Id: DTSurveyConvert.cpp,v 1.2 2007/04/27 11:28:58 pablom Exp $
 //
 //
 
@@ -149,25 +149,29 @@ DTSurveyConvert::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
     wheel->CalculateChambers();
     outFile << *wheel; 
     wheelList.push_back(wheel);
-  } else if (wheel_m1 == true) {
+  } 
+  if (wheel_m1 == true) {
     DTSurvey *wheel = new DTSurvey(nameWheel_m1, nameChambers_m1, -1);
     wheel->ReadChambers(pDD);
     wheel->CalculateChambers();
     outFile << *wheel; 
     wheelList.push_back(wheel);
-  } else if (wheel_0 == true) {
+  } 
+  if (wheel_0 == true) {
     DTSurvey *wheel = new DTSurvey(nameWheel_0, nameChambers_0, 0);
     wheel->ReadChambers(pDD);
     wheel->CalculateChambers();
     outFile << *wheel; 
     wheelList.push_back(wheel);
-  } else if (wheel_p1 == true) {
+  } 
+  if (wheel_p1 == true) {
     DTSurvey *wheel = new DTSurvey(nameWheel_p1, nameChambers_p1, 1);
     wheel->ReadChambers(pDD);
     wheel->CalculateChambers();
     outFile << *wheel; 
     wheelList.push_back(wheel);
-  } else if(wheel_p2 == true) {
+  } 
+  if(wheel_p2 == true) {
     DTSurvey *wheel = new DTSurvey(nameWheel_p2, nameChambers_p2, 2);
     wheel->ReadChambers(pDD);
     wheel->CalculateChambers();
