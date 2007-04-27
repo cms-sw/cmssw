@@ -26,7 +26,7 @@ If you work in CMSSW_1_3_0 or later (package revision V00-04-04 and higher) you 
 instruct <tt>CSCFileReader</tt> module to build FED buffers from selected RUIs (see
 <a href="http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/IORawData/CSCCommissioning/test/readFile.cfg?rev=1.6&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup">
 test/readFile.cfg</a> for example). To do that you need to specify parameter set (<tt>PSet</tt>)
-which currently defines 10 RUI file sets (<i>RUI00</i>, <i>RUI01</i>, ... <i>RUI09</i>) and then assign each
+which defines RUI file sets (<i>RUI00</i>, <i>RUI01</i>, ... <i>RUI09</i>) and then assign each
 RUI to the appropriate FED (<i>FED750</i>, <i>FED751</i>, <i>FED752</i>, <i>FED753</i>). The module builds FED buffers
 from RUI buffers with the same L1A. Therefore, you should always maintain order of files in
 RUI file sets (module expects only incrementing L1A from file to file).
@@ -46,7 +46,7 @@ goes to FED with ID=760.
 <tt>CSCFileDumper</tt> module selects CSC FED buffers from CMSSW data stream and
 logs them into files specified in <i>output</i> parameter. It automatically appends _FEDID
 (_750, _751, ... _760) to the end of every FED file. Be careful: one FED file may contain
-different several RUIs, while in true local DAQ mode every RUI logs separate file.
+several RUIs, while in true local DAQ mode every RUI logs separate file.
 <br>
 <br>
 

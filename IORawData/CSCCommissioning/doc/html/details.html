@@ -54,15 +54,16 @@ buffer structure:
 One remark to be made here is that <b>DDU Header</b> (as well as <b>DDU Trailer</b>)
 consists of three words with identifying pattern in second word.
 If two consecutive <b>DDU Headers</b> were found, first word of second
-Header goes to both events.
+<b>Header</b> goes to both events.
 <br><br>
-For user convenience additional to <tt>read</tt> function <tt>next</tt> was
+In <tt>FileReaderDDU</tt> for user convenience additional to <tt>read</tt> function <tt>next</tt> was
 implemented. Together with <tt>select</tt>, <tt>accept</tt>, and <tt>reject</tt>
 functions it allows user to get events of specified type. Function
 <tt>reject</tt> helps to filter out events with any of <i>status flag</i>
 bits matches defined criteria. Function <tt>accept</tt> forces <tt>next</tt>
 to return events with any of <i>status flag</i> bits matches its
 criteria. Function <tt>select</tt> requires events exactly match its
-criteria.
+criteria. In <tt>CSCFileReader</tt> module selection/rejection criteria
+are set to default (safe) values and cannot be changed.
 </body>
 </html>
