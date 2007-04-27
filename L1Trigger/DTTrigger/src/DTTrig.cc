@@ -18,7 +18,6 @@
 // This Class's Header --
 //-----------------------
 #include "L1Trigger/DTTrigger/interface/DTTrig.h"
-#include "L1TriggerConfig/DTTPGConfig/interface/DTConfigManager.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"

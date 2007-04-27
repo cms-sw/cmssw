@@ -5,8 +5,8 @@
  *   Muon Chamber Trigger Theta candidate 
  *
  *
- *   $Date: 2006/07/19 10:27:58 $
- *   $Revision: 1.1 $
+ *   $Date: 2007/03/09 15:17:44 $
+ *   $Revision: 1.2 $
  * 
  *   \author C. Grandi
  */
@@ -82,7 +82,7 @@ class DTChambThSegm : public DTTrigData {
     DTChamberId m_chamberid;
 
     /// step number
-    myint8 m_step;
+    int m_step;
 
     /// output code
     myint8 m_outPos[7];

@@ -4,8 +4,8 @@
  *     Main EDProducer for the DTTPG
  *
  *
- *   $Date: 2007/04/04 10:44:35 $
- *   $Revision: 1.5 $
+ *   $Date: 2007/04/10 09:54:35 $
+ *   $Revision: 1.6 $
  *
  *   \author C. Battilana
  *
@@ -20,8 +20,8 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
-#include "L1TriggerConfig/DTTPGConfig/interface/DTConfigManager.h"
-#include "L1TriggerConfig/DTTPGConfig/interface/DTConfigManagerRcd.h"
+#include "CondFormats/L1TObjects/interface/DTConfigManager.h"
+#include "CondFormats/DataRecord/interface/DTConfigManagerRcd.h"
 
 // Data Formats classes
 #include "L1Trigger/DTSectorCollector/interface/DTSectCollPhSegm.h"

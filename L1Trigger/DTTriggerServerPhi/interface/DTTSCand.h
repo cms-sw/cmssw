@@ -3,8 +3,8 @@
 /**  \class DTTSCand
  *    A Trigger Server Candidate
  *
- *   $Date: 2007/02/09 11:22:02 $
- *   $Revision: 1.2 $
+ *   $Date: 2007/03/09 15:17:44 $
+ *   $Revision: 1.3 $
  *
  *   \author C. Grandi, D. Bonacorsi, S. Marcellini
  */
@@ -23,7 +23,7 @@ class DTConfigTSPhi;
 //----------------------
 #include "L1Trigger/DTTriggerServerPhi/interface/DTTSS.h"
 #include "L1Trigger/DTTraco/interface/DTTracoTrigData.h"
-#include "L1Trigger/DTUtilities/interface/BitArray.h"
+#include "CondFormats/L1TObjects/interface/BitArray.h"
 
 //---------------
 // C++ Headers --

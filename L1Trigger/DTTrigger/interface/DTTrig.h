@@ -4,8 +4,8 @@
  *     Steering routine for L1 trigger simulation in a muon barrel station
  *
  *
- *   $Date: 2007/03/09 15:17:42 $
- *   $Revision: 1.4 $
+ *   $Date: 2007/04/04 10:44:34 $
+ *   $Revision: 1.5 $
  *
  *   \author C.Grandi
  */
@@ -28,7 +28,7 @@
 #include "DataFormats/MuonDetId/interface/DTLayerId.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 #include "DataFormats/DTDigi/interface/DTDigiCollection.h"
-#include "L1Trigger//DTUtilities/interface/DTSectCollId.h"
+#include "DataFormats/MuonDetId/interface/DTSectCollId.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
@@ -40,7 +40,7 @@
 #include "L1Trigger/DTTriggerServerPhi/interface/DTChambPhSegm.h"
 #include "L1Trigger/DTTriggerServerTheta/interface/DTChambThSegm.h"
 #include "L1Trigger/DTSectorCollector/interface/DTSectColl.h"
-#include "L1TriggerConfig/DTTPGConfig/interface/DTConfigManager.h"
+#include "CondFormats/L1TObjects/interface/DTConfigManager.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 

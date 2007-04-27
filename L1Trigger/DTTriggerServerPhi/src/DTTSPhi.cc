@@ -17,7 +17,7 @@
 //
 //--------------------------------------------------
 
-#include "L1Trigger/DTUtilities/interface/BitArray.h"
+#include "CondFormats/L1TObjects/interface/BitArray.h"
 
 //-----------------------
 // This Class's Header --
