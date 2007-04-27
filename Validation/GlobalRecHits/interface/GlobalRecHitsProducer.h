@@ -8,8 +8,8 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "DataFormats/Common/interface/Provenance.h"
-//#include "DataFormats/Provenance/interface/Provenance.h"
+//#include "DataFormats/Common/interface/Provenance.h"
+#include "DataFormats/Provenance/interface/Provenance.h"
 #include "FWCore/Framework/interface/MakerMacros.h" 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -89,7 +89,7 @@
 #include "Geometry/DTGeometry/interface/DTLayer.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
-#include "Validation/DTRecHits/src/DTHitQualityUtils.h"
+#include "Validation/GlobalRecHits/interface/DTHitQualityUtils.h"
 
 // muon CSC info
 #include "DataFormats/CSCDigi/interface/CSCStripDigi.h"
