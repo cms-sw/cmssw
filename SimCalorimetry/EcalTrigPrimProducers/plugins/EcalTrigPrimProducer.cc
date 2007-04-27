@@ -71,8 +71,6 @@ void EcalTrigPrimProducer::beginJob(edm::EventSetup const& setup) {
       edm::BranchDescription desc = it->second;
       if (!desc.friendlyClassName().compare(0,18,"EBDataFramesSorted")  & desc.moduleLabel()==label_ ) {
 	edm::ParameterSet result = getParameterSet(desc.psetID());
-	ebDccAdcToGeV_=result.getParameter<double>("ebDccAdcToGeV");
-	eeDccAdcToGeV_=result.getParameter<double>("eeDccAdcToGeV");
         binOfMaximum_=result.getParameter<int>("binOfMaximum");
 	break;
       }
@@ -87,14 +85,11 @@ void EcalTrigPrimProducer::beginJob(edm::EventSetup const& setup) {
 
   if (binOfMaximum_==0) {
     binOfMaximum_=6;
-    ebDccAdcToGeV_ = 0.035;
-    eeDccAdcToGeV_ = 0.060;
-    edm::LogWarning("EcalTPG")<<"Could not find product registry of EBDataFramesSorted, had to set the following parameters by Hand: ebDccAdcToGeV="<<ebDccAdcToGeV_<<", eeDccAdcToGeV_="<<eeDccAdcToGeV_<<", binOfMaximum="<<binOfMaximum_;
+    edm::LogWarning("EcalTPG")<<"Could not find product registry of EBDataFramesSorted, had to set the following parameters by Hand:  binOfMaximum="<<binOfMaximum_;
   }
 
   algo_ = new EcalTrigPrimFunctionalAlgo(setup,valTree_,
-					 binOfMaximum_,nrSamples_,tcpFormat_,barrelOnly_,debug_,
-                                         ebDccAdcToGeV_,eeDccAdcToGeV_);
+					 binOfMaximum_,nrSamples_,tcpFormat_,barrelOnly_,debug_);
   algo_->updateESRecord(ps_.getParameter<double>("TTFLowEnergyEB"),
                         ps_.getParameter<double>("TTFHighEnergyEB"),
                         ps_.getParameter<double>("TTFLowEnergyEE"),
