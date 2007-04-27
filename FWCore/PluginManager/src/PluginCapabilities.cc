@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Apr  6 12:36:24 EDT 2007
-// $Id: PluginCapabilities.cc,v 1.1.2.4 2007/04/12 00:00:25 chrjones Exp $
+// $Id: PluginCapabilities.cc,v 1.2 2007/04/12 12:51:12 wmtan Exp $
 //
 
 // system include files
@@ -73,10 +73,16 @@ PluginCapabilities::tryToFind(const SharedLibrary& iLoadable)
   //reinterpret_cast<void (*)(const char**&,int&)>(sym)(names,size);
   ((void (*)(const char**&,int&))(sym))(names,size);
 
+  PluginInfo info;
   for(int i=0; i < size; ++i) {
     std::string name(names[i]);
     classToLoadable_[name]=iLoadable.path();
-    newPlugin(name);
+    
+    //NOTE: can't use newPlugin(name) to do the work since it assumes
+    //  we haven't yet returned from PluginManager::load method
+    info.name_ = name;
+    info.loadable_ = iLoadable.path();
+    this->newPluginAdded_(category(),info);
   }
   return true;
 }
