@@ -143,11 +143,11 @@ RadialStripTopology::measurementError(const LocalPoint& lp,
   const LocalError& lerr) const {
 
   float yHitToInter = lp.y()*theYAxisOrientation + originToIntersection();
-
-  float t  = lp.x() / yHitToInter;    // tan(angle between strip and y) = tan(phi)
-  float c2 = 1./(1. + t*t);           // cos(angle)**2
-  float cs = t*c2;                    // sin(angle)*cos(angle); tan carries sign of sin!
-  float s2 = t*t * c2;                // sin(angle)**2
+  // Care! sign of angle measurement must be consistently treated when yAxis orientation changes.
+  float t  = theYAxisOrientation * lp.x() / yHitToInter; // tan(angle between strip and y) 
+  float c2 = 1./(1. + t*t);  // cos(angle)**2
+  float cs = t*c2;           // sin(angle)*cos(angle); tan carries sign of sin!
+  float s2 = t*t * c2;       // sin(angle)**2
 
   // D is distance from intersection of edges to hit on strip
   float D2 = lp.x()*lp.x() + yHitToInter*yHitToInter;
