@@ -2,5 +2,8 @@
   <class name="reco::PFCandidate" />
   <class name="std::vector<reco::PFCandidate>"/>
   <class name="edm::Wrapper<std::vector<reco::PFCandidate> >"/>
+  <class name="reco::PFCandidateRef"/>
+  <class name="reco::PFCandidateRefProd"/>
+  <class name="reco::PFCandidateRefVector"/>
 </lcgdict>
  
