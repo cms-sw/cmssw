@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# $Id:$
+# $Id: setup_externals.sh,v 1.1 2007/04/27 16:32:06 mballint Exp $
 #
 
 
@@ -10,7 +10,7 @@
 
 case `hostname` in
 	*.cmsaf.mit.edu)			SRC=/app/lcg/external/MCGenerators;;
-	*.cern.ch|*.fnal.gov)	SRC=/afs/cern.ch/app/lcg/external/MCGenerators;;
+	*.cern.ch|*.fnal.gov)	SRC=/afs/cern.ch/sw/lcg/external/MCGenerators;;
 	*)								echo "Cannot establish source directory"
 									exit 1;;
 esac
