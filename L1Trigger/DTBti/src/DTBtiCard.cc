@@ -76,6 +76,7 @@ DTBtiCard::DTBtiCard(DTTrigGeom* geom, const DTConfigManager * _conf_manager) : 
 
 DTBtiCard::~DTBtiCard(){
 
+  localClear();
   //delete _conf_Bti;
   
 }
@@ -83,6 +84,14 @@ DTBtiCard::~DTBtiCard(){
 //--------------
 // Operations --
 //--------------
+
+void
+DTBtiCard::clearCache(){
+
+  BTICache::clearCache();
+  localClear();
+  
+}
 
 void
 DTBtiCard::localClear(){
@@ -649,6 +658,6 @@ DTBtiCard::config_bti(DTBtiId& btiid) const
     return 0;
   }
 
-  return (*biter).second;
+  return const_cast<DTConfigBti*>(&(*biter).second);
 
 }

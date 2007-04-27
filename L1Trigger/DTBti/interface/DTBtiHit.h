@@ -5,8 +5,8 @@
  *   A class for hits in a drift cell
  *
  *
- *   $Date: 2007/02/09 11:20:06 $
- *   $Revision: 1.2 $
+ *   $Date: 2007/04/04 10:44:30 $
+ *   $Revision: 1.3 $
  *
  *   \author  C. Grandi, S. Vanini
  *   Modifications: 
@@ -30,7 +30,7 @@ class DTDigi;
 // Base Class Headers --
 //----------------------
 #include "L1Trigger/DTUtilities/interface/DTConfig.h"
-#include "L1TriggerConfig/DTTPGConfig/interface/DTConfigBti.h"
+#include "CondFormats/L1TObjects/interface/DTConfigBti.h"
 
 //---------------
 // C++ Headers --

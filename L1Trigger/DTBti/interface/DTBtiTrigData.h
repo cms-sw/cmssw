@@ -5,8 +5,8 @@
  *    DTBtiChip Trigger Data
  *
  *
- *   $Date: 2003/10/18 09:12:53 $
- *   $Revision: 1.9 $
+ *   $Date: 2006/07/19 10:18:31 $
+ *   $Revision: 1.1 $
  *
  *   \author C. Grandi, S. Vanini
  *
@@ -21,7 +21,7 @@
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
-#include "L1Trigger/DTUtilities/interface/DTBtiId.h"
+#include "DataFormats/MuonDetId/interface/DTBtiId.h"
 
 //----------------------
 // Base Class Headers --

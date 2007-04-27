@@ -1,11 +1,11 @@
 //-------------------------------------------------
 //
 /**  \class DTBtiCard
- *     Contains active L1MuDTBtiChips
+ *     Contains active DTBtiChips
  *
  *
- *   $Date: 2007/04/04 10:44:30 $
- *   $Revision: 1.4 $
+ *   $Date: 2007/04/20 15:29:01 $
+ *   $Revision: 1.6 $
  *
  *   \author C. Grandi, S. Vanini
  *
@@ -30,11 +30,11 @@ class DTTrigGeom;
 //----------------------
 #include "DataFormats/DTDigi/interface/DTDigiCollection.h"
 #include "L1Trigger/DTUtilities/interface/DTGeomSupplier.h"
-#include "L1Trigger/DTUtilities/interface/DTBtiId.h"
+#include "DataFormats/MuonDetId/interface/DTBtiId.h"
 #include "L1Trigger/DTBti/interface/DTBtiTrigData.h"
 #include "L1Trigger/DTUtilities/interface/DTCache.h"
-#include "L1TriggerConfig/DTTPGConfig/interface/DTConfigBti.h"
-#include "L1TriggerConfig/DTTPGConfig/interface/DTConfigManager.h"
+#include "CondFormats/L1TObjects/interface/DTConfigBti.h"
+#include "CondFormats/L1TObjects/interface/DTConfigManager.h"
 
 
 //---------------
@@ -53,7 +53,7 @@ typedef std::map< int,DTBtiChip*,std::less<int> >  BTIContainer;
 typedef BTIContainer::const_iterator BTI_const_iter;
 typedef BTIContainer::iterator BTI_iter;
 
-typedef std::map<DTBtiId,DTConfigBti*> ConfBtiMap;
+typedef std::map<DTBtiId,DTConfigBti> ConfBtiMap;
 
 typedef DTCache<DTBtiTrigData,std::vector<DTBtiTrigData> > BTICache;
 
@@ -67,6 +67,9 @@ class DTBtiCard : public BTICache, public DTGeomSupplier {
 
     /// Destructor 
     ~DTBtiCard();
+
+    /// Clear all BTI stuff (map & cache)
+    void clearCache();
 
     /// Return TU debug flag
     inline bool debug() const {return _debug;}
