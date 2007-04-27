@@ -67,7 +67,7 @@ CSCTFUnpacker::CSCTFUnpacker(const edm::ParameterSet& pset):edm::EDProducer(),ma
 
 	produces<CSCCorrelatedLCTDigiCollection>("MuonCSCTFCorrelatedLCTDigi");
 	produces<L1CSCTrackCollection>          ("MuonL1CSCTrackCollection");
-	//produces<L1CSCStatusDigiCollection>     ("MuonL1CSCStatusDigiCollection");
+	produces<L1CSCStatusDigiCollection>     ("MuonL1CSCStatusDigiCollection");
 
 	LogDebug("CSCTFUnpacker|ctor") << "... and finished";
 }
@@ -84,7 +84,7 @@ void CSCTFUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 	// create the collection of CSC wire and strip Digis
 	std::auto_ptr<CSCCorrelatedLCTDigiCollection> LCTProduct(new CSCCorrelatedLCTDigiCollection);
 	std::auto_ptr<L1CSCTrackCollection>           trackProduct(new L1CSCTrackCollection);
-//	std::auto_ptr<L1CSCStatusDigiCollection>      statusProduct(new L1CSCStatusDigiCollection);
+	std::auto_ptr<L1CSCStatusDigiCollection>      statusProduct(new L1CSCStatusDigiCollection);
 
 	for(int fedid=FEDNumbering::getCSCTFFEDIds().first; fedid<=FEDNumbering::getCSCTFFEDIds().second; fedid++){
 		const FEDRawData& fedData = rawdata->FEDData(fedid);
@@ -198,16 +198,16 @@ void CSCTFUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 						trackProduct->push_back( track );
 					}
 				}
-				//statusProduct->second.push_back( status );
+				statusProduct->second.push_back( status );
 			}
 		} else {
 			edm::LogError("CSCTFUnpacker|produce")<<" problem of unpacking TF event: 0x"<<std::hex<<unpacking_status<<std::dec<<" code";
 		}
 
-		//statusProduct->first  = unpacking_status; 
+		statusProduct->first  = unpacking_status; 
 
 	} //end of fed cycle
 	e.put(LCTProduct,"MuonCSCTFCorrelatedLCTDigi"); // put processed lcts into the event.
 	e.put(trackProduct,"MuonL1CSCTrackCollection");
-//	e.put(statusProduct,"MuonL1CSCStatusDigiCollection");
+	e.put(statusProduct,"MuonL1CSCStatusDigiCollection");
 }
