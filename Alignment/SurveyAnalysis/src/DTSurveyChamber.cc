@@ -117,15 +117,16 @@ long DTSurveyChamber::getId(){return rawId;}
 float DTSurveyChamber::getDeltaX(){return Solution(0,0);}
 float DTSurveyChamber::getDeltaY(){return Solution(1,0);}
 float DTSurveyChamber::getDeltaZ(){return Solution(2,0);}
-float DTSurveyChamber::getAlpha(){return Solution(3,0);}
-float DTSurveyChamber::getBeta(){return Solution(4,0);}
-float DTSurveyChamber::getGamma(){return Solution(5,0);}
+//My definition of the matrix rotation is not the same as the used in CMSSW   
+float DTSurveyChamber::getAlpha(){return Solution(5,0);}
+float DTSurveyChamber::getBeta(){return -1.0*Solution(4,0);}
+float DTSurveyChamber::getGamma(){return Solution(3,0);}
 float DTSurveyChamber::getDeltaXError(){return TMath::Sqrt(Covariance(0,0));}
 float DTSurveyChamber::getDeltaYError(){return TMath::Sqrt(Covariance(1,1));}
 float DTSurveyChamber::getDeltaZError(){return TMath::Sqrt(Covariance(2,2));}
-float DTSurveyChamber::getAlphaError(){return TMath::Sqrt(Covariance(3,3));}
+float DTSurveyChamber::getAlphaError(){return TMath::Sqrt(Covariance(5,5));}
 float DTSurveyChamber::getBetaError(){return TMath::Sqrt(Covariance(4,4));}
-float DTSurveyChamber::getGammaError(){return TMath::Sqrt(Covariance(5,5));}
+float DTSurveyChamber::getGammaError(){return TMath::Sqrt(Covariance(3,3));}
 
 
 

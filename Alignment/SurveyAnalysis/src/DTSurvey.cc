@@ -62,7 +62,7 @@ void DTSurvey::ReadChambers(edm::ESHandle<DTGeometry> pDD) {
     r(0,0) = x; r(1,0) = y;r(2,0) = z+OffsetZ;
     TMatrixD disp(3,1);
     disp(0,0) = dx; disp(1,0) = dy; disp(2,0) = dz;
-    TMatrixD rp = Rot*r+delta;
+    TMatrixD rp = Rot*r-delta;
     disp = disp-r+rp;
     
     GlobalPoint rg(r(0,0), r(1,0), r(2,0));
@@ -116,9 +116,9 @@ void DTSurvey::FillWheelInfo() {
 
   //Build displacement vector
   delta.ResizeTo(3,1);
-  delta(0,0) = deltax;
-  delta(1,0) = deltay;
-  delta(2,0) = deltaz;
+  delta(0,0) = deltax/10.0;
+  delta(1,0) = deltay/10.0;
+  delta(2,0) = deltaz/10.0;
   
   //Build rotation matrix
   Rot.ResizeTo(3,3);
@@ -137,16 +137,16 @@ void DTSurvey::FillWheelInfo() {
   beta /= 1000.0;
   gamma /= 1000.0;
   alpha_m(1,1) = cos(alpha);
-  alpha_m(1,2) = -sin(alpha);
-  alpha_m(2,1) = sin(alpha);
+  alpha_m(1,2) = sin(alpha);
+  alpha_m(2,1) = -sin(alpha);
   alpha_m(2,2) = cos(alpha);
   beta_m(0,0) = cos(beta);
   beta_m(0,2) = -sin(beta);
   beta_m(2,0) = sin(beta);
   beta_m(2,2) = cos(beta);
   gamma_m(0,0) = cos(gamma);
-  gamma_m(0,1) = -sin(gamma);
-  gamma_m(1,0) = sin(gamma);
+  gamma_m(0,1) = sin(gamma);
+  gamma_m(1,0) = -sin(gamma);
   gamma_m(1,1) = cos(gamma);
   Rot = alpha_m*beta_m*gamma_m;
 }
