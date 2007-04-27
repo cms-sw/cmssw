@@ -1,5 +1,11 @@
+<use name=DataFormats/EcalRawData>
+<use name=FWCore/Framework>
+<use name=FWCore/ParameterSet>
+<use name=FWCore/ServiceRegistry>
 <use name=OnlineDB/EcalCondDB>
 <export>
+  <use name=FWCore/Framework>
+  <use name=FWCore/ParameterSet>
   <use name=OnlineDB/EcalCondDB>
   <lib name=DQMEcalCommon>
 </export>
