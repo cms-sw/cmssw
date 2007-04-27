@@ -1,3 +1,11 @@
+2007-04-27  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-04-09
+	* add counters nbEventsRequested, nbEventsSent
+	* fix stopping/halting bug: need to call postSend(); postBuild();
+	* fix stopping/halting behaviour: stop building/sending/discarding
+	if 'halting', but cleanly flush for 'stopping'
+
 2007-04-19  Emilio Meschi  <emilio.meschi@cern.ch>
 
 	* tag V00-04-08

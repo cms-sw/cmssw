@@ -303,7 +303,7 @@ close (CTL);
 # stop
 open (CTL,">stop") or die ("Can't open file: $!\n");
 print CTL "#!/usr/bin/perl\n\n";
-print CTL makeCtlCommand("Stop",$BUappname,"BU",$hostname,$BUport,0);
+print CTL makeCtlCommand("Stop",$BUappname,"BU",$hostname,$BUport,10);
 print CTL makeCtlCommand("Stop",$RBappname,"RB",$hostname,$BUport,0);
 if ($doEP) {
     print CTL makeCtlCommand("Stop",$EPappname,"EP",$hostname,$EPport,5);
@@ -317,13 +317,13 @@ close (CTL);
 # halt
 open (CTL,">halt") or die ("Can't open file: $!\n");
 print CTL "#!/usr/bin/perl\n\n";
-print CTL makeCtlCommand("Halt",$BUappname,"BU",$hostname,$BUport,10);
+print CTL makeCtlCommand("Halt",$BUappname,"BU",$hostname,$BUport,0);
 print CTL makeCtlCommand("Halt",$RBappname,"RB",$hostname,$BUport,0);
 if ($doPB) {
     print CTL makeCtlCommand("Halt",$EPappname,"PB",$hostname,$PBport,1);
 }
 if ($doEP) {
-    print CTL makeCtlCommand("Halt",$EPappname,"EP",$hostname,$EPport,5);
+    print CTL makeCtlCommand("Halt",$EPappname,"EP",$hostname,$EPport,1);
 }
 if ($doSM) {
     print CTL makeCtlCommand("Halt",$SMappname,"SM",$hostname,$SMport,0);
@@ -471,8 +471,8 @@ sub makeCfgFu
     $result = $result . "  // modules\n\n";
     $result = $result . "  module m1 = StreamThingProducer\n";
     $result = $result . "  {\n";
-    $result = $result . "    int32 array_size    = 20000\n";
-    $result = $result . "    int32 instance_count=    11\n";
+    $result = $result . "    int32 array_size    = 100\n";
+    $result = $result . "    int32 instance_count=   2\n";
     $result = $result . "  }\n\n";
     $result = $result . "  module a1 = StreamThingAnalyzer\n";
     $result = $result . "  {\n";
@@ -480,8 +480,8 @@ sub makeCfgFu
     $result = $result . "  }\n\n";
     $result = $result . "  module m2 = StreamThingProducer\n";
     $result = $result . "  {\n";
-    $result = $result . "    int32 array_size    = 10000\n";
-    $result = $result . "    int32 instance_count=     5\n";
+    $result = $result . "    int32 array_size    = 50\n";
+    $result = $result . "    int32 instance_count=  4\n";
     $result = $result . "  }\n\n";
     $result = $result . "  module a2 = StreamThingAnalyzer\n";
     $result = $result . "  {\n";
@@ -489,8 +489,8 @@ sub makeCfgFu
     $result = $result . "  }\n\n";
     $result = $result . "  module m3 = StreamThingProducer\n";
     $result = $result . "  {\n";
-    $result = $result . "    int32 array_size    = 5000\n";
-    $result = $result . "    int32 instance_count=   20\n";
+    $result = $result . "    int32 array_size    = 25\n";
+    $result = $result . "    int32 instance_count= 10\n";
     $result = $result . "  }\n\n";
     $result = $result . "  module a3 = StreamThingAnalyzer\n";
     $result = $result . "  {\n";
