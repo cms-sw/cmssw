@@ -13,13 +13,15 @@
 
 class CSCFileReader : public DaqBaseReader {
 private:
-	std::vector<std::string> fileNames[10];
-	std::vector<std::string>::const_iterator currentFile[10];
+	std::vector<std::string> fileNames[40];
+	std::vector<std::string>::const_iterator currentFile[40];
 
 	int firstEvent, nEvents;
-	int expectedNextL1A, currentL1A[10];
+	int expectedNextL1A, currentL1A[40];
 
-	FileReaderDDU RUI[10];
+	unsigned short *tmpBuf;
+
+	FileReaderDDU RUI[40];
 
 	std::map<unsigned int,std::list<unsigned int> > FED;
 
@@ -28,7 +30,7 @@ public:
 	bool fillRawData(edm::EventID& eID, edm::Timestamp& tstamp, FEDRawDataCollection *& data);
 
 	CSCFileReader(const edm::ParameterSet& pset);
-	virtual ~CSCFileReader(void){}
+	virtual ~CSCFileReader(void);
 };
 
 #endif
