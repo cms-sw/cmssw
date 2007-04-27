@@ -51,8 +51,8 @@ class EcalTrigPrimFunctionalAlgo
 {  
  public:
   
- explicit EcalTrigPrimFunctionalAlgo(const edm::EventSetup & setup,int binofmax, int nrsamples, bool tcpFormat, bool barrelOnly, bool debug, double ebDccAdcToGeV, double eeDccAdcToGeV);
-  explicit EcalTrigPrimFunctionalAlgo(const edm::EventSetup & setup, TTree *tree, int binofmax, int nrsamples, bool tcpFormat, bool barrelOnly,  bool debug, double ebDccAdcToGeV, double eeDccAdcToGeV);
+ explicit EcalTrigPrimFunctionalAlgo(const edm::EventSetup & setup,int binofmax, int nrsamples, bool tcpFormat, bool barrelOnly, bool debug);
+  explicit EcalTrigPrimFunctionalAlgo(const edm::EventSetup & setup, TTree *tree, int binofmax, int nrsamples, bool tcpFormat, bool barrelOnly,  bool debug);
 
   virtual ~EcalTrigPrimFunctionalAlgo();
 
@@ -94,9 +94,6 @@ void updateESRecord(double ttfLowEB, double ttfHighEB, double ttfLowEE, double t
   bool tcpFormat_;
   bool barrelOnly_;
   bool debug_;  
-
-  //parameters from EB(E)DataFrames
-  double ebDccAdcToGeV_,eeDccAdcToGeV_;
 
   const EcalTPParameters *ecaltpp_;
 
@@ -154,31 +151,85 @@ template <class T> void EcalTrigPrimFunctionalAlgo::run(const edm::SortedCollect
       etcp_->process(bid,striptp,towtp,towtp2,sectorNr,towNr); 
 
       // Fill TriggerPrimitiveDigi
-      EcalTriggerPrimitiveDigi tptow(thisTower);
-      tptow.setSize(nrSamplesToWrite_);
-      if (towtp.size()<nrSamplesToWrite_)  { 
-	edm::LogWarning("") <<"Too few samples produced, nr is "<<towtp.size();
-	break;
+      //      EcalTriggerPrimitiveDigi tptow(thisTower);
+      //      tptow.setSize(nrSamplesToWrite_);
+      //      if (towtp.size()<nrSamplesToWrite_)  { 
+      //	edm::LogWarning("") <<"Too few samples produced, nr is "<<towtp.size();
+      //	break;
+      //      }
+      // special treatment for 2 inner endcap rings
+      int nrTowers;
+      std::vector<EcalTriggerPrimitiveDigi> tptow;
+      std::vector<EcalTriggerPrimitiveDigi> tptowTcp;
+      if (thisTower.subDet()==EcalEndcap && (thisTower.ietaAbs()==27 || thisTower.ietaAbs()==28 ))
+        {
+          nrTowers=2;
+          int phi=2*((thisTower.iphi()-1)/2);
+          tptow.push_back(EcalTriggerPrimitiveDigi(EcalTrigTowerDetId(thisTower.zside(),thisTower.subDet(),thisTower.ietaAbs(),phi+1)));
+          tptow.push_back(EcalTriggerPrimitiveDigi(EcalTrigTowerDetId(thisTower.zside(),thisTower.subDet(),thisTower.ietaAbs(),phi+2)));
+	  if (tcpFormat_){
+	    tptowTcp.push_back(EcalTriggerPrimitiveDigi(EcalTrigTowerDetId(thisTower.zside(),thisTower.subDet(),thisTower.ietaAbs(),phi+1)));
+	    tptowTcp.push_back(EcalTriggerPrimitiveDigi(EcalTrigTowerDetId(thisTower.zside(),thisTower.subDet(),thisTower.ietaAbs(),phi+2)));
+	  }
+        }else {
+          nrTowers=1;
+          tptow.push_back(EcalTriggerPrimitiveDigi(thisTower));
+          if (tcpFormat_)   tptowTcp.push_back(EcalTriggerPrimitiveDigi(thisTower));
+	}
+
+      /*       int isam=0; */
+      /*       for (int i=firstSample;i<=lastSample;++i) { */
+      /* 	tptow.setSample(isam++,EcalTriggerPrimitiveSample(towtp[i])); */
+      /*       } */
+      /*       result.push_back(tptow); */
+
+      for (int nrt=0;nrt<nrTowers;nrt++) {
+        tptow[nrt].setSize(nrSamplesToWrite_);
+        if (towtp.size()<nrSamplesToWrite_)  {  //FIXME: only once
+          edm::LogWarning("") <<"Too few samples produced, nr is "<<towtp.size();
+          break;
+        }
+        int isam=0;
+        for (int i=firstSample;i<=lastSample;++i) {
+          if (nrTowers<=1)  tptow[nrt].setSample(isam++,EcalTriggerPrimitiveSample(towtp[i]));
+          else {
+            float et=towtp[i].compressedEt()/2.;
+            tptow[nrt].setSample(isam++,EcalTriggerPrimitiveSample(et,towtp[i].fineGrain(),towtp[i].ttFlag()));
+          }
+        }
+        result.push_back(tptow[nrt]);
       }
-      int isam=0;
-      for (int i=firstSample;i<=lastSample;++i) {
-	tptow.setSample(isam++,EcalTriggerPrimitiveSample(towtp[i]));
-      }
-      result.push_back(tptow);
 
       if (tcpFormat_) {
-	EcalTriggerPrimitiveDigi tptow(thisTower);
-	tptow.setSize(nrSamplesToWrite_);
-	if (towtp2.size()<nrSamplesToWrite_)  { 
-	  edm::LogWarning("") <<"Too few samples produced, nr is "<<towtp.size();
-	  break;
+	for (int nrt=0;nrt<nrTowers;nrt++) {
+	  tptowTcp[nrt].setSize(nrSamplesToWrite_);
+	  if (towtp2.size()<nrSamplesToWrite_)  {  //FIXME: only once
+	    edm::LogWarning("") <<"Too few samples produced, nr is "<<towtp2.size();
+	    break;
+	  }
+	  int isam=0;
+	  for (int i=firstSample;i<=lastSample;++i) {
+	    if (nrTowers<=1)  tptowTcp[nrt].setSample(isam++,EcalTriggerPrimitiveSample(towtp2[i]));
+	    else {
+	      float et=towtp2[i].compressedEt()/2.;
+	      tptowTcp[nrt].setSample(isam++,EcalTriggerPrimitiveSample(et,towtp2[i].fineGrain(),towtp2[i].ttFlag()));
+	    }
+	  }
+	  resultTcp.push_back(tptowTcp[nrt]);
 	}
-	int isam=0;
-	for (int i=firstSample;i<=lastSample;++i) {
-	  tptow.setSample(isam++,EcalTriggerPrimitiveSample(towtp2[i]));
-	}
-	resultTcp.push_back(tptow);
       }
+      /* 	EcalTriggerPrimitiveDigi tptow(thisTower); */
+      /* 	tptow.setSize(nrSamplesToWrite_); */
+      /* 	if (towtp2.size()<nrSamplesToWrite_)  {  */
+      /* 	  edm::LogWarning("") <<"Too few samples produced, nr is "<<towtp.size(); */
+      /* 	  break; */
+      /* 	} */
+      /* 	int isam=0; */
+      /* 	for (int i=firstSample;i<=lastSample;++i) { */
+      /* 	  tptow.setSample(isam++,EcalTriggerPrimitiveSample(towtp2[i])); */
+      /* 	} */
+      /* 	resultTcp.push_back(tptow); */
+      /*       } */
     }
 }
  
@@ -208,9 +259,9 @@ template <class T> void EcalTrigPrimFunctionalAlgo::fillMap(const edm::SortedCol
       if ((towerMap[coarser])[stripnr-1].size()<EcalTPParameters::nbMaxXtals_ ) {
 	(towerMap[coarser])[stripnr-1].push_back(p);
       }else {
-	std::cout <<" !!!!!!!!!!!!! Too many xtals for TT "<<coarser<<" stripnr "<<stripnr<<std::endl;
+	std::cout <<" !!!!!!!!!!!!! Too many xtals for TT "<<coarser<<" stripnr "<<stripnr<<" xtalid "<<p->id()<<std::endl;
 	for (unsigned int kk=0;kk<(towerMap[coarser])[stripnr-1].size();kk++)
-	  std::cout<<"xtal "<<kk<<" detid "<<((towerMap[coarser])[stripnr-1])[kk]->id()<<std::endl;
+	  std::cout<<"xtal "<<kk<<" detid "<<((towerMap[coarser])[stripnr-1])[kk]->id()<<" towerid "<<(*eTTmap_).towerOf(((towerMap[coarser])[stripnr-1])[kk]->id())<<std::endl;
       }
     
     }
