@@ -1,7 +1,15 @@
 #ifndef Alignment_TwoBodyDecay_TwoBodyDecayParameters_h
 #define Alignment_TwoBodyDecay_TwoBodyDecayParameters_h
 
-#include "Geometry/CommonDetAlgo/interface/AlgebraicObjects.h"
+/** /class TwoBodyDecayParameters
+ *
+ *  This class provides the definition and a container for the parameters
+ *  describing a two-body decay.
+ *
+ *  /author Edmund Widl
+ */
+
+#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 
 
 class TwoBodyDecayParameters
