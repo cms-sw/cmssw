@@ -13,7 +13,7 @@
 //
 // Original Author:  Fedor Ratnikov
 //         Created:  Tue Aug  9 19:10:10 CDT 2005
-// $Id: HcalDbProducer.cc,v 1.14 2007/03/31 18:24:49 michals Exp $
+// $Id: HcalDbProducer.cc,v 1.15 2007/04/12 16:52:24 michals Exp $
 //
 //
 
@@ -50,7 +50,7 @@
 
 HcalDbProducer::HcalDbProducer( const edm::ParameterSet& fConfig)
   : ESProducer(),
-    mService (new HcalDbService (fConfig)),
+    mService (new HcalDbService ()),
     mDumpRequest (),
     mDumpStream(0)
 {
@@ -67,12 +67,6 @@ HcalDbProducer::HcalDbProducer( const edm::ParameterSet& fConfig)
 		   );
   
   //now do what ever other initialization is needed
-  m_hbEScale = fConfig.getParameter <double> ("hbEScale");
-  m_hesEScale = fConfig.getParameter <double> ("hesEScale");
-  m_hedEScale = fConfig.getParameter <double> ("hedEScale");
-  m_hoEScale = fConfig.getParameter <double> ("hoEScale");
-  m_hf1EScale = fConfig.getParameter <double> ("hf1EScale");
-  m_hf2EScale = fConfig.getParameter <double> ("hf2EScale");
 
   mDumpRequest = fConfig.getUntrackedParameter <std::vector <std::string> > ("dump", std::vector<std::string>());
   if (!mDumpRequest.empty()) {
