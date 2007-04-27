@@ -17,7 +17,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Apr  4 12:24:44 EDT 2007
-// $Id: PluginFactoryBase.h,v 1.1.2.3 2007/04/09 18:46:49 chrjones Exp $
+// $Id: PluginFactoryBase.h,v 1.2 2007/04/12 12:51:12 wmtan Exp $
 //
 
 // system include files
@@ -82,7 +82,7 @@ class PluginFactoryBase
           if (itFound->second.front().second != PluginManager::staticallyLinkedLoadingFileName() &&
               PluginManager::isAvailable()) {
             if( itFound->second.front().second != PluginManager::get()->loadableFor(category(),iName).native_file_string() ) {
-              throw cms::Exception("WrongPluginLoaded")<<"The plugin '"<<iName<<"'should have been loaded from\n '"
+              throw cms::Exception("WrongPluginLoaded")<<"The plugin '"<<iName<<"' should have been loaded from\n '"
               <<PluginManager::get()->loadableFor(category(),iName).native_file_string()
               <<"'\n but instead it was already loaded from\n '"
               <<itFound->second.front().second<<"'\n because some other plugin was loaded from the latter loadables.\n"
