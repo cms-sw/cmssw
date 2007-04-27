@@ -1,7 +1,7 @@
 /**
  * Author: P.Paganini, Ursula Berthon
  * Created: 20 March 2007
- * $Id: EcalTPParameters.cc,v 1.2 2007/04/10 11:55:33 uberthon Exp $
+ * $Id: EcalTPParameters.cc,v 1.4 2007/04/25 17:30:43 uberthon Exp $
  **/
 #include "CondFormats/L1TObjects/interface/EcalTPParameters.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -105,10 +105,6 @@ std::vector<unsigned int> EcalTPParameters::getXtalParameters(int TCC, int tower
 
   int EcalTPParameters::getIndex(int TCC, int towerInTCC, int stripInTower, int xtalInStrip) const  { 
 
-//     const int NrTowersInSM=68;                  //FIXME
-//     const int NrStripsInT=5;
-//     const int NrXtalsInS=5;
-
     int i=nbMaxTowers_*TCC + towerInTCC ;
     if (stripInTower>0) i=i*nbMaxStrips_+stripInTower;
     if (xtalInStrip>0) i=i*nbMaxXtals_+xtalInStrip;
@@ -116,10 +112,36 @@ std::vector<unsigned int> EcalTPParameters::getXtalParameters(int TCC, int tower
   }
 
 double EcalTPParameters::getTPGinGeVEB(unsigned int TCC, unsigned int towerInTCC, unsigned int compressedEt) const {
-//FIXME!! 1024 should be a database constant....
+  //FIXME!! 1024 should be a database constant....
     
   double lsb_tcp = EtSatEB_/1024 ;//FIXME!!
-  std::vector<unsigned int> lut = this->getTowerParameters(TCC,towerInTCC) ;   if (lut.size() <1024) { //FIXME!!
+  std::vector<unsigned int> lut = this->getTowerParameters(TCC,towerInTCC) ;
+  if (lut.size() <1024) { //FIXME!!
+    // FIXME should throw an exception!
+    return 0. ;
+  }
+
+  unsigned int lin_TPG = 1024 ;
+  for (unsigned int i=0 ; i<1024 ; i++) {
+    if (lut[i] == compressedEt) {
+      lin_TPG = i ;
+      break ;
+    }
+  }
+  if (lin_TPG >= 1024) {
+    // FIXME should throw an exception!
+    return 0. ;
+  } 
+
+  return lin_TPG*lsb_tcp ;
+}
+
+double EcalTPParameters::getTPGinGeVEE(unsigned int TCC, unsigned int towerInTCC, unsigned int compressedEt) const {
+//FIXME!! 1024 should be a database constant....
+    
+  double lsb_tcp = EtSatEE_/1024 ;//FIXME!!
+  std::vector<unsigned int> lut = this->getTowerParameters(TCC,towerInTCC) ;
+   if (lut.size() <1024) { //FIXME!!
     // FIXME should throw an exception!
     return 0. ;
   }
@@ -138,12 +160,6 @@ double EcalTPParameters::getTPGinGeVEB(unsigned int TCC, unsigned int towerInTCC
 
   return lin_TPG*lsb_tcp ;
 }
-
-double EcalTPParameters::getTPGinGeVEE(unsigned int nrTCC, unsigned int nrTowerInTCC, unsigned int compressedEt) const {
-  //FIXME: temporary version 
-  return compressedEt*0.560 ; //FIXME
-}
-
 
 void EcalTPParameters::update() {
   //FIXME: endcap?
