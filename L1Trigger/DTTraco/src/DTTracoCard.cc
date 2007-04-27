@@ -59,12 +59,23 @@ DTTracoCard::DTTracoCard(DTTrigGeom* geo, DTBtiCard* bticard,
 // Destructor --
 //--------------
 
-DTTracoCard::~DTTracoCard(){}
+DTTracoCard::~DTTracoCard(){
+
+localClear();
+
+}
 
 //--------------
 // Operations --
 //--------------
 
+void
+DTTracoCard::clearCache(){
+
+  TRACOCache::clearCache();
+  localClear();
+
+}
 
 void
 DTTracoCard::localClear(){
@@ -386,6 +397,6 @@ DTTracoCard::config_traco(const DTTracoId& tracoid) const
     return 0;
   }
 
-  return (*titer).second;
+  return const_cast<DTConfigTraco*>(&(*titer).second);
 } 
 

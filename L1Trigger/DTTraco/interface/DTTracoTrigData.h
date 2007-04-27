@@ -5,8 +5,8 @@
  *   DTTracoChip Trigger Data
  *
  *
- *   $Date: 2003/10/18 08:29:23 $
- *   $Revision: 1.9 $
+ *   $Date: 2006/07/19 10:24:02 $
+ *   $Revision: 1.1 $
  *
  *   \author  C. Grandi
  */
@@ -18,8 +18,8 @@
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
-#include "L1Trigger/DTUtilities/interface/DTConfig.h"
-#include "L1Trigger/DTUtilities/interface/DTTracoId.h"
+#include "CondFormats/L1TObjects/interface/DTConfig.h"
+#include "DataFormats/MuonDetId/interface/DTTracoId.h"
 
 //----------------------
 // Base Class Headers --

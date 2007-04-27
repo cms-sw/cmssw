@@ -4,8 +4,8 @@
  *   Contains active DTTracoChips
  *
  *
- *   $Date: 2007/04/04 10:44:33 $
- *   $Revision: 1.4 $
+ *   $Date: 2007/04/20 15:41:01 $
+ *   $Revision: 1.6 $
  *
  *   \author C. Grandi, S. Vanini 
  *
@@ -30,12 +30,12 @@ class DTTrigGeom;
 // Base Class Headers --
 //----------------------
 #include "L1Trigger/DTUtilities/interface/DTGeomSupplier.h"
-#include "L1Trigger/DTUtilities/interface/DTTracoId.h"
-#include "L1Trigger/DTUtilities/interface/DTConfig.h"
+#include "DataFormats/MuonDetId/interface/DTTracoId.h"
+#include "CondFormats/L1TObjects/interface/DTConfig.h"
 #include "L1Trigger/DTTraco/interface/DTTracoTrigData.h"
 #include "L1Trigger/DTUtilities/interface/DTCache.h"
-#include "L1TriggerConfig/DTTPGConfig/interface/DTConfigTraco.h"
-#include "L1TriggerConfig/DTTPGConfig/interface/DTConfigManager.h"
+#include "CondFormats/L1TObjects/interface/DTConfigTraco.h"
+#include "CondFormats/L1TObjects/interface/DTConfigManager.h"
 //#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 //---------------
@@ -52,7 +52,7 @@ typedef std::map< int,DTTracoChip*,std::less<int> >  TRACOContainer;
 typedef TRACOContainer::const_iterator TRACO_const_iter;
 typedef TRACOContainer::iterator TRACO_iter;
 
-typedef std::map<DTTracoId,DTConfigTraco*> ConfTracoMap;
+typedef std::map<DTTracoId,DTConfigTraco> ConfTracoMap;
 
 typedef DTCache<DTTracoTrigData,std::vector<DTTracoTrigData> > TRACOCache;
   
@@ -66,6 +66,9 @@ class DTTracoCard : public TRACOCache, public DTGeomSupplier {
 
     /// Destructor 
     ~DTTracoCard();
+
+    /// Clear all traco stuff (cache & map)
+    void clearCache();
 
     /// Return TU debug flag
     inline bool debug() {return _debug;}

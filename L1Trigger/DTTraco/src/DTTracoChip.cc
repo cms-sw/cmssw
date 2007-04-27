@@ -29,8 +29,7 @@
 #include "L1Trigger/DTTraco/interface/DTTracoTrigData.h"
 #include "L1Trigger/DTTriggerServerTheta/interface/DTTSTheta.h"
 #include "L1Trigger/DTTraco/interface/DTTracoCand.h"
-//#include "L1TriggerConfig/DTTPGConfig/interface/DTConfig.h" CB rimuovere se nn serve!!!!!
-#include "L1Trigger/DTUtilities/interface/BitArray.h"
+#include "CondFormats/L1TObjects/interface/BitArray.h"
 
 //---------------
 // C++ Headers --

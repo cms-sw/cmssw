@@ -13,8 +13,6 @@
 //
 //--------------------------------------------------
 
-//#include "Utilities/Configuration/interface/Architecture.h"
-
 //-----------------------
 // This Class's Header --
 //-----------------------

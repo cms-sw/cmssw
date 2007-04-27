@@ -6,8 +6,8 @@
  *   Internally uses DTTracoCand to store BTI triggers
  * 
  * 
- *   $Date: 2007/03/09 15:17:41 $
- *   $Revision: 1.3 $
+ *   $Date: 2007/04/04 10:44:33 $
+ *   $Revision: 1.4 $
  * 
  *   \author S. Vanini
  */
@@ -19,7 +19,7 @@
 //-------------------
 // Constants file  --
 //-------------------
-#include "L1Trigger/DTUtilities/interface/DTConfig.h"
+#include "CondFormats/L1TObjects/interface/DTConfig.h"
 #include "L1Trigger/DTBti/interface/DTBtiTrigData.h" 
 #include "L1Trigger/DTTraco/interface/Lut.h"
 
@@ -37,11 +37,11 @@ class DTTracoTrigData;
 //----------------------
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
-#include "L1Trigger/DTUtilities/interface/DTTracoId.h"
+#include "DataFormats/MuonDetId/interface/DTTracoId.h"
 #include "L1Trigger/DTTraco/interface/DTTracoLUTs.h"
 #include "L1Trigger/DTUtilities/interface/DTTrigGeom.h"
-#include "L1Trigger/DTUtilities/interface/BitArray.h"
-#include "L1TriggerConfig/DTTPGConfig/interface/DTConfigTraco.h"
+#include "CondFormats/L1TObjects/interface/BitArray.h"
+#include "CondFormats/L1TObjects/interface/DTConfigTraco.h"
 
 //---------------
 // C++ Headers --
