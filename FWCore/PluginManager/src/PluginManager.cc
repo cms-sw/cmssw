@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Apr  4 14:28:58 EDT 2007
-// $Id: PluginManager.cc,v 1.4 2007/04/19 12:44:20 chrjones Exp $
+// $Id: PluginManager.cc,v 1.5 2007/04/27 12:11:12 chrjones Exp $
 //
 
 // system include files
@@ -79,8 +79,8 @@ PluginManager::PluginManager(const PluginManager::Config& iConfig) :
         }
       }
     }
-    
-    //sort the results by category, plugin then directory priority
+    //Since this should not be called until after 'main' has started, we can set the value
+    loadingLibraryNamed_()="<loaded by another plugin system>";
 }
 
 // PluginManager::PluginManager(const PluginManager& rhs)
@@ -166,6 +166,24 @@ PluginManager::loadableFor(const std::string& iCategory,
   return range.first->loadable_;
 }
 
+namespace {
+  class Sentry {
+public:
+    Sentry( std::string& iPath, const std::string& iNewPath):
+      path_(iPath),
+      oldPath_(iPath)
+    {
+      path_ = iNewPath;
+    }
+    ~Sentry() {
+      path_ = oldPath_;
+    }
+private:
+      std::string& path_;
+      std::string oldPath_;
+  };
+}
+
 const SharedLibrary& 
 PluginManager::load(const std::string& iCategory,
                       const std::string& iPlugin)
@@ -177,12 +195,11 @@ PluginManager::load(const std::string& iCategory,
     loadables_.find(p);
   if(itLoaded == loadables_.end()) {
     //try to make one
-    loadingLibraryNamed_()=p.native_file_string();
     goingToLoad_(p);
+    Sentry s(loadingLibraryNamed_(), p.native_file_string());
     boost::shared_ptr<SharedLibrary> ptr( new SharedLibrary(p.native_file_string()) );
     loadables_[p]=ptr;
     justLoaded_(*ptr);
-    loadingLibraryNamed_()="<loaded by another plugin system>";
     return *ptr;
   }
   return *(itLoaded->second);
