@@ -17,7 +17,8 @@ namespace
 
       std::pair<csc::L1Track,MuonDigiCollection<CSCDetId,CSCCorrelatedLCTDigi> > vL1Trk;
 
-      std::pair< int, std::vector<L1CSCSPStatusDigi> > vL1CSCstatus;
+      std::vector<L1CSCSPStatusDigi> vL1CSCstatus;
+      std::pair<int,std::vector<L1CSCSPStatusDigi> > pvL1CSCstatus;
 
       std::vector<csc::L1Track> vL1TRK;
       std::vector<csc::L1TrackId> vL1TRKID;
@@ -29,6 +30,6 @@ namespace
       edm::Wrapper<std::vector<std::pair<csc::L1Track,MuonDigiCollection<CSCDetId,CSCCorrelatedLCTDigi> > > > wL1TrkColl;
       edm::Wrapper<CSCTriggerContainer<csctf::TrackStub> > wTrkStb;
 
-      edm::Wrapper< std::pair< int, std::vector<L1CSCSPStatusDigi> > > wL1CSCstatus;
+      edm::Wrapper<std::pair<int,std::vector<L1CSCSPStatusDigi> > > wL1CSCstatus;
 	}
 }

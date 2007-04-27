@@ -19,6 +19,7 @@
    <class name="CSCTriggerContainer<csctf::TrackStub>"/>
 
    <class name="std::vector<L1CSCSPStatusDigi>"/>
+   <class name="std::pair<int,std::vector<L1CSCSPStatusDigi> >"/>
 
    <class name="std::vector<std::pair<csc::L1Track,MuonDigiCollection<CSCDetId,CSCCorrelatedLCTDigi> > >"/>
 
@@ -31,6 +32,5 @@
    <class name="edm::Wrapper<CSCTriggerContainer<csctf::TrackStub> >"
             id="F2DA545D-C224-2D48-4DEC-598E9C809409"/>
 
-   <class name="edm::Wrapper< std::pair< int, std::vector<L1CSCSPStatusDigi> > >"
-            id="E2DA545D-C224-2D48-4DEC-598E9C809409"/>
+   <class name="edm::Wrapper< std::pair< int, std::vector<L1CSCSPStatusDigi> > >"/>
 </lcgdict>
