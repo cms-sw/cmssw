@@ -1,8 +1,8 @@
 /** \class StandAloneMuonRefitter
  *  The inward-outward fitter (starts from seed state).
  *
- *  $Date: 2007/01/18 13:29:27 $
- *  $Revision: 1.32 $
+ *  $Date: 2007/02/16 13:31:23 $
+ *  $Revision: 1.33 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  *  \author S. Lacaprara - INFN Legnaro
  */
@@ -28,7 +28,6 @@
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
 
-#include "Utilities/Timing/interface/TimingReport.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -171,7 +170,6 @@ void StandAloneMuonRefitter::refit(const TrajectoryStateOnSurface& initialTSOS,
 				   const DetLayer* initialLayer, Trajectory &trajectory){
   
   const std::string metname = "Muon|RecoMuon|StandAloneMuonRefitter";
-  bool timing = true;
 
   // reset the refitter each seed refinement
   reset();
@@ -179,7 +177,6 @@ void StandAloneMuonRefitter::refit(const TrajectoryStateOnSurface& initialTSOS,
   MuonPatternRecoDumper debug;
   
   LogTrace(metname) << "Starting the refit"<<endl; 
-  TimeMe t(metname,timing);
 
   // this is the most outward TSOS updated with a recHit onto a DetLayer
   TrajectoryStateOnSurface lastUpdatedTSOS;

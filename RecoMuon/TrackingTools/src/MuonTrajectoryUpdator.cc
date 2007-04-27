@@ -7,8 +7,8 @@
  *  the granularity of the updating (i.e.: segment position or 1D rechit position), which can be set via
  *  parameter set, and the propagation direction which is embeded in the propagator set in the c'tor.
  *
- *  $Date: 2007/01/18 13:26:53 $
- *  $Revision: 1.22 $
+ *  $Date: 2007/02/16 13:32:12 $
+ *  $Revision: 1.23 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  *  \author S. Lacaprara - INFN Legnaro
  */
@@ -26,7 +26,6 @@
 
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
 
-#include "Utilities/Timing/interface/TimingReport.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -83,7 +82,7 @@ MuonTrajectoryUpdator::update(const TrajectoryMeasurement* measurement,
 			      const Propagator *propagator){
   
   const std::string metname = "Muon|RecoMuon|MuonTrajectoryUpdator";
-  TimeMe t(metname);
+
   MuonPatternRecoDumper muonDumper;
 
   // Status of the updating
@@ -229,16 +228,11 @@ MuonTrajectoryUpdator::propagateState(const TrajectoryStateOnSurface& state,
 				      const TransientTrackingRecHit::ConstRecHitPointer  & current,
 				      const Propagator *propagator) const{
 
-  string tname1 = "MuonTrajectoryUpdator::propagateState::Total";
-  TimeMe timer1(tname1);
   const TransientTrackingRecHit::ConstRecHitPointer mother = measurement->recHit();
 
   if( current->geographicalId() == mother->geographicalId() )
     return measurement->predictedState();
   
-  string tname2 = "MuonTrajectoryUpdator::propagateState::Propagation";
-
-  TimeMe timer2(tname2);
   const TrajectoryStateOnSurface  tsos =
     propagator->propagate(state, current->det()->surface());
   return tsos;
