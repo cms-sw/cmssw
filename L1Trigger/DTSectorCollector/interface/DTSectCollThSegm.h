@@ -5,8 +5,8 @@
  *   Muon Sector Collector Trigger Theta candidate 
  *
  *
- *   $Date: 2007/02/09 11:24:33 $
- *   $Revision: 1.1 $
+ *   $Date: 2007/04/04 10:44:32 $
+ *   $Revision: 1.2 $
  * 
  *   \author C. Battilana
  */
@@ -23,7 +23,7 @@
 // Base Class Headers --
 //----------------------
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
-#include "L1Trigger/DTUtilities/interface/DTSectCollId.h"
+#include "DataFormats/MuonDetId/interface/DTSectCollId.h"
 #include "L1Trigger/DTTriggerServerTheta/interface/DTChambThSegm.h"
 #include "L1Trigger/DTUtilities/interface/DTTrigData.h"
 

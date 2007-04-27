@@ -4,7 +4,7 @@
  *
  *    Muon Sector Collector Trigger Phi candidate 
  *
- *    $Date: 2007/03/09 15:17:40 $
+ *    $Date: 2007/04/04 10:44:32 $
  *    
  *
  *   \author S. Marcellini, D. Bonacorsi
@@ -23,10 +23,9 @@
 // Base Class Headers --
 //----------------------
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
-#include "L1Trigger/DTUtilities/interface/DTSectCollId.h"
+#include "DataFormats/MuonDetId/interface/DTSectCollId.h"
 #include "L1Trigger/DTTriggerServerPhi/interface/DTChambPhSegm.h"
 #include "L1Trigger/DTUtilities/interface/DTTrigData.h"
-// #include "L1Trigger/DTUtilities/interface/DTConfig.h" CB vedere se serve!!!!!
 
 //---------------
 // C++ Headers --

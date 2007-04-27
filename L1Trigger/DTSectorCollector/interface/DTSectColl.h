@@ -5,7 +5,7 @@
  *
  *
  *
- *    $Date: 2007/03/09 15:17:40 $
+ *    $Date: 2007/04/04 10:44:32 $
  *
  *    \author D. Bonacorsi, S. Marcellini
  */
@@ -36,8 +36,8 @@ class DTSCTrigUnit;
 #include "L1Trigger/DTSectorCollector/interface/DTSectCollThCand.h"
 #include "L1Trigger/DTSectorCollector/interface/DTSectCollPhSegm.h"
 #include "L1Trigger/DTSectorCollector/interface/DTSectCollThSegm.h"
-#include "L1Trigger/DTUtilities/interface/DTSectCollId.h"
-#include "L1TriggerConfig/DTTPGConfig/interface/DTConfigManager.h"
+#include "DataFormats/MuonDetId/interface/DTSectCollId.h"
+#include "CondFormats/L1TObjects/interface/DTConfigManager.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 //---------------
