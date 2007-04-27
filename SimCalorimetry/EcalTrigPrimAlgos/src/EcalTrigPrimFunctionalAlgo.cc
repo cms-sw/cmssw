@@ -42,18 +42,19 @@
 #include <TMath.h>
 //----------------------------------------------------------------------
 
-EcalTrigPrimFunctionalAlgo::EcalTrigPrimFunctionalAlgo(const edm::EventSetup & setup,int binofmax,int nrsamples, bool tcpFormat, bool barrelOnly,bool debug, double ebDccAdcToGeV,double eeDccAdcToGeV):
+EcalTrigPrimFunctionalAlgo::EcalTrigPrimFunctionalAlgo(const edm::EventSetup & setup,int binofmax,int nrsamples, bool tcpFormat, bool barrelOnly,bool debug):
   valid_(false),valTree_(NULL),binOfMaximum_(binofmax),nrSamplesToWrite_(nrsamples),
   tcpFormat_(tcpFormat), barrelOnly_(barrelOnly), debug_(debug)
 
 {this->init(setup);}
 
 //----------------------------------------------------------------------
-EcalTrigPrimFunctionalAlgo::EcalTrigPrimFunctionalAlgo(const edm::EventSetup & setup,TTree *tree,int binofmax, int nrsamples,bool tcpFormat, bool barrelOnly, bool debug, double ebDccAdcToGeV,double eeDccAdcToGeV):
+EcalTrigPrimFunctionalAlgo::EcalTrigPrimFunctionalAlgo(const edm::EventSetup & setup,TTree *tree,int binofmax, int nrsamples,bool tcpFormat, bool barrelOnly, bool debug):
   valid_(true),valTree_(tree),binOfMaximum_(binofmax),nrSamplesToWrite_(nrsamples),
   tcpFormat_(tcpFormat), barrelOnly_(barrelOnly),debug_(debug)
 
-{this->init(setup);}
+{this->init(setup);
+}
 
 //----------------------------------------------------------------------
 void EcalTrigPrimFunctionalAlgo::init(const edm::EventSetup & setup) {
