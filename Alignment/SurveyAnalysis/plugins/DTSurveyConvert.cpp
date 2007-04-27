@@ -16,7 +16,7 @@
 //
 // Original Author:  Pablo Martinez Ruiz Del Arbol
 //         Created:  Wed Mar 28 09:50:08 CEST 2007
-// $Id: DTSurveyConvert.cpp,v 1.1 2007/04/13 14:36:08 pablom Exp $
+// $Id: DTSurveyConvert.cpp,v 1.1 2007/04/25 17:15:40 pablom Exp $
 //
 //
 
@@ -202,9 +202,9 @@ DTSurveyConvert::endJob(const edm::EventSetup& eventSetup) {
       displacement.push_back(dx);
       displacement.push_back(dy);
       displacement.push_back(dz);
-      displacement.push_back(alpha);
-      displacement.push_back(beta);
-      displacement.push_back(gamma);
+      displacement.push_back(-alpha);
+      displacement.push_back(-beta);
+      displacement.push_back(-gamma);
     }
     inFile.close();
     align.saveToDB();
