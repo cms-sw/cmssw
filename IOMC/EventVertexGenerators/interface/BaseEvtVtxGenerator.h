@@ -1,11 +1,13 @@
 #ifndef IOMC_BaseEvtVtxGenerator_H
 #define IOMC_BaseEvtVtxGenerator_H
 /*
-*   $Date: 2006/12/01 19:03:53 $
-*   $Revision: 1.3 $
+*   $Date: 2007/03/22 02:28:46 $
+*   $Revision: 1.4 $
 */
 
 #include "FWCore/Framework/interface/EDProducer.h"
+
+#include "TMatrixD.h"
 
 /*
 namespace HepMC {
@@ -40,6 +42,8 @@ class BaseEvtVtxGenerator : public edm::EDProducer
    //virtual CLHEP::Hep3Vector* lastVertex() { return fVertex; }
    virtual HepMC::FourVector* lastVertex() { return fVertex; }
 
+   virtual TMatrixD* GetInvLorentzBoost() = 0;
+   
    protected:
 
    // Returns a reference to encourage users to use a reference
@@ -52,9 +56,13 @@ class BaseEvtVtxGenerator : public edm::EDProducer
    //CLHEP::Hep3Vector*       fVertex;
    HepMC::FourVector*       fVertex ;
 
+   TMatrixD *boost_;
+   
    private :
 
    CLHEP::HepRandomEngine*  fEngine;
+
+   
 };
 
 #endif

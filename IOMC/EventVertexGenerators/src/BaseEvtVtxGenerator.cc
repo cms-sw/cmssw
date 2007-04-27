@@ -1,7 +1,7 @@
 
 /*
-*  $Date: 2006/12/01 19:03:53 $
-*  $Revision: 1.3 $
+*  $Date: 2007/03/22 02:28:46 $
+*  $Revision: 1.4 $
 */
 
 #include "IOMC/EventVertexGenerators/interface/BaseEvtVtxGenerator.h"
@@ -26,7 +26,7 @@ using namespace CLHEP;
 //using namespace HepMC;
 
 BaseEvtVtxGenerator::BaseEvtVtxGenerator( const ParameterSet& pset ) 
-  : fVertex(0), fEngine(0)
+	: boost_(0), fVertex(0), fEngine(0)
 {
    
 /* No longer needed...
@@ -53,12 +53,14 @@ BaseEvtVtxGenerator::BaseEvtVtxGenerator( const ParameterSet& pset )
    HepRandomEngine& engine = rng->getEngine();
    fEngine = &engine;
 
+      
    produces<bool>(); 
 }
 
 BaseEvtVtxGenerator::~BaseEvtVtxGenerator() 
 {
    delete fVertex ;
+   if (boost_ != 0 ) delete boost_;
    // no need since now it's done in HepMCProduct
    // delete fEvt ;
 }
@@ -72,7 +74,12 @@ void BaseEvtVtxGenerator::produce( Event& evt, const EventSetup& )
             
    // generate new vertex & apply the shift 
    //
+   std::cout << " smearing vertex " << std::endl;
    HepMCEvt->applyVtxGen( newVertex() ) ;
+
+   //HepMCEvt->LorentzBoost( 0., 142.e-6 );
+   HepMCEvt->boostToLab( GetInvLorentzBoost(), "vertex" );
+   HepMCEvt->boostToLab( GetInvLorentzBoost(), "momentum" );
    
    // OK, create a (pseudo)product and put in into edm::Event
    //

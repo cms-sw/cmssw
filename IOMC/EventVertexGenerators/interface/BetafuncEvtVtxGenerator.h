@@ -1,7 +1,7 @@
 #ifndef IOMC_BetafuncEvtVtxGenerator_H
 #define IOMC_BetafuncEvtVtxGenerator_H
 
-// $Id: BetafuncEvtVtxGenerator.h,v 1.2 2007/02/18 16:09:25 yumiceva Exp $
+// $Id: BetafuncEvtVtxGenerator.h,v 1.3 2007/03/22 02:28:46 yarba Exp $
 /*
 ________________________________________________________________________
 
@@ -21,6 +21,7 @@ ________________________________________________________________________
 
 #include "IOMC/EventVertexGenerators/interface/BaseEvtVtxGenerator.h"
 
+
 namespace CLHEP {
    class RandGauss;
 }
@@ -35,6 +36,8 @@ public:
   //virtual CLHEP::Hep3Vector * newVertex();
   virtual HepMC::FourVector* newVertex() ;
 
+  virtual TMatrixD* GetInvLorentzBoost();
+  
   /// set resolution in Z in cm
   void sigmaZ(double s=1.0);
 
@@ -45,10 +48,10 @@ public:
   /// set mean in Z in cm
   void Z0(double m=0) { fZ0=m; }
 
-  /// set slope dxdz
-  void dxdz(double m=0) { fdxdz=m; }
-  /// set slope dydz
-  void dydz(double m=0) { fdydz=m; }
+  /// set half crossing angle
+  void Phi(double m=0) { phi_=m; }
+  /// angle between crossing plane and horizontal plane
+  void Alpha(double m=0) { alpha_=m; }
 
   /// set beta_star
   void betastar(double m=0) { fbetastar=m; }
@@ -66,10 +69,15 @@ private:
   
 private:
 
+  double alpha_, phi_;
+  //TMatrixD boost_;
+  
   double fX0, fY0, fZ0;
   double fSigmaZ;
-  double fdxdz, fdydz;
+  //double fdxdz, fdydz;
   double fbetastar, femittance;
+  double falpha;
+  
   
   CLHEP::RandGauss*  fRandom ;
   
