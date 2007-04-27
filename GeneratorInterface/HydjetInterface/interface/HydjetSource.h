@@ -17,7 +17,7 @@
 #include <map>
 #include <string>
 #include <vector>
-#include "CLHEP/HepMC/GenEvent.h"
+#include "HepMC/GenEvent.h"
 
 namespace edm
 {

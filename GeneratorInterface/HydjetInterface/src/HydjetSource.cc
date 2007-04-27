@@ -13,19 +13,18 @@
 #include "GeneratorInterface/HydjetInterface/interface/HydjetWrapper.h"
 #include "GeneratorInterface/CommonInterface/interface/PythiaCMS.h"
 
+#include "HepMC/PythiaWrapper6_2.h"
+#include "HepMC/GenEvent.h"
+#include "HepMC/SimpleVector.h"
+
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 
-#include "CLHEP/HepMC/include/PythiaWrapper6_2.h"
-#include "CLHEP/HepMC/ConvertHEPEVT.h"
-#include "CLHEP/HepMC/CBhepevt.h"
-
 using namespace edm;
 using namespace std;
 
-HepMC::ConvertHEPEVT conv;
 
 HydjetSource :: HydjetSource(const ParameterSet & pset, 
 			     InputSourceDescription const& desc):
@@ -133,7 +132,7 @@ HepMC::GenParticle* HydjetSource::build_particle(int index)
 
 
   HepMC::GenParticle* p = 
-    new HepMC::GenParticle( HepLorentzVector(lujets.p[0][index],// px
+    new HepMC::GenParticle( HepMC::FourVector(lujets.p[0][index],// px
 					     lujets.p[1][index],// py
 					     lujets.p[2][index],// pz
 					     lujets.p[3][index] // E
@@ -173,19 +172,19 @@ bool HydjetSource::build_vertices(int i,
 	} 
     }
 	 
-  HepLorentzVector prod_pos( lujets.v[0][mother_i],
+  HepMC::FourVector prod_pos( lujets.v[0][mother_i],
 			     lujets.v[1][mother_i],
 			     lujets.v[2][mother_i],
 			     lujets.v[4][mother_i]
 			     ); 
-  if ( !prod_vtx_i && (mother_i > 0 || prod_pos != HepLorentzVector(0,0,0,0)) )
+  if ( !prod_vtx_i && (mother_i > 0 || prod_pos != HepMC::FourVector(0,0,0,0)) )
     {
       prod_vtx_i = new HepMC::GenVertex();
       prod_vtx_i->add_particle_out( pi );	
       evt->add_vertex( prod_vtx_i );
     }
 	   
-  if ( prod_vtx_i && prod_vtx_i->position()==HepLorentzVector(0,0,0,0) )
+  if ( prod_vtx_i && prod_vtx_i->position()==HepMC::FourVector(0,0,0,0) )
     {
       prod_vtx_i->set_position( prod_pos );
     }

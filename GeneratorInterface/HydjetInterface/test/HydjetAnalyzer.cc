@@ -3,12 +3,11 @@
 #include "HydjetAnalyzer.h"
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
-#include "DataFormats/HepMCCandidate/interface/HepMCCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 
 // essentials !!!
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
  
 #include "TFile.h"
@@ -68,7 +67,7 @@ void HydjetAnalyzer::analyze( const Event& e, const EventSetup& )
        for( HepMC::GenEvent::particle_const_iterator p = myEvt->particles_begin();
 	    p != myEvt->particles_end(); p++ )
 	 {
-	   if( !(*p)->hasChildren() && abs( (*p)->pdg_id() ) == 211)
+	   if( !(*p)->end_vertex() && abs( (*p)->pdg_id() ) == 211)
 	     {
 	       part_eta = (*p)->momentum().eta();
 	       part_y   = (*p)->momentum().y();
