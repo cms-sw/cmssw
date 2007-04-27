@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/04/18 07:48:02 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/04/18 12:46:51 $
+ *  $Revision: 1.2 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -31,6 +31,7 @@
 
 #include "CondFormats/DataRecord/interface/DTStatusFlagRcd.h"
 #include "CondFormats/DTObjects/interface/DTStatusFlag.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <iostream>
 #include <stdio.h>
@@ -46,8 +47,8 @@ using namespace std;
 DTDeadChannelTest::DTDeadChannelTest(const edm::ParameterSet& ps){
 
   debug = ps.getUntrackedParameter<bool>("debug", "false");
-  if(debug)
-    cout<<"[DTDeadChannelTest]: Constructor"<<endl;
+ 
+  edm::LogVerbatim ("deadChannel") << "[DTDeadChannelTest]: Constructor";
 
   parameters = ps;
 
@@ -58,15 +59,13 @@ DTDeadChannelTest::DTDeadChannelTest(const edm::ParameterSet& ps){
 
 DTDeadChannelTest::~DTDeadChannelTest(){
 
-  if(debug)
-    cout << "DTDeadChannelTest: analyzed " << nevents << " events" << endl;
+  edm::LogVerbatim ("deadChannel") << "DTDeadChannelTest: analyzed " << nevents << " events";
 
 }
 
 void DTDeadChannelTest::endJob(){
 
-  if(debug)
-    cout<<"[DTDeadChannelTest] endjob called!"<<endl;
+  edm::LogVerbatim ("deadChannel") << "[DTDeadChannelTest] endjob called!";
 
   dbe->rmdir("DT/Tests/DTDeadChannel");
 
@@ -74,8 +73,7 @@ void DTDeadChannelTest::endJob(){
 
 void DTDeadChannelTest::beginJob(const edm::EventSetup& context){
 
-  if(debug)
-    cout<<"[DTDeadChannelTest]: BeginJob"<<endl;
+  edm::LogVerbatim ("deadChannel") << "[DTDeadChannelTest]: BeginJob";
 
   nevents = 0;
 
@@ -106,14 +104,13 @@ void DTDeadChannelTest::bookHistos(const DTLayerId & lId, int firstWire, int las
 void DTDeadChannelTest::analyze(const edm::Event& e, const edm::EventSetup& context){
   
   nevents++;
-  if (nevents%1 == 0 && debug) 
-    cout<<"[DTDeadChannelTest]: "<<nevents<<" updates"<<endl;
+
+  edm::LogVerbatim ("deadChannel") << "[DTDeadChannelTest]: "<<nevents<<" updates";
 
   vector<DTChamber*>::const_iterator ch_it = muonGeom->chambers().begin();
   vector<DTChamber*>::const_iterator ch_end = muonGeom->chambers().end();
 
-  cout<<endl;
-  cout<<"[DTDeadChannelTest]: Occupancy tests results"<<endl;
+  edm::LogVerbatim ("deadChannel") << "[DTDeadChannelTest]: Occupancy tests results";
 
   // Loop over the chambers
   for (; ch_it != ch_end; ++ch_it) {
@@ -199,9 +196,9 @@ void DTDeadChannelTest::analyze(const edm::Event& e, const edm::EventSetup& cont
       vector<dqm::me_util::Channel> badChannels = theOccupancyDiffQReport->getBadChannels();
       for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
 	   channel != badChannels.end(); channel++) {
-	cout<<"Bad occupancy difference channels: "<<(*channel).getBin()<<" "<<(*channel).getContents()<<endl;
+	edm::LogError ("deadChannel") << "Layer : "<<(*hOccDiff).first<<" Bad occupancy difference channels: "<<(*channel).getBin()<<" Contents : "<<(*channel).getContents();
       }
-      cout<<"-------- "<<theOccupancyDiffQReport->getMessage()<<" ------- "<<theOccupancyDiffQReport->getStatus()<<endl;
+      edm::LogWarning("deadChannel")<< "-------- Layer : "<<(*hOccDiff).first<<"  "<<theOccupancyDiffQReport->getMessage()<<" ------- "<<theOccupancyDiffQReport->getStatus(); 
     }
   }
 

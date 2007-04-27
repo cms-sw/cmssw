@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/04/12 07:40:04 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/04/18 07:17:09 $
+ *  $Revision: 1.4 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -29,6 +29,7 @@
 
 #include "CondFormats/DataRecord/interface/DTStatusFlagRcd.h"
 #include "CondFormats/DTObjects/interface/DTStatusFlag.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <iostream>
 #include <stdio.h>
@@ -43,8 +44,8 @@ using namespace std;
 DTEfficiencyTest::DTEfficiencyTest(const edm::ParameterSet& ps){
 
   debug = ps.getUntrackedParameter<bool>("debug", "false");
-  if(debug)
-    cout<<"[DTEfficiencyTest]: Constructor"<<endl;
+
+  edm::LogVerbatim ("efficiency") << "[DTEfficiencyTest]: Constructor";
 
   parameters = ps;
 
@@ -55,15 +56,13 @@ DTEfficiencyTest::DTEfficiencyTest(const edm::ParameterSet& ps){
 
 DTEfficiencyTest::~DTEfficiencyTest(){
 
-  if(debug)
-    cout << "DTEfficiencyTest: analyzed " << nevents << " events" << endl;
+  edm::LogVerbatim ("efficiency") << "DTEfficiencyTest: analyzed " << nevents << " events";
 
 }
 
 void DTEfficiencyTest::endJob(){
 
-  if(debug)
-    cout<<"[DTEfficiencyTest] endjob called!"<<endl;
+  edm::LogVerbatim ("efficiency") << "[DTEfficiencyTest] endjob called!";
 
   dbe->rmdir("DT/Tests/DTEfficiency");
 
@@ -71,8 +70,7 @@ void DTEfficiencyTest::endJob(){
 
 void DTEfficiencyTest::beginJob(const edm::EventSetup& context){
 
-  if(debug)
-    cout<<"[DTEfficiencyTest]: BeginJob"<<endl;
+  edm::LogVerbatim ("efficiency") << "[DTEfficiencyTest]: BeginJob";
 
   nevents = 0;
 
@@ -106,14 +104,13 @@ void DTEfficiencyTest::bookHistos(const DTLayerId & lId, int firstWire, int last
 void DTEfficiencyTest::analyze(const edm::Event& e, const edm::EventSetup& context){
   
   nevents++;
-  if (nevents%1 == 0 && debug) 
-    cout<<"[DTEfficiencyTest]: "<<nevents<<" updates"<<endl;
+
+  edm::LogVerbatim ("efficiency") << "[DTEfficiencyTest]: "<<nevents<<" updates";
 
   vector<DTChamber*>::const_iterator ch_it = muonGeom->chambers().begin();
   vector<DTChamber*>::const_iterator ch_end = muonGeom->chambers().end();
 
-  cout<<endl;
-  cout<<"[DTEfficiencyTest]: Efficiency tests results"<<endl;
+  edm::LogVerbatim ("efficiency") << "[DTEfficiencyTest]: Efficiency tests results";
   
   // Loop over the chambers
   for (; ch_it != ch_end; ++ch_it) {
@@ -191,9 +188,9 @@ void DTEfficiencyTest::analyze(const edm::Event& e, const edm::EventSetup& conte
       vector<dqm::me_util::Channel> badChannels = theEfficiencyQReport->getBadChannels();
       for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
 	   channel != badChannels.end(); channel++) {
-	cout<<"Bad efficiency channels: "<<(*channel).getBin()<<" "<<(*channel).getContents()<<endl;
+	edm::LogError ("efficiency") <<"LayerID : "<<(*hEff).first<< " Bad efficiency channels: "<<(*channel).getBin()<<"  Contents : "<<(*channel).getContents();
       }
-      cout<<"-------- "<<theEfficiencyQReport->getMessage()<<" ------- "<<theEfficiencyQReport->getStatus()<<endl;
+      edm::LogWarning ("efficiency") << "-------- "<<theEfficiencyQReport->getMessage()<<" ------- "<<theEfficiencyQReport->getStatus();
     }
   }
 	
@@ -208,9 +205,9 @@ void DTEfficiencyTest::analyze(const edm::Event& e, const edm::EventSetup& conte
       vector<dqm::me_util::Channel> badChannels = theUnassEfficiencyQReport->getBadChannels();
       for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
 	   channel != badChannels.end(); channel++) {
-	cout<<"Bad unassEfficiency channels: "<<(*channel).getBin()<<" "<<(*channel).getContents()<<endl;
+	edm::LogError ("efficiency") << "Bad unassEfficiency channels: "<<(*channel).getBin()<<" "<<(*channel).getContents();
       }
-      //cout<<"-------- "<<theUnassEfficiencyQReport->getMessage()<<" ------- "<<theUnassEfficiencyQReport->getStatus()<<endl;
+      edm::LogWarning ("efficiency") << theUnassEfficiencyQReport->getMessage()<<" ------- "<<theUnassEfficiencyQReport->getStatus();
     }
   }
 

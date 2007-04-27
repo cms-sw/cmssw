@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/04/10 11:07:59 $
- *  $Revision: 1.7 $
+ *  $Date: 2007/04/12 07:36:55 $
+ *  $Revision: 1.8 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -29,6 +29,7 @@
 
 #include "CondFormats/DataRecord/interface/DTStatusFlagRcd.h"
 #include "CondFormats/DTObjects/interface/DTStatusFlag.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <iostream>
 #include <stdio.h>
@@ -44,9 +45,8 @@ using namespace std;
 DTResolutionTest::DTResolutionTest(const edm::ParameterSet& ps){
 
   debug = ps.getUntrackedParameter<bool>("debug", "false");
-  if(debug)
-    cout<<"[DTResolutionTest]: Constructor"<<endl;
 
+  edm::LogVerbatim ("resolution") << "[DTResolutionTest]: Constructor";
   parameters = ps;
 
   dbe = edm::Service<DaqMonitorBEInterface>().operator->();
@@ -57,15 +57,13 @@ DTResolutionTest::DTResolutionTest(const edm::ParameterSet& ps){
 
 DTResolutionTest::~DTResolutionTest(){
 
-  if(debug)
-    cout << "DTResolutionTest: analyzed " << nevents << " events" << endl;
+  edm::LogVerbatim ("resolution") << "DTResolutionTest: analyzed " << nevents << " events";
 
 }
 
 void DTResolutionTest::endJob(){
 
-  if(debug)
-    cout<<"[DTResolutionTest] endjob called!"<<endl;
+  edm::LogVerbatim ("resolution") << "[DTResolutionTest] endjob called!";
 
   dbe->rmdir("DT/Tests/DTResolution");
 
@@ -74,8 +72,7 @@ void DTResolutionTest::endJob(){
 
 void DTResolutionTest::beginJob(const edm::EventSetup& context){
 
-  if(debug)
-    cout<<"[DTResolutionTest]: BeginJob"<<endl;
+  edm::LogVerbatim ("resolution") <<"[DTResolutionTest]: BeginJob"; 
 
   nevents = 0;
 
@@ -139,14 +136,14 @@ void DTResolutionTest::bookHistos(const DTChamberId & ch) {
 void DTResolutionTest::analyze(const edm::Event& e, const edm::EventSetup& context){
   
   nevents++;
-  if (nevents%1 == 0 && debug) 
-    cout<<"[DTResolutionTest]: "<<nevents<<" updates"<<endl;
+
+  edm::LogVerbatim ("resolution") << "[DTResolutionTest]: "<<nevents<<" updates";
 
   vector<DTChamber*>::const_iterator ch_it = muonGeom->chambers().begin();
   vector<DTChamber*>::const_iterator ch_end = muonGeom->chambers().end();
 
-  cout<<endl;
-  cout<<"[DTResolutionTest]: Residual Distribution tests results"<<endl;
+  edm::LogVerbatim ("resolution") << "[DTResolutionTest]: Residual Distribution tests results";
+  
   for (; ch_it != ch_end; ++ch_it) {
 
     DTChamberId chID = (*ch_it)->id();
@@ -165,10 +162,13 @@ void DTResolutionTest::analyze(const edm::Event& e, const edm::EventSetup& conte
 
       DTSuperLayerId slID = (*sl_it)->id();
 
-      stringstream wheel; wheel << chID.wheel();
-      stringstream sector; sector << chID.sector();
-
+      stringstream wheel; wheel << slID.wheel();	
+      stringstream station; station << slID.station();	
+      stringstream sector; sector << slID.sector();	
+      stringstream superLayer; superLayer << slID.superlayer();
+      
       string HistoName = "W" + wheel.str() + "_Sec" + sector.str(); 
+      string supLayer = "W" + wheel.str() + "_St" + station.str() + "_Sec" + sector.str() + "_SL" + superLayer.str(); 
 
       MonitorElement * res_histo = dbe->get(getMEName(slID));
       if (res_histo) {
@@ -178,7 +178,7 @@ void DTResolutionTest::analyze(const edm::Event& e, const edm::EventSetup& conte
 						   "ResidualsDistributionGaussianTest");
 	const QReport * GaussianReport = res_histo->getQReport(GaussianCriterionName);
 	if(GaussianReport){
-	  cout<<"-------- "<<GaussianReport->getMessage()<<" ------- "<<GaussianReport->getStatus()<<endl;
+	  edm::LogWarning ("resolution") << "-------- SuperLayer : "<<supLayer<<"  "<<GaussianReport->getMessage()<<" ------- "<<GaussianReport->getStatus();
 	}
 	int BinNumber = entry+slID.superLayer();
 	if(BinNumber == 12) BinNumber=11;
@@ -189,7 +189,7 @@ void DTResolutionTest::analyze(const edm::Event& e, const edm::EventSetup& conte
 	SigmaHistos.find(HistoName)->second->setBinContent(BinNumber, sigma);
       }
     }
-}
+  }
 
   // Mean test 
   cout<<"[DTResolutionTest]: Residuals Mean Tests results"<<endl;
@@ -202,13 +202,13 @@ void DTResolutionTest::analyze(const edm::Event& e, const edm::EventSetup& conte
       vector<dqm::me_util::Channel> badChannels = theMeanQReport->getBadChannels();
       for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
 	   channel != badChannels.end(); channel++) {
-	cout<<"Bad mean channels: "<<(*channel).getBin()<<" "<<(*channel).getContents()<<endl;
+	edm::LogError ("resolution") << "Sector : "<<(*hMean).first<<" Bad mean channels: "<<(*channel).getBin()<<"  Contents : "<<(*channel).getContents();
 	if (MeanHistosSetRange.find((*hMean).first) == MeanHistosSetRange.end()) bookHistos((*ch_it)->id());
 	MeanHistosSetRange.find((*hMean).first)->second->Fill((*channel).getBin());
 	if (MeanHistosSetRange2D.find((*hMean).first) == MeanHistosSetRange2D.end()) bookHistos((*ch_it)->id());
         MeanHistosSetRange2D.find((*hMean).first)->second->Fill((*channel).getBin(),(*channel).getContents());
       }
-      cout<<"-------- "<<theMeanQReport->getMessage()<<" ------- "<<theMeanQReport->getStatus()<<endl;
+      edm::LogWarning ("resolution") << "-------- Sector : "<<(*hMean).first<<"  "<<theMeanQReport->getMessage()<<" ------- "<<theMeanQReport->getStatus(); 
     }
   }
 
@@ -223,13 +223,13 @@ void DTResolutionTest::analyze(const edm::Event& e, const edm::EventSetup& conte
       vector<dqm::me_util::Channel> badChannels = theSigmaQReport->getBadChannels();
       for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
 	   channel != badChannels.end(); channel++) {
-	cout<<"Bad sigma channels: "<<(*channel).getBin()<<" "<<(*channel).getContents()<<endl;
+	edm::LogError ("resolution") << "Sector : "<<(*hSigma).first<<" Bad sigma channels: "<<(*channel).getBin()<<" Contents : "<<(*channel).getContents();
 	if (SigmaHistosSetRange.find((*hSigma).first) == SigmaHistosSetRange.end()) bookHistos((*ch_it)->id());
         SigmaHistosSetRange.find((*hSigma).first)->second->Fill((*channel).getBin());
         if (SigmaHistosSetRange2D.find((*hSigma).first) == SigmaHistosSetRange2D.end()) bookHistos((*ch_it)->id());
         SigmaHistosSetRange2D.find((*hSigma).first)->second->Fill((*channel).getBin(),(*channel).getContents());
       }
-      cout<<"-------- "<<theSigmaQReport->getMessage()<<" ------- "<<theSigmaQReport->getStatus()<<endl;
+      edm::LogWarning ("resolution") << "-------- Sector : "<<(*hSigma).first<<"  "<<theSigmaQReport->getMessage()<<" ------- "<<theSigmaQReport->getStatus();
     }
   }
 

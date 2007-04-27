@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/04/18 07:17:09 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/04/24 09:35:32 $
+ *  $Revision: 1.1 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -29,6 +29,7 @@
 
 #include "CondFormats/DataRecord/interface/DTStatusFlagRcd.h"
 #include "CondFormats/DTObjects/interface/DTStatusFlag.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <iostream>
 #include <stdio.h>
@@ -43,8 +44,8 @@ using namespace std;
 DTChamberEfficiencyTest::DTChamberEfficiencyTest(const edm::ParameterSet& ps){
 
   debug = ps.getUntrackedParameter<bool>("debug", "false");
-  if(debug)
-    cout<<"[DTChamberEfficiencyTest]: Constructor"<<endl;
+
+  edm::LogVerbatim ("chamberEfficiency") << "[DTChamberEfficiencyTest]: Constructor";
 
   parameters = ps;
 
@@ -55,15 +56,13 @@ DTChamberEfficiencyTest::DTChamberEfficiencyTest(const edm::ParameterSet& ps){
 
 DTChamberEfficiencyTest::~DTChamberEfficiencyTest(){
 
-  if(debug)
-    cout << "DTChamberEfficiencyTest: analyzed " << nevents << " events" << endl;
+  edm::LogVerbatim ("chamberEfficiency") << "DTChamberEfficiencyTest: analyzed " << nevents << " events";
 
 }
 
 void DTChamberEfficiencyTest::endJob(){
 
-  if(debug)
-    cout<<"[DTChamberEfficiencyTest] endjob called!"<<endl;
+  edm::LogVerbatim ("chamberEfficiency") << "[DTChamberEfficiencyTest] endjob called!";
 
   dbe->rmdir("DT/Tests/DTChamberEfficiency");
 
@@ -71,8 +70,7 @@ void DTChamberEfficiencyTest::endJob(){
 
 void DTChamberEfficiencyTest::beginJob(const edm::EventSetup& context){
 
-  if(debug)
-    cout<<"[DTChamberEfficiencyTest]: BeginJob"<<endl;
+  edm::LogVerbatim ("chamberEfficiency") <<"[DTChamberEfficiencyTest]: BeginJob"; 
 
   nevents = 0;
 
@@ -107,14 +105,13 @@ void DTChamberEfficiencyTest::bookHistos(const DTChamberId & chId) {
 void DTChamberEfficiencyTest::analyze(const edm::Event& e, const edm::EventSetup& context){
   
   nevents++;
-  if (nevents%1 == 0 && debug) 
-    cout<<"[DTChamberEfficiencyTest]: "<<nevents<<" updates"<<endl;
+
+  edm::LogVerbatim ("chamberEfficiency") << "[DTChamberEfficiencyTest]: "<<nevents<<" updates";
 
   vector<DTChamber*>::const_iterator ch_it = muonGeom->chambers().begin();
   vector<DTChamber*>::const_iterator ch_end = muonGeom->chambers().end();
 
-  cout<<endl;
-  cout<<"[DTChamberEfficiencyTest]: ChamberEfficiency tests results"<<endl;
+  edm::LogVerbatim ("chamberEfficiency") << "[DTChamberEfficiencyTest]: ChamberEfficiency tests results"; 
   
   // Loop over the chambers
   for (; ch_it != ch_end; ++ch_it) {
@@ -190,9 +187,9 @@ void DTChamberEfficiencyTest::analyze(const edm::Event& e, const edm::EventSetup
       vector<dqm::me_util::Channel> badChannels = theXEfficiencyQReport->getBadChannels();
       for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
 	   channel != badChannels.end(); channel++) {
-	cout<<"Bad XChamberEfficiency channels: "<<(*channel).getBin()<<" "<<(*channel).getContents()<<endl;
+	edm::LogError ("chamberEfficiency") << "Chamber : " << (*hXEff).first << " Bad XChamberEfficiency channels: "<<(*channel).getBin()<<"  Contents : "<<(*channel).getContents();
       }
-      cout<<"-------- "<<theXEfficiencyQReport->getMessage()<<" ------- "<<theXEfficiencyQReport->getStatus()<<endl;
+      edm::LogWarning ("chamberEfficiency") << "-------- Chamber : "<<(*hXEff).first<<"  "<<theXEfficiencyQReport->getMessage()<<" ------- "<<theXEfficiencyQReport->getStatus();
     }
   }
 
@@ -207,9 +204,9 @@ void DTChamberEfficiencyTest::analyze(const edm::Event& e, const edm::EventSetup
       vector<dqm::me_util::Channel> badChannels = theYEfficiencyQReport->getBadChannels();
       for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
 	   channel != badChannels.end(); channel++) {
-	cout<<"Bad YChamberEfficiency channels: "<<(*channel).getBin()<<" "<<(*channel).getContents()<<endl;
+	edm::LogError ("chamberEfficiency") << "Chamber : " << (*hYEff).first <<" Bad YChamberEfficiency channels: "<<(*channel).getBin()<<"  Contents : "<<(*channel).getContents();
       }
-      cout<<"-------- "<<theYEfficiencyQReport->getMessage()<<" ------- "<<theYEfficiencyQReport->getStatus()<<endl;
+      edm::LogWarning ("chamberEfficiency") << "-------- Chamber : "<<(*hYEff).first<<"  "<<theYEfficiencyQReport->getMessage()<<" ------- "<<theYEfficiencyQReport->getStatus();
     }
   }
 
