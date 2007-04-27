@@ -76,7 +76,6 @@ FUResourceBroker::FUResourceBroker(xdaq::ApplicationStub *s)
   , nbAllocatedEvents_(0)
   , nbPendingRequests_(0)
   , nbReceivedEvents_(0)
-  , nbProcessedEvents_(0)
   , nbAcceptedEvents_(0)
   , nbSentEvents_(0)
   , nbDiscardedEvents_(0)
@@ -191,7 +190,6 @@ bool FUResourceBroker::configuring(toolbox::task::WorkLoop* wl)
 				       log_);
     resourceTable_->setDoCrcCheck(doCrcCheck_);
     resourceTable_->setDoDumpEvents(doDumpEvents_);
-    resourceTable_->resetCounters();
     reset();
     LOG4CPLUS_INFO(log_, "Finished configuring!");
     
@@ -212,6 +210,7 @@ bool FUResourceBroker::enabling(toolbox::task::WorkLoop* wl)
   try {
     LOG4CPLUS_INFO(log_, "Start enabling ...");
     startMonitoringWorkLoop();
+    resourceTable_->resetCounters();
     resourceTable_->startDiscardWorkLoop();
     resourceTable_->startSendDataWorkLoop();
     resourceTable_->startSendDqmWorkLoop();
@@ -233,9 +232,27 @@ bool FUResourceBroker::stopping(toolbox::task::WorkLoop* wl)
 {
   try {
     LOG4CPLUS_INFO(log_, "Start stopping :) ...");
-    resourceTable_->shutDownClients();
-    LOG4CPLUS_INFO(log_, "Finished stopping!");
-    fsm_.fireEvent("StopDone",this);
+    resourceTable_->stop();
+    UInt_t count = 0;
+    while (count<10) {
+      if (resourceTable_->isReadyToShutDown()) {
+	LOG4CPLUS_INFO(log_,"ResourceTable successfully shutdown ("<<count+1<<").");
+	break;
+      }
+      else {
+	LOG4CPLUS_DEBUG(log_,"Waiting for ResourceTable to shutdown ("<<++count<<")");
+	::sleep(1);
+      }
+    }
+    
+    if (count<10) {
+      LOG4CPLUS_INFO(log_, "Finished stopping!");
+      fsm_.fireEvent("StopDone",this);
+    }
+    else {
+      std::string msg = "stopping FAILED: ResourceTable shutdown timed out.";
+      fsm_.fireFailed(msg,this);
+    }
   }
   catch (xcept::Exception &e) {
     std::string msg = "stopping FAILED: "+xcept::stdformat_exception_history(e);
@@ -251,24 +268,35 @@ bool FUResourceBroker::halting(toolbox::task::WorkLoop* wl)
 {
   try {
     LOG4CPLUS_INFO(log_, "Start halting ...");
-    resourceTable_->shutDownClients();
-    UInt_t count = 0;
-    while (count<10) {
-      if (resourceTable_->isReadyToShutDown()) {
-	delete resourceTable_;
-	resourceTable_=0;
-	LOG4CPLUS_INFO(log_,++count<<". try to destroy resource table succeeded!");
-	break;
+    if (resourceTable_->isActive()) {
+      resourceTable_->halt();
+      UInt_t count = 0;
+      while (count<10) {
+	if (resourceTable_->isReadyToShutDown()) {
+	  delete resourceTable_;
+	  resourceTable_=0;
+	  LOG4CPLUS_INFO(log_,count+1<<". try to destroy resource table succeeded!");
+	  break;
+	}
+	else {
+	  LOG4CPLUS_DEBUG(log_,++count<<". try to destroy resource table failed ...");
+	  ::sleep(1);
+	}
       }
-      else {
-	LOG4CPLUS_WARN(log_,++count<<". try to destroy resource table failed ...");
-	::sleep(2);
-      }
-    } 
-    if (0!=resourceTable_) LOG4CPLUS_ERROR(log_,"Failed to destroy resource table.");
-    LOG4CPLUS_INFO(log_, "Finished halting!");
+    }
+    else {
+      delete resourceTable_;
+      resourceTable_=0;
+    }
     
-    fsm_.fireEvent("HaltDone",this);
+    if (0==resourceTable_) {
+      LOG4CPLUS_INFO(log_,"Finished halting!");
+      fsm_.fireEvent("HaltDone",this);
+    }
+    else {
+      std::string msg = "halting FAILED: ResourceTable shutdown timed out.";
+      fsm_.fireFailed(msg,this);
+    }
   }
   catch (xcept::Exception &e) {
     std::string msg = "halting FAILED: "+xcept::stdformat_exception_history(e);
@@ -376,7 +404,6 @@ void FUResourceBroker::actionPerformed(xdata::Event& e)
     if (item=="nbAllocatedEvents") nbAllocatedEvents_=resourceTable_->nbAllocated();
     if (item=="nbPendingRequests") nbPendingRequests_=resourceTable_->nbPending();
     if (item=="nbReceivedEvents")  nbReceivedEvents_ =resourceTable_->nbCompleted();
-    if (item=="nbProcessedEvents") nbProcessedEvents_=resourceTable_->nbProcessed();
     if (item=="nbAcceptedEvents")  nbAcceptedEvents_ =resourceTable_->nbAccepted();
     if (item=="nbSentEvents")      nbSentEvents_     =resourceTable_->nbSent();
     if (item=="nbDiscardedEvents") nbDiscardedEvents_=resourceTable_->nbDiscarded();
@@ -393,10 +420,7 @@ void FUResourceBroker::actionPerformed(xdata::Event& e)
     if (item=="doFedIdCheck") FUResource::doFedIdCheck(doFedIdCheck_);
     if (item=="doCrcCheck")   resourceTable_->setDoCrcCheck(doCrcCheck_);
     if (item=="doDumpEvents") resourceTable_->setDoCrcCheck(doDumpEvents_);
-    if (item=="runNumber") {
-      resourceTable_->reset();
-      gui_->resetCounters();
-    }
+    if (item=="runNumber")    resourceTable_->resetCounters();
   }
   
   gui_->unlockInfoSpaces();
@@ -437,7 +461,7 @@ bool FUResourceBroker::monitoring(toolbox::task::WorkLoop* wl)
   
   lock_.take();
   unsigned int nbInput             =resourceTable_->nbCompleted();
-  unsigned int nbProcessed         =resourceTable_->nbProcessed();
+  unsigned int nbProcessed         =resourceTable_->nbDiscarded();
   uint64_t     nbInputSumOfSquares =resourceTable_->inputSumOfSquares();
   unsigned int nbInputSumOfSizes   =resourceTable_->inputSumOfSizes();
   unsigned int nbOutput            =resourceTable_->nbSent();
@@ -561,7 +585,6 @@ void FUResourceBroker::exportParameters()
   gui_->addMonitorCounter("nbAllocatedEvents",      &nbAllocatedEvents_);
   gui_->addMonitorCounter("nbPendingRequests",      &nbPendingRequests_);
   gui_->addMonitorCounter("nbReceivedEvents",       &nbReceivedEvents_);
-  gui_->addMonitorCounter("nbProcessedEvents",      &nbProcessedEvents_);
   gui_->addMonitorCounter("nbAcceptedEvents",       &nbAcceptedEvents_);
   gui_->addMonitorCounter("nbSentEvents",           &nbSentEvents_);
   gui_->addMonitorCounter("nbDiscardedEvents",      &nbDiscardedEvents_);
@@ -599,7 +622,6 @@ void FUResourceBroker::exportParameters()
   gui_->addItemRetrieveListener("nbAllocatedEvents",this);
   gui_->addItemRetrieveListener("nbPendingRequests",this);
   gui_->addItemRetrieveListener("nbReceivedEvents", this);
-  gui_->addItemRetrieveListener("nbProcessedEvents",this);
   gui_->addItemRetrieveListener("nbAcceptedEvents", this);
   gui_->addItemRetrieveListener("nbSentEvents",     this);
   gui_->addItemRetrieveListener("nbDiscardedEvents",this);
