@@ -32,9 +32,8 @@
 
 #include "FWCore/Framework/interface/ESHandle.h"
 
-#include "L1TriggerConfig/DTTPGConfig/interface/DTConfigManager.h"
-#include "L1TriggerConfig/DTTPGConfig/interface/DTConfigManagerRcd.h"
-#include "Geometry/Records/interface/MuonGeometryRecord.h"
+#include "CondFormats/L1TObjects/interface/DTConfigManager.h"
+#include "CondFormats/DataRecord/interface/DTConfigManagerRcd.h"
 
 //
 // class declaration
@@ -47,12 +46,12 @@ public:
   
   std::auto_ptr<DTConfigManager> produce (const DTConfigManagerRcd&);
 
-  void getDTGeom(const MuonGeometryRecord&);
+  void buildManager();
 
 private:
   // ----------member data ---------------------------
   edm::ParameterSet m_ps;
-  edm::ESHandle<DTGeometry> m_geom;
+  DTConfigManager* m_manager;
 };
 
 #endif
