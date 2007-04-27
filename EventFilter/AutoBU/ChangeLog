@@ -1,5 +1,11 @@
 2007-04-27  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
+	* tag V00-04-10
+	* scripts/initialize: remove two parameters from the
+	StorageManager configuration (streamerOnly and oneinN).
+
+2007-04-27  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
 	* tag V00-04-09
 	* add counters nbEventsRequested, nbEventsSent
 	* fix stopping/halting bug: need to call postSend(); postBuild();

@@ -173,13 +173,11 @@ my @EPproperties = ("parameterSet", "string","file:$pwd/cfg/fu.cfg",
 if (!$doSM) { push (@EPproperties,"outputEnabled","boolean","false"); }
 
 my @SMproperties = ("STparameterSet",   "string",     "file:$pwd/cfg/sm.cfg",
-		    "oneinN",           "integer",    "0",
 		    "runNumber",        "unsignedInt","0",
 		    "fileCatalog",      "string",     "summaryCatalog.txt",
 		    "closeFileScript",  "string",     "$smperl/dummy.pl",
 		    "notifyTier0Script","string",     "$smperl/dummy.pl",
-		    "insertFileScript", "string",     "$smperl/dummy.pl",
-		    "streamerOnly",     "boolean",    "true");
+		    "insertFileScript", "string",     "$smperl/dummy.pl");
 
 
 open (XML,">./xml/evf.xml") or die ("Can't open file: $!\n");
