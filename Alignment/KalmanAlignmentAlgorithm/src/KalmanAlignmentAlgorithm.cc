@@ -215,6 +215,8 @@ KalmanAlignmentAlgorithm::refitTracks( const edm::EventSetup& setup,
 
 void KalmanAlignmentAlgorithm::initializeTrajectoryFitter( const edm::EventSetup& setup )
 {
+  setConf( theConfiguration );
+
   edm::ESHandle< TrajectoryFitter > defaultTrajectoryFitter;
   string fitterName = theConfiguration.getParameter< string >( "Fitter" );
   setup.get< TrackingComponentsRecord >().get( fitterName, defaultTrajectoryFitter );
