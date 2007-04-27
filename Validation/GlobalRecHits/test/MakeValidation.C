@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////
-// Macro to compare histograms from the GlobalDigisProducer for validation
+// Macro to compare histograms from the GlobalRecHitsProducer for validation
 //
 // root -b -q MakeValidation.C
 ///////////////////////////////////////////////////////////////////////////////
@@ -8,9 +8,10 @@
 #include "TBranch.h"
 #include "TString.h"
 
-void MakeValidation(TString sfilename = "GlobalDigisHistograms.root",
-		    TString rfilename = "GlobalDigisHistograms-reference.root",
-		    TString filename = "GlobalDigisHistogramsCompare")
+void MakeValidation(TString sfilename = "GlobalRecHitsHistograms.root",
+		    TString rfilename = 
+		    "GlobalRecHitsHistograms-reference.root",
+		    TString filename = "GlobalRecHitsHistogramsCompare")
 {
   gROOT->Reset();
 
@@ -22,8 +23,8 @@ void MakeValidation(TString sfilename = "GlobalDigisHistograms.root",
   //MakeHistograms();
 
   // setup names
-  //TString sfilename = "GlobalDigisHistograms.root";
-  //TString rfilename = "GlobalDigisHistograms-reference.root";
+  //TString sfilename = "GlobalRecHitsHistograms.root";
+  //TString rfilename = "GlobalRecHitsHistograms-reference.root";
 
   // clear memory of file names
   delete gROOT->GetListOfFiles()->FindObject(sfilename);
@@ -35,10 +36,11 @@ void MakeValidation(TString sfilename = "GlobalDigisHistograms.root",
 
   // create canvas
   Int_t cWidth = 928, cHeight = 1218;
-  TCanvas *myCanvas = new TCanvas("globaldigis","globaldigis",cWidth,cHeight);
+  TCanvas *myCanvas = new TCanvas("globalrechits","globalrechits",cWidth,
+				  cHeight);
 
   // open output ps file
-  //TString filename = "GlobalHitsHistogramsCompare";
+  //TString filename = "GlobalRecHitsHistogramsCompare";
   TString psfile = filename+".ps";
   TString psfileopen = filename+".ps[";
   TString psfileclose = filename+".ps]";
@@ -66,261 +68,209 @@ void MakeValidation(TString sfilename = "GlobalDigisHistograms.root",
 
   vector<string> eehistname;
   eehistname.push_back("hEcaln_EE");
-  eehistname.push_back("hEcalAEE_EE");
-  eehistname.push_back("hEcalSHE_EE");
-  eehistname.push_back("hEcalMaxPos_EE");
-  eehistname.push_back("hEcalMultvAEE_EE");
-  eehistname.push_back("hEcalSHEvAEESHE_EE");
+  eehistname.push_back("hEcalRes_EE");
   histnames.push_back(0);
 
   vector<string> ebhistname;
   ebhistname.push_back("hEcaln_EB");
-  ebhistname.push_back("hEcalAEE_EB");
-  ebhistname.push_back("hEcalSHE_EB");
-  ebhistname.push_back("hEcalMaxPos_EB");
-  ebhistname.push_back("hEcalMultvAEE_EB");
-  ebhistname.push_back("hEcalSHEvAEESHE_EB");
+  ebhistname.push_back("hEcalRes_EB");
   histnames.push_back(1);
 
   vector<string> eshistname;
   eshistname.push_back("hEcaln_ES");
-  eshistname.push_back("hEcalADC0_ES");
-  eshistname.push_back("hEcalADC1_ES");
-  eshistname.push_back("hEcalADC2_ES");
+  eshistname.push_back("hEcalRes_ES");
   histnames.push_back(2);
 
   vector<string> hbhistname;
   hbhistname.push_back("hHcaln_HB");
-  hbhistname.push_back("hHcalAEE_HB");
-  hbhistname.push_back("hHcalSHE_HB");
-  hbhistname.push_back("hHcalAEESHE_HB");
-  hbhistname.push_back("hHcalSHEvAEE_HE");
+  hbhistname.push_back("hHcalRes_HB");
   histnames.push_back(3);
 
   vector<string> hehistname;
   hehistname.push_back("hHcaln_HE");
-  hehistname.push_back("hHcalAEE_HE");
-  hehistname.push_back("hHcalSHE_HE");
-  hehistname.push_back("hHcalAEESHE_HE");
-  hehistname.push_back("hHcalSHEvAEE_HE");
+  hehistname.push_back("hHcalRes_HE");
   histnames.push_back(4);
 
   vector<string> hohistname;
   hohistname.push_back("hHcaln_HO");
-  hohistname.push_back("hHcalAEE_HO");
-  hohistname.push_back("hHcalSHE_HO");
-  hohistname.push_back("hHcalAEESHE_HO");
-  hohistname.push_back("hHcalSHEvAEE_HO");
+  hohistname.push_back("hHcalRes_HO");
   histnames.push_back(5);
 
   vector<string> hfhistname;
   hfhistname.push_back("hHcaln_HF");
-  hfhistname.push_back("hHcalAEE_HF");
-  hfhistname.push_back("hHcalSHE_HF");
-  hfhistname.push_back("hHcalAEESHE_HF");
-  hfhistname.push_back("hHcalSHEvAEE_HF");
+  hfhistname.push_back("hHcalRes_HF");
   histnames.push_back(6);
 
   vector<string> tibl1histname;
   tibl1histname.push_back("hSiStripn_TIBL1");
-  tibl1histname.push_back("hSiStripADC_TIBL1");
-  tibl1histname.push_back("hSiStripStrip_TIBL1");
+  tibl1histname.push_back("hSiStripResX_TIBL1");
+  tibl1histname.push_back("hSiStripResY_TIBL1");
   histnames.push_back(7);
 
   vector<string> tibl2histname;
   tibl2histname.push_back("hSiStripn_TIBL2");
-  tibl2histname.push_back("hSiStripADC_TIBL2");
-  tibl2histname.push_back("hSiStripStrip_TIBL2");
+  tibl2histname.push_back("hSiStripResX_TIBL2");
+  tibl2histname.push_back("hSiStripResY_TIBL2");
   histnames.push_back(8);
 
   vector<string> tibl3histname;
   tibl3histname.push_back("hSiStripn_TIBL3");
-  tibl3histname.push_back("hSiStripADC_TIBL3");
-  tibl3histname.push_back("hSiStripStrip_TIBL3");
+  tibl3histname.push_back("hSiStripResX_TIBL3");
+  tibl3histname.push_back("hSiStripResY_TIBL3");
   histnames.push_back(9);
 
   vector<string> tibl4histname;
   tibl4histname.push_back("hSiStripn_TIBL4");
-  tibl4histname.push_back("hSiStripADC_TIBL4");
-  tibl4histname.push_back("hSiStripStrip_TIBL4");
+  tibl4histname.push_back("hSiStripResX_TIBL4");
+  tibl4histname.push_back("hSiStripResY_TIBL4");
   histnames.push_back(10);
 
   vector<string> tobl1histname;
   tobl1histname.push_back("hSiStripn_TOBL1");
-  tobl1histname.push_back("hSiStripADC_TOBL1");
-  tobl1histname.push_back("hSiStripStrip_TOBL1");
+  tobl1histname.push_back("hSiStripResX_TOBL1");
+  tobl1histname.push_back("hSiStripResY_TOBL1");
   histnames.push_back(11);
 
   vector<string> tobl2histname;
   tobl2histname.push_back("hSiStripn_TOBL2");
-  tobl2histname.push_back("hSiStripADC_TOBL2");
-  tobl2histname.push_back("hSiStripStrip_TOBL2");
+  tobl2histname.push_back("hSiStripResX_TOBL2");
+  tobl2histname.push_back("hSiStripResY_TOBL2");
   histnames.push_back(12);
 
   vector<string> tobl3histname;
   tobl3histname.push_back("hSiStripn_TOBL3");
-  tobl3histname.push_back("hSiStripADC_TOBL3");
-  tobl3histname.push_back("hSiStripStrip_TOBL3");
+  tobl3histname.push_back("hSiStripResX_TOBL3");
+  tobl3histname.push_back("hSiStripResY_TOBL3");
   histnames.push_back(13);
 
   vector<string> tobl4histname;
   tobl4histname.push_back("hSiStripn_TOBL4");
-  tobl4histname.push_back("hSiStripADC_TOBL4");
-  tobl4histname.push_back("hSiStripStrip_TOBL4");
+  tobl4histname.push_back("hSiStripResX_TOBL4");
+  tobl4histname.push_back("hSiStripResY_TOBL4");
   histnames.push_back(14);
 
   vector<string> tidw1histname;
   tidw1histname.push_back("hSiStripn_TIDW1");
-  tidw1histname.push_back("hSiStripADC_TIDW1");
-  tidw1histname.push_back("hSiStripStrip_TIDW1");
+  tidw1histname.push_back("hSiStripResX_TIDW1");
+  tidw1histname.push_back("hSiStripResY_TIDW1");
   histnames.push_back(15);
 
   vector<string> tidw2histname;
   tidw2histname.push_back("hSiStripn_TIDW2");
-  tidw2histname.push_back("hSiStripADC_TIDW2");
-  tidw2histname.push_back("hSiStripStrip_TIDW2");
+  tidw2histname.push_back("hSiStripResX_TIDW2");
+  tidw2histname.push_back("hSiStripResY_TIDW2");
   histnames.push_back(16);
 
   vector<string> tidw3histname;
   tidw3histname.push_back("hSiStripn_TIDW3");
-  tidw3histname.push_back("hSiStripADC_TIDW3");
-  tidw3histname.push_back("hSiStripStrip_TIDW3");
+  tidw3histname.push_back("hSiStripResX_TIDW3");
+  tidw3histname.push_back("hSiStripResY_TIDW3");
   histnames.push_back(17);
 
   vector<string> tecw1histname;
   tecw1histname.push_back("hSiStripn_TECW1");
-  tecw1histname.push_back("hSiStripADC_TECW1");
-  tecw1histname.push_back("hSiStripStrip_TECW1");
+  tecw1histname.push_back("hSiStripResX_TECW1");
+  tecw1histname.push_back("hSiStripResY_TECW1");
   histnames.push_back(18);
 
   vector<string> tecw2histname;
   tecw2histname.push_back("hSiStripn_TECW2");
-  tecw2histname.push_back("hSiStripADC_TECW2");
-  tecw2histname.push_back("hSiStripStrip_TECW2");
+  tecw2histname.push_back("hSiStripResX_TECW2");
+  tecw2histname.push_back("hSiStripResY_TECW2");
   histnames.push_back(19);
 
   vector<string> tecw3histname;
   tecw3histname.push_back("hSiStripn_TECW3");
-  tecw3histname.push_back("hSiStripADC_TECW3");
-  tecw3histname.push_back("hSiStripStrip_TECW3");
+  tecw3histname.push_back("hSiStripResX_TECW3");
+  tecw3histname.push_back("hSiStripResY_TECW3");
   histnames.push_back(20);
 
   vector<string> tecw4histname;
   tecw4histname.push_back("hSiStripn_TECW4");
-  tecw4histname.push_back("hSiStripADC_TECW4");
-  tecw4histname.push_back("hSiStripStrip_TECW4");
+  tecw4histname.push_back("hSiStripResX_TECW4");
+  tecw4histname.push_back("hSiStripResY_TECW4");
   histnames.push_back(21);
 
   vector<string> tecw5histname;
   tecw5histname.push_back("hSiStripn_TECW5");
-  tecw5histname.push_back("hSiStripADC_TECW5");
-  tecw5histname.push_back("hSiStripStrip_TECW5");
+  tecw5histname.push_back("hSiStripResX_TECW5");
+  tecw5histname.push_back("hSiStripResY_TECW5");
   histnames.push_back(22);
 
   vector<string> tecw6histname;
   tecw6histname.push_back("hSiStripn_TECW6");
-  tecw6histname.push_back("hSiStripADC_TECW6");
-  tecw6histname.push_back("hSiStripStrip_TECW6");
+  tecw6histname.push_back("hSiStripResX_TECW6");
+  tecw6histname.push_back("hSiStripResY_TECW6");
   histnames.push_back(23);
 
   vector<string> tecw7histname;
   tecw7histname.push_back("hSiStripn_TECW7");
-  tecw7histname.push_back("hSiStripADC_TECW7");
-  tecw7histname.push_back("hSiStripStrip_TECW7");
+  tecw7histname.push_back("hSiStripResX_TECW7");
+  tecw7histname.push_back("hSiStripResY_TECW7");
   histnames.push_back(24);
 
   vector<string> tecw8histname;
   tecw8histname.push_back("hSiStripn_TECW8");
-  tecw8histname.push_back("hSiStripADC_TECW8");
-  tecw8histname.push_back("hSiStripStrip_TECW8");
+  tecw8histname.push_back("hSiStripResX_TECW8");
+  tecw8histname.push_back("hSiStripResY_TECW8");
   histnames.push_back(25);
 
   vector<string> brl1histname;
   brl1histname.push_back("hSiPixeln_BRL1");
-  brl1histname.push_back("hSiPixelADC_BRL1");
-  brl1histname.push_back("hSiPixelRow_BRL1");
-  brl1histname.push_back("hSiPixelCol_BRL1");
+  brl1histname.push_back("hSiPixelResX_BRL1");
+  brl1histname.push_back("hSiPixelResY_BRL1");
   histnames.push_back(26);
 
   vector<string> brl2histname;
   brl2histname.push_back("hSiPixeln_BRL2");
-  brl2histname.push_back("hSiPixelADC_BRL2");
-  brl2histname.push_back("hSiPixelRow_BRL2");
-  brl2histname.push_back("hSiPixelCol_BRL2");
+  brl2histname.push_back("hSiPixelResX_BRL2");
+  brl2histname.push_back("hSiPixelResY_BRL2");
   histnames.push_back(27);
 
   vector<string> brl3histname;
   brl3histname.push_back("hSiPixeln_BRL3");
-  brl3histname.push_back("hSiPixelADC_BRL3");
-  brl3histname.push_back("hSiPixelRow_BRL3");
-  brl3histname.push_back("hSiPixelCol_BRL3");
+  brl3histname.push_back("hSiPixelResX_BRL3");
+  brl3histname.push_back("hSiPixelResY_BRL3");
   histnames.push_back(28);
 
   vector<string> fwd1phistname;
   fwd1phistname.push_back("hSiPixeln_FWD1p");
-  fwd1phistname.push_back("hSiPixelADC_FWD1p");
-  fwd1phistname.push_back("hSiPixelRow_FWD1p");
-  fwd1phistname.push_back("hSiPixelCol_FWD1p");
+  fwd1phistname.push_back("hSiPixelResX_FWD1p");
+  fwd1phistname.push_back("hSiPixelResY_FWD1p");
   histnames.push_back(29);
 
   vector<string> fwd1nhistname;
   fwd1nhistname.push_back("hSiPixeln_FWD1n");
-  fwd1nhistname.push_back("hSiPixelADC_FWD1n");
-  fwd1nhistname.push_back("hSiPixelRow_FWD1n");
-  fwd1nhistname.push_back("hSiPixelCol_FWD1n");
+  fwd1nhistname.push_back("hSiPixelResX_FWD1n");
+  fwd1nhistname.push_back("hSiPixelResY_FWD1n");
   histnames.push_back(30);
 
   vector<string> fwd2phistname;
   fwd2phistname.push_back("hSiPixeln_FWD2p");
-  fwd2phistname.push_back("hSiPixelADC_FWD2p");
-  fwd2phistname.push_back("hSiPixelRow_FWD2p");
-  fwd2phistname.push_back("hSiPixelCol_FWD2p");
+  fwd2phistname.push_back("hSiPixelResX_FWD2p");
+  fwd2phistname.push_back("hSiPixelResY_FWD2p");
   histnames.push_back(31);
 
   vector<string> fwd2nhistname;
   fwd2nhistname.push_back("hSiPixeln_FWD2n");
-  fwd2nhistname.push_back("hSiPixelADC_FWD2n");
-  fwd2nhistname.push_back("hSiPixelRow_FWD2n");
-  fwd2nhistname.push_back("hSiPixelCol_FWD2n");
+  fwd2nhistname.push_back("hSiPixelResX_FWD2n");
+  fwd2nhistname.push_back("hSiPixelResY_FWD2n");
   histnames.push_back(32);
 
-  vector<string> mb1histname;
-  mb1histname.push_back("hDtMuonn_MB1");
-  mb1histname.push_back("hDtMuonLayer_MB1");
-  mb1histname.push_back("hDtMuonTime_MB1");
-  mb1histname.push_back("hDtMuonTimevLayer_MB1");
+  vector<string> dthistname;
+  dthistname.push_back("hDtMuonn");
+  dthistname.push_back("hDtMuonRes");
   histnames.push_back(33);
 
-  vector<string> mb2histname;
-  mb2histname.push_back("hDtMuonn_MB2");
-  mb2histname.push_back("hDtMuonLayer_MB2");
-  mb2histname.push_back("hDtMuonTime_MB2");
-  mb2histname.push_back("hDtMuonTimevLayer_MB2");
+  vector<string> cschistname;
+  cschistname.push_back("hCSCn");
+  cschistname.push_back("hCSCResRDPhi");
   histnames.push_back(34);
 
-  vector<string> mb3histname;
-  mb3histname.push_back("hDtMuonn_MB3");
-  mb3histname.push_back("hDtMuonLayer_MB3");
-  mb3histname.push_back("hDtMuonTime_MB3");
-  mb3histname.push_back("hDtMuonTimevLayer_MB3");
+  vector<string> rpchistname;
+  rpchistname.push_back("hRPCn");
+  rpchistname.push_back("hRPCResX");
   histnames.push_back(35);
-
-  vector<string> mb4histname;
-  mb4histname.push_back("hDtMuonn_MB4");
-  mb4histname.push_back("hDtMuonLayer_MB4");
-  mb4histname.push_back("hDtMuonTime_MB4");
-  mb4histname.push_back("hDtMuonTimevLayer_MB4");
-  histnames.push_back(36);
-
-  vector<string> cscstriphistname;
-  cscstriphistname.push_back("hCSCStripn");
-  cscstriphistname.push_back("hCSCStripADC");
-  histnames.push_back(37);
-
-  vector<string> cscwirehistname;
-  cscwirehistname.push_back("hCSCWiren");
-  cscwirehistname.push_back("hCSCWireTime");
-  histnames.push_back(38);
 
   //loop through histograms to prepare output
   for (Int_t i = 0; i < histnames.size(); ++i) {
@@ -328,24 +278,24 @@ void MakeValidation(TString sfilename = "GlobalDigisHistograms.root",
     Int_t page = histnames[i];
 
     vector<string> names;
-    bool logy3 = kFALSE;
-    bool logy2 = kFALSE;
+    //bool logy3 = kFALSE;
+    //bool logy2 = kFALSE;
 
     // setup canvas depending on group of plots
     TCanvas *Canvas;
 
     if (page == 0) {
-      logy3 = kTRUE;
+      //logy3 = kTRUE;
       names = eehistname;
       Canvas = new TCanvas("eecal","eecal",cWidth,cHeight);
-      Canvas->Divide(2,3);
+      Canvas->Divide(2,2);
       myCanvas = Canvas;
     }
     if (page == 1) {
-      logy3 = kTRUE;
+      //logy3 = kTRUE;
       names = ebhistname;
       Canvas = new TCanvas("ebcal","ebcal",cWidth,cHeight);
-      Canvas->Divide(2,3);
+      Canvas->Divide(2,2);
       myCanvas = Canvas;
     }
     if (page == 2) {
@@ -355,31 +305,31 @@ void MakeValidation(TString sfilename = "GlobalDigisHistograms.root",
       myCanvas = Canvas;
     }
     if (page == 3) {
-      logy3 = kTRUE;
+      //logy3 = kTRUE;
       names = hbhistname;
       Canvas = new TCanvas("hbcal","hbcal",cWidth,cHeight);
-      Canvas->Divide(2,3);
+      Canvas->Divide(2,2);
       myCanvas = Canvas;
     }
     if (page == 4) {
-      logy3 = kTRUE;
+      //logy3 = kTRUE;
       names = hehistname;
       Canvas = new TCanvas("hecal","hecal",cWidth,cHeight);
-      Canvas->Divide(2,3);
+      Canvas->Divide(2,2);
       myCanvas = Canvas;
     }
     if (page == 5) {
-      logy3 = kTRUE;
+      //logy3 = kTRUE;
       names = hohistname;
       Canvas = new TCanvas("hocal","hocal",cWidth,cHeight);
-      Canvas->Divide(2,3);
+      Canvas->Divide(2,2);
       myCanvas = Canvas;
     }
     if (page == 6) {
-      logy3 = kTRUE;
+      //logy3 = kTRUE;
       names = hfhistname;
       Canvas = new TCanvas("hfcal","hfcal",cWidth,cHeight);
-      Canvas->Divide(2,3);
+      Canvas->Divide(2,2);
       myCanvas = Canvas;
     }
     if (page == 7) {
@@ -497,87 +447,69 @@ void MakeValidation(TString sfilename = "GlobalDigisHistograms.root",
       myCanvas = Canvas;
     }
     if (page == 26) {
-      logy2 = kTRUE;
+      //logy2 = kTRUE;
       names = brl1histname;
       Canvas = new TCanvas("brl1","brl1",cWidth,cWidth);
       Canvas->Divide(2,2);
       myCanvas = Canvas;
     }
     if (page == 27) {
-      logy2 = kTRUE;
+      //logy2 = kTRUE;
       names = brl2histname;
       Canvas = new TCanvas("brl2","brl2",cWidth,cWidth);
       Canvas->Divide(2,2);
       myCanvas = Canvas;
     }
     if (page == 28) {
-      logy2 = kTRUE;
+      //logy2 = kTRUE;
       names = brl3histname;
       Canvas = new TCanvas("brl3","brl3",cWidth,cWidth);
       Canvas->Divide(2,2);
       myCanvas = Canvas;
     }
     if (page == 29) {
-      logy2 = kTRUE;
+      //logy2 = kTRUE;
       names = fwd1phistname;
       Canvas = new TCanvas("fwd1p","fwd1p",cWidth,cWidth);
       Canvas->Divide(2,2);
       myCanvas = Canvas;
     }
     if (page == 30) {
-      logy2 = kTRUE;
+      //logy2 = kTRUE;
       names = fwd1nhistname;
       Canvas = new TCanvas("fwd1n","fwd1n",cWidth,cWidth);
       Canvas->Divide(2,2);
       myCanvas = Canvas;
     }
     if (page == 31) {
-      logy2 = kTRUE;
+      //logy2 = kTRUE;
       names = fwd2phistname;
       Canvas = new TCanvas("fwd2p","fwd2p",cWidth,cWidth);
       Canvas->Divide(2,2);
       myCanvas = Canvas;
     }
     if (page == 32) {
-      logy2 = kTRUE;
+      //logy2 = kTRUE;
       names = fwd2nhistname;
       Canvas = new TCanvas("fwd2n","fwd2n",cWidth,cWidth);
       Canvas->Divide(2,2);
       myCanvas = Canvas;
     }
     if (page == 33) {
-      names = mb1histname;
-      Canvas = new TCanvas("mb1","mb1",cWidth,cWidth);
+      names = dthistname;
+      Canvas = new TCanvas("dt","dt",cWidth,cWidth);
       Canvas->Divide(2,2);
       myCanvas = Canvas;
     }
     if (page == 34) {
-      names = mb2histname;
-      Canvas = new TCanvas("mb2","mb2",cWidth,cWidth);
+      names = cschistname;
+      Canvas = new TCanvas("csc","csc",cWidth,cWidth);
       Canvas->Divide(2,2);
       myCanvas = Canvas;
     }
     if (page == 35) {
-      names = mb3histname;
-      Canvas = new TCanvas("mb3","mb3",cWidth,cWidth);
-      Canvas->Divide(2,2);
-      myCanvas = Canvas;
-    }
-    if (page == 36) {
-      names = mb4histname;
-      Canvas = new TCanvas("mb4","mb4",cWidth,cWidth);
-      Canvas->Divide(2,2);
-      myCanvas = Canvas;
-    }
-    if (page == 37) {
-      names = cscstriphistname;
-      Canvas = new TCanvas("cscstrip","cscstrip",cWidth,cWidth);
-      Canvas->Divide(2,2);
-      myCanvas = Canvas;
-    }
-    if (page == 38) {
-      names = cscwirehistname;
-      Canvas = new TCanvas("cscwire","cscwire",cWidth,cWidth);
+      names = rpchistname;
+      Canvas = new TCanvas("rpc","rpc",cWidth,cWidth);
       Canvas->Divide(2,2);
       myCanvas = Canvas;
     }
@@ -639,8 +571,8 @@ void MakeValidation(TString sfilename = "GlobalDigisHistograms.root",
       // make plots
       myCanvas->cd(j+1);
       if (j == 0) gPad->SetLogy();
-      if (logy2 && j == 1) gPad->SetLogy();
-      if (logy3 && j == 2) gPad->SetLogy();
+      //if (logy2 && j == 1) gPad->SetLogy();
+      //if (logy3 && j == 2) gPad->SetLogy();
       rh->Draw();
       sh->Draw("sames");
 

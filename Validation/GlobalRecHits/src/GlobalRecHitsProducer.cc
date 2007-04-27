@@ -447,8 +447,8 @@ void GlobalRecHitsProducer::storeECal(PGlobalRecHit& product)
   }
 
   product.putEBCalRecHits(EBRE,EBSHE);
-  product.putEECalRecHits(EBRE,EBSHE);
-  product.putESCalRecHits(EBRE,EBSHE);
+  product.putEECalRecHits(EERE,EESHE);
+  product.putESCalRecHits(ESRE,ESSHE);
 
   return;
 }
@@ -1908,12 +1908,16 @@ void GlobalRecHitsProducer::clear()
 
   // reset HCal Info
   HBCalREC.clear();
+  HBCalR.clear();
   HBCalSHE.clear();
   HECalREC.clear();
+  HECalR.clear();
   HECalSHE.clear();
   HOCalREC.clear();
+  HOCalR.clear();
   HOCalSHE.clear();
   HFCalREC.clear();
+  HFCalR.clear();
   HFCalSHE.clear();  
 
   // reset Track Info
