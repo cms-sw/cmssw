@@ -16,7 +16,7 @@
 //
 // Original Author:  Pablo Martinez Ruiz Del Arbol
 //         Created:  Wed Mar 28 09:50:08 CEST 2007
-// $Id: DTSurveyConvert.cpp,v 1.2 2007/04/27 11:28:58 pablom Exp $
+// $Id: DTSurveyConvert.cpp,v 1.3 2007/04/27 16:32:24 pablom Exp $
 //
 //
 
@@ -99,19 +99,19 @@ DTSurveyConvert::DTSurveyConvert(const edm::ParameterSet& iConfig)
    nameWheel_m2 = iConfig.getUntrackedParameter<string>("nameWheel_m2");
    nameWheel_m1 = iConfig.getUntrackedParameter<string>("nameWheel_m1");
    nameWheel_0 = iConfig.getUntrackedParameter<string>("nameWheel_0");
-   nameWheel_p2 = iConfig.getUntrackedParameter<string>("nameWheel_p1");
+   nameWheel_p1 = iConfig.getUntrackedParameter<string>("nameWheel_p1");
    nameWheel_p2 = iConfig.getUntrackedParameter<string>("nameWheel_p2");
    
    nameChambers_m2 = iConfig.getUntrackedParameter<string>("nameChambers_m2");
    nameChambers_m1 = iConfig.getUntrackedParameter<string>("nameChambers_m1");
    nameChambers_0 = iConfig.getUntrackedParameter<string>("nameChambers_0");
-   nameChambers_p2 = iConfig.getUntrackedParameter<string>("nameChambers_p1");
+   nameChambers_p1 = iConfig.getUntrackedParameter<string>("nameChambers_p1");
    nameChambers_p2 = iConfig.getUntrackedParameter<string>("nameChambers_p2");
 
    wheel_m2 = iConfig.getUntrackedParameter<bool>("wheel_m2");
    wheel_m1 = iConfig.getUntrackedParameter<bool>("wheel_m1");
    wheel_0 = iConfig.getUntrackedParameter<bool>("wheel_0");
-   wheel_p2 = iConfig.getUntrackedParameter<bool>("wheel_p1");
+   wheel_p1 = iConfig.getUntrackedParameter<bool>("wheel_p1");
    wheel_p2 = iConfig.getUntrackedParameter<bool>("wheel_p2");
 
    outputFileName = iConfig.getUntrackedParameter<string>("OutputTextFile");
