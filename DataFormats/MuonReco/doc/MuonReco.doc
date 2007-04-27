@@ -13,6 +13,11 @@ Persistent classes for Muon Reco data format.
 \subsection interface Public interface
 - reco::Muon: reconstructed Muon. Contains references to three fitted tracks: in muon detector standalone,
   in tracker detector only, and a combined muon detector plus tracker fit.
+- reco::MuIsoDeposit:  class representing the scatter (in eta, phi) of deposits (et or pt etc.) around a muon.
+  Internally the deposits are stored as multimap<Direction, float>
+  Can be used to calculate sumDeposit (e.g., sumEt) or nDeposits (e.g., nTracks) on the fly
+- namespace::Direction: class representation of (eta, phi) point in 2D.
+  Also contains definition of "struct Distance" to represent (dR, angle) displacement vector in (eta, phi) space.
 
 \subsection typedefs 
 - reco::MuonCollection: collection of reco::Muon objects
@@ -20,6 +25,12 @@ Persistent classes for Muon Reco data format.
 - reco::MuonRefProd: reference to a reco::Muon collection
 - reco::MuonRefVector: vector of references to reco::Muon objects in the same collection
 - reco::muon_iterator: iterator over a vector of references to reco::Muon objects in the same collection
+
+- reco::MuIsoDepositAssociationMap: association map of reco::MuIsoDeposit keyed to TrackCollection 
+- reco::MuIsoAssociationMap: association map of boolean value keyed to TrackCollection. Used to store "is isolated" status for a muon (reco::Track)
+- reco::MuIsoIntAssociationMap: association map of int value keyed to TrackCollection. Used to store nTracks-like output.
+- reco::MuIsoFloatAssociationMap: association map of float value keyed to TrackCollection. Used to store sumEt or likelyhood-kind of values.
+  \n(<b>all isolation maps are fit to work with both StandAlone and other muons</b>)
 
 \subsection modules Modules
 None.
@@ -30,6 +41,7 @@ None.
 \section status Status and planned development
 To be reviewed.
 
+
 <hr>
-Last updated: @DATE@ L. Lista
+Last updated: @DATE@ Slava Krutelyov
 */
