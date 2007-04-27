@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Apr  4 14:28:58 EDT 2007
-// $Id: PluginManager.cc,v 1.3 2007/04/18 16:18:45 chrjones Exp $
+// $Id: PluginManager.cc,v 1.4 2007/04/19 12:44:20 chrjones Exp $
 //
 
 // system include files
@@ -182,6 +182,7 @@ PluginManager::load(const std::string& iCategory,
     boost::shared_ptr<SharedLibrary> ptr( new SharedLibrary(p.native_file_string()) );
     loadables_[p]=ptr;
     justLoaded_(*ptr);
+    loadingLibraryNamed_()="<loaded by another plugin system>";
     return *ptr;
   }
   return *(itLoaded->second);
