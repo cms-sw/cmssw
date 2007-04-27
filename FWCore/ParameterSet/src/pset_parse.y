@@ -3,7 +3,7 @@
 %{
 
 /*
- * $Id: pset_parse.y,v 1.55 2006/12/05 22:01:40 rpw Exp $
+ * $Id: pset_parse.y,v 1.56 2007/03/27 17:23:03 rpw Exp $
  *
  * Author: Us
  * Date:   4/28/05
@@ -641,6 +641,8 @@ replaceEntry:    VALUE_tok
                  MINUSINF_tok
                |
                  EVENTIDVALUE_tok
+               |
+                 SOURCE_tok /* sometimes people use the word 'source' as an InputTag */
                ;
 
 producttags:     producttags COMMA_tok anyproducttag
