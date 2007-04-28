@@ -3,29 +3,24 @@
 # Created by: Shahram Rahatlou
 #             University of Rome & INFN
 #             11 September 2006
-#  $Id: $
+#  $Id: addpkg,v 1.4 2007/04/17 10:08:07 rahatlou Exp $
 #
 use strict;
 use Getopt::Long;
 use Cwd;
 
-
 my $file;
 my $doHelp;
-my $quiet;
+my $pkgquery;
 my $tc; # tag collector format: <package> <tag>
 
 GetOptions("file|f=s" => \$file,
-           "quiet|q" => \$quiet,
+           "query|q" => \$pkgquery,
            "help|h" => \$doHelp);
 
 #-- main start here
 
 if( defined $doHelp )   {  usage(); }
-
-if(defined $quiet) {
-  print STDOUT "--quiet: Will not execute the CVS commands.\n";
-}
 
 # make sure cvs is setup
 unless(defined $ENV{"CVSROOT"} ) {
@@ -40,36 +35,41 @@ my $relver = $ENV{CMSSW_VERSION};
 
 my $taglist = "$ENV{CMSSW_RELEASE_BASE}/src/PackageList.cmssw";
 
-# addpkg <package> : use default tag for the release
-if(@ARGV == 1) {
+# addpkg <package> : use default tag for the release - 1 argument
+# addpkg <package> <tag>: use tag provided by user. simple cvs co - 2 arguments
+if(($#ARGV == 0)||($#ARGV == 1)) {
   my $package = $ARGV[0];
   die "Bad package. You must use Subsystem/Package format\n" unless $package =~ m#(.*)/(.*)#;
 
-  #print "package: <$package> tag list: <$taglist>\n";
-  open IN, "$taglist";
-  my $l2="";
-  while(my $l = <IN>) {
-    chomp $l;
-    if($l =~ m#$package#) { $l2 = $l; last; }
+  my $tagrel = ""; my $tagco = ""; my $tagaction = "";
+  # Get the release tag if the user has not provided a tag or if the user
+  # is querying the release tag
+  if ($#ARGV == 0 || (defined $pkgquery)) {
+    #print "package: <$package> tag list: <$taglist>\n";
+    open IN, "$taglist";
+    my $l2="";
+    while(my $l = <IN>) {
+      chomp $l;
+      if($l =~ m#$package#) { $l2 = $l; last; }
+    }
+    close IN;
+    die "No package <$package> found in the release.\n" if($l2 eq "");
+    my @v1 = split '\s+', $l2;
+    $tagrel = $v1[1];
   }
-  close IN;
-  die "No package <$package> found in the release.\n" if($l2 eq "");
-  my @v1 = split '\s+', $l2;
-  my $tag1 = $v1[1];
-  unless(defined $quiet) { system("cvs co -r $tag1 $package"); }
-  print STDOUT "Checked out tag $tag1 for package $package\n";
-  exit 0;
-}
-
-
-# addpkg <package> <tag>: use tag provided by user. simple cvs co
-if(@ARGV == 2) {
-  my $package = $ARGV[0];
-  die "Bad package. You must use Subsystem/Package format\n" unless $package =~ m#(.*)/(.*)#;
-
-  my $tag1 = $ARGV[1];
-  unless(defined $quiet) { system("cvs co -r $tag1 $package"); }
-  print STDOUT "Checked out tag $tag1 for package $package\n";
+  if ($#ARGV == 1) {
+    $tagco = $ARGV[1];   # user provided tag
+    $tagaction = "specified";
+  } else {
+    $tagco = $tagrel;    # using release tag
+    $tagaction = "release";
+  }
+  if (!defined $pkgquery) { 
+     system("cvs co -r $tagco $package"); 
+     print STDOUT "Checked out $tagaction tag $tagco for package $package\n";
+  } else {
+     print STDOUT "Release $relver has tag $tagrel for package $package\n";
+  }
   exit 0;
 }
 
@@ -100,7 +100,7 @@ while(my $line = <IN>) {
 
   # run the cvs command
   my $cmd = "cvs co -r $tag $package";
-  if(defined $quiet) {
+  if(defined $pkgquery) {
     print STDOUT "$cmd\n";
   } else {
     system("$cmd");
@@ -116,17 +116,21 @@ sub usage {
 print STDOUT <<ENDHELP;
 addpkg [option]
 
-  usage:      --help|-h          print this message
-              --quiet|-q         do not run the actual cvs command. simple printout
-              --file|-f <file>   checkout tags in <file>. Each line must contain one tag and one package
+  usage:      --help|-h          Print this message
+              --query|-q         Determine the tag used in the release and 
+                                 print it. Do not run the actual cvs command. 
+              --file|-f <file>   Checkout tags in <file>. Each line must 
+                                 contain one tag and one package
 
   Typical use of addpkg:
-      addpkg <package>       : checkout default tag of <package> in the release
-      addpkg <package> <tag> : checkout the tag <tag>. Same as cvs co -r <tag> <package>
-      addpkg -f <file>       : checkout packages provided in <file>. Supports both formats
-                               <package> <tag>
-                                 or
-                               <tag> <package>
+      addpkg <package>       : Checkout tag of <package> used in the release
+      addpkg <package> <tag> : Checkout the specified tag <tag>. Same as 
+                               cvs co -r <tag> <package>
+      addpkg -f <file>       : Checkout packages provided in <file>. Supports 
+                               both formats:
+                                 <package> <tag>
+                                   or
+                                 <tag> <package>
 
 ENDHELP
 exit 0;
