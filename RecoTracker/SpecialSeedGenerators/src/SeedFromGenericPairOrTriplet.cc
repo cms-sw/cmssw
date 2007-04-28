@@ -70,7 +70,7 @@ TrajectorySeed* SeedFromGenericPairOrTriplet::seedFromTriplet(const SeedingHitSe
                         << middle.y() << ", " 
                         << middle.z() << ")";
 		SeedingHitSet newSet;
-		if (dir == alongMomentum){
+		if (seedDir == outsideIn){
 			newSet.add((hits.hits())[1]);
 			newSet.add((hits.hits())[2]);
 		} else {
@@ -103,8 +103,7 @@ TrajectorySeed* SeedFromGenericPairOrTriplet::seedFromTriplet(const SeedingHitSe
 	//const TrackingRecHit* secondHit = 0;
 	//choose the prop dir and hit order accordingly to where the seed is made
 	std::vector<const TrackingRecHit*> trHits;
-	if ((dir == alongMomentum && seedDir == outsideIn)
-	     || (dir == oppositeToMomentum && seedDir == insideOut)){
+	if (seedDir == outsideIn){
 		LogDebug("SeedFromGenericPairOrTriplet") 
 			<< "Seed from outsideIn alongMomentum OR insideOut oppositeToMomentum";
 		firstPoint = &outer;
@@ -120,12 +119,12 @@ TrajectorySeed* SeedFromGenericPairOrTriplet::seedFromTriplet(const SeedingHitSe
 		firstPoint = &inner;
 		secondPoint = &middle;
 		thirdPoint = &outer;
-		momentumSign = -1;
 		trHits.push_back(innerHit);
 		trHits.push_back(middleHit);
 		//firstHit  = innerHit;
 		//secondHit = middleHit;
-        } 
+        }
+	if (dir == oppositeToMomentum) momentumSign = -1; 
 	FastHelix helix(*thirdPoint, *secondPoint, *firstPoint, iSetup);
         FreeTrajectoryState originalStartingState = helix.stateAtVertex();
 	LogDebug("SeedFromGenericPairOrTriplet") << "originalStartingState " << originalStartingState;
@@ -173,8 +172,7 @@ TrajectorySeed* SeedFromGenericPairOrTriplet::seedFromPair(const SeedingHitSet& 
         //const TrackingRecHit* secondHit = 0;
 	std::vector<const TrackingRecHit*> trHits;
         //choose the prop dir and hit order accordingly to where the seed is made
-        if ((dir == alongMomentum && seedDir == outsideIn)
-             || (dir == oppositeToMomentum && seedDir == insideOut)){
+        if (seedDir == outsideIn){
 		LogDebug("SeedFromGenericPairOrTriplet")
                         << "Seed from outsideIn alongMomentum OR insideOut oppositeToMomentum";
                 firstPoint = &outer;
@@ -194,6 +192,7 @@ TrajectorySeed* SeedFromGenericPairOrTriplet::seedFromPair(const SeedingHitSet& 
 		trHits.push_back(innerHit);
 		trHits.push_back(outerHit);
         }
+	if (dir == oppositeToMomentum) momentumSign = -1;
 	GlobalVector momentum = momentumSign*p*(*secondPoint-*firstPoint).unit();
         GlobalTrajectoryParameters gtp(*secondPoint,
                                        momentum,
