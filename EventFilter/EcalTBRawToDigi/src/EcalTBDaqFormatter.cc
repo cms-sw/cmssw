@@ -1,7 +1,7 @@
 /*  
  *
- *  $Date: 2007/04/26 15:55:10 $
- *  $Revision: 1.51 $
+ *  $Date: 2007/04/28 21:47:55 $
+ *  $Revision: 1.52 $
  *  \author  N. Marinelli IASA 
  *  \author G. Della Ricca
  *  \author G. Franzoni
@@ -342,7 +342,7 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData ,
 	    ch                 =(*itXtalBlock)->xtalID();
 	    cryInTower  =(strip-1)* kChannelsPerCard + (ch -1);
 
-	    expStripInTower = expCryInTower/5 +1;
+	    expStripInTower   =  expCryInTower/5 +1;
 	    expCryInStrip     =  expCryInTower%5 +1;
 	    
 	    
@@ -413,8 +413,8 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData ,
 	      }// end   if zero supression
 	    
 	    
-	    else {
 
+	    else {
 	      
 	      // checking that ch and strip are within range and cryInTower is as expected
 	      if(   cryInTower != expCryInTower   ||  
@@ -450,7 +450,7 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData ,
 	    
 	    
 	    // data  to be stored in EBDataFrame, identified by EBDetId
-	    int  ic        = cryIc(tower, strip, ch) ;
+	    int  ic = cryIc(tower, strip, ch) ;
 	    int  sm = 1;
 	    EBDetId  id(sm, ic,1);                 
 	    
@@ -651,23 +651,6 @@ void EcalTBDaqFormatter::DecodeMEM( DCCTowerBlock *  towerblock,  EcalPnDiodeDig
       ++ _expTowersIndex;
       return;
     }
-
-
-//   // check that the mem-tower coming in is the one expected from DCC-header event status
-//   if ( tower_id != ( (int)_ExpectedTowers[_expTowersIndex])  )
-//     {
-//       edm::LogWarning("EcalTBRawToDigiTowerId") << "@SUB=EcalTBDaqFormatter:decodeMem"
-// 				    << "DecodeMEM: tower " << tower_id  
-// 				    << " is not the same as expected " << ((int)_ExpectedTowers[_expTowersIndex])
-// 				    << " (according to DCC header channel status)";
-      
-//       // chosing channel 1 as representative as a dummy...
-//       EcalElectronicsId id(1, (int)_ExpectedTowers[_expTowersIndex], 1, 1);
-//       memttidcollection.push_back(id);
-//       ++ _expTowersIndex;
-//       return; // if NOT a mem tt block - do not build any Pn digis
-//     }
-       
 
      
   /******************************************************************************
