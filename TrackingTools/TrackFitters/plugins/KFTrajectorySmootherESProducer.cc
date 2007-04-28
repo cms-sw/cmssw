@@ -1,4 +1,4 @@
-#include "TrackingTools/TrackFitters/plugins/FTrajectorySmootherESProducer.h"
+#include "TrackingTools/TrackFitters/plugins/KFTrajectorySmootherESProducer.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
