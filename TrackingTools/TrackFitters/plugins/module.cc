@@ -1,6 +1,6 @@
-#include "TrackingTools/TrackFitters/interface/KFTrajectoryFitterESProducer.h" 
-#include "TrackingTools/TrackFitters/interface/KFTrajectorySmootherESProducer.h" 
-#include "TrackingTools/TrackFitters/interface/KFFittingSmootherESProducer.h" 
+#include "TrackingTools/TrackFitters/plugins/KFTrajectoryFitterESProducer.h" 
+#include "TrackingTools/TrackFitters/plugins/KFTrajectorySmootherESProducer.h" 
+#include "TrackingTools/TrackFitters/plugins/KFFittingSmootherESProducer.h" 
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
