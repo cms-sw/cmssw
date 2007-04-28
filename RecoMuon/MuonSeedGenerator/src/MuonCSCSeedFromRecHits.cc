@@ -16,8 +16,8 @@ MuonCSCSeedFromRecHits::MuonCSCSeedFromRecHits(const edm::EventSetup & eSetup)
   //FIXME make configurable
   // parameters for the fit of dphi between chambers vs. eta
   // pt = (c1 + c2 abs(eta))/ dphi
-  //fillConstants(1,5, 0.6640, -0.2253);
-  //fillConstants(1,7, 0.6255, -0.1955);
+  fillConstants(1,5, 0.6640, -0.2253);
+  fillConstants(1,7, 0.6255, -0.1955);
   fillConstants(2,5, 0.6876, -0.2379);
   fillConstants(2,7, 0.6404, -0.2009);
   //fillConstants(2,8, 0.7972, -0.3032);
@@ -111,15 +111,23 @@ bool MuonCSCSeedFromRecHits::makeSeed(const MuonRecHitContainer & hits1, const M
         double c2 = mapItr->second.second;
         // the parametrization
         double pt = (c1 + c2 * fabs(eta) ) / dphi;
-          // FIXME
-        float sigmapt = 25;
+        double minpt = 3.;
+        // if too small, probably an error.  Keep trying.
+        if(fabs(pt) > minpt)
+        {
+          //FIXME add max PT, too
+          // add 20% errors in quadrature
+          //float sigmapt = sqrt(20*20 + pt*.20*pt*.20);
+          float sigmapt = 25.;
 
-        // get the position and direction from the higher-quality segment
-        ConstMuonRecHitPointer bestSeg = bestSegment();
-        seed = createSeed(pt, sigmapt, bestSeg);
+          // get the position and direction from the higher-quality segment
+          ConstMuonRecHitPointer bestSeg = bestSegment();
+          seed = createSeed(pt, sigmapt, bestSeg);
 
-        //std::cout << "FITTED PT " << pt << " dphi " << dphi << " eta " << eta << std::endl;
-        return true;
+          std::cout << "FITTED PT " << pt << " dphi " << dphi << " eta " << eta << std::endl;
+          return true;
+        }
+
       }
     }
   }
