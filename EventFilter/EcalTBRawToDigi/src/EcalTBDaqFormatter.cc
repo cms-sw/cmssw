@@ -1,7 +1,7 @@
 /*  
  *
- *  $Date: 2007/04/25 13:21:19 $
- *  $Revision: 1.50 $
+ *  $Date: 2007/04/26 15:55:10 $
+ *  $Revision: 1.51 $
  *  \author  N. Marinelli IASA 
  *  \author G. Della Ricca
  *  \author G. Franzoni
@@ -273,13 +273,28 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData ,
 
       if (  !(tower == _ExpectedTowers[_expTowersIndex])	  )
         {	
-          edm::LogWarning("EcalTBRawToDigiTowerId") << "@SUBS=EcalTBDaqFormatter::interpretRawData"
-					<< "TTower id found (=" << tower 
-					<< ") different from expected (=" <<  _ExpectedTowers[_expTowersIndex] 
-					<< ") " << (_expTowersIndex+1) << "th tower checked"; 
+	  
+	  if (_ExpectedTowers[_expTowersIndex] <= 68){
+	    edm::LogWarning("EcalTBRawToDigiTowerId") << "@SUBS=EcalTBDaqFormatter::interpretRawData"
+						      << "TTower id found (=" << tower 
+						      << ") different from expected (=" <<  _ExpectedTowers[_expTowersIndex] 
+						      << ") " << (_expTowersIndex+1) << "-th tower checked"; 
 	    
-          // report on failed tt_id
-          ttidcollection.push_back(idtt);
+	    //  report on failed tt_id for regular tower block
+	    ttidcollection.push_back(idtt);
+	  }
+	  else
+	    {
+	      edm::LogWarning("EcalTBRawToDigiTowerId") << "@SUB=EcalTBDaqFormatter:interpretRawData"
+							<< "DecodeMEM: tower " << tower  
+							<< " is not the same as expected " << ((int)_ExpectedTowers[_expTowersIndex])
+							<< " (according to DCC header channel status)";
+	      
+	      // report on failed tt_id for mem tower block
+	      // chosing channel 1 as representative
+	      EcalElectronicsId id(1, (int)_ExpectedTowers[_expTowersIndex], 1, 1);
+	      memttidcollection.push_back(id);
+	    }
 
           ++ _expTowersIndex;
           continue;	
@@ -638,20 +653,20 @@ void EcalTBDaqFormatter::DecodeMEM( DCCTowerBlock *  towerblock,  EcalPnDiodeDig
     }
 
 
-  // check that the mem-tower coming in is the one expected from DCC-header event status
-  if ( tower_id != ( (int)_ExpectedTowers[_expTowersIndex])  )
-    {
-      edm::LogWarning("EcalTBRawToDigiTowerId") << "@SUB=EcalTBDaqFormatter:decodeMem"
-				    << "DecodeMEM: tower " << tower_id  
-				    << " is not the same as expected " << ((int)_ExpectedTowers[_expTowersIndex])
-				    << " (according to DCC header channel status)";
+//   // check that the mem-tower coming in is the one expected from DCC-header event status
+//   if ( tower_id != ( (int)_ExpectedTowers[_expTowersIndex])  )
+//     {
+//       edm::LogWarning("EcalTBRawToDigiTowerId") << "@SUB=EcalTBDaqFormatter:decodeMem"
+// 				    << "DecodeMEM: tower " << tower_id  
+// 				    << " is not the same as expected " << ((int)_ExpectedTowers[_expTowersIndex])
+// 				    << " (according to DCC header channel status)";
       
-      // chosing channel 1 as representative as a dummy...
-      EcalElectronicsId id(1, (int)_ExpectedTowers[_expTowersIndex], 1, 1);
-      memttidcollection.push_back(id);
-      ++ _expTowersIndex;
-      return; // if NOT a mem tt block - do not build any Pn digis
-    }
+//       // chosing channel 1 as representative as a dummy...
+//       EcalElectronicsId id(1, (int)_ExpectedTowers[_expTowersIndex], 1, 1);
+//       memttidcollection.push_back(id);
+//       ++ _expTowersIndex;
+//       return; // if NOT a mem tt block - do not build any Pn digis
+//     }
        
 
      
