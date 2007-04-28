@@ -1,6 +1,7 @@
-#ifndef Hydjet_Source_h
-#define Hydjet_Source_h
+#ifndef HydjetSource_h
+#define HydjetSource_h
 
+// $Id:$
 
 /** \class HydjetSource
 *
@@ -17,7 +18,11 @@
 #include <map>
 #include <string>
 #include <vector>
-#include "HepMC/GenEvent.h"
+
+namespace HepMC {
+  class GenEvent;
+  class GenParticle;
+};
 
 namespace edm
 {
@@ -39,28 +44,29 @@ namespace edm
 
 
   private:
-    bool build_vertices(int i,
-	std::vector<HepMC::GenParticle*>& luj_entries, HepMC::GenEvent* evt);
+    bool build_vertices(int i, std::vector<HepMC::GenParticle*>& luj_entries,
+                        HepMC::GenEvent* evt);
     HepMC::GenParticle* build_particle( int index );	
     bool call_hyjgive(const std::string& iParm);
     bool call_pygive(const std::string& iParm);
     void clear();
     bool get_hydjet_particles(HepMC::GenEvent* evt);
+    void add_heavy_ion_rec(HepMC::GenEvent *evt);
     bool hyjhydro_init();
     bool hyjpythia_init();
     virtual bool produce(Event & e);
     
     HepMC::GenEvent *evt;
-    double           abeamtarget_;            // beam/target atomic mass number 
-    double           bfixed_;                 // fixed impact param (fm); valid only if cflag_=0
-    double           bmax_;                   // max impact param; 
+    float           abeamtarget_;            // beam/target atomic mass number 
+    float           bfixed_;                 // fixed impact param (fm); valid only if cflag_=0
+    float           bmax_;                   // max impact param; 
                                               // units of nucl radius
-    double           bmin_;                   // min impact param; 
+    float           bmin_;                   // min impact param; 
                                               // units of nucl radius
     int              cflag_;                  // centrality flag 
                                               // =  0 fixed impact param, 
                                               // <> 0 between bmin and bmax
-    double           comenergy;               // collision energy          
+    float           comenergy;               // collision energy          
 
 
     EHydjetMode      hyMode;                  // Hydjet running mode

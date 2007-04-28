@@ -1,3 +1,10 @@
+#ifndef GeneratorInterface_HydjetInterface_HydjetWrapper
+#define GeneratorInterface_HydjetInterface_HydjetWrapper
+
+//
+// $Id:$
+//
+
 /*
  *
  * Wrapper for FORTRAN version of HYDJET
@@ -7,14 +14,12 @@
  */
 
 
-// HYDJET routine declaration
-
 #define _MAXMULsize_ 150000
 
-#define HYDRO hydro_
 extern "C" {
-  void HYDRO(double& a,int& ifb,double& bmin,double& bmax,double& bfix,int& nh);
+  void hydro_(float& a,int& ifb,float& bmin,float& bmax,float& bfix,int& nh);
 }
+#define HYDRO hydro_
 
 
 extern "C" {
@@ -32,7 +37,7 @@ extern "C" {
     float ytfl;
     float ylfl;
     float fpart;
-  }hyflow_;
+  } hyflow_;
 }
 #define hyflow hyflow_
 
@@ -81,3 +86,20 @@ extern "C" {
 }
 #define lujets lujets_
 
+
+// common /hyipar/ bminh,bmaxh,AW,RA,sigin,np  
+
+extern "C" {
+  extern struct {
+    float	bminh;
+	 float	bmaxh;
+	 float	AW;
+	 float	RA;
+	 float	sigin;
+	 float	np;
+  } hyipar_;
+}
+#define hyipar	hyipar_
+
+
+#endif

@@ -81,6 +81,11 @@ void HydjetAnalyzer::analyze( const Event& e, const EventSetup& )
 	     }
 	 }
      }
+
+  HepMC::HeavyIon *hi = myEvt->heavy_ion();
+  if ( hi ) {
+     std::cout << "B = " << hi->impact_parameter() << std::endl;
+  }
    return ;   
 }
 

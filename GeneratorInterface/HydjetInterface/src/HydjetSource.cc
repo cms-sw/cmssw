@@ -1,9 +1,10 @@
 /*
+ * $Id:$
  *
- * Generates HYDJET HepMC events
+ * Interface to the HYDJET generator, produces HepMC events
  *
  * Original Author: Camelia Mironov
-*/
+ */
 
 #include <iostream>
 #include <cstdio>
@@ -15,6 +16,7 @@
 
 #include "HepMC/PythiaWrapper6_2.h"
 #include "HepMC/GenEvent.h"
+#include "HepMC/HeavyIon.h"
 #include "HepMC/SimpleVector.h"
 
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
@@ -26,8 +28,9 @@ using namespace edm;
 using namespace std;
 
 
-HydjetSource :: HydjetSource(const ParameterSet & pset, 
-			     InputSourceDescription const& desc):
+HydjetSource::HydjetSource(const ParameterSet &pset, 
+  		    					InputSourceDescription const &desc)
+  :
 GeneratedInputSource(pset, desc), evt(0), 
 abeamtarget_(pset.getUntrackedParameter<double>("aBeamTarget",207.)),
 bfixed_(pset.getUntrackedParameter<double>("bFixed",0.)),
@@ -255,7 +258,7 @@ void HydjetSource::clear()
 
 
 //_____________________________________________________________________
-bool HydjetSource::get_hydjet_particles(HepMC::GenEvent* evt)
+bool HydjetSource::get_hydjet_particles(HepMC::GenEvent *evt)
 {
   // Hard particles. The first nhard_ lines form lujets array.
   // It corresponds to hard multijet part of the event: hard 
@@ -356,6 +359,29 @@ bool HydjetSource::hyjpythia_init()
 
 
 //_____________________________________________________________________
+void HydjetSource::add_heavy_ion_rec(HepMC::GenEvent *evt)
+{
+  HepMC::HeavyIon *hi = new HepMC::HeavyIon(
+    hyfpar.nbcol,			// Ncoll_hard
+	  hyfpar.npart / 2,	// Npart_proj
+    hyfpar.npart / 2,	// Npart_targ
+    hyfpar.nbcol,			// Ncoll
+    -1,						// spectator_neutrons
+    -1,						// spectator_protons
+    -1,						// N_Nwounded_collisions
+    -1,						// Nwounded_N_collisions
+    -1,						// Nwounded_Nwounded_collisions
+    hyfpar.bgen,			// impact_parameter
+    0,						// event_plane_angle
+    0,						//	eccentricity
+    hyipar.sigin			// sigma_inel_NN
+  );
+
+  evt->set_heavy_ion(hi);
+}
+
+
+//_____________________________________________________________________
 bool HydjetSource::produce(Event & e)
 {
   // generate single event
@@ -365,32 +391,40 @@ bool HydjetSource::produce(Event & e)
   nsoft_    = 0;
   nhard_    = 0;
 
+  cout << "abeamtarget_ " << abeamtarget_ << endl;
+  cout << "cflag_ " << cflag_ << endl;
+  cout << "bmin_ " << bmin_ << endl;
+  cout << "bmax_ " << bmax_ << endl;
+  cout << "bfixed_ " << bfixed_ << endl;
+  cout << "nmultiplicity_ " << nmultiplicity_ << endl;
+  cout << "##### Calling HYDRO(abeamtarget_,cflag_,bmin_,bmax_,bfixed_,nmultiplicity_) ####" << endl;
+
   HYDRO(abeamtarget_,cflag_,bmin_,bmax_,bfixed_,nmultiplicity_);
   nsoft_    = hyfpar.nhyd;
   nhard_    = hyfpar.npyt;
 
   // event information
-  HepMC::GenEvent* evt      = new HepMC::GenEvent();
+  HepMC::GenEvent *evt = new HepMC::GenEvent();
   get_hydjet_particles(evt); 
 
   evt->set_signal_process_id(pypars.msti[0]);      // type of the process
   evt->set_event_scale(pypars.pari[16]);           // Q^2
   evt->set_event_number(numberEventsInRun() - remainingEvents() - 1);
 
-  if(evt) 
-    {
-      auto_ptr<HepMCProduct> bare_product(new HepMCProduct());
-      bare_product->addHepMCData(evt );
-      e.put(bare_product);
+  add_heavy_ion_rec(evt);
 
-      // print PYLIST info
-      if(event() <= maxEventsToPrint_ && pythiaPylistVerbosity_) 	
-	call_pylist(pythiaPylistVerbosity_);      
-    }
+  if (evt) {
+		auto_ptr<HepMCProduct> bare_product(new HepMCProduct());
+		bare_product->addHepMCData(evt );
+		e.put(bare_product);
+
+		// print PYLIST info
+		if (event() <= maxEventsToPrint_ && pythiaPylistVerbosity_) 	
+			call_pylist(pythiaPylistVerbosity_);      
+	}
   
   return true;
 }
 
 
 //________________________________________________________________
-
