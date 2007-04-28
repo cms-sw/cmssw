@@ -1,11 +1,11 @@
-// $Id: EcalMonitorPrescaler.cc,v 1.2 2007/04/11 06:50:38 dellaric Exp $
+// $Id: EcalMonitorPrescaler.cc,v 1.1 2007/04/27 16:53:28 dellaric Exp $
 
 /*!
   \file EcalMonitorPrescaler.cc
   \brief Ecal specific Prescaler
   \author G. Della Ricca
-  \version $Revision: 1.2 $
-  \date $Date: 2007/04/11 06:50:38 $
+  \version $Revision: 1.1 $
+  \date $Date: 2007/04/27 16:53:28 $
 */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -25,7 +25,7 @@ EcalMonitorPrescaler::EcalMonitorPrescaler(edm::ParameterSet const& ps) {
 
   count_ = 0;
 
-    EcalRawDataCollection_ = ps.getParameter<edm::InputTag>("EcalRawDataCollection");
+  EcalRawDataCollection_ = ps.getParameter<edm::InputTag>("EcalRawDataCollection");
 
   occupancyPrescaleFactor_ = ps.getUntrackedParameter<int>("occupancyPrescaleFactor" , 1);
   integrityPrescaleFactor_ = ps.getUntrackedParameter<int>("integrityPrescaleFactor", 1);
