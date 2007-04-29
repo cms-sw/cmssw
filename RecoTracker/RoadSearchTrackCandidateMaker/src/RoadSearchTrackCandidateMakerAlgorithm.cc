@@ -10,8 +10,8 @@
 // Created:         Wed Mar 15 13:00:00 UTC 2006
 //
 // $Author: burkett $
-// $Date: 2007/04/02 17:39:30 $
-// $Revision: 1.34 $
+// $Date: 2007/04/25 21:00:57 $
+// $Revision: 1.35 $
 //
 
 #include <vector>
@@ -452,11 +452,11 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
           FastHelix helix(outer, inner, GlobalPoint(x0,y0,z0), es);
           if (!NoFieldCosmic_ && !helix.isValid()) continue;
           
-          AlgebraicSymMatrix C(5,1);
+          AlgebraicSymMatrix55 C = AlgebraicMatrixID();
           float zErr = vertexErr.czz();
           float transverseErr = vertexErr.cxx(); // assume equal cxx cyy
-          C[3][3] = transverseErr;
-          C[4][4] = zErr;
+          C(3, 3) = transverseErr;
+          C(4, 4) = zErr;
           CurvilinearTrajectoryError initialError(C);
           //FreeTrajectoryState fts( helix.stateAtVertex().parameters(), initialError);
 	  FreeTrajectoryState fts;
@@ -467,7 +467,7 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
 	    GlobalPoint XYZ0(x0,y0,z0);
 	    GlobalVector PXYZ(cos(phi0),sin(phi0),dzdr);
 	    GlobalTrajectoryParameters thePars(XYZ0,PXYZ,q,magField);
-	    AlgebraicSymMatrix CErr(6,1);
+	    AlgebraicSymMatrix66 CErr = AlgebraicMatrixID();
 	    fts = FreeTrajectoryState(thePars,
 				      CartesianTrajectoryError(CErr));
 	  }

@@ -12,8 +12,8 @@
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2007/03/01 08:16:18 $
-// $Revision: 1.24 $
+// $Date: 2007/03/07 21:46:50 $
+// $Revision: 1.25 $
 //
 
 #include <vector>
@@ -756,12 +756,12 @@ CurvilinearTrajectoryError RoadSearchSeedFinderAlgorithm::
 initialError( const GlobalPoint& vertexPos,
 	      const GlobalError& vertexErr)
 {
-  AlgebraicSymMatrix C(5,1);
+  AlgebraicSymMatrix55 C = AlgebraicMatrixID();
 
   float zErr = vertexErr.czz();
   float transverseErr = vertexErr.cxx(); // assume equal cxx cyy 
-  C[3][3] = transverseErr;
-  C[4][4] = zErr;
+  C(3,3) = transverseErr;
+  C(4,4) = zErr;
 
   return CurvilinearTrajectoryError(C);
 }
