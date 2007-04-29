@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2007/04/25 15:04:24 $
- * $Revision: 1.254 $
+ * $Date: 2007/04/26 16:42:00 $
+ * $Revision: 1.255 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1144,8 +1144,13 @@ void EcalBarrelMonitorClient::analyze(void){
   // # of full monitoring cycles processed
   int updates = mui_->getNumUpdates();
 
+  // run QTs on MEs updated during last cycle (offline mode)
   if ( ! enableStateMachine_ ) {
     if ( enableQT_ ) mui_->runQTests();
+  }
+
+  // update MEs (online mode)
+  if ( ! enableStateMachine_ ) {
     mui_->doMonitoring();
   }
 
@@ -1287,32 +1292,46 @@ void EcalBarrelMonitorClient::analyze(void){
 
         summaryClient_->analyze();
 
-        if ( status_ == "end-of-run" || forced_update_ ) {
+        if ( status_ == "running" || status_ == "end-of-run" || forced_update_ ) {
 
-          if ( enableQT_ ) {
+          // run QTs on local MEs, updated in analyze()
+          if ( ! enableStateMachine_ ) {
+            if ( enableQT_ ) mui_->runQTests();
+          }
 
-            cout << endl;
-            switch ( mui_->getSystemStatus() ) {
-              case dqm::qstatus::ERROR:
-                cout << " Error(s)";
-                break;
-              case dqm::qstatus::WARNING:
-                cout << " Warning(s)";
-                break;
-              case dqm::qstatus::OTHER:
-                cout << " Some tests did not run;";
-                break;
-              default:
-                cout << " No problems";
-            }
-            cout << " reported after running the quality tests" << endl;
-            cout << endl;
-
+          // update MEs [again, just to silence a warning]
+          if ( ! enableStateMachine_ ) {
+            mui_->doMonitoring();
           }
 
         }
 
         forced_update_ = false;
+
+      }
+
+      if ( status_ == "end-of-run" || forced_update_ ) {
+
+        if ( enableQT_ ) {
+
+          cout << endl;
+          switch ( mui_->getSystemStatus() ) {
+            case dqm::qstatus::ERROR:
+              cout << " Error(s)";
+              break;
+            case dqm::qstatus::WARNING:
+              cout << " Warning(s)";
+              break;
+            case dqm::qstatus::OTHER:
+              cout << " Some tests did not run;";
+              break;
+            default:
+              cout << " No problems";
+          }
+          cout << " reported after running the quality tests" << endl;
+          cout << endl;
+
+        }
 
       }
 
