@@ -195,12 +195,15 @@ GsfTrackProducerBase::fillStates (TrajectoryStateOnSurface tsos,
 //       std::cout << std::endl << "invalid component" << std::endl;
 //       continue;
 //     }
-    const AlgebraicVector& pLoc = i->localParameters().vector();
-    for ( int j=0; j<reco::GsfTrackExtra::dimension; ++j )  pLocS(j) = pLoc[j];
-    const AlgebraicSymMatrix& cLoc = i->localError().matrix();
-    for ( int j1=0; j1<reco::GsfTrack::dimension; ++j1 )
-      for ( int j2=0; j2<=j1; ++j2 )  cLocS(j1,j2) = cLoc[j1][j2];
-    states.push_back(reco::GsfComponent5D(i->weight(),pLocS,cLocS));
+    // Unneeded hack ... now we have SMatrix in tracking too
+    // const AlgebraicVector& pLoc = i->localParameters().vector();
+    // for ( int j=0; j<reco::GsfTrackExtra::dimension; ++j )  pLocS(j) = pLoc[j];
+    // const AlgebraicSymMatrix& cLoc = i->localError().matrix();
+    // for ( int j1=0; j1<reco::GsfTrack::dimension; ++j1 )
+      // for ( int j2=0; j2<=j1; ++j2 )  cLocS(j1,j2) = cLoc[j1][j2];
+    // states.push_back(reco::GsfComponent5D(i->weight(),pLocS,cLocS));
+    
+    states.push_back(reco::GsfComponent5D(i->weight(),i->localParameters().vector(),i->localError().matrix()));
   }
 //   std::cout << "end fill states" << std::endl;
 }

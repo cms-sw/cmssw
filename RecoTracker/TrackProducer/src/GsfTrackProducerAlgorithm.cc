@@ -141,7 +141,7 @@ void GsfTrackProducerAlgorithm::runWithTrack(const TrackingGeometry * theG,
 	//       theTSOS.rescaleError(100);
 
 	TrajectoryStateOnSurface firstState=thePropagator->propagate(theTT.impactPointState(), hits.front()->det()->surface());
-	AlgebraicSymMatrix C(5,1);
+	AlgebraicSymMatrix55 C = AlgebraicMatrixID();
 	C *= 100.;
 	TrajectoryStateOnSurface theTSOS( firstState.localParameters(), LocalTrajectoryError(C),
 					  firstState.surface(),
@@ -233,7 +233,7 @@ bool GsfTrackProducerAlgorithm::buildTrack (const TrajectoryFitter * theFitter,
 			       //			       theTraj->foundHits(),//FIXME to be fixed in Trajectory.h
 			       //			       0, //FIXME no corresponding method in trajectory.h
 			       //			       theTraj->lostHits(),//FIXME to be fixed in Trajectory.h
-			       pos, mom, tscp.charge(), tscp.theState().curvilinearError());
+			       pos, mom, tscp.charge(), tscp.theState().curvilinearError().matrix());
 
 
     LogDebug("GsfTrackProducer") <<"track done\n";

@@ -96,79 +96,75 @@ void TrackProducerAlgorithm::runWithTrack(const TrackingGeometry * theG,
 	//convert the TrackingRecHit vector to a TransientTrackingRecHit vector
 	//meanwhile computes the number of degrees of freedom
 
+	TransientTrackingRecHit::RecHitContainer tmp;
 	TransientTrackingRecHit::RecHitContainer hits;
 	
 	float ndof=0;
 	
-	//========  We keep hits sorted as they were in the previously reconstructed track
 	for (trackingRecHit_iterator i=theT->recHitsBegin();
 	     i!=theT->recHitsEnd(); i++){
-	  hits.push_back(builder->build(&**i ));
-		    if ((*i)->isValid()) ndof = ndof + ((*i)->dimension())*((*i)->weight());
+	  // 	hits.push_back(builder->build(&**i ));
+	  // 	  if ((*i)->isValid()){
+	    tmp.push_back(builder->build(&**i ));
+	    if ((*i)->isValid()) ndof = ndof + ((*i)->dimension())*((*i)->weight());
+	    //	  }
 	}
 	
 	
 	ndof = ndof - 5;
 
-	bool isFirstFound(false);
-	// just look for the first and second *valid* hits.Don't care about ordering. See comment above.
-	TransientTrackingRecHit::ConstRecHitPointer firstHit(0),secondHit(0);
-	for (TransientTrackingRecHit::RecHitContainer::const_iterator it=hits.begin(); it!=hits.end();it++){
-	  if(((**it).isValid()) ) {
-	    if(!isFirstFound){
-	      isFirstFound = true;
-	      firstHit = *it;
-	      //std::cout << "firstHit->globalPosition(): " << firstHit->globalPosition() << std::endl;
-	      continue;
-	    }
-	    secondHit = *it;
-	    //std::cout << "secondHit->globalPosition(): " << secondHit->globalPosition() << std::endl;
+	// SORT RECHITS FROM INNERMOST TO OUTERMOST 
+	// (i.e. along momentum for tracks from LHC collision)
+	TransientTrackingRecHit::ConstRecHitPointer firstHit;
+	for (TransientTrackingRecHit::RecHitContainer::const_iterator it=tmp.begin(); it!=tmp.end();it++){
+	  if ((**it).isValid()) {
+	    firstHit = *it;
 	    break;
-	  }else   std::cout << "==== debug:this hit of a reco::Track is not valid!! =======" << std::endl;	  	
+	  }
 	}
+	TransientTrackingRecHit::ConstRecHitPointer lastHit;
+	for (TransientTrackingRecHit::RecHitContainer::const_iterator it=tmp.end()-1; it!=tmp.begin()-1;it--){
+	  if ((**it).isValid()) {
+	    lastHit = *it;
+	    break;
+	  }
+	}
+	if (firstHit->globalPosition().mag2() > (lastHit->globalPosition().mag2()) ){
+	//FIXME temporary should use reverse
+	  for (TransientTrackingRecHit::RecHitContainer::const_iterator it=tmp.end()-1;it!=tmp.begin()-1;it--){
+	    hits.push_back(*it);
+	  }
+	} else hits=tmp;
+	
+	reco::TransientTrack theTT(*theT,thePropagator->magneticField() );
+	
+	//       TrajectoryStateOnSurface theTSOS=theTT.impactPointState();
+	//       theTSOS.rescaleError(100);
 
+	TrajectoryStateOnSurface firstState=thePropagator->propagate(theTT.impactPointState(), hits.front()->det()->surface());
+	AlgebraicSymMatrix C(5,1);
+	C *= 100.;
+	TrajectoryStateOnSurface theTSOS( firstState.localParameters(), LocalTrajectoryError(C),
+					  firstState.surface(),
+					  thePropagator->magneticField()); 
+	
+	LogDebug("TrackProducer") << "Initial TSOS\n" << theTSOS << "\n";
+	
+	// investigate how the hits are sorted: either alongMomentum or opposite.
+	GlobalVector delta = hits[1]->globalPosition() - hits[0]->globalPosition() ;
+	PropagationDirection seedDirection = (theTSOS.globalDirection()*delta>0)? alongMomentum : oppositeToMomentum;
 
-	//======== this is a crap :( Just a temporary "most general" solution before the sorting of hits is made 
-	//         consistent in several part of the tracking code. 
-	//         it assumes the hits at least follow the track path.No matter the direction.
-	TrajectoryStateTransform transformer;
-	//	  avoiding to use transientTrack, it should be faster;
-	TrajectoryStateOnSurface innerStateFromTrack=transformer.innerStateOnSurface(*theT,*theG,theMF);
-	TrajectoryStateOnSurface outerStateFromTrack=transformer.outerStateOnSurface(*theT,*theG,theMF);
-	TrajectoryStateOnSurface initialStateFromTrack = 
-	  ( (innerStateFromTrack.globalPosition()-firstHit->globalPosition()).mag2() <
-	    (outerStateFromTrack.globalPosition()-firstHit->globalPosition()).mag2() ) ? 
-	  innerStateFromTrack: outerStateFromTrack;       
-	//std::cout << "initialStateFromTrack->globalPosition: " << initialStateFromTrack.globalPosition() << std::endl;
-	// =========================
-
-	// error is rescaled, but correlation are kept.
-	initialStateFromTrack.rescaleError(100);
-	TrajectoryStateOnSurface theInitialStateForRefitting( initialStateFromTrack.localParameters(),
-							      initialStateFromTrack.localError(), 		      
-							      initialStateFromTrack.surface(),
-							      thePropagator->magneticField()); 
-		
-	// ====== Another crap: investigate how the hits are sorted: either alongMomentum or opposite.
-	//        In the next release we should have a method in the reco::Track to know that. 
-	//        Or adapt a general convention.
-	GlobalVector delta = secondHit->globalPosition() - firstHit->globalPosition() ;
-	PropagationDirection seedDirection = 
-	  (theInitialStateForRefitting.globalDirection()*delta>0)? alongMomentum : oppositeToMomentum;
-	// the seed has dummy state and hits.What matters for the fitting is the seedDirection;
-	const TrajectorySeed * seed = new TrajectorySeed(PTrajectoryStateOnDet(),
-							 BasicTrajectorySeed::recHitContainer(), seedDirection);
-	// =========================
-
-	//=====  the hits are in the same order as they were in the track::extra.        
-	bool ok = buildTrack(theFitter,thePropagator,algoResults, hits, theInitialStateForRefitting, *seed, ndof);
+	// the seed has dummy state and hits.What matters for the fitting, is the seedDirection;
+	const TrajectorySeed * seed = new TrajectorySeed(PTrajectoryStateOnDet(),BasicTrajectorySeed::recHitContainer(), seedDirection);
+	//buildTrack
+	bool ok = buildTrack(theFitter,thePropagator,algoResults, hits, theTSOS, *seed, ndof);
 	if(ok) cont++;
       }catch ( CMSexception & e){
-	edm::LogError("TrackProducer") << "Genexception1: " << e.explainSelf() <<"\n";      
+	edm::LogInfo("TrackProducer") << "Genexception1: " << e.explainSelf() <<"\n";      
       }catch ( std::exception & e){
-	edm::LogError("TrackProducer") << "Genexception2: " << e.what() <<"\n";      
+	edm::LogInfo("TrackProducer") << "Genexception2: " << e.what() <<"\n";      
       }catch (...){
-	edm::LogError("TrackProducer") << "Genexception: \n";
+	edm::LogInfo("TrackProducer") << "Genexception: \n";
       }
     }
   edm::LogInfo("TrackProducer") << "Number of Tracks found: " << cont << "\n";
