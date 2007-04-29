@@ -19,7 +19,7 @@ Handles can have:
 
 To check validity, one can use the isValid() function.
 
-$Id: Handle.h,v 1.3 2007/03/29 22:56:31 wmtan Exp $
+$Id: Handle.h,v 1.4 2007/04/01 15:45:36 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -109,7 +109,6 @@ namespace edm
   void
   Handle<T>::swap(Handle<T>& other)
   {
-    // use unqualified swap for user defined class
     using std::swap;
     std::swap(prod_, other.prod_);
     std::swap(prov_, other.prov_);

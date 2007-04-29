@@ -19,7 +19,7 @@ OrphanHandles can have:
 
 To check validity, one can use the isValid() function.
 
-$Id: OrphanHandle.h,v 1.2 2007/03/04 04:59:59 wmtan Exp $
+$Id: OrphanHandle.h,v 1.3 2007/03/29 22:56:31 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -103,7 +103,6 @@ namespace edm {
   template <class T>
   void
   OrphanHandle<T>::swap(OrphanHandle<T>& other) {
-    // use unqualified swap for user defined classes
     using std::swap;
     std::swap(prod_, other.prod_);
     swap(id_, other.id_);
