@@ -12,7 +12,7 @@ class Det;
 class PTrajectoryStateOnDet {
 public:
 
-  PTrajectoryStateOnDet() {theLocalErrors.resize(15);}
+  PTrajectoryStateOnDet() : theLocalErrors(15) { }
   virtual ~PTrajectoryStateOnDet() {}
 
   PTrajectoryStateOnDet( const LocalTrajectoryParameters& param,
@@ -20,7 +20,7 @@ public:
 			 int surfaceSide);
 
   const LocalTrajectoryParameters& parameters() const {return theLocalParameters;}
-  const  std::vector<float> errorMatrix() const {return theLocalErrors;}
+  const  std::vector<float> &errorMatrix() const {return theLocalErrors;}
   const unsigned int detId() const {return theDetId;}
   const int surfaceSide() const    {return theSurfaceSide;}
 

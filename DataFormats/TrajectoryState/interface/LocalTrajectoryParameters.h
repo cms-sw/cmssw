@@ -48,6 +48,27 @@ public:
       theCharge = 0;
   }
 
+  /** Constructor from vector of parameters.
+   *
+   *  Expects a vector of parameters as defined above, plus the sign of p_z.
+   *  For charged particles the charge will be determined by the sign of
+   *  the first element. For neutral particles the last argument should be false, 
+   *  in which case the charge of the first element will be neglected.
+   */
+  LocalTrajectoryParameters(const AlgebraicVector5& v, double aPzSign, bool charged = true) {
+    theQbp  = v[0];
+    theDxdz = v[1];
+    theDydz = v[2];
+    theX    = v[3];
+    theY    = v[4];
+    thePzSign = aPzSign;
+    if ( charged )
+      theCharge = theQbp>0 ? 1 : -1;
+    else
+      theCharge = 0;
+  }
+
+
   /** Constructor from individual parameters.
    *
    *  Expects parameters as defined above, plus the sign of p_z.
@@ -107,8 +128,23 @@ public:
    *  Vector of parameters as defined above, with the
    *  first element = q/p .
    */
-  AlgebraicVector vector() const {
+  AlgebraicVector vector_old() const {
     AlgebraicVector v(5);
+    v[0] = signedInverseMomentum();
+    v[1] = theDxdz;
+    v[2] = theDydz;
+    v[3] = theX;
+    v[4] = theY;
+    return v;
+  }
+
+  /** Vector of parameters with signed inverse momentum.
+   *
+   *  Vector of parameters as defined above, with the
+   *  first element = q/p .
+   */
+  AlgebraicVector5 vector() const {
+    AlgebraicVector5 v;
     v[0] = signedInverseMomentum();
     v[1] = theDxdz;
     v[2] = theDydz;
@@ -122,7 +158,22 @@ public:
    *  Vector of parameters as defined above, with the first
    *  element = q/p for charged and = 1/p for neutral.
    */
-  AlgebraicVector mixedFormatVector() const {
+  AlgebraicVector5 mixedFormatVector() const {
+    AlgebraicVector5 v;
+    v[0] = theQbp;    // signed in case of charged particles, 1/p for neutrals
+    v[1] = theDxdz;
+    v[2] = theDydz;
+    v[3] = theX;
+    v[4] = theY;
+    return v;
+  }
+
+  /** Vector of parameters in internal representation.
+   *
+   *  Vector of parameters as defined above, with the first
+   *  element = q/p for charged and = 1/p for neutral.
+   */
+  AlgebraicVector mixedFormatVector_old() const {
     AlgebraicVector v(5);
     v[0] = theQbp;    // signed in case of charged particles, 1/p for neutrals
     v[1] = theDxdz;

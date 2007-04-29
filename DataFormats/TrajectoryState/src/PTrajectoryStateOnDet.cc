@@ -4,11 +4,12 @@ PTrajectoryStateOnDet::PTrajectoryStateOnDet( const LocalTrajectoryParameters& p
 					      float errmatrix[15], unsigned int id,
 					      int surfaceSide) :
   theLocalParameters( param), 
+  theLocalErrors(15),
   theDetId( id),
   theSurfaceSide( surfaceSide)
 {
-  theLocalErrors.resize(15);
-  for (int i=0; i<15; i++) theLocalErrors[i] = errmatrix[i];
+  //for (int i=0; i<15; i++) theLocalErrors[i] = errmatrix[i]; // not the best way, surely
+  theLocalErrors.insert(theLocalErrors.begin(), errmatrix, &errmatrix[15]); // maybe slightly better
 }
 
 
