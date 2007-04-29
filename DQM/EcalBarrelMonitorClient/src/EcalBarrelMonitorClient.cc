@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2007/04/26 16:42:00 $
- * $Revision: 1.255 $
+ * $Date: 2007/04/29 16:39:57 $
+ * $Revision: 1.256 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -14,12 +14,14 @@
 #include <fstream>
 #include <algorithm>
 
-#include <DQM/EcalBarrelMonitorClient/interface/EcalBarrelMonitorClient.h>
-
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "DQMServices/Core/interface/QTestStatus.h"
+#include "DQMServices/QualityTests/interface/QCriterionRoot.h"
 
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
@@ -31,12 +33,13 @@
 #include "OnlineDB/EcalCondDB/interface/RunDat.h"
 #include "OnlineDB/EcalCondDB/interface/MonRunDat.h"
 
-
 #include <DQM/EcalBarrelMonitorClient/interface/EBMUtilsClient.h>
 #include "DQM/EcalCommon/interface/EcalErrorMask.h"
 #include "DQM/EcalCommon/interface/ColorPalette.h"
 
 #include "DQMServices/Core/interface/CollateMonitorElement.h"
+
+#include <DQM/EcalBarrelMonitorClient/interface/EcalBarrelMonitorClient.h>
 
 #include <DQM/EcalBarrelMonitorClient/interface/EBCosmicClient.h>
 #include <DQM/EcalBarrelMonitorClient/interface/EBIntegrityClient.h>

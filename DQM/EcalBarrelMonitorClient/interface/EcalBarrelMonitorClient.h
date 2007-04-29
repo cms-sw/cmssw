@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorClient.h
  *
- * $Date: 2007/04/10 09:01:47 $
- * $Revision: 1.69 $
+ * $Date: 2007/04/10 09:26:38 $
+ * $Revision: 1.70 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -25,6 +25,9 @@
 #include "OnlineDB/EcalCondDB/interface/MonRunIOV.h"
 
 #include <DQM/EcalBarrelMonitorClient/interface/EBClient.h>
+
+#include "DQMServices/Core/interface/QTestStatus.h"
+#include "DQMServices/QualityTests/interface/QCriterionRoot.h"
 
 #include <DQM/EcalBarrelMonitorClient/interface/EBSummaryClient.h>
 

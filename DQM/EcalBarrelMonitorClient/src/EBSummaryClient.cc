@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2007/04/06 15:28:10 $
- * $Revision: 1.13 $
+ * $Date: 2007/04/07 13:04:44 $
+ * $Revision: 1.15 $
  * \author G. Della Ricca
  *
 */
@@ -74,8 +74,12 @@ EBSummaryClient::EBSummaryClient(const ParameterSet& ps){
   meIntegrity_      = 0;
   meOccupancy_      = 0;
   mePedestalOnline_ = 0;
-
   meLaserL1_        = 0;
+
+  qtg01_ = 0;
+  qtg02_ = 0;
+  qtg03_ = 0;
+  qtg04_ = 0;
 
 }
 
@@ -93,6 +97,30 @@ void EBSummaryClient::beginJob(MonitorUserInterface* mui){
   jevt_ = 0;
 
   if ( enableQT_ ) {
+
+    Char_t qtname[200];
+
+    sprintf(qtname, "EBIT summary quality test");
+    qtg01_ = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+
+    sprintf(qtname, "EBOT summary quality test");
+    qtg02_ = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+
+    sprintf(qtname, "EBPOT summary quality test");
+    qtg03_ = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+
+    sprintf(qtname, "EBLT summary quality test L1");
+    qtg04_ = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+
+    qtg01_->setMeanRange(1., 6.);
+    qtg02_->setMeanRange(1., 6.);
+    qtg03_->setMeanRange(1., 6.);
+    qtg04_->setMeanRange(1., 6.);
+
+    qtg01_->setErrorProb(1.00);
+    qtg02_->setErrorProb(1.00);
+    qtg03_->setErrorProb(1.00);
+    qtg04_->setErrorProb(1.00);
 
   }
 
@@ -178,6 +206,11 @@ bool EBSummaryClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRun
 
   bool status = true;
 
+  //EBMUtilsClient::printBadChannels(qtg01_);
+  //EBMUtilsClient::printBadChannels(qtg02_);
+  //EBMUtilsClient::printBadChannels(qtg03_);
+  //EBMUtilsClient::printBadChannels(qtg04_);
+
   return status;
 
 }
@@ -185,6 +218,17 @@ bool EBSummaryClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRun
 void EBSummaryClient::subscribe(void){
 
   if ( verbose_ ) cout << "EBSummaryClient: subscribe" << endl;
+
+  Char_t histo[200];
+
+  sprintf(histo, "EcalBarrel/EBSummaryClient/EBIT integrity quality summary");
+  if ( qtg01_ ) mui_->useQTest(histo, qtg01_->getName());
+  sprintf(histo, "EcalBarrel/EBSummaryClient/EBOT occupancy summary");
+  if ( qtg02_ ) mui_->useQTest(histo, qtg02_->getName());
+  sprintf(histo, "EcalBarrel/EBSummaryClient/EBPOT pedestal quality summary G12");
+  if ( qtg03_ ) mui_->useQTest(histo, qtg03_->getName());
+  sprintf(histo, "EcalBarrel/EBSummaryClient/EBLT laser quality summary L1");
+  if ( qtg04_ ) mui_->useQTest(histo, qtg04_->getName());
 
 }
 

@@ -4,8 +4,8 @@
 /*
  * \file EBSummaryClient.h
  *
- * $Date: 2007/03/26 17:35:04 $
- * $Revision: 1.5 $
+ * $Date: 2007/04/07 12:25:57 $
+ * $Revision: 1.6 $
  * \author G. Della Ricca
  *
 */
@@ -83,6 +83,8 @@ inline void setFriends(vector<EBClient*> clients) { clients_ = clients; }
 
 private:
 
+void writeMap( std::ofstream& hf, std::string mapname );
+
 int ievt_;
 int jevt_;
 
@@ -107,7 +109,11 @@ MonitorElement* meOccupancy_;
 MonitorElement* mePedestalOnline_;
 MonitorElement* meLaserL1_;
 
- void writeMap( std::ofstream& hf, std::string mapname );
+MEContentsTH2FWithinRangeROOT* qtg01_;
+MEContentsTH2FWithinRangeROOT* qtg02_;
+MEContentsTH2FWithinRangeROOT* qtg03_;
+MEContentsTH2FWithinRangeROOT* qtg04_;
+
 };
 
 #endif
