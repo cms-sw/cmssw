@@ -1,7 +1,9 @@
 <use name=clhep>
 <use name=rootrflx>
+<use name=rootmath>
 <export>
   <use name=clhep>
+  <use name=rootmath>
   <lib name=DataFormatsCLHEP>
 </export>
 
