@@ -602,7 +602,7 @@ std::vector<std::pair<const TrackingRecHit*,float> > SiStripMonitorTrack::Separa
     const ProjectedSiStripRecHit2D* phit       = dynamic_cast<const ProjectedSiStripRecHit2D*>(&(*(_tkinfoiter->first)));
     const SiStripMatchedRecHit2D*   matchedhit = dynamic_cast<const SiStripMatchedRecHit2D*>(&(*(_tkinfoiter->first)));
     const SiStripRecHit2D*          hit        = dynamic_cast<const SiStripRecHit2D*>(&(*(_tkinfoiter->first)));
-    LocalVector trackdirection = (_tkinfoiter->second.stateOnDet().parameters()).momentum();
+    LocalVector trackdirection = (_tkinfoiter->second.stateOnDet(reco::Updated)->parameters()).momentum();
     if(phit) {
       // obtain the hit from the projected hit... association common to single monohit part
       hit=&(phit->originalHit());
