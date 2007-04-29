@@ -81,7 +81,7 @@ private:
   bool theValid;
   
   void createCircleParameters();
-  AlgebraicVector transform(const GlobalPoint& aPoint) const;
+  AlgebraicVector3 transform(const GlobalPoint& aPoint) const;
   
 };
 

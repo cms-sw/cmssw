@@ -123,12 +123,12 @@ initialError( const TrackingRecHit* outerHit,
 	      const GlobalPoint& vertexPos,
 	      const GlobalError& vertexErr) 
 {
-  AlgebraicSymMatrix C(5,1);
+  AlgebraicSymMatrix55 C = AlgebraicMatrixID();
 
   float zErr = vertexErr.czz();
   float transverseErr = vertexErr.cxx(); // assume equal cxx cyy 
-  C[3][3] = transverseErr;
-  C[4][4] = zErr;
+  C(3, 3) = transverseErr;
+  C(4, 4) = zErr;
 
   return CurvilinearTrajectoryError(C);
 }

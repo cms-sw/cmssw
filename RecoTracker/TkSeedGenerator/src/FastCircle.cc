@@ -41,36 +41,36 @@ FastCircle::FastCircle(const GlobalPoint& outerHit,
 
 void FastCircle::createCircleParameters() {
   
-  AlgebraicVector x = transform(theOuterPoint);
-  AlgebraicVector y = transform(theInnerPoint);
-  AlgebraicVector z = transform(theVertexPoint);
+  AlgebraicVector3 x = transform(theOuterPoint);
+  AlgebraicVector3 y = transform(theInnerPoint);
+  AlgebraicVector3 z = transform(theVertexPoint);
 
-  AlgebraicVector n(3,0);
+  AlgebraicVector3 n;
 
-  n(1) =   x(2)*(y(3) - z(3)) + y(2)*(z(3) - x(3)) + z(2)*(x(3) - y(3));
-  n(2) = -(x(1)*(y(3) - z(3)) + y(1)*(z(3) - x(3)) + z(1)*(x(3) - y(3)));
-  n(3) =   x(1)*(y(2) - z(2)) + y(1)*(z(2) - x(2)) + z(1)*(x(2) - y(2));
+  n[0] =   x[1]*(y[2] - z[2]) + y[1]*(z[2] - x[2]) + z[1]*(x[2] - y[2]);
+  n[1] = -(x[0]*(y[2] - z[2]) + y[0]*(z[2] - x[2]) + z[0]*(x[2] - y[2]));
+  n[2] =   x[0]*(y[1] - z[1]) + y[0]*(z[1] - x[1]) + z[0]*(x[1] - y[1]);
 
-  n /= n.norm();
-  double  c = -(n(1)*x(1) + n(2)*x(2) + n(3)*x(3));
-  //  c = -(n(1)*y(1) + n(2)*y(2) + n(3)*y(3));
-  //  c = -(n(1)*z(1) + n(2)*z(2) + n(3)*z(3));
+  n.Unit(); // reduce n to a unit vector
+  double  c = -(n[0]*x[0] + n[1]*x[1] + n[2]*x[2]);
+  //  c = -(n[0]*y[0] + n[1]*y[1] + n[2]*y[2]);
+  //  c = -(n[0]*z[0] + n[1]*z[1] + n[2]*z[2]);
   
-  theN1 = n(1);
-  theN2 = n(2);
+  theN1 = n[0];
+  theN2 = n[1];
   theC = c;
 
-  if(fabs(c + n(3)) < 1.e-5) {
+  if(fabs(c + n[2]) < 1.e-5) {
     // numeric limit
     // circle is more a straight line...
     theValid = false;
     return;
   }
 
-  double x0 = -n(1) / (2.*(c + n(3)));
-  double y0 = -n(2) / (2.*(c + n(3)));
+  double x0 = -n[0] / (2.*(c + n[2]));
+  double y0 = -n[1] / (2.*(c + n[2]));
   double rho = 
-    sqrt((n(1)*n(1) + n(2)*n(2) - 4.*c*(c + n(3)))) / fabs(2.*(c + n(3)));
+    sqrt((n[0]*n[0] + n[1]*n[1] - 4.*c*(c + n[2]))) / fabs(2.*(c + n[2]));
   
   theX0 = theNorm*x0;
   theY0 = theNorm*y0;
@@ -78,18 +78,19 @@ void FastCircle::createCircleParameters() {
 
 }
 
-AlgebraicVector FastCircle::transform(const GlobalPoint& aPoint) const {
+AlgebraicVector3 FastCircle::transform(const GlobalPoint& aPoint) const {
 
-  AlgebraicVector riemannPoint(3,0);
+  AlgebraicVector3 riemannPoint;
 
   double R = aPoint.perp();
   R /= theNorm;
   double phi = 0.;
   if(R > 0.) phi = aPoint.phi();
-  
-  riemannPoint(1) = (R*cos(phi))/(1 + R*R);
-  riemannPoint(2) = (R*sin(phi))/(1 + R*R);
-  riemannPoint(3) = (R*R)/(1 + R*R);
+ 
+  double fact = R/(1+R*R); // let's factorize the common factor out
+  riemannPoint[0] = fact*cos(phi);
+  riemannPoint[1] = fact*sin(phi);
+  riemannPoint[2] = fact*R;
   
   return riemannPoint;
 }

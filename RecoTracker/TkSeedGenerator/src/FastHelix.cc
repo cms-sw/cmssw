@@ -139,13 +139,13 @@ FreeTrajectoryState FastHelix::straightLineStateAtVertex() const {
   double pz = pt*dzdr; 
   
   TrackCharge q = 1;
-  AlgebraicSymMatrix C(6,1);
+  AlgebraicSymMatrix66 C = AlgebraicMatrixID();
   //MP
   FTS atVertex = FTS(GlobalTrajectoryParameters(GlobalPoint(v.x(), v.y(), z_0),
 						GlobalVector(px, py, pz),
 						q,
 						&(*pSetup)),
-		     CartesianTrajectoryError(C));
+		     CartesianTrajectoryError());
   
   return atVertex;
 }

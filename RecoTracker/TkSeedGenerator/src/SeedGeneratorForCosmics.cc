@@ -105,7 +105,7 @@ void SeedGeneratorForCosmics::seeds(TrajectorySeedCollection &output,
 				   gv,int(ch), 
 				   &(*magfield));
     FreeTrajectoryState CosmicSeed(Gtp,
-				   CurvilinearTrajectoryError(AlgebraicSymMatrix(5,1)));  
+				   CurvilinearTrajectoryError(AlgebraicSymMatrix55(AlgebraicMatrixID())));  
     if((outer.y()-inner.y())>0){
       const TSOS outerState =
 	thePropagatorAl->propagate(CosmicSeed,
@@ -168,7 +168,7 @@ void SeedGeneratorForCosmics::seeds(TrajectorySeedCollection &output,
 				       &(*magfield));
 	
 	FreeTrajectoryState CosmicSeed(Gtp,
-				       CurvilinearTrajectoryError(AlgebraicSymMatrix(5,1)));
+				       CurvilinearTrajectoryError(AlgebraicSymMatrix55(AlgebraicMatrixID())));
 	
 	
 	LogDebug("CosmicSeedFinder") << " FirstTSOS "<<CosmicSeed;
@@ -199,7 +199,7 @@ void SeedGeneratorForCosmics::seeds(TrajectorySeedCollection &output,
 				       predsign, 
 				       &(*magfield));
 	FreeTrajectoryState CosmicSeed(Gtp,
-				       CurvilinearTrajectoryError(AlgebraicSymMatrix(5,1)));
+				       CurvilinearTrajectoryError(AlgebraicSymMatrix55(AlgebraicMatrixID())));
 	LogDebug("CosmicSeedFinder") << " FirstTSOS "<<CosmicSeed;
 	//First propagation
 	const TSOS outerState =
