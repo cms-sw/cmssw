@@ -52,17 +52,16 @@ PropagationDirectionChooser::operator() (const FreeTrajectoryState& fts,
   GlobalPoint sp = plane.toGlobal(LocalPoint(0.,0.));
   GlobalVector v = plane.toGlobal(LocalVector(1.,0.,0.));
   GlobalVector w = plane.toGlobal(LocalVector(0.,1.,0.));
-  AlgebraicMatrix a(3, 3);
-  a[0][0] = v.x(); a[0][1] = w.x(); a[0][2] = -p.x();
-  a[1][0] = v.y(); a[1][1] = w.y(); a[1][2] = -p.y();
-  a[2][0] = v.z(); a[2][1] = w.z(); a[2][2] = -p.z();
-  AlgebraicVector b(3);
+  AlgebraicMatrix33 a;
+  a(0,0) = v.x(); a(0,1) = w.x(); a(0,2) = -p.x();
+  a(1,0) = v.y(); a(1,1) = w.y(); a(1,2) = -p.y();
+  a(2,0) = v.z(); a(2,1) = w.z(); a(2,2) = -p.z();
+  AlgebraicVector3 b;
   b[0] = x.x() - sp.x();
   b[1] = x.y() - sp.y();
   b[2] = x.z() - sp.z();
 
-  int ifail;
-  a.invert(ifail);
+  int ifail = !a.Invert();
   if (ifail == 0) {
     // plane and momentum are not parallel
     b = a*b;

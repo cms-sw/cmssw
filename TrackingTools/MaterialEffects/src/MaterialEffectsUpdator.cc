@@ -32,8 +32,7 @@ TrajectoryStateOnSurface MaterialEffectsUpdator::updateState (const TrajectorySt
   //
   SurfaceSide side = propDir==alongMomentum ? afterSurface : beforeSurface;
   if ( TSoS.hasError() ) {
-    AlgebraicSymMatrix eloc = TSoS.localError().matrix();
-    eloc += deltaLocalError(TSoS,propDir);
+    AlgebraicSymMatrix55 eloc = TSoS.localError().matrix() + deltaLocalError(TSoS,propDir);
     return TrajectoryStateOnSurface(lp,LocalTrajectoryError(eloc),surface,
 				    &(TSoS.globalParameters().magneticField()),side);
   }
@@ -42,3 +41,5 @@ TrajectoryStateOnSurface MaterialEffectsUpdator::updateState (const TrajectorySt
   }
 }
 
+// static initialization
+AlgebraicSymMatrix55  MaterialEffectsUpdator::theNullMatrix;

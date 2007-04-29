@@ -106,8 +106,8 @@ AnalyticalImpactPointExtrapolator::extrapolateSingleState (const FreeTrajectoryS
     // compute jacobian
     //
     AnalyticalCurvilinearJacobian analyticalJacobian(fts.parameters(), gtp.position(), gtp.momentum(), s);
-    AlgebraicMatrix jacobian(analyticalJacobian.jacobian());
-    CurvilinearTrajectoryError cte(fts.curvilinearError().matrix().similarity(jacobian));
+    CurvilinearTrajectoryError cte( ROOT::Math::Similarity( analyticalJacobian.jacobian(), 
+                                                            fts.curvilinearError().matrix()) );
     return TrajectoryStateOnSurface(gtp,cte,*surface);
   }
   else {

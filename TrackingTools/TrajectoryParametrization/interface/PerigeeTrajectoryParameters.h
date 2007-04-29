@@ -20,7 +20,18 @@ public:
 
   PerigeeTrajectoryParameters() {}
 
-  explicit PerigeeTrajectoryParameters(AlgebraicVector aVector, bool charged = true):
+  explicit PerigeeTrajectoryParameters(const AlgebraicVector &aVector, bool charged = true):
+       theCurv(aVector[0]), theTheta(aVector[1]), thePhi(aVector[2]),
+       theTip(aVector[3]), theLip(aVector[4]), theVector(asSVector<5>(aVector)), 
+       vectorIsAvailable(true)
+  {
+    if ( charged )
+      theCharge = theCurv>0 ? -1 : 1;
+    else
+      theCharge = 0;
+  }
+
+  explicit PerigeeTrajectoryParameters(const AlgebraicVector5 &aVector, bool charged = true):
        theCurv(aVector[0]), theTheta(aVector[1]), thePhi(aVector[2]),
        theTip(aVector[3]), theLip(aVector[4]), theVector(aVector), 
        vectorIsAvailable(true)
@@ -84,11 +95,12 @@ public:
    *  transverse curvature (signed), theta, phi,
    *  transverse impact parameter (signed), longitudinal i.p.
    */
+  const AlgebraicVector  vector_old() const { return asHepVector(theVector); }
 
-  const AlgebraicVector & vector() const
+  const AlgebraicVector5 & vector() const
   {
     if (!vectorIsAvailable) {
-      theVector = AlgebraicVector(5);
+      //theVector = AlgebraicVector5();
       theVector[0] = theCurv;
       theVector[1] = theTheta;
       theVector[2] = thePhi;
@@ -103,7 +115,7 @@ public:
 private:
   double theCurv, theTheta, thePhi, theTip, theLip;
   TrackCharge theCharge;
-  mutable AlgebraicVector theVector;
+  mutable AlgebraicVector5 theVector;
   mutable bool vectorIsAvailable;
 
 };

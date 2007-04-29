@@ -101,15 +101,15 @@ TSCPBuilderNoMaterial::createFTSatTransverseImpactPointCharged(
   delete plane;
 		  
   if (originalFTS.hasError()) {
-    AlgebraicSymMatrix errorMatrix = originalFTS.curvilinearError().matrix();
+    const AlgebraicSymMatrix55 &errorMatrix = originalFTS.curvilinearError().matrix();
     AnalyticalCurvilinearJacobian curvilinJacobian(originalFTS.parameters(), xPerigee,
 						   pPerigee, s);
-    AlgebraicMatrix jacobian = curvilinJacobian.jacobian();
-    errorMatrix = errorMatrix.similarity(jacobian);
+    const AlgebraicMatrix55 &jacobian = curvilinJacobian.jacobian();
+    CurvilinearTrajectoryError cte( ROOT::Math::Similarity(jacobian, errorMatrix) );
   
     return FreeTrajectoryState(GlobalTrajectoryParameters(xPerigee, pPerigee, originalFTS.charge(), 
     					&(originalFTS.parameters().magneticField())),
-			       CurvilinearTrajectoryError(errorMatrix));
+			        cte);
   } 
   else {
     return FreeTrajectoryState(GlobalTrajectoryParameters(xPerigee, pPerigee, originalFTS.charge(), 
@@ -143,15 +143,15 @@ TSCPBuilderNoMaterial::createFTSatTransverseImpactPointNeutral(const FTS& origin
   GlobalVector pPerigee = originalFTS.momentum();
 		  
   if (originalFTS.hasError()) {
-    AlgebraicSymMatrix errorMatrix = originalFTS.curvilinearError().matrix();
+    const AlgebraicSymMatrix55 &errorMatrix = originalFTS.curvilinearError().matrix();
     AnalyticalCurvilinearJacobian curvilinJacobian(originalFTS.parameters(), xPerigee,
 						   pPerigee, s);
-    AlgebraicMatrix jacobian = curvilinJacobian.jacobian();
-    errorMatrix = errorMatrix.similarity(jacobian);
+    const AlgebraicMatrix55 &jacobian = curvilinJacobian.jacobian();
+    CurvilinearTrajectoryError cte( ROOT::Math::Similarity(jacobian, errorMatrix) );
   
     return FreeTrajectoryState(GlobalTrajectoryParameters(xPerigee, pPerigee, originalFTS.charge(), 
-					&(originalFTS.parameters().magneticField())),
-			       CurvilinearTrajectoryError(errorMatrix));
+    					&(originalFTS.parameters().magneticField())),
+			        cte);
   } 
   else {
     return FreeTrajectoryState(GlobalTrajectoryParameters(xPerigee, pPerigee, originalFTS.charge(),

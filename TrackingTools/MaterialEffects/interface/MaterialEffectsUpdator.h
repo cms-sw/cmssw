@@ -17,7 +17,7 @@ public:
   MaterialEffectsUpdator ( float mass ) :
     theMass(mass),
     theDeltaP(0.),
-    theDeltaCov(5,0) {}
+    theDeltaCov() {}
   /** Default constructor (mass from configurable)
    */
   //  MaterialEffectsUpdator ();
@@ -38,12 +38,14 @@ public:
     if ( newArguments(TSoS,propDir) )  compute(TSoS,propDir);
     return theDeltaP;
   }
+
+
   /** Contribution to covariance matrix (in local co-ordinates) from material effects.
    */
-  virtual AlgebraicSymMatrix deltaLocalError (const TrajectoryStateOnSurface& TSoS, 
+  virtual const AlgebraicSymMatrix55 &deltaLocalError (const TrajectoryStateOnSurface& TSoS, 
 					      const PropagationDirection propDir) const {
     // check for material
-    if ( !TSoS.surface().mediumProperties() )  return AlgebraicSymMatrix(5,0);
+    if ( !TSoS.surface().mediumProperties() )  return theNullMatrix;
     // check for change (avoid using compute method if possible)
     if ( newArguments(TSoS,propDir) )  compute(TSoS,propDir);
     return theDeltaCov;
@@ -75,7 +77,8 @@ public:
 
 protected:  
   mutable double theDeltaP;
-  mutable AlgebraicSymMatrix theDeltaCov;
+  mutable AlgebraicSymMatrix55 theDeltaCov;
+  static  AlgebraicSymMatrix55  theNullMatrix;
 };
 
 #endif

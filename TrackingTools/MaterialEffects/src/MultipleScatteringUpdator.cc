@@ -16,9 +16,9 @@ void MultipleScatteringUpdator::compute (const TrajectoryStateOnSurface& TSoS,
   // Initialise the update to the covariance matrix
   // (dP is constantly 0).
   //
+  theDeltaCov(1,1) = 0.;
+  theDeltaCov(1,2) = 0.;
   theDeltaCov(2,2) = 0.;
-  theDeltaCov(2,3) = 0.;
-  theDeltaCov(3,3) = 0.;
   //
   // Now get information on medium
   //
@@ -48,9 +48,9 @@ void MultipleScatteringUpdator::compute (const TrajectoryStateOnSurface& TSoS,
     double sf = d.y()/sl;
     // Create update (transformation of independant variations
     //   on angle in orthogonal planes to local parameters.
-    theDeltaCov(2,2) = sigt2*(sf*sf*cl*cl + cf*cf)/(cl*cl*cl*cl);
-    theDeltaCov(2,3) = sigt2*(cf*sf*sl*sl        )/(cl*cl*cl*cl);
-    theDeltaCov(3,3) = sigt2*(cf*cf*cl*cl + sf*sf)/(cl*cl*cl*cl);
+    theDeltaCov(1,1) = sigt2*(sf*sf*cl*cl + cf*cf)/(cl*cl*cl*cl);
+    theDeltaCov(1,2) = sigt2*(cf*sf*sl*sl        )/(cl*cl*cl*cl);
+    theDeltaCov(2,2) = sigt2*(cf*cf*cl*cl + sf*sf)/(cl*cl*cl*cl);
   }
   //
   // Save arguments to avoid duplication of computation
@@ -62,8 +62,12 @@ void MultipleScatteringUpdator::compute (const TrajectoryStateOnSurface& TSoS,
 //
 bool MultipleScatteringUpdator::newArguments (const TrajectoryStateOnSurface& TSoS, 
 					      const PropagationDirection propDir) const {
-  return TSoS.localMomentum().unit().z()!=theLastDz ||
-    TSoS.localMomentum().mag()!=theLastP || propDir!=theLastPropDir ||
+  LocalVector localP = TSoS.localMomentum(); // let's call localMomentum only once
+  return 
+    localP.mag() != theLastP || 
+    //TSoS.localMomentum().unit().z()!=theLastDz ||   // if we get there,  TSoS.localMomentum().mag() = theLastP!
+    localP.z() != theLastDz*theLastP   ||   // so we can just do this, I think
+    propDir!=theLastPropDir ||
     TSoS.surface().mediumProperties()->radLen()!=theLastRadLength;
 }
 //
@@ -71,8 +75,9 @@ bool MultipleScatteringUpdator::newArguments (const TrajectoryStateOnSurface& TS
 //
 void MultipleScatteringUpdator::storeArguments (const TrajectoryStateOnSurface& TSoS, 
 						const PropagationDirection propDir) const {
-  theLastDz = TSoS.localMomentum().unit().z();
-  theLastP = TSoS.localMomentum().mag();
+  LocalVector localP = TSoS.localMomentum(); // let's call localMomentum only once
+  theLastP = localP.mag();
+  theLastDz = (theLastP == 0 ? 0 : localP.z()/theLastP);
   theLastPropDir = propDir;
   theLastRadLength = TSoS.surface().mediumProperties()->radLen();
 }

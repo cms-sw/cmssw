@@ -48,10 +48,10 @@ public:
   }
   /** Contribution to covariance matrix (in local co-ordinates) from material effects.
    */
-  virtual std::vector<AlgebraicSymMatrix> deltaLocalErrors (const TrajectoryStateOnSurface& TSoS, 
+  virtual std::vector<AlgebraicSymMatrix55> deltaLocalErrors (const TrajectoryStateOnSurface& TSoS, 
 							    const PropagationDirection propDir) const {
     // check for material
-    if ( !TSoS.surface().mediumProperties() )  return std::vector<AlgebraicSymMatrix>();
+    if ( !TSoS.surface().mediumProperties() )  return std::vector<AlgebraicSymMatrix55>();
     // check for change (avoid using compute method if possible)
     if ( newArguments(TSoS,propDir) )  compute(TSoS,propDir);
     return theDeltaCovs;
@@ -84,7 +84,7 @@ private:
 protected:  
   mutable std::vector<double> theWeights;
   mutable std::vector<double> theDeltaPs;
-  mutable std::vector<AlgebraicSymMatrix> theDeltaCovs;
+  mutable std::vector<AlgebraicSymMatrix55> theDeltaCovs;
 };
 
 #endif

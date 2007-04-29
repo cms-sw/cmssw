@@ -25,6 +25,8 @@ public:
 
   virtual std::pair<bool,double> estimate(const TrajectoryStateOnSurface&,
 				     const TransientTrackingRecHit&) const;
+  template <unsigned int D> std::pair<bool,double> estimate(const TrajectoryStateOnSurface&,
+				     const TransientTrackingRecHit&) const;
 
   virtual Chi2MeasurementEstimator* clone() const {
     return new Chi2MeasurementEstimator(*this);

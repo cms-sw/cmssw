@@ -107,8 +107,8 @@ AnalyticalTrajectoryExtrapolatorToLine::extrapolateSingleState (const FreeTrajec
     // compute jacobian
     //
     AnalyticalCurvilinearJacobian analyticalJacobian(fts.parameters(), gtp.position(), gtp.momentum(), s);
-    AlgebraicMatrix jacobian(analyticalJacobian.jacobian());
-    CurvilinearTrajectoryError cte(fts.curvilinearError().matrix().similarity(jacobian));
+    const AlgebraicMatrix55 &jacobian = analyticalJacobian.jacobian();
+    CurvilinearTrajectoryError cte( ROOT::Math::Similarity (jacobian, fts.curvilinearError().matrix()) );
     return TrajectoryStateOnSurface(gtp,cte,*surface);
   }
   else {

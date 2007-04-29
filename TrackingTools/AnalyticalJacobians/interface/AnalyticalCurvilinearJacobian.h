@@ -33,7 +33,8 @@ class AnalyticalCurvilinearJacobian : public CurvilinearJacobian {
   
   virtual ~AnalyticalCurvilinearJacobian() {}
   
-  virtual const AlgebraicMatrix& jacobian() const {return theJacobian;}
+  virtual const AlgebraicMatrix55& jacobian() const {return theJacobian;}
+  virtual const AlgebraicMatrix jacobian_old() const {return asHepMatrix(theJacobian);}
 private:
   /// result for non-vanishing curvature
   void computeFullJacobian (const GlobalTrajectoryParameters&,
@@ -46,7 +47,7 @@ private:
 
  private:
   
-  AlgebraicMatrix theJacobian;
+  AlgebraicMatrix55 theJacobian;
 
 };  
 

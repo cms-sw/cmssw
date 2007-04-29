@@ -39,10 +39,18 @@ public:
    */
 
   CurvilinearTrajectoryError(const AlgebraicSymMatrix& aCovarianceMatrix) :
-    theCovarianceMatrix(aCovarianceMatrix) {}
+    theCovarianceMatrix(asSMatrix<5>(aCovarianceMatrix)) {}
+
+  /** Constructing class from a full covariance matrix. The sequence of the parameters is
+   *  the same as the one described above.
+   */
+
+  CurvilinearTrajectoryError(const AlgebraicSymMatrix55& aCovarianceMatrix) :
+    theCovarianceMatrix(aCovarianceMatrix) { }
 
   /// Implicit conversion
-  CurvilinearTrajectoryError( const MathCovarianceMatrix & cov);
+  //CurvilinearTrajectoryError( const MathCovarianceMatrix & cov) { return theCovarianceMatrix; }
+  // not needed anymore: MathCovarianceMatrix === AlgebraicSymMatrix55
 
 
 // access
@@ -50,7 +58,15 @@ public:
   /** Returning the covariance matrix.
    */
 
-  AlgebraicSymMatrix matrix() const {
+  const AlgebraicSymMatrix matrix_old() const {
+    return asHepMatrix(theCovarianceMatrix);
+  }
+
+  /** Returning the covariance matrix.
+   */
+
+  //const AlgebraicSymMatrix55 &matrix() const {
+  const AlgebraicSymMatrix55 &matrix() const {
     return theCovarianceMatrix;
   }
 
@@ -61,10 +77,11 @@ public:
     theCovarianceMatrix *= factor;
   }
 
-  operator MathCovarianceMatrix() const;
+  operator MathCovarianceMatrix() { return theCovarianceMatrix; }
+  operator const MathCovarianceMatrix &() const { return theCovarianceMatrix; }
 
 private:
-  AlgebraicSymMatrix theCovarianceMatrix;
+  AlgebraicSymMatrix55 theCovarianceMatrix;
 };
 
 #endif

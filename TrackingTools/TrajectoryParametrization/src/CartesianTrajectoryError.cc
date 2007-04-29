@@ -1,5 +1,5 @@
 #include "TrackingTools/TrajectoryParametrization/interface/CartesianTrajectoryError.h"
 
 GlobalError CartesianTrajectoryError::position() const {
-  return GlobalError( theCovarianceMatrix.sub(1,3));
+  return GlobalError( theCovarianceMatrix.Sub<AlgebraicSymMatrix33>(0,0)); 
 }

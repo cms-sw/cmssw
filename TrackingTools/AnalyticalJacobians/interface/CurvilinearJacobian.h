@@ -15,7 +15,8 @@ public:
 
   virtual ~CurvilinearJacobian() {}
 
-  virtual const AlgebraicMatrix& jacobian() const = 0;
+  virtual const AlgebraicMatrix55& jacobian() const = 0;
+  virtual const AlgebraicMatrix jacobian_old() const = 0;
 
 };  
 

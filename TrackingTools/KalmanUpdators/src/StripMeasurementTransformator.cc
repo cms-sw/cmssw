@@ -16,78 +16,78 @@ void StripMeasurementTransformator::init() {
     dynamic_cast<const StripTopology*>(&(hit().detUnit()->topology()));
 }
 
-AlgebraicVector StripMeasurementTransformator::hitParameters() const {
+AlgebraicVector2 StripMeasurementTransformator::hitParameters() const {
   
-  AlgebraicVector av(2,0);
+  AlgebraicVector2 av;
   MeasurementPoint mp = 
     topology()->measurementPosition(hit().localPosition());
-  av(1) = mp.x();
-  av(2) = mp.y();
+  av[0] = mp.x();
+  av[1] = mp.y();
 
   return av;
 }
 
-AlgebraicVector StripMeasurementTransformator::trajectoryParameters() const {
+AlgebraicVector5 StripMeasurementTransformator::trajectoryParameters() const {
     
   return state().localParameters().vector();
 }
 
-AlgebraicVector 
+AlgebraicVector2 
 StripMeasurementTransformator::projectedTrajectoryParameters() const {
 
-  AlgebraicVector av(2,0);
+  AlgebraicVector2 av;
   MeasurementPoint mp = 
     topology()->measurementPosition(state().localPosition());
-  av(1) = mp.x();
-  av(2) = mp.y();
+  av[0] = mp.x();
+  av[1] = mp.y();
 
   return av;
 }
 
-AlgebraicSymMatrix StripMeasurementTransformator::hitError() const {
+AlgebraicSymMatrix22 StripMeasurementTransformator::hitError() const {
 
-  AlgebraicSymMatrix am(2,0);
+  AlgebraicSymMatrix22 am;
    MeasurementError me = 
     topology()->measurementError(hit().localPosition(),
 				 hit().localPositionError());
-  am(1,1) = me.uu();
-  am(2,1) = me.uv();
-  am(2,2) = me.vv();
+  am(0,0) = me.uu();
+  am(1,0) = me.uv();
+  am(1,1) = me.vv();
   
   return am;
 }
 
-AlgebraicSymMatrix StripMeasurementTransformator::trajectoryError() const {
+const AlgebraicSymMatrix55 & StripMeasurementTransformator::trajectoryError() const {
 
   return state().localError().matrix();
 }
 
-AlgebraicSymMatrix 
+AlgebraicSymMatrix22 
 StripMeasurementTransformator::projectedTrajectoryError() const {
 
-  AlgebraicSymMatrix am(2,0);
+  AlgebraicSymMatrix22 am;
   MeasurementError me = 
     topology()->measurementError(state().localPosition(),
 				 state().localError().positionError());
-  am(1,1) = me.uu();
-  am(2,1) = me.uv();
-  am(2,2) = me.vv();
+  am(0,0) = me.uu();
+  am(1,0) = me.uv();
+  am(1,1) = me.vv();
 
   return am;
 }
 
-AlgebraicMatrix StripMeasurementTransformator::projectionMatrix() const {
+AlgebraicMatrix25 StripMeasurementTransformator::projectionMatrix() const {
 
   // H(measurement <- local)
   // m_meas = H*x_local + c
-  AlgebraicMatrix H(2,5,0);
+  AlgebraicMatrix25 H;
   
   float phi = 
     topology()->stripAngle(topology()->strip(state().localPosition()));
   float pitch = topology()->localPitch(state().localPosition());
   float length = topology()->localStripLength(state().localPosition());
-  H(1,4) = cos(phi)/pitch; H(1,5) = sin(phi)/pitch;
-  H(2,4) = -sin(phi)/length; H(2,5) = cos(phi)/length;
+  H(0,3) = cos(phi)/pitch; H(0,4) = sin(phi)/pitch;
+  H(1,3) = -sin(phi)/length; H(1,4) = cos(phi)/length;
 
   return H;
 }

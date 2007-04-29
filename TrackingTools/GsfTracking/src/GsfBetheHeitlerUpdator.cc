@@ -123,15 +123,15 @@ GsfBetheHeitlerUpdator::compute (const TrajectoryStateOnSurface& TSoS,
 	theDeltaPs.push_back(p*(1/mixture[i].second-1));
 	varPinv = mixture[i].third/p/p;
       }
-      AlgebraicSymMatrix errors(5,0);
-      errors[0][0] = varPinv;
+      AlgebraicSymMatrix55 errors;
+      errors(0,0) = varPinv;
       theDeltaCovs.push_back(errors);
     }
   }
   else {
     theWeights.push_back(1.);
     theDeltaPs.push_back(0.);
-    theDeltaCovs.push_back(AlgebraicSymMatrix(5,0));
+    theDeltaCovs.push_back(AlgebraicSymMatrix55());
   }
   //
   // Save arguments to avoid duplication of computation

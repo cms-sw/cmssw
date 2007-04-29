@@ -6,7 +6,7 @@
 JacobianCurvilinearToLocal::
 JacobianCurvilinearToLocal(const Surface& surface, 
 			   const LocalTrajectoryParameters& localParameters,
-			   const MagneticField& magField) : theJacobian(5, 5, 0) {
+			   const MagneticField& magField) : theJacobian() {
  
   // Origin: TRSCSD
   GlobalVector tn = surface.toGlobal(localParameters.momentum()).unit();
@@ -27,15 +27,15 @@ JacobianCurvilinearToLocal(const Surface& surface,
   double t1r = 1./tvw.x();
   double t2r = t1r*t1r;
   double t3r = t1r*t2r;
-  theJacobian(1,1) = 1.;
-  theJacobian(2,2) = -uk*t2r;
-  theJacobian(2,3) = vk*cosl*t2r;
-  theJacobian(3,2) = uj*t2r;
-  theJacobian(3,3) = -vj*cosl*t2r;
-  theJacobian(4,4) = vk*t1r;
-  theJacobian(4,5) = -uk*t1r;
-  theJacobian(5,4) = -vj*t1r;
-  theJacobian(5,5) = uj*t1r;
+  theJacobian(0,0) = 1.;
+  theJacobian(1,1) = -uk*t2r;
+  theJacobian(1,2) = vk*cosl*t2r;
+  theJacobian(2,1) = uj*t2r;
+  theJacobian(2,2) = -vj*cosl*t2r;
+  theJacobian(3,3) = vk*t1r;
+  theJacobian(3,4) = -uk*t1r;
+  theJacobian(4,3) = -vj*t1r;
+  theJacobian(4,4) = uj*t1r;
   GlobalPoint  x = surface.toGlobal(localParameters.position());
   //  GlobalVector h = MagneticField::inInverseGeV(x);
   GlobalVector h  = magField.inTesla(x) * 2.99792458e-3;
@@ -44,13 +44,16 @@ JacobianCurvilinearToLocal(const Surface& surface,
   double cosz = vn.dot(h.unit());
   double ui = un.dot(di);
   double vi = vn.dot(di);
-  theJacobian(2,4) =-q*ui*(vk*cosz-uk*sinz)*t3r;
-  theJacobian(2,5) =-q*vi*(vk*cosz-uk*sinz)*t3r;
-  theJacobian(3,4) = q*ui*(vj*cosz-uj*sinz)*t3r;
-  theJacobian(3,5) = q*vi*(vj*cosz-uj*sinz)*t3r;
+  theJacobian(1,3) =-q*ui*(vk*cosz-uk*sinz)*t3r;
+  theJacobian(1,4) =-q*vi*(vk*cosz-uk*sinz)*t3r;
+  theJacobian(2,3) = q*ui*(vj*cosz-uj*sinz)*t3r;
+  theJacobian(2,4) = q*vi*(vj*cosz-uj*sinz)*t3r;
   // end of TRSCSD
+  //dbg::dbg_trace(1,"Cu2L", localParameters.vector(),di,dj,dk,theJacobian);
 }
-
-const AlgebraicMatrix& JacobianCurvilinearToLocal::jacobian() const {
+const AlgebraicMatrix55& JacobianCurvilinearToLocal::jacobian() const {
   return theJacobian;
+}
+const AlgebraicMatrix JacobianCurvilinearToLocal::jacobian_old() const {
+  return asHepMatrix(theJacobian);
 }

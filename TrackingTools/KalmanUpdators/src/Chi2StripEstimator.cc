@@ -20,35 +20,35 @@ Chi2StripEstimator::estimate(const TrajectoryStateOnSurface& state,
   MeasurementPoint mp;
   MeasurementError me;
 
-  AlgebraicVector m(2,0);
+  AlgebraicVector2 m;
   mp = topology->measurementPosition(hit.localPosition());
-  m(1) = mp.x();
-  m(2) = mp.y();
+  m[0] = mp.x();
+  m[1] = mp.y();
   
-  AlgebraicSymMatrix V(2,0);
+  AlgebraicSymMatrix22 V;
   me = topology->measurementError(hit.localPosition(),
 				  hit.localPositionError());
  
-  V(1,1) = me.uu();
-  V(2,1) = me.uv();
-  V(2,2) = me.vv();
+  V(0,0) = me.uu();
+  V(1,0) = me.uv();
+  V(1,1) = me.vv();
 
-  AlgebraicVector x(2,0);
+  AlgebraicVector2 x;
   mp = topology->measurementPosition(state.localPosition());
-  x(1) = mp.x();
-  x(2) = mp.y();
+  m[0] = mp.x();
+  m[1] = mp.y();
   
-  AlgebraicSymMatrix C(2,0);
+  AlgebraicSymMatrix22 C;
   me = topology->measurementError(state.localPosition(),
 				  state.localError().positionError());
-  C(1,1) = me.uu();
-  C(2,1) = me.uv();
-  C(2,2) = me.vv();
+  C(0,0) = me.uu();
+  C(1,0) = me.uv();
+  C(1,1) = me.vv();
 
-  AlgebraicVector r(m - x);
-  AlgebraicSymMatrix R(V + C);
-  int ierr; R.invert(ierr); // if (ierr != 0) throw exception;
-  double est = max(R.similarity(r), 0.000001); // avoid exact zero
+  AlgebraicVector2 r(m - x);
+  AlgebraicSymMatrix22 R(V + C);
+  int ierr = ! R.Invert(); // if (ierr != 0) throw exception;
+  double est = max(ROOT::Math::Similarity(r, R), 0.000001); // avoid exact zero
 
   return returnIt( est);
 }

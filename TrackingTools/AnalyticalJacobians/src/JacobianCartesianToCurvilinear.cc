@@ -2,7 +2,7 @@
 #include "TrackingTools/TrajectoryParametrization/interface/GlobalTrajectoryParameters.h"
 
 JacobianCartesianToCurvilinear::
-JacobianCartesianToCurvilinear(const GlobalTrajectoryParameters& globalParameters) : theJacobian(5, 6, 0) {
+JacobianCartesianToCurvilinear(const GlobalTrajectoryParameters& globalParameters) : theJacobian() {
   
   GlobalVector xt = globalParameters.momentum();
   //GlobalVector yt(xt.y(), -xt.x(), 0.); \\wrong direction of the axis
@@ -23,25 +23,28 @@ JacobianCartesianToCurvilinear(const GlobalTrajectoryParameters& globalParameter
     zt = zt.unit();
   }
   
-  AlgebraicMatrix R(6,6,0);
-  R(1,1) = xt.x(); R(1,2) = xt.y(); R(1,3) = xt.z();
-  R(2,1) = yt.x(); R(2,2) = yt.y(); R(2,3) = yt.z();
-  R(3,1) = zt.x(); R(3,2) = zt.y(); R(3,3) = zt.z();
+  AlgebraicMatrix66 R;
+  R(0,0) = xt.x(); R(0,1) = xt.y(); R(0,2) = xt.z();
+  R(1,0) = yt.x(); R(1,1) = yt.y(); R(1,2) = yt.z();
+  R(2,0) = zt.x(); R(2,1) = zt.y(); R(2,2) = zt.z();
+  R(3,3) = 1.;
   R(4,4) = 1.;
   R(5,5) = 1.;
-  R(6,6) = 1.;
 
-  theJacobian(1,4) = -q*px/p3;        theJacobian(1,5) = -q*py/p3;        theJacobian(1,6) = -q*pz/p3;
+  theJacobian(0,3) = -q*px/p3;        theJacobian(0,4) = -q*py/p3;        theJacobian(0,5) = -q*pz/p3;
   if(fabs(pt) > 0){
-    //theJacobian(2,4) = (px*pz)/(pt*p2); theJacobian(2,5) = (py*pz)/(pt*p2); theJacobian(2,6) = -pt/p2; //wrong sign
-    theJacobian(2,4) = -(px*pz)/(pt*p2); theJacobian(2,5) = -(py*pz)/(pt*p2); theJacobian(2,6) = pt/p2;
-    theJacobian(3,4) = -py/pt2;         theJacobian(3,5) = px/pt2;          theJacobian(3,6) = 0.;
+    //theJacobian(1,3) = (px*pz)/(pt*p2); theJacobian(1,4) = (py*pz)/(pt*p2); theJacobian(1,5) = -pt/p2; //wrong sign
+    theJacobian(1,3) = -(px*pz)/(pt*p2); theJacobian(1,4) = -(py*pz)/(pt*p2); theJacobian(1,5) = pt/p2;
+    theJacobian(2,3) = -py/pt2;         theJacobian(2,4) = px/pt2;          theJacobian(2,5) = 0.;
   }
+  theJacobian(3,1) = 1.;
   theJacobian(4,2) = 1.;
-                 theJacobian(5,3) = 1.;
   theJacobian = theJacobian * R;
+  //dbg::dbg_trace(1,"Ca2Cu", globalParameters.vector(),theJacobian);
 }
-
-const AlgebraicMatrix& JacobianCartesianToCurvilinear::jacobian() const{
+const AlgebraicMatrix JacobianCartesianToCurvilinear::jacobian_old() const{
+  return asHepMatrix(theJacobian);
+}
+const AlgebraicMatrix56& JacobianCartesianToCurvilinear::jacobian() const{
   return theJacobian;
 }

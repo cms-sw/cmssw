@@ -26,25 +26,29 @@ MultiTrajectoryStateCombiner::combine(const std::vector<TrajectoryStateOnSurface
   }
   
   double sumw = 0.;
-  int dim = tsos.front().localParameters().vector().num_row();
-  AlgebraicVector mean(dim,0);
-  AlgebraicSymMatrix covarPart1(dim,0), covarPart2(dim,0);
+  //int dim = tsos.front().localParameters().vector().num_row();
+  AlgebraicVector5 mean;
+  AlgebraicSymMatrix55 covarPart1, covarPart2;
   for (std::vector<TrajectoryStateOnSurface>::const_iterator it1 = tsos.begin(); 
        it1 != tsos.end(); it1++) {
     double weight = it1->weight();
-    AlgebraicVector param = it1->localParameters().vector();
+    AlgebraicVector5 param = it1->localParameters().vector();
     sumw += weight;
     mean += weight * param;
     covarPart1 += weight * it1->localError().matrix();
     for (std::vector<TrajectoryStateOnSurface>::const_iterator it2 = it1 + 1; 
 	 it2 != tsos.end(); it2++) {
-      AlgebraicVector diff = param - it2->localParameters().vector();
-      AlgebraicSymMatrix s(1,1); //stupid trick to make CLHEP work decently
-      covarPart2 += weight * it2->weight() * s.similarity(diff.T().T());
+      AlgebraicVector5 diff = param - it2->localParameters().vector();
+      AlgebraicSymMatrix11 s = AlgebraicMatrixID(); //stupid trick to make CLHEP work decently
+      covarPart2 +=weight * it2->weight() *
+      				ROOT::Math::Similarity((const AlgebraicMatrix51&)(diff), s);
+                        //FIXME: we can surely write this thing in a better way
     }   
   }
-  mean /= sumw;
-  AlgebraicSymMatrix covar = covarPart1/sumw + covarPart2/sumw/sumw;
+  double sumwI = 1.0/sumw;
+  mean *= sumwI;
+  covarPart1 *= sumwI; covarPart2 *= (sumwI*sumwI);
+  AlgebraicSymMatrix55 covar = covarPart1 + covarPart2;
 
   return TrajectoryStateOnSurface(LocalTrajectoryParameters(mean, pzSign), 
 				  LocalTrajectoryError(covar), 

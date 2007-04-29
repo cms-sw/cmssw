@@ -84,16 +84,22 @@ public:
    *  whose last three elements are the global momentum coordinates.
    */
 
-  AlgebraicVector vector() const {
-    AlgebraicVector v(6);
-    v[0] = theX.x();
-    v[1] = theX.y();
-    v[2] = theX.z();
-    v[3] = theP.x();
-    v[4] = theP.y();
-    v[5] = theP.z();
-    return v;
+  AlgebraicVector6 vector() const {
+    //AlgebraicVector6 v;
+    //v[0] = theX.x();
+    //v[1] = theX.y();
+    //v[2] = theX.z();
+    //v[3] = theP.x();
+    //v[4] = theP.y();
+    //v[5] = theP.z();
+    return AlgebraicVector6(theX.x(),theX.y(),theX.z(),theP.x(),theP.y(),theP.z());
   }
+
+  /** Vector whose first three elements are the global position coordinates and
+   *  whose last three elements are the global momentum coordinates.
+   */
+
+  AlgebraicVector vector_old() const { return asHepVector(vector());  }
 
   GlobalVector magneticFieldInInverseGeV( const GlobalPoint& x) const; 
   const MagneticField& magneticField() const {return *theField;}

@@ -23,12 +23,13 @@ class JacobianCurvilinearToCartesian {
   /** Access to Jacobian.
    */
   
-  const AlgebraicMatrix& jacobian() const;
+  const AlgebraicMatrix65& jacobian() const;
+  const AlgebraicMatrix jacobian_old() const;
 
 
  private:
   
-  AlgebraicMatrix theJacobian;
+  AlgebraicMatrix65 theJacobian;
 
 };  
 

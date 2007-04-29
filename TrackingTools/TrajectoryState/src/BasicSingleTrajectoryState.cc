@@ -191,9 +191,9 @@ void BasicSingleTrajectoryState::checkCurvilinError() const {
     theCurvilinErrorUp2Date = true;
     
     JacobianLocalToCurvilinear loc2Curv(surface(), localParameters(), *theField);
-    const AlgebraicMatrix& jac = loc2Curv.jacobian();
+    const AlgebraicMatrix55& jac = loc2Curv.jacobian();
     
-    AlgebraicSymMatrix cov = theLocalError.matrix().similarity(jac);
+    const AlgebraicSymMatrix55 &cov = ROOT::Math::Similarity(jac, theLocalError.matrix());
     GlobalTrajectoryParameters params = 
       theFreeState->parameters();
     if(theCartesianErrorUp2Date) {
@@ -215,9 +215,9 @@ void BasicSingleTrajectoryState::checkCartesianError() const {
     theCartesianErrorUp2Date = true;
    
     JacobianLocalToCartesian loc2Cart(surface(), localParameters());
-    const AlgebraicMatrix& jac = loc2Cart.jacobian();
+    const AlgebraicMatrix65& jac = loc2Cart.jacobian();
 
-    AlgebraicSymMatrix cov = theLocalError.matrix().similarity(jac);
+    const AlgebraicSymMatrix66 &cov = ROOT::Math::Similarity(jac, theLocalError.matrix());
     //    cout<<"cov: "<<cov<<endl;
     GlobalTrajectoryParameters params = 
       theFreeState->parameters();
@@ -258,10 +258,10 @@ void
 BasicSingleTrajectoryState::createLocalErrorFromCurvilinearError() const {
   
   JacobianCurvilinearToLocal curv2Loc(surface(), localParameters(), *theField);
-  const AlgebraicMatrix& jac = curv2Loc.jacobian();
+  const AlgebraicMatrix55& jac = curv2Loc.jacobian();
   
-  AlgebraicSymMatrix cov = 
-    theFreeState->curvilinearError().matrix().similarity(jac);
+  const AlgebraicSymMatrix55 &cov = 
+    ROOT::Math::Similarity(jac, theFreeState->curvilinearError().matrix());
   //    cout<<"Clocal via curvilinear error"<<endl;
   theLocalError = LocalTrajectoryError(cov);
   theLocalErrorValid = true;
@@ -271,11 +271,11 @@ void
 BasicSingleTrajectoryState::createLocalErrorFromCartesianError() const {
 
   JacobianCartesianToLocal cart2Loc(surface(), localParameters());
-  const AlgebraicMatrix& jac = cart2Loc.jacobian();
+  const AlgebraicMatrix56& jac = cart2Loc.jacobian();
     
 
-  AlgebraicSymMatrix C = 
-    theFreeState->cartesianError().matrix().similarity(jac);
+  const AlgebraicSymMatrix55 &C = 
+    ROOT::Math::Similarity(jac, theFreeState->cartesianError().matrix());
   theLocalError = LocalTrajectoryError(C);
   theLocalErrorValid = true;
 }

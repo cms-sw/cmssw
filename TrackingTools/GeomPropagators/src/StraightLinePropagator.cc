@@ -53,11 +53,20 @@ StraightLinePropagator::propagatedState(const FTS& fts,
 					const AlgebraicMatrix& jacobian,
 					const LocalPoint& x, 
 					const LocalVector& p) const {
+    return propagatedState(fts,surface,asSMatrix<5,5>(jacobian),x,p);
+}
+
+TrajectoryStateOnSurface 
+StraightLinePropagator::propagatedState(const FTS& fts,
+					const Surface& surface,
+					const AlgebraicMatrix55& jacobian,
+					const LocalPoint& x, 
+					const LocalVector& p) const {
   if(fts.hasError()) {
     // propagate error
     TSOS tmp( fts, surface);
-    AlgebraicSymMatrix eLocal(tmp.localError().matrix());
-    AlgebraicSymMatrix lte = eLocal.similarity(jacobian);
+    const AlgebraicSymMatrix55 & eLocal =tmp.localError().matrix();
+    AlgebraicSymMatrix55 lte = ROOT::Math::Similarity(jacobian,eLocal);
     LocalTrajectoryError eloc(lte);
     LocalTrajectoryParameters ltp(x, p, fts.charge());
     return TSOS(ltp, eloc, surface, theField);
@@ -73,12 +82,21 @@ StraightLinePropagator::propagatedState(const FTS& fts,
 					const AlgebraicMatrix& jacobian,
 					const GlobalPoint& x, 
 					const GlobalVector& p) const {
+    return propagatedState(fts,surface,asSMatrix<5,5>(jacobian),x,p);
+}
+
+TrajectoryStateOnSurface 
+StraightLinePropagator::propagatedState(const FTS& fts,
+					const Surface& surface,
+					const AlgebraicMatrix55& jacobian,
+					const GlobalPoint& x, 
+					const GlobalVector& p) const {
 
   if(fts.hasError()) {
     // propagate error
     TSOS tmp(fts, surface);
-    AlgebraicSymMatrix eLocal(tmp.localError().matrix());
-    AlgebraicSymMatrix lte = eLocal.similarity(jacobian);
+    const AlgebraicSymMatrix55 & eLocal =tmp.localError().matrix();
+    AlgebraicSymMatrix55 lte = ROOT::Math::Similarity(jacobian,eLocal);
     LocalTrajectoryError eloc(lte);
 
     TSOS tmp2(tmp.localParameters(), eloc, surface, theField);
@@ -90,17 +108,21 @@ StraightLinePropagator::propagatedState(const FTS& fts,
   }
 }
 
-AlgebraicMatrix StraightLinePropagator::jacobian(double& s) const {
+AlgebraicMatrix StraightLinePropagator::jacobian_old(double& s) const {
+    return asHepMatrix(jacobian(s));
+}
+
+AlgebraicMatrix55 StraightLinePropagator::jacobian(double& s) const {
   //Jacobian for 5*5 local error matrix
-  AlgebraicMatrix F(5,5,1);//Jacobian
+  AlgebraicMatrix55 j = AlgebraicMatrixID(); //Jacobian
   
   double dir = (propagationDirection() == alongMomentum) ? 1. : -1.;
-  if (s*dir < 0.) return F;
+  if (s*dir < 0.) return j;
 
-  F(4,2) = s; 
-  F(5,3) = s; 
+  j(3,1) = s; 
+  j(4,2) = s; 
 
-  return F;
+  return j;
 }
 
 bool StraightLinePropagator::propagateParametersOnCylinder(const FTS& fts, 
@@ -120,12 +142,10 @@ bool StraightLinePropagator::propagateParametersOnCylinder(const FTS& fts,
   double dir = (propagationDirection() == alongMomentum) ? 1. : -1.;
   if(s*dir < 0.) return false;
 
-  AlgebraicVector x_k1(3);//extrapolate position
-  x_k1(1) = x.x() + (p.x()/p.perp())*s; 
-  x_k1(2) = x.y() + (p.y()/p.perp())*s; 
-  x_k1(3) = x.z() + (p.z()/p.perp())*s;
-  
-  x = GlobalPoint(x_k1(1), x_k1(2), x_k1(3));    
+  double dt = s/p.perp();
+  x = GlobalPoint(x.x() + p.x()*dt, 
+                  x.y() + p.y()*dt, 
+                  x.z() + p.z()*dt);
 
   return true;
 }
@@ -145,12 +165,9 @@ bool StraightLinePropagator::propagateParametersOnPlane(const FTS& fts,
   //double dir = (propagationDirection() == alongMomentum) ? 1. : -1.;
   //if(s*dir < 0.) return false;
 
-  AlgebraicVector x_k1(3);//extrapolate position
-  x_k1(1) = x.x() + (p.x()/p.z())*s; 
-  x_k1(2) = x.y() + (p.y()/p.z())*s; 
-  x_k1(3) = x.z() + s;
-  
-  x = LocalPoint(x_k1(1), x_k1(2), x_k1(3));    
+  x = LocalPoint( x.x() + (p.x()/p.z())*s,
+                  x.y() + (p.y()/p.z())*s,
+                  x.z() + s);    
 
   return true;
 }

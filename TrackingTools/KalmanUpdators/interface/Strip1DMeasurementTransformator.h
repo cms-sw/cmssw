@@ -16,9 +16,9 @@ class Strip1DMeasurementTransformator {
 private:
 
   typedef TrajectoryStateOnSurface TSOS;
-  typedef AlgebraicSymMatrix ASM;
-  typedef AlgebraicMatrix AM;
-  typedef AlgebraicVector AV;
+  typedef AlgebraicSymMatrix55 ASM55;
+  typedef AlgebraicMatrix15 AM15;
+  typedef AlgebraicVector5 AV5;
 
 public:
 
@@ -27,12 +27,12 @@ public:
   ~Strip1DMeasurementTransformator() {}
 
   double hitParameters() const;
-  AV trajectoryParameters() const;
+  AV5 trajectoryParameters() const;
   double projectedTrajectoryParameters() const;
   double hitError() const;
-  ASM trajectoryError() const;
+  const ASM55 & trajectoryError() const;
   double projectedTrajectoryError() const;
-  AM projectionMatrix() const;
+  AM15 projectionMatrix() const;
 
   const TransientTrackingRecHit& hit() const {return theRecHit;}
   const TSOS& state() const {return theState;}

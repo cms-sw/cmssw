@@ -14,16 +14,17 @@ double TSOSMahalanobisDistance::operator() (const TrajectoryStateOnSurface& tsos
     return 0.;
   }
 
-  AlgebraicVector mu1 = tsos1.localParameters().vector();
-  AlgebraicSymMatrix V1 = tsos1.localError().matrix();
-  AlgebraicVector mu2 = tsos2.localParameters().vector();
-  AlgebraicSymMatrix V2 = tsos2.localError().matrix();
+  AlgebraicVector5 mu1 = tsos1.localParameters().vector();
+  const AlgebraicSymMatrix55 & V1 = tsos1.localError().matrix();
+  AlgebraicVector5 mu2 = tsos2.localParameters().vector();
+  const AlgebraicSymMatrix55 & V2 = tsos2.localError().matrix();
 
   int ierr;
-  AlgebraicSymMatrix VsumInverse = (V1 + V2).inverse(ierr);
-  AlgebraicVector mudiff = mu1 - mu2;
+  AlgebraicSymMatrix55 Vsum = V1 + V2;
+  AlgebraicSymMatrix55 VsumInverse = Vsum.Inverse(ierr);
+  AlgebraicVector5 mudiff = mu1 - mu2;
 
-  double dist = VsumInverse.similarity(mudiff);
+  double dist = ROOT::Math::Similarity(mudiff, VsumInverse);  //FIXME:: Optimize
 
   return dist;
 }

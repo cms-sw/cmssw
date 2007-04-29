@@ -57,40 +57,40 @@ void GsfCombinedMaterialEffectsUpdator::compute (const TrajectoryStateOnSurface&
   //
   std::vector<double> msWeights = theMSUpdator->weights(TSoS,propDir);
   std::vector<double> msDeltaPs = theMSUpdator->deltaPs(TSoS,propDir);
-  std::vector<AlgebraicSymMatrix> msDeltaCovs = theMSUpdator->deltaLocalErrors(TSoS,propDir);
+  std::vector<AlgebraicSymMatrix55> msDeltaCovs = theMSUpdator->deltaLocalErrors(TSoS,propDir);
   if ( msWeights.empty() ) {
     //
     // create one dummy component
     //
     msWeights.push_back(1.);
     msDeltaPs.push_back(0.);
-    msDeltaCovs.push_back(AlgebraicSymMatrix(5,0));
+    msDeltaCovs.push_back(AlgebraicSymMatrix55());
   }
   //
   // get components from energy loss
   //
   std::vector<double> elWeights = theELUpdator->weights(TSoS,propDir);
   std::vector<double> elDeltaPs = theELUpdator->deltaPs(TSoS,propDir);
-  std::vector<AlgebraicSymMatrix> elDeltaCovs = theELUpdator->deltaLocalErrors(TSoS,propDir);
+  std::vector<AlgebraicSymMatrix55> elDeltaCovs = theELUpdator->deltaLocalErrors(TSoS,propDir);
   if ( elWeights.empty() ) {
     //
     // create one dummy component
     //
     elWeights.push_back(1.);
     elDeltaPs.push_back(0.);
-    elDeltaCovs.push_back(AlgebraicSymMatrix(5,0));
+    elDeltaCovs.push_back(AlgebraicSymMatrix55());
   }
   //
   // combine the two multi-updates
   //
   std::vector<double>::const_iterator iMsWgt(msWeights.begin());
   std::vector<double>::const_iterator iMsDp(msDeltaPs.begin());
-  std::vector<AlgebraicSymMatrix>::const_iterator iMsDc(msDeltaCovs.begin());
+  std::vector<AlgebraicSymMatrix55>::const_iterator iMsDc(msDeltaCovs.begin());
   for ( ; iMsWgt<msWeights.end(); iMsWgt++,iMsDp++,iMsDc++ ) {
 
     std::vector<double>::const_iterator iElWgt(elWeights.begin());
     std::vector<double>::const_iterator iElDp(elDeltaPs.begin());
-    std::vector<AlgebraicSymMatrix>::const_iterator iElDc(elDeltaCovs.begin());
+    std::vector<AlgebraicSymMatrix55>::const_iterator iElDc(elDeltaCovs.begin());
     for ( ; iElWgt<elWeights.end(); iElWgt++,iElDp++,iElDc++ ) {
       theWeights.push_back((*iMsWgt)*(*iElWgt));
       theDeltaPs.push_back((*iMsDp)+(*iElDp));

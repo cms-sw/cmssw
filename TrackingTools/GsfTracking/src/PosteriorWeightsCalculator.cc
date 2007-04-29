@@ -6,7 +6,23 @@
 #include <cfloat>
 
 std::vector<double> PosteriorWeightsCalculator::weights(const TransientTrackingRecHit& recHit) const {
+        switch (recHit.dimension()) {
+                case 1: return weights<1>(recHit);
+                case 2: return weights<2>(recHit);
+                case 3: return weights<3>(recHit);
+                case 4: return weights<4>(recHit);
+                case 5: return weights<5>(recHit);
+        }
+        throw cms::Exception("Error: rechit of size not 1,2,3,4,5");
+}
 
+template<unsigned int D>
+std::vector<double> PosteriorWeightsCalculator::weights(const TransientTrackingRecHit& recHit) const {
+  typedef typename AlgebraicROOTObject<D,5>::Matrix MatD5;
+  typedef typename AlgebraicROOTObject<5,D>::Matrix Mat5D;
+  typedef typename AlgebraicROOTObject<D,D>::SymMatrix SMatDD;
+  typedef typename AlgebraicROOTObject<D>::Vector VecD;
+  
   std::vector<double> weights;
   if ( predictedComponents.empty() )  return weights;
   weights.reserve(predictedComponents.size());
@@ -24,19 +40,20 @@ std::vector<double> PosteriorWeightsCalculator::weights(const TransientTrackingR
     MeasurementExtractor me(predictedComponents[i]);
     // Residuals of aPredictedState w.r.t. aRecHit, 
     //!!!     AlgebraicVector r(recHit.parameters(predictedComponents[i]) - me.measuredParameters(recHit));
-    AlgebraicVector r(recHit.parameters() - me.measuredParameters(recHit));
+    VecD r = asSVector<D>(recHit.parameters()) - me.measuredParameters<D>(recHit);
     // and covariance matrix of residuals
     //!!!     AlgebraicSymMatrix V(recHit.parametersError(predictedComponents[i]));
-    AlgebraicSymMatrix V(recHit.parametersError());
-    AlgebraicSymMatrix R(V + me.measuredError(recHit));
-    double detR = R.determinant();
+    SMatDD V = asSMatrix<D>(recHit.parametersError());
+    SMatDD R = V + me.measuredError<D>(recHit);
+    double detR;
+    if (! R.Det2(detR) ) edm::LogError("PosteriorWeightsCalculator") << "PosteriorWeightsCalculator: determinant failed";
     detRs.push_back(detR);
 
-    int ierr; R.invert(ierr); // if (ierr != 0) throw exception;
+    int ierr = ! R.Invert(); // if (ierr != 0) throw exception;
     if ( ierr!=0 )  
       edm::LogError("PosteriorWeightsCalculator") 
 	<< "PosteriorWeightsCalculator: inversion failed, ierr = " << ierr;
-    double chi2 = R.similarity(r);
+    double chi2 = ROOT::Math::Similarity(r,R); 
     chi2s.push_back(chi2);
     if ( chi2<chi2Min )  chi2Min = chi2;
   }

@@ -21,7 +21,7 @@ double Strip1DMeasurementTransformator::hitParameters() const {
   return topology()->measurementPosition(hit().localPosition()).x();
 }
 
-AlgebraicVector Strip1DMeasurementTransformator::trajectoryParameters() const {
+AlgebraicVector5 Strip1DMeasurementTransformator::trajectoryParameters() const {
     
   return state().localParameters().vector();
 }
@@ -38,7 +38,7 @@ double Strip1DMeasurementTransformator::hitError() const {
 				 hit().localPositionError()).uu();
 }
 
-AlgebraicSymMatrix Strip1DMeasurementTransformator::trajectoryError() const {
+const AlgebraicSymMatrix55 & Strip1DMeasurementTransformator::trajectoryError() const {
 
   return state().localError().matrix();
 }
@@ -50,16 +50,16 @@ double Strip1DMeasurementTransformator::projectedTrajectoryError() const {
 				 state().localError().positionError()).uu();
 }
 
-AlgebraicMatrix Strip1DMeasurementTransformator::projectionMatrix() const {
+AlgebraicMatrix15 Strip1DMeasurementTransformator::projectionMatrix() const {
 
   //  H(measurement <- local)
   //  m_meas = H*x_local + c
-  AlgebraicMatrix H(1,5,0);
+  AlgebraicMatrix15 H;
 
   double phi = 
     topology()->stripAngle(topology()->strip(state().localPosition()));
   double pitch = topology()->localPitch(state().localPosition());
-  H(1,4) = cos(phi)/pitch; H(1,5) = sin(phi)/pitch;
+  H(0,3) = cos(phi)/pitch; H(0,4) = sin(phi)/pitch;
   
   return H;
 }

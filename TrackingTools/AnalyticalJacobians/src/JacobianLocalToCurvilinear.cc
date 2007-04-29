@@ -6,7 +6,7 @@
 JacobianLocalToCurvilinear::
 JacobianLocalToCurvilinear(const Surface& surface, 
 			   const LocalTrajectoryParameters& localParameters,
-			   const MagneticField& magField) : theJacobian(5, 5, 0) {
+			   const MagneticField& magField) : theJacobian() {
   
     // Origin: TRSDSC
   GlobalPoint  x = surface.toGlobal(localParameters.position());
@@ -30,28 +30,31 @@ JacobianLocalToCurvilinear(const Surface& surface,
   double uk = un.dot(dk);
   double vj = vn.dot(dj);
   double vk = vn.dot(dk);
-  theJacobian(1,1) = 1.;
-  theJacobian(2,2) = tvw.x()*vj;
-  theJacobian(2,3) = tvw.x()*vk;
-  theJacobian(3,2) = tvw.x()*uj*cosl1;
-  theJacobian(3,3) = tvw.x()*uk*cosl1;
-  theJacobian(4,4) = uj;
-  theJacobian(4,5) = uk;
-  theJacobian(5,4) = vj;
-  theJacobian(5,5) = vk;
+  theJacobian(0,0) = 1.;
+  theJacobian(1,1) = tvw.x()*vj;
+  theJacobian(1,2) = tvw.x()*vk;
+  theJacobian(2,1) = tvw.x()*uj*cosl1;
+  theJacobian(2,2) = tvw.x()*uk*cosl1;
+  theJacobian(3,3) = uj;
+  theJacobian(3,4) = uk;
+  theJacobian(4,3) = vj;
+  theJacobian(4,4) = vk;
   // GlobalVector h = MagneticField::inInverseGeV(x);
   GlobalVector h  = magField.inTesla(x) * 2.99792458e-3;
   double q = -h.mag() * localParameters.signedInverseMomentum();
   double sinz =-un.dot(h.unit());
   double cosz = vn.dot(h.unit());
-  theJacobian(2,4) = -q*tvw.y()*sinz;
-  theJacobian(2,5) = -q*tvw.z()*sinz;
-  theJacobian(3,4) = -q*tvw.y()*cosz*cosl1;
-  theJacobian(3,5) = -q*tvw.z()*cosz*cosl1;
+  theJacobian(1,3) = -q*tvw.y()*sinz;
+  theJacobian(1,4) = -q*tvw.z()*sinz;
+  theJacobian(2,3) = -q*tvw.y()*cosz*cosl1;
+  theJacobian(2,4) = -q*tvw.z()*cosz*cosl1;
   // end of TRSDSC
 
+  //dbg::dbg_trace(1,"Loc2Cu", localParameters.vector(),x,dj,dk,theJacobian);
 }
-
-const AlgebraicMatrix& JacobianLocalToCurvilinear::jacobian() const{
+const AlgebraicMatrix JacobianLocalToCurvilinear::jacobian_old() const{
+  return asHepMatrix(theJacobian);
+}
+const AlgebraicMatrix55& JacobianLocalToCurvilinear::jacobian() const{
   return theJacobian;
 }

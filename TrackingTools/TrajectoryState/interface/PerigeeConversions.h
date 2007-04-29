@@ -55,6 +55,10 @@ public:
     const TrackCharge& charge, const GlobalPoint& referencePoint,
     const MagneticField* field)  const;
 
+  GlobalVector momentumFromPerigee(const AlgebraicVector3& momentum, 
+    const TrackCharge& charge, const GlobalPoint& referencePoint,
+    const MagneticField* field)  const;
+
   /**
    * This method returns the (Cartesian) momentum from the PerigeeTrajectoryParameters
    */
@@ -86,15 +90,31 @@ public:
 	 const TrackCharge& charge, const AlgebraicMatrix& theCovarianceMatrix,
 	 const MagneticField* field) const;
 
+  TrajectoryStateClosestToPoint trajectoryStateClosestToPoint
+	(const AlgebraicVector3& momentum, const GlobalPoint& referencePoint,
+	 const TrackCharge& charge, const AlgebraicSymMatrix66& theCovarianceMatrix,
+	 const MagneticField* field) const;
+
 
   /**
    * Jacobians of tranformations between the parametrixation
    * (x, y, z, transverse curvature, theta, phi) to Cartesian
    */
 
-  AlgebraicMatrix  jacobianParameters2Cartesian
+  AlgebraicMatrix  jacobianParameters2Cartesian_old
 	(const AlgebraicVector& momentum, const GlobalPoint& position,
 	 const TrackCharge& charge, const MagneticField* field) const;
+ 
+  /**
+   * Jacobians of tranformations between the parametrixation
+   * (x, y, z, transverse curvature, theta, phi) to Cartesian
+   */
+
+  AlgebraicMatrix66  jacobianParameters2Cartesian
+	(const AlgebraicVector3& momentum, const GlobalPoint& position,
+	 const TrackCharge& charge, const MagneticField* field) const;
+
+
 
 
   /**
@@ -103,9 +123,14 @@ public:
    * given at exactly this point in order to yield the correct Jacobians.
    */
 
-  AlgebraicMatrix jacobianCurvilinear2Perigee(const FreeTrajectoryState& fts) const;
+  AlgebraicMatrix jacobianCurvilinear2Perigee_old(const FreeTrajectoryState& fts) const;
 
-  AlgebraicMatrix jacobianPerigee2Curvilinear(const GlobalTrajectoryParameters& gtp) const;
+  AlgebraicMatrix jacobianPerigee2Curvilinear_old(const GlobalTrajectoryParameters& gtp) const;
+
+  AlgebraicMatrix55 jacobianCurvilinear2Perigee(const FreeTrajectoryState& fts) const;
+
+  AlgebraicMatrix55 jacobianPerigee2Curvilinear(const GlobalTrajectoryParameters& gtp) const;
+
 
 //   AlgebraicMatrix jacobianHelix2Perigee(const reco::helix::Parameters & helixPar, 
 // 	const reco::helix::Covariance & helixCov) const;

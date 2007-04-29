@@ -20,59 +20,75 @@ public:
   PerigeeTrajectoryError() {}
 
   PerigeeTrajectoryError(AlgebraicSymMatrix aPerigeeError):
-    thePerigeeError(aPerigeeError), weightIsAvailable(false) {}
+    thePerigeeError(asSMatrix<5>(aPerigeeError)), weightIsAvailable(false) {}
+
+  PerigeeTrajectoryError(const AlgebraicSymMatrix55 &aPerigeeError):
+    thePerigeeError(aPerigeeError), weightIsAvailable(false) {
+         
+  }
+
 
   /**
    * The covariance matrix
    */
 
-  const AlgebraicSymMatrix & covarianceMatrix() const {return thePerigeeError;}
+  const AlgebraicSymMatrix covarianceMatrix_old() const {return asHepMatrix(thePerigeeError);}
+  const AlgebraicSymMatrix55 & covarianceMatrix() const {return thePerigeeError;}
+
 
   /**
    * The weight matrix (inverse of the covariance matrix)
    */
-
-  const AlgebraicSymMatrix & weightMatrix() const
+  const AlgebraicSymMatrix weightMatrix_old() const {
+        return asHepMatrix(thePerigeeWeight);
+  }
+  /**
+   * The weight matrix (inverse of the covariance matrix)
+   */
+ 
+  const AlgebraicSymMatrix55 &weightMatrix() const
   {
     if (!weightIsAvailable) {
       int error;
-      thePerigeeWeight = thePerigeeError.inverse(error);
+      thePerigeeWeight = thePerigeeError.Inverse(error);
       if (error != 0 ) throw TrajectoryStateException(
 	"PerigeeTrajectoryError::Unable to inverse covariance matrix"); 
       weightIsAvailable = true;
     }
+    
     return thePerigeeWeight;
   }
-  double transverseCurvatureError() const {return sqrt(thePerigeeError(1,1));}
+
+  double transverseCurvatureError() const {return sqrt(thePerigeeError(0,0));}
 
   /**
    * The theta angle
    */
 
-  double thetaError() const {return sqrt(thePerigeeError(2,2));}
+  double thetaError() const {return sqrt(thePerigeeError(1,1));}
 
   /**
    * The phi angle
    */
 
-  double phiError() const {return sqrt(thePerigeeError(3,3));}
+  double phiError() const {return sqrt(thePerigeeError(2,2));}
 
   /**
    * The (signed) transverse impact parameter
    */
 
-  double transverseImpactParameterError() const {return sqrt(thePerigeeError(4,4));}
+  double transverseImpactParameterError() const {return sqrt(thePerigeeError(3,3));}
 
   /**
    * The longitudinal impact parameter
    */
 
-  double longitudinalImpactParameterError() const {return sqrt(thePerigeeError(5,5));}
+  double longitudinalImpactParameterError() const {return sqrt(thePerigeeError(4,4));}
 
 
 private:
-  AlgebraicSymMatrix thePerigeeError;
-  mutable AlgebraicSymMatrix thePerigeeWeight;
+  AlgebraicSymMatrix55 thePerigeeError;
+  mutable AlgebraicSymMatrix55 thePerigeeWeight;
   mutable bool weightIsAvailable;
 
 };

@@ -30,7 +30,7 @@ GsfMaterialEffectsUpdator::updateState (const TrajectoryStateOnSurface& TSoS,
   if ( dPs.size()!=Ws.size() )
     throw cms::Exception("LogicError") 
       << "GsfMaterialEffectsUpdator: inconsistency in number of components";  
-  std::vector<AlgebraicSymMatrix> deltaErrors;
+  std::vector<AlgebraicSymMatrix55> deltaErrors;
   if ( TSoS.hasError() )
     deltaErrors = deltaLocalErrors(TSoS,propDir);
   //
@@ -58,7 +58,7 @@ GsfMaterialEffectsUpdator::updateState (const TrajectoryStateOnSurface& TSoS,
     // Update covariance matrix?
     //
     if ( TSoS.hasError() ) {
-      AlgebraicSymMatrix eloc = TSoS.localError().matrix();
+      AlgebraicSymMatrix55 eloc = TSoS.localError().matrix();
       eloc += deltaErrors[ic];
       result.addState(TrajectoryStateOnSurface(lp,
 					       LocalTrajectoryError(eloc),

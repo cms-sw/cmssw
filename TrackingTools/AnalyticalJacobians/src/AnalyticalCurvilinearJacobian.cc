@@ -6,7 +6,7 @@ AnalyticalCurvilinearJacobian::AnalyticalCurvilinearJacobian
 (const GlobalTrajectoryParameters& globalParameters,
  const GlobalPoint& x, 
  const GlobalVector& p, 
- const double& s) : theJacobian(5, 5, 1) 
+ const double& s) : theJacobian(AlgebraicMatrixID()) 
 {
   //
   // helix: calculate full jacobian
@@ -21,6 +21,7 @@ AnalyticalCurvilinearJacobian::AnalyticalCurvilinearJacobian
   //
   else
     computeStraightLineJacobian(globalParameters,x,p,s);
+   //dbg::dbg_trace(1,"ACJ1", globalParameters.vector(),x,p,s,theJacobian);
 }
 
 
@@ -29,7 +30,7 @@ AnalyticalCurvilinearJacobian::AnalyticalCurvilinearJacobian
  const GlobalPoint& x, 
  const GlobalVector& p, 
  const GlobalVector& h, // h is the magnetic Field in Inverse GeV
- const double& s) : theJacobian(5, 5, 1) 
+ const double& s) : theJacobian(AlgebraicMatrixID()) 
 {
   //
   // helix: calculate full jacobian
@@ -41,6 +42,8 @@ AnalyticalCurvilinearJacobian::AnalyticalCurvilinearJacobian
   //
   else
     computeStraightLineJacobian(globalParameters,x,p,s);
+  
+  //dbg::dbg_trace(1,"ACJ2", globalParameters.vector(),x,p,s,theJacobian);
 }
 
 
@@ -112,9 +115,9 @@ AnalyticalCurvilinearJacobian::computeFullJacobian
   
   //   lambda
   
-  theJacobian(2, 1) = -qp*anv*(t21*dx1 + t22*dx2 + t23*dx3);
+  theJacobian(1,0) = -qp*anv*(t21*dx1 + t22*dx2 + t23*dx3);
   
-  theJacobian(2, 2) = cost*(v11*v21 + v12*v22 + v13*v23) +
+  theJacobian(1,1) = cost*(v11*v21 + v12*v22 + v13*v23) +
                       sint*(hv1*v21 + hv2*v22 + hv3*v23) +
                     omcost*(hn1*v11 + hn2*v12 + hn3*v13) *
                            (hn1*v21 + hn2*v22 + hn3*v23) +
@@ -122,44 +125,44 @@ AnalyticalCurvilinearJacobian::computeFullJacobian
                     omcost*(v11*an1 + v12*an2 + v13*an3) -
               tmsint*gamma*(hn1*v11 + hn2*v12 + hn3*v13) );
 
-  theJacobian(2, 3) = cost*(u11*v21 + u12*v22          ) +
+  theJacobian(1,2) = cost*(u11*v21 + u12*v22          ) +
                       sint*(hu1*v21 + hu2*v22 + hu3*v23) +
                     omcost*(hn1*u11 + hn2*u12          ) *
                            (hn1*v21 + hn2*v22 + hn3*v23) +
                 anv*(-sint*(u11*t21 + u12*t22          ) +
                     omcost*(u11*an1 + u12*an2          ) -
               tmsint*gamma*(hn1*u11 + hn2*u12          ) );
-  theJacobian(2, 3) *= cosl0;
+  theJacobian(1,2) *= cosl0;
 
-  theJacobian(2, 4) = -q*anv*(u11*t21 + u12*t22          );
+  theJacobian(1,3) = -q*anv*(u11*t21 + u12*t22          );
 
-  theJacobian(2, 5) = -q*anv*(v11*t21 + v12*t22 + v13*t23);
+  theJacobian(1,4) = -q*anv*(v11*t21 + v12*t22 + v13*t23);
 
   //   phi
 
-  theJacobian(3, 1) = -qp*anu*(t21*dx1 + t22*dx2 + t23*dx3)*cosl1;
+  theJacobian(2,0) = -qp*anu*(t21*dx1 + t22*dx2 + t23*dx3)*cosl1;
 
-  theJacobian(3, 2) = cost*(v11*u21 + v12*u22          ) +
+  theJacobian(2,1) = cost*(v11*u21 + v12*u22          ) +
                       sint*(hv1*u21 + hv2*u22          ) +
                     omcost*(hn1*v11 + hn2*v12 + hn3*v13) *
                            (hn1*u21 + hn2*u22          ) +
                 anu*(-sint*(v11*t21 + v12*t22 + v13*t23) +
                     omcost*(v11*an1 + v12*an2 + v13*an3) -
               tmsint*gamma*(hn1*v11 + hn2*v12 + hn3*v13) );
-  theJacobian(3, 2) *= cosl1;
+  theJacobian(2,1) *= cosl1;
 
-  theJacobian(3, 3) = cost*(u11*u21 + u12*u22          ) +
+  theJacobian(2,2) = cost*(u11*u21 + u12*u22          ) +
                       sint*(hu1*u21 + hu2*u22          ) +
                     omcost*(hn1*u11 + hn2*u12          ) *
                            (hn1*u21 + hn2*u22          ) +
                 anu*(-sint*(u11*t21 + u12*t22          ) +
                     omcost*(u11*an1 + u12*an2          ) -
               tmsint*gamma*(hn1*u11 + hn2*u12          ) );
-  theJacobian(3, 3) *= cosl1*cosl0;
+  theJacobian(2,2) *= cosl1*cosl0;
 
-  theJacobian(3, 4) = -q*anu*(u11*t21 + u12*t22          )*cosl1;
+  theJacobian(2,3) = -q*anu*(u11*t21 + u12*t22          )*cosl1;
 
-  theJacobian(3, 5) = -q*anu*(v11*t21 + v12*t22 + v13*t23)*cosl1;
+  theJacobian(2,4) = -q*anu*(v11*t21 + v12*t22 + v13*t23)*cosl1;
 
   //   yt
 
@@ -169,8 +172,8 @@ AnalyticalCurvilinearJacobian::computeFullJacobian
 
   if (cutCriterion > limit) {
     double pp = 1./qbp;
-    theJacobian(4, 1) = pp*(u21*dx1 + u22*dx2            );
-    theJacobian(5, 1) = pp*(v21*dx1 + v22*dx2 + v23*dx3);
+    theJacobian(3,0) = pp*(u21*dx1 + u22*dx2            );
+    theJacobian(4,0) = pp*(v21*dx1 + v22*dx2 + v23*dx3);
   }
   else {
     double hp11 = hn2*t13 - hn3*t12;
@@ -191,45 +194,45 @@ AnalyticalCurvilinearJacobian::computeFullJacobian
     double qbp2 = qbp * qbp;
     double thirdOrder41 = 1./3 * h2 * s3 * qbp * temp2;
     double fourthOrder41 = 1./8 * h3 * s4 * qbp2 * temp1;
-    theJacobian(4, 1) = secondOrder41 + thirdOrder41 + fourthOrder41;
+    theJacobian(3,0) = secondOrder41 + thirdOrder41 + fourthOrder41;
 
     double temp3 = hp11*v21 + hp12*v22 + hp13*v23;
     double secondOrder51 = 0.5 * qp * temp3 * s2;
     double temp4 = ghnmp1*v21 + ghnmp2*v22 + ghnmp3*v23;
     double thirdOrder51 = 1./3 * h2 * s3 * qbp * temp4;
     double fourthOrder51 = 1./8 * h3 * s4 * qbp2 * temp3;
-    theJacobian(5, 1) = secondOrder51 + thirdOrder51 + fourthOrder51;
+    theJacobian(4,0) = secondOrder51 + thirdOrder51 + fourthOrder51;
   }
 
-  theJacobian(4, 2) = (sint*(v11*u21 + v12*u22          ) +
+  theJacobian(3,1) = (sint*(v11*u21 + v12*u22          ) +
                      omcost*(hv1*u21 + hv2*u22          ) +
                      tmsint*(hn1*u21 + hn2*u22          ) *
                             (hn1*v11 + hn2*v12 + hn3*v13))/q;
 
-  theJacobian(4, 3) = (sint*(u11*u21 + u12*u22          ) +
+  theJacobian(3,2) = (sint*(u11*u21 + u12*u22          ) +
                      omcost*(hu1*u21 + hu2*u22          ) +
                      tmsint*(hn1*u21 + hn2*u22          ) *
                             (hn1*u11 + hn2*u12          ))*cosl0/q;
 
-  theJacobian(4, 4) = (u11*u21 + u12*u22          );
+  theJacobian(3,3) = (u11*u21 + u12*u22          );
   
-  theJacobian(4, 5) = (v11*u21 + v12*u22          );
+  theJacobian(3,4) = (v11*u21 + v12*u22          );
 
   //   zt
 
-  theJacobian(5, 2) = (sint*(v11*v21 + v12*v22 + v13*v23) +
+  theJacobian(4,1) = (sint*(v11*v21 + v12*v22 + v13*v23) +
                      omcost*(hv1*v21 + hv2*v22 + hv3*v23) +
                      tmsint*(hn1*v21 + hn2*v22 + hn3*v23) *
                             (hn1*v11 + hn2*v12 + hn3*v13))/q;
 
-  theJacobian(5, 3) = (sint*(u11*v21 + u12*v22          ) +
+  theJacobian(4,2) = (sint*(u11*v21 + u12*v22          ) +
                      omcost*(hu1*v21 + hu2*v22 + hu3*v23) +
                      tmsint*(hn1*v21 + hn2*v22 + hn3*v23) *
 		            (hn1*u11 + hn2*u12          ))*cosl0/q;
 
-  theJacobian(5, 4) = (u11*v21 + u12*v22          );
+  theJacobian(4,3) = (u11*v21 + u12*v22          );
 
-  theJacobian(5, 5) = (v11*v21 + v12*v22 + v13*v23);
+  theJacobian(4,4) = (v11*v21 + v12*v22 + v13*v23);
   // end of TRPRFN
 }
 
@@ -244,6 +247,6 @@ AnalyticalCurvilinearJacobian::computeStraightLineJacobian
   //
   GlobalVector p1 = globalParameters.momentum().unit();
   double cosl0 = p1.perp();
-  theJacobian(4, 3) = cosl0 * s;
-  theJacobian(5, 2) = s;
+  theJacobian(3,2) = cosl0 * s;
+  theJacobian(4,1) = s;
 }

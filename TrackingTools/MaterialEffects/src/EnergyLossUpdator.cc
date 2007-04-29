@@ -17,7 +17,7 @@ void EnergyLossUpdator::compute (const TrajectoryStateOnSurface& TSoS,
   // Initialise dP and the update to the covariance matrix
   //
   theDeltaP = 0.;
-  theDeltaCov(1,1) = 0.;
+  theDeltaCov(0,0) = 0.;
   //
   // Now get information on medium
   //
@@ -77,7 +77,7 @@ EnergyLossUpdator::computeBetheBloch (const LocalVector& localP,
   double dP    = dEdx/beta;
   double sigp2 = dEdx2*e*e/(p*p*p*p*p*p);
   theDeltaP += -dP;
-  theDeltaCov(1,1) += sigp2;
+  theDeltaCov(0,0) += sigp2;
 }
 //
 // Computation of energy loss for electrons
@@ -107,7 +107,7 @@ EnergyLossUpdator::computeElectrons (const LocalVector& localP,
     // in method compute -> deltaP<0 at this place!!!
     //
     theDeltaP += -p*(1/z-1);
-    theDeltaCov(1,1) += varz/p/p;
+    theDeltaCov(0,0) += varz/p/p;
   }
   else {	
     //
@@ -118,7 +118,7 @@ EnergyLossUpdator::computeElectrons (const LocalVector& localP,
     //    double f = 1/p/z/z;
     // patch to ensure consistency between for- and backward propagation
     double f = 1./p/z;
-    theDeltaCov(1,1) += f*f*varz;
+    theDeltaCov(0,0) += f*f*varz;
   }
 }
 //
@@ -126,8 +126,12 @@ EnergyLossUpdator::computeElectrons (const LocalVector& localP,
 //
 bool EnergyLossUpdator::newArguments (const TrajectoryStateOnSurface& TSoS, 
 				      const PropagationDirection propDir) const {
-  return TSoS.localMomentum().unit().z()!=theLastDz ||
-    TSoS.localMomentum().mag()!=theLastP || propDir!=theLastPropDir ||
+  LocalVector localP = TSoS.localMomentum(); // let's call localMomentum only once
+  return 
+    localP.mag() != theLastP || 
+    //TSoS.localMomentum().unit().z()!=theLastDz ||   // if we get there,  TSoS.localMomentum().mag() = theLastP!
+    localP.z() != theLastDz*theLastP   ||   // so we can just do this, I think
+    propDir!=theLastPropDir ||
     TSoS.surface().mediumProperties()->radLen()!=theLastRl ||
     TSoS.surface().mediumProperties()->xi()!=theLastXi;
 }
@@ -136,8 +140,9 @@ bool EnergyLossUpdator::newArguments (const TrajectoryStateOnSurface& TSoS,
 //
 void EnergyLossUpdator::storeArguments (const TrajectoryStateOnSurface& TSoS, 
 					const PropagationDirection propDir) const {
-  theLastDz = TSoS.localMomentum().unit().z();
-  theLastP = TSoS.localMomentum().mag();
+  LocalVector localP = TSoS.localMomentum(); // let's call localMomentum only once
+  theLastP = localP.mag();
+  theLastDz = (theLastP == 0 ? 0 : localP.z()/theLastP);
   theLastPropDir = propDir;
   theLastRl = TSoS.surface().mediumProperties()->radLen();
   theLastXi = TSoS.surface().mediumProperties()->xi();

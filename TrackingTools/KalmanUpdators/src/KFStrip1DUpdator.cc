@@ -9,28 +9,28 @@ KFStrip1DUpdator::update(const TSOS& aTsos, const TransientTrackingRecHit& aHit)
   Strip1DMeasurementTransformator myTrafo(aTsos, aHit);
 
   double m = myTrafo.hitParameters();
-  AlgebraicVector x(myTrafo.trajectoryParameters());
+  AlgebraicVector5 x(myTrafo.trajectoryParameters());
   double px = myTrafo.projectedTrajectoryParameters();
   
-  AlgebraicMatrix H(myTrafo.projectionMatrix());
+  AlgebraicMatrix15 H(myTrafo.projectionMatrix());
   double V = myTrafo.hitError();
-  AlgebraicSymMatrix C(myTrafo.trajectoryError());
+  AlgebraicSymMatrix55 C(myTrafo.trajectoryError());
   double pC = myTrafo.projectedTrajectoryError();
 
   double R = 1./(V + pC);
   
   // Compute Kalman gain matrix
-  AlgebraicMatrix K(R * (C * H.T()));
+  AlgebraicMatrix51 K(R * (C * ROOT::Math::Transpose(H)));
 
   // Compute local filtered state vector
-  AlgebraicVector fsv(x + (m - px) * K);
+  AlgebraicVector5 fsv = x + (const AlgebraicVector5 &)(K * (m - px));
 
   // Compute covariance matrix of local filtered state vector
-  AlgebraicSymMatrix I(5, 1);
-  AlgebraicMatrix M(I - K * H);
-  AlgebraicSymMatrix fse(C.similarity(M) + V * vT_times_v(K));
-//   AlgebraicMatrix M((I - K * H)*C);
-//   AlgebraicSymMatrix fse(5,0); fse.assign(M);
+  AlgebraicSymMatrix55 I = AlgebraicMatrixID();
+  AlgebraicMatrix55 M = I - K * H;
+  AlgebraicSymMatrix55 fse = ROOT::Math::Similarity(M, C) +  ROOT::Math::Similarity(K, AlgebraicSymMatrix11(V) );
+//   AlgebraicMatrix M((I - K * H)*C);            // already commented when CLHEP was in use
+//   AlgebraicSymMatrix fse(5,0); fse.assign(M);  // already commented when CLHEP was in use
 
   return TSOS( LTP(fsv, pzSign), LTE(fse), aTsos.surface(), &(aTsos.globalParameters().magneticField()));  
 }

@@ -57,23 +57,23 @@ GsfMultipleScatteringUpdator::compute (const TrajectoryStateOnSurface& TSoS,
       // choose component and multiply with total variance
       double var = ic==0 ? var1 : var2;
       var *= 225.e-6*dp1/p/p;
-      AlgebraicSymMatrix cov(5,0);
+      AlgebraicSymMatrix55 cov;
       // transform from orthogonal planes containing the
       // momentum vector to local parameters
       double sl = pvec.perp();
       double cl = pvec.z();
       double cf = pvec.x()/sl;
       double sf = pvec.y()/sl;
-      cov(2,2) = var*(sf*sf*cl*cl + cf*cf)/(cl*cl*cl*cl);
-      cov(2,3) = var*(cf*sf*sl*sl        )/(cl*cl*cl*cl);
-      cov(3,3) = var*(cf*cf*cl*cl + sf*sf)/(cl*cl*cl*cl);
+      cov(1,1) = var*(sf*sf*cl*cl + cf*cf)/(cl*cl*cl*cl);
+      cov(1,2) = var*(cf*sf*sl*sl        )/(cl*cl*cl*cl);
+      cov(2,2) = var*(cf*cf*cl*cl + sf*sf)/(cl*cl*cl*cl);
       theDeltaCovs.push_back(cov);
     }
   }
   else {
     theWeights.push_back(1.);
     theDeltaPs.push_back(0.);
-    theDeltaCovs.push_back(AlgebraicSymMatrix(5,0));
+    theDeltaCovs.push_back(AlgebraicSymMatrix55());
   }
   //
   // Save arguments to avoid duplication of computation

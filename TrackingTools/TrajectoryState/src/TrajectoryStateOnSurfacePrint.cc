@@ -6,7 +6,7 @@ using namespace std;
 ostream& operator<<(std::ostream& os, const TrajectoryStateOnSurface& tsos) {
   os << "global parameters" << endl;
   {
-    AlgebraicVector v = tsos.globalParameters().vector();
+    const AlgebraicVector6 &v = tsos.globalParameters().vector();
     os << "x = ";
     {
       for (int i = 0; i < 3; i++) {
@@ -25,10 +25,10 @@ ostream& operator<<(std::ostream& os, const TrajectoryStateOnSurface& tsos) {
   if ( tsos.hasError()) {
     os << "global error" << endl;
     {
-      AlgebraicSymMatrix m = tsos.curvilinearError().matrix();
+      const AlgebraicSymMatrix55 &m = tsos.curvilinearError().matrix();
       for (int i = 0; i < 5; i++) {
 	for (int j = 0; j < 5; j++) {
-	  os.precision(6); os.width(13); os<<m[i][j];
+	  os.precision(6); os.width(13); os<<m(i,j);
 	}
 	os << endl;
       }
@@ -39,7 +39,7 @@ ostream& operator<<(std::ostream& os, const TrajectoryStateOnSurface& tsos) {
   else
     os << "local parameters for neutral (1/p,v',w',v,w)" << endl;
   {
-    AlgebraicVector v = tsos.localParameters().mixedFormatVector();
+    const AlgebraicVector5 &v = tsos.localParameters().mixedFormatVector();
     for (int i = 0; i < 5; i++) {
       os.precision(6); os.width(13); os<<v[i];
     }
@@ -48,10 +48,10 @@ ostream& operator<<(std::ostream& os, const TrajectoryStateOnSurface& tsos) {
   if ( tsos.hasError()) {
     os << "local error" << endl;
     {
-      AlgebraicSymMatrix m = tsos.localError().matrix();
+      const AlgebraicSymMatrix55 &m = tsos.localError().matrix();
       for (int i = 0; i < 5; i++) {
 	for (int j = 0; j < 5; j++) {
-	  os.precision(6); os.width(13); os<<m[i][j];
+	  os.precision(6); os.width(13); os<<m(i,j);
 	}
 	os << endl;
       }

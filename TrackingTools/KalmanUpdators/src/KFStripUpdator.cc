@@ -8,31 +8,32 @@ KFStripUpdator::update(const TSOS& aTsos, const TransientTrackingRecHit& aHit) c
 
   StripMeasurementTransformator myTrafo(aTsos, aHit);
 
-  AlgebraicMatrix H(myTrafo.projectionMatrix());
-  AlgebraicVector m(myTrafo.hitParameters());
-  AlgebraicVector x(myTrafo.trajectoryParameters());
-  AlgebraicVector px(myTrafo.projectedTrajectoryParameters());
+  AlgebraicMatrix25 H(myTrafo.projectionMatrix());
+  AlgebraicVector2 m(myTrafo.hitParameters());
+  AlgebraicVector5 x(myTrafo.trajectoryParameters());
+  AlgebraicVector2 px(myTrafo.projectedTrajectoryParameters());
   //  AlgebraicVector px = H*x;
   
-  AlgebraicSymMatrix V(myTrafo.hitError());
-  AlgebraicSymMatrix C(myTrafo.trajectoryError());
-  AlgebraicSymMatrix pC(myTrafo.projectedTrajectoryError());
+  AlgebraicSymMatrix22 V(myTrafo.hitError());
+  const AlgebraicSymMatrix55 &C = myTrafo.trajectoryError();
+  AlgebraicSymMatrix22 pC(myTrafo.projectedTrajectoryError());
   //  AlgebraicSymMatrix pC = C.similarity(H);
 
-  AlgebraicSymMatrix R(V + pC);
-  int ierr; R.invert(ierr); // if (ierr != 0) throw exception;
+  AlgebraicSymMatrix22 R(V + pC);
+  //int ierr; R.invert(ierr); // if (ierr != 0) throw exception;
+  R.Invert();
   
   // Compute Kalman gain matrix
   //  AlgebraicMatrix Hm2l(myTrafo.measurement2LocalProj());
-  AlgebraicMatrix K(C * H.T() * R);
+  AlgebraicMatrix52 K(C * ROOT::Math::Transpose(H) * R);
 
   // Compute local filtered state vector
-  AlgebraicVector fsv(x + K * (m - px));
+  AlgebraicVector5 fsv(x + K * (m - px));
 
   // Compute covariance matrix of local filtered state vector
-  AlgebraicSymMatrix I(5, 1);
-  AlgebraicMatrix M(I - K * H);
-  AlgebraicSymMatrix fse(C.similarity(M) + V.similarity(K));
+  AlgebraicMatrix55 I = AlgebraicMatrixID();
+  AlgebraicMatrix55 M = (I - K * H);
+  AlgebraicSymMatrix55 fse = ROOT::Math::Similarity(M,C) + ROOT::Math::Similarity(K,V);
 
   return TSOS( LTP(fsv, pzSign), LTE(fse), aTsos.surface(),&(aTsos.globalParameters().magneticField()));  
 }

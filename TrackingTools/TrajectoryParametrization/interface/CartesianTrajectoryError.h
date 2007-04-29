@@ -20,14 +20,24 @@ public:
   /** Constructing class from error matrix.
    */
 
+  CartesianTrajectoryError(const AlgebraicSymMatrix66& aCovarianceMatrix) :
+    theCovarianceMatrix(aCovarianceMatrix) { }
+
+  /** Constructing class from error matrix.
+   */
+
   CartesianTrajectoryError(const AlgebraicSymMatrix& aCovarianceMatrix) :
-    theCovarianceMatrix(aCovarianceMatrix) {}
+    theCovarianceMatrix(asSMatrix<6>(aCovarianceMatrix)) {}
 // access
 
   /** Returning error matrix.
    */
+  const AlgebraicSymMatrix matrix_old() const {
+    return asHepMatrix(theCovarianceMatrix);
+  }
 
-  AlgebraicSymMatrix matrix() const {
+
+  const AlgebraicSymMatrix66 &matrix() const {
     return theCovarianceMatrix;
   }
 
@@ -47,7 +57,7 @@ public:
   GlobalError position() const;
 
 private:
-  AlgebraicSymMatrix theCovarianceMatrix;
+  AlgebraicSymMatrix66 theCovarianceMatrix;
 };
 
 #endif

@@ -12,10 +12,10 @@
 void FreeTrajectoryState::createCartesianError() const{
   
   JacobianCurvilinearToCartesian curv2Cart(theGlobalParameters);
-  const AlgebraicMatrix& jac = curv2Cart.jacobian();
+  const AlgebraicMatrix65& jac = curv2Cart.jacobian();
 
   ((FreeTrajectoryState*)this)->theCartesianError = 
-    theCurvilinearError.matrix().similarity(jac);
+    ROOT::Math::Similarity(jac, theCurvilinearError.matrix());
 
   ((FreeTrajectoryState*)this)->theCartesianErrorValid = true;
 }
@@ -24,10 +24,10 @@ void FreeTrajectoryState::createCartesianError() const{
 void FreeTrajectoryState::createCurvilinearError() const{
   
   JacobianCartesianToCurvilinear cart2Curv(theGlobalParameters);
-  const AlgebraicMatrix& jac = cart2Curv.jacobian();
+  const AlgebraicMatrix56& jac = cart2Curv.jacobian();
   
   ((FreeTrajectoryState*)this)->theCurvilinearError = 
-    theCartesianError.matrix().similarity(jac);
+    ROOT::Math::Similarity(jac, theCartesianError.matrix());
   ((FreeTrajectoryState*)this)->theCurvilinearErrorValid = true;
 } 
 

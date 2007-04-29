@@ -50,8 +50,8 @@ MultiTrajectoryStateTransform::stateOnSurface (const std::vector<double>& weight
   if ( weights.empty() )  return TrajectoryStateOnSurface();
   
   unsigned int nc(weights.size());
-  AlgebraicVector pars(dimension);
-  AlgebraicSymMatrix cov(dimension);
+  AlgebraicVector5 pars;
+  AlgebraicSymMatrix55 cov;
   
   std::vector<TrajectoryStateOnSurface> components;
   components.reserve(nc);
@@ -62,7 +62,7 @@ MultiTrajectoryStateTransform::stateOnSurface (const std::vector<double>& weight
     for ( unsigned int j1=0; j1<dimension; j1++ ) {
       pars[j1] = parameters[i](j1);
       for ( unsigned int j2=0; j2<=j1; j2++ ) 
-	cov[j1][j2] = covariances[i](j1,j2);
+	cov(j1,j2) = covariances[i](j1,j2);          //FIXME: SMatrix copy constructor should handle this!!
     }
     // create local parameters & errors
     LocalTrajectoryParameters lp(pars,pzSign);

@@ -25,8 +25,11 @@ public:
    *  the same as the one described above.
    */
 
+  LocalTrajectoryError(const AlgebraicSymMatrix55& aCovarianceMatrix) :
+    theCovarianceMatrix(aCovarianceMatrix) { }
   LocalTrajectoryError(const AlgebraicSymMatrix& aCovarianceMatrix) :
-    theCovarianceMatrix(aCovarianceMatrix) {}
+    theCovarianceMatrix(asSMatrix<5>(aCovarianceMatrix)) {}
+
 
   /** Constructing class from standard deviations of the individual parameters, making
    *  the covariance matrix diagonal. The sequence of the input parameters is sigma(x), sigma(y),
@@ -42,15 +45,24 @@ public:
   /** Returns the covariance matrix.
    */
 
-  AlgebraicSymMatrix matrix() const {
+  const AlgebraicSymMatrix55 &matrix() const {
     return theCovarianceMatrix;
   }
+
+  /** Returns the covariance matrix.
+   */
+
+  const AlgebraicSymMatrix matrix_old() const {
+    return asHepMatrix(theCovarianceMatrix);
+  }
+
 
   /** Enables the multiplication of the covariance matrix with the scalar "factor".
    */
 
   void operator *= (double factor) {
     theCovarianceMatrix *= factor;
+    
   }
 
   /** Returns the two-by-two submatrix of the covariance matrix which yields the local
@@ -58,12 +70,12 @@ public:
    */
   
   LocalError positionError() const {
-    return LocalError( theCovarianceMatrix[3][3],theCovarianceMatrix[3][4],
-		       theCovarianceMatrix[4][4]);
+    return LocalError( theCovarianceMatrix(3,3),theCovarianceMatrix(3,4),
+		       theCovarianceMatrix(4,4));
   }
 
 private:
-  AlgebraicSymMatrix theCovarianceMatrix;
+  AlgebraicSymMatrix55 theCovarianceMatrix;
 };
 
 #endif

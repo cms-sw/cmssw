@@ -12,6 +12,9 @@
 #include "DataFormats/GeometrySurface/interface/Surface.h"
 #include "TrackingTools/TrajectoryParametrization/interface/TrajectoryStateExceptions.h"
 
+/// vvv DEBUG
+#include <iostream>
+
 class MagneticField;
 
 /** Concrete implementation for the state of one trajectory on a surface.
