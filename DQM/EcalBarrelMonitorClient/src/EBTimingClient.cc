@@ -1,8 +1,8 @@
 /*
  * \file EBTimingClient.cc
  *
- * $Date: 2007/04/11 06:50:36 $
- * $Revision: 1.19 $
+ * $Date: 2007/04/11 06:58:19 $
+ * $Revision: 1.20 $
  * \author G. Della Ricca
  *
 */
@@ -87,6 +87,8 @@ EBTimingClient::EBTimingClient(const ParameterSet& ps){
 
     qth01_[ism-1] = 0;
 
+    qtg01_[ism-1] = 0;
+
   }
 
   expectedMean_ = 6.0;
@@ -126,6 +128,13 @@ void EBTimingClient::beginJob(MonitorUserInterface* mui){
       qth01_[ism-1]->setMinimumEntries(10*1700);
 
       qth01_[ism-1]->setErrorProb(1.00);
+
+      sprintf(qtname, "EBTMT quality test SM%02d", ism);
+      qtg01_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+
+      qtg01_[ism-1]->setMeanRange(1., 6.);
+
+      qtg01_[ism-1]->setErrorProb(1.00);
 
     }
 
@@ -261,6 +270,8 @@ bool EBTimingClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunI
 
   EBMUtilsClient::printBadChannels(qth01_[ism-1]);
 
+  EBMUtilsClient::printBadChannels(qtg01_[ism-1]);
+
   return status;
 
 }
@@ -313,6 +324,9 @@ void EBTimingClient::subscribe(void){
         if ( qth01_[ism-1] ) mui_->useQTest(histo, qth01_[ism-1]->getName());
       }
     }
+
+    sprintf(histo, "EcalBarrel/EBTimingClient/EBTMT timing quality SM%02d", ism);
+    if ( qtg01_[ism-1] ) mui_->useQTest(histo, qtg01_[ism-1]->getName());
 
   }
 

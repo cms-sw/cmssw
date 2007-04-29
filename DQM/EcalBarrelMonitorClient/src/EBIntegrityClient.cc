@@ -2,8 +2,8 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2007/03/26 17:35:04 $
- * $Revision: 1.139 $
+ * $Date: 2007/04/11 06:50:36 $
+ * $Revision: 1.140 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -113,6 +113,9 @@ EBIntegrityClient::EBIntegrityClient(const ParameterSet& ps){
     qth09_[ism-1] = 0;
     qth10_[ism-1] = 0;
 
+    qtg01_[ism-1] = 0;
+    qtg02_[ism-1] = 0;
+
   }
 
   threshCry_ = 0.;
@@ -202,6 +205,18 @@ void EBIntegrityClient::beginJob(MonitorUserInterface* mui){
       qth08_[ism-1]->setErrorProb(1.00);
       qth09_[ism-1]->setErrorProb(1.00);
       qth10_[ism-1]->setErrorProb(1.00);
+
+      sprintf(qtname, "EBIT quality test SM%02d", ism);
+      qtg01_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+
+      sprintf(qtname, "EBIT quality test MEM SM%02d", ism);
+      qtg02_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+
+      qtg01_[ism-1]->setMeanRange(1., 6.);
+      qtg02_[ism-1]->setMeanRange(1., 6.);
+
+      qtg01_[ism-1]->setErrorProb(1.00);
+      qtg02_[ism-1]->setErrorProb(1.00);
 
     }
 
@@ -366,6 +381,9 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
   EBMUtilsClient::printBadChannels(qth08_[ism-1]);
   EBMUtilsClient::printBadChannels(qth09_[ism-1]);
   EBMUtilsClient::printBadChannels(qth10_[ism-1]);
+
+  EBMUtilsClient::printBadChannels(qtg01_[ism-1]);
+  EBMUtilsClient::printBadChannels(qtg02_[ism-1]);
 
   EcalLogicID ecid;
   MonCrystalConsistencyDat c1;
@@ -924,6 +942,12 @@ void EBIntegrityClient::subscribe(void){
         if ( qth10_[ism-1] ) mui_->useQTest(histo, qth10_[ism-1]->getName());
       }
     }
+
+    sprintf(histo, "EcalBarrel/EBIntegrityClient/EBIT data integrity quality SM%02d", ism);
+    if ( qtg01_[ism-1] ) mui_->useQTest(histo, qtg01_[ism-1]->getName());
+
+    sprintf(histo, "EcalBarrel/EBIntegrityClient/EBIT data integrity quality MEM SM%02d", ism);
+    if ( qtg02_[ism-1] ) mui_->useQTest(histo, qtg02_[ism-1]->getName());
 
   }
 

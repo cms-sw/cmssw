@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2007/04/09 11:20:03 $
- * $Revision: 1.150 $
+ * $Date: 2007/04/11 06:50:36 $
+ * $Revision: 1.151 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -224,6 +224,20 @@ EBLaserClient::EBLaserClient(const ParameterSet& ps){
     qth23_[ism-1] = 0;
     qth24_[ism-1] = 0;
 
+    qtg01_[ism-1] = 0;
+    qtg02_[ism-1] = 0;
+    qtg03_[ism-1] = 0;
+    qtg04_[ism-1] = 0;
+
+    qtg05_[ism-1] = 0;
+    qtg06_[ism-1] = 0;
+    qtg07_[ism-1] = 0;
+    qtg08_[ism-1] = 0;
+    qtg09_[ism-1] = 0;
+    qtg10_[ism-1] = 0;
+    qtg11_[ism-1] = 0;
+    qtg12_[ism-1] = 0;
+
   }
 
   percentVariation_ = 0.4;
@@ -430,6 +444,70 @@ void EBLaserClient::beginJob(MonitorUserInterface* mui){
       qth22_[ism-1]->setErrorProb(1.00);
       qth23_[ism-1]->setErrorProb(1.00);
       qth24_[ism-1]->setErrorProb(1.00);
+
+      sprintf(qtname, "EBLT quality test SM%02d L1", ism);
+      qtg01_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+
+      sprintf(qtname, "EBLT quality test SM%02d L2", ism);
+      qtg02_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+
+      sprintf(qtname, "EBLT quality test SM%02d L3", ism);
+      qtg03_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+
+      sprintf(qtname, "EBLT quality test SM%02d L4", ism);
+      qtg04_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+
+      qtg01_[ism-1]->setMeanRange(1., 6.);
+      qtg02_[ism-1]->setMeanRange(1., 6.);
+      qtg03_[ism-1]->setMeanRange(1., 6.);
+      qtg04_[ism-1]->setMeanRange(1., 6.);
+
+      qtg01_[ism-1]->setErrorProb(1.00);
+      qtg02_[ism-1]->setErrorProb(1.00);
+      qtg03_[ism-1]->setErrorProb(1.00);
+      qtg04_[ism-1]->setErrorProb(1.00);
+
+      sprintf(qtname, "EBLT quality test PNs SM%02d L1 G01", ism);
+      qtg05_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+
+      sprintf(qtname, "EBLT quality test PNs SM%02d L2 G01", ism);
+      qtg06_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+
+      sprintf(qtname, "EBLT quality test PNs SM%02d L3 G01", ism);
+      qtg07_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+
+      sprintf(qtname, "EBLT quality test PNs SM%02d L4 G01", ism);
+      qtg08_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+
+      sprintf(qtname, "EBLT quality test PNs SM%02d L1 G16", ism);
+      qtg09_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+
+      sprintf(qtname, "EBLT quality test PNs SM%02d L2 G16", ism);
+      qtg10_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+
+      sprintf(qtname, "EBLT quality test PNs SM%02d L3 G16", ism);
+      qtg11_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+
+      sprintf(qtname, "EBLT quality test PNs SM%02d L4 G16", ism);
+      qtg12_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+
+      qtg05_[ism-1]->setMeanRange(1., 6.);
+      qtg06_[ism-1]->setMeanRange(1., 6.);
+      qtg07_[ism-1]->setMeanRange(1., 6.);
+      qtg08_[ism-1]->setMeanRange(1., 6.);
+      qtg09_[ism-1]->setMeanRange(1., 6.);
+      qtg10_[ism-1]->setMeanRange(1., 6.);
+      qtg11_[ism-1]->setMeanRange(1., 6.);
+      qtg12_[ism-1]->setMeanRange(1., 6.);
+
+      qtg05_[ism-1]->setErrorProb(1.00);
+      qtg06_[ism-1]->setErrorProb(1.00);
+      qtg07_[ism-1]->setErrorProb(1.00);
+      qtg08_[ism-1]->setErrorProb(1.00);
+      qtg09_[ism-1]->setErrorProb(1.00);
+      qtg10_[ism-1]->setErrorProb(1.00);
+      qtg11_[ism-1]->setErrorProb(1.00);
+      qtg12_[ism-1]->setErrorProb(1.00);
 
     }
 
@@ -1010,6 +1088,20 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
   EBMUtilsClient::printBadChannels(qth22_[ism-1]);
   EBMUtilsClient::printBadChannels(qth23_[ism-1]);
   EBMUtilsClient::printBadChannels(qth24_[ism-1]);
+
+  EBMUtilsClient::printBadChannels(qtg01_[ism-1]);
+  EBMUtilsClient::printBadChannels(qtg02_[ism-1]);
+  EBMUtilsClient::printBadChannels(qtg03_[ism-1]);
+  EBMUtilsClient::printBadChannels(qtg04_[ism-1]);
+
+  EBMUtilsClient::printBadChannels(qtg05_[ism-1]);
+  EBMUtilsClient::printBadChannels(qtg06_[ism-1]);
+  EBMUtilsClient::printBadChannels(qtg07_[ism-1]);
+  EBMUtilsClient::printBadChannels(qtg08_[ism-1]);
+  EBMUtilsClient::printBadChannels(qtg09_[ism-1]);
+  EBMUtilsClient::printBadChannels(qtg10_[ism-1]);
+  EBMUtilsClient::printBadChannels(qtg11_[ism-1]);
+  EBMUtilsClient::printBadChannels(qtg12_[ism-1]);
 
   EcalLogicID ecid;
   MonLaserBlueDat apd_bl;
@@ -2010,6 +2102,33 @@ void EBLaserClient::subscribe(void){
         if ( qth24_[ism-1] ) mui_->useQTest(histo, qth24_[ism-1]->getName());
       }
     }
+
+    sprintf(histo, "EcalBarrel/EBLaserClient/EBLT laser quality L1 SM%02d", ism);
+    if ( qtg01_[ism-1] ) mui_->useQTest(histo, qtg01_[ism-1]->getName());
+    sprintf(histo, "EcalBarrel/EBLaserClient/EBLT laser quality L2 SM%02d", ism);
+    if ( qtg02_[ism-1] ) mui_->useQTest(histo, qtg02_[ism-1]->getName());
+    sprintf(histo, "EcalBarrel/EBLaserClient/EBLT laser quality L3 SM%02d", ism);
+    if ( qtg03_[ism-1] ) mui_->useQTest(histo, qtg03_[ism-1]->getName());
+    sprintf(histo, "EcalBarrel/EBLaserClient/EBLT laser quality L4 SM%02d", ism);
+    if ( qtg04_[ism-1] ) mui_->useQTest(histo, qtg04_[ism-1]->getName());
+
+    sprintf(histo, "EcalBarrel/EBLaserClient/EBLT laser quality L1 PNs SM%02d G01", ism);
+    if ( qtg05_[ism-1] ) mui_->useQTest(histo, qtg05_[ism-1]->getName());
+    sprintf(histo, "EcalBarrel/EBLaserClient/EBLT laser quality L2 PNs SM%02d G01", ism);
+    if ( qtg06_[ism-1] ) mui_->useQTest(histo, qtg06_[ism-1]->getName());
+    sprintf(histo, "EcalBarrel/EBLaserClient/EBLT laser quality L3 PNs SM%02d G01", ism);
+    if ( qtg07_[ism-1] ) mui_->useQTest(histo, qtg07_[ism-1]->getName());
+    sprintf(histo, "EcalBarrel/EBLaserClient/EBLT laser quality L4 PNs SM%02d G01", ism);
+    if ( qtg08_[ism-1] ) mui_->useQTest(histo, qtg08_[ism-1]->getName());
+
+    sprintf(histo, "EcalBarrel/EBLaserClient/EBLT laser quality L1 PNs SM%02d G16", ism);
+    if ( qtg09_[ism-1] ) mui_->useQTest(histo, qtg09_[ism-1]->getName());
+    sprintf(histo, "EcalBarrel/EBLaserClient/EBLT laser quality L2 PNs SM%02d G16", ism);
+    if ( qtg10_[ism-1] ) mui_->useQTest(histo, qtg10_[ism-1]->getName());
+    sprintf(histo, "EcalBarrel/EBLaserClient/EBLT laser quality L3 PNs SM%02d G16", ism);
+    if ( qtg11_[ism-1] ) mui_->useQTest(histo, qtg11_[ism-1]->getName());
+    sprintf(histo, "EcalBarrel/EBLaserClient/EBLT laser quality L4 PNs SM%02d G16", ism);
+    if ( qtg12_[ism-1] ) mui_->useQTest(histo, qtg12_[ism-1]->getName());
 
   }
 
