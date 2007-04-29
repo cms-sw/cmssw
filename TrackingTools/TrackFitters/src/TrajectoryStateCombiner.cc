@@ -9,13 +9,13 @@ TrajectoryStateCombiner::combine(const TSOS& Tsos1, const TSOS& Tsos2) const {
 
   int ierr;
   double pzSign = Tsos1.localParameters().pzSign();
-  AlgebraicVector x1(Tsos1.localParameters().vector());
-  AlgebraicVector x2(Tsos2.localParameters().vector());
-  AlgebraicSymMatrix C1(Tsos1.localError().matrix());
-  AlgebraicSymMatrix C2(Tsos2.localError().matrix());
+  AlgebraicVector5 x1(Tsos1.localParameters().vector());
+  AlgebraicVector5 x2(Tsos2.localParameters().vector());
+  const AlgebraicSymMatrix55 &C1 = (Tsos1.localError().matrix());
+  const AlgebraicSymMatrix55 &C2 = (Tsos2.localError().matrix());
 
-  AlgebraicSymMatrix Csum = C1 + C2;
-  AlgebraicMatrix K = C1*(Csum.inverse(ierr));
+  AlgebraicSymMatrix55 Csum = C1 + C2;
+  AlgebraicMatrix55 K = C1*(Csum.Inverse(ierr));
 
   if(ierr != 0) {
 //     if ( infoV )
@@ -24,8 +24,9 @@ TrajectoryStateCombiner::combine(const TSOS& Tsos1, const TSOS& Tsos2) const {
     return TSOS();
   }
 
-  AlgebraicVector xcomb = x1 + K*(x2 - x1);
-  AlgebraicSymMatrix Ccomb; Ccomb.assign(K*C2);
+  AlgebraicVector5 xcomb = x1 + K*(x2 - x1);
+  //AlgebraicSymMatrix55 Ccomb; Ccomb.assign(K*C2);
+  AlgebraicSymMatrix55 Ccomb = ((const AlgebraicMatrix55 &)(K*C2)).LowerBlock();
 
   TSOS combTsos( LocalTrajectoryParameters(xcomb, pzSign),
 		 LocalTrajectoryError(Ccomb), Tsos1.surface(),

@@ -3,7 +3,7 @@
 TrajectoryStateOnSurface 
 TrajectoryStateWithArbitraryError::operator()(const TSOS& aTsos) const {
   
-  AlgebraicSymMatrix C(5,1);
+  AlgebraicSymMatrix55 C = AlgebraicMatrixID();
   C *= 100.;
 
   return TSOS( aTsos.localParameters(), LocalTrajectoryError(C), 
