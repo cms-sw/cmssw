@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  *
- * $Date: 2007/03/26 17:35:05 $
- * $Revision: 1.131 $
+ * $Date: 2007/04/11 06:50:36 $
+ * $Revision: 1.132 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -121,6 +121,13 @@ EBPedestalClient::EBPedestalClient(const ParameterSet& ps){
     qth04_[ism-1] = 0;
     qth05_[ism-1] = 0;
 
+    qtg01_[ism-1] = 0;
+    qtg02_[ism-1] = 0;
+    qtg03_[ism-1] = 0;
+
+    qtg04_[ism-1] = 0;
+    qtg05_[ism-1] = 0;
+
   }
 
   expectedMean_[0] = 200.0;
@@ -202,6 +209,35 @@ void EBPedestalClient::beginJob(MonitorUserInterface* mui){
 
       qth04_[ism-1]->setErrorProb(1.00);
       qth05_[ism-1]->setErrorProb(1.00);
+
+      sprintf(qtname, "EBPT quality test SM%02d G01", ism);
+      qtg01_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+
+      sprintf(qtname, "EBPT quality test SM%02d G06", ism);
+      qtg02_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+
+      sprintf(qtname, "EBPT quality test SM%02d G12", ism);
+      qtg03_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+
+      qtg01_[ism-1]->setMeanRange(1., 6.);
+      qtg02_[ism-1]->setMeanRange(1., 6.);
+      qtg03_[ism-1]->setMeanRange(1., 6.);
+
+      qtg01_[ism-1]->setErrorProb(1.00);
+      qtg02_[ism-1]->setErrorProb(1.00);
+      qtg03_[ism-1]->setErrorProb(1.00);
+
+      sprintf(qtname, "EBPT quality test PNs SM%02d G01", ism);
+      qtg04_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname)); 
+
+      sprintf(qtname, "EBPT quality test PNs SM%02d G16", ism);
+      qtg05_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+
+      qtg04_[ism-1]->setMeanRange(1., 6.);
+      qtg05_[ism-1]->setMeanRange(1., 6.);
+
+      qtg04_[ism-1]->setErrorProb(1.00);
+      qtg05_[ism-1]->setErrorProb(1.00);
 
     }
 
@@ -471,6 +507,13 @@ bool EBPedestalClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
 
   EBMUtilsClient::printBadChannels(qth04_[ism-1]);
   EBMUtilsClient::printBadChannels(qth05_[ism-1]);
+
+  EBMUtilsClient::printBadChannels(qtg01_[ism-1]);
+  EBMUtilsClient::printBadChannels(qtg02_[ism-1]);
+  EBMUtilsClient::printBadChannels(qtg03_[ism-1]);
+
+  EBMUtilsClient::printBadChannels(qtg04_[ism-1]);
+  EBMUtilsClient::printBadChannels(qtg05_[ism-1]);
 
   EcalLogicID ecid;
   MonPedestalsDat p;
@@ -768,6 +811,18 @@ void EBPedestalClient::subscribe(void){
         if ( qth05_[ism-1] ) mui_->useQTest(histo, qth05_[ism-1]->getName());
       }
     }
+
+    sprintf(histo, "EcalBarrel/EBPedestalClient/EBPT pedestal quality G01 SM%02d", ism);
+    if ( qtg01_[ism-1] ) mui_->useQTest(histo, qtg01_[ism-1]->getName());
+    sprintf(histo, "EcalBarrel/EBPedestalClient/EBPT pedestal quality G06 SM%02d", ism);
+    if ( qtg02_[ism-1] ) mui_->useQTest(histo, qtg02_[ism-1]->getName());
+    sprintf(histo, "EcalBarrel/EBPedestalClient/EBPT pedestal quality G12 SM%02d", ism);
+    if ( qtg03_[ism-1] ) mui_->useQTest(histo, qtg03_[ism-1]->getName());
+
+    sprintf(histo, "EcalBarrel/EBPedestalClient/EBPT pedestal quality PNs G01 SM%02d", ism);
+    if ( qtg04_[ism-1] ) mui_->useQTest(histo, qtg04_[ism-1]->getName());
+    sprintf(histo, "EcalBarrel/EBPedestalClient/EBPT pedestal quality PNs G16 SM%02d", ism);
+    if ( qtg05_[ism-1] ) mui_->useQTest(histo, qtg05_[ism-1]->getName());
 
   }
 

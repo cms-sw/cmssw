@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalOnlineClient.cc
  *
- * $Date: 2007/03/26 17:35:05 $
- * $Revision: 1.80 $
+ * $Date: 2007/04/11 06:50:36 $
+ * $Revision: 1.81 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -86,6 +86,8 @@ EBPedestalOnlineClient::EBPedestalOnlineClient(const ParameterSet& ps){
 
     qth03_[ism-1] = 0;
 
+    qtg03_[ism-1] = 0;
+
   }
 
   expectedMean_ = 200.0;
@@ -125,6 +127,13 @@ void EBPedestalOnlineClient::beginJob(MonitorUserInterface* mui){
       qth03_[ism-1]->setMinimumEntries(10*1700);
 
       qth03_[ism-1]->setErrorProb(1.00);
+
+      sprintf(qtname, "EBPOT quality test SM%02d G12", ism);
+      qtg03_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+
+      qtg03_[ism-1]->setMeanRange(1., 6.);
+
+      qtg03_[ism-1]->setErrorProb(1.00);
 
     }
 
@@ -252,6 +261,8 @@ bool EBPedestalOnlineClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov,
 
   EBMUtilsClient::printBadChannels(qth03_[ism-1]);
 
+  EBMUtilsClient::printBadChannels(qtg03_[ism-1]);
+
   EcalLogicID ecid;
   MonPedestalsOnlineDat p;
   map<EcalLogicID, MonPedestalsOnlineDat> dataset;
@@ -368,6 +379,9 @@ void EBPedestalOnlineClient::subscribe(void){
         if ( qth03_[ism-1] ) mui_->useQTest(histo, qth03_[ism-1]->getName());
       }
     }
+
+    sprintf(histo, "EcalBarrel/EBPedestalOnlineClient/EBPOT pedestal quality G12 SM%02d", ism);
+    if ( qtg03_[ism-1] ) mui_->useQTest(histo, qtg03_[ism-1]->getName());
 
   }
 
