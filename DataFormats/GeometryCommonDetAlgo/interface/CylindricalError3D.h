@@ -46,7 +46,10 @@ public:
       throw cms::Exception("DetLogicError")<<"Not 3x3 Error Matrix: set pointer to 0\n";
     }
   }
-  
+
+  CylindricalError3D(const AlgebraicSymMatrix33 & err) :
+    theCylindricalError(new AlgebraicSymMatrix(asHepMatrix(err))) { }
+ 
   ~CylindricalError3D() {}
 
   T crr() const {
@@ -76,6 +79,11 @@ public:
   AlgebraicSymMatrix matrix() const {  
     return *theCylindricalError;
   }
+
+  AlgebraicSymMatrix33 matrix_new() const {
+    return asSMatrix<3>(*theCartesianError);
+  }
+
 
 private:
 

@@ -39,7 +39,10 @@ public:
       throw cms::Exception("DetLogicError")<<"Not 3x3 Error Matrix: set pointer to 0\n";
     }
   }
-  
+
+  CartesianError3D(const AlgebraicSymMatrix33 & err) :
+    theCartesianError(new AlgebraicSymMatrix(asHepMatrix(err))) { }
+ 
   ~CartesianError3D() {}
 
   T cxx() const {
@@ -69,6 +72,11 @@ public:
   AlgebraicSymMatrix matrix() const {
     return *theCartesianError;
   }
+
+  AlgebraicSymMatrix33 matrix_new() const {
+    return asSMatrix<3>(*theCartesianError);
+  }
+
 
   T rerr(const GlobalPoint& aPoint) const {
     T r2 = T(0.);

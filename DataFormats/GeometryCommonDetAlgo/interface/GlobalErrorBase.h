@@ -61,6 +61,12 @@ public:
 
     }
   }
+
+   /**
+   * Constructor from SymMatrix. The original matrix has to be a 3*3 matrix.
+   */
+  GlobalErrorBase(const AlgebraicSymMatrix33 & err) : 
+      theCartesianError(new AlgebraicSymMatrix(asHepMatrix(err))) { }
   
   ~GlobalErrorBase() {}
 
@@ -95,6 +101,14 @@ public:
   AlgebraicSymMatrix matrix() const {
     return *theCartesianError;
   }
+ /**
+   * Access method to the matrix,
+   * /return The SymMatrix
+   */
+  AlgebraicSymMatrix33 matrix_new() const {
+    return asSMatrix<3>(*theCartesianError);
+  }
+
 
   T rerr(const GlobalPoint& aPoint) const {
     T r2 = aPoint.perp2();
