@@ -3,9 +3,11 @@
 <use name=DataFormats/DetId>
 <use name=DataFormats/L1GlobalMuonTrigger>
 <use name=DataFormats/MuonDetId>
+<use name=CondFormats/L1TObjects>
 <use name=rootrflx>
 <export>
   <use name=DataFormats/CSCDigi>
+  <use name=CondFormats/L1TObjects>
   <use name=DataFormats/DetId>
   <use name=DataFormats/L1GlobalMuonTrigger>
   <use name=DataFormats/MuonDetId>
