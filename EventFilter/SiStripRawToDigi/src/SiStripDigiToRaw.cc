@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripDigiToRaw.cc,v 1.17 2007/04/25 17:15:49 pwing Exp $
+// Last commit: $Id: SiStripDigiToRaw.cc,v 1.18 2007/04/25 21:24:32 pwing Exp $
 
 #include "EventFilter/SiStripRawToDigi/interface/SiStripDigiToRaw.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
@@ -63,7 +63,7 @@ void SiStripDigiToRaw::createFedBuffers( edm::ESHandle<SiStripFedCabling>& cabli
 
 	// Check DetID is non-zero and valid
 	if (!conn.detId() || 
-	    (conn.detId()==sistrip::invalid_)) { continue; } 
+	    (conn.detId()==sistrip::invalid32_)) { continue; } 
 
 	vector< edm::DetSet<SiStripDigi> >::const_iterator digis = collection->find( conn.detId() );
 

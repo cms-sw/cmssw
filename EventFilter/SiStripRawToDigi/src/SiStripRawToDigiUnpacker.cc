@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripRawToDigiUnpacker.cc,v 1.29 2007/04/04 06:56:57 bainbrid Exp $
+// Last commit: $Id: SiStripRawToDigiUnpacker.cc,v 1.30 2007/04/25 17:15:56 pwing Exp $
 
 #include "EventFilter/SiStripRawToDigi/interface/SiStripRawToDigiUnpacker.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
@@ -171,7 +171,7 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
 
       // Check FedId is non-zero and DetId is valid
       if (!conn.detId() ||
-	  (conn.detId() == sistrip::invalid_) ||
+	  (conn.detId() == sistrip::invalid32_) ||
 	  !conn.fedId()) { continue; }
 
       // Determine whether FED key is inferred from cabling or channel loop

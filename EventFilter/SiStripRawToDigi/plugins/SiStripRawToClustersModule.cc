@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripRawToClustersModule.cc,v 1.1 2007/04/24 16:58:58 bainbrid Exp $
+// Last commit: $Id: SiStripRawToClustersModule.cc,v 1.2 2007/04/25 08:13:42 pwing Exp $
 
 #include "EventFilter/SiStripRawToDigi/plugins/SiStripRawToClustersModule.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
@@ -161,7 +161,7 @@ void SiStripRawToClustersModule::produce( edm::Event& event,
     for (; idet != detCabling_->getDetCabling().end(); idet++) {
  
       //If key is null or invalid continue;
-      if ( !(idet->first) || (idet->first == sistrip::invalid_) ) { continue; }
+      if ( !(idet->first) || (idet->first == sistrip::invalid32_) ) {continue;}
    
       //Calculate "fed-index" or "det-id" for DetSet id. ??
       uint32_t index = idet->first;//(idet->second[0].fedId() * 96) + idet->second[0].fedCh();
