@@ -1,0 +1,17 @@
+FNAL_pre6_v17
+
+	CMSSW_1_3_0_pre6 
+	AnalysisExamples/SiStripDetectorPerformance V01-06-00 ??
+	first version with BadStripFromPosition script working
+
+FNAL_pre6_v20
+
+	as FNAL_pre6_v17 only on few runs for test
+
+FNAL_pre6_v21
+
+	as FNAL_pre6_v17
+	changed template_ClusterAnalysis.cfg to select only events with Num of clusters less then 100
+	intended to verify that the bad (hot) strips number doesn't change.  
+
+
