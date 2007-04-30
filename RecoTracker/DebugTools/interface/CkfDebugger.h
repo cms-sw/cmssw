@@ -148,27 +148,39 @@ class CkfDebugger {
 
   int layer(const GeomDetUnit* det){return ((int)(((det->geographicalId().rawId() >>16) & 0xF)));}
   int layer(const GeomDet* det){return ((int)(((det->geographicalId().rawId() >>16) & 0xF)));}
-  
+
+  template<unsigned int D>  
   pair<double,double> computePulls(CTTRHp recHit, TSOS startingState){
+    typedef typename AlgebraicROOTObject<D>::Vector VecD;
+    typedef typename AlgebraicROOTObject<D,D>::SymMatrix SMatDD;
     TSOS detState = theForwardPropagator->propagate(startingState,recHit->det()->surface());
     edm::LogVerbatim("CkfDebugger") << "parameters=" << recHit->parameters() ;
     edm::LogVerbatim("CkfDebugger") << "parametersError=" << recHit->parametersError() ;
     MeasurementExtractor me(detState);
-    AlgebraicVector r(recHit->parameters() - me.measuredParameters(*recHit));
-    edm::LogVerbatim("CkfDebugger") << "me.measuredParameters=" << me.measuredParameters(*recHit) ;
-    edm::LogVerbatim("CkfDebugger") << "me.measuredError=" << me.measuredError(*recHit) ;
-    AlgebraicSymMatrix R(recHit->parametersError() + me.measuredError(*recHit));
+    VecD r = asSVector<D>(recHit->parameters()) - me.measuredParameters<D>(*recHit);
+    edm::LogVerbatim("CkfDebugger") << "me.measuredParameters=" << me.measuredParameters<D>(*recHit) ;
+    edm::LogVerbatim("CkfDebugger") << "me.measuredError=" << me.measuredError<D>(*recHit) ;
+    SMatDD R = asSMatrix<D>(recHit->parametersError()) + me.measuredError<D>(*recHit);
     edm::LogVerbatim("CkfDebugger") << "r=" << r ;
     edm::LogVerbatim("CkfDebugger") << "R=" << R ;
-    int ierr; 
-    R.invert(ierr);
+    R.Invert();
     edm::LogVerbatim("CkfDebugger") << "R(-1)=" << R ;
-    edm::LogVerbatim("CkfDebugger") << "chi2=" << R.similarity(r) ;
-    double pullX=(me.measuredParameters(*recHit)[0]-recHit->parameters()[0])*sqrt(R[0][0]);
-    double pullY=(me.measuredParameters(*recHit)[1]-recHit->parameters()[1])*sqrt(R[1][1]);
+    edm::LogVerbatim("CkfDebugger") << "chi2=" << ROOT::Math::Similarity(r,R) ;
+    double pullX=(-r[0])*sqrt(R(0,0));
+    double pullY=(-r[1])*sqrt(R(1,1));
     edm::LogVerbatim("CkfDebugger") << "pullX=" << pullX ;
     edm::LogVerbatim("CkfDebugger") << "pullY=" << pullY ;
     return  pair<double,double>(pullX,pullY);
+  }
+  pair<double,double> computePulls(CTTRHp recHit, TSOS startingState) {
+        switch (recHit->dimension()) {
+                case 1: return computePulls<1>(recHit,startingState);
+                case 2: return computePulls<2>(recHit,startingState);
+                case 3: return computePulls<3>(recHit,startingState);
+                case 4: return computePulls<4>(recHit,startingState);
+                case 5: return computePulls<5>(recHit,startingState);
+        }
+        throw cms::Exception("CkfDebugger error: rechit of dimension not 1,2,3,4,5");
   }
 
   vector<int> dump;

@@ -1048,7 +1048,7 @@ double CkfDebugger::testSeed(CTTRHp recHit1, CTTRHp recHit2, TSOS state){
     double shlp3 = simHit.momentumAtEntry().y()/simHit.momentumAtEntry().z();
     double shlp4 = simHit.localPosition().x();
     double shlp5 = simHit.localPosition().y();
-    AlgebraicVector v(5);
+    AlgebraicVector5 v;
     v[0] = shlp1;
     v[1] = shlp2;
     v[2] = shlp3;
@@ -1080,10 +1080,9 @@ double CkfDebugger::testSeed(CTTRHp recHit1, CTTRHp recHit2, TSOS state){
     //     edm::LogVerbatim("CkfDebugger") << setw(15) << stlp5 << setw(15) << shlp5 << setw(15) << sqrt(state.localError().matrix()[4][4]) << 
     //       setw(15) << (stlp5-shlp5)/stlp5 << setw(15) << (stlp5-shlp5)/sqrt(state.localError().matrix()[4][4]) ;
 
-    AlgebraicSymMatrix R = state.localError().matrix();
-    int ierr; 
-    R.invert(ierr);
-    double chi2 = R.similarity(v-state.localParameters().vector());
+    AlgebraicSymMatrix55 R = state.localError().matrix();
+    R.Invert();
+    double chi2 = ROOT::Math::Similarity(v-state.localParameters().vector(), R);
     //     edm::LogVerbatim("CkfDebugger") << "chi2=" << chi2 ;
     return chi2;
   }

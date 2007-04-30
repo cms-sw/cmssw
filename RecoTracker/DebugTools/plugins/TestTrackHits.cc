@@ -226,7 +226,7 @@ void TestTrackHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
       }
 
       GlobalVector tsosGMom = state.globalMomentum();
-      GlobalError  tsosGMEr(state.cartesianError().matrix().sub(4,6));
+      GlobalError  tsosGMEr(state.cartesianError().matrix().Sub<AlgebraicSymMatrix33>(3,3));
       GlobalPoint  tsosGPos = state.globalPosition();
       GlobalError  tsosGPEr = state.cartesianError().position();
 
@@ -353,7 +353,7 @@ void TestTrackHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 // 	LogVerbatim("CkfDebugger") << "mono shit=" << monoShitGPos ;
 
 	GlobalVector monoTsosGMom = monoState.globalMomentum();
-	GlobalError  monoTsosGMEr(monoState.cartesianError().matrix().sub(4,6));
+	GlobalError  monoTsosGMEr(monoState.cartesianError().matrix().Sub<AlgebraicSymMatrix33>(3,3));
 	GlobalPoint  monoTsosGPos = monoState.globalPosition();
 	GlobalError  monoTsosGPEr = monoState.cartesianError().position();
 
@@ -450,7 +450,7 @@ void TestTrackHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 // 	LogVerbatim("CkfDebugger") << "stereo shit=" << stereoShitGPos ;
 
 	GlobalVector stereoTsosGMom = stereoState.globalMomentum();
-	GlobalError  stereoTsosGMEr(stereoState.cartesianError().matrix().sub(4,6));
+	GlobalError  stereoTsosGMEr(stereoState.cartesianError().matrix().Sub<AlgebraicSymMatrix33>(3,3));
 	GlobalPoint  stereoTsosGPos = stereoState.globalPosition();
 	GlobalError  stereoTsosGPEr = stereoState.cartesianError().position();
 

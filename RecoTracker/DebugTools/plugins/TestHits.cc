@@ -233,7 +233,7 @@ void TestHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       GlobalPoint shitGPos = surf->toGlobal(shitLPos);
 
       GlobalVector tsosGMom = currentState.globalMomentum();
-      GlobalError  tsosGMEr(currentState.cartesianError().matrix().sub(4,6));
+      GlobalError  tsosGMEr(currentState.cartesianError().matrix().Sub<AlgebraicSymMatrix33>(3,3));
       GlobalPoint  tsosGPos = currentState.globalPosition();
       GlobalError  tsosGPEr = currentState.cartesianError().position();
 
@@ -336,7 +336,7 @@ void TestHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	GlobalPoint monoShitGPos = monoSurf->toGlobal(monoShitLPos);
 
 	GlobalVector monoTsosGMom = monoState.globalMomentum();
-	GlobalError  monoTsosGMEr(monoState.cartesianError().matrix().sub(4,6));
+	GlobalError  monoTsosGMEr(monoState.cartesianError().matrix().Sub<AlgebraicSymMatrix33>(3,3));
 	GlobalPoint  monoTsosGPos = monoState.globalPosition();
 	GlobalError  monoTsosGPEr = monoState.cartesianError().position();
 
@@ -430,7 +430,7 @@ void TestHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	GlobalPoint stereoShitGPos = stereoSurf->toGlobal(stereoShitLPos);
 
 	GlobalVector stereoTsosGMom = stereoState.globalMomentum();
-	GlobalError  stereoTsosGMEr(stereoState.cartesianError().matrix().sub(4,6));
+	GlobalError  stereoTsosGMEr(stereoState.cartesianError().matrix().Sub<AlgebraicSymMatrix33>(3,3));
 	GlobalPoint  stereoTsosGPos = stereoState.globalPosition();
 	GlobalError  stereoTsosGPEr = stereoState.cartesianError().position();
 
