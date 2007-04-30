@@ -177,8 +177,8 @@ for path in `ls $Tpath`
 	    mv -f cPos*.eps HotStrips 2>/dev/null
 	fi
     fi
-#    echo "...Running extractInfo"
-#    extractInfo $outFile > $smryFile
+    echo "...Running extractInfo"
+    extractInfo $outFile > $smryFile
     cd -
   done
 
