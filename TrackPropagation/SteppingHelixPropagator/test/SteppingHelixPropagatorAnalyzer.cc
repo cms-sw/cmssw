@@ -17,7 +17,7 @@ positions of a muon in the detector.
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Fri Mar  3 16:01:24 CST 2006
-// $Id: SteppingHelixPropagatorAnalyzer.cc,v 1.11 2007/02/05 19:20:32 slava77 Exp $
+// $Id: SteppingHelixPropagatorAnalyzer.cc,v 1.12.4.1 2007/04/25 18:55:51 slava77 Exp $
 //
 //
 
@@ -74,7 +74,6 @@ positions of a muon in the detector.
 #include "CLHEP/Units/PhysicalConstants.h"
 #include "CLHEP/Matrix/DiagMatrix.h"
 
-
 #include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
 #include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixStateInfo.h"
 
@@ -112,14 +111,14 @@ class SteppingHelixPropagatorAnalyzer : public edm::EDAnalyzer {
 		  int id,//defs offset: 0 for R, 1*3 for Z and, 2*3 for P
 		  const Hep3Vector& p3, const Hep3Vector& r3, 
 		  const Hep3Vector& p3R, const Hep3Vector& r3R, 
-		  int charge, const HepSymMatrix& cov);
+		  int charge, const AlgebraicSymMatrix66& cov);
 
   FreeTrajectoryState getFromCLHEP(const Hep3Vector& p3, const Hep3Vector& r3, 
-				    int charge, const HepSymMatrix& cov,
+				    int charge, const AlgebraicSymMatrix66& cov,
 				    const MagneticField* field);
   void getFromFTS(const FreeTrajectoryState& fts,
 		  Hep3Vector& p3, Hep3Vector& r3, 
-		  int& charge, HepSymMatrix& cov);
+		  int& charge, AlgebraicSymMatrix66& cov);
 
   void addPSimHits(const edm::Event& iEvent,
 		   const std::string instanceName, 
@@ -159,6 +158,7 @@ class SteppingHelixPropagatorAnalyzer : public edm::EDAnalyzer {
   bool testPCAPropagation_;
 
   bool ntupleTkHits_;
+  std::string g4SimName_;
 };
 
 //
@@ -201,6 +201,8 @@ SteppingHelixPropagatorAnalyzer::SteppingHelixPropagatorAnalyzer(const edm::Para
   testPCAPropagation_ = iConfig.getParameter<bool>("testPCAPropagation");
 
   ntupleTkHits_ = iConfig.getParameter<bool>("ntupleTkHits");
+
+  g4SimName_ = iConfig.getParameter<std::string>("g4SimName");
 }
 
 void SteppingHelixPropagatorAnalyzer::beginJob(const edm::EventSetup& es){
@@ -315,11 +317,11 @@ SteppingHelixPropagatorAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
       r3T = (*simVertices)[vtxInd].position().vect()*0.1; 
       //seems to be stored in mm --> convert to cm
     }
-    HepSymMatrix covT = noErrPropMode_ ? HepSymMatrix(1,1) : HepSymMatrix(6,1); 
+    AlgebraicSymMatrix66 covT = AlgebraicMatrixID(); 
     covT *= 1e-20; // initialize to sigma=1e-10 .. should get overwhelmed by MULS
 
     Hep3Vector p3F,r3F; //propagated state
-    HepSymMatrix covF(6,0);
+    AlgebraicSymMatrix66 covF;
     int charge = trkPDG > 0 ? -1 : 1; //works for muons
 
     nPoints_ = 0;
@@ -448,16 +450,16 @@ void SteppingHelixPropagatorAnalyzer::endJob() {
 void SteppingHelixPropagatorAnalyzer::loadNtVars(int ind, int eType, int pStatus, int id,
 			    const Hep3Vector& p3, const Hep3Vector& r3, 
 			    const Hep3Vector& p3R, const Hep3Vector& r3R, 
-			    int charge, const HepSymMatrix& cov){
+			    int charge, const AlgebraicSymMatrix66& cov){
       p3_[ind][eType*3+0] = p3.x();  p3_[ind][eType*3+1] = p3.y();  p3_[ind][eType*3+2] = p3.z();
       r3_[ind][eType*3+0] = r3.x();  r3_[ind][eType*3+1] = r3.y();  r3_[ind][eType*3+2] = r3.z();
       id_[ind] = id;
       p3R_[ind][0] = p3R.x();  p3R_[ind][1] = p3R.y();  p3R_[ind][2] = p3R.z();
       r3R_[ind][0] = r3R.x();  r3R_[ind][1] = r3R.y();  r3R_[ind][2] = r3R.z();
       int flatInd = 0;
-      for (int i =1; i <= cov.num_row(); i++) 
+      for (int i =1; i <= cov.kRows; i++) 
 	for (int j=1; j<=i;j++){
-	  covFlat_[ind][flatInd] = cov.fast(i,j);
+	  covFlat_[ind][flatInd] = cov(i-1,j-1);
 	  flatInd++;
 	}
       q_[ind] = charge;
@@ -468,7 +470,7 @@ void SteppingHelixPropagatorAnalyzer::loadNtVars(int ind, int eType, int pStatus
 
 FreeTrajectoryState
 SteppingHelixPropagatorAnalyzer::getFromCLHEP(const Hep3Vector& p3, const Hep3Vector& r3, 
-					      int charge, const HepSymMatrix& cov,
+					      int charge, const AlgebraicSymMatrix66& cov,
 					      const MagneticField* field){
 
   GlobalVector p3GV(p3.x(), p3.y(), p3.z());
@@ -477,12 +479,12 @@ SteppingHelixPropagatorAnalyzer::getFromCLHEP(const Hep3Vector& p3, const Hep3Ve
 
   CartesianTrajectoryError tCov(cov);
   
-  return cov.num_row() == 6 ? FreeTrajectoryState(tPars, tCov) : FreeTrajectoryState(tPars) ;
+  return cov.kRows == 6 ? FreeTrajectoryState(tPars, tCov) : FreeTrajectoryState(tPars) ;
 }
 
 void SteppingHelixPropagatorAnalyzer::getFromFTS(const FreeTrajectoryState& fts,
 						 Hep3Vector& p3, Hep3Vector& r3, 
-						 int& charge, HepSymMatrix& cov){
+						 int& charge, AlgebraicSymMatrix66& cov){
   GlobalVector p3GV = fts.momentum();
   GlobalPoint r3GP = fts.position();
 
@@ -490,7 +492,7 @@ void SteppingHelixPropagatorAnalyzer::getFromFTS(const FreeTrajectoryState& fts,
   r3.set(r3GP.x(), r3GP.y(), r3GP.z());
   
   charge = fts.charge();
-  cov = fts.hasError() ? fts.cartesianError().matrix() : HepSymMatrix(1,0);
+  cov = fts.hasError() ? fts.cartesianError().matrix() : AlgebraicSymMatrix66();
 
 }
 
@@ -500,7 +502,7 @@ void SteppingHelixPropagatorAnalyzer
 	      const edm::ESHandle<GlobalTrackingGeometry>& geom,
 	      std::vector<SteppingHelixPropagatorAnalyzer::GlobalSimHit>& hits) const {
   edm::Handle<edm::PSimHitContainer> handle;
-  iEvent.getByLabel("SimG4Object", instanceName, handle);
+  iEvent.getByLabel(g4SimName_, instanceName, handle);
   if (! handle.isValid() ){
     std::cout<<"No hits found"<<std::endl;
     return;
