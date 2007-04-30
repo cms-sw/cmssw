@@ -10,16 +10,12 @@
  * Patrick Janot
  *   read all possible cards for Pythia Setup. 26/02/06
  *   ( port from FAMOS )
- * Christian Veelken
- *   interface to TAUOLA tau decay library. 04/17/07
- *
  ***************************************/
 
 #define PYCOMP pycomp_
 
 #include "FWCore/Framework/interface/GeneratedInputSource.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "GeneratorInterface/Pythia6Interface/interface/TauolaInterface.h"
 #include <map>
 #include <string>
 #include "HepMC/GenEvent.h"
@@ -38,7 +34,8 @@ namespace edm
     /// Destructor
     virtual ~PythiaSource();
 
-    virtual void endRun( Run& r);
+    void endRun( Run& r);
+
 
   private:
 
@@ -63,24 +60,17 @@ namespace edm
     /// Events to print if verbosity
     unsigned int maxEventsToPrint_;    
     
-    // flag indicating whether or not TAUOLA is used for tau decays
-    bool useTauola_;
-    bool useTauolaPolarization_;
-
+ 
     // for single particle generation in pythia
     int    particleID;
     bool   doubleParticle;
     double ptmin, ptmax;
-    double emin, emax;
-    bool flatEnergy;
     double etamin, etamax;
     double phimin, phimax;
     double comenergy;
     
     CLHEP::HepRandomEngine* fRandomEngine;
     CLHEP::RandFlat*        fRandomGenerator; 
-
-    TauolaInterface tauola_;
 
   };
 } 

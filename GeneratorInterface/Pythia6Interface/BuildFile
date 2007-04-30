@@ -3,10 +3,7 @@
 <use name=SimDataFormats/HepMCProduct>
 <use name=hepmc> 
 <use name=clhep> 
-<use name=f77compiler>
 <use name=pythia6_227>
-<use name=tauola27_121_1>
-<use name=photos215>
 <flags EDM_PLUGIN=1>
 <export>
  <use name=boost>
@@ -14,8 +11,10 @@
  <use name=SimDataFormats/HepMCProduct>
  <use name=hepmc> 
  <use name=clhep> 
- <use name=f77compiler>
  <use name=pythia6_227>
- <use name=tauola27_121_1>
- <use name=photos215>
 </export>
+
+ <lib name=g2c></lib>
+ <lib name=m></lib>
+
+
