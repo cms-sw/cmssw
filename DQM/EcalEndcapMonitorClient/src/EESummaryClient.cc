@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2007/04/07 11:57:05 $
- * $Revision: 1.4 $
+ * $Date: 2007/04/07 12:09:13 $
+ * $Revision: 1.5 $
  * \author G. Della Ricca
  *
 */
@@ -29,7 +29,7 @@
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 
 #include <DQM/EcalEndcapMonitorClient/interface/EESummaryClient.h>
-#include <DQM/EcalEndcapMonitorClient/interface/EEMUtilsClient.h>
+#include <DQM/EcalCommon/interface/UtilsClient.h>
 #include <DQM/EcalEndcapMonitorClient/interface/EECosmicClient.h>
 #include <DQM/EcalEndcapMonitorClient/interface/EEIntegrityClient.h>
 #include <DQM/EcalEndcapMonitorClient/interface/EELaserClient.h>
@@ -351,7 +351,7 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
   imgNameMapI = "";
 
   obj2f = 0;
-  obj2f = EEMUtilsClient::getHisto<TH2F*>( meIntegrity_ );
+  obj2f = UtilsClient::getHisto<TH2F*>( meIntegrity_ );
 
   if ( obj2f ) {
 
@@ -385,7 +385,7 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
   imgNameMapPO = "";
 
   obj2f = 0;
-  obj2f = EEMUtilsClient::getHisto<TH2F*>( mePedestalOnline_ );
+  obj2f = UtilsClient::getHisto<TH2F*>( mePedestalOnline_ );
 
   if ( obj2f ) {
 

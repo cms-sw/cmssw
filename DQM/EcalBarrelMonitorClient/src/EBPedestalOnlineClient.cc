@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalOnlineClient.cc
  *
- * $Date: 2007/04/11 06:50:36 $
- * $Revision: 1.81 $
+ * $Date: 2007/04/29 17:17:49 $
+ * $Revision: 1.82 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -33,7 +33,7 @@
 
 #include "DQM/EcalCommon/interface/EcalErrorMask.h"
 #include <DQM/EcalBarrelMonitorClient/interface/EBPedestalOnlineClient.h>
-#include <DQM/EcalBarrelMonitorClient/interface/EBMUtilsClient.h>
+#include <DQM/EcalCommon/interface/UtilsClient.h>
 
 using namespace cms;
 using namespace edm;
@@ -202,7 +202,7 @@ void EBPedestalOnlineClient::setup(void) {
 
     int ism = superModules_[i];
 
-    EBMUtilsClient::resetHisto( meg03_[ism-1] );
+    UtilsClient::resetHisto( meg03_[ism-1] );
 
     for ( int ie = 1; ie <= 85; ie++ ) {
       for ( int ip = 1; ip <= 20; ip++ ) {
@@ -212,8 +212,8 @@ void EBPedestalOnlineClient::setup(void) {
       }
     }
 
-    EBMUtilsClient::resetHisto( mep03_[ism-1] );
-    EBMUtilsClient::resetHisto( mer03_[ism-1] );
+    UtilsClient::resetHisto( mep03_[ism-1] );
+    UtilsClient::resetHisto( mer03_[ism-1] );
 
   }
 
@@ -259,9 +259,9 @@ bool EBPedestalOnlineClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov,
 
   bool status = true;
 
-  EBMUtilsClient::printBadChannels(qth03_[ism-1]);
+  UtilsClient::printBadChannels(qth03_[ism-1]);
 
-  EBMUtilsClient::printBadChannels(qtg03_[ism-1]);
+  UtilsClient::printBadChannels(qtg03_[ism-1]);
 
   EcalLogicID ecid;
   MonPedestalsOnlineDat p;
@@ -276,7 +276,7 @@ bool EBPedestalOnlineClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov,
 
       bool update03;
 
-      update03 = EBMUtilsClient::getBinStats(h03_[ism-1], ie, ip, num03, mean03, rms03);
+      update03 = UtilsClient::getBinStats(h03_[ism-1], ie, ip, num03, mean03, rms03);
 
       if ( update03 ) {
 
@@ -299,7 +299,7 @@ bool EBPedestalOnlineClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov,
           p.setTaskStatus(false);
         }
 
-        status = status && EBMUtilsClient::getBinQual(meg03_[ism-1], ie, ip);
+        status = status && UtilsClient::getBinQual(meg03_[ism-1], ie, ip);
 
         int ic = (ip-1) + 20*(ie-1) + 1;
 
@@ -481,12 +481,12 @@ void EBPedestalOnlineClient::analyze(void){
       sprintf(histo, (prefixME_+"EcalBarrel/EBPedestalOnlineTask/Gain12/EBPOT pedestal SM%02d G12").c_str(), ism);
     }
     me = mui_->get(histo);
-    h03_[ism-1] = EBMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, h03_[ism-1] );
+    h03_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h03_[ism-1] );
     meh03_[ism-1] = me;
 
-    EBMUtilsClient::resetHisto( meg03_[ism-1] );
-    EBMUtilsClient::resetHisto( mep03_[ism-1] );
-    EBMUtilsClient::resetHisto( mer03_[ism-1] );
+    UtilsClient::resetHisto( meg03_[ism-1] );
+    UtilsClient::resetHisto( mep03_[ism-1] );
+    UtilsClient::resetHisto( mer03_[ism-1] );
 
     for ( int ie = 1; ie <= 85; ie++ ) {
       for ( int ip = 1; ip <= 20; ip++ ) {
@@ -499,7 +499,7 @@ void EBPedestalOnlineClient::analyze(void){
         float mean03;
         float rms03;
 
-        update03 = EBMUtilsClient::getBinStats(h03_[ism-1], ie, ip, num03, mean03, rms03);
+        update03 = UtilsClient::getBinStats(h03_[ism-1], ie, ip, num03, mean03, rms03);
 
         if ( update03 ) {
 
@@ -630,7 +630,7 @@ void EBPedestalOnlineClient::htmlOutput(int run, string htmlDir, string htmlName
     imgNameQual = "";
 
     obj2f = 0;
-    obj2f = EBMUtilsClient::getHisto<TH2F*>( meg03_[ism-1] );
+    obj2f = UtilsClient::getHisto<TH2F*>( meg03_[ism-1] );
 
     if ( obj2f ) {
 
@@ -665,7 +665,7 @@ void EBPedestalOnlineClient::htmlOutput(int run, string htmlDir, string htmlName
     imgNameMean = "";
 
     obj1f = 0;
-    obj1f = EBMUtilsClient::getHisto<TH1F*>( mep03_[ism-1] );
+    obj1f = UtilsClient::getHisto<TH1F*>( mep03_[ism-1] );
 
     if ( obj1f ) {
 
@@ -697,7 +697,7 @@ void EBPedestalOnlineClient::htmlOutput(int run, string htmlDir, string htmlName
     // RMS distributions
 
     obj1f = 0;
-    obj1f = EBMUtilsClient::getHisto<TH1F*>( mer03_[ism-1] );
+    obj1f = UtilsClient::getHisto<TH1F*>( mer03_[ism-1] );
 
     imgNameRMS = "";
 

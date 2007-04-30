@@ -2,8 +2,8 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2007/04/11 06:50:36 $
- * $Revision: 1.140 $
+ * $Date: 2007/04/29 18:13:44 $
+ * $Revision: 1.141 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -41,7 +41,7 @@
 
 #include "DQM/EcalCommon/interface/EcalErrorMask.h"
 #include <DQM/EcalBarrelMonitorClient/interface/EBIntegrityClient.h>
-#include <DQM/EcalBarrelMonitorClient/interface/EBMUtilsClient.h>
+#include <DQM/EcalCommon/interface/UtilsClient.h>
 
 using namespace cms;
 using namespace edm;
@@ -281,8 +281,8 @@ void EBIntegrityClient::setup(void) {
 
     int ism = superModules_[i];
 
-    EBMUtilsClient::resetHisto( meg01_[ism-1] );
-    EBMUtilsClient::resetHisto( meg02_[ism-1] );
+    UtilsClient::resetHisto( meg01_[ism-1] );
+    UtilsClient::resetHisto( meg02_[ism-1] );
 
     for ( int ie = 1; ie <= 85; ie++ ) {
       for ( int ip = 1; ip <= 20; ip++ ) {
@@ -370,20 +370,20 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
   bool status = true;
 
-  EBMUtilsClient::printBadChannels(qth01_[ism-1]);
-  EBMUtilsClient::printBadChannels(qth02_[ism-1]);
-  EBMUtilsClient::printBadChannels(qth03_[ism-1]);
-  EBMUtilsClient::printBadChannels(qth04_[ism-1]);
-  EBMUtilsClient::printBadChannels(qth05_[ism-1]);
-  EBMUtilsClient::printBadChannels(qth06_[ism-1]);
+  UtilsClient::printBadChannels(qth01_[ism-1]);
+  UtilsClient::printBadChannels(qth02_[ism-1]);
+  UtilsClient::printBadChannels(qth03_[ism-1]);
+  UtilsClient::printBadChannels(qth04_[ism-1]);
+  UtilsClient::printBadChannels(qth05_[ism-1]);
+  UtilsClient::printBadChannels(qth06_[ism-1]);
 
-  EBMUtilsClient::printBadChannels(qth07_[ism-1]);
-  EBMUtilsClient::printBadChannels(qth08_[ism-1]);
-  EBMUtilsClient::printBadChannels(qth09_[ism-1]);
-  EBMUtilsClient::printBadChannels(qth10_[ism-1]);
+  UtilsClient::printBadChannels(qth07_[ism-1]);
+  UtilsClient::printBadChannels(qth08_[ism-1]);
+  UtilsClient::printBadChannels(qth09_[ism-1]);
+  UtilsClient::printBadChannels(qth10_[ism-1]);
 
-  EBMUtilsClient::printBadChannels(qtg01_[ism-1]);
-  EBMUtilsClient::printBadChannels(qtg02_[ism-1]);
+  UtilsClient::printBadChannels(qtg01_[ism-1]);
+  UtilsClient::printBadChannels(qtg02_[ism-1]);
 
   EcalLogicID ecid;
   MonCrystalConsistencyDat c1;
@@ -1117,7 +1117,7 @@ void EBIntegrityClient::analyze(void){
     sprintf(histo, (prefixME_+"EcalBarrel/EBIntegrityTask/EBIT DCC size error").c_str());
   }
   me = mui_->get(histo);
-  h00_ = EBMUtilsClient::getHisto<TH1F*>( me, cloneME_, h00_ );
+  h00_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, h00_ );
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
@@ -1129,7 +1129,7 @@ void EBIntegrityClient::analyze(void){
       sprintf(histo, (prefixME_+"EcalBarrel/EBOccupancyTask/EBOT occupancy SM%02d").c_str(), ism);
     }
     me = mui_->get(histo);
-    h_[ism-1] = EBMUtilsClient::getHisto<TH2F*>( me, cloneME_, h_[ism-1] );
+    h_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h_[ism-1] );
 
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBOccupancyTask/EBOT MEM occupancy SM%02d", ism);
@@ -1137,7 +1137,7 @@ void EBIntegrityClient::analyze(void){
       sprintf(histo, (prefixME_+"EcalBarrel/EBOccupancyTask/EBOT MEM occupancy SM%02d").c_str(), ism);
     }
     me = mui_->get(histo);
-    hmem_[ism-1] = EBMUtilsClient::getHisto<TH2F*>( me, cloneME_, hmem_[ism-1] );
+    hmem_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, hmem_[ism-1] );
 
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBIntegrityTask/Gain/EBIT gain SM%02d", ism);
@@ -1145,7 +1145,7 @@ void EBIntegrityClient::analyze(void){
       sprintf(histo, (prefixME_+"EcalBarrel/EBIntegrityTask/Gain/EBIT gain SM%02d").c_str(), ism);
     }
     me = mui_->get(histo);
-    h01_[ism-1] = EBMUtilsClient::getHisto<TH2F*>( me, cloneME_, h01_[ism-1] );
+    h01_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h01_[ism-1] );
 
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBIntegrityTask/ChId/EBIT ChId SM%02d", ism);
@@ -1153,7 +1153,7 @@ void EBIntegrityClient::analyze(void){
       sprintf(histo, (prefixME_+"EcalBarrel/EBIntegrityTask/ChId/EBIT ChId SM%02d").c_str(), ism);
     }
     me = mui_->get(histo);
-    h02_[ism-1] = EBMUtilsClient::getHisto<TH2F*>( me, cloneME_, h02_[ism-1] );
+    h02_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h02_[ism-1] );
 
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBIntegrityTask/GainSwitch/EBIT gain switch SM%02d", ism);
@@ -1161,7 +1161,7 @@ void EBIntegrityClient::analyze(void){
       sprintf(histo, (prefixME_+"EcalBarrel/EBIntegrityTask/GainSwitch/EBIT gain switch SM%02d").c_str(), ism);
     }
     me = mui_->get(histo);
-    h03_[ism-1] = EBMUtilsClient::getHisto<TH2F*>( me, cloneME_, h03_[ism-1] );
+    h03_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h03_[ism-1] );
 
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBIntegrityTask/GainSwitchStay/EBIT gain switch stay SM%02d", ism);
@@ -1169,7 +1169,7 @@ void EBIntegrityClient::analyze(void){
       sprintf(histo, (prefixME_+"EcalBarrel/EBIntegrityTask/GainSwitchStay/EBIT gain switch stay SM%02d").c_str(), ism);
     }
     me = mui_->get(histo);
-    h04_[ism-1] = EBMUtilsClient::getHisto<TH2F*>( me, cloneME_, h04_[ism-1] );
+    h04_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h04_[ism-1] );
 
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBIntegrityTask/TTId/EBIT TTId SM%02d", ism);
@@ -1177,7 +1177,7 @@ void EBIntegrityClient::analyze(void){
       sprintf(histo, (prefixME_+"EcalBarrel/EBIntegrityTask/TTId/EBIT TTId SM%02d").c_str(), ism);
     }
     me = mui_->get(histo);
-    h05_[ism-1] = EBMUtilsClient::getHisto<TH2F*>( me, cloneME_, h05_[ism-1] );
+    h05_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h05_[ism-1] );
 
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBIntegrityTask/TTBlockSize/EBIT TTBlockSize SM%02d", ism);
@@ -1185,7 +1185,7 @@ void EBIntegrityClient::analyze(void){
       sprintf(histo, (prefixME_+"EcalBarrel/EBIntegrityTask/TTBlockSize/EBIT TTBlockSize SM%02d").c_str(), ism);
     }
     me = mui_->get(histo);
-    h06_[ism-1] = EBMUtilsClient::getHisto<TH2F*>( me, cloneME_, h06_[ism-1] );
+    h06_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h06_[ism-1] );
 
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBIntegrityTask/MemChId/EBIT MemChId SM%02d", ism);
@@ -1193,7 +1193,7 @@ void EBIntegrityClient::analyze(void){
       sprintf(histo, (prefixME_+"EcalBarrel/EBIntegrityTask/MemChId/EBIT MemChId SM%02d").c_str(), ism);
     }
     me = mui_->get(histo);
-    h07_[ism-1] = EBMUtilsClient::getHisto<TH2F*>( me, cloneME_, h07_[ism-1] );
+    h07_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h07_[ism-1] );
 
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBIntegrityTask/MemGain/EBIT MemGain SM%02d", ism);
@@ -1201,7 +1201,7 @@ void EBIntegrityClient::analyze(void){
       sprintf(histo, (prefixME_+"EcalBarrel/EBIntegrityTask/MemGain/EBIT MemGain SM%02d").c_str(), ism);
     }
     me = mui_->get(histo);
-    h08_[ism-1] = EBMUtilsClient::getHisto<TH2F*>( me, cloneME_, h08_[ism-1] );
+    h08_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h08_[ism-1] );
 
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBIntegrityTask/MemTTId/EBIT MemTTId SM%02d", ism);
@@ -1209,7 +1209,7 @@ void EBIntegrityClient::analyze(void){
       sprintf(histo, (prefixME_+"EcalBarrel/EBIntegrityTask/MemTTId/EBIT MemTTId SM%02d").c_str(), ism);
     }
     me = mui_->get(histo);
-    h09_[ism-1] = EBMUtilsClient::getHisto<TH2F*>( me, cloneME_, h09_[ism-1] );
+    h09_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h09_[ism-1] );
 
     if ( collateSources_ ) {
       sprintf(histo, "EcalBarrel/Sums/EBIntegrityTask/MemSize/EBIT MemSize SM%02d", ism);
@@ -1217,13 +1217,13 @@ void EBIntegrityClient::analyze(void){
       sprintf(histo, (prefixME_+"EcalBarrel/EBIntegrityTask/MemSize/EBIT MemSize SM%02d").c_str(), ism);
     }
     me = mui_->get(histo);
-    h10_[ism-1] = EBMUtilsClient::getHisto<TH2F*>( me, cloneME_, h10_[ism-1] );
+    h10_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h10_[ism-1] );
 
     float num00;
 
     // integrity summary histograms
-    EBMUtilsClient::resetHisto( meg01_[ism-1] );
-    EBMUtilsClient::resetHisto( meg02_[ism-1] );
+    UtilsClient::resetHisto( meg01_[ism-1] );
+    UtilsClient::resetHisto( meg02_[ism-1] );
 
     num00 = 0.;
 
@@ -1646,7 +1646,7 @@ void EBIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
 
     imgNameQual = "";
 
-    obj2f = EBMUtilsClient::getHisto<TH2F*>( meg01_[ism-1] );
+    obj2f = UtilsClient::getHisto<TH2F*>( meg01_[ism-1] );
 
     if ( obj2f ) {
 
@@ -1776,7 +1776,7 @@ void EBIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
 
     imgNameQualMem = "";
 
-    obj2f = EBMUtilsClient::getHisto<TH2F*>( meg02_[ism-1] );
+    obj2f = UtilsClient::getHisto<TH2F*>( meg02_[ism-1] );
 
     if ( obj2f ) {
 

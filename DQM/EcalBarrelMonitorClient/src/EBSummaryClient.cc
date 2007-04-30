@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2007/04/07 13:04:44 $
- * $Revision: 1.15 $
+ * $Date: 2007/04/29 22:25:12 $
+ * $Revision: 1.16 $
  * \author G. Della Ricca
  *
 */
@@ -29,7 +29,7 @@
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 
 #include <DQM/EcalBarrelMonitorClient/interface/EBSummaryClient.h>
-#include <DQM/EcalBarrelMonitorClient/interface/EBMUtilsClient.h>
+#include <DQM/EcalCommon/interface/UtilsClient.h>
 #include <DQM/EcalBarrelMonitorClient/interface/EBCosmicClient.h>
 #include <DQM/EcalBarrelMonitorClient/interface/EBIntegrityClient.h>
 #include <DQM/EcalBarrelMonitorClient/interface/EBLaserClient.h>
@@ -206,10 +206,10 @@ bool EBSummaryClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRun
 
   bool status = true;
 
-  //EBMUtilsClient::printBadChannels(qtg01_);
-  //EBMUtilsClient::printBadChannels(qtg02_);
-  //EBMUtilsClient::printBadChannels(qtg03_);
-  //EBMUtilsClient::printBadChannels(qtg04_);
+  //UtilsClient::printBadChannels(qtg01_);
+  //UtilsClient::printBadChannels(qtg02_);
+  //UtilsClient::printBadChannels(qtg03_);
+  //UtilsClient::printBadChannels(qtg04_);
 
   return status;
 
@@ -465,7 +465,7 @@ void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
   imgNameMapI = "";
 
   obj2f = 0;
-  obj2f = EBMUtilsClient::getHisto<TH2F*>( meIntegrity_ );
+  obj2f = UtilsClient::getHisto<TH2F*>( meIntegrity_ );
 
   if ( obj2f ) {
 
@@ -499,7 +499,7 @@ void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
   imgNameMapO = "";
 
   obj2f = 0;
-  obj2f = EBMUtilsClient::getHisto<TH2F*>( meOccupancy_ );
+  obj2f = UtilsClient::getHisto<TH2F*>( meOccupancy_ );
 
   if ( obj2f ) {
 
@@ -532,7 +532,7 @@ void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
   imgNameMapPO = "";
 
   obj2f = 0;
-  obj2f = EBMUtilsClient::getHisto<TH2F*>( mePedestalOnline_ );
+  obj2f = UtilsClient::getHisto<TH2F*>( mePedestalOnline_ );
 
   if ( obj2f ) {
 
@@ -565,7 +565,7 @@ void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
   imgNameMapLL1 = "";
 
   obj2f = 0;
-  obj2f = EBMUtilsClient::getHisto<TH2F*>( meLaserL1_ );
+  obj2f = UtilsClient::getHisto<TH2F*>( meLaserL1_ );
 
   if ( obj2f && obj2f->GetEntries() != 0 ) {
 

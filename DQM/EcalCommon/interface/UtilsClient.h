@@ -1,15 +1,15 @@
-// $Id: EBMUtilsClient.h,v 1.22 2007/01/31 20:42:16 dellaric Exp $
+// $Id: $
 
 /*!
-  \file EBMUtilsClient.h
-  \brief Ecal Barrel Monitor Utils for Client
+  \file UtilsClient.h
+  \brief Ecal Monitor Utils for Client
   \author B. Gobbo 
-  \version $Revision: 1.22 $
-  \date $Date: 2007/01/31 20:42:16 $
+  \version $Revision: $
+  \date $Date: $
 */
 
-#ifndef EBMUtilsClient_H
-#define EBMUtilsClient_H
+#ifndef UtilsClient_H
+#define UtilsClient_H
 
 #include <vector>
 #include <string>
@@ -21,11 +21,11 @@
 #include "TROOT.h"
 #include "TH1.h"
 
-/*! \class EBMUtilsClient
-    \brief Utilities for Ecal Barrel Monitor Client 
+/*! \class UtilsClient
+    \brief Utilities for Ecal Monitor Client 
  */
 
-class EBMUtilsClient {
+class UtilsClient {
 
  public:
 
@@ -137,7 +137,7 @@ class EBMUtilsClient {
   }
 
  protected:
-  EBMUtilsClient() {}
+  UtilsClient() {}
 
 };
 

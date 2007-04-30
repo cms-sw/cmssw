@@ -2,8 +2,8 @@
 /*
  * \file EEIntegrityClient.cc
  *
- * $Date: 2007/04/02 16:15:36 $
- * $Revision: 1.1 $
+ * $Date: 2007/04/11 06:50:38 $
+ * $Revision: 1.2 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -41,7 +41,7 @@
 
 #include "DQM/EcalCommon/interface/EcalErrorMask.h"
 #include <DQM/EcalEndcapMonitorClient/interface/EEIntegrityClient.h>
-#include <DQM/EcalEndcapMonitorClient/interface/EEMUtilsClient.h>
+#include <DQM/EcalCommon/interface/UtilsClient.h>
 
 using namespace cms;
 using namespace edm;
@@ -266,8 +266,8 @@ void EEIntegrityClient::setup(void) {
 
     int ism = superModules_[i];
 
-    EEMUtilsClient::resetHisto( meg01_[ism-1] );
-    EEMUtilsClient::resetHisto( meg02_[ism-1] );
+    UtilsClient::resetHisto( meg01_[ism-1] );
+    UtilsClient::resetHisto( meg02_[ism-1] );
 
     for ( int ie = 1; ie <= 85; ie++ ) {
       for ( int ip = 1; ip <= 20; ip++ ) {
@@ -355,17 +355,17 @@ bool EEIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
   bool status = true;
 
-  EEMUtilsClient::printBadChannels(qth01_[ism-1]);
-  EEMUtilsClient::printBadChannels(qth02_[ism-1]);
-  EEMUtilsClient::printBadChannels(qth03_[ism-1]);
-  EEMUtilsClient::printBadChannels(qth04_[ism-1]);
-  EEMUtilsClient::printBadChannels(qth05_[ism-1]);
-  EEMUtilsClient::printBadChannels(qth06_[ism-1]);
+  UtilsClient::printBadChannels(qth01_[ism-1]);
+  UtilsClient::printBadChannels(qth02_[ism-1]);
+  UtilsClient::printBadChannels(qth03_[ism-1]);
+  UtilsClient::printBadChannels(qth04_[ism-1]);
+  UtilsClient::printBadChannels(qth05_[ism-1]);
+  UtilsClient::printBadChannels(qth06_[ism-1]);
 
-  EEMUtilsClient::printBadChannels(qth07_[ism-1]);
-  EEMUtilsClient::printBadChannels(qth08_[ism-1]);
-  EEMUtilsClient::printBadChannels(qth09_[ism-1]);
-  EEMUtilsClient::printBadChannels(qth10_[ism-1]);
+  UtilsClient::printBadChannels(qth07_[ism-1]);
+  UtilsClient::printBadChannels(qth08_[ism-1]);
+  UtilsClient::printBadChannels(qth09_[ism-1]);
+  UtilsClient::printBadChannels(qth10_[ism-1]);
 
   EcalLogicID ecid;
   MonCrystalConsistencyDat c1;
@@ -1093,7 +1093,7 @@ void EEIntegrityClient::analyze(void){
     sprintf(histo, (prefixME_+"EcalEndcap/EEIntegrityTask/EEIT DCC size error").c_str());
   }
   me = mui_->get(histo);
-  h00_ = EEMUtilsClient::getHisto<TH1F*>( me, cloneME_, h00_ );
+  h00_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, h00_ );
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
@@ -1105,7 +1105,7 @@ void EEIntegrityClient::analyze(void){
       sprintf(histo, (prefixME_+"EcalEndcap/EEOccupancyTask/EEOT occupancy SM%02d").c_str(), ism);
     }
     me = mui_->get(histo);
-    h_[ism-1] = EEMUtilsClient::getHisto<TH2F*>( me, cloneME_, h_[ism-1] );
+    h_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h_[ism-1] );
 
     if ( collateSources_ ) {
       sprintf(histo, "EcalEndcap/Sums/EEOccupancyTask/EEOT MEM occupancy SM%02d", ism);
@@ -1113,7 +1113,7 @@ void EEIntegrityClient::analyze(void){
       sprintf(histo, (prefixME_+"EcalEndcap/EEOccupancyTask/EEOT MEM occupancy SM%02d").c_str(), ism);
     }
     me = mui_->get(histo);
-    hmem_[ism-1] = EEMUtilsClient::getHisto<TH2F*>( me, cloneME_, hmem_[ism-1] );
+    hmem_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, hmem_[ism-1] );
 
     if ( collateSources_ ) {
       sprintf(histo, "EcalEndcap/Sums/EEIntegrityTask/Gain/EEIT gain SM%02d", ism);
@@ -1121,7 +1121,7 @@ void EEIntegrityClient::analyze(void){
       sprintf(histo, (prefixME_+"EcalEndcap/EEIntegrityTask/Gain/EEIT gain SM%02d").c_str(), ism);
     }
     me = mui_->get(histo);
-    h01_[ism-1] = EEMUtilsClient::getHisto<TH2F*>( me, cloneME_, h01_[ism-1] );
+    h01_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h01_[ism-1] );
 
     if ( collateSources_ ) {
       sprintf(histo, "EcalEndcap/Sums/EEIntegrityTask/ChId/EEIT ChId SM%02d", ism);
@@ -1129,7 +1129,7 @@ void EEIntegrityClient::analyze(void){
       sprintf(histo, (prefixME_+"EcalEndcap/EEIntegrityTask/ChId/EEIT ChId SM%02d").c_str(), ism);
     }
     me = mui_->get(histo);
-    h02_[ism-1] = EEMUtilsClient::getHisto<TH2F*>( me, cloneME_, h02_[ism-1] );
+    h02_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h02_[ism-1] );
 
     if ( collateSources_ ) {
       sprintf(histo, "EcalEndcap/Sums/EEIntegrityTask/GainSwitch/EEIT gain switch SM%02d", ism);
@@ -1137,7 +1137,7 @@ void EEIntegrityClient::analyze(void){
       sprintf(histo, (prefixME_+"EcalEndcap/EEIntegrityTask/GainSwitch/EEIT gain switch SM%02d").c_str(), ism);
     }
     me = mui_->get(histo);
-    h03_[ism-1] = EEMUtilsClient::getHisto<TH2F*>( me, cloneME_, h03_[ism-1] );
+    h03_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h03_[ism-1] );
 
     if ( collateSources_ ) {
       sprintf(histo, "EcalEndcap/Sums/EEIntegrityTask/GainSwitchStay/EEIT gain switch stay SM%02d", ism);
@@ -1145,7 +1145,7 @@ void EEIntegrityClient::analyze(void){
       sprintf(histo, (prefixME_+"EcalEndcap/EEIntegrityTask/GainSwitchStay/EEIT gain switch stay SM%02d").c_str(), ism);
     }
     me = mui_->get(histo);
-    h04_[ism-1] = EEMUtilsClient::getHisto<TH2F*>( me, cloneME_, h04_[ism-1] );
+    h04_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h04_[ism-1] );
 
     if ( collateSources_ ) {
       sprintf(histo, "EcalEndcap/Sums/EEIntegrityTask/TTId/EEIT TTId SM%02d", ism);
@@ -1153,7 +1153,7 @@ void EEIntegrityClient::analyze(void){
       sprintf(histo, (prefixME_+"EcalEndcap/EEIntegrityTask/TTId/EEIT TTId SM%02d").c_str(), ism);
     }
     me = mui_->get(histo);
-    h05_[ism-1] = EEMUtilsClient::getHisto<TH2F*>( me, cloneME_, h05_[ism-1] );
+    h05_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h05_[ism-1] );
 
     if ( collateSources_ ) {
       sprintf(histo, "EcalEndcap/Sums/EEIntegrityTask/TTBlockSize/EEIT TTBlockSize SM%02d", ism);
@@ -1161,7 +1161,7 @@ void EEIntegrityClient::analyze(void){
       sprintf(histo, (prefixME_+"EcalEndcap/EEIntegrityTask/TTBlockSize/EEIT TTBlockSize SM%02d").c_str(), ism);
     }
     me = mui_->get(histo);
-    h06_[ism-1] = EEMUtilsClient::getHisto<TH2F*>( me, cloneME_, h06_[ism-1] );
+    h06_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h06_[ism-1] );
 
     if ( collateSources_ ) {
       sprintf(histo, "EcalEndcap/Sums/EEIntegrityTask/MemChId/EEIT MemChId SM%02d", ism);
@@ -1169,7 +1169,7 @@ void EEIntegrityClient::analyze(void){
       sprintf(histo, (prefixME_+"EcalEndcap/EEIntegrityTask/MemChId/EEIT MemChId SM%02d").c_str(), ism);
     }
     me = mui_->get(histo);
-    h07_[ism-1] = EEMUtilsClient::getHisto<TH2F*>( me, cloneME_, h07_[ism-1] );
+    h07_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h07_[ism-1] );
 
     if ( collateSources_ ) {
       sprintf(histo, "EcalEndcap/Sums/EEIntegrityTask/MemGain/EEIT MemGain SM%02d", ism);
@@ -1177,7 +1177,7 @@ void EEIntegrityClient::analyze(void){
       sprintf(histo, (prefixME_+"EcalEndcap/EEIntegrityTask/MemGain/EEIT MemGain SM%02d").c_str(), ism);
     }
     me = mui_->get(histo);
-    h08_[ism-1] = EEMUtilsClient::getHisto<TH2F*>( me, cloneME_, h08_[ism-1] );
+    h08_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h08_[ism-1] );
 
     if ( collateSources_ ) {
       sprintf(histo, "EcalEndcap/Sums/EEIntegrityTask/MemTTId/EEIT MemTTId SM%02d", ism);
@@ -1185,7 +1185,7 @@ void EEIntegrityClient::analyze(void){
       sprintf(histo, (prefixME_+"EcalEndcap/EEIntegrityTask/MemTTId/EEIT MemTTId SM%02d").c_str(), ism);
     }
     me = mui_->get(histo);
-    h09_[ism-1] = EEMUtilsClient::getHisto<TH2F*>( me, cloneME_, h09_[ism-1] );
+    h09_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h09_[ism-1] );
 
     if ( collateSources_ ) {
       sprintf(histo, "EcalEndcap/Sums/EEIntegrityTask/MemSize/EEIT MemSize SM%02d", ism);
@@ -1193,13 +1193,13 @@ void EEIntegrityClient::analyze(void){
       sprintf(histo, (prefixME_+"EcalEndcap/EEIntegrityTask/MemSize/EEIT MemSize SM%02d").c_str(), ism);
     }
     me = mui_->get(histo);
-    h10_[ism-1] = EEMUtilsClient::getHisto<TH2F*>( me, cloneME_, h10_[ism-1] );
+    h10_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h10_[ism-1] );
 
     float num00;
 
     // integrity summary histograms
-    EEMUtilsClient::resetHisto( meg01_[ism-1] );
-    EEMUtilsClient::resetHisto( meg02_[ism-1] );
+    UtilsClient::resetHisto( meg01_[ism-1] );
+    UtilsClient::resetHisto( meg02_[ism-1] );
 
     num00 = 0.;
 
@@ -1622,7 +1622,7 @@ void EEIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
 
     imgNameQual = "";
 
-    obj2f = EEMUtilsClient::getHisto<TH2F*>( meg01_[ism-1] );
+    obj2f = UtilsClient::getHisto<TH2F*>( meg01_[ism-1] );
 
     if ( obj2f ) {
 
@@ -1752,7 +1752,7 @@ void EEIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
 
     imgNameQualMem = "";
 
-    obj2f = EEMUtilsClient::getHisto<TH2F*>( meg02_[ism-1] );
+    obj2f = UtilsClient::getHisto<TH2F*>( meg02_[ism-1] );
 
     if ( obj2f ) {
 

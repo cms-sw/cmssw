@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicClient.cc
  *
- * $Date: 2007/03/13 10:14:25 $
- * $Revision: 1.69 $
+ * $Date: 2007/03/26 17:35:04 $
+ * $Revision: 1.70 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -29,7 +29,7 @@
 #include "OnlineDB/EcalCondDB/interface/MonOccupancyDat.h"
 
 #include <DQM/EcalBarrelMonitorClient/interface/EBCosmicClient.h>
-#include <DQM/EcalBarrelMonitorClient/interface/EBMUtilsClient.h>
+#include <DQM/EcalCommon/interface/UtilsClient.h>
 
 using namespace cms;
 using namespace edm;
@@ -385,7 +385,7 @@ void EBCosmicClient::analyze(void){
       sprintf(histo, (prefixME_+"EcalBarrel/EBCosmicTask/Sel/EBCT energy sel SM%02d").c_str(), ism);
     }
     me = mui_->get(histo);
-    h01_[ism-1] = EBMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, h01_[ism-1] );
+    h01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h01_[ism-1] );
     meh01_[ism-1] = me;
 
     if ( collateSources_ ) {
@@ -394,7 +394,7 @@ void EBCosmicClient::analyze(void){
       sprintf(histo, (prefixME_+"EcalBarrel/EBCosmicTask/Cut/EBCT energy cut SM%02d").c_str(), ism);
     }
     me = mui_->get(histo);
-    h02_[ism-1] = EBMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, h02_[ism-1] );
+    h02_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h02_[ism-1] );
     meh02_[ism-1] = me;
 
     if ( collateSources_ ) {
@@ -403,7 +403,7 @@ void EBCosmicClient::analyze(void){
       sprintf(histo, (prefixME_+"EcalBarrel/EBCosmicTask/Spectrum/EBCT energy spectrum SM%02d").c_str(), ism);
     }
     me = mui_->get(histo);
-    h03_[ism-1] = EBMUtilsClient::getHisto<TH1F*>( me, cloneME_, h03_[ism-1] );
+    h03_[ism-1] = UtilsClient::getHisto<TH1F*>( me, cloneME_, h03_[ism-1] );
     meh03_[ism-1] = me;
 
   }

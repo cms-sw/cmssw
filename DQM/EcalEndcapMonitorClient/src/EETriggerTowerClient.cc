@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerClient.cc
  *
- * $Date: 2007/04/02 16:15:36 $
- * $Revision: 1.1 $
+ * $Date: 2007/04/02 16:42:52 $
+ * $Revision: 1.2 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -29,7 +29,7 @@
 #include "OnlineDB/EcalCondDB/interface/RunIOV.h"
 
 #include <DQM/EcalEndcapMonitorClient/interface/EETriggerTowerClient.h>
-#include <DQM/EcalEndcapMonitorClient/interface/EEMUtilsClient.h>
+#include <DQM/EcalCommon/interface/UtilsClient.h>
 
 using namespace cms;
 using namespace edm;
@@ -380,7 +380,7 @@ void EETriggerTowerClient::analyze(void){
       sprintf(histo, (prefixME_+"EcalEndcap/EETriggerTowerTask/EETTT Et map SM%02d").c_str(), ism);
     }
     me = mui_->get(histo);
-    h01_[ism-1] = EEMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, h01_[ism-1] );
+    h01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h01_[ism-1] );
     meh01_[ism-1] = me;
 
     if ( collateSources_ ) {
@@ -389,7 +389,7 @@ void EETriggerTowerClient::analyze(void){
       sprintf(histo, (prefixME_+"EcalEndcap/EETriggerTowerTask/EETTT FineGrainVeto SM%02d").c_str(), ism);
     }
     me = mui_->get(histo);
-    i01_[ism-1] = EEMUtilsClient::getHisto<TH3F*>( me, cloneME_, i01_[ism-1] );
+    i01_[ism-1] = UtilsClient::getHisto<TH3F*>( me, cloneME_, i01_[ism-1] );
     mei01_[ism-1] = me;
 
     if ( collateSources_ ) {
@@ -398,7 +398,7 @@ void EETriggerTowerClient::analyze(void){
       sprintf(histo, (prefixME_+"EcalEndcap/EETriggerTowerTask/EETTT Flags SM%02d").c_str(), ism);
     }
     me = mui_->get(histo);
-    j01_[ism-1] = EEMUtilsClient::getHisto<TH3F*>( me, cloneME_, j01_[ism-1] );
+    j01_[ism-1] = UtilsClient::getHisto<TH3F*>( me, cloneME_, j01_[ism-1] );
     mej01_[ism-1] = me;
 
     for (int j = 0; j < 68 ; j++) {
@@ -409,7 +409,7 @@ void EETriggerTowerClient::analyze(void){
         sprintf(histo, (prefixME_+"EcalEndcap/EETriggerTowerTask/EnergyMaps/EETTT Et T SM%02d TT%02d").c_str(), ism, j+1);
       }
       me = mui_->get(histo);
-      k01_[ism-1][j] = EEMUtilsClient::getHisto<TH1F*>( me, cloneME_, k01_[ism-1][j] );
+      k01_[ism-1][j] = UtilsClient::getHisto<TH1F*>( me, cloneME_, k01_[ism-1][j] );
       mek01_[ism-1][j] = me;
 
       if ( collateSources_ ) {
@@ -418,7 +418,7 @@ void EETriggerTowerClient::analyze(void){
         sprintf(histo, (prefixME_+"EcalEndcap/EETriggerTowerTask/EnergyMaps/EETTT Et R SM%02d TT%02d").c_str(), ism, j+1);
       }
       me = mui_->get(histo);
-      k02_[ism-1][j] = EEMUtilsClient::getHisto<TH1F*>( me, cloneME_, k02_[ism-1][j] );
+      k02_[ism-1][j] = UtilsClient::getHisto<TH1F*>( me, cloneME_, k02_[ism-1][j] );
       mek02_[ism-1][j] = me;
 
     }

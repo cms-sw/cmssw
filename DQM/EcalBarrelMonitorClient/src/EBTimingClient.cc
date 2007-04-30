@@ -1,8 +1,8 @@
 /*
  * \file EBTimingClient.cc
  *
- * $Date: 2007/04/11 06:58:19 $
- * $Revision: 1.20 $
+ * $Date: 2007/04/29 18:13:44 $
+ * $Revision: 1.21 $
  * \author G. Della Ricca
  *
 */
@@ -32,7 +32,7 @@
 
 #include "DQM/EcalCommon/interface/EcalErrorMask.h"
 #include <DQM/EcalBarrelMonitorClient/interface/EBTimingClient.h>
-#include <DQM/EcalBarrelMonitorClient/interface/EBMUtilsClient.h>
+#include <DQM/EcalCommon/interface/UtilsClient.h>
 
 using namespace cms;
 using namespace edm;
@@ -207,7 +207,7 @@ void EBTimingClient::setup(void) {
 
     int ism = superModules_[i];
 
-    EBMUtilsClient::resetHisto( meg01_[ism-1] );
+    UtilsClient::resetHisto( meg01_[ism-1] );
 
     for ( int ie = 1; ie <= 85; ie++ ) {
       for ( int ip = 1; ip <= 20; ip++ ) {
@@ -217,9 +217,9 @@ void EBTimingClient::setup(void) {
       }
     }
 
-    EBMUtilsClient::resetHisto( mea01_[ism-1] );
-    EBMUtilsClient::resetHisto( mep01_[ism-1] );
-    EBMUtilsClient::resetHisto( mer01_[ism-1] );
+    UtilsClient::resetHisto( mea01_[ism-1] );
+    UtilsClient::resetHisto( mep01_[ism-1] );
+    UtilsClient::resetHisto( mer01_[ism-1] );
 
   }
 
@@ -268,9 +268,9 @@ bool EBTimingClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunI
 
   bool status = true;
 
-  EBMUtilsClient::printBadChannels(qth01_[ism-1]);
+  UtilsClient::printBadChannels(qth01_[ism-1]);
 
-  EBMUtilsClient::printBadChannels(qtg01_[ism-1]);
+  UtilsClient::printBadChannels(qtg01_[ism-1]);
 
   return status;
 
@@ -426,13 +426,13 @@ void EBTimingClient::analyze(void){
       sprintf(histo, (prefixME_+"EcalBarrel/EBTimingTask/EBTMT timing SM%02d").c_str(), ism);
     }
     me = mui_->get(histo);
-    h01_[ism-1] = EBMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, h01_[ism-1] );
+    h01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h01_[ism-1] );
     meh01_[ism-1] = me;
 
-    EBMUtilsClient::resetHisto( meg01_[ism-1] );
-    EBMUtilsClient::resetHisto( mea01_[ism-1] );
-    EBMUtilsClient::resetHisto( mep01_[ism-1] );
-    EBMUtilsClient::resetHisto( mer01_[ism-1] );
+    UtilsClient::resetHisto( meg01_[ism-1] );
+    UtilsClient::resetHisto( mea01_[ism-1] );
+    UtilsClient::resetHisto( mep01_[ism-1] );
+    UtilsClient::resetHisto( mer01_[ism-1] );
 
     for ( int ie = 1; ie <= 85; ie++ ) {
       for ( int ip = 1; ip <= 20; ip++ ) {
@@ -445,7 +445,7 @@ void EBTimingClient::analyze(void){
         float mean01;
         float rms01;
 
-        update01 = EBMUtilsClient::getBinStats(h01_[ism-1], ie, ip, num01, mean01, rms01);
+        update01 = UtilsClient::getBinStats(h01_[ism-1], ie, ip, num01, mean01, rms01);
 
         if ( update01 ) {
 
@@ -585,7 +585,7 @@ void EBTimingClient::htmlOutput(int run, string htmlDir, string htmlName){
     imgNameQual = "";
 
     obj2f = 0;
-    obj2f = EBMUtilsClient::getHisto<TH2F*>( meg01_[ism-1] );
+    obj2f = UtilsClient::getHisto<TH2F*>( meg01_[ism-1] );
 
     if ( obj2f ) {
 
@@ -620,7 +620,7 @@ void EBTimingClient::htmlOutput(int run, string htmlDir, string htmlName){
     imgNameTim = "";
 
     obj1f = 0;
-    obj1f = EBMUtilsClient::getHisto<TH1F*>( mea01_[ism-1] );
+    obj1f = UtilsClient::getHisto<TH1F*>( mea01_[ism-1] );
 
     if ( obj1f ) {
 
@@ -656,7 +656,7 @@ void EBTimingClient::htmlOutput(int run, string htmlDir, string htmlName){
     imgNameMean = "";
 
     obj1f = 0;
-    obj1f = EBMUtilsClient::getHisto<TH1F*>( mep01_[ism-1] );
+    obj1f = UtilsClient::getHisto<TH1F*>( mep01_[ism-1] );
 
     if ( obj1f ) {
 
@@ -688,7 +688,7 @@ void EBTimingClient::htmlOutput(int run, string htmlDir, string htmlName){
     // RMS distributions
 
     obj1f = 0;
-    obj1f = EBMUtilsClient::getHisto<TH1F*>( mer01_[ism-1] );
+    obj1f = UtilsClient::getHisto<TH1F*>( mer01_[ism-1] );
 
     imgNameRMS = "";
 

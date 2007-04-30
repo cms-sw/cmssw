@@ -1,8 +1,8 @@
 /*
  * \file EEBeamHodoClient.cc
  *
- * $Date: 2007/04/02 16:15:36 $
- * $Revision: 1.1 $
+ * $Date: 2007/04/07 11:57:05 $
+ * $Revision: 1.2 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -28,7 +28,7 @@
 #include "OnlineDB/EcalCondDB/interface/MonOccupancyDat.h"
 
 #include <DQM/EcalEndcapMonitorClient/interface/EEBeamHodoClient.h>
-#include <DQM/EcalEndcapMonitorClient/interface/EEMUtilsClient.h>
+#include <DQM/EcalCommon/interface/UtilsClient.h>
 
 using namespace cms;
 using namespace edm;
@@ -507,14 +507,14 @@ void EEBeamHodoClient::analyze(void){
       sprintf(histo, (prefixME_+"EcalEndcap/EEBeamHodoTask/EEBHT occup SM%02d %02d").c_str(), smId, i+1);
     }
     me = mui_->get(histo);
-    ho01_[i] = EEMUtilsClient::getHisto<TH1F*>( me, cloneME_, ho01_[i] );
+    ho01_[i] = UtilsClient::getHisto<TH1F*>( me, cloneME_, ho01_[i] );
 
     if ( collateSources_ ) {
     } else {
       sprintf(histo, (prefixME_+"EcalEndcap/EEBeamHodoTask/EEBHT raw SM%02d %02d").c_str(), smId, i+1);
     }
     me = mui_->get(histo);
-    hr01_[i] = EEMUtilsClient::getHisto<TH1F*>( me, cloneME_, hr01_[i] );
+    hr01_[i] = UtilsClient::getHisto<TH1F*>( me, cloneME_, hr01_[i] );
 
   }
 
@@ -523,133 +523,133 @@ void EEBeamHodoClient::analyze(void){
     sprintf(histo, (prefixME_+"EcalEndcap/EEBeamHodoTask/EEBHT PosX rec SM%02d").c_str(), smId);
   }
   me = mui_->get(histo);
-  hp01_[0] = EEMUtilsClient::getHisto<TH1F*>( me, cloneME_, hp01_[0] );
+  hp01_[0] = UtilsClient::getHisto<TH1F*>( me, cloneME_, hp01_[0] );
 
   if ( collateSources_ ) {
   } else {
     sprintf(histo, (prefixME_+"EcalEndcap/EEBeamHodoTask/EEBHT PosY rec SM%02d").c_str(), smId);
   }
   me = mui_->get(histo);
-  hp01_[1] = EEMUtilsClient::getHisto<TH1F*>( me, cloneME_, hp01_[1] );
+  hp01_[1] = UtilsClient::getHisto<TH1F*>( me, cloneME_, hp01_[1] );
 
   if ( collateSources_ ) {
   } else {
     sprintf(histo, (prefixME_+"EcalEndcap/EEBeamHodoTask/EEBHT PosYX rec SM%02d").c_str(), smId);
   }
   me = mui_->get(histo);
-  hp02_ = EEMUtilsClient::getHisto<TH2F*>( me, cloneME_, hp02_ );
+  hp02_ = UtilsClient::getHisto<TH2F*>( me, cloneME_, hp02_ );
 
   if ( collateSources_ ) {
   } else {
     sprintf(histo, (prefixME_+"EcalEndcap/EEBeamHodoTask/EEBHT SloX SM%02d").c_str(), smId);
   }
   me = mui_->get(histo);
-  hs01_[0] = EEMUtilsClient::getHisto<TH1F*>( me, cloneME_, hs01_[0] );
+  hs01_[0] = UtilsClient::getHisto<TH1F*>( me, cloneME_, hs01_[0] );
 
   if ( collateSources_ ) {
   } else {
     sprintf(histo, (prefixME_+"EcalEndcap/EEBeamHodoTask/EEBHT SloY SM%02d").c_str(), smId);
   }
   me = mui_->get(histo);
-  hs01_[1] = EEMUtilsClient::getHisto<TH1F*>( me, cloneME_, hs01_[1] );
+  hs01_[1] = UtilsClient::getHisto<TH1F*>( me, cloneME_, hs01_[1] );
 
   if ( collateSources_ ) {
   } else {
     sprintf(histo, (prefixME_+"EcalEndcap/EEBeamHodoTask/EEBHT QualX SM%02d").c_str(), smId);
   }
   me = mui_->get(histo);
-  hq01_[0] = EEMUtilsClient::getHisto<TH1F*>( me, cloneME_, hq01_[0] );
+  hq01_[0] = UtilsClient::getHisto<TH1F*>( me, cloneME_, hq01_[0] );
 
   if ( collateSources_ ) {
   } else {
     sprintf(histo, (prefixME_+"EcalEndcap/EEBeamHodoTask/EEBHT QualY SM%02d").c_str(), smId);
   }
   me = mui_->get(histo);
-  hq01_[1] = EEMUtilsClient::getHisto<TH1F*>( me, cloneME_, hq01_[1] );
+  hq01_[1] = UtilsClient::getHisto<TH1F*>( me, cloneME_, hq01_[1] );
 
   if ( collateSources_ ) {
   } else {
     sprintf(histo, (prefixME_+"EcalEndcap/EEBeamHodoTask/EEBHT TDC rec SM%02d").c_str(), smId);
   }
   me = mui_->get(histo);
-  ht01_ = EEMUtilsClient::getHisto<TH1F*>( me, cloneME_, ht01_ );
+  ht01_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, ht01_ );
 
   if ( collateSources_ ) {
   } else {
     sprintf(histo, (prefixME_+"EcalEndcap/EEBeamHodoTask/EEBHT Hodo-Calo X vs Cry SM%02d").c_str(), smId);
   }
   me = mui_->get(histo);
-  hc01_[0] = EEMUtilsClient::getHisto<TH1F*>( me, cloneME_, hc01_[0] );
+  hc01_[0] = UtilsClient::getHisto<TH1F*>( me, cloneME_, hc01_[0] );
 
   if ( collateSources_ ) {
   } else {
     sprintf(histo, (prefixME_+"EcalEndcap/EEBeamHodoTask/EEBHT Hodo-Calo Y vs Cry SM%02d").c_str(), smId);
   }
   me = mui_->get(histo);
-  hc01_[1] = EEMUtilsClient::getHisto<TH1F*>( me, cloneME_, hc01_[1] );
+  hc01_[1] = UtilsClient::getHisto<TH1F*>( me, cloneME_, hc01_[1] );
 
   if ( collateSources_ ) {
   } else {
     sprintf(histo, (prefixME_+"EcalEndcap/EEBeamHodoTask/EEBHT TDC-Calo vs Cry SM%02d").c_str(), smId);
   }
   me = mui_->get(histo);
-  hc01_[2] = EEMUtilsClient::getHisto<TH1F*>( me, cloneME_, hc01_[2] );
+  hc01_[2] = UtilsClient::getHisto<TH1F*>( me, cloneME_, hc01_[2] );
 
   if ( collateSources_ ) {
   } else {
     sprintf(histo, (prefixME_+"EcalEndcap/EEBeamHodoTask/EEBHT Missing Collections SM%02d").c_str(), smId);
   }
   me = mui_->get(histo);
-  hm01_ = EEMUtilsClient::getHisto<TH1F*>( me, cloneME_, hm01_ );
+  hm01_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, hm01_ );
 
   if ( collateSources_ ) {
   } else {
     sprintf(histo, (prefixME_+"EcalEndcap/EEBeamHodoTask/EEBHT prof E1 vs X SM%02d").c_str(), smId);
   }
   me = mui_->get(histo);
-  he01_[0] = EEMUtilsClient::getHisto<TProfile*>( me, cloneME_, he01_[0] );
+  he01_[0] = UtilsClient::getHisto<TProfile*>( me, cloneME_, he01_[0] );
 
   if ( collateSources_ ) {
   } else {
     sprintf(histo, (prefixME_+"EcalEndcap/EEBeamHodoTask/EEBHT prof E1 vs Y SM%02d").c_str(), smId);
   }
   me = mui_->get(histo);
-  he01_[1] = EEMUtilsClient::getHisto<TProfile*>( me, cloneME_, he01_[1] );
+  he01_[1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, he01_[1] );
 
   if ( collateSources_ ) {
   } else {
     sprintf(histo, (prefixME_+"EcalEndcap/EEBeamHodoTask/EEBHT his E1 vs X SM%02d").c_str(), smId);
   }
   me = mui_->get(histo);
-  he02_[0] = EEMUtilsClient::getHisto<TH2F*>( me, cloneME_, he02_[0] );
+  he02_[0] = UtilsClient::getHisto<TH2F*>( me, cloneME_, he02_[0] );
 
   if ( collateSources_ ) {
   } else {
     sprintf(histo, (prefixME_+"EcalEndcap/EEBeamHodoTask/EEBHT his E1 vs Y SM%02d").c_str(), smId);
   }
   me = mui_->get(histo);
-  he02_[1] = EEMUtilsClient::getHisto<TH2F*>( me, cloneME_, he02_[1] );
+  he02_[1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, he02_[1] );
 
   if ( collateSources_ ) {
   } else {
     sprintf(histo, (prefixME_+"EcalEndcap/EEBeamHodoTask/EEBHT PosX Hodo-Calo SM%02d").c_str(), smId);
   }
   me = mui_->get(histo);
-  he03_[0] = EEMUtilsClient::getHisto<TH1F*>( me, cloneME_, he03_[0] );
+  he03_[0] = UtilsClient::getHisto<TH1F*>( me, cloneME_, he03_[0] );
 
   if ( collateSources_ ) {
   } else {
     sprintf(histo, (prefixME_+"EcalEndcap/EEBeamHodoTask/EEBHT PosY Hodo-Calo SM%02d").c_str(), smId);
   }
   me = mui_->get(histo);
-  he03_[1] = EEMUtilsClient::getHisto<TH1F*>( me, cloneME_, he03_[1] );
+  he03_[1] = UtilsClient::getHisto<TH1F*>( me, cloneME_, he03_[1] );
 
   if ( collateSources_ ) {
   } else {
     sprintf(histo, (prefixME_+"EcalEndcap/EEBeamHodoTask/EEBHT TimeMax TDC-Calo SM%02d").c_str(), smId);
   }
   me = mui_->get(histo);
-  he03_[2] = EEMUtilsClient::getHisto<TH1F*>( me, cloneME_, he03_[2] );
+  he03_[2] = UtilsClient::getHisto<TH1F*>( me, cloneME_, he03_[2] );
 
 }
 

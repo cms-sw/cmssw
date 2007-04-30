@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalOnlineClient.cc
  *
- * $Date: 2007/04/02 16:15:36 $
- * $Revision: 1.1 $
+ * $Date: 2007/04/11 06:50:38 $
+ * $Revision: 1.2 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -33,7 +33,7 @@
 
 #include "DQM/EcalCommon/interface/EcalErrorMask.h"
 #include <DQM/EcalEndcapMonitorClient/interface/EEPedestalOnlineClient.h>
-#include <DQM/EcalEndcapMonitorClient/interface/EEMUtilsClient.h>
+#include <DQM/EcalCommon/interface/UtilsClient.h>
 
 using namespace cms;
 using namespace edm;
@@ -193,7 +193,7 @@ void EEPedestalOnlineClient::setup(void) {
 
     int ism = superModules_[i];
 
-    EEMUtilsClient::resetHisto( meg03_[ism-1] );
+    UtilsClient::resetHisto( meg03_[ism-1] );
 
     for ( int ie = 1; ie <= 85; ie++ ) {
       for ( int ip = 1; ip <= 20; ip++ ) {
@@ -203,8 +203,8 @@ void EEPedestalOnlineClient::setup(void) {
       }
     }
 
-    EEMUtilsClient::resetHisto( mep03_[ism-1] );
-    EEMUtilsClient::resetHisto( mer03_[ism-1] );
+    UtilsClient::resetHisto( mep03_[ism-1] );
+    UtilsClient::resetHisto( mer03_[ism-1] );
 
   }
 
@@ -250,7 +250,7 @@ bool EEPedestalOnlineClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov,
 
   bool status = true;
 
-  EEMUtilsClient::printBadChannels(qth03_[ism-1]);
+  UtilsClient::printBadChannels(qth03_[ism-1]);
 
   EcalLogicID ecid;
   MonPedestalsOnlineDat p;
@@ -265,7 +265,7 @@ bool EEPedestalOnlineClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov,
 
       bool update03;
 
-      update03 = EEMUtilsClient::getBinStats(h03_[ism-1], ie, ip, num03, mean03, rms03);
+      update03 = UtilsClient::getBinStats(h03_[ism-1], ie, ip, num03, mean03, rms03);
 
       if ( update03 ) {
 
@@ -288,7 +288,7 @@ bool EEPedestalOnlineClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov,
           p.setTaskStatus(false);
         }
 
-        status = status && EEMUtilsClient::getBinQual(meg03_[ism-1], ie, ip);
+        status = status && UtilsClient::getBinQual(meg03_[ism-1], ie, ip);
 
         int ic = (ip-1) + 20*(ie-1) + 1;
 
@@ -467,12 +467,12 @@ void EEPedestalOnlineClient::analyze(void){
       sprintf(histo, (prefixME_+"EcalEndcap/EEPedestalOnlineTask/Gain12/EEPOT pedestal SM%02d G12").c_str(), ism);
     }
     me = mui_->get(histo);
-    h03_[ism-1] = EEMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, h03_[ism-1] );
+    h03_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h03_[ism-1] );
     meh03_[ism-1] = me;
 
-    EEMUtilsClient::resetHisto( meg03_[ism-1] );
-    EEMUtilsClient::resetHisto( mep03_[ism-1] );
-    EEMUtilsClient::resetHisto( mer03_[ism-1] );
+    UtilsClient::resetHisto( meg03_[ism-1] );
+    UtilsClient::resetHisto( mep03_[ism-1] );
+    UtilsClient::resetHisto( mer03_[ism-1] );
 
     for ( int ie = 1; ie <= 85; ie++ ) {
       for ( int ip = 1; ip <= 20; ip++ ) {
@@ -485,7 +485,7 @@ void EEPedestalOnlineClient::analyze(void){
         float mean03;
         float rms03;
 
-        update03 = EEMUtilsClient::getBinStats(h03_[ism-1], ie, ip, num03, mean03, rms03);
+        update03 = UtilsClient::getBinStats(h03_[ism-1], ie, ip, num03, mean03, rms03);
 
         if ( update03 ) {
 
@@ -616,7 +616,7 @@ void EEPedestalOnlineClient::htmlOutput(int run, string htmlDir, string htmlName
     imgNameQual = "";
 
     obj2f = 0;
-    obj2f = EEMUtilsClient::getHisto<TH2F*>( meg03_[ism-1] );
+    obj2f = UtilsClient::getHisto<TH2F*>( meg03_[ism-1] );
 
     if ( obj2f ) {
 
@@ -651,7 +651,7 @@ void EEPedestalOnlineClient::htmlOutput(int run, string htmlDir, string htmlName
     imgNameMean = "";
 
     obj1f = 0;
-    obj1f = EEMUtilsClient::getHisto<TH1F*>( mep03_[ism-1] );
+    obj1f = UtilsClient::getHisto<TH1F*>( mep03_[ism-1] );
 
     if ( obj1f ) {
 
@@ -683,7 +683,7 @@ void EEPedestalOnlineClient::htmlOutput(int run, string htmlDir, string htmlName
     // RMS distributions
 
     obj1f = 0;
-    obj1f = EEMUtilsClient::getHisto<TH1F*>( mer03_[ism-1] );
+    obj1f = UtilsClient::getHisto<TH1F*>( mer03_[ism-1] );
 
     imgNameRMS = "";
 

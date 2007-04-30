@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerClient.cc
  *
- * $Date: 2007/04/02 09:36:19 $
- * $Revision: 1.36 $
+ * $Date: 2007/04/02 09:45:56 $
+ * $Revision: 1.37 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -29,7 +29,7 @@
 #include "OnlineDB/EcalCondDB/interface/RunIOV.h"
 
 #include <DQM/EcalBarrelMonitorClient/interface/EBTriggerTowerClient.h>
-#include <DQM/EcalBarrelMonitorClient/interface/EBMUtilsClient.h>
+#include <DQM/EcalCommon/interface/UtilsClient.h>
 
 using namespace cms;
 using namespace edm;
@@ -380,7 +380,7 @@ void EBTriggerTowerClient::analyze(void){
       sprintf(histo, (prefixME_+"EcalBarrel/EBTriggerTowerTask/EBTTT Et map SM%02d").c_str(), ism);
     }
     me = mui_->get(histo);
-    h01_[ism-1] = EBMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, h01_[ism-1] );
+    h01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h01_[ism-1] );
     meh01_[ism-1] = me;
 
     if ( collateSources_ ) {
@@ -389,7 +389,7 @@ void EBTriggerTowerClient::analyze(void){
       sprintf(histo, (prefixME_+"EcalBarrel/EBTriggerTowerTask/EBTTT FineGrainVeto SM%02d").c_str(), ism);
     }
     me = mui_->get(histo);
-    i01_[ism-1] = EBMUtilsClient::getHisto<TH3F*>( me, cloneME_, i01_[ism-1] );
+    i01_[ism-1] = UtilsClient::getHisto<TH3F*>( me, cloneME_, i01_[ism-1] );
     mei01_[ism-1] = me;
 
     if ( collateSources_ ) {
@@ -398,7 +398,7 @@ void EBTriggerTowerClient::analyze(void){
       sprintf(histo, (prefixME_+"EcalBarrel/EBTriggerTowerTask/EBTTT Flags SM%02d").c_str(), ism);
     }
     me = mui_->get(histo);
-    j01_[ism-1] = EBMUtilsClient::getHisto<TH3F*>( me, cloneME_, j01_[ism-1] );
+    j01_[ism-1] = UtilsClient::getHisto<TH3F*>( me, cloneME_, j01_[ism-1] );
     mej01_[ism-1] = me;
 
     for (int j = 0; j < 68 ; j++) {
@@ -409,7 +409,7 @@ void EBTriggerTowerClient::analyze(void){
         sprintf(histo, (prefixME_+"EcalBarrel/EBTriggerTowerTask/EnergyMaps/EBTTT Et T SM%02d TT%02d").c_str(), ism, j+1);
       }
       me = mui_->get(histo);
-      k01_[ism-1][j] = EBMUtilsClient::getHisto<TH1F*>( me, cloneME_, k01_[ism-1][j] );
+      k01_[ism-1][j] = UtilsClient::getHisto<TH1F*>( me, cloneME_, k01_[ism-1][j] );
       mek01_[ism-1][j] = me;
 
       if ( collateSources_ ) {
@@ -418,7 +418,7 @@ void EBTriggerTowerClient::analyze(void){
         sprintf(histo, (prefixME_+"EcalBarrel/EBTriggerTowerTask/EnergyMaps/EBTTT Et R SM%02d TT%02d").c_str(), ism, j+1);
       }
       me = mui_->get(histo);
-      k02_[ism-1][j] = EBMUtilsClient::getHisto<TH1F*>( me, cloneME_, k02_[ism-1][j] );
+      k02_[ism-1][j] = UtilsClient::getHisto<TH1F*>( me, cloneME_, k02_[ism-1][j] );
       mek02_[ism-1][j] = me;
 
     }

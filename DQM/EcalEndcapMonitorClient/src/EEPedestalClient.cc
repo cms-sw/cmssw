@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalClient.cc
  *
- * $Date: 2007/04/02 16:15:36 $
- * $Revision: 1.1 $
+ * $Date: 2007/04/11 06:50:38 $
+ * $Revision: 1.2 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -35,7 +35,7 @@
 
 #include "DQM/EcalCommon/interface/EcalErrorMask.h"
 #include <DQM/EcalEndcapMonitorClient/interface/EEPedestalClient.h>
-#include <DQM/EcalEndcapMonitorClient/interface/EEMUtilsClient.h>
+#include <DQM/EcalCommon/interface/UtilsClient.h>
 
 using namespace cms;
 using namespace edm;
@@ -315,9 +315,9 @@ void EEPedestalClient::setup(void) {
 
     int ism = superModules_[i];
 
-    EEMUtilsClient::resetHisto( meg01_[ism-1] );
-    EEMUtilsClient::resetHisto( meg02_[ism-1] );
-    EEMUtilsClient::resetHisto( meg03_[ism-1] );
+    UtilsClient::resetHisto( meg01_[ism-1] );
+    UtilsClient::resetHisto( meg02_[ism-1] );
+    UtilsClient::resetHisto( meg03_[ism-1] );
 
     for ( int ie = 1; ie <= 85; ie++ ) {
       for ( int ip = 1; ip <= 20; ip++ ) {
@@ -336,21 +336,21 @@ void EEPedestalClient::setup(void) {
 
     }
 
-    EEMUtilsClient::resetHisto( mep01_[ism-1] );
-    EEMUtilsClient::resetHisto( mep02_[ism-1] );
-    EEMUtilsClient::resetHisto( mep03_[ism-1] );
+    UtilsClient::resetHisto( mep01_[ism-1] );
+    UtilsClient::resetHisto( mep02_[ism-1] );
+    UtilsClient::resetHisto( mep03_[ism-1] );
 
-    EEMUtilsClient::resetHisto( mer01_[ism-1] );
-    EEMUtilsClient::resetHisto( mer02_[ism-1] );
-    EEMUtilsClient::resetHisto( mer03_[ism-1] );
+    UtilsClient::resetHisto( mer01_[ism-1] );
+    UtilsClient::resetHisto( mer02_[ism-1] );
+    UtilsClient::resetHisto( mer03_[ism-1] );
 
-    EEMUtilsClient::resetHisto( mes01_[ism-1] );
-    EEMUtilsClient::resetHisto( mes02_[ism-1] );
-    EEMUtilsClient::resetHisto( mes03_[ism-1] );
+    UtilsClient::resetHisto( mes01_[ism-1] );
+    UtilsClient::resetHisto( mes02_[ism-1] );
+    UtilsClient::resetHisto( mes03_[ism-1] );
 
-    EEMUtilsClient::resetHisto( met01_[ism-1] );
-    EEMUtilsClient::resetHisto( met02_[ism-1] );
-    EEMUtilsClient::resetHisto( met03_[ism-1] );
+    UtilsClient::resetHisto( met01_[ism-1] );
+    UtilsClient::resetHisto( met02_[ism-1] );
+    UtilsClient::resetHisto( met03_[ism-1] );
 
     for ( int ie = 1; ie <= 85; ie++ ) {
       for ( int ip = 1; ip <= 20; ip++ ) {
@@ -465,12 +465,12 @@ bool EEPedestalClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
 
   bool status = true;
 
-  EEMUtilsClient::printBadChannels(qth01_[ism-1]);
-  EEMUtilsClient::printBadChannels(qth02_[ism-1]);
-  EEMUtilsClient::printBadChannels(qth03_[ism-1]);
+  UtilsClient::printBadChannels(qth01_[ism-1]);
+  UtilsClient::printBadChannels(qth02_[ism-1]);
+  UtilsClient::printBadChannels(qth03_[ism-1]);
 
-  EEMUtilsClient::printBadChannels(qth04_[ism-1]);
-  EEMUtilsClient::printBadChannels(qth05_[ism-1]);
+  UtilsClient::printBadChannels(qth04_[ism-1]);
+  UtilsClient::printBadChannels(qth05_[ism-1]);
 
   EcalLogicID ecid;
   MonPedestalsDat p;
@@ -487,9 +487,9 @@ bool EEPedestalClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
       float mean01, mean02, mean03;
       float rms01, rms02, rms03;
 
-      update01 = EEMUtilsClient::getBinStats(h01_[ism-1], ie, ip, num01, mean01, rms01);
-      update02 = EEMUtilsClient::getBinStats(h02_[ism-1], ie, ip, num02, mean02, rms02);
-      update03 = EEMUtilsClient::getBinStats(h03_[ism-1], ie, ip, num03, mean03, rms03);
+      update01 = UtilsClient::getBinStats(h01_[ism-1], ie, ip, num01, mean01, rms01);
+      update02 = UtilsClient::getBinStats(h02_[ism-1], ie, ip, num02, mean02, rms02);
+      update03 = UtilsClient::getBinStats(h03_[ism-1], ie, ip, num03, mean03, rms03);
 
       if ( update01 || update02 || update03 ) {
 
@@ -522,9 +522,9 @@ bool EEPedestalClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
           p.setTaskStatus(false);
         }
 
-        status = status && EEMUtilsClient::getBinQual(meg01_[ism-1], ie, ip) &&
-                           EEMUtilsClient::getBinQual(meg02_[ism-1], ie, ip) &&
-                           EEMUtilsClient::getBinQual(meg03_[ism-1], ie, ip);
+        status = status && UtilsClient::getBinQual(meg01_[ism-1], ie, ip) &&
+                           UtilsClient::getBinQual(meg02_[ism-1], ie, ip) &&
+                           UtilsClient::getBinQual(meg03_[ism-1], ie, ip);
 
         int ic = (ip-1) + 20*(ie-1) + 1;
 
@@ -564,8 +564,8 @@ bool EEPedestalClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
     float mean01, mean02;
     float rms01, rms02;
 
-    update01 = EEMUtilsClient::getBinStats(i01_[ism-1], 1, i, num01, mean01, rms01);
-    update02 = EEMUtilsClient::getBinStats(i02_[ism-1], 1, i, num02, mean02, rms02);
+    update01 = UtilsClient::getBinStats(i01_[ism-1], 1, i, num01, mean01, rms01);
+    update02 = UtilsClient::getBinStats(i02_[ism-1], 1, i, num02, mean02, rms02);
 
     if ( update01 || update02 ) {
 
@@ -593,8 +593,8 @@ bool EEPedestalClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
         pn.setTaskStatus(false);
       }
 
-      status = status && EEMUtilsClient::getBinQual(meg04_[ism-1], i, 1) &&
-                         EEMUtilsClient::getBinQual(meg05_[ism-1], i, 1);
+      status = status && UtilsClient::getBinQual(meg04_[ism-1], i, 1) &&
+                         UtilsClient::getBinQual(meg05_[ism-1], i, 1);
 
       if ( econn ) {
         try {
@@ -932,7 +932,7 @@ void EEPedestalClient::analyze(void){
       sprintf(histo, (prefixME_+"EcalEndcap/EEPedestalTask/Gain01/EEPT pedestal SM%02d G01").c_str(), ism);
     }
     me = mui_->get(histo);
-    h01_[ism-1] = EEMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, h01_[ism-1] );
+    h01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h01_[ism-1] );
 
     if ( collateSources_ ) {
       sprintf(histo, "EcalEndcap/Sums/EEPedestalTask/Gain06/EEPT pedestal SM%02d G06", ism);
@@ -940,7 +940,7 @@ void EEPedestalClient::analyze(void){
       sprintf(histo, (prefixME_+"EcalEndcap/EEPedestalTask/Gain06/EEPT pedestal SM%02d G06").c_str(), ism);
     }
     me = mui_->get(histo);
-    h02_[ism-1] = EEMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, h02_[ism-1] );
+    h02_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h02_[ism-1] );
 
     if ( collateSources_ ) {
       sprintf(histo, "EcalEndcap/Sums/EEPedestalTask/Gain12/EEPT pedestal SM%02d G12", ism);
@@ -948,7 +948,7 @@ void EEPedestalClient::analyze(void){
       sprintf(histo, (prefixME_+"EcalEndcap/EEPedestalTask/Gain12/EEPT pedestal SM%02d G12").c_str(), ism);
     }
     me = mui_->get(histo);
-    h03_[ism-1] = EEMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, h03_[ism-1] );
+    h03_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h03_[ism-1] );
 
     if ( collateSources_ ) {
       sprintf(histo, "EcalEndcap/Sums/EEPedestalTask/Gain01/EEPT pedestal 3sum SM%02d G01", ism);
@@ -956,7 +956,7 @@ void EEPedestalClient::analyze(void){
       sprintf(histo, (prefixME_+"EcalEndcap/EEPedestalTask/Gain01/EEPT pedestal 3sum SM%02d G01").c_str(), ism);
     }
     me = mui_->get(histo);
-    j01_[ism-1] = EEMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, j01_[ism-1] );
+    j01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, j01_[ism-1] );
 
     if ( collateSources_ ) {
       sprintf(histo, "EcalEndcap/Sums/EEPedestalTask/Gain06/EEPT pedestal 3sum SM%02d G06", ism);
@@ -964,7 +964,7 @@ void EEPedestalClient::analyze(void){
       sprintf(histo, (prefixME_+"EcalEndcap/EEPedestalTask/Gain06/EEPT pedestal 3sum SM%02d G06").c_str(), ism);
     }
     me = mui_->get(histo);
-    j02_[ism-1] = EEMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, j02_[ism-1] );
+    j02_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, j02_[ism-1] );
 
     if ( collateSources_ ) {
       sprintf(histo, "EcalEndcap/Sums/EEPedestalTask/Gain12/EEPT pedestal 3sum SM%02d G12", ism);
@@ -972,7 +972,7 @@ void EEPedestalClient::analyze(void){
       sprintf(histo, (prefixME_+"EcalEndcap/EEPedestalTask/Gain12/EEPT pedestal 3sum SM%02d G12").c_str(), ism);
     }
     me = mui_->get(histo);
-    j03_[ism-1] = EEMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, j03_[ism-1] );
+    j03_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, j03_[ism-1] );
 
     if ( collateSources_ ) {
       sprintf(histo, "EcalEndcap/Sums/EEPedestalTask/Gain01/EEPT pedestal 5sum SM%02d G01", ism);
@@ -980,7 +980,7 @@ void EEPedestalClient::analyze(void){
       sprintf(histo, (prefixME_+"EcalEndcap/EEPedestalTask/Gain01/EEPT pedestal 5sum SM%02d G01").c_str(), ism);
     }
     me = mui_->get(histo);
-    k01_[ism-1] = EEMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, k01_[ism-1] );
+    k01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, k01_[ism-1] );
 
     if ( collateSources_ ) {
       sprintf(histo, "EcalEndcap/Sums/EEPedestalTask/Gain06/EEPT pedestal 5sum SM%02d G06", ism);
@@ -988,7 +988,7 @@ void EEPedestalClient::analyze(void){
       sprintf(histo, (prefixME_+"EcalEndcap/EEPedestalTask/Gain06/EEPT pedestal 5sum SM%02d G06").c_str(), ism);
     }
     me = mui_->get(histo);
-    k02_[ism-1] = EEMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, k02_[ism-1] );
+    k02_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, k02_[ism-1] );
 
     if ( collateSources_ ) {
       sprintf(histo, "EcalEndcap/Sums/EEPedestalTask/Gain12/EEPT pedestal 5sum SM%02d G12", ism);
@@ -996,7 +996,7 @@ void EEPedestalClient::analyze(void){
       sprintf(histo, (prefixME_+"EcalEndcap/EEPedestalTask/Gain12/EEPT pedestal 5sum SM%02d G12").c_str(), ism);
     }
     me = mui_->get(histo);
-    k03_[ism-1] = EEMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, k03_[ism-1] );
+    k03_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, k03_[ism-1] );
 
     if ( collateSources_ ) {
       sprintf(histo, "EcalEndcap/Sums/EEPnDiodeTask/Gain01/EEPDT PNs pedestal SM%02d G01", ism);
@@ -1004,7 +1004,7 @@ void EEPedestalClient::analyze(void){
       sprintf(histo, (prefixME_+"EcalEndcap/EEPnDiodeTask/Gain01/EEPDT PNs pedestal SM%02d G01").c_str(), ism);
     }
     me = mui_->get(histo);
-    i01_[ism-1] = EEMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, i01_[ism-1] );
+    i01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i01_[ism-1] );
 
     if ( collateSources_ ) {
       sprintf(histo, "EcalEndcap/Sums/EEPnDiodeTask/Gain16/EEPDT PNs pedestal SM%02d G16", ism);
@@ -1012,30 +1012,30 @@ void EEPedestalClient::analyze(void){
       sprintf(histo, (prefixME_+"EcalEndcap/EEPnDiodeTask/Gain16/EEPDT PNs pedestal SM%02d G16").c_str(), ism);
     }
     me = mui_->get(histo);
-    i02_[ism-1] = EEMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, i02_[ism-1] );
+    i02_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i02_[ism-1] );
 
-    EEMUtilsClient::resetHisto( meg01_[ism-1] );
-    EEMUtilsClient::resetHisto( meg02_[ism-1] );
-    EEMUtilsClient::resetHisto( meg03_[ism-1] );
+    UtilsClient::resetHisto( meg01_[ism-1] );
+    UtilsClient::resetHisto( meg02_[ism-1] );
+    UtilsClient::resetHisto( meg03_[ism-1] );
 
-    EEMUtilsClient::resetHisto( meg04_[ism-1] );
-    EEMUtilsClient::resetHisto( meg05_[ism-1] );
+    UtilsClient::resetHisto( meg04_[ism-1] );
+    UtilsClient::resetHisto( meg05_[ism-1] );
 
-    EEMUtilsClient::resetHisto( mep01_[ism-1] );
-    EEMUtilsClient::resetHisto( mep02_[ism-1] );
-    EEMUtilsClient::resetHisto( mep03_[ism-1] );
+    UtilsClient::resetHisto( mep01_[ism-1] );
+    UtilsClient::resetHisto( mep02_[ism-1] );
+    UtilsClient::resetHisto( mep03_[ism-1] );
 
-    EEMUtilsClient::resetHisto( mer01_[ism-1] );
-    EEMUtilsClient::resetHisto( mer02_[ism-1] );
-    EEMUtilsClient::resetHisto( mer03_[ism-1] );
+    UtilsClient::resetHisto( mer01_[ism-1] );
+    UtilsClient::resetHisto( mer02_[ism-1] );
+    UtilsClient::resetHisto( mer03_[ism-1] );
 
-    EEMUtilsClient::resetHisto( mes01_[ism-1] );
-    EEMUtilsClient::resetHisto( mes02_[ism-1] );
-    EEMUtilsClient::resetHisto( mes03_[ism-1] );
+    UtilsClient::resetHisto( mes01_[ism-1] );
+    UtilsClient::resetHisto( mes02_[ism-1] );
+    UtilsClient::resetHisto( mes03_[ism-1] );
 
-    EEMUtilsClient::resetHisto( met01_[ism-1] );
-    EEMUtilsClient::resetHisto( met02_[ism-1] );
-    EEMUtilsClient::resetHisto( met03_[ism-1] );
+    UtilsClient::resetHisto( met01_[ism-1] );
+    UtilsClient::resetHisto( met02_[ism-1] );
+    UtilsClient::resetHisto( met03_[ism-1] );
 
     for ( int ie = 1; ie <= 85; ie++ ) {
       for ( int ip = 1; ip <= 20; ip++ ) {
@@ -1052,9 +1052,9 @@ void EEPedestalClient::analyze(void){
         float mean01, mean02, mean03;
         float rms01, rms02, rms03;
 
-        update01 = EEMUtilsClient::getBinStats(h01_[ism-1], ie, ip, num01, mean01, rms01);
-        update02 = EEMUtilsClient::getBinStats(h02_[ism-1], ie, ip, num02, mean02, rms02);
-        update03 = EEMUtilsClient::getBinStats(h03_[ism-1], ie, ip, num03, mean03, rms03);
+        update01 = UtilsClient::getBinStats(h01_[ism-1], ie, ip, num01, mean01, rms01);
+        update02 = UtilsClient::getBinStats(h02_[ism-1], ie, ip, num02, mean02, rms02);
+        update03 = UtilsClient::getBinStats(h03_[ism-1], ie, ip, num03, mean03, rms03);
 
         if ( update01 ) {
 
@@ -1153,8 +1153,8 @@ void EEPedestalClient::analyze(void){
       float mean01, mean02;
       float rms01, rms02;
 
-      update01 = EEMUtilsClient::getBinStats(i01_[ism-1], 1, i, num01, mean01, rms01);
-      update02 = EEMUtilsClient::getBinStats(i02_[ism-1], 1, i, num02, mean02, rms02);
+      update01 = UtilsClient::getBinStats(i01_[ism-1], 1, i, num01, mean01, rms01);
+      update02 = UtilsClient::getBinStats(i02_[ism-1], 1, i, num02, mean02, rms02);
 
       if ( update01 ) {
 
@@ -1496,13 +1496,13 @@ void EEPedestalClient::htmlOutput(int run, string htmlDir, string htmlName){
       obj2f = 0;
       switch ( iCanvas ) {
         case 1:
-          obj2f = EEMUtilsClient::getHisto<TH2F*>( meg01_[ism-1] );
+          obj2f = UtilsClient::getHisto<TH2F*>( meg01_[ism-1] );
           break;
         case 2:
-          obj2f = EEMUtilsClient::getHisto<TH2F*>( meg02_[ism-1] );
+          obj2f = UtilsClient::getHisto<TH2F*>( meg02_[ism-1] );
           break;
         case 3:
-          obj2f = EEMUtilsClient::getHisto<TH2F*>( meg03_[ism-1] );
+          obj2f = UtilsClient::getHisto<TH2F*>( meg03_[ism-1] );
           break;
         default:
           break;
@@ -1543,13 +1543,13 @@ void EEPedestalClient::htmlOutput(int run, string htmlDir, string htmlName){
       obj1f = 0;
       switch ( iCanvas ) {
         case 1:
-          obj1f = EEMUtilsClient::getHisto<TH1F*>( mep01_[ism-1] );
+          obj1f = UtilsClient::getHisto<TH1F*>( mep01_[ism-1] );
           break;
         case 2:
-          obj1f = EEMUtilsClient::getHisto<TH1F*>( mep02_[ism-1] );
+          obj1f = UtilsClient::getHisto<TH1F*>( mep02_[ism-1] );
           break;
         case 3:
-          obj1f = EEMUtilsClient::getHisto<TH1F*>( mep03_[ism-1] );
+          obj1f = UtilsClient::getHisto<TH1F*>( mep03_[ism-1] );
           break;
         default:
             break;
@@ -1589,13 +1589,13 @@ void EEPedestalClient::htmlOutput(int run, string htmlDir, string htmlName){
       obj1f = 0;
       switch ( iCanvas ) {
         case 1:
-          obj1f = EEMUtilsClient::getHisto<TH1F*>( mer01_[ism-1] );
+          obj1f = UtilsClient::getHisto<TH1F*>( mer01_[ism-1] );
           break;
         case 2:
-          obj1f = EEMUtilsClient::getHisto<TH1F*>( mer02_[ism-1] );
+          obj1f = UtilsClient::getHisto<TH1F*>( mer02_[ism-1] );
           break;
         case 3:
-          obj1f = EEMUtilsClient::getHisto<TH1F*>( mer03_[ism-1] );
+          obj1f = UtilsClient::getHisto<TH1F*>( mer03_[ism-1] );
           break;
         default:
           break;
@@ -1635,13 +1635,13 @@ void EEPedestalClient::htmlOutput(int run, string htmlDir, string htmlName){
       obj2f = 0;
       switch ( iCanvas ) {
         case 1:
-          obj2f = EEMUtilsClient::getHisto<TH2F*>( mes01_[ism-1] );
+          obj2f = UtilsClient::getHisto<TH2F*>( mes01_[ism-1] );
           break;
         case 2:
-          obj2f = EEMUtilsClient::getHisto<TH2F*>( mes02_[ism-1] );
+          obj2f = UtilsClient::getHisto<TH2F*>( mes02_[ism-1] );
           break;
         case 3:
-          obj2f = EEMUtilsClient::getHisto<TH2F*>( mes03_[ism-1] );
+          obj2f = UtilsClient::getHisto<TH2F*>( mes03_[ism-1] );
           break;
         default:
           break;
@@ -1682,13 +1682,13 @@ void EEPedestalClient::htmlOutput(int run, string htmlDir, string htmlName){
       obj2f = 0;
       switch ( iCanvas ) {
         case 1:
-          obj2f = EEMUtilsClient::getHisto<TH2F*>( met01_[ism-1] );
+          obj2f = UtilsClient::getHisto<TH2F*>( met01_[ism-1] );
           break;
         case 2:
-          obj2f = EEMUtilsClient::getHisto<TH2F*>( met02_[ism-1] );
+          obj2f = UtilsClient::getHisto<TH2F*>( met02_[ism-1] );
           break;
         case 3:
-          obj2f = EEMUtilsClient::getHisto<TH2F*>( met03_[ism-1] );
+          obj2f = UtilsClient::getHisto<TH2F*>( met03_[ism-1] );
           break;
         default:
           break;
@@ -1735,10 +1735,10 @@ void EEPedestalClient::htmlOutput(int run, string htmlDir, string htmlName){
       obj2f = 0;
       switch ( iCanvas ) {
       case 1:
-        obj2f = EEMUtilsClient::getHisto<TH2F*>( meg04_[ism-1] );
+        obj2f = UtilsClient::getHisto<TH2F*>( meg04_[ism-1] );
         break;
       case 2:
-        obj2f = EEMUtilsClient::getHisto<TH2F*>( meg05_[ism-1] );
+        obj2f = UtilsClient::getHisto<TH2F*>( meg05_[ism-1] );
         break;
       default:
         break;

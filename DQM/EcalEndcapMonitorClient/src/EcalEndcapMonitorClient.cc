@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2007/04/25 15:04:23 $
- * $Revision: 1.11 $
+ * $Date: 2007/04/26 16:42:00 $
+ * $Revision: 1.12 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -32,7 +32,7 @@
 #include "OnlineDB/EcalCondDB/interface/MonRunDat.h"
 
 
-#include <DQM/EcalEndcapMonitorClient/interface/EEMUtilsClient.h>
+#include <DQM/EcalCommon/interface/UtilsClient.h>
 #include "DQM/EcalCommon/interface/EcalErrorMask.h"
 #include "DQM/EcalCommon/interface/ColorPalette.h"
 
@@ -1202,7 +1202,7 @@ void EcalEndcapMonitorClient::analyze(void){
       sprintf(histo, (prefixME_+"EcalEndcap/EcalInfo/EVTTYPE").c_str());
     }
     me = mui_->get(histo);
-    h_ = EEMUtilsClient::getHisto<TH1F*>( me, cloneME_, h_ );
+    h_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, h_ );
 
     sprintf(histo, (prefixME_+"EcalEndcap/EcalInfo/RUNTYPE").c_str());
     me = mui_->get(histo);

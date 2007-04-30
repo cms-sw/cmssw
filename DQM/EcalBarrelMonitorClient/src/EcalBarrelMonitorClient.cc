@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2007/04/29 16:39:57 $
- * $Revision: 1.256 $
+ * $Date: 2007/04/29 22:25:12 $
+ * $Revision: 1.257 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -33,7 +33,7 @@
 #include "OnlineDB/EcalCondDB/interface/RunDat.h"
 #include "OnlineDB/EcalCondDB/interface/MonRunDat.h"
 
-#include <DQM/EcalBarrelMonitorClient/interface/EBMUtilsClient.h>
+#include <DQM/EcalCommon/interface/UtilsClient.h>
 #include "DQM/EcalCommon/interface/EcalErrorMask.h"
 #include "DQM/EcalCommon/interface/ColorPalette.h"
 
@@ -1210,7 +1210,7 @@ void EcalBarrelMonitorClient::analyze(void){
       sprintf(histo, (prefixME_+"EcalBarrel/EcalInfo/EVTTYPE").c_str());
     }
     me = mui_->get(histo);
-    h_ = EBMUtilsClient::getHisto<TH1F*>( me, cloneME_, h_ );
+    h_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, h_ );
 
     sprintf(histo, (prefixME_+"EcalBarrel/EcalInfo/RUNTYPE").c_str());
     me = mui_->get(histo);

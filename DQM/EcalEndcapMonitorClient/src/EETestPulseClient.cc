@@ -1,8 +1,8 @@
 /*
  * \file EETestPulseClient.cc
  *
- * $Date: 2007/04/02 16:15:36 $
- * $Revision: 1.1 $
+ * $Date: 2007/04/11 06:50:38 $
+ * $Revision: 1.2 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -36,7 +36,7 @@
 
 #include "DQM/EcalCommon/interface/EcalErrorMask.h"
 #include <DQM/EcalEndcapMonitorClient/interface/EETestPulseClient.h>
-#include <DQM/EcalEndcapMonitorClient/interface/EEMUtilsClient.h>
+#include <DQM/EcalCommon/interface/UtilsClient.h>
 
 using namespace cms;
 using namespace edm;
@@ -286,12 +286,12 @@ void EETestPulseClient::setup(void) {
 
     int ism = superModules_[i];
 
-    EEMUtilsClient::resetHisto( meg01_[ism-1] );
-    EEMUtilsClient::resetHisto( meg02_[ism-1] );
-    EEMUtilsClient::resetHisto( meg03_[ism-1] );
+    UtilsClient::resetHisto( meg01_[ism-1] );
+    UtilsClient::resetHisto( meg02_[ism-1] );
+    UtilsClient::resetHisto( meg03_[ism-1] );
 
-    EEMUtilsClient::resetHisto( meg04_[ism-1] );
-    EEMUtilsClient::resetHisto( meg05_[ism-1] );
+    UtilsClient::resetHisto( meg04_[ism-1] );
+    UtilsClient::resetHisto( meg05_[ism-1] );
 
     for ( int ie = 1; ie <= 85; ie++ ) {
       for ( int ip = 1; ip <= 20; ip++ ) {
@@ -310,9 +310,9 @@ void EETestPulseClient::setup(void) {
 
     }
 
-    EEMUtilsClient::resetHisto( mea01_[ism-1] );
-    EEMUtilsClient::resetHisto( mea02_[ism-1] );
-    EEMUtilsClient::resetHisto( mea03_[ism-1] );
+    UtilsClient::resetHisto( mea01_[ism-1] );
+    UtilsClient::resetHisto( mea02_[ism-1] );
+    UtilsClient::resetHisto( mea03_[ism-1] );
 
   }
 
@@ -396,14 +396,14 @@ bool EETestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
   bool status = true;
 
-  EEMUtilsClient::printBadChannels(qtha01_[ism-1]);
-  EEMUtilsClient::printBadChannels(qtha02_[ism-1]);
-  EEMUtilsClient::printBadChannels(qtha03_[ism-1]);
+  UtilsClient::printBadChannels(qtha01_[ism-1]);
+  UtilsClient::printBadChannels(qtha02_[ism-1]);
+  UtilsClient::printBadChannels(qtha03_[ism-1]);
 
-  EEMUtilsClient::printBadChannels(qtha04_[ism-1]);
-  EEMUtilsClient::printBadChannels(qtha05_[ism-1]);
-  EEMUtilsClient::printBadChannels(qtha06_[ism-1]);
-  EEMUtilsClient::printBadChannels(qtha07_[ism-1]);
+  UtilsClient::printBadChannels(qtha04_[ism-1]);
+  UtilsClient::printBadChannels(qtha05_[ism-1]);
+  UtilsClient::printBadChannels(qtha06_[ism-1]);
+  UtilsClient::printBadChannels(qtha07_[ism-1]);
 
   EcalLogicID ecid;
   MonTestPulseDat adc;
@@ -422,9 +422,9 @@ bool EETestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
       float mean01, mean02, mean03;
       float rms01, rms02, rms03;
 
-      update01 = EEMUtilsClient::getBinStats(ha01_[ism-1], ie, ip, num01, mean01, rms01);
-      update02 = EEMUtilsClient::getBinStats(ha02_[ism-1], ie, ip, num02, mean02, rms02);
-      update03 = EEMUtilsClient::getBinStats(ha03_[ism-1], ie, ip, num03, mean03, rms03);
+      update01 = UtilsClient::getBinStats(ha01_[ism-1], ie, ip, num01, mean01, rms01);
+      update02 = UtilsClient::getBinStats(ha02_[ism-1], ie, ip, num02, mean02, rms02);
+      update03 = UtilsClient::getBinStats(ha03_[ism-1], ie, ip, num03, mean03, rms03);
 
       if ( update01 || update02 || update03 ) {
 
@@ -456,9 +456,9 @@ bool EETestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
           adc.setTaskStatus(false);
         }
 
-        status = status && EEMUtilsClient::getBinQual(meg01_[ism-1], ie, ip) &&
-                           EEMUtilsClient::getBinQual(meg02_[ism-1], ie, ip) &&
-                           EEMUtilsClient::getBinQual(meg03_[ism-1], ie, ip);
+        status = status && UtilsClient::getBinQual(meg01_[ism-1], ie, ip) &&
+                           UtilsClient::getBinQual(meg02_[ism-1], ie, ip) &&
+                           UtilsClient::getBinQual(meg03_[ism-1], ie, ip);
 
         if ( ie == 1 && ip == 1 ) {
 
@@ -560,10 +560,10 @@ bool EETestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
     float mean01, mean02, mean03, mean04;
     float rms01, rms02, rms03, rms04;
 
-    update01 = EEMUtilsClient::getBinStats(i01_[ism-1], 1, i, num01, mean01, rms01);
-    update02 = EEMUtilsClient::getBinStats(i02_[ism-1], 1, i, num02, mean02, rms02);
-    update03 = EEMUtilsClient::getBinStats(i03_[ism-1], 1, i, num03, mean03, rms03);
-    update04 = EEMUtilsClient::getBinStats(i04_[ism-1], 1, i, num04, mean04, rms04);
+    update01 = UtilsClient::getBinStats(i01_[ism-1], 1, i, num01, mean01, rms01);
+    update02 = UtilsClient::getBinStats(i02_[ism-1], 1, i, num02, mean02, rms02);
+    update03 = UtilsClient::getBinStats(i03_[ism-1], 1, i, num03, mean03, rms03);
+    update04 = UtilsClient::getBinStats(i04_[ism-1], 1, i, num04, mean04, rms04);
 
     if ( update01 || update02 || update03 || update04 ) {
 
@@ -597,8 +597,8 @@ bool EETestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
         pn.setTaskStatus(false);
       }
 
-      status = status && EEMUtilsClient::getBinQual(meg04_[ism-1], i, 1) &&
-                         EEMUtilsClient::getBinQual(meg05_[ism-1], i, 1);
+      status = status && UtilsClient::getBinQual(meg04_[ism-1], i, 1) &&
+                         UtilsClient::getBinQual(meg05_[ism-1], i, 1);
 
       if ( econn ) {
         try {
@@ -978,7 +978,7 @@ void EETestPulseClient::analyze(void){
       sprintf(histo, (prefixME_+"EcalEndcap/EETestPulseTask/Gain01/EETPT amplitude SM%02d G01").c_str(), ism);
     }
     me = mui_->get(histo);
-    ha01_[ism-1] = EEMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, ha01_[ism-1] );
+    ha01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, ha01_[ism-1] );
 
     if ( collateSources_ ) {
       sprintf(histo, "EcalEndcap/Sums/EETestPulseTask/Gain06/EETPT amplitude SM%02d G06", ism);
@@ -986,7 +986,7 @@ void EETestPulseClient::analyze(void){
       sprintf(histo, (prefixME_+"EcalEndcap/EETestPulseTask/Gain06/EETPT amplitude SM%02d G06").c_str(), ism);
     }
     me = mui_->get(histo);
-    ha02_[ism-1] = EEMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, ha02_[ism-1] );
+    ha02_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, ha02_[ism-1] );
 
     if ( collateSources_ ) {
       sprintf(histo, "EcalEndcap/Sums/EETestPulseTask/Gain12/EETPT amplitude SM%02d G12", ism);
@@ -994,7 +994,7 @@ void EETestPulseClient::analyze(void){
       sprintf(histo, (prefixME_+"EcalEndcap/EETestPulseTask/Gain12/EETPT amplitude SM%02d G12").c_str(), ism);
     }
     me = mui_->get(histo);
-    ha03_[ism-1] = EEMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, ha03_[ism-1] );
+    ha03_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, ha03_[ism-1] );
 
     if ( collateSources_ ) {
       sprintf(histo, "EcalEndcap/Sums/EETestPulseTask/Gain01/EETPT shape SM%02d G01", ism);
@@ -1002,7 +1002,7 @@ void EETestPulseClient::analyze(void){
       sprintf(histo, (prefixME_+"EcalEndcap/EETestPulseTask/Gain01/EETPT shape SM%02d G01").c_str(), ism);
     }
     me = mui_->get(histo);
-    hs01_[ism-1] = EEMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, hs01_[ism-1] );
+    hs01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, hs01_[ism-1] );
 
     if ( collateSources_ ) {
       sprintf(histo, "EcalEndcap/Sums/EETestPulseTask/Gain06/EETPT shape SM%02d G06", ism);
@@ -1010,7 +1010,7 @@ void EETestPulseClient::analyze(void){
       sprintf(histo, (prefixME_+"EcalEndcap/EETestPulseTask/Gain06/EETPT shape SM%02d G06").c_str(), ism);
     }
     me = mui_->get(histo);
-    hs02_[ism-1] = EEMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, hs02_[ism-1] );
+    hs02_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, hs02_[ism-1] );
 
     if ( collateSources_ ) {
       sprintf(histo, "EcalEndcap/Sums/EETestPulseTask/Gain12/EETPT shape SM%02d G12", ism);
@@ -1018,7 +1018,7 @@ void EETestPulseClient::analyze(void){
       sprintf(histo, (prefixME_+"EcalEndcap/EETestPulseTask/Gain12/EETPT shape SM%02d G12").c_str(), ism);
     }
     me = mui_->get(histo);
-    hs03_[ism-1] = EEMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, hs03_[ism-1] );
+    hs03_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, hs03_[ism-1] );
 
     if ( collateSources_ ) {
       sprintf(histo, "EcalEndcap/Sums/EETestPulseTask/Gain01/EETPT amplitude error SM%02d G01", ism);
@@ -1026,7 +1026,7 @@ void EETestPulseClient::analyze(void){
       sprintf(histo, (prefixME_+"EcalEndcap/EETestPulseTask/Gain01/EETPT amplitude error SM%02d G01").c_str(), ism);
     }
     me = mui_->get(histo);
-    he01_[ism-1] = EEMUtilsClient::getHisto<TH2F*>( me, cloneME_, he01_[ism-1] );
+    he01_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, he01_[ism-1] );
 
     if ( collateSources_ ) {
       sprintf(histo, "EcalEndcap/Sums/EETestPulseTask/Gain06/EETPT amplitude error SM%02d G06", ism);
@@ -1034,7 +1034,7 @@ void EETestPulseClient::analyze(void){
       sprintf(histo, (prefixME_+"EcalEndcap/EETestPulseTask/Gain06/EETPT amplitude error SM%02d G06").c_str(), ism);
     }
     me = mui_->get(histo);
-    he02_[ism-1] = EEMUtilsClient::getHisto<TH2F*>( me, cloneME_, he02_[ism-1] );
+    he02_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, he02_[ism-1] );
 
     if ( collateSources_ ) {
       sprintf(histo, "EcalEndcap/Sums/EETestPulseTask/Gain12/EETPT amplitude error SM%02d G12", ism);
@@ -1042,7 +1042,7 @@ void EETestPulseClient::analyze(void){
       sprintf(histo, (prefixME_+"EcalEndcap/EETestPulseTask/Gain12/EETPT amplitude error SM%02d G12").c_str(), ism);
     }
     me = mui_->get(histo);
-    he03_[ism-1] = EEMUtilsClient::getHisto<TH2F*>( me, cloneME_, he03_[ism-1] );
+    he03_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, he03_[ism-1] );
 
     if ( collateSources_ ) {
       sprintf(histo, "EcalEndcap/Sums/EEPnDiodeTask/Gain01/EEPDT PNs amplitude SM%02d G01", ism);
@@ -1050,7 +1050,7 @@ void EETestPulseClient::analyze(void){
       sprintf(histo, (prefixME_+"EcalEndcap/EEPnDiodeTask/Gain01/EEPDT PNs amplitude SM%02d G01").c_str(), ism);
     }
     me = mui_->get(histo);
-    i01_[ism-1] = EEMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, i01_[ism-1] );
+    i01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i01_[ism-1] );
 
     if ( collateSources_ ) {
       sprintf(histo, "EcalEndcap/Sums/EEPnDiodeTask/Gain16/EEPDT PNs amplitude SM%02d G16", ism);
@@ -1058,7 +1058,7 @@ void EETestPulseClient::analyze(void){
       sprintf(histo, (prefixME_+"EcalEndcap/EEPnDiodeTask/Gain16/EEPDT PNs amplitude SM%02d G16").c_str(), ism);
     }
     me = mui_->get(histo);
-    i02_[ism-1] = EEMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, i02_[ism-1] );
+    i02_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i02_[ism-1] );
 
     if ( collateSources_ ) {
       sprintf(histo, "EcalEndcap/Sums/EEPnDiodeTask/Gain01/EEPDT PNs pedestal SM%02d G01", ism);
@@ -1066,7 +1066,7 @@ void EETestPulseClient::analyze(void){
       sprintf(histo, (prefixME_+"EcalEndcap/EEPnDiodeTask/Gain01/EEPDT PNs pedestal SM%02d G01").c_str(), ism);
     }
     me = mui_->get(histo);
-    i03_[ism-1] = EEMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, i03_[ism-1] );
+    i03_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i03_[ism-1] );
 
     if ( collateSources_ ) {
       sprintf(histo, "EcalEndcap/Sums/EEPnDiodeTask/Gain16/EEPDT PNs pedestal SM%02d G16", ism);
@@ -1074,18 +1074,18 @@ void EETestPulseClient::analyze(void){
       sprintf(histo, (prefixME_+"EcalEndcap/EEPnDiodeTask/Gain16/EEPDT PNs pedestal SM%02d G16").c_str(), ism);
     }
     me = mui_->get(histo);
-    i04_[ism-1] = EEMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, i04_[ism-1] );
+    i04_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i04_[ism-1] );
 
-    EEMUtilsClient::resetHisto( meg01_[ism-1] );
-    EEMUtilsClient::resetHisto( meg02_[ism-1] );
-    EEMUtilsClient::resetHisto( meg03_[ism-1] );
+    UtilsClient::resetHisto( meg01_[ism-1] );
+    UtilsClient::resetHisto( meg02_[ism-1] );
+    UtilsClient::resetHisto( meg03_[ism-1] );
 
-    EEMUtilsClient::resetHisto( meg04_[ism-1] );
-    EEMUtilsClient::resetHisto( meg05_[ism-1] );
+    UtilsClient::resetHisto( meg04_[ism-1] );
+    UtilsClient::resetHisto( meg05_[ism-1] );
 
-    EEMUtilsClient::resetHisto( mea01_[ism-1] );
-    EEMUtilsClient::resetHisto( mea02_[ism-1] );
-    EEMUtilsClient::resetHisto( mea03_[ism-1] );
+    UtilsClient::resetHisto( mea01_[ism-1] );
+    UtilsClient::resetHisto( mea02_[ism-1] );
+    UtilsClient::resetHisto( mea03_[ism-1] );
 
     for ( int ie = 1; ie <= 85; ie++ ) {
       for ( int ip = 1; ip <= 20; ip++ ) {
@@ -1108,9 +1108,9 @@ void EETestPulseClient::analyze(void){
         float mean01, mean02, mean03;
         float rms01, rms02, rms03;
 
-        update01 = EEMUtilsClient::getBinStats(ha01_[ism-1], ie, ip, num01, mean01, rms01);
-        update02 = EEMUtilsClient::getBinStats(ha02_[ism-1], ie, ip, num02, mean02, rms02);
-        update03 = EEMUtilsClient::getBinStats(ha03_[ism-1], ie, ip, num03, mean03, rms03);
+        update01 = UtilsClient::getBinStats(ha01_[ism-1], ie, ip, num01, mean01, rms01);
+        update02 = UtilsClient::getBinStats(ha02_[ism-1], ie, ip, num02, mean02, rms02);
+        update03 = UtilsClient::getBinStats(ha03_[ism-1], ie, ip, num03, mean03, rms03);
 
         if ( update01 ) {
 
@@ -1241,10 +1241,10 @@ void EETestPulseClient::analyze(void){
       float mean01, mean02, mean03, mean04;
       float rms01, rms02, rms03, rms04;
 
-      update01 = EEMUtilsClient::getBinStats(i01_[ism-1], 1, i, num01, mean01, rms01);
-      update02 = EEMUtilsClient::getBinStats(i02_[ism-1], 1, i, num02, mean02, rms02);
-      update03 = EEMUtilsClient::getBinStats(i03_[ism-1], 1, i, num03, mean03, rms03);
-      update04 = EEMUtilsClient::getBinStats(i04_[ism-1], 1, i, num04, mean04, rms04);
+      update01 = UtilsClient::getBinStats(i01_[ism-1], 1, i, num01, mean01, rms01);
+      update02 = UtilsClient::getBinStats(i02_[ism-1], 1, i, num02, mean02, rms02);
+      update03 = UtilsClient::getBinStats(i03_[ism-1], 1, i, num03, mean03, rms03);
+      update04 = UtilsClient::getBinStats(i04_[ism-1], 1, i, num04, mean04, rms04);
 
       if ( update01 && update03 ) {
 
@@ -1453,13 +1453,13 @@ void EETestPulseClient::htmlOutput(int run, string htmlDir, string htmlName){
       obj2f = 0;
       switch ( iCanvas ) {
         case 1:
-          obj2f = EEMUtilsClient::getHisto<TH2F*>( meg01_[ism-1] );
+          obj2f = UtilsClient::getHisto<TH2F*>( meg01_[ism-1] );
           break;
         case 2:
-          obj2f = EEMUtilsClient::getHisto<TH2F*>( meg02_[ism-1] );
+          obj2f = UtilsClient::getHisto<TH2F*>( meg02_[ism-1] );
           break;
         case 3:
-          obj2f = EEMUtilsClient::getHisto<TH2F*>( meg03_[ism-1] );
+          obj2f = UtilsClient::getHisto<TH2F*>( meg03_[ism-1] );
           break;
         default:
           break;
@@ -1500,13 +1500,13 @@ void EETestPulseClient::htmlOutput(int run, string htmlDir, string htmlName){
       obj1f = 0;
       switch ( iCanvas ) {
         case 1:
-          obj1f = EEMUtilsClient::getHisto<TH1F*>( mea01_[ism-1] );
+          obj1f = UtilsClient::getHisto<TH1F*>( mea01_[ism-1] );
           break;
         case 2:
-          obj1f = EEMUtilsClient::getHisto<TH1F*>( mea02_[ism-1] );
+          obj1f = UtilsClient::getHisto<TH1F*>( mea02_[ism-1] );
           break;
         case 3:
-          obj1f = EEMUtilsClient::getHisto<TH1F*>( mea03_[ism-1] );
+          obj1f = UtilsClient::getHisto<TH1F*>( mea03_[ism-1] );
           break;
         default:
           break;
@@ -1602,10 +1602,10 @@ void EETestPulseClient::htmlOutput(int run, string htmlDir, string htmlName){
       obj2f = 0;
       switch ( iCanvas ) {
       case 1:
-        obj2f = EEMUtilsClient::getHisto<TH2F*>( meg04_[ism-1] );
+        obj2f = UtilsClient::getHisto<TH2F*>( meg04_[ism-1] );
         break;
       case 2:
-        obj2f = EEMUtilsClient::getHisto<TH2F*>( meg05_[ism-1] );
+        obj2f = UtilsClient::getHisto<TH2F*>( meg05_[ism-1] );
         break;
       default:
         break;

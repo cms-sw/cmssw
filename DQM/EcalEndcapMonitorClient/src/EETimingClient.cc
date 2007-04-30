@@ -1,8 +1,8 @@
 /*
  * \file EETimingClient.cc
  *
- * $Date: 2007/04/02 16:15:36 $
- * $Revision: 1.1 $
+ * $Date: 2007/04/11 06:50:38 $
+ * $Revision: 1.2 $
  * \author G. Della Ricca
  *
 */
@@ -32,7 +32,7 @@
 
 #include "DQM/EcalCommon/interface/EcalErrorMask.h"
 #include <DQM/EcalEndcapMonitorClient/interface/EETimingClient.h>
-#include <DQM/EcalEndcapMonitorClient/interface/EEMUtilsClient.h>
+#include <DQM/EcalCommon/interface/UtilsClient.h>
 
 using namespace cms;
 using namespace edm;
@@ -198,7 +198,7 @@ void EETimingClient::setup(void) {
 
     int ism = superModules_[i];
 
-    EEMUtilsClient::resetHisto( meg01_[ism-1] );
+    UtilsClient::resetHisto( meg01_[ism-1] );
 
     for ( int ie = 1; ie <= 85; ie++ ) {
       for ( int ip = 1; ip <= 20; ip++ ) {
@@ -208,9 +208,9 @@ void EETimingClient::setup(void) {
       }
     }
 
-    EEMUtilsClient::resetHisto( mea01_[ism-1] );
-    EEMUtilsClient::resetHisto( mep01_[ism-1] );
-    EEMUtilsClient::resetHisto( mer01_[ism-1] );
+    UtilsClient::resetHisto( mea01_[ism-1] );
+    UtilsClient::resetHisto( mep01_[ism-1] );
+    UtilsClient::resetHisto( mer01_[ism-1] );
 
   }
 
@@ -259,7 +259,7 @@ bool EETimingClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunI
 
   bool status = true;
 
-  EEMUtilsClient::printBadChannels(qth01_[ism-1]);
+  UtilsClient::printBadChannels(qth01_[ism-1]);
 
   return status;
 
@@ -412,13 +412,13 @@ void EETimingClient::analyze(void){
       sprintf(histo, (prefixME_+"EcalEndcap/EETimingTask/EETMT timing SM%02d").c_str(), ism);
     }
     me = mui_->get(histo);
-    h01_[ism-1] = EEMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, h01_[ism-1] );
+    h01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h01_[ism-1] );
     meh01_[ism-1] = me;
 
-    EEMUtilsClient::resetHisto( meg01_[ism-1] );
-    EEMUtilsClient::resetHisto( mea01_[ism-1] );
-    EEMUtilsClient::resetHisto( mep01_[ism-1] );
-    EEMUtilsClient::resetHisto( mer01_[ism-1] );
+    UtilsClient::resetHisto( meg01_[ism-1] );
+    UtilsClient::resetHisto( mea01_[ism-1] );
+    UtilsClient::resetHisto( mep01_[ism-1] );
+    UtilsClient::resetHisto( mer01_[ism-1] );
 
     for ( int ie = 1; ie <= 85; ie++ ) {
       for ( int ip = 1; ip <= 20; ip++ ) {
@@ -431,7 +431,7 @@ void EETimingClient::analyze(void){
         float mean01;
         float rms01;
 
-        update01 = EEMUtilsClient::getBinStats(h01_[ism-1], ie, ip, num01, mean01, rms01);
+        update01 = UtilsClient::getBinStats(h01_[ism-1], ie, ip, num01, mean01, rms01);
 
         if ( update01 ) {
 
@@ -571,7 +571,7 @@ void EETimingClient::htmlOutput(int run, string htmlDir, string htmlName){
     imgNameQual = "";
 
     obj2f = 0;
-    obj2f = EEMUtilsClient::getHisto<TH2F*>( meg01_[ism-1] );
+    obj2f = UtilsClient::getHisto<TH2F*>( meg01_[ism-1] );
 
     if ( obj2f ) {
 
@@ -606,7 +606,7 @@ void EETimingClient::htmlOutput(int run, string htmlDir, string htmlName){
     imgNameTim = "";
 
     obj1f = 0;
-    obj1f = EEMUtilsClient::getHisto<TH1F*>( mea01_[ism-1] );
+    obj1f = UtilsClient::getHisto<TH1F*>( mea01_[ism-1] );
 
     if ( obj1f ) {
 
@@ -642,7 +642,7 @@ void EETimingClient::htmlOutput(int run, string htmlDir, string htmlName){
     imgNameMean = "";
 
     obj1f = 0;
-    obj1f = EEMUtilsClient::getHisto<TH1F*>( mep01_[ism-1] );
+    obj1f = UtilsClient::getHisto<TH1F*>( mep01_[ism-1] );
 
     if ( obj1f ) {
 
@@ -674,7 +674,7 @@ void EETimingClient::htmlOutput(int run, string htmlDir, string htmlName){
     // RMS distributions
 
     obj1f = 0;
-    obj1f = EEMUtilsClient::getHisto<TH1F*>( mer01_[ism-1] );
+    obj1f = UtilsClient::getHisto<TH1F*>( mer01_[ism-1] );
 
     imgNameRMS = "";
 
