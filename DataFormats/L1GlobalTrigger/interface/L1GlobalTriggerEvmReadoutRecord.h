@@ -12,8 +12,8 @@
  *   
  * \author: Vasile Mihai Ghete - HEPHY Vienna
  * 
- * $Date:$
- * $Revision:$
+ * $Date$
+ * $Revision$
  *
  */
 
@@ -64,25 +64,25 @@ public:
     /// get Global Trigger decision and the decision word
     ///   overloaded w.r.t. bxInEvent argument
     ///   bxInEvent not given: for bunch cross with L1Accept
-    const bool decision(unsigned int bxInEvent) const;
-    const DecisionWord decisionWord(unsigned int bxInEvent) const;
+    const bool decision(int bxInEvent) const;
+    const DecisionWord decisionWord(int bxInEvent) const;
 
     const bool decision() const;
     const DecisionWord decisionWord() const;
   
     /// set global decision and the decision word
-    void setDecision(bool t, unsigned int bxInEvent);
-    void setDecisionWord(const DecisionWord& decisionWordValue, unsigned int bxInEvent);
+    void setDecision(bool t, int bxInEvent);
+    void setDecisionWord(const DecisionWord& decisionWordValue, int bxInEvent);
 
     void setDecision(bool t);
     void setDecisionWord(const DecisionWord& decisionWordValue);
     
     /// print global decision and algorithm decision word
-    void printGtDecision(std::ostream& myCout, unsigned int bxInEventValue) const;
+    void printGtDecision(std::ostream& myCout, int bxInEventValue) const;
     void printGtDecision(std::ostream& myCout) const;
     
     /// print technical triggers
-    void printTechnicalTrigger(std::ostream& myCout, unsigned int bxInEventValue) const;
+    void printTechnicalTrigger(std::ostream& myCout, int bxInEventValue) const;
     void printTechnicalTrigger(std::ostream& myCout) const;
     
     //**************************************************************************
@@ -101,10 +101,10 @@ public:
     void setTcsWord(const L1TcsWord&);
 
     /// get / set FDL word (record) in the GT readout record
-    const L1GtFdlWord gtFdlWord(unsigned int bxInEvent) const;
+    const L1GtFdlWord gtFdlWord(int bxInEvent) const;
     const L1GtFdlWord gtFdlWord() const;
 
-    void setGtFdlWord(const L1GtFdlWord&, unsigned int bxInEvent);
+    void setGtFdlWord(const L1GtFdlWord&, int bxInEvent);
     void setGtFdlWord(const L1GtFdlWord&);
 
     // other methods

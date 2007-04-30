@@ -68,7 +68,7 @@ L1GlobalTriggerReadoutSetup::L1GlobalTriggerReadoutSetup()
     iBit++;
 
     for (int iPsb = 0; iPsb < NumberPsbBoards; ++iPsb) {
-        psbBoard.boardIndex = iBit;
+        psbBoard.boardIndex = iPsb;
         GtDaqActiveBoardsMap[psbBoard] = iBit;
         iBit++;
     }
@@ -95,9 +95,11 @@ L1GlobalTriggerReadoutSetup::L1GlobalTriggerReadoutSetup()
 
     // L1 GT board - slot map
     //    gives the slot of each GT board (part of Board_Id)
-    std::map<GtBoard, int> GtBoardSlotMap;
 
-    int iSlot = 10;
+    int iSlot = 17;
+    GtBoardSlotMap[gtfeBoard] = iSlot;
+
+    iSlot = 10;
     GtBoardSlotMap[fdlBoard] = iSlot;
 
     psbBoard.boardIndex = 0;
@@ -128,9 +130,9 @@ L1GlobalTriggerReadoutSetup::L1GlobalTriggerReadoutSetup()
     iSlot = 18;
     GtBoardSlotMap[gmtBoard] = iSlot;
 
-//    gmtBoard.boardIndex = 1;
-//    iSlot = ?;
-//    GtBoardSlotMap[gmtBoard] = iSlot;
+    gmtBoard.boardIndex = 1;
+    iSlot = 18;
+    GtBoardSlotMap[gmtBoard] = iSlot;
 
     iSlot = 7;
     GtBoardSlotMap[tcsBoard] = iSlot;
@@ -141,14 +143,13 @@ L1GlobalTriggerReadoutSetup::L1GlobalTriggerReadoutSetup()
 
     // L1 GT board name in hw record map
     //    gives the bits written for each GT board in the Board_Id
-    std::map<GtBoardType, int> GtBoardHexNameMap;
 
-    GtBoardHexNameMap[GTFE] = 0xfe;
+//    GtBoardHexNameMap[GTFE] = 0x00; // not used, as only 8 bits are available
     GtBoardHexNameMap[FDL]  = 0xfd;
     GtBoardHexNameMap[PSB]  = 0xbb;
-    GtBoardHexNameMap[GMT]  = 0xdd;
-    GtBoardHexNameMap[TCS]  = 0xcc;
-    GtBoardHexNameMap[TIM]  = 0xff;
+    GtBoardHexNameMap[GMT]  = 0xdd; // TODO GMT_spare has 0xde FIXME when board available
+    GtBoardHexNameMap[TCS]  = 0xcc; // TODO TCS_M     has 0xcd FIXME when board available
+    GtBoardHexNameMap[TIM]  = 0xad;
 
     // L1 GT calo input map
     //    gives the mapping of calorimeter objects to GT calorimeter input
