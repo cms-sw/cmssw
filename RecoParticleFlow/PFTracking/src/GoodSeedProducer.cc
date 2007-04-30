@@ -311,19 +311,30 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
       output_preid->push_back(NewSeed);
       
       if(produceCkfPFT_){
-	pOutputPFRecTrackCollection->
-	  push_back(pfTransformer_->
-		    producePFtrack(&(Tj[i]), trackRef, reco::PFRecTrack::KF_ELCAND,i));
 
+	reco::PFRecTrack pftrack( trackRef->charge(), 
+				  reco::PFRecTrack::KF_ELCAND, 
+				  i, trackRef );
+
+	bool valid = pfTransformer_->addPoints( pftrack, *trackRef, Tj[i] );
+	if(valid)
+	  pOutputPFRecTrackCollection->push_back(pftrack);		
       } 
     }else{
       if (produceCkfseed_){
 	output_nopre->push_back(Seed);
       }
       if(produceCkfPFT_){
-	pOutputPFRecTrackCollection->
-	  push_back(pfTransformer_->
-		    producePFtrack(&(Tj[i]), trackRef, reco::PFRecTrack::KF,i));
+		
+	reco::PFRecTrack pftrack( trackRef->charge(), 
+				  reco::PFRecTrack::KF, 
+				  i, trackRef );
+
+	bool valid = pfTransformer_->addPoints( pftrack, *trackRef, Tj[i] );
+
+	if(valid)
+	  pOutputPFRecTrackCollection->push_back(pftrack);		
+
       }
     }
   }
