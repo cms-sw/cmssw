@@ -8,7 +8,7 @@
 <use name=SimDataFormats/HepMCProduct>
 <use name=clhep>
 <use name=hepmc>
-<flags SEAL_PLUGIN_NAME="GeneratorInterfaceMCatNLOInterface">
+<flags EDM_PLUGIN=1>
 <export>
  <lib name=GeneratorInterfaceMCatNLOInterface>
  <use name=lhapdf>	
