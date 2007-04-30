@@ -1,8 +1,8 @@
 /*
  * \file EELaserClient.cc
  *
- * $Date: 2007/04/11 06:50:38 $
- * $Revision: 1.3 $
+ * $Date: 2007/04/30 09:24:03 $
+ * $Revision: 1.4 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -1093,7 +1093,7 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
         if ( econn ) {
           try {
-            ecid = econn->getEcalLogicID("EE_crystal_number", ism, ic);
+            ecid = econn->getEcalLogicID("EB_crystal_number", ism, ic);
             dataset1_bl[ecid] = apd_bl;
           } catch (runtime_error &e) {
             cerr << e.what() << endl;
@@ -1132,7 +1132,7 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
         if ( econn ) {
           try {
-            ecid = econn->getEcalLogicID("EE_crystal_number", ism, ic);
+            ecid = econn->getEcalLogicID("EB_crystal_number", ism, ic);
             dataset1_ir[ecid] = apd_ir;
           } catch (runtime_error &e) {
             cerr << e.what() << endl;
@@ -1171,7 +1171,7 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
         if ( econn ) {
           try {
-            ecid = econn->getEcalLogicID("EE_crystal_number", ism, ic);
+            ecid = econn->getEcalLogicID("EB_crystal_number", ism, ic);
             dataset1_gr[ecid] = apd_gr;
           } catch (runtime_error &e) {
             cerr << e.what() << endl;
@@ -1210,7 +1210,7 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
         if ( econn ) {
           try {
-            ecid = econn->getEcalLogicID("EE_crystal_number", ism, ic);
+            ecid = econn->getEcalLogicID("EB_crystal_number", ism, ic);
             dataset1_rd[ecid] = apd_rd;
           } catch (runtime_error &e) {
             cerr << e.what() << endl;
@@ -1324,7 +1324,7 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
       if ( econn ) {
         try {
-          ecid = econn->getEcalLogicID("EE_LM_PN", ism, i-1);
+          ecid = econn->getEcalLogicID("EB_LM_PN", ism, i-1);
           dataset2_bl[ecid] = pn_bl;
         } catch (runtime_error &e) {
           cerr << e.what() << endl;
@@ -1370,7 +1370,7 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
       if ( econn ) {
         try {
-          ecid = econn->getEcalLogicID("EE_LM_PN", ism, i-1);
+          ecid = econn->getEcalLogicID("EB_LM_PN", ism, i-1);
           dataset2_ir[ecid] = pn_ir;
         } catch (runtime_error &e) {
           cerr << e.what() << endl;
@@ -1416,7 +1416,7 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
       if ( econn ) {
         try {
-          ecid = econn->getEcalLogicID("EE_LM_PN", ism, i-1);
+          ecid = econn->getEcalLogicID("EB_LM_PN", ism, i-1);
           dataset2_gr[ecid] = pn_gr;
         } catch (runtime_error &e) {
           cerr << e.what() << endl;
@@ -1462,7 +1462,7 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
       if ( econn ) {
         try {
-          ecid = econn->getEcalLogicID("EE_LM_PN", ism, i-1);
+          ecid = econn->getEcalLogicID("EB_LM_PN", ism, i-1);
           dataset2_rd[ecid] = pn_rd;
         } catch (runtime_error &e) {
           cerr << e.what() << endl;

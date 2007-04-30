@@ -1,8 +1,8 @@
 /*
  * \file EECosmicClient.cc
  *
- * $Date: 2007/04/02 16:15:36 $
- * $Revision: 1.1 $
+ * $Date: 2007/04/30 09:24:03 $
+ * $Revision: 1.2 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -215,7 +215,7 @@ bool EECosmicClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunI
 
         if ( econn ) {
           try {
-            ecid = econn->getEcalLogicID("EE_crystal_number", ism, ic);
+            ecid = econn->getEcalLogicID("EB_crystal_number", ism, ic);
             dataset[ecid] = o;
           } catch (runtime_error &e) {
             cerr << e.what() << endl;

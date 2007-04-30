@@ -1,8 +1,8 @@
 /*
  * \file EEBeamCaloClient.cc
  *
- * $Date: 2007/04/07 11:57:05 $
- * $Revision: 1.2 $
+ * $Date: 2007/04/30 09:24:03 $
+ * $Revision: 1.3 $
  * \author G. Della Ricca
  * \author A. Ghezzi
  *
@@ -313,7 +313,7 @@ bool EEBeamCaloClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
 
         if ( econn ) {
           try {
-            ecid = econn->getEcalLogicID("EE_crystal_number", ism, ic);
+            ecid = econn->getEcalLogicID("EB_crystal_number", ism, ic);
             dataset[ecid] = o;
           } catch (runtime_error &e) {
             cerr << e.what() << endl;

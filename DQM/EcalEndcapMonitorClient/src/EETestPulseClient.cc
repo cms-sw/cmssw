@@ -1,8 +1,8 @@
 /*
  * \file EETestPulseClient.cc
  *
- * $Date: 2007/04/11 06:50:38 $
- * $Revision: 1.2 $
+ * $Date: 2007/04/30 09:24:03 $
+ * $Revision: 1.3 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -522,7 +522,7 @@ bool EETestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
         if ( econn ) {
           try {
-            ecid = econn->getEcalLogicID("EE_crystal_number", ism, ic);
+            ecid = econn->getEcalLogicID("EB_crystal_number", ism, ic);
             dataset1[ecid] = adc;
             if ( ie == 1 && ip == 1 ) dataset2[ecid] = shape;
           } catch (runtime_error &e) {
@@ -602,7 +602,7 @@ bool EETestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
       if ( econn ) {
         try {
-          ecid = econn->getEcalLogicID("EE_LM_PN", ism, i-1);
+          ecid = econn->getEcalLogicID("EB_LM_PN", ism, i-1);
           dataset3[ecid] = pn;
         } catch (runtime_error &e) {
           cerr << e.what() << endl;
