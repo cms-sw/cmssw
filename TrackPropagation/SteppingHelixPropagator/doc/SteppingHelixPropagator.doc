@@ -30,11 +30,22 @@ SteppingHelixPropagator
 The above two methods are only available as members of SteppingHelixPropagator class 
 (not through Propagator class interface).
 
-Note that the propagator can be configured to propagate
+Note that the propagator can be configured to propagate (via ES/.cfi or via "PropagationDirection")
 -# alongMomentum -- the direction of propagation is along momentum
 -# oppositeToMomentum -- the direction of propagation is opposite to momentum
 -# anyDirection -- the direction is estimated internally as the direction of the shorter distance
 to the destination point.
+
+Propagation behavior can be controlled by the following flags
+(it is preferable though to just use what's set in the standard .cfi files)
+-# bool debug = val -- turn on/off (val=true/false [default false]) debug output: CAREFUL it's VERY VERBOSE
+-# bool AssumeNoMaterial = val -- turn off/on (val=true/false [default false]) material effects (eloss, multiple scattering)
+-# bool NoErrorPropagation = val -- turn off/on (val=true/false [default false]) error propagation (was a significant speed up eons ago)
+-# bool useMagVolumes = val -- turn on/off (val=true/false [default true]) accounting for MagVolume boundaries. Helps to account for B-field irregularities (effect: internally stop at each MagVolume boundary)
+-# bool useMatVolumes = val -- turn on/off (val=true/false [default true]) accounting for material volume boundaries. Helps to account for material irregularities (effect: internally stop at each material volume boundary). The volumes are defined specific to the propagator and are presently hard-coded (the plan is to get it available through det description some day).
+-# bool returnTangentPlane = val -- do/do-not (val=true/false [default true]) return a TSOS built on a tangent plane for input propagation to a non-Plane surface.
+-# bool sendLogWarning = val -- turn on/off (val=true/false [default false]) LogWarning messages for propagation failures
+-# bool ApplyRadX0Correction = val -- turn on/off (val=true/false [default true]) accounting for non-linear growth of sigma^2 of the multiple scattering component (pick up of non-Gaussian tails) (see more below).
 
 \subsection modules Modules
 <!-- Describe modules implemented in this package and their parameter set -->
