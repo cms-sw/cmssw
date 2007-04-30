@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/03/09 15:09:55 $
- *  $Revision: 1.5 $
+ *  $Date: 2007/04/26 12:16:52 $
+ *  $Revision: 1.6 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -35,7 +35,7 @@ MagGeometry::MagGeometry(const edm::ParameterSet& config, std::vector<MagBLayer 
   tolerance = config.getParameter<double>("findVolumeTolerance");
   cacheLastVolume = config.getUntrackedParameter<bool>("cacheLastVolume");
   timerOn = config.getUntrackedParameter<bool>("timerOn", false);
-  useParametrizedTrackerField = config.getUntrackedParameter<bool>("useParametrizedTrackerField", false);
+  useParametrizedTrackerField = config.getParameter<bool>("useParametrizedTrackerField");
 
   TimeMe t1("MagGeometry:build",false);
 

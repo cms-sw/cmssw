@@ -1,8 +1,8 @@
 /** \file
  *  A simple example of ho to access the magnetic field.
  *
- *  $Date: 2007/04/26 12:16:50 $
- *  $Revision: 1.7 $
+ *  $Date: 2007/04/30 09:19:51 $
+ *  $Revision: 1.8 $
  *  \author N. Amapane - CERN
  */
 
@@ -142,6 +142,7 @@ void testMagneticField::validate(string filename) {
       if (delta > maxdelta) maxdelta = delta;
       cout << " Discrepancy at: # " << i << " " << gp << " delta : " << newB-oldB << " " << delta <<  endl;
     }
+    count++;
   }
   cout << endl << " testMagneticField::validate: tested " << count
        << " points " << fail << " failures; max delta = " << maxdelta
