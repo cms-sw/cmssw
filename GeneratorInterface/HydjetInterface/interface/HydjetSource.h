@@ -1,7 +1,7 @@
 #ifndef HydjetSource_h
 #define HydjetSource_h
 
-// $Id:$
+// $Id: HydjetSource.h,v 1.3 2007/04/28 16:08:16 mballint Exp $
 
 /** \class HydjetSource
 *
@@ -22,7 +22,7 @@
 namespace HepMC {
   class GenEvent;
   class GenParticle;
-};
+}
 
 namespace edm
 {
