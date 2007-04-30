@@ -288,8 +288,8 @@ void MakeValidation(TString sfilename = "GlobalHitsHistograms.root",
 
       // find the probability value for the two plots being from the same
       // source
-      double pv = rh->Chi2Test(sh,"OU");
-      //double pv = rh->KolmogorovTest(sh);
+      //double pv = rh->Chi2Test(sh,"OU");
+      double pv = rh->KolmogorovTest(sh);
       std::strstream buf;
       std::string value;
       buf << "PV=" << pv <<std::endl;
