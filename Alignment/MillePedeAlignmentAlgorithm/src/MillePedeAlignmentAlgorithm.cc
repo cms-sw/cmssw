@@ -3,8 +3,8 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.16 $
- *  $Date: 2007/04/05 16:30:26 $
+ *  $Revision: 1.17 $
+ *  $Date: 2007/04/19 11:36:58 $
  *  (last update by $Author: flucke $)
  */
 
@@ -33,7 +33,7 @@
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentIORoot.h"
 
 #include "Alignment/CommonAlignment/interface/AlignableNavigator.h"
-#include "Alignment/CommonAlignment/interface/AlignableDet.h"
+#include "Alignment/CommonAlignment/interface/AlignableDetOrUnitPtr.h"
 
 #include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
 
@@ -280,13 +280,8 @@ int MillePedeAlignmentAlgorithm::globalDerivatives(const ConstRecHitPointer &rec
   globalDerivatives.clear();
   globalLabels.clear();
 
-  // get AlignableDet for this hit, want const but ->selectedDerivatives needs non-const...
-  AlignableDet *alidet = theAlignableNavigator->alignableDetFromGeomDet(recHitPtr->det());
-  if (!alidet) {
-    edm::LogWarning("Alignment") << "@SUB=MillePedeAlignmentAlgorithm::globalDerivatives"
-				 << "AlignableDet not found in Navigator";
-    return -1;
-  }
+  // get AlignableDet for this hit
+  AlignableDetOrUnitPtr alidet(theAlignableNavigator->alignableFromGeomDet(recHitPtr->det()));
 
   if (this->globalDerivativesHierarchy(tsos, alidet, alidet, xOrY, // 2x alidet, sic!
                                        globalDerivatives, globalLabels, params)) {
@@ -299,13 +294,13 @@ int MillePedeAlignmentAlgorithm::globalDerivatives(const ConstRecHitPointer &rec
 //____________________________________________________
 bool MillePedeAlignmentAlgorithm
 ::globalDerivativesHierarchy(const TrajectoryStateOnSurface &tsos,
-                             Alignable *ali, AlignableDet *alidet, MeasurementDirection xOrY,
+                             Alignable *ali, const AlignableDetOrUnitPtr &alidet,
+                             MeasurementDirection xOrY,
                              std::vector<float> &globalDerivatives,
                              std::vector<int> &globalLabels,
                              AlignmentParameters *&lowestParams) const
 {
   // derivatives and labels are recursively attached
-  if (!alidet) return false;
   if (!ali) return true; // no mother might be OK
 
   if (theMonitor && alidet != ali) theMonitor->fillFrameToFrame(alidet, ali);
@@ -372,7 +367,9 @@ bool MillePedeAlignmentAlgorithm::is2D(const ConstRecHitPointer &recHit) const
   // FIXME: Check whether this is a reliable and recommended way to find out...
   // e.g. problem: What about glued detectors where only one module is hit?
   // probably downcast the hit to a concrete class (matched?)
-  return (!recHit->detUnit() || recHit->detUnit()->type().isTrackerPixel());
+  return (recHit->dimension() >=2 && // some muon stuff really has RecHit1D
+	  (!recHit->detUnit() // stereo strips (FIXME: endcap trouble due to non-parallel strips)
+	   || recHit->detUnit()->type().isTrackerPixel()));
 }
 
 //____________________________________________________
