@@ -5,6 +5,7 @@
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
+#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 
   SiStripRecHitMatcher::SiStripRecHitMatcher(const edm::ParameterSet& conf){   
     scale_=conf.getParameter<double>("NSigmaInside");  
@@ -111,7 +112,8 @@ SiStripRecHitMatcher::match( const  SiStripRecHit2D *monoRH,
   LocalVector  RPHIpositiononGluedendvector=projectedstripmono.second-projectedstripmono.first;
   double c1=sin(RPHIpositiononGluedendvector.phi()); double s1=-cos(RPHIpositiononGluedendvector.phi());
   MeasurementError errormonoRH=topol.measurementError(monoRH->localPosition(),monoRH->localPositionError());
-  double sigmap12=errormonoRH.uu()*pow(topol.localPitch(monoRH->localPosition()),2);
+  double pitch=topol.localPitch(monoRH->localPosition());
+  double sigmap12=errormonoRH.uu()*pitch*pitch;
   SimpleHitIterator seconditer;  
 
   for(seconditer=begin;seconditer!=end;++seconditer){//iterate on stereo rechits
@@ -129,13 +131,13 @@ SiStripRecHitMatcher::match( const  SiStripRecHit2D *monoRH,
 
     //perform the matching
    //(x2-x1)(y-y1)=(y2-y1)(x-x1)
-    AlgebraicMatrix m(2,2); AlgebraicVector c(2), solution(2);
-    m(1,1)=-(projectedstripmono.second.y()-projectedstripmono.first.y()); m(1,2)=(projectedstripmono.second.x()-projectedstripmono.first.x());
-    m(2,1)=-(projectedstripstereo.second.y()-projectedstripstereo.first.y()); m(2,2)=(projectedstripstereo.second.x()-projectedstripstereo.first.x());
-    c(1)=m(1,2)*projectedstripmono.first.y()+m(1,1)*projectedstripmono.first.x();
-    c(2)=m(2,2)*projectedstripstereo.first.y()+m(2,1)*projectedstripstereo.first.x();
-    solution=solve(m,c);
-    position=LocalPoint(solution(1),solution(2));
+    AlgebraicMatrix22 m; AlgebraicVector2 c, solution;
+    m(0,0)=-(projectedstripmono.second.y()-projectedstripmono.first.y()); m(0,1)=(projectedstripmono.second.x()-projectedstripmono.first.x());
+    m(1,0)=-(projectedstripstereo.second.y()-projectedstripstereo.first.y()); m(1,1)=(projectedstripstereo.second.x()-projectedstripstereo.first.x());
+    c(0)=m(0,1)*projectedstripmono.first.y()+m(0,0)*projectedstripmono.first.x();
+    c(1)=m(1,1)*projectedstripstereo.first.y()+m(1,0)*projectedstripstereo.first.x();
+    m.Invert(); solution = m * c;
+    position=LocalPoint(solution(0),solution(1));
 
 
     //
@@ -150,8 +152,10 @@ SiStripRecHitMatcher::match( const  SiStripRecHit2D *monoRH,
     LocalVector  stereopositiononGluedendvector=projectedstripstereo.second-projectedstripstereo.first;
     double c2=sin(stereopositiononGluedendvector.phi()); double s2=-cos(stereopositiononGluedendvector.phi());
     MeasurementError errorstereoRH=partnertopol.measurementError((*seconditer)->localPosition(),(*seconditer)->localPositionError());
-    double sigmap22=errorstereoRH.uu()*pow(partnertopol.localPitch((*seconditer)->localPosition()),2);
-    double invdet2=1/pow((c1*s2-c2*s1),2);
+    pitch=partnertopol.localPitch((*seconditer)->localPosition());
+    double sigmap22=errorstereoRH.uu()*pitch*pitch;
+    double diff=(c1*s2-c2*s1);
+    double invdet2=1/(diff*diff);
     float xx=invdet2*(sigmap12*s2*s2+sigmap22*s1*s1);
     float xy=-invdet2*(sigmap12*c2*s2+sigmap22*c1*s1);
     float yy=invdet2*(sigmap12*c2*c2+sigmap22*c1*c1);

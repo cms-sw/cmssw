@@ -37,6 +37,8 @@ class StripCPE : public StripClusterParameterEstimator
   double vsat_;
   double beta_;
   const SiStripLorentzAngle* LorentzAngleMap_;
+  mutable LocalVector theCachedDrift;
+  mutable unsigned int theCachedDetId;
 };
 
 #endif
