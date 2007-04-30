@@ -96,7 +96,7 @@ void L1GtAnalyzer::analyzeDecision(const edm::Event& iEvent, const edm::EventSet
 
     // get L1GlobalTriggerReadoutRecord
     edm::Handle<L1GlobalTriggerReadoutRecord> gtReadoutRecord;
-    iEvent.getByLabel("L1GtEmul", gtReadoutRecord);
+    iEvent.getByLabel(m_daqGtInputTag.label(), gtReadoutRecord);
 
     // get Global Trigger decision and the decision word
     bool gtDecision = gtReadoutRecord->decision();
@@ -153,7 +153,7 @@ void L1GtAnalyzer::analyzeSetDecision(const edm::Event& iEvent, const edm::Event
 
     // get the old record
     edm::Handle<L1GlobalTriggerReadoutRecord> gtReadoutRecord;
-    iEvent.getByLabel("L1GtEmul", gtReadoutRecord);
+    iEvent.getByLabel(m_daqGtInputTag.label(), gtReadoutRecord);
 
     // get Global Trigger decision
     bool gtDecision = gtReadoutRecord->decision();
@@ -206,7 +206,7 @@ void L1GtAnalyzer::analyzeL1Objects(const edm::Event& iEvent, const edm::EventSe
 
     // get L1GlobalTriggerReadoutRecord
     edm::Handle<L1GlobalTriggerReadoutRecord> gtReadoutRecord;
-    iEvent.getByLabel("L1GtEmul", gtReadoutRecord);
+    iEvent.getByLabel(m_daqGtInputTag.label(), gtReadoutRecord);
 
     // print L1 objects in bunch cross with L1A
     gtReadoutRecord->printL1Objects(myCoutStream);
@@ -230,7 +230,7 @@ void L1GtAnalyzer::analyzeMuons(const edm::Event& iEvent, const edm::EventSetup&
 
     // get L1GlobalTriggerReadoutRecord
     edm::Handle<L1GlobalTriggerReadoutRecord> gtReadoutRecord;
-    iEvent.getByLabel("L1GtEmul", gtReadoutRecord);
+    iEvent.getByLabel(m_daqGtInputTag.label(), gtReadoutRecord);
 
     // get reference to muon collection
     const edm::RefProd<L1MuGMTReadoutCollection>
@@ -248,7 +248,7 @@ void L1GtAnalyzer::analyzeMuons(const edm::Event& iEvent, const edm::EventSetup&
 
         // test all three variants to get muon index 0 in BXInEvent = 0
         unsigned int indexCand = 0;
-        unsigned int bxInEvent = 0;
+        int bxInEvent = 0;
 
         // test first if the record has the required number of candidates
         if ((*muCollRefProd).getRecord(bxInEvent).getGMTCands().size() > indexCand) {
@@ -329,7 +329,7 @@ void L1GtAnalyzer::analyzeObjectMap(const edm::Event& iEvent, const edm::EventSe
     // get a handle to the object map record
     // the record can come only from emulator - no hardware ObjectMapRecord
     edm::Handle<L1GlobalTriggerObjectMapRecord> gtObjectMapRecord;
-    iEvent.getByLabel("L1GtEmul", gtObjectMapRecord);
+    iEvent.getByLabel(m_daqGtInputTag.label(), gtObjectMapRecord);
 
     // get all object maps
     const std::vector<L1GlobalTriggerObjectMap>&
@@ -393,7 +393,7 @@ void L1GtAnalyzer::analyzeObjectMapMuons(
     // get a handle to the object map record
     // the record can come only from emulator - no hardware ObjectMapRecord
     edm::Handle<L1GlobalTriggerObjectMapRecord> gtObjectMapRecord;
-    iEvent.getByLabel("L1GtEmul", gtObjectMapRecord);
+    iEvent.getByLabel(m_daqGtInputTag.label(), gtObjectMapRecord);
 
     // algorithm and condition names to be read from cfg file?
     // after the trigger menu will be implemented as event setup, it should be
@@ -539,16 +539,22 @@ void L1GtAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     analyzeSetDecision(iEvent, iSetup);
 
     // print/access L1 objects in bunch cross with L1A
-//    analyzeL1Objects(iEvent, iSetup); // TODO FIXME temporary disable it, until
+    //    analyzeL1Objects(iEvent, iSetup); // TODO FIXME temporary disable it
 
     // test muon part in L1GlobalTriggerReadoutRecord
     analyzeMuons(iEvent, iSetup);
 
-    // analyze: object map record
-    analyzeObjectMap(iEvent, iSetup);
+    // object map available only in emulator
+    if (m_daqGtInputTag.label() == "L1GtEmul") {
 
-    // analyze: seed muon HLT using the object map record
-    analyzeObjectMapMuons(iEvent, iSetup);
+        // analyze: object map record
+        analyzeObjectMap(iEvent, iSetup);
+
+        // analyze: seed muon HLT using the object map record
+        analyzeObjectMapMuons(iEvent, iSetup);
+
+    }
+
 
 }
 
