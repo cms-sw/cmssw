@@ -5,7 +5,7 @@
 <use name=heppdt>
 <use name=clhep> 
 <use name=root>
-<use name=pythia6_227>
+<use name=pythia6>
 <use name=GeneratorInterface/Pythia6Interface>
 <use name=SimGeneral/HepPDTRecord>
 
@@ -29,7 +29,7 @@
  <use name=SimGeneral/HepPDTRecord>
  <use name=clhep>
  <use name=root> 
- <use name=pythia6_227>
+ <use name=pythia6>
  <use name=GeneratorInterface/Pythia6Interface>
  <use name=DataFormats/GeometryVector>
  <use name=DataFormats/GeometrySurface>
