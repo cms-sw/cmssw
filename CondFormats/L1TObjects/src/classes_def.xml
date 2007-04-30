@@ -1,4 +1,5 @@
 <lcgdict>
+  <class name="L1MuScale"/>
   <class name="L1MuTriggerScales"/>
   <class name="L1MuGMTScales"/>
   <class name="L1CaloEtScale"/>

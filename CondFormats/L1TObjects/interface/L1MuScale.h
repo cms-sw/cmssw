@@ -6,8 +6,8 @@
 //                 
 //                  
 //                
-//   $Date: 2007/04/24 02:38:28 $
-//   $Revision: 1.2 $ 
+//   $Date: 2007/04/27 13:16:00 $
+//   $Revision: 1.4 $ 
 //
 //   Original Author :
 //   Hannes Sakulin      HEPHY / Vienna
@@ -23,6 +23,7 @@
 #include <sstream>
 #include <iomanip>
 #include <vector>
+#include <math.h>
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CondFormats/L1TObjects/interface/L1MuPacking.h"
 
