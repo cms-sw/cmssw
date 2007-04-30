@@ -1,10 +1,10 @@
 /** \file CompositeRigidBodyAlignmentParameters.cc
  *
- *  $Date: 2006/10/19 14:20:59 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/03/12 21:28:48 $
+ *  $Revision: 1.3 $
  */
 
-#include "Alignment/CommonAlignment/interface/AlignableDet.h"
+#include "Alignment/CommonAlignment/interface/AlignableDetOrUnitPtr.h"
 #include "Alignment/CommonAlignmentParametrization/interface/KarimakiAlignmentDerivatives.h"
 #include "Alignment/CommonAlignmentParametrization/interface/FrameToFrameDerivative.h"
 
@@ -68,7 +68,7 @@ cloneFromSelected( const AlgebraicVector& par,
 //__________________________________________________________________________________________________
 AlgebraicMatrix 
 CompositeRigidBodyAlignmentParameters::derivatives( const TrajectoryStateOnSurface& tsos, 
-						    AlignableDet* alidet ) const
+						    const AlignableDetOrUnitPtr &alidet ) const
 {
 
   AlgebraicMatrix dev = KarimakiAlignmentDerivatives()(tsos);

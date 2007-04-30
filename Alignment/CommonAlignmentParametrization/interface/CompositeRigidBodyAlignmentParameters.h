@@ -10,9 +10,11 @@
 ///  Derived from RigidBodyAlignmentParameters so that
 ///  derivatives method can be redefined
 ///
-///  $Date: 2007/03/02 12:17:09 $
-///  $Revision: 1.3 $
-/// (last update by $Author: fronga $)
+///  $Date: 2007/03/12 21:28:48 $
+///  $Revision: 1.4 $
+/// (last update by $Author: cklae $)
+
+class AlignableDetOrUnitPtr;
 
 class CompositeRigidBodyAlignmentParameters : public RigidBodyAlignmentParameters 
 {
@@ -40,7 +42,7 @@ public:
 
   /// get derivatives
   AlgebraicMatrix derivatives( const TrajectoryStateOnSurface& tsos,
-			       AlignableDet* alidet ) const;
+			       const AlignableDetOrUnitPtr &alidet ) const;
 
 };
 
