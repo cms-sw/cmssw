@@ -76,8 +76,18 @@ private:
     L1GlobalTriggerGTL* m_gtGTL;
     L1GlobalTriggerFDL* m_gtFDL;
     
+    /// total Bx's in the event
     int m_totalBxInEvent;
 
+    /// min Bx's in the event, computed from m_totalBxInEvent
+    /// assume symmetrical number of BX around L1Accept
+    int m_minBxInEvent;
+
+    /// max Bx's in the event, computed from m_totalBxInEvent
+    /// assume symmetrical number of BX around L1Accept
+    int m_maxBxInEvent;
+
+    /// active boards
     boost::uint16_t m_activeBoards; 
     
     
