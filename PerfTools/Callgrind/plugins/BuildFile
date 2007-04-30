@@ -3,12 +3,14 @@
 <use name=FWCore/PluginManager>
 <use name=FWCore/ParameterSet>
 <use name=valgrind>
+ <flags EDM_PLUGIN=1>
 </library>
 
 
 <library name="PerfToolsCallgrindService" file=ProfilerServicePlugin.cc>
 <use name=PerfTools/Callgrind>
 <use name=FWCore/ServiceRegistry>
+ <flags EDM_PLUGIN=1>
 </library>
 
 <library name="PerfToolsCallgrindAnalyzer" file=ProfilerAnalyzer.cc>
@@ -16,4 +18,5 @@
 <use name=FWCore/PluginManager>
 <use name=PerfTools/Callgrind>
 <use name=FWCore/ServiceRegistry>
+ <flags EDM_PLUGIN=1>
 </library>
