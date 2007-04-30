@@ -1,4 +1,3 @@
-
 ///////////////////////////////////////////////////////////////////////////////
 // File: DDTECModuleAlgo	.cc
 // Description: Creation of a TEC Test
@@ -182,10 +181,11 @@ void DDTECModuleAlgo::initialize(const DDNumericArguments & nArgs,
   }
   else{
     LogDebug("TECGeom") << "This is a stereo module!"; 
+	posCorrectionPhi= nArgs["PosCorrectionPhi"];
     topFrame2LHeight = nArgs["TopFrame2LHeight"];
     topFrame2RHeight = nArgs["TopFrame2RHeight"];
     topFrame2Width   = nArgs["TopFrame2Width"];
-
+	LogDebug("TECGeom") << "Phi Position corrected by " << posCorrectionPhi << "*rad";
     LogDebug("TECGeom") << "DDTECModuleAlgo debug: stereo Top Frame 2nd Part left Heigt " 
 			<< topFrame2LHeight << " right Height " << topFrame2RHeight 
       		        << " Width " << topFrame2Width ;
@@ -230,6 +230,12 @@ void DDTECModuleAlgo::doPos(DDLogicalPart toPos, double x, double y, double z,
   // This has to be done so that the Mother coordinate System of a Tub resembles 
   // the coordinate System of a Trap or Box.
   z += rPos;
+
+  if(isStereo){
+	// z is x , x is y
+	//z+= rPos*sin(posCorrectionPhi);  <<- this is already corrected with the r position!
+	x+= rPos*sin(posCorrectionPhi);
+  }
   if (rotName == "NULL") rotName = standardRot;
 
   doPos(toPos,parent(),copyNr,x,y,z,rotName);
@@ -375,17 +381,17 @@ void DDTECModuleAlgo::execute() {
     xpos =  0.5*topFrameBotWidth  -sideFrameRWidth - bl1-fabs(tan(thet) * siFrSuppBoxYPos[i])-2*noOverlapShift;
     ypos = sideFrameZ*(0.5+(siFrSuppBoxThick/sideFrameThick)); //via * so I do not have to worry about the sign of sideFrameZ
     zpos = 0.5* (-waferPosition +fullHeight) -siFrSuppBoxYPos[i];        
-	if (isRing6){ 
-	  xpos += 2*fabs(tan(thet))*  siFrSuppBoxYPos[i]; // the flipped issue again
-	  zpos *= -1;
-	}
-	if(isStereo){ 
-	  xpos += sin(detTilt)* siFrSuppBoxYPos[i];
-	  zpos = 0.5* (-waferPosition +fullHeight)-topFrame2RHeight-sin(detTilt)*(sideFrameRWidth+bl1)-siFrSuppBoxYPos[i];
-	  xpos = -xpos;
-	}
-	//position it;
-	doPos(siFrSuppBox,xpos,ypos,zpos,waferRot);
+    if (isRing6){ 
+      xpos += 2*fabs(tan(thet))*  siFrSuppBoxYPos[i]; // the flipped issue again
+      zpos *= -1;
+    }
+    if(isStereo){ 
+      // xpos += sin(detTilt)* siFrSuppBoxYPos[i];
+      zpos = 0.5* (-waferPosition +fullHeight)-topFrame2RHeight-sin(detTilt)*(sideFrameRWidth+bl1)-siFrSuppBoxYPos[i];
+      // xpos = -xpos;
+    }
+    //position it;
+    doPos(siFrSuppBox,xpos,ypos,zpos,waferRot);
   }
   //The Hybrid
   name    = idName + "Hybrid";

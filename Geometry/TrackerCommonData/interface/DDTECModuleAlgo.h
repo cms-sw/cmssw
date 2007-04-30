@@ -35,6 +35,7 @@ private:
   bool                     isStereo;
   bool                     isRing6;
   double                   rPos;           //Position in R relativ to the center of the TEC ( this is the coord-sys of Tubs)
+  double                   posCorrectionPhi; // the Phi position of the stereo Modules has to be corrected
   std::string              standardRot;    //Rotation that aligns the mother(Tub ) coordinate System with the components
   std::string              idNameSpace;    //Namespace of this and ALL parts
   std::string              genMat;         //General material name
