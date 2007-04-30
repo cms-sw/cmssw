@@ -79,7 +79,19 @@ PFElecTkProducer::produce(Event& iEvent, const EventSetup& iSetup)
 
     for (uint igsf=0; igsf<gsftracks.size();igsf++) {
       
+      reco::TrackRef dummyRef;
+
+      reco::PFRecTrack pftrack( gsftracks[igsf].charge(), 
+				reco::PFRecTrack::GSF, 
+				igsf, dummyRef );
       
+      bool valid = pfTransformer_->addPoints( pftrack, 
+					      gsftracks[igsf] , 
+					      tjvec[igsf] );
+      if(valid)
+	gsfPFRecTrackCollection->push_back(pftrack);		
+      
+
 //       gsfPFRecTrackCollection->
 // 	push_back(pfTransformer_-> producePFtrack( &(tjvec[igsf]), 
 // 						   gsftracks[igsf],
