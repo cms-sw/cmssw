@@ -2,8 +2,8 @@
 
 /** \file RecoMuon/GlobalTrackFinder/src/GlobalMuonRSTrajectoryBuilder.cc
  *
- *  $Date: 2007/04/11 9:30:00 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/04/12 21:27:41 $
+ *  $Revision: 1.4 $
  *  \author Adam Evertt, Jean-Roch Vlimant
  */
 
@@ -517,10 +517,13 @@ int  GlobalMuonRSTrajectoryBuilder::GatherHits( const TrajectoryStateOnSurface &
 		{
 		  //what is the previous state for this trajectory
 		  const TrajectoryStateOnSurface & previousState = traj->TSOS;
-		  const FreeTrajectoryState & previousFreestate = *previousState.freeState();
-		  if (previousFreestate.cartesianError().matrix().num_col() !=6 )/*skip*/
+
+//		  if (previousFreestate.cartesianError().matrix().num_col() !=6 )/*skip*/
+                if ( !previousState.isValid() )/*skip*/ //C.L.: FIXME
 		    {edm::LogError(theCategory)<<"previous free state is invalid at trajectory update, this is WRONG"; continue;}
 		  
+                  const FreeTrajectoryState & previousFreestate = *previousState.freeState();
+
 		  //propagate it to the current surface
 		  TrajectoryStateOnSurface predictedState = theProp->propagate(previousFreestate,surface);
 		  if (!predictedState.isValid())/*skip*/{edm::LogError(theCategory)

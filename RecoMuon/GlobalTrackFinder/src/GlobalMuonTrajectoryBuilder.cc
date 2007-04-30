@@ -12,8 +12,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2007/04/18 14:48:56 $
- *  $Revision: 1.92 $
+ *  $Date: 2007/04/26 19:28:43 $
+ *  $Revision: 1.93 $
  *
  *  Authors :
  *  N. Neumeister            Purdue University
@@ -383,7 +383,7 @@ RectangularEtaPhiTrackingRegion GlobalMuonTrajectoryBuilder::defineRegionOfInter
   //muTSOS = fromInside(muFTS);
   
   //Get error of momentum of the Mu state
-  GlobalError  dirErr(muFTS.cartesianError().matrix().sub(4,6));
+  GlobalError  dirErr(muFTS.cartesianError().matrix().Sub<AlgebraicSymMatrix33>(3,5));
   GlobalVector dirVecErr(dirVector.x() + sqrt(dirErr.cxx()),
 			 dirVector.y() + sqrt(dirErr.cyy()),
 			 dirVector.z() + sqrt(dirErr.czz()));

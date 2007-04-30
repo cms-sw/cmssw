@@ -2,8 +2,8 @@
  *  Class: GlobalMuonTrackMatcher
  *
  * 
- *  $Date: 2007/03/15 21:02:00 $
- *  $Revision: 1.42 $
+ *  $Date: 2007/03/16 18:57:05 $
+ *  $Revision: 1.43 $
  *
  *  Authors :
  *  \author Chang Liu  - Purdue University
@@ -288,14 +288,16 @@ GlobalMuonTrackMatcher::matchChiAtSurface(const TrajectoryStateOnSurface& tsos1,
 
   if ( !tsos1.isValid() || !tsos2.isValid() ) return -1.;
 
-  AlgebraicVector v(tsos1.localParameters().vector() - tsos2.localParameters().vector());
-  AlgebraicSymMatrix m(tsos1.localError().matrix() + tsos2.localError().matrix());
+  AlgebraicVector5 v(tsos1.localParameters().vector() - tsos2.localParameters().vector());
+  AlgebraicSymMatrix55 m(tsos1.localError().matrix() + tsos2.localError().matrix());
   LogDebug(category) << "vector v " << v;
 
-  int ierr;
-  m.invert(ierr);
+  int ierr = ! m.Invert();
+
   if (ierr != 0) edm::LogInfo(category) << "Error inversing covariance matrix";
-  double est = m.similarity(v);
+
+  double est = ROOT::Math::Similarity(v,m);
+
   LogDebug(category) << "Chi2 " << est;
 
 /*
