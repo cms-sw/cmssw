@@ -1,6 +1,6 @@
 /*
- *  $Date: 2007/04/18 16:59:41 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/04/30 09:39:31 $
+ *  $Revision: 1.6 $
  *  
  *  Filip Moorgat & Hector Naves 
  *  26/10/05
@@ -150,7 +150,7 @@ PythiaSource::PythiaSource( const ParameterSet & pset,
     vector<string> pars = 
       pythia_params.getParameter<vector<string> >(mySet);
     
-    if (mySet != "SLHAParameters"){
+    if (mySet != "SLHAParameters" && mySet != "CSAParameters"){
     cout << "----------------------------------------------" << endl;
     cout << "Read PYTHIA parameter set " << mySet << endl;
     cout << "----------------------------------------------" << endl;
@@ -168,7 +168,27 @@ PythiaSource::PythiaSource( const ParameterSet & pset,
 	  <<" pythia did not accept the following \""<<*itPar<<"\"";
       }
     }
-    }else if(mySet == "SLHAParameters"){   
+    } else if(mySet == "CSAParameters"){   
+
+   // Read CSA parameter
+  
+   pars = pythia_params.getParameter<vector<string> >("CSAParameters");
+
+   cout << "----------------------------------------------" << endl; 
+   cout << "Reading CSA parameter settings. " << endl;
+   cout << "----------------------------------------------" << endl;                                                                           
+
+   call_txgive_init();
+  
+  
+   // Loop over all parameters and stop in case of a mistake
+    for (vector<string>::const_iterator 
+            itPar = pars.begin(); itPar != pars.end(); ++itPar) {
+      call_txgive(*itPar); 
+     
+         } 
+     
+   } else if(mySet == "SLHAParameters"){   
 
    // Read SLHA parameter
   
