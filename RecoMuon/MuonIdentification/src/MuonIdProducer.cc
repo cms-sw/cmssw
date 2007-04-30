@@ -13,7 +13,7 @@
 */
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: MuonIdProducer.cc,v 1.13 2007/04/17 08:39:18 dmytro Exp $
+// $Id: MuonIdProducer.cc,v 1.14 2007/04/30 15:09:42 cliu Exp $
 //
 //
 
@@ -374,8 +374,8 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent, const edm::EventSetup& iSetu
 	aMatch.dYdZ = chamber->tState.localDirection().y();
 	// DANGEROUS - compiler cannot guaranty parameters ordering
 	AlgebraicSymMatrix55 trajectoryCovMatrix = chamber->tState.localError().matrix();
-	aMatch.dXdZErr = trajectoryCovMatrix(0,0);
-	aMatch.dYdZErr = trajectoryCovMatrix(1,1);
+	aMatch.dXdZErr = trajectoryCovMatrix(1,1);
+	aMatch.dYdZErr = trajectoryCovMatrix(2,2);
 	
 	aMatch.edgeX = chamber->localDistanceX;
 	aMatch.edgeY = chamber->localDistanceY;
