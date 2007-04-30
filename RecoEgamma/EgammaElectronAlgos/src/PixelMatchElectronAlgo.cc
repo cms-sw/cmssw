@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: PixelMatchElectronAlgo.cc,v 1.37 2007/03/08 18:34:43 futyand Exp $
+// $Id: PixelMatchElectronAlgo.cc,v 1.38 2007/03/28 11:52:17 uberthon Exp $
 //
 //
 #include "RecoEgamma/EgammaElectronAlgos/interface/PixelMatchElectronAlgo.h"
@@ -310,9 +310,9 @@ GlobalVector PixelMatchElectronAlgo::computeMode(const TrajectoryStateOnSurface 
       Px[Count]     = it_comp->globalMomentum().x();
       Py[Count]     = it_comp->globalMomentum().y();
       Pz[Count]     = it_comp->globalMomentum().z();
-      PxErr[Count]  = sqrt(it_comp->cartesianError().matrix()[3][3]);
-      PyErr[Count]  = sqrt(it_comp->cartesianError().matrix()[4][4]);
-      PzErr[Count]  = sqrt(it_comp->cartesianError().matrix()[5][5]);
+      PxErr[Count]  = sqrt(it_comp->cartesianError().matrix()(3,3));
+      PyErr[Count]  = sqrt(it_comp->cartesianError().matrix()(4,4));
+      PzErr[Count]  = sqrt(it_comp->cartesianError().matrix()(5,5));
       Count++;
     }
 	  

@@ -83,15 +83,15 @@ void ElectronMomentumCorrector::correct(reco::PixelMatchGsfElectron &electron, T
     {
       vtx_loc_weight[vtx_loc_oo]   =  it_vtx_locComp->weight();
       vtx_loc_qop[vtx_loc_oo]      =  it_vtx_locComp->localParameters().vector()[0];      
-      vtx_loc_qop_err[vtx_loc_oo]  =  sqrt(it_vtx_locComp->localError().matrix()[0][0]);
+      vtx_loc_qop_err[vtx_loc_oo]  =  sqrt(it_vtx_locComp->localError().matrix()(0,0));
       vtx_loc_dxdz[vtx_loc_oo]     =  it_vtx_locComp->localParameters().vector()[1];       
-      vtx_loc_dxdz_err[vtx_loc_oo] =  sqrt(it_vtx_locComp->localError().matrix()[1][1]);
+      vtx_loc_dxdz_err[vtx_loc_oo] =  sqrt(it_vtx_locComp->localError().matrix()(1,1));
       vtx_loc_dydz[vtx_loc_oo]     =  it_vtx_locComp->localParameters().vector()[2];    
-      vtx_loc_dydz_err[vtx_loc_oo] =  sqrt(it_vtx_locComp->localError().matrix()[2][2]);
+      vtx_loc_dydz_err[vtx_loc_oo] =  sqrt(it_vtx_locComp->localError().matrix()(2,2));
       vtx_loc_locx[vtx_loc_oo]     =  it_vtx_locComp->localParameters().vector()[3];    
-      vtx_loc_locx_err[vtx_loc_oo] =  sqrt(it_vtx_locComp->localError().matrix()[3][3]);
+      vtx_loc_locx_err[vtx_loc_oo] =  sqrt(it_vtx_locComp->localError().matrix()(3,3));
       vtx_loc_locy[vtx_loc_oo]     =  it_vtx_locComp->localParameters().vector()[4];    
-      vtx_loc_locy_err[vtx_loc_oo] =  sqrt(it_vtx_locComp->localError().matrix()[4][4]); 
+      vtx_loc_locy_err[vtx_loc_oo] =  sqrt(it_vtx_locComp->localError().matrix()(4,4)); 
       vtx_loc_oo++;   
     }
 
