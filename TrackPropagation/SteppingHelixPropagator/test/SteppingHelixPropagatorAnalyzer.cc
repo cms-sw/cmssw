@@ -17,7 +17,7 @@ positions of a muon in the detector.
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Fri Mar  3 16:01:24 CST 2006
-// $Id: SteppingHelixPropagatorAnalyzer.cc,v 1.12.4.1 2007/04/25 18:55:51 slava77 Exp $
+// $Id: SteppingHelixPropagatorAnalyzer.cc,v 1.13 2007/04/30 18:38:15 slava77 Exp $
 //
 //
 
@@ -149,11 +149,7 @@ class SteppingHelixPropagatorAnalyzer : public edm::EDAnalyzer {
 
   bool doneMapping_;
 
-  bool noMaterialMode_;
-  bool noErrPropMode_;
   bool radX0CorrectionMode_;
-
-  bool convertFromOldDTDetId_;
 
   bool testPCAPropagation_;
 
@@ -192,11 +188,7 @@ SteppingHelixPropagatorAnalyzer::SteppingHelixPropagatorAnalyzer(const edm::Para
 
   trkIndOffset_ = iConfig.getParameter<int>("trkIndOffset");
   debug_ = iConfig.getParameter<bool>("debug");
-  noMaterialMode_ = iConfig.getParameter<bool>("noMaterialMode");
-  noErrPropMode_ = iConfig.getParameter<bool>("noErrorPropagationMode");
   radX0CorrectionMode_ = iConfig.getParameter<bool>("radX0CorrectionMode");
-
-  convertFromOldDTDetId_ = iConfig.getParameter<bool>("convertFromOldDTDetId");
 
   testPCAPropagation_ = iConfig.getParameter<bool>("testPCAPropagation");
 
@@ -515,14 +507,6 @@ void SteppingHelixPropagatorAnalyzer
   for (; pHits_CI != handle->end(); pHits_CI++){
     int dtId = pHits_CI->detUnitId(); 
     DetId wId(dtId);
-    if (wId.det() == DetId::Muon && wId.subdetId() == MuonSubdetId::DT
-	&& convertFromOldDTDetId_){
-      int wh = ( (dtId>>22) & 0x7 );
-      int sec = ( (dtId>>15) & 0xF );
-      int sta = ( (dtId>>19) & 0x7 );
-      int newId = (dtId & ~0x1ff8000) | (wh<<15) | (sec<<18) | (sta<<22);
-      wId = DetId(newId);
-    }
 
     const GeomDet* layer = geom->idToDet(wId);
 
