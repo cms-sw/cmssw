@@ -79,23 +79,27 @@ PFSimParticleProducer::PFSimParticleProducer(const edm::ParameterSet& iConfig) :
 
   // register products
   produces<reco::PFSimParticleCollection>();
-  produces<reco::PFRecTrackCollection>();
+
+  if(processRecTracks_ ) {
+    
+    produces<reco::PFRecTrackCollection>();
+    
+    
+    // initialize track reconstruction ------------------------------
+    fitterName_ = iConfig.getParameter<string>("Fitter");   
+    propagatorName_ = iConfig.getParameter<string>("Propagator");
+    builderName_ = iConfig.getParameter<string>("TTRHBuilder");   
+    
+    
+    // initialize geometry parameters
+    //  PFGeometry pfGeometry;
+  }
   
-
-  // initialize track reconstruction ------------------------------
-  fitterName_ = iConfig.getParameter<string>("Fitter");   
-  propagatorName_ = iConfig.getParameter<string>("Propagator");
-  builderName_ = iConfig.getParameter<string>("TTRHBuilder");   
-
   vertexGenerator_ = iConfig.getParameter<ParameterSet>
     ( "VertexGenerator" );   
   particleFilter_ = iConfig.getParameter<ParameterSet>
     ( "ParticleFilter" );   
-
-  // initialize geometry parameters
-  PFGeometry pfGeometry;
   
-
   mySimEvent =  new FSimEvent( particleFilter_ );
 }
 
