@@ -1,15 +1,15 @@
 /** \class SteppingHelixStateInfo
  *  Implementation part of the stepping helix propagator state data structure
  *
- *  $Date: 2007/02/05 18:48:08 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/02/14 10:19:36 $
+ *  $Revision: 1.4 $
  *  \author Vyacheslav Krutelyov (slava77)
  */
 
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Wed Jan  3 16:01:24 CST 2007
-// $Id: SteppingHelixStateInfo.cc,v 1.3 2007/02/05 18:48:08 slava77 Exp $
+// $Id: SteppingHelixStateInfo.cc,v 1.4 2007/02/14 10:19:36 slava77 Exp $
 //
 //
 
@@ -26,7 +26,7 @@ SteppingHelixStateInfo::SteppingHelixStateInfo(const FreeTrajectoryState& fts){
   q = fts.charge();
 
   if (fts.hasError()) cov = fts.cartesianError().matrix();
-  else cov = HepSymMatrix(1, 0);
+  else cov = AlgebraicSymMatrix66();
 
   isComplete = false;
   isValid_ = true;
@@ -48,7 +48,7 @@ void SteppingHelixStateInfo::getFreeState(FreeTrajectoryState& fts) const {
     GlobalTrajectoryParameters tPars(r3GP, p3GV, q, field);
     CartesianTrajectoryError tCov(cov);
     
-    fts = (cov.num_row() == 6 ) 
+    fts = (cov.kRows == 6 ) 
       ? FreeTrajectoryState(tPars, tCov) : FreeTrajectoryState(tPars);
     if (fts.hasError()) fts.curvilinearError(); //call it so it gets created
   }

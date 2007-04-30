@@ -9,15 +9,15 @@
  *  Material effects (multiple scattering and energy loss) are based on tuning
  *  to MC and (eventually) data. 
  *
- *  $Date: 2007/02/14 06:16:46 $
- *  $Revision: 1.15 $
+ *  $Date: 2007/02/14 10:21:11 $
+ *  $Revision: 1.16 $
  *  \author Vyacheslav Krutelyov (slava77)
  */
 
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Fri Mar  3 16:01:24 CST 2006
-// $Id: SteppingHelixPropagator.h,v 1.15 2007/02/14 06:16:46 slava77 Exp $
+// $Id: SteppingHelixPropagator.h,v 1.16 2007/02/14 10:21:11 slava77 Exp $
 //
 //
 
@@ -31,7 +31,6 @@
 
 #include "CLHEP/Matrix/SymMatrix.h"
 #include "CLHEP/Matrix/Matrix.h"
-#include "CLHEP/Matrix/DiagMatrix.h"
 #include "CLHEP/Vector/ThreeVector.h"
 
 
@@ -168,12 +167,12 @@ class SteppingHelixPropagator : public Propagator {
   void setIState(const SteppingHelixStateInfo& sStart) const;
   void setIState(const SteppingHelixPropagator::Vector& p3, 
 		 const SteppingHelixPropagator::Point& r3, 
-		 int charge, const HepSymMatrix& cov, 
+		 int charge, const AlgebraicSymMatrix66& cov, 
 		 PropagationDirection dir = alongMomentum) const;
   /// (Internals) get final state
   void getFState(FreeTrajectoryState& ftsDest) const;
   void getFState(SteppingHelixPropagator::Vector& p3, SteppingHelixPropagator::Point& r3,  
-		 HepSymMatrix& cov) const;
+		 AlgebraicSymMatrix66& cov) const;
 
   /// propagate: chose stop point by type argument
   /// propagate to fixed radius [ r = sqrt(x**2+y**2) ] with precision epsilon
@@ -186,7 +185,7 @@ class SteppingHelixPropagator : public Propagator {
   void loadState(SteppingHelixPropagator::StateInfo& svCurrent, 
 		 const SteppingHelixPropagator::Vector& p3, 
 		 const SteppingHelixPropagator::Point& r3, int charge,
-		 const HepSymMatrix& cov, PropagationDirection dir) const;
+		 const AlgebraicSymMatrix66& cov, PropagationDirection dir) const;
 
   /// (Internals) compute transients for current point (increments step counter).
   ///  Called by makeAtomStep
@@ -195,7 +194,7 @@ class SteppingHelixPropagator : public Propagator {
 		    double dP, 
 		    const SteppingHelixPropagator::Vector& tau, const SteppingHelixPropagator::Vector& drVec, 
 		    double dS, double dX0,
-		    const HepMatrix& dCov) const;
+		    const AlgebraicMatrix66& dCov) const;
   
   /// Set/compute basis vectors for local coordinates at current step (called by incrementState)
   void setRep(SteppingHelixPropagator::Basis& rep,
@@ -239,12 +238,12 @@ class SteppingHelixPropagator : public Propagator {
 
   StateInfo invalidState_;
 
-  mutable HepMatrix covRot_;
-  mutable HepMatrix dCTransform_;
+  mutable AlgebraicMatrix66 covRot_;
+  mutable AlgebraicMatrix66 dCTransform_;
 
   const MagneticField* field_;
   const VolumeBasedMagneticField* vbField_;
-  const HepDiagMatrix unit66_;
+  const AlgebraicSymMatrix66 unit66_;
   bool debug_;
   bool noMaterialMode_;
   bool noErrorPropagation_;

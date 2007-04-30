@@ -6,15 +6,15 @@
 /** \class SteppingHelixStateInfo
  *  Holder of SteppingHelixState information
  *
- *  $Date: 2007/02/06 20:49:17 $
- *  $Revision: 1.6 $
+ *  $Date: 2007/02/14 06:16:46 $
+ *  $Revision: 1.7 $
  *  \author Vyacheslav Krutelyov (slava77)
  */
 
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Wed Jan  3 16:01:24 CST 2007
-// $Id: SteppingHelixStateInfo.h,v 1.6 2007/02/06 20:49:17 slava77 Exp $
+// $Id: SteppingHelixStateInfo.h,v 1.7 2007/02/14 06:16:46 slava77 Exp $
 //
 //
 
@@ -84,8 +84,8 @@ class SteppingHelixStateInfo {
   int q;
   Vector p3;
   Point r3;
-  HepSymMatrix cov;
-  HepSymMatrix matDCov;
+  AlgebraicSymMatrix66 cov;
+  AlgebraicSymMatrix66 matDCov;
   double path_;
   double radPath;
   double dir;
