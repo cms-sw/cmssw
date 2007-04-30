@@ -1,3 +1,12 @@
+/** \file GlobalRecHitsProducer.cc
+ *  
+ *  See header file for description of class
+ *
+ *  $Date: 2007/04/30 13:49:00 $
+ *  $Revision: 1.3 $
+ *  \author M. Strang SUNY-Buffalo
+ */
+
 #include "Validation/GlobalRecHits/interface/GlobalRecHitsProducer.h"
 
 GlobalRecHitsProducer::GlobalRecHitsProducer(const edm::ParameterSet& iPSet) :
