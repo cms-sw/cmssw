@@ -42,7 +42,7 @@ class SiHitDigitizer{
   
   void setParticleDataTable(const ParticleDataTable * pdt);
 
-  hit_map_type processHit(const PSimHit&, const StripGeomDetUnit&, GlobalVector);
+  hit_map_type processHit(const PSimHit&, const StripGeomDetUnit&, GlobalVector,float);
   
  private:
   SiChargeDivider* theSiChargeDivider;
@@ -60,9 +60,9 @@ class SiHitDigitizer{
   bool noDiffusion;
   double chargeDistributionRMS;
   double gevperelectron;
-  LocalVector DriftDirection(const StripGeomDetUnit*,GlobalVector);
+  LocalVector DriftDirection(const StripGeomDetUnit*,GlobalVector,float);
   typedef GloballyPositioned<double>      Frame;
-  float tanLorentzAnglePerTesla;   //Lorentz angle tangent per Tesla
+
 };
 
 #endif

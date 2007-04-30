@@ -11,7 +11,7 @@
 #define CBOLTZ (1.38E-23)
 #define e_SI (1.6E-19)
 
-SiHitDigitizer::SiHitDigitizer(const edm::ParameterSet& conf, const StripGeomDetUnit *det):conf_(conf){
+SiHitDigitizer::SiHitDigitizer(const edm::ParameterSet& conf, const StripGeomDetUnit *det ):conf_(conf){
 
   //
   // Construct default classes
@@ -57,7 +57,7 @@ SiHitDigitizer::~SiHitDigitizer(){
   }
 
 
-SiHitDigitizer::hit_map_type SiHitDigitizer::processHit(const PSimHit& hit, const StripGeomDetUnit& det, GlobalVector bfield){
+SiHitDigitizer::hit_map_type SiHitDigitizer::processHit(const PSimHit& hit, const StripGeomDetUnit& det, GlobalVector bfield,float langle){
 
   //
   // Fully process one SimHit
@@ -69,16 +69,17 @@ SiHitDigitizer::hit_map_type SiHitDigitizer::processHit(const PSimHit& hit, cons
   // Compute the drift direction for this det
   //
   
-  LocalVector driftDir = DriftDirection(&det,bfield);
+  LocalVector driftDir = DriftDirection(&det,bfield,langle);
  
   return theSiInduceChargeOnStrips->induce(theSiChargeCollectionDrifter->drift(ion,driftDir),det);
 }
 
-LocalVector SiHitDigitizer::DriftDirection(const StripGeomDetUnit* _detp,GlobalVector _bfield){
+LocalVector SiHitDigitizer::DriftDirection(const StripGeomDetUnit* _detp,GlobalVector _bfield,float langle){
   // taken from ORCA/Tracker/SiStripDet/src/SiStripDet.cc
   Frame detFrame(_detp->surface().position(),_detp->surface().rotation());
   LocalVector Bfield=detFrame.toLocal(_bfield);
 
+  if(langle==0.){
   double thickness = _detp->specificSurface().bounds().thickness();
 
   float mulow = chargeMobility*pow((temperature/300.),-2.5);
@@ -87,10 +88,11 @@ LocalVector SiHitDigitizer::DriftDirection(const StripGeomDetUnit* _detp,GlobalV
 
   float e = appliedVoltage/thickness;
   float mu = ( mulow/(pow(double((1+pow((mulow*e/vsat),beta))),1./beta)));
-  float hallMobility = mu*rhall;
+  langle = 1.E-4 *mu*rhall;
+  }
 
-  float dir_x = -1.E-4 * hallMobility * Bfield.y();
-  float dir_y = +1.E-4 * hallMobility * Bfield.x();
+  float dir_x = -langle * Bfield.y();
+  float dir_y = +langle * Bfield.x();
   float dir_z = 1.; // E field always in z direction
   LocalVector theDriftDirection = LocalVector(dir_x,dir_y,dir_z);
   if ( conf_.getUntrackedParameter<int>("VerbosityLevel") > 0 ) {

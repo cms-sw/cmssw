@@ -86,7 +86,7 @@ SiStripDigitizerAlgorithm::~SiStripDigitizerAlgorithm(){
 
 edm::DetSet<SiStripDigi>::collection_type SiStripDigitizerAlgorithm::run(const std::vector<PSimHit> &input,
 									 StripGeomDetUnit *det,
-									 GlobalVector bfield){
+									 GlobalVector bfield,float langle){
   
   //  std::cout << "SiStripDigitizerAlgorithm is running!" << endl;
   
@@ -103,7 +103,7 @@ edm::DetSet<SiStripDigi>::collection_type SiStripDigitizerAlgorithm::run(const s
     const PSimHit& ihit = *simHitIter;
     
     if ( std::fabs(ihit.tof()) < tofCut && ihit.energyLoss()>0) {
-      SiHitDigitizer::hit_map_type _temp = theSiHitDigitizer->processHit(ihit,*det,bfield);
+      SiHitDigitizer::hit_map_type _temp = theSiHitDigitizer->processHit(ihit,*det,bfield,langle);
       theSiPileUpSignals->add(_temp,ihit);
       
     }

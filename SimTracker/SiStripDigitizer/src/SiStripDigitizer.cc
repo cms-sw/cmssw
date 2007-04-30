@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea GIAMMANCO
 //         Created:  Thu Sep 22 14:23:22 CEST 2005
-// $Id: SiStripDigitizer.cc,v 1.28 2007/02/06 16:28:16 fambrogl Exp $
+// $Id: SiStripDigitizer.cc,v 1.29 2007/04/26 16:37:44 fambrogl Exp $
 //
 //
 
@@ -57,6 +57,8 @@
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
+#include "CondFormats/DataRecord/interface/SiStripLorentzAngleRcd.h"
+#include "CondFormats/SiStripObjects/interface/SiStripLorentzAngle.h"
 
 SiStripDigitizer::SiStripDigitizer(const edm::ParameterSet& conf) : 
   conf_(conf),SiStripNoiseService_(conf)
@@ -102,6 +104,10 @@ void SiStripDigitizer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   edm::ESHandle<MagneticField> pSetup;
   iSetup.get<IdealMagneticFieldRecord>().get(pSetup);
   
+  //Load Lorentz angle calibration
+  edm::ESHandle<SiStripLorentzAngle> SiStripLorentzAngle_;
+  if(conf_.getParameter<bool>("UseLACalibrationFromDB"))iSetup.get<SiStripLorentzAngleRcd>().get(SiStripLorentzAngle_);
+
   SiStripNoiseService_.setESObjects(iSetup);
   
   // Step B: LOOP on StripGeomDetUnit //
@@ -120,6 +126,7 @@ void SiStripDigitizer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
     StripGeomDetUnit* sgd = dynamic_cast<StripGeomDetUnit*>((*iu));
     if (sgd != 0){
       
+      
       edm::DetSet<SiStripDigi> collector((*iu)->geographicalId().rawId());
       edm::DetSet<StripDigiSimLink> linkcollector((*iu)->geographicalId().rawId());
       uint32_t idForNoise = (*iu)->geographicalId().rawId();
@@ -129,8 +136,9 @@ void SiStripDigitizer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
       }
 
       ((theAlgoMap.find(&(sgd->type())))->second)->setParticleDataTable(&*pdt);
-      
-      collector.data= ((theAlgoMap.find(&(sgd->type())))->second)->run(SimHitMap[(*iu)->geographicalId().rawId()], sgd, bfield);
+      float langle=0;
+      if(SiStripLorentzAngle_.isValid())langle=SiStripLorentzAngle_->getLorentzAngle((*iu)->geographicalId().rawId());
+      collector.data= ((theAlgoMap.find(&(sgd->type())))->second)->run(SimHitMap[(*iu)->geographicalId().rawId()], sgd, bfield,langle);
       
       if (collector.data.size()>0){
 	
