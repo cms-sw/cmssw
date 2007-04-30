@@ -8,7 +8,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Mon Oct  2 22:45:32 EDT 2006
-// $Id: L1ExtraParticlesProd.cc,v 1.8 2007/04/04 18:59:23 wsun Exp $
+// $Id: L1ExtraParticlesProd.cc,v 1.9 2007/04/11 03:49:20 wsun Exp $
 //
 //
 
@@ -182,9 +182,9 @@ L1ExtraParticlesProd::produce( edm::Event& iEvent,
 	    double pt = muScales->getPtScale()->getLowEdge( muItr->ptIndex() ) ;
 
 	    // To keep x and y components non-zero.
-	    if( pt == 0. )
+	    // if( pt == 0. ) // protect against roundoff, not only for pt=0
 	    {
-	       pt = 1.e-6 ;
+	       pt += 1.e-6 ;
 	    }
 
 	    double eta =
@@ -458,9 +458,9 @@ L1ExtraParticlesProd::produce( edm::Event& iEvent,
 	 ( ( double ) phiIndex + 0.5 ) * gctEtSumPhiBinWidth_ + gctPhiOffset_ ;
 
       // To keep x and y components non-zero.
-      if( etMiss == 0. )
+      // if( etMiss == 0. ) // protect against roundoff, not only for et=0
       {
-	 etMiss = 1.e-6 ;
+	 etMiss += 1.e-6 ;
       }
 
       math::XYZTLorentzVector p4( etMiss * cos( phi ),
@@ -489,9 +489,9 @@ L1ExtraParticlesProd::gctLorentzVector( const double& et,
 {
    // To keep x and y components non-zero.
    double etCorr = et ;
-   if( etCorr == 0. )
+   // if( etCorr == 0. ) // protect against roundoff, not only for et=0
    {
-      etCorr = 1.e-6 ;
+      etCorr += 1.e-6 ;
    }
 
    // Central/tau jets and EM have etaIndex = 0-6 for eta = 0-3.
