@@ -72,8 +72,10 @@ void SiStripTrivialClusterSource::beginJob( const edm::EventSetup& setup) {
   detids_.reserve(detCabling_.size());
   map< uint32_t, vector<FedChannelConnection> >::const_iterator iconn = detCabling_.begin();
   for (;iconn != detCabling_.end();iconn++) {
+    if ((!iconn->first) || (iconn->first == sistrip::invalid32_)) {
     detids_.push_back(iconn->first);
     nstrips_+=(iconn->second.size()*256);
+    }
   }
 }
 
