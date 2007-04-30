@@ -5,15 +5,15 @@
  *  to MC and (eventually) data. 
  *  Implementation file contents follow.
  *
- *  $Date: 2007/03/13 22:34:14 $
- *  $Revision: 1.31 $
+ *  $Date: 2007/04/30 18:37:29 $
+ *  $Revision: 1.32 $
  *  \author Vyacheslav Krutelyov (slava77)
  */
 
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Fri Mar  3 16:01:24 CST 2006
-// $Id: SteppingHelixPropagator.cc,v 1.31 2007/03/13 22:34:14 slava77 Exp $
+// $Id: SteppingHelixPropagator.cc,v 1.32 2007/04/30 18:37:29 slava77 Exp $
 //
 //
 
@@ -218,23 +218,6 @@ SteppingHelixPropagator::propagate(const SteppingHelixStateInfo& sStart,
   propagate(LINE_PCA_DT, pars);
   
   return svBuf_[cIndex_(nPoints_-1)];
-}
-
-
-void SteppingHelixPropagator::setIState(const FreeTrajectoryState& ftsStart) const {
-  //need to get rid of these conversions .. later
-  GlobalVector p3GV = ftsStart.momentum();
-  GlobalPoint r3GP = ftsStart.position();
-  Vector p3(p3GV.x(), p3GV.y(), p3GV.z());
-  Point  r3(r3GP.x(), r3GP.y(), r3GP.z());
-  
-  int charge = ftsStart.charge();
-  
-  setIState(p3, r3, charge,  
-	    (ftsStart.hasError() && !noErrorPropagation_) 
-	    ? ftsStart.cartesianError().matrix() : AlgebraicSymMatrix66(),
-	    propagationDirection());
-  
 }
 
 void SteppingHelixPropagator::setIState(const SteppingHelixStateInfo& sStart) const {
