@@ -6,3 +6,5 @@
 
 <use name=clhep>
 <use name=boost>
+<use name=DataFormats/CLHEP>
+
