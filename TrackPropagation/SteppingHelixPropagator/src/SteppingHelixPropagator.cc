@@ -5,15 +5,15 @@
  *  to MC and (eventually) data. 
  *  Implementation file contents follow.
  *
- *  $Date: 2007/04/30 19:07:04 $
- *  $Revision: 1.34 $
+ *  $Date: 2007/04/30 20:38:58 $
+ *  $Revision: 1.35 $
  *  \author Vyacheslav Krutelyov (slava77)
  */
 
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Fri Mar  3 16:01:24 CST 2006
-// $Id: SteppingHelixPropagator.cc,v 1.34 2007/04/30 19:07:04 slava77 Exp $
+// $Id: SteppingHelixPropagator.cc,v 1.35 2007/04/30 20:38:58 slava77 Exp $
 //
 //
 
@@ -53,8 +53,10 @@ SteppingHelixPropagator::SteppingHelixPropagator(const MagneticField* field,
   noMaterialMode_ = false;
   noErrorPropagation_ = false;
   applyRadX0Correction_ = false;
-  useMagVolumes_ = false;
-  useMatVolumes_ = false;
+  useMagVolumes_ = true;
+  useMatVolumes_ = true;
+  returnTangentPlane_ = true;
+  sendLogWarning_ = false;
   for (int i = 0; i <= MAX_POINTS; i++){
     svBuf_[i].cov = AlgebraicSymMatrix66();
     svBuf_[i].matDCov = AlgebraicSymMatrix66();
@@ -109,7 +111,7 @@ SteppingHelixPropagator::propagateWithPath(const FreeTrajectoryState& ftsStart,
 
   const StateInfo& svCurrent = propagate(svBuf_[0], cDest);
 
-  return TsosPP(svCurrent.getStateOnSurface(cDest), svCurrent.path());
+  return TsosPP(svCurrent.getStateOnSurface(cDest, returnTangentPlane_), svCurrent.path());
 }
 
 
@@ -130,7 +132,13 @@ std::pair<FreeTrajectoryState, double>
 SteppingHelixPropagator::propagateWithPath(const FreeTrajectoryState& ftsStart, 
 					   const GlobalPoint& pDest1, const GlobalPoint& pDest2) const {
 
-  if ((pDest1-pDest2).mag() < 1e-10) return FtsPP();
+  if ((pDest1-pDest2).mag() < 1e-10){
+    if (sendLogWarning_){
+      edm::LogWarning("SteppingHelixPropagator")<<"Can't propagate: the points should be at a bigger distance"
+						<<std::endl;
+    }
+    return FtsPP();
+  }
   setIState(SteppingHelixStateInfo(ftsStart));
   
   const StateInfo& svCurrent = propagate(svBuf_[0], pDest1, pDest2);
@@ -146,7 +154,13 @@ const SteppingHelixStateInfo&
 SteppingHelixPropagator::propagate(const SteppingHelixStateInfo& sStart, 
 				   const Surface& sDest) const {
   
-  if (! sStart.isValid()) return invalidState_;
+  if (! sStart.isValid()){
+    if (sendLogWarning_){
+      edm::LogWarning("SteppingHelixPropagator")<<"Can't propagate: invalid input state"
+						<<std::endl;
+    }
+    return invalidState_;
+  }
 
   const Plane* pDest = dynamic_cast<const Plane*>(&sDest);
   if (pDest != 0) return propagate(sStart, *pDest);
@@ -162,7 +176,13 @@ const SteppingHelixStateInfo&
 SteppingHelixPropagator::propagate(const SteppingHelixStateInfo& sStart, 
 				   const Plane& pDest) const {
   
-  if (! sStart.isValid()) return invalidState_;
+  if (! sStart.isValid()){
+    if (sendLogWarning_){
+      edm::LogWarning("SteppingHelixPropagator")<<"Can't propagate: invalid input state"
+						<<std::endl;
+    }    
+    return invalidState_;
+  }
   setIState(sStart);
   
   GlobalPoint rPlane = pDest.toGlobal(LocalPoint(0,0,0));
@@ -179,7 +199,13 @@ const SteppingHelixStateInfo&
 SteppingHelixPropagator::propagate(const SteppingHelixStateInfo& sStart, 
 				   const Cylinder& cDest) const {
   
-  if (! sStart.isValid()) return invalidState_;
+  if (! sStart.isValid()){
+    if (sendLogWarning_){
+      edm::LogWarning("SteppingHelixPropagator")<<"Can't propagate: invalid input state"
+						<<std::endl;
+    }    
+    return invalidState_;
+  }
   setIState(sStart);
   
   double pars[6];
@@ -195,7 +221,13 @@ const SteppingHelixStateInfo&
 SteppingHelixPropagator::propagate(const SteppingHelixStateInfo& sStart, 
 				   const GlobalPoint& pDest) const {
   
-  if (! sStart.isValid()) return invalidState_;
+  if (! sStart.isValid()){
+    if (sendLogWarning_){
+      edm::LogWarning("SteppingHelixPropagator")<<"Can't propagate: invalid input state"
+						<<std::endl;
+    }    
+    return invalidState_;
+  }
   setIState(sStart);
   
   double pars[6] = {pDest.x(), pDest.y(), pDest.z(), 0, 0, 0};
@@ -210,7 +242,17 @@ const SteppingHelixStateInfo&
 SteppingHelixPropagator::propagate(const SteppingHelixStateInfo& sStart, 
 				   const GlobalPoint& pDest1, const GlobalPoint& pDest2) const {
   
-  if ((pDest1-pDest2).mag() < 1e-10 || !sStart.isValid()) return invalidState_;
+  if ((pDest1-pDest2).mag() < 1e-10 || !sStart.isValid()){
+    if (sendLogWarning_){
+      if ((pDest1-pDest2).mag() < 1e-10)
+	edm::LogWarning("SteppingHelixPropagator")<<"Can't propagate: points are too close"
+						  <<std::endl;
+      if (!sStart.isValid())
+	edm::LogWarning("SteppingHelixPropagator")<<"Can't propagate: invalid input state"
+						  <<std::endl;
+    }
+    return invalidState_;
+  }
   setIState(sStart);
   
   double pars[6] = {pDest1.x(), pDest1.y(), pDest1.z(),
@@ -258,6 +300,11 @@ SteppingHelixPropagator::propagate(SteppingHelixPropagator::DestType type,
     svCurrent->status_ = result;
     svCurrent->isValid_ = result == SteppingHelixStateInfo::OK;
     svCurrent->field = field_;
+    if (sendLogWarning_){
+      edm::LogWarning(metname)<<" Failed after first refToDest check with status "
+			      <<SteppingHelixStateInfo::ResultName[result]
+			      <<std::endl;
+    }
     return result;
   }
 
@@ -419,6 +466,27 @@ SteppingHelixPropagator::propagate(SteppingHelixPropagator::DestType type,
     svCurrent->field = field_;
   }
 
+  if (sendLogWarning_ && result != SteppingHelixStateInfo::OK){
+    edm::LogWarning(metname)<<" Propagation failed with status "
+			    <<SteppingHelixStateInfo::ResultName[result]
+			    <<std::endl;
+    if (result == SteppingHelixStateInfo::RANGEOUT)
+      edm::LogWarning(metname)<<" Momentum at last point is too low (<0.1) p_last = "
+			      <<svCurrent->p3.mag()
+			      <<std::endl;
+    if (result == SteppingHelixStateInfo::INACC)
+      edm::LogWarning(metname)<<" Went too far: the last point is at "<<svCurrent->r3
+			      <<std::endl;
+    if (result == SteppingHelixStateInfo::FAULT && nOsc > 6)
+      edm::LogWarning(metname)<<" Infinite loop condidtion detected: going in cycles. Break after 6 cycles"
+			      <<std::endl;
+    if (result == SteppingHelixStateInfo::FAULT && nPoints_ > MAX_STEPS*1./defaultStep_)
+      edm::LogWarning(metname)<<" Tired to go farther. Made too many steps: more than "
+			      <<MAX_STEPS*1./defaultStep_
+			      <<std::endl;
+    
+  }
+
   if (debug_){
     switch (type) {
     case RADIUS_DT:
@@ -507,12 +575,12 @@ void SteppingHelixPropagator::loadState(SteppingHelixPropagator::StateInfo& svCu
 
   if (debug_){
     LogTrace(metname)<<"Loaded at  path: "<<svCurrent.path_<<" radPath: "<<svCurrent.radPath
-	     <<" p3 "<<" pt: "<<svCurrent.p3.perp()<<" phi: "<<svCurrent.p3.phi()
-	     <<" eta: "<<svCurrent.p3.eta()
-	     <<" "<<svCurrent.p3
-	     <<" r3: "<<svCurrent.r3
-	     <<" bField: "<<svCurrent.bf.mag()
-	     <<std::endl;
+		     <<" p3 "<<" pt: "<<svCurrent.p3.perp()<<" phi: "<<svCurrent.p3.phi()
+		     <<" eta: "<<svCurrent.p3.eta()
+		     <<" "<<svCurrent.p3
+		     <<" r3: "<<svCurrent.r3
+		     <<" bField: "<<svCurrent.bf.mag()
+		     <<std::endl;
     LogTrace(metname)<<"Input Covariance in Global RF "<<cov<<std::endl;
   }
 }
@@ -572,14 +640,14 @@ void SteppingHelixPropagator::getNextState(const SteppingHelixPropagator::StateI
 
   if (debug_){
     LogTrace(metname)<<"Now at  path: "<<svNext.path_<<" radPath: "<<svNext.radPath
-	     <<" p3 "<<" pt: "<<svNext.p3.perp()<<" phi: "<<svNext.p3.phi()
-	     <<" eta: "<<svNext.p3.eta()
-	     <<" "<<svNext.p3
-	     <<" r3: "<<svNext.r3
-	     <<" dPhi: "<<acos(svNext.p3.unit().dot(svPrevious.p3.unit()))
-	     <<" bField: "<<svNext.bf.mag()
-	     <<" dedx: "<<svNext.dEdx
-	     <<std::endl;
+		     <<" p3 "<<" pt: "<<svNext.p3.perp()<<" phi: "<<svNext.p3.phi()
+		     <<" eta: "<<svNext.p3.eta()
+		     <<" "<<svNext.p3
+		     <<" r3: "<<svNext.r3
+		     <<" dPhi: "<<acos(svNext.p3.unit().dot(svPrevious.p3.unit()))
+		     <<" bField: "<<svNext.bf.mag()
+		     <<" dedx: "<<svNext.dEdx
+		     <<std::endl;
     LogTrace(metname)<<"New Covariance "<<svNext.cov<<std::endl;
     LogTrace(metname)<<"Transf by dCovTransform "<<dCovTransform<<std::endl;
   }
@@ -655,14 +723,14 @@ bool SteppingHelixPropagator::makeAtomStep(SteppingHelixPropagator::StateInfo& s
     }
     if (debug_){
       LogTrace(metname)<<"Improved b "<<b0
-	       <<" at r3 "<<drVec<<std::endl;
+		       <<" at r3 "<<drVec<<std::endl;
     }
 
     if (fabs((b0-svCurrent.bf.mag())*dS) > 1){
       //missed the mag volume boundary?
       if (debug_){
 	LogTrace(metname)<<"Large bf*dS change "<<fabs((b0-svCurrent.bf.mag())*dS)
-		 <<" --> recalc dedx"<<std::endl;
+			 <<" --> recalc dedx"<<std::endl;
       }
       svNext.r3 = drVec;
       svNext.bf = bf;
@@ -837,10 +905,10 @@ bool SteppingHelixPropagator::makeAtomStep(SteppingHelixPropagator::StateInfo& s
     }
     break;
   }
-//   case POL_1_F:
-//   case POL_2_F:
-//   case POL_M_F:
-//     break;
+    //   case POL_1_F:
+    //   case POL_2_F:
+    //   case POL_M_F:
+    //     break;
   default:
     break;
   }
@@ -850,7 +918,7 @@ bool SteppingHelixPropagator::makeAtomStep(SteppingHelixPropagator::StateInfo& s
   if (dir == oppositeToMomentum) dP = -fabs(dP);
   dP = dP > pMag ? pMag-1e-5 : dP;
   getNextState(svCurrent, svNext, dP, tauNext, drVec, dS, dS/radX0,
-		 dCTransform_);
+	       dCTransform_);
   return true;
 }
 
@@ -934,7 +1002,7 @@ double SteppingHelixPropagator::getDeDx(const SteppingHelixPropagator::StateInfo
       rzLims = MatBounds(2.9, 129, 555, 785);
       //iron .. don't care about no material in front of HF (too forward)
       if (! (lZ > 568 && lZ < 625 && lR > 85 ) // HE support 
-	   && ! (lZ > 785 && lZ < 850 && lR > 118)) {dEdx = dEdX_Fe; radX0 = radX0_Fe; }
+	  && ! (lZ > 785 && lZ < 850 && lR > 118)) {dEdx = dEdX_Fe; radX0 = radX0_Fe; }
       else  { dEdx = dEdX_MCh; radX0 = radX0_MCh; } //ME at eta > 2.2
     }
   }
@@ -958,7 +1026,7 @@ double SteppingHelixPropagator::getDeDx(const SteppingHelixPropagator::StateInfo
       }
 
       if (!(lR > 135 && lZ <343 && lZ > 304 )
-	   && ! (lR > 156 && lZ < 372 && lZ > 343 && ((lZ-343.)< (lR-156.)*1.38)))
+	  && ! (lR > 156 && lZ < 372 && lZ > 343 && ((lZ-343.)< (lR-156.)*1.38)))
 	{
 	  //the crystals are the same length, but they are not 100% of material
 	  double cosThetaEquiv = 0.8/sqrt(1.+lZ*lZ/lR/lR) + 0.2;
@@ -1172,7 +1240,7 @@ SteppingHelixPropagator::refToDest(SteppingHelixPropagator::DestType dest,
 	  tanDist *= (1.+tanDCorr);
 	} else {
 	  if (debug_) LogTrace(metname)<<"ABVal "<< fabs(aVal*bVal)
-			       <<" = "<<aVal<<" * "<<bVal<<" too large:: will not converge"<<std::endl;
+				       <<" = "<<aVal<<" * "<<bVal<<" too large:: will not converge"<<std::endl;
 	}
       }
       refDirection = (sv.p3.dot(nPlane))*dRDotN < 0. ?
@@ -1206,8 +1274,8 @@ SteppingHelixPropagator::refToDest(SteppingHelixPropagator::DestType dest,
 	  oppositeToMomentum : alongMomentum;
 	if (debug_){
 	  LogTrace(metname)<<"refToDest:toCone the point is "
-		   <<(isInside? "in" : "out")<<"side the cone"
-		   <<std::endl;
+			   <<(isInside? "in" : "out")<<"side the cone"
+			   <<std::endl;
 	}
       }
     }
@@ -1271,10 +1339,10 @@ SteppingHelixPropagator::refToDest(SteppingHelixPropagator::DestType dest,
     }
     LogTrace(metname)<<std::endl;
     LogTrace(metname)<<"refToDest output: "
-	     <<"\t dist"<< dist
-	     <<"\t tanDist"<< tanDist      
-      	     <<"\t refDirection"<< refDirection
-	     <<std::endl;
+		     <<"\t dist"<< dist
+		     <<"\t tanDist"<< tanDist      
+		     <<"\t refDirection"<< refDirection
+		     <<std::endl;
   }
 
   return result;
@@ -1300,7 +1368,7 @@ SteppingHelixPropagator::refToMagVolume(const SteppingHelixPropagator::StateInfo
   
   if (debug_){
     LogTrace(metname)<<"Trying volume "<<DDSolidShapesName::name(cVol->shapeType())
-	     <<" with "<<cVolFaces.size()<<" faces"<<std::endl;
+		     <<" with "<<cVolFaces.size()<<" faces"<<std::endl;
   }
 
   for (uint iFace = 0; iFace < cVolFaces.size(); iFace++){
@@ -1335,18 +1403,18 @@ SteppingHelixPropagator::refToMagVolume(const SteppingHelixPropagator::StateInfo
     } else if (cCyl != 0){
       if (debug_){
 	LogTrace(metname)<<"Cylinder at "<<cCyl->position()
-		 <<" rorated by "<<cCyl->rotation()
-		 <<std::endl;
+			 <<" rorated by "<<cCyl->rotation()
+			 <<std::endl;
       }
       pars[RADIUS_P] = cCyl->radius();
       dType = RADIUS_DT;
     } else if (cCone != 0){
       if (debug_){
 	LogTrace(metname)<<"Cone at "<<cCone->position()
-		 <<" rorated by "<<cCone->rotation()
-		 <<" vertex at "<<cCone->vertex()
-		 <<" angle of "<<cCone->openingAngle()
-		 <<std::endl;
+			 <<" rorated by "<<cCone->rotation()
+			 <<" vertex at "<<cCone->vertex()
+			 <<" angle of "<<cCone->openingAngle()
+			 <<std::endl;
       }
       if (sv.r3.z() < 0){
 	pars[0] = cCone->vertex().x(); pars[1] = cCone->vertex().y(); 
@@ -1375,7 +1443,7 @@ SteppingHelixPropagator::refToMagVolume(const SteppingHelixPropagator::StateInfo
       gPointEst += sign*sqrt(fabs(distToFace[iFace]*tanDistToFace[iFace]))*gDir;
       if (debug_){
 	LogTrace(metname)<<"Linear est point "<<gPointEst
-		 <<std::endl;
+			 <<std::endl;
       }
       GlobalPoint gPointEstNegZ(gPointEst.x(), gPointEst.y(),
 				gPointEst.z() > 0 ? -gPointEst.z() : gPointEst.z());
@@ -1480,7 +1548,7 @@ SteppingHelixPropagator::refToMatVolume(const SteppingHelixPropagator::StateInfo
       gPointEst += sign*sqrt(fabs(distToFace[iFace]*tanDistToFace[iFace]))*gDir;
       if (debug_){
 	LogTrace(metname)<<"Linear est point "<<gPointEst
-		 <<std::endl;
+			 <<std::endl;
       }
       double lZ = fabs(gPointEst.z());
       double lR = gPointEst.perp();

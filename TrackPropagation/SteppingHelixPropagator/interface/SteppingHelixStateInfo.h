@@ -6,15 +6,15 @@
 /** \class SteppingHelixStateInfo
  *  Holder of SteppingHelixState information
  *
- *  $Date: 2007/04/30 18:37:28 $
- *  $Revision: 1.8 $
+ *  $Date: 2007/04/30 20:38:57 $
+ *  $Revision: 1.9 $
  *  \author Vyacheslav Krutelyov (slava77)
  */
 
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Wed Jan  3 16:01:24 CST 2007
-// $Id: SteppingHelixStateInfo.h,v 1.8 2007/04/30 18:37:28 slava77 Exp $
+// $Id: SteppingHelixStateInfo.h,v 1.9 2007/04/30 20:38:57 slava77 Exp $
 //
 //
 
@@ -45,13 +45,16 @@ class SteppingHelixStateInfo {
     RANGEOUT,
     INACC,
     NOT_IMPLEMENTED,
-    UNDEFINED
+    UNDEFINED,
+    MAX_RESULT
   };
+
+  static const std::string ResultName[MAX_RESULT];
 
   SteppingHelixStateInfo(): isComplete(0), isValid_(0), status_(UNDEFINED) {}
   SteppingHelixStateInfo(const FreeTrajectoryState& fts);
 
-  TrajectoryStateOnSurface getStateOnSurface(const Surface& surf) const;
+  TrajectoryStateOnSurface getStateOnSurface(const Surface& surf, bool returnTangentPlane = false) const;
 
   ///convert internal structure into the fts
   void getFreeState(FreeTrajectoryState& fts) const;

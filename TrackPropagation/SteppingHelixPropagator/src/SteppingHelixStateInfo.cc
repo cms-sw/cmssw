@@ -1,15 +1,15 @@
 /** \class SteppingHelixStateInfo
  *  Implementation part of the stepping helix propagator state data structure
  *
- *  $Date: 2007/04/30 18:37:29 $
- *  $Revision: 1.5 $
+ *  $Date: 2007/04/30 20:38:58 $
+ *  $Revision: 1.6 $
  *  \author Vyacheslav Krutelyov (slava77)
  */
 
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Wed Jan  3 16:01:24 CST 2007
-// $Id: SteppingHelixStateInfo.cc,v 1.5 2007/04/30 18:37:29 slava77 Exp $
+// $Id: SteppingHelixStateInfo.cc,v 1.6 2007/04/30 20:38:58 slava77 Exp $
 //
 //
 
@@ -19,6 +19,16 @@
 
 #include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixStateInfo.h"
 
+#include "DataFormats/GeometrySurface/interface/TangentPlane.h"
+
+const std::string SteppingHelixStateInfo::ResultName[MAX_RESULT] = {
+  "RESULT_OK",
+  "RESULT_FAULT",
+  "RESULT_RANGEOUT",
+  "RESULT_INACC",
+  "RESULT_NOT_IMPLEMENTED",
+  "RESULT_UNDEFINED"
+};
 
 SteppingHelixStateInfo::SteppingHelixStateInfo(const FreeTrajectoryState& fts){
   p3.set(fts.momentum().x(), fts.momentum().y(), fts.momentum().z());
@@ -37,12 +47,12 @@ SteppingHelixStateInfo::SteppingHelixStateInfo(const FreeTrajectoryState& fts){
   isValid_ = true;
 }
 
-TrajectoryStateOnSurface SteppingHelixStateInfo::getStateOnSurface(const Surface& surf) const {
+TrajectoryStateOnSurface SteppingHelixStateInfo::getStateOnSurface(const Surface& surf, bool returnTangentPlane) const {
   if (! isValid()) return TrajectoryStateOnSurface();
   FreeTrajectoryState fts;
   getFreeState(fts);
 
-  return TrajectoryStateOnSurface(fts, surf);
+  return TrajectoryStateOnSurface(fts, returnTangentPlane ? *surf.tangentPlane(fts.position()) : surf);
 }
 
 

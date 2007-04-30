@@ -58,6 +58,12 @@ SteppingHelixPropagatorESProducer::produce(const TrackingComponentsRecord & iRec
   bool useMatVolumes = pset_.getParameter<bool>("useMatVolumes");
   shProp->setUseMatVolumes(useMatVolumes);
 
+  bool returnTangentPlane = pset_.getParameter<bool>("returnTangentPlane");
+  shProp->setReturnTangentPlane(returnTangentPlane);
+
+  bool sendLogWarning = pset_.getParameter<bool>("sendLogWarning");
+  shProp->setSendLogWarning(sendLogWarning);
+
   _propagator  = boost::shared_ptr<Propagator>(shProp);
   return _propagator;
 }
