@@ -1,9 +1,9 @@
 /**
  * \file AlignmentParameterStore.cc
  *
- *  $Revision: 1.11 $
- *  $Date: 2007/03/12 21:55:54 $
- *  (last update by $Author: cklae $)
+ *  $Revision: 1.12 $
+ *  $Date: 2007/03/16 16:33:53 $
+ *  (last update by $Author: flucke $)
  */
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -50,16 +50,34 @@ AlignmentParameterStore::~AlignmentParameterStore()
 CompositeAlignmentParameters
 AlignmentParameterStore::selectParameters( const std::vector<AlignableDet*>& alignabledets ) const
 {
+  std::vector<AlignableDetOrUnitPtr> detOrUnits;
+  detOrUnits.reserve(alignabledets.size());
+//   Does not compile due to strange const-conversion problems, but why?
+//   for (std::vector<AlignableDet*>::iterator it = alignabledets.begin(), iEnd = alignabledets.end();
+//        it != iEnd; ++it) {
+//     detOrUnits.push_back(AlignableDetOrUnitPtr(*it));
+//   }
+  for (unsigned int i = 0; i < alignabledets.size(); ++i) {
+    detOrUnits.push_back(AlignableDetOrUnitPtr(alignabledets[i]));
+  }
+
+  return this->selectParameters(detOrUnits);
+}
+
+//__________________________________________________________________________________________________
+CompositeAlignmentParameters
+AlignmentParameterStore::selectParameters( const std::vector<AlignableDetOrUnitPtr>& alignabledets ) const
+{
 
   std::vector<Alignable*> alignables;
-  std::map <AlignableDet*,Alignable*> alidettoalimap;
+  std::map <AlignableDetOrUnitPtr,Alignable*> alidettoalimap;
   std::map <Alignable*,int> aliposmap;
   std::map <Alignable*,int> alilenmap;
   int nparam=0;
 
   // iterate over AlignableDet's
-  std::vector<AlignableDet*>::const_iterator iad;
-  for( iad = alignabledets.begin(); iad != alignabledets.end(); ++iad ) 
+  for( std::vector<AlignableDetOrUnitPtr>::const_iterator iad = alignabledets.begin();
+       iad != alignabledets.end(); ++iad ) 
   {
     Alignable* ali = alignableFromAlignableDet( *iad );
     if ( ali ) 
@@ -168,7 +186,7 @@ std::vector<Alignable*> AlignmentParameterStore::validAlignables(void) const
 }
 
 //__________________________________________________________________________________________________
-Alignable* AlignmentParameterStore::alignableFromAlignableDet( AlignableDet* alignableDet ) const
+Alignable* AlignmentParameterStore::alignableFromAlignableDet( AlignableDetOrUnitPtr alignableDet ) const
 {
   Alignable *mother = alignableDet;
   while (mother) {
