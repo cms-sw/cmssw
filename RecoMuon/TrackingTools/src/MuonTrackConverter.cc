@@ -6,8 +6,8 @@
  *     performing a refit
  *
  *
- *  $Date: 2006/09/27 03:16:12 $
- *  $Revision: 1.6 $ 
+ *  $Date: 2006/10/10 01:25:15 $
+ *  $Revision: 1.7 $ 
  *
  *  Authors :
  *  N. Neumeister            Purdue University
@@ -98,7 +98,7 @@ vector<Trajectory> MuonTrackConverter::convert(const reco::Track& t) const {
 
   if ( !firstState.isValid() ) return result;
 
-  AlgebraicSymMatrix C(5,1);
+  AlgebraicSymMatrix55 C = AlgebraicMatrixID();
   C *= 10.;
   LocalTrajectoryParameters lp = firstState.localParameters();
   TrajectoryStateOnSurface theTSOS(lp,LocalTrajectoryError(C),

@@ -3,8 +3,8 @@
  *  method, the vertex constraint. The vertex constraint is applyed using the Kalman Filter tools used for 
  *  the vertex reconstruction.
  *
- *  $Date: 2007/03/09 11:12:23 $
- *  $Revision: 1.23 $
+ *  $Date: 2007/04/13 09:05:35 $
+ *  $Revision: 1.24 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -65,10 +65,10 @@ MuonUpdatorAtVertex::MuonUpdatorAtVertex(const edm::ParameterSet& pset,
   // errors[1] = sigma(y) 
   // errors[2] = sigma(z)
 
-  AlgebraicSymMatrix mat(3,0);
-  mat[0][0] = errors[0]*errors[0];
-  mat[1][1] = errors[1]*errors[1];
-  mat[2][2] = errors[2]*errors[2];
+  AlgebraicSymMatrix33 mat;
+  mat(0,0) = errors[0]*errors[0];
+  mat(1,1) = errors[1]*errors[1];
+  mat(2,2) = errors[2]*errors[2];
   GlobalError glbErrPos(mat);
 
   thePositionErrors = glbErrPos;
@@ -190,10 +190,10 @@ MuonUpdatorAtVertex::update(const reco::TransientTrack & track){
   // sigma(x) = sigma(y) = 15 microns
   // sigma(z) = 5.3 cm
 
-  AlgebraicSymMatrix mat(3,0);
-  mat[0][0] = (15.e-04)*(15.e-04);
-  mat[1][1] = (15.e-04)*(15.e-04);
-  mat[2][2] = (5.3)*(5.3);
+  AlgebraicSymMatrix33 mat;
+  mat(0,0) = (15.e-04)*(15.e-04);
+  mat(1,1) = (15.e-04)*(15.e-04);
+  mat(2,2) = (5.3)*(5.3);
   GlobalError glbErrPos(mat);
 
   SingleTrackVertexConstraint::TrackFloatPair constrainedTransientTrack;
