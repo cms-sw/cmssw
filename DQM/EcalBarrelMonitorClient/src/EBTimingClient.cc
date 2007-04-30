@@ -1,8 +1,8 @@
 /*
  * \file EBTimingClient.cc
  *
- * $Date: 2007/04/29 18:13:44 $
- * $Revision: 1.21 $
+ * $Date: 2007/04/30 09:24:00 $
+ * $Revision: 1.22 $
  * \author G. Della Ricca
  *
 */
@@ -270,7 +270,7 @@ bool EBTimingClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunI
 
   UtilsClient::printBadChannels(qth01_[ism-1]);
 
-  UtilsClient::printBadChannels(qtg01_[ism-1]);
+//  UtilsClient::printBadChannels(qtg01_[ism-1]);
 
   return status;
 

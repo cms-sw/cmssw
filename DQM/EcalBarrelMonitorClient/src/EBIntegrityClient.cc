@@ -2,8 +2,8 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2007/04/29 18:13:44 $
- * $Revision: 1.141 $
+ * $Date: 2007/04/30 09:24:00 $
+ * $Revision: 1.142 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -382,8 +382,8 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
   UtilsClient::printBadChannels(qth09_[ism-1]);
   UtilsClient::printBadChannels(qth10_[ism-1]);
 
-  UtilsClient::printBadChannels(qtg01_[ism-1]);
-  UtilsClient::printBadChannels(qtg02_[ism-1]);
+//  UtilsClient::printBadChannels(qtg01_[ism-1]);
+//  UtilsClient::printBadChannels(qtg02_[ism-1]);
 
   EcalLogicID ecid;
   MonCrystalConsistencyDat c1;

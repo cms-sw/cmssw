@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2007/04/29 18:13:44 $
- * $Revision: 1.152 $
+ * $Date: 2007/04/30 09:24:00 $
+ * $Revision: 1.153 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -1089,19 +1089,19 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
   UtilsClient::printBadChannels(qth23_[ism-1]);
   UtilsClient::printBadChannels(qth24_[ism-1]);
 
-  UtilsClient::printBadChannels(qtg01_[ism-1]);
-  UtilsClient::printBadChannels(qtg02_[ism-1]);
-  UtilsClient::printBadChannels(qtg03_[ism-1]);
-  UtilsClient::printBadChannels(qtg04_[ism-1]);
+//  UtilsClient::printBadChannels(qtg01_[ism-1]);
+//  UtilsClient::printBadChannels(qtg02_[ism-1]);
+//  UtilsClient::printBadChannels(qtg03_[ism-1]);
+//  UtilsClient::printBadChannels(qtg04_[ism-1]);
 
-  UtilsClient::printBadChannels(qtg05_[ism-1]);
-  UtilsClient::printBadChannels(qtg06_[ism-1]);
-  UtilsClient::printBadChannels(qtg07_[ism-1]);
-  UtilsClient::printBadChannels(qtg08_[ism-1]);
-  UtilsClient::printBadChannels(qtg09_[ism-1]);
-  UtilsClient::printBadChannels(qtg10_[ism-1]);
-  UtilsClient::printBadChannels(qtg11_[ism-1]);
-  UtilsClient::printBadChannels(qtg12_[ism-1]);
+//  UtilsClient::printBadChannels(qtg05_[ism-1]);
+//  UtilsClient::printBadChannels(qtg06_[ism-1]);
+//  UtilsClient::printBadChannels(qtg07_[ism-1]);
+//  UtilsClient::printBadChannels(qtg08_[ism-1]);
+//  UtilsClient::printBadChannels(qtg09_[ism-1]);
+//  UtilsClient::printBadChannels(qtg10_[ism-1]);
+//  UtilsClient::printBadChannels(qtg11_[ism-1]);
+//  UtilsClient::printBadChannels(qtg12_[ism-1]);
 
   EcalLogicID ecid;
   MonLaserBlueDat apd_bl;

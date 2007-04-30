@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalOnlineClient.cc
  *
- * $Date: 2007/04/29 17:17:49 $
- * $Revision: 1.82 $
+ * $Date: 2007/04/30 09:24:00 $
+ * $Revision: 1.83 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -261,7 +261,7 @@ bool EBPedestalOnlineClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov,
 
   UtilsClient::printBadChannels(qth03_[ism-1]);
 
-  UtilsClient::printBadChannels(qtg03_[ism-1]);
+//  UtilsClient::printBadChannels(qtg03_[ism-1]);
 
   EcalLogicID ecid;
   MonPedestalsOnlineDat p;

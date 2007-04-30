@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2007/04/29 22:25:12 $
- * $Revision: 1.16 $
+ * $Date: 2007/04/30 09:24:00 $
+ * $Revision: 1.17 $
  * \author G. Della Ricca
  *
 */
@@ -206,10 +206,10 @@ bool EBSummaryClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRun
 
   bool status = true;
 
-  //UtilsClient::printBadChannels(qtg01_);
-  //UtilsClient::printBadChannels(qtg02_);
-  //UtilsClient::printBadChannels(qtg03_);
-  //UtilsClient::printBadChannels(qtg04_);
+//  UtilsClient::printBadChannels(qtg01_);
+//  UtilsClient::printBadChannels(qtg02_);
+//  UtilsClient::printBadChannels(qtg03_);
+//  UtilsClient::printBadChannels(qtg04_);
 
   return status;
 

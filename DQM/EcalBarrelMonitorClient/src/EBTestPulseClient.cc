@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  *
- * $Date: 2007/04/29 17:17:49 $
- * $Revision: 1.133 $
+ * $Date: 2007/04/30 09:24:00 $
+ * $Revision: 1.134 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -441,12 +441,12 @@ bool EBTestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
   UtilsClient::printBadChannels(qtha06_[ism-1]);
   UtilsClient::printBadChannels(qtha07_[ism-1]);
 
-  UtilsClient::printBadChannels(qtg01_[ism-1]);
-  UtilsClient::printBadChannels(qtg02_[ism-1]);
-  UtilsClient::printBadChannels(qtg03_[ism-1]);
+//  UtilsClient::printBadChannels(qtg01_[ism-1]);
+//  UtilsClient::printBadChannels(qtg02_[ism-1]);
+//  UtilsClient::printBadChannels(qtg03_[ism-1]);
 
-  UtilsClient::printBadChannels(qtg04_[ism-1]);
-  UtilsClient::printBadChannels(qtg05_[ism-1]);
+//  UtilsClient::printBadChannels(qtg04_[ism-1]);
+//  UtilsClient::printBadChannels(qtg05_[ism-1]);
 
   EcalLogicID ecid;
   MonTestPulseDat adc;
