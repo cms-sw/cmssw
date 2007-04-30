@@ -1,6 +1,17 @@
 #ifndef GlobalHitsProducer_h
 #define GlobalHitsProducer_h
 
+/** \class GlobalHitsProducer
+ *  
+ *  Class to fill PGlobalSimHit object to be inserted into data stream 
+ *  containing information about various sub-systems in global coordinates 
+ *  with full geometry
+ *
+ *  $Date: 2007/04/30 13:49:00 $
+ *  $Revision: 1.3 $
+ *  \author M. Strang SUNY-Buffalo
+ */
+
 // framework & common header files
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
