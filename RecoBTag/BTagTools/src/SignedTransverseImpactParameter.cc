@@ -4,7 +4,6 @@
 #include "TrackingTools/GeomPropagators/interface/AnalyticalTrajectoryExtrapolatorToLine.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/Measurement1D.h"
 #include "RecoBTag/BTagTools/interface/SignedTransverseImpactParameter.h"
-#include "RecoVertex/VertexPrimitives/interface/ConvertError.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "TrackingTools/PatternTools/interface/TransverseImpactPointExtrapolator.h"
 
@@ -48,8 +47,8 @@ pair<bool,Measurement1D> SignedTransverseImpactParameter::apply(const TransientT
 
     //error calculation
     
-    HepVector deriv(6);
-    HepVector deriv_v(3);
+    AlgebraicVector6 deriv;
+    AlgebraicVector3 deriv_v;
     GlobalVector dd0 = DD0.unit();//check
     
     deriv_v[0] = - dd0.x();
@@ -64,8 +63,8 @@ pair<bool,Measurement1D> SignedTransverseImpactParameter::apply(const TransientT
     deriv[5] =  0.;
     //cout << TSOS.cartesianError().matrix() << endl;
     //cout << deriv << endl;   
-    double E1 = (TSOS.cartesianError().matrix()).similarity(deriv);
-    double E2 = RecoVertex::convertError(vertex.covariance()).matrix().similarity(deriv_v);
+    double E1 = ROOT::Math::Similarity(deriv,TSOS.cartesianError().matrix());
+    double E2 = ROOT::Math::Similarity(deriv_v,vertex.covariance());
              // (aJet.vertex().positionError().matrix()).similarity(deriv_v);
     theError = sqrt(E1+E2);
     LogDebug("BTagTools") << "Tk error : " << E1 << " , Vtx error : " << E2 << "  tot : " << theError;
@@ -111,10 +110,10 @@ pair<bool,Measurement1D> SignedTransverseImpactParameter::zImpactParameter ( con
   double deltaZ = fabs(PCA.z()-PV.z()) * sign ;
   
   // error
-  double errPvZ2 = RecoVertex::convertError(vertex.covariance()).czz() ;
+  double errPvZ2 = vertex.covariance()(2,2) ;
   //CW  cout << "CW number or rows and columns : " << statePCA.cartesianError().matrix().num_row() << " , "
   //CW                                             << statePCA.cartesianError().matrix().num_col() << endl ;
-  double errTrackZ2 =  statePCA.cartesianError().matrix()[2][2] ;
+  double errTrackZ2 =  statePCA.cartesianError().matrix()(2,2) ;
   double errZ = sqrt ( errPvZ2 + errTrackZ2 ) ;
 
   // CW alt. -> gives the same!!

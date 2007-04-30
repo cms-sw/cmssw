@@ -4,7 +4,6 @@
 #include "TrackingTools/GeomPropagators/interface/AnalyticalTrajectoryExtrapolatorToLine.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/Measurement1D.h"
 #include "RecoBTag/BTagTools/interface/SignedImpactParameter3D.h"
-#include "RecoVertex/VertexPrimitives/interface/ConvertError.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 
 #include "CLHEP/Vector/ThreeVector.h"
@@ -53,8 +52,8 @@ pair<bool,Measurement1D> SignedImpactParameter3D::apply(const TransientTrack & t
     GlobalVector Xi(T0.x()-vertex.position().x(),T0.y()-vertex.position().y(),T0.z()-vertex.position().z());
 
     
-    HepVector deriv(6);
-    HepVector deriv_v(3);
+    AlgebraicVector6 deriv;
+    AlgebraicVector3 deriv_v;
     
     deriv_v[0] = - DD.x();
     deriv_v[1] = - DD.y();
@@ -67,8 +66,9 @@ pair<bool,Measurement1D> SignedImpactParameter3D::apply(const TransientTrack & t
     deriv[4] =  - (TT1.dot(Xi)*DD.y())/T1.mag();
     deriv[5] =  - (TT1.dot(Xi)*DD.z())/T1.mag();
 
-    double E1 = (theTSOS.cartesianError().matrix()).similarity(deriv);
-    double E2 = RecoVertex::convertError(vertex.covariance()).matrix().similarity(deriv_v);
+    double E1 = ROOT::Math::Similarity(deriv , theTSOS.cartesianError().matrix());
+    double E2 = ROOT::Math::Similarity(deriv_v , vertex.covariance());
+//    double E2 = RecoVertex::convertError(vertex.covariance()).matrix().similarity(deriv_v);
 //    double E2 = 0.; // no vertex error because of stupid use of hundreds of different types for same thing 
     theError = sqrt(E1+E2);
 

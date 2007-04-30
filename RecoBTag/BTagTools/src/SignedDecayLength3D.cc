@@ -7,7 +7,6 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/GeomPropagators/interface/AnalyticalTrajectoryExtrapolatorToLine.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/Measurement1D.h"
-#include "RecoVertex/VertexPrimitives/interface/ConvertError.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 
 #include "CLHEP/Vector/ThreeVector.h"
@@ -38,20 +37,20 @@ pair<bool,Measurement1D> SignedDecayLength3D::apply(const TransientTrack & trans
 
     //error calculation
 
-    HepVector j(3);
+    AlgebraicVector3 j;
     j[0] = J.x();
     j[1] = J.y();
     j[2] = J.z();
-    HepVector jj(6);
+    AlgebraicVector6 jj;
     jj[0] = J.x();
     jj[1] = J.y();
     jj[2] = J.z();
     jj[3] =0.;
     jj[4] =0.;
     jj[5] =0.;///chech it!!!!!!!!!!!!!!!!!!!!!!!
-    double E1 = (theTSOS.cartesianError().matrix()).similarity(jj);
+    double E1 = ROOT::Math::Similarity(jj,theTSOS.cartesianError().matrix());
   //  double E2 = (aJet.vertex().positionError().matrix()).similarity(j);
-    double E2 = RecoVertex::convertError(vertex.covariance()).matrix().similarity(j);
+    double E2 = ROOT::Math::Similarity(j,vertex.covariance());
 
     theError = sqrt(E1+E2);
     

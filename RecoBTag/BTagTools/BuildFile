@@ -3,7 +3,6 @@
 <use name=DataFormats/GeometryVector>
 <use name=DataFormats/VertexReco>
 <use name=FWCore/MessageLogger>
-<use name=RecoVertex/VertexPrimitives>
 <use name=TrackingTools/GeomPropagators>
 <use name=TrackingTools/PatternTools>
 <use name=TrackingTools/TrajectoryState>
