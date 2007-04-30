@@ -1,15 +1,15 @@
 /** \class SteppingHelixStateInfo
  *  Implementation part of the stepping helix propagator state data structure
  *
- *  $Date: 2007/02/14 10:19:36 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/04/30 18:37:29 $
+ *  $Revision: 1.5 $
  *  \author Vyacheslav Krutelyov (slava77)
  */
 
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Wed Jan  3 16:01:24 CST 2007
-// $Id: SteppingHelixStateInfo.cc,v 1.4 2007/02/14 10:19:36 slava77 Exp $
+// $Id: SteppingHelixStateInfo.cc,v 1.5 2007/04/30 18:37:29 slava77 Exp $
 //
 //
 
@@ -25,8 +25,13 @@ SteppingHelixStateInfo::SteppingHelixStateInfo(const FreeTrajectoryState& fts){
   r3.set(fts.position().x(), fts.position().y(), fts.position().z());
   q = fts.charge();
 
-  if (fts.hasError()) cov = fts.cartesianError().matrix();
-  else cov = AlgebraicSymMatrix66();
+  if (fts.hasError()){
+    cov = fts.cartesianError().matrix();
+    hasErrorPropagated_ = true;
+  } else {
+    cov = AlgebraicSymMatrix66();
+    hasErrorPropagated_ = false;
+  }
 
   isComplete = false;
   isValid_ = true;

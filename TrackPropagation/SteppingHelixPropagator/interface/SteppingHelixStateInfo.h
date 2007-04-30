@@ -6,15 +6,15 @@
 /** \class SteppingHelixStateInfo
  *  Holder of SteppingHelixState information
  *
- *  $Date: 2007/02/14 06:16:46 $
- *  $Revision: 1.7 $
+ *  $Date: 2007/04/30 18:37:28 $
+ *  $Revision: 1.8 $
  *  \author Vyacheslav Krutelyov (slava77)
  */
 
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Wed Jan  3 16:01:24 CST 2007
-// $Id: SteppingHelixStateInfo.h,v 1.7 2007/02/14 06:16:46 slava77 Exp $
+// $Id: SteppingHelixStateInfo.h,v 1.8 2007/04/30 18:37:28 slava77 Exp $
 //
 //
 
@@ -62,6 +62,7 @@ class SteppingHelixStateInfo {
   double path() const {return isValid_ ? path_ : 0;}
 
   bool isValid() const {return isValid_;}
+  bool hasErrorPropagated() const {return hasErrorPropagated_;}
 
   Result status() const {return status_;}
 
@@ -101,6 +102,8 @@ class SteppingHelixStateInfo {
 
   bool isComplete;
   bool isValid_;
+  bool hasErrorPropagated_;
+
   Result status_;
 };
 #endif

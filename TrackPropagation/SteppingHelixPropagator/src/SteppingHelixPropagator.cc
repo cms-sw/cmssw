@@ -5,15 +5,15 @@
  *  to MC and (eventually) data. 
  *  Implementation file contents follow.
  *
- *  $Date: 2007/04/30 18:58:16 $
- *  $Revision: 1.33 $
+ *  $Date: 2007/04/30 19:07:04 $
+ *  $Revision: 1.34 $
  *  \author Vyacheslav Krutelyov (slava77)
  */
 
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Fri Mar  3 16:01:24 CST 2006
-// $Id: SteppingHelixPropagator.cc,v 1.33 2007/04/30 18:58:16 slava77 Exp $
+// $Id: SteppingHelixPropagator.cc,v 1.34 2007/04/30 19:07:04 slava77 Exp $
 //
 //
 
@@ -227,10 +227,10 @@ void SteppingHelixPropagator::setIState(const SteppingHelixStateInfo& sStart) co
     svBuf_[cIndex_(nPoints_)] = sStart;
     nPoints_++;
   } else {
-    setIState(sStart.p3, sStart.r3, sStart.q, 
-	      !noErrorPropagation_ ? sStart.cov : AlgebraicSymMatrix66(),
+    setIState(sStart.p3, sStart.r3, sStart.q, sStart.cov,
 	      propagationDirection());
   }
+  svBuf_[cIndex_(0)].hasErrorPropagated_ = sStart.hasErrorPropagated_ & !noErrorPropagation_;
 }
 
 void SteppingHelixPropagator::setIState(const SteppingHelixPropagator::Vector& p3, 
@@ -561,10 +561,12 @@ void SteppingHelixPropagator::getNextState(const SteppingHelixPropagator::StateI
   svNext.rzLims = rzLims;
 
   //update Emat only if it's valid
-  if (svPrevious.cov.kRows >=5){
+  svNext.hasErrorPropagated_ = svPrevious.hasErrorPropagated_;
+  if (svPrevious.hasErrorPropagated_){
     svNext.cov = ROOT::Math::Similarity(dCovTransform, svPrevious.cov);
     svNext.cov += svPrevious.matDCov;
   } else {
+    //could skip dragging along the unprop. cov later
     svNext.cov = svPrevious.cov;
   }
 
@@ -692,7 +694,7 @@ bool SteppingHelixPropagator::makeAtomStep(SteppingHelixPropagator::StateInfo& s
     drVec *= dS;
     
     
-    if (svCurrent.cov.kRows >=5){
+    if (svCurrent.hasErrorPropagated_){
       double theta02 = 14.e-3/p0*sqrt(fabs(dS)/radX0); // .. drop log term (this is non-additive)
       theta02 *=theta02;
       if (applyRadX0Correction_){
