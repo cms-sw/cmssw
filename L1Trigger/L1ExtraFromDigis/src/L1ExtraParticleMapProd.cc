@@ -8,7 +8,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Mon Oct 16 23:19:38 EDT 2006
-// $Id: L1ExtraParticleMapProd.cc,v 1.10 2007/04/22 22:35:49 wsun Exp $
+// $Id: L1ExtraParticleMapProd.cc,v 1.11 2007/04/23 18:33:33 wsun Exp $
 //
 //
 
@@ -580,10 +580,10 @@ L1ExtraParticleMapProd::L1ExtraParticleMapProd(
    prescales_[ L1ParticleMap::kDoubleTauJet40_ETM20 ] =
       iConfig.getParameter< int >( "A_DoubleTauJet40_ETM20_prescale" ) ;
 
-   singleThresholds_[ L1ParticleMap::kQuadJet50 ] =
-      iConfig.getParameter< double >( "A_QuadJet50_thresh" ) ;
-   prescales_[ L1ParticleMap::kQuadJet50 ] =
-      iConfig.getParameter< int >( "A_QuadJet50_prescale" ) ;
+   singleThresholds_[ L1ParticleMap::kQuadJet20 ] =
+      iConfig.getParameter< double >( "A_QuadJet20_thresh" ) ;
+   prescales_[ L1ParticleMap::kQuadJet20 ] =
+      iConfig.getParameter< int >( "A_QuadJet20_prescale" ) ;
 
    prescales_[ L1ParticleMap::kMinBias_HTT10 ] =
       iConfig.getParameter< int >( "A_MinBias_HTT10_prescale" ) ;
@@ -1549,7 +1549,7 @@ L1ExtraParticleMapProd::produce(edm::Event& iEvent,
 	    }
 	 }
       }
-      else if( itrig == L1ParticleMap::kQuadJet50 )
+      else if( itrig == L1ParticleMap::kQuadJet20 )
       {
 	 objectTypes.push_back( L1ParticleMap::kJet ) ;
 	 objectTypes.push_back( L1ParticleMap::kJet ) ;

@@ -12,8 +12,11 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Fri Jul 14 19:46:30 EDT 2006
-// $Id: L1ParticleMap.h,v 1.15 2007/04/22 22:35:47 wsun Exp $
+// $Id: L1ParticleMap.h,v 1.16 2007/04/23 18:33:31 wsun Exp $
 // $Log: L1ParticleMap.h,v $
+// Revision 1.16  2007/04/23 18:33:31  wsun
+// Another iteration of the L1 trigger table.
+//
 // Revision 1.15  2007/04/22 22:35:47  wsun
 // Updated L1 trigger table yet again.
 //
@@ -193,7 +196,7 @@ namespace l1extra {
 	    kDoubleEG10_ETM20,
 	    kDoubleJet50_ETM20,
 	    kDoubleTauJet40_ETM20,
-	    kQuadJet50,
+	    kQuadJet20,
 	    kMinBias_HTT10,
 	    kZeroBias,
 	    kNumOfL1TriggerTypes

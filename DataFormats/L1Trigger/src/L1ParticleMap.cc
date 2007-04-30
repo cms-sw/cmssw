@@ -8,7 +8,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Wed Jul 26 14:42:56 EDT 2006
-// $Id: L1ParticleMap.cc,v 1.12 2007/04/22 22:35:48 wsun Exp $
+// $Id: L1ParticleMap.cc,v 1.13 2007/04/23 18:33:32 wsun Exp $
 //
 
 // system include files
@@ -125,7 +125,7 @@ L1ParticleMap::triggerNames_[ kNumOfL1TriggerTypes ] = {
    "A_DoubleEG10_ETM20",
    "A_DoubleJet50_ETM20",
    "A_DoubleTauJet40_ETM20",
-   "A_QuadJet50",
+   "A_QuadJet20",
    "A_MinBias_HTT10",
    "A_ZeroBias"
 } ;
