@@ -19,12 +19,14 @@
 /// parameters/derivatives/covariance as subvector/submatrix
 /// of reduced size.
 ///
-///  $Date: 2006/12/23 15:54:19 $
-///  $Revision: 1.4 $
-/// (last update by $Author: ewidl $)
+///  $Date: 2007/04/30 11:33:56 $
+///  $Revision: 1.5.2.1 $
+/// (last update by $Author: flucke $)
 
+// include and not forward declare to ensure automatic conversion from AlignableDet(Unit): 
+// NO: include problems... #include "Alignment/CommonAlignment/interface/AlignableDetOrUnitPtr.h"
+class AlignableDetOrUnitPtr;
 class Alignable;
-class AlignableDet;
 class TrajectoryStateOnSurface;
 class RecHit;
 
@@ -78,9 +80,9 @@ public:
 
   /// Get derivatives of selected parameters
   virtual AlgebraicMatrix derivatives(const TrajectoryStateOnSurface& tsos,
-				      AlignableDet* alidet) const = 0;
+				      const AlignableDetOrUnitPtr &alidet) const = 0;
   virtual AlgebraicMatrix selectedDerivatives( const TrajectoryStateOnSurface& tsos, 
-					       AlignableDet* alidet) const = 0;
+					       const AlignableDetOrUnitPtr &alidet) const = 0;
 
   /// Set pointer to user variables
   void setUserVariables(AlignmentUserVariables* auv);
