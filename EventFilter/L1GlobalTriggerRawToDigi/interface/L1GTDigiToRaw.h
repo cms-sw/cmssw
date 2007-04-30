@@ -65,12 +65,13 @@ private:
     /// block packers -------------
 
     /// pack header
-    void packHeader(const unsigned char*);
+    void packHeader(unsigned char*);
 
     /// pack the GTFE block
     /// gives the number of bunch crosses in the event, as well as the active boards
     /// records for inactive boards are not written in the GT DAQ record
-    void packGTFE(const edm::EventSetup&, unsigned char*, L1GtfeWord&);
+    void packGTFE(const edm::EventSetup&, unsigned char*, L1GtfeWord&,
+                  boost::uint16_t activeBoardsGtValue);
 
     /// pack FDL blocks for various bunch crosses
     void packFDL(const edm::EventSetup&, unsigned char*, L1GtFdlWord&);
@@ -88,7 +89,7 @@ private:
     unsigned int packGMT(L1MuGMTReadoutRecord const&, unsigned char*);
 
     /// pack trailer word
-    void packTrailer(const unsigned char*);
+    void packTrailer(unsigned char*, int);
 
     /// end of job stuff
     virtual void endJob();
@@ -97,12 +98,20 @@ private:
 
     /// input tags for GT DAQ record
     edm::InputTag m_daqGtInputTag;
-    
-    /// total Bx's in the event, obtained from GTFE block    
-    int m_totalBxInEvent;
-    
-    /// mask for active boards (actually 16 bits)
+
+    /// mask for active boards
     boost::uint16_t m_activeBoardsMaskGt;
+
+    /// total Bx's in the event, obtained from GTFE block
+    int m_totalBxInEvent;
+
+    /// min Bx's in the event, computed after m_totalBxInEvent is obtained from GTFE block
+    /// assume symmetrical number of BX around L1Accept
+    int m_minBxInEvent;
+
+    /// max Bx's in the event, computed after m_totalBxInEvent is obtained from GTFE block
+    /// assume symmetrical number of BX around L1Accept
+    int m_maxBxInEvent;
 
 
 };
