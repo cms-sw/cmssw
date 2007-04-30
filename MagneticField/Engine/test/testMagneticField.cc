@@ -1,8 +1,8 @@
 /** \file
  *  A simple example of ho to access the magnetic field.
  *
- *  $Date: 2007/04/25 14:54:39 $
- *  $Revision: 1.6 $
+ *  $Date: 2007/04/26 12:16:50 $
+ *  $Revision: 1.7 $
  *  \author N. Amapane - CERN
  */
 
@@ -42,19 +42,18 @@ using namespace std;
 class testMagneticField : public edm::EDAnalyzer {
  public:
   testMagneticField(const edm::ParameterSet& pset) {
+
     //    verbose::debugOut = true;
     outputFile = pset.getUntrackedParameter<string>("outputTable", "");
     inputFile = pset.getUntrackedParameter<string>("inputTable", "");
     //    resolution for validation of maps
-    reso = pset.getUntrackedParameter<double>("resolution", 0.01);
+    reso = pset.getUntrackedParameter<double>("resolution", 0.0001);
     //    number of random points to try
-    numberOfPoints = 10000;
-    //    numberOfPoints = pset.getUntrackerParameter<int>
-    //    write all points to output for 3D plots?
-    doWrite3DPoints = pset.getUntrackedParameter<bool>("doWrite3DPoints", false);
-
-    cout << "Aha, resolutions is " << reso << endl;
-
+    numberOfPoints = pset.getUntrackedParameter<int>("numberOfPoints", 10000);
+    //    outer radius of test cylinder
+    OuterRadius = pset.getUntrackedParameter<double>("OuterRadius",600);
+    //    half length of test cylinder
+    HalfLength = pset.getUntrackedParameter<double>("HalfLength",600);
     
   }
 
@@ -96,19 +95,17 @@ class testMagneticField : public edm::EDAnalyzer {
   string outputFile;  
   double reso;
   int numberOfPoints;
-  bool doWrite3DPoints;
+  double OuterRadius;
+  double HalfLength;
 };
 
 
 void testMagneticField::writeValidationTable(int npoints, string filename) {
-  GlobalPointProvider p(0, 120, -Geom::pi(), Geom::pi(), -300, 300);
+  GlobalPointProvider p(0, OuterRadius, -Geom::pi(), Geom::pi(), -HalfLength, HalfLength);
   ofstream file(filename.c_str());
 
   for (int i = 0; i<npoints; ++i) {
     GlobalPoint gp = p.getPoint();
-    //    while(fabs(gp.z())>300 || gp.perp()>120) {
-    //  gp = p.getPoint();
-    // }
     GlobalVector f = field->inTesla(gp);
     file << setprecision (9) << i << " "
 	 << gp.x() << " " << gp.y() << " " << gp.z() << " "
@@ -118,7 +115,7 @@ void testMagneticField::writeValidationTable(int npoints, string filename) {
 
 void testMagneticField::validate(string filename) {
   
-  double reso = 0.01; // in T
+  //  double reso = 0.0001; // in T   >> now defined in cfg file
   
   ifstream file(filename.c_str());
   string line;
@@ -145,8 +142,6 @@ void testMagneticField::validate(string filename) {
       if (delta > maxdelta) maxdelta = delta;
       cout << " Discrepancy at: # " << i << " " << gp << " delta : " << newB-oldB << " " << delta <<  endl;
     }
-    cout << " All points: # " << i << " " << gp << " delta : " << newB-oldB << endl; 
-    ++count;
   }
   cout << endl << " testMagneticField::validate: tested " << count
        << " points " << fail << " failures; max delta = " << maxdelta
