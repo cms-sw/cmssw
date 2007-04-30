@@ -5,15 +5,15 @@
  *  to MC and (eventually) data. 
  *  Implementation file contents follow.
  *
- *  $Date: 2007/04/30 18:37:29 $
- *  $Revision: 1.32 $
+ *  $Date: 2007/04/30 18:58:16 $
+ *  $Revision: 1.33 $
  *  \author Vyacheslav Krutelyov (slava77)
  */
 
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Fri Mar  3 16:01:24 CST 2006
-// $Id: SteppingHelixPropagator.cc,v 1.32 2007/04/30 18:37:29 slava77 Exp $
+// $Id: SteppingHelixPropagator.cc,v 1.33 2007/04/30 18:58:16 slava77 Exp $
 //
 //
 
@@ -60,6 +60,7 @@ SteppingHelixPropagator::SteppingHelixPropagator(const MagneticField* field,
     svBuf_[i].matDCov = AlgebraicSymMatrix66();
     svBuf_[i].isComplete = true;
     svBuf_[i].isValid_ = true;
+    svBuf_[i].hasErrorPropagated_ = !noErrorPropagation_;
   }
   defaultStep_ = 5.;
 }
@@ -239,40 +240,6 @@ void SteppingHelixPropagator::setIState(const SteppingHelixPropagator::Vector& p
   loadState(svBuf_[cIndex_(nPoints_)], p3, r3, charge, cov, dir);
   nPoints_++;
 }
-
-
-void SteppingHelixPropagator::getFState(FreeTrajectoryState& ftsDest) const{
-  Vector p3F;
-  Point  r3F;
-  AlgebraicSymMatrix66 covF;
-
-  getFState(p3F, r3F, covF); 
-  GlobalVector p3FGV(p3F.x(), p3F.y(), p3F.z());
-  GlobalPoint r3FGP(r3F.x(), r3F.y(), r3F.z());
-  GlobalTrajectoryParameters tParsDest(r3FGP, p3FGV, svBuf_[cIndex_(nPoints_-1)].q, field_);
-  CartesianTrajectoryError tCovDest(covF);
-
-  ftsDest = (covF.kRows >=5  && !noErrorPropagation_) 
-    ? FreeTrajectoryState(tParsDest, tCovDest) 
-    : FreeTrajectoryState(tParsDest);
-  if (ftsDest.hasError()) ftsDest.curvilinearError(); //call it so it gets created
-}
-
-void SteppingHelixPropagator::getFState(SteppingHelixPropagator::Vector& p3, 
-					SteppingHelixPropagator::Point& r3, 
-					AlgebraicSymMatrix66& cov) const{
-  const StateInfo& svCurrent = svBuf_[cIndex_(nPoints_-1)];
-  p3 = svCurrent.p3;
-  r3 = svCurrent.r3;
-  //update Emat only if it's valid
-  if (svCurrent.cov.kRows >=5){
-    cov = svCurrent.cov;
-  } else {
-    cov = svCurrent.cov;
-  }
-
-}
-
 
 SteppingHelixPropagator::Result 
 SteppingHelixPropagator::propagate(SteppingHelixPropagator::DestType type, 
