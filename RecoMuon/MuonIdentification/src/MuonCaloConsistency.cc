@@ -10,7 +10,7 @@
 */
 //
 // Original Author:  Ingo Bloch
-// $Id: MuonCaloConsistency.h,v 1.11 2007/04/17 08:39:18 dmytro Exp $
+// $Id: MuonCaloConsistency.cc,v 1.1 2007/05/01 18:18:29 dmytro Exp $
 //
 //
 #include "RecoMuon/MuonIdentification/interface/MuonCaloConsistency.h"
@@ -382,8 +382,8 @@ double MuonCaloConsistency::evaluate( const reco::Muon& amuon ) {
 
   if( (psx*psy*psz+pbx*pby*pbz) > 0. ) muon_compatibility = psx*psy*psz / (psx*psy*psz+pbx*pby*pbz);
   else {
-    LogTrace("MuonIdentification")<<"Defaulting to 0!!";
-    muon_compatibility = 0.;
+    LogTrace("MuonIdentification")<<"Divide by 0 - defaulting consistency to 0.5 (neutral)!!";
+    muon_compatibility = 0.5;
     LogTrace("MuonIdentification")<<"Input variables: eta    p     em     had    ho "<<"\n"
 	     <<eta<<" "<<p<<" "<<em<<" "<<had<<" "<<ho<<" "<<"\n"
 	     <<"cal uncorr:    em     had    ho "<<"\n"
