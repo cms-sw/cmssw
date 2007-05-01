@@ -5,8 +5,8 @@
  *  This class defines which DetLayers are reacheable from each Muon DetLayer
  *  (DT, CSC and RPC). The reacheableness is based on an eta range criteria.
  *
- * $Date: 2006/10/18 20:38:21 $
- * $Revision: 1.8 $
+ * $Date: 2007/03/07 16:20:40 $
+ * $Revision: 1.9 $
  *
  * \author : Stefano Lacaprara - INFN Padova <stefano.lacaprara@pd.infn.it>
  *
@@ -40,7 +40,7 @@ using namespace std;
 MuonNavigationSchool::MuonNavigationSchool(const MuonDetLayerGeometry * muonLayout) : theMuonDetLayerGeometry(muonLayout) {
 
   // get all barrel DetLayers (DT + RPC)
-  vector<DetLayer*> barrel = muonLayout->allBarrelLayers();
+  const vector<DetLayer*>& barrel = muonLayout->allBarrelLayers();
   for ( vector<DetLayer*>::const_iterator i = barrel.begin(); i != barrel.end(); i++ ) {
     BarrelDetLayer* mbp = dynamic_cast<BarrelDetLayer*>(*i);
     if ( mbp == 0 ) throw Genexception("Bad BarrelDetLayer");
@@ -48,8 +48,8 @@ MuonNavigationSchool::MuonNavigationSchool(const MuonDetLayerGeometry * muonLayo
   }
 
   // get all endcap DetLayers (CSC + RPC)
-  vector<DetLayer*> csc = muonLayout->allEndcapLayers();
-  for ( vector<DetLayer*>::const_iterator i = csc.begin(); i != csc.end(); i++ ) {
+  const vector<DetLayer*>& endcap = muonLayout->allEndcapLayers();
+  for ( vector<DetLayer*>::const_iterator i = endcap.begin(); i != endcap.end(); i++ ) {
     ForwardDetLayer* mep = dynamic_cast<ForwardDetLayer*>(*i);
     if ( mep == 0 ) throw Genexception("Bad ForwardDetLayer");
     addEndcapLayer(mep);
