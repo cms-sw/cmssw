@@ -1,11 +1,13 @@
+#include <algorithm>
+#include <set>
+#include <sstream>
+#include <string>
+
 #include "Reflex/Base.h"
 #include "Reflex/Member.h"
 #include "Reflex/Type.h"
 #include "Reflex/TypeTemplate.h"
 #include "boost/thread/tss.hpp"
-#include <set>
-#include <algorithm>
-#include <sstream>
 
 #include "FWCore/Utilities/interface/ReflexTools.h"
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -89,6 +91,22 @@ namespace edm
 			      found_sequence_value_type);
     return true;
   }
+
+  bool
+  is_RefVector(ROOT::Reflex::Type const& possible_ref_vector,
+	       ROOT::Reflex::Type& value_type)
+  {
+
+    static TypeTemplate ref_vector_template_id(TypeTemplate::ByName("edm::RefVector", 3));
+    static std::string member_type("member_type");
+    TypeTemplate primary_template_id(possible_ref_vector.TemplateFamily());
+    if ( primary_template_id == ref_vector_template_id)
+      {
+	return find_nested_type_named(member_type, possible_ref_vector, value_type);
+      }
+    return false;    
+  }
+
 
   namespace {
 

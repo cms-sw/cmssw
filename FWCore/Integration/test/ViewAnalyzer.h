@@ -16,15 +16,19 @@ namespace edmtest
     virtual ~ViewAnalyzer();
     virtual void analyze(edm::Event const& e,
 			 edm::EventSetup const& /* unused */ );
-  private:
-    template <class P> void testProduct(edm::Event const& e,
-					std::string const& moduleLabel) const;
+
+    template <class P, class V>
+    void testProduct(edm::Event const& e,
+		     std::string const& moduleLabel) const;
 
     void testDSVProduct(edm::Event const& e,
 			std::string const& moduleLabel) const;
 
     void testProductWithBaseClass(edm::Event const& e,
  			          std::string const& moduleLabel) const;
+
+    void testRefVector(edm::Event const& e,
+		       std::string const& moduleLabel) const;
   };
   
 }

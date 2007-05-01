@@ -16,7 +16,7 @@ pointer to a Group, when queried.
 
 (Historical note: prior to April 2007 this class was named DataBlockImpl)
 
-$Id$
+$Id: Principal.h,v 1.2 2007/04/09 22:18:55 wdd Exp $
 
 ----------------------------------------------------------------------*/
 #include <list>
@@ -109,10 +109,10 @@ namespace edm {
     //   3. and for which typeID is the same as or a public base of
     //      this value_type,
     //   4. and which matches the given selector
-    int getMatchingSequence(TypeID const& typeID,
-                            SelectorBase const& selector,
-                            BasicHandleVec& results,
-                            bool stopIfProcessHasMatch) const;
+    size_t getMatchingSequence(TypeID const& typeID,
+			       SelectorBase const& selector,
+			       BasicHandleVec& results,
+			       bool stopIfProcessHasMatch) const;
 
     Provenance const&
     getProvenance(ProductID const& oid) const;
@@ -156,11 +156,11 @@ namespace edm {
     typedef std::map<std::string, std::vector<int> > ProcessLookup;
     typedef std::map<std::string, ProcessLookup> TypeLookup;
 
-    int findGroups(TypeID const& typeID,
-                   TypeLookup const& typeLookup,
-                   SelectorBase const& selector,
-                   BasicHandleVec& results,
-                   bool stopIfProcessHasMatch) const;
+    size_t findGroups(TypeID const& typeID,
+		      TypeLookup const& typeLookup,
+		      SelectorBase const& selector,
+		      BasicHandleVec& results,
+		      bool stopIfProcessHasMatch) const;
 
     void findGroupsForProcess(std::string const& processName,
                               ProcessLookup const& processLookup,

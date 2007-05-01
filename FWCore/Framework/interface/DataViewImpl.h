@@ -81,7 +81,7 @@ edm::Ref<AppleCollection> ref(refApples, index);
 */
 /*----------------------------------------------------------------------
 
-$Id: DataViewImpl.h,v 1.19 2007/03/04 06:00:22 wmtan Exp $
+$Id: DataViewImpl.h,v 1.21 2007/04/09 22:18:55 wdd Exp $
 
 ----------------------------------------------------------------------*/
 #include <cassert>
@@ -144,8 +144,8 @@ namespace edm {
 	       std::string const& productInstanceName, 
 	       Handle<PROD>& result) const;
 
-    // Partial specialization to deal with Views. Perhaps only this
-    // one needs to be specialized, because the other getByLabel
+    // Template member overload to deal with Views. Perhaps only this
+    // one needs to be overloaded, because the other getByLabel
     // implementations go through this one.
     template <typename ELEMENT>
     void
@@ -540,6 +540,7 @@ namespace edm {
 			              sel,
                                       bhv,
                                       true);
+
     if (nFound == 0) {
       throw edm::Exception(edm::errors::ProductNotFound)
 	<< "getByLabel: Found zero products matching all criteria\n"

@@ -1,6 +1,6 @@
 #ifndef Common_OwnVector_h
 #define Common_OwnVector_h
-// $Id: OwnVector.h,v 1.22 2007/01/25 20:19:09 wdd Exp $
+// $Id: OwnVector.h,v 1.23 2007/02/22 09:32:40 llista Exp $
 
 #include <algorithm>
 #include <functional>
@@ -24,7 +24,7 @@ namespace edm {
       template<typename C>
       void operator()(const C &) const { }
     };
-
+    
     struct PostReadFixup {
       PostReadFixup() : fixed_(false) { }
       void touch() { fixed_ = false; }
@@ -42,7 +42,7 @@ namespace edm {
 
     template<typename T>
     struct PostReadFixupTrait {
-      typedef DoNoPostReadFixup type;
+     typedef DoNoPostReadFixup type;
     };
   }
 
@@ -152,7 +152,7 @@ namespace edm {
     const_reference back() const;
     reference front();
     const_reference front() const;
-      
+    std::vector<const T*> data() const; 
     void clear();
     template<typename S> 
     void sort(S s);
@@ -353,6 +353,14 @@ namespace edm {
       delete * i;
   }
   
+  template<typename T, typename P>
+  inline std::vector<const T*> OwnVector<T, P>::data() const {
+    fixup_(data_);
+    std::vector<const T*> v( size() );
+    std::copy( data_.begin(), data_.end(), v.begin() );
+    return v;
+  }
+
   template<typename T, typename P>
   inline void OwnVector<T, P>::clear() {
     destroy();

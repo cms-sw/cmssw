@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-  $Id: Principal.cc,v 1.2 2007/04/09 22:18:56 wdd Exp $
+  $Id: Principal.cc,v 1.3 2007/04/24 22:07:47 wmtan Exp $
   ----------------------------------------------------------------------*/
 
 #include <algorithm>
@@ -24,14 +24,15 @@
 
 using namespace std;
 using ROOT::Reflex::Type;
-using boost::lambda::_1;
+
+//using boost::lambda::_1;
 
 namespace edm {
 
   Principal::Principal(ProductRegistry const& reg,
-			       ProcessConfiguration const& pc,
-			       ProcessHistoryID const& hist,
-			       boost::shared_ptr<DelayedReader> rtrv) :
+		       ProcessConfiguration const& pc,
+		       ProcessHistoryID const& hist,
+		       boost::shared_ptr<DelayedReader> rtrv) :
     EDProductGetter(),
     processHistoryID_(hist),
     processHistoryPtr_(boost::shared_ptr<ProcessHistory>(new ProcessHistory)),
@@ -119,7 +120,7 @@ namespace edm {
       vector<int>& vint = processLookup[bk.processName_];
       vint.push_back(slotNumber);
 
-      ROOT::Reflex::Type type(ROOT::Reflex::Type::ByName(g->productDescription().className()));
+      Type type(Type::ByName(g->productDescription().className()));
       if (bool(type)) {
 
         // Here we look in the object named "type" for a typedef
@@ -129,17 +130,19 @@ namespace edm {
         // I do not throw an exception here if the check fails
         // because there are known cases where the dictionary does
         // not exist and we do not need to support those cases.
-        ROOT::Reflex::Type valueType;
-        if (edm::value_type_of(type, valueType) && bool(valueType)) {
+        Type valueType;
+	//        if (edm::value_type_of(type, valueType) && bool(valueType)) {
+	if ((edm::is_RefVector(type, valueType) || edm::value_type_of(type, valueType)) 
+	    && bool(valueType)) {
 
           fillElementLookup(valueType, slotNumber, bk);
 
           // Repeat this for all public base classes of the value_type
-          std::vector<ROOT::Reflex::Type> baseTypes;
+          std::vector<Type> baseTypes;
           edm::public_base_classes(valueType, baseTypes);
 
-          for (std::vector<ROOT::Reflex::Type>::iterator iter = baseTypes.begin(),
-                                                       iend = baseTypes.end();
+          for (std::vector<Type>::iterator iter = baseTypes.begin(),
+		 iend = baseTypes.end();
                iter != iend;
                ++iter) {
             fillElementLookup(*iter, slotNumber, bk);
@@ -150,9 +153,9 @@ namespace edm {
   }
 
   void
-  Principal::fillElementLookup(const ROOT::Reflex::Type & type,
-                                   int slotNumber,
-                                   const BranchKey& bk) {
+  Principal::fillElementLookup(const Type & type,
+			       int slotNumber,
+			       const BranchKey& bk) {
 
     TypeID typeID(type.TypeInfo());
     std::string friendlyClassName = typeID.friendlyClassName();
@@ -194,7 +197,7 @@ namespace edm {
 
   void 
   Principal::put(auto_ptr<EDProduct> edp,
-		     auto_ptr<Provenance> prov) {
+		 auto_ptr<Provenance> prov) {
 
     if (!prov->productID().isValid()) {
       throw edm::Exception(edm::errors::InsertFailure,"Null Product ID")
@@ -270,7 +273,7 @@ namespace edm {
 
   BasicHandle
   Principal::getBySelector(TypeID const& productType, 
-			       SelectorBase const& sel) const {
+			   SelectorBase const& sel) const {
 
     BasicHandleVec results;
 
@@ -295,8 +298,8 @@ namespace edm {
 
   BasicHandle
   Principal::getByLabel(TypeID const& productType, 
-			    string const& label,
-			    string const& productInstanceName) const {
+			string const& label,
+			string const& productInstanceName) const {
 
     BasicHandleVec results;
 
@@ -328,9 +331,9 @@ namespace edm {
 
   BasicHandle
   Principal::getByLabel(TypeID const& productType,
-			    string const& label,
-			    string const& productInstanceName,
-			    string const& processName) const
+			string const& label,
+			string const& productInstanceName,
+			string const& processName) const
   {
 
     BasicHandleVec results;
@@ -367,8 +370,8 @@ namespace edm {
 
   void 
   Principal::getMany(TypeID const& productType, 
-			 SelectorBase const& sel,
-			 BasicHandleVec& results) const {
+		     SelectorBase const& sel,
+		     BasicHandleVec& results) const {
 
     findGroups(productType,
                productLookup_,
@@ -407,7 +410,7 @@ namespace edm {
 
   void 
   Principal::getManyByType(TypeID const& productType, 
-			       BasicHandleVec& results) const {
+			   BasicHandleVec& results) const {
 
     edm::MatchAllSelector sel;
 
@@ -419,11 +422,11 @@ namespace edm {
     return;
   }
 
-  int
+  size_t
   Principal::getMatchingSequence(TypeID const& typeID,
-                                     SelectorBase const& selector,
-                                     BasicHandleVec& results,
-                                     bool stopIfProcessHasMatch) const {
+				 SelectorBase const& selector,
+				 BasicHandleVec& results,
+				 bool stopIfProcessHasMatch) const {
 
     // One new argument is the element lookup container
     // Otherwise this just passes through the arguments to findGroups
@@ -480,12 +483,12 @@ namespace edm {
     return get(oid).wrapper();
   }
 
-  int
+  size_t
   Principal::findGroups(TypeID const& typeID,
-                            TypeLookup const& typeLookup,
-                            SelectorBase const& selector,
-                            BasicHandleVec& results,
-                            bool stopIfProcessHasMatch) const {
+			TypeLookup const& typeLookup,
+			SelectorBase const& selector,
+			BasicHandleVec& results,
+			bool stopIfProcessHasMatch) const {
 
     assert(results.empty());
 
@@ -506,7 +509,7 @@ namespace edm {
     // Loop over processes in reverse time order.  Sometimes we want to stop
     // after we find a process with matches so check for that at each step.
     for (ProcessHistory::const_reverse_iterator iproc = processHistory().rbegin(),
-                                                eproc = processHistory().rend();
+	   eproc = processHistory().rend();
          iproc != eproc && (results.empty() || !stopIfProcessHasMatch);
          ++iproc) {
 
@@ -518,14 +521,15 @@ namespace edm {
                            selector,
                            results);
     }
+
     return results.size();
   }
 
   void 
   Principal::findGroupsForProcess(std::string const& processName,
-                                      ProcessLookup const& processLookup,
-                                      SelectorBase const& selector,
-                                      BasicHandleVec& results) const {
+				  ProcessLookup const& processLookup,
+				  SelectorBase const& selector,
+				  BasicHandleVec& results) const {
 
     ProcessLookup::const_iterator j = processLookup.find(processName);
 
@@ -537,8 +541,8 @@ namespace edm {
     vector<int> const& vindex = j->second;
 
     for (vector<int>::const_iterator ib(vindex.begin()), ie(vindex.end());
-           ib != ie;
-           ++ib) {
+	 ib != ie;
+	 ++ib) {
 
       assert(static_cast<unsigned>(*ib) < groups_.size());
       SharedGroupPtr const& group = groups_[*ib];

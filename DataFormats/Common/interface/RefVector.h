@@ -6,7 +6,7 @@
 RefVector: A template for a vector of interproduct references.
 	Each vector element is a reference to a member of the same product.
 
-$Id: RefVector.h,v 1.20 2007/03/23 16:54:31 paterno Exp $
+$Id: RefVector.h,v 1.21 2007/03/29 22:56:31 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -83,10 +83,10 @@ namespace edm {
     void reserve(size_type n) {refVector_.reserve(n);}
 
     /// Initialize an iterator over the RefVector
-    iterator begin() const {return iterator(refVector_.refCore(), refVector_.items().begin());}
+    const_iterator begin() const {return iterator(refVector_.refCore(), refVector_.items().begin());}
 
     /// Termination of iteration
-    iterator end() const {return iterator(refVector_.refCore(), refVector_.items().end());}
+    const_iterator end() const {return iterator(refVector_.refCore(), refVector_.items().end());}
 
     /// Accessor for product ID.
     ProductID id() const {return refVector_.refCore().id();}
@@ -115,6 +115,8 @@ namespace edm {
     /// Swap two vectors.
     void swap(RefVector<C, T, F> & other);
 
+    void fillView(std::vector<void const*>& pointers) const;
+
   private:
     contents_type refVector_;
   };
@@ -142,6 +144,34 @@ namespace edm {
 #endif
 
   template <typename C, typename T, typename F>
+  void
+  RefVector<C,T,F>::fillView(std::vector<void const*>& pointers) const
+  {
+    pointers.reserve(this->size());
+    for (const_iterator i=begin(), e=end(); i!=e; ++i)
+      {
+	member_type const* p = i->isNull() ? 0 : &**i;
+	pointers.push_back(p);
+      }
+  }
+
+
+  template <typename C, typename T, typename F>
+  inline
+  void
+  fillView(RefVector<C,T,F> const& obj,
+	   std::vector<void const*>& pointers)
+  {
+    obj.fillView(pointers);
+  }
+
+  template <typename C, typename T, typename F>
+  struct has_fillView<edm::RefVector<C,T,F> >
+  {
+    static bool const value = true;
+  };
+
+  template <typename C, typename T, typename F>
   inline
   bool
   operator==(RefVector<C, T, F> const& lhs, RefVector<C, T, F> const& rhs) {
@@ -165,6 +195,21 @@ namespace edm {
     RefCore const& prod = refVector_.refCore();
     //return typename RefVector<C, T, F>::iterator(prod, newPos);
     return iterator(prod, newPos);
+  }
+
+  template <typename C, typename T, typename F>
+  std::ostream&
+  operator<< (std::ostream& os, RefVector<C,T,F> const& r)
+  {
+    for (typename RefVector<C,T,F>::const_iterator
+	   i = r.begin(),
+	   e = r.end();
+	 i != e;
+	 ++i)
+      {
+	os << *i << '\n';
+      }
+    return os;
   }
 
 }
