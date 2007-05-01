@@ -13,7 +13,7 @@
 //
 // Original Author:  Simone Gennai and Suchandra Dutta
 //         Created:  Sat Feb  4 20:49:10 CET 2006
-// $Id: SiStripMonitorPedestals.cc,v 1.18 2007/03/29 15:33:50 dutta Exp $
+// $Id: SiStripMonitorPedestals.cc,v 1.19 2007/04/30 18:39:38 dutta Exp $
 //
 //
 
@@ -162,15 +162,15 @@ void SiStripMonitorPedestals::beginJob(const edm::EventSetup& es){
       // data from CondDB
 
       //Pedestals histos
-      hid = hidmanager.createHistoId("PedsPerStripFromCondDB","det", detid);
+      hid = hidmanager.createHistoId("PedestalFromCondDB","det", detid);
       local_modmes.PedsPerStripDB = dbe_->book1D(hid, hid, nStrip,0.5,nStrip+0.5); //to modify the size binning 
       (local_modmes.PedsPerStripDB)->setAxisTitle("Pedestal from CondDB(ADC) vs Strip Number",1);
 
-      hid = hidmanager.createHistoId("CMSubNoisePerStripFromCondDB","det", detid);
+      hid = hidmanager.createHistoId("NoiseFromCondDB","det", detid);
       local_modmes.CMSubNoisePerStripDB = dbe_->book1D(hid, hid, nStrip,0.5,nStrip+0.5);
       (local_modmes.CMSubNoisePerStripDB)->setAxisTitle("CMSubNoise from CondDB(ADC) vs Strip Number",1);
 
-      hid = hidmanager.createHistoId("NoisyStripsFromCondDB","det", detid);
+      hid = hidmanager.createHistoId("BadStripFlagCondDB","det", detid);
       local_modmes.NoisyStripsDB = dbe_->book2D(hid, hid, nStrip,0.5,nStrip+0.5,6,-0.5,5.5);
       (local_modmes.NoisyStripsDB)->setAxisTitle("Strip Flag from CondDB(ADC) vs Strip Number",1);
     
