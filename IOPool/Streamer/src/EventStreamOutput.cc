@@ -1,7 +1,7 @@
 
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: EventStreamOutput.cc,v 1.25 2007/02/07 21:29:22 wmtan Exp $
+// $Id: EventStreamOutput.cc,v 1.26 2007/03/04 06:36:12 wmtan Exp $
 //
 // Class EventStreamOutput module
 //
@@ -15,10 +15,6 @@
 #include "DataFormats/Streamer/interface/StreamedProducts.h"
 #include "IOPool/Streamer/interface/Messages.h"
 #include "IOPool/Streamer/interface/ClassFiller.h"
-
-#include "StorageSvc/IOODatabaseFactory.h"
-#include "StorageSvc/IClassLoader.h"
-#include "StorageSvc/DbType.h"
 
 #include "TBuffer.h"
 #include "TClass.h"
