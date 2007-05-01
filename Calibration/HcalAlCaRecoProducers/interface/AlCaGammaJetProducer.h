@@ -48,6 +48,9 @@ class AlCaGammaJetProducer : public edm::EDProducer {
      std::vector<edm::InputTag> mInputCalo;
      std::string correctedIslandBarrelSuperClusterCollection_;
      std::string correctedIslandBarrelSuperClusterProducer_;
+     std::string correctedIslandEndcapSuperClusterCollection_;
+     std::string correctedIslandEndcapSuperClusterProducer_;
+
      bool allowMissingInputs_;
      std::string m_inputTrackLabel;
  // Calo geometry
