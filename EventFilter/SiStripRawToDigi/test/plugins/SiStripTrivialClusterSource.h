@@ -1,16 +1,18 @@
 #ifndef EventFilter_SiStripRawToDigi_SiStripTrivialClusterSource_H
 #define EventFilter_SiStripRawToDigi_SiStripTrivialClusterSource_H
 
+// FWCore
 #include "FWCore/Framework/interface/EDProducer.h"
+// DataFormats
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
+// CalibFormats
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 #include "boost/cstdint.hpp"
+// std
 #include <algorithm>
 #include <utility>
 #include <vector>
 #include <map>
-
-class FedChannelConnection;
 
  /**
     @file EventFilter/SiStripRawToDigi/test/stubs/SiStripTrivialClusterSource.h
