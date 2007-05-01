@@ -1,6 +1,6 @@
 
-#include "FWCore/Framework/src/VectorInputSourceFactory.h"
-#include "FWCore/Framework/src/WorkerMaker.h"
+#include "FWCore/Sources/interface/VectorInputSourceFactory.h"
+//#include "FWCore/Framework/src/WorkerMaker.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 

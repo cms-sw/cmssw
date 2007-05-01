@@ -1,9 +1,9 @@
 /*----------------------------------------------------------------------
-$Id: RawInputSource.cc,v 1.11 2007/03/04 06:10:02 wmtan Exp $
+$Id: RawInputSource.cc,v 1.12 2007/03/27 23:10:10 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/RawInputSource.h"
+#include "FWCore/Sources/interface/RawInputSource.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/Event.h"
 

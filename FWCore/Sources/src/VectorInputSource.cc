@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------------
-$Id: VectorInputSource.cc,v 1.3 2006/04/04 22:15:22 wmtan Exp $
+$Id: VectorInputSource.cc,v 1.4 2006/04/06 23:26:29 wmtan Exp $
 ----------------------------------------------------------------------*/
-#include "FWCore/Framework/interface/VectorInputSource.h"
+#include "FWCore/Sources/interface/VectorInputSource.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 
 namespace edm {

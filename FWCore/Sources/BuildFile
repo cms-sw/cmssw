@@ -1,23 +1,17 @@
-<use name=DataFormats/Common>
 <use name=DataFormats/Provenance>
+<use name=FWCore/Catalog>
+<use name=FWCore/Framework>
 <use name=FWCore/MessageLogger>
 <use name=FWCore/ParameterSet>
 <use name=FWCore/PluginManager>
-<use name=FWCore/ServiceRegistry>
 <use name=FWCore/Utilities>
 <use name=boost>
-<use name=rootrflx>
-<use name=sigcpp>
 <export>
-  <use name=DataFormats/Common>
   <use name=DataFormats/Provenance>
+  <use name=FWCore/Catalog>
+  <use name=FWCore/Framework>
   <use name=FWCore/ParameterSet>
   <use name=FWCore/PluginManager>
-  <use name=FWCore/ServiceRegistry>
-  <use name=FWCore/Utilities>
   <use name=boost>
-  <use name=rootrflx>
-  <use name=sigcpp>
-  <lib name=FWCoreFramework>
+  <lib name=FWCoreSources>
 </export>
-

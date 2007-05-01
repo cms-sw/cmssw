@@ -13,7 +13,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/VectorInputSource.h"
+#include "FWCore/Sources/interface/VectorInputSource.h"
 
 namespace edm {
   class SecondaryProducer: public edm::EDProducer {

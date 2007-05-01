@@ -1,5 +1,5 @@
 #include "FWCore/Framework/interface/InputSourceMacros.h"
-#include "FWCore/Framework/interface/VectorInputSourceMacros.h"
+#include "FWCore/Sources/interface/VectorInputSourceMacros.h"
 #include "PoolSource.h"
 
 using edm::PoolSource;

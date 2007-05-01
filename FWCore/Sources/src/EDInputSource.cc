@@ -1,9 +1,9 @@
 /*----------------------------------------------------------------------
-$Id: EDInputSource.cc,v 1.5 2006/12/21 00:05:36 wmtan Exp $
+$Id: EDInputSource.cc,v 1.6 2007/03/04 06:10:25 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/EDInputSource.h"
+#include "FWCore/Sources/interface/EDInputSource.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
