@@ -1,7 +1,7 @@
 #include "FWCore/ParameterSet/interface/IncludeFileFinder.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/PluginManager/interface/standard.h"
-#include <iostream>
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace edmplugin;
 using std::string;
@@ -113,7 +113,8 @@ namespace edm {
       }
       else
       {
-        std::cerr << "Strange library name in IncludeFileFinder: "
+        edm::LogError("Configuration")
+             << "Strange library name in IncludeFileFinder: "
              << libraryName << ", doesn't start with 'lib' or 'plugin'";
         // try to continue
         result = libraryName;
@@ -128,8 +129,9 @@ namespace edm {
       unsigned  pos = libraryName.find(".", 0);
       if(pos == string::npos)
       {
-        std::cerr << "Strange library name in IncludeFileFinder: "
-             << libraryName << ", no dots";
+        edm::LogError("Configuration")
+            << "Strange library name in IncludeFileFinder: "
+            << libraryName << ", no dots";
         // try to continue
         result = libraryName;
       }

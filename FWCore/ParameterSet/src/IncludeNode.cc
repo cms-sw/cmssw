@@ -3,7 +3,7 @@
 #include "FWCore/ParameterSet/interface/Visitor.h"
 #include "FWCore/ParameterSet/interface/parse.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
-#include <iostream>
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iterator>
 #include <boost/bind.hpp>
 // circular dependence here
@@ -174,7 +174,8 @@ namespace edm {
        
         if(nModules > 1)
         {
-          std::cerr << "WARNING: " << nModules << " modules were defined in " 
+          edm::LogWarning("Configuration")
+           << "WARNING: " << nModules << " modules were defined in " 
            << name() << ".\nOnly one module should be defined per .cfi."
            << "\nThis will be an error in future releases, "
            << "so please contact the responsible developers." << std::endl;

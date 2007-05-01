@@ -6,6 +6,7 @@
 #include "FWCore/ParameterSet/interface/PSetNode.h"
 #include "FWCore/ParameterSet/interface/Nodes.h"
 #include "FWCore/ParameterSet/interface/parse.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <iostream>
 #include <iterator>
@@ -564,12 +565,11 @@ namespace edm {
           || mapItr->second->getParent()->name() != replaceNode->getParent()->name()) 
         {
 
-          std::cerr
+          edm::LogWarning("Configuration")
             << "WARNING: do not embed replace statements to modify a parameter from a module which hasn't been cloned: " 
             << "\n" << "  Parameter " << targetNode->name() << " in " << topLevelName
-            << std::endl;
-          std::cerr << "  Replace happens in " << replaceNode->getParent()->name() << std::endl;
-          std::cerr << "  This will be an error in future releases.  Please fix." << std::endl;
+            << "\n  Replace happens in " << replaceNode->getParent()->name()
+            << "\n  This will be an error in future releases.  Please fix.";
         }
       }
 
