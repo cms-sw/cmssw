@@ -2,7 +2,7 @@
  *  An input source for DQM consumers run in cmsRun that connect to
  *  the StorageManager or SMProxyServer to get DQM data.
  *
- *  $Id: DQMHttpSource.cc,v 1.2 2007/04/18 01:47:39 hcheung Exp $
+ *  $Id: DQMHttpSource.cc,v 1.4 2007/04/26 01:01:54 hcheung Exp $
  */
 
 #include "EventFilter/StorageManager/src/DQMHttpSource.h"
@@ -168,6 +168,7 @@ namespace edm
     RunNumber_t iRun = 0;
     EventNumber_t iEvent = 0;
     TimeValue_t tStamp = 1;
+    Timestamp timeStamp (tStamp);
 
     if (msgView.code() == Header::DONE) {
       // Continue past run boundaries (SM halt)
@@ -181,6 +182,7 @@ namespace edm
       DQMEventMsgView dqmEventView(&buf_[0]);
       iRun = dqmEventView.runNumber();
       iEvent = dqmEventView.eventNumberAtUpdate();
+      timeStamp = dqmEventView.timeStamp();
 
       FDEBUG(8) << "  DQM Message data:" << std::endl;
       FDEBUG(8) << "    protocol version = "
@@ -218,7 +220,7 @@ namespace edm
       edm::StreamDQMDeserializer deserializeWorker;
       std::auto_ptr<DQMEvent::TObjectTable> toTablePtr =
           deserializeWorker.deserializeDQMEvent(dqmEventView);
-/*
+
       unsigned int count = 0;
       DQMEvent::TObjectTable::const_iterator toIter;
       for (toIter = toTablePtr->begin();
@@ -239,7 +241,6 @@ namespace edm
           if(success) ++count; // currently success is hardwired to be true on return!
         }
       }
-*/
       //std::cout << "Put " << count << " MEs into the DQM backend" <<std::endl;
 
       // clean up memory by spinning through the DQMEvent::TObjectTable map and
@@ -254,10 +255,9 @@ namespace edm
 
     setRunNumber(iRun); // <<=== here is where the run is set
     EventID eventId(iRun,iEvent);
-    // we need the timestamp
-    Timestamp timeStamp (tStamp);
 
     // make a fake event containing no data but the evId and runId from DQMEvent
+    // and the time stamp from the event at update
     std::auto_ptr<Event> e = makeEvent(eventId,timeStamp);
   
     return e;
