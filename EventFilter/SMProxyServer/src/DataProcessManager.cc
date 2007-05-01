@@ -1,4 +1,4 @@
-// $Id$
+// $Id: DataProcessManager.cc,v 1.1 2007/04/26 00:54:53 hcheung Exp $
 
 #include "EventFilter/SMProxyServer/interface/DataProcessManager.h"
 #include "EventFilter/StorageManager/interface/SMCurlInterface.h"
@@ -99,31 +99,40 @@ namespace stor
     // TODO to use non-blocking command queue method to process
     // stop commands while in registration loop: possible with tag in 15x series
     bool doneWithRegistration = false;
-    while(!doneWithRegistration)
+    unsigned int count = 0; // keep of count of tries and quite after 5
+    while(!doneWithRegistration && (count < 5))
     {
       bool success = registerWithAllSM();
       if(success) doneWithRegistration = true;
       else waitBetweenRegTrys();
+      ++count;
     }
-    edm::LogInfo("processCommands") << "Registered with all SM Event Servers";
+    if(count >= 5) edm::LogInfo("processCommands") << "Could not register with all SM Servers";
+    else edm::LogInfo("processCommands") << "Registered with all SM Event Servers";
     // now register as DQM consumers
     doneWithRegistration = false;
-    while(!doneWithRegistration)
+    count = 0;
+    while(!doneWithRegistration && (count < 5))
     {
       bool success = registerWithAllDQMSM();
       if(success) doneWithRegistration = true;
       else waitBetweenRegTrys();
+      ++count;
     }
-    edm::LogInfo("processCommands") << "Registered with all SM DQMEvent Servers";
+    if(count >= 5) edm::LogInfo("processCommands") << "Could not register with all SM DQMEvent Servers";
+    else edm::LogInfo("processCommands") << "Registered with all SM DQMEvent Servers";
     // now get one INIT header (product registry) and save it
     bool gotOneHeader = false;
-    while(!gotOneHeader)
+    count = 0;
+    while(!gotOneHeader && (count < 5))
     {
       bool success = getAnyHeaderFromSM();
       if(success) gotOneHeader = true;
       else waitBetweenRegTrys();
+      ++count;
     }
-    edm::LogInfo("processCommands") << "Got the product registry";
+    if(count >= 5) edm::LogInfo("processCommands") << "Could not get product registry!";
+    else edm::LogInfo("processCommands") << "Got the product registry";
 
     // just wait for command messages now
     while(1)
@@ -303,7 +312,7 @@ namespace stor
           edm::LogError("registerWithSM") << (data.d_.substr(0, MAX_DUMP_LENGTH));
         }
         edm::LogError("registerWithSM") << "========================================";
-        throw excpt;
+        return 0;
       }
     }
     if(registrationStatus == ConsRegResponseBuilder::ES_NOT_READY) return 0;
@@ -375,19 +384,19 @@ namespace stor
       }
       catch (cms::Exception excpt) {
         const unsigned int MAX_DUMP_LENGTH = 1000;
-        edm::LogError("registerWithSM") << "========================================";
-        edm::LogError("registerWithSM") << "Exception decoding the registerWithSM response!";
+        edm::LogError("registerWithDQMSM") << "========================================";
+        edm::LogError("registerWithDQMSM") << "Exception decoding the registerWithSM response!";
         if (data.d_.length() <= MAX_DUMP_LENGTH) {
-          edm::LogError("registerWithSM") << "Here is the raw text that was returned:";
-          edm::LogError("registerWithSM") << data.d_;
+          edm::LogError("registerWithDQMSM") << "Here is the raw text that was returned:";
+          edm::LogError("registerWithDQMSM") << data.d_;
         }
         else {
-          edm::LogError("registerWithSM") << "Here are the first " << MAX_DUMP_LENGTH <<
+          edm::LogError("registerWithDQMSM") << "Here are the first " << MAX_DUMP_LENGTH <<
             " characters of the raw text that was returned:";
-          edm::LogError("registerWithSM") << (data.d_.substr(0, MAX_DUMP_LENGTH));
+          edm::LogError("registerWithDQMSM") << (data.d_.substr(0, MAX_DUMP_LENGTH));
         }
-        edm::LogError("registerWithSM") << "========================================";
-        throw excpt;
+        edm::LogError("registerWithDQMSM") << "========================================";
+        return 0;
       }
     }
     if(registrationStatus == ConsRegResponseBuilder::ES_NOT_READY) return 0;

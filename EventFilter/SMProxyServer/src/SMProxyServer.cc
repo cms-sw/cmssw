@@ -1,4 +1,4 @@
-// $Id: SMProxyServer.cc,v 1.15 2007/04/05 00:12:58 hcheung Exp $
+// $Id: SMProxyServer.cc,v 1.2 2007/04/26 07:11:35 hcheung Exp $
 
 #include <iostream>
 #include <iomanip>
@@ -52,7 +52,8 @@ SMProxyServer::SMProxyServer(xdaq::ApplicationStub * s)
   mybuffer_(7000000),
   connectedSMs_(0), 
   storedDQMEvents_(0), 
-  dqmRecords_(0), 
+  sentEvents_(0),
+  sentDQMEvents_(0),
   storedVolume_(0.),
   progressMarker_(ProgressMarker::instance()->idle())
 {  
@@ -66,11 +67,11 @@ SMProxyServer::SMProxyServer(xdaq::ApplicationStub * s)
 
   xdata::InfoSpace *ispace = getApplicationInfoSpace();
 
-  ispace->fireItemAvailable("runNumber",     &runNumber_);
   ispace->fireItemAvailable("stateName",     fsm_.stateName());
   ispace->fireItemAvailable("connectedSMs",  &connectedSMs_);
   ispace->fireItemAvailable("storedDQMEvents",  &storedDQMEvents_);
-  ispace->fireItemAvailable("dqmRecords",    &dqmRecords_);
+  ispace->fireItemAvailable("sentEvents",    &sentEvents_);
+  ispace->fireItemAvailable("sentDQMEvents",    &sentDQMEvents_);
   ispace->fireItemAvailable("SMRegistrationList",&smRegList_);
   //ispace->fireItemAvailable("closedFiles",&closedFiles_);
   //ispace->fireItemAvailable("fileList",&fileList_);
@@ -139,9 +140,21 @@ SMProxyServer::SMProxyServer(xdaq::ApplicationStub * s)
   meanLatency_      = 0.;
   maxBandwidth_     = 0.;
   minBandwidth_     = 999999.;
+  outinstantBandwidth_ = 0.;
+  outinstantRate_      = 0.;
+  outinstantLatency_   = 0.;
+  outtotalSamples_     = 0;
+  outduration_         = 0.;
+  outmeanBandwidth_    = 0.;
+  outmeanRate_         = 0.;
+  outmeanLatency_      = 0.;
+  outmaxBandwidth_     = 0.;
+  outminBandwidth_     = 999999.;
 
   pmeter_ = new stor::SMPerformanceMeter();
   pmeter_->init(samples_);
+  outpmeter_ = new stor::SMPerformanceMeter();
+  outpmeter_->init(samples_);
 
   //string        xmlClass = getApplicationDescriptor()->getClassName();
   //unsigned long instance = getApplicationDescriptor()->getInstance();
@@ -159,6 +172,7 @@ SMProxyServer::~SMProxyServer()
 {
   delete ah_;
   delete pmeter_;
+  delete outpmeter_;
 }
 
 xoap::MessageReference
@@ -193,6 +207,29 @@ void SMProxyServer::addMeasurement(unsigned long size)
       maxBandwidth_ = instantBandwidth_;
     if (instantBandwidth_ < minBandwidth_)
       minBandwidth_ = instantBandwidth_;
+  }
+}
+
+void SMProxyServer::addOutMeasurement(unsigned long size)
+{
+  // for bandwidth performance measurements
+  if ( outpmeter_->addSample(size) )
+  {
+    // Copy measurements for our record
+    outinstantBandwidth_ = outpmeter_->bandwidth();
+    outinstantRate_      = outpmeter_->rate();
+    outinstantLatency_   = outpmeter_->latency();
+    outtotalSamples_     = outpmeter_->totalsamples();
+    outduration_         = outpmeter_->duration();
+    outmeanBandwidth_    = outpmeter_->meanbandwidth();
+    outmeanRate_         = outpmeter_->meanrate();
+    outmeanLatency_      = outpmeter_->meanlatency();
+
+    // Determine minimum and maximum instantaneous bandwidth
+    if (outinstantBandwidth_ > outmaxBandwidth_)
+      outmaxBandwidth_ = outinstantBandwidth_;
+    if (outinstantBandwidth_ < outminBandwidth_)
+      outminBandwidth_ = outinstantBandwidth_;
   }
 }
 
@@ -258,9 +295,18 @@ void SMProxyServer::defaultWebPage(xgi::Input *in, xgi::Output *out)
 
   *out << "<table frame=\"void\" rules=\"groups\" class=\"states\">" << endl;
   *out << "<colgroup> <colgroup align=\"rigth\">"                    << endl;
+        *out << "<tr>" << endl;
+        *out << "<th >" << endl;
+        *out << "State" << endl;
+        *out << "</th>" << endl;
+        *out << "<th>" << endl;
+        *out << fsm_.stateName()->toString() << endl;
+        *out << "</th>" << endl;
+        *out << "</tr>" << endl;
+        *out << "<tr>" << endl;
     *out << "  <tr>"                                                   << endl;
     *out << "    <th colspan=2>"                                       << endl;
-    *out << "      " << "Memory Pool Usage"                            << endl;
+    *out << "      " << "Input and Output Statistics"                  << endl;
     *out << "    </th>"                                                << endl;
     *out << "  </tr>"                                                  << endl;
 
@@ -298,16 +344,24 @@ void SMProxyServer::defaultWebPage(xgi::Input *in, xgi::Output *out)
         *out << "  </tr>" << endl;
         *out << "<tr>" << endl;
           *out << "<td >" << endl;
-          *out << "DQM Records Received" << endl;
+          *out << "Events sent to consumers" << endl;
           *out << "</td>" << endl;
           *out << "<td align=right>" << endl;
-          *out << dqmRecords_ << endl;
+          *out << sentEvents_ << endl;
+          *out << "</td>" << endl;
+        *out << "  </tr>" << endl;
+        *out << "<tr>" << endl;
+          *out << "<td >" << endl;
+          *out << "DQMEvents sent to consumers" << endl;
+          *out << "</td>" << endl;
+          *out << "<td align=right>" << endl;
+          *out << sentDQMEvents_ << endl;
           *out << "</td>" << endl;
         *out << "  </tr>" << endl;
 // performance statistics
     *out << "  <tr>"                                                   << endl;
     *out << "    <th colspan=2>"                                       << endl;
-    *out << "      " << "Performance for last " << samples_ << " frames"<< endl;
+    *out << "      " << "Input Performance for last " << samples_ << " HTTP posts"<< endl;
     *out << "    </th>"                                                << endl;
     *out << "  </tr>"                                                  << endl;
         *out << "<tr>" << endl;
@@ -353,7 +407,7 @@ void SMProxyServer::defaultWebPage(xgi::Input *in, xgi::Output *out)
 // mean performance statistics for whole run
     *out << "  <tr>"                                                   << endl;
     *out << "    <th colspan=2>"                                       << endl;
-    *out << "      " << "Mean Performance for " << totalSamples_ << " frames, duration "
+    *out << "      " << "Mean Performance for " << totalSamples_ << " posts, duration "
          << duration_ << " seconds" << endl;
     *out << "    </th>"                                                << endl;
     *out << "  </tr>"                                                  << endl;
@@ -379,6 +433,83 @@ void SMProxyServer::defaultWebPage(xgi::Input *in, xgi::Output *out)
           *out << "</td>" << endl;
           *out << "<td align=right>" << endl;
           *out << meanLatency_ << endl;
+          *out << "</td>" << endl;
+        *out << "  </tr>" << endl;
+// performance statistics
+    *out << "  <tr>"                                                   << endl;
+    *out << "    <th colspan=2>"                                       << endl;
+    *out << "      " << "Output Performance for last " << samples_ << " HTTP posts"<< endl;
+    *out << "    </th>"                                                << endl;
+    *out << "  </tr>"                                                  << endl;
+        *out << "<tr>" << endl;
+          *out << "<td >" << endl;
+          *out << "Bandwidth (MB/s)" << endl;
+          *out << "</td>" << endl;
+          *out << "<td align=right>" << endl;
+          *out << outinstantBandwidth_ << endl;
+          *out << "</td>" << endl;
+        *out << "  </tr>" << endl;
+        *out << "<tr>" << endl;
+          *out << "<td >" << endl;
+          *out << "Rate (Frames/s)" << endl;
+          *out << "</td>" << endl;
+          *out << "<td align=right>" << endl;
+          *out << outinstantRate_ << endl;
+          *out << "</td>" << endl;
+        *out << "  </tr>" << endl;
+        *out << "<tr>" << endl;
+          *out << "<td >" << endl;
+          *out << "Latency (us/frame)" << endl;
+          *out << "</td>" << endl;
+          *out << "<td align=right>" << endl;
+          *out << outinstantLatency_ << endl;
+          *out << "</td>" << endl;
+        *out << "  </tr>" << endl;
+        *out << "<tr>" << endl;
+          *out << "<td >" << endl;
+          *out << "Maximum Bandwidth (MB/s)" << endl;
+          *out << "</td>" << endl;
+          *out << "<td align=right>" << endl;
+          *out << outmaxBandwidth_ << endl;
+          *out << "</td>" << endl;
+        *out << "  </tr>" << endl;
+        *out << "<tr>" << endl;
+          *out << "<td >" << endl;
+          *out << "Minimum Bandwidth (MB/s)" << endl;
+          *out << "</td>" << endl;
+          *out << "<td align=right>" << endl;
+          *out << outminBandwidth_ << endl;
+          *out << "</td>" << endl;
+        *out << "  </tr>" << endl;
+// mean performance statistics for whole run
+    *out << "  <tr>"                                                   << endl;
+    *out << "    <th colspan=2>"                                       << endl;
+    *out << "      " << "Mean Performance for " << outtotalSamples_ << " posts, duration "
+         << outduration_ << " seconds" << endl;
+    *out << "    </th>"                                                << endl;
+    *out << "  </tr>"                                                  << endl;
+        *out << "<tr>" << endl;
+          *out << "<td >" << endl;
+          *out << "Bandwidth (MB/s)" << endl;
+          *out << "</td>" << endl;
+          *out << "<td align=right>" << endl;
+          *out << outmeanBandwidth_ << endl;
+          *out << "</td>" << endl;
+        *out << "  </tr>" << endl;
+        *out << "<tr>" << endl;
+          *out << "<td >" << endl;
+          *out << "Rate (Frames/s)" << endl;
+          *out << "</td>" << endl;
+          *out << "<td align=right>" << endl;
+          *out << outmeanRate_ << endl;
+          *out << "</td>" << endl;
+        *out << "  </tr>" << endl;
+        *out << "<tr>" << endl;
+          *out << "<td >" << endl;
+          *out << "Latency (us/frame)" << endl;
+          *out << "</td>" << endl;
+          *out << "<td align=right>" << endl;
+          *out << outmeanLatency_ << endl;
           *out << "</td>" << endl;
         *out << "  </tr>" << endl;
 
@@ -522,199 +653,30 @@ void SMProxyServer::smsenderWebPage(xgi::Input *in, xgi::Output *out)
           *out << smsenders_.size() << endl;
           *out << "</td>" << endl;
         *out << "  </tr>" << endl;
-    std::vector<boost::shared_ptr<SMFUSenderStats> > vfustats = smsenders_.getFUSenderStats();
-    if(!vfustats.empty()) {
-      for(vector<boost::shared_ptr<SMFUSenderStats> >::iterator pos = vfustats.begin();
-          pos != vfustats.end(); ++pos)
-      {
+    if(smsenders_.size() > 0) {
         *out << "<tr>" << endl;
           *out << "<td >" << endl;
-          *out << "FU Sender URL" << endl;
-          *out << "</td>" << endl;
-          *out << "<td align=right>" << endl;
-          char hlturl[MAX_I2O_SM_URLCHARS];
-          copy(&(((*pos)->hltURL_)->at(0)), 
-               &(((*pos)->hltURL_)->at(0)) + ((*pos)->hltURL_)->size(),
-               hlturl);
-          hlturl[((*pos)->hltURL_)->size()] = '\0';
-          *out << hlturl << endl;
-          *out << "</td>" << endl;
-        *out << "  </tr>" << endl;
-        *out << "<tr>" << endl;
-          *out << "<td >" << endl;
-          *out << "FU Sender Class Name" << endl;
+          *out << "SM Sender URL" << endl;
           *out << "</td>" << endl;
           *out << "<td>" << endl;
-          char hltclass[MAX_I2O_SM_URLCHARS];
-          copy(&(((*pos)->hltClassName_)->at(0)), 
-               &(((*pos)->hltClassName_)->at(0)) + ((*pos)->hltClassName_)->size(),
-               hltclass);
-          hltclass[((*pos)->hltClassName_)->size()] = '\0';
-          *out << hltclass << endl;
+          *out << "Registered?" << endl;
           *out << "</td>" << endl;
         *out << "  </tr>" << endl;
+    }
+    std::map< std::string, bool >::iterator si(smsenders_.begin()), se(smsenders_.end());
+    for( ; si != se; ++si) {
         *out << "<tr>" << endl;
-          *out << "<td >" << endl;
-          *out << "FU Sender Instance" << endl;
+          *out << "<td>" << endl;
+          *out << si->first << endl;
           *out << "</td>" << endl;
           *out << "<td>" << endl;
-          *out << (*pos)->hltInstance_ << endl;
+          if(si->second) 
+            *out << "Yes" << endl;
+          else
+            *out << "No" << endl;
           *out << "</td>" << endl;
         *out << "  </tr>" << endl;
-        *out << "<tr>" << endl;
-          *out << "<td >" << endl;
-          *out << "FU Sender Local ID" << endl;
-          *out << "</td>" << endl;
-          *out << "<td>" << endl;
-          *out << (*pos)->hltLocalId_ << endl;
-          *out << "</td>" << endl;
-        *out << "  </tr>" << endl;
-        *out << "<tr>" << endl;
-          *out << "<td >" << endl;
-          *out << "FU Sender Tid" << endl;
-          *out << "</td>" << endl;
-          *out << "<td>" << endl;
-          *out << (*pos)->hltTid_ << endl;
-          *out << "</td>" << endl;
-        *out << "  </tr>" << endl;
-        *out << "<tr>" << endl;
-          *out << "<td >" << endl;
-          *out << "Product registry" << endl;
-          *out << "</td>" << endl;
-          *out << "<td>" << endl;
-          if((*pos)->regAllReceived_) {
-            *out << "All Received" << endl;
-          } else {
-            *out << "Partially received" << endl;
-          }
-          *out << "</td>" << endl;
-        *out << "  </tr>" << endl;
-        *out << "<tr>" << endl;
-          *out << "<td >" << endl;
-          *out << "Product registry" << endl;
-          *out << "</td>" << endl;
-          *out << "<td>" << endl;
-          if((*pos)->regCheckedOK_) {
-            *out << "Checked OK" << endl;
-          } else {
-            *out << "Bad" << endl;
-          }
-          *out << "</td>" << endl;
-        *out << "  </tr>" << endl;
-        *out << "<tr>" << endl;
-          *out << "<td >" << endl;
-          *out << "Connection Status" << endl;
-          *out << "</td>" << endl;
-          *out << "<td>" << endl;
-          *out << (*pos)->connectStatus_ << endl;
-          *out << "</td>" << endl;
-        *out << "  </tr>" << endl;
-        if((*pos)->connectStatus_ > 1) {
-          *out << "<tr>" << endl;
-            *out << "<td >" << endl;
-            *out << "Time since last data frame (us)" << endl;
-            *out << "</td>" << endl;
-            *out << "<td align=right>" << endl;
-            *out << (*pos)->timeWaited_ << endl;
-            *out << "</td>" << endl;
-          *out << "  </tr>" << endl;
-          *out << "<tr>" << endl;
-            *out << "<td >" << endl;
-            *out << "Run number" << endl;
-            *out << "</td>" << endl;
-            *out << "<td align=right>" << endl;
-            *out << (*pos)->runNumber_ << endl;
-            *out << "</td>" << endl;
-          *out << "  </tr>" << endl;
-          *out << "<tr>" << endl;
-            *out << "<td >" << endl;
-            *out << "Running locally" << endl;
-            *out << "</td>" << endl;
-            *out << "<td align=right>" << endl;
-            if((*pos)->isLocal_) {
-              *out << "Yes" << endl;
-            } else {
-              *out << "No" << endl;
-            }
-            *out << "</td>" << endl;
-          *out << "  </tr>" << endl;
-          *out << "<tr>" << endl;
-            *out << "<td >" << endl;
-            *out << "Frames received" << endl;
-            *out << "</td>" << endl;
-            *out << "<td align=right>" << endl;
-            *out << (*pos)->framesReceived_ << endl;
-            *out << "</td>" << endl;
-          *out << "  </tr>" << endl;
-          *out << "<tr>" << endl;
-            *out << "<td >" << endl;
-            *out << "Events received" << endl;
-            *out << "</td>" << endl;
-            *out << "<td align=right>" << endl;
-            *out << (*pos)->eventsReceived_ << endl;
-            *out << "</td>" << endl;
-          *out << "  </tr>" << endl;
-          *out << "<tr>" << endl;
-            *out << "<td >" << endl;
-            *out << "Total Bytes received" << endl;
-            *out << "</td>" << endl;
-            *out << "<td align=right>" << endl;
-            *out << (*pos)->totalSizeReceived_ << endl;
-            *out << "</td>" << endl;
-          *out << "  </tr>" << endl;
-          if((*pos)->eventsReceived_ > 0) {
-            *out << "<tr>" << endl;
-              *out << "<td >" << endl;
-              *out << "Last frame latency (us)" << endl;
-              *out << "</td>" << endl;
-              *out << "<td align=right>" << endl;
-              *out << (*pos)->lastLatency_ << endl;
-              *out << "</td>" << endl;
-            *out << "  </tr>" << endl;
-            *out << "<tr>" << endl;
-              *out << "<td >" << endl;
-              *out << "Average event size (Bytes)" << endl;
-              *out << "</td>" << endl;
-              *out << "<td align=right>" << endl;
-              *out << (*pos)->totalSizeReceived_/(*pos)->eventsReceived_ << endl;
-              *out << "</td>" << endl;
-              *out << "<tr>" << endl;
-                *out << "<td >" << endl;
-                *out << "Last Run Number" << endl;
-                *out << "</td>" << endl;
-                *out << "<td align=right>" << endl;
-                *out << (*pos)->lastRunID_ << endl;
-                *out << "</td>" << endl;
-              *out << "  </tr>" << endl;
-              *out << "<tr>" << endl;
-                *out << "<td >" << endl;
-                *out << "Last Event Number" << endl;
-                *out << "</td>" << endl;
-                *out << "<td align=right>" << endl;
-                *out << (*pos)->lastEventID_ << endl;
-                *out << "</td>" << endl;
-              *out << "  </tr>" << endl;
-            } // events received endif
-          *out << "  </tr>" << endl;
-          *out << "<tr>" << endl;
-            *out << "<td >" << endl;
-            *out << "Total out of order frames" << endl;
-            *out << "</td>" << endl;
-            *out << "<td align=right>" << endl;
-            *out << (*pos)->totalOutOfOrder_ << endl;
-            *out << "</td>" << endl;
-          *out << "  </tr>" << endl;
-          *out << "<tr>" << endl;
-            *out << "<td >" << endl;
-            *out << "Total Bad Events" << endl;
-            *out << "</td>" << endl;
-            *out << "<td align=right>" << endl;
-            *out << (*pos)->totalBadEvents_ << endl;
-            *out << "</td>" << endl;
-          *out << "  </tr>" << endl;
-        } // connect status endif
-      } // Sender list loop
-    } //sender size test endif
+    }
 
   *out << "</table>" << endl;
 
@@ -839,6 +801,8 @@ void SMProxyServer::eventdataWebPage(xgi::Input *in, xgi::Output *out)
         copy(from,from+dsize,pos);
         len = dsize;
         FDEBUG(10) << "sending event " << msgView.event() << std::endl;
+        ++sentEvents_;
+        addOutMeasurement(len);
       }
     }
     
@@ -1078,6 +1042,8 @@ void SMProxyServer::DQMeventdataWebPage(xgi::Input *in, xgi::Output *out)
         copy(from,from+dsize,pos);
         len = dsize;
         FDEBUG(10) << "sending update at event " << msgView.eventNumberAtUpdate() << std::endl;
+        ++sentDQMEvents_;
+        addOutMeasurement(len);
       }
     }
     
@@ -1218,6 +1184,8 @@ void SMProxyServer::receiveEventWebPage(xgi::Input *in, xgi::Output *out)
           eventServer->processEvent(eventView);
         }
       }
+      ++receivedEvents_;
+      addMeasurement(contentLength);
     }
 
     // do we have to send a response? Will the SM hang/timeout if not?
@@ -1263,6 +1231,8 @@ void SMProxyServer::receiveDQMEventWebPage(xgi::Input *in, xgi::Output *out)
           DQMeventServer->processDQMEvent(dqmEventView);
         }
       }
+      ++receivedDQMEvents_;
+      addMeasurement(contentLength);
     }
 
     // do we have to send a response? Will the SM hang/timeout if not?
@@ -1317,7 +1287,8 @@ void SMProxyServer::setupFlashList()
   is->fireItemAvailable("url",                  &url_);
   // Body
   is->fireItemAvailable("storedDQMEvents",         &storedDQMEvents_);
-  is->fireItemAvailable("dqmRecords",           &dqmRecords_);
+  is->fireItemAvailable("sentEvents",           &sentEvents_);
+  is->fireItemAvailable("sentDQMEvents",        &sentDQMEvents_);
   is->fireItemAvailable("storedVolume",         &storedVolume_);
   is->fireItemAvailable("instantBandwidth",     &instantBandwidth_);
   is->fireItemAvailable("instantRate",          &instantRate_);
@@ -1348,7 +1319,8 @@ void SMProxyServer::setupFlashList()
   is->addItemRetrieveListener("url",                  this);
   // Body
   is->addItemRetrieveListener("storedDQMEvents",         this);
-  is->addItemRetrieveListener("dqmRecords",           this);
+  is->addItemRetrieveListener("sentEvents",           this);
+  is->addItemRetrieveListener("sentDQMEvents",        this);
   is->addItemRetrieveListener("storedVolume",         this);
   is->addItemRetrieveListener("instantBandwidth",     this);
   is->addItemRetrieveListener("instantRate",          this);
@@ -1400,12 +1372,6 @@ bool SMProxyServer::configuring(toolbox::task::WorkLoop* wl)
   try {
     LOG4CPLUS_INFO(getApplicationLogger(),"Start configuring ...");
     
-    // manually add to the list for now
-    smRegList_.clear();
-    smRegList_.setSize(1);
-    *((std::string*)smRegList_.elementAt(0)) = "http://cmsroc2.fnal.gov:1972/urn:xdaq-application:lid=29";
-
-    
     // the poll rate is set by maxESEventRate_ and we poll for both events
     // and DQM events at the same time!
     
@@ -1445,8 +1411,11 @@ bool SMProxyServer::configuring(toolbox::task::WorkLoop* wl)
       unsigned int rsize = (unsigned int)smRegList_.size();
       for(unsigned int i = 0; i < rsize; ++i)
       {
-        dpm_->addSM2Register(*((std::string*)smRegList_.elementAt(i)));
-        dpm_->addDQMSM2Register(*((std::string*)smRegList_.elementAt(i)));
+        std::cout << "add to register list num = " << i << " url = " 
+                  << smRegList_.elementAt(i)->toString() << std::endl;
+        dpm_->addSM2Register(smRegList_.elementAt(i)->toString());
+        dpm_->addDQMSM2Register(smRegList_.elementAt(i)->toString());
+        smsenders_.insert(std::make_pair(smRegList_.elementAt(i)->toString(), false));
       }
     
     }
@@ -1489,7 +1458,8 @@ bool SMProxyServer::enabling(toolbox::task::WorkLoop* wl)
     //eventsInFile_.clear();
     //fileSize_.clear();
     storedDQMEvents_ = 0;
-    dqmRecords_   = 0;
+    sentEvents_   = 0;
+    sentDQMEvents_   = 0;
     receivedEvents_ = 0;
     receivedDQMEvents_ = 0;
     dpm_->start();
@@ -1535,12 +1505,16 @@ bool SMProxyServer::halting(toolbox::task::WorkLoop* wl)
     dpm_->stop();
     dpm_->join();
     
-    //smsenders_.clear(); // TODO we need to create this function
+    // make consumers register again after a halt to ensure correct configuration?
+    smsenders_.clear();
     connectedSMs_ = 0;
+    /* maybe we want to see these statistics after a halt
     storedDQMEvents_ = 0;
-    dqmRecords_   = 0;
+    sentEvents_   = 0;
+    sentDQMEvents_   = 0;
     receivedEvents_ = 0;
     receivedDQMEvents_ = 0;
+    */
     
     {
       boost::mutex::scoped_lock sl(halt_lock_);

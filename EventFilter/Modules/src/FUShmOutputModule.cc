@@ -4,7 +4,7 @@
      the resource broker to send to the Storage Manager.
      See the CMS EvF Storage Manager wiki page for further notes.
 
-   $Id: FUShmOutputModule.cc,v 1.1 2007/03/26 23:36:20 hcheung Exp $
+   $Id: FUShmOutputModule.cc,v 1.2 2007/04/01 05:19:35 hcheung Exp $
 */
 
 #include "EventFilter/Utilities/interface/i2oEvfMsgs.h"
@@ -33,7 +33,7 @@ namespace edm
 {
 
   FUShmOutputModule::FUShmOutputModule(edm::ParameterSet const& ps):
-    shmBuffer_(evf::FUShmBuffer::getShmBuffer())
+    shmBuffer_(0)
   {
     FDEBUG(9) << "FUShmOutputModule: constructor" << endl;
   }
@@ -80,11 +80,20 @@ namespace edm
     }
   }
 
+  void FUShmOutputModule::start()
+  {
+    shmBuffer_ = evf::FUShmBuffer::getShmBuffer();
+    if(0==shmBuffer_) 
+      edm::LogError("FUShmOutputModule")<<"Failed to attach to shared memory";
+  }
+
   void FUShmOutputModule::stop()
   {
     FDEBUG(9) << "FUShmOutputModule: sending terminate run" << std::endl;
-    edm::LogInfo("FUShmOutputModule") << "stop called";
-    // do nothing in this version
+    if(0!=shmBuffer_){
+      shmdt(shmBuffer_);
+      shmBuffer_ = 0;
+    }
   }
 
 }

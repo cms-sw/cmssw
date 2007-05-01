@@ -12,7 +12,7 @@
 
      See CMS EventFilter wiki page for further notes.
 
-   $Id$
+   $Id: SMProxyServer.h,v 1.1 2007/04/26 00:54:52 hcheung Exp $
 */
 
 #include <string>
@@ -142,11 +142,12 @@ namespace stor {
     xdata::Integer DQMidleConsumerTimeout_;  // seconds
     xdata::Integer DQMconsumerQueueSize_;
 
-    SMFUSenderList smsenders_;
+    std::map< std::string, bool > smsenders_;
     xdata::UnsignedInteger32 connectedSMs_;
 
     xdata::UnsignedInteger32 storedDQMEvents_;
-    xdata::UnsignedInteger32 dqmRecords_;
+    xdata::UnsignedInteger32 sentEvents_;
+    xdata::UnsignedInteger32 sentDQMEvents_;
     //xdata::UnsignedInteger32 closedFiles_;
     //xdata::Vector<xdata::String> fileList_;
     //xdata::Vector<xdata::UnsignedInteger32> eventsInFile_;
@@ -156,7 +157,9 @@ namespace stor {
 
     // *** for performance measurements
     void addMeasurement(unsigned long size);
+    void addOutMeasurement(unsigned long size);
     stor::SMPerformanceMeter *pmeter_;
+    stor::SMPerformanceMeter *outpmeter_;
 
     // *** measurements for last set of samples
     xdata::UnsignedInteger32 samples_; // number of samples/frames per measurement
@@ -165,6 +168,11 @@ namespace stor {
     xdata::Double instantLatency_;   // micro-seconds/frame
     xdata::Double maxBandwidth_;     // maximum bandwidth in MB/s
     xdata::Double minBandwidth_;     // minimum bandwidth in MB/s
+    xdata::Double outinstantBandwidth_; // bandwidth in MB/s
+    xdata::Double outinstantRate_;      // number of frames/s
+    xdata::Double outinstantLatency_;   // micro-seconds/frame
+    xdata::Double outmaxBandwidth_;     // maximum bandwidth in MB/s
+    xdata::Double outminBandwidth_;     // minimum bandwidth in MB/s
 
     // *** measurements for all samples
     xdata::Double duration_;         // time for run in seconds
@@ -172,6 +180,11 @@ namespace stor {
     xdata::Double meanBandwidth_;    // bandwidth in MB/s
     xdata::Double meanRate_;         // number of frames/s
     xdata::Double meanLatency_;      // micro-seconds/frame
+    xdata::Double outduration_;         // time for run in seconds
+    xdata::UnsignedInteger32 outtotalSamples_; //number of samples/frames per measurement
+    xdata::Double outmeanBandwidth_;    // bandwidth in MB/s
+    xdata::Double outmeanRate_;         // number of frames/s
+    xdata::Double outmeanLatency_;      // micro-seconds/frame
 
     // *** additional flashlist contents (rest was already there)
     xdata::String            class_;
