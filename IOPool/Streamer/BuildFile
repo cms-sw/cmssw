@@ -7,10 +7,9 @@
 <use name=FWCore/RootAutoLibraryLoader>
 <use name=FWCore/ServiceRegistry>
 <use name=FWCore/Utilities>
-<use name=IOPool/Common>
 <use name=Utilities/StorageFactory>
-<use name=StorageSvc>
 <use name=boost>
+<use name=rootcintex>
 <use name=rootcore>
 <use name=rootrflx>
 <use name=zlib>

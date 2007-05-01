@@ -1,14 +1,11 @@
 #include "DataFormats/Streamer/interface/StreamedProducts.h"
-#include "IOPool/Common/interface/ClassFiller.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
 #include "Reflex/Type.h"
 #include "Reflex/Member.h"
 #include "Reflex/Base.h"
+#include "Cintex/Cintex.h"
 #include "FWCore/PluginManager/interface/PluginCapabilities.h"
-#include "StorageSvc/IOODatabaseFactory.h"
-#include "StorageSvc/IClassLoader.h"
-#include "StorageSvc/DbType.h"
 
 
 #include "TClass.h"
@@ -26,61 +23,23 @@ namespace {
     return cc.Name(ROOT::Reflex::SCOPED);
   }
 
-  pool::IClassLoader* getClassLoader() {
-    pool::IOODatabaseFactory* dbf = pool::IOODatabaseFactory::get();
-
-
-    //This is an outrageous HACK (AA)
-    // New interface needs a second parameter as void* 
-    int dummy=0;
-    pool::IOODatabase* db=dbf->create(pool::ROOT_StorageType.storageName(), 
-                                        (void*) &dummy); 
-    // Old interface require only one parameter (AA)
-    // does 'db' in the next line need to be cleaned up? (JBK)
-    // pool::IOODatabase* db=dbf->create(pool::ROOT_StorageType.storageName());
-
-    if(db == 0) {
-
-        throw cms::Exception("Configuration","EventStreamerImpl")
-          << "could not get the IOODatabase from the IOODatabaseFactory\n"
-          << "for storageName = " << pool::ROOT_StorageType.storageName()
-          << "\n";
-    }
-
-    pool::IClassLoader* cl = db->classLoader();
-    
-    if(cl == 0) {
-        throw cms::Exception("Configuration","EventStreamerImpl")
-          << "could not get the classloader from the IOODatabase\n";
-    }
-
-    return cl;
-  }
-
-
   // ---------------------
-  void fillChildren(pool::IClassLoader* cl, ROOT::Reflex::Type cc, int rcnt, std::set<std::string>& classes)
+  void fillChildren(ROOT::Reflex::Type cc, int rcnt, std::set<std::string>& classes)
   {
+    static std::string const fname("LCGReflex/");
     rcnt--;
     FDEBUG(9) << "JBK: parent - " << getName(cc) << endl;
 
-    while(cc.IsPointer() == true || cc.IsArray() == true) {
-	//seal::Reflex::Pointer rp(*cc);
-	cc = cc.ToType();
-    }
+    // ToType strips const, volatile, array, pointer, reference, etc.,
+    // and also translates typedefs.
+    // To be safe, we do this recursively until we either get a null type
+    // or the same type.
+    ROOT::Reflex::Type null;
+    for (ROOT::Reflex::Type x = cc.ToType(); x != null && x != cc; cc = x, x = cc.ToType()) {}
 
     if(cc.IsFundamental()) return;
-
-    // this probably need to be corrected also (JBK)
-    if(getName(cc).find("std::basic_string<char>")==0 ||
-       getName(cc).find("basic_string<char>")==0) {
-	static bool has_printed = false;
-	if(has_printed == false) {
-	    FDEBUG(6) << "JBK: leaving " << getName(cc) << " alone\n";
-	    has_printed = true;
-	}
-	return;
-    }
+    if(cc.IsEnum()) return;
+    if(cc == null) return;
 
     if(classes.find(getName(cc)) != classes.end()) {
 	FDEBUG(6) << "WMT: skipping " << getName(cc) << ", because already processed\n";
@@ -95,27 +54,40 @@ namespace {
 	    int cnt = cc.TemplateArgumentSize();
 	    for(int i = 0; i < cnt; ++i) {
 		ROOT::Reflex::Type t = cc.TemplateArgumentAt(i);
-		fillChildren(cl, t, rcnt, classes);
+		fillChildren(t, rcnt, classes);
 	    }
 	}
 
-	FDEBUG(9) << "JBK: declare members " << getName(cc) << endl;
-	int mcnt = cc.MemberSize();
-	for(int i = 0; i < mcnt; ++i) {
-	    ROOT::Reflex::Member m = cc.MemberAt(i);
-	    if(m.IsTransient() || m.IsStatic()) continue;
-	    if(!m.IsDataMember()) continue;
+        if(getName(cc).find("std::") != 0) {
+	  int mcnt = cc.MemberSize();
+	  if (mcnt) {
+	    FDEBUG(9) << "JBK: declare members " << getName(cc) << endl;
+	    for(int i = 0; i < mcnt; ++i) {
+	      ROOT::Reflex::Member m = cc.MemberAt(i);
+	      if(m.IsTransient() || m.IsStatic()) continue;
+	      if(!m.IsDataMember()) continue;
+	      ROOT::Reflex::Type t = m.TypeOf();
+	      fillChildren(t, rcnt, classes);
+	    }
+	  }
+	  int cnt = cc.BaseSize();
+          if (cnt) {
+	    FDEBUG(9) << "WMT: declare bases " << getName(cc) << endl;
+	    for(int i = 0; i < cnt; ++i) {
+	      ROOT::Reflex::Base b = cc.BaseAt(i);
 
-	    ROOT::Reflex::Type t = m.TypeOf();
-	    fillChildren(cl, t, rcnt, classes);
+	      ROOT::Reflex::Type t = b.ToType();
+	      fillChildren(t, rcnt, classes);
+	    }
+	  }
 	}
-      }
+    }
 	    
     FDEBUG(9) << "JBK: after field loop " << getName(cc) << endl;
     
-    if(cl->loadClass(getName(cc)) != pool::DbStatus::SUCCESS) {
-	FDEBUG(1) << "Error: could not loadClass for " << getName(cc) << endl;
-	return;
+    try {
+      edmplugin::PluginCapabilities::get()->load(fname + getName(cc));
+    } catch (cms::Exception const&) {
     }
 
     TClass* ttest = TClass::GetClass(getName(cc).c_str());
@@ -136,20 +108,6 @@ namespace {
 		  << " has no streamer info version 1!\n";
     }
 
-    if (rcnt) {
-        if(getName(cc).find("std::")!=0) {
-	    int cnt = cc.BaseSize();
-            if (cnt) {
-	      FDEBUG(9) << "WMT: declare bases " << getName(cc) << endl;
-	      for(int i = 0; i < cnt; ++i) {
-	        ROOT::Reflex::Base b = cc.BaseAt(i);
-
-	        ROOT::Reflex::Type t = b.ToType();
-	        fillChildren(cl, t, rcnt, classes);
-	      }
-	    }
-	}
-    }
 #if 0
     else
       ttest->GetStreamerInfo(1)->ls();
@@ -168,22 +126,19 @@ namespace edm {
 
   void loadCap(const std::string& name)
   {
-    std::string fname("LCGReflex/");
-    fname += name;
-    FDEBUG(1) << "attempting to load cap for: " << fname << endl;
-    edmplugin::PluginCapabilities::get()->load(fname);
+    std::string const fname("LCGReflex/");
+
+    FDEBUG(1) << "attempting to load cap for: " << name << endl;
 	
     try {
+      edmplugin::PluginCapabilities::get()->load(fname + name);
       ROOT::Reflex::Type cc = ROOT::Reflex::Type::ByName(name);
-
-      // next two lines are for explicitly causing every object to get defined
-      pool::IClassLoader* cl = getClassLoader();
 
       std::set<std::string> classes;
 
 	  // jbk - I'm leaving this out unless we really need it -
 	  // its job is to declare each of the types to ROOT
-      fillChildren(cl,cc,10000,classes);
+      fillChildren(cc,10000,classes);
 
 
       TClass* ttest = TClass::GetClass(getName(cc).c_str());
@@ -215,14 +170,14 @@ namespace edm {
 
   void loadExtraClasses() {
     static bool done = false;
-    if(done==false) {
+    if (done == false) {
 	loadCap(std::string("edm::ProdPair"));
 	loadCap(std::string("std::vector<edm::ProdPair>"));
 	loadCap(std::string("edm::SendEvent"));
 	loadCap(std::string("std::vector<edm::BranchDescription>"));
 	loadCap(std::string("edm::SendJobHeader"));
     }
-    ClassFiller();
+    ROOT::Cintex::Cintex::Enable();
     done=true;
   }
 
