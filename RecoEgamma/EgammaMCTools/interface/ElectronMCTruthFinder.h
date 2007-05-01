@@ -25,11 +25,6 @@ class ElectronMCTruthFinder {
 
     std::map<unsigned, unsigned> geantToIndex_;
 
-    float mcElecEnergy_[10];
-    float mcElecEt_[10];
-    float mcElecPt_[10];
-    float mcElecEta_[10];
-    float mcElecPhi_[10];
 };
 
 #endif

@@ -81,20 +81,8 @@ std::vector<PizeroMCTruth> PizeroMCTruthFinder::find(std::vector<SimTrack> theSi
 	photonTracks.push_back( &(*iSimTk) );
 	
 	CLHEP::HepLorentzVector momentum = (*iSimTk).momentum();
-	//h_MCphoPt_->Fill(  momentum.perp());
-	// h_MCphoEta_->Fill( momentum.pseudoRapidity());
-	// h_MCphoE_->Fill( momentum.rho());
 	
-         if ( iPho < 10) {
-           
-	   // mcPhoEnergy_[iPho]= momentum.e(); 
-	   // mcPhoPt_[iPho]= momentum.perp(); 
-	   // mcPhoEt_[iPho]= momentum.et(); 
-	   // mcPhoEta_[iPho]= momentum.pseudoRapidity();
-	   // mcPhoPhi_[iPho]= momentum.phi();
-	 }
-
-	 iPho++;
+	iPho++;
 
       } else if ( (*iSimTk).type() == 11 || (*iSimTk).type()==-11 ) {
 	std::cout << " Found a primary electron with ID  " << (*iSimTk).trackId() << " momentum " << (*iSimTk).momentum() <<  std::endl;
@@ -102,14 +90,6 @@ std::vector<PizeroMCTruth> PizeroMCTruthFinder::find(std::vector<SimTrack> theSi
 	electronTracks.push_back( &(*iSimTk) );
 
 	CLHEP::HepLorentzVector momentum = (*iSimTk).momentum();
-
-	/* if (iElec < 10) {
-	  mcElecEnergy_[iElec] = momentum.e();
-	  mcElecPt_[iElec] = momentum.perp();
-	  mcElecEt_[iElec] = momentum.et();
-	  mcElecEta_[iElec] = momentum.pseudoRapidity();
-	  mcElecPhi_[iElec] = momentum.phi();
-	} */
 
 	iElec++;
         
@@ -121,16 +101,6 @@ std::vector<PizeroMCTruth> PizeroMCTruthFinder::find(std::vector<SimTrack> theSi
 	pizeroTracks.push_back( &(*iSimTk) );
 	
 	CLHEP::HepLorentzVector momentum = (*iSimTk).momentum();
-	
-	if ( iPizero < 10) {
-	  
-	  // mcPizEnergy_[iPizero]= momentum.e(); 
-	  // mcPizPt_[iPizero]= momentum.perp(); 
-	  // mcPizEt_[iPizero]= momentum.et(); 
-	  // mcPizEta_[iPizero]= momentum.pseudoRapidity();
-	  // mcPizPhi_[iPizero]= momentum.phi();
-	   
-	}
 	
 	iPizero++;
 	
@@ -176,10 +146,11 @@ std::vector<PizeroMCTruth> PizeroMCTruthFinder::find(std::vector<SimTrack> theSi
 
    // loop over sim tracks for pizeros
 
-   int jPartType, pizeroId;
-   bool firstPhoton;
+   int jPartType, pizeroId, phoId, elecId, posId;
    CLHEP::HepLorentzVector momentum1, momentum2;
    PizeroMCTruth thePizero;
+   std::vector<SimTrack> decayProducts;
+   bool photon, electron, positron;
 
    for (std::vector<SimTrack>::iterator jSimTk = theSimTracks.begin();
         jSimTk != theSimTracks.end(); ++jSimTk) {
@@ -195,34 +166,57 @@ std::vector<PizeroMCTruth> PizeroMCTruthFinder::find(std::vector<SimTrack> theSi
           if ((*kSimVtx).parentIndex() == pizeroId) {
 	    std::cout << "Matched vtx " << (*kSimVtx) << " with pizero " << pizeroId << std::endl;
             
-	    firstPhoton = true;
+	    decayProducts.clear();
 	    
+	    // Fill decayProducts vector with tracks whose vertex match pizero
 	    for (std::vector<SimTrack>::iterator nSimTk = jSimTk;
 		 nSimTk != theSimTracks.end(); ++nSimTk) {
-
-	      // std::cout << (*nSimTk).vertIndex() << std::endl;
 
 	      if ((theSimVertices.at((*nSimTk).vertIndex())).position() == (*kSimVtx).position()) {
 		
 		std::cout << "Found a decay product " << (*nSimTk).trackId() << std::endl;
-		
+		decayProducts.push_back(*nSimTk);
 	      }
 
-	      if ((*nSimTk).type() == 22 && !firstPhoton) {
-		momentum2 = (*nSimTk).momentum();
-		std::cout << "Photon momentum " << momentum2 << std::endl;
+	    }
 
-		thePizero.SetDecay((*kSimVtx).position().perp(), (*kSimVtx).position().z(), momentum1, momentum2);
+	    // Check number of decay products for type
+
+	    if (decayProducts.size() == 2 && decayProducts.at(0).type() == 22 && decayProducts.at(1).type() == 22) {
+
+	      thePizero.SetDecay((*kSimVtx).position().perp(), (*kSimVtx).position().z(), decayProducts.at(0).momentum(), decayProducts.at(1).momentum());
+	      result.push_back(thePizero);
+
+	    }
+
+	    if (decayProducts.size() == 3) {
+
+	      photon = false;
+	      electron = false;
+	      positron = false;
+
+	      for (int m = 0; m < 3; m++) {
+		if (decayProducts.at(m).type() == 22) {
+		  photon = true;
+		  phoId = m;
+		}
+		if (decayProducts.at(m).type() == 11) {
+		  electron = true;
+		  elecId = m;
+		}
+		if (decayProducts.at(m).type() == -11) {
+		  positron = true;
+		  posId = m;
+		}
+	      }
+
+	      if (photon && electron && positron) {
+		thePizero.SetDalitzDecay((*kSimVtx).position().perp(), (*kSimVtx).position().z(), decayProducts.at(phoId).momentum(), decayProducts.at(elecId).momentum(), decayProducts.at(posId).momentum());
 		result.push_back(thePizero);
 	      }
-	    
-	      if ((*nSimTk).type() == 22 && firstPhoton) {
-		momentum1 = (*nSimTk).momentum();
-		std::cout << "Photon momentum " << momentum1 << std::endl;
-		firstPhoton = false;
-	      }
-	
+
 	    }
+	    
 	  }
 	}
      }

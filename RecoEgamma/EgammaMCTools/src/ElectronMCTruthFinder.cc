@@ -9,13 +9,6 @@
 
 ElectronMCTruthFinder::ElectronMCTruthFinder() {
 
-  for (int i = 0; i < 10; ++i) {
-    mcElecEnergy_[i]=-99.;
-    mcElecEt_[i]=-99.;
-    mcElecPt_[i]=-99.;
-    mcElecEta_[i]=-99.;
-    mcElecPhi_[i]=-99.;
-  }
 }
 
 std::vector<ElectronMCTruth> ElectronMCTruthFinder::find(std::vector<SimTrack> theSimTracks, std::vector<SimVertex> theSimVertices ) {
@@ -78,9 +71,7 @@ std::vector<ElectronMCTruth> ElectronMCTruthFinder::find(std::vector<SimTrack> t
   std::cout << " Loop over all particles " << std::endl;
   
   int npv=0;
-  int iPho=0;
   int iElec=0;
-  int iPizero=0;
   //   theSimTracks.reset();
   for (std::vector<SimTrack>::iterator iSimTk = theSimTracks.begin(); iSimTk != theSimTracks.end(); ++iSimTk){
     if (  (*iSimTk).noVertex() ) continue;
@@ -92,27 +83,9 @@ std::vector<ElectronMCTruth> ElectronMCTruthFinder::find(std::vector<SimTrack> t
     if ( (*iSimTk).vertIndex() == iPV ) {
       npv++;
       if ( (*iSimTk).type() == 22) {
+
 	std::cout << " Found a primary photon with ID  " << (*iSimTk).trackId() << " momentum " << (*iSimTk).momentum() <<  std::endl; 
-	convInd.push_back(0);
-        
-	photonTracks.push_back( &(*iSimTk) );
 	
-	CLHEP::HepLorentzVector momentum = (*iSimTk).momentum();
-	//h_MCphoPt_->Fill(  momentum.perp());
-	// h_MCphoEta_->Fill( momentum.pseudoRapidity());
-	// h_MCphoE_->Fill( momentum.rho());
-	
-         if ( iPho < 10) {
-           
-	   // mcPhoEnergy_[iPho]= momentum.e(); 
-	   // mcPhoPt_[iPho]= momentum.perp(); 
-	   // mcPhoEt_[iPho]= momentum.et(); 
-	   // mcPhoEta_[iPho]= momentum.pseudoRapidity();
-	   // mcPhoPhi_[iPho]= momentum.phi();
-	 }
-
-	 iPho++;
-
       } else if ( (*iSimTk).type() == 11 || (*iSimTk).type()==-11 ) {
 	std::cout << " Found a primary electron with ID  " << (*iSimTk).trackId() << " momentum " << (*iSimTk).momentum() <<  std::endl;
 	
@@ -120,39 +93,11 @@ std::vector<ElectronMCTruth> ElectronMCTruthFinder::find(std::vector<SimTrack> t
 
 	CLHEP::HepLorentzVector momentum = (*iSimTk).momentum();
 
-	/* if (iElec < 10) {
-	  mcElecEnergy_[iElec] = momentum.e();
-	  mcElecPt_[iElec] = momentum.perp();
-	  mcElecEt_[iElec] = momentum.et();
-	  mcElecEta_[iElec] = momentum.pseudoRapidity();
-	  mcElecPhi_[iElec] = momentum.phi();
-	} */
-
 	iElec++;
-        
-        // std::cout << "        iElec++;" << std::endl;
 	
       } else if ( (*iSimTk).type() == 111 ) {
-	std::cout << " Found a primary pi0 with ID  " << (*iSimTk).trackId() << " momentum " << (*iSimTk).momentum() <<  std::endl;	 
-	
-	pizeroTracks.push_back( &(*iSimTk) );
-	
-	CLHEP::HepLorentzVector momentum = (*iSimTk).momentum();
-	
-	if ( iPizero < 10) {
-	  
-	  // mcPizEnergy_[iPizero]= momentum.e(); 
-	  // mcPizPt_[iPizero]= momentum.perp(); 
-	  // mcPizEt_[iPizero]= momentum.et(); 
-	  // mcPizEta_[iPizero]= momentum.pseudoRapidity();
-	  // mcPizPhi_[iPizero]= momentum.phi();
-	   
-	}
-	
-	iPizero++;
-	
-      }
-      
+     
+      }	
     }
     
    } 
@@ -262,26 +207,5 @@ std::vector<ElectronMCTruth> ElectronMCTruthFinder::find(std::vector<SimTrack> t
 void ElectronMCTruthFinder::fill(std::vector<SimTrack>& simTracks, 
                                  std::vector<SimVertex>& simVertices ) {
   std::cout << "  ElectronMCTruthFinder::fill " << std::endl;
-
- // Watch out there ! A SimVertex is in mm (stupid), 
- 
-  unsigned nVtx = simVertices.size();
-  unsigned nTks = simTracks.size();
-
-  // Empty event, do nothin'
-  if ( nVtx == 0 ) return;
-
-  // create a map associating geant particle id and position in the 
-  // event SimTrack vector
-  for( unsigned it=0; it<nTks; ++it ) {
-    // geantToIndex_[ simTracks[it].trackId() ] = it;
-
-    // std::cout << "geantToIndex_[ simTracks[it].trackId() ] = it;" << std::endl;
-    
-    // std::cout << " ElectronMCTruthFinder::fill it " << it << " simTracks[it].trackId() " <<  simTracks[it].trackId() << std::endl;
- 
-  }  
-
-  // std::cout << "  ::fill done." << std::endl;
 
 }
