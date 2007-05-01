@@ -13,7 +13,7 @@ DoPlot(char* inputFile,string outputFile){
   std::vector<double>Ts;
   std::vector<double>Tn;
 
-  for (float iTc=5;iTc<15;iTc+=2)
+ for (float iTc=5;iTc<15;iTc+=2)
     Tc.push_back(iTc);
 
   for (float iTs=3;iTs<9;iTs++)
@@ -27,6 +27,7 @@ DoPlot(char* inputFile,string outputFile){
   outputFile.append("[");
   C.Print(outputFile.c_str(),"Portrait");
   outputFile.replace(outputFile.find("["),1,"");
+
   //NTs:Tn (Tc && Ts)
   DrawTree A(tree);
   A.setLegend(.7,.2,.1,.7);
@@ -43,6 +44,27 @@ DoPlot(char* inputFile,string outputFile){
     }
   }
   A.setTitle("Tn","NTs");
+  A.Draw();
+  C.Print(outputFile.c_str());
+
+  //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+
+  //Ns:Tn (Tc && Ts)
+  DrawTree A(tree);
+  A.setLegend(.7,.2,.1,.7);
+  A.setXmax(5);
+  int val=19;
+  for (size_t i=0;i<Tc.size() ;i++){
+    A.setMarkerColor(1);
+    val++;
+    for (size_t j=0;j<Ts.size() && Ts[j]<Tc[i];j++){    
+      A.setMarkerStyle(val);
+      sprintf(selection,"Tc==%2.1f && Ts==%2.1f",Tc[i],Ts[j]);
+      //cout << selection << endl;
+      A.add("Ns:Tn",selection,"*",selection);
+    }
+  }
+  A.setTitle("Tn","Ns");
   A.Draw();
   C.Print(outputFile.c_str());
 
@@ -68,6 +90,26 @@ DoPlot(char* inputFile,string outputFile){
   A.Draw();
   C.Print(outputFile.c_str());
 
+  //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+
+  //Nb:Tn (Tc && Ts)
+  DrawTree A(tree);
+  A.setLegend(.7,.2,.1,.7);
+  A.setXmax(5);
+  int val=19;
+  for (size_t i=0;i<Tc.size() ;i++){
+    A.setMarkerColor(1);
+    val++;
+    for (size_t j=0;j<Ts.size() && Ts[j]<Tc[i];j++){    
+      A.setMarkerStyle(val);
+      sprintf(selection,"Tc==%2.1f && Ts==%2.1f",Tc[i],Ts[j]);
+      //cout << selection << endl;
+      A.add("Nb:Tn",selection,"*",selection);
+    }
+  }
+  A.setTitle("Tn","Nb");
+  A.Draw();
+  C.Print(outputFile.c_str());
 
   //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 
@@ -169,6 +211,24 @@ DoPlot(char* inputFile,string outputFile){
     A.add("NTs:Tn",selection,"*",selection);
   }
   A.setTitle("Tn","NTs");
+  A.Draw();
+  C.Print(outputFile.c_str());
+
+  //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+  //Ns:Tn 
+  DrawTree A(tree);
+  A.setLegend(.75,.5,.1,.5);
+  A.setXmax(4.5);
+  int val=19;
+  for (size_t i=0;i<Tc.size() ;i++){
+    A.setMarkerColor(1);
+    val++;
+    A.setMarkerStyle(val);
+    sprintf(selection,"Tc==%2.1f",Tc[i]);
+    //cout << selection << endl;
+    A.add("Ns:Tn",selection,"*",selection);
+  }
+  A.setTitle("Tn","Ns");
   A.Draw();
   C.Print(outputFile.c_str());
 
@@ -329,6 +389,25 @@ DoPlot(char* inputFile,string outputFile){
 
   //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 
+  //Nb/Ns:Tn 
+  DrawTree A(tree);
+  A.setLegend(.75,.5,.1,.5);
+  A.setXmax(4.5);
+  int val=19;
+  for (size_t i=0;i<Tc.size() ;i++){
+    A.setMarkerColor(1);
+    val++;
+    A.setMarkerStyle(val);
+    sprintf(selection,"Tc==%2.1f",Tc[i]);
+    //cout << selection << endl;
+    A.add("Nb/Ns:Tn",selection,"*",selection);
+  }
+  A.setTitle("Tn","Nb/Ns");
+  A.Draw();
+  C.Print(outputFile.c_str());
+
+  //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+
   //MPVs:MeanWs 
   DrawTree A(tree);
   A.setLegend(.75,.3,.1,.5);
@@ -377,6 +456,25 @@ DoPlot(char* inputFile,string outputFile){
   A.setTitle("NTs","Peak (ADC)");
   A.Draw();
   C.Print(outputFile.c_str());
+
+  //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+
+  //MPVs:Ns
+  DrawTree A(tree);
+  A.setLegend(.75,.3,.1,.5);
+  A.setMarkerStyle(24);
+  for (size_t i=0;i<Tc.size() ;i++){
+    A.setMarkerColor(1);
+
+    sprintf(selection,"Tc==%2.1f",Tc[i]);
+    //cout << selection << endl;
+    A.add("MPVs:Ns",selection,"*",selection);
+  }
+  A.setTitle("Ns","Peak (ADC)");
+  A.Draw();
+  C.Print(outputFile.c_str());
+
+  //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 
   outputFile.append("]"); 
   C.Print(outputFile.c_str());
