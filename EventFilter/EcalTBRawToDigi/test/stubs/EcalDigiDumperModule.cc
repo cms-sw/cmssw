@@ -3,8 +3,8 @@
  * dummy module  for the test of  DaqFileInputService
  *   
  * 
- * $Date: 2007/04/10 17:14:22 $
- * $Revision: 1.12 $
+ * $Date: 2007/04/12 08:36:47 $
+ * $Revision: 1.13 $
  * \author N. Amapane - S. Argiro'
  * \author G. Franzoni
  *
@@ -43,6 +43,7 @@ class EcalDigiDumperModule: public edm::EDAnalyzer{
     numPN          = ps.getUntrackedParameter<int>("numPN",2);
     
     listChannels   = ps.getUntrackedParameter<std::vector<int> >("listChannels", std::vector<int>());
+    listTowers     = ps.getUntrackedParameter<std::vector<int> >("listTowers", std::vector<int>());
     listPns        = ps.getUntrackedParameter<std::vector<int> >("listPns", std::vector<int>());
    
     
@@ -52,7 +53,7 @@ class EcalDigiDumperModule: public edm::EDAnalyzer{
     if ( (!(mode==1))  &&  (!(mode==2)) )
       {  
 	std::cout << "[EcalDigiDumperModule] parameter mode set to: " << mode 
-	     << ". Only 1 and 2 are allowed, returning." << std::endl;
+	     << ". Only mode 1 and 2 are allowed, returning." << std::endl;
 	inputIsOk = false;
 	return;
       }
@@ -65,6 +66,17 @@ class EcalDigiDumperModule: public edm::EDAnalyzer{
 	if ( ((*intIter) < 1) ||  (1700 < (*intIter)) )       {  
 	  std::cout << "[EcalDigiDumperModule] ic value: " << (*intIter) << " found in listChannels. "
 	       << " Valid range is 1-1700. Returning." << std::endl;
+	  inputIsOk = false;
+	  return;
+	}
+      }
+    
+    
+    for (intIter = listTowers.begin(); intIter != listTowers.end(); intIter++)
+      {  
+	if ( ((*intIter) < 1) ||  (70 < (*intIter)) )       {  
+	  std::cout << "[EcalDigiDumperModule] ic value: " << (*intIter) << " found in listTowers. "
+	       << " Valid range is 1-70. Returning." << std::endl;
 	  inputIsOk = false;
 	  return;
 	}
@@ -100,6 +112,7 @@ class EcalDigiDumperModule: public edm::EDAnalyzer{
   int numPN;
 
   std::vector<int> listChannels;
+  std::vector<int> listTowers;
   std::vector<int> listPns;
 
 
@@ -179,7 +192,7 @@ class EcalDigiDumperModule: public edm::EDAnalyzer{
 		     << EBDetId((*digiItr).id()).ieta();
 		
 		for ( int i=0; i< (*digiItr).size() ; ++i ) {
-		  if (!(i%5)  )  std::cout << "\n\t";
+		  if (!(i%3)  )  std::cout << "\n\t";
 		  std::cout << "sId: " << (i+1) << " "
 		       <<  (*digiItr).sample(i) << "\t";
 		}       
@@ -197,20 +210,25 @@ class EcalDigiDumperModule: public edm::EDAnalyzer{
 	      ++digiItr ) {
 	  {
 	    int ic = EBDetId((*digiItr).id()).ic();
+	    int tt = EBDetId((*digiItr).id()).tower().iTT();
 	    
 	    if (!  ((EBDetId((*digiItr).id()).ism()==ieb_id) || (ieb_id==-1))  ) continue;
 
-	    std::vector<int>::iterator icIter;
-	    icIter = find(listChannels.begin(), listChannels.end(), ic);
-	    if (icIter == listChannels.end()) { continue; }
-	    
+	    std::vector<int>::iterator icIterCh;
+	    std::vector<int>::iterator icIterTt;
+	    icIterCh = find(listChannels.begin(), listChannels.end(), ic);
+	    icIterTt = find(listTowers.begin(), listTowers.end(), tt);
+	    if (icIterCh == listChannels.end()  
+		&& icIterTt == listTowers.end() ) { continue; }
+
 	    std::cout << "ic-cry: " 
-		 << EBDetId((*digiItr).id()).ic() << " i-phi: " 
-		 << EBDetId((*digiItr).id()).iphi() << " j-eta: " 
-		 << EBDetId((*digiItr).id()).ieta();
-	    
+		      << ic << " i-phi: " 
+		      << EBDetId((*digiItr).id()).iphi() << " j-eta: " 
+		      << EBDetId((*digiItr).id()).ieta() << " tower: "
+		      << tt ;
+
 	    for ( int i=0; i< (*digiItr).size() ; ++i ) {
-	      if (!(i%5)  )  std::cout << "\n\t";
+	      if (!(i%3)  )  std::cout << "\n\t";
 	      std::cout << "sId: " << (i+1) << " " <<  (*digiItr).sample(i) << "\t";
 	    }       
 	    std::cout << " " << std::endl;
@@ -234,7 +252,7 @@ class EcalDigiDumperModule: public edm::EDAnalyzer{
 	  std::cout << "\nPN num: " << (*pnItr).id().iPnId();
 	  
 	  for ( int samId=0; samId < (*pnItr).size() ; samId++ ) {
-	    if (!(samId%5)  )  std::cout << "\n\t";
+	    if (!(samId%3)  )  std::cout << "\n\t";
 	    std::cout <<  "sId: " << (samId+1) << " "
 		 << (*pnItr).sample(samId) 
 		 << "\t";
@@ -261,7 +279,7 @@ class EcalDigiDumperModule: public edm::EDAnalyzer{
 	  
 	  std::cout << "\nPN num: " << (*pnItr).id().iPnId();
 	  for ( int samId=0; samId < (*pnItr).size() ; samId++ ) {
-	    if (!(samId%5)  )  std::cout << "\n\t";
+	    if (!(samId%3)  )  std::cout << "\n\t";
 	    std::cout <<  "sId: " << (samId+1) << " "
 		 << (*pnItr).sample(samId) 
 		 << "\t";
