@@ -1,7 +1,7 @@
 #ifndef StreamerOutputModule_h_
 #define StreamerOutputModule_h_
 
-// $Id: StreamerOutputModule.h,v 1.23 2007/03/04 06:36:12 wmtan Exp $
+// $Id: StreamerOutputModule.h,v 1.24 2007/04/05 17:21:53 klute Exp $
 
 #include "FWCore/RootAutoLibraryLoader/interface/RootAutoLibraryLoader.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -101,10 +101,11 @@ namespace edm
 
   private:
     virtual void write(EventPrincipal const& e);
-    virtual void beginJob(EventSetup const&);
+    virtual void beginRun(RunPrincipal const&);
+    virtual void endRun(RunPrincipal const&);
+    virtual void beginJob(EventSetup const&){}
     virtual void endJob();
     virtual void endLuminosityBlock(LuminosityBlockPrincipal const&){}
-    virtual void endRun(RunPrincipal const&){}
 
     std::auto_ptr<InitMsgBuilder> serializeRegistry();
 
@@ -191,12 +192,19 @@ StreamerOutputModule<Consumer>::~StreamerOutputModule()
   }
 
 template <class Consumer>
-void StreamerOutputModule<Consumer>::beginJob(EventSetup const&)
-  {
-    std::auto_ptr<InitMsgBuilder>  init_message = serializeRegistry(); 
-    c_->doOutputHeader(*init_message);  // You can't use init_message 
-                                           // in StreamerOutputModule after this point
-  }
+void StreamerOutputModule<Consumer>::beginRun(RunPrincipal const&)
+{
+  c_->start();
+  std::auto_ptr<InitMsgBuilder>  init_message = serializeRegistry();
+  c_->doOutputHeader(*init_message);
+}
+   
+//______________________________________________________________________________
+template <class Consumer>
+void StreamerOutputModule<Consumer>::endRun(RunPrincipal const&p)
+{
+  c_->stop();
+}
 
 template <class Consumer>
 void StreamerOutputModule<Consumer>::endJob()

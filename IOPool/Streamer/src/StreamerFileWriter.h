@@ -1,6 +1,8 @@
 #ifndef _StreamerFileWriter_h
 #define _StreamerFileWriter_h 
 
+// $Id$
+
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "IOPool/Streamer/interface/StreamerOutputFile.h"
@@ -34,6 +36,7 @@ namespace edm
     void doOutputEvent(EventMsgBuilder const& msg);
     void doOutputEvent(EventMsgView const& msg);
 
+    void start(){}
     void stop();
     // Returns the sizes of EOF records, call them after 
     // u called stop, just before destruction
