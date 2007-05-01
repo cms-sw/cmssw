@@ -2,6 +2,7 @@
 <use name=DataFormats/Provenance>
 <use name=FWCore/Utilities>
 <use name=FWCore/PluginManager>
+<use name=FWCore/MessageLogger>
 <use name=boost>
 <use name=boost_filesystem> 
 <use name=boost_python>
@@ -10,6 +11,7 @@
  <use name=DataFormats/Provenance>
  <use name=FWCore/Utilities>
  <use name=FWCore/PluginManager>
+ <use name=FWCore/MessageLogger>
  <use name=boost_python>
  <use name=boost>
  <lib name=FWCoreParameterSet>
