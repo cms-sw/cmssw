@@ -77,3 +77,9 @@ void SurveyDBUploader::getSurveyInfo(const Alignable* ali)
   theValues->m_align.push_back(value);
   theErrors->m_surveyErrors.push_back(error);
 }
+
+// Plug in to framework
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+DEFINE_FWK_MODULE(SurveyDBUploader);

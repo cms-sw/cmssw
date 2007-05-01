@@ -120,3 +120,9 @@ void SurveyDataConverter::testapplyAllSurveyInfo( TrackerAlignment& tr_align, Ma
 	        tr_align.moveAlignableTIBTIDs(id, translations, rotation, APEvector);
 	}
 }
+
+// Plug in to framework
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+DEFINE_FWK_MODULE(SurveyDataConverter);

@@ -31,3 +31,10 @@ void SurveyAlignmentAlgorithm::initialize(const edm::EventSetup&,
 
   align.iterate(theIterations, theOutfile);
 }
+
+// Plug in to framework
+
+#include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentAlgorithmPluginFactory.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+DEFINE_EDM_PLUGIN(AlignmentAlgorithmPluginFactory, SurveyAlignmentAlgorithm, "SurveyAlignmentAlgorithm");
