@@ -27,7 +27,6 @@ public:
   virtual ~MuonSeedFromRecHits() {}
 
   void add(MuonTransientTrackingRecHit::MuonRecHitPointer hit) { theRhits.push_back(hit); }
-  virtual TrajectorySeed seed() const = 0;
   MuonTransientTrackingRecHit::ConstMuonRecHitPointer firstRecHit() const { return theRhits.front(); }
   unsigned int nrhit() const { return  theRhits.size(); }
 
