@@ -545,12 +545,13 @@ namespace edm {
     {
       if(targetNode->isModified() && !(replaceNode->okToRemodify()))
       {
-        std::ostringstream trace;
-        targetNode->printTrace(trace);
+        //PEstd::ostringstream trace;
+        //PEtargetNode->printTrace(trace);
 
         throw edm::Exception(errors::Configuration)
           << "Cannot replace a node that has already been modified: " 
-          << targetNode->name() << "\n" << trace.str();
+          //PE<< targetNode->name() << "\n" << trace.str();
+          << targetNode->name();
       }
       if( replaceNode->isEmbedded() && !(targetNode->isCloned()) 
           && targetNode->isTracked()
@@ -564,12 +565,14 @@ namespace edm {
           || mapItr->second->getParent()->name() != replaceNode->getParent()->name()) 
         {
 
-          std::cerr
-            << "WARNING: do not embed replace statements to modify a parameter from a module which hasn't been cloned: " 
-            << "\n" << "  Parameter " << targetNode->name() << " in " << topLevelName
-            << std::endl;
-          std::cerr << "  Replace happens in " << replaceNode->getParent()->name() << std::endl;
-          std::cerr << "  This will be an error in future releases.  Please fix." << std::endl;
+// Commented out for CMSSW_1_4_0, pending fixes in ProdAgent - 20070501 PE
+// (Also three "PE" lines above)
+//          std::cerr
+//            << "WARNING: do not embed replace statements to modify a parameter from a module which hasn't been cloned: " 
+//            << "\n" << "  Parameter " << targetNode->name() << " in " << topLevelName
+//            << std::endl;
+//          std::cerr << "  Replace happens in " << replaceNode->getParent()->name() << std::endl;
+//          std::cerr << "  This will be an error in future releases.  Please fix." << std::endl;
         }
       }
 
