@@ -1,25 +1,37 @@
 #include "Calibration/HcalAlCaRecoProducers/interface/AlCaDiJetsProducer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
+#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "RecoTracker/TrackProducer/interface/TrackProducerBase.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
 
 using namespace edm;
 using namespace std;
 using namespace reco;
 
-//namespace cms
-//{
+namespace cms
+{
 
 AlCaDiJetsProducer::AlCaDiJetsProducer(const edm::ParameterSet& iConfig)
 {
    m_inputTrackLabel = iConfig.getUntrackedParameter<std::string>("inputTrackLabel","ctfWithMaterialTracks"); 
    ecalLabels_=iConfig.getParameter<std::vector<edm::InputTag> >("ecalInputs");
-   mInputCalo = iConfig.getParameter<std::vector<edm::InputTag> >("srcCalo");
-
+   mInputCalo_ = iConfig.getParameter<std::vector<edm::InputTag> >("srcCalo");
+   hbheInput_ = iConfig.getParameter<edm::InputTag>("hbheInput");
+   hoInput_ = iConfig.getParameter<edm::InputTag>("hoInput");
+   hfInput_ = iConfig.getParameter<edm::InputTag>("hfInput"); 
+   allowMissingInputs_ = true;
 //register your products
    produces<reco::TrackCollection>("JetTracksCollection");
    produces<CaloJetCollection>("DijetBackToBackCollection");
-   produces<HBHERecHitCollection>("HBHERecHitCollection");
-   produces<HORecHitCollection>("HORecHitCollection");
-   produces<HFRecHitCollection>("HFRecHitCollection");
+   produces<EcalRecHitCollection>("DiJetsEcalRecHitCollection");
+   produces<HBHERecHitCollection>("DiJetsHBHERecHitCollection");
+   produces<HORecHitCollection>("DiJetsHORecHitCollection");
+   produces<HFRecHitCollection>("DiJetsHFRecHitCollection");
 
 }
 void AlCaDiJetsProducer::beginJob( const edm::EventSetup& iSetup)
@@ -42,64 +54,108 @@ AlCaDiJetsProducer::~AlCaDiJetsProducer()
 void
 AlCaDiJetsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+   cout<<" Start produce in AlCaDiJetsProducer "<<endl;
 // Jet Collections
    double myvalue = 4.*atan(1.);
    double twomyvalue = 8.*atan(1.);
    CaloJet fJet1,fJet2;
-   auto_ptr<CaloJetCollection> result (new CaloJetCollection); //Corrected jets
+  std::auto_ptr<CaloJetCollection> result (new CaloJetCollection); //Corrected jets
+  std::auto_ptr<EcalRecHitCollection> miniDiJetsEcalRecHitCollection(new EcalRecHitCollection);
+  std::auto_ptr<HBHERecHitCollection> miniDiJetsHBHERecHitCollection(new HBHERecHitCollection);
+  std::auto_ptr<HORecHitCollection> miniDiJetsHORecHitCollection(new HORecHitCollection);
+  std::auto_ptr<HFRecHitCollection> miniDiJetsHFRecHitCollection(new HFRecHitCollection);
+  std::auto_ptr<reco::TrackCollection> outputTColl(new reco::TrackCollection);   
+
 
     std::vector<edm::InputTag>::const_iterator ic;
-    for (ic=mInputCalo.begin(); ic!=mInputCalo.end(); ic++) {
+    int iii = 0;
+    for (ic=mInputCalo_.begin(); ic!=mInputCalo_.end(); ic++) {
+     cout<<" Read jet collection "<<endl;
      try {
 
           edm::Handle<CaloJetCollection> jets;                        //Define Inputs
           iEvent.getByLabel(*ic, jets);                            //Get Inputs
-          auto_ptr<CaloJetCollection> result (new CaloJetCollection); //Corrected jets
 
           CaloJet fJet1n,fJet2n;
+          cout<<" Number of jets "<<jets->size()<<endl;
+	  
           if(jets->size() > 1 )
           {
              fJet1n = (*jets)[0];
              fJet2n = (*jets)[1];
-
-             fJet1 = (*jets)[0];
-             fJet2 = (*jets)[1];
-
+             
+	     if( iii == 0 )
+	     {
+               fJet1 = (*jets)[0];
+               fJet2 = (*jets)[1];
+             }
 
              double phi1=fabs(fJet1n.phi());
              double phi2=fabs(fJet2n.phi());
              double dphi = fabs(phi1-phi2);
              if (dphi > myvalue) dphi = twomyvalue-dphi;
              double degreedphi = dphi*180./myvalue;
-             if (fabs(degreedphi-180.) > 10. ) return;
+	     
+	     cout<<" Angle between jets "<<degreedphi<<" the difference "<<fabs(degreedphi-180.)<<endl;
+	     
+             if (fabs(degreedphi-180.) > 30. ) 
+             {
+                            if(iii == 0) {
+			    cout<<" The event is rejected by the angle"<<endl; 
+  iEvent.put( outputTColl, "JetTracksCollection");
+  iEvent.put( result, "DijetBackToBackCollection");
+  iEvent.put( miniDiJetsEcalRecHitCollection,"DiJetsEcalRecHitCollection");
+  iEvent.put( miniDiJetsHBHERecHitCollection, "DiJetsHBHERecHitCollection");
+  iEvent.put( miniDiJetsHORecHitCollection, "DiJetsHORecHitCollection");
+  iEvent.put( miniDiJetsHFRecHitCollection, "DiJetsHFRecHitCollection");
+			    
+			    return;
+			    }
+             }
              result->push_back (fJet1n);
              result->push_back (fJet2n);
-         } else
+	     cout<<" Add jets to the pocket "<<result->size()<<endl;
+          } 
+            else
             {
-               return;
+               if(iii == 0) {
+  iEvent.put( outputTColl, "JetTracksCollection");
+  iEvent.put( result, "DijetBackToBackCollection");
+  iEvent.put( miniDiJetsEcalRecHitCollection,"DiJetsEcalRecHitCollection");
+  iEvent.put( miniDiJetsHBHERecHitCollection, "DiJetsHBHERecHitCollection");
+  iEvent.put( miniDiJetsHORecHitCollection, "DiJetsHORecHitCollection");
+  iEvent.put( miniDiJetsHFRecHitCollection, "DiJetsHFRecHitCollection");
+	       
+	        cout<<" The event is rejected by the number of jets"<<endl; return;
+		}
             }
        }
         catch (std::exception& e) { // can't find it!
-            if (!allowMissingInputs_) throw e;
+            if (!allowMissingInputs_) {
+	      throw e;
+	    }  
        }
+        iii++;
    } // Jet collection
 
-
-// Track Collection    
+   cout<<" Read track collection for accepted events "<<result->size()<<endl;
+   if(result->size() == 0) {
+  iEvent.put( outputTColl, "JetTracksCollection");
+  iEvent.put( result, "DijetBackToBackCollection");
+  iEvent.put( miniDiJetsEcalRecHitCollection,"DiJetsEcalRecHitCollection");
+  iEvent.put( miniDiJetsHBHERecHitCollection, "DiJetsHBHERecHitCollection");
+  iEvent.put( miniDiJetsHORecHitCollection, "DiJetsHORecHitCollection");
+  iEvent.put( miniDiJetsHFRecHitCollection, "DiJetsHFRecHitCollection");
+   return;
+   }
+   cout<<" Eta of jets "<<fJet1.eta()<<" "<<fJet2.eta()<<" "<<fJet1.phi()<<" "<<fJet2.phi()<<endl; 
+// Track Collection 
+   try{
    edm::Handle<reco::TrackCollection> trackCollection;
-
-//   try {
-//     iEvent.getByType(trackCollection);
-//   } catch ( std::exception& ex ) {
-//     LogDebug("") << "AlCaIsoTracksProducer: Error! can't get product!" << std::endl;
-//   }
-
    iEvent.getByLabel(m_inputTrackLabel,trackCollection);
    const reco::TrackCollection tC = *(trackCollection.product());
-  
+   cout<<" Number of tracks "<<tC.size()<<endl; 
    //Create empty output collections
-
-   std::auto_ptr<reco::TrackCollection> outputTColl(new reco::TrackCollection);
 
    for (reco::TrackCollection::const_iterator track=tC.begin(); track!=tC.end(); track++)
    {
@@ -118,17 +174,16 @@ AlCaDiJetsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
          outputTColl->push_back(*track);
       } 
    }
+       }
+        catch (std::exception& e) { // can't find it!
+            if (!allowMissingInputs_) throw e;
+       }
 
   // Put Ecal and Hcal RecHits around jet axis
 
-
-  std::auto_ptr<EcalRecHitCollection> miniDiJetsEcalRecHitCollection(new EcalRecHitCollection);
-  std::auto_ptr<HBHERecHitCollection> miniDiJetsHBHERecHitCollection(new HBHERecHitCollection);
-  std::auto_ptr<HORecHitCollection> miniDiJetsHORecHitCollection(new HORecHitCollection);
-  std::auto_ptr<HFRecHitCollection> miniDiJetsHFRecHitCollection(new HFRecHitCollection);
-
     std::vector<edm::InputTag>::const_iterator i;
     for (i=ecalLabels_.begin(); i!=ecalLabels_.end(); i++) {
+    cout<<" Read ECAL collection "<<endl;
     try {
 
       edm::Handle<EcalRecHitCollection> ec;
@@ -158,12 +213,14 @@ AlCaDiJetsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     if (!allowMissingInputs_) throw e;
     }
     }
-
+    cout<<" Size of ECAL minicollection "<<miniDiJetsEcalRecHitCollection->size()<<endl;
    
   try {
-     edm::Handle<HBHERecHitCollection> hbhe;
+  edm::Handle<HBHERecHitCollection> hbhe;
+  iEvent.getByLabel(hbheInput_,hbhe);
   const HBHERecHitCollection Hithbhe = *(hbhe.product());
-
+  cout<<" Size of HBHE collection "<<Hithbhe.size()<<endl;
+   
   for(HBHERecHitCollection::const_iterator hbheItr=Hithbhe.begin(); hbheItr!=Hithbhe.end(); hbheItr++)
         {
            GlobalPoint pos = geo->getPosition(hbheItr->detid());
@@ -181,11 +238,16 @@ AlCaDiJetsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
          if( dr1 < 1.4 || dr2 < 1.4 )  miniDiJetsHBHERecHitCollection->push_back(*hbheItr);
         }
     } catch (std::exception& e) { // can't find it!
-    if (!allowMissingInputs_) throw e;
+    if (!allowMissingInputs_) {cout<<"No HBHE collection "<<endl; throw e;}
     }
+
+   std::cout<<" Size of mini HCAL collection "<<miniDiJetsHBHERecHitCollection->size()<<std::endl;
+
   try{  
    edm::Handle<HORecHitCollection> ho;
-  const HORecHitCollection Hitho = *(ho.product());
+   iEvent.getByLabel(hoInput_,ho);
+   const HORecHitCollection Hitho = *(ho.product());
+   cout<<" Size of HO collection "<<Hitho.size()<<endl;
   for(HORecHitCollection::const_iterator hoItr=Hitho.begin(); hoItr!=Hitho.end(); hoItr++)
         {
 
@@ -200,15 +262,21 @@ AlCaDiJetsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
            dphi = phihit - fJet2.phi();
            if (dphi > myvalue) dphi = twomyvalue - dphi;
            double dr2 = sqrt(deta*deta+dphi*dphi);
+	   
+//            cout<<" HO "<<dr1<<" "<<dr2<<" "<<pos.phi()<<" "<<pos.eta()<<endl;
+	    
 
          if( dr1 < 1.4 || dr2 < 1.4 )  miniDiJetsHORecHitCollection->push_back(*hoItr);
         }
     } catch (std::exception& e) { // can't find it!
-    if (!allowMissingInputs_) throw e;
+        if (!allowMissingInputs_) {cout<<" No HO collection "<<endl; throw e;}
     }
+  cout<<" Size of mini HO collection "<<miniDiJetsHORecHitCollection->size()<<endl;
   try {
   edm::Handle<HFRecHitCollection> hf;
+  iEvent.getByLabel(hfInput_,hf);
   const HFRecHitCollection Hithf = *(hf.product());
+  cout<<" Size of HF collection "<<Hithf.size()<<endl;
   for(HFRecHitCollection::const_iterator hfItr=Hithf.begin(); hfItr!=Hithf.end(); hfItr++)
       {
           GlobalPoint pos = geo->getPosition(hfItr->detid());
@@ -228,14 +296,25 @@ AlCaDiJetsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     } catch (std::exception& e) { // can't find it!
     if (!allowMissingInputs_) throw e;
     }
+   cout<<" Size of mini HF collection "<<miniDiJetsHFRecHitCollection->size()<<endl;
 
   //Put selected information in the event
   iEvent.put( outputTColl, "JetTracksCollection");
+//   cout<<" Point 1 "<<endl;
   iEvent.put( result, "DijetBackToBackCollection");
+//    cout<<" Point 2 "<<endl;
+
   iEvent.put( miniDiJetsEcalRecHitCollection,"DiJetsEcalRecHitCollection");
+//    cout<<" Point 3 "<<endl;
+
   iEvent.put( miniDiJetsHBHERecHitCollection, "DiJetsHBHERecHitCollection");
+//    cout<<" Point 3 "<<endl;
+
   iEvent.put( miniDiJetsHORecHitCollection, "DiJetsHORecHitCollection");
+//    cout<<" Point 4 "<<endl;
+
   iEvent.put( miniDiJetsHFRecHitCollection, "DiJetsHFRecHitCollection");
+//    cout<<" Point 5 "<<endl;
 
 }
-//}
+}
