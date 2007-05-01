@@ -174,11 +174,10 @@ namespace edm {
        
         if(nModules > 1)
         {
-// Commented out for CMSSW_1_4_0, pending fixes in ProdAgent - 20070501 PE
-//          std::cerr << "WARNING: " << nModules << " modules were defined in " 
-//           << name() << ".\nOnly one module should be defined per .cfi."
-//           << "\nThis will be an error in future releases, "
-//           << "so please contact the responsible developers." << std::endl;
+          std::cerr << "WARNING: " << nModules << " modules were defined in " 
+           << name() << ".\nOnly one module should be defined per .cfi."
+           << "\nThis will be an error in future releases, "
+           << "so please contact the responsible developers." << std::endl;
         }
       }
       return (nModules < 2);
