@@ -232,6 +232,11 @@ class RadialStripTopology : public StripTopology {
    */
   float yCentreOfStripPlane() const { return yCentre; }
 
+  /**
+   * Distance in local y from a hit to the point of intersection of projected strips
+   */
+  float yDistanceToIntersection( float y ) const;
+
   friend std::ostream & operator<<(std::ostream&, const RadialStripTopology& );
 
  private:
