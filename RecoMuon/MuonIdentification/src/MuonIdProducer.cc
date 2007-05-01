@@ -13,7 +13,7 @@
 */
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: MuonIdProducer.cc,v 1.14 2007/04/30 15:09:42 cliu Exp $
+// $Id: MuonIdProducer.cc,v 1.15 2007/04/30 20:00:38 cliu Exp $
 //
 //
 
@@ -51,18 +51,20 @@ MuonIdProducer::MuonIdProducer(const edm::ParameterSet& iConfig)
    branchAlias_ = iConfig.getParameter<std::string>("branchAlias");
    produces<reco::MuonCollection>().setBranchAlias(branchAlias_);
    
-   minPt_ = iConfig.getParameter<double>("minPt");
-   minP_ = iConfig.getParameter<double>("minP");
-   maxAbsEta_ = iConfig.getParameter<double>("maxAbsEta");
-   minNumberOfMatches_ = iConfig.getParameter<int>("minNumberOfMatches");
-   maxAbsDx_ = iConfig.getParameter<double>("maxAbsDx");
-   maxAbsPullX_ = iConfig.getParameter<double>("maxAbsPullX");
-   maxAbsDy_ = iConfig.getParameter<double>("maxAbsDy");
-   maxAbsPullY_ = iConfig.getParameter<double>("maxAbsPullY");
+   minPt_                  = iConfig.getParameter<double>("minPt");
+   minP_                   = iConfig.getParameter<double>("minP");
+   maxAbsEta_              = iConfig.getParameter<double>("maxAbsEta");
+   minNumberOfMatches_     = iConfig.getParameter<int>("minNumberOfMatches");
+   maxAbsDx_               = iConfig.getParameter<double>("maxAbsDx");
+   maxAbsPullX_            = iConfig.getParameter<double>("maxAbsPullX");
+   maxAbsDy_               = iConfig.getParameter<double>("maxAbsDy");
+   maxAbsPullY_            = iConfig.getParameter<double>("maxAbsPullY");
+   computeCaloConsistency_ = iConfig.getParameter<bool>("computeCaloConsistency");
+   
    // Load TrackDetectorAssociator parameters
    edm::ParameterSet parameters = iConfig.getParameter<edm::ParameterSet>("TrackAssociatorParameters");
    parameters_.loadParameters( parameters );
-
+   
    inputTrackCollectionLabel_ = iConfig.getParameter<edm::InputTag>("inputTrackCollection");
    inputMuonCollectionLabel_  = iConfig.getParameter<edm::InputTag>("inputMuonCollection");
    if ( iConfig.getParameter<bool>("useMuonCollectionAsInput") ) mode_ = MuonCollection;
@@ -74,6 +76,12 @@ MuonIdProducer::MuonIdProducer(const edm::ParameterSet& iConfig)
      << "Debugging mode with truth matching is turned on!!! Make sure you understand what you are doing!\n"
      << "========================================================================\n";
    trackAssociator_.useDefaultPropagator();
+   
+   if (computeCaloConsistency_){
+      // Load MuonCaloConsistency parameters
+      parameters = iConfig.getParameter<edm::ParameterSet>("MuonCaloConsistency");
+      muonCaloConsistency_.configure( parameters );
+   }
 }
 
 
@@ -203,6 +211,9 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	   // Since it's debugging mode - code is slow
 	   MuonIdTruthInfo::truthMatchMuon(iEvent, iSetup, *aMuon);
 	}
+	
+	if ( goodMuonCandidate && computeCaloConsistency_ ) 
+	  aMuon->setCaloConsistency( muonCaloConsistency_.evaluate(*aMuon) );
 	
 	if (goodMuonCandidate ) outputMuons->push_back(*aMuon);
 	

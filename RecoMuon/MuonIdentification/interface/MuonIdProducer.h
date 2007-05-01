@@ -16,7 +16,7 @@
 */
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: MuonIdProducer.h,v 1.10 2007/04/13 06:13:44 dmytro Exp $
+// $Id: MuonIdProducer.h,v 1.11 2007/04/17 08:39:18 dmytro Exp $
 //
 //
 
@@ -37,6 +37,8 @@
 
 #include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
 #include "Utilities/Timing/interface/TimerStack.h"
+
+#include "RecoMuon/MuonIdentification/interface/MuonCaloConsistency.h"
 
 class MuonIdProducer : public edm::EDProducer {
  public:
@@ -77,5 +79,8 @@ class MuonIdProducer : public edm::EDProducer {
    edm::Handle<reco::MuonCollection> muonCollectionHandle_;
    reco::MuonCollection::const_iterator muonCollectionIter_;
    int index_;
+   
+   MuonCaloConsistency muonCaloConsistency_;
+   bool computeCaloConsistency_;
 };
 #endif
