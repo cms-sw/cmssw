@@ -383,7 +383,7 @@ GSTrackCandidateMaker::stateOnDet(const TrajectoryStateOnSurface& ts,
 				  PTrajectoryStateOnDet& pts) const
 {
 
-  const AlgebraicSymMatrix& m = ts.localError().matrix();
+  const AlgebraicSymMatrix55& m = ts.localError().matrix();
   
   int dim = 5; /// should check if corresponds to m
 
@@ -391,7 +391,7 @@ GSTrackCandidateMaker::stateOnDet(const TrajectoryStateOnSurface& ts,
   int k = 0;
   for (int i=0; i<dim; i++) {
     for (int j=0; j<=i; j++) {
-      localErrors[k++] = m[i][j];
+      localErrors[k++] = m(i,j);
     }
   }
   int surfaceSide = static_cast<int>(ts.surfaceSide());
