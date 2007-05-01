@@ -7,7 +7,7 @@ ReflexTools provides a small number of Reflex-based tools, used in
 the CMS event model.  
 
 
-$Id: ReflexTools.h,v 1.2 2007/03/05 20:42:49 wdd Exp $
+$Id: ReflexTools.h,v 1.3 2007/03/08 15:05:06 paterno Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -27,6 +27,8 @@ namespace ROOT
 
 namespace edm
 {
+
+  typedef std::set<std::string> StringSet;
   
   bool 
   find_nested_type_named(std::string const& nested_type,
@@ -67,6 +69,7 @@ namespace edm
 
   void checkDictionaries(std::string const& name, bool transient = false);
   void checkAllDictionaries();
+  StringSet & missingTypes();
 
   void public_base_classes(const ROOT::Reflex::Type& type,
                            std::vector<ROOT::Reflex::Type>& baseTypes);

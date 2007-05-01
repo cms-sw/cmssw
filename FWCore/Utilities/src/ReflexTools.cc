@@ -108,16 +108,6 @@ namespace edm
       "multimap"
     };
 
-    typedef std::set<std::string> Set;
-
-    Set & missingTypes() {
-      static boost::thread_specific_ptr<Set> missingTypes_;
-      if (0 == missingTypes_.get()) {
-	missingTypes_.reset(new Set);
-      }
-      return *missingTypes_.get();
-    }
-
     // Checks if there is a Reflex dictionary for the Type t.
     // If noComponents is false, checks members and base classes recursively.
     // If noComponents is true, checks Type t only.
@@ -126,9 +116,9 @@ namespace edm
 
       // The only purpose of this cache is to stop infinite recursion.
       // Reflex maintains its own internal cache.
-      static boost::thread_specific_ptr<Set> s_types;
+      static boost::thread_specific_ptr<StringSet> s_types;
       if (0 == s_types.get()) {
-	s_types.reset(new Set);
+	s_types.reset(new StringSet);
       }
   
       // ToType strips const, volatile, array, pointer, reference, etc.,
@@ -184,6 +174,14 @@ namespace edm
     }
   } // end unnamed namespace
 
+  StringSet & missingTypes() {
+    static boost::thread_specific_ptr<StringSet> missingTypes_;
+    if (0 == missingTypes_.get()) {
+      missingTypes_.reset(new StringSet);
+    }
+    return *missingTypes_.get();
+  }
+
   void checkDictionaries(std::string const& name, bool transient) {
     checkType(Type::ByName(name), transient);
   }
@@ -191,7 +189,7 @@ namespace edm
   void checkAllDictionaries() {
     if (!missingTypes().empty()) {
       std::ostringstream ostr;
-      for (Set::const_iterator it = missingTypes().begin(), itEnd = missingTypes().end(); 
+      for (StringSet::const_iterator it = missingTypes().begin(), itEnd = missingTypes().end(); 
 	   it != itEnd; ++it) {
 	ostr << *it << "\n\n";
       }
