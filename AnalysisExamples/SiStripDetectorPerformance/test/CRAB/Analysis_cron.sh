@@ -14,8 +14,6 @@ export LOCALHOME=/analysis/sw/CRAB
 export MainStoreDir=/data1/CrabAnalysis
 ## Where to create crab jobs
 export WorkingDir=/tmp/${USER}
-## Where to do eval scramv1 (without src/)
-export CMSSW_DIR=${LOCALHOME}/CMSSW_1_3_0_pre6_v1
 ## Leave python path as it is to source in standard (local) area
 export python_path=/analysis/sw/CRAB
 
@@ -43,10 +41,14 @@ cat ${LOCALHOME}/Analysis_cron.cfg | grep -v "#" | grep -v "=" | while read Full
 
     # Flag of this processing
 	export Version=`echo ${FullList} | awk -F, '{print $1}' | awk '{print $1}'`
-	export AnalyzersList=`echo ${FullList} | awk -F, '{print $2}'`
-	export RunsList=`echo ${FullList} | awk -F, '{print $3}'`
+	export AnalyzersList=`echo ${FullList} | awk -F, '{print $3}'`
+	export RunsList=`echo ${FullList} | awk -F, '{print $4}'`
+## Where to do eval scramv1 (without src/)
+	export CMSSW_DIR=${LOCALHOME}/CMSSW/`echo ${FullList} | awk -F, '{print $2}' | sed -e "s@[ \t]*@@g"`
+	
     # Check if there is at least one analyzer and run to process
 	if [ `echo ${AnalyzersList} | awk '{print $1}'` != "" ] && [ `echo ${RunsList} | awk '{print $1}'` != "" ]; then
+	   	    
 
       # Paths
       #######
