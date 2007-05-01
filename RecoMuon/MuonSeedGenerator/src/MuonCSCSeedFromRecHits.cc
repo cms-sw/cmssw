@@ -110,6 +110,7 @@ bool MuonCSCSeedFromRecHits::makeSeed(const MuonRecHitContainer & hits1, const M
         double c1 = mapItr->second.first;
         double c2 = mapItr->second.second;
         // the parametrization
+        if(fabs(dphi) < 0.0001) dphi = 0.00001;
         double pt = (c1 + c2 * fabs(eta) ) / dphi;
         double minpt = 3.;
         // if too small, probably an error.  Keep trying.
@@ -124,7 +125,7 @@ bool MuonCSCSeedFromRecHits::makeSeed(const MuonRecHitContainer & hits1, const M
           ConstMuonRecHitPointer bestSeg = bestSegment();
           seed = createSeed(pt, sigmapt, bestSeg);
 
-          std::cout << "FITTED PT " << pt << " dphi " << dphi << " eta " << eta << std::endl;
+          // std::cout << "FITTED PT " << pt << " dphi " << dphi << " eta " << eta << std::endl;
           return true;
         }
 
