@@ -6,7 +6,7 @@ Muon::Muon(  Charge q, const LorentzVector & p4, const Point & vtx ) :
   RecoCandidate( q, p4, vtx, -13 * q ) {
      energyValid_  = false;
      matchesValid_ = false;
-
+     caloConsistency_ = -9999.;
 }
 
 

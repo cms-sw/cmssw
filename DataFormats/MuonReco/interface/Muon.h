@@ -10,7 +10,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Muon.h,v 1.28 2007/04/16 15:45:34 dmytro Exp $
+ * \version $Id: Muon.h,v 1.29 2007/04/17 08:15:53 dmytro Exp $
  *
  */
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
@@ -61,7 +61,14 @@ namespace reco {
     const std::vector<MuonChamberMatch>& getMatches() const { return muMatches_;	}
     /// set muon matching information
     void setMatches( const std::vector<MuonChamberMatch>& matches ) { muMatches_ = matches; matchesValid_ = true; }
-
+     
+    /// Muon hypothesis consistency block
+    /// Relative likelihood based on ECAL, HCAL, HO energy defined as
+    /// L_muon/(L_muon+L_not_muon)
+    float getCaloConsistency(){ return caloConsistency_; }
+    void  setCaloConsistency(float input){ caloConsistency_ = input; }
+    bool  isCaloConsistencyValid(){ return caloConsistency_>=0; } 
+     
     /// number of chambers
     int numberOfChambers() const { return muMatches_.size(); }
     /// get number of chambers with matched segments
@@ -96,6 +103,7 @@ namespace reco {
     CaloTowerRefs traversedTowers_;
     bool energyValid_;
     bool matchesValid_;
+    float caloConsistency_;
     // FixMe: Still missing trigger information
 
     /// get vector of muon chambers for given station and detector
