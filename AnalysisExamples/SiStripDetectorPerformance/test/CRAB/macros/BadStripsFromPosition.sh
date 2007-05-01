@@ -27,7 +27,7 @@ fontColor[1]="<font color=\"#00000\">";
 N=0;
 }
 {
-if ($1!=N) { N=$1; if (i==0){i=1}else{i=0} }
+if (int($1)!=N) {N=int($1); if (i==0){i=1}else{i=0} }
 pswebadd=sprintf("%s/ClusterAnalysis_*_run%07d/res/HotStrips/cPos_SingleDet_%s*.eps",path,$3,$2);
 smrywebadd=sprintf("%s/ClusterAnalysis_*_run%07d/res/ClusterAnalysis_*_run%07d*HotStrips.smry",path,$3,$3);
 #print htmlwebadd
@@ -121,7 +121,7 @@ if (index($1,"Run")){ Run=$2}
 else{ print $1"\t|"Run"\t|"$2} 
 }
 }
-' | sort  | sed -e "s@(@ (@g" -e "s@?@|\t@g" | awk 'BEGIN{det=0;count=0}{if ($1!=det){count++;det=$1;print"----------------------------------------------------------------------------------------------------------------"};print count"|\t"$0}' >> Asummary_HotStrips.txt
+' | sort  | sed -e "s@(@ (@g" -e "s@?@|\t@g" | awk 'BEGIN{det=0;count=0;count2=0}{if ($1!=det){count++;count2=0;det=$1;print"----------------------------------------------------------------------------------------------------------------"};count2++;print count"."count2"|\t"$0}' >> Asummary_HotStrips.txt
 
       CreateHtml `pwd` Asummary_HotStrips.txt
 
