@@ -1,8 +1,8 @@
 /**
  *  See header file for a description of this class.
  *
- *  $Date: 2006/08/28 16:16:59 $
- *  $Revision: 1.15 $
+ *  $Date: 2007/03/28 01:05:33 $
+ *  $Revision: 1.20 $
  *  \author A. Vitelli - INFN Torino, V.Palichik
  *  \author porting  R. Bellan
  *
@@ -12,6 +12,7 @@
 #include "RecoMuon/MuonSeedGenerator/src/MuonSeedFinder.h"
 #include "RecoMuon/MuonSeedGenerator/src/MuonCSCSeedFromRecHits.h"
 #include "RecoMuon/MuonSeedGenerator/src/MuonDTSeedFromRecHits.h"
+#include "RecoMuon/MuonSeedGenerator/src/MuonOverlapSeedFromRecHits.h"
 #include "RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h"
 #include "DataFormats/TrajectoryState/interface/PTrajectoryStateOnDet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -38,11 +39,13 @@ vector<TrajectorySeed> MuonSeedFinder::seeds(const edm::EventSetup& eSetup) cons
   vector<TrajectorySeed> theSeeds;
 
   MuonDTSeedFromRecHits barrel(eSetup);
+  MuonOverlapSeedFromRecHits overlap(eSetup);
 
   int num_bar = 0;
   for ( MuonRecHitContainer::const_iterator iter = theRhits.begin(); iter!= theRhits.end(); iter++ ){
     if ( (*iter)->isDT() ) {
       barrel.add(*iter);
+      overlap.add(*iter);
       num_bar++;
     }
   }
@@ -66,6 +69,7 @@ vector<TrajectorySeed> MuonSeedFinder::seeds(const edm::EventSetup& eSetup) cons
     {
 //std::cout << **iter << std::endl;
       endcap.add(*iter);
+      overlap.add(*iter);
       ++num_endcap;
     }
   }
@@ -76,6 +80,14 @@ vector<TrajectorySeed> MuonSeedFinder::seeds(const edm::EventSetup& eSetup) cons
       << "Endcap Seeds " << num_endcap << endl;
     theSeeds.push_back(endcap.seed());
   }
+
+  if(num_bar == 1 && num_endcap > 0)
+  {
+    LogTrace(metname) << "Overlap Seed" << endl;
+    std::vector<TrajectorySeed> overlapSeeds = overlap.seeds();
+    theSeeds.insert(theSeeds.end(), overlapSeeds.begin(), overlapSeeds.end());
+  }
+
 
   return theSeeds;
 }
