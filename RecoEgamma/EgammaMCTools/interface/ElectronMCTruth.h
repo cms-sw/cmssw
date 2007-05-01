@@ -1,7 +1,6 @@
 #ifndef ElectronMCTruth_h
 #define ElectronMCTruth_h
 
-#include "Geometry/Vector/interface/GlobalPoint.h"
 #include "SimDataFormats/Track/interface/SimTrack.h"
 #include <CLHEP/Matrix/Vector.h>
 #include <CLHEP/Vector/LorentzVector.h>

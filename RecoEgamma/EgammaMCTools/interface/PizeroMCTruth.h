@@ -1,7 +1,6 @@
 #ifndef PizeroMCTruth_h
 #define PizeroMCTruth_h
 
-#include "Geometry/Vector/interface/GlobalPoint.h"
 #include "SimDataFormats/Track/interface/SimTrack.h"
 #include <CLHEP/Matrix/Vector.h>
 #include <CLHEP/Vector/LorentzVector.h>
