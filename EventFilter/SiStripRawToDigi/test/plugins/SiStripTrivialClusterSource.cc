@@ -1,16 +1,15 @@
 #include "EventFilter/SiStripRawToDigi/test/plugins/SiStripTrivialClusterSource.h"
-// edm 
+// FWCore
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-// data formats
+// CalibTracker
+#include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
+// DataFormats
 #include "DataFormats/Common/interface/DetSetVector.h"
-// cabling
-#include "CondFormats/DataRecord/interface/SiStripFedCablingRcd.h"
-#include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
+#include "DataFormats/Common/interface/Handle.h"
 // clhep
 #include "CLHEP/Random/RandGauss.h"
 #include "CLHEP/Random/RandFlat.h"
@@ -63,26 +62,24 @@ void SiStripTrivialClusterSource::beginJob( const edm::EventSetup& setup) {
     << __func__
     << "]";
 
-  edm::ESHandle<SiStripFedCabling> fedcabling;
-  setup.get<SiStripFedCablingRcd>().get( fedcabling );
-  cabling_ = new SiStripDetCabling(*fedcabling.product());
+  edm::ESHandle<SiStripDetCabling> cabling_;
+  setup.get<SiStripDetCablingRcd>().get( cabling_ );
   detCabling_ = cabling_->getDetCabling();
 
  //Store Det-ids and Calculate number of strips in tracker
   detids_.reserve(detCabling_.size());
   map< uint32_t, vector<FedChannelConnection> >::const_iterator iconn = detCabling_.begin();
   for (;iconn != detCabling_.end();iconn++) {
-    if ((!iconn->first) || (iconn->first == sistrip::invalid32_)) {
+    if ((!iconn->first) || (iconn->first == sistrip::invalid32_)) {continue;}
     detids_.push_back(iconn->first);
     nstrips_+=(iconn->second.size()*256);
-    }
+ 
   }
 }
 
 // -----------------------------------------------------------------------------
 /** */
-void SiStripTrivialClusterSource::endJob() {
-  if (cabling_) delete cabling_;}
+void SiStripTrivialClusterSource::endJob() {;}
 
 // -----------------------------------------------------------------------------
 /** */
@@ -147,7 +144,6 @@ void SiStripTrivialClusterSource::produce( edm::Event& iEvent,
     if (mixClusters_) csize = randflat(minCluster_,maxCluster_);
   }
   
-
   iEvent.put( clusters );
 
  LogDebug("TrivialClusterSource")
