@@ -9,9 +9,11 @@
 /// [derived from AlignmentParameters]. The number of parameters
 /// N_PARAM is fixed to 6 (3 translations + 3 rotations)
 ///
-///  $Date: 2007/03/12 21:28:48 $
-///  $Revision: 1.6 $
-/// (last update by $Author: cklae $)
+///  $Date: 2007/04/30 12:38:55 $
+///  $Revision: 1.7 $
+/// (last update by $Author: flucke $)
+
+class AlignableDetOrUnitPtr;
 
 class RigidBodyAlignmentParameters : public AlignmentParameters 
 {
@@ -53,11 +55,11 @@ public:
   
   /// Get all derivatives 
   virtual AlgebraicMatrix derivatives( const TrajectoryStateOnSurface& tsos,
-				       AlignableDet* ) const;
+				       const AlignableDetOrUnitPtr & ) const;
 
   /// Get selected derivatives
   AlgebraicMatrix selectedDerivatives( const TrajectoryStateOnSurface& tsos, 
-				       AlignableDet* ) const;
+				       const AlignableDetOrUnitPtr & ) const;
 
   /// Get translation parameters
   AlgebraicVector translation(void) const;

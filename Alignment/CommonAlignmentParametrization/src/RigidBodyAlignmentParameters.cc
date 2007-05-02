@@ -1,7 +1,7 @@
 /** \file RigidBodyAlignmentParameters.cc
  *
- *  $Date: 2007/04/26 16:53:42 $
- *  $Revision: 1.6 $
+ *  $Date: 2007/04/30 12:38:58 $
+ *  $Revision: 1.7 $
  */
 
 #include "FWCore/Utilities/interface/Exception.h"
@@ -81,7 +81,7 @@ RigidBodyAlignmentParameters::cloneFromSelected( const AlgebraicVector& paramete
 //__________________________________________________________________________________________________
 AlgebraicMatrix 
 RigidBodyAlignmentParameters::derivatives( const TrajectoryStateOnSurface& tsos, 
-					   AlignableDet* ) const
+					   const AlignableDetOrUnitPtr & ) const
 {
   return KarimakiAlignmentDerivatives()(tsos);
 }
@@ -90,7 +90,7 @@ RigidBodyAlignmentParameters::derivatives( const TrajectoryStateOnSurface& tsos,
 //__________________________________________________________________________________________________
 AlgebraicMatrix 
 RigidBodyAlignmentParameters::selectedDerivatives( const TrajectoryStateOnSurface& tsos, 
-						   AlignableDet* alignableDet ) const
+						   const AlignableDetOrUnitPtr &alignableDet ) const
 {
   AlgebraicMatrix dev = derivatives( tsos, alignableDet );
 

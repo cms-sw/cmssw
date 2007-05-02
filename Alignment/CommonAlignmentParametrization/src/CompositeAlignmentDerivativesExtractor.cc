@@ -8,8 +8,27 @@
 //--------------------------------------------------------------------------------------
 CompositeAlignmentDerivativesExtractor::
 CompositeAlignmentDerivativesExtractor( const std::vector< Alignable* > & alignables,
-										const std::vector< AlignableDet* > & alignableDets,
-										const std::vector< TrajectoryStateOnSurface > & tsos )
+                                        const std::vector< AlignableDet* > & alignableDets,
+                                        const std::vector< TrajectoryStateOnSurface > & tsos )
+{
+  std::vector<AlignableDetOrUnitPtr> detOrUnits;
+  detOrUnits.reserve(alignableDets.size());
+//   Does not compile due to strange const-conversion problems, but why?
+//   for (std::vector<AlignableDet*>::iterator it = alignableDets.begin(), iEnd = alignableDets.end();
+//        it != iEnd; ++it) {
+//     detOrUnits.push_back(AlignableDetOrUnitPtr(*it));
+//   }
+  for (unsigned int i = 0; i < alignableDets.size(); ++i) {
+    detOrUnits.push_back(AlignableDetOrUnitPtr(alignableDets[i]));
+  }
+  extractCurrentAlignment( alignables, detOrUnits, tsos );
+}
+
+//--------------------------------------------------------------------------------------
+CompositeAlignmentDerivativesExtractor::
+CompositeAlignmentDerivativesExtractor( const std::vector< Alignable* > & alignables,
+                                        const std::vector< AlignableDetOrUnitPtr > & alignableDets,
+                                        const std::vector< TrajectoryStateOnSurface > & tsos )
 {
   extractCurrentAlignment( alignables, alignableDets, tsos );
 }
@@ -18,8 +37,8 @@ CompositeAlignmentDerivativesExtractor( const std::vector< Alignable* > & aligna
 
 void CompositeAlignmentDerivativesExtractor::
 extractCurrentAlignment( const std::vector< Alignable* > & alignables,
-						 const std::vector< AlignableDet* > & alignableDets,
-						 const std::vector< TrajectoryStateOnSurface > & tsos )
+                         const std::vector< AlignableDetOrUnitPtr > & alignableDets,
+                         const std::vector< TrajectoryStateOnSurface > & tsos )
 {
 
   // sanity check
@@ -40,7 +59,7 @@ extractCurrentAlignment( const std::vector< Alignable* > & alignables,
 	}
 
   std::vector< Alignable* >::const_iterator itAlignable = alignables.begin();
-  std::vector< AlignableDet* >::const_iterator itAlignableDet = alignableDets.begin();
+  std::vector< AlignableDetOrUnitPtr >::const_iterator itAlignableDet = alignableDets.begin();
   std::vector< TrajectoryStateOnSurface >::const_iterator itTsos = tsos.begin();
 
   int nRow = 0;
