@@ -5,14 +5,14 @@
  *  An input service for raw data. 
  *  The actual source can be the real DAQ, a file, a random generator, etc.
  *
- *  $Date: 2007/03/30 11:52:02 $
- *  $Revision: 1.5 $
+ *  $Date: 2007/04/19 13:28:45 $
+ *  $Revision: 1.1 $
  *  \author N. Amapane - S. Argiro'
  */
 
 #include <memory>
 
-#include "FWCore/Framework/interface/RawInputSource.h"
+#include "FWCore/Sources/interface/RawInputSource.h"
 
 namespace edm {
     class ParameterSet;

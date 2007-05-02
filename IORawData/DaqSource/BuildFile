@@ -1,6 +1,7 @@
 <export>
  <lib name=IORawDataDaqSource>
  <use name=FWCore/Framework>
+ <use name=FWCore/Sources>
 </export>
 
 <use name=FWCore/Framework>
