@@ -1,5 +1,6 @@
 #include "CondCore/DBCommon/interface/ConnectStringParser.h"
 #include "CondCore/DBCommon/interface/Exception.h"
+#include <iostream>
 static std::string sqlitedbsuffix(".db");
 cond::ConnectStringParser::ConnectStringParser( const std::string& inputStr ):m_isLogical(false),m_inputStr(inputStr){
   if( (m_inputStr.find(':')==std::string::npos) && *(m_inputStr.begin())=='/' ){
@@ -119,14 +120,13 @@ cond::ConnectStringParser::parsePhysical(){
   std::string protocol=m_inputStr.substr(protocolStartPos,protocolEndPos-protocolStartPos);
   size_t serviceStartPos,serviceEndPos;
   std::string service;
-  if(protocol=="oracle" || "frontier" ){
+  serviceStartPos=protocolEndPos+3;
+  if(protocol=="oracle" || protocol=="frontier" ){
     m_result.push_back(std::string("/")+protocol);
-    serviceStartPos=m_inputStr.find_first_not_of('/',protocolEndPos+3);
     serviceEndPos=m_inputStr.find_first_of('/',serviceStartPos);
-  }else if(protocol.find("sqlite") != std::string::npos){
+  }else if(protocol=="sqlite_file"){
     m_result.push_back("/sqlite");
-    serviceStartPos=m_inputStr.find_last_not_of('/',protocolEndPos);
-    serviceEndPos=m_inputStr.find_last_of('-',protocolEndPos);
+    serviceEndPos=m_inputStr.find('-',serviceStartPos);
   }else{
     throw cond::Exception("unsupported protocol");
   }
@@ -154,8 +154,8 @@ cond::ConnectStringParser::parsePhysical(){
   size_t schemaStartPos;
   std::string schema;
   if(protocol.find("sqlite") != std::string::npos){
-    schemaStartPos=m_inputStr.find_last_not_of('-',serviceEndPos);
-    size_t schemaEndPos=m_inputStr.find(sqlitedbsuffix,serviceEndPos);
+    schemaStartPos=serviceEndPos+1;
+    size_t schemaEndPos=m_inputStr.find(sqlitedbsuffix,schemaStartPos);
     schema=m_inputStr.substr(schemaStartPos,schemaEndPos-schemaStartPos);
   }else{
     schemaStartPos=m_inputStr.find_first_not_of('/',serviceEndPos);
