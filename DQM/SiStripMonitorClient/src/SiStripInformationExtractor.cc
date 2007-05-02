@@ -423,6 +423,7 @@ void SiStripInformationExtractor::plotHistos(multimap<string,string>& req_map,
   gStyle->SetOptTitle(0);
   gStyle->SetOptStat("emruo");
   gStyle->SetStatFontSize(0.05);
+
   int idir=0;
   for (vector<MonitorElement*>::const_iterator it = me_list.begin();
        it != me_list.end(); it++) {
@@ -435,15 +436,16 @@ void SiStripInformationExtractor::plotHistos(multimap<string,string>& req_map,
     TProfile* prof = ExtractTObject<TProfile>().extract((*it));
     TH1F* hist1 = ExtractTObject<TH1F>().extract((*it));
     TH2F* hist2 = ExtractTObject<TH2F>().extract((*it));
-  
+   
     if (prof|| hist1 || hist2) {
       canvas_->cd(idir);
       TText tTitle;
       tTitle.SetTextFont(64);
       tTitle.SetTextSizePixels(20);
       if (hist2) {
-        if (xlow != -1.0 && xhigh != -1.0) {
-          TAxis* xa = hist2->GetXaxis();
+	TAxis* xa = hist2->GetXaxis();
+        xa->SetLabelSize(0.04);
+	if (xlow != -1.0 && xhigh != -1.0) {	  
           xa->SetRangeUser(xlow, xhigh);
         }
         hist2->SetFillColor(1);
@@ -459,8 +461,9 @@ void SiStripInformationExtractor::plotHistos(multimap<string,string>& req_map,
 	} else hist2->Draw(dopt.c_str());
         tTitle.DrawTextNDC(0.1, 0.92, hist2->GetName());
       } else if (prof) {
+	TAxis* xa = prof->GetXaxis();
+        xa->SetLabelSize(0.04);
         if (xlow != -1 &&  xhigh != -1.0) {
-          TAxis* xa = prof->GetXaxis();
           xa->SetRangeUser(xlow, xhigh);
         }
         if (dopt.find("projection") != string::npos) {
@@ -473,8 +476,9 @@ void SiStripInformationExtractor::plotHistos(multimap<string,string>& req_map,
         } else prof->Draw(dopt.c_str());
         tTitle.DrawTextNDC(0.1, 0.92, prof->GetName());
       } else {
+	TAxis* xa = hist1->GetXaxis();
+        xa->SetLabelSize(0.04);
         if (xlow != -1 &&  xhigh != -1.0) {
-          TAxis* xa = hist1->GetXaxis();
           xa->SetRangeUser(xlow, xhigh);
         }
         if (dopt.find("projection") != string::npos || sflag) {
