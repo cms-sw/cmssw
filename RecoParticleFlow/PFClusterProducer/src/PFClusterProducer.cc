@@ -245,6 +245,11 @@ PFClusterProducer::PFClusterProducer(const edm::ParameterSet& iConfig)
   produceRecHits_ = 
     iConfig.getUntrackedParameter<bool>("produce_RecHits", false );
 
+  if ( produceRecHits_ )
+    std::cout << "<PFClusterProducer::PFClusterProducer>: will produce PFRecHits." << std::endl;
+  else
+    std::cout << "<PFClusterProducer::PFClusterProducer>: will not produce any PFRecHits !" << std::endl;
+
   //register products
   if(produceRecHits_) {
     produces<reco::PFRecHitCollection>("ECAL");
@@ -275,6 +280,16 @@ void PFClusterProducer::produce(edm::Event& iEvent,
     // create PFRecHits and put them in rechits
     createEcalRecHits( rechits, iEvent, iSetup);
 
+    edm::OrphanHandle< reco::PFRecHitCollection > rechitsHandle;
+
+    // if requested, write PFRecHits in the event
+    if ( produceRecHits_ ) {
+      auto_ptr< vector<reco::PFRecHit> > recHits( prechits ); 
+      rechitsHandle = iEvent.put( recHits, "ECAL" );
+    } else {
+      rechitsHandle = edm::OrphanHandle< reco::PFRecHitCollection >( &rechits, edm::ProductID(10001) );
+    }
+
     if(clusteringEcal_) {
       // initialize clustering algorithm
 //       PFClusterAlgo clusteralgo( rechits ); 
@@ -291,7 +306,7 @@ void PFClusterProducer::produce(edm::Event& iEvent,
 //       clusteralgo.setShowerSigma( showerSigmaEcal_ );
       
       // do clustering
-      clusterAlgoECAL_.doClustering( rechits );
+      clusterAlgoECAL_.doClustering( rechitsHandle );
       
       LogInfo("PFClusterProducer")
 	<<" ECAL clusters --------------------------------- "<<endl
@@ -302,16 +317,8 @@ void PFClusterProducer::produce(edm::Event& iEvent,
       auto_ptr< vector<reco::PFCluster> > 
 	outClustersECAL( clusterAlgoECAL_.clusters() ); 
       iEvent.put( outClustersECAL, "ECAL");
-    }
-
-    // if requested, write PFRecHits in the event
-    if(produceRecHits_) {
-      auto_ptr< vector<reco::PFRecHit> > recHits( prechits ); 
-      iEvent.put( recHits, "ECAL" );
-    }
-       
+    }    
   }
-
 
 
   if( processHcal_ ) {
@@ -321,10 +328,20 @@ void PFClusterProducer::produce(edm::Event& iEvent,
 
     createHcalRecHits(rechits, iEvent, iSetup);
 
-    if(clusteringHcal_) {
+    edm::OrphanHandle< reco::PFRecHitCollection > rechitsHandle;
 
+    // if requested, write PFRecHits in the event
+    if ( produceRecHits_ ) {
+      auto_ptr< vector<reco::PFRecHit> > recHits( prechits ); 
+      rechitsHandle = iEvent.put( recHits, "HCAL" );
+    } else {
+      rechitsHandle = edm::OrphanHandle< reco::PFRecHitCollection >( &rechits, edm::ProductID(10002) );
+    }
+    
+    if(clusteringHcal_) {
+      
       // do clustering
-      clusterAlgoHCAL_.doClustering( rechits );
+      clusterAlgoHCAL_.doClustering( rechitsHandle );
       
       LogInfo("PFClusterProducer")
 	<<" HCAL clusters --------------------------------- "<<endl
@@ -336,13 +353,6 @@ void PFClusterProducer::produce(edm::Event& iEvent,
 	outClustersHCAL( clusterAlgoHCAL_.clusters() ); 
       iEvent.put( outClustersHCAL, "HCAL");
     }
-
-    // if requested, write PFRecHits in the event
-    if(produceRecHits_) {
-      auto_ptr< vector<reco::PFRecHit> > recHits( prechits ); 
-      iEvent.put( recHits, "HCAL" );
-    }
-
   }
 
 
@@ -353,9 +363,19 @@ void PFClusterProducer::produce(edm::Event& iEvent,
 
     createPSRecHits(rechits, iEvent, iSetup);
 
+    edm::OrphanHandle< reco::PFRecHitCollection > rechitsHandle;
+
+    // if requested, write PFRecHits in the event
+    if ( produceRecHits_ ) {
+      auto_ptr< vector<reco::PFRecHit> > recHits( prechits ); 
+      rechitsHandle = iEvent.put( recHits, "PS" );
+    } else {
+      rechitsHandle = edm::OrphanHandle< reco::PFRecHitCollection >( &rechits, edm::ProductID(10003) );
+    }
+
     if(clusteringPS_) {
   
-      clusterAlgoPS_.doClustering( rechits );
+      clusterAlgoPS_.doClustering( rechitsHandle );
 
       LogInfo("PFClusterProducer")
 	<<" Preshower clusters --------------------------------- "<<endl
@@ -366,20 +386,9 @@ void PFClusterProducer::produce(edm::Event& iEvent,
       auto_ptr< vector<reco::PFCluster> > 
 	outClustersPS( clusterAlgoPS_.clusters() ); 
       iEvent.put( outClustersPS, "PS");
-      
-
     }    
-
-    // if requested, write PFRecHits in the event
-    if(produceRecHits_) {
-      auto_ptr< vector<reco::PFRecHit> > recHits( prechits ); 
-      iEvent.put( recHits, "PS" );
-    }
-
   }
-
 }
-
 
 
 void PFClusterProducer::createEcalRecHits(vector<reco::PFRecHit>& rechits,

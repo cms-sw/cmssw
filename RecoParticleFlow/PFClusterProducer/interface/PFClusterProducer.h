@@ -241,8 +241,6 @@ class PFClusterProducer : public edm::EDProducer {
   std::string hcalRecHitsHBHEProductInstanceName_;
   std::string caloTowersModuleLabel_;
   std::string caloTowersProductInstanceName_;
-  
-
 };
 
 #endif
