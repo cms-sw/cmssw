@@ -155,6 +155,76 @@
             </div>
           </div>
           <div class="dhtmlgoodies_aTab">
+	    <div class="bloc" id="bloc2_4"> 
+      	      <div class="bloc" id="bloc2_4_1"
+                onmouseover="ddrivetip('Select a sub-detector type and get the tree with summary histograms','#EAFFF9',120);"
+                onmouseout="hideddrivetip();">
+	        <fieldset>
+                  <label id="structures"
+                     style="margin-left:10%">
+                     Sub-Detectors:
+	          </label>
+                  <select name="struc_name" 
+                       id="structure_name"
+                       style="width:20%;height:5%;text-align;margin-right:2%">
+                       <option value="SiStrip/MechanicalView/TIB" SELECTED> TIB </option>
+                       <option value="SiStrip/MechanicalView/TOB"> TOB </option>
+                       <option value="SiStrip/MechanicalView/TEC/side_2"> TECF </option>
+                       <option value="SiStrip/MechanicalView/TID/side_2"> TIDF </option>
+                       <option value="SiStrip/MechanicalView/TEC/side_1"> TECB </option>
+                       <option value="SiStrip/MechanicalView/TID/side_1"> TIDB </option>
+                  </select>
+                  <input name="listsummary" 
+                        id="list_summary"
+                        value="Get Tree" 
+                        style="width:30%;margin-left:2%;margin-top:2%"
+                        onClick="RequestSummaryHistoList()" 
+                        type="submit">
+                   </input>
+	        </fieldset>
+      	      </div>
+	      </br>
+   	      <div class="bloc" id="tree_list" style="overflow:scroll;height:300px;width:100%;background:#FFF;"> 
+      	      </div> 
+	    </div>
+          </div>
+          <div class="dhtmlgoodies_aTab">
+	    <div class="bloc" id="bloc2_5"> 
+      	      <div class="bloc" id="bloc2_5_1"
+                onmouseover="ddrivetip('Select a sub-detector type and get the tree with alarm','#EAFFF9',120);"
+                onmouseout="hideddrivetip();">
+	        <fieldset>
+                  <label id="alarm_structures"
+                     style="margin-left:10%">
+                     Sub-Detectors:
+	          </label>
+                  <select name="struc_alarm" 
+                       id="structure_for_alarm"
+                       style="width:20%;height:5%;text-align;margin-right:2%">
+                       <option value="SiStrip/MechanicalView/TIB" SELECTED> TIB </option>
+                       <option value="SiStrip/MechanicalView/TOB"> TOB </option>
+                       <option value="SiStrip/MechanicalView/TEC/side_2"> TECF </option>
+                       <option value="SiStrip/MechanicalView/TID/side_2"> TIDF </option>
+                       <option value="SiStrip/MechanicalView/TEC/side_1"> TECB </option>
+                       <option value="SiStrip/MechanicalView/TID/side_1"> TIDB </option>
+                  </select>
+                  <input name="listalarm" 
+                        id="read_alarm"
+                        value="Get Alarms" 
+                        style="width:30%;margin-left:2%;margin-top:2%"
+                        onClick="RequestAlarmList()" 
+                        type="submit">
+                   </input>
+	        </fieldset>
+              </div>
+   	      </br>
+   	      <div class="bloc" id="alarm_list" style="overflow:scroll;height:200px;width:100%;background:#FFF;"> 
+      	      </div> 
+              <div class="block" id="status_area" style="overflow:scroll;height:100px;width:100%;background:#FFF8C9"> 
+              </div>
+	    </div>
+          </div>
+          <div class="dhtmlgoodies_aTab">
 	    <div class="bloc" id="bloc2_3" style="background:#A9FF84"> 
       	      <div class="bloc" id="bloc2_3_1" style="background:#A9FF84">
 	        <fieldset>
@@ -285,83 +355,14 @@
               </div>
             </div>
           </div>
-          <div class="dhtmlgoodies_aTab">
-	    <div class="bloc" id="bloc2_4"> 
-      	      <div class="bloc" id="bloc2_4_1"
-                onmouseover="ddrivetip('Select a sub-detector type and get the tree with summary histograms','#EAFFF9',120);"
-                onmouseout="hideddrivetip();">
-	        <fieldset>
-                  <label id="structures"
-                     style="margin-left:10%">
-                     Sub-Detectors:
-	          </label>
-                  <select name="struc_name" 
-                       id="structure_name"
-                       style="width:20%;height:5%;text-align;margin-right:2%">
-                       <option value="SiStrip/MechanicalView/TIB" SELECTED> TIB </option>
-                       <option value="SiStrip/MechanicalView/TOB"> TOB </option>
-                       <option value="SiStrip/MechanicalView/TEC/side_2"> TECF </option>
-                       <option value="SiStrip/MechanicalView/TID/side_2"> TIDF </option>
-                       <option value="SiStrip/MechanicalView/TEC/side_1"> TECB </option>
-                       <option value="SiStrip/MechanicalView/TID/side_1"> TIDB </option>
-                  </select>
-                  <input name="listsummary" 
-                        id="list_summary"
-                        value="Get Tree" 
-                        style="width:30%;margin-left:2%;margin-top:2%"
-                        onClick="RequestSummaryHistoList()" 
-                        type="submit">
-                   </input>
-	        </fieldset>
-      	      </div>
-	      </br>
-   	      <div class="bloc" id="tree_list" style="overflow:scroll;height:300px;width:100%;background:#FFF;"> 
-      	      </div> 
-	    </div>
-          </div>
-          <div class="dhtmlgoodies_aTab">
-	    <div class="bloc" id="bloc2_5"> 
-      	      <div class="bloc" id="bloc2_5_1"
-                onmouseover="ddrivetip('Select a sub-detector type and get the tree with alarm','#EAFFF9',120);"
-                onmouseout="hideddrivetip();">
-	        <fieldset>
-                  <label id="alarm_structures"
-                     style="margin-left:10%">
-                     Sub-Detectors:
-	          </label>
-                  <select name="struc_alarm" 
-                       id="structure_for_alarm"
-                       style="width:20%;height:5%;text-align;margin-right:2%">
-                       <option value="SiStrip/MechanicalView/TIB" SELECTED> TIB </option>
-                       <option value="SiStrip/MechanicalView/TOB"> TOB </option>
-                       <option value="SiStrip/MechanicalView/TEC/side_2"> TECF </option>
-                       <option value="SiStrip/MechanicalView/TID/side_2"> TIDF </option>
-                       <option value="SiStrip/MechanicalView/TEC/side_1"> TECB </option>
-                       <option value="SiStrip/MechanicalView/TID/side_1"> TIDB </option>
-                  </select>
-                  <input name="listalarm" 
-                        id="read_alarm"
-                        value="Get Alarms" 
-                        style="width:30%;margin-left:2%;margin-top:2%"
-                        onClick="RequestAlarmList()" 
-                        type="submit">
-                   </input>
-	        </fieldset>
-              </div>
-   	      </br>
-   	      <div class="bloc" id="alarm_list" style="overflow:scroll;height:200px;width:100%;background:#FFF;"> 
-      	      </div> 
-              <div class="block" id="status_area" style="overflow:scroll;height:100px;width:100%;background:#FFF8C9"> 
-              </div>
-	    </div>
-          </div>
         </div>
     </fieldset>
   </div>
 </form>
 <!--
 <script type="text/javascript">
-  initTabs('dhtmlgoodies_tabView1', Array('Non-Expert View', 'Single Module View','Summary View','Alarm View'), 0, '99.5%','100%');
+  initTabs('dhtmlgoodies_tabView1', Array('Non-Expert View', 'Summary View','Alarm View'Expert View'), 0, 
+'99.5%','100%');
 </script>
 -->
 </body>
