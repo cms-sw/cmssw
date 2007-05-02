@@ -8,7 +8,6 @@
 #include "HLTrigger/HLTanalyzers/interface/HLTrigReport.h"
 
 #include "HLTrigger/HLTanalyzers/interface/HLTAnalyzer.h"
-#include "HLTrigger/HLTanalyzers/interface/HLTGetData.h"
 #include "HLTrigger/HLTanalyzers/interface/HLTGetDigi.h"
 #include "HLTrigger/HLTanalyzers/interface/HLTGetRaw.h"
 
@@ -18,6 +17,5 @@ DEFINE_ANOTHER_FWK_MODULE(L1TrigReport);
 DEFINE_ANOTHER_FWK_MODULE(HLTrigReport);
 
 DEFINE_ANOTHER_FWK_MODULE(HLTAnalyzer);
-DEFINE_ANOTHER_FWK_MODULE(HLTGetData);
 DEFINE_ANOTHER_FWK_MODULE(HLTGetDigi);
 DEFINE_ANOTHER_FWK_MODULE(HLTGetRaw);
