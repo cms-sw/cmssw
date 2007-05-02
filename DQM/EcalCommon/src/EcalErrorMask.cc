@@ -1,11 +1,11 @@
-// $Id: EcalErrorMask.cc,v 1.1 2007/04/11 06:21:40 dellaric Exp $
+// $Id: EcalErrorMask.cc,v 1.2 2007/04/11 06:50:38 dellaric Exp $
 
 /*!
   \file EcalErrorMask.cc
   \brief Error mask from text file or database
   \author B. Gobbo
-  \version $Revision: 1.1 $
-  \date $Date: 2007/04/11 06:21:40 $
+  \version $Revision: 1.2 $
+  \date $Date: 2007/04/11 06:50:38 $
 */
 
 #include "DQM/EcalCommon/interface/EcalErrorMask.h"
@@ -490,6 +490,7 @@ void EcalErrorMask::readDB( EcalCondDBInterface* eConn, RunIOV* runIOV ) throw( 
 
   if( eConn ) {
 
+/*
     try {
       RunIOV validIOV;
       RunTag runTag = runIOV->getRunTag();
@@ -505,8 +506,8 @@ void EcalErrorMask::readDB( EcalCondDBInterface* eConn, RunIOV* runIOV ) throw( 
     } catch ( std::runtime_error & e ) {
       throw( std::runtime_error( e.what() ) );
     }
+*/
 
-#if 0
     try {
       RunIOV validIOV;
       RunTag runTag = runIOV->getRunTag();
@@ -523,7 +524,6 @@ void EcalErrorMask::readDB( EcalCondDBInterface* eConn, RunIOV* runIOV ) throw( 
     } catch ( std::runtime_error & e ) {
       throw( std::runtime_error( e.what() ) );
     }
-#endif
 
   }
 
