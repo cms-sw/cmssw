@@ -1,9 +1,10 @@
 //Framework Headers
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "FastSimulation/PileUpProducer/interface/PileUpSimulator.h"
-#include "FastSimulation/PileUpProducer/interface/PUEvent.h"
+#include "FastSimDataFormats/PileUpEvents/interface/PUEvent.h"
 #include "FastSimulation/Event/interface/FSimEvent.h"
 #include "FastSimulation/Event/interface/PrimaryVertexGenerator.h"
 #include "FastSimulation/Particle/interface/RawParticle.h"

@@ -9,7 +9,7 @@
  * $Date: 24-Apr-2007
  */ 
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+//#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include <vector>
 #include <string>
@@ -20,6 +20,7 @@ class TTree;
 class TBranch;
 class PUEvent;
 
+class ParameterSet;
 class ParticlePropagator;
 class RandomEngine;
 class FSimEvent;

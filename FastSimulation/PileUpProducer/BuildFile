@@ -1,13 +1,11 @@
-<use name=DataFormats/Common>
-<use name=DataFormats/Provenance>
-<use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
+<use name=FWCore/Utilities>
+<use name=FastSimDataFormats/PileUpEvents>
 <use name=FastSimulation/Event>
+<use name=FastSimulation/Particle>
 <use name=FastSimulation/Utilities>
-<use name=SimDataFormats/HepMCProduct>
-<use name=hepmc>
+<use name=clhep>
+<use name=rootcore>
 <export>
-  <use name=FWCore/Framework>
-  <use name=FWCore/ParameterSet>
   <lib name=FastSimulationPileUpProducer>
 </export>

@@ -17,7 +17,7 @@
 #include "FastSimulation/Event/interface/FSimTrack.h"
 #include "FastSimulation/Event/interface/FSimVertex.h"
 #include "FastSimulation/Particle/interface/ParticleTable.h"
-#include "FastSimulation/PileUpProducer/interface/PUEvent.h"
+#include "FastSimDataFormats/PileUpEvents/interface/PUEvent.h"
 
 #include <vector>
 #include <string>
