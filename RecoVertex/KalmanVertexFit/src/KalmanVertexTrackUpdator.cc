@@ -10,7 +10,7 @@ RefCountedVertexTrack KalmanVertexTrackUpdator::update
 	(const CachingVertex & vertex , RefCountedVertexTrack track) const
 
 {
-  pair<RefCountedRefittedTrackState, AlgebraicMatrix> thePair = 
+  pair<RefCountedRefittedTrackState, AlgebraicMatrix33> thePair = 
   	trackRefit(vertex.vertexState(), track->linearizedTrack());
 
   CachingVertex rVert = updator.remove(vertex, track);
@@ -23,7 +23,7 @@ RefCountedVertexTrack KalmanVertexTrackUpdator::update
 	track->weight());
 }
 
-pair<RefCountedRefittedTrackState, AlgebraicMatrix> 
+pair<RefCountedRefittedTrackState, AlgebraicMatrix33> 
 KalmanVertexTrackUpdator::trackRefit(const VertexState & vertex,
 	 RefCountedLinearizedTrackState linTrackState) const
 
@@ -31,51 +31,51 @@ KalmanVertexTrackUpdator::trackRefit(const VertexState & vertex,
   //Vertex position 
   GlobalPoint vertexPosition = vertex.position();
 
-  AlgebraicVector vertexCoord(3);
-  vertexCoord[0] = vertexPosition.x();
-  vertexCoord[1] = vertexPosition.y();
-  vertexCoord[2] = vertexPosition.z();
-  AlgebraicSymMatrix vertexErrorMatrix = vertex.error().matrix();
+  AlgebraicVector3 vertexCoord;
+  vertexCoord(0) = vertexPosition.x();
+  vertexCoord(1) = vertexPosition.y();
+  vertexCoord(2) = vertexPosition.z();
+  AlgebraicSymMatrix33 vertexErrorMatrix = vertex.error().matrix_new();
 
 //track information
-  AlgebraicMatrix a = linTrackState->positionJacobian();
-  AlgebraicMatrix b = linTrackState->momentumJacobian();
+  AlgebraicMatrix53 a = linTrackState->positionJacobian();
+  AlgebraicMatrix53 b = linTrackState->momentumJacobian();
 
-  AlgebraicVector trackParameters = 
+  AlgebraicVector5 trackParameters = 
   	linTrackState->predictedStateParameters();
 
-  AlgebraicSymMatrix trackParametersWeight = 
+  AlgebraicSymMatrix55 trackParametersWeight = 
   	linTrackState->predictedStateWeight();
 
-  AlgebraicSymMatrix s = trackParametersWeight.similarityT(b);
+  AlgebraicSymMatrix33 s = ROOT::Math::SimilarityT(b,trackParametersWeight);
   
-  int ifail;
-  s.invert(ifail);
+  int ifail = ! s.Invert();
   if(ifail !=0) throw VertexException
   	("KalmanVertexTrackUpdator::S matrix inversion failed");
    
-  AlgebraicVector newTrackMomentumP =  s * b.T() * trackParametersWeight * 
+  AlgebraicVector3 newTrackMomentumP =  s * (ROOT::Math::Transpose(b)) * trackParametersWeight * 
     (trackParameters - linTrackState->constantTerm() - a*vertexCoord);
 
-  AlgebraicMatrix refittedPositionMomentumConvariance = 
-    -vertexErrorMatrix * a.T() * trackParametersWeight * b * s;
+  AlgebraicMatrix33 refittedPositionMomentumConvariance = 
+    -vertexErrorMatrix * (ROOT::Math::Transpose(a)) * trackParametersWeight * b * s;
 
-  AlgebraicSymMatrix refittedMomentumConvariance = s +  
-     vertex.weight().matrix().similarityT(refittedPositionMomentumConvariance);
+  AlgebraicSymMatrix33 refittedMomentumConvariance = s +  
+     ROOT::Math::SimilarityT(refittedPositionMomentumConvariance, vertex.weight().matrix_new());
 
   
-  int matrixSize = 3+refittedMomentumConvariance.num_col();
-  AlgebraicMatrix  covMatrix(matrixSize, matrixSize);
-  covMatrix.sub(1, 4, refittedPositionMomentumConvariance);
-  covMatrix.sub(4, 1, refittedPositionMomentumConvariance.T());
-  covMatrix.sub(1, 1, vertexErrorMatrix);
-  covMatrix.sub(4, 4, refittedMomentumConvariance);
-  AlgebraicSymMatrix covSymMatrix;
-  covSymMatrix.assign(covMatrix);
+ // int matrixSize = 3+3; //refittedMomentumConvariance.num_col();
+  AlgebraicMatrix66  covMatrix; //(matrixSize, matrixSize);
+  covMatrix.Place_at(refittedPositionMomentumConvariance, 0, 3);
+  covMatrix.Place_at(ROOT::Math::Transpose(refittedPositionMomentumConvariance), 3, 0);
+  covMatrix.Place_at(vertexErrorMatrix, 0, 0);
+  covMatrix.Place_at(refittedMomentumConvariance, 3 ,3);
+  ROOT::Math::SVector<double, 21> vup = covMatrix.UpperBlock();
+
+  AlgebraicSymMatrix66 covSymMatrix (vup);
 
   RefCountedRefittedTrackState refittedTrackState = linTrackState->
 	createRefittedTrackState(vertexPosition, newTrackMomentumP, covSymMatrix);
 
-  return pair<RefCountedRefittedTrackState, AlgebraicMatrix>
+  return pair<RefCountedRefittedTrackState, AlgebraicMatrix33>
   		(refittedTrackState, refittedPositionMomentumConvariance);
 } 

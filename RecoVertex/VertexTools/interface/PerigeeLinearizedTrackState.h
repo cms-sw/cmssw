@@ -59,21 +59,21 @@ public:
   /** Method returning the constant term of the Taylor expansion
    *  of the measurement equation
    */
-  AlgebraicVector constantTerm() const;
+  AlgebraicVector5 constantTerm() const;
 
   /** Method returning the Position Jacobian from the Taylor expansion
    *  (Matrix A)
    */
-  AlgebraicMatrix positionJacobian() const;
+  AlgebraicMatrix53 positionJacobian() const;
 
   /** Method returning the Momentum Jacobian from the Taylor expansion
    *  (Matrix B)
    */
-  AlgebraicMatrix momentumJacobian() const;
+  AlgebraicMatrix53 momentumJacobian() const;
 
   /** Method returning the parameters of the Taylor expansion
    */
-  AlgebraicVector parametersFromExpansion() const;
+  AlgebraicVector5 parametersFromExpansion() const;
 
   /** Method returning the track state at the point of closest approach
    *  to the linearization point, in the transverse plane (a.k.a.
@@ -84,27 +84,27 @@ public:
   /** Method returning the parameters of the track state at the
    *  transverse impact point.
    */
-  AlgebraicVector predictedStateParameters() const;
+  AlgebraicVector5 predictedStateParameters() const;
 
   /** Method returning the momentum part of the parameters of the track state
    *  at the linearization point.
    */
-  virtual AlgebraicVector predictedStateMomentumParameters() const;
+  virtual AlgebraicVector3 predictedStateMomentumParameters() const;
 
   /** Method returning the weight matrix of the track state at the
    *  transverse impact point.
    */
-  AlgebraicSymMatrix predictedStateWeight() const;
+  AlgebraicSymMatrix55 predictedStateWeight() const;
 
   /** Method returning the covariance matrix of the track state at the
    *  transverse impact point.
    */
-  AlgebraicSymMatrix predictedStateError() const;
+  AlgebraicSymMatrix55 predictedStateError() const;
 
   /** Method returning the momentum covariance matrix of the track state at the
    *  transverse impact point.
    */
-  AlgebraicSymMatrix predictedStateMomentumError() const;
+  AlgebraicSymMatrix33 predictedStateMomentumError() const;
 
 //   /** Method returning the impact point measurement
 //    */
@@ -123,8 +123,8 @@ public:
    */
   virtual RefCountedRefittedTrackState createRefittedTrackState(
   	const GlobalPoint & vertexPosition,
-	const AlgebraicVector & vectorParameters,
-	const AlgebraicSymMatrix & covarianceMatrix) const;
+	const AlgebraicVector3 & vectorParameters,
+	const AlgebraicSymMatrix66 & covarianceMatrix) const;
 
 
   virtual double weightInMixture() const {return theTSOS.weight();}
@@ -161,10 +161,10 @@ private:
   reco::TransientTrack theTrack;
 
   mutable bool jacobiansAvailable;
-  mutable AlgebraicMatrix thePositionJacobian, theMomentumJacobian;
+  mutable AlgebraicMatrix53 thePositionJacobian, theMomentumJacobian;
   mutable TrajectoryStateClosestToPoint thePredState;
-  mutable AlgebraicVector theConstantTerm;
-  mutable AlgebraicVector theExpandedParams;
+  mutable AlgebraicVector5 theConstantTerm;
+  mutable AlgebraicVector5 theExpandedParams;
 
 //   ImpactPointMeasurementExtractor theIPMExtractor;
   TSCPBuilderNoMaterial builder;

@@ -50,14 +50,14 @@ public:
    *  (signed) transverse , longitudinal impact parameter)
    */
 
-  virtual AlgebraicVector  parameters() const
+  virtual AlgebraicVector5 parameters() const
     {return theState.perigeeParameters().vector();}
 
   /**
    * The covariance matrix
    */
 
-  virtual AlgebraicSymMatrix  covariance() const
+  virtual AlgebraicSymMatrix55  covariance() const
     {return theState.perigeeError().covarianceMatrix();}
 
   /**
@@ -72,7 +72,7 @@ public:
    * These are (signed transverse curvature, theta, phi)
    */
 
-  virtual AlgebraicVector momentumVector() const;
+  virtual AlgebraicVector3 momentumVector() const;
 
   /**
    *   The weight of this component in a mixture
@@ -94,7 +94,7 @@ private:
 
   TrajectoryStateClosestToPoint theState;
   mutable bool momentumVectorAvailable;
-  mutable AlgebraicVector momentumAtVertex;
+  mutable AlgebraicVector3 momentumAtVertex;
   double theWeight;
 };
 #endif
