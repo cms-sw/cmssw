@@ -1,11 +1,11 @@
 /// \file AlignmentProducer.cc
 ///
 ///  \author    : Frederic Ronga
-///  Revision   : $Revision: 1.32 $
-///  last update: $Date: 2007/04/17 13:54:22 $
-///  by         : $Author: fronga $
+///  Revision   : $Revision: 1.2 $
+///  last update: $Date: 2007/05/02 20:33:17 $
+///  by         : $Author: cklae $
 
-#include "Alignment/CommonAlignmentProducer/interface/AlignmentProducer.h"
+#include "Alignment/CommonAlignmentProducer/plugins/AlignmentProducer.h"
 
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 
