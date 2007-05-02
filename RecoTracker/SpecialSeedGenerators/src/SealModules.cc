@@ -8,6 +8,8 @@ DEFINE_ANOTHER_FWK_MODULE(CtfSpecialSeedGenerator);
 #include "RecoTracker/TkTrackingRegions/interface/OrderedHitsGeneratorFactory.h"
 #include "RecoTracker/TkTrackingRegions/interface/OrderedHitsGenerator.h"
 #include "RecoTracker/SpecialSeedGenerators/interface/GenericTripletGenerator.h"
+#include "RecoTracker/SpecialSeedGenerators/interface/GenericPairGenerator.h"
 
 DEFINE_EDM_PLUGIN(OrderedHitsGeneratorFactory, GenericTripletGenerator, "GenericTripletGenerator");
+DEFINE_EDM_PLUGIN(OrderedHitsGeneratorFactory, GenericPairGenerator, "GenericPairGenerator");
 
