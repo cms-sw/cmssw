@@ -7,7 +7,7 @@
  * Joanna Weng & Filip Moortgat 08/2005 
  ***************************************/
 
-#include "FWCore/Framework/interface/ExternalInputSource.h"
+#include "FWCore/Sources/interface/ExternalInputSource.h"
 #include "IOMC/Input/interface/HepMCFileReader.h"
 #include <map>
 #include <string>

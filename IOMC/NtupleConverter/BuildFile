@@ -1,5 +1,6 @@
 <use name=boost>
 <use name=FWCore/Framework>
+<use name=FWCore/Sources>
 <use name=SimDataFormats/HepMCProduct>
 <use name=hepmc>
 <use name=root> 
@@ -8,6 +9,7 @@
  <lib name=IOMCNtupleConverter>
  <use name=boost>
  <use name=FWCore/Framework>
+ <use name=FWCore/Sources>
  <use name=SimDataFormats/HepMCProduct>
  <use name=hepmc>  
  <use name=root> 
