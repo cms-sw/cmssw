@@ -1,7 +1,6 @@
 <export>
  <lib name=IORawDataDaqSource>
- <use name=FWCore/Framework>
- <use name=FWCore/Sources>
+ <use name=FWCore/PluginManager>
 </export>
 
-<use name=FWCore/Framework>
+<use name=FWCore/PluginManager>
