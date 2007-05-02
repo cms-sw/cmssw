@@ -1,7 +1,7 @@
 #ifndef HydjetSource_h
 #define HydjetSource_h
 
-// $Id: HydjetSource.h,v 1.3 2007/04/28 16:08:16 mballint Exp $
+// $Id: HydjetSource.h,v 1.4 2007/04/30 05:25:50 mballint Exp $
 
 /** \class HydjetSource
 *
@@ -34,15 +34,6 @@ namespace edm
     /// Destructor
     virtual ~HydjetSource();
 
-    enum EHydjetMode{  
-      kHydroOnly  = 0, //jet production off (pure HYDRO event)
-      kHydroJets  = 1, //jet production on, jet quenching off (HYDRO+njet*PYTHIA events)
-      kHydroQJets = 2, //jet production & jet quenching on (HYDRO+njet*PYQUEN events)
-      kJetsOnly   = 3, //jet production on, jet quenching off, HYDRO off (njet*PYTHIA events)
-      kQJetsOnly  = 4  //jet production & jet quenching on, HYDRO off (njet*PYQUEN events)
-    };
-
-
   private:
     bool build_vertices(int i, std::vector<HepMC::GenParticle*>& luj_entries,
                         HepMC::GenEvent* evt);
@@ -57,27 +48,25 @@ namespace edm
     virtual bool produce(Event & e);
     
     HepMC::GenEvent *evt;
-    float           abeamtarget_;            // beam/target atomic mass number 
-    float           bfixed_;                 // fixed impact param (fm); valid only if cflag_=0
-    float           bmax_;                   // max impact param; 
+    float            abeamtarget_;            // beam/target atomic mass number 
+    float            bfixed_;                 // fixed impact param (fm); valid only if cflag_=0
+    float            bmax_;                   // max impact param; 
                                               // units of nucl radius
-    float           bmin_;                   // min impact param; 
+    float            bmin_;                   // min impact param; 
                                               // units of nucl radius
     int              cflag_;                  // centrality flag 
                                               // =  0 fixed impact param, 
                                               // <> 0 between bmin and bmax
-    float           comenergy;               // collision energy          
-
-
-    EHydjetMode      hyMode;                  // Hydjet running mode
-    unsigned int     maxEventsToPrint_;       // Events to print if verbosity                     
-    int              nhard_;                  //!multiplicity of PYTHIA(+PYQUEN)-induced particles in event  
+    float            comenergy;               // collision energy   
+    std::string      hymode_;                 // Hydjet running mode
+    unsigned int     maxEventsToPrint_;       // Events to print if verbosity      
+    int              nhard_;                  //!multiplicity of PYTHIA(+PYQUEN)-induced particles in event              
     int              nmultiplicity_;          // mean soft multiplicity in central PbPb
-                                              // automatically calculated for other centralities and beams         
-    int              nsoft_;                  //!multiplicity of HYDRO-induced particles in event            
-    unsigned int     pythiaPylistVerbosity_;  // pythia verbosity; default=1 
+                                              // automatically calculated for other centralitie and beams         
+    int              nsoft_;                  //!multiplicity of HYDRO-induced particles in event     
+    double           ptmin_;                  // min transverse  mom of the hard scattering
+    unsigned int     pythiaPylistVerbosity_;  // pythia verbosity; def=1 
+
   };
 } 
-
-
 #endif
