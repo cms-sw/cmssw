@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2007/04/12 09:57:13 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/04/20 06:58:26 $
+ *  $Revision: 1.1 $
  *
  *  \author various
  *
@@ -22,8 +22,12 @@
 #include "FWCore/ParameterSet/interface/InputTag.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 
-using namespace edm;
-using namespace std;
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+#include "DataFormats/FEDRawData/interface/FEDRawData.h"
+#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
+
+// using namespace edm;
+// using namespace std;
 
 //
 // constructors and destructor
@@ -44,15 +48,12 @@ HLTGetRaw::~HLTGetRaw()
 void
 HLTGetRaw::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-    using namespace edm;
+//    using namespace edm;
 
-    /*
-
-    Handle<RawDataCollection> RawDataHandle ; 
-
+    edm::Handle<FEDRawDataCollection> RawDataHandle ; 
     iEvent.getByLabel(RawDataCollection_, RawDataHandle );
 
-    LogDebug("DigiInfo") << "total # RawData: " << RawDataHandle->size();
+    LogDebug("DigiInfo") << "Loaded Raw Data Collection: " << RawDataCollection_ ; 
 
-    */
+    
 }

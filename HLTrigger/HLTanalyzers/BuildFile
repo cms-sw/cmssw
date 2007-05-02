@@ -17,12 +17,12 @@
 <use name=DataFormats/EcalRecHit>
 <use name=DataFormats/EcalDigi>
 <use name=DataFormats/EcalDetId>
+<use name=DataFormats/FEDRawData>
 <use name=TBDataFormats/HcalTBObjects>
 <use name=SimDataFormats/HepMCProduct>
 <use name=DataFormats/L1Trigger>
 <use name=DataFormats/L1GlobalTrigger>
-<use name=hepmc>
-<flags EDM_PLUGIN=1>
+<flags SEAL_PLUGIN_NAME="HLTriggerHLTanalyzers">
 <export>
   <lib name=HLTriggerHLTanalyzers>
   <use name=FWCore/Framework>
@@ -43,6 +43,7 @@
   <use name=DataFormats/EcalRecHit>
   <use name=DataFormats/EcalDigi>
   <use name=DataFormats/EcalDetId>
+  <use name=DataFormats/FEDRawData>
   <use name=TBDataFormats/HcalTBObjects>
   <use name=SimDataFormats/HepMCProduct>
   <use name=DataFormats/L1Trigger>
