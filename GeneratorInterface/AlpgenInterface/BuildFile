@@ -5,8 +5,8 @@
 <use name=hepmc> 
 <use name=pythia6>
 #<use name=photos215>
- 
-<flags SEAL_PLUGIN_NAME="GeneratorInterfaceAlpgenInterface">
+
+<flags EDM_PLUGIN=1> 
 <export>
  <lib name=GeneratorInterfaceAlpgenInterface>
  <use name=boost>
