@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/10/26 23:35:44 $
- *  $Revision: 1.5 $
+ *  $Date: 2007/04/19 14:55:52 $
+ *  $Revision: 1.1 $
  *  \author N. Amapane - CERN
  */
 
@@ -32,7 +32,7 @@ DTGeometryESModule::DTGeometryESModule(const edm::ParameterSet & p){
 
   applyAlignment_ = p.getUntrackedParameter<bool>("applyAlignment", false);
 
-  setWhatProduced(this);
+  setWhatProduced(this, dependsOn(&DTGeometryESModule::geometryCallback_) );
 }
 
 
@@ -41,14 +41,10 @@ DTGeometryESModule::~DTGeometryESModule(){}
 
 boost::shared_ptr<DTGeometry>
 DTGeometryESModule::produce(const MuonGeometryRecord & record) {
-  edm::ESHandle<DDCompactView> cpv;
-  record.getRecord<IdealGeometryRecord>().get(cpv);
-  edm::ESHandle<MuonDDDConstants> mdc;
-  record.getRecord<MuonNumberingRecord>().get(mdc);
-  DTGeometryBuilderFromDDD builder;
-  _dtGeometry = boost::shared_ptr<DTGeometry>(builder.build(&(*cpv), *mdc));
 
-  // Retrieve and apply alignments
+  //
+  // Called whenever the alignments or alignment errors change
+  //  
   if ( applyAlignment_ ) {
     edm::ESHandle<Alignments> alignments;
     record.getRecord<DTAlignmentRcd>().get( alignments );
@@ -63,4 +59,20 @@ DTGeometryESModule::produce(const MuonGeometryRecord & record) {
 
 }
 
+
+//______________________________________________________________________________
+void DTGeometryESModule::geometryCallback_( const MuonNumberingRecord& record )
+{
+  
+  //
+  // Called whenever the muon numbering (or ideal geometry) changes
+  //
+  edm::ESHandle<DDCompactView> cpv;
+  edm::ESHandle<MuonDDDConstants> mdc;
+  record.getRecord<IdealGeometryRecord>().get(cpv);
+  record.get( mdc );
+  DTGeometryBuilderFromDDD builder;
+  _dtGeometry = boost::shared_ptr<DTGeometry>(builder.build(&(*cpv), *mdc));
+
+}
 DEFINE_FWK_EVENTSETUP_MODULE(DTGeometryESModule);
