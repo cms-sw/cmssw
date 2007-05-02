@@ -1,4 +1,5 @@
 
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "PhysicsTools/UtilAlgos/interface/ObjectSelector.h"
 #include "Alignment/CommonAlignmentProducer/interface/AlignmentTrackSelector.h"
 
@@ -37,3 +38,4 @@ private:
 
 typedef ObjectSelector<TrackConfigSelector>  AlignmentTrackSelectorModule;
 
+DEFINE_FWK_MODULE( AlignmentTrackSelectorModule );

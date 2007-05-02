@@ -7,9 +7,9 @@
 /// Description : calls alignment algorithms
 ///
 ///  \author    : Frederic Ronga
-///  Revision   : $Revision: 1.13 $
-///  last update: $Date: 2007/04/09 00:22:57 $
-///  by         : $Author: cklae $
+///  Revision   : $Revision: 1.14 $
+///  last update: $Date: 2007/04/24 20:09:58 $
+///  by         : $Author: pivarski $
 
 #include <vector>
 
@@ -95,8 +95,8 @@ class AlignmentProducer : public edm::ESProducerLooper
 
   AlignmentAlgorithmBase* theAlignmentAlgo;
   std::vector<AlignmentMonitorBase*> theMonitors;
-  AlignmentParameterBuilder* theAlignmentParameterBuilder;
   AlignmentParameterStore* theAlignmentParameterStore;
+  AlignmentParameterBuilder* theAlignmentParameterBuilder;
 
   AlignableTracker* theAlignableTracker;
   AlignableMuon* theAlignableMuon;

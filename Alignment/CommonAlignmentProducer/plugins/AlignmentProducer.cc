@@ -1,11 +1,11 @@
 /// \file AlignmentProducer.cc
 ///
 ///  \author    : Frederic Ronga
-///  Revision   : $Revision: 1.32 $
-///  last update: $Date: 2007/04/17 13:54:22 $
-///  by         : $Author: fronga $
+///  Revision   : $Revision: 1.33 $
+///  last update: $Date: 2007/04/24 20:09:59 $
+///  by         : $Author: pivarski $
 
-#include "Alignment/CommonAlignmentProducer/interface/AlignmentProducer.h"
+#include "Alignment/CommonAlignmentProducer/plugins/AlignmentProducer.h"
 
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 
@@ -60,8 +60,8 @@
 
 //_____________________________________________________________________________
 AlignmentProducer::AlignmentProducer(const edm::ParameterSet& iConfig) :
-  theAlignableTracker(0),theAlignableMuon(0),
   theAlignmentParameterStore(0), theAlignmentParameterBuilder(0),
+  theAlignableTracker(0),theAlignableMuon(0),
   theMaxLoops( iConfig.getUntrackedParameter<unsigned int>("maxLoops",0) ),
   stNFixAlignables_(iConfig.getParameter<int>("nFixAlignables") ),
   stRandomShift_(iConfig.getParameter<double>("randomShift")),
@@ -555,3 +555,5 @@ void AlignmentProducer::addSurveyInfo_(Alignable* ali)
 
   ++s;
 }
+
+DEFINE_ANOTHER_FWK_LOOPER( AlignmentProducer );

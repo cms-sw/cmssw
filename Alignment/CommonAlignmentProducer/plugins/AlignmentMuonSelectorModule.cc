@@ -8,10 +8,11 @@
  *
  * \version $Revision: 1.1 $
  *
- * $Id: AlignmentMuonSelectorModule.h,v 1.0 2007/03/22 12:22:11 jfernan2 Exp $
+ * $Id: AlignmentMuonSelectorModule.h,v 1.1 2007/04/11 11:44:54 jfernan2 Exp $
  *
  */
 
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "PhysicsTools/UtilAlgos/interface/ObjectSelector.h"
 #include "Alignment/CommonAlignmentProducer/interface/AlignmentMuonSelector.h"
 
@@ -49,4 +50,6 @@ private:
 };
 
 typedef ObjectSelector<MuonConfigSelector>  AlignmentMuonSelectorModule;
+
+DEFINE_FWK_MODULE( AlignmentMuonSelectorModule );
 

@@ -1,4 +1,5 @@
 
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "PhysicsTools/UtilAlgos/interface/ObjectSelector.h"
 #include "Alignment/CommonAlignmentProducer/interface/AlignmentSeedSelector.h"
 
@@ -31,3 +32,4 @@ private:
 
 typedef ObjectSelector<SeedConfigSelector>  AlignmentSeedSelectorModule;
 
+DEFINE_FWK_MODULE( AlignmentSeedSelectorModule );
