@@ -1,4 +1,7 @@
 <use name=FWCore/Framework>
+<use name=FWCore/ParameterSet>
+<use name=FWCore/PluginManager>
+<use name=FWCore/Sources>
 <use name=boost>
 <use name=root>
 <use name=DataFormats/EcalDetId>
@@ -10,7 +13,8 @@
 <export>
  <lib name=IORawDataEcal2004TBInputService>
  <use name=FWCore/Framework>
- <use name=FWCore/MessageLogger>
+ <use name=FWCore/Sources>
+ <use name=FWCore/ParameterSet>
  <use name=DataFormats/EcalDetId>
  <use name=DataFormats/EcalDigi>
  <use name=TBDataFormats/EcalTBObjects>
