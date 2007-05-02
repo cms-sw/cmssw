@@ -1,11 +1,11 @@
-// $Id: $
+// $Id: LogicID.cc,v 1.1 2007/05/02 09:10:59 benigno Exp $
 
 /*!
   \file LogicID.cc
   \brief Cache logicID vector from database
   \author B. Gobbo 
-  \version $Revision: $
-  \date $Date: $
+  \version $Revision: 1.1 $
+  \date $Date: 2007/05/02 09:10:59 $
 */
 
 #include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
@@ -52,6 +52,9 @@ EcalLogicID LogicID::getEcalLogicID( std::string name, int id1, int id2  ) throw
     }
     else if( name == "EB_mem_TT" ) {
       return( IDmap_[ name ][ 2*(id1-1)+id2-69 ] );
+    }
+    else if( name == "ECAL" ) {
+      return( IDmap_[ name ][ 0 ] );
     }
     else {
       std::string s = "Unknown 'name': " + name;
