@@ -1,7 +1,10 @@
+#ifndef IORawDataSiPixelInputSources_PixelSLinkDataInputSource_h
+#define IORawDataSiPixelInputSources_PixelSLinkDataInputSource_h
+
 // PixelSLinkDataInputSource.hh
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/ExternalInputSource.h"
+#include "FWCore/Sources/interface/ExternalInputSource.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/InputSourceMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -25,4 +28,4 @@ private:
     std::fstream m_file;
 
 };
-
+#endif

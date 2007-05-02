@@ -2,10 +2,6 @@
 
 #include <memory>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/ExternalInputSource.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/InputSourceMacros.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "IORawData/SiPixelInputSources/interface/PixelSLinkDataInputSource.h"

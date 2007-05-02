@@ -1,6 +1,7 @@
 <use name=FWCore/Framework>
 <use name=FWCore/PluginManager>
 <use name=FWCore/ParameterSet>
+<use name=FWCore/Sources>
 <use name=DataFormats/FEDRawData>
 <flags EDM_PLUGIN=1>
 <export>
@@ -8,5 +9,6 @@
    <use name=FWCore/Framework>
    <use name=FWCore/PluginManager>
    <use name=FWCore/ParameterSet>
+   <use name=FWCore/Sources>
    <use name=DataFormats/FEDRawData>
 </export>
