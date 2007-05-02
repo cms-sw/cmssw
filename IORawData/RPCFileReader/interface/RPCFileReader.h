@@ -5,8 +5,8 @@
  *
  *  Read PAC data from ASCII files convert them and write as FEDRawData
  *
- *  $Date: 2006/10/18 16:09:10 $
- *  $Revision: 1.8 $
+ *  $Date: 2006/10/24 07:49:21 $
+ *  $Revision: 1.9 $
  * \author Michal Bluj - SINS, Warsaw
 */
 #include <memory>
@@ -14,7 +14,7 @@
 #include <cctype>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/ExternalInputSource.h"
+#include "FWCore/Sources/interface/ExternalInputSource.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
