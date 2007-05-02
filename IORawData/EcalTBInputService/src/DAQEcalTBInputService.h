@@ -6,14 +6,14 @@
  *
  *  For the time being, reuses the services of DaqFileReader from DaqPrototype.
  *
- *  $Date: 2006/06/14 12:51:15 $
- *  $Revision: 1.7 $
+ *  $Date: 2006/10/27 01:35:31 $
+ *  $Revision: 1.8 $
  *  \author N. Marinelli
  */
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "FWCore/Framework/interface/ExternalInputSource.h"
+#include "FWCore/Sources/interface/ExternalInputSource.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include <string>
 
