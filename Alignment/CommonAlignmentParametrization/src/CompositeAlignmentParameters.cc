@@ -116,18 +116,8 @@ AlgebraicMatrix
 CompositeAlignmentParameters::derivatives( const std::vector<TrajectoryStateOnSurface>& tsosvec,
 					   const std::vector<AlignableDet*>& alidetvec ) const
 {
-  std::vector<AlignableDetOrUnitPtr> detOrUnits;
-  this->convert(alidetvec, detOrUnits);
-
-  return this->derivatives(tsosvec, detOrUnits);
-}
-
-AlgebraicMatrix
-CompositeAlignmentParameters::derivatives( const std::vector<TrajectoryStateOnSurface>& tsosvec,
-					   const std::vector<AlignableDetOrUnitPtr>& alidetvec ) const
-{
   std::vector<Alignable*> alivec;
-  for (std::vector<AlignableDetOrUnitPtr>::const_iterator it=alidetvec.begin(); it!=alidetvec.end(); ++it)
+  for (std::vector<AlignableDet*>::const_iterator it=alidetvec.begin(); it!=alidetvec.end(); ++it)
     alivec.push_back(alignableFromAlignableDet(*it));
   
   CompositeAlignmentDerivativesExtractor extractor(alivec,alidetvec,tsosvec);
@@ -139,19 +129,8 @@ AlgebraicVector
 CompositeAlignmentParameters::correctionTerm( const std::vector<TrajectoryStateOnSurface>& tsosvec,
 					      const std::vector<AlignableDet*>& alidetvec) const
 {
-  std::vector<AlignableDetOrUnitPtr> detOrUnits;
-  this->convert(alidetvec, detOrUnits);
-
-  return this->correctionTerm(tsosvec, detOrUnits);
-}
-
-//__________________________________________________________________________________________________
-AlgebraicVector 
-CompositeAlignmentParameters::correctionTerm( const std::vector<TrajectoryStateOnSurface>& tsosvec,
-					      const std::vector<AlignableDetOrUnitPtr>& alidetvec) const
-{
   std::vector<Alignable*> alivec;
-  for (std::vector<AlignableDetOrUnitPtr>::const_iterator it=alidetvec.begin(); it!=alidetvec.end(); ++it )
+  for (std::vector<AlignableDet*>::const_iterator it=alidetvec.begin(); it!=alidetvec.end(); ++it )
     alivec.push_back(alignableFromAlignableDet(*it));
   
   CompositeAlignmentDerivativesExtractor extractor(alivec,alidetvec,tsosvec);
@@ -166,23 +145,15 @@ CompositeAlignmentParameters::selectedDerivatives( const std::vector<TrajectoryS
 { 
   return derivatives(tsosvec,alidetvec);
 }
-//__________________________________________________________________________________________________ 	 
-// assume all are selected
-AlgebraicMatrix
-CompositeAlignmentParameters::selectedDerivatives( const std::vector<TrajectoryStateOnSurface>& tsosvec,
-						   const std::vector<AlignableDetOrUnitPtr>& alidetvec) const
-{ 
-  return derivatives(tsosvec,alidetvec);
-}
 
 //__________________________________________________________________________________________________ 	 
 // only one (tsos,AlignableDet) as argument [for compatibility with base class]
 AlgebraicMatrix 
 CompositeAlignmentParameters::derivatives( const TrajectoryStateOnSurface &tsos, 
-					   const AlignableDetOrUnitPtr &alidet) const
+					   AlignableDet* alidet) const
 {
   std::vector<TrajectoryStateOnSurface> tsosvec;
-  std::vector<AlignableDetOrUnitPtr> alidetvec;
+  std::vector<AlignableDet*> alidetvec;
   tsosvec.push_back(tsos);
   alidetvec.push_back(alidet);
   return derivatives(tsosvec,alidetvec);
@@ -192,7 +163,7 @@ CompositeAlignmentParameters::derivatives( const TrajectoryStateOnSurface &tsos,
 // assume all are selected
 AlgebraicMatrix 
 CompositeAlignmentParameters::selectedDerivatives( const TrajectoryStateOnSurface &tsos, 
-						   const AlignableDetOrUnitPtr &alidet ) const
+						   AlignableDet* alidet ) const
 { 
   return derivatives(tsos,alidet);
 }
@@ -281,7 +252,7 @@ CompositeAlignmentParameters::selectedDerivativesLegacy( const TrajectoryStateOn
 //__________________________________________________________________________________________________
 // finds Alignable corresponding to AlignableDet
 Alignable* 
-CompositeAlignmentParameters::alignableFromAlignableDet(AlignableDetOrUnitPtr adet) const
+CompositeAlignmentParameters::alignableFromAlignableDet(AlignableDet* adet) const
 {
 
   AlignableDetToAlignableMap::const_iterator iali =
@@ -461,20 +432,4 @@ CompositeAlignmentParameters::extractPositionAndLength( const std::vector<Aligna
   }
 
   return true;
-}
-
-//__________________________________________________________________________________________________
-void CompositeAlignmentParameters::convert(const std::vector<AlignableDet*> &input,
-					   std::vector<AlignableDetOrUnitPtr> &output) const
-{
-  output.clear();
-  output.reserve(input.size());
-  //   Does not compile due to strange const-conversion problems, but why?
-  //   for (std::vector<AlignableDet*>::iterator it = input.begin(), iEnd = input.end();
-  //        it != iEnd; ++it) {
-  //     output.push_back(AlignableDetOrUnitPtr(*it));
-  //   }
-  for (unsigned int i = 0; i < input.size(); ++i) {
-    output.push_back(AlignableDetOrUnitPtr(input[i]));
-  }
 }

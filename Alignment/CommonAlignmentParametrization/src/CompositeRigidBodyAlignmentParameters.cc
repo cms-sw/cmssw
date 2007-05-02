@@ -4,7 +4,7 @@
  *  $Revision: 1.3 $
  */
 
-#include "Alignment/CommonAlignment/interface/AlignableDetOrUnitPtr.h"
+#include "Alignment/CommonAlignment/interface/AlignableDet.h"
 #include "Alignment/CommonAlignmentParametrization/interface/KarimakiAlignmentDerivatives.h"
 #include "Alignment/CommonAlignmentParametrization/interface/FrameToFrameDerivative.h"
 
@@ -68,7 +68,7 @@ cloneFromSelected( const AlgebraicVector& par,
 //__________________________________________________________________________________________________
 AlgebraicMatrix 
 CompositeRigidBodyAlignmentParameters::derivatives( const TrajectoryStateOnSurface& tsos, 
-						    const AlignableDetOrUnitPtr &alidet ) const
+						    AlignableDet* alidet ) const
 {
 
   AlgebraicMatrix dev = KarimakiAlignmentDerivatives()(tsos);

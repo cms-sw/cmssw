@@ -3,8 +3,6 @@
 
 #include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 
-#include "Alignment/CommonAlignment/interface/AlignableDetOrUnitPtr.h"
-
 /// \class CompositeAlignmentDerivativesExtractor
 ///
 /// A helper class to extract derivatives from composite alignable objects
@@ -22,14 +20,10 @@ class CompositeAlignmentDerivativesExtractor
 
 public:
   
-  /// deprecated  constructor for backward compatibility (use mor general AlignableDetOrUnitPtr)
-  CompositeAlignmentDerivativesExtractor( const std::vector< Alignable* > & alignables,
-					  const std::vector< AlignableDet* > & alignableDets,
-					  const std::vector< TrajectoryStateOnSurface > & tsos );
   /// constructor
   CompositeAlignmentDerivativesExtractor( const std::vector< Alignable* > & alignables,
-					  const std::vector< AlignableDetOrUnitPtr > & alignableDets,
-					  const std::vector< TrajectoryStateOnSurface > & tsos );
+										  const std::vector< AlignableDet* > & alignableDets,
+										  const std::vector< TrajectoryStateOnSurface > & tsos );
 
   /// destructor
   ~CompositeAlignmentDerivativesExtractor( void ) {};
@@ -40,15 +34,15 @@ public:
 private:
   
   void extractCurrentAlignment( const std::vector< Alignable* > & alignables,
-				const std::vector< AlignableDetOrUnitPtr > & alignableDets,
-				const std::vector< TrajectoryStateOnSurface > & tsos );
+								const std::vector< AlignableDet* > & alignableDets,
+								const std::vector< TrajectoryStateOnSurface > & tsos );
   
   void extractWithoutMultipleHits( const std::vector< AlgebraicVector > & subCorrectionTerm,
-				   const std::vector< AlgebraicMatrix > & subDerivatives );
+								   const std::vector< AlgebraicMatrix > & subDerivatives );
   
   void extractWithMultipleHits( const std::vector< AlgebraicVector > & subCorrectionTerm,
-				const std::vector< AlgebraicMatrix > & subDerivatives,
-				const std::vector< Alignable* > & alignables );
+								const std::vector< AlgebraicMatrix > & subDerivatives,
+								const std::vector< Alignable* > & alignables );
   
   AlgebraicMatrix theDerivatives;
   AlgebraicVector theCorrectionTerm;

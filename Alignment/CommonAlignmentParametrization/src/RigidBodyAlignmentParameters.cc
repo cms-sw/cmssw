@@ -81,7 +81,7 @@ RigidBodyAlignmentParameters::cloneFromSelected( const AlgebraicVector& paramete
 //__________________________________________________________________________________________________
 AlgebraicMatrix 
 RigidBodyAlignmentParameters::derivatives( const TrajectoryStateOnSurface& tsos, 
-					   const AlignableDetOrUnitPtr & ) const
+					   AlignableDet* ) const
 {
   return KarimakiAlignmentDerivatives()(tsos);
 }
@@ -90,7 +90,7 @@ RigidBodyAlignmentParameters::derivatives( const TrajectoryStateOnSurface& tsos,
 //__________________________________________________________________________________________________
 AlgebraicMatrix 
 RigidBodyAlignmentParameters::selectedDerivatives( const TrajectoryStateOnSurface& tsos, 
-						   const AlignableDetOrUnitPtr &alignableDet ) const
+						   AlignableDet* alignableDet ) const
 {
   AlgebraicMatrix dev = derivatives( tsos, alignableDet );
 

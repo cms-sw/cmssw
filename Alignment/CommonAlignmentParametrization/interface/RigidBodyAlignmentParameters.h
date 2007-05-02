@@ -13,8 +13,6 @@
 ///  $Revision: 1.6 $
 /// (last update by $Author: cklae $)
 
-class AlignableDetOrUnitPtr;
-
 class RigidBodyAlignmentParameters : public AlignmentParameters 
 {
 
@@ -55,11 +53,11 @@ public:
   
   /// Get all derivatives 
   virtual AlgebraicMatrix derivatives( const TrajectoryStateOnSurface& tsos,
-				       const AlignableDetOrUnitPtr & ) const;
+				       AlignableDet* ) const;
 
   /// Get selected derivatives
   AlgebraicMatrix selectedDerivatives( const TrajectoryStateOnSurface& tsos, 
-				       const AlignableDetOrUnitPtr & ) const;
+				       AlignableDet* ) const;
 
   /// Get translation parameters
   AlgebraicVector translation(void) const;

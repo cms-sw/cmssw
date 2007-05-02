@@ -14,8 +14,6 @@
 ///  $Revision: 1.4 $
 /// (last update by $Author: cklae $)
 
-class AlignableDetOrUnitPtr;
-
 class CompositeRigidBodyAlignmentParameters : public RigidBodyAlignmentParameters 
 {
 
@@ -42,7 +40,7 @@ public:
 
   /// get derivatives
   AlgebraicMatrix derivatives( const TrajectoryStateOnSurface& tsos,
-			       const AlignableDetOrUnitPtr &alidet ) const;
+			       AlignableDet* alidet ) const;
 
 };
 
