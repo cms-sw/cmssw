@@ -156,8 +156,8 @@ CSCDCCExaminer::CSCDCCExaminer(void):nERRORS(27),nWARNINGS(5),sERROR(nERRORS),sW
 
 	bCHAMB_ERR.clear();
 	bCHAMB_WRN.clear();
-	for(int err=0; err<nERRORS;   err++) fCHAMB_ERR[err].clear();
-	for(int wrn=0; wrn<nWARNINGS; wrn++) fCHAMB_WRN[wrn].clear();
+	for(int err=0; err<nERRORS;   ++err) fCHAMB_ERR[err].clear();
+	for(int wrn=0; wrn<nWARNINGS; ++wrn) fCHAMB_WRN[wrn].clear();
 
 	buf_1 = &(tmpbuf[0]);
 	buf0  = &(tmpbuf[4]);
@@ -186,11 +186,11 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
 
 		// increment counter of 64-bit words since last DDU Header
 		// this counter is reset if DDU Header is found
-		if ( fDDU_Header ) { DDU_WordsSinceLastHeader++; }
+		if ( fDDU_Header ) { ++DDU_WordsSinceLastHeader; }
 
 		// increment counter of 64-bit words since last DDU Trailer
 		// this counter is reset if DDU Trailer is found
-		if ( fDDU_Trailer ) { DDU_WordsSinceLastTrailer++; }
+		if ( fDDU_Trailer ) {++DDU_WordsSinceLastTrailer; }
 
 		// increment counter of 16-bit words since last DMB*ALCT Header match
 		// this counter is reset if ALCT Header is found right after DMB Header
@@ -230,8 +230,8 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
 			bzero(fERROR,   sizeof(bool)*nERRORS);
 			bzero(fWARNING, sizeof(bool)*nWARNINGS);
 			bERROR = 0; bWARNING = 0;
-			for(int err=0; err<nERRORS;   err++) fCHAMB_ERR[err].clear();
-			for(int wrn=0; wrn<nWARNINGS; wrn++) fCHAMB_WRN[wrn].clear();
+			for(int err=0; err<nERRORS;   ++err) fCHAMB_ERR[err].clear();
+			for(int wrn=0; wrn<nWARNINGS; ++wrn) fCHAMB_WRN[wrn].clear();
 			bCHAMB_ERR.clear();
 			bCHAMB_WRN.clear();
 		}
@@ -287,7 +287,7 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
 
 				// Unknown chamber denoted as -2
 				// If it still remains in any of errors - put it in error 0
-				for(int err=1; err<nERRORS; err++)
+				for(int err=1; err<nERRORS; ++err)
 					if( fCHAMB_ERR[err].find(-2) != fCHAMB_ERR[err].end() ){
 						fCHAMB_ERR[0].insert(-2);
 						bCHAMB_ERR[-2] |= 0x1;
@@ -343,7 +343,7 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
 
 			DAV_DMB = buf1[0]&0xF;
 
-			cntDDU_Headers++;
+			++cntDDU_Headers;
 			DDU_WordsSinceLastHeader=0; // Reset counter of DDU Words since last DDU Header
 			cout<<"\n----------------------------------------------------------"<<endl;
 			cout<<"DDU  Header Occurrence "<<cntDDU_Headers<< " L1A = " << ( ((buf_1[2]&0xFFFF) + ((buf_1[3]&0x00FF) << 16)) ) <<endl;
@@ -366,7 +366,7 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
 			// If previous DMB record was not assigned to any chamber ( it still has -1 indentificator )
 			// let's free -1 identificator for current use and call undefined chamber from previous record -2
 			// ( -2 may already exists in this sets but we have nothing to do with it )
-			for(int err=0; err<nERRORS; err++)
+			for(int err=0; err<nERRORS; ++err)
 				if( fCHAMB_ERR[err].find(-1) != fCHAMB_ERR[err].end() ){
 					fCHAMB_ERR[err].erase(-1);
 					fCHAMB_ERR[err].insert(-2);
@@ -382,7 +382,7 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
 
 			// Chamber id ( DMB_ID + (DMB_CRATE<<4) ) from header
 			currentChamber = buf0[1]&0x0FFF;
-			cntCHAMB_Headers[currentChamber]++;
+			++cntCHAMB_Headers[currentChamber];
 
 			fALCT_Header = false;
 			fTMB_Header  = false;
@@ -416,11 +416,11 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
 			DAV_ALCT = (buf0[0]&0x0200)>>9;
 			DAV_TMB  = (buf0[0]&0x0800)>>11;
 			DAV_CFEB = 0;
-			if( buf0[0]&0x0001 ) DAV_CFEB++;
-			if( buf0[0]&0x0002 ) DAV_CFEB++;
-			if( buf0[0]&0x0004 ) DAV_CFEB++;
-			if( buf0[0]&0x0008 ) DAV_CFEB++;
-			if( buf0[0]&0x0010 ) DAV_CFEB++;
+			if( buf0[0]&0x0001 ) ++DAV_CFEB;
+			if( buf0[0]&0x0002 ) ++DAV_CFEB;
+			if( buf0[0]&0x0004 ) ++DAV_CFEB;
+			if( buf0[0]&0x0008 ) ++DAV_CFEB;
+			if( buf0[0]&0x0010 ) ++DAV_CFEB;
 		}
 
 
@@ -525,7 +525,7 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
 
 		// Calculation of CRC sum ( algorithm is written by Madorsky )
 		if( fALCT_Header && checkCrcALCT ){
-			for(unsigned short j=0, w=0; j<4; j++){
+			for(unsigned short j=0, w=0; j<4; ++j){
 				w = buf0[j] & 0x7fff;
 				for(unsigned long i=15, t=0, ncrc=0; i<16; i--){
 					t = ((w >> i) & 1) ^ ((ALCT_CRC >> 21) & 1);
@@ -599,7 +599,7 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
 		}
 
 		if( fTMB_Header && checkCrcTMB ){
-			for(unsigned short j=0, w=0; j<4; j++){
+			for(unsigned short j=0, w=0; j<4; ++j){
 				w = buf0[j] & 0x7fff;
 				for(unsigned long i=15, t=0, ncrc=0; i<16; i--){
 					t = ((w >> i) & 1) ^ ((TMB_CRC >> 21) & 1);
@@ -625,7 +625,7 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
 				bCHAMB_ERR[currentChamber] |= 0x1;
 			}
 
-			CFEB_SampleCount++;
+			++CFEB_SampleCount;
 
 			if( (CFEB_SampleCount%8)==0 ){
 				cout<<">";
@@ -652,7 +652,7 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
 		// It very few words of CFEB occasionaly will be misinterpreted as ALCT or TMB header the result
 		// for the CRC sum will be wrong, but other errors of Trailers counting will appear as well
 		if( checkCrcCFEB && fDMB_Header && !fTMB_Header && !fALCT_Header && CFEB_SampleWordCount )
-			for(int pos=0; pos<4; pos++)
+			for(int pos=0; pos<4; ++pos)
 				CFEB_CRC=(buf0[pos]&0x1fff)^((buf0[pos]&0x1fff)<<1)^(((CFEB_CRC&0x7ffc)>>2)|((0x0003&CFEB_CRC)<<13))^((CFEB_CRC&0x7ffc)>>1);
 
 
@@ -665,8 +665,8 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
 			if( (CFEB_SampleCount%8)==0 ){ cout<<" <"; }
 			cout<<"B";
 
-			CFEB_SampleCount++;
-			CFEB_BSampleCount++;
+			++CFEB_SampleCount;
+			++CFEB_BSampleCount;
 
 			if( (CFEB_SampleCount%8)==0 ){
 				cout << ">";
@@ -713,7 +713,7 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
 
 			// If F-Trailer is lost then do necessary work here
 			if( (buf1[0]&0xF000)!=0xE000 || (buf1[1]&0xF000)!=0xE000 || (buf1[2]&0xF000)!=0xE000 || (buf1[3]&0xF000)!=0xE000 ){
-				for(int err=1; err<nERRORS; err++)
+				for(int err=1; err<nERRORS; ++err)
 					if( fCHAMB_ERR[err].find(currentChamber) != fCHAMB_ERR[err].end() ){
 						fCHAMB_ERR[0].insert(currentChamber);
 						bCHAMB_ERR[currentChamber] |= 0x1;
@@ -744,7 +744,7 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
 			// If chamber id is unknown it is time to find it out
 			if( currentChamber==-1 ){
 				currentChamber = buf0[1]&0x0FFF;
-				for(int err=0; err<nERRORS; err++)
+				for(int err=0; err<nERRORS; ++err)
 					if( fCHAMB_ERR[err].find(-1) != fCHAMB_ERR[err].end() ){
 						fCHAMB_ERR[err].insert(currentChamber);
 						fCHAMB_ERR[err].erase(-1);
@@ -758,7 +758,7 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
 				bCHAMB_WRN[currentChamber] = bCHAMB_WRN[-1];
 				bCHAMB_WRN[-1] = 0;
 			}
-			cntCHAMB_Trailers[buf0[1]&0x0FFF]++;
+			++cntCHAMB_Trailers[buf0[1]&0x0FFF];
 
 			// Lost DMB F-Trailer before
 			if( !fDMB_Trailer ){
@@ -830,7 +830,7 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
 			}
 
 			//
-			for(int err=0; err<nERRORS; err++)
+			for(int err=0; err<nERRORS; ++err)
 				if( fCHAMB_ERR[err].find(-1) != fCHAMB_ERR[err].end() ){
 					fCHAMB_ERR[err].erase(-1);
 					fCHAMB_ERR[err].insert(-2);
@@ -845,7 +845,7 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
 			bCHAMB_WRN[-1] = 0;
 
 			if( currentChamber != -1 )
-				for(int err=1; err<nERRORS; err++)
+				for(int err=1; err<nERRORS; ++err)
 					if( fCHAMB_ERR[err].find(currentChamber) != fCHAMB_ERR[err].end() ){
 						fCHAMB_ERR[0].insert(currentChamber);
 						bCHAMB_ERR[currentChamber] |= 0x1;
@@ -898,7 +898,7 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
 
 			currentChamber=-1;
 
-			for(int err=0; err<nERRORS; err++)
+			for(int err=0; err<nERRORS; ++err)
 				if( fCHAMB_ERR[err].find(-1) != fCHAMB_ERR[err].end() ){
 					fCHAMB_ERR[err].erase(-1);
 					fCHAMB_ERR[err].insert(-2);
@@ -912,14 +912,14 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
 			bCHAMB_WRN[-2] |= bCHAMB_WRN[-1];
 			bCHAMB_WRN[-1] = 0;
 
-			for(int err=1; err<nERRORS; err++)
+			for(int err=1; err<nERRORS; ++err)
 				if( fCHAMB_ERR[err].find(-2) != fCHAMB_ERR[err].end() ){
 					fCHAMB_ERR[0].insert(-2);
 					bCHAMB_ERR[-2] |= 0x1;
 				}
 
 
-			cntDDU_Trailers++; // Increment DDUTrailer counter
+			++cntDDU_Trailers; // Increment DDUTrailer counter
 
 			// == Combining 2 words into 24bit value
 			DDU_WordCount = buf2[2] | ((buf2[3] & 0xFF) <<16) ;
@@ -939,7 +939,7 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
 			cout<<"DDU 64-bit words = Actual - DDUcounted ="<<DDU_WordsSinceLastHeader+4<<"-"<<DDU_WordCount<<endl;
 
 			// increment statistics Errors and Warnings (i=0 case is handled in DDU Header)
-			for(int err=1; err<nERRORS; err++){
+			for(int err=1; err<nERRORS; ++err){
 				if( fERROR[err] ){
 					fERROR[0] = true;
 					bERROR |= 0x1;
@@ -947,7 +947,7 @@ long CSCDCCExaminer::check(const unsigned short* &buffer, long length){
 					cerr<<"  ERROR "<<err<<"  " <<sERROR[err]<<endl;
 				}
 			}
-			for(int wrn=1; wrn<nWARNINGS; wrn++){
+			for(int wrn=1; wrn<nWARNINGS; ++wrn){
 				if( fWARNING[wrn] ){
 					cout<<"\nDDU Header Occurrence = "<<cntDDU_Headers;
 					cout<<"  WARNING "<<wrn<<"  "<<sWARNING[wrn]<<endl;
