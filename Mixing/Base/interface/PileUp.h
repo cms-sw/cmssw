@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/VectorInputSource.h"
+#include "FWCore/Sources/interface/VectorInputSource.h"
 
 namespace CLHEP {
   class RandPoisson;
