@@ -1,8 +1,8 @@
 /** \file AlignmentAlgorithmBW.cc
  *  Implementation of Bruno Wittmer's alignment algorithm for the Laser Alignment System
  *
- *  $Date: 2007/04/12 14:20:33 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/04/18 13:40:30 $
+ *  $Revision: 1.5 $
  *  \author Maarten Thomas
  */
 
@@ -27,15 +27,14 @@ std::vector<LASAlignmentParameter> AlignmentAlgorithmBW::run(const std::string t
 
 	// create vector to store the alignment parameters
 	std::vector<LASAlignmentParameter> theResult;
-	
 	// transpose the data
-	LASvec2D dataTrans = trans(data);
+  LASvec2D dataTrans(data[0].size(),data.size());
+  dataTrans.transpose(data);
 	// create vector with the z positions of the discs
-	LASvec zPositions = makeZPositions(useBSframe);
-	
+  LASvec zPositions = makeZPositions(useBSframe);
 	// set the radius and the phi positions of the beams
 	double r0;
-	LASvec phiPositions;
+	LASvec phiPositions(8);
 	
 	switch (theRing)
 	{
@@ -64,7 +63,6 @@ std::vector<LASAlignmentParameter> AlignmentAlgorithmBW::run(const std::string t
 	// number of sectors and discs
 	int nSectors = data.size();
 	int nDiscs = data[0].size();
-	
 	// calculate first some constant parameters
 	/**
 	 * sZ = \f$\sum_k z_k\f$
@@ -94,48 +92,54 @@ std::vector<LASAlignmentParameter> AlignmentAlgorithmBW::run(const std::string t
 	 * nenn3 = \f$ n_{discs} \cdot \sum_k z_k^2 - \left(\sum_k z_k \right)^2 \f$
 	**/
 	double nenn3 = nDiscs * sZq - pow(sZ,2);
-
 	/**
 	 * A = sum of all beam positions
 	**/
-	double A = sum(dataTrans);
+	double A = dataTrans.sum();
 	/**
 	 * B = sum of data[i][j]*zPositions[i]
 	**/
-	double B = sum(multiply(data,zPositions));
+  double B = (data * zPositions).sum();
 	/**
 	 * Ai = vector containing sum of the columns in dataTrans (i.e. beam positions on disc i in all sectors)
 	**/
-	LASvec Ai = sumc(dataTrans);
+  LASvec Ai = dataTrans.sumC();
 	/**
 	 * Ak = vector containing sum of the rows in dataTrans (i.e. beam position in sector j on all discs)
 	**/
-	LASvec Ak = sumr(dataTrans);
+  LASvec Ak = dataTrans.sumR();
 	/**
 	 * C = sum of dataTrans[i][j] * sin(phiPositions[i])
 	**/
-	double C = sum(multiply(dataTrans,sin(phiPositions)));
+  LASvec sinPhiPositions(8);
+  sinPhiPositions.sine(phiPositions);
+	double C = (dataTrans * sinPhiPositions).sum();
 	/**
 	 * Ci = vector containing sum of the columns in dataTrans*sin(phiPositions) (i.e. position of disc i in all sectors * sin(phiPositions))
 	**/
-	LASvec Ci = sumc(multiply(dataTrans,sin(phiPositions)));
+  LASvec Ci = (dataTrans * sinPhiPositions).sumC();
 	/**
 	 * D = sum of trans(dataTrans * sin(phiPositions)) * zPositions
 	**/
-	double D = sum(multiply(trans(multiply(dataTrans,sin(phiPositions))),zPositions));
+  LASvec2D dataTransSin(8,9);
+  dataTransSin.transpose(dataTrans * sinPhiPositions);
+  double D = (dataTransSin * zPositions).sum();
 	/**
 	 * E = sum of dataTrans[i][j] * cos(phiPositions[i])
 	**/
-	double E = sum(multiply(dataTrans,cos(phiPositions)));
+  LASvec cosPhiPositions(8);
+  cosPhiPositions.cosine(phiPositions);
+  double E = (dataTrans * cosPhiPositions).sum();
 	/**
 	 * Ei = vector containing sum of the columns in dataTrans*cos(phiPositions) (i.e. position of disc i in all sectors * cos(phiPositions))
 	**/
-	LASvec Ei = sumc(multiply(dataTrans,cos(phiPositions)));
+  LASvec Ei = (dataTrans * cosPhiPositions).sumC();
 	/**
 	 * F = sum of trans(dataTrans * cos(phiPositions)) * zPositions
 	**/
-	double F = sum(multiply(trans(multiply(dataTrans,cos(phiPositions))),zPositions));
-	
+  LASvec2D dataTransCos(8,9);
+  dataTransCos.transpose(dataTrans * cosPhiPositions);
+  double F = (dataTransCos * zPositions).sum();
 	// ********************************************************************** //
 	// **               Calculate the alignment parameters                 ** //
 	// ********************************************************************** //
@@ -151,7 +155,7 @@ std::vector<LASAlignmentParameter> AlignmentAlgorithmBW::run(const std::string t
 	/**
 	 * dphik = -(zPositions * dphit/theTECLength + dphi0 + Ai/nSectors/r0)  
 	**/
-	LASvec dphik = -1.0 * (zPositions * dphit/theTECLength + dphi0 + Ai *1.0/nSectors/r0);
+  LASvec dphik = (zPositions * dphit/theTECLength + dphi0 + Ai *1.0/nSectors/r0) * -1.0;
 	/**
 	 * dx0 = 2*(sZ * D - sZq * C)/nenn1
 	**/
@@ -163,7 +167,7 @@ std::vector<LASAlignmentParameter> AlignmentAlgorithmBW::run(const std::string t
 	/**
 	 * dxk = -zPositions * dxt/theTECLength - dx0 + Ci * 2/nSectors
 	**/
-	LASvec dxk = -1.0 * zPositions * dxt/theTECLength - dx0 + Ci * 2.0/nSectors;
+  LASvec dxk = zPositions * (-1.0) * dxt/theTECLength - dx0 + Ci * 2.0/nSectors;
 	/**
 	 * dy0 = 2*(sZq * E - sZ * F)/nenn1
 	**/
@@ -175,23 +179,65 @@ std::vector<LASAlignmentParameter> AlignmentAlgorithmBW::run(const std::string t
 	/**
 	 * dyk = -zPositions * dyt/theTECLength - dy0 - Ei * 2/nSectors
 	**/
-	LASvec dyk = -1.0 * zPositions * dyt/theTECLength - dy0 - Ei * 2.0/nSectors;
+  LASvec dyk = zPositions *(-1.0)* dyt/theTECLength - dy0 - Ei * 2.0/nSectors;
 	
 	// print the parameters
 	LogDebug("AlignmentAlgorithmBW") << " here are the calculated alignment parameters:" << std::endl
-		<< "      \t Dphi0 = " << dphi0 << "\t Dx0 = " << dx0 << "\t Dy0 = " << dy0 << std::endl
-		<< "      \t Dphit = " << dphit << "\t Dxt = " << dxt << "\t Dyt = " << dyt << std::endl << std::endl
-		<< "      \t Dphi[1] = " << dphik[0] << "\t Dx[1] = " << dxk[0] << " \t Dy[1] = " << dyk[0] << std::endl
-		<< "      \t Dphi[2] = " << dphik[1] << "\t Dx[2] = " << dxk[1] << " \t Dy[2] = " << dyk[1] << std::endl
-		<< "      \t Dphi[3] = " << dphik[2] << "\t Dx[3] = " << dxk[2] << " \t Dy[3] = " << dyk[2] << std::endl
-		<< "      \t Dphi[4] = " << dphik[3] << "\t Dx[4] = " << dxk[3] << " \t Dy[4] = " << dyk[3] << std::endl
-		<< "      \t Dphi[5] = " << dphik[4] << "\t Dx[5] = " << dxk[4] << " \t Dy[5] = " << dyk[4] << std::endl
-		<< "      \t Dphi[6] = " << dphik[5] << "\t Dx[6] = " << dxk[5] << " \t Dy[6] = " << dyk[5] << std::endl
-		<< "      \t Dphi[7] = " << dphik[6] << "\t Dx[7] = " << dxk[6] << " \t Dy[7] = " << dyk[6] << std::endl
-		<< "      \t Dphi[8] = " << dphik[7] << "\t Dx[8] = " << dxk[7] << " \t Dy[8] = " << dyk[7] << std::endl
-		<< "      \t Dphi[9] = " << dphik[8] << "\t Dx[9] = " << dxk[8] << " \t Dy[9] = " << dyk[8] << std::endl;
+		<< "      Dphi0 = " << dphi0 << "  Dx0 = " << dx0 << "  Dy0 = " << dy0 << std::endl
+		<< "      Dphit = " << dphit << "  Dxt = " << dxt << "  Dyt = " << dyt << std::endl << std::endl
+		<< "      Dphi[1] = " << dphik[0] << "  Dx[1] = " << dxk[0] << "   Dy[1] = " << dyk[0] << std::endl
+		<< "      Dphi[2] = " << dphik[1] << "  Dx[2] = " << dxk[1] << "   Dy[2] = " << dyk[1] << std::endl
+		<< "      Dphi[3] = " << dphik[2] << "  Dx[3] = " << dxk[2] << "   Dy[3] = " << dyk[2] << std::endl
+		<< "      Dphi[4] = " << dphik[3] << "  Dx[4] = " << dxk[3] << "   Dy[4] = " << dyk[3] << std::endl
+		<< "      Dphi[5] = " << dphik[4] << "  Dx[5] = " << dxk[4] << "   Dy[5] = " << dyk[4] << std::endl
+		<< "      Dphi[6] = " << dphik[5] << "  Dx[6] = " << dxk[5] << "   Dy[6] = " << dyk[5] << std::endl
+		<< "      Dphi[7] = " << dphik[6] << "  Dx[7] = " << dxk[6] << "   Dy[7] = " << dyk[6] << std::endl
+		<< "      Dphi[8] = " << dphik[7] << "  Dx[8] = " << dxk[7] << "   Dy[8] = " << dyk[7] << std::endl
+		<< "      Dphi[9] = " << dphik[8] << "  Dx[9] = " << dxk[8] << "   Dy[9] = " << dyk[8] << std::endl;
 		
-	// we want to store this parameters in a separate DataFormat to study them later in more detail
+	std::cout << " here are the calculated alignment parameters:" << std::endl
+		<< "      Dphi0 = " << dphi0 << "  Dx0 = " << dx0 << "  Dy0 = " << dy0 << std::endl
+		<< "      Dphit = " << dphit << "  Dxt = " << dxt << "  Dyt = " << dyt << std::endl << std::endl
+		<< "      Dphi[1] = " << dphik[0] << "  Dx[1] = " << dxk[0] << "   Dy[1] = " << dyk[0] << std::endl
+		<< "      Dphi[2] = " << dphik[1] << "  Dx[2] = " << dxk[1] << "   Dy[2] = " << dyk[1] << std::endl
+		<< "      Dphi[3] = " << dphik[2] << "  Dx[3] = " << dxk[2] << "   Dy[3] = " << dyk[2] << std::endl
+		<< "      Dphi[4] = " << dphik[3] << "  Dx[4] = " << dxk[3] << "   Dy[4] = " << dyk[3] << std::endl
+		<< "      Dphi[5] = " << dphik[4] << "  Dx[5] = " << dxk[4] << "   Dy[5] = " << dyk[4] << std::endl
+		<< "      Dphi[6] = " << dphik[5] << "  Dx[6] = " << dxk[5] << "   Dy[6] = " << dyk[5] << std::endl
+		<< "      Dphi[7] = " << dphik[6] << "  Dx[7] = " << dxk[6] << "   Dy[7] = " << dyk[6] << std::endl
+		<< "      Dphi[8] = " << dphik[7] << "  Dx[8] = " << dxk[7] << "   Dy[8] = " << dyk[7] << std::endl
+		<< "      Dphi[9] = " << dphik[8] << "  Dx[9] = " << dxk[8] << "   Dy[9] = " << dyk[8] << std::endl;
+			
+	//____________________________________________________________________________________________________		
+	// ONLY FOR DEBUGGING
+  for (int j = 0; j < 8; ++j)
+    {
+      // calculate the corrections and the errors
+      double thePhiCorrected = dphik[0] 
+				- (sin(phiPositions[0])/r0) * dxk[0]
+				+ (cos(phiPositions[0])/r0) * dyk[0]
+				- ( dphik[j+1]
+				   - (sin(phiPositions[0])/r0) * dxk[j+1]
+				   + (cos(phiPositions[0])/r0) * dyk[j+1] );
+
+      // for debugging
+         std::cout << " Fitted relative Correction for " << theName << " in Phi[" << j << "] = " << thePhiCorrected << std::endl;
+     }
+
+  for (int j = 0; j < 9; ++j)
+    {
+      // calculate the correction for each disk (not relative to disk one)
+      double theAbsPhiCorrected = dphik[j] 
+				   - (sin(phiPositions[0])/r0) * dxk[j]
+           + (cos(phiPositions[0])/r0) * dyk[j];
+
+      // for debugging
+         std::cout << " Fitted Correction for " << theName << " in Phi[" << j << "] = " << theAbsPhiCorrected << std::endl;
+    }
+	// ONLY FOR DEBUGGING		
+	//____________________________________________________________________________________________________
+	
+		// we want to store this parameters in a separate DataFormat to study them later in more detail
 	// unfortunately storing a std::valarray is not working due to reflex dictionary troubles. Therefore
 	// store the calculated corrections into a std::vector<double>
   std::vector<double> dphik_, dxk_, dyk_;
@@ -206,78 +252,19 @@ std::vector<LASAlignmentParameter> AlignmentAlgorithmBW::run(const std::string t
 	return theResult;
 }
 
-AlignmentAlgorithmBW::LASvec2D AlignmentAlgorithmBW::trans(LASvec2D input)
-{
-	LASvec2D result;
-	for( unsigned int i = 0; i < input.size(); ++i )
-	{
-		for( unsigned int j = 0; j < input[i].size(); ++j )
-		{
-			result[j][i] = input[i][j];
-		}
-	}
-	return result;
-}
-
-double AlignmentAlgorithmBW::sum(LASvec2D input)
-{
-	double result = 0.0;
-	for( unsigned int i = 0; i < input.size(); ++i )
-	{
-		result += input[i].sum();
-	}
-	return result;
-}
-
-AlignmentAlgorithmBW::LASvec AlignmentAlgorithmBW::sumc(LASvec2D input)
-{
-	LASvec result;
-	LASvec2D temp = trans(input);
-	for( unsigned int i = 0; i < temp.size(); ++i )
-	{
-		result[i] = temp[i].sum();
-	}
-	return result;
-}
-
-AlignmentAlgorithmBW::LASvec AlignmentAlgorithmBW::sumr(LASvec2D input)
-{
-	LASvec result;
-	for( unsigned int i = 0; i < input.size(); ++i )
-	{
-		result[i] = input[i].sum();
-	}
-	return result;
-}
-
-AlignmentAlgorithmBW::LASvec2D AlignmentAlgorithmBW::multiply(LASvec2D input, LASvec factor)
-{
-	if (input[0].size() != factor.size())
-		throw cms::Exception("AlignmentAlgorithmBW","Size of Matrix and Vector do not match!") << "size of LASvec2D ("
-		<< input.size() << "," << input[0].size() << " does not match the size of LASvec " << factor.size();
-		
-	LASvec2D result;
-	for( unsigned int i = 0; i < input.size(); ++i )
-	{
-		for( unsigned int j = 0; j < input[i].size(); ++j )
-		{
-			result[i][j] = input[i][j] * factor[j];
-		}
-	}
-	return result;
-}
-
 AlignmentAlgorithmBW::LASvec AlignmentAlgorithmBW::makeZPositions(bool useBSframe)
 {
-	LASvec zPos(9,0);
-	zPos[0] = 14.0;
-	zPos[1] = 28.0;
-	zPos[2] = 42.0;
-	zPos[3] = 56.0;
-	zPos[4] = 73.5;
-	zPos[5] = 92.5;
-	zPos[6] = 113.0;
-	zPos[7] = 134.5;
+  // if the BS frame is used, the BS is positioned at 0.0, disc 1 to 5: z < 0, disc 6 to 9: z > 0.
+	LASvec zPos(9);
+  zPos[0] = 0.0;
+	zPos[1] = 14.0;
+	zPos[2] = 28.0;
+	zPos[3] = 42.0;
+	zPos[4] = 56.0;
+	zPos[5] = 73.5;
+	zPos[6] = 92.5;
+	zPos[7] = 113.0;
+	zPos[8] = 134.5;
 	
 	if(useBSframe) zPos -= 70.5; // Beamsplitter at z = 0
 	

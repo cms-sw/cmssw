@@ -4,8 +4,8 @@
 /** \class LaserAlignment
  *  Main reconstruction module for the Laser Alignment System
  *
- *  $Date: 2007/04/05 08:32:31 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/04/12 14:20:33 $
+ *  $Revision: 1.5 $
  *  \author Maarten Thomas
  */
 
@@ -19,6 +19,9 @@
 #include "Alignment/LaserAlignment/interface/LaserAlignmentNegTEC.h"
 #include "Alignment/LaserAlignment/interface/LaserAlignmentTEC2TEC.h"
 #include "Alignment/LaserAlignment/interface/AlignmentAlgorithmBW.h"
+
+#include "Alignment/LaserAlignment/interface/LASvector.h"
+#include "Alignment/LaserAlignment/interface/LASvector2D.h"
 
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
@@ -40,6 +43,9 @@ class LaserAlignment : public edm::EDProducer, public TObject
 {
  public:
   typedef std::vector<edm::ParameterSet> Parameters;
+	/// define vector and matrix formats for easier calculation of the alignment corrections
+  typedef LASvector<double> LASvec;
+  typedef LASvector2D<double> LASvec2D;
 
 	/// constructor
   explicit LaserAlignment(edm::ParameterSet const& theConf);
@@ -83,6 +89,7 @@ class LaserAlignment : public edm::EDProducer, public TObject
   bool theAlignPosTEC;
   bool theAlignNegTEC;
   bool theAlignTEC2TEC;
+  bool theUseBrunosAlgorithm;
   bool theIsGoodFit;
   double theSearchPhiTIB;
   double theSearchPhiTOB;
@@ -118,19 +125,6 @@ class LaserAlignment : public edm::EDProducer, public TObject
   std::vector<double> theLaserPhi;
   std::vector<double> theLaserPhiError;
 
-	/// vectors to store the beam positions for usage with Bruno's alignment algorithm
-	AlignmentAlgorithmBW::LASvec2D thePosTECR4BeamPositions;
-	AlignmentAlgorithmBW::LASvec2D thePosTECR6BeamPositions;
-	AlignmentAlgorithmBW::LASvec2D theNegTECR4BeamPositions;
-	AlignmentAlgorithmBW::LASvec2D theNegTECR6BeamPositions;
-	AlignmentAlgorithmBW::LASvec2D theTEC2TECBeamPositions;
-
-	AlignmentAlgorithmBW::LASvec2D thePosTECR4BeamPositionErrors;
-	AlignmentAlgorithmBW::LASvec2D thePosTECR6BeamPositionErrors;
-	AlignmentAlgorithmBW::LASvec2D theNegTECR4BeamPositionErrors;
-	AlignmentAlgorithmBW::LASvec2D theNegTECR6BeamPositionErrors;
-	AlignmentAlgorithmBW::LASvec2D theTEC2TECBeamPositionErrors;
-	
   // counter for the iterations
   int theNumberOfIterations;
   // counter for the number of Alignment Iterations
@@ -158,8 +152,14 @@ class LaserAlignment : public edm::EDProducer, public TObject
   std::vector<edm::DetSet<SiStripDigi> > theDigiVector;
 
   // tracker geometry;
-  edm::ESHandle<GeometricDet> gD;
+/*  edm::ESHandle<GeometricDet> gD;
   edm::ESHandle<TrackerGeometry> theTrackerGeometry;
+*/
+
+  edm::ESHandle<DDCompactView> cpv;
+  edm::ESHandle<GeometricDet> gD;
+  
+  boost::shared_ptr<TrackerGeometry> theTrackerGeometry;
 
   // alignable tracker
   AlignableTracker * theAlignableTracker;
