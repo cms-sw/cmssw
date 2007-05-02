@@ -20,7 +20,7 @@ public:
   		const double & weightInMix = 1.0);
   VertexState(const GlobalPoint & pos, const GlobalWeight & posWeight,
   		const double & weightInMix = 1.0);
-  VertexState(const AlgebraicVector & weightTimesPosition,
+  VertexState(const AlgebraicVector3 & weightTimesPosition,
 		const GlobalWeight & posWeight,
   		const double & weightInMix = 1.0);
 
@@ -39,7 +39,7 @@ public:
     return data().weight();
   }
 
-  AlgebraicVector weightTimesPosition() const
+  AlgebraicVector3 weightTimesPosition() const
   {
     return data().weightTimesPosition();
   }

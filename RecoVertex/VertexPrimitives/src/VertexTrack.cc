@@ -20,14 +20,14 @@ VertexTrack::VertexTrack(const RefCountedLinearizedTrackState lt,
 VertexTrack::VertexTrack(const RefCountedLinearizedTrackState lt, 
 			 const VertexState v, float weight, 
 			 const RefCountedRefittedTrackState & refittedState,
-			 float smoothedChi2, const AlgebraicMatrix & tVCov) 
+			 float smoothedChi2, const AlgebraicMatrix33 & tVCov) 
   : theLinTrack(lt), theVertexState(v), theWeight(weight),
     stAvailable(true), covAvailable(true), 
     theRefittedState(refittedState), tkTVCovariance(tVCov),
     smoothedChi2_(smoothedChi2) {}
 
 
-AlgebraicVector VertexTrack::refittedParamFromEquation() const 
+AlgebraicVector5 VertexTrack::refittedParamFromEquation() const 
 {
   return linearizedTrack()->refittedParamFromEquation(theRefittedState);
 }

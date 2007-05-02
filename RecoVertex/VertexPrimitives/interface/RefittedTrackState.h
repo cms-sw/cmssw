@@ -45,12 +45,12 @@ public:
   /**
    * Vector containing the refitted track parameters.
    */
-  virtual AlgebraicVector parameters() const = 0;
+  virtual AlgebraicVector5 parameters() const = 0;
 
   /**
    * The covariance matrix
    */
-  virtual AlgebraicSymMatrix covariance() const = 0;
+  virtual AlgebraicSymMatrix55 covariance() const = 0;
 
   /**
    * Position at which the momentum is defined.
@@ -61,7 +61,7 @@ public:
    * Vector containing the parameters describing the momentum as the vertex
    */
 
-  virtual AlgebraicVector momentumVector() const = 0;
+  virtual AlgebraicVector3 momentumVector() const = 0;
 
   /**
    *   The weight of this component in a mixture
