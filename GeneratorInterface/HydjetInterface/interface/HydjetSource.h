@@ -1,7 +1,7 @@
 #ifndef HydjetSource_h
 #define HydjetSource_h
 
-// $Id: HydjetSource.h,v 1.4 2007/04/30 05:25:50 mballint Exp $
+// $Id: HydjetSource.h,v 1.5 2007/05/02 16:17:39 mironov Exp $
 
 /** \class HydjetSource
 *
@@ -28,24 +28,22 @@ namespace edm
 {
   class HydjetSource : public GeneratedInputSource {
   public:
-
-    /// Constructor
     HydjetSource(const ParameterSet &, const InputSourceDescription &);
-    /// Destructor
     virtual ~HydjetSource();
 
   private:
-    bool build_vertices(int i, std::vector<HepMC::GenParticle*>& luj_entries,
-                        HepMC::GenEvent* evt);
-    HepMC::GenParticle* build_particle( int index );	
-    bool call_hyjgive(const std::string& iParm);
-    bool call_pygive(const std::string& iParm);
-    void clear();
-    bool get_hydjet_particles(HepMC::GenEvent* evt);
-    void add_heavy_ion_rec(HepMC::GenEvent *evt);
-    bool hyjhydro_init();
-    bool hyjpythia_init();
-    virtual bool produce(Event & e);
+    void						add_heavy_ion_rec(HepMC::GenEvent *evt);
+    bool						build_vertices(int i, std::vector<HepMC::GenParticle*>& luj_entries,
+                        					HepMC::GenEvent* evt);
+    HepMC::GenParticle*	build_particle( int index );	
+    bool						call_hyjgive(const std::string& iParm);
+    bool						call_pygive(const std::string& iParm);
+    void						clear();
+    bool						get_hydjet_particles(HepMC::GenEvent* evt);
+    bool						hyjhydro_init();
+    bool						hyjpythia_init();
+    inline double			nuclear_radius() const;
+    virtual bool        produce(Event & e);
     
     HepMC::GenEvent *evt;
     float            abeamtarget_;            // beam/target atomic mass number 
@@ -68,5 +66,16 @@ namespace edm
     unsigned int     pythiaPylistVerbosity_;  // pythia verbosity; def=1 
 
   };
+
+
+double HydjetSource::nuclear_radius() const
+{
+  // Return the nuclear radius derived from the 
+  // beam/target atomic mass number.
+
+  return 1.15 * pow((double)abeamtarget_, 1./3.);
+}
+
 } 
+
 #endif
