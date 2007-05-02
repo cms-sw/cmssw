@@ -1,11 +1,11 @@
 /// \file AlignmentProducer.cc
 ///
 ///  \author    : Frederic Ronga
-///  Revision   : $Revision: 1.33 $
-///  last update: $Date: 2007/04/24 20:09:59 $
-///  by         : $Author: pivarski $
+///  Revision   : $Revision: 1.32 $
+///  last update: $Date: 2007/04/17 13:54:22 $
+///  by         : $Author: fronga $
 
-#include "Alignment/CommonAlignmentProducer/plugins/AlignmentProducer.h"
+#include "Alignment/CommonAlignmentProducer/interface/AlignmentProducer.h"
 
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 
@@ -55,12 +55,10 @@
 #include "Alignment/CommonAlignment/interface/SurveyDet.h"
 #include "Alignment/CommonAlignmentParametrization/interface/RigidBodyAlignmentParameters.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentAlgorithmPluginFactory.h"
-#include "Alignment/CommonAlignmentMonitor/interface/AlignmentMonitorPluginFactory.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterSelector.h"
 
 //_____________________________________________________________________________
 AlignmentProducer::AlignmentProducer(const edm::ParameterSet& iConfig) :
-  theAlignmentParameterStore(0), theAlignmentParameterBuilder(0),
   theAlignableTracker(0),theAlignableMuon(0),
   theMaxLoops( iConfig.getUntrackedParameter<unsigned int>("maxLoops",0) ),
   stNFixAlignables_(iConfig.getParameter<int>("nFixAlignables") ),
@@ -95,19 +93,6 @@ AlignmentProducer::AlignmentProducer(const edm::ParameterSet& iConfig) :
   if ( !theAlignmentAlgo )
 	throw cms::Exception("BadConfig") << "Couldn't find algorithm called " << algoName;
 
-  edm::ParameterSet monitorConfig = iConfig.getParameter<edm::ParameterSet>( "monitorConfig" );
-  std::vector<std::string> monitors = monitorConfig.getUntrackedParameter<std::vector<std::string> >( "monitors" );
-
-  for (std::vector<std::string>::const_iterator miter = monitors.begin();  miter != monitors.end();  ++miter) {
-//     AlignmentMonitorBase* newMonitor = dynamic_cast<AlignmentMonitorBase*>(
-//	AlignmentMonitorPluginFactory::getMonitor(*miter, monitorConfig.getParameter<edm::ParameterSet>(*miter)));
-     AlignmentMonitorBase* newMonitor = AlignmentMonitorPluginFactory::get()->create(*miter, monitorConfig.getParameter<edm::ParameterSet>(*miter));
-
-     if (!newMonitor) throw cms::Exception("BadConfig") << "Couldn't find monitor named " << *miter;
-
-     theMonitors.push_back(newMonitor);
-  }
-
 }
 
 
@@ -116,8 +101,8 @@ AlignmentProducer::AlignmentProducer(const edm::ParameterSet& iConfig) :
 AlignmentProducer::~AlignmentProducer()
 {
 
-  if (theAlignmentParameterStore) delete theAlignmentParameterStore;
-  if (theAlignmentParameterBuilder) delete theAlignmentParameterBuilder;
+  delete theAlignmentParameterStore;
+  delete theAlignmentParameterBuilder;
 
   if (theAlignableTracker) delete theAlignableTracker;
   if (theAlignableMuon)    delete theAlignableMuon;
@@ -260,10 +245,6 @@ void AlignmentProducer::beginOfJob( const edm::EventSetup& iSetup )
   // Initialize alignment algorithm
   theAlignmentAlgo->initialize( iSetup, theAlignableTracker,
                                 theAlignableMuon, theAlignmentParameterStore );
-
-  for (std::vector<AlignmentMonitorBase*>::const_iterator monitor = theMonitors.begin();  monitor != theMonitors.end();  ++monitor) {
-     (*monitor)->beginOfJob(theAlignableTracker, theAlignableMuon, theAlignmentParameterStore);
-  }
 }
 
 //_____________________________________________________________________________
@@ -271,10 +252,6 @@ void AlignmentProducer::beginOfJob( const edm::EventSetup& iSetup )
 void AlignmentProducer::endOfJob()
 {
   edm::LogInfo("Alignment") << "@SUB=AlignmentProducer::endOfJob";
-
-  for (std::vector<AlignmentMonitorBase*>::const_iterator monitor = theMonitors.begin();  monitor != theMonitors.end();  ++monitor) {
-     (*monitor)->endOfJob();
-  }
 
   // Save alignments to database
   if (saveToDB_) {
@@ -356,10 +333,6 @@ void AlignmentProducer::startingNewLoop(unsigned int iLoop )
 
   theAlignmentAlgo->startNewLoop();
 
-  for (std::vector<AlignmentMonitorBase*>::const_iterator monitor = theMonitors.begin();  monitor != theMonitors.end();  ++monitor) {
-     (*monitor)->startingNewLoop();
-  }
-
   edm::LogInfo("Alignment") << "@SUB=AlignmentProducer::startingNewLoop" 
                             << "Now physically apply alignments to  geometry...";
 
@@ -395,10 +368,6 @@ AlignmentProducer::endOfLoop(const edm::EventSetup& iSetup, unsigned int iLoop)
                             << "Terminating algorithm.";
   theAlignmentAlgo->terminate();
 
-  for (std::vector<AlignmentMonitorBase*>::const_iterator monitor = theMonitors.begin();  monitor != theMonitors.end();  ++monitor) {
-     (*monitor)->endOfLoop(iSetup);
-  }
-
   if ( iLoop == theMaxLoops-1 || iLoop >= theMaxLoops ) return kStop;
   else return kContinue;
 }
@@ -429,10 +398,6 @@ AlignmentProducer::duringLoop( const edm::Event& event,
 
   // Run the alignment algorithm
   theAlignmentAlgo->run(  setup, trajTracks );
-
-  for (std::vector<AlignmentMonitorBase*>::const_iterator monitor = theMonitors.begin();  monitor != theMonitors.end();  ++monitor) {
-     (*monitor)->duringLoop(setup, trajTracks);
-  }
 
   return kContinue;
 }

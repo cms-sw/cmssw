@@ -7,9 +7,9 @@
 /// Description : calls alignment algorithms
 ///
 ///  \author    : Frederic Ronga
-///  Revision   : $Revision: 1.14 $
-///  last update: $Date: 2007/04/24 20:09:58 $
-///  by         : $Author: pivarski $
+///  Revision   : $Revision: 1.13 $
+///  last update: $Date: 2007/04/09 00:22:57 $
+///  by         : $Author: cklae $
 
 #include <vector>
 
@@ -25,7 +25,6 @@
 // Alignment
 #include "RecoTracker/TrackProducer/interface/TrackProducerBase.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentAlgorithmBase.h"
-#include "Alignment/CommonAlignmentMonitor/interface/AlignmentMonitorBase.h"
 #include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
 #include "Alignment/MuonAlignment/interface/AlignableMuon.h"
 
@@ -94,9 +93,8 @@ class AlignmentProducer : public edm::ESProducerLooper
   const SurveyErrors* theSurveyErrors;
 
   AlignmentAlgorithmBase* theAlignmentAlgo;
-  std::vector<AlignmentMonitorBase*> theMonitors;
-  AlignmentParameterStore* theAlignmentParameterStore;
   AlignmentParameterBuilder* theAlignmentParameterBuilder;
+  AlignmentParameterStore* theAlignmentParameterStore;
 
   AlignableTracker* theAlignableTracker;
   AlignableMuon* theAlignableMuon;
