@@ -8,7 +8,7 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/ExternalInputSource.h"
+#include "FWCore/Sources/interface/ExternalInputSource.h"
 
 class TFile;
 class TTree;
@@ -20,8 +20,8 @@ class CDFEventInfo;
 
    \note Notice that there is a hack to renumber events from runs where the first event number was zero.
     
-   $Date: 2006/01/23 21:31:58 $
-   $Revision: 1.3 $
+   $Date: 2006/02/25 13:43:51 $
+   $Revision: 1.4 $
    \author J. Mans - Minnesota
 */
 class HcalTBSource : public edm::ExternalInputSource {
