@@ -1,5 +1,5 @@
 /*
- * $Id:$
+ * $Id: HydjetSource.cc,v 1.3 2007/04/28 16:08:17 mballint Exp $
  *
  * Interface to the HYDJET generator, produces HepMC events
  *
@@ -8,6 +8,9 @@
 
 #include <iostream>
 #include <cstdio>
+#include <cstring>
+#include <cmath>
+
 #include "time.h"
 
 #include "GeneratorInterface/HydjetInterface/interface/HydjetSource.h"
@@ -29,21 +32,21 @@ using namespace std;
 
 
 HydjetSource::HydjetSource(const ParameterSet &pset, 
-  		    					InputSourceDescription const &desc)
-  :
+  		    	   InputSourceDescription const &desc):
 GeneratedInputSource(pset, desc), evt(0), 
-abeamtarget_(pset.getUntrackedParameter<double>("aBeamTarget",207.)),
-bfixed_(pset.getUntrackedParameter<double>("bFixed",0.)),
-bmax_(pset.getUntrackedParameter<double>("bMax",0.)),
-bmin_(pset.getUntrackedParameter<double>("bMin",0.)),
-cflag_(pset.getUntrackedParameter<int>("cFlag",0)),
-comenergy(pset.getUntrackedParameter<double>("comEnergy",5500.)),
-hyMode(HydjetSource::kHydroQJets),
-maxEventsToPrint_(pset.getUntrackedParameter<int>("maxEventsToPrint",1)),
+abeamtarget_(pset.getParameter<double>( "aBeamTarget" )),
+bfixed_(pset.getParameter<double>( "bFixed" )),
+bmax_(pset.getParameter<double>( "bMax" )),
+bmin_(pset.getParameter<double>( "bMin" )),
+cflag_(pset.getParameter<int>( "cFlag" )),
+comenergy(pset.getParameter<double>("comEnergy" )),
+hymode_(pset.getParameter<string>( "hydjetMode" )),
+maxEventsToPrint_(pset.getUntrackedParameter<int>( "maxEventsToPrint",1 )),
 nhard_(0),
-nmultiplicity_(pset.getUntrackedParameter<int>("nMultiplicity",30000)),
+nmultiplicity_(pset.getParameter<int>( "nMultiplicity" )),
 nsoft_(0),
-pythiaPylistVerbosity_(pset.getUntrackedParameter<int>("pythiaPylistVerbosity",0))
+ptmin_(pset.getParameter<double>( "ptMin" )),
+pythiaPylistVerbosity_(pset.getUntrackedParameter<int>( "pythiaPylistVerbosity",0 ))
 {
   // Default constructor
 
@@ -87,7 +90,7 @@ pythiaPylistVerbosity_(pset.getUntrackedParameter<int>("pythiaPylistVerbosity",0
       }
 
 
- // Read HYDJET parameters if they exist
+ // Read HYDJET parameters 
     ParameterSet hydjet_params = 
      pset.getParameter<ParameterSet>("HydjetParameters") ;
     
@@ -107,7 +110,7 @@ pythiaPylistVerbosity_(pset.getUntrackedParameter<int>("pythiaPylistVerbosity",0
       }
     
     
-    if( hyMode != HydjetSource::kHydroOnly ) 
+    if( strncmp(hymode_.c_str(),"kHydroOnly",10 ) )
       { 
 	call_pyinit("CMS", "p", "p", comenergy);
       }
@@ -310,23 +313,40 @@ bool HydjetSource::hyjhydro_init()
 {
   //initialize hydjet HYDRO part
 
-  //hydjet mode	
-  call_hyjgive("nhsel=2");
 
-  //minimum pT hard
-  call_hyjgive("ptmin=-1.");
+ // hydjet mode
+  // kHydroOnly --- nhsel=0 jet production off (pure HYDRO event), nhsel=0
+  // kHydroJets --- nhsle=1 jet production on, jet quenching off (HYDRO+njet*PYTHIA events)
+  // kHydroQJet=2 --- nhsel=2 jet production & jet quenching on (HYDRO+njet*PYQUEN events)
+  // kJetsOnly=3 --- nhsel=3 jet production on, jet quenching off, HYDRO off (njet*PYTHIA events)
+  // kQJetsOnly=4 --- nhsel=4 jet production & jet quenching on, HYDRO off (njet*PYQUEN events)
 
-  // fraction of soft (hydro-induced) hadronic multiplicity, 
-  // proportional to the number of nucleons-participants
-  call_hyjgive("fpart=0.");
+ if( !strncmp(hymode_.c_str(),"kHydroOnly",10 ) )	
+  call_hyjgive("nhsel=0");
+ else if ( !strncmp(hymode_.c_str(),"kHydroJets",10 ) )
+   call_hyjgive("nhsel=1");
+ else if ( !strncmp(hymode_.c_str(),"kHydroQJets",11 ) )
+   call_hyjgive("nhsel=2");
+ else if ( !strncmp(hymode_.c_str(),"kJetsOnly",9 ) )
+   call_hyjgive("nhsel=3");
+ else if ( !strncmp(hymode_.c_str(),"kQJetsOnly",10 ) )
+   call_hyjgive("nhsel=4");
+ else call_hyjgive("nhsel=2");
 
-  //max longitudinal flow rapidity
-  call_hyjgive("ylfl=5.");
+  // minimum pT hard
+ hyjpar.ptmin=ptmin_;
 
-  //max transverse flow rapidity
-  call_hyjgive("ytfl=1.");
+ // fraction of soft (hydro-induced) hadronic multiplicity, 
+ // proportional to the number of nucleons-participants
+ call_hyjgive("fpart=0.");
 
-  return true;
+ // max longitudinal flow rapidity
+ call_hyjgive("ylfl=5.");
+ 
+ // max transverse flow rapidity
+ call_hyjgive("ytfl=1.");
+
+ return true;
 }
 
 
@@ -363,17 +383,17 @@ void HydjetSource::add_heavy_ion_rec(HepMC::GenEvent *evt)
 {
   HepMC::HeavyIon *hi = new HepMC::HeavyIon(
     hyfpar.nbcol,			// Ncoll_hard
-	  hyfpar.npart / 2,	// Npart_proj
-    hyfpar.npart / 2,	// Npart_targ
+    hyfpar.npart / 2,	                // Npart_proj
+    hyfpar.npart / 2,            	// Npart_targ
     hyfpar.nbcol,			// Ncoll
-    -1,						// spectator_neutrons
-    -1,						// spectator_protons
-    -1,						// N_Nwounded_collisions
-    -1,						// Nwounded_N_collisions
-    -1,						// Nwounded_Nwounded_collisions
+    -1,					// spectator_neutrons
+    -1,					// spectator_protons
+    -1,					// N_Nwounded_collisions
+    -1,					// Nwounded_N_collisions
+    -1,					// Nwounded_Nwounded_collisions
     hyfpar.bgen,			// impact_parameter
-    0,						// event_plane_angle
-    0,						//	eccentricity
+    0,					// event_plane_angle
+    0,					// eccentricity
     hyipar.sigin			// sigma_inel_NN
   );
 
@@ -397,7 +417,17 @@ bool HydjetSource::produce(Event & e)
   cout << "bmax_ " << bmax_ << endl;
   cout << "bfixed_ " << bfixed_ << endl;
   cout << "nmultiplicity_ " << nmultiplicity_ << endl;
+  cout << "hydjet mode_ " << hyjpar.nhsel << endl;
   cout << "##### Calling HYDRO(abeamtarget_,cflag_,bmin_,bmax_,bfixed_,nmultiplicity_) ####" << endl;
+
+  // the input impact parameter (bxx_) is in [fm]; transform in [fm/RA] the hydjet usage
+
+  double abt = abeamtarget_;
+  double ra = 1.15*pow(abt,0.333333);
+  cout<<"RA= "<<ra<<endl;
+  bmin_     = bmin_/ra;
+  bmax_     = bmax_/ra;
+  bfixed_   = bfixed_/ra;
 
   HYDRO(abeamtarget_,cflag_,bmin_,bmax_,bfixed_,nmultiplicity_);
   nsoft_    = hyfpar.nhyd;
@@ -412,7 +442,7 @@ bool HydjetSource::produce(Event & e)
   evt->set_event_number(numberEventsInRun() - remainingEvents() - 1);
 
   add_heavy_ion_rec(evt);
-
+ 
   if (evt) {
 		auto_ptr<HepMCProduct> bare_product(new HepMCProduct());
 		bare_product->addHepMCData(evt );
