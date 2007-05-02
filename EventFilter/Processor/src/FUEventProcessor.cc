@@ -13,7 +13,6 @@
 #include "EventFilter/Message2log4cplus/interface/MLlog4cplus.h"
 
 #include "FWCore/Framework/interface/EventProcessor.h"
-#include "FWCore/Framework/interface/RawInputSource.h"
 #include "FWCore/PluginManager/interface/PresenceFactory.h"
 #include "FWCore/PluginManager/interface/ProblemTracker.h"
 #include "FWCore/ParameterSet/interface/MakeParameterSets.h"
