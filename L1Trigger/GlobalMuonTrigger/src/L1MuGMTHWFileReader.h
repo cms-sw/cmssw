@@ -6,8 +6,8 @@
 //                a GMT ascii HW testfile into the Event   
 //
 //
-//   $Date$
-//   $Revision$
+//   $Date: 2006/05/15 13:56:02 $
+//   $Revision: 1.1 $
 //
 //   Author :
 //   Tobias Noebauer                 HEPHY Vienna
@@ -25,7 +25,7 @@
 //----------------------
 // Base Class Headers --
 //----------------------
-#include "FWCore/Framework/interface/ExternalInputSource.h"
+#include "FWCore/Sources/interface/ExternalInputSource.h"
 
 //------------------------------------
 // Collaborating Class Declarations --
