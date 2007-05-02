@@ -5,7 +5,7 @@
  *  An input source for DQM consumers using cmsRun that connect to
  *  the StorageManager or SMProxyServer to get DQM data.
  *
- *  $Id: DQMHttpSource.h,v 1.1 2007/04/04 22:14:27 hcheung Exp $
+ *  $Id: DQMHttpSource.h,v 1.2 2007/04/18 01:47:39 hcheung Exp $
  */
 #include "IOPool/Streamer/interface/EventBuffer.h"
 #include "IOPool/Streamer/interface/StreamDeserializer.h"
@@ -13,7 +13,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
-#include "FWCore/Framework/interface/RawInputSource.h"
+#include "FWCore/Sources/interface/RawInputSource.h"
 
 #include <vector>
 #include <memory>
