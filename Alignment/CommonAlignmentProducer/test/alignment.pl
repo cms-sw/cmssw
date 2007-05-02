@@ -131,7 +131,7 @@ if ($njobs == 1) {
 
   # create cfg file
   system("cp ${workdir}/$steering $dir/cfgfile");
-  $repl="replace PoolSource.maxEvents  = $nevent ";
+  $repl="replace maxEvents  = { untracked int32 input = $nevent }";
   replace("$dir/cfgfile",$repl);
 
   if ($farm eq "I") {
