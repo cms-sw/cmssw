@@ -49,7 +49,10 @@ float SiStripApvGain::getStripGain(const uint16_t& strip, const Range& range) co
       << "[SiStripApvGain::getApvGain] looking for SiStripApvGain for a strip out of range: strip " << strip << " apv " << apv << std::endl;
   }
   
-  return static_cast<float> (*(range.first+apv));
+  //  return static_cast<float> (*(range.first+apv));
+
+  return *(range.first+apv);
+
 }
 
 float SiStripApvGain::getApvGain(const uint16_t& apv, const Range& range) const {
@@ -58,6 +61,8 @@ float SiStripApvGain::getApvGain(const uint16_t& apv, const Range& range) const 
       << "[SiStripApvGain::getApvGain] looking for SiStripApvGain for an apv out of range: apv " << apv << std::endl;
   }
   
-  return static_cast<float> (*(range.first+apv));
+  //  return static_cast<float> (*(range.first+apv));
+
+  return *(range.first+apv);
 }
 

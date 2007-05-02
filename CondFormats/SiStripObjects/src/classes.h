@@ -24,6 +24,9 @@ namespace {
 
   std::vector<unsigned int>::iterator tmp12;
   std::vector<unsigned int>::const_iterator tmp13;
+
+  std::vector<float>::iterator tmp14;
+  std::vector<float>::const_iterator tmp15;
 }  
   
 /* 
