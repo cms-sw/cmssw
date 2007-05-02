@@ -1,6 +1,5 @@
 #include "CondCore/DBCommon/interface/ConnectStringParser.h"
 #include "CondCore/DBCommon/interface/Exception.h"
-//#include <iostream>
 static std::string sqlitedbsuffix(".db");
 cond::ConnectStringParser::ConnectStringParser( const std::string& inputStr ):m_isLogical(false),m_inputStr(inputStr){
   if( (m_inputStr.find(':')==std::string::npos) && *(m_inputStr.begin())=='/' ){
@@ -115,14 +114,14 @@ cond::ConnectStringParser::parseLogical(){
 */
 void
 cond::ConnectStringParser::parsePhysical(){
-  size_t protocolStartPos=m_inputStr.find_first_not_of("://");
-  size_t protocolEndPos=m_inputStr.find_first_of('/',protocolStartPos);
+  size_t protocolStartPos=0;
+  size_t protocolEndPos=m_inputStr.find_first_of(':',protocolStartPos);
   std::string protocol=m_inputStr.substr(protocolStartPos,protocolEndPos-protocolStartPos);
   size_t serviceStartPos,serviceEndPos;
   std::string service;
   if(protocol=="oracle" || "frontier" ){
     m_result.push_back(std::string("/")+protocol);
-    serviceStartPos=m_inputStr.find_first_not_of('/',protocolEndPos);
+    serviceStartPos=m_inputStr.find_first_not_of('/',protocolEndPos+3);
     serviceEndPos=m_inputStr.find_first_of('/',serviceStartPos);
   }else if(protocol.find("sqlite") != std::string::npos){
     m_result.push_back("/sqlite");
