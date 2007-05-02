@@ -5,8 +5,7 @@
 gROOT->Macro("init.C");
 
 // create a PFRootEventManager
-// PFRootEventManager em("pfRootEvent.opt");
-MyPFRootEventManager em("tauBenchmark.opt");
+PFRootEventManager em("pfRootEvent.opt");
 
 // display first entry
 int i=0;

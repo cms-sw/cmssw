@@ -227,6 +227,9 @@ void PFRootEventManager::readOptions(const char* file,
     viewSize_.push_back(600); 
   }
 
+
+  // display parametes ------------------------------------
+
   displayXY_ = true;
   options_->GetOpt("display", "x/y", displayXY_);
   
@@ -249,6 +252,15 @@ void PFRootEventManager::readOptions(const char* file,
   displayZoomFactor_ = 10;  
   options_->GetOpt("display", "zoom_factor", displayZoomFactor_);
 
+  displayJetColors_ = false;
+  options_->GetOpt("display", "jet_colors", displayJetColors_);
+  
+
+  displayTrueParticlesPtMin_ = -1;
+  options_->GetOpt("display", "particles_ptmin", displayTrueParticlesPtMin_);
+  
+  displayRecTracksPtMin_ = -1;
+  options_->GetOpt("display", "rectracks_ptmin", displayRecTracksPtMin_);
 
   // filter --------------------------------------------------------------
 
@@ -518,9 +530,6 @@ void PFRootEventManager::readOptions(const char* file,
 
   pfAlgo_.setParameters( eCalibP0, eCalibP1, nSigmaECAL, nSigmaHCAL );
 
-  displayJetColors_ = false;
-  options_->GetOpt("display", "jet_colors", displayJetColors_);
-  
 
   // print flags -------------
 
@@ -1911,6 +1920,11 @@ void PFRootEventManager::displayRecTracks(unsigned viewType, double phi0) {
 
     double sign = 1.;
 
+    const reco::PFTrajectoryPoint& tpinitial 
+      = itRecTrack->extrapolatedPoint(reco::PFTrajectoryPoint::ClosestApproach);
+    double pt = tpinitial.momentum().Pt();
+    if( pt<displayRecTracksPtMin_ ) continue;
+
     const reco::PFTrajectoryPoint& tpatecal 
       = itRecTrack->trajectoryPoint(itRecTrack->nTrajectoryMeasurements() +
 				    reco::PFTrajectoryPoint::ECALEntrance );
@@ -1939,6 +1953,11 @@ void PFRootEventManager::displayTrueParticles(unsigned viewType, double phi0) {
     
     const reco::PFSimParticle& ptc = trueParticles_[i];
     
+    const reco::PFTrajectoryPoint& tpinitial 
+      = ptc.extrapolatedPoint( reco::PFTrajectoryPoint::ClosestApproach );
+    
+    double pt = tpinitial.momentum().Pt();
+    if( pt<displayTrueParticlesPtMin_ ) continue;
 
     double sign = 1.;
     

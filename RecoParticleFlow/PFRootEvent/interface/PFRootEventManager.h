@@ -455,6 +455,12 @@ class PFRootEventManager {
   /// size of view in number of cells when centering on a rechit
   double displayZoomFactor_;
 
+  /// pt threshold to display rec tracks
+  double displayRecTracksPtMin_;
+
+  /// pt threshold to display true particles
+  double displayTrueParticlesPtMin_;
+
   /// vector of canvas for x/y or r/z display
   std::vector<TCanvas*> displayView_;
 

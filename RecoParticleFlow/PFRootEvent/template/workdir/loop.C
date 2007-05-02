@@ -5,10 +5,10 @@
 gROOT->Macro("init.C");
 
 // create a PFRootEventManager
-MyPFRootEventManager em("tauBenchmark.opt");
+MyPFRootEventManager em("pfRootEvent.opt");
 
-if(em.tree_) {
-  int n =  em.tree_->GetEntries();
+if(em.tree() ) {
+  int n =  em.tree()->GetEntries();
 
   for(unsigned i=0; i<n; i++) {
     em.processEntry(i);
