@@ -9,34 +9,52 @@
 #include "DataFormats/GeometrySurface/interface/BoundPlane.h"
 
 
+TrajectoryStateOnSurface CurrentAlignmentKFUpdator::update( const TrajectoryStateOnSurface & tsos,
+							    const TransientTrackingRecHit & aRecHit ) const 
+{
+    switch (aRecHit.dimension()) {
+        case 1: return update<1>(tsos,aRecHit);
+        case 2: return update<2>(tsos,aRecHit);
+        case 3: return update<3>(tsos,aRecHit);
+        case 4: return update<4>(tsos,aRecHit);
+        case 5: return update<5>(tsos,aRecHit);
+    }
+    throw cms::Exception("Rec hit of invalid dimension (not 1,2,3,4,5)");
+}
 
+
+template <unsigned int D>
 TrajectoryStateOnSurface CurrentAlignmentKFUpdator::update( const TrajectoryStateOnSurface & tsos,
 							    const TransientTrackingRecHit & aRecHit ) const
 {
   //std::cout << "[CurrentAlignmentKFUpdator::update] Start Updating." << std::endl;
+  typedef typename AlgebraicROOTObject<D,5>::Matrix MatD5;
+  typedef typename AlgebraicROOTObject<5,D>::Matrix Mat5D;
+  typedef typename AlgebraicROOTObject<D,D>::SymMatrix SMatDD;
+  typedef typename AlgebraicROOTObject<D>::Vector VecD;
 
   double pzSign = tsos.localParameters().pzSign();
 
   MeasurementExtractor me( tsos );
 
-  AlgebraicVector vecX( tsos.localParameters().vector() );
-  AlgebraicSymMatrix matC( tsos.localError().matrix() );
+  AlgebraicVector5 vecX( tsos.localParameters().vector() );
+  AlgebraicSymMatrix55 matC( tsos.localError().matrix() );
   // Measurement matrix
-  AlgebraicMatrix matH( aRecHit.projectionMatrix() );
+  MatD5 matH = asSMatrix<D,5>( aRecHit.projectionMatrix() );
 
   // Residuals of aPredictedState w.r.t. aRecHit, 
-  AlgebraicVector vecR( aRecHit.parameters() - me.measuredParameters( aRecHit ) );
+  VecD vecR = asSVector<D>(aRecHit.parameters()) - me.measuredParameters<D>( aRecHit );
 
   // and covariance matrix of residuals
-  AlgebraicSymMatrix matV( aRecHit.parametersError() );
+  SMatDD matV = asSMatrix<D>( aRecHit.parametersError() );
 
   // add information from current estimate on the misalignment
-  includeCurrentAlignmentEstimate( aRecHit, tsos, vecR, matV );
+  includeCurrentAlignmentEstimate<D>( aRecHit, tsos, vecR, matV );
 
-  AlgebraicSymMatrix matR( matV + me.measuredError( aRecHit ) );
+   SMatDD  matR( matV + me.measuredError<D>( aRecHit ) );
 
   int checkInversion = 0;
-  AlgebraicSymMatrix invR = matR.inverse( checkInversion );
+  SMatDD invR = matR.Inverse( checkInversion );
   if ( checkInversion != 0 )
   {
     std::cout << "[CurrentAlignmentKFUpdator::update] Inversion of matrix R failed." << std::endl;
@@ -44,25 +62,26 @@ TrajectoryStateOnSurface CurrentAlignmentKFUpdator::update( const TrajectoryStat
   }
 
   // Compute Kalman gain matrix
-  AlgebraicMatrix matK( matC*matH.T()*invR );
+  Mat5D matK =  matC*ROOT::Math::Transpose(matH)*invR ;
 
   // Compute local filtered state vector
-  AlgebraicVector fsv( vecX + matK*vecR );
+  AlgebraicVector5 fsv( vecX + matK*vecR );
 
   // Compute covariance matrix of local filtered state vector
-  AlgebraicSymMatrix matI( 5, 1 );
-  AlgebraicMatrix matM( matI - matK*matH );
-  AlgebraicSymMatrix fse( matC.similarity( matM ) + matV.similarity( matK ) );
+  AlgebraicSymMatrix55 matI  = AlgebraicMatrixID();
+  AlgebraicMatrix55 matM( matI - matK*matH );
+  AlgebraicSymMatrix55 fse( ROOT::Math::Similarity(matM, matC) + ROOT::Math::Similarity(matK, matV) );
 
   return TrajectoryStateOnSurface( LocalTrajectoryParameters( fsv, pzSign ), LocalTrajectoryError( fse ),
 				   tsos.surface(),&( tsos.globalParameters().magneticField() ) );
 }
 
 
+template <unsigned int D>
 void CurrentAlignmentKFUpdator::includeCurrentAlignmentEstimate( const TransientTrackingRecHit & aRecHit,
 								 const TrajectoryStateOnSurface & tsos,
-								 AlgebraicVector & vecR,
-								 AlgebraicSymMatrix & matV ) const
+								 typename AlgebraicROOTObject<D>::Vector & vecR,
+								 typename AlgebraicROOTObject<D>::SymMatrix & matV ) const
 {
   AlignableDet* alignableDet = theAlignableNavigator->alignableDetFromGeomDet( aRecHit.det() );
   if ( !alignableDet )
@@ -86,10 +105,10 @@ void CurrentAlignmentKFUpdator::includeCurrentAlignmentEstimate( const Transient
     //if ( !auv ) std::cout << "[CurrentAlignmentKFUpdator::includeCurrentAlignmentEstimate] No AlignmentUserVariables associated with AlignableDet." << std::endl;
     //if ( theAnnealing ) matV *= (*theAnnealing)( auv );
 
-    if ( deltaR.num_row() == vecR.num_row() )
+    if ( deltaR.num_row() == D )
     {
-      vecR += deltaR;
-      matV += deltaV;
+      vecR += asSVector<D>(deltaR);
+      matV += asSMatrix<D>(deltaV);
     }
     else std::cout << "[CurrentAlignmentKFUpdator::includeCurrentAlignmentEstimate] Predicted state and misalignment correction not compatible." << std::endl;
   } else std::cout << "[CurrentAlignmentKFUpdator::includeCurrentAlignmentEstimate] No AlignmentParameters associated with AlignableDet." << std::endl;

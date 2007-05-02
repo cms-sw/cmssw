@@ -20,16 +20,20 @@ public:
   CurrentAlignmentKFUpdator( AlignableNavigator* navigator ) : theAlignableNavigator( navigator ) {}
   ~CurrentAlignmentKFUpdator( void ) {}
 
+  template <unsigned int D>
+  TrajectoryStateOnSurface update( const TrajectoryStateOnSurface &, const TransientTrackingRecHit & ) const;
+
   TrajectoryStateOnSurface update( const TrajectoryStateOnSurface &, const TransientTrackingRecHit & ) const;
 
   virtual CurrentAlignmentKFUpdator * clone( void ) const { return new CurrentAlignmentKFUpdator( *this ); }
 
 private:
 
+  template <unsigned int D>
   void includeCurrentAlignmentEstimate( const TransientTrackingRecHit & aRecHit,
 					const TrajectoryStateOnSurface & tsos,
-					AlgebraicVector & vecR,
-					AlgebraicSymMatrix & matV ) const;
+					typename AlgebraicROOTObject<D>::Vector & vecR,
+					typename AlgebraicROOTObject<D>::SymMatrix & matV ) const;
 
   AlignmentParameters* getAlignmentParameters( const AlignableDet* alignableDet ) const;
   AlignmentParameters* getHigherLevelParameters( const Alignable* aAlignable ) const;
