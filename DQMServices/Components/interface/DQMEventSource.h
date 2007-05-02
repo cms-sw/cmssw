@@ -9,14 +9,14 @@
  *  in the FF.
  *  The method mui->doMonitoring() is called to excute the clients
  *  analysis during the "onUpdate" status. 
- *  $Date: 2007/03/26 14:36:44 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/04/03 09:51:56 $
+ *  $Revision: 1.3 $
  *  \author S. Bolognesi - M. Zanetti
  */
 
 #include <memory>
 
-#include "FWCore/Framework/interface/RawInputSource.h"
+#include <FWCore/Sources/interface/RawInputSource.h>
 
 namespace edm {
     class ParameterSet;
