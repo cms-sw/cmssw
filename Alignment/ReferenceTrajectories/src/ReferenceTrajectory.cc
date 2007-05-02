@@ -1,6 +1,6 @@
 //  Author     : Gero Flucke (based on code by Edmund Widl replacing ORCA's TkReferenceTrack)
 //  date       : 2006/09/17
-//  last update: $Date: 2007/03/22 14:27:41 $
+//  last update: $Date: 2007/04/18 16:10:40 $
 //  by         : $Author: fronga $
 
 #include "Alignment/ReferenceTrajectories/interface/ReferenceTrajectory.h"
@@ -37,11 +37,11 @@ ReferenceTrajectory::ReferenceTrajectory(const TrajectoryStateOnSurface &refTsos
 					 &recHits, bool hitsAreReverse,
 					 const MagneticField *magField, 
 					 MaterialEffects materialEffects, double mass) 
-  : ReferenceTrajectoryBase(refTsos.localParameters().mixedFormatVector().num_row(), recHits.size())
+  : ReferenceTrajectoryBase(refTsos.localParameters().mixedFormatVector().kSize, recHits.size())
 {
   // no check against magField == 0
 
-  theParameters = refTsos.localParameters().mixedFormatVector();
+  theParameters = asHepVector<5>( refTsos.localParameters().mixedFormatVector() );
 
   if (hitsAreReverse) {
     TransientTrackingRecHit::ConstRecHitContainer fwdRecHits;
@@ -132,11 +132,13 @@ bool ReferenceTrajectory::construct(const TrajectoryStateOnSurface &refTsos,
     // projection-matrix tsos-parameters -> measurement-coordinates
     allProjections.push_back(hitPtr->projectionMatrix());
     // get multiple-scattering covariance-matrix
-    allDeltaParameterCovs.push_back(updatedTsos.localError().matrix());
+    allDeltaParameterCovs.push_back( asHepMatrix<5>(updatedTsos.localError().matrix()) );
 
     this->fillDerivatives(allProjections.back(), fullJacobian, iRow);
-    this->fillTrajectoryPositions(allProjections.back(),
-				  theTsosVec.back().localParameters().mixedFormatVector(), iRow);
+
+    AlgebraicVector mixedLocalParams = asHepVector<5>(theTsosVec.back().localParameters().mixedFormatVector());
+    this->fillTrajectoryPositions(allProjections.back(), mixedLocalParams, iRow);
+
     this->fillMeasurementAndError(hitPtr, iRow, updatedTsos);
   } // end of loop on hits
 
@@ -146,7 +148,8 @@ bool ReferenceTrajectory::construct(const TrajectoryStateOnSurface &refTsos,
   }
 
   if (refTsos.hasError()) {
-    theTrajectoryPositionCov = refTsos.localError().matrix().similarity(theDerivatives);
+    AlgebraicSymMatrix parameterCov = asHepMatrix<5>(refTsos.localError().matrix());
+    theTrajectoryPositionCov = parameterCov.similarity(theDerivatives);
   } else {
     theTrajectoryPositionCov = AlgebraicSymMatrix(theDerivatives.num_row(), 1);
   }
@@ -195,16 +198,16 @@ bool ReferenceTrajectory::propagate(const BoundPlane &previousSurface, const Tra
 						tsosWithPath.first.globalPosition(),
 						tsosWithPath.first.globalMomentum(),
 						tsosWithPath.second);
-  const AlgebraicMatrix &curvilinearJacobian = aJacobian.jacobian();
+  const AlgebraicMatrix curvilinearJacobian = asHepMatrix<5,5>(aJacobian.jacobian());
 
 
   // jacobian of the track parameters on the previous layer for local->global transformation
   const JacobianLocalToCurvilinear startTrafo(previousSurface, previousTsos.localParameters(), *magField);
-  const AlgebraicMatrix &localToCurvilinear = startTrafo.jacobian();
+  const AlgebraicMatrix localToCurvilinear = asHepMatrix<5>(startTrafo.jacobian());
 
   // jacobian of the track parameters on the actual layer for global->local transformation
   const JacobianCurvilinearToLocal endTrafo(newSurface, tsosWithPath.first.localParameters(), *magField);
-  const AlgebraicMatrix &curvilinearToLocal = endTrafo.jacobian();
+  const AlgebraicMatrix curvilinearToLocal = asHepMatrix<5>(endTrafo.jacobian());
 
   // compute derivative of reference-track parameters on the actual layer w.r.t. the ones on
   // the previous layer (both in their local representation)
@@ -239,7 +242,8 @@ void ReferenceTrajectory::fillMeasurementAndError(const TransientTrackingRecHit:
 //__________________________________________________________________________________
 
 void ReferenceTrajectory::fillDerivatives(const AlgebraicMatrix &projection,
-					  const AlgebraicMatrix &fullJacobian, unsigned int iRow)
+					  const AlgebraicMatrix &fullJacobian,
+					  unsigned int iRow)
 {
   // derivatives of the local coordinates of the reference track w.r.t. to the inital track-parameters
   const AlgebraicMatrix projectedJacobian(projection * fullJacobian);
