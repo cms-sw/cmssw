@@ -30,6 +30,7 @@ public:
   virtual ~HcalHistogramRawToDigi();
   virtual void produce(edm::Event& e, const edm::EventSetup& c);
 private:
+  edm::InputTag dataTag_;
   HcalUnpacker unpacker_;
   std::vector<int> fedUnpackList_;
   int firstFED_;

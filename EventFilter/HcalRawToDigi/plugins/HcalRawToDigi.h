@@ -31,6 +31,7 @@ public:
   virtual ~HcalRawToDigi();
   virtual void produce(edm::Event& e, const edm::EventSetup& c);
 private:
+  edm::InputTag dataTag_;
   HcalUnpacker unpacker_;
   HcalDataFrameFilter filter_;
   std::vector<int> fedUnpackList_;
