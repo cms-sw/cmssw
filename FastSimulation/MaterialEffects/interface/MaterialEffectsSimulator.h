@@ -4,7 +4,6 @@
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 
 #include "FastSimulation/ParticlePropagator/interface/ParticlePropagator.h"
-#include "FastSimulation/Utilities/interface/RandomEngine.h"
 
 #include <list>
 #include <utility>
@@ -28,15 +27,9 @@ class MaterialEffectsSimulator
 
   typedef std::list<const RawParticle*>::const_iterator RHEP_const_iter;
 
-  MaterialEffectsSimulator(const RandomEngine* engine) { 
-    random = engine;
-    _theUpdatedState.clear(); 
-}
+  MaterialEffectsSimulator(const RandomEngine* engine);
 
-  virtual ~MaterialEffectsSimulator() {
-    // Don't delete the objects contained in the list
-    _theUpdatedState.clear();
-  }
+  virtual ~MaterialEffectsSimulator();
 
   /// Functions to return atomic properties of the material
   /// Here the tracker material is assumed to be 100% Silicon

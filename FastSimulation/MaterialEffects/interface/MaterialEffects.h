@@ -25,7 +25,7 @@
  */
 
 //Framework Headers
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+//#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 // Geometry Headers
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
@@ -40,8 +40,8 @@ class MultipleScatteringSimulator;
 class BremsstrahlungSimulator;
 class EnergyLossSimulator;
 class NuclearInteractionSimulator;
-class NuclearInteractionEDMSimulator;
 class RandomEngine;
+class ParameterSet;
 
 class MaterialEffects
 {
@@ -80,7 +80,6 @@ class MaterialEffects
   MultipleScatteringSimulator* MultipleScattering;
   EnergyLossSimulator* EnergyLoss;
   NuclearInteractionSimulator* NuclearInteraction;
-  NuclearInteractionEDMSimulator* NuclearInteractionEDM;
 
   double pTmin;
   GlobalVector theNormalVector;

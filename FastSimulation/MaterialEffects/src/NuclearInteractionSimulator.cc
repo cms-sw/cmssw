@@ -3,7 +3,9 @@
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
 #include "FastSimulation/MaterialEffects/interface/NuclearInteractionSimulator.h"
-#include "FastSimulation/MaterialEffects/interface/NUEvent.h"
+#include "FastSimulation/Utilities/interface/RandomEngine.h"
+
+#include "FastSimDataFormats/NuclearInteractions/interface/NUEvent.h"
 
 #include "CLHEP/Vector/LorentzVector.h"
 #include "CLHEP/Vector/Rotation.h"

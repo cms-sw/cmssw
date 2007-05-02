@@ -1,5 +1,6 @@
 
 #include "FastSimulation/MaterialEffects/interface/MaterialEffectsSimulator.h"
+#include "FastSimulation/Utilities/interface/RandomEngine.h"
 
 #include <list>
 #include <utility>
@@ -7,6 +8,17 @@
 
 using std::list;
 using std::pair;
+
+MaterialEffectsSimulator:: MaterialEffectsSimulator(const RandomEngine* engine)
+{ 
+  random = engine;
+  _theUpdatedState.clear(); 
+}
+
+MaterialEffectsSimulator::~MaterialEffectsSimulator() {
+  // Don't delete the objects contained in the list
+  _theUpdatedState.clear();
+}
 
 void MaterialEffectsSimulator::updateState(ParticlePropagator & Particle,
 					 double radlen)

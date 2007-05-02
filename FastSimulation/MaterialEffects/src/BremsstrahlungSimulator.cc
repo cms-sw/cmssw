@@ -1,5 +1,6 @@
 //FAMOS Headers
 #include "FastSimulation/MaterialEffects/interface/BremsstrahlungSimulator.h"
+#include "FastSimulation/Utilities/interface/RandomEngine.h"
 
 //CLHEP Headers
 #include "CLHEP/Geometry/Vector3D.h"

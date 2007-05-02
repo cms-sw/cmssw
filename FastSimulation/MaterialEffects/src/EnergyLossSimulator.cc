@@ -1,4 +1,5 @@
 #include "FastSimulation/MaterialEffects/interface/EnergyLossSimulator.h"
+#include "FastSimulation/Utilities/interface/RandomEngine.h"
 #include "FastSimulation/Utilities/interface/LandauFluctuationGenerator.h"
 
 //#include "FamosGeneric/FamosUtils/interface/FamosHistos.h"

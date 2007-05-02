@@ -1,4 +1,5 @@
 #include "FastSimulation/MaterialEffects/interface/PairProductionSimulator.h"
+#include "FastSimulation/Utilities/interface/RandomEngine.h"
 
 #include "CLHEP/Vector/LorentzVector.h"
 #include "CLHEP/Units/PhysicalConstants.h"
