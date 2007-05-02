@@ -40,8 +40,10 @@
 #include "CondTools/Ecal/interface/EcalErrorDictionary.h"
 
 #include "DQM/EcalCommon/interface/EcalErrorMask.h"
-#include <DQM/EcalBarrelMonitorClient/interface/EBIntegrityClient.h>
 #include <DQM/EcalCommon/interface/UtilsClient.h>
+#include <DQM/EcalCommon/interface/LogicID.h>
+
+#include <DQM/EcalBarrelMonitorClient/interface/EBIntegrityClient.h>
 
 using namespace cms;
 using namespace edm;
@@ -479,7 +481,7 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
         if ( econn ) {
           try {
-            ecid = econn->getEcalLogicID("EB_crystal_number", ism, ic);
+            ecid = LogicID::getEcalLogicID("EB_crystal_number", ism, ic);
             dataset1[ecid] = c1;
           } catch (runtime_error &e) {
             cerr << e.what() << endl;
@@ -564,7 +566,7 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
         if ( econn ) {
           try {
-            ecid = econn->getEcalLogicID("EB_trigger_tower", ism, itt);
+            ecid = LogicID::getEcalLogicID("EB_trigger_tower", ism, itt);
             dataset2[ecid] = c2;
           } catch (runtime_error &e) {
             cerr << e.what() << endl;
@@ -641,7 +643,7 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
         if ( econn ) {
           try {
-            ecid = econn->getEcalLogicID("EB_mem_channel", ism, ic);
+            ecid = LogicID::getEcalLogicID("EB_mem_channel", ism, ic);
             dataset3[ecid] = c3;
           } catch (runtime_error &e) {
             cerr << e.what() << endl;
@@ -725,7 +727,7 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
       if ( econn ) {
         try {
-          ecid = econn->getEcalLogicID("EB_mem_TT", ism, itt);
+          ecid = LogicID::getEcalLogicID("EB_mem_TT", ism, itt);
           dataset4[ecid] = c4;
         } catch (runtime_error &e) {
           cerr << e.what() << endl;

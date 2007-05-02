@@ -29,8 +29,11 @@
 
 #include "OnlineDB/EcalCondDB/interface/MonOccupancyDat.h"
 
-#include <DQM/EcalEndcapMonitorClient/interface/EEBeamCaloClient.h>
+#include "DQM/EcalCommon/interface/EcalErrorMask.h"
 #include <DQM/EcalCommon/interface/UtilsClient.h>
+#include <DQM/EcalCommon/interface/LogicID.h>
+
+#include <DQM/EcalEndcapMonitorClient/interface/EEBeamCaloClient.h>
 
 using namespace cms;
 using namespace edm;
@@ -313,7 +316,7 @@ bool EEBeamCaloClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
 
         if ( econn ) {
           try {
-            ecid = econn->getEcalLogicID("EB_crystal_number", ism, ic);
+            ecid = LogicID::getEcalLogicID("EE_crystal_number", ism, ic);
             dataset[ecid] = o;
           } catch (runtime_error &e) {
             cerr << e.what() << endl;

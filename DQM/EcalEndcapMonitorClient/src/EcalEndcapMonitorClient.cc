@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2007/04/26 16:42:00 $
- * $Revision: 1.12 $
+ * $Date: 2007/04/30 09:24:03 $
+ * $Revision: 1.13 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -31,10 +31,10 @@
 #include "OnlineDB/EcalCondDB/interface/RunDat.h"
 #include "OnlineDB/EcalCondDB/interface/MonRunDat.h"
 
-
-#include <DQM/EcalCommon/interface/UtilsClient.h>
-#include "DQM/EcalCommon/interface/EcalErrorMask.h"
 #include "DQM/EcalCommon/interface/ColorPalette.h"
+#include "DQM/EcalCommon/interface/EcalErrorMask.h"
+#include <DQM/EcalCommon/interface/UtilsClient.h>
+#include <DQM/EcalCommon/interface/LogicID.h>
 
 #include "DQMServices/Core/interface/CollateMonitorElement.h"
 
@@ -797,6 +797,16 @@ void EcalEndcapMonitorClient::beginRunDb(void) {
   cout << "====================" << endl;
   cout << endl;
 
+  if ( econn ) {
+    try {
+      std::cout << "Fetching EcalLogicID vectors..." << std::flush;
+      LogicID::init( econn );
+      std::cout << "done." << std::endl;
+    } catch( std::runtime_error &e ) {
+      std::cerr << e.what() << std::endl;
+    }
+  }
+
   if ( maskFile_.size() != 0 ) {
     try {
       cout << "Fetching masked channels from file ... " << flush;
@@ -938,7 +948,7 @@ void EcalEndcapMonitorClient::writeDb(void) {
 
     if ( econn ) {
       try {
-        ecid = econn->getEcalLogicID("ECAL");
+        ecid = LogicID::getEcalLogicID("ECAL");
         dataset[ecid] = md;
       } catch (runtime_error &e) {
         cerr << e.what() << endl;
@@ -1018,7 +1028,7 @@ void EcalEndcapMonitorClient::endRunDb(void) {
 
     if ( econn ) {
       try {
-        ecid = econn->getEcalLogicID("ECAL");
+        ecid = LogicID::getEcalLogicID("ECAL");
         dataset[ecid] = rd;
       } catch (runtime_error &e) {
         cerr << e.what() << endl;

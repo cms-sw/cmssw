@@ -1,8 +1,8 @@
 /*
  * \file EBBeamCaloClient.cc
  *
- * $Date: 2007/04/07 12:25:59 $
- * $Revision: 1.44 $
+ * $Date: 2007/04/30 09:24:00 $
+ * $Revision: 1.45 $
  * \author G. Della Ricca
  * \author A. Ghezzi
  *
@@ -29,8 +29,11 @@
 
 #include "OnlineDB/EcalCondDB/interface/MonOccupancyDat.h"
 
-#include <DQM/EcalBarrelMonitorClient/interface/EBBeamCaloClient.h>
+#include "DQM/EcalCommon/interface/EcalErrorMask.h"
 #include <DQM/EcalCommon/interface/UtilsClient.h>
+#include <DQM/EcalCommon/interface/LogicID.h>
+
+#include <DQM/EcalBarrelMonitorClient/interface/EBBeamCaloClient.h>
 
 using namespace cms;
 using namespace edm;
@@ -313,7 +316,7 @@ bool EBBeamCaloClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
 
         if ( econn ) {
           try {
-            ecid = econn->getEcalLogicID("EB_crystal_number", ism, ic);
+            ecid = LogicID::getEcalLogicID("EB_crystal_number", ism, ic);
             dataset[ecid] = o;
           } catch (runtime_error &e) {
             cerr << e.what() << endl;

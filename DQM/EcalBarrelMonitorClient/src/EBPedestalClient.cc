@@ -34,8 +34,10 @@
 #include "CondTools/Ecal/interface/EcalErrorDictionary.h"
 
 #include "DQM/EcalCommon/interface/EcalErrorMask.h"
-#include <DQM/EcalBarrelMonitorClient/interface/EBPedestalClient.h>
 #include <DQM/EcalCommon/interface/UtilsClient.h>
+#include <DQM/EcalCommon/interface/LogicID.h>
+
+#include <DQM/EcalBarrelMonitorClient/interface/EBPedestalClient.h>
 
 using namespace cms;
 using namespace edm;
@@ -573,7 +575,7 @@ bool EBPedestalClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
 
         if ( econn ) {
           try {
-            ecid = econn->getEcalLogicID("EB_crystal_number", ism, ic);
+            ecid = LogicID::getEcalLogicID("EB_crystal_number", ism, ic);
             dataset1[ecid] = p;
           } catch (runtime_error &e) {
             cerr << e.what() << endl;
@@ -641,7 +643,7 @@ bool EBPedestalClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
 
       if ( econn ) {
         try {
-          ecid = econn->getEcalLogicID("EB_LM_PN", ism, i-1);
+          ecid = LogicID::getEcalLogicID("EB_LM_PN", ism, i-1);
           dataset2[ecid] = pn;
         } catch (runtime_error &e) {
           cerr << e.what() << endl;

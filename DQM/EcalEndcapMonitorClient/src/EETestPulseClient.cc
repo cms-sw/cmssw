@@ -35,8 +35,10 @@
 #include "CondTools/Ecal/interface/EcalErrorDictionary.h"
 
 #include "DQM/EcalCommon/interface/EcalErrorMask.h"
-#include <DQM/EcalEndcapMonitorClient/interface/EETestPulseClient.h>
 #include <DQM/EcalCommon/interface/UtilsClient.h>
+#include <DQM/EcalCommon/interface/LogicID.h>
+
+#include <DQM/EcalEndcapMonitorClient/interface/EETestPulseClient.h>
 
 using namespace cms;
 using namespace edm;
@@ -522,7 +524,7 @@ bool EETestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
         if ( econn ) {
           try {
-            ecid = econn->getEcalLogicID("EB_crystal_number", ism, ic);
+            ecid = LogicID::getEcalLogicID("EB_crystal_number", ism, ic);
             dataset1[ecid] = adc;
             if ( ie == 1 && ip == 1 ) dataset2[ecid] = shape;
           } catch (runtime_error &e) {
@@ -602,7 +604,7 @@ bool EETestPulseClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
       if ( econn ) {
         try {
-          ecid = econn->getEcalLogicID("EB_LM_PN", ism, i-1);
+          ecid = LogicID::getEcalLogicID("EB_LM_PN", ism, i-1);
           dataset3[ecid] = pn;
         } catch (runtime_error &e) {
           cerr << e.what() << endl;
