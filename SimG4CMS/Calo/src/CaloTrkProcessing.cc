@@ -1,10 +1,8 @@
 #include "SimG4Core/Notification/interface/BeginOfEvent.h"
-#include "SimG4Core/Notification/interface/EndOfTrack.h"
 #include "SimG4Core/Notification/interface/TrackWithHistory.h"
 #include "SimG4Core/Notification/interface/TrackInformation.h"
 
 #include "SimG4CMS/Calo/interface/CaloTrkProcessing.h"
-#include "SimG4CMS/Calo/interface/CaloMap.h"
 
 #include "SimG4Core/Application/interface/SimTrackManager.h"
 #include "DetectorDescription/Core/interface/DDFilter.h"
@@ -61,27 +59,7 @@ CaloTrkProcessing::~CaloTrkProcessing() {
 
 void CaloTrkProcessing::update(const BeginOfEvent * evt) {
 
-  CaloMap::instance()->clear((*evt)()->GetEventID());
   lastTrackID = -1;
-}
-
-void CaloTrkProcessing::update(const EndOfTrack * trk) {
-
-  int id = (*trk)()->GetTrackID();
-  if (id == lastTrackID) {
-    const TrackContainer * trksForThisEvent = m_trackManager->trackContainer();
-    if (trksForThisEvent != NULL) {
-      int it = (int)(trksForThisEvent->size()) - 1;
-      LogDebug("CaloSim") << "CaloTrkProcessing: get track " << it << " from "
-			  << "Container of size " << trksForThisEvent->size();
-      if (it >= 0) {
-	TrackWithHistory * trkH = (*trksForThisEvent)[it];
-	LogDebug("CaloSim") << " with ID " << trkH->trackID();
-	if (trkH->trackID() == (unsigned int)(id))
-	  CaloMap::instance()->setTrack(id, trkH);
-      } 
-    }
-  }
 }
 
 void CaloTrkProcessing::update(const G4Step * aStep) {

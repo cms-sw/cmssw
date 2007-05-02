@@ -4,7 +4,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "SimG4CMS/Calo/interface/CaloSD.h"
-#include "SimG4CMS/Calo/interface/CaloMap.h"
 #include "SimDataFormats/SimHitMaker/interface/CaloSlaveSD.h"
 #include "SimG4Core/Geometry/interface/SDCatalog.h"
 #include "SimG4Core/Notification/interface/TrackInformation.h"
@@ -391,8 +390,7 @@ void CaloSD::createNewHit() {
 			  << currentID.trackID() << " with Hit";
     }
   } else {
-    TrackWithHistory * trkh = 
-      CaloMap::instance()->getTrack(currentID.trackID());
+    TrackWithHistory * trkh = tkMap[currentID.trackID()];
     LogDebug("CaloSim") << "CaloSD : TrackwithHistory pointer for " 
 			<< currentID.trackID() << " is " << trkh;
     if (trkh != NULL) {
@@ -536,7 +534,30 @@ void CaloSD::update(const BeginOfEvent *) {
   LogDebug("CaloSim")  << "CaloSD: Dispatched BeginOfEvent for " << GetName() 
 		       << " !" ;
   clearHits();
+  tkMap.erase (tkMap.begin(), tkMap.end());
 }
+
+void CaloSD::update(const EndOfTrack * trk) {
+
+  int id = (*trk)()->GetTrackID();
+  TrackInformation *trkI =(TrackInformation *)((*trk)()->GetUserInformation());
+  int lastTrackID = -1;
+  if (trkI) lastTrackID = trkI->getIDonCaloSurface();
+  if (id == lastTrackID) {
+    const TrackContainer * trksForThisEvent = m_trackManager->trackContainer();
+    if (trksForThisEvent != NULL) {
+      int it = (int)(trksForThisEvent->size()) - 1;
+      LogDebug("CaloSim") << "CaloSD: get track " << it << " from "
+                          << "Container of size " << trksForThisEvent->size();
+      if (it >= 0) {
+        TrackWithHistory * trkH = (*trksForThisEvent)[it];
+        LogDebug("CaloSim") << " with ID " << trkH->trackID();
+        if (trkH->trackID() == (unsigned int)(id)) tkMap[id] = trkH;
+      }
+    }
+  }
+}
+
 
 void CaloSD::clearHits(){
 

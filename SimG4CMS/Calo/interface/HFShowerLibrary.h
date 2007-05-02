@@ -8,6 +8,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "SimG4CMS/Calo/interface/HFFibre.h"
+#include "SimDataFormats/CaloHit/interface/HFShowerPhoton.h"
 #include "DetectorDescription/Core/interface/DDsvalues.h"
 
 #include "G4ThreeVector.hh"
@@ -23,7 +24,7 @@
 class DDCompactView;    
 class G4Step;
 
-class HFShowerLibrary : public TObject {
+class HFShowerLibrary {
   
 public:
   
@@ -52,28 +53,10 @@ protected:
   std::vector<double> getDDDArray(const std::string&, const DDsvalues_type&,
 				  int&);
 
-  struct Photon {
-    Photon() {}
-    float             x;
-    float             y;
-    float             z;
-    int               lambda;
-    int               time;
-  };
-
   struct Hit {
     Hit() {}
     G4ThreeVector     position;
     int               depth;
-    double            time;
-  };
-
-  struct PhotoElectron {
-    PhotoElectron() {}
-    double            x;
-    double            y;
-    double            z;
-    double            lambda;
     double            time;
   };
 
@@ -97,13 +80,13 @@ private:
   std::vector<double> gpar;
 
   int                 nPhoton;
-  std::vector<Photon> photon;
+  std::vector<HFShowerPhoton> photon;
 
   int                 nHit;
   std::vector<Hit>    hit;
 
   int                 npe;
-  std::vector<PhotoElectron> pe;
+  std::vector<HFShowerPhoton> pe;
 
 };
 #endif

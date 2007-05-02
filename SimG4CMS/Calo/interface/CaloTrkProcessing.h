@@ -16,12 +16,10 @@
 
 class SimTrackManager;
 class BeginOfEvent;
-class EndOfTrack;
 class G4Step;
 
 class CaloTrkProcessing : public SensitiveCaloDetector, 
 			  public Observer<const BeginOfEvent *>,
-			  public Observer<const EndOfTrack *>, 
 			  public Observer<const G4Step *> {
 
 public:
@@ -41,7 +39,6 @@ public:
 private:
 
   void                     update(const BeginOfEvent * evt);
-  void                     update(const EndOfTrack * trk);
   void                     update(const G4Step *);
   std::vector<std::string> getNames(G4String, const DDsvalues_type&);
   bool                     isItCalo(std::string);
