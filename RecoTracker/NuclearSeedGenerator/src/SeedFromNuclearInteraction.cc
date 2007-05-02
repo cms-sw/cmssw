@@ -10,7 +10,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 SeedFromNuclearInteraction::SeedFromNuclearInteraction(const edm::EventSetup& es, const edm::ParameterSet& iConfig) : 
-rescaleDirectionFactor(iConfig.getParameter<double>("rescaleDirectionFactor")) {
+rescaleDirectionFactor(iConfig.getParameter<double>("rescaleDirectionFactor")),
+rescalePositionFactor(iConfig.getParameter<double>("rescalePositionFactor")) {
 
   edm::ESHandle<Propagator>  thePropagatorHandle;
   es.get<TrackingComponentsRecord>().get("PropagatorWithMaterial",thePropagatorHandle);
@@ -28,16 +29,11 @@ void SeedFromNuclearInteraction::setMeasurements(const TM& tmAtInteractionPoint,
        theNewTM = &outerTM;
 
        // delete pointer to TrackingRecHits
-       // for(recHitContainer::iterator it=_hits.begin(); it!=_hits.end(); it++) delete *it;
        _hits.clear();
 
        // get the inner and outer transient TrackingRecHits
        innerHit = tmAtInteractionPoint.recHit().get();
        outerHit = outerTM.recHit().get();
-
-       // convert transient to persistent TrackingRecHits
-       //TrackingRecHit* pinhit  = dynamic_cast<TrackingRecHit*>(innerHit->clone());
-       //TrackingRecHit* pouthit = dynamic_cast<TrackingRecHit*>(outerHit->clone());
 
        _hits.push_back( innerHit->hit()->clone() );
        _hits.push_back( outerHit->hit()->clone() );
@@ -55,9 +51,8 @@ TrajectoryStateOnSurface SeedFromNuclearInteraction::stateWithError(const TSOS& 
 
    AlgebraicSymMatrix m(state.localError().matrix());
    m[0][0]=m[0][0]*1E6; 
-//  m[1][1]=m[1][1]*rescaleDirectionFactor*rescaleDirectionFactor;
-//  m[2][2]=m[2][2]*rescaleDirectionFactor*rescaleDirectionFactor;
-   m*=rescaleDirectionFactor*rescaleDirectionFactor;
+   m[1][1]=m[1][1]*rescaleDirectionFactor*rescaleDirectionFactor;
+   m[2][2]=m[2][2]*rescalePositionFactor*rescalePositionFactor;
    return TSOS(newltp, m, state.surface(), &(state.globalParameters().magneticField()), state.surfaceSide());
 }
 

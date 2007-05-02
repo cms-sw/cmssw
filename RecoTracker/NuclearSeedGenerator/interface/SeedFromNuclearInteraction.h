@@ -56,5 +56,6 @@ private :
   bool construct();
 
   double rescaleDirectionFactor;
+  double rescalePositionFactor;
 };
 #endif
