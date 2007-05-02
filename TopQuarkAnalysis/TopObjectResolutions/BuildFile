@@ -1,0 +1,6 @@
+<use name=AnalysisDataFormats/TopObjects>
+<flags SEAL_PLUGIN_NAME="TopQuarkAnalysisTopObjectResolutions">
+<export>
+  <use name=AnalysisDataFormats/TopObjects>
+  <lib name=TopQuarkAnalysisTopObjectResolutions>
+</export>

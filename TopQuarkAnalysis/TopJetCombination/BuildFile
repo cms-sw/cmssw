@@ -1,0 +1,12 @@
+<use name=AnalysisDataFormats/TopObjects>
+<use name=FWCore/FWLite>
+<use name=FWCore/Framework>
+<use name=rootcintex>
+#<flags SEAL_PLUGIN_NAME="TopQuarkAnalysisTopJetCombination">
+<export>
+   <use name=FWCore/FWLite>
+   <use name=FWCore/Framework>
+   <use name=rootcintex>
+   <use name=AnalysisDataFormats/TopObjects>
+   <lib name=TopQuarkAnalysisTopJetCombination>
+</export>
