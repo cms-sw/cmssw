@@ -1,7 +1,7 @@
 #include "Alignment/CommonAlignment/interface/SurveyDet.h"
 #include "Alignment/SurveyAnalysis/test/AlignableTest.h"
 
-#include "SurveyInputTest.h"
+#include "Alignment/SurveyAnalysis/test/SurveyInputTest.h"
 
 using namespace align;
 

@@ -5,7 +5,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "SurveyTest.h"
+#include "Alignment/SurveyAnalysis/test/SurveyTest.h"
 
 SurveyTest::SurveyTest(const edm::ParameterSet& cfg):
   theBiasFlag( cfg.getUntrackedParameter<bool>("bias", false) ),
