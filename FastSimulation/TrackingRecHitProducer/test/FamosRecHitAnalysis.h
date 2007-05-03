@@ -39,22 +39,28 @@ private:
   void bookValues( std::vector<TH1F*>& histos_x , std::vector<TH1F*>& histos_y , std::vector<TH1F*>& histos_z , int nBin , float range , char* det , unsigned int nHist );
   void bookErrors( std::vector<TH1F*>& histos_x , std::vector<TH1F*>& histos_y , std::vector<TH1F*>& histos_z , int nBin , float range , char* det , unsigned int nHist );
   void bookNominals( std::vector<TH1F*>& histos_x , int nBin , float range , char* det , unsigned int nHist );
+  void bookEnergyLosses( std::vector<TH1F*>& histos_x, int nBin, float range, char* det, unsigned int nHist );
   void loadPixelData(TFile* pixelMultiplicityFile, TFile* pixelBarrelResolutionFile, TFile* pixelForwardResolutionFile);
   void loadPixelData(TFile* pixelDataFile, unsigned int nMultiplicity, std::string histName,
 		     std::vector<TH1F*>& theMultiplicityProbabilities);
   void loadPixelData( TFile* pixelDataFile, unsigned int nMultiplicity, int nBins, double binWidth,
 		      std::vector<TH1F*>& theResolutionHistograms, bool isAlpha);
-  void bookPixel( std::vector<TH1F*>& histos_alpha , std::vector<TH1F*>& histos_beta , std::vector<TH1F*>& histos_nom_alpha  , std::vector<TH1F*>& histos_nom_beta, char* det );
-  void bookPixel( std::vector<TH1F*>& histos_alpha , std::vector<TH1F*>& histos_beta , std::vector<TH1F*>& histos_nom_alpha  , std::vector<TH1F*>& histos_nom_beta, char* det,
-		  unsigned int nAlphaMultiplicity ,
-		  double resAlpha_binMin , double resAlpha_binWidth , int resAlpha_binN , 
-		  unsigned int nBetaMultiplicity ,
-		  double resBeta_binMin  , double resBeta_binWidth  , int resBeta_binN  );
+  void bookPixel( std::vector<TH1F*>& histos_alpha , std::vector<TH1F*>& histos_beta , std::vector<TH1F*>& histos_nom_alpha  , 
+                  std::vector<TH1F*>& histos_nom_beta,
+                  std::vector<TH1F*>& histos_dedx_alpha, std::vector<TH1F*>& histos_dedx_beta,
+                  char* det );
+  void bookPixel( std::vector<TH1F*>& histos_alpha , std::vector<TH1F*>& histos_beta , std::vector<TH1F*>& histos_nom_alpha  , 
+                  std::vector<TH1F*>& histos_nom_beta, 
+                  char* det, unsigned int nAlphaMultiplicity ,
+                  double resAlpha_binMin , double resAlpha_binWidth , int resAlpha_binN , 
+                  unsigned int nBetaMultiplicity ,
+                  double resBeta_binMin  , double resBeta_binWidth  , int resBeta_binN  );
   void write(std::vector<TH1F*> histos);
   
   void chooseHist( unsigned int rawid ,
 		   TH1F*& hist_x , TH1F*& hist_y , TH1F*& hist_z, TH1F*& hist_err_x , TH1F*& hist_err_y , TH1F*& hist_err_z ,
-		   TH1F*& hist_alpha , TH1F*& hist_beta , TH1F*& hist_res_alpha , TH1F*& hist_res_beta , 
+		   TH1F*& hist_alpha , TH1F*& hist_beta , TH1F*& hist_res_alpha , TH1F*& hist_res_beta , TH1F*& hist_dedx, 
+                   TH1F*& hist_dedx_alpha, TH1F*& hist_dedx_beta,
 		   unsigned int mult_alpha , unsigned int mult_beta ,
 		   double       alpha      , double       beta       );
   
@@ -80,7 +86,8 @@ private:
   std::vector<TH1F*> histos_TIB_err_y;
   std::vector<TH1F*> histos_TIB_err_z;
   std::vector<TH1F*> histos_TIB_nom_x;
-  // TID - 3 different detectors
+  std::vector<TH1F*> histos_TIB_dedx;
+// TID - 3 different detectors
   static const unsigned int nHist_TID = 3;
   std::vector<TH1F*> histos_TID_x;
   std::vector<TH1F*> histos_TID_y;
@@ -89,7 +96,8 @@ private:
   std::vector<TH1F*> histos_TID_err_y;
   std::vector<TH1F*> histos_TID_err_z;
   std::vector<TH1F*> histos_TID_nom_x;
-  // TOB - 6 different detectors
+  std::vector<TH1F*> histos_TID_dedx;
+// TOB - 6 different detectors
   static const unsigned int nHist_TOB = 6;
   std::vector<TH1F*> histos_TOB_x;
   std::vector<TH1F*> histos_TOB_y;
@@ -98,7 +106,8 @@ private:
   std::vector<TH1F*> histos_TOB_err_y;
   std::vector<TH1F*> histos_TOB_err_z;
   std::vector<TH1F*> histos_TOB_nom_x;
-  // TEC - 7 different detectors
+  std::vector<TH1F*> histos_TOB_dedx;
+// TEC - 7 different detectors
   static const unsigned int nHist_TEC = 7;
   std::vector<TH1F*> histos_TEC_x;
   std::vector<TH1F*> histos_TEC_y;
@@ -107,6 +116,7 @@ private:
   std::vector<TH1F*> histos_TEC_err_y;
   std::vector<TH1F*> histos_TEC_err_z;
   std::vector<TH1F*> histos_TEC_nom_x;
+  std::vector<TH1F*> histos_TEC_dedx;
   //
   
   // PSimHits
@@ -143,6 +153,11 @@ private:
   std::vector<TH1F*> histos_PXB_nom_beta;
   std::vector<TH1F*> histos_PXF_nom_alpha;
   std::vector<TH1F*> histos_PXF_nom_beta;
+   // energy losses
+  std::vector<TH1F*> histos_PXB_dedx_alpha;
+  std::vector<TH1F*> histos_PXB_dedx_beta;
+  std::vector<TH1F*> histos_PXF_dedx_alpha;
+  std::vector<TH1F*> histos_PXF_dedx_beta;
   // resolutions
   std::vector<TH1F*> histos_PXB_res_alpha;
   std::vector<TH1F*> histos_PXB_res_beta;

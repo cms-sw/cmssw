@@ -55,7 +55,7 @@
 
 const double PI = 3.14159265358979323;
 
-#define rrDEBUG
+// #define rrDEBUG
 
 FamosRecHitAnalysis::FamosRecHitAnalysis(edm::ParameterSet const& pset) : 
   _pset(pset),
@@ -125,31 +125,41 @@ void FamosRecHitAnalysis::book() {
   bookValues( histos_TIB_x , histos_TIB_y , histos_TIB_z , nbin , minmax , "TIB" , nHist_TIB );
   bookErrors( histos_TIB_err_x , histos_TIB_err_y , histos_TIB_err_z , 500 , 0.0500 , "TIB" , nHist_TIB );
   bookNominals( histos_TIB_nom_x , nbin , minmax , "TIB" , nHist_TIB );
+  bookEnergyLosses( histos_TIB_dedx, 200, 0.001, "TIB", nHist_TIB );
   // TID
   bookValues( histos_TID_x , histos_TID_y , histos_TID_z , nbin , minmax , "TID" , nHist_TID );
   bookErrors( histos_TID_err_x , histos_TID_err_y , histos_TID_err_z , 500 , 0.0500 , "TID" , nHist_TID );
   bookNominals( histos_TID_nom_x , nbin , minmax , "TID" , nHist_TID );
+  bookEnergyLosses( histos_TID_dedx, 200, 0.001, "TID", nHist_TID );
   // TOB
   bookValues( histos_TOB_x , histos_TOB_y , histos_TOB_z , nbin , minmax , "TOB" , nHist_TOB );
   bookErrors( histos_TOB_err_x , histos_TOB_err_y , histos_TOB_err_z , 500 , 0.0500 , "TOB" , nHist_TOB );
   bookNominals( histos_TOB_nom_x , nbin , minmax , "TOB" , nHist_TOB );
+  bookEnergyLosses( histos_TOB_dedx, 200, 0.002, "TOB", nHist_TOB );
   // TEC
   bookValues( histos_TEC_x , histos_TEC_y , histos_TEC_z , nbin , minmax , "TEC" , nHist_TEC );
   bookErrors( histos_TEC_err_x , histos_TEC_err_y , histos_TEC_err_z , 500 , 0.0500 , "TEC" , nHist_TEC );
   bookNominals( histos_TEC_nom_x , nbin , minmax , "TEC" , nHist_TEC );
+  bookEnergyLosses( histos_TEC_dedx, 200, 0.002, "TEC", nHist_TEC );
   //
   
   // special Analysis of pixels
   loadPixelData(thePixelMultiplicityFile, thePixelBarrelResolutionFile, thePixelForwardResolutionFile);
   //
-  bookPixel( histos_PXB_alpha , histos_PXB_beta , histos_PXB_nom_alpha , histos_PXB_nom_beta , "PXB" );
-  bookPixel( histos_PXF_alpha , histos_PXF_beta , histos_PXF_nom_alpha , histos_PXF_nom_beta , "PXF" );
-  bookPixel( histos_PXB_res_alpha , histos_PXB_res_beta , histos_PXB_nom_res_alpha , histos_PXB_nom_res_beta , "PXB" ,
-	     nAlphaBarrel , resAlphaBarrel_binMin , resAlphaBarrel_binWidth , resAlphaBarrel_binN ,
-	     nBetaBarrel  , resBetaBarrel_binMin  , resBetaBarrel_binWidth  , resBetaBarrel_binN   );
-  bookPixel( histos_PXF_res_alpha , histos_PXF_res_beta , histos_PXF_nom_res_alpha , histos_PXF_nom_res_beta , "PXF" ,
-	     nAlphaForward , resAlphaForward_binMin , resAlphaForward_binWidth , resAlphaForward_binN ,
-	     nBetaForward  , resBetaForward_binMin  , resBetaForward_binWidth  , resBetaForward_binN   );
+  bookPixel( histos_PXB_alpha , histos_PXB_beta , histos_PXB_nom_alpha , histos_PXB_nom_beta ,
+             histos_PXB_dedx_alpha, histos_PXB_dedx_beta,
+             "PXB" );
+  bookPixel( histos_PXF_alpha , histos_PXF_beta , histos_PXF_nom_alpha , histos_PXF_nom_beta ,
+             histos_PXF_dedx_alpha, histos_PXF_dedx_beta,
+             "PXF" );
+  bookPixel( histos_PXB_res_alpha , histos_PXB_res_beta , histos_PXB_nom_res_alpha , histos_PXB_nom_res_beta ,
+             "PXB" ,
+             nAlphaBarrel , resAlphaBarrel_binMin , resAlphaBarrel_binWidth , resAlphaBarrel_binN ,
+             nBetaBarrel  , resBetaBarrel_binMin  , resBetaBarrel_binWidth  , resBetaBarrel_binN   );
+  bookPixel( histos_PXF_res_alpha , histos_PXF_res_beta , histos_PXF_nom_res_alpha , histos_PXF_nom_res_beta ,
+             "PXF" ,
+             nAlphaForward , resAlphaForward_binMin , resAlphaForward_binWidth , resAlphaForward_binN ,
+             nBetaForward  , resBetaForward_binMin  , resBetaForward_binWidth  , resBetaForward_binN   );
   //
   
 #ifdef rrDEBUG
@@ -195,6 +205,16 @@ void FamosRecHitAnalysis::bookNominals(std::vector<TH1F*>& histos_x , int nBin, 
     histos_x.push_back(            new TH1F(Form( "hist_%s_%u_nomX" , det , iHist+1 ) ,
 					    Form( "Hit Local Position Nominal #Deltax=x_{Rec}-x_{Sim} %s %u;#Deltax [cm];Entries/bin" , det , iHist+1 ) ,
 					    nBin , -range*0.05 ,  range*0.05 ));
+  }
+  //
+}
+
+void FamosRecHitAnalysis::bookEnergyLosses(std::vector<TH1F*>& histos_x , int nBin, float range, char* det, unsigned int nHist) {
+  //
+  for(unsigned int iHist = 0; iHist < nHist; iHist++) {
+    histos_x.push_back(            new TH1F(Form( "hist_%s_%u_dedx" , det , iHist+1 ) ,
+                                            Form( "Sim Hit energy loss dE/dx %s %u;dE/dx;Entries/bin" , det , iHist+1 ) ,
+                                            nBin , 0.0 ,  range ));
   }
   //
 }
@@ -285,12 +305,16 @@ void FamosRecHitAnalysis::loadPixelData( TFile* pixelDataFile, unsigned int nMul
 
 void FamosRecHitAnalysis::bookPixel( std::vector<TH1F*>& histos_alpha , std::vector<TH1F*>& histos_beta ,
 				     std::vector<TH1F*>& histos_nom_alpha  , std::vector<TH1F*>& histos_nom_beta ,
+                                     std::vector<TH1F*>& histos_dedx_alpha , std::vector<TH1F*>& histos_dedx_beta,
 				     char* det ) {
   //
   for(unsigned int iHist = 0; iHist < histos_nom_alpha.size(); iHist++) {
     histos_alpha.push_back( new TH1F(Form( "hist_%s_%u_prob_alpha" , det , iHist+1 ) ,
 				     Form( "Hit Local Position angle #alpha^{Rec} %s (multiplicity %u) probability;#alpha^{Rec} [rad];Probability" , det , iHist+1 ) ,
 				     histos_nom_alpha[iHist]->GetNbinsX() , histos_nom_alpha[iHist]->GetXaxis()->GetXmin() , histos_nom_alpha[iHist]->GetXaxis()->GetXmax() ));
+    histos_dedx_alpha.push_back( new TH1F(Form( "hist_%s_%u_dedx_alpha" , det , iHist+1 ) ,
+                                    Form( "Sim Hit energy loss dE/dx %s %u;dE/dx;Entries/bin" , det , iHist+1 ) ,
+                                    200, 0, 0.001 ));
     // change name to the nominal one
     histos_nom_alpha[iHist]->SetTitle( Form( "Hit Local Position angle #alpha^{Sim} %s (multiplicity %u) probability;#alpha^{Sim} [rad];Probability" , det , iHist+1 ) );
     histos_nom_alpha[iHist]->SetName(  Form( "hist_%s_%u_nom_prob_alpha" , det , iHist+1 ) );
@@ -305,6 +329,9 @@ void FamosRecHitAnalysis::bookPixel( std::vector<TH1F*>& histos_alpha , std::vec
     histos_beta.push_back( new TH1F(Form( "hist_%s_%u_prob_beta" , det , iHist+1 ) ,
 				    Form( "Hit Local Position angle #beta^{Rec} %s (multiplicity %u) probability;#beta^{Rec} [rad];Probability" , det , iHist+1 ) ,
 				    histos_nom_beta[iHist]->GetNbinsX() , histos_nom_beta[iHist]->GetXaxis()->GetXmin() , histos_nom_beta[iHist]->GetXaxis()->GetXmax() ));
+    histos_dedx_beta.push_back( new TH1F(Form( "hist_%s_%u_dedx_beta" , det , iHist+1 ) ,
+                                    Form( "Sim Hit energy loss dE/dx %s %u;dE/dx;Entries/bin" , det , iHist+1 ) ,
+                                    200, 0, 0.001 ));
     // change name to the nominal one
     histos_nom_beta[iHist]->SetTitle( Form( "Hit Local Position angle #beta^{Sim} %s (multiplicity %u) probability;#beta^{Sim} [rad];Probability" , det , iHist+1 ) );
     histos_nom_beta[iHist]->SetName(  Form( "hist_%s_%u_nom_prob_beta" , det , iHist+1 ) );
@@ -402,9 +429,9 @@ void FamosRecHitAnalysis::analyze(const edm::Event& event, const edm::EventSetup
   std::cout << "Famos analysis" << std::endl;
 #endif
   // get event and run number
+#ifdef rrDEBUG
   int t_Run   = event.id().run();
   int t_Event = event.id().event();
-#ifdef rrDEBUG
   std::cout
     << " #################################### Run " << t_Run 
     << " Event "                                    << t_Event << " #################################### " 
@@ -436,6 +463,9 @@ void FamosRecHitAnalysis::analyze(const edm::Event& event, const edm::EventSetup
   TH1F* hist_beta  = 0;
   TH1F* hist_res_alpha = 0;
   TH1F* hist_res_beta  = 0;
+  TH1F* hist_dedx = 0;
+  TH1F* hist_dedx_alpha = 0;
+  TH1F* hist_dedx_beta = 0;
   //
   
   // loop on RecHits
@@ -477,6 +507,8 @@ void FamosRecHitAnalysis::analyze(const edm::Event& event, const edm::EventSetup
 	float err_x = sqrt((*iterRecHit).localPositionError().xx());
 	float err_y = sqrt((*iterRecHit).localPositionError().yy());
 	float err_z = 0.0;
+
+        float dedx = simHit->energyLoss();
 	
 	// CALCULATE alpha AND beta
 	// at the beginning the position is the Local Point in the local pixel module reference frame
@@ -526,6 +558,7 @@ void FamosRecHitAnalysis::analyze(const edm::Event& event, const edm::EventSetup
 		  << "\t\tx = " << xSim << " cm"
 		  << "\t\ty = " << ySim << " cm"
 		  << "\t\tz = " << zSim << " cm"
+                  << "\t\tdedx = " << dedx << " ???"
 		  << std::endl;
 	std::cout << "\tResiduals"
 		  << "\t\tx = " << delta_x << " cm"
@@ -543,10 +576,11 @@ void FamosRecHitAnalysis::analyze(const edm::Event& event, const edm::EventSetup
 		  << std::endl;
 #endif
 	// fill proper histograms
-	chooseHist( detid , hist_x , hist_y , hist_z , hist_err_x , hist_err_y , hist_err_z ,
-		    hist_alpha , hist_beta , hist_res_alpha , hist_res_beta ,
-		    mult_alpha , mult_beta ,
-		    alpha      , beta       );
+        chooseHist( detid , hist_x , hist_y , hist_z , hist_err_x , hist_err_y , hist_err_z ,
+                    hist_alpha , hist_beta , hist_res_alpha , hist_res_beta , hist_dedx,
+                    hist_dedx_alpha, hist_dedx_beta,
+                    mult_alpha , mult_beta ,
+                    alpha      , beta       );
 	//
 	if(hist_x != 0) {
 #ifdef rrDEBUG
@@ -558,17 +592,23 @@ void FamosRecHitAnalysis::analyze(const edm::Event& event, const edm::EventSetup
 	  hist_err_x->Fill( err_x );
 	  hist_err_y->Fill( err_y );
 	  hist_err_z->Fill( err_z );
+          hist_dedx->Fill( dedx );
 	}
 	//
 	if(hist_alpha != 0 && mult_alpha != 0) {
 #ifdef rrDEBUG
 	  std::cout << "\tFill histograms " << hist_alpha->GetName()     << ", " << hist_beta->GetName()
-		    << " , "                << hist_res_alpha->GetName() << ", " << hist_res_beta->GetName() << std::endl;
+		    << " , "                << hist_res_alpha->GetName() << ", " << hist_res_beta->GetName()
+                    << " , "                << hist_dedx_alpha->GetName()
+                    << " , "                << hist_dedx_beta->GetName()
+                    << std::endl;
 #endif	  
 	  hist_alpha->Fill( alpha );
 	  hist_beta->Fill(  beta  );
-	  hist_res_alpha->Fill( xRec );
-	  hist_res_beta->Fill(  yRec  );
+	  hist_res_alpha->Fill( delta_x );
+	  hist_res_beta->Fill(  delta_y );
+          hist_dedx_alpha->Fill( dedx );
+          hist_dedx_beta->Fill( dedx );
 	}
 	//	
       } // loop over RecHits
@@ -601,6 +641,8 @@ void FamosRecHitAnalysis::endJob() {
   // PXB
   write(histos_PXB_alpha);
   write(histos_PXB_beta);
+  write(histos_PXB_dedx_alpha);
+  write(histos_PXB_dedx_beta);
   write(histos_PXB_nom_alpha);
   write(histos_PXB_nom_beta);
   write(histos_PXB_res_alpha);
@@ -610,6 +652,8 @@ void FamosRecHitAnalysis::endJob() {
   // PXF
   write(histos_PXF_alpha);
   write(histos_PXF_beta);
+  write(histos_PXF_dedx_alpha);
+  write(histos_PXF_dedx_beta);
   write(histos_PXF_nom_alpha);
   write(histos_PXF_nom_beta);
   write(histos_PXF_res_alpha);
@@ -624,6 +668,7 @@ void FamosRecHitAnalysis::endJob() {
   write(histos_TIB_err_y);
   write(histos_TIB_err_z);
   write(histos_TIB_nom_x);
+  write(histos_TIB_dedx);
   // TID
   write(histos_TID_x);
   write(histos_TID_y);
@@ -632,6 +677,7 @@ void FamosRecHitAnalysis::endJob() {
   write(histos_TID_err_y);
   write(histos_TID_err_z);
   write(histos_TID_nom_x);
+  write(histos_TID_dedx);
   // TOB
   write(histos_TOB_x);
   write(histos_TOB_y);
@@ -640,6 +686,7 @@ void FamosRecHitAnalysis::endJob() {
   write(histos_TOB_err_y);
   write(histos_TOB_err_z);
   write(histos_TOB_nom_x);
+  write(histos_TOB_dedx);
   // TEC
   write(histos_TEC_x);
   write(histos_TEC_y);
@@ -648,6 +695,7 @@ void FamosRecHitAnalysis::endJob() {
   write(histos_TEC_err_y);
   write(histos_TEC_err_z);
   write(histos_TEC_nom_x);
+  write(histos_TEC_dedx);
   //
   rootComparison( histos_PXB_alpha , histos_PXB_nom_alpha , -1 , 0 , 1.05 );
   rootComparison( histos_PXB_beta  , histos_PXB_nom_beta  , -1 , 0 , 1.05 );
@@ -669,10 +717,11 @@ void FamosRecHitAnalysis::endJob() {
 
 //
 void FamosRecHitAnalysis::chooseHist( unsigned int rawid ,
-				      TH1F*& hist_x , TH1F*& hist_y , TH1F*& hist_z, TH1F*& hist_err_x , TH1F*& hist_err_y , TH1F*& hist_err_z ,
-				      TH1F*& hist_alpha , TH1F*& hist_beta , TH1F*& hist_res_alpha , TH1F*& hist_res_beta , 
-				      unsigned int mult_alpha , unsigned int mult_beta ,
-				      double       alpha      , double       beta       ) {
+                                      TH1F*& hist_x , TH1F*& hist_y , TH1F*& hist_z, TH1F*& hist_err_x , TH1F*& hist_err_y , TH1F*& hist_err_z ,
+                                      TH1F*& hist_alpha , TH1F*& hist_beta , TH1F*& hist_res_alpha , TH1F*& hist_res_beta , TH1F*& hist_dedx, 
+                                      TH1F*& hist_dedx_alpha, TH1F*& hist_dedx_beta,
+                                      unsigned int mult_alpha , unsigned int mult_beta ,
+                                      double       alpha      , double       beta       ) {
   int subdetid = ((rawid>>25)&0x7);
   
   switch (subdetid) {
@@ -681,10 +730,12 @@ void FamosRecHitAnalysis::chooseHist( unsigned int rawid ,
     // PXB
     {
       PXBDetId module(rawid);
-      unsigned int theLayer = module.layer();
-      hist_alpha = histos_PXB_alpha[mult_alpha-1];
-      hist_beta  = histos_PXB_beta[mult_beta-1];
+      hist_alpha       = histos_PXB_alpha[mult_alpha-1];
+      hist_beta        = histos_PXB_beta[mult_beta-1];
+      hist_dedx_alpha  = histos_PXB_dedx_alpha[mult_alpha-1];
+      hist_dedx_beta   = histos_PXB_dedx_beta[mult_beta-1];
 #ifdef rrDEBUG
+      unsigned int theLayer = module.layer();
       std::cout << "\tTracker subdetector " << subdetid << " PXB Layer " << theLayer << std::endl;
 #endif
   //
@@ -737,10 +788,12 @@ void FamosRecHitAnalysis::chooseHist( unsigned int rawid ,
     // PXF
     {
       PXFDetId module(rawid);
-      unsigned int theDisk = module.disk();
-      hist_alpha = histos_PXF_alpha[mult_alpha-1];
-      hist_beta  = histos_PXF_beta[mult_beta-1];
+      hist_alpha       = histos_PXF_alpha[mult_alpha-1];
+      hist_beta        = histos_PXF_beta[mult_beta-1];
+      hist_dedx_alpha  = histos_PXF_dedx_alpha[mult_alpha-1];
+      hist_dedx_beta   = histos_PXF_dedx_beta[mult_beta-1];
 #ifdef rrDEBUG
+      unsigned int theDisk = module.disk();
       std::cout << "\tTracker subdetector " << subdetid << " PXF Disk " << theDisk << std::endl;
 #endif
       //
@@ -799,6 +852,7 @@ void FamosRecHitAnalysis::chooseHist( unsigned int rawid ,
       hist_err_x = histos_TIB_err_x[theLayer-1];
       hist_err_y = histos_TIB_err_y[theLayer-1];
       hist_err_z = histos_TIB_err_z[theLayer-1];
+      hist_dedx = histos_TIB_dedx[theLayer-1];
 #ifdef rrDEBUG
       std::cout << "\tTracker subdetector " << subdetid << " TIB Layer " << theLayer << std::endl;
 #endif
@@ -816,6 +870,7 @@ void FamosRecHitAnalysis::chooseHist( unsigned int rawid ,
       hist_err_x = histos_TID_err_x[theRing-1];
       hist_err_y = histos_TID_err_y[theRing-1];
       hist_err_z = histos_TID_err_z[theRing-1];
+      hist_dedx = histos_TID_dedx[theRing-1];
 #ifdef rrDEBUG
       std::cout << "\tTracker subdetector " << subdetid << " TID Ring " << theRing << std::endl;
 #endif
@@ -833,6 +888,7 @@ void FamosRecHitAnalysis::chooseHist( unsigned int rawid ,
       hist_err_x = histos_TOB_err_x[theLayer-1];
       hist_err_y = histos_TOB_err_y[theLayer-1];
       hist_err_z = histos_TOB_err_z[theLayer-1];
+      hist_dedx = histos_TOB_dedx[theLayer-1];
 #ifdef rrDEBUG
       std::cout << "\tTracker subdetector " << subdetid << " TOB Layer " << theLayer << std::endl;
 #endif
@@ -850,6 +906,7 @@ void FamosRecHitAnalysis::chooseHist( unsigned int rawid ,
       hist_err_x = histos_TEC_err_x[theRing-1];
       hist_err_y = histos_TEC_err_y[theRing-1];
       hist_err_z = histos_TEC_err_z[theRing-1];
+      hist_dedx = histos_TEC_dedx[theRing-1];
 #ifdef rrDEBUG
       std::cout << "\tTracker subdetector " << subdetid << " TEC Ring " << theRing << std::endl;
 #endif
@@ -1006,7 +1063,6 @@ void FamosRecHitAnalysis::rootComparison( std::vector<TH1F*> histos_value , std:
     // Store
     can_comparison.Update();
     can_comparison.SaveAs( Form( "Images/Comparison_%s.eps"  , histos_value[iHist]->GetName() ) );
-    can_comparison.SaveAs( Form( "Images/Comparison_%s.gif"  , histos_value[iHist]->GetName() ) );
     //
   }
   //
