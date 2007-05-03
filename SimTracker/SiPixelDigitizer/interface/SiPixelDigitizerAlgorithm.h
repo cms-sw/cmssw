@@ -21,7 +21,7 @@
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 //#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeomFromDetUnits.h"
 #include "SimGeneral/NoiseGenerators/interface/GaussianTailNoiseGenerator.h"
-#include "DataFormats/GeometrySurface/interface/TkRotation.h"
+//#include "DataFormats/GeometrySurface/interface/TkRotation.h"
 #include "DataFormats/GeometrySurface/interface/GloballyPositioned.h"
 #include "SimDataFormats/TrackerDigiSimLink/interface/PixelDigiSimLink.h"
 //#include "SimDataFormats/TrackerDigiSimLink/interface/PixelDigiSimLinkCollection.h"
