@@ -43,10 +43,10 @@ FBaseSimEvent::FBaseSimEvent(const edm::ParameterSet& kine)
 
   // Reserve some size to avoid mutiple copies
   /* */
-  theSimTracks->reserve(20000);
-  theSimVertices->reserve(20000);
-  theGenParticles->reserve(20000);
-  theChargedTracks->reserve(20000);
+  theSimTracks->reserve(5000);
+  theSimVertices->reserve(5000);
+  theGenParticles->reserve(5000);
+  theChargedTracks->reserve(5000);
   /* */
 
   // Initialize the Particle filter
@@ -78,10 +78,10 @@ FBaseSimEvent::FBaseSimEvent(const edm::ParameterSet& vtx,
 
   // Reserve some size to avoid mutiple copies
   /* */
-  theSimTracks->reserve(20000);
-  theSimVertices->reserve(20000);
-  theGenParticles->reserve(20000);
-  theChargedTracks->reserve(20000);
+  theSimTracks->reserve(5000);
+  theSimVertices->reserve(5000);
+  theGenParticles->reserve(5000);
+  theChargedTracks->reserve(5000);
   /* */
 
   // Initialize the Particle filter
@@ -443,15 +443,8 @@ FBaseSimEvent::addSimTrack(const RawParticle* p, int iv, int ig) {
   // Check that the particle is in the Famos "acceptance"
   if ( !myFilter->accept(p) ) return -1;
 
-  // An increasing barcode, corresponding to the list index
-  //  part->suggest_barcode(nTracks()+1);
-  
-  // Protection on the number of tracks
+  // The number of tracks
   int trackId = nTracks();
-  if ( trackId == 20000 ) {
-    std::cout << "FastSimulation:FBaseSimEvent - try to store more than 20000 tracks" << std::endl;
-    return -1;
-  }
 
   // Attach the particle to the origin vertex, and to the mother
   vertex(iv).addDaughter(trackId);
@@ -464,14 +457,7 @@ FBaseSimEvent::addSimTrack(const RawParticle* p, int iv, int ig) {
     }
   }
     
-  // Attach the vertex to the event (inoccuous if the vertex exists)
-  // add_vertex(originVertex);
-  
-  // Some persistent information for the users
-  //  mySimTracks->push_back(SimTrack(p->pid(),*p,iv,ig)); 
-
   // Some transient information for FAMOS internal use
-  //  theSimTracks->push_back(FSimTrack(mySimTracks->size()-1,this));
   theSimTracks->push_back(FSimTrack(p,iv,ig,trackId,this));
 
   return trackId;
@@ -484,24 +470,11 @@ FBaseSimEvent::addSimVertex(const HepLorentzVector& v,int im) {
   // Check that the vertex is in the Famos "acceptance"
   if ( !myFilter->accept(RawParticle(HepLorentzVector(),v)) ) return -1;
 
-  // An increasing -barcode, corresponding to the list index
-  //  decayVertex->suggest_barcode(-nVertices()-1);
-
-  // Attach the vertex to the event (inoccuous if the vertex exists)
-  //  add_vertex(decayVertex);
-
-  //  if ( im!=-1 ) decayVertex->add_particle_in(track(im).me());
+  // The number of vertices
   int vertexId = nVertices();
-  if ( vertexId == 20000 ) {
-    std::cout << "FastSimulation:FBaseSimEvent - try to store more than 20000 vertices" << std::endl;
-    return -1;
-  }
 
   // Attach the end vertex to the particle (if accepted)
   if ( im !=-1 ) track(im).setEndVertex(vertexId);
-
-  // Some persistent information for the users
-  //  mySimVertices->push_back(SimVertex(v.vect(),v.e(),im));
 
   // Some transient information for FAMOS internal use
   theSimVertices->push_back(FSimVertex(v,im,vertexId,this));
