@@ -19,6 +19,7 @@
 <library file=CandShallowCloneCombiner.cc></library>
 <library file=CandMerger.cc></library>
 <library file=CandShallowCloneProducer.cc></library>
+<library file=CandCountFilter.cc></library>
 <library file=CandReducer.cc></library>
 <library file=TrivialDeltaRMatcher.cc></library>
 
