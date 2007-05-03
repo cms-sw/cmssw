@@ -5,8 +5,8 @@
  *
  * Digi for CSC Cathode Strips.
  *  
- *  $Date: 2006/11/17 17:45:11 $
- *  $Revision: 1.13 $
+ *  $Date: 2006/12/14 22:33:47 $
+ *  $Revision: 1.14 $
  *
  * \author M. Schmitt, Northwestern
  *
@@ -20,12 +20,12 @@ class CSCStripDigi{
 public:
 
   // Construct from the strip number and all the other data members.
-  CSCStripDigi (int strip, std::vector<int> ADCCounts, std::vector<uint16_t> ADCOverflow,
-	        std::vector<uint16_t> Overlap,
-		std::vector<uint16_t> Errorstat);
+  CSCStripDigi (const int & strip, const std::vector<int> & ADCCounts, const std::vector<uint16_t> & ADCOverflow,
+	        const std::vector<uint16_t> & Overlap,
+		const std::vector<uint16_t> & Errorstat);
 
   // Construct from the strip number and the ADC readings.
-  CSCStripDigi (int strip, std::vector<int> ADCCounts);
+  CSCStripDigi (const int & strip, const  std::vector<int> & ADCCounts);
 
 
   // Default construction.

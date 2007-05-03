@@ -1,7 +1,7 @@
 /** \file
  * 
- *  $Date: 2006/05/16 15:08:52 $
- *  $Revision: 1.10 $
+ *  $Date: 2006/12/14 22:34:11 $
+ *  $Revision: 1.11 $
  *
  * \author M.Schmitt, Northwestern
  */
@@ -15,33 +15,33 @@
 using namespace std;
 
 // Constructors
-CSCStripDigi::CSCStripDigi (int istrip, vector<int> vADCCounts,  vector<uint16_t> vADCOverflow,
-			    vector<uint16_t> vOverlap, vector<uint16_t> vErrorstat ){
-  strip = istrip;
-  ADCCounts = vADCCounts;
-  ADCOverflow = vADCOverflow;
-  OverlappedSample = vOverlap;
-  Errorstat = vErrorstat;
+CSCStripDigi::CSCStripDigi (const int & istrip, const vector<int> & vADCCounts, const vector<uint16_t> & vADCOverflow,
+			    const vector<uint16_t> & vOverlap, const vector<uint16_t> & vErrorstat ):
+  strip(istrip),
+  ADCCounts(vADCCounts),
+  ADCOverflow(vADCOverflow),
+  OverlappedSample(vOverlap),
+  Errorstat(vErrorstat)
+{
 }
 
-CSCStripDigi::CSCStripDigi (int istrip, vector<int> vADCCounts){
-  strip = istrip;
-  ADCCounts = vADCCounts;
-  vector<uint16_t> ZeroVec(8,0);
-  ADCOverflow = ZeroVec;
-  OverlappedSample = ZeroVec;
-  Errorstat = ZeroVec;
+CSCStripDigi::CSCStripDigi (const int & istrip, const vector<int> & vADCCounts):
+  strip(istrip),
+  ADCCounts(vADCCounts),
+  ADCOverflow(8,0),
+  OverlappedSample(8,0),
+  Errorstat(8,0)
+{
 }
 
 
-CSCStripDigi::CSCStripDigi (){
-  vector<int> ZeroCounts(8,0);
-  vector<uint16_t> ZeroVec(8,0);
-  strip = 0;
-  ADCCounts = ZeroCounts;
-  ADCOverflow =  ZeroVec;
-  OverlappedSample = ZeroVec;
-  Errorstat =  ZeroVec;
+CSCStripDigi::CSCStripDigi ():
+  strip(0),
+  ADCCounts(8,0),
+  ADCOverflow(8,0),
+  OverlappedSample(8,0),
+  Errorstat(8,0)
+{
 }
 
 // Comparison
