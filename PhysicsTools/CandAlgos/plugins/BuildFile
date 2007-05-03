@@ -11,6 +11,8 @@
 <library file=EtaPtMinPdgIdCandSelector.cc></library>
 <library file=PdgIdCandSelector.cc></library>
 <library file=PdgIdCandRefVectorSelector.cc></library>
+<library file=MassRangeCandCombiner.cc></library>
+<library file=MassRangeCandShallowCloneCombiner.cc></library>
 <library file=MassRangeAndChargeCandCombiner.cc></library>
 <library file=MassRangeAndChargeCandShallowCloneCombiner.cc></library>
 <library file=CandCombiner.cc></library>
