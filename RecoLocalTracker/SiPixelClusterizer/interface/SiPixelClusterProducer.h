@@ -23,7 +23,7 @@
 //!
 //! \author porting from ORCA by Petar Maksimovic (JHU). 
 //!         DetSetVector implementation by Vincenzo Chiochia (Uni Zurich)        
-//!
+//!         Modify the local container (cache) to improve the speed. D.K. 5/07
 //! \version v1, Oct 26, 2005  
 //!
 //---------------------------------------------------------------------------
@@ -52,17 +52,12 @@
 
 namespace cms
 {
-  class SiPixelClusterProducer : public edm::EDProducer
-  {
+  class SiPixelClusterProducer : public edm::EDProducer {
   public:
     //--- Constructor, virtual destructor (just in case)
     explicit SiPixelClusterProducer(const edm::ParameterSet& conf);
     virtual ~SiPixelClusterProducer();
 
-    //--- Factory method to make PixelClusterizers depending on the ParameterSet
-    //--- Not sure if we need to make more than one clusterizer to run concurrently
-    //--- on different parts of the detector (e.g., one for the barrel and the 
-    //--- one for the forward).
     void setupClusterizer();
 
     // Begin Job
@@ -73,7 +68,6 @@ namespace cms
 
     //--- Execute the algorithm(s).
     void run(const edm::DetSetVector<PixelDigi> & input,
-	     SiPixelClusterCollection           & output,
 	     edm::ESHandle<TrackerGeometry>     & geom);
 
   private:
@@ -84,6 +78,7 @@ namespace cms
     PixelClusterizerBase * clusterizer_;    // what we got (for now, one ptr to base class)
     bool readyToCluster_;                   // needed clusterizers valid => good to go!
     edm::InputTag src_;
+    std::vector<edm::DetSet<SiPixelCluster> > theClusterVector; // cache to hold all clusters
   };
 }
 

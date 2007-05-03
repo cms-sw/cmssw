@@ -51,7 +51,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 // TimeMe class:
-#include "Utilities/Timing/interface/TimingReport.h"
+//#include "Utilities/Timing/interface/TimingReport.h"
 
 #include <vector>
 
@@ -79,8 +79,6 @@ class PixelThresholdClusterizer : public PixelClusterizerBase {
   std::vector<SiPixelCluster::PixelPos>  theSeeds;          // cached seed pixels
   std::vector<SiPixelCluster>            theClusters;       // resulting clusters  
   
-  // TO DO: vector<RecHit> theRecHits;
-  
   //! Clustering-related quantities:
   float thePixelThresholdInNoiseUnits;    // Pixel threshold in units of noise
   float theSeedThresholdInNoiseUnits;     // Pixel cluster seed in units of noise
@@ -106,23 +104,16 @@ class PixelThresholdClusterizer : public PixelClusterizerBase {
   // Calibrate the ADC charge to electrons 
   int calibrate(int adc, int col, int row);
 
-  //{
-  //const float gain = 135.; // 1 ADC = 135 electrons
-  //const float pedestal = 0.; //
-  //int electrons = int(adc * gain + pedestal);
-  //return electrons;
-  //}
-
-  void initTiming();
-  TimingReport::Item * theSetupTimer;
-  TimingReport::Item * theClustersTimer;
-  TimingReport::Item * theClusterizeTimer;
-  TimingReport::Item * theRecHitTimer;
-  TimingReport::Item * theCopyTimer;
-  TimingReport::Item * theClearTimer;
-  TimingReport::Item * theMakeClustTimer;
-  TimingReport::Item * theCacheGetTimer;
-  TimingReport::Item * theCachePutTimer;
+/*   void initTiming(); */
+/*   TimingReport::Item * theSetupTimer; */
+/*   TimingReport::Item * theClustersTimer; */
+/*   TimingReport::Item * theClusterizeTimer; */
+/*   TimingReport::Item * theRecHitTimer; */
+/*   TimingReport::Item * theCopyTimer; */
+/*   TimingReport::Item * theClearTimer; */
+/*   TimingReport::Item * theMakeClustTimer; */
+/*   TimingReport::Item * theCacheGetTimer; */
+/*   TimingReport::Item * theCachePutTimer; */
 
 };
 
