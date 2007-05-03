@@ -12,7 +12,7 @@
  *
  * \version   Original: April 22, 2005 by Fernando Varela Rodriguez.
  * \version   May 23, 2006 by F.R.
- * \version   $Id: Jet.h,v 1.10 2006/12/08 21:15:11 fedor Exp $
+ * \version   $Id: Jet.h,v 1.11 2006/12/11 12:21:39 fedor Exp $
  ************************************************************/
 #include <string>
 #include "DataFormats/Candidate/interface/CompositeRefCandidate.h"
@@ -21,12 +21,38 @@ namespace reco {
   class Jet : public CompositeRefCandidate {
   public:
     typedef std::vector<reco::CandidateRef> Constituents;
+
+    /// record to store eta-phi first and second moments
+    class EtaPhiMoments {
+    public:
+      double etaMean;
+      double phiMean;
+      double etaEtaMoment;
+      double phiPhiMoment;
+      double etaPhiMoment;
+    };
+
     /// Default constructor
     Jet () {}
     /// Initiator
     Jet (const LorentzVector& fP4, const Point& fVertex, const Constituents& fConstituents);
     /// Destructor
     virtual ~Jet () {}
+
+    /// eta-phi statistics
+    EtaPhiMoments etaPhiStatistics () const;
+
+    /// eta-eta second moment
+    double etaetaMoment () const;
+
+    /// phi-phi second moment
+    double phiphiMoment () const;
+
+    /// eta-phi second moment
+    double etaphiMoment () const;
+
+    /// energy in annulus between rmin and rmax around jet direction
+    double energyInAnnulus (double fRmin, double fRmax) const;
 
     /// # of constituents
     virtual int nConstituents () const {return numberOfDaughters();}

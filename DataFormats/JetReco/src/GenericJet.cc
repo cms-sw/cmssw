@@ -1,6 +1,6 @@
 // GenericJet.cc
 // Fedor Ratnikov, UMd
-// $Id: GenericJet.cc,v 1.1 2007/03/26 20:44:31 fedor Exp $
+// $Id: GenericJet.cc,v 1.2 2007/03/26 22:05:41 fedor Exp $
 
 #include <sstream>
 
@@ -10,8 +10,8 @@
 using namespace reco;
 
 GenericJet::GenericJet (const LorentzVector& fP4, 
-	  const Point& fVertex, 
-	  const std::vector<CandidateBaseRef>& fConstituents)
+			const Point& fVertex, 
+			const std::vector<CandidateBaseRef>& fConstituents)
   :  CompositeRefBaseCandidate (0, fP4, fVertex)
 {
   for (unsigned i = 0; i < fConstituents.size (); i++) addDaughter (fConstituents [i]);

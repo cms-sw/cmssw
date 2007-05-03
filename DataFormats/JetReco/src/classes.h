@@ -5,6 +5,7 @@
 #include "DataFormats/JetReco/interface/GenJet.h"
 #include "DataFormats/JetReco/interface/BasicJet.h"
 #include "DataFormats/JetReco/interface/GenericJet.h"
+#include "DataFormats/JetReco/interface/JetTrackMatch.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 
 #include "DataFormats/Common/interface/RefToBase.h"
@@ -19,6 +20,9 @@ namespace {
     CaloJetRefProd rrr1;
     edm::Wrapper<CaloJetCollection> w1;
     edm::reftobase::Holder<reco::Candidate, reco::CaloJetRef> rtb1;
+    JetTrackMatch<CaloJetCollection> jtm1;
+    edm::AssociationMap<edm::OneToMany<std::vector<reco::CaloJet>,std::vector<reco::Track>,unsigned int> > amp1;
+    edm::helpers::KeyVal<edm::RefProd<reco::CaloJetCollection>,edm::RefProd<std::vector<reco::Track> > > kv1;
 
     GenJetCollection o2;
     GenJetRef r2;
@@ -26,6 +30,7 @@ namespace {
     GenJetRefProd rrr2;
     edm::Wrapper<GenJetCollection> w2;
     edm::reftobase::Holder<reco::Candidate, reco::GenJetRef> rtb2;
+    JetTrackMatch<GenJetCollection> jtm2;
 
     BasicJetCollection o3;
     BasicJetRef r3;
@@ -33,6 +38,7 @@ namespace {
     BasicJetRefProd rrr3;
     edm::Wrapper<BasicJetCollection> w3;
     edm::reftobase::Holder<reco::Candidate, reco::BasicJetRef> rtb3;
+    JetTrackMatch<BasicJetCollection> jtm3;
 
     GenericJetCollection o4;
     GenericJetRef r4;
@@ -40,6 +46,7 @@ namespace {
     GenericJetRefProd rrr4;
     edm::Wrapper<GenericJetCollection> w4;
     edm::reftobase::Holder<reco::Candidate, reco::GenericJetRef> rtb4;
+    JetTrackMatch<GenericJetCollection> jtm4;
   }
 }
 #endif

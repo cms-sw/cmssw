@@ -12,7 +12,7 @@
  * \author Fedor Ratnikov, UMd
  *
  * \version   Original March 31, 2006 by F.R.
- * \version   $Id: GenJet.h,v 1.8 2006/12/06 22:43:24 fedor Exp $
+ * \version   $Id: GenJet.h,v 1.9 2006/12/08 21:15:11 fedor Exp $
  ************************************************************/
 
 
@@ -33,13 +33,13 @@ public:
 	 m_AuxiliaryEnergy (0) {}
 
     /// Energy of EM particles
-    double m_EmEnergy;
+    float m_EmEnergy;
     /// Energy of Hadrons
-    double m_HadEnergy;
+    float m_HadEnergy;
     /// Invisible energy (mu, nu, ...)
-    double m_InvisibleEnergy;
+    float m_InvisibleEnergy;
     /// Anything else (undecayed Sigmas etc.)
-    double m_AuxiliaryEnergy;
+    float m_AuxiliaryEnergy;
   };
 
   /** Default constructor*/
@@ -55,13 +55,13 @@ public:
 
   virtual ~GenJet() {};
   /** Returns energy of electromagnetic particles*/
-  double emEnergy() const {return m_specific.m_EmEnergy;};
+  float emEnergy() const {return m_specific.m_EmEnergy;};
   /** Returns energy of hadronic particles*/
-  double hadEnergy() const {return m_specific.m_HadEnergy;};
+  float hadEnergy() const {return m_specific.m_HadEnergy;};
   /** Returns invisible energy*/
-  double invisibleEnergy() const {return m_specific.m_InvisibleEnergy;};
+  float invisibleEnergy() const {return m_specific.m_InvisibleEnergy;};
   /** Returns other energy (undecayed Sigmas etc.)*/
-  double auxiliaryEnergy() const {return m_specific.m_AuxiliaryEnergy;};
+  float auxiliaryEnergy() const {return m_specific.m_AuxiliaryEnergy;};
 
   /// convert generic constituent to specific type
   static const GenParticleCandidate* genParticle (const reco::Candidate* fConstituent);

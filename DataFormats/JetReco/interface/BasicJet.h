@@ -11,7 +11,7 @@
  *
  * \author Fedor Ratnikov, UMd
  *
- * \version   $Id: BasicJet.h,v 1.3 2006/12/06 22:43:24 fedor Exp $
+ * \version   $Id: BasicJet.h,v 1.4 2006/12/08 21:15:11 fedor Exp $
  ************************************************************/
 
 
@@ -29,7 +29,7 @@ class BasicJet : public Jet {
   BasicJet(const LorentzVector& fP4, const Point& fVertex, const Jet::Constituents& fConstituents);
   
   virtual ~BasicJet() {};
-  
+
   /// Polymorphic clone
   virtual BasicJet* clone () const;
 
@@ -39,7 +39,6 @@ class BasicJet : public Jet {
  private:
   /// Polymorphic overlap
   virtual bool overlap( const Candidate & ) const;
-  
 };
 }
 #endif

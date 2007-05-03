@@ -1,5 +1,6 @@
 <lcgdict>
   <class name="reco::Jet"/>
+  <class name="reco::Jet::EtaPhiMoments"/>
 
   <class name="reco::CaloJet"/>
   <class name="reco::CaloJet::Specific"/>
@@ -9,6 +10,14 @@
   <class name="edm::Ref<std::vector<reco::CaloJet>,reco::CaloJet,edm::refhelper::FindUsingAdvance<std::vector<reco::CaloJet>,reco::CaloJet> >"/>
   <class name="edm::Wrapper<std::vector<reco::CaloJet> >"/>
   <class name="edm::reftobase::Holder<reco::Candidate, edm::Ref<std::vector<reco::CaloJet>,reco::CaloJet,edm::refhelper::FindUsingAdvance<std::vector<reco::CaloJet>,reco::CaloJet> > >" />
+  <class name="reco::JetTrackMatch<std::vector<reco::CaloJet> >"/>
+  <class name="edm::AssociationMap<edm::OneToMany<reco::CaloJetCollection, std::vector<reco::Track>, unsigned int> >">
+      <field name="transientMap_" transient="true"/>
+  </class>
+  <class name="edm::helpers::KeyVal<edm::RefProd<reco::CaloJetCollection>,edm::RefProd<std::vector<reco::Track> > >"/>
+
+
+
 
   <class name="reco::GenJet"/>
   <class name="reco::GenJet::Specific"/>
@@ -18,6 +27,7 @@
   <class name="edm::RefProd<std::vector<reco::GenJet> >"/>
   <class name="edm::Wrapper<std::vector<reco::GenJet> >"/>
   <class name="edm::reftobase::Holder<reco::Candidate, edm::Ref<std::vector<reco::GenJet>,reco::GenJet,edm::refhelper::FindUsingAdvance<std::vector<reco::GenJet>,reco::GenJet> > >" />
+  <class name="reco::JetTrackMatch<std::vector<reco::GenJet> >"/>
 
   <class name="reco::BasicJet"/>
   <class name="std::vector<reco::BasicJet>"/>
@@ -26,6 +36,7 @@
   <class name="edm::RefProd<std::vector<reco::BasicJet> >"/>
   <class name="edm::Wrapper<std::vector<reco::BasicJet> >"/>
   <class name="edm::reftobase::Holder<reco::Candidate, edm::Ref<std::vector<reco::BasicJet>,reco::BasicJet,edm::refhelper::FindUsingAdvance<std::vector<reco::BasicJet>,reco::BasicJet> > >" />
+  <class name="reco::JetTrackMatch<std::vector<reco::BasicJet> >"/>
 
   <class name="reco::GenericJet"/>
   <class name="std::vector<reco::GenericJet>"/>
@@ -34,5 +45,6 @@
   <class name="edm::RefProd<std::vector<reco::GenericJet> >"/>
   <class name="edm::Wrapper<std::vector<reco::GenericJet> >"/>
   <class name="edm::reftobase::Holder<reco::Candidate, edm::Ref<std::vector<reco::GenericJet>,reco::GenericJet,edm::refhelper::FindUsingAdvance<std::vector<reco::GenericJet>,reco::GenericJet> > >" />
+  <class name="reco::JetTrackMatch<std::vector<reco::GenericJet> >"/>
 
 </lcgdict>

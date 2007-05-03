@@ -18,7 +18,7 @@
  *
  * \version   May 3, 2006, F.Ratnikov, include all different
  *            energy components separately
- * \version   $Id: CaloJet.h,v 1.20 2007/02/21 19:07:55 fedor Exp $
+ * \version   $Id: CaloJet.h,v 1.21 2007/02/22 19:17:35 fedor Exp $
  ************************************************************/
 
 
@@ -43,33 +43,33 @@ class CaloJet : public Jet {
 	 mEmEnergyInHF (0),
 	 mEnergyFractionHadronic(0),
 	 mEnergyFractionEm (0),
-	 mN90 (0)
+	 mTowersArea (0)
     {}
     
     /// Maximum energy in EM towers
-    double mMaxEInEmTowers;
+    float mMaxEInEmTowers;
     /// Maximum energy in HCAL towers
-    double mMaxEInHadTowers;
+    float mMaxEInHadTowers;
     /// Hadronic nergy fraction in HO
-    double mHadEnergyInHO;
+    float mHadEnergyInHO;
     /// Hadronic energy in HB
-    double mHadEnergyInHB;
+    float mHadEnergyInHB;
     /// Hadronic energy in HF
-    double mHadEnergyInHF;
+    float mHadEnergyInHF;
     /// Hadronic energy in HE
-    double mHadEnergyInHE;
+    float mHadEnergyInHE;
     /// Em energy in EB
-    double mEmEnergyInEB;
+    float mEmEnergyInEB;
     /// Em energy in EE
-    double mEmEnergyInEE;
+    float mEmEnergyInEE;
     /// Em energy in HF
-    double mEmEnergyInHF;
+    float mEmEnergyInHF;
     /// Hadronic energy fraction
-    double mEnergyFractionHadronic;
+    float mEnergyFractionHadronic;
     /// Em energy fraction
-    double mEnergyFractionEm;
-    /// Number of constituents carrying 90% of the Jet energy
-    int mN90;
+    float mEnergyFractionEm;
+    /// Area of contributing CaloTowers
+    float mTowersArea;
   };
   
   /** Default constructor*/
@@ -87,29 +87,37 @@ class CaloJet : public Jet {
   virtual ~CaloJet() {};
   
   /** Returns the maximum energy deposited in ECAL towers*/
-  double maxEInEmTowers() const {return m_specific.mMaxEInEmTowers;};
+  float maxEInEmTowers() const {return m_specific.mMaxEInEmTowers;}
   /** Returns the maximum energy deposited in HCAL towers*/
-  double maxEInHadTowers() const {return m_specific.mMaxEInHadTowers;};
+  float maxEInHadTowers() const {return m_specific.mMaxEInHadTowers;}
   /** Returns the jet hadronic energy fraction*/
-  double energyFractionHadronic () const {return m_specific.mEnergyFractionHadronic;};
+  float energyFractionHadronic () const {return m_specific.mEnergyFractionHadronic;}
   /** Returns the jet electromagnetic energy fraction*/
-  double emEnergyFraction() const {return m_specific.mEnergyFractionEm;};
+  float emEnergyFraction() const {return m_specific.mEnergyFractionEm;}
   /** Returns the jet hadronic energy in HB*/ 
-  double hadEnergyInHB() const {return m_specific.mHadEnergyInHB;};
+  float hadEnergyInHB() const {return m_specific.mHadEnergyInHB;}
   /** Returns the jet hadronic energy in HO*/
-  double hadEnergyInHO() const {return m_specific.mHadEnergyInHO;};
+  float hadEnergyInHO() const {return m_specific.mHadEnergyInHO;}
   /** Returns the jet hadronic energy in HE*/
-  double hadEnergyInHE() const {return m_specific.mHadEnergyInHE;};
+  float hadEnergyInHE() const {return m_specific.mHadEnergyInHE;}
   /** Returns the jet hadronic energy in HF*/
-  double hadEnergyInHF() const {return m_specific.mHadEnergyInHF;};
+  float hadEnergyInHF() const {return m_specific.mHadEnergyInHF;}
   /** Returns the jet electromagnetic energy in EB*/
-  double emEnergyInEB() const {return m_specific.mEmEnergyInEB;};
+  float emEnergyInEB() const {return m_specific.mEmEnergyInEB;}
   /** Returns the jet electromagnetic energy in EE*/
-  double emEnergyInEE() const {return m_specific.mEmEnergyInEE;};
+  float emEnergyInEE() const {return m_specific.mEmEnergyInEE;}
   /** Returns the jet electromagnetic energy extracted from HF*/
-  double emEnergyInHF() const {return m_specific.mEmEnergyInHF;};
+  float emEnergyInHF() const {return m_specific.mEmEnergyInHF;}
+  /** Returns area of contributing towers */
+  float towersArea() const {return m_specific.mTowersArea;}
   /** Returns the number of constituents carrying a 90% of the total Jet energy*/
-  int n90() const {return m_specific.mN90;};
+  int n90() const {return nCarring (0.9);}
+  /** Returns the number of constituents carrying a 60% of the total Jet energy*/
+  int n60() const {return nCarring (0.6);}
+
+  /// return # of constituent carring fraction of energy
+  int nCarring (double fFraction) const;
+ 
 
   /// convert generic constituent to specific type
   static CaloTowerRef caloTower (const reco::Candidate* fConstituent);

@@ -11,7 +11,7 @@
  * \author Fedor Ratnikov, UMd
  *
  * \version   Mar 23, 2007 by F.R.
- * \version   $Id: GenericJet.h,v 1.1 2007/03/26 20:44:30 fedor Exp $
+ * \version   $Id: GenericJet.h,v 1.2 2007/03/26 22:05:41 fedor Exp $
  ************************************************************/
 #include <string>
 #include "DataFormats/Candidate/interface/CompositeRefBaseCandidate.h"
@@ -33,7 +33,6 @@ namespace reco {
   /// Print object
     virtual std::string print () const;
 
-  private:
   };
 }
 #endif
