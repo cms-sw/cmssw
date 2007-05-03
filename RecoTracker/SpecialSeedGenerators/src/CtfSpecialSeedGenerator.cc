@@ -31,14 +31,18 @@ CtfSpecialSeedGenerator::~CtfSpecialSeedGenerator(){
 	if (upperScintillator) {delete upperScintillator; upperScintillator = 0;}
 	if (lowerScintillator) {delete lowerScintillator; lowerScintillator = 0;}
 	delete theSeedBuilder;
+	std::vector<OrderedHitsGenerator*>::iterator iGen;	
+	for (iGen = theGenerators.begin(); iGen != theGenerators.end(); iGen++){
+		delete (*iGen);
+	}
 }
 
 void CtfSpecialSeedGenerator::beginJob(const edm::EventSetup& iSetup){
 	std::string builderName = conf_.getParameter<std::string>("TTRHBuilder");
         iSetup.get<TransientRecHitRecord>().get(builderName,theBuilder);
 
-        iSetup.get<IdealMagneticFieldRecord>().get(magfield);
-        iSetup.get<TrackerDigiGeometryRecord>().get(tracker);
+        iSetup.get<IdealMagneticFieldRecord>().get(theMagfield);
+        iSetup.get<TrackerDigiGeometryRecord>().get(theTracker);
 
         edm::LogVerbatim("CtfSpecialSeedGenerator") << "Initializing...";
 	if (useScintillatorsConstraint){
@@ -73,7 +77,7 @@ void CtfSpecialSeedGenerator::beginJob(const edm::EventSetup& iSetup){
   	std::string regfactoryName = regfactoryPSet.getParameter<std::string>("ComponentName");
   	theRegionProducer = TrackingRegionProducerFactory::get()->create(regfactoryName,regfactoryPSet);
 
-  	edm::ParameterSet hitsfactoryOutInPSet = conf_.getParameter<edm::ParameterSet>("OrderedHitsFactoryOutInPSet");
+/*  	edm::ParameterSet hitsfactoryOutInPSet = conf_.getParameter<edm::ParameterSet>("OrderedHitsFactoryOutInPSet");
   	std::string hitsfactoryOutInName = hitsfactoryOutInPSet.getParameter<std::string>("ComponentName");
   	hitsGeneratorOutIn = OrderedHitsGeneratorFactory::get()->create( hitsfactoryOutInName, hitsfactoryOutInPSet);
 	std::string propagationDirection = hitsfactoryOutInPSet.getUntrackedParameter<std::string>("PropagationDirection", 
@@ -93,11 +97,26 @@ void CtfSpecialSeedGenerator::beginJob(const edm::EventSetup& iSetup){
 	edm::LogVerbatim("CtfSpecialSeedGenerator") << "hitsGeneratorInOut done";
 	if (!hitsGeneratorOutIn || !hitsGeneratorInOut) 
 		throw cms::Exception("CtfSpecialSeedGenerator") << "Only corcrete implementation GenericPairOrTripletGenerator of OrderedHitsGenerator is allowed ";
-
+*/
+	std::vector<edm::ParameterSet> pSets = conf_.getParameter<std::vector<edm::ParameterSet> >("OrderedHitsFactoryPSets");
+	std::vector<edm::ParameterSet>::const_iterator iPSet;
+	for (iPSet = pSets.begin(); iPSet != pSets.end(); iPSet++){
+		std::string hitsfactoryName = iPSet->getParameter<std::string>("ComponentName");
+        	theGenerators.push_back(OrderedHitsGeneratorFactory::get()->create( hitsfactoryName, *iPSet));
+        	std::string propagationDirection = iPSet->getUntrackedParameter<std::string>("PropagationDirection", 
+                                                                                                    "alongMomentum");
+        	if (propagationDirection == "alongMomentum") thePropDirs.push_back(alongMomentum);
+        	else thePropDirs.push_back(oppositeToMomentum);
+		std::string navigationDirection = iPSet->getUntrackedParameter<std::string>("NavigationDirection",              
+                                                                                                    "insideOut");
+		if (navigationDirection == "insideOut") theNavDirs.push_back(insideOut);
+                else theNavDirs.push_back(outsideIn);
+        	edm::LogVerbatim("CtfSpecialSeedGenerator") << "hitsGenerator done";
+	} 
 	bool setMomentum = conf_.getParameter<bool>("SetMomentum");
 	theSeedBuilder = new SeedFromGenericPairOrTriplet(conf_, 
-							  magfield.product(), 
-							  tracker.product(), 
+							  theMagfield.product(), 
+							  theTracker.product(), 
 							  theBuilder.product(),
 							  setMomentum);
 	double p = 1;
@@ -125,19 +144,18 @@ void CtfSpecialSeedGenerator::run(const edm::EventSetup& iSetup,
 	std::vector<TrackingRegion*> regions = theRegionProducer->regions(e, iSetup);
 	std::vector<TrackingRegion*>::const_iterator iReg;
 	for (iReg = regions.begin(); iReg != regions.end(); iReg++){
-		theSeedBuilder->setMomentumTo((*iReg)->ptMin()); 
-  		buildSeeds(iSetup, 
-				e, 
-				hitsGeneratorOutIn->run(**iReg, e, iSetup),
-				outsideIn, 
-				outInPropagationDirection, 
-				output);
-  		buildSeeds(iSetup, 
-				e, 
-				hitsGeneratorInOut->run(**iReg, e, iSetup), 
-				insideOut, 
-				inOutPropagationDirection, 
-				output);
+		if(!theSeedBuilder->momentumFromPSet()) theSeedBuilder->setMomentumTo((*iReg)->ptMin());
+		std::vector<OrderedHitsGenerator*>::const_iterator iGen;
+		int i = 0;
+		for (iGen = theGenerators.begin(); iGen != theGenerators.end(); iGen++){ 
+  			buildSeeds(iSetup, 
+					e, 
+					(*iGen)->run(**iReg, e, iSetup),
+					theNavDirs[i], 
+					thePropDirs[i], 
+					output);
+			i++;
+		}
 	}
 }
 
@@ -176,7 +194,7 @@ bool CtfSpecialSeedGenerator::preliminaryCheck(const SeedingHitSet& shs){
 	for (iHits = hits.begin(); iHits != hits.end(); iHits++){
 		//hits for the seeds must be at positive y
 		GlobalPoint point = 
-		  tracker->idToDet(iHits->RecHit()->geographicalId() )->surface().toGlobal(iHits->RecHit()->localPosition());
+		  theTracker->idToDet(iHits->RecHit()->geographicalId() )->surface().toGlobal(iHits->RecHit()->localPosition());
 		if (checkHitsAtPositiveY){ if (point.y() < 0) return false;}
 		//hits for the seeds must be in different layers
 		unsigned int subid=iHits->RecHit()->geographicalId().subdetId();
@@ -211,8 +229,8 @@ bool CtfSpecialSeedGenerator::postCheck(const TrajectorySeed& seed){
 	TrajectoryStateTransform transformer;
         PTrajectoryStateOnDet pstate = seed.startingState();
         TrajectoryStateOnSurface theTSOS = transformer.transientState(pstate,
-                                                               &(tracker->idToDet(DetId(pstate.detId()))->surface()),
-                                                               &(*magfield));	
+                                                               &(theTracker->idToDet(DetId(pstate.detId()))->surface()),
+                                                               &(*theMagfield));	
 	FreeTrajectoryState* state = theTSOS.freeState();	
 	StraightLinePlaneCrossing planeCrossingLower( Basic3DVector<float>(state->position()), 
                                                   Basic3DVector<float>(state->momentum()),

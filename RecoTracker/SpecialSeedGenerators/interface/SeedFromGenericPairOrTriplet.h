@@ -31,8 +31,8 @@ class SeedFromGenericPairOrTriplet{
 				     const TransientTrackingRecHitBuilder* builder,
 				     bool momFromPSet);
 	~SeedFromGenericPairOrTriplet(){};
-	void setMomentumTo(double mom){p = mom;};
-
+	void setMomentumTo(double mom){theP = mom;};
+	bool momentumFromPSet(){return theSetMomentum;}; 
 	//builds a seed from a pair or triplet. it returns a null pointer if the seed does not pass the quality filter
 	TrajectorySeed*            seed(const SeedingHitSet& hits,
                                         const PropagationDirection& dir,
@@ -58,12 +58,12 @@ class SeedFromGenericPairOrTriplet{
 	//if the B is on it returns false if the initial momentum is less than p
 	bool qualityFilter(const FreeTrajectoryState* startingState,
                       	   const SeedingHitSet& hits);
-	const MagneticField*   magfield;
-	const TrackerGeometry* tracker;	
-        TrajectoryStateTransform transformer;
+	const MagneticField*   theMagfield;
+	const TrackerGeometry* theTracker;	
+        TrajectoryStateTransform theTransformer;
 	const TransientTrackingRecHitBuilder* theBuilder;
-	float p;
-	bool setMomentum;	
+	float theP;
+	bool theSetMomentum;	
 };
 
 #endif

@@ -17,7 +17,7 @@ SeedFromGenericPairOrTriplet::SeedFromGenericPairOrTriplet(const edm::ParameterS
                                      			   const MagneticField* mf,
                                                            const TrackerGeometry* geom,
 							   const TransientTrackingRecHitBuilder* builder,
-							   bool momFromPSet):magfield(mf), tracker(geom), theBuilder(builder), setMomentum(momFromPSet){}
+							   bool momFromPSet):theMagfield(mf), theTracker(geom), theBuilder(builder), theSetMomentum(momFromPSet){}
 
 
 TrajectorySeed* SeedFromGenericPairOrTriplet::seed(const SeedingHitSet& hits,
@@ -46,10 +46,10 @@ TrajectorySeed* SeedFromGenericPairOrTriplet::seedFromTriplet(const SeedingHitSe
         const TrackingRecHit* innerHit  = (hits.hits())[0].RecHit();
         const TrackingRecHit* middleHit = (hits.hits())[1].RecHit();
         const TrackingRecHit* outerHit  = (hits.hits())[2].RecHit();
-        GlobalPoint inner  = tracker->idToDet(innerHit->geographicalId() )->surface().toGlobal(innerHit->localPosition() );
-        GlobalPoint middle = tracker->idToDet(middleHit->geographicalId())->surface().toGlobal(middleHit->localPosition());
-        GlobalPoint outer  = tracker->idToDet(outerHit->geographicalId() )->surface().toGlobal(outerHit->localPosition() );
-	if (setMomentum){
+        GlobalPoint inner  = theTracker->idToDet(innerHit->geographicalId() )->surface().toGlobal(innerHit->localPosition() );
+        GlobalPoint middle = theTracker->idToDet(middleHit->geographicalId())->surface().toGlobal(middleHit->localPosition());
+        GlobalPoint outer  = theTracker->idToDet(outerHit->geographicalId() )->surface().toGlobal(outerHit->localPosition() );
+	if (theSetMomentum){
 		LogDebug("SeedFromGenericPairOrTriplet") << 
 			"Using the following hits: outer(r, phi, theta) (" << outer.perp() 
 			<< ", " << outer.phi() 
@@ -80,11 +80,11 @@ TrajectorySeed* SeedFromGenericPairOrTriplet::seedFromTriplet(const SeedingHitSe
 		TrajectorySeed* seed = seedFromPair(newSet, dir, seedDir);
 		if (!seed) return 0;
 		LogDebug("SeedFromGenericPairOrTriplet") << "about to retrieve free state";
-		TrajectoryStateTransform transformer;
+		TrajectoryStateTransform theTransformer;
 		PTrajectoryStateOnDet startingState = seed->startingState();
-		TrajectoryStateOnSurface theTSOS = transformer.transientState(startingState,
-                                                               &(tracker->idToDet(DetId(startingState.detId()))->surface()), 
-                                                               &(*magfield));
+		TrajectoryStateOnSurface theTSOS = theTransformer.transientState(startingState,
+                                                               &(theTracker->idToDet(DetId(startingState.detId()))->surface()), 
+                                                               &(*theMagfield));
 		if (!theTSOS.isValid()){
 			edm::LogError("SeedFromGenericPairOrTriplet::seedFromTriplet") << 
 					"something wrong: starting TSOS not valid";
@@ -155,8 +155,8 @@ TrajectorySeed* SeedFromGenericPairOrTriplet::seedFromPair(const SeedingHitSet& 
         }
 	const TrackingRecHit* innerHit = (hits.hits())[0].RecHit();
         const TrackingRecHit* outerHit = (hits.hits())[1].RecHit();
-        GlobalPoint inner  = tracker->idToDet(innerHit->geographicalId() )->surface().toGlobal(innerHit->localPosition() );
-        GlobalPoint outer  = tracker->idToDet(outerHit->geographicalId() )->surface().toGlobal(outerHit->localPosition() );
+        GlobalPoint inner  = theTracker->idToDet(innerHit->geographicalId() )->surface().toGlobal(innerHit->localPosition() );
+        GlobalPoint outer  = theTracker->idToDet(outerHit->geographicalId() )->surface().toGlobal(outerHit->localPosition() );
 	LogDebug("SeedFromGenericPairOrTriplet") <<
                         "Using the following hits: outer(r, phi, theta) (" << outer.perp()
                         << ", " << outer.phi()
@@ -193,11 +193,11 @@ TrajectorySeed* SeedFromGenericPairOrTriplet::seedFromPair(const SeedingHitSet& 
 		trHits.push_back(outerHit);
         }
 	if (dir == oppositeToMomentum) momentumSign = -1;
-	GlobalVector momentum = momentumSign*p*(*secondPoint-*firstPoint).unit();
+	GlobalVector momentum = momentumSign*theP*(*secondPoint-*firstPoint).unit();
         GlobalTrajectoryParameters gtp(*secondPoint,
                                        momentum,
                                        -1,
-                                       &(*magfield));
+                                       &(*theMagfield));
         FreeTrajectoryState* startingState = new FreeTrajectoryState(gtp,initialError(trHits[1]));
 	if (!qualityFilter(startingState, hits)) return 0;
         //TrajectorySeed* seed = buildSeed(startingState, firstHit, dir);
@@ -216,10 +216,10 @@ TrajectorySeed* SeedFromGenericPairOrTriplet::buildSeed(const FreeTrajectoryStat
 	const SiStripRecHit2D* hit =               dynamic_cast<const SiStripRecHit2D*>(trHits[1]);
 	const BoundPlane* plane = 0;
 	if (matchedhit){
-		const GluedGeomDet * stripdet=(const GluedGeomDet*)tracker->idToDet(matchedhit->geographicalId());
+		const GluedGeomDet * stripdet=(const GluedGeomDet*)theTracker->idToDet(matchedhit->geographicalId());
 		plane = &(stripdet->surface());
 	} else if (hit){
-		const StripGeomDetUnit * stripdet=(const StripGeomDetUnit*)tracker->idToDetUnit(hit->geographicalId());
+		const StripGeomDetUnit * stripdet=(const StripGeomDetUnit*)theTracker->idToDetUnit(hit->geographicalId());
 		plane = &(stripdet->surface());
 	}
 	if (!plane) {
@@ -228,8 +228,8 @@ TrajectorySeed* SeedFromGenericPairOrTriplet::buildSeed(const FreeTrajectoryStat
 		return 0;
 	}
 	//debug
-	GlobalPoint first = tracker->idToDet(trHits[0]->geographicalId() )->surface().toGlobal(trHits[0]->localPosition() );
-        GlobalPoint second  = tracker->idToDet(trHits[1]->geographicalId() )->surface().toGlobal(trHits[1]->localPosition() );
+	GlobalPoint first = theTracker->idToDet(trHits[0]->geographicalId() )->surface().toGlobal(trHits[0]->localPosition() );
+        GlobalPoint second  = theTracker->idToDet(trHits[1]->geographicalId() )->surface().toGlobal(trHits[1]->localPosition() );
         LogDebug("SeedFromGenericPairOrTriplet") <<
                         "Using the following hits: first(r, phi, theta) (" << first.perp()
                         << ", " << first.phi()
@@ -242,7 +242,7 @@ TrajectorySeed* SeedFromGenericPairOrTriplet::buildSeed(const FreeTrajectoryStat
 	TrajectoryStateOnSurface seedTSOS(*startingState, *plane);
 	LogDebug("SeedFromGenericPairOrTriplet") << "starting TSOS " << seedTSOS ;
 	PTrajectoryStateOnDet *PTraj=
-		transformer.persistentState(seedTSOS, trHits[1]->geographicalId().rawId());
+		theTransformer.persistentState(seedTSOS, trHits[1]->geographicalId().rawId());
 	edm::OwnVector<TrackingRecHit> seed_hits;
 	//build the transientTrackingRecHit for the starting hit, then call the method clone to rematch if needed
 	std::vector<const TrackingRecHit*>::const_iterator ihits;
@@ -258,8 +258,8 @@ CurvilinearTrajectoryError SeedFromGenericPairOrTriplet::initialError(const Trac
         TransientTrackingRecHit::RecHitPointer transHit =  theBuilder->build(rechit);
         AlgebraicSymMatrix C(5,1);
         C*=0.1;
-        if (setMomentum){
-                C[0][0]=1/p;
+        if (theSetMomentum){
+                C[0][0]=1/theP;
                 C[3][3]=transHit->globalPositionError().cxx();
                 C[4][4]=transHit->globalPositionError().czz();
         } else {
@@ -274,12 +274,12 @@ CurvilinearTrajectoryError SeedFromGenericPairOrTriplet::initialError(const Trac
 
 bool SeedFromGenericPairOrTriplet::qualityFilter(const FreeTrajectoryState* startingState,
                                                          const SeedingHitSet& hits){
-        if (setMomentum){
+        if (theSetMomentum){
                 if (hits.hits().size()==3){
                         std::vector<GlobalPoint> gPoints;
                         SeedingHitSet::Hits::const_iterator iHit;
                         for (iHit = hits.hits().begin(); iHit != hits.hits().end(); iHit++){
-                                gPoints.push_back(tracker->idToDet(iHit->RecHit()->geographicalId() )->surface().toGlobal(iHit->RecHit()->localPosition() ));
+                                gPoints.push_back(theTracker->idToDet(iHit->RecHit()->geographicalId() )->surface().toGlobal(iHit->RecHit()->localPosition() ));
                         }
                         unsigned int subid=hits.hits().front().RecHit()->geographicalId().subdetId();
 			if(subid == StripSubdetector::TEC || subid == StripSubdetector::TID){
@@ -298,7 +298,7 @@ bool SeedFromGenericPairOrTriplet::qualityFilter(const FreeTrajectoryState* star
 
                 }
         } else {
-                if (startingState->momentum().perp() < p){
+                if (startingState->momentum().perp() < theP){
                         edm::LogVerbatim("SeedFromGenericPairOrTriplet::qualityFilter") <<
                                         "Seed qualityFilter rejected because too low pt";
                         return false;

@@ -72,18 +72,21 @@ class CtfSpecialSeedGenerator : public edm::EDProducer
  
  private:
   edm::ParameterSet conf_;
-  edm::ESHandle<MagneticField> magfield;
-  edm::ESHandle<TrackerGeometry> tracker;
+  edm::ESHandle<MagneticField> theMagfield;
+  edm::ESHandle<TrackerGeometry> theTracker;
   edm::ESHandle<TransientTrackingRecHitBuilder> theBuilder;
   //edm::ESHandle<SeedCleaner> theCleaner;
-  OrderedHitsGenerator*  hitsGeneratorOutIn;
-  OrderedHitsGenerator*  hitsGeneratorInOut;
-  PropagationDirection inOutPropagationDirection;
-  PropagationDirection outInPropagationDirection;
+  //OrderedHitsGenerator*  hitsGeneratorOutIn;
+  //OrderedHitsGenerator*  hitsGeneratorInOut;
+  //PropagationDirection inOutPropagationDirection;
+  //PropagationDirection outInPropagationDirection;
   //GenericPairOrTripletGenerator* hitsGeneratorOutIn;
   //GenericPairOrTripletGenerator* hitsGeneratorInOut;	
+  std::vector<OrderedHitsGenerator*> theGenerators;
+  std::vector<PropagationDirection> thePropDirs;
+  std::vector<NavigationDirection>  theNavDirs; 
   TrackingRegionProducer* theRegionProducer;	
-  TrajectoryStateTransform transformer;
+  //TrajectoryStateTransform theTransformer;
   SeedFromGenericPairOrTriplet* theSeedBuilder; 
   bool useScintillatorsConstraint;
   BoundPlane* upperScintillator;
