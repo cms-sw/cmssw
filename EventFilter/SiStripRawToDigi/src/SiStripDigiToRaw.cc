@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripDigiToRaw.cc,v 1.18 2007/04/25 21:24:32 pwing Exp $
+// Last commit: $Id: SiStripDigiToRaw.cc,v 1.19 2007/04/30 13:48:48 pwing Exp $
 
 #include "EventFilter/SiStripRawToDigi/interface/SiStripDigiToRaw.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
@@ -87,12 +87,7 @@ void SiStripDigiToRaw::createFedBuffers( edm::ESHandle<SiStripFedCabling>& cabli
 	       << " strip >= strips_per_fed";
 	    edm::LogWarning("DigiToRaw") << ss.str();
 	  }
-	  LogDebug("DigiToRaw") << "[SiStripDigiToRaw::createFedBuffers]"
-				<< " Retrieved digi!"
-				<< "  AdcValue: " << (*idigi).adc()
-				<< "  FedId/FedCh: " << *ifed << "/" << ichan
-				<< "  DetStrip: " << (*idigi).strip()
-				<< "  FedStrip: " << strip;
+
 	  // check if value already exists
 	  if ( raw_data[strip] && raw_data[strip] != (*idigi).adc() ) {
 	    std::stringstream ss; 
