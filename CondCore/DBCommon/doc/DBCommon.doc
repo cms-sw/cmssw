@@ -43,13 +43,13 @@ None
 
 \subsection tests Unit tests and examples
 <!-- Describe cppunit tests and example configuration files -->
-testCondObjRef: unit test cond::Ref wrapper class
-testCondObjCopy: test container copy functionality
-testGenericCondObjCopy: test copy objects by token
-testTokenBuilder: test building pool token by external parameters
-testContainerIterator: test container iterator functionality
-testServiceLoader: test serviceloader
-testConnectStringParser: test logical connection parser
+testCondObjRef: unit test cond::Ref wrapper class <br>
+testCondObjCopy: test container copy functionality <br>
+testGenericCondObjCopy: test copy objects by token <br> 
+testTokenBuilder: test building pool token by external parameters <br>
+testContainerIterator: test container iterator functionality <br>
+testServiceLoader: test serviceloader <br>
+testConnectStringParser: test logical connection parser <br>
 
 \section status Status and planned development
 <!-- e.g. completed, stable, missing features -->
