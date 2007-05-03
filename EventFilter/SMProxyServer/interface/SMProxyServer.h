@@ -12,7 +12,7 @@
 
      See CMS EventFilter wiki page for further notes.
 
-   $Id: SMProxyServer.h,v 1.1 2007/04/26 00:54:52 hcheung Exp $
+   $Id: SMProxyServer.h,v 1.2 2007/05/01 22:38:54 hcheung Exp $
 */
 
 #include <string>
@@ -31,7 +31,6 @@
 #include "EventFilter/StorageManager/interface/SMPerformanceMeter.h"
 #include "EventFilter/StorageManager/interface/SMFUSenderList.h"
 
-#include "PluginManager/PluginManager.h"
 
 #include "xdaq/Application.h"
 #include "xdaq/ApplicationContext.h"
