@@ -19,7 +19,6 @@
 #include "CondFormats/DataRecord/interface/TrackerSurveyRcd.h"
 #include "CondFormats/DataRecord/interface/TrackerSurveyErrorRcd.h"
 
-DEFINE_SEAL_MODULE();
 REGISTER_PLUGIN(TrackerAlignmentRcd,Alignments);
 REGISTER_PLUGIN(TrackerAlignmentErrorRcd,AlignmentErrors);
 REGISTER_PLUGIN(DTAlignmentRcd,Alignments);
