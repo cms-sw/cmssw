@@ -134,6 +134,17 @@ public:
 
   std::vector<unsigned>* theChargedTracks;
 
+  unsigned int nSimTracks;
+  unsigned int nSimVertices;
+  unsigned int nGenParticles;
+  unsigned int nChargedParticleTracks;
+
+  unsigned int theTrackSize;
+  unsigned int theVertexSize;
+  unsigned int theGenSize;
+  unsigned int theChargedSize;
+  unsigned int initialSize;
+
   /// The particle filter
   KineParticleFilter* myFilter;
 
