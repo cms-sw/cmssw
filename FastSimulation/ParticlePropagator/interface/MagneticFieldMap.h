@@ -42,16 +42,22 @@ private:
 
   void initialize();
 
+  const std::vector<double>* theFieldEndcapHisto(unsigned layer) const
+    { return &(fieldEndcapHistos[layer]); } 
+
+  const std::vector<double>* theFieldBarrelHisto(unsigned layer) const
+    { return &(fieldBarrelHistos[layer]); } 
+
   static MagneticFieldMap* myself;
   const MagneticField* pMF_;
   TrackerInteractionGeometry* geometry_;
-  std::vector<TH1*> fieldBarrelHistos;
-  std::vector<TH1*> fieldEndcapHistos;
+  int bins;
+  std::vector<std::vector<double> > fieldBarrelHistos;
+  std::vector<std::vector<double> > fieldEndcapHistos;
   std::vector<double> fieldBarrelBinWidth;
   std::vector<double> fieldBarrelZMin;
   std::vector<double> fieldEndcapBinWidth;
   std::vector<double> fieldEndcapRMin;
-  
 
 };
 

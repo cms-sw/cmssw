@@ -27,13 +27,16 @@ MagneticFieldMap::instance() {
 MagneticFieldMap::MagneticFieldMap(const MagneticField* pMF,
 				   TrackerInteractionGeometry* myGeo) : 
   pMF_(pMF), 
-  geometry_(myGeo), 
-  fieldBarrelHistos(200,static_cast<TH1*>(0)),
-  fieldEndcapHistos(200,static_cast<TH1*>(0)),
-  fieldBarrelBinWidth(200,static_cast<double>(0)),
-  fieldBarrelZMin(200,static_cast<double>(0)),
-  fieldEndcapBinWidth(200,static_cast<double>(0)),
-  fieldEndcapRMin(200,static_cast<double>(0))
+  geometry_(myGeo),
+  bins(101), 
+  fieldBarrelHistos(200,static_cast<std::vector<double> >
+		    (std::vector<double>(bins,static_cast<double>(0.)))),
+  fieldEndcapHistos(200,static_cast<std::vector<double> > 
+		     (std::vector<double>(bins,static_cast<double>(0.)))),
+  fieldBarrelBinWidth(200,static_cast<double>(0.)),
+  fieldBarrelZMin(200,static_cast<double>(0.)),
+  fieldEndcapBinWidth(200,static_cast<double>(0.)),
+  fieldEndcapRMin(200,static_cast<double>(0.))
 {;}
 
 void
@@ -67,35 +70,32 @@ MagneticFieldMap::initialize()
     }
 
     // Histograms
-    int bins=101;
     double step;
 
     // Disk histogram characteristics
     std::string histEndcap = Form("LayerEndCap_%u",layer);
     step = (rmax-rmin)/(bins-1);
-    fieldEndcapHistos[layer] = 
-      new TH1D(histEndcap.c_str(),"",bins,rmin,rmax+step);
     fieldEndcapBinWidth[layer] = step;
     fieldEndcapRMin[layer] = rmin;
 
     // Fill the histo
+    int endcapBin = 0;
     for ( double radius=rmin+step/2.; radius<rmax+step; radius+=step ) {
       double field = inTeslaZ(GlobalPoint(radius,0.,zmax));
-      fieldEndcapHistos[layer]->Fill(radius,field);
+      fieldEndcapHistos[layer][endcapBin++] = field;
     }
 
     // Barrel Histogram characteritics
     std::string histBarrel = Form("LayerBarrel_%u",layer);
     step = (zmax-zmin)/(bins-1);
-    fieldBarrelHistos[layer] = 
-      new TH1D(histBarrel.c_str(),"",bins,zmin,zmax+step);
     fieldBarrelBinWidth[layer] = step;
     fieldBarrelZMin[layer] = zmin;
 
     // Fill the histo
+    int barrelBin = 0;
     for ( double zed=zmin+step/2.; zed<zmax+step; zed+=step ) {
       double field = inTeslaZ(GlobalPoint(rmax,0.,zed));
-      fieldBarrelHistos[layer]->Fill(zed,field);
+      fieldBarrelHistos[layer][barrelBin++] = field;
     }
   }
 }
@@ -148,34 +148,34 @@ double
 MagneticFieldMap::inTeslaZ(const TrackerLayer& aLayer, double coord, int success) const 
 {
 
-  if (!instance()) {
+  if (!myself) {
     return 4.;
   } else {
     // Find the relevant histo
-    TH1* theHisto; 
     double theBinWidth;
     double theXMin;
     unsigned layer = aLayer.layerNumber();
+    const std::vector<double>* theHisto;
 
     if ( success == 1 ) { 
-      theHisto = fieldBarrelHistos[layer];
+      theHisto = theFieldBarrelHisto(layer);
       theBinWidth = fieldBarrelBinWidth[layer];
       theXMin = fieldBarrelZMin[layer];
     } else {
-      theHisto = fieldEndcapHistos[layer];
+      theHisto = theFieldEndcapHisto(layer);
       theBinWidth = fieldEndcapBinWidth[layer];
       theXMin = fieldEndcapRMin[layer];
     }
     
     // Find the relevant bin
     double x = fabs(coord);
-    unsigned bin = (unsigned) ((x-theXMin)/theBinWidth) + 1; // TH1: bin 0 == underflows 
+    unsigned bin = (unsigned) ((x-theXMin)/theBinWidth);
     double x1 = theXMin + (bin-0.5)*theBinWidth;
     double x2 = x1+theBinWidth;      
 
     // Determine the field
-    double field1 = theHisto->GetBinContent(bin);
-    double field2 = theHisto->GetBinContent(bin+1);
+    double field1 = (*theHisto)[bin];
+    double field2 = (*theHisto)[bin+1];
 
     return field1 + (field2-field1) * (x-x1)/(x2-x1);
 
