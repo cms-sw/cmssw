@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripRawToClustersModule.cc,v 1.2 2007/04/25 08:13:42 pwing Exp $
+// Last commit: $Id: SiStripRawToClustersModule.cc,v 1.3 2007/04/30 13:48:32 pwing Exp $
 
 #include "EventFilter/SiStripRawToDigi/plugins/SiStripRawToClustersModule.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
@@ -273,7 +273,7 @@ void SiStripRawToClustersModule::produce( edm::Event& event,
 	    uint16_t strip = ipair*256 + *i++;
 	    unsigned char width = *i++;       // cluster width in strips 
 	    for ( uint16_t istr = 0; istr < ((uint16_t)width); istr++) {
-	      clusterizer_->algorithm()->add(zs,(uint16_t)(strip+istr),(uint16_t)(*i++));
+	      clusterizer_->algorithm()->add(zs.data,zs.id,(uint16_t)(strip+istr),(uint16_t)(*i++));
 	    }
 	  }
 	  
@@ -284,7 +284,7 @@ void SiStripRawToClustersModule::produce( edm::Event& event,
 	  rawToDigi_->handleException( __func__, sss.str() ); 
 	} 
       }
-      clusterizer_->algorithm()->endDet(zs);
+      clusterizer_->algorithm()->endDet(zs.data,zs.id);
     }
     
     //delete fedEvents cache
