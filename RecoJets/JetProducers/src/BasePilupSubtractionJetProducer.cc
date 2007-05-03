@@ -1,6 +1,6 @@
 // File: BasePilupSubtractionJetProducer.cc
 // Author: F.Ratnikov UMd Aug 22, 2006
-// $Id: BasePilupSubtractionJetProducer.cc,v 1.1 2007/04/07 18:12:46 kodolova Exp $
+// $Id: BasePilupSubtractionJetProducer.cc,v 1.2 2007/04/10 16:22:33 kodolova Exp $
 //--------------------------------------------
 #include <memory>
 #include "DataFormats/Common/interface/EDProduct.h"
@@ -75,9 +75,9 @@ namespace cms
     : mSrc (conf.getParameter<edm::InputTag>( "src" )),
       mJetType (conf.getUntrackedParameter<string>( "jetType", "CaloJet")),
       mVerbose (conf.getUntrackedParameter<bool>("verbose", false)),
-      mEtJetInputCut (conf.getParameter<double>("inputEtJetMin")),
       mEtInputCut (conf.getParameter<double>("inputEtMin")),
-      mEInputCut (conf.getParameter<double>("inputEMin"))
+      mEInputCut (conf.getParameter<double>("inputEMin")),
+      mEtJetInputCut (conf.getParameter<double>("inputEtJetMin"))
   {
     std::string alias = conf.getUntrackedParameter<string>( "alias", conf.getParameter<std::string>("@module_label"));
     if (makeCaloJet (mJetType)) produces<CaloJetCollection>().setBranchAlias (alias);
@@ -254,17 +254,17 @@ void BasePilupSubtractionJetProducer::calculate_pedestal(JetReco::InputCollectio
       double eta = (**input_object).eta();
       if(fabs(eta-etaold)<0.00001) 
       {
-        emean[itower] = emean[eta]+(**input_object).et();
-        emean2[itower] = emean2[eta]+((**input_object).et())*((**input_object).et());
-	ntowers[itower]++;
+        emean[itower] += (**input_object).et();
+        emean2[itower] += ((**input_object).et())*((**input_object).et());
+	ntowers[itower] += 1;
       } 
         else
 	{
 	   itower++;
-           emean[itower] = emean[itower]+(**input_object).et();
-           emean2[itower] = emean2[itower]+((**input_object).et())*((**input_object).et());
+           emean[itower] += (**input_object).et();
+           emean2[itower] += ((**input_object).et())*((**input_object).et());
 	   ietamap[eta] = itower;
-	   ntowers[itower]=1.;
+	   ntowers[itower]=1;
 	}	
     }
     

@@ -1,6 +1,6 @@
 // File: BaseJetProducer.cc
 // Author: F.Ratnikov UMd Aug 22, 2006
-// $Id: BaseJetProducer.cc,v 1.11 2007/03/26 22:05:40 fedor Exp $
+// $Id: BaseJetProducer.cc,v 1.12 2007/03/28 22:39:34 fedor Exp $
 //--------------------------------------------
 #include <memory>
 
@@ -15,6 +15,8 @@
 #include "DataFormats/JetReco/interface/GenJet.h"
 #include "DataFormats/JetReco/interface/BasicJet.h"
 #include "DataFormats/JetReco/interface/GenericJet.h"
+#include "DataFormats/JetReco/interface/JetTrackMatch.h"
+#include "RecoJets/JetAlgorithms/interface/JetTrackConeAssociator.h"
 #include "RecoJets/JetAlgorithms/interface/JetMaker.h"
 #include "RecoJets/JetAlgorithms/interface/JetAlgoHelper.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
@@ -90,10 +92,14 @@ namespace cms
       mJetType (conf.getUntrackedParameter<string>( "jetType", "CaloJet")),
       mVerbose (conf.getUntrackedParameter<bool>("verbose", false)),
       mEtInputCut (conf.getParameter<double>("inputEtMin")),
-      mEInputCut (conf.getParameter<double>("inputEMin"))
+      mEInputCut (conf.getParameter<double>("inputEMin")),
+      mVertexTracksCone (conf.getParameter<double>("vertexTracksCone"))
   {
     std::string alias = conf.getUntrackedParameter<string>( "alias", conf.getParameter<std::string>("@module_label"));
-    if (makeCaloJet (mJetType)) produces<CaloJetCollection>().setBranchAlias (alias);
+    if (makeCaloJet (mJetType)) {
+      produces<CaloJetCollection>().setBranchAlias (alias);
+      if (mVertexTracksCone > 0) produces<JetTrackMatch<CaloJetCollection> > ();
+    }
     else if (makeGenJet (mJetType)) produces<GenJetCollection>().setBranchAlias (alias);
     else if (makeBasicJet (mJetType)) produces<BasicJetCollection>().setBranchAlias (alias);
     else if (makeGenericJet (mJetType)) produces<GenericJetCollection>().setBranchAlias (alias);
@@ -180,6 +186,7 @@ namespace cms
       GreaterByPt<CaloJet> compJets;
       std::sort (caloJets->begin (), caloJets->end (), compJets);
       if (mVerbose) dumpJets (*caloJets);
+      // make jet-track association
       e.put(caloJets);  //Puts Jet Collection into event
     }
     if (genJets.get ()) {
@@ -200,6 +207,7 @@ namespace cms
       if (mVerbose) dumpJets (*genericJets);
       e.put(genericJets);  //Puts Jet Collection into event
     }
+    reco::JetTrackMatch<reco::CaloJetCollection> jetTrackMap;
   }
 }
 
