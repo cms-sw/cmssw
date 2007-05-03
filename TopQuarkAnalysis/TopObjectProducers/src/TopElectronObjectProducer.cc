@@ -30,7 +30,7 @@ TopElectronObjectProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
 {     
   
    // Get the vector of generated particles from the event
-   Handle<vector<electronType> > electrons; 
+   Handle<vector<ElectronType> > electrons; 
    iEvent.getByLabel("pixelMatchGsfElectrons", electrons );
    
    

@@ -30,7 +30,7 @@ TopMuonObjectProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 {     
   
    // Get the vector of generated particles from the event
-   Handle<vector<muonType> > muons;
+   Handle<vector<MuonType> > muons;
    iEvent.getByLabel("globalMuons", muons );
 
    //loop over muons
