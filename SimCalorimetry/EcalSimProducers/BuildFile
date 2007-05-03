@@ -1,3 +1,4 @@
+<use name=FWCore/PluginManager>
 <use name=FWCore/Framework>
 <use name=FWCore/MessageLogger>
 <use name=FWCore/ParameterSet>
@@ -6,7 +7,6 @@
 <use name=Geometry/CaloEventSetup>
 <use name=CondFormats/DataRecord>
 <export>
-   <lib name=SimCalorimetryEcalSimProducers>
    <use name=SimCalorimetry/EcalSimAlgos>
    <use name=SimDataFormats/CrossingFrame>
    <use name=Geometry/CaloEventSetup>
