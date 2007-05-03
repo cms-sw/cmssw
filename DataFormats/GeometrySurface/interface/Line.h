@@ -45,7 +45,7 @@ D= P.dot(thePos-V) * P;
 return D;
 }
 
-GlobalVector distance(GlobalPoint & aPoint) const {
+GlobalVector distance(const GlobalPoint & aPoint) const {
 
 GlobalVector P(aPoint.x(),aPoint.y(),aPoint.z());
 GlobalVector T0(thePos.x(),thePos.y(),thePos.z());
