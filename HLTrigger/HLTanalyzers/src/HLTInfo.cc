@@ -28,12 +28,9 @@ void HLTInfo::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
     if ( (*iParam) == "Debug" ) _Debug =  myHltParams.getParameter<bool>( *iParam );
   }
 
-  HltEvtCnt = 0;
+  evtCount = 0;
   const int kMaxTrigFlag = 10000;
   trigflag = new int[kMaxTrigFlag];
-  L1EvtCnt = 0;
-  const int kMaxL1Flag = 10000;
-  l1flag = new int[kMaxL1Flag];
   const int kMaxHLTPart = 10000;
   hltppt = new float[kMaxHLTPart];
   hltpeta = new float[kMaxHLTPart];
@@ -126,7 +123,6 @@ void HLTInfo::analyze(const HLTFilterObjectWithRefs& hltobj,
 		      const l1extra::L1JetParticleCollection& L1ExtJetF,
 		      const l1extra::L1JetParticleCollection& L1ExtTau,
 		      const l1extra::L1EtMissParticle& L1ExtMet,
-		      const l1extra::L1ParticleMapCollection& L1MapColl,
 		      TTree* HltTree) {
 
 //   std::cout << " Beginning HLTInfo " << std::endl;
@@ -139,12 +135,12 @@ void HLTInfo::analyze(const HLTFilterObjectWithRefs& hltobj,
     if (ntrigs==0){std::cout << "%HLTInfo -- No trigger name given in TriggerResults of the input " << std::endl;}
 
     // 1st event : Book as many branches as trigger paths provided in the input...
-    if (HltEvtCnt==0){
+    if (evtCount==0){
       for (int itrig = 0; itrig != ntrigs; ++itrig){
 	TString trigName = hltresults.name(itrig);
 	HltTree->Branch("TRIGG_"+trigName,trigflag+itrig,"TRIGG_"+trigName+"/I");
       }
-      HltEvtCnt++;
+      evtCount++;
     }
     // ...Fill the corresponding accepts in branch-variables
     for (int itrig = 0; itrig != ntrigs; ++itrig){
@@ -189,7 +185,7 @@ void HLTInfo::analyze(const HLTFilterObjectWithRefs& hltobj,
     std::cout << "%HLTInfo -- No HLT Object" << std::endl;
   }
 
-  /////////// Analyzing L1Extra objects //////////
+  /////////// Analyzing L1Extra (from MC Truth) objects //////////
 
   if (&L1ExtEmIsol) {
     nl1extiem = L1ExtEmIsol.size();
@@ -312,26 +308,5 @@ void HLTInfo::analyze(const HLTFilterObjectWithRefs& hltobj,
     methad = L1ExtMet.etHad();
   }
   else {std::cout << "%HLTInfo -- No L1 MET object" << std::endl;}
-
-  if (&L1MapColl) {
-
-    // 1st event : Book as many branches as trigger paths provided in the input...
-    if (L1EvtCnt==0){
-      for (int itrig = 0; itrig != l1extra::L1ParticleMap::kNumOfL1TriggerTypes; ++itrig){
-	const l1extra::L1ParticleMap& map = ( L1MapColl )[ itrig ] ;
-	TString trigName = map.triggerName();
-	HltTree->Branch(trigName,l1flag+itrig,trigName+"/I");
-      }
-      L1EvtCnt++;
-    }
-    // ...Fill the corresponding accepts in branch-variables
-    for (int itrig = 0; itrig != l1extra::L1ParticleMap::kNumOfL1TriggerTypes; ++itrig){
-      const l1extra::L1ParticleMap& map = ( L1MapColl )[ itrig ] ;
-      l1flag[itrig] = map.triggerDecision();
-    }
-   
-  }
-  else {std::cout << "%HLTInfo -- No L1 Map Collection" << std::endl;}
-
 
 }
