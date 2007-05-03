@@ -15,7 +15,7 @@
 \section desc Description
 <!-- Short description of what this package is supposed to provide -->
 EventSetup Plugin factory for conditions data. 
-See <a href="https://twiki.cern.ch/twiki/bin/view/CMS/CondDB">CondDB Wiki</a>
+
 
 \subsection interface Public interface
 <!-- List the classes that are provided for use in other packages (if any) -->
