@@ -3,7 +3,7 @@
  
 /** \class EcalDeadChannelRecoveryAlgos
   *
-  *  $Date: 2006/03/10 08:38:19 $
+  *  $Date: 2007/05/03 13:12:30 $
   *  $Revision: 1.1 $
   */
  
@@ -20,7 +20,7 @@
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
 #include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
 #include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
-#include "Geometry/Vector/interface/GlobalPoint.h"
+//#include "Geometry/Vector/interface/GlobalPoint.h"
 
 // Reconstruction Classes
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"

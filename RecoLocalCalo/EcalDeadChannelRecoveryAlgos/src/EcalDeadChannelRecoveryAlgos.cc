@@ -13,7 +13,7 @@
 //
 // Original Author:  Georgios Daskalakis
 //         Created:  Thu Apr 12 17:02:06 CEST 2007
-// $Id$
+// $Id: EcalDeadChannelRecoveryAlgos.cc,v 1.1 2007/05/03 12:44:21 gdaskal Exp $
 //
 //
 
@@ -31,7 +31,7 @@
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
 #include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
 #include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
-#include "Geometry/Vector/interface/GlobalPoint.h"
+//#include "Geometry/Vector/interface/GlobalPoint.h"
 
 // Reconstruction Classes
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
@@ -111,7 +111,7 @@ bool EcalDeadChannelRecoveryAlgos::MakeNxNMatrice(EBDetId itID,const EcalRecHitC
 
   //Build NxN around a given cristal
   const int Nsize2 = size*size;
-  double N[Nsize2];
+  double N[100];//HAVE TO CHANGE --> Use vector!!!! cf Luca Malgeri
   for(int i=0;i<Nsize2;i++){
     N[i]=0.000001; 
     MNxN[i]=N[i];
