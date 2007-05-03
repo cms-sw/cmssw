@@ -83,18 +83,18 @@ MuonOverlapSeedFromRecHits::makeSeed(MuonTransientTrackingRecHit::ConstMuonRecHi
   int wheel = dtId.wheel();
   int dtStation = dtId.station();
 
-  std::cout << "DT " << wheel << " " << dtStation << std::endl; 
+  //std::cout << "DT " << wheel << " " << dtStation << std::endl; 
 
   CSCDetId cscId(endcapHit->geographicalId().rawId());
   int cscChamberType = CSCChamberSpecs::whatChamberType(cscId.station(), cscId.ring());
-  std::cout << " CSC " << cscChamberType << std::endl;
+  //std::cout << " CSC " << cscChamberType << std::endl;
 
   double dphi = (*barrelHit).globalPosition().phi() - (*endcapHit).globalPosition().phi();
   if(dphi > M_PI) dphi -= 2*M_PI;
   if(dphi < -M_PI) dphi += 2*M_PI;
   double eta = (*barrelHit).globalPosition().eta();
 
-  std::cout << "OVERLAPHITPAIR," << dtStation << cscChamberType<<"," << dphi << "," << eta << std::endl;
+  //std::cout << "OVERLAPHITPAIR," << dtStation << cscChamberType<<"," << dphi << "," << eta << std::endl;
 
   // find the parametrization constants
   std::pair<int, int> key(dtStation, cscChamberType);
@@ -109,7 +109,7 @@ MuonOverlapSeedFromRecHits::makeSeed(MuonTransientTrackingRecHit::ConstMuonRecHi
       // FIXME
     float sigmapt = 25;
     result = createSeed(pt, sigmapt, barrelHit);
-    std::cout << "OVERLAPFITTED PT " << pt << " dphi " << dphi << " eta " << eta << std::endl;
+    //std::cout << "OVERLAPFITTED PT " << pt << " dphi " << dphi << " eta " << eta << std::endl;
     return true;
   }
   return false;
