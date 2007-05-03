@@ -344,7 +344,8 @@ BaseParticlePropagator::propagateToPreshowerLayer1(bool first) {
   bool done = propagate();
 
   // Check that were are on the Layer 1 
-  if ( done && (vertex().perp() > 125.0 || vertex().perp() < 45.0) ) 
+  if ( done && (vertex().perp2() > 125.0*125.0 || 
+		vertex().perp2() < 45.0*45.0) ) 
     success = 0;
   
   return done;
@@ -363,7 +364,8 @@ BaseParticlePropagator::propagateToPreshowerLayer2(bool first) {
   bool done = propagate();
 
   // Check that we are on Layer 2 
-  if ( done && (vertex().perp() > 125.0 || vertex().perp() < 45.0 ))
+  if ( done && (vertex().perp2() > 125.0*125.0 || 
+		vertex().perp() < 45.0*45.0 ))
     success = 0;
 
   return done;
@@ -382,16 +384,21 @@ BaseParticlePropagator::propagateToEcalEntrance(bool first) {
   bool done = propagate();
 
   // Where are we ?
-  double eta = fabs ( vertex().vect().eta() );
+  //  double eta = fabs ( vertex().vect().eta() );
+  double c2teta = vertex().vect().cos2Theta();
 
   // Go to endcap cylinder in the "barrel cut corner" 
-  if ( done && eta > 1.479 && success == 1 ) {
+  // eta = 1.479 -> cos^2(theta) = 0.81230
+  //  if ( done && eta > 1.479 && success == 1 ) {
+  if ( done && c2teta > 0.81230 && success == 1 ) {
     setPropagationConditions(171.1 , 317.0, first);
     done = propagate();
   }
 
   // We are not in the ECAL acceptance
-  if ( fabs ( vertex().vect().eta() ) > 3.0 ) success = 0;
+  //  if ( fabs ( vertex().vect().eta() ) > 3.0 ) success = 0;
+  // eta = 3.0 -> cos^2(theta) = 0.99013
+  if ( vertex().vect().cos2Theta() > 0.99013 ) success = 0;
 
   return done;
 }
@@ -411,7 +418,9 @@ BaseParticlePropagator::propagateToHcalEntrance(bool first) {
   propDir = 1;
 
   // We are not in the HCAL acceptance
-  if ( done && fabs ( vertex().vect().eta() ) > 3.0 ) success = 0;
+  //  if ( done && fabs ( vertex().vect().eta() ) > 3.0 ) success = 0;
+  // eta = 3.0 -> cos^2(theta) = 0.99013
+  if ( done && vertex().vect().cos2Theta() > 0.99013 ) success = 0;
 
   return done;
 }
@@ -429,8 +438,12 @@ BaseParticlePropagator::propagateToVFcalEntrance(bool first) {
   propDir = 1;
 
   // We are not in the VFCAL acceptance
-  double feta = fabs ( vertex().vect().eta() );
-  if ( done && ( feta < 3 || feta > 5.0 ) ) success = 0;
+  //  double feta = fabs ( vertex().vect().eta() );
+  //  if ( done && ( feta < 3 || feta > 5.0 ) ) success = 0;
+  // eta = 3.0 -> cos^2(theta) = 0.99013
+  // eta = 5.0 -> cos^2(theta) = 0.998184
+  double c2teta = vertex().vect().cos2Theta();
+  if ( done && ( c2teta < 0.99013 || c2teta > 0.998184 ) ) success = 0;
 
   return done;
 }
