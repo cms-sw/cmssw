@@ -22,6 +22,13 @@ double _prob;
 static const size_t _Mask_LENGTH = 100;
 static const size_t _cbads_LENGTH = 96;
 
+struct StripStruct{
+  int N;
+  long double prob;
+  long double mean;
+};
+
+
 void badStripStudy(TH1F *histo);
 
 void Navigate(){
@@ -84,69 +91,107 @@ void unpack(const char* bitword){
   }
 }
 
-void badStripStudy(TH1F *histo){
+void iterate(TH1F* histo,std::map<short,StripStruct>& mBadStrip){
+  double diff=1.-_prob; 
   int ibinStart= 1; 
   int ibinStop= histo->GetNbinsX(); 
   int MaxEntry=(int)histo->GetMaximum();
+
+  size_t startingSize=mBadStrip.size();
+  long double Poisson[MaxEntry+1];
+ 
+  float Nentries=histo->GetEntries();
+  int Nbins=histo->GetNbinsX();
+
+  std::map<short,StripStruct>::const_iterator EndIter=mBadStrip.end();
+  for(std::map<short,StripStruct>::const_iterator iter=mBadStrip.begin();iter!=EndIter;++iter){
+    
+    Nentries-=iter->second.N;
+    Nbins--;
+  }
+
+
+  float meanVal=Nentries/Nbins; 
+
+  cout << "Iterate " << Nentries << " " << Nbins << " " << meanVal << endl;
+
+  for(int i=0;i<MaxEntry+1;i++){
+    Poisson[i]= (i==0)?TMath::Poisson(i,meanVal):Poisson[i-1]+TMath::Poisson(i,meanVal);
+  }
+  for (Int_t i=ibinStart; i<ibinStop; ++i){
+    if (mBadStrip.find(i)==mBadStrip.end()){
+      unsigned int pos= (unsigned int)histo->GetBinContent(i);
+      if(diff<Poisson[pos]){
+	
+	StripStruct a;
+	a.N=histo->GetBinContent(i);
+	a.prob=Poisson[pos];
+	a.mean=meanVal;
+	mBadStrip[i]=a;
+      }
+    }
+  }
+  if(mBadStrip.size()!=startingSize)
+    iterate(histo,mBadStrip);
+}
+
+void badStripStudy(TH1F *histo){
   int Nbads=0;
   int NbadsFirstEdge=0;
   int NbadsSecondEdge=0;
-  double diff=1.-_prob; 
 
   char cbads[_cbads_LENGTH];
   unsigned long int uno=~0;
   for (size_t i=0;i<_cbads_LENGTH;++i)
     memcpy((void*)&cbads[i],(void*)&uno,1);
 
-  float meanVal=histo->GetEntries()/histo->GetNbinsX();
-
-  if ( meanVal == 0 )
+  if ( histo->GetEntries() == 0 )
     return;
 
-  long double Poisson[MaxEntry+1];
+  std::map<short,StripStruct> mBadStrip;
+  
+  cout << "new" << endl;
+  iterate(histo,mBadStrip);
 
-  for(int i=0;i<MaxEntry+1;i++){
-    Poisson[i]= (i==0)?TMath::Poisson(i,meanVal):Poisson[i-1]+TMath::Poisson(i,meanVal);
+  std::map<short,StripStruct>::const_iterator EndIter=mBadStrip.end();
+  for(std::map<short,StripStruct>::const_iterator iter=mBadStrip.begin();iter!=EndIter;++iter){
+    
+    int i=iter->first;
+    std::cout<< "\t" << histo->GetTitle() << " StripNum\t" << i-1 << " \t Entries " << iter->second.N << " \t respect a mean of " << iter->second.mean << " 1-Prob " << scientific << iter->second.prob << fixed <<std::endl;
+    
+    Nbads++;
+    if (i%128 == 0)
+      NbadsSecondEdge++;
+    if (i%128 == 1)
+      NbadsFirstEdge++;
+    
+    BitAssign(i-1,cbads);
   }
-  for (Int_t i=ibinStart; i<ibinStop; ++i)
-    {
-      unsigned int pos= (unsigned int)histo->GetBinContent(i);
-      if(diff<Poisson[pos]){
-	std::cout<< "\t" << histo->GetTitle() << " StripNum\t" << i-1 << " \t Entries " << histo->GetBinContent(i) << " \t respect a mean of " << meanVal << " 1-Prob " << scientific << Poisson[pos]<< fixed <<std::endl;
-	
-	Nbads++;
-	if (i%128 == 0)
-	  NbadsSecondEdge++;
-	if (i%128 == 1)
-	  NbadsFirstEdge++;
 
-	BitAssign(i-1,cbads);
+  if(Nbads ){ 
+    std::cout<< "&&&&&& " << strstr(histo->GetTitle(),"Det_") <<" \thas "<<Nbads<< " bad strips, on First Edge " << NbadsFirstEdge << " , on Second Edge " << NbadsSecondEdge << " , centrally " << Nbads - NbadsSecondEdge - NbadsFirstEdge << " , out of " << histo->GetNbinsX()-1 <<"\n-----------------------------------------------\n"<< std::endl;
+    
+    TCanvas C;
+    histo->Draw();
+    C.Print(TString(histo->GetTitle())+TString(".eps"));
+    
+    char title[128];
+    sprintf(title,"%s",histo->GetTitle());
+    char *ptr=strtok(title,"_");
+    int c=0;
+    while (ptr!=NULL){
+      if (c==2){
+	unsigned int detid=atol(ptr);
+	Mask = (char *) malloc(_Mask_LENGTH);
+	memcpy((void*)Mask,(void*)&detid,4);
+	memcpy((void*)&Mask[4],(void*)cbads,_cbads_LENGTH);
+	ss.write(Mask,_Mask_LENGTH);
+	break;
       }
-      if(Nbads && i==ibinStop-1){ 
-	std::cout<< "&&&&&& " << strstr(histo->GetTitle(),"Det_") <<" \thas "<<Nbads<< " bad strips, on First Edge " << NbadsFirstEdge << " , on Second Edge " << NbadsSecondEdge << " , centrally " << Nbads - NbadsSecondEdge - NbadsFirstEdge << " , out of " << i <<"\n-----------------------------------------------\n"<< std::endl;
-
-	TCanvas C;
-	histo->Draw();
-	C.Print(TString(histo->GetTitle())+TString(".eps"));
-
-	char title[128];
-	sprintf(title,"%s",histo->GetTitle());
-	char *ptr=strtok(title,"_");
-	int c=0;
-	while (ptr!=NULL){
-	  if (c==2){
-	    unsigned int detid=atol(ptr);
-	    Mask = (char *) malloc(_Mask_LENGTH);
-	    memcpy((void*)Mask,(void*)&detid,4);
-	    memcpy((void*)&Mask[4],(void*)cbads,_cbads_LENGTH);
-	    ss.write(Mask,_Mask_LENGTH);
-	    break;
-	  }
-	  ptr=strtok(NULL,"_");
-	  c++;
-	}
-      }
+      ptr=strtok(NULL,"_");
+      c++;
     }
+  }  
 }
 
 
