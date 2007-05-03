@@ -14,7 +14,7 @@
 
 \section desc Description
 <!-- Short description of what this package is supposed to provide -->
-Generic conditions data reader. See <a href="https://twiki.cern.ch/twiki/bin/view/CMS/CondDB">CondDB Wiki</a>
+Generic conditions data reader. See <a href="https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideCondDB">CondDB Wiki</a>
 
 
 \subsection interface Public interface
