@@ -15,7 +15,7 @@
 // Modified by Eduardo Luiggi
 //
 //         Created:  Tue Oct 31 10:52:41 CET 2006
-// $Id: JetVertexAssociation.cc,v 1.2 2007/03/09 17:01:47 kodolova Exp $
+// $Id: JetVertexAssociation.cc,v 1.4 2007/04/12 19:00:34 nilina Exp $
 //
 //
 
@@ -41,7 +41,7 @@
 #include "DataFormats/Common/interface/EDProduct.h"
 #include "FWCore/Framework/interface/Event.h"
 
-#include "PluginManager/ModuleDef.h"
+#include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "DataFormats/Common/interface/Handle.h"
