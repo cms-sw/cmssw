@@ -3,7 +3,7 @@
 // user include files
 
 #include "Calibration/HcalAlCaRecoProducers/src/ProducerAnalyzer.h"
-#include "DataFormats/Common/interface/Provenance.h"
+#include "DataFormats/Provenance/interface/Provenance.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
