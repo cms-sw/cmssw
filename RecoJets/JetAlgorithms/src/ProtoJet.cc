@@ -4,6 +4,7 @@
 
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "RecoJets/JetAlgorithms/interface/ProtoJet.h"
+#include "PhysicsTools/Utilities/interface/EtComparator.h"
 
 #include <vector>
 #include <algorithm>               // include STL algorithm implementations
@@ -38,17 +39,31 @@ namespace {
     return result;
   }
 
+  struct CandidateRefGreaterByEt {
+    bool operator() (const reco::CandidateRef& first, const reco::CandidateRef& second) {
+      NumericSafeGreaterByEt<reco::Candidate> comparator;
+      return comparator (*first, *second);
+    }
+  };
+
 }
 
 ProtoJet::ProtoJet(const Constituents& fConstituents) 
   : mConstituents (fConstituents)
 {
+  reorderTowers ();
   calculateLorentzVector(); 
 }//end of constructor
 
 void ProtoJet::putTowers(const Constituents& towers) {
   mConstituents = towers; 
+  reorderTowers ();
   calculateLorentzVector();
+}
+
+void ProtoJet::reorderTowers () {
+  CandidateRefGreaterByEt comparator;
+  std::sort (mConstituents.begin(), mConstituents.end(), comparator); 
 }
 
 void ProtoJet::calculateLorentzVectorERecombination() {

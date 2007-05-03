@@ -1,7 +1,7 @@
 /// Algorithm to convert transient protojets into persistent jets
 /// Author: F.Ratnikov, UMd
 /// Mar. 8, 2006
-/// $Id: JetMaker.cc,v 1.19 2007/03/27 18:38:03 fedor Exp $
+/// $Id: JetMaker.cc,v 1.20 2007/04/18 22:04:32 fedor Exp $
 
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
@@ -88,7 +88,6 @@ namespace {
     fJetSpecific->mEnergyFractionEm = eInEm / towerEnergy;
     fJetSpecific->mMaxEInEmTowers = 0;
     fJetSpecific->mMaxEInHadTowers = 0;
-    fJetSpecific->mN90 = 0;
     
     //Sort the arrays
     sort(eECal_i.begin(), eECal_i.end(), greater<double>());
@@ -99,14 +98,8 @@ namespace {
       fJetSpecific->mMaxEInEmTowers = eECal_i.front(); 
       fJetSpecific->mMaxEInHadTowers = eHCal_i.front();
       
-      //n90 using the sorted list
-      double ediff = (eInHad + eInEm) * 0.9;
-      for (unsigned i = 0; i < fTowers.size(); i++) {
-	ediff = ediff - eECal_i[i] - eHCal_i[i];
-	fJetSpecific->mN90++;
-	if (ediff <= 0) break; 
-      }
     }
+    fJetSpecific->mTowersArea = 0;
     return true;
   }
   

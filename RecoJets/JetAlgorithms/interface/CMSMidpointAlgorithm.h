@@ -17,7 +17,7 @@
  * \version   2nd Version Apr. 6, 2005  Modifications toward integration in new EDM.
  * \version   3rd Version Oct. 19, 2005 Modified to work with real CaloTowers from Jeremy Mans
  * \version   F.Ratnikov, Mar. 8, 2006. Work from Candidate
- * $Id: CMSMidpointAlgorithm.h,v 1.6 2007/02/08 01:46:10 fedor Exp $
+ * $Id: CMSMidpointAlgorithm.h,v 1.7 2007/04/18 22:04:31 fedor Exp $
  *
  ************************************************************/
 
@@ -76,7 +76,6 @@ class CMSMidpointAlgorithm
   /// Runs the algorithm and returns a list of caloJets. 
   /// The user declares the vector and calls this method.
   void run(const JetReco::InputCollection& fInput, JetReco::OutputCollection* fOutput);
-
 
  private:
   /// Find the list of proto-jets from the seeds.  

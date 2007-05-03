@@ -564,8 +564,7 @@ void CMSMidpointAlgorithm::splitAndMerge(const InputCollection& fInput,
 			      "[CMSMidpointAlgorithm] Saving: Proto-jet  at y=" << stableCone1->y() << 
 			      ", phi=" << stableCone1->phi() <<  " has no overlap" << endl;
 	
-	// Cone 1 has no overlap with any of the other cones and can become a jet.
-	fFinalJets->push_back(*stableCone1);
+	fFinalJets->push_back(ProtoJet (stableCone1->p4(), stableCone1->getTowerList()));
 	delete *stableConeIter1;
 	*stableConeIter1 = 0;
       }

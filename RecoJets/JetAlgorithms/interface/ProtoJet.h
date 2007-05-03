@@ -34,7 +34,8 @@ public:
   ProtoJet(const Constituents& theConstituents);
 
  //**Full Constructor */
-    ProtoJet(const LorentzVector& fP4, const Constituents& fConstituents) : mP4 (fP4), mConstituents (fConstituents) {}
+ ProtoJet(const LorentzVector& fP4, const Constituents& fConstituents) 
+   : mP4 (fP4), mConstituents (fConstituents) {}
 
   /**  Destructor*/
   ~ProtoJet() {}
@@ -80,6 +81,9 @@ public:
   
   /** Sets the list of towers in a protojet */
   void putTowers(const Constituents& towers);
+
+  /** Reorder towers by eT */
+  void reorderTowers ();
 
   /** Make kinematics from constituents */
   void calculateLorentzVector() {calculateLorentzVectorERecombination();}
