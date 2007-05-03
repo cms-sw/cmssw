@@ -155,19 +155,18 @@
   
   <class name="std::vector<Measurement1D>"/>
   	    
-
  <!-- RefToBase stuff -->
   <class name="edm::RefToBase<reco::BaseTagInfo>" />
   <class name="edm::reftobase::BaseHolder<reco::BaseTagInfo>" />
-  <class name="edm::reftobase::Holder<reco::BaseTagInfo, edm::RefProd<reco::BaseTagInfo> >" />
-  <class name="edm::reftobase::Holder<reco::BaseTagInfo, edm::RefProd<reco::TrackCountingTagInfo> >" />
-  <class name="edm::reftobase::Holder<reco::BaseTagInfo, edm::RefProd<reco::TrackIPTagInfo> >" />
-  <class name="edm::reftobase::Holder<reco::BaseTagInfo, edm::RefProd < reco::CombinedSVTagInfo> > " />
-  <class name="edm::reftobase::Holder<reco::BaseTagInfo, edm::RefProd < reco::CombinedTauTagInfo> > " />
-  <class name="edm::reftobase::Holder<reco::BaseTagInfo, edm::RefProd < reco::IsolatedTauTagInfo> > " />
-  <class name="edm::reftobase::Holder<reco::BaseTagInfo, edm::RefProd < reco::SoftLeptonTagInfo> > " />
-  <class name="edm::reftobase::Holder<reco::BaseTagInfo, edm::RefProd < reco::TauMassTagInfo> > " />
-  <class name="edm::reftobase::Holder<reco::BaseTagInfo, edm::RefProd < reco::TrackProbabilityTagInfo> >" />
+  <class name="edm::reftobase::Holder<reco::BaseTagInfo, reco::BaseTagInfoRef>" />
+  <class name="edm::reftobase::Holder<reco::BaseTagInfo, reco::TrackCountingTagInfoRef>" />
+  <class name="edm::reftobase::Holder<reco::BaseTagInfo, reco::TrackIPTagInfoRef>" />
+  <class name="edm::reftobase::Holder<reco::BaseTagInfo, reco::CombinedSVTagInfoRef> " />
+  <class name="edm::reftobase::Holder<reco::BaseTagInfo, reco::CombinedTauTagInfoRef> " />
+  <class name="edm::reftobase::Holder<reco::BaseTagInfo, reco::IsolatedTauTagInfoRef> " />
+  <class name="edm::reftobase::Holder<reco::BaseTagInfo, reco::SoftLeptonTagInfoRef> " />
+  <class name="edm::reftobase::Holder<reco::BaseTagInfo, reco::TauMassTagInfoRef> " />
+  <class name="edm::reftobase::Holder<reco::BaseTagInfo, reco::TrackProbabilityTagInfoRef>" />
 
 
 </lcgdict>

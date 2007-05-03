@@ -194,16 +194,15 @@ namespace {
 	    
     //Ref To base holders
     // 
-
-      edm::reftobase::Holder<reco::BaseTagInfo, edm::RefProd < reco::BaseTagInfo> >  rb0;
-      edm::reftobase::Holder<reco::BaseTagInfo, edm::RefProd < reco::TrackCountingTagInfo> > rb1;
-      edm::reftobase::Holder<reco::BaseTagInfo, edm::RefProd < reco::TrackIPTagInfo> > rb2;
-      edm::reftobase::Holder<reco::BaseTagInfo, edm::RefProd < reco::CombinedSVTagInfo> > rb3;
-      edm::reftobase::Holder<reco::BaseTagInfo, edm::RefProd < reco::CombinedTauTagInfo> > rb4;
-      edm::reftobase::Holder<reco::BaseTagInfo, edm::RefProd < reco::IsolatedTauTagInfo> > rb5;
-      edm::reftobase::Holder<reco::BaseTagInfo, edm::RefProd < reco::SoftLeptonTagInfo> > rb6;
-      edm::reftobase::Holder<reco::BaseTagInfo, edm::RefProd < reco::TauMassTagInfo> > rb7;
-      edm::reftobase::Holder<reco::BaseTagInfo, edm::RefProd < reco::TrackProbabilityTagInfo> > rb8;
+      edm::reftobase::Holder<reco::BaseTagInfo, reco::BaseTagInfoRef >  rb0;
+      edm::reftobase::Holder<reco::BaseTagInfo, reco::TrackCountingTagInfoRef > rb1;
+      edm::reftobase::Holder<reco::BaseTagInfo, reco::TrackIPTagInfoRef > rb2;
+      edm::reftobase::Holder<reco::BaseTagInfo, reco::CombinedSVTagInfoRef > rb3;
+      edm::reftobase::Holder<reco::BaseTagInfo, reco::CombinedTauTagInfoRef > rb4;
+      edm::reftobase::Holder<reco::BaseTagInfo, reco::IsolatedTauTagInfoRef > rb5;
+      edm::reftobase::Holder<reco::BaseTagInfo, reco::SoftLeptonTagInfoRef > rb6;
+      edm::reftobase::Holder<reco::BaseTagInfo, reco::TauMassTagInfoRef > rb7;
+      edm::reftobase::Holder<reco::BaseTagInfo, reco::TrackProbabilityTagInfoRef > rb8;
  
   }
 }
