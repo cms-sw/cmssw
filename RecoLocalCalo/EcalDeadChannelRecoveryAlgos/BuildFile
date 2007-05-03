@@ -8,7 +8,6 @@
 <use name=RecoEcal/EgammaCoreTools>
 <use name=DataFormats/EcalRecHit>
 <use name=DataFormats/EcalDetId>
-<flags SEAL_PLUGIN_NAME="RecoLocalCaloEcalDeadChannelRecoveryAlgos">
 <export>
    <lib name=RecoLocalCaloEcalDeadChannelRecoveryAlgos>
    <use name=FWCore/Framework>

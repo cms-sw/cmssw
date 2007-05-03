@@ -6,7 +6,7 @@
 <use name=Geometry/CaloTopology>
 <use name=DataFormats/EcalRecHit>
 <use name=DataFormats/EcalDetId>        
-<flags SEAL_PLUGIN_NAME="RecoCaloToolsEcalChannelKiller">
+<flags EDM_PLUGIN=1>
 <export>
    <lib name=RecoCaloToolsEcalChannelKiller>
    <use name=FWCore/Framework>
