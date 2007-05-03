@@ -29,6 +29,7 @@
 template<int N>
 class BitArray {
 
+ public:
   class refToBit;
   friend class refToBit;
 
@@ -77,8 +78,6 @@ class BitArray {
     int _pos;
 
   };
-
-public:
 
   BitArray() {this->zero();}
 

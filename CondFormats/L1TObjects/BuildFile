@@ -1,5 +1,6 @@
 <flags GENREFLEX_ARGS="--">
 <use name=boost>
+<use name=DataFormats/MuonDetId>
 <use name=FWCore/Framework>
 <use name=rootrflx>
 <use name=DataFormats/L1GlobalMuonTrigger>
@@ -8,6 +9,7 @@
   <lib name=CondFormatsL1TObjects>
   <use name=boost>
   <use name=FWCore/Framework>
+  <use name=DataFormats/MuonDetId>
   <use name=rootrflx>
   <use name=DataFormats/L1GlobalMuonTrigger>
 </export>
