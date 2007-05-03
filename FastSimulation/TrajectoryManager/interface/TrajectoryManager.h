@@ -130,9 +130,13 @@ class TrajectoryManager
   /// Returns the DetLayer pointer corresponding to the FAMOS layer 
   const DetLayer* detLayer( const TrackerLayer& layer, float zpos) const;
 
+  /// Returns track with index i (without test - safe here)
+  FSimTrack& track(int id) const;
+
  private:
 
   FSimEvent* mySimEvent;
+  std::vector<FSimTrack>* mySimTracks;
 
   TrackerInteractionGeometry* _theGeometry;
   

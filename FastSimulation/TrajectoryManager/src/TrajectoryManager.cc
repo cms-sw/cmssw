@@ -43,6 +43,7 @@ TrajectoryManager::TrajectoryManager(FSimEvent* aSimEvent,
 				     bool activateDecays,
 				     const RandomEngine* engine) : 
   mySimEvent(aSimEvent), 
+  mySimTracks(mySimEvent->tracks()),
   _theGeometry(0), 
   theMaterialEffects(0), 
   myDecayEngine(0), 
@@ -136,20 +137,18 @@ TrajectoryManager::reconstruct()
 
   //  bool debug = mySimEvent->id().event() == 62;
 
-  // Loop over the particles
-  for( int fsimi=0; fsimi < (int) mySimEvent->nTracks() ; ++fsimi) {
-
-    FSimTrack& myTrack = mySimEvent->track(fsimi);
+  // Loop over the particles (watch out: increasing upper limit!)
+  for( int fsimi=0; fsimi < (int) mySimEvent->nTracks(); ++fsimi) {
 
     // If the particle has decayed inside the beampipe, or decays 
     // immediately, there is nothing to do
-    if( !myTrack.notYetToEndVertex(myBeamPipe) ) continue;
-    myTrack.setPropagate();
+    if( !track(fsimi).notYetToEndVertex(myBeamPipe) ) continue;
+    track(fsimi).setPropagate();
 
     // Get the geometry elements 
     cyliter = _theGeometry->cylinderBegin();
     // Prepare the propagation  
-    ParticlePropagator PP(myTrack,random);
+    ParticlePropagator PP(track(fsimi),random);
 
     //The real work starts here
     int success = 1;
@@ -177,7 +176,7 @@ TrajectoryManager::reconstruct()
     // Loop over the cylinders
     while ( cyliter != _theGeometry->cylinderEnd() &&
 	    loop<100 &&                            // No more than 100 loops
-	    myTrack.notYetToEndVertex(PP.vertex())) { // The particle decayed
+	    track(fsimi).notYetToEndVertex(PP.vertex())) { // The particle decayed
 
       // To prevent from interacting twice in a row with the same layer
       bool escapeBarrel    = (PP.getSuccess() == -1 && success == 1);
@@ -245,7 +244,7 @@ TrajectoryManager::reconstruct()
 	    // Return one or two (for overlap regions) PSimHits in the full 
 	    // tracker geometry
 	    if ( theGeomTracker ) 
-	      createPSimHits(*cyliter, P_before, PP, thePSimHits[fsimi], fsimi,myTrack.type());
+	      createPSimHits(*cyliter, P_before, PP, thePSimHits[fsimi], fsimi,track(fsimi).type());
 
 	  }
 	}
@@ -260,14 +259,14 @@ TrajectoryManager::reconstruct()
 	*/
 
 	//The particle may have lost its energy in the material
-	if ( myTrack.notYetToEndVertex(PP.vertex()) && 
+	if ( track(fsimi).notYetToEndVertex(PP.vertex()) && 
 	     !mySimEvent->filter().accept(PP)  ) 
 	  mySimEvent->addSimVertex(PP.vertex(),fsimi);
 	  
       }
 
       // Stop here if the particle has reached an end
-      if ( myTrack.notYetToEndVertex(PP.vertex()) ) {
+      if ( track(fsimi).notYetToEndVertex(PP.vertex()) ) {
 
 	// Otherwise increment the cylinder iterator
 	//	do { 
@@ -305,7 +304,7 @@ TrajectoryManager::reconstruct()
 
     // Propagate all particles without a end vertex to the Preshower, 
     // theECAL and the HCAL.
-    if ( myTrack.notYetToEndVertex(PP.vertex()) )
+    if ( track(fsimi).notYetToEndVertex(PP.vertex()) )
       propagateToCalorimeters(PP,fsimi);
 
   }
@@ -412,8 +411,8 @@ TrajectoryManager::updateWithDaughters(ParticlePropagator& PP, int fsimi) {
     int ivertex = mySimEvent->addSimVertex((*daughter)->vertex(),fsimi);
 
     if ( ivertex != -1 ) {
-      for ( ; daughter != daughters.end(); ++daughter) 
-	mySimEvent->addSimTrack(*daughter, ivertex);
+      for ( ; daughter != daughters.end(); ++daughter)
+	mySimEvent->addSimTrack(*daughter, ivertex);      
     }
   }
 }
@@ -688,4 +687,10 @@ TrajectoryManager::loadSimHits(edm::PSimHitContainer & c) const
     }
   }
 
+}
+
+FSimTrack& 
+TrajectoryManager::track(int id) const 
+{ 
+  return (*mySimTracks)[id]; 
 }
