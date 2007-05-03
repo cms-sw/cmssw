@@ -2,16 +2,16 @@
 #define TopObjects_TopObject_h
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
-#include "DataFormats/MuonReco/interface/Muon.h"
+//#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
+//#include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/METReco/interface/CaloMET.h"
 
 using namespace std;
 using namespace reco;
 
-typedef PixelMatchGsfElectron electronType;
-typedef Muon muonType;
+//typedef PixelMatchGsfElectron electronType;
+//typedef Muon muonType;
 typedef CaloJet jetType ;
 typedef CaloMET metType ;
 
@@ -66,8 +66,8 @@ template <class ObjectType> double TopObject<ObjectType>::getResD() const 	 { re
 template <class ObjectType> double TopObject<ObjectType>::getResPinv() const 	 { return resPinv; }
 template <class ObjectType> double TopObject<ObjectType>::getResTheta() const 	 { return resTheta; }
 
-typedef TopObject<electronType> TopElectron;
-typedef TopObject<muonType> TopMuon;
+//typedef TopObject<electronType> TopElectron; // moved to TopLepton
+//typedef TopObject<muonType> TopMuon; // moved to TopLepton
 typedef TopObject<jetType> TopJet;
 typedef TopObject<metType> TopMET;
 typedef TopObject<Particle> TopParticle;
