@@ -1,8 +1,5 @@
-<use name=xdaq>
-<use name=mimetic>
-<use name=xerces-c>
-<use name=boost>
-<use name=FWCore/Framework>
+<use name=EventFilter/StorageManager>
+<use name=EventFilter/Utilities>
 <use name=FWCore/MessageLogger>
 <use name=FWCore/MessageService>
 <use name=FWCore/ParameterSet>
@@ -10,28 +7,20 @@
 <use name=FWCore/RootAutoLibraryLoader>
 <use name=FWCore/ServiceRegistry>
 <use name=FWCore/Utilities>
-<use name=DataFormats/Common>
-<use name=DataFormats/Provenance>
-<use name=DataFormats/Streamer>
 <use name=IOPool/Streamer>
-<use name=EventFilter/StorageManager>
-<use name=EventFilter/Utilities>
+<use name=boost>
 <use name=curl>
-<use name=root>
+<use name=xdaq>
 <export>
- <lib name=EventFilterSMProxyServer>
- <use name=xdaq>
- <use name=mimetic>
- <use name=xerces-c>
- <use name=boost>
- <use name=FWCore/Framework>
- <use name=FWCore/MessageLogger>
- <use name=FWCore/MessageService>
- <use name=FWCore/ParameterSet>
- <use name=FWCore/PluginManager>
- <use name=FWCore/ServiceRegistry>
- <use name=FWCore/Utilities>
- <use name=DataFormats/Common>
- <use name=IOPool/Streamer>
- <use name=curl>
+  <use name=EventFilter/StorageManager>
+  <use name=EventFilter/Utilities>
+  <use name=FWCore/MessageLogger>
+  <use name=FWCore/MessageService>
+  <use name=FWCore/PluginManager>
+  <use name=FWCore/Utilities>
+  <use name=IOPool/Streamer>
+  <use name=boost>
+  <use name=xdaq>
+  <lib name=EventFilterSMProxyServer>
 </export>
+
