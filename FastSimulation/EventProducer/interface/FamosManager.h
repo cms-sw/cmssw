@@ -13,7 +13,6 @@ namespace HepMC {
 
 class FSimEvent;
 class TrajectoryManager;
-class PUProducer;
 class PileUpSimulator;
 class MagneticField;
 class CalorimetryManager;
@@ -61,7 +60,6 @@ class FamosManager
   const HepMC::GenEvent* myGenEvent;
   FSimEvent* mySimEvent;
   TrajectoryManager* myTrajectoryManager;
-  PUProducer* myPileUpProducer;
   PileUpSimulator* myPileUpSimulator;
   CalorimetryManager * myCalorimetry;
 

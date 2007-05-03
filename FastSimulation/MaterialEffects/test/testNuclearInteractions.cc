@@ -16,7 +16,7 @@
 #include "FastSimulation/Event/interface/FSimTrack.h"
 #include "FastSimulation/Event/interface/FSimVertex.h"
 #include "FastSimulation/Particle/interface/ParticleTable.h"
-#include "FastSimulation/MaterialEffects/interface/NUEvent.h"
+#include "FastSimDataFormats/NuclearInteractions/interface/NUEvent.h"
 
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"

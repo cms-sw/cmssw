@@ -33,7 +33,6 @@
 #include "FastSimulation/Utilities/interface/RandomEngine.h"
 #include "FastSimulation/EventProducer/interface/FamosManager.h"
 #include "FastSimulation/TrajectoryManager/interface/TrajectoryManager.h"
-#include "FastSimulation/PileUpProducer/interface/PUProducer.h"
 #include "FastSimulation/PileUpProducer/interface/PileUpSimulator.h"
 #include "FastSimulation/Event/interface/FSimEvent.h"
 #include "FastSimulation/ParticlePropagator/interface/MagneticFieldMap.h"
@@ -49,7 +48,6 @@ using namespace HepMC;
 FamosManager::FamosManager(edm::ParameterSet const & p)
     : iEvent(0),
       myGenEvent(0),
-      myPileUpProducer(0),
       myPileUpSimulator(0),
       myCalorimetry(0),
       m_pUseMagneticField(p.getParameter<bool>("UseMagneticField")),
@@ -87,12 +85,6 @@ FamosManager::FamosManager(edm::ParameterSet const & p)
 
   // Initialize PileUp Producer (if requested)
   if ( m_PileUp ) {
-    /*
-    myPileUpProducer = 
-      new PUProducer(mySimEvent,
-		     p.getParameter<edm::ParameterSet>("PUProducer"),
-		     random);
-    */
     myPileUpSimulator = 
       new PileUpSimulator(mySimEvent,
 			  p.getParameter<edm::ParameterSet>("PileUpSimulator"),
@@ -112,7 +104,6 @@ FamosManager::~FamosManager()
 { 
   if ( mySimEvent ) delete mySimEvent; 
   if ( myTrajectoryManager ) delete myTrajectoryManager; 
-  if ( myPileUpProducer ) delete myPileUpProducer;
   if ( myPileUpSimulator ) delete myPileUpSimulator;
   if ( myCalorimetry) delete myCalorimetry;
 }
@@ -184,7 +175,6 @@ FamosManager::reconstruct(const HepMC::GenEvent* evt) {
     //    std::cout << "----------------------------------------" << std::endl;
 
     // Get the pileup events and add the particles to the main event
-    //    if ( myPileUpProducer ) myPileUpProducer->produce();
     if ( myPileUpSimulator ) { 
       myPileUpSimulator->produce();
       myPileUpSimulator->save();
