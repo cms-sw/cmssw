@@ -13,6 +13,16 @@ SurveyTest::SurveyTest(const edm::ParameterSet& cfg):
   theAlgorithm ( cfg.getParameter<std::string>("algorith") ),
   theOutputFile( cfg.getParameter<std::string>("fileName") )
 {
+  typedef std::vector<std::string> Strings;
+
+  AlignableObjectId dummy;
+
+  const Strings& hierarchy = cfg.getParameter<Strings>("hierarch");
+
+  for (unsigned int l = 0; l < hierarchy.size(); ++l)
+  {
+    theHierarchy.push_back( dummy.nameToType(hierarchy[l]) );
+  }
 }
 
 void SurveyTest::beginJob(const edm::EventSetup&)
@@ -25,8 +35,8 @@ void SurveyTest::beginJob(const edm::EventSetup&)
 
   std::map<std::string, SurveyAlignment*> algos;
 
-  algos["points"] = new SurveyAlignmentPoints(sensors);
-  algos["sensor"] = new SurveyAlignmentSensor(sensors);
+  algos["points"] = new SurveyAlignmentPoints(sensors, theHierarchy);
+  algos["sensor"] = new SurveyAlignmentSensor(sensors, theHierarchy);
 
   algos[theAlgorithm]->iterate(theIterations, theOutputFile, theBiasFlag);
 

@@ -8,8 +8,10 @@
 
 using namespace align;
 
-SurveyAlignment::SurveyAlignment(const std::vector<Alignable*>& sensors):
-  theSensors(sensors)
+SurveyAlignment::SurveyAlignment(const std::vector<Alignable*>& sensors,
+				 const std::vector<StructureType>& levels):
+  theSensors(sensors),
+  theLevels(levels)
 {
 }
 

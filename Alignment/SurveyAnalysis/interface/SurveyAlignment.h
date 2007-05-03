@@ -5,23 +5,30 @@
  *
  *  Alignment using only survey info (no tracks) as a proof of principle.
  *
- *  $Date: 2007/04/07 01:58:47 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/04/09 03:55:28 $
+ *  $Revision: 1.3 $
  *  \author Chung Khim Lae
  */
 
 #include <string>
 #include <vector>
 
+#include "Alignment/CommonAlignment/interface/AlignableObjectId.h"
+
 class Alignable;
 
 class SurveyAlignment
 {
+  protected:
+
+  typedef AlignableObjectId::AlignableObjectIdType StructureType;
+
   public:
 
-  /// Constructor to set the sensors.
+  /// Constructor to set the sensors and residual levels.
   SurveyAlignment(
-		  const std::vector<Alignable*>& sensors
+		  const std::vector<Alignable*>& sensors,
+		  const std::vector<StructureType>& levels
 		  );
 
   virtual ~SurveyAlignment() {}
@@ -44,6 +51,7 @@ class SurveyAlignment
   virtual void shiftSensors();
 
   const std::vector<Alignable*>& theSensors;
+  const std::vector<StructureType>& theLevels;
 };
 
 #endif

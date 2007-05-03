@@ -5,12 +5,17 @@
  *
  *  Analyser module for testing.
  *
- *  $Date: 2007/04/09 03:55:29 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/04/09 04:11:13 $
+ *  $Revision: 1.4 $
  *  \author Chung Khim Lae
  */
 
+#include <vector>
+
+#include "Alignment/CommonAlignment/interface/AlignableObjectId.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
+
+class Alignable;
 
 class SurveyTest:
   public edm::EDAnalyzer
@@ -33,6 +38,8 @@ class SurveyTest:
 
   std::string theAlgorithm;  // points or sensor residual
   std::string theOutputFile; // name of output file
+
+  std::vector<AlignableObjectId::AlignableObjectIdType> theHierarchy;
 };
 
 #endif

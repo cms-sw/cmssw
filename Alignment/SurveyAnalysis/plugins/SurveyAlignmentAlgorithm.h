@@ -2,7 +2,7 @@
  *
  *  Alignment of Silicon Pixel Detector with survey constraint.
  *
- *  $Date: 2007/03/14 18:05:35 $
+ *  $Date: 2007/04/18 17:23:36 $
  *  $Revision: 1.1 $
  *  \author Chung Khim Lae
  */
@@ -48,6 +48,8 @@ class SurveyAlignmentAlgorithm : public AlignmentAlgorithmBase
   std::string theOutfile;
 
   unsigned int theIterations;
+
+  std::vector<std::string> theLevels;
 };
 
 #endif

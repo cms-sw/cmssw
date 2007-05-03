@@ -7,7 +7,8 @@
 SurveyAlignmentAlgorithm::SurveyAlignmentAlgorithm(const edm::ParameterSet& cfg):
   AlignmentAlgorithmBase(cfg),
   theOutfile(cfg.getParameter<std::string>("outfile")),
-  theIterations(cfg.getParameter<unsigned int>("nIteration"))
+  theIterations(cfg.getParameter<unsigned int>("nIteration")),
+  theLevels(cfg.getParameter< std::vector<std::string> >("levels"))
 {
 }
 
@@ -27,7 +28,16 @@ void SurveyAlignmentAlgorithm::initialize(const edm::EventSetup&,
     sensors[i] = alignables[i]->components().front();
   }
 
-  SurveyAlignmentSensor align(sensors);
+  AlignableObjectId dummy;
+
+  std::vector<Alignable::AlignableObjectIdType> levels;
+
+  for (unsigned int l = 0; l < theLevels.size(); ++l)
+  {
+    levels.push_back(dummy.nameToType(theLevels[l]));
+  }
+
+  SurveyAlignmentSensor align(sensors, levels);
 
   align.iterate(theIterations, theOutfile);
 }
