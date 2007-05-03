@@ -50,7 +50,7 @@ class AlCaGammaJetProducer : public edm::EDProducer {
      std::string correctedIslandBarrelSuperClusterProducer_;
      std::string correctedIslandEndcapSuperClusterCollection_;
      std::string correctedIslandEndcapSuperClusterProducer_;
-
+     
      bool allowMissingInputs_;
      std::string m_inputTrackLabel;
  // Calo geometry

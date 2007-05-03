@@ -3,7 +3,7 @@
 // user include files
 
 #include "Calibration/HcalAlCaRecoProducers/src/ProducerAnalyzer.h"
-#include "DataFormats/Provenance/interface/Provenance.h"
+#include "DataFormats/Common/interface/Provenance.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
@@ -36,7 +36,17 @@ namespace cms
 //
 ProducerAnalyzer::ProducerAnalyzer(const edm::ParameterSet& iConfig)
 {
-  // get name of output file with histogramms
+  // get name of output file with histogramms  
+   
+   nameProd_ = iConfig.getUntrackedParameter<std::string>("nameProd");
+   jetCalo_ = iConfig.getUntrackedParameter<std::string>("jetCalo");
+   gammaClus_ = iConfig.getUntrackedParameter<std::string>("gammaClus");
+   ecalInput_=iConfig.getUntrackedParameter<std::string>("ecalInput");
+   hbheInput_ = iConfig.getUntrackedParameter<std::string>("hbheInput");
+   hoInput_ = iConfig.getUntrackedParameter<std::string>("hoInput");
+   hfInput_ = iConfig.getUntrackedParameter<std::string>("hfInput");
+   egammaJetTracks_ = iConfig.getUntrackedParameter<std::string>("egammaJetTrack"); 
+
 }
 
 ProducerAnalyzer::~ProducerAnalyzer()
@@ -75,21 +85,20 @@ ProducerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
      " "<<(**ip).productInstanceName()<<endl;
   }
    edm::Handle<HBHERecHitCollection> hbhe;
-   iEvent.getByLabel("DiJProd","DiJetsHBHERecHitCollection", hbhe);
+   iEvent.getByLabel(nameProd_,hbheInput_, hbhe);
    const HBHERecHitCollection Hithbhe = *(hbhe.product());
    edm::Handle<HORecHitCollection> ho;
-   iEvent.getByLabel("DiJProd","DiJetsHORecHitCollection", ho);
+   iEvent.getByLabel(nameProd_,hoInput_, ho);
    const HORecHitCollection Hitho = *(ho.product());
    edm::Handle<HFRecHitCollection> hf;
-   iEvent.getByLabel("DiJProd","DiJetsHFRecHitCollection", hf);
+   iEvent.getByLabel(nameProd_,hfInput_, hf);
    const HFRecHitCollection Hithf = *(hf.product());
    edm::Handle<EcalRecHitCollection> ecal;
-   iEvent.getByLabel("DiJProd","DiJetsEcalRecHitCollection", ecal);
+   iEvent.getByLabel(nameProd_,ecalInput_, ecal);
    edm::Handle<reco::CaloJetCollection> jets;
-   iEvent.getByLabel("DiJProd","DijetBackToBackCollection", jets);
-   
+   iEvent.getByLabel(nameProd_,jetCalo_, jets);
    edm::Handle<reco::TrackCollection> tracks;
-   iEvent.getByLabel("DiJProd","JetTracksCollection", tracks);
+   iEvent.getByLabel(nameProd_,egammaJetTracks_, tracks);
    
    cout<<" Size of collections "<<(*ecal).size()<<" "<<Hithbhe.size()<<" "<<Hitho.size()<<" "<<
    Hithf.size()<<" "<<(*jets).size()<<" "<<(*tracks).size()<<endl;

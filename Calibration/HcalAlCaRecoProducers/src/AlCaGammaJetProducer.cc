@@ -36,7 +36,7 @@ AlCaGammaJetProducer::AlCaGammaJetProducer(const edm::ParameterSet& iConfig)
    correctedIslandBarrelSuperClusterProducer_   = iConfig.getParameter<std::string>("correctedIslandBarrelSuperClusterProducer");
    correctedIslandEndcapSuperClusterCollection_ = iConfig.getParameter<std::string>("correctedIslandEndcapSuperClusterCollection");
    correctedIslandEndcapSuperClusterProducer_   = iConfig.getParameter<std::string>("correctedIslandEndcapSuperClusterProducer");  
-   allowMissingInputs_=iConfig.getUntrackedParameter<bool>("AllowMissingInputs",false);
+   allowMissingInputs_=iConfig.getUntrackedParameter<bool>("AllowMissingInputs",true);
    
     
    //register your products
@@ -84,10 +84,12 @@ AlCaGammaJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    
    
 // Get  Corrected supercluster collection
-  int nclus = 0;
+  int nclusb = 0;
+  int ncluse = 0;
   reco::SuperClusterCollection::const_iterator maxclusbarrel;
   reco::SuperClusterCollection::const_iterator maxclusendcap;
-  
+
+  double vetmax = -100.;
    try {
    
   Handle<reco::SuperClusterCollection> pCorrectedIslandBarrelSuperClusters;
@@ -98,7 +100,6 @@ AlCaGammaJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   
   // loop over the super clusters and find the highest
   maxclusbarrel = correctedIslandBarrelSuperClusters->begin();
-  double vetmax = -100.;
   for(reco::SuperClusterCollection::const_iterator aClus = correctedIslandBarrelSuperClusters->begin();
                                                            aClus != correctedIslandBarrelSuperClusters->end(); aClus++) {
     double vet = aClus->energy()/cosh(aClus->eta());
@@ -108,7 +109,7 @@ AlCaGammaJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
        {
           vetmax = vet;
 	  maxclusbarrel = aClus;
-	  nclus = 1;
+	  nclusb = 1;
        }
     }
   }
@@ -126,18 +127,18 @@ AlCaGammaJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   const reco::SuperClusterCollection* correctedIslandEndcapSuperClusters = pCorrectedIslandEndcapSuperClusters.product();
   
   // loop over the super clusters and find the highest
-  maxclusendcap = correctedIslandEndcapSuperClusters->begin();
-  double vetmax = -100.;
+  maxclusendcap = correctedIslandEndcapSuperClusters->end();
+  double vetmaxe = vetmax;
   for(reco::SuperClusterCollection::const_iterator aClus = correctedIslandEndcapSuperClusters->begin();
                                                            aClus != correctedIslandEndcapSuperClusters->end(); aClus++) {
     double vet = aClus->energy()/cosh(aClus->eta());
     cout<<" Endcap supercluster " << vet <<" energy "<<aClus->energy()<<" eta "<<aClus->eta()<<endl;
     if(vet>20.) {
-       if(vet > vetmax)
+       if(vet > vetmaxe)
        {
-          vetmax = vet;
+          vetmaxe = vet;
 	  maxclusendcap = aClus;
-	  nclus = 1;
+	  ncluse = 1;
        }
     }
   }
@@ -145,30 +146,43 @@ AlCaGammaJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     if (!allowMissingInputs_) throw e;
   }
 
+   
+  cout<<" Number of gammas "<<nclusb<<" "<<ncluse<<endl;  
   
-  if( nclus == 0 ) {
+  if( nclusb == 0 && ncluse == 0 ) {
    
   iEvent.put( outputTColl, "GammaJetTracksCollection");
   iEvent.put( miniEcalRecHitCollection, "GammaJetEcalRecHitCollection");
   iEvent.put( miniHBHERecHitCollection, "GammaJetHBHERecHitCollection");
   iEvent.put( miniHORecHitCollection, "GammaJetHORecHitCollection");
-  iEvent.put( miniHFRecHitCollection, "GammaJetHORecHitCollection");
+  iEvent.put( miniHFRecHitCollection, "GammaJetHFRecHitCollection");
   iEvent.put( result, "GammaJetGammaBackToBackCollection");
   iEvent.put( resultjet, "GammaJetJetBackToBackCollection");
   
   return;
   }
-  result->push_back(*maxclusbarrel);
 
+  double phigamma = -100.;
+  double etagamma = -100.;
+  if(ncluse == 1)
+  {
+    result->push_back(*maxclusendcap);
+    phigamma = (*maxclusendcap).phi();
+    etagamma = (*maxclusendcap).eta();
+    
+  } else
+  {
+    result->push_back(*maxclusbarrel);
+    phigamma = (*maxclusbarrel).phi();
+    etagamma = (*maxclusbarrel).eta();
+  }
+  
+  cout<<" Size of egamma clusters "<<result->size()<<endl;
+   
 //  
 // Jet Collection
 // Find jet in the angle ~ +- 170 degrees
 //
-
-    double phigamma = (*maxclusbarrel).phi();
-    double etagamma = (*maxclusbarrel).eta();
-    
-    
     
     double phijet =  -100.;
     double etajet = -100.;
@@ -197,16 +211,18 @@ AlCaGammaJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
              etajet = (*jet).eta();
 	   }
 	   
-//	   if( fabs(etajet0) > 1. ) continue; 
-	   
 	   double dphi = fabs(phigamma-phijet0); 
 	   if(dphi > 4.*atan(1.)) dphi = 8.*atan(1.) - dphi;
 	   dphi = dphi*180./(4.*atan(1.));
-	   if( dphi > 160. )
+	   if( fabs(dphi-180) < 30. )
 	   {
-//  New collection name	      
-	      resultjet->push_back ((*jet));
+	      if(iii == 0) resultjet->push_back ((*jet));
 	   }
+	      else
+	      {
+	         if(iii != 0) resultjet->push_back ((*jet));
+	      }
+//  New collection name	      
 	    
          } 
        }   
@@ -216,6 +232,8 @@ AlCaGammaJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
        }
        iii++;
      } // Jet collection
+     
+    cout<<" Size of jets "<<resultjet->size()<<endl;
 
      if( resultjet->size() == 0 ) {
       iEvent.put( outputTColl, "GammaJetTracksCollection");
@@ -237,7 +255,7 @@ AlCaGammaJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     std::vector<edm::InputTag>::const_iterator i;
     for (i=ecalLabels_.begin(); i!=ecalLabels_.end(); i++) {
     try {
-
+      
       edm::Handle<EcalRecHitCollection> ec;
       iEvent.getByLabel(*i,ec);
 
@@ -264,11 +282,14 @@ AlCaGammaJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
        }
 
     } catch (std::exception& e) { // can't find it!
-    if (!allowMissingInputs_) throw e;
+    if (!allowMissingInputs_) { 
+         cout<<" No ECAL input "<<endl;
+         throw e;
+	 }
     }
     }
 
-  
+   cout<<" Ecal is done "<<endl; 
 
     try {
 
@@ -300,6 +321,7 @@ AlCaGammaJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   } catch (std::exception& e) { // can't find it!
     if (!allowMissingInputs_) throw e;
   }
+   cout<<" HBHE is done "<<endl; 
 	
     try {
       edm::Handle<HORecHitCollection> ho;
@@ -328,6 +350,7 @@ AlCaGammaJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   } catch (std::exception& e) { // can't find it!
     if (!allowMissingInputs_) throw e;
   }
+   cout<<" HO is done "<<endl; 
    
   try {
   edm::Handle<HFRecHitCollection> hf;
@@ -403,7 +426,7 @@ try{
   iEvent.put( miniEcalRecHitCollection, "GammaJetEcalRecHitCollection");
   iEvent.put( miniHBHERecHitCollection, "GammaJetHBHERecHitCollection");
   iEvent.put( miniHORecHitCollection, "GammaJetHORecHitCollection");
-  iEvent.put( miniHFRecHitCollection, "GammaJetHORecHitCollection");
+  iEvent.put( miniHFRecHitCollection, "GammaJetHFRecHitCollection");
   iEvent.put( result, "GammaJetGammaBackToBackCollection");
   iEvent.put( resultjet, "GammaJetJetBackToBackCollection");
 }

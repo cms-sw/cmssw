@@ -10,6 +10,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -39,6 +40,14 @@ class ProducerAnalyzer : public edm::EDAnalyzer {
 
    private:
   // ----------member data ---------------------------
+  std::string nameProd_;
+  std::string jetCalo_;
+  std::string gammaClus_;
+  std::string ecalInput_;
+  std::string hbheInput_;
+  std::string hoInput_;
+  std::string hfInput_;
+  std::string egammaJetTracks_;
 };
 }// end namespace cms
 #endif
