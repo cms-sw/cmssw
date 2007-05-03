@@ -16,9 +16,13 @@ class KFFittingSmoother : public TrajectoryFitter {
 public:
   /// constructor with predefined fitter and smoother and propagator
   KFFittingSmoother(const TrajectoryFitter& aFitter,
-                    const TrajectorySmoother& aSmoother) :
+                    const TrajectorySmoother& aSmoother,
+		    double estimateCut = -1,
+		    int minNumberOfHits = 5) :
     theFitter(aFitter.clone()),
-    theSmoother(aSmoother.clone()) {}
+    theSmoother(aSmoother.clone()),
+    theEstimateCut(estimateCut),
+    theMinNumberOfHits(minNumberOfHits) {}
   
   virtual ~KFFittingSmoother();
   
@@ -38,9 +42,11 @@ public:
   
 private:
 
-  const TrajectoryFitter* theFitter
-;  const TrajectorySmoother* theSmoother;
-
+  const TrajectoryFitter* theFitter;
+  const TrajectorySmoother* theSmoother;
+  double theEstimateCut;
+  int theMinNumberOfHits;
+  
   std::vector<Trajectory> smoothingStep(std::vector<Trajectory>& fitted) const;
   TrajectoryStateWithArbitraryError   tsosWithError;
   
