@@ -45,14 +45,14 @@ void SeedFromNuclearInteraction::setMeasurements(const TM& tmAtInteractionPoint,
 TrajectoryStateOnSurface SeedFromNuclearInteraction::stateWithError(const TSOS& state) const {
    // Modification of the momentum = ~infinite
    LocalTrajectoryParameters ltp = state.localParameters();
-   AlgebraicVector v = ltp.vector();
+   AlgebraicVector5 v = ltp.vector();
    v[0] = 1E-8;
    LocalTrajectoryParameters newltp(v, ltp.pzSign(), true);
 
-   AlgebraicSymMatrix m(state.localError().matrix());
-   m[0][0]=m[0][0]*1E6; 
-   m[1][1]=m[1][1]*rescaleDirectionFactor*rescaleDirectionFactor;
-   m[2][2]=m[2][2]*rescalePositionFactor*rescalePositionFactor;
+   AlgebraicSymMatrix55 m(state.localError().matrix());
+   m(0,0)=m(0,0)*1E6; 
+   m(1,1)=m(1,1)*rescaleDirectionFactor*rescaleDirectionFactor;
+   m(2,2)=m(2,2)*rescalePositionFactor*rescalePositionFactor;
    return TSOS(newltp, m, state.surface(), &(state.globalParameters().magneticField()), state.surfaceSide());
 }
 
