@@ -138,7 +138,7 @@ Tpath=/data1/CrabAnalysis/ClusterAnalysis
 
 macroPath=${basePath}/macros
 
-cd ${basePath}/CMSSW_1_3_0_pre6_v1/src
+cd ${basePath}/CMSSW/CMSSW_1_3_0/src
 eval `scramv1 runtime -sh`
 cd -
 
