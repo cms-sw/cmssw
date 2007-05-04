@@ -1,8 +1,8 @@
 /** \class MuonTrackingRegionBuilder
  *  Base class for the Muon reco TrackingRegion Builder
  *
- *  $Date: 2007/02/01 17:57:59 $
- *  $Revision:  $
+ *  $Date: 2007/05/04 15:57:44 $
+ *  $Revision: 1.1 $
  *  \author A. Everett - Purdue University
  */
 
@@ -66,7 +66,7 @@ RectangularEtaPhiTrackingRegion* MuonTrackingRegionBuilder::region(const reco::T
   //muTSOS = fromInside(muFTS);
   
   //Get error of momentum of the Mu state
-  GlobalError  dirErr(muFTS.cartesianError().matrix().Sub<AlgebraicSymMatrix33>(3,5));
+  GlobalError  dirErr(muFTS.cartesianError().matrix().Sub<AlgebraicSymMatrix33>(3,3));
   GlobalVector dirVecErr(dirVector.x() + sqrt(dirErr.cxx()),
 			 dirVector.y() + sqrt(dirErr.cyy()),
 			 dirVector.z() + sqrt(dirErr.czz()));
