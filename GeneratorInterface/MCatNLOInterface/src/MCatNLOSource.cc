@@ -52,10 +52,6 @@ using namespace std;
 static const unsigned long kNanoSecPerSec = 1000000000;
 static const unsigned long kAveEventPerSec = 200;
 
-// herwig common block conversion
-HepMC::IO_HERWIG conv;
-
-bool skk = true;
 
 MCatNLOSource::MCatNLOSource( const ParameterSet & pset, InputSourceDescription const& desc ) :
   GeneratedInputSource(pset, desc), evt(0), 
@@ -618,6 +614,9 @@ bool MCatNLOSource::produce(Event & e) {
   
   // HERWIG produced event correctly
 
+  // herwig common block conversion
+  HepMC::IO_HERWIG conv;
+  
   HepMC::GenEvent* evt = new HepMC::GenEvent();
   bool ok = conv.fill_next_event( evt );
   if(!ok) throw edm::Exception(edm::errors::EventCorruption,"HerwigError")

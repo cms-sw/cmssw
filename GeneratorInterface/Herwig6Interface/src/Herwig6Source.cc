@@ -52,8 +52,6 @@ extern"C" {
 #define cmsending cmsending_
 
 
-// -----------------  HepMC converter -----------------------------------------
-HepMC::IO_HERWIG conv;
 
 // -----------------  used for defaults --------------------------------------
   static const unsigned long kNanoSecPerSec = 1000000000;
@@ -251,6 +249,9 @@ bool Herwig6Source::produce(Event & e) {
   
   // if event was killed by HERWIG; skip 
   if(eventstat.eventisok > 0.5) return true;
+
+  // -----------------  HepMC converter --------------------
+  HepMC::IO_HERWIG conv;
 
   // HEPEVT is ok, create new HepMC event
   evt = new HepMC::GenEvent();
