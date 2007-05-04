@@ -1,5 +1,6 @@
 <use name=DataFormats/GeometrySurface>
 <use name=DataFormats/GeometryVector>
+<use name=DataFormats/SiStripDetId>
 <use name=FWCore/MessageLogger>
 <use name=FWCore/ParameterSet>
 <use name=FastSimulation/Event>
@@ -20,6 +21,7 @@
 
 <export>
   <use name=FWCore/ParameterSet>
+  <use name=FastSimulation/Event>
   <use name=FastSimulation/MaterialEffects>
   <use name=FastSimulation/TrackerSetup>
   <use name=SimDataFormats/TrackingHit>

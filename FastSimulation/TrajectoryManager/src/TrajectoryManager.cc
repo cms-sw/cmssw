@@ -3,7 +3,7 @@
 #include "DataFormats/GeometrySurface/interface/BoundCylinder.h"
 #include "DataFormats/GeometrySurface/interface/Surface.h"
 #include "DataFormats/GeometrySurface/interface/TangentPlane.h"
-//#include "CommonReco/PatternTools/interface/DummyDet.h"
+#include "DataFormats/SiStripDetId/interface/TECDetId.h"
 
 // Tracker reco geometry headers 
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
@@ -11,7 +11,6 @@
 #include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
 #include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
 #include "FastSimulation/TrajectoryManager/interface/InsideBoundsMeasurementEstimator.h"
-//#include "FastSimulation/ParticlePropagator/interface/MagneticFieldMap.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "TrackingTools/GeomPropagators/interface/HelixArbitraryPlaneCrossing.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
@@ -24,7 +23,6 @@
 #include "FastSimulation/TrackerSetup/interface/TrackerInteractionGeometry.h"
 #include "FastSimulation/ParticleDecay/interface/Pythia6Decays.h"
 #include "FastSimulation/Event/interface/FSimEvent.h"
-#include "FastSimulation/Event/interface/FSimTrack.h"
 #include "FastSimulation/Event/interface/FSimVertex.h"
 #include "FastSimulation/Event/interface/KineParticleFilter.h"
 
@@ -133,8 +131,6 @@ TrajectoryManager::reconstruct()
 
   std::list<TrackerLayer>::iterator cyliter;
 
-  ParticlePropagator P_before;
-
   //  bool debug = mySimEvent->id().event() == 62;
 
   // Loop over the particles (watch out: increasing upper limit!)
@@ -227,13 +223,10 @@ TrajectoryManager::reconstruct()
 	  cyliter->sensitive() &&                    // Consider only sensitive layers
 	  PP.perp()>pTmin;                           // Consider only pT > pTmin
 
-	// Save Particle before Material Effects
-	if ( saveHit ) P_before = ParticlePropagator(PP); 
-
-	// Material effects are simulated there
+        // Material effects are simulated there
 	if ( theMaterialEffects ) 
-	  theMaterialEffects->interact(*mySimEvent,*cyliter,PP,fsimi); 
-
+          theMaterialEffects->interact(*mySimEvent,*cyliter,PP,fsimi); 
+	
 	if ( saveHit ) { 
 
 	  // Consider only active layers
@@ -244,7 +237,7 @@ TrajectoryManager::reconstruct()
 	    // Return one or two (for overlap regions) PSimHits in the full 
 	    // tracker geometry
 	    if ( theGeomTracker ) 
-	      createPSimHits(*cyliter, P_before, PP, thePSimHits[fsimi], fsimi,track(fsimi).type());
+	      createPSimHits(*cyliter, PP, thePSimHits[fsimi], fsimi,track(fsimi).type());
 
 	  }
 	}
@@ -411,8 +404,8 @@ TrajectoryManager::updateWithDaughters(ParticlePropagator& PP, int fsimi) {
     int ivertex = mySimEvent->addSimVertex((*daughter)->vertex(),fsimi);
 
     if ( ivertex != -1 ) {
-      for ( ; daughter != daughters.end(); ++daughter)
-	mySimEvent->addSimTrack(*daughter, ivertex);      
+      for ( ; daughter != daughters.end(); ++daughter) 
+	mySimEvent->addSimTrack(*daughter, ivertex);
     }
   }
 }
@@ -420,27 +413,30 @@ TrajectoryManager::updateWithDaughters(ParticlePropagator& PP, int fsimi) {
 
 void
 TrajectoryManager::createPSimHits(const TrackerLayer& layer,
-				  const ParticlePropagator& P_before,
-				  const ParticlePropagator& P_after,
+                                  const ParticlePropagator& PP,
 				  std::map<double,PSimHit>& theHitMap,
 				  int trackID, int partID) {
-
-  //  float eloss = (P_before.momentum().e()-P_after.momentum().e());
-  float eloss = (P_before.e()-P_after.e());
 
   // Propagate the particle coordinates to the closest tracker detector(s) 
   // in this layer and create the PSimHit(s)
 
   //  const MagneticField& mf = MagneticFieldMap::instance()->magneticField();
   // This solution is actually much faster !
-  LocalMagneticField mf(P_before.getMagneticField());
+  LocalMagneticField mf(PP.getMagneticField());
   AnalyticalPropagator alongProp(&mf, anyDirection);
   InsideBoundsMeasurementEstimator est;
 
   typedef GeometricSearchDet::DetWithState   DetWithState;
-  const DetLayer* tkLayer = detLayer(layer,P_before.z());
-  const ParticlePropagator& cpp(P_before);
-  TrajectoryStateOnSurface trajState = makeTrajectoryState( tkLayer, cpp, &mf);
+  const DetLayer* tkLayer = detLayer(layer,PP.z());
+
+  TrajectoryStateOnSurface trajState = makeTrajectoryState( tkLayer, PP, &mf);
+  
+  float thickness = theMaterialEffects ? theMaterialEffects->thickness() : 0.;
+  float eloss = theMaterialEffects ? theMaterialEffects->energyLoss() : 0.;
+
+  if ( thickness > 0. )
+    // thickness is in radiation lengths, 1 radlen = 9.36 cm
+    eloss *= layer.moduleThickness() / (9.36 * thickness);
 
   // Find, in the corresponding layers, the detectors compatible 
   // with the current track 
@@ -450,8 +446,15 @@ TrajectoryManager::createPSimHits(const TrackerLayer& layer,
   // And create the corresponding PSimHits
   std::map<double,PSimHit> theTrackHits;
   for (std::vector<DetWithState>::const_iterator i=compat.begin(); i!=compat.end(); i++) {
-    //    makePSimHits( i->first, i->second, *thePSimHits, trackID, eloss, partID);
-    makePSimHits( i->first, i->second, theHitMap, trackID, eloss, partID);
+    // Correct Eloss for last 3 rings of TEC (thick sensors, 0.05 cm)
+    // Disgusting fudge factor ! 
+    if ( layer.layerNumber()>=19 && layer.layerNumber()<=27 && 
+	((TECDetId)i->first->geographicalId()).ring() > 4 ) 
+      makePSimHits( i->first, i->second, theHitMap, trackID, 
+		    eloss * 0.05/layer.moduleThickness(), partID);
+    else 
+      makePSimHits( i->first, i->second, theHitMap, trackID, 
+		    eloss, partID);
   }
 }
 
@@ -545,8 +548,8 @@ TrajectoryManager::makeSinglePSimHit( const GeomDetUnit& det,
   */
 
   GlobalPoint IP (mySimEvent->track(tkID).vertex().position().x(),
-		  mySimEvent->track(tkID).vertex().position().y(),
-		  mySimEvent->track(tkID).vertex().position().z());	       
+                  mySimEvent->track(tkID).vertex().position().y(),
+                  mySimEvent->track(tkID).vertex().position().z());
   double dist = ( det.surface().toGlobal(hit.localPosition()) - IP ).mag2();
   return std::pair<double,PSimHit>(dist,hit);
 
@@ -687,10 +690,4 @@ TrajectoryManager::loadSimHits(edm::PSimHitContainer & c) const
     }
   }
 
-}
-
-FSimTrack& 
-TrajectoryManager::track(int id) const 
-{ 
-  return (*mySimTracks)[id]; 
 }

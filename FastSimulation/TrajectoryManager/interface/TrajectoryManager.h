@@ -11,6 +11,7 @@
 //FAMOS Headers
 #include "FastSimulation/TrackerSetup/interface/TrackerLayer.h"
 #include "FastSimulation/MaterialEffects/interface/MaterialEffects.h"
+#include "FastSimulation/Event/interface/FSimTrack.h"
 
 /**
  * This class takes all the particles of a FSimEvent with no end vertex, 
@@ -43,10 +44,8 @@ class TrackerInteractionGeometry;
 class TrackerLayer;
 class ParticlePropagator;
 class FSimEvent;
-class FSimTrack;
 class Histos;
 class RandomEngine;
-
 class TrajectoryStateOnSurface;
 class DetLayer;
 class GeomDet;
@@ -79,7 +78,6 @@ class TrajectoryManager
   /// Create a vector of PSimHits 
   void createPSimHits(const TrackerLayer& layer,
 		      const ParticlePropagator& P_before,
-		      const ParticlePropagator& P_after,
 		      std::map<double,PSimHit>& theHitMap,
 		      int trackID, int partID);
 
@@ -131,7 +129,9 @@ class TrajectoryManager
   const DetLayer* detLayer( const TrackerLayer& layer, float zpos) const;
 
   /// Returns track with index i (without test - safe here)
-  FSimTrack& track(int id) const;
+  inline FSimTrack& track(int id) const { 
+    return (*mySimTracks)[id]; 
+  }
 
  private:
 
