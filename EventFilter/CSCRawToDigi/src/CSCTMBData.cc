@@ -23,7 +23,8 @@ bool CSCTMBData::debug =false;
 
 CSCTMBData::CSCTMBData() 
   : theOriginalBuffer(0), theTMBScopeIsPresent(false), theTMBScope(0),
-theRPCDataIsPresent(false) {
+theRPCDataIsPresent(false) 
+{
 }
 
 
@@ -31,61 +32,69 @@ CSCTMBData::CSCTMBData(unsigned short *buf)
   : theOriginalBuffer(buf), theTMBScopeIsPresent(false), theTMBScope(0), theRPCDataIsPresent(false)
 {
   size_ = UnpackTMB(buf);
-
 } //CSCTMBData
 
-CSCTMBData::~CSCTMBData() {
-  if (theTMBScopeIsPresent) {
-    delete theTMBScope;
-    theTMBScopeIsPresent = false;
-  }
+CSCTMBData::~CSCTMBData()
+{
+  if (theTMBScopeIsPresent) 
+    {
+      delete theTMBScope;
+      theTMBScopeIsPresent = false;
+    }
 }
 
 // returns -1 if not found
 //
 //
-int findLine(unsigned short *buf, unsigned short marker,int first,  int maxToDo) {
+int findLine(unsigned short *buf, unsigned short marker,int first,  int maxToDo) 
+{
  
-  for(int i = first; i < maxToDo; ++i) {
- 
-    if(buf[i] == marker)  {
-	return i;
+  for(int i = first; i < maxToDo; ++i) 
+    { 
+      if(buf[i] == marker) 
+	{
+	  return i;
+	}
     }
-    
-  }
 
   return -1;
 
 }
   
-int CSCTMBData::TMBCRCcalc() {
+int CSCTMBData::TMBCRCcalc() 
+{
 
   std::vector<std::bitset<16> > theTotalTMBData(theE0FLine+1-theB0CLine);
 
   unsigned i = 0;
-  for (unsigned int line=theB0CLine; line<theE0FLine+1;line++) {
-    theTotalTMBData[i] = std::bitset<16>(theOriginalBuffer[line]);
-    ++i;
-  }
+  for (unsigned int line=theB0CLine; line<theE0FLine+1;++line) 
+    {
+      theTotalTMBData[i] = std::bitset<16>(theOriginalBuffer[line]);
+      ++i;
+    }
 
 
-  if ( theTotalTMBData.size() > 0 ) {
-    std::bitset<22> CRC=calCRC22(theTotalTMBData);
-    edm::LogInfo("CSCTMBData") << " Test here " << CRC.to_ulong();
-    return CRC.to_ulong();
-  } else {
-    edm::LogInfo("CSCTMBData") << "theTotalTMBData doesn't exist";
-    return 0;
-  }
+  if ( theTotalTMBData.size() > 0 ) 
+    {
+      std::bitset<22> CRC=calCRC22(theTotalTMBData);
+      edm::LogInfo("CSCTMBData") << " Test here " << CRC.to_ulong();
+      return CRC.to_ulong();
+    } 
+  else 
+    {
+      edm::LogInfo("CSCTMBData") << "theTotalTMBData doesn't exist";
+      return 0;
+    }
 }
 
 int CSCTMBData::UnpackTMB(unsigned short *buf) {
 
   int b0cLine = findLine(buf, 0x6b0c, 0, 10);
-  if(b0cLine == -1) {
-    edm::LogError("CSCTMBData") << "+++ CSCTMBData warning: No b0c line!";
-    return 0;  
-  }
+  if(b0cLine == -1) 
+    {
+      edm::LogError("CSCTMBData") << "+++ CSCTMBData warning: No b0c line!";
+      return 0;  
+    }
   //
   int Ntbins =  buf[b0cLine+1]&0x1f ;
   int NHeaderFrames = buf[b0cLine+4]&0x1f;
@@ -96,69 +105,83 @@ int CSCTMBData::UnpackTMB(unsigned short *buf) {
   int e0bLine = findLine(buf, 0x6e0b, 0, TotTMBReadout);
   
 
-  if(e0bLine == -1) {
-    edm::LogError("CSCTMBData") << "+++ CSCTMBData warning: No e0b line!";
-    edm::LogError("CSCTMBData") << "+++ Corrupt header!";
-    return 0;
-  } 
+  if(e0bLine == -1) 
+    {
+      edm::LogError("CSCTMBData") << "+++ CSCTMBData warning: No e0b line!";
+      edm::LogError("CSCTMBData") << "+++ Corrupt header!";
+      return 0;
+    } 
 
   memcpy(&theTMBHeader, buf, NHeaderFrames*2);
 
-  if(!theTMBHeader.check()) {
-     edm::LogError("CSCTMBData") << "+++ CSCTMBData warning: Bad TMB header e0bLine=" << std::hex << buf[e0bLine];
-     return 0;
-  }
+  if(!theTMBHeader.check()) 
+    {
+      edm::LogError("CSCTMBData") << "+++ CSCTMBData warning: Bad TMB header e0bLine=" << std::hex << buf[e0bLine];
+      return 0;
+    }
 
   int afterHeader = theTMBHeader.sizeInWords();
 
   theCLCTData = CSCCLCTData(theTMBHeader.NCFEBs(), theTMBHeader.NTBins(), buf+e0bLine+1);
 
-  if(!theCLCTData.check()) {
-     edm::LogError("CSCTMBData") << "+++ CSCTMBData warning: Bad CLCT data";
-  }else{
-     afterHeader+=theCLCTData.sizeInWords();
-  }
+  if(!theCLCTData.check()) 
+    {
+      edm::LogError("CSCTMBData") << "+++ CSCTMBData warning: Bad CLCT data";
+    }
+  else
+    {
+      afterHeader+=theCLCTData.sizeInWords();
+    }
 
   // look for RPC
   int b04Line = findLine(buf, 0x6b04, afterHeader, afterHeader+MaxSizeRPC);
-  if(b04Line != -1 ) {
-    // we need an e04 line to calculate the size
-    int e04Line = findLine(buf, 0x6e04, afterHeader, afterHeader+MaxSizeRPC);
-    if(e04Line != -1) {
-      if (e04Line < b04Line ) {
-	edm::LogError("CSCTMBData") << "RPC data is corrupt! e04Line < b04Line ";
-	return 0;
-      }
-      else {
-	theRPCDataIsPresent = true;
-	theRPCData = CSCRPCData(buf+b04Line, e04Line-b04Line+1);
-	afterHeader+=theRPCData.sizeInWords();
-      }
-    } else {
-      edm::LogError("CSCTMBData") << "CSCTMBData::corrupt RPC data! Failed to find end! ";
-      return 0;
+  if(b04Line != -1 ) 
+    {
+      // we need an e04 line to calculate the size
+      int e04Line = findLine(buf, 0x6e04, afterHeader, afterHeader+MaxSizeRPC);
+      if(e04Line != -1) 
+	{
+	  if (e04Line < b04Line )
+	    {
+	      edm::LogError("CSCTMBData") << "RPC data is corrupt! e04Line < b04Line ";
+	      return 0;
+	    }
+	  else 
+	    {
+	      theRPCDataIsPresent = true;
+	      theRPCData = CSCRPCData(buf+b04Line, e04Line-b04Line+1);
+	      afterHeader+=theRPCData.sizeInWords();
+	    }
+	} 
+      else 
+	{
+	  edm::LogError("CSCTMBData") << "CSCTMBData::corrupt RPC data! Failed to find end! ";
+	  return 0;
+	}
     }
-  }
-
+  
  
   // look for scope.  Should there be a 6?
   int b05Line = findLine(buf, 0x6b05, afterHeader, MaxSizeScope);
-  if(b05Line != -1) {
-     edm::LogInfo("CSCTMBData") <<"found scope!!!!!!!!!!!!!"; 
-     int e05Line = findLine(buf, 0x6e05, afterHeader, TotTMBReadout-afterHeader);
-     if(e05Line != -1) {     
-       theTMBScopeIsPresent = true;
-       theTMBScope = new CSCTMBScope(buf,b05Line, e05Line);
-       afterHeader+=theTMBScope->sizeInWords();
-     }
+  if(b05Line != -1)
+    {
+      edm::LogInfo("CSCTMBData") <<"found scope!!!!!!!!!!!!!"; 
+      int e05Line = findLine(buf, 0x6e05, afterHeader, TotTMBReadout-afterHeader);
+      if(e05Line != -1)
+	{     
+	  theTMBScopeIsPresent = true;
+	  theTMBScope = new CSCTMBScope(buf,b05Line, e05Line);
+	  afterHeader+=theTMBScope->sizeInWords();
+	}
 
-  }
+    }
 
   int maxLine = findLine(buf, 0xde0f, afterHeader, TotTMBReadout-afterHeader);
-  if(maxLine == -1) {
-    edm::LogError("CSCTMBData") << "+++ CSCTMBData warning: No e0f line!";
-    return 0;
-  }
+  if(maxLine == -1) 
+    {
+      edm::LogError("CSCTMBData") << "+++ CSCTMBData warning: No e0f line!";
+      return 0;
+    }
 
   //Now for CRC check put this information into bitset
 
@@ -168,16 +191,19 @@ int CSCTMBData::UnpackTMB(unsigned short *buf) {
   int CRClow  = buf[maxLine-2] & 0x7ff;
   int CRChigh = buf[maxLine-1] & 0x7ff;
 
-
+  
   CRCCnt = (CRChigh<<11) | (CRClow);
-
+  
   // finally, the trailer
-    int e0cLine = findLine(buf, 0x6e0c, afterHeader, maxLine);
-  if (e0cLine == -1) {
-    edm::LogError("CSCTMBData") << "+++ CSCTMBData warning: No e0c line!";
-  } else {
-    theTMBTrailer = CSCTMBTrailer(buf+e0cLine);
-  }
+  int e0cLine = findLine(buf, 0x6e0c, afterHeader, maxLine);
+  if (e0cLine == -1)
+    {
+      edm::LogError("CSCTMBData") << "+++ CSCTMBData warning: No e0c line!";
+    } 
+  else 
+    {
+      theTMBTrailer = CSCTMBTrailer(buf+e0cLine);
+    }
 
   checkSize();
 
@@ -186,28 +212,33 @@ int CSCTMBData::UnpackTMB(unsigned short *buf) {
   return e0cLine-b0cLine+theTMBTrailer.sizeInWords();
 } //UnpackTMB
 
-bool CSCTMBData::checkSize() const {
+bool CSCTMBData::checkSize() const 
+{
   // sum up all the components and see if they have the size indicated in the TMBTrailer
   return true;
 }
 
-std::bitset<22> CSCTMBData::calCRC22(const std::vector< std::bitset<16> >& datain){
+std::bitset<22> CSCTMBData::calCRC22(const std::vector< std::bitset<16> >& datain)
+{
   std::bitset<22> CRC;
   CRC.reset();
-  for(unsigned int i=0;i<datain.size()-3;i++){
-    CRC=nextCRC22_D16(datain[i],CRC);
-  }
+  for(unsigned int i=0;i<datain.size()-3;++i)
+    {
+      CRC=nextCRC22_D16(datain[i],CRC);
+    }
   return CRC;
 }
 
-CSCTMBScope & CSCTMBData::tmbScope() const {
+CSCTMBScope & CSCTMBData::tmbScope() const 
+{
   if (!theTMBScopeIsPresent) throw("No TMBScope in this chamber");
   return * theTMBScope;
 }
 
 
 std::bitset<22> CSCTMBData::nextCRC22_D16(const std::bitset<16>& D, 
-				       const std::bitset<22>& C){
+				       const std::bitset<22>& C)
+{
   std::bitset<22> NewCRC;
   
   NewCRC[ 0] = D[ 0] ^ C[ 6];
@@ -237,7 +268,8 @@ std::bitset<22> CSCTMBData::nextCRC22_D16(const std::bitset<16>& D,
 }
 
 
-boost::dynamic_bitset<> CSCTMBData::pack() {
+boost::dynamic_bitset<> CSCTMBData::pack() 
+{
   boost::dynamic_bitset<> result = bitset_utilities::ushortToBitset(theTMBHeader.sizeInWords()*16,
 								    theTMBHeader.data());
   boost::dynamic_bitset<> clctData =  bitset_utilities::ushortToBitset(theCLCTData.sizeInWords()*16,
