@@ -75,10 +75,10 @@ protected:
 template<typename C>
 CandMatcherBase<C>::CandMatcherBase( const typename CandMatcherBase<C>::map_vector & maps ):
   maps_( maps ) {
-  reco::CandidateRefProd matched = maps.front()->refProd().val;
+  matched_ = maps.front()->refProd().val;
   for( typename map_vector::const_iterator m = maps.begin() + 1; 
        m != maps.end(); ++ m ) {
-    if( (*m)->refProd().val != matched )
+    if( (*m)->refProd().val != matched_ )
       throw edm::Exception( edm::errors::InvalidReference )
 	<< "Multiple match maps specified matching different MC truth collections.\n"
 	<< "Please, specify maps all matching to the same MC truth collection.\n"
@@ -93,8 +93,9 @@ void CandMatcherBase<C>::initMaps( const std::vector<const typename CandMatcherB
   for( typename map_vector::const_iterator m = maps.begin(); 
        m != maps.end(); ++ m ) {
     edm::RefProd<C> cands = (*m)->refProd().key;
-    for( size_t i = 0; i < cands->size(); ++ i )
+    for( size_t i = 0; i < cands->size(); ++ i ) {
       candRefs_[ & (*cands)[ i ] ] = reference_type( cands, i );
+    } 
     const CandidateCollection & matched = * matched_;
     for( size_t i = 0; i < matched.size(); ++ i )
       matchedRefs_[ & matched[ i ] ] = CandidateRef( matched_, i );
