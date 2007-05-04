@@ -77,10 +77,10 @@ class TtSemiEvtSolution
       int			getChangeWQ() const		{ return changeWQ; };
       bool			getBestSol() const		{ return bestSol; };
       
-      jetType		        getRecHadp() const;
-      jetType                   getRecHadq() const;
-      jetType                   getRecHadb() const;
-      jetType                   getRecLepb() const; 
+      JetType		        getRecHadp() const;
+      JetType                   getRecHadq() const;
+      JetType                   getRecHadb() const;
+      JetType                   getRecLepb() const; 
       TopMuon                    getRecLepm() const;
       TopElectron                getRecLepe() const;
       TopMET                     getRecLepn() const;  

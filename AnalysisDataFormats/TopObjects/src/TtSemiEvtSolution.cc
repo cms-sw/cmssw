@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Wed May 10 11:48:25 CEST 2006
-// $Id: TtSemiEvtSolution.cc,v 1.6 2007/05/01 14:44:00 heyninck Exp $
+// $Id: TtSemiEvtSolution.cc,v 1.1 2007/05/02 15:05:04 lowette Exp $
 //
 
 // system include files
@@ -78,10 +78,10 @@ void TtSemiEvtSolution::setBestSol(bool bs)			{ bestSol     = bs;  }
 
 
 // return functions for reconstructed fourvectors
-jetType TtSemiEvtSolution::getRecHadp() const 	  { return this->getHadp().getRecJet(); }
-jetType TtSemiEvtSolution::getRecHadq() const 	  { return this->getHadq().getRecJet(); }
-jetType TtSemiEvtSolution::getRecHadb() const 	  { return this->getHadb().getRecJet(); }
-jetType TtSemiEvtSolution::getRecLepb() const 	  { return this->getLepb().getRecJet(); }  
+JetType TtSemiEvtSolution::getRecHadp() const 	  { return this->getHadp().getRecJet(); }
+JetType TtSemiEvtSolution::getRecHadq() const 	  { return this->getHadq().getRecJet(); }
+JetType TtSemiEvtSolution::getRecHadb() const 	  { return this->getHadb().getRecJet(); }
+JetType TtSemiEvtSolution::getRecLepb() const 	  { return this->getLepb().getRecJet(); }  
 TopMET   TtSemiEvtSolution::getRecLepn() const 	  { return this->getMET().getRecMET();  }  
 TopMuon  TtSemiEvtSolution::getRecLepm() const 	  { return this->getMuon().getRecMuon(); }
 TopElectron TtSemiEvtSolution::getRecLepe() const { return this->getElectron().getRecElectron(); }
