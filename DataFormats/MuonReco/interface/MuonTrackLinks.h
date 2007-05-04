@@ -6,8 +6,8 @@
  *  which are built in the RecoMuon tracking code.
  *  This data format is meant to be used internally only.
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2007/05/04 11:30:01 $
+ *  $Revision: 1.1 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -32,13 +32,13 @@ namespace reco {
     // Operations
   
     /// get the tracker's track which match with the stand alone muon tracks
-    inline reco::TrackRef trackerTrack() {return theTkTrack;}
+    inline reco::TrackRef trackerTrack() const {return theTkTrack;}
 
     /// get the track built with the muon spectrometer alone
-    inline reco::TrackRef standAloneTrack() {return theStaTrack;}
+    inline reco::TrackRef standAloneTrack() const {return theStaTrack;}
 
     /// get the combined track
-    inline reco::TrackRef globalTrack() {return theGlbTrack;}
+    inline reco::TrackRef globalTrack() const {return theGlbTrack;}
 
     /// set the ref to tracker's track
     inline void setTrackerTrack(reco::TrackRef tk) {theTkTrack = tk;}
