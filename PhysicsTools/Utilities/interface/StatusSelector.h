@@ -14,17 +14,20 @@ struct StatusSelector {
   typedef T value_type;
   StatusSelector( const std::vector<int> & status ) { 
     for( std::vector<int>::const_iterator i = status.begin(); i != status.end(); ++ i )
-      status_.push_back( abs( * i ) );
-     begin = status_.begin();
-     end = status_.end();
+      status_.push_back( * i );
+    begin_ = status_.begin();
+    end_ = status_.end();
   }
-  bool operator()( const value_type & t ) const { 
-    int status = t.status();
-    return std::find( begin, end, status ) != end;
+  StatusSelector( const StatusSelector & o ) :
+    status_( o.status_ ), begin_( status_.begin() ), end_( status_.end() ) { }
+  StatusSelector & operator==( const StatusSelector & o ) {
+    * this = o; return * this;
+  }  bool operator()( const value_type & t ) const { 
+    return std::find( begin_, end_, t.status() ) != end_;
   }
 private:
   std::vector<int> status_;
-  std::vector<int>::const_iterator begin, end;
+  std::vector<int>::const_iterator begin_, end_;
 };
 
 #endif
