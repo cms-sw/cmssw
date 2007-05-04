@@ -3,8 +3,8 @@
  *  Class to load the product in the event
  *
 
- *  $Date: 2007/04/13 09:05:34 $
- *  $Revision: 1.45 $
+ *  $Date: 2007/04/25 13:21:12 $
+ *  $Revision: 1.46 $
 
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
@@ -29,7 +29,8 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
 #include "DataFormats/TrackReco/interface/TrackToTrackMap.h"
-#include "DataFormats/MuonReco/interface/Muon.h"
+
+#include "DataFormats/MuonReco/interface/MuonTrackLinks.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 
 using namespace edm;
@@ -227,14 +228,14 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
     return event.put(trackCollection,instance);
 }
 
-OrphanHandle<reco::MuonCollection> 
+OrphanHandle<reco::MuonTrackLinksCollection> 
 MuonTrackLoader::loadTracks(const CandidateContainer& muonCands,
 			    Event& event) {
 
   const string metname = "Muon|RecoMuon|MuonTrackLoader";
   
   // the muon collection, it will be loaded in the event
-  auto_ptr<reco::MuonCollection> muonCollection(new reco::MuonCollection());
+  auto_ptr<reco::MuonTrackLinksCollection> trackLinksCollection(new reco::MuonTrackLinksCollection());
   
   // don't waste any time...
   if ( muonCands.empty() ) {
@@ -245,7 +246,7 @@ MuonTrackLoader::loadTracks(const CandidateContainer& muonCands,
     event.put(recHitCollection);
     event.put(trackExtraCollection);
     event.put(trackCollection);
-    return event.put(muonCollection);
+    return event.put(trackLinksCollection);
   }
   
   // get combined Trajectories
@@ -255,11 +256,11 @@ MuonTrackLoader::loadTracks(const CandidateContainer& muonCands,
     combinedTrajs.push_back((*it)->trajectory());
     trackerTrajs.push_back((*it)->trackerTrajectory());
   
-    // Create the reco::muon
-    reco::Muon muon;
-    muon.setStandAlone((*it)->muonTrack());
-    muon.setTrack((*it)->trackerTrack());
-    muonCollection->push_back(muon);
+    // Create the links between sta and tracker tracks
+    reco::MuonTrackLinks links;
+    links.setStandAloneTrack((*it)->muonTrack());
+    links.setTrackerTrack((*it)->trackerTrack());
+    trackLinksCollection->push_back(links);
     delete *it;
   }
   
@@ -271,34 +272,22 @@ MuonTrackLoader::loadTracks(const CandidateContainer& muonCands,
   if(thePutTkTrackFlag) trackerTracks = loadTracks(trackerTrajs, event, theL2SeededTkLabel, theSmoothTkTrackFlag);
 
   
-  reco::MuonCollection::iterator muon = muonCollection->begin();
-  for ( unsigned int position = 0; position != combinedTracks->size(); position++ ) {
+  reco::MuonTrackLinksCollection::iterator links = trackLinksCollection->begin();
+  for ( unsigned int position = 0; position != combinedTracks->size(); ++position, ++links) {
     reco::TrackRef combinedTR(combinedTracks, position);
 
     reco::TrackRef trackerTR;
     if(thePutTkTrackFlag) trackerTR = reco::TrackRef(trackerTracks, position);
 
-
     // fill the combined information.
-    // FIXME: can this break in case combined info cannot be added to some tracks?
-    (*muon).setCharge(combinedTR->charge());
-    //FIXME: E = sqrt(p^2 + m^2), where m == 0.105658369(9)GeV 
-    double energy = sqrt(combinedTR->p() * combinedTR->p() + 0.011163691);
-    math::XYZTLorentzVector p4(combinedTR->px(),combinedTR->py(),combinedTR->pz(),energy);
-    (*muon).setP4(p4);
-    (*muon).setVertex(combinedTR->vertex());
-    (*muon).setCombined(combinedTR);
-    if(thePutTkTrackFlag) (*muon).setTrack(trackerTR);
-
-    muon++;
+    links->setGlobalTrack(combinedTR);
+    if(thePutTkTrackFlag) links->setTrackerTrack(trackerTR);
   }
   
   // put the MuonCollection in the event
   LogTrace(metname) << "put the MuonCollection in the event" << "\n";
-  OrphanHandle<reco::MuonCollection> orphanHandleMuon = event.put(muonCollection);
-  
-  return orphanHandleMuon;
 
+  return event.put(trackLinksCollection);
 }
 
 pair<bool,reco::Track> MuonTrackLoader::buildTrackAtPCA(const Trajectory& trajectory) const {

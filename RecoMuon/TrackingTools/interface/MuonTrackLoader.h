@@ -5,8 +5,8 @@
  *  Class to load the tracks in the event, it provide some common functionalities
  *  both for all the RecoMuon producers.
  *
- *  $Date: 2007/04/10 13:34:10 $
- *  $Revision: 1.16 $
+ *  $Date: 2007/04/25 13:21:11 $
+ *  $Revision: 1.17 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -47,8 +47,8 @@ class MuonTrackLoader {
 							bool = true);
 
     /// Convert the trajectories into tracks and load the tracks in the event
-    edm::OrphanHandle<reco::MuonCollection> loadTracks(const CandidateContainer&,
-                                                       edm::Event&); 
+    edm::OrphanHandle<reco::MuonTrackLinksCollection> loadTracks(const CandidateContainer&,
+								 edm::Event&); 
   
   private:
  
