@@ -1,5 +1,5 @@
 # -*-SH-*-
-<flags EDM_PLUGIN=1>
+
 <use name=DataFormats/Common>
 <use name=DataFormats/TrackReco>
 <use name=DataFormats/MuonReco>
@@ -9,14 +9,7 @@
 <use name=FWCore/ParameterSet>
 <use name=boost>
 
-<export>
-   <lib name=TrackingToolsTrackAssociator>
-   <use name=DataFormats/TrackReco>
-   <use name=DataFormats/MuonReco>
-   <use name=TrackingTools/TrackAssociator>
-   <use name=FWCore/Framework>
-   <use name=FWCore/ParameterSet>
-</export>
+<flags EDM_PLUGIN=1>
    
 # add debug symbols
 # <Flags CXXFLAGS=-g>
