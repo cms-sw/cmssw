@@ -1,7 +1,8 @@
 #ifndef TopObjects_TopMETObject_h
 #define TopObjects_TopMETObject_h
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "TopObject.h"
+#include "TopMET.h"
+#include "AnalysisDataFormats/TopObjects/interface/TopParticle.h"
 
 using namespace reco;
 using namespace std;

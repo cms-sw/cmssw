@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Wed May 10 11:48:25 CEST 2006
-// $Id: TopJetObject.cc,v 1.1 2007/04/30 10:42:51 heyninck Exp $
+// $Id: TopJetObject.cc,v 1.1 2007/05/02 15:05:04 lowette Exp $
 //
 
 // system include files
@@ -17,16 +17,16 @@
 #include "AnalysisDataFormats/TopObjects/interface/TopJetObject.h"
 
 TopJetObject::TopJetObject(){ }
-TopJetObject::TopJetObject(jetType rj){ recJet = rj; }
+TopJetObject::TopJetObject(JetType rj){ recJet = rj; }
 TopJetObject::~TopJetObject(){ }
 
-void 		TopJetObject::setRecJet(jetType rj)     { recJet = rj; }
+void 		TopJetObject::setRecJet(JetType rj)     { recJet = rj; }
 void 		TopJetObject::setLCalJet(TopJet lcj)    { lCalJet = lcj; }
 void 		TopJetObject::setBCalJet(TopJet bcj)    { bCalJet = bcj; }
 void 		TopJetObject::setFitJet(TopParticle fj) { fitJet = fj; }
 void 		TopJetObject::setBdiscriminant(double b){ bdiscr = b; }
 
-jetType		TopJetObject::getRecJet() const	  	{ return recJet; }
+JetType		TopJetObject::getRecJet() const	  	{ return recJet; }
 TopJet		TopJetObject::getLCalJet() const	{ return lCalJet; }
 TopJet		TopJetObject::getBCalJet() const	{ return bCalJet; }
 TopParticle	TopJetObject::getFitJet() const	  	{ return fitJet; }
