@@ -124,7 +124,7 @@ bool HLTDisplacedmumuFilter::filter(edm::Event& iEvent, const edm::EventSetup& i
 						GlobalPoint v = tv.position();
 						GlobalError err = tv.positionError();
 						float lxy = v.perp();
-						float lxyerr = err.rerr(v);
+						float lxyerr = sqrt(err.rerr(v));
 						
 						// get normalizes chi2
 						float normChi2 = tv.normalisedChiSquared();
