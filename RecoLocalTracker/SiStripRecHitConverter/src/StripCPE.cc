@@ -12,13 +12,12 @@ StripCPE::StripCPE(edm::ParameterSet & conf, const MagneticField * mag, const Tr
   double holeBeta    = conf.getParameter<double>("HoleBeta");
   double holeSaturationVelocity = conf.getParameter<double>("HoleSaturationVelocity");
   
-  mulow_ = chargeMobility*std::pow((temperature/300.),-2.5);
-  vsat_ = holeSaturationVelocity*std::pow((temperature/300.),0.52);
-  beta_ = holeBeta*std::pow((temperature/300.),0.17);
+  mulow_ = chargeMobility*pow((temperature/300.),-2.5);
+  vsat_ = holeSaturationVelocity*pow((temperature/300.),0.52);
+  beta_ = holeBeta*pow((temperature/300.),0.17);
   
   magfield_  = mag;
   geom_ = geom;
-  theCachedDetId=0;
   LorentzAngleMap_=0;
 }
 
@@ -28,7 +27,6 @@ StripCPE::StripCPE(edm::ParameterSet & conf, const MagneticField * mag, const Tr
   conf_=conf;
   magfield_  = mag;
   geom_ = geom;
-  theCachedDetId=0;
   LorentzAngleMap_=LorentzAngle;
 }
 
@@ -50,31 +48,29 @@ StripClusterParameterEstimator::LocalValues StripCPE::localParameters( const SiS
   drift = driftDirection(stripdet);
   float thickness=stripdet->specificSurface().bounds().thickness();
   drift*=thickness;
-  LocalPoint  result=LocalPoint(position.x()+drift.x()/2,position.y()+drift.y()/2,0);
+  LocalPoint  result=LocalPoint(position.x()-drift.x()/2,position.y()-drift.y()/2,0);
   return std::make_pair(result,eresult);
 }
 
 LocalVector StripCPE::driftDirection(const StripGeomDetUnit* det)const{
-  if ( theCachedDetId != det->geographicalId().rawId() ){
-    LocalVector lbfield=(det->surface()).toLocal(magfield_->inTesla(det->surface().position()));
-    float thickness=det->specificSurface().bounds().thickness();
-    
-    float tanLorentzAnglePerTesla=0;
-    
-    if(conf_.getParameter<bool>("UseCalibrationFromDB"))tanLorentzAnglePerTesla=  LorentzAngleMap_->getLorentzAngle(det->geographicalId().rawId());
-    else{
-      float e = appliedVoltage_/thickness;
-      float mu = ( mulow_/(std::pow(double((1+std::pow((mulow_*e/vsat_),beta_))),1./beta_)));
-      tanLorentzAnglePerTesla = 1.E-4 *mu*rhall_;
-    }
-    
-    float dir_x =tanLorentzAnglePerTesla * lbfield.y();
-    float dir_y =-tanLorentzAnglePerTesla * lbfield.x();
-    float dir_z = 1.; // E field always in z direction
-      
-    theCachedDrift = LocalVector(dir_x,dir_y,dir_z);
+  LocalVector lbfield=(det->surface()).toLocal(magfield_->inTesla(det->surface().position()));
+  float thickness=det->specificSurface().bounds().thickness();
+  
+  float tanLorentzAnglePerTesla=0;
+
+  if(conf_.getParameter<bool>("UseCalibrationFromDB"))tanLorentzAnglePerTesla=  LorentzAngleMap_->getLorentzAngle(det->geographicalId().rawId());
+  else{
+    float e = appliedVoltage_/thickness;
+    float mu = ( mulow_/(pow(double((1+pow((mulow_*e/vsat_),beta_))),1./beta_)));
+    tanLorentzAnglePerTesla = 1.E-4 *mu*rhall_;
   }
+  
+  float dir_x =-tanLorentzAnglePerTesla * lbfield.y();
+  float dir_y =tanLorentzAnglePerTesla * lbfield.x();
+  float dir_z = 1.; // E field always in z direction
+  
+  LocalVector drift = LocalVector(dir_x,dir_y,dir_z);
   //  if((drift-drift_old).mag()>1.E-7)std::cout<<"old drift= "<<drift_old<<" new drift="<<drift<<std::endl;
-  return theCachedDrift;
+  return drift;
 
 }
