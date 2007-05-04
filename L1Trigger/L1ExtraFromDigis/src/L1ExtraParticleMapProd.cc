@@ -8,7 +8,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Mon Oct 16 23:19:38 EDT 2006
-// $Id: L1ExtraParticleMapProd.cc,v 1.11 2007/04/23 18:33:33 wsun Exp $
+// $Id: L1ExtraParticleMapProd.cc,v 1.12 2007/04/30 21:00:41 wsun Exp $
 //
 //
 
@@ -66,7 +66,7 @@ L1ExtraParticleMapProd::L1ExtraParticleMapProd(
       singleThresholds_[ i ] = 0. ;
       doubleThresholds_[ i ].first = 0. ;
       doubleThresholds_[ i ].second = 0. ;
-      prescaleCounters_[ i ] = 0 ;
+      prescaleCounters_[ i ] = 1 ;
       prescales_[ i ] = 1 ;
    }
 
