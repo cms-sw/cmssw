@@ -232,7 +232,7 @@ void CSCCFEBData::digis(uint32_t idlayer, std::vector<CSCStripDigi> & result )
 		}
 	    }
 	}
-      if (!sca.empty())
+      if (sca.empty())
 	{
 	  edm::LogError("CSCCFEBData") << "ADC counts are empty - CFEB Data Corrupt!";
 	  break;
@@ -284,7 +284,7 @@ std::vector<CSCStripDigi> CSCCFEBData::digis(unsigned idlayer) const
 		}
 	    }
 	}
-      if (!sca.empty()) 
+      if (sca.empty()) 
 	{
 	  edm::LogError("CSCCFEBData") << "ADC counts are empty - CFEB Data Corrupt!";
 	  break;
