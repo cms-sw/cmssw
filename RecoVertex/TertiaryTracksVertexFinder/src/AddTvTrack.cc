@@ -48,8 +48,7 @@ vector<TransientVertex> AddTvTrack::getSecondaryVertices(const vector<TransientT
 
     TrajectoryStateClosestToPoint tscp=(*itT).trajectoryStateClosestToPoint(vtxPoint);
     double val=tscp.perigeeParameters().transverseImpactParameter();
-    //double error=sqrt((tscp.perigeeError().covarianceMatrix_old())[3][3]); // FIXME
-    double error=sqrt((tscp.perigeeError().covarianceMatrix())(3,3)); // FIXME
+    double error=sqrt((tscp.perigeeError().covarianceMatrix_old())[3][3]);
 
     if (debug) cout <<"[AddTvTrack] tip val,err"<<val<<","<<error<<endl;
 
@@ -233,8 +232,7 @@ vector<TransientVertex> AddTvTrack::getSecondaryVertices(const vector<TransientT
       GlobalPoint vtxPoint((*thePrimaryVertices)[0].position());
       TrajectoryStateClosestToPoint tscp=(*itT).trajectoryStateClosestToPoint(vtxPoint);
       double IP=tscp.perigeeParameters().transverseImpactParameter();
-      //double error=sqrt((tscp.perigeeError().covarianceMatrix_old())[3][3]); // FIXME
-      double error=sqrt((tscp.perigeeError().covarianceMatrix())(3,3)); // FIXME
+      double error=sqrt((tscp.perigeeError().covarianceMatrix_old())[3][3]);
       double err=sqrt(pow(error,2)+pow(0.0015,2));
       double IPSig = IP/err;
 
