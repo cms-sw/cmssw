@@ -3,13 +3,13 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
-#include "L1TriggerConfig/DTTPGConfig/interface/DTConfigManager.h"
-#include "L1TriggerConfig/DTTPGConfig/interface/DTConfigManagerRcd.h"
+#include "CondFormats/L1TObjects/interface/DTConfigManager.h"
+#include "CondFormats/DataRecord/interface/DTConfigManagerRcd.h"
 
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
-#include "L1Trigger/DTUtilities/interface/DTBtiId.h"
-#include "L1Trigger/DTUtilities/interface/DTTracoId.h"
-#include "L1Trigger/DTUtilities/interface/DTSectCollId.h"
+#include "DataFormats/MuonDetId/interface/DTBtiId.h"
+#include "DataFormats/MuonDetId/interface/DTTracoId.h"
+#include "DataFormats/MuonDetId/interface/DTSectCollId.h"
 
 using std::cout;
 using std::endl;
