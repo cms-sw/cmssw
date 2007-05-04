@@ -1,5 +1,6 @@
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonTrackLinks.h"
 #include "DataFormats/MuonReco/interface/Direction.h"
 #include "DataFormats/MuonReco/interface/MuIsoDeposit.h"
 #include "DataFormats/Common/interface/AssociationMap.h"
@@ -37,6 +38,12 @@ namespace {
 
     reco::MuIsoFloatAssociationMap v7;
     edm::Wrapper<reco::MuIsoFloatAssociationMap> w7;
+   
+    std::vector<reco::MuonTrackLinks> tl1;
+    edm::Wrapper<std::vector<reco::MuonTrackLinks> > tl2;
+    edm::Ref<std::vector<reco::MuonTrackLinks> > tl3;
+    edm::RefProd<std::vector<reco::MuonTrackLinks> > tl4;
+    edm::RefVector<std::vector<reco::MuonTrackLinks> > tl5;
 
   }
 }

@@ -17,6 +17,12 @@ namespace reco {
   typedef edm::RefVector<MuonCollection> MuonRefVector;
   /// iterator over a vector of references to Muon objects all in the same collection
   typedef MuonRefVector::iterator muon_iterator;
+
+  /// Links between the three tracks which can define a muon
+  class MuonTrackLinks;
+  
+  /// collection of MuonTrackLinks
+  typedef std::vector<MuonTrackLinks> MuonTrackLinksCollection;
 }
 
 #endif
