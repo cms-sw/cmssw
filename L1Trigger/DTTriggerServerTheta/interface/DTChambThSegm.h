@@ -5,8 +5,8 @@
  *   Muon Chamber Trigger Theta candidate 
  *
  *
- *   $Date: 2007/03/09 15:17:44 $
- *   $Revision: 1.2 $
+ *   $Date: 2007/04/27 09:00:08 $
+ *   $Revision: 1.3 $
  * 
  *   \author C. Grandi
  */
@@ -25,7 +25,7 @@
 #include "DataFormats/MuonDetId/interface/DTSuperLayerId.h"
 #include "DataFormats/MuonDetId/interface/DTLayerId.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
-#include "L1Trigger/DTUtilities/interface/BitArray.h"
+#include "CondFormats/L1TObjects/interface/BitArray.h"
 #include "L1Trigger/DTUtilities/interface/DTTrigData.h"
 
 //---------------

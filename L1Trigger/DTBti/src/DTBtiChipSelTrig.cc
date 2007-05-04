@@ -17,8 +17,6 @@
 //   22/VI/04 SV: last trigger code update
 //----------------------------------------------------------------
 
-//#include "Utilities/Configuration/interface/Architecture.h"
-
 //-----------------------
 // This Class's Header --
 //-----------------------
@@ -27,7 +25,7 @@
 //-------------------------------
 // Collaborating Class Headers --
 //-------------------------------
-#include "L1Trigger/DTUtilities/interface/BitArray.h"
+#include "CondFormats/L1TObjects/interface/BitArray.h"
 
 //---------------
 // C++ Headers --
