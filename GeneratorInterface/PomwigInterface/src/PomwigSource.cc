@@ -53,9 +53,6 @@ extern"C" {
 #define cmsending cmsending_
 
 
-// -----------------  HepMC converter -----------------------------------------
-HepMC::IO_HERWIG conv;
-
 // -----------------  used for defaults --------------------------------------
   static const unsigned long kNanoSecPerSec = 1000000000;
   static const unsigned long kAveEventPerSec = 200;
@@ -273,6 +270,9 @@ bool PomwigSource::produce(Event & e) {
   
   // if event was killed by HERWIG; skip 
   if(eventstat.eventisok > 0.5) return true;
+
+  // -----------------  HepMC converter --------------------
+  HepMC::IO_HERWIG conv;
 
   // HEPEVT is ok, create new HepMC event
   evt = new HepMC::GenEvent();
@@ -1042,7 +1042,7 @@ bool PomwigSource::hwgive(const std::string& ParameterString) {
 #define hwaend hwaend_
 
 extern "C" {
-  void hwaend(){/*dummy*/};
+  void hwaend(){/*dummy*/}
 }
 //-------------------------------------------------------------------------------
 
