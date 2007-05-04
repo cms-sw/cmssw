@@ -7,7 +7,7 @@
  * It handles generic manipulations of input and output collections
  *
  * \author Fedor Ratnikov (UMd) Aug. 22, 2006
- * $Id: BasePilupSubtractionJetProducer.h,v 1.2 2007/04/10 16:22:33 kodolova Exp $
+ * $Id: BasePilupSubtractionJetProducer.h,v 1.3 2007/05/04 09:53:17 kodolova Exp $
  *
  ************************************************************/
 
@@ -43,8 +43,15 @@ namespace cms
     virtual void produce(edm::Event& e, const edm::EventSetup& c);
     /** jet type */
     std::string jetType () const {return mJetType;}
+<<<<<<< BasePilupSubtractionJetProducer.h
+    
+    int ieta(const reco::Candidate*);
     
     void beginJob( const edm::EventSetup& iSetup);
+=======
+    
+    void beginJob( const edm::EventSetup& iSetup);
+>>>>>>> 1.3
 
     // abstract method to be set up in actual implementations
     /** run algorithm itself */

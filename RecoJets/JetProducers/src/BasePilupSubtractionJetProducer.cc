@@ -1,6 +1,6 @@
 // File: BasePilupSubtractionJetProducer.cc
 // Author: F.Ratnikov UMd Aug 22, 2006
-// $Id: BasePilupSubtractionJetProducer.cc,v 1.3 2007/05/03 21:24:16 fedor Exp $
+// $Id: BasePilupSubtractionJetProducer.cc,v 1.4 2007/05/04 09:53:18 kodolova Exp $
 //--------------------------------------------
 #include <memory>
 #include "DataFormats/Common/interface/EDProduct.h"
@@ -198,9 +198,15 @@ namespace cms
       
       for(ProtoJet::Constituents::const_iterator ito = towers.begin(); ito != towers.end(); ito++)
       {
+<<<<<<< BasePilupSubtractionJetProducer.cc
+//       double eta = (**ito).eta();
+//       int it = (*ietamap.find(eta)).second;
+       int it = ieta(&(**ito));
+=======
 //       double eta = (**ito).eta();
 //       int it = (*ietamap.find(eta)).second;
        int it = 0;
+>>>>>>> 1.4
        offset = offset + (*emean.find(it)).second + (*esigma.find(it)).second;
        
        
@@ -258,16 +264,36 @@ void BasePilupSubtractionJetProducer::calculate_pedestal(JetReco::InputCollectio
     map<int,double> emean2;
     map<int,double> ntowers;
     
+<<<<<<< BasePilupSubtractionJetProducer.cc
+    int ietaold = -10000;
+    int ieta0 = -100;
+    int itower = 0;
+    
+=======
     int ietaold = -10000;
     int ieta = -100;
     int itower = 0;
     
+>>>>>>> 1.4
     for (JetReco::InputCollection::const_iterator input_object = inputs.begin ();  input_object != inputs.end (); input_object++) {
+<<<<<<< BasePilupSubtractionJetProducer.cc
+      
+//      if (makeCaloJet (mJetType)) ieta = dynamic_cast<const CaloTower*>(&(**input_object))->id().ieta(); 
+      ieta0 = ieta(&(**input_object));
+       if( ieta0-ietaold != 0 )
+=======
       
       if (makeCaloJet (mJetType)) ieta = dynamic_cast<const CaloTower*>(&(**input_object))->id().ieta(); 
       
        if( ieta-ietaold != 0 )
+>>>>>>> 1.4
       {
+<<<<<<< BasePilupSubtractionJetProducer.cc
+
+        emean[ieta0] = emean[ieta0]+(**input_object).et();
+        emean2[ieta0] = emean2[ieta0]+((**input_object).et())*((**input_object).et());
+	ntowers[ieta0]++;
+=======
 <<<<<<< BasePilupSubtractionJetProducer.cc
         emean[ieta] = emean[ieta]+(**input_object).et();
         emean2[ieta] = emean2[ieta]+((**input_object).et())*((**input_object).et());
@@ -277,9 +303,17 @@ void BasePilupSubtractionJetProducer::calculate_pedestal(JetReco::InputCollectio
         emean2[itower] += ((**input_object).et())*((**input_object).et());
 	ntowers[itower] += 1;
 >>>>>>> 1.3
+>>>>>>> 1.4
       } 
         else
 	{
+<<<<<<< BasePilupSubtractionJetProducer.cc
+           emean[ieta0] = emean[ieta0]+(**input_object).et();
+           emean2[ieta0] = emean2[ieta0]+((**input_object).et())*((**input_object).et());
+	   ntowers[ieta0]=1.;
+	   itower++;	
+	}
+=======
 <<<<<<< BasePilupSubtractionJetProducer.cc
            emean[ieta] = emean[ieta]+(**input_object).et();
            emean2[ieta] = emean2[ieta]+((**input_object).et())*((**input_object).et());
@@ -294,6 +328,7 @@ void BasePilupSubtractionJetProducer::calculate_pedestal(JetReco::InputCollectio
 	   ntowers[itower]=1;
 	}	
 >>>>>>> 1.3
+>>>>>>> 1.4
     }
     
     for(int it = 0; it< itower; it++)
@@ -318,9 +353,15 @@ CandidateCollection BasePilupSubtractionJetProducer::subtract_pedestal(JetReco::
     
     for (JetReco::InputCollection::const_iterator input_object = inputs.begin (); input_object != inputs.end (); input_object++) {
          
+<<<<<<< BasePilupSubtractionJetProducer.cc
+//       int it = (*ietamap.find((**input_object).eta())).second;
+//       if (makeCaloJet (mJetType)) it = dynamic_cast<const CaloTower*>(&(**input_object))->id().ieta();
+       it = ieta(&(**input_object));
+=======
 //       int it = (*ietamap.find((**input_object).eta())).second;
        if (makeCaloJet (mJetType)) it = dynamic_cast<const CaloTower*>(&(**input_object))->id().ieta();
        
+>>>>>>> 1.4
        double etnew = (**input_object).et() - (*emean.find(it)).second -  (*esigma.find(it)).second;
        float mScale = etnew/(**input_object).et(); 
 
@@ -333,5 +374,16 @@ CandidateCollection BasePilupSubtractionJetProducer::subtract_pedestal(JetReco::
     return inputCache;
 }
 
+<<<<<<< BasePilupSubtractionJetProducer.cc
+int BasePilupSubtractionJetProducer::ieta(const reco::Candidate* in)
+{
+   int it = 0;
+   if (makeCaloJet (mJetType)) it = dynamic_cast<const CaloTower*>(in)->id().ieta();
+   return it;
+}
 
 } // namespace cms
+=======
+
+} // namespace cms
+>>>>>>> 1.4

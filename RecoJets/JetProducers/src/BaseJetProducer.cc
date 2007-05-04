@@ -1,6 +1,6 @@
 // File: BaseJetProducer.cc
 // Author: F.Ratnikov UMd Aug 22, 2006
-// $Id: BaseJetProducer.cc,v 1.12 2007/03/28 22:39:34 fedor Exp $
+// $Id: BaseJetProducer.cc,v 1.13 2007/05/03 21:24:16 fedor Exp $
 //--------------------------------------------
 #include <memory>
 
@@ -16,7 +16,7 @@
 #include "DataFormats/JetReco/interface/BasicJet.h"
 #include "DataFormats/JetReco/interface/GenericJet.h"
 #include "DataFormats/JetReco/interface/JetTrackMatch.h"
-#include "RecoJets/JetAlgorithms/interface/JetTrackConeAssociator.h"
+//#include "RecoJets/JetAlgorithms/interface/JetTrackConeAssociator.h"
 #include "RecoJets/JetAlgorithms/interface/JetMaker.h"
 #include "RecoJets/JetAlgorithms/interface/JetAlgoHelper.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
