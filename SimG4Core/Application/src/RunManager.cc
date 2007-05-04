@@ -169,7 +169,8 @@ void RunManager::initG4(const edm::EventSetup & es)
 
 	m_fieldBuilder = std::auto_ptr<sim::FieldBuilder>(new sim::FieldBuilder(&(*pMF), m_pField));
 	G4TransportationManager * tM = G4TransportationManager::GetTransportationManager();
-	m_fieldBuilder->configure("MagneticFieldType",tM->GetFieldManager(),tM->GetPropagatorInField());
+	m_fieldBuilder->build( tM->GetFieldManager(),tM->GetPropagatorInField() ) ;
+	// m_fieldBuilder->configure("MagneticFieldType",tM->GetFieldManager(),tM->GetPropagatorInField());
     }
 
     // we need the track manager now
