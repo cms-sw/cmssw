@@ -64,7 +64,7 @@ TransientTrackKinematicStateBuilder::buildState(const FreeTrajectoryState & stat
 //cartesian covariance matrix (x,y,z,p_x,p_y,p_z)
 //and mass-related components stays unchanged
  if(!state.hasCartesianError()) throw VertexException("KinematicStateClosestToPointBuilder:: FTS passed has no error matrix!");
- AlgebraicSymMatrix  cartCov = state.cartesianError().matrix();
+ AlgebraicSymMatrix  cartCov = state.cartesianError().matrix_old();
  cov.sub(1,cartCov);
  cov(7,7) = m_sigma * m_sigma;
 

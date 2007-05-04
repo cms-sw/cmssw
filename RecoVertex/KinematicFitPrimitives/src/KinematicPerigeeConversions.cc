@@ -100,8 +100,8 @@ AlgebraicMatrix KinematicPerigeeConversions::jacobianParameters2Kinematic(
 	const TrackCharge& charge, const MagneticField* field)const
 {
   PerigeeConversions pc;
-  AlgebraicMatrix param2cart = pc.jacobianParameters2Cartesian
-  	(momentum, referencePoint, charge, field);
+  AlgebraicMatrix param2cart = asHepMatrix(pc.jacobianParameters2Cartesian
+  	(asSVector<3>(momentum), referencePoint, charge, field));
   AlgebraicMatrix frameTransJ(6, 6, 0);
   for (int i =0;i<6;++i)
     for (int j =0;j<6;++j)

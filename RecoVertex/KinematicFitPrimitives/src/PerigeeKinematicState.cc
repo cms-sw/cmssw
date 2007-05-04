@@ -18,11 +18,11 @@ PerigeeKinematicState::PerigeeKinematicState(const KinematicState& state, const 
 //making jacobian for curvilinear frame
  JacobianCartesianToCurvilinear jj(state.freeTrajectoryState().parameters());  
  AlgebraicMatrix ki2cu(6,7,0);
- ki2cu.sub(1,1,jj.jacobian());
+ ki2cu.sub(1,1,jj.jacobian_old());
  ki2cu(6,7) = 1.;
  AlgebraicMatrix cu2pe(6,6,0);
  PerigeeConversions pc;
- cu2pe.sub(1,1,pc.jacobianCurvilinear2Perigee(state.freeTrajectoryState()));
+ cu2pe.sub(1,1,asHepMatrix(pc.jacobianCurvilinear2Perigee(state.freeTrajectoryState())));
  cu2pe(6,6) = 1.;
  cu2pe = cu2pe*ki2cu;
  err = err.similarity(cu2pe);

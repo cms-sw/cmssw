@@ -103,8 +103,8 @@ TrackKinematicStatePropagator::propagateToTheTransversePCACharged
   
   AlgebraicMatrix ca2cu(6,7,0);
   AlgebraicMatrix cu2ca(7,6,0);
-  ca2cu.sub(1,1,cart2curv.jacobian());
-  cu2ca.sub(1,1,curv2cart.jacobian());
+  ca2cu.sub(1,1,cart2curv.jacobian_old());
+  cu2ca.sub(1,1,curv2cart.jacobian_old());
   ca2cu(6,7) = 1;  
   cu2ca(7,6) = 1;
 
@@ -117,7 +117,7 @@ TrackKinematicStatePropagator::propagateToTheTransversePCACharged
   AnalyticalCurvilinearJacobian prop(inPar,nPosition,nMomentum,s);
   AlgebraicMatrix pr(6,6,0);
   pr(6,6) = 1;
-  pr.sub(1,1,prop.jacobian());
+  pr.sub(1,1,prop.jacobian_old());
   
 //transportation
   cov = cov.similarity(pr);
@@ -183,8 +183,8 @@ KinematicState TrackKinematicStatePropagator::propagateToTheTransversePCANeutral
   
  AlgebraicMatrix ca2cu(6,7,0);
  AlgebraicMatrix cu2ca(7,6,0);
- ca2cu.sub(1,1,cart2curv.jacobian());
- cu2ca.sub(1,1,curv2cart.jacobian());
+ ca2cu.sub(1,1,cart2curv.jacobian_old());
+ cu2ca.sub(1,1,curv2cart.jacobian_old());
  ca2cu(6,7) = 1;  
  cu2ca(7,6) = 1;
 
@@ -197,7 +197,7 @@ KinematicState TrackKinematicStatePropagator::propagateToTheTransversePCANeutral
   AnalyticalCurvilinearJacobian prop(inPar,xPerigee,pPerigee,s);
   AlgebraicMatrix pr(6,6,0);
   pr(6,6) = 1;
-  pr.sub(1,1,prop.jacobian());
+  pr.sub(1,1,prop.jacobian_old());
   
 //transportation
   cov = cov.similarity(pr);
