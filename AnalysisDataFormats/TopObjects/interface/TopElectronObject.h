@@ -2,6 +2,7 @@
 #define TopObjects_TopElectronObject_h
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TopLepton.h"
+#include "AnalysisDataFormats/TopObjects/interface/TopParticle.h"
 
 using namespace reco;
 using namespace std;
