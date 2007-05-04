@@ -11,11 +11,10 @@
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
-#include "SimCalorimetry/CaloSimAlgos/interface/CaloVSimParameterMap.h"
+
 using namespace std;
 
 HcalDummyHitProducer::HcalDummyHitProducer(const edm::ParameterSet& ps)
-  : theParameterMap(new HcalSimParameterMap())   
 {
   energyEM = 0;
   produces<edm::PCaloHitContainer>("HcalHits");
@@ -78,8 +77,10 @@ float sample_factor(HcalDetId id)
 
 void HcalDummyHitProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup) {
   // get the appropriate gains, noises, & widths for this event
-  edm::ESHandle<HcalDbService> conditions;
-  eventSetup.get<HcalDbRecord>().get(conditions);
+  //edm::ESHandle<HcalDbService> conditions;
+  //eventSetup.get<HcalDbRecord>().get(conditions);
+  //theParameters->setDbService(conditions.product());
+
   std::auto_ptr<edm::PCaloHitContainer> result(new edm::PCaloHitContainer);
   // get the correct geometry
   edm::ESHandle<CaloGeometry> geometry;
@@ -126,40 +127,80 @@ void HcalDummyHitProducer::produce(edm::Event& e, const edm::EventSetup& eventSe
 
   for(vector<DetId>::const_iterator itr = hbCells.begin(); itr != hbCells.end(); ++itr)
     {
-      time = 8.4;
       HcalDetId barrelId(*itr);
+      //const CaloSimParameters & parameters = theParameterMap->simParameters(*itr);
+      //calib = parameters.simHitToPhotoelectrons()
+      //    * parameters.photoelectronsToAnalog()
+      //    * theParameters->fCtoGeV(*itr);
+      //time = 8.4 - parameters.timePhase(); 
       calib = sample_factor(barrelId);
+      time = 8.4;
       towerids = theTrigTowerGeometry.towerIds(barrelId);
       ncells = Tower_map.count(towerids[0]);
       ntowers = towerids.size();
       cell_energyEM = 0;
-      cell_energyHad= (energyHad*ntowers)/(ncells*calib);
+      //cell_energyHad= (energyHad*ntowers)/(ncells*calib);
+      if(barrelId.depth()==1)
+	{
+	  cell_energyHad= (energyHad*ntowers)/(calib);
+	}
+      else
+	{
+	  cell_energyHad = 0;
+	}
       PCaloHit barrelHit(barrelId.rawId(), cell_energyEM, cell_energyHad, time, 0);
       result->push_back(barrelHit);
     }
   for(vector<DetId>::const_iterator itr = heCells.begin(); itr != heCells.end(); ++itr)
     {
-      time = 13.0;
       HcalDetId endcapId(*itr);
+      //const CaloSimParameters & parameters = theParameterMap->simParameters(*itr);
+      //calib = parameters.simHitToPhotoelectrons()
+      //* parameters.photoelectronsToAnalog()
+      //* theParameters->fCtoGeV(*itr);
+      //time = 13.0 - parameters.timePhase();
       calib = sample_factor(endcapId);
+      time = 13.0;
       towerids = theTrigTowerGeometry.towerIds(endcapId);
       ncells = Tower_map.count(towerids[0]);
       ntowers = towerids.size();
       cell_energyEM =  0;
-      cell_energyHad= (energyHad*ntowers)/(ncells*calib);
+      //cell_energyHad= (energyHad*ntowers)/(ncells*calib);
+      if(endcapId.depth()==1)
+        {
+          cell_energyHad= (energyHad*ntowers)/(calib);
+        }
+      else
+        {
+          cell_energyHad = 0;
+        }
       PCaloHit endcapHit(endcapId.rawId(), cell_energyEM, cell_energyHad, time, 0);
       result->push_back(endcapHit);
     }
   for(vector<DetId>::const_iterator itr = hfCells.begin(); itr != hfCells.end(); ++itr)
     {
-      time = 37.0;
       HcalDetId forwardId(*itr);
+      //const CaloSimParameters & parameters = theParameterMap->simParameters(*itr);
+      //calib = parameters.simHitToPhotoelectrons()
+      //* parameters.photoelectronsToAnalog()
+      //* theParameters->fCtoGeV(*itr);
+      //time = 37.0 - parameters.timePhase();
       calib = sample_factor(forwardId);
+      time = 37.0;
       towerids = theTrigTowerGeometry.towerIds(forwardId);
       ncells = Tower_map.count(towerids[0]);
       ntowers = towerids.size();
       cell_energyEM = 0;
-      cell_energyHad= (energyHad*ntowers)/(ncells*calib);
+      //cell_energyHad= (energyHad*ntowers)/(ncells*calib);
+      if(forwardId.depth()==1)
+        {
+          cell_energyHad= (int)((energyHad)/(calib));
+        }
+      else
+        {
+          cell_energyHad = 0;
+        }
+
       PCaloHit forwardHit(forwardId.rawId(), cell_energyEM, cell_energyHad, time, 0);
       result->push_back(forwardHit);
     }
