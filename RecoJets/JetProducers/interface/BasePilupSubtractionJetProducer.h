@@ -43,15 +43,10 @@ namespace cms
     virtual void produce(edm::Event& e, const edm::EventSetup& c);
     /** jet type */
     std::string jetType () const {return mJetType;}
-<<<<<<< BasePilupSubtractionJetProducer.h
     
     int ieta(const reco::Candidate*);
     
     void beginJob( const edm::EventSetup& iSetup);
-=======
-    
-    void beginJob( const edm::EventSetup& iSetup);
->>>>>>> 1.3
 
     // abstract method to be set up in actual implementations
     /** run algorithm itself */
