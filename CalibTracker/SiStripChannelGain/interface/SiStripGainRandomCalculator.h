@@ -1,3 +1,5 @@
+#ifndef CalibTracker_SiStripChannelGain_SiStripGainRandomCalculator_h
+#define CalibTracker_SiStripChannelGain_SiStripGainRandomCalculator_h
 // -*- C++ -*-
 //
 // Package:    SiStripApvGainCalculator
@@ -13,7 +15,7 @@
 //
 // Original Author:  Dorian Kcira, Pierre Rodeghiero
 //         Created:  Mon Nov 20 10:04:31 CET 2006
-// $Id: SiStripApvGainCalculator.h,v 1.2 2007/02/20 16:11:16 dkcira Exp $
+// $Id: SiStripGainRandomCalculator.h,v 1.1 2007/05/02 12:46:46 gbruno Exp $
 //
 //
 
@@ -42,3 +44,4 @@ private:
 
 
 };
+#endif

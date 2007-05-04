@@ -1,5 +1,5 @@
 <use name=FWCore/Framework>
-<use name=Foundation/PluginManager>
+<use name=FWCore/PluginManager>
 <use name=FWCore/ParameterSet>
 <use name=Geometry/Records>
 <use name=Geometry/TrackerGeometryBuilder>
@@ -11,12 +11,11 @@
 <use name=root>
 <use name=clhep>
 <use name=boost>
-<flags SEAL_PLUGIN_NAME="CalibTrackerSiStripChannelGain">
 
 <export>
    <lib name=CalibTrackerSiStripChannelGain>
    <use name=FWCore/Framework>
-   <use name=Foundation/PluginManager>
+   <use name=FWCore/PluginManager>
    <use name=FWCore/ParameterSet>
 <use name=Geometry/Records>
 <use name=Geometry/TrackerGeometryBuilder>

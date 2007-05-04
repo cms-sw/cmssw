@@ -1,0 +1,5 @@
+<use name=CalibTracker/SiStripChannelGain>
+<library file="*.cc" name=CalibTrackerSiStripChannelGainPlugins>
+<flags EDM_PLUGIN=1>
+</library>
+
