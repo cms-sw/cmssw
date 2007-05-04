@@ -1,8 +1,6 @@
-<export>
-<lib name=DQMServicesDiagnostic>
-</export>
-<use name=root>
-<use name=FWCore/ParameterSet>
 <use name=FWCore/ServiceRegistry>
-<use name=Utilities/General>
-<use name=Foundation/SealBase>
+<export>
+  <use name=FWCore/ServiceRegistry>
+  <lib name=DQMServicesDiagnostic>
+</export>
+

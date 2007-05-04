@@ -1,14 +1,9 @@
+<use name=DQMServices/QualityTests>
+<use name=DQMServices/UI>
+<use name=xerces-c>
 <export>
-<lib name=DQMServicesClientConfig>
-<use name=root>
-<use name=boost>
-<use name=DQMServices/QualityTests>
-<use name=DQMServices/UI>
-<use name=xerces-c>
+  <use name=DQMServices/UI>
+  <use name=xerces-c>
+  <lib name=DQMServicesClientConfig>
 </export>
-<use name=root>
-<use name=boost>
-<use name=DQMServices/QualityTests>
-<use name=DQMServices/UI>
-<use name=xerces-c>
 
