@@ -8,6 +8,8 @@ class CSCCFEBStatusDigi;
 #include<vector>
 #include<iosfwd>
 #include<iostream>
+//#include <boost/cstdint.hpp>
+
 
 class CSCCFEBData {
  public:
@@ -30,6 +32,10 @@ class CSCCFEBData {
   void add(const CSCStripDigi &, int layer);
   /// Fill strip digis for layer with raw detid = idlayer
   /// WARNING: these digis have no comparator information.
+
+  ///faster way to get to digis
+  void digis(uint32_t idlayer,  std::vector<CSCStripDigi> & result);
+
   std::vector<CSCStripDigi> digis(unsigned idlayer) const;
   /// deprecated.  Use the above method.
   std::vector<std::vector<CSCStripDigi> > stripDigis() const;

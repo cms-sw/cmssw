@@ -104,6 +104,7 @@ CSCDCCUnpacker::~CSCDCCUnpacker()
 
 void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c)
 {
+
   //++numOfEvents;
   /// Get a handle to the FED data collection
   edm::Handle<FEDRawDataCollection> rawdata;
@@ -120,7 +121,7 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c)
   std::auto_ptr<CSCCorrelatedLCTDigiCollection> corrlctProduct(new CSCCorrelatedLCTDigiCollection);
   std::auto_ptr<CSCCFEBStatusDigiCollection> cfebStatusProduct(new CSCCFEBStatusDigiCollection);
 
-
+  for (int sandrik=0;sandrik<1000;++sandrik) {
   for (int id=FEDNumbering::getCSCFEDIds().first;
        id<=FEDNumbering::getCSCFEDIds().second; ++id)
     { //for each of our DCCs
@@ -292,12 +293,14 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c)
 			  for ( icfeb = 0; icfeb < 5; ++icfeb )
 			    {
 			      layer = theMapping.detId( endcap, station, vmecrate, dmb, tmb,icfeb,ilayer );
-		
-			      std::vector <CSCStripDigi>  stripDigis = 
-				cscData[iCSC].stripDigis(layer.rawId(), icfeb); // pass the raw cscdetid
-			      stripProduct->put(std::make_pair(stripDigis.begin(), 
-							       stripDigis.end()),layer);
-	    
+			      if (cscData[iCSC].cfebData(icfeb)) 
+				{
+				  std::vector<CSCStripDigi> stripDigis;
+				  cscData[iCSC].cfebData(icfeb)->digis(layer.rawId(),stripDigis);
+				  stripProduct->put(std::make_pair(stripDigis.begin(), 
+								   stripDigis.end()),layer);
+				}
+
 			      if (goodTMB) 
 				{
 				  std::vector <CSCComparatorDigi>  comparatorDigis =
@@ -316,7 +319,7 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c)
 	    }
 	}///end of if fed has data
     }///end of loop over DCCs
-
+  }
   // commit to the event
   e.put(wireProduct,          "MuonCSCWireDigi");
   e.put(stripProduct,         "MuonCSCStripDigi");
