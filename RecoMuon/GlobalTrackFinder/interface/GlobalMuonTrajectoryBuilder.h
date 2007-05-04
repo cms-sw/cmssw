@@ -4,8 +4,8 @@
 /** \class GlobalMuonTrajectoryBuilder
  *  class to build muon trajectory
  *
- *  $Date: 2007/04/03 21:25:50 $
- *  $Revision: 1.54 $
+ *  $Date: 2007/04/26 19:28:42 $
+ *  $Revision: 1.55 $
  *
  *  \author N. Neumeister 	 Purdue University
  *  \author C. Liu 		 Purdue University
@@ -45,7 +45,7 @@ class TrackTransformer;
 
 class GlobalMuonRSTrajectoryBuilder;
 class TrajectoryFitter;
-
+class MuonTrackingRegionBuilder;
 //class CkfTrajectoryBuilder;
 
 
@@ -144,7 +144,8 @@ class GlobalMuonTrajectoryBuilder : public MuonTrajectoryBuilder {
     TrackerSeedGenerator* theTkSeedGenerator;
     TrajectoryCleaner* theTrajectoryCleaner;
     TrackTransformer* theTrackTransformer;
-    
+    MuonTrackingRegionBuilder* theRegionBuilder;
+  
     int   theMuonHitsOption;
     NavigationDirection theDirection;
     float thePtCut;
