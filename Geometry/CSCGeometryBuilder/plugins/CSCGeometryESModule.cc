@@ -26,7 +26,7 @@ using namespace edm;
 
 CSCGeometryESModule::CSCGeometryESModule(const edm::ParameterSet & p){
 
-  setWhatProduced(this);
+  setWhatProduced(this, dependsOn(&CSCGeometryESModule::geometryCallback_) );
 
   // Choose wire geometry modelling
   // We now _require_ some wire geometry specification in the CSCOrcaSpec.xml file
@@ -72,14 +72,10 @@ CSCGeometryESModule::~CSCGeometryESModule(){}
 
 boost::shared_ptr<CSCGeometry>
 CSCGeometryESModule::produce(const MuonGeometryRecord & record) {
-  edm::ESHandle<DDCompactView> cpv;
-  record.getRecord<IdealGeometryRecord>().get(cpv);
-  edm::ESHandle<MuonDDDConstants> mdc;
-  record.getRecord<MuonNumberingRecord>().get(mdc);
-  CSCGeometryBuilderFromDDD builder;
-  _cscGeometry = boost::shared_ptr<CSCGeometry>(builder.build(&(*cpv), *mdc));
 
-  // Retrieve and apply alignments
+  //
+  // Called whenever the alignments or alignment errors change
+  //                                            
   if ( applyAlignment_ ) {
     edm::ESHandle<Alignments> alignments;
     record.getRecord<CSCAlignmentRcd>().get( alignments );
@@ -91,6 +87,23 @@ CSCGeometryESModule::produce(const MuonGeometryRecord & record) {
   }
 
   return _cscGeometry;
+
+}
+
+
+//______________________________________________________________________________
+void CSCGeometryESModule::geometryCallback_( const MuonNumberingRecord& record )
+{
+
+  //
+  // Called whenever the muon numbering (or ideal geometry) changes
+  //
+  edm::ESHandle<DDCompactView> cpv;
+  edm::ESHandle<MuonDDDConstants> mdc;
+  record.getRecord<IdealGeometryRecord>().get(cpv);
+  record.get( mdc );
+   CSCGeometryBuilderFromDDD builder;
+  _cscGeometry = boost::shared_ptr<CSCGeometry>(builder.build(&(*cpv), *mdc));
 
 }
 

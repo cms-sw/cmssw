@@ -31,6 +31,8 @@ public:
 
 private:  
 
+  /// Called when geometry description changes
+  void geometryCallback_( const MuonNumberingRecord& );
   boost::shared_ptr<CSCGeometry> _cscGeometry;
   bool applyAlignment_; // Switch to apply alignment corrections
 
