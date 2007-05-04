@@ -21,9 +21,14 @@ namespace sim {
 	 //~FieldBuilder();
 	 void readFieldParameters(DDLogicalPart theLogicalPart,
 				  const std::string& keywordField);
+         void build(G4FieldManager* fM = 0,
+                    G4PropagatorInField* fP = 0) ;
 	 void configure(const std::string& keywordField,
 			G4FieldManager * fM = 0,
 			G4PropagatorInField * fP = 0);
+	 void configureLocalFM( const std::string& volName,
+	                        G4FieldManager * fM = 0,
+	                        G4PropagatorInField * fP = 0);
 	 G4LogicalVolume * fieldTopVolume();
       private:
 	 void configureFieldManager(G4FieldManager * fM);
@@ -31,7 +36,8 @@ namespace sim {
       private:
 	 std::auto_ptr<Field> theField;
 	 G4Mag_UsualEqRhs * theFieldEquation;
-	 G4LogicalVolume * theTopVolume;
+	 G4LogicalVolume* theTopVolume;
+	 
 	 std::string keywordField;
 	 std::string fieldType;
 	 double fieldValue;
@@ -44,6 +50,7 @@ namespace sim {
 	 double maxLoopCount;
 	 double minEpsilonStep;
 	 double maxEpsilonStep;
+         edm::ParameterSet thePSet ;
    };
 }
 
