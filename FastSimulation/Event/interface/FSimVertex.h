@@ -6,10 +6,11 @@
 
 // CMSSW Headers
 #include "SimDataFormats/Vertex/interface/SimVertex.h"
+#include "FastSimulation/Event/interface/FSimTrack.h"
+#include "FastSimulation/Event/interface/FBaseSimEvent.h"
 
-
-class FBaseSimEvent;
-class FSimTrack;
+//class FBaseSimEvent;
+//class FSimTrack;
 
 /** A class that mimics SimVertex, with enhanced features.
  *  Essentially an interface to SimVertex.
@@ -24,47 +25,45 @@ public:
   FSimVertex();
   
   /// constructor from the embedded vertex index in the FBaseSimEvent
-  //  FSimVertex(int embd, FBaseSimEvent* mom);
-
-  /// constructor from the embedded vertex index in the FBaseSimEvent
   FSimVertex(const HepLorentzVector& v, int im, int id, FBaseSimEvent* mom);
 
-  /// retruns the vertex position (in cm !)
-  // SimVertices were in mm until 110_pre2
-  // Now they are in cm (finally) - no need for a special method.
-  //  inline HepLorentzVector position() const { return SimVertex::position()/10.; }
-
   /// parent track
-  const FSimTrack& parent() const; 
+  inline const FSimTrack& parent() const{ 
+    return mom_->track(parentIndex()); 
+  }
 
   /// The vector of daughter indices
-  inline const std::vector<int>& daughters() const { return daugh_; }
+  inline const std::vector<int>& daughters() const { 
+    return daugh_; 
+  }
 
   /// The number of daughters
-  inline int nDaughters() const { return daugh_.size(); }
+  inline int nDaughters() const { 
+    return daugh_.size(); 
+  }
 
   /// ith daughter
-  const FSimTrack& daughter(int i) const;
+  inline const FSimTrack& daughter(int i) const { 
+    return mom_->track(daugh_[i]); 
+  }
 
-  /// no Parent track
-  //  inline bool noParent() const { return me().noParent();}
-  
   /// no Daughters
-  inline bool  noDaughter() const { return !nDaughters(); }
-
-  /// The attached SimTrack
-  //const SimVertex& me() const;
+  inline bool  noDaughter() const { 
+    return !nDaughters(); 
+  }
 
   /// the index in FBaseSimEvent
-  inline int id() const { return id_; }
+  inline int id() const { 
+    return id_; 
+  }
 
-  inline void addDaughter(int i) { daugh_.push_back(i); }
+  inline void addDaughter(int i) { 
+    daugh_.push_back(i); 
+  }
 
  private:
 
-  //  HepMC::GenVertex* me_;
   const FBaseSimEvent* mom_;
-  //  int embd_; // The index in the SimVertex vector
   int id_;    // The index in the FSimVertex vector
   std::vector<int> daugh_; // The indices of the daughters in FSimTrack
 

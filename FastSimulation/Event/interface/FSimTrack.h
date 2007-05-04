@@ -10,12 +10,14 @@
 
 // FAMOS headers
 #include "FastSimulation/Particle/interface/RawParticle.h"
+#include "FastSimulation/Event/interface/FBaseSimEvent.h"
+#include "FastSimulation/Event/interface/FSimVertex.h"
 
 #include <map>
 #include <iostream>
 
-class FSimVertex;
-class FBaseSimEvent;
+//class FSimVertex;
+//class FBaseSimEvent;
 
 namespace HepMC {
   class GenParticle;
@@ -40,73 +42,81 @@ class FSimTrack : public SimTrack {
   virtual ~FSimTrack();
 
   /// particle info...
-  const HepPDT::ParticleData* particleInfo() const;
+  inline const HepPDT::ParticleData* particleInfo() const {
+    return mom_->theTable()->particle(HepPDT::ParticleID(type()));
+  }
   
-  /// four momentum
-  //inline HepLorentzVector momentum() const { return me().momentum(); }
-
-  /// particle type (HEP PDT convension)
-  //inline int type() const { return me().type(); }
-
   /// charge
-  float charge() const; 
+  inline float charge() const { 
+    return particleInfo()->charge();
+  }
+  
 
   /// Origin vertex
-  const FSimVertex& vertex() const;
+  inline const FSimVertex& vertex() const{ 
+    return mom_->vertex(vertIndex()); 
+  }
 
   /// end vertex
-  const FSimVertex& endVertex() const;
+  inline const FSimVertex& endVertex() const { 
+    return mom_->vertex(endv_); 
+  }
 
   /// mother
-  const FSimTrack& mother() const; 
+  inline const FSimTrack& mother() const{ 
+    return vertex().parent(); 
+  }
 
   /// Ith daughter
-  const FSimTrack& daughter(int i) const; 
+  inline const FSimTrack& daughter(int i) const { 
+    return abs(type()) != 11 ? 
+      endVertex().daughter(i) : mom_->track(daugh_[i]); 
+  }
 
   /// Number of daughters
-  int nDaughters() const; 
+  inline int nDaughters() const { 
+    return abs(type()) != 11 ? 
+      endVertex().nDaughters() : daugh_.size(); 
+  }
 
   /// Vector of daughter indices
-  const std::vector<int>& daughters() const;
-
-  /// no origin vertex...
-  //inline bool  noVertex() const { return me().noVertex(); }
+  inline const std::vector<int>& daughters() const { 
+    return abs(type()) != 11 ? 
+      endVertex().daughters() : daugh_; 
+  }
 
   /// no end vertex
-  bool  noEndVertex() const; 
+  inline bool  noEndVertex() const { 
+    return 
+      // The particle either has no end vertex index
+      endv_ == -1 || 
+      // or it's an electron that has just brem'ed, but continues its way
+      ( abs(type())==11 && 
+	endVertex().nDaughters()>0 && 
+	endVertex().daughter(endVertex().nDaughters()-1).type()==22); 
+  } 
+
 
   /// Compare the end vertex position with another position.
   bool notYetToEndVertex(const HepLorentzVector& pos) const;
 
   /// no mother particle
-  bool  noMother() const;
+  inline bool  noMother() const { 
+    return noVertex() || vertex().noParent(); 
+  }
 
   /// no daughters
-  bool  noDaughter() const;
+  inline bool  noDaughter() const { 
+    return noEndVertex() || !nDaughters(); 
+  }
 
   /// The original GenParticle
-  const HepMC::GenParticle* genParticle() const;
+  inline const HepMC::GenParticle* genParticle() const { 
+    return mom_->embdGenpart(genpartIndex()); 
+  }
    
-  /// The attached SimTrack
-  //const SimTrack& me() const;
-
-  /// The original GenParticle in the original event
-  //inline int genpartIndex() const { return me().genpartIndex(); }
-
-  /// the generator particle index
-  //  short int genpartIndex() const { return me().genpartIndex(); }
-
-  /// no generated particle
-  //  bool  noGenpart() const { return me().noGenpart();}
-
-  /// the embedded Simulated Track
-  //  const FSimTrack & me() const { return mom->embdTrack(id()); }
-
   /// the index in FBaseSimEvent and other vectors
   inline int id() const { return id_; }
-
-  /// the distance to a reconstructed track
-  //  double distFromRecTrack(const TTrack&) const; 
 
   /// The particle was propagated to the Preshower Layer1
   /// 2 : on the EndCaps; (no Barrel Preshower); no propagation possible
@@ -170,7 +180,7 @@ class FSimTrack : public SimTrack {
   //  const RawParticle& simHit(unsigned layer) const;
 
   /// Set the end vertex
-  void setEndVertex(int endv) { endv_ = endv; } 
+  inline void setEndVertex(int endv) { endv_ = endv; } 
 
   /// The particle has been propgated through the tracker
   void setPropagate();

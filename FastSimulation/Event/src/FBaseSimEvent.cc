@@ -49,10 +49,6 @@ FBaseSimEvent::FBaseSimEvent(const edm::ParameterSet& kine)
 
   // Reserve some size to avoid mutiple copies
   /* */
-  //  theSimTracks->reserve(initialSize);
-  //  theSimVertices->reserve(initialSize);
-  //  theGenParticles->reserve(initialSize);
-  //  theChargedTracks->reserve(initialSize);
   theSimTracks->resize(initialSize);
   theSimVertices->resize(initialSize);
   theGenParticles->resize(initialSize);
@@ -81,8 +77,6 @@ FBaseSimEvent::FBaseSimEvent(const edm::ParameterSet& vtx,
   random(engine)
 {
 
-  std::cout << "Constructeur de FBaseSimEvent! " << std::endl;
-
   // Initialize the vertex generator
   std::string vtxType = vtx.getParameter<std::string>("type");
   if ( vtxType == "Gaussian" ) 
@@ -100,10 +94,6 @@ FBaseSimEvent::FBaseSimEvent(const edm::ParameterSet& vtx,
 
   // Reserve some size to avoid mutiple copies
   /* */
-  //  theSimTracks->reserve(initialSize);
-  //  theSimVertices->reserve(initialSize);
-  //  theGenParticles->reserve(initialSize);
-  //  theChargedTracks->reserve(initialSize);
   theSimTracks->resize(initialSize);
   theSimVertices->resize(initialSize);
   theGenParticles->resize(initialSize);
@@ -130,7 +120,13 @@ FBaseSimEvent::FBaseSimEvent(const edm::ParameterSet& vtx,
  
 FBaseSimEvent::~FBaseSimEvent(){
 
-  clear();
+  // Clear the vectors
+  theGenParticles->clear();
+  theSimTracks->clear();
+  theSimVertices->clear();
+  theChargedTracks->clear();
+
+  // Delete 
   delete theGenParticles;
   delete theSimTracks;
   delete theSimVertices;
@@ -483,7 +479,6 @@ FBaseSimEvent::addSimTrack(const RawParticle* p, int iv, int ig) {
   if ( !myFilter->accept(p) ) return -1;
 
   // The new track index
-  //  int trackId = nTracks();
   int trackId = nSimTracks++;
   if ( nSimTracks/theTrackSize*theTrackSize == nSimTracks ) {
     theTrackSize *= 2;
@@ -502,7 +497,6 @@ FBaseSimEvent::addSimTrack(const RawParticle* p, int iv, int ig) {
   }
     
   // Some transient information for FAMOS internal use
-  //  theSimTracks->push_back(FSimTrack(p,iv,ig,trackId,this));
   (*theSimTracks)[trackId] = FSimTrack(p,iv,ig,trackId,this);
 
   return trackId;
@@ -516,7 +510,6 @@ FBaseSimEvent::addSimVertex(const HepLorentzVector& v,int im) {
   if ( !myFilter->accept(RawParticle(HepLorentzVector(),v)) ) return -1;
 
   // The number of vertices
-  //  int vertexId = nVertices();
   int vertexId = nSimVertices++;
   if ( nSimVertices/theVertexSize*theVertexSize == nSimVertices ) {
     theVertexSize *= 2;
@@ -527,7 +520,6 @@ FBaseSimEvent::addSimVertex(const HepLorentzVector& v,int im) {
   if ( im !=-1 ) track(im).setEndVertex(vertexId);
 
   // Some transient information for FAMOS internal use
-  //  theSimVertices->push_back(FSimVertex(v,im,vertexId,this));
   (*theSimVertices)[vertexId] = FSimVertex(v,im,vertexId,this);
 
   return vertexId;
@@ -545,11 +537,9 @@ FBaseSimEvent::printMCTruth(const HepMC::GenEvent& myGenEvent) {
 	  piter  = myGenEvent.particles_begin();
 	  piter != myGenEvent.particles_end(); 
 	++piter ) {
-  //  for ( int i=1; i !=myGenEvent.particles_size(); ++i ) { 
     
     HepMC::GenParticle* p = *piter;
      /* */
-     //     const std::string name = (*p)->particledata().name();
     int partId = p->pdg_id();
     std::string name;
 
@@ -616,8 +606,6 @@ FBaseSimEvent::printMCTruth(const HepMC::GenEvent& myGenEvent) {
       for ( ; firstDaughterIt != lastDaughterIt ; ++firstDaughterIt ) {
 	children.push_back(*firstDaughterIt);
       }      
-      //      const GenParticle* firstDaughter = children[0];
-      //      const GenParticle* lastDaughter = children[children.size()-1]; 
 
       std::cout << std::setw(4) << vertexId2 << " "
 		<< std::setw(6) << std::setprecision(2) << vertex2.eta() << " " 
@@ -626,8 +614,6 @@ FBaseSimEvent::printMCTruth(const HepMC::GenEvent& myGenEvent) {
 		<< std::setw(6) << std::setprecision(1) << vertex2.z() << " ";
       for ( unsigned id=0; id<children.size(); ++id )
 	std::cout << std::setw(4) << children[id]->barcode()-1 << " ";
-      //	   << std::setw(4) << firstDaughter->barcode()-1 << " " 
-      //	   << std::setw(4) << lastDaughter->barcode()-1 << " ";
     }
     std::cout << std::endl;
 
@@ -637,8 +623,6 @@ FBaseSimEvent::printMCTruth(const HepMC::GenEvent& myGenEvent) {
 
 void
 FBaseSimEvent::print() const {
-  //  for(int i=0; i<(int)genparts()->size(); ++i)
-  //    std::cout << i << " " << embdGenpart(i) << endl << endl;
 
   std::cout << "  Id  Gen Name       eta    phi     pT     E    Vtx1   " 
 	    << " x      y      z   " 
@@ -651,11 +635,6 @@ FBaseSimEvent::print() const {
 void 
 FBaseSimEvent::clear() {
 
-  // Clear the vectors
-  //  theGenParticles->clear();
-  //  theSimTracks->clear();
-  //  theSimVertices->clear();
-  //  theChargedTracks->clear();
   nSimTracks = 0;
   nSimVertices = 0;
   nGenParticles = 0;
@@ -665,7 +644,6 @@ FBaseSimEvent::clear() {
 
 void 
 FBaseSimEvent::addChargedTrack(int id) { 
-  //  theChargedTracks->push_back(id);
   (*theChargedTracks)[nChargedParticleTracks++] = id;
   if ( nChargedParticleTracks/theChargedSize*theChargedSize 
        == nChargedParticleTracks ) {
@@ -677,55 +655,26 @@ FBaseSimEvent::addChargedTrack(int id) {
 static FSimTrack oTrack;
 FSimTrack&
 FBaseSimEvent::track(int id) const { 
-  //  return  id>=0 && id<(int)theSimTracks->size() ? 
   return  id>=0 && id<(int)nSimTracks ? 
     (*theSimTracks)[id] : oTrack; }
 
 static FSimVertex oVertex;
 FSimVertex&
 FBaseSimEvent::vertex(int id) const { 
-  //  return   id>=0 && id<(int)theSimVertices->size() ? 
   return   id>=0 && id<(int)nSimVertices ? 
     (*theSimVertices)[id] : oVertex; }
 
 int
 FBaseSimEvent::chargedTrack(int id) const {
-  //  if (id>=0 && id<(int)theChargedTracks->size()) 
   if (id>=0 && id<(int)nChargedParticleTracks) 
     return (*theChargedTracks)[id]; 
   else 
     return -1;
 }
 
-unsigned int 
-FBaseSimEvent::nTracks() const {
-  //  return theSimTracks->size();
-  return nSimTracks;
-}
-
-unsigned int 
-FBaseSimEvent::nVertices() const { 
-  //  return theSimVertices->size();
-  return nSimVertices;
-}
-
-unsigned int 
-FBaseSimEvent::nGenParts() const {
-  //  return theGenParticles->size();
-  return nGenParticles;
-}
-
-unsigned int 
-FBaseSimEvent::nChargedTracks() const {
-  //  return theChargedTracks->size();
-  return nChargedParticleTracks;
-}
-
-
 static  const SimVertex zeroVertex;
 const SimVertex & 
 FBaseSimEvent::embdVertex(int i) const { 
-  //  if (i>=0 && i<(int)theSimVertices->size()) 
   if (i>=0 && i<(int)nSimVertices) 
     return (*theSimVertices)[i]; 
   else 
@@ -735,7 +684,6 @@ FBaseSimEvent::embdVertex(int i) const {
 static  const SimTrack zeroTrack;
 const SimTrack & 
 FBaseSimEvent::embdTrack(int i) const { 
-  //  if (i>=0 && i<(int)theSimTracks->size()) 
   if (i>=0 && i<(int)nSimTracks) 
     return (*theSimTracks)[i]; 
   else 
@@ -744,20 +692,9 @@ FBaseSimEvent::embdTrack(int i) const {
 
 const HepMC::GenParticle* 
 FBaseSimEvent::embdGenpart(int i) const { 
-  //  if (i>=0 && i<(int)theGenParticles->size()) 
   if (i>=0 && i<(int)nGenParticles) 
     return (*theGenParticles)[i]; 
   else 
     return 0;
 }
-
-std::vector<FSimTrack>* 
-FBaseSimEvent::tracks() const { return theSimTracks; }
-
-std::vector<FSimVertex>*
-FBaseSimEvent::vertices() const { return theSimVertices; }
-
-std::vector<HepMC::GenParticle*>* 
-FBaseSimEvent::genparts() const { return theGenParticles; }
-
 

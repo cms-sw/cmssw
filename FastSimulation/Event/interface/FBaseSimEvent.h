@@ -81,13 +81,39 @@ public:
   void addChargedTrack(int id);
 
   /// Number of tracks
-  unsigned int nTracks() const;
+  inline unsigned int nTracks() const {
+    return nSimTracks;
+  }
+
   /// Number of vertices
-  unsigned int nVertices() const;
+  inline unsigned int nVertices() const { 
+    return nSimVertices;
+  }
+
   /// Number of generator particles
-  unsigned int nGenParts() const;
+  inline unsigned int nGenParts() const {
+    return nGenParticles;
+  }
+
   /// Number of "reconstructed" charged tracks
-  unsigned int nChargedTracks() const;
+  inline unsigned int nChargedTracks() const {
+    return nChargedParticleTracks;
+  }
+
+  /// The pointer to the vector of FSimTrack's 
+  inline std::vector<FSimTrack>* tracks() const { 
+    return theSimTracks; 
+  }
+
+  /// The pointer to the vector of FSimVertex's 
+  inline std::vector<FSimVertex>* vertices() const { 
+    return theSimVertices; 
+  }
+
+  /// The pointer to the vector of GenParticle's 
+  inline std::vector<HepMC::GenParticle*>* genparts() const { 
+    return theGenParticles; 
+  }
 
   /// Return track with given Id 
   FSimTrack& track(int id) const;
@@ -103,23 +129,10 @@ public:
   /// return MC track with a given id
   const HepMC::GenParticle* embdGenpart(int i) const;
 
-  /// The pointer to the vector of FSimTrack's 
-  std::vector<FSimTrack>* tracks() const; 
-  
-  /// The pointer to the vector of FSimVertex's 
-  std::vector<FSimVertex>* vertices() const;
-
-  /// The pointer to the vector of GenParticle's 
-  std::vector<HepMC::GenParticle*>* genparts() const;
-
   /// Add a new track to the Event and to the various lists
-  //  int addSimTrack(HepMC::GenParticle* part, 
-  //		  HepMC::GenVertex* originVertex, 
-  //		  int ig=-1);
   int addSimTrack(const RawParticle* p, int iv, int ig=-1);
 
   /// Add a new vertex to the Event and to the various lists
-  //  int addSimVertex(HepMC::GenVertex* decayVertex,int im=-1);
   int addSimVertex(const CLHEP::HepLorentzVector& decayVertex,int im=-1);
 
   const KineParticleFilter& filter() const { return *myFilter; } 

@@ -127,46 +127,8 @@ public:
   bool propagateToNominalVertex(
       const HepLorentzVector& hit2=HepLorentzVector(0.,0.,0.,0.));
 
-  /// Return position (hereafter called "vertex") three-vector of particle
-  //  Hep3Vector position() const;
-  /// Return momentum four-vector of particle
-  //  HepLorentzVector momentum() const;
-
-  /// Transverse impact parameter
-  double xyImpactParameter() const;
-  /// Longitudinal impact parameter
-  double zImpactParameter() const;
-
-  /// Is the vertex inside the cylinder ? (stricly inside : true) 
-  bool           inside() const;
-  bool           inside(double rPos) const;
-  /// Is the vertex already on the cylinder surface ? 
-  bool           onSurface() const;
-  bool           onSurface(double rPos) const;
-  /// Is the vertex already on the cylinder barrel ? 
-  bool           onBarrel() const;
-  bool           onBarrel(double rPos) const;
-  /// Is the vertex already on the cylinder endcap ? 
-  bool           onEndcap() const;
-  bool           onEndcap(double rPos) const;
-  /// Is the vertex on some material ?
-  bool           onFiducial() const { return fiducial; }
-  /// Has the particle decayed while propagated ?
-  bool           hasDecayed() const { return decayed; }
-  /// Has propagation been performed and was barrel or endcap reached ?
-  int           getSuccess() const { return success;  }
-  /// Set the magnetic field
-  inline void setMagneticField(double b) {  bField=b; }
-  /// Get the magnetic field 
-  inline double getMagneticField() const {  return bField; }
-    
   /// Set the propagation characteristics (rCyl, zCyl and first loop only)
   void setPropagationConditions(double r, double z, bool firstLoop=true);
-
-  /// Set the proper decay time
-  void setProperDecayTime(double t) { properDecayTime = t; }
-
-  void increaseRCyl(double delta) {rCyl = rCyl + delta;}
 
 private:
   /// Simulated particle that is to be resp has been propagated
@@ -198,23 +160,153 @@ private:
   int propDir;
 
 public:
+
+  /// Set the proper decay time
+  inline void setProperDecayTime(double t) { properDecayTime = t; }
+
+  /// Just an internal trick
+  inline void increaseRCyl(double delta) {rCyl = rCyl + delta;}
+
+  /// Transverse impact parameter
+  inline double xyImpactParameter() const {
+    // Transverse impact parameter
+    return ( charge() != 0.0 && bField != 0.0 ) ? 
+      helixCentreDistToAxis() - fabs( helixRadius() ) :
+      fabs( px() * y() - py() * x() ) / perp(); 
+  }
+
+  /// Longitudinal impact parameter
+  inline double zImpactParameter() const {
+    // Longitudinal impact parameter
+    return vertex().z() - vertex().perp() * pz() / perp();
+  }
+
   /// The helix Radius
-  double        helixRadius() const;
-  double        helixRadius(double pT) const;
+  inline double helixRadius() const { 
+    // The helix Radius
+    //
+    // The helix' Radius sign accounts for the orientation of the magnetic field 
+    // (+ = along z axis) and the sign of the electric charge of the particle. 
+    // It signs the rotation of the (charged) particle around the z axis: 
+    // Positive means anti-clockwise, negative means clockwise rotation.
+    //
+    // The radius is returned in cm to match the units in RawParticle.
+    return charge() == 0 ? 0.0 : - perp() / ( c_light * 1e-5 * bField * charge() );
+  }
+
+  inline double helixRadius(double pT) const { 
+    // a faster version of helixRadius, once perp() has been computed
+    return charge() == 0 ? 0.0 : - pT / ( c_light * 1e-5 * bField * charge() );
+  }
+
   /// The azimuth of the momentum at the vertex
-  double        helixStartPhi() const;
+  inline double helixStartPhi() const { 
+    // The azimuth of the momentum at the vertex
+    return px() == 0.0 && py() == 0.0 ? 0.0 : std::atan2(py(),px());
+  }
+  
   /// The x coordinate of the helix axis
-  double        helixCentreX() const;
-  double        helixCentreX(double radius, double phi) const;
+  inline double helixCentreX() const { 
+    // The x coordinate of the helix axis
+    return x() - helixRadius() * std::sin ( helixStartPhi() );
+  }
+
+  inline double helixCentreX(double radius, double phi) const { 
+    // Fast version of helixCentreX()
+    return x() - radius * std::sin (phi);
+  }
+
   /// The y coordinate of the helix axis
-  double        helixCentreY() const;
-  double        helixCentreY(double radius, double phi) const;
+  inline double helixCentreY() const { 
+    // The y coordinate of the helix axis
+    return y() + helixRadius() * std::cos ( helixStartPhi() );
+}
+
+  inline double helixCentreY(double radius, double phi) const { 
+    // Fast version of helixCentreX()
+    return y() + radius * std::cos (phi);
+  }
+
   /// The distance between the cylinder and the helix axes
-  double        helixCentreDistToAxis() const;
-  double        helixCentreDistToAxis(double xC, double yC) const;
+  inline double helixCentreDistToAxis() const { 
+    // The distance between the cylinder and the helix axes
+    double xC = helixCentreX();
+    double yC = helixCentreY();
+    return std::sqrt( xC*xC + yC*yC );
+  }
+
+  inline double helixCentreDistToAxis(double xC, double yC) const { 
+    // Faster version of helixCentreDistToAxis
+    //  double xC = helixCentreX();
+    //  double yC = helixCentreY();
+    return std::sqrt( xC*xC + yC*yC );
+  }
+
   /// The azimuth if the vector joining the cylinder and the helix axes
-  double        helixCentrePhi() const;
-  double        helixCentrePhi(double xC, double yC) const;
+  inline double helixCentrePhi() const { 
+    // The azimuth if the vector joining the cylinder and the helix axes
+    double xC = helixCentreX();
+    double yC = helixCentreY();
+    return xC == 0.0 && yC == 0.0 ? 0.0 : std::atan2(yC,xC);
+  }
+  
+  inline double helixCentrePhi(double xC, double yC) const { 
+    // Faster version of helixCentrePhi() 
+    //  double xC = helixCentreX();
+    //  double yC = helixCentreY();
+    return xC == 0.0 && yC == 0.0 ? 0.0 : std::atan2(yC,xC);
+  }
+
+  /// Is the vertex inside the cylinder ? (stricly inside : true) 
+  inline bool inside() const {
+    return (vertex().vect().perp()<rCyl-0.00001 && fabs(z())<zCyl-0.00001);}
+
+  inline bool inside(double rPos) const {
+    return (rPos<rCyl-0.00001 && fabs(z())<zCyl-0.00001);}
+
+
+  /// Is the vertex already on the cylinder surface ? 
+  inline bool onSurface() const {
+    return ( onBarrel() || onEndcap() ); 
+  }
+
+  inline bool onSurface(double rPos) const {
+    return ( onBarrel(rPos) || onEndcap(rPos) ); 
+  }
+
+  /// Is the vertex already on the cylinder barrel ? 
+  inline bool onBarrel() const {
+    return ( fabs(vertex().vect().perp()-rCyl) < 0.00001 && fabs(z()) <= zCyl );
+  }
+
+  inline bool onBarrel(double rPos) const {
+    return ( fabs(rPos-rCyl) < 0.00001 && fabs(z()) <= zCyl );
+  }
+
+  /// Is the vertex already on the cylinder endcap ? 
+  inline bool onEndcap() const {
+    return ( fabs(fabs(z())-zCyl) < 0.00001 && vertex().vect().perp() <= rCyl ); 
+  }
+  
+  inline bool onEndcap(double rPos) const {
+    return ( fabs(fabs(z())-zCyl) < 0.00001 && rPos <= rCyl ); 
+  }
+
+  /// Is the vertex on some material ?
+  inline bool onFiducial() const { return fiducial; }
+
+  /// Has the particle decayed while propagated ?
+  inline bool hasDecayed() const { return decayed; }
+
+  /// Has propagation been performed and was barrel or endcap reached ?
+  inline int  getSuccess() const { return success;  }
+
+  /// Set the magnetic field
+  inline void setMagneticField(double b) {  bField=b; }
+
+  /// Get the magnetic field 
+  inline double getMagneticField() const {  return bField; }
+    
 };
 
 #endif
