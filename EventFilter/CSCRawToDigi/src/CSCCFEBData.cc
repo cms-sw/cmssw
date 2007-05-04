@@ -230,7 +230,7 @@ std::vector<CSCStripDigi> CSCCFEBData::digis(unsigned idlayer) const
 	      errorfl[itime] = word->errorstat;
 	    }
 	}
-      if (sca.size()==0) 
+      if (!sca.empty()) 
 	{
 	  edm::LogError("CSCCFEBData") << "ADC counts are empty - CFEB Data Corrupt!";
 	  break;
