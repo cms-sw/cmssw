@@ -11,7 +11,7 @@ template<typename C>
 class MCCandMatcher : public CandMatcherBase<C> {
 public:
   /// constructor
-  explicit MCCandMatcher( const typename CandMatcherBase<C>::map_type & map );
+  explicit MCCandMatcher( const typename CandMatcherBase<C>::map_vector & maps );
   /// destructor
   virtual ~MCCandMatcher();
 private:
@@ -23,9 +23,9 @@ private:
 #include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
 
 template<typename C>
-MCCandMatcher<C>::MCCandMatcher( const typename CandMatcherBase<C>::map_type & map ) :
-  CandMatcherBase<C>( map ) {
-  CandMatcherBase<C>::initMaps();
+MCCandMatcher<C>::MCCandMatcher( const typename CandMatcherBase<C>::map_vector & maps ) :
+  CandMatcherBase<C>( maps ) {
+  CandMatcherBase<C>::initMaps( maps );
 }
 
 template<typename C>
