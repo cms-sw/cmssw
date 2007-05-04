@@ -41,10 +41,10 @@ AlignmentTrackSelector::AlignmentTrackSelector(const edm::ParameterSet & cfg) :
 	  << "apply multiplicity filter N>= " << minMultiplicity << "and N<= " << maxMultiplicity;
 
   edm::ParameterSet minHitsPerSubdet = conf_.getParameter<edm::ParameterSet>( "minHitsPerSubDet" );
-  minHitsinTIB = minHitsPerSubdet.getUntrackedParameter<int>( "inTIB" , 0 );
-  minHitsinTOB = minHitsPerSubdet.getUntrackedParameter<int>( "inTOB" , 0 );
-  minHitsinTID = minHitsPerSubdet.getUntrackedParameter<int>( "inTID" , 0 );
-  minHitsinTEC = minHitsPerSubdet.getUntrackedParameter<int>( "inTEC" , 0 );
+  minHitsinTIB = minHitsPerSubdet.getParameter<int>( "inTIB" );
+  minHitsinTOB = minHitsPerSubdet.getParameter<int>( "inTOB" );
+  minHitsinTID = minHitsPerSubdet.getParameter<int>( "inTID" );
+  minHitsinTEC = minHitsPerSubdet.getParameter<int>( "inTEC" );
   
   edm::LogInfo("AlignmentTrackSelector") 
     << "Minimum number of hits in TIB/TID/TOB/TEC = " << minHitsinTIB << "/" << minHitsinTID << "/" << minHitsinTOB << "/" << minHitsinTEC;
